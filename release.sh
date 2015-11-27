@@ -46,9 +46,9 @@ function f_execute_dropold() {
 	echo drop old release ...
 
 	# drop release if any
-	local F_CHECK=`svn info $P_MASTERAUTH $P_SVNRELPATH 2>&1 | grep "Not a valid URL"`
+	local F_CHECK=`svn info $P_MASTERAUTH $P_SVNRELPATH > /dev/null 2>&1; echo $?`
 
-	if [ "$F_CHECK" = "" ]; then
+	if [ "$F_CHECK" = "0" ]; then
 		svn delete -m "drop old release version" $P_MASTERAUTH $P_SVNRELPATH
 		F_CHECK=$?
 		if [ "$F_CHECK" != "0" ]; then
@@ -59,9 +59,9 @@ function f_execute_dropold() {
 
 	# drop tag if to be set
 	if [ "$P_TAG" = "" ]; then
-		F_CHECK=`svn info $P_MASTERAUTH $P_SVNTAGPATH 2>&1 | grep "Not a valid URL"`
+		F_CHECK=`svn info $P_MASTERAUTH $P_SVNTAGPATH > /dev/null 2>&1; echo $?`
 
-		if [ "$F_CHECK" = "" ]; then
+		if [ "$F_CHECK" = "0" ]; then
 			# drop tag
 			svn delete -m "drop old release version" $P_MASTERAUTH $P_SVNTAGPATH
 			F_CHECK=$?
@@ -101,18 +101,18 @@ function f_execute_all() {
 
 	# check release
 	echo check release $P_RELEASE exists ...
-	local F_CHECK=`svn info $P_MASTERAUTH $F_SVNRELPATH 2>&1 | grep "Not a valid URL"`
-	if [ "$F_CHECK" = "" ]; then
+	local F_CHECK=`svn info $P_MASTERAUTH $F_SVNRELPATH > /dev/null 2>&1; echo $?`
+	if [ "$F_CHECK" = "0" ]; then
 		echo "release.sh: release $P_RELEASE already exists. Exiting"
 		exit 1
 	fi
 
 	# check tag exists
 	echo check tag $F_TAG exists ...
-	F_CHECK=`svn info $P_MASTERAUTH $F_TAGPATH 2>&1 | grep "Not a valid URL"`
+	F_CHECK=`svn info $P_MASTERAUTH $F_TAGPATH > /dev/null 2>&1; echo $?`
 
 	if [ "$P_TAG" = "" ]; then
-		if [ "$F_CHECK" = "" ]; then
+		if [ "$F_CHECK" = "0" ]; then
 			echo "release.sh: tag $F_TAG already exists. Exiting"
 			exit 1
 		fi
@@ -126,7 +126,7 @@ function f_execute_all() {
 			exit 1
 		fi
 	else
-		if [ "$F_CHECK" != "" ]; then
+		if [ "$F_CHECK" != "0" ]; then
 			echo "release.sh: tag $F_TAG does not exist. Exiting"
 			exit 1
 		fi
