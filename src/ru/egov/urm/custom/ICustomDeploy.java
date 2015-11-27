@@ -1,0 +1,11 @@
+package ru.egov.urm.custom;
+
+import org.w3c.dom.Node;
+
+import ru.egov.urm.meta.MetaDistrBinaryItem;
+import ru.egov.urm.run.ActionBase;
+
+public interface ICustomDeploy {
+
+	public void parseDistItem( ActionBase action , MetaDistrBinaryItem item , Node node ) throws Exception;
+}

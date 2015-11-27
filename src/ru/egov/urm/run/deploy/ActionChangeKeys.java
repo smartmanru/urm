@@ -1,0 +1,222 @@
+package ru.egov.urm.run.deploy;
+
+import ru.egov.urm.Common;
+import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.run.ActionScopeSet;
+
+public class ActionChangeKeys extends ActionBase {
+
+	String cmd;
+
+	String S_AUTHFILE = ".ssh/authorized_keys";
+	
+	public ActionChangeKeys( ActionBase action , String stream , String cmd ) {
+		super( action , stream );
+		
+		this.cmd = cmd;
+	}
+
+	@Override protected boolean executeAccount( ActionScopeSet set , String hostLogin ) throws Exception {
+		String F_NEWKEY = meta.env.KEYNAME;
+		String F_OLDKEY = F_NEWKEY;
+
+		if( !options.OPT_NEWKEY.isEmpty() )
+			F_NEWKEY = options.OPT_NEWKEY;
+		if( !context.KEYNAME.isEmpty() )
+			F_OLDKEY = context.KEYNAME;
+		
+		String P_KEYFILENEXT = F_NEWKEY;
+		String P_KEYACCESS = F_OLDKEY;
+
+		if( P_KEYFILENEXT.isEmpty() )
+			P_KEYFILENEXT = "~/.ssh/id_dsa";
+	
+		// replace with public key data
+		String P_KEYFILENEXTPUB;
+		String P_KEYFILENEXTPRV; 
+		if( !P_KEYFILENEXT.endsWith( ".pub" ) ) {
+			P_KEYFILENEXTPUB = P_KEYFILENEXT + ".pub";
+			P_KEYFILENEXTPRV = P_KEYFILENEXT;
+		}
+		else {
+			P_KEYFILENEXTPUB = P_KEYFILENEXT;
+			P_KEYFILENEXTPRV = Common.getPartBeforeLast( P_KEYACCESS , ".pub" );
+		}
+
+		if( !session.checkFileExists( this , P_KEYFILENEXTPUB ) )
+			exitAction( "cannot find public key file " + P_KEYFILENEXTPUB );
+	
+		boolean S_HASNEXTPRIVATEKEY = false;
+		if( !session.checkFileExists( this , P_KEYFILENEXTPRV ) )
+			S_HASNEXTPRIVATEKEY = true;
+		
+		// access using private key
+		String F_ACCESSOPTION = "";
+		String F_ACCESSMSG = "";
+		if( !P_KEYACCESS.isEmpty() ) {
+			if( P_KEYACCESS.endsWith( ".pub" ) )
+				P_KEYACCESS = Common.getPartBeforeLast( P_KEYACCESS , ".pub" );
+		
+			if( !session.checkFileExists( this , P_KEYACCESS ) )
+				exitAction( "invalid private key file " + P_KEYACCESS );
+
+			F_ACCESSOPTION = "-i " + P_KEYACCESS;
+			F_ACCESSMSG = " using access key " + P_KEYACCESS;
+		}
+
+		String F_KEYPUB = session.getFileContentAsString( this , P_KEYFILENEXTPUB );
+		String F_KEYOWNER = Common.getListItem( F_KEYPUB , " " , 2 );
+		String F_KEYDATA = session.getFileContentAsString( this , P_KEYFILENEXTPUB );
+
+		// check new key is already placed and access using old key is not avalable
+		String F_HOSTUSER = Common.getAccountUser( hostLogin );
+		String F_TARGETHOSTLOGIN = hostLogin;
+		if( F_HOSTUSER.equals( "root" ) == false && options.OPT_SUDO ) {
+			String F_HOSTNAME = Common.getAccountHost( hostLogin );
+			F_TARGETHOSTLOGIN = Common.getRootAccount( F_HOSTNAME );
+		}
+			
+		if( !cmd.equals( "delete" ) ) {
+			if( !tryConnect( F_TARGETHOSTLOGIN , F_ACCESSOPTION ) ) {
+				if( S_HASNEXTPRIVATEKEY ) {
+					String tryOption = "-i " + P_KEYFILENEXTPRV;
+					if( tryConnect( F_TARGETHOSTLOGIN , tryOption ) ) {
+						F_ACCESSOPTION = tryOption;
+						F_ACCESSMSG = " using access key " + P_KEYFILENEXTPRV;
+					}
+				}
+			}
+		}
+
+		String F_SETUPAUTH;
+		String F_BEHALFHOSTLOGIN = hostLogin;
+		if( F_HOSTUSER.equals( "root" ) == false && options.OPT_ROOTUSER ) {
+			String F_HOSTNAME = Common.getAccountHost( hostLogin );
+			F_BEHALFHOSTLOGIN = Common.getRootAccount( F_HOSTNAME );
+
+			if( !checkHostUser( F_BEHALFHOSTLOGIN , F_ACCESSOPTION , F_HOSTUSER ) )
+				exitAction( "unknown hostuser=" + F_HOSTUSER );
+
+			// execute key operation under user on behalf of host user
+			F_SETUPAUTH = getCreateSshOnBehalf( F_HOSTUSER ); 
+		}
+		else
+		if( F_HOSTUSER.equals( "root" ) == false && options.OPT_SUDO ) {
+			F_SETUPAUTH = getCreateSshOnSudo( F_HOSTUSER ); 
+		}
+		else
+			F_SETUPAUTH = getCreateSshOwn(); 
+
+		if( cmd.equals( "change" ) || cmd.equals( "add" ) ) {
+			log( F_BEHALFHOSTLOGIN + ": change key to " + P_KEYFILENEXTPUB + " (" + F_KEYOWNER + 
+				") on " + hostLogin + F_ACCESSMSG + " ..." );
+			if( !replaceKey( F_BEHALFHOSTLOGIN , F_ACCESSOPTION , F_SETUPAUTH , F_KEYOWNER , F_KEYDATA ) )
+				exitAction( "error executing key replacement" );
+		}
+		else
+		if( cmd.equals( "set" ) ) {
+			log( F_BEHALFHOSTLOGIN + ": set the only key to " + P_KEYFILENEXTPUB + " (" + F_KEYOWNER + 
+					") on " + hostLogin + F_ACCESSMSG + " ..." );
+			if( !setOnlyKey( F_BEHALFHOSTLOGIN , F_ACCESSOPTION , F_SETUPAUTH , F_KEYDATA ) )
+				exitAction( "error executing key set. Exiting" );
+		}
+		else
+		if( cmd.equals( "delete" ) ) {
+			log( F_BEHALFHOSTLOGIN + ": delete key " + P_KEYFILENEXTPUB + " (" + F_KEYOWNER + ") on " + 
+					hostLogin + F_ACCESSMSG + " ..." );
+			if( !deleteKey( F_BEHALFHOSTLOGIN , F_ACCESSOPTION , F_SETUPAUTH , F_KEYOWNER ) )
+				exitAction( "error executing key delete" );
+		}
+
+		if( cmd.equals( "change" ) || cmd.equals( "set" ) ) {
+			// check - if there is next key
+			if( S_HASNEXTPRIVATEKEY ) {
+				if( !tryConnect( F_TARGETHOSTLOGIN , "-i " + P_KEYFILENEXTPRV ) )
+					exitAction( "error executing new key check. Exiting" );
+				
+				log( hostLogin + ": new key successfully verified." );
+			}
+		}
+		
+		return( true );
+	}
+
+	private boolean tryConnect( String hostLogin , String ACCESSOPTION ) throws Exception {
+		String F_CHECK = session.customGetValueNoCheck( this , "ssh -n " + ACCESSOPTION + 
+				" -o PasswordAuthentication=no " + hostLogin + " " + Common.getQuoted( "echo ok" ) );
+		if( F_CHECK.equals( "ok" ) )
+			return( true );
+		return( false );
+	}
+
+	private boolean checkHostUser( String hostLogin , String ACCESSOPTION , String user ) throws Exception {
+		int status = session.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + hostLogin + " " +
+				Common.getQuoted( "cd ~" + user ) );
+		if( status != 0 )
+			return( false );
+		return( true );
+	}
+
+	private String getCreateSshOnBehalf( String HOSTUSER ) throws Exception {
+		return( "cd ~" + HOSTUSER + "; if [ ! -f " + S_AUTHFILE + 
+				" ]; then mkdir -p .ssh; chmod 700 .ssh; echo \"\" > " + S_AUTHFILE + 
+				"; chmod 600 " + S_AUTHFILE + "; chown " + HOSTUSER + ": .ssh " + S_AUTHFILE + "; fi" );
+	}
+	
+	private String getCreateSshOnSudo( String HOSTUSER ) throws Exception {
+		return( "if sudo bash -c '[[ ! -f ~root/" + S_AUTHFILE + 
+				" ]]'; then sudo mkdir -p ~root/.ssh; sudo chmod 700 ~root/.ssh; sudo touch ~root/" + S_AUTHFILE + 
+				"; sudo chmod 600 ~root/" + S_AUTHFILE + "; fi" );
+	}
+	
+	private String getCreateSshOwn() throws Exception {
+		return( "if [ ! -f " + S_AUTHFILE + " ]; then mkdir -p .ssh; chmod 700 .ssh; echo \"\" > " + 
+			S_AUTHFILE + "; chmod 600 " + S_AUTHFILE + "; fi" );
+	}
+
+	private boolean replaceKey( String HOSTLOGIN , String ACCESSOPTION , String SETUPAUTH , String KEYOWNER , String KEYDATA ) throws Exception {
+		if( options.OPT_SUDO )
+			exit( "unsupported with sudo" );
+		
+		session.setTimeoutUnlimited( this );
+		int status = session.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + HOSTLOGIN + " " + 
+			Common.getQuoted( SETUPAUTH + "; cat " + S_AUTHFILE + 
+				" | grep -v " + KEYOWNER + "\\$ > " + S_AUTHFILE + ".2; echo " + Common.getQuoted( KEYDATA ) + 
+				" >> " + S_AUTHFILE + ".2; cp " + S_AUTHFILE + ".2 " + S_AUTHFILE + 
+				"; rm -rf " + S_AUTHFILE + ".2;" ) );
+		if( status != 0 )
+			return( false );
+		return( true );
+	}
+
+	private boolean setOnlyKey( String HOSTLOGIN , String ACCESSOPTION , String SETUPAUTH , String KEYDATA ) throws Exception {
+		int status;
+		
+		session.setTimeoutUnlimited( this );
+		if( options.OPT_SUDO ) {
+			status = session.customGetStatus( this , "ssh -n -t -t " + ACCESSOPTION + " " + HOSTLOGIN + " " + 
+				Common.getQuoted( SETUPAUTH + "; echo " + Common.getQuoted( KEYDATA ) + " | sudo tee ~root/" + S_AUTHFILE ) );
+		}
+		else {
+			status = session.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + HOSTLOGIN + " " + 
+					Common.getQuoted( SETUPAUTH + "; echo " + Common.getQuoted( KEYDATA ) + " > " + S_AUTHFILE ) );
+		}
+		
+		if( status != 0 )
+			return( false );
+		return( true );
+	}
+
+	private boolean deleteKey( String HOSTLOGIN , String ACCESSOPTION , String SETUPAUTH , String KEYOWNER ) throws Exception {
+		if( options.OPT_SUDO )
+			exit( "unsupported with sudo" );
+		
+		int status = session.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + HOSTLOGIN + " " +
+		Common.getQuoted( SETUPAUTH + "; cat " + S_AUTHFILE + " | grep -v " + KEYOWNER + "\\$ > " +
+			S_AUTHFILE + ".2; cp " + S_AUTHFILE + ".2 " + S_AUTHFILE + "; rm -rf " + S_AUTHFILE + ".2;" ) );
+		if( status != 0 )
+			return( false );
+		return( true );
+	}
+	
+}

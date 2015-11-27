@@ -1,0 +1,148 @@
+<!--
+******************************************************************************
+*
+* FILE:        $Id: build.xml
+*
+* AUTHOR:      VS
+*
+*    mkdirs        - Create temporary build/release directory structure
+*    package       - build release & tar up
+*    release       - clean & package
+*
+*    clean         - independent target to remove temp build dirs
+*
+*******************************************************************************
+-->
+
+<!--========================================================================
+    =  Define Project to compile
+    ========================================================================-->
+
+<project name     ="urm"
+     default  ="release"
+     basedir  ="."  >
+
+  <!--=======================================================================
+      =  Define Local Variables & Common Classpath
+      =======================================================================-->
+
+  <property name="common.jars"                 value="${basedir}/master/lib"/>
+
+  <property name="build"                       value="${basedir}/antbuild"/>
+  <property name="javaTarget"                  value="1.7"/>
+  <property name="javaSource"                  value="1.7"/>
+
+  <property name="runSource"                   value="src"/>
+  <property name="runSourceMessenger"          value="messenger"/>
+  <property name="runSourcePlugins"            value="plugins"/>
+  <property name="runClasses"                  value="${build}"/>
+
+  <path id="classpath">
+	<pathelement path="${classpath}" />
+  </path>
+
+  <path id="classpathMessenger">
+	<pathelement path="${classpath}" />
+        <fileset dir="${common.jars}">
+                  <include name="*.jar" />
+        </fileset>
+  </path>
+
+  <target name="timeStamp">
+    <tstamp/>
+  </target>
+
+  <property name="build.dir" value="${build}"/>
+  <property name="javac.source" value="${runSource}"/>
+
+  <!--=======================================================================
+      =  Create any necessary build dirs
+      =======================================================================-->
+
+  <target name="mkdirs"   depends="timeStamp">
+    <mkdir dir="${build}"/>
+    <mkdir dir="${runClasses}"/>
+  </target>
+
+  <!--=======================================================================
+      =  Compile Target - TestSuite java code using default SDK
+      =======================================================================-->
+
+  <property name="project.name" value="urm"/>
+  <target name="runCompile" depends="mkdirs">
+		<javac 	includeantruntime = "false"
+			srcdir		="${runSource}"
+			destdir		="${runClasses}" 
+			includes	="**/*.java"
+            		target		="${javaTarget}"
+            		source		="${javaSource}"
+			debug		="on" 
+			debuglevel	="lines,vars,source">
+			<classpath refid="classpath" />
+		</javac>
+		<javac 	includeantruntime = "false"
+			srcdir		="${runSourcePlugins}"
+			destdir		="${runClasses}" 
+			includes	="**/*.java"
+            		target		="${javaTarget}"
+            		source		="${javaSource}"
+			debug		="on" 
+			debuglevel	="lines,vars,source">
+			<classpath refid="classpath" />
+		</javac>
+		<javac 	includeantruntime = "false"
+			srcdir		="${runSourceMessenger}"
+			destdir		="${runClasses}" 
+			includes	="**/*.java"
+            		target		="${javaTarget}"
+            		source		="${javaSource}"
+			debug		="on" 
+			debuglevel	="lines,vars,source">
+			<classpath refid="classpathMessenger" />
+		</javac>
+  </target>
+
+  <!--=======================================================================
+      =  Package server in srv.jar
+      =======================================================================-->
+
+    <target name="runJar" depends="runCompile">
+	<jar jarfile="${build.dir}/urm.jar" basedir="${runClasses}" includes="ru/egov/urm/**/*.class"/>
+    </target>
+
+    <target name="package" depends="runJar">
+
+    	<copy todir="master/bin" >
+        	<fileset dir="${build.dir}"     includes="*.jar" />
+    	</copy>
+
+    </target>
+
+  <!--=======================================================================
+      =  Release Target - Builds everything
+      =======================================================================-->
+
+  <target name="release" depends="clean,
+                  mkdirs,
+                  runJar,
+                  package">
+  </target>
+
+  <!--=======================================================================
+      =  Clean Target - Remove Build Directories
+      =======================================================================-->
+
+  <target name="clean">
+    <delete dir ="${build}"         />
+  </target>
+
+  <target name="cleanCompile">
+    <delete dir="${runClasses}"/>
+    <antcall target="runCompile"/>
+  </target>
+ 
+    <tstamp>
+    	<format property="TODAY_UK" pattern="MMM-yyyy" locale="en"/>
+    </tstamp>
+    
+</project>
