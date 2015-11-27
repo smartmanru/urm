@@ -49,7 +49,7 @@ function f_execute_dropold() {
 	local F_CHECK=`svn info $P_MASTERAUTH $P_SVNRELPATH 2>&1 | grep "Not a valid URL"`
 
 	if [ "$F_CHECK" = "" ]; then
-		svn delete -m "drop old release version" $P_MASTERAUTH $P_SVNRELPATH
+echo		svn delete -m "drop old release version" $P_MASTERAUTH $P_SVNRELPATH
 		F_CHECK=$?
 		if [ "$F_CHECK" != "0" ]; then
 			echo "release.sh: unable to delete $P_SVNRELPATH. Exiting"
@@ -63,7 +63,7 @@ function f_execute_dropold() {
 
 		if [ "$F_CHECK" = "" ]; then
 			# drop tag
-			svn delete -m "drop old release version" $P_MASTERAUTH $P_SVNTAGPATH
+echo			svn delete -m "drop old release version" $P_MASTERAUTH $P_SVNTAGPATH
 			F_CHECK=$?
 			if [ "$F_CHECK" != "0" ]; then
 				echo "release.sh: unable to delete $P_SVNTAGPATH. Exiting"
@@ -119,7 +119,7 @@ function f_execute_all() {
 
 		echo create tag $F_TAG ...
 		local F_MASTER_PATH=$F_CURRENT_BRANCH
-		svn copy $P_MASTERAUTH $F_MASTER_PATH $F_TAGPATH -m "release $P_RELEASE" > /dev/null
+echo		svn copy $P_MASTERAUTH $F_MASTER_PATH $F_TAGPATH -m "release $P_RELEASE" > /dev/null
 		F_CHECK=$?
 		if [ "$F_CHECK" != "0" ]; then
 			echo "release.sh: unable to create tag $F_TAGPATH. Exiting"
@@ -131,7 +131,7 @@ function f_execute_all() {
 			exit 1
 		fi
 	fi
-
+exit 1
 	# export tag
 	local F_TMPDIRNAME=reltmp
 	rm -rf $F_TMPDIRNAME
