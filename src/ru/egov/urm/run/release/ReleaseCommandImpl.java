@@ -49,6 +49,7 @@ public class ReleaseCommandImpl {
 		}
 
 		dist.saveReleaseXml( action );
+		dist.createDeliveryFolders( action );
 		dist.closeChange( action );
 		
 		action.log( "scope (" + scope.getScopeInfo( action ) + ") - added to release" );
