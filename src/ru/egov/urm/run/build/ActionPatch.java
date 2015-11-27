@@ -175,7 +175,7 @@ public class ActionPatch extends ActionBase {
 				exit( "unable to find project/properties in pom.xml " );
 			
 			String VAR = MAIN_POM_VER.substring( 2 , MAIN_POM_VER.length() - 1 );
-			MAIN_POM_VER = ConfReader.getRequiredPropertyValue( this , node , VAR );
+			MAIN_POM_VER = ConfReader.xmlGetPathNodeText( this , node , VAR );
 		}
 
 		if( !MAIN_POM_VER.equals( APPVERSION ) ) {
