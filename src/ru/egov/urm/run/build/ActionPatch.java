@@ -1,6 +1,10 @@
 package ru.egov.urm.run.build;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
 import ru.egov.urm.Common;
+import ru.egov.urm.ConfReader;
 import ru.egov.urm.meta.MetaSourceProject;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScopeTarget;
@@ -160,14 +164,17 @@ public class ActionPatch extends ActionBase {
 			return( true );
 		
 		// check pom version
-		String MAIN_POM_VER = session.customGetValue( this , "cat " + PATCHFOLDER.folderPath + "/pom.xml | sed " + Common.getQuoted( "s/xmlns/ignore/g;s/xsi://g;s/:xsi/ignore/g" ) + 
-				" | xmlstarlet sel -t -m " + Common.getQuoted( "project/version" ) + " -v ." );
+		Document file = ConfReader.readXmlFile( this , PATCHFOLDER.getFilePath( this , "pom.xml" ) );
+		String MAIN_POM_VER = ConfReader.xmlGetPathNodeText( this , file , "project/version" );
 
 		// check if property
 		if( MAIN_POM_VER.startsWith( "${" ) ) {
+			Node node = ConfReader.xmlGetPathNode( this , file , "project/properties" );
+			if( node == null )
+				exit( "unable to find project/properties in pom.xml " );
+			
 			String VAR = MAIN_POM_VER.substring( 2 , MAIN_POM_VER.length() - 1 );
-			MAIN_POM_VER = session.customGetValue( this , "cat " + PATCHFOLDER.folderPath + "/pom.xml | sed " + Common.getQuoted( "s/xmlns/ignore/g;s/xsi://g;s/:xsi/ignore/g" ) + 
-					" | xmlstarlet sel -t -m " + Common.getQuoted( "project/properties/" + VAR ) + " -v ." );
+			MAIN_POM_VER = ConfReader.getRequiredPropertyValue( this , node , VAR );
 		}
 
 		if( !MAIN_POM_VER.equals( APPVERSION ) ) {
