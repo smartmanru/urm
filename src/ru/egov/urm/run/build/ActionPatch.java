@@ -240,7 +240,7 @@ public class ActionPatch extends ActionBase {
 		session.export( this , "M2_HOME" , meta.product.CONFIG_BUILDBASE + "/" + BUILD_MAVEN_VERSION );
 		session.export( this , "M2" , "$M2_HOME/bin" );
 		session.export( this , "PATH" , "$M2:$PATH" );
-		session.export( this , "MAVEN_OPTS" , Common.getQuoted( "-Xmx1g -XX:MaxPermSize=300m -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );
+		session.export( this , "MAVEN_OPTS" , Common.getQuoted( "-XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );
 
 		// execute maven
 		session.cd( this , PATCHFOLDER.folderPath );
