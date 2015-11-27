@@ -92,9 +92,11 @@ public class ActionPatch extends ActionBase {
 		}
 
 		// check source code
-		if( !patchCheckSourceCode( CODEPATH , sourceProject , APPVERSION ) ) {
-			log( "patch: maven build skipped - source code invalid (" + PATCHPATH.folderPath + ". Exiting" );
-			return( false );
+		if( options.OPT_CHECK ) {
+			if( !patchCheckSourceCode( CODEPATH , sourceProject , APPVERSION ) ) {
+				log( "patch: maven build skipped - source code invalid (" + PATCHPATH.folderPath + ". Exiting" );
+				return( false );
+			}
 		}
 
 		// build
