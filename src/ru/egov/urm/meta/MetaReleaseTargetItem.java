@@ -6,6 +6,7 @@ import org.w3c.dom.Node;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
+import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 import ru.egov.urm.run.ActionBase;
 
 public class MetaReleaseTargetItem {
@@ -48,7 +49,7 @@ public class MetaReleaseTargetItem {
 	
 	public void load( ActionBase action , Node node , MetaReleaseTarget releaseProject ) throws Exception {
 		this.releaseProject = releaseProject;
-		NAME = ConfReader.getNameAttr( action , node );
+		NAME = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
 		BUILDVERSION = ConfReader.getAttrValue( action , node , "BUILDVERSION" );
 		this.sourceItem = releaseProject.sourceProject.getItem( action , NAME );
 		this.distItem = sourceItem.distItem;

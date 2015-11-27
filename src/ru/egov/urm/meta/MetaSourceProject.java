@@ -11,6 +11,7 @@ import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.custom.ICustomBuild;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
+import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 import ru.egov.urm.run.ActionBase;
 
 public class MetaSourceProject {
@@ -50,7 +51,7 @@ public class MetaSourceProject {
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
-		PROJECT = ConfReader.getNameAttr( action , node );
+		PROJECT = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOTDASH );
 
 		// read item attrs
 		REPOSITORY = ConfReader.getAttrValue( action , node , "repository" );

@@ -10,6 +10,7 @@ import org.w3c.dom.Node;
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
+import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 import ru.egov.urm.run.ActionBase;
 
 public class MetaSourceProjectSet {
@@ -41,7 +42,7 @@ public class MetaSourceProjectSet {
 		if( !meta.isSourceCategory( action , CATEGORY ) )
 			action.exit( "invalid source.xml: unknown project category=" + Common.getEnumLower( CATEGORY ) );
 		
-		NAME = ConfReader.getNameAttr( action , node );
+		NAME = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
 		loadProjects( action , CATEGORY , node );
 	}
 

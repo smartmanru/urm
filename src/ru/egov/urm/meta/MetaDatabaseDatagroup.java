@@ -7,6 +7,7 @@ import org.w3c.dom.Node;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
+import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 import ru.egov.urm.run.ActionBase;
 
 public class MetaDatabaseDatagroup {
@@ -25,7 +26,7 @@ public class MetaDatabaseDatagroup {
 	public void load( ActionBase action , Node node ) throws Exception {
 		schemaSet = new HashMap<String,MetaDatabaseSchema>(); 
 
-		NAME = ConfReader.getNameAttr( action , node );
+		NAME = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
 		String schemalist = ConfReader.getAttrValue( action , node , "schemaset" ); 
 		
 		for( String schemaName : Common.splitSpaced( schemalist ) ) {

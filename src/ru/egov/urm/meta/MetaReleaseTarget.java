@@ -11,6 +11,7 @@ import org.w3c.dom.Node;
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
+import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 import ru.egov.urm.run.ActionBase;
 
 public class MetaReleaseTarget {
@@ -90,7 +91,7 @@ public class MetaReleaseTarget {
 	}
 	
 	private void loadProject( ActionBase action , Node node ) throws Exception {
-		String name = ConfReader.getNameAttr( action , node );
+		String name = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOTDASH );
 		BUILDBRANCH = ConfReader.getAttrValue( action , node , "buildbranch" , BUILDBRANCH );
 		BUILDTAG = ConfReader.getAttrValue( action , node , "buildtag" , BUILDTAG );
 		BUILDVERSION = ConfReader.getAttrValue( action , node , "buildversion" , BUILDVERSION );
@@ -114,7 +115,7 @@ public class MetaReleaseTarget {
 	}
 
 	private void loadConfiguration( ActionBase action , Node node ) throws Exception {
-		String name = ConfReader.getNameAttr( action , node );
+		String name = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
 		distConfItem = meta.distr.getConfItem( action , name );
 		this.NAME = getTargetKey( action , VarCATEGORY.CONFIG , name );
 		
@@ -122,7 +123,7 @@ public class MetaReleaseTarget {
 	}
 	
 	private void loadDatabase( ActionBase action , Node node ) throws Exception {
-		String name = ConfReader.getNameAttr( action , node );
+		String name = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
 		distDatabaseItem = meta.distr.getDelivery( action , name );
 		this.NAME = getTargetKey( action , VarCATEGORY.DB , name );
 		
@@ -130,7 +131,7 @@ public class MetaReleaseTarget {
 	}
 
 	private void loadManual( ActionBase action , Node node ) throws Exception {
-		String name = ConfReader.getNameAttr( action , node );
+		String name = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
 		distManualItem = meta.distr.getBinaryItem( action , name );
 		this.NAME = getTargetKey( action , VarCATEGORY.MANUAL , name );
 		

@@ -7,6 +7,7 @@ import ru.egov.urm.ConfReader;
 import ru.egov.urm.custom.ICustomDeploy;
 import ru.egov.urm.meta.Metadata.VarDISTITEMTYPE;
 import ru.egov.urm.meta.Metadata.VarITEMVERSION;
+import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 import ru.egov.urm.run.ActionBase;
 
 public class MetaDistrBinaryItem {
@@ -40,7 +41,7 @@ public class MetaDistrBinaryItem {
 
 	public void load( ActionBase action , Node node ) throws Exception {
 		this.node = node;
-		KEY = ConfReader.getNameAttr( action , node );
+		KEY = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
 		MANUAL = ConfReader.getBooleanAttrValue( action , node , "manual" , false );
 	
 		// read attrs

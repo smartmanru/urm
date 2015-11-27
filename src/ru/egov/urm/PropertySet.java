@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import org.w3c.dom.Node;
 
+import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 import ru.egov.urm.run.ActionBase;
 
 public class PropertySet {
@@ -44,7 +45,7 @@ public class PropertySet {
 			return;
 		
 		for( Node property : items ) {
-			String name = ConfReader.getNameAttr( action , property );
+			String name = ConfReader.getNameAttr( action , property , VarNAMETYPE.ALPHANUMDOT );
 			String value = ConfReader.getAttrValue( action , property , "value" );
 			setProperty( name , value );
 		}

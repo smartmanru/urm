@@ -8,6 +8,7 @@ import java.util.Map;
 import org.w3c.dom.Node;
 
 import ru.egov.urm.ConfReader;
+import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 import ru.egov.urm.run.ActionBase;
 
 public class MetaDistrComponent {
@@ -31,7 +32,7 @@ public class MetaDistrComponent {
 		mapConfItems = new HashMap<String,MetaDistrComponentItem>();
 		listWS = new LinkedList<MetaDistrComponentWS>();
 		
-		NAME = ConfReader.getNameAttr( action , node );
+		NAME = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
 		UNIT = ConfReader.getAttrValue( action , node , "unit" );
 		OBSOLETE = ConfReader.getBooleanAttrValue( action , node , "obsolete" , false );
 		

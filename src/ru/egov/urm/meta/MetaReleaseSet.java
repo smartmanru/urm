@@ -10,6 +10,7 @@ import org.w3c.dom.Node;
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
+import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 import ru.egov.urm.run.ActionBase;
 
 public class MetaReleaseSet {
@@ -64,7 +65,7 @@ public class MetaReleaseSet {
 	}
 	
 	private void loadBinary( ActionBase action , Node node ) throws Exception {
-		String SET = ConfReader.getNameAttr( action , node );
+		String SET = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
 		set = meta.sources.getProjectSet( action , SET );
 		NAME = set.NAME;
 		

@@ -26,6 +26,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
+import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 import ru.egov.urm.run.ActionBase;
 
 public class ConfReader {
@@ -221,9 +222,24 @@ public class ConfReader {
         return (null);
     }
 
-    public static String getNameAttr( ActionBase action , Node node ) throws Exception {
+    public static String getNameAttr( ActionBase action , Node node , VarNAMETYPE nameType ) throws Exception {
     	String name = getRequiredAttrValue( action , node , "name" );
-    	if( !name.matches( "[0-9a-zA-Z.]+" ) )
+    	if( nameType == VarNAMETYPE.ANY )
+    		return( name );
+    	
+    	String mask = null;
+    	if( nameType == VarNAMETYPE.ALPHANUM )
+    		mask = "[0-9a-zA-Z_]+";
+    	else
+    	if( nameType == VarNAMETYPE.ALPHANUMDOT )
+    		mask = "[0-9a-zA-Z_.]+";
+    	else
+    	if( nameType == VarNAMETYPE.ALPHANUMDOTDASH )
+    		mask = "[0-9a-zA-Z_.-]+";
+    	else
+    		action.exitUnexpectedState();
+    		
+    	if( !name.matches( mask ) )
     		action.exit( "name attribute should contain only alphanumeric or dot characters, value=" + name );
     	return( name );	
     }

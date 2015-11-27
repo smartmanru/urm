@@ -4,6 +4,7 @@ import org.w3c.dom.Node;
 
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.meta.Metadata.VarITEMSRCTYPE;
+import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 import ru.egov.urm.run.ActionBase;
 
 public class MetaSourceProjectItem {
@@ -27,7 +28,7 @@ public class MetaSourceProjectItem {
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
-		ITEMNAME = ConfReader.getNameAttr( action , node );
+		ITEMNAME = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
 		distItem = null;
 		
 		ITEMSRCTYPE = meta.getItemSrcType( action , ConfReader.getRequiredAttrValue( action , node , "type" ) );

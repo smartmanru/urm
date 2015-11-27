@@ -119,6 +119,13 @@ public class Metadata {
 		CONFCOLDDEPLOY ,
 		CONFHOTDEPLOY
 	};
+
+	public enum VarNAMETYPE {
+		ANY ,
+		ALPHANUM ,
+		ALPHANUMDOT ,
+		ALPHANUMDOTDASH
+	};
 	
 	public Metadata() {
 		configurableExtensionsFindOptions = "";

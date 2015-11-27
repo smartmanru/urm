@@ -7,6 +7,7 @@ import org.w3c.dom.Node;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
+import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.storage.MetadataStorage;
 
@@ -46,7 +47,7 @@ public class MetaDatabase {
 		}
 		
 		Node schema = ConfReader.xmlGetRequiredChild( action , administration , "schema" );
-		ADMSCHEMA = ConfReader.getNameAttr( action , schema );
+		ADMSCHEMA = ConfReader.getNameAttr( action , schema , VarNAMETYPE.ALPHANUM );
 		RELEASETABLE = ConfReader.getAttrValue( action , schema , "releasetable" );
 		SCRIPTTABLE = ConfReader.getAttrValue( action , schema , "scripttable" );
 		PUBLISHERS = ConfReader.getAttrValue( action , schema , "publishers" );

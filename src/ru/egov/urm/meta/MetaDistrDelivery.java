@@ -6,6 +6,7 @@ import java.util.Map;
 import org.w3c.dom.Node;
 
 import ru.egov.urm.ConfReader;
+import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 import ru.egov.urm.run.ActionBase;
 
 public class MetaDistrDelivery {
@@ -27,7 +28,7 @@ public class MetaDistrDelivery {
 	}
 
 	public void load( ActionBase action , Node node ) throws Exception {
-		NAME = ConfReader.getNameAttr( action , node );
+		NAME = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
 		FOLDERPATH = ConfReader.getAttrValue( action , node , "folder" , NAME );
 		
 		loadBinaryItems( action , node );

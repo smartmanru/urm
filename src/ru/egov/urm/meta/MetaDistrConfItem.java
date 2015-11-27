@@ -5,6 +5,7 @@ import org.w3c.dom.Node;
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.meta.Metadata.VarCONFITEMTYPE;
+import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 import ru.egov.urm.run.ActionBase;
 
 public class MetaDistrConfItem {
@@ -28,7 +29,7 @@ public class MetaDistrConfItem {
 	}
 
 	public void load( ActionBase action , Node node ) throws Exception {
-		KEY = ConfReader.getNameAttr( action , node );
+		KEY = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
 		TYPE = action.meta.getConfItemType( action , ConfReader.getRequiredAttrValue( action , node , "type" ) );
 		FILES = ConfReader.getAttrValue( action , node , "files" );
 		

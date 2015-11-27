@@ -9,6 +9,7 @@ import org.w3c.dom.Node;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
+import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 import ru.egov.urm.run.ActionBase;
 
 public class MetaEnvStartGroup {
@@ -28,7 +29,7 @@ public class MetaEnvStartGroup {
 		serverMap = new HashMap<String,MetaEnvServer>();
 		servers = new LinkedList<MetaEnvServer>();
 		
-		NAME = ConfReader.getNameAttr( action , node );
+		NAME = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
 		SERVERS = ConfReader.getAttrValue( action , node , "servers" );
 		
 		for( String name : Common.splitSpaced( SERVERS ) ) {

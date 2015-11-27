@@ -3,6 +3,7 @@ package ru.egov.urm.meta;
 import org.w3c.dom.Node;
 
 import ru.egov.urm.ConfReader;
+import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 import ru.egov.urm.run.ActionBase;
 
 public class MetaDatabaseSchema {
@@ -20,7 +21,7 @@ public class MetaDatabaseSchema {
 	}
 
 	public void load( ActionBase action , Node node ) throws Exception {
-		SCHEMA = ConfReader.getNameAttr( action , node );
+		SCHEMA = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUM );
 		DBNAME = ConfReader.getAttrValue( action , node , "dbname" , SCHEMA );
 		DBUSER = ConfReader.getAttrValue( action , node , "dbuser" , SCHEMA );
 	}
