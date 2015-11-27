@@ -26,7 +26,9 @@ function f_execute_addnew() {
 		fi
 
 		F_SVNSTATUS="?"
-		if [ -d "`dirname $F_FNAME`/.svn" ]; then
+		F_DIRNAME=`dirname $F_FNAME`
+		F_CHECK=`svn info $F_DIRNAME > /dev/null 2>&1; echo $?`
+		if [ "$F_CHECK" = "0" ]; then
 			F_SVNSTATUS="`svn status $F_FNAME`"
 			F_SVNSTATUS=${F_SVNSTATUS:0:1}
 		fi
@@ -51,7 +53,8 @@ function f_execute_deleteunknown() {
 			# check unknown directory
 			F_STATUS=`grep ":$F_NAME/" $P_LISTING_FILE | head -1`
 			if [ "$F_STATUS" = "" ]; then
-				if [ -d "$F_NAME/.svn" ]; then
+				F_CHECK=`svn info $F_NAME > /dev/null 2>&1; echo $?`
+				if [ "$F_CHECK" = "0" ]; then
 					svn delete $F_NAME
 				else
 					rm -rf $F_NAME
@@ -62,7 +65,8 @@ function f_execute_deleteunknown() {
 			F_STATUS=`grep ":$F_NAME$" $P_LISTING_FILE | head -1`
 
 			if [ "$F_STATUS" = "" ]; then
-				if [ -d "$F_DIR/.svn" ]; then
+				F_CHECK=`svn info $F_DIR > /dev/null 2>&1; echo $?`
+				if [ "$F_CHECK" = "0" ]; then
 					F_STATUS=`svn status $F_NAME`
 					if [[ "$F_STATUS" =~ "^\?" ]]; then
 						rm -rf $F_NAME
