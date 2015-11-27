@@ -73,7 +73,7 @@ public class MetaProduct {
 		CONFIG_PRODUCT = getPropertyRequired( action , "CONFIG_PRODUCT" );
 		CONFIG_PRODUCTHOME = getPropertyRequired( action , "CONFIG_PRODUCTHOME" );
 		CONFIG_REDISTPATH = getPropertyRequired( action , "CONFIG_REDISTPATH" );
-		CONFIG_BUILDBASE = getPropertyBuildRequired( action , "CONFIG_PROD_TAG" );
+		CONFIG_BUILDBASE = getPropertyBuildRequired( action , "CONFIG_BUILDBASE" );
 		
 		CONFIG_LASTPRODTAG = getPropertyRequired( action , "CONFIG_LASTPRODTAG" );
 		CONFIG_NEXTPRODTAG = getPropertyRequired( action , "CONFIG_NEXTPRODTAG" );
