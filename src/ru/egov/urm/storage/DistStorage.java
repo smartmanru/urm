@@ -179,6 +179,7 @@ public class DistStorage {
 	public void createDeliveryFolders( ActionBase action ) throws Exception {
 		state.checkDistChangeEnabled( action );
 		for( MetaReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
+System.out.println( "delivery=" + delivery.distDelivery.NAME );			
 			createInternalDeliveryFolder( action , getDeliveryBinaryFolder( action , delivery.distDelivery ) );
 			createInternalDeliveryFolder( action , getDeliveryConfFolder( action , delivery.distDelivery ) );
 			createInternalDeliveryFolder( action , getDeliveryDatabaseFolder( action , delivery.distDelivery ) );
