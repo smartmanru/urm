@@ -96,7 +96,7 @@ function f_execute_all() {
 
 	if [ "$GETOPT_FORCE" = "yes" ]; then
 		# drop
-		f_execute_dropold $F_SVNRELPATH $F_TAGPATH $F_RELEASEPATH
+echo		f_execute_dropold $F_SVNRELPATH $F_TAGPATH $F_RELEASEPATH
 	fi
 
 	# check release
@@ -106,7 +106,7 @@ function f_execute_all() {
 		echo "release.sh: release $P_RELEASE already exists. Exiting"
 		exit 1
 	fi
-
+exit 1
 	# check tag exists
 	echo check tag $F_TAG exists ...
 	F_CHECK=`svn info $P_MASTERAUTH $F_TAGPATH 2>&1 | grep "Not a valid URL"`
@@ -119,7 +119,7 @@ function f_execute_all() {
 
 		echo create tag $F_TAG ...
 		local F_MASTER_PATH=$F_CURRENT_BRANCH
-echo		svn copy $P_MASTERAUTH $F_MASTER_PATH $F_TAGPATH -m "release $P_RELEASE" > /dev/null
+		svn copy $P_MASTERAUTH $F_MASTER_PATH $F_TAGPATH -m "release $P_RELEASE" > /dev/null
 		F_CHECK=$?
 		if [ "$F_CHECK" != "0" ]; then
 			echo "release.sh: unable to create tag $F_TAGPATH. Exiting"
@@ -131,7 +131,7 @@ echo		svn copy $P_MASTERAUTH $F_MASTER_PATH $F_TAGPATH -m "release $P_RELEASE" >
 			exit 1
 		fi
 	fi
-exit 1
+
 	# export tag
 	local F_TMPDIRNAME=reltmp
 	rm -rf $F_TMPDIRNAME
