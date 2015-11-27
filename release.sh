@@ -79,7 +79,7 @@ echo			svn delete -m "drop old release version" $P_MASTERAUTH $P_SVNTAGPATH
 
 function f_execute_all() {
 	local F_SAVEDIR=`pwd`
-	local F_CURRENT_BRANCH=`svn info . | grep URL | sed "s/URL:[ ]//"`
+	local F_CURRENT_BRANCH=`svn info . | grep URL | sed "s/^URL:[ ]//"`
 	local F_MASTER_REPOSITORY=`echo $F_CURRENT_BRANCH | sed "s/\/trunk$//;s/\/branches.*//"`
 
 	# check need to create tag
