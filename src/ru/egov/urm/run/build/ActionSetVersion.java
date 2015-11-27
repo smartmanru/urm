@@ -16,6 +16,7 @@ public class ActionSetVersion extends ActionBase {
 	}
 
 	private void updateVersion( ActionScopeTarget scopeProject , LocalFolder PATCHPATH ) throws Exception {
+		LocalFolder CODEPATH = PATCHPATH.getSubFolder( this , scopeProject.sourceProject.CODEPATH );
 		String JAVE_VERSION = scopeProject.sourceProject.getJavaVersion( this );
 		
 		session.export( this , "JAVA_HOME" , "/usr/java/" + JAVE_VERSION );
@@ -29,11 +30,11 @@ public class ActionSetVersion extends ActionBase {
 		session.export( this , "PATH" , "$M2:$PATH" );
 
 		log( "execute: " + MAVEN_CMD + " ..." );
-		session.mvnCheckStatus( this , PATCHPATH.folderPath , MAVEN_CMD );
+		session.mvnCheckStatus( this , CODEPATH.folderPath , MAVEN_CMD );
 
 		// handle git specifics
 		if( scopeProject.sourceProject.isGitVCS( this ) )
-			session.gitAddPomFiles( this , PATCHPATH.folderPath );
+			session.gitAddPomFiles( this , CODEPATH.folderPath );
 	}
 	
 	@Override protected boolean executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {

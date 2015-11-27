@@ -77,6 +77,7 @@ public class ActionPatch extends ActionBase {
 	private boolean executePatch( MetaSourceProject sourceProject , String TAG , String APPVERSION ) throws Exception {
 		BuildStorage storage = artefactory.getEmptyBuildStorage( this , sourceProject );
 		LocalFolder PATCHPATH = storage.buildFolder;
+		LocalFolder CODEPATH = PATCHPATH.getSubFolder( this , sourceProject.CODEPATH ); 
 
 		// checkout sources
 		if( !patchExport( PATCHPATH , sourceProject , TAG , APPVERSION ) ) {
@@ -85,19 +86,19 @@ public class ActionPatch extends ActionBase {
 		}
 
 		// execute source preprocessing
-		if( !patchPrepareSource( PATCHPATH , sourceProject , APPVERSION ) ) {
+		if( !patchPrepareSource( CODEPATH , sourceProject , APPVERSION ) ) {
 			log( "patch: prepare source failed" );
 			return( false );
 		}
 
 		// check source code
-		if( !patchCheckSourceCode( PATCHPATH , sourceProject , APPVERSION ) ) {
+		if( !patchCheckSourceCode( CODEPATH , sourceProject , APPVERSION ) ) {
 			log( "patch: maven build skipped - source code invalid (" + PATCHPATH.folderPath + ". Exiting" );
 			return( false );
 		}
 
 		// build
-		if( !patchBuild( PATCHPATH , sourceProject , TAG , APPVERSION ) ) {
+		if( !patchBuild( CODEPATH , sourceProject , TAG , APPVERSION ) ) {
 			log( "patch: build failed" );
 			return( false );
 		}

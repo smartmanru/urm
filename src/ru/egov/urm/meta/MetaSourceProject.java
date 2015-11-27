@@ -25,6 +25,7 @@ public class MetaSourceProject {
 	public String VERSION;
 	public String GROUP;
 	public String PATH;
+	public String CODEPATH;
 	public String JIRA;
 	public String BRANCH;
 	public String JAVAVERSION;
@@ -68,8 +69,10 @@ public class MetaSourceProject {
 
 		if( CATEGORY != VarCATEGORY.PREBUILT ) {
 			VCS = ConfReader.getRequiredAttrValue( action , node , "vcs" );
-			if( !VCS.equals( "none" ) )
+			if( !VCS.equals( "none" ) ) {
 				PATH = ConfReader.getRequiredAttrValue( action , node , "path" );
+				CODEPATH = ConfReader.getAttrValue( action , node , "codepath" );
+			}
 		}
 		
 		if( BRANCH.isEmpty() )
