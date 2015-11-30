@@ -427,7 +427,7 @@ public class DistStorage {
 		
 		if( targetItem.DISTFILE == null )
 			return( "" );
-		return( targetItem.DISTFILE );
+		return( Common.getPath( "binary" , targetItem.DISTFILE ) );
 	}
 	
 	public void gatherFiles( ActionBase action ) throws Exception {
