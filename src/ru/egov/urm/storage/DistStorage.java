@@ -446,7 +446,9 @@ public class DistStorage {
 	}
 
 	public void gatherDeliveryBinaryItem( ActionBase action , MetaReleaseDelivery delivery , FileSet deliveryFiles , MetaReleaseTargetItem targetItem ) throws Exception {
-		FileSet binaryFiles = deliveryFiles.getDirByPath( action , "binary" );
+		FileSet binaryFiles = null;
+		if( deliveryFiles != null )
+			binaryFiles = deliveryFiles.getDirByPath( action , "binary" );
 		String fileName = "";
 		
 		if( binaryFiles != null )
@@ -456,11 +458,13 @@ public class DistStorage {
 	}
 
 	public void gatherDeliveryManualItem( ActionBase action , MetaReleaseDelivery delivery , FileSet deliveryFiles , MetaReleaseTarget targetItem ) throws Exception {
-		FileSet binaryFiles = deliveryFiles.getDirByPath( action , "binary" );
+		FileSet binaryFiles = null;
+		if( deliveryFiles != null )
+			binaryFiles = deliveryFiles.getDirByPath( action , "binary" );
 		String fileName = "";
 		
 		if( binaryFiles != null )
-			fileName = deliveryFiles.findDistItem( action , targetItem.distManualItem );
+			fileName = binaryFiles.findDistItem( action , targetItem.distManualItem );
 		targetItem.setDistFile( action , fileName );
 		action.trace( "item=" + targetItem.distManualItem.KEY + ", file=" + ( ( fileName.isEmpty() )? "(missing)" : fileName ) );
 	}
