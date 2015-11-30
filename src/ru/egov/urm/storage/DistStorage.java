@@ -414,7 +414,7 @@ public class DistStorage {
 			if( target.DISTFILE == null )
 				return( "" );
 			
-			return( target.DISTFILE );
+			return( Common.getPath( "binary" , target.DISTFILE ) );
 		}
 		
 		MetaReleaseTarget target = info.findBuildProject( action , item.sourceItem.project.PROJECT );
