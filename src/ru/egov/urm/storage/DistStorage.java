@@ -436,26 +436,35 @@ public class DistStorage {
 		
 		for( MetaReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
 			FileSet deliveryFiles = files.getDirByPath( action , delivery.distDelivery.FOLDERPATH );
-			boolean deliveryExists = ( deliveryFiles == null )? false : true;
 			
-			for( MetaReleaseTargetItem targetItem : delivery.getProjectItems( action ).values() ) {
-				String fileName = "";
-				if( deliveryExists )
-					fileName = deliveryFiles.findDistItem( action , targetItem.distItem );
-				targetItem.setDistFile( action , fileName );
-				action.trace( "item=" + targetItem.distItem.KEY + ", file=" + ( ( fileName.isEmpty() )? "(missing)" : fileName ) );
-			}
-			
-			for( MetaReleaseTarget targetItem : delivery.getManualItems( action ).values() ) {
-				String fileName = "";
-				if( deliveryExists )
-					fileName = deliveryFiles.findDistItem( action , targetItem.distManualItem );
-				targetItem.setDistFile( action , fileName );
-				action.trace( "item=" + targetItem.distManualItem.KEY + ", file=" + ( ( fileName.isEmpty() )? "(missing)" : fileName ) );
-			}
+			for( MetaReleaseTargetItem targetItem : delivery.getProjectItems( action ).values() )
+				gatherDeliveryBinaryItem( action , delivery , deliveryFiles , targetItem );
+				
+			for( MetaReleaseTarget targetItem : delivery.getManualItems( action ).values() )
+				gatherDeliveryManualItem( action , delivery , deliveryFiles , targetItem );
 		}
 	}
 
+	public void gatherDeliveryBinaryItem( ActionBase action , MetaReleaseDelivery delivery , FileSet deliveryFiles , MetaReleaseTargetItem targetItem ) throws Exception {
+		FileSet binaryFiles = deliveryFiles.getDirByPath( action , "binary" );
+		String fileName = "";
+		
+		if( binaryFiles != null )
+			fileName = binaryFiles.findDistItem( action , targetItem.distItem );
+		targetItem.setDistFile( action , fileName );
+		action.trace( "item=" + targetItem.distItem.KEY + ", file=" + ( ( fileName.isEmpty() )? "(missing)" : fileName ) );
+	}
+
+	public void gatherDeliveryManualItem( ActionBase action , MetaReleaseDelivery delivery , FileSet deliveryFiles , MetaReleaseTarget targetItem ) throws Exception {
+		FileSet binaryFiles = deliveryFiles.getDirByPath( action , "binary" );
+		String fileName = "";
+		
+		if( binaryFiles != null )
+			fileName = deliveryFiles.findDistItem( action , targetItem.distManualItem );
+		targetItem.setDistFile( action , fileName );
+		action.trace( "item=" + targetItem.distManualItem.KEY + ", file=" + ( ( fileName.isEmpty() )? "(missing)" : fileName ) );
+	}
+	
 	public MetaDistrConfItem[] getLocationConfItems( ActionBase action , MetaEnvServerLocation[] locations ) throws Exception {
 		Map<String,MetaDistrConfItem> confs = new HashMap<String,MetaDistrConfItem>(); 
 		for( MetaEnvServerLocation location : locations )
