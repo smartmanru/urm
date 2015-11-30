@@ -221,7 +221,8 @@ public class ScopeExecutor {
 	}
 	
 	public boolean runEnvUniqueAccounts( ActionScope scope ) {
-		if( action.options.OPT_ROOTUSER || !action.options.OPT_HOSTUSER.isEmpty() )
+		if( action.options.OPT_ROOTUSER || 
+			( action.options.OPT_HOSTUSER.isEmpty() == false && action.options.OPT_HOSTUSER.equals( "default" ) == false ) )
 			return( runEnvUniqueHosts( scope ) );
 		
 		runFailed = false;
