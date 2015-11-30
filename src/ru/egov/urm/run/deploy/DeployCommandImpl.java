@@ -1,5 +1,6 @@
 package ru.egov.urm.run.deploy;
 
+import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.run.ActionBase;
@@ -56,6 +57,9 @@ public class DeployCommandImpl {
 
 	public void changeHosts( ActionBase action , ActionScope scope , String CMD , String host , String address ) throws Exception {
 		ActionChangeHosts ca = new ActionChangeHosts( action , null , CMD , host , address );
+		if( !Common.checkPartOfSpacedList( CMD , "change add set delete" ) )
+			ca.exit( "invalid command=" + CMD );
+			
 		ca.runEnvUniqueHosts( scope );
 	}
 
