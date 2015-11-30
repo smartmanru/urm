@@ -221,16 +221,17 @@ public class ScopeExecutor {
 	}
 	
 	public boolean runEnvUniqueAccounts( ActionScope scope ) {
-		if( action.options.OPT_ROOTUSER || 
-			( action.options.OPT_HOSTUSER.isEmpty() == false && action.options.OPT_HOSTUSER.equals( "default" ) == false ) )
-			return( runEnvUniqueHosts( scope ) );
+		if( !action.options.OPT_HOSTUSER.equals( "default" ) ) {
+			if( action.options.OPT_ROOTUSER || !action.options.OPT_HOSTUSER.isEmpty() )
+				return( runEnvUniqueHosts( scope ) );
+		}
 		
 		runFailed = false;
 		exception = false;
 		boolean runDone = false;
 		try {
 			VarCATEGORY[] categories = new VarCATEGORY[] { VarCATEGORY.ENV };
-			action.debug( action.NAME + ": run unique hosts of scope={" + scope.getScopeInfo( action , categories ) + "}" );
+			action.debug( action.NAME + ": run unique accounts of scope={" + scope.getScopeInfo( action , categories ) + "}" );
 			action.runBefore( scope );
 			if( !action.actionFailed ) {
 				runDone = true;
