@@ -425,8 +425,9 @@ public class DistStorage {
 		if( targetItem == null )
 			return( "" );
 		
-		if( targetItem.DISTFILE == null )
+		if( targetItem.DISTFILE == null || targetItem.DISTFILE.isEmpty() )
 			return( "" );
+		
 		return( Common.getPath( "binary" , targetItem.DISTFILE ) );
 	}
 	
