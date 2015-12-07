@@ -249,6 +249,7 @@ public class ActionPatch extends ActionBase {
 		session.customCheckErrorsNormal( this , "mvn --version" );
 		
 		log( "execute: " + MAVEN_CMD );
+		session.setTimeoutUnlimited( this );
 		int status = session.customGetStatusNormal( this , MAVEN_CMD );
 
 		if( status != 0 ) {
@@ -278,6 +279,7 @@ public class ActionPatch extends ActionBase {
 		session.customCheckErrorsNormal( this , "gradle --version" );
 		
 		log( "execute: " + GRADLE_CMD );
+		session.setTimeoutUnlimited( this );
 		int status = session.customGetStatusNormal( this , GRADLE_CMD );
 
 		if( status != 0 ) {
