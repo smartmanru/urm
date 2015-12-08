@@ -29,13 +29,13 @@ public class ActionAddScope extends ActionBase {
 			
 			if( target.itemFull ) {
 				if( !addAllProductTargetElements( set , target ) )
-					return( false );
+					exit( "operation cancelled" );
 				continue;
 			}
 			
 			for( ActionScopeTargetItem item : target.getItems( this ) ) { 
 				if( !addTargetItem( set , target , item ) )
-					return( false );
+					exit( "operation cancelled" );
 			}
 		}
 		
