@@ -357,7 +357,10 @@ public class DistStorage {
 		for( MetaReleaseTarget target : set.getTargets( action ).values() )
 			dropTarget( action , target );
 		
-		info.deleteCategorySet( action , set.CATEGORY );
+		if( action.meta.isSourceCategory( action , set.CATEGORY ) )
+			info.deleteSourceSet( action , set.set );
+		else
+			info.deleteCategorySet( action , set.CATEGORY );
 	}
 	
 	public void descopeTarget( ActionBase action , MetaReleaseTarget target ) throws Exception {
