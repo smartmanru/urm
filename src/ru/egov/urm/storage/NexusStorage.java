@@ -1,6 +1,7 @@
 package ru.egov.urm.storage;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.ConfReader;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.run.ActionBase;
@@ -11,6 +12,8 @@ public class NexusStorage {
 	public LocalFolder artefactoryFolder;
 	Metadata meta;
 	String repository;
+	
+	String authFile = "~/.auth/nexus.http.txt"; 
 	
 	public NexusStorage( Artefactory artefactory , LocalFolder artefactoryFolder , String repository ) {
 		this.artefactory = artefactory;
@@ -29,6 +32,7 @@ public class NexusStorage {
 
 		NexusDownloadInfo info = new NexusDownloadInfo( artefactoryFolder ); 
 		String GROUPIDSLASHED = GROUPID.replace( '.' , '/' );
+		String nexusAuth = ConfReader.readStringFile( action , authFile );
 		
 		info.DOWNLOAD_FILENAME = Common.getPath( item.delivery.FOLDERPATH , NAME );
 		info.DOWNLOAD_URL = REPOPATH + "/" + GROUPIDSLASHED + "/" + ARTEFACTID + "/" + VERSION + "/" + NAME;
@@ -42,7 +46,7 @@ public class NexusStorage {
 		if( !CLASSIFIER.isEmpty() )
 			info.DOWNLOAD_URL_REQUEST += "c=" + CLASSIFIER + "&";
 
-		artefactoryFolder.download( action , info.DOWNLOAD_URL_REQUEST , info.DOWNLOAD_FILENAME );
+		artefactoryFolder.download( action , info.DOWNLOAD_URL_REQUEST , info.DOWNLOAD_FILENAME , nexusAuth );
 		return( info );
 	}
 

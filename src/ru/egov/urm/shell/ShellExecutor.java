@@ -101,7 +101,7 @@ public abstract class ShellExecutor {
 		return( ok.equals( "ok" ) );
 	}
 
-	public void download( ActionBase action , String URL , String TARGETNAME ) throws Exception {
+	public void download( ActionBase action , String URL , String TARGETNAME , String auth ) throws Exception {
 		String TARGETDIRNAME;
 		String TARGETFINALNAME;
 		String FBASENAME;
@@ -121,7 +121,10 @@ public abstract class ShellExecutor {
 
 		// delete old if partial download
 		core.runCommandCheckDebug( action , "rm -rf " + TARGETFINALNAME + " " + TARGETFINALNAME + ".md5" );
-		int status = core.runCommandGetStatusDebug( action , "wget -q " + Common.getQuoted( URL ) + " -O " + TARGETFINALNAME );
+		String cmd = "wget -q " + Common.getQuoted( URL ) + " -O " + TARGETFINALNAME;
+		if( auth != null && !auth.isEmpty() )
+			cmd += " " + auth;
+		int status = core.runCommandGetStatusDebug( action , cmd );
 	
 		if( status == 0 && checkFileExists( action , TARGETFINALNAME ) )
 			createMD5( action , TARGETFINALNAME );

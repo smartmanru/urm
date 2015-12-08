@@ -243,9 +243,9 @@ public abstract class Folder {
 		session.createJarFromFolder( action , folderPath , jar , folder );
 	}
 	
-	public void download( ActionBase action , String DOWNLOAD_URL_REQUEST , String DOWNLOAD_FILENAME ) throws Exception {
+	public void download( ActionBase action , String DOWNLOAD_URL_REQUEST , String DOWNLOAD_FILENAME , String auth ) throws Exception {
 		ShellExecutor session = getSession( action ); 
-		session.download( action , DOWNLOAD_URL_REQUEST , folderPath + "/" + DOWNLOAD_FILENAME );
+		session.download( action , DOWNLOAD_URL_REQUEST , folderPath + "/" + DOWNLOAD_FILENAME , auth );
 	}
 	
 	public FileSet getFileSet( ActionBase action ) throws Exception {
