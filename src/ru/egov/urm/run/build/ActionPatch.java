@@ -257,6 +257,7 @@ public class ActionPatch extends ActionBase {
 			return( false );
 		}
 					
+		log( "buildMaven: maven build successfully finished" );
 		return( true );
 	}
 
@@ -287,6 +288,7 @@ public class ActionPatch extends ActionBase {
 			return( false );
 		}
 		
+		log( "buildGradle: gradle build successfully finished" );
 		return( true );
 	}
 
@@ -298,10 +300,11 @@ public class ActionPatch extends ActionBase {
 		session.export( this , "M2_HOME" , meta.product.CONFIG_BUILDBASE + "/" + UPLOAD_MAVEN_VERSION );
 		session.export( this , "M2" , "$M2_HOME/bin" );
 		session.export( this , "PATH" , "$M2:$PATH" );
-		session.export( this , "MAVEN_OPTS" , Common.getQuoted( "-Xmx1g -XX:MaxPermSize=300m -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );
+		session.export( this , "MAVEN_OPTS" , Common.getQuoted( "-Xmx1g -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );
 
 		// upload versioninfo
 		PATCHFOLDER.createFileFromString( this , "versioninfo.txt" , TAG );
+		session.setTimeoutUnlimited( this );
 		int status = session.customGetStatusNormal( this , "mvn deploy:deploy-file -B " +
 			MODULE_MSETTINGS + " " +
 			"-Durl=" + NEXUS_PATH + " " +
