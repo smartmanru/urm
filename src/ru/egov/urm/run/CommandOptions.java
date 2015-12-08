@@ -263,7 +263,7 @@ public class CommandOptions {
 		OPT_GET = getFlagValue( "GETOPT_GET" );
 		OPT_DIST = getFlagValue( "GETOPT_DIST" );
 		OPT_UPDATENEXUS = getFlagValue( "GETOPT_UPDATENEXUS" );
-		OPT_CHECK = getFlagValue( "GETOPT_CHECK" );
+		OPT_CHECK = getFlagValue( "GETOPT_CHECK" , true );
 		OPT_MOVE_ERRORS = getFlagValue( "GETOPT_MOVE_ERRORS" );
 		OPT_REPLACE = getFlagValue( "GETOPT_REPLACE" );
 		

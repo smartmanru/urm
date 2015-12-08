@@ -250,14 +250,18 @@ public class DistStorage {
 	}
 
 	public boolean addAllSource( ActionBase action , MetaSourceProjectSet set ) throws Exception {
+		action.debug( "release - add source set=" + set.NAME );
 		return( info.addSourceSet( action , set , true ) );
 	}
 	
 	public boolean addAllCategory( ActionBase action , VarCATEGORY CATEGORY ) throws Exception {
+		action.debug( "release - add category=" + Common.getEnumLower( CATEGORY ) );
 		return( info.addCategorySet( action , CATEGORY , true ) );
 	}
 	
 	public boolean addProjectAllItems( ActionBase action , MetaSourceProject project ) throws Exception {
+		action.debug( "release - add project=" + project.PROJECT );
+		
 		if( !info.addSourceSet( action , project.set , false ) )
 			return( false );
 		if( !info.addProject( action , project , true ) )
@@ -266,6 +270,8 @@ public class DistStorage {
 	}
 
 	public boolean addProjectItem( ActionBase action , MetaSourceProject project , MetaSourceProjectItem item ) throws Exception {
+		action.debug( "release - add project=" + project.PROJECT + ", item=" + item.ITEMNAME );
+		
 		// ignore internal items
 		if( item.INTERNAL ) {
 			action.log( "item=" + item.ITEMNAME + " is internal. Skipped.");
@@ -282,6 +288,8 @@ public class DistStorage {
 	}
 
 	public boolean addConfItem( ActionBase action , MetaDistrConfItem item ) throws Exception {
+		action.debug( "release - add conf item=" + item.KEY );
+		
 		if( !info.addCategorySet( action , VarCATEGORY.CONFIG , false ) )
 			return( false );
 		if( !info.addConfItem( action , item ) )
@@ -290,6 +298,8 @@ public class DistStorage {
 	}
 
 	public boolean addManualItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
+		action.debug( "release - add manual item=" + item.KEY );
+		
 		if( !info.addCategorySet( action , VarCATEGORY.MANUAL , false ) )
 			return( false );
 		if( !info.addManualItem( action , item ) )
@@ -298,6 +308,8 @@ public class DistStorage {
 	}
 
 	public boolean addDatabaseItem( ActionBase action , MetaDistrDelivery item ) throws Exception {
+		action.debug( "release - add database delivery=" + item.NAME );
+		
 		if( !info.addCategorySet( action , VarCATEGORY.DB , false ) )
 			return( false );
 		if( !info.addDatabaseItem( action , item ) )
@@ -306,6 +318,7 @@ public class DistStorage {
 	}
 
 	public boolean addDatabase( ActionBase action ) throws Exception {
+		action.debug( "release - add database" );
 		if( !info.addCategorySet( action , VarCATEGORY.DB , true ) )
 			return( false );
 		return( true );

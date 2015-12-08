@@ -187,13 +187,20 @@ public class MetaReleaseTarget {
 	}
 	
 	public boolean checkPropsEqualsToOptions( ActionBase action ) throws Exception {
-		if( this.BUILDBRANCH.equals( action.options.OPT_BRANCH ) &&
-			this.BUILDTAG.equals( action.options.OPT_TAG ) &&
-			this.BUILDVERSION.equals( action.options.OPT_VERSION ) )
-			return( true );
+		boolean change = false; 
+		if( action.options.OPT_BRANCH.isEmpty() == false && !this.BUILDBRANCH.equals( action.options.OPT_BRANCH ) )
+			change = true; 
+		if( action.options.OPT_TAG.isEmpty() == false && !this.BUILDTAG.equals( action.options.OPT_TAG ) )
+			change = true; 
+		if( action.options.OPT_VERSION.isEmpty() == false && !this.BUILDVERSION.equals( action.options.OPT_VERSION ) )
+			change = true; 
+
+		if( change ) {
+			action.log( NAME + " project attributes are different, please delete first" );
+			return( false );
+		}
 		
-		action.log( NAME + " project attributes are different, please delete first" );
-		return( false );
+		return( true );
 	}
 	
 	public MetaReleaseTargetItem addSourceItem( ActionBase action , MetaSourceProjectItem projectitem ) throws Exception {

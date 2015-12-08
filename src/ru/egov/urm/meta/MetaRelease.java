@@ -438,10 +438,10 @@ public class MetaRelease {
 			return( true );
 		}
 		
+		if( !project.checkPropsEqualsToOptions( action ) )
+			return( false );
+			
 		if( allItems == true && project.ALL == false ) {
-			if( !project.checkPropsEqualsToOptions( action ) )
-				return( false );
-				
 			deleteProjectSource( action , sourceProject );
 			addProject( action , sourceProject , true );
 			return( true );
