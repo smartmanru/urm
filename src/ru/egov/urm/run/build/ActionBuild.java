@@ -22,6 +22,7 @@ public class ActionBuild extends ActionBase {
 	public ActionBuild( ActionBase action , String stream , LocalFolder OUTDIR , String OUTFILE , String TAG ) {
 		super( action , stream );
 		this.OUTDIR = OUTDIR;
+		this.OUTFILE = OUTFILE;
 		this.TAG = TAG;
 	}
 
