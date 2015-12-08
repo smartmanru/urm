@@ -19,8 +19,11 @@ public class ActionAddScope extends ActionBase {
 
 	@Override protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		// full set scope
-		if( set.setFull )
-			return( addAllProductSetElements( set ) );
+		if( set.setFull ) {
+			if( !addAllProductSetElements( set ) )
+				exit( "operation cancelled" );
+			return( true );
+		}
 		
 		// by target
 		for( ActionScopeTarget target : set.getTargets( this ).values() ) {
