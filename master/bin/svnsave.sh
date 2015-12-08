@@ -2,17 +2,6 @@
 
 P_MASTERAUTH="$*"
 
-if [ "$P_MASTERAUTH" = "" ]; then
-	if [ -f ~/.auth/svnold.auth.txt ]; then
-		P_MASTERAUTH="`cat ~/.auth/svnold.auth.txt`"
-	fi
-fi
-
-if [ "$P_MASTERAUTH" = "" ]; then
-	echo "P_MASTERAUTH is empty. Exiting"
-	exit 1
-fi
-
 function f_execute_addnew() {
 	local P_LISTING_FILE=$1
 
