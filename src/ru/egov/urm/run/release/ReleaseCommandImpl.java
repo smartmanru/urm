@@ -121,8 +121,8 @@ public class ReleaseCommandImpl {
 	
 	public void descopeBinary( ActionBase action , DistStorage dist , String SET , String PROJECT , String[] ITEMS ) throws Exception {
 		ActionScope scope;
-		if( PROJECT.isEmpty() )
-			scope = ActionScope.getReleaseSetScope( action , dist , SET , null );
+		if( PROJECT.equals( "all" ) )
+			scope = ActionScope.getReleaseSetScope( action , dist , SET , new String [] { "all" } );
 		else
 			scope = ActionScope.getReleaseProjectItemsScope( action , dist , PROJECT , ITEMS );
 		descope( action , dist , scope );
