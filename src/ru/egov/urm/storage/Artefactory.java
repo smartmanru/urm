@@ -173,20 +173,22 @@ public class Artefactory {
 
 	public LogStorage getReleaseBuildLogStorage( ActionBase action , String release ) throws Exception {
 		action.checkRequired( release , "release" );
-		
-		String dir = action.context.productHome + "/master/makedistr/" + action.context.getBuildModeName() + "/" + release;
-		LocalFolder logFolder = getAnyFolder( action , dir );
-		logFolder.ensureExists( action );
-		return( new LogStorage( this , logFolder ) );
+		LogStorage storage = new LogStorage( this );
+		storage.prepareReleaseBuildLogFolder( action , release );
+		return( storage );
 	}
 
 	public LogStorage getTagBuildLogStorage( ActionBase action , String TAG ) throws Exception {
 		action.checkRequired( TAG , "TAG" );
+		LogStorage storage = new LogStorage( this );
+		storage.prepareTagBuildLogFolder( action , TAG );
+		return( storage );
+	}
 
-		String dir = action.context.productHome + "/master/makedistr/" + action.context.getBuildModeName() + "/tag-" + TAG;
-		LocalFolder logFolder = getAnyFolder( action , dir );
-		logFolder.ensureExists( action );
-		return( new LogStorage( this , logFolder ) );
+	public LogStorage getDatabaseLogStorage( ActionBase action , String release ) throws Exception {
+		LogStorage storage = new LogStorage( this );
+		storage.prepareDatabaseLogFolder( action , release );
+		return( storage );
 	}
 
 	public GitMirrorStorage getGitMirrorStorage( ActionBase action , String MIRRORPATH , String REPOSITORY ) throws Exception {

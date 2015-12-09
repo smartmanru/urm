@@ -111,6 +111,25 @@ public class ConfBuilder {
 			parseConfigParameters( live , file , node );
 		}
 	}
+
+	public void parseConfigParameters( LocalFolder live , String file , MetaEnvServer server ) throws Exception {
+		action.trace( "parse file=" + file + " ..." );
+		String filePath = live.getFilePath( action , file );
+		List<String> fileLines = ConfReader.readFileLines( action , filePath );
+		
+		boolean changed = false;
+		for( int k = 0; k < fileLines.size(); k++ ) {
+			String s = fileLines.get( k );
+			String res = server.properties.processValue( action , s );
+			if( res != null ) {
+				fileLines.set( k , res );
+				changed = true;
+			}
+		}
+
+		if( changed )
+			Common.createFileFromStringList( filePath , fileLines );
+	}
 	
 	private void parseConfigParameters( LocalFolder live , String file , MetaEnvServerNode node ) throws Exception {
 		action.trace( "parse file=" + file + " ..." );

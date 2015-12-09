@@ -497,5 +497,30 @@ public class DistStorage {
 			}
 		return( confs.values().toArray( new MetaDistrConfItem[0] ) );
 	}
+
+	public String[] getManualDatabaseFiles( ActionBase action ) throws Exception {
+		FileSet set = files.getDirByPath( action , "manual/db" );
+		if( set == null )
+			return( new String[0] );
+		
+		return( set.files.keySet().toArray( new String[0] ) );
+	}
+
+	public String findManualDatabaseItemFile( ActionBase action , String index ) throws Exception {
+		FileSet set = files.getDirByPath( action , "manual/db" );
+		if( set == null )
+			return( null );
+		
+		for( String file : set.files.keySet() ) {
+			if( file.startsWith( index + "-" ) )
+				return( file );
+		}
+		
+		return( null );
+	}
+
+	public void copyDistDatabaseManualFileToFolder( ActionBase action , LocalFolder dstFolder , String file ) throws Exception {
+		this.copyDistToFolder( action , dstFolder , "mmanual/db" , file );
+	}
 	
 }

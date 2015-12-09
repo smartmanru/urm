@@ -50,5 +50,8 @@ public class DatabaseClient {
 		
 		return( S_DB_USE_SCHEMA_PASSWORD );
 	}
-	
+
+	public void applyManualScript( ActionBase action , String file ) throws Exception {
+		action.log( server.NAME + ": apply " + file + " ..." );
+	}
 }

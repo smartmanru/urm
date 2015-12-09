@@ -38,6 +38,10 @@ public class LocalFolder extends Folder {
 		return( ConfReader.readFileLines( action , filePath ) );
 	}
 
+	public void copyFiles( ActionBase action , String fileNames , LocalFolder dstFolder ) throws Exception {
+		copyFiles( action , "" , fileNames , dstFolder );
+	}
+	
 	public void copyFiles( ActionBase action , String srcFolder , String fileNames , LocalFolder dstFolder ) throws Exception {
 		ShellExecutor session = getSession( action ); 
 		session.copyFiles( action , Common.getPath( folderPath , srcFolder ) , fileNames , dstFolder.folderPath );
