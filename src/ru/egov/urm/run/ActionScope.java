@@ -11,6 +11,7 @@ import ru.egov.urm.meta.MetaEnv;
 import ru.egov.urm.meta.MetaEnvDC;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
+import ru.egov.urm.meta.MetaReleaseDelivery;
 import ru.egov.urm.meta.MetaReleaseSet;
 import ru.egov.urm.meta.MetaReleaseTarget;
 import ru.egov.urm.meta.MetaSourceProjectSet;
@@ -70,6 +71,20 @@ public class ActionScope {
 		return( scope );
 	}
 
+	public static ActionScope getDatabaseManualItemsScope( ActionBase action , DistStorage release , String[] INDEXES ) throws Exception {
+		action.trace( "scope: Release Manual Database Scope, release=" + release.RELEASEDIR + ", items=" + Common.getListSet( INDEXES ) );
+		ActionScope scope = new ActionScope();
+		scope.getDatabaseItemsScope( action , release , null , INDEXES );
+		return( scope );
+	}
+	
+	public static ActionScope getDatabaseDeliveryItemsScope( ActionBase action , DistStorage release , String DELIVERY , String[] INDEXES ) throws Exception {
+		action.trace( "scope: Release Delivery Database Scope, release=" + release.RELEASEDIR + ", delivery=" + DELIVERY + ", items=" + Common.getListSet( INDEXES ) );
+		ActionScope scope = new ActionScope();
+		scope.getDatabaseItemsScope( action , release , DELIVERY , INDEXES );
+		return( scope );
+	}
+	
 	public static ActionScope getReleaseCategoryScope( ActionBase action , DistStorage release , VarCATEGORY CATEGORY , String[] TARGETS ) throws Exception {
 		return( getReleaseSetScope( action , release , Common.getEnumLower( CATEGORY ) , TARGETS ) ); 
 	}
@@ -232,6 +247,46 @@ public class ActionScope {
 		
 		scope.createEnvServersScope( action , action.meta.dc , SERVERS , release );
 		return( scope );
+	}
+
+	private void getDatabaseItemsScope( ActionBase action , DistStorage release , String DELIVERY , String[] INDEXES ) throws Exception {
+		VarCATEGORY CATEGORY;
+
+		if( INDEXES.length == 0 )
+			action.exit( "use \"all\" to reference all items" );
+		
+		boolean all = ( INDEXES.length == 1 && INDEXES[0].equals( "all" ) )? true : false;
+		
+		if( DELIVERY == null ) {
+			CATEGORY = VarCATEGORY.MANUAL;
+			ActionScopeSet sset = createReleaseCategoryScopeSet( action , release , CATEGORY );
+			if( sset == null )
+				return;
+			
+			ActionScopeTarget target = sset.addManualDatabase( action , all );
+			if( !all )
+				target.addIndexItems( action , INDEXES );
+		}
+		else {
+			CATEGORY = VarCATEGORY.DB;
+			ActionScopeSet sset = createReleaseCategoryScopeSet( action , release , CATEGORY );
+			if( sset == null )
+				return;
+			
+			if( DELIVERY.equals( "all" ) ) {
+				for( MetaReleaseDelivery delivery : release.info.getDeliveries( action ).values() ) {
+					ActionScopeTarget target = sset.addDatabaseDelivery( action , delivery , false , all );
+					if( !all )
+						target.addIndexItems( action , INDEXES );
+				}
+			}
+			else {
+				MetaReleaseDelivery delivery = release.info.getDelivery( action , DELIVERY );
+				ActionScopeTarget target = sset.addDatabaseDelivery( action , delivery , true , all );
+				if( !all )
+					target.addIndexItems( action , INDEXES );
+			}
+		}
 	}
 	
 	private void createEnvScope( ActionBase action , DistStorage release ) throws Exception {

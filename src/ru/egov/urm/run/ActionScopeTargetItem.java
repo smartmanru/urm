@@ -12,27 +12,45 @@ public class ActionScopeTargetItem {
 	public MetaSourceProjectItem sourceItem;
 	public MetaEnvServerNode envServerNode; 
 	public MetaReleaseTargetItem releaseItem;
+	public boolean scriptIndex = false;
 	public boolean specifiedExplicitly;
 	
-	public ActionScopeTargetItem( MetaSourceProjectItem sourceItem , boolean specifiedExplicitly ) {
-		this.distItem = sourceItem.distItem;
-		this.sourceItem = sourceItem;
-		this.specifiedExplicitly = specifiedExplicitly;
-		this.NAME = sourceItem.ITEMNAME;
+	private ActionScopeTargetItem() {
 	}
 	
-	public ActionScopeTargetItem( MetaEnvServerNode envServerNode , boolean specifiedExplicitly ) {
-		this.envServerNode = envServerNode;
-		this.specifiedExplicitly = specifiedExplicitly;
-		this.NAME = "" + envServerNode.POS;
+	public static ActionScopeTargetItem createSourceProjectTargetItem( MetaSourceProjectItem sourceItem , boolean specifiedExplicitly ) {
+		ActionScopeTargetItem ti = new ActionScopeTargetItem(); 
+		ti.distItem = sourceItem.distItem;
+		ti.sourceItem = sourceItem;
+		ti.specifiedExplicitly = specifiedExplicitly;
+		ti.NAME = sourceItem.ITEMNAME;
+		return( ti );
 	}
 	
-	public ActionScopeTargetItem( MetaReleaseTargetItem releaseItem , boolean specifiedExplicitly ) {
-		this.distItem = releaseItem.distItem;
-		this.sourceItem = releaseItem.sourceItem;
-		this.releaseItem = releaseItem;
-		this.specifiedExplicitly = specifiedExplicitly;
-		this.NAME = releaseItem.NAME;
+	public static ActionScopeTargetItem createEnvServerNodeTargetItem( MetaEnvServerNode envServerNode , boolean specifiedExplicitly ) {
+		ActionScopeTargetItem ti = new ActionScopeTargetItem(); 
+		ti.envServerNode = envServerNode;
+		ti.specifiedExplicitly = specifiedExplicitly;
+		ti.NAME = "" + envServerNode.POS;
+		return( ti );
+	}
+	
+	public static ActionScopeTargetItem createReleaseTargetItem( MetaReleaseTargetItem releaseItem , boolean specifiedExplicitly ) {
+		ActionScopeTargetItem ti = new ActionScopeTargetItem(); 
+		ti.distItem = releaseItem.distItem;
+		ti.sourceItem = releaseItem.sourceItem;
+		ti.releaseItem = releaseItem;
+		ti.specifiedExplicitly = specifiedExplicitly;
+		ti.NAME = releaseItem.NAME;
+		return( ti );
+	}
+
+	public static ActionScopeTargetItem createScriptIndexTargetItem( String index ) {
+		ActionScopeTargetItem ti = new ActionScopeTargetItem();
+		ti.scriptIndex = true;
+		ti.specifiedExplicitly = true;
+		ti.NAME = index;
+		return( ti );
 	}
 
 	public String getProjectItemBuildVersion( ActionBase action ) throws Exception {

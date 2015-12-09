@@ -27,72 +27,86 @@ public class ActionScopeTarget {
 	public MetaDistrConfItem confItem;
 	public MetaDistrBinaryItem manualItem;
 	public MetaEnvServer envServer;
+	public boolean dbManualItems = false;
+	
 	public boolean itemFull = false;
 	public boolean associated = false;
-	public boolean specifiedExplicitly;
+	public boolean specifiedExplicitly = false;
 	
 	List<ActionScopeTargetItem> items = new LinkedList<ActionScopeTargetItem>();
 	
-	public ActionScopeTarget( ActionScopeSet set , MetaSourceProject sourceProject , boolean specifiedExplicitly ) {
+	private ActionScopeTarget( ActionScopeSet set ) {
 		this.set = set;
 		this.CATEGORY = set.CATEGORY;
-		this.sourceProject = sourceProject;
-		this.NAME = sourceProject.PROJECT;
-		this.specifiedExplicitly = specifiedExplicitly;
 	}
 	
-	public ActionScopeTarget( ActionScopeSet set , MetaReleaseTarget releaseProject , boolean specifiedExplicitly ) {
-		this.set = set;
-		this.CATEGORY = set.CATEGORY;
-		this.NAME = releaseProject.NAME;
-		this.releaseTarget = releaseProject;
+	public static ActionScopeTarget createDatabaseManualTarget( ActionScopeSet set , boolean all ) {
+		ActionScopeTarget target = new ActionScopeTarget( set );
+		target.dbManualItems = true;
+		target.itemFull = all; 
+		return( target );
+	}
+
+	public static ActionScopeTarget createSourceProjectTarget( ActionScopeSet set , MetaSourceProject sourceProject , boolean specifiedExplicitly ) {
+		ActionScopeTarget target = new ActionScopeTarget( set );
+		target.sourceProject = sourceProject;
+		target.NAME = sourceProject.PROJECT;
+		target.specifiedExplicitly = specifiedExplicitly;
+		return( target );
+	}
+	
+	public static ActionScopeTarget createReleaseSourceProjectTarget( ActionScopeSet set , MetaReleaseTarget releaseProject , boolean specifiedExplicitly ) {
+		ActionScopeTarget target = new ActionScopeTarget( set );
+		target.NAME = releaseProject.NAME;
+		target.releaseTarget = releaseProject;
 		
-		this.sourceProject = releaseProject.sourceProject;
-		this.dbDelivery = releaseProject.distDatabaseItem;
-		this.confItem = releaseProject.distConfItem;
-		this.manualItem = releaseProject.distManualItem;
+		target.sourceProject = releaseProject.sourceProject;
+		target.dbDelivery = releaseProject.distDatabaseItem;
+		target.confItem = releaseProject.distConfItem;
+		target.manualItem = releaseProject.distManualItem;
 		
-		this.itemFull = ( releaseProject.sourceProject == null )? true : releaseProject.ALL;
-		this.specifiedExplicitly = specifiedExplicitly;
+		target.itemFull = ( releaseProject.sourceProject == null )? true : releaseProject.ALL;
+		target.specifiedExplicitly = specifiedExplicitly;
+		return( target );
 	}
 
-	public ActionScopeTarget( ActionScopeSet set , MetaDistrDelivery delivery , boolean specifiedExplicitly ) {
-		this.set = set;
-		this.CATEGORY = set.CATEGORY;
-		this.dbDelivery = delivery;
+	public static ActionScopeTarget createDatabaseDeliveryTarget( ActionScopeSet set , MetaDistrDelivery delivery , boolean specifiedExplicitly , boolean all ) {
+		ActionScopeTarget target = new ActionScopeTarget( set );
+		target.dbDelivery = delivery;
 		
-		this.NAME = delivery.NAME;
-		this.itemFull = true;
-		this.specifiedExplicitly = specifiedExplicitly;
+		target.NAME = delivery.NAME;
+		target.itemFull = all;
+		target.specifiedExplicitly = specifiedExplicitly;
+		return( target );
 	}
 	
-	public ActionScopeTarget( ActionScopeSet set , MetaDistrConfItem confItem , boolean specifiedExplicitly ) {
-		this.set = set;
-		this.CATEGORY = set.CATEGORY;
+	public static ActionScopeTarget createConfItemTarget( ActionScopeSet set , MetaDistrConfItem confItem , boolean specifiedExplicitly ) {
+		ActionScopeTarget target = new ActionScopeTarget( set );
 
-		this.confItem = confItem;
-		this.NAME = confItem.KEY;
-		this.itemFull = true;
-		this.specifiedExplicitly = specifiedExplicitly;
+		target.confItem = confItem;
+		target.NAME = confItem.KEY;
+		target.itemFull = true;
+		target.specifiedExplicitly = specifiedExplicitly;
+		return( target );
 	}
 	
-	public ActionScopeTarget( ActionScopeSet set , MetaDistrBinaryItem manualItem , boolean specifiedExplicitly ) {
-		this.set = set;
-		this.CATEGORY = set.CATEGORY;
+	public static ActionScopeTarget createManualDistItemTarget( ActionScopeSet set , MetaDistrBinaryItem manualItem , boolean specifiedExplicitly ) {
+		ActionScopeTarget target = new ActionScopeTarget( set );
 
-		this.manualItem = manualItem;
-		this.NAME = manualItem.KEY;
-		this.itemFull = true;
-		this.specifiedExplicitly = specifiedExplicitly;
+		target.manualItem = manualItem;
+		target.NAME = manualItem.KEY;
+		target.itemFull = true;
+		target.specifiedExplicitly = specifiedExplicitly;
+		return( target );
 	}
 	
-	public ActionScopeTarget( ActionScopeSet set , MetaEnvServer envServer , boolean specifiedExplicitly ) {
-		this.set = set;
-		this.CATEGORY = set.CATEGORY;
+	public static ActionScopeTarget createEnvServerTarget( ActionScopeSet set , MetaEnvServer envServer , boolean specifiedExplicitly ) {
+		ActionScopeTarget target = new ActionScopeTarget( set );
 
-		this.envServer = envServer;
-		this.NAME = envServer.NAME;
-		this.specifiedExplicitly = specifiedExplicitly;
+		target.envServer = envServer;
+		target.NAME = envServer.NAME;
+		target.specifiedExplicitly = specifiedExplicitly;
+		return( target );
 	}
 	
 	public void setAssociated( ActionBase action ) throws Exception {
@@ -116,6 +130,13 @@ public class ActionScopeTarget {
 		return( NAME );
 	}
 
+	public void addIndexItems( ActionBase action , String[] ITEMS ) throws Exception {
+		for( String ITEM : ITEMS ) {
+			ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createScriptIndexTargetItem( ITEM );
+			items.add( scopeItem );
+		}
+	}
+	
 	public void addProjectItems( ActionBase action , String[] ITEMS ) throws Exception {
 		if( releaseTarget != null )
 			addReleaseProjectItems( action , ITEMS );
@@ -164,12 +185,12 @@ public class ActionScopeTarget {
 	}
 	
 	public void addProjectItem( ActionBase action , MetaSourceProjectItem item , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTargetItem scopeItem = new ActionScopeTargetItem( item , specifiedExplicitly );
+		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createSourceProjectTargetItem( item , specifiedExplicitly );
 		items.add( scopeItem );
 	}
 	
 	public void addItem( ActionBase action , MetaReleaseTargetItem item , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTargetItem scopeItem = new ActionScopeTargetItem( item , specifiedExplicitly );
+		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createReleaseTargetItem( item , specifiedExplicitly );
 		items.add( scopeItem );
 	}
 	
@@ -255,7 +276,7 @@ public class ActionScopeTarget {
 			}
 		}
 		
-		ActionScopeTargetItem scopeItem = new ActionScopeTargetItem( node , specifiedExplicitly );
+		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createEnvServerNodeTargetItem( node , specifiedExplicitly );
 		items.add( scopeItem );
 		return( scopeItem );
 	}

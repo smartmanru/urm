@@ -37,6 +37,7 @@ public class ActionScopeSet {
 	public MetaReleaseSet rset;
 	
 	Map<String,ActionScopeTarget> targets = new HashMap<String,ActionScopeTarget>();
+	ActionScopeTarget manualTarget;
 
 	public MetaEnv env;
 	public MetaEnvDC dc;
@@ -97,7 +98,7 @@ public class ActionScopeSet {
 	}
 	
 	public ActionScopeTarget addSourceProject( ActionBase action , MetaSourceProject sourceProject , boolean allItems , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTarget target = new ActionScopeTarget( this , sourceProject , specifiedExplicitly ); 
+		ActionScopeTarget target = ActionScopeTarget.createSourceProjectTarget( this , sourceProject , specifiedExplicitly ); 
 		addTarget( action , target );
 		
 		if( allItems )
@@ -107,7 +108,7 @@ public class ActionScopeSet {
 	}
 		
 	public ActionScopeTarget addReleaseProject( ActionBase action , MetaReleaseTarget releaseProject , boolean allItems , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTarget target = new ActionScopeTarget( this , releaseProject , specifiedExplicitly ); 
+		ActionScopeTarget target = ActionScopeTarget.createReleaseSourceProjectTarget( this , releaseProject , specifiedExplicitly ); 
 		addTarget( action , target );
 		
 		if( allItems )
@@ -117,11 +118,21 @@ public class ActionScopeSet {
 	}
 		
 	public ActionScopeTarget addReleaseProjectItems( ActionBase action , MetaReleaseTarget releaseProject , String[] ITEMS ) throws Exception {
-		ActionScopeTarget scopeProject = new ActionScopeTarget( this, releaseProject , true );
+		ActionScopeTarget scopeProject = ActionScopeTarget.createReleaseSourceProjectTarget( this, releaseProject , true );
 		scopeProject.addProjectItems( action , ITEMS );
 		return( scopeProject );
 	}
 
+	public ActionScopeTarget addManualDatabase( ActionBase action , boolean all ) throws Exception {
+		ActionScopeTarget scopeTarget = ActionScopeTarget.createDatabaseManualTarget( this , all );
+		return( scopeTarget );
+	}
+	
+	public ActionScopeTarget addDatabaseDelivery( ActionBase action , MetaReleaseDelivery delivery , boolean specifiedExplicitly , boolean all ) throws Exception {
+		ActionScopeTarget scopeTarget = ActionScopeTarget.createDatabaseDeliveryTarget( this , delivery.distDelivery , specifiedExplicitly , all );
+		return( scopeTarget );
+	}
+	
 	public ActionScopeTarget findSourceTarget( ActionBase action , MetaSourceProject project ) throws Exception {
 		String key = MetaReleaseTarget.getTargetKey( action , CATEGORY , project.PROJECT );
 		return( targets.get( key ) );
@@ -207,7 +218,7 @@ public class ActionScopeSet {
 	}
 
 	private void addProductConfig( ActionBase action , MetaDistrConfItem distrComp , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTarget target = new ActionScopeTarget( this , distrComp , specifiedExplicitly );
+		ActionScopeTarget target = ActionScopeTarget.createConfItemTarget( this , distrComp , specifiedExplicitly );
 		addTarget( action , target );
 	}
 
@@ -250,7 +261,7 @@ public class ActionScopeSet {
 	}
 
 	private void addProductManualItem( ActionBase action , MetaDistrBinaryItem item , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTarget target = new ActionScopeTarget( this , item , specifiedExplicitly );
+		ActionScopeTarget target = ActionScopeTarget.createManualDistItemTarget( this , item , specifiedExplicitly );
 		addTarget( action , target );
 	}
 	
@@ -269,7 +280,7 @@ public class ActionScopeSet {
 	}
 
 	private void addReleaseTarget( ActionBase action , MetaReleaseTarget releaseItem , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTarget target = new ActionScopeTarget( this , releaseItem , specifiedExplicitly );
+		ActionScopeTarget target = ActionScopeTarget.createReleaseSourceProjectTarget( this , releaseItem , specifiedExplicitly );
 		addTarget( action , target );
 	}
 
@@ -295,7 +306,7 @@ public class ActionScopeSet {
 	}
 
 	private void addProductDatabase( ActionBase action , MetaDistrDelivery dbitem , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTarget target = new ActionScopeTarget( this , dbitem , specifiedExplicitly );
+		ActionScopeTarget target = ActionScopeTarget.createDatabaseDeliveryTarget( this , dbitem , specifiedExplicitly , true );
 		addTarget( action , target );
 	}
 
@@ -401,7 +412,7 @@ public class ActionScopeSet {
 			}
 		}
 
-		ActionScopeTarget target = new ActionScopeTarget( this , server , specifiedExplicitly );
+		ActionScopeTarget target = ActionScopeTarget.createEnvServerTarget( this , server , specifiedExplicitly );
 		addTarget( action , target );
 		target.addServerNodes( action , nodes );
 		return( target );

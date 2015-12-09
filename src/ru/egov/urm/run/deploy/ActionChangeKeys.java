@@ -47,7 +47,7 @@ public class ActionChangeKeys extends ActionBase {
 			exitAction( "cannot find public key file " + P_KEYFILENEXTPUB );
 	
 		boolean S_HASNEXTPRIVATEKEY = false;
-		if( !session.checkFileExists( this , P_KEYFILENEXTPRV ) )
+		if( session.checkFileExists( this , P_KEYFILENEXTPRV ) )
 			S_HASNEXTPRIVATEKEY = true;
 		
 		// access using private key
