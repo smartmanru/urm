@@ -115,16 +115,16 @@ public class SourceStorage {
 		return( true );
 	}
 	
-	private boolean downloadManualFolder( ActionBase action , GenericVCS vcs , String PATH , LocalFolder dstFolder ) throws Exception {
+	private boolean downloadManualFolder( ActionBase action , GenericVCS vcs , String PATH , LocalFolder dstManualFolder ) throws Exception {
 		if( !isValidPath( action , vcs , PATH ) )
 			return( false );
 	
 		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
-		if( !vcs.exportRepositoryMasterPath( dstFolder , REPOSITORY , PATH , "manual" ) )
+		if( !vcs.exportRepositoryMasterPath( dstManualFolder.getParentFolder( action ) , REPOSITORY , PATH , dstManualFolder.folderName ) )
 			action.exit( "unable to export from REPOSITORY=" + REPOSITORY + ", PATH=" + PATH );
 		
-		if( dstFolder.checkFolderExists( action , "db" ) )
-			dstFolder.prepareFolderForLinux( action , "db" );
+		if( dstManualFolder.checkFolderExists( action , "db" ) )
+			dstManualFolder.prepareFolderForLinux( action , "db" );
 		return( true );
 	}
 	

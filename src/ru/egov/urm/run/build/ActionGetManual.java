@@ -21,13 +21,14 @@ public class ActionGetManual extends ActionBase {
 	@Override protected boolean executeSimple() throws Exception {
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , downloadFolder );
 		
-		if( !sourceStorage.downloadReleaseManualFolder( this , targetRelease , downloadFolder ) ) {
+		LocalFolder manualFolder = downloadFolder.getSubFolder( this , "manual" );
+		if( !sourceStorage.downloadReleaseManualFolder( this , targetRelease , manualFolder ) ) {
 			debug( "no manual items to download" );
 			return( true );
 		}
 
 		if( copyDist )
-			targetRelease.copyManualFilesToDistr( this , downloadFolder );
+			targetRelease.copyManualFilesToDistr( this , manualFolder );
 		return( true );
 	}
 	
