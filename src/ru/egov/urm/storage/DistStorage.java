@@ -100,9 +100,8 @@ public class DistStorage {
 		String folder = getManualFolder( action  );
 		distFolder.removeFolder( action , folder );
 		
-		String parentFolder = Common.getDirName( folder );
-		distFolder.ensureFolderExists( action , parentFolder );
-		distFolder.copyDirFromLocal( action , src , parentFolder );
+		distFolder.ensureExists( action );
+		distFolder.copyDirFromLocal( action , src , "" );
 	}
 
 	public String copyDistToFolder( ActionBase action , LocalFolder workFolder , String file ) throws Exception {
@@ -139,7 +138,7 @@ public class DistStorage {
 	}
 	
 	public String getManualFolder( ActionBase action ) throws Exception {
-		return( Common.getPath( distFolder.folderName , "manual" ) );
+		return( "manual" );
 	}
 	
 	public String getDeliveryConfFolder( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
