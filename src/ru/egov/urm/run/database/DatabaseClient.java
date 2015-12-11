@@ -3,7 +3,11 @@ package ru.egov.urm.run.database;
 import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaDatabase;
 import ru.egov.urm.meta.MetaEnvServer;
+import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.shell.ShellExecutor;
+import ru.egov.urm.storage.RedistStorage;
+import ru.egov.urm.storage.RemoteFolder;
 
 public class DatabaseClient {
 
@@ -58,7 +62,25 @@ public class DatabaseClient {
 			
 		action.log( server.NAME + ": apply " + file + " ..." );
 		
-		String fileLog = file + ".out";
-		specific.applyScript( action , server , true , null , action.options.OPT_DBPASSWORD , null , file , fileLog );
+		// copy file to remote
+		String hostLogin = getDatabaseAccount( action );
+		RedistStorage storage = action.artefactory.getRedistStorage( hostLogin );
+		RemoteFolder folder = storage.getRedistTmpFolder( action );
+		folder.copyFileFromLocal( action , file );
+		
+		String fileRun = folder.getFilePath( action , Common.getBaseName( file ) );
+		String fileLog = fileRun + ".out";
+		
+		ShellExecutor shell = action.getShell( hostLogin );
+		specific.applySystemScript( action , server , shell , fileRun , fileLog );
 	}
+
+	public String getDatabaseAccount( ActionBase action ) throws Exception {
+		for( MetaEnvServerNode node : server.getNodes( action ) )
+			if( !node.OFFLINE )
+				return( node.HOSTLOGIN );
+		action.exit( "server " + server.NAME + " has no online nodes defined" );
+		return( null );
+	}
+	
 }

@@ -32,9 +32,9 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 		return( false );
 	}
 
-	@Override public boolean applyScript( ActionBase action , MetaEnvServer server , boolean sys , String user , String password , String schema , String file , String fileLog ) throws Exception {
-		ShellExecutor shell = action.getShell( "postgres@" + server.DBMSADDR );
-		return( false );
+	@Override public boolean applySystemScript( ActionBase action , MetaEnvServer server , ShellExecutor shell , String file , String fileLog ) throws Exception {
+		shell.customCheckStatus( action , "psql " + " < " + file + " > " + fileLog );
+		return( true );
 	}
 	
 	public boolean validateScriptContent( ActionBase action , LocalFolder dir , String script ) throws Exception {
