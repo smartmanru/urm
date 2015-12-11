@@ -89,13 +89,24 @@ public class CommandContext {
 		String value = System.getProperty( "build.mode" ).toUpperCase();
 		this.buildMode = ( value == null || value.isEmpty() )? VarBUILDMODE.UNKNOWN : VarBUILDMODE.valueOf( value );
 		this.env = System.getProperty( "env" );
+		if( env == null )
+			env = "";
 		this.dc = System.getProperty( "dc" );
+		if( dc == null )
+			dc = "";
 		
 		return( true );
 	}
 	
 	public void logDebug( ActionBase action ) throws Exception {
-		action.debug( "context: hostLogin=" + hostLogin + ", productHome=" + productHome + ", buildMode=" + getBuildModeName() );
+		String contextInfo = "productHome=" + productHome;
+		if( buildMode != VarBUILDMODE.UNKNOWN )
+			contextInfo += "buildMode=" + getBuildModeName();
+		if( !env.isEmpty() )
+			contextInfo += "env=" + env;
+		if( !dc.isEmpty() )
+			contextInfo += "dc=" + dc;
+		action.debug( "context: hostLogin=" + hostLogin + ", productHome=" + productHome + ", " + contextInfo );
 	}
 	
 	public void createPool( ActionBase action ) throws Exception {
