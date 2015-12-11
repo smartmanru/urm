@@ -101,12 +101,12 @@ public class CommandContext {
 	public void logDebug( ActionBase action ) throws Exception {
 		String contextInfo = "productHome=" + productHome;
 		if( buildMode != VarBUILDMODE.UNKNOWN )
-			contextInfo += "buildMode=" + getBuildModeName();
+			contextInfo += ", buildMode=" + getBuildModeName();
 		if( !env.isEmpty() )
-			contextInfo += "env=" + env;
+			contextInfo += ", env=" + env;
 		if( !dc.isEmpty() )
-			contextInfo += "dc=" + dc;
-		action.debug( "context: hostLogin=" + hostLogin + ", productHome=" + productHome + ", " + contextInfo );
+			contextInfo += ", dc=" + dc;
+		action.debug( "context: " + contextInfo );
 	}
 	
 	public void createPool( ActionBase action ) throws Exception {
