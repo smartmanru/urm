@@ -29,7 +29,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		cmdOpts = "";
 		super.defineAction( CommandAction.newAction( new applyManual() , "dbmanual" , "apply manual scipt" , cmdOpts , "./dbmanual.sh [OPTIONS] <RELEASELABEL> <DBSERVER> {all|<indexes>}" ) );
 		
-		envMethods = "sqlmanual";
+		envMethods = "dbmanual";
 	}
 	
 	public boolean run( ActionInit action ) {
