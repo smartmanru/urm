@@ -27,7 +27,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		cmdOpts = "";
 		super.defineAction( CommandAction.newAction( new getReleaseScripts() , "getsql" , "get database release content" , cmdOpts , "./getsql.sh [OPTIONS] {all|<deliveries>}" ) );
 		cmdOpts = "";
-		super.defineAction( CommandAction.newAction( new applyManual() , "sqlmanual" , "apply manual scipt" , cmdOpts , "./sqlmanual.sh [OPTIONS] <RELEASELABEL> <DBSERVER> {all|<indexes>}" ) );
+		super.defineAction( CommandAction.newAction( new applyManual() , "dbmanual" , "apply manual scipt" , cmdOpts , "./dbmanual.sh [OPTIONS] <RELEASELABEL> <DBSERVER> {all|<indexes>}" ) );
 		
 		envMethods = "sqlmanual";
 	}
