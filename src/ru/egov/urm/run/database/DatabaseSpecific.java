@@ -19,6 +19,7 @@ abstract public class DatabaseSpecific {
 
 	abstract public VarPROCESSMODE getProcessStatus( ActionBase action , String hostLogin , String instance ) throws Exception;
 	abstract public boolean checkConnect( ActionBase action , MetaEnvServer server , String user , String password ) throws Exception;
+	abstract public boolean applyScript( ActionBase action , MetaEnvServer server , boolean sys , String user , String password , String schema , String file , String fileLog ) throws Exception;
 	
 	abstract public boolean validateScriptContent( ActionBase action , LocalFolder dir , String script ) throws Exception;
 	abstract public String getComments( ActionBase action , String grep , LocalFolder srcDir , String srcFile ) throws Exception;

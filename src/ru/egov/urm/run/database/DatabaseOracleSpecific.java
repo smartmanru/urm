@@ -36,6 +36,11 @@ public class DatabaseOracleSpecific extends DatabaseSpecific {
 			return( true );
 		return( false );
 	}
+
+	@Override public boolean applyScript( ActionBase action , MetaEnvServer server , boolean sys , String user , String password , String schema , String file , String fileLog ) throws Exception {
+		action.exitNotImplemented();
+		return( false );
+	}
 	
 	public boolean validateScriptContent( ActionBase action , LocalFolder dir , String P_SCRIPT ) throws Exception {
 		String cmd = "sed '/^[ ]*$/d' " + P_SCRIPT + " | tail -2 | tr -d " + Common.getQuoted( "\\n\\r" ) + " | tr -d " + Common.getQuoted( " " ) + " | tr '[a-z]' '[A-Z]' | grep -ce " + Common.getQuoted( "END;\\$" );

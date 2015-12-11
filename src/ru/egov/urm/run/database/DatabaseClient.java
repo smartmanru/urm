@@ -8,13 +8,14 @@ import ru.egov.urm.run.ActionBase;
 public class DatabaseClient {
 
 	MetaEnvServer server;
+	DatabaseSpecific specific;
 	
 	public DatabaseClient( MetaEnvServer server ) {
 		this.server = server;
 	}
 
 	public boolean checkConnect( ActionBase action ) throws Exception {
-		DatabaseSpecific specific = DatabaseSpecific.getSpecificHandler( action , server.DBMSTYPE );
+		specific = DatabaseSpecific.getSpecificHandler( action , server.DBMSTYPE );
 		
 		// check connect to admin schema
 		MetaDatabase db = action.meta.distr.database;
@@ -52,6 +53,12 @@ public class DatabaseClient {
 	}
 
 	public void applyManualScript( ActionBase action , String file ) throws Exception {
+		if( specific == null )
+			action.exit( "need to check connectivity first" );
+			
 		action.log( server.NAME + ": apply " + file + " ..." );
+		
+		String fileLog = file + ".out";
+		specific.applyScript( action , server , true , null , action.options.OPT_DBPASSWORD , null , file , fileLog );
 	}
 }

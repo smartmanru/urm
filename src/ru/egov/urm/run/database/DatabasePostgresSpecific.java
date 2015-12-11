@@ -31,6 +31,11 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 			return( true );
 		return( false );
 	}
+
+	@Override public boolean applyScript( ActionBase action , MetaEnvServer server , boolean sys , String user , String password , String schema , String file , String fileLog ) throws Exception {
+		ShellExecutor shell = action.getShell( "postgres@" + server.DBMSADDR );
+		return( false );
+	}
 	
 	public boolean validateScriptContent( ActionBase action , LocalFolder dir , String script ) throws Exception {
 		return( false );
