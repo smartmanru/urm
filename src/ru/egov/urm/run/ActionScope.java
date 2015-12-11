@@ -31,7 +31,11 @@ public class ActionScope {
 
 	public boolean scopeFull;
 	
-	public ActionScope() {
+	public ActionScope( Metadata meta , DistStorage release ) {
+		this.meta = meta;
+		this.release = release;
+		
+		releaseBound = ( release == null )? false : true;
 	}
 	
 	public boolean isPartial() {
@@ -44,10 +48,7 @@ public class ActionScope {
 
 	public static ActionScope getProductSetScope( ActionBase action , String set , String[] TARGETS ) throws Exception {
 		action.trace( "scope: Product Set Scope, set=" + set + ", targets=" + Common.getListSet( TARGETS ) );
-		ActionScope scope = new ActionScope();
-		scope.meta = action.meta;
-		scope.release = null;
-		scope.releaseBound = false;
+		ActionScope scope = new ActionScope( action.meta , null );
 		
 		if( set == null || set.isEmpty() )
 			action.exit( "missing set name (use \"all\" to reference all sets)" );
@@ -73,14 +74,14 @@ public class ActionScope {
 
 	public static ActionScope getDatabaseManualItemsScope( ActionBase action , DistStorage release , String[] INDEXES ) throws Exception {
 		action.trace( "scope: Release Manual Database Scope, release=" + release.RELEASEDIR + ", items=" + Common.getListSet( INDEXES ) );
-		ActionScope scope = new ActionScope();
+		ActionScope scope = new ActionScope( action.meta , release );
 		scope.getDatabaseItemsScope( action , release , null , INDEXES );
 		return( scope );
 	}
 	
 	public static ActionScope getDatabaseDeliveryItemsScope( ActionBase action , DistStorage release , String DELIVERY , String[] INDEXES ) throws Exception {
 		action.trace( "scope: Release Delivery Database Scope, release=" + release.RELEASEDIR + ", delivery=" + DELIVERY + ", items=" + Common.getListSet( INDEXES ) );
-		ActionScope scope = new ActionScope();
+		ActionScope scope = new ActionScope( action.meta , release );
 		scope.getDatabaseItemsScope( action , release , DELIVERY , INDEXES );
 		return( scope );
 	}
@@ -91,10 +92,7 @@ public class ActionScope {
 	
 	public static ActionScope getReleaseSetScope( ActionBase action , DistStorage release , String set , String[] TARGETS ) throws Exception {
 		action.trace( "scope: Release Set Scope, release=" + release.RELEASEDIR + ", set=" + set + ", targets=" + Common.getListSet( TARGETS ) );
-		ActionScope scope = new ActionScope();
-		scope.meta = action.meta;
-		scope.release = release;
-		scope.releaseBound = true;
+		ActionScope scope = new ActionScope( action.meta , release );
 		
 		if( set == null || set.isEmpty() )
 			action.exit( "missing set name (use \"all\" to reference all sets)" );
@@ -120,10 +118,7 @@ public class ActionScope {
 
 	public static ActionScope getProductDistItemsScope( ActionBase action , String[] ITEMS ) throws Exception {
 		action.trace( "scope: Product Dist Items Scope, items=" + Common.getListSet( ITEMS ) );
-		ActionScope scope = new ActionScope();
-		scope.meta = action.meta;
-		scope.release = null;
-		scope.releaseBound = true;
+		ActionScope scope = new ActionScope( action.meta , null );
 
 		if( ITEMS == null || ITEMS.length == 0 )
 			action.exit( "missing items (use \"all\" to reference all items)" );
@@ -137,10 +132,7 @@ public class ActionScope {
 
 	public static ActionScope getReleaseDistItemsScope( ActionBase action , DistStorage dist , String[] ITEMS ) throws Exception {
 		action.trace( "scope: Release Dist Items Scope, release=" + dist.RELEASEDIR + ", items=" + Common.getListSet( ITEMS ) );
-		ActionScope scope = new ActionScope();
-		scope.meta = action.meta;
-		scope.release = null;
-		scope.releaseBound = true;
+		ActionScope scope = new ActionScope( action.meta , null );
 
 		if( ITEMS == null || ITEMS.length == 0 )
 			action.exit( "missing items (use \"all\" to reference all items)" );
@@ -159,10 +151,7 @@ public class ActionScope {
 	
 	public static ActionScopeTarget getReleaseProjectItemsScopeTarget( ActionBase action , DistStorage release , String PROJECT , String[] ITEMS ) throws Exception {
 		action.trace( "scope: Release Project Items Scope Target, release=" + release.RELEASEDIR + ", project=" + PROJECT + ", items=" + Common.getListSet( ITEMS ) );
-		ActionScope scope = new ActionScope();
-		scope.meta = action.meta;
-		scope.release = release;
-		scope.releaseBound = true;
+		ActionScope scope = new ActionScope( action.meta , release );
 
 		if( PROJECT == null || PROJECT.isEmpty() )
 			action.exit( "missing project" );
@@ -182,9 +171,7 @@ public class ActionScope {
 		else
 			action.trace( "scope: Env Server Nodes Scope, server=" + SERVER + ", nodes=" + Common.getListSet( NODES ) );
 		
-		ActionScope scope = new ActionScope();
-		scope.meta = action.meta;
-		scope.releaseBound = false;
+		ActionScope scope = new ActionScope( action.meta , null );
 
 		if( action.meta.dc == null )
 			action.exit( "datacenter is underfined" );
@@ -203,9 +190,7 @@ public class ActionScope {
 	}
 
 	public static ActionScopeTarget getEnvServerNodesScope( ActionBase action , MetaEnvServer srv , List<MetaEnvServerNode> nodes ) throws Exception {
-		ActionScope scope = new ActionScope();
-		scope.meta = action.meta;
-		scope.releaseBound = false;
+		ActionScope scope = new ActionScope( action.meta , null );
 		
 		String nodeList = "";
 		for( MetaEnvServerNode node : nodes )
@@ -227,9 +212,7 @@ public class ActionScope {
 		else
 			action.trace( "scope: Env Servers Scope, servers=" + Common.getListSet( SERVERS ) );
 		
-		ActionScope scope = new ActionScope();
-		scope.meta = action.meta;
-		scope.releaseBound = false;
+		ActionScope scope = new ActionScope( action.meta , null );
 
 		if( SERVERS == null || SERVERS.length == 0 )
 			action.exit( "missing items (use \"all\" to reference all items)" );
