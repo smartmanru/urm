@@ -6,5 +6,5 @@ RUNPATH=`pwd`
 # set env/dc context
 . ../_context.sh
 
-cd ../../../../database
-./sqlapply.sh "$@"
+cd ../../../database
+./dbapply.sh "$@"

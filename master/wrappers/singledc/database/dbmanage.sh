@@ -7,4 +7,4 @@ RUNPATH=`pwd`
 . ../_context.sh
 
 cd ../../../database
-./sqlapply.sh "$@"
+./dbmanage.sh "$@"
