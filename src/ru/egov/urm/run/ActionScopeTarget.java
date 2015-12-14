@@ -42,6 +42,7 @@ public class ActionScopeTarget {
 	
 	public static ActionScopeTarget createDatabaseManualTarget( ActionScopeSet set , boolean all ) {
 		ActionScopeTarget target = new ActionScopeTarget( set );
+		target.NAME = "db.manual";
 		target.dbManualItems = true;
 		target.itemFull = all; 
 		return( target );
@@ -74,7 +75,7 @@ public class ActionScopeTarget {
 		ActionScopeTarget target = new ActionScopeTarget( set );
 		target.dbDelivery = delivery;
 		
-		target.NAME = delivery.NAME;
+		target.NAME = "db." + delivery.NAME;
 		target.itemFull = all;
 		target.specifiedExplicitly = specifiedExplicitly;
 		return( target );
