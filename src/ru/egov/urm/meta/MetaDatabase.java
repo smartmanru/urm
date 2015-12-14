@@ -39,8 +39,8 @@ public class MetaDatabase {
 			return( false );
 		}
 		
-		Node schema = ConfReader.xmlGetRequiredChild( action , administration , "schema" );
-		PUBLISHERS = ConfReader.getAttrValue( action , schema , "publishers" );
+		Node pubs = ConfReader.xmlGetFirstChild( action , administration , "publishers" );
+		PUBLISHERS = ConfReader.getAttrValue( action , pubs , "list" );
 
 		Node aligned = ConfReader.xmlGetFirstChild( action , administration , "aligned" );
 		if( aligned == null )
