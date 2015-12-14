@@ -125,7 +125,7 @@ public class Artefactory {
 			distFolder = new RemoteFolder( this , meta.env.DISTR_HOSTLOGIN , meta.env.DISTR_PATH );
 		else
 			distFolder = new RemoteFolder( this , meta.product.CONFIG_DISTR_HOSTLOGIN , meta.product.CONFIG_DISTR_PATH );
-		DistRepository repo = new DistRepository( this , workFolder , distFolder );
+		DistRepository repo = new DistRepository( this , distFolder );
 		return( repo );
 	}
 	

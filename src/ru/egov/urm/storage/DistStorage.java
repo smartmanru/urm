@@ -30,7 +30,6 @@ public class DistStorage {
 	public static String stateFileName = "state.txt";
 
 	Artefactory artefactory;
-	public LocalFolder localFolder;
 	private RemoteFolder distFolder;
 	Metadata meta;
 	
@@ -42,11 +41,10 @@ public class DistStorage {
 
 	ReleaseState state; 
 	
-	public DistStorage( Artefactory artefactory , LocalFolder localFolder , RemoteFolder distFolder ) {
+	public DistStorage( Artefactory artefactory , RemoteFolder distFolder ) {
 		this.artefactory = artefactory; 
-		this.localFolder = localFolder;
 		this.distFolder = distFolder;
-		this.meta = localFolder.meta;
+		this.meta = artefactory.meta;
 				
 		RELEASEDIR = distFolder.folderName;
 		state = new ReleaseState( distFolder );
@@ -109,20 +107,20 @@ public class DistStorage {
 	}
 	
 	public String copyDistToFolder( ActionBase action , LocalFolder workFolder , String srcSubdir , String file ) throws Exception {
-		action.debug( "copy from distributive " + file + " to " + localFolder.folderPath + " ..." );
+		action.debug( "copy from distributive " + file + " to " + workFolder.folderPath + " ..." );
 		RemoteFolder srcFolder = distFolder.getSubFolder( action , srcSubdir ); 
-		return( srcFolder.copyFileToLocal( action , localFolder , file , "" ) );
+		return( srcFolder.copyFileToLocal( action , workFolder , file , "" ) );
 	}
 
 	public String copyDistFileToFolderRename( ActionBase action , LocalFolder workFolder , String srcSubdir , String file , String newName ) throws Exception {
-		action.debug( "copy from distributive " + file + " to " + localFolder.folderPath + " ..." );
+		action.debug( "copy from distributive " + file + " to " + workFolder.folderPath + " ..." );
 		RemoteFolder srcFolder = distFolder.getSubFolder( action , srcSubdir ); 
-		return( srcFolder.copyFileToLocalRename( action , localFolder , file , newName ) );
+		return( srcFolder.copyFileToLocalRename( action , workFolder , file , newName ) );
 	}
 	
 	public void unzipDistFileToFolder( ActionBase action , LocalFolder workFolder , String file , String FOLDER , String target , String part ) throws Exception {
-		String filePath = distFolder.copyFileToLocal( action , localFolder , file , FOLDER );
-		action.session.unzip( action , localFolder.folderPath , filePath , part , target ); 
+		String filePath = distFolder.copyFileToLocal( action , workFolder , file , FOLDER );
+		action.session.unzip( action , workFolder.folderPath , filePath , part , target ); 
 	}
 
 	public String getDistPath( ActionBase action ) throws Exception {

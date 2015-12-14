@@ -7,15 +7,13 @@ import ru.egov.urm.run.ActionBase;
 public class DistRepository {
 
 	Artefactory artefactory;
-	public LocalFolder localFolder;
 	private RemoteFolder repoFolder;
 	Metadata meta;
 	
-	public DistRepository( Artefactory artefactory , LocalFolder localFolder , RemoteFolder repoFolder ) {
+	public DistRepository( Artefactory artefactory , RemoteFolder repoFolder ) {
 		this.artefactory = artefactory; 
-		this.localFolder = localFolder;
 		this.repoFolder = repoFolder; 
-		this.meta = localFolder.meta;
+		this.meta = artefactory.meta;
 	}
 
 	public DistStorage getDistByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
@@ -24,7 +22,7 @@ public class DistRepository {
 		String RELEASEDIR = getReleaseDirByLabel( action , RELEASELABEL );
 		
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , RELEASEDIR );
-		DistStorage storage = new DistStorage( artefactory , localFolder , distFolder );
+		DistStorage storage = new DistStorage( artefactory , distFolder );
 		
 		// check release directory exists
 		if( !distFolder.checkExists( action ) )
@@ -40,7 +38,7 @@ public class DistRepository {
 		String RELEASEDIR = getReleaseDirByLabel( action , RELEASELABEL );
 		
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , RELEASEDIR );
-		DistStorage storage = new DistStorage( artefactory , localFolder , distFolder );
+		DistStorage storage = new DistStorage( artefactory , distFolder );
 		
 		// check release directory exists
 		if( distFolder.checkExists( action ) )

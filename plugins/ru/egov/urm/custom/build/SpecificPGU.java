@@ -131,7 +131,7 @@ public class SpecificPGU {
 		}
 		else {
 			DistStorage distStorage = srcRelease;
-			action.log( "copy servicecall and storageservice from " + distStorage.getDistPath( action ) + " - to " + distStorage.localFolder.folderPath + " ..." );
+			action.log( "copy servicecall and storageservice from " + distStorage.getDistPath( action ) + " - to " + downloadFolder.folderPath + " ..." );
 			distStorage.copyDistToFolder( action , downloadFolder , "servicecall-" + VERSION + "." + SERVICECALL_EXT );
 			distStorage.copyDistToFolder( action , downloadFolder , "storageservice-" + VERSION + "." + STORAGESERVICE_EXT );
 		}
