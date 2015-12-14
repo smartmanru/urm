@@ -28,6 +28,7 @@ public class ServerStorage {
 	public MetaEnvServer server;
 	public MetaEnvServerNode node;
 	public String hostLogin;
+	public String type;
 	
 	public ServerStorage( Artefactory artefactory , MetaEnvServer server , MetaEnvServerNode node ) {
 		this.artefactory = artefactory;
@@ -36,11 +37,12 @@ public class ServerStorage {
 		this.hostLogin = node.HOSTLOGIN;
 	}
 	
-	public ServerStorage( Artefactory artefactory , String hostLogin ) {
+	public ServerStorage( Artefactory artefactory , String type , String hostLogin ) {
 		this.artefactory = artefactory;
 		this.server = null;
 		this.node = null;
 		this.hostLogin = hostLogin;
+		this.type = type;
 	}
 	
 	public void checkRootDir( ActionBase action , String rootPath ) throws Exception {
@@ -158,7 +160,10 @@ public class ServerStorage {
 	
 	protected String getRedistFolderRootPath( ActionBase action ) throws Exception {
 		String path = action.meta.env.REDISTPATH;
-		path = Common.getPath( path , server.NAME + "-node" + node.POS );
+		if( server != null )
+			path = Common.getPath( path , server.NAME + "-node" + node.POS );
+		else
+			path = Common.getPath( path , type );
 		return( path );
 	}
 

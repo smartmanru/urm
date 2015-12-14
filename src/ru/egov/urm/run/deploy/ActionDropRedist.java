@@ -20,7 +20,7 @@ public class ActionDropRedist extends ActionBase {
 
 	@Override protected boolean executeAccount( ActionScopeSet set , String hostLogin ) throws Exception {
 		// drop all redist information for all servers
-		RedistStorage redist = artefactory.getRedistStorage( hostLogin );
+		RedistStorage redist = artefactory.getRedistStorage( "all" , hostLogin );
 		redist.dropAll( this );
 		return( true );
 	}

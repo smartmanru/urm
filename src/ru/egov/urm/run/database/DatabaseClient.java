@@ -64,7 +64,7 @@ public class DatabaseClient {
 			
 		// copy folder to remote
 		String hostLogin = getDatabaseAccount( action );
-		RedistStorage storage = action.artefactory.getRedistStorage( hostLogin );
+		RedistStorage storage = action.artefactory.getRedistStorage( "database" , hostLogin );
 		RemoteFolder folder = storage.getRedistTmpFolder( action );
 		folder.recreateThis( action );
 		

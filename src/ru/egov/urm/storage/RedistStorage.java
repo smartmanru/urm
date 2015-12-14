@@ -19,8 +19,8 @@ import ru.egov.urm.shell.ShellExecutor;
 
 public class RedistStorage extends ServerStorage {
 
-	public RedistStorage( Artefactory artefactory , String hostLogin ) {
-		super( artefactory , hostLogin );
+	public RedistStorage( Artefactory artefactory , String type , String hostLogin ) {
+		super( artefactory , type , hostLogin );
 	}
 
 	public RedistStorage( Artefactory artefactory , MetaEnvServer server , MetaEnvServerNode node ) {

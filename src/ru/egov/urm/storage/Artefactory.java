@@ -265,8 +265,8 @@ public class Artefactory {
 		return( new RedistStorage( this , server , node ) );
 	}
 
-	public RedistStorage getRedistStorage( String hostLogin ) throws Exception {
-		return( new RedistStorage( this , hostLogin ) );
+	public RedistStorage getRedistStorage( String type , String hostLogin ) throws Exception {
+		return( new RedistStorage( this , type , hostLogin ) );
 	}
 
 	public RuntimeStorage getRuntimeStorage( MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
