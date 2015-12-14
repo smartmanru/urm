@@ -21,7 +21,7 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 	}
 
 	@Override public boolean checkConnect( ActionBase action , MetaEnvServer server , String user , String password ) throws Exception {
-		String dbmsAddrDB = action.meta.distr.database.admSchema.DBNAME;
+		String dbmsAddrDB = server.admSchema.DBNAME;
 		String dbmsAddrHost = server.DBMSADDR;
 		
 		String value = action.session.customGetValue( action , "export PGPASSWORD='" + password + "'; " + 

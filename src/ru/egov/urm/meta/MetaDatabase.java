@@ -7,7 +7,6 @@ import org.w3c.dom.Node;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
-import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.storage.MetadataStorage;
 
@@ -18,13 +17,8 @@ public class MetaDatabase {
 	public Map<String,MetaDatabaseSchema> mapSchema = new HashMap<String,MetaDatabaseSchema>();
 	public Map<String,MetaDatabaseDatagroup> mapDatagroup = new HashMap<String,MetaDatabaseDatagroup>();
 	public Map<String,String> mapAligned = new HashMap<String,String>();
-	public MetaDatabaseSchema admSchema;
 	
-	public String ADMSCHEMA;
-	public String RELEASETABLE;
-	public String SCRIPTTABLE;
 	public String PUBLISHERS;
-
 	public String ALIGNEDMAPPING;
 	
 	public MetaDatabase( Metadata meta ) {
@@ -36,7 +30,6 @@ public class MetaDatabase {
 			return;
 		
 		loadSchemaSet( action , node );
-		admSchema = getSchema( action , ADMSCHEMA );
 	}
 
 	public boolean loadAdministration( ActionBase action , Node node ) throws Exception {
@@ -47,9 +40,6 @@ public class MetaDatabase {
 		}
 		
 		Node schema = ConfReader.xmlGetRequiredChild( action , administration , "schema" );
-		ADMSCHEMA = ConfReader.getNameAttr( action , schema , VarNAMETYPE.ALPHANUM );
-		RELEASETABLE = ConfReader.getAttrValue( action , schema , "releasetable" );
-		SCRIPTTABLE = ConfReader.getAttrValue( action , schema , "scripttable" );
 		PUBLISHERS = ConfReader.getAttrValue( action , schema , "publishers" );
 
 		Node aligned = ConfReader.xmlGetFirstChild( action , administration , "aligned" );
@@ -211,10 +201,6 @@ public class MetaDatabase {
 		if( datagroup == null )
 			action.exit( "unknown datagroup=" + name );
 		return( datagroup );
-	}
-
-	public String getAdmUser( ActionBase action ) throws Exception {
-		return( admSchema.DBUSER ); 
 	}
 	
 }

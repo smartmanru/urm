@@ -55,7 +55,9 @@ public class MetaEnvServer {
 	public VarDBMSTYPE DBMSTYPE;
 	public String DBMSADDR;
 	public String DATAGROUPS;
+	public String ADMSCHEMA;
 	public Map<String,MetaDatabaseDatagroup> datagroupMap;
+	public MetaDatabaseSchema admSchema;
 	
 	public String ALIGNED;
 	public String REGIONS;
@@ -159,12 +161,15 @@ public class MetaEnvServer {
 			DATAGROUPS = properties.getSystemRequiredProperty( action , "datagroups" , systemProps );
 			ALIGNED = properties.getSystemProperty( action , "aligned" , "" , systemProps );
 			REGIONS = properties.getSystemProperty( action , "regions" , "" , systemProps );
+			ADMSCHEMA = properties.getSystemProperty( action , "admschema" , "" , systemProps );
 			
 			MetaDatabase database = action.meta.distr.database;
 			for( String dg : Common.splitSpaced( DATAGROUPS ) ) {
 				MetaDatabaseDatagroup datagroup = database.getDatagroup( action , dg );
 				datagroupMap.put( datagroup.NAME , datagroup );
 			}
+			
+			admSchema = database.getSchema( action , ADMSCHEMA );
 		}
 		else
 		if( TYPE != VarSERVERTYPE.UNKNOWN ) {

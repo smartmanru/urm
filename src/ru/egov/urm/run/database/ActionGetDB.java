@@ -1,6 +1,5 @@
 package ru.egov.urm.run.database;
 
-import ru.egov.urm.meta.Metadata.VarDBMSTYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScopeTarget;
 import ru.egov.urm.storage.DistStorage;
@@ -44,14 +43,13 @@ public class ActionGetDB extends ActionBase {
 	}
 	
 	private void downloadDBDir( ActionScopeTarget item , LocalFolder workFolder , LocalFolder preparedFolder , String dir ) throws Exception {
-		VarDBMSTYPE dbmsType = meta.getDatabaseTypeByFolder( this , dir );
 		DatabasePrepare prepare = new DatabasePrepare();
 		
 		debug( "prepare scripts dir=" + dir + " ..." );
-		DatabaseSpecific specific = DatabaseSpecific.getSpecificHandler( this , dbmsType );
 		
 		LocalFolder workSubFolder = workFolder.getSubFolder( this , dir );
 		LocalFolder preparedSubFolder = preparedFolder.getSubFolder( this , dir );
-		prepare.processDatabaseFiles( this , release , item.dbDelivery , workSubFolder , preparedSubFolder , specific );
+		
+		prepare.processDatabaseFiles( this , release , item.dbDelivery , workSubFolder , preparedSubFolder );
 	}
 }

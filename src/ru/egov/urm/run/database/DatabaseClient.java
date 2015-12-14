@@ -1,7 +1,6 @@
 package ru.egov.urm.run.database;
 
 import ru.egov.urm.Common;
-import ru.egov.urm.meta.MetaDatabase;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.run.ActionBase;
@@ -24,8 +23,7 @@ public class DatabaseClient {
 		specific = DatabaseSpecific.getSpecificHandler( action , server.DBMSTYPE );
 		
 		// check connect to admin schema
-		MetaDatabase db = action.meta.distr.database;
-		String user = db.getAdmUser( action );
+		String user = server.admSchema.DBUSER;
 		String pwd = getUserPassword( action , server.DBMSADDR , user );
 		return( specific.checkConnect( action , server , user , pwd ) );
 	}

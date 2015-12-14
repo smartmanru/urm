@@ -2,6 +2,7 @@ package ru.egov.urm.run.database;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaDatabase;
+import ru.egov.urm.meta.MetaDatabaseSchema;
 import ru.egov.urm.meta.MetaDistr;
 import ru.egov.urm.meta.MetaDistrDelivery;
 import ru.egov.urm.meta.Metadata;
@@ -15,7 +16,6 @@ public class DatabasePrepare {
 
 	private DistStorage distStorage;
 	private MetaDistrDelivery dbDelivery;
-	private DatabaseSpecific specific;
 	private LocalFolder srcFolder;
 	private LocalFolder dstFolder;
 	private FileSet srcFileSet;
@@ -34,10 +34,9 @@ public class DatabasePrepare {
 	MetaDistr distr;
 	MetaDatabase database;
 	
-	public void processDatabaseFiles( ActionBase action , DistStorage distStorage , MetaDistrDelivery dbDelivery , LocalFolder src , LocalFolder dst , DatabaseSpecific specific ) throws Exception {
+	public void processDatabaseFiles( ActionBase action , DistStorage distStorage , MetaDistrDelivery dbDelivery , LocalFolder src , LocalFolder dst ) throws Exception {
 		this.distStorage = distStorage;
 		this.dbDelivery = dbDelivery;
-		this.specific = specific;
 		this.srcFolder = src;
 		this.dstFolder = dst;
 		
@@ -152,6 +151,7 @@ public class DatabasePrepare {
 	}
 
 	private void copyUddi( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , LocalFolder P_TARGETDIR , FileSet P_UDDIDIR ) throws Exception {
+		MetaDatabaseSchema schema = database.getSchema( action , "juddi" ); 
 		String F_UDDINUM = database.getSqlIndexPrefix( action , P_UDDIDIR.dirName + ".juddi" , P_ALIGNEDID );
 
 		// regional tail
@@ -169,7 +169,7 @@ public class DatabasePrepare {
 			P_TARGETDIR.ensureFolderExists( action , "svcrun" );
 			action.log( P_UDDIDIR + "/svcdic ..." );
 			if( svcdic.files.containsKey( "extdicuddi.txt" ) )
-				specific.grepComments( action , "UDDI" , srcFolder , Common.getPath( svcdic.dirPath , "extdicuddi.txt" ) , P_TARGETDIR , SRC_DICFILE_EP );
+				schema.specific.grepComments( action , "UDDI" , srcFolder , Common.getPath( svcdic.dirPath , "extdicuddi.txt" ) , P_TARGETDIR , SRC_DICFILE_EP );
 		}
 
 		FileSet svcspec = P_UDDIDIR.getDirByPath( action , "svcspec" );
@@ -186,8 +186,8 @@ public class DatabasePrepare {
 					continue;
 					
 				// extract required smev attributes
-				specific.grepComments( action , "SMEVATTR" , srcFolder , Common.getPath( svcspec.dirPath , script ) , P_TARGETDIR , SRC_SMEVATTRFILE );
-				specific.grepComments( action , "UDDI" , srcFolder , Common.getPath( svcspec.dirPath , script ) , P_TARGETDIR , SRC_SVCFILE_EP );
+				schema.specific.grepComments( action , "SMEVATTR" , srcFolder , Common.getPath( svcspec.dirPath , script ) , P_TARGETDIR , SRC_SMEVATTRFILE );
+				schema.specific.grepComments( action , "UDDI" , srcFolder , Common.getPath( svcspec.dirPath , script ) , P_TARGETDIR , SRC_SVCFILE_EP );
 			}
 		}
 
@@ -203,8 +203,8 @@ public class DatabasePrepare {
 		P_TARGETDIR.ensureFolderExists( action , Common.getDirName( DST_FNAME_UAT ) );
 		P_TARGETDIR.ensureFolderExists( action , Common.getDirName( DST_FNAME_PROD ) );
 
-		specific.addComment( action , "UAT UDDI setup script" , P_TARGETDIR , DST_FNAME_UAT );
-		specific.addComment( action , "PROD UDDI setup script" , P_TARGETDIR , DST_FNAME_PROD );
+		schema.specific.addComment( action , "UAT UDDI setup script" , P_TARGETDIR , DST_FNAME_UAT );
+		schema.specific.addComment( action , "PROD UDDI setup script" , P_TARGETDIR , DST_FNAME_PROD );
 
 		// process endpoints
 		if( S_DIC_CONTENT || S_SVC_CONTENT )
@@ -291,14 +291,16 @@ public class DatabasePrepare {
 	}
 
 	private void processUddiSmevAttrs( ActionBase action , String P_SVCNUM , LocalFolder P_TARGETDIR , String FNAME_UAT , String FNAME_PROD , String SMEVATTRFILE ) throws Exception {
+		MetaDatabaseSchema schema = database.getSchema( action , "juddi" );
+		
 		// process content for endpoints
 		String LOCAL_UDDI_FNAME = "uddi.txt";
 		P_TARGETDIR.removeFiles( action , LOCAL_UDDI_FNAME );
 
 		P_TARGETDIR.appendFileWithFile( action , LOCAL_UDDI_FNAME , SMEVATTRFILE );
 
-		specific.smevAttrBegin( action , P_TARGETDIR , FNAME_UAT );
-		specific.smevAttrBegin( action , P_TARGETDIR , FNAME_PROD );
+		schema.specific.smevAttrBegin( action , P_TARGETDIR , FNAME_UAT );
+		schema.specific.smevAttrBegin( action , P_TARGETDIR , FNAME_PROD );
 
 		for( String line : P_TARGETDIR.readFileLines( action , LOCAL_UDDI_FNAME ) ) {
 			// format:
@@ -317,17 +319,19 @@ public class DatabasePrepare {
 				action.log( "prepare: invalid string - line=" + line );
 			}
 
-			specific.smevAttrAddValue( action , UDDI_ATTR_ID , UDDI_ATTR_NAME , UDDI_ATTR_CODE , UDDI_ATTR_REGION , UDDI_ATTR_ACCESSPOINT , P_TARGETDIR , FNAME_UAT );
-			specific.smevAttrAddValue( action , UDDI_ATTR_ID , UDDI_ATTR_NAME , UDDI_ATTR_CODE , UDDI_ATTR_REGION , UDDI_ATTR_ACCESSPOINT , P_TARGETDIR , FNAME_PROD );
+			schema.specific.smevAttrAddValue( action , UDDI_ATTR_ID , UDDI_ATTR_NAME , UDDI_ATTR_CODE , UDDI_ATTR_REGION , UDDI_ATTR_ACCESSPOINT , P_TARGETDIR , FNAME_UAT );
+			schema.specific.smevAttrAddValue( action , UDDI_ATTR_ID , UDDI_ATTR_NAME , UDDI_ATTR_CODE , UDDI_ATTR_REGION , UDDI_ATTR_ACCESSPOINT , P_TARGETDIR , FNAME_PROD );
 		}
 
-		specific.smevAttrEnd( action , P_TARGETDIR , FNAME_UAT );
-		specific.smevAttrEnd( action , P_TARGETDIR , FNAME_PROD );
+		schema.specific.smevAttrEnd( action , P_TARGETDIR , FNAME_UAT );
+		schema.specific.smevAttrEnd( action , P_TARGETDIR , FNAME_PROD );
 
 		action.debug( "prepare: SVCNUM=" + P_SVCNUM + " - UDDI content has been created for smev attributes." );
 	}
 
 	private void processUddiEndpoints( ActionBase action , String P_SVCNUM , LocalFolder P_TARGETDIR , String FNAME_UAT , String FNAME_PROD , String DICFILE , String SVCFILE ) throws Exception {
+		MetaDatabaseSchema schema = database.getSchema( action , "juddi" );
+		
 		// process content for endpoints
 		String LOCAL_UDDI_FNAME = "uddi.txt";
 		P_TARGETDIR.removeFiles( action , LOCAL_UDDI_FNAME );
@@ -338,8 +342,8 @@ public class DatabasePrepare {
 		if( S_SVC_CONTENT )
 			P_TARGETDIR.appendFileWithFile( action , LOCAL_UDDI_FNAME , SVCFILE );
 
-		specific.uddiBegin( action , P_TARGETDIR , FNAME_UAT );
-		specific.uddiBegin( action , P_TARGETDIR , FNAME_PROD );
+		schema.specific.uddiBegin( action , P_TARGETDIR , FNAME_UAT );
+		schema.specific.uddiBegin( action , P_TARGETDIR , FNAME_PROD );
 
 		for( String line : P_TARGETDIR.readFileLines( action , LOCAL_UDDI_FNAME ) ) {
 			if( !line.startsWith( "-- UDDI" ) )
@@ -361,14 +365,14 @@ public class DatabasePrepare {
 					S_CHECK_FAILED = true;
 				}
 				else {
-					specific.uddiAddEndpoint( action , UDDI_KEY , UDDI_UAT , P_TARGETDIR , FNAME_UAT );
-					specific.uddiAddEndpoint( action , UDDI_KEY , UDDI_PROD , P_TARGETDIR , FNAME_PROD );
+					schema.specific.uddiAddEndpoint( action , UDDI_KEY , UDDI_UAT , P_TARGETDIR , FNAME_UAT );
+					schema.specific.uddiAddEndpoint( action , UDDI_KEY , UDDI_PROD , P_TARGETDIR , FNAME_PROD );
 				}
 			}
 		}
 
-		specific.uddiEnd( action , P_TARGETDIR , FNAME_UAT );
-		specific.uddiEnd( action , P_TARGETDIR , FNAME_PROD );
+		schema.specific.uddiEnd( action , P_TARGETDIR , FNAME_UAT );
+		schema.specific.uddiEnd( action , P_TARGETDIR , FNAME_PROD );
 
 		action.debug( "prepare: SVCNUM=" + P_SVCNUM + " - UDDI content has been created for endpoints." );
 	}
@@ -732,14 +736,17 @@ public class DatabasePrepare {
 
 	private boolean checkSql( ActionBase action , FileSet P_ALIGNEDNAME , String P_SCRIPT ) throws Exception {
 		LocalFolder scriptFolder = srcFolder.getSubFolder( action , P_ALIGNEDNAME.dirPath );
-		if( !specific.validateScriptContent( action , scriptFolder , P_SCRIPT ) ) {
+		String schemaName = Common.getListItem( P_SCRIPT , "-" , 1 );
+		MetaDatabaseSchema schema = database.getSchema( action , schemaName );
+		
+		if( !schema.specific.validateScriptContent( action , scriptFolder , P_SCRIPT ) ) {
 			S_ERROR_MSG = "invalid script content";
 			return( false );
 		}
 		
 		// check if regional
 		if( P_ALIGNEDNAME.dirName.equals( "regional" ) ) {
-			String S_SPECIFIC_COMMENT = specific.getComments( action , "REGIONS " , scriptFolder , P_SCRIPT ); 
+			String S_SPECIFIC_COMMENT = schema.specific.getComments( action , "REGIONS " , scriptFolder , P_SCRIPT ); 
 			if( S_SPECIFIC_COMMENT.isEmpty() ) {
 				S_ERROR_MSG = "script should have REGIONS header property - " + P_SCRIPT;
 				return( false );

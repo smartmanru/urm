@@ -390,15 +390,5 @@ public class Metadata {
 	public void updateProduct( ActionBase action ) throws Exception {
 		product.updateProperties( action );
 	}
-	
-	public VarDBMSTYPE getDatabaseTypeByFolder( ActionBase action , String folder ) throws Exception {
-		if( folder.equals( "orasql" ) )
-			return( VarDBMSTYPE.ORACLE );
-		if( folder.equals( "pgsql" ) )
-			return( VarDBMSTYPE.POSTGRESQL );
-		
-		action.exit( "unknown database folder=" + folder );
-		return( VarDBMSTYPE.UNKNOWN );
-	}
 
 }
