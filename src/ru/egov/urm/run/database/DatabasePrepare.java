@@ -117,18 +117,19 @@ public class DatabasePrepare {
 
 			action.log( "prepare: =================================== copy aligned dir=" + aligneddir + " id=" + S_COMMON_ALIGNEDID + " ..." );
 			
-			F_TARGETDIR = dstFolder.getSubFolder( action , "aligned/" + aligneddir );
 			copyCore( action , aligneddir , S_COMMON_ALIGNEDID , F_TARGETDIR );
 			copyServices( action , aligneddir , S_COMMON_ALIGNEDID , F_TARGETDIR );
 		}
 	}
 	
 	private void copyServices( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , LocalFolder P_TARGETDIR ) throws Exception {
+		LocalFolder scriptDir = P_TARGETDIR.getSubFolder( action , "scripts" );
+		
 		for( FileSet name : P_ALIGNEDNAME.dirs.values() ) {
 			if( name.dirName.startsWith( "war." ) )
-				copyOneWar( action , P_ALIGNEDNAME , P_ALIGNEDID , P_TARGETDIR , name );
+				copyOneWar( action , P_ALIGNEDNAME , P_ALIGNEDID , scriptDir , name );
 			if( name.dirName.startsWith( "forms." ) )
-				copyOneForms( action , P_ALIGNEDNAME , P_ALIGNEDID , P_TARGETDIR , name );
+				copyOneForms( action , P_ALIGNEDNAME , P_ALIGNEDID , scriptDir , name );
 		}
 			
 		if( S_CHECK_FAILED ) {
@@ -226,21 +227,18 @@ public class DatabasePrepare {
 			
 	private void copyCore( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , LocalFolder P_TARGETDIR ) throws Exception {
 		action.log( "preparing core scripts aligned=" + P_ALIGNEDNAME.dirName + " ..." );
-		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ALIGNEDNAME.getDirByPath( action , "coreddl" ) , P_TARGETDIR );
-		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ALIGNEDNAME.getDirByPath( action , "coredml" ) , P_TARGETDIR );
-		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ALIGNEDNAME.getDirByPath( action , "coreprodonly" ) , P_TARGETDIR.getSubFolder( action , "prodonly" ) );
-		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ALIGNEDNAME.getDirByPath( action , "coreuatonly" ) , P_TARGETDIR.getSubFolder( action , "uatonly" ) );
-		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ALIGNEDNAME.getDirByPath( action , "coresvc" ) , P_TARGETDIR.getSubFolder( action , "svcrun" ) );
+		LocalFolder scriptDir = P_TARGETDIR.getSubFolder( action , "scripts" );
+		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ALIGNEDNAME.getDirByPath( action , "coreddl" ) , scriptDir );
+		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ALIGNEDNAME.getDirByPath( action , "coredml" ) , scriptDir );
+		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ALIGNEDNAME.getDirByPath( action , "coreprodonly" ) , scriptDir );
+		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ALIGNEDNAME.getDirByPath( action , "coreuatonly" ) , scriptDir );
+		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ALIGNEDNAME.getDirByPath( action , "coresvc" ) , scriptDir );
 
 		// copy dataload part
 		FileSet dataload = P_ALIGNEDNAME.getDirByPath( action , "dataload" );
+		LocalFolder dataloadDir = P_TARGETDIR.getSubFolder( action , "dataload" );
 		if( dataload != null )
-			copyCtl( action , P_ALIGNEDNAME , P_ALIGNEDID , dataload , P_TARGETDIR.getSubFolder( action , "dataload" ) );
-
-		// copy manual part
-		FileSet manual = P_ALIGNEDNAME.getDirByPath( action , "manual" );
-		if( manual != null )
-			srcFolder.copyFolder( action , manual.dirPath , P_TARGETDIR.getSubFolder( action , "manual" ) );
+			copyCtl( action , P_ALIGNEDNAME , P_ALIGNEDID , dataload , dataloadDir );
 	}
 
 	private void copyZip( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , FileSet P_DIRFROM , LocalFolder P_DIRTO ) throws Exception {
@@ -312,8 +310,6 @@ public class DatabasePrepare {
 		schema.specific.smevAttrBegin( action , P_TARGETDIR , FNAME_PROD );
 
 		for( String line : P_TARGETDIR.readFileLines( action , LOCAL_UDDI_FNAME ) ) {
-			// format:
-			// -- SMEVATTR NNN name="text" code="XXX" region="NN" accesspoint="NN"
 			line = line.replace( '"' , '@' );
 			String first = Common.getListItem( line , "@" , 0 );
 			
@@ -677,15 +673,12 @@ public class DatabasePrepare {
 		if( SQL_SRC_DIR == null )
 			return;
 		
-		String SQL_PREFIX = database.getSqlIndexPrefix( action , SQL_SRC_DIR.dirPath , P_ALIGNEDID );
-
-		// regional tail
-		String F_REGIONALINDEX;
-
 		if( !srcFolder.checkFolderExists( action , SQL_SRC_DIR.dirPath ) ) {
 			action.debug( SQL_SRC_DIR.dirPath + " is not found. Skipped." );
 			return;
 		}
+
+		String SQL_PREFIX = database.getSqlIndexPrefix( action , SQL_SRC_DIR.dirPath , P_ALIGNEDID );
 
 		SQL_DST_DIR.ensureExists( action );
 		action.debug( "prepare/copy " + SQL_SRC_DIR.dirPath + " ..." );
@@ -700,12 +693,15 @@ public class DatabasePrepare {
 			String xrschema = items[1];
 			String xrtail = x.substring( xrindex.length() + 1 + xrschema.length() + 1 );
 			
+			// regional tail
+			String F_REGIONALINDEX;
 			if( P_ALIGNEDNAME.dirName.equals( "regional" ) || xrschema.indexOf( "RR" ) >= 0 )
 				F_REGIONALINDEX = "RR";
 			else
-				F_REGIONALINDEX = "";
+				F_REGIONALINDEX = "ZZ";
 
-			copySql( action , SQL_SRC_DIR , x , SQL_DST_DIR , SQL_PREFIX + xrindex + F_REGIONALINDEX + "-" + xrschema + "-" + xrtail );
+			String newName = SQL_PREFIX + "-" + F_REGIONALINDEX + "-" + xrindex + "-" + xrschema + "-" + xrtail;
+			copySql( action , SQL_SRC_DIR , x , SQL_DST_DIR , newName );
 		}
 
 		// process rollback scripts
@@ -722,12 +718,15 @@ public class DatabasePrepare {
 				String xrschema = Common.getListItem( x , "-" , 1 );
 				String xrtail = x.substring( xrindex.length() + 1 + xrschema.length() + 1 );
 			
+				// regional tail
+				String F_REGIONALINDEX;
 				if( P_ALIGNEDNAME.dirName.equals( "regional" ) || xrschema.indexOf( "RR" ) >= 0 )
 					F_REGIONALINDEX = "RR";
 				else
-					F_REGIONALINDEX = "";
+					F_REGIONALINDEX = "ZZ";
 
-				copySql( action , srcRollback , x , dstRollback , SQL_PREFIX + xrindex + F_REGIONALINDEX + "-" + xrschema + "-" + xrtail );
+				String newName = SQL_PREFIX + "-" + F_REGIONALINDEX + "-" + xrindex + "-" + xrschema + "-" + xrtail;
+				copySql( action , srcRollback , x , dstRollback , newName );
 			}
 		}
 	}

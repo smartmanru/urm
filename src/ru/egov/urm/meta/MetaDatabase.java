@@ -111,17 +111,21 @@ public class MetaDatabase {
 		String F_FOLDERNAME = Common.replace( P_FORLDERNAME , "/" , "." );
 		String F_FOLDERBASE = Common.getPartBeforeFirst( F_FOLDERNAME , "." );
 
+		String X_ALIGNED = "A" + P_ALIGNEDID;
+		String X_TYPE = null;
+		String X_INSTANCE = "main";
+		
 		String S_SQL_DIRID = "";
 		if( F_FOLDERBASE.equals( "coreddl" ) )
-			S_SQL_DIRID = "10" + P_ALIGNEDID;
+			X_TYPE = "10";
 		else if( F_FOLDERBASE.equals( "coredml" ) )
-			S_SQL_DIRID = "11" + P_ALIGNEDID;
+			X_TYPE = "11";
 		else if( F_FOLDERBASE.equals( "coreprodonly" ) || F_FOLDERBASE.equals( "coreuatonly" ) )
-			S_SQL_DIRID = "12" + P_ALIGNEDID;
+			X_TYPE = "12";
 		else if( F_FOLDERBASE.equals( "coresvc" ) )
-			S_SQL_DIRID = "13" + P_ALIGNEDID;
+			X_TYPE = "13";
 		else if( F_FOLDERBASE.equals( "dataload" ) )
-			S_SQL_DIRID = "20" + P_ALIGNEDID;
+			X_TYPE = "20";
 		else if( F_FOLDERBASE.equals( "war" ) ) {
 			String[] items = Common.splitDotted( F_FOLDERNAME );
 		
@@ -129,18 +133,17 @@ public class MetaDatabase {
 			String S_WAR_NAME = items[2];
 			String S_WAR_SUBDIRNAME = items[3];
 
-			String S_WAR_SUBDIRID = "";
 			if( S_WAR_SUBDIRNAME.equals( "juddi" ) )
-				S_WAR_SUBDIRID = "14" + P_ALIGNEDID;
+				X_TYPE = "14";
 			else if( S_WAR_SUBDIRNAME.equals( "svcdic" ) )
-				S_WAR_SUBDIRID = "15" + P_ALIGNEDID;
+				X_TYPE = "15";
 			else if( S_WAR_SUBDIRNAME.equals( "svcspec" ) )
-				S_WAR_SUBDIRID = "16" + P_ALIGNEDID;
+				X_TYPE = "16";
 			else
 				action.exit( "invalid folder=" + P_FORLDERNAME );
 
 			String S_WAR_MRID = meta.distr.getWarMRId( action , S_WAR_NAME );
-			S_SQL_DIRID = S_WAR_SUBDIRID + S_WAR_REGIONID + S_WAR_MRID;
+			X_INSTANCE = S_WAR_REGIONID + "M" + S_WAR_MRID;
 		}
 		else if( F_FOLDERBASE.equals( "forms" ) ) {
 			String S_ORG_REGIONID = Common.getListItem( F_FOLDERNAME , "." , 1 );
@@ -152,25 +155,25 @@ public class MetaDatabase {
 			if( S_ORG_FOLDERID.isEmpty() )
 				action.exit( "unknown orgExtId=" + S_ORG_EXTID );
 			
-			String S_ORG_SUBDIRID = "";
 			if( S_ORG_SUBDIRNAME.equals( "juddi" ) )
-				S_ORG_SUBDIRID = "14" + P_ALIGNEDID;
+				X_TYPE = "14";
 			else if( S_ORG_SUBDIRNAME.equals( "svcdic" ) )
-				S_ORG_SUBDIRID = "15" + P_ALIGNEDID;
+				X_TYPE = "15";
 			else if( S_ORG_SUBDIRNAME.equals( "svcspec" ) )
-				S_ORG_SUBDIRID = "16" + P_ALIGNEDID;
+				X_TYPE = "16";
 			else if( S_ORG_SUBDIRNAME.equals( "svcform" ) )
-				S_ORG_SUBDIRID = "17" + P_ALIGNEDID;
+				X_TYPE = "17";
 			else if( S_ORG_SUBDIRNAME.equals( "svcpub" ) )
-				S_ORG_SUBDIRID = "18" + P_ALIGNEDID;
+				X_TYPE = "18";
 			else
 				action.exit( "invalid database folder=" + P_FORLDERNAME );
 
-			S_SQL_DIRID = S_ORG_SUBDIRID + S_ORG_REGIONID + "99" + S_ORG_FOLDERID;
+			X_INSTANCE = S_ORG_REGIONID + "O" + S_ORG_EXTID;
 		}
 		else
 			action.exit( "invalid database folder=" + P_FORLDERNAME );
 		
+		S_SQL_DIRID = X_ALIGNED + "-T" + X_TYPE + "-I" + X_INSTANCE;
 		return( S_SQL_DIRID );
 	}
 
