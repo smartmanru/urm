@@ -75,15 +75,18 @@ public class DatabaseClient {
 		folder.copyDirContentFromLocal( action , files , "" );
 		ShellExecutor shell = action.getShell( hostLogin );
 		
+		RemoteFolder logFolder = folder.getSubFolder( action , "out" );
 		for( String file : Common.getSortedKeys( set.files ) )
-			applyManualScript( action , shell , folder , file );
+			applyManualScript( action , shell , folder , file , logFolder );
+
+		logFolder.copyDirToLocal( action , files );
 	}
 	
-	private void applyManualScript( ActionBase action , ShellExecutor shell , RemoteFolder folder , String file ) throws Exception {
+	private void applyManualScript( ActionBase action , ShellExecutor shell , RemoteFolder folder , String file , RemoteFolder logFolder ) throws Exception {
 		action.log( server.NAME + ": apply " + file + " ..." );
 		
 		String fileRun = folder.getFilePath( action , Common.getBaseName( file ) );
-		String fileLog = fileRun + ".out";
+		String fileLog = logFolder.getFilePath( action , Common.getBaseName( file ) + ".out" );
 		
 		specific.applySystemScript( action , server , shell , fileRun , fileLog );
 	}
