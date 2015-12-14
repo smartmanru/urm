@@ -33,7 +33,7 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 	}
 
 	@Override public boolean applySystemScript( ActionBase action , MetaEnvServer server , ShellExecutor shell , String file , String fileLog ) throws Exception {
-		shell.customCheckStatus( action , "psql " + " < " + file + " > " + fileLog );
+		shell.customCheckStatus( action , "psql " + " < " + file + " > " + fileLog + "2>&1" );
 		return( true );
 	}
 	
