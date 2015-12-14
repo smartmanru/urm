@@ -98,8 +98,8 @@ public class ActionScope {
 			action.exit( "missing set name (use \"all\" to reference all sets)" );
 			
 		if( set.equals( "all" ) ) {
-				if( TARGETS.length != 0 )
-					action.exit( "targets cannot be specified without set" );
+			if( TARGETS.length != 0 )
+				action.exit( "targets cannot be specified without set" );
 			
 			scope.createFullRelease( action , release );
 		}

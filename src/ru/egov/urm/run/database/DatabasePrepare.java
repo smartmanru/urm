@@ -531,6 +531,8 @@ public class DatabasePrepare {
 			return;
 
 		for( String xbase : Common.getSortedKeys( dir.files ) ) {
+			action.trace( "check file=" + xbase );
+			
 			boolean F_ONEFAILED = false;
 			String F_ONEFAILED_MSG = "";
 
