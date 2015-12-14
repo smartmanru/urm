@@ -58,12 +58,15 @@ public class BuildCommandImpl {
 		
 		action.log( "getAll: download scope={" + scope.getScopeInfo( action ) + "}" );
 
+		boolean res = true;
 		ActionGetBinary ca = new ActionGetBinary( action , null , copyDist , scope.release , downloadFolder );
-		ca.runEachSourceProject( scope );
+		if( !ca.runEachSourceProject( scope ) )
+			res = false;
 
 		if( scope.hasConfig( action ) ) {
 			ActionGetConf cacf = new ActionGetConf( action , null , scope.release );
-			cacf.runEachCategoryTarget( scope , VarCATEGORY.CONFIG );
+			if( !cacf.runEachCategoryTarget( scope , VarCATEGORY.CONFIG ) )
+				res = false;
 			
 			// automatically create configuration difference after distributive update
 			if( action.options.OPT_DIST )
@@ -72,17 +75,22 @@ public class BuildCommandImpl {
 		
 		if( scope.hasDatabase( action ) ) {
 			ActionGetDB cadb = new ActionGetDB( action , null , scope.release );
-			cadb.runEachCategoryTarget( scope , VarCATEGORY.DB );
+			if( !cadb.runEachCategoryTarget( scope , VarCATEGORY.DB ) )
+				res = false;
 		}
 		
 		if( scope.hasManual( action ) ) {
 			ActionGetManual cam = new ActionGetManual( action , null , copyDist , scope.release , downloadFolder );
-			cam.runSimple();
+			if( !cam.runSimple() )
+				res = false;
 		}
 		
 		if( copyDist )
 			scope.release.closeChange( action );
 		
+		if( !res )
+			action.exit( "there are errors in release, please check" );
+			
 		if( copyDist )
 			action.log( "getAll: download has been finished, copied to distribution directory " + scope.release.getDistPath( action ) );
 		else
