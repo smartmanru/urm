@@ -117,22 +117,25 @@ public class ActionScopeSet {
 		return( target );
 	}
 		
-	public ActionScopeTarget addReleaseProjectItems( ActionBase action , MetaReleaseTarget releaseProject , String[] ITEMS ) throws Exception {
-		ActionScopeTarget scopeProject = ActionScopeTarget.createReleaseSourceProjectTarget( this, releaseProject , true );
-		scopeProject.addProjectItems( action , ITEMS );
-		return( scopeProject );
-	}
-
 	public ActionScopeTarget addManualDatabase( ActionBase action , boolean all ) throws Exception {
-		ActionScopeTarget scopeTarget = ActionScopeTarget.createDatabaseManualTarget( this , all );
-		return( scopeTarget );
+		ActionScopeTarget target = ActionScopeTarget.createDatabaseManualTarget( this , all );
+		addTarget( action , target );
+		return( target );
 	}
 	
 	public ActionScopeTarget addDatabaseDelivery( ActionBase action , MetaReleaseDelivery delivery , boolean specifiedExplicitly , boolean all ) throws Exception {
-		ActionScopeTarget scopeTarget = ActionScopeTarget.createDatabaseDeliveryTarget( this , delivery.distDelivery , specifiedExplicitly , all );
-		return( scopeTarget );
+		ActionScopeTarget target = ActionScopeTarget.createDatabaseDeliveryTarget( this , delivery.distDelivery , specifiedExplicitly , all );
+		addTarget( action , target );
+		return( target );
 	}
 	
+	public ActionScopeTarget addReleaseProjectItems( ActionBase action , MetaReleaseTarget releaseProject , String[] ITEMS ) throws Exception {
+		ActionScopeTarget target = ActionScopeTarget.createReleaseSourceProjectTarget( this, releaseProject , true );
+		addTarget( action , target );
+		target.addProjectItems( action , ITEMS );
+		return( target );
+	}
+
 	public ActionScopeTarget findSourceTarget( ActionBase action , MetaSourceProject project ) throws Exception {
 		String key = MetaReleaseTarget.getTargetKey( action , CATEGORY , project.PROJECT );
 		return( targets.get( key ) );
