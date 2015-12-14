@@ -520,7 +520,7 @@ public class DistStorage {
 	}
 
 	public void copyDistDatabaseManualFileToFolder( ActionBase action , LocalFolder dstFolder , String file ) throws Exception {
-		this.copyDistToFolder( action , dstFolder , "mmanual/db" , file );
+		this.copyDistToFolder( action , dstFolder , "manual/db" , file );
 	}
 	
 }
