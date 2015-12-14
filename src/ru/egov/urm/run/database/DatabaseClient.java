@@ -56,7 +56,7 @@ public class DatabaseClient {
 		return( S_DB_USE_SCHEMA_PASSWORD );
 	}
 
-	public void applyManualSet( ActionBase action , LocalFolder files ) throws Exception {
+	public boolean applyManualSet( ActionBase action , LocalFolder files ) throws Exception {
 		if( specific == null )
 			action.exit( "need to check connectivity first" );
 			
@@ -69,7 +69,7 @@ public class DatabaseClient {
 		FileSet set = files.getFileSet( action );
 		if( set.isEmpty() ) {
 			action.log( "nothing to apply" );
-			return;
+			return( true );
 		}
 
 		folder.copyDirContentFromLocal( action , files , "" );
@@ -77,19 +77,29 @@ public class DatabaseClient {
 		
 		RemoteFolder logFolder = folder.getSubFolder( action , "out" );
 		logFolder.ensureExists( action );
-		for( String file : Common.getSortedKeys( set.files ) )
-			applyManualScript( action , shell , folder , file , logFolder );
+		
+		boolean res = true;
+		for( String file : Common.getSortedKeys( set.files ) ) {
+			if( !applyManualScript( action , shell , folder , file , logFolder ) ) {
+				res = false;
+				if( !action.options.OPT_FORCE ) {
+					action.log( "error executing manual script, cancel set execution" );
+					break;
+				}
+			}
+		}
 
 		logFolder.copyDirToLocal( action , files );
+		return( res );
 	}
 	
-	private void applyManualScript( ActionBase action , ShellExecutor shell , RemoteFolder folder , String file , RemoteFolder logFolder ) throws Exception {
+	private boolean applyManualScript( ActionBase action , ShellExecutor shell , RemoteFolder folder , String file , RemoteFolder logFolder ) throws Exception {
 		action.log( server.NAME + ": apply " + file + " ..." );
 		
 		String fileRun = folder.getFilePath( action , Common.getBaseName( file ) );
 		String fileLog = logFolder.getFilePath( action , Common.getBaseName( file ) + ".out" );
 		
-		specific.applySystemScript( action , server , shell , fileRun , fileLog );
+		return( specific.applySystemScript( action , server , shell , fileRun , fileLog ) );
 	}
 
 	public String getDatabaseAccount( ActionBase action ) throws Exception {

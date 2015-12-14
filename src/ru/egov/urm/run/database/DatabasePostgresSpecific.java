@@ -33,8 +33,18 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 	}
 
 	@Override public boolean applySystemScript( ActionBase action , MetaEnvServer server , ShellExecutor shell , String file , String fileLog ) throws Exception {
-		shell.customCheckStatus( action , "psql -a -e " + " < " + file + " > " + fileLog + " 2>&1" );
-		return( true );
+		int status = shell.customGetStatus( action , "psql -a -e " + " < " + file + " > " + fileLog + " 2>&1" );
+		if( status != 0 ) {
+			action.log( "errors, status=" + status + " (see logs)" );
+			return( false );
+		}
+		
+		String err = shell.customGetValue( action , "cat " + fileLog + " | grep ^ERROR: | head -1" );
+		if( err.isEmpty() )
+			return( true );
+		
+		action.log( "error: " + err + " (see logs)" );
+		return( false );
 	}
 	
 	public boolean validateScriptContent( ActionBase action , LocalFolder dir , String script ) throws Exception {
