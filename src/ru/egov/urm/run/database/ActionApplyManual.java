@@ -24,8 +24,11 @@ public class ActionApplyManual extends ActionBase {
 		log( "apply manual database items ..." );
 		LogStorage logs = artefactory.getDatabaseLogStorage( this , release.info.RELEASEVER );
 		log( "log to " + logs.logFolder.folderPath );
+		
 		LocalFolder logReleaseCopy = logs.getDatabaseLogReleaseCopyFolder( this );
 		LocalFolder logReleaseExecute = logs.getDatabaseLogExecuteFolder( this , server );
+		logReleaseCopy.ensureExists( this );
+		logReleaseExecute.ensureExists( this );
 		
 		DatabaseClient client = new DatabaseClient( server );
 		if( !client.checkConnect( this ) )
