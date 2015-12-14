@@ -34,7 +34,7 @@ public class DatabasePrepare {
 	MetaDistr distr;
 	MetaDatabase database;
 	
-	public void processDatabaseFiles( ActionBase action , DistStorage distStorage , MetaDistrDelivery dbDelivery , LocalFolder src , LocalFolder dst ) throws Exception {
+	public boolean processDatabaseFiles( ActionBase action , DistStorage distStorage , MetaDistrDelivery dbDelivery , LocalFolder src , LocalFolder dst ) throws Exception {
 		this.distStorage = distStorage;
 		this.dbDelivery = dbDelivery;
 		this.srcFolder = src;
@@ -67,9 +67,18 @@ public class DatabasePrepare {
 
 		// check scripts from SVN (exit on errors if no -s option)
 		checkAll( action , F_ALIGNEDDIRLIST );
+		if( S_CHECK_FAILED ) {
+			if( !action.options.OPT_FORCE ) {
+				action.log( "script set check failed, cancelled" );
+				return( false );
+			}
+				
+			action.log( "script set check failed, ignored" );
+		}
 
 		// change script numbers and copy to ../patches.log (exit on errors if no -s option)
 		copyAll( action , F_ALIGNEDDIRLIST );
+		return( true );
 	}
 
 	private void checkAll( ActionBase action , FileSet[] P_ALIGNEDDIRLIST ) throws Exception {

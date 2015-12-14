@@ -34,10 +34,6 @@ public class ActionGetDB extends ActionBase {
 		LocalFolder dbWorkFolder = workFolder.getSubFolder( this , "db" );
 		downloadDBDir( item , dbWorkFolder , dbPreparedFolder );
 		
-		// copy
-		if( options.OPT_DIST )
-			release.copyDatabaseFilesToDistr( this , item.dbDelivery , dbPreparedFolder );
-		
 		return( true );
 	}
 	
@@ -45,6 +41,13 @@ public class ActionGetDB extends ActionBase {
 		DatabasePrepare prepare = new DatabasePrepare();
 		
 		debug( "prepare scripts dir=" + workFolder.folderPath + " ..." );
-		prepare.processDatabaseFiles( this , release , item.dbDelivery , workFolder , preparedFolder );
+		if( !prepare.processDatabaseFiles( this , release , item.dbDelivery , workFolder , preparedFolder ) ) {
+			log( "script set check errors, do not copy to dist" );
+			return;
+		}
+		
+		// copy
+		if( options.OPT_DIST )
+			release.copyDatabaseFilesToDistr( this , item.dbDelivery , preparedFolder );
 	}
 }
