@@ -6,6 +6,8 @@ import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.shell.ShellExecutor;
+import ru.egov.urm.storage.FileSet;
+import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.RedistStorage;
 import ru.egov.urm.storage.RemoteFolder;
 
@@ -56,22 +58,35 @@ public class DatabaseClient {
 		return( S_DB_USE_SCHEMA_PASSWORD );
 	}
 
-	public void applyManualScript( ActionBase action , String file ) throws Exception {
+	public void applyManualSet( ActionBase action , LocalFolder files ) throws Exception {
 		if( specific == null )
 			action.exit( "need to check connectivity first" );
 			
-		action.log( server.NAME + ": apply " + file + " ..." );
-		
-		// copy file to remote
+		// copy folder to remote
 		String hostLogin = getDatabaseAccount( action );
 		RedistStorage storage = action.artefactory.getRedistStorage( hostLogin );
 		RemoteFolder folder = storage.getRedistTmpFolder( action );
-		folder.copyFileFromLocal( action , file );
+		folder.recreateThis( action );
+		
+		FileSet set = files.getFileSet( action );
+		if( set.isEmpty() ) {
+			action.log( "nothing to apply" );
+			return;
+		}
+
+		folder.copyDirContentFromLocal( action , files , "" );
+		ShellExecutor shell = action.getShell( hostLogin );
+		
+		for( String file : Common.getSortedKeys( set.files ) )
+			applyManualScript( action , shell , folder , file );
+	}
+	
+	private void applyManualScript( ActionBase action , ShellExecutor shell , RemoteFolder folder , String file ) throws Exception {
+		action.log( server.NAME + ": apply " + file + " ..." );
 		
 		String fileRun = folder.getFilePath( action , Common.getBaseName( file ) );
 		String fileLog = fileRun + ".out";
 		
-		ShellExecutor shell = action.getShell( hostLogin );
 		specific.applySystemScript( action , server , shell , fileRun , fileLog );
 	}
 

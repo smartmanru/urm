@@ -411,6 +411,19 @@ public abstract class ShellExecutor {
 		core.runCommandCheckDebug( action , "scp -r -q -B -p " + keyOption + srcDirPath + " " + hostLogin + ":" + baseDstDir );
 	}
 
+	public void scpDirContentLocalToRemote( ActionBase action , String srcDirPath , String hostLogin , String dstDir ) throws Exception {
+		String keyOption = "";
+		String keyFile = action.context.KEYNAME;
+		if( !keyFile.isEmpty() )
+			keyOption = "-i " + keyFile + " ";
+		
+		ShellExecutor session = action.getShell( hostLogin );
+		session.ensureDirExists( action , dstDir );
+		
+		setTimeoutUnlimited( action );
+		core.runCommandCheckDebug( action , "scp -r -q -B -p " + keyOption + srcDirPath + "/* " + hostLogin + ":" + dstDir );
+	}
+
 	public void scpDirRemoteToLocal( ActionBase action , String srcPath , String hostLogin , String dstPath ) throws Exception {
 		String keyOption = "";
 		String keyFile = action.context.KEYNAME;
@@ -471,6 +484,14 @@ public abstract class ShellExecutor {
 			copyDirToBase( action , srcDirPath , baseDstDir );
 		else {
 			scpDirLocalToRemote( action , srcDirPath , hostLogin , baseDstDir + "/" );
+		}
+	}
+
+	public void copyDirContentLocalToTarget( ActionBase action , String hostLogin , String srcDirPath , String dstDir ) throws Exception {
+		if( action.isLocal( hostLogin ) )
+			this.copyDirContent( action , srcDirPath , dstDir );
+		else {
+			this.scpDirContentLocalToRemote( action , srcDirPath , hostLogin , dstDir + "/" );
 		}
 	}
 

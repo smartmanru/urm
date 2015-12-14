@@ -56,6 +56,13 @@ public class RemoteFolder extends Folder {
 		action.session.copyDirLocalToTarget( action , hostLogin , srcDir , dstParentDir );
 	}
 	
+	public void copyDirContentFromLocal( ActionBase action , LocalFolder sourceFolder , String dstParentFolder ) throws Exception {
+		String srcDir = sourceFolder.folderPath; 
+		String dstParentDir = Common.getPath( folderPath , dstParentFolder );
+		
+		action.session.copyDirContentLocalToTarget( action , hostLogin , srcDir , dstParentDir );
+	}
+	
 	public RemoteFolder getSubFolder( ActionBase action , String subFolder ) throws Exception {
 		String PATH = Common.getPath( folderPath , subFolder );
 		return( new RemoteFolder( artefactory , hostLogin , PATH ) );

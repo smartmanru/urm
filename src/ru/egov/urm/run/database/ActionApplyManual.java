@@ -38,7 +38,7 @@ public class ActionApplyManual extends ActionBase {
 		if( target.itemFull ) {
 			String[] manualFiles = release.getManualDatabaseFiles( this );
 			for( String file : manualFiles )
-				applyManual( client , logReleaseCopy , logReleaseExecute , file );
+				prepareManual( client , logReleaseCopy , logReleaseExecute , file );
 		}
 		else {
 			for( ActionScopeTargetItem item : target.getItems( this ) ) {
@@ -46,14 +46,15 @@ public class ActionApplyManual extends ActionBase {
 				if( file == null )
 					exit( "unable to find manual file index=" + item.NAME );
 				
-				applyManual( client , logReleaseCopy , logReleaseExecute , file );
+				prepareManual( client , logReleaseCopy , logReleaseExecute , file );
 			}
 		}
-			
+
+		client.applyManualSet( this , logReleaseExecute );
 		return( true );
 	}
 
-	private void applyManual( DatabaseClient client , LocalFolder logReleaseCopy , LocalFolder logReleaseExecute , String file ) throws Exception {
+	private void prepareManual( DatabaseClient client , LocalFolder logReleaseCopy , LocalFolder logReleaseExecute , String file ) throws Exception {
 		// copy file from distributive
 		release.copyDistDatabaseManualFileToFolder( this , logReleaseCopy , file );
 		logReleaseCopy.copyFiles( this , file , logReleaseExecute );
@@ -61,9 +62,6 @@ public class ActionApplyManual extends ActionBase {
 		// configure
 		ConfBuilder builder = new ConfBuilder( this );
 		builder.parseConfigParameters( logReleaseExecute , file , server );
-		
-		// apply
-		client.applyManualScript( this , logReleaseExecute.getFilePath( this , file ) );
 	}
 	
 }
