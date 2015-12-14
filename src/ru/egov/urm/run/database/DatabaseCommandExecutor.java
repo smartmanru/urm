@@ -32,7 +32,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		cmdOpts = "GETOPT_DB, GETOPT_DBTYPE, GETOPT_DBALIGNED";
 		super.defineAction( CommandAction.newAction( new applyAutomatic() , "dbapply" , "apply application scripts and load data files" , cmdOpts , "./dbapply.sh [OPTIONS] <RELEASELABEL> {all|<delivery> {all|<mask>}} (mask is distributive file mask)" ) );
 		
-		envMethods = "dbmanual";
+		envMethods = "dbmanual dbapply";
 	}
 	
 	public boolean run( ActionInit action ) {
