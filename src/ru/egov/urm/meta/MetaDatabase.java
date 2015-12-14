@@ -117,15 +117,15 @@ public class MetaDatabase {
 		
 		String S_SQL_DIRID = "";
 		if( F_FOLDERBASE.equals( "coreddl" ) )
-			X_TYPE = "10";
+			X_TYPE = "00";
 		else if( F_FOLDERBASE.equals( "coredml" ) )
-			X_TYPE = "11";
+			X_TYPE = "01";
 		else if( F_FOLDERBASE.equals( "coreprodonly" ) || F_FOLDERBASE.equals( "coreuatonly" ) )
-			X_TYPE = "12";
+			X_TYPE = "02";
 		else if( F_FOLDERBASE.equals( "coresvc" ) )
-			X_TYPE = "13";
+			X_TYPE = "03";
 		else if( F_FOLDERBASE.equals( "dataload" ) )
-			X_TYPE = "20";
+			X_TYPE = "04";
 		else if( F_FOLDERBASE.equals( "war" ) ) {
 			String[] items = Common.splitDotted( F_FOLDERNAME );
 		
@@ -156,15 +156,15 @@ public class MetaDatabase {
 				action.exit( "unknown orgExtId=" + S_ORG_EXTID );
 			
 			if( S_ORG_SUBDIRNAME.equals( "juddi" ) )
-				X_TYPE = "14";
+				X_TYPE = "24";
 			else if( S_ORG_SUBDIRNAME.equals( "svcdic" ) )
-				X_TYPE = "15";
+				X_TYPE = "25";
 			else if( S_ORG_SUBDIRNAME.equals( "svcspec" ) )
-				X_TYPE = "16";
+				X_TYPE = "26";
 			else if( S_ORG_SUBDIRNAME.equals( "svcform" ) )
-				X_TYPE = "17";
+				X_TYPE = "27";
 			else if( S_ORG_SUBDIRNAME.equals( "svcpub" ) )
-				X_TYPE = "18";
+				X_TYPE = "28";
 			else
 				action.exit( "invalid database folder=" + P_FORLDERNAME );
 

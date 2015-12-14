@@ -206,6 +206,17 @@ public class ActionScope {
 		return( getEnvServersScope( action , SERVERS , release ) );
 	}
 	
+	public static ActionScope getEnvDatabaseScope( ActionBase action , DistStorage release ) throws Exception {
+		if( release != null )
+			action.trace( "scope: Env Database Scope, release=" + release.RELEASEDIR );
+		else
+			action.trace( "scope: Env Database Scope" );
+		
+		ActionScope scope = new ActionScope( action.meta , null );
+		scope.createEnvDatabaseScope( action , release , action.meta.dc );
+		return( scope );
+	}
+	
 	public static ActionScope getEnvServersScope( ActionBase action , String[] SERVERS , DistStorage release ) throws Exception {
 		if( release != null )
 			action.trace( "scope: Env Servers Scope, release=" + release.RELEASEDIR + ", servers=" + Common.getListSet( SERVERS ) );
@@ -289,7 +300,7 @@ public class ActionScope {
 			}
 		}
 	}
-	
+
 	private void createEnvServersScope( ActionBase action , MetaEnvDC dc , String[] SERVERS , DistStorage release ) throws Exception {
 		this.release = release;
 		scopeFull = false;
@@ -299,6 +310,13 @@ public class ActionScope {
 			
 		ActionScopeSet sset = createEnvScopeSet( action , action.meta.env , dc , true );
 		sset.addEnvServers( action , SERVERS , release ); 
+	}
+
+	private void createEnvDatabaseScope( ActionBase action , DistStorage release , MetaEnvDC dc ) throws Exception {
+		this.release = release;
+		scopeFull = true;
+		ActionScopeSet sset = createEnvScopeSet( action , action.meta.env , dc , false );
+		sset.addEnvDatabases( action , release ); 
 	}
 	
 	private ActionScopeTarget createEnvServerNodesScope( ActionBase action , MetaEnvDC dc , MetaEnvServer srv , List<MetaEnvServerNode> nodes ) throws Exception {

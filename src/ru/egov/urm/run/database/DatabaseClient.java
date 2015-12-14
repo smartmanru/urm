@@ -99,6 +99,10 @@ public class DatabaseClient {
 		String fileRun = folder.getFilePath( action , Common.getBaseName( file ) );
 		String fileLog = logFolder.getFilePath( action , Common.getBaseName( file ) + ".out" );
 		
+		action.executeLogLive( shell , "apply manual script: " + file );
+		if( action.context.SHOWONLY )
+			return( true );
+		
 		return( specific.applySystemScript( action , server , shell , fileRun , fileLog ) );
 	}
 

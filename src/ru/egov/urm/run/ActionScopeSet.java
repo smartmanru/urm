@@ -327,6 +327,10 @@ public class ActionScopeSet {
 		}
 	}
 
+	private boolean checkServerDatabaseDelivery( ActionBase action , MetaEnvServer server , MetaReleaseDelivery delivery ) throws Exception {
+		return( server.hasDatabaseItemDeployment( action , delivery.distDelivery ) );
+	}
+	
 	private boolean checkServerDelivery( ActionBase action , MetaEnvServer server , MetaReleaseDelivery delivery ) throws Exception {
 		if( action.context.CONF_DEPLOY ) {
 			for( MetaReleaseTarget target : delivery.getConfItems( action ).values() ) {
@@ -368,6 +372,19 @@ public class ActionScopeSet {
 		return( mapServers );
 	}
 	
+	private Map<String,MetaEnvServer> getReleaseDatabaseServers( ActionBase action , DistStorage release ) throws Exception {
+		Map<String,MetaEnvServer> mapServers = new HashMap<String,MetaEnvServer>();
+		MetaRelease info = release.info;
+
+		for( MetaReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
+			for( MetaEnvServer server : dc.getServerMap( action ).values() ) {
+				if( checkServerDatabaseDelivery( action , server , delivery ) )
+					mapServers.put( server.NAME , server );
+			}
+		}
+		return( mapServers );
+	}
+	
 	public void addEnvServers( ActionBase action , String[] SERVERS , DistStorage release ) throws Exception {
 		Map<String,MetaEnvServer> releaseServers = null;
 		if( release != null )
@@ -398,6 +415,27 @@ public class ActionScopeSet {
 		}
 	}
 
+	public void addEnvDatabases( ActionBase action , DistStorage release ) throws Exception {
+		Map<String,MetaEnvServer> releaseServers = getReleaseDatabaseServers( action , release );
+	
+		if( action.options.OPT_DB.isEmpty() )
+			setFull = true; 
+		else
+			setFull = false;
+		
+		for( MetaEnvServer server : dc.getServerMap( action ).values() ) {
+			boolean addServer = ( release == null )? true : releaseServers.containsKey( server.NAME );
+			if( addServer ) {
+				if( action.options.OPT_DB.isEmpty() == false && action.options.OPT_DB.equals( server.NAME ) == false )
+					action.trace( "ignore not-action scope server=" + server.NAME );
+				else
+					addEnvServer( action , server , null , false );
+			}
+			else
+				action.trace( "scope skip non-release server=" + server.NAME );
+		}
+	}
+	
 	public ActionScopeTarget addEnvServer( ActionBase action , MetaEnvServer server , List<MetaEnvServerNode> nodes , boolean specifiedExplicitly ) throws Exception {
 		if( !specifiedExplicitly ) {
 			// check offline or not in given start group

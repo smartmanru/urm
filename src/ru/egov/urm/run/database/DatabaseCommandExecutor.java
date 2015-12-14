@@ -4,6 +4,7 @@ import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaEnv;
 import ru.egov.urm.meta.MetaEnvDC;
 import ru.egov.urm.meta.MetaEnvServer;
+import ru.egov.urm.meta.MetaReleaseDelivery;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
 import ru.egov.urm.run.ActionInit;
 import ru.egov.urm.run.ActionScope;
@@ -27,7 +28,9 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		cmdOpts = "";
 		super.defineAction( CommandAction.newAction( new getReleaseScripts() , "getsql" , "get database release content" , cmdOpts , "./getsql.sh [OPTIONS] {all|<deliveries>}" ) );
 		cmdOpts = "";
-		super.defineAction( CommandAction.newAction( new applyManual() , "dbmanual" , "apply manual scipt" , cmdOpts , "./dbmanual.sh [OPTIONS] <RELEASELABEL> <DBSERVER> {all|<indexes>}" ) );
+		super.defineAction( CommandAction.newAction( new applyManual() , "dbmanual" , "apply manual scripts under system account" , cmdOpts , "./dbmanual.sh [OPTIONS] <RELEASELABEL> <DBSERVER> {all|<indexes>}" ) );
+		cmdOpts = "GETOPT_DB, GETOPT_DBTYPE, GETOPT_DBALIGNED";
+		super.defineAction( CommandAction.newAction( new applyAutomatic() , "dbapply" , "apply application scripts and load data files" , cmdOpts , "./dbapply.sh [OPTIONS] <RELEASELABEL> {all|<delivery> {all|<mask>}} (mask is distributive file mask)" ) );
 		
 		envMethods = "dbmanual";
 	}
@@ -78,7 +81,27 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		String SERVER = options.getRequiredArg( action , 1 , "DBSERVER" );
 		MetaEnvServer server = action.meta.dc.getServer( action , SERVER );
 		ActionScope scope = getIndexScope( action , dist , 2 );
-		impl.applyManual( action , scope , scope.release , server );
+		impl.applyManual( action , scope , dist , server );
+	}
+	}
+
+	private class applyAutomatic extends CommandAction {
+	public void run( ActionInit action ) throws Exception {
+		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
+		DistStorage dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		String DELIVERY = options.getRequiredArg( action , 1 , "delivery" );
+		
+		MetaReleaseDelivery delivery = null;
+		String indexScope = null;
+		if( DELIVERY.equals( "all" ) )
+			options.checkNoArgs( action , 2 );
+		else {
+			delivery = dist.info.getDelivery( action , DELIVERY );
+			indexScope = options.getRequiredArg( action , 2 , "mask" );
+			options.checkNoArgs( action , 3 );
+		}
+		
+		impl.applyAutomatic( action , dist , delivery , indexScope );
 	}
 	}
 

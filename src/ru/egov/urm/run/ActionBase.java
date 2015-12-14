@@ -364,14 +364,24 @@ abstract public class ActionBase {
 		return( scope );
 	}
 
+	public void executeLogLive( ShellExecutor shell , String msg ) throws Exception {
+		if( context.SHOWONLY ) {
+			log( shell.name + ": " + msg + " (showonly)" );
+			return;
+		}
+
+		log( shell.name + ": " + msg + " (execute)" );
+		shell.appendExecuteLog( this , msg );
+	}
+	
 	public void executeLogLive( String hostLogin , String msg ) throws Exception {
+		ShellExecutor shell = getShell( hostLogin );
 		if( context.SHOWONLY ) {
 			log( hostLogin + ": " + msg + " (showonly)" );
 			return;
 		}
 
 		log( hostLogin + ": " + msg + " (execute)" );
-		ShellExecutor shell = getShell( hostLogin );
 		shell.appendExecuteLog( this , msg );
 	}
 	

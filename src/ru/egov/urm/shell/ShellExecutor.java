@@ -7,7 +7,7 @@ import ru.egov.urm.run.ActionBase;
 
 public abstract class ShellExecutor {
 
-	String name;
+	public String name;
 	public ShellExecutorPool pool;
 	public String rootPath;
 	
