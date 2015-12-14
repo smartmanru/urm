@@ -76,6 +76,7 @@ public class DatabaseClient {
 		ShellExecutor shell = action.getShell( hostLogin );
 		
 		RemoteFolder logFolder = folder.getSubFolder( action , "out" );
+		logFolder.ensureExists( action );
 		for( String file : Common.getSortedKeys( set.files ) )
 			applyManualScript( action , shell , folder , file , logFolder );
 
