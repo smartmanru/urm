@@ -448,7 +448,7 @@ public class DistStorage {
 	
 	public void gatherFiles( ActionBase action ) throws Exception {
 		action.log( "find distributive files ..." );
-		FileSet files = distFolder.getFileSet( action );
+		files = distFolder.getFileSet( action );
 		
 		for( MetaReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
 			FileSet deliveryFiles = files.getDirByPath( action , delivery.distDelivery.FOLDERPATH );
