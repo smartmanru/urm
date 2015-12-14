@@ -245,6 +245,9 @@ public class ConfReader {
     }
     
     public static String getAttrValue( ActionBase action , Node node , String attrName ) throws Exception {
+    	if( node == null )
+    		return( "" );
+    		
     	NamedNodeMap map = node.getAttributes();
     	if( map == null )
     		return( "" );
