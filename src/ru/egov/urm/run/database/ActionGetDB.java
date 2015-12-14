@@ -32,8 +32,7 @@ public class ActionGetDB extends ActionBase {
 		dbPreparedFolder.recreateThis( this );
 
 		LocalFolder dbWorkFolder = workFolder.getSubFolder( this , "db" );
-		for( String dir : dbWorkFolder.getTopDirs( this ) )
-			downloadDBDir( item , dbWorkFolder , dbPreparedFolder , dir );
+		downloadDBDir( item , dbWorkFolder , dbPreparedFolder );
 		
 		// copy
 		if( options.OPT_DIST )
@@ -42,14 +41,10 @@ public class ActionGetDB extends ActionBase {
 		return( true );
 	}
 	
-	private void downloadDBDir( ActionScopeTarget item , LocalFolder workFolder , LocalFolder preparedFolder , String dir ) throws Exception {
+	private void downloadDBDir( ActionScopeTarget item , LocalFolder workFolder , LocalFolder preparedFolder ) throws Exception {
 		DatabasePrepare prepare = new DatabasePrepare();
 		
-		debug( "prepare scripts dir=" + dir + " ..." );
-		
-		LocalFolder workSubFolder = workFolder.getSubFolder( this , dir );
-		LocalFolder preparedSubFolder = preparedFolder.getSubFolder( this , dir );
-		
-		prepare.processDatabaseFiles( this , release , item.dbDelivery , workSubFolder , preparedSubFolder );
+		debug( "prepare scripts dir=" + workFolder.folderPath + " ..." );
+		prepare.processDatabaseFiles( this , release , item.dbDelivery , workFolder , preparedFolder );
 	}
 }
