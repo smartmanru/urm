@@ -38,7 +38,7 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 	}
 	
 	public boolean validateScriptContent( ActionBase action , LocalFolder dir , String script ) throws Exception {
-		return( false );
+		return( true );
 	}
 	
 	public String getComments( ActionBase action , String grep , LocalFolder srcDir , String srcFile ) throws Exception {
