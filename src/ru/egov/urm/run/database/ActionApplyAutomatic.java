@@ -8,6 +8,7 @@ import ru.egov.urm.meta.MetaDatabaseSchema;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaReleaseDelivery;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.run.ActionScope;
 import ru.egov.urm.run.ActionScopeTarget;
 import ru.egov.urm.run.CommandOptions.SQLTYPE;
 import ru.egov.urm.storage.DistStorage;
@@ -20,6 +21,7 @@ public class ActionApplyAutomatic extends ActionBase {
 	DistStorage dist;
 	MetaReleaseDelivery delivery;
 	String indexScope;
+	LogStorage logs;
 
 	// script file name: A<alignedid>-T<type>-I<instance>-{ZZ|RR}-<index>-<schema>-<any>.sql
 	
@@ -30,6 +32,11 @@ public class ActionApplyAutomatic extends ActionBase {
 		this.indexScope = indexScope;
 	}
 
+	@Override protected void runBefore( ActionScope scope ) throws Exception {
+		logs = artefactory.getDatabaseLogStorage( this , dist.info.RELEASEVER );
+		log( "log to " + logs.logFolder.folderPath );
+	}
+	
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		DatabaseClient client = new DatabaseClient( server );
@@ -37,9 +44,6 @@ public class ActionApplyAutomatic extends ActionBase {
 			exit( "unable to connect to server=" + server.NAME );
 		
 		log( "apply changes to database=" + server.NAME );
-		LogStorage logs = artefactory.getDatabaseLogStorage( this , dist.info.RELEASEVER );
-		log( "log to " + logs.logFolder.folderPath );
-
 		Map<String,MetaDatabaseSchema> schemaSet = server.getSchemaSet( this );
 		boolean done = false;
 		for( MetaReleaseDelivery releaseDelivery : dist.info.getDeliveries( this ).values() ) {
@@ -57,7 +61,7 @@ public class ActionApplyAutomatic extends ActionBase {
 	}
 
 	private boolean applyDelivery( MetaEnvServer server , MetaReleaseDelivery releaseDelivery , Map<String,MetaDatabaseSchema> schemaSet , LogStorage logs ) throws Exception {
-		LocalFolder logReleaseCopy = logs.getDatabaseLogReleaseCopyFolder( this , releaseDelivery );
+		LocalFolder logReleaseCopy = logs.getDatabaseLogReleaseCopyFolder( this , server , releaseDelivery );
 		LocalFolder logReleaseExecute = logs.getDatabaseLogExecuteFolder( this , server , releaseDelivery );
 		
 		if( !createRunSet( server , releaseDelivery , logReleaseCopy , schemaSet ) )

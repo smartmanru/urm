@@ -43,6 +43,10 @@ public class LogStorage {
 		return( logFolder.getSubFolder( action , "dist-" + releaseDelivery.distDelivery.NAME ) );
 	}
 	
+	public LocalFolder getDatabaseLogReleaseCopyFolder( ActionBase action , MetaEnvServer server , MetaReleaseDelivery releaseDelivery ) throws Exception {
+		return( logFolder.getSubFolder( action , "dist-" + server.dc.NAME + "-" + server.NAME + "-" + releaseDelivery.distDelivery.NAME ) );
+	}
+	
 	public LocalFolder getDatabaseLogExecuteFolder( ActionBase action , MetaEnvServer server ) throws Exception {
 		return( logFolder.getSubFolder( action , "run-" + server.dc.NAME + "-" + server.NAME ) );
 	}
