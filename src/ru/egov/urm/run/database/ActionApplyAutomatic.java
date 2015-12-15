@@ -92,7 +92,7 @@ public class ActionApplyAutomatic extends ActionBase {
 
 	private void prepareFile( MetaEnvServer server , LocalFolder scriptFolder , String distFolder , String file ) throws Exception {
 		String[] parts = Common.split( file , "-" );
-		dist.copyDistFileToFolderRename( this , scriptFolder , distFolder , file , file );
+		dist.copyDistToFolder( this , scriptFolder , distFolder , file );
 		
 		ConfBuilder builder = new ConfBuilder( this );
 		builder.parseConfigParameters( scriptFolder , file , server );
