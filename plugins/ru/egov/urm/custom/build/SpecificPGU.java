@@ -131,7 +131,7 @@ public class SpecificPGU {
 		}
 		else {
 			DistStorage distStorage = srcRelease;
-			action.log( "copy servicecall and storageservice from " + distStorage.getDistPath( action ) + " - to " + downloadFolder.folderPath + " ..." );
+			action.log( "copy servicecall and storageservice from " + distStorage.RELEASEDIR + " - to " + downloadFolder.folderPath + " ..." );
 			distStorage.copyDistToFolder( action , downloadFolder , "servicecall-" + VERSION + "." + SERVICECALL_EXT );
 			distStorage.copyDistToFolder( action , downloadFolder , "storageservice-" + VERSION + "." + STORAGESERVICE_EXT );
 		}
@@ -153,7 +153,7 @@ public class SpecificPGU {
 	private void getAllWarAppCopyProd() throws Exception {
 		DistStorage distStorage = artefactory.getDistProdStorage( action );
 
-		action.debug( "copy libraries from " + distStorage.getDistPath( action ) + "/servicecall." + SERVICECALL_EXT + " to servicecall-prod-libs ..." );
+		action.debug( "copy libraries from " + distStorage.RELEASEDIR + "/servicecall." + SERVICECALL_EXT + " to servicecall-prod-libs ..." );
 		distStorage.unzipDistFileToFolder( action , downloadFolder , "servicecall-*." + SERVICECALL_EXT , servicecallItem.delivery.FOLDERPATH , Common.getQuoted( SERVICECALL_DIR + "/lib/*" ) , "servicecall-prod-libs" );
 	}
 	
