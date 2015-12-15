@@ -38,6 +38,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		
 		log( "apply changes to database=" + server.NAME );
 		LogStorage logs = artefactory.getDatabaseLogStorage( this , dist.info.RELEASEVER );
+		log( "log to " + logs.logFolder.folderPath );
 
 		Map<String,MetaDatabaseSchema> schemaSet = server.getSchemaSet( this );
 		boolean done = false;
