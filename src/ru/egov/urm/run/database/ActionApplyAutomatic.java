@@ -145,7 +145,7 @@ public class ActionApplyAutomatic extends ActionBase {
 			return( false );
 		}
 		
-		if( indexScope == null || indexScope.isEmpty() ) {
+		if( indexScope != null && !indexScope.isEmpty() ) {
 			String mask = Common.replace( indexScope , "*" , ".*" );
 			if( !file.matches( mask ) ) {
 				trace( "script " + file + " is filtered by index mask (" + mask + ")" );
