@@ -4,6 +4,7 @@ import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaRelease;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.shell.ShellExecutor;
 
 public class ReleaseState {
 
@@ -34,7 +35,7 @@ public class ReleaseState {
 		this.state = RELEASESTATE.UNKNOWN;
 	}
 	
-	private void ctlSetStatus( ActionBase action , RELEASESTATE newState , String hash ) throws Exception {
+	private void ctlSetStatus( ActionBase action , RELEASESTATE newState ) throws Exception {
 		// UNKNOWN = before read -> any
 		// MISSING [no distributive] -> DIRTY
 		// BROKEN [inconsistent]
@@ -74,10 +75,19 @@ public class ReleaseState {
 			action.exit( "unable to change release state from " + state.name() + " to " + newState.name() );
 		
 		String timeStamp = Common.getNameTimeStamp();
+		String hash = getHashValue( action );
 		String value = newState + ":" + timeStamp + ":" + hash;
 		distFolder.createFileFromString( action , DistStorage.stateFileName , value );
 		activeChangeID = timeStamp;
 		stateMem = newState;
+		stateHash = hash;
+	}
+
+	private String getHashValue( ActionBase action ) throws Exception {
+		ShellExecutor shell = distFolder.getSession( action );
+		String cmd = "find . -type f -ls | sort | grep -v state.txt | md5sum | cut -d \" \" -f1";
+		String hash = shell.customGetValue( action , distFolder.folderPath , cmd );
+		return( hash );
 	}
 	
 	public void checkDistChangeEnabled( ActionBase action ) throws Exception {
@@ -117,10 +127,6 @@ public class ReleaseState {
 		}
 	}
 
-	private void ctlSetStatus( ActionBase action , RELEASESTATE newState ) throws Exception {
-		ctlSetStatus( action , newState , "ignore" );
-	}
-	
 	public void ctlCreate( ActionBase action , VarBUILDMODE BUILDMODE , String RELEASEDIR ) throws Exception {
 		// create release.xml, create status file, set closed dirty state
 		// check current status
@@ -187,17 +193,33 @@ public class ReleaseState {
 		action.log( "distributive has been closed after change, ID=" + stateChangeID );
 	}
 
-	public void ctlFinish( ActionBase action , String hash ) throws Exception {
+	public void ctlFinish( ActionBase action ) throws Exception {
 		ctlReloadCheckOpened( action );
 
-		ctlSetStatus( action , RELEASESTATE.RELEASED , hash );
-		action.log( "distributive has been finalized, hash=" + hash );
+		ctlSetStatus( action , RELEASESTATE.RELEASED );
+		action.log( "distributive has been finalized, hash=" + stateHash );
 	}
 
 	public void ctlReopen( ActionBase action ) throws Exception {
 	}
 
-	public void ctlOpenForUse( ActionBase action ) throws Exception {
+	public void ctlOpenForUse( ActionBase action , boolean PROD ) throws Exception {
+		// check current status
+		ctlLoadReleaseState( action );
+		
+		if( PROD == false ) {
+			if( state != RELEASESTATE.PROD && state != RELEASESTATE.RELEASED && state != RELEASESTATE.DIRTY )
+				action.exit( "distributive is not ready for use in test environment, state=" + state.name() );
+		}
+		
+		if( PROD == true ) {
+			if( state != RELEASESTATE.PROD && state != RELEASESTATE.RELEASED )
+				action.exit( "distributive is not ready for use in prod environment, state=" + state.name() );
+		}
+
+		String hash = getHashValue( action );
+		if( !hash.equals( stateHash ) )
+			action.exit( "distributive is not ready for use - actual hash=" + hash + ", declared hash=" + stateHash );
 	}
 	
 	public void ctlCancel( ActionBase action ) throws Exception {

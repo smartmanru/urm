@@ -53,6 +53,12 @@ public class DistStorage {
 		openedForUse = false;
 	}
 
+	public void open( ActionBase action ) throws Exception {
+		state.ctlOpenForUse( action , action.meta.env.PROD );
+		openedForUse = true;
+		gatherFiles( action );
+	}
+	
 	public boolean isRemote( ActionBase action ) throws Exception {
 		return( distFolder.isRemote( action ) );
 	}
@@ -224,10 +230,8 @@ public class DistStorage {
 		state.ctlReloadCheckOpened( action );
 
 		// drop empty directories
-		// calculate hash and finish release
-		String hash = getContentHash( action );
-		
-		state.ctlFinish( action , hash );
+		// finish release
+		state.ctlFinish( action );
 	}
 
 	public void dropRelease( ActionBase action ) throws Exception {
@@ -246,10 +250,6 @@ public class DistStorage {
 		if( files == null )
 			files = distFolder.getFileSet( action );
 		return( files );
-	}
-	
-	private String getContentHash( ActionBase action ) throws Exception {
-		return( "" );
 	}
 	
 	public void saveReleaseXml( ActionBase action ) throws Exception {
@@ -465,10 +465,6 @@ public class DistStorage {
 		return( Common.getPath( "binary" , targetItem.DISTFILE ) );
 	}
 
-	public void open( ActionBase action ) throws Exception {
-		gatherFiles( action );
-	}
-	
 	private void gatherFiles( ActionBase action ) throws Exception {
 		action.log( "find distributive files ..." );
 		files = distFolder.getFileSet( action );
