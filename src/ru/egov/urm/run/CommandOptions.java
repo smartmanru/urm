@@ -13,8 +13,8 @@ public class CommandOptions {
 
 	public enum FLAG { DEFAULT , YES , NO }; 
 
-	enum SQLMODE { UNKNOWN , APPLY , FORCE , ANYWAY , CORRECT , ROLLBACK , PRINT };
-	enum SQLTYPE { UNKNOWN , SQL , CTL , PUB };
+	public enum SQLMODE { UNKNOWN , APPLY , FORCE , ANYWAY , CORRECT , ROLLBACK , PRINT };
+	public enum SQLTYPE { UNKNOWN , SQL , CTL , PUB };
 
 	static int optDefaultCommandTimeout = 10;
 	

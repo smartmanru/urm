@@ -37,7 +37,7 @@ public class DistStorage {
 	public MetaRelease info;
 	String infoPath;
 
-	FileSet files;
+	private FileSet files;
 
 	ReleaseState state;
 	boolean openedForUse;
@@ -160,6 +160,14 @@ public class DistStorage {
 	
 	public String getDeliveryDatabaseFolder( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
 		return( Common.getPath( delivery.FOLDERPATH , "db" ) );
+	}
+	
+	public String getDeliveryDatabaseScriptFolder( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
+		return( Common.getPath( getDeliveryDatabaseFolder( action , delivery ) , "scripts" ) );
+	}
+	
+	public String getDeliveryDatabaseLoadFolder( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
+		return( Common.getPath( getDeliveryDatabaseFolder( action , delivery ) , "dataload" ) );
 	}
 	
 	public String getDeliveryBinaryFolder( ActionBase action , MetaDistrDelivery delivery ) throws Exception {

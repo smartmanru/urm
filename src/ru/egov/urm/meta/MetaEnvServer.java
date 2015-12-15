@@ -461,5 +461,14 @@ public class MetaEnvServer {
 		
 		return( true );
 	}
+
+	public Map<String,MetaDatabaseSchema> getSchemaSet( ActionBase action ) throws Exception {
+		Map<String,MetaDatabaseSchema> schemaMap = new HashMap<String,MetaDatabaseSchema>();
+		for( MetaDatabaseDatagroup dg : datagroupMap.values() ) {
+			for( MetaDatabaseSchema schema : dg.getSchemes( action ).values() )
+				schemaMap.put( schema.SCHEMA , schema );
+		}
+		return( schemaMap );
+	}
 	
 }

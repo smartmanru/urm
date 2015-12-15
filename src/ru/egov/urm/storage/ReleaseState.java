@@ -209,7 +209,7 @@ public class ReleaseState {
 		
 		if( PROD == false ) {
 			if( state != RELEASESTATE.PROD && state != RELEASESTATE.RELEASED && state != RELEASESTATE.DIRTY )
-				action.exit( "distributive is not ready for use in test environment, state=" + state.name() );
+				action.exit( "distributive is not ready for use, state=" + state.name() );
 		}
 		
 		if( PROD == true ) {

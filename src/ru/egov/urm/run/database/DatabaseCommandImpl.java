@@ -31,7 +31,8 @@ public class DatabaseCommandImpl {
 		dist.open( action );
 		
 		String deliveryInfo = ( delivery != null )? delivery.distDelivery.NAME : "(all)";
-		action.log( "apply database changes release=" + dist.RELEASEDIR + ", delivery=" + deliveryInfo + ", scope=" + indexScope );
+		String itemsInfo = ( indexScope != null )? indexScope : "(all)"; 
+		action.log( "apply database changes release=" + dist.RELEASEDIR + ", delivery=" + deliveryInfo + ", items=" + itemsInfo );
 		ActionApplyAutomatic ma = new ActionApplyAutomatic( action , null , dist , delivery , indexScope );
 		ActionScope scope = ActionScope.getEnvDatabaseScope( action , dist );
 		ma.runAll( scope );
