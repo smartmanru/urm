@@ -72,7 +72,7 @@ public class DistStorage {
 		
 		state.ctlLoadReleaseState( action );
 		
-		infoPath = copyDistToFolder( action , artefactory.workFolder , metaFileName );
+		infoPath = distFolder.copyFileToLocal( action , artefactory.workFolder , metaFileName , "" );
 		info = new MetaRelease( meta );
 		
 		String RELEASEVER = Common.getPartBeforeFirst( RELEASEDIR , "-" );
