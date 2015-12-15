@@ -86,6 +86,9 @@ public class DeployCommandImpl {
 			return;
 		}
 		
+		// open distributive
+		dist.open( action );
+		
 		// download configuration templates
 		LocalFolder folder = null;
 		if( action.context.CONF_DEPLOY && !dist.info.isEmptyConfiguration( action ) ) {

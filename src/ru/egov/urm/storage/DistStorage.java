@@ -464,8 +464,12 @@ public class DistStorage {
 		
 		return( Common.getPath( "binary" , targetItem.DISTFILE ) );
 	}
+
+	public void open( ActionBase action ) throws Exception {
+		gatherFiles( action );
+	}
 	
-	public void gatherFiles( ActionBase action ) throws Exception {
+	private void gatherFiles( ActionBase action ) throws Exception {
 		action.log( "find distributive files ..." );
 		files = distFolder.getFileSet( action );
 		

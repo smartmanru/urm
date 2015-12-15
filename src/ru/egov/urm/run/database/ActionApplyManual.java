@@ -34,7 +34,6 @@ public class ActionApplyManual extends ActionBase {
 		if( !client.checkConnect( this ) )
 			exit( "unable to connect to server=" + server.NAME );
 		
-		release.gatherFiles( this );
 		if( target.itemFull ) {
 			String[] manualFiles = release.getManualDatabaseFiles( this );
 			for( String file : manualFiles )

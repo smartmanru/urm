@@ -43,9 +43,6 @@ public class ActionRedist extends ActionBase {
 				return;
 			}
 		}
-		
-		// gather release distributive data
-		dist.gatherFiles( this );
 	}
 	
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {

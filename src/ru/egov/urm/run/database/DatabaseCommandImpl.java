@@ -21,11 +21,15 @@ public class DatabaseCommandImpl {
 	}
 
 	public void applyManual( ActionBase action , ActionScope scope , DistStorage dist , MetaEnvServer server ) throws Exception {
+		dist.open( action );
+		
 		ActionApplyManual ma = new ActionApplyManual( action , null , dist , server );
 		ma.runAll( scope );
 	}
 
 	public void applyAutomatic( ActionBase action , DistStorage dist , MetaReleaseDelivery delivery , String indexScope ) throws Exception {
+		dist.open( action );
+		
 		String deliveryInfo = ( delivery != null )? delivery.distDelivery.NAME : "(all)";
 		action.log( "apply database changes release=" + dist.RELEASEDIR + ", delivery=" + deliveryInfo + ", scope=" + indexScope );
 		ActionApplyAutomatic ma = new ActionApplyAutomatic( action , null , dist , delivery , indexScope );
