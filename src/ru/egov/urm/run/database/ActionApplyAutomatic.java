@@ -67,8 +67,10 @@ public class ActionApplyAutomatic extends ActionBase {
 		String distFolder = dist.getDeliveryDatabaseScriptFolder( this , delivery.distDelivery );
 		FileSet files = dist.getFiles( this );
 		FileSet deliveryFiles = files.getDirByPath( this , distFolder );
-		if( deliveryFiles == null )
+		if( deliveryFiles == null ) {
+			trace( "script directory " + distFolder + " is not found" );
 			return( false );
+		}
 
 		// copy scripts
 		boolean copy = false;
