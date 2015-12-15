@@ -37,12 +37,13 @@ public class ActionApplyAutomatic extends ActionBase {
 			exit( "unable to connect to server=" + server.NAME );
 		
 		log( "apply changes to database=" + server.NAME );
+		LogStorage logs = artefactory.getDatabaseLogStorage( this , dist.info.RELEASEVER );
 
 		Map<String,MetaDatabaseSchema> schemaSet = server.getSchemaSet( this );
 		boolean done = false;
 		for( MetaReleaseDelivery releaseDelivery : dist.info.getDeliveries( this ).values() ) {
 			if( delivery == null || delivery == releaseDelivery )
-				if( applyDelivery( server , releaseDelivery , schemaSet ) )
+				if( applyDelivery( server , releaseDelivery , schemaSet , logs ) )
 					done = true;
 		}
 
@@ -54,8 +55,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		return( true );
 	}
 
-	private boolean applyDelivery( MetaEnvServer server , MetaReleaseDelivery releaseDelivery , Map<String,MetaDatabaseSchema> schemaSet ) throws Exception {
-		LogStorage logs = artefactory.getDatabaseLogStorage( this , dist.info.RELEASEVER );
+	private boolean applyDelivery( MetaEnvServer server , MetaReleaseDelivery releaseDelivery , Map<String,MetaDatabaseSchema> schemaSet , LogStorage logs ) throws Exception {
 		LocalFolder logReleaseCopy = logs.getDatabaseLogReleaseCopyFolder( this , releaseDelivery );
 		LocalFolder logReleaseExecute = logs.getDatabaseLogExecuteFolder( this , server , releaseDelivery );
 		
