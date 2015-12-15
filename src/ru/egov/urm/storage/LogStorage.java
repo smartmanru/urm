@@ -2,6 +2,7 @@ package ru.egov.urm.storage;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaEnvServer;
+import ru.egov.urm.meta.MetaReleaseDelivery;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.run.ActionBase;
 
@@ -38,8 +39,16 @@ public class LogStorage {
 		return( logFolder.getSubFolder( action , "dist" ) );
 	}
 	
+	public LocalFolder getDatabaseLogReleaseCopyFolder( ActionBase action , MetaReleaseDelivery releaseDelivery ) throws Exception {
+		return( logFolder.getSubFolder( action , "dist-" + releaseDelivery.distDelivery.NAME ) );
+	}
+	
 	public LocalFolder getDatabaseLogExecuteFolder( ActionBase action , MetaEnvServer server ) throws Exception {
 		return( logFolder.getSubFolder( action , "run-" + server.dc.NAME + "-" + server.NAME ) );
+	}
+	
+	public LocalFolder getDatabaseLogExecuteFolder( ActionBase action , MetaEnvServer server , MetaReleaseDelivery releaseDelivery ) throws Exception {
+		return( logFolder.getSubFolder( action , "run-" + server.dc.NAME + "-" + server.NAME + "-" + releaseDelivery.distDelivery.NAME ) );
 	}
 	
 }

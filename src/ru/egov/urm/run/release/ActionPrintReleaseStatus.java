@@ -29,7 +29,6 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		
 		printComment( "RELEASE " + dist.RELEASEDIR + " STATUS:" );
 		printComment( "location: " + meta.product.CONFIG_DISTR_HOSTLOGIN );
-		printComment( "repository path: " + dist.getDistPath( this ) );
 		printComment( "state: " + dist.getState( this ) );
 		printComment( "version: " + release.RELEASEVER );
 		printComment( "property::buildMode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );

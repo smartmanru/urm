@@ -119,6 +119,10 @@ public class MetaEnvServer {
 			for( int k = 0; k < SERVERS.length; k++ )
 				subordinateServers[ k ] = dc.getServer( action , SERVERS[ k ] );
 		}
+		
+		// verify aligned
+		for( String id : Common.splitSpaced( ALIGNED ) )
+			action.meta.distr.database.alignedGetIDByBame( action , id );
 	}
 	
 	public Map<String,MetaEnvServer> getAssociatedServers( ActionBase action ) throws Exception {

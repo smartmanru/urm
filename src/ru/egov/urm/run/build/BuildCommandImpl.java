@@ -92,7 +92,7 @@ public class BuildCommandImpl {
 			action.exit( "there are errors in release, please check" );
 			
 		if( copyDist )
-			action.log( "getAll: download has been finished, copied to distribution directory " + scope.release.getDistPath( action ) );
+			action.log( "getAll: download has been finished, copied to distribution directory " + scope.release.RELEASEDIR );
 		else
 			action.log( "getAll: download has been finished, saved to artefacts directory " + downloadFolder.folderPath );
 	}

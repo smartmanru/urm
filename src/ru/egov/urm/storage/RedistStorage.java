@@ -180,18 +180,7 @@ public class RedistStorage extends ServerStorage {
 		RemoteFolder locationDir = getRedistLocationFolder( action , dist.RELEASEDIR , LOCATION , CONTENTTYPE , true );
 
 		String redistFileName = getDeployVersionedName( action , location , item , deployBaseName , dist.info.RELEASEVER );  
-		
-		if( dist.isRemote( action ) ) {
-			// copy via local
-			LocalFolder work = artefactory.getWorkFolder( action , "copy" );
-			dist.copyDistFileToFolderRename( action , work , item.delivery.FOLDERPATH , fileName , redistFileName );
-			locationDir.copyFileFromLocal( action , work.getFilePath( action , redistFileName ) );
-		}
-		else {
-			String path = Common.getPath( dist.getDistPath( action ) , item.delivery.FOLDERPATH );
-			path = Common.getPath( path , fileName );
-			locationDir.copyFileFromLocalRename( action , path , redistFileName );
-		}
+		dist.copyDistItemToTarget( action , item , fileName , locationDir , redistFileName );
 
 		// create state file
 		RedistStateInfo info = new RedistStateInfo();

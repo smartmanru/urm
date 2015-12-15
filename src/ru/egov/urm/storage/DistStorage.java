@@ -39,7 +39,8 @@ public class DistStorage {
 
 	FileSet files;
 
-	ReleaseState state; 
+	ReleaseState state;
+	boolean openedForUse;
 	
 	public DistStorage( Artefactory artefactory , RemoteFolder distFolder ) {
 		this.artefactory = artefactory; 
@@ -49,6 +50,7 @@ public class DistStorage {
 		RELEASEDIR = distFolder.folderName;
 		state = new ReleaseState( distFolder );
 		files = null;
+		openedForUse = false;
 	}
 
 	public boolean isRemote( ActionBase action ) throws Exception {
@@ -103,30 +105,37 @@ public class DistStorage {
 	}
 
 	public String copyDistToFolder( ActionBase action , LocalFolder workFolder , String file ) throws Exception {
+		if( !openedForUse )
+			action.exit( "distributive is not opened for use" );
 		return( copyDistToFolder( action , workFolder , "" , file ) );
 	}
 	
 	public String copyDistToFolder( ActionBase action , LocalFolder workFolder , String srcSubdir , String file ) throws Exception {
+		if( !openedForUse )
+			action.exit( "distributive is not opened for use" );
+		
 		action.debug( "copy from distributive " + file + " to " + workFolder.folderPath + " ..." );
 		RemoteFolder srcFolder = distFolder.getSubFolder( action , srcSubdir ); 
 		return( srcFolder.copyFileToLocal( action , workFolder , file , "" ) );
 	}
 
 	public String copyDistFileToFolderRename( ActionBase action , LocalFolder workFolder , String srcSubdir , String file , String newName ) throws Exception {
+		if( !openedForUse )
+			action.exit( "distributive is not opened for use" );
+		
 		action.debug( "copy from distributive " + file + " to " + workFolder.folderPath + " ..." );
 		RemoteFolder srcFolder = distFolder.getSubFolder( action , srcSubdir ); 
 		return( srcFolder.copyFileToLocalRename( action , workFolder , file , newName ) );
 	}
 	
 	public void unzipDistFileToFolder( ActionBase action , LocalFolder workFolder , String file , String FOLDER , String target , String part ) throws Exception {
+		if( !openedForUse )
+			action.exit( "distributive is not opened for use" );
+		
 		String filePath = distFolder.copyFileToLocal( action , workFolder , file , FOLDER );
 		action.session.unzip( action , workFolder.folderPath , filePath , part , target ); 
 	}
 
-	public String getDistPath( ActionBase action ) throws Exception {
-		return( distFolder.folderPath );
-	}
-	
 	public boolean checkFileExists( ActionBase action , String path ) throws Exception {
 		return( distFolder.checkFileExists( action , path ) );
 	}
@@ -158,11 +167,17 @@ public class DistStorage {
 	}
 	
 	public void copyDistConfToFolder( ActionBase action , MetaReleaseDelivery delivery , LocalFolder localFolder ) throws Exception {
+		if( !openedForUse )
+			action.exit( "distributive is not opened for use" );
+		
 		String confFolder = getDeliveryConfFolder( action , delivery.distDelivery );
 		distFolder.copyDirContentToLocal( action , localFolder , confFolder );
 	}
 	
 	public boolean copyDistConfToFolder( ActionBase action , MetaReleaseTarget confTarget , LocalFolder parentFolder ) throws Exception {
+		if( !openedForUse )
+			action.exit( "distributive is not opened for use" );
+		
 		String confFolder = getDeliveryConfFolder( action , confTarget.getDelivery( action ) );
 		String compFolder = Common.getPath( confFolder , confTarget.distConfItem.KEY );
 		RemoteFolder compDist = distFolder.getSubFolder( action , compFolder );
@@ -401,6 +416,9 @@ public class DistStorage {
 	}
 
 	public boolean checkIfReleaseItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
+		if( !openedForUse )
+			action.exit( "distributive is not opened for use" );
+		
 		if( item.MANUAL ) {
 			MetaReleaseTarget target = info.findCategoryTarget( action , VarCATEGORY.MANUAL , item.KEY );
 			if( target == null )
@@ -419,6 +437,9 @@ public class DistStorage {
 	}
 	
 	public String getBinaryDistItemFile( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
+		if( !openedForUse )
+			action.exit( "distributive is not opened for use" );
+		
 		if( item.MANUAL ) {
 			MetaReleaseTarget target = info.findCategoryTarget( action , VarCATEGORY.MANUAL , item.KEY );
 			if( target == null )
@@ -459,7 +480,7 @@ public class DistStorage {
 		}
 	}
 
-	public void gatherDeliveryBinaryItem( ActionBase action , MetaReleaseDelivery delivery , FileSet deliveryFiles , MetaReleaseTargetItem targetItem ) throws Exception {
+	private void gatherDeliveryBinaryItem( ActionBase action , MetaReleaseDelivery delivery , FileSet deliveryFiles , MetaReleaseTargetItem targetItem ) throws Exception {
 		FileSet binaryFiles = null;
 		if( deliveryFiles != null )
 			binaryFiles = deliveryFiles.getDirByPath( action , "binary" );
@@ -471,7 +492,7 @@ public class DistStorage {
 		action.trace( "item=" + targetItem.distItem.KEY + ", file=" + ( ( fileName.isEmpty() )? "(missing)" : fileName ) );
 	}
 
-	public void gatherDeliveryManualItem( ActionBase action , MetaReleaseDelivery delivery , FileSet deliveryFiles , MetaReleaseTarget targetItem ) throws Exception {
+	private void gatherDeliveryManualItem( ActionBase action , MetaReleaseDelivery delivery , FileSet deliveryFiles , MetaReleaseTarget targetItem ) throws Exception {
 		FileSet binaryFiles = null;
 		if( deliveryFiles != null )
 			binaryFiles = deliveryFiles.getDirByPath( action , "binary" );
@@ -497,6 +518,9 @@ public class DistStorage {
 	}
 
 	public String[] getManualDatabaseFiles( ActionBase action ) throws Exception {
+		if( !openedForUse )
+			action.exit( "distributive is not opened for use" );
+		
 		FileSet set = files.getDirByPath( action , "manual/db" );
 		if( set == null )
 			return( new String[0] );
@@ -505,6 +529,9 @@ public class DistStorage {
 	}
 
 	public String findManualDatabaseItemFile( ActionBase action , String index ) throws Exception {
+		if( !openedForUse )
+			action.exit( "distributive is not opened for use" );
+		
 		FileSet set = files.getDirByPath( action , "manual/db" );
 		if( set == null )
 			return( null );
@@ -518,7 +545,27 @@ public class DistStorage {
 	}
 
 	public void copyDistDatabaseManualFileToFolder( ActionBase action , LocalFolder dstFolder , String file ) throws Exception {
-		this.copyDistToFolder( action , dstFolder , "manual/db" , file );
+		if( !openedForUse )
+			action.exit( "distributive is not opened for use" );
+		
+		copyDistToFolder( action , dstFolder , "manual/db" , file );
+	}
+
+	public void copyDistItemToTarget( ActionBase action , MetaDistrBinaryItem item , String fileName , RemoteFolder locationDir , String redistFileName ) throws Exception {
+		if( !openedForUse )
+			action.exit( "distributive is not opened for use" );
+		
+		if( isRemote( action ) ) {
+			// copy via local
+			LocalFolder work = artefactory.getWorkFolder( action , "copy" );
+			copyDistFileToFolderRename( action , work , item.delivery.FOLDERPATH , fileName , redistFileName );
+			locationDir.copyFileFromLocal( action , work.getFilePath( action , redistFileName ) );
+		}
+		else {
+			String path = Common.getPath( distFolder.folderPath , item.delivery.FOLDERPATH );
+			path = Common.getPath( path , fileName );
+			locationDir.copyFileFromLocalRename( action , path , redistFileName );
+		}
 	}
 	
 }
