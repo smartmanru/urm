@@ -89,7 +89,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		// check schema
 		String[] parts = Common.split( file , "-" );
 		MetaDatabaseSchema schema = meta.distr.database.getSchema( this , parts[5] );
-		if( !schemaSet.containsKey( schema ) ) {
+		if( !schemaSet.containsKey( schema.SCHEMA ) ) {
 			trace( "script " + file + " is filtered by schema" );
 			return( false );
 		}
