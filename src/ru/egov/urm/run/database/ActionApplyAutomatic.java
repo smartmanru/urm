@@ -3,6 +3,7 @@ package ru.egov.urm.run.database;
 import java.util.Map;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.conf.ConfBuilder;
 import ru.egov.urm.meta.MetaDatabaseSchema;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaReleaseDelivery;
@@ -19,6 +20,8 @@ public class ActionApplyAutomatic extends ActionBase {
 	DistStorage dist;
 	MetaReleaseDelivery delivery;
 	String indexScope;
+
+	// script file name: A<alignedid>-T<type>-I<instance>-{ZZ|RR}-<index>-<schema>-<any>.sql
 	
 	public ActionApplyAutomatic( ActionBase action , String stream , DistStorage dist , MetaReleaseDelivery delivery , String indexScope ) {
 		super( action , stream );
@@ -79,12 +82,45 @@ public class ActionApplyAutomatic extends ActionBase {
 		
 		for( String file : deliveryFiles.files.keySet() ) {
 			if( checkApplicable( server , file , schemaSet ) ) {
-				dist.copyDistToFolder( this , scriptFolder , distFolder , file );
+				prepareFile( server , scriptFolder , distFolder , file );
 				copy = true;
 			}
 		}
 		
 		return( copy );
+	}
+
+	private void prepareFile( MetaEnvServer server , LocalFolder scriptFolder , String distFolder , String file ) throws Exception {
+		String[] parts = Common.split( file , "-" );
+		dist.copyDistFileToFolderRename( this , scriptFolder , distFolder , file , file );
+		
+		ConfBuilder builder = new ConfBuilder( this );
+		builder.parseConfigParameters( scriptFolder , file , server );
+		
+		if( !parts[3].equals( "RR" ) )
+			return;
+
+		// regional
+		String regions = session.customGetValue( this , scriptFolder.folderPath , "grep \"^-- REGIONS \" " + file );
+		if( regions.isEmpty() )
+			exit( "region set not found in regional script=" + file );
+
+		// replicate regional file
+		String schema = parts[5]; 
+			
+		regions = " " + regions + " ";
+		for( String region : Common.split( server.REGIONS , " " ) ) {
+			if( regions.indexOf( region ) >= 0 ) {
+				parts[3] = region;
+				parts[5] = Common.replace( schema , "RR" , region );
+				String newName = Common.getList( parts , "-" );
+				
+				session.customCheckStatus( this , scriptFolder.folderPath , "sed " + Common.getQuoted( "s/@region@/" + region + "/g" ) + 
+						" " + file + " > " + newName ); 
+			}
+		}
+		
+		scriptFolder.removeFiles( this , file );
 	}
 
 	private boolean checkApplicable( MetaEnvServer server , String file , Map<String,MetaDatabaseSchema> schemaSet ) throws Exception {
