@@ -75,6 +75,8 @@ public class ActionApplyAutomatic extends ActionBase {
 		// copy scripts
 		boolean copy = false;
 		LocalFolder scriptFolder = logReleaseCopy.getSubFolder( this , "scripts" );
+		scriptFolder.ensureExists( this );
+		
 		for( String file : deliveryFiles.files.keySet() ) {
 			if( checkApplicable( server , file , schemaSet ) ) {
 				dist.copyDistToFolder( this , scriptFolder , distFolder , file );
