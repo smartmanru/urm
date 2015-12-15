@@ -67,7 +67,7 @@ public class ActionApplyAutomatic extends ActionBase {
 	}
 
 	private boolean createRunSet( MetaEnvServer server , MetaReleaseDelivery releaseDelivery , LocalFolder logReleaseCopy , Map<String,MetaDatabaseSchema> schemaSet ) throws Exception {
-		String distFolder = dist.getDeliveryDatabaseScriptFolder( this , delivery.distDelivery );
+		String distFolder = dist.getDeliveryDatabaseScriptFolder( this , releaseDelivery.distDelivery );
 		FileSet files = dist.getFiles( this );
 		FileSet deliveryFiles = files.getDirByPath( this , distFolder );
 		if( deliveryFiles == null ) {
