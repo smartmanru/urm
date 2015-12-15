@@ -64,14 +64,14 @@ public class ActionApplyAutomatic extends ActionBase {
 		LocalFolder logReleaseCopy = logs.getDatabaseLogReleaseCopyFolder( this , server , releaseDelivery );
 		LocalFolder logReleaseExecute = logs.getDatabaseLogExecuteFolder( this , server , releaseDelivery );
 		
-		if( !createRunSet( server , releaseDelivery , logReleaseCopy , schemaSet ) )
+		if( !createRunSet( server , releaseDelivery , logReleaseCopy , logReleaseExecute , schemaSet ) )
 			return( false );
 		
 		executeRunSet( server , releaseDelivery , logReleaseCopy , logReleaseExecute );
 		return( true );
 	}
 
-	private boolean createRunSet( MetaEnvServer server , MetaReleaseDelivery releaseDelivery , LocalFolder logReleaseCopy , Map<String,MetaDatabaseSchema> schemaSet ) throws Exception {
+	private boolean createRunSet( MetaEnvServer server , MetaReleaseDelivery releaseDelivery , LocalFolder logReleaseCopy , LocalFolder logReleaseExecute , Map<String,MetaDatabaseSchema> schemaSet ) throws Exception {
 		String distFolder = dist.getDeliveryDatabaseScriptFolder( this , releaseDelivery.distDelivery );
 		FileSet files = dist.getFiles( this );
 		FileSet deliveryFiles = files.getDirByPath( this , distFolder );
@@ -84,29 +84,33 @@ public class ActionApplyAutomatic extends ActionBase {
 		boolean copy = false;
 		LocalFolder scriptFolder = logReleaseCopy.getSubFolder( this , "scripts" );
 		scriptFolder.ensureExists( this );
+		logReleaseExecute.ensureExists( this );
 		
 		for( String file : deliveryFiles.files.keySet() ) {
 			if( checkApplicable( server , file , schemaSet ) ) {
-				prepareFile( server , scriptFolder , distFolder , file );
+				prepareFile( server , scriptFolder , logReleaseExecute , distFolder , file );
 				copy = true;
 			}
 		}
+
+		// copy dataload
 		
 		return( copy );
 	}
 
-	private void prepareFile( MetaEnvServer server , LocalFolder scriptFolder , String distFolder , String file ) throws Exception {
+	private void prepareFile( MetaEnvServer server , LocalFolder scriptFolder , LocalFolder logReleaseExecute , String distFolder , String file ) throws Exception {
 		String[] parts = Common.split( file , "-" );
 		dist.copyDistToFolder( this , scriptFolder , distFolder , file );
+		scriptFolder.copyFiles( this , file , logReleaseExecute );
 		
 		ConfBuilder builder = new ConfBuilder( this );
-		builder.parseConfigParameters( scriptFolder , file , server );
+		builder.parseConfigParameters( logReleaseExecute , file , server );
 		
 		if( !parts[3].equals( "RR" ) )
 			return;
 
 		// regional
-		String regions = session.customGetValue( this , scriptFolder.folderPath , "grep \"^-- REGIONS \" " + file );
+		String regions = session.customGetValue( this , logReleaseExecute.folderPath , "grep \"^-- REGIONS \" " + file );
 		if( regions.isEmpty() )
 			exit( "region set not found in regional script=" + file );
 
@@ -120,12 +124,12 @@ public class ActionApplyAutomatic extends ActionBase {
 				parts[5] = Common.replace( schema , "RR" , region );
 				String newName = Common.getList( parts , "-" );
 				
-				session.customCheckStatus( this , scriptFolder.folderPath , "sed " + Common.getQuoted( "s/@region@/" + region + "/g" ) + 
+				session.customCheckStatus( this , logReleaseExecute.folderPath , "sed " + Common.getQuoted( "s/@region@/" + region + "/g" ) + 
 						" " + file + " > " + newName ); 
 			}
 		}
 		
-		scriptFolder.removeFiles( this , file );
+		logReleaseExecute.removeFiles( this , file );
 	}
 
 	private boolean checkApplicable( MetaEnvServer server , String file , Map<String,MetaDatabaseSchema> schemaSet ) throws Exception {
