@@ -19,16 +19,16 @@ import ru.egov.urm.storage.LogStorage;
 public class ActionApplyAutomatic extends ActionBase {
 
 	DistStorage dist;
-	MetaReleaseDelivery delivery;
+	MetaReleaseDelivery optDelivery;
 	String indexScope;
 	LogStorage logs;
 
 	// script file name: A<alignedid>-T<type>-I<instance>-{ZZ|RR}-<index>-<schema>-<any>.sql
 	
-	public ActionApplyAutomatic( ActionBase action , String stream , DistStorage dist , MetaReleaseDelivery delivery , String indexScope ) {
+	public ActionApplyAutomatic( ActionBase action , String stream , DistStorage dist , MetaReleaseDelivery optDelivery , String indexScope ) {
 		super( action , stream );
 		this.dist = dist;
-		this.delivery = delivery;
+		this.optDelivery = optDelivery;
 		this.indexScope = indexScope;
 	}
 
@@ -60,7 +60,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		Map<String,MetaDatabaseSchema> schemaSet = server.getSchemaSet( this );
 		boolean done = false;
 		for( MetaReleaseDelivery releaseDelivery : dist.info.getDeliveries( this ).values() ) {
-			if( delivery == null || delivery == releaseDelivery )
+			if( optDelivery == null || optDelivery == releaseDelivery )
 				if( applyDelivery( server , client , registry , releaseDelivery , schemaSet , logs ) )
 					done = true;
 		}
@@ -174,7 +174,7 @@ public class ActionApplyAutomatic extends ActionBase {
 	}
 
 	private void executeRunSet( MetaEnvServer server , DatabaseClient client , DatabaseRegistry registry , MetaReleaseDelivery releaseDelivery , LocalFolder logReleaseExecute ) throws Exception {
-		registry.readDeliveryState( this , delivery.distDelivery );
+		registry.readDeliveryState( this , releaseDelivery.distDelivery );
 
 		FileSet files = logReleaseExecute.getFileSet( this );
 		for( String file : Common.getSortedKeys( files.files ) )
