@@ -1,6 +1,10 @@
 package ru.egov.urm.run.database;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import ru.egov.urm.Common;
+import ru.egov.urm.meta.MetaDatabaseSchema;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.run.ActionBase;
@@ -24,11 +28,13 @@ public class DatabaseClient {
 		
 		// check connect to admin schema
 		String user = server.admSchema.DBUSER;
-		String pwd = getUserPassword( action , server.DBMSADDR , user );
+		String pwd = getUserPassword( action , user );
 		return( specific.checkConnect( action , server , user , pwd ) );
 	}
 	
-	public String getUserPassword( ActionBase action , String dbmsAddr , String user ) throws Exception {
+	public String getUserPassword( ActionBase action , String user ) throws Exception {
+		String dbmsAddr = server.DBMSADDR;
+		
 		String S_DB_USE_SCHEMA_PASSWORD = "";
 		if( !action.context.DB_AUTH )
 			S_DB_USE_SCHEMA_PASSWORD = user;
@@ -112,6 +118,28 @@ public class DatabaseClient {
 				return( node.HOSTLOGIN );
 		action.exit( "server " + server.NAME + " has no online nodes defined" );
 		return( null );
+	}
+
+	public String readCellValue( ActionBase action , MetaDatabaseSchema schema , String table , String column , String ansiCondition ) throws Exception {
+		String password = getUserPassword( action , schema.DBUSER );
+		return( specific.readCellValue( action , server , schema.DBNAME , schema.DBUSER , password , table , column , ansiCondition ) );
+	}
+
+	public List<String[]> readTableData( ActionBase action , MetaDatabaseSchema schema , String table , String ansiCondition , String[] columns ) throws Exception {
+		List<String[]> list = new LinkedList<String[]>();
+		String password = getUserPassword( action , schema.DBUSER );
+		specific.readTableData( action , server , schema.DBNAME , schema.DBUSER , password , table , ansiCondition , columns , list );
+		return( list );
+	}
+
+	public void insertRow( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] values ) throws Exception {
+		String password = getUserPassword( action , schema.DBUSER );
+		specific.insertRow( action , server , schema.DBNAME , schema.DBUSER , password , table , columns , values );
+	}
+	
+	public void updateRow( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] values , String ansiCondition ) throws Exception {
+		String password = getUserPassword( action , schema.DBUSER );
+		specific.updateRow( action , server , schema.DBNAME , schema.DBUSER , password , table , columns , values , ansiCondition );
 	}
 	
 }

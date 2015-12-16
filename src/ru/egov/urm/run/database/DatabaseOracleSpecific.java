@@ -1,5 +1,7 @@
 package ru.egov.urm.run.database;
 
+import java.util.List;
+
 import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.Metadata.VarPROCESSMODE;
@@ -41,8 +43,23 @@ public class DatabaseOracleSpecific extends DatabaseSpecific {
 		shell.customCheckStatus( action , "sqlplus / " + Common.getQuoted( "as sysdba" ) + " < " + file + " > " + fileLog );
 		return( true );
 	}
+
+	@Override public String readCellValue( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String column , String condition ) throws Exception {
+		action.exitNotImplemented();
+		return( null );
+	}
 	
-	public boolean validateScriptContent( ActionBase action , LocalFolder dir , String P_SCRIPT ) throws Exception {
+	@Override public void readTableData( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String condition , String[] columns , List<String[]> rows ) throws Exception {
+		action.exitNotImplemented();
+	}
+
+	@Override public void insertRow( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , String[] values ) throws Exception {
+	}
+
+	@Override public void updateRow( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , String[] values , String condition ) throws Exception {
+	}
+	
+	@Override public boolean validateScriptContent( ActionBase action , LocalFolder dir , String P_SCRIPT ) throws Exception {
 		String cmd = "sed '/^[ ]*$/d' " + P_SCRIPT + " | tail -2 | tr -d " + Common.getQuoted( "\\n\\r" ) + " | tr -d " + Common.getQuoted( " " ) + " | tr '[a-z]' '[A-Z]' | grep -ce " + Common.getQuoted( "END;\\$" );
 		String value = action.session.customGetValue( action , dir.folderPath , cmd );
 		if( !value.equals( "0" ) ) {
@@ -52,32 +69,32 @@ public class DatabaseOracleSpecific extends DatabaseSpecific {
 		return( true );
 	}
 	
-	public String getComments( ActionBase action , String grep , LocalFolder srcDir , String srcFile ) throws Exception {
+	@Override public String getComments( ActionBase action , String grep , LocalFolder srcDir , String srcFile ) throws Exception {
 		return( "" );
 	}
 	
-	public void grepComments( ActionBase action , String grep , LocalFolder srcDir , String srcFile , LocalFolder dstDir , String outfile ) throws Exception {
+	@Override public void grepComments( ActionBase action , String grep , LocalFolder srcDir , String srcFile , LocalFolder dstDir , String outfile ) throws Exception {
 	}
 	
-	public void addComment( ActionBase action , String comment , LocalFolder dstDir , String outfile ) throws Exception {
+	@Override public void addComment( ActionBase action , String comment , LocalFolder dstDir , String outfile ) throws Exception {
 	}
 	
-	public void uddiBegin( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception {
+	@Override public void uddiBegin( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception {
 	}
 	
-	public void uddiEnd( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception {
+	@Override public void uddiEnd( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception {
 	}
 	
-	public void uddiAddEndpoint( ActionBase action , String UDDI_KEY , String UDDI_UAT , LocalFolder dstDir , String outfile ) throws Exception {
+	@Override public void uddiAddEndpoint( ActionBase action , String UDDI_KEY , String UDDI_UAT , LocalFolder dstDir , String outfile ) throws Exception {
 	}
 	
-	public void smevAttrBegin( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception {
+	@Override public void smevAttrBegin( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception {
 	}
 	
-	public void smevAttrEnd( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception {
+	@Override public void smevAttrEnd( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception {
 	}
 	
-	public void smevAttrAddValue( ActionBase action , String UDDI_ATTR_ID , String UDDI_ATTR_NAME , String UDDI_ATTR_CODE , String UDDI_ATTR_REGION , String UDDI_ATTR_ACCESSPOINT , 
+	@Override public void smevAttrAddValue( ActionBase action , String UDDI_ATTR_ID , String UDDI_ATTR_NAME , String UDDI_ATTR_CODE , String UDDI_ATTR_REGION , String UDDI_ATTR_ACCESSPOINT , 
 			LocalFolder dstDir , String outfile ) throws Exception {
 	}
 

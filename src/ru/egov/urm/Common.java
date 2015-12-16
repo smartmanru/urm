@@ -600,6 +600,12 @@ public class Common {
 		return( getPartBeforeFirst( account , "@" ) );
 	}
 
+	public static String getSQLQuoted( String value ) {
+		if( value == null || value.isEmpty() )
+			return( "'NULL'" );
+		return( "'" + value + "'" );
+	}
+	
 	public static int findItem( String value , String[] list ) {
 		if( value == null || value.isEmpty() )
 			return( -1 );

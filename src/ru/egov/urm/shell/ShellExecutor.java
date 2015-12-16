@@ -293,6 +293,10 @@ public abstract class ShellExecutor {
 		return( core.runCommandGetValueCheckDebug( action , cmd ) );
 	}
 
+	public String[] customGetLines( ActionBase action , String cmd ) throws Exception {
+		return( core.runCommandGetLines( action , cmd , false ) );
+	}
+
 	public String customGetValue( ActionBase action , String dir , String cmd ) throws Exception {
 		return( core.runCommandGetValueCheckDebug( action , dir , cmd ) );
 	}

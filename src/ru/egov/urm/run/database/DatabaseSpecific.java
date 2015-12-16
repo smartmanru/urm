@@ -1,5 +1,7 @@
 package ru.egov.urm.run.database;
 
+import java.util.List;
+
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.Metadata.VarDBMSTYPE;
 import ru.egov.urm.meta.Metadata.VarPROCESSMODE;
@@ -21,6 +23,11 @@ abstract public class DatabaseSpecific {
 	abstract public VarPROCESSMODE getProcessStatus( ActionBase action , String hostLogin , String instance ) throws Exception;
 	abstract public boolean checkConnect( ActionBase action , MetaEnvServer server , String user , String password ) throws Exception;
 	abstract public boolean applySystemScript( ActionBase action , MetaEnvServer server , ShellExecutor shell , String file , String fileLog ) throws Exception;
+	
+	abstract public String readCellValue( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String column , String condition ) throws Exception;
+	abstract public void readTableData( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String condition , String[] columns , List<String[]> rows ) throws Exception;
+	abstract public void insertRow( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , String[] values ) throws Exception;
+	abstract public void updateRow( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , String[] values , String condition ) throws Exception;
 	
 	abstract public boolean validateScriptContent( ActionBase action , LocalFolder dir , String script ) throws Exception;
 	abstract public String getComments( ActionBase action , String grep , LocalFolder srcDir , String srcFile ) throws Exception;

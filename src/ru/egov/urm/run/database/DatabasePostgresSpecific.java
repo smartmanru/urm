@@ -1,5 +1,7 @@
 package ru.egov.urm.run.database;
 
+import java.util.List;
+
 import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.Metadata.VarPROCESSMODE;
@@ -9,7 +11,7 @@ import ru.egov.urm.storage.LocalFolder;
 
 public class DatabasePostgresSpecific extends DatabaseSpecific {
 
-	public VarPROCESSMODE getProcessStatus( ActionBase action , String hostLogin , String instance ) throws Exception {
+	@Override public VarPROCESSMODE getProcessStatus( ActionBase action , String hostLogin , String instance ) throws Exception {
 		ShellExecutor shell = action.getShell( hostLogin );
 		String value = shell.customGetValue( action , "(echo " + Common.getQuoted( "select 'value=ok' as x;" ) + 
 				" ) | psql -d " + instance );
@@ -46,37 +48,149 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 		action.log( "error: " + err + " (see logs)" );
 		return( false );
 	}
+
+	@Override public String readCellValue( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String column , String condition ) throws Exception {
+		String value = action.session.customGetValue( action , "export PGPASSWORD='" + password + "'; " + 
+				"(echo " + Common.getQuoted( "select 'value=' || " + column + " as x from " + table + 
+						" where " + condition + ";" ) +  
+				" ) | psql -A -q -t -d " + schema + " -h " + server.DBMSADDR + " -U " + user );
+		
+		if( value.indexOf( "ERROR:" ) >= 0 )
+			action.exit( "unexpected error: " + value );
+		
+		if( value.indexOf( "value=" ) < 0 )
+			return( null );
+
+		return( Common.getPartAfterFirst( value , "value=" ) );
+	}
 	
-	public boolean validateScriptContent( ActionBase action , LocalFolder dir , String script ) throws Exception {
+	@Override public void readTableData( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String condition , String[] columns , List<String[]> rows ) throws Exception {
+		String query = "select ";
+		boolean first = true;
+		for( String column : columns ) {
+			if( !first )
+				query += ", ";
+			first = false;
+			query += "'c=' || " + column;
+		}
+		query += " from " + table + " where " + condition;
+		
+		String[] data = action.session.customGetLines( action , "export PGPASSWORD='" + password + "'; " + 
+				"(echo " + Common.getQuoted( query + ";" ) +  
+				" ) | psql -A -q -t -d " + schema + " -h " + server.DBMSADDR + " -U " + user );
+
+		for( String value : data ) {
+			String[] values = Common.split( value , "|" );
+			if( values.length != columns.length )
+				action.exit( "unexpected table row output: " + value );
+			
+			String[] row = new String[ columns.length ];
+			int pos = 0;
+			for( String s : values ) {
+				if( !s.startsWith( "c=" ) )
+					action.exit( "unexpected table row output: " + value );
+				
+				row[ pos ] = s.substring( 2 );
+				pos++;
+			}
+			
+			rows.add( row );
+		}
+	}
+	
+	@Override public void insertRow( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , String[] values ) throws Exception {
+		if( values.length != columns.length )
+			action.exit( "number of values should be equal to number of columns" );
+			
+		String query = "insert into " + table + " (";
+		boolean first = true;
+		for( String column : columns ) {
+			if( !first )
+				query += ", ";
+			
+			first = false;
+			query += column; 
+		}
+		query += " ) values (";
+		
+		first = true;
+		for( String value : values ) {
+			if( !first )
+				query += ", ";
+			
+			first = false;
+			if( value.equals( "TIMESTAMP" ) )
+				query += "now()";
+			else
+				query += value;
+		}
+		query += " )";
+			
+		String value = action.session.customGetValue( action , "export PGPASSWORD='" + password + "'; " + 
+				"(echo " + Common.getQuoted( query ) +  
+				" ) | psql -A -q -t -d " + schema + " -h " + server.DBMSADDR + " -U " + user );
+		
+		if( value.indexOf( "ERROR:" ) >= 0 )
+			action.exit( "unexpected error: " + value );
+	}
+	
+	@Override public void updateRow( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , String[] values , String condition ) throws Exception {
+		if( values.length != columns.length )
+			action.exit( "number of values should be equal to number of columns" );
+			
+		String query = "update " + table + " set ";
+		for( int pos = 0; pos < columns.length; pos++ ) {
+			if( pos > 0 )
+				query += ", ";
+			
+			query += columns[ pos ] + " = ";
+			
+			String value = values[ pos ];
+			if( value.equals( "TIMESTAMP" ) )
+				query += "now()";
+			else
+				query += value;
+		}
+		query += " where " + condition;
+		
+		String value = action.session.customGetValue( action , "export PGPASSWORD='" + password + "'; " + 
+				"(echo " + Common.getQuoted( query ) +  
+				" ) | psql -A -q -t -d " + schema + " -h " + server.DBMSADDR + " -U " + user );
+		
+		if( value.indexOf( "ERROR:" ) >= 0 )
+			action.exit( "unexpected error: " + value );
+	}
+	
+	@Override public boolean validateScriptContent( ActionBase action , LocalFolder dir , String script ) throws Exception {
 		return( true );
 	}
 	
-	public String getComments( ActionBase action , String grep , LocalFolder srcDir , String srcFile ) throws Exception {
+	@Override public String getComments( ActionBase action , String grep , LocalFolder srcDir , String srcFile ) throws Exception {
 		return( "" );
 	}
 	
-	public void grepComments( ActionBase action , String grep , LocalFolder srcDir , String srcFile , LocalFolder dstDir , String outfile ) throws Exception {
+	@Override public void grepComments( ActionBase action , String grep , LocalFolder srcDir , String srcFile , LocalFolder dstDir , String outfile ) throws Exception {
 	}
 	
-	public void addComment( ActionBase action , String comment , LocalFolder dstDir , String outfile ) throws Exception {
+	@Override public void addComment( ActionBase action , String comment , LocalFolder dstDir , String outfile ) throws Exception {
 	}
 	
-	public void uddiBegin( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception {
+	@Override public void uddiBegin( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception {
 	}
 	
-	public void uddiEnd( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception {
+	@Override public void uddiEnd( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception {
 	}
 	
-	public void uddiAddEndpoint( ActionBase action , String UDDI_KEY , String UDDI_UAT , LocalFolder dstDir , String outfile ) throws Exception {
+	@Override public void uddiAddEndpoint( ActionBase action , String UDDI_KEY , String UDDI_UAT , LocalFolder dstDir , String outfile ) throws Exception {
 	}
 	
-	public void smevAttrBegin( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception {
+	@Override public void smevAttrBegin( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception {
 	}
 	
-	public void smevAttrEnd( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception {
+	@Override public void smevAttrEnd( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception {
 	}
 	
-	public void smevAttrAddValue( ActionBase action , String UDDI_ATTR_ID , String UDDI_ATTR_NAME , String UDDI_ATTR_CODE , String UDDI_ATTR_REGION , String UDDI_ATTR_ACCESSPOINT , 
+	@Override public void smevAttrAddValue( ActionBase action , String UDDI_ATTR_ID , String UDDI_ATTR_NAME , String UDDI_ATTR_CODE , String UDDI_ATTR_REGION , String UDDI_ATTR_ACCESSPOINT , 
 			LocalFolder dstDir , String outfile ) throws Exception {
 	}
 
