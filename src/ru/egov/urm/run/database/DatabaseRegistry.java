@@ -117,7 +117,7 @@ public class DatabaseRegistry {
 	}
 	
 	public boolean isReleaseFinished( ActionBase action ) throws Exception {
-		return( releaseStatus.equals( "F" ) );
+		return( releaseStatus.equals( "A" ) );
 	}
 	
 	public void startApplyRelease( ActionBase action ) throws Exception {
