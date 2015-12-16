@@ -77,7 +77,7 @@ public class DatabaseRegistry {
 	
 	public void startApplyRelease( ActionBase action ) throws Exception {
 		// check current release state
-		if( releaseStatus.isEmpty() ) {
+		if( isReleaseUnknown( action ) ) {
 			client.insertRow( action , server.admSchema , TABLE_RELEASES ,
 				new String[] { "release" , "rel_p1" , "rel_p2" , "rel_p3" , "rel_p4" , "begin_apply_time" , "rel_status" } , 
 				new String[] { Common.getSQLQuoted( full ) , Common.getSQLQuoted( major1 ) , Common.getSQLQuoted( major2 ) , Common.getSQLQuoted( minor1 ) , Common.getSQLQuoted( minor2 ) , "TIMESTAMP" , Common.getSQLQuoted( "S" ) } );
