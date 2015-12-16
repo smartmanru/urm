@@ -6,5 +6,5 @@ RUNPATH=`pwd`
 # set env/dc context
 . ../_context.sh
 
-cd ../../../database
-./dbmanage.sh "$@"
+cd ../../../../database
+./manage.sh "$@"
