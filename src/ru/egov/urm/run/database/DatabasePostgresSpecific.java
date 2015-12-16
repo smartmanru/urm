@@ -80,7 +80,7 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 				" ) | psql -A -q -t -d " + schema + " -h " + server.DBMSADDR + " -U " + user );
 
 		for( String value : data ) {
-			String[] values = Common.split( value , "|" );
+			String[] values = Common.split( value , "\\|" );
 			if( values.length != columns.length )
 				action.exit( "unexpected table row output: " + value + " (" + values.length + ", " + columns.length + ")" );
 			
