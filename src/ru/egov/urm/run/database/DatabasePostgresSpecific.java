@@ -82,7 +82,7 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 		for( String value : data ) {
 			String[] values = Common.split( value , "|" );
 			if( values.length != columns.length )
-				action.exit( "unexpected table row output: " + value );
+				action.exit( "unexpected table row output: " + value + " (" + values.length + ", " + columns.length + ")" );
 			
 			String[] row = new String[ columns.length ];
 			int pos = 0;
