@@ -294,7 +294,7 @@ public abstract class ShellExecutor {
 	}
 
 	public String[] customGetLines( ActionBase action , String cmd ) throws Exception {
-		return( core.runCommandGetLines( action , cmd , false ) );
+		return( core.runCommandGetLines( action , cmd , true ) );
 	}
 
 	public String customGetValue( ActionBase action , String dir , String cmd ) throws Exception {
