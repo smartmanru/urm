@@ -142,7 +142,7 @@ public class DatabaseRegistry {
 			releaseStatus = "S";
 			client.updateRow( action , server.admSchema , TABLE_RELEASES ,
 					new String[] { "rel_status" , "end_apply_time" } , 
-					new String[] { releaseStatus , "NULL" } ,
+					new String[] { Common.getSQLQuoted( releaseStatus ) , "NULL" } ,
 					"release = " + Common.getSQLQuoted( full ) ); 
 		}
 		else
@@ -153,7 +153,7 @@ public class DatabaseRegistry {
 		releaseStatus = "A";
 		client.updateRow( action , server.admSchema , TABLE_RELEASES ,
 				new String[] { "rel_status" , "end_apply_time" } , 
-				new String[] { releaseStatus , "TIMESTAMP" } ,
+				new String[] { Common.getSQLQuoted( releaseStatus ) , "TIMESTAMP" } ,
 				"release = " + Common.getSQLQuoted( full ) ); 
 	}
 	
