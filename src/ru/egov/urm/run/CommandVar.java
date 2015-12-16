@@ -51,7 +51,7 @@ public class CommandVar {
 		var.help = help;
 		var.varName = varName;
 		var.varEnumValue = enumValue;
-		var.isEnum = false;
+		var.isEnum = true;
 		return( var );
 	}
 	
