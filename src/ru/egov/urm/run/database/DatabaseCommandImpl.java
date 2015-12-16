@@ -5,6 +5,7 @@ import ru.egov.urm.meta.MetaReleaseDelivery;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScope;
 import ru.egov.urm.run.CommandExecutor;
+import ru.egov.urm.run.CommandOptions.SQLMODE;
 import ru.egov.urm.storage.DistStorage;
 
 public class DatabaseCommandImpl {
@@ -31,8 +32,19 @@ public class DatabaseCommandImpl {
 		dist.open( action );
 		
 		String deliveryInfo = ( delivery != null )? delivery.distDelivery.NAME : "(all)";
-		String itemsInfo = ( indexScope != null )? indexScope : "(all)"; 
-		action.log( "apply database changes release=" + dist.RELEASEDIR + ", delivery=" + deliveryInfo + ", items=" + itemsInfo );
+		String itemsInfo = ( indexScope != null )? indexScope : "(all)";
+		
+		String op = null;
+		if( action.options.OPT_DBMODE == SQLMODE.ANYWAY )
+			op = "all";
+		else if( action.options.OPT_DBMODE == SQLMODE.APPLY )
+			op = "new";
+		else if( action.options.OPT_DBMODE == SQLMODE.CORRECT )
+			op = "failed";
+		else 
+			action.exit( "database mode is not set" );
+		
+		action.log( "apply database changes (" + op + ") release=" + dist.RELEASEDIR + ", delivery=" + deliveryInfo + ", items=" + itemsInfo );
 		ActionApplyAutomatic ma = new ActionApplyAutomatic( action , null , dist , delivery , indexScope );
 		ActionScope scope = ActionScope.getEnvDatabaseScope( action , dist );
 		ma.runAll( scope );
