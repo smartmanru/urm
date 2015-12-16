@@ -29,7 +29,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		super.defineAction( CommandAction.newAction( new getReleaseScripts() , "getsql" , "get database release content" , cmdOpts , "./getsql.sh [OPTIONS] {all|<deliveries>}" ) );
 		cmdOpts = "";
 		super.defineAction( CommandAction.newAction( new applyManual() , "dbmanual" , "apply manual scripts under system account" , cmdOpts , "./dbmanual.sh [OPTIONS] <RELEASELABEL> <DBSERVER> {all|<indexes>}" ) );
-		cmdOpts = "GETOPT_DB, GETOPT_DBTYPE, GETOPT_DBALIGNED";
+		cmdOpts = "GETOPT_DBMODE, GETOPT_DB, GETOPT_DBTYPE, GETOPT_DBALIGNED";
 		super.defineAction( CommandAction.newAction( new applyAutomatic() , "dbapply" , "apply application scripts and load data files" , cmdOpts , "./dbapply.sh [OPTIONS] <RELEASELABEL> {all|<delivery> {all|<mask>}} (mask is distributive file mask)" ) );
 		
 		envMethods = "dbmanual dbapply";

@@ -128,7 +128,7 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 			
 		String value = action.session.customGetValue( action , "export PGPASSWORD='" + password + "'; " + 
 				"(echo " + Common.getQuoted( query ) +  
-				" ) | psql -A -q -t -d " + schema + " -h " + server.DBMSADDR + " -U " + user );
+				" ) | psql -d " + schema + " -h " + server.DBMSADDR + " -U " + user );
 		
 		if( value.indexOf( "ERROR:" ) >= 0 )
 			action.exit( "unexpected error: " + value );
@@ -155,10 +155,22 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 		
 		String value = action.session.customGetValue( action , "export PGPASSWORD='" + password + "'; " + 
 				"(echo " + Common.getQuoted( query ) +  
-				" ) | psql -A -q -t -d " + schema + " -h " + server.DBMSADDR + " -U " + user );
+				" ) | psql -d " + schema + " -h " + server.DBMSADDR + " -U " + user );
 		
 		if( value.indexOf( "ERROR:" ) >= 0 )
 			action.exit( "unexpected error: " + value );
+	}
+
+	@Override public boolean applyScript( ActionBase action , MetaEnvServer server , String schema , String user , String password , String scriptFile , String outFile ) throws Exception {
+		action.session.customCheckStatus( action , "export PGPASSWORD='" + password + "'; " + 
+				"cat " + scriptFile + " | psql -d " + schema + " -h " + server.DBMSADDR + " -U " + user + " > " + outFile + " 2>&1" );
+		
+		String err = action.session.customGetValue( action , "cat " + outFile + " | grep ^ERROR: | head -1" );
+		if( err.isEmpty() )
+			return( true );
+		
+		action.log( "error: " + err + " (see logs at + " + outFile + ")" );
+		return( false );
 	}
 	
 	@Override public boolean validateScriptContent( ActionBase action , LocalFolder dir , String script ) throws Exception {

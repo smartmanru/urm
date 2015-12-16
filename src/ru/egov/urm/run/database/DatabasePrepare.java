@@ -450,7 +450,7 @@ public class DatabasePrepare {
 	}
 
 	private void checkOneForms( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , String P_ORGNAME ) throws Exception {
-		String[] items = Common.split( P_ORGNAME , "\\." );
+		String[] items = Common.splitDotted( P_ORGNAME );
 		String F_REGION = items[1];
 		String F_ORGID = items[2];
 
@@ -485,7 +485,7 @@ public class DatabasePrepare {
 	}
 
 	private void checkOneWar( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , String P_MPNAME ) throws Exception {
-		String[] items = Common.split( P_MPNAME , "\\." );
+		String[] items = Common.splitDotted( P_MPNAME );
 		String F_REGION = items[1];
 		String F_WAR = items[2];
 
@@ -688,7 +688,7 @@ public class DatabasePrepare {
 			if( !x.endsWith( ".sql" ) )
 				continue;
 			
-			String[] items = Common.split( x , "-" );
+			String[] items = Common.splitDashed( x );
 			String xrindex = items[0];
 			String xrschema = items[1];
 			String xrtail = x.substring( xrindex.length() + 1 + xrschema.length() + 1 );

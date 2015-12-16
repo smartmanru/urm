@@ -54,9 +54,16 @@ public class DatabaseOracleSpecific extends DatabaseSpecific {
 	}
 
 	@Override public void insertRow( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , String[] values ) throws Exception {
+		action.exitNotImplemented();
 	}
 
 	@Override public void updateRow( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , String[] values , String condition ) throws Exception {
+		action.exitNotImplemented();
+	}
+
+	@Override public boolean applyScript( ActionBase action , MetaEnvServer server , String schema , String user , String password , String scriptFile , String outFile ) throws Exception {
+		action.exitNotImplemented();
+		return( false );
 	}
 	
 	@Override public boolean validateScriptContent( ActionBase action , LocalFolder dir , String P_SCRIPT ) throws Exception {

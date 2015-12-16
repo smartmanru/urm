@@ -13,7 +13,7 @@ public class CommandOptions {
 
 	public enum FLAG { DEFAULT , YES , NO }; 
 
-	public enum SQLMODE { UNKNOWN , APPLY , FORCE , ANYWAY , CORRECT , ROLLBACK , PRINT };
+	public enum SQLMODE { UNKNOWN , APPLY , ANYWAY , CORRECT , ROLLBACK , PRINT };
 	public enum SQLTYPE { UNKNOWN , SQL , CTL , PUB };
 
 	static int optDefaultCommandTimeout = 10;
@@ -166,7 +166,6 @@ public class CommandOptions {
 		defineOption( CommandVar.newFlagYesOption( "hidden" , "GETOPT_HIDDEN" , "use hidden files to restore configuration" ) );
 
 		defineOption( CommandVar.newFlagEnumOption( "a" , "APPLY" , "GETOPT_DBMODE" , "execute database set - only new scipts" ) );
-		defineOption( CommandVar.newFlagEnumOption( "f" , "FORCE" , "GETOPT_DBMODE" , "execute database set - only already applied scipts" ) );
 		defineOption( CommandVar.newFlagEnumOption( "x" , "ANYWAY" , "GETOPT_DBMODE" , "execute database set - both already applied and new scipts" ) );
 		defineOption( CommandVar.newFlagEnumOption( "c" , "CORRECT" , "GETOPT_DBMODE" , "execute database set - only failed scripts" ) );
 		defineOption( CommandVar.newFlagEnumOption( "r" , "ROLLBACK" , "GETOPT_DBMODE" , "execute database set - rollback" ) );

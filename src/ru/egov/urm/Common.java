@@ -461,6 +461,10 @@ public class Common {
 		return( split( value , "\\." ) );
 	}
 	
+	public static String[] splitDashed( String value ) {
+		return( split( value , "-" ) );
+	}
+	
 	public static String[] split( String value , String delimiter ) {
 		value = value.trim();
 		if( value.isEmpty() )
@@ -623,4 +627,16 @@ public class Common {
 		}
 		return( false );
 	}
+	
+	public static int getIndexOf( String s , String item , int pos ) {
+		int index = -1;
+		for( int k = 0; k < pos; k++ ) {
+			index = s.indexOf( item , index + item.length() );
+			if( index < 0 )
+				return( -1 );
+		}
+		
+		return( index );
+	}
+	
 }

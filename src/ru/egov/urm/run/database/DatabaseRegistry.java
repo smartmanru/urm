@@ -9,9 +9,12 @@ import ru.egov.urm.meta.MetaDistrDelivery;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaRelease;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.run.CommandOptions.SQLMODE;
 
 public class DatabaseRegistry {
 
+	// script file name: A<alignedid>-T<type>-I<instance>-{ZZ|RR}-<index>-<schema>-<any>.sql
+	
 	MetaEnvServer server;
 	MetaRelease release;
 	DatabaseClient client;
@@ -35,6 +38,23 @@ public class DatabaseRegistry {
 		deliveryState = new HashMap<String,Map<String,String>>();
 	}
 
+	public static String getKey( ActionBase action , String file ) throws Exception {
+		int index = Common.getIndexOf( file , "-" , 4 );
+		if( index < 0 )
+			action.exit( "invalid file name " + file );
+		return( file.substring( 0 , index ) );
+	}
+	
+	public static String getSchema( ActionBase action , String file ) throws Exception {
+		int index1 = Common.getIndexOf( file , "-" , 4 );
+		if( index1 < 0 )
+			action.exit( "invalid file name " + file );
+		int index2 = Common.getIndexOf( file , "-" , 5 );
+		if( index2 < 0 )
+			action.exit( "invalid file name " + file );
+		return( file.substring( index1 + 1 , index2 ) );
+	}
+	
 	public static DatabaseRegistry getRegistry( ActionBase action , DatabaseClient client , MetaRelease release ) throws Exception {
 		DatabaseRegistry registry = new DatabaseRegistry( client , release );
 		registry.readReleaseState( action );
@@ -86,7 +106,7 @@ public class DatabaseRegistry {
 		else
 		if( isReleaseStarted( action ) ) {
 			client.updateRow( action , server.admSchema , TABLE_RELEASES ,
-					new String[] { "begin_apply_time" } , new String[] { "TIMESTAMP" } ,
+					new String[] { "begin_apply_time" , "end_apply_time" } , new String[] { "TIMESTAMP" , "NULL" } ,
 					"release = " + Common.getSQLQuoted( full ) ); 
 		}
 		else
@@ -96,7 +116,7 @@ public class DatabaseRegistry {
 			
 			releaseStatus = "S";
 			client.updateRow( action , server.admSchema , TABLE_RELEASES ,
-					new String[] { "rel_status" , "begin_apply_time" } , new String[] { releaseStatus , "TIMESTAMP" } ,
+					new String[] { "rel_status" , "begin_apply_time" , "end_apply_time" } , new String[] { releaseStatus , "TIMESTAMP" , "NULL" } ,
 					"release = " + Common.getSQLQuoted( full ) ); 
 		}
 		else
@@ -118,7 +138,71 @@ public class DatabaseRegistry {
 		deliveryState.put( delivery.NAME , data );
 	}
 	
-	public void runBeforeScript( ActionBase action , MetaDistrDelivery delivery , String fileName ) throws Exception {
+	public boolean checkNeedApply( ActionBase action , MetaDistrDelivery delivery , String file ) throws Exception {
+		Map<String,String> data = deliveryState.get( delivery.NAME );
+		String key = getKey( action , file );
+		String status = data.get( key );
+		
+		if( status == null ) {
+			if( action.options.OPT_DBMODE == SQLMODE.ANYWAY ||
+				action.options.OPT_DBMODE == SQLMODE.APPLY )
+				return( true );
+			
+			action.log( "scipt " + file + " is new. Skipped" );
+			return( false );
+		}
+		
+		if( status.equals( "S" ) ) {
+			if( action.options.OPT_DBMODE == SQLMODE.ANYWAY ||
+				action.options.OPT_DBMODE == SQLMODE.CORRECT )
+				return( true );
+			
+			action.log( "scipt " + file + " is already applied with errors. Skipped" );
+			return( false );
+		}
+		
+		if( status.equals( "A" ) ) {
+			if( action.options.OPT_DBMODE == SQLMODE.ANYWAY )
+				return( true );
+			
+			action.log( "scipt " + file + " is already successfully applied. Skipped" );
+			return( false );
+		}
+		
+		action.exitUnexpectedState();
+		return( false );
+	}
+
+	public void startApplyScript( ActionBase action , MetaDistrDelivery delivery , String file ) throws Exception {
+		Map<String,String> data = deliveryState.get( delivery.NAME );
+		String key = getKey( action , file );
+		String status = data.get( key );
+		
+		String schema = getSchema( action , file );
+		if( status == null ) {
+			client.insertRow( action , server.admSchema , TABLE_SCRIPTS ,
+					new String[] { "release" , "delivery" , "key" , "schema" , "filename" , "updatetime" , "script_status" } , 
+					new String[] { Common.getSQLQuoted( full ) , Common.getSQLQuoted( delivery.NAME ) , Common.getSQLQuoted( key ) , Common.getSQLQuoted( schema ) , Common.getSQLQuoted( file ) , "TIMESTAMP" , Common.getSQLQuoted( "S" ) } );
+		}
+		else {
+			client.updateRow( action , server.admSchema , TABLE_SCRIPTS ,
+					new String[] { "schema" , "filename" , "updatetime" , "script_status" } , 
+					new String[] { Common.getSQLQuoted( schema ) , Common.getSQLQuoted( file ) , "TIMESTAMP" , Common.getSQLQuoted( "S" ) } ,
+					"release = " + Common.getSQLQuoted( full ) + " and " +
+							"delivery = " + Common.getSQLQuoted( delivery.NAME ) +
+							"key = " + Common.getSQLQuoted( key ) ); 
+		}
+	}
+	
+	public void finishApplyScript( ActionBase action , MetaDistrDelivery delivery , String file ) throws Exception {
+		String key = getKey( action , file );
+		
+		client.updateRow( action , server.admSchema , TABLE_SCRIPTS ,
+				new String[] { "updatetime" , "script_status" } , 
+				new String[] { "TIMESTAMP" , Common.getSQLQuoted( "A" ) } ,
+				"release = " + Common.getSQLQuoted( full ) + " and " +
+						"delivery = " + Common.getSQLQuoted( delivery.NAME ) +
+						"key = " + Common.getSQLQuoted( key ) ); 
 	}
 	
 }

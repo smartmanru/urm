@@ -23,8 +23,6 @@ public class ActionApplyAutomatic extends ActionBase {
 	String indexScope;
 	LogStorage logs;
 
-	// script file name: A<alignedid>-T<type>-I<instance>-{ZZ|RR}-<index>-<schema>-<any>.sql
-	
 	public ActionApplyAutomatic( ActionBase action , String stream , DistStorage dist , MetaReleaseDelivery optDelivery , String indexScope ) {
 		super( action , stream );
 		this.dist = dist;
@@ -107,7 +105,7 @@ public class ActionApplyAutomatic extends ActionBase {
 	}
 
 	private void prepareFile( MetaEnvServer server , LocalFolder scriptFolder , LocalFolder logReleaseExecute , String distFolder , String file ) throws Exception {
-		String[] parts = Common.split( file , "-" );
+		String[] parts = Common.splitDashed( file );
 		dist.copyDistToFolder( this , scriptFolder , distFolder , file );
 		scriptFolder.copyFiles( this , file , logReleaseExecute );
 		
@@ -142,7 +140,7 @@ public class ActionApplyAutomatic extends ActionBase {
 
 	private boolean checkApplicable( MetaEnvServer server , String file , Map<String,MetaDatabaseSchema> schemaSet ) throws Exception {
 		// check schema
-		String[] parts = Common.split( file , "-" );
+		String[] parts = Common.splitDashed( file );
 		MetaDatabaseSchema schema = meta.distr.database.getSchema( this , parts[5] );
 		if( !schemaSet.containsKey( schema.SCHEMA ) ) {
 			trace( "script " + file + " is filtered by schema" );
@@ -182,8 +180,23 @@ public class ActionApplyAutomatic extends ActionBase {
 	}
 
 	private void executeRunSetScript( MetaEnvServer server , DatabaseClient client , DatabaseRegistry registry , MetaReleaseDelivery releaseDelivery , LocalFolder logReleaseExecute , String file ) throws Exception {
-		// check need to execute
+		if( !registry.checkNeedApply( this , releaseDelivery.distDelivery , file ) )
+			return;
 		
+		trace( "start apply script " + file );
+		registry.startApplyScript( this , releaseDelivery.distDelivery , file );
+		
+		String log = file + ".out";
+		String schemaName = DatabaseRegistry.getSchema( this , file );
+		MetaDatabaseSchema schema = meta.distr.database.getSchema( this , schemaName );
+		if( !client.applyScript( this , schema , logReleaseExecute , file , log ) ) {
+			if( !options.OPT_FORCE )
+				exit( "error applying script " + file + ", see logs." );
+			
+			return;
+		}
+
+		registry.finishApplyScript( this , releaseDelivery.distDelivery , file );
 	}
 	
 }
