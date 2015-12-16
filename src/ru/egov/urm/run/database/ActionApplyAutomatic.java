@@ -41,7 +41,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		if( !client.checkConnect( this ) )
 			exit( "unable to connect to server=" + server.NAME );
 
-		log( "apply changes to database=" + server.NAME );
+		log( "apply changes to database=" + server.NAME + " ..." );
 		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client , dist.info );
 		
 		if( applyDatabase( server , client , registry ) )
@@ -82,7 +82,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		FileSet files = dist.getFiles( this );
 		FileSet deliveryFiles = files.getDirByPath( this , distFolder );
 		if( deliveryFiles == null ) {
-			trace( "script directory " + distFolder + " is not found" );
+			trace( "script directory " + distFolder + " is not found. Skipped." );
 			return( false );
 		}
 
@@ -190,13 +190,15 @@ public class ActionApplyAutomatic extends ActionBase {
 		String schemaName = DatabaseRegistry.getSchema( this , file );
 		MetaDatabaseSchema schema = meta.distr.database.getSchema( this , schemaName );
 		if( !client.applyScript( this , schema , logReleaseExecute , file , log ) ) {
+			exit( "error applying script " + file + ", see logs." );
 			if( !options.OPT_FORCE )
-				exit( "error applying script " + file + ", see logs." );
+				exit( "cancel apply script set due to errors." );
 			
 			return;
 		}
 
 		registry.finishApplyScript( this , releaseDelivery.distDelivery , file );
+		log( "scipt " + file + " has been successfully applid to " + server.NAME );
 	}
 	
 }
