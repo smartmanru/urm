@@ -55,7 +55,7 @@ public class DatabaseRegistry {
 
 	private void readReleaseStatus( ActionBase action ) throws Exception {
 		releaseStatus = client.readCellValue( action , server.admSchema , TABLE_RELEASES , "rel_status" , 
-				"release = " + Common.getSQLQuoted( release.RELEASEVER ) ); 
+				"release = " + Common.getSQLQuoted( full ) ); 
 	}
 
 	private void readReleaseState( ActionBase action ) throws Exception {
@@ -86,7 +86,7 @@ public class DatabaseRegistry {
 		if( isReleaseStarted( action ) ) {
 			client.updateRow( action , server.admSchema , TABLE_RELEASES ,
 					new String[] { "begin_apply_time" } , new String[] { "TIMESTAMP" } ,
-					"release = " + Common.getSQLQuoted( release.RELEASEVER ) ); 
+					"release = " + Common.getSQLQuoted( full ) ); 
 		}
 		else
 		if( isReleaseFinished( action ) ) {
@@ -96,7 +96,7 @@ public class DatabaseRegistry {
 			releaseStatus = "S";
 			client.updateRow( action , server.admSchema , TABLE_RELEASES ,
 					new String[] { "rel_status" , "begin_apply_time" } , new String[] { releaseStatus , "TIMESTAMP" } ,
-					"release = " + Common.getSQLQuoted( release.RELEASEVER ) ); 
+					"release = " + Common.getSQLQuoted( full ) ); 
 		}
 		else
 			action.exitUnexpectedState();
@@ -108,7 +108,7 @@ public class DatabaseRegistry {
 		// check connect to admin schema
 		String[] columns = { "key" , "script_status" };
 		List<String[]> rows = client.readTableData( action , server.admSchema , TABLE_SCRIPTS  , 
-				"release = " + Common.getSQLQuoted( release.RELEASEVER ) + " and " +
+				"release = " + Common.getSQLQuoted( full ) + " and " +
 				"delivery = " + Common.getSQLQuoted( delivery.NAME ) , columns ); 
 		
 		for( String[] row : rows )
