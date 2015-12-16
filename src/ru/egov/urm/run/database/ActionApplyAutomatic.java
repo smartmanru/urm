@@ -22,6 +22,8 @@ public class ActionApplyAutomatic extends ActionBase {
 	MetaReleaseDelivery optDelivery;
 	String indexScope;
 	LogStorage logs;
+	
+	boolean applyFailed;
 
 	public ActionApplyAutomatic( ActionBase action , String stream , DistStorage dist , MetaReleaseDelivery optDelivery , String indexScope ) {
 		super( action , stream );
@@ -44,10 +46,14 @@ public class ActionApplyAutomatic extends ActionBase {
 		log( "apply changes to database=" + server.NAME + " ..." );
 		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client , dist.info );
 		
+		applyFailed = false;
 		if( applyDatabase( server , client , registry ) )
 			log( "apply done." );
 		else
 			log( "nothing to apply." );
+		
+		if( applyFailed )
+			super.setFailed();
 		
 		return( true );
 	}
@@ -63,6 +69,18 @@ public class ActionApplyAutomatic extends ActionBase {
 					done = true;
 		}
 		
+		// check release is finished
+		if( !applyFailed ) {
+			registry.readIncompleteScripts( this );
+			int n = registry.getScriptCount( this );
+			if( n > 0 )
+				log( "release is not finalized, total " + n + " incomplete scripts" );
+			else {
+				registry.finishApplyRelease( this );
+				log( "release is finalized." );
+			}
+		}
+		
 		return( done );
 	}
 	
@@ -73,7 +91,9 @@ public class ActionApplyAutomatic extends ActionBase {
 		if( !createRunSet( server , releaseDelivery , logReleaseCopy , logReleaseExecute , schemaSet ) )
 			return( false );
 		
-		executeRunSet( server , client , registry , releaseDelivery , logReleaseExecute );
+		if( !executeRunSet( server , client , registry , releaseDelivery , logReleaseExecute ) )
+			applyFailed = true;
+		
 		return( true );
 	}
 
@@ -171,17 +191,22 @@ public class ActionApplyAutomatic extends ActionBase {
 		return( true );
 	}
 
-	private void executeRunSet( MetaEnvServer server , DatabaseClient client , DatabaseRegistry registry , MetaReleaseDelivery releaseDelivery , LocalFolder logReleaseExecute ) throws Exception {
+	private boolean executeRunSet( MetaEnvServer server , DatabaseClient client , DatabaseRegistry registry , MetaReleaseDelivery releaseDelivery , LocalFolder logReleaseExecute ) throws Exception {
 		registry.readDeliveryState( this , releaseDelivery.distDelivery );
 
 		FileSet files = logReleaseExecute.getFileSet( this );
-		for( String file : Common.getSortedKeys( files.files ) )
-			executeRunSetScript( server , client , registry , releaseDelivery , logReleaseExecute , file );
+		boolean ok = true;
+		for( String file : Common.getSortedKeys( files.files ) ) {
+			if( !executeRunSetScript( server , client , registry , releaseDelivery , logReleaseExecute , file ) )
+				ok = false;
+		}
+		
+		return( ok );
 	}
 
-	private void executeRunSetScript( MetaEnvServer server , DatabaseClient client , DatabaseRegistry registry , MetaReleaseDelivery releaseDelivery , LocalFolder logReleaseExecute , String file ) throws Exception {
+	private boolean executeRunSetScript( MetaEnvServer server , DatabaseClient client , DatabaseRegistry registry , MetaReleaseDelivery releaseDelivery , LocalFolder logReleaseExecute , String file ) throws Exception {
 		if( !registry.checkNeedApply( this , releaseDelivery.distDelivery , file ) )
-			return;
+			return( true );
 		
 		trace( "start apply script " + file + " ..." );
 		registry.startApplyScript( this , releaseDelivery.distDelivery , file );
@@ -194,11 +219,12 @@ public class ActionApplyAutomatic extends ActionBase {
 			if( !options.OPT_FORCE )
 				exit( "cancel apply script set due to errors." );
 			
-			return;
+			return( false );
 		}
 
 		registry.finishApplyScript( this , releaseDelivery.distDelivery , file );
 		log( "script " + file + " has been successfully applied to " + server.NAME );
+		return( true );
 	}
 	
 }

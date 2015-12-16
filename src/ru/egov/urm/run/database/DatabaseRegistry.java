@@ -76,6 +76,33 @@ public class DatabaseRegistry {
 				"release = " + Common.getSQLQuoted( full ) ); 
 	}
 
+	public int getScriptCount( ActionBase action ) throws Exception {
+		int n = 0;
+		for( Map<String,String> map : deliveryState.values() )
+			n += map.size();
+		return( n );
+	}
+	
+	public void readIncompleteScripts( ActionBase action ) throws Exception {
+		List<String[]> rows = client.readTableData( action , server.admSchema , TABLE_SCRIPTS , 
+				"release = " + Common.getSQLQuoted( full ) + " and script_status = 'S'" , 
+				new String[] { "delivery" , "filename" } );
+		
+		deliveryState.clear();
+		for( String[] row : rows ) {
+			String delivery = row[0];
+			Map<String,String> files = deliveryState.get( delivery );
+			if( files == null ) {
+				files = new HashMap<String,String>();
+				deliveryState.put( delivery , files );
+			}
+			
+			String file = row[1];
+			String key = getKey( action , file );
+			files.put( key , file );
+		}
+	}
+	
 	private void readReleaseState( ActionBase action ) throws Exception {
 		parseReleaseNumber( action );
 		readReleaseStatus( action );
@@ -103,7 +130,8 @@ public class DatabaseRegistry {
 		else
 		if( isReleaseStarted( action ) ) {
 			client.updateRow( action , server.admSchema , TABLE_RELEASES ,
-					new String[] { "begin_apply_time" , "end_apply_time" } , new String[] { "TIMESTAMP" , "NULL" } ,
+					new String[] { "end_apply_time" } , 
+					new String[] { "NULL" } ,
 					"release = " + Common.getSQLQuoted( full ) ); 
 		}
 		else
@@ -113,11 +141,20 @@ public class DatabaseRegistry {
 			
 			releaseStatus = "S";
 			client.updateRow( action , server.admSchema , TABLE_RELEASES ,
-					new String[] { "rel_status" , "begin_apply_time" , "end_apply_time" } , new String[] { releaseStatus , "TIMESTAMP" , "NULL" } ,
+					new String[] { "rel_status" , "end_apply_time" } , 
+					new String[] { releaseStatus , "NULL" } ,
 					"release = " + Common.getSQLQuoted( full ) ); 
 		}
 		else
 			action.exitUnexpectedState();
+	}
+
+	public void finishApplyRelease( ActionBase action ) throws Exception {
+		releaseStatus = "A";
+		client.updateRow( action , server.admSchema , TABLE_RELEASES ,
+				new String[] { "rel_status" , "end_apply_time" } , 
+				new String[] { releaseStatus , "TIMESTAMP" } ,
+				"release = " + Common.getSQLQuoted( full ) ); 
 	}
 	
 	public void readDeliveryState( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
@@ -178,13 +215,13 @@ public class DatabaseRegistry {
 		String schema = getSchema( action , file );
 		if( status == null ) {
 			client.insertRow( action , server.admSchema , TABLE_SCRIPTS ,
-					new String[] { "release" , "delivery" , "key" , "schema" , "filename" , "updatetime" , "script_status" } , 
+					new String[] { "release" , "delivery" , "key" , "schema" , "filename" , "begin_apply_time" , "script_status" } , 
 					new String[] { Common.getSQLQuoted( full ) , Common.getSQLQuoted( delivery.NAME ) , Common.getSQLQuoted( key ) , Common.getSQLQuoted( schema ) , Common.getSQLQuoted( file ) , "TIMESTAMP" , Common.getSQLQuoted( "S" ) } );
 		}
 		else {
 			client.updateRow( action , server.admSchema , TABLE_SCRIPTS ,
-					new String[] { "schema" , "filename" , "updatetime" , "script_status" } , 
-					new String[] { Common.getSQLQuoted( schema ) , Common.getSQLQuoted( file ) , "TIMESTAMP" , Common.getSQLQuoted( "S" ) } ,
+					new String[] { "schema" , "filename" , "begin_apply_time" , "end_apply_time" , "script_status" } , 
+					new String[] { Common.getSQLQuoted( schema ) , Common.getSQLQuoted( file ) , "TIMESTAMP" , "NULL" , Common.getSQLQuoted( "S" ) } ,
 					"release = " + Common.getSQLQuoted( full ) + " and " +
 							"delivery = " + Common.getSQLQuoted( delivery.NAME ) + " and " +
 							"key = " + Common.getSQLQuoted( key ) ); 
@@ -195,7 +232,7 @@ public class DatabaseRegistry {
 		String key = getKey( action , file );
 		
 		client.updateRow( action , server.admSchema , TABLE_SCRIPTS ,
-				new String[] { "updatetime" , "script_status" } , 
+				new String[] { "end_apply_time" , "script_status" } , 
 				new String[] { "TIMESTAMP" , Common.getSQLQuoted( "A" ) } ,
 				"release = " + Common.getSQLQuoted( full ) + " and " +
 						"delivery = " + Common.getSQLQuoted( delivery.NAME ) + " and " + 
