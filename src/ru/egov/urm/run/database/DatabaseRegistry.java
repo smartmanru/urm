@@ -46,13 +46,10 @@ public class DatabaseRegistry {
 	}
 	
 	public static String getSchema( ActionBase action , String file ) throws Exception {
-		int index1 = Common.getIndexOf( file , "-" , 4 );
-		if( index1 < 0 )
-			action.exit( "invalid file name " + file );
-		int index2 = Common.getIndexOf( file , "-" , 5 );
-		if( index2 < 0 )
-			action.exit( "invalid file name " + file );
-		return( file.substring( index1 + 1 , index2 ) );
+		String s = Common.cutItem( file , "-" , 5 );
+		if( s.isEmpty() )
+			action.exit( "invalid file name=" + file );
+		return( s );
 	}
 	
 	public static DatabaseRegistry getRegistry( ActionBase action , DatabaseClient client , MetaRelease release ) throws Exception {

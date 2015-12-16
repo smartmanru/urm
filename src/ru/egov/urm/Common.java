@@ -629,14 +629,35 @@ public class Common {
 	}
 	
 	public static int getIndexOf( String s , String item , int pos ) {
-		int index = -1;
-		for( int k = 0; k < pos; k++ ) {
+		int index = s.indexOf( item );
+		if( index < 0 )
+			return( -1 );
+		
+		for( int k = 1; k <= pos; k++ ) {
 			index = s.indexOf( item , index + item.length() );
 			if( index < 0 )
 				return( -1 );
 		}
 		
 		return( index );
+	}
+
+	public static String cutItem( String s , String delimiter , int pos ) {
+		int index2 = Common.getIndexOf( s , "-" , pos );
+		if( pos == 0 ) {
+			if( index2 < 0 )
+				return( s );
+			return( s.substring( 0 , index2 ) );
+		}
+
+		int index1 = Common.getIndexOf( s , "-" , pos - 1 );
+		if( index1 < 0 )
+			return( "" );
+		
+		if( index2 < 0 )
+			return( s.substring( index1 + delimiter.length() ) );
+		
+		return( s.substring( index1 + delimiter.length() , index2 ) );
 	}
 	
 }
