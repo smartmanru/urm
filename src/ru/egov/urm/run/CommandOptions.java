@@ -403,7 +403,7 @@ public class CommandOptions {
 			identity = "-" + var.optName + ": flag " + var.varName + "=" + var.varValue;
 		else
 		if( var.isEnum )
-			identity = "-" + var.optName + ": enum " + var.varName + "=" + var.varValue;
+			identity = "-" + var.optName + ": enum " + var.varName + "=" + var.varEnumValue;
 		else
 			identity = "-" + var.optName + ": parameter";
 		
