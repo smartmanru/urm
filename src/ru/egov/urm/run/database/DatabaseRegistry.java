@@ -63,6 +63,10 @@ public class DatabaseRegistry {
 		readReleaseStatus( action );
 	}
 
+	public boolean isReleaseUnknown( ActionBase action ) throws Exception {
+		return( releaseStatus == null || releaseStatus.isEmpty() );
+	}
+	
 	public boolean isReleaseStarted( ActionBase action ) throws Exception {
 		return( releaseStatus.equals( "S" ) );
 	}
