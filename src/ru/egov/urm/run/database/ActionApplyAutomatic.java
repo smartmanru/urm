@@ -198,7 +198,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		}
 
 		registry.finishApplyScript( this , releaseDelivery.distDelivery , file );
-		log( "scipt " + file + " has been successfully applid to " + server.NAME );
+		log( "scipt " + file + " has been successfully applied to " + server.NAME );
 	}
 	
 }
