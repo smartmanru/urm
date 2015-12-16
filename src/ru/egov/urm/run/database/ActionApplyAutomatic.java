@@ -183,7 +183,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		if( !registry.checkNeedApply( this , releaseDelivery.distDelivery , file ) )
 			return;
 		
-		trace( "start apply script " + file );
+		trace( "start apply script " + file + " ..." );
 		registry.startApplyScript( this , releaseDelivery.distDelivery , file );
 		
 		String log = file + ".out";
@@ -198,7 +198,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		}
 
 		registry.finishApplyScript( this , releaseDelivery.distDelivery , file );
-		log( "scipt " + file + " has been successfully applied to " + server.NAME );
+		log( "script " + file + " has been successfully applied to " + server.NAME );
 	}
 	
 }
