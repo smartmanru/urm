@@ -31,7 +31,8 @@ public class DatabaseRegistry {
 	private DatabaseRegistry( DatabaseClient client , MetaRelease release ) {
 		this.client = client;
 		this.server = client.server;
-		this.release = release; 
+		this.release = release;
+		deliveryState = new HashMap<String,Map<String,String>>();
 	}
 
 	public static DatabaseRegistry getRegistry( ActionBase action , DatabaseClient client , MetaRelease release ) throws Exception {
