@@ -145,7 +145,7 @@ public class DatabaseRegistry {
 				action.options.OPT_DBMODE == SQLMODE.APPLY )
 				return( true );
 			
-			action.log( "scipt " + file + " is new. Skipped" );
+			action.log( "script " + file + " is new. Skipped" );
 			return( false );
 		}
 		
@@ -154,7 +154,7 @@ public class DatabaseRegistry {
 				action.options.OPT_DBMODE == SQLMODE.CORRECT )
 				return( true );
 			
-			action.log( "scipt " + file + " is already applied with errors. Skipped" );
+			action.log( "script " + file + " is already applied with errors. Skipped" );
 			return( false );
 		}
 		
@@ -162,7 +162,7 @@ public class DatabaseRegistry {
 			if( action.options.OPT_DBMODE == SQLMODE.ANYWAY )
 				return( true );
 			
-			action.log( "scipt " + file + " is already successfully applied. Skipped" );
+			action.log( "script " + file + " is already successfully applied. Skipped" );
 			return( false );
 		}
 		
