@@ -458,7 +458,7 @@ public class Common {
 	}
 	
 	public static String[] splitDotted( String value ) {
-		return( split( value , "." ) );
+		return( split( value , "\\." ) );
 	}
 	
 	public static String[] split( String value , String delimiter ) {
