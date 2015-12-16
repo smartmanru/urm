@@ -130,7 +130,7 @@ public class DatabaseRegistry {
 				"delivery = " + Common.getSQLQuoted( delivery.NAME ) , columns ); 
 		
 		for( String[] row : rows )
-			data.put( row[0] , row[2] );
+			data.put( row[0] , row[1] );
 		
 		deliveryState.put( delivery.NAME , data );
 	}
