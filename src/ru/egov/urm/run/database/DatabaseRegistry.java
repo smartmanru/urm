@@ -186,7 +186,7 @@ public class DatabaseRegistry {
 					new String[] { "schema" , "filename" , "updatetime" , "script_status" } , 
 					new String[] { Common.getSQLQuoted( schema ) , Common.getSQLQuoted( file ) , "TIMESTAMP" , Common.getSQLQuoted( "S" ) } ,
 					"release = " + Common.getSQLQuoted( full ) + " and " +
-							"delivery = " + Common.getSQLQuoted( delivery.NAME ) +
+							"delivery = " + Common.getSQLQuoted( delivery.NAME ) + " and " +
 							"key = " + Common.getSQLQuoted( key ) ); 
 		}
 	}
@@ -198,7 +198,7 @@ public class DatabaseRegistry {
 				new String[] { "updatetime" , "script_status" } , 
 				new String[] { "TIMESTAMP" , Common.getSQLQuoted( "A" ) } ,
 				"release = " + Common.getSQLQuoted( full ) + " and " +
-						"delivery = " + Common.getSQLQuoted( delivery.NAME ) +
+						"delivery = " + Common.getSQLQuoted( delivery.NAME ) + " and " + 
 						"key = " + Common.getSQLQuoted( key ) ); 
 	}
 	
