@@ -118,9 +118,13 @@ public class ShellCore {
 		return( cmd );
 	}
 
+	private void exitError( ActionBase action , String error ) throws Exception {
+		 executor.exitError( action , error );
+	}
+	
 	public void runCommand( ActionBase action , String cmd , boolean debug ) throws Exception {
 		if( !running )
-			action.exit( "attempt to run command in closed session: " + cmd );
+			exitError( action , "attempt to run command in closed session: " + cmd );
 			
 		cmdCurrent = cmd;
 
@@ -142,7 +146,7 @@ public class ShellCore {
 		commandTimeout = commandTimeoutDefault;
 		
 		if( !res )
-			action.exit( "command has been killed" );
+			exitError( action , "command has been killed" );
 	}
 
 	public String getOut() {
@@ -200,7 +204,7 @@ public class ShellCore {
 		String err = getErr();
 		
 		if( !err.isEmpty() )
-			action.exit( "error running command (" + cmd + ")" + " - " + err );
+			exitError( action , "error running command (" + cmd + ")" + " - " + err );
 		
 		return( cmdout.toArray( new String[0] ) );
 	}
@@ -210,7 +214,7 @@ public class ShellCore {
 		String err = getErr();
 		
 		if( !err.isEmpty() )
-			action.exit( "error running command (" + cmd + ")" + " - " + err );
+			exitError( action , "error running command (" + cmd + ")" + " - " + err );
 
 		String out = getOut();
 		return( out );
@@ -237,7 +241,7 @@ public class ShellCore {
 			}
 		}
 				
-		action.exit( "unable to obtain command status" );
+		exitError( action , "unable to obtain command status" );
 		return( -1 );
 	}
 
@@ -262,7 +266,7 @@ public class ShellCore {
 	public void runCommandCheckStatus( ActionBase action , String cmd , boolean debug ) throws Exception {
 		int status = runCommandGetStatus( action , cmd , debug );
 		if( status != 0 )
-			action.exit( "error executing command: " + cmd + ", status=" + status + ", stderr: " + getErr() );
+			exitError( action , "error executing command: " + cmd + ", status=" + status + ", stderr: " + getErr() );
 	}
 
 	public String runCommandGetValueCheckNormal( ActionBase action , String cmd ) throws Exception {
@@ -305,7 +309,7 @@ public class ShellCore {
 		String err = getErr();
 		
 		if( !err.isEmpty() )
-			action.exit( "error running command (" + cmd + ")" + " - " + err );
+			exitError( action , "error running command (" + cmd + ")" + " - " + err );
 
 		return( cmdout );
 	}

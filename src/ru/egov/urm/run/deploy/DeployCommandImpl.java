@@ -65,7 +65,7 @@ public class DeployCommandImpl {
 
 	public void changeKeys( ActionBase action , ActionScope scope , String CMD ) throws Exception {
 		ActionChangeKeys ca = new ActionChangeKeys( action , null , CMD );
-		if( !Common.checkPartOfSpacedList( CMD , "change add set delete" ) )
+		if( !Common.checkPartOfSpacedList( CMD , "list change add set delete" ) )
 			ca.exit( "invalid command=" + CMD );
 			
 		ca.runEnvUniqueAccounts( scope );

@@ -43,12 +43,21 @@ public class ActionChangeKeys extends ActionBase {
 			P_KEYFILENEXTPRV = Common.getPartBeforeLast( P_KEYACCESS , ".pub" );
 		}
 
-		if( !session.checkFileExists( this , P_KEYFILENEXTPUB ) )
-			exitAction( "cannot find public key file " + P_KEYFILENEXTPUB );
-	
 		boolean S_HASNEXTPRIVATEKEY = false;
-		if( session.checkFileExists( this , P_KEYFILENEXTPRV ) )
-			S_HASNEXTPRIVATEKEY = true;
+		String F_KEYPUB = null;
+		String F_KEYOWNER = null;
+		String F_KEYDATA = null;
+		if( !cmd.equals( "list" ) ) {
+			if( !session.checkFileExists( this , P_KEYFILENEXTPUB ) )
+				exitAction( "cannot find public key file " + P_KEYFILENEXTPUB );
+	
+			if( session.checkFileExists( this , P_KEYFILENEXTPRV ) )
+				S_HASNEXTPRIVATEKEY = true;
+			
+			F_KEYPUB = session.getFileContentAsString( this , P_KEYFILENEXTPUB );
+			F_KEYOWNER = Common.getListItem( F_KEYPUB , " " , 2 );
+			F_KEYDATA = session.getFileContentAsString( this , P_KEYFILENEXTPUB );
+		}
 		
 		// access using private key
 		String F_ACCESSOPTION = "";
@@ -64,10 +73,6 @@ public class ActionChangeKeys extends ActionBase {
 			F_ACCESSMSG = " using access key " + P_KEYACCESS;
 		}
 
-		String F_KEYPUB = session.getFileContentAsString( this , P_KEYFILENEXTPUB );
-		String F_KEYOWNER = Common.getListItem( F_KEYPUB , " " , 2 );
-		String F_KEYDATA = session.getFileContentAsString( this , P_KEYFILENEXTPUB );
-
 		// check new key is already placed and access using old key is not avalable
 		String F_HOSTUSER = Common.getAccountUser( hostLogin );
 		String F_TARGETHOSTLOGIN = hostLogin;
@@ -76,7 +81,7 @@ public class ActionChangeKeys extends ActionBase {
 			F_TARGETHOSTLOGIN = Common.getRootAccount( F_HOSTNAME );
 		}
 			
-		if( !cmd.equals( "delete" ) ) {
+		if( cmd.equals( "delete" ) == false && cmd.equals( "list" ) == false ) {
 			if( !tryConnect( F_TARGETHOSTLOGIN , F_ACCESSOPTION ) ) {
 				if( S_HASNEXTPRIVATEKEY ) {
 					String tryOption = "-i " + P_KEYFILENEXTPRV;
@@ -127,6 +132,11 @@ public class ActionChangeKeys extends ActionBase {
 			if( !deleteKey( F_BEHALFHOSTLOGIN , F_ACCESSOPTION , F_SETUPAUTH , F_KEYOWNER ) )
 				exitAction( "error executing key delete" );
 		}
+		else
+		if( cmd.equals( "list" ) ) {
+			if( !listKeys( F_BEHALFHOSTLOGIN , F_ACCESSOPTION , F_SETUPAUTH ) )
+				exitAction( "error executing key list" );
+		}
 
 		if( cmd.equals( "change" ) || cmd.equals( "set" ) ) {
 			// check - if there is next key
@@ -158,18 +168,33 @@ public class ActionChangeKeys extends ActionBase {
 	}
 
 	private String getCreateSshOnBehalf( String HOSTUSER ) throws Exception {
+		if( cmd.equals( "list" ) ) {
+			return( "cd ~" + HOSTUSER + "; if [ ! -f " + S_AUTHFILE + 
+					" ]; then echo NOAUTHFILE; else cat " + S_AUTHFILE + " | cut -d \" \" -f3 | grep -v ^$; fi" );
+		}
+		
 		return( "cd ~" + HOSTUSER + "; if [ ! -f " + S_AUTHFILE + 
 				" ]; then mkdir -p .ssh; chmod 700 .ssh; echo \"\" > " + S_AUTHFILE + 
 				"; chmod 600 " + S_AUTHFILE + "; chown " + HOSTUSER + ": .ssh " + S_AUTHFILE + "; fi" );
 	}
 	
 	private String getCreateSshOnSudo( String HOSTUSER ) throws Exception {
+		if( cmd.equals( "list" ) ) {
+			return( "if sudo bash -c '[[ ! -f ~root/" + S_AUTHFILE + 
+					" ]]'; then echo NOAUTHFILE; else sudo cat ~root/" + S_AUTHFILE + " | cut -d \" \" -f3 | grep -v ^$; fi" );
+		}
+		
 		return( "if sudo bash -c '[[ ! -f ~root/" + S_AUTHFILE + 
 				" ]]'; then sudo mkdir -p ~root/.ssh; sudo chmod 700 ~root/.ssh; sudo touch ~root/" + S_AUTHFILE + 
 				"; sudo chmod 600 ~root/" + S_AUTHFILE + "; fi" );
 	}
 	
 	private String getCreateSshOwn() throws Exception {
+		if( cmd.equals( "list" ) ) {
+			return( "if [ ! -f " + S_AUTHFILE +   
+					" ]'; then echo NOAUTHFILE; else cat " + S_AUTHFILE + " | cut -d \" \" -f3 | grep -v ^$; fi" );
+		}
+		
 		return( "if [ ! -f " + S_AUTHFILE + " ]; then mkdir -p .ssh; chmod 700 .ssh; echo \"\" > " + 
 			S_AUTHFILE + "; chmod 600 " + S_AUTHFILE + "; fi" );
 	}
@@ -216,6 +241,21 @@ public class ActionChangeKeys extends ActionBase {
 			S_AUTHFILE + ".2; cp " + S_AUTHFILE + ".2 " + S_AUTHFILE + "; rm -rf " + S_AUTHFILE + ".2;" ) );
 		if( status != 0 )
 			return( false );
+		return( true );
+	}
+	
+	private boolean listKeys( String HOSTLOGIN , String ACCESSOPTION , String SETUPAUTH ) throws Exception {
+		if( options.OPT_SUDO )
+			exit( "unsupported with sudo" );
+		
+		String[] list = session.customGetLines( this , "ssh -n " + ACCESSOPTION + " " + HOSTLOGIN + " " +
+				Common.getQuoted( SETUPAUTH ) );
+		if( list.length > 0 && list[0].equals( "NOAUTHFILE" ) )
+			exit( S_AUTHFILE + "is not found" );
+		
+		for( String s : list )
+			super.printComment( "\tkey: " + s );
+		
 		return( true );
 	}
 	

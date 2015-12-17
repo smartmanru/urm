@@ -23,6 +23,10 @@ public abstract class ShellExecutor {
 		core = new ShellCore( this , pool.timeoutDefault );
 	}
 
+	public void exitError( ActionBase action , String error ) throws Exception {
+		action.exit( name + ": " + error );
+	}
+	
 	public void restart( ActionBase action ) throws Exception {
 		boolean initialized = core.initialized; 
 		

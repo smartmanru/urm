@@ -39,7 +39,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 		cmdOpts = "GETOPT_ALL, GETOPT_DEPLOYGROUP, GETOPT_STARTGROUP, GETOPT_DCMASK, GETOPT_UNIT, GETOPT_KEY";
 		super.defineAction( CommandAction.newAction( new Hosts() , "hosts" , "get or change /etc/hosts information" , cmdOpts , "./hosts.sh [OPTIONS] {set|delete|check} host[=address] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "GETOPT_ALL, GETOPT_DEPLOYGROUP, GETOPT_STARTGROUP, GETOPT_DCMASK, GETOPT_UNIT, GETOPT_HOSTUSER, GETOPT_KEY, GETOPT_NEWKEY, GETOPT_ROOTUSER, GETOPT_SUDO";
-		super.defineAction( CommandAction.newAction( new Key() , "key" , "change ssh keys" , cmdOpts , "./key.sh [OPTIONS] {change|add|set|delete} {all|<servers>|<server> <node1> ... <nodeN>}" ) );
+		super.defineAction( CommandAction.newAction( new Key() , "key" , "change ssh keys" , cmdOpts , "./key.sh [OPTIONS] {list|change|add|set|delete} {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "GETOPT_ALL, GETOPT_DEPLOYGROUP, GETOPT_STARTGROUP, GETOPT_DCMASK, GETOPT_UNIT, GETOPT_KEY, GETOPT_BACKUP, GETOPT_OBSOLETE, GETOPT_DEPLOYCONF, GETOPT_DEPLOYBINARY, GETOPT_DEPLOYHOT, GETOPT_DEPLOYCOLD, GETOPT_KEEPALIVE, GETOPT_SKIPERRORS, GETOPT_IGNOREVERSION";
 		super.defineAction( CommandAction.newAction( new Redist() , "redist" , "copy items from distributive to staging area" , cmdOpts , "./redist.sh [OPTIONS] <RELEASELABEL> {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "GETOPT_ALL, GETOPT_DEPLOYGROUP, GETOPT_STARTGROUP, GETOPT_DCMASK, GETOPT_EXTRAARGS, GETOPT_UNIT, GETOPT_KEY, GETOPT_SKIPERRORS, GETOPT_ZERODOWNTIME, GETOPT_NOCHATMSG";
