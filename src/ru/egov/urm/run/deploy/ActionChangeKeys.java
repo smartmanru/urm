@@ -192,7 +192,7 @@ public class ActionChangeKeys extends ActionBase {
 	private String getCreateSshOwn() throws Exception {
 		if( cmd.equals( "list" ) ) {
 			return( "if [ ! -f " + S_AUTHFILE +   
-					" ]'; then echo NOAUTHFILE; else cat " + S_AUTHFILE + " | cut -d \" \" -f3 | grep -v ^$; fi" );
+					" ]; then echo NOAUTHFILE; else cat " + S_AUTHFILE + " | cut -d \" \" -f3 | grep -v ^$; fi" );
 		}
 		
 		return( "if [ ! -f " + S_AUTHFILE + " ]; then mkdir -p .ssh; chmod 700 .ssh; echo \"\" > " + 
