@@ -252,7 +252,7 @@ public class ActionChangeKeys extends ActionBase {
 		String[] list = session.customGetLines( this , "ssh -n " + ACCESSOPTION + " " + HOSTLOGIN + " " +
 				Common.getQuoted( SETUPAUTH ) );
 		if( list.length > 0 && list[0].equals( "NOAUTHFILE" ) )
-			exit( S_AUTHFILE + "is not found" );
+			exit( S_AUTHFILE + " is not found" );
 		
 		for( String s : list )
 			super.printComment( "\tkey: " + s );
