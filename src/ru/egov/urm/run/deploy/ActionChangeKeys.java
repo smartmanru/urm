@@ -248,6 +248,7 @@ public class ActionChangeKeys extends ActionBase {
 		if( options.OPT_SUDO )
 			exit( "unsupported with sudo" );
 		
+		session.setTimeoutUnlimited( this );
 		String[] list = session.customGetLines( this , "ssh -n " + ACCESSOPTION + " " + HOSTLOGIN + " " +
 				Common.getQuoted( SETUPAUTH ) );
 		if( list.length > 0 && list[0].equals( "NOAUTHFILE" ) )
