@@ -472,13 +472,14 @@ public class ScopeExecutor {
 			}
 			
 			// execute list as is
-			if( runBeforeAfter )
+			if( runBeforeAfter ) {
 				action.runBefore( set , items );
 			
-			if( !action.isFailed() ) {
-				runDone = true;
-				if( !action.executeScopeSet( set , items ) )
-					runDone = false;
+				if( !action.isFailed() ) {
+					runDone = true;
+					if( !action.executeScopeSet( set , items ) )
+						runDone = false;
+				}
 			}
 
 			if( !runDone ) {
