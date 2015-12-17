@@ -290,7 +290,7 @@ public abstract class ShellExecutor {
 	}
 
 	public String customGetValueNoCheck( ActionBase action , String cmd ) throws Exception {
-		return( core.runCommandGetValueNoCheck( action , cmd , false ) );
+		return( core.runCommandGetValueNoCheck( action , cmd , true ) );
 	}
 
 	public String customGetValue( ActionBase action , String cmd ) throws Exception {
