@@ -57,7 +57,7 @@ public class ActionSetVersion extends ActionBase {
 			exit( "setVersionProject: error calling checkout" );
 
 		// set version
-		context.pool.createDedicatedLocalShell( this );
+		context.pool.createDedicatedLocalShell( this , "build"  );
 		updateVersion( scopeProject , PATCHPATH.buildFolder );
 		vcs.commit( PATCHPATH.buildFolder , scopeProject.sourceProject , meta.product.CONFIG_ADM_TRACKER + "-0000: set version " + BUILDVERSION );
 		return( true );

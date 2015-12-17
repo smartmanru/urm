@@ -50,8 +50,8 @@ public class ShellExecutorPool {
 		return( shell );
 	}
 
-	public ShellExecutor createDedicatedLocalShell( ActionBase action ) throws Exception {
-		ShellExecutor shell = new LocalShellExecutor( "local::dedicated" , this , rootPath );
+	public ShellExecutor createDedicatedLocalShell( ActionBase action , String name ) throws Exception {
+		ShellExecutor shell = new LocalShellExecutor( "local::" + name , this , rootPath );
 		action.setShell( shell );
 		
 		shell.start( action );

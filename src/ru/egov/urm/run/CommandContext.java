@@ -3,6 +3,7 @@ package ru.egov.urm.run;
 import ru.egov.urm.Common;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.run.CommandOptions.FLAG;
+import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.shell.ShellExecutorPool;
 
 public class CommandContext {
@@ -24,6 +25,9 @@ public class CommandContext {
 	public boolean CONF_DEPLOY;
 	public boolean CONF_KEEPALIVE;
 	public String KEYNAME;
+
+	public ShellExecutor master;
+	public ShellExecutor main;
 	
 	public CommandContext() {
 		this.streamName = "main";
@@ -38,6 +42,9 @@ public class CommandContext {
 			this.streamName = context.streamName;
 		else
 			this.streamName = stream;
+		
+		this.master = context.master;
+		this.main = context.main;
 		
 		this.hostLogin = context.hostLogin;
 		this.productHome = context.productHome;
@@ -111,7 +118,8 @@ public class CommandContext {
 	
 	public void createPool( ActionBase action ) throws Exception {
 		pool = new ShellExecutorPool( productHome , action.options.OPT_COMMANDTIMEOUT );
-		pool.createDedicatedLocalShell( action );
+		master = pool.createDedicatedLocalShell( action , "master" );
+		main = pool.createDedicatedLocalShell( action , "main" );
 	}
 
 	public void killPool( ActionBase action ) throws Exception {

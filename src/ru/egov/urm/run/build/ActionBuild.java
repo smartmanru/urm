@@ -64,7 +64,7 @@ public class ActionBuild extends ActionBase {
 
 		// in separate shell
 		ActionPatch action = new ActionPatch( this , null , OUTDIR , TAG , BUILD_OPTIONS , version ); 
-		ShellExecutor bs = context.pool.createDedicatedLocalShell( action );
+		ShellExecutor bs = context.pool.createDedicatedLocalShell( action , "build" );
 
 		BUILDSTATUS = "SUCCESSFUL"; 
 		if( !action.runSingleTarget( scopeProject ) ) {

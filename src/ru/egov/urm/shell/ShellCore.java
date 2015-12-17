@@ -87,6 +87,9 @@ public class ShellCore {
 	
 	public void kill( ActionBase action ) throws Exception {
 		if( process != null ) {
+			if( !processId.isEmpty() )
+				action.context.master.custom( action , "kill -9 " + processId );
+				
 			process.destroy();
 			
 			process = null;

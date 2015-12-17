@@ -194,7 +194,7 @@ public class BuildCommandImpl {
 
 	public void thirdpartyUpload( ActionBase action , ActionScopeTarget scopeProject , DistStorage release ) throws Exception {
 		ActionPut ca = new ActionPut( action , null , release );
-		ShellExecutor bs = action.context.pool.createDedicatedLocalShell( ca );
+		ShellExecutor bs = action.context.pool.createDedicatedLocalShell( ca , "build"  );
 		
 		try {
 			ca.runSingleTarget( scopeProject );
