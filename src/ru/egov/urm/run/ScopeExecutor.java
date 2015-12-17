@@ -87,7 +87,7 @@ public class ScopeExecutor {
 			if( !action.actionFailed ) {
 				action.debug( action.NAME + ": run scope={" + item.set.NAME + "={" + item.NAME + "}}" );
 				runDone = true;
-				if( !runTargetListInternal( item.CATEGORY , item.set , new ActionScopeTarget[] { item } ) )
+				if( !runTargetListInternal( item.CATEGORY , item.set , new ActionScopeTarget[] { item } , true ) )
 					runDone = false;
 			}
 		}
@@ -124,7 +124,7 @@ public class ScopeExecutor {
 					list = Common.addItemToUniqueSpacedList( list , target.NAME );
 				action.debug( action.NAME + ": run scope={" + set.NAME + "={" + list + "}}" );
 				runDone = true;
-				if( !runTargetListInternal( set.CATEGORY , set , targets ) )
+				if( !runTargetListInternal( set.CATEGORY , set , targets , true ) )
 					runDone = false;
 			}
 		}
@@ -457,7 +457,7 @@ public class ScopeExecutor {
 		return( runDone );
 	}
 	
-	private boolean runTargetListInternal( VarCATEGORY CATEGORY , ActionScopeSet set , ActionScopeTarget[] items ) {
+	private boolean runTargetListInternal( VarCATEGORY CATEGORY , ActionScopeSet set , ActionScopeTarget[] items , boolean runBeforeAfter ) {
 		boolean runDone = false;
 		boolean localFailed = false;
 		try {
@@ -472,7 +472,9 @@ public class ScopeExecutor {
 			}
 			
 			// execute list as is
-			action.runBefore( set , items );
+			if( runBeforeAfter )
+				action.runBefore( set , items );
+			
 			if( !action.isFailed() ) {
 				runDone = true;
 				if( !action.executeScopeSet( set , items ) )
@@ -499,8 +501,10 @@ public class ScopeExecutor {
 		}
 		
 		try {
-			if( runDone )
-				action.runAfter( set , items );
+			if( runBeforeAfter ) {
+				if( runDone )
+					action.runAfter( set , items );
+			}
 		}
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
@@ -529,7 +533,7 @@ public class ScopeExecutor {
 				
 				if( !runDone ) {
 					runDone = true;
-					if( !runTargetListInternal( set.CATEGORY , set , set.targets.values().toArray( new ActionScopeTarget[0] ) ) )
+					if( !runTargetListInternal( set.CATEGORY , set , set.targets.values().toArray( new ActionScopeTarget[0] ) , false ) )
 						runDone = false;
 				}
 			}
