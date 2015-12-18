@@ -17,10 +17,18 @@ public class ShellExecutorPool {
 	Map<String,ShellExecutor> pool = new HashMap<String,ShellExecutor>();
 	List<ShellExecutor> listRemote = new LinkedList<ShellExecutor>();
 	List<ShellExecutor> listDedicated = new LinkedList<ShellExecutor>();
+
+	public ShellExecutor master;
+	public ShellExecutor main;
 	
 	public ShellExecutorPool( String rootPath , int timeoutDefault ) {
 		this.rootPath = rootPath;
 		this.timeoutDefault = timeoutDefault;
+	}
+	
+	public void create( ActionBase action ) throws Exception {
+		master = createDedicatedLocalShell( action , "master" );
+		main = createDedicatedLocalShell( action , "main" );
 	}
 	
 	public ShellExecutor getExecutor( ActionBase action , String hostLogin , String scope ) throws Exception {
@@ -71,7 +79,8 @@ public class ShellExecutorPool {
 			}
 		}
 		
-		for( ShellExecutor session : listDedicated ) {
+		for( int k = listDedicated.size() - 1; k >= 0; k-- ) {
+			ShellExecutor session = listDedicated.get( k ); 
 			try {
 				session.kill( action );
 			}
