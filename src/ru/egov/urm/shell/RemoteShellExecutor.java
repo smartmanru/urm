@@ -14,9 +14,9 @@ public class RemoteShellExecutor extends ShellExecutor {
 		ProcessBuilder builder;
 		String keyFile = action.context.KEYNAME;
 		if( !keyFile.isEmpty() )
-			builder = new ProcessBuilder( "ssh" , "-T" , hostLogin , "-i " , keyFile );
+			builder = new ProcessBuilder( "ssh" , "-n -T" , hostLogin , "-i " , keyFile );
 		else
-			builder = new ProcessBuilder( "ssh" , "-T" , hostLogin );
+			builder = new ProcessBuilder( "ssh" , "-n -T" , hostLogin );
 		super.createProcess( action , builder , rootPath );
 	}
 	
