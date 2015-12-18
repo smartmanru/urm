@@ -147,6 +147,7 @@ public class ServerStorage {
 	}
 
 	protected RemoteFolder getRuntimeLocationFolder( ActionBase action , String LOCATION ) throws Exception {
+		checkRootDir( action , server.ROOTPATH );
 		String path = Common.getPath( server.ROOTPATH , LOCATION );
 		RemoteFolder rf = new RemoteFolder( artefactory , hostLogin , path );
 		return( rf );
