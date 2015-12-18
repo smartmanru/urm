@@ -15,7 +15,8 @@ public class ShellExecutorPool {
 	public int timeoutDefault;
 	
 	Map<String,ShellExecutor> pool = new HashMap<String,ShellExecutor>();
-	List<ShellExecutor> list = new LinkedList<ShellExecutor>();
+	List<ShellExecutor> listRemote = new LinkedList<ShellExecutor>();
+	List<ShellExecutor> listDedicated = new LinkedList<ShellExecutor>();
 	
 	public ShellExecutorPool( String rootPath , int timeoutDefault ) {
 		this.rootPath = rootPath;
@@ -45,7 +46,7 @@ public class ShellExecutorPool {
 		}
 		
 		pool.put( name , shell );
-		list.add( shell );
+		listRemote.add( shell );
 		
 		return( shell );
 	}
@@ -55,18 +56,28 @@ public class ShellExecutorPool {
 		action.setShell( shell );
 		
 		shell.start( action );
-		list.add( shell );
+		listDedicated.add( shell );
 		return( shell );
 	}
 	
 	public void kill( ActionBase action ) throws Exception {
-		for( ShellExecutor session : list ) {
+		for( ShellExecutor session : listRemote ) {
 			try {
 				session.kill( action );
 			}
 			catch( Throwable e ) {
 				if( action.options.OPT_TRACE )
-					System.out.println( "exception when killing session=" + session.name );
+					System.out.println( "exception when killing session=" + session.name + " (" + e.getMessage() + ")" );
+			}
+		}
+		
+		for( ShellExecutor session : listDedicated ) {
+			try {
+				session.kill( action );
+			}
+			catch( Throwable e ) {
+				if( action.options.OPT_TRACE )
+					System.out.println( "exception when killing session=" + session.name + " (" + e.getMessage() + ")" );
 			}
 		}
 	}
