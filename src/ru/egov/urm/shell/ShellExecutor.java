@@ -202,8 +202,8 @@ public abstract class ShellExecutor {
 				excludeOptions += " ! -name " + Common.getQuoted( s );
 		}
 		
-		String find = "find . -maxdepth 1 " + includeOptions + " ! -name \".\" " + excludeOptions;
-		core.runCommandCheckDebugIfDir( action , dir , find + " -exec rm -rf {} \\;" );
+		String find = "find . -maxdepth 1 \\( " + includeOptions + " ! -name \".\" " + excludeOptions;
+		core.runCommandCheckDebugIfDir( action , dir , find + " \\) -exec rm -rf {} \\;" );
 	}
 	
 	public void unzip( ActionBase action , String unzipDir , String zipFile , String zipPart , String targetDir ) throws Exception {
