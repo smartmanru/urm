@@ -260,7 +260,9 @@ public class MetaEnvServer {
 	}
 
 	public String getFullBinPath( ActionBase action ) throws Exception {
-		return( Common.getPath( ROOTPATH ,  BINPATH ) );
+		action.checkRequired( !ROOTPATH.isEmpty() , "rootpath is empty" );
+		action.checkRequired( !BINPATH.isEmpty() , "binpath is empty" );
+		return( Common.getPath( ROOTPATH , BINPATH ) );
 	}
 	
 	public boolean checkDeployBinaries( ActionBase action ) throws Exception {
