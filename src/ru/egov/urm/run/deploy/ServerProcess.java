@@ -178,7 +178,7 @@ public class ServerProcess {
 		}
 
 		// stop kindly
-		String F_FULLBINPATH = Common.getPath( srv.ROOTPATH , srv.BINPATH );
+		String F_FULLBINPATH = srv.getFullBinPath( action );
 		ShellExecutor executor = action.getShell( node.HOSTLOGIN );
 		executor.customDeployment( action , F_FULLBINPATH , "./server.stop.sh " + srv.NAME + " " +
 				Common.getQuoted( pids ) + " " + action.options.OPT_EXTRAARGS + " > /dev/null" );
@@ -309,7 +309,7 @@ public class ServerProcess {
 		}
 		
 		// proceed with startup
-		String F_FULLBINPATH = Common.getPath( srv.ROOTPATH , srv.BINPATH );
+		String F_FULLBINPATH = srv.getFullBinPath( action );
 		ShellExecutor executor = action.getShell( node.HOSTLOGIN );
 		executor.customDeployment( action , F_FULLBINPATH , "./server.start.sh " + srv.NAME + " " +
 				Common.getQuoted( pids ) + " " + action.options.OPT_EXTRAARGS + " > /dev/null" );
