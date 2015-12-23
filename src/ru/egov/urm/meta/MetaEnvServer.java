@@ -50,6 +50,7 @@ public class MetaEnvServer {
 	public String WEBMAINURL;
 	public String APPSERVER;
 	public String APPSERVERVERSION;
+	public String LOGPATH;
 	public String LOGFILEPATH;
 
 	public VarDBMSTYPE DBMSTYPE;
@@ -200,6 +201,7 @@ public class MetaEnvServer {
 			WEBMAINURL = properties.getSystemProperty( action , "webmainurl" , "" , systemProps );
 			APPSERVER = properties.getSystemProperty( action , "appserver" , "" , systemProps );
 			APPSERVERVERSION = properties.getSystemProperty( action , "appserver-version" , "" , systemProps );
+			LOGPATH = properties.getSystemProperty( action , "logpath" , "" , systemProps );
 			LOGFILEPATH = properties.getSystemProperty( action , "logfilepath" , "" , systemProps );
 		}
 		
