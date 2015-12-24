@@ -71,9 +71,6 @@ public class ConfReader {
     	action.debug( "read property file " + path + " ..." );
     	init();
     	
-    	if( !action.session.checkFileExists( action , path ) )
-    		action.exit( "file " + path + " does not exist" );
-    		
     	Properties props = new Properties();
         InputStream inputStream = getResourceStream( action , path );
         props.load( inputStream );
