@@ -22,8 +22,6 @@ public class ActionExportDatabase extends ActionBase {
 	String SCHMAPPING;
 	String TABLESETFILE;
 	String DUMPDIR;
-	String DATADIR;
-	String DATADIR_BACKUP;
 	String REMOTE_SETDBENV;
 	String DATABASE_DATAPUMPDIR;
 	
@@ -60,8 +58,6 @@ public class ActionExportDatabase extends ActionBase {
 		SCHMAPPING = props.getProperty( "CONFIG_SCHMAPPING" );
 		TABLESETFILE = props.getProperty( "CONFIG_TABLESETFILE" );
 		DUMPDIR = props.getProperty( "CONFIG_LOADDIR" );
-		DATADIR = props.getProperty( "CONFIG_DATADIR" );
-		DATADIR_BACKUP = props.getProperty( "CONFIG_DATADIR_BACKUP" );
 		REMOTE_SETDBENV = props.getProperty( "CONFIG_REMOTE_SETDBENV" );
 		DATABASE_DATAPUMPDIR = props.getProperty( "CONFIG_DATABASE_DATAPUMPDIR" );
 		
