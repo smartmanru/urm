@@ -54,13 +54,15 @@ public class DatabaseCommandImpl {
 		action.exitNotImplemented();
 	}
 
-	public void importDatabase( ActionBase action , String SPECFILE , String CMD , String SCHEMA ) throws Exception {
-		ActionImportDatabase ma = new ActionImportDatabase( action , null , SPECFILE , CMD , SCHEMA );
+	public void importDatabase( ActionBase action , String SERVER , String CMD , String SCHEMA ) throws Exception {
+		MetaEnvServer server = action.meta.dc.getServer( action , SERVER );
+		ActionImportDatabase ma = new ActionImportDatabase( action , null , server , CMD , SCHEMA );
 		ma.runSimple();
 	}
 
-	public void exportDatabase( ActionBase action , String SPECFILE , String CMD , String SCHEMA ) throws Exception {
-		ActionExportDatabase ma = new ActionExportDatabase( action , null , SPECFILE , CMD , SCHEMA );
+	public void exportDatabase( ActionBase action , String SERVER , String CMD , String SCHEMA ) throws Exception {
+		MetaEnvServer server = action.meta.dc.getServer( action , SERVER );
+		ActionExportDatabase ma = new ActionExportDatabase( action , null , server , CMD , SCHEMA );
 		ma.runSimple();
 	}
 

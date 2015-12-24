@@ -64,6 +64,10 @@ public class Artefactory {
 			action.log( "saved work directory: " + workFolder.folderPath );
 	}
 
+	public LocalFolder getWorkFolder( ActionBase action ) throws Exception {
+		return( workFolder );
+	}
+	
 	public LocalFolder getWorkFolder( ActionBase action , String name ) throws Exception {
 		action.checkRequired( name , "name" );
 		String dirname;
@@ -270,6 +274,10 @@ public class Artefactory {
 
 	public HiddenFiles getHiddenFiles() throws Exception {
 		return( new HiddenFiles( this ) );
+	}
+
+	public UrmStorage getUrmStorage() throws Exception {
+		return( new UrmStorage( this ) );
 	}
 
 	public RemoteFolder getReleaseHostRedistFolder() throws Exception {

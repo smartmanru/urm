@@ -1,18 +1,25 @@
 package ru.egov.urm.run.database;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
+import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.storage.DistRepository;
+import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.MetadataStorage;
+import ru.egov.urm.storage.RedistStorage;
 import ru.egov.urm.storage.RemoteFolder;
+import ru.egov.urm.storage.UrmStorage;
 
 public class ActionExportDatabase extends ActionBase {
 
+	MetaEnvServer server;
 	String SPECFILE;
 	String CMD;
 	String SCHEMA;
@@ -26,10 +33,15 @@ public class ActionExportDatabase extends ActionBase {
 	String DATABASE_DATAPUMPDIR;
 	
 	Map<String,Map<String,String>> tableSet;
+
+	RemoteFolder scriptsFolder;
+	RemoteFolder logFolder;
+	RemoteFolder dataFolder;
 	
-	public ActionExportDatabase( ActionBase action , String stream , String SPECFILE , String CMD , String SCHEMA ) {
+	public ActionExportDatabase( ActionBase action , String stream , MetaEnvServer server , String CMD , String SCHEMA ) {
 		super( action , stream );
-		this.SPECFILE = SPECFILE;
+		this.server = server;
+		this.SPECFILE = "export-" + server.NAME + ".conf";
 		this.CMD = CMD;
 		this.SCHEMA = SCHEMA;
 	}
@@ -105,6 +117,30 @@ public class ActionExportDatabase extends ActionBase {
 	}
 	
 	private void makeTargetScripts() throws Exception {
+		// copy scripts
+		UrmStorage urm = artefactory.getUrmStorage();
+		LocalFolder urmScripts = urm.getDatapumpScripts( this , server.DBMSTYPE );
+		DatabaseClient client = new DatabaseClient( server );  
+		RedistStorage storage = artefactory.getRedistStorage( "database" , client.getDatabaseAccount( this ) );
+		RemoteFolder redist = storage.getRedistTmpFolder( this );
+		
+		RemoteFolder exportFolder = redist.getSubFolder( this , "export" );
+		scriptsFolder = exportFolder.getSubFolder( this , "scripts" );
+		scriptsFolder.ensureExists( this );
+		scriptsFolder.copyDirContentFromLocal( this , urmScripts , "" );
+		
+		logFolder = exportFolder.getSubFolder( this , "log" );
+		logFolder.ensureExists( this );
+		dataFolder = exportFolder.getSubFolder( this , "data" );
+		dataFolder.ensureExists( this );
+		
+		// create configuration to run scripts
+		LocalFolder work = artefactory.getWorkFolder( this );
+		String confFile = work.getFilePath( this , "run.conf" );
+		
+		List<String> conf = new LinkedList<String>(); 
+		Common.createFileFromStringList( confFile , conf );
+		scriptsFolder.copyFileFromLocal( this , confFile );
 	}
 	
 	private void makeTargetConfig() throws Exception {

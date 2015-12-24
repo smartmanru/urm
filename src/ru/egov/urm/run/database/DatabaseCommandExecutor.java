@@ -34,9 +34,9 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		cmdOpts = "";
 		super.defineAction( CommandAction.newAction( new ManageRelease() , "manage" , "manage accounting information" , cmdOpts , "./manage.sh [OPTIONS] <RELEASELABEL> <print|correct|rollback> [{all|<indexes>}]" ) );
 		cmdOpts = "";
-		super.defineAction( CommandAction.newAction( new ImportDB() , "import" , "import specified in etc/datapump/file dump to database" , cmdOpts , "./export.sh [OPTIONS] <datapump-file> {all|meta|data} [schema]" ) );
+		super.defineAction( CommandAction.newAction( new ImportDB() , "import" , "import specified in etc/datapump/file dump to database" , cmdOpts , "./export.sh [OPTIONS] <server> {all|meta|data} [schema]" ) );
 		cmdOpts = "";
-		super.defineAction( CommandAction.newAction( new ExportDB() , "export" , "export specified in etc/datapump/file dump from database" , cmdOpts , "./export.sh [OPTIONS] <datapump-file> {all|meta|data} [schema]" ) );
+		super.defineAction( CommandAction.newAction( new ExportDB() , "export" , "export specified in etc/datapump/file dump from database" , cmdOpts , "./export.sh [OPTIONS] <server> {all|meta|data} [schema]" ) );
 		
 		envMethods = "dbmanual dbapply";
 	}
@@ -122,19 +122,19 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	
 	private class ImportDB extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		String SPECFILE = options.getRequiredArg( action , 0 , "SPECFILE" );
+		String SERVER = options.getRequiredArg( action , 0 , "SERVER" );
 		String CMD = options.getRequiredArg( action , 1 , "CMD" );
 		String SCHEMA = options.getArg( 2 );
-		impl.importDatabase( action , SPECFILE , CMD , SCHEMA );
+		impl.importDatabase( action , SERVER , CMD , SCHEMA );
 	}
 	}
 	
 	private class ExportDB extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		String SPECFILE = options.getRequiredArg( action , 0 , "SPECFILE" );
+		String SERVER = options.getRequiredArg( action , 0 , "SERVER" );
 		String CMD = options.getRequiredArg( action , 1 , "CMD" );
 		String SCHEMA = options.getArg( 2 );
-		impl.exportDatabase( action , SPECFILE , CMD , SCHEMA );
+		impl.exportDatabase( action , SERVER , CMD , SCHEMA );
 	}
 	}
 	
