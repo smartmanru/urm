@@ -123,6 +123,8 @@ public class ActionExportDatabase extends ActionBase {
 		DatabaseClient client = new DatabaseClient( server );  
 		RedistStorage storage = artefactory.getRedistStorage( "database" , client.getDatabaseAccount( this ) );
 		RemoteFolder redist = storage.getRedistTmpFolder( this );
+		
+		log( "copy execution part to " + redist.folderPath + " ..." );
 		redist.recreateThis( this );
 		
 		RemoteFolder exportFolder = redist.getSubFolder( this , "export" );
