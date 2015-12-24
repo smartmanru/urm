@@ -60,6 +60,14 @@ public abstract class Folder {
 		session.removeDirContent( action , folderPath );
 	}
 
+	public void moveAll( ActionBase action , String targetPath ) throws Exception {
+		if( folderPath.isEmpty() || folderPath.equals( "/" ) )
+			action.exit( "attempt to delete files at root" );
+		
+		ShellExecutor session = getSession( action ); 
+		session.move( action , folderPath + "/*" , targetPath + "/" );
+	}
+
 	public boolean checkFileExists( ActionBase action , String file ) throws Exception {
 		ShellExecutor session = getSession( action ); 
 		return( session.checkFileExists( action , folderPath + "/" + file ) );
@@ -299,4 +307,13 @@ public abstract class Folder {
 		return( Common.getBaseName( filePath ) );
 	}
 
+	public boolean isEmpty( ActionBase action ) throws Exception {
+		ShellExecutor session = getSession( action );
+		String list = session.customGetValue( action , folderPath , "ls | head -1" );
+		if( list.isEmpty() )
+			return( true );
+		
+		return( false );
+	}
+	
 }

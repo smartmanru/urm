@@ -10,12 +10,20 @@ public class DistRepository {
 	private RemoteFolder repoFolder;
 	Metadata meta;
 	
-	public DistRepository( Artefactory artefactory , RemoteFolder repoFolder ) {
+	public DistRepository( Artefactory artefactory ) {
 		this.artefactory = artefactory; 
-		this.repoFolder = repoFolder; 
 		this.meta = artefactory.meta;
+		
+		if( meta.env != null )
+			repoFolder = new RemoteFolder( artefactory , meta.env.DISTR_HOSTLOGIN , meta.env.DISTR_PATH );
+		else
+			repoFolder = new RemoteFolder( artefactory , meta.product.CONFIG_DISTR_HOSTLOGIN , meta.product.CONFIG_DISTR_PATH );
 	}
 
+	public RemoteFolder getDataFolder( ActionBase action , String dataSet ) throws Exception {
+		return( repoFolder.getSubFolder( action , "data/" + dataSet ) );
+	}
+	
 	public DistStorage getDistByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 		

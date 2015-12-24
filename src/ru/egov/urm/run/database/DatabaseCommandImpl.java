@@ -50,4 +50,18 @@ public class DatabaseCommandImpl {
 		ma.runAll( scope );
 	}
 
+	public void manageRelease( ActionBase action , ActionScope scope , DistStorage dist ) throws Exception {
+		action.exitNotImplemented();
+	}
+
+	public void importDatabase( ActionBase action , String SPECFILE , String CMD , String SCHEMA ) throws Exception {
+		ActionImportDatabase ma = new ActionImportDatabase( action , null , SPECFILE , CMD , SCHEMA );
+		ma.runSimple();
+	}
+
+	public void exportDatabase( ActionBase action , String SPECFILE , String CMD , String SCHEMA ) throws Exception {
+		ActionExportDatabase ma = new ActionExportDatabase( action , null , SPECFILE , CMD , SCHEMA );
+		ma.runSimple();
+	}
+
 }

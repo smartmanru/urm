@@ -120,12 +120,7 @@ public class Artefactory {
 	}
 	
 	public DistRepository getDistRepository( ActionBase action ) throws Exception {
-		RemoteFolder distFolder = null;
-		if( meta.env != null )
-			distFolder = new RemoteFolder( this , meta.env.DISTR_HOSTLOGIN , meta.env.DISTR_PATH );
-		else
-			distFolder = new RemoteFolder( this , meta.product.CONFIG_DISTR_HOSTLOGIN , meta.product.CONFIG_DISTR_PATH );
-		DistRepository repo = new DistRepository( this , distFolder );
+		DistRepository repo = new DistRepository( this );
 		return( repo );
 	}
 	

@@ -26,11 +26,17 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		
 		String cmdOpts = "";
 		cmdOpts = "";
-		super.defineAction( CommandAction.newAction( new getReleaseScripts() , "getsql" , "get database release content" , cmdOpts , "./getsql.sh [OPTIONS] {all|<deliveries>}" ) );
+		super.defineAction( CommandAction.newAction( new GetReleaseScripts() , "getsql" , "get database release content" , cmdOpts , "./getsql.sh [OPTIONS] {all|<deliveries>}" ) );
 		cmdOpts = "";
-		super.defineAction( CommandAction.newAction( new applyManual() , "dbmanual" , "apply manual scripts under system account" , cmdOpts , "./dbmanual.sh [OPTIONS] <RELEASELABEL> <DBSERVER> {all|<indexes>}" ) );
+		super.defineAction( CommandAction.newAction( new ApplyManual() , "dbmanual" , "apply manual scripts under system account" , cmdOpts , "./dbmanual.sh [OPTIONS] <RELEASELABEL> <DBSERVER> {all|<indexes>}" ) );
 		cmdOpts = "GETOPT_DBMODE, GETOPT_DB, GETOPT_DBTYPE, GETOPT_DBALIGNED";
-		super.defineAction( CommandAction.newAction( new applyAutomatic() , "dbapply" , "apply application scripts and load data files" , cmdOpts , "./dbapply.sh [OPTIONS] <RELEASELABEL> {all|<delivery> {all|<mask>}} (mask is distributive file mask)" ) );
+		super.defineAction( CommandAction.newAction( new ApplyAutomatic() , "dbapply" , "apply application scripts and load data files" , cmdOpts , "./dbapply.sh [OPTIONS] <RELEASELABEL> {all|<delivery> {all|<mask>}} (mask is distributive file mask)" ) );
+		cmdOpts = "";
+		super.defineAction( CommandAction.newAction( new ManageRelease() , "manage" , "manage accounting information" , cmdOpts , "./manage.sh [OPTIONS] <RELEASELABEL> <print|correct|rollback> [{all|<indexes>}]" ) );
+		cmdOpts = "";
+		super.defineAction( CommandAction.newAction( new ImportDB() , "import" , "import specified in etc/datapump/file dump to database" , cmdOpts , "./export.sh [OPTIONS] <datapump-file> {all|meta|data} [schema]" ) );
+		cmdOpts = "";
+		super.defineAction( CommandAction.newAction( new ExportDB() , "export" , "export specified in etc/datapump/file dump from database" , cmdOpts , "./export.sh [OPTIONS] <datapump-file> {all|meta|data} [schema]" ) );
 		
 		envMethods = "dbmanual dbapply";
 	}
@@ -67,14 +73,14 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		return( ActionScope.getDatabaseManualItemsScope( action , dist , INDEXES ) );
 	}
 	
-	private class getReleaseScripts extends CommandAction {
+	private class GetReleaseScripts extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		ActionScope scope = getReleaseScope( action );
 		impl.getReleaseScripts( action , scope , scope.release );
 	}
 	}
 
-	private class applyManual extends CommandAction {
+	private class ApplyManual extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
 		DistStorage dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
@@ -85,7 +91,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class applyAutomatic extends CommandAction {
+	private class ApplyAutomatic extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
 		DistStorage dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
@@ -105,4 +111,31 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
+	private class ManageRelease extends CommandAction {
+	public void run( ActionInit action ) throws Exception {
+		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
+		DistStorage dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		ActionScope scope = getIndexScope( action , dist , 1 );
+		impl.manageRelease( action , scope , scope.release );
+	}
+	}
+	
+	private class ImportDB extends CommandAction {
+	public void run( ActionInit action ) throws Exception {
+		String SPECFILE = options.getRequiredArg( action , 0 , "SPECFILE" );
+		String CMD = options.getRequiredArg( action , 1 , "CMD" );
+		String SCHEMA = options.getArg( 2 );
+		impl.importDatabase( action , SPECFILE , CMD , SCHEMA );
+	}
+	}
+	
+	private class ExportDB extends CommandAction {
+	public void run( ActionInit action ) throws Exception {
+		String SPECFILE = options.getRequiredArg( action , 0 , "SPECFILE" );
+		String CMD = options.getRequiredArg( action , 1 , "CMD" );
+		String SCHEMA = options.getArg( 2 );
+		impl.exportDatabase( action , SPECFILE , CMD , SCHEMA );
+	}
+	}
+	
 }

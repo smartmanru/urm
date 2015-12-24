@@ -41,4 +41,8 @@ public class MetadataStorage {
 		 return( action.context.productHome + "/etc/env/" + envFile );
 	}
 	
+	public String getDatapumpFile( ActionBase action , String specFile ) throws Exception {
+		 return( action.context.productHome + "/etc/datapump/" + specFile );
+	}
+	
 }
