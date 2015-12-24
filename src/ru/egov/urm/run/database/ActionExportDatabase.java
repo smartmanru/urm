@@ -66,6 +66,9 @@ public class ActionExportDatabase extends ActionBase {
 		log( "reading export table set file " + tablesetPath + " ..." );
 		tableSet = new HashMap<String,Map<String,String>>();
 		for( String line : ConfReader.readFileLines( this , tablesetPath ) ) {
+			if( line.isEmpty() || line.startsWith( "#" ) )
+				continue;
+			
 			String[] opts = Common.split( line , "/" );
 			if( opts.length != 2 )
 				exit( "invalid table set line=" + line );
