@@ -38,7 +38,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		cmdOpts = "";
 		super.defineAction( CommandAction.newAction( new ExportDB() , "export" , "export specified in etc/datapump/file dump from database" , cmdOpts , "./export.sh [OPTIONS] <server> {all|meta|data} [schema]" ) );
 		
-		envMethods = "dbmanual dbapply";
+		envMethods = "dbmanual dbapply import export";
 	}
 	
 	public boolean run( ActionInit action ) {
