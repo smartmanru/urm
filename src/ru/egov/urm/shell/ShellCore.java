@@ -361,7 +361,7 @@ public class ShellCore {
 			while ( true ) {
 				line = textreader.readLine();
 				if( line == null )
-					break;
+					continue;
 				
 				int index = line.indexOf( finishMarker );
 				if( index >= 0 ) {
