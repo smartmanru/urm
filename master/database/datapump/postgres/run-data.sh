@@ -15,7 +15,7 @@ function f_execute_all() {
 	F_TABLEFILTER=
 	if [ "$F_TABLES" != "*" ]; then
 		for table in $F_TABLES; do
-			F_TABLEFILTER="$F_TABLEFILTER -t $table"
+			F_TABLEFILTER="$F_TABLEFILTER -t \"$table\""
 		done
 	fi
 
