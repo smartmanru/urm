@@ -267,13 +267,16 @@ public class ActionExportDatabase extends ActionBase {
 	
 	private void copyDataAndLogs( boolean copyData , String cmd , String SN , String EXECUTESCHEMA ) throws Exception {
 		// copy logs
-		String logFiles = "meta-*.log";
-		String dataFiles = "data-" + EXECUTESCHEMA + "-*.log";
-		copyFiles( logFiles , exportLogFolder , distLogFolder );
+		String logMetaFiles = "meta-*.log";
+		String logDataFiles = "data-*.log";
+		copyFiles( logMetaFiles , exportLogFolder , distLogFolder );
+		copyFiles( logDataFiles , exportLogFolder , distLogFolder );
 		
 		// copy data
-		if( copyData && cmd.equals( "data" ) )
+		if( copyData && cmd.equals( "data" ) ) {
+			String dataFiles = "data-" + EXECUTESCHEMA + "-*.data";
 			copyFiles( dataFiles , exportDataFolder , distDataFolder );
+		}
 	}
 
 	private void copyFiles( String files , RemoteFolder exportFolder , RemoteFolder distFolder ) throws Exception {
