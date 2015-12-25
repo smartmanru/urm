@@ -272,7 +272,7 @@ public class ActionExportDatabase extends ActionBase {
 		copyFiles( logFiles , exportLogFolder , distLogFolder );
 		
 		// copy data
-		if( copyData )
+		if( copyData && cmd.equals( "data" ) )
 			copyFiles( dataFiles , exportDataFolder , distDataFolder );
 	}
 
