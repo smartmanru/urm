@@ -28,10 +28,12 @@ function f_execute_start() {
 function f_execute_status() {
 	if [ "`grep -c EXPORT-STARTED run.sh.log`" = "0" ]; then
 		echo UNKNOWN
+		return
 	fi
 
 	if [ "`grep -c EXPORT-FINISHED run.sh.log`" = "0" ]; then
 		echo RUNNING
+		return
 	fi
 
 	echo FINISHED
