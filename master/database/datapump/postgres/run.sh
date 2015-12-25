@@ -38,9 +38,9 @@ function f_execute_status() {
 }
 
 function f_execute_all() {
-	if [ "$CMD" = "start" ]; then
+	if [ "$P_CMD" = "start" ]; then
 		f_execute_start
-	elif [ "$CMD" = "status" ]; then
+	elif [ "$P_CMD" = "status" ]; then
 		f_execute_status
 	else
 		echo invalid command=$CMD
