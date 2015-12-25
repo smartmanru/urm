@@ -31,6 +31,10 @@ function f_execute_status() {
 		return
 	fi
 
+	if [ "`pgrep -f pg_dump`" = "" ]; then
+		echo BROKEN
+	fi
+
 	if [ "`grep -c EXPORT-FINISHED run.sh.log`" = "0" ]; then
 		echo RUNNING
 		return
