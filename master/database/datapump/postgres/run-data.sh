@@ -5,6 +5,8 @@ P_SCHEMA="$1"
 function f_execute_all() {
 	# get table set
 	F_TABLES=`cat tableset.txt | grep ^$P_SCHEMA/ | cut -d "/" -f2 | tr "\n" " "`
+	F_TABLES=${F_TABLES% }
+	F_TABLES=${F_TABLES# }
 	if [ "$F_TABLES" = "" ]; then
 		echo invalid call due to empty tableset. Exiting
 		exit 1
