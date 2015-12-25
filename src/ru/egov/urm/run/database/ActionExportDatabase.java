@@ -41,6 +41,9 @@ public class ActionExportDatabase extends ActionBase {
 	RemoteFolder exportLogFolder;
 	RemoteFolder exportDataFolder;
 	String tablesetPath;
+	DatabaseClient client;
+	
+	static String tablesFileName = "tableset.txt"; 
 	
 	public ActionExportDatabase( ActionBase action , String stream , MetaEnvServer server , String CMD , String SCHEMA ) {
 		super( action , stream );
@@ -53,6 +56,7 @@ public class ActionExportDatabase extends ActionBase {
 	@Override protected boolean executeSimple() throws Exception {
 		loadExportSettings();
 		
+		client = new DatabaseClient( server );  
 		exportDataFolder = prepareDestination();
 		exportLogFolder = exportDataFolder.getSubFolder( this , "log" );
 		makeTargetScripts();
@@ -96,6 +100,10 @@ public class ActionExportDatabase extends ActionBase {
 			if( SN.isEmpty() || table.isEmpty() )
 				exit( "invalid table set line=" + line );
 
+			if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )
+				if( !SN.equals( SCHEMA ) )
+					continue;
+			
 			Map<String,String> tables = tableSet.get( SN );
 			if( tables == null ) {
 				meta.distr.database.getSchema( this , SN );
@@ -128,7 +136,6 @@ public class ActionExportDatabase extends ActionBase {
 		// copy scripts
 		UrmStorage urm = artefactory.getUrmStorage();
 		LocalFolder urmScripts = urm.getDatapumpScripts( this , server.DBMSTYPE );
-		DatabaseClient client = new DatabaseClient( server );  
 		RedistStorage storage = artefactory.getRedistStorage( "database" , client.getDatabaseAccount( this ) );
 		RemoteFolder redist = storage.getRedistTmpFolder( this );
 		
@@ -161,11 +168,35 @@ public class ActionExportDatabase extends ActionBase {
 		List<String> conf = new LinkedList<String>();
 		Common.createFileFromStringList( confFile , conf );
 		exportScriptsFolder.copyFileFromLocal( this , confFile );
-		
-		exportScriptsFolder.copyFileFromLocalRename( this , tablesetPath , "tableset.txt" );
 	}
 
 	private void runAll() throws Exception {
+		// load table set into database
+		String[] columns = { "xschema" , "xtable" };
+		String[] columntypes = { "varchar(30)" , "varchar(30)" };
+		List<String[]> data = new LinkedList<String[]>();
+		List<String> conf = new LinkedList<String>();
+		
+		for( String SN : tableSet.keySet() ) {
+			MetaDatabaseSchema schema = serverSchemas.get( SN );
+			Map<String,String> tables = tableSet.get( SN );
+			
+			if( tables.containsKey( "*" ) ) {
+				data.add( new String[] { schema.DBNAME , "*" } );
+				conf.add( schema.DBNAME + "/*" );
+			}
+			else {
+				for( String s : tables.keySet() ) {
+					data.add( new String[] { schema.DBNAME , s } );
+					conf.add( schema.DBNAME + "/" + s );
+				}
+			}
+		}
+		
+		client.createTableData( this , server.admSchema , "urm_export" , columns , columntypes , data );  
+		Common.createFileFromStringList( tablesFileName , conf );
+		exportScriptsFolder.copyFileFromLocal( this , tablesFileName );
+		
 		if( CMD.equals( "all" ) || CMD.equals( "meta" ) )
 			runTarget( "meta" , "" );
 		
@@ -208,7 +239,7 @@ public class ActionExportDatabase extends ActionBase {
 		Common.sleep( this , 1000 );
 		String value = checkStatus( exportScriptsFolder );
 		if( !value.equals( "RUNNING" ) ) {
-			log( "export has not started, copy logs ..." );
+			log( "export has not started, save logs ..." );
 			copyDataAndLogs( false , cmd , SN , EXECUTESCHEMA );
 			exit( "unable to start export process, see logs" );
 		}
@@ -220,7 +251,7 @@ public class ActionExportDatabase extends ActionBase {
 		
 		// check final status
 		if( !value.equals( "FINISHED" ) ) {
-			log( "export finished with errors, copy logs ..." );
+			log( "export finished with errors, save logs ..." );
 			copyDataAndLogs( false , cmd , SN , EXECUTESCHEMA );
 			exit( "export process completed with errors, see logs" );
 		}

@@ -53,6 +53,14 @@ public class DatabaseOracleSpecific extends DatabaseSpecific {
 		action.exitNotImplemented();
 	}
 
+	@Override public void createTableData( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , String columntypes[] , List<String[]> rows ) throws Exception {
+		action.exitNotImplemented();
+	}
+	
+	@Override public void writeTableData( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , List<String[]> rows ) throws Exception {
+		action.exitNotImplemented();
+	}
+	
 	@Override public void insertRow( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , String[] values ) throws Exception {
 		action.exitNotImplemented();
 	}

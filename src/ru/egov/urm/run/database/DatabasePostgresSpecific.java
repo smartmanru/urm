@@ -1,5 +1,6 @@
 package ru.egov.urm.run.database;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import ru.egov.urm.Common;
@@ -97,8 +98,49 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 			rows.add( row );
 		}
 	}
+
+	@Override public void createTableData( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , String columntypes[] , List<String[]> rows ) throws Exception {
+		List<String> lines = new LinkedList<String>();
+		lines.add( "DROP TABLE IF EXISTS " + table );
+		String ct = "create table " + table + " ( ";
+		if( columns.length != columntypes.length )
+			action.exit( "invalid column names and types" );
+		
+		for( int k = 0; k < columns.length; k++ ) {
+			String type = columntypes[ k ];
+			ct += columns[k] + " " + type + "; ";
+		}
+		ct += " );";
+		lines.add( ct );
+				
+		writeTableDataInternal( action , server , schema , user , password , table , columns , rows , lines );
+	}
+
+	@Override public void writeTableData( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , List<String[]> rows ) throws Exception {
+		List<String> lines = new LinkedList<String>();
+		writeTableDataInternal( action , server , schema , user , password , table , columns , rows , lines );
+	}
 	
-	@Override public void insertRow( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , String[] values ) throws Exception {
+	public void writeTableDataInternal( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , List<String[]> rows , List<String> lines ) throws Exception {
+		for( String[] values : rows ) {
+			String query = getInsertRowString( action , table , columns , values );
+			lines.add( query );
+		}
+		lines.add( "commit;" );
+		
+		LocalFolder work = action.artefactory.getWorkFolder( action );
+		String scriptFile = work.getFilePath( action , "run.sql" );
+		Common.createFileFromStringList( scriptFile , lines );
+
+		String value = action.session.customGetValue( action , "export PGPASSWORD='" + password + "'; " + 
+				"cat " + scriptFile +  
+				" | psql -d " + schema + " -h " + server.DBMSADDR + " -U " + user );
+		
+		if( value.indexOf( "ERROR:" ) >= 0 )
+			action.exit( "unexpected error: " + value );
+	}
+
+	private String getInsertRowString( ActionBase action , String table , String[] columns , String[] values ) throws Exception {
 		if( values.length != columns.length )
 			action.exit( "number of values should be equal to number of columns" );
 			
@@ -124,8 +166,13 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 			else
 				query += value;
 		}
-		query += " )";
-			
+		query += " );";
+		
+		return( query );
+	}
+	
+	@Override public void insertRow( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , String[] values ) throws Exception {
+		String query = getInsertRowString( action , table , columns , values );
 		String value = action.session.customGetValue( action , "export PGPASSWORD='" + password + "'; " + 
 				"(echo " + Common.getQuoted( query ) +  
 				" ) | psql -d " + schema + " -h " + server.DBMSADDR + " -U " + user );

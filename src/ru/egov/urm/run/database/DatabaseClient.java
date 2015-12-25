@@ -132,6 +132,16 @@ public class DatabaseClient {
 		return( list );
 	}
 
+	public void createTableData( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] columntypes , List<String[]> data ) throws Exception {
+		String password = getUserPassword( action , schema.DBUSER );
+		specific.createTableData( action , server , schema.DBNAME , schema.DBUSER , password , table , columns , columntypes , data );
+	}
+
+	public void writeTableData( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , List<String[]> data ) throws Exception {
+		String password = getUserPassword( action , schema.DBUSER );
+		specific.writeTableData( action , server , schema.DBNAME , schema.DBUSER , password , table , columns , data );
+	}
+
 	public void insertRow( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] values ) throws Exception {
 		String password = getUserPassword( action , schema.DBUSER );
 		specific.insertRow( action , server , schema.DBNAME , schema.DBUSER , password , table , columns , values );
