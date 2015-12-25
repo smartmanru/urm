@@ -60,7 +60,7 @@ public class ActionExportDatabase extends ActionBase {
 		client.checkConnect( this );
 		
 		distDataFolder = prepareDestination();
-		distLogFolder = exportDataFolder.getSubFolder( this , "log" );
+		distLogFolder = distDataFolder.getSubFolder( this , "log" );
 		makeTargetScripts();
 		makeTargetConfig();
 		runAll();
