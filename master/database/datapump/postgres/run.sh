@@ -33,6 +33,7 @@ function f_execute_status() {
 
 	if [ "`pgrep -f pg_dump`" != "" ]; then
 		echo RUNNING
+		return
 	fi
 
 	if [ "`grep -c EXPORT-FINISHED run.sh.log`" = "0" ]; then
