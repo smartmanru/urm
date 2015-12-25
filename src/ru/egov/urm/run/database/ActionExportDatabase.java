@@ -217,8 +217,6 @@ public class ActionExportDatabase extends ActionBase {
 	public String checkStatus( RemoteFolder folder ) throws Exception {
 		ShellExecutor shell = folder.getSession( this );
 		String value = shell.customGetValue( this , folder.folderPath , "./run.sh status" );
-		if( value.equals( "RUNNING" ) )
-			exit( "unable to start because export is already running" );
 		return( value );
 	}
 	
