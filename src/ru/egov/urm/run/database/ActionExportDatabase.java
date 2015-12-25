@@ -184,12 +184,12 @@ public class ActionExportDatabase extends ActionBase {
 			Map<String,String> tables = tableSet.get( SN );
 			
 			if( tables.containsKey( "*" ) ) {
-				data.add( new String[] { schema.DBNAME , Common.getSQLQuoted( "*" ) } );
+				data.add( new String[] { Common.getSQLQuoted( schema.DBNAME ) , Common.getSQLQuoted( "*" ) } );
 				conf.add( schema.DBNAME + "/*" );
 			}
 			else {
 				for( String s : tables.keySet() ) {
-					data.add( new String[] { schema.DBNAME , Common.getSQLQuoted( s ) } );
+					data.add( new String[] { Common.getSQLQuoted( schema.DBNAME ) , Common.getSQLQuoted( s ) } );
 					conf.add( schema.DBNAME + "/" + s );
 				}
 			}
