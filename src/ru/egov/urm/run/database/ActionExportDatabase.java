@@ -61,6 +61,8 @@ public class ActionExportDatabase extends ActionBase {
 		
 		distDataFolder = prepareDestination();
 		distLogFolder = distDataFolder.getSubFolder( this , "log" );
+		distLogFolder.ensureExists( this );
+		
 		makeTargetScripts();
 		makeTargetConfig();
 		runAll();
