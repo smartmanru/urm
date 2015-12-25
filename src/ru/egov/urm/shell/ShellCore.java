@@ -360,8 +360,10 @@ public class ShellCore {
 			boolean first = true;
 			while ( true ) {
 				line = textreader.readLine();
-				if( line == null )
+				if( line == null ) {
+					Thread.yield();
 					continue;
+				}
 				
 				int index = line.indexOf( finishMarker );
 				if( index >= 0 ) {
