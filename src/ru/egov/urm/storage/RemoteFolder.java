@@ -68,12 +68,38 @@ public class RemoteFolder extends Folder {
 		return( new RemoteFolder( artefactory , hostLogin , PATH ) );
 	}
 
+	public String copyFileToLocal( ActionBase action , LocalFolder localFolder , String file ) throws Exception {
+		return( copyFileToLocal( action , localFolder , file , "" ) );
+	}
+	
+	public void copyFilesToLocal( ActionBase action , LocalFolder localFolder , String files ) throws Exception {
+		copyFilesToLocal( action , localFolder , files , "" );
+	}
+	
+	public void moveFilesFromLocal( ActionBase action , LocalFolder localFolder , String files ) throws Exception {
+		moveFilesFromLocal( action , localFolder , files , "" );
+	}
+	
 	public String copyFileToLocal( ActionBase action , LocalFolder localFolder , String file , String FOLDER ) throws Exception {
 		String srcPath = Common.getPath( folderPath , FOLDER );
 		String dstPath = Common.getPath( localFolder.folderPath , FOLDER );
 		
 		action.session.copyFileTargetToLocal( action , hostLogin , srcPath + "/" + file , dstPath );
 		return( dstPath + "/" + file );
+	}
+
+	public void copyFilesToLocal( ActionBase action , LocalFolder localFolder , String files , String FOLDER ) throws Exception {
+		String dstPath = Common.getPath( folderPath , FOLDER );
+		String srcPath = Common.getPath( localFolder.folderPath , FOLDER );
+		
+		action.session.copyFilesTargetToLocal( action , hostLogin , srcPath + "/" + files , dstPath );
+	}
+
+	public void moveFilesFromLocal( ActionBase action , LocalFolder localFolder , String files , String FOLDER ) throws Exception {
+		String srcPath = Common.getPath( folderPath , FOLDER );
+		String dstPath = Common.getPath( localFolder.folderPath , FOLDER );
+		
+		action.session.moveFilesTargetFromLocal( action , hostLogin , srcPath + "/" + files , dstPath );
 	}
 
 	public String copyFileToLocalRename( ActionBase action , LocalFolder localFolder , String file , String newName ) throws Exception {

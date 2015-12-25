@@ -315,5 +315,21 @@ public abstract class Folder {
 		
 		return( false );
 	}
+
+	public String[] findFiles( ActionBase action , String mask ) throws Exception {
+		ShellExecutor session = getSession( action );
+		String[] list = session.customGetLines( action , folderPath , "find . -name " + Common.getQuoted( mask ) );
+		List<String> items = new LinkedList<String>();
+		for( String item : list ) {
+			if( item.equals( "." ) || item.equals( ".." ) )
+				continue;
+			
+			if( item.startsWith( "./" ) )
+				item = item.substring( 2 );
+			items.add( item );
+		}
+			
+		return( items.toArray( new String[0] ) );
+	}
 	
 }

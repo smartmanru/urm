@@ -301,6 +301,10 @@ public abstract class ShellExecutor {
 		return( core.runCommandGetLines( action , cmd , true ) );
 	}
 
+	public String[] customGetLines( ActionBase action , String dir , String cmd ) throws Exception {
+		return( core.runCommandGetLines( action , dir , cmd , true ) );
+	}
+
 	public String customGetValue( ActionBase action , String dir , String cmd ) throws Exception {
 		return( core.runCommandGetValueCheckDebug( action , dir , cmd ) );
 	}
@@ -374,7 +378,7 @@ public abstract class ShellExecutor {
 		core.runCommandCheckDebug( action , "cp -R -p " + dirFrom + " " + baseDstDir + "/" );
 	}
 	
-	public void scpFileRemoteToLocal( ActionBase action , String srcPath , String hostLogin , String dstPath ) throws Exception {
+	public void scpFilesRemoteToLocal( ActionBase action , String srcPath , String hostLogin , String dstPath ) throws Exception {
 		String keyOption = "";
 		String keyFile = action.context.KEYNAME;
 		if( !keyFile.isEmpty() )
@@ -394,7 +398,7 @@ public abstract class ShellExecutor {
 		core.runCommandCheckDebug( action , "scp -q -B -p " + keyOption + hostLogin + ":" + srcPath + "/* " + dstPath );
 	}
 
-	public void scpFileLocalToRemote( ActionBase action , String srcPath , String hostLogin , String dstPath ) throws Exception {
+	public void scpFilesLocalToRemote( ActionBase action , String srcPath , String hostLogin , String dstPath ) throws Exception {
 		String keyOption = "";
 		String keyFile = action.context.KEYNAME;
 		if( !keyFile.isEmpty() )
@@ -444,9 +448,26 @@ public abstract class ShellExecutor {
 
 	public void copyFileTargetToLocal( ActionBase action , String hostLogin , String srcFilePath , String dstDir ) throws Exception {
 		if( action.isLocal( hostLogin ) )
-			copyFile( action , srcFilePath , dstDir , "" , "" );
+			copyFile( action , srcFilePath , dstDir );
 		else {
-			scpFileRemoteToLocal( action , srcFilePath , hostLogin , dstDir + "/" );
+			scpFilesRemoteToLocal( action , srcFilePath , hostLogin , dstDir + "/" );
+		}
+	}
+
+	public void copyFilesTargetToLocal( ActionBase action , String hostLogin , String srcFiles , String dstDir ) throws Exception {
+		if( action.isLocal( hostLogin ) )
+			copyFiles( action , Common.getDirName( srcFiles ) , Common.getBaseName( srcFiles ) , dstDir );
+		else {
+			scpFilesRemoteToLocal( action , srcFiles , hostLogin , dstDir + "/" );
+		}
+	}
+
+	public void moveFilesTargetFromLocal( ActionBase action , String hostLogin , String srcFiles , String dstDir ) throws Exception {
+		if( action.isLocal( hostLogin ) )
+			move( action , srcFiles , dstDir );
+		else {
+			scpFilesLocalToRemote( action , srcFiles , hostLogin , dstDir + "/" );
+			removeFiles( action , Common.getDirName( srcFiles ) , Common.getBaseName( srcFiles ) );
 		}
 	}
 
@@ -470,7 +491,7 @@ public abstract class ShellExecutor {
 		if( action.isLocal( hostLogin ) )
 			copyFile( action , srcFilePath , dstDir , "" , "" );
 		else {
-			scpFileLocalToRemote( action , srcFilePath , hostLogin , dstDir + "/" );
+			scpFilesLocalToRemote( action , srcFilePath , hostLogin , dstDir + "/" );
 		}
 	}
 
@@ -478,7 +499,7 @@ public abstract class ShellExecutor {
 		if( action.isLocal( hostLogin ) )
 			copyFile( action , srcFilePath , dstDir , newName , "" );
 		else {
-			scpFileLocalToRemote( action , srcFilePath , hostLogin , dstDir + "/" + newName );
+			scpFilesLocalToRemote( action , srcFilePath , hostLogin , dstDir + "/" + newName );
 		}
 	}
 

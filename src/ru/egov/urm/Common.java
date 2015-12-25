@@ -659,5 +659,11 @@ public class Common {
 		
 		return( s.substring( index1 + delimiter.length() , index2 ) );
 	}
+
+	public static void sleep( ActionBase action , long millis ) throws Exception {
+	    synchronized( action ) {
+	    	Thread.sleep( 1000 );
+	    }
+	}
 	
 }

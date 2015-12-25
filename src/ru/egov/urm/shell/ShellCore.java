@@ -202,6 +202,16 @@ public class ShellCore {
 		return( runCommandCheck( action , cmdDir , true ) ); 
 	}
 
+	public String[] runCommandGetLines( ActionBase action , String dir , String cmd , boolean debug ) throws Exception {
+		runCommand( action , dir , cmd , debug );
+		String err = getErr();
+		
+		if( !err.isEmpty() )
+			exitError( action , "error running command (" + cmd + ")" + " - " + err );
+		
+		return( cmdout.toArray( new String[0] ) );
+	}
+	
 	public String[] runCommandGetLines( ActionBase action , String cmd , boolean debug ) throws Exception {
 		runCommand( action , cmd , debug );
 		String err = getErr();

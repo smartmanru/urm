@@ -8,8 +8,10 @@ import java.util.Properties;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
+import ru.egov.urm.meta.MetaDatabaseSchema;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.DistRepository;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.MetadataStorage;
@@ -25,18 +27,20 @@ public class ActionExportDatabase extends ActionBase {
 	String SCHEMA;
 
 	String DATASET;
-	String SCHEMALIST;
-	String SCHMAPPING;
 	String TABLESETFILE;
 	String DUMPDIR;
 	String REMOTE_SETDBENV;
 	String DATABASE_DATAPUMPDIR;
 	
+	Map<String,MetaDatabaseSchema> serverSchemas;
 	Map<String,Map<String,String>> tableSet;
 
-	RemoteFolder scriptsFolder;
-	RemoteFolder logFolder;
-	RemoteFolder dataFolder;
+	RemoteFolder distDataFolder;
+	RemoteFolder distLogFolder;
+	RemoteFolder exportScriptsFolder;
+	RemoteFolder exportLogFolder;
+	RemoteFolder exportDataFolder;
+	String tablesetPath;
 	
 	public ActionExportDatabase( ActionBase action , String stream , MetaEnvServer server , String CMD , String SCHEMA ) {
 		super( action , stream );
@@ -49,11 +53,11 @@ public class ActionExportDatabase extends ActionBase {
 	@Override protected boolean executeSimple() throws Exception {
 		loadExportSettings();
 		
-		RemoteFolder dataFolder = prepareDestination();
+		exportDataFolder = prepareDestination();
+		exportLogFolder = exportDataFolder.getSubFolder( this , "log" );
 		makeTargetScripts();
 		makeTargetConfig();
-		runTarget();
-		copyDataAndLogs( dataFolder );
+		runAll();
 		
 		return( true );
 	}
@@ -66,15 +70,18 @@ public class ActionExportDatabase extends ActionBase {
 		Properties props = ConfReader.readPropertyFile( this , specPath );
 		
 		DATASET = props.getProperty( "CONFIG_DATASET" );
-		SCHEMALIST = props.getProperty( "CONFIG_SCHEMALIST" );
-		SCHMAPPING = props.getProperty( "CONFIG_SCHMAPPING" );
 		TABLESETFILE = props.getProperty( "CONFIG_TABLESETFILE" );
 		DUMPDIR = props.getProperty( "CONFIG_LOADDIR" );
 		REMOTE_SETDBENV = props.getProperty( "CONFIG_REMOTE_SETDBENV" );
 		DATABASE_DATAPUMPDIR = props.getProperty( "CONFIG_DATABASE_DATAPUMPDIR" );
-		
+
+		serverSchemas = server.getSchemaSet( this );
+		if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )
+			if( !serverSchemas.containsKey( SCHEMA ) )
+				exit( "schema " + SCHEMA + " is not part of server datasets" );
+
 		// load tableset
-		String tablesetPath = ms.getDatapumpFile( this , TABLESETFILE );
+		tablesetPath = ms.getDatapumpFile( this , TABLESETFILE );
 		log( "reading export table set file " + tablesetPath + " ..." );
 		tableSet = new HashMap<String,Map<String,String>>();
 		for( String line : ConfReader.readFileLines( this , tablesetPath ) ) {
@@ -84,21 +91,22 @@ public class ActionExportDatabase extends ActionBase {
 			String[] opts = Common.split( line , "/" );
 			if( opts.length != 2 )
 				exit( "invalid table set line=" + line );
-			String schema = opts[0]; 
+			String SN = opts[0]; 
 			String table = opts[1]; 
-			if( schema.isEmpty() || table.isEmpty() )
+			if( SN.isEmpty() || table.isEmpty() )
 				exit( "invalid table set line=" + line );
-			
-			Map<String,String> tables = tableSet.get( schema );
+
+			Map<String,String> tables = tableSet.get( SN );
 			if( tables == null ) {
+				meta.distr.database.getSchema( this , SN );
 				tables = new HashMap<String,String>();
-				tableSet.put( schema , tables );
+				tableSet.put( SN , tables );
 			}
 			
-			tables.put( table , schema );
+			tables.put( table , SN );
 		}
 	}
-	
+
 	private RemoteFolder prepareDestination() throws Exception {
 		DistRepository repository = artefactory.getDistRepository( this );
 		RemoteFolder folder = repository.getDataFolder( this , DATASET );
@@ -124,35 +132,125 @@ public class ActionExportDatabase extends ActionBase {
 		RedistStorage storage = artefactory.getRedistStorage( "database" , client.getDatabaseAccount( this ) );
 		RemoteFolder redist = storage.getRedistTmpFolder( this );
 		
-		log( "copy execution part to " + redist.folderPath + " ..." );
-		redist.recreateThis( this );
-		
 		RemoteFolder exportFolder = redist.getSubFolder( this , "export" );
-		scriptsFolder = exportFolder.getSubFolder( this , "scripts" );
-		scriptsFolder.ensureExists( this );
-		scriptsFolder.copyDirContentFromLocal( this , urmScripts , "" );
+		exportScriptsFolder = exportFolder.getSubFolder( this , "scripts" );
 		
-		logFolder = exportFolder.getSubFolder( this , "log" );
-		logFolder.ensureExists( this );
-		dataFolder = exportFolder.getSubFolder( this , "data" );
-		dataFolder.ensureExists( this );
+		// ensure not running currently 
+		if( exportScriptsFolder.checkFileExists( this , "run.sh" ) ) {
+			String value = checkStatus( exportScriptsFolder );
+			if( value.equals( "RUNNING" ) )
+				exit( "unable to start because export is already running" );
+		}
 		
+		log( "copy execution part to " + redist.folderPath + " ..." );
+		exportFolder.recreateThis( this );
+		exportScriptsFolder.ensureExists( this );
+		exportScriptsFolder.copyDirContentFromLocal( this , urmScripts , "" );
+		
+		exportLogFolder = exportFolder.getSubFolder( this , "log" );
+		exportLogFolder.ensureExists( this );
+		exportDataFolder = exportFolder.getSubFolder( this , "data" );
+		exportDataFolder.ensureExists( this );
+	}
+	
+	private void makeTargetConfig() throws Exception {
 		// create configuration to run scripts
 		LocalFolder work = artefactory.getWorkFolder( this );
 		String confFile = work.getFilePath( this , "run.conf" );
 		
-		List<String> conf = new LinkedList<String>(); 
+		List<String> conf = new LinkedList<String>();
 		Common.createFileFromStringList( confFile , conf );
-		scriptsFolder.copyFileFromLocal( this , confFile );
+		exportScriptsFolder.copyFileFromLocal( this , confFile );
+		
+		exportScriptsFolder.copyFileFromLocalRename( this , tablesetPath , "tableset.txt" );
+	}
+
+	private void runAll() throws Exception {
+		if( CMD.equals( "all" ) || CMD.equals( "meta" ) )
+			runTarget( "meta" , "" );
+		
+		if( CMD.equals( "all" ) || CMD.equals( "data" ) ) {
+			if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )
+				runTarget( "data" , SCHEMA );
+			else {
+				for( String s : server.getSchemaSet( this ).keySet() )
+					runTarget( "data" , s );
+			}
+		}
 	}
 	
-	private void makeTargetConfig() throws Exception {
+	public String checkStatus( RemoteFolder folder ) throws Exception {
+		ShellExecutor shell = folder.getSession( this );
+		String value = shell.customGetValue( this , folder.folderPath , "./run.sh status" );
+		if( value.equals( "RUNNING" ) )
+			exit( "unable to start because export is already running" );
+		return( value );
 	}
 	
-	private void runTarget() throws Exception {
+	private void runTarget( String cmd , String SN ) throws Exception {
+		String EXECUTESCHEMA = "";
+		if( cmd.equals( "meta" ) ) {
+			for( MetaDatabaseSchema schema : serverSchemas.values() )
+				EXECUTESCHEMA = Common.addItemToUniqueSpacedList( EXECUTESCHEMA , schema.DBNAME ); 
+		}
+		else
+		if( cmd.equals( "data" ) ) {
+			MetaDatabaseSchema schema = serverSchemas.get( SN );
+			EXECUTESCHEMA = schema.DBNAME;
+		}
+		
+		// initiate execution
+		log( "start export cmd=" + cmd + " schemaset=" + EXECUTESCHEMA + " ..." );
+		ShellExecutor shell = exportScriptsFolder.getSession( this );
+		shell.customCheckStatus( this , exportScriptsFolder.folderPath , "./run.sh start " + cmd + " " + Common.getQuoted( EXECUTESCHEMA ) );
+		
+		// check execution is started
+		Common.sleep( this , 1000 );
+		String value = checkStatus( exportScriptsFolder );
+		if( !value.equals( "RUNNING" ) ) {
+			copyDataAndLogs( false , cmd , SN , EXECUTESCHEMA );
+			exit( "unable to start export process, see logs" );
+		}
+		
+		// wait for completion - unlimited
+		log( "wait export to complete ..." );
+		while( value.equals( "RUNNING" ) )
+			value = checkStatus( exportScriptsFolder );
+		
+		// check final status
+		if( value.equals( "FINISHED" ) ) {
+			copyDataAndLogs( true , cmd , SN , EXECUTESCHEMA );
+			return;
+		}
+		
+		copyDataAndLogs( false , cmd , SN , EXECUTESCHEMA );
+		exit( "export process completed unsuccessfully, see logs" );
 	}
 	
-	private void copyDataAndLogs( RemoteFolder dataFolder ) throws Exception {
+	private void copyDataAndLogs( boolean copyData , String cmd , String SN , String EXECUTESCHEMA ) throws Exception {
+		// copy logs
+		String logFiles = "meta-*.log";
+		String dataFiles = "data-" + EXECUTESCHEMA + "-*.log";
+		copyFiles( logFiles , exportLogFolder , distLogFolder );
+		
+		// copy data
+		if( copyData )
+			copyFiles( dataFiles , exportDataFolder , distDataFolder );
 	}
-	
+
+	private void copyFiles( String files , RemoteFolder exportFolder , RemoteFolder distFolder ) throws Exception {
+		log( "copy files: " + files + " ..." );
+		
+		LocalFolder workDataFolder = artefactory.getWorkFolder( this , "data" );
+		workDataFolder.recreateThis( this );
+		exportFolder.copyFilesToLocal( this , workDataFolder , files );
+		String[] copied = workDataFolder.findFiles( this , files );
+		
+		if( copied.length == 0 )
+			exit( "unable to find files: " + files );
+		
+		// copy to target
+		distFolder.moveFilesFromLocal( this , workDataFolder , files );
+	}
+
 }
