@@ -59,8 +59,8 @@ public class ActionExportDatabase extends ActionBase {
 		client = new DatabaseClient( server ); 
 		client.checkConnect( this );
 		
-		exportDataFolder = prepareDestination();
-		exportLogFolder = exportDataFolder.getSubFolder( this , "log" );
+		distDataFolder = prepareDestination();
+		distLogFolder = exportDataFolder.getSubFolder( this , "log" );
 		makeTargetScripts();
 		makeTargetConfig();
 		runAll();
@@ -241,7 +241,7 @@ public class ActionExportDatabase extends ActionBase {
 		Common.sleep( this , 1000 );
 		String value = checkStatus( exportScriptsFolder );
 		if( value.equals( "RUNNING" ) == false && value.equals( "FINISHED" ) == false ) {
-			log( "export has not started, save logs ..." );
+			log( "export has not started (status=" + value + "), save logs ..." );
 			copyDataAndLogs( false , cmd , SN , EXECUTESCHEMA );
 			exit( "unable to start export process, see logs" );
 		}
