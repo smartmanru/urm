@@ -662,7 +662,7 @@ public class Common {
 
 	public static void sleep( ActionBase action , long millis ) throws Exception {
 	    synchronized( action ) {
-	    	Thread.sleep( 1000 );
+	    	Thread.sleep( millis );
 	    }
 	}
 	
