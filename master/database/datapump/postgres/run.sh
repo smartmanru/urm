@@ -4,12 +4,17 @@ P_CMD=$1
 P_SET=$2
 P_SCHEMASET="$3"
 
-if [ "$P_CMD" = "" ] || [ "$P_SET" = "" ] || [ "$P_SCHEMASET" = "" ]; then
+if [ "$P_CMD" = "" ]; then
 	echo invalid params. Exiting
 	exit 1
 fi
 
 function f_execute_start() {
+	if [ "$P_SET" = "" ] || [ "$P_SCHEMASET" = "" ]; then
+		echo invalid params. Exiting
+		exit 1
+	fi
+
 	echo EXPORT-STARTED > run.sh.log
 
 	if [ "$P_SET" = "meta" ]; then
