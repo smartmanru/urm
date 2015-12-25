@@ -101,7 +101,8 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 
 	@Override public void createTableData( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , String columntypes[] , List<String[]> rows ) throws Exception {
 		List<String> lines = new LinkedList<String>();
-		lines.add( "DROP TABLE IF EXISTS " + table );
+		lines.add( "DROP TABLE IF EXISTS " + table + ";" );
+		
 		String ct = "create table " + table + " ( ";
 		if( columns.length != columntypes.length )
 			action.exit( "invalid column names and types" );
