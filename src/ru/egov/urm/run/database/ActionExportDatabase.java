@@ -56,7 +56,9 @@ public class ActionExportDatabase extends ActionBase {
 	@Override protected boolean executeSimple() throws Exception {
 		loadExportSettings();
 		
-		client = new DatabaseClient( server );  
+		client = new DatabaseClient( server ); 
+		client.checkConnect( this );
+		
 		exportDataFolder = prepareDestination();
 		exportLogFolder = exportDataFolder.getSubFolder( this , "log" );
 		makeTargetScripts();
