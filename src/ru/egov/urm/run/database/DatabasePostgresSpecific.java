@@ -125,6 +125,7 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 	}
 	
 	public void writeTableDataInternal( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , List<String[]> rows , List<String> lines ) throws Exception {
+		lines.add( "begin;" );
 		for( String[] values : rows ) {
 			String query = getInsertRowString( action , table , columns , values );
 			lines.add( query );
