@@ -43,7 +43,7 @@ function f_execute_all() {
 	elif [ "$P_CMD" = "status" ]; then
 		f_execute_status
 	else
-		echo invalid command=$CMD
+		echo invalid command=$P_CMD
 	fi
 }
 
