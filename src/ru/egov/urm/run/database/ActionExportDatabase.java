@@ -208,6 +208,7 @@ public class ActionExportDatabase extends ActionBase {
 		Common.sleep( this , 1000 );
 		String value = checkStatus( exportScriptsFolder );
 		if( !value.equals( "RUNNING" ) ) {
+			log( "export has not started, copy logs ..." );
 			copyDataAndLogs( false , cmd , SN , EXECUTESCHEMA );
 			exit( "unable to start export process, see logs" );
 		}
@@ -218,13 +219,14 @@ public class ActionExportDatabase extends ActionBase {
 			value = checkStatus( exportScriptsFolder );
 		
 		// check final status
-		if( value.equals( "FINISHED" ) ) {
-			copyDataAndLogs( true , cmd , SN , EXECUTESCHEMA );
-			return;
+		if( !value.equals( "FINISHED" ) ) {
+			log( "export finished with errors, copy logs ..." );
+			copyDataAndLogs( false , cmd , SN , EXECUTESCHEMA );
+			exit( "export process completed with errors, see logs" );
 		}
 		
-		copyDataAndLogs( false , cmd , SN , EXECUTESCHEMA );
-		exit( "export process completed unsuccessfully, see logs" );
+		log( "export successfully finished, copy data and logs ..." );
+		copyDataAndLogs( true , cmd , SN , EXECUTESCHEMA );
 	}
 	
 	private void copyDataAndLogs( boolean copyData , String cmd , String SN , String EXECUTESCHEMA ) throws Exception {
