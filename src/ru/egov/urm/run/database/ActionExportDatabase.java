@@ -240,14 +240,15 @@ public class ActionExportDatabase extends ActionBase {
 		// check execution is started
 		Common.sleep( this , 1000 );
 		String value = checkStatus( exportScriptsFolder );
-		if( !value.equals( "RUNNING" ) ) {
+		if( value.equals( "RUNNING" ) == false && value.equals( "FINISHED" ) == false ) {
 			log( "export has not started, save logs ..." );
 			copyDataAndLogs( false , cmd , SN , EXECUTESCHEMA );
 			exit( "unable to start export process, see logs" );
 		}
 		
 		// wait for completion - unlimited
-		log( "wait export to complete ..." );
+		if( value.equals( "RUNNING" ) )
+			log( "wait export to complete ..." );
 		while( value.equals( "RUNNING" ) )
 			value = checkStatus( exportScriptsFolder );
 		
