@@ -249,8 +249,10 @@ public class ActionExportDatabase extends ActionBase {
 		// wait for completion - unlimited
 		if( value.equals( "RUNNING" ) )
 			log( "wait export to complete ..." );
-		while( value.equals( "RUNNING" ) )
+		while( value.equals( "RUNNING" ) ) {
+			Common.sleep( this , options.OPT_COMMANDTIMEOUT );
 			value = checkStatus( exportScriptsFolder );
+		}
 		
 		// check final status
 		if( !value.equals( "FINISHED" ) ) {
