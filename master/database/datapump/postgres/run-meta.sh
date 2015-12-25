@@ -6,7 +6,7 @@ function f_execute_one() {
 	P_SCHEMA=$1
 
 	echo "run pg_dump -s -f meta-$P_SCHEMA.dump -F c $P_SCHEMA ..."
-	pg_dump -s -f meta-$P_SCHEMA.dump -F c $P_SCHEMA > meta-$P_SCHEMA.dump.log 2>&1
+	pg_dump -s -f ../data/meta-$P_SCHEMA.dump -F c $P_SCHEMA > ../log/meta-$P_SCHEMA.dump.log 2>&1
 	F_STATUS=$?
 
 	if [ "$F_STATUS" != "0" ]; then
