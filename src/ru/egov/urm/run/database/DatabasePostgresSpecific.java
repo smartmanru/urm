@@ -108,8 +108,10 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 			action.exit( "invalid column names and types" );
 		
 		for( int k = 0; k < columns.length; k++ ) {
+			if( k > 0 )
+				ct += ", ";
 			String type = columntypes[ k ];
-			ct += columns[k] + " " + type + "; ";
+			ct += columns[k] + " " + type + "";
 		}
 		ct += " );";
 		lines.add( ct );
