@@ -47,4 +47,5 @@ function f_execute_all() {
 	fi
 }
 
+echo execute ...
 f_execute_all
