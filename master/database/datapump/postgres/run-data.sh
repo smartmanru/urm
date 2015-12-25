@@ -21,7 +21,7 @@ function f_execute_all() {
 
 	F_CMD="pg_dump -b -f ../data/data-$P_SCHEMA.dump -F c $F_TABLEFILTER $P_SCHEMA"
 	echo "run: $F_CMD ..."
-	$F_CMD > ../log/data-$P_SCHEMA.dump.log 2>&1
+	$F_CMD > ../log/data-$P_SCHEMA-all.dump.log 2>&1
 	F_STATUS=$?
 
 	if [ "$F_STATUS" != "0" ]; then
