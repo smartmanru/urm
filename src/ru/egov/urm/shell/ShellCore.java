@@ -136,7 +136,6 @@ public class ShellCore {
 		
 		String execLine = cmd + "; echo " + finishMarker + " >&2; echo " + finishMarker + "\n";
 		action.trace( executor.name + " execute: " + cmd );
-		
 		writer.write( execLine );
 		try {
 			writer.flush();
