@@ -134,7 +134,7 @@ public class DatabaseClient {
 
 	public void createTableData( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] columntypes , List<String[]> data ) throws Exception {
 		String password = getUserPassword( action , schema.DBUSER );
-System.out.println( "schema=" + schema );		
+System.out.println( "specific=" + specific + ", schema=" + schema );		
 		specific.createTableData( action , server , schema.DBNAME , schema.DBUSER , password , table , columns , columntypes , data );
 	}
 
