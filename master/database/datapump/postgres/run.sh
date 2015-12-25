@@ -42,6 +42,8 @@ function f_execute_all() {
 		f_execute_start
 	elif [ "$CMD" = "status" ]; then
 		f_execute_status
+	else
+		echo invalid command=$CMD
 	fi
 }
 
