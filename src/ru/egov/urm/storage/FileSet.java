@@ -179,5 +179,12 @@ public class FileSet {
 			dir.getAllDirsPrefix( action , prefix + dir.dirName + "/" , pathList );
 		}
 	}
-	
+
+	public String[] getFilesMatched( ActionBase action , String regex ) throws Exception {
+		List<String> fileList = new LinkedList<String>();
+		for( String file : files.keySet() )
+			if( file.matches( regex ) )
+				fileList.add( file );
+		return( fileList.toArray( new String[0] ) );
+	}
 }

@@ -1,6 +1,5 @@
 package ru.egov.urm.run.database;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -40,11 +39,8 @@ public class ActionExportDatabase extends ActionBase {
 	RemoteFolder exportScriptsFolder;
 	RemoteFolder exportLogFolder;
 	RemoteFolder exportDataFolder;
-	String tablesetPath;
 	DatabaseClient client;
-	
-	static String tablesFileName = "tableset.txt"; 
-	
+
 	public ActionExportDatabase( ActionBase action , String stream , MetaEnvServer server , String CMD , String SCHEMA ) {
 		super( action , stream );
 		this.server = server;
@@ -92,34 +88,7 @@ public class ActionExportDatabase extends ActionBase {
 				exit( "schema " + SCHEMA + " is not part of server datasets" );
 
 		// load tableset
-		tablesetPath = ms.getDatapumpFile( this , TABLESETFILE );
-		log( "reading export table set file " + tablesetPath + " ..." );
-		tableSet = new HashMap<String,Map<String,String>>();
-		for( String line : ConfReader.readFileLines( this , tablesetPath ) ) {
-			if( line.isEmpty() || line.startsWith( "#" ) )
-				continue;
-			
-			String[] opts = Common.split( line , "/" );
-			if( opts.length != 2 )
-				exit( "invalid table set line=" + line );
-			String SN = opts[0]; 
-			String table = opts[1]; 
-			if( SN.isEmpty() || table.isEmpty() )
-				exit( "invalid table set line=" + line );
-
-			if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )
-				if( !SN.equals( SCHEMA ) )
-					continue;
-			
-			Map<String,String> tables = tableSet.get( SN );
-			if( tables == null ) {
-				meta.distr.database.getSchema( this , SN );
-				tables = new HashMap<String,String>();
-				tableSet.put( SN , tables );
-			}
-			
-			tables.put( table , SN );
-		}
+		tableSet = ms.readDatapumpFile( this , TABLESETFILE , SCHEMA );
 	}
 
 	private RemoteFolder prepareDestination() throws Exception {
@@ -182,39 +151,26 @@ public class ActionExportDatabase extends ActionBase {
 		String confFile = work.getFilePath( this , "run.conf" );
 		
 		List<String> conf = new LinkedList<String>();
+		String EXECUTEMAPPING = "";
+		for( MetaDatabaseSchema schema : serverSchemas.values() )
+			EXECUTEMAPPING = Common.addItemToUniqueSpacedList( EXECUTEMAPPING , schema.SCHEMA + "=" + schema.DBNAME );
+		
+		conf.add( "CONF_MAPPING=" + Common.getQuoted( EXECUTEMAPPING ) );
 		Common.createFileFromStringList( confFile , conf );
 		exportScriptsFolder.copyFileFromLocal( this , confFile );
+		
+		MetadataStorage ms = artefactory.getMetadataStorage( this );
+		String tablesFilePath = work.getFilePath( this , MetadataStorage.tablesFileName );
+		ms.saveDatapumpSet( this , tableSet , server , tablesFilePath );
+		exportScriptsFolder.copyFileFromLocal( this , tablesFilePath );
 	}
 
 	private void runAll() throws Exception {
-		// load table set into database
-		String[] columns = { "xschema" , "xtable" };
-		String[] columntypes = { "varchar(30)" , "varchar(30)" };
-		List<String[]> data = new LinkedList<String[]>();
-		List<String> conf = new LinkedList<String>();
-		
-		for( String SN : tableSet.keySet() ) {
-			MetaDatabaseSchema schema = serverSchemas.get( SN );
-			Map<String,String> tables = tableSet.get( SN );
-			
-			if( tables.containsKey( "*" ) ) {
-				data.add( new String[] { Common.getSQLQuoted( schema.DBNAME ) , Common.getSQLQuoted( "*" ) } );
-				conf.add( schema.DBNAME + "/*" );
-			}
-			else {
-				for( String s : tables.keySet() ) {
-					data.add( new String[] { Common.getSQLQuoted( schema.DBNAME ) , Common.getSQLQuoted( s ) } );
-					conf.add( schema.DBNAME + "/" + s );
-				}
-			}
-		}
-		
-		client.createTableData( this , server.admSchema , "urm_export" , columns , columntypes , data );  
-		Common.createFileFromStringList( tablesFileName , conf );
-		exportScriptsFolder.copyFileFromLocal( this , tablesFileName );
+		MetadataStorage ms = artefactory.getMetadataStorage( this );
+		ms.loadDatapumpSet( this , tableSet , server );
 		
 		if( CMD.equals( "all" ) || CMD.equals( "meta" ) )
-			runTarget( "meta" , "" );
+			runTarget( "meta" , "all" );
 		
 		if( CMD.equals( "all" ) || CMD.equals( "data" ) ) {
 			if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )
@@ -233,28 +189,17 @@ public class ActionExportDatabase extends ActionBase {
 	}
 	
 	private void runTarget( String cmd , String SN ) throws Exception {
-		String EXECUTESCHEMA = "";
-		if( cmd.equals( "meta" ) ) {
-			for( MetaDatabaseSchema schema : serverSchemas.values() )
-				EXECUTESCHEMA = Common.addItemToUniqueSpacedList( EXECUTESCHEMA , schema.DBNAME ); 
-		}
-		else
-		if( cmd.equals( "data" ) ) {
-			MetaDatabaseSchema schema = serverSchemas.get( SN );
-			EXECUTESCHEMA = schema.DBNAME;
-		}
-		
 		// initiate execution
-		log( "start export cmd=" + cmd + " schemaset=" + EXECUTESCHEMA + " ..." );
+		log( "start export cmd=" + cmd + " schemaset=" + SN + " ..." );
 		ShellExecutor shell = exportScriptsFolder.getSession( this );
-		shell.customCheckStatus( this , exportScriptsFolder.folderPath , "./run.sh start " + cmd + " " + Common.getQuoted( EXECUTESCHEMA ) );
+		shell.customCheckStatus( this , exportScriptsFolder.folderPath , "./run.sh start " + cmd + " " + Common.getQuoted( SN ) );
 		
 		// check execution is started
 		Common.sleep( this , 1000 );
 		String value = checkStatus( exportScriptsFolder );
 		if( value.equals( "RUNNING" ) == false && value.equals( "FINISHED" ) == false ) {
 			log( "export has not started (status=" + value + "), save logs ..." );
-			copyDataAndLogs( false , cmd , SN , EXECUTESCHEMA );
+			copyDataAndLogs( false , cmd , SN );
 			exit( "unable to start export process, see logs" );
 		}
 		
@@ -269,22 +214,22 @@ public class ActionExportDatabase extends ActionBase {
 		// check final status
 		if( !value.equals( "FINISHED" ) ) {
 			log( "export finished with errors, save logs ..." );
-			copyDataAndLogs( false , cmd , SN , EXECUTESCHEMA );
+			copyDataAndLogs( false , cmd , SN );
 			exit( "export process completed with errors, see logs" );
 		}
 		
 		log( "export successfully finished, copy data and logs ..." );
-		copyDataAndLogs( true , cmd , SN , EXECUTESCHEMA );
+		copyDataAndLogs( true , cmd , SN );
 	}
 	
-	private void copyDataAndLogs( boolean copyData , String cmd , String SN , String EXECUTESCHEMA ) throws Exception {
+	private void copyDataAndLogs( boolean copyData , String cmd , String SN ) throws Exception {
 		// copy logs
 		if( cmd.equals( "meta" ) ) {
 			String logMetaFiles = "meta-*.log";
 			copyFiles( logMetaFiles , exportLogFolder , distLogFolder );
 		}
 		else if( cmd.equals( "data" ) ) {
-			String logDataFiles = "data-" + EXECUTESCHEMA + "-*.log";
+			String logDataFiles = "data-" + SN + "-*.log";
 			copyFiles( logDataFiles , exportLogFolder , distLogFolder );
 		}
 		
@@ -295,7 +240,7 @@ public class ActionExportDatabase extends ActionBase {
 				copyFiles( dataFiles , exportDataFolder , distDataFolder );
 			}
 			if( cmd.equals( "data" ) ) {
-				String dataFiles = "data-" + EXECUTESCHEMA + "-*.dump";
+				String dataFiles = "data-" + SN + "-*.dump";
 				copyFiles( dataFiles , exportDataFolder , distDataFolder );
 			}
 		}
