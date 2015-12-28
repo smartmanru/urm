@@ -31,7 +31,7 @@ function f_execute_all() {
 
 	local F_DBNAME
 	for schema in $F_SCHEMASET; do
-		local F_DBNAME=`echo "$CONF_MAPPING" | tr " " "\n" | grep ^$P_SCHEMA= | cut -d " " -f2`
+		local F_DBNAME=`echo "$CONF_MAPPING" | tr " " "\n" | grep ^$P_SCHEMA= | cut -d "=" -f2`
 		f_execute_one "$schema" "$F_DBNAME"
 	done
 	echo EXPORT-FINISHED
