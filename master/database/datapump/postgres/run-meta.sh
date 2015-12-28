@@ -21,7 +21,9 @@ function f_execute_one() {
 
 function f_execute_all() {
 	# get schema names
-	local F_SCHEMASET=`echo "$CONF_MAPPING" | tr " " "\n" | cut -d "=" -f1`
+	local F_SCHEMASET=`echo "$CONF_MAPPING" | tr " " "\n" | cut -d "=" -f1 | tr "\n" " "`
+	F_SCHEMASET="${F_SCHEMASET# }
+	F_SCHEMASET="${F_SCHEMASET% }
 	if [ "$F_SCHEMASET" = "" ]; then
 		echo unable to find schema set in run.conf in CONF_MAPPING variable. Exiting
 		exit 1
