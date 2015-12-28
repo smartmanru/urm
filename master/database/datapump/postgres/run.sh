@@ -5,7 +5,7 @@ P_CMD=$2
 P_SET=$3
 P_SCHEMA="$4"
 
-if [ "$P_CMD" = "" ]; then
+if [ "$P_MODE" = "" ] || [ "$P_CMD" = "" ]; then
 	echo invalid params. Exiting
 	exit 1
 fi
