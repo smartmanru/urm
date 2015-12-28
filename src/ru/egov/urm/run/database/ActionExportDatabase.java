@@ -281,7 +281,7 @@ public class ActionExportDatabase extends ActionBase {
 			copyFiles( logMetaFiles , exportLogFolder , distLogFolder );
 		}
 		else if( cmd.equals( "data" ) ) {
-			String logDataFiles = "data-*.log";
+			String logDataFiles = "data-" + EXECUTESCHEMA + "-*.log";
 			copyFiles( logDataFiles , exportLogFolder , distLogFolder );
 		}
 		
@@ -311,6 +311,9 @@ public class ActionExportDatabase extends ActionBase {
 		
 		// copy to target
 		distFolder.moveFilesFromLocal( this , workDataFolder , files );
+		
+		// cleanup source
+		exportFolder.removeFiles( this , files );
 	}
 
 }
