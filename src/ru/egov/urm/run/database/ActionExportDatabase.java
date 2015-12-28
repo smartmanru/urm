@@ -277,9 +277,15 @@ public class ActionExportDatabase extends ActionBase {
 		}
 		
 		// copy data
-		if( copyData && cmd.equals( "data" ) ) {
-			String dataFiles = "data-" + EXECUTESCHEMA + "-*.dump";
-			copyFiles( dataFiles , exportDataFolder , distDataFolder );
+		if( copyData ) {
+			if( cmd.equals( "meta" ) ) {
+				String dataFiles = "meta-" + EXECUTESCHEMA + "-*.dump";
+				copyFiles( dataFiles , exportDataFolder , distDataFolder );
+			}
+			if( cmd.equals( "data" ) ) {
+				String dataFiles = "data-" + EXECUTESCHEMA + "-*.dump";
+				copyFiles( dataFiles , exportDataFolder , distDataFolder );
+			}
 		}
 	}
 
