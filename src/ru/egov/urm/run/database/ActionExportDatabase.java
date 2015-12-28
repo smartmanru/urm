@@ -68,6 +68,8 @@ public class ActionExportDatabase extends ActionBase {
 		makeTargetConfig();
 		runAll();
 		
+		log( "export has been finished, dumps are copied to " + distDataFolder.folderPath );
+		
 		return( true );
 	}
 

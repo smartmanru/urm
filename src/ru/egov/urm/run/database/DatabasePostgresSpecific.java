@@ -220,7 +220,7 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 		if( err.isEmpty() )
 			return( true );
 		
-		action.log( "error: " + err + " (see logs at + " + outFile + ")" );
+		action.log( "error: " + err + " (see logs at " + outFile + ")" );
 		return( false );
 	}
 	
