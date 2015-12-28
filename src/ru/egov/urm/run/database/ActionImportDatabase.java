@@ -187,7 +187,7 @@ public class ActionImportDatabase extends ActionBase {
 		// initiate execution
 		log( "start import cmd=" + cmd + " schemaset=" + SN + " ..." );
 		ShellExecutor shell = importScriptsFolder.getSession( this );
-		shell.customCheckStatus( this , importScriptsFolder.folderPath , "./run.sh export start " + cmd + " " + Common.getQuoted( SN ) );
+		shell.customCheckStatus( this , importScriptsFolder.folderPath , "./run.sh import start " + cmd + " " + Common.getQuoted( SN ) );
 
 		// check execution is started
 		Common.sleep( this , 1000 );
