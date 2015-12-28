@@ -138,7 +138,7 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 
 		String value = action.session.customGetValue( action , "export PGPASSWORD='" + password + "'; " + 
 				"cat " + scriptFile +  
-				" | psql -d " + schema + " -h " + server.DBMSADDR + " -U " + user );
+				" | psql -d " + schema + " -h " + server.DBMSADDR + " -U " + user + " 2>&1" );
 		
 		if( value.indexOf( "ERROR:" ) >= 0 )
 			action.exit( "unexpected error: " + value );
