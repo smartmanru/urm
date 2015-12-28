@@ -43,38 +43,42 @@ function f_execute_export_start() {
 }
 
 function f_execute_export_status() {
-	if [ "`grep -c EXPORT-STARTED run.sh.log`" = "0" ]; then
-		echo UNKNOWN
-		return
-	fi
-
 	if [ "`pgrep -f pg_dump`" != "" ]; then
 		echo RUNNING
 		return
 	fi
 
-	if [ "`grep -c EXPORT-FINISHED run.sh.log`" = "0" ]; then
-		echo BROKEN
-		return
+	if [ -f run.sh.log ]; then
+		if [ "`grep -c EXPORT-STARTED run.sh.log`" = "0" ]; then
+			echo UNKNOWN
+			return
+		fi
+
+		if [ "`grep -c EXPORT-FINISHED run.sh.log`" = "0" ]; then
+			echo BROKEN
+			return
+		fi
 	fi
 
 	echo FINISHED
 }
 
 function f_execute_import_status() {
-	if [ "`grep -c IMPORT-STARTED run.sh.log`" = "0" ]; then
-		echo UNKNOWN
-		return
-	fi
-
-	if [ "`pgrep -f pg_dump`" != "" ]; then
+	if [ "`pgrep -f pg_restore`" != "" ]; then
 		echo RUNNING
 		return
 	fi
 
-	if [ "`grep -c IMPORT-FINISHED run.sh.log`" = "0" ]; then
-		echo BROKEN
-		return
+	if [ -f run.sh.log ]; then
+		if [ "`grep -c IMPORT-STARTED run.sh.log`" = "0" ]; then
+			echo UNKNOWN
+			return
+		fi
+
+		if [ "`grep -c IMPORT-FINISHED run.sh.log`" = "0" ]; then
+			echo BROKEN
+			return
+		fi
 	fi
 
 	echo FINISHED
