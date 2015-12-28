@@ -288,7 +288,7 @@ public class ActionExportDatabase extends ActionBase {
 		// copy data
 		if( copyData ) {
 			if( cmd.equals( "meta" ) ) {
-				String dataFiles = "meta-" + EXECUTESCHEMA + "-*.dump";
+				String dataFiles = "meta-*.dump";
 				copyFiles( dataFiles , exportDataFolder , distDataFolder );
 			}
 			if( cmd.equals( "data" ) ) {
