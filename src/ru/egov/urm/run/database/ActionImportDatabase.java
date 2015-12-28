@@ -168,7 +168,7 @@ public class ActionImportDatabase extends ActionBase {
 	
 	private void runAll() throws Exception {
 		MetadataStorage ms = artefactory.getMetadataStorage( this );
-		ms.loadDatapumpSet( this , tableSet , server );
+		ms.loadDatapumpSet( this , tableSet , server , false );
 		
 		if( CMD.equals( "all" ) || CMD.equals( "meta" ) )
 			runTarget( "meta" , "all" );

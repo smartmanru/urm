@@ -91,7 +91,10 @@ public class MetadataStorage {
 		return( tableSet );
 	}
 	
-	public void loadDatapumpSet( ActionBase action , Map<String,Map<String,String>> tableSet , MetaEnvServer server ) throws Exception {
+	public void loadDatapumpSet( ActionBase action , Map<String,Map<String,String>> tableSet , MetaEnvServer server , boolean export ) throws Exception {
+		String table = ( export )? "urm_export" : "urm_import";  
+		action.log( "create table " + table + " in administrative database ..." );
+		
 		// load table set into database
 		String[] columns = { "xschema" , "xtable" };
 		String[] columntypes = { "varchar(30)" , "varchar(30)" };
@@ -116,7 +119,7 @@ public class MetadataStorage {
 		if( !client.checkConnect( action ) )
 			action.exit( "unable to connect to administrative db" );
 		
-		client.createTableData( action , server.admSchema , "urm_export" , columns , columntypes , data );  
+		client.createTableData( action , server.admSchema , table , columns , columntypes , data );  
 	}
 
 	public void saveDatapumpSet( ActionBase action , Map<String,Map<String,String>> tableSet , MetaEnvServer server , String filePath ) throws Exception {
