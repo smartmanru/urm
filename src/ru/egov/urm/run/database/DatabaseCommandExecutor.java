@@ -1,6 +1,5 @@
 package ru.egov.urm.run.database;
 
-import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaEnv;
 import ru.egov.urm.meta.MetaEnvDC;
 import ru.egov.urm.meta.MetaEnvServer;
@@ -39,8 +38,6 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		super.defineAction( CommandAction.newAction( new ImportDB() , "import" , "import specified in etc/datapump/file dump to database" , cmdOpts , "./export.sh [OPTIONS] <server> {all|meta|data [schema]}" ) );
 		cmdOpts = "";
 		super.defineAction( CommandAction.newAction( new ExportDB() , "export" , "export specified in etc/datapump/file dump from database" , cmdOpts , "./export.sh [OPTIONS] <server> {all|meta|data [schema]}" ) );
-		
-		envMethods = "dbmanual dbapply import export";
 	}
 	
 	public boolean run( ActionInit action ) {
@@ -49,9 +46,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 			impl = new DatabaseCommandImpl( this );
 			meta.loadDistr( action );
 			meta.loadSources( action );
-			
-			if( Common.checkPartOfSpacedList( commandAction.name , envMethods ) ) 
-				meta.loadEnv( action , action.context.env , action.context.dc , true );
+			meta.loadEnv( action , action.context.env , action.context.dc , true );
 		}
 		catch( Throwable e ) {
 			action.log( e );
