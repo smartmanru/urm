@@ -214,7 +214,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		String log = file + ".out";
 		String schemaName = DatabaseRegistry.getSchema( this , file );
 		MetaDatabaseSchema schema = meta.distr.database.getSchema( this , schemaName );
-		if( !client.applyScript( this , schema , logReleaseExecute , file , log ) ) {
+		if( !client.applyScript( this , schema , logReleaseExecute , file , logReleaseExecute , log ) ) {
 			exit( "error applying script " + file + ", see logs." );
 			if( !options.OPT_FORCE )
 				exit( "cancel apply script set due to errors." );

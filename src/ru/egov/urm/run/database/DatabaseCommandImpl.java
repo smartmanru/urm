@@ -16,6 +16,12 @@ public class DatabaseCommandImpl {
 		this.executor = executor;
 	}
 
+	public void initDatabase( ActionBase action , String SERVER ) throws Exception {
+		MetaEnvServer server = action.meta.dc.getServer( action , SERVER );
+		ActionInitDatabase ma = new ActionInitDatabase( action , null , server );
+		ma.runSimple();
+	}
+
 	public void getReleaseScripts( ActionBase action , ActionScope scope , DistStorage dist ) throws Exception {
 		ActionGetDB ma = new ActionGetDB( action , null , dist );
 		ma.runAll( scope );

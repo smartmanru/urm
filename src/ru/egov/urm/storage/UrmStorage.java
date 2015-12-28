@@ -13,8 +13,8 @@ public class UrmStorage {
 		this.artefactory = artefactory;
 		this.meta = artefactory.meta;
 	}
-	
-	public LocalFolder getDatapumpScripts( ActionBase action , VarDBMSTYPE dbtype ) throws Exception {
+
+	private String getSpecificFolder( ActionBase action , VarDBMSTYPE dbtype ) throws Exception {
 		String dbFolder = "";
 		if( dbtype == VarDBMSTYPE.ORACLE )
 			dbFolder = "oracle";
@@ -23,8 +23,18 @@ public class UrmStorage {
 			dbFolder = "postgres";
 		else
 			action.exitUnexpectedState();
-		return( artefactory.getAnyFolder( action , action.context.productHome + "/master/database/datapump/" + dbFolder ) );
+		
+		return( dbFolder );
 	}
 	
+	public LocalFolder getInitScripts( ActionBase action , VarDBMSTYPE dbtype ) throws Exception {
+		String dbFolder = getSpecificFolder( action , dbtype );
+		return( artefactory.getAnyFolder( action , action.context.productHome + "/master/database/init/" + dbFolder ) );
+	}
+	
+	public LocalFolder getDatapumpScripts( ActionBase action , VarDBMSTYPE dbtype ) throws Exception {
+		String dbFolder = getSpecificFolder( action , dbtype );
+		return( artefactory.getAnyFolder( action , action.context.productHome + "/master/database/datapump/" + dbFolder ) );
+	}
 	
 }

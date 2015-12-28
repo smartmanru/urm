@@ -26,6 +26,8 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		
 		String cmdOpts = "";
 		cmdOpts = "";
+		super.defineAction( CommandAction.newAction( new InitDB() , "initdb" , "prepare database for operation" , cmdOpts , "./initdb.sh [OPTIONS] <server>" ) );
+		cmdOpts = "";
 		super.defineAction( CommandAction.newAction( new GetReleaseScripts() , "getsql" , "get database release content" , cmdOpts , "./getsql.sh [OPTIONS] {all|<deliveries>}" ) );
 		cmdOpts = "";
 		super.defineAction( CommandAction.newAction( new ApplyManual() , "dbmanual" , "apply manual scripts under system account" , cmdOpts , "./dbmanual.sh [OPTIONS] <RELEASELABEL> <DBSERVER> {all|<indexes>}" ) );
@@ -77,6 +79,13 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		ActionScope scope = getReleaseScope( action );
 		impl.getReleaseScripts( action , scope , scope.release );
+	}
+	}
+	
+	private class InitDB extends CommandAction {
+	public void run( ActionInit action ) throws Exception {
+		String SERVER = options.getRequiredArg( action , 0 , "SERVER" );
+		impl.initDatabase( action , SERVER );
 	}
 	}
 

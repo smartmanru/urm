@@ -57,7 +57,8 @@ public class ActionExportDatabase extends ActionBase {
 		loadExportSettings();
 		
 		client = new DatabaseClient( server ); 
-		client.checkConnect( this );
+		if( !client.checkConnect( this ) )
+			exit( "unable to connect to administrative db" );
 		
 		distDataFolder = prepareDestination();
 		distLogFolder = distDataFolder.getSubFolder( this , "log" );

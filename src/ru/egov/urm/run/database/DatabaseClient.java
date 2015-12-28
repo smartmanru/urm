@@ -152,10 +152,10 @@ public class DatabaseClient {
 		specific.updateRow( action , server , schema.DBNAME , schema.DBUSER , password , table , columns , values , ansiCondition );
 	}
 
-	public boolean applyScript( ActionBase action , MetaDatabaseSchema schema , LocalFolder folder , String scriptFile , String outFile ) throws Exception {
+	public boolean applyScript( ActionBase action , MetaDatabaseSchema schema , LocalFolder scriptFolder , String scriptFile , LocalFolder outFolder , String outFile ) throws Exception {
 		String password = getUserPassword( action , schema.DBUSER );
-		String file = folder.getFilePath( action , scriptFile );
-		String log = folder.getFilePath( action , outFile );
+		String file = scriptFolder.getFilePath( action , scriptFile );
+		String log = outFolder.getFilePath( action , outFile );
 		return( specific.applyScript( action , server , schema.DBNAME , schema.DBUSER , password , file , log ) );
 	}
 	
