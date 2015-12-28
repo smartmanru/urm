@@ -184,7 +184,7 @@ public class ActionExportDatabase extends ActionBase {
 	
 	public String checkStatus( RemoteFolder folder ) throws Exception {
 		ShellExecutor shell = folder.getSession( this );
-		String value = shell.customGetValue( this , folder.folderPath , "./run.sh status" );
+		String value = shell.customGetValue( this , folder.folderPath , "./run.sh export status" );
 		return( value );
 	}
 	
@@ -192,7 +192,7 @@ public class ActionExportDatabase extends ActionBase {
 		// initiate execution
 		log( "start export cmd=" + cmd + " schemaset=" + SN + " ..." );
 		ShellExecutor shell = exportScriptsFolder.getSession( this );
-		shell.customCheckStatus( this , exportScriptsFolder.folderPath , "./run.sh start " + cmd + " " + Common.getQuoted( SN ) );
+		shell.customCheckStatus( this , exportScriptsFolder.folderPath , "./run.sh export start " + cmd + " " + Common.getQuoted( SN ) );
 		
 		// check execution is started
 		Common.sleep( this , 1000 );
@@ -222,7 +222,7 @@ public class ActionExportDatabase extends ActionBase {
 		copyDataAndLogs( true , cmd , SN );
 	}
 	
-	private void copyDataAndLogs( boolean copyData , String cmd , String SN ) throws Exception {
+	private void copyDataAndLogs( boolean succeeded , String cmd , String SN ) throws Exception {
 		// copy logs
 		if( cmd.equals( "meta" ) ) {
 			String logMetaFiles = "meta-*.log";
@@ -234,7 +234,7 @@ public class ActionExportDatabase extends ActionBase {
 		}
 		
 		// copy data
-		if( copyData ) {
+		if( succeeded ) {
 			if( cmd.equals( "meta" ) ) {
 				String dataFiles = "meta-*.dump";
 				copyFiles( dataFiles , exportDataFolder , distDataFolder );
