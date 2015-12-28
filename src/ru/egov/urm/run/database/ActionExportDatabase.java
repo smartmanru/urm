@@ -125,7 +125,7 @@ public class ActionExportDatabase extends ActionBase {
 		folder.ensureExists( this );
 		
 		if( !folder.isEmpty( this ) ) {
-			if( !CMD.equals( "data" ) ) {
+			if( SCHEMA.isEmpty() && !CMD.equals( "data" ) ) {
 				RemoteFolder backup = repository.getDataFolder( this , DATASET + "-backup" );
 				log( "storage folder is not empty, backup to " + backup.folderPath + " ..." );
 				
@@ -134,7 +134,7 @@ public class ActionExportDatabase extends ActionBase {
 				folder.moveAll( this , backup.folderPath );
 			}
 			else {
-				log( "storage folder is not empty, will overwrite data dumps if any ..." );
+				log( "storage folder is not empty, will overwrite dumps if any ..." );
 			}
 		}
 		else {
