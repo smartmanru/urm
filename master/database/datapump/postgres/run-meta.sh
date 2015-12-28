@@ -1,11 +1,14 @@
 #!/bin/bash
 
-P_SCHEMASET="$1"
+. ./run.conf
 
 function f_execute_one() {
 	P_SCHEMA=$1
+	P_DBNAME=$2
 
-	F_CMD="pg_dump -s -f ../data/meta-$P_SCHEMA.dump -F c $P_SCHEMA"
+	echo dump meta schema=$P_SCHEMA dbname=$P_DBNAME ...
+
+	F_CMD="pg_dump -s -f ../data/meta-$P_SCHEMA.dump -F c $P_DBNAME"
 	echo "run: $F_CMD ..."
 	$F_CMD > ../log/meta-$P_SCHEMA.dump.log 2>&1
 	F_STATUS=$?
@@ -17,8 +20,17 @@ function f_execute_one() {
 }
 
 function f_execute_all() {
-	for schema in $P_SCHEMASET; do
-		f_execute_one $schema
+	# get schema names
+	local F_SCHEMASET=`echo "$CONF_MAPPING" | tr " " "\n" | cut -d " " -f1`
+	if [ "$F_SCHEMASET" = "" ]; then
+		echo unable to find schema set in run.conf in CONF_MAPPING variable. Exiting
+		exit 1
+	fi
+
+	local F_DBNAME
+	for schema in $F_SCHEMASET; do
+		local F_DBNAME=`echo "$CONF_MAPPING" | tr " " "\n" | grep ^$P_SCHEMA= | cut -d " " -f2`
+		f_execute_one "$schema" "$F_DBNAME"
 	done
 	echo EXPORT-FINISHED
 }
