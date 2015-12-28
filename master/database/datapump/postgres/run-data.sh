@@ -43,7 +43,7 @@ function f_execute_db() {
 
 function f_execute_all() {
 	# get schema name
-	local F_DBNAME=`echo "$CONF_MAPPING" | tr " " "\n" | grep ^$P_SCHEMA= | cut -d " " -f2`
+	local F_DBNAME=`echo "$CONF_MAPPING" | tr " " "\n" | grep ^$P_SCHEMA= | cut -d "=" -f2`
 	if [ "$F_DBNAME" = "" ]; then
 		echo unable to find schema=$P_SCHEMA in run.conf in CONF_MAPPING variable. Exiting
 		exit 1
