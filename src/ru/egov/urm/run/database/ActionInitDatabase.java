@@ -26,6 +26,8 @@ public class ActionInitDatabase extends ActionBase {
 		LocalFolder urmScripts = urm.getInitScripts( this , server.DBMSTYPE );
 		
 		LocalFolder logs = artefactory.getWorkFolder( this , "initdb" );
+		logs.ensureExists( this );
+		
 		FileSet files = urmScripts.getFileSet( this );
 		for( String file : Common.getSortedKeys( files.files ) )
 			executeInitScript( client , urmScripts , logs , file );
