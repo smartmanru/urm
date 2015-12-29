@@ -217,7 +217,7 @@ public class ActionImportDatabase extends ActionBase {
 		
 		// wait for completion - unlimited
 		if( value.equals( "RUNNING" ) )
-			log( "wait export to complete ..." );
+			log( "wait import to complete ..." );
 		while( value.equals( "RUNNING" ) ) {
 			Common.sleep( this , options.OPT_COMMANDTIMEOUT );
 			value = checkStatus( importScriptsFolder );
