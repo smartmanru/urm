@@ -35,7 +35,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		cmdOpts = "";
 		super.defineAction( CommandAction.newAction( new ManageRelease() , "manage" , "manage accounting information" , cmdOpts , "./manage.sh [OPTIONS] <RELEASELABEL> <print|correct|rollback> [{all|<indexes>}]" ) );
 		cmdOpts = "";
-		super.defineAction( CommandAction.newAction( new ImportDB() , "import" , "import specified in etc/datapump/file dump to database" , cmdOpts , "./export.sh [OPTIONS] <server> {all|meta|data [schema]}" ) );
+		super.defineAction( CommandAction.newAction( new ImportDB() , "import" , "import specified in etc/datapump/file dump to database" , cmdOpts , "./import.sh [OPTIONS] <server> {all|meta|data} [schema]" ) );
 		cmdOpts = "";
 		super.defineAction( CommandAction.newAction( new ExportDB() , "export" , "export specified in etc/datapump/file dump from database" , cmdOpts , "./export.sh [OPTIONS] <server> {all|meta|data [schema]}" ) );
 	}

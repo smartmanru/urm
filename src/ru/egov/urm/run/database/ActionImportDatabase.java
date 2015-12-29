@@ -80,7 +80,7 @@ public class ActionImportDatabase extends ActionBase {
 		DATABASE_DATAPUMPDIR = props.getProperty( "CONFIG_DATABASE_DATAPUMPDIR" );
 
 		serverSchemas = server.getSchemaSet( this );
-		if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )
+		if( !SCHEMA.isEmpty() )
 			if( !serverSchemas.containsKey( SCHEMA ) )
 				exit( "schema " + SCHEMA + " is not part of server datasets" );
 
@@ -170,8 +170,12 @@ public class ActionImportDatabase extends ActionBase {
 		MetadataStorage ms = artefactory.getMetadataStorage( this );
 		ms.loadDatapumpSet( this , tableSet , server , false );
 		
-		if( CMD.equals( "all" ) || CMD.equals( "meta" ) )
-			runTarget( "meta" , "all" );
+		if( CMD.equals( "all" ) || CMD.equals( "meta" ) ) {
+			if( SCHEMA.isEmpty() )
+				runTarget( "meta" , "all" );
+			else
+				runTarget( "meta" , SCHEMA );
+		}
 		
 		if( CMD.equals( "all" ) || CMD.equals( "data" ) ) {
 			if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )
