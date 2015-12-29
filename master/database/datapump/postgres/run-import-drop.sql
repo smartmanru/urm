@@ -1,3 +1,4 @@
+DO $$
 DECLARE
 	sname RECORD;
 BEGIN
@@ -7,3 +8,4 @@ BEGIN
 		end if;
 	END LOOP;
 END;
+ENV $$
