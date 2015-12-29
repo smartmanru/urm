@@ -263,7 +263,7 @@ public class ActionImportDatabase extends ActionBase {
 	}
 	
 	private void uploadFiles( String files , RemoteFolder distFolder , RemoteFolder importFolder ) throws Exception {
-		log( "copy files: " + files + " ..." );
+		log( "upload files: " + files + " ..." );
 
 		String[] copied = distFolder.findFiles( this , files );
 		if( copied.length == 0 )
