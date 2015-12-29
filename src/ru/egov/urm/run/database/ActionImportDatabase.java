@@ -230,7 +230,7 @@ public class ActionImportDatabase extends ActionBase {
 			exit( "import process completed with errors, see logs" );
 		}
 		
-		log( "import successfully finished, copy data and logs ..." );
+		log( "import successfully finished, copy logs ..." );
 		copyLogs( true , cmd , SN );
 		
 		// cleanup target
