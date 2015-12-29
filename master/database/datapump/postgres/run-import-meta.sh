@@ -20,7 +20,7 @@ function f_execute_one() {
 		exit 1
 	fi
 
-	local F_CMD="pg_restore -s -c -j 4 -d $P_DBNAME ../data/meta-$P_SCHEMA.dump"
+	local F_CMD="pg_restore -s -j 4 -d $P_DBNAME ../data/meta-$P_SCHEMA.dump"
 	echo "run: $F_CMD ..." >> $F_LOG
 	$F_CMD >> $F_LOG 2>&1
 	F_STATUS=$?
