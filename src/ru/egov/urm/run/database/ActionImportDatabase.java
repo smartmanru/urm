@@ -175,10 +175,10 @@ public class ActionImportDatabase extends ActionBase {
 				runTarget( "meta" , SCHEMA );
 		}
 		
-		MetadataStorage ms = artefactory.getMetadataStorage( this );
-		ms.loadDatapumpSet( this , tableSet , server , false );
-		
 		if( CMD.equals( "all" ) || CMD.equals( "data" ) ) {
+			MetadataStorage ms = artefactory.getMetadataStorage( this );
+			ms.loadDatapumpSet( this , tableSet , server , false );
+			
 			if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )
 				runTarget( "data" , SCHEMA );
 			else {
