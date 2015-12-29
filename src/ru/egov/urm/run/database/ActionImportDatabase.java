@@ -265,21 +265,22 @@ public class ActionImportDatabase extends ActionBase {
 	private void uploadFiles( String files , RemoteFolder distFolder , RemoteFolder importFolder ) throws Exception {
 		log( "copy files: " + files + " ..." );
 
+		String[] copied = distFolder.findFiles( this , files );
+		if( copied.length == 0 )
+			exit( "unable to find files: " + files );
+		
 		LocalFolder workDataFolder;
 		if( distFolder.isRemote( this ) ) {
 			workDataFolder = artefactory.getWorkFolder( this , "data" );
 			workDataFolder.recreateThis( this );
 			distFolder.copyFilesToLocal( this , workDataFolder , files );
-		}
-		else
-			workDataFolder = artefactory.getAnyFolder( this , distFolder.folderPath );
 			
-		String[] copied = workDataFolder.findFiles( this , files );
-		if( copied.length == 0 )
-			exit( "unable to find files: " + files );
-		
-		// copy to target
-		importFolder.moveFilesFromLocal( this , workDataFolder , files );
+			importFolder.moveFilesFromLocal( this , workDataFolder , files );
+		}
+		else {
+			workDataFolder = artefactory.getAnyFolder( this , distFolder.folderPath );
+			importFolder.copyFilesFromLocal( this , workDataFolder , files );
+		}
 	}
 
 }
