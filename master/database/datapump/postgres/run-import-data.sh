@@ -38,7 +38,7 @@ function f_execute_db() {
 		exit 1
 	fi
 
-	echo EXPORT-FINISHED
+	echo IMPORT-FINISHED
 }
 
 function f_execute_all() {

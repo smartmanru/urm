@@ -48,14 +48,14 @@ function f_execute_export_status() {
 		return
 	fi
 
-	# give time to write to log if just stopped
-	sleep 1
-
 	if [ -f run.sh.log ]; then
 		if [ "`grep -c EXPORT-STARTED run.sh.log`" = "0" ]; then
 			echo UNKNOWN
 			return
 		fi
+
+		# give time to write to log if just stopped
+		sleep 1
 
 		if [ "`grep -c EXPORT-FINISHED run.sh.log`" = "0" ]; then
 			echo BROKEN
@@ -72,14 +72,14 @@ function f_execute_import_status() {
 		return
 	fi
 
-	# give time to write to log if just stopped
-	sleep 1
-
 	if [ -f run.sh.log ]; then
 		if [ "`grep -c IMPORT-STARTED run.sh.log`" = "0" ]; then
 			echo UNKNOWN
 			return
 		fi
+
+		# give time to write to log if just stopped
+		sleep 1
 
 		if [ "`grep -c IMPORT-FINISHED run.sh.log`" = "0" ]; then
 			echo BROKEN
