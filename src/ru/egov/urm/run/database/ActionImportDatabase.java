@@ -168,15 +168,15 @@ public class ActionImportDatabase extends ActionBase {
 	}
 	
 	private void runAll() throws Exception {
-		MetadataStorage ms = artefactory.getMetadataStorage( this );
-		ms.loadDatapumpSet( this , tableSet , server , false );
-		
 		if( CMD.equals( "all" ) || CMD.equals( "meta" ) ) {
 			if( SCHEMA.isEmpty() )
 				runTarget( "meta" , "all" );
 			else
 				runTarget( "meta" , SCHEMA );
 		}
+		
+		MetadataStorage ms = artefactory.getMetadataStorage( this );
+		ms.loadDatapumpSet( this , tableSet , server , false );
 		
 		if( CMD.equals( "all" ) || CMD.equals( "data" ) ) {
 			if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )
