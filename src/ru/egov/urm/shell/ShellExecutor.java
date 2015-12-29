@@ -462,12 +462,20 @@ public abstract class ShellExecutor {
 		}
 	}
 
-	public void moveFilesTargetFromLocal( ActionBase action , String hostLogin , String srcFiles , String dstDir ) throws Exception {
+	public void moveFilesTargetFromLocal( ActionBase action , String hostLogin , String srcDir , String srcFiles , String dstDir ) throws Exception {
 		if( action.isLocal( hostLogin ) )
 			move( action , srcFiles , dstDir );
 		else {
-			scpFilesLocalToRemote( action , srcFiles , hostLogin , dstDir + "/" );
-			removeFiles( action , Common.getDirName( srcFiles ) , Common.getBaseName( srcFiles ) );
+			scpFilesLocalToRemote( action , Common.getPath( srcDir , srcFiles ) , hostLogin , dstDir + "/" );
+			removeFiles( action , srcDir , srcFiles );
+		}
+	}
+
+	public void copyFilesTargetFromLocal( ActionBase action , String hostLogin , String srcDir , String srcFiles , String dstDir ) throws Exception {
+		if( action.isLocal( hostLogin ) )
+			this.copyFiles( action , srcDir , srcFiles , dstDir );
+		else {
+			scpFilesLocalToRemote( action , Common.getPath( srcDir , srcFiles ) , hostLogin , dstDir + "/" );
 		}
 	}
 

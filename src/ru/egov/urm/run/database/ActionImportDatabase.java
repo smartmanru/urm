@@ -191,6 +191,18 @@ public class ActionImportDatabase extends ActionBase {
 	private void runTarget( String cmd , String SN ) throws Exception {
 		// initiate execution
 		log( "start import cmd=" + cmd + " schemaset=" + SN + " ..." );
+		
+		// copy dump files
+		String dataFiles = null;
+		if( cmd.equals( "meta" ) ) {
+			dataFiles = "meta-*.dump";
+			uploadFiles( dataFiles , distDataFolder , importDataFolder  );
+		}
+		if( cmd.equals( "data" ) ) {
+			dataFiles = "data-" + SN + "-*.dump";
+			uploadFiles( dataFiles , distDataFolder , importDataFolder );
+		}
+		
 		ShellExecutor shell = importScriptsFolder.getSession( this );
 		shell.customCheckStatus( this , importScriptsFolder.folderPath , "./run.sh import start " + cmd + " " + Common.getQuoted( SN ) );
 
@@ -220,6 +232,9 @@ public class ActionImportDatabase extends ActionBase {
 		
 		log( "import successfully finished, copy data and logs ..." );
 		copyLogs( true , cmd , SN );
+		
+		// cleanup target
+		importDataFolder.removeFiles( this , dataFiles );
 	}
 
 	private void copyLogs( boolean succeeded , String cmd , String SN ) throws Exception {
@@ -234,17 +249,37 @@ public class ActionImportDatabase extends ActionBase {
 		}
 	}
 
-	private void copyFiles( String files , RemoteFolder exportFolder , LocalFolder workFolder ) throws Exception {
+	private void copyFiles( String files , RemoteFolder importFolder , LocalFolder workFolder ) throws Exception {
 		log( "copy files: " + files + " ..." );
 		
-		exportFolder.copyFilesToLocal( this , workFolder , files );
+		importFolder.copyFilesToLocal( this , workFolder , files );
 		String[] copied = workFolder.findFiles( this , files );
 		
 		if( copied.length == 0 )
 			exit( "unable to find files: " + files );
 		
 		// cleanup source
-		exportFolder.removeFiles( this , files );
+		importFolder.removeFiles( this , files );
 	}
 	
+	private void uploadFiles( String files , RemoteFolder distFolder , RemoteFolder importFolder ) throws Exception {
+		log( "copy files: " + files + " ..." );
+
+		LocalFolder workDataFolder;
+		if( distFolder.isRemote( this ) ) {
+			workDataFolder = artefactory.getWorkFolder( this , "data" );
+			workDataFolder.recreateThis( this );
+			distFolder.copyFilesToLocal( this , workDataFolder , files );
+		}
+		else
+			workDataFolder = artefactory.getAnyFolder( this , distFolder.folderPath );
+			
+		String[] copied = workDataFolder.findFiles( this , files );
+		if( copied.length == 0 )
+			exit( "unable to find files: " + files );
+		
+		// copy to target
+		importFolder.moveFilesFromLocal( this , workDataFolder , files );
+	}
+
 }

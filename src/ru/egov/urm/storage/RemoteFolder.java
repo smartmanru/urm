@@ -99,7 +99,18 @@ public class RemoteFolder extends Folder {
 		String dstPath = Common.getPath( folderPath , FOLDER );
 		String srcPath = Common.getPath( localFolder.folderPath , FOLDER );
 		
-		action.session.moveFilesTargetFromLocal( action , hostLogin , srcPath + "/" + files , dstPath );
+		action.session.moveFilesTargetFromLocal( action , hostLogin , srcPath , files , dstPath );
+	}
+
+	public void copyFilesFromLocal( ActionBase action , LocalFolder localFolder , String files ) throws Exception {
+		copyFilesFromLocal( action , localFolder , files , "" );
+	}
+	
+	public void copyFilesFromLocal( ActionBase action , LocalFolder localFolder , String files , String FOLDER ) throws Exception {
+		String srcPath = Common.getPath( folderPath , FOLDER );
+		String dstPath = Common.getPath( localFolder.folderPath , FOLDER );
+		
+		action.session.copyFilesTargetFromLocal( action , hostLogin , srcPath , files , dstPath );
 	}
 
 	public String copyFileToLocalRename( ActionBase action , LocalFolder localFolder , String file , String newName ) throws Exception {
