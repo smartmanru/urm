@@ -43,7 +43,7 @@ function f_execute_export_start() {
 }
 
 function f_execute_export_status() {
-	if [ "`pgrep -f pg_dump`" != "" ]; then
+	if [ "`pgrep -f run-export`" != "" ]; then
 		echo RUNNING
 		return
 	fi
@@ -67,7 +67,7 @@ function f_execute_export_status() {
 }
 
 function f_execute_import_status() {
-	if [ "`pgrep -f pg_restore`" != "" ]; then
+	if [ "`pgrep -f run-import`" != "" ]; then
 		echo RUNNING
 		return
 	fi
