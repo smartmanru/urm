@@ -107,8 +107,8 @@ public class RemoteFolder extends Folder {
 	}
 	
 	public void copyFilesFromLocal( ActionBase action , LocalFolder localFolder , String files , String FOLDER ) throws Exception {
-		String srcPath = Common.getPath( folderPath , FOLDER );
-		String dstPath = Common.getPath( localFolder.folderPath , FOLDER );
+		String dstPath = Common.getPath( folderPath , FOLDER );
+		String srcPath = Common.getPath( localFolder.folderPath , FOLDER );
 		
 		action.session.copyFilesTargetFromLocal( action , hostLogin , srcPath , files , dstPath );
 	}
