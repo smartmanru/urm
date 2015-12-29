@@ -3,8 +3,8 @@
 . ./run.conf
 
 function f_execute_one() {
-	P_SCHEMA=$1
-	P_DBNAME=$2
+	local P_SCHEMA=$1
+	local P_DBNAME=$2
 
 	echo dump meta schema=$P_SCHEMA dbname=$P_DBNAME ...
 

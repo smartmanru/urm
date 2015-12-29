@@ -1,10 +1,12 @@
 #!/bin/bash
 
+P_SCHEMA="$1"
+
 . ./run.conf
 
 function f_execute_one() {
-	P_SCHEMA=$1
-	P_DBNAME=$2
+	local P_SCHEMA=$1
+	local P_DBNAME=$2
 
 	echo load meta schema=$P_SCHEMA dbname=$P_DBNAME ...
 
@@ -21,12 +23,17 @@ function f_execute_one() {
 
 function f_execute_all() {
 	# get schema names
-	local F_SCHEMASET=`echo "$CONF_MAPPING" | tr " " "\n" | cut -d "=" -f1 | tr "\n" " "`
-	F_SCHEMASET=${F_SCHEMASET# }
-	F_SCHEMASET=${F_SCHEMASET% }
-	if [ "$F_SCHEMASET" = "" ]; then
-		echo unable to find schema set in run.conf in CONF_MAPPING variable. Exiting
-		exit 1
+	local F_SCHEMASET
+	if [ "$P_SCHEMA" = "all" ]; then
+		F_SCHEMASET=`echo "$CONF_MAPPING" | tr " " "\n" | cut -d "=" -f1 | tr "\n" " "`
+		F_SCHEMASET=${F_SCHEMASET# }
+		F_SCHEMASET=${F_SCHEMASET% }
+		if [ "$F_SCHEMASET" = "" ]; then
+			echo unable to find schema set in run.conf in CONF_MAPPING variable. Exiting
+			exit 1
+		fi
+	else
+		F_SCHEMASET="$P_SCHEMA"
 	fi
 
 	local F_DBNAME

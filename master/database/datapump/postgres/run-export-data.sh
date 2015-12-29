@@ -5,7 +5,7 @@ P_SCHEMA="$1"
 . ./run.conf
 
 function f_execute_db() {
-	P_DBNAME=$1
+	local P_DBNAME=$1
 
 	echo dump data schema=$P_SCHEMA dbname=$P_DBNAME ...
 
