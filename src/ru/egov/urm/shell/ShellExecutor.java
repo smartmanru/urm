@@ -464,7 +464,7 @@ public abstract class ShellExecutor {
 
 	public void moveFilesTargetFromLocal( ActionBase action , String hostLogin , String srcDir , String srcFiles , String dstDir ) throws Exception {
 		if( action.isLocal( hostLogin ) )
-			move( action , srcFiles , dstDir );
+			move( action , Common.getPath( srcDir , srcFiles ) , dstDir );
 		else {
 			scpFilesLocalToRemote( action , Common.getPath( srcDir , srcFiles ) , hostLogin , dstDir + "/" );
 			removeFiles( action , srcDir , srcFiles );
