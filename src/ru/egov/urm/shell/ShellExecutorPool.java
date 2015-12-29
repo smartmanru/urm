@@ -67,25 +67,30 @@ public class ShellExecutorPool {
 	}
 	
 	public void kill( ActionBase action ) throws Exception {
-		for( ShellExecutor session : listRemote ) {
-			try {
-				session.kill( action );
+		try {
+			for( ShellExecutor session : listRemote ) {
+				try {
+					session.kill( action );
+				}
+				catch( Throwable e ) {
+					if( action.options.OPT_TRACE )
+						System.out.println( "exception when killing session=" + session.name + " (" + e.getMessage() + ")" );
+				}
 			}
-			catch( Throwable e ) {
-				if( action.options.OPT_TRACE )
-					System.out.println( "exception when killing session=" + session.name + " (" + e.getMessage() + ")" );
+			
+			for( int k = listDedicated.size() - 1; k >= 0; k-- ) {
+				ShellExecutor session = listDedicated.get( k ); 
+				try {
+					session.kill( action );
+				}
+				catch( Throwable e ) {
+					if( action.options.OPT_TRACE )
+						System.out.println( "exception when killing session=" + session.name + " (" + e.getMessage() + ")" );
+				}
 			}
 		}
-		
-		for( int k = listDedicated.size() - 1; k >= 0; k-- ) {
-			ShellExecutor session = listDedicated.get( k ); 
-			try {
-				session.kill( action );
-			}
-			catch( Throwable e ) {
-				if( action.options.OPT_TRACE )
-					System.out.println( "exception when killing session=" + session.name + " (" + e.getMessage() + ")" );
-			}
+		catch( Throwable e ) {
+			// silently ignore
 		}
 	}
 
