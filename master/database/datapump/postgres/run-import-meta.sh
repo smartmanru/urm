@@ -10,10 +10,10 @@ function f_execute_one() {
 
 	echo load meta schema=$P_SCHEMA dbname=$P_DBNAME ...
 
-	F_CMD="pg_restore -s -c -j 4 -d $P_DBNAME ../data/meta-$P_SCHEMA.dump"
+	local F_CMD="pg_restore -s -c -j 4 -d $P_DBNAME ../data/meta-$P_SCHEMA.dump"
 	echo "run: $F_CMD ..."
 	$F_CMD > ../log/meta-$P_SCHEMA.dump.log 2>&1
-	F_STATUS=$?
+	local F_STATUS=$?
 
 	if [ "$F_STATUS" != "0" ]; then
 		echo pg_dump failed with status=$F_STATUS. Exiting
