@@ -37,6 +37,7 @@ public class ActionImportDatabase extends ActionBase {
 
 	Map<String,MetaDatabaseSchema> serverSchemas;
 	Map<String,Map<String,String>> tableSet;
+	LocalFolder workFolder;
 	RemoteFolder importScriptsFolder;
 	RemoteFolder importLogFolder;
 	RemoteFolder importDataFolder;
@@ -50,6 +51,7 @@ public class ActionImportDatabase extends ActionBase {
 	}
 
 	@Override protected boolean executeSimple() throws Exception {
+		workFolder = artefactory.getWorkFolder( this );
 		loadImportSettings();
 		
 		client = new DatabaseClient( server ); 
@@ -148,8 +150,7 @@ public class ActionImportDatabase extends ActionBase {
 	
 	private void makeTargetConfig() throws Exception {
 		// create configuration to run scripts
-		LocalFolder work = artefactory.getWorkFolder( this );
-		String confFile = work.getFilePath( this , "run.conf" );
+		String confFile = workFolder.getFilePath( this , "run.conf" );
 		
 		List<String> conf = new LinkedList<String>();
 		String EXECUTEMAPPING = "";
@@ -161,7 +162,7 @@ public class ActionImportDatabase extends ActionBase {
 		importScriptsFolder.copyFileFromLocal( this , confFile );
 		
 		MetadataStorage ms = artefactory.getMetadataStorage( this );
-		String tablesFilePath = work.getFilePath( this , MetadataStorage.tablesFileName );
+		String tablesFilePath = workFolder.getFilePath( this , MetadataStorage.tablesFileName );
 		ms.saveDatapumpSet( this , tableSet , server , tablesFilePath );
 		importScriptsFolder.copyFileFromLocal( this , tablesFilePath );
 	}
@@ -199,7 +200,7 @@ public class ActionImportDatabase extends ActionBase {
 		if( value.equals( "RUNNING" ) == false && value.equals( "FINISHED" ) == false ) {
 			log( "import has not started (status=" + value + "), save logs ..." );
 			copyLogs( false , cmd , SN );
-			exit( "unable to start import process, see logs" );
+			exit( "unable to start import process, see logs at " + workFolder.folderPath );
 		}
 		
 		// wait for completion - unlimited
@@ -222,16 +223,14 @@ public class ActionImportDatabase extends ActionBase {
 	}
 
 	private void copyLogs( boolean succeeded , String cmd , String SN ) throws Exception {
-		LocalFolder work = artefactory.getWorkFolder( this );
-		
 		// copy logs
 		if( cmd.equals( "meta" ) ) {
 			String logMetaFiles = "meta-*.log";
-			copyFiles( logMetaFiles , importLogFolder , work );
+			copyFiles( logMetaFiles , importLogFolder , workFolder );
 		}
 		else if( cmd.equals( "data" ) ) {
 			String logDataFiles = "data-" + SN + "-*.log";
-			copyFiles( logDataFiles , importLogFolder , work );
+			copyFiles( logDataFiles , importLogFolder , workFolder );
 		}
 	}
 
