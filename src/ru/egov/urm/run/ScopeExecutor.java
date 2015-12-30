@@ -72,7 +72,6 @@ public class ScopeExecutor {
 		}
 		
 		runFailed = checkFailed();
-System.out.println( "runFailed=" + runFailed ); 		
 		if( runFailed )
 			return( false );
 		
