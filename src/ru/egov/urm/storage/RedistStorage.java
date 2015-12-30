@@ -213,6 +213,7 @@ public class RedistStorage extends ServerStorage {
 		String fileBaseName = getConfigArchiveName( action , confItem , true );
 		VarCONTENTTYPE CONTENTTYPE = location.getContentType( action , false );
 		RemoteFolder locationDir = getStateLocationFolder( action , location.DEPLOYPATH , CONTENTTYPE );
+		locationDir.ensureExists( action );
 		locationDir.copyFileRename( action , redistPath , fileBaseName );
 		
 		// create state file
