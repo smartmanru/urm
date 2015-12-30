@@ -55,10 +55,11 @@ public class ActionGetDeployInfo extends ActionBase {
 		}
 			
 		for( String key : info.getKeys( this ) ) {
+			String item = info.getKeyItem( this , key );
 			if( binary )
-				comment( "\t\tbinary " + key + ": file=" + info.getKeyFileName( this , key ) + ", version=" + info.getKeyVersion( this , key ) );
+				comment( "\t\tdistitem=" + item + ": file=" + info.getKeyFileName( this , key ) + ", version=" + info.getKeyVersion( this , key ) );
 			else
-				comment( "\t\tconf " + key + ": version=" + info.getKeyVersion( this , key ) );
+				comment( "\t\tconfitem=" + item + ": version=" + info.getKeyVersion( this , key ) );
 		}
 	}
 	

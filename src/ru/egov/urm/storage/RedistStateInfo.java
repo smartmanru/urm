@@ -67,5 +67,11 @@ public class RedistStateInfo {
 		String value = version + ":" + md5value + ":" + deployNameNoVersion + ":" + finalName;
 		return( value );
 	}
+
+	public String getKeyItem( ActionBase action , String key ) throws Exception {
+		getVerData( action , key );
+		return( Common.getPartBeforeLast( Common.getPartAfterFirst( key , "-" ) , ".ver" ) );
+	}
+	
 	
 }
