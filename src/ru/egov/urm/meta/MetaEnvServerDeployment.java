@@ -91,5 +91,11 @@ public class MetaEnvServerDeployment {
 		
 		return( DEPLOYTYPE );
 	}
+
+	public MetaEnvServerLocation getLocation( ActionBase action ) throws Exception {
+		VarDEPLOYTYPE deployType = getDeployType( action );
+		String deployPath = getDeployPath( action );
+		return( new MetaEnvServerLocation( server , deployType , deployPath ) );
+	}
 	
 }

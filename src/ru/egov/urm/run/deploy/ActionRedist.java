@@ -204,7 +204,7 @@ public class ActionRedist extends ActionBase {
 		}
 
 		RedistStorage redist = artefactory.getRedistStorage( server , node );
-		VarCONTENTTYPE C_REDIST_DEFAULT = redist.getContentTypeByDeployType( this , location.DEPLOYTYPE , true );
+		VarCONTENTTYPE C_REDIST_DEFAULT = location.getContentType( this , true );
 		VarCONTENTTYPE C_REDIST_DIRTYPE = getDirType( clusterMode , location.DEPLOYTYPE , admin , C_REDIST_DEFAULT );
 		if( C_REDIST_DIRTYPE.equals( "none" ) ) {
 			debug( "ignore deploy binary location=" + location.DEPLOYPATH + " clustermode=" + clusterMode + " node=" + node.POS + " deploytype=" + Common.getEnumLower( location.DEPLOYTYPE ) );
@@ -229,7 +229,7 @@ public class ActionRedist extends ActionBase {
 
 	private void transferFileSet( MetaEnvServer server , MetaEnvServerNode node , RedistStorage redist , MetaEnvServerLocation location , String items ) throws Exception {
 		// ensure redist created
-		VarCONTENTTYPE CONTENTTYPE = redist.getContentTypeByDeployType( this , location.DEPLOYTYPE , true );
+		VarCONTENTTYPE CONTENTTYPE = location.getContentType( this , true );
 		redist.createLocation( this , dist.RELEASEDIR , location , CONTENTTYPE );
 		RedistStateInfo stateInfo = redist.getStateInfo( this , location.DEPLOYPATH , CONTENTTYPE );
 

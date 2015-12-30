@@ -93,6 +93,16 @@ public abstract class Folder {
 		return( session.checkDirExists( action , Common.getPath( folderPath , folder ) ) );
 	}
 
+	public void copyFile( ActionBase action , String srcFile ) throws Exception {
+		ShellExecutor session = getSession( action );
+		session.copyFile( action , srcFile , folderPath + "/" );
+	}
+	
+	public void copyFileRename( ActionBase action , String srcFile , String newName ) throws Exception {
+		ShellExecutor session = getSession( action );
+		session.copyFile( action , srcFile , Common.getPath( folderPath , newName ) );
+	}
+	
 	public void copyFile( ActionBase action , String folder1 , String folder2 , String newName , String targetSubFolder ) throws Exception {
 		ShellExecutor session = getSession( action ); 
 		if( targetSubFolder.isEmpty() )

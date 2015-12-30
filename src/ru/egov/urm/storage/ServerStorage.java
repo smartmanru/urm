@@ -6,7 +6,6 @@ import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
-import ru.egov.urm.meta.Metadata.VarDEPLOYTYPE;
 import ru.egov.urm.meta.Metadata.VarDISTITEMTYPE;
 import ru.egov.urm.run.ActionBase;
 
@@ -97,12 +96,6 @@ public class ServerStorage {
 		return( folder.getSubFolder( action , "state" ) );
 	}
 
-	public VarCONTENTTYPE getContentTypeByDeployType( ActionBase action , VarDEPLOYTYPE DEPLOYTYPE , boolean binary ) throws Exception {
-		if( DEPLOYTYPE == VarDEPLOYTYPE.HOTDEPLOY )
-			return( ( binary )? VarCONTENTTYPE.BINARYHOTDEPLOY : VarCONTENTTYPE.CONFHOTDEPLOY );
-		return( ( binary )? VarCONTENTTYPE.BINARYCOLDDEPLOY : VarCONTENTTYPE.CONFCOLDDEPLOY );
-	}
-	
 	public String getRedistFolderByContent( ActionBase action , VarCONTENTTYPE CONTENTTYPE , boolean rollout ) throws Exception {
 		String rolloutDir = Common.getEnumLower( CONTENTTYPE );
 		if( rollout )

@@ -17,8 +17,12 @@ import ru.egov.urm.storage.SourceStorage;
 
 public class ActionRestoreConfigs extends ActionBase {
 
+	String timestamp;
+	String version;
+	
 	public ActionRestoreConfigs( ActionBase action , String stream ) {
 		super( action , stream );
+		timestamp = Common.getNameTimeStamp();
 	}
 
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
@@ -38,8 +42,18 @@ public class ActionRestoreConfigs extends ActionBase {
 		PATH = Common.getPath( PATH , server.NAME );
 		LocalFolder folder = artefactory.getWorkFolder( this , PATH );
 		folder.recreateThis( this );
-		if( !options.OPT_LIVE )
+		if( options.OPT_LIVE ) {
+			if( options.OPT_TAG.isEmpty() )
+				version = "live-" + timestamp;
+			else
+				version = "live-tag-" + options.OPT_TAG;
+		} else {
+			if( options.OPT_TAG.isEmpty() )
+				version = "prod-" + timestamp;
+			else
+				version = "prod-tag-" + options.OPT_TAG;
 			sourceStorage.exportTemplates( this , folder , server );
+		}
 		
 		// iterate by nodes - prepare
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
@@ -120,11 +134,10 @@ public class ActionRestoreConfigs extends ActionBase {
 		}
 		else {
 			log( "restore configuraton item=" + confItem.KEY + " from live ..." );
-			String LOCATION = deployment.getDeployPath( this );
 			
 			RuntimeStorage runtime = artefactory.getRuntimeStorage( server , node );
 			RedistStorage redist = artefactory.getRedistStorage( server , node );
-			runtime.restoreConfigItem( this , redist , live , confItem , LOCATION );
+			runtime.restoreConfigItem( this , redist , live , deployment , confItem , version );
 		}
 	}
 	
@@ -141,11 +154,10 @@ public class ActionRestoreConfigs extends ActionBase {
 		}
 		else {
 			log( "restore configuraton item=" + confItem.KEY + " from templates ..." );
-			String LOCATION = deployment.getDeployPath( this );
 			
 			RuntimeStorage runtime = artefactory.getRuntimeStorage( server , node );
 			RedistStorage redist = artefactory.getRedistStorage( server , node );
-			runtime.restoreConfigItem( this , redist , live , confItem , LOCATION );
+			runtime.restoreConfigItem( this , redist , live , deployment , confItem , version );
 		}
 	}
 	

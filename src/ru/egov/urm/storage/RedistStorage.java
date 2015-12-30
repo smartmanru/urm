@@ -175,7 +175,7 @@ public class RedistStorage extends ServerStorage {
 
 	public void copyReleaseFile( ActionBase action , MetaDistrBinaryItem item , DistStorage dist , MetaEnvServerLocation location , String fileName , String deployBaseName ) throws Exception {
 		String LOCATION = location.DEPLOYPATH; 
-		VarCONTENTTYPE CONTENTTYPE = getContentTypeByDeployType( action , location.DEPLOYTYPE , true );
+		VarCONTENTTYPE CONTENTTYPE = location.getContentType( action , true );
 		createLocation( action , dist.RELEASEDIR , location , CONTENTTYPE );
 		RemoteFolder locationDir = getRedistLocationFolder( action , dist.RELEASEDIR , LOCATION , CONTENTTYPE , true );
 
@@ -193,7 +193,7 @@ public class RedistStorage extends ServerStorage {
 
 	public void copyReleaseFile( ActionBase action , MetaDistrConfItem item , DistStorage dist , MetaEnvServerLocation location , LocalFolder srcFolder , String fileName , String deployBaseName ) throws Exception {
 		String LOCATION = location.DEPLOYPATH; 
-		VarCONTENTTYPE CONTENTTYPE = getContentTypeByDeployType( action , location.DEPLOYTYPE , true );
+		VarCONTENTTYPE CONTENTTYPE = location.getContentType( action , false );
 		createLocation( action , dist.RELEASEDIR , location , CONTENTTYPE );
 		RemoteFolder locationDir = getRedistLocationFolder( action , dist.RELEASEDIR , LOCATION , CONTENTTYPE , true );
 		
@@ -209,6 +209,20 @@ public class RedistStorage extends ServerStorage {
 		locationDir.createFileFromString( action , verName , data );
 	}
 
+	public void restoreConfigFile( ActionBase action , MetaDistrConfItem confItem , MetaEnvServerLocation location , String redistPath , String version ) throws Exception {
+		String fileBaseName = getConfigArchiveName( action , confItem , true );
+		VarCONTENTTYPE CONTENTTYPE = location.getContentType( action , false );
+		RemoteFolder locationDir = getStateLocationFolder( action , location.DEPLOYPATH , CONTENTTYPE );
+		locationDir.copyFileRename( action , redistPath , fileBaseName );
+		
+		// create state file
+		RedistStateInfo info = new RedistStateInfo();
+		String data = info.getFileInfo( action , locationDir , fileBaseName , fileBaseName , version , "ignore" );
+		String stateBaseName = super.getStateBaseName( action , CONTENTTYPE , fileBaseName );
+		String verName = super.getStateInfoName( action , stateBaseName );
+		locationDir.createFileFromString( action , verName , data );
+	}
+	
 	public String[] getRedistReleases( ActionBase action ) throws Exception {
 		RemoteFolder folder = getReleasesFolder( action );
 		if( !folder.checkExists( action ) )

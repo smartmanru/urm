@@ -4,6 +4,8 @@ import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServer;
+import ru.egov.urm.meta.MetaEnvServerDeployment;
+import ru.egov.urm.meta.MetaEnvServerLocation;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
 import ru.egov.urm.meta.Metadata.VarDISTITEMTYPE;
@@ -61,7 +63,8 @@ public class RuntimeStorage extends ServerStorage {
 		localDir.removeFiles( action , F_CONFIGTARFILE );
 	}
 
-	public void restoreConfigItem( ActionBase action , RedistStorage redist , LocalFolder srcFolder , MetaDistrConfItem confItem , String LOCATION ) throws Exception {
+	public void restoreConfigItem( ActionBase action , RedistStorage redist , LocalFolder srcFolder , MetaEnvServerDeployment deployment , MetaDistrConfItem confItem , String version ) throws Exception {
+		String LOCATION = deployment.getDeployPath( action );
 		String msg = "restore server configuratuion files item=" + confItem.KEY + ", location=" + LOCATION;
 		action.executeLogLive( node.HOSTLOGIN , msg );
 		if( action.context.SHOWONLY )
@@ -85,8 +88,13 @@ public class RuntimeStorage extends ServerStorage {
 		
 		RemoteFolder deployDir = getRuntimeLocationFolder( action , LOCATION );
 		shell.appendExecuteLog( action , "restore server configuration file=" + stagingPath + " " + " to " + deployDir.folderPath );
-		
+
 		deployConfigItem( action , stagingPath , confItem , deployDir , true );
+		
+		// add to state
+		deployment.getLocation( action );
+		MetaEnvServerLocation location = deployment.getLocation( action );
+		redist.restoreConfigFile( action , confItem , location , stagingPath , version );
 	}
 	
 	private void deployConfigItem( ActionBase action , String stagingPath , MetaDistrConfItem confItem , RemoteFolder deployDir , boolean full ) throws Exception {
