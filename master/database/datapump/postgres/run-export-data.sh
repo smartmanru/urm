@@ -28,7 +28,7 @@ function f_execute_db() {
 		echo dump all schema tables ...
 	fi
 
-	F_CMD="pg_dump -v -b -f ../data/data-$P_SCHEMA-all.dump -F p -Z 9 $F_TABLEFILTER $P_DBNAME"
+	F_CMD="pg_dump -v -b -f ../data/data-$P_SCHEMA-all.dump -F c $F_TABLEFILTER $P_DBNAME"
 	echo "run: $F_CMD ..."
 	$F_CMD > ../log/data-$P_SCHEMA-all.dump.log 2>&1
 	F_STATUS=$?

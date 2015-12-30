@@ -8,7 +8,7 @@ function f_execute_one() {
 
 	echo dump meta schema=$P_SCHEMA dbname=$P_DBNAME ...
 
-	F_CMD="pg_dump -v -s -f ../data/meta-$P_SCHEMA.dump -F p $P_DBNAME"
+	F_CMD="pg_dump -v -s -f ../data/meta-$P_SCHEMA.dump -F c $P_DBNAME"
 	echo "run: $F_CMD ..."
 	$F_CMD > ../log/meta-$P_SCHEMA.dump.log 2>&1
 	F_STATUS=$?
