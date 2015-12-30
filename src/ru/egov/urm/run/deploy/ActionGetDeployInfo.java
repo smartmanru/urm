@@ -37,7 +37,7 @@ public class ActionGetDeployInfo extends ActionBase {
 		boolean conf = context.CONF_DEPLOY;
 
 		for( MetaEnvServerLocation location : server.getLocations( this , binary , conf ) ) {
-			super.comment( "location: " + location.DEPLOYPATH );
+			super.comment( "\tlocation: " + location.DEPLOYPATH );
 			if( binary && location.hasBinaryItems( this ) )
 				showDeployInfoContent( server , redist , location , true );
 			if( conf && location.hasConfItems( this ) )
@@ -50,15 +50,15 @@ public class ActionGetDeployInfo extends ActionBase {
 		RedistStateInfo info = redist.getStateInfo( this , location.DEPLOYPATH , contentType );
 		if( !info.exists ) {
 			String type = ( binary )? "binary" : "conf";
-			comment( "\t" + type + " state information is missing" );
+			comment( "\t\t" + type + " state information is missing" );
 			return;
 		}
 			
 		for( String key : info.getKeys( this ) ) {
 			if( binary )
-				comment( "\tbinary " + key + ": file=" + info.getKeyFileName( this , key ) + ", version=" + info.getKeyVersion( this , key ) );
+				comment( "\t\tbinary " + key + ": file=" + info.getKeyFileName( this , key ) + ", version=" + info.getKeyVersion( this , key ) );
 			else
-				comment( "\tconf " + key + ": version=" + info.getKeyVersion( this , key ) );
+				comment( "\t\tconf " + key + ": version=" + info.getKeyVersion( this , key ) );
 		}
 	}
 	
