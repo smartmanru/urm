@@ -210,7 +210,7 @@ public class ActionImportDatabase extends ActionBase {
 		Common.sleep( this , 1000 );
 		String value = checkStatus( importScriptsFolder );
 		if( value.equals( "RUNNING" ) == false && value.equals( "FINISHED" ) == false ) {
-			log( "import has not started (status=" + value + "), save logs ..." );
+			log( "import has not been started (status=" + value + "), save logs ..." );
 			copyLogs( false , cmd , SN );
 			exit( "unable to start import process, see logs at " + workFolder.folderPath );
 		}

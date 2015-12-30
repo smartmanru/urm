@@ -198,7 +198,7 @@ public class ActionExportDatabase extends ActionBase {
 		Common.sleep( this , 1000 );
 		String value = checkStatus( exportScriptsFolder );
 		if( value.equals( "RUNNING" ) == false && value.equals( "FINISHED" ) == false ) {
-			log( "export has not started (status=" + value + "), save logs ..." );
+			log( "export has not been started (status=" + value + "), save logs ..." );
 			copyDataAndLogs( false , cmd , SN );
 			exit( "unable to start export process, see logs" );
 		}
