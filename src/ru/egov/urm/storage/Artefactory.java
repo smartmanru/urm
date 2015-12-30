@@ -58,10 +58,10 @@ public class Artefactory {
 		if( workFolder == null || ownFolder == false )
 			return;
 		
-		if( !action.options.OPT_SHOWALL )
-			workFolder.removeThis( action );
-		else
+		if( action.isFailed() || action.options.OPT_SHOWALL )
 			action.log( "saved work directory: " + workFolder.folderPath );
+		else
+			workFolder.removeThis( action );
 	}
 
 	public LocalFolder getWorkFolder( ActionBase action ) throws Exception {
