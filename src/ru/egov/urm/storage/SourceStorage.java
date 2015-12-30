@@ -406,4 +406,17 @@ public class SourceStorage {
 			exportTemplateConfigItem( action , item.KEY , "" , parent );
 	}
 		
+	public void exportPostRefresh( ActionBase action , String name , LocalFolder folder ) throws Exception {
+		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS );
+		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
+		
+		String CONFPATH = meta.product.CONFIG_SOURCE_SQL_POSTREFRESH;
+		String PATH = Common.getPath( CONFPATH , name );
+		if( !vcs.exportRepositoryMasterPath( folder , REPOSITORY , PATH , name ) )
+			action.exit( "exportTemplateConfigItem: unable to export " + name + " from " + PATH );
+		
+		// remove windows newlines and add permissions to shell files
+		folder.prepareFolderForLinux( action , name );
+	}
+	
 }

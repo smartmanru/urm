@@ -64,7 +64,7 @@ public class MetaProduct {
 	public String CONFIG_RELEASE_GROUPFOLDER;
 	public String CONFIG_SOURCE_CFG_ROOTDIR;
 	public String CONFIG_SOURCE_CFG_LIVEROOTDIR;
-	public String CONFIG_SOURCE_SQL_GLOBALPENDING;
+	public String CONFIG_SOURCE_SQL_POSTREFRESH;
 	public String CONFIG_SQL_LOGDIR;
 	
 	Map<String,String> refMap; 
@@ -116,7 +116,7 @@ public class MetaProduct {
 		CONFIG_RELEASE_GROUPFOLDER = getPropertyRequired( action , "CONFIG_RELEASE_GROUPFOLDER" );
 		CONFIG_SOURCE_CFG_ROOTDIR = getPropertyRequired( action , "CONFIG_SOURCE_CFG_ROOTDIR" );
 		CONFIG_SOURCE_CFG_LIVEROOTDIR = getPropertyRequired( action , "CONFIG_SOURCE_CFG_LIVEROOTDIR" );
-		CONFIG_SOURCE_SQL_GLOBALPENDING = getPropertyRequired( action , "CONFIG_SOURCE_SQL_GLOBALPENDING" );
+		CONFIG_SOURCE_SQL_POSTREFRESH = getPropertyRequired( action , "CONFIG_SOURCE_SQL_POSTREFRESH" );
 		CONFIG_SQL_LOGDIR = getPropertyRequired( action , "CONFIG_SQL_LOGDIR" );
 	}
 

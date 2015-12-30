@@ -112,6 +112,13 @@ public class ConfBuilder {
 		}
 	}
 
+	public void parseConfigParameters( ActionBase action , LocalFolder folder , MetaEnvServer server ) throws Exception {
+		action.trace( "parse configuration files in folder=" + folder.folderPath + " ..." );
+		FileSet files = folder.getFileSet( action );
+		for( String file : files.fileList )
+			parseConfigParameters( folder , file , server );
+	}
+	
 	public void parseConfigParameters( LocalFolder live , String file , MetaEnvServer server ) throws Exception {
 		action.trace( "parse file=" + file + " ..." );
 		String filePath = live.getFilePath( action , file );

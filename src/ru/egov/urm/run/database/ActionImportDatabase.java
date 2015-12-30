@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
+import ru.egov.urm.conf.ConfBuilder;
 import ru.egov.urm.meta.MetaDatabaseSchema;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.run.ActionBase;
@@ -17,6 +18,7 @@ import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.MetadataStorage;
 import ru.egov.urm.storage.RedistStorage;
 import ru.egov.urm.storage.RemoteFolder;
+import ru.egov.urm.storage.SourceStorage;
 import ru.egov.urm.storage.UrmStorage;
 
 public class ActionImportDatabase extends ActionBase {
@@ -34,6 +36,7 @@ public class ActionImportDatabase extends ActionBase {
 	String DUMPDIR;
 	String REMOTE_SETDBENV;
 	String DATABASE_DATAPUMPDIR;
+	String POSTREFRESH;
 
 	Map<String,MetaDatabaseSchema> serverSchemas;
 	Map<String,Map<String,String>> tableSet;
@@ -80,6 +83,7 @@ public class ActionImportDatabase extends ActionBase {
 		DUMPDIR = props.getProperty( "CONFIG_LOADDIR" );
 		REMOTE_SETDBENV = props.getProperty( "CONFIG_REMOTE_SETDBENV" );
 		DATABASE_DATAPUMPDIR = props.getProperty( "CONFIG_DATABASE_DATAPUMPDIR" );
+		POSTREFRESH = props.getProperty( "CONFIG_POSTREFRESH" );
 
 		serverSchemas = server.getSchemaSet( this );
 		if( !SCHEMA.isEmpty() )
@@ -186,6 +190,8 @@ public class ActionImportDatabase extends ActionBase {
 					runTarget( "data" , s );
 			}
 		}
+		
+		applyPostRefresh();
 	}
 	
 	private void runTarget( String cmd , String SN ) throws Exception {
@@ -283,4 +289,38 @@ public class ActionImportDatabase extends ActionBase {
 		}
 	}
 
+	private void applyPostRefresh() throws Exception {
+		if( POSTREFRESH.isEmpty() ) {
+			log( "no post-refresh defined. Skipped." );
+			return;
+		}
+		
+		DatabaseClient client = new DatabaseClient( server );
+		if( !client.checkConnect( this ) )
+			exit( "unable to connect to server=" + server.NAME );
+		
+		LocalFolder post = workFolder.getSubFolder( this , "post-refresh" );
+		for( String name : Common.splitSpaced( POSTREFRESH ) )
+			applyPostRefreshFolder( client , post , name );
+		
+		log( "post-refresh successfully applied" );
+	}
+	
+	private void applyPostRefreshFolder( DatabaseClient client , LocalFolder post , String name ) throws Exception {
+		log( "apply post-refresh " + name + " ..." );
+	
+		// export
+		LocalFolder folder = post.getSubFolder( this , name );
+		
+		SourceStorage storage = artefactory.getSourceStorage( this );
+		storage.exportPostRefresh( this , name , folder );
+		
+		// configure
+		ConfBuilder builder = new ConfBuilder( this );
+		builder.parseConfigParameters( this , folder , server );
+		
+		// apply
+		client.applyManualSet( this , folder );
+	}
+	
 }
