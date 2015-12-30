@@ -255,7 +255,7 @@ public class ActionChangeKeys extends ActionBase {
 			exit( S_AUTHFILE + " is not found" );
 		
 		for( String s : list )
-			super.printComment( "\tkey: " + s );
+			super.comment( "\tkey: " + s );
 		
 		return( true );
 	}

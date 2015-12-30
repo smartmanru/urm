@@ -23,12 +23,12 @@ public class ActionGetRedistInfo extends ActionBase {
 
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
-		printComment( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.TYPE ) + " ..." );
-		printComment( "root path: " + server.ROOTPATH );
+		comment( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.TYPE ) + " ..." );
+		comment( "root path: " + server.ROOTPATH );
 		
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
-			printComment( "node" + node.POS + " (" + node.HOSTLOGIN + "):" );
+			comment( "node" + node.POS + " (" + node.HOSTLOGIN + "):" );
 			
 			RedistStorage redist = artefactory.getRedistStorage( server , node );
 			if( dist == null )
@@ -42,12 +42,12 @@ public class ActionGetRedistInfo extends ActionBase {
 	private void showReleases( RedistStorage redist ) throws Exception {
 		String[] releases = redist.getRedistReleases( this );
 		if( releases == null || releases.length == 0 ) {
-			printComment( "\t(nothing)" );
+			comment( "\t(nothing)" );
 			return;
 		}
 		
 		for( String release : releases ) {
-			printComment( "\trelease: " + release );
+			comment( "\trelease: " + release );
 		}
 	}
 	
@@ -56,7 +56,7 @@ public class ActionGetRedistInfo extends ActionBase {
 		for( String category : deployment.getCategories( this ) ) {
 			VarCONTENTTYPE CONTENTTYPE = deployment.getCategoryContent( this , category );
 			boolean rollout = deployment.getCategoryRollout( this , category );
-			printComment( "\tcategory: " + category );
+			comment( "\tcategory: " + category );
 			
 			for( String LOCATION : deployment.getCategoryLocations( this , category ) ) {
 				RemoteFolder rf = redist.getRedistLocationFolder( this , dist.RELEASEDIR , LOCATION , CONTENTTYPE , rollout );
@@ -67,7 +67,7 @@ public class ActionGetRedistInfo extends ActionBase {
 						continue;
 				}
 				
-				printComment( "\t\tlocation: " + LOCATION + " (" + rf.folderPath + ")" );
+				comment( "\t\tlocation: " + LOCATION + " (" + rf.folderPath + ")" );
 				for( String redistFile : items ) {
 					RedistFileType fileType = redist.getRedistFileType( this , redistFile );
 					String stateBaseName = redist.getStateBaseName( this , CONTENTTYPE , redistFile );
@@ -79,7 +79,7 @@ public class ActionGetRedistInfo extends ActionBase {
 					else
 						info += ", no version info";
 					
-					printComment( "\t\t\tfile: " + redistFile + " (" + info + ")" );
+					comment( "\t\t\tfile: " + redistFile + " (" + info + ")" );
 				}
 			}
 		}

@@ -103,9 +103,9 @@ public class CommandBuilder {
 
 		String name = "URM " + cmd + "::" + executor.commandAction.name;
 		if( res )
-			action.printComment( name + ": COMMAND SUCCESSFUL" );
+			action.comment( name + ": COMMAND SUCCESSFUL" );
 		else
-			action.printComment( name + ": COMMAND FAILED" );
+			action.comment( name + ": COMMAND FAILED" );
 			
 		return( true );
 	}

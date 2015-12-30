@@ -27,20 +27,20 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		
 		FileSet files = dist.getFiles( this );
 		
-		printComment( "RELEASE " + dist.RELEASEDIR + " STATUS:" );
-		printComment( "location: " + meta.product.CONFIG_DISTR_HOSTLOGIN );
-		printComment( "state: " + dist.getState( this ) );
-		printComment( "version: " + release.RELEASEVER );
-		printComment( "property::buildMode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );
-		printComment( "property::obsolete: " + Common.getBooleanValue( release.PROPERTY_OBSOLETE ) );
+		comment( "RELEASE " + dist.RELEASEDIR + " STATUS:" );
+		comment( "location: " + meta.product.CONFIG_DISTR_HOSTLOGIN );
+		comment( "state: " + dist.getState( this ) );
+		comment( "version: " + release.RELEASEVER );
+		comment( "property::buildMode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );
+		comment( "property::obsolete: " + Common.getBooleanValue( release.PROPERTY_OBSOLETE ) );
 		
 		if( release.isEmpty( this ) ) {
-			printComment( "scope is empty" );
+			comment( "scope is empty" );
 			return( true );
 		}
 		
-		printComment( "deliveries: " + Common.getList( release.getDeliveries( this ).keySet().toArray( new String[0] ) , ", " ) );
-		printComment( "SCOPE:" );
+		comment( "deliveries: " + Common.getList( release.getDeliveries( this ).keySet().toArray( new String[0] ) , ", " ) );
+		comment( "SCOPE:" );
 
 		for( String set : Common.getSortedKeys( release.getSourceSets( this ) ) )
 			printReleaseSourceSetStatus( dist , files , release.getSourceSet( this , set ) );
@@ -58,9 +58,9 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			return;
 		
 		String specifics = set.getSpecifics( this );
-		printComment( "\tSET=" + set.NAME + " CATEGORY=" + Common.getEnumLower( set.CATEGORY ) + Common.getCommentIfAny( specifics ) + ":" );
+		comment( "\tSET=" + set.NAME + " CATEGORY=" + Common.getEnumLower( set.CATEGORY ) + Common.getCommentIfAny( specifics ) + ":" );
 		if( set.getTargets( this ).isEmpty() )
-			printComment( "\t\t(no items)" );
+			comment( "\t\t(no items)" );
 			
 		for( String key : Common.getSortedKeys( set.getTargets( this ) ) ) {
 			MetaReleaseTarget project = set.getTarget( this , key );
@@ -73,7 +73,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			return;
 		
 		// configuration
-		printComment( "\tSET=" + Common.getEnumLower( set.CATEGORY ) + ":" );
+		comment( "\tSET=" + Common.getEnumLower( set.CATEGORY ) + ":" );
 		
 		for( String key : Common.getSortedKeys( set.getTargets( this ) ) ) {
 			MetaReleaseTarget target = set.getTarget( this , key );
@@ -95,25 +95,25 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		String specifics = project.getSpecifics( this );
 		if( meta.isBuildableCategory( this , set.CATEGORY ) ) {
 			if( project.sourceProject.isEmpty( this ) ) {
-				printComment( "\t\tbuild PROJECT=" + project.sourceProject.PROJECT + " (internal)" + Common.getCommentIfAny( specifics ) );
+				comment( "\t\tbuild PROJECT=" + project.sourceProject.PROJECT + " (internal)" + Common.getCommentIfAny( specifics ) );
 				return;
 			}
 			
 			if( project.isEmpty( this ) ) {
-				printComment( "\t\tbuild PROJECT=" + project.sourceProject.PROJECT + " (no items added)" + Common.getCommentIfAny( specifics ) );
+				comment( "\t\tbuild PROJECT=" + project.sourceProject.PROJECT + " (no items added)" + Common.getCommentIfAny( specifics ) );
 				return;
 			}
 			
-			printComment( "\t\tbuild PROJECT=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
+			comment( "\t\tbuild PROJECT=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
 			if( project.isEmpty( this ) )
-				printComment( "\t\t\t(no items)" );
+				comment( "\t\t\t(no items)" );
 		}
 		else
 		if( set.CATEGORY == VarCATEGORY.PREBUILT ) {
 			if( project.isEmpty( this ) )
 				return;
 			
-			printComment( "\t\tget PROJECT=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
+			comment( "\t\tget PROJECT=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
 		}
 		else
 			exitUnexpectedCategory( set.CATEGORY );
@@ -130,7 +130,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		DistItemInfo info = dist.getDistItemInfo( this , distItem );
 		String status = ( info.found )? "OK (" + Common.getPath( info.subPath , info.fileName ) + ")" : "missing";
 		
-		printComment( "\t\t\t" + distItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
+		comment( "\t\t\t" + distItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printReleaseConfStatus( DistStorage dist , FileSet files , MetaReleaseTarget conf ) throws Exception {
@@ -138,7 +138,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		DistItemInfo info = dist.getDistItemInfo( this , conf.distConfItem );
 		String status = ( info.found )? "OK (" + Common.getPath( info.subPath , info.fileName ) + ")" : "missing";
 		
-		printComment( "\t\t" + conf.distConfItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
+		comment( "\t\t" + conf.distConfItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printReleaseManualStatus( DistStorage dist , FileSet files , MetaReleaseTarget conf ) throws Exception {
@@ -146,7 +146,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		DistItemInfo info = dist.getDistItemInfo( this , conf.distManualItem );
 		String status = ( info.found )? "OK (" + Common.getPath( info.subPath , info.fileName ) + ")" : "missing";
 		
-		printComment( "\t\t" + conf.distManualItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
+		comment( "\t\t" + conf.distManualItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printReleaseDatabaseStatus( DistStorage dist , FileSet files , MetaReleaseTarget db ) throws Exception {
@@ -155,7 +155,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		String folder = dist.getDeliveryDatabaseFolder( this , delivery );
 		FileSet dbset = files.getDirByPath( this , folder );
 		String status = ( dbset == null || dbset.isEmpty() )? "missing" : "OK";
-		printComment( "\t\t" + delivery.NAME + ": " + status + Common.getCommentIfAny( folder ) );
+		comment( "\t\t" + delivery.NAME + ": " + status + Common.getCommentIfAny( folder ) );
 	}
 
 }

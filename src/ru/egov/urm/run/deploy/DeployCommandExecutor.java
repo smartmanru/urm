@@ -32,8 +32,8 @@ public class DeployCommandExecutor extends CommandExecutor {
 		super.defineAction( CommandAction.newAction( new DeployRedist() , "deployredist" , "copy items from staging area to runtime area and restart servers when required" , cmdOpts , "./deployredist.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "GETOPT_ALL, GETOPT_DEPLOYGROUP, GETOPT_STARTGROUP, GETOPT_DCMASK, GETOPT_UNIT, GETOPT_RELEASE, GETOPT_KEY, GETOPT_BACKUP";
 		super.defineAction( CommandAction.newAction( new DropRedist() , "dropredist" , "clean staging area" , cmdOpts , "./dropredist.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
-		cmdOpts = "GETOPT_ALL, GETOPT_DEPLOYGROUP, GETOPT_STARTGROUP, GETOPT_DCMASK, GETOPT_UNIT, GETOPT_TAG, GETOPT_KEY, GETOPT_BACKUP, GETOPT_OBSOLETE, GETOPT_DEPLOYCONF, GETOPT_DEPLOYBINARY, GETOPT_DEPLOYHOT, GETOPT_DEPLOYCOLD";
-		super.defineAction( CommandAction.newAction( new GetDeployInfo() , "getdeployinfo" , "get information about items deployed to environment" , cmdOpts , "./getdeployinfo.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
+		cmdOpts = "GETOPT_ALL, GETOPT_DEPLOYGROUP, GETOPT_STARTGROUP, GETOPT_DCMASK, GETOPT_UNIT, GETOPT_KEY, GETOPT_DEPLOYCONF, GETOPT_DEPLOYBINARY, GETOPT_DEPLOYHOT, GETOPT_DEPLOYCOLD";
+		super.defineAction( CommandAction.newAction( new GetDeployInfo() , "getdeployinfo" , "get information about items deployed to environment by state information" , cmdOpts , "./getdeployinfo.sh [OPTIONS] <RELEASELABEL> {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "GETOPT_ALL, GETOPT_DEPLOYGROUP, GETOPT_STARTGROUP, GETOPT_DCMASK, GETOPT_UNIT, GETOPT_KEY, GETOPT_RELEASE, GETOPT_OBSOLETE, GETOPT_DEPLOYCONF, GETOPT_DEPLOYBINARY, GETOPT_DEPLOYHOT, GETOPT_DEPLOYCOLD";
 		super.defineAction( CommandAction.newAction( new GetRedistInfo() , "getredistinfo" , "get information about staging content" , cmdOpts , "./getredistinfo.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "GETOPT_ALL, GETOPT_DEPLOYGROUP, GETOPT_STARTGROUP, GETOPT_DCMASK, GETOPT_UNIT, GETOPT_KEY";
@@ -161,8 +161,8 @@ public class DeployCommandExecutor extends CommandExecutor {
 
 	private class GetDeployInfo extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		ActionScope scope = getServerScope( action );
-		impl.getDeployInfo( action , scope );
+		ActionScope scope = getReleaseScope( action );
+		impl.getDeployInfo( action , scope , scope.release );
 	}
 	}
 

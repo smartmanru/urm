@@ -3,6 +3,7 @@ package ru.egov.urm.meta;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
 import ru.egov.urm.meta.Metadata.VarDEPLOYTYPE;
 import ru.egov.urm.run.ActionBase;
 
@@ -52,11 +53,26 @@ public class MetaEnvServerLocation {
 		return( true );
 	}
 
+	public boolean hasConfItems( ActionBase action ) throws Exception {
+		if( confItems.isEmpty() )
+			return( false );
+		return( true );
+	}
+
 	public String getDeployName( ActionBase action , String key ) throws Exception {
 		String itemName = deployNameMap.get( key );
 		if( itemName == null || itemName.isEmpty() )
 			action.exitUnexpectedState();
 		return( itemName );
+	}
+
+	public VarCONTENTTYPE getContentType( ActionBase action , boolean binary ) throws Exception {
+		VarCONTENTTYPE contentType;
+		if( binary )
+			contentType = ( DEPLOYTYPE == VarDEPLOYTYPE.HOTDEPLOY )? VarCONTENTTYPE.BINARYHOTDEPLOY : VarCONTENTTYPE.BINARYCOLDDEPLOY;
+		else
+			contentType = ( DEPLOYTYPE == VarDEPLOYTYPE.HOTDEPLOY )? VarCONTENTTYPE.CONFHOTDEPLOY : VarCONTENTTYPE.CONFCOLDDEPLOY;
+		return( contentType );
 	}
 	
 }

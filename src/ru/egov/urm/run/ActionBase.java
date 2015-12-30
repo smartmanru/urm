@@ -152,7 +152,7 @@ abstract public class ActionBase {
 		output.logExact( s );
 	}
 	
-	public void printComment( String s ) throws Exception {
+	public void comment( String s ) throws Exception {
 		output.logExact( "# " + s );
 	}
 	

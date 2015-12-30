@@ -43,7 +43,9 @@ public class DeployCommand {
 			ca.runAll( scope );
 	}
 
-	public void getDeployInfo( ActionBase action , ActionScope scope ) throws Exception {
+	public void getDeployInfo( ActionBase action , ActionScope scope , DistStorage dist ) throws Exception {
+		ActionGetDeployInfo ca = new ActionGetDeployInfo( action , null , dist );
+		ca.runAll( scope );
 	}
 
 	public void getRedistInfo( ActionBase action , ActionScope scope , DistStorage dist ) throws Exception {
