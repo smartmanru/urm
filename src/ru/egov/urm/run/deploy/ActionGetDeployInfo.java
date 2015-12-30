@@ -8,17 +8,13 @@ import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScopeTarget;
 import ru.egov.urm.run.ActionScopeTargetItem;
-import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.RedistStateInfo;
 import ru.egov.urm.storage.RedistStorage;
 
 public class ActionGetDeployInfo extends ActionBase {
 
-	DistStorage dist;
-	
-	public ActionGetDeployInfo( ActionBase action , String stream , DistStorage dist ) {
+	public ActionGetDeployInfo( ActionBase action , String stream ) {
 		super( action , stream );
-		this.dist = dist;
 	}
 
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
