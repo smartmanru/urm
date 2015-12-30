@@ -49,7 +49,8 @@ public class ActionGetDeployInfo extends ActionBase {
 		VarCONTENTTYPE contentType = location.getContentType( this , binary );
 		RedistStateInfo info = redist.getStateInfo( this , location.DEPLOYPATH , contentType );
 		if( !info.exists ) {
-			comment( "state information is missing" );
+			String type = ( binary )? "binary" : "conf";
+			comment( "\t" + type + " state information is missing" );
 			return;
 		}
 			
