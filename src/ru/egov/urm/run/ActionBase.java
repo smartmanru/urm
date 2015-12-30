@@ -11,6 +11,7 @@ import ru.egov.urm.storage.DistStorage;
 
 abstract public class ActionBase {
 
+	public CommandExecutor executor;
 	public CommandContext context;
 	public Artefactory artefactory;
 	public CommandOptions options;
@@ -39,7 +40,8 @@ abstract public class ActionBase {
 	protected void runBefore( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception { trace( NAME + ": scope target item execute before is not implemented" ); };
 	protected void runAfter( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception { trace( NAME + ": scope target item execute after is not implemented" ); };
 	
-	public ActionBase( CommandContext context , CommandOptions options , CommandOutput output , Metadata meta ) {
+	public ActionBase( CommandExecutor executor , CommandContext context , CommandOptions options , CommandOutput output , Metadata meta ) {
+		this.executor = executor;
 		this.context = context;
 		this.options = options;
 		this.output = output;
@@ -52,6 +54,7 @@ abstract public class ActionBase {
 	}
 
 	public ActionBase( ActionBase base , String stream ) {
+		this.executor = base.executor;
 		this.context = new CommandContext( base.context , stream );
 		this.options = base.options;
 		this.output = base.output;
@@ -79,6 +82,15 @@ abstract public class ActionBase {
 	
 	public boolean isFailed() {
 		return( actionFailed );
+	}
+	
+	protected void setFailed() {
+		actionFailed = true;
+		executor.setFailed();
+	}
+	
+	public boolean isOK() {
+		return( ( actionFailed )? false : true );
 	}
 	
 	public String getMode() {
@@ -188,14 +200,6 @@ abstract public class ActionBase {
 
 	public void exitUnexpectedState() throws Exception {
 		exit( "unexpected state" );
-	}
-	
-	protected void setFailed() {
-		actionFailed = true;
-	}
-	
-	public boolean isOK() {
-		return( ( actionFailed )? false : true );
 	}
 	
 	public boolean runSimple() {

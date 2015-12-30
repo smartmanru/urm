@@ -7,6 +7,7 @@ import ru.egov.urm.meta.MetaSourceProject;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.run.CommandExecutor;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.vcs.GenericVCS;
 import ru.egov.urm.vcs.GitVCS;
@@ -58,7 +59,8 @@ public class Artefactory {
 		if( workFolder == null || ownFolder == false )
 			return;
 		
-		if( action.isFailed() || action.options.OPT_SHOWALL )
+		CommandExecutor executor = action.executor; 
+		if( executor.isFailed() || action.options.OPT_SHOWALL )
 			action.log( "saved work directory: " + workFolder.folderPath );
 		else
 			workFolder.removeThis( action );

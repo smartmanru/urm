@@ -16,22 +16,36 @@ public abstract class CommandExecutor {
 	public Metadata meta;
 	public boolean manualActions;
 	public CommandOptions options;
-	
+		
 	Map<String,CommandAction> actionsMap = new HashMap<String,CommandAction>();
 	List<CommandAction> actionsList = new LinkedList<CommandAction>();
+	public boolean executorFailed;
+	
+	public abstract boolean run( ActionInit action );
+	public boolean setManualOptions( CommandOptions options ) { return( false ); };
 	
 	public CommandExecutor( CommandBuilder builder ) {
 		this.builder = builder;
 		this.manualActions = false;
 		this.options = new CommandOptions();
+		this.executorFailed = false; 
 	}
 	
 	public CommandOptions getOptions() { 
 		return( options );
 	};
 	
-	public abstract boolean run( ActionInit action );
-	public boolean setManualOptions( CommandOptions options ) { return( false ); };
+	public boolean isFailed() {
+		return( executorFailed );
+	}
+	
+	protected void setFailed() {
+		executorFailed = true;
+	}
+	
+	public boolean isOK() {
+		return( ( executorFailed )? false : true );
+	}
 	
 	public void print( String s ) {
 		System.out.println( s );
@@ -179,7 +193,7 @@ public abstract class CommandExecutor {
 		
 		// start local shell
 		CommandOutput output = CommandOutput.createGenericOutput( options.OPT_SHOWALL , options.OPT_TRACE );
-		ActionInit action = new ActionInit( context , options , output , meta );
+		ActionInit action = new ActionInit( this , context , options , output , meta );
 		
 		// load product properties
 		meta.loadProduct( action );
