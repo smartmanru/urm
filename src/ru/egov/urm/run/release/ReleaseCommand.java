@@ -4,16 +4,12 @@ import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScope;
-import ru.egov.urm.run.CommandExecutor;
-import ru.egov.urm.run.build.BuildCommandImpl;
+import ru.egov.urm.run.build.BuildCommand;
 import ru.egov.urm.storage.DistStorage;
 
-public class ReleaseCommandImpl {
+public class ReleaseCommand {
 
-	CommandExecutor executor;
-	
-	public ReleaseCommandImpl( CommandExecutor executor ) {
-		this.executor = executor;
+	public ReleaseCommand() {
 	}
 
 	public void createRelease( ActionBase action , String RELEASELABEL , VarBUILDMODE BUILDMODE ) throws Exception {
@@ -80,12 +76,12 @@ public class ReleaseCommandImpl {
 	}
 
 	public void buildRelease( ActionBase action , String SET , String[] PROJECTS , DistStorage release ) throws Exception {
-		BuildCommandImpl buildImpl = new BuildCommandImpl( executor );
+		BuildCommand buildImpl = new BuildCommand();
 		buildImpl.buildRelease( action , SET , PROJECTS , release );
 	}
 
 	public void getAllRelease( ActionBase action , String SET , String[] PROJECTS , DistStorage release ) throws Exception {
-		BuildCommandImpl buildImpl = new BuildCommandImpl( executor );
+		BuildCommand buildImpl = new BuildCommand();
 		buildImpl.getAllRelease( action , SET , PROJECTS , release );
 	}
 

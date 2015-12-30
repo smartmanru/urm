@@ -14,7 +14,7 @@ import ru.egov.urm.storage.DistStorage;
 
 public class DatabaseCommandExecutor extends CommandExecutor {
 
-	DatabaseCommandImpl impl;
+	DatabaseCommand impl;
 	MetaEnv env;
 	MetaEnvDC dc;
 	
@@ -43,7 +43,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	public boolean run( ActionInit action ) {
 		try {
 			// create implementation
-			impl = new DatabaseCommandImpl( this );
+			impl = new DatabaseCommand();
 			meta.loadDistr( action );
 			meta.loadSources( action );
 			meta.loadEnv( action , action.context.env , action.context.dc , true );

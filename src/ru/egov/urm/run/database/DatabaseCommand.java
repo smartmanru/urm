@@ -4,16 +4,12 @@ import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaReleaseDelivery;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScope;
-import ru.egov.urm.run.CommandExecutor;
 import ru.egov.urm.run.CommandOptions.SQLMODE;
 import ru.egov.urm.storage.DistStorage;
 
-public class DatabaseCommandImpl {
+public class DatabaseCommand {
 
-	CommandExecutor executor;
-	
-	public DatabaseCommandImpl( CommandExecutor executor ) {
-		this.executor = executor;
+	public DatabaseCommand() {
 	}
 
 	public void initDatabase( ActionBase action , String SERVER ) throws Exception {

@@ -12,7 +12,7 @@ import ru.egov.urm.storage.DistStorage;
 
 public class ReleaseCommandExecutor extends CommandExecutor {
 
-	ReleaseCommandImpl impl;
+	ReleaseCommand impl;
 	String RELEASELABEL;
 	String[] ARGS;
 	
@@ -61,7 +61,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	public boolean run( ActionInit action ) {
 		try {
 			// create implementation
-			impl = new ReleaseCommandImpl( this );
+			impl = new ReleaseCommand();
 			meta.loadDistr( action );
 			meta.loadSources( action );
 		}

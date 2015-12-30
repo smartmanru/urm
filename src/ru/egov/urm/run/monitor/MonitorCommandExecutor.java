@@ -8,7 +8,7 @@ import ru.egov.urm.run.CommandExecutor;
 
 public class MonitorCommandExecutor extends CommandExecutor {
 
-	MonitorCommandImpl impl;
+	MonitorCommand impl;
 	
 	public MonitorCommandExecutor( CommandBuilder builder ) {
 		super( builder );
@@ -22,7 +22,7 @@ public class MonitorCommandExecutor extends CommandExecutor {
 			// create implementation
 			meta.loadProduct( action );
 			MetaMonitoring mon = meta.loadMonitoring( action );
-			impl = new MonitorCommandImpl( this , mon );
+			impl = new MonitorCommand( mon );
 		}
 		catch( Throwable e ) {
 			action.log( e );

@@ -10,19 +10,15 @@ import ru.egov.urm.meta.Metadata.VarCATEGORY;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScope;
 import ru.egov.urm.run.ActionScopeTarget;
-import ru.egov.urm.run.CommandExecutor;
 import ru.egov.urm.run.database.ActionGetDB;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.LogStorage;
 
-public class BuildCommandImpl {
+public class BuildCommand {
 	
-	CommandExecutor executor;
-	
-	public BuildCommandImpl( CommandExecutor executor ) {
-		this.executor = executor;
+	public BuildCommand() {
 	}
 
 	public void buildTags( ActionBase action , String TAG , ActionScope scope , LocalFolder OUTDIR , String OUTFILE ) throws Exception {
@@ -30,7 +26,7 @@ public class BuildCommandImpl {
 		ca.runEachBuildableProject( scope );
 		
 		if( ca.isFailed() ) {
-			if( executor.options.OPT_GET || executor.options.OPT_DIST )
+			if( action.options.OPT_GET || action.options.OPT_DIST )
 				action.log( "BUILD FAILED, do not download any artefacts" );
 			else
 				action.log( "BUILD FAILED" );
@@ -38,7 +34,7 @@ public class BuildCommandImpl {
 		else {
 			action.log( "BUILD SUCCESSFUL" );
 			
-			if( executor.options.OPT_GET || executor.options.OPT_DIST )
+			if( action.options.OPT_GET || action.options.OPT_DIST )
 				getAll( action , scope );
 		}
 	}
@@ -115,7 +111,7 @@ public class BuildCommandImpl {
 	}
 	
 	public void printActiveProperties( ActionBase action ) throws Exception {
-		Map<String,String> exports = executor.meta.product.getExportProperties( action );
+		Map<String,String> exports = action.meta.product.getExportProperties( action );
 		if( !exports.isEmpty() ) {
 			action.log( "----------------");
 			action.log( "product exports:");
@@ -124,7 +120,7 @@ public class BuildCommandImpl {
 				action.log( "export " + key + "=" + exports.get( key ) );
 		}
 		
-		Map<String,String> props = executor.meta.product.getProductProperties();
+		Map<String,String> props = action.meta.product.getProductProperties();
 		action.log( "-------------------");
 		action.log( "product properties:");
 		action.log( "-------------------");

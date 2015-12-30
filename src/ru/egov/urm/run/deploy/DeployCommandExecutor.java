@@ -12,7 +12,7 @@ import ru.egov.urm.storage.DistStorage;
 
 public class DeployCommandExecutor extends CommandExecutor {
 
-	DeployCommandImpl impl;
+	DeployCommand impl;
 	MetaEnv env;
 	MetaEnvDC dc;
 	
@@ -77,7 +77,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 	public boolean run( ActionInit action ) {
 		try {
 			// create implementation
-			impl = new DeployCommandImpl( this );
+			impl = new DeployCommand();
 			meta.loadDistr( action );
 			meta.loadSources( action );
 			

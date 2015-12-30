@@ -13,7 +13,7 @@ import ru.egov.urm.storage.LocalFolder;
 
 public class BuildCommandExecutor extends CommandExecutor {
 
-	BuildCommandImpl impl;
+	BuildCommand impl;
 
 	public boolean setManualOptions( CommandOptions options ) { return( false ); };
 	
@@ -58,7 +58,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 	public boolean run( ActionInit action ) {
 		try {
 			// create implementation
-			impl = new BuildCommandImpl( this );
+			impl = new BuildCommand();
 			meta.loadDistr( action );
 			meta.loadSources( action );
 		}

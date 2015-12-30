@@ -2,15 +2,12 @@ package ru.egov.urm.run.monitor;
 
 import ru.egov.urm.meta.MetaMonitoring;
 import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.CommandExecutor;
 
-public class MonitorCommandImpl {
+public class MonitorCommand {
 
-	CommandExecutor executor;
 	MetaMonitoring mon;
 	
-	public MonitorCommandImpl( CommandExecutor executor , MetaMonitoring mon ) {
-		this.executor = executor;
+	public MonitorCommand( MetaMonitoring mon ) {
 		this.mon = mon;
 	}
 
