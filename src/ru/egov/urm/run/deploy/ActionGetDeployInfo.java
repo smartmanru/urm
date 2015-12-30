@@ -48,6 +48,11 @@ public class ActionGetDeployInfo extends ActionBase {
 	private void showDeployInfoContent( MetaEnvServer server , RedistStorage redist , MetaEnvServerLocation location , boolean binary ) throws Exception {
 		VarCONTENTTYPE contentType = location.getContentType( this , binary );
 		RedistStateInfo info = redist.getStateInfo( this , location.DEPLOYPATH , contentType );
+		if( !info.exists ) {
+			comment( "state information is missing" );
+			return;
+		}
+			
 		for( String key : info.getKeys( this ) ) {
 			if( binary )
 				comment( "\tbinary " + key + ": file=" + info.getKeyFileName( this , key ) + ", version=" + info.getKeyVersion( this , key ) );

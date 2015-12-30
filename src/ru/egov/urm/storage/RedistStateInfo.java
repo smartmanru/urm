@@ -10,21 +10,25 @@ import ru.egov.urm.shell.ShellExecutor;
 
 public class RedistStateInfo {
 
+	public boolean exists;
 	private Map<String,String> verData;
 
 	public void gather( ActionBase action , MetaEnvServerNode node , String STATEDIR ) throws Exception {
 		verData = new HashMap<String,String>(); 
 		ShellExecutor shell = action.getShell( node.HOSTLOGIN );
-		String items = shell.customGetValue( action , STATEDIR , "if [ `find . -maxdepth 1 -name \"*.ver\" | wc -l` != 0 ]; then grep -H : *.ver; fi" );
-		if( items.indexOf( "No such file" ) >= 0 )
+		if( !shell.checkDirExists( action , STATEDIR ) ) {
+			exists = false;
 			return;
+		}
 		
-		// parse
+		String items = shell.customGetValue( action , STATEDIR , "if [ `find . -maxdepth 1 -name \"*.ver\" | wc -l` != 0 ]; then grep -H : *.ver; fi" );
 		for( String s : Common.split( items , "\n" ) ) {
 			String verName = Common.getPartBeforeFirst( s , ":" );
 			String verInfo = Common.getPartAfterFirst( s , ":" );
 			verData.put( verName , verInfo );
 		}
+		
+		exists = true;
 	}
 
 	public String[] getKeys( ActionBase action ) throws Exception {
