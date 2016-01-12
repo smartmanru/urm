@@ -1,5 +1,6 @@
 package ru.egov.urm.meta;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.w3c.dom.Node;
@@ -24,6 +25,8 @@ public class MetaDesignElement {
 	}
 
 	public void load( ActionBase action , Node node ) throws Exception {
+		links = new HashMap<String,MetaDesignLink>();
+		
 		NAME = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
 		TYPE = ConfReader.getRequiredAttrValue( action , node , "type" );
 		elementType = design.getElementType( action , TYPE );
