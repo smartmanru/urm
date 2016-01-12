@@ -2,4 +2,4 @@
 
 cd `dirname $0`
 
-../bin/urm.sh releasestatus "$@"
+../bin/urm.sh release status "$@"

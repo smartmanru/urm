@@ -2,4 +2,4 @@
 
 cd `dirname $0`
 
-../bin/urm.sh scope "$@"
+../bin/urm.sh release scope "$@"

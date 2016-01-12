@@ -2,4 +2,4 @@
 
 cd `dirname $0`
 
-../bin/urm.sh droprelease "$@"
+../bin/urm.sh release drop "$@"
