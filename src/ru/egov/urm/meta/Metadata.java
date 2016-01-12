@@ -24,7 +24,6 @@ public class Metadata {
 	static String S_REDIST_ARCHIVE_TYPE_CHILD = "child";
 	static String S_REDIST_ARCHIVE_TYPE_SUBDIR = "subdir";
 	
-	
 	public enum VarCATEGORY {
 		UNKNOWN ,
 		BUILD ,
@@ -172,6 +171,13 @@ public class Metadata {
 		MetadataStorage storage = action.artefactory.getMetadataStorage( action ); 
 		envData.load( action , storage , envFile , loadProps );
 		return( envData );
+	}
+	
+	public MetaDesign loadDesignData( ActionBase action ) throws Exception {
+		MetaDesign design = new MetaDesign( this );
+		MetadataStorage storage = action.artefactory.getMetadataStorage( action ); 
+		design.load( action , storage );
+		return( design );
 	}
 	
 	public void loadSources( ActionBase action ) throws Exception {

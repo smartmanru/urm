@@ -29,6 +29,10 @@ public class MetadataStorage {
 		 return( action.context.productHome + "/etc/distr.xml" );
 	}
 	
+	public String getDesignFile( ActionBase action ) throws Exception {
+		 return( action.context.productHome + "/etc/design.xml" );
+	}
+	
 	public String getLastProdTagFile( ActionBase action ) throws Exception {
 		return( action.context.productHome + "/etc/last-prod-tag.txt" );
 	}

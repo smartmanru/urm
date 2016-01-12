@@ -7,13 +7,11 @@ import ru.egov.urm.run.ActionInit;
 import ru.egov.urm.run.CommandAction;
 import ru.egov.urm.run.CommandBuilder;
 import ru.egov.urm.run.CommandExecutor;
-import ru.egov.urm.run.CommandOptions;
 import ru.egov.urm.storage.DistStorage;
 
 public class ReleaseCommandExecutor extends CommandExecutor {
 
 	ReleaseCommand impl;
-	String RELEASELABEL;
 	String[] ARGS;
 	
 	public ReleaseCommandExecutor( CommandBuilder builder ) {
@@ -21,43 +19,25 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		
 		String releaseOpts = "";
 		super.manualActions = true;
-		defineAction( new CreateRelease() , "create" , "create release" , releaseOpts , "{branch|trunk|majorbranch|devbranch|devtrunk}" );
-		defineAction( new DeleteRelease() , "drop" , "delete release" , releaseOpts , "" );
-		defineAction( new StatusRelease() , "status" , "get release status" , releaseOpts , "" );
-		defineAction( new CloseRelease() , "close" , "close release" , releaseOpts , "" );
+		defineAction( CommandAction.newAction( new CreateRelease() , "create" , "create release" , releaseOpts , "./create.sh [OPTIONS] <RLEASELABEL> {branch|trunk|majorbranch|devbranch|devtrunk}" ) );
+		defineAction( CommandAction.newAction( new DeleteRelease() , "drop" , "delete release" , releaseOpts , "./drop.sh [OPTIONS] <RLEASELABEL>" ) );
+		defineAction( CommandAction.newAction( new StatusRelease() , "status" , "get release status" , releaseOpts , "./status.sh [OPTIONS] <RLEASELABEL>" ) );
+		defineAction( CommandAction.newAction( new CloseRelease() , "close" , "close release" , releaseOpts , "./close.sh [OPTIONS] <RLEASELABEL>" ) );
 		String addOpts = "GETOPT_BRANCH,GETOPT_TAG,GETOPT_VERSION,GETOPT_REPLACE";
-		defineAction( new AddReleaseBuildProjects() , "add" , "add projects to build (except for prebuilt) and use all its binary items" , addOpts , "set [target1 target2 ...]" );
-		defineAction( new AddReleaseBuildItems() , "additems" , "add specified binary items to built (if not prebuilt) and get" , addOpts , "item1 [item2 ...]" );
+		defineAction( CommandAction.newAction( new AddReleaseBuildProjects() , "scope" , "add projects to build (except for prebuilt) and use all its binary items" , addOpts , "./scope.sh [OPTIONS] <RLEASELABEL> <set> [target1 target2 ...]" ) );
+		defineAction( CommandAction.newAction( new AddReleaseBuildItems() , "scopeitems" , "add specified binary items to built (if not prebuilt) and get" , addOpts , "./scopeitems.sh [OPTIONS] <RLEASELABEL> item1 [item2 ...]" ) );
 		String addDbOpts = "GETOPT_ALL";
-		defineAction( new AddReleaseDatabaseItems() , "adddb" , "add database changes to release deliveries" , addDbOpts , "delivery1 [delivery2 ...]" );
+		defineAction( CommandAction.newAction( new AddReleaseDatabaseItems() , "scopedb" , "add database changes to release deliveries" , addDbOpts , "./scopedb.sh [OPTIONS] <RLEASELABEL> delivery1 [delivery2 ...]" ) );
 		String addConfOpts = "GETOPT_REPLACE";
-		defineAction( new AddReleaseConfigItems() , "addconf" , "add configuration items to release" , addConfOpts , "[component1 component2 ...]" );
+		defineAction( CommandAction.newAction( new AddReleaseConfigItems() , "scopeconf" , "add configuration items to release" , addConfOpts , "./scopeconf.sh [OPTIONS] <RLEASELABEL> [component1 component2 ...]" ) );
 		String buildReleaseOpts = "GETOPT_DIST,GETOPT_CHECK";
-		defineAction( new BuildRelease() , "build" , "build release and (with -get) " , buildReleaseOpts , "[set [projects]]" );
+		defineAction( CommandAction.newAction( new BuildRelease() , "build" , "build release and (with -get) " , buildReleaseOpts , "./build.sh [OPTIONS] <RLEASELABEL> [set [projects]]" ) );
 		String getReleaseOpts = "GETOPT_DIST,GETOPT_MOVE_ERRORS";
-		defineAction( new GetRelease() , "get" , "download ready and/or built release items" , getReleaseOpts , "[set [projects]]" );
+		defineAction( CommandAction.newAction( new GetRelease() , "getdist" , "download ready and/or built release items" , getReleaseOpts , "./getdist.sh [OPTIONS] <RLEASELABEL> [set [projects]]" ) );
 		String getDescopeOpts = "";
-		defineAction( new DescopeRelease() , "descope" , "descope release elements" , getDescopeOpts , "set [project [project items]|configuration components|database deliveries]" );
+		defineAction( CommandAction.newAction( new DescopeRelease() , "descope" , "descope release elements" , getDescopeOpts , "./descope.sh [OPTIONS] <RLEASELABEL> set [project [project items]|configuration components|database deliveries]" ) );
 	}	
 
-	private void defineAction( CommandAction method , String action , String function , String opts , String syntaxArgs ) {
-		super.defineAction( CommandAction.newAction( method , action , function , opts , "./release.sh [OPTIONS] " + action + " <RELEASELABEL> " + syntaxArgs ) );
-	}
-	
-	@Override public boolean setManualOptions( CommandOptions options ) {
-		String action = options.getArg( 0 );
-		RELEASELABEL = options.getArg( 1 );
-		if( !super.setAction( action , RELEASELABEL ) )
-			return( false );
-		
-		if( RELEASELABEL.isEmpty() ) {
-			super.print( "Missing RELEASELABEL. Run release.sh to see help." );
-			return( false );
-		}
-		
-		return( true );
-	}
-	
 	public boolean run( ActionInit action ) {
 		try {
 			// create implementation
@@ -77,37 +57,42 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 
 	private class CreateRelease extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		VarBUILDMODE BUILDMODE = options.getRequiredBuildModeArg( action , 2 );
-		options.checkNoArgs( action , 3 );
+		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
+		VarBUILDMODE BUILDMODE = options.getRequiredBuildModeArg( action , 1 );
+		options.checkNoArgs( action , 2 );
 		impl.createRelease( action , RELEASELABEL , BUILDMODE );
 	}
 	}
 
 	private class DeleteRelease extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		options.checkNoArgs( action , 2 );
+		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
+		options.checkNoArgs( action , 1 );
 		impl.deleteRelease( action , RELEASELABEL , options.OPT_FORCE );
 	}
 	}
 
 	private class CloseRelease extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		options.checkNoArgs( action , 2 );
+		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
+		options.checkNoArgs( action , 1 );
 		impl.closeRelease( action , RELEASELABEL );
 	}
 	}
 
 	private class StatusRelease extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		options.checkNoArgs( action , 2 );
+		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
+		options.checkNoArgs( action , 1 );
 		impl.statusRelease( action , RELEASELABEL );
 	}
 	}
 
 	private class AddReleaseBuildProjects extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		String SET = options.getArg( 2 );
-		String[] elements = options.getArgList( 3 );
+		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
+		String SET = options.getArg( 1 );
+		String[] elements = options.getArgList( 2 );
 		
 		impl.addReleaseBuildProjects( action , RELEASELABEL , SET , elements );
 	}
@@ -115,7 +100,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 
 	private class AddReleaseConfigItems extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		String[] elements = options.getArgList( 2 );
+		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
+		String[] elements = options.getArgList( 1 );
 		
 		impl.addReleaseConfigItems( action , RELEASELABEL , elements );
 	}
@@ -123,7 +109,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 
 	private class AddReleaseDatabaseItems extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		String[] elements = options.getArgList( 2 );
+		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
+		String[] elements = options.getArgList( 1 );
 		
 		impl.addReleaseDatabaseItems( action , RELEASELABEL , elements );
 	}
@@ -131,7 +118,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 
 	private class AddReleaseBuildItems extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		String[] elements = options.getArgList( 2 );
+		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
+		String[] elements = options.getArgList( 1 );
 		
 		impl.addReleaseBuildItems( action , RELEASELABEL , elements );
 	}
@@ -139,8 +127,9 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 
 	private class BuildRelease extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		String SET = options.getArg( 2 );
-		String[] PROJECTS = options.getArgList( 3 );
+		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
+		String SET = options.getArg( 1 );
+		String[] PROJECTS = options.getArgList( 2 );
 
 		DistStorage release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		
@@ -150,8 +139,9 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 
 	private class GetRelease extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		String SET = options.getArg( 2 );
-		String[] PROJECTS = options.getArgList( 3 );
+		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
+		String SET = options.getArg( 1 );
+		String[] PROJECTS = options.getArgList( 2 );
 
 		DistStorage release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		
@@ -161,30 +151,31 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 
 	private class DescopeRelease extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
+		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
 		DistStorage release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		
-		String SET = options.getRequiredArg( action , 2 , "SET" );
+		String SET = options.getRequiredArg( action , 1 , "SET" );
 		if( SET.equals( "all" ) ) {
 			impl.descopeAll( action , release );
 		}
 		else
 		if( SET.equals( Common.getEnumLower( VarCATEGORY.CONFIG ) ) ) {
-			String[] COMPS = options.getArgList( 3 );
+			String[] COMPS = options.getArgList( 2 );
 			impl.descopeConfComps( action , release , COMPS );
 		}
 		else
 		if( SET.equals( Common.getEnumLower( VarCATEGORY.DB ) ) ) {
-			String[] ITEMS = options.getArgList( 3 );
+			String[] ITEMS = options.getArgList( 2 );
 			impl.descopeDatabase( action , release , ITEMS );
 		}
 		else
 		if( SET.equals( Common.getEnumLower( VarCATEGORY.MANUAL ) ) ) {
-			String[] ITEMS = options.getArgList( 3 );
+			String[] ITEMS = options.getArgList( 2 );
 			impl.descopeManualItems( action , release , ITEMS );
 		}
 		else {
-			String PROJECT = options.getArg( 3 );
-			String[] ITEMS = options.getArgList( 4 );
+			String PROJECT = options.getArg( 2 );
+			String[] ITEMS = options.getArgList( 3 );
 			impl.descopeBinary( action , release , SET , PROJECT , ITEMS );
 		}
 	}
