@@ -18,7 +18,6 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		super( builder );
 		
 		String releaseOpts = "";
-		super.manualActions = true;
 		defineAction( CommandAction.newAction( new CreateRelease() , "create" , "create release" , releaseOpts , "./create.sh [OPTIONS] <RLEASELABEL> {branch|trunk|majorbranch|devbranch|devtrunk}" ) );
 		defineAction( CommandAction.newAction( new DeleteRelease() , "drop" , "delete release" , releaseOpts , "./drop.sh [OPTIONS] <RLEASELABEL>" ) );
 		defineAction( CommandAction.newAction( new StatusRelease() , "status" , "get release status" , releaseOpts , "./status.sh [OPTIONS] <RLEASELABEL>" ) );
