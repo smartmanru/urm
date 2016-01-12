@@ -26,11 +26,12 @@ public class ActionCreateDesignDoc extends ActionBase {
 
 	@Override protected boolean executeSimple() throws Exception {
 		if( CMD.equals( "png" ) ) {
-			createDot();
-			createPng();
+			String dotFile = OUTFILE + ".dot";
+			createDot( dotFile );
+			createPng( dotFile , OUTFILE );
 		}
 		else if( CMD.equals( "dot" ) ) {
-			createDot();
+			createDot( OUTFILE );
 		}
 		else
 			exit( "unknown command=" + CMD );
@@ -38,7 +39,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		return( true );
 	}
 
-	private void createDot() throws Exception {
+	private void createDot( String fileName ) throws Exception {
 		List<String> lines = new LinkedList<String>();
 		
 		createDotHeading( lines );
@@ -47,6 +48,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 			MetaDesignElement element = design.getElement( this , elementName );
 			createDotElement( lines , element );
 		}
+		lines.add( "" );
 		
 		for( String elementName : Common.getSortedKeys( design.elements ) ) {
 			MetaDesignElement element = design.getElement( this , elementName );
@@ -57,7 +59,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		}
 
 		createDotFooter( lines );
-		Common.createFileFromStringList( OUTFILE ,  lines );
+		Common.createFileFromStringList( fileName ,  lines );
 	}
 
 	private void createDotHeading( List<String> lines ) throws Exception {
@@ -114,7 +116,9 @@ public class ActionCreateDesignDoc extends ActionBase {
 		lines.add( "}" );
 	}
 
-	private void createPng() throws Exception {
+	private void createPng( String fileDot , String filePng ) throws Exception {
+		String cmd = "dot -Tpng " + fileDot + " -o " + filePng;
+		session.customCheckStatus( this , cmd );
 	}
 	
 }
