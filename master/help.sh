@@ -9,5 +9,7 @@ if [ "$1" = "" ]; then
 fi
 
 # category help
+CATEGORY=$1
 shift 1
-./bin/urm.sh $1 help "$@"
+
+./bin/urm.sh $CATEGORY help "$@"
