@@ -2,4 +2,4 @@
 
 cd `dirname $0`
 
-./bin/urm.sh build "$@"
+../bin/urm.sh build "$@"

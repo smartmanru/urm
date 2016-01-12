@@ -2,4 +2,4 @@
 
 cd `dirname $0`
 
-./bin/urm.sh getdist "$@"
+../bin/urm.sh getdist "$@"
