@@ -6,6 +6,7 @@ import ru.egov.urm.run.database.DatabaseCommandExecutor;
 import ru.egov.urm.run.deploy.DeployCommandExecutor;
 import ru.egov.urm.run.monitor.MonitorCommandExecutor;
 import ru.egov.urm.run.release.ReleaseCommandExecutor;
+import ru.egov.urm.run.xdoc.XDocCommandExecutor;
 
 public class CommandBuilder {
 
@@ -41,6 +42,9 @@ public class CommandBuilder {
 			out( "\tdatabase - apply database changes, perform database maintenance operations" );
 			out( "\tmonitor - check environments and create monitoring reports" );
 			out( "\trelease - release operations" );
+			out( "\txdoc - create technical documentation" );
+			out( "" );
+			out( "To see help on operations run ./help.sh <command> [<action>]" );
 			return( null );
 		}
 
@@ -56,6 +60,8 @@ public class CommandBuilder {
 			executor = new MonitorCommandExecutor( this );
 		else if( cmd.equals( "release" ) )
 			executor = new ReleaseCommandExecutor( this );
+		else if( cmd.equals( "xdoc" ) )
+			executor = new XDocCommandExecutor( this );
 		else {
 			out( "invalid URM args - unknown command category=" + cmd + " (expected one of build/deploy/database/monitor)" );
 			return( null );

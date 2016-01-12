@@ -45,5 +45,12 @@ public class MetaDesignElement {
 		for( MetaDesignLink link : links.values() )
 			link.resolve( action );
 	}
+
+	public MetaDesignLink getLink( ActionBase action , String ID ) throws Exception {
+		MetaDesignLink link = links.get( ID );
+		if( ID == null )
+			action.exit( "unknown link=" + ID );
+		return( link );
+	}
 	
 }

@@ -7,7 +7,6 @@ import ru.egov.urm.run.ActionScopeTarget;
 import ru.egov.urm.run.CommandAction;
 import ru.egov.urm.run.CommandBuilder;
 import ru.egov.urm.run.CommandExecutor;
-import ru.egov.urm.run.CommandOptions;
 import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.LocalFolder;
 
@@ -15,8 +14,6 @@ public class BuildCommandExecutor extends CommandExecutor {
 
 	BuildCommand impl;
 
-	public boolean setManualOptions( CommandOptions options ) { return( false ); };
-	
 	public BuildCommandExecutor( CommandBuilder builder ) {
 		super( builder );
 		

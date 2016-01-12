@@ -12,7 +12,6 @@ import ru.egov.urm.storage.DistStorage;
 public class ReleaseCommandExecutor extends CommandExecutor {
 
 	ReleaseCommand impl;
-	String[] ARGS;
 	
 	public ReleaseCommandExecutor( CommandBuilder builder ) {
 		super( builder );

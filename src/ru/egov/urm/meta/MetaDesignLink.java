@@ -11,8 +11,8 @@ public class MetaDesignLink {
 	MetaDesign design;
 	MetaDesignElement element;
 	
-	String TARGET;
-	MetaDesignElement target;
+	public String TARGET;
+	public MetaDesignElement target;
 	public String TYPE;
 	public VarLINKTYPE linkType;
 	public String TEXT;
