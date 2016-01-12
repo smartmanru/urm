@@ -40,7 +40,7 @@ public class CommandBuilder {
 			out( "\tdeploy - deploy distributive items to environment and environment maintenance operations" );
 			out( "\tdatabase - apply database changes, perform database maintenance operations" );
 			out( "\tmonitor - check environments and create monitoring reports" );
-			out( "\trelease - integral release operations" );
+			out( "\trelease - release operations" );
 			return( null );
 		}
 
