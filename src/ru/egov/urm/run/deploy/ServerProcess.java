@@ -80,7 +80,7 @@ public class ServerProcess {
 	
 	private void gatherServiceStatus( ActionBase action ) throws Exception {
 		ShellExecutor shell = action.getShell( node.HOSTLOGIN );
-		cmdValue = shell.customGetValue( action , "service " + srv.SERVICENAME + " status" );
+		cmdValue = shell.customGetValue( action , "service " + srv.SERVICENAME + " status 2>&1" );
 		
 		if( cmdValue.indexOf( "is stopped" ) >= 0 || cmdValue.indexOf( "is not running" ) >= 0 ) {
 			mode = VarPROCESSMODE.STOPPED;
