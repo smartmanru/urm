@@ -113,7 +113,7 @@ public class CommandBuilder {
 		else
 			action.comment( name + ": COMMAND FAILED" );
 			
-		return( true );
+		return( res );
 	}
 
 	private boolean createCommandContext( CommandExecutor executor ) throws Exception {

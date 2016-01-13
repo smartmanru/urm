@@ -18,8 +18,8 @@ public class Engine {
 			if( flg )
 				debug = true;
 			
-			builder.run( executor );
-			System.exit( 0 );
+			boolean res = builder.run( executor );
+			System.exit( ( res )? 0 : 1 );
 		}
 		catch( Throwable e ) {
 			ExitException ex = Common.getExitException( e );
