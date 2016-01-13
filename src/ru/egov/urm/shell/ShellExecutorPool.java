@@ -46,7 +46,7 @@ public class ShellExecutorPool {
 			shell.start( action );
 		}
 		else {
-			String REDISTPATH = ( action.meta.env != null )? action.meta.env.DISTR_PATH : action.meta.product.CONFIG_REDISTPATH;
+			String REDISTPATH = action.meta.product.CONFIG_REDISTPATH;
 			shell = new RemoteShellExecutor( name , this , execHostLogin , REDISTPATH );
 			shell.start( action );
 		}
