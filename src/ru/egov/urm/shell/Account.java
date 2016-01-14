@@ -11,11 +11,10 @@ public class Account {
 	public String HOST;
 	
 	public Account( String user , String host , boolean local ) {
-		this.local = local;
 		this.USER = user;
 		this.HOST = host;
 		this.HOSTLOGIN = user + "@" + host;
-System.out.println( "host=" + HOST + ", user=" + USER + ", local=" + local );		
+		this.local = local;
 	}
 	
 	private Account( String user , String host ) {
@@ -29,9 +28,9 @@ System.out.println( "host=" + HOST + ", user=" + USER + ", local=" + local );
 		if( account.HOSTLOGIN.equals( "local" ) || 
 			account.HOSTLOGIN.equals( action.context.account.HOSTLOGIN ) )
 			account.local = true;
+		else
+			account.local = false;
 		
-		account.local = false;
-System.out.println( "host=" + account.HOST + ", user=" + account.USER + ", local=" + account.local );		
 		return( account );
 	}
 	
