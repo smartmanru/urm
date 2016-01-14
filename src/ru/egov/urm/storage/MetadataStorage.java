@@ -57,6 +57,12 @@ public class MetadataStorage {
 		 return( action.context.productHome + "/etc/env/" + envFile );
 	}
 	
+	public String[] getEnvFiles( ActionBase action ) throws Exception {
+		LocalFolder folder = artefactory.getAnyFolder( action , action.context.productHome + "/etc/env/" );
+		String[] files = folder.findFiles( action , "*.xml" );
+		return( files );
+	}
+	
 	public String getDatapumpFile( ActionBase action , String specFile ) throws Exception {
 		 return( action.context.productHome + "/etc/datapump/" + specFile );
 	}

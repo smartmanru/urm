@@ -1,7 +1,9 @@
 package ru.egov.urm.run.xdoc;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaDesign;
@@ -9,7 +11,11 @@ import ru.egov.urm.meta.MetaDesign.VarELEMENTTYPE;
 import ru.egov.urm.meta.MetaDesign.VarLINKTYPE;
 import ru.egov.urm.meta.MetaDesignElement;
 import ru.egov.urm.meta.MetaDesignLink;
+import ru.egov.urm.meta.MetaEnv;
+import ru.egov.urm.meta.MetaEnvDC;
+import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.storage.MetadataStorage;
 
 public class ActionCreateDesignDoc extends ActionBase {
 
@@ -25,6 +31,8 @@ public class ActionCreateDesignDoc extends ActionBase {
 	}
 
 	@Override protected boolean executeSimple() throws Exception {
+		verifyConfiguration();
+		
 		if( CMD.equals( "png" ) ) {
 			String dotFile = OUTFILE + ".dot";
 			createDot( dotFile );
@@ -39,6 +47,28 @@ public class ActionCreateDesignDoc extends ActionBase {
 		return( true );
 	}
 
+	private void verifyConfiguration() throws Exception {
+		Map<String,String> usedServers = new HashMap<String,String>();
+		
+		// verify all prod environments
+		MetadataStorage ms = artefactory.getMetadataStorage( this );
+		String[] files = ms.getEnvFiles( this );
+		for( String envFile : files ) {
+			MetaEnv env = meta.loadEnvData( this , envFile , false );
+			verifyEnvServers( env , usedServers );
+		}
+		
+		// verify all design servers are mentioned in prod environment
+		for( MetaDesignElement element : design.elements.values() ) {
+			if( !usedServers.containsKey( element.NAME ) )
+				exit( "design server=" + element.NAME + " is not found in PROD (production environments)" );
+		}
+	}
+
+	private void verifyEnvServers( MetaEnv env , Map<String,String> usedServers ) throws Exception {
+		for( MetaEnvDC dc : env.getDCMap( this ).values() )
+	}
+	
 	private void createDot( String fileName ) throws Exception {
 		List<String> lines = new LinkedList<String>();
 		

@@ -20,6 +20,7 @@ public class MetaEnvServer {
 	public MetaEnvDC dc;
 	
 	public String NAME;
+	public String DESIGN;
 	private String BASELINE;
 	public boolean OFFLINE;
 	
@@ -160,7 +161,8 @@ public class MetaEnvServer {
 			BASELINE = NAME;
 		
 		TYPE = action.meta.getServerType( action , properties.getSystemRequiredProperty( action , "type" , systemProps ) );
-		OFFLINE = properties.getSystemBooleanProperty( action , "offline" , false , systemProps ); 
+		OFFLINE = properties.getSystemBooleanProperty( action , "offline" , false , systemProps );
+		DESIGN = properties.getSystemProperty( action , "offline" , NAME , systemProps );
 		
 		if( TYPE == VarSERVERTYPE.DATABASE ) {
 			DBMSTYPE = action.meta.getDbmsType( action , properties.getSystemRequiredProperty( action , "dbmstype" , systemProps ) );

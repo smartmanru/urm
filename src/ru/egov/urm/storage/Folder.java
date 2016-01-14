@@ -328,7 +328,7 @@ public abstract class Folder {
 
 	public String[] findFiles( ActionBase action , String mask ) throws Exception {
 		ShellExecutor session = getSession( action );
-		String[] list = session.customGetLines( action , folderPath , "find . -name " + Common.getQuoted( mask ) );
+		String[] list = session.customGetLines( action , folderPath , "find . -type f -name " + Common.getQuoted( mask ) );
 		List<String> items = new LinkedList<String>();
 		for( String item : list ) {
 			if( item.equals( "." ) || item.equals( ".." ) )
