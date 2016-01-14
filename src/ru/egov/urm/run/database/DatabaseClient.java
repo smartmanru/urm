@@ -29,7 +29,15 @@ public class DatabaseClient {
 		// check connect to admin schema
 		String user = server.admSchema.DBUSER;
 		String pwd = getUserPassword( action , user );
-		return( specific.checkConnect( action , server , user , pwd ) );
+		try { 
+			return( specific.checkConnect( action , server , user , pwd ) );
+		}
+		catch( Throwable e ) {
+			action.log( e );
+		}
+		
+		action.log( "unable to connect to database server=" + server );
+		return( false );
 	}
 	
 	public String getUserPassword( ActionBase action , String user ) throws Exception {
