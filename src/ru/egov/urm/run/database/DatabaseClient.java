@@ -8,6 +8,7 @@ import ru.egov.urm.meta.MetaDatabaseSchema;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.FileSet;
 import ru.egov.urm.storage.LocalFolder;
@@ -76,8 +77,8 @@ public class DatabaseClient {
 			action.exit( "need to check connectivity first" );
 			
 		// copy folder to remote
-		String hostLogin = getDatabaseAccount( action );
-		RedistStorage storage = action.artefactory.getRedistStorage( "database" , hostLogin );
+		Account account = getDatabaseAccount( action );
+		RedistStorage storage = action.artefactory.getRedistStorage( "database" , account );
 		RemoteFolder folder = storage.getRedistTmpFolder( action );
 		folder.recreateThis( action );
 		
@@ -88,7 +89,7 @@ public class DatabaseClient {
 		}
 
 		folder.copyDirContentFromLocal( action , files , "" );
-		ShellExecutor shell = action.getShell( hostLogin );
+		ShellExecutor shell = action.getShell( account );
 		
 		RemoteFolder logFolder = folder.getSubFolder( action , "out" );
 		logFolder.ensureExists( action );
@@ -121,10 +122,10 @@ public class DatabaseClient {
 		return( specific.applySystemScript( action , server , shell , fileRun , fileLog ) );
 	}
 
-	public String getDatabaseAccount( ActionBase action ) throws Exception {
+	public Account getDatabaseAccount( ActionBase action ) throws Exception {
 		for( MetaEnvServerNode node : server.getNodes( action ) )
 			if( !node.OFFLINE )
-				return( node.HOSTLOGIN );
+				return( action.getAccount( node ) );
 		action.exit( "server " + server.NAME + " has no online nodes defined" );
 		return( null );
 	}

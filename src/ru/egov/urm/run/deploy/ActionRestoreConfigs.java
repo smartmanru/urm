@@ -110,8 +110,8 @@ public class ActionRestoreConfigs extends ActionBase {
 		}
 		else {
 			log( "restore system configuraton component from live ..." );
-			RuntimeStorage runtime = artefactory.getRuntimeStorage( server , node );
-			RedistStorage redist = artefactory.getRedistStorage( server , node );
+			RuntimeStorage runtime = artefactory.getRuntimeStorage( this , server , node );
+			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 			runtime.restoreSysConfigs( this , redist , parent.getSubFolder( this , name ) );
 		}
 	}
@@ -135,8 +135,8 @@ public class ActionRestoreConfigs extends ActionBase {
 		else {
 			log( "restore configuraton item=" + confItem.KEY + " from live ..." );
 			
-			RuntimeStorage runtime = artefactory.getRuntimeStorage( server , node );
-			RedistStorage redist = artefactory.getRedistStorage( server , node );
+			RuntimeStorage runtime = artefactory.getRuntimeStorage( this , server , node );
+			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 			runtime.restoreConfigItem( this , redist , live , deployment , confItem , version );
 		}
 	}
@@ -155,8 +155,8 @@ public class ActionRestoreConfigs extends ActionBase {
 		else {
 			log( "restore configuraton item=" + confItem.KEY + " from templates ..." );
 			
-			RuntimeStorage runtime = artefactory.getRuntimeStorage( server , node );
-			RedistStorage redist = artefactory.getRedistStorage( server , node );
+			RuntimeStorage runtime = artefactory.getRuntimeStorage( this , server , node );
+			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 			runtime.restoreConfigItem( this , redist , live , deployment , confItem , version );
 		}
 	}

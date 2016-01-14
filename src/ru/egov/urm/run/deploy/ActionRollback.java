@@ -47,7 +47,7 @@ public class ActionRollback extends ActionBase {
 		boolean hasDeployments = false;
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
-			RedistStorage redist = artefactory.getRedistStorage( server , node );
+			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 			
 			ServerDeployment deployment = redist.getDeployment( this , dist.RELEASEDIR );
 			deps[ k++ ] = deployment;
@@ -74,7 +74,7 @@ public class ActionRollback extends ActionBase {
 	}
 
 	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , ServerDeployment deployment ) throws Exception {
-		RuntimeStorage runtime = artefactory.getRuntimeStorage( server , node );
+		RuntimeStorage runtime = artefactory.getRuntimeStorage( this , server , node );
 		runtime.rollback( this , dist.RELEASEDIR , deployment );
 	}
 	

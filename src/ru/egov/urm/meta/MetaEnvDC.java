@@ -10,6 +10,7 @@ import org.w3c.dom.Node;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.PropertySet;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.shell.Account;
 
 public class MetaEnvDC {
 
@@ -145,7 +146,7 @@ public class MetaEnvDC {
 		return( s );
 	}
 
-	public String getServerNodesByAccount( ActionBase action , String account ) throws Exception {
+	public String getServerNodesByAccount( ActionBase action , Account account ) throws Exception {
 		String s = "";
 		for( MetaEnvServer server : originalList ) {
 			String sn = server.getNodesAsStringByAccount( action , account );

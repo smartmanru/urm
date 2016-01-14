@@ -6,13 +6,14 @@ import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.Metadata.VarPROCESSMODE;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.LocalFolder;
 
 public class DatabaseOracleSpecific extends DatabaseSpecific {
 
-	public VarPROCESSMODE getProcessStatus( ActionBase action , String hostLogin , String instance ) throws Exception {
-		ShellExecutor shell = action.getShell( hostLogin );
+	public VarPROCESSMODE getProcessStatus( ActionBase action , Account account , String instance ) throws Exception {
+		ShellExecutor shell = action.getShell( account );
 		String value = shell.customGetValue( action , "echo " + 
 				Common.getQuoted( "select 'status=' || status from gv\\$instance where instance_name = '" + instance + "';" ) + 
 				" | sqlplus -S / " + Common.getQuoted( "as sysdba" ) );

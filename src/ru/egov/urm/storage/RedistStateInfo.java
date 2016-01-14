@@ -6,6 +6,7 @@ import java.util.Map;
 import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
 
 public class RedistStateInfo {
@@ -15,7 +16,7 @@ public class RedistStateInfo {
 
 	public void gather( ActionBase action , MetaEnvServerNode node , String STATEDIR ) throws Exception {
 		verData = new HashMap<String,String>(); 
-		ShellExecutor shell = action.getShell( node.HOSTLOGIN );
+		ShellExecutor shell = action.getShell( Account.getAccount( action , node.HOSTLOGIN ) );
 		if( !shell.checkDirExists( action , STATEDIR ) ) {
 			exists = false;
 			return;

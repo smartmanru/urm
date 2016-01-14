@@ -91,7 +91,7 @@ public class NexusStorage {
 		artefactoryFolder.appendFileWithString( action , fname , "WARFILELS=" + fileInfo );
 		artefactoryFolder.appendFileWithString( action , fname , "TAG=" + TAGNAME );
 		artefactoryFolder.appendFileWithString( action , fname , "DATE=" + Common.getLogTimeStamp() );
-		artefactoryFolder.appendFileWithString( action , fname , "BUILDMACHINE=" + action.context.hostLogin );
+		artefactoryFolder.appendFileWithString( action , fname , "BUILDMACHINE=" + action.context.account.HOSTLOGIN );
 		artefactoryFolder.appendFileWithString( action , fname , "-------------" );
 		artefactoryFolder.appendFileWithString( action , fname , "BUILDINFO v." + meta.product.CONFIG_APPVERSION );
 	}

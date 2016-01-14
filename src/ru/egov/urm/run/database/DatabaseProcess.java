@@ -15,7 +15,7 @@ public class DatabaseProcess {
 	public VarPROCESSMODE getStatus( ActionBase action ) throws Exception {
 		try {
 			DatabaseSpecific specific = DatabaseSpecific.getSpecificHandler( action , node.server.DBMSTYPE );
-			VarPROCESSMODE mode = specific.getProcessStatus( action , node.HOSTLOGIN , node.INSTANCE );
+			VarPROCESSMODE mode = specific.getProcessStatus( action , action.getAccount( node ) , node.INSTANCE );
 			return( mode );
 		}
 		catch( Throwable e ) {

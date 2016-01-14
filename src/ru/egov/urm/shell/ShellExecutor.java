@@ -378,157 +378,157 @@ public abstract class ShellExecutor {
 		core.runCommandCheckDebug( action , "cp -R -p " + dirFrom + " " + baseDstDir + "/" );
 	}
 	
-	public void scpFilesRemoteToLocal( ActionBase action , String srcPath , String hostLogin , String dstPath ) throws Exception {
+	public void scpFilesRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		String keyOption = "";
 		String keyFile = action.context.KEYNAME;
 		if( !keyFile.isEmpty() )
 			keyOption = "-i " + keyFile + " ";
 		
 		setTimeoutUnlimited( action );
-		core.runCommandCheckDebug( action , "scp -q -B -p " + keyOption + hostLogin + ":" + srcPath + " " + dstPath );
+		core.runCommandCheckDebug( action , "scp -q -B -p " + keyOption + account.HOSTLOGIN + ":" + srcPath + " " + dstPath );
 	}
 
-	public void scpDirContentRemoteToLocal( ActionBase action , String srcPath , String hostLogin , String dstPath ) throws Exception {
+	public void scpDirContentRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		String keyOption = "";
 		String keyFile = action.context.KEYNAME;
 		if( !keyFile.isEmpty() )
 			keyOption = "-i " + keyFile + " ";
 		
 		setTimeoutUnlimited( action );
-		core.runCommandCheckDebug( action , "scp -q -B -p " + keyOption + hostLogin + ":" + srcPath + "/* " + dstPath );
+		core.runCommandCheckDebug( action , "scp -q -B -p " + keyOption + account.HOSTLOGIN + ":" + srcPath + "/* " + dstPath );
 	}
 
-	public void scpFilesLocalToRemote( ActionBase action , String srcPath , String hostLogin , String dstPath ) throws Exception {
+	public void scpFilesLocalToRemote( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		String keyOption = "";
 		String keyFile = action.context.KEYNAME;
 		if( !keyFile.isEmpty() )
 			keyOption = "-i " + keyFile + " ";
 		
 		setTimeoutUnlimited( action );
-		core.runCommandCheckDebug( action , "scp -q -B -p " + keyOption + srcPath + " " + hostLogin + ":" + dstPath );
+		core.runCommandCheckDebug( action , "scp -q -B -p " + keyOption + srcPath + " " + account.HOSTLOGIN + ":" + dstPath );
 	}
 
-	public void scpDirLocalToRemote( ActionBase action , String srcDirPath , String hostLogin , String baseDstDir ) throws Exception {
+	public void scpDirLocalToRemote( ActionBase action , String srcDirPath , Account account , String baseDstDir ) throws Exception {
 		String keyOption = "";
 		String keyFile = action.context.KEYNAME;
 		if( !keyFile.isEmpty() )
 			keyOption = "-i " + keyFile + " ";
 		
 		String baseName = Common.getBaseName( srcDirPath );
-		ShellExecutor session = action.getShell( hostLogin );
+		ShellExecutor session = action.getShell( account );
 		session.removeDir( action , baseDstDir + "/" + baseName );
 		session.ensureDirExists( action , baseDstDir );
 		
 		setTimeoutUnlimited( action );
-		core.runCommandCheckDebug( action , "scp -r -q -B -p " + keyOption + srcDirPath + " " + hostLogin + ":" + baseDstDir );
+		core.runCommandCheckDebug( action , "scp -r -q -B -p " + keyOption + srcDirPath + " " + account.HOSTLOGIN + ":" + baseDstDir );
 	}
 
-	public void scpDirContentLocalToRemote( ActionBase action , String srcDirPath , String hostLogin , String dstDir ) throws Exception {
+	public void scpDirContentLocalToRemote( ActionBase action , String srcDirPath , Account account , String dstDir ) throws Exception {
 		String keyOption = "";
 		String keyFile = action.context.KEYNAME;
 		if( !keyFile.isEmpty() )
 			keyOption = "-i " + keyFile + " ";
 		
-		ShellExecutor session = action.getShell( hostLogin );
+		ShellExecutor session = action.getShell( account );
 		session.ensureDirExists( action , dstDir );
 		
 		setTimeoutUnlimited( action );
-		core.runCommandCheckDebug( action , "scp -r -q -B -p " + keyOption + srcDirPath + "/* " + hostLogin + ":" + dstDir );
+		core.runCommandCheckDebug( action , "scp -r -q -B -p " + keyOption + srcDirPath + "/* " + account.HOSTLOGIN + ":" + dstDir );
 	}
 
-	public void scpDirRemoteToLocal( ActionBase action , String srcPath , String hostLogin , String dstPath ) throws Exception {
+	public void scpDirRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		String keyOption = "";
 		String keyFile = action.context.KEYNAME;
 		if( !keyFile.isEmpty() )
 			keyOption = "-i " + keyFile + " ";
 		
 		setTimeoutUnlimited( action );
-		core.runCommandCheckDebug( action , "scp -r -q -B -p " + keyOption + hostLogin + ":" + srcPath + " " + dstPath );
+		core.runCommandCheckDebug( action , "scp -r -q -B -p " + keyOption + account.HOSTLOGIN + ":" + srcPath + " " + dstPath );
 	}
 
-	public void copyFileTargetToLocal( ActionBase action , String hostLogin , String srcFilePath , String dstDir ) throws Exception {
-		if( action.isLocal( hostLogin ) )
+	public void copyFileTargetToLocal( ActionBase action , Account account , String srcFilePath , String dstDir ) throws Exception {
+		if( account.local )
 			copyFile( action , srcFilePath , dstDir );
 		else {
-			scpFilesRemoteToLocal( action , srcFilePath , hostLogin , dstDir + "/" );
+			scpFilesRemoteToLocal( action , srcFilePath , account , dstDir + "/" );
 		}
 	}
 
-	public void copyFilesTargetToLocal( ActionBase action , String hostLogin , String srcFiles , String dstDir ) throws Exception {
-		if( action.isLocal( hostLogin ) )
+	public void copyFilesTargetToLocal( ActionBase action , Account account , String srcFiles , String dstDir ) throws Exception {
+		if( account.local )
 			copyFiles( action , Common.getDirName( srcFiles ) , Common.getBaseName( srcFiles ) , dstDir );
 		else {
-			scpFilesRemoteToLocal( action , srcFiles , hostLogin , dstDir + "/" );
+			scpFilesRemoteToLocal( action , srcFiles , account , dstDir + "/" );
 		}
 	}
 
-	public void moveFilesTargetFromLocal( ActionBase action , String hostLogin , String srcDir , String srcFiles , String dstDir ) throws Exception {
-		if( action.isLocal( hostLogin ) )
+	public void moveFilesTargetFromLocal( ActionBase action , Account account , String srcDir , String srcFiles , String dstDir ) throws Exception {
+		if( account.local )
 			move( action , Common.getPath( srcDir , srcFiles ) , dstDir );
 		else {
-			scpFilesLocalToRemote( action , Common.getPath( srcDir , srcFiles ) , hostLogin , dstDir + "/" );
+			scpFilesLocalToRemote( action , Common.getPath( srcDir , srcFiles ) , account , dstDir + "/" );
 			removeFiles( action , srcDir , srcFiles );
 		}
 	}
 
-	public void copyFilesTargetFromLocal( ActionBase action , String hostLogin , String srcDir , String srcFiles , String dstDir ) throws Exception {
-		if( action.isLocal( hostLogin ) )
+	public void copyFilesTargetFromLocal( ActionBase action , Account account , String srcDir , String srcFiles , String dstDir ) throws Exception {
+		if( account.local )
 			this.copyFiles( action , srcDir , srcFiles , dstDir );
 		else {
-			scpFilesLocalToRemote( action , Common.getPath( srcDir , srcFiles ) , hostLogin , dstDir + "/" );
+			scpFilesLocalToRemote( action , Common.getPath( srcDir , srcFiles ) , account , dstDir + "/" );
 		}
 	}
 
-	public void copyDirContentTargetToLocal( ActionBase action , String hostLogin , String srcDir , String dstDir ) throws Exception {
-		if( action.isLocal( hostLogin ) )
+	public void copyDirContentTargetToLocal( ActionBase action , Account account , String srcDir , String dstDir ) throws Exception {
+		if( account.local )
 			copyDirContent( action , srcDir , dstDir );
 		else {
-			scpDirContentRemoteToLocal( action , srcDir , hostLogin , dstDir + "/" );
+			scpDirContentRemoteToLocal( action , srcDir , account , dstDir + "/" );
 		}
 	}
 	
-	public void copyDirTargetToLocal( ActionBase action , String hostLogin , String srcDir , String dstBaseDir ) throws Exception {
-		if( action.isLocal( hostLogin ) )
+	public void copyDirTargetToLocal( ActionBase action , Account account , String srcDir , String dstBaseDir ) throws Exception {
+		if( account.local )
 			copyDirToBase( action , srcDir , dstBaseDir );
 		else {
-			scpDirRemoteToLocal( action , srcDir , hostLogin , dstBaseDir + "/" );
+			scpDirRemoteToLocal( action , srcDir , account , dstBaseDir + "/" );
 		}
 	}
 
-	public void copyFileLocalToTarget( ActionBase action , String hostLogin , String srcFilePath , String dstDir ) throws Exception {
-		if( action.isLocal( hostLogin ) )
+	public void copyFileLocalToTarget( ActionBase action , Account account , String srcFilePath , String dstDir ) throws Exception {
+		if( account.local )
 			copyFile( action , srcFilePath , dstDir , "" , "" );
 		else {
-			scpFilesLocalToRemote( action , srcFilePath , hostLogin , dstDir + "/" );
+			scpFilesLocalToRemote( action , srcFilePath , account , dstDir + "/" );
 		}
 	}
 
-	public void copyFileLocalToTargetRename( ActionBase action , String hostLogin , String srcFilePath , String dstDir , String newName ) throws Exception {
-		if( action.isLocal( hostLogin ) )
+	public void copyFileLocalToTargetRename( ActionBase action , Account account , String srcFilePath , String dstDir , String newName ) throws Exception {
+		if( account.local )
 			copyFile( action , srcFilePath , dstDir , newName , "" );
 		else {
-			scpFilesLocalToRemote( action , srcFilePath , hostLogin , dstDir + "/" + newName );
+			scpFilesLocalToRemote( action , srcFilePath , account , dstDir + "/" + newName );
 		}
 	}
 
-	public void copyDirFileToFile( ActionBase action , String hostLogin , String dirPath , String fileSrc , String fileDst ) throws Exception {
-		ShellExecutor session = action.getShell( hostLogin );
+	public void copyDirFileToFile( ActionBase action , Account account , String dirPath , String fileSrc , String fileDst ) throws Exception {
+		ShellExecutor session = action.getShell( account );
 		session.custom( action , dirPath , "cp " + fileSrc + " " + fileDst );
 	}
 	
-	public void copyDirLocalToTarget( ActionBase action , String hostLogin , String srcDirPath , String baseDstDir ) throws Exception {
-		if( action.isLocal( hostLogin ) )
+	public void copyDirLocalToTarget( ActionBase action , Account account , String srcDirPath , String baseDstDir ) throws Exception {
+		if( account.local )
 			copyDirToBase( action , srcDirPath , baseDstDir );
 		else {
-			scpDirLocalToRemote( action , srcDirPath , hostLogin , baseDstDir + "/" );
+			scpDirLocalToRemote( action , srcDirPath , account , baseDstDir + "/" );
 		}
 	}
 
-	public void copyDirContentLocalToTarget( ActionBase action , String hostLogin , String srcDirPath , String dstDir ) throws Exception {
-		if( action.isLocal( hostLogin ) )
+	public void copyDirContentLocalToTarget( ActionBase action , Account account , String srcDirPath , String dstDir ) throws Exception {
+		if( account.local )
 			this.copyDirContent( action , srcDirPath , dstDir );
 		else {
-			this.scpDirContentLocalToRemote( action , srcDirPath , hostLogin , dstDir + "/" );
+			this.scpDirContentLocalToRemote( action , srcDirPath , account , dstDir + "/" );
 		}
 	}
 

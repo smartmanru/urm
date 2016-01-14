@@ -3,21 +3,28 @@ package ru.egov.urm.storage;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.shell.Account;
 
 public class DistRepository {
 
 	Artefactory artefactory;
 	private RemoteFolder repoFolder;
 	Metadata meta;
-	
-	public DistRepository( Artefactory artefactory ) {
+
+	private DistRepository( Artefactory artefactory ) {
 		this.artefactory = artefactory; 
 		this.meta = artefactory.meta;
+	}
+	
+	public static DistRepository getDistRepository( ActionBase action , Artefactory artefactory ) throws Exception {
+		DistRepository repo = new DistRepository( artefactory ); 
 		
-		if( meta.env != null )
-			repoFolder = new RemoteFolder( artefactory , meta.env.DISTR_HOSTLOGIN , meta.env.DISTR_PATH );
+		if( action.meta.env != null )
+			repo.repoFolder = new RemoteFolder( artefactory , Account.getAccount( action , action.meta.env.DISTR_HOSTLOGIN ) , action.meta.env.DISTR_PATH );
 		else
-			repoFolder = new RemoteFolder( artefactory , meta.product.CONFIG_DISTR_HOSTLOGIN , meta.product.CONFIG_DISTR_PATH );
+			repo.repoFolder = new RemoteFolder( artefactory , Account.getAccount( action , action.meta.product.CONFIG_DISTR_HOSTLOGIN ) , action.meta.product.CONFIG_DISTR_PATH );
+		
+		return( repo );
 	}
 
 	public RemoteFolder getDataFolder( ActionBase action , String dataSet ) throws Exception {

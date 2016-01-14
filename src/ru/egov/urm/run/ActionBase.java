@@ -1,10 +1,12 @@
 package ru.egov.urm.run;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
 import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
+import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.Artefactory;
 import ru.egov.urm.storage.DistStorage;
@@ -28,7 +30,7 @@ abstract public class ActionBase {
 	protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception { debug( NAME + ": scope set action execute is not implemented" ); return( false ); };
 	protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception { debug( NAME + ": scope target action execute is not implemented" ); return( false ); };
 	protected boolean executeScopeTargetItem( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception { debug( NAME + ": scope target item action execute is not implemented" ); return( false ); };
-	protected boolean executeAccount( ActionScopeSet set , String hostLogin ) throws Exception { debug( NAME + ": host action execute is not implemented" ); return( false ); };
+	protected boolean executeAccount( ActionScopeSet set , Account account ) throws Exception { debug( NAME + ": host action execute is not implemented" ); return( false ); };
 	protected void runBefore() throws Exception { trace( NAME + ": blank execute before is not implemented" ); };
 	protected void runAfter() throws Exception { trace( NAME + ": blank execute after is not implemented" ); };
 	protected void runBefore( ActionScope scope ) throws Exception { trace( NAME + ": scope execute before is not implemented" ); };
@@ -290,8 +292,17 @@ abstract public class ActionBase {
 		return( false );
 	}
 	
-	public ShellExecutor getShell( String hostLogin ) throws Exception {
-		return( context.pool.getExecutor( this , hostLogin , context.streamName ) );
+	public ShellExecutor getShell( Account account ) throws Exception {
+		return( context.pool.getExecutor( this , account , context.streamName ) );
+	}
+	
+	public ShellExecutor getShell( MetaEnvServerNode node ) throws Exception {
+		Account account = Account.getAccount( this , node.HOSTLOGIN );
+		return( getShell( account ) );
+	}
+	
+	public Account getAccount( MetaEnvServerNode node ) throws Exception {
+		return( Account.getAccount( this , node.HOSTLOGIN ) );
 	}
 	
 	public void startRedirect( String title , String logFile ) throws Exception {
@@ -378,7 +389,7 @@ abstract public class ActionBase {
 		shell.appendExecuteLog( this , msg );
 	}
 	
-	public void executeLogLive( String hostLogin , String msg ) throws Exception {
+	public void executeLogLive( Account hostLogin , String msg ) throws Exception {
 		ShellExecutor shell = getShell( hostLogin );
 		if( context.SHOWONLY ) {
 			log( hostLogin + ": " + msg + " (showonly)" );
@@ -389,7 +400,7 @@ abstract public class ActionBase {
 		shell.appendExecuteLog( this , msg );
 	}
 	
-	public void executeCmdLive( String hostLogin , String cmdRun ) throws Exception {
+	public void executeCmdLive( Account hostLogin , String cmdRun ) throws Exception {
 		if( context.SHOWONLY ) {
 			log( hostLogin + ": " + cmdRun + " (showonly)" );
 			return;
@@ -402,12 +413,12 @@ abstract public class ActionBase {
 		shell.customCheckErrorsNormal( this , cmdRun );
 	}
 
-	public void executeCmd( String hostLogin , String cmdRun ) throws Exception {
+	public void executeCmd( Account hostLogin , String cmdRun ) throws Exception {
 		ShellExecutor shell = getShell( hostLogin );
 		shell.customCheckErrorsDebug( this , cmdRun );
 	}
 
-	public String executeCmdGetValue( String hostLogin , String cmdRun ) throws Exception {
+	public String executeCmdGetValue( Account hostLogin , String cmdRun ) throws Exception {
 		ShellExecutor shell = getShell( hostLogin );
 		return( shell.customGetValue( this , cmdRun ) );
 	}
@@ -416,11 +427,5 @@ abstract public class ActionBase {
         trace( "sleep: intentional delay - " + millis + " millis" );
         Thread.sleep(millis);
     }
-
-	public boolean isLocal( String hostLogin ) throws Exception {
-		if( hostLogin.equals( "local" ) || hostLogin.equals( context.hostLogin ) )
-			return( true );
-		return( false );
-	}		
     
 }

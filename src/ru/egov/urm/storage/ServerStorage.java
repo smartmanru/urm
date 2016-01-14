@@ -8,6 +8,7 @@ import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
 import ru.egov.urm.meta.Metadata.VarDISTITEMTYPE;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.shell.Account;
 
 public class ServerStorage {
 
@@ -26,22 +27,17 @@ public class ServerStorage {
 	public Artefactory artefactory;
 	public MetaEnvServer server;
 	public MetaEnvServerNode node;
-	public String hostLogin;
+	public Account account;
 	public String type;
 	
-	public ServerStorage( Artefactory artefactory , MetaEnvServer server , MetaEnvServerNode node ) {
-		this.artefactory = artefactory;
-		this.server = server;
-		this.node = node;
-		this.hostLogin = node.HOSTLOGIN;
-	}
-	
-	public ServerStorage( Artefactory artefactory , String type , String hostLogin ) {
+	public ServerStorage( Artefactory artefactory , String type , Account account , MetaEnvServer server , MetaEnvServerNode node ) {
 		this.artefactory = artefactory;
 		this.server = null;
 		this.node = null;
-		this.hostLogin = hostLogin;
+		this.account = account;
 		this.type = type;
+		this.server = server;
+		this.node = node;		
 	}
 	
 	public void checkRootDir( ActionBase action , String rootPath ) throws Exception {
@@ -57,27 +53,27 @@ public class ServerStorage {
 	public RemoteFolder getRedistTmpFolder( ActionBase action ) throws Exception {
 		String path = getRedistFolderRootPath( action );
 		path = Common.getPath( path , "tmp" );
-		RemoteFolder rf = new RemoteFolder( artefactory , hostLogin , path );
+		RemoteFolder rf = new RemoteFolder( artefactory , account , path );
 		return( rf );
 	}
 	
 	public RemoteFolder getRedistLocationFolder( ActionBase action , String RELEASEDIR , String LOCATION , VarCONTENTTYPE CONTENTTYPE , boolean rollout ) throws Exception {
 		String path = getPathRedistReleaseRoot( action , RELEASEDIR , CONTENTTYPE , rollout );
 		path = Common.getPath( path , LOCATION );
-		RemoteFolder rf = new RemoteFolder( artefactory , hostLogin , path );
+		RemoteFolder rf = new RemoteFolder( artefactory , account , path );
 		return( rf );
 	}
 
 	protected RemoteFolder getStateLocationFolder( ActionBase action , String LOCATION , VarCONTENTTYPE CONTENTTYPE ) throws Exception {
 		String path = getPathStateLocation( action , LOCATION , CONTENTTYPE );
-		RemoteFolder rf = new RemoteFolder( artefactory , hostLogin , path );
+		RemoteFolder rf = new RemoteFolder( artefactory , account , path );
 		return( rf );
 	}
 	
 	public RemoteFolder getRedistHostRootFolder( ActionBase action ) throws Exception {
 		String path = action.meta.env.REDISTPATH;
-		String rootLogin = Common.getRootAccount( Common.getAccountHost( hostLogin ) );
-		RemoteFolder rf = new RemoteFolder( artefactory , rootLogin , path );
+		Account rootAccount = account.getRootAccount( action );
+		RemoteFolder rf = new RemoteFolder( artefactory , rootAccount , path );
 		return( rf );
 	}
 
@@ -142,13 +138,13 @@ public class ServerStorage {
 	protected RemoteFolder getRuntimeLocationFolder( ActionBase action , String LOCATION ) throws Exception {
 		checkRootDir( action , server.ROOTPATH );
 		String path = Common.getPath( server.ROOTPATH , LOCATION );
-		RemoteFolder rf = new RemoteFolder( artefactory , hostLogin , path );
+		RemoteFolder rf = new RemoteFolder( artefactory , account , path );
 		return( rf );
 	}
 	
 	protected RemoteFolder getRedistFolder( ActionBase action ) throws Exception {
 		String path = getRedistFolderRootPath( action );
-		RemoteFolder rf = new RemoteFolder( artefactory , hostLogin , path );
+		RemoteFolder rf = new RemoteFolder( artefactory , account , path );
 		return( rf );
 	}
 	

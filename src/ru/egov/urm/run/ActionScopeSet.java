@@ -24,6 +24,7 @@ import ru.egov.urm.meta.MetaSourceProjectSet;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
 import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
+import ru.egov.urm.shell.Account;
 import ru.egov.urm.storage.DistStorage;
 
 public class ActionScopeSet {
@@ -483,19 +484,27 @@ public class ActionScopeSet {
 	public String[] getUniqueHosts( ActionBase action , ActionScopeTarget[] targets ) throws Exception {
 		Map<String,MetaEnvServerNode> map = new HashMap<String,MetaEnvServerNode>(); 
 		for( ActionScopeTarget target : targets ) {
-			for( ActionScopeTargetItem item : target.getItems( action ) )
-				map.put( item.envServerNode.HOST , item.envServerNode );
+			for( ActionScopeTargetItem item : target.getItems( action ) ) {
+				Account account = action.getAccount( item.envServerNode );
+				map.put( account.HOST , item.envServerNode );
+			}
 		}
 		return( Common.getSortedKeys( map ) );
 	}
 	
-	public String[] getUniqueAccounts( ActionBase action , ActionScopeTarget[] targets ) throws Exception {
+	public Account[] getUniqueAccounts( ActionBase action , ActionScopeTarget[] targets ) throws Exception {
 		Map<String,MetaEnvServerNode> map = new HashMap<String,MetaEnvServerNode>(); 
 		for( ActionScopeTarget target : targets ) {
 			for( ActionScopeTargetItem item : target.getItems( action ) )
 				map.put( item.envServerNode.HOSTLOGIN , item.envServerNode );
 		}
-		return( Common.getSortedKeys( map ) );
+		
+		String[] hostLogins = Common.getSortedKeys( map );
+		Account[] accounts = new Account[ hostLogins.length ];
+		
+		for( int k = 0; k < hostLogins.length; k++ )
+			accounts[ k ] = action.getAccount( map.get( hostLogins[ k ] ) );
+		return( accounts );
 	}
 
 	public List<ActionScopeTarget> getGroupServers( ActionBase action , MetaEnvStartGroup group ) throws Exception {

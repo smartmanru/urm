@@ -6,6 +6,7 @@ import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.Metadata.VarDBMSTYPE;
 import ru.egov.urm.meta.Metadata.VarPROCESSMODE;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.LocalFolder;
 
@@ -20,7 +21,7 @@ abstract public class DatabaseSpecific {
 		return( null );
 	}
 
-	abstract public VarPROCESSMODE getProcessStatus( ActionBase action , String hostLogin , String instance ) throws Exception;
+	abstract public VarPROCESSMODE getProcessStatus( ActionBase action , Account account , String instance ) throws Exception;
 	abstract public boolean checkConnect( ActionBase action , MetaEnvServer server , String user , String password ) throws Exception;
 	abstract public boolean applySystemScript( ActionBase action , MetaEnvServer server , ShellExecutor shell , String file , String fileLog ) throws Exception;
 	

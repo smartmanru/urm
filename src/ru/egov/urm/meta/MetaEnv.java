@@ -116,7 +116,7 @@ public class MetaEnv {
 		REDISTPATH = properties.getSystemProperty( action , "redist-path" , meta.product.CONFIG_REDISTPATH , systemProps );
 		DISTR_USELOCAL = properties.getSystemBooleanProperty( action , "distr-use-local" , true , systemProps );
 		if( DISTR_USELOCAL )
-			DISTR_HOSTLOGIN = action.context.hostLogin;
+			DISTR_HOSTLOGIN = action.context.account.HOSTLOGIN;
 		else
 			DISTR_HOSTLOGIN = properties.getSystemProperty( action , "distr-hostlogin" , meta.product.CONFIG_DISTR_HOSTLOGIN , systemProps );
 		

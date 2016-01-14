@@ -26,7 +26,7 @@ public class ActionGetDeployInfo extends ActionBase {
 			MetaEnvServerNode node = item.envServerNode;
 			comment( "node" + node.POS + " (" + node.HOSTLOGIN + "):" );
 			
-			RedistStorage redist = artefactory.getRedistStorage( server , node );
+			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 			showDeployInfo( server , redist );
 		}
 		return( true );

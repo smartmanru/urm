@@ -203,7 +203,7 @@ public class ActionRedist extends ActionBase {
 			return;
 		}
 
-		RedistStorage redist = artefactory.getRedistStorage( server , node );
+		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		VarCONTENTTYPE C_REDIST_DEFAULT = location.getContentType( this , true );
 		VarCONTENTTYPE C_REDIST_DIRTYPE = getDirType( clusterMode , location.DEPLOYTYPE , admin , C_REDIST_DEFAULT );
 		if( C_REDIST_DIRTYPE.equals( "none" ) ) {
@@ -281,7 +281,7 @@ public class ActionRedist extends ActionBase {
 		}
 		
 		// archive
-		RedistStorage redist = artefactory.getRedistStorage( server , node );
+		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		String fileBaseName = redist.getConfigArchiveName( this , confItem , target.ALL );
 		String fileName = "node" + node.POS + "-" + fileBaseName;
 		String filePath = liveFolder.getFilePath( this , fileName );
@@ -292,7 +292,7 @@ public class ActionRedist extends ActionBase {
 	}
 	
 	private void executeNodeBackup( MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
-		RedistStorage redist = artefactory.getRedistStorage( server , node );
+		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		ServerDeployment deployment = redist.getDeployment( this , dist.RELEASEDIR );
 		
 		// backup binary items

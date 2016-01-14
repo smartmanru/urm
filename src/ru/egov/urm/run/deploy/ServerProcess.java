@@ -50,7 +50,7 @@ public class ServerProcess {
 	
 	public void gatherPids( ActionBase action ) throws Exception {
 		// find program process
-		ShellExecutor shell = action.getShell( node.HOSTLOGIN );
+		ShellExecutor shell = action.getShell( node );
 		pids = shell.customGetValue( action , "pgrep -f " + Common.getQuoted( "Dprogram.name=" + srv.NAME + " " ) );
 		pids = Common.replace( pids , "\n" , " " );
 	}
@@ -79,7 +79,7 @@ public class ServerProcess {
 	}
 	
 	private void gatherServiceStatus( ActionBase action ) throws Exception {
-		ShellExecutor shell = action.getShell( node.HOSTLOGIN );
+		ShellExecutor shell = action.getShell( node );
 		cmdValue = shell.customGetValue( action , "service " + srv.SERVICENAME + " status 2>&1" );
 		
 		if( cmdValue.indexOf( "is stopped" ) >= 0 || cmdValue.indexOf( "is not running" ) >= 0 ) {
@@ -109,7 +109,7 @@ public class ServerProcess {
 		}
 
 		// check process status
-		ShellExecutor shell = action.getShell( node.HOSTLOGIN );
+		ShellExecutor shell = action.getShell( node );
 		cmdValue = shell.customGetValue( action , srv.getFullBinPath( action ) , "./server.status.sh " + srv.NAME + " " + action.options.OPT_EXTRAARGS );
 				
 		if( cmdValue.indexOf( "Started=true" ) >= 0 || 
@@ -137,7 +137,7 @@ public class ServerProcess {
 		pids = "";
 		
 		// find program process
-		ShellExecutor shell = action.getShell( node.HOSTLOGIN );
+		ShellExecutor shell = action.getShell( node );
 		String value = shell.customGetValue( action , "pgrep -f \"Dprogram.name=" + srv.NAME + " \"" );
 		if( !value.isEmpty() )
 			pids = value.replace( '\n' ,  ' ' );
@@ -164,7 +164,7 @@ public class ServerProcess {
 			return( true );
 		}
 
-		ShellExecutor executor = action.getShell( node.HOSTLOGIN );
+		ShellExecutor executor = action.getShell( node );
 		executor.customDeployment( action , "service " + srv.SERVICENAME + " stop > /dev/null 2>&1" );
 		return( true );
 	}
@@ -179,7 +179,7 @@ public class ServerProcess {
 
 		// stop kindly
 		String F_FULLBINPATH = srv.getFullBinPath( action );
-		ShellExecutor executor = action.getShell( node.HOSTLOGIN );
+		ShellExecutor executor = action.getShell( node );
 		executor.customDeployment( action , F_FULLBINPATH , "./server.stop.sh " + srv.NAME + " " +
 				Common.getQuoted( pids ) + " " + action.options.OPT_EXTRAARGS + " > /dev/null" );
 		
@@ -232,7 +232,7 @@ public class ServerProcess {
 			stoptime = defaultStopServerTimeSecs;
 		long stopMillis = startMillis + stoptime * 1000;
 		
-		ShellExecutor executor = action.getShell( node.HOSTLOGIN );
+		ShellExecutor executor = action.getShell( node );
 		getPids( action );
 		while( !pids.isEmpty() ) {
 		    synchronized( this ) {
@@ -289,7 +289,7 @@ public class ServerProcess {
 			return( false );
 		}
 
-		ShellExecutor executor = action.getShell( node.HOSTLOGIN );
+		ShellExecutor executor = action.getShell( node );
 		executor.customDeployment( action , "service " + srv.SERVICENAME + " start > /dev/null 2>&1" );
 		return( true );
 	}
@@ -310,7 +310,7 @@ public class ServerProcess {
 		
 		// proceed with startup
 		String F_FULLBINPATH = srv.getFullBinPath( action );
-		ShellExecutor executor = action.getShell( node.HOSTLOGIN );
+		ShellExecutor executor = action.getShell( node );
 		executor.customDeployment( action , F_FULLBINPATH , "./server.start.sh " + srv.NAME + " " +
 				Common.getQuoted( pids ) + " " + action.options.OPT_EXTRAARGS + " > /dev/null" );
 		

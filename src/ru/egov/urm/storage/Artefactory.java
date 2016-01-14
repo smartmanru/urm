@@ -8,6 +8,7 @@ import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.CommandExecutor;
+import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.vcs.GenericVCS;
 import ru.egov.urm.vcs.GitVCS;
@@ -126,7 +127,7 @@ public class Artefactory {
 	}
 	
 	public DistRepository getDistRepository( ActionBase action ) throws Exception {
-		DistRepository repo = new DistRepository( this );
+		DistRepository repo = DistRepository.getDistRepository( action , this );
 		return( repo );
 	}
 	
@@ -262,16 +263,18 @@ public class Artefactory {
 		return( null );
 	}
 
-	public RedistStorage getRedistStorage( MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
-		return( new RedistStorage( this , server , node ) );
+	public RedistStorage getRedistStorage( ActionBase action , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
+		Account account = action.getAccount( node );
+		return( new RedistStorage( this , "default" , account , server , node ) );
 	}
 
-	public RedistStorage getRedistStorage( String type , String hostLogin ) throws Exception {
-		return( new RedistStorage( this , type , hostLogin ) );
+	public RedistStorage getRedistStorage( String type , Account account ) throws Exception {
+		return( new RedistStorage( this , type , account , null , null ) );
 	}
 
-	public RuntimeStorage getRuntimeStorage( MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
-		return( new RuntimeStorage( this , server , node ) );
+	public RuntimeStorage getRuntimeStorage( ActionBase action , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
+		Account account = action.getAccount( node );
+		return( new RuntimeStorage( this , "default" , account , server , node ) );
 	}
 
 	public HiddenFiles getHiddenFiles() throws Exception {
@@ -282,8 +285,9 @@ public class Artefactory {
 		return( new UrmStorage( this ) );
 	}
 
-	public RemoteFolder getReleaseHostRedistFolder() throws Exception {
-		return( new RemoteFolder( this , meta.env.DISTR_HOSTLOGIN , meta.env.REDISTPATH ) );
+	public RemoteFolder getReleaseHostRedistFolder( ActionBase action ) throws Exception {
+		Account account = Account.getAccount( action , meta.env.DISTR_HOSTLOGIN );
+		return( new RemoteFolder( this , account , meta.env.REDISTPATH ) );
 	}
 	
 }

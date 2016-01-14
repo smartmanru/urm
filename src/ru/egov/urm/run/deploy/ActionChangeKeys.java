@@ -3,6 +3,7 @@ package ru.egov.urm.run.deploy;
 import ru.egov.urm.Common;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScopeSet;
+import ru.egov.urm.shell.Account;
 
 public class ActionChangeKeys extends ActionBase {
 
@@ -16,7 +17,7 @@ public class ActionChangeKeys extends ActionBase {
 		this.cmd = cmd;
 	}
 
-	@Override protected boolean executeAccount( ActionScopeSet set , String hostLogin ) throws Exception {
+	@Override protected boolean executeAccount( ActionScopeSet set , Account account ) throws Exception {
 		String F_NEWKEY = meta.env.KEYNAME;
 		String F_OLDKEY = F_NEWKEY;
 
@@ -74,18 +75,16 @@ public class ActionChangeKeys extends ActionBase {
 		}
 
 		// check new key is already placed and access using old key is not avalable
-		String F_HOSTUSER = Common.getAccountUser( hostLogin );
-		String F_TARGETHOSTLOGIN = hostLogin;
-		if( F_HOSTUSER.equals( "root" ) == false && options.OPT_SUDO ) {
-			String F_HOSTNAME = Common.getAccountHost( hostLogin );
-			F_TARGETHOSTLOGIN = Common.getRootAccount( F_HOSTNAME );
-		}
+		String F_HOSTUSER = account.USER;
+		Account F_TARGETACCOUNT = account;
+		if( F_HOSTUSER.equals( "root" ) == false && options.OPT_SUDO )
+			F_TARGETACCOUNT = account.getRootAccount( this );
 			
 		if( cmd.equals( "delete" ) == false && cmd.equals( "list" ) == false ) {
-			if( !tryConnect( F_TARGETHOSTLOGIN , F_ACCESSOPTION ) ) {
+			if( !tryConnect( F_TARGETACCOUNT , F_ACCESSOPTION ) ) {
 				if( S_HASNEXTPRIVATEKEY ) {
 					String tryOption = "-i " + P_KEYFILENEXTPRV;
-					if( tryConnect( F_TARGETHOSTLOGIN , tryOption ) ) {
+					if( tryConnect( F_TARGETACCOUNT , tryOption ) ) {
 						F_ACCESSOPTION = tryOption;
 						F_ACCESSMSG = " using access key " + P_KEYFILENEXTPRV;
 					}
@@ -94,12 +93,11 @@ public class ActionChangeKeys extends ActionBase {
 		}
 
 		String F_SETUPAUTH;
-		String F_BEHALFHOSTLOGIN = hostLogin;
+		Account F_BEHALFACCOUNT = account;
 		if( F_HOSTUSER.equals( "root" ) == false && options.OPT_ROOTUSER ) {
-			String F_HOSTNAME = Common.getAccountHost( hostLogin );
-			F_BEHALFHOSTLOGIN = Common.getRootAccount( F_HOSTNAME );
+			F_BEHALFACCOUNT = account.getRootAccount( this );
 
-			if( !checkHostUser( F_BEHALFHOSTLOGIN , F_ACCESSOPTION , F_HOSTUSER ) )
+			if( !checkHostUser( F_BEHALFACCOUNT , F_ACCESSOPTION , F_HOSTUSER ) )
 				exitAction( "unknown hostuser=" + F_HOSTUSER );
 
 			// execute key operation under user on behalf of host user
@@ -113,54 +111,54 @@ public class ActionChangeKeys extends ActionBase {
 			F_SETUPAUTH = getCreateSshOwn(); 
 
 		if( cmd.equals( "change" ) || cmd.equals( "add" ) ) {
-			log( F_BEHALFHOSTLOGIN + ": change key to " + P_KEYFILENEXTPUB + " (" + F_KEYOWNER + 
-				") on " + hostLogin + F_ACCESSMSG + " ..." );
-			if( !replaceKey( F_BEHALFHOSTLOGIN , F_ACCESSOPTION , F_SETUPAUTH , F_KEYOWNER , F_KEYDATA ) )
+			log( F_BEHALFACCOUNT + ": change key to " + P_KEYFILENEXTPUB + " (" + F_KEYOWNER + 
+				") on " + account.HOSTLOGIN + F_ACCESSMSG + " ..." );
+			if( !replaceKey( F_BEHALFACCOUNT , F_ACCESSOPTION , F_SETUPAUTH , F_KEYOWNER , F_KEYDATA ) )
 				exitAction( "error executing key replacement" );
 		}
 		else
 		if( cmd.equals( "set" ) ) {
-			log( F_BEHALFHOSTLOGIN + ": set the only key to " + P_KEYFILENEXTPUB + " (" + F_KEYOWNER + 
-					") on " + hostLogin + F_ACCESSMSG + " ..." );
-			if( !setOnlyKey( F_BEHALFHOSTLOGIN , F_ACCESSOPTION , F_SETUPAUTH , F_KEYDATA ) )
+			log( F_BEHALFACCOUNT.HOSTLOGIN + ": set the only key to " + P_KEYFILENEXTPUB + " (" + F_KEYOWNER + 
+					") on " + account.HOSTLOGIN + F_ACCESSMSG + " ..." );
+			if( !setOnlyKey( F_BEHALFACCOUNT , F_ACCESSOPTION , F_SETUPAUTH , F_KEYDATA ) )
 				exitAction( "error executing key set. Exiting" );
 		}
 		else
 		if( cmd.equals( "delete" ) ) {
-			log( F_BEHALFHOSTLOGIN + ": delete key " + P_KEYFILENEXTPUB + " (" + F_KEYOWNER + ") on " + 
-					hostLogin + F_ACCESSMSG + " ..." );
-			if( !deleteKey( F_BEHALFHOSTLOGIN , F_ACCESSOPTION , F_SETUPAUTH , F_KEYOWNER ) )
+			log( F_BEHALFACCOUNT + ": delete key " + P_KEYFILENEXTPUB + " (" + F_KEYOWNER + ") on " + 
+					account.HOSTLOGIN + F_ACCESSMSG + " ..." );
+			if( !deleteKey( F_BEHALFACCOUNT , F_ACCESSOPTION , F_SETUPAUTH , F_KEYOWNER ) )
 				exitAction( "error executing key delete" );
 		}
 		else
 		if( cmd.equals( "list" ) ) {
-			if( !listKeys( F_BEHALFHOSTLOGIN , F_ACCESSOPTION , F_SETUPAUTH ) )
+			if( !listKeys( F_BEHALFACCOUNT , F_ACCESSOPTION , F_SETUPAUTH ) )
 				exitAction( "error executing key list" );
 		}
 
 		if( cmd.equals( "change" ) || cmd.equals( "set" ) ) {
 			// check - if there is next key
 			if( S_HASNEXTPRIVATEKEY ) {
-				if( !tryConnect( F_TARGETHOSTLOGIN , "-i " + P_KEYFILENEXTPRV ) )
+				if( !tryConnect( F_TARGETACCOUNT , "-i " + P_KEYFILENEXTPRV ) )
 					exitAction( "error executing new key check. Exiting" );
 				
-				log( hostLogin + ": new key successfully verified." );
+				log( account.HOSTLOGIN + ": new key successfully verified." );
 			}
 		}
 		
 		return( true );
 	}
 
-	private boolean tryConnect( String hostLogin , String ACCESSOPTION ) throws Exception {
+	private boolean tryConnect( Account account , String ACCESSOPTION ) throws Exception {
 		String F_CHECK = session.customGetValueNoCheck( this , "ssh -n " + ACCESSOPTION + 
-				" -o PasswordAuthentication=no " + hostLogin + " " + Common.getQuoted( "echo ok" ) );
+				" -o PasswordAuthentication=no " + account.HOSTLOGIN + " " + Common.getQuoted( "echo ok" ) );
 		if( F_CHECK.equals( "ok" ) )
 			return( true );
 		return( false );
 	}
 
-	private boolean checkHostUser( String hostLogin , String ACCESSOPTION , String user ) throws Exception {
-		int status = session.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + hostLogin + " " +
+	private boolean checkHostUser( Account account , String ACCESSOPTION , String user ) throws Exception {
+		int status = session.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " +
 				Common.getQuoted( "cd ~" + user ) );
 		if( status != 0 )
 			return( false );
@@ -199,12 +197,12 @@ public class ActionChangeKeys extends ActionBase {
 			S_AUTHFILE + "; chmod 600 " + S_AUTHFILE + "; fi" );
 	}
 
-	private boolean replaceKey( String HOSTLOGIN , String ACCESSOPTION , String SETUPAUTH , String KEYOWNER , String KEYDATA ) throws Exception {
+	private boolean replaceKey( Account account , String ACCESSOPTION , String SETUPAUTH , String KEYOWNER , String KEYDATA ) throws Exception {
 		if( options.OPT_SUDO )
 			exit( "unsupported with sudo" );
 		
 		session.setTimeoutUnlimited( this );
-		int status = session.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + HOSTLOGIN + " " + 
+		int status = session.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " + 
 			Common.getQuoted( SETUPAUTH + "; cat " + S_AUTHFILE + 
 				" | grep -v " + KEYOWNER + "\\$ > " + S_AUTHFILE + ".2; echo " + Common.getQuoted( KEYDATA ) + 
 				" >> " + S_AUTHFILE + ".2; cp " + S_AUTHFILE + ".2 " + S_AUTHFILE + 
@@ -214,16 +212,16 @@ public class ActionChangeKeys extends ActionBase {
 		return( true );
 	}
 
-	private boolean setOnlyKey( String HOSTLOGIN , String ACCESSOPTION , String SETUPAUTH , String KEYDATA ) throws Exception {
+	private boolean setOnlyKey( Account account , String ACCESSOPTION , String SETUPAUTH , String KEYDATA ) throws Exception {
 		int status;
 		
 		session.setTimeoutUnlimited( this );
 		if( options.OPT_SUDO ) {
-			status = session.customGetStatus( this , "ssh -n -t -t " + ACCESSOPTION + " " + HOSTLOGIN + " " + 
+			status = session.customGetStatus( this , "ssh -n -t -t " + ACCESSOPTION + " " + account.HOSTLOGIN + " " + 
 				Common.getQuoted( SETUPAUTH + "; echo " + Common.getQuoted( KEYDATA ) + " | sudo tee ~root/" + S_AUTHFILE ) );
 		}
 		else {
-			status = session.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + HOSTLOGIN + " " + 
+			status = session.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " + 
 					Common.getQuoted( SETUPAUTH + "; echo " + Common.getQuoted( KEYDATA ) + " > " + S_AUTHFILE ) );
 		}
 		
@@ -232,11 +230,11 @@ public class ActionChangeKeys extends ActionBase {
 		return( true );
 	}
 
-	private boolean deleteKey( String HOSTLOGIN , String ACCESSOPTION , String SETUPAUTH , String KEYOWNER ) throws Exception {
+	private boolean deleteKey( Account account , String ACCESSOPTION , String SETUPAUTH , String KEYOWNER ) throws Exception {
 		if( options.OPT_SUDO )
 			exit( "unsupported with sudo" );
 		
-		int status = session.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + HOSTLOGIN + " " +
+		int status = session.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " +
 		Common.getQuoted( SETUPAUTH + "; cat " + S_AUTHFILE + " | grep -v " + KEYOWNER + "\\$ > " +
 			S_AUTHFILE + ".2; cp " + S_AUTHFILE + ".2 " + S_AUTHFILE + "; rm -rf " + S_AUTHFILE + ".2;" ) );
 		if( status != 0 )
@@ -244,12 +242,12 @@ public class ActionChangeKeys extends ActionBase {
 		return( true );
 	}
 	
-	private boolean listKeys( String HOSTLOGIN , String ACCESSOPTION , String SETUPAUTH ) throws Exception {
+	private boolean listKeys( Account account , String ACCESSOPTION , String SETUPAUTH ) throws Exception {
 		if( options.OPT_SUDO )
 			exit( "unsupported with sudo" );
 		
 		session.setTimeoutUnlimited( this );
-		String[] list = session.customGetLines( this , "ssh -n " + ACCESSOPTION + " " + HOSTLOGIN + " " +
+		String[] list = session.customGetLines( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " +
 				Common.getQuoted( SETUPAUTH ) );
 		if( list.length > 0 && list[0].equals( "NOAUTHFILE" ) )
 			exit( S_AUTHFILE + " is not found" );

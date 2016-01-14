@@ -15,16 +15,13 @@ import ru.egov.urm.meta.Metadata.VarITEMVERSION;
 import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.deploy.ServerDeployment;
+import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
 
 public class RedistStorage extends ServerStorage {
 
-	public RedistStorage( Artefactory artefactory , String type , String hostLogin ) {
-		super( artefactory , type , hostLogin );
-	}
-
-	public RedistStorage( Artefactory artefactory , MetaEnvServer server , MetaEnvServerNode node ) {
-		super( artefactory , server , node );
+	public RedistStorage( Artefactory artefactory , String type , Account account , MetaEnvServer server , MetaEnvServerNode node ) {
+		super( artefactory , type , account , server , node );
 	}
 
 	public boolean getSysConfigs( ActionBase action , LocalFolder dstFolder ) throws Exception {
@@ -44,7 +41,7 @@ public class RedistStorage extends ServerStorage {
 		tmpDir.recreateThis( action );
 		
 		String F_CONFIGTARFILE = "config.tgz";
-		RemoteFolder runtimeDir = new RemoteFolder( artefactory , node.HOSTLOGIN , F_RUNTIMEDIR );
+		RemoteFolder runtimeDir = new RemoteFolder( artefactory , Account.getAccount( action , node.HOSTLOGIN ) , F_RUNTIMEDIR );
 		
 		try {
 			runtimeDir.createTarGzFromContent( action , tmpDir.getFilePath( action , F_CONFIGTARFILE ) , F_FILES , "" );
@@ -115,28 +112,28 @@ public class RedistStorage extends ServerStorage {
 	
 	public void dropReleaseAll( ActionBase action ) throws Exception {
 		RemoteFolder folder = getReleasesFolder( action );
-		action.log( folder.hostLogin + ": drop all release data at " + folder.folderPath + " ..." );
+		action.log( folder.account.HOSTLOGIN + ": drop all release data at " + folder.folderPath + " ..." );
 		folder.ensureExists( action );
 		folder.removeContent( action );
 	}
 
 	public void dropAll( ActionBase action ) throws Exception {
 		RemoteFolder folder = getRedistHostRootFolder( action );
-		action.log( folder.hostLogin + ": drop redist completely at " + folder.folderPath + " ..." );
+		action.log( folder.account.HOSTLOGIN + ": drop redist completely at " + folder.folderPath + " ..." );
 		folder.ensureExists( action );
 		folder.removeContent( action );
 	}
 
 	public void dropStateData( ActionBase action ) throws Exception {
 		RemoteFolder folder = getStateFolder( action );
-		action.log( folder.hostLogin + ": drop state data at " + folder.folderPath + " ..." );
+		action.log( folder.account.HOSTLOGIN + ": drop state data at " + folder.folderPath + " ..." );
 		folder.ensureExists( action );
 		folder.removeContent( action );
 	}
 
 	public void dropReleaseData( ActionBase action , String RELEASEDIR ) throws Exception {
 		RemoteFolder folder = getReleaseFolder( action , RELEASEDIR );
-		action.log( folder.hostLogin + ": drop release=" + RELEASEDIR + " at " + folder.folderPath + " ..." );
+		action.log( folder.account.HOSTLOGIN + ": drop release=" + RELEASEDIR + " at " + folder.folderPath + " ..." );
 		folder.recreateThis( action );
 	}
 
@@ -146,7 +143,7 @@ public class RedistStorage extends ServerStorage {
 		String F_DSTDIR_DEPLOY = getPathRedistLocation( action , RELEASEDIR , LOCATION , CONTENTTYPE , true );
 
 		action.debug( node.HOSTLOGIN + ": create redist location=" + LOCATION + " contenttype=" + Common.getEnumLower( CONTENTTYPE ) + " ..." );
-		ShellExecutor shell = action.getShell( node.HOSTLOGIN );
+		ShellExecutor shell = action.getShell( node );
 		
 		String cmd = "mkdir -p " + F_DSTDIR_STATE + " " + F_DSTDIR_DEPLOY;
 		shell.customCheckErrorsDebug( action , cmd );
@@ -160,7 +157,7 @@ public class RedistStorage extends ServerStorage {
 		String F_DSTDIR_BACKUP = getPathRedistLocation( action , RELEASEDIR , LOCATION , CONTENTTYPE , false );
 
 		// create empty initial script
-		ShellExecutor shell = action.getShell( node.HOSTLOGIN );
+		ShellExecutor shell = action.getShell( node );
 		
 		String cmd = "mkdir -p " + F_DSTDIR_BACKUP;
 		shell.customCheckErrorsDebug( action , cmd );

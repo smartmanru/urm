@@ -120,7 +120,7 @@ public class ActionSaveConfigs extends ActionBase {
 		LocalFolder folder = artefactory.getWorkFolder( this , "config.live" );
 		folder.recreateThis( this );
 
-		RedistStorage redist = artefactory.getRedistStorage( server , node );
+		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		if( !redist.getSysConfigs( this , folder ) ) {
 			if( !options.OPT_FORCE )
 				exit( "unable to get system files configuration" );
@@ -138,7 +138,7 @@ public class ActionSaveConfigs extends ActionBase {
 		LocalFolder folder = artefactory.getWorkFolder( this , "config.live" );
 		folder.recreateThis( this );
 
-		RedistStorage redist = artefactory.getRedistStorage( server , node );
+		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		if( !redist.getConfigItem( this , folder , confItem , LOCATION ) ) {
 			if( !options.OPT_FORCE )
 				exit( "unable to get configuration item=" + confItem.KEY );

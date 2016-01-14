@@ -11,6 +11,7 @@ import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaSourceProject;
 import ru.egov.urm.meta.MetaSourceProjectSet;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
+import ru.egov.urm.shell.Account;
 
 public class ScopeExecutor {
 
@@ -370,7 +371,7 @@ public class ScopeExecutor {
 				user = "root";
 			
 			String serverNodes;
-			String account = Common.getAccount( user , host );
+			Account account = new Account( user , host , false );
 			serverNodes = set.dc.getServerNodesByHost( action , host );
 			action.log( account + ": serverNodes={" + serverNodes + "}" );
 			
@@ -387,7 +388,7 @@ public class ScopeExecutor {
 		return( runDone );
 	}
 
-	private boolean runSingleAccountInternal( ActionScopeSet set , String account ) {
+	private boolean runSingleAccountInternal( ActionScopeSet set , Account account ) {
 		boolean runDone = false;
 		try {
 			String serverNodes = set.dc.getServerNodesByAccount( action , account );
@@ -431,12 +432,12 @@ public class ScopeExecutor {
 		return( runDone );
 	}
 	
-	private boolean runAccountListInternal( ActionScopeSet set , String[] accounts ) {
+	private boolean runAccountListInternal( ActionScopeSet set , Account[] accounts ) {
 		boolean runDone = false;
 		boolean localFailed = false;
 		try {
-			for( String hostLogin : accounts ) {
-				if( runSingleAccountInternal( set , hostLogin ) ) {
+			for( Account account : accounts ) {
+				if( runSingleAccountInternal( set , account ) ) {
 					runDone = true;
 
 					if( runFailed ) {
@@ -467,7 +468,7 @@ public class ScopeExecutor {
 			}
 			
 			if( runUniqueAccounts ) {
-				String[] accounts = set.getUniqueAccounts( action , items );
+				Account[] accounts = set.getUniqueAccounts( action , items );
 				return( runAccountListInternal( set , accounts ) );
 			}
 			

@@ -62,7 +62,7 @@ public class ActionDeployRedist extends ActionBase {
 				continue;
 			
 			for( ActionScopeTargetItem item : target.getItems( this ) ) {
-				RedistStorage redist = artefactory.getRedistStorage( target.envServer , item.envServerNode );
+				RedistStorage redist = artefactory.getRedistStorage( this , target.envServer , item.envServerNode );
 				ServerDeployment deployment = redist.getDeployment( this , dist.RELEASEDIR );
 				if( !deployment.isEmpty( this ) )
 					isEmpty = false;

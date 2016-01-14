@@ -47,7 +47,7 @@ public class ActionRollout extends ActionBase {
 		boolean hasDeployments = false;
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
-			RedistStorage redist = artefactory.getRedistStorage( server , node );
+			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 			
 			ServerDeployment deployment = redist.getDeployment( this , dist.RELEASEDIR );
 			deps[ k++ ] = deployment;
@@ -75,7 +75,7 @@ public class ActionRollout extends ActionBase {
 	}
 
 	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , ServerDeployment deployment ) throws Exception {
-		RuntimeStorage runtime = artefactory.getRuntimeStorage( server , node );
+		RuntimeStorage runtime = artefactory.getRuntimeStorage( this , server , node );
 		runtime.rollout( this , dist.RELEASEDIR , deployment );
 	}
 	

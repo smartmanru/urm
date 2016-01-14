@@ -30,7 +30,7 @@ public class ActionGetRedistInfo extends ActionBase {
 			MetaEnvServerNode node = item.envServerNode;
 			comment( "node" + node.POS + " (" + node.HOSTLOGIN + "):" );
 			
-			RedistStorage redist = artefactory.getRedistStorage( server , node );
+			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 			if( dist == null )
 				showReleases( redist );
 			else

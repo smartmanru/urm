@@ -6,6 +6,7 @@ import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScopeSet;
 import ru.egov.urm.run.ActionScopeTarget;
 import ru.egov.urm.run.ActionScopeTargetItem;
+import ru.egov.urm.shell.Account;
 import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.RedistStorage;
 
@@ -18,9 +19,9 @@ public class ActionDropRedist extends ActionBase {
 		this.dist = dist;
 	}
 
-	@Override protected boolean executeAccount( ActionScopeSet set , String hostLogin ) throws Exception {
+	@Override protected boolean executeAccount( ActionScopeSet set , Account account ) throws Exception {
 		// drop all redist information for all servers
-		RedistStorage redist = artefactory.getRedistStorage( "all" , hostLogin );
+		RedistStorage redist = artefactory.getRedistStorage( "all" , account );
 		redist.dropAll( this );
 		return( true );
 	}
@@ -30,7 +31,7 @@ public class ActionDropRedist extends ActionBase {
 		log( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.TYPE ) + " ..." );
 		
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
-			RedistStorage redist = artefactory.getRedistStorage( target.envServer , item.envServerNode );
+			RedistStorage redist = artefactory.getRedistStorage( this , target.envServer , item.envServerNode );
 			if( dist == null )
 				redist.dropReleaseAll( this );
 			else

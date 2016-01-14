@@ -29,19 +29,15 @@ public class ShellExecutorPool {
 		master = createDedicatedLocalShell( action , "master" );
 	}
 	
-	public ShellExecutor getExecutor( ActionBase action , String hostLogin , String scope ) throws Exception {
-		String execHostLogin = hostLogin;
+	public ShellExecutor getExecutor( ActionBase action , Account account , String scope ) throws Exception {
+		Account execHostLogin = account;
 
-		boolean local = false;
-		if( execHostLogin == null || execHostLogin.isEmpty() || execHostLogin.equals( "local" ) || execHostLogin.equals( action.context.hostLogin ) )
-			local = true;
-		
-		String name = ( local )? "local::" + scope : "remote::" + scope + "::" + hostLogin; 
+		String name = ( account.local )? "local::" + scope : "remote::" + scope + "::" + account.HOSTLOGIN; 
 		ShellExecutor shell = pool.get( name );
 		if( shell != null )
 			return( shell );
 		
-		if( local ) {
+		if( account.local ) {
 			shell = new LocalShellExecutor( name , this , rootPath );
 			shell.start( action );
 		}
@@ -94,13 +90,13 @@ public class ShellExecutorPool {
 		}
 	}
 
-	public void runInteractiveSsh( ActionBase action , String hostLogin , String KEY ) throws Exception {
-		String cmd = "ssh " + hostLogin;
+	public void runInteractiveSsh( ActionBase action , Account account , String KEY ) throws Exception {
+		String cmd = "ssh " + account.HOSTLOGIN;
 		if( !KEY.isEmpty() )
 			cmd += " -i " + KEY;
 		cmd += " < /dev/tty > /dev/tty 2>&1";
 		
-		action.trace( hostLogin + " execute: " + cmd );
+		action.trace( account.HOSTLOGIN + " execute: " + cmd );
 		ProcessBuilder pb = new ProcessBuilder( "sh" , "-c" , cmd );
 		pb.redirectErrorStream(true);
 		Process p = pb.start();

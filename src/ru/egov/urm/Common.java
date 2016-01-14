@@ -588,22 +588,6 @@ public class Common {
 		return( v );
 	}
 
-	public static String getAccount( String user , String host ) {
-		return( user + "@" + host );
-	}
-	
-	public static String getRootAccount( String host ) {
-		return( "root@" + host );
-	}
-	
-	public static String getAccountHost( String account ) {
-		return( getPartAfterLast( account , "@" ) );
-	}
-
-	public static String getAccountUser( String account ) {
-		return( getPartBeforeFirst( account , "@" ) );
-	}
-
 	public static String getSQLQuoted( String value ) {
 		if( value == null || value.isEmpty() )
 			return( "'NULL'" );

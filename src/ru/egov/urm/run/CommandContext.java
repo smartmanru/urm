@@ -3,6 +3,7 @@ package ru.egov.urm.run;
 import ru.egov.urm.Common;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.run.CommandOptions.FLAG;
+import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutorPool;
 
 public class CommandContext {
@@ -10,7 +11,7 @@ public class CommandContext {
 	public ShellExecutorPool pool;
 	
 	public String streamName;
-	public String hostLogin;
+	public Account account;
 	public String productHome;
 	public VarBUILDMODE buildMode;
 	public String env;
@@ -39,7 +40,7 @@ public class CommandContext {
 		else
 			this.streamName = stream;
 		
-		this.hostLogin = context.hostLogin;
+		this.account = context.account;
 		this.productHome = context.productHome;
 		this.buildMode = context.buildMode;
 		this.env = context.env;
@@ -84,7 +85,7 @@ public class CommandContext {
 			return( false );
 		}
 
-		this.hostLogin = Common.getAccount( userName , hostName );
+		this.account = new Account( userName , hostName , true );
 		this.productHome = productHome;
 		String value = System.getProperty( "build.mode" ).toUpperCase();
 		this.buildMode = ( value == null || value.isEmpty() )? VarBUILDMODE.UNKNOWN : VarBUILDMODE.valueOf( value );

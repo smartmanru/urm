@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.w3c.dom.Node;
 
-import ru.egov.urm.Common;
 import ru.egov.urm.PropertySet;
 import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.shell.Account;
 
 public class MetaEnvServerNode {
 
@@ -20,9 +20,6 @@ public class MetaEnvServerNode {
 	public String INSTANCE;
 	public boolean OFFLINE;
 	
-	public String USER;
-	public String HOST;
-
 	public PropertySet properties;
 	
 	public MetaEnvServerNode( MetaEnvServer server , int POS ) {
@@ -50,9 +47,6 @@ public class MetaEnvServerNode {
 		
 		OFFLINE = properties.getSystemBooleanProperty( action , "offline" , false , systemProps );
 		
-		USER = Common.getAccountUser( HOSTLOGIN );
-		HOST = Common.getAccountHost( HOSTLOGIN );
-		
 		properties.checkUnexpected( action , systemProps );
 	}
 
@@ -66,9 +60,10 @@ public class MetaEnvServerNode {
 	}
 
 	public String getAccessPoint( ActionBase action ) throws Exception {
+		Account account = action.getAccount( this ); 
 		if( server.PORT > 0 )
-			return( HOST + ":" + server.PORT );
-		return( HOST );
+			return( account.HOST + ":" + server.PORT );
+		return( account.HOST );
 	}
 	
 }

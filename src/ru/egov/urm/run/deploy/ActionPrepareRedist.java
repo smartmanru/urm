@@ -48,7 +48,7 @@ public class ActionPrepareRedist extends ActionBase {
 	
 	private void recreateFoldersSingle( MetaEnvServer server ) throws Exception {
 		for( MetaEnvServerNode node : server.getNodes( this ) ) {
-			RedistStorage storage = artefactory.getRedistStorage( server , node );
+			RedistStorage storage = artefactory.getRedistStorage( this , server , node );
 			recreateFoldersNode( storage );
 		}
 	}

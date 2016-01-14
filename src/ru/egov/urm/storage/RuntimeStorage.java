@@ -12,17 +12,18 @@ import ru.egov.urm.meta.Metadata.VarDISTITEMTYPE;
 import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.deploy.ServerDeployment;
+import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
 
 public class RuntimeStorage extends ServerStorage {
 
-	public RuntimeStorage( Artefactory artefactory , MetaEnvServer server , MetaEnvServerNode node ) {
-		super( artefactory , server , node );
+	public RuntimeStorage( Artefactory artefactory , String type , Account account , MetaEnvServer server , MetaEnvServerNode node ) {
+		super( artefactory , type , account , server , node );
 	}
 
 	public void restoreSysConfigs( ActionBase action , RedistStorage redist , LocalFolder srcFolder ) throws Exception {
 		String msg = "restore server control configuratuion files";
-		action.executeLogLive( node.HOSTLOGIN , msg );
+		action.executeLogLive( action.getAccount( node ) , msg );
 		if( action.context.SHOWONLY )
 			return;
 		
@@ -46,13 +47,13 @@ public class RuntimeStorage extends ServerStorage {
 		srcFolder.createTarGzFromContent( action , tarFilePath , "*" , "" );
 		
 		// rollout to destination
-		ShellExecutor shell = action.getShell( node.HOSTLOGIN );
+		ShellExecutor shell = action.getShell( node );
 		RemoteFolder remoteDir = redist.getRedistTmpFolder( action );
 		shell.appendUploadLog( action , tarFilePath , remoteDir.folderPath );
 		remoteDir.ensureExists( action );
 		remoteDir.copyFileFromLocal( action , tarFilePath );
 
-		RemoteFolder runtimeDir = new RemoteFolder( artefactory , node.HOSTLOGIN , F_RUNTIMEDIR );
+		RemoteFolder runtimeDir = new RemoteFolder( artefactory , action.getAccount( node ) , F_RUNTIMEDIR );
 		String confFullPath = remoteDir.getFilePath( action , F_CONFIGTARFILE );
 		shell.appendExecuteLog( action , "restore server system configuration (" + confFullPath + ")" + " to " + runtimeDir.folderPath );
 		if( server.TYPE != VarSERVERTYPE.SERVICE )
@@ -66,7 +67,7 @@ public class RuntimeStorage extends ServerStorage {
 	public void restoreConfigItem( ActionBase action , RedistStorage redist , LocalFolder srcFolder , MetaEnvServerDeployment deployment , MetaDistrConfItem confItem , String version ) throws Exception {
 		String LOCATION = deployment.getDeployPath( action );
 		String msg = "restore server configuratuion files item=" + confItem.KEY + ", location=" + LOCATION;
-		action.executeLogLive( node.HOSTLOGIN , msg );
+		action.executeLogLive( action.getAccount( node ) , msg );
 		if( action.context.SHOWONLY )
 			return;
 		
@@ -78,7 +79,7 @@ public class RuntimeStorage extends ServerStorage {
 		srcFolder.createTarGzFromContent( action , tarFilePath , "*" , "" );
 		
 		// rollout to destination
-		ShellExecutor shell = action.getShell( node.HOSTLOGIN );
+		ShellExecutor shell = action.getShell( node );
 		RemoteFolder remoteDir = redist.getRedistTmpFolder( action );
 		shell.appendUploadLog( action , tarFilePath , remoteDir.folderPath );
 		remoteDir.ensureExists( action );
@@ -145,7 +146,7 @@ public class RuntimeStorage extends ServerStorage {
 		String msg = "deploy redist item mode=" + mode + ", release=" + RELEASEDIR + ", content=" + 
 				Common.getEnumLower( CONTENTTYPE ) + ", location=" + LOCATION + ", file=" + file;
 		
-		action.executeLogLive( node.HOSTLOGIN , msg );
+		action.executeLogLive( action.getAccount( node ) , msg );
 		if( action.context.SHOWONLY )
 			return;
 
@@ -165,7 +166,7 @@ public class RuntimeStorage extends ServerStorage {
 			action.exitUnexpectedState();
 
 		// copy to state folder
-		RedistStorage redist = artefactory.getRedistStorage( server , node ); 
+		RedistStorage redist = artefactory.getRedistStorage( action , server , node ); 
 		redist.changeStateItem( action , RELEASEDIR , CONTENTTYPE , LOCATION , file , rollout );
 		
 		action.debug( "deploy done location=" + LOCATION + ", file=" + file );

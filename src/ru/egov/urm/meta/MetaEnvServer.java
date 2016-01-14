@@ -14,6 +14,7 @@ import ru.egov.urm.meta.Metadata.VarDBMSTYPE;
 import ru.egov.urm.meta.Metadata.VarDEPLOYTYPE;
 import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.shell.Account;
 
 public class MetaEnvServer {
 
@@ -279,7 +280,8 @@ public class MetaEnvServer {
 	public String getNodesAsStringByHost( ActionBase action , String host ) throws Exception {
 		String s = "";
 		for( MetaEnvServerNode node : nodes ) {
-			if( node.HOST.equals( host ) ) {
+			Account account = action.getAccount( node );
+			if( account.HOST.equals( host ) ) {
 				if( !s.isEmpty() )
 					s += " ";
 				s += node.POS;
@@ -288,10 +290,11 @@ public class MetaEnvServer {
 		return( s );
 	}
 
-	public String getNodesAsStringByAccount( ActionBase action , String account ) throws Exception {
+	public String getNodesAsStringByAccount( ActionBase action , Account account ) throws Exception {
 		String s = "";
 		for( MetaEnvServerNode node : nodes ) {
-			if( node.HOSTLOGIN.equals( account ) ) {
+			Account nodeAccount = action.getAccount( node );
+			if( nodeAccount.HOST.equals( account.HOSTLOGIN ) ) {
 				if( !s.isEmpty() )
 					s += " ";
 				s += node.POS;
