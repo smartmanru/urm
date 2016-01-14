@@ -61,8 +61,15 @@ public class ActionCreateDesignDoc extends ActionBase {
 		
 		// verify all design servers are mentioned in prod environment
 		for( MetaDesignElement element : design.elements.values() ) {
-			if( !usedServers.containsKey( element.NAME ) )
-				exit( "design server=" + element.NAME + " is not found in PROD (production environments)" );
+			if( element.elementType == VarELEMENTTYPE.EXTERNAL || element.elementType == VarELEMENTTYPE.GENERIC )
+				continue;
+			
+			if( element.elementType == VarELEMENTTYPE.SERVER || element.elementType == VarELEMENTTYPE.DATABASE ) {
+				if( !usedServers.containsKey( element.NAME ) )
+					exit( "design server=" + element.NAME + " is not found in PROD (production environments)" );
+			}
+			else
+				exitUnexpectedState();
 		}
 	}
 
