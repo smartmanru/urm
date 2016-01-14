@@ -55,7 +55,8 @@ public class ActionCreateDesignDoc extends ActionBase {
 		String[] files = ms.getEnvFiles( this );
 		for( String envFile : files ) {
 			MetaEnv env = meta.loadEnvData( this , envFile , false );
-			verifyEnvServers( env , usedServers );
+			if( env.PROD )
+				verifyEnvServers( env , usedServers );
 		}
 		
 		// verify all design servers are mentioned in prod environment
@@ -66,7 +67,12 @@ public class ActionCreateDesignDoc extends ActionBase {
 	}
 
 	private void verifyEnvServers( MetaEnv env , Map<String,String> usedServers ) throws Exception {
-		for( MetaEnvDC dc : env.getDCMap( this ).values() )
+		for( MetaEnvDC dc : env.getDCMap( this ).values() ) {
+			for( MetaEnvServer server : dc.getServerMap( this ).values() ) {
+				if( !usedServers.containsKey( server.DESIGN ) )
+					usedServers.put( server.DESIGN , "OK" );
+			}
+		}
 	}
 	
 	private void createDot( String fileName ) throws Exception {
