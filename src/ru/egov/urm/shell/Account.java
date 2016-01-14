@@ -34,7 +34,7 @@ public class Account {
 	}
 	
 	public static Account getAccount( ActionBase action , String hostLogin ) {
-		if( hostLogin.equals( "local" ) )
+		if( hostLogin.isEmpty() || hostLogin.equals( "local" ) )
 			return( action.context.account );
 			
 		String user = Common.getPartBeforeFirst( hostLogin , "@" );
