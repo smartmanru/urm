@@ -15,6 +15,7 @@ public class Account {
 		this.USER = user;
 		this.HOST = host;
 		this.HOSTLOGIN = user + "@" + host;
+System.out.println( "host=" + HOST + ", user=" + USER + ", local=" + local );		
 	}
 	
 	private Account( String user , String host ) {
@@ -30,6 +31,7 @@ public class Account {
 			account.local = true;
 		
 		account.local = false;
+System.out.println( "host=" + account.HOST + ", user=" + account.USER + ", local=" + account.local );		
 		return( account );
 	}
 	
