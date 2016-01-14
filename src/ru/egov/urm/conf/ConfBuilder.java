@@ -24,6 +24,8 @@ public class ConfBuilder {
 	Metadata meta;
 	ActionBase action;
 	Artefactory artefactory;
+
+	static String CONFIGURE_SCRIPT = "configure.sh";
 	
 	public ConfBuilder( ActionBase action ) {
 		this.action = action;
@@ -76,7 +78,7 @@ public class ConfBuilder {
 		live.copyDirContent( action , template );
 
 		// run preconfigure
-		String runScript = "configure.sh";
+		String runScript = CONFIGURE_SCRIPT;
 		if( live.checkFileExists( action , runScript ) ) {
 			action.log( "run " + runScript );
 			action.session.custom( action , live.folderPath , "chmod 744 " + runScript + "; ./" + runScript + " " + 
@@ -88,7 +90,7 @@ public class ConfBuilder {
 		if( live.checkFolderExists( action , envFolder ) )
 			live.copyDirContent( action , live.getSubFolder( action , envFolder ) );
 
-		live.removeFiles( action , "template-*" );
+		live.removeFiles( action , "template-* " + CONFIGURE_SCRIPT );
 		
 		// copy hidden environment directories
 		HiddenFiles hidden = artefactory.getHiddenFiles();
