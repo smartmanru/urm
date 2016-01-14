@@ -246,7 +246,7 @@ public abstract class ShellExecutor {
 	}
 	
 	public void custom( ActionBase action , String dir , String cmd ) throws Exception {
-		core.runCommand( action , cmd , dir , false );
+		core.runCommand( action , dir , cmd , false );
 	}
 
 	public void customDeployment( ActionBase action , String dir , String cmd ) throws Exception {
