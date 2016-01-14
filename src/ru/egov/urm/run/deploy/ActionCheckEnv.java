@@ -243,7 +243,7 @@ public class ActionCheckEnv extends ActionBase {
 		if( process.checkConnect( this ) )
 			return( true );
 		
-		log( "database server=" + server.NAME + ": client is not available, unable to apply scipts" );
+		log( "database server=" + server.NAME + ": client is not available" );
 		return( false );
 	}
 	
