@@ -30,13 +30,14 @@ public class DatabaseClient {
 		String user = server.admSchema.DBUSER;
 		String pwd = getUserPassword( action , user );
 		try { 
+			action.log( "check connect to database server=" + server.NAME + " ..." );
 			return( specific.checkConnect( action , server , user , pwd ) );
 		}
 		catch( Throwable e ) {
 			action.log( e );
 		}
 		
-		action.log( "unable to connect to database server=" + server );
+		action.log( "unable to connect to database server=" + server.NAME );
 		return( false );
 	}
 	
