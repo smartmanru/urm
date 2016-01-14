@@ -19,6 +19,8 @@ public class XDocCommandExecutor extends CommandExecutor {
 
 	public boolean run( ActionInit action ) {
 		try {
+			meta.loadDistr( action );
+			
 			// create implementation
 			impl = new XDocCommand();
 		}

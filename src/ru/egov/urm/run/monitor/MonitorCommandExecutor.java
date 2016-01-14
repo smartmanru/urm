@@ -19,8 +19,9 @@ public class MonitorCommandExecutor extends CommandExecutor {
 	
 	public boolean run( ActionInit action ) {
 		try {
+			meta.loadDistr( action );
+			
 			// create implementation
-			meta.loadProduct( action );
 			MetaMonitoring mon = meta.loadMonitoring( action );
 			impl = new MonitorCommand( mon );
 		}
