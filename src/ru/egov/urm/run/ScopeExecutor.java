@@ -11,6 +11,7 @@ import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaSourceProject;
 import ru.egov.urm.meta.MetaSourceProjectSet;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
+import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.shell.Account;
 
 public class ScopeExecutor {
@@ -363,7 +364,7 @@ public class ScopeExecutor {
 		return( runDone );
 	}
 
-	private boolean runSingleHostInternal( ActionScopeSet set , String host ) {
+	private boolean runSingleHostInternal( ActionScopeSet set , String host , VarOSTYPE OSTYPE ) {
 		boolean runDone = false;
 		try {
 			String user = action.options.OPT_HOSTUSER;
@@ -371,7 +372,7 @@ public class ScopeExecutor {
 				user = "root";
 			
 			String serverNodes;
-			Account account = new Account( user , host , false );
+			Account account = new Account( user , host , false , OSTYPE );
 			serverNodes = set.dc.getServerNodesByHost( action , host );
 			action.log( account + ": serverNodes={" + serverNodes + "}" );
 			
@@ -406,12 +407,12 @@ public class ScopeExecutor {
 		return( runDone );
 	}
 
-	private boolean runHostListInternal( ActionScopeSet set , String[] hosts ) {
+	private boolean runHostListInternal( ActionScopeSet set , Account[] hosts ) {
 		boolean runDone = false;
 		boolean localFailed = false;
 		try {
-			for( String host : hosts ) {
-				if( runSingleHostInternal( set , host ) ) {
+			for( Account host : hosts ) {
+				if( runSingleHostInternal( set , host.HOSTLOGIN , host.OSTYPE ) ) {
 					runDone = true;
 
 					if( runFailed ) {
@@ -463,7 +464,7 @@ public class ScopeExecutor {
 		boolean localFailed = false;
 		try {
 			if( runUniqueHosts ) {
-				String[] hosts = set.getUniqueHosts( action , items );
+				Account[] hosts = set.getUniqueHosts( action , items );
 				return( runHostListInternal( set , hosts ) );
 			}
 			

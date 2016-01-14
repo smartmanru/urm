@@ -6,6 +6,7 @@ import ru.egov.urm.meta.MetaMonitoring;
 import ru.egov.urm.meta.MetaSourceProject;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
+import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.CommandExecutor;
 import ru.egov.urm.shell.Account;
@@ -286,7 +287,7 @@ public class Artefactory {
 	}
 
 	public RemoteFolder getReleaseHostRedistFolder( ActionBase action ) throws Exception {
-		Account account = Account.getAccount( action , meta.env.DISTR_HOSTLOGIN );
+		Account account = Account.getAccount( action , meta.env.DISTR_HOSTLOGIN , VarOSTYPE.UNIX );
 		return( new RemoteFolder( this , account , meta.env.REDISTPATH ) );
 	}
 	

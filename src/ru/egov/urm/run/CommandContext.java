@@ -2,6 +2,7 @@ package ru.egov.urm.run;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
+import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.run.CommandOptions.FLAG;
 import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutorPool;
@@ -85,7 +86,7 @@ public class CommandContext {
 			return( false );
 		}
 
-		this.account = new Account( userName , hostName , true );
+		this.account = new Account( userName , hostName , true , VarOSTYPE.UNIX );
 		this.productHome = productHome;
 		String value = System.getProperty( "build.mode" ).toUpperCase();
 		this.buildMode = ( value == null || value.isEmpty() )? VarBUILDMODE.UNKNOWN : VarBUILDMODE.valueOf( value );

@@ -481,15 +481,22 @@ public class ActionScopeSet {
 		return( target );
 	}
 	
-	public String[] getUniqueHosts( ActionBase action , ActionScopeTarget[] targets ) throws Exception {
-		Map<String,MetaEnvServerNode> map = new HashMap<String,MetaEnvServerNode>(); 
+	public Account[] getUniqueHosts( ActionBase action , ActionScopeTarget[] targets ) throws Exception {
+		Map<String,Account> map = new HashMap<String,Account>(); 
 		for( ActionScopeTarget target : targets ) {
 			for( ActionScopeTargetItem item : target.getItems( action ) ) {
 				Account account = action.getAccount( item.envServerNode );
-				map.put( account.HOST , item.envServerNode );
+				map.put( account.HOST , action.getAccount( item.envServerNode ) );
 			}
 		}
-		return( Common.getSortedKeys( map ) );
+		
+		String[] keys = Common.getSortedKeys( map );
+		Account[] accounts = new Account[ keys.length ];
+		
+		for( int k = 0; k < keys.length; k++ )
+			accounts[ k ] = map.get( keys[ k ] );
+		
+		return( accounts );
 	}
 	
 	public Account[] getUniqueAccounts( ActionBase action , ActionScopeTarget[] targets ) throws Exception {

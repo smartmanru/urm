@@ -297,12 +297,12 @@ abstract public class ActionBase {
 	}
 	
 	public ShellExecutor getShell( MetaEnvServerNode node ) throws Exception {
-		Account account = Account.getAccount( this , node.HOSTLOGIN );
+		Account account = Account.getAccount( this , node.HOSTLOGIN , node.server.OSTYPE );
 		return( getShell( account ) );
 	}
 	
 	public Account getAccount( MetaEnvServerNode node ) throws Exception {
-		return( Account.getAccount( this , node.HOSTLOGIN ) );
+		return( Account.getAccount( this , node.HOSTLOGIN , node.server.OSTYPE ) );
 	}
 	
 	public void startRedirect( String title , String logFile ) throws Exception {

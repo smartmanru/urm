@@ -2,6 +2,7 @@ package ru.egov.urm.storage;
 
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
+import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.shell.Account;
 
@@ -20,9 +21,9 @@ public class DistRepository {
 		DistRepository repo = new DistRepository( artefactory ); 
 		
 		if( action.meta.env != null )
-			repo.repoFolder = new RemoteFolder( artefactory , Account.getAccount( action , action.meta.env.DISTR_HOSTLOGIN ) , action.meta.env.DISTR_PATH );
+			repo.repoFolder = new RemoteFolder( artefactory , Account.getAccount( action , action.meta.env.DISTR_HOSTLOGIN , VarOSTYPE.UNIX ) , action.meta.env.DISTR_PATH );
 		else
-			repo.repoFolder = new RemoteFolder( artefactory , Account.getAccount( action , action.meta.product.CONFIG_DISTR_HOSTLOGIN ) , action.meta.product.CONFIG_DISTR_PATH );
+			repo.repoFolder = new RemoteFolder( artefactory , Account.getAccount( action , action.meta.product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.UNIX ) , action.meta.product.CONFIG_DISTR_PATH );
 		
 		return( repo );
 	}

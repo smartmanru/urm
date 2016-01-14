@@ -87,7 +87,13 @@ public class Metadata {
 		UNKNOWN ,
 		ORACLE ,
 		POSTGRESQL
-	}
+	};
+
+	public enum VarOSTYPE {
+		UNKNOWN ,
+		UNIX ,
+		WINDOWS
+	};
 
 	public enum VarDISTITEMTYPE {
 		UNKNOWN ,
@@ -230,6 +236,21 @@ public class Metadata {
 		
 		if( value == null )
 			action.exit( "missing server type" );
+		
+		return( value );
+	}
+	
+	public VarOSTYPE getOSType( ActionBase action , String ID ) throws Exception {
+		VarOSTYPE value = null;
+		try {
+			value = VarOSTYPE.valueOf( Common.xmlToEnumValue( ID ) );
+		}
+		catch( IllegalArgumentException e ) {
+			action.exit( "invalid operation system type=" + ID );
+		}
+		
+		if( value == null )
+			action.exit( "missing operating system type" );
 		
 		return( value );
 	}

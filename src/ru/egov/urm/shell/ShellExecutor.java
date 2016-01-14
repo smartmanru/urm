@@ -3,6 +3,7 @@ package ru.egov.urm.shell;
 import java.util.List;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.run.ActionBase;
 
 public abstract class ShellExecutor {
@@ -15,12 +16,22 @@ public abstract class ShellExecutor {
 	
 	abstract public void start( ActionBase action ) throws Exception;
 	
-	public ShellExecutor( String name , ShellExecutorPool pool , String rootPath ) {
+	protected ShellExecutor( String name , ShellExecutorPool pool , String rootPath ) {
 		this.name = name;
 		this.pool = pool;
 		this.rootPath = rootPath;
+	}
+	
+	public static ShellExecutor getLocalShellExecutor( ActionBase action , String name , ShellExecutorPool pool , String rootPath ) throws Exception {
+		ShellExecutor executor = new LocalShellExecutor( name , pool , rootPath );
+		executor.core = ShellCore.createShellCore( action, executor , pool.timeoutDefault , VarOSTYPE.UNIX );
+		return( executor );
+	}
 
-		core = new ShellCore( this , pool.timeoutDefault );
+	public static ShellExecutor getRemoteShellExecutor( ActionBase action , String name , ShellExecutorPool pool , Account account , String rootPath ) throws Exception {
+		ShellExecutor executor = new RemoteShellExecutor( name , pool , account , rootPath );
+		executor.core = ShellCore.createShellCore( action, executor , pool.timeoutDefault , account.OSTYPE );
+		return( executor );
 	}
 
 	public void exitError( ActionBase action , String error ) throws Exception {
@@ -34,7 +45,7 @@ public abstract class ShellExecutor {
 		if( !initialized )
 			action.exit( "session=" + name + " failed on init stage" );
 		
-		core = new ShellCore( this , action.options.OPT_COMMANDTIMEOUT );
+		core = ShellCore.createShellCore( action , this , action.options.OPT_COMMANDTIMEOUT , core.OSTYPE );
 		start( action );
 	}
 	

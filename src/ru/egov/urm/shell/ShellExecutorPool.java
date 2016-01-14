@@ -30,7 +30,7 @@ public class ShellExecutorPool {
 	}
 	
 	public ShellExecutor getExecutor( ActionBase action , Account account , String scope ) throws Exception {
-		Account execHostLogin = account;
+		Account execAccount = account;
 
 		String name = ( account.local )? "local::" + scope : "remote::" + scope + "::" + account.HOSTLOGIN; 
 		ShellExecutor shell = pool.get( name );
@@ -38,12 +38,12 @@ public class ShellExecutorPool {
 			return( shell );
 		
 		if( account.local ) {
-			shell = new LocalShellExecutor( name , this , rootPath );
+			shell = ShellExecutor.getLocalShellExecutor( action , name , this , rootPath );
 			shell.start( action );
 		}
 		else {
 			String REDISTPATH = action.meta.product.CONFIG_REDISTPATH;
-			shell = new RemoteShellExecutor( name , this , execHostLogin , REDISTPATH );
+			shell = ShellExecutor.getRemoteShellExecutor( action , name , this , execAccount , REDISTPATH );
 			shell.start( action );
 		}
 		
@@ -54,7 +54,7 @@ public class ShellExecutorPool {
 	}
 
 	public ShellExecutor createDedicatedLocalShell( ActionBase action , String name ) throws Exception {
-		ShellExecutor shell = new LocalShellExecutor( "local::" + name , this , rootPath );
+		ShellExecutor shell = ShellExecutor.getLocalShellExecutor( action , "local::" + name , this , rootPath );
 		action.setShell( shell );
 		
 		shell.start( action );

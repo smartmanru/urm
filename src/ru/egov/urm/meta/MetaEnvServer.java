@@ -12,6 +12,7 @@ import ru.egov.urm.ConfReader;
 import ru.egov.urm.PropertySet;
 import ru.egov.urm.meta.Metadata.VarDBMSTYPE;
 import ru.egov.urm.meta.Metadata.VarDEPLOYTYPE;
+import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.shell.Account;
@@ -64,6 +65,8 @@ public class MetaEnvServer {
 	
 	public String ALIGNED;
 	public String REGIONS;
+	
+	public VarOSTYPE OSTYPE;
 	
 	public PropertySet properties;
 
@@ -162,6 +165,7 @@ public class MetaEnvServer {
 			BASELINE = NAME;
 		
 		TYPE = action.meta.getServerType( action , properties.getSystemRequiredProperty( action , "type" , systemProps ) );
+		OSTYPE = action.meta.getOSType( action , properties.getSystemProperty( action , "ostype" , "unix" , systemProps ) );
 		OFFLINE = properties.getSystemBooleanProperty( action , "offline" , false , systemProps );
 		DESIGN = properties.getSystemProperty( action , "offline" , NAME , systemProps );
 		
