@@ -11,7 +11,7 @@ if [ "$P_RELEASE" = "" ]; then
 fi
 
 S_URMHOME=~/jurm/products
-S_PRODUCT_LIST=`( cd $S_URMHOME; ls )`
+S_PRODUCT_LIST=`( cd $S_URMHOME; ls | tr "\n" " " )`
 
 function f_execute_product() {
 	local P_DIR_TMP=$1
