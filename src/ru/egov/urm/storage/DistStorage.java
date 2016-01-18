@@ -240,9 +240,10 @@ public class DistStorage {
 	}
 
 	public void finish( ActionBase action ) throws Exception {
-		state.ctlReloadCheckOpened( action );
+		state.ctlOpenForChange( action );
 
 		// drop empty directories
+		// check consistency
 		// finish release
 		state.ctlFinish( action );
 	}
