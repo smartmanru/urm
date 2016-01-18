@@ -109,6 +109,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		lines.add( "digraph " + Common.getQuoted( meta.product.CONFIG_PRODUCT ) + " {" );
 		lines.add( "\tcharset=" + Common.getQuoted( "utf8" ) + ";" );
 		lines.add( "\tcompound=true;" );
+		lines.add( "\trankdir=LR;" );
 		lines.add( "\tnode [shape=box, style=" + Common.getQuoted( "filled, rounded" ) + ", fontsize=10];" );
 		lines.add( "" );
 	}
