@@ -12,6 +12,11 @@ public class ReleaseCommand {
 	public ReleaseCommand() {
 	}
 
+	public void createProd( ActionBase action , String RELEASEVER ) throws Exception {
+		ActionCreateProd ma = new ActionCreateProd( action , null , RELEASEVER );
+		ma.runSimple();
+	}
+	
 	public void createRelease( ActionBase action , String RELEASELABEL , VarBUILDMODE BUILDMODE ) throws Exception {
 		ActionCreateRelease ma = new ActionCreateRelease( action , null , RELEASELABEL , BUILDMODE );
 		ma.runSimple();

@@ -17,23 +17,24 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		super( builder );
 		
 		String releaseOpts = "";
-		defineAction( CommandAction.newAction( new CreateRelease() , "create" , "create release" , releaseOpts , "./create.sh [OPTIONS] <RLEASELABEL> {branch|trunk|majorbranch|devbranch|devtrunk}" ) );
-		defineAction( CommandAction.newAction( new DeleteRelease() , "drop" , "delete release" , releaseOpts , "./drop.sh [OPTIONS] <RLEASELABEL>" ) );
-		defineAction( CommandAction.newAction( new StatusRelease() , "status" , "get release status" , releaseOpts , "./status.sh [OPTIONS] <RLEASELABEL>" ) );
-		defineAction( CommandAction.newAction( new CloseRelease() , "close" , "close release" , releaseOpts , "./close.sh [OPTIONS] <RLEASELABEL>" ) );
+		defineAction( CommandAction.newAction( new CreateRelease() , "create" , "create release" , releaseOpts , "./create.sh [OPTIONS] <RELEASELABEL> {branch|trunk|majorbranch|devbranch|devtrunk}" ) );
+		defineAction( CommandAction.newAction( new DeleteRelease() , "drop" , "delete release" , releaseOpts , "./drop.sh [OPTIONS] <RELEASELABEL>" ) );
+		defineAction( CommandAction.newAction( new StatusRelease() , "status" , "get release status" , releaseOpts , "./status.sh [OPTIONS] <RELEASELABEL>" ) );
+		defineAction( CommandAction.newAction( new CloseRelease() , "close" , "close release" , releaseOpts , "./close.sh [OPTIONS] <RELEASELABEL>" ) );
+		defineAction( CommandAction.newAction( new MaintainProd() , "prod" , "create master distributive from predefined set" , releaseOpts , "./prod.sh [OPTIONS] create <initial version>" ) );
 		String addOpts = "GETOPT_BRANCH,GETOPT_TAG,GETOPT_VERSION,GETOPT_REPLACE";
-		defineAction( CommandAction.newAction( new AddReleaseBuildProjects() , "scope" , "add projects to build (except for prebuilt) and use all its binary items" , addOpts , "./scope.sh [OPTIONS] <RLEASELABEL> <set> [target1 target2 ...]" ) );
-		defineAction( CommandAction.newAction( new AddReleaseBuildItems() , "scopeitems" , "add specified binary items to built (if not prebuilt) and get" , addOpts , "./scopeitems.sh [OPTIONS] <RLEASELABEL> item1 [item2 ...]" ) );
+		defineAction( CommandAction.newAction( new AddReleaseBuildProjects() , "scope" , "add projects to build (except for prebuilt) and use all its binary items" , addOpts , "./scope.sh [OPTIONS] <RELEASELABEL> <set> [target1 target2 ...]" ) );
+		defineAction( CommandAction.newAction( new AddReleaseBuildItems() , "scopeitems" , "add specified binary items to built (if not prebuilt) and get" , addOpts , "./scopeitems.sh [OPTIONS] <RELEASELABEL> item1 [item2 ...]" ) );
 		String addDbOpts = "GETOPT_ALL";
-		defineAction( CommandAction.newAction( new AddReleaseDatabaseItems() , "scopedb" , "add database changes to release deliveries" , addDbOpts , "./scopedb.sh [OPTIONS] <RLEASELABEL> delivery1 [delivery2 ...]" ) );
+		defineAction( CommandAction.newAction( new AddReleaseDatabaseItems() , "scopedb" , "add database changes to release deliveries" , addDbOpts , "./scopedb.sh [OPTIONS] <RELEASELABEL> delivery1 [delivery2 ...]" ) );
 		String addConfOpts = "GETOPT_REPLACE";
-		defineAction( CommandAction.newAction( new AddReleaseConfigItems() , "scopeconf" , "add configuration items to release" , addConfOpts , "./scopeconf.sh [OPTIONS] <RLEASELABEL> [component1 component2 ...]" ) );
+		defineAction( CommandAction.newAction( new AddReleaseConfigItems() , "scopeconf" , "add configuration items to release" , addConfOpts , "./scopeconf.sh [OPTIONS] <RELEASELABEL> [component1 component2 ...]" ) );
 		String buildReleaseOpts = "GETOPT_DIST,GETOPT_CHECK";
-		defineAction( CommandAction.newAction( new BuildRelease() , "build" , "build release and (with -get) " , buildReleaseOpts , "./build.sh [OPTIONS] <RLEASELABEL> [set [projects]]" ) );
+		defineAction( CommandAction.newAction( new BuildRelease() , "build" , "build release and (with -get) " , buildReleaseOpts , "./build.sh [OPTIONS] <RELEASELABEL> [set [projects]]" ) );
 		String getReleaseOpts = "GETOPT_DIST,GETOPT_MOVE_ERRORS";
-		defineAction( CommandAction.newAction( new GetRelease() , "getdist" , "download ready and/or built release items" , getReleaseOpts , "./getdist.sh [OPTIONS] <RLEASELABEL> [set [projects]]" ) );
+		defineAction( CommandAction.newAction( new GetRelease() , "getdist" , "download ready and/or built release items" , getReleaseOpts , "./getdist.sh [OPTIONS] <RELEASELABEL> [set [projects]]" ) );
 		String getDescopeOpts = "";
-		defineAction( CommandAction.newAction( new DescopeRelease() , "descope" , "descope release elements" , getDescopeOpts , "./descope.sh [OPTIONS] <RLEASELABEL> set [project [project items]|configuration components|database deliveries]" ) );
+		defineAction( CommandAction.newAction( new DescopeRelease() , "descope" , "descope release elements" , getDescopeOpts , "./descope.sh [OPTIONS] <RELEASELABEL> set [project [project items]|configuration components|database deliveries]" ) );
 	}	
 
 	public boolean run( ActionInit action ) {
@@ -75,6 +76,19 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
 		options.checkNoArgs( action , 1 );
 		impl.closeRelease( action , RELEASELABEL );
+	}
+	}
+
+	private class MaintainProd extends CommandAction {
+	public void run( ActionInit action ) throws Exception {
+		String CMD = options.getRequiredArg( action , 0 , "CMD" );
+		if( CMD.equals( "create" ) ) {
+			String RELEASEVER = options.getRequiredArg( action , 1 , "RELEASEVER" );
+			options.checkNoArgs( action , 2 );
+			impl.createProd( action , RELEASEVER );
+		}
+		else
+			action.exit( "wrong args" );
 	}
 	}
 

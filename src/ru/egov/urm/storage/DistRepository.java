@@ -1,5 +1,6 @@
 package ru.egov.urm.storage;
 
+import ru.egov.urm.Common;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
@@ -12,6 +13,8 @@ public class DistRepository {
 	private RemoteFolder repoFolder;
 	Metadata meta;
 
+	static String RELEASEHISTORYFILE = "history.txt";
+	
 	private DistRepository( Artefactory artefactory ) {
 		this.artefactory = artefactory; 
 		this.meta = artefactory.meta;
@@ -61,7 +64,6 @@ public class DistRepository {
 			action.exit( "release already exists at " + RELEASEPATH );
 
 		storage.create( action , BUILDMODE );
-		storage.load( action );
 		return( storage );
 	}
 
@@ -92,7 +94,7 @@ public class DistRepository {
 
 			// check content
 			if( !repoFolder.checkFolderExists( action , RELEASEPATH ) )
-				action.exit( "getReleaseVerByLabel: unable to find prod distributive. Exiting" );
+				action.exit( "getReleaseVerByLabel: unable to find prod distributive" );
 		}
 		else
 			RELEASEPATH = "releases/" + RELEASELABEL;
@@ -102,4 +104,27 @@ public class DistRepository {
 		
 		return( RELEASEPATH );
 	}
+	
+	public void createProd( ActionBase action , String RELEASEVER ) throws Exception {
+		String PRODPATH = getReleasePathByLabel( action , "prod" );
+		
+		RemoteFolder distFolder = repoFolder.getSubFolder( action , PRODPATH );
+		if( !distFolder.checkExists( action ) )
+			action.exit( "prod folder does not exists at " + distFolder.folderPath );
+		
+		if( distFolder.checkFileExists( action , RELEASEHISTORYFILE ) )
+			action.exit( "prod folder is probably already initialized, delete history.txt manually to recreate" );
+		
+		distFolder.createFileFromString( action , RELEASEHISTORYFILE , getHistoryRecord( action , RELEASEVER , "add" ) );
+		
+		DistStorage storage = new DistStorage( artefactory , distFolder );
+		storage.create( action , VarBUILDMODE.BRANCH );
+		storage.finish( action );
+	}
+
+	private String getHistoryRecord( ActionBase action , String RELEASEVER , String operation ) throws Exception {
+		String s = Common.getNameTimeStamp() + ":" + operation + ":" + RELEASEVER;
+		return( s );
+	}
+	
 }
