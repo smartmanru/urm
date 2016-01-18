@@ -36,6 +36,18 @@ public class MetaRelease {
 		createEmptyXml( action , BUILDMODE , obsolete , RELEASEFILEPATH );
 	}
 	
+	public void createProd( ActionBase action , String RELEASEVER , String filePath ) throws Exception {
+		this.RELEASEVER = RELEASEVER;
+		this.PROPERTY_BUILDMODE = VarBUILDMODE.MAJORBRANCH;
+		this.PROPERTY_OBSOLETE = true;
+		
+		addSourceAll( action );
+		addCategorySet( action , VarCATEGORY.MANUAL , true );
+		
+		Document doc = createXml( action );
+		Common.xmlSaveDoc( doc , filePath );
+	}
+	
 	public Map<String,MetaReleaseSet> getSourceSets( ActionBase action ) throws Exception {
 		return( sourceSetMap );
 	}
@@ -340,6 +352,11 @@ public class MetaRelease {
 		return( doc );
 	}
 
+	public void addSourceAll( ActionBase action ) throws Exception {
+		for( MetaSourceProjectSet sourceSet : meta.sources.getSets( action ).values() )
+			addSourceSet( action , sourceSet , true );
+	}
+	
 	public boolean addSourceSet( ActionBase action , MetaSourceProjectSet sourceSet , boolean all ) throws Exception {
 		MetaReleaseSet set = findSourceSet( action , sourceSet.NAME );
 		if( set == null ) {

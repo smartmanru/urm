@@ -118,7 +118,7 @@ public class DistRepository {
 		distFolder.createFileFromString( action , RELEASEHISTORYFILE , getHistoryRecord( action , RELEASEVER , "add" ) );
 		
 		DistStorage storage = new DistStorage( artefactory , distFolder );
-		storage.create( action , VarBUILDMODE.BRANCH );
+		storage.createProd( action , RELEASEVER );
 		storage.finish( action );
 	}
 

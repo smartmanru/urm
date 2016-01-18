@@ -218,10 +218,15 @@ public class DistStorage {
 	
 	// top-level control
 	public void create( ActionBase action , VarBUILDMODE BUILDMODE ) throws Exception {
-		state.ctlCreate( action , BUILDMODE , RELEASEDIR );
+		state.ctlCreate( action , BUILDMODE );
 		load( action );
 	}
 
+	public void createProd( ActionBase action , String RELEASEVER ) throws Exception {
+		state.ctlCreateProd( action , RELEASEVER );
+		load( action );
+	}
+	
 	public void openForChange( ActionBase action ) throws Exception {
 		state.ctlOpenForChange( action );
 	}

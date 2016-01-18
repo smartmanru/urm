@@ -127,7 +127,7 @@ public class ReleaseState {
 		}
 	}
 
-	public void ctlCreate( ActionBase action , VarBUILDMODE BUILDMODE , String RELEASEDIR ) throws Exception {
+	public void ctlCreate( ActionBase action , VarBUILDMODE BUILDMODE ) throws Exception {
 		// create release.xml, create status file, set closed dirty state
 		// check current status
 		ctlLoadReleaseState( action );
@@ -140,6 +140,7 @@ public class ReleaseState {
 		
 		// create empty release.xml
 		String filePath = action.artefactory.workFolder.getFilePath( action , DistStorage.metaFileName );
+		String RELEASEDIR = distFolder.folderName;
 		String RELEASEVER = Common.getPartBeforeFirst( RELEASEDIR , "-" );
 		
 		MetaRelease info = new MetaRelease( action.meta );
@@ -148,7 +149,30 @@ public class ReleaseState {
 		
 		// set status
 		ctlSetStatus( action , RELEASESTATE.DIRTY );
-		action.log( "release has been created: " + distFolder.folderName );
+		action.log( "release has been created: " + RELEASEDIR );
+	}
+	
+	public void ctlCreateProd( ActionBase action , String RELEASEVER ) throws Exception {
+		// create release.xml, create status file, set closed dirty state
+		// check current status
+		ctlLoadReleaseState( action );
+		
+		if( state != RELEASESTATE.MISSING )
+			action.exit( "unable to create existing distributive" );
+			
+		if( !distFolder.checkExists( action ) )
+			action.exit( "prod distributive directory should exist" );
+		
+		// create empty release.xml
+		String filePath = action.artefactory.workFolder.getFilePath( action , DistStorage.metaFileName );
+		
+		MetaRelease info = new MetaRelease( action.meta );
+		info.createProd( action , RELEASEVER , filePath );
+		distFolder.copyFileFromLocal( action , filePath );
+		
+		// set status
+		ctlSetStatus( action , RELEASESTATE.DIRTY );
+		action.log( "prod has been created at " + distFolder.folderPath );
 	}
 	
 	public void ctlOpenForChange( ActionBase action ) throws Exception {
