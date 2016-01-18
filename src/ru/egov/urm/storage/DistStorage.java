@@ -245,7 +245,11 @@ public class DistStorage {
 		// check consistency, drop empty directories
 		FileSet fsd = distFolder.getFileSet( action );
 		FileSet fsr = createExpectedFileSet( action );  
-		finishDist( action , fsd , fsr );
+		if( !finishDist( action , fsd , fsr ) ) {
+			action.log( "distributive is not ready to be finished" );
+			state.ctlCloseChange( action );
+			return;
+		}
 		
 		// finish release
 		state.ctlFinish( action );
