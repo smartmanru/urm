@@ -10,7 +10,8 @@ public class ReleaseState {
 
 	enum RELEASESTATE {
 		UNKNOWN ,
-		MISSING ,
+		MISSINGDIST ,
+		MISSINGSTATE ,
 		BROKEN ,
 		DIRTY ,
 		CHANGING ,
@@ -47,7 +48,12 @@ public class ReleaseState {
 		// ARCHIVED
 
 		boolean ok = false;
-		if( state == RELEASESTATE.MISSING ) {
+		if( state == RELEASESTATE.MISSINGDIST ) {
+			if( newState == RELEASESTATE.DIRTY )
+				ok = true;
+		}
+		else
+		if( state == RELEASESTATE.MISSINGSTATE ) {
 			if( newState == RELEASESTATE.DIRTY )
 				ok = true;
 		}
@@ -100,12 +106,12 @@ public class ReleaseState {
 		stateHash = "";
 		
 		if( !distFolder.checkExists( action ) ) {
-			state = RELEASESTATE.MISSING;
+			state = RELEASESTATE.MISSINGDIST;
 			return;
 		}
 		
 		if( !distFolder.checkFileExists( action, DistStorage.stateFileName ) ) {
-			state = RELEASESTATE.BROKEN;
+			state = RELEASESTATE.MISSINGSTATE;
 			return;
 		}
 		
@@ -131,8 +137,7 @@ public class ReleaseState {
 		// create release.xml, create status file, set closed dirty state
 		// check current status
 		ctlLoadReleaseState( action );
-		
-		if( state != RELEASESTATE.MISSING )
+		if( state != RELEASESTATE.MISSINGDIST )
 			action.exit( "unable to create existing distributive" );
 			
 		// create directory
@@ -156,6 +161,11 @@ public class ReleaseState {
 		// create release.xml, create status file, set closed dirty state
 		if( !distFolder.checkExists( action ) )
 			action.exit( "prod distributive directory should exist" );
+		
+		// check current status
+		ctlLoadReleaseState( action );
+		if( state != RELEASESTATE.MISSINGSTATE )
+			action.exit( "state file should not exist" );
 		
 		// create empty release.xml
 		String filePath = action.artefactory.workFolder.getFilePath( action , DistStorage.metaFileName );
@@ -251,7 +261,7 @@ public class ReleaseState {
 	}
 
 	public void ctlClearRelease( ActionBase action ) throws Exception {
-		stateMem = RELEASESTATE.MISSING;
+		stateMem = RELEASESTATE.MISSINGDIST;
 		action.log( "distributive has been deleted: " + distFolder.folderName );
 	}
 
