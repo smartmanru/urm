@@ -44,14 +44,14 @@ public class ActionDistVerifier extends ActionBase {
 		// check all deliveries are stored in distributive
 		for( MetaReleaseDelivery delivery : info.getDeliveries( this ).values() ) {
 			if( !delivery.isEmpty() ) {
-				FileSet dir = set.getDirByPath( this , delivery.distDelivery.FOLDERPATH );
+				FileSet dir = set.getDirByPath( this , delivery.distDelivery.FOLDER );
 				if( dir == null ) {
-					log( "delivery folder=" + delivery.distDelivery.FOLDERPATH + " is missing" );
+					log( "delivery folder=" + delivery.distDelivery.FOLDER + " is missing" );
 					return( false );
 				}
 				
 				if( dir.isEmpty() && !delivery.isEmpty() ) {
-					log( "delivery folder=" + delivery.distDelivery.FOLDERPATH + " is empty" );
+					log( "delivery folder=" + delivery.distDelivery.FOLDER + " is empty" );
 					super.setFailed();
  					return( true );
 				}
@@ -89,7 +89,7 @@ public class ActionDistVerifier extends ActionBase {
 		// check all distributive files have been matched
 		for( String fileName : set.files.keySet() ) {
 			if( !items.containsKey( fileName ) ) {
-				log( "unexpected distributive file=" + fileName + " in folder=" + delivery.distDelivery.FOLDERPATH );
+				log( "unexpected distributive file=" + fileName + " in folder=" + delivery.distDelivery.FOLDER );
 				return( false );
 			}
 		}

@@ -15,7 +15,7 @@ public class MetaDistrDelivery {
 	Metadata meta;
 	
 	public String NAME;
-	public String FOLDERPATH;
+	public String FOLDER;
 	public String DATAGROUPS;
 	public String SCHEMASET;
 
@@ -30,7 +30,7 @@ public class MetaDistrDelivery {
 
 	public void load( ActionBase action , Node node ) throws Exception {
 		NAME = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
-		FOLDERPATH = ConfReader.getAttrValue( action , node , "folder" , NAME );
+		FOLDER = ConfReader.getAttrValue( action , node , "folder" , NAME );
 		
 		loadBinaryItems( action , node );
 		loadConfigurationComponents( action , node );

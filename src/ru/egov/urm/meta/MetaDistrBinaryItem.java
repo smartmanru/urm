@@ -93,4 +93,8 @@ public class MetaDistrBinaryItem {
 				"|./" + DISTBASENAME + "##[0-9].*" + EXT );
 	}
 	
+	public String getBaseFile( ActionBase action ) throws Exception {
+		return( DISTBASENAME + EXT );
+	}
+	
 }

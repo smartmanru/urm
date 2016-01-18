@@ -29,7 +29,6 @@ public class FileSet {
 		this.rootFolder = rootFolder;
 		this.dirPath = "";
 		this.dirName = "";
-		System.out.println( "root created" );
 	}
 	
 	public FileSet( Folder rootFolder , List<String> dirList , List<String> fileList ) {
@@ -54,7 +53,7 @@ public class FileSet {
 		files.put( baseName , Common.getPath( dirPath , baseName ) );
 	}
 	
-	private FileSet createDir( String dir ) throws Exception {
+	public FileSet createDir( String dir ) throws Exception {
 		FileSet parent = this;
 		if( Common.hasDirPart( dir ) ) {
 			String parentDir = Common.getDirName( dir );
@@ -187,4 +186,16 @@ public class FileSet {
 				fileList.add( file );
 		return( fileList.toArray( new String[0] ) );
 	}
+	
+	public boolean hasFiles() throws Exception {
+		if( !files.isEmpty() )
+			return( true );
+		
+		for( FileSet dir : dirs.values() )
+			if( dir.hasFiles() )
+				return( true );
+		
+		return( false );
+	}
+	
 }

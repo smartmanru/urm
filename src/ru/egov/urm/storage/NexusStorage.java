@@ -34,7 +34,7 @@ public class NexusStorage {
 		String GROUPIDSLASHED = GROUPID.replace( '.' , '/' );
 		String nexusAuth = ConfReader.readStringFile( action , authFile );
 		
-		info.DOWNLOAD_FILENAME = Common.getPath( item.delivery.FOLDERPATH , NAME );
+		info.DOWNLOAD_FILENAME = Common.getPath( item.delivery.FOLDER , NAME );
 		info.DOWNLOAD_URL = REPOPATH + "/" + GROUPIDSLASHED + "/" + ARTEFACTID + "/" + VERSION + "/" + NAME;
 		info.DOWNLOAD_URL_REQUEST = meta.product.CONFIG_NEXUS_BASE + "/service/local/artifact/maven/redirect?g=" + GROUPID + "&a=" + ARTEFACTID + "&v=" + VERSION + "&r=" + repository + "&e=" + PACKAGING + "&";
 
@@ -51,7 +51,7 @@ public class NexusStorage {
 	}
 
 	public void repackageStatic( ActionBase action , String PROJECT , String VERSION , String WARFILE , String STATICFILE , String TAGNAME , MetaDistrBinaryItem distItem ) throws Exception {
-		LocalFolder folder = artefactoryFolder.getSubFolder( action , distItem.delivery.FOLDERPATH );
+		LocalFolder folder = artefactoryFolder.getSubFolder( action , distItem.delivery.FOLDER );
 		
 		if( !folder.checkFileExists( action , STATICFILE ) )
 			action.exit( "repackageStatic: " + STATICFILE + " not found" );

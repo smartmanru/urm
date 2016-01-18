@@ -155,11 +155,11 @@ public class DistStorage {
 	}
 	
 	public String getDeliveryConfFolder( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
-		return( Common.getPath( delivery.FOLDERPATH , "config" ) );
+		return( Common.getPath( delivery.FOLDER , "config" ) );
 	}
 	
 	public String getDeliveryDatabaseFolder( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
-		return( Common.getPath( delivery.FOLDERPATH , "db" ) );
+		return( Common.getPath( delivery.FOLDER , "db" ) );
 	}
 	
 	public String getDeliveryDatabaseScriptFolder( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
@@ -171,7 +171,7 @@ public class DistStorage {
 	}
 	
 	public String getDeliveryBinaryFolder( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
-		return( Common.getPath( delivery.FOLDERPATH , "binary" ) );
+		return( Common.getPath( delivery.FOLDER , "binary" ) );
 	}
 	
 	public void replaceConfDiffFile( ActionBase action , String filePath , MetaReleaseDelivery delivery ) throws Exception {
@@ -242,8 +242,11 @@ public class DistStorage {
 	public void finish( ActionBase action ) throws Exception {
 		state.ctlOpenForChange( action );
 
-		// drop empty directories
-		// check consistency
+		// check consistency, drop empty directories
+		FileSet fsd = distFolder.getFileSet( action );
+		FileSet fsr = createExpectedFileSet( action );  
+		finishDist( action , fsd , fsr );
+		
 		// finish release
 		state.ctlFinish( action );
 	}
@@ -484,7 +487,7 @@ public class DistStorage {
 		files = distFolder.getFileSet( action );
 		
 		for( MetaReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
-			FileSet deliveryFiles = files.getDirByPath( action , delivery.distDelivery.FOLDERPATH );
+			FileSet deliveryFiles = files.getDirByPath( action , delivery.distDelivery.FOLDER );
 			
 			for( MetaReleaseTargetItem targetItem : delivery.getProjectItems( action ).values() )
 				gatherDeliveryBinaryItem( action , delivery , deliveryFiles , targetItem );
@@ -572,14 +575,181 @@ public class DistStorage {
 		if( isRemote( action ) ) {
 			// copy via local
 			LocalFolder work = artefactory.getWorkFolder( action , "copy" );
-			copyDistFileToFolderRename( action , work , item.delivery.FOLDERPATH , fileName , redistFileName );
+			copyDistFileToFolderRename( action , work , item.delivery.FOLDER , fileName , redistFileName );
 			locationDir.copyFileFromLocal( action , work.getFilePath( action , redistFileName ) );
 		}
 		else {
-			String path = Common.getPath( distFolder.folderPath , item.delivery.FOLDERPATH );
+			String path = Common.getPath( distFolder.folderPath , item.delivery.FOLDER );
 			path = Common.getPath( path , fileName );
 			locationDir.copyFileFromLocalRename( action , path , redistFileName );
 		}
+	}
+
+	private FileSet createExpectedFileSet( ActionBase action ) throws Exception {
+		gatherFiles( action );
+		
+		FileSet fs = new FileSet( null );
+		for( MetaReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
+			for( MetaReleaseTarget item : delivery.getConfItems( action ).values() )
+				createExpectedConfDeliveryItem( action , fs , delivery , item );
+			for( MetaReleaseTargetItem item : delivery.getProjectItems( action ).values() )
+				createExpectedProjectDeliveryItem( action , fs , delivery , item );
+			for( MetaReleaseTarget item : delivery.getManualItems( action ).values() )
+				createExpectedManualDeliveryItem( action , fs , delivery , item );
+			MetaReleaseTarget dbitem = delivery.getDatabaseItem( action );
+			if( dbitem != null )
+				createExpectedDatabaseDeliveryItem( action , fs , delivery , dbitem );
+		}
+		
+		return( fs );
+	}
+	
+	private void createExpectedConfDeliveryItem( ActionBase action , FileSet fs , MetaReleaseDelivery delivery , MetaReleaseTarget item ) throws Exception {
+		FileSet dir = fs.createDir( getDeliveryConfFolder( action , delivery.distDelivery ) );
+		dir.createDir( item.distConfItem.KEY );
+	}
+	
+	private void createExpectedProjectDeliveryItem( ActionBase action , FileSet fs , MetaReleaseDelivery delivery , MetaReleaseTargetItem item ) throws Exception {
+		FileSet dir = fs.createDir( getDeliveryBinaryFolder( action , delivery.distDelivery ) );
+		if( item.DISTFILE.isEmpty() )
+			dir.addFile( item.DISTFILE );
+		else
+			dir.addFile( item.distItem.getBaseFile( action ) );
+	}
+	
+	private void createExpectedManualDeliveryItem( ActionBase action , FileSet fs , MetaReleaseDelivery delivery , MetaReleaseTarget item ) throws Exception {
+		FileSet dir = fs.createDir( getDeliveryBinaryFolder( action , delivery.distDelivery ) );
+		if( item.DISTFILE.isEmpty() )
+			dir.addFile( item.DISTFILE );
+		else
+			dir.addFile( item.distManualItem.getBaseFile( action ) );
+	}
+	
+	private void createExpectedDatabaseDeliveryItem( ActionBase action , FileSet fs , MetaReleaseDelivery delivery , MetaReleaseTarget item ) throws Exception {
+		fs.createDir( getDeliveryDatabaseFolder( action , delivery.distDelivery ) );
+	}
+	
+	private boolean finishDist( ActionBase action , FileSet fsd , FileSet fsr ) throws Exception {
+		// check expected directory set is the same as actual
+		// folders = deliveries
+		for( String dir : fsd.dirs.keySet() ) {
+			FileSet dirFilesDist = fsd.dirs.get( dir );
+			MetaReleaseDelivery delivery = info.findDeliveryByFolder( action , dir );
+			if( delivery == null || delivery.isEmpty() ) {
+				if( dirFilesDist.hasFiles() ) {
+					if( !action.options.OPT_FORCE )
+						action.exit( "distributive delivery " + dir + " has files, while nothing is declared in release" );
+				}
+				
+				action.log( "delete non-release delivery=" + dir + " ..." );
+				distFolder.removeFiles( action , dir );
+			}
+			else {
+				FileSet dirFilesRelease = fsr.dirs.get( dir );
+				if( !finishDistDelivery( action , delivery , dirFilesDist , dirFilesRelease ) )
+					return( false );
+			}
+		}
+		
+		for( String dir : fsr.dirs.keySet() ) {
+			FileSet dirFilesDist = fsd.dirs.get( dir );
+			if( dirFilesDist == null ) {
+				action.log( "distributive has missing delivery=" + dir );
+				return( false );
+			}
+		}
+		
+		return( true );
+	}
+
+	private boolean finishDistDelivery( ActionBase action , MetaReleaseDelivery delivery , FileSet fsd , FileSet fsr ) throws Exception {
+		// check by category
+		for( String dir : fsd.dirs.keySet() ) {
+			FileSet dirFilesDist = fsd.dirs.get( dir );
+			FileSet dirFilesRelease = fsr.dirs.get( dir );
+			if( dirFilesRelease == null ) {
+				if( dirFilesDist.hasFiles() ) {
+					if( !action.options.OPT_FORCE )
+						action.exit( "distributive delivery " + delivery.distDelivery.NAME + 
+								" dir= " + dir + " has files, while nothing is declared in release" );
+				}
+				
+				String folder = Common.getPath( delivery.distDelivery.FOLDER , dir );
+				action.log( "delete non-release delivery folder=" + folder + " ..." );
+				distFolder.removeFolder( action , folder );
+			}
+			else {
+				if( dir.equals( "binary" ) ) {
+					if( !finishDistDeliveryBinary( action , delivery , dirFilesDist , dirFilesRelease ) )
+						return( false );
+				}
+				else
+				if( dir.equals( "config" ) ) {
+					if( !finishDistDeliveryConfig( action , delivery , dirFilesDist , dirFilesRelease ) )
+						return( false );
+				}
+			}
+		}
+
+		for( String dir : fsr.dirs.keySet() ) {
+			FileSet dirFilesDist = fsd.dirs.get( dir );
+			if( dirFilesDist == null ) {
+				action.log( "distributive has missing delivery=" + delivery.distDelivery.NAME + ", category=" + dir );
+				return( false );
+			}
+		}
+		
+		return( true );
+	}
+
+	private boolean finishDistDeliveryBinary( ActionBase action , MetaReleaseDelivery delivery , FileSet fsd , FileSet fsr ) throws Exception {
+		for( String fileDist : fsd.files.keySet() ) {
+			String fileRelease = fsr.files.get( fileDist );
+			if( fileRelease == null ) {
+				if( !action.options.OPT_FORCE )
+					action.exit( "distributive delivery " + delivery.distDelivery.NAME + 
+						" dir= " + delivery.distDelivery.FOLDER + " has non-release file=" + fileDist );
+				
+				String folder = Common.getPath( delivery.distDelivery.FOLDER , "binary" );
+				action.log( "delete non-release delivery item folder=" + folder + " file=" + fileDist + " ..." );
+				distFolder.removeFolderFile( action , folder , fileDist );
+			}
+		}
+		
+		for( String fileRelease : fsr.files.keySet() ) {
+			String fileDist = fsd.files.get( fileRelease );
+			if( fileDist == null ) {
+				action.log( "distributive has missing delivery=" + delivery.distDelivery.NAME + " file=" + fileRelease );
+				return( false );
+			}
+		}
+		
+		return( true );
+	}
+	
+	private boolean finishDistDeliveryConfig( ActionBase action , MetaReleaseDelivery delivery , FileSet fsd , FileSet fsr ) throws Exception {
+		for( String dir : fsd.dirs.keySet() ) {
+			FileSet dirFilesRelease = fsr.dirs.get( dir );
+			if( dirFilesRelease == null ) {
+				if( !action.options.OPT_FORCE )
+					action.exit( "distributive delivery " + delivery.distDelivery.NAME + 
+							" has non-release config=" + dir );
+				
+				String folder = Common.getPath( delivery.distDelivery.FOLDER , Common.getPath( "config" , dir ) );
+				action.log( "delete non-release configuration item delivery=" + delivery.distDelivery.NAME + " config=" + dir + " ..." );
+				distFolder.removeFolder( action , folder );
+			}
+		}
+		
+		for( String dir : fsr.dirs.keySet() ) {
+			FileSet dirFilesDist = fsd.dirs.get( dir );
+			if( dirFilesDist == null ) {
+				action.log( "distributive has missing delivery=" + delivery.distDelivery.NAME + ", config=" + dir );
+				return( false );
+			}
+		}
+		
+		return( true );
 	}
 	
 }

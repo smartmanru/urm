@@ -25,7 +25,7 @@ public class ActionGetConf extends ActionBase {
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , downloadFolder );
 		log( "get configuration item " + KEY + " ..." );
 		
-		LocalFolder confFolder = downloadFolder.getSubFolder( this , Common.getPath( scopeItem.confItem.delivery.FOLDERPATH , "config" ) );
+		LocalFolder confFolder = downloadFolder.getSubFolder( this , Common.getPath( scopeItem.confItem.delivery.FOLDER , "config" ) );
 		confFolder.ensureExists( this );
 		
 		MetaSourceFolder sourceFolder = new MetaSourceFolder( meta );  

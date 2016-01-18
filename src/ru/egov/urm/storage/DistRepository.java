@@ -112,13 +112,18 @@ public class DistRepository {
 		if( !distFolder.checkExists( action ) )
 			action.exit( "prod folder does not exists at " + distFolder.folderPath );
 		
-		if( distFolder.checkFileExists( action , RELEASEHISTORYFILE ) )
-			action.exit( "prod folder is probably already initialized, delete history.txt manually to recreate" );
-		
-		distFolder.createFileFromString( action , RELEASEHISTORYFILE , getHistoryRecord( action , RELEASEVER , "add" ) );
+		if( action.options.OPT_FORCE ) {
+			distFolder.removeFiles( action , "history.txt state.txt" );
+		}
+		else {
+			if( distFolder.checkFileExists( action , RELEASEHISTORYFILE ) )
+				action.exit( "prod folder is probably already initialized, delete history.txt manually to recreate" );
+		}
 		
 		DistStorage storage = new DistStorage( artefactory , distFolder );
 		storage.createProd( action , RELEASEVER );
+		distFolder.createFileFromString( action , RELEASEHISTORYFILE , getHistoryRecord( action , RELEASEVER , "add" ) );
+		
 		storage.finish( action );
 	}
 

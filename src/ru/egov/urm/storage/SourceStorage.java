@@ -199,18 +199,18 @@ public class SourceStorage {
 	}
 
 	public String getConfFolderRelPath( ActionBase action , MetaDistrConfItem distrComp ) throws Exception {
-		String PATH = Common.getPath( distrComp.delivery.FOLDERPATH , "config" );
+		String PATH = Common.getPath( distrComp.delivery.FOLDER , "config" );
 		PATH += "/" + distrComp.KEY;
 		return( PATH );
 	}
 	
 	public String getDBFolderRelPath( ActionBase action , MetaDistrDelivery dbDelivery ) throws Exception {
-		String PATH = Common.getPath( dbDelivery.FOLDERPATH , "db" );
+		String PATH = Common.getPath( dbDelivery.FOLDER , "db" );
 		return( PATH );
 	}
 	
 	public String getErrorFolderRelPath( ActionBase action , MetaDistrDelivery dbDelivery , String errorFolder ) throws Exception {
-		String PATH = Common.getPath( dbDelivery.FOLDERPATH , "errors" );
+		String PATH = Common.getPath( dbDelivery.FOLDER , "errors" );
 		PATH = Common.getPath( PATH , errorFolder );
 		return( PATH );
 	}

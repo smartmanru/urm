@@ -154,7 +154,7 @@ public class SpecificPGU {
 		DistStorage distStorage = artefactory.getDistProdStorage( action );
 
 		action.debug( "copy libraries from " + distStorage.RELEASEDIR + "/servicecall." + SERVICECALL_EXT + " to servicecall-prod-libs ..." );
-		distStorage.unzipDistFileToFolder( action , downloadFolder , "servicecall-*." + SERVICECALL_EXT , servicecallItem.delivery.FOLDERPATH , Common.getQuoted( SERVICECALL_DIR + "/lib/*" ) , "servicecall-prod-libs" );
+		distStorage.unzipDistFileToFolder( action , downloadFolder , "servicecall-*." + SERVICECALL_EXT , servicecallItem.delivery.FOLDER , Common.getQuoted( SERVICECALL_DIR + "/lib/*" ) , "servicecall-prod-libs" );
 	}
 	
 	private void getAllWarAppDownloadLibs( DistStorage release ) throws Exception {
@@ -219,9 +219,9 @@ public class SpecificPGU {
 			if( downloadFolder.checkFileExists( action , "servicecall-prod-libs/" + SERVICECALL_DIR + "/lib/" + lib ) ) {
 				action.debug( "copy library " + lib + " from servicecall-prod-libs to servicecall and storageservice ..." );
 				downloadFolder.copyFile( action , "servicecall-prod-libs/" + SERVICECALL_DIR + "/lib/" + lib ,
-						"servicecall-" + VERSION + "." + SERVICECALL_EXT + "/" + SERVICECALL_DIR + "/lib" , "" , servicecallItem.delivery.FOLDERPATH );
+						"servicecall-" + VERSION + "." + SERVICECALL_EXT + "/" + SERVICECALL_DIR + "/lib" , "" , servicecallItem.delivery.FOLDER );
 				downloadFolder.copyFile( action , "storageservice-prod-libs/" + STORAGESERVICE_DIR + "/lib/" + lib ,
-						"storageservice-" + VERSION + "." + STORAGESERVICE_EXT + "/" + STORAGESERVICE_DIR + "/lib" , "" , storageserviceItem.delivery.FOLDERPATH );
+						"storageservice-" + VERSION + "." + STORAGESERVICE_EXT + "/" + STORAGESERVICE_DIR + "/lib" , "" , storageserviceItem.delivery.FOLDER );
 
 				getAllWarAppCopySpecificProd( sourceProject.PROJECT );
 			}
@@ -235,9 +235,9 @@ public class SpecificPGU {
 					action.debug( "copy new library " + lib + "from pgu-services-lib to servicecall and storageservice ..." );
 					
 					downloadFolder.copyFile( action , "pgu-services-lib/" + lib , 
-							"servicecall-" + VERSION + "." + SERVICECALL_EXT + "/" + SERVICECALL_DIR + "/lib" , "" , servicecallItem.delivery.FOLDERPATH );
+							"servicecall-" + VERSION + "." + SERVICECALL_EXT + "/" + SERVICECALL_DIR + "/lib" , "" , servicecallItem.delivery.FOLDER );
 					downloadFolder.copyFile( action , "pgu-services-lib/" + lib , 
-							"storageservice-" + VERSION + "." + STORAGESERVICE_EXT + "/" + STORAGESERVICE_DIR + "/lib" , "" , storageserviceItem.delivery.FOLDERPATH );
+							"storageservice-" + VERSION + "." + STORAGESERVICE_EXT + "/" + STORAGESERVICE_DIR + "/lib" , "" , storageserviceItem.delivery.FOLDER );
 
 					getAllWarAppCopySpecificBuilt( sourceProject.PROJECT );
 				}
@@ -291,30 +291,30 @@ public class SpecificPGU {
 	private void getAllWarAppCopySpecificBuilt( String LIB_PROJECT ) throws Exception {
 		if( LIB_PROJECT.equals( "pgu-pfr" ) ) {
 			downloadFolder.copyFile( action , "pgu-services-lib/pfr-api-" + VERSION + ".jar" , 
-					"servicecall-" + VERSION + "." + SERVICECALL_EXT + "/" + SERVICECALL_DIR + "/lib" , "" , servicecallItem.delivery.FOLDERPATH );
+					"servicecall-" + VERSION + "." + SERVICECALL_EXT + "/" + SERVICECALL_DIR + "/lib" , "" , servicecallItem.delivery.FOLDER );
 			downloadFolder.copyFile( action , "pgu-services-lib/pfr-api-" + VERSION + ".jar" ,
-					"storageservice-" + VERSION + "." + STORAGESERVICE_EXT + "/" + STORAGESERVICE_DIR + "/lib" , "" , storageserviceItem.delivery.FOLDERPATH );
+					"storageservice-" + VERSION + "." + STORAGESERVICE_EXT + "/" + STORAGESERVICE_DIR + "/lib" , "" , storageserviceItem.delivery.FOLDER );
 		}
 		else if( LIB_PROJECT.equals( "pgu-fed-common" ) ) {
 			downloadFolder.copyFile( action , "pgu-services-lib/pgu-fed-common-util-" + VERSION + ".jar" ,
-					"servicecall-" + VERSION + "." + SERVICECALL_EXT + "/" + SERVICECALL_DIR + "/lib" , "" , servicecallItem.delivery.FOLDERPATH );
+					"servicecall-" + VERSION + "." + SERVICECALL_EXT + "/" + SERVICECALL_DIR + "/lib" , "" , servicecallItem.delivery.FOLDER );
 			downloadFolder.copyFile( action , "pgu-services-lib/pgu-fed-common-util-" + VERSION + ".jar" ,
-					"storageservice-" + VERSION + "." + STORAGESERVICE_EXT + "/" + STORAGESERVICE_DIR + "/lib" , "" , storageserviceItem.delivery.FOLDERPATH );
+					"storageservice-" + VERSION + "." + STORAGESERVICE_EXT + "/" + STORAGESERVICE_DIR + "/lib" , "" , storageserviceItem.delivery.FOLDER );
 		}
 	}
 
 	private void getAllWarAppCopySpecificProd( String LIB_PROJECT ) throws Exception {
 		if( LIB_PROJECT.equals( "pgu-pfr" ) ) {
 			downloadFolder.copyFile( action , "servicecall-prod-libs/" + SERVICECALL_DIR + "/lib/pfr-api-" + VERSION + ".jar" ,
-					"servicecall-" + VERSION + "." + SERVICECALL_EXT + "/" + SERVICECALL_DIR + "/lib" , "" , servicecallItem.delivery.FOLDERPATH );
+					"servicecall-" + VERSION + "." + SERVICECALL_EXT + "/" + SERVICECALL_DIR + "/lib" , "" , servicecallItem.delivery.FOLDER );
 			downloadFolder.copyFile( action , "servicecall-prod-libs/" + SERVICECALL_DIR + "/lib/pfr-api-" + VERSION + ".jar" ,
-					"storageservice-" + VERSION + "." + STORAGESERVICE_EXT + "/" + STORAGESERVICE_DIR + "/lib" , "" , storageserviceItem.delivery.FOLDERPATH );
+					"storageservice-" + VERSION + "." + STORAGESERVICE_EXT + "/" + STORAGESERVICE_DIR + "/lib" , "" , storageserviceItem.delivery.FOLDER );
 		}
 		else if( LIB_PROJECT.equals( "pgu-fed-common" ) ) {
 			downloadFolder.copyFile( action , "servicecall-prod-libs/" + SERVICECALL_DIR + "/lib/pgu-fed-common-util-" + VERSION + ".jar" ,
-					"servicecall-" + VERSION + "." + SERVICECALL_EXT + "/" + SERVICECALL_DIR + "/lib" , "" , servicecallItem.delivery.FOLDERPATH );
+					"servicecall-" + VERSION + "." + SERVICECALL_EXT + "/" + SERVICECALL_DIR + "/lib" , "" , servicecallItem.delivery.FOLDER );
 			downloadFolder.copyFile( action , "servicecall-prod-libs/" + SERVICECALL_DIR + "/lib/pgu-fed-common-util-" + VERSION + ".jar" ,
-					"storageservice-" + VERSION + "." + STORAGESERVICE_EXT + "/" + STORAGESERVICE_DIR + "/lib" , "" , storageserviceItem.delivery.FOLDERPATH );
+					"storageservice-" + VERSION + "." + STORAGESERVICE_EXT + "/" + STORAGESERVICE_DIR + "/lib" , "" , storageserviceItem.delivery.FOLDER );
 		}
 	}
 	

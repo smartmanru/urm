@@ -141,13 +141,13 @@ public class ActionGetBinary extends ActionBase {
 		
 		if( scopeItem.sourceItem.isStoredInSvn( this ) ) {
 			String ITEMPATH = scopeItem.sourceItem.ITEMPATH;
-			String DISTFOLDER = scopeItem.distItem.delivery.FOLDERPATH;
+			String DISTFOLDER = scopeItem.distItem.delivery.FOLDER;
 			ITEMPATH = Common.replace( ITEMPATH , "@BUILDVERSION@" , BUILDVERSION ); 
 			sourceStorage.downloadThirdpartyItemFromVCS( this , ITEMPATH , DISTFOLDER );
 			
 			if( copyDistr ) {
 				DistStorage releaseStorage = targetRelease;
-				releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , scopeItem.distItem.delivery.FOLDERPATH + "/" + Common.getBaseName( ITEMPATH ) , 
+				releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , scopeItem.distItem.delivery.FOLDER + "/" + Common.getBaseName( ITEMPATH ) , 
 						scopeItem.distItem.DISTBASENAME , scopeItem.distItem.EXT );
 			}
 		}

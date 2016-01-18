@@ -271,9 +271,17 @@ public class MetaRelease {
 		return( deliveryMap );
 	}
 
-	public MetaReleaseDelivery findDelivery( ActionBase action , String folder ) throws Exception {
-		MetaReleaseDelivery delivery = deliveryMap.get( folder );
+	public MetaReleaseDelivery findDelivery( ActionBase action , String name ) throws Exception {
+		MetaReleaseDelivery delivery = deliveryMap.get( name );
 		return( delivery );
+	}
+	
+	public MetaReleaseDelivery findDeliveryByFolder( ActionBase action , String folder ) throws Exception {
+		for( MetaReleaseDelivery delivery : deliveryMap.values() ) {
+			if( delivery.distDelivery.FOLDER.equals( folder ) )
+				return( delivery );
+		}
+		return( null );
 	}
 	
 	public MetaReleaseDelivery getDelivery( ActionBase action , String name ) throws Exception {
@@ -286,7 +294,7 @@ public class MetaRelease {
 	
 	public MetaReleaseDelivery getDeliveryByFolder( ActionBase action , String folder ) throws Exception {
 		for( MetaReleaseDelivery delivery : deliveryMap.values() )
-			if( delivery.distDelivery.FOLDERPATH.equals( folder ) )
+			if( delivery.distDelivery.FOLDER.equals( folder ) )
 				return( delivery );
 		
 		action.exit( "unknown delivery folder=" + folder );
