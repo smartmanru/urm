@@ -615,7 +615,7 @@ public class DistStorage {
 	
 	private void createExpectedProjectDeliveryItem( ActionBase action , FileSet fs , MetaReleaseDelivery delivery , MetaReleaseTargetItem item ) throws Exception {
 		FileSet dir = fs.createDir( getDeliveryBinaryFolder( action , delivery.distDelivery ) );
-		if( item.DISTFILE.isEmpty() )
+		if( !item.DISTFILE.isEmpty() )
 			dir.addFile( item.DISTFILE );
 		else
 			dir.addFile( item.distItem.getBaseFile( action ) );
