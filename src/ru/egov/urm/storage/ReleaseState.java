@@ -154,12 +154,6 @@ public class ReleaseState {
 	
 	public void ctlCreateProd( ActionBase action , String RELEASEVER ) throws Exception {
 		// create release.xml, create status file, set closed dirty state
-		// check current status
-		ctlLoadReleaseState( action );
-		
-		if( state != RELEASESTATE.MISSING )
-			action.exit( "unable to create existing distributive" );
-			
 		if( !distFolder.checkExists( action ) )
 			action.exit( "prod distributive directory should exist" );
 		
