@@ -389,14 +389,14 @@ abstract public class ActionBase {
 		shell.appendExecuteLog( this , msg );
 	}
 	
-	public void executeLogLive( Account hostLogin , String msg ) throws Exception {
-		ShellExecutor shell = getShell( hostLogin );
+	public void executeLogLive( Account account , String msg ) throws Exception {
+		ShellExecutor shell = getShell( account );
 		if( context.SHOWONLY ) {
-			log( hostLogin + ": " + msg + " (showonly)" );
+			log( account.HOSTLOGIN + ": " + msg + " (showonly)" );
 			return;
 		}
 
-		log( hostLogin + ": " + msg + " (execute)" );
+		log( account.HOSTLOGIN + ": " + msg + " (execute)" );
 		shell.appendExecuteLog( this , msg );
 	}
 	
