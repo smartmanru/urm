@@ -623,7 +623,7 @@ public class DistStorage {
 	
 	private void createExpectedManualDeliveryItem( ActionBase action , FileSet fs , MetaReleaseDelivery delivery , MetaReleaseTarget item ) throws Exception {
 		FileSet dir = fs.createDir( getDeliveryBinaryFolder( action , delivery.distDelivery ) );
-		if( item.DISTFILE.isEmpty() )
+		if( !item.DISTFILE.isEmpty() )
 			dir.addFile( item.DISTFILE );
 		else
 			dir.addFile( item.distManualItem.getBaseFile( action ) );
