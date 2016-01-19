@@ -101,11 +101,16 @@ public class ActionVerifyDeploy extends ActionBase {
 	}
 
 	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] confLocations , MetaEnvServerLocation[] binaryLocations , LocalFolder tobeNodeFolder , LocalFolder asisNodeFolder ) throws Exception {
+		boolean verifyNode = true;
+		
 		// binaries
 		log( "verify binaries ..." );
-		for( MetaEnvServerLocation location : binaryLocations )
-			for( MetaDistrBinaryItem binaryItem : location.binaryItems.values() )
-				executeNodeBinary( server , node , location , binaryItem );
+		for( MetaEnvServerLocation location : binaryLocations ) {
+			for( MetaDistrBinaryItem binaryItem : location.binaryItems.values() ) {
+				if( !executeNodeBinary( server , node , location , binaryItem ) )
+					verifyNode = false;
+			}
+		}
 	
 		// configuration
 		log( "verify configuration ..." );
@@ -126,6 +131,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			diff.calculate( this , null );
 		
 		if( diff.isDifferent( this ) ) {
+			verifyNode = false;
 			if( options.OPT_SHOWALL ) {
 				String file = asisFolder.getFilePath( this , "diff.txt" );
 				diff.save( this , file );
@@ -134,6 +140,11 @@ public class ActionVerifyDeploy extends ActionBase {
 			else
 				log( "found configuration differences in node=" + node.POS );
 		}
+		
+		if( verifyNode )
+			log( "node deployment is matched" );
+		else
+			verifyOk = false;
 	}
 
 	private void executeNodeConf( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrConfItem confItem ) throws Exception {
@@ -153,16 +164,14 @@ public class ActionVerifyDeploy extends ActionBase {
 		if( !redist.getConfigItem( this , asisConfFolder , confItem , location.DEPLOYPATH ) ) {
 			if( !options.OPT_FORCE )
 				exit( "unable to get configuration item=" + confItem.KEY );
-			return;
 		}
-
 	}
 
-	private void executeNodeBinary( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrBinaryItem binaryItem ) throws Exception {
+	private boolean executeNodeBinary( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrBinaryItem binaryItem ) throws Exception {
 		DistItemInfo distInfo = dist.getDistItemInfo( this , binaryItem , true );
 		if( !distInfo.found ) {
 			debug( "ignore non-release item=" + binaryItem.KEY );
-			return;
+			return( true );
 		}
 		
 		String deployName = location.getDeployName( this , binaryItem.KEY );
@@ -170,15 +179,13 @@ public class ActionVerifyDeploy extends ActionBase {
 		FileInfo runInfo = storage.getItemInfo( this , binaryItem , location.DEPLOYPATH , deployName );
 		if( runInfo.md5value == null ) {
 			log( "dist item=" + binaryItem.KEY + " is not found in location=" + location.DEPLOYPATH );
-			verifyOk = false;
-			return;
+			return( false );
 		}
 		
 		if( !runInfo.md5value.equals( distInfo.md5value ) ) {
 			log( "dist item=" + binaryItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive (" +
 				runInfo.md5value + " != " + distInfo.md5value + ")" );
-			verifyOk = false;
-			return;
+			return( false );
 		}
 		
 		if( !runInfo.finalName.equals( distInfo.fileName ) ) {
@@ -188,7 +195,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		}
 		
 		debug( "exactly matched item=" + binaryItem.KEY );
-		return;
+		return( true );
 	}
 	
 }
