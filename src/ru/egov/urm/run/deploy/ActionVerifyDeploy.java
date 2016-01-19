@@ -85,16 +85,21 @@ public class ActionVerifyDeploy extends ActionBase {
 		log( "============================================ execute server=" + server.NAME + ", type=" + Common.getEnumLower( server.TYPE ) + " ..." );
 
 		// iterate by nodes
+		LocalFolder tobeNodeFolder = tobeFolder.getSubFolder( this , server.NAME );
+		LocalFolder asisNodeFolder = asisFolder.getSubFolder( this , server.NAME );
+		tobeNodeFolder.ensureExists( this );
+		asisNodeFolder.ensureExists( this );
+		
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
 			log( "execute server=" + server.NAME + " node=" + node.POS + " ..." );
 
 			// verify configs to each node
-			executeNode( server , node , F_ENV_LOCATIONS_CONFIG , F_ENV_LOCATIONS_BINARY );
+			executeNode( server , node , F_ENV_LOCATIONS_CONFIG , F_ENV_LOCATIONS_BINARY , tobeNodeFolder , asisNodeFolder );
 		}
 	}
 
-	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] confLocations , MetaEnvServerLocation[] binaryLocations ) throws Exception {
+	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] confLocations , MetaEnvServerLocation[] binaryLocations , LocalFolder tobeNodeFolder , LocalFolder asisNodeFolder ) throws Exception {
 		// binaries
 		log( "verify binaries ..." );
 		for( MetaEnvServerLocation location : binaryLocations )
@@ -104,12 +109,10 @@ public class ActionVerifyDeploy extends ActionBase {
 		// configuration
 		log( "verify configuration ..." );
 		for( MetaEnvServerLocation location : confLocations )
-				for( MetaDistrConfItem confItem : location.confItems.values() )
-					executeNodeConf( server , node , location , confItem );
+			for( MetaDistrConfItem confItem : location.confItems.values() )
+				executeNodeConf( server , node , location , confItem );
 			
 		// compare tobe and as is
-		LocalFolder tobeNodeFolder = tobeFolder.getSubFolder( this , server.NAME );
-		LocalFolder asisNodeFolder = asisFolder.getSubFolder( this , server.NAME );
 		FileSet releaseSet = tobeNodeFolder.getFileSet( this );
 		FileSet prodSet = asisNodeFolder.getFileSet( this );
 		
