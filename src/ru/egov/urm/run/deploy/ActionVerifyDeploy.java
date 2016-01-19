@@ -41,6 +41,8 @@ public class ActionVerifyDeploy extends ActionBase {
 			configure = new ActionConfigure( this , null , tobeFolder );
 		else
 			configure = new ActionConfigure( this , null , dist , tobeFolder );
+		configure.changeOptions();
+		configure.options.OPT_HIDDEN = true;
 		configure.runAll( scope );
 		
 		asisFolder = artefactory.getWorkFolder( this , "asis" );
