@@ -117,7 +117,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		FileSet prodSet = asisNodeFolder.getFileSet( this );
 		
 		String nodePrefix = "node" + node.POS + "-";
-		debug( "calculate diff between: " + releaseSet.dirPath + " and " + prodSet.dirPath + " (prefix=" + nodePrefix + ") ..." );
+		debug( "calculate diff between: " + tobeNodeFolder.folderPath + " and " + asisNodeFolder.folderPath + " (prefix=" + nodePrefix + ") ..." );
 		ConfDiffSet diff = new ConfDiffSet( releaseSet , prodSet , nodePrefix );
 		if( !dist.prod )
 			diff.calculate( this , dist.info );
@@ -128,10 +128,10 @@ public class ActionVerifyDeploy extends ActionBase {
 			if( options.OPT_SHOWALL ) {
 				String file = asisFolder.getFilePath( this , "diff.txt" );
 				diff.save( this , file );
-				log( "found configuration differences in node=" + node.INSTANCE + ", see " + file );
+				log( "found configuration differences in node=" + node.POS + ", see " + file );
 			}
 			else
-				log( "found configuration differences in node=" + node.INSTANCE );
+				log( "found configuration differences in node=" + node.POS );
 		}
 	}
 
