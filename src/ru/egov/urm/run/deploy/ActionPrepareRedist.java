@@ -24,7 +24,7 @@ public class ActionPrepareRedist extends ActionBase {
 		// ignore database and manual deployments
 		MetaEnvServer server = target.envServer;
 	
-		if( server.TYPE == VarSERVERTYPE.GENERIC_WINDOWS ||
+		if( server.TYPE == VarSERVERTYPE.GENERIC_NOSSH ||
 			server.TYPE == VarSERVERTYPE.UNKNOWN ) {
 			trace( "ignore due to deployment type=" + Common.getEnumLower( server.TYPE ) );
 			return( true );

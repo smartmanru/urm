@@ -186,6 +186,8 @@ public class DeployCommand {
 	}
 
 	public void verifyDeploy( ActionBase action , ActionScope scope , DistStorage dist ) throws Exception {
+		ActionVerifyDeploy ca = new ActionVerifyDeploy( action , null , dist );
+		ca.runAll( scope );
 	}
 
 	public void waitEnv( ActionBase action , ActionScope scope ) throws Exception {

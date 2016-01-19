@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaRelease;
 import ru.egov.urm.meta.MetaReleaseTarget;
 import ru.egov.urm.run.ActionBase;
@@ -24,12 +25,16 @@ public class ConfDiffSet {
 	Map<String,ConfDiffItem> fileOld;
 	Map<String,ConfDiffItem> fileModified;
 	
-	Map<String,MetaReleaseTarget> fileMatched;
-	Map<String,MetaReleaseTarget> compMatched;
+	Map<String,MetaDistrConfItem> fileMatched;
+	Map<String,MetaDistrConfItem> compMatched;
 	
 	public ConfDiffSet( FileSet releaseSet , FileSet prodSet ) {
 		this.releaseSet = releaseSet;
 		this.prodSet = prodSet;
+	}
+	
+	public boolean isDifferent( ActionBase action ) throws Exception {
+		return( diffs.size() > 0 );
 	}
 	
 	public void calculate( ActionBase action , MetaRelease release ) throws Exception {
@@ -40,8 +45,8 @@ public class ConfDiffSet {
 		fileOld = new HashMap<String,ConfDiffItem>();
 		fileModified = new HashMap<String,ConfDiffItem>();
 		
-		fileMatched = new HashMap<String,MetaReleaseTarget>();  
-		compMatched = new HashMap<String,MetaReleaseTarget>(); 
+		fileMatched = new HashMap<String,MetaDistrConfItem>();  
+		compMatched = new HashMap<String,MetaDistrConfItem>(); 
 		
 		getFileSetDiffs( action , release );
 		getFileContentDiffs( action );
@@ -65,7 +70,7 @@ public class ConfDiffSet {
 		
 		for( String key : releaseSet.dirList ) {
 			String compName = Common.getTopDir( key );
-			MetaReleaseTarget comp = release.getConfComponent( action , compName );
+			MetaDistrConfItem comp = action.meta.distr.getConfItem( action , compName );
 			
 			if( !compMatched.containsKey( compName ) )
 				compMatched.put( compName , comp );
@@ -89,10 +94,12 @@ public class ConfDiffSet {
 
 		for( String key : prodSet.dirList ) {
 			// ignore check for partial component
-			String compName = Common.getTopDir( key );
-			MetaReleaseTarget comp = release.getConfComponent( action , compName );
-			if( !comp.ALL )
-				continue;
+			if( release != null ) {
+				String compName = Common.getTopDir( key );
+				MetaReleaseTarget comp = release.getConfComponent( action , compName );
+				if( !comp.ALL )
+					continue;
+			}
 			
 			if( !dirRel.containsKey( key ) ) {
 				// if parent directory is old then do not add new diff, but add old dir
@@ -132,17 +139,19 @@ public class ConfDiffSet {
 			}
 			else {
 				String compName = Common.getTopDir( key );
-				MetaReleaseTarget comp = release.getConfComponent( action , compName );
+				MetaDistrConfItem comp = action.meta.distr.getConfItem( action , compName );
 				fileMatched.put( key , comp );
 			}
 		}
 
 		for( String key : fileProd.keySet() ) {
-			// ignore check for partial component
-			String compName = Common.getTopDir( key );
-			MetaReleaseTarget comp = release.getConfComponent( action , compName );
-			if( !comp.ALL )
-				continue;
+			if( release != null ) {
+				// ignore check for partial component
+				String compName = Common.getTopDir( key );
+				MetaReleaseTarget comp = release.getConfComponent( action , compName );
+				if( !comp.ALL )
+					continue;
+			}
 			
 			if( !fileRel.containsKey( key ) ) {
 				String dir = Common.getDirName( key );

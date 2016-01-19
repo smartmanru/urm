@@ -68,7 +68,7 @@ public class Metadata {
 		GENERIC_WEB ,
 		GENERIC_SERVER ,
 		GENERIC_COMMAND ,
-		GENERIC_WINDOWS ,
+		GENERIC_NOSSH ,
 		DATABASE
 	};
 

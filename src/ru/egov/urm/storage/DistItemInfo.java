@@ -11,6 +11,7 @@ public class DistItemInfo {
 	public boolean found;
 	public String subPath;
 	public String fileName;
+	public String md5value;
 	
 	public DistItemInfo( MetaDistrBinaryItem distBinaryItem ) {
 		this.distBinaryItem = distBinaryItem;

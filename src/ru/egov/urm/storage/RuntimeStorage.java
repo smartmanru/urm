@@ -185,7 +185,7 @@ public class RuntimeStorage extends ServerStorage {
 		String deployName = getRedistBinaryFileDeployName( action , file );
 		
 		// delete old
-		String oldFile = deployFolder.findBinaryDistItemFile( action , binaryItem );
+		String oldFile = deployFolder.findBinaryDistItemFile( action , binaryItem , deployName );
 		if( !oldFile.isEmpty() )
 			deployFolder.removeFiles( action , oldFile );
 		

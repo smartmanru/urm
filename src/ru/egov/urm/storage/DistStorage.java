@@ -35,6 +35,7 @@ public class DistStorage {
 	
 	public String RELEASEDIR;
 	public MetaRelease info;
+	public boolean prod;
 	String infoPath;
 
 	private FileSet files;
@@ -42,10 +43,11 @@ public class DistStorage {
 	ReleaseState state;
 	boolean openedForUse;
 	
-	public DistStorage( Artefactory artefactory , RemoteFolder distFolder ) {
+	public DistStorage( Artefactory artefactory , RemoteFolder distFolder , boolean prod ) {
 		this.artefactory = artefactory; 
 		this.distFolder = distFolder;
 		this.meta = artefactory.meta;
+		this.prod = prod;
 				
 		RELEASEDIR = distFolder.folderName;
 		state = new ReleaseState( distFolder );
@@ -369,11 +371,17 @@ public class DistStorage {
 		return( folder );
 	}
 	
-	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
+	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrBinaryItem item , boolean getMD5 ) throws Exception {
 		DistItemInfo info = new DistItemInfo( item );
 		info.subPath = getReleaseBinaryFolder( action , item );
 		info.fileName = getFiles( action ).findDistItem( action , item , info.subPath );
 		info.found = ( info.fileName.isEmpty() )? false : true;
+		
+		if( info.found && getMD5 ) {
+			RemoteFolder fileFolder = distFolder.getSubFolder( action , info.subPath );
+			info.md5value = fileFolder.getFileMD5( action , info.fileName );
+		}
+		
 		return( info );
 	}
 

@@ -74,7 +74,7 @@ public class ActionSaveConfigs extends ActionBase {
 			
 			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems( this ).values() ) {
 				if( compItem.confItem != null ) {
-					String name = sourceStorage.getCompConfItemLiveName( this , node , deployment.comp , compItem.confItem );
+					String name = sourceStorage.getConfItemLiveName( this , node , compItem.confItem );
 					executeNodeConf( sourceStorage , server , node , deployment , compItem.confItem , name );
 					vcsCompList = Common.addItemToUniqueSpacedList( vcsCompList , name );
 				}

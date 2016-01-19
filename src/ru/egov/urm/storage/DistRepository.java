@@ -39,9 +39,10 @@ public class DistRepository {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 		
 		String RELEASEPATH = getReleasePathByLabel( action , RELEASELABEL );
+		boolean prod = RELEASELABEL.equals( "prod" );
 		
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , RELEASEPATH );
-		DistStorage storage = new DistStorage( artefactory , distFolder );
+		DistStorage storage = new DistStorage( artefactory , distFolder , prod );
 		
 		// check release directory exists
 		if( !distFolder.checkExists( action ) )
@@ -57,7 +58,7 @@ public class DistRepository {
 		String RELEASEPATH = getReleasePathByLabel( action , RELEASELABEL );
 		
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , RELEASEPATH );
-		DistStorage storage = new DistStorage( artefactory , distFolder );
+		DistStorage storage = new DistStorage( artefactory , distFolder , false );
 		
 		// check release directory exists
 		if( distFolder.checkExists( action ) )
@@ -120,7 +121,7 @@ public class DistRepository {
 				action.exit( "prod folder is probably already initialized, delete history.txt manually to recreate" );
 		}
 		
-		DistStorage storage = new DistStorage( artefactory , distFolder );
+		DistStorage storage = new DistStorage( artefactory , distFolder , true );
 		storage.createProd( action , RELEASEVER );
 		distFolder.createFileFromString( action , RELEASEHISTORYFILE , getHistoryRecord( action , RELEASEVER , "add" ) );
 		

@@ -1,7 +1,6 @@
 package ru.egov.urm.storage;
 
 import ru.egov.urm.Common;
-import ru.egov.urm.meta.MetaDistrComponent;
 import ru.egov.urm.meta.MetaDistrComponentItem;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaDistrDelivery;
@@ -373,10 +372,6 @@ public class SourceStorage {
 
 	public String getConfItemLiveName( ActionBase action , MetaEnvServerNode node , MetaDistrConfItem confItem ) throws Exception {
 		return( "node" + node.POS + "-" + confItem.KEY );
-	}
-
-	public String getCompConfItemLiveName( ActionBase action , MetaEnvServerNode node , MetaDistrComponent comp , MetaDistrConfItem confItem ) throws Exception {
-		return( "node" + node.POS + "-" + comp.NAME + "-" + confItem.KEY );
 	}
 
 	public String getSysConfItemLiveName( ActionBase action , MetaEnvServerNode node ) throws Exception {

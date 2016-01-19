@@ -459,7 +459,7 @@ public class MetaEnvServer {
 
 	public boolean isDeployPossible( ActionBase action ) throws Exception {
 		if( TYPE == VarSERVERTYPE.DATABASE || 
-			TYPE == VarSERVERTYPE.GENERIC_WINDOWS ||
+			TYPE == VarSERVERTYPE.GENERIC_NOSSH ||
 			TYPE == VarSERVERTYPE.UNKNOWN ) {
 			action.trace( "ignore due to server type=" + Common.getEnumLower( TYPE ) );
 			return( false );

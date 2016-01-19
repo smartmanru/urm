@@ -86,7 +86,7 @@ public class ActionRestoreConfigs extends ActionBase {
 			
 			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems( this ).values() ) {
 				if( compItem.confItem != null ) {
-					String name = sourceStorage.getCompConfItemLiveName( this , node , deployment.comp , compItem.confItem );
+					String name = sourceStorage.getConfItemLiveName( this , node , compItem.confItem );
 					executeNodeConf( parent , sourceStorage , server , node , deployment , compItem.confItem , name , prepare );
 				}
 			}

@@ -305,12 +305,15 @@ public abstract class Folder {
 		return( Common.split( list , "\n" ) );
 	}
 
-	public String findBinaryDistItemFile( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		String filePath = findOneTopWithGrep( action , "*" + item.EXT , item.getGrepMask( action ) );
+	public String findBinaryDistItemFile( ActionBase action , MetaDistrBinaryItem item , String specificDeployName ) throws Exception {
+		String deployName = specificDeployName;
+		if( deployName.isEmpty() )
+			deployName = item.DEPLOYBASENAME;
+		String filePath = findOneTopWithGrep( action , "*" + item.EXT , item.getGrepMask( action , deployName ) );
 
 		// ensure correct file
 		if( filePath.isEmpty() ) {
-			action.trace( "findBinaryDistItem: file " + item.DISTBASENAME + item.EXT + " not found in " + folderPath );
+			action.trace( "findBinaryDistItem: file " + deployName + item.EXT + " not found in " + folderPath );
 			return( "" );
 		}
 
@@ -340,6 +343,12 @@ public abstract class Folder {
 		}
 			
 		return( items.toArray( new String[0] ) );
+	}
+
+	public String getFileMD5( ActionBase action , String file ) throws Exception {
+		ShellExecutor session = getSession( action );
+		String filePath = getFilePath( action , file );
+		return( session.getMD5( action , filePath ) );
 	}
 	
 }

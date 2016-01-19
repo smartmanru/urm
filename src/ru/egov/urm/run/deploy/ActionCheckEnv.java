@@ -176,7 +176,7 @@ public class ActionCheckEnv extends ActionBase {
 		if( F_SERVER_TYPE == VarSERVERTYPE.SERVICE ||
 			F_SERVER_TYPE == VarSERVERTYPE.GENERIC_SERVER || 
 			F_SERVER_TYPE == VarSERVERTYPE.GENERIC_COMMAND ||
-			F_SERVER_TYPE == VarSERVERTYPE.GENERIC_WINDOWS ) {
+			F_SERVER_TYPE == VarSERVERTYPE.GENERIC_NOSSH ) {
 			if( !checkOneServerWholeComps( server ) )
 				wholeOk = false;
 		}

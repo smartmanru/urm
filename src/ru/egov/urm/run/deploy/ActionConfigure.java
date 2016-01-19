@@ -37,6 +37,14 @@ public class ActionConfigure extends ActionBase {
 		this.baseFolder = baseFolder;
 	}
 
+	public LocalFolder getLiveFolder( MetaEnvServerNode node , MetaDistrConfItem confItem ) throws Exception {
+		LocalFolder serverFolder = baseFolder.getSubFolder( this , Common.getPath( "live" , node.server.NAME ) );
+		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
+		String name = sourceStorage.getConfItemLiveName( this , node , confItem );
+		LocalFolder live = serverFolder.getSubFolder( this , name );
+		return( live );
+	}
+	
 	@Override protected void runBefore( ActionScope scope ) throws Exception {
 		baseFolder.recreateThis( this );
 		templateFolder = baseFolder.getSubFolder( this , "templates" );
@@ -97,7 +105,7 @@ public class ActionConfigure extends ActionBase {
 			
 			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems( this ).values() ) {
 				if( compItem.confItem != null ) {
-					String name = sourceStorage.getCompConfItemLiveName( this , node , deployment.comp , compItem.confItem );
+					String name = sourceStorage.getConfItemLiveName( this , node , compItem.confItem );
 					executeNodeConf( parent , sourceStorage , server , node , deployment , compItem.confItem , name );
 				}
 			}

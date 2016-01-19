@@ -11,10 +11,10 @@ import ru.egov.urm.shell.ShellExecutor;
 public class RedistStateInfo {
 
 	public boolean exists;
-	private Map<String,String> verData;
+	private Map<String,FileInfo> verData;
 
 	public void gather( ActionBase action , MetaEnvServerNode node , String STATEDIR ) throws Exception {
-		verData = new HashMap<String,String>(); 
+		verData = new HashMap<String,FileInfo>(); 
 		ShellExecutor shell = action.getShell( action.getAccount( node ) );
 		if( !shell.checkDirExists( action , STATEDIR ) ) {
 			exists = false;
@@ -25,7 +25,9 @@ public class RedistStateInfo {
 		for( String s : Common.split( items , "\n" ) ) {
 			String verName = Common.getPartBeforeFirst( s , ":" );
 			String verInfo = Common.getPartAfterFirst( s , ":" );
-			verData.put( verName , verInfo );
+			FileInfo info = new FileInfo();
+			info.split( action , verInfo );
+			verData.put( verName , info );
 		}
 		
 		exists = true;
@@ -35,37 +37,37 @@ public class RedistStateInfo {
 		return( Common.getSortedKeys( verData ) );
 	}
 	
-	public String getVerData( ActionBase action , String key ) throws Exception {
-		String value = verData.get( key );
+	public FileInfo getVerData( ActionBase action , String key ) throws Exception {
+		FileInfo value = verData.get( key );
 		if( value == null )
 			action.exit( "unknown key=" + key );
 		return( value );
 	}
 	
 	public String getKeyVersion( ActionBase action , String key ) throws Exception {
-		String value = getVerData( action , key );
-		return( Common.getListItem( value , ":" , 0 ) );
+		FileInfo value = getVerData( action , key );
+		return( value.version );
 	}
 	
 	public String getKeyMD5( ActionBase action , String key ) throws Exception {
-		String value = getVerData( action , key );
-		return( Common.getListItem( value , ":" , 1 ) );
+		FileInfo value = getVerData( action , key );
+		return( value.md5value );
 	}
 	
 	public String getKeyDeployName( ActionBase action , String key ) throws Exception {
-		String value = getVerData( action , key );
-		return( Common.getListItem( value , ":" , 2 ) );
+		FileInfo value = getVerData( action , key );
+		return( value.deployNameNoVersion );
 	}
 	
 	public String getKeyFileName( ActionBase action , String key ) throws Exception {
-		String value = getVerData( action , key );
-		return( Common.getListItem( value , ":" , 3 ) );
+		FileInfo value = getVerData( action , key );
+		return( value.finalName );
 	}
 	
-	public String getFileInfo( ActionBase action , RemoteFolder stateFolder , String stateFileName , String deployNameNoVersion , String version , String finalName ) throws Exception {
+	public static String getValue( ActionBase action , RemoteFolder stateFolder , String stateFileName , String deployNameNoVersion , String version , String finalName ) throws Exception {
 		String md5value = stateFolder.md5value( action , stateFileName );
-		String value = version + ":" + md5value + ":" + deployNameNoVersion + ":" + finalName;
-		return( value );
+		FileInfo info = new FileInfo( version , md5value , deployNameNoVersion , finalName ); 
+		return( info.value( action ) );
 	}
 
 	public String getKeyItem( ActionBase action , String key ) throws Exception {

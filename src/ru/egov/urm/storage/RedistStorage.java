@@ -180,9 +180,8 @@ public class RedistStorage extends ServerStorage {
 		dist.copyDistItemToTarget( action , item , fileName , locationDir , redistFileName );
 
 		// create state file
-		RedistStateInfo info = new RedistStateInfo();
 		String runtimeName = getRedistBinaryFileDeployName( action , redistFileName );
-		String data = info.getFileInfo( action , locationDir , redistFileName , deployBaseName , dist.info.RELEASEVER , runtimeName );
+		String data = RedistStateInfo.getValue( action , locationDir , redistFileName , deployBaseName , dist.info.RELEASEVER , runtimeName );
 		String stateBaseName = super.getStateBaseName( action , CONTENTTYPE , redistFileName );
 		String verName = super.getStateInfoName( action , stateBaseName );
 		locationDir.createFileFromString( action , verName , data );
@@ -199,8 +198,7 @@ public class RedistStorage extends ServerStorage {
 		locationDir.copyFileFromLocalRename( action , path , deployBaseName );
 
 		// create state file
-		RedistStateInfo info = new RedistStateInfo();
-		String data = info.getFileInfo( action , locationDir , redistFileName , deployBaseName , dist.info.RELEASEVER , "ignore" );
+		String data = RedistStateInfo.getValue( action , locationDir , redistFileName , deployBaseName , dist.info.RELEASEVER , "ignore" );
 		String stateBaseName = super.getStateBaseName( action , CONTENTTYPE , redistFileName );
 		String verName = super.getStateInfoName( action , stateBaseName );
 		locationDir.createFileFromString( action , verName , data );
@@ -214,8 +212,7 @@ public class RedistStorage extends ServerStorage {
 		locationDir.copyFileRename( action , redistPath , fileBaseName );
 		
 		// create state file
-		RedistStateInfo info = new RedistStateInfo();
-		String data = info.getFileInfo( action , locationDir , fileBaseName , fileBaseName , version , "ignore" );
+		String data = RedistStateInfo.getValue( action , locationDir , fileBaseName , fileBaseName , version , "ignore" );
 		String stateBaseName = super.getStateBaseName( action , CONTENTTYPE , fileBaseName );
 		String verName = super.getStateInfoName( action , stateBaseName );
 		locationDir.createFileFromString( action , verName , data );
@@ -279,7 +276,9 @@ public class RedistStorage extends ServerStorage {
 	public void backupRedistBinaryItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , String redistFile , RemoteFolder backupFolder ) throws Exception {
 		MetaDistrBinaryItem binaryItem = getRedistFileBinaryItem( action , redistFile );
 		RemoteFolder deployFolder = getRuntimeLocationFolder( action , LOCATION );
-		String runtimeFile = deployFolder.findBinaryDistItemFile( action , binaryItem );
+		String deployName = getRedistBinaryFileDeployName( action , redistFile );
+		
+		String runtimeFile = deployFolder.findBinaryDistItemFile( action , binaryItem , deployName );
 		
 		if( runtimeFile.isEmpty() ) {
 			action.debug( "unable to backup, item=" + binaryItem.KEY + ", not found in " + deployFolder.folderPath );
@@ -295,6 +294,11 @@ public class RedistStorage extends ServerStorage {
 		MetaDistrBinaryItem archiveItem = getRedistFileArchiveItem( action , redistFile );
 		RemoteFolder deployFolder = getRuntimeLocationFolder( action , LOCATION );
 
+		saveArchiveItem( action , archiveItem , deployFolder , redistFile , backupFolder );
+		action.log( "redist backup done, item file=" + redistFile );
+	}
+	
+	private boolean saveArchiveItem( ActionBase action , MetaDistrBinaryItem archiveItem , RemoteFolder deployFolder , String redistFile , RemoteFolder backupFolder ) throws Exception {
 		if( archiveItem.EXT.equals( ".tar.gz" ) == false && 
 			archiveItem.EXT.equals( ".tgz" ) == false )
 			action.exitNotImplemented();
@@ -303,8 +307,8 @@ public class RedistStorage extends ServerStorage {
 		
 		if( archiveItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_CHILD ) {
 			if( !deployFolder.checkFolderExists( action , archiveItem.DEPLOYBASENAME ) ) {
-				action.debug( "unable to backup, child archive item=" + archiveItem.KEY + ", not found in " + deployFolder.folderPath );
-				return;
+				action.debug( "unable to find runtime child archive item=" + archiveItem.KEY + ", not found in " + deployFolder.folderPath );
+				return( false );
 			}
 				
 			String content = "";
@@ -321,8 +325,8 @@ public class RedistStorage extends ServerStorage {
 		else
 		if( archiveItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_DIRECT ) {
 			if( !deployFolder.checkExists( action ) ) {
-				action.debug( "unable to backup, direct archive item=" + archiveItem.KEY + ", not found in " + deployFolder.folderPath );
-				return;
+				action.debug( "unable to find runtime direct archive item=" + archiveItem.KEY + ", not found in " + deployFolder.folderPath );
+				return( false );
 			}
 				
 			deployFolder.createTarGzFromContent( action , tarFilePath , archiveItem.FILES , archiveItem.EXCLUDE );
@@ -330,8 +334,8 @@ public class RedistStorage extends ServerStorage {
 		else
 		if( archiveItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_SUBDIR ) {
 			if( !deployFolder.checkFolderExists( action , archiveItem.DEPLOYBASENAME ) ) {
-				action.debug( "unable to backup, subdir archive item=" + archiveItem.KEY + ", not found in " + deployFolder.folderPath );
-				return;
+				action.debug( "unable to find runtime subdir archive item=" + archiveItem.KEY + ", not found in " + deployFolder.folderPath );
+				return( false );
 			}
 				
 			deployFolder.createTarGzFromFolderContent( action , tarFilePath , archiveItem.DEPLOYBASENAME , archiveItem.FILES , archiveItem.EXCLUDE );
@@ -339,9 +343,45 @@ public class RedistStorage extends ServerStorage {
 		else
 			action.exitUnexpectedState();
 		
-		action.log( "redist backup done, item file=" + redistFile );
+		return( true );
 	}
 
+	public FileInfo getItemInfo( ActionBase action , MetaDistrBinaryItem binaryItem , String LOCATION , String specificDeployName ) throws Exception {
+		RemoteFolder deployFolder = getRuntimeLocationFolder( action , LOCATION );
+		
+		if( binaryItem.DISTTYPE == VarDISTITEMTYPE.BINARY ) {
+			String runtimeFile = deployFolder.findBinaryDistItemFile( action , binaryItem , specificDeployName );
+			if( runtimeFile.isEmpty() )
+				action.exit( "item=" + binaryItem.KEY + ", is not found in " + deployFolder.folderPath );
+			
+			String md5value = deployFolder.getFileMD5( action , runtimeFile );
+			FileInfo info = binaryItem.getFileInfo( action , specificDeployName , runtimeFile , md5value );
+			return( info );
+		}
+		else 
+		if( binaryItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_CHILD || 
+			binaryItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_DIRECT ||
+			binaryItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_SUBDIR ) {
+			String md5value = getArchiveFileMD5( action , binaryItem , deployFolder );
+			FileInfo info = new FileInfo( "" , md5value , "" , "" );
+			return( info );
+		}
+
+		action.exitUnexpectedState();
+		return( null );
+	}
+	
+	private String getArchiveFileMD5( ActionBase action , MetaDistrBinaryItem archiveItem , RemoteFolder deployFolder ) throws Exception {
+		RedistStorage redist = artefactory.getRedistStorage( action , server , node );
+		RemoteFolder tmpFolder = redist.getRedistTmpFolder( action );
+		tmpFolder.ensureExists( action );
+		
+		String fileName = "tmp.tag.gz";
+		saveArchiveItem( action , archiveItem , deployFolder , fileName , tmpFolder );
+		
+		return( tmpFolder.getFileMD5( action , fileName ) );
+	}
+	
 	public void changeStateItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , String redistFile , boolean rollout ) throws Exception {
 		RemoteFolder redistFolder = getRedistLocationFolder( action , RELEASEDIR , LOCATION , CONTENTTYPE , rollout );
 		RemoteFolder stateFolder = getStateLocationFolder( action , LOCATION , CONTENTTYPE );

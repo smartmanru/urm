@@ -77,7 +77,7 @@ public class ActionDistVerifier extends ActionBase {
 		// find distributive files
 		for( MetaReleaseTargetItem item : delivery.getProjectItems( this ).values() ) {
 			MetaDistrBinaryItem distItem = item.distItem;
-			DistItemInfo info = dist.getDistItemInfo( this , distItem );
+			DistItemInfo info = dist.getDistItemInfo( this , distItem , false );
 			if( !info.found ) {
 				log( "unable to find in delivery=" + delivery.distDelivery.NAME + " - item=" + distItem.KEY );
 				return( false );

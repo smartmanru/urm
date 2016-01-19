@@ -9,6 +9,7 @@ import ru.egov.urm.meta.Metadata.VarDISTITEMTYPE;
 import ru.egov.urm.meta.Metadata.VarITEMVERSION;
 import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.storage.FileInfo;
 
 public class MetaDistrBinaryItem {
 
@@ -86,15 +87,67 @@ public class MetaDistrBinaryItem {
 		this.sourceItem = sourceItem;
 	}
 
-	public String getGrepMask( ActionBase action ) throws Exception {
-		return( "./" + DISTBASENAME + EXT + 
-				"|./.*[0-9]-" + DISTBASENAME + EXT + 
-				"|./" + DISTBASENAME + "-[0-9].*" + EXT +
-				"|./" + DISTBASENAME + "##[0-9].*" + EXT );
+	public String getGrepMask( ActionBase action , String baseName ) throws Exception {
+		return( "./" + baseName + EXT + 
+				"|./.*[0-9]-" + baseName + EXT + 
+				"|./" + baseName + "-[0-9].*" + EXT +
+				"|./" + baseName + "##[0-9].*" + EXT );
 	}
 	
 	public String getBaseFile( ActionBase action ) throws Exception {
 		return( DISTBASENAME + EXT );
 	}
-	
+
+	public VarITEMVERSION getVersionType( ActionBase action , String deployBaseName , String fileName ) throws Exception {
+		String baseName = ( deployBaseName.isEmpty() )? DEPLOYBASENAME : deployBaseName;
+		if( fileName.matches( baseName + EXT ) )
+			return( VarITEMVERSION.NONE );
+		
+		if( fileName.matches( ".*[0-9]-" + baseName + EXT ) )
+			return( VarITEMVERSION.PREFIX );
+		
+		if( fileName.matches( baseName + "-[0-9].*" + EXT ) )
+			return( VarITEMVERSION.MIDDASH );
+		
+		if( fileName.matches( baseName + "##[0-9].*" + EXT ) )
+			return( VarITEMVERSION.MIDPOUND );
+		
+		return( VarITEMVERSION.UNKNOWN );
+	}
+
+	public FileInfo getFileInfo( ActionBase action , String runtimeFile , String specificDeployName , String md5value ) throws Exception {
+		VarITEMVERSION vtype = getVersionType( action , specificDeployName , runtimeFile );
+		if( vtype == VarITEMVERSION.UNKNOWN )
+			action.exit( "unable to get version type of file=" + runtimeFile + ", deployName=" + specificDeployName );
+		
+		String name = Common.getPartBeforeLast( runtimeFile , EXT );
+				
+		if( vtype == VarITEMVERSION.NONE ) {
+			String version = "";
+			String deployNameNoVersion = name;
+			return( new FileInfo( version , md5value , deployNameNoVersion , runtimeFile ) );
+		}
+		
+		if( vtype == VarITEMVERSION.PREFIX ) {
+			String version = Common.getPartBeforeFirst( name , "-" );
+			String deployNameNoVersion = Common.getPartAfterFirst( name , "-" );
+			return( new FileInfo( version , md5value , deployNameNoVersion , runtimeFile ) );
+		}
+		
+		if( vtype == VarITEMVERSION.MIDDASH ) {
+			String version = Common.getPartAfterLast( name , "-" );
+			String deployNameNoVersion = Common.getPartBeforeLast( name , "-" );
+			return( new FileInfo( version , md5value , deployNameNoVersion , runtimeFile ) );
+		}
+		
+		if( vtype == VarITEMVERSION.MIDPOUND ) {
+			String version = Common.getPartAfterLast( name , "##" );
+			String deployNameNoVersion = Common.getPartBeforeLast( name , "##" );
+			return( new FileInfo( version , md5value , deployNameNoVersion , runtimeFile ) );
+		}
+		
+		action.exitUnexpectedState();
+		return( null );
+	}
+
 }

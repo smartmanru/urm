@@ -24,7 +24,7 @@ public class ActionRollback extends ActionBase {
 		// ignore database and unreachable
 		MetaEnvServer server = target.envServer;
 		if( server.TYPE == VarSERVERTYPE.DATABASE || 
-			server.TYPE == VarSERVERTYPE.GENERIC_WINDOWS ||
+			server.TYPE == VarSERVERTYPE.GENERIC_NOSSH ||
 			server.TYPE == VarSERVERTYPE.UNKNOWN ) {
 			trace( "ignore due to server type=" + Common.getEnumLower( server.TYPE ) );
 			return( true );

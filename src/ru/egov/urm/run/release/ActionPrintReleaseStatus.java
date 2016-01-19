@@ -127,7 +127,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 	private void printReleaseBuildSetProjectItemStatus( DistStorage dist , FileSet files , MetaReleaseSet set , MetaReleaseTarget project , MetaReleaseTargetItem item ) throws Exception {
 		String specifics = item.getSpecifics( this );
 		MetaDistrBinaryItem distItem = item.distItem;
-		DistItemInfo info = dist.getDistItemInfo( this , distItem );
+		DistItemInfo info = dist.getDistItemInfo( this , distItem , false );
 		String status = ( info.found )? "OK (" + Common.getPath( info.subPath , info.fileName ) + ")" : "missing";
 		
 		comment( "\t\t\t" + distItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
@@ -143,7 +143,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 
 	private void printReleaseManualStatus( DistStorage dist , FileSet files , MetaReleaseTarget conf ) throws Exception {
 		String specifics = conf.getSpecifics( this );
-		DistItemInfo info = dist.getDistItemInfo( this , conf.distManualItem );
+		DistItemInfo info = dist.getDistItemInfo( this , conf.distManualItem , false );
 		String status = ( info.found )? "OK (" + Common.getPath( info.subPath , info.fileName ) + ")" : "missing";
 		
 		comment( "\t\t" + conf.distManualItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
