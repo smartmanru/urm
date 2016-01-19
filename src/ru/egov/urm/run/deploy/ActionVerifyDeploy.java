@@ -44,6 +44,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		configure.runAll( scope );
 		
 		asisFolder = artefactory.getWorkFolder( this , "asis" );
+		asisFolder.ensureExists( this );
 		verifyOk = true;
 	}
 	
