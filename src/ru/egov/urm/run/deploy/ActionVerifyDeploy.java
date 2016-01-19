@@ -85,9 +85,8 @@ public class ActionVerifyDeploy extends ActionBase {
 		log( "============================================ execute server=" + server.NAME + ", type=" + Common.getEnumLower( server.TYPE ) + " ..." );
 
 		// iterate by nodes
-		LocalFolder tobeNodeFolder = tobeFolder.getSubFolder( this , server.NAME );
+		LocalFolder tobeNodeFolder = configure.getLiveFolder( server );
 		LocalFolder asisNodeFolder = asisFolder.getSubFolder( this , server.NAME );
-		tobeNodeFolder.ensureExists( this );
 		asisNodeFolder.ensureExists( this );
 		
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {

@@ -37,6 +37,11 @@ public class ActionConfigure extends ActionBase {
 		this.baseFolder = baseFolder;
 	}
 
+	public LocalFolder getLiveFolder( MetaEnvServer server ) throws Exception {
+		LocalFolder serverFolder = baseFolder.getSubFolder( this , Common.getPath( "live" , server.NAME ) );
+		return( serverFolder );
+	}
+	
 	public LocalFolder getLiveFolder( MetaEnvServerNode node , MetaDistrConfItem confItem ) throws Exception {
 		LocalFolder serverFolder = baseFolder.getSubFolder( this , Common.getPath( "live" , node.server.NAME ) );
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
