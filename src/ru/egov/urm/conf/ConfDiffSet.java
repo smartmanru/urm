@@ -147,6 +147,9 @@ public class ConfDiffSet {
 			}
 			else {
 				String compName = Common.getTopDir( key );
+				if( dirPrefix != null )
+					compName = Common.getPartAfterFirst( compName , dirPrefix );
+				
 				MetaDistrConfItem comp = action.meta.distr.getConfItem( action , compName );
 				fileMatched.put( key , comp );
 			}
@@ -156,6 +159,9 @@ public class ConfDiffSet {
 			if( release != null ) {
 				// ignore check for partial component
 				String compName = Common.getTopDir( key );
+				if( dirPrefix != null )
+					compName = Common.getPartAfterFirst( compName , dirPrefix );
+				
 				MetaReleaseTarget comp = release.getConfComponent( action , compName );
 				if( !comp.ALL )
 					continue;
