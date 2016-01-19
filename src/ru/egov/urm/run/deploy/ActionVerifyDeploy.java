@@ -110,6 +110,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
 		String name = sourceStorage.getConfItemLiveName( this , node , confItem );
 		LocalFolder asisConfFolder = asisFolder.getSubFolder( this , Common.getPath( server.NAME , name ) );
+		asisConfFolder.ensureExists( this );
 		
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		if( !redist.getConfigItem( this , asisConfFolder , confItem , location.DEPLOYPATH ) ) {
