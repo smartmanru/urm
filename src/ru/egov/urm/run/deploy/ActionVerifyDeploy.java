@@ -96,20 +96,25 @@ public class ActionVerifyDeploy extends ActionBase {
 
 	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] confLocations , MetaEnvServerLocation[] binaryLocations ) throws Exception {
 		// binaries
+		log( "verify binaries ..." );
 		for( MetaEnvServerLocation location : binaryLocations )
 			for( MetaDistrBinaryItem binaryItem : location.binaryItems.values() )
 				executeNodeBinary( server , node , location , binaryItem );
 	
 		// configuration
+		log( "verify configuration ..." );
 		for( MetaEnvServerLocation location : confLocations )
 				for( MetaDistrConfItem confItem : location.confItems.values() )
 					executeNodeConf( server , node , location , confItem );
 			
 		// compare tobe and as is
-		FileSet releaseSet = tobeFolder.getFileSet( this );
-		FileSet prodSet = asisFolder.getFileSet( this );
+		LocalFolder tobeNodeFolder = tobeFolder.getSubFolder( this , server.NAME );
+		LocalFolder asisNodeFolder = asisFolder.getSubFolder( this , server.NAME );
+		FileSet releaseSet = tobeNodeFolder.getFileSet( this );
+		FileSet prodSet = asisNodeFolder.getFileSet( this );
 		
 		String nodePrefix = "node" + node.POS + "-";
+		debug( "calculate diff between: " + releaseSet.dirPath + " and " + prodSet.dirPath + " (prefix=" + nodePrefix + ") ..." );
 		ConfDiffSet diff = new ConfDiffSet( releaseSet , prodSet , nodePrefix );
 		if( !dist.prod )
 			diff.calculate( this , dist.info );
