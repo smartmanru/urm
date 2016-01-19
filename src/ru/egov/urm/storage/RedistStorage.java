@@ -355,7 +355,7 @@ public class RedistStorage extends ServerStorage {
 				action.exit( "item=" + binaryItem.KEY + ", is not found in " + deployFolder.folderPath );
 			
 			String md5value = deployFolder.getFileMD5( action , runtimeFile );
-			FileInfo info = binaryItem.getFileInfo( action , specificDeployName , runtimeFile , md5value );
+			FileInfo info = binaryItem.getFileInfo( action , runtimeFile , specificDeployName , md5value );
 			return( info );
 		}
 		else 
