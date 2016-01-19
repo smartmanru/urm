@@ -17,6 +17,7 @@ public class ConfDiffSet {
 	
 	FileSet releaseSet;
 	FileSet prodSet;
+	String dirPrefix;
 	List<ConfDiffItem> diffs;
 
 	Map<String,ConfDiffItem> dirNew;
@@ -28,9 +29,10 @@ public class ConfDiffSet {
 	Map<String,MetaDistrConfItem> fileMatched;
 	Map<String,MetaDistrConfItem> compMatched;
 	
-	public ConfDiffSet( FileSet releaseSet , FileSet prodSet ) {
+	public ConfDiffSet( FileSet releaseSet , FileSet prodSet , String dirPrefix ) {
 		this.releaseSet = releaseSet;
 		this.prodSet = prodSet;
+		this.dirPrefix = dirPrefix;
 	}
 	
 	public boolean isDifferent( ActionBase action ) throws Exception {
@@ -70,6 +72,9 @@ public class ConfDiffSet {
 		
 		for( String key : releaseSet.dirList ) {
 			String compName = Common.getTopDir( key );
+			if( dirPrefix != null )
+				compName = Common.getPartAfterFirst( compName , dirPrefix );
+			
 			MetaDistrConfItem comp = action.meta.distr.getConfItem( action , compName );
 			
 			if( !compMatched.containsKey( compName ) )
@@ -96,6 +101,9 @@ public class ConfDiffSet {
 			// ignore check for partial component
 			if( release != null ) {
 				String compName = Common.getTopDir( key );
+				if( dirPrefix != null )
+					compName = Common.getPartAfterFirst( compName , dirPrefix );
+				
 				MetaReleaseTarget comp = release.getConfComponent( action , compName );
 				if( !comp.ALL )
 					continue;

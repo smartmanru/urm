@@ -58,7 +58,7 @@ public class ConfBuilder {
 		FileSet releaseSet = releaseFolder.getFileSet( action );
 		FileSet prodSet = prodFolder.getFileSet( action );
 		
-		ConfDiffSet diff = new ConfDiffSet( releaseSet , prodSet ); 
+		ConfDiffSet diff = new ConfDiffSet( releaseSet , prodSet , null ); 
 		diff.calculate( action , release.info );
 		
 		String filePath = releaseFolder.getFilePath( action , diffFile ); 

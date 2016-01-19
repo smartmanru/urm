@@ -95,17 +95,45 @@ public class ActionVerifyDeploy extends ActionBase {
 	}
 
 	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] confLocations , MetaEnvServerLocation[] binaryLocations ) throws Exception {
-		for( MetaEnvServerLocation location : confLocations )
-			for( MetaDistrConfItem confItem : location.confItems.values() )
-				executeNodeConf( server , node , location , confItem );
-		
+		// binaries
 		for( MetaEnvServerLocation location : binaryLocations )
 			for( MetaDistrBinaryItem binaryItem : location.binaryItems.values() )
 				executeNodeBinary( server , node , location , binaryItem );
+	
+		// configuration
+		for( MetaEnvServerLocation location : confLocations )
+				for( MetaDistrConfItem confItem : location.confItems.values() )
+					executeNodeConf( server , node , location , confItem );
+			
+		// compare tobe and as is
+		FileSet releaseSet = tobeFolder.getFileSet( this );
+		FileSet prodSet = asisFolder.getFileSet( this );
+		
+		String nodePrefix = "node" + node.POS + "-";
+		ConfDiffSet diff = new ConfDiffSet( releaseSet , prodSet , nodePrefix );
+		if( !dist.prod )
+			diff.calculate( this , dist.info );
+		else
+			diff.calculate( this , null );
+		
+		if( diff.isDifferent( this ) ) {
+			if( options.OPT_SHOWALL ) {
+				String file = asisFolder.getFilePath( this , "diff.txt" );
+				diff.save( this , file );
+				log( "found configuration differences in node=" + node.INSTANCE + ", see " + file );
+			}
+			else
+				log( "found configuration differences in node=" + node.INSTANCE );
+		}
 	}
 
 	private void executeNodeConf( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrConfItem confItem ) throws Exception {
-		LocalFolder tobeConfFolder = configure.getLiveFolder( node , confItem );
+		if( !dist.prod ) {
+			if( dist.info.findConfComponent( this , confItem.KEY ) == null ) {
+				trace( "ignore non-release conf item=" + confItem.KEY );
+				return;
+			}
+		}
 		
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
 		String name = sourceStorage.getConfItemLiveName( this , node , confItem );
@@ -119,26 +147,6 @@ public class ActionVerifyDeploy extends ActionBase {
 			return;
 		}
 
-		// compare tobe and as is
-		FileSet releaseSet = tobeConfFolder.getFileSet( this );
-		FileSet prodSet = asisConfFolder.getFileSet( this );
-		
-		ConfDiffSet diff = new ConfDiffSet( releaseSet , prodSet );
-		if( !dist.prod )
-			diff.calculate( this , dist.info );
-		else
-			diff.calculate( this , null );
-		
-		if( diff.isDifferent( this ) ) {
-			if( options.OPT_SHOWALL ) {
-				String file = asisConfFolder.getFilePath( this , "diff.txt" );
-				diff.save( this , file );
-				log( "found differences in comp=" + confItem.KEY + ", see " + file );
-			}
-			else
-				log( "found differences in comp=" + confItem.KEY );
-		}
-			
 	}
 
 	private void executeNodeBinary( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrBinaryItem binaryItem ) throws Exception {
