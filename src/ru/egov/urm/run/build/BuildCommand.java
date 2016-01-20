@@ -144,7 +144,7 @@ public class BuildCommand {
 	}
 	
 	public void ñopyBranchToTag( ActionBase action , ActionScope scope , String BRANCH , String TAG ) throws Exception {
-		ActionCopyCodebase ca = new ActionCopyCodebase( action , null , true , BRANCH , false , TAG , false );
+		ActionCopyCodebase ca = new ActionCopyCodebase( action , null , true , BRANCH , false , TAG , true );
 		ca.runEachBuildableProject( scope );
 	}
 	
