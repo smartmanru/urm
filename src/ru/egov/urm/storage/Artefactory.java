@@ -214,7 +214,7 @@ public class Artefactory {
 
 		String REPONAME;
 		String path = sourceProject.PATH.replaceAll( "/" , "" );
-		REPONAME = path + "-" + sourceProject.REPOSITORY + ".git";
+		REPONAME = path + "-" + sourceProject.PROJECT + ".git";
 		
 		String repoPath = MIRRORPATH + "/" + REPONAME;
 		LocalFolder folder = getAnyFolder( action , repoPath );
