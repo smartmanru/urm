@@ -9,17 +9,35 @@ import ru.egov.urm.storage.LocalFolder;
 public class GitVCS extends GenericVCS {
 
 	String MIRRORPATH;
+	static String MASTERBRANCH = "master";
 	
 	public GitVCS( ActionBase action , String MIRRORPATH ) {
 		super( action );
 		this.MIRRORPATH = MIRRORPATH;
 	}
 
-	public String getMainBranch() {
-		return( "master" );
+	private String getBranchName( String BRANCH ) {
+		if( BRANCH.isEmpty() )
+			return( "" );
+		
+		if( BRANCH.equals( MASTERBRANCH ) )
+			return( MASTERBRANCH );
+		return( "branch-" + BRANCH );
 	}
 	
-	public boolean checkout( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH ) throws Exception {
+	private String getTagName( String TAG ) {
+		if( TAG.isEmpty() )
+			return( "" );
+		
+		return( "tag-" + TAG );
+	}
+	
+	@Override public String getMainBranch() {
+		return( MASTERBRANCH );
+	}
+	
+	@Override public boolean checkout( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH ) throws Exception {
+		BRANCH = getBranchName( BRANCH );
 		String CO_PATH = getRepoPath( project );
 		refreshMirror( CO_PATH );
 
@@ -31,7 +49,7 @@ public class GitVCS extends GenericVCS {
 		return( true );
 	}
 
-	public boolean commit( LocalFolder PATCHFOLDER , MetaSourceProject project , String MESSAGE ) throws Exception {
+	@Override public boolean commit( LocalFolder PATCHFOLDER , MetaSourceProject project , String MESSAGE ) throws Exception {
 		if( !PATCHFOLDER.checkExists( action ) ) {
 			action.log( "directory " + PATCHFOLDER.folderPath + " does not exist " );
 			return( false );
@@ -47,7 +65,9 @@ public class GitVCS extends GenericVCS {
 		return( true );
 	}
 
-	public boolean copyBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
+	@Override public boolean copyBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
+		BRANCH1 = getBranchName( BRANCH1 );
+		BRANCH2 = getBranchName( BRANCH2 );
 		String CO_PATH = getRepoPath( project );
 		refreshMirror( CO_PATH );
 		
@@ -66,7 +86,9 @@ public class GitVCS extends GenericVCS {
 		return( true );
 	}
 
-	public boolean renameBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
+	@Override public boolean renameBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
+		BRANCH1 = getBranchName( BRANCH1 );
+		BRANCH2 = getBranchName( BRANCH2 );
 		String CO_PATH = getRepoPath( project );
 		refreshMirror( CO_PATH );
 		
@@ -86,7 +108,9 @@ public class GitVCS extends GenericVCS {
 		return( true );
 	}
 
-	public boolean copyTagToNewTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
+	@Override public boolean copyTagToNewTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
+		TAG1 = getTagName( TAG1 );
+		TAG2 = getTagName( TAG2 );
 		String CO_PATH = getRepoPath( project );
 		refreshMirror( CO_PATH );
 		
@@ -105,7 +129,9 @@ public class GitVCS extends GenericVCS {
 		return( true );
 	}
 
-	public boolean copyTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
+	@Override public boolean copyTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
+		TAG1 = getTagName( TAG1 );
+		TAG2 = getTagName( TAG2 );
 		String CO_PATH = getRepoPath( project );
 		refreshMirror( CO_PATH );
 		
@@ -125,7 +151,9 @@ public class GitVCS extends GenericVCS {
 		return( true );
 	}
 
-	public boolean renameTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
+	@Override public boolean renameTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
+		TAG1 = getTagName( TAG1 );
+		TAG2 = getTagName( TAG2 );
 		String CO_PATH = getRepoPath( project );
 		refreshMirror( CO_PATH );
 		
@@ -146,7 +174,9 @@ public class GitVCS extends GenericVCS {
 		return( true );
 	}
 
-	public boolean copyTagToNewBranch( MetaSourceProject project , String TAG1 , String BRANCH2 ) throws Exception {
+	@Override public boolean copyTagToNewBranch( MetaSourceProject project , String TAG1 , String BRANCH2 ) throws Exception {
+		TAG1 = getTagName( TAG1 );
+		BRANCH2 = getBranchName( BRANCH2 );
 		String CO_PATH = getRepoPath( project );
 		refreshMirror( CO_PATH );
 		
@@ -165,7 +195,8 @@ public class GitVCS extends GenericVCS {
 		return( true );
 	}
 
-	public boolean dropTag( MetaSourceProject project , String TAG ) throws Exception {
+	@Override public boolean dropTag( MetaSourceProject project , String TAG ) throws Exception {
+		TAG = getTagName( TAG );
 		String CO_PATH = getRepoPath( project );
 		refreshMirror( CO_PATH );
 		
@@ -180,7 +211,8 @@ public class GitVCS extends GenericVCS {
 		return( true );
 	}
 	
-	public boolean dropBranch( MetaSourceProject project , String BRANCH ) throws Exception {
+	@Override public boolean dropBranch( MetaSourceProject project , String BRANCH ) throws Exception {
+		BRANCH = getBranchName( BRANCH );
 		String CO_PATH = getRepoPath( project );
 		refreshMirror( CO_PATH );
 		
@@ -195,7 +227,9 @@ public class GitVCS extends GenericVCS {
 		return( true );
 	}
 
-	public boolean export( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH , String TAG , String FILENAME ) throws Exception {
+	@Override public boolean export( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH , String TAG , String FILENAME ) throws Exception {
+		TAG = getTagName( TAG );
+		BRANCH = getBranchName( BRANCH );
 		String CO_PATH = getRepoPath( project );
 		refreshMirror( CO_PATH );
 		
@@ -208,7 +242,9 @@ public class GitVCS extends GenericVCS {
 		return( res );
 	}
 
-	public boolean setTag( MetaSourceProject project , String BRANCH , String TAG , String BRANCHDATE ) throws Exception {
+	@Override public boolean setTag( MetaSourceProject project , String BRANCH , String TAG , String BRANCHDATE ) throws Exception {
+		TAG = getTagName( TAG );
+		BRANCH = getBranchName( BRANCH );
 		String CO_PATH = getRepoPath( project );
 		refreshMirror( CO_PATH );
 
@@ -242,7 +278,7 @@ public class GitVCS extends GenericVCS {
 	}
 
 	private void createLocalFromBranch( String CO_PATH , LocalFolder PATCHFOLDER , String BRANCH ) throws Exception {
-		session.customCheckStatus( action , "git -C " + CO_PATH + " clone " + CO_PATH + " --shared -b branch-" + BRANCH + " " + PATCHFOLDER.folderPath );
+		session.customCheckStatus( action , "git -C " + CO_PATH + " clone " + CO_PATH + " --shared -b " + BRANCH + " " + PATCHFOLDER.folderPath );
 	}
 
 	private boolean exportFromPath( String CO_PATH , LocalFolder PATCHFOLDER , String SUBPATH , String FILENAME ) throws Exception {
@@ -280,12 +316,12 @@ public class GitVCS extends GenericVCS {
 	}
 
 	private boolean exportFromBranch( String CO_PATH , LocalFolder PATCHFOLDER , String BRANCH , String FILENAME ) throws Exception {
-		boolean res = exportFromPath( CO_PATH , PATCHFOLDER , "branch-" + BRANCH , FILENAME );
+		boolean res = exportFromPath( CO_PATH , PATCHFOLDER , BRANCH , FILENAME );
 		return( res );
 	}
 
 	private boolean exportFromTag( String CO_PATH , LocalFolder PATCHFOLDER , String TAG , String FILENAME ) throws Exception {
-		boolean res = exportFromPath( CO_PATH , PATCHFOLDER , "tag-" + TAG , FILENAME );
+		boolean res = exportFromPath( CO_PATH , PATCHFOLDER , TAG , FILENAME );
 		return( res );
 	}
 
@@ -293,42 +329,43 @@ public class GitVCS extends GenericVCS {
 		// get revision by date
 		String REVMARK = "";
 		if( !TAGDATE.isEmpty() ) {
-			REVMARK = session.customGetValue( action , "git -C " + CO_PATH + " log --format=oneline -n 1 --before=" + Common.getQuoted( TAGDATE ) + " refs/heads/branch-" + 
+			REVMARK = session.customGetValue( action , "git -C " + CO_PATH + " log --format=oneline -n 1 --before=" + Common.getQuoted( TAGDATE ) + " refs/heads/" + 
 					BRANCH + " | tr -d " + Common.getQuoted( " " ) + " -f1" );
 			if( REVMARK.isEmpty() )
 				action.exit( "setMirrorTag: unable to find branch revision on given date" );
 		}
 
-		session.customCheckStatus( action , "git -C " + CO_PATH + " tag tag-" + TAG + " -a -f -m " + Common.getQuoted( "$P_MESSAGE" ) + " refs/heads/branch-" + BRANCH + " " + REVMARK );
+		session.customCheckStatus( action , "git -C " + CO_PATH + " tag " + TAG + " -a -f -m " + Common.getQuoted( "$P_MESSAGE" ) + " refs/heads/" + BRANCH + " " + REVMARK );
 	}
 
 	private void dropMirrorTag( String CO_PATH , String TAG ) throws Exception {
-		session.customCheckStatus( action , "git -C " + CO_PATH + " tag -d tag-" + TAG );
+		session.customCheckStatus( action , "git -C " + CO_PATH + " tag -d " + TAG );
 	}
 
 	private void dropMirrorBranch( String CO_PATH , String BRANCH ) throws Exception {
-		session.customCheckStatus( action , "git -C " + CO_PATH + " branch -D branch-" + BRANCH );
+		session.customCheckStatus( action , "git -C " + CO_PATH + " branch -D " + BRANCH );
 	}
 
 	private boolean checkTagExists( String CO_PATH , String TAG ) throws Exception {
-		String STATUS = session.customGetValue( action , "git -C " + CO_PATH + " tag -l tag-" + TAG );
+		String STATUS = session.customGetValue( action , "git -C " + CO_PATH + " tag -l " + TAG );
 		if( STATUS.isEmpty() )
 			return( false );
 		return( true );
 	}
 	
 	private boolean checkBranchExists( String CO_PATH , String BRANCH ) throws Exception {
-		String STATUS = session.customGetValue( action , "git -C " + CO_PATH + " branch --list branch-" + BRANCH );
+		String STATUS = session.customGetValue( action , "git -C " + CO_PATH + " branch --list " + BRANCH );
 		if( STATUS.isEmpty() )
 			return( false );
 		return( true );
 	}
 	
-	public String getMirrorTagStatus( String CO_PATH , String TAG ) throws Exception {
+	@SuppressWarnings("unused")
+	private String getMirrorTagStatus( String CO_PATH , String TAG ) throws Exception {
 		if( !checkTagExists( CO_PATH , TAG ) )
 			return( "" );
 
-		String REPOVERSION = session.customGetValue( action , "git -C " + CO_PATH + " show --format=raw tag-" + TAG + " | grep " + Common.getQuoted( "commit " ) + 
+		String REPOVERSION = session.customGetValue( action , "git -C " + CO_PATH + " show --format=raw " + TAG + " | grep " + Common.getQuoted( "commit " ) + 
 				" | head -1 | cut -d " + Common.getQuoted( " " ) + " -f2" );
 		return( REPOVERSION ); 
 	}
@@ -338,22 +375,22 @@ public class GitVCS extends GenericVCS {
 		if( !checkBranchExists( CO_PATH , BRANCH ) )
 			return( "" );
 
-		String REPOVERSION = session.customGetValue( action , "git -C " + CO_PATH + " show --format=raw branch-" + BRANCH + " | grep " + Common.getQuoted( "commit " ) + 
+		String REPOVERSION = session.customGetValue( action , "git -C " + CO_PATH + " show --format=raw " + BRANCH + " | grep " + Common.getQuoted( "commit " ) + 
 				" | head -1 | cut -d " + Common.getQuoted( " " ) + " -f2" );
 		return( REPOVERSION ); 
 	}
 
 	private void copyMirrorTagFromTag( String CO_PATH , String TAG_FROM , String TAG_TO , String MESSAGE ) throws Exception {
 		// drop if exists
-		session.customCheckStatus( action , "git -C " + CO_PATH + " tag -a -f -m " + Common.getQuoted( MESSAGE ) + " tag-" + TAG_TO + " refs/tags/tag-" + TAG_FROM );
+		session.customCheckStatus( action , "git -C " + CO_PATH + " tag -a -f -m " + Common.getQuoted( MESSAGE ) + " " + TAG_TO + " refs/tags/" + TAG_FROM );
 	}
 
 	private void copyMirrorBranchFromTag( String CO_PATH , String TAG_FROM , String BRANCH_TO , String MESSAGE ) throws Exception {
-		session.customCheckStatus( action , "git -C " + CO_PATH + " branch branch-" + BRANCH_TO + " refs/tags/tag-" + TAG_FROM );
+		session.customCheckStatus( action , "git -C " + CO_PATH + " branch " + BRANCH_TO + " refs/tags/" + TAG_FROM );
 	}
 
 	private void copyMirrorBranchFromBranch( String CO_PATH , String BRANCH_FROM , String BRANCH_TO , String MESSAGE ) throws Exception {
-		session.customCheckStatus( action , "git -C " + CO_PATH + " branch branch-" + BRANCH_TO + " refs/heads/branch-" + BRANCH_FROM );
+		session.customCheckStatus( action , "git -C " + CO_PATH + " branch " + BRANCH_TO + " refs/heads/" + BRANCH_FROM );
 	}
 
 	private void pushMirror( String CO_PATH ) throws Exception {
@@ -378,12 +415,13 @@ public class GitVCS extends GenericVCS {
 			"git push origin 2>&1; if [ $? != 0 ]; then echo error on push origin >&2; fi )" );
 	}
 
-	public boolean isValidRepositoryTagPath( String repository , String TAG , String path ) throws Exception {
+	@Override public boolean isValidRepositoryTagPath( String repository , String TAG , String path ) throws Exception {
+		TAG = getTagName( TAG );
 		action.exitNotImplemented();
 		return( false );
 	}
 	
-	public boolean isValidRepositoryMasterPath( String repository , String path ) throws Exception {
+	@Override public boolean isValidRepositoryMasterPath( String repository , String path ) throws Exception {
 		String CO_PATH = getRepoPath( repository );
 		refreshMirror( CO_PATH );
 		
@@ -394,12 +432,13 @@ public class GitVCS extends GenericVCS {
 		return( false );
 	}
 
-	public boolean exportRepositoryTagPath( LocalFolder PATCHFOLDER , String repository , String TAG , String ITEMPATH , String name ) throws Exception {
+	@Override public boolean exportRepositoryTagPath( LocalFolder PATCHFOLDER , String repository , String TAG , String ITEMPATH , String name ) throws Exception {
+		TAG = getTagName( TAG );
 		action.exitNotImplemented();
 		return( false );
 	}
 	
-	public boolean exportRepositoryMasterPath( LocalFolder PATCHFOLDER , String repository , String ITEMPATH , String name ) throws Exception {
+	@Override public boolean exportRepositoryMasterPath( LocalFolder PATCHFOLDER , String repository , String ITEMPATH , String name ) throws Exception {
 		if( !isValidRepositoryMasterPath( repository , ITEMPATH ) )
 			return( false );
 			
@@ -420,68 +459,69 @@ public class GitVCS extends GenericVCS {
 		return( false );
 	}
 
-	public String getInfoMasterPath( String repository , String ITEMPATH ) throws Exception {
+	@Override public String getInfoMasterPath( String repository , String ITEMPATH ) throws Exception {
 		String CO_PATH = "git:" + repository + ":" + ITEMPATH;
 		return( CO_PATH );
 	}
 	
-	public boolean createMasterFolder( String repository , String ITEMPATH , String commitMessage ) throws Exception {
+	@Override public boolean createMasterFolder( String repository , String ITEMPATH , String commitMessage ) throws Exception {
 		action.exit( "not implemented" );
 		return( false );
 	}
 	
-	public boolean moveMasterFiles( String repository , String srcFolder , String dstFolder , String itemPath , String commitMessage ) throws Exception {
+	@Override public boolean moveMasterFiles( String repository , String srcFolder , String dstFolder , String itemPath , String commitMessage ) throws Exception {
 		action.exit( "not implemented" );
 		return( false );
 	}
 	
-	public String listMasterItems( String repository , String masterFolder ) throws Exception {
+	@Override public String listMasterItems( String repository , String masterFolder ) throws Exception {
 		String CO_PATH = getRepoPath( repository );
 		refreshMirror( CO_PATH );
 		String s = action.session.customGetValue( action , "git -C " + CO_PATH + " ls-tree master --name-only | tr \"\\n\" \" \"" );
 		return( s );
 	}
 
-	public void deleteMasterFolder( String repository , String masterFolder , String commitMessage ) throws Exception {
+	@Override public void deleteMasterFolder( String repository , String masterFolder , String commitMessage ) throws Exception {
 		String CO_PATH = getRepoPath( repository );
 		refreshMirror( CO_PATH );
 		action.exitNotImplemented();
 	}
 
-	public void checkoutMasterFolder( LocalFolder PATCHPATH , String repository , String masterFolder ) throws Exception {
+	@Override public void checkoutMasterFolder( LocalFolder PATCHPATH , String repository , String masterFolder ) throws Exception {
 		action.exitNotImplemented();
 	}
 	
-	public void importMasterFolder( LocalFolder PATCHPATH , String repository , String masterFolder , String commitMessage ) throws Exception {
+	@Override public void importMasterFolder( LocalFolder PATCHPATH , String repository , String masterFolder , String commitMessage ) throws Exception {
 		action.exitNotImplemented();
 	}
 	
-	public void ensureMasterFolderExists( String repository , String masterFolder , String commitMessage ) throws Exception {
+	@Override public void ensureMasterFolderExists( String repository , String masterFolder , String commitMessage ) throws Exception {
 		action.exitNotImplemented();
 	}
 	
-	public boolean commitMasterFolder( LocalFolder PATCHPATH , String repository , String masterFolder , String commitMessage ) throws Exception {
+	@Override public boolean commitMasterFolder( LocalFolder PATCHPATH , String repository , String masterFolder , String commitMessage ) throws Exception {
 		action.exitNotImplemented();
 		return( false );
 	}
 	
-	public void addFileToCommit( LocalFolder PATCHPATH , String folder , String file ) throws Exception {
+	@Override public void addFileToCommit( LocalFolder PATCHPATH , String folder , String file ) throws Exception {
 		action.exitNotImplemented();
 	}
 	
-	public void deleteFileToCommit( LocalFolder PATCHPATH , String folder , String file ) throws Exception {
+	@Override public void deleteFileToCommit( LocalFolder PATCHPATH , String folder , String file ) throws Exception {
 		action.exitNotImplemented();
 	}
 	
-	public void addDirToCommit( LocalFolder PATCHPATH , String folder ) throws Exception {
+	@Override public void addDirToCommit( LocalFolder PATCHPATH , String folder ) throws Exception {
 		action.exitNotImplemented();
 	}
 	
-	public void deleteDirToCommit( LocalFolder PATCHPATH , String folder ) throws Exception {
+	@Override public void deleteDirToCommit( LocalFolder PATCHPATH , String folder ) throws Exception {
 		action.exitNotImplemented();
 	}
 
-	public void createMasterTag( String repository , String masterFolder , String TAG , String commitMessage ) throws Exception {
+	@Override public void createMasterTag( String repository , String masterFolder , String TAG , String commitMessage ) throws Exception {
+		TAG = getTagName( TAG );
 		action.exitNotImplemented();
 	}
 	
