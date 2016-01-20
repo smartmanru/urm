@@ -261,11 +261,6 @@ public class MetaReleaseSet {
 		return( manualItem );
 	}
 
-	public MetaReleaseTarget findCategoryTarget( ActionBase action , VarCATEGORY CATEGORY , String name ) throws Exception {
-		String targetName = MetaReleaseTarget.getTargetKey( action , CATEGORY , name );
-		return( map.get( targetName ) );
-	}
-	
 	public void removeTarget( ActionBase action , MetaReleaseTarget source ) throws Exception {
 		map.remove( source.NAME );
 		ALL = false;
@@ -276,7 +271,7 @@ public class MetaReleaseSet {
 	}
 
 	public String getProjectBranch( ActionBase action , String name ) throws Exception {
-		MetaReleaseTarget project = findTargetByOriginalName( action , name );
+		MetaReleaseTarget project = findTarget( action , name );
 		if( project == null )
 			return( "" );
 	
@@ -287,7 +282,7 @@ public class MetaReleaseSet {
 	}
 	
 	public String getProjectTag( ActionBase action , String name ) throws Exception {
-		MetaReleaseTarget project = findTargetByOriginalName( action , name );
+		MetaReleaseTarget project = findTarget( action , name );
 		if( project == null )
 			return( "" );
 	
@@ -295,18 +290,6 @@ public class MetaReleaseSet {
 			return( project.BUILDTAG );
 		
 		return( BUILDTAG );
-	}
-
-	public MetaReleaseTarget findTargetByOriginalName( ActionBase action , String name ) throws Exception {
-		String KEY = MetaReleaseTarget.getTargetKey( action , CATEGORY , name );
- 		return( map.get( KEY ) );
-	}
-	
-	public MetaReleaseTarget getTargetByOriginalName( ActionBase action , String name ) throws Exception {
-		MetaReleaseTarget source = findTargetByOriginalName( action , name );
-		if( source == null || !source.isCategoryItem( action , CATEGORY ) )
-			action.exit( "unknown release target category=" + Common.getEnumLower( CATEGORY ) + ", name=" + name );
-		return( source );
 	}
 
 	public MetaReleaseTarget findTarget( ActionBase action , String key ) throws Exception {
@@ -382,7 +365,7 @@ public class MetaReleaseSet {
 
 	public boolean checkAllBinaryIncluded( ActionBase action ) throws Exception {
 		for( MetaSourceProject project : set.originalList ) {
-			MetaReleaseTarget target = findTargetByOriginalName( action , project.PROJECT );
+			MetaReleaseTarget target = findTarget( action , project.PROJECT );
 			if( target == null )
 				return( false );
 			

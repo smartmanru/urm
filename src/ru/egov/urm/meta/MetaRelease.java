@@ -222,7 +222,7 @@ public class MetaRelease {
 		if( set == null )
 			return( null );
 		
-		MetaReleaseTarget project = set.findTargetByOriginalName( action , name );
+		MetaReleaseTarget project = set.findTarget( action , name );
 		return( project );
 	}
 	
@@ -239,7 +239,7 @@ public class MetaRelease {
 		if( set == null )
 			return( null );
 		
-		MetaReleaseTarget target = set.findTargetByOriginalName( action , KEY );
+		MetaReleaseTarget target = set.findTarget( action , KEY );
 		return( target );
 	}
 	
@@ -456,7 +456,7 @@ public class MetaRelease {
 		if( set == null )
 			return( false );
 		
-		MetaReleaseTarget project = set.findTargetByOriginalName( action , sourceProject.PROJECT );
+		MetaReleaseTarget project = set.findTarget( action , sourceProject.PROJECT );
 		if( project == null ) {
 			project = set.addSourceProject( action , sourceProject , allItems );
 			registerTarget( action , project );
@@ -485,7 +485,7 @@ public class MetaRelease {
 		if( set == null )
 			return;
 
-		MetaReleaseTarget target = set.findTargetByOriginalName( action , NAME );
+		MetaReleaseTarget target = set.findTarget( action , NAME );
 		if( target == null )
 			return;
 
@@ -497,7 +497,7 @@ public class MetaRelease {
 		if( set == null )
 			return;
 		
-		MetaReleaseTarget target = set.findTargetByOriginalName( action , sourceProject.PROJECT );
+		MetaReleaseTarget target = set.findTarget( action , sourceProject.PROJECT );
 		if( target == null )
 			return;
 		
@@ -515,7 +515,7 @@ public class MetaRelease {
 		if( set.ALL )
 			return( true );
 		
-		MetaReleaseTarget project = set.findTargetByOriginalName( action , sourceProject.PROJECT );
+		MetaReleaseTarget project = set.findTarget( action , sourceProject.PROJECT );
 		if( project == null )
 			return( false );
 
@@ -544,7 +544,7 @@ public class MetaRelease {
 		if( set == null )
 			return;
 
-		MetaReleaseTarget project = set.findTargetByOriginalName( action , sourceProject.PROJECT );
+		MetaReleaseTarget project = set.findTarget( action , sourceProject.PROJECT );
 		if( project == null )
 			return;
 		
@@ -560,7 +560,7 @@ public class MetaRelease {
 		if( set.ALL )
 			return( true );
 
-		MetaReleaseTarget target = set.findCategoryTarget( action , VarCATEGORY.CONFIG , item.KEY );
+		MetaReleaseTarget target = set.findTarget( action , item.KEY );
 		if( target != null ) {
 			if( !target.ALL )
 				target.setAll( action , action.options.OPT_REPLACE );
@@ -582,7 +582,7 @@ public class MetaRelease {
 		if( set.ALL )
 			return( true );
 
-		MetaReleaseTarget target = set.findCategoryTarget( action , VarCATEGORY.DB , item.NAME );
+		MetaReleaseTarget target = set.findTarget( action , item.NAME );
 		if( target != null )
 			return( true );
 		
@@ -599,7 +599,7 @@ public class MetaRelease {
 		if( set.ALL )
 			return( true );
 
-		MetaReleaseTarget target = set.findCategoryTarget( action , VarCATEGORY.MANUAL , item.KEY );
+		MetaReleaseTarget target = set.findTarget( action , item.KEY );
 		if( target != null )
 			return( true );
 		

@@ -98,7 +98,7 @@ public class MetaReleaseTarget {
 		
 		// find in sources
 		sourceProject = meta.sources.getProject( action , name ); 
-		NAME = getTargetKey( action , sourceProject.CATEGORY , sourceProject.PROJECT );
+		NAME = sourceProject.PROJECT;
 		
 		Node[] items = ConfReader.xmlGetChildren( action , node , "distitem" );
 		if( items == null ) {
@@ -117,7 +117,7 @@ public class MetaReleaseTarget {
 	private void loadConfiguration( ActionBase action , Node node ) throws Exception {
 		String name = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
 		distConfItem = meta.distr.getConfItem( action , name );
-		this.NAME = getTargetKey( action , VarCATEGORY.CONFIG , name );
+		this.NAME = name;
 		
 		ALL = ( ConfReader.getBooleanAttrValue( action , node , "partial" , true ) )? false : true;
 	}
@@ -125,7 +125,7 @@ public class MetaReleaseTarget {
 	private void loadDatabase( ActionBase action , Node node ) throws Exception {
 		String name = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
 		distDatabaseItem = meta.distr.getDelivery( action , name );
-		this.NAME = getTargetKey( action , VarCATEGORY.DB , name );
+		this.NAME = name;
 		
 		ALL = true;
 	}
@@ -133,21 +133,16 @@ public class MetaReleaseTarget {
 	private void loadManual( ActionBase action , Node node ) throws Exception {
 		String name = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
 		distManualItem = meta.distr.getBinaryItem( action , name );
-		this.NAME = getTargetKey( action , VarCATEGORY.MANUAL , name );
+		this.NAME = name;
 		
 		ALL = true;
 	}
 
-	public static String getTargetKey( ActionBase action , VarCATEGORY CATEGORY , String name ) throws Exception {
-		if( action.meta.isSourceCategory( action , CATEGORY ) )
-			return( "source::" + name );
- 		return( Common.getEnumLower( CATEGORY ) + "::" + name );
-	}
-	
 	public void createFromProject( ActionBase action , MetaSourceProject sourceProject , boolean allItems ) throws Exception {
 		this.sourceProject = sourceProject;
 		this.CATEGORY = sourceProject.CATEGORY;
-		NAME = getTargetKey( action , CATEGORY , sourceProject.PROJECT );
+		
+		NAME = sourceProject.PROJECT;
 		ALL = false;
 		BUILDBRANCH = "";
 		BUILDTAG = "";
@@ -162,14 +157,14 @@ public class MetaReleaseTarget {
 		this.distConfItem = item;
 		this.CATEGORY = VarCATEGORY.CONFIG;
 		this.ALL = allFiles;
-		this.NAME = getTargetKey( action , CATEGORY , item.KEY );
+		this.NAME = item.KEY;
 	}
 	
 	public void createFromDatabaseItem( ActionBase action , MetaDistrDelivery item ) throws Exception {
 		this.distDatabaseItem = item;
 		this.CATEGORY = VarCATEGORY.DB;
 		this.ALL = true;
-		this.NAME = getTargetKey( action , CATEGORY , item.NAME );
+		this.NAME = item.NAME;
 	}
 	
 	public void createFromManualItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
@@ -179,7 +174,7 @@ public class MetaReleaseTarget {
 		this.distManualItem = item;
 		this.CATEGORY = VarCATEGORY.MANUAL;
 		this.ALL = true;
-		this.NAME = getTargetKey( action , CATEGORY , item.KEY );
+		this.NAME = item.KEY;
 	}
 	
 	public void setAll( ActionBase action , boolean ALL ) throws Exception {

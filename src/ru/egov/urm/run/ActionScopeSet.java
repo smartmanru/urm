@@ -139,8 +139,7 @@ public class ActionScopeSet {
 	}
 
 	public ActionScopeTarget findSourceTarget( ActionBase action , MetaSourceProject project ) throws Exception {
-		String key = MetaReleaseTarget.getTargetKey( action , CATEGORY , project.PROJECT );
-		return( targets.get( key ) );
+		return( targets.get( project.PROJECT ) );
 	}
 	
 	public String getScopeInfo( ActionBase action ) throws Exception {
@@ -196,7 +195,7 @@ public class ActionScopeSet {
 		}
 		
 		for( String name : PROJECTS ) {
-			MetaReleaseTarget sourceProject = rset.getTargetByOriginalName( action ,  name );
+			MetaReleaseTarget sourceProject = rset.getTarget( action ,  name );
 			addReleaseProject( action , sourceProject , true , true );
 		}
 	}
@@ -236,7 +235,7 @@ public class ActionScopeSet {
 		}
 		
 		for( String key : COMPS ) {
-			MetaReleaseTarget item = rset.getTargetByOriginalName( action , key );
+			MetaReleaseTarget item = rset.getTarget( action , key );
 			addReleaseTarget( action , item , true );
 		}
 	}
@@ -279,7 +278,7 @@ public class ActionScopeSet {
 		}
 		
 		for( String key : ITEMS ) {
-			MetaReleaseTarget item = rset.getTargetByOriginalName( action , key );
+			MetaReleaseTarget item = rset.getTarget( action , key );
 			addReleaseTarget( action , item , true );
 		}
 	}
@@ -324,7 +323,7 @@ public class ActionScopeSet {
 		}
 		
 		for( String key : DELIVERIES ) {
-			MetaReleaseTarget item = rset.getTargetByOriginalName( action , key );
+			MetaReleaseTarget item = rset.getTarget( action , key );
 			addReleaseTarget( action , item , true );
 		}
 	}
