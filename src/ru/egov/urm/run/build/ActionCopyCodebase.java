@@ -18,6 +18,7 @@ public class ActionCopyCodebase extends ActionBase {
 		this.VAR1 = VAR1;
 		this.branchVAR2 = branchVAR2;
 		this.VAR2 = VAR2;
+		this.force = force;
 	}
 
 	@Override protected boolean executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
