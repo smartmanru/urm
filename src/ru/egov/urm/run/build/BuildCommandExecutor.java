@@ -37,7 +37,8 @@ public class BuildCommandExecutor extends CommandExecutor {
 		buildOpts = "GETOPT_RELEASE,GETOPT_BRANCH,GETOPT_TAG,GETOPT_DATE,GETOPT_GROUP";
 		super.defineAction( CommandAction.newAction( new Codebase—heckout() , "codebase-checkout" , "checkout sources to update" , buildOpts , "./codebase-checkout.sh [OPTIONS] <CODIR> [set [projects]]" ) );
 		super.defineAction( CommandAction.newAction( new Codebase—ommit() , "codebase-commit" , "commit sources after updates" , buildOpts , "./codebase-commit.sh [OPTIONS] <CODIR> [set [projects]]" ) );
-		super.defineAction( CommandAction.newAction( new CodebaseCopyBranch() , "codebase-copybranch" , "copy tag or branch to branch" , buildOpts , "./codebase-copybranch.sh [OPTIONS] <SRCBRANCH> <DSTBRANCH> [set [projects]]" ) );
+		super.defineAction( CommandAction.newAction( new CodebaseCopyBranches() , "codebase-copybranches" , "copy tag or branch to branch" , buildOpts , "./codebase-copybranch.sh [OPTIONS] <SRCBRANCH> <DSTBRANCH> [set [projects]]" ) );
+		super.defineAction( CommandAction.newAction( new CodebaseCopyBranchToTag() , "codebase-copybranchtotag" , "copy tag or branch to branch" , buildOpts , "./codebase-copybranch.sh [OPTIONS] <SRCBRANCH> <DSTTAG> [set [projects]]" ) );
 		super.defineAction( CommandAction.newAction( new CodebaseCopyNewTags() , "codebase-copynewtags" , "copy tag to tag, do not delete old tags" , buildOpts , "./codebase-copynewtags.sh [OPTIONS] <SRCTAG> <DSTTAG> [set [projects]]" ) );
 		super.defineAction( CommandAction.newAction( new CodebaseCopyTags() , "codebase-copytags" , "copy tag to tag, delete old tags" , buildOpts , "./codebase-copytags.sh [OPTIONS] <SRCTAG> <DSTTAG> [set [projects]]" ) );
 		super.defineAction( CommandAction.newAction( new CodebaseCopyTagToBranch() , "codebase-copytagtobranch" , "copy tag to new branch" , buildOpts , "./codebase-copytagtobranch.sh [OPTIONS] <SRCTAG> <DSTBRANCH> [set [projects]]" ) );
@@ -183,12 +184,21 @@ public class BuildCommandExecutor extends CommandExecutor {
 	}
 	}
 	
-	private class CodebaseCopyBranch extends CommandAction {
+	private class CodebaseCopyBranches extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String BRANCH1 = options.getRequiredArg( action , 0 , "BRANCH1" );
 		String BRANCH2 = options.getRequiredArg( action , 1 , "BRANCH2" );
 		ActionScope scope = getCodebaseScope( action , 2 ); 
-		impl.ÒopyBranch( action , scope , BRANCH1 , BRANCH2 );
+		impl.ÒopyBranches( action , scope , BRANCH1 , BRANCH2 );
+	}
+	}
+	
+	private class CodebaseCopyBranchToTag extends CommandAction {
+	public void run( ActionInit action ) throws Exception {
+		String BRANCH = options.getRequiredArg( action , 0 , "BRANCH" );
+		String TAG = options.getRequiredArg( action , 1 , "TAG" );
+		ActionScope scope = getCodebaseScope( action , 2 ); 
+		impl.ÒopyBranchToTag( action , scope , BRANCH , TAG );
 	}
 	}
 	
