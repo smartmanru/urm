@@ -14,6 +14,10 @@ public class GitVCS extends GenericVCS {
 		super( action );
 		this.MIRRORPATH = MIRRORPATH;
 	}
+
+	public String getMainBranch() {
+		return( "master" );
+	}
 	
 	public boolean checkout( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH ) throws Exception {
 		String CO_PATH = getRepoPath( project );

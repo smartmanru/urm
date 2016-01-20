@@ -16,6 +16,10 @@ public class SubversionVCS extends GenericVCS {
 		this.SVNAUTH = SVNAUTH;
 	}
 	
+	public String getMainBranch() {
+		return( "trunk" );
+	}
+	
 	public boolean checkout( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH ) throws Exception {
 		String CO_PATH;
 		String XBRANCH = BRANCH;

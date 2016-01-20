@@ -18,6 +18,7 @@ public abstract class GenericVCS {
 		this.meta = action.meta;
 	}
 	
+	public abstract String getMainBranch();
 	public abstract boolean checkout( LocalFolder PATCHPATH , MetaSourceProject project , String BRANCH ) throws Exception;
 	public abstract boolean commit( LocalFolder PATCHPATH , MetaSourceProject project , String MESSAGE ) throws Exception;
 	public abstract boolean copyBranchToNewBranch( MetaSourceProject project , String branchFrom , String branchTo ) throws Exception;

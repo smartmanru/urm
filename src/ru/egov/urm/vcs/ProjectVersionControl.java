@@ -18,11 +18,18 @@ public class ProjectVersionControl {
 	private GenericVCS getVCS( MetaSourceProject project ) throws Exception {
 		return( artefactory.getVCS( action , project.getVCS( action ) ) );
 	}
+
+	public String checkDefaultBranch( GenericVCS vcs , String BRANCH ) {
+		if( BRANCH.equals( "master" ) || BRANCH.equals( "trunk" ) )
+			return( vcs.getMainBranch() );
+		return( BRANCH );
+	}
 	
 	public boolean checkout( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH ) {
 		try {
 			action.log( "checkout PATCHPATH=" + PATCHFOLDER.folderPath + ", PROJECT=" + project.PROJECT + ", BRANCH=" + BRANCH + " ..." );
 			GenericVCS vcs = getVCS( project );
+			BRANCH = checkDefaultBranch( vcs , BRANCH );
 			return( vcs.checkout( PATCHFOLDER , project , BRANCH ) );
 		}
 		catch( Throwable e ) {
@@ -47,6 +54,8 @@ public class ProjectVersionControl {
 		try {
 			action.log( "copyBranchToNewBranch PROJECT=" + project.PROJECT + ", branchFrom=" + branchFrom + ", branchTo=" + branchTo + " ..." );
 			GenericVCS vcs = getVCS( project );
+			branchFrom = checkDefaultBranch( vcs , branchFrom );
+			branchTo = checkDefaultBranch( vcs , branchTo );
 			return( vcs.copyBranchToNewBranch( project , branchFrom , branchTo ) );
 		}
 		catch( Throwable e ) {
@@ -59,6 +68,8 @@ public class ProjectVersionControl {
 		try {
 			action.log( "renameBranchToNewBranch PROJECT=" + project.PROJECT + ", branchFrom=" + branchFrom + ", branchTo=" + branchTo + " ..." );
 			GenericVCS vcs = getVCS( project );
+			branchFrom = checkDefaultBranch( vcs , branchFrom );
+			branchTo = checkDefaultBranch( vcs , branchTo );
 			return( vcs.renameBranchToNewBranch( project , branchFrom , branchTo ) );
 		}
 		catch( Throwable e ) {
@@ -107,6 +118,7 @@ public class ProjectVersionControl {
 		try {
 			action.log( "copyTagToNewBranch PROJECT=" + project.PROJECT + ", tagFrom=" + tagFrom + ", branchTo=" + branchTo + " ..." );
 			GenericVCS vcs = getVCS( project );
+			branchTo = checkDefaultBranch( vcs , branchTo );
 			return( vcs.copyTagToNewBranch( project , tagFrom , branchTo ) );
 		}
 		catch( Throwable e ) {
@@ -131,6 +143,7 @@ public class ProjectVersionControl {
 		try {
 			action.log( "dropBranch PROJECT=" + project.PROJECT + ", BRANCH=" + BRANCH + " ..." );
 			GenericVCS vcs = getVCS( project );
+			BRANCH = checkDefaultBranch( vcs , BRANCH );
 			return( vcs.dropBranch( project , BRANCH ) );
 		}
 		catch( Throwable e ) {
@@ -143,6 +156,7 @@ public class ProjectVersionControl {
 		try {
 			action.log( "export PROJECT=" + project.PROJECT + ", BRANCH=" + BRANCH + ", TAG=" + TAG + ", singlefile=" + SINGLEFILE + " ..." );
 			GenericVCS vcs = getVCS( project );
+			BRANCH = checkDefaultBranch( vcs , BRANCH );
 			return( vcs.export( PATCHFOLDER , project , BRANCH , TAG , SINGLEFILE ) );
 		}
 		catch( Throwable e ) {
@@ -155,6 +169,7 @@ public class ProjectVersionControl {
 		try {
 			action.log( "setTag PROJECT=" + project.PROJECT + ", BRANCH=" + BRANCH + ", TAG=" + TAG + ", branchDate=" + branchDate + " ..." );
 			GenericVCS vcs = getVCS( project );
+			BRANCH = checkDefaultBranch( vcs , BRANCH );
 			return( vcs.setTag( project , BRANCH , TAG , branchDate ) );
 		}
 		catch( Throwable e ) {
