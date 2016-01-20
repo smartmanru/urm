@@ -30,16 +30,24 @@ public class ActionBuild extends ActionBase {
 		boolean run = false;
 		
 		// run in order of build
+		debug( "build set=" + set.NAME + " ..." );
 		for( MetaSourceProject project : set.pset.getOriginalList( this ) ) {
 			ActionScopeTarget target = set.findSourceTarget( this , project );
-			if( !Common.checkListItem( targets , target ) )
+			if( target == null ) {
+				trace( "skip non-set target=" + project.PROJECT );
 				continue;
-				
-			if( target == null )
-				continue;
+			}
 			
-			if( !executeTarget( target ) )
+			if( !Common.checkListItem( targets , target ) ) {
+				trace( "skip nonbuild target=" + set.NAME );
+				continue;
+			}
+				
+			debug( "build project=" + project.PROJECT );
+			if( !executeTarget( target ) ) {
+				log( "cancel build due to errors" );
 				return( false );
+			}
 			
 			run = true;
 		}
