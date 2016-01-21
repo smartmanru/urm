@@ -192,18 +192,6 @@ public class BuildCommand {
 		ActionSetVersion ca = new ActionSetVersion( action , null , VERSION );
 		ca.runEachBuildableProject( scope );
 	}
-
-	public void thirdpartyUpload( ActionBase action , ActionScopeTarget scopeProject , DistStorage release ) throws Exception {
-		ActionPut ca = new ActionPut( action , null , release );
-		ShellExecutor bs = action.context.pool.createDedicatedLocalShell( ca , "build"  );
-		
-		try {
-			ca.runSingleTarget( scopeProject );
-		}
-		finally {
-			bs.kill( ca );
-		}
-	}
 	
 	public void buildAllTags( ActionBase action , String TAG , String SET , String[] PROJECTS ) throws Exception {
 		action.checkRequired( action.context.buildMode , "BUILDMODE" );
@@ -281,6 +269,18 @@ public class BuildCommand {
 		
 		// execute
 		getAll( action , scope );
+	}
+
+	public void thirdpartyUploadDist( ActionBase action , ActionScopeTarget scopeProject , DistStorage release ) throws Exception {
+		ActionUploadReleaseItem ca = new ActionUploadReleaseItem( action , null , release );
+		ShellExecutor bs = action.context.pool.createDedicatedLocalShell( ca , "build"  );
+		
+		try {
+			ca.runSingleTarget( scopeProject );
+		}
+		finally {
+			bs.kill( ca );
+		}
 	}
 
 }

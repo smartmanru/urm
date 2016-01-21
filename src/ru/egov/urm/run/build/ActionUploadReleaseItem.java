@@ -8,11 +8,11 @@ import ru.egov.urm.run.ActionScopeTarget;
 import ru.egov.urm.run.ActionScopeTargetItem;
 import ru.egov.urm.storage.DistStorage;
 
-public class ActionPut extends ActionBase {
+public class ActionUploadReleaseItem extends ActionBase {
 
 	DistStorage release;
 	
-	public ActionPut( ActionBase action , String stream , DistStorage release ) {
+	public ActionUploadReleaseItem( ActionBase action , String stream , DistStorage release ) {
 		super( action , stream );
 		this.release = release;
 	}

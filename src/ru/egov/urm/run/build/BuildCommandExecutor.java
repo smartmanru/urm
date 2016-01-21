@@ -17,40 +17,40 @@ public class BuildCommandExecutor extends CommandExecutor {
 	public BuildCommandExecutor( CommandBuilder builder ) {
 		super( builder );
 		
-		String buildOpts;
-		buildOpts = "GETOPT_GET,GETOPT_CHECK,GETOPT_RELEASE,GETOPT_BRANCH,GETOPT_TAG,GETOPT_DATE,GETOPT_GROUP,GETOPT_VERSION";
-		super.defineAction( CommandAction.newAction( new BuildAllTags() , "buildall-tags" , "build from tag" , buildOpts , "./buildall-tags.sh [OPTIONS] <TAG> [set [projects]]" ) );
+		String cmdOpts;
+		cmdOpts = "GETOPT_GET,GETOPT_CHECK,GETOPT_RELEASE,GETOPT_BRANCH,GETOPT_TAG,GETOPT_DATE,GETOPT_GROUP,GETOPT_VERSION";
+		super.defineAction( CommandAction.newAction( new BuildAllTags() , "buildall-tags" , "build from tag" , cmdOpts , "./buildall-tags.sh [OPTIONS] <TAG> [set [projects]]" ) );
 		
-		buildOpts = "GETOPT_ALL,GETOPT_GET,GETOPT_DIST,GETOPT_CHECK,GETOPT_RELEASE,GETOPT_BRANCH,GETOPT_TAG,GETOPT_DATE,GETOPT_GROUP,GETOPT_VERSION";
-		super.defineAction( CommandAction.newAction( new BuildAllRelease() , "buildall-release" , "build release" , buildOpts , "./buildall-release.sh [OPTIONS] [set [projects]]" ) );
+		cmdOpts = "GETOPT_ALL,GETOPT_GET,GETOPT_DIST,GETOPT_CHECK,GETOPT_RELEASE,GETOPT_BRANCH,GETOPT_TAG,GETOPT_DATE,GETOPT_GROUP,GETOPT_VERSION";
+		super.defineAction( CommandAction.newAction( new BuildAllRelease() , "buildall-release" , "build release" , cmdOpts , "./buildall-release.sh [OPTIONS] [set [projects]]" ) );
 
-		buildOpts = "";
+		cmdOpts = "";
 		super.defineAction( CommandAction.newAction( new CheckSet() , "checkset" , "check configuration variables" , "" , "./checkset.sh [OPTIONS]" ) );
-		super.defineAction( CommandAction.newAction( new Custom() , "custom" , "run any custom operation in build scope" , buildOpts , "./custom.sh [OPTIONS] [set [projects]]" ) );
+		super.defineAction( CommandAction.newAction( new Custom() , "custom" , "run any custom operation in build scope" , cmdOpts , "./custom.sh [OPTIONS] [set [projects]]" ) );
 		
-		buildOpts = "GETOPT_RELEASE,GETOPT_TAG,GETOPT_DATE,GETOPT_GROUP,GETOPT_VERSION";
-		super.defineAction( CommandAction.newAction( new GetAll() , "getall" , "download build items" , buildOpts , "./getall.sh [OPTIONS] [set [projects]]" ) );
+		cmdOpts = "GETOPT_RELEASE,GETOPT_TAG,GETOPT_DATE,GETOPT_GROUP,GETOPT_VERSION";
+		super.defineAction( CommandAction.newAction( new GetAll() , "getall" , "download build items" , cmdOpts , "./getall.sh [OPTIONS] [set [projects]]" ) );
 
-		buildOpts = "GETOPT_ALL,GETOPT_DIST,GETOPT_RELEASE,GETOPT_TAG,GETOPT_DATE,GETOPT_GROUP,GETOPT_VERSION";
-		super.defineAction( CommandAction.newAction( new GetAllRelease() , "getall-release" , "download release build items" , buildOpts , "./getall-release.sh [OPTIONS] [set [projects]]" ) );
+		cmdOpts = "GETOPT_ALL,GETOPT_DIST,GETOPT_RELEASE,GETOPT_TAG,GETOPT_DATE,GETOPT_GROUP,GETOPT_VERSION";
+		super.defineAction( CommandAction.newAction( new GetAllRelease() , "getall-release" , "download release build items" , cmdOpts , "./getall-release.sh [OPTIONS] [set [projects]]" ) );
 		
-		buildOpts = "GETOPT_RELEASE,GETOPT_BRANCH,GETOPT_TAG,GETOPT_DATE,GETOPT_GROUP";
-		super.defineAction( CommandAction.newAction( new Codebase—heckout() , "codebase-checkout" , "checkout sources to update" , buildOpts , "./codebase-checkout.sh [OPTIONS] <CODIR> [set [projects]]" ) );
-		super.defineAction( CommandAction.newAction( new Codebase—ommit() , "codebase-commit" , "commit sources after updates" , buildOpts , "./codebase-commit.sh [OPTIONS] <CODIR> [set [projects]]" ) );
-		super.defineAction( CommandAction.newAction( new CodebaseCopyBranches() , "codebase-copybranches" , "copy tag or branch to branch" , buildOpts , "./codebase-copybranch.sh [OPTIONS] <SRCBRANCH> <DSTBRANCH> [set [projects]]" ) );
-		super.defineAction( CommandAction.newAction( new CodebaseCopyBranchToTag() , "codebase-copybranchtotag" , "copy tag or branch to branch" , buildOpts , "./codebase-copybranch.sh [OPTIONS] <SRCBRANCH> <DSTTAG> [set [projects]]" ) );
-		super.defineAction( CommandAction.newAction( new CodebaseCopyNewTags() , "codebase-copynewtags" , "copy tag to tag, do not delete old tags" , buildOpts , "./codebase-copynewtags.sh [OPTIONS] <SRCTAG> <DSTTAG> [set [projects]]" ) );
-		super.defineAction( CommandAction.newAction( new CodebaseCopyTags() , "codebase-copytags" , "copy tag to tag, delete old tags" , buildOpts , "./codebase-copytags.sh [OPTIONS] <SRCTAG> <DSTTAG> [set [projects]]" ) );
-		super.defineAction( CommandAction.newAction( new CodebaseCopyTagToBranch() , "codebase-copytagtobranch" , "copy tag to new branch" , buildOpts , "./codebase-copytagtobranch.sh [OPTIONS] <SRCTAG> <DSTBRANCH> [set [projects]]" ) );
-		super.defineAction( CommandAction.newAction( new CodebaseDropBranch() , "codebase-dropbranch" , "drop branches" , buildOpts , "./codebase-dropbranch.sh [OPTIONS] <BRANCH> [set [projects]]" ) );
-		super.defineAction( CommandAction.newAction( new CodebaseDropTags() , "codebase-droptags" , "drop tags" , buildOpts , "./codebase-droptags.sh [OPTIONS] <TAG> [set [projects]]" ) );
-		super.defineAction( CommandAction.newAction( new CodebaseExport() , "codebase-export" , "codebase export" , buildOpts , "./codebase-export.sh [OPTIONS] <CODIR> [set [projects]]" ) );
-		super.defineAction( CommandAction.newAction( new CodebaseRenameBranch() , "codebase-renamebranch" , "rename branch" , buildOpts , "./codebase-renamebranch.sh [OPTIONS] <SRCBRANCH> <DSTBRANCH> [set [projects]]" ) );
-		super.defineAction( CommandAction.newAction( new CodebaseRenameTags() , "codebase-renametags" , "rename tag" , buildOpts , "./codebase-renametags.sh [OPTIONS] <SRCTAG> <DSTTAG> [set [projects]]" ) );
-		super.defineAction( CommandAction.newAction( new CodebaseSetVersion() , "codebase-setversion" , "change version in pom.xml using maven" , buildOpts , "./codebase-setversion.sh [OPTIONS] <VERSION> [set [projects]]" ) );
-		
-		buildOpts = "GETOPT_UPDATENEXUS,GETOPT_RELEASE,GETOPT_GROUP";
-		super.defineAction( CommandAction.newAction( new ThirdpartyUpload() , "thirdpartyupload" , "upload thirdparty binaries to nexus" , buildOpts , "./thirdpartyupload.sh [OPTIONS] <RELEASELABEL>" ) );
+		cmdOpts = "GETOPT_RELEASE,GETOPT_BRANCH,GETOPT_TAG,GETOPT_DATE,GETOPT_GROUP";
+		super.defineAction( CommandAction.newAction( new Codebase—heckout() , "codebase-checkout" , "checkout sources to update" , cmdOpts , "./codebase-checkout.sh [OPTIONS] <CODIR> [set [projects]]" ) );
+		super.defineAction( CommandAction.newAction( new Codebase—ommit() , "codebase-commit" , "commit sources after updates" , cmdOpts , "./codebase-commit.sh [OPTIONS] <CODIR> [set [projects]]" ) );
+		super.defineAction( CommandAction.newAction( new CodebaseCopyBranches() , "codebase-copybranches" , "copy tag or branch to branch" , cmdOpts , "./codebase-copybranch.sh [OPTIONS] <SRCBRANCH> <DSTBRANCH> [set [projects]]" ) );
+		super.defineAction( CommandAction.newAction( new CodebaseCopyBranchToTag() , "codebase-copybranchtotag" , "copy tag or branch to branch" , cmdOpts , "./codebase-copybranch.sh [OPTIONS] <SRCBRANCH> <DSTTAG> [set [projects]]" ) );
+		super.defineAction( CommandAction.newAction( new CodebaseCopyNewTags() , "codebase-copynewtags" , "copy tag to tag, do not delete old tags" , cmdOpts , "./codebase-copynewtags.sh [OPTIONS] <SRCTAG> <DSTTAG> [set [projects]]" ) );
+		super.defineAction( CommandAction.newAction( new CodebaseCopyTags() , "codebase-copytags" , "copy tag to tag, delete old tags" , cmdOpts , "./codebase-copytags.sh [OPTIONS] <SRCTAG> <DSTTAG> [set [projects]]" ) );
+		super.defineAction( CommandAction.newAction( new CodebaseCopyTagToBranch() , "codebase-copytagtobranch" , "copy tag to new branch" , cmdOpts , "./codebase-copytagtobranch.sh [OPTIONS] <SRCTAG> <DSTBRANCH> [set [projects]]" ) );
+		super.defineAction( CommandAction.newAction( new CodebaseDropBranch() , "codebase-dropbranch" , "drop branches" , cmdOpts , "./codebase-dropbranch.sh [OPTIONS] <BRANCH> [set [projects]]" ) );
+		super.defineAction( CommandAction.newAction( new CodebaseDropTags() , "codebase-droptags" , "drop tags" , cmdOpts , "./codebase-droptags.sh [OPTIONS] <TAG> [set [projects]]" ) );
+		super.defineAction( CommandAction.newAction( new CodebaseExport() , "codebase-export" , "codebase export" , cmdOpts , "./codebase-export.sh [OPTIONS] <CODIR> [set [projects]]" ) );
+		super.defineAction( CommandAction.newAction( new CodebaseRenameBranch() , "codebase-renamebranch" , "rename branch" , cmdOpts , "./codebase-renamebranch.sh [OPTIONS] <SRCBRANCH> <DSTBRANCH> [set [projects]]" ) );
+		super.defineAction( CommandAction.newAction( new CodebaseRenameTags() , "codebase-renametags" , "rename tag" , cmdOpts , "./codebase-renametags.sh [OPTIONS] <SRCTAG> <DSTTAG> [set [projects]]" ) );
+		super.defineAction( CommandAction.newAction( new CodebaseSetVersion() , "codebase-setversion" , "change version in pom.xml using maven" , cmdOpts , "./codebase-setversion.sh [OPTIONS] <VERSION> [set [projects]]" ) );
+
+		cmdOpts = "GETOPT_UPDATENEXUS, GETOPT_RELEASE, GETOPT_GROUP";
+		super.defineAction( CommandAction.newAction( new ThirdpartyUpload() , "uploaddist" , "upload thirdparty binaries to nexus from release" , cmdOpts , "./uploaddist.sh [OPTIONS] <RELEASELABEL>" ) );
 	}
 	
 	public boolean run( ActionInit action ) {
@@ -287,7 +287,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		DistStorage release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		
 		ActionScopeTarget scopeProject = ActionScope.getReleaseProjectItemsScopeTarget( action , release , "thirdparty" , null );
-		impl.thirdpartyUpload( action , scopeProject , release );
+		impl.thirdpartyUploadDist( action , scopeProject , release );
 	}
 	}
 	
