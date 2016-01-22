@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -656,6 +657,13 @@ public class Common {
 	    synchronized( action ) {
 	    	Thread.sleep( millis );
 	    }
+	}
+
+	public static Map<String,String> copyListToMap( List<String> list ) {
+		Map<String,String> map = new HashMap<String,String>();
+		for( String s : list )
+			map.put( s , s );
+		return( map );
 	}
 	
 }

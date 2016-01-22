@@ -1,5 +1,7 @@
 package ru.egov.urm.run.deploy;
 
+import java.util.Map;
+
 import ru.egov.urm.Common;
 import ru.egov.urm.conf.ConfDiffSet;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
@@ -28,6 +30,8 @@ public class ActionVerifyDeploy extends ActionBase {
 	ActionConfigure configure;
 	boolean verifyOk;
 
+	static String MD5FILE = "md5sum.txt";
+	
 	public ActionVerifyDeploy( ActionBase action , String stream , DistStorage dist ) {
 		super( action , stream );
 		this.dist = dist;
@@ -118,11 +122,33 @@ public class ActionVerifyDeploy extends ActionBase {
 			for( MetaDistrConfItem confItem : location.confItems.values() )
 				executeNodeConf( server , node , location , confItem );
 			
-		// compare tobe and as is
+		// compare configuration tobe and as is
+		if( confLocations.length > 0 ) {
+			String nodePrefix = "node" + node.POS + "-";
+			if( options.OPT_SHOWALL ) {
+				if( !showConfDiffs( server , node , tobeNodeFolder , asisNodeFolder , nodePrefix ) )
+					verifyNode = false;
+			}
+			else {
+				if( !checkConfDiffs( server , node , tobeNodeFolder , asisNodeFolder , nodePrefix ) )
+					verifyNode = false;
+			}
+		}
+		
+		if( !verifyNode ) {
+			log( "node differs from distributive" );
+			verifyOk = false;
+		}
+		else
+			debug( "node matched" );
+	}
+		
+	private boolean showConfDiffs( MetaEnvServer server , MetaEnvServerNode node , LocalFolder tobeNodeFolder , LocalFolder asisNodeFolder , String nodePrefix ) throws Exception {
+		boolean verifyNode = true;
+		
 		FileSet releaseSet = tobeNodeFolder.getFileSet( this );
 		FileSet prodSet = asisNodeFolder.getFileSet( this );
 		
-		String nodePrefix = "node" + node.POS + "-";
 		debug( "calculate diff between: " + tobeNodeFolder.folderPath + " and " + asisNodeFolder.folderPath + " (prefix=" + nodePrefix + ") ..." );
 		ConfDiffSet diff = new ConfDiffSet( releaseSet , prodSet , nodePrefix );
 		if( !dist.prod )
@@ -142,11 +168,54 @@ public class ActionVerifyDeploy extends ActionBase {
 		}
 		
 		if( verifyNode )
-			log( "node deployment is matched" );
-		else
-			verifyOk = false;
+			log( "node configuration is matched" );
+		
+		return( verifyNode );
 	}
 
+	private boolean checkConfDiffs( MetaEnvServer server , MetaEnvServerNode node , LocalFolder tobeNodeFolder , LocalFolder asisNodeFolder , String nodePrefix ) throws Exception {
+		boolean verifyNode = true;
+		
+		Map<String,String> tobeDirs = Common.copyListToMap( tobeNodeFolder.getTopDirs( this ) ); 
+		Map<String,String> asisDirs = Common.copyListToMap( asisNodeFolder.getTopDirs( this ) );
+		
+		for( String dir : tobeDirs.keySet() ) {
+			if( !dir.startsWith( nodePrefix ) )
+				continue;
+
+			if( !asisDirs.containsKey( dir ) ) {
+				verifyNode = false;
+				log( "not found expected dir, existing in live: " + dir );
+				continue;
+			}
+			
+			// match
+			String asisMD5 = asisNodeFolder.getFileContentAsString( this , MD5FILE );
+			
+			String tarFile = "config.tar";
+			tobeFolder.createTarGzFromFolderContent( this , tarFile , dir , "*" , "" );
+			String tobeMD5 = tobeFolder.getFileMD5( this , tarFile );
+			
+			if( !tobeMD5.equals( asisMD5 ) ) {
+				verifyNode = false;
+				log( "not matched component: " + Common.getPartAfterFirst( dir , nodePrefix ) );
+			}
+		}
+		
+		for( String dir : asisDirs.keySet() ) {
+			if( !dir.startsWith( nodePrefix ) )
+				continue;
+
+			if( !tobeDirs.containsKey( dir ) ) {
+				verifyNode = false;
+				log( "not found live dir, existing in expected: " + dir );
+				continue;
+			}
+		}
+		
+		return( verifyNode );
+	}
+	
 	private void executeNodeConf( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrConfItem confItem ) throws Exception {
 		if( !dist.prod ) {
 			if( dist.info.findConfComponent( this , confItem.KEY ) == null ) {
@@ -157,13 +226,24 @@ public class ActionVerifyDeploy extends ActionBase {
 		
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
 		String name = sourceStorage.getConfItemLiveName( this , node , confItem );
+		
+		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		LocalFolder asisConfFolder = asisFolder.getSubFolder( this , Common.getPath( server.NAME , name ) );
 		asisConfFolder.ensureExists( this );
 		
-		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
-		if( !redist.getConfigItem( this , asisConfFolder , confItem , location.DEPLOYPATH ) ) {
-			if( !options.OPT_FORCE )
-				exit( "unable to get configuration item=" + confItem.KEY );
+		if( options.OPT_SHOWALL ) {
+			if( !redist.getConfigItem( this , asisConfFolder , confItem , location.DEPLOYPATH ) ) {
+				if( !options.OPT_FORCE )
+					exit( "unable to get configuration item=" + confItem.KEY );
+			}
+		}
+		else {
+			String asisMD5 = redist.getConfigItemMD5( this , confItem , location.DEPLOYPATH );
+			if( asisMD5 == null ) {
+				if( !options.OPT_FORCE )
+					exit( "unable to get configuration item=" + confItem.KEY );
+			}
+			asisConfFolder.createFileFromString( this , MD5FILE , asisMD5 );
 		}
 	}
 
