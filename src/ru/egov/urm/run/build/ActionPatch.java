@@ -225,6 +225,8 @@ public class ActionPatch extends ActionBase {
 		String MODULE_MSETTINGS = "--settings=" + meta.product.CONFIG_MAVEN_CFGFILE;
 		String MODULE_MAVEN_CMD = Common.getValueDefault( meta.product.CONFIG_MAVEN_CMD , "deploy" );
 		String MAVEN_ADDITIONAL_OPTIONS = meta.product.CONFIG_MAVEN_ADDITIONAL_OPTIONS;
+		if( options.OPT_SHOWALL )
+			MAVEN_ADDITIONAL_OPTIONS += " -X";
 
 		log( "build PATCHPATH=" + PATCHFOLDER.folderPath + ", profile=" + MODULE_MAVEN_PROFILES + ", options=" + MAVEN_ADDITIONAL_OPTIONS + ", cmd=" + MODULE_MAVEN_CMD + 
 				" using maven to nexus path " + NEXUS_PATH + "..." );

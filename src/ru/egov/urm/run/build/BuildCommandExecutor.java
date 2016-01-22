@@ -49,8 +49,9 @@ public class BuildCommandExecutor extends CommandExecutor {
 		super.defineAction( CommandAction.newAction( new CodebaseRenameTags() , "codebase-renametags" , "rename tag" , cmdOpts , "./codebase-renametags.sh [OPTIONS] <SRCTAG> <DSTTAG> [set [projects]]" ) );
 		super.defineAction( CommandAction.newAction( new CodebaseSetVersion() , "codebase-setversion" , "change version in pom.xml using maven" , cmdOpts , "./codebase-setversion.sh [OPTIONS] <VERSION> [set [projects]]" ) );
 
-		cmdOpts = "GETOPT_UPDATENEXUS, GETOPT_RELEASE, GETOPT_GROUP";
-		super.defineAction( CommandAction.newAction( new ThirdpartyUpload() , "uploaddist" , "upload thirdparty binaries to nexus from release" , cmdOpts , "./uploaddist.sh [OPTIONS] <RELEASELABEL>" ) );
+		cmdOpts = "";
+		super.defineAction( CommandAction.newAction( new ThirdpartyUploadDist() , "uploaddist" , "upload thirdparty final binaries to nexus from release" , cmdOpts , "./uploaddist.sh [OPTIONS] <RELEASELABEL>" ) );
+		super.defineAction( CommandAction.newAction( new ThirdpartyUploadLib() , "uploadlib" , "upload thirdparty build binaries to nexus" , cmdOpts , "./uploadlib.sh <groupid> <file> [<artefactid> [<version> [classifier]]] [OPTIONS] " ) );
 	}
 	
 	public boolean run( ActionInit action ) {
@@ -280,7 +281,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class ThirdpartyUpload extends CommandAction {
+	private class ThirdpartyUploadDist extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
 		
@@ -288,6 +289,18 @@ public class BuildCommandExecutor extends CommandExecutor {
 		
 		ActionScopeTarget scopeProject = ActionScope.getReleaseProjectItemsScopeTarget( action , release , "thirdparty" , null );
 		impl.thirdpartyUploadDist( action , scopeProject , release );
+	}
+	}
+
+	private class ThirdpartyUploadLib extends CommandAction {
+	public void run( ActionInit action ) throws Exception {
+		String GROUPID = options.getRequiredArg( action , 0 , "GROUPID" );
+		String FILE = options.getRequiredArg( action , 1 , "FILE" );
+		String ARTEFACTID = options.getArg( 2 );
+		String VERSION = options.getArg( 3 );
+		String CLASSIFIER = options.getArg( 4 );
+		
+		impl.thirdpartyUploadLib( action , GROUPID , FILE , ARTEFACTID , VERSION , CLASSIFIER );
 	}
 	}
 	

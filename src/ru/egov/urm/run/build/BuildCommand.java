@@ -283,4 +283,16 @@ public class BuildCommand {
 		}
 	}
 
+	public void thirdpartyUploadLib( ActionBase action , String GROUPID , String FILE , String ARTEFACTID , String VERSION , String CLASSIFIER ) throws Exception {
+		ActionUploadLibItem ca = new ActionUploadLibItem( action , null , GROUPID , FILE , ARTEFACTID , VERSION , CLASSIFIER );
+		ShellExecutor bs = action.context.pool.createDedicatedLocalShell( ca , "build"  );
+		
+		try {
+			ca.runSimple();
+		}
+		finally {
+			bs.kill( ca );
+		}
+	}
+
 }

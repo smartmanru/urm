@@ -89,6 +89,14 @@ public class Common {
 		return( path.substring( pos + 1 ) );
 	}
 	
+	public static String getExtension( String name ) {
+		return( getPartAfterLast( name , "." ) );
+	}
+	
+	public static String getBaseNameNoExtension( String name ) {
+		return( getPartBeforeLast( name , "." ) );
+	}
+	
 	public static int getDirCount( String path ) {
 		String x = path;
 		if( x.endsWith( "/" ) )
