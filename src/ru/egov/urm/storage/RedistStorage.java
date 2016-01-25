@@ -87,7 +87,7 @@ public class RedistStorage extends ServerStorage {
 		}
 		
 		ShellExecutor executor = tmpDir.getSession( action );
-		String md5 = executor.getMD5( action , tarPath );
+		String md5 = executor.getTarContentMD5( action , tarPath );
 		return( md5 );
 	}
 	

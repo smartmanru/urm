@@ -477,5 +477,10 @@ public class ShellCoreWindows extends ShellCore {
 			
 		return( items.toArray( new String[0] ) );
 	}
+
+	@Override public String cmdGetTarContentMD5( ActionBase action , String filePath ) throws Exception {
+		String value = runCommandGetValueCheckDebug( action , "tar -xOzf " + filePath + " | md5sum" );
+		return( value );
+	}
 	
 }
