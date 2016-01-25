@@ -30,7 +30,7 @@ public class RemoteFolder extends Folder {
 		if( !BASENAME.isEmpty() )
 			deleteVOld( action , session , FOLDER , BASENAME , EXT );
 		
-		String finalName = srcDir + "/" + FNAME;
+		String finalName = Common.getPath( srcDir , FNAME );
 		
 		action.session.copyFileLocalToTarget( action , account , finalName , dstDir );
 		action.session.copyFileLocalToTarget( action , account , finalName + ".md5" , dstDir );
@@ -85,15 +85,15 @@ public class RemoteFolder extends Folder {
 		String srcPath = Common.getPath( folderPath , FOLDER );
 		String dstPath = Common.getPath( localFolder.folderPath , FOLDER );
 		
-		action.session.copyFileTargetToLocal( action , account , srcPath + "/" + file , dstPath );
-		return( dstPath + "/" + file );
+		action.session.copyFileTargetToLocal( action , account , Common.getPath( srcPath , file ) , dstPath );
+		return( Common.getPath( dstPath , file ) );
 	}
 
 	public void copyFilesToLocal( ActionBase action , LocalFolder localFolder , String files , String FOLDER ) throws Exception {
 		String srcPath = Common.getPath( folderPath , FOLDER );
 		String dstPath = Common.getPath( localFolder.folderPath , FOLDER );
 		
-		action.session.copyFilesTargetToLocal( action , account , srcPath + "/" + files , dstPath );
+		action.session.copyFilesTargetToLocal( action , account , Common.getPath( srcPath , files ) , dstPath );
 	}
 
 	public void moveFilesFromLocal( ActionBase action , LocalFolder localFolder , String files , String FOLDER ) throws Exception {

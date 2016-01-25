@@ -71,6 +71,13 @@ public class Common {
 		return( path.substring( pos + 1 ) );
 	}
 	
+	public static String ensureDir( String path ) {
+		if( path.endsWith( "/" ) )
+			return( path );
+		
+		return( path + "/" );
+	}
+	
 	public static String getDirName( String path ) {
 		int pos = path.lastIndexOf( "/" );
 		if( pos < 0 )

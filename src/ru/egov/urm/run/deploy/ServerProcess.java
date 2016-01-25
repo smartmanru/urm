@@ -165,7 +165,7 @@ public class ServerProcess {
 		}
 
 		ShellExecutor executor = action.getShell( node );
-		executor.customDeployment( action , "service " + srv.SERVICENAME + " stop > /dev/null 2>&1" );
+		executor.customCritical( action , "service " + srv.SERVICENAME + " stop > /dev/null 2>&1" );
 		return( true );
 	}
 	
@@ -180,7 +180,7 @@ public class ServerProcess {
 		// stop kindly
 		String F_FULLBINPATH = srv.getFullBinPath( action );
 		ShellExecutor executor = action.getShell( node );
-		executor.customDeployment( action , F_FULLBINPATH , "./server.stop.sh " + srv.NAME + " " +
+		executor.customCritical( action , F_FULLBINPATH , "./server.stop.sh " + srv.NAME + " " +
 				Common.getQuoted( pids ) + " " + action.options.OPT_EXTRAARGS + " > /dev/null" );
 		
 		return( true );
@@ -243,7 +243,7 @@ public class ServerProcess {
 				action.log( node.HOSTLOGIN + ": failed to stop generic server=" + srv.NAME + " within " + stoptime + " seconds. Killing ..." );
 				
 				// enforced stop
-				executor.customDeployment( action , "kill -9 " + pids );
+				executor.customCritical( action , "kill -9 " + pids );
 				getPids( action );
 				
 				if( pids.isEmpty() ) {
@@ -290,7 +290,7 @@ public class ServerProcess {
 		}
 
 		ShellExecutor executor = action.getShell( node );
-		executor.customDeployment( action , "service " + srv.SERVICENAME + " start > /dev/null 2>&1" );
+		executor.customCritical( action , "service " + srv.SERVICENAME + " start > /dev/null 2>&1" );
 		return( true );
 	}
 	
@@ -311,7 +311,7 @@ public class ServerProcess {
 		// proceed with startup
 		String F_FULLBINPATH = srv.getFullBinPath( action );
 		ShellExecutor executor = action.getShell( node );
-		executor.customDeployment( action , F_FULLBINPATH , "./server.start.sh " + srv.NAME + " " +
+		executor.customCritical( action , F_FULLBINPATH , "./server.start.sh " + srv.NAME + " " +
 				Common.getQuoted( pids ) + " " + action.options.OPT_EXTRAARGS + " > /dev/null" );
 		
 		return( true );

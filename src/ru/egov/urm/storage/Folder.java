@@ -70,12 +70,12 @@ public abstract class Folder {
 
 	public boolean checkFileExists( ActionBase action , String file ) throws Exception {
 		ShellExecutor session = getSession( action ); 
-		return( session.checkFileExists( action , folderPath + "/" + file ) );
+		return( session.checkFileExists( action , Common.getPath( folderPath , file ) ) );
 	}
 
 	public boolean isFileEmpty( ActionBase action , String file ) throws Exception {
 		ShellExecutor session = getSession( action ); 
-		return( session.isFileEmpty( action , folderPath + "/" + file ) );
+		return( session.isFileEmpty( action , Common.getPath( folderPath , file ) ) );
 	}
 	
 	public boolean checkExists( ActionBase action ) throws Exception {
@@ -95,7 +95,7 @@ public abstract class Folder {
 
 	public void copyFile( ActionBase action , String srcFile ) throws Exception {
 		ShellExecutor session = getSession( action );
-		session.copyFile( action , srcFile , folderPath + "/" );
+		session.copyFile( action , srcFile , Common.ensureDir( folderPath ) );
 	}
 	
 	public void copyFileRename( ActionBase action , String srcFile , String newName ) throws Exception {
@@ -172,12 +172,12 @@ public abstract class Folder {
 
 	public void moveFileToThis( ActionBase action , String file ) throws Exception {
 		ShellExecutor session = getSession( action ); 
-		session.move( action , folderPath + "/" + file , folderPath );
+		session.move( action , Common.getPath( folderPath , file ) , folderPath );
 	}
 	
 	public void moveFileToFolder( ActionBase action , String file , String folder ) throws Exception {
 		ShellExecutor session = getSession( action ); 
-		session.move( action , folderPath + "/" + file , Common.getPath( folderPath , folder ) );
+		session.move( action , Common.getPath( folderPath , file ) , Common.getPath( folderPath , folder ) );
 	}
 	
 	public void extractTarGz( ActionBase action , String tarFile , String targetFolder ) throws Exception {
@@ -223,17 +223,17 @@ public abstract class Folder {
 	
 	public void createFileFromString( ActionBase action , String filepath , String value ) throws Exception {
 		ShellExecutor session = getSession( action ); 
-		session.createFileFromString( action , folderPath + "/" + filepath , value );
+		session.createFileFromString( action , Common.getPath( folderPath , filepath ) , value );
 	}
 	
 	public void appendFileWithString( ActionBase action , String filepath , String value ) throws Exception {
 		ShellExecutor session = getSession( action ); 
-		session.appendFileWithString( action , folderPath + "/" + filepath , value );
+		session.appendFileWithString( action , Common.getPath( folderPath , filepath ) , value );
 	}
 
 	public void appendFileWithFile( ActionBase action , String fileDst , String fileSrc ) throws Exception {
 		ShellExecutor session = getSession( action ); 
-		session.appendFileWithFile( action , folderPath + "/" + fileDst , folderPath + "/" + fileSrc );
+		session.appendFileWithFile( action , Common.getPath( folderPath , fileDst ) , Common.getPath( folderPath , fileSrc ) );
 	}
 	
 	public String getFileInfo( ActionBase action , String file ) throws Exception {
@@ -243,7 +243,7 @@ public abstract class Folder {
 	
 	public void unzipToFolder( ActionBase action , String zipFile , String folder ) throws Exception {
 		ShellExecutor session = getSession( action ); 
-		session.unzipToFolder( action , folderPath , zipFile , folder );
+		session.unzip( action , folderPath , zipFile , folder );
 	}
 	
 	public void renameFolder( ActionBase action , String folder , String newName ) throws Exception {
@@ -253,7 +253,7 @@ public abstract class Folder {
 	
 	public void renameFile( ActionBase action , String file , String newName ) throws Exception {
 		ShellExecutor session = getSession( action ); 
-		session.move( action , folderPath + "/" + file , folderPath + "/" + newName );
+		session.move( action , Common.getPath( folderPath , file ) , Common.getPath( folderPath , newName ) );
 	}
 	
 	public void createJarFromFolder( ActionBase action , String jar , String folder ) throws Exception {
@@ -263,7 +263,7 @@ public abstract class Folder {
 	
 	public void download( ActionBase action , String DOWNLOAD_URL_REQUEST , String DOWNLOAD_FILENAME , String auth ) throws Exception {
 		ShellExecutor session = getSession( action ); 
-		session.download( action , DOWNLOAD_URL_REQUEST , folderPath + "/" + DOWNLOAD_FILENAME , auth );
+		session.downloadUnix( action , DOWNLOAD_URL_REQUEST , Common.getPath( folderPath , DOWNLOAD_FILENAME ) , auth );
 	}
 	
 	public FileSet getFileSet( ActionBase action ) throws Exception {
@@ -301,8 +301,7 @@ public abstract class Folder {
 
 	public String[] getFolders( ActionBase action ) throws Exception {
 		ShellExecutor session = getSession( action );
-		String list = session.customGetValue( action , folderPath , "find . -type d | grep -v \"^.$\"" );
-		return( Common.split( list , "\n" ) );
+		return( session.getFolders( action , folderPath ) );
 	}
 
 	public String findBinaryDistItemFile( ActionBase action , MetaDistrBinaryItem item , String specificDeployName ) throws Exception {
@@ -322,8 +321,8 @@ public abstract class Folder {
 
 	public boolean isEmpty( ActionBase action ) throws Exception {
 		ShellExecutor session = getSession( action );
-		String list = session.customGetValue( action , folderPath , "ls | head -1" );
-		if( list.isEmpty() )
+		String file = session.getFirstFile( action , folderPath );
+		if( file.isEmpty() )
 			return( true );
 		
 		return( false );
@@ -331,18 +330,7 @@ public abstract class Folder {
 
 	public String[] findFiles( ActionBase action , String mask ) throws Exception {
 		ShellExecutor session = getSession( action );
-		String[] list = session.customGetLines( action , folderPath , "find . -type f -name " + Common.getQuoted( mask ) );
-		List<String> items = new LinkedList<String>();
-		for( String item : list ) {
-			if( item.equals( "." ) || item.equals( ".." ) )
-				continue;
-			
-			if( item.startsWith( "./" ) )
-				item = item.substring( 2 );
-			items.add( item );
-		}
-			
-		return( items.toArray( new String[0] ) );
+		return( session.findFiles( action , folderPath , mask ) );
 	}
 
 	public String getFileMD5( ActionBase action , String file ) throws Exception {

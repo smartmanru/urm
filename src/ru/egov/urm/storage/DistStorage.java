@@ -141,7 +141,7 @@ public class DistStorage {
 			action.exit( "distributive is not opened for use" );
 		
 		String filePath = distFolder.copyFileToLocal( action , workFolder , file , FOLDER );
-		action.session.unzip( action , workFolder.folderPath , filePath , part , target ); 
+		action.session.unzipPart( action , workFolder.folderPath , filePath , part , target ); 
 	}
 
 	public boolean checkFileExists( ActionBase action , String path ) throws Exception {
