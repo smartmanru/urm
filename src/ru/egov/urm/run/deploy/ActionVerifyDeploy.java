@@ -194,8 +194,8 @@ public class ActionVerifyDeploy extends ActionBase {
 			String asisMD5 = asisServerFolder.getFileContentAsString( this , file );
 			
 			String tarFile = "config.tar";
-			tobeFolder.createTarGzFromFolderContent( this , tarFile , dir , "*" , "" );
-			String tobeMD5 = tobeFolder.getFileMD5( this , tarFile );
+			tobeServerFolder.createTarGzFromFolderContent( this , tarFile , dir , "*" , "" );
+			String tobeMD5 = tobeServerFolder.getFileMD5( this , tarFile );
 			
 			if( !tobeMD5.equals( asisMD5 ) ) {
 				verifyNode = false;
