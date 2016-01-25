@@ -105,6 +105,9 @@ abstract class ShellCore {
 		if( osType == VarOSTYPE.UNIX )
 			core = new ShellCoreUnix( executor , timeoutDefault , osType );
 		else
+		if( osType == VarOSTYPE.WINDOWS )
+			core = new ShellCoreWindows( executor , timeoutDefault , osType );
+		else
 			action.exitUnexpectedState();
 		
 		core.OSTYPE = osType;
