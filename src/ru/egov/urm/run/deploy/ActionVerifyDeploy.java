@@ -91,20 +91,20 @@ public class ActionVerifyDeploy extends ActionBase {
 		log( "============================================ execute server=" + server.NAME + ", type=" + Common.getEnumLower( server.TYPE ) + " ..." );
 
 		// iterate by nodes
-		LocalFolder tobeNodeFolder = configure.getLiveFolder( server );
-		LocalFolder asisNodeFolder = asisFolder.getSubFolder( this , server.NAME );
-		asisNodeFolder.ensureExists( this );
+		LocalFolder tobeServerFolder = configure.getLiveFolder( server );
+		LocalFolder asisServerFolder = asisFolder.getSubFolder( this , server.NAME );
+		asisServerFolder.ensureExists( this );
 		
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
 			log( "execute server=" + server.NAME + " node=" + node.POS + " ..." );
 
 			// verify configs to each node
-			executeNode( server , node , F_ENV_LOCATIONS_CONFIG , F_ENV_LOCATIONS_BINARY , tobeNodeFolder , asisNodeFolder );
+			executeNode( server , node , F_ENV_LOCATIONS_CONFIG , F_ENV_LOCATIONS_BINARY , tobeServerFolder , asisServerFolder );
 		}
 	}
 
-	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] confLocations , MetaEnvServerLocation[] binaryLocations , LocalFolder tobeNodeFolder , LocalFolder asisNodeFolder ) throws Exception {
+	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] confLocations , MetaEnvServerLocation[] binaryLocations , LocalFolder tobeServerFolder , LocalFolder asisServerFolder ) throws Exception {
 		boolean verifyNode = true;
 		
 		// binaries
@@ -126,11 +126,11 @@ public class ActionVerifyDeploy extends ActionBase {
 		if( confLocations.length > 0 ) {
 			String nodePrefix = "node" + node.POS + "-";
 			if( options.OPT_SHOWALL ) {
-				if( !showConfDiffs( server , node , tobeNodeFolder , asisNodeFolder , nodePrefix ) )
+				if( !showConfDiffs( server , node , tobeServerFolder , asisServerFolder , nodePrefix ) )
 					verifyNode = false;
 			}
 			else {
-				if( !checkConfDiffs( server , node , tobeNodeFolder , asisNodeFolder , nodePrefix ) )
+				if( !checkConfDiffs( server , node , tobeServerFolder , asisServerFolder , nodePrefix ) )
 					verifyNode = false;
 			}
 		}
@@ -143,13 +143,13 @@ public class ActionVerifyDeploy extends ActionBase {
 			debug( "node matched" );
 	}
 		
-	private boolean showConfDiffs( MetaEnvServer server , MetaEnvServerNode node , LocalFolder tobeNodeFolder , LocalFolder asisNodeFolder , String nodePrefix ) throws Exception {
+	private boolean showConfDiffs( MetaEnvServer server , MetaEnvServerNode node , LocalFolder tobeServerFolder , LocalFolder asisServerFolder , String nodePrefix ) throws Exception {
 		boolean verifyNode = true;
 		
-		FileSet releaseSet = tobeNodeFolder.getFileSet( this );
-		FileSet prodSet = asisNodeFolder.getFileSet( this );
+		FileSet releaseSet = tobeServerFolder.getFileSet( this );
+		FileSet prodSet = asisServerFolder.getFileSet( this );
 		
-		debug( "calculate diff between: " + tobeNodeFolder.folderPath + " and " + asisNodeFolder.folderPath + " (prefix=" + nodePrefix + ") ..." );
+		debug( "calculate diff between: " + tobeServerFolder.folderPath + " and " + asisServerFolder.folderPath + " (prefix=" + nodePrefix + ") ..." );
 		ConfDiffSet diff = new ConfDiffSet( releaseSet , prodSet , nodePrefix );
 		if( !dist.prod )
 			diff.calculate( this , dist.info );
@@ -173,11 +173,11 @@ public class ActionVerifyDeploy extends ActionBase {
 		return( verifyNode );
 	}
 
-	private boolean checkConfDiffs( MetaEnvServer server , MetaEnvServerNode node , LocalFolder tobeNodeFolder , LocalFolder asisNodeFolder , String nodePrefix ) throws Exception {
+	private boolean checkConfDiffs( MetaEnvServer server , MetaEnvServerNode node , LocalFolder tobeServerFolder , LocalFolder asisServerFolder , String nodePrefix ) throws Exception {
 		boolean verifyNode = true;
 		
-		Map<String,String> tobeDirs = Common.copyListToMap( tobeNodeFolder.getTopDirs( this ) ); 
-		Map<String,String> asisDirs = Common.copyListToMap( asisNodeFolder.getTopDirs( this ) );
+		Map<String,String> tobeDirs = Common.copyListToMap( tobeServerFolder.getTopDirs( this ) ); 
+		Map<String,String> asisDirs = Common.copyListToMap( asisServerFolder.getTopDirs( this ) );
 		
 		for( String dir : tobeDirs.keySet() ) {
 			if( !dir.startsWith( nodePrefix ) )
@@ -190,7 +190,8 @@ public class ActionVerifyDeploy extends ActionBase {
 			}
 			
 			// match
-			String asisMD5 = asisNodeFolder.getFileContentAsString( this , MD5FILE );
+			String file = Common.getPath( dir , MD5FILE );
+			String asisMD5 = asisServerFolder.getFileContentAsString( this , file );
 			
 			String tarFile = "config.tar";
 			tobeFolder.createTarGzFromFolderContent( this , tarFile , dir , "*" , "" );
