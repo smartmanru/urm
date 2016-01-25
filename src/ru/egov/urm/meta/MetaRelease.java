@@ -153,9 +153,9 @@ public class MetaRelease {
 	}
 	
 	private MetaReleaseDelivery registerDelivery( ActionBase action , MetaDistrDelivery distDelivery ) throws Exception {
-		action.trace( "add delivery=" + distDelivery.NAME );
 		MetaReleaseDelivery releaseDelivery = deliveryMap.get( distDelivery.NAME );
 		if( releaseDelivery == null ) {
+			action.trace( "add delivery=" + distDelivery.NAME );
 			releaseDelivery = new MetaReleaseDelivery( this , distDelivery );
 			deliveryMap.put( distDelivery.NAME , releaseDelivery );
 		}
