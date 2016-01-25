@@ -47,12 +47,24 @@ public class MetaReleaseTarget {
 	}
 	
 	public boolean isCategoryItem( ActionBase action , VarCATEGORY CATEGORY ) throws Exception {
-		if( meta.isSourceCategory( action , CATEGORY ) && sourceProject != null )
-			return( true );
-		if( CATEGORY == VarCATEGORY.CONFIG && distConfItem != null )
-			return( true );
-		if( CATEGORY == VarCATEGORY.DB && distDatabaseItem != null )
-			return( true );
+		if( meta.isSourceCategory( action , CATEGORY ) ) {
+			if( sourceProject != null )
+				return( true );
+		}
+		else if( CATEGORY == VarCATEGORY.CONFIG ) {
+			if( distConfItem != null )
+				return( true );
+		}
+		else if( CATEGORY == VarCATEGORY.DB ) {
+			if( distDatabaseItem != null )
+				return( true );
+		}
+		else if( CATEGORY == VarCATEGORY.MANUAL ) {
+			if( distManualItem != null )
+				return( true );
+		}
+		
+		action.exitUnexpectedState();
 		return( false );
 	}
 	

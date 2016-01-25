@@ -257,7 +257,6 @@ public class MetaReleaseSet {
 		MetaReleaseTarget manualItem = new MetaReleaseTarget( this , CATEGORY );
 		manualItem.createFromManualItem( action , item );
 		
-System.out.println( "add item=" + manualItem.NAME );
 		map.put( manualItem.NAME , manualItem );
 		return( manualItem );
 	}
