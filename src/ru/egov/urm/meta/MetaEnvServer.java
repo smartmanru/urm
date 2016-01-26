@@ -298,7 +298,7 @@ public class MetaEnvServer {
 		String s = "";
 		for( MetaEnvServerNode node : nodes ) {
 			Account nodeAccount = action.getAccount( node );
-			if( nodeAccount.HOST.equals( account.HOSTLOGIN ) ) {
+			if( nodeAccount.HOSTLOGIN.equals( account.HOSTLOGIN ) ) {
 				if( !s.isEmpty() )
 					s += " ";
 				s += node.POS;
