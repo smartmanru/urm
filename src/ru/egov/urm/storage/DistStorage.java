@@ -21,6 +21,7 @@ import ru.egov.urm.meta.MetaSourceProjectSet;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
+import ru.egov.urm.meta.Metadata.VarDISTITEMTYPE;
 import ru.egov.urm.run.ActionBase;
 
 public class DistStorage {
@@ -379,13 +380,17 @@ public class DistStorage {
 		
 		if( info.found && getMD5 ) {
 			RemoteFolder fileFolder = distFolder.getSubFolder( action , info.subPath );
-			RedistStorage redist = artefactory.getRedistStorage( "tmp" , fileFolder.account );
-			RemoteFolder tmp = redist.getRedistTmpFolder( action );
-			RemoteFolder tmpTar = tmp.getSubFolder( action , "tar" );
-			tmpTar.recreateThis( action );
-			tmpTar.extractTarGz( action , fileFolder.getFilePath( action , info.fileName ) , "" );
-			info.md5value = redist.getArchiveMD5( action , item , tmpTar );
-			tmpTar.removeThis( action );
+			if( item.DISTTYPE == VarDISTITEMTYPE.BINARY )
+				info.md5value = fileFolder.getFileMD5( action , info.fileName );
+			else {
+				RedistStorage redist = artefactory.getRedistStorage( "tmp" , fileFolder.account );
+				RemoteFolder tmp = redist.getRedistTmpFolder( action );
+				RemoteFolder tmpTar = tmp.getSubFolder( action , "tar" );
+				tmpTar.recreateThis( action );
+				tmpTar.extractTarGz( action , fileFolder.getFilePath( action , info.fileName ) , "" );
+				info.md5value = redist.getArchiveMD5( action , item , tmpTar );
+				tmpTar.removeThis( action );
+			}
 		}
 		
 		return( info );
