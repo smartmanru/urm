@@ -9,6 +9,7 @@ import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerLocation;
 import ru.egov.urm.meta.MetaEnvServerNode;
+import ru.egov.urm.meta.Metadata.VarDISTITEMTYPE;
 import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScope;
@@ -270,10 +271,13 @@ public class ActionVerifyDeploy extends ActionBase {
 			return( false );
 		}
 		
-		if( !runInfo.finalName.equals( distInfo.fileName ) ) {
-			log( "dist item=" + binaryItem.KEY + " in location=" + location.DEPLOYPATH + 
-					" is the same, but name differs from expected (" + 
-					runInfo.finalName + " != " + distInfo.fileName + ")" );
+		if( binaryItem.DISTTYPE == VarDISTITEMTYPE.BINARY ) {
+			if( !runInfo.finalName.equals( distInfo.fileName ) ) {
+				log( "dist item=" + binaryItem.KEY + " in location=" + location.DEPLOYPATH + 
+						" is the same, but name differs from expected (" + 
+						runInfo.finalName + " != " + distInfo.fileName + ")" );
+				return( true );
+			}
 		}
 		
 		debug( "exactly matched item=" + binaryItem.KEY );
