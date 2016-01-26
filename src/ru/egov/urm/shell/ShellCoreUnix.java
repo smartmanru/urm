@@ -503,7 +503,11 @@ public class ShellCoreUnix extends ShellCore {
 
 	@Override public String cmdGetFilesMD5( ActionBase action , String dir , String includeList , String excludeList ) throws Exception {
 		String find = getFindCommandIncludeExclude( includeList , excludeList , true );
-		String cmd = "cat `" + find + " | sort -s` | md5sum";
+		String list = runCommandGetValueCheckDebug( action , dir , find + " | sort -s" );
+		if( list.isEmpty() )
+			return( "(nofiles)" );
+		
+		String cmd = "cat " + list + " | md5sum";
 		String value = runCommandGetValueCheckDebug( action , dir , cmd );
 		return( value );
 	}
