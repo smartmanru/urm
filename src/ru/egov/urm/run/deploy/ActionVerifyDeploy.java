@@ -257,9 +257,9 @@ public class ActionVerifyDeploy extends ActionBase {
 			return( true );
 		}
 		
-		String deployName = location.getDeployName( this , binaryItem.KEY );
-		RedistStorage storage = artefactory.getRedistStorage( this , server , node );
-		FileInfo runInfo = storage.getRuntimeItemInfo( this , binaryItem , location.DEPLOYPATH , deployName );
+		String deployBaseName = location.getDeployName( this , binaryItem.KEY );
+		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
+		FileInfo runInfo = redist.getRuntimeItemInfo( this , binaryItem , location.DEPLOYPATH , deployBaseName );
 		if( runInfo.md5value == null ) {
 			log( "dist item=" + binaryItem.KEY + " is not found in location=" + location.DEPLOYPATH );
 			return( false );
@@ -272,9 +272,11 @@ public class ActionVerifyDeploy extends ActionBase {
 		}
 		
 		if( binaryItem.DISTTYPE == VarDISTITEMTYPE.BINARY ) {
-			if( !runInfo.finalName.equals( distInfo.fileName ) ) {
-				log( "dist item=" + binaryItem.KEY + " in location=" + location.DEPLOYPATH + 
-						" is the same, but name differs from expected (" + 
+			String redistFileName = redist.getDeployVersionedName( this , location , binaryItem , deployBaseName , dist.info.RELEASEVER );
+			String runtimeName = redist.getRedistBinaryFileDeployName( this , redistFileName );
+			if( !runInfo.finalName.equals( runtimeName ) ) {
+				log( "dist item=" + binaryItem.KEY + " is the same in location=" + location.DEPLOYPATH + 
+						", but name differs from expected (" + 
 						runInfo.finalName + " != " + distInfo.fileName + ")" );
 				return( true );
 			}
