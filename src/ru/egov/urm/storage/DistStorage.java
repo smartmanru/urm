@@ -384,7 +384,7 @@ public class DistStorage {
 			RemoteFolder tmpTar = tmp.getSubFolder( action , "tar" );
 			tmpTar.recreateThis( action );
 			tmpTar.extractTarGz( action , fileFolder.getFilePath( action , info.fileName ) , "" );
-			info.md5value = redist.getArchiveMD5( action , item , fileFolder );
+			info.md5value = redist.getArchiveMD5( action , item , tmpTar );
 			tmpTar.removeThis( action );
 		}
 		
