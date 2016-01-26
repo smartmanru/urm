@@ -77,13 +77,14 @@ public class ConfDiffSet {
 		Map<String,String> dirProd = getMap( action , prodSet.dirList );
 		
 		for( String key : releaseSet.dirList ) {
-			String compName = Common.getTopDir( key );
 			if( dirPrefix != null ) {
-				if( !compName.startsWith( dirPrefix ) )
+				if( !key.startsWith( dirPrefix ) )
 					continue;
-				
-				compName = Common.getPartAfterFirst( compName , dirPrefix );
 			}
+			
+			String compName = Common.getTopDir( key );
+			if( dirPrefix != null )
+				compName = Common.getPartAfterFirst( compName , dirPrefix );
 			
 			MetaDistrConfItem comp = action.meta.distr.getConfItem( action , compName );
 			
@@ -108,15 +109,16 @@ public class ConfDiffSet {
 		}
 
 		for( String key : prodSet.dirList ) {
+			if( dirPrefix != null ) {
+				if( !key.startsWith( dirPrefix ) )
+					continue;
+			}
+			
 			// ignore check for partial component
 			if( release != null ) {
 				String compName = Common.getTopDir( key );
-				if( dirPrefix != null ) {
-					if( !compName.startsWith( dirPrefix ) )
-						continue;
-					
+				if( dirPrefix != null )
 					compName = Common.getPartAfterFirst( compName , dirPrefix );
-				}
 				
 				MetaReleaseTarget comp = release.getConfComponent( action , compName );
 				if( !comp.ALL )
