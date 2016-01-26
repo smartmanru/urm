@@ -672,5 +672,19 @@ public class Common {
 			map.put( s , s );
 		return( map );
 	}
+
+	public static String fileLinesToList( String text ) {
+		String[] lines = splitLines( text );
+		String s = "";
+		for( int k = 0; k < lines.length; k++ ) {
+			if( k > 0 )
+				s += " ";
+			if( lines[ k ].indexOf( ' ' ) >= 0 )
+				s += getQuoted( lines[ k ] );
+			else
+				s += lines[ k ];
+		}
+		return( s );
+	}
 	
 }

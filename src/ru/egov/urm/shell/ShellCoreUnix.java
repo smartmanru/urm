@@ -507,7 +507,7 @@ public class ShellCoreUnix extends ShellCore {
 		if( list.isEmpty() )
 			return( "(nofiles)" );
 		
-		String cmd = "cat " + Common.replace( list , "\n" , " " ) + " | md5sum";
+		String cmd = "cat " + Common.fileLinesToList( list ) + " | md5sum";
 		String value = runCommandGetValueCheckDebug( action , dir , cmd );
 		return( value );
 	}
