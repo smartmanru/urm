@@ -72,9 +72,12 @@ public class ConfDiffSet {
 		
 		for( String key : releaseSet.dirList ) {
 			String compName = Common.getTopDir( key );
-System.out.println( "compName=" + compName + ", key=" + key );			
-			if( dirPrefix != null )
+			if( dirPrefix != null ) {
+				if( !compName.startsWith( dirPrefix ) )
+					continue;
+				
 				compName = Common.getPartAfterFirst( compName , dirPrefix );
+			}
 			
 			MetaDistrConfItem comp = action.meta.distr.getConfItem( action , compName );
 			
@@ -102,8 +105,12 @@ System.out.println( "compName=" + compName + ", key=" + key );
 			// ignore check for partial component
 			if( release != null ) {
 				String compName = Common.getTopDir( key );
-				if( dirPrefix != null )
+				if( dirPrefix != null ) {
+					if( !compName.startsWith( dirPrefix ) )
+						continue;
+					
 					compName = Common.getPartAfterFirst( compName , dirPrefix );
+				}
 				
 				MetaReleaseTarget comp = release.getConfComponent( action , compName );
 				if( !comp.ALL )
