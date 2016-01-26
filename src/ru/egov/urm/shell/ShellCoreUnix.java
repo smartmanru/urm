@@ -208,7 +208,7 @@ public class ShellCoreUnix extends ShellCore {
 		if( filesOnly )
 			filesOption = " -type f";
 			
-		String find = "find ." + filesOption + " -maxdepth 1 \\( " + includeOptions + " ! -name \".\" " + excludeOptions + " \\)";
+		String find = "find . -maxdepth 1" + filesOption + " \\( " + includeOptions + " ! -name \".\" " + excludeOptions + " \\)";
 		return( find );
 	}
 	
