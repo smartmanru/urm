@@ -368,7 +368,7 @@ public class RedistStorage extends ServerStorage {
 		}
 		
 		String md5value = getArchiveMD5( action , binaryItem , deployFolder );
-		FileInfo info = binaryItem.getFileInfo( action , "" , "" , md5value );
+		FileInfo info = new FileInfo( "" , md5value , "" , "" );
 		return( info );
 	}
 
