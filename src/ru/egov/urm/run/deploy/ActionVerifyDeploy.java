@@ -200,6 +200,8 @@ public class ActionVerifyDeploy extends ActionBase {
 				verifyNode = false;
 				log( "not matched component: " + Common.getPartAfterFirst( dir , nodePrefix ) );
 			}
+			else
+				debug( "exactly matched component: " + Common.getPartAfterFirst( dir , nodePrefix ) );
 		}
 		
 		for( String dir : asisDirs.keySet() ) {
