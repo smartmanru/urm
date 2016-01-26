@@ -193,10 +193,8 @@ public class ActionVerifyDeploy extends ActionBase {
 			String file = Common.getPath( dir , MD5FILE );
 			String asisMD5 = asisServerFolder.getFileContentAsString( this , file );
 			
-			String tarFile = "config.tar";
-			String tarFilePath = tobeServerFolder.getFilePath( this , tarFile );
-			tobeServerFolder.createTarGzFromFolderContent( this , tarFilePath , dir , "*" , "" );
-			String tobeMD5 = session.getTarContentMD5( this , tarFilePath );
+			LocalFolder confFolder = tobeServerFolder.getSubFolder( this , dir ); 
+			String tobeMD5 = confFolder.getFilesMD5( this );
 			
 			if( !tobeMD5.equals( asisMD5 ) ) {
 				verifyNode = false;
