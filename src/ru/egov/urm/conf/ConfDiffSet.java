@@ -61,8 +61,14 @@ public class ConfDiffSet {
 
 	private Map<String,String> getMap( ActionBase action , List<String> items ) throws Exception {
 		Map<String,String> map = new HashMap<String,String>();
-		for( String s : items )
+		for( String s : items ) {
+			if( dirPrefix != null ) {
+				if( !s.startsWith( dirPrefix ) )
+					continue;
+			}
+			
 			map.put( s , "ok" );
+		}
 		return( map );
 	}
 
