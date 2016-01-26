@@ -482,5 +482,10 @@ public class ShellCoreWindows extends ShellCore {
 		String value = runCommandGetValueCheckDebug( action , "tar -xOzf " + filePath + " | md5sum" );
 		return( value );
 	}
+
+	@Override public String cmdGetFilesMD5( ActionBase action , String dir , String includeList , String excludeList ) throws Exception {
+		action.exitUnexpectedState();
+		return( null );
+	}
 	
 }

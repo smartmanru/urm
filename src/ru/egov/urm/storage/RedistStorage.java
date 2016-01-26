@@ -74,21 +74,11 @@ public class RedistStorage extends ServerStorage {
 	}
 
 	public String getConfigItemMD5( ActionBase action , MetaDistrConfItem confItem , String LOCATION ) throws Exception {
-		RemoteFolder tmpDir = getRedistTmpFolder( action );
-		tmpDir.recreateThis( action );
-		String tarPath = tmpDir.getFilePath( action , S_CONFIGTARFILE );
+		String F_INCLUDE = confItem.getLiveIncludeFiles( action );
+		String F_EXCLUDE = confItem.getLiveExcludeFiles( action );
 		
-		try {
-			tarRuntimeConfigItem( action , confItem , LOCATION , tarPath );
-		}
-		catch( Throwable e ) {
-			action.log( e );
-			return( null );
-		}
-		
-		ShellExecutor executor = tmpDir.getSession( action );
-		String md5 = executor.getTarContentMD5( action , tarPath );
-		return( md5 );
+		RemoteFolder deployDir = getRuntimeLocationFolder( action , LOCATION );
+		return( deployDir.getFilesMD5( action , F_INCLUDE , F_EXCLUDE ) );
 	}
 	
 	public boolean getConfigItem( ActionBase action , LocalFolder dstFolder , MetaDistrConfItem confItem , String LOCATION ) throws Exception {

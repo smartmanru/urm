@@ -184,21 +184,37 @@ public class ShellCoreUnix extends ShellCore {
 		runCommandCheckDebugIfDir( action , dir , "rm -rf " + files );
 	}
 
-	@Override public void cmdRemoveFilesWithExclude( ActionBase action , String dir , String files , String exclude ) throws Exception {
+	private String getFindCommandIncludeExclude( String files , String exclude , boolean filesOnly ) throws Exception {
 		String includeOptions = "";
 		for( String s : Common.splitSpaced( files ) ) {
 			if( !includeOptions.isEmpty() )
 				includeOptions += " -o";
-			includeOptions += " -name " + Common.getQuoted( s );
+			if( filesOnly )
+				includeOptions += " -wholename " + Common.getQuoted( "./" + s + "/*" ) + " -o -wholename " + Common.getQuoted( "./" + s );
+			else
+				includeOptions += " -name " + Common.getQuoted( s );
 		}
 		String excludeOptions = "";
 		if( !exclude.isEmpty() ) {
-			for( String s : Common.splitSpaced( exclude ) )
-				excludeOptions += " ! -name " + Common.getQuoted( s );
+			for( String s : Common.splitSpaced( exclude ) ) {
+				if( filesOnly )
+					excludeOptions += " ! -wholename " + Common.getQuoted( "./" + s + "/*" ) + " ! -wholename " + Common.getQuoted( "./" + s );
+				else
+					excludeOptions += " ! -name " + Common.getQuoted( s );
+			}
 		}
 		
-		String find = "find . -maxdepth 1 \\( " + includeOptions + " ! -name \".\" " + excludeOptions;
-		runCommandCheckDebugIfDir( action , dir , find + " \\) -exec rm -rf {} \\;" );
+		String filesOption = "";
+		if( filesOnly )
+			filesOption = " -type f";
+			
+		String find = "find ." + filesOption + " -maxdepth 1 \\( " + includeOptions + " ! -name \".\" " + excludeOptions + " \\)";
+		return( find );
+	}
+	
+	@Override public void cmdRemoveFilesWithExclude( ActionBase action , String dir , String files , String exclude ) throws Exception {
+		String find = getFindCommandIncludeExclude( files , exclude , false );
+		runCommandCheckDebugIfDir( action , dir , find + " -exec rm -rf {} \\;" );
 	}
 
 	@Override public void cmdUnzipPart( ActionBase action , String unzipDir , String zipFile , String zipPart , String targetDir ) throws Exception {
@@ -482,5 +498,11 @@ public class ShellCoreUnix extends ShellCore {
 		String value = runCommandGetValueCheckDebug( action , "tar -xOzf " + filePath + " | md5sum" );
 		return( value );
 	}
-	
+
+	@Override public String cmdGetFilesMD5( ActionBase action , String dir , String includeList , String excludeList ) throws Exception {
+		String find = getFindCommandIncludeExclude( includeList , excludeList , true );
+		String cmd = "( find . -type d; cat `" + find + " | sort -s` ) | md5sum";
+		String value = runCommandGetValueCheckDebug( action , dir , cmd );
+		return( value );
+	}
 }

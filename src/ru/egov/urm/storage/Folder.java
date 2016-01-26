@@ -52,6 +52,11 @@ public abstract class Folder {
 		return( session.getMD5( action , fname ) );
 	}
 
+	public String getFilesMD5( ActionBase action , String includeList , String excludeList ) throws Exception {
+		ShellExecutor session = getSession( action ); 
+		return( session.getFilesMD5( action , folderPath , includeList , excludeList ) );
+	}
+	
 	public void removeAll( ActionBase action ) throws Exception {
 		if( folderPath.isEmpty() || folderPath.equals( "/" ) )
 			action.exit( "attempt to delete files at root" );
