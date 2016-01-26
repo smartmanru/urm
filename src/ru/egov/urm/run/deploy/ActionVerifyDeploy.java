@@ -159,7 +159,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		
 		if( diff.isDifferent( this ) ) {
 			verifyNode = false;
-			if( options.OPT_ALL ) {
+			if( options.OPT_SHOWALL ) {
 				String file = asisFolder.getFilePath( this , "diff.txt" );
 				diff.save( this , file );
 				log( "found configuration differences in node=" + node.POS + ", see " + file );
