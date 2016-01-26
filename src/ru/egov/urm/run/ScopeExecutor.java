@@ -374,7 +374,7 @@ public class ScopeExecutor {
 			String serverNodes;
 			Account account = new Account( user , host , false , OSTYPE );
 			serverNodes = set.dc.getServerNodesByHost( action , host );
-			action.log( account + ": serverNodes={" + serverNodes + "}" );
+			action.log( account.HOSTLOGIN + ": serverNodes={" + serverNodes + "}" );
 			
 			runDone = true;
 			if( !action.executeAccount( set , account ) )
@@ -393,7 +393,7 @@ public class ScopeExecutor {
 		boolean runDone = false;
 		try {
 			String serverNodes = set.dc.getServerNodesByAccount( action , account );
-			action.log( account + ": serverNodes={" + serverNodes + "}" );
+			action.log( account.HOSTLOGIN + ": serverNodes={" + serverNodes + "}" );
 			runDone = true;
 			if( !action.executeAccount( set , account ) )
 				runDone = false;

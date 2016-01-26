@@ -400,14 +400,14 @@ abstract public class ActionBase {
 		shell.appendExecuteLog( this , msg );
 	}
 	
-	public void executeCmdLive( Account hostLogin , String cmdRun ) throws Exception {
+	public void executeCmdLive( Account account , String cmdRun ) throws Exception {
 		if( context.SHOWONLY ) {
-			log( hostLogin + ": " + cmdRun + " (showonly)" );
+			log( account.HOSTLOGIN + ": " + cmdRun + " (showonly)" );
 			return;
 		}
 
-		log( hostLogin + ": " + cmdRun + " (execute)" );
-		ShellExecutor shell = getShell( hostLogin );
+		log( account.HOSTLOGIN + ": " + cmdRun + " (execute)" );
+		ShellExecutor shell = getShell( account );
 		shell.appendExecuteLog( this , cmdRun );
 
 		shell.customCheckErrorsNormal( this , cmdRun );
