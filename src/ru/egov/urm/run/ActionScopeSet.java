@@ -444,16 +444,22 @@ public class ActionScopeSet {
 		if( !specifiedExplicitly ) {
 			// check offline or not in given start group
 			if( server.OFFLINE ) {
-				if( !action.options.OPT_ALL )
+				if( !action.options.OPT_ALL ) {
+					action.trace( "ignore offline server=" + server.NAME );
 					return( null );
+				}
 			}
 			
 			if( !action.options.OPT_STARTGROUP.isEmpty() ) {
-				if( server.startGroup == null )
+				if( server.startGroup == null ) {
+					action.trace( "ignore non-specified startgroup server=" + server.NAME );
 					return( null );
+				}
 				
-				if( !server.startGroup.NAME.equals( action.options.OPT_STARTGROUP ) )
+				if( !server.startGroup.NAME.equals( action.options.OPT_STARTGROUP ) ) {
+					action.trace( "ignore different startgroup server=" + server.NAME );
 					return( null );
+				}
 			}
 		}
 
@@ -467,8 +473,10 @@ public class ActionScopeSet {
 		Map<String,MetaEnvServer> releaseServers = null;
 		if( release != null ) {
 			releaseServers = getReleaseServers( action , release );
-			if( !releaseServers.containsKey( server.NAME ) )
+			if( !releaseServers.containsKey( server.NAME ) ) {
+				action.trace( "ignore non-release server=" + server.NAME );
 				return( null );
+			}
 		}
 		
 		List<MetaEnvServerNode> nodes = server.getNodes( action , NODES );
