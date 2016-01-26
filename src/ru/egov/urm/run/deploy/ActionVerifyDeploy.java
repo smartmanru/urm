@@ -125,7 +125,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		// compare configuration tobe and as is
 		if( confLocations.length > 0 ) {
 			String nodePrefix = "node" + node.POS + "-";
-			if( options.OPT_SHOWALL ) {
+			if( options.OPT_ALL ) {
 				if( !showConfDiffs( server , node , tobeServerFolder , asisServerFolder , nodePrefix ) )
 					verifyNode = false;
 			}
@@ -158,7 +158,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		
 		if( diff.isDifferent( this ) ) {
 			verifyNode = false;
-			if( options.OPT_SHOWALL ) {
+			if( options.OPT_ALL ) {
 				String file = asisFolder.getFilePath( this , "diff.txt" );
 				diff.save( this , file );
 				log( "found configuration differences in node=" + node.POS + ", see " + file );
@@ -233,7 +233,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		LocalFolder asisConfFolder = asisFolder.getSubFolder( this , Common.getPath( server.NAME , name ) );
 		asisConfFolder.ensureExists( this );
 		
-		if( options.OPT_SHOWALL ) {
+		if( options.OPT_ALL ) {
 			if( !redist.getConfigItem( this , asisConfFolder , confItem , location.DEPLOYPATH ) ) {
 				if( !options.OPT_FORCE )
 					exit( "unable to get configuration item=" + confItem.KEY );
