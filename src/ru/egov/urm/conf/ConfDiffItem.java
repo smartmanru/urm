@@ -55,22 +55,22 @@ public class ConfDiffItem {
 	public void write( ActionBase action , int nPos , BufferedWriter writer ) throws Exception {
 		String prefix = "#" + (nPos+1) + " - ";
 		if( type == DIFFTYPE.DIFF_NEWDIR ) {
-			writer.write( prefix + item + ": new directory\n" );
+			writer.write( prefix + item + ": TOBE directory is missing in PROD\n" );
 			return;
 		}
 			
 		if( type == DIFFTYPE.DIFF_OLDDIR ) {
-			writer.write( prefix + item + ": directory has been removed\n" );
+			writer.write( prefix + item + ": PROD directory is missing in TOBE set\n" );
 			return;
 		}
 		
 		if( type == DIFFTYPE.DIFF_NEWFILE ) {
-			writer.write( prefix + item + ": new file\n" );
+			writer.write( prefix + item + ": TOBE file is missing in PROD\n" );
 			return;
 		}
 			
 		if( type == DIFFTYPE.DIFF_OLDFILE ) {
-			writer.write( prefix + item + ": file has been removed\n" );
+			writer.write( prefix + item + ": PROD file is missing in TOBE set\n" );
 			return;
 		}
 		
