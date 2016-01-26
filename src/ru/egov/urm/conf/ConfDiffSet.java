@@ -72,6 +72,7 @@ public class ConfDiffSet {
 		
 		for( String key : releaseSet.dirList ) {
 			String compName = Common.getTopDir( key );
+System.out.println( "compName=" + compName + ", key=" + key );			
 			if( dirPrefix != null )
 				compName = Common.getPartAfterFirst( compName , dirPrefix );
 			
