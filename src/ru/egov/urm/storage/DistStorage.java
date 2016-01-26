@@ -379,7 +379,13 @@ public class DistStorage {
 		
 		if( info.found && getMD5 ) {
 			RemoteFolder fileFolder = distFolder.getSubFolder( action , info.subPath );
-			info.md5value = fileFolder.getFileMD5( action , info.fileName );
+			RedistStorage redist = artefactory.getRedistStorage( "tmp" , fileFolder.account );
+			RemoteFolder tmp = redist.getRedistTmpFolder( action );
+			RemoteFolder tmpTar = tmp.getSubFolder( action , "tar" );
+			tmpTar.recreateThis( action );
+			tmpTar.extractTarGz( action , fileFolder.getFilePath( action , info.fileName ) , "" );
+			info.md5value = redist.getArchiveMD5( action , item , fileFolder );
+			tmpTar.removeThis( action );
 		}
 		
 		return( info );

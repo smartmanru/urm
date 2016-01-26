@@ -366,28 +366,40 @@ public class RedistStorage extends ServerStorage {
 			FileInfo info = binaryItem.getFileInfo( action , runtimeFile , specificDeployName , md5value );
 			return( info );
 		}
+		
+		String md5value = getArchiveMD5( action , binaryItem , deployFolder );
+		FileInfo info = binaryItem.getFileInfo( action , "" , "" , md5value );
+		return( info );
+	}
+
+	public String getArchiveMD5( ActionBase action , MetaDistrBinaryItem binaryItem , RemoteFolder deployFolder ) throws Exception {
+		if( binaryItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_CHILD ) {
+			String content = "";
+			String exclude = "";
+			String prefix = binaryItem.DEPLOYBASENAME + "/";
+			
+			for( String s : Common.splitSpaced( binaryItem.FILES ) )
+				content = Common.addItemToUniqueSpacedList( content , prefix + s );
+			for( String s : Common.splitSpaced( binaryItem.EXCLUDE ) )
+				exclude = Common.addItemToUniqueSpacedList( exclude , prefix + s );
+			
+			String md5value = deployFolder.getFilesMD5( action , content , exclude );
+			return( md5value );
+		}
+		else
+		if( binaryItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_DIRECT ) {
+			String md5value = deployFolder.getFilesMD5( action , binaryItem.FILES , binaryItem.EXCLUDE );
+			return( md5value );
+		}
 		else 
-		if( binaryItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_CHILD || 
-			binaryItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_DIRECT ||
-			binaryItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_SUBDIR ) {
-			String md5value = getArchiveFileMD5( action , binaryItem , deployFolder );
-			FileInfo info = new FileInfo( "" , md5value , "" , "" );
-			return( info );
+		if( binaryItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_SUBDIR ) {
+			RemoteFolder archiveFolder = deployFolder.getSubFolder( action , binaryItem.DEPLOYBASENAME );
+			String md5value = archiveFolder.getFilesMD5( action , binaryItem.FILES , binaryItem.EXCLUDE );
+			return( md5value );
 		}
 
 		action.exitUnexpectedState();
 		return( null );
-	}
-	
-	private String getArchiveFileMD5( ActionBase action , MetaDistrBinaryItem archiveItem , RemoteFolder deployFolder ) throws Exception {
-		RedistStorage redist = artefactory.getRedistStorage( action , server , node );
-		RemoteFolder tmpFolder = redist.getRedistTmpFolder( action );
-		tmpFolder.ensureExists( action );
-		
-		String fileName = "tmp.tag.gz";
-		saveArchiveItem( action , archiveItem , deployFolder , fileName , tmpFolder );
-		
-		return( tmpFolder.getFileMD5( action , fileName ) );
 	}
 	
 	public void changeStateItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , String redistFile , boolean rollout ) throws Exception {
