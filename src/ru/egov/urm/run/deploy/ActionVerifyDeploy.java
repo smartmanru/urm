@@ -259,7 +259,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		
 		String deployName = location.getDeployName( this , binaryItem.KEY );
 		RedistStorage storage = artefactory.getRedistStorage( this , server , node );
-		FileInfo runInfo = storage.getItemInfo( this , binaryItem , location.DEPLOYPATH , deployName );
+		FileInfo runInfo = storage.getRuntimeItemInfo( this , binaryItem , location.DEPLOYPATH , deployName );
 		if( runInfo.md5value == null ) {
 			log( "dist item=" + binaryItem.KEY + " is not found in location=" + location.DEPLOYPATH );
 			return( false );

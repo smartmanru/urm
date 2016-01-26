@@ -354,7 +354,7 @@ public class RedistStorage extends ServerStorage {
 		return( true );
 	}
 
-	public FileInfo getItemInfo( ActionBase action , MetaDistrBinaryItem binaryItem , String LOCATION , String specificDeployName ) throws Exception {
+	public FileInfo getRuntimeItemInfo( ActionBase action , MetaDistrBinaryItem binaryItem , String LOCATION , String specificDeployName ) throws Exception {
 		RemoteFolder deployFolder = getRuntimeLocationFolder( action , LOCATION );
 		
 		if( binaryItem.DISTTYPE == VarDISTITEMTYPE.BINARY ) {
@@ -367,12 +367,12 @@ public class RedistStorage extends ServerStorage {
 			return( info );
 		}
 		
-		String md5value = getArchiveMD5( action , binaryItem , deployFolder );
+		String md5value = getArchiveMD5( action , binaryItem , deployFolder , true );
 		FileInfo info = new FileInfo( "" , md5value , "" , "" );
 		return( info );
 	}
 
-	public String getArchiveMD5( ActionBase action , MetaDistrBinaryItem binaryItem , RemoteFolder deployFolder ) throws Exception {
+	public String getArchiveMD5( ActionBase action , MetaDistrBinaryItem binaryItem , RemoteFolder filesFolder , boolean runtimeFolder ) throws Exception {
 		if( binaryItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_CHILD ) {
 			String content = "";
 			String exclude = "";
@@ -383,17 +383,19 @@ public class RedistStorage extends ServerStorage {
 			for( String s : Common.splitSpaced( binaryItem.EXCLUDE ) )
 				exclude = Common.addItemToUniqueSpacedList( exclude , prefix + s );
 			
-			String md5value = deployFolder.getFilesMD5( action , content , exclude );
+			String md5value = filesFolder.getFilesMD5( action , content , exclude );
 			return( md5value );
 		}
 		else
 		if( binaryItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_DIRECT ) {
-			String md5value = deployFolder.getFilesMD5( action , binaryItem.FILES , binaryItem.EXCLUDE );
+			String md5value = filesFolder.getFilesMD5( action , binaryItem.FILES , binaryItem.EXCLUDE );
 			return( md5value );
 		}
 		else 
 		if( binaryItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_SUBDIR ) {
-			RemoteFolder archiveFolder = deployFolder.getSubFolder( action , binaryItem.DEPLOYBASENAME );
+			RemoteFolder archiveFolder = filesFolder;
+			if( runtimeFolder )
+				archiveFolder = filesFolder.getSubFolder( action , binaryItem.DEPLOYBASENAME );
 			String md5value = archiveFolder.getFilesMD5( action , binaryItem.FILES , binaryItem.EXCLUDE );
 			return( md5value );
 		}
