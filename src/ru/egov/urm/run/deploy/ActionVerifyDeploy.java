@@ -321,7 +321,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			// copy file from dist area and extract
 			LocalFolder distFolder = tobeServerFolder.getSubFolder( this , "archive.dist" );
 			distFolder.recreateThis( this );
-			dist.copyDistToFolder( this , distFolder , distInfo.subPath , distInfo.fileName );
+			dist.copyDistFileToFolderRename( this , distFolder , distInfo.subPath , distInfo.fileName , fileName );
 			distFolder.extractTarGz( this , fileName , "" );
 			distFolder.removeFiles( this , fileName );
 			
