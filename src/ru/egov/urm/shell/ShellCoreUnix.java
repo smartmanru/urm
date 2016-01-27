@@ -497,7 +497,7 @@ public class ShellCoreUnix extends ShellCore {
 	}
 
 	@Override public String cmdGetTarContentMD5( ActionBase action , String filePath ) throws Exception {
-		String value = runCommandGetValueCheckDebug( action , "tar -xOzf " + filePath + " | md5sum" );
+		String value = runCommandGetValueCheckDebug( action , "tar -xOzf " + filePath + " | md5sum | cut -d \" \" -f1" );
 		return( value );
 	}
 
@@ -507,7 +507,7 @@ public class ShellCoreUnix extends ShellCore {
 		if( list.isEmpty() )
 			return( "(nofiles)" );
 		
-		String cmd = "cat " + Common.fileLinesToList( list ) + " | md5sum";
+		String cmd = "cat " + Common.fileLinesToList( list ) + " | md5sum | cut -d \" \" -f1";
 		String value = runCommandGetValueCheckDebug( action , dir , cmd );
 		return( value );
 	}
