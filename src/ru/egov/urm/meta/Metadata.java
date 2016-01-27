@@ -179,10 +179,10 @@ public class Metadata {
 		return( envData );
 	}
 	
-	public MetaDesign loadDesignData( ActionBase action ) throws Exception {
+	public MetaDesign loadDesignData( ActionBase action , String fileName ) throws Exception {
 		MetaDesign design = new MetaDesign( this );
 		MetadataStorage storage = action.artefactory.getMetadataStorage( action ); 
-		design.load( action , storage );
+		design.load( action , storage , fileName );
 		return( design );
 	}
 	

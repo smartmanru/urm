@@ -1,6 +1,5 @@
 package ru.egov.urm.run.xdoc;
 
-import ru.egov.urm.meta.MetaDesign;
 import ru.egov.urm.run.ActionInit;
 import ru.egov.urm.run.CommandAction;
 import ru.egov.urm.run.CommandBuilder;
@@ -14,7 +13,7 @@ public class XDocCommandExecutor extends CommandExecutor {
 		super( builder );
 		
 		String releaseOpts = "";
-		defineAction( CommandAction.newAction( new DesignDoc() , "design" , "create design docs" , releaseOpts , "./design.sh [OPTIONS] {dot|png} <outfile>" ) );
+		defineAction( CommandAction.newAction( new DesignDoc() , "design" , "create design docs" , releaseOpts , "./design.sh [OPTIONS] {dot|png} <outdir>" ) );
 	}	
 
 	public boolean run( ActionInit action ) {
@@ -37,10 +36,9 @@ public class XDocCommandExecutor extends CommandExecutor {
 	private class DesignDoc extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String CMD = options.getRequiredArg( action , 0 , "CMD" );
-		String OUTFILE = options.getRequiredArg( action , 1 , "OUTFILE" );
+		String OUTDIR = options.getRequiredArg( action , 1 , "OUTDIR" );
 		options.checkNoArgs( action , 2 );
-		MetaDesign design = meta.loadDesignData( action );
-		impl.createDesignDoc( action , design , CMD , OUTFILE );
+		impl.createDesignDoc( action , CMD , OUTDIR );
 	}
 	}
 

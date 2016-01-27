@@ -31,25 +31,31 @@ public class MetaDesign {
 
 	Metadata meta;
 	public Map<String,MetaDesignElement> elements;
+	public boolean fullProd;
 	
 	public MetaDesign( Metadata meta ) {
 		this.meta = meta;
 	}
 	
-	public void load( ActionBase action , MetadataStorage storage ) throws Exception {
+	public void load( ActionBase action , MetadataStorage storage , String fileName ) throws Exception {
 		if( loaded )
 			return;
 
 		loaded = true;
 		
 		// read xml
-		String file = storage.getDesignFile( action );
+		String filePath = storage.getDesignFile( action , fileName );
 		
-		action.debug( "read distributive definition file " + file + "..." );
-		Document doc = ConfReader.readXmlFile( action , file );
+		action.debug( "read design definition file " + filePath + "..." );
+		Document doc = ConfReader.readXmlFile( action , filePath );
+		loadAttributes( action , doc.getDocumentElement() );
 		loadElements( action , doc.getDocumentElement() );
 	}
 
+	public void loadAttributes( ActionBase action , Node node ) throws Exception {
+		fullProd = ConfReader.getBooleanAttrValue( action , node , "fullprod" , false );
+	}
+	
 	public void loadElements( ActionBase action , Node node ) throws Exception {
 		elements = new HashMap<String,MetaDesignElement>();
 

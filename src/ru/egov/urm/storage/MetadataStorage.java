@@ -28,9 +28,18 @@ public class MetadataStorage {
 	public String getDistrFile( ActionBase action ) throws Exception {
 		 return( action.context.productHome + "/etc/distr.xml" );
 	}
+
+	public String[] getDesignFiles( ActionBase action ) throws Exception {
+		LocalFolder folder = artefactory.getAnyFolder( action , action.context.productHome + "/etc/design" );
+		if( !folder.checkExists( action ) )
+			return( new String[0] );
+		
+		FileSet files = folder.getFileSet( action );
+		return( files.fileList.toArray( new String[0] ) );
+	}
 	
-	public String getDesignFile( ActionBase action ) throws Exception {
-		 return( action.context.productHome + "/etc/design.xml" );
+	public String getDesignFile( ActionBase action , String fileName ) throws Exception {
+		 return( action.context.productHome + "/etc/design/" + fileName );
 	}
 	
 	public String getLastProdTagFile( ActionBase action ) throws Exception {

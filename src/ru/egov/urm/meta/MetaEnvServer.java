@@ -81,6 +81,10 @@ public class MetaEnvServer {
 		this.primary = false;
 	}
 
+	public String getFullId( ActionBase action ) throws Exception {
+		return( dc.getFullId( action ) + "-" + NAME );
+	}
+	
 	public boolean hasBaseline( ActionBase action ) throws Exception {
 		if( BASELINE.isEmpty() )
 			return( false );

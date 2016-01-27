@@ -19,45 +19,69 @@ import ru.egov.urm.storage.MetadataStorage;
 
 public class ActionCreateDesignDoc extends ActionBase {
 
-	MetaDesign design;
 	String CMD;
-	String OUTFILE;
+	String OUTDIR;
+	Map<String,MetaEnvServer> prodServers;
 	
-	public ActionCreateDesignDoc( ActionBase action , String stream , MetaDesign design , String CMD , String OUTFILE ) {
+	public ActionCreateDesignDoc( ActionBase action , String stream , String CMD , String OUTDIR ) {
 		super( action , stream );
-		this.design = design;
 		this.CMD = CMD;
-		this.OUTFILE = OUTFILE;
+		this.OUTDIR = OUTDIR;
 	}
 
 	@Override protected boolean executeSimple() throws Exception {
-		verifyConfiguration();
+		getProdServers();
 		
-		if( CMD.equals( "png" ) ) {
-			String dotFile = OUTFILE + ".dot";
-			createDot( dotFile );
-			createPng( dotFile , OUTFILE );
+		MetadataStorage ms = artefactory.getMetadataStorage( this );
+		for( String designFile : ms.getDesignFiles( this ) ) {
+			MetaDesign design = meta.loadDesignData( this , designFile );
+			String designBase = Common.getPath( OUTDIR , designFile );
+			createDesignDocs( design , designBase );
 		}
-		else if( CMD.equals( "dot" ) ) {
-			createDot( OUTFILE );
-		}
-		else
-			exit( "unknown command=" + CMD );
 		
 		return( true );
 	}
-
-	private void verifyConfiguration() throws Exception {
-		Map<String,String> usedServers = new HashMap<String,String>();
 		
-		// verify all prod environments
+	private void createDesignDocs( MetaDesign design , String designBase ) throws Exception {
+		verifyConfiguration( design );
+		
+		String dotFile = designBase + ".dot";
+		if( CMD.equals( "png" ) ) {
+			createDot( design , dotFile );
+			createPng( dotFile , designBase + ".png" );
+		}
+		else if( CMD.equals( "dot" ) ) {
+			createDot( design , dotFile );
+		}
+		else
+			exit( "unknown command=" + CMD );
+	}
+
+	private void getProdServers() throws Exception {
+		prodServers = new HashMap<String,MetaEnvServer>();
+		
 		MetadataStorage ms = artefactory.getMetadataStorage( this );
 		String[] files = ms.getEnvFiles( this );
 		for( String envFile : files ) {
 			MetaEnv env = meta.loadEnvData( this , envFile , false );
-			if( env.PROD )
-				verifyEnvServers( env , usedServers );
+			if( !env.PROD )
+				continue;
+			
+			for( MetaEnvDC dc : env.getDCMap( this ).values() ) {
+				for( MetaEnvServer server : dc.getServerMap( this ).values() ) {
+					if( prodServers.containsKey( server.DESIGN ) ) {
+						MetaEnvServer otherServer = prodServers.get( server.DESIGN );
+						exit( "found duplicate PROD server=" + server.DESIGN + "(" + server.getFullId( this ) + "," + otherServer.getFullId( this ) + ")" );
+					}
+					else
+						prodServers.put( server.DESIGN , server );
+				}
+			}
 		}
+	}
+	
+	private void verifyConfiguration( MetaDesign design ) throws Exception {
+		Map<String,MetaEnvServer> designServers = new HashMap<String,MetaEnvServer>();
 		
 		// verify all design servers are mentioned in prod environment
 		for( MetaDesignElement element : design.elements.values() ) {
@@ -65,24 +89,24 @@ public class ActionCreateDesignDoc extends ActionBase {
 				continue;
 			
 			if( element.elementType == VarELEMENTTYPE.SERVER || element.elementType == VarELEMENTTYPE.DATABASE ) {
-				if( !usedServers.containsKey( element.NAME ) )
+				MetaEnvServer server = prodServers.get( element.NAME );
+				if( server == null )
 					exit( "design server=" + element.NAME + " is not found in PROD (production environments)" );
 			}
 			else
 				exitUnexpectedState();
 		}
-	}
-
-	private void verifyEnvServers( MetaEnv env , Map<String,String> usedServers ) throws Exception {
-		for( MetaEnvDC dc : env.getDCMap( this ).values() ) {
-			for( MetaEnvServer server : dc.getServerMap( this ).values() ) {
-				if( !usedServers.containsKey( server.DESIGN ) )
-					usedServers.put( server.DESIGN , "OK" );
+		
+		// verify all PROD servers are mentioned in design
+		if( design.fullProd ) {
+			for( String server : prodServers.keySet() ) {
+				if( !designServers.containsKey( server ) )
+					exit( "design server=" + server + " is not part of any PROD environment" );
 			}
 		}
 	}
-	
-	private void createDot( String fileName ) throws Exception {
+
+	private void createDot( MetaDesign design , String fileName ) throws Exception {
 		List<String> lines = new LinkedList<String>();
 		
 		createDotHeading( lines );

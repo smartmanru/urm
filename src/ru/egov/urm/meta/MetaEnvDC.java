@@ -29,6 +29,10 @@ public class MetaEnvDC {
 		this.env = env;
 	}
 
+	public String getFullId( ActionBase action ) throws Exception {
+		return( env.ID + "-" + NAME );
+	}
+	
 	public boolean hasBaseline( ActionBase action ) throws Exception {
 		if( BASELINE.isEmpty() )
 			return( false );
