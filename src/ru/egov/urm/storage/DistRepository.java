@@ -122,8 +122,8 @@ public class DistRepository {
 		}
 		
 		DistStorage storage = new DistStorage( artefactory , distFolder , true );
-		storage.createProd( action , RELEASEVER );
 		distFolder.createFileFromString( action , RELEASEHISTORYFILE , getHistoryRecord( action , RELEASEVER , "add" ) );
+		storage.createProd( action , RELEASEVER );
 		
 		storage.finish( action );
 	}
