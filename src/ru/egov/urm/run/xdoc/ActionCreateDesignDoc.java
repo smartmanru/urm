@@ -35,7 +35,8 @@ public class ActionCreateDesignDoc extends ActionBase {
 		MetadataStorage ms = artefactory.getMetadataStorage( this );
 		for( String designFile : ms.getDesignFiles( this ) ) {
 			MetaDesign design = meta.loadDesignData( this , designFile );
-			String designBase = Common.getPath( OUTDIR , designFile );
+			
+			String designBase = Common.getPath( OUTDIR , Common.getPartBeforeLast( designFile , ".xml" ) );
 			createDesignDocs( design , designBase );
 		}
 		
