@@ -171,7 +171,7 @@ public class MetaEnvServer {
 		TYPE = action.meta.getServerType( action , properties.getSystemRequiredProperty( action , "type" , systemProps ) );
 		OSTYPE = action.meta.getOSType( action , properties.getSystemProperty( action , "ostype" , "unix" , systemProps ) );
 		OFFLINE = properties.getSystemBooleanProperty( action , "offline" , false , systemProps );
-		DESIGN = properties.getSystemProperty( action , "offline" , NAME , systemProps );
+		DESIGN = properties.getSystemProperty( action , "design" , NAME , systemProps );
 		
 		if( TYPE == VarSERVERTYPE.DATABASE ) {
 			DBMSTYPE = action.meta.getDbmsType( action , properties.getSystemRequiredProperty( action , "dbmstype" , systemProps ) );

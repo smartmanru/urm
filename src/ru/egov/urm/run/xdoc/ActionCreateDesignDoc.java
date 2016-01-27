@@ -72,7 +72,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 				for( MetaEnvServer server : dc.getServerMap( this ).values() ) {
 					if( prodServers.containsKey( server.DESIGN ) ) {
 						MetaEnvServer otherServer = prodServers.get( server.DESIGN );
-						exit( "found duplicate PROD server=" + server.DESIGN + "(" + server.getFullId( this ) + "," + otherServer.getFullId( this ) + ")" );
+						exit( "found duplicate PROD server=" + server.DESIGN + " (" + server.getFullId( this ) + "," + otherServer.getFullId( this ) + ")" );
 					}
 					else
 						prodServers.put( server.DESIGN , server );
