@@ -93,6 +93,8 @@ public class ActionCreateDesignDoc extends ActionBase {
 				MetaEnvServer server = prodServers.get( element.NAME );
 				if( server == null )
 					exit( "design server=" + element.NAME + " is not found in PROD (production environments)" );
+				
+				designServers.put( server.DESIGN , server );
 			}
 			else
 				exitUnexpectedState();
