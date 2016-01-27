@@ -16,6 +16,7 @@ import ru.egov.urm.run.database.DatabaseClient;
 public class MetadataStorage {
 
 	public static String tablesFileName = "tableset.txt";
+	public static String xdocDir = "etc/xdoc";
 	
 	public Artefactory artefactory;
 	public Metadata meta;
@@ -30,7 +31,7 @@ public class MetadataStorage {
 	}
 
 	public String[] getDesignFiles( ActionBase action ) throws Exception {
-		LocalFolder folder = artefactory.getAnyFolder( action , action.context.productHome + "/etc/design" );
+		LocalFolder folder = artefactory.getAnyFolder( action , Common.getPath( action.context.productHome , xdocDir ) );
 		if( !folder.checkExists( action ) )
 			return( new String[0] );
 		
@@ -39,7 +40,8 @@ public class MetadataStorage {
 	}
 	
 	public String getDesignFile( ActionBase action , String fileName ) throws Exception {
-		 return( action.context.productHome + "/etc/design/" + fileName );
+		LocalFolder folder = artefactory.getAnyFolder( action , Common.getPath( action.context.productHome , xdocDir ) );
+		return( folder.getFilePath( action , fileName ) );
 	}
 	
 	public String getLastProdTagFile( ActionBase action ) throws Exception {
