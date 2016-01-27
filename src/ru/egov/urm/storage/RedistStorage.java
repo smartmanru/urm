@@ -305,13 +305,25 @@ public class RedistStorage extends ServerStorage {
 		saveArchiveItem( action , archiveItem , deployFolder , redistFile , backupFolder );
 		action.log( "redist backup done, item file=" + redistFile );
 	}
+
+	public void saveTmpArchiveItem( ActionBase action , String LOCATION , MetaDistrBinaryItem archiveItem , String tmpName ) throws Exception {
+		RemoteFolder deployFolder = getRuntimeLocationFolder( action , LOCATION );
+		RemoteFolder tmpFolder = getRedistTmpFolder( action );
+		tmpFolder.ensureExists( action );
+		saveArchiveItem( action , archiveItem , deployFolder , tmpName , tmpFolder );
+	}
 	
-	private boolean saveArchiveItem( ActionBase action , MetaDistrBinaryItem archiveItem , RemoteFolder deployFolder , String redistFile , RemoteFolder backupFolder ) throws Exception {
+	public void copyTmpFileToLocal( ActionBase action , String tmpName , LocalFolder localFolder ) throws Exception {
+		RemoteFolder tmpFolder = this.getRedistTmpFolder( action );
+		tmpFolder.copyFileToLocal( action , localFolder , tmpName );
+	}
+	
+	private boolean saveArchiveItem( ActionBase action , MetaDistrBinaryItem archiveItem , RemoteFolder deployFolder , String fileName , RemoteFolder saveFolder ) throws Exception {
 		if( archiveItem.EXT.equals( ".tar.gz" ) == false && 
 			archiveItem.EXT.equals( ".tgz" ) == false )
 			action.exitNotImplemented();
 		
-		String tarFilePath = backupFolder.getFilePath( action , redistFile );
+		String tarFilePath = saveFolder.getFilePath( action , fileName );
 		
 		if( archiveItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_CHILD ) {
 			if( !deployFolder.checkFolderExists( action , archiveItem.DEPLOYBASENAME ) ) {

@@ -83,6 +83,14 @@ public class MetaDistrBinaryItem {
 		}
 	}
 
+	public boolean isArchive( ActionBase action ) throws Exception {
+		if( DISTTYPE == VarDISTITEMTYPE.ARCHIVE_CHILD || 
+			DISTTYPE == VarDISTITEMTYPE.ARCHIVE_DIRECT || 
+			DISTTYPE == VarDISTITEMTYPE.ARCHIVE_SUBDIR )
+			return( true );
+		return( false );
+	}
+	
 	public void setSource( ActionBase action , MetaSourceProjectItem sourceItem ) throws Exception {
 		this.sourceItem = sourceItem;
 	}

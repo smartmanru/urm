@@ -63,7 +63,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 		super.defineAction( CommandAction.newAction( new SaveConfigs() , "saveconfigs" , "save environment configuration files in live configuration repository" , cmdOpts , "./saveconfigs.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "GETOPT_ALL, GETOPT_DEPLOYGROUP, GETOPT_STARTGROUP, GETOPT_DCMASK, GETOPT_UNIT, GETOPT_HOSTUSER, GETOPT_KEY, GETOPT_SKIPERRORS, GETOPT_ROOTUSER";
 		super.defineAction( CommandAction.newAction( new UpgradeEnv() , "upgradeenv" , "apply system patch to environment hosts" , cmdOpts , "./upgradeenv.sh [OPTIONS] PATCHID {all|<servers>|<server> <node1> ... <nodeN>}" ) );
-		cmdOpts = "GETOPT_ALL, GETOPT_RELEASE, GETOPT_STARTGROUP, GETOPT_DEPLOYGROUP, GETOPT_DCMASK, GETOPT_UNIT, GETOPT_KEY, GETOPT_BACKUP, GETOPT_OBSOLETE, GETOPT_DEPLOYCONF, GETOPT_DEPLOYBINARY, GETOPT_DEPLOYHOT, GETOPT_DEPLOYCOLD";
+		cmdOpts = "GETOPT_ALL, GETOPT_RELEASE, GETOPT_STARTGROUP, GETOPT_DEPLOYGROUP, GETOPT_DCMASK, GETOPT_UNIT, GETOPT_KEY, GETOPT_BACKUP, GETOPT_OBSOLETE, GETOPT_DEPLOYCONF, GETOPT_DEPLOYBINARY, GETOPT_CHECK";
 		super.defineAction( CommandAction.newAction( new VerifyDeploy() , "verifydeploy" , "check release items in environment runtime area" , cmdOpts , "./verifydeploy.sh [OPTIONS] <RELEASELABEL> {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "GETOPT_ALL, GETOPT_DEPLOYGROUP, GETOPT_STARTGROUP, GETOPT_DCMASK, GETOPT_EXTRAARGS, GETOPT_UNIT, GETOPT_KEY, GETOPT_SKIPERRORS";
 		super.defineAction( CommandAction.newAction( new WaitEnv() , "waitenv" , "wait until specified servers have been successfully started" , cmdOpts , "./waitenv.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );

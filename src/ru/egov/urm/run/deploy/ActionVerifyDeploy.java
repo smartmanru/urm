@@ -9,7 +9,6 @@ import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerLocation;
 import ru.egov.urm.meta.MetaEnvServerNode;
-import ru.egov.urm.meta.Metadata.VarDISTITEMTYPE;
 import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScope;
@@ -112,7 +111,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		log( "verify binaries ..." );
 		for( MetaEnvServerLocation location : binaryLocations ) {
 			for( MetaDistrBinaryItem binaryItem : location.binaryItems.values() ) {
-				if( !executeNodeBinary( server , node , location , binaryItem ) )
+				if( !executeNodeBinary( server , node , location , binaryItem , tobeServerFolder , asisServerFolder ) )
 					verifyNode = false;
 			}
 		}
@@ -126,7 +125,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		// compare configuration tobe and as is
 		if( confLocations.length > 0 ) {
 			String nodePrefix = "node" + node.POS + "-";
-			if( options.OPT_ALL ) {
+			if( options.OPT_CHECK ) {
 				if( !showConfDiffs( server , node , tobeServerFolder , asisServerFolder , nodePrefix ) )
 					verifyNode = false;
 			}
@@ -234,7 +233,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		LocalFolder asisConfFolder = asisFolder.getSubFolder( this , Common.getPath( server.NAME , name ) );
 		asisConfFolder.ensureExists( this );
 		
-		if( options.OPT_ALL ) {
+		if( options.OPT_CHECK ) {
 			if( !redist.getConfigItem( this , asisConfFolder , confItem , location.DEPLOYPATH ) ) {
 				if( !options.OPT_FORCE )
 					exit( "unable to get configuration item=" + confItem.KEY );
@@ -250,7 +249,10 @@ public class ActionVerifyDeploy extends ActionBase {
 		}
 	}
 
-	private boolean executeNodeBinary( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrBinaryItem binaryItem ) throws Exception {
+	private boolean executeNodeBinary( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrBinaryItem binaryItem , LocalFolder tobeServerFolder , LocalFolder asisServerFolder ) throws Exception {
+		if( binaryItem.isArchive( this ) )
+			return( executeNodeArchive( server , node , location , binaryItem , tobeServerFolder , asisServerFolder ) );
+		
 		DistItemInfo distInfo = dist.getDistItemInfo( this , binaryItem , true );
 		if( !distInfo.found ) {
 			debug( "ignore non-release item=" + binaryItem.KEY );
@@ -271,18 +273,68 @@ public class ActionVerifyDeploy extends ActionBase {
 			return( false );
 		}
 		
-		if( binaryItem.DISTTYPE == VarDISTITEMTYPE.BINARY ) {
-			String redistFileName = redist.getDeployVersionedName( this , location , binaryItem , deployBaseName , dist.info.RELEASEVER );
-			String runtimeName = redist.getRedistBinaryFileDeployName( this , redistFileName );
-			if( !runInfo.finalName.equals( runtimeName ) ) {
-				log( "dist item=" + binaryItem.KEY + " is the same in location=" + location.DEPLOYPATH + 
-						", but name differs from expected (" + 
-						runInfo.finalName + " != " + distInfo.fileName + ")" );
-				return( true );
-			}
+		String redistFileName = redist.getDeployVersionedName( this , location , binaryItem , deployBaseName , dist.info.RELEASEVER );
+		String runtimeName = redist.getRedistBinaryFileDeployName( this , redistFileName );
+		if( !runInfo.finalName.equals( runtimeName ) ) {
+			log( "dist item=" + binaryItem.KEY + " is the same in location=" + location.DEPLOYPATH + 
+					", but name differs from expected (" + 
+					runInfo.finalName + " != " + distInfo.fileName + ")" );
+			return( true );
 		}
 		
 		debug( "exactly matched item=" + binaryItem.KEY );
+		return( true );
+	}
+
+	private boolean executeNodeArchive( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrBinaryItem archiveItem , LocalFolder tobeServerFolder , LocalFolder asisServerFolder ) throws Exception {
+		boolean getMD5 = ( options.OPT_CHECK )? false : true;
+		DistItemInfo distInfo = dist.getDistItemInfo( this , archiveItem , getMD5 );
+		if( !distInfo.found ) {
+			debug( "ignore non-release item=" + archiveItem.KEY );
+			return( true );
+		}
+		
+		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
+		if( !options.OPT_CHECK ) {
+			FileInfo runInfo = redist.getRuntimeItemInfo( this , archiveItem , location.DEPLOYPATH , "" );
+			if( runInfo.md5value == null ) {
+				log( "dist item=" + archiveItem.KEY + " is not found in location=" + location.DEPLOYPATH );
+				return( false );
+			}
+			
+			if( !runInfo.md5value.equals( distInfo.md5value ) ) {
+				log( "dist item=" + archiveItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive (" +
+					runInfo.md5value + " != " + distInfo.md5value + ")" );
+				return( false );
+			}
+		}
+		else {
+			// copy from runtime area and extract
+			LocalFolder liveFolder = asisServerFolder.getSubFolder( this , "archive.live" );
+			liveFolder.recreateThis( this );
+			String fileName = "archive.tar.gz";
+			redist.saveTmpArchiveItem( this , location.DEPLOYPATH , archiveItem , fileName );
+			redist.copyTmpFileToLocal( this , fileName , liveFolder );
+			liveFolder.extractTarGz( this , fileName , "" );
+			liveFolder.removeFiles( this , fileName );
+			
+			// copy file from dist area and extract
+			LocalFolder distFolder = tobeServerFolder.getSubFolder( this , "archive.dist" );
+			distFolder.recreateThis( this );
+			dist.copyDistToFolder( this , distFolder , distInfo.subPath , distInfo.fileName );
+			distFolder.extractTarGz( this , fileName , "" );
+			distFolder.removeFiles( this , fileName );
+			
+			// compare using diff
+			String diffFile = asisServerFolder.getFilePath( this , "diff.txt" );
+			int status = session.customGetStatus( this , "diff -r " + liveFolder.folderPath + " " + distFolder.folderPath + " > " + diffFile );
+			if( status != 0 ) {
+				log( "dist item=" + archiveItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive (see " + diffFile + ")" );
+				return( false );
+			}
+		}
+		
+		debug( "exactly matched item=" + archiveItem.KEY );
 		return( true );
 	}
 	
