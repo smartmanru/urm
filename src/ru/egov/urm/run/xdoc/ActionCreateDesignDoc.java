@@ -21,7 +21,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 
 	String CMD;
 	String OUTDIR;
-	Map<String,MetaEnvServer> prodServers;
+	Map<String,List<MetaEnvServer>> prodServers;
 	
 	public ActionCreateDesignDoc( ActionBase action , String stream , String CMD , String OUTDIR ) {
 		super( action , stream );
@@ -59,7 +59,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 	}
 
 	private void getProdServers() throws Exception {
-		prodServers = new HashMap<String,MetaEnvServer>();
+		prodServers = new HashMap<String,List<MetaEnvServer>>();
 		
 		MetadataStorage ms = artefactory.getMetadataStorage( this );
 		String[] files = ms.getEnvFiles( this );
@@ -70,19 +70,20 @@ public class ActionCreateDesignDoc extends ActionBase {
 			
 			for( MetaEnvDC dc : env.getDCMap( this ).values() ) {
 				for( MetaEnvServer server : dc.getServerMap( this ).values() ) {
-					if( prodServers.containsKey( server.DESIGN ) ) {
-						MetaEnvServer otherServer = prodServers.get( server.DESIGN );
-						exit( "found duplicate PROD server=" + server.DESIGN + " (" + server.getFullId( this ) + "," + otherServer.getFullId( this ) + ")" );
+					List<MetaEnvServer> mapped = prodServers.get( server.XDOC );
+					if( mapped == null ) {
+						mapped = new LinkedList<MetaEnvServer>(); 
+						prodServers.put( server.XDOC , mapped );
 					}
-					else
-						prodServers.put( server.DESIGN , server );
+					
+					mapped.add( server );
 				}
 			}
 		}
 	}
 	
 	private void verifyConfiguration( MetaDesign design ) throws Exception {
-		Map<String,MetaEnvServer> designServers = new HashMap<String,MetaEnvServer>();
+		Map<String,List<MetaEnvServer>> designServers = new HashMap<String,List<MetaEnvServer>>();
 		
 		// verify all design servers are mentioned in prod environment
 		for( MetaDesignElement element : design.elements.values() ) {
@@ -90,11 +91,11 @@ public class ActionCreateDesignDoc extends ActionBase {
 				continue;
 			
 			if( element.elementType == VarELEMENTTYPE.SERVER || element.elementType == VarELEMENTTYPE.DATABASE ) {
-				MetaEnvServer server = prodServers.get( element.NAME );
-				if( server == null )
+				List<MetaEnvServer> servers = prodServers.get( element.NAME );
+				if( servers == null )
 					exit( "design server=" + element.NAME + " is not found in PROD (production environments)" );
 				
-				designServers.put( server.DESIGN , server );
+				designServers.put( element.NAME , servers );
 			}
 			else
 				exitUnexpectedState();

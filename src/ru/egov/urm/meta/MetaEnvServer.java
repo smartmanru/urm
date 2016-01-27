@@ -22,7 +22,7 @@ public class MetaEnvServer {
 	public MetaEnvDC dc;
 	
 	public String NAME;
-	public String DESIGN;
+	public String XDOC;
 	private String BASELINE;
 	public boolean OFFLINE;
 	
@@ -171,7 +171,7 @@ public class MetaEnvServer {
 		TYPE = action.meta.getServerType( action , properties.getSystemRequiredProperty( action , "type" , systemProps ) );
 		OSTYPE = action.meta.getOSType( action , properties.getSystemProperty( action , "ostype" , "unix" , systemProps ) );
 		OFFLINE = properties.getSystemBooleanProperty( action , "offline" , false , systemProps );
-		DESIGN = properties.getSystemProperty( action , "design" , NAME , systemProps );
+		XDOC = properties.getSystemProperty( action , "xdoc" , NAME , systemProps );
 		
 		if( TYPE == VarSERVERTYPE.DATABASE ) {
 			DBMSTYPE = action.meta.getDbmsType( action , properties.getSystemRequiredProperty( action , "dbmstype" , systemProps ) );
