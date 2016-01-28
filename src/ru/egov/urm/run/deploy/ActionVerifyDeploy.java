@@ -329,7 +329,12 @@ public class ActionVerifyDeploy extends ActionBase {
 			String diffFile = asisServerFolder.getFilePath( this , "diff.txt" );
 			int status = session.customGetStatus( this , "diff -r " + liveFolder.folderPath + " " + distFolder.folderPath + " > " + diffFile );
 			if( status != 0 ) {
-				log( "dist item=" + archiveItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive (see " + diffFile + ")" );
+				if( options.OPT_SHOWALL )
+					log( "dist item=" + archiveItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive (see " + diffFile + ")" );
+				else {
+					log( "dist item=" + archiveItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive:" );
+					session.custom( this , "cat " + diffFile );
+				}
 				return( false );
 			}
 		}
