@@ -27,8 +27,8 @@ public class ShellExecutorPool {
 	}
 	
 	public void create( ActionBase action ) throws Exception {
-		master = createDedicatedLocalShell( action , "master" );
 		account = action.context.account;
+		master = createDedicatedLocalShell( action , "master" );
 	}
 	
 	public ShellExecutor getExecutor( ActionBase action , Account account , String scope ) throws Exception {
