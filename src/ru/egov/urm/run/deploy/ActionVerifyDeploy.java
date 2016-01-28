@@ -158,13 +158,14 @@ public class ActionVerifyDeploy extends ActionBase {
 		
 		if( diff.isDifferent( this ) ) {
 			verifyNode = false;
-			if( options.OPT_SHOWALL ) {
-				String file = asisFolder.getFilePath( this , "diff.txt" );
-				diff.save( this , file );
-				log( "found configuration differences in node=" + node.POS + ", see " + file );
+			String diffFile = asisFolder.getFilePath( this , "diff.txt" );
+			diff.save( this , diffFile );
+			if( options.OPT_SHOWALL )
+				log( "found configuration differences in node=" + node.POS + ", see " + diffFile );
+			else {
+				log( "found configuration differences in node=" + node.POS + ":" );
+				session.custom( this , "cat " + diffFile );
 			}
-			else
-				log( "found configuration differences in node=" + node.POS );
 		}
 		
 		if( verifyNode )
