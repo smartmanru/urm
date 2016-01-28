@@ -12,10 +12,12 @@ import java.util.List;
 
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.storage.Folder;
 
 abstract class ShellCore {
 
 	public VarOSTYPE OSTYPE;
+	public Folder tmpFolder;
 	ShellExecutor executor;
 	int commandTimeoutDefault;
 	
@@ -105,10 +107,10 @@ abstract class ShellCore {
 		ShellCore core = null;
 		
 		if( osType == VarOSTYPE.UNIX )
-			core = new ShellCoreUnix( executor , timeoutDefault , osType );
+			core = new ShellCoreUnix( executor , timeoutDefault , osType , executor.tmpFolder );
 		else
 		if( osType == VarOSTYPE.WINDOWS )
-			core = new ShellCoreWindows( executor , timeoutDefault , osType );
+			core = new ShellCoreWindows( executor , timeoutDefault , osType , executor.tmpFolder );
 		else
 			action.exitUnexpectedState();
 		
@@ -117,10 +119,11 @@ abstract class ShellCore {
 		return( core );
 	}
 	
-	protected ShellCore( ShellExecutor executor , int timeoutDefault , VarOSTYPE osType ) {
+	protected ShellCore( ShellExecutor executor , int timeoutDefault , VarOSTYPE osType , Folder tmpFolder ) {
 		this.executor = executor;
 		this.commandTimeoutDefault = timeoutDefault;
 		this.OSTYPE = osType;
+		this.tmpFolder = tmpFolder;
 		
 		cmdout = new LinkedList<String>();
 		cmderr = new LinkedList<String>();

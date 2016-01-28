@@ -19,6 +19,7 @@ public class ShellExecutorPool {
 	List<ShellExecutor> listDedicated = new LinkedList<ShellExecutor>();
 
 	public ShellExecutor master;
+	public Account account;
 	
 	public ShellExecutorPool( String rootPath , int timeoutDefault ) {
 		this.rootPath = rootPath;
@@ -27,6 +28,7 @@ public class ShellExecutorPool {
 	
 	public void create( ActionBase action ) throws Exception {
 		master = createDedicatedLocalShell( action , "master" );
+		account = action.context.account;
 	}
 	
 	public ShellExecutor getExecutor( ActionBase action , Account account , String scope ) throws Exception {

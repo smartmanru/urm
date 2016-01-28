@@ -5,25 +5,33 @@ import java.util.List;
 import ru.egov.urm.Common;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.storage.Folder;
+import ru.egov.urm.storage.RedistStorage;
 
 public abstract class ShellExecutor {
 
 	public String name;
 	public ShellExecutorPool pool;
 	public String rootPath;
+	public Folder tmpFolder;
 	
 	protected ShellCore core;
 	
 	abstract public void start( ActionBase action ) throws Exception;
 	
-	protected ShellExecutor( String name , ShellExecutorPool pool , String rootPath ) {
+	protected ShellExecutor( String name , ShellExecutorPool pool , String rootPath , Folder tmpFolder ) {
 		this.name = name;
 		this.pool = pool;
 		this.rootPath = rootPath;
+		this.tmpFolder = tmpFolder;
 	}
 	
 	public static ShellExecutor getLocalShellExecutor( ActionBase action , String name , ShellExecutorPool pool , String rootPath ) throws Exception {
-		ShellExecutor executor = new LocalShellExecutor( name , pool , rootPath );
+		RedistStorage storage = action.artefactory.getRedistStorage( "default" , pool.account );
+		Folder tmpFolder = storage.getRedistTmpFolder( action );
+		tmpFolder.ensureExists( action );
+		
+		ShellExecutor executor = new LocalShellExecutor( name , pool , rootPath , tmpFolder );
 		executor.core = ShellCore.createShellCore( action, executor , pool.timeoutDefault , VarOSTYPE.UNIX );
 		return( executor );
 	}
@@ -37,7 +45,11 @@ public abstract class ShellExecutor {
 	}
 	
 	public static ShellExecutor getRemoteShellExecutor( ActionBase action , String name , ShellExecutorPool pool , Account account , String rootPath ) throws Exception {
-		ShellExecutor executor = new RemoteShellExecutor( name , pool , account , rootPath );
+		RedistStorage storage = action.artefactory.getRedistStorage( "default" , account );
+		Folder tmpFolder = storage.getRedistTmpFolder( action );
+		tmpFolder.ensureExists( action );
+
+		ShellExecutor executor = new RemoteShellExecutor( name , pool , account , rootPath , tmpFolder );
 		executor.core = ShellCore.createShellCore( action, executor , pool.timeoutDefault , account.OSTYPE );
 		return( executor );
 	}

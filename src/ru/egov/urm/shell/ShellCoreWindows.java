@@ -7,11 +7,12 @@ import java.util.Map;
 import ru.egov.urm.Common;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.storage.Folder;
 
 public class ShellCoreWindows extends ShellCore {
 
-	public ShellCoreWindows( ShellExecutor executor , int commandTimeoutDefault , VarOSTYPE osType ) {
-		super( executor , commandTimeoutDefault , osType );
+	public ShellCoreWindows( ShellExecutor executor , int commandTimeoutDefault , VarOSTYPE osType , Folder tmpFolder ) {
+		super( executor , commandTimeoutDefault , osType , tmpFolder );
 	}
 
 	@Override protected String getExportCmd( ActionBase action ) throws Exception {

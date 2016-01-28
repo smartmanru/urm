@@ -1,11 +1,12 @@
 package ru.egov.urm.shell;
 
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.storage.Folder;
 
 public class LocalShellExecutor extends ShellExecutor {
 
-	public LocalShellExecutor( String name , ShellExecutorPool pool , String rootPath ) {
-		super( name , pool , rootPath );
+	public LocalShellExecutor( String name , ShellExecutorPool pool , String rootPath , Folder tmpFolder ) {
+		super( name , pool , rootPath , tmpFolder );
 	}
 	
 	public void start( ActionBase action ) throws Exception {

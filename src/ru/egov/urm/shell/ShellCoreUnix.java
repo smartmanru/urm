@@ -7,11 +7,12 @@ import java.util.Map;
 import ru.egov.urm.Common;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.storage.Folder;
 
 public class ShellCoreUnix extends ShellCore {
 
-	public ShellCoreUnix( ShellExecutor executor , int commandTimeoutDefault , VarOSTYPE osType ) {
-		super( executor , commandTimeoutDefault , osType );
+	public ShellCoreUnix( ShellExecutor executor , int commandTimeoutDefault , VarOSTYPE osType , Folder tmpFolder ) {
+		super( executor , commandTimeoutDefault , osType , tmpFolder );
 	}
 
 	@Override protected String getExportCmd( ActionBase action ) throws Exception {
@@ -241,7 +242,8 @@ public class ShellCoreUnix extends ShellCore {
 	
 	@Override public void cmdCreateTarGzFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
 		String find = this.getFindCommandIncludeExclude( content , exclude , true );
-		runCommandCheckDebug( action , dir , "tar -zcf " + tarFile + " `" + find + "` > /dev/null 2> /dev/null" );
+		String listFile = tmpFolder.getFilePath( action , "fileList.txt" );
+		runCommandCheckDebug( action , dir , find + " > " + listFile + "; tar -zcf " + tarFile + " --files-from=" + listFile + " > /dev/null 2> /dev/null" );
 	}
 
 	@Override public String cmdGetFileInfo( ActionBase action , String dir , String dirFile ) throws Exception {
