@@ -458,7 +458,10 @@ public class ShellCoreUnix extends ShellCore {
 	}
 
 	@Override public String cmdGetMD5( ActionBase action , String filePath ) throws Exception {
-		String value = runCommandGetValueCheckDebug( action , "md5sum " + filePath + " | cut -d " + Common.getQuoted( " " ) + " -f1" );
+		String fileCheck = filePath;
+		if( fileCheck.contains( " " ) )
+			fileCheck = Common.getQuoted( fileCheck );
+		String value = runCommandGetValueCheckDebug( action , "md5sum " + fileCheck + " | cut -d " + Common.getQuoted( " " ) + " -f1" );
 		return( value );
 	}
 
