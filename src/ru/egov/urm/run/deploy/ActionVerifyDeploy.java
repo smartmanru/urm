@@ -53,6 +53,13 @@ public class ActionVerifyDeploy extends ActionBase {
 		asisFolder.ensureExists( this );
 		verifyOk = true;
 	}
+
+	@Override protected void runAfter( ActionScope scope ) throws Exception {
+		if( verifyOk )
+			log( "environment is exactly matched" );
+		else
+			log( "environment differs from distributive" );
+	}
 	
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		// ignore database and unreachable
