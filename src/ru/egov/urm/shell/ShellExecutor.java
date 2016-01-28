@@ -308,7 +308,7 @@ public abstract class ShellExecutor {
 	}
 
 	public void scpFilesLocalToRemote( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
-		core.cmdScpFilesRemoteToLocal( action , srcPath , account , dstPath );
+		core.cmdScpDirLocalToRemote( action , srcPath , account , dstPath );
 	}
 
 	public void scpDirLocalToRemote( ActionBase action , String srcDirPath , Account account , String baseDstDir ) throws Exception {
