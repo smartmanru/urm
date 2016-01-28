@@ -245,7 +245,12 @@ public class ShellCoreUnix extends ShellCore {
 			for( String pattern : Common.splitSpaced( exclude ) )
 				excludeOption += "--exclude=" + Common.getQuoted( pattern ) + " ";
 		}
-		runCommandCheckDebug( action , dir , "tar " + excludeOption + "-zcf " + tarFile + " " + content + " > /dev/null 2> /dev/null" );
+		
+		String useContent = content;
+		if( Common.checkPartOfSpacedList( "*" , content ) )
+			useContent += " .[a-z]*";
+			
+		runCommandCheckDebug( action , dir , "tar " + excludeOption + "-zcf " + tarFile + " " + useContent + " > /dev/null 2> /dev/null" );
 	}
 
 	@Override public String cmdGetFileInfo( ActionBase action , String dir , String dirFile ) throws Exception {
