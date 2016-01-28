@@ -46,7 +46,6 @@ public class ShellExecutorPool {
 		
 		if( account.local ) {
 			shell = ShellExecutor.getLocalShellExecutor( action , name , this , rootPath , tmpFolder );
-			shell.tmpFolder.ensureExists( action );
 			shell.start( action );
 		}
 		else {
@@ -57,6 +56,9 @@ public class ShellExecutorPool {
 		
 		pool.put( name , shell );
 		listRemote.add( shell );
+		
+		if( !account.local )
+			shell.tmpFolder.ensureExists( action );
 		
 		return( shell );
 	}
