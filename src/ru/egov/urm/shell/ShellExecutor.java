@@ -26,11 +26,7 @@ public abstract class ShellExecutor {
 		this.tmpFolder = tmpFolder;
 	}
 	
-	public static ShellExecutor getLocalShellExecutor( ActionBase action , String name , ShellExecutorPool pool , String rootPath ) throws Exception {
-		RedistStorage storage = action.artefactory.getRedistStorage( "default" , pool.account );
-		Folder tmpFolder = storage.getRedistTmpFolder( action );
-		tmpFolder.ensureExists( action );
-		
+	public static ShellExecutor getLocalShellExecutor( ActionBase action , String name , ShellExecutorPool pool , String rootPath , Folder tmpFolder ) throws Exception {
 		ShellExecutor executor = new LocalShellExecutor( name , pool , rootPath , tmpFolder );
 		executor.core = ShellCore.createShellCore( action, executor , pool.timeoutDefault , VarOSTYPE.UNIX );
 		return( executor );

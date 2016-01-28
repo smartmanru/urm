@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.storage.Folder;
+import ru.egov.urm.storage.LocalFolder;
 
 public class ShellExecutorPool {
 
@@ -20,6 +22,7 @@ public class ShellExecutorPool {
 
 	public ShellExecutor master;
 	public Account account;
+	public Folder tmpFolder;
 	
 	public ShellExecutorPool( String rootPath , int timeoutDefault ) {
 		this.rootPath = rootPath;
@@ -27,8 +30,10 @@ public class ShellExecutorPool {
 	}
 	
 	public void create( ActionBase action ) throws Exception {
+		tmpFolder = new LocalFolder( action.artefactory , action.meta.product.CONFIG_REDISTPATH );
 		account = action.context.account;
 		master = createDedicatedLocalShell( action , "master" );
+		tmpFolder.ensureExists( action );
 	}
 	
 	public ShellExecutor getExecutor( ActionBase action , Account account , String scope ) throws Exception {
@@ -40,7 +45,8 @@ public class ShellExecutorPool {
 			return( shell );
 		
 		if( account.local ) {
-			shell = ShellExecutor.getLocalShellExecutor( action , name , this , rootPath );
+			shell = ShellExecutor.getLocalShellExecutor( action , name , this , rootPath , tmpFolder );
+			shell.tmpFolder.ensureExists( action );
 			shell.start( action );
 		}
 		else {
@@ -56,7 +62,7 @@ public class ShellExecutorPool {
 	}
 
 	public ShellExecutor createDedicatedLocalShell( ActionBase action , String name ) throws Exception {
-		ShellExecutor shell = ShellExecutor.getLocalShellExecutor( action , "local::" + name , this , rootPath );
+		ShellExecutor shell = ShellExecutor.getLocalShellExecutor( action , "local::" + name , this , rootPath , tmpFolder );
 		action.setShell( shell );
 		
 		shell.start( action );
