@@ -240,13 +240,7 @@ public class ShellCoreUnix extends ShellCore {
 	}
 	
 	@Override public void cmdCreateTarGzFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
-		String excludeOption = "";
-		if( !exclude.isEmpty() ) {
-			for( String pattern : Common.splitSpaced( exclude ) )
-				excludeOption += "--exclude=" + Common.getQuoted( pattern ) + " ";
-		}
-		
-		String find = this.getFindCommandIncludeExclude( content , excludeOption , true );
+		String find = this.getFindCommandIncludeExclude( content , exclude , true );
 		runCommandCheckDebug( action , dir , "tar -zcf " + tarFile + " `" + find + "` > /dev/null 2> /dev/null" );
 	}
 
