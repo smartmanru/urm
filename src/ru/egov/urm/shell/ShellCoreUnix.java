@@ -246,11 +246,8 @@ public class ShellCoreUnix extends ShellCore {
 				excludeOption += "--exclude=" + Common.getQuoted( pattern ) + " ";
 		}
 		
-		String useContent = content;
-		if( Common.checkPartOfSpacedList( "*" , content ) )
-			useContent += " .[a-z]*";
-			
-		runCommandCheckDebug( action , dir , "tar " + excludeOption + "-zcf " + tarFile + " " + useContent + " > /dev/null 2> /dev/null" );
+		String find = this.getFindCommandIncludeExclude( content , excludeOption , true );
+		runCommandCheckDebug( action , dir , "tar -zcf " + tarFile + " `" + find + "` > /dev/null 2> /dev/null" );
 	}
 
 	@Override public String cmdGetFileInfo( ActionBase action , String dir , String dirFile ) throws Exception {
