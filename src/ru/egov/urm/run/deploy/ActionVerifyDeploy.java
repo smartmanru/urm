@@ -94,17 +94,24 @@ public class ActionVerifyDeploy extends ActionBase {
 		LocalFolder tobeServerFolder = configure.getLiveFolder( server );
 		LocalFolder asisServerFolder = asisFolder.getSubFolder( this , server.NAME );
 		asisServerFolder.ensureExists( this );
-		
+
+		boolean verifyServer = true;
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
 			log( "execute server=" + server.NAME + " node=" + node.POS + " ..." );
 
 			// verify configs to each node
-			executeNode( server , node , F_ENV_LOCATIONS_CONFIG , F_ENV_LOCATIONS_BINARY , tobeServerFolder , asisServerFolder );
+			if( !executeNode( server , node , F_ENV_LOCATIONS_CONFIG , F_ENV_LOCATIONS_BINARY , tobeServerFolder , asisServerFolder ) )
+				verifyServer = false;
 		}
+		
+		if( verifyServer )
+			log( "server is exactly matched" );
+		else
+			log( "server differs from distributive" );
 	}
 
-	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] confLocations , MetaEnvServerLocation[] binaryLocations , LocalFolder tobeServerFolder , LocalFolder asisServerFolder ) throws Exception {
+	private boolean executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] confLocations , MetaEnvServerLocation[] binaryLocations , LocalFolder tobeServerFolder , LocalFolder asisServerFolder ) throws Exception {
 		boolean verifyNode = true;
 		
 		// binaries
@@ -141,6 +148,8 @@ public class ActionVerifyDeploy extends ActionBase {
 		}
 		else
 			debug( "node matched" );
+		
+		return( verifyNode );
 	}
 		
 	private boolean showConfDiffs( MetaEnvServer server , MetaEnvServerNode node , LocalFolder tobeServerFolder , LocalFolder asisServerFolder , String nodePrefix ) throws Exception {
@@ -169,7 +178,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		}
 		
 		if( verifyNode )
-			log( "node configuration is matched" );
+			debug( "node configuration is matched" );
 		
 		return( verifyNode );
 	}
