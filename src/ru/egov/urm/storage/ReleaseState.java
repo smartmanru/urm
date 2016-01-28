@@ -91,7 +91,7 @@ public class ReleaseState {
 
 	private String getHashValue( ActionBase action ) throws Exception {
 		ShellExecutor shell = distFolder.getSession( action );
-		String cmd = "find . -type f -printf " + Common.getQuoted( "%p %s %TD %TT\\n" ) + " | sort | grep -v state.txt | md5sum | cut -d \" \" -f1";
+		String cmd = "find . -type f -printf " + Common.getQuoted( "%p %s %TD %Tr\\n" ) + " | sort | grep -v state.txt | md5sum | cut -d \" \" -f1";
 		String hash = shell.customGetValue( action , distFolder.folderPath , cmd );
 		return( hash );
 	}
