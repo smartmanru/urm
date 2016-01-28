@@ -204,13 +204,13 @@ public class ShellCoreUnix extends ShellCore {
 			}
 		}
 		
-		String filesOption = "";
+		String filesOption = "-follow";
 		if( filesOnly )
 			filesOption = " -type f";
 		else
 			filesOption = " -maxdepth 1";
 			
-		String find = "find ." + filesOption + " \\( " + includeOptions + " \\) ! -name \".\" " + excludeOptions;
+		String find = "find . " + filesOption + " \\( " + includeOptions + " \\) ! -name \".\" " + excludeOptions;
 		return( find );
 	}
 	
