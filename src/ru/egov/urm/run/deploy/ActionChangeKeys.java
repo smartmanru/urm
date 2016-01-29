@@ -111,7 +111,7 @@ public class ActionChangeKeys extends ActionBase {
 			F_SETUPAUTH = getCreateSshOwn(); 
 
 		if( cmd.equals( "change" ) || cmd.equals( "add" ) ) {
-			log( F_BEHALFACCOUNT + ": change key to " + P_KEYFILENEXTPUB + " (" + F_KEYOWNER + 
+			log( F_BEHALFACCOUNT.HOSTLOGIN + ": change key to " + P_KEYFILENEXTPUB + " (" + F_KEYOWNER + 
 				") on " + account.HOSTLOGIN + F_ACCESSMSG + " ..." );
 			if( !replaceKey( F_BEHALFACCOUNT , F_ACCESSOPTION , F_SETUPAUTH , F_KEYOWNER , F_KEYDATA ) )
 				exitAction( "error executing key replacement" );
@@ -125,7 +125,7 @@ public class ActionChangeKeys extends ActionBase {
 		}
 		else
 		if( cmd.equals( "delete" ) ) {
-			log( F_BEHALFACCOUNT + ": delete key " + P_KEYFILENEXTPUB + " (" + F_KEYOWNER + ") on " + 
+			log( F_BEHALFACCOUNT.HOSTLOGIN + ": delete key " + P_KEYFILENEXTPUB + " (" + F_KEYOWNER + ") on " + 
 					account.HOSTLOGIN + F_ACCESSMSG + " ..." );
 			if( !deleteKey( F_BEHALFACCOUNT , F_ACCESSOPTION , F_SETUPAUTH , F_KEYOWNER ) )
 				exitAction( "error executing key delete" );

@@ -412,7 +412,7 @@ public class ScopeExecutor {
 		boolean localFailed = false;
 		try {
 			for( Account host : hosts ) {
-				if( runSingleHostInternal( set , host.HOSTLOGIN , host.OSTYPE ) ) {
+				if( runSingleHostInternal( set , host.HOST , host.OSTYPE ) ) {
 					runDone = true;
 
 					if( runFailed ) {
