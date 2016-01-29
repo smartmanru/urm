@@ -32,6 +32,16 @@ public class ScopeExecutor {
 			return( true );
 		return( false );
 	}
+
+	private boolean getFinalStatus() {
+		runFailed = checkFailed();
+		if( runFailed ) {
+			action.setFailed();
+			return( false );
+		}
+		
+		return( true );
+	}
 	
 	public boolean runAll( ActionScope scope ) {
 		runFailed = false;
@@ -39,11 +49,7 @@ public class ScopeExecutor {
 		if( !runAllInternal( scope ) )
 			return( false );
 		
-		runFailed = checkFailed();
-		if( runFailed )
-			return( false );
-		
-		return( true );
+		return( getFinalStatus() );
 	}
 	
 	public boolean runSimple() {
@@ -73,11 +79,7 @@ public class ScopeExecutor {
 			exception = true;
 		}
 		
-		runFailed = checkFailed();
-		if( runFailed )
-			return( false );
-		
-		return( true );
+		return( getFinalStatus() );
 	}
 
 	public boolean runSingleTarget( ActionScopeTarget item ) {
@@ -107,11 +109,7 @@ public class ScopeExecutor {
 			exception = true;
 		}
 		
-		runFailed = checkFailed();
-		if( runFailed )
-			return( false );
-		
-		return( true );
+		return( getFinalStatus() );
 	}
 	
 	public boolean runTargetList( ActionScopeSet set , ActionScopeTarget[] targets ) {
@@ -144,11 +142,7 @@ public class ScopeExecutor {
 			exception = true;
 		}
 		
-		runFailed = checkFailed();
-		if( runFailed )
-			return( false );
-		
-		return( true );
+		return( getFinalStatus() );
 	}
 	
 	public boolean runCategories( ActionScope scope , VarCATEGORY[] categories ) {
@@ -178,11 +172,7 @@ public class ScopeExecutor {
 			exception = true;
 		}
 		
-		runFailed = checkFailed();
-		if( runFailed )
-			return( false );
-		
-		return( true );
+		return( getFinalStatus() );
 	}
 	
 	public boolean runEnvUniqueHosts( ActionScope scope ) {
@@ -215,11 +205,7 @@ public class ScopeExecutor {
 			exception = true;
 		}
 		
-		runFailed = checkFailed();
-		if( runFailed )
-			return( false );
-		
-		return( true );
+		return( getFinalStatus() );
 	}
 	
 	public boolean runEnvUniqueAccounts( ActionScope scope ) {
@@ -257,11 +243,7 @@ public class ScopeExecutor {
 			exception = true;
 		}
 		
-		runFailed = checkFailed();
-		if( runFailed )
-			return( false );
-		
-		return( true );
+		return( getFinalStatus() );
 	}
 	
 	// implementation
