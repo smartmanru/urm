@@ -197,6 +197,8 @@ public class ActionExportDatabase extends ActionBase {
 			}
 		}
 		
+		LocalFolder workFolder = artefactory.getWorkFolder( this );
+		
 		// initiate execution
 		log( "start export cmd=" + cmd + " schemaset=" + SN + " ..." );
 		ShellExecutor shell = exportScriptsFolder.getSession( this );
@@ -207,6 +209,10 @@ public class ActionExportDatabase extends ActionBase {
 		String value = checkStatus( exportScriptsFolder );
 		if( value.equals( "RUNNING" ) == false && value.equals( "FINISHED" ) == false ) {
 			log( "export has not been started (status=" + value + "), save logs ..." );
+			
+			String logFileName = cmd + "-" + SN + "run.sh.log";
+			exportScriptsFolder.copyFileToLocalRename( this , workFolder , "run.sh.log" , logFileName );
+			distLogFolder.copyFileFromLocal( this , workFolder.getFilePath( this , logFileName ) );
 			copyDataAndLogs( false , cmd , SN );
 			exit( "unable to start export process, see logs" );
 		}
@@ -218,6 +224,11 @@ public class ActionExportDatabase extends ActionBase {
 			Common.sleep( this , options.OPT_COMMANDTIMEOUT );
 			value = checkStatus( exportScriptsFolder );
 		}
+		
+		// copy top log
+		String logFileName = cmd + "-" + SN + "run.sh.log";
+		exportScriptsFolder.copyFileToLocalRename( this , workFolder , "run.sh.log" , logFileName );
+		distLogFolder.copyFileFromLocal( this , workFolder.getFilePath( this , logFileName ) );
 		
 		// check final status
 		if( !value.equals( "FINISHED" ) ) {

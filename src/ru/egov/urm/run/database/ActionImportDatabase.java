@@ -226,12 +226,14 @@ public class ActionImportDatabase extends ActionBase {
 		
 		ShellExecutor shell = importScriptsFolder.getSession( this );
 		shell.customCheckStatus( this , importScriptsFolder.folderPath , "./run.sh import start " + cmd + " " + Common.getQuoted( SN ) );
-
+		
 		// check execution is started
 		Common.sleep( this , 1000 );
 		String value = checkStatus( importScriptsFolder );
 		if( value.equals( "RUNNING" ) == false && value.equals( "FINISHED" ) == false ) {
 			log( "import has not been started (status=" + value + "), save logs ..." );
+			
+			importScriptsFolder.copyFileToLocalRename( this , workFolder , "run.sh.log" , cmd + "-" + SN + "run.sh.log" );
 			copyLogs( false , cmd , SN );
 			exit( "unable to start import process, see logs at " + workFolder.folderPath );
 		}
@@ -243,6 +245,9 @@ public class ActionImportDatabase extends ActionBase {
 			Common.sleep( this , options.OPT_COMMANDTIMEOUT );
 			value = checkStatus( importScriptsFolder );
 		}
+		
+		// copy top log
+		importScriptsFolder.copyFileToLocalRename( this , workFolder , "run.sh.log" , cmd + "-" + SN + "run.sh.log" );
 		
 		// check final status
 		if( !value.equals( "FINISHED" ) ) {
