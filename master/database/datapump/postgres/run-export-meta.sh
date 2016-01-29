@@ -20,8 +20,11 @@ function f_execute_one() {
 }
 
 function f_execute_all() {
+	mkdir -p ../data
+	mkdir -p ../log
+
 	# export meta roles
-	local F_CMD="pg_dumpall --roles-only ../data/meta-roles.dump"
+	local F_CMD="pg_dumpall --roles-only > ../data/meta-roles.dump"
 	echo "run: $F_CMD ..."
 	$F_CMD > ../log/meta-roles.dump.log 2>&1
 	F_STATUS=$?
