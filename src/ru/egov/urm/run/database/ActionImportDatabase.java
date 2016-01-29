@@ -108,6 +108,13 @@ public class ActionImportDatabase extends ActionBase {
 			
 		if( !CMD.equals( "meta" ) ) {
 			for( String schema : serverSchemas.keySet() ) {
+				// skip data for missing schema
+				if( !tableSet.containsKey( schema ) ) {
+					trace( "skip check data schema=" + schema + " due to empty tableset" );
+					continue;
+				}
+
+				// check data files
 				if( SCHEMA.isEmpty() || SCHEMA.equals( schema ) ) {
 					if( files.getFilesMatched( this , "data-" + schema + ".*\\.dump" ).length == 0 )
 						exit( "no data dump files for schema=" + schema + " to load, check dump directory: " + folder.folderPath );
@@ -195,6 +202,14 @@ public class ActionImportDatabase extends ActionBase {
 	}
 	
 	private void runTarget( String cmd , String SN ) throws Exception {
+		// skip data for missing schema
+		if( cmd.equals( "data" ) ) {
+			if( !tableSet.containsKey( SN ) ) {
+				log( "skip import data schema=" + SN + " due to empty tableset" );
+				return;
+			}
+		}
+		
 		// initiate execution
 		log( "start import cmd=" + cmd + " schemaset=" + SN + " ..." );
 		

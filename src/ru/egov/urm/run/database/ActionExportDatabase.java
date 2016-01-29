@@ -189,6 +189,14 @@ public class ActionExportDatabase extends ActionBase {
 	}
 	
 	private void runTarget( String cmd , String SN ) throws Exception {
+		// skip data for missing schema
+		if( cmd.equals( "data" ) ) {
+			if( !tableSet.containsKey( SN ) ) {
+				log( "skip export data schema=" + SN + " due to empty tableset" );
+				return;
+			}
+		}
+		
 		// initiate execution
 		log( "start export cmd=" + cmd + " schemaset=" + SN + " ..." );
 		ShellExecutor shell = exportScriptsFolder.getSession( this );
