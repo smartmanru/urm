@@ -50,6 +50,10 @@ function f_execute_export_status() {
 
 	if [ -f run.sh.log ]; then
 		if [ "`grep -c EXPORT-STARTED run.sh.log`" = "0" ]; then
+			if [ "`grep -c EXPORT-EMPTY run.sh.log`" = "1" ]; then
+				echo EMPTY
+			fi
+
 			echo UNKNOWN
 			return
 		fi
@@ -74,6 +78,10 @@ function f_execute_import_status() {
 
 	if [ -f run.sh.log ]; then
 		if [ "`grep -c IMPORT-STARTED run.sh.log`" = "0" ]; then
+			if [ "`grep -c IMPORT-EMPTY run.sh.log`" = "1" ]; then
+				echo EMPTY
+			fi
+
 			echo UNKNOWN
 			return
 		fi

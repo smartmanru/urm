@@ -15,7 +15,8 @@ function f_execute_db() {
 	F_TABLES=${F_TABLES# }
 	if [ "$F_TABLES" = "" ]; then
 		echo ignore data schema=$P_SCHEMA due to empty tableset. Skipped.
-		exit 0
+		echo "EXPORT-EMPTY"
+		exit 2
 	fi
 
 	F_TABLEFILTER=
