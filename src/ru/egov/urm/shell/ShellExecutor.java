@@ -330,11 +330,19 @@ public abstract class ShellExecutor {
 		core.cmdScpDirRemoteToLocal( action , srcPath , account , dstPath );
 	}
 
-	public void copyFileTargetToLocal( ActionBase action , Account account , String srcFilePath , String dstDir ) throws Exception {
+	public void copyFileTargetToLocalDir( ActionBase action , Account account , String srcFilePath , String dstDir ) throws Exception {
 		if( account.local )
 			copyFile( action , srcFilePath , dstDir );
 		else {
 			scpFilesRemoteToLocal( action , srcFilePath , account , Common.ensureDir( dstDir ) );
+		}
+	}
+
+	public void copyFileTargetToLocalFile( ActionBase action , Account account , String srcFilePath , String dstFilePath ) throws Exception {
+		if( account.local )
+			copyFile( action , srcFilePath , dstFilePath );
+		else {
+			scpFilesRemoteToLocal( action , srcFilePath , account , dstFilePath );
 		}
 	}
 

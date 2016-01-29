@@ -85,7 +85,7 @@ public class RemoteFolder extends Folder {
 		String srcPath = Common.getPath( folderPath , FOLDER );
 		String dstPath = Common.getPath( localFolder.folderPath , FOLDER );
 		
-		action.session.copyFileTargetToLocal( action , account , Common.getPath( srcPath , file ) , dstPath );
+		action.session.copyFileTargetToLocalDir( action , account , Common.getPath( srcPath , file ) , dstPath );
 		return( Common.getPath( dstPath , file ) );
 	}
 
@@ -118,7 +118,7 @@ public class RemoteFolder extends Folder {
 		String srcPath = Common.getPath( folderPath , file );
 		String dstPath = Common.getPath( localFolder.folderPath , newName );
 		
-		action.session.copyFileTargetToLocal( action , account , srcPath , dstPath );
+		action.session.copyFileTargetToLocalFile( action , account , srcPath , dstPath );
 		return( dstPath );
 	}
 
