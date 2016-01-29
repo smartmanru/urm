@@ -20,6 +20,16 @@ function f_execute_one() {
 }
 
 function f_execute_all() {
+	# export meta roles
+	local F_CMD="pg_dumpall --roles-only ../data/meta-roles.sql"
+	echo "run: $F_CMD ..."
+	$F_CMD > ../log/meta-roles.sql.log 2>&1
+	F_STATUS=$?
+	if [ "$F_STATUS" != "0" ]; then
+		echo pg_dumpall failed with status=$F_STATUS. Exiting
+		exit 1
+	fi
+
 	# get schema names
 	local F_SCHEMASET=`echo "$CONF_MAPPING" | tr " " "\n" | cut -d "=" -f1 | tr "\n" " "`
 	F_SCHEMASET=${F_SCHEMASET# }

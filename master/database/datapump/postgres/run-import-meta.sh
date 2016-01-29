@@ -31,6 +31,26 @@ function f_execute_one() {
 	fi
 }
 
+function f_execute_roles() {
+	local F_DATA=../data/meta-roles.sql.log
+	local F_LOG=../log/meta-roles.sql.log
+
+	if [ ! -f "$F_DATA" ]; then
+		echo unable to find role set $F_DATA. Exiting
+		exit 1
+	fi
+
+	local F_CMD="psql -f $F_DATA"
+	echo "run: $F_CMD ..."
+	$F_CMD > $F_LOG 2>&1
+	F_STATUS=$?
+	if [ "$F_STATUS" != "0" ]; then
+		echo psql failed with status=$F_STATUS. Ignored.
+	fi
+
+	echo roles are successfully applied.
+}
+
 function f_execute_all() {
 	# get schema names
 	local F_SCHEMASET
@@ -44,6 +64,11 @@ function f_execute_all() {
 		fi
 	else
 		F_SCHEMASET="$P_SCHEMA"
+	fi
+
+	# imports roles
+	if [ "$P_SCHEMA" = "all" ]; then
+		f_execute_roles
 	fi
 
 	local F_DBNAME
