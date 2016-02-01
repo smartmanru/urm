@@ -304,7 +304,7 @@ public class GitVCS extends GenericVCS {
 						" . | ( cd " + PATCHFOLDER.folderPath + "; tar x )" );
 			}
 			else {
-				int COMPS = Common.getDirCount( SUBPATH );
+				int COMPS = Common.getDirCount( SUBPATH ) + 1;
 				String STRIPOPTION = "--strip-components=" + COMPS;
 				
 				session.customCheckStatus( action , "git -C " + CO_PATH + " archive " + BRANCHTAG + " " + 

@@ -29,8 +29,11 @@ public class ActionPatch extends ActionBase {
 			if( !executePatch() )
 				super.setFailed();
 		}
-		finally {
+		catch( Exception e ) {
+			log( e );
 			super.stopRedirect();
+			log( e );
+			setFailed();
 		}
 		
 		return( true );
