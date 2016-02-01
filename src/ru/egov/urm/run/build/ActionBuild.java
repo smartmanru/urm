@@ -8,6 +8,7 @@ import ru.egov.urm.run.ActionScope;
 import ru.egov.urm.run.ActionScopeSet;
 import ru.egov.urm.run.ActionScopeTarget;
 import ru.egov.urm.shell.ShellExecutor;
+import ru.egov.urm.storage.BuildStorage;
 import ru.egov.urm.storage.LocalFolder;
 
 public class ActionBuild extends ActionBase {
@@ -67,15 +68,18 @@ public class ActionBuild extends ActionBase {
 		String version = scopeProject.getProjectBuildVersion( this );
 		
 		// execute
-		log( "ActionBuild: CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) + ", PROJECT=" + scopeProject.sourceProject.PROJECT + 
-				", REPOSITORY=" + scopeProject.sourceProject.REPOSITORY + ", TAG=" + TAG + ", VERSION=" + version + ", MODULEOPTIONS=" + BUILD_OPTIONS );
+		MetaSourceProject project = scopeProject.sourceProject;
+		log( "ActionBuild: CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) + ", PROJECT=" + project.PROJECT + 
+				", REPOSITORY=" + project.REPOSITORY + ", TAG=" + TAG + ", VERSION=" + version + ", MODULEOPTIONS=" + BUILD_OPTIONS );
 
 		// in separate shell
-		ActionPatch action = new ActionPatch( this , null , OUTDIR , TAG , BUILD_OPTIONS , version ); 
-		ShellExecutor bs = context.pool.createDedicatedLocalShell( action , "build" );
+		Builder builder = createBuilder( project , TAG , BUILD_OPTIONS , version );
+		LocalFolder BUILDDIR = OUTDIR.getSubFolder( this , project.PROJECT );
+		ActionPatch action = new ActionPatch( this , null , builder , BUILDDIR );
+		ShellExecutor bs = builder.createShell( action );
 
 		BUILDSTATUS = "SUCCESSFUL"; 
-		if( !action.runSingleTarget( scopeProject ) ) {
+		if( !action.runSimple() ) {
 			BUILDSTATUS = "FAILED";
 			super.setFailed();
 		}
@@ -86,4 +90,25 @@ public class ActionBuild extends ActionBase {
 		log( "ActionBuild: build finished for CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) + ", TAG=" + TAG + ", VERSION=" + version + ", BUILDSTATUS=" + BUILDSTATUS );
 		return( true );
 	}
+	
+	private Builder createBuilder( MetaSourceProject project , String TAG , String BUILD_OPTIONS , String VERSION ) throws Exception {
+		Builder builder = null;
+		
+		String BUILDER = project.getBuilder( this );
+		BuildStorage storage = artefactory.getEmptyBuildStorage( this , project );
+		if( BUILDER.equals( "maven" ) ) {
+			builder = new BuilderLinuxMaven( project , storage , TAG , BUILD_OPTIONS , VERSION );
+		}
+		else if( BUILDER.equals( "gradle" ) ) {
+			builder = new BuilderLinuxGradle( project , storage , TAG , BUILD_OPTIONS , VERSION );
+		}
+		else if( BUILDER.equals( "dotnet" ) ) {
+			builder = new BuilderWindowsDotnet( project , storage , TAG , BUILD_OPTIONS , VERSION );
+		}
+		else
+			exit( "unknown builder=" + BUILDER );
+		
+		return( builder );
+	}
+
 }
