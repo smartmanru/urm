@@ -13,7 +13,9 @@ function f_execute_one() {
 	# drop old
 	local F_STATUS
 	F_LOG=../log/meta-$P_SCHEMA.dump.log
-	psql -d $P_DBNAME < run-import-drop.sql > $F_LOG 2>&1
+
+	echo "# drop schema=$P_SCHEMA using run-import-drop.sql ..." > $F_LOG
+	psql -d $P_DBNAME < run-import-drop.sql >> $F_LOG 2>&1
 	F_STATUS=$?
 	if [ "$F_STATUS" != "0" ]; then
 		echo drop schema failed with status=$F_STATUS. Exiting
@@ -21,7 +23,7 @@ function f_execute_one() {
 	fi
 
 	local F_CMD="pg_restore -v -s -j 4 -d $P_DBNAME ../data/meta-$P_SCHEMA.dump"
-	echo "run: $F_CMD ..." >> $F_LOG
+	echo "# load dump: $F_CMD ..." >> $F_LOG
 	$F_CMD >> $F_LOG 2>&1
 	F_STATUS=$?
 
