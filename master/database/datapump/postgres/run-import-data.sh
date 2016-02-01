@@ -35,7 +35,7 @@ function f_execute_db() {
 	F_STATUS=$?
 
 	if [ "$F_STATUS" != "0" ]; then
-		echo pg_dump failed with status=$F_STATUS. Exiting
+		echo pg_restore failed with status=$F_STATUS. Exiting
 		exit 1
 	fi
 
