@@ -74,7 +74,7 @@ public class ActionBuild extends ActionBase {
 
 		// in separate shell
 		Builder builder = createBuilder( project , TAG , BUILD_OPTIONS , version );
-		LocalFolder BUILDDIR = OUTDIR.getSubFolder( this , project.PROJECT );
+		LocalFolder BUILDDIR = OUTDIR.getSubFolder( this , project.set.NAME );
 		ActionPatch action = new ActionPatch( this , null , builder , BUILDDIR );
 		ShellExecutor bs = builder.createShell( action );
 
