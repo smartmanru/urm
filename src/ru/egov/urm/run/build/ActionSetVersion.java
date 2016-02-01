@@ -16,7 +16,7 @@ public class ActionSetVersion extends ActionBase {
 	}
 
 	private void updateVersion( ActionScopeTarget scopeProject , LocalFolder PATCHPATH ) throws Exception {
-		LocalFolder CODEPATH = PATCHPATH.getSubFolder( this , scopeProject.sourceProject.CODEPATH );
+		LocalFolder CODEPATH = PATCHPATH;
 		String JAVE_VERSION = scopeProject.sourceProject.getJavaVersion( this );
 		
 		session.export( this , "JAVA_HOME" , "/usr/java/" + JAVE_VERSION );

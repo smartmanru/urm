@@ -222,6 +222,9 @@ public class SubversionVCS extends GenericVCS {
 				CO_PATH = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "branches/" + BRANCH;
 		}
 		
+		if( !project.CODEPATH.isEmpty() )
+			CO_PATH += "/" + project.CODEPATH;
+		
 		if( !FILENAME.isEmpty() )
 			CO_PATH += "/" + FILENAME;
 

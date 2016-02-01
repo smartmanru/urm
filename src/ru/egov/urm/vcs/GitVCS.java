@@ -234,10 +234,16 @@ public class GitVCS extends GenericVCS {
 		refreshMirror( CO_PATH );
 		
 		boolean res;
+		String FILEPATH = project.CODEPATH;
+		String FILEBASE = "";
+		if( !FILENAME.isEmpty() ) {
+			FILEPATH = Common.getPath( FILEPATH , Common.getDirName( FILENAME ) );
+			FILEBASE = Common.getBaseName( FILENAME );
+		}
 		if( !TAG.isEmpty() )
-			res = exportFromTag( CO_PATH , PATCHFOLDER , TAG , FILENAME );
+			res = exportFromTag( CO_PATH , PATCHFOLDER , TAG , FILEPATH , FILEBASE );
 		else
-			res = exportFromBranch( CO_PATH , PATCHFOLDER , BRANCH , FILENAME );
+			res = exportFromBranch( CO_PATH , PATCHFOLDER , BRANCH , FILEPATH , FILEBASE );
 		
 		return( res );
 	}
@@ -281,7 +287,7 @@ public class GitVCS extends GenericVCS {
 		session.customCheckStatus( action , "git -C " + CO_PATH + " clone " + CO_PATH + " --shared -b " + BRANCH + " " + PATCHFOLDER.folderPath );
 	}
 
-	private boolean exportFromPath( String CO_PATH , LocalFolder PATCHFOLDER , String SUBPATH , String FILENAME ) throws Exception {
+	private boolean exportFromPath( String CO_PATH , LocalFolder PATCHFOLDER , String BRANCHTAG , String SUBPATH , String FILENAME ) throws Exception {
 		LocalFolder BASEDIR = PATCHFOLDER.getParentFolder( action );
 		String BASENAME = PATCHFOLDER.getBaseName( action );
 		
@@ -291,37 +297,49 @@ public class GitVCS extends GenericVCS {
 			if( PATCHFOLDER.checkExists( action ) )
 				action.exit( "exportFromPath: local directory " + PATCHFOLDER.folderPath + " should not exist" );
 			
+			// export file or subdir
 			PATCHFOLDER.ensureExists( action );
-			session.customCheckStatus( action , "git -C " + CO_PATH + " archive " + SUBPATH + " . | ( cd " + PATCHFOLDER.folderPath + "; tar x )" );
+			if( SUBPATH.isEmpty() ) {
+				session.customCheckStatus( action , "git -C " + CO_PATH + " archive " + BRANCHTAG + " " + 
+						" . | ( cd " + PATCHFOLDER.folderPath + "; tar x )" );
+			}
+			else {
+				int COMPS = Common.getDirCount( SUBPATH );
+				String STRIPOPTION = "--strip-components=" + COMPS;
+				
+				session.customCheckStatus( action , "git -C " + CO_PATH + " archive " + BRANCHTAG + " " + 
+						SUBPATH + " | ( cd " + PATCHFOLDER.folderPath + "; tar x " + SUBPATH + " " + STRIPOPTION + " )" );
+			}
 		}
 		else {
 			if( !PATCHFOLDER.checkExists( action ) )
 				action.exit( "exportFromPath: local directory " + PATCHFOLDER.folderPath + " does not exist" );
 			
 			// export file or subdir
-			int COMPS = Common.getDirCount( FILENAME );
+			int COMPS = Common.getDirCount( SUBPATH );
 			String STRIPOPTION = "--strip-components=" + COMPS;
 
-			String FILEBASENAME = Common.getBaseName( FILENAME );
-			String srcFile = BASEDIR.getFilePath( action , FILEBASENAME );
-			if( ( !FILEBASENAME.equals( BASENAME ) ) && BASEDIR.checkFileExists( action , FILEBASENAME ) )
+			String srcFile = BASEDIR.getFilePath( action , FILENAME );
+			if( ( !FILENAME.equals( BASENAME ) ) && BASEDIR.checkFileExists( action , FILENAME ) )
 				action.exit( "exportFromPath: local file or directory " + srcFile + " already exists" );
 
-			session.customCheckStatus( action , "git -C " + CO_PATH + " archive " + SUBPATH + " " + FILENAME + " | ( cd " + BASEDIR + "; tar x " + STRIPOPTION + " )" );
-			if( !FILEBASENAME.equals( BASENAME ) )
-				BASEDIR.moveFileToFolder( action , FILEBASENAME , BASENAME );
+			String FILEPATH = Common.getPath( SUBPATH , FILENAME );
+			session.customCheckStatus( action , "git -C " + CO_PATH + " archive " + BRANCHTAG + " " + 
+					FILEPATH + " | ( cd " + BASEDIR + "; tar x " + FILEPATH + " " + STRIPOPTION + " )" );
+			if( !FILENAME.equals( BASENAME ) )
+				BASEDIR.moveFileToFolder( action , FILENAME , BASENAME );
 		}
 
 		return( true );
 	}
 
-	private boolean exportFromBranch( String CO_PATH , LocalFolder PATCHFOLDER , String BRANCH , String FILENAME ) throws Exception {
-		boolean res = exportFromPath( CO_PATH , PATCHFOLDER , BRANCH , FILENAME );
+	private boolean exportFromBranch( String CO_PATH , LocalFolder PATCHFOLDER , String BRANCH , String FILEPATH , String FILENAME ) throws Exception {
+		boolean res = exportFromPath( CO_PATH , PATCHFOLDER , BRANCH , FILEPATH , FILENAME );
 		return( res );
 	}
 
-	private boolean exportFromTag( String CO_PATH , LocalFolder PATCHFOLDER , String TAG , String FILENAME ) throws Exception {
-		boolean res = exportFromPath( CO_PATH , PATCHFOLDER , TAG , FILENAME );
+	private boolean exportFromTag( String CO_PATH , LocalFolder PATCHFOLDER , String TAG , String FILEPATH , String FILENAME ) throws Exception {
+		boolean res = exportFromPath( CO_PATH , PATCHFOLDER , TAG , FILEPATH , FILENAME );
 		return( res );
 	}
 
@@ -433,9 +451,12 @@ public class GitVCS extends GenericVCS {
 	}
 
 	@Override public boolean exportRepositoryTagPath( LocalFolder PATCHFOLDER , String repository , String TAG , String ITEMPATH , String name ) throws Exception {
+		String CO_PATH = getRepoPath( repository );
+		refreshMirror( CO_PATH );
+		
 		TAG = getTagName( TAG );
-		action.exitNotImplemented();
-		return( false );
+		boolean res = exportFromPath( CO_PATH , PATCHFOLDER.getSubFolder( action , name ) , TAG , ITEMPATH , "" );
+		return( res );
 	}
 	
 	@Override public boolean exportRepositoryMasterPath( LocalFolder PATCHFOLDER , String repository , String ITEMPATH , String name ) throws Exception {
