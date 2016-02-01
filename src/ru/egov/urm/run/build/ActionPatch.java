@@ -67,13 +67,13 @@ public class ActionPatch extends ActionBase {
 			return( false );
 		}
 
-		// remove directory if build was successful
-		builder.removeExportedCode( this );
-
 		// update build data
 		if( !uploadBuildStatus() )
 			return( false );
 		
+		// remove directory if build was successful
+		builder.removeExportedCode( this );
+
 		return( true );
 	}
 	
