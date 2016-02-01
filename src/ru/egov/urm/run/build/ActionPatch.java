@@ -88,7 +88,8 @@ public class ActionPatch extends ActionBase {
 		session.export( this , "MAVEN_OPTS" , Common.getQuoted( "-Xmx1g -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );
 
 		// upload versioninfo
-		LOGDIR.createFileFromString( this , builder.project.PROJECT + "-versioninfo.txt" , builder.TAG );
+		String FILENAME = builder.project.PROJECT + "-versioninfo.txt";
+		LOGDIR.createFileFromString( this , FILENAME , builder.TAG );
 		session.setTimeoutUnlimited( this );
 		int status = session.customGetStatusNormal( this , "mvn deploy:deploy-file -B " +
 			MODULE_MSETTINGS + " " +
@@ -97,7 +98,7 @@ public class ActionPatch extends ActionBase {
 			"-Dversion=" + builder.APPVERSION + " " +
 			"-DgroupId=release " +
 			"-DartifactId=" + MODULE_PROJECT_NAME + " " +
-			"-Dfile=versioninfo.txt " +
+			"-Dfile=" + LOGDIR.getFilePath( this , FILENAME ) + " " +
 			"-Dpackaging=txt " +
 			"-Dclassifier=version " +
 			"-DgeneratePom=true " +
