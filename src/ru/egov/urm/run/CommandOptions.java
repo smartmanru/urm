@@ -236,7 +236,7 @@ public class CommandOptions {
 		return( varByName.containsKey( var ) );
 	}
 	
-	public boolean isFlag( String opt ) {
+	public boolean isFlagOption( String opt ) {
 		CommandVar info = optionsByName.get( opt ); 
 		if( info != null )
 			if( info.isFlag )
@@ -245,7 +245,16 @@ public class CommandOptions {
 		return( false );
 	}
 	
-	public boolean isEnum( String opt ) {
+	public boolean isFlagVar( String var ) {
+		CommandVar info = varByName.get( var ); 
+		if( info != null )
+			if( info.isFlag )
+				return( true );
+		
+		return( false );
+	}
+	
+	public boolean isEnumOption( String opt ) {
 		CommandVar info = optionsByName.get( opt ); 
 		if( info != null )
 			if( info.isEnum )
@@ -254,7 +263,16 @@ public class CommandOptions {
 		return( false );
 	}
 	
-	public boolean isParam( String opt ) {
+	public boolean isEnumVar( String var ) {
+		CommandVar info = varByName.get( var ); 
+		if( info != null )
+			if( info.isEnum )
+				return( true );
+		
+		return( false );
+	}
+	
+	public boolean isParamOption( String opt ) {
 		CommandVar info = optionsByName.get( opt ); 
 		if( info != null )
 			if( info.isParam )
@@ -263,8 +281,17 @@ public class CommandOptions {
 		return( false );
 	}
 	
-	public boolean addFlag( String opt ) {
-		if( !isFlag( opt ) )
+	public boolean isParamVar( String var ) {
+		CommandVar info = varByName.get( var ); 
+		if( info != null )
+			if( info.isParam )
+				return( true );
+		
+		return( false );
+	}
+	
+	public boolean addFlagOption( String opt ) {
+		if( !isFlagOption( opt ) )
 			throw new RuntimeException( "option=" + opt + " is not a flag" );
 		
 		CommandVar info = optionsByName.get( opt );
@@ -280,8 +307,8 @@ public class CommandOptions {
 		return( true );
 	}
 
-	public boolean addEnum( String opt ) {
-		if( !isEnum( opt ) )
+	public boolean addEnumOption( String opt ) {
+		if( !isEnumOption( opt ) )
 			throw new RuntimeException( "option=" + opt + " is not a enum" );
 		
 		CommandVar info = optionsByName.get( opt );
@@ -297,11 +324,11 @@ public class CommandOptions {
 		return( true );
 	}
 
-	public boolean addParam( String var , String value ) {
-		if( !isParam( var ) )
-			throw new RuntimeException( "option=" + var + " is not a parameter" );
+	public boolean addParamOption( String opt , String value ) {
+		if( !isParamOption( opt ) )
+			throw new RuntimeException( "option=" + opt + " is not a parameter" );
 		
-		CommandVar info = optionsByName.get( var );
+		CommandVar info = optionsByName.get( opt );
 		
 		if( params.get( info.varName ) != null ) {
 			print( "parameter=" + info.varName + " is already set" );
@@ -399,15 +426,15 @@ public class CommandOptions {
 				break;
 			
 			arg = arg.substring( 1 );
-			if( isFlag( arg ) ) {
-				if( !addFlag( arg ) )
+			if( isFlagOption( arg ) ) {
+				if( !addFlagOption( arg ) )
 					return( false );
 			}
-			else if( isEnum( arg ) ) {
-				if( !addEnum( arg ) )
+			else if( isEnumOption( arg ) ) {
+				if( !addEnumOption( arg ) )
 					return( false );
 			}
-			else if( isParam( arg ) ) {
+			else if( isParamOption( arg ) ) {
 				k++;
 				if( k >= cmdParams.length ) {
 					print( "invalid arguments - parameter=" + arg + " has no value defined" );
@@ -415,7 +442,7 @@ public class CommandOptions {
 				}
 				
 				String value = cmdParams[k];
-				if( !addParam( arg , value ) )
+				if( !addParamOption( arg , value ) )
 					return( false );
 			}
 			else {
@@ -435,18 +462,12 @@ public class CommandOptions {
 		return( true );
 	}
 
-	public FLAG getFlagNativeValue( ActionBase action , String var ) throws Exception {
-		if( !isFlag( var ) )
-			action.exit( "unknown flag var=" + var );
-		return( flags.get( var ) );
-	}
-
 	public boolean getFlagValue( ActionBase action , String var ) throws Exception {
 		return( getFlagValue( action , var , false ) );
 	}
 	
 	public boolean getFlagValue( ActionBase action , String var , boolean defValue ) throws Exception {
-		if( !isFlag( var ) )
+		if( !isFlagVar( var ) )
 			action.exit( "unknown flag var=" + var );
 		
 		FLAG val = flags.get( var );
@@ -460,7 +481,7 @@ public class CommandOptions {
 	}
 	
 	public String getEnumValue( ActionBase action , String var ) throws Exception {
-		if( !isEnum( var ) )
+		if( !isEnumVar( var ) )
 			action.exit( "unknown enum var=" + var );
 		
 		String val = enums.get( var );
@@ -470,7 +491,7 @@ public class CommandOptions {
 	}
 	
 	public String getParamValue( ActionBase action , String var ) throws Exception {
-		if( !isParam( var ) )
+		if( !isParamVar( var ) )
 			action.exit( "unknown param var=" + var );
 		
 		String val = params.get( var );
@@ -480,7 +501,7 @@ public class CommandOptions {
 	}
 	
 	public int getIntParamValue( ActionBase action , String var , int defaultValue ) throws Exception {
-		if( !isParam( var ) )
+		if( !isParamVar( var ) )
 			action.exit( "unknown param var=" + var );
 		
 		String val = params.get( var );
