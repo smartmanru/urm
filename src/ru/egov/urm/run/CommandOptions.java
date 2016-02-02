@@ -166,7 +166,7 @@ public class CommandOptions {
 		ctx.CTX_DBMODE = ( value.isEmpty() )? SQLMODE.UNKNOWN : SQLMODE.valueOf( value );
 		ctx.CTX_DBMOVE = getFlagValue( action , "GETOPT_DBMOVE" );
 		ctx.CTX_DBAUTH = combineValue( action , "GETOPT_DBAUTH" , ( isenv )? action.meta.env.DB_AUTH : null , false );
-		ctx.CTX_DBALIGNED = getParamValue( action , "OPT_DBALIGNED" );
+		ctx.CTX_DBALIGNED = getParamValue( action , "GETOPT_DBALIGNED" );
 		ctx.CTX_DB = getParamValue( action , "GETOPT_DB" );
 		ctx.CTX_DBPASSWORD = getParamValue( action , "GETOPT_DBPASSWORD" );
 		ctx.CTX_REGIONS = getParamValue( action , "GETOPT_REGIONS" );
