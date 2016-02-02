@@ -47,7 +47,7 @@ public class ActionGetDB extends ActionBase {
 		}
 		
 		// copy
-		if( options.OPT_DIST )
+		if( context.CTX_DIST )
 			release.copyDatabaseFilesToDistr( this , item.dbDelivery , preparedFolder );
 	}
 }

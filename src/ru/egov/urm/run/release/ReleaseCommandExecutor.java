@@ -67,7 +67,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
 		options.checkNoArgs( action , 1 );
-		impl.deleteRelease( action , RELEASELABEL , options.OPT_FORCE );
+		impl.deleteRelease( action , RELEASELABEL , action.context.CTX_FORCE );
 	}
 	}
 

@@ -18,13 +18,13 @@ public class ActionStartEnv extends ActionBase {
 
 	@Override protected void runBefore( ActionScope scope ) throws Exception {
 		logAction( "start environment dc=" + meta.dc.NAME + " (" + getMode() + ") ..." );
-		if( !context.SHOWONLY )
+		if( !context.CTX_SHOWONLY )
 			ActionSendChatMsg.sendMsg( this , "[startenv] starting " + scope.getScopeInfo( this ) + " ..." , false );
 	}
 
 	@Override protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		logAction( "start environment dc=" + meta.dc.NAME + " (" + getMode() + ") ..." );
-		if( !context.SHOWONLY )
+		if( !context.CTX_SHOWONLY )
 			ActionSendChatMsg.sendMsg( this , "[startenv] starting selected targets ..." , false );
 	}
 
@@ -42,7 +42,7 @@ public class ActionStartEnv extends ActionBase {
 		List<MetaEnvStartGroup> groups = set.dc.startInfo.getForwardGroupList( this );
 		for( MetaEnvStartGroup group : groups ) {
 			if( !startServerGroup( set , group , targets ) ) {
-				if( !options.OPT_FORCE )
+				if( !context.CTX_FORCE )
 					exit( "cancel execution due to failed group operation" );
 			}
 		}

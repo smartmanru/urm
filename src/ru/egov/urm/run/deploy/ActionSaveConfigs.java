@@ -22,12 +22,12 @@ public class ActionSaveConfigs extends ActionBase {
 
 	@Override protected void runAfter( ActionScope scope ) throws Exception {
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
-		if( scope.scopeFull && options.OPT_FORCE )
+		if( scope.scopeFull && context.CTX_FORCE )
 			deleteOldConfServers();
 		
 		// check need to tag configuration
-		if( !options.OPT_TAG.isEmpty() )
-			sourceStorage.tagLiveConfigs( this , options.OPT_TAG , "ActionSaveConfigs" );
+		if( !context.CTX_TAG.isEmpty() )
+			sourceStorage.tagLiveConfigs( this , context.CTX_TAG , "ActionSaveConfigs" );
 	}
 	
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
@@ -50,7 +50,7 @@ public class ActionSaveConfigs extends ActionBase {
 		}
 
 		// delete old
-		if( options.OPT_FORCE && target.itemFull )
+		if( context.CTX_FORCE && target.itemFull )
 			deleteOldConfItems( server , F_REDIST_SAVEITEMS );
 		
 		return( true );
@@ -122,7 +122,7 @@ public class ActionSaveConfigs extends ActionBase {
 
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		if( !redist.getSysConfigs( this , folder ) ) {
-			if( !options.OPT_FORCE )
+			if( !context.CTX_FORCE )
 				exit( "unable to get system files configuration" );
 			return;
 		}
@@ -140,7 +140,7 @@ public class ActionSaveConfigs extends ActionBase {
 
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		if( !redist.getConfigItem( this , folder , confItem , LOCATION ) ) {
-			if( !options.OPT_FORCE )
+			if( !context.CTX_FORCE )
 				exit( "unable to get configuration item=" + confItem.KEY );
 			return;
 		}

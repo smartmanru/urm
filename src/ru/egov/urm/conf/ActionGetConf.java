@@ -39,7 +39,7 @@ public class ActionGetConf extends ActionBase {
 		}
 
 		// copy to distributive 
-		boolean copyDistr = options.OPT_DIST;
+		boolean copyDistr = context.CTX_DIST;
 		if( copyDistr )
 			release.copyConfToDistr( this , confFolder.getSubFolder( this , KEY ) , sourceFolder.distrComp );
 		

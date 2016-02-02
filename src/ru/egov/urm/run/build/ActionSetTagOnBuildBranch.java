@@ -21,8 +21,8 @@ public class ActionSetTagOnBuildBranch extends ActionBase {
 		String BUILDTAG = "";
 		
 		MetaSourceProject sourceProject = scopeProject.sourceProject;
-		if( !options.OPT_BRANCH.isEmpty() )
-			BUILDBRANCH = options.OPT_BRANCH;
+		if( !context.CTX_BRANCH.isEmpty() )
+			BUILDBRANCH = context.CTX_BRANCH;
 		else {
 			if( scopeProject.releaseTarget != null ) {
 				BUILDBRANCH = scopeProject.releaseTarget.BUILDBRANCH;
@@ -52,7 +52,7 @@ public class ActionSetTagOnBuildBranch extends ActionBase {
 	
 	private void setTagFromBranch( String BRANCH , String TAG , VarCATEGORY CATEGORY , MetaSourceProject sourceProject ) throws Exception {
 		ProjectVersionControl vcs = new ProjectVersionControl( this );
-		vcs.setTag( sourceProject , BRANCH , TAG , options.OPT_DATE );
+		vcs.setTag( sourceProject , BRANCH , TAG , context.CTX_DATE );
 	}
 	
 }

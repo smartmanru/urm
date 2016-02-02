@@ -13,8 +13,7 @@ public class CommandBuilder {
 	public String cmd;
 	public CommandOutput output = null;
 	public CommandOptions options = null;
-	
-	CommandContext context;
+	public CommandContext context = null;
 	
 	void out( String s ) {
 		System.out.println( s );
@@ -78,13 +77,6 @@ public class CommandBuilder {
 		if( !executor.setOptions( options ) )
 			return( null );
 
-		// scatter into variables
-		options.scatter();
-		
-		// print
-		if( options.OPT_SHOWALL )
-			options.printRunningOptions();
-		
 		return( executor );
 	}
 

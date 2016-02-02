@@ -285,7 +285,7 @@ public class ActionScope {
 	
 	private void createEnvScope( ActionBase action , DistStorage release ) throws Exception {
 		this.release = release;
-		String dcMask = action.options.OPT_DCMASK;
+		String dcMask = action.context.CTX_DCMASK;
 		
 		if( dcMask.isEmpty() )
 			scopeFull = true;

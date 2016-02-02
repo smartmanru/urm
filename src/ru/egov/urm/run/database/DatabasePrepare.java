@@ -68,7 +68,7 @@ public class DatabasePrepare {
 		// check scripts from SVN (exit on errors if no -s option)
 		checkAll( action , F_ALIGNEDDIRLIST );
 		if( S_CHECK_FAILED ) {
-			if( !action.options.OPT_FORCE ) {
+			if( !action.context.CTX_FORCE ) {
 				action.log( "script set check failed, cancelled" );
 				return( false );
 			}
@@ -133,7 +133,7 @@ public class DatabasePrepare {
 		}
 			
 		if( S_CHECK_FAILED ) {
-			if( action.options.OPT_FORCE )
+			if( action.context.CTX_FORCE )
 				action.log( "prepare: errors in script set. Ignored." );
 			else
 				action.exit( "prepare: errors in script set" );
@@ -445,7 +445,7 @@ public class DatabasePrepare {
 			}
 		}
 
-		if( S_CHECK_FAILED && !action.options.OPT_FORCE )
+		if( S_CHECK_FAILED && !action.context.CTX_FORCE )
 			action.exit( "release database file set check failed" );
 	}
 
@@ -732,7 +732,7 @@ public class DatabasePrepare {
 	}
 
 	private void moveErrors( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , String P_PATH , String P_COMMENT ) throws Exception {
-		if( !action.options.OPT_MOVE_ERRORS ) {
+		if( !action.context.CTX_MOVE_ERRORS ) {
 			action.log( "errors in " + P_PATH + ": " + P_COMMENT );
 			return;
 		}

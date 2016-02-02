@@ -666,7 +666,7 @@ public class DistStorage {
 			MetaReleaseDelivery delivery = info.findDeliveryByFolder( action , dir );
 			if( delivery == null || delivery.isEmpty() ) {
 				if( dirFilesDist.hasFiles() ) {
-					if( !action.options.OPT_FORCE )
+					if( !action.context.CTX_FORCE )
 						action.exit( "distributive delivery " + dir + " has files, while nothing is declared in release" );
 				}
 				
@@ -698,7 +698,7 @@ public class DistStorage {
 			FileSet dirFilesRelease = fsr.dirs.get( dir );
 			if( dirFilesRelease == null ) {
 				if( dirFilesDist.hasFiles() ) {
-					if( !action.options.OPT_FORCE )
+					if( !action.context.CTX_FORCE )
 						action.exit( "distributive delivery " + delivery.distDelivery.NAME + 
 								" dir= " + dir + " has files, while nothing is declared in release" );
 				}
@@ -735,7 +735,7 @@ public class DistStorage {
 		for( String fileDist : fsd.files.keySet() ) {
 			String fileRelease = fsr.files.get( fileDist );
 			if( fileRelease == null ) {
-				if( !action.options.OPT_FORCE )
+				if( !action.context.CTX_FORCE )
 					action.exit( "distributive delivery " + delivery.distDelivery.NAME + 
 						" dir= " + delivery.distDelivery.FOLDER + " has non-release file=" + fileDist );
 				
@@ -760,7 +760,7 @@ public class DistStorage {
 		for( String dir : fsd.dirs.keySet() ) {
 			FileSet dirFilesRelease = fsr.dirs.get( dir );
 			if( dirFilesRelease == null ) {
-				if( !action.options.OPT_FORCE )
+				if( !action.context.CTX_FORCE )
 					action.exit( "distributive delivery " + delivery.distDelivery.NAME + 
 							" has non-release config=" + dir );
 				

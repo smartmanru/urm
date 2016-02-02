@@ -33,8 +33,8 @@ public class ActionGetDeployInfo extends ActionBase {
 	}
 
 	private void showDeployInfo( MetaEnvServer server , RedistStorage redist ) throws Exception {
-		boolean binary = options.OPT_DEPLOYBINARY;
-		boolean conf = context.CONF_DEPLOY;
+		boolean binary = context.CTX_DEPLOYBINARY;
+		boolean conf = context.CTX_CONFDEPLOY;
 
 		for( MetaEnvServerLocation location : server.getLocations( this , binary , conf ) ) {
 			super.comment( "\tlocation: " + location.DEPLOYPATH );

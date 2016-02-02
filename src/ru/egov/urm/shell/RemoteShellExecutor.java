@@ -13,7 +13,7 @@ public class RemoteShellExecutor extends ShellExecutor {
 
 	public void start( ActionBase action ) throws Exception {
 		ProcessBuilder builder;
-		String keyFile = action.context.KEYNAME;
+		String keyFile = action.context.CTX_KEYNAME;
 		if( !keyFile.isEmpty() )
 			builder = new ProcessBuilder( "ssh" , "-T" , account.HOSTLOGIN , "-i " , keyFile );
 		else

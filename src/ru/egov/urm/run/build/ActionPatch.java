@@ -54,7 +54,7 @@ public class ActionPatch extends ActionBase {
 		}
 
 		// check source code
-		if( options.OPT_CHECK ) {
+		if( context.CTX_CHECK ) {
 			if( !builder.checkSourceCode( this ) ) {
 				log( "patch: maven build skipped - source code invalid (" + builder.storage.buildFolder.folderPath + ". Exiting" );
 				return( false );

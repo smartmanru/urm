@@ -115,7 +115,7 @@ public class BuilderLinuxMaven extends Builder {
 		String MODULE_MSETTINGS = "--settings=" + action.meta.product.CONFIG_MAVEN_CFGFILE;
 		String MODULE_MAVEN_CMD = Common.getValueDefault( action.meta.product.CONFIG_MAVEN_CMD , "deploy" );
 		String MAVEN_ADDITIONAL_OPTIONS = action.meta.product.CONFIG_MAVEN_ADDITIONAL_OPTIONS;
-		if( action.options.OPT_SHOWALL )
+		if( action.context.CTX_SHOWALL )
 			MAVEN_ADDITIONAL_OPTIONS += " -X";
 
 		action.log( "build PATCHPATH=" + CODEPATH.folderPath + ", profile=" + MODULE_MAVEN_PROFILES + ", options=" + MAVEN_ADDITIONAL_OPTIONS + ", cmd=" + MODULE_MAVEN_CMD + 

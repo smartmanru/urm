@@ -209,8 +209,8 @@ public class ScopeExecutor {
 	}
 	
 	public boolean runEnvUniqueAccounts( ActionScope scope ) {
-		if( !action.options.OPT_HOSTUSER.equals( "default" ) ) {
-			if( action.options.OPT_ROOTUSER || !action.options.OPT_HOSTUSER.isEmpty() )
+		if( !action.context.CTX_HOSTUSER.equals( "default" ) ) {
+			if( action.context.CTX_ROOTUSER || !action.context.CTX_HOSTUSER.isEmpty() )
 				return( runEnvUniqueHosts( scope ) );
 		}
 		
@@ -293,7 +293,7 @@ public class ScopeExecutor {
 					runDone = true;
 					if( runFailed ) {
 						localFailed = true;
-						if( !action.options.OPT_FORCE )
+						if( !action.context.CTX_FORCE )
 							break;
 					}
 				}
@@ -349,7 +349,7 @@ public class ScopeExecutor {
 	private boolean runSingleHostInternal( ActionScopeSet set , String host , VarOSTYPE OSTYPE ) {
 		boolean runDone = false;
 		try {
-			String user = action.options.OPT_HOSTUSER;
+			String user = action.context.CTX_HOSTUSER;
 			if( user.isEmpty() )
 				user = "root";
 			
@@ -399,7 +399,7 @@ public class ScopeExecutor {
 
 					if( runFailed ) {
 						localFailed = true;
-						if( !action.options.OPT_FORCE )
+						if( !action.context.CTX_FORCE )
 							break;
 					}
 				}
@@ -425,7 +425,7 @@ public class ScopeExecutor {
 
 					if( runFailed ) {
 						localFailed = true;
-						if( !action.options.OPT_FORCE )
+						if( !action.context.CTX_FORCE )
 							break;
 					}
 				}
@@ -473,7 +473,7 @@ public class ScopeExecutor {
 	
 						if( runFailed ) {
 							localFailed = true;
-							if( !action.options.OPT_FORCE )
+							if( !action.context.CTX_FORCE )
 								break;
 						}
 					}
@@ -569,7 +569,7 @@ public class ScopeExecutor {
 					
 					if( runFailed ) {
 						localFailed = true;
-						if( !action.options.OPT_FORCE )
+						if( !action.context.CTX_FORCE )
 							break;
 					}
 				}

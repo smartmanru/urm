@@ -106,8 +106,8 @@ public class DeployCommandExecutor extends CommandExecutor {
 	
 	private ActionScope getServerScope( ActionInit action , int posFrom ) throws Exception {
 		DistStorage dist = null;
-		if( !action.options.OPT_RELEASELABEL.isEmpty() )
-			dist = action.artefactory.getDistStorageByLabel( action , action.options.OPT_RELEASELABEL );
+		if( !action.context.CTX_RELEASELABEL.isEmpty() )
+			dist = action.artefactory.getDistStorageByLabel( action , action.context.CTX_RELEASELABEL );
 		
 		return( getServerScope( action , posFrom , dist ) );
 	}
@@ -266,7 +266,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 
 	private class List extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		action.options.OPT_ALL = true;
+		action.context.CTX_ALL = true;
 		ActionScope scope = getServerScope( action );
 		impl.list( action , scope );
 	}

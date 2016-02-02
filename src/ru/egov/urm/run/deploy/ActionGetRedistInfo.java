@@ -63,7 +63,7 @@ public class ActionGetRedistInfo extends ActionBase {
 				
 				String[] items = deployment.getLocationItems( this , category , LOCATION );
 				if( items.length == 0 ) {
-					if( !options.OPT_SHOWALL )
+					if( !context.CTX_SHOWALL )
 						continue;
 				}
 				

@@ -113,7 +113,7 @@ public class DistRepository {
 		if( !distFolder.checkExists( action ) )
 			action.exit( "prod folder does not exists at " + distFolder.folderPath );
 		
-		if( action.options.OPT_FORCE ) {
+		if( action.context.CTX_FORCE ) {
 			distFolder.removeFiles( action , "history.txt state.txt" );
 		}
 		else {

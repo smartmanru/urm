@@ -22,66 +22,6 @@ public class CommandOptions {
 	public String command;
 	public String action;
 
-	// generic
-	public boolean OPT_TRACE;
-	public boolean OPT_SHOWALL;
-	protected boolean OPT_SHOWONLY;
-	public boolean OPT_FORCE;
-	public boolean OPT_ALL;
-	public int OPT_COMMANDTIMEOUT;
-
-	// specific
-	public boolean OPT_GET;
-	public boolean OPT_DIST;
-	public boolean OPT_UPDATENEXUS;
-	public boolean OPT_CHECK;
-	public boolean OPT_MOVE_ERRORS;
-	public boolean OPT_REPLACE;
-	
-	protected boolean OPT_BACKUP;
-	protected boolean OPT_OBSOLETE;
-	protected boolean OPT_DEPLOYCONF;
-	public boolean OPT_PARTIALCONF;
-	public boolean OPT_DEPLOYBINARY;
-	public boolean OPT_DEPLOYHOT;
-	public boolean OPT_DEPLOYCOLD;
-	public boolean OPT_DEPLOYRAW;
-	protected boolean OPT_KEEPALIVE;
-	public boolean OPT_ZERODOWNTIME;
-	public boolean OPT_NONODES;
-	public boolean OPT_NOCHATMSG;
-	public boolean OPT_SUDO;
-	public boolean OPT_ROOTUSER;
-	public boolean OPT_IGNOREVERSION;
-	public boolean OPT_LIVE;
-	public boolean OPT_HIDDEN;
-	
-	public String OPT_RELEASELABEL;
-	public String OPT_BRANCH;
-	public String OPT_TAG;
-	public String OPT_DATE;
-	public String OPT_GROUP;
-	public String OPT_VERSION;
-	
-	public String OPT_DCMASK;
-	public String OPT_DEPLOYGROUP;
-	public String OPT_STARTGROUP;
-	public String OPT_EXTRAARGS;
-	public String OPT_UNIT;
-	public String OPT_BUILDINFO;
-	public String OPT_HOSTUSER;
-	public String OPT_KEY;
-	public String OPT_NEWKEY;
-
-	public SQLMODE OPT_DBMODE; 
-	public boolean OPT_DBMOVE;
-	protected boolean OPT_DBAUTH;
-	public String OPT_DBALIGNED;
-	public String OPT_DB;
-	public String OPT_DBPASSWORD;
-	public String OPT_REGIONS;
-	public SQLTYPE OPT_DBTYPE;
-
 	// implementation
 	List<CommandVar> optionsDefined = new LinkedList<CommandVar>();
 	List<CommandVar> optionsSet = new LinkedList<CommandVar>();
@@ -94,23 +34,6 @@ public class CommandOptions {
 	protected List<String> args = new LinkedList<String>();
 	private int genericOptionsCount;
 
-	public CommandOptions( CommandOptions origin ) {
-		command = origin.command;
-		action = origin.action;
-		
-		optionsDefined = origin.optionsDefined;
-		optionsSet = origin.optionsSet;
-		optionsByName = origin.optionsByName;
-		
-		flags = origin.flags;
-		enums = origin.enums;
-		params = origin.params;
-		args = origin.args;
-		
-		genericOptionsCount = origin.genericOptionsCount;
-		scatter();
-	}
-	
 	public CommandOptions() {
 		optionsDefined = new LinkedList<CommandVar>();
 		optionsSet = new LinkedList<CommandVar>();
@@ -127,8 +50,11 @@ public class CommandOptions {
 		defineGenericOption( CommandVar.newFlagYesOption( "showonly" , "GETOPT_SHOWONLY" , "do not perform builds or change distributive" ) );
 		defineGenericOption( CommandVar.newFlagNoOption( "execute" , "GETOPT_SHOWONLY" , "execute operations (see also showonly)" ) );
 		defineGenericOption( CommandVar.newFlagYesOption( "force" , "GETOPT_FORCE" , "ignore errors and constraints" ) );
+		defineGenericOption( CommandVar.newFlagYesOption( "ignore" , "GETOPT_SKIPERRORS" , "continue run disregarding errors" ) );
+		defineGenericOption( CommandVar.newFlagNoOption( "strict" , "GETOPT_SKIPERRORS" , "stop execution after error" ) );
 		defineGenericOption( CommandVar.newFlagYesOption( "all" , "GETOPT_ALL" , "use all possible items in scope, ignore reduce defaults" ) );
 		defineGenericOption( CommandVar.newParam( "timeout" , "GETOPT_COMMANDTIMEOUT" , "use specific default timeout" ) );
+		defineGenericOption( CommandVar.newParam( "key" , "GETOPT_KEY" , "use given key to connect to host" ) );
 		genericOptionsCount = optionsDefined.size();
 		
 		defineOption( CommandVar.newFlagYesOption( "get" , "GETOPT_GET" , "run getall after build" ) );
@@ -138,7 +64,6 @@ public class CommandOptions {
 		defineOption( CommandVar.newFlagNoOption( "nocheck" , "GETOPT_CHECK" , "skip source checks before build (see also check)" ) );
 		defineOption( CommandVar.newFlagYesOption( "move" , "GETOPT_MOVE_ERRORS" , "move wrong release source files to error folder" ) );
 		defineOption( CommandVar.newFlagYesOption( "replace" , "GETOPT_REPLACE" , "replace all item contents on deploy" ) );
-
 		defineOption( CommandVar.newFlagYesOption( "backup" , "GETOPT_BACKUP" , "prepare backup before deploy" ) );
 		defineOption( CommandVar.newFlagNoOption( "nobackup" , "GETOPT_BACKUP" , "do not backup before deploy" ) );
 		defineOption( CommandVar.newFlagYesOption( "obsolete" , "GETOPT_OBSOLETE" , "ignore new layout" ) );
@@ -153,8 +78,6 @@ public class CommandOptions {
 		defineOption( CommandVar.newFlagYesOption( "raw" , "GETOPT_DEPLOYRAW" , "internal use only" ) );
 		defineOption( CommandVar.newFlagYesOption( "keepalive" , "GETOPT_KEEPALIVE" , "automatically maintain product configuration set" ) );
 		defineOption( CommandVar.newFlagNoOption( "nokeepalive" , "GETOPT_KEEPALIVE" , "do not change product configuration set" ) );
-		defineOption( CommandVar.newFlagYesOption( "skiperrors" , "GETOPT_SKIPERRORS" , "continue run disregarding errors" ) );
-		defineOption( CommandVar.newFlagNoOption( "strict" , "GETOPT_SKIPERRORS" , "stop execution after error" ) );
 		defineOption( CommandVar.newFlagNoOption( "downtime" , "GETOPT_ZERODOWNTIME" , "deploy with downtime" ) );
 		defineOption( CommandVar.newFlagYesOption( "nodowntime" , "GETOPT_ZERODOWNTIME" , "deploy without downtime if possible" ) );
 		defineOption( CommandVar.newFlagYesOption( "nonodes" , "GETOPT_NONODES" , "execute only on server-level, no nodes" ) );
@@ -164,7 +87,6 @@ public class CommandOptions {
 		defineOption( CommandVar.newFlagYesOption( "ignoreversion" , "GETOPT_IGNOREVERSION" , "ignore version information on deploy" ) );
 		defineOption( CommandVar.newFlagYesOption( "live" , "GETOPT_LIVE" , "use saved live configuration" ) );
 		defineOption( CommandVar.newFlagYesOption( "hidden" , "GETOPT_HIDDEN" , "use hidden files to restore configuration" ) );
-
 		defineOption( CommandVar.newFlagEnumOption( "a" , "APPLY" , "GETOPT_DBMODE" , "execute database set - only new scipts" ) );
 		defineOption( CommandVar.newFlagEnumOption( "x" , "ANYWAY" , "GETOPT_DBMODE" , "execute database set - both already applied and new scipts" ) );
 		defineOption( CommandVar.newFlagEnumOption( "c" , "CORRECT" , "GETOPT_DBMODE" , "execute database set - only failed scripts" ) );
@@ -180,24 +102,92 @@ public class CommandOptions {
 		defineOption( CommandVar.newFlagEnumOption( "sql" , "SQL" , "GETOPT_DBTYPE" , "execute database set - only scripts" ) );
 		defineOption( CommandVar.newFlagEnumOption( "ctl" , "CTL" , "GETOPT_DBTYPE" , "execute database set - only load files" ) );
 		defineOption( CommandVar.newFlagEnumOption( "pub" , "PUB" , "GETOPT_DBTYPE" , "execute database set - only publish files" ) );
-		
 		defineOption( CommandVar.newParam( "release" , "GETOPT_RELEASE" , "use specific release name" ) );
 		defineOption( CommandVar.newParam( "branch" , "GETOPT_BRANCH" , "use specific codebase branch name" ) );
 		defineOption( CommandVar.newParam( "tag" , "GETOPT_TAG" , "use specific codebase tag name" ) );
 		defineOption( CommandVar.newParam( "date" , "GETOPT_DATE" , "use codebase state on given date (ISO-8601)" ) );
 		defineOption( CommandVar.newParam( "group" , "GETOPT_GROUP" , "use specific codebase project group" ) );
 		defineOption( CommandVar.newParam( "version" , "GETOPT_VERSION" , "use specific codebase version" ) );
-		
 		defineOption( CommandVar.newParam( "dc" , "GETOPT_DCMASK" , "use datacenters which names meet given regular mask" ) );
 		defineOption( CommandVar.newParam( "deploygroup" , "GETOPT_DEPLOYGROUP" , "use only nodes belonging to specified deploygroup" ) );
 		defineOption( CommandVar.newParam( "startgroup" , "GETOPT_STARTGROUP" , "use only servers belonging to specified startgroup" ) );
 		defineOption( CommandVar.newParam( "args" , "GETOPT_EXTRAARGS" , "extra arguments for server interface scripts" ) );
 		defineOption( CommandVar.newParam( "unit" , "GETOPT_UNIT" , "use distributive items only from given unit" ) );
 		defineOption( CommandVar.newParam( "buildinfo" , "GETOPT_BUILDINFO" , "use given build info parameter" ) );
-		defineOption( CommandVar.newParam( "tag" , "GETOPT_TAG" , "use configuration files from given tag" ) );
 		defineOption( CommandVar.newParam( "hostuser" , "GETOPT_HOSTUSER" , "use given user when connecting to host" ) );
-		defineOption( CommandVar.newParam( "key" , "GETOPT_KEY" , "use given key to connect to host" ) );
 		defineOption( CommandVar.newParam( "newkey" , "GETOPT_NEWKEY" , "use given key to change on host" ) );
+	}
+
+	public void updateProperties( ActionBase action ) throws Exception {
+		action.options.updateProperties( action );
+		
+		boolean isenv = ( action.meta.env == null )? false : true; 
+		boolean def = ( isenv && action.meta.env.PROD )? true : false;
+		String value;
+		
+		CommandContext ctx = action.context;
+		
+		// generic
+		ctx.CTX_TRACE = getFlagValue( action , "GETOPT_TRACE" );
+		ctx.CTX_SHOWONLY = combineValue( action , "GETOPT_SHOWONLY" , ( isenv )? action.meta.env.SHOWONLY : null , def );
+		ctx.CTX_SHOWALL = getFlagValue( action , "GETOPT_SHOWALL" );
+		if( ctx.CTX_TRACE )
+			ctx.CTX_SHOWALL = true;
+		ctx.CTX_FORCE = getFlagValue( action , "GETOPT_FORCE" );
+		ctx.CTX_IGNORE = getFlagValue( action , "GETOPT_SKIPERRORS" );
+		ctx.CTX_ALL = getFlagValue( action , "GETOPT_ALL" );
+		ctx.CTX_COMMANDTIMEOUT = getIntParamValue( action , "GETOPT_COMMANDTIMEOUT" , optDefaultCommandTimeout ) * 1000;
+		value = getParamValue( action , "GETOPT_KEY" ); 
+		ctx.CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? action.meta.env.KEYNAME : "" ) : value;
+
+		// specific
+		ctx.CTX_GET = getFlagValue( action , "GETOPT_GET" );
+		ctx.CTX_DIST = getFlagValue( action , "GETOPT_DIST" );
+		ctx.CTX_UPDATENEXUS = getFlagValue( action , "GETOPT_UPDATENEXUS" );
+		ctx.CTX_CHECK = getFlagValue( action , "GETOPT_CHECK" , true );
+		ctx.CTX_MOVE_ERRORS = getFlagValue( action , "GETOPT_MOVE_ERRORS" );
+		ctx.CTX_REPLACE = getFlagValue( action , "GETOPT_REPLACE" );
+		ctx.CTX_BACKUP = combineValue( action , "GETOPT_BACKUP" , ( isenv )? action.meta.env.BACKUP : null , def );
+		ctx.CTX_OBSOLETE = combineValue( action , "GETOPT_OBSOLETE" , ( isenv )? action.meta.env.OBSOLETE : null , true );
+		ctx.CTX_CONFDEPLOY = combineValue( action , "GETOPT_DEPLOYCONF" , ( isenv )? action.meta.env.CONF_DEPLOY : null , true );
+		ctx.CTX_PARTIALCONF = getFlagValue( action , "GETOPT_PARTIALCONF" );
+		ctx.CTX_DEPLOYBINARY = getFlagValue( action , "GETOPT_DEPLOYBINARY" , true );
+		ctx.CTX_DEPLOYHOT = getFlagValue( action , "GETOPT_DEPLOYHOT" );
+		ctx.CTX_DEPLOYCOLD = getFlagValue( action , "GETOPT_DEPLOYCOLD" );
+		ctx.CTX_DEPLOYRAW = getFlagValue( action , "GETOPT_DEPLOYRAW" );
+		ctx.CTX_CONFKEEPALIVE = combineValue( action , "GETOPT_KEEPALIVE" , ( isenv )? action.meta.env.CONF_KEEPALIVE : null , true );
+		ctx.CTX_ZERODOWNTIME = getFlagValue( action , "GETOPT_ZERODOWNTIME" );
+		ctx.CTX_NONODES = getFlagValue( action , "GETOPT_NONODES" );
+		ctx.CTX_NOCHATMSG = getFlagValue( action , "GETOPT_NOCHATMSG" );
+		ctx.CTX_ROOTUSER = getFlagValue( action , "GETOPT_ROOTUSER" );
+		ctx.CTX_SUDO = getFlagValue( action , "GETOPT_SUDO" );
+		ctx.CTX_IGNOREVERSION = getFlagValue( action , "GETOPT_IGNOREVERSION" );
+		ctx.CTX_LIVE = getFlagValue( action , "GETOPT_LIVE" );
+		ctx.CTX_HIDDEN = getFlagValue( action , "GETOPT_HIDDEN" );
+		value = getEnumValue( action , "GETOPT_DBMODE" );
+		ctx.CTX_DBMODE = ( value.isEmpty() )? SQLMODE.UNKNOWN : SQLMODE.valueOf( value );
+		ctx.CTX_DBMOVE = getFlagValue( action , "GETOPT_DBMOVE" );
+		ctx.CTX_DBAUTH = combineValue( action , "GETOPT_DBAUTH" , ( isenv )? action.meta.env.DB_AUTH : null , false );
+		ctx.CTX_DBALIGNED = getParamValue( action , "OPT_DBALIGNED" );
+		ctx.CTX_DB = getParamValue( action , "GETOPT_DB" );
+		ctx.CTX_DBPASSWORD = getParamValue( action , "GETOPT_DBPASSWORD" );
+		ctx.CTX_REGIONS = getParamValue( action , "GETOPT_REGIONS" );
+		value = getEnumValue( action , "GETOPT_DBTYPE" );
+		ctx.CTX_DBTYPE = ( value.isEmpty() )? SQLTYPE.UNKNOWN : SQLTYPE.valueOf( value );
+		ctx.CTX_RELEASELABEL = getParamValue( action , "GETOPT_RELEASE" );
+		ctx.CTX_BRANCH = getParamValue( action , "GETOPT_BRANCH" );
+		ctx.CTX_TAG = getParamValue( action , "GETOPT_TAG" );
+		ctx.CTX_DATE = getParamValue( action , "GETOPT_DATE" );
+		ctx.CTX_GROUP = getParamValue( action , "GETOPT_GROUP" );
+		ctx.CTX_VERSION = getParamValue( action , "GETOPT_VERSION" );
+		ctx.CTX_DCMASK = getParamValue( action , "GETOPT_DCMASK" );
+		ctx.CTX_DEPLOYGROUP = getParamValue( action , "GETOPT_DEPLOYGROUP" );
+		ctx.CTX_STARTGROUP = getParamValue( action , "GETOPT_STARTGROUP" );
+		ctx.CTX_EXTRAARGS = getParamValue( action , "GETOPT_EXTRAARGS" );
+		ctx.CTX_UNIT = getParamValue( action , "GETOPT_UNIT" );
+		ctx.CTX_BUILDINFO = getParamValue( action , "GETOPT_BUILDINFO" );
+		ctx.CTX_HOSTUSER = getParamValue( action , "GETOPT_HOSTUSER" );
+		ctx.CTX_NEWKEY = getParamValue( action , "GETOPT_NEWKEY" );
 	}
 
 	void print( String s ) {
@@ -246,72 +236,6 @@ public class CommandOptions {
 
 	public boolean isValidVar( String var ) {
 		return( varByName.containsKey( var ) );
-	}
-	
-	public void scatter() {
-		OPT_TRACE = getFlagValue( "GETOPT_TRACE" );
-		OPT_SHOWALL = getFlagValue( "GETOPT_SHOWALL" );
-		OPT_SHOWONLY = getFlagValue( "GETOPT_SHOWONLY" );
-		OPT_FORCE = getFlagValue( "GETOPT_FORCE" );
-		OPT_ALL = getFlagValue( "GETOPT_ALL" );
-		OPT_COMMANDTIMEOUT = getIntParamValue( "GETOPT_COMMANDTIMEOUT" , optDefaultCommandTimeout ) * 1000;
-		
-		if( OPT_TRACE )
-			OPT_SHOWALL = true;
-		
-		OPT_GET = getFlagValue( "GETOPT_GET" );
-		OPT_DIST = getFlagValue( "GETOPT_DIST" );
-		OPT_UPDATENEXUS = getFlagValue( "GETOPT_UPDATENEXUS" );
-		OPT_CHECK = getFlagValue( "GETOPT_CHECK" , true );
-		OPT_MOVE_ERRORS = getFlagValue( "GETOPT_MOVE_ERRORS" );
-		OPT_REPLACE = getFlagValue( "GETOPT_REPLACE" );
-		
-		OPT_BACKUP = getFlagValue( "GETOPT_BACKUP" );
-		OPT_OBSOLETE = getFlagValue( "GETOPT_OBSOLETE" );
-		OPT_DEPLOYCONF = getFlagValue( "GETOPT_DEPLOYCONF" , true );
-		OPT_PARTIALCONF = getFlagValue( "GETOPT_PARTIALCONF" );
-		OPT_DEPLOYBINARY = getFlagValue( "GETOPT_DEPLOYBINARY" , true );
-		OPT_DEPLOYHOT = getFlagValue( "GETOPT_DEPLOYHOT" );
-		OPT_DEPLOYCOLD = getFlagValue( "GETOPT_DEPLOYCOLD" );
-		OPT_DEPLOYRAW = getFlagValue( "GETOPT_DEPLOYRAW" );
-		OPT_KEEPALIVE = getFlagValue( "GETOPT_KEEPALIVE" , true );
-		OPT_ZERODOWNTIME = getFlagValue( "GETOPT_ZERODOWNTIME" );
-		OPT_NONODES = getFlagValue( "GETOPT_NONODES" );
-		OPT_NOCHATMSG = getFlagValue( "GETOPT_NOCHATMSG" );
-		OPT_ROOTUSER = getFlagValue( "GETOPT_ROOTUSER" );
-		OPT_SUDO = getFlagValue( "GETOPT_SUDO" );
-		OPT_IGNOREVERSION = getFlagValue( "GETOPT_IGNOREVERSION" );
-		OPT_LIVE = getFlagValue( "GETOPT_LIVE" );
-		OPT_HIDDEN = getFlagValue( "GETOPT_HIDDEN" );
-		
-		OPT_RELEASELABEL = getParamValue( "GETOPT_RELEASE" );
-		OPT_BRANCH = getParamValue( "GETOPT_BRANCH" );
-		OPT_TAG = getParamValue( "GETOPT_TAG" );
-		OPT_DATE = getParamValue( "GETOPT_DATE" );
-		OPT_GROUP = getParamValue( "GETOPT_GROUP" );
-		OPT_VERSION = getParamValue( "GETOPT_VERSION" );
-
-		OPT_DCMASK = getParamValue( "GETOPT_DCMASK" );
-		OPT_DEPLOYGROUP = getParamValue( "GETOPT_DEPLOYGROUP" );
-		OPT_STARTGROUP = getParamValue( "GETOPT_STARTGROUP" );
-		OPT_EXTRAARGS = getParamValue( "GETOPT_EXTRAARGS" );
-		OPT_UNIT = getParamValue( "GETOPT_UNIT" );
-		OPT_BUILDINFO = getParamValue( "GETOPT_BUILDINFO" );
-		OPT_TAG = getParamValue( "GETOPT_TAG" );
-		OPT_HOSTUSER = getParamValue( "GETOPT_HOSTUSER" );
-		OPT_KEY = getParamValue( "GETOPT_KEY" );
-		OPT_NEWKEY = getParamValue( "GETOPT_NEWKEY" );
-		
-		String value = getEnumValue( "GETOPT_DBMODE" );
-		OPT_DBMODE = ( value.isEmpty() )? SQLMODE.UNKNOWN : SQLMODE.valueOf( value );
-		OPT_DBMOVE = getFlagValue( "GETOPT_DBMOVE" );
-		OPT_DBAUTH = getFlagValue( "GETOPT_DBAUTH" );
-		OPT_DBALIGNED = getParamValue( "OPT_DBALIGNED" );
-		OPT_DB = getParamValue( "GETOPT_DB" );
-		OPT_DBPASSWORD = getParamValue( "GETOPT_DBPASSWORD" );
-		OPT_REGIONS = getParamValue( "GETOPT_REGIONS" );
-		value = getEnumValue( "GETOPT_DBTYPE" );
-		OPT_DBTYPE = ( value.isEmpty() )? SQLTYPE.UNKNOWN : SQLTYPE.valueOf( value );
 	}
 	
 	public boolean isFlag( String opt ) {
@@ -513,15 +437,20 @@ public class CommandOptions {
 		return( true );
 	}
 
-	public FLAG getFlagNativeValue( String var ) {
+	public FLAG getFlagNativeValue( ActionBase action , String var ) throws Exception {
+		if( !isFlag( var ) )
+			action.exit( "unknown flag var=" + var );
 		return( flags.get( var ) );
 	}
 
-	public boolean getFlagValue( String var ) {
-		return( getFlagValue( var , false ) );
+	public boolean getFlagValue( ActionBase action , String var ) throws Exception {
+		return( getFlagValue( action , var , false ) );
 	}
 	
-	public boolean getFlagValue( String var , boolean defValue ) {
+	public boolean getFlagValue( ActionBase action , String var , boolean defValue ) throws Exception {
+		if( !isFlag( var ) )
+			action.exit( "unknown flag var=" + var );
+		
 		FLAG val = flags.get( var );
 		if( val == null )
 			return( defValue );
@@ -532,21 +461,30 @@ public class CommandOptions {
 		return( false );
 	}
 	
-	public String getEnumValue( String var ) {
+	public String getEnumValue( ActionBase action , String var ) throws Exception {
+		if( !isEnum( var ) )
+			action.exit( "unknown enum var=" + var );
+		
 		String val = enums.get( var );
 		if( val == null )
 			return( "" );
 		return( val );
 	}
 	
-	public String getParamValue( String var ) {
+	public String getParamValue( ActionBase action , String var ) throws Exception {
+		if( !isParam( var ) )
+			action.exit( "unknown param var=" + var );
+		
 		String val = params.get( var );
 		if( val == null )
 			return( "" );
 		return( val );
 	}
 	
-	public int getIntParamValue( String var , int defaultValue ) {
+	public int getIntParamValue( ActionBase action , String var , int defaultValue ) throws Exception {
+		if( !isParam( var ) )
+			action.exit( "unknown param var=" + var );
+		
 		String val = params.get( var );
 		if( val == null || val.isEmpty() )
 			return( defaultValue );
@@ -658,6 +596,23 @@ public class CommandOptions {
 			list[ k - startFrom ] = args.get( k );
 
 		return( list );
+	}
+	
+	public boolean combineValue( ActionBase action , String optVar , FLAG confValue , boolean defValue ) throws Exception {
+		if( !isValidVar( optVar ) )
+			action.exit( "unknown flag var=" + optVar );
+		
+		FLAG optValue = flags.get( optVar );
+
+		// option always overrides
+		if( optValue != null && optValue != FLAG.DEFAULT )
+			return( optValue == FLAG.YES );
+		
+		// if configuration is present
+		if( confValue != null && confValue != FLAG.DEFAULT )
+			return( confValue == FLAG.YES );
+		
+		return( defValue );
 	}
 	
 }

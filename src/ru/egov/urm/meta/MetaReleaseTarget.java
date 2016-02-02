@@ -195,11 +195,11 @@ public class MetaReleaseTarget {
 	
 	public boolean checkPropsEqualsToOptions( ActionBase action ) throws Exception {
 		boolean change = false; 
-		if( action.options.OPT_BRANCH.isEmpty() == false && !this.BUILDBRANCH.equals( action.options.OPT_BRANCH ) )
+		if( action.context.CTX_BRANCH.isEmpty() == false && !this.BUILDBRANCH.equals( action.context.CTX_BRANCH ) )
 			change = true; 
-		if( action.options.OPT_TAG.isEmpty() == false && !this.BUILDTAG.equals( action.options.OPT_TAG ) )
+		if( action.context.CTX_TAG.isEmpty() == false && !this.BUILDTAG.equals( action.context.CTX_TAG ) )
 			change = true; 
-		if( action.options.OPT_VERSION.isEmpty() == false && !this.BUILDVERSION.equals( action.options.OPT_VERSION ) )
+		if( action.context.CTX_VERSION.isEmpty() == false && !this.BUILDVERSION.equals( action.context.CTX_VERSION ) )
 			change = true; 
 
 		if( change ) {

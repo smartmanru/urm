@@ -32,7 +32,7 @@ public class ActionUpgradeEnv extends ActionBase {
 		// execute
 		session.setTimeoutUnlimited( this );
 		int status = session.customGetStatus( this , "sh " + Common.getPath( meta.env.UPGRADE_PATH , PATCHFILE ) +
-				" " + account.HOSTLOGIN + " " + options.OPT_EXTRAARGS );
+				" " + account.HOSTLOGIN + " " + context.CTX_EXTRAARGS );
 		if( status < 0 )
 			exit( "fatal error" );
 
@@ -43,8 +43,8 @@ public class ActionUpgradeEnv extends ActionBase {
 	}
 
 	private boolean checkNeed( Account account ) throws Exception {
-		if( options.OPT_FORCE ) {
-			if( context.SHOWONLY ) {
+		if( context.CTX_FORCE ) {
+			if( context.CTX_SHOWONLY ) {
 				log( account.HOSTLOGIN + ": forced upgrade " + PATCHFILE + " (showonly)" );
 				return( false );
 			}
@@ -68,7 +68,7 @@ public class ActionUpgradeEnv extends ActionBase {
 			F_ACTION = "repair";
 		}	
 
-		if( context.SHOWONLY ) {
+		if( context.CTX_SHOWONLY ) {
 			log( account.HOSTLOGIN + ": upgrade " + F_ACTION + " " + PATCHFILE + " (showonly)" );
 			return( false );
 		}

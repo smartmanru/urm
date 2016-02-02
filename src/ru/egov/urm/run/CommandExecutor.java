@@ -174,7 +174,7 @@ public abstract class CommandExecutor {
 		}
 		catch( Throwable e ) {
 			ExitException ex = Common.getExitException( e );
-			if( ex == null || action.options.OPT_SHOWALL )
+			if( ex == null || action.context.CTX_SHOWALL )
 				action.log( e );
 			else
 				action.log( ex.getMessage() );
@@ -192,8 +192,16 @@ public abstract class CommandExecutor {
 		CommandOptions options = getOptions();
 		
 		// start local shell
-		CommandOutput output = CommandOutput.createGenericOutput( options.OPT_SHOWALL , options.OPT_TRACE );
+		CommandOutput output = new CommandOutput();
 		ActionInit action = new ActionInit( this , context , options , output , meta );
+		
+		// scatter into variables
+		options.updateProperties( action );
+		output.setOptions( context.CTX_SHOWALL , context.CTX_TRACE );
+		
+		// print
+		if( context.CTX_SHOWALL )
+			options.printRunningOptions();
 		
 		// load product properties
 		meta.loadProduct( action );

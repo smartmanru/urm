@@ -46,11 +46,11 @@ public class DatabaseClient {
 		String dbmsAddr = server.DBMSADDR;
 		
 		String S_DB_USE_SCHEMA_PASSWORD = "";
-		if( !action.context.DB_AUTH )
+		if( !action.context.CTX_DBAUTH )
 			S_DB_USE_SCHEMA_PASSWORD = user;
 		else
-		if( action.options.OPT_DBPASSWORD.isEmpty() )
-			S_DB_USE_SCHEMA_PASSWORD = action.options.OPT_DBPASSWORD;
+		if( action.context.CTX_DBPASSWORD.isEmpty() )
+			S_DB_USE_SCHEMA_PASSWORD = action.context.CTX_DBPASSWORD;
 		else
 		if( !action.meta.env.DB_AUTHFILE.isEmpty() ) {
 			String F_FNAME = action.meta.env.DB_AUTHFILE;
@@ -98,7 +98,7 @@ public class DatabaseClient {
 		for( String file : Common.getSortedKeys( set.files ) ) {
 			if( !applyManualScript( action , shell , folder , file , logFolder ) ) {
 				res = false;
-				if( !action.options.OPT_FORCE ) {
+				if( !action.context.CTX_FORCE ) {
 					action.log( "error executing manual script, cancel set execution" );
 					break;
 				}
@@ -116,7 +116,7 @@ public class DatabaseClient {
 		String fileLog = logFolder.getFilePath( action , Common.getBaseName( file ) + ".out" );
 		
 		action.executeLogLive( shell , "apply manual script: " + file );
-		if( action.context.SHOWONLY )
+		if( action.context.CTX_SHOWONLY )
 			return( true );
 		
 		return( specific.applySystemScript( action , server , shell , fileRun , fileLog ) );

@@ -62,7 +62,7 @@ public class Artefactory {
 			return;
 		
 		CommandExecutor executor = action.executor; 
-		if( executor.isFailed() || action.options.OPT_SHOWALL )
+		if( executor.isFailed() || action.context.CTX_SHOWALL )
 			action.log( "saved work directory: " + workFolder.folderPath );
 		else
 			workFolder.removeThis( action );

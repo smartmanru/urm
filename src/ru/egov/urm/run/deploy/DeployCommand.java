@@ -37,7 +37,7 @@ public class DeployCommand {
 	public void dropRedist( ActionBase action , ActionScope scope , DistStorage dist ) throws Exception {
 		ActionDropRedist ca = new ActionDropRedist( action , null , scope.release );
 		
-		if( action.options.OPT_FORCE )
+		if( action.context.CTX_FORCE )
 			ca.runEnvUniqueHosts( scope );
 		else
 			ca.runAll( scope );
@@ -89,7 +89,7 @@ public class DeployCommand {
 		
 		// download configuration templates
 		LocalFolder folder = null;
-		if( action.context.CONF_DEPLOY && !dist.info.isEmptyConfiguration( action ) ) {
+		if( action.context.CTX_CONFDEPLOY && !dist.info.isEmptyConfiguration( action ) ) {
 			action.log( "prepare configuration ..." );
 			folder = action.artefactory.getWorkFolder( action , "configuration" );
 			ActionConfigure ca = new ActionConfigure( action , null , dist , folder ); 
@@ -111,20 +111,18 @@ public class DeployCommand {
 		sendMsg( action , "[restartenv] restarting " + scope.getScopeInfo( action ) + " ..." );
 
 		ActionStopEnv stop = new ActionStopEnv( action , null );
-		stop.changeOptions();
-		stop.options.OPT_NOCHATMSG = true;
+		stop.context.CTX_NOCHATMSG = true;
 		
 		if( !stop.runAll( scope ) ) {
-			if( !action.options.OPT_FORCE )
+			if( !action.context.CTX_FORCE )
 				action.exit( "restartEnv: stopenv failed, not trying to start" );
 		}
 		
 		ActionStartEnv start = new ActionStartEnv( action , null );
-		start.changeOptions();
-		start.options.OPT_NOCHATMSG = true;
+		start.context.CTX_NOCHATMSG = true;
 		
 		if( !start.runAll( scope ) ) {
-			if( !action.options.OPT_FORCE )
+			if( !action.context.CTX_FORCE )
 				action.exit( "restartEnv: startenv failed" );
 		}
 		

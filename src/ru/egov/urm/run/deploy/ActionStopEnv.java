@@ -18,7 +18,7 @@ public class ActionStopEnv extends ActionBase {
 
 	@Override protected void runBefore( ActionScope scope ) throws Exception {
 		logAction( "stop environment dc=" + meta.dc.NAME + " (" + getMode() + ") ..." );
-		if( !context.SHOWONLY )
+		if( !context.CTX_SHOWONLY )
 			ActionSendChatMsg.sendMsg( this , "[stopenv] stopping " + scope.getScopeInfo( this ) + " ..." , false );
 	}
 
@@ -31,7 +31,7 @@ public class ActionStopEnv extends ActionBase {
 		List<MetaEnvStartGroup> groups = set.dc.startInfo.getReverseGroupList( this );
 		for( MetaEnvStartGroup group : groups ) {
 			if( !stopServerGroup( set , group , targets ) ) {
-				if( !options.OPT_FORCE )
+				if( !context.CTX_FORCE )
 					exit( "cancel execution due to failed group operation" );
 			}
 		}

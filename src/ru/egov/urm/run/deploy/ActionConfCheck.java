@@ -48,7 +48,7 @@ public class ActionConfCheck extends ActionBase {
 		// read env properties...
 		String[] S_CONFCHECK_PROPLIST_ENV = meta.env.getPropertyList( this );
 
-		if( context.SHOWONLY ) {
+		if( context.CTX_SHOWONLY ) {
 			// show values
 			log( "============================================ show env properties ..." );
 			for( String var : S_CONFCHECK_PROPLIST_ENV ) {
@@ -72,7 +72,7 @@ public class ActionConfCheck extends ActionBase {
 		// echo read data center=$DC properties...
 		String[] S_CONFCHECK_PROPLIST_DC = dc.getPropertyList( this );
 
-		if( context.SHOWONLY ) {
+		if( context.CTX_SHOWONLY ) {
 			// show values
 			log( "============================================ data center=" + dc.NAME + " properties ..." );
 			for( String var : S_CONFCHECK_PROPLIST_DC ) {
@@ -96,7 +96,7 @@ public class ActionConfCheck extends ActionBase {
 		// echo read server properties...
 		String[] S_CONFCHECK_PROPLIST_SERVER = server.getPropertyList( this );
 
-		if( context.SHOWONLY ) {
+		if( context.CTX_SHOWONLY ) {
 			// show values
 			log( "============================================ data center=" + server.dc.NAME + " server=" + server.NAME + " properties ..." );
 			for( String var : S_CONFCHECK_PROPLIST_SERVER ) {
@@ -142,7 +142,7 @@ public class ActionConfCheck extends ActionBase {
 			if( Common.findItem( var , baseline ) < 0 ) {
 				String error = "unexpected variable=" + var + " in " + scope; 
 			
-				if( options.OPT_SHOWALL ) {
+				if( context.CTX_SHOWALL ) {
 					log( error );
 					S_CONFCHECK_STATUS = false;
 				}
@@ -150,7 +150,7 @@ public class ActionConfCheck extends ActionBase {
 					exit( error );
 			}
 			else {
-				if( options.OPT_SHOWALL )
+				if( context.CTX_SHOWALL )
 					log( "variable=" + var + " in " + scope + " - ok" );
 			}
 		}
@@ -163,7 +163,7 @@ public class ActionConfCheck extends ActionBase {
 			if( Common.findItem( var , vars ) < 0 ) {
 				String error = "missing variable=" + var + " in " + scope;
 			
-				if( options.OPT_SHOWALL ) {
+				if( context.CTX_SHOWALL ) {
 					log( error );
 					S_CONFCHECK_STATUS = false;
 				}
@@ -171,7 +171,7 @@ public class ActionConfCheck extends ActionBase {
 					exit( error );
 			}
 			else {
-				if( options.OPT_SHOWALL )
+				if( context.CTX_SHOWALL )
 					log( "variable=" + var + " in " + scope + " - ok" );
 			}
 		}

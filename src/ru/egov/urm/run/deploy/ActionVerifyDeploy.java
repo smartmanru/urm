@@ -45,8 +45,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			configure = new ActionConfigure( this , null , tobeFolder );
 		else
 			configure = new ActionConfigure( this , null , dist , tobeFolder );
-		configure.changeOptions();
-		configure.options.OPT_HIDDEN = true;
+		configure.context.CTX_HIDDEN = true;
 		configure.runAll( scope );
 		
 		asisFolder = artefactory.getWorkFolder( this , "asis" );
@@ -83,11 +82,11 @@ public class ActionVerifyDeploy extends ActionBase {
 	private void executeServer( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		MetaEnvServerLocation[] F_ENV_LOCATIONS_BINARY = new MetaEnvServerLocation[0];
-		if( options.OPT_DEPLOYBINARY )
+		if( context.CTX_DEPLOYBINARY )
 			F_ENV_LOCATIONS_BINARY = server.getLocations( this , true , false );
 		
 		MetaEnvServerLocation[] F_ENV_LOCATIONS_CONFIG = new MetaEnvServerLocation[0];
-		if( context.CONF_DEPLOY )
+		if( context.CTX_CONFDEPLOY )
 			F_ENV_LOCATIONS_CONFIG = server.getLocations( this , false , true );
 		
 		if( F_ENV_LOCATIONS_BINARY.length == 0 && F_ENV_LOCATIONS_CONFIG.length == 0 ) {
@@ -139,7 +138,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		// compare configuration tobe and as is
 		if( confLocations.length > 0 ) {
 			String nodePrefix = "node" + node.POS + "-";
-			if( options.OPT_CHECK ) {
+			if( context.CTX_CHECK ) {
 				if( !showConfDiffs( server , node , tobeServerFolder , asisServerFolder , nodePrefix ) )
 					verifyNode = false;
 			}
@@ -176,7 +175,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			verifyNode = false;
 			String diffFile = asisFolder.getFilePath( this , "diff.txt" );
 			diff.save( this , diffFile );
-			if( options.OPT_SHOWALL )
+			if( context.CTX_SHOWALL )
 				log( "found configuration differences in node=" + node.POS + ", see " + diffFile );
 			else {
 				log( "found configuration differences in node=" + node.POS + ":" );
@@ -250,16 +249,16 @@ public class ActionVerifyDeploy extends ActionBase {
 		LocalFolder asisConfFolder = asisFolder.getSubFolder( this , Common.getPath( server.NAME , name ) );
 		asisConfFolder.ensureExists( this );
 		
-		if( options.OPT_CHECK ) {
+		if( context.CTX_CHECK ) {
 			if( !redist.getConfigItem( this , asisConfFolder , confItem , location.DEPLOYPATH ) ) {
-				if( !options.OPT_FORCE )
+				if( !context.CTX_FORCE )
 					exit( "unable to get configuration item=" + confItem.KEY );
 			}
 		}
 		else {
 			String asisMD5 = redist.getConfigItemMD5( this , confItem , location.DEPLOYPATH );
 			if( asisMD5 == null ) {
-				if( !options.OPT_FORCE )
+				if( !context.CTX_FORCE )
 					exit( "unable to get configuration item=" + confItem.KEY );
 			}
 			asisConfFolder.createFileFromString( this , MD5FILE , asisMD5 );
@@ -304,7 +303,7 @@ public class ActionVerifyDeploy extends ActionBase {
 	}
 
 	private boolean executeNodeArchive( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrBinaryItem archiveItem , LocalFolder tobeServerFolder , LocalFolder asisServerFolder ) throws Exception {
-		boolean getMD5 = ( options.OPT_CHECK )? false : true;
+		boolean getMD5 = ( context.CTX_CHECK )? false : true;
 		DistItemInfo distInfo = dist.getDistItemInfo( this , archiveItem , getMD5 );
 		if( !distInfo.found ) {
 			debug( "ignore non-release item=" + archiveItem.KEY );
@@ -312,7 +311,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		}
 		
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
-		if( !options.OPT_CHECK ) {
+		if( !context.CTX_CHECK ) {
 			FileInfo runInfo = redist.getRuntimeItemInfo( this , archiveItem , location.DEPLOYPATH , "" );
 			if( runInfo.md5value == null ) {
 				log( "dist item=" + archiveItem.KEY + " is not found in location=" + location.DEPLOYPATH );
@@ -346,7 +345,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			String diffFile = asisServerFolder.getFilePath( this , "diff.txt" );
 			int status = session.customGetStatus( this , "diff -r " + liveFolder.folderPath + " " + distFolder.folderPath + " > " + diffFile );
 			if( status != 0 ) {
-				if( options.OPT_SHOWALL )
+				if( context.CTX_SHOWALL )
 					log( "dist item=" + archiveItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive (see " + diffFile + ")" );
 				else {
 					log( "dist item=" + archiveItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive:" );

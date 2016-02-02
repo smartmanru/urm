@@ -136,7 +136,7 @@ public class DatabaseRegistry {
 		}
 		else
 		if( isReleaseFinished( action ) ) {
-			if( !action.options.OPT_FORCE )
+			if( !action.context.CTX_FORCE )
 				action.exit( "release is completely done, use force to reapply" );
 			
 			releaseStatus = "S";
@@ -178,8 +178,8 @@ public class DatabaseRegistry {
 		String status = data.get( key );
 		
 		if( status == null ) {
-			if( action.options.OPT_DBMODE == SQLMODE.ANYWAY ||
-				action.options.OPT_DBMODE == SQLMODE.APPLY )
+			if( action.context.CTX_DBMODE == SQLMODE.ANYWAY ||
+				action.context.CTX_DBMODE == SQLMODE.APPLY )
 				return( true );
 			
 			action.log( "script " + file + " is new. Skipped" );
@@ -187,8 +187,8 @@ public class DatabaseRegistry {
 		}
 		
 		if( status.equals( "S" ) ) {
-			if( action.options.OPT_DBMODE == SQLMODE.ANYWAY ||
-				action.options.OPT_DBMODE == SQLMODE.CORRECT )
+			if( action.context.CTX_DBMODE == SQLMODE.ANYWAY ||
+				action.context.CTX_DBMODE == SQLMODE.CORRECT )
 				return( true );
 			
 			action.log( "script " + file + " is already applied with errors. Skipped" );
@@ -196,7 +196,7 @@ public class DatabaseRegistry {
 		}
 		
 		if( status.equals( "A" ) ) {
-			if( action.options.OPT_DBMODE == SQLMODE.ANYWAY )
+			if( action.context.CTX_DBMODE == SQLMODE.ANYWAY )
 				return( true );
 			
 			action.log( "script " + file + " is already successfully applied. Skipped" );

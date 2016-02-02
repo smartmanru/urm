@@ -35,7 +35,7 @@ public class ActionRedist extends ActionBase {
 		logAction( "execute dc=" + meta.dc.NAME + ", releasedir=" + dist.RELEASEDIR + ", servers={" + scope.getScopeInfo( this ) + "} ..." );
 
 		// if configuration deployment requested - validate environment data
-		if( context.CONF_DEPLOY ) {
+		if( context.CTX_CONFDEPLOY ) {
 			ActionConfCheck check = new ActionConfCheck( this , null );
 			if( !check.runAll( scope ) ) {
 				logAction( "configuration check failed: invalid environment data" );
@@ -56,11 +56,11 @@ public class ActionRedist extends ActionBase {
 	private void executeServer( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		MetaEnvServerLocation[] F_ENV_LOCATIONS_BINARY = new MetaEnvServerLocation[0];
-		if( options.OPT_DEPLOYBINARY )
+		if( context.CTX_DEPLOYBINARY )
 			F_ENV_LOCATIONS_BINARY = server.getLocations( this , true , false );
 		
 		MetaEnvServerLocation[] F_ENV_LOCATIONS_CONFIG = new MetaEnvServerLocation[0];
-		if( context.CONF_DEPLOY )
+		if( context.CTX_CONFDEPLOY )
 			F_ENV_LOCATIONS_CONFIG = server.getLocations( this , false , true );
 		
 		if( F_ENV_LOCATIONS_BINARY.length == 0 && F_ENV_LOCATIONS_CONFIG.length == 0 ) {
@@ -91,13 +91,13 @@ public class ActionRedist extends ActionBase {
 			executeNode( server , server , node , F_CLUSTER_MODE , false , F_ENV_LOCATIONS_BINARY , F_ENV_LOCATIONS_CONFIG , liveFolder );
 		}
 
-		if( options.OPT_DEPLOYBINARY && server.staticServer != null )
+		if( context.CTX_DEPLOYBINARY && server.staticServer != null )
 			exitNotImplemented();
 	}
 
 	private LocalFolder prepareServerConfiguration( ActionScopeTarget target, MetaEnvServerLocation[] locations ) throws Exception {
 		MetaEnvServer server = target.envServer;
-		if( !context.CONF_DEPLOY )
+		if( !context.CTX_CONFDEPLOY )
 			return( null );
 		
 		MetaDistrConfItem[] confItems = dist.getLocationConfItems( this , locations );
@@ -142,7 +142,7 @@ public class ActionRedist extends ActionBase {
 	}
 	
 	private void executeNode( MetaEnvServer deployServer , MetaEnvServer server , MetaEnvServerNode node , boolean clusterMode , boolean admin , MetaEnvServerLocation[] F_ENV_LOCATIONS_BINARY , MetaEnvServerLocation[] F_ENV_LOCATIONS_CONFIG , LocalFolder liveFolder ) throws Exception {
-		if( options.OPT_DEPLOYBINARY ) {
+		if( context.CTX_DEPLOYBINARY ) {
 			if( F_ENV_LOCATIONS_BINARY.length == 0 ) {
 				trace( "server=" + server.NAME + ", node=" + node.POS + " - ignore binary deploy due to no locations" );
 				return;
@@ -153,7 +153,7 @@ public class ActionRedist extends ActionBase {
 		else
 			trace( "server=" + server.NAME + ", node=" + node.POS + " - ignore binary deploy due to options" );
 		
-		if( context.CONF_DEPLOY ) {
+		if( context.CTX_CONFDEPLOY ) {
 			if( F_ENV_LOCATIONS_CONFIG.length == 0 ) {
 				trace( "server=" + server.NAME + ", node=" + node.POS + " - ignore config deploy due to no locations" );
 				return;
@@ -162,7 +162,7 @@ public class ActionRedist extends ActionBase {
 			executeNodeConfig( server , node , clusterMode , admin , F_ENV_LOCATIONS_CONFIG , liveFolder );
 		}
 		
-		if( context.BACKUP )
+		if( context.CTX_BACKUP )
 			executeNodeBackup( server , node );
 	}
 

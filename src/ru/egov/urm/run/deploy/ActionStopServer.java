@@ -70,7 +70,7 @@ public class ActionStopServer extends ActionBase {
 		}
 	
 		if( actionServer.TYPE == VarSERVERTYPE.GENERIC_COMMAND ) {
-			if( !options.OPT_FORCE ) {
+			if( !context.CTX_FORCE ) {
 				debug( "server=" + actionServer.NAME + " is command server. Skipped." );
 				return;
 			}

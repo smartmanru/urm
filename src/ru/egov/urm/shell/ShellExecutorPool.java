@@ -79,7 +79,7 @@ public class ShellExecutorPool {
 					session.kill( action );
 				}
 				catch( Throwable e ) {
-					if( action.options.OPT_TRACE )
+					if( action.context.CTX_TRACE )
 						System.out.println( "exception when killing session=" + session.name + " (" + e.getMessage() + ")" );
 				}
 			}
@@ -90,7 +90,7 @@ public class ShellExecutorPool {
 					session.kill( action );
 				}
 				catch( Throwable e ) {
-					if( action.options.OPT_TRACE )
+					if( action.context.CTX_TRACE )
 						System.out.println( "exception when killing session=" + session.name + " (" + e.getMessage() + ")" );
 				}
 			}

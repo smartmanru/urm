@@ -21,10 +21,10 @@ public class ActionChangeKeys extends ActionBase {
 		String F_NEWKEY = meta.env.KEYNAME;
 		String F_OLDKEY = F_NEWKEY;
 
-		if( !options.OPT_NEWKEY.isEmpty() )
-			F_NEWKEY = options.OPT_NEWKEY;
-		if( !context.KEYNAME.isEmpty() )
-			F_OLDKEY = context.KEYNAME;
+		if( !context.CTX_NEWKEY.isEmpty() )
+			F_NEWKEY = context.CTX_NEWKEY;
+		if( !context.CTX_KEYNAME.isEmpty() )
+			F_OLDKEY = context.CTX_KEYNAME;
 		
 		String P_KEYFILENEXT = F_NEWKEY;
 		String P_KEYACCESS = F_OLDKEY;
@@ -77,7 +77,7 @@ public class ActionChangeKeys extends ActionBase {
 		// check new key is already placed and access using old key is not avalable
 		String F_HOSTUSER = account.USER;
 		Account F_TARGETACCOUNT = account;
-		if( F_HOSTUSER.equals( "root" ) == false && options.OPT_SUDO )
+		if( F_HOSTUSER.equals( "root" ) == false && context.CTX_SUDO )
 			F_TARGETACCOUNT = account.getRootAccount( this );
 			
 		if( cmd.equals( "delete" ) == false && cmd.equals( "list" ) == false ) {
@@ -94,7 +94,7 @@ public class ActionChangeKeys extends ActionBase {
 
 		String F_SETUPAUTH;
 		Account F_BEHALFACCOUNT = account;
-		if( F_HOSTUSER.equals( "root" ) == false && options.OPT_ROOTUSER ) {
+		if( F_HOSTUSER.equals( "root" ) == false && context.CTX_ROOTUSER ) {
 			F_BEHALFACCOUNT = account.getRootAccount( this );
 
 			if( !checkHostUser( F_BEHALFACCOUNT , F_ACCESSOPTION , F_HOSTUSER ) )
@@ -104,7 +104,7 @@ public class ActionChangeKeys extends ActionBase {
 			F_SETUPAUTH = getCreateSshOnBehalf( F_HOSTUSER ); 
 		}
 		else
-		if( F_HOSTUSER.equals( "root" ) == false && options.OPT_SUDO ) {
+		if( F_HOSTUSER.equals( "root" ) == false && context.CTX_SUDO ) {
 			F_SETUPAUTH = getCreateSshOnSudo( F_HOSTUSER ); 
 		}
 		else
@@ -198,7 +198,7 @@ public class ActionChangeKeys extends ActionBase {
 	}
 
 	private boolean replaceKey( Account account , String ACCESSOPTION , String SETUPAUTH , String KEYOWNER , String KEYDATA ) throws Exception {
-		if( options.OPT_SUDO )
+		if( context.CTX_SUDO )
 			exit( "unsupported with sudo" );
 		
 		session.setTimeoutUnlimited( this );
@@ -216,7 +216,7 @@ public class ActionChangeKeys extends ActionBase {
 		int status;
 		
 		session.setTimeoutUnlimited( this );
-		if( options.OPT_SUDO ) {
+		if( context.CTX_SUDO ) {
 			status = session.customGetStatus( this , "ssh -n -t -t " + ACCESSOPTION + " " + account.HOSTLOGIN + " " + 
 				Common.getQuoted( SETUPAUTH + "; echo " + Common.getQuoted( KEYDATA ) + " | sudo tee ~root/" + S_AUTHFILE ) );
 		}
@@ -231,7 +231,7 @@ public class ActionChangeKeys extends ActionBase {
 	}
 
 	private boolean deleteKey( Account account , String ACCESSOPTION , String SETUPAUTH , String KEYOWNER ) throws Exception {
-		if( options.OPT_SUDO )
+		if( context.CTX_SUDO )
 			exit( "unsupported with sudo" );
 		
 		int status = session.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " +
@@ -243,7 +243,7 @@ public class ActionChangeKeys extends ActionBase {
 	}
 	
 	private boolean listKeys( Account account , String ACCESSOPTION , String SETUPAUTH ) throws Exception {
-		if( options.OPT_SUDO )
+		if( context.CTX_SUDO )
 			exit( "unsupported with sudo" );
 		
 		session.setTimeoutUnlimited( this );

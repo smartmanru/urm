@@ -60,7 +60,7 @@ public abstract class ShellExecutor {
 		if( !initialized )
 			action.exit( "session=" + name + " failed on init stage" );
 		
-		core = ShellCore.createShellCore( action , this , action.options.OPT_COMMANDTIMEOUT , core.OSTYPE );
+		core = ShellCore.createShellCore( action , this , action.context.CTX_COMMANDTIMEOUT , core.OSTYPE );
 		start( action );
 	}
 	

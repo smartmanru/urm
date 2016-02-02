@@ -26,7 +26,7 @@ public class BuildCommand {
 		ca.runEachBuildableProject( scope );
 		
 		if( ca.isFailed() ) {
-			if( action.options.OPT_GET || action.options.OPT_DIST )
+			if( action.context.CTX_GET || action.context.CTX_DIST )
 				action.log( "BUILD FAILED, do not download any artefacts" );
 			else
 				action.log( "BUILD FAILED" );
@@ -34,13 +34,13 @@ public class BuildCommand {
 		else {
 			action.log( "BUILD SUCCESSFUL" );
 			
-			if( action.options.OPT_GET || action.options.OPT_DIST )
+			if( action.context.CTX_GET || action.context.CTX_DIST )
 				getAll( action , scope );
 		}
 	}
 	
 	public void getAll( ActionBase action , ActionScope scope ) throws Exception {
-		boolean copyDist = action.options.OPT_DIST;
+		boolean copyDist = action.context.CTX_DIST;
 		
 		// required for serviceCall and storageService processing, even without -dist option
 		LocalFolder downloadFolder = action.artefactory.getDownloadFolder( action );
@@ -65,7 +65,7 @@ public class BuildCommand {
 				res = false;
 			
 			// automatically create configuration difference after distributive update
-			if( action.options.OPT_DIST )
+			if( action.context.CTX_DIST )
 				createConfigDiffFile( action , scope );
 		}
 		
@@ -203,7 +203,7 @@ public class BuildCommand {
 		action.redirectTS( "buildAllTags:" , OUTDIR.folderPath , "buildall" , "out" );
 		action.logAction();
 		
-		ActionScope scope = action.getFullScope( SET , PROJECTS , action.options.OPT_RELEASELABEL );
+		ActionScope scope = action.getFullScope( SET , PROJECTS , action.context.CTX_RELEASELABEL );
 		if( scope.isEmpty( action ) ) {
 			action.log( "nothing to build" );
 			return;
@@ -224,8 +224,8 @@ public class BuildCommand {
 		action.setBuildMode( release.info.PROPERTY_BUILDMODE );
 		
 		String TAG;
-		if( !action.options.OPT_TAG.isEmpty() )
-			TAG = action.options.OPT_TAG;
+		if( !action.context.CTX_TAG.isEmpty() )
+			TAG = action.context.CTX_TAG;
 		else
 			TAG = release.info.getReleaseCandidateTag( action );
 		String RELEASEDIR = release.RELEASEDIR;

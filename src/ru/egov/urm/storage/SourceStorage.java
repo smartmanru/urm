@@ -83,7 +83,7 @@ public class SourceStorage {
 		if( downloadConfigItem( action , vcs , PATH , sourceFolder.distrComp , dstFolder ) )
 			return( true );
 		
-		if( !action.options.OPT_FORCE )
+		if( !action.context.CTX_FORCE )
 			action.exit( "unable to find configuration at " + vcs.getInfoMasterPath( meta.product.CONFIG_SOURCE_REPOSITORY , PATH ) );
 		
 		action.log( "no configuration in " + PATH + ". Skipped." );
@@ -381,7 +381,7 @@ public class SourceStorage {
 	public void exportTemplates( ActionBase action , LocalFolder parent , MetaEnvServer server ) throws Exception {
 		for( MetaEnvServerDeployment deployment : server.getDeployments( action ) ) {
 			if( deployment.confItem != null ) {
-				exportTemplateConfigItem( action , deployment.confItem.KEY , action.options.OPT_TAG , parent );
+				exportTemplateConfigItem( action , deployment.confItem.KEY , action.context.CTX_TAG , parent );
 				continue;
 			}
 				
@@ -391,7 +391,7 @@ public class SourceStorage {
 			
 			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems( action ).values() ) {
 				if( compItem.confItem != null )
-					exportTemplateConfigItem( action , compItem.confItem.KEY , action.options.OPT_TAG , parent );
+					exportTemplateConfigItem( action , compItem.confItem.KEY , action.context.CTX_TAG , parent );
 			}
 		}
 	}

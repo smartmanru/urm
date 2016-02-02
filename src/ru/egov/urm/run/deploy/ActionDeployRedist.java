@@ -34,17 +34,17 @@ public class ActionDeployRedist extends ActionBase {
 		}
 		
 		if( !stopServers( set ) ) {
-			if( !options.OPT_FORCE )
+			if( !context.CTX_FORCE )
 				exit( "unable to stop servers, cancel deployment." );
 		}
 		
 		if( !rolloutServers( set ) ) {
-			if( !options.OPT_FORCE )
+			if( !context.CTX_FORCE )
 				exit( "unable to rollout release, cancel deployment." );
 		}
 	
 		if( !startServers( set ) ) {
-			if( !options.OPT_FORCE )
+			if( !context.CTX_FORCE )
 				exit( "unable to start after deployment, unsuccessful deployment" );
 		}
 

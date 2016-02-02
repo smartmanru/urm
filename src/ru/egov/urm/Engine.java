@@ -7,22 +7,21 @@ public class Engine {
 
 	public static void main(String[] args) {
 		
-		boolean debug = false;
+		CommandBuilder builder = new CommandBuilder();
 		try {
-			CommandBuilder builder = new CommandBuilder();
 			CommandExecutor executor = builder.buildCommand( args ); 
 			if( executor == null )
 				System.exit( 1 );
 				
-			boolean flg = builder.options.getFlagValue( "GETOPT_SHOWALL" );
-			if( flg )
-				debug = true;
-			
 			boolean res = builder.run( executor );
 			System.exit( ( res )? 0 : 1 );
 		}
 		catch( Throwable e ) {
 			ExitException ex = Common.getExitException( e );
+			
+			boolean debug = true;
+			if( builder.context != null )
+				debug = builder.context.CTX_SHOWALL;
 			
 			if( ex != null ) {
 				output( debug , e , ex.getMessage() );

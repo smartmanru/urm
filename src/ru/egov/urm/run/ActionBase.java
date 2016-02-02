@@ -73,10 +73,6 @@ abstract public class ActionBase {
 		artefactory.deleteWorkFolder( this );
 	}
 
-	public void changeOptions() throws Exception {
-		options = new CommandOptions( options );
-	}
-	
 	public void setShell( ShellExecutor session ) throws Exception {
 		this.session = session;
 		this.artefactory.setShell( session );
@@ -96,7 +92,7 @@ abstract public class ActionBase {
 	}
 	
 	public String getMode() {
-		if( context.SHOWONLY )
+		if( context.CTX_SHOWONLY )
 			return( "showonly" );
 		else
 			return( "execute" );
@@ -126,14 +122,14 @@ abstract public class ActionBase {
 	}
 	
 	public void debug( Throwable e ) {
-		if( !options.OPT_SHOWALL )
+		if( !context.CTX_SHOWALL )
 			return;
 		
 		log( e );
 	}
 
 	public void trace( Throwable e ) {
-		if( !options.OPT_TRACE )
+		if( !context.CTX_TRACE )
 			return;
 		
 		log( e );
@@ -380,7 +376,7 @@ abstract public class ActionBase {
 	}
 
 	public void executeLogLive( ShellExecutor shell , String msg ) throws Exception {
-		if( context.SHOWONLY ) {
+		if( context.CTX_SHOWONLY ) {
 			log( shell.name + ": " + msg + " (showonly)" );
 			return;
 		}
@@ -391,7 +387,7 @@ abstract public class ActionBase {
 	
 	public void executeLogLive( Account account , String msg ) throws Exception {
 		ShellExecutor shell = getShell( account );
-		if( context.SHOWONLY ) {
+		if( context.CTX_SHOWONLY ) {
 			log( account.HOSTLOGIN + ": " + msg + " (showonly)" );
 			return;
 		}
@@ -401,7 +397,7 @@ abstract public class ActionBase {
 	}
 	
 	public void executeCmdLive( Account account , String cmdRun ) throws Exception {
-		if( context.SHOWONLY ) {
+		if( context.CTX_SHOWONLY ) {
 			log( account.HOSTLOGIN + ": " + cmdRun + " (showonly)" );
 			return;
 		}

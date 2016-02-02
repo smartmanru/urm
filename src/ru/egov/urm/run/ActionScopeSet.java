@@ -333,7 +333,7 @@ public class ActionScopeSet {
 	}
 	
 	private boolean checkServerDelivery( ActionBase action , MetaEnvServer server , MetaReleaseDelivery delivery ) throws Exception {
-		if( action.context.CONF_DEPLOY ) {
+		if( action.context.CTX_CONFDEPLOY ) {
 			for( MetaReleaseTarget target : delivery.getConfItems( action ).values() ) {
 				if( server.hasConfItemDeployment( action , target.distConfItem ) )
 					return( true );
@@ -346,7 +346,7 @@ public class ActionScopeSet {
 				return( true );
 		}
 
-		if( action.options.OPT_DEPLOYBINARY ) {
+		if( action.context.CTX_DEPLOYBINARY ) {
 			for( MetaReleaseTarget target : delivery.getManualItems( action ).values() ) {
 				if( server.hasBinaryItemDeployment( action , target.distManualItem ) )
 					return( true );
@@ -419,7 +419,7 @@ public class ActionScopeSet {
 	public void addEnvDatabases( ActionBase action , DistStorage release ) throws Exception {
 		Map<String,MetaEnvServer> releaseServers = getReleaseDatabaseServers( action , release );
 	
-		if( action.options.OPT_DB.isEmpty() )
+		if( action.context.CTX_DB.isEmpty() )
 			setFull = true; 
 		else
 			setFull = false;
@@ -430,7 +430,7 @@ public class ActionScopeSet {
 			
 			boolean addServer = ( release == null )? true : releaseServers.containsKey( server.NAME );
 			if( addServer ) {
-				if( action.options.OPT_DB.isEmpty() == false && action.options.OPT_DB.equals( server.NAME ) == false )
+				if( action.context.CTX_DB.isEmpty() == false && action.context.CTX_DB.equals( server.NAME ) == false )
 					action.trace( "ignore not-action scope server=" + server.NAME );
 				else
 					addEnvServer( action , server , null , false );
@@ -444,19 +444,19 @@ public class ActionScopeSet {
 		if( !specifiedExplicitly ) {
 			// check offline or not in given start group
 			if( server.OFFLINE ) {
-				if( !action.options.OPT_ALL ) {
+				if( !action.context.CTX_ALL ) {
 					action.trace( "ignore offline server=" + server.NAME );
 					return( null );
 				}
 			}
 			
-			if( !action.options.OPT_STARTGROUP.isEmpty() ) {
+			if( !action.context.CTX_STARTGROUP.isEmpty() ) {
 				if( server.startGroup == null ) {
 					action.trace( "ignore non-specified startgroup server=" + server.NAME );
 					return( null );
 				}
 				
-				if( !server.startGroup.NAME.equals( action.options.OPT_STARTGROUP ) ) {
+				if( !server.startGroup.NAME.equals( action.context.CTX_STARTGROUP ) ) {
 					action.trace( "ignore different startgroup server=" + server.NAME );
 					return( null );
 				}

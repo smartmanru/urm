@@ -130,30 +130,30 @@ public class ServerDeployment {
 
 	public boolean checkDeploy( ActionBase action , ServerDeployment cd , ServerDeployment ld , ServerDeployment fd ) throws Exception {
 		if( cd.CONTENTTYPE == VarCONTENTTYPE.BINARYCOLDDEPLOY ) {
-			if( action.options.OPT_DEPLOYBINARY == false && action.context.CONF_DEPLOY == true )
+			if( action.context.CTX_DEPLOYBINARY == false && action.context.CTX_CONFDEPLOY == true )
 				return( false );
-			if( action.options.OPT_DEPLOYCOLD == false && action.options.OPT_DEPLOYHOT == true )
+			if( action.context.CTX_DEPLOYCOLD == false && action.context.CTX_DEPLOYHOT == true )
 				return( false );
 			return( true );
 		}
 		if( cd.CONTENTTYPE == VarCONTENTTYPE.BINARYHOTDEPLOY ) {
-			if( action.options.OPT_DEPLOYBINARY == false && action.context.CONF_DEPLOY == true )
+			if( action.context.CTX_DEPLOYBINARY == false && action.context.CTX_CONFDEPLOY == true )
 				return( false );
-			if( action.options.OPT_DEPLOYCOLD == true && action.options.OPT_DEPLOYHOT == false )
+			if( action.context.CTX_DEPLOYCOLD == true && action.context.CTX_DEPLOYHOT == false )
 				return( false );
 			return( true );
 		}
 		if( cd.CONTENTTYPE == VarCONTENTTYPE.CONFCOLDDEPLOY ) {
-			if( action.options.OPT_DEPLOYBINARY == true && action.context.CONF_DEPLOY == false )
+			if( action.context.CTX_DEPLOYBINARY == true && action.context.CTX_CONFDEPLOY == false )
 				return( false );
-			if( action.options.OPT_DEPLOYCOLD == false && action.options.OPT_DEPLOYHOT == true )
+			if( action.context.CTX_DEPLOYCOLD == false && action.context.CTX_DEPLOYHOT == true )
 				return( false );
 			return( true );
 		}
 		if( cd.CONTENTTYPE == VarCONTENTTYPE.CONFHOTDEPLOY ) {
-			if( action.options.OPT_DEPLOYBINARY == true && action.context.CONF_DEPLOY == false )
+			if( action.context.CTX_DEPLOYBINARY == true && action.context.CTX_CONFDEPLOY == false )
 				return( false );
-			if( action.options.OPT_DEPLOYCOLD == true && action.options.OPT_DEPLOYHOT == false )
+			if( action.context.CTX_DEPLOYCOLD == true && action.context.CTX_DEPLOYHOT == false )
 				return( false );
 			return( true );
 		}

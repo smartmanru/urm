@@ -3,7 +3,8 @@ package ru.egov.urm.run;
 import ru.egov.urm.Common;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
-import ru.egov.urm.run.CommandOptions.FLAG;
+import ru.egov.urm.run.CommandOptions.SQLMODE;
+import ru.egov.urm.run.CommandOptions.SQLTYPE;
 import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutorPool;
 
@@ -18,19 +19,67 @@ public class CommandContext {
 	public String env;
 	public String dc;
 
-	// context-dependent options
-	public boolean DB_AUTH;
-	public boolean OBSOLETE;
-	public boolean SHOWONLY;
-	public boolean BACKUP;
-	public boolean CONF_DEPLOY;
-	public boolean CONF_KEEPALIVE;
-	public String KEYNAME;
+	// generic settings
+	public boolean CTX_TRACE;
+	public boolean CTX_SHOWONLY;
+	public boolean CTX_SHOWALL;
+	public boolean CTX_FORCE;
+	public boolean CTX_IGNORE;
+	public boolean CTX_ALL;
+	public int CTX_COMMANDTIMEOUT;
+	public String CTX_KEYNAME;
+
+	// specific settings
+	public boolean CTX_GET;
+	public boolean CTX_DIST;
+	public boolean CTX_UPDATENEXUS;
+	public boolean CTX_CHECK;
+	public boolean CTX_MOVE_ERRORS;
+	public boolean CTX_REPLACE;
+	public boolean CTX_BACKUP;
+	public boolean CTX_OBSOLETE;
+	public boolean CTX_CONFDEPLOY;
+	public boolean CTX_PARTIALCONF;
+	public boolean CTX_DEPLOYBINARY;
+	public boolean CTX_DEPLOYHOT;
+	public boolean CTX_DEPLOYCOLD;
+	public boolean CTX_DEPLOYRAW;
+	public boolean CTX_CONFKEEPALIVE;
+	public boolean CTX_ZERODOWNTIME;
+	public boolean CTX_NONODES;
+	public boolean CTX_NOCHATMSG;
+	public boolean CTX_ROOTUSER;
+	public boolean CTX_SUDO;
+	public boolean CTX_IGNOREVERSION;
+	public boolean CTX_LIVE;
+	public boolean CTX_HIDDEN;
+	public SQLMODE CTX_DBMODE; 
+	public boolean CTX_DBMOVE;
+	public boolean CTX_DBAUTH;
+	public String CTX_DBALIGNED;
+	public String CTX_DB;
+	public String CTX_DBPASSWORD;
+	public String CTX_REGIONS;
+	public SQLTYPE CTX_DBTYPE;
+	public String CTX_RELEASELABEL;
+	public String CTX_BRANCH;
+	public String CTX_TAG;
+	public String CTX_DATE;
+	public String CTX_GROUP;
+	public String CTX_VERSION;
+	public String CTX_DCMASK;
+	public String CTX_DEPLOYGROUP;
+	public String CTX_STARTGROUP;
+	public String CTX_EXTRAARGS;
+	public String CTX_UNIT;
+	public String CTX_BUILDINFO;
+	public String CTX_HOSTUSER;
+	public String CTX_NEWKEY;
 
 	public CommandContext() {
 		this.streamName = "main";
 		this.buildMode = VarBUILDMODE.UNKNOWN;
-		this.KEYNAME = "";
+		this.CTX_KEYNAME = "";
 	}
 
 	public CommandContext( CommandContext context , String stream ) {
@@ -41,19 +90,73 @@ public class CommandContext {
 		else
 			this.streamName = stream;
 		
+		// copy all properties
 		this.account = context.account;
 		this.productHome = context.productHome;
 		this.buildMode = context.buildMode;
 		this.env = context.env;
 		this.dc = context.dc;
+
+		// generic
+		this.CTX_TRACE = context.CTX_TRACE;
+		this.CTX_SHOWONLY = context.CTX_SHOWONLY;
+		this.CTX_SHOWALL = context.CTX_SHOWALL;
+		this.CTX_FORCE = context.CTX_FORCE;
+		this.CTX_IGNORE = context.CTX_IGNORE;
+		this.CTX_ALL = context.CTX_ALL;
+		this.CTX_COMMANDTIMEOUT = context.CTX_COMMANDTIMEOUT;
+		this.CTX_KEYNAME = context.CTX_KEYNAME;
 		
-		this.DB_AUTH = context.DB_AUTH;
-		this.OBSOLETE = context.OBSOLETE;
-		this.SHOWONLY = context.SHOWONLY;
-		this.BACKUP = context.BACKUP;
-		this.CONF_DEPLOY = context.CONF_DEPLOY;
-		this.CONF_KEEPALIVE = context.CONF_KEEPALIVE;
-		this.KEYNAME = context.KEYNAME;
+		// specific
+		this.CTX_GET = context.CTX_GET;
+		this.CTX_DIST = context.CTX_DIST;
+		this.CTX_UPDATENEXUS = context.CTX_UPDATENEXUS;
+		this.CTX_CHECK = context.CTX_CHECK;
+		this.CTX_MOVE_ERRORS = context.CTX_MOVE_ERRORS;
+		this.CTX_REPLACE = context.CTX_REPLACE;
+		this.CTX_BACKUP = context.CTX_BACKUP;
+		this.CTX_OBSOLETE = context.CTX_OBSOLETE;
+		this.CTX_CONFDEPLOY = context.CTX_CONFDEPLOY;
+		this.CTX_PARTIALCONF = context.CTX_PARTIALCONF;
+		this.CTX_DEPLOYBINARY = context.CTX_DEPLOYBINARY;
+		this.CTX_DEPLOYHOT = context.CTX_DEPLOYHOT;
+		this.CTX_DEPLOYCOLD = context.CTX_DEPLOYCOLD;
+		this.CTX_DEPLOYRAW = context.CTX_DEPLOYRAW;
+		this.CTX_CONFKEEPALIVE = context.CTX_CONFKEEPALIVE;
+		this.CTX_ZERODOWNTIME = context.CTX_ZERODOWNTIME;
+		this.CTX_NONODES = context.CTX_NONODES;
+		this.CTX_NOCHATMSG = context.CTX_NOCHATMSG;
+		this.CTX_ROOTUSER = context.CTX_ROOTUSER;
+		this.CTX_SUDO = context.CTX_SUDO;
+		this.CTX_IGNOREVERSION = context.CTX_IGNOREVERSION;
+		this.CTX_LIVE = context.CTX_LIVE;
+		this.CTX_HIDDEN = context.CTX_HIDDEN;
+		this.CTX_DBMODE = context.CTX_DBMODE;
+		this.CTX_DBMOVE = context.CTX_DBMOVE;
+		this.CTX_DBAUTH = context.CTX_DBAUTH;
+		this.CTX_DBALIGNED = context.CTX_DBALIGNED;
+		this.CTX_DB = context.CTX_DB;
+		this.CTX_DBPASSWORD = context.CTX_DBPASSWORD;
+		this.CTX_REGIONS = context.CTX_REGIONS;
+		this.CTX_DBTYPE = context.CTX_DBTYPE;
+		this.CTX_RELEASELABEL = context.CTX_RELEASELABEL;
+		this.CTX_BRANCH = context.CTX_BRANCH;
+		this.CTX_TAG = context.CTX_TAG;
+		this.CTX_DATE = context.CTX_DATE;
+		this.CTX_GROUP = context.CTX_GROUP;
+		this.CTX_VERSION = context.CTX_VERSION;
+		this.CTX_DCMASK = context.CTX_DCMASK;
+		this.CTX_DEPLOYGROUP = context.CTX_DEPLOYGROUP;
+		this.CTX_STARTGROUP = context.CTX_STARTGROUP;
+		this.CTX_EXTRAARGS = context.CTX_EXTRAARGS;
+		this.CTX_UNIT = context.CTX_UNIT;
+		this.CTX_BUILDINFO = context.CTX_BUILDINFO;
+		this.CTX_HOSTUSER = context.CTX_HOSTUSER;
+		this.CTX_NEWKEY = context.CTX_NEWKEY;
+	}
+
+	public void updateProperties( ActionBase action ) throws Exception {
+		action.options.updateProperties( action );
 	}
 
 	public CommandContext getProductContext( String productHome , String stream ) {
@@ -112,7 +215,7 @@ public class CommandContext {
 	}
 	
 	public void createPool( ActionBase action ) throws Exception {
-		pool = new ShellExecutorPool( productHome , action.options.OPT_COMMANDTIMEOUT );
+		pool = new ShellExecutorPool( productHome , action.context.CTX_COMMANDTIMEOUT );
 		pool.create( action );
 	}
 
@@ -126,35 +229,5 @@ public class CommandContext {
 		
 		buildMode = value;
 	}
-	
-	public void updateProperties( ActionBase action ) throws Exception {
-		boolean isenv = ( action.meta.env == null )? false : true; 
-		DB_AUTH = combineValue( action , "GETOPT_DBAUTH" , ( isenv )? action.meta.env.DB_AUTH : null , false );
-		OBSOLETE = combineValue( action , "GETOPT_OBSOLETE" , ( isenv )? action.meta.env.OBSOLETE : null , true );
-		
-		boolean def = ( isenv && action.meta.env.PROD )? true : false;
-		SHOWONLY = combineValue( action , "GETOPT_SHOWONLY" , ( isenv )? action.meta.env.SHOWONLY : null , def );
-		BACKUP = combineValue( action , "GETOPT_BACKUP" , ( isenv )? action.meta.env.BACKUP : null , def );
-		CONF_DEPLOY = combineValue( action , "GETOPT_DEPLOYCONF" , ( isenv )? action.meta.env.CONF_DEPLOY : null , true );
-		CONF_KEEPALIVE = combineValue( action , "GETOPT_KEEPALIVE" , ( isenv )? action.meta.env.CONF_KEEPALIVE : null , true );
-		KEYNAME = ( action.options.OPT_KEY.isEmpty() )? ( ( isenv )? action.meta.env.KEYNAME : "" ) : action.options.OPT_KEY;
-	}
 
-	public boolean combineValue( ActionBase action , String optVar , FLAG confValue , boolean defValue ) throws Exception {
-		if( !action.options.isValidVar( optVar ) )
-			action.exit( "unknown flag var=" + optVar );
-		
-		FLAG optValue = action.options.getFlagNativeValue( optVar );
-
-		// option always overrides
-		if( optValue != null && optValue != FLAG.DEFAULT )
-			return( optValue == FLAG.YES );
-		
-		// if configuration is present
-		if( confValue != null && confValue != FLAG.DEFAULT )
-			return( confValue == FLAG.YES );
-		
-		return( defValue );
-	}
-	
 }

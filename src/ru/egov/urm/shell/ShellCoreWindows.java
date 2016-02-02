@@ -78,7 +78,7 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public void runCommandCritical( ActionBase action , String cmd ) throws Exception {
-		if( action.context.SHOWONLY ) {
+		if( action.context.CTX_SHOWONLY ) {
 			action.debug( executor.name + ": showonly " + cmd );
 		}
 		else {
@@ -303,7 +303,7 @@ public class ShellCoreWindows extends ShellCore {
 	
 	@Override public void cmdScpFilesRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		String keyOption = "";
-		String keyFile = action.context.KEYNAME;
+		String keyFile = action.context.CTX_KEYNAME;
 		if( !keyFile.isEmpty() )
 			keyOption = "-i " + keyFile + " ";
 		
@@ -312,7 +312,7 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public void cmdScpDirContentRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		String keyOption = "";
-		String keyFile = action.context.KEYNAME;
+		String keyFile = action.context.CTX_KEYNAME;
 		if( !keyFile.isEmpty() )
 			keyOption = "-i " + keyFile + " ";
 		
@@ -322,7 +322,7 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public void cmdScpFilesLocalToRemote( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		String keyOption = "";
-		String keyFile = action.context.KEYNAME;
+		String keyFile = action.context.CTX_KEYNAME;
 		if( !keyFile.isEmpty() )
 			keyOption = "-i " + keyFile + " ";
 		
@@ -332,7 +332,7 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public void cmdScpDirLocalToRemote( ActionBase action , String srcDirPath , Account account , String baseDstDir ) throws Exception {
 		String keyOption = "";
-		String keyFile = action.context.KEYNAME;
+		String keyFile = action.context.CTX_KEYNAME;
 		if( !keyFile.isEmpty() )
 			keyOption = "-i " + keyFile + " ";
 		
@@ -347,7 +347,7 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public void cmdScpDirContentLocalToRemote( ActionBase action , String srcDirPath , Account account , String dstDir ) throws Exception {
 		String keyOption = "";
-		String keyFile = action.context.KEYNAME;
+		String keyFile = action.context.CTX_KEYNAME;
 		if( !keyFile.isEmpty() )
 			keyOption = "-i " + keyFile + " ";
 		
@@ -360,7 +360,7 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public void cmdScpDirRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		String keyOption = "";
-		String keyFile = action.context.KEYNAME;
+		String keyFile = action.context.CTX_KEYNAME;
 		if( !keyFile.isEmpty() )
 			keyOption = "-i " + keyFile + " ";
 		

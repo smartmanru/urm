@@ -30,7 +30,7 @@ public class ServerCluster {
 				res = false;
 		}	
 
-		if( action.context.SHOWONLY )
+		if( action.context.CTX_SHOWONLY )
 			return( res );
 
 		// ensure processes are stopped
@@ -64,7 +64,7 @@ public class ServerCluster {
 				res = false;
 		}	
 
-		if( action.context.SHOWONLY )
+		if( action.context.CTX_SHOWONLY )
 			return( res );
 
 		// enforce timeout before querying status

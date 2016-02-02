@@ -563,11 +563,11 @@ public class MetaRelease {
 		MetaReleaseTarget target = set.findTarget( action , item.KEY );
 		if( target != null ) {
 			if( !target.ALL )
-				target.setAll( action , action.options.OPT_REPLACE );
+				target.setAll( action , action.context.CTX_REPLACE );
 			return( true );
 		}
 		
-		target = set.addConfItem( action , item , action.options.OPT_REPLACE );
+		target = set.addConfItem( action , item , action.context.CTX_REPLACE );
 		registerTarget( action , target );
 		return( true );
 	}

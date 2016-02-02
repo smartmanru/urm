@@ -167,15 +167,15 @@ public class ActionApplyAutomatic extends ActionBase {
 			return( false );
 		}
 		
-		if( !options.OPT_DBALIGNED.isEmpty() ) {
-			String alignedid = meta.distr.database.alignedGetIDByBame( this , options.OPT_DBALIGNED );
+		if( !context.CTX_DBALIGNED.isEmpty() ) {
+			String alignedid = meta.distr.database.alignedGetIDByBame( this , context.CTX_DBALIGNED );
 			if( !alignedid.equals( parts[0].substring( 1 ) ) ) {
 				trace( "script " + file + " is filtered by alignedid" );
 				return( false );
 			}
 		}
 		
-		if( options.OPT_DBTYPE != SQLTYPE.UNKNOWN && options.OPT_DBTYPE != SQLTYPE.SQL ) {
+		if( context.CTX_DBTYPE != SQLTYPE.UNKNOWN && context.CTX_DBTYPE != SQLTYPE.SQL ) {
 			trace( "script " + file + " is filtered by type" );
 			return( false );
 		}
@@ -216,7 +216,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		MetaDatabaseSchema schema = meta.distr.database.getSchema( this , schemaName );
 		if( !client.applyScript( this , schema , logReleaseExecute , file , logReleaseExecute , log ) ) {
 			exit( "error applying script " + file + ", see logs." );
-			if( !options.OPT_FORCE )
+			if( !context.CTX_FORCE )
 				exit( "cancel apply script set due to errors." );
 			
 			return( false );

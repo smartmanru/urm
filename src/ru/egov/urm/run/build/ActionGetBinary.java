@@ -89,7 +89,7 @@ public class ActionGetBinary extends ActionBase {
 			exit( "unexpected extension=" + EXT );
 
 		String BUILDVERSION = scopeItem.getProjectItemBuildVersion( this );
-		boolean copyDistr = options.OPT_DIST;
+		boolean copyDistr = context.CTX_DIST;
 		if( scopeItem.sourceItem.INTERNAL )
 			copyDistr = false;
 
@@ -136,7 +136,7 @@ public class ActionGetBinary extends ActionBase {
 	
 	private void downloadPrebuiltItem( ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem , String BUILDVERSION ) throws Exception {
 		// compare with release information
-		boolean copyDistr = options.OPT_DIST;
+		boolean copyDistr = context.CTX_DIST;
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , downloadFolder );
 		
 		if( scopeItem.sourceItem.isStoredInSvn( this ) ) {

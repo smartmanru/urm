@@ -123,7 +123,7 @@ public class ActionCheckEnv extends ActionBase {
 
 		// ignore command servers except when specifically called 
 		if( server.TYPE == VarSERVERTYPE.GENERIC_COMMAND ) {
-			if( options.OPT_ALL == false || main == false ) {
+			if( context.CTX_ALL == false || main == false ) {
 				debug( "ignore command server=" + server.NAME );
 				return;
 			}

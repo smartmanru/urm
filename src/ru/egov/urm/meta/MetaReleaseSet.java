@@ -162,9 +162,9 @@ public class MetaReleaseSet {
 		this.NAME = set.NAME;
 		this.CATEGORY = set.CATEGORY;
 		this.ALL = ALL;
-		this.BUILDBRANCH = action.options.OPT_BRANCH;
-		this.BUILDTAG = action.options.OPT_TAG;
-		this.BUILDVERSION = action.options.OPT_VERSION;
+		this.BUILDBRANCH = action.context.CTX_BRANCH;
+		this.BUILDTAG = action.context.CTX_TAG;
+		this.BUILDVERSION = action.context.CTX_VERSION;
 		
 		if( ALL )
 			addAllSourceProjects( action );
@@ -174,9 +174,9 @@ public class MetaReleaseSet {
 		this.CATEGORY = CATEGORY;
 		this.NAME = Common.getEnumLower( CATEGORY );
 		this.ALL = ALL;
-		this.BUILDBRANCH = action.options.OPT_BRANCH;
-		this.BUILDTAG = action.options.OPT_TAG;
-		this.BUILDVERSION = action.options.OPT_VERSION;
+		this.BUILDBRANCH = action.context.CTX_BRANCH;
+		this.BUILDTAG = action.context.CTX_TAG;
+		this.BUILDVERSION = action.context.CTX_VERSION;
 		
 		if( ALL ) {
 			if( CATEGORY == VarCATEGORY.CONFIG )
@@ -193,9 +193,9 @@ public class MetaReleaseSet {
 	}
 	
 	public boolean checkPropsEqualsToOptions( ActionBase action ) throws Exception {
-		if( this.BUILDBRANCH.equals( action.options.OPT_BRANCH ) &&
-			this.BUILDTAG.equals( action.options.OPT_TAG ) &&
-			this.BUILDVERSION.equals( action.options.OPT_VERSION ) )
+		if( this.BUILDBRANCH.equals( action.context.CTX_BRANCH ) &&
+			this.BUILDTAG.equals( action.context.CTX_TAG ) &&
+			this.BUILDVERSION.equals( action.context.CTX_VERSION ) )
 			return( true );
 		
 		action.log( getId() + " set attributes are different, please delete first" );

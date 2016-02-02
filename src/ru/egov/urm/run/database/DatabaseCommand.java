@@ -37,11 +37,11 @@ public class DatabaseCommand {
 		String itemsInfo = ( indexScope != null )? indexScope : "(all)";
 		
 		String op = null;
-		if( action.options.OPT_DBMODE == SQLMODE.ANYWAY )
+		if( action.context.CTX_DBMODE == SQLMODE.ANYWAY )
 			op = "all";
-		else if( action.options.OPT_DBMODE == SQLMODE.APPLY )
+		else if( action.context.CTX_DBMODE == SQLMODE.APPLY )
 			op = "new";
-		else if( action.options.OPT_DBMODE == SQLMODE.CORRECT )
+		else if( action.context.CTX_DBMODE == SQLMODE.CORRECT )
 			op = "failed";
 		else 
 			action.exit( "database mode is not set" );

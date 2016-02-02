@@ -156,7 +156,7 @@ public class RedistStorage extends ServerStorage {
 		String cmd = "mkdir -p " + F_DSTDIR_STATE + " " + F_DSTDIR_DEPLOY;
 		shell.customCheckErrorsDebug( action , cmd );
 		
-		if( action.context.BACKUP )
+		if( action.context.CTX_BACKUP )
 			createLocationBackup( action , RELEASEDIR , location , CONTENTTYPE );
 	}
 

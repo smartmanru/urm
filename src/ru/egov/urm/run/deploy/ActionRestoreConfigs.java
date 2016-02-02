@@ -42,16 +42,16 @@ public class ActionRestoreConfigs extends ActionBase {
 		PATH = Common.getPath( PATH , server.NAME );
 		LocalFolder folder = artefactory.getWorkFolder( this , PATH );
 		folder.recreateThis( this );
-		if( options.OPT_LIVE ) {
-			if( options.OPT_TAG.isEmpty() )
+		if( context.CTX_LIVE ) {
+			if( context.CTX_TAG.isEmpty() )
 				version = "live-" + timestamp;
 			else
-				version = "live-tag-" + options.OPT_TAG;
+				version = "live-tag-" + context.CTX_TAG;
 		} else {
-			if( options.OPT_TAG.isEmpty() )
+			if( context.CTX_TAG.isEmpty() )
 				version = "prod-" + timestamp;
 			else
-				version = "prod-tag-" + options.OPT_TAG;
+				version = "prod-tag-" + context.CTX_TAG;
 			sourceStorage.exportTemplates( this , folder , server );
 		}
 		
@@ -98,7 +98,7 @@ public class ActionRestoreConfigs extends ActionBase {
 	}
 
 	private void executeNodeSysConf( LocalFolder parent , SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , String name , boolean prepare ) throws Exception {
-		if( !options.OPT_LIVE ) {
+		if( !context.CTX_LIVE ) {
 			if( prepare )
 				debug( "skip restoring live system configs" );
 			return;
@@ -106,7 +106,7 @@ public class ActionRestoreConfigs extends ActionBase {
 
 		if( prepare ) {
 			debug( "prepare restore system configuraton component from live ..." );
-			sourceStorage.exportLiveConfigItem( this , server , name , options.OPT_TAG , parent );
+			sourceStorage.exportLiveConfigItem( this , server , name , context.CTX_TAG , parent );
 		}
 		else {
 			log( "restore system configuraton component from live ..." );
@@ -117,7 +117,7 @@ public class ActionRestoreConfigs extends ActionBase {
 	}
 
 	private void executeNodeConf( LocalFolder parent , SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerDeployment deployment , MetaDistrConfItem confItem , String name , boolean prepare ) throws Exception {
-		if( options.OPT_LIVE )
+		if( context.CTX_LIVE )
 			executeNodeConfLive( parent , sourceStorage , server , node , deployment , confItem , name , prepare );
 		else
 			executeNodeConfTemplates( parent , sourceStorage , server , node , deployment , confItem , name , prepare );
@@ -127,7 +127,7 @@ public class ActionRestoreConfigs extends ActionBase {
 		LocalFolder live = parent.getSubFolder( this , name );
 		if( prepare ) {
 			debug( "prepare restore configuraton item=" + confItem.KEY + " from live ..." );
-			sourceStorage.exportLiveConfigItem( this , server , name , options.OPT_TAG , parent );
+			sourceStorage.exportLiveConfigItem( this , server , name , context.CTX_TAG , parent );
 	
 			ConfBuilder builder = new ConfBuilder( this );
 			builder.configureLiveComponent( live , confItem , server , node );

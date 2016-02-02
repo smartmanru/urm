@@ -56,7 +56,7 @@ public class ActionPrepareRedist extends ActionBase {
 	private void recreateFoldersNode( RedistStorage storage ) throws Exception {
 		if( dist == null ) {
 			storage.dropReleaseAll( this );
-			if( options.OPT_ALL )
+			if( context.CTX_ALL )
 				storage.dropStateData( this );
 			return;
 		}

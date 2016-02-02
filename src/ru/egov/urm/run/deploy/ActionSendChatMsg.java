@@ -21,7 +21,7 @@ public class ActionSendChatMsg extends ActionBase {
 	}
 
 	@Override protected boolean executeSimple() throws Exception {
-		if( options.OPT_NOCHATMSG )
+		if( context.CTX_NOCHATMSG )
 			return( false );
 		
 		if( meta.env.CHATROOMFILE.isEmpty() )

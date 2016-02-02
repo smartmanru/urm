@@ -20,7 +20,7 @@ public class HiddenFiles {
 		if( meta.env.CONF_SECRETFILESPATH.isEmpty() )
 			return( false );
 		
-		if( !action.options.OPT_HIDDEN ) {
+		if( !action.context.CTX_HIDDEN ) {
 			action.debug( "ignore hidden files without option" );
 			return( false );
 		}

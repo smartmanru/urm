@@ -221,7 +221,7 @@ public class ActionExportDatabase extends ActionBase {
 		if( value.equals( "RUNNING" ) )
 			log( "wait export to complete ..." );
 		while( value.equals( "RUNNING" ) ) {
-			Common.sleep( this , options.OPT_COMMANDTIMEOUT );
+			Common.sleep( this , context.CTX_COMMANDTIMEOUT );
 			value = checkStatus( exportScriptsFolder );
 		}
 		

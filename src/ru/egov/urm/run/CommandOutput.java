@@ -16,13 +16,12 @@ public class CommandOutput {
 
 	List<PrintWriter> parentOutputs = new LinkedList<PrintWriter>();
 	
-	private CommandOutput( boolean debugOutput , boolean traceOutput ) {
-		this.debugOutput = debugOutput;
-		this.traceOutput = traceOutput;
+	public CommandOutput() {
 	}
 
-	public static CommandOutput createGenericOutput( boolean debugOutput , boolean traceOutput ) {
-		return new CommandOutput( debugOutput , traceOutput );
+	public void setOptions( boolean debugOutput , boolean traceOutput ) {
+		this.debugOutput = debugOutput;
+		this.traceOutput = traceOutput;
 	}
 	
 	public void log( String s ) throws Exception {

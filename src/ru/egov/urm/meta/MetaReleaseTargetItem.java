@@ -34,7 +34,7 @@ public class MetaReleaseTargetItem {
 	}
 	
 	public boolean checkPropsEqualsToOptions( ActionBase action ) throws Exception {
-		if( this.BUILDVERSION.equals( action.options.OPT_VERSION ) )
+		if( this.BUILDVERSION.equals( action.context.CTX_VERSION ) )
 			return( true );
 		
 		action.log( getId() + " item attributes are different, please delete first" );

@@ -110,7 +110,7 @@ public class ServerProcess {
 
 		// check process status
 		ShellExecutor shell = action.getShell( node );
-		cmdValue = shell.customGetValue( action , srv.getFullBinPath( action ) , "./server.status.sh " + srv.NAME + " " + action.options.OPT_EXTRAARGS );
+		cmdValue = shell.customGetValue( action , srv.getFullBinPath( action ) , "./server.status.sh " + srv.NAME + " " + action.context.CTX_EXTRAARGS );
 				
 		if( cmdValue.indexOf( "Started=true" ) >= 0 || 
 			cmdValue.indexOf( "RUNNING" ) >= 0 || 
@@ -181,7 +181,7 @@ public class ServerProcess {
 		String F_FULLBINPATH = srv.getFullBinPath( action );
 		ShellExecutor executor = action.getShell( node );
 		executor.customCritical( action , F_FULLBINPATH , "./server.stop.sh " + srv.NAME + " " +
-				Common.getQuoted( pids ) + " " + action.options.OPT_EXTRAARGS + " > /dev/null" );
+				Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS + " > /dev/null" );
 		
 		return( true );
 	}
@@ -312,7 +312,7 @@ public class ServerProcess {
 		String F_FULLBINPATH = srv.getFullBinPath( action );
 		ShellExecutor executor = action.getShell( node );
 		executor.customCritical( action , F_FULLBINPATH , "./server.start.sh " + srv.NAME + " " +
-				Common.getQuoted( pids ) + " " + action.options.OPT_EXTRAARGS + " > /dev/null" );
+				Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS + " > /dev/null" );
 		
 		return( true );
 	}

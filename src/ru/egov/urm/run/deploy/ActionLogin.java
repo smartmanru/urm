@@ -17,15 +17,15 @@ public class ActionLogin extends ActionBase {
 	@Override protected boolean executeSimple() throws Exception {
 		// handle user options
 		Account account = getAccount( node );
-		if( !options.OPT_HOSTUSER.isEmpty() )
-			account = account.getUserAccount( this , options.OPT_HOSTUSER );
+		if( !context.CTX_HOSTUSER.isEmpty() )
+			account = account.getUserAccount( this , context.CTX_HOSTUSER );
 		else
-		if( options.OPT_ROOTUSER )
+		if( context.CTX_ROOTUSER )
 			account = account.getRootAccount( this );
 
 		String F_KEY = meta.env.KEYNAME;
-		if( !context.KEYNAME.isEmpty() )
-			F_KEY = context.KEYNAME;
+		if( !context.CTX_KEYNAME.isEmpty() )
+			F_KEY = context.CTX_KEYNAME;
 
 		log( "login dc=" + node.server.dc.NAME + ", server=" + node.server.NAME + 
 				", node=" + node.POS + ", hostlogin=" + account.HOSTLOGIN + " ..." );

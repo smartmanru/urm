@@ -72,7 +72,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 	}
 
 	private DistStorage loadCommandRelease( ActionBase action ) throws Exception {
-		String RELEASELABEL = options.OPT_RELEASELABEL;
+		String RELEASELABEL = action.context.CTX_RELEASELABEL;
 		
 		if( RELEASELABEL.isEmpty() )
 			RELEASELABEL = meta.product.CONFIG_RELEASEVER;
@@ -88,7 +88,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		String[] PROJECTS = options.getArgList( argStart + 1 );
 		action.logAction();
 
-		ActionScope scope = action.getFullScope( SET , PROJECTS , action.options.OPT_RELEASELABEL );
+		ActionScope scope = action.getFullScope( SET , PROJECTS , action.context.CTX_RELEASELABEL );
 		if( scope.isEmpty( action ) )
 			action.exit( "nothing to do, scope is empty" );
 		
@@ -134,7 +134,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		String[] TARGETS = options.getArgList( 1 );
 		action.logAction();
 		
-		ActionScope scope = action.getFullScope( SET , TARGETS , action.options.OPT_RELEASELABEL );
+		ActionScope scope = action.getFullScope( SET , TARGETS , action.context.CTX_RELEASELABEL );
 		if( scope.isEmpty( action ) ) {
 			action.log( "nothing to get" );
 			return;

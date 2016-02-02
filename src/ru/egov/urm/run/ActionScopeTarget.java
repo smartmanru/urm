@@ -201,8 +201,8 @@ public class ActionScopeTarget {
 	
 	public String getProjectBuildVersion( ActionBase action ) throws Exception {
 		String BUILDVERSION = "";
-		if( !action.options.OPT_VERSION.isEmpty() )
-			BUILDVERSION = action.options.OPT_VERSION;
+		if( !action.context.CTX_VERSION.isEmpty() )
+			BUILDVERSION = action.context.CTX_VERSION;
 		
 		if( BUILDVERSION.isEmpty() && releaseTarget != null )
 			BUILDVERSION = releaseTarget.BUILDVERSION;
@@ -218,8 +218,8 @@ public class ActionScopeTarget {
 	
 	public String getProjectBuildBranch( ActionBase action ) throws Exception {
 		String BUILDBRANCH = "";
-		if( !action.options.OPT_BRANCH.isEmpty() )
-			BUILDBRANCH = action.options.OPT_BRANCH;
+		if( !action.context.CTX_BRANCH.isEmpty() )
+			BUILDBRANCH = action.context.CTX_BRANCH;
 		
 		if( BUILDBRANCH.isEmpty() && releaseTarget != null )
 			BUILDBRANCH = releaseTarget.BUILDBRANCH;
@@ -235,8 +235,8 @@ public class ActionScopeTarget {
 
 	public String getProjectBuildTag( ActionBase action ) throws Exception {
 		String BUILDTAG = "";
-		if( !action.options.OPT_TAG.isEmpty() )
-			BUILDTAG = action.options.OPT_TAG;
+		if( !action.context.CTX_TAG.isEmpty() )
+			BUILDTAG = action.context.CTX_TAG;
 		
 		if( BUILDTAG.isEmpty() && releaseTarget != null )
 			BUILDTAG = releaseTarget.BUILDTAG;
@@ -260,18 +260,18 @@ public class ActionScopeTarget {
 		if( !specifiedExplicitly ) {
 			// ignore if offline
 			if( node.OFFLINE ) {
-				if( !action.options.OPT_ALL )
+				if( !action.context.CTX_ALL )
 					return( null );
 			}
 				
 			// check matches deploygroup or startgroup
-			if( !action.options.OPT_DEPLOYGROUP.isEmpty() ) {
+			if( !action.context.CTX_DEPLOYGROUP.isEmpty() ) {
 				if( node.DEPLOYGROUP.isEmpty() ) {
-					if( !action.options.OPT_DEPLOYGROUP.equals( "default" ) )
+					if( !action.context.CTX_DEPLOYGROUP.equals( "default" ) )
 						return( null );
 				}
 				else {
-					if( !action.options.OPT_DEPLOYGROUP.equals( node.DEPLOYGROUP ) ) 
+					if( !action.context.CTX_DEPLOYGROUP.equals( node.DEPLOYGROUP ) ) 
 					return( null );
 				}
 			}
