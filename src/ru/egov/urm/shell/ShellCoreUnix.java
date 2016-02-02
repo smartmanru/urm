@@ -30,6 +30,7 @@ public class ShellCoreUnix extends ShellCore {
 	}
 
 	@Override protected void getProcessAttributes( ActionBase action ) throws Exception {
+		this.runCommand( action , "echo check and skip banner ... " , true );
 		processId = runCommandGetValueCheckDebug( action , "echo $$" );
 		homePath = runCommandGetValueCheckDebug( action , "echo $HOME" );
 	}
