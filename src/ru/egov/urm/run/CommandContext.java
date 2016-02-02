@@ -15,7 +15,7 @@ public class CommandContext {
 	public String streamName;
 	public Account account;
 	public String productHome;
-	public VarBUILDMODE buildMode;
+	public VarBUILDMODE buildMode = VarBUILDMODE.UNKNOWN;
 	public String env;
 	public String dc;
 
@@ -27,7 +27,7 @@ public class CommandContext {
 	public boolean CTX_IGNORE;
 	public boolean CTX_ALL;
 	public int CTX_COMMANDTIMEOUT;
-	public String CTX_KEYNAME;
+	public String CTX_KEYNAME = "";
 
 	// specific settings
 	public boolean CTX_GET;
@@ -56,30 +56,28 @@ public class CommandContext {
 	public SQLMODE CTX_DBMODE; 
 	public boolean CTX_DBMOVE;
 	public boolean CTX_DBAUTH;
-	public String CTX_DBALIGNED;
-	public String CTX_DB;
-	public String CTX_DBPASSWORD;
-	public String CTX_REGIONS;
+	public String CTX_DBALIGNED = "";
+	public String CTX_DB = "";
+	public String CTX_DBPASSWORD = "";
+	public String CTX_REGIONS = "";
 	public SQLTYPE CTX_DBTYPE;
-	public String CTX_RELEASELABEL;
-	public String CTX_BRANCH;
-	public String CTX_TAG;
-	public String CTX_DATE;
-	public String CTX_GROUP;
-	public String CTX_VERSION;
-	public String CTX_DCMASK;
-	public String CTX_DEPLOYGROUP;
-	public String CTX_STARTGROUP;
-	public String CTX_EXTRAARGS;
-	public String CTX_UNIT;
-	public String CTX_BUILDINFO;
-	public String CTX_HOSTUSER;
-	public String CTX_NEWKEY;
+	public String CTX_RELEASELABEL = "";
+	public String CTX_BRANCH = "";
+	public String CTX_TAG = "";
+	public String CTX_DATE = "";
+	public String CTX_GROUP = "";
+	public String CTX_VERSION = "";
+	public String CTX_DCMASK = "";
+	public String CTX_DEPLOYGROUP = "";
+	public String CTX_STARTGROUP = "";
+	public String CTX_EXTRAARGS = "";
+	public String CTX_UNIT = "";
+	public String CTX_BUILDINFO = "";
+	public String CTX_HOSTUSER = "";
+	public String CTX_NEWKEY = "";
 
 	public CommandContext() {
 		this.streamName = "main";
-		this.buildMode = VarBUILDMODE.UNKNOWN;
-		this.CTX_KEYNAME = "";
 	}
 
 	public CommandContext( CommandContext context , String stream ) {
