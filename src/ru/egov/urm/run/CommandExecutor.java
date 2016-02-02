@@ -196,7 +196,7 @@ public abstract class CommandExecutor {
 		ActionInit action = new ActionInit( this , context , options , output , meta );
 		
 		// scatter into variables
-		options.updateProperties( action );
+		options.updateContext( action );
 		output.setOptions( context.CTX_SHOWALL , context.CTX_TRACE );
 		
 		// print

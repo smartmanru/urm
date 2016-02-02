@@ -78,12 +78,12 @@ public class ActionImportDatabase extends ActionBase {
 		log( "reading import specification file " + specPath + " ..." );
 		Properties props = ConfReader.readPropertyFile( this , specPath );
 		
-		DATASET = props.getProperty( "CONFIG_DATASET" );
-		TABLESETFILE = props.getProperty( "CONFIG_TABLESETFILE" );
-		DUMPDIR = props.getProperty( "CONFIG_LOADDIR" );
-		REMOTE_SETDBENV = props.getProperty( "CONFIG_REMOTE_SETDBENV" );
-		DATABASE_DATAPUMPDIR = props.getProperty( "CONFIG_DATABASE_DATAPUMPDIR" );
-		POSTREFRESH = props.getProperty( "CONFIG_POSTREFRESH" );
+		DATASET = props.getProperty( "CONFIG_DATASET" , "" );
+		TABLESETFILE = props.getProperty( "CONFIG_TABLESETFILE" , "" );
+		DUMPDIR = props.getProperty( "CONFIG_LOADDIR" , "" );
+		REMOTE_SETDBENV = props.getProperty( "CONFIG_REMOTE_SETDBENV" , "" );
+		DATABASE_DATAPUMPDIR = props.getProperty( "CONFIG_DATABASE_DATAPUMPDIR" , "" );
+		POSTREFRESH = props.getProperty( "CONFIG_POSTREFRESH" , "" );
 
 		serverSchemas = server.getSchemaSet( this );
 		if( !SCHEMA.isEmpty() )

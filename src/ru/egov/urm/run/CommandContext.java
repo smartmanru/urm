@@ -154,7 +154,7 @@ public class CommandContext {
 	}
 
 	public void updateProperties( ActionBase action ) throws Exception {
-		action.options.updateProperties( action );
+		action.options.updateContext( action );
 	}
 
 	public CommandContext getProductContext( String productHome , String stream ) {

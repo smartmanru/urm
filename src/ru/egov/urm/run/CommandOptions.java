@@ -118,7 +118,7 @@ public class CommandOptions {
 		defineOption( CommandVar.newParam( "newkey" , "GETOPT_NEWKEY" , "use given key to change on host" ) );
 	}
 
-	public void updateProperties( ActionBase action ) throws Exception {
+	public void updateContext( ActionBase action ) throws Exception {
 		boolean isenv = ( action.meta.env == null )? false : true; 
 		boolean def = ( isenv && action.meta.env.PROD )? true : false;
 		String value;
