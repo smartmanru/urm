@@ -119,8 +119,6 @@ public class CommandOptions {
 	}
 
 	public void updateProperties( ActionBase action ) throws Exception {
-		action.options.updateProperties( action );
-		
 		boolean isenv = ( action.meta.env == null )? false : true; 
 		boolean def = ( isenv && action.meta.env.PROD )? true : false;
 		String value;
