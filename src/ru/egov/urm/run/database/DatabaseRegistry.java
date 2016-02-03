@@ -33,7 +33,7 @@ public class DatabaseRegistry {
 	
 	private DatabaseRegistry( DatabaseClient client , MetaRelease release ) {
 		this.client = client;
-		this.server = client.server;
+		this.server = client.specific.server;
 		this.release = release;
 		deliveryState = new HashMap<String,Map<String,String>>();
 	}

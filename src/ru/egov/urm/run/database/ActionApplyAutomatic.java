@@ -39,8 +39,8 @@ public class ActionApplyAutomatic extends ActionBase {
 	
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
-		DatabaseClient client = new DatabaseClient( server );
-		if( !client.checkConnect( this ) )
+		DatabaseClient client = new DatabaseClient();
+		if( !client.checkConnect( this , server ) )
 			exit( "unable to connect to server=" + server.NAME );
 
 		log( "apply changes to database=" + server.NAME + " ..." );

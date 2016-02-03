@@ -32,19 +32,7 @@ abstract public class DatabaseSpecific {
 			return( specific );
 		
 		specific.server = server;
-		if( node != null )
-			specific.node = node;
-		else {
-			for( MetaEnvServerNode xnode : server.getNodes( action ) ) {
-				if( !xnode.OFFLINE ) {
-					specific.node = xnode;
-					break;
-				}
-			}
-			
-			if( specific.node == null )
-				action.exit( "server " + server.NAME + " has no online nodes defined" );
-		}
+		specific.node = node;
 		
 		return( specific );
 	}
@@ -55,6 +43,16 @@ abstract public class DatabaseSpecific {
 				return( node );
 		action.exit( "server " + server.NAME + " has no online nodes defined" );
 		return( null );
+	}
+
+	public String getAdmUser( ActionBase action ) throws Exception {
+		return( server.admSchema.DBUSER );
+	}
+	
+	public String getAdmSchema( ActionBase action ) throws Exception {
+		if( !node.ADMDB.isEmpty() )
+			return( node.ADMDB );
+		return( server.admSchema.DBNAME );
 	}
 	
 	abstract public VarPROCESSMODE getProcessStatus( ActionBase action ) throws Exception;

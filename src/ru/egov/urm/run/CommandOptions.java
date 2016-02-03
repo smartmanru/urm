@@ -607,6 +607,13 @@ public class CommandOptions {
 		return( value );
 	}
 	
+	public int getIntArg( int pos , int defValue ) {
+		String value = getArg( pos );
+		if( value.isEmpty() )
+			return( defValue );
+		return( Integer.parseInt( value ) );
+	}
+	
 	public String[] getArgList( int startFrom ) {
 		if( startFrom >= args.size() )
 			return( new String[0] );

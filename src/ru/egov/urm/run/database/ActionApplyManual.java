@@ -30,8 +30,8 @@ public class ActionApplyManual extends ActionBase {
 		logReleaseCopy.ensureExists( this );
 		logReleaseExecute.ensureExists( this );
 		
-		DatabaseClient client = new DatabaseClient( server );
-		if( !client.checkConnect( this ) )
+		DatabaseClient client = new DatabaseClient();
+		if( !client.checkConnect( this , server ) )
 			exit( "unable to connect to server=" + server.NAME );
 		
 		if( target.itemFull ) {

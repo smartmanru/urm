@@ -10,7 +10,6 @@ import ru.egov.urm.ConfReader;
 import ru.egov.urm.conf.ConfBuilder;
 import ru.egov.urm.meta.MetaDatabaseSchema;
 import ru.egov.urm.meta.MetaEnvServer;
-import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.DistRepository;
@@ -38,7 +37,6 @@ public class ActionImportDatabase extends ActionBase {
 	String REMOTE_SETDBENV;
 	String DATABASE_DATAPUMPDIR;
 	String POSTREFRESH;
-	String EXPORTNODE;
 
 	Map<String,MetaDatabaseSchema> serverSchemas;
 	Map<String,Map<String,String>> tableSet;
@@ -59,13 +57,8 @@ public class ActionImportDatabase extends ActionBase {
 		workFolder = artefactory.getWorkFolder( this );
 		loadImportSettings();
 		
-		if( EXPORTNODE.isEmpty() ) 
-			client = new DatabaseClient( server );
-		else {
-			MetaEnvServerNode node = server.getNode( this , Integer.parseInt( EXPORTNODE ) );
-			client = new DatabaseClient( server , node );
-		}
-		if( !client.checkConnect( this ) )
+		client = new DatabaseClient();
+		if( !client.checkConnect( this , server ) )
 			exit( "unable to connect to administrative db" );
 		
 		distDataFolder = checkSource();
@@ -91,7 +84,6 @@ public class ActionImportDatabase extends ActionBase {
 		REMOTE_SETDBENV = props.getProperty( "CONFIG_REMOTE_SETDBENV" , "" );
 		DATABASE_DATAPUMPDIR = props.getProperty( "CONFIG_DATABASE_DATAPUMPDIR" , "" );
 		POSTREFRESH = props.getProperty( "CONFIG_POSTREFRESH" , "" );
-		EXPORTNODE = props.getProperty( "CONFIG_NODE" , "" );
 
 		serverSchemas = server.getSchemaSet( this );
 		if( !SCHEMA.isEmpty() )
@@ -196,7 +188,7 @@ public class ActionImportDatabase extends ActionBase {
 		
 		if( CMD.equals( "all" ) || CMD.equals( "data" ) ) {
 			MetadataStorage ms = artefactory.getMetadataStorage( this );
-			ms.loadDatapumpSet( this , tableSet , server , false );
+			ms.loadDatapumpSet( this , tableSet , server , false , false );
 			
 			if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )
 				runTarget( "data" , SCHEMA );
@@ -323,8 +315,8 @@ public class ActionImportDatabase extends ActionBase {
 			return;
 		}
 		
-		DatabaseClient client = new DatabaseClient( server );
-		if( !client.checkConnect( this ) )
+		DatabaseClient client = new DatabaseClient();
+		if( !client.checkConnect( this , server ) )
 			exit( "unable to connect to server=" + server.NAME );
 		
 		LocalFolder post = workFolder.getSubFolder( this , "post-refresh" );

@@ -239,8 +239,8 @@ public class ActionCheckEnv extends ActionBase {
 	}
 	
 	private boolean checkOneServerWholeDatabase( MetaEnvServer server ) throws Exception {
-		DatabaseClient process = new DatabaseClient( server );
-		if( process.checkConnect( this ) )
+		DatabaseClient process = new DatabaseClient();
+		if( process.checkConnect( this , server ) )
 			return( true );
 		
 		log( "database server=" + server.NAME + ": client is not available" );

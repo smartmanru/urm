@@ -487,5 +487,25 @@ public class MetaEnvServer {
 		}
 		return( schemaMap );
 	}
+
+	public MetaEnvServerNode getStandbyNode( ActionBase action ) throws Exception {
+		for( MetaEnvServerNode node : getNodes( action ) ) {
+			if( node.STANDBY )
+				return( node );
+		}
+		
+		action.exit( "unable to find standby node" );
+		return( null );
+	}
+
+	public MetaEnvServerNode getActiveNode( ActionBase action ) throws Exception {
+		for( MetaEnvServerNode node : getNodes( action ) ) {
+			if( !node.OFFLINE )
+				return( node );
+		}
+		
+		action.exit( "unable to find active node" );
+		return( null );
+	}
 	
 }

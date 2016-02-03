@@ -1,6 +1,7 @@
 package ru.egov.urm.run.database;
 
 import ru.egov.urm.meta.MetaEnvServer;
+import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.MetaReleaseDelivery;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScope;
@@ -12,9 +13,15 @@ public class DatabaseCommand {
 	public DatabaseCommand() {
 	}
 
-	public void initDatabase( ActionBase action , String SERVER ) throws Exception {
+	public void initDatabase( ActionBase action , String SERVER , int nodePos ) throws Exception {
 		MetaEnvServer server = action.meta.dc.getServer( action , SERVER );
-		ActionInitDatabase ma = new ActionInitDatabase( action , null , server );
+		MetaEnvServerNode node;
+		if( nodePos < 0 )
+			node = server.getActiveNode( action );
+		else
+			node = server.getNode( action , nodePos );
+			
+		ActionInitDatabase ma = new ActionInitDatabase( action , null , server , node );
 		ma.runSimple();
 	}
 

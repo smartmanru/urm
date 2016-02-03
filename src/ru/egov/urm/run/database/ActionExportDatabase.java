@@ -31,7 +31,7 @@ public class ActionExportDatabase extends ActionBase {
 	String DUMPDIR;
 	String REMOTE_SETDBENV;
 	String DATABASE_DATAPUMPDIR;
-	String EXPORTNODE;
+	boolean STANDBY;
 	
 	Map<String,MetaDatabaseSchema> serverSchemas;
 	Map<String,Map<String,String>> tableSet;
@@ -54,13 +54,13 @@ public class ActionExportDatabase extends ActionBase {
 	@Override protected boolean executeSimple() throws Exception {
 		loadExportSettings();
 		
-		if( EXPORTNODE.isEmpty() ) 
-			client = new DatabaseClient( server );
-		else {
-			MetaEnvServerNode node = server.getNode( this , Integer.parseInt( EXPORTNODE ) );
-			client = new DatabaseClient( server , node );
-		}
-		if( !client.checkConnect( this ) )
+		client = new DatabaseClient();
+		MetaEnvServerNode node;
+		if( STANDBY )
+			node = server.getStandbyNode( this );
+		else
+			node = server.getActiveNode( this );
+		if( !client.checkConnect( this , server , node ) )
 			exit( "unable to connect to administrative db" );
 		
 		distDataFolder = prepareDestination();
@@ -88,7 +88,7 @@ public class ActionExportDatabase extends ActionBase {
 		DUMPDIR = props.getProperty( "CONFIG_DATADIR" , "" );
 		REMOTE_SETDBENV = props.getProperty( "CONFIG_REMOTE_SETDBENV" , "" );
 		DATABASE_DATAPUMPDIR = props.getProperty( "CONFIG_DATABASE_DATAPUMPDIR" , "" );
-		EXPORTNODE = props.getProperty( "CONFIG_NODE" , "" );
+		STANDBY = Common.getBooleanValue( props.getProperty( "CONFIG_STANDBY" ) ); 
 
 		serverSchemas = server.getSchemaSet( this );
 		if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )
@@ -175,7 +175,7 @@ public class ActionExportDatabase extends ActionBase {
 
 	private void runAll() throws Exception {
 		MetadataStorage ms = artefactory.getMetadataStorage( this );
-		ms.loadDatapumpSet( this , tableSet , server , true );
+		ms.loadDatapumpSet( this , tableSet , server , STANDBY , true );
 		
 		if( CMD.equals( "all" ) || CMD.equals( "meta" ) )
 			runTarget( "meta" , "all" );

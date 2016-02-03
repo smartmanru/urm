@@ -112,7 +112,7 @@ public class MetadataStorage {
 		return( tableSet );
 	}
 	
-	public void loadDatapumpSet( ActionBase action , Map<String,Map<String,String>> tableSet , MetaEnvServer server , boolean export ) throws Exception {
+	public void loadDatapumpSet( ActionBase action , Map<String,Map<String,String>> tableSet , MetaEnvServer server , boolean standby , boolean export ) throws Exception {
 		String table = ( export )? "urm_export" : "urm_import";  
 		action.log( "create table " + table + " in administrative database ..." );
 		
@@ -136,8 +136,8 @@ public class MetadataStorage {
 			}
 		}
 
-		DatabaseClient client = new DatabaseClient( server ); 
-		if( !client.checkConnect( action ) )
+		DatabaseClient client = new DatabaseClient(); 
+		if( !client.checkConnect( action , server ) )
 			action.exit( "unable to connect to administrative db" );
 		
 		client.createTableData( action , server.admSchema , table , columns , columntypes , data );  

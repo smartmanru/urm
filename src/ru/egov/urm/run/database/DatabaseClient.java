@@ -17,20 +17,20 @@ import ru.egov.urm.storage.RemoteFolder;
 
 public class DatabaseClient {
 
-	public MetaEnvServer server;
-	private MetaEnvServerNode node;
 	public DatabaseSpecific specific;
 	
-	public DatabaseClient( MetaEnvServer server ) {
-		this.server = server;
+	public DatabaseClient() {
 	}
 
 	public DatabaseClient( MetaEnvServer server , MetaEnvServerNode node ) {
-		this.server = server;
-		this.node = node;
 	}
 
-	public boolean checkConnect( ActionBase action ) throws Exception {
+	public boolean checkConnect( ActionBase action , MetaEnvServer server ) throws Exception {
+		MetaEnvServerNode node = server.getActiveNode( action );
+		return( checkConnect( action , server , node ) );
+	}
+	
+	public boolean checkConnect( ActionBase action , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
 		specific = DatabaseSpecific.getSpecificHandler( action , server.DBMSTYPE , server , node );
 		
 		// check connect to admin schema
@@ -49,7 +49,7 @@ public class DatabaseClient {
 	}
 	
 	public String getUserPassword( ActionBase action , String user ) throws Exception {
-		String serverId = server.getFullId( action );
+		String serverId = specific.server.getFullId( action );
 		
 		String S_DB_USE_SCHEMA_PASSWORD = "";
 		if( !action.context.CTX_DBAUTH )
@@ -83,7 +83,7 @@ public class DatabaseClient {
 			action.exit( "need to check connectivity first" );
 			
 		// copy folder to remote
-		Account account = action.getAccount( node );
+		Account account = action.getAccount( specific.node );
 		RedistStorage storage = action.artefactory.getRedistStorage( "database" , account );
 		RemoteFolder folder = storage.getRedistTmpFolder( action );
 		folder.recreateThis( action );
@@ -116,7 +116,7 @@ public class DatabaseClient {
 	}
 	
 	private boolean applyManualScript( ActionBase action , ShellExecutor shell , RemoteFolder folder , String file , RemoteFolder logFolder ) throws Exception {
-		action.log( server.NAME + ": apply " + file + " ..." );
+		action.log( specific.server.NAME + ": apply " + file + " ..." );
 		
 		String fileRun = folder.getFilePath( action , Common.getBaseName( file ) );
 		String fileLog = logFolder.getFilePath( action , Common.getBaseName( file ) + ".out" );
@@ -169,6 +169,15 @@ public class DatabaseClient {
 		String file = scriptFolder.getFilePath( action , scriptFile );
 		String log = outFolder.getFilePath( action , outFile );
 		return( specific.applyScript( action , schema.DBNAME , schema.DBUSER , password , file , log ) );
+	}
+	
+	public boolean applyAdmScript( ActionBase action , LocalFolder scriptFolder , String scriptFile , LocalFolder outFolder , String outFile ) throws Exception {
+		String DBUSER = specific.getAdmUser( action );
+		String DBSCHEMA = specific.getAdmSchema( action );
+		String password = getUserPassword( action , DBUSER );
+		String file = scriptFolder.getFilePath( action , scriptFile );
+		String log = outFolder.getFilePath( action , outFile );
+		return( specific.applyScript( action , DBSCHEMA , DBUSER , password , file , log ) );
 	}
 	
 }

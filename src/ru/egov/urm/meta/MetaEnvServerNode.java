@@ -19,6 +19,8 @@ public class MetaEnvServerNode {
 	public String DEPLOYGROUP;
 	public String INSTANCE;
 	public boolean OFFLINE;
+	public boolean STANDBY;
+	public String ADMDB;
 	
 	public PropertySet properties;
 	
@@ -46,6 +48,8 @@ public class MetaEnvServerNode {
 			INSTANCE = properties.getSystemRequiredProperty( action , "instance" , systemProps );
 		
 		OFFLINE = properties.getSystemBooleanProperty( action , "offline" , false , systemProps );
+		STANDBY = properties.getSystemBooleanProperty( action , "standby" , false , systemProps );
+		ADMDB = properties.getSystemProperty( action , "admdb" , "" , systemProps );
 		
 		properties.checkUnexpected( action , systemProps );
 	}

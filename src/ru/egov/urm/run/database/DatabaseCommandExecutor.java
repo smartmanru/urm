@@ -80,7 +80,8 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	private class InitDB extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String SERVER = options.getRequiredArg( action , 0 , "SERVER" );
-		impl.initDatabase( action , SERVER );
+		int node = options.getIntArg( 1 , -1 );
+		impl.initDatabase( action , SERVER , node );
 	}
 	}
 
