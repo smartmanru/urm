@@ -37,7 +37,7 @@ public class DatabaseClient {
 		String user = server.admSchema.DBUSER;
 		String pwd = getUserPassword( action , user );
 		try { 
-			action.log( "check connect to database server=" + server.NAME + " ..." );
+			action.log( "check connect to database server=" + server.NAME + ", node=" + node.POS + " ..." );
 			return( specific.checkConnect( action , user , pwd ) );
 		}
 		catch( Throwable e ) {
