@@ -66,6 +66,7 @@ public class MetaProduct {
 	public String CONFIG_SOURCE_CFG_LIVEROOTDIR;
 	public String CONFIG_SOURCE_SQL_POSTREFRESH;
 	public String CONFIG_SQL_LOGDIR;
+	public String CONFIG_WINBUILD_HOSTLOGIN;
 	
 	Map<String,String> refMap; 
 	
@@ -118,6 +119,7 @@ public class MetaProduct {
 		CONFIG_SOURCE_CFG_LIVEROOTDIR = getPropertyRequired( action , "CONFIG_SOURCE_CFG_LIVEROOTDIR" );
 		CONFIG_SOURCE_SQL_POSTREFRESH = getPropertyRequired( action , "CONFIG_SOURCE_SQL_POSTREFRESH" );
 		CONFIG_SQL_LOGDIR = getPropertyRequired( action , "CONFIG_SQL_LOGDIR" );
+		CONFIG_WINBUILD_HOSTLOGIN = getProperty( action , "CONFIG_WINBUILD_HOSTLOGIN" );
 	}
 
 	public MetaProduct( Metadata meta ) {

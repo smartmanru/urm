@@ -377,6 +377,9 @@ abstract class ShellCore {
 					continue;
 				}
 				
+				if( action.context.CTX_TRACEINTERNAL )
+					System.out.println( "TRACEINTERNAL: readStreamToMarker " + prompt + " line=" + line.replaceAll("\\p{C}", "?") );
+				
 				int index = line.indexOf( finishMarker );
 				if( index >= 0 ) {
 					line = line.substring( 0 , index );

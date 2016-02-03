@@ -27,7 +27,10 @@ public class Account {
 		this.OSTYPE = OSTYPE;
 	}
 	
-	public static Account getAccount( ActionBase action , String user , String host , VarOSTYPE OSTYPE ) {
+	public static Account getAccount( ActionBase action , String user , String host , VarOSTYPE OSTYPE ) throws Exception {
+		if( host.isEmpty() || user.isEmpty() )
+			action.exit( "account details are not provided" );
+		
 		Account account = new Account( user , host , OSTYPE ); 
 		if( account.HOSTLOGIN.equals( "local" ) || 
 			account.HOSTLOGIN.equals( action.context.account.HOSTLOGIN ) )
@@ -38,8 +41,11 @@ public class Account {
 		return( account );
 	}
 	
-	public static Account getAccount( ActionBase action , String hostLogin , VarOSTYPE OSTYPE ) {
-		if( hostLogin.isEmpty() || hostLogin.equals( "local" ) )
+	public static Account getAccount( ActionBase action , String hostLogin , VarOSTYPE OSTYPE ) throws Exception {
+		if( hostLogin.isEmpty() )
+			action.exit( "account details are not provided" );
+		
+		if( hostLogin.equals( "local" ) )
 			return( action.context.account );
 			
 		String user = Common.getPartBeforeFirst( hostLogin , "@" );

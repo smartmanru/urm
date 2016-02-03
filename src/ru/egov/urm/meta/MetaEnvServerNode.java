@@ -65,5 +65,9 @@ public class MetaEnvServerNode {
 			return( account.HOST + ":" + server.PORT );
 		return( account.HOST );
 	}
-	
+
+	public String getHost( ActionBase action ) throws Exception {
+		Account account = action.getAccount( this );
+		return( account.HOST );
+	}
 }

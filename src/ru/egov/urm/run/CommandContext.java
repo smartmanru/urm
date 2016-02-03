@@ -20,6 +20,7 @@ public class CommandContext {
 	public String dc;
 
 	// generic settings
+	public boolean CTX_TRACEINTERNAL;
 	public boolean CTX_TRACE;
 	public boolean CTX_SHOWONLY;
 	public boolean CTX_SHOWALL;
@@ -96,6 +97,7 @@ public class CommandContext {
 		this.dc = context.dc;
 
 		// generic
+		this.CTX_TRACEINTERNAL = context.CTX_TRACEINTERNAL;
 		this.CTX_TRACE = context.CTX_TRACE;
 		this.CTX_SHOWONLY = context.CTX_SHOWONLY;
 		this.CTX_SHOWALL = context.CTX_SHOWALL;

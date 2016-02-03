@@ -126,6 +126,7 @@ public class CommandOptions {
 		CommandContext ctx = action.context;
 		
 		// generic
+		ctx.CTX_TRACEINTERNAL = ( getFlagValue( action , "GETOPT_TRACE" ) && getFlagValue( action , "GETOPT_SHOWALL" ) )? true : false;
 		ctx.CTX_TRACE = getFlagValue( action , "GETOPT_TRACE" );
 		ctx.CTX_SHOWONLY = combineValue( action , "GETOPT_SHOWONLY" , ( isenv )? action.meta.env.SHOWONLY : null , def );
 		ctx.CTX_SHOWALL = getFlagValue( action , "GETOPT_SHOWALL" );

@@ -18,21 +18,27 @@ import ru.egov.urm.storage.RemoteFolder;
 public class DatabaseClient {
 
 	MetaEnvServer server;
+	MetaEnvServerNode node;
 	DatabaseSpecific specific;
 	
 	public DatabaseClient( MetaEnvServer server ) {
 		this.server = server;
 	}
 
+	public DatabaseClient( MetaEnvServer server , MetaEnvServerNode node ) {
+		this.server = server;
+		this.node = node;
+	}
+
 	public boolean checkConnect( ActionBase action ) throws Exception {
-		specific = DatabaseSpecific.getSpecificHandler( action , server.DBMSTYPE );
+		specific = DatabaseSpecific.getSpecificHandler( action , server.DBMSTYPE , server , node );
 		
 		// check connect to admin schema
 		String user = server.admSchema.DBUSER;
 		String pwd = getUserPassword( action , user );
 		try { 
 			action.log( "check connect to database server=" + server.NAME + " ..." );
-			return( specific.checkConnect( action , server , user , pwd ) );
+			return( specific.checkConnect( action , user , pwd ) );
 		}
 		catch( Throwable e ) {
 			action.log( e );
@@ -77,7 +83,7 @@ public class DatabaseClient {
 			action.exit( "need to check connectivity first" );
 			
 		// copy folder to remote
-		Account account = getDatabaseAccount( action );
+		Account account = action.getAccount( node );
 		RedistStorage storage = action.artefactory.getRedistStorage( "database" , account );
 		RemoteFolder folder = storage.getRedistTmpFolder( action );
 		folder.recreateThis( action );
@@ -119,54 +125,50 @@ public class DatabaseClient {
 		if( action.context.CTX_SHOWONLY )
 			return( true );
 		
-		return( specific.applySystemScript( action , server , shell , fileRun , fileLog ) );
+		return( specific.applySystemScript( action , shell , fileRun , fileLog ) );
 	}
 
 	public Account getDatabaseAccount( ActionBase action ) throws Exception {
-		for( MetaEnvServerNode node : server.getNodes( action ) )
-			if( !node.OFFLINE )
-				return( action.getAccount( node ) );
-		action.exit( "server " + server.NAME + " has no online nodes defined" );
-		return( null );
+		return( action.getAccount( specific.node ) );
 	}
 
 	public String readCellValue( ActionBase action , MetaDatabaseSchema schema , String table , String column , String ansiCondition ) throws Exception {
 		String password = getUserPassword( action , schema.DBUSER );
-		return( specific.readCellValue( action , server , schema.DBNAME , schema.DBUSER , password , table , column , ansiCondition ) );
+		return( specific.readCellValue( action , schema.DBNAME , schema.DBUSER , password , table , column , ansiCondition ) );
 	}
 
 	public List<String[]> readTableData( ActionBase action , MetaDatabaseSchema schema , String table , String ansiCondition , String[] columns ) throws Exception {
 		List<String[]> list = new LinkedList<String[]>();
 		String password = getUserPassword( action , schema.DBUSER );
-		specific.readTableData( action , server , schema.DBNAME , schema.DBUSER , password , table , ansiCondition , columns , list );
+		specific.readTableData( action , schema.DBNAME , schema.DBUSER , password , table , ansiCondition , columns , list );
 		return( list );
 	}
 
 	public void createTableData( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] columntypes , List<String[]> data ) throws Exception {
 		String password = getUserPassword( action , schema.DBUSER );
-		specific.createTableData( action , server , schema.DBNAME , schema.DBUSER , password , table , columns , columntypes , data );
+		specific.createTableData( action , schema.DBNAME , schema.DBUSER , password , table , columns , columntypes , data );
 	}
 
 	public void writeTableData( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , List<String[]> data ) throws Exception {
 		String password = getUserPassword( action , schema.DBUSER );
-		specific.writeTableData( action , server , schema.DBNAME , schema.DBUSER , password , table , columns , data );
+		specific.writeTableData( action , schema.DBNAME , schema.DBUSER , password , table , columns , data );
 	}
 
 	public void insertRow( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] values ) throws Exception {
 		String password = getUserPassword( action , schema.DBUSER );
-		specific.insertRow( action , server , schema.DBNAME , schema.DBUSER , password , table , columns , values );
+		specific.insertRow( action , schema.DBNAME , schema.DBUSER , password , table , columns , values );
 	}
 	
 	public void updateRow( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] values , String ansiCondition ) throws Exception {
 		String password = getUserPassword( action , schema.DBUSER );
-		specific.updateRow( action , server , schema.DBNAME , schema.DBUSER , password , table , columns , values , ansiCondition );
+		specific.updateRow( action , schema.DBNAME , schema.DBUSER , password , table , columns , values , ansiCondition );
 	}
 
 	public boolean applyScript( ActionBase action , MetaDatabaseSchema schema , LocalFolder scriptFolder , String scriptFile , LocalFolder outFolder , String outFile ) throws Exception {
 		String password = getUserPassword( action , schema.DBUSER );
 		String file = scriptFolder.getFilePath( action , scriptFile );
 		String log = outFolder.getFilePath( action , outFile );
-		return( specific.applyScript( action , server , schema.DBNAME , schema.DBUSER , password , file , log ) );
+		return( specific.applyScript( action , schema.DBNAME , schema.DBUSER , password , file , log ) );
 	}
 	
 }

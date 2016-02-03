@@ -4,19 +4,24 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ru.egov.urm.Common;
-import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.Metadata.VarPROCESSMODE;
 import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.LocalFolder;
 
 public class DatabasePostgresSpecific extends DatabaseSpecific {
 
-	@Override public VarPROCESSMODE getProcessStatus( ActionBase action , Account account , String instance ) throws Exception {
-		ShellExecutor shell = action.getShell( account );
+	String dbmsAddrDB;
+	String dbmsAddrHost;
+	
+	public DatabasePostgresSpecific() {
+		super();
+	}
+	
+	@Override public VarPROCESSMODE getProcessStatus( ActionBase action ) throws Exception {
+		ShellExecutor shell = action.getShell( node );
 		String value = shell.customGetValue( action , "(echo " + Common.getQuoted( "select 'value=ok' as x;" ) + 
-				" ) | psql -d " + instance );
+				" ) | psql -d " + node.INSTANCE );
 		
 		if( value.indexOf( "value=ok" ) >= 0 )
 			return( VarPROCESSMODE.STARTED );
@@ -24,9 +29,9 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 		return( VarPROCESSMODE.ERRORS );
 	}
 
-	@Override public boolean checkConnect( ActionBase action , MetaEnvServer server , String user , String password ) throws Exception {
-		String dbmsAddrDB = server.admSchema.DBNAME;
-		String dbmsAddrHost = server.DBMSADDR;
+	@Override public boolean checkConnect( ActionBase action , String user , String password ) throws Exception {
+		dbmsAddrDB = server.admSchema.DBNAME;
+		dbmsAddrHost = node.getHost( action );
 		
 		String value = action.session.customGetValue( action , "export PGPASSWORD='" + password + "'; " + 
 				"(echo " + Common.getQuoted( "select 'value=ok' as x;" ) +  
@@ -36,7 +41,7 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 		return( false );
 	}
 
-	@Override public boolean applySystemScript( ActionBase action , MetaEnvServer server , ShellExecutor shell , String file , String fileLog ) throws Exception {
+	@Override public boolean applySystemScript( ActionBase action , ShellExecutor shell , String file , String fileLog ) throws Exception {
 		int status = shell.customGetStatus( action , "psql -a -e " + " < " + file + " > " + fileLog + " 2>&1" );
 		if( status != 0 ) {
 			action.log( "errors, status=" + status + " (see logs)" );
@@ -51,11 +56,11 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 		return( false );
 	}
 
-	@Override public String readCellValue( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String column , String condition ) throws Exception {
+	@Override public String readCellValue( ActionBase action , String schema , String user , String password , String table , String column , String condition ) throws Exception {
 		String value = action.session.customGetValue( action , "export PGPASSWORD='" + password + "'; " + 
 				"(echo " + Common.getQuoted( "select 'value=' || " + column + " as x from " + table + 
 						" where " + condition + ";" ) +  
-				" ) | psql -A -q -t -d " + schema + " -h " + server.DBMSADDR + " -U " + user );
+				" ) | psql -A -q -t -d " + schema + " -h " + dbmsAddrHost + " -U " + user );
 		
 		if( value.indexOf( "ERROR:" ) >= 0 )
 			action.exit( "unexpected error: " + value );
@@ -66,7 +71,7 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 		return( Common.getPartAfterFirst( value , "value=" ) );
 	}
 	
-	@Override public void readTableData( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String condition , String[] columns , List<String[]> rows ) throws Exception {
+	@Override public void readTableData( ActionBase action , String schema , String user , String password , String table , String condition , String[] columns , List<String[]> rows ) throws Exception {
 		String query = "select ";
 		boolean first = true;
 		for( String column : columns ) {
@@ -79,7 +84,7 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 		
 		String[] data = action.session.customGetLines( action , "export PGPASSWORD='" + password + "'; " + 
 				"(echo " + Common.getQuoted( query + ";" ) +  
-				" ) | psql -A -q -t -d " + schema + " -h " + server.DBMSADDR + " -U " + user );
+				" ) | psql -A -q -t -d " + schema + " -h " + dbmsAddrHost + " -U " + user );
 
 		for( String value : data ) {
 			String[] values = Common.split( value , "\\|" );
@@ -100,7 +105,7 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 		}
 	}
 
-	@Override public void createTableData( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , String columntypes[] , List<String[]> rows ) throws Exception {
+	@Override public void createTableData( ActionBase action , String schema , String user , String password , String table , String[] columns , String columntypes[] , List<String[]> rows ) throws Exception {
 		List<String> lines = new LinkedList<String>();
 		lines.add( "DROP TABLE IF EXISTS " + table + ";" );
 		
@@ -117,15 +122,15 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 		ct += " );";
 		lines.add( ct );
 				
-		writeTableDataInternal( action , server , schema , user , password , table , columns , rows , lines );
+		writeTableDataInternal( action , schema , user , password , table , columns , rows , lines );
 	}
 
-	@Override public void writeTableData( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , List<String[]> rows ) throws Exception {
+	@Override public void writeTableData( ActionBase action , String schema , String user , String password , String table , String[] columns , List<String[]> rows ) throws Exception {
 		List<String> lines = new LinkedList<String>();
-		writeTableDataInternal( action , server , schema , user , password , table , columns , rows , lines );
+		writeTableDataInternal( action , schema , user , password , table , columns , rows , lines );
 	}
 	
-	public void writeTableDataInternal( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , List<String[]> rows , List<String> lines ) throws Exception {
+	public void writeTableDataInternal( ActionBase action , String schema , String user , String password , String table , String[] columns , List<String[]> rows , List<String> lines ) throws Exception {
 		lines.add( "begin;" );
 		for( String[] values : rows ) {
 			String query = getInsertRowString( action , table , columns , values );
@@ -139,7 +144,7 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 
 		String value = action.session.customGetValue( action , "export PGPASSWORD='" + password + "'; " + 
 				"cat " + scriptFile +  
-				" | psql -d " + schema + " -h " + server.DBMSADDR + " -U " + user + " 2>&1" );
+				" | psql -d " + schema + " -h " + dbmsAddrHost + " -U " + user + " 2>&1" );
 		
 		if( value.indexOf( "ERROR:" ) >= 0 )
 			action.exit( "unexpected error: " + value );
@@ -176,17 +181,17 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 		return( query );
 	}
 	
-	@Override public void insertRow( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , String[] values ) throws Exception {
+	@Override public void insertRow( ActionBase action , String schema , String user , String password , String table , String[] columns , String[] values ) throws Exception {
 		String query = getInsertRowString( action , table , columns , values );
 		String value = action.session.customGetValue( action , "export PGPASSWORD='" + password + "'; " + 
 				"(echo " + Common.getQuoted( query ) +  
-				" ) | psql -d " + schema + " -h " + server.DBMSADDR + " -U " + user );
+				" ) | psql -d " + schema + " -h " + dbmsAddrHost + " -U " + user );
 		
 		if( value.indexOf( "ERROR:" ) >= 0 )
 			action.exit( "unexpected error: " + value );
 	}
 	
-	@Override public void updateRow( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , String[] values , String condition ) throws Exception {
+	@Override public void updateRow( ActionBase action , String schema , String user , String password , String table , String[] columns , String[] values , String condition ) throws Exception {
 		if( values.length != columns.length )
 			action.exit( "number of values should be equal to number of columns" );
 			
@@ -207,15 +212,15 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 		
 		String value = action.session.customGetValue( action , "export PGPASSWORD='" + password + "'; " + 
 				"(echo " + Common.getQuoted( query ) +  
-				" ) | psql -d " + schema + " -h " + server.DBMSADDR + " -U " + user );
+				" ) | psql -d " + schema + " -h " + dbmsAddrHost + " -U " + user );
 		
 		if( value.indexOf( "ERROR:" ) >= 0 )
 			action.exit( "unexpected error: " + value );
 	}
 
-	@Override public boolean applyScript( ActionBase action , MetaEnvServer server , String schema , String user , String password , String scriptFile , String outFile ) throws Exception {
+	@Override public boolean applyScript( ActionBase action , String schema , String user , String password , String scriptFile , String outFile ) throws Exception {
 		action.session.customCheckStatus( action , "export PGPASSWORD='" + password + "'; " + 
-				"cat " + scriptFile + " | psql -d " + schema + " -h " + server.DBMSADDR + " -U " + user + " > " + outFile + " 2>&1" );
+				"cat " + scriptFile + " | psql -d " + schema + " -h " + dbmsAddrHost + " -U " + user + " > " + outFile + " 2>&1" );
 		
 		String err = action.session.customGetValue( action , "cat " + outFile + " | grep ^ERROR: | head -1" );
 		if( err.isEmpty() )

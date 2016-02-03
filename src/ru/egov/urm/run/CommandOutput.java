@@ -11,6 +11,7 @@ public class CommandOutput {
 
 	boolean debugOutput;
 	boolean traceOutput;
+	boolean traceInternal;
 	PrintWriter outchild = null;
 	PrintWriter outtee = null;
 
@@ -19,9 +20,10 @@ public class CommandOutput {
 	public CommandOutput() {
 	}
 
-	public void setOptions( boolean debugOutput , boolean traceOutput ) {
-		this.debugOutput = debugOutput;
-		this.traceOutput = traceOutput;
+	public void setContext( CommandContext context ) {
+		this.traceInternal = context.CTX_TRACEINTERNAL;
+		this.debugOutput = context.CTX_SHOWALL;
+		this.traceOutput = context.CTX_TRACE;
 	}
 	
 	public void log( String s ) throws Exception {
@@ -44,7 +46,12 @@ public class CommandOutput {
 				return;
 			}
 		}
-			
+
+		if( traceInternal ) {
+			e.printStackTrace();
+			return;
+		}
+		
 		if( outchild != null ) {
 			e.printStackTrace( outchild );
 			outchild.flush();
@@ -75,6 +82,11 @@ public class CommandOutput {
 	}
 
 	private void outExact( String s ) throws Exception {
+		if( traceInternal ) {
+			System.out.println( "TRACEINTERNAL: outExact, line=" + s.replaceAll("\\p{C}", "?") );
+			return;
+		}
+		
 		if( outchild != null ) {
 			outchild.println( s );
 			outchild.flush();
@@ -97,13 +109,18 @@ public class CommandOutput {
 	public void exit( String s ) throws Exception {
 		String errmsg = "ERROR: " + s + ". Exiting";
 
-		if( outchild != null ) {
-			outchild.println( errmsg );
-			outchild.flush();
+		if( traceInternal ) {
+			System.out.println( errmsg );
 		}
-		else if( outtee != null ) {
-			outtee.println( errmsg );
-			outtee.flush();
+		else {
+			if( outchild != null ) {
+				outchild.println( errmsg );
+				outchild.flush();
+			}
+			else if( outtee != null ) {
+				outtee.println( errmsg );
+				outtee.flush();
+			}
 		}
 			
 		throw new ExitException( errmsg );

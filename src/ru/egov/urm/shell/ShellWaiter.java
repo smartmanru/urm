@@ -24,7 +24,7 @@ public class ShellWaiter {
             if( command.finished )
             	return( true );
             
-			action.trace( "wait failed for command=" + command.getClass().getSimpleName() + ", restarting session ... " );
+			action.trace( "wait failed for command=" + command.getClass().getSimpleName() );
             cleanup( action );
 		}
 		catch( Throwable e ) {

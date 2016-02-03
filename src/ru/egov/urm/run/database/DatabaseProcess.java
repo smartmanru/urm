@@ -1,5 +1,6 @@
 package ru.egov.urm.run.database;
 
+import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata.VarPROCESSMODE;
 import ru.egov.urm.run.ActionBase;
@@ -14,8 +15,9 @@ public class DatabaseProcess {
 
 	public VarPROCESSMODE getStatus( ActionBase action ) throws Exception {
 		try {
-			DatabaseSpecific specific = DatabaseSpecific.getSpecificHandler( action , node.server.DBMSTYPE );
-			VarPROCESSMODE mode = specific.getProcessStatus( action , action.getAccount( node ) , node.INSTANCE );
+			MetaEnvServer server = node.server;
+			DatabaseSpecific specific = DatabaseSpecific.getSpecificHandler( action , server.DBMSTYPE , server , node );
+			VarPROCESSMODE mode = specific.getProcessStatus( action );
 			return( mode );
 		}
 		catch( Throwable e ) {

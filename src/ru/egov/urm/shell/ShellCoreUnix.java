@@ -46,11 +46,16 @@ public class ShellCoreUnix extends ShellCore {
 		
 		String execLine = cmd + "; echo " + finishMarker + " >&2; echo " + finishMarker + "\n";
 		action.trace( executor.name + " execute: " + cmd );
+		if( action.context.CTX_TRACEINTERNAL )
+			System.out.println( "TRACEINTERNAL: write cmd line=" + execLine );
+		
 		writer.write( execLine );
 		try {
 			writer.flush();
 		}
 		catch( Throwable e ) {
+			if( action.context.CTX_TRACEINTERNAL )
+				e.printStackTrace();
 		}
 		
 		ShellWaiter waiter = new ShellWaiter( executor , new CommandReader( debug ) );

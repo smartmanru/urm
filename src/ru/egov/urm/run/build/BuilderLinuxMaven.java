@@ -14,8 +14,8 @@ import ru.egov.urm.vcs.ProjectVersionControl;
 
 public class BuilderLinuxMaven extends Builder {
 
-	public BuilderLinuxMaven( MetaSourceProject project , BuildStorage storage , String TAG , String BUILD_OPTIONS , String APPVERSION ) {
-		super( project , storage , TAG , BUILD_OPTIONS , APPVERSION );
+	public BuilderLinuxMaven( String BUILDER , MetaSourceProject project , BuildStorage storage , String TAG , String BUILD_OPTIONS , String APPVERSION ) {
+		super( BUILDER , project , storage , TAG , BUILD_OPTIONS , APPVERSION );
 	}
 
 	@Override public ShellExecutor createShell( ActionBase action ) throws Exception {

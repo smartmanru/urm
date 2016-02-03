@@ -9,6 +9,7 @@ import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.meta.MetaDatabaseSchema;
 import ru.egov.urm.meta.MetaEnvServer;
+import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.DistRepository;
@@ -30,6 +31,7 @@ public class ActionExportDatabase extends ActionBase {
 	String DUMPDIR;
 	String REMOTE_SETDBENV;
 	String DATABASE_DATAPUMPDIR;
+	String EXPORTNODE;
 	
 	Map<String,MetaDatabaseSchema> serverSchemas;
 	Map<String,Map<String,String>> tableSet;
@@ -52,7 +54,12 @@ public class ActionExportDatabase extends ActionBase {
 	@Override protected boolean executeSimple() throws Exception {
 		loadExportSettings();
 		
-		client = new DatabaseClient( server ); 
+		if( EXPORTNODE.isEmpty() ) 
+			client = new DatabaseClient( server );
+		else {
+			MetaEnvServerNode node = server.getNode( this , Integer.parseInt( EXPORTNODE ) );
+			client = new DatabaseClient( server , node );
+		}
 		if( !client.checkConnect( this ) )
 			exit( "unable to connect to administrative db" );
 		
@@ -78,9 +85,10 @@ public class ActionExportDatabase extends ActionBase {
 		
 		DATASET = props.getProperty( "CONFIG_DATASET" );
 		TABLESETFILE = props.getProperty( "CONFIG_TABLESETFILE" );
-		DUMPDIR = props.getProperty( "CONFIG_LOADDIR" );
-		REMOTE_SETDBENV = props.getProperty( "CONFIG_REMOTE_SETDBENV" );
-		DATABASE_DATAPUMPDIR = props.getProperty( "CONFIG_DATABASE_DATAPUMPDIR" );
+		DUMPDIR = props.getProperty( "CONFIG_DATADIR" , "" );
+		REMOTE_SETDBENV = props.getProperty( "CONFIG_REMOTE_SETDBENV" , "" );
+		DATABASE_DATAPUMPDIR = props.getProperty( "CONFIG_DATABASE_DATAPUMPDIR" , "" );
+		EXPORTNODE = props.getProperty( "CONFIG_NODE" , "" );
 
 		serverSchemas = server.getSchemaSet( this );
 		if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )

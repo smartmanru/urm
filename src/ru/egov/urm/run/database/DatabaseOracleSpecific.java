@@ -3,19 +3,21 @@ package ru.egov.urm.run.database;
 import java.util.List;
 
 import ru.egov.urm.Common;
-import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.Metadata.VarPROCESSMODE;
 import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.LocalFolder;
 
 public class DatabaseOracleSpecific extends DatabaseSpecific {
 
-	public VarPROCESSMODE getProcessStatus( ActionBase action , Account account , String instance ) throws Exception {
-		ShellExecutor shell = action.getShell( account );
+	public DatabaseOracleSpecific() {
+		super();
+	}
+	
+	public VarPROCESSMODE getProcessStatus( ActionBase action ) throws Exception {
+		ShellExecutor shell = action.getShell( node );
 		String value = shell.customGetValue( action , "echo " + 
-				Common.getQuoted( "select 'status=' || status from gv\\$instance where instance_name = '" + instance + "';" ) + 
+				Common.getQuoted( "select 'status=' || status from gv\\$instance where instance_name = '" + node.INSTANCE + "';" ) + 
 				" | sqlplus -S / " + Common.getQuoted( "as sysdba" ) );
 		
 		if( value.indexOf( "ORACLE not available" ) >= 0 )
@@ -30,8 +32,8 @@ public class DatabaseOracleSpecific extends DatabaseSpecific {
 		return( VarPROCESSMODE.ERRORS );
 	}
 
-	@Override public boolean checkConnect( ActionBase action , MetaEnvServer server , String user , String password ) throws Exception {
-		String dbmsAddr = server.DBMSADDR;
+	@Override public boolean checkConnect( ActionBase action , String user , String password ) throws Exception {
+		String dbmsAddr = action.getAccount( node ).HOST;
 		String value = action.session.customGetValue( action ,  
 				"(echo " + Common.getQuoted( "'value=ok' as x from dual\\;" ) +  
 				" ) | sqlplus " + user + "/" + password + "@" + dbmsAddr );
@@ -40,37 +42,37 @@ public class DatabaseOracleSpecific extends DatabaseSpecific {
 		return( false );
 	}
 
-	@Override public boolean applySystemScript( ActionBase action , MetaEnvServer server , ShellExecutor shell , String file , String fileLog ) throws Exception {
+	@Override public boolean applySystemScript( ActionBase action , ShellExecutor shell , String file , String fileLog ) throws Exception {
 		shell.customCheckStatus( action , "sqlplus / " + Common.getQuoted( "as sysdba" ) + " < " + file + " > " + fileLog );
 		return( true );
 	}
 
-	@Override public String readCellValue( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String column , String condition ) throws Exception {
+	@Override public String readCellValue( ActionBase action , String schema , String user , String password , String table , String column , String condition ) throws Exception {
 		action.exitNotImplemented();
 		return( null );
 	}
 	
-	@Override public void readTableData( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String condition , String[] columns , List<String[]> rows ) throws Exception {
+	@Override public void readTableData( ActionBase action , String schema , String user , String password , String table , String condition , String[] columns , List<String[]> rows ) throws Exception {
 		action.exitNotImplemented();
 	}
 
-	@Override public void createTableData( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , String columntypes[] , List<String[]> rows ) throws Exception {
+	@Override public void createTableData( ActionBase action , String schema , String user , String password , String table , String[] columns , String columntypes[] , List<String[]> rows ) throws Exception {
 		action.exitNotImplemented();
 	}
 	
-	@Override public void writeTableData( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , List<String[]> rows ) throws Exception {
+	@Override public void writeTableData( ActionBase action , String schema , String user , String password , String table , String[] columns , List<String[]> rows ) throws Exception {
 		action.exitNotImplemented();
 	}
 	
-	@Override public void insertRow( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , String[] values ) throws Exception {
+	@Override public void insertRow( ActionBase action , String schema , String user , String password , String table , String[] columns , String[] values ) throws Exception {
 		action.exitNotImplemented();
 	}
 
-	@Override public void updateRow( ActionBase action , MetaEnvServer server , String schema , String user , String password , String table , String[] columns , String[] values , String condition ) throws Exception {
+	@Override public void updateRow( ActionBase action , String schema , String user , String password , String table , String[] columns , String[] values , String condition ) throws Exception {
 		action.exitNotImplemented();
 	}
 
-	@Override public boolean applyScript( ActionBase action , MetaEnvServer server , String schema , String user , String password , String scriptFile , String outFile ) throws Exception {
+	@Override public boolean applyScript( ActionBase action , String schema , String user , String password , String scriptFile , String outFile ) throws Exception {
 		action.exitNotImplemented();
 		return( false );
 	}

@@ -197,7 +197,7 @@ public abstract class CommandExecutor {
 		
 		// scatter into variables
 		options.updateContext( action );
-		output.setOptions( context.CTX_SHOWALL , context.CTX_TRACE );
+		output.setContext( context );
 		
 		// print
 		if( context.CTX_SHOWALL )
