@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.w3c.dom.Node;
 
+import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.meta.MetaDesign.VarELEMENTTYPE;
 import ru.egov.urm.meta.Metadata.VarNAMETYPE;
@@ -74,6 +75,12 @@ public class MetaDesignElement {
 		if( ID == null )
 			action.exit( "unknown link=" + ID );
 		return( link );
+	}
+
+	public String getName( ActionBase action ) throws Exception {
+		if( elementType != VarELEMENTTYPE.GROUP )
+			return( Common.getQuoted( NAME ) );
+		return( "cluster_" + Common.replace( NAME , "." , "_" ) );
 	}
 	
 }

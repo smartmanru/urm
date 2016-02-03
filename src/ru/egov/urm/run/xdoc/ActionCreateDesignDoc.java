@@ -165,7 +165,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 			this.exitUnexpectedState();
 
 		String prefix = ( group )? "\t\t" : "\t";
-		String nodeline = prefix + Common.getQuoted( element.NAME );
+		String nodeline = prefix + element.getName( this );
 		String label = "<b>" + element.NAME + "</b>";
 		if( !element.FUNCTION.isEmpty() )
 			label += "<br/>" + element.FUNCTION;
@@ -181,7 +181,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		if( !element.FUNCTION.isEmpty() )
 			label += " (" + element.FUNCTION + ")";
 		
-		lines.add( "\tsubgraph " + Common.getQuoted( element.NAME ) + " {" );
+		lines.add( "\tsubgraph " + element.getName( this ) + " {" );
 		lines.add( "\t\tlabel=" + Common.getQuoted( label ) + ";" );
 		lines.add( "" );
 
@@ -194,7 +194,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 	}
 
 	private void createDotLink( List<String> lines , MetaDesignElement element , MetaDesignLink link ) throws Exception {
-		String linkline = "\t" + Common.getQuoted( element.NAME ) + " -> " + Common.getQuoted( link.TARGET );
+		String linkline = "\t" + element.getName( this ) + " -> " + link.target.getName( this );
 		String dotdef = "";
 		if( link.linkType == VarLINKTYPE.GENERIC )
 			dotdef = "color=blue";
