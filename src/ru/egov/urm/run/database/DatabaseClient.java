@@ -17,9 +17,9 @@ import ru.egov.urm.storage.RemoteFolder;
 
 public class DatabaseClient {
 
-	MetaEnvServer server;
-	MetaEnvServerNode node;
-	DatabaseSpecific specific;
+	public MetaEnvServer server;
+	private MetaEnvServerNode node;
+	public DatabaseSpecific specific;
 	
 	public DatabaseClient( MetaEnvServer server ) {
 		this.server = server;
@@ -49,7 +49,7 @@ public class DatabaseClient {
 	}
 	
 	public String getUserPassword( ActionBase action , String user ) throws Exception {
-		String dbmsAddr = server.DBMSADDR;
+		String serverId = server.getFullId( action );
 		
 		String S_DB_USE_SCHEMA_PASSWORD = "";
 		if( !action.context.CTX_DBAUTH )
@@ -65,11 +65,11 @@ public class DatabaseClient {
 
 			// get password
 			S_DB_USE_SCHEMA_PASSWORD = action.session.customGetValue( action , 
-					"cat " + F_FNAME + " | grep " + Common.getQuoted( "^" + dbmsAddr + "." + user + "=" ) +
+					"cat " + F_FNAME + " | grep " + Common.getQuoted( "^" + serverId + "." + user + "=" ) +
 					" | cut -d \"=\" -f2 | tr -d \"\n\r\"" );
 			
 			if( S_DB_USE_SCHEMA_PASSWORD.isEmpty() )
-				action.exit( "getSchemaPassword: unable to find password for dbms=" + dbmsAddr + ", schema=" + user + 
+				action.exit( "getSchemaPassword: unable to find password for dbms=" + serverId + ", schema=" + user + 
 						" in " + F_FNAME );
 		}
 		else
