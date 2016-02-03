@@ -30,7 +30,7 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 	}
 
 	@Override public boolean checkConnect( ActionBase action , String user , String password ) throws Exception {
-		dbmsAddrDB = server.admSchema.DBNAME;
+		dbmsAddrDB = super.getAdmSchema( action );
 		dbmsAddrHost = node.getHost( action );
 		
 		String value = action.session.customGetValue( action , "export PGPASSWORD='" + password + "'; " + 
