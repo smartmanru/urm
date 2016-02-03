@@ -29,6 +29,7 @@ public class MetaDesignElement {
 
 	public void load( ActionBase action , Node node ) throws Exception {
 		links = new HashMap<String,MetaDesignLink>();
+		childs = new HashMap<String,MetaDesignElement>();
 		
 		NAME = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
 		TYPE = ConfReader.getRequiredAttrValue( action , node , "type" );
