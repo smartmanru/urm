@@ -429,6 +429,9 @@ public class Common {
 	}
 	
 	public static boolean getBooleanValue( String s ) {
+		if( s == null )
+			return( false );
+		
 		if( s.equals( "yes" ) )
 			return( true );
 		
