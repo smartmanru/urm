@@ -116,7 +116,7 @@ public class MetaDesign {
 
 	public MetaDesignElement getElement( ActionBase action , String ID ) throws Exception {
 		MetaDesignElement element = elements.get( ID );
-		if( ID == null )
+		if( element == null )
 			action.exit( "unknown element=" + ID );
 		return( element );
 	}
