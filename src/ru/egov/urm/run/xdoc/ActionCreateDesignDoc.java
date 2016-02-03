@@ -87,7 +87,9 @@ public class ActionCreateDesignDoc extends ActionBase {
 		
 		// verify all design servers are mentioned in prod environment
 		for( MetaDesignElement element : design.elements.values() ) {
-			if( element.elementType == VarELEMENTTYPE.EXTERNAL || element.elementType == VarELEMENTTYPE.GENERIC )
+			if( element.elementType == VarELEMENTTYPE.GROUP || 
+				element.elementType == VarELEMENTTYPE.EXTERNAL || 
+				element.elementType == VarELEMENTTYPE.GENERIC )
 				continue;
 			
 			if( element.elementType == VarELEMENTTYPE.SERVER || element.elementType == VarELEMENTTYPE.DATABASE ) {
