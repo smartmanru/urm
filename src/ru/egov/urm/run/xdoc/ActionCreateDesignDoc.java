@@ -115,9 +115,17 @@ public class ActionCreateDesignDoc extends ActionBase {
 		
 		createDotHeading( lines );
 		
-		for( String elementName : Common.getSortedKeys( design.elements ) ) {
+		// add top-level elements
+		for( String elementName : Common.getSortedKeys( design.childs ) ) {
 			MetaDesignElement element = design.getElement( this , elementName );
-			createDotElement( lines , element );
+			createDotElement( lines , element , false );
+		}
+		lines.add( "" );
+		
+		// add subgraphs
+		for( String elementName : Common.getSortedKeys( design.groups ) ) {
+			MetaDesignElement element = design.getElement( this , elementName );
+			createDotSubgraph( lines , element );
 		}
 		lines.add( "" );
 		
@@ -141,7 +149,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		lines.add( "" );
 	}
 
-	private void createDotElement( List<String> lines , MetaDesignElement element ) throws Exception {
+	private void createDotElement( List<String> lines , MetaDesignElement element , boolean group ) throws Exception {
 		String dotdef = "";
 		if( element.elementType == VarELEMENTTYPE.SERVER )
 			dotdef = "fillcolor=green";
@@ -153,18 +161,36 @@ public class ActionCreateDesignDoc extends ActionBase {
 			dotdef = "fillcolor=lightgray";
 		else
 			this.exitUnexpectedState();
-		
-		String nodeline = "\t" + Common.getQuoted( element.NAME );
-		if( !dotdef.isEmpty() ) {
-			String label = "<b>" + element.NAME + "</b>";
-			if( !element.FUNCTION.isEmpty() )
-				label += "<br/>" + element.FUNCTION;
-			String s = dotdef + ", label=<" + label + ">";
-			nodeline += " [" + s + "]";
-		}
+
+		String prefix = ( group )? "\t\t" : "\t";
+		String nodeline = prefix + Common.getQuoted( element.NAME );
+		String label = "<b>" + element.NAME + "</b>";
+		if( !element.FUNCTION.isEmpty() )
+			label += "<br/>" + element.FUNCTION;
+		String s = dotdef + ", label=<" + label + ">";
+		nodeline += " [" + s + "]";
 		nodeline += ";";
 		
 		lines.add( nodeline );
+	}
+
+	private void createDotSubgraph( List<String> lines , MetaDesignElement element ) throws Exception {
+		String label = element.NAME;
+		if( !element.FUNCTION.isEmpty() )
+			label += "(" + element.FUNCTION + ")";
+		
+		lines.add( "\tsubgraph " + Common.getQuoted( element.NAME ) + " {" );
+		lines.add( "\t\tcolor=gray;" );
+		lines.add( "\t\tpenwidth=3.0;" );
+		lines.add( "\t\tlabel=" + Common.getQuoted( label ) + ";" );
+		lines.add( "" );
+
+		// subgraph items
+		for( String name : Common.getSortedKeys( element.childs ) ) {
+			MetaDesignElement child = element.childs.get( name );
+			createDotElement( lines , child , true );
+		}
+		lines.add( "\t}" );
 	}
 
 	private void createDotLink( List<String> lines , MetaDesignElement element , MetaDesignLink link ) throws Exception {

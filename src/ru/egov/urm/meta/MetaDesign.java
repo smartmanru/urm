@@ -18,7 +18,8 @@ public class MetaDesign {
 		EXTERNAL ,
 		GENERIC ,
 		SERVER ,
-		DATABASE
+		DATABASE ,
+		GROUP
 	};
 	
 	public enum VarLINKTYPE {
@@ -30,6 +31,8 @@ public class MetaDesign {
 	boolean loaded = false;
 
 	Metadata meta;
+	public Map<String,MetaDesignElement> childs;
+	public Map<String,MetaDesignElement> groups;
 	public Map<String,MetaDesignElement> elements;
 	public boolean fullProd;
 	
@@ -64,9 +67,13 @@ public class MetaDesign {
 			return;
 		
 		for( Node elementNode : items ) {
-			MetaDesignElement element = new MetaDesignElement( this );
-			element.load( action , elementNode );
+			MetaDesignElement element = new MetaDesignElement( this , null );
 			elements.put( element.NAME , element );
+			element.load( action , elementNode );
+			if( element.elementType == VarELEMENTTYPE.GROUP )
+				groups.put( element.NAME , element );
+			else
+				childs.put( element.NAME , element );
 		}
 		
 		for( MetaDesignElement element : elements.values() )
@@ -110,6 +117,10 @@ public class MetaDesign {
 		if( ID == null )
 			action.exit( "unknown element=" + ID );
 		return( element );
+	}
+
+	public void addSubGraphItem( ActionBase action , MetaDesignElement item , MetaDesignElement child ) throws Exception {
+		elements.put( child.NAME , child );
 	}
 	
 }
