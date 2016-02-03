@@ -70,8 +70,8 @@ public class MetaDesign {
 		
 		for( Node elementNode : items ) {
 			MetaDesignElement element = new MetaDesignElement( this , null );
-			elements.put( element.NAME , element );
 			element.load( action , elementNode );
+			elements.put( element.NAME , element );
 			if( element.elementType == VarELEMENTTYPE.GROUP )
 				groups.put( element.NAME , element );
 			else
