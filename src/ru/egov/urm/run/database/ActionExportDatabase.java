@@ -164,6 +164,7 @@ public class ActionExportDatabase extends ActionBase {
 			EXECUTEMAPPING = Common.addItemToUniqueSpacedList( EXECUTEMAPPING , schema.SCHEMA + "=" + schema.DBNAME );
 		
 		conf.add( "CONF_MAPPING=" + Common.getQuoted( EXECUTEMAPPING ) );
+		conf.add( "CONF_STANDBY=" + Common.getBooleanValue( STANDBY ) );
 		Common.createFileFromStringList( confFile , conf );
 		exportScriptsFolder.copyFileFromLocal( this , confFile );
 		
@@ -174,8 +175,10 @@ public class ActionExportDatabase extends ActionBase {
 	}
 
 	private void runAll() throws Exception {
-		MetadataStorage ms = artefactory.getMetadataStorage( this );
-		ms.loadDatapumpSet( this , tableSet , server , STANDBY , true );
+		if( !STANDBY ) {
+			MetadataStorage ms = artefactory.getMetadataStorage( this );
+			ms.loadDatapumpSet( this , tableSet , server , STANDBY , true );
+		}
 		
 		if( CMD.equals( "all" ) || CMD.equals( "meta" ) )
 			runTarget( "meta" , "all" );

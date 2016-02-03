@@ -50,8 +50,6 @@ abstract public class DatabaseSpecific {
 	}
 	
 	public String getAdmSchema( ActionBase action ) throws Exception {
-		if( !node.ADMDB.isEmpty() )
-			return( node.ADMDB );
 		return( server.admSchema.DBNAME );
 	}
 	
