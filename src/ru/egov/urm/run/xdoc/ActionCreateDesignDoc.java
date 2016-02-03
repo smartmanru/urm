@@ -179,11 +179,9 @@ public class ActionCreateDesignDoc extends ActionBase {
 	private void createDotSubgraph( List<String> lines , MetaDesignElement element ) throws Exception {
 		String label = element.NAME;
 		if( !element.FUNCTION.isEmpty() )
-			label += "(" + element.FUNCTION + ")";
+			label += " (" + element.FUNCTION + ")";
 		
 		lines.add( "\tsubgraph " + Common.getQuoted( element.NAME ) + " {" );
-		lines.add( "\t\tcolor=gray;" );
-		lines.add( "\t\tpenwidth=3.0;" );
 		lines.add( "\t\tlabel=" + Common.getQuoted( label ) + ";" );
 		lines.add( "" );
 
