@@ -61,6 +61,8 @@ public class MetaDesign {
 	
 	public void loadElements( ActionBase action , Node node ) throws Exception {
 		elements = new HashMap<String,MetaDesignElement>();
+		childs = new HashMap<String,MetaDesignElement>();
+		groups = new HashMap<String,MetaDesignElement>();
 
 		Node[] items = ConfReader.xmlGetChildren( action , node , "element" );
 		if( items == null )
