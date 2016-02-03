@@ -29,7 +29,7 @@ public class MetaEnvServerNode {
 	}
 
 	public void load( ActionBase action , Node node , boolean loadProps ) throws Exception {
-		properties = new PropertySet( "server" , server.properties );
+		properties = new PropertySet( "node" , server.properties );
 		properties.loadFromAttributes( action , node );
 		scatterSystemProperties( action );
 		if( loadProps )
