@@ -237,7 +237,7 @@ public class ActionExportDatabase extends ActionBase {
 		}
 		
 		// copy top log
-		String logFileName = cmd + "-" + SN + "run.sh.log";
+		String logFileName = cmd + "-" + SN + "-run.sh.log";
 		exportScriptsFolder.copyFileToLocalRename( this , workFolder , "run.sh.log" , logFileName );
 		distLogFolder.copyFileFromLocal( this , workFolder.getFilePath( this , logFileName ) );
 		
