@@ -185,8 +185,10 @@ public class ActionCreateDesignDoc extends ActionBase {
 		lines.add( "\t\tlabel=" + Common.getQuoted( label ) + ";" );
 		if( !element.GROUPCOLOR.isEmpty() )
 			lines.add( "\t\tcolor=" + element.GROUPCOLOR + ";" );
-		if( !element.GROUPFILLCOLOR.isEmpty() )
+		if( !element.GROUPFILLCOLOR.isEmpty() ) {
+			lines.add( "\t\tstile=filled;" );
 			lines.add( "\t\tfillcolor=" + element.GROUPFILLCOLOR + ";" );
+		}
 		lines.add( "" );
 
 		// subgraph items
