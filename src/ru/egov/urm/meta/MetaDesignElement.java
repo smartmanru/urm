@@ -92,9 +92,10 @@ public class MetaDesignElement {
 	public String getLinkName( ActionBase action ) throws Exception {
 		if( elementType != VarELEMENTTYPE.GROUP )
 			return( getName( action ) );
-		if( childs.isEmpty() )
-			action.exit( "unable to get group item" );
-		return( childs.get(0).getName( action ) );
+		for( String s : childs.keySet() )
+			return( s );
+		action.exit( "unable to get group item" );
+		return( null );
 	}
 	
 }
