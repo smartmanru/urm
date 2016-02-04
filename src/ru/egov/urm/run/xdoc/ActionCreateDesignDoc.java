@@ -200,7 +200,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 	}
 
 	private void createDotLink( List<String> lines , MetaDesignElement element , MetaDesignLink link ) throws Exception {
-		String linkline = "\t" + element.getName( this ) + " -> " + link.target.getName( this );
+		String linkline = "\t" + element.getLinkName( this ) + " -> " + link.target.getLinkName( this );
 		String dotdef = "";
 		if( link.linkType == VarLINKTYPE.GENERIC )
 			dotdef = "color=blue";
@@ -211,6 +211,11 @@ public class ActionCreateDesignDoc extends ActionBase {
 		
 		if( !link.TEXT.isEmpty() )
 			dotdef += ", label=" + Common.getQuoted( link.TEXT );
+		
+		if( element.elementType == VarELEMENTTYPE.GROUP )
+			dotdef += ", ltail=" + element.getName( this );
+		if( link.target.elementType == VarELEMENTTYPE.GROUP )
+			dotdef += ", lhead=" + link.target.getName( this );
 		
 		linkline += " [" + dotdef + "];";
 		lines.add( linkline );

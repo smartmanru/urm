@@ -89,4 +89,12 @@ public class MetaDesignElement {
 		return( "cluster_" + Common.replace( NAME , "." , "_" ) );
 	}
 	
+	public String getLinkName( ActionBase action ) throws Exception {
+		if( elementType != VarELEMENTTYPE.GROUP )
+			return( getName( action ) );
+		if( childs.isEmpty() )
+			action.exit( "unable to get group item" );
+		return( childs.get(0).getName( action ) );
+	}
+	
 }
