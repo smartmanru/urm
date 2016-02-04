@@ -183,6 +183,8 @@ public class ActionCreateDesignDoc extends ActionBase {
 		
 		lines.add( "\tsubgraph " + element.getName( this ) + " {" );
 		lines.add( "\t\tlabel=" + Common.getQuoted( label ) + ";" );
+		if( !element.GROUPCOLOR.isEmpty() )
+			lines.add( "\t\tcolor=" + element.GROUPCOLOR + ";" );
 		lines.add( "" );
 
 		// subgraph items
