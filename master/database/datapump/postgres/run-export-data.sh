@@ -48,8 +48,8 @@ function f_execute_db() {
 		echo resume standby replication ...
 		( 
 			echo "select pg_is_xlog_replay_paused();"
-			echo "select pg_xlog_replay_pause();"
 			echo "select pg_xlog_replay_resume();"
+			echo "select pg_is_xlog_replay_paused();"
 		) | psql
 	fi
 
