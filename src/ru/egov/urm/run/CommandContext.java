@@ -215,7 +215,7 @@ public class CommandContext {
 	}
 	
 	public void createPool( ActionBase action ) throws Exception {
-		pool = new ShellExecutorPool( productHome , action.context.CTX_COMMANDTIMEOUT );
+		pool = new ShellExecutorPool( productHome );
 		pool.create( action );
 	}
 

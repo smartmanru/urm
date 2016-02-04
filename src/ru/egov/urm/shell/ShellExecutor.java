@@ -28,7 +28,7 @@ public abstract class ShellExecutor {
 	
 	public static ShellExecutor getLocalShellExecutor( ActionBase action , String name , ShellExecutorPool pool , String rootPath , Folder tmpFolder ) throws Exception {
 		ShellExecutor executor = new LocalShellExecutor( name , pool , rootPath , tmpFolder );
-		executor.core = ShellCore.createShellCore( action, executor , pool.timeoutDefault , VarOSTYPE.UNIX );
+		executor.core = ShellCore.createShellCore( action, executor , VarOSTYPE.UNIX );
 		return( executor );
 	}
 
@@ -37,7 +37,7 @@ public abstract class ShellExecutor {
 		Folder tmpFolder = storage.getRedistTmpFolder( action );
 
 		ShellExecutor executor = new RemoteShellExecutor( name , pool , account , rootPath , tmpFolder );
-		executor.core = ShellCore.createShellCore( action, executor , pool.timeoutDefault , account.OSTYPE );
+		executor.core = ShellCore.createShellCore( action, executor , account.OSTYPE );
 		return( executor );
 	}
 
@@ -52,7 +52,7 @@ public abstract class ShellExecutor {
 		if( !initialized )
 			action.exit( "session=" + name + " failed on init stage" );
 		
-		core = ShellCore.createShellCore( action , this , action.context.CTX_COMMANDTIMEOUT , core.OSTYPE );
+		core = ShellCore.createShellCore( action , this , core.OSTYPE );
 		start( action );
 	}
 	

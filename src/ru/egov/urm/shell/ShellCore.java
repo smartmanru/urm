@@ -100,7 +100,7 @@ abstract class ShellCore {
 	abstract public void cmdAppendExecuteLog( ActionBase action , String msg ) throws Exception;
 	abstract public void cmdAppendUploadLog( ActionBase action , String src , String dst ) throws Exception;
 	
-	public static ShellCore createShellCore( ActionBase action , ShellExecutor executor , int timeoutDefault , VarOSTYPE osType ) throws Exception {
+	public static ShellCore createShellCore( ActionBase action , ShellExecutor executor , VarOSTYPE osType ) throws Exception {
 		ShellCore core = null;
 		
 		if( osType == VarOSTYPE.UNIX )

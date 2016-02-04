@@ -14,7 +14,6 @@ import ru.egov.urm.storage.LocalFolder;
 public class ShellExecutorPool {
 
 	public String rootPath;
-	public int timeoutDefault;
 	
 	Map<String,ShellExecutor> pool = new HashMap<String,ShellExecutor>();
 	List<ShellExecutor> listRemote = new LinkedList<ShellExecutor>();
@@ -24,9 +23,8 @@ public class ShellExecutorPool {
 	public Account account;
 	public Folder tmpFolder;
 	
-	public ShellExecutorPool( String rootPath , int timeoutDefault ) {
+	public ShellExecutorPool( String rootPath ) {
 		this.rootPath = rootPath;
-		this.timeoutDefault = timeoutDefault;
 	}
 	
 	public void create( ActionBase action ) throws Exception {
