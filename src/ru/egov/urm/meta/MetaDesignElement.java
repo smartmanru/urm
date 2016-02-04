@@ -21,6 +21,7 @@ public class MetaDesignElement {
 	public String NAME;
 	public String TYPE;
 	public String GROUPCOLOR;
+	public String GROUPFILLCOLOR;
 	public VarELEMENTTYPE elementType;
 	public String FUNCTION;
 	
@@ -42,6 +43,7 @@ public class MetaDesignElement {
 			if( group != null )
 				action.exit( "nested groups are diasallowed, item=" + NAME );
 			GROUPCOLOR = ConfReader.getAttrValue( action , node , "color" );
+			GROUPFILLCOLOR = ConfReader.getAttrValue( action , node , "fillcolor" );
 		}
 		
 		// subgraph
