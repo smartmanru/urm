@@ -32,11 +32,10 @@ function f_execute_db() {
 	# execute suspend standby replication if any
 	if [ "$CONF_STANDBY" = "yes" ]; then
 		echo suspend standby replication ...
-		psql < ( 
-			echo "select pg_is_xlog_replay_paused();"
+		( 	echo "select pg_is_xlog_replay_paused();"
 			echo "select pg_xlog_replay_pause();"
 			echo "select pg_is_xlog_replay_paused();"
-		)
+		) | psql
 	fi
 
 	F_CMD="pg_dump -v -b -f ../data/data-$P_SCHEMA-all.dump -F c $F_TABLEFILTER $P_DBNAME"
@@ -47,11 +46,11 @@ function f_execute_db() {
 	# execute resume standby replication if any
 	if [ "$CONF_STANDBY" = "yes" ]; then
 		echo resume standby replication ...
-		psql < ( 
+		( 
 			echo "select pg_is_xlog_replay_paused();"
 			echo "select pg_xlog_replay_pause();"
 			echo "select pg_xlog_replay_resume();"
-		)
+		) | psql
 	fi
 
 	if [ "$F_STATUS" != "0" ]; then
