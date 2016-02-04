@@ -186,7 +186,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		if( !element.GROUPCOLOR.isEmpty() )
 			lines.add( "\t\tcolor=" + element.GROUPCOLOR + ";" );
 		if( !element.GROUPFILLCOLOR.isEmpty() ) {
-			lines.add( "\t\tstile=filled;" );
+			lines.add( "\t\tstyle=filled;" );
 			lines.add( "\t\tfillcolor=" + element.GROUPFILLCOLOR + ";" );
 		}
 		lines.add( "" );
