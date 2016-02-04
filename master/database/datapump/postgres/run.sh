@@ -11,19 +11,19 @@ if [ "$P_MODE" = "" ] || [ "$P_CMD" = "" ]; then
 fi
 
 function f_execute_export_data() {
-	nohup ./run-export-meta.sh "$P_SCHEMA" >> run.sh.log 2>&1 &
-}
-
-function f_execute_export_meta() {
 	nohup ./run-export-data.sh "$P_SCHEMA" >> run.sh.log 2>&1 &
 }
 
+function f_execute_export_meta() {
+	nohup ./run-export-meta.sh "$P_SCHEMA" >> run.sh.log 2>&1 &
+}
+
 function f_execute_import_data() {
-	nohup ./run-import-meta.sh "$P_SCHEMA" >> run.sh.log 2>&1 &
+	nohup ./run-import-data.sh "$P_SCHEMA" >> run.sh.log 2>&1 &
 }
 
 function f_execute_import_meta() {
-	nohup ./run-import-data.sh "$P_SCHEMA" >> run.sh.log 2>&1 &
+	nohup ./run-import-meta.sh "$P_SCHEMA" >> run.sh.log 2>&1 &
 }
 
 function f_execute_export_start() {
@@ -35,10 +35,10 @@ function f_execute_export_start() {
 	echo EXPORT-STARTED > run.sh.log
 
 	if [ "$P_SET" = "meta" ]; then
-		f_execute_export_data
+		f_execute_export_meta
 
 	elif [ "$P_SET" = "data" ]; then
-		f_execute_export_meta
+		f_execute_export_data
 	fi
 }
 
@@ -107,10 +107,10 @@ function f_execute_import_start() {
 	echo IMPORT-STARTED > run.sh.log
 
 	if [ "$P_SET" = "meta" ]; then
-		f_execute_import_data
+		f_execute_import_meta
 
 	elif [ "$P_SET" = "data" ]; then
-		f_execute_import_meta
+		f_execute_import_data
 	fi
 }
 
