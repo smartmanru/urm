@@ -11,8 +11,8 @@ import ru.egov.urm.storage.Folder;
 
 public class ShellCoreUnix extends ShellCore {
 
-	public ShellCoreUnix( ShellExecutor executor , int commandTimeoutDefault , VarOSTYPE osType , Folder tmpFolder ) {
-		super( executor , commandTimeoutDefault , osType , tmpFolder );
+	public ShellCoreUnix( ShellExecutor executor , VarOSTYPE osType , Folder tmpFolder ) {
+		super( executor , osType , tmpFolder );
 	}
 
 	@Override protected String getExportCmd( ActionBase action ) throws Exception {
@@ -59,8 +59,7 @@ public class ShellCoreUnix extends ShellCore {
 		}
 		
 		ShellWaiter waiter = new ShellWaiter( executor , new CommandReader( debug ) );
-		boolean res = waiter.wait( action , commandTimeout );
-		commandTimeout = commandTimeoutDefault;
+		boolean res = waiter.wait( action , action.commandTimeout );
 		
 		if( !res )
 			exitError( action , "command has been killed" );
@@ -337,8 +336,9 @@ public class ShellCoreUnix extends ShellCore {
 		if( !keyFile.isEmpty() )
 			keyOption = "-i " + keyFile + " ";
 		
-		setTimeout( action , 0 );
+		int timeout = action.setTimeoutUnlimited();
 		runCommandCheckDebug( action , "scp -q -B -p " + keyOption + account.HOSTLOGIN + ":" + srcPath + "/* " + dstPath );
+		action.setTimeout( timeout );
 	}
 
 	@Override public void cmdScpFilesLocalToRemote( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
@@ -347,8 +347,9 @@ public class ShellCoreUnix extends ShellCore {
 		if( !keyFile.isEmpty() )
 			keyOption = "-i " + keyFile + " ";
 		
-		setTimeout( action , 0 );
+		int timeout = action.setTimeoutUnlimited();
 		runCommandCheckDebug( action , "scp -q -B -p " + keyOption + srcPath + " " + account.HOSTLOGIN + ":" + dstPath );
+		action.setTimeout( timeout );
 	}
 
 	@Override public void cmdScpDirLocalToRemote( ActionBase action , String srcDirPath , Account account , String baseDstDir ) throws Exception {
@@ -362,8 +363,9 @@ public class ShellCoreUnix extends ShellCore {
 		session.removeDir( action , baseDstDir + "/" + baseName );
 		session.ensureDirExists( action , baseDstDir );
 		
-		setTimeout( action , 0 );
+		int timeout = action.setTimeoutUnlimited();
 		runCommandCheckDebug( action , "scp -r -q -B -p " + keyOption + srcDirPath + " " + account.HOSTLOGIN + ":" + baseDstDir );
+		action.setTimeout( timeout );
 	}
 
 	@Override public void cmdScpDirContentLocalToRemote( ActionBase action , String srcDirPath , Account account , String dstDir ) throws Exception {
@@ -375,8 +377,9 @@ public class ShellCoreUnix extends ShellCore {
 		ShellExecutor session = action.getShell( account );
 		session.ensureDirExists( action , dstDir );
 		
-		setTimeout( action , 0 );
+		int timeout = action.setTimeoutUnlimited();
 		runCommandCheckDebug( action , "scp -r -q -B -p " + keyOption + srcDirPath + "/* " + account.HOSTLOGIN + ":" + dstDir );
+		action.setTimeout( timeout );
 	}
 
 	@Override public void cmdScpDirRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
@@ -385,8 +388,9 @@ public class ShellCoreUnix extends ShellCore {
 		if( !keyFile.isEmpty() )
 			keyOption = "-i " + keyFile + " ";
 		
-		setTimeout( action , 0 );
+		int timeout = action.setTimeoutUnlimited();
 		runCommandCheckDebug( action , "scp -r -q -B -p " + keyOption + account.HOSTLOGIN + ":" + srcPath + " " + dstPath );
+		action.setTimeout( timeout );
 	}
 
 	@Override public void cmdCopyDirFileToFile( ActionBase action , Account account , String dirPath , String fileSrc , String fileDst ) throws Exception {

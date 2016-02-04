@@ -60,8 +60,9 @@ public class BuilderLinuxGradle extends Builder {
 		session.customCheckErrorsNormal( action , "gradle --version" );
 		
 		action.log( "execute: " + GRADLE_CMD );
-		session.setTimeoutUnlimited( action );
+		int timeout = action.setTimeoutUnlimited();
 		int status = session.customGetStatusNormal( action , GRADLE_CMD );
+		action.setTimeout( timeout );
 
 		if( status != 0 ) {
 			action.log( "buildGradle: gradle build failed" );

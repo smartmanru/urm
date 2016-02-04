@@ -32,8 +32,9 @@ public class ActionScp extends ActionBase {
 		if( context.CTX_SHOWONLY )
 			return( true );
 		
-		session.setTimeoutUnlimited( this );
+		int timeout = setTimeoutUnlimited();
 		session.customCheckStatus( this , F_CMD );
+		setTimeout( timeout );
 		return( true );
 	}
 	

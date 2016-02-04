@@ -281,17 +281,23 @@ public class ActionExportDatabase extends ActionBase {
 		
 		LocalFolder workDataFolder = artefactory.getWorkFolder( this , "data" );
 		workDataFolder.recreateThis( this );
+		
+		int timeout = setTimeoutUnlimited();
 		exportFolder.copyFilesToLocal( this , workDataFolder , files );
+		setTimeout( timeout );
+		
 		String[] copied = workDataFolder.findFiles( this , files );
 		
 		if( copied.length == 0 )
 			exit( "unable to find files: " + files );
 		
 		// copy to target
+		timeout = setTimeoutUnlimited();
 		distFolder.moveFilesFromLocal( this , workDataFolder , files );
 		
 		// cleanup source
 		exportFolder.removeFiles( this , files );
+		setTimeout( timeout );
 	}
 
 }

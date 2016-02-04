@@ -30,9 +30,10 @@ public class ActionUpgradeEnv extends ActionBase {
 			return( true );
 			
 		// execute
-		session.setTimeoutUnlimited( this );
+		int timeout = setTimeoutUnlimited();
 		int status = session.customGetStatus( this , "sh " + Common.getPath( meta.env.UPGRADE_PATH , PATCHFILE ) +
 				" " + account.HOSTLOGIN + " " + context.CTX_EXTRAARGS );
+		setTimeout( timeout );
 		if( status < 0 )
 			exit( "fatal error" );
 

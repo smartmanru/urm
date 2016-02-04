@@ -201,12 +201,14 @@ public class ActionChangeKeys extends ActionBase {
 		if( context.CTX_SUDO )
 			exit( "unsupported with sudo" );
 		
-		session.setTimeoutUnlimited( this );
+		int timeout = setTimeoutUnlimited();
 		int status = session.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " + 
 			Common.getQuoted( SETUPAUTH + "; cat " + S_AUTHFILE + 
 				" | grep -v " + KEYOWNER + "\\$ > " + S_AUTHFILE + ".2; echo " + Common.getQuoted( KEYDATA ) + 
 				" >> " + S_AUTHFILE + ".2; cp " + S_AUTHFILE + ".2 " + S_AUTHFILE + 
 				"; rm -rf " + S_AUTHFILE + ".2;" ) );
+		setTimeout( timeout );
+		
 		if( status != 0 )
 			return( false );
 		return( true );
@@ -215,7 +217,7 @@ public class ActionChangeKeys extends ActionBase {
 	private boolean setOnlyKey( Account account , String ACCESSOPTION , String SETUPAUTH , String KEYDATA ) throws Exception {
 		int status;
 		
-		session.setTimeoutUnlimited( this );
+		int timeout = setTimeoutUnlimited();
 		if( context.CTX_SUDO ) {
 			status = session.customGetStatus( this , "ssh -n -t -t " + ACCESSOPTION + " " + account.HOSTLOGIN + " " + 
 				Common.getQuoted( SETUPAUTH + "; echo " + Common.getQuoted( KEYDATA ) + " | sudo tee ~root/" + S_AUTHFILE ) );
@@ -224,6 +226,7 @@ public class ActionChangeKeys extends ActionBase {
 			status = session.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " + 
 					Common.getQuoted( SETUPAUTH + "; echo " + Common.getQuoted( KEYDATA ) + " > " + S_AUTHFILE ) );
 		}
+		setTimeout( timeout );
 		
 		if( status != 0 )
 			return( false );
@@ -246,9 +249,10 @@ public class ActionChangeKeys extends ActionBase {
 		if( context.CTX_SUDO )
 			exit( "unsupported with sudo" );
 		
-		session.setTimeoutUnlimited( this );
+		int timeout = setTimeoutUnlimited();
 		String[] list = session.customGetLines( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " +
 				Common.getQuoted( SETUPAUTH ) );
+		setTimeout( timeout );
 		if( list.length > 0 && list[0].equals( "NOAUTHFILE" ) )
 			exit( S_AUTHFILE + " is not found" );
 		

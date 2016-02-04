@@ -19,7 +19,6 @@ abstract class ShellCore {
 	public VarOSTYPE OSTYPE;
 	public Folder tmpFolder;
 	ShellExecutor executor;
-	int commandTimeoutDefault;
 	
 	List<String> cmdout; 
 	List<String> cmderr;
@@ -40,8 +39,6 @@ abstract class ShellCore {
 	public boolean initialized = false;
 	
 	static String finishMarker = "URM.MARKER";  
-
-	int commandTimeout;
 
 	abstract protected String getExportCmd( ActionBase action ) throws Exception;
 	abstract protected void getProcessAttributes( ActionBase action ) throws Exception;
@@ -107,10 +104,10 @@ abstract class ShellCore {
 		ShellCore core = null;
 		
 		if( osType == VarOSTYPE.UNIX )
-			core = new ShellCoreUnix( executor , timeoutDefault , osType , executor.tmpFolder );
+			core = new ShellCoreUnix( executor , osType , executor.tmpFolder );
 		else
 		if( osType == VarOSTYPE.WINDOWS )
-			core = new ShellCoreWindows( executor , timeoutDefault , osType , executor.tmpFolder );
+			core = new ShellCoreWindows( executor , osType , executor.tmpFolder );
 		else
 			action.exitUnexpectedState();
 		
@@ -119,17 +116,14 @@ abstract class ShellCore {
 		return( core );
 	}
 	
-	protected ShellCore( ShellExecutor executor , int timeoutDefault , VarOSTYPE osType , Folder tmpFolder ) {
+	protected ShellCore( ShellExecutor executor , VarOSTYPE osType , Folder tmpFolder ) {
 		this.executor = executor;
-		this.commandTimeoutDefault = timeoutDefault;
 		this.OSTYPE = osType;
 		this.tmpFolder = tmpFolder;
 		
 		cmdout = new LinkedList<String>();
 		cmderr = new LinkedList<String>();
 		running = false;
-		
-		commandTimeout = commandTimeoutDefault;
 	}
 
 	public void createProcess( ActionBase action , ProcessBuilder builder , String rootPath ) throws Exception {
@@ -182,10 +176,6 @@ abstract class ShellCore {
 		initialized = false;
 	}
 
-	public void setTimeout( ActionBase action , int timeout ) throws Exception {
-		commandTimeout = timeout;
-	}
-	
 	protected void exitError( ActionBase action , String error ) throws Exception {
 		 executor.exitError( action , error );
 	}

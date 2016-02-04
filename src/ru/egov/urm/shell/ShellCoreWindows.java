@@ -8,8 +8,8 @@ import ru.egov.urm.storage.Folder;
 
 public class ShellCoreWindows extends ShellCore {
 
-	public ShellCoreWindows( ShellExecutor executor , int commandTimeoutDefault , VarOSTYPE osType , Folder tmpFolder ) {
-		super( executor , commandTimeoutDefault , osType , tmpFolder );
+	public ShellCoreWindows( ShellExecutor executor , VarOSTYPE osType , Folder tmpFolder ) {
+		super( executor , osType , tmpFolder );
 	}
 
 	@Override protected String getExportCmd( ActionBase action ) throws Exception {
@@ -46,8 +46,7 @@ public class ShellCoreWindows extends ShellCore {
 		}
 		
 		ShellWaiter waiter = new ShellWaiter( executor , new CommandReader( debug ) );
-		boolean res = waiter.wait( action , commandTimeout );
-		commandTimeout = commandTimeoutDefault;
+		boolean res = waiter.wait( action , action.commandTimeout );
 		
 		if( !res )
 			exitError( action , "command has been killed" );

@@ -296,6 +296,7 @@ public class ActionImportDatabase extends ActionBase {
 			exit( "unable to find files: " + files );
 		
 		LocalFolder workDataFolder;
+		int timeout = setTimeoutUnlimited();
 		if( distFolder.isRemote( this ) ) {
 			workDataFolder = artefactory.getWorkFolder( this , "data" );
 			workDataFolder.recreateThis( this );
@@ -307,7 +308,8 @@ public class ActionImportDatabase extends ActionBase {
 			workDataFolder = artefactory.getAnyFolder( this , distFolder.folderPath );
 			importFolder.copyFilesFromLocal( this , workDataFolder , files );
 		}
-	}
+		setTimeout( timeout );
+}
 
 	private void applyPostRefresh() throws Exception {
 		if( POSTREFRESH.isEmpty() ) {

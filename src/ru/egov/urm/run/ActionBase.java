@@ -24,6 +24,7 @@ abstract public class ActionBase {
 	boolean actionFailed;
 
 	public String NAME;
+	public int commandTimeout;
 	
 	protected boolean executeSimple() throws Exception { debug( NAME + ": simple action execute is not implemented" ); return( false ); };
 	protected boolean executeScope( ActionScope scope ) throws Exception { debug( NAME + ": full scope action execute is not implemented" ); return( false ); };
@@ -51,6 +52,7 @@ abstract public class ActionBase {
 		
 		this.artefactory = new Artefactory( meta );
 		this.actionFailed = false;
+		this.commandTimeout = context.CTX_COMMANDTIMEOUT;
 		
 		NAME = this.getClass().getSimpleName();
 	}
@@ -65,6 +67,7 @@ abstract public class ActionBase {
 		this.session = base.session;
 		this.artefactory = new Artefactory( base.artefactory );
 		this.actionFailed = false;
+		this.commandTimeout = base.commandTimeout;
 		
 		NAME = this.getClass().getSimpleName();
 	}
@@ -423,5 +426,19 @@ abstract public class ActionBase {
         trace( "sleep: intentional delay - " + millis + " millis" );
         Thread.sleep(millis);
     }
+
+	public int setTimeout( int timeout ) throws Exception {
+		int saveTimeout = commandTimeout;
+		commandTimeout = timeout;
+		return( saveTimeout );
+	}
     
+	public int setTimeoutUnlimited() throws Exception {
+		return( setTimeout( 0 ) );
+	}
+	
+	public int setTimeoutDefault() throws Exception {
+		return( setTimeout( context.CTX_COMMANDTIMEOUT ) );
+	}
+	
 }

@@ -90,7 +90,7 @@ public class ActionPatch extends ActionBase {
 		// upload versioninfo
 		String FILENAME = builder.project.PROJECT + "-versioninfo.txt";
 		LOGDIR.createFileFromString( this , FILENAME , builder.TAG );
-		session.setTimeoutUnlimited( this );
+		int timeout = setTimeoutUnlimited();
 		int status = session.customGetStatusNormal( this , "mvn deploy:deploy-file -B " +
 			MODULE_MSETTINGS + " " +
 			"-Durl=" + builder.getNexusPath( this , builder.project ) + " " +
@@ -103,6 +103,7 @@ public class ActionPatch extends ActionBase {
 			"-Dclassifier=version " +
 			"-DgeneratePom=true " +
 			"-DrepositoryId=nexus2" );
+		setTimeout( timeout );
 
 		if( status != 0 ) {
 			exit( "uploadBuildStatus: unable to register build status" );

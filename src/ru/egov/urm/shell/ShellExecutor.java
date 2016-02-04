@@ -32,14 +32,6 @@ public abstract class ShellExecutor {
 		return( executor );
 	}
 
-	public void setTimeout( ActionBase action , int timeout ) throws Exception {
-		core.setTimeout( action ,  timeout );
-	}
-
-	public void setTimeoutUnlimited( ActionBase action ) throws Exception {
-		core.setTimeout( action ,  0 );
-	}
-	
 	public static ShellExecutor getRemoteShellExecutor( ActionBase action , String name , ShellExecutorPool pool , Account account , String rootPath ) throws Exception {
 		RedistStorage storage = action.artefactory.getRedistStorage( "default" , account );
 		Folder tmpFolder = storage.getRedistTmpFolder( action );
@@ -306,8 +298,9 @@ public abstract class ShellExecutor {
 	}
 	
 	public void scpFilesRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
-		setTimeoutUnlimited( action );
+		int timeout = action.setTimeoutUnlimited();
 		core.cmdScpFilesRemoteToLocal( action , srcPath , account , dstPath );
+		action.setTimeout( timeout );
 	}
 
 	public void scpDirContentRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {

@@ -29,10 +29,30 @@ function f_execute_db() {
 		echo dump all schema tables ...
 	fi
 
+	# execute suspend standby replication if any
+	if [ "$CONF_STANDBY" = "yes" ]; then
+		echo suspend standby replication ...
+		psql < ( 
+			echo "select pg_is_xlog_replay_paused();"
+			echo "select pg_xlog_replay_pause();"
+			echo "select pg_is_xlog_replay_paused();"
+		)
+	fi
+
 	F_CMD="pg_dump -v -b -f ../data/data-$P_SCHEMA-all.dump -F c $F_TABLEFILTER $P_DBNAME"
 	echo "run: $F_CMD ..."
 	$F_CMD > ../log/data-$P_SCHEMA-all.dump.log 2>&1
 	F_STATUS=$?
+
+	# execute resume standby replication if any
+	if [ "$CONF_STANDBY" = "yes" ]; then
+		echo resume standby replication ...
+		psql < ( 
+			echo "select pg_is_xlog_replay_paused();"
+			echo "select pg_xlog_replay_pause();"
+			echo "select pg_xlog_replay_resume();"
+		)
+	fi
 
 	if [ "$F_STATUS" != "0" ]; then
 		echo pg_dump failed with status=$F_STATUS. Exiting

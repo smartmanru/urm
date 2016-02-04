@@ -142,8 +142,9 @@ public class BuilderLinuxMaven extends Builder {
 		session.customCheckErrorsNormal( action , "mvn --version" );
 		
 		action.log( "execute: " + MAVEN_CMD );
-		session.setTimeoutUnlimited( action );
+		int timeout = action.setTimeoutUnlimited();
 		int status = session.customGetStatusNormal( action , MAVEN_CMD );
+		action.setTimeout( timeout );
 
 		if( status != 0 ) {
 			action.log( "buildMaven: maven build failed" );
