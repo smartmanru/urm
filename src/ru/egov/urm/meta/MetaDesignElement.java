@@ -93,7 +93,7 @@ public class MetaDesignElement {
 		if( elementType != VarELEMENTTYPE.GROUP )
 			return( getName( action ) );
 		for( String s : childs.keySet() )
-			return( s );
+			return( Common.getQuoted( s ) );
 		action.exit( "unable to get group item" );
 		return( null );
 	}
