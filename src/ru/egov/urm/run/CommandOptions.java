@@ -187,6 +187,8 @@ public class CommandOptions {
 		ctx.CTX_BUILDINFO = getParamValue( action , "GETOPT_BUILDINFO" );
 		ctx.CTX_HOSTUSER = getParamValue( action , "GETOPT_HOSTUSER" );
 		ctx.CTX_NEWKEY = getParamValue( action , "GETOPT_NEWKEY" );
+		
+		action.setTimeout( ctx.CTX_COMMANDTIMEOUT );
 	}
 
 	void print( String s ) {

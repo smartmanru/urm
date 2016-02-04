@@ -52,7 +52,7 @@ abstract public class ActionBase {
 		
 		this.artefactory = new Artefactory( meta );
 		this.actionFailed = false;
-		this.commandTimeout = context.CTX_COMMANDTIMEOUT;
+		this.commandTimeout = 0;
 		
 		NAME = this.getClass().getSimpleName();
 	}
