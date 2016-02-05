@@ -74,6 +74,14 @@ public class ConfReader {
     	Properties props = new Properties();
         InputStream inputStream = getResourceStream( action , path );
         props.load( inputStream );
+        
+        // remove quotes if any
+        for( Object key : props.keySet() ) {
+        	String value = props.getProperty( ( String )key );
+        	if( value.startsWith( "\"" ) && value.endsWith( "\"" ) )
+        		props.setProperty( ( String )key, value.substring( 1 , value.length() - 1 ) );
+        }
+        
     	return( props );
     }
 
