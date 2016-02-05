@@ -343,7 +343,8 @@ public class ActionImportDatabase extends ActionBase {
 		builder.parseConfigParameters( this , folder , server );
 		
 		// apply
-		client.applyManualSet( this , folder );
+		if( !client.applyManualSet( this , folder ) )
+			setFailed();
 	}
 	
 }
