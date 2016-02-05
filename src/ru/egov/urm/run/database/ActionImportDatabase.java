@@ -326,7 +326,10 @@ public class ActionImportDatabase extends ActionBase {
 		for( String name : Common.splitSpaced( POSTREFRESH ) )
 			applyPostRefreshFolder( client , post , name );
 		
-		log( "post-refresh successfully applied" );
+		if( isFailed() )
+			log( "post-refresh applied with errors" );
+		else
+			log( "post-refresh successfully applied" );
 	}
 	
 	private void applyPostRefreshFolder( DatabaseClient client , LocalFolder post , String name ) throws Exception {
