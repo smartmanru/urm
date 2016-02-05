@@ -322,6 +322,7 @@ public class ActionImportDatabase extends ActionBase {
 			exit( "unable to connect to server=" + server.NAME );
 		
 		LocalFolder post = workFolder.getSubFolder( this , "post-refresh" );
+		post.ensureExists( this );
 		for( String name : Common.splitSpaced( POSTREFRESH ) )
 			applyPostRefreshFolder( client , post , name );
 		
