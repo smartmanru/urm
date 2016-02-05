@@ -300,7 +300,7 @@ public class SubversionVCS extends GenericVCS {
 		if( name.isEmpty() )
 			name = Common.getBaseName( ITEMPATH );
 		
-		session.customCheckStatus( action , "( cd " + PATCHFOLDER.folderPath + "; svn export --non-interactive " + SVNAUTH + " " + CO_PATH + " " + name + " > /dev/null )" );
+		session.customCheckStatus( action , PATCHFOLDER.folderPath , "svn export --non-interactive " + SVNAUTH + " " + CO_PATH + " " + name + " > /dev/null" );
 		return( true );
 	}
 

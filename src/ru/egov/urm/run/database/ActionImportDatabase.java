@@ -335,7 +335,7 @@ public class ActionImportDatabase extends ActionBase {
 		LocalFolder folder = post.getSubFolder( this , name );
 		
 		SourceStorage storage = artefactory.getSourceStorage( this );
-		storage.exportPostRefresh( this , name , folder );
+		storage.exportPostRefresh( this , name , post );
 		
 		// configure
 		ConfBuilder builder = new ConfBuilder( this );
