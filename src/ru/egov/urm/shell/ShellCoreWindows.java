@@ -266,7 +266,8 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public void cmdAppendExecuteLog( ActionBase action , String msg ) throws Exception {
 		String executeLog = getWinDir( action , Common.getPath( executor.rootPath , "execute.log" ) );
-		runCommand( action , "echo " + Common.getQuoted( msg ) + " >> " + executeLog , false );
+		String ts = Common.getLogTimeStamp();
+		runCommand( action , "echo " + Common.getQuoted( ts + ": " + msg ) + " >> " + executeLog , false );
 	}
 
 	@Override public void cmdAppendUploadLog( ActionBase action , String src , String dst ) throws Exception {
