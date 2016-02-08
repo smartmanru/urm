@@ -338,63 +338,58 @@ abstract class ShellCore {
 		return( cmdout );
 	}
 	
-	class CommandReader extends WaiterCommand {
-		boolean debug;
+	protected String readBuffer( ActionBase action , BufferedReader textreader , String buffer , char lineTerm ) throws Exception {
+		if( action.context.CTX_TRACEINTERNAL )
+			action.trace( "readBuffer start reading ... " );
 		
-		public CommandReader( boolean debug ) {
-			this.debug = debug;
+		String s = "";
+		if( !textreader.ready() ) {
+			char[] c = new char[1];
+			if( textreader.read( c , 0 , 1 ) != 1 )
+				return( null );
+				
+			s += c[0];
+			buffer += c[0];
 		}
-		
-		public void run( ActionBase action ) throws Exception {
-			readStreamToMarker( action , reader , cmdout , "" );
-			readStreamToMarker( action , errreader , cmderr , "stderr:" );
-		}
-		
-		private void outStreamLine( ActionBase action , String line ) throws Exception {
-			if( debug )
-				action.trace( line );
-			else
-				action.log( line );
-		}
-		
-		private void readStreamToMarker( ActionBase action , BufferedReader textreader , List<String> text , String prompt ) throws Exception {
-			String line;
-			boolean first = true;
-			while ( true ) {
-				line = textreader.readLine();
-				if( line == null ) {
-					Thread.yield();
-					continue;
+
+		char buf[] = new char[ 100 ];
+		String nextBuffer = buffer;
+		while( textreader.ready() ) {
+			int len = textreader.read( buf , 0 , 100 );
+			
+			if( len > 0 ) {
+				boolean lineFound = false;
+				for( int k = 0; k < len; k++ ) {
+					s += buf[ k ];
+					
+					if( buf[ k ] == '\r' )
+						continue;
+					if( buf[ k ] == lineTerm )
+						lineFound = true; 
+
+					nextBuffer += buf[ k ];
 				}
 				
-				if( action.context.CTX_TRACEINTERNAL )
-					System.out.println( "TRACEINTERNAL: readStreamToMarker " + prompt + " line=" + line.replaceAll("\\p{C}", "?") );
-				
-				int index = line.indexOf( finishMarker );
-				if( index >= 0 ) {
-					line = line.substring( 0 , index );
-					if( index > 0 ) {
-						text.add( line );
-						if( first && !prompt.isEmpty() ) {
-							outStreamLine( action , prompt );
-							first = false;
-						}
-						outStreamLine( action , line );
-					}
-				}
-				else {
-					text.add( line );
-					if( first && !prompt.isEmpty() ) {
-						outStreamLine( action , prompt );
-						first = false;
-					}
-					outStreamLine( action , line );
-				}
-				
-				if( index >= 0 )
+				if( lineFound )
 					break;
 			}
 		}
+		
+		if( action.context.CTX_TRACEINTERNAL )
+			action.trace( "readBuffer part=" + s.replaceAll("\\p{C}", "?") );
+		
+		return( nextBuffer );
 	}
+
+	protected void skipUpTo( ActionBase action , BufferedReader textreader , char endChar ) throws Exception {
+		char[] c = new char[1];
+		while( true ) {
+			if( textreader.read( c , 0 , 1 ) != 1 )
+				action.exit( "unable to read" );
+			
+			if( c[0] == endChar )
+				return;
+		}
+	}		
 	
 }

@@ -1,7 +1,5 @@
 package ru.egov.urm.shell;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -77,8 +75,8 @@ public class ShellExecutorPool {
 					session.kill( action );
 				}
 				catch( Throwable e ) {
-					if( action.context.CTX_TRACE )
-						System.out.println( "exception when killing session=" + session.name + " (" + e.getMessage() + ")" );
+					if( action.context.CTX_TRACEINTERNAL )
+						action.trace( "exception when killing session=" + session.name + " (" + e.getMessage() + ")" );
 				}
 			}
 			
@@ -88,8 +86,8 @@ public class ShellExecutorPool {
 					session.kill( action );
 				}
 				catch( Throwable e ) {
-					if( action.context.CTX_TRACE )
-						System.out.println( "exception when killing session=" + session.name + " (" + e.getMessage() + ")" );
+					if( action.context.CTX_TRACEINTERNAL )
+						action.trace( "exception when killing session=" + session.name + " (" + e.getMessage() + ")" );
 				}
 			}
 		}
@@ -106,14 +104,7 @@ public class ShellExecutorPool {
 		
 		action.trace( account.HOSTLOGIN + " execute: " + cmd );
 		ProcessBuilder pb = new ProcessBuilder( "sh" , "-c" , cmd );
-		pb.redirectErrorStream(true);
 		Process p = pb.start();
-		
-		BufferedReader stdInput = new BufferedReader( new InputStreamReader( p.getInputStream() ) );
-		String s;
-		while (( s = stdInput.readLine()) != null) {
-		        System.out.println(s);
-		}
 		p.waitFor();
 	}
 	

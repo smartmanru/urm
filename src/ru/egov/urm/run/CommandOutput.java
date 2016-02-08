@@ -34,7 +34,7 @@ public class CommandOutput {
 		outExact( s );
 	}
 	
-	public void log( String prompt , Throwable e ) throws Exception {
+	public synchronized void log( String prompt , Throwable e ) throws Exception {
 		if( !debugOutput ) {
 			ExitException ee = Common.getExitException( e );
 			if( ee != null ) {
@@ -48,6 +48,7 @@ public class CommandOutput {
 		}
 
 		if( traceInternal ) {
+			System.out.println( "TRACEINTERNAL: " + prompt );
 			e.printStackTrace();
 			return;
 		}
@@ -81,9 +82,9 @@ public class CommandOutput {
 			out( s );
 	}
 
-	private void outExact( String s ) throws Exception {
+	private synchronized void outExact( String s ) throws Exception {
 		if( traceInternal ) {
-			System.out.println( "TRACEINTERNAL: outExact, line=" + s.replaceAll("\\p{C}", "?") );
+			System.out.println( "TRACEINTERNAL: line=" + s.replaceAll("\\p{C}", "?") );
 			return;
 		}
 		
@@ -106,11 +107,11 @@ public class CommandOutput {
 		outExact( ts );
 	}
 
-	public void exit( String s ) throws Exception {
+	public synchronized void exit( String s ) throws Exception {
 		String errmsg = "ERROR: " + s + ". Exiting";
 
 		if( traceInternal ) {
-			System.out.println( errmsg );
+			System.out.println( "TRACEINTERNAL: exit, line=" + errmsg );
 		}
 		else {
 			if( outchild != null ) {

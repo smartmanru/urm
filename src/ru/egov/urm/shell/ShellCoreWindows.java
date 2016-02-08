@@ -1,7 +1,9 @@
 package ru.egov.urm.shell;
 
+import java.io.BufferedReader;
 import java.util.List;
 
+import ru.egov.urm.Common;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.storage.Folder;
@@ -12,14 +14,19 @@ public class ShellCoreWindows extends ShellCore {
 		super( executor , osType , tmpFolder );
 	}
 
+	private String getWinDir( ActionBase action , String dir ) throws Exception {
+		return( Common.replace( dir , "/" , "\\" ) );
+	}
+	
 	@Override protected String getExportCmd( ActionBase action ) throws Exception {
-		action.exitNotImplemented();
 		return( "" );
 	}
 
 	@Override protected void getProcessAttributes( ActionBase action ) throws Exception {
-		this.runCommand( action , "echo check and skip banner ... " , true );
-		action.exitNotImplemented();
+		skipOutput( action );
+		writer.write( "@echo off\r\n" );
+		writer.flush();
+		skipOutput( action );
 	}
 	
 	@Override public void runCommand( ActionBase action , String cmd , boolean debug ) throws Exception {
@@ -31,10 +38,10 @@ public class ShellCoreWindows extends ShellCore {
 		cmdout.clear();
 		cmderr.clear();
 		
-		String execLine = cmd + " & echo " + finishMarker + " >&2 & echo " + finishMarker + "\n";
+		String execLine = cmd + " & echo " + finishMarker + "\r\n";
 		action.trace( executor.name + " execute: " + cmd );
 		if( action.context.CTX_TRACEINTERNAL )
-			System.out.println( "TRACEINTERNAL: write cmd line=" + execLine );
+			action.trace( "write cmd line=" + execLine );
 			
 		writer.write( execLine );
 		try {
@@ -42,10 +49,10 @@ public class ShellCoreWindows extends ShellCore {
 		}
 		catch( Throwable e ) {
 			if( action.context.CTX_TRACEINTERNAL )
-				e.printStackTrace();
+				action.log( e );
 		}
 		
-		ShellWaiter waiter = new ShellWaiter( executor , new CommandReader( debug ) );
+		ShellWaiter waiter = new ShellWaiter( executor , new CommandReaderWindows( debug ) );
 		boolean res = waiter.wait( action , action.commandTimeout );
 		
 		if( !res )
@@ -76,7 +83,7 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public void cmdEnsureDirExists( ActionBase action , String dir ) throws Exception {
-		action.exitNotImplemented();
+		runCommand( action , "md " + getWinDir( action , dir ) , false );
 	}
 
 	@Override public void cmdCreateFileFromString( ActionBase action , String path , String value ) throws Exception {
@@ -258,7 +265,8 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public void cmdAppendExecuteLog( ActionBase action , String msg ) throws Exception {
-		action.exitNotImplemented();
+		String executeLog = getWinDir( action , Common.getPath( executor.rootPath , "execute.log" ) );
+		runCommand( action , "echo " + Common.getQuoted( msg ) + " >> " + executeLog , false );
 	}
 
 	@Override public void cmdAppendUploadLog( ActionBase action , String src , String dst ) throws Exception {
@@ -287,6 +295,91 @@ public class ShellCoreWindows extends ShellCore {
 	@Override public String cmdGetFilesMD5( ActionBase action , String dir , String includeList , String excludeList ) throws Exception {
 		action.exitNotImplemented();
 		return( null );
+	}
+	
+	public void skipOutput( ActionBase action ) throws Exception {
+		skipStreamOutput( action , reader , true );
+		skipStreamOutput( action , errreader , false );
+	}
+
+	public void skipStreamOutput( ActionBase action , BufferedReader textreader , boolean required ) throws Exception {
+		String buffer = "";
+		if( action.context.CTX_TRACEINTERNAL )
+			action.trace( "skipStreamOutput - start reading ..." );
+		
+		// wait to read
+		if( required ) {
+			readBuffer( action , textreader , buffer , '\n' );
+			while( textreader.ready() )
+				readBuffer( action , textreader , buffer , '\n' );
+		}
+		else {
+			while( textreader.ready() )
+				textreader.read();
+		}
+	}
+
+	class CommandReaderWindows extends WaiterCommand {
+		boolean debug;
+		
+		public CommandReaderWindows( boolean debug ) {
+			this.debug = debug;
+		}
+		
+		public void run( ActionBase action ) throws Exception {
+			readStreamToMarker( action , reader , cmdout , "" );
+		}
+		
+		private void outStreamLine( ActionBase action , String line ) throws Exception {
+			if( debug )
+				action.trace( line );
+			else
+				action.log( line );
+		}
+
+		private void readStreamToMarker( ActionBase action , BufferedReader textreader , List<String> text , String prompt ) throws Exception {
+			String line;
+			boolean first = true;
+			
+			// stream should be <esc><repeat cmd> & echo <marker><esc><out line1><esc><out line2><esc><marker>
+			skipUpTo( action , textreader , '\033' );
+			skipUpTo( action , textreader , 'H' );
+			skipUpTo( action , textreader , '\033' );
+			skipUpTo( action , textreader , 'H' );
+			
+			String buffer = "";
+			if( action.context.CTX_TRACEINTERNAL )
+				action.trace( "readStreamToMarker - start reading ..." );
+			
+			while ( true ) {
+				int index = buffer.indexOf( '\033' );
+				if( index < 0 ) {
+					if( buffer.startsWith( finishMarker ) )
+						return;
+					
+					String newBuffer = readBuffer( action , textreader , buffer , '\033' );
+					if( newBuffer != null )
+						buffer = newBuffer;
+					continue;
+				}
+				
+				line = buffer.substring( 0 , index );
+				int index2 = buffer.indexOf( 'H' );
+				if( index2 < 0 )
+					continue;
+
+				buffer = buffer.substring( index2 + 1 );
+				if( action.context.CTX_TRACEINTERNAL )
+					action.trace( "readStreamToMarker - line=" + line.replaceAll("\\p{C}", "?") );
+				
+				text.add( line );
+				if( first && !prompt.isEmpty() ) {
+					outStreamLine( action , prompt );
+					first = false;
+				}
+				outStreamLine( action , line );
+			}
+		}
 	}
 	
 }

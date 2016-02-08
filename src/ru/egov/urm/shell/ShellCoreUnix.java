@@ -1,5 +1,6 @@
 package ru.egov.urm.shell;
 
+import java.io.BufferedReader;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,7 @@ public class ShellCoreUnix extends ShellCore {
 		String execLine = cmd + "; echo " + finishMarker + " >&2; echo " + finishMarker + "\n";
 		action.trace( executor.name + " execute: " + cmd );
 		if( action.context.CTX_TRACEINTERNAL )
-			System.out.println( "TRACEINTERNAL: write cmd line=" + execLine );
+			action.trace( "write cmd line=" + execLine );
 		
 		writer.write( execLine );
 		try {
@@ -58,7 +59,7 @@ public class ShellCoreUnix extends ShellCore {
 				e.printStackTrace();
 		}
 		
-		ShellWaiter waiter = new ShellWaiter( executor , new CommandReader( debug ) );
+		ShellWaiter waiter = new ShellWaiter( executor , new CommandReaderUnix( debug ) );
 		boolean res = waiter.wait( action , action.commandTimeout );
 		
 		if( !res )
@@ -522,4 +523,74 @@ public class ShellCoreUnix extends ShellCore {
 		String value = runCommandGetValueCheckDebug( action , dir , cmd );
 		return( value );
 	}
+
+	class CommandReaderUnix extends WaiterCommand {
+		boolean debug;
+		
+		public CommandReaderUnix( boolean debug ) {
+			this.debug = debug;
+		}
+		
+		public void run( ActionBase action ) throws Exception {
+			readStreamToMarker( action , reader , cmdout , "" );
+			readStreamToMarker( action , errreader , cmderr , "stderr:" );
+		}
+		
+		private void outStreamLine( ActionBase action , String line ) throws Exception {
+			if( debug )
+				action.trace( line );
+			else
+				action.log( line );
+		}
+
+		private void readStreamToMarker( ActionBase action , BufferedReader textreader , List<String> text , String prompt ) throws Exception {
+			String line;
+			boolean first = true;
+			
+			String buffer = "";
+			if( action.context.CTX_TRACEINTERNAL )
+				action.trace( "readStreamToMarker - start reading ..." );
+			
+			while ( true ) {
+				int index = buffer.indexOf( '\n' );
+				if( index < 0 ) {
+					String newBuffer = readBuffer( action , textreader , buffer , '\n' );
+					if( newBuffer != null )
+						buffer = newBuffer;
+					continue;
+				}
+				
+				line = buffer.substring( 0 , index );
+				buffer = buffer.substring( index + 1 );
+				
+				if( action.context.CTX_TRACEINTERNAL )
+					action.trace( "readStreamToMarker - line=" + line.replaceAll("\\p{C}", "?") );
+				
+				index = line.indexOf( finishMarker );
+				if( index >= 0 ) {
+					line = line.substring( 0 , index );
+					if( index > 0 ) {
+						text.add( line );
+						if( first && !prompt.isEmpty() ) {
+							outStreamLine( action , prompt );
+							first = false;
+						}
+						outStreamLine( action , line );
+					}
+				}
+				else {
+					text.add( line );
+					if( first && !prompt.isEmpty() ) {
+						outStreamLine( action , prompt );
+						first = false;
+					}
+					outStreamLine( action , line );
+				}
+				
+				if( index >= 0 )
+					break;
+			}
+		}
+	}
+	
 }
