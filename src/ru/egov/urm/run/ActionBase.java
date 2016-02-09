@@ -428,17 +428,17 @@ abstract public class ActionBase {
         Thread.sleep(millis);
     }
 
-	public int setTimeout( int timeout ) throws Exception {
+	public int setTimeout( int timeout ) {
 		int saveTimeout = commandTimeout;
 		commandTimeout = timeout;
 		return( saveTimeout );
 	}
     
-	public int setTimeoutUnlimited() throws Exception {
+	public int setTimeoutUnlimited() {
 		return( setTimeout( 0 ) );
 	}
 	
-	public int setTimeoutDefault() throws Exception {
+	public int setTimeoutDefault() {
 		return( setTimeout( context.CTX_COMMANDTIMEOUT ) );
 	}
 

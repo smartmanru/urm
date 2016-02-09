@@ -12,6 +12,8 @@ public class GitVCS extends GenericVCS {
 
 	static String MASTERBRANCH = "master";
 
+	boolean build;
+	
 	class GitRepo {
 		public MetaSourceProject project;
 		public GitMirrorStorage storage;
@@ -26,8 +28,9 @@ public class GitVCS extends GenericVCS {
 		}
 	}
 	
-	public GitVCS( ActionBase action ) {
+	public GitVCS( ActionBase action , boolean build ) {
 		super( action );
+		this.build = build;
 	}
 
 	private String getBranchName( String BRANCH ) {
@@ -284,7 +287,7 @@ public class GitVCS extends GenericVCS {
 	
 	// implementation
 	private GitRepo getRepo( MetaSourceProject project , Folder PATCHFOLDER ) throws Exception {
-		GitMirrorStorage storage = action.artefactory.getGitMirrorStorage( action , project );
+		GitMirrorStorage storage = action.artefactory.getGitMirrorStorage( action , project , build );
 		GitRepo repo = new GitRepo( project , storage , PATCHFOLDER );
 		return( repo );
 	}
@@ -336,7 +339,7 @@ public class GitVCS extends GenericVCS {
 					String WINPATHPROJECT = Common.getWinPath( action , PATCHFOLDER.folderPath );
 					ShellExecutor shell = action.getShell( repo.storage.account );
 					shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + BRANCHTAG + " " + 
-							" . | ( cd " + WINPATHPROJECT + " & tar x )" );
+							" . | ( cd " + WINPATHPROJECT + " & tar x --exclude pax_global_header)" );
 				}
 				else {
 					session.customCheckStatus( action , "git -C " + repo.MIRRORPATH + " archive " + BRANCHTAG + " " + 
@@ -357,7 +360,7 @@ public class GitVCS extends GenericVCS {
 				}
 				else {
 					session.customCheckStatus( action , "git -C " + repo.MIRRORPATH + " archive " + BRANCHTAG + " " + 
-							SUBPATH + " | ( cd " + PATCHFOLDER.folderPath + "; tar x " + SUBPATH + " " + STRIPOPTION + " )" );
+							SUBPATH + " | ( cd " + PATCHFOLDER.folderPath + "; tar x --exclude pax_global_header " + SUBPATH + " " + STRIPOPTION + " )" );
 				}
 			}
 		}
@@ -381,7 +384,7 @@ public class GitVCS extends GenericVCS {
 				String WINPATHFILE = Common.getWinPath( action , FILEPATH );
 				ShellExecutor shell = action.getShell( repo.storage.account );
 				shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + BRANCHTAG + " " + 
-						WINPATHFILE + " | ( cd " + WINPATHBASE + " & tar x " + WINPATHFILE + " " + STRIPOPTION + " )" );
+						WINPATHFILE + " | ( cd " + WINPATHBASE + " & tar x --exclude pax_global_header " + WINPATHFILE + " " + STRIPOPTION + " )" );
 			}
 			else {
 				session.customCheckStatus( action , "git -C " + repo.MIRRORPATH + " archive " + BRANCHTAG + " " + 
@@ -641,7 +644,7 @@ public class GitVCS extends GenericVCS {
 			String WINPATHDIR = Common.getWinPath( action , ITEMPATH );
 			String WINPATHPATCH = Common.getWinPath( action , PATCHFOLDER.folderPath );
 			ShellExecutor shell = action.getShell( repo.storage.account );
-			shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + WINPATHDIR + " . | ( cd " + WINPATHPATCH + " & tar x )" );
+			shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + WINPATHDIR + " . | ( cd " + WINPATHPATCH + " & tar x --exclude pax_global_header)" );
 		}
 		else {
 			session.customCheckStatus( action , "git -C " + repo.MIRRORPATH + " archive " + ITEMPATH + " . | ( cd " + PATCHFOLDER.folderPath + "; tar x )" );

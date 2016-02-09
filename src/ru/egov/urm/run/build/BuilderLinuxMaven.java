@@ -28,7 +28,7 @@ public class BuilderLinuxMaven extends Builder {
 		CODEPATH.removeThis( action );
 	
 		// checkout
-		ProjectVersionControl vcs = new ProjectVersionControl( action ); 
+		ProjectVersionControl vcs = new ProjectVersionControl( action , true ); 
 		if( !vcs.export( CODEPATH , project , "" , TAG , "" ) ) {
 			action.log( "patchCheckout: having problem to export code" );
 			return( false );

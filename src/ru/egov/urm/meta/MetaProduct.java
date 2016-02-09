@@ -88,8 +88,8 @@ public class MetaProduct {
 		CONFIG_SVNNEW_PATH = getPropertyRequired( action , "CONFIG_SVNNEW_PATH" );
 		CONFIG_SVNOLD_AUTH = getPropertyRequired( action , "CONFIG_SVNOLD_AUTH" );
 		CONFIG_SVNNEW_AUTH = getPropertyRequired( action , "CONFIG_SVNNEW_AUTH" );
-		CONFIG_GITMIRRORPATH = getPropertyRequired( action , "CONFIG_GITMIRRORPATH" );
-		CONFIG_GITMIRRORPATHWIN = getProperty( action , "CONFIG_GITMIRRORPATHWIN" , CONFIG_GITMIRRORPATH );
+		CONFIG_GITMIRRORPATH = getProperty( action , "CONFIG_GITMIRRORPATH" );
+		CONFIG_GITMIRRORPATHWIN = getProperty( action , "CONFIG_GITMIRRORPATHWIN" );
 		
 		CONFIG_BUILDER_TYPE = getProperty( action , "CONFIG_BUILDER_TYPE" , "maven" );
 		CONFIG_BUILDER_VERSION = getProperty( action , "CONFIG_BUILDER_VERSION" );

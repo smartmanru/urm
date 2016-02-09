@@ -10,14 +10,16 @@ public class ProjectVersionControl {
 
 	ActionBase action;
 	Artefactory artefactory;
+	public boolean build;
 	
-	public ProjectVersionControl( ActionBase action ) {
+	public ProjectVersionControl( ActionBase action , boolean build ) {
 		this.action = action;
 		this.artefactory = action.artefactory;
+		this.build = build;
 	}
 	
 	private GenericVCS getVCS( MetaSourceProject project ) throws Exception {
-		return( artefactory.getVCS( action , project.getVCS( action ) ) );
+		return( artefactory.getVCS( action , project.getVCS( action ) , build ) );
 	}
 
 	public String checkDefaultBranch( GenericVCS vcs , String BRANCH ) {
@@ -27,16 +29,19 @@ public class ProjectVersionControl {
 	}
 	
 	public boolean checkout( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH ) {
+		int timeout = action.setTimeoutUnlimited();
+		boolean res = false;
 		try {
 			action.log( "checkout PATCHPATH=" + PATCHFOLDER.folderPath + ", PROJECT=" + project.PROJECT + ", BRANCH=" + BRANCH + " ..." );
 			GenericVCS vcs = getVCS( project );
 			BRANCH = checkDefaultBranch( vcs , BRANCH );
-			return( vcs.checkout( PATCHFOLDER , project , BRANCH ) );
+			res = vcs.checkout( PATCHFOLDER , project , BRANCH );
 		}
 		catch( Throwable e ) {
 			action.log( e );
 		}
-		return( false );
+		action.setTimeout( timeout );
+		return( res );
 	}
 	
 	public boolean commit( LocalFolder PATCHFOLDER , MetaSourceProject project , String MESSAGE ) {
@@ -154,16 +159,19 @@ public class ProjectVersionControl {
 	}
 
 	public boolean export( Folder PATCHFOLDER , MetaSourceProject project , String BRANCH , String TAG , String SINGLEFILE ) {
+		int timeout = action.setTimeoutUnlimited();
+		boolean res = false;
 		try {
 			action.log( "export PROJECT=" + project.PROJECT + ", BRANCH=" + BRANCH + ", TAG=" + TAG + ", singlefile=" + SINGLEFILE + " ..." );
 			GenericVCS vcs = getVCS( project );
 			BRANCH = checkDefaultBranch( vcs , BRANCH );
-			return( vcs.export( PATCHFOLDER , project , BRANCH , TAG , SINGLEFILE ) );
+			res = vcs.export( PATCHFOLDER , project , BRANCH , TAG , SINGLEFILE );
 		}
 		catch( Throwable e ) {
 			action.log( e );
 		}
-		return( false );
+		action.setTimeout( timeout );
+		return( res );
 	}
 
 	public boolean setTag( MetaSourceProject project , String BRANCH , String TAG , String branchDate ) {

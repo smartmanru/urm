@@ -203,7 +203,7 @@ public class Artefactory {
 		Account account = ( winBuild )? action.getWinBuildAccount() : action.session.account; 
 		storage = getRedistStorage( "build" , account ); 
 		
-		Folder mirrorFolder = storage.getMirrorFolder( action );
+		Folder mirrorFolder = storage.getMirrorFolder( action , winBuild );
 		Folder projectFolder = mirrorFolder.getSubFolder( action , NAME );
 		if( !projectFolder.checkExists( action ) )
 			action.exit( "getGitMirrorStorage: mirror path " + projectFolder.folderPath + " should be created using " + projectFolder.folderPath + "/mirror.sh" );
@@ -211,11 +211,11 @@ public class Artefactory {
 		return( new GitMirrorStorage( this , account , projectFolder , winBuild ) );
 	}
 	
-	public GitMirrorStorage getGitMirrorStorage( ActionBase action , MetaSourceProject sourceProject ) throws Exception {
+	public GitMirrorStorage getGitMirrorStorage( ActionBase action , MetaSourceProject sourceProject , boolean build ) throws Exception {
 		String REPONAME;
 		String path = sourceProject.PATH.replaceAll( "/" , "" );
 		REPONAME = path + "-" + sourceProject.PROJECT + ".git";
-		boolean winBuild = ( sourceProject.getBuilder( action ).equals( "dotnet" ) )? true : false;
+		boolean winBuild = ( build && sourceProject.getBuilder( action ).equals( "dotnet" ) )? true : false;
 		
 		return( getGitMirrorStorage( action , REPONAME , winBuild ) );
 	}
@@ -239,7 +239,7 @@ public class Artefactory {
 		return( new AuthStorage( this ) );
 	}
 	
-	public GenericVCS getVCS( ActionBase action , String vcsType ) throws Exception {
+	public GenericVCS getVCS( ActionBase action , String vcsType , boolean build ) throws Exception {
 		if( vcsType.equals( "svnold" ) || vcsType.equals( "svn" ) ) {
 			AuthStorage auth = getAuthStorage( action );
 			String SVNAUTH = auth.getOldSvnAuthParams( action );
@@ -253,7 +253,7 @@ public class Artefactory {
 		}
 		
 		if( vcsType.equals( "git" ) )
-			return( new GitVCS( action ) );
+			return( new GitVCS( action , build ) );
 		
 		action.exit( "unknown vcsType=" + vcsType );
 		return( null );

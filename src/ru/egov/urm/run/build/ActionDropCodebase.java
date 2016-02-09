@@ -16,7 +16,7 @@ public class ActionDropCodebase extends ActionBase {
 	}
 
 	@Override protected boolean executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
-		ProjectVersionControl vcs = new ProjectVersionControl( this );
+		ProjectVersionControl vcs = new ProjectVersionControl( this , false );
 		if( branchVAR1 == true )
 			vcs.dropBranch( scopeProject.sourceProject , VAR1 );
 		else

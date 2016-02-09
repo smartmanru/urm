@@ -33,7 +33,7 @@ public class ActionGetCodebase extends ActionBase {
 		COPATH.removeThis( this );
 		CODIR.ensureExists( this );
 
-		ProjectVersionControl vcs = new ProjectVersionControl( this );
+		ProjectVersionControl vcs = new ProjectVersionControl( this , false );
 		if( checkout ) {
 			if( !SINGLEFILE.isEmpty() )
 				exit( "downloadProject: unable to checkout single file" );
