@@ -5,6 +5,7 @@ import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
+import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
@@ -439,6 +440,11 @@ abstract public class ActionBase {
 	
 	public int setTimeoutDefault() throws Exception {
 		return( setTimeout( context.CTX_COMMANDTIMEOUT ) );
+	}
+
+	public Account getWinBuildAccount() throws Exception {
+		Account account = Account.getAccount( this , meta.product.CONFIG_WINBUILD_HOSTLOGIN , VarOSTYPE.WINDOWS );
+		return( account );
 	}
 	
 }

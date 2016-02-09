@@ -9,9 +9,9 @@ public class RemoteFolder extends Folder {
 	
 	public Account account;
 	
-	public RemoteFolder( Artefactory artefactory , Account hostLogin , String folderPath ) {
-		super( artefactory , folderPath );
-		this.account = hostLogin;
+	public RemoteFolder( Artefactory artefactory , Account account , String folderPath ) {
+		super( artefactory , folderPath , true );
+		this.account = account;
 	}
 
 	public ShellExecutor getSession( ActionBase action ) throws Exception {
@@ -69,6 +69,11 @@ public class RemoteFolder extends Folder {
 		return( new RemoteFolder( artefactory , account , PATH ) );
 	}
 
+	public RemoteFolder getParentFolder( ActionBase action ) throws Exception {
+		String BASEDIR = Common.getDirName( folderPath );
+		return( new RemoteFolder( artefactory , account , BASEDIR ) );
+	}
+	
 	public String copyFileToLocal( ActionBase action , LocalFolder localFolder , String file ) throws Exception {
 		return( copyFileToLocal( action , localFolder , file , "" ) );
 	}

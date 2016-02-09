@@ -3,17 +3,31 @@ package ru.egov.urm.vcs;
 import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaSourceProject;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.shell.ShellExecutor;
+import ru.egov.urm.storage.Folder;
 import ru.egov.urm.storage.GitMirrorStorage;
 import ru.egov.urm.storage.LocalFolder;
 
 public class GitVCS extends GenericVCS {
 
-	String MIRRORPATH;
 	static String MASTERBRANCH = "master";
+
+	class GitRepo {
+		public MetaSourceProject project;
+		public GitMirrorStorage storage;
+		public Folder PATCHFOLDER;
+		public String MIRRORPATH;
+		
+		GitRepo( MetaSourceProject project , GitMirrorStorage storage , Folder PATCHFOLDER ) {
+			this.project = project;
+			this.storage = storage;
+			this.PATCHFOLDER = PATCHFOLDER;
+			this.MIRRORPATH = storage.mirrorFolder.folderPath;
+		}
+	}
 	
-	public GitVCS( ActionBase action , String MIRRORPATH ) {
+	public GitVCS( ActionBase action ) {
 		super( action );
-		this.MIRRORPATH = MIRRORPATH;
 	}
 
 	private String getBranchName( String BRANCH ) {
@@ -38,13 +52,13 @@ public class GitVCS extends GenericVCS {
 	
 	@Override public boolean checkout( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH ) throws Exception {
 		BRANCH = getBranchName( BRANCH );
-		String CO_PATH = getRepoPath( project );
-		refreshMirror( CO_PATH );
+		GitRepo repo = getRepo( project , PATCHFOLDER );
+		refreshMirror( repo );
 
 		String REPOVERSION = "(branch head)";
 
-		action.log( "git: checkout sources from " + CO_PATH + " (branch=" + BRANCH + ", revision=" + REPOVERSION + ") to " + PATCHFOLDER.folderPath + " ..." );
-		createLocalFromBranch( CO_PATH , PATCHFOLDER , BRANCH );
+		action.log( "git: checkout sources from " + repo.MIRRORPATH + " (branch=" + BRANCH + ", revision=" + REPOVERSION + ") to " + PATCHFOLDER.folderPath + " ..." );
+		createLocalFromBranch( repo , BRANCH );
 		
 		return( true );
 	}
@@ -55,12 +69,12 @@ public class GitVCS extends GenericVCS {
 			return( false );
 		}
 
-		String CO_PATH = getRepoPath( project );
-		refreshMirror( CO_PATH );
+		GitRepo repo = getRepo( project , PATCHFOLDER );
+		refreshMirror( repo );
 		
 		// automatically add modified and push
-		addModified( PATCHFOLDER );
-		pushMirror( CO_PATH );
+		addModified( repo );
+		pushMirror( repo );
 		
 		return( true );
 	}
@@ -68,170 +82,170 @@ public class GitVCS extends GenericVCS {
 	@Override public boolean copyBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
 		BRANCH1 = getBranchName( BRANCH1 );
 		BRANCH2 = getBranchName( BRANCH2 );
-		String CO_PATH = getRepoPath( project );
-		refreshMirror( CO_PATH );
+		GitRepo repo = getRepo( project , null );
+		refreshMirror( repo );
 		
-		if( !checkBranchExists( CO_PATH , BRANCH1 ) ) {
-			action.log( CO_PATH + ": branch " + BRANCH1 + " does not exist" );
+		if( !checkBranchExists( repo , BRANCH1 ) ) {
+			action.log( repo.MIRRORPATH + ": branch " + BRANCH1 + " does not exist" );
 			return( false );
 		}
 
-		if( checkBranchExists( CO_PATH , BRANCH2 ) ) {
+		if( checkBranchExists( repo , BRANCH2 ) ) {
 			action.log( "skip copy branch to branch - target branch already exists" );
 			return( false );
 		}
 
-		copyMirrorBranchFromBranch( CO_PATH , BRANCH1 , BRANCH2 , meta.product.CONFIG_ADM_TRACKER + "-0000: create branch " + BRANCH2 + " from " + BRANCH1 );
-		pushMirror( CO_PATH );
+		copyMirrorBranchFromBranch( repo , BRANCH1 , BRANCH2 , meta.product.CONFIG_ADM_TRACKER + "-0000: create branch " + BRANCH2 + " from " + BRANCH1 );
+		pushMirror( repo );
 		return( true );
 	}
 
 	@Override public boolean renameBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
 		BRANCH1 = getBranchName( BRANCH1 );
 		BRANCH2 = getBranchName( BRANCH2 );
-		String CO_PATH = getRepoPath( project );
-		refreshMirror( CO_PATH );
+		GitRepo repo = getRepo( project , null );
+		refreshMirror( repo );
 		
-		if( !checkBranchExists( CO_PATH , BRANCH1 ) ) {
-			action.log( CO_PATH + ": branch " + BRANCH1 + " does not exist" );
+		if( !checkBranchExists( repo , BRANCH1 ) ) {
+			action.log( repo.MIRRORPATH + ": branch " + BRANCH1 + " does not exist" );
 			return( false );
 		}
 
-		if( checkBranchExists( CO_PATH , BRANCH2 ) ) {
+		if( checkBranchExists( repo , BRANCH2 ) ) {
 			action.log( "skip rename branch to branch - target branch already exists" );
 			return( false );
 		}
 
-		copyMirrorBranchFromBranch( CO_PATH , BRANCH1 , BRANCH2 , meta.product.CONFIG_ADM_TRACKER + "-0000: rename branch " + BRANCH1 + " to " + BRANCH2 );
-		dropMirrorBranch( CO_PATH , BRANCH1 );
-		pushMirror( CO_PATH );
+		copyMirrorBranchFromBranch( repo , BRANCH1 , BRANCH2 , meta.product.CONFIG_ADM_TRACKER + "-0000: rename branch " + BRANCH1 + " to " + BRANCH2 );
+		dropMirrorBranch( repo , BRANCH1 );
+		pushMirror( repo );
 		return( true );
 	}
 
 	@Override public boolean copyTagToNewTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
 		TAG1 = getTagName( TAG1 );
 		TAG2 = getTagName( TAG2 );
-		String CO_PATH = getRepoPath( project );
-		refreshMirror( CO_PATH );
+		GitRepo repo = getRepo( project , null );
+		refreshMirror( repo );
 		
-		if( !checkTagExists( CO_PATH , TAG1 ) ) {
-			action.log( CO_PATH + ": tag " + TAG1 + " does not exist" );
+		if( !checkTagExists( repo , TAG1 ) ) {
+			action.log( repo.MIRRORPATH + ": tag " + TAG1 + " does not exist" );
 			return( false );
 		}
 
-		if( checkTagExists( CO_PATH , TAG2 ) ) {
-			action.log( CO_PATH + ": tag " + TAG2 + " exists" );
+		if( checkTagExists( repo , TAG2 ) ) {
+			action.log( repo.MIRRORPATH + ": tag " + TAG2 + " exists" );
 			return( false );
 		}
 
-		copyMirrorTagFromTag( CO_PATH , TAG1 , TAG2 , meta.product.CONFIG_ADM_TRACKER + "-0000: create tag from " + TAG1 );
-		pushMirror( CO_PATH );
+		copyMirrorTagFromTag( repo , TAG1 , TAG2 , meta.product.CONFIG_ADM_TRACKER + "-0000: create tag from " + TAG1 );
+		pushMirror( repo );
 		return( true );
 	}
 
 	@Override public boolean copyTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
 		TAG1 = getTagName( TAG1 );
 		TAG2 = getTagName( TAG2 );
-		String CO_PATH = getRepoPath( project );
-		refreshMirror( CO_PATH );
+		GitRepo repo = getRepo( project , null );
+		refreshMirror( repo );
 		
-		if( !checkTagExists( CO_PATH , TAG1 ) ) {
-			action.log( CO_PATH + ": tag " + TAG1 + " does not exist" );
+		if( !checkTagExists( repo , TAG1 ) ) {
+			action.log( repo.MIRRORPATH + ": tag " + TAG1 + " does not exist" );
 			return( false );
 		}
 
-		if( checkTagExists( CO_PATH , TAG2 ) ) {
+		if( checkTagExists( repo , TAG2 ) ) {
 			// drop tag
-			dropMirrorTag( CO_PATH , TAG2 );
-			pushMirror( CO_PATH );
+			dropMirrorTag( repo , TAG2 );
+			pushMirror( repo );
 		}
 
-		copyMirrorTagFromTag( CO_PATH , TAG1 , TAG2 , meta.product.CONFIG_ADM_TRACKER + "-0000: create tag " + TAG2 + " from " + TAG1 );
-		pushMirror( CO_PATH );
+		copyMirrorTagFromTag( repo , TAG1 , TAG2 , meta.product.CONFIG_ADM_TRACKER + "-0000: create tag " + TAG2 + " from " + TAG1 );
+		pushMirror( repo );
 		return( true );
 	}
 
 	@Override public boolean renameTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
 		TAG1 = getTagName( TAG1 );
 		TAG2 = getTagName( TAG2 );
-		String CO_PATH = getRepoPath( project );
-		refreshMirror( CO_PATH );
+		GitRepo repo = getRepo( project , null );
+		refreshMirror( repo );
 		
-		if( !checkTagExists( CO_PATH , TAG1 ) ) {
-			action.log( CO_PATH + ": tag " + TAG1 + " does not exist" );
+		if( !checkTagExists( repo , TAG1 ) ) {
+			action.log( repo + ": tag " + TAG1 + " does not exist" );
 			return( false );
 		}
 
-		if( checkTagExists( CO_PATH , TAG2 ) ) {
+		if( checkTagExists( repo , TAG2 ) ) {
 			// drop tag
-			dropMirrorTag( CO_PATH , TAG2 );
-			pushMirror( CO_PATH );
+			dropMirrorTag( repo , TAG2 );
+			pushMirror( repo );
 		}
 
-		copyMirrorTagFromTag( CO_PATH , TAG1 , TAG2 , meta.product.CONFIG_ADM_TRACKER + "-0000: rename tag " + TAG1 + " to " + TAG2 );
-		dropMirrorTag( CO_PATH , TAG1 );
-		pushMirror( CO_PATH );
+		copyMirrorTagFromTag( repo , TAG1 , TAG2 , meta.product.CONFIG_ADM_TRACKER + "-0000: rename tag " + TAG1 + " to " + TAG2 );
+		dropMirrorTag( repo , TAG1 );
+		pushMirror( repo );
 		return( true );
 	}
 
 	@Override public boolean copyTagToNewBranch( MetaSourceProject project , String TAG1 , String BRANCH2 ) throws Exception {
 		TAG1 = getTagName( TAG1 );
 		BRANCH2 = getBranchName( BRANCH2 );
-		String CO_PATH = getRepoPath( project );
-		refreshMirror( CO_PATH );
+		GitRepo repo = getRepo( project , null );
+		refreshMirror( repo );
 		
-		if( !checkTagExists( CO_PATH , TAG1 ) ) {
-			action.log( CO_PATH + ": tag " + TAG1 + " does not exist" );
+		if( !checkTagExists( repo , TAG1 ) ) {
+			action.log( repo + ": tag " + TAG1 + " does not exist" );
 			return( false );
 		}
 
-		if( checkBranchExists( CO_PATH , BRANCH2 ) ) {
+		if( checkBranchExists( repo , BRANCH2 ) ) {
 			action.log( "skip copy branch to branch - target branch already exists" );
 			return( false );
 		}
 
-		copyMirrorBranchFromTag( CO_PATH , TAG1 , BRANCH2 , meta.product.CONFIG_ADM_TRACKER + "-0000: create branch " + BRANCH2 + " from " + TAG1 );
-		pushMirror( CO_PATH );
+		copyMirrorBranchFromTag( repo , TAG1 , BRANCH2 , meta.product.CONFIG_ADM_TRACKER + "-0000: create branch " + BRANCH2 + " from " + TAG1 );
+		pushMirror( repo );
 		return( true );
 	}
 
 	@Override public boolean dropTag( MetaSourceProject project , String TAG ) throws Exception {
 		TAG = getTagName( TAG );
-		String CO_PATH = getRepoPath( project );
-		refreshMirror( CO_PATH );
+		GitRepo repo = getRepo( project , null );
+		refreshMirror( repo );
 		
-		if( !checkTagExists( CO_PATH , TAG ) ) {
-			action.log( CO_PATH + ": tag " + TAG + " does not exist" );
+		if( !checkTagExists( repo , TAG ) ) {
+			action.log( repo.MIRRORPATH + ": tag " + TAG + " does not exist" );
 			return( false );
 		}
 		
 		// drop tag
-		dropMirrorTag( CO_PATH , TAG );
-		pushMirror( CO_PATH );
+		dropMirrorTag( repo , TAG );
+		pushMirror( repo );
 		return( true );
 	}
 	
 	@Override public boolean dropBranch( MetaSourceProject project , String BRANCH ) throws Exception {
 		BRANCH = getBranchName( BRANCH );
-		String CO_PATH = getRepoPath( project );
-		refreshMirror( CO_PATH );
+		GitRepo repo = getRepo( project , null );
+		refreshMirror( repo );
 		
-		if( !checkBranchExists( CO_PATH , BRANCH ) ) {
-			action.log( CO_PATH + ": branch " + BRANCH + " does not exist" );
+		if( !checkBranchExists( repo , BRANCH ) ) {
+			action.log( repo.MIRRORPATH + ": branch " + BRANCH + " does not exist" );
 			return( false );
 		}
 		
 		// drop branch
-		dropMirrorBranch( CO_PATH , BRANCH );
-		pushMirror( CO_PATH );
+		dropMirrorBranch( repo , BRANCH );
+		pushMirror( repo );
 		return( true );
 	}
 
-	@Override public boolean export( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH , String TAG , String FILENAME ) throws Exception {
+	@Override public boolean export( Folder PATCHFOLDER , MetaSourceProject project , String BRANCH , String TAG , String FILENAME ) throws Exception {
 		TAG = getTagName( TAG );
 		BRANCH = getBranchName( BRANCH );
-		String CO_PATH = getRepoPath( project );
-		refreshMirror( CO_PATH );
+		GitRepo repo = getRepo( project , null );
+		refreshMirror( repo );
 		
 		boolean res;
 		String FILEPATH = project.CODEPATH;
@@ -241,9 +255,9 @@ public class GitVCS extends GenericVCS {
 			FILEBASE = Common.getBaseName( FILENAME );
 		}
 		if( !TAG.isEmpty() )
-			res = exportFromTag( CO_PATH , PATCHFOLDER , TAG , FILEPATH , FILEBASE );
+			res = exportFromTag( repo , PATCHFOLDER , TAG , FILEPATH , FILEBASE );
 		else
-			res = exportFromBranch( CO_PATH , PATCHFOLDER , BRANCH , FILEPATH , FILEBASE );
+			res = exportFromBranch( repo , PATCHFOLDER , BRANCH , FILEPATH , FILEBASE );
 		
 		return( res );
 	}
@@ -251,44 +265,61 @@ public class GitVCS extends GenericVCS {
 	@Override public boolean setTag( MetaSourceProject project , String BRANCH , String TAG , String BRANCHDATE ) throws Exception {
 		TAG = getTagName( TAG );
 		BRANCH = getBranchName( BRANCH );
-		String CO_PATH = getRepoPath( project );
-		refreshMirror( CO_PATH );
+		GitRepo repo = getRepo( project , null );
+		refreshMirror( repo );
 
 		String CO_BRANCH = BRANCH;
 		if( CO_BRANCH.startsWith( "branches/" ) )
 			CO_BRANCH = CO_BRANCH.substring( "branches/".length() );
 
-		if( !checkBranchExists( CO_PATH , BRANCH ) ) {
-			action.log( CO_PATH + ": branch " + BRANCH + " does not exist" );
+		if( !checkBranchExists( repo , BRANCH ) ) {
+			action.log( repo.MIRRORPATH + ": branch " + BRANCH + " does not exist" );
 			return( false );
 		}
 		
-		setMirrorTag( CO_PATH , CO_BRANCH , TAG , meta.product.CONFIG_ADM_TRACKER + "-0000: create tag" , BRANCHDATE );
-		pushMirror( CO_PATH );
+		setMirrorTag( repo , CO_BRANCH , TAG , meta.product.CONFIG_ADM_TRACKER + "-0000: create tag" , BRANCHDATE );
+		pushMirror( repo );
 		return( true );
 	}
 	
 	// implementation
-	private String getRepoPath( MetaSourceProject project ) throws Exception {
-		GitMirrorStorage storage = action.artefactory.getGitMirrorStorage( action , MIRRORPATH , project );
-		return( storage.mirrorFolder.folderPath );
+	private GitRepo getRepo( MetaSourceProject project , Folder PATCHFOLDER ) throws Exception {
+		GitMirrorStorage storage = action.artefactory.getGitMirrorStorage( action , project );
+		GitRepo repo = new GitRepo( project , storage , PATCHFOLDER );
+		return( repo );
 	}
 
-	private String getRepoPath( String REPOSITORY ) throws Exception {
-		GitMirrorStorage storage = action.artefactory.getGitMirrorStorage( action , MIRRORPATH , REPOSITORY );
-		return( storage.mirrorFolder.folderPath );
+	private GitRepo getRepo( String REPOSITORY ) throws Exception {
+		GitMirrorStorage storage = action.artefactory.getGitMirrorStorage( action , REPOSITORY );
+		GitRepo repo = new GitRepo( null , storage , null );
+		return( repo );
 	}
 
-	private void refreshMirror( String CO_PATH ) throws Exception {
-		session.customCheckStatus( action , "git -C " + CO_PATH + " fetch origin" );
+	private void refreshMirror( GitRepo repo ) throws Exception {
+		if( repo.storage.winBuild ) {
+			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			ShellExecutor shell = action.getShell( repo.storage.account );
+			shell.customCheckStatus( action , "git -C " + WINPATH + " fetch origin" );
+		}
+		else {
+			session.customCheckStatus( action , "git -C " + repo.MIRRORPATH + " fetch origin" );
+		}
 	}
 
-	private void createLocalFromBranch( String CO_PATH , LocalFolder PATCHFOLDER , String BRANCH ) throws Exception {
-		session.customCheckStatus( action , "git -C " + CO_PATH + " clone " + CO_PATH + " --shared -b " + BRANCH + " " + PATCHFOLDER.folderPath );
+	private void createLocalFromBranch( GitRepo repo , String BRANCH ) throws Exception {
+		if( repo.storage.winBuild ) {
+			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			String WINPATHPROJECT = Common.getWinPath( action , repo.PATCHFOLDER.folderPath );
+			ShellExecutor shell = action.getShell( repo.storage.account );
+			shell.customCheckStatus( action , "git -C " + WINPATH + " clone " + WINPATH + " --shared -b " + BRANCH + " " + WINPATHPROJECT );
+		}
+		else {
+			session.customCheckStatus( action , "git -C " + repo.MIRRORPATH + " clone " + repo.MIRRORPATH + " --shared -b " + BRANCH + " " + repo.PATCHFOLDER.folderPath );
+		}
 	}
 
-	private boolean exportFromPath( String CO_PATH , LocalFolder PATCHFOLDER , String BRANCHTAG , String SUBPATH , String FILENAME ) throws Exception {
-		LocalFolder BASEDIR = PATCHFOLDER.getParentFolder( action );
+	private boolean exportFromPath( GitRepo repo , Folder PATCHFOLDER , String BRANCHTAG , String SUBPATH , String FILENAME ) throws Exception {
+		Folder BASEDIR = PATCHFOLDER.getParentFolder( action );
 		String BASENAME = PATCHFOLDER.getBaseName( action );
 		
 		if( FILENAME.isEmpty() ) {
@@ -300,15 +331,34 @@ public class GitVCS extends GenericVCS {
 			// export file or subdir
 			PATCHFOLDER.ensureExists( action );
 			if( SUBPATH.isEmpty() ) {
-				session.customCheckStatus( action , "git -C " + CO_PATH + " archive " + BRANCHTAG + " " + 
+				if( repo.storage.winBuild ) {
+					String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+					String WINPATHPROJECT = Common.getWinPath( action , PATCHFOLDER.folderPath );
+					ShellExecutor shell = action.getShell( repo.storage.account );
+					shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + BRANCHTAG + " " + 
+							" . | ( cd " + WINPATHPROJECT + " & tar x )" );
+				}
+				else {
+					session.customCheckStatus( action , "git -C " + repo.MIRRORPATH + " archive " + BRANCHTAG + " " + 
 						" . | ( cd " + PATCHFOLDER.folderPath + "; tar x )" );
+				}
 			}
 			else {
 				int COMPS = Common.getDirCount( SUBPATH ) + 1;
 				String STRIPOPTION = "--strip-components=" + COMPS;
 				
-				session.customCheckStatus( action , "git -C " + CO_PATH + " archive " + BRANCHTAG + " " + 
-						SUBPATH + " | ( cd " + PATCHFOLDER.folderPath + "; tar x " + SUBPATH + " " + STRIPOPTION + " )" );
+				if( repo.storage.winBuild ) {
+					String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+					String WINPATHPROJECT = Common.getWinPath( action , PATCHFOLDER.folderPath );
+					String WINPATHSUB = Common.getWinPath( action , SUBPATH );
+					ShellExecutor shell = action.getShell( repo.storage.account );
+					shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + BRANCHTAG + " " + 
+							WINPATHSUB + " | ( cd " + WINPATHPROJECT + " & tar x " + WINPATHSUB + " " + STRIPOPTION + " )" );
+				}
+				else {
+					session.customCheckStatus( action , "git -C " + repo.MIRRORPATH + " archive " + BRANCHTAG + " " + 
+							SUBPATH + " | ( cd " + PATCHFOLDER.folderPath + "; tar x " + SUBPATH + " " + STRIPOPTION + " )" );
+				}
 			}
 		}
 		else {
@@ -324,8 +374,19 @@ public class GitVCS extends GenericVCS {
 				action.exit( "exportFromPath: local file or directory " + srcFile + " already exists" );
 
 			String FILEPATH = Common.getPath( SUBPATH , FILENAME );
-			session.customCheckStatus( action , "git -C " + CO_PATH + " archive " + BRANCHTAG + " " + 
-					FILEPATH + " | ( cd " + BASEDIR + "; tar x " + FILEPATH + " " + STRIPOPTION + " )" );
+			
+			if( repo.storage.winBuild ) {
+				String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+				String WINPATHBASE = Common.getWinPath( action , BASEDIR.folderPath );
+				String WINPATHFILE = Common.getWinPath( action , FILEPATH );
+				ShellExecutor shell = action.getShell( repo.storage.account );
+				shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + BRANCHTAG + " " + 
+						WINPATHFILE + " | ( cd " + WINPATHBASE + " & tar x " + WINPATHFILE + " " + STRIPOPTION + " )" );
+			}
+			else {
+				session.customCheckStatus( action , "git -C " + repo.MIRRORPATH + " archive " + BRANCHTAG + " " + 
+						FILEPATH + " | ( cd " + BASEDIR.folderPath + "; tar x " + FILEPATH + " " + STRIPOPTION + " )" );
+			}
 			if( !FILENAME.equals( BASENAME ) )
 				BASEDIR.moveFileToFolder( action , FILENAME , BASENAME );
 		}
@@ -333,100 +394,192 @@ public class GitVCS extends GenericVCS {
 		return( true );
 	}
 
-	private boolean exportFromBranch( String CO_PATH , LocalFolder PATCHFOLDER , String BRANCH , String FILEPATH , String FILENAME ) throws Exception {
-		boolean res = exportFromPath( CO_PATH , PATCHFOLDER , BRANCH , FILEPATH , FILENAME );
+	private boolean exportFromBranch( GitRepo repo , Folder PATCHFOLDER , String BRANCH , String FILEPATH , String FILENAME ) throws Exception {
+		boolean res = exportFromPath( repo , PATCHFOLDER , BRANCH , FILEPATH , FILENAME );
 		return( res );
 	}
 
-	private boolean exportFromTag( String CO_PATH , LocalFolder PATCHFOLDER , String TAG , String FILEPATH , String FILENAME ) throws Exception {
-		boolean res = exportFromPath( CO_PATH , PATCHFOLDER , TAG , FILEPATH , FILENAME );
+	private boolean exportFromTag( GitRepo repo , Folder PATCHFOLDER , String TAG , String FILEPATH , String FILENAME ) throws Exception {
+		boolean res = exportFromPath( repo , PATCHFOLDER , TAG , FILEPATH , FILENAME );
 		return( res );
 	}
 
-	private void setMirrorTag( String CO_PATH , String BRANCH , String TAG , String MESSAGE , String TAGDATE ) throws Exception {
+	private void setMirrorTag( GitRepo repo , String BRANCH , String TAG , String MESSAGE , String TAGDATE ) throws Exception {
 		// get revision by date
 		String REVMARK = "";
 		if( !TAGDATE.isEmpty() ) {
-			REVMARK = session.customGetValue( action , "git -C " + CO_PATH + " log --format=oneline -n 1 --before=" + Common.getQuoted( TAGDATE ) + " refs/heads/" + 
-					BRANCH + " | tr -d " + Common.getQuoted( " " ) + " -f1" );
+			if( repo.storage.winBuild ) {
+				String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+				ShellExecutor shell = action.getShell( repo.storage.account );
+				REVMARK = shell.customGetValue( action , "git -C " + WINPATH + " log --format=oneline -n 1 --before=" + Common.getQuoted( TAGDATE ) + 
+						" refs/heads/" + BRANCH );
+				REVMARK = Common.getListItem( REVMARK , " " , 0 );
+			}
+			else {
+				REVMARK = session.customGetValue( action , "git -C " + repo.MIRRORPATH + " log --format=oneline -n 1 --before=" + Common.getQuoted( TAGDATE ) + " refs/heads/" + 
+						BRANCH + " | tr -d " + Common.getQuoted( " " ) + " -f1" );
+			}
 			if( REVMARK.isEmpty() )
 				action.exit( "setMirrorTag: unable to find branch revision on given date" );
 		}
 
-		session.customCheckStatus( action , "git -C " + CO_PATH + " tag " + TAG + " -a -f -m " + Common.getQuoted( "$P_MESSAGE" ) + " refs/heads/" + BRANCH + " " + REVMARK );
+		if( repo.storage.winBuild ) {
+			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			ShellExecutor shell = action.getShell( repo.storage.account );
+			shell.customCheckStatus( action , "git -C " + WINPATH + " tag " + TAG + " -a -f -m " + Common.getQuoted( "$P_MESSAGE" ) + " refs/heads/" + BRANCH + " " + REVMARK );
+		}
+		else {
+			session.customCheckStatus( action , "git -C " + repo.MIRRORPATH + " tag " + TAG + " -a -f -m " + Common.getQuoted( "$P_MESSAGE" ) + " refs/heads/" + BRANCH + " " + REVMARK );
+		}
 	}
 
-	private void dropMirrorTag( String CO_PATH , String TAG ) throws Exception {
-		session.customCheckStatus( action , "git -C " + CO_PATH + " tag -d " + TAG );
+	private void dropMirrorTag( GitRepo repo , String TAG ) throws Exception {
+		if( repo.storage.winBuild ) {
+			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			ShellExecutor shell = action.getShell( repo.storage.account );
+			shell.customCheckStatus( action , "git -C " + WINPATH + " tag -d " + TAG );
+		}
+		else {
+			session.customCheckStatus( action , "git -C " + repo.MIRRORPATH + " tag -d " + TAG );
+		}
 	}
 
-	private void dropMirrorBranch( String CO_PATH , String BRANCH ) throws Exception {
-		session.customCheckStatus( action , "git -C " + CO_PATH + " branch -D " + BRANCH );
+	private void dropMirrorBranch( GitRepo repo , String BRANCH ) throws Exception {
+		if( repo.storage.winBuild ) {
+			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			ShellExecutor shell = action.getShell( repo.storage.account );
+			shell.customCheckStatus( action , "git -C " + WINPATH + " branch -D " + BRANCH );
+		}
+		else {
+			session.customCheckStatus( action , "git -C " + repo.MIRRORPATH + " branch -D " + BRANCH );
+		}
 	}
 
-	private boolean checkTagExists( String CO_PATH , String TAG ) throws Exception {
-		String STATUS = session.customGetValue( action , "git -C " + CO_PATH + " tag -l " + TAG );
+	private boolean checkTagExists( GitRepo repo , String TAG ) throws Exception {
+		String STATUS;
+		if( repo.storage.winBuild ) {
+			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			ShellExecutor shell = action.getShell( repo.storage.account );
+			STATUS = shell.customGetValue( action , "git -C " + WINPATH + " tag -l " + TAG );
+		}
+		else {
+			STATUS = session.customGetValue( action , "git -C " + repo.MIRRORPATH + " tag -l " + TAG );
+		}
+		
 		if( STATUS.isEmpty() )
 			return( false );
 		return( true );
 	}
 	
-	private boolean checkBranchExists( String CO_PATH , String BRANCH ) throws Exception {
-		String STATUS = session.customGetValue( action , "git -C " + CO_PATH + " branch --list " + BRANCH );
+	private boolean checkBranchExists( GitRepo repo , String BRANCH ) throws Exception {
+		String STATUS;
+		if( repo.storage.winBuild ) {
+			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			ShellExecutor shell = action.getShell( repo.storage.account );
+			STATUS = shell.customGetValue( action , "git -C " + WINPATH + " branch --list " + BRANCH );
+		}
+		else {
+			STATUS = session.customGetValue( action , "git -C " + repo.MIRRORPATH + " branch --list " + BRANCH );
+		}
+		
 		if( STATUS.isEmpty() )
 			return( false );
 		return( true );
 	}
 	
 	@SuppressWarnings("unused")
-	private String getMirrorTagStatus( String CO_PATH , String TAG ) throws Exception {
-		if( !checkTagExists( CO_PATH , TAG ) )
+	private String getMirrorTagStatus( GitRepo repo , String TAG ) throws Exception {
+		if( !checkTagExists( repo , TAG ) )
 			return( "" );
 
-		String REPOVERSION = session.customGetValue( action , "git -C " + CO_PATH + " show --format=raw " + TAG + " | grep " + Common.getQuoted( "commit " ) + 
+		String REPOVERSION;
+		if( repo.storage.winBuild ) {
+			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			ShellExecutor shell = action.getShell( repo.storage.account );
+			String[] lines = shell.customGetLines( action , "git -C " + WINPATH + " show --format=raw " + TAG );
+			String[] grep = Common.grep( lines , "commit " );
+			REPOVERSION = ( grep.length > 0 )? grep[ 0 ] : "";
+			REPOVERSION = Common.getListItem( REPOVERSION , " " , 1 );
+		}
+		else {
+			REPOVERSION = session.customGetValue( action , "git -C " + repo.MIRRORPATH + " show --format=raw " + TAG + " | grep " + Common.getQuoted( "commit " ) + 
 				" | head -1 | cut -d " + Common.getQuoted( " " ) + " -f2" );
+		}
+		
 		return( REPOVERSION ); 
 	}
 
 	@SuppressWarnings("unused")
-	private String getMirrorBranchStatus( String CO_PATH , String BRANCH ) throws Exception {
-		if( !checkBranchExists( CO_PATH , BRANCH ) )
+	private String getMirrorBranchStatus( GitRepo repo , String BRANCH ) throws Exception {
+		if( !checkBranchExists( repo , BRANCH ) )
 			return( "" );
 
-		String REPOVERSION = session.customGetValue( action , "git -C " + CO_PATH + " show --format=raw " + BRANCH + " | grep " + Common.getQuoted( "commit " ) + 
+		String REPOVERSION;
+		if( repo.storage.winBuild ) {
+			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			ShellExecutor shell = action.getShell( repo.storage.account );
+			String[] lines = shell.customGetLines( action , "git -C " + WINPATH + " show --format=raw " + BRANCH );
+			String[] grep = Common.grep( lines , "commit " );
+			REPOVERSION = ( grep.length > 0 )? grep[ 0 ] : "";
+			REPOVERSION = Common.getListItem( REPOVERSION , " " , 1 );
+		}
+		else {
+			REPOVERSION = session.customGetValue( action , "git -C " + repo.MIRRORPATH + " show --format=raw " + BRANCH + " | grep " + Common.getQuoted( "commit " ) + 
 				" | head -1 | cut -d " + Common.getQuoted( " " ) + " -f2" );
+		}
 		return( REPOVERSION ); 
 	}
 
-	private void copyMirrorTagFromTag( String CO_PATH , String TAG_FROM , String TAG_TO , String MESSAGE ) throws Exception {
+	private void copyMirrorTagFromTag( GitRepo repo , String TAG_FROM , String TAG_TO , String MESSAGE ) throws Exception {
 		// drop if exists
-		session.customCheckStatus( action , "git -C " + CO_PATH + " tag -a -f -m " + Common.getQuoted( MESSAGE ) + " " + TAG_TO + " refs/tags/" + TAG_FROM );
+		if( repo.storage.winBuild ) {
+			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			ShellExecutor shell = action.getShell( repo.storage.account );
+			shell.customCheckStatus( action , "git -C " + WINPATH + " tag -a -f -m " + Common.getQuoted( MESSAGE ) + " " + TAG_TO + " refs/tags/" + TAG_FROM );
+		}
+		else {
+			session.customCheckStatus( action , "git -C " + repo.MIRRORPATH + " tag -a -f -m " + Common.getQuoted( MESSAGE ) + " " + TAG_TO + " refs/tags/" + TAG_FROM );
+		}
 	}
 
-	private void copyMirrorBranchFromTag( String CO_PATH , String TAG_FROM , String BRANCH_TO , String MESSAGE ) throws Exception {
-		session.customCheckStatus( action , "git -C " + CO_PATH + " branch " + BRANCH_TO + " refs/tags/" + TAG_FROM );
+	private void copyMirrorBranchFromTag( GitRepo repo , String TAG_FROM , String BRANCH_TO , String MESSAGE ) throws Exception {
+		if( repo.storage.winBuild ) {
+			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			ShellExecutor shell = action.getShell( repo.storage.account );
+			shell.customCheckStatus( action , "git -C " + WINPATH + " branch " + BRANCH_TO + " refs/tags/" + TAG_FROM );
+		}
+		else {
+			session.customCheckStatus( action , "git -C " + repo.MIRRORPATH + " branch " + BRANCH_TO + " refs/tags/" + TAG_FROM );
+		}
 	}
 
-	private void copyMirrorBranchFromBranch( String CO_PATH , String BRANCH_FROM , String BRANCH_TO , String MESSAGE ) throws Exception {
-		session.customCheckStatus( action , "git -C " + CO_PATH + " branch " + BRANCH_TO + " refs/heads/" + BRANCH_FROM );
+	private void copyMirrorBranchFromBranch( GitRepo repo , String BRANCH_FROM , String BRANCH_TO , String MESSAGE ) throws Exception {
+		if( repo.storage.winBuild ) {
+			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			ShellExecutor shell = action.getShell( repo.storage.account );
+			shell.customCheckStatus( action , "git -C " + WINPATH + " branch " + BRANCH_TO + " refs/heads/" + BRANCH_FROM );
+		}
+		else {
+			session.customCheckStatus( action , "git -C " + repo.MIRRORPATH + " branch " + BRANCH_TO + " refs/heads/" + BRANCH_FROM );
+		}
 	}
 
-	private void pushMirror( String CO_PATH ) throws Exception {
-		session.customCheckStatus( action , "git -C " + CO_PATH + " push origin" );
+	private void pushMirror( GitRepo repo ) throws Exception {
+		if( repo.storage.winBuild ) {
+			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			ShellExecutor shell = action.getShell( repo.storage.account );
+			shell.customCheckStatus( action , "git -C " + WINPATH + " push origin" );
+		}
+		else {
+			session.customCheckStatus( action , "git -C " + repo.MIRRORPATH + " push origin" );
+		}
 	}
 
-	@SuppressWarnings("unused")
-	private void refreshLocal( String CO_PATH ) throws Exception {
-		session.customCheckStatus( action , "git -C " + CO_PATH + " fetch origin" );
-	}
-
-	@SuppressWarnings("unused")
-	private void pushLocal( String LOCAL_PATH ) throws Exception {
-		session.customCheckStatus( action , "git -C " + LOCAL_PATH + " push origin" );
-	}
-	
-	private void addModified( LocalFolder PATCHFOLDER ) throws Exception {
-		session.customCheckErrorsDebug( action , "( cd " + PATCHFOLDER.folderPath + "; " +
+	private void addModified( GitRepo repo ) throws Exception {
+		if( repo.storage.winBuild )
+			action.exitNotImplemented();
+			
+		session.customCheckErrorsDebug( action , "( cd " + repo.PATCHFOLDER.folderPath + "; " +
 			"F_LIST=`git diff --name-only`; " +
 			"if [ " + Common.getQuoted( "$F_LIST" ) + " != " + Common.getQuoted( "" ) + " ]; then git add $F_LIST; fi; " +
 			"git commit -m " + Common.getQuoted( meta.product.CONFIG_ADM_TRACKER + "-0000: set version" ) + "; " +
@@ -440,10 +593,20 @@ public class GitVCS extends GenericVCS {
 	}
 	
 	@Override public boolean isValidRepositoryMasterPath( String repository , String path ) throws Exception {
-		String CO_PATH = getRepoPath( repository );
-		refreshMirror( CO_PATH );
+		GitRepo repo = getRepo( repository );
+		refreshMirror( repo );
 		
-		int status = session.customGetStatus( action , "git -C " + CO_PATH + " cat-file -e master:" + path );
+		int status;
+		if( repo.storage.winBuild ) {
+			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			String WINPATHDIR = Common.getWinPath( action , path );
+			ShellExecutor shell = action.getShell( repo.storage.account );
+			status = shell.customGetStatus( action , "git -C " + WINPATH + " cat-file -e master:" + WINPATHDIR );
+		}
+		else {
+			status = session.customGetStatus( action , "git -C " + repo.MIRRORPATH + " cat-file -e master:" + path );
+		}
+		
 		if( status == 0 )
 			return( true );
 		
@@ -451,11 +614,11 @@ public class GitVCS extends GenericVCS {
 	}
 
 	@Override public boolean exportRepositoryTagPath( LocalFolder PATCHFOLDER , String repository , String TAG , String ITEMPATH , String name ) throws Exception {
-		String CO_PATH = getRepoPath( repository );
-		refreshMirror( CO_PATH );
+		GitRepo repo = getRepo( repository );
+		refreshMirror( repo );
 		
 		TAG = getTagName( TAG );
-		boolean res = exportFromPath( CO_PATH , PATCHFOLDER.getSubFolder( action , name ) , TAG , ITEMPATH , "" );
+		boolean res = exportFromPath( repo , PATCHFOLDER.getSubFolder( action , name ) , TAG , ITEMPATH , "" );
 		return( res );
 	}
 	
@@ -470,10 +633,20 @@ public class GitVCS extends GenericVCS {
 		if( PATCHFOLDER.checkPathExists( action , baseName ) )
 			action.exit( "exportRepositoryMasterPath: local directory " + PATCHFOLDER.getFilePath( action , baseName ) + " should not exist" );
 		
-		String CO_PATH = getRepoPath( repository );
-		refreshMirror( CO_PATH );
+		GitRepo repo = getRepo( repository );
+		refreshMirror( repo );
 		
-		session.customCheckStatus( action , "git -C " + CO_PATH + " archive " + ITEMPATH + " . | ( cd " + PATCHFOLDER.folderPath + "; tar x )" );
+		if( repo.storage.winBuild ) {
+			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			String WINPATHDIR = Common.getWinPath( action , ITEMPATH );
+			String WINPATHPATCH = Common.getWinPath( action , PATCHFOLDER.folderPath );
+			ShellExecutor shell = action.getShell( repo.storage.account );
+			shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + WINPATHDIR + " . | ( cd " + WINPATHPATCH + " & tar x )" );
+		}
+		else {
+			session.customCheckStatus( action , "git -C " + repo.MIRRORPATH + " archive " + ITEMPATH + " . | ( cd " + PATCHFOLDER.folderPath + "; tar x )" );
+		}
+		
 		if( name.isEmpty() == false && name.equals( baseName ) == false )
 			PATCHFOLDER.renameFile( action , baseName , name );
 		
@@ -496,15 +669,25 @@ public class GitVCS extends GenericVCS {
 	}
 	
 	@Override public String listMasterItems( String repository , String masterFolder ) throws Exception {
-		String CO_PATH = getRepoPath( repository );
-		refreshMirror( CO_PATH );
-		String s = action.session.customGetValue( action , "git -C " + CO_PATH + " ls-tree master --name-only | tr \"\\n\" \" \"" );
+		GitRepo repo = getRepo( repository );
+		refreshMirror( repo );
+		
+		String s;
+		if( repo.storage.winBuild ) {
+			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			ShellExecutor shell = action.getShell( repo.storage.account );
+			s = shell.customGetValue( action , "git -C " + WINPATH + " ls-tree master --name-only" );
+			s = Common.replace( s , "\\n" , " \"" );
+		}
+		else {
+			s = session.customGetValue( action , "git -C " + repo.MIRRORPATH + " ls-tree master --name-only | tr \"\\n\" \" \"" );
+		}
 		return( s );
 	}
 
 	@Override public void deleteMasterFolder( String repository , String masterFolder , String commitMessage ) throws Exception {
-		String CO_PATH = getRepoPath( repository );
-		refreshMirror( CO_PATH );
+		GitRepo repo = getRepo( repository );
+		refreshMirror( repo );
 		action.exitNotImplemented();
 	}
 

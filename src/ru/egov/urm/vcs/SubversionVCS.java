@@ -3,6 +3,7 @@ package ru.egov.urm.vcs;
 import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaSourceProject;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.storage.Folder;
 import ru.egov.urm.storage.LocalFolder;
 
 public class SubversionVCS extends GenericVCS {
@@ -16,11 +17,11 @@ public class SubversionVCS extends GenericVCS {
 		this.SVNAUTH = SVNAUTH;
 	}
 	
-	public String getMainBranch() {
+	@Override public String getMainBranch() {
 		return( "trunk" );
 	}
 	
-	public boolean checkout( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH ) throws Exception {
+	@Override public boolean checkout( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH ) throws Exception {
 		String CO_PATH;
 		String XBRANCH = BRANCH;
 		if( !XBRANCH.equals( "trunk" ) )
@@ -41,7 +42,7 @@ public class SubversionVCS extends GenericVCS {
 		return( false );
 	}
 
-	public boolean commit( LocalFolder PATCHFOLDER , MetaSourceProject project , String COMMENT ) throws Exception {
+	@Override public boolean commit( LocalFolder PATCHFOLDER , MetaSourceProject project , String COMMENT ) throws Exception {
 		if( !PATCHFOLDER.checkExists( action ) ) {
 			action.log( "directory " + PATCHFOLDER.folderPath + " does not exist " );
 			return( false );
@@ -51,7 +52,7 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 
-	public boolean copyBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
+	@Override public boolean copyBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
 		// check source status
 		String BRANCH1X = BRANCH1;
 		if( !BRANCH1X.equals( "trunk" ) )
@@ -78,7 +79,7 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 
-	public boolean renameBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
+	@Override public boolean renameBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
 		// check source status
 		String BRANCH1X = BRANCH1;
 		if( !BRANCH1X.equals( "trunk" ) )
@@ -105,7 +106,7 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 
-	public boolean copyTagToNewTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
+	@Override public boolean copyTagToNewTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
 		// check source status
 		String tag1Path = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/tags/" + TAG1;
 		if( !checkSvnPathExists( tag1Path ) ) {
@@ -124,7 +125,7 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 
-	public boolean copyTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
+	@Override public boolean copyTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
 		// check source status
 		String tag1Path = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/tags/" + TAG1;
 		if( !checkSvnPathExists( tag1Path ) ) {
@@ -143,7 +144,7 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 	
-	public boolean renameTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
+	@Override public boolean renameTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
 		// check source status
 		String tag1Path = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/tags/" + TAG1;
 		if( !checkSvnPathExists( tag1Path ) ) {
@@ -162,7 +163,7 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 	
-	public boolean copyTagToNewBranch( MetaSourceProject project , String TAG1 , String BRANCH2 ) throws Exception {
+	@Override public boolean copyTagToNewBranch( MetaSourceProject project , String TAG1 , String BRANCH2 ) throws Exception {
 		// check source status
 		String tag1Path = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/tags/" + TAG1;
 		if( !checkSvnPathExists( tag1Path ) ) {
@@ -184,7 +185,7 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 	
-	public boolean dropTag( MetaSourceProject project , String TAG ) throws Exception {
+	@Override public boolean dropTag( MetaSourceProject project , String TAG ) throws Exception {
 		// check status
 		String tagPath = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/tags/" + TAG;
 		if( !checkSvnPathExists( tagPath ) ) {
@@ -196,7 +197,7 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 	
-	public boolean dropBranch( MetaSourceProject project , String BRANCH ) throws Exception {
+	@Override public boolean dropBranch( MetaSourceProject project , String BRANCH ) throws Exception {
 		// check source status
 		String BRANCHX = BRANCH;
 		if( !BRANCHX.equals( "trunk" ) )
@@ -211,7 +212,7 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 	
-	public boolean export( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH , String TAG , String FILENAME ) throws Exception {
+	@Override public boolean export( Folder PATCHFOLDER , MetaSourceProject project , String BRANCH , String TAG , String FILENAME ) throws Exception {
 		String CO_PATH;
 		if( !TAG.isEmpty() )
 			CO_PATH = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/tags/" + TAG;
@@ -229,7 +230,7 @@ public class SubversionVCS extends GenericVCS {
 			CO_PATH += "/" + FILENAME;
 
 		if( FILENAME.isEmpty() ) {
-			LocalFolder BASEDIR = PATCHFOLDER.getParentFolder( action );
+			Folder BASEDIR = PATCHFOLDER.getParentFolder( action );
 			if( !BASEDIR.checkExists( action ) )
 				action.exit( "exportFromPath: local directory " + BASEDIR + " does not exist" );
 			if( PATCHFOLDER.checkExists( action ) )
@@ -244,7 +245,7 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 
-	public boolean setTag( MetaSourceProject project , String BRANCH , String TAG , String BRANCHDATE ) throws Exception {
+	@Override public boolean setTag( MetaSourceProject project , String BRANCH , String TAG , String BRANCHDATE ) throws Exception {
 		// check source status
 		String BRANCHX = BRANCH;
 		if( !BRANCHX.equals( "trunk" ) )
@@ -279,17 +280,17 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 	
-	public boolean isValidRepositoryMasterPath( String repository , String path ) throws Exception {
+	@Override public boolean isValidRepositoryMasterPath( String repository , String path ) throws Exception {
 		String fullPath = SVNPATH + "/" + repository + "/" + path; 
 		return( checkSvnPathExists( fullPath ) );
 	}
 	
-	public boolean isValidRepositoryTagPath( String repository , String TAG , String path ) throws Exception {
+	@Override public boolean isValidRepositoryTagPath( String repository , String TAG , String path ) throws Exception {
 		String fullPath = SVNPATH + "/" + repository + "/tags/" + TAG + "/" + path; 
 		return( checkSvnPathExists( fullPath ) );
 	}
 	
-	public boolean exportRepositoryMasterPath( LocalFolder PATCHFOLDER , String repository , String ITEMPATH , String name ) throws Exception {
+	@Override public boolean exportRepositoryMasterPath( LocalFolder PATCHFOLDER , String repository , String ITEMPATH , String name ) throws Exception {
 		if( !isValidRepositoryMasterPath( repository , ITEMPATH ) )
 			return( false );
 			
@@ -304,7 +305,7 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 
-	public boolean exportRepositoryTagPath( LocalFolder PATCHFOLDER , String repository , String TAG , String ITEMPATH , String name ) throws Exception {
+	@Override public boolean exportRepositoryTagPath( LocalFolder PATCHFOLDER , String repository , String TAG , String ITEMPATH , String name ) throws Exception {
 		if( !isValidRepositoryTagPath( repository , TAG , ITEMPATH ) )
 			return( false );
 		
@@ -320,18 +321,18 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 
-	public String getInfoMasterPath( String repository , String ITEMPATH ) throws Exception {
+	@Override public String getInfoMasterPath( String repository , String ITEMPATH ) throws Exception {
 		String CO_PATH = SVNPATH + "/" + repository + "/" + ITEMPATH;
 		return( CO_PATH );
 	}
 
-	public boolean createMasterFolder( String repository , String ITEMPATH , String commitMessage ) throws Exception {
+	@Override public boolean createMasterFolder( String repository , String ITEMPATH , String commitMessage ) throws Exception {
 		String fullPath = SVNPATH + "/" + repository + "/" + ITEMPATH; 
 		session.customCheckStatus( action , "svn mkdir " + SVNAUTH + " -m " + Common.getQuoted( commitMessage ) + " --parents " + Common.getQuoted( fullPath ) + " > /dev/null" );
 		return( true );
 	}
 	
-	public boolean moveMasterFiles( String repository , String srcFolder , String dstFolder , String itemPath , String commitMessage ) throws Exception {
+	@Override public boolean moveMasterFiles( String repository , String srcFolder , String dstFolder , String itemPath , String commitMessage ) throws Exception {
 		String F_ITEMDIR = Common.getDirName( itemPath );
 		String dstFullPath = SVNPATH + "/" + repository + "/" + dstFolder + "/" + F_ITEMDIR; 
 		String srcFullPath = SVNPATH + "/" + repository + "/" + srcFolder + "/" + itemPath; 
@@ -340,7 +341,7 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 
-	public String listMasterItems( String repository , String masterFolder ) throws Exception {
+	@Override public String listMasterItems( String repository , String masterFolder ) throws Exception {
 		String fullPath = SVNPATH + "/" + repository + "/" + masterFolder;
 		String s = session.customGetValue( action , "svn list " + SVNAUTH + " " + fullPath );
 		s = Common.replace( s , "/" , "" );
@@ -349,50 +350,50 @@ public class SubversionVCS extends GenericVCS {
 		return( s );
 	}
 
-	public void deleteMasterFolder( String repository , String masterFolder , String commitMessage ) throws Exception {
+	@Override public void deleteMasterFolder( String repository , String masterFolder , String commitMessage ) throws Exception {
 		String fullPath = SVNPATH + "/" + repository + "/" + masterFolder;
 		session.customCheckStatus( action , "svn delete -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH + " " + fullPath );
 	}
 	
-	public void checkoutMasterFolder( LocalFolder PATCHPATH , String repository , String masterFolder ) throws Exception {
+	@Override public void checkoutMasterFolder( LocalFolder PATCHPATH , String repository , String masterFolder ) throws Exception {
 		String fullPath = SVNPATH + "/" + repository + "/" + masterFolder;
 		session.customCheckStatus( action , "svn co " + SVNAUTH + " " + fullPath + " " + PATCHPATH.folderPath );
 	}
 	
-	public void importMasterFolder( LocalFolder PATCHPATH , String repository , String masterFolder , String commitMessage ) throws Exception {
+	@Override public void importMasterFolder( LocalFolder PATCHPATH , String repository , String masterFolder , String commitMessage ) throws Exception {
 		String fullPath = SVNPATH + "/" + repository + "/" + masterFolder;
 		session.customCheckStatus( action , "svn import -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH + " " + PATCHPATH.folderPath + " " + fullPath );
 	}
 	
-	public void ensureMasterFolderExists( String repository , String masterFolder , String commitMessage ) throws Exception {
+	@Override public void ensureMasterFolderExists( String repository , String masterFolder , String commitMessage ) throws Exception {
 		String fullPath = SVNPATH + "/" + repository + "/" + masterFolder;
 		session.customCheckStatus( action , "svn mkdir --parents -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH + " " + fullPath );
 	}
 	
-	public boolean commitMasterFolder( LocalFolder PATCHPATH , String repository , String masterFolder , String commitMessage ) throws Exception {
+	@Override public boolean commitMasterFolder( LocalFolder PATCHPATH , String repository , String masterFolder , String commitMessage ) throws Exception {
 		String res = session.customGetValue( action , PATCHPATH.folderPath , "svn commit -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH + " | grep -c \"^\"" );
 		if( res.equals( "0" ) )
 			return( false );
 		return( true );
 	}
 	
-	public void addFileToCommit( LocalFolder PATCHPATH , String folder , String file ) throws Exception {
+	@Override public void addFileToCommit( LocalFolder PATCHPATH , String folder , String file ) throws Exception {
 		session.customCheckStatus( action , PATCHPATH.folderPath , "svn add " + Common.getPath( folder , file ) );
 	}
 	
-	public void deleteFileToCommit( LocalFolder PATCHPATH , String folder , String file ) throws Exception {
+	@Override public void deleteFileToCommit( LocalFolder PATCHPATH , String folder , String file ) throws Exception {
 		session.customCheckStatus( action , PATCHPATH.folderPath , "svn delete " + Common.getPath( folder , file ) );
 	}
 	
-	public void addDirToCommit( LocalFolder PATCHPATH , String folder ) throws Exception {
+	@Override public void addDirToCommit( LocalFolder PATCHPATH , String folder ) throws Exception {
 		session.customCheckStatus( action , PATCHPATH.folderPath , "svn add " + folder );
 	}
 	
-	public void deleteDirToCommit( LocalFolder PATCHPATH , String folder ) throws Exception {
+	@Override public void deleteDirToCommit( LocalFolder PATCHPATH , String folder ) throws Exception {
 		session.customCheckStatus( action , PATCHPATH.folderPath , "svn delete " + folder );
 	}
 
-	public void createMasterTag( String repository , String masterFolder , String TAG , String commitMessage ) throws Exception {
+	@Override public void createMasterTag( String repository , String masterFolder , String TAG , String commitMessage ) throws Exception {
 		String fullPathSrc = SVNPATH + "/" + repository + "/" + masterFolder;
 		String fullPathTag = SVNPATH + "/" + repository + "/tags/" + TAG;
 		

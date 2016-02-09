@@ -689,5 +689,19 @@ public class Common {
 		}
 		return( s );
 	}
+
+	public static String getWinPath( ActionBase action , String dir ) throws Exception {
+		return( Common.replace( dir , "/" , "\\" ) );
+	}
+	
+	public static String[] grep( String[] list , String mask ) throws Exception {
+		List<String> xl = new LinkedList<String>();
+		for( String s : list ) {
+			if( s.matches( ".*" + mask + ".*" ) )
+				xl.add( s );
+		}
+		
+		return( xl.toArray( new String[0] ) );
+	}
 	
 }

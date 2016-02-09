@@ -10,10 +10,10 @@ import ru.egov.urm.shell.ShellExecutor;
 public class LocalFolder extends Folder {
 
 	public LocalFolder( Artefactory artefactory , String folderPath ) {
-		super( artefactory , folderPath );
+		super( artefactory , folderPath , false );
 	}
 
-	public ShellExecutor getSession( ActionBase action ) throws Exception {
+	@Override public ShellExecutor getSession( ActionBase action ) throws Exception {
 		return( action.session );
 	}
 	

@@ -132,6 +132,11 @@ public class RedistStorage extends ServerStorage {
 		folder.removeContent( action );
 	}
 
+	public RemoteFolder getMirrorFolder( ActionBase action ) throws Exception {
+		RemoteFolder folder = getRedistFolder( action );
+		return( folder.getSubFolder( action , "mirror" ) );
+	}
+	
 	public void dropStateData( ActionBase action ) throws Exception {
 		RemoteFolder folder = getStateFolder( action );
 		action.log( folder.account.HOSTLOGIN + ": drop state data at " + folder.folderPath + " ..." );

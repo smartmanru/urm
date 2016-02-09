@@ -194,35 +194,30 @@ public class Artefactory {
 		return( storage );
 	}
 
-	public GitMirrorStorage getGitMirrorStorage( ActionBase action , String MIRRORPATH , String REPOSITORY ) throws Exception {
-		// check required
-		action.checkRequired( MIRRORPATH , "MIRRORPATH" );
+	public GitMirrorStorage getGitMirrorStorage( ActionBase action , String REPOSITORY ) throws Exception {
+		return( getGitMirrorStorage( action , REPOSITORY + ".git" , false ) );
+	}
 
-		String REPONAME = REPOSITORY + ".git";
-		String repoPath = MIRRORPATH + "/" + REPONAME;
-
-		LocalFolder folder = getAnyFolder( action , repoPath );
-		if( !folder.checkExists( action ) )
-			action.exit( "getGitMirrorStorage: mirror path " + repoPath + " should be created using " + MIRRORPATH + "/mirror.sh" );
+	private GitMirrorStorage getGitMirrorStorage( ActionBase action , String NAME , boolean winBuild ) throws Exception {
+		RedistStorage storage;
+		Account account = ( winBuild )? action.getWinBuildAccount() : action.session.account; 
+		storage = getRedistStorage( "build" , account ); 
 		
-		return( new GitMirrorStorage( this , folder ) );
+		Folder mirrorFolder = storage.getMirrorFolder( action );
+		Folder projectFolder = mirrorFolder.getSubFolder( action , NAME );
+		if( !projectFolder.checkExists( action ) )
+			action.exit( "getGitMirrorStorage: mirror path " + projectFolder.folderPath + " should be created using " + projectFolder.folderPath + "/mirror.sh" );
+	
+		return( new GitMirrorStorage( this , account , projectFolder , winBuild ) );
 	}
 	
-	public GitMirrorStorage getGitMirrorStorage( ActionBase action , String MIRRORPATH , MetaSourceProject sourceProject ) throws Exception {
-		// check required
-		action.checkRequired( MIRRORPATH , "MIRRORPATH" );
-
+	public GitMirrorStorage getGitMirrorStorage( ActionBase action , MetaSourceProject sourceProject ) throws Exception {
 		String REPONAME;
 		String path = sourceProject.PATH.replaceAll( "/" , "" );
 		REPONAME = path + "-" + sourceProject.PROJECT + ".git";
+		boolean winBuild = ( sourceProject.getBuilder( action ).equals( "dotnet" ) )? true : false;
 		
-		String repoPath = MIRRORPATH + "/" + REPONAME;
-		LocalFolder folder = getAnyFolder( action , repoPath );
-		
-		if( !folder.checkExists( action ) )
-			action.exit( "getGitMirrorStorage: mirror path " + repoPath + " should be created using " + MIRRORPATH + "/mirror.sh" );
-
-		return( new GitMirrorStorage( this , folder ) );
+		return( getGitMirrorStorage( action , REPONAME , winBuild ) );
 	}
 	
 	public BuildStorage getEmptyBuildStorage( ActionBase action , MetaSourceProject sourceProject ) throws Exception {
@@ -258,7 +253,7 @@ public class Artefactory {
 		}
 		
 		if( vcsType.equals( "git" ) )
-			return( new GitVCS( action , action.meta.product.CONFIG_GITMIRRORPATH ) );
+			return( new GitVCS( action ) );
 		
 		action.exit( "unknown vcsType=" + vcsType );
 		return( null );

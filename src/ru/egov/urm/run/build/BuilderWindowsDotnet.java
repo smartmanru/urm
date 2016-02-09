@@ -1,11 +1,13 @@
 package ru.egov.urm.run.build;
 
 import ru.egov.urm.meta.MetaSourceProject;
-import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.BuildStorage;
+import ru.egov.urm.storage.RedistStorage;
+import ru.egov.urm.storage.RemoteFolder;
+import ru.egov.urm.vcs.ProjectVersionControl;
 
 public class BuilderWindowsDotnet extends Builder {
 
@@ -14,13 +16,28 @@ public class BuilderWindowsDotnet extends Builder {
 	}
 
 	@Override public ShellExecutor createShell( ActionBase action ) throws Exception {
-		Account account = Account.getAccount( action , action.meta.product.CONFIG_WINBUILD_HOSTLOGIN , VarOSTYPE.WINDOWS );
+		Account account = action.getWinBuildAccount();
 		return( action.context.pool.getExecutor( action , account , "build" ));
 	}
 
 	@Override public boolean exportCode( ActionBase action ) throws Exception {
-		action.exitNotImplemented();
-		return( false );
+		ShellExecutor session = createShell( action );
+		
+		// drop old
+		RedistStorage storage = action.artefactory.getRedistStorage( "build" , session.account );
+		RemoteFolder buildFolder = storage.getRedistTmpFolder( action );
+		buildFolder.ensureExists( action );
+		RemoteFolder CODEPATH = buildFolder.getSubFolder( action , project.PROJECT );
+		CODEPATH.removeThis( action );
+	
+		// checkout
+		ProjectVersionControl vcs = new ProjectVersionControl( action ); 
+		if( !vcs.export( CODEPATH , project , "" , TAG , "" ) ) {
+			action.log( "patchCheckout: having problem to export code" );
+			return( false );
+		}
+		
+		return( true );
 	}
 	
 	@Override public boolean prepareSource( ActionBase action ) throws Exception {

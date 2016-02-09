@@ -3,6 +3,7 @@ package ru.egov.urm.vcs;
 import ru.egov.urm.meta.MetaSourceProject;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.storage.Artefactory;
+import ru.egov.urm.storage.Folder;
 import ru.egov.urm.storage.LocalFolder;
 
 public class ProjectVersionControl {
@@ -152,7 +153,7 @@ public class ProjectVersionControl {
 		return( false );
 	}
 
-	public boolean export( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH , String TAG , String SINGLEFILE ) {
+	public boolean export( Folder PATCHFOLDER , MetaSourceProject project , String BRANCH , String TAG , String SINGLEFILE ) {
 		try {
 			action.log( "export PROJECT=" + project.PROJECT + ", BRANCH=" + BRANCH + ", TAG=" + TAG + ", singlefile=" + SINGLEFILE + " ..." );
 			GenericVCS vcs = getVCS( project );

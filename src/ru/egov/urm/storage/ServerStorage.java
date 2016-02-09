@@ -76,7 +76,7 @@ public class ServerStorage {
 	}
 	
 	public RemoteFolder getRedistHostRootFolder( ActionBase action ) throws Exception {
-		String path = action.meta.env.REDISTPATH;
+		String path = ( action.meta.env == null )? action.meta.product.CONFIG_REDISTPATH : action.meta.env.REDISTPATH;
 		Account rootAccount = account.getRootAccount( action );
 		RemoteFolder rf = new RemoteFolder( artefactory , rootAccount , path );
 		return( rf );

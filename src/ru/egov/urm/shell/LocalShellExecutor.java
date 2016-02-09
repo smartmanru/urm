@@ -6,7 +6,7 @@ import ru.egov.urm.storage.Folder;
 public class LocalShellExecutor extends ShellExecutor {
 
 	public LocalShellExecutor( String name , ShellExecutorPool pool , String rootPath , Folder tmpFolder ) {
-		super( name , pool , rootPath , tmpFolder );
+		super( name , pool , pool.account , rootPath , tmpFolder );
 	}
 	
 	public void start( ActionBase action ) throws Exception {

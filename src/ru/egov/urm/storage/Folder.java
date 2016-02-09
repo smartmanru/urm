@@ -15,13 +15,15 @@ public abstract class Folder {
 	public Metadata meta;
 	public String folderPath;
 	public String folderName;
+	public boolean remote;
 	
 	public abstract ShellExecutor getSession( ActionBase action ) throws Exception; 
 
-	public Folder( Artefactory artefactory , String folderPath ) {
+	protected Folder( Artefactory artefactory , String folderPath , boolean remote ) {
 		this.artefactory = artefactory;
 		this.folderPath = folderPath;
 		this.meta = artefactory.meta;
+		this.remote = remote;
 		
 		folderName = Common.getBaseName( folderPath );
 	}
@@ -347,5 +349,17 @@ public abstract class Folder {
 		String filePath = getFilePath( action , file );
 		return( session.getMD5( action , filePath ) );
 	}
+
+	public Folder getParentFolder( ActionBase action ) throws Exception {
+		if( remote )
+			return( (( RemoteFolder )this).getParentFolder( action ) );
+		return( (( LocalFolder )this).getParentFolder( action ) );
+	}
 	
+	public Folder getSubFolder( ActionBase action , String subFolder ) throws Exception {
+		if( remote )
+			return( (( RemoteFolder )this).getSubFolder( action , subFolder ) );
+		return( (( LocalFolder )this).getSubFolder( action , subFolder ) );
+	}
+
 }

@@ -12,6 +12,7 @@ public abstract class ShellExecutor {
 
 	public String name;
 	public ShellExecutorPool pool;
+	public Account account;
 	public String rootPath;
 	public Folder tmpFolder;
 	
@@ -19,9 +20,10 @@ public abstract class ShellExecutor {
 	
 	abstract public void start( ActionBase action ) throws Exception;
 	
-	protected ShellExecutor( String name , ShellExecutorPool pool , String rootPath , Folder tmpFolder ) {
+	protected ShellExecutor( String name , ShellExecutorPool pool , Account account , String rootPath , Folder tmpFolder ) {
 		this.name = name;
 		this.pool = pool;
+		this.account = account;
 		this.rootPath = rootPath;
 		this.tmpFolder = tmpFolder;
 	}
