@@ -41,13 +41,11 @@ public class BuilderWindowsDotnet extends Builder {
 	}
 	
 	@Override public boolean prepareSource( ActionBase action ) throws Exception {
-		action.exitNotImplemented();
-		return( false );
+		return( true );
 	}
 	
 	@Override public boolean checkSourceCode( ActionBase action ) throws Exception {
-		action.exitNotImplemented();
-		return( false );
+		return( true );
 	}
 	
 	@Override public boolean runBuild( ActionBase action ) throws Exception {
@@ -56,7 +54,11 @@ public class BuilderWindowsDotnet extends Builder {
 	}
 	
 	@Override public void removeExportedCode( ActionBase action ) throws Exception {
-		action.exitNotImplemented();
+		ShellExecutor session = createShell( action );
+		RedistStorage storage = action.artefactory.getRedistStorage( "build" , session.account );
+		RemoteFolder buildFolder = storage.getRedistTmpFolder( action );
+		RemoteFolder CODEPATH = buildFolder.getSubFolder( action , project.PROJECT );
+		CODEPATH.removeThis( action );
 	}
 	
 	
