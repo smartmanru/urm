@@ -382,14 +382,25 @@ abstract class ShellCore {
 	}
 
 	protected void skipUpTo( ActionBase action , BufferedReader textreader , char endChar ) throws Exception {
+		if( action.context.CTX_TRACEINTERNAL )
+			System.out.print( "TRACEINTERNAL: skipUpTo part=" );
+
 		char[] c = new char[1];
 		while( true ) {
 			if( textreader.read( c , 0 , 1 ) != 1 )
 				action.exit( "unable to read" );
 			
+			if( action.context.CTX_TRACEINTERNAL ) {
+				String s = "" + c[0];
+				System.out.print( s.replaceAll("\\p{C}", "?") );
+			}
+			
 			if( c[0] == endChar )
-				return;
+				break;
 		}
+		
+		if( action.context.CTX_TRACEINTERNAL )
+			System.out.print( "\n" );
 	}		
 	
 }

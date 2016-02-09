@@ -83,7 +83,8 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public void cmdEnsureDirExists( ActionBase action , String dir ) throws Exception {
-		runCommand( action , "md " + getWinDir( action , dir ) , false );
+		String wdir = getWinDir( action , dir );
+		runCommand( action , "if not exist " + wdir + " md " + wdir , false );
 	}
 
 	@Override public void cmdCreateFileFromString( ActionBase action , String path , String value ) throws Exception {
@@ -338,38 +339,99 @@ public class ShellCoreWindows extends ShellCore {
 				action.log( line );
 		}
 
+		private int checkMarker( String buffer ) {
+			int bLen = buffer.length();
+			int mLen = finishMarker.length();
+			int kB = 0;
+			int kM = 0;
+			for( ; kM < mLen; ) {
+				if( kB >= bLen )
+					return( -1 );
+				
+				char cB = buffer.charAt( kB );
+				char cM = finishMarker.charAt( kM );
+				if( cB == cM ) {
+					kB++;
+					kM++;
+					continue;
+				}
+				
+				if( cB != '\n' )
+					return( -1 );
+					
+				kB++;
+			}
+			
+			return( kB );
+		}
+
+		private String readBufferWin( ActionBase action , BufferedReader textreader , String buffer ) throws Exception {
+			String newBuffer = readBuffer( action , textreader , buffer , '\033' );
+			if( newBuffer == null )
+				return( buffer );
+			
+			// process escapes
+			while( true ) {
+				int index = newBuffer.indexOf( '\033' );
+				if( index < 0 )
+					return( newBuffer );
+				
+				int index2 = newBuffer.indexOf( index , 'H' );
+				if( index2 < 0 ) {
+					String s = readBuffer( action , textreader , buffer , '\033' );
+					if( s != null )
+						newBuffer = s;
+					continue;
+				}
+				
+				newBuffer = newBuffer.substring( 0 , index ) + "\n" + newBuffer.substring( index2 + 1 );
+			}
+		}
+		
+		private String skipMarker( ActionBase action , BufferedReader textreader , String buffer ) throws Exception {
+			String newBuffer = buffer;
+			
+			for( int k = 0; k < newBuffer.length(); k++ ) {
+				int count = checkMarker( buffer );
+				if( count >= 0 )
+					return( newBuffer.substring( count ) );
+					
+				newBuffer = readBufferWin( action , textreader , newBuffer );
+			}
+			
+			return( newBuffer );
+		}
+
 		private void readStreamToMarker( ActionBase action , BufferedReader textreader , List<String> text , String prompt ) throws Exception {
 			String line;
 			boolean first = true;
 			
 			// stream should be <esc><repeat cmd> & echo <marker><esc><out line1><esc><out line2><esc><marker>
-			skipUpTo( action , textreader , '\033' );
-			skipUpTo( action , textreader , 'H' );
-			skipUpTo( action , textreader , '\033' );
-			skipUpTo( action , textreader , 'H' );
+			String buffer = skipMarker( action , textreader , "" );
+			if( buffer.isEmpty() )
+				buffer = readBufferWin( action , textreader , buffer );
+			if( buffer.charAt( 0 ) != '\n' )
+				action.exit( "unexpected stream" );
+			buffer = buffer.substring( 1 );
 			
-			String buffer = "";
 			if( action.context.CTX_TRACEINTERNAL )
 				action.trace( "readStreamToMarker - start reading ..." );
 			
 			while ( true ) {
-				int index = buffer.indexOf( '\033' );
+				int index = buffer.indexOf( '\n' );
 				if( index < 0 ) {
-					if( buffer.startsWith( finishMarker ) )
+					if( checkMarker( buffer ) >= 0 )
 						return;
 					
-					String newBuffer = readBuffer( action , textreader , buffer , '\033' );
+					String newBuffer = readBufferWin( action , textreader , buffer );
 					if( newBuffer != null )
 						buffer = newBuffer;
 					continue;
 				}
 				
 				line = buffer.substring( 0 , index );
-				int index2 = buffer.indexOf( 'H' );
-				if( index2 < 0 )
-					continue;
-
-				buffer = buffer.substring( index2 + 1 );
+				buffer = buffer.substring( index + 1 );
+				
 				if( action.context.CTX_TRACEINTERNAL )
 					action.trace( "readStreamToMarker - line=" + line.replaceAll("\\p{C}", "?") );
 				
