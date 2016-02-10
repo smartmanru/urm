@@ -37,6 +37,7 @@ public class ActionImportDatabase extends ActionBase {
 	String REMOTE_SETDBENV;
 	String DATABASE_DATAPUMPDIR;
 	String POSTREFRESH;
+	boolean NFS;
 
 	Map<String,MetaDatabaseSchema> serverSchemas;
 	Map<String,Map<String,String>> tableSet;
@@ -84,6 +85,7 @@ public class ActionImportDatabase extends ActionBase {
 		REMOTE_SETDBENV = props.getProperty( "CONFIG_REMOTE_SETDBENV" , "" );
 		DATABASE_DATAPUMPDIR = props.getProperty( "CONFIG_DATABASE_DATAPUMPDIR" , "" );
 		POSTREFRESH = props.getProperty( "CONFIG_POSTREFRESH" , "" );
+		NFS = Common.getBooleanValue( props.getProperty( "CONFIG_NFS" ) ); 
 
 		serverSchemas = server.getSchemaSet( this );
 		if( !SCHEMA.isEmpty() )
@@ -169,6 +171,12 @@ public class ActionImportDatabase extends ActionBase {
 			EXECUTEMAPPING = Common.addItemToUniqueSpacedList( EXECUTEMAPPING , schema.SCHEMA + "=" + schema.DBNAME );
 		
 		conf.add( "CONF_MAPPING=" + Common.getQuoted( EXECUTEMAPPING ) );
+		if( NFS ) {
+			conf.add( "CONF_NFS=" + Common.getBooleanValue( NFS ) );
+			conf.add( "CONF_NFSDATA=" + distDataFolder.folderPath );
+			conf.add( "CONF_NFSLOG=" + distDataFolder.folderPath );
+		}
+		
 		Common.createFileFromStringList( confFile , conf );
 		importScriptsFolder.copyFileFromLocal( this , confFile );
 		
@@ -264,6 +272,11 @@ public class ActionImportDatabase extends ActionBase {
 	}
 
 	private void copyLogs( boolean succeeded , String cmd , String SN ) throws Exception {
+		if( NFS ) {
+			debug( "skip download log files, use NFS" );
+			return;
+		}
+		
 		// copy logs
 		if( cmd.equals( "meta" ) ) {
 			String logMetaFiles = "meta-*.log";
@@ -289,6 +302,11 @@ public class ActionImportDatabase extends ActionBase {
 	}
 	
 	private void uploadFiles( String files , RemoteFolder distFolder , RemoteFolder importFolder ) throws Exception {
+		if( NFS ) {
+			debug( "skip upload data files, use NFS" );
+			return;
+		}
+		
 		log( "upload files: " + files + " ..." );
 
 		String[] copied = distFolder.findFiles( this , files );
