@@ -70,8 +70,6 @@ public class ActionExportDatabase extends ActionBase {
 		makeTargetConfig();
 		runAll();
 		
-		log( "export has been finished, dumps are copied to " + distDataFolder.folderPath );
-		
 		return( true );
 	}
 
@@ -180,6 +178,8 @@ public class ActionExportDatabase extends ActionBase {
 					runTarget( "data" , s );
 			}
 		}
+
+		log( "export has been finished, dumps are copied to " + distDataFolder.folderPath );
 		
 		// complete
 		repository.copyNewToPrimary( this , DATASET , full );
