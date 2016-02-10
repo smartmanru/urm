@@ -71,7 +71,7 @@ public class DistRepository {
 		}
 
 		// move all from new to data
-		action.log( "move data to " + dataFolder.folderPath + " ..." );
+		action.log( "move new data to " + dataFolder.folderPath + " ..." );
 		newFolder.moveAll( action , dataFolder.folderPath );
 		newFolder.removeThis( action );
 	}
