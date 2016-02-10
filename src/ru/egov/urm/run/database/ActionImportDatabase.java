@@ -29,6 +29,7 @@ public class ActionImportDatabase extends ActionBase {
 	String SCHEMA;
 
 	RemoteFolder distDataFolder;
+	RemoteFolder distLogFolder;
 	DatabaseClient client;
 
 	String DATASET;
@@ -62,7 +63,7 @@ public class ActionImportDatabase extends ActionBase {
 		if( !client.checkConnect( this , server ) )
 			exit( "unable to connect to administrative db" );
 		
-		distDataFolder = checkSource();
+		checkSource();
 		makeTargetScripts();
 		makeTargetConfig();
 		runAll();
@@ -96,17 +97,17 @@ public class ActionImportDatabase extends ActionBase {
 		tableSet = ms.readDatapumpFile( this , TABLESETFILE , SCHEMA );
 	}
 
-	private RemoteFolder checkSource() throws Exception {
+	private void checkSource() throws Exception {
 		DistRepository repository = artefactory.getDistRepository( this );
-		RemoteFolder folder = repository.getDataFolder( this , DATASET );
-		if( !folder.checkExists( this ) )
-			exit( "data folder does not exist: " + folder.folderPath );
+		distDataFolder = repository.getDataFolder( this , DATASET );
+		if( !distDataFolder.checkExists( this ) )
+			exit( "data folder does not exist: " + distDataFolder.folderPath );
 		
 		// check required dump files are available
-		FileSet files = folder.getFileSet( this );
+		FileSet files = distDataFolder.getFileSet( this );
 		if( !CMD.equals( "data" ) )
 			if( files.getFilesMatched( this , "meta-.*\\.dump" ).length == 0 )
-				exit( "no metadata dump files to load, check dump directory: " + folder.folderPath );
+				exit( "no metadata dump files to load, check dump directory: " + distDataFolder.folderPath );
 			
 		if( !CMD.equals( "meta" ) ) {
 			for( String schema : serverSchemas.keySet() ) {
@@ -119,12 +120,13 @@ public class ActionImportDatabase extends ActionBase {
 				// check data files
 				if( SCHEMA.isEmpty() || SCHEMA.equals( schema ) ) {
 					if( files.getFilesMatched( this , "data-" + schema + ".*\\.dump" ).length == 0 )
-						exit( "no data dump files for schema=" + schema + " to load, check dump directory: " + folder.folderPath );
+						exit( "no data dump files for schema=" + schema + " to load, check dump directory: " + distDataFolder.folderPath );
 				}
 			}
 		}
 
-		return( folder );
+		distLogFolder = repository.getImportLogFolder( this , DATASET , server );
+		distLogFolder.ensureExists( this );
 	}
 
 	private void makeTargetScripts() throws Exception {
@@ -174,7 +176,7 @@ public class ActionImportDatabase extends ActionBase {
 		if( NFS ) {
 			conf.add( "CONF_NFS=" + Common.getBooleanValue( NFS ) );
 			conf.add( "CONF_NFSDATA=" + distDataFolder.folderPath );
-			conf.add( "CONF_NFSLOG=" + distDataFolder.folderPath );
+			conf.add( "CONF_NFSLOG=" + distLogFolder.folderPath );
 		}
 		
 		Common.createFileFromStringList( confFile , conf );
@@ -280,25 +282,24 @@ public class ActionImportDatabase extends ActionBase {
 		// copy logs
 		if( cmd.equals( "meta" ) ) {
 			String logMetaFiles = "meta-*.log";
-			copyFiles( logMetaFiles , importLogFolder , workFolder );
+			copyLogFiles( logMetaFiles );
 		}
 		else if( cmd.equals( "data" ) ) {
 			String logDataFiles = "data-" + SN + "-*.log";
-			copyFiles( logDataFiles , importLogFolder , workFolder );
+			copyLogFiles( logDataFiles );
 		}
 	}
 
-	private void copyFiles( String files , RemoteFolder importFolder , LocalFolder workFolder ) throws Exception {
+	private void copyLogFiles( String files ) throws Exception {
 		log( "copy files: " + files + " ..." );
 		
-		importFolder.copyFilesToLocal( this , workFolder , files );
+		importLogFolder.copyFilesToLocal( this , workFolder , files );
 		String[] copied = workFolder.findFiles( this , files );
 		
 		if( copied.length == 0 )
 			exit( "unable to find files: " + files );
 		
-		// cleanup source
-		importFolder.removeFiles( this , files );
+		distLogFolder.copyFilesFromLocal( this , workFolder , files );
 	}
 	
 	private void uploadFiles( String files , RemoteFolder distFolder , RemoteFolder importFolder ) throws Exception {

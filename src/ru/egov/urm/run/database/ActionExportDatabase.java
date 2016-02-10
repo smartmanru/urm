@@ -37,6 +37,7 @@ public class ActionExportDatabase extends ActionBase {
 	Map<String,MetaDatabaseSchema> serverSchemas;
 	Map<String,Map<String,String>> tableSet;
 
+	DistRepository repository;
 	RemoteFolder distDataFolder;
 	RemoteFolder distLogFolder;
 	RemoteFolder exportScriptsFolder;
@@ -64,10 +65,7 @@ public class ActionExportDatabase extends ActionBase {
 		if( !client.checkConnect( this , server , node ) )
 			exit( "unable to connect to administrative db" );
 		
-		distDataFolder = prepareDestination();
-		distLogFolder = distDataFolder.getSubFolder( this , "log" );
-		distLogFolder.ensureExists( this );
-		
+		prepareDestination();
 		makeTargetScripts();
 		makeTargetConfig();
 		runAll();
@@ -101,19 +99,19 @@ public class ActionExportDatabase extends ActionBase {
 		tableSet = ms.readDatapumpFile( this , TABLESETFILE , SCHEMA );
 	}
 
-	private RemoteFolder prepareDestination() throws Exception {
-		DistRepository repository = artefactory.getDistRepository( this );
-		RemoteFolder folder = repository.getDataFolder( this , DATASET );
-		folder.ensureExists( this );
+	private void prepareDestination() throws Exception {
+		repository = artefactory.getDistRepository( this );
+		distDataFolder = repository.getDataNewFolder( this , DATASET );
+		distDataFolder.ensureExists( this );
 		
-		if( !folder.isEmpty( this ) ) {
+		if( !distDataFolder.isEmpty( this ) ) {
 			if( SCHEMA.isEmpty() && !CMD.equals( "data" ) ) {
 				RemoteFolder backup = repository.getDataFolder( this , DATASET + "-backup" );
 				log( "storage folder is not empty, backup to " + backup.folderPath + " ..." );
 				
 				backup.ensureExists( this );
 				backup.removeAll( this );
-				folder.moveAll( this , backup.folderPath );
+				distDataFolder.moveAll( this , backup.folderPath );
 			}
 			else {
 				log( "storage folder is not empty, will overwrite dumps if any ..." );
@@ -124,7 +122,8 @@ public class ActionExportDatabase extends ActionBase {
 				exit( "storage folder is empty, data files will not be usable without metadata" );
 		}
 		
-		return( folder );
+		distLogFolder = repository.getExportLogFolder( this , DATASET );
+		distLogFolder.ensureExists( this );
 	}
 	
 	private void makeTargetScripts() throws Exception {
@@ -170,7 +169,7 @@ public class ActionExportDatabase extends ActionBase {
 		if( NFS ) {
 			conf.add( "CONF_NFS=" + Common.getBooleanValue( NFS ) );
 			conf.add( "CONF_NFSDATA=" + distDataFolder.folderPath );
-			conf.add( "CONF_NFSLOG=" + distDataFolder.folderPath );
+			conf.add( "CONF_NFSLOG=" + distLogFolder.folderPath );
 		}
 		
 		Common.createFileFromStringList( confFile , conf );
@@ -188,10 +187,11 @@ public class ActionExportDatabase extends ActionBase {
 			ms.loadDatapumpSet( this , tableSet , server , STANDBY , true );
 		}
 		
-		if( CMD.equals( "all" ) || CMD.equals( "meta" ) )
+		boolean full = ( CMD.equals( "all" ) )? true : false;
+		if( full || CMD.equals( "meta" ) )
 			runTarget( "meta" , "all" );
 		
-		if( CMD.equals( "all" ) || CMD.equals( "data" ) ) {
+		if( full || CMD.equals( "data" ) ) {
 			if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )
 				runTarget( "data" , SCHEMA );
 			else {
@@ -199,6 +199,9 @@ public class ActionExportDatabase extends ActionBase {
 					runTarget( "data" , s );
 			}
 		}
+		
+		// complete
+		repository.copyNewToPrimary( this , DATASET , full );
 	}
 	
 	public String checkStatus( RemoteFolder folder ) throws Exception {

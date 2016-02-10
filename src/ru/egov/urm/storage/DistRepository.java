@@ -1,6 +1,7 @@
 package ru.egov.urm.storage;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
@@ -31,8 +32,51 @@ public class DistRepository {
 		return( repo );
 	}
 
-	public RemoteFolder getDataFolder( ActionBase action , String dataSet ) throws Exception {
+	public RemoteFolder getDataSetFolder( ActionBase action , String dataSet ) throws Exception {
 		return( repoFolder.getSubFolder( action , "data/" + dataSet ) );
+	}
+	
+	public RemoteFolder getDataFolder( ActionBase action , String dataSet ) throws Exception {
+		RemoteFolder folder = getDataSetFolder( action , dataSet );
+		return( folder.getSubFolder( action , "dump" ) );
+	}
+	
+	public RemoteFolder getDataNewFolder( ActionBase action , String dataSet ) throws Exception {
+		RemoteFolder folder = getDataSetFolder( action , dataSet );
+		return( folder.getSubFolder( action , "dump-new" ) );
+	}
+	
+	public RemoteFolder getDataBackupFolder( ActionBase action , String dataSet ) throws Exception {
+		RemoteFolder folder = getDataSetFolder( action , dataSet );
+		return( folder.getSubFolder( action , "dump-backup" ) );
+	}
+	
+	public RemoteFolder getExportLogFolder( ActionBase action , String dataSet ) throws Exception {
+		RemoteFolder folder = getDataSetFolder( action , dataSet );
+		return( folder.getSubFolder( action , "log-export" ) );
+	}
+	
+	public void copyNewToPrimary( ActionBase action , String dataSet , boolean full ) throws Exception {
+		RemoteFolder dataFolder = getDataFolder( action , dataSet );
+		RemoteFolder backupFolder = getDataBackupFolder( action , dataSet );
+		RemoteFolder newFolder = getDataNewFolder( action , dataSet );
+		
+		// move data to backup, if not partial
+		if( full && !dataFolder.isEmpty( action ) ) {
+			backupFolder.removeThis( action );
+			backupFolder.ensureExists( action );
+			dataFolder.moveAll( action , backupFolder.folderPath );
+		}
+
+		// move all from new to data
+		dataFolder.ensureExists( action );
+		newFolder.moveAll( action , dataFolder.folderPath );
+		newFolder.removeThis( action );
+	}
+	
+	public RemoteFolder getImportLogFolder( ActionBase action , String dataSet , MetaEnvServer server ) throws Exception {
+		String location = server.dc.env.ID + "-" + server.dc.NAME + "-" + server.NAME;
+		return( repoFolder.getSubFolder( action , "data/" + dataSet + "/log-import-" + location ) );
 	}
 	
 	public DistStorage getDistByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
