@@ -62,7 +62,6 @@ public class DistRepository {
 		RemoteFolder newFolder = getDataNewFolder( action , dataSet );
 		
 		// move data to backup, if not partial
-		action.log( "move data to " + dataFolder.folderPath + " ..." );
 		dataFolder.ensureExists( action );
 		if( full && !dataFolder.isEmpty( action ) ) {
 			action.log( "save data backup to " + backupFolder.folderPath + " ..." );
@@ -72,6 +71,7 @@ public class DistRepository {
 		}
 
 		// move all from new to data
+		action.log( "move data to " + dataFolder.folderPath + " ..." );
 		newFolder.moveAll( action , dataFolder.folderPath );
 		newFolder.removeThis( action );
 	}
