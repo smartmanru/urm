@@ -4,6 +4,9 @@ P_SCHEMA="$1"
 
 . ./run.conf
 
+S_DATADIR=
+S_LOGDIR=
+
 function f_execute_one() {
 	local P_SCHEMA=$1
 	local P_DBNAME=$2
@@ -12,7 +15,7 @@ function f_execute_one() {
 
 	# drop old
 	local F_STATUS
-	F_LOG=../log/meta-$P_SCHEMA.dump.log
+	F_LOG=$S_LOGDIR/meta-$P_SCHEMA.dump.log
 
 	echo "# drop schema=$P_SCHEMA using run-import-drop.sql ..." > $F_LOG
 	psql -d $P_DBNAME < run-import-drop.sql >> $F_LOG 2>&1
@@ -22,7 +25,7 @@ function f_execute_one() {
 		exit 1
 	fi
 
-	local F_CMD="pg_restore -v -s -j 4 -d $P_DBNAME ../data/meta-$P_SCHEMA.dump"
+	local F_CMD="pg_restore -v -s -j 4 -d $P_DBNAME $S_DATADIR/meta-$P_SCHEMA.dump"
 	echo "# load dump: $F_CMD ..." >> $F_LOG
 	$F_CMD >> $F_LOG 2>&1
 	F_STATUS=$?
@@ -54,6 +57,18 @@ function f_execute_roles() {
 }
 
 function f_execute_all() {
+	if [ "$CONF_NFS" ="yes" ]; then
+		S_DATADIR=$CONF_NFSDATA
+		S_LOGDIR=$CONF_NFSLOG
+	else
+		S_DATADIR=../data
+		S_LOGDIR=../log
+	fi
+
+	echo "prepare import meta from $S_DATADIR, logs to $S_LOGDIR ..."
+	mkdir -p $S_DATADIR
+	mkdir -p $S_LOGDIR
+
 	# get schema names
 	local F_SCHEMASET
 	if [ "$P_SCHEMA" = "all" ]; then

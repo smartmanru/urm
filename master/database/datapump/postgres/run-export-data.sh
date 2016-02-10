@@ -4,6 +4,9 @@ P_SCHEMA="$1"
 
 . ./run.conf
 
+S_DATADIR=
+S_LOGDIR=
+
 function f_execute_db() {
 	local P_DBNAME=$1
 
@@ -38,9 +41,9 @@ function f_execute_db() {
 		) | psql
 	fi
 
-	F_CMD="pg_dump -v -b -f ../data/data-$P_SCHEMA-all.dump -F c $F_TABLEFILTER $P_DBNAME"
+	F_CMD="pg_dump -v -b -f $S_DATADIR/data-$P_SCHEMA-all.dump -F c $F_TABLEFILTER $P_DBNAME"
 	echo "run: $F_CMD ..."
-	$F_CMD > ../log/data-$P_SCHEMA-all.dump.log 2>&1
+	$F_CMD > $S_LOGDIR/data-$P_SCHEMA-all.dump.log 2>&1
 	F_STATUS=$?
 
 	# execute resume standby replication if any
@@ -62,8 +65,17 @@ function f_execute_db() {
 }
 
 function f_execute_all() {
-	mkdir -p ../data
-	mkdir -p ../log
+	if [ "$CONF_NFS" ="yes" ]; then
+		S_DATADIR=$CONF_NFSDATA
+		S_LOGDIR=$CONF_NFSLOG
+	else
+		S_DATADIR=../data
+		S_LOGDIR=../log
+	fi
+
+	echo "prepare export data to $S_DATADIR, logs to $S_LOGDIR ..."
+	mkdir -p $S_DATADIR
+	mkdir -p $S_LOGDIR
 
 	# get schema name
 	local F_DBNAME=`echo "$CONF_MAPPING" | tr " " "\n" | grep ^$P_SCHEMA= | cut -d "=" -f2`

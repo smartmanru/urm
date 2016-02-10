@@ -2,6 +2,9 @@
 
 . ./run.conf
 
+S_DATADIR=
+S_LOGDIR=
+
 function f_execute_one() {
 	local P_SCHEMA=$1
 	local P_DBNAME=$2
@@ -19,19 +22,32 @@ function f_execute_one() {
 	fi
 }
 
-function f_execute_all() {
-	mkdir -p ../data
-	mkdir -p ../log
-
-	# export meta roles
+function f_execute_roles() {
 	local F_CMD="pg_dumpall --roles-only"
 	echo "run: $F_CMD ..."
-	( $F_CMD > ../data/meta-roles.dump ) > ../log/meta-roles.dump.log 2>&1
+	( $F_CMD > $S_DATADIR/meta-roles.dump ) > $S_LOGDIR/meta-roles.dump.log 2>&1
 	F_STATUS=$?
 	if [ "$F_STATUS" != "0" ]; then
 		echo pg_dumpall failed with status=$F_STATUS. Exiting
 		exit 1
 	fi
+}
+
+function f_execute_all() {
+	if [ "$CONF_NFS" ="yes" ]; then
+		S_DATADIR=$CONF_NFSDATA
+		S_LOGDIR=$CONF_NFSLOG
+	else
+		S_DATADIR=../data
+		S_LOGDIR=../log
+	fi
+
+	echo "prepare export meta to $S_DATADIR, logs to $S_LOGDIR ..."
+	mkdir -p $S_DATADIR
+	mkdir -p $S_LOGDIR
+
+	# export meta roles
+	f_execute_roles
 
 	# get schema names
 	local F_SCHEMASET=`echo "$CONF_MAPPING" | tr " " "\n" | cut -d "=" -f1 | tr "\n" " "`

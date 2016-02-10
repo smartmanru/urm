@@ -4,6 +4,9 @@ P_SCHEMA="$1"
 
 . ./run.conf
 
+S_DATADIR=
+S_LOGDIR=
+
 function f_execute_db() {
 	local P_DBNAME=$1
 
@@ -29,9 +32,9 @@ function f_execute_db() {
 		echo load all schema tables ...
 	fi
 
-	F_CMD="pg_restore -v -a -j 4 --disable-triggers -d $P_DBNAME $F_TABLEFILTER ../data/data-$P_SCHEMA-all.dump"
+	F_CMD="pg_restore -v -a -j 4 --disable-triggers -d $P_DBNAME $F_TABLEFILTER $S_DATADIR/data-$P_SCHEMA-all.dump"
 	echo "run: $F_CMD ..."
-	$F_CMD > ../log/data-$P_SCHEMA-all.dump.log 2>&1
+	$F_CMD > $S_LOGDIR/data-$P_SCHEMA-all.dump.log 2>&1
 	F_STATUS=$?
 
 	if [ "$F_STATUS" != "0" ]; then
@@ -43,6 +46,18 @@ function f_execute_db() {
 }
 
 function f_execute_all() {
+	if [ "$CONF_NFS" ="yes" ]; then
+		S_DATADIR=$CONF_NFSDATA
+		S_LOGDIR=$CONF_NFSLOG
+	else
+		S_DATADIR=../data
+		S_LOGDIR=../log
+	fi
+
+	echo "prepare import data from $S_DATADIR, logs to $S_LOGDIR ..."
+	mkdir -p $S_DATADIR
+	mkdir -p $S_LOGDIR
+
 	# get schema name
 	local F_DBNAME=`echo "$CONF_MAPPING" | tr " " "\n" | grep ^$P_SCHEMA= | cut -d "=" -f2`
 	if [ "$F_DBNAME" = "" ]; then
