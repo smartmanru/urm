@@ -37,8 +37,8 @@ function f_execute_one() {
 }
 
 function f_execute_roles() {
-	local F_DATA=../data/meta-roles.dump
-	local F_LOG=../log/meta-roles.dump.log
+	local F_DATA=$S_DATADIR/meta-roles.dump
+	local F_LOG=$S_LOGDIR/meta-roles.dump.log
 
 	if [ ! -f "$F_DATA" ]; then
 		echo unable to find role set $F_DATA. Exiting
