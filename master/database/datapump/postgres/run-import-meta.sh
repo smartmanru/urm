@@ -57,7 +57,7 @@ function f_execute_roles() {
 }
 
 function f_execute_all() {
-	if [ "$CONF_NFS" ="yes" ]; then
+	if [ "$CONF_NFS" = "yes" ]; then
 		S_DATADIR=$CONF_NFSDATA
 		S_LOGDIR=$CONF_NFSLOG
 	else
