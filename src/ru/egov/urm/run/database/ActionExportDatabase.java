@@ -103,25 +103,6 @@ public class ActionExportDatabase extends ActionBase {
 		repository = artefactory.getDistRepository( this );
 		distDataFolder = repository.getDataNewFolder( this , DATASET );
 		distDataFolder.ensureExists( this );
-		
-		if( !distDataFolder.isEmpty( this ) ) {
-			if( SCHEMA.isEmpty() && !CMD.equals( "data" ) ) {
-				RemoteFolder backup = repository.getDataFolder( this , DATASET + "-backup" );
-				log( "storage folder is not empty, backup to " + backup.folderPath + " ..." );
-				
-				backup.ensureExists( this );
-				backup.removeAll( this );
-				distDataFolder.moveAll( this , backup.folderPath );
-			}
-			else {
-				log( "storage folder is not empty, will overwrite dumps if any ..." );
-			}
-		}
-		else {
-			if( CMD.equals( "data" ) )
-				exit( "storage folder is empty, data files will not be usable without metadata" );
-		}
-		
 		distLogFolder = repository.getExportLogFolder( this , DATASET );
 		distLogFolder.ensureExists( this );
 	}
