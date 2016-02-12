@@ -207,8 +207,18 @@ public abstract class ShellExecutor {
 		return( core.runCommandGetStatusDebug( action , cmd ) );
 	}
 	
+	public int customGetStatus( ActionBase action , String dir , String cmd ) throws Exception {
+		String cmdDir = core.getDirCmd( action , dir , cmd );
+		return( core.runCommandGetStatusDebug( action , cmdDir ) );
+	}
+	
 	public int customGetStatusNormal( ActionBase action , String cmd ) throws Exception {
 		return( core.runCommandGetStatusNormal( action , cmd ) );
+	}
+	
+	public int customGetStatusNormal( ActionBase action , String dir , String cmd ) throws Exception {
+		String cmdDir = core.getDirCmd( action , dir , cmd );
+		return( core.runCommandGetStatusNormal( action , cmdDir ) );
 	}
 	
 	public void customCheckStatus( ActionBase action , String cmd ) throws Exception {

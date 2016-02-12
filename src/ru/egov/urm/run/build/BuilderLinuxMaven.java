@@ -14,8 +14,32 @@ import ru.egov.urm.vcs.ProjectVersionControl;
 
 public class BuilderLinuxMaven extends Builder {
 
+	public String BUILD_OPTIONS;
+	boolean MODULEOPTIONS_WAR = false;
+	boolean MODULEOPTIONS_POMNEW = false;
+	boolean MODULEOPTIONS_SETVERSION = false;
+	boolean MODULEOPTIONS_REPLACESNAPSHOTS = false;
+	boolean MODULEOPTIONS_COMPACT_STATIC = false;
+
 	public BuilderLinuxMaven( String BUILDER , MetaSourceProject project , BuildStorage storage , String TAG , String BUILD_OPTIONS , String APPVERSION ) {
-		super( BUILDER , project , storage , TAG , BUILD_OPTIONS , APPVERSION );
+		super( BUILDER , project , storage , TAG , APPVERSION );
+		this.BUILD_OPTIONS = BUILD_OPTIONS;
+
+		// war build
+		if( BUILD_OPTIONS.indexOf( 'w' ) >= 0 )
+			MODULEOPTIONS_WAR = true;
+		// replace original files with .new ones
+		if( BUILD_OPTIONS.indexOf( 'n' ) >= 0 )
+			MODULEOPTIONS_POMNEW = true;
+		// add profile for war build
+		if( BUILD_OPTIONS.indexOf( 's' ) >= 0 )
+			MODULEOPTIONS_COMPACT_STATIC = true;
+		// force set version
+		if( BUILD_OPTIONS.indexOf( 'v' ) >= 0 )
+			MODULEOPTIONS_SETVERSION = true;
+		// clear all snapshots from release
+		if( BUILD_OPTIONS.indexOf( 'r' ) >= 0 )
+			MODULEOPTIONS_REPLACESNAPSHOTS = true;
 	}
 
 	@Override public ShellExecutor createShell( ActionBase action ) throws Exception {
