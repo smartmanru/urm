@@ -61,11 +61,11 @@ public class BuilderWindowsDotnet extends Builder {
 			action.exit( "unexpected builder version=" + BUILDEVERSION );
 		
 		String NUGET_PATH = getNugetSourcePath( action );
-		String MSBUILD_OPTIONS = "/t:Clean,Build /p:Configuration=Release";
+		String MSBUILD_OPTIONS = "/t:Clean,Build /p:Configuration=Release /Encoding:UTF-8";
 		if( action.context.CTX_SHOWALL )
 			MSBUILD_OPTIONS += " /verbosity:detailed";
 
-		String BUILD_CMD = MSBUILD_PATH + " " + MSBUILD_OPTIONS;
+		String BUILD_CMD = MSBUILD_PATH + " " + MSBUILD_OPTIONS + " > build.log";
 		action.log( "build PATCHPATH=" + CODEPATH.folderPath + ", options=" + MSBUILD_OPTIONS + ", cmd=" + BUILD_CMD + 
 				" using nuget to nexus path " + NUGET_PATH + "..." );
 
