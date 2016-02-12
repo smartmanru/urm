@@ -69,7 +69,7 @@ public class BuilderWindowsDotnet extends Builder {
 		action.log( "build PATCHPATH=" + CODEPATH.folderPath + ", options=" + MSBUILD_OPTIONS + ", cmd=" + BUILD_CMD + 
 				" using nuget to nexus path " + NUGET_PATH + "..." );
 
-		ShellExecutor session = action.session;
+		ShellExecutor session = createShell( action );
 		int timeout = action.setTimeoutUnlimited();
 		int status = session.customGetStatusNormal( action , CODEPATH.folderPath , BUILD_CMD );
 		action.setTimeout( timeout );
