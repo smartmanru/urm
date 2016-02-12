@@ -61,7 +61,7 @@ public class BuilderWindowsDotnet extends Builder {
 			action.exit( "unexpected builder version=" + BUILDEVERSION );
 		
 		String NUGET_PATH = getNugetSourcePath( action );
-		String MSBUILD_OPTIONS = "/t:Clean,Build /p:Configuration=Release /Encoding:UTF-8";
+		String MSBUILD_OPTIONS = "/t:Clean,Build /p:Configuration=Release";
 		if( action.context.CTX_SHOWALL )
 			MSBUILD_OPTIONS += " /verbosity:detailed";
 
