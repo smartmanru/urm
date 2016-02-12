@@ -83,8 +83,7 @@ public class ShellCoreWindows extends ShellCore {
 	}
 	
 	@Override public String getDirCmd( ActionBase action , String dir , String cmd ) throws Exception {
-		action.exitNotImplemented();
-		return( "" );
+		return( "cd " + Common.getWinPath( action , dir ) + " & " + cmd );
 	}
 	
 	@Override public String getDirCmdIfDir( ActionBase action , String dir , String cmd ) throws Exception {
