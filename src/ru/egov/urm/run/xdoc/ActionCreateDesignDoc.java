@@ -156,11 +156,11 @@ public class ActionCreateDesignDoc extends ActionBase {
 		if( element.elementType == VarELEMENTTYPE.SERVER )
 			dotdef = "fillcolor=green";
 		else if( element.elementType == VarELEMENTTYPE.EXTERNAL )
-			dotdef = "style=" + Common.getQuoted( "rounding, fillcolor=yellow" );
+			dotdef = "style=" + Common.getQuoted( "rounded,filled" ) + ", fillcolor=yellow";
 		else if( element.elementType == VarELEMENTTYPE.DATABASE )
-			dotdef = "style=" + Common.getQuoted( "doublecircle, fillcolor=lightblue" );
+			dotdef = "shape=" + Common.getQuoted( "doublecircle" ) + "style=" + Common.getQuoted( "rounded,filled" ) + ", fillcolor=lightblue";
 		else if( element.elementType == VarELEMENTTYPE.GENERIC )
-			dotdef = "style=" + Common.getQuoted( "rounding, fillcolor=lightgray" );
+			dotdef = "style=" + Common.getQuoted( "rounded,filled" ) + ", fillcolor=lightgray";
 		else
 			this.exitUnexpectedState();
 
