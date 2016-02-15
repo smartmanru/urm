@@ -168,7 +168,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		String nodeline = prefix + element.getName( this );
 		String label = "<b>" + element.NAME + "</b>";
 		if( !element.FUNCTION.isEmpty() )
-			label += "<br/>" + Common.replace( element.FUNCTION , "\n" , "<br/>" );
+			label += "<br/>" + Common.replace( element.FUNCTION , "\\n" , "<br/>" );
 		String s = dotdef + ", label=<" + label + ">";
 		nodeline += " [" + s + "]";
 		nodeline += ";";
