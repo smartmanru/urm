@@ -147,7 +147,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		lines.add( "digraph " + Common.getQuoted( meta.product.CONFIG_PRODUCT ) + " {" );
 		lines.add( "\tcharset=" + Common.getQuoted( "utf8" ) + ";" );
 		lines.add( "\tcompound=true;" );
-		lines.add( "\tnode [shape=box, style=" + Common.getQuoted( "filled, rounded" ) + ", fontsize=10];" );
+		lines.add( "\tnode [shape=box, style=" + Common.getQuoted( "filled" ) + ", fontsize=10];" );
 		lines.add( "" );
 	}
 
@@ -156,11 +156,11 @@ public class ActionCreateDesignDoc extends ActionBase {
 		if( element.elementType == VarELEMENTTYPE.SERVER )
 			dotdef = "fillcolor=green";
 		else if( element.elementType == VarELEMENTTYPE.EXTERNAL )
-			dotdef = "fillcolor=yellow";
+			dotdef = "style=rounding,fillcolor=yellow";
 		else if( element.elementType == VarELEMENTTYPE.DATABASE )
-			dotdef = "fillcolor=lightblue";
+			dotdef = "style=doublecircle,fillcolor=lightblue";
 		else if( element.elementType == VarELEMENTTYPE.GENERIC )
-			dotdef = "fillcolor=lightgray";
+			dotdef = "style=rounding,fillcolor=lightgray";
 		else
 			this.exitUnexpectedState();
 
