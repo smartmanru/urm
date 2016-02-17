@@ -65,7 +65,7 @@ public class BuilderWindowsDotnet extends Builder {
 		if( action.context.CTX_SHOWALL )
 			MSBUILD_OPTIONS += " /verbosity:detailed";
 
-		String BUILD_CMD = MSBUILD_PATH + " " + MSBUILD_OPTIONS + " > build.log";
+		String BUILD_CMD = MSBUILD_PATH + " " + MSBUILD_OPTIONS;
 		action.log( "build PATCHPATH=" + CODEPATH.folderPath + ", options=" + MSBUILD_OPTIONS + ", cmd=" + BUILD_CMD + 
 				" using nuget to nexus path " + NUGET_PATH + "..." );
 

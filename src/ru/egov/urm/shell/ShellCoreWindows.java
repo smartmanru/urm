@@ -47,7 +47,7 @@ public class ShellCoreWindows extends ShellCore {
 		if( !keyFile.isEmpty() )
 			execLine += " -i " + keyFile;
 			
-		execLine += " " + executor.account.HOSTLOGIN + " " + Common.getQuoted( "cmd /c " + cmd );
+		execLine += " " + executor.account.HOSTLOGIN + " " + Common.getQuoted( "cmd /c chcp 65001 & " + cmd );
 		action.trace( executor.name + " execute: " + cmd );
 		
 		localSession.runCommand( action , execLine , debug );
