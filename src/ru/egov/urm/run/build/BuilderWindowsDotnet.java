@@ -78,7 +78,30 @@ public class BuilderWindowsDotnet extends Builder {
 			action.log( "buildDotnet: msbuild failed" );
 			return( false );
 		}
-					
+
+		// upload package
+		String nugetPackCmd = "nuget pack package.nuspec -Version " + APPVERSION + " -NoPackageAnalysis";
+		RemoteFolder NUGETPATH = CODEPATH.getSubFolder( action , "packages.build" ); 
+		timeout = action.setTimeoutUnlimited();
+		status = session.customGetStatusNormal( action , NUGETPATH.folderPath , nugetPackCmd );
+		action.setTimeout( timeout );
+		
+		if( status != 0 ) {
+			action.log( "buildDotnet: nuget pack failed" );
+			return( false );
+		}
+
+		String packageName = project.REPOSITORY + "." + APPVERSION + ".nupkg";
+		String nugetUploadCmd = "nuget push " + packageName + " -Source " + NUGET_PATH;
+		timeout = action.setTimeoutUnlimited();
+		status = session.customGetStatusNormal( action , NUGETPATH.folderPath , nugetUploadCmd );
+		action.setTimeout( timeout );
+		
+		if( status != 0 ) {
+			action.log( "buildDotnet: nuget push failed" );
+			return( false );
+		}
+
 		action.log( "buildDotnet: msbuild successfully finished" );
 		return( true );
 	}
