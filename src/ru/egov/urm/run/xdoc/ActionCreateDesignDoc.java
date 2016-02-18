@@ -7,8 +7,6 @@ import java.util.Map;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaDesign;
-import ru.egov.urm.meta.MetaDesign.VarELEMENTTYPE;
-import ru.egov.urm.meta.MetaDesign.VarLINKTYPE;
 import ru.egov.urm.meta.MetaDesignElement;
 import ru.egov.urm.meta.MetaDesignLink;
 import ru.egov.urm.meta.MetaEnv;
@@ -87,20 +85,14 @@ public class ActionCreateDesignDoc extends ActionBase {
 		
 		// verify all design servers are mentioned in prod environment
 		for( MetaDesignElement element : design.elements.values() ) {
-			if( element.elementType == VarELEMENTTYPE.GROUP || 
-				element.elementType == VarELEMENTTYPE.EXTERNAL || 
-				element.elementType == VarELEMENTTYPE.GENERIC )
+			if( !element.isServerType() )
 				continue;
 			
-			if( element.elementType == VarELEMENTTYPE.SERVER || element.elementType == VarELEMENTTYPE.DATABASE ) {
-				List<MetaEnvServer> servers = prodServers.get( element.NAME );
-				if( servers == null )
-					exit( "design server=" + element.NAME + " is not found in PROD (production environments)" );
-				
-				designServers.put( element.NAME , servers );
-			}
-			else
-				exitUnexpectedState();
+			List<MetaEnvServer> servers = prodServers.get( element.NAME );
+			if( servers == null )
+				exit( "design server=" + element.NAME + " is not found in PROD (production environments)" );
+			
+			designServers.put( element.NAME , servers );
 		}
 		
 		// verify all PROD servers are mentioned in design
@@ -153,13 +145,15 @@ public class ActionCreateDesignDoc extends ActionBase {
 
 	private void createDotElement( List<String> lines , MetaDesignElement element , boolean group ) throws Exception {
 		String dotdef = "";
-		if( element.elementType == VarELEMENTTYPE.SERVER )
+		if( element.isAppServerType() )
 			dotdef = "fillcolor=green";
-		else if( element.elementType == VarELEMENTTYPE.EXTERNAL )
+		else if( element.isLibraryType() )
+			dotdef = "fillcolor=darkolivegreen1";
+		else if( element.isExternalType() )
 			dotdef = "style=" + Common.getQuoted( "rounded,filled" ) + ", fillcolor=yellow";
-		else if( element.elementType == VarELEMENTTYPE.DATABASE )
+		else if( element.isDatabaseServerType() )
 			dotdef = "shape=" + Common.getQuoted( "doublecircle" ) + "style=" + Common.getQuoted( "rounded,filled" ) + ", fillcolor=lightblue";
-		else if( element.elementType == VarELEMENTTYPE.GENERIC )
+		else if( element.isGenericType() )
 			dotdef = "style=" + Common.getQuoted( "rounded,filled" ) + ", fillcolor=lightgray";
 		else
 			this.exitUnexpectedState();
@@ -204,9 +198,9 @@ public class ActionCreateDesignDoc extends ActionBase {
 	private void createDotLink( List<String> lines , MetaDesignElement element , MetaDesignLink link ) throws Exception {
 		String linkline = "\t" + element.getLinkName( this ) + " -> " + link.target.getLinkName( this );
 		String dotdef = "";
-		if( link.linkType == VarLINKTYPE.GENERIC )
+		if( link.isGenericType() )
 			dotdef = "color=blue";
-		else if( link.linkType == VarLINKTYPE.MSG )
+		else if( link.isMsgType() )
 			dotdef = "style=dotted";
 		else
 			this.exitUnexpectedState();
@@ -214,9 +208,9 @@ public class ActionCreateDesignDoc extends ActionBase {
 		if( !link.TEXT.isEmpty() )
 			dotdef += ", label=" + Common.getQuoted( link.TEXT );
 		
-		if( element.elementType == VarELEMENTTYPE.GROUP )
+		if( element.isGroup() )
 			dotdef += ", ltail=" + element.getName( this );
-		if( link.target.elementType == VarELEMENTTYPE.GROUP )
+		if( link.target.isGroup() )
 			dotdef += ", lhead=" + link.target.getName( this );
 		
 		linkline += " [" + dotdef + "];";

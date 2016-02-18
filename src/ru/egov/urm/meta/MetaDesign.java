@@ -19,6 +19,7 @@ public class MetaDesign {
 		GENERIC ,
 		SERVER ,
 		DATABASE ,
+		LIBRARY ,
 		GROUP
 	};
 	
@@ -72,7 +73,7 @@ public class MetaDesign {
 			MetaDesignElement element = new MetaDesignElement( this , null );
 			element.load( action , elementNode );
 			elements.put( element.NAME , element );
-			if( element.elementType == VarELEMENTTYPE.GROUP )
+			if( element.isGroup() )
 				groups.put( element.NAME , element );
 			else
 				childs.put( element.NAME , element );

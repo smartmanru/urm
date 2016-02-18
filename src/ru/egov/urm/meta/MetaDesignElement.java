@@ -22,8 +22,8 @@ public class MetaDesignElement {
 	public String TYPE;
 	public String GROUPCOLOR;
 	public String GROUPFILLCOLOR;
-	public VarELEMENTTYPE elementType;
 	public String FUNCTION;
+	private VarELEMENTTYPE elementType;
 	
 	public MetaDesignElement( MetaDesign design , MetaDesignElement group ) {
 		this.design = design;
@@ -39,7 +39,7 @@ public class MetaDesignElement {
 		elementType = design.getElementType( action , TYPE );
 		FUNCTION = ConfReader.getAttrValue( action , node , "function" );
 
-		if( elementType == VarELEMENTTYPE.GROUP ) {
+		if( isGroup() ) {
 			if( group != null )
 				action.exit( "nested groups are diasallowed, item=" + NAME );
 			GROUPCOLOR = ConfReader.getAttrValue( action , node , "color" );
@@ -49,7 +49,7 @@ public class MetaDesignElement {
 		// subgraph
 		Node[] items = ConfReader.xmlGetChildren( action , node , "element" );
 		if( items != null ) {
-			if( elementType != VarELEMENTTYPE.GROUP )
+			if( !isGroup() )
 				action.exit( "non-group item has childs, item=" + NAME );
 			
 			for( Node elementNode : items ) {
@@ -84,18 +84,50 @@ public class MetaDesignElement {
 	}
 
 	public String getName( ActionBase action ) throws Exception {
-		if( elementType != VarELEMENTTYPE.GROUP )
+		if( !isGroup() )
 			return( Common.getQuoted( NAME ) );
 		return( "cluster_" + Common.replace( NAME , "." , "_" ) );
 	}
 	
 	public String getLinkName( ActionBase action ) throws Exception {
-		if( elementType != VarELEMENTTYPE.GROUP )
+		if( !isGroup() )
 			return( getName( action ) );
 		for( String s : childs.keySet() )
 			return( Common.getQuoted( s ) );
 		action.exit( "unable to get group item" );
 		return( null );
 	}
+
+	public boolean isGroup() {
+		if( elementType == VarELEMENTTYPE.GROUP )
+			return( true );
+		return( false );
+	}
 	
+	public boolean isGenericType() {
+		return( elementType == VarELEMENTTYPE.GENERIC );
+	}
+	
+	public boolean isExternalType() {
+		return( elementType == VarELEMENTTYPE.EXTERNAL );
+	}
+	
+	public boolean isLibraryType() {
+		return( elementType == VarELEMENTTYPE.LIBRARY );
+	}
+	
+	public boolean isAppServerType() {
+		return( elementType == VarELEMENTTYPE.SERVER );
+	}
+	
+	public boolean isDatabaseServerType() {
+		return( elementType == VarELEMENTTYPE.DATABASE );
+	}
+	
+	public boolean isServerType() {
+		if( elementType == VarELEMENTTYPE.DATABASE || 
+			elementType == VarELEMENTTYPE.SERVER )
+			return( true );
+		return( false );
+	}
 }

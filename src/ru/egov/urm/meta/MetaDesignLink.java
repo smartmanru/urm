@@ -14,8 +14,8 @@ public class MetaDesignLink {
 	public String TARGET;
 	public MetaDesignElement target;
 	public String TYPE;
-	public VarLINKTYPE linkType;
 	public String TEXT;
+	private VarLINKTYPE linkType;
 	
 	public MetaDesignLink( MetaDesign design , MetaDesignElement element ) {
 		this.design = design;
@@ -31,6 +31,14 @@ public class MetaDesignLink {
 
 	public void resolve( ActionBase action ) throws Exception {
 		target = design.getElement( action , TARGET );
+	}
+
+	public boolean isGenericType() {
+		return( linkType == VarLINKTYPE.GENERIC );		
+	}
+
+	public boolean isMsgType() {
+		return( linkType == VarLINKTYPE.MSG );		
 	}
 	
 }
