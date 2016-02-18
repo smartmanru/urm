@@ -146,15 +146,15 @@ public class ActionCreateDesignDoc extends ActionBase {
 	private void createDotElement( List<String> lines , MetaDesignElement element , boolean group ) throws Exception {
 		String dotdef = "";
 		if( element.isAppServerType() )
-			dotdef = "fillcolor=green";
+			dotdef = "fillcolor=lawngreen";
 		else if( element.isLibraryType() )
 			dotdef = "fillcolor=darkolivegreen1";
 		else if( element.isExternalType() )
-			dotdef = "style=" + Common.getQuoted( "rounded,filled" ) + ", fillcolor=yellow";
+			dotdef = "style=" + Common.getQuoted( "rounded,filled" ) + ", fillcolor=maroon1";
 		else if( element.isDatabaseServerType() )
-			dotdef = "shape=" + Common.getQuoted( "doublecircle" ) + "style=" + Common.getQuoted( "rounded,filled" ) + ", fillcolor=lightblue";
+			dotdef = "shape=" + Common.getQuoted( "doublecircle" ) + "style=" + Common.getQuoted( "rounded,filled" ) + ", fillcolor=indigo";
 		else if( element.isGenericType() )
-			dotdef = "style=" + Common.getQuoted( "rounded,filled" ) + ", fillcolor=lightgray";
+			dotdef = "style=" + Common.getQuoted( "rounded,filled" ) + ", fillcolor=grey52";
 		else
 			this.exitUnexpectedState();
 
