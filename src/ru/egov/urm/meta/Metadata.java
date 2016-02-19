@@ -293,11 +293,11 @@ public class Metadata {
 			value = VarDISTITEMTYPE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			action.exit( "invalid source item type=" + ID );
+			action.exit( "invalid distributive item type=" + ID );
 		}
 		
 		if( value == null )
-			action.exit( "unknown source item type=" + ID );
+			action.exit( "unknown distributive item type=" + ID );
 		
 		return( value );
 	}

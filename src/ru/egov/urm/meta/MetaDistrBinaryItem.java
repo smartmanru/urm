@@ -73,6 +73,9 @@ public class MetaDistrBinaryItem {
 			EXCLUDE = ConfReader.getAttrValue( action , node , "exclude" );
 		}
 		else
+		if( DISTTYPE == VarDISTITEMTYPE.DOTNETPKG ) {
+		}
+		else
 			action.exit( "distribution item " + KEY + " has unknown type=" + Common.getEnumLower( DISTTYPE ) );
 		
 		CUSTOMDEPLOY = ConfReader.getBooleanAttrValue( action , node , "customdeploy" , false );
