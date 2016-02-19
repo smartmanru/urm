@@ -92,7 +92,7 @@ public class BuilderWindowsDotnet extends Builder {
 			return( false );
 		}
 
-		String packageName = project.REPOSITORY + "." + APPVERSION + ".nupkg";
+		String packageName = nugetId + "." + APPVERSION + ".nupkg";
 		String nugetUploadCmd = "nuget push " + packageName + " -Source " + NUGET_PATH;
 		timeout = action.setTimeoutUnlimited();
 		status = session.customGetStatusNormal( action , NUGETPATH.folderPath , nugetUploadCmd );
