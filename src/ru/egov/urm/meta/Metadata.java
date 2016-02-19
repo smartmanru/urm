@@ -99,6 +99,7 @@ public class Metadata {
 	public enum VarDISTITEMTYPE {
 		UNKNOWN ,
 		BINARY ,
+		DOTNETPKG ,
 		WAR ,
 		ARCHIVE_DIRECT ,	// deploydir = archive/content
 		ARCHIVE_CHILD ,		// deploydir/archivename = archive/archivename/fullcontent
