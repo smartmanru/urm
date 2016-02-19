@@ -110,6 +110,7 @@ public class RocketChatSet {
 	}
 	
 	private String[] getRooms() throws Exception {
+		return( new String[0] );
 	}
 
 	public void sendMessage( String chatId , String text ) throws Exception {
