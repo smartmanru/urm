@@ -79,4 +79,10 @@ public class MetaSourceProjectItem {
 		return( false );
 	}
 
+	public boolean isStoredInNuget( ActionBase action ) throws Exception {
+		if( ITEMSRCTYPE == VarITEMSRCTYPE.NUGET )
+			return( true );
+		return( false );
+	}
+
 }

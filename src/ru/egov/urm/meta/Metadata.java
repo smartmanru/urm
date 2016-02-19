@@ -46,6 +46,7 @@ public class Metadata {
 	public enum VarITEMSRCTYPE {
 		UNKNOWN ,
 		NEXUS ,
+		NUGET ,
 		STATICWAR ,
 		SVN ,
 		SVNOLD ,
