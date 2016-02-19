@@ -59,7 +59,7 @@ public class BuildCommand {
 		if( !ca.runEachSourceProject( scope ) )
 			res = false;
 
-		if( scope.hasConfig( action ) ) {
+		if( scope.releaseBound && scope.hasConfig( action ) ) {
 			ActionGetConf cacf = new ActionGetConf( action , null , scope.release );
 			if( !cacf.runEachCategoryTarget( scope , VarCATEGORY.CONFIG ) )
 				res = false;
@@ -69,13 +69,13 @@ public class BuildCommand {
 				createConfigDiffFile( action , scope );
 		}
 		
-		if( scope.hasDatabase( action ) ) {
+		if( scope.releaseBound && scope.hasDatabase( action ) ) {
 			ActionGetDB cadb = new ActionGetDB( action , null , scope.release );
 			if( !cadb.runEachCategoryTarget( scope , VarCATEGORY.DB ) )
 				res = false;
 		}
 		
-		if( scope.hasManual( action ) ) {
+		if( scope.releaseBound && scope.hasManual( action ) ) {
 			ActionGetManual cam = new ActionGetManual( action , null , copyDist , scope.release , downloadFolder );
 			if( !cam.runSimple() )
 				res = false;
