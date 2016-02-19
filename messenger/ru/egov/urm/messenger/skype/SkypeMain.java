@@ -1,17 +1,13 @@
 package ru.egov.urm.messenger.skype;
 
+import java.util.Properties;
+
 import ru.egov.urm.messenger.skype.wrapper.AppKeyPairMgr;
 import ru.egov.urm.messenger.skype.wrapper.MySession;
 
 public class SkypeMain {
 
-    public static final String MY_CLASS_TAG = "skype-messenger.sh";
-    public static final int ACCOUNT_NAME_IDX = 0;
-    public static final int ACCOUNT_PWORD_IDX = 1;
-    public static final int REQ_ARG_CNT = 2;
-    public static final int OPT_ARG_CNT = 1;
-    public static final int APP_KEY_PAIR_IDX = ((REQ_ARG_CNT + OPT_ARG_CNT) - 1);
-
+    public static final String MY_CLASS_TAG = "SkypeMain";
     private static AppKeyPairMgr myAppKeyPairMgr = new AppKeyPairMgr();
     private static MySession mySession = new MySession();
     
@@ -27,19 +23,27 @@ public class SkypeMain {
 	 * 
 	 * @since 1.0
 	 */
-	public static void main(String[] args) {
-		if (args.length < REQ_ARG_CNT) {
+	public void execute( Properties props ) throws Exception {
+		String accountName = props.getProperty( "account" );
+		String accountPassword = props.getProperty( "password" );
+		String appKeyPairPathname = props.getProperty( "keypair" );
+		
+		if (accountPassword.isEmpty()) {
 			MySession.myConsole.printf("Usage is %s accountName accountPassword [appKeyPairPathname]%n%n", MY_CLASS_TAG);
 			return;
 		}
-		if (args.length > (REQ_ARG_CNT + OPT_ARG_CNT)) {
-			MySession.myConsole.printf("%s: Ignoring %d extraneous arguments.%n", MY_CLASS_TAG, (args.length - REQ_ARG_CNT));
+		if (appKeyPairPathname.isEmpty()) {
+			MySession.myConsole.printf("%s: Ignoring extraneous arguments.%n", MY_CLASS_TAG);
 		}
-
+		
+		execute( accountName , accountPassword , appKeyPairPathname );
+	}
+	
+	private void execute( String accountName , String accountPassword , String appKeyPairPathname ) {
 		// Ensure our certificate file name and contents are valid
-		if (args.length > REQ_ARG_CNT) {
+		if (!appKeyPairPathname.isEmpty()) {
 			// AppKeyPairMgrmethods will issue all appropriate status and/or error messages!
-			if ((!myAppKeyPairMgr.resolveAppKeyPairPath(args[APP_KEY_PAIR_IDX])) ||
+			if ((!myAppKeyPairMgr.resolveAppKeyPairPath(appKeyPairPathname)) ||
 				(!myAppKeyPairMgr.isValidCertificate())) {
 				return;
 			}
@@ -52,12 +56,12 @@ public class SkypeMain {
 		}
 
 		MySession.myConsole.printf("%s: main - Creating session - Account = %s%n",
-							MY_CLASS_TAG, args[ACCOUNT_NAME_IDX]);
-		mySession.doCreateSession(MY_CLASS_TAG, args[ACCOUNT_NAME_IDX], myAppKeyPairMgr.getPemFilePathname());
+							MY_CLASS_TAG, accountName);
+		mySession.doCreateSession(MY_CLASS_TAG, accountName, myAppKeyPairMgr.getPemFilePathname());
 
 		MySession.myConsole.printf("%s: main - Logging in w/ password %s%n",
-				MY_CLASS_TAG, args[ACCOUNT_PWORD_IDX]);
-		if (mySession.mySignInMgr.Login(MY_CLASS_TAG, mySession, args[ACCOUNT_PWORD_IDX])) {
+				MY_CLASS_TAG, accountPassword);
+		if (mySession.mySignInMgr.Login(MY_CLASS_TAG, mySession, accountPassword)) {
 			try {
 				MySession.myConsole.printf("%s: main - obtain conference list...%n", MY_CLASS_TAG);
 				SkypeMain main = new SkypeMain();

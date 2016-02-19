@@ -1,6 +1,5 @@
 package ru.egov.urm.messenger.jabber;
 
-import java.io.FileInputStream;
 import java.util.Properties;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -10,31 +9,7 @@ import org.jivesoftware.smack.packet.Presence;
 
 public class JabberMain {
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-
-		if( args.length < 1 ) {
-			System.out.print( "run: JabberMain <path-to-config-file>" );
-			return;
-		}
-		
-		try {
-			String file = args[ 0 ];
-        	
-			Properties props = new Properties();
-			FileInputStream streamIn = new FileInputStream( file );
-			props.load( streamIn );
-        	
-			execute(props);
-		}
-		catch(Exception e) {
-			System.out.println(e.getMessage());
-		}
-	}
-
-	public static void execute(Properties props) {
+	public void execute( Properties props ) throws Exception {
 		String account = props.getProperty( "account" );
 		String server = props.getProperty( "server" );
 		String password = props.getProperty( "password" );
