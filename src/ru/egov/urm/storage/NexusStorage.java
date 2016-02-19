@@ -50,6 +50,22 @@ public class NexusStorage {
 		return( info );
 	}
 
+	public NexusDownloadInfo downloadNuget( ActionBase action , String ARTEFACTID , String VERSION , MetaDistrBinaryItem item ) throws Exception {
+		String REPOPATH = meta.product.CONFIG_NEXUS_BASE + "/content/repositories/" + repository;
+		String NAME = ARTEFACTID + "-" + VERSION + ".nupkg";
+
+		NexusDownloadInfo info = new NexusDownloadInfo( artefactoryFolder ); 
+		String nexusAuth = ConfReader.readStringFile( action , authFile );
+		
+		info.DOWNLOAD_FILENAME = Common.getPath( item.delivery.FOLDER , NAME );
+		info.DOWNLOAD_URL = REPOPATH + "/" + ARTEFACTID + "/" + VERSION + "/" + NAME;
+		info.DOWNLOAD_URL_REQUEST = info.DOWNLOAD_URL;
+		info.BASENAME = ARTEFACTID;
+
+		artefactoryFolder.download( action , info.DOWNLOAD_URL_REQUEST , info.DOWNLOAD_FILENAME , nexusAuth );
+		return( info );
+	}
+
 	public void repackageStatic( ActionBase action , String PROJECT , String VERSION , String WARFILE , String STATICFILE , String TAGNAME , MetaDistrBinaryItem distItem ) throws Exception {
 		LocalFolder folder = artefactoryFolder.getSubFolder( action , distItem.delivery.FOLDER );
 		

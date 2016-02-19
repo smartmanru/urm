@@ -154,6 +154,10 @@ public class Artefactory {
 		return( new NexusStorage( this , folder , meta.product.CONFIG_NEXUS_REPO ) );
 	}
 	
+	public NexusStorage getDefaultNugetStorage( ActionBase action , LocalFolder folder ) throws Exception {
+		return( new NexusStorage( this , folder , meta.product.CONFIG_NEXUS_REPO + "-nuget" ) );
+	}
+	
 	public NexusStorage getThirdpartyNexusStorage( ActionBase action ) throws Exception {
 		return( new NexusStorage( this , workFolder , meta.product.CONFIG_NEXUS_REPO_THIRDPARTY ) );
 	}

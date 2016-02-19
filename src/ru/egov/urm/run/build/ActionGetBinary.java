@@ -59,6 +59,9 @@ public class ActionGetBinary extends ActionBase {
 		if( itemtype == VarITEMSRCTYPE.NEXUS )
 			downloadNexusItem( "nexus" , scopeProject , scopeItem );
 		else
+		if( itemtype == VarITEMSRCTYPE.NUGET )
+			downloadNugetItem( scopeProject , scopeItem );
+		else
 		if( itemtype == VarITEMSRCTYPE.STATICWAR )
 			downloadNexusItem( "staticwar" , scopeProject , scopeItem );
 		else
@@ -122,6 +125,22 @@ public class ActionGetBinary extends ActionBase {
 				DistStorage releaseStorage = targetRelease;
 				releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , BINARY.DOWNLOAD_FILENAME , BINARY.BASENAME, BINARY.EXT );
 			}
+		}
+	}
+
+	private void downloadNugetItem( ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
+		String ARTEFACTID = scopeItem.sourceItem.ITEMPATH;
+		String BUILDVERSION = scopeItem.getProjectItemBuildVersion( this );
+		boolean copyDistr = context.CTX_DIST;
+		if( scopeItem.sourceItem.INTERNAL )
+			copyDistr = false;
+
+		NexusStorage nexusStorage = artefactory.getDefaultNugetStorage( this , downloadFolder );
+		NexusDownloadInfo BINARY = nexusStorage.downloadNuget( this , ARTEFACTID , BUILDVERSION , scopeItem.distItem );
+		
+		if( copyDistr ) {
+			DistStorage releaseStorage = targetRelease;
+			releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , BINARY.DOWNLOAD_FILENAME , BINARY.BASENAME, BINARY.EXT );
 		}
 	}
 
