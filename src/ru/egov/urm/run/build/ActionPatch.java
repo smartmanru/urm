@@ -72,7 +72,8 @@ public class ActionPatch extends ActionBase {
 			return( false );
 		
 		// remove directory if build was successful
-		builder.removeExportedCode( this );
+		if( !context.CTX_SHOWALL )
+			builder.removeExportedCode( this );
 
 		return( true );
 	}

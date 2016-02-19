@@ -80,7 +80,8 @@ public class BuilderWindowsDotnet extends Builder {
 		}
 
 		// upload package
-		String nugetPackCmd = "nuget pack package.nuspec -Version " + APPVERSION + " -NoPackageAnalysis";
+		String nugetId = action.meta.product.CONFIG_PRODUCT + ".project." + project.PROJECT; 
+		String nugetPackCmd = "nuget pack package.nuspec -Version " + APPVERSION + " -Properties id=" + nugetId + " -NoPackageAnalysis";
 		RemoteFolder NUGETPATH = CODEPATH.getSubFolder( action , "packages.build" ); 
 		timeout = action.setTimeoutUnlimited();
 		status = session.customGetStatusNormal( action , NUGETPATH.folderPath , nugetPackCmd );
