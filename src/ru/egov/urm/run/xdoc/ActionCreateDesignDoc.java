@@ -139,8 +139,9 @@ public class ActionCreateDesignDoc extends ActionBase {
 		lines.add( "digraph " + Common.getQuoted( meta.product.CONFIG_PRODUCT ) + " {" );
 		lines.add( "\tcharset=" + Common.getQuoted( "utf8" ) + ";" );
 		lines.add( "\tcompound=true;" );
-		lines.add( "\tsplines=false;" );
+		lines.add( "\tsplines=ortho;" );
 		lines.add( "\tnode [shape=box, style=" + Common.getQuoted( "filled" ) + ", fontsize=10];" );
+		lines.add( "\tedge [fontsize=8];" );
 		lines.add( "" );
 	}
 
