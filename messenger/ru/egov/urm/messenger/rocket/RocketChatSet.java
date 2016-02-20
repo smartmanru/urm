@@ -7,10 +7,12 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -29,6 +31,9 @@ public class RocketChatSet {
 	String password;
 	String[] includes;
 	String[] excludes;
+
+	String userId;
+	String authToken;
 	
 	public RocketChatSet( String server , String account , String password ) {
 		this.server = server;
@@ -68,36 +73,38 @@ public class RocketChatSet {
 	}
 
 	public void readActiveChatsInternal() throws Exception {
-		String[] rooms = getRooms();
-		for( String room : rooms ) { 
-			if( !room.startsWith( "release." ) )
-				continue;
-            
+		Map<String,String> rooms = getRooms();
+		for( String room : rooms.keySet() ) { 
 			if( chatMap.get( room ) != null )
 				continue;
 
 			if( !checkScope( room ) )
 				continue;
         	
-			joinNewChat( room );
+			joinNewChat( room , rooms.get( room ) );
 		}
 	}
 
-	private void joinNewChat( String room ) throws Exception {
+	private void joinNewChat( String roomName , String roomId ) throws Exception {
 		ChatAgent agent = null;
 		
 		try {
-			out( "join room id=" + room );
-			RocketChatConversation chat = new RocketChatConversation( this , room );
+			out( "join room id=" + roomName + " ..." );
+			JSONObject join = query( server + "api/rooms/" + roomId + "/join" , "{}" , true );
+			String status = jsonGetAttr( join , "status" );
+			if( !status.equals( "success" ) )
+				exit( "unsuccessful join chat=" + roomName );
+			
+			RocketChatConversation chat = new RocketChatConversation( this , roomName , roomId );
 			agent = new ChatAgent( chat );
 		}
     	catch (Exception e) {
             e.printStackTrace();
-			out( "unable to join room id=" + room + ", ignored" );
+			out( "unable to join room id=" + roomName + ", ignored" );
 			return;
 		}
 			
-		chatMap.put( room , agent );
+		chatMap.put( roomName , agent );
 		chatList.add( agent );
 	}
 
@@ -130,7 +137,7 @@ public class RocketChatSet {
 	}
 	
 	// HTTP GET request
-	private JSONObject query( String url , String data ) throws Exception {
+	private JSONObject query( String url , String data , boolean addAuth ) throws Exception {
 		URL obj = new URL( url );
 		HttpsURLConnection con = ( HttpsURLConnection )obj.openConnection();
 
@@ -140,9 +147,17 @@ public class RocketChatSet {
 		con.setRequestMethod( "POST" );
 		con.setConnectTimeout( 2000 );
 		
-		con.setRequestProperty( "User-Agent", USER_AGENT );
-		con.setRequestProperty( "Accept-Language", "en-US,en;q=0.5" );
-		con.setRequestProperty( "Content-Length", Integer.toString( bytes.length ) );
+		con.setRequestProperty( "User-Agent" , USER_AGENT );
+		con.setRequestProperty( "Accept-Language" , "en-US,en;q=0.5" );
+		con.setRequestProperty( "Content-Length" , Integer.toString( bytes.length ) );
+		
+		if( !data.isEmpty() )
+			con.setRequestProperty( "Content-Type" , "application/json" );
+		
+		if( addAuth ) {
+			con.setRequestProperty( "X-Auth-Token" , authToken );
+			con.setRequestProperty( "X-User-Id" , userId );
+		}
 		
 		// Send post request
 		con.setDoOutput( true );
@@ -184,22 +199,45 @@ public class RocketChatSet {
 		return( ( JSONObject )value );
 	}
 	
-	private String[] getRooms() throws Exception {
+	private JSONArray jsonGetArray( JSONObject obj , String attr ) throws Exception {
+		Object value = obj.get( attr );
+		if( value == null )
+			return( null );
+		return( ( JSONArray )value );
+	}
+	
+	private Map<String,String> getRooms() throws Exception {
+		Map<String,String> roomMap = new HashMap<String,String>();
+		
 		// login
-		JSONObject login = query( server + "/api/login" , "password=" + password + "&user=" + account );
+		JSONObject login = query( server + "/api/login" , "password=" + password + "&user=" + account , false );
 		String status = jsonGetAttr( login , "status" );
 		if( !status.equals( "success" ) )
 			exit( "unsuccessful login" );
 		
 		JSONObject data = jsonGetObject( login , "data" );
-		String userId = jsonGetAttr( data , "userId" );
-		String authToken = jsonGetAttr( data , "authToken" );
+		userId = jsonGetAttr( data , "userId" );
+		authToken = jsonGetAttr( data , "authToken" );
 		out( "successful login: userId=" + userId + ", authToken=" + authToken );
 		
-		return( new String[0] );
+		JSONObject rooms = query( server + "api/publicRooms" , "" , true );
+		status = jsonGetAttr( rooms , "status" );
+		if( !status.equals( "success" ) )
+			exit( "unsuccessful get rooms" );
+		
+		JSONArray array = jsonGetArray( rooms , "rooms" );
+		Iterator<?> i = array.iterator();
+        while( i.hasNext() ) {
+            JSONObject roomObj = ( JSONObject )i.next();
+            String roomId = jsonGetAttr( roomObj , "_id" );
+            String roomName = jsonGetAttr( roomObj , "name" );
+            roomMap.put( roomName , roomId );
+        }
+		
+		return( roomMap );
 	}
 
-	public void sendMessage( String chatId , String text ) throws Exception {
+	public void sendMessage( String chatName , String chatId , String text ) throws Exception {
 	}
 	
 }
