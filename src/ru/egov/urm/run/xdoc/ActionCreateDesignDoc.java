@@ -152,7 +152,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		else if( element.isExternalType() )
 			dotdef = "style=" + Common.getQuoted( "rounded,filled" ) + ", fillcolor=cornflowerblue";
 		else if( element.isDatabaseServerType() )
-			dotdef = "shape=" + Common.getQuoted( "doublecircle" ) + "style=" + Common.getQuoted( "rounded,filled" ) + ", fillcolor=lightblue";
+			dotdef = "style=" + Common.getQuoted( "rounded,filled" ) + ", fillcolor=lightblue";
 		else if( element.isGenericType() )
 			dotdef = "style=" + Common.getQuoted( "rounded,filled" ) + ", fillcolor=grey52";
 		else
