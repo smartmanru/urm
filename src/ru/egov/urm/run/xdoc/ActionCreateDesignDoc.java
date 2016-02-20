@@ -139,7 +139,6 @@ public class ActionCreateDesignDoc extends ActionBase {
 		lines.add( "digraph " + Common.getQuoted( meta.product.CONFIG_PRODUCT ) + " {" );
 		lines.add( "\tcharset=" + Common.getQuoted( "utf8" ) + ";" );
 		lines.add( "\tsplines=false;" );
-		lines.add( "\tnodesep=1;" );
 		lines.add( "\tnode [shape=box, style=" + Common.getQuoted( "filled" ) + ", fontsize=10];" );
 		lines.add( "\tedge [fontsize=8];" );
 		lines.add( "" );
