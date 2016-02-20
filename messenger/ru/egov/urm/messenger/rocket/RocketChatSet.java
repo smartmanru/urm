@@ -90,7 +90,7 @@ public class RocketChatSet {
 		
 		try {
 			out( "join room id=" + roomName + " ..." );
-			JSONObject join = query( server + "api/rooms/" + roomId + "/join" , "{}" , true );
+			JSONObject join = query( server + "/api/rooms/" + roomId + "/join" , "{}" , true );
 			String status = jsonGetAttr( join , "status" );
 			if( !status.equals( "success" ) )
 				exit( "unsuccessful join chat=" + roomName );
@@ -137,35 +137,48 @@ public class RocketChatSet {
 	}
 	
 	// HTTP GET request
+	private void setRequestProperty( HttpsURLConnection con , String key , String value ) {
+		// System.out.println( key + "=" + value );
+		con.setRequestProperty( key , value );
+	}
+	
 	private JSONObject query( String url , String data , boolean addAuth ) throws Exception {
 		URL obj = new URL( url );
 		HttpsURLConnection con = ( HttpsURLConnection )obj.openConnection();
 
-		byte[] bytes = data.getBytes( "UTF-8" );
-		
 		// add reuqest header
-		con.setRequestMethod( "POST" );
+		// System.out.println( "url=" + url + ", data=" + data );
 		con.setConnectTimeout( 2000 );
 		
-		con.setRequestProperty( "User-Agent" , USER_AGENT );
-		con.setRequestProperty( "Accept-Language" , "en-US,en;q=0.5" );
-		con.setRequestProperty( "Content-Length" , Integer.toString( bytes.length ) );
+		setRequestProperty( con , "User-Agent" , USER_AGENT );
+		setRequestProperty( con , "Accept-Language" , "en-US,en;q=0.5" );
 		
-		if( !data.isEmpty() )
-			con.setRequestProperty( "Content-Type" , "application/json" );
+		byte[] bytes = null;
+		if( !data.isEmpty() ) {
+			con.setRequestMethod( "POST" );
+			bytes = data.getBytes( "UTF-8" );
+			setRequestProperty( con , "Content-Length" , Integer.toString( bytes.length ) );
+		}
+		else {
+			con.setRequestMethod( "GET" );
+		}
 		
 		if( addAuth ) {
-			con.setRequestProperty( "X-Auth-Token" , authToken );
-			con.setRequestProperty( "X-User-Id" , userId );
+			if( !data.isEmpty() )
+				setRequestProperty( con , "Content-Type" , "application/json" );
+			
+			setRequestProperty( con , "X-Auth-Token" , authToken );
+			setRequestProperty( con , "X-User-Id" , userId );
 		}
 		
 		// Send post request
 		con.setDoOutput( true );
-		OutputStream wr = new DataOutputStream( con.getOutputStream() );
-		
-		wr.write( bytes );
-		wr.flush();
-		wr.close();
+		if( bytes != null ) {
+			OutputStream wr = new DataOutputStream( con.getOutputStream() );
+			wr.write( bytes );
+			wr.flush();
+			wr.close();
+		}
 
 		int responseCode = con.getResponseCode();
 		if( responseCode != 200 )
@@ -220,7 +233,7 @@ public class RocketChatSet {
 		authToken = jsonGetAttr( data , "authToken" );
 		out( "successful login: userId=" + userId + ", authToken=" + authToken );
 		
-		JSONObject rooms = query( server + "api/publicRooms" , "" , true );
+		JSONObject rooms = query( server + "/api/publicRooms" , "" , true );
 		status = jsonGetAttr( rooms , "status" );
 		if( !status.equals( "success" ) )
 			exit( "unsuccessful get rooms" );
@@ -238,6 +251,10 @@ public class RocketChatSet {
 	}
 
 	public void sendMessage( String chatName , String chatId , String text ) throws Exception {
+		JSONObject send = query( server + "/api/rooms/" + chatId + "/send" , "{ \"msg\" : \"" + text + "\" }" , true );
+		String status = jsonGetAttr( send , "status" );
+		if( !status.equals( "success" ) )
+			exit( "unsuccessful end message" );
 	}
 	
 }

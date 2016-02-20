@@ -16,7 +16,7 @@ public class RocketChatConversation implements ChatConversation {
     
     @Override
 	public String getChatFileName() {
-		String identity = chatId;
+		String identity = chatName;
 		identity = identity.replace( "#" , "_" );
 		identity = identity.replace( "/" , "_" );
 		identity = identity.replace( "\\" , "_" );
