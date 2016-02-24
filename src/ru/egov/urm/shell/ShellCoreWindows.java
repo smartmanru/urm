@@ -48,7 +48,7 @@ public class ShellCoreWindows extends ShellCore {
 		if( !keyFile.isEmpty() )
 			execLine += " -i " + keyFile;
 			
-		execLine += " " + executor.account.HOSTLOGIN + " " + Common.getQuoted( "cmd /c chcp 65001 & " + cmd );
+		execLine += " " + executor.account.HOSTLOGIN + " " + Common.getQuoted( "cmd /c chcp 65001 & " + Common.replace( cmd , "\\" , "\\\\" ) );
 		action.trace( executor.name + " execute: " + cmd );
 		
 		localSession.runCommand( action , execLine , debug );
@@ -69,17 +69,12 @@ public class ShellCoreWindows extends ShellCore {
 		if( !keyFile.isEmpty() )
 			execLine += " -i " + keyFile;
 			
-		execLine += " " + executor.account.HOSTLOGIN + " " + Common.getQuoted( "cmd /c chcp 65001 & " + cmd );
+		execLine += " " + executor.account.HOSTLOGIN + " " + Common.getQuoted( "cmd /c chcp 65001 & " + Common.replace( cmd , "\\" , "\\\\" ) );
 		action.trace( executor.name + " execute: " + cmd );
 		
 		int status = localSession.runCommandGetStatus( action , execLine , debug );
-		if( localSession.cmdout.size() > 0 && localSession.cmdout.get( 0 ).equals( "Active code page: 65001" ) ) {
-			for( int k = 1; k < localSession.cmdout.size(); k++ )
-				cmdout.add( localSession.cmdout.get( k ) );
-			cmderr.addAll( localSession.cmderr );
-		}
-		else
-			action.exit( "unable to change codepage to utf-8" );
+		cmdout.addAll( localSession.cmdout );
+		cmderr.addAll( localSession.cmderr );
 		
 		return( status );
 	}
