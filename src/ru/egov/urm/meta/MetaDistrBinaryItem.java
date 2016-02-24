@@ -73,7 +73,9 @@ public class MetaDistrBinaryItem {
 			EXCLUDE = ConfReader.getAttrValue( action , node , "exclude" );
 		}
 		else
+		// nupkg item
 		if( DISTTYPE == VarDISTITEMTYPE.DOTNETPKG ) {
+			EXT = ConfReader.getRequiredAttrValue( action , node , "extension" );
 		}
 		else
 			action.exit( "distribution item " + KEY + " has unknown type=" + Common.getEnumLower( DISTTYPE ) );
