@@ -544,15 +544,15 @@ public class ShellCoreUnix extends ShellCore {
 			readStreamToMarker( action , errreader , cmderr , "stderr:" );
 		}
 		
-		private void outStreamLine( ActionBase action , String line ) throws Exception {
+		private void outStreamLine( ActionBase action , String line , List<String> text ) throws Exception {
+			if( action.context.CTX_TRACE == false && windowsHelper && line.equals( "Active code page: 65001" ) )
+				return;
+			
+			text.add( line );
 			if( debug )
 				action.trace( line );
-			else {
-				if( action.context.CTX_TRACE == false && windowsHelper && line.equals( "Active code page: 65001" ) )
-					return;
-				
+			else
 				action.log( line );
-			}
 		}
 
 		private void readStreamToMarker( ActionBase action , BufferedReader textreader , List<String> text , String prompt ) throws Exception {
@@ -582,21 +582,19 @@ public class ShellCoreUnix extends ShellCore {
 				if( index >= 0 ) {
 					line = line.substring( 0 , index );
 					if( index > 0 ) {
-						text.add( line );
 						if( first && !prompt.isEmpty() ) {
-							outStreamLine( action , prompt );
+							outStreamLine( action , prompt , text );
 							first = false;
 						}
-						outStreamLine( action , line );
+						outStreamLine( action , line , text );
 					}
 				}
 				else {
-					text.add( line );
 					if( first && !prompt.isEmpty() ) {
-						outStreamLine( action , prompt );
+						outStreamLine( action , prompt , text );
 						first = false;
 					}
-					outStreamLine( action , line );
+					outStreamLine( action , line , text );
 				}
 				
 				if( index >= 0 )

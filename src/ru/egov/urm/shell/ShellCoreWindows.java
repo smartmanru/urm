@@ -116,7 +116,9 @@ public class ShellCoreWindows extends ShellCore {
 	@Override public boolean cmdCheckDirExists( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( action , dir );
 		String value = this.runCommandGetValueCheck( action , "if exist " + wdir + " echo ok" , true );
-		return( value.equals( "ok" ) );
+		if( value.equals( "ok" ) )
+			return( true );
+		return( false );
 	}
 
 	@Override public boolean cmdIsFileEmpty( ActionBase action , String path ) throws Exception {
