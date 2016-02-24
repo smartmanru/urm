@@ -457,6 +457,9 @@ public class RedistStorage extends ServerStorage {
 			String redistName = getRedistBinaryName( action , item , name );
 			return( redistName );
 		}
+		else
+		if( item.DISTTYPE == VarDISTITEMTYPE.DOTNETPKG )
+			return( getRedistNupkgName( action , item ) );
 
 		return( getRedistArchiveName( action , item ) ); 
 	}

@@ -244,6 +244,10 @@ public class ServerStorage {
 		return( null );
 	}
 
+	public String getRedistNupkgName( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
+		return( "nupkg-" + item.KEY + "-files" + item.EXT );
+	}
+	
 	public String getStateBaseName( ActionBase action , VarCONTENTTYPE CONTENTTYPE , String redistFile ) throws Exception {
 		String fileNoType = Common.getPartAfterFirst( redistFile , "-" );
 		String fileStateName = Common.getPartBeforeFirst( redistFile , "-" ) + "-" + Common.getPartBeforeFirst( fileNoType , "-" );
