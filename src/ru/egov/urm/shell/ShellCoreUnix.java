@@ -545,8 +545,11 @@ public class ShellCoreUnix extends ShellCore {
 		}
 		
 		private void outStreamLine( ActionBase action , String line , List<String> text ) throws Exception {
-			if( action.context.CTX_TRACE == false && windowsHelper && line.equals( "Active code page: 65001" ) )
+			if( windowsHelper && line.equals( "Active code page: 65001" ) ) {
+				if( action.context.CTX_TRACE ) 
+					action.trace( line );
 				return;
+			}
 			
 			text.add( line );
 			if( debug )
