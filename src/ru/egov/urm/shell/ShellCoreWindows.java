@@ -150,8 +150,9 @@ public class ShellCoreWindows extends ShellCore {
 		action.exitNotImplemented();
 	}
 
-	@Override public void cmdRemoveDirContent( ActionBase action , String dirpath ) throws Exception {
-		action.exitNotImplemented();
+	@Override public void cmdRemoveDirContent( ActionBase action , String dir ) throws Exception {
+		String wdir = Common.getWinPath( action , dir );
+		runCommand( action , "if exist " + wdir + " ( rmdir /S /Q " + wdir + " & md " + wdir + " )" , false );
 	}
 	
 	@Override public void cmdRemoveDir( ActionBase action , String dir ) throws Exception {
