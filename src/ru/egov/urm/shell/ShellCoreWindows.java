@@ -17,6 +17,7 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public void createProcess( ActionBase action , ProcessBuilder builder , String rootPath ) throws Exception {
 		localSession = new ShellCoreUnix( executor , executor.account.OSTYPE , tmpFolder );
+		localSession.setWindowsHelper();
 		running = true;
 		localSession.createProcess( action , builder , rootPath );
 		initialized = true;
@@ -51,13 +52,8 @@ public class ShellCoreWindows extends ShellCore {
 		action.trace( executor.name + " execute: " + cmd );
 		
 		localSession.runCommand( action , execLine , debug );
-		if( localSession.cmdout.size() > 0 && localSession.cmdout.get( 0 ).equals( "Active code page: 65001" ) ) {
-			for( int k = 1; k < localSession.cmdout.size(); k++ )
-				cmdout.add( localSession.cmdout.get( k ) );
-			cmderr.addAll( localSession.cmderr );
-		}
-		else
-			action.exit( "unable to change codepage to utf-8" );
+		cmdout.addAll( localSession.cmdout );
+		cmderr.addAll( localSession.cmderr );
 	}
 
 	@Override public int runCommandGetStatus( ActionBase action , String cmd , boolean debug ) throws Exception {

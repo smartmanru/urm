@@ -12,10 +12,16 @@ import ru.egov.urm.storage.Folder;
 
 public class ShellCoreUnix extends ShellCore {
 
+	boolean windowsHelper = false;
+	
 	public ShellCoreUnix( ShellExecutor executor , VarOSTYPE osType , Folder tmpFolder ) {
 		super( executor , osType , tmpFolder );
 	}
 
+	public void setWindowsHelper() {
+		windowsHelper = true;
+	}
+	
 	@Override protected String getExportCmd( ActionBase action ) throws Exception {
 		if( action.meta == null || action.meta.product == null )
 			return( "" );
@@ -60,6 +66,8 @@ public class ShellCoreUnix extends ShellCore {
 		}
 		
 		ShellWaiter waiter = new ShellWaiter( executor , new CommandReaderUnix( debug ) );
+		if( windowsHelper )
+			waiter.setWindowsHelper();
 		boolean res = waiter.wait( action , action.commandTimeout );
 		
 		if( !res )
@@ -539,8 +547,12 @@ public class ShellCoreUnix extends ShellCore {
 		private void outStreamLine( ActionBase action , String line ) throws Exception {
 			if( debug )
 				action.trace( line );
-			else
+			else {
+				if( action.context.CTX_TRACE == false && windowsHelper && line.equals( "Active code page: 65001" ) )
+					return;
+				
 				action.log( line );
+			}
 		}
 
 		private void readStreamToMarker( ActionBase action , BufferedReader textreader , List<String> text , String prompt ) throws Exception {

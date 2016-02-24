@@ -6,12 +6,18 @@ public class ShellWaiter {
 
 	ShellExecutor shell;
 	WaiterCommand command;
+	protected boolean windowsHelper = false;
 	
 	public ShellWaiter( ShellExecutor shell , WaiterCommand command ) {
 		this.shell = shell;
 		this.command = command;
 	}
 
+	public void setWindowsHelper() {
+		windowsHelper = true;
+		command.setWindowsHelper();
+	}
+	
 	public boolean wait( ActionBase action , int timeoutMillis ) {
 		try {
 			action.trace( "wait for command=" + command.getClass().getSimpleName() + "(timeout " + timeoutMillis + "ms) ..." );
