@@ -51,8 +51,9 @@ public class RocketChatSet {
 	}
 	
     private void executeChatProcessor() throws Exception {
+    	out( "############### initializing ...");
     	while( continueUpdate ) {
-        	out( "############### joining chats and reading messages...");
+        	out( "############### joining chats and reading messages ...");
         	
     		readActiveChatsInternal();
     		for( int k = 0; k < 60; k++ ) {
