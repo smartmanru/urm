@@ -353,7 +353,7 @@ public class ShellCoreWindows extends ShellCore {
 			}
 				
 			if( s.endsWith( useMarker ) ) {
-				data.add( s.substring( 0 , data.size() - useMarker.length() ) );
+				data.add( s.substring( 0 , s.length() - useMarker.length() ) );
 				pos = 0;
 				continue;
 			}
