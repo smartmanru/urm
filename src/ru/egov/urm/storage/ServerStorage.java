@@ -15,6 +15,7 @@ public class ServerStorage {
 	public enum RedistFileType {
 		CONFCOMP ,
 		BINARY ,
+		NUPKG ,
 		ARCHIVE
 	};
 
@@ -178,6 +179,9 @@ public class ServerStorage {
 		
 		if( redistFile.startsWith( "binary-" ) )
 			return( RedistFileType.BINARY );
+		
+		if( redistFile.startsWith( "nupkg-" ) )
+			return( RedistFileType.NUPKG );
 		
 		action.exitUnexpectedState();
 		return( null );
