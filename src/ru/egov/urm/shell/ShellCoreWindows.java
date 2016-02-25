@@ -294,12 +294,12 @@ public class ShellCoreWindows extends ShellCore {
 		boolean ok = false;
 		for( int k = 1; k < res.size(); k++ ) {
 			String s = res.get( k );
-			if( s.equals( delimiter ) ) {
+			if( s.startsWith( delimiter ) ) {
 				copyTo = files;
 				ok = true;
 				continue;
 			}
-			
+
 			s = s.substring( skipStart );
 			copyTo.add( s );
 		}
