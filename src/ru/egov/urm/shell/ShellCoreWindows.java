@@ -305,6 +305,8 @@ public class ShellCoreWindows extends ShellCore {
 				s = s.substring( skipStart );
 			else
 				action.exit( "unexpected line=" + s );
+			
+			s = s.replace( "\\" , "/" );
 			copyTo.add( s );
 		}
 		
