@@ -334,7 +334,8 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public String cmdGetFileContentAsString( ActionBase action , String filePath ) throws Exception {
-		String value = runCommandGetValueCheckDebug( action , "type " + filePath );
+		String fileWin = Common.getWinPath( action , filePath );
+		String value = runCommandGetValueCheckDebug( action , "type " + fileWin );
 		return( value );
 	}
 
