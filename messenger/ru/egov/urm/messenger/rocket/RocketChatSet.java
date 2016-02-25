@@ -5,7 +5,9 @@ import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -34,6 +36,7 @@ public class RocketChatSet {
 
 	String userId;
 	String authToken;
+	boolean first;
 	
 	public RocketChatSet( String server , String account , String password ) {
 		this.server = server;
@@ -47,11 +50,14 @@ public class RocketChatSet {
 	}
 
 	private void out( String s ) {
-    	System.out.println( "chat: " + s );
+        SimpleDateFormat simpleFormat = new SimpleDateFormat( "HH:mm:ss,SSS zzz" );
+        String ts = simpleFormat.format( new Date() );
+    	System.out.println( ts + " [chat]: " + s );
 	}
 	
     private void executeChatProcessor() throws Exception {
     	out( "############### initializing ...");
+    	first = true;
     	while( continueUpdate ) {
         	out( "############### joining chats and reading messages ...");
         	
@@ -63,6 +69,8 @@ public class RocketChatSet {
     			executeAgents();
     			Thread.sleep( 1000 );
     		}
+    		
+    		first = false;
     	}
     }
 

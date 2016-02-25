@@ -11,10 +11,9 @@ public class RocketMain {
 		String chatInclude = props.getProperty( "include" );
 		String chatExclude = props.getProperty( "exclude" );
 		
-		boolean first = true;
 		while( true ) {        
+			RocketChatSet set = new RocketChatSet( server , account , password );
 			try {
-				RocketChatSet set = new RocketChatSet( server , account , password );
 				set.setInclude( chatInclude );
 				set.setExclude( chatExclude );
 				set.executeChatSet();
@@ -22,13 +21,11 @@ public class RocketMain {
         	catch (Exception e) {
                 e.printStackTrace();
                 
-        		if( first ) {
+        		if( set.first ) {
         			System.out.print( "unable to connect to server. Exiting" );
         			return;
         		}
 			}
-			
-			first = false;
 		}
 	}
 
