@@ -358,7 +358,11 @@ public class ShellCoreUnix extends ShellCore {
 			keyOption = "-i " + keyFile + " ";
 		
 		int timeout = action.setTimeoutUnlimited();
-		runCommandCheckDebug( action , "scp -q -B -p " + keyOption + srcPath + " " + account.HOSTLOGIN + ":" + dstPath );
+		String preserveOption = "-p ";
+		if( account.OSTYPE == VarOSTYPE.WINDOWS )
+			preserveOption = "";
+		
+		runCommandCheckDebug( action , "scp -q -B " + preserveOption + keyOption + srcPath + " " + account.HOSTLOGIN + ":" + dstPath );
 		action.setTimeout( timeout );
 	}
 
@@ -374,7 +378,11 @@ public class ShellCoreUnix extends ShellCore {
 		session.ensureDirExists( action , baseDstDir );
 		
 		int timeout = action.setTimeoutUnlimited();
-		runCommandCheckDebug( action , "scp -r -q -B -p " + keyOption + srcDirPath + " " + account.HOSTLOGIN + ":" + baseDstDir );
+		String preserveOption = "-p ";
+		if( account.OSTYPE == VarOSTYPE.WINDOWS )
+			preserveOption = "";
+		
+		runCommandCheckDebug( action , "scp -r -q -B " + preserveOption + keyOption + srcDirPath + " " + account.HOSTLOGIN + ":" + baseDstDir );
 		action.setTimeout( timeout );
 	}
 
@@ -388,7 +396,11 @@ public class ShellCoreUnix extends ShellCore {
 		session.ensureDirExists( action , dstDir );
 		
 		int timeout = action.setTimeoutUnlimited();
-		runCommandCheckDebug( action , "scp -r -q -B -p " + keyOption + srcDirPath + "/* " + account.HOSTLOGIN + ":" + dstDir );
+		String preserveOption = "-p ";
+		if( account.OSTYPE == VarOSTYPE.WINDOWS )
+			preserveOption = "";
+		
+		runCommandCheckDebug( action , "scp -r -q -B " + preserveOption + keyOption + srcDirPath + "/* " + account.HOSTLOGIN + ":" + dstDir );
 		action.setTimeout( timeout );
 	}
 
