@@ -282,7 +282,7 @@ public class ShellCoreWindows extends ShellCore {
 	@Override public void cmdGetDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
 		String delimiter = "URM_DELIMITER";
 		List<String> res = runCommandCheckGetOutputDebug( action , rootPath , 
-				"pwd & dir /ad /s /b & echo " + delimiter + " & dir /a-d /b /s" );
+				"chdir & dir /ad /s /b & echo " + delimiter + " & dir /a-d /b /s" );
 		
 		if( res.isEmpty() )
 			action.exit( "directory " + rootPath + " does not exist" );
