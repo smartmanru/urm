@@ -1,6 +1,7 @@
 package ru.egov.urm.shell;
 
 import java.io.BufferedReader;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -532,6 +533,45 @@ public class ShellCoreUnix extends ShellCore {
 		return( value );
 	}
 
+	@Override public Map<String,List<String>> cmdGetFilesContent( ActionBase action , String dir , String fileMask ) throws Exception {
+		String cmd = "for x in " + fileMask + "; do echo $x; cat $x; echo " + finishMarker + "; done";
+		String cmdDir = getDirCmd( action , dir , cmd );
+		runCommand( action , cmdDir , true );
+		
+		Map<String,List<String>> map = new HashMap<String,List<String>>();
+		int pos = 0;
+		List<String> data = null;
+		for( String s : cmdout ) {
+			if( pos == 0 ) {
+				data = new LinkedList<String>();
+				map.put( s , data );
+				pos = 1;
+				continue;
+			}
+
+			if( s.equals( finishMarker ) ) {
+				pos = 0;
+				continue;
+			}
+
+			if( s.endsWith( finishMarker ) ) {
+				data.add( s.substring( 0 , data.size() - finishMarker.length() ) );
+				pos = 0;
+				continue;
+			}
+			
+			data.add( s );
+		}
+		
+		if( pos != 0 )
+			action.exit( "error reading files in dir=" + dir );
+		
+		return( map );
+	}
+	
+	/*##################################################*/
+	/*##################################################*/
+	
 	class CommandReaderUnix extends WaiterCommand {
 		boolean debug;
 		

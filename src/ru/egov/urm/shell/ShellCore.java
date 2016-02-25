@@ -9,6 +9,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.run.ActionBase;
@@ -99,6 +100,7 @@ abstract class ShellCore {
 	abstract public String cmdGetFileContentAsString( ActionBase action , String filePath ) throws Exception;
 	abstract public void cmdAppendExecuteLog( ActionBase action , String msg ) throws Exception;
 	abstract public void cmdAppendUploadLog( ActionBase action , String src , String dst ) throws Exception;
+	abstract public Map<String,List<String>> cmdGetFilesContent( ActionBase action , String dir , String fileMask ) throws Exception;
 	
 	public static ShellCore createShellCore( ActionBase action , ShellExecutor executor , VarOSTYPE osType ) throws Exception {
 		ShellCore core = null;

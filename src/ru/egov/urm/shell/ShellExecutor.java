@@ -1,6 +1,7 @@
 package ru.egov.urm.shell;
 
 import java.util.List;
+import java.util.Map;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
@@ -104,6 +105,10 @@ public abstract class ShellExecutor {
 		return( core.cmdCheckDirExists( action , path ) );
 	}
 
+	public Map<String,List<String>> getFilesContent( ActionBase action , String dir , String fileMask ) throws Exception {
+		return( core.cmdGetFilesContent( action , dir , fileMask ) );
+	}
+	
 	public boolean isFileEmpty( ActionBase action , String path ) throws Exception {
 		return( core.cmdIsFileEmpty( action , path ) );
 	}

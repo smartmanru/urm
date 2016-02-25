@@ -21,6 +21,7 @@ public class RedistStateInfo {
 			return;
 		}
 		
+		shell.getFilesContent( action , STATEDIR , "*.ver" );
 		String items = shell.customGetValue( action , STATEDIR , "if [ `find . -maxdepth 1 -name \"*.ver\" | wc -l` != 0 ]; then grep -H : *.ver; fi" );
 		for( String s : Common.split( items , "\n" ) ) {
 			String verName = Common.getPartBeforeFirst( s , ":" );
