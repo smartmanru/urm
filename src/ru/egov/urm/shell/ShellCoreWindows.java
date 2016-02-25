@@ -296,8 +296,8 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public String cmdGetFileContentAsString( ActionBase action , String filePath ) throws Exception {
-		action.exitNotImplemented();
-		return( "" );
+		String value = runCommandGetValueCheckDebug( action , "type " + filePath );
+		return( value );
 	}
 
 	@Override public void cmdAppendExecuteLog( ActionBase action , String msg ) throws Exception {
