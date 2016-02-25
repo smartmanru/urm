@@ -1,6 +1,7 @@
 package ru.egov.urm.storage;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ru.egov.urm.Common;
@@ -22,10 +23,13 @@ public class RedistStateInfo {
 		}
 		
 		shell.getFilesContent( action , STATEDIR , "*.ver" );
-		String items = shell.customGetValue( action , STATEDIR , "if [ `find . -maxdepth 1 -name \"*.ver\" | wc -l` != 0 ]; then grep -H : *.ver; fi" );
-		for( String s : Common.split( items , "\n" ) ) {
-			String verName = Common.getPartBeforeFirst( s , ":" );
-			String verInfo = Common.getPartAfterFirst( s , ":" );
+		Map<String,List<String>> items = shell.getFilesContent( action , STATEDIR , "*.ver" );
+		for( String verName : items.keySet() ) {
+			List<String> data = items.get( verName );
+			if( data.size() != 1 )
+				action.exit( "invalid state file=" + verName );
+			
+			String verInfo = data.get( 0 );
 			FileInfo info = new FileInfo();
 			info.split( action , verInfo );
 			verData.put( verName , info );
