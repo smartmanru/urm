@@ -99,6 +99,8 @@ public class ShellCoreWindows extends ShellCore {
 	@Override public void cmdEnsureDirExists( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( action , dir );
 		runCommand( action , "if not exist " + wdir + " md " + wdir , false );
+		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
+			action.exit( "check/create directory error" );
 	}
 
 	@Override public void cmdCreateFileFromString( ActionBase action , String path , String value ) throws Exception {
@@ -118,6 +120,9 @@ public class ShellCoreWindows extends ShellCore {
 		String value = this.runCommandGetValueCheck( action , "if exist " + wdir + " echo ok" , true );
 		if( value.equals( "ok" ) )
 			return( true );
+		
+		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
+			action.exit( "check directory error" );
 		return( false );
 	}
 
@@ -153,11 +158,15 @@ public class ShellCoreWindows extends ShellCore {
 	@Override public void cmdRemoveDirContent( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( action , dir );
 		runCommand( action , "if exist " + wdir + " ( rmdir /S /Q " + wdir + " & md " + wdir + " )" , false );
+		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
+			action.exit( "remove directory content error" );
 	}
 	
 	@Override public void cmdRemoveDir( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( action , dir );
 		runCommand( action , "if exist " + wdir + " rmdir /S /Q " + wdir , false );
+		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
+			action.exit( "remove directory error" );
 	}
 	
 	@Override public void cmdRecreateDir( ActionBase action , String dirpath ) throws Exception {
