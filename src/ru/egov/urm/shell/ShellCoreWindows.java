@@ -107,7 +107,8 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public void cmdCreateFileFromString( ActionBase action , String path , String value ) throws Exception {
-		action.exitNotImplemented();
+		String pathWin = Common.getWinPath( action , path );
+		runCommand( action , "echo " + value + " > " + pathWin , true );
 	}
 
 	@Override public void cmdAppendFileWithString( ActionBase action , String path , String value ) throws Exception {
