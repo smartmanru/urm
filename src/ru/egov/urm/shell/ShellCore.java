@@ -301,7 +301,10 @@ abstract class ShellCore {
 	
 	public String runCommandGetValueCheckNormal( ActionBase action , String dir , String cmd ) throws Exception {
 		String cmdDir = getDirCmd( action , dir , cmd );
-		return( runCommandGetValueCheck( action , cmdDir , false ) );
+		String value = runCommandGetValueCheck( action , cmdDir , false );
+		if( value.startsWith( "invalid directory" ) )
+			action.exit( value );
+		return( value );
 	}
 	
 	public String runCommandGetValueCheckDebug( ActionBase action , String cmd ) throws Exception {
@@ -310,7 +313,10 @@ abstract class ShellCore {
 	
 	public String runCommandGetValueCheckDebug( ActionBase action , String dir , String cmd ) throws Exception {
 		String cmdDir = getDirCmd( action , dir , cmd );
-		return( runCommandGetValueCheck( action , cmdDir , true ) );
+		String value = runCommandGetValueCheck( action , cmdDir , true );
+		if( value.startsWith( "invalid directory" ) )
+			action.exit( value );
+		return( value );
 	}
 	
 	public String runCommandGetValueCheck( ActionBase action , String cmd , boolean debug ) throws Exception {
@@ -327,7 +333,11 @@ abstract class ShellCore {
 
 	public List<String> runCommandCheckGetOutputDebug( ActionBase action , String dir , String cmd ) throws Exception {
 		String cmdDir = getDirCmd( action , dir , cmd );
-		return( runCommandCheckGetOutputDebug( action , cmdDir ) );
+		List<String> out = runCommandCheckGetOutputDebug( action , cmdDir );
+		if( !out.isEmpty() )
+			if( out.get( 0 ).startsWith( "invalid directory" ) )
+				action.exit( out.get( 0 ) );
+		return( out );
 	}
 	
 	public List<String> runCommandCheckGetOutputDebug( ActionBase action , String cmd ) throws Exception {

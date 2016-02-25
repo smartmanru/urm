@@ -88,12 +88,12 @@ public class ShellCoreWindows extends ShellCore {
 	
 	@Override public String getDirCmd( ActionBase action , String dir , String cmd ) throws Exception {
 		String dirWin = Common.getWinPath( action , dir );
-		return( "if exist " + dirWin + " ( cd " + dirWin + " & " + cmd + " )" );
+		return( "if exist " + dirWin + " ( cd " + dirWin + " & " + cmd + " ) else echo invalid directory: " + dir );
 	}
 	
 	@Override public String getDirCmdIfDir( ActionBase action , String dir , String cmd ) throws Exception {
-		action.exitNotImplemented();
-		return( "" );
+		String dirWin = Common.getWinPath( action , dir );
+		return( "if exist " + dirWin + " ( cd " + dirWin + " & " + cmd + " )" );
 	}
 
 	@Override protected void killProcess( ActionBase action ) throws Exception {
@@ -137,12 +137,18 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public boolean cmdCheckFileExists( ActionBase action , String path ) throws Exception {
-		action.exitNotImplemented();
+		String wpath = Common.getWinPath( action , path );
+		String value = this.runCommandGetValueCheckDebug( action , "if exist " + wpath + "/ ( echo dir ) else if exist " + wpath + " echo file" );
+		if( value.equals( "file" ) )
+			return( true );
 		return( false );
 	}
 
 	@Override public boolean cmdCheckPathExists( ActionBase action , String path ) throws Exception {
-		action.exitNotImplemented();
+		String wpath = Common.getWinPath( action , path );
+		String value = this.runCommandGetValueCheckDebug( action , "if exist " + wpath + " echo ok" );
+		if( value.equals( "ok" ) )
+			return( true );
 		return( false );
 	}
 
