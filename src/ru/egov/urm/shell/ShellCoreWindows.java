@@ -301,7 +301,10 @@ public class ShellCoreWindows extends ShellCore {
 				continue;
 			}
 
-			s = s.substring( skipStart );
+			if( s.startsWith( pwd ) )
+				s = s.substring( skipStart );
+			else
+				action.exit( "unexpected line=" + s );
 			copyTo.add( s );
 		}
 		
