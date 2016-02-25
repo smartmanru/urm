@@ -331,7 +331,8 @@ public class ShellCoreWindows extends ShellCore {
 	}
 	
 	@Override public Map<String,List<String>> cmdGetFilesContent( ActionBase action , String dir , String fileMask ) throws Exception {
-		String cmd = "for %x in (" + fileMask + ") do @echo %x & type %x & echo " + finishMarker;
+		String useMarker = "##";
+		String cmd = "for %x in (" + fileMask + ") do @echo %x & type %x & echo " + useMarker;
 		String cmdDir = getDirCmd( action , dir , cmd );
 		runCommand( action , cmdDir , true );
 		
@@ -346,13 +347,13 @@ public class ShellCoreWindows extends ShellCore {
 				continue;
 			}
 
-			if( s.equals( finishMarker ) ) {
+			if( s.equals( useMarker ) ) {
 				pos = 0;
 				continue;
 			}
 				
-			if( s.endsWith( finishMarker ) ) {
-				data.add( s.substring( 0 , data.size() - finishMarker.length() ) );
+			if( s.endsWith( useMarker ) ) {
+				data.add( s.substring( 0 , data.size() - useMarker.length() ) );
 				pos = 0;
 				continue;
 			}
