@@ -280,7 +280,32 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public void cmdGetDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
-		action.exitNotImplemented();
+		String delimiter = "URM_DELIMITER";
+		List<String> res = runCommandCheckGetOutputDebug( action , rootPath , 
+				"pwd & dir /ad /s /b & echo " + delimiter + " & dir /a-d /b /s" );
+		
+		if( res.isEmpty() )
+			action.exit( "directory " + rootPath + " does not exist" );
+		
+		String pwd = res.get( 0 );
+		int skipStart = pwd.length() + 1;
+		
+		List<String> copyTo = dirs;
+		boolean ok = false;
+		for( int k = 1; k < res.size(); k++ ) {
+			String s = res.get( k );
+			if( s.equals( delimiter ) ) {
+				copyTo = files;
+				ok = true;
+				continue;
+			}
+			
+			s = s.substring( skipStart );
+			copyTo.add( s );
+		}
+		
+		if( !ok )
+			action.exit( "unable to read directory " + rootPath );
 	}
 
 	@Override public void cmdGetTopDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
