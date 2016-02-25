@@ -161,14 +161,12 @@ public class RedistStorage extends ServerStorage {
 
 	public void createLocation( ActionBase action , String RELEASEDIR , MetaEnvServerLocation location , VarCONTENTTYPE CONTENTTYPE ) throws Exception {
 		String LOCATION = location.DEPLOYPATH;
-		String F_DSTDIR_STATE = getPathStateLocation( action , LOCATION , CONTENTTYPE );
-		String F_DSTDIR_DEPLOY = getPathRedistLocation( action , RELEASEDIR , LOCATION , CONTENTTYPE , true );
+		RemoteFolder F_DSTDIR_STATE = getStateLocationFolder( action , LOCATION , CONTENTTYPE );
+		RemoteFolder F_DSTDIR_DEPLOY = getRedistLocationFolder( action , RELEASEDIR , LOCATION , CONTENTTYPE , true );
 
 		action.debug( node.HOSTLOGIN + ": create redist location=" + LOCATION + " contenttype=" + Common.getEnumLower( CONTENTTYPE ) + " ..." );
-		ShellExecutor shell = action.getShell( node );
-		
-		String cmd = "mkdir -p " + F_DSTDIR_STATE + " " + F_DSTDIR_DEPLOY;
-		shell.customCheckErrorsDebug( action , cmd );
+		F_DSTDIR_STATE.ensureExists( action );
+		F_DSTDIR_DEPLOY.ensureExists( action );
 		
 		if( action.context.CTX_BACKUP )
 			createLocationBackup( action , RELEASEDIR , location , CONTENTTYPE );
