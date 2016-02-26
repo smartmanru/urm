@@ -84,7 +84,7 @@ public class ShellCoreWindows extends ShellCore {
 	
 	@Override public String getDirCmd( ActionBase action , String dir , String cmd ) throws Exception {
 		String dirWin = Common.getWinPath( action , dir );
-		return( "if exist " + dirWin + " ( cd " + dirWin + " & " + cmd + " ) else echo invalid directory: " + dir );
+		return( "if exist " + dirWin + " ( cd " + dirWin + " & " + cmd + " \n)\nelse echo invalid directory: " + dir );
 	}
 	
 	@Override public String getDirCmdIfDir( ActionBase action , String dir , String cmd ) throws Exception {
