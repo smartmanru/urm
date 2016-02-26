@@ -38,7 +38,7 @@ public class ShellCoreWindows extends ShellCore {
 	@Override protected void getProcessAttributes( ActionBase action ) throws Exception {
 	}
 	
-	@Override public void runCommand( ActionBase action , String cmd , boolean debug ) throws Exception {
+	private String prepareExecute( ActionBase action , String cmd , boolean debug ) throws Exception {
 		if( !running )
 			exitError( action , "attempt to run command in closed session: " + cmd );
 			
@@ -50,9 +50,16 @@ public class ShellCoreWindows extends ShellCore {
 		String keyFile = action.context.CTX_KEYNAME;
 		if( !keyFile.isEmpty() )
 			execLine += " -i " + keyFile;
-			
-		execLine += " " + executor.account.HOSTLOGIN + " " + Common.getQuoted( "cmd /c chcp 65001 & " + Common.replace( cmd , "\\" , "\\\\" ) );
+
+		String cmdWin = Common.replace( cmd , "\\" , "\\\\" );
+		cmdWin = new String( cmdWin.getBytes() , "windows-1251" );
+		execLine += " " + executor.account.HOSTLOGIN + " " + Common.getQuoted( "cmd /c " + cmdWin );
 		action.trace( executor.name + " execute: " + cmd );
+		return( execLine );
+	}
+	
+	@Override public void runCommand( ActionBase action , String cmd , boolean debug ) throws Exception {
+		String execLine = prepareExecute( action , cmd , debug );
 		
 		localSession.runCommand( action , execLine , debug );
 		cmdout.addAll( localSession.cmdout );
@@ -60,20 +67,7 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public int runCommandGetStatus( ActionBase action , String cmd , boolean debug ) throws Exception {
-		if( !running )
-			exitError( action , "attempt to run command in closed session: " + cmd );
-			
-		cmdCurrent = cmd;
-		cmdout.clear();
-		cmderr.clear();
-		
-		String execLine = "ssh";
-		String keyFile = action.context.CTX_KEYNAME;
-		if( !keyFile.isEmpty() )
-			execLine += " -i " + keyFile;
-			
-		execLine += " " + executor.account.HOSTLOGIN + " " + Common.getQuoted( "cmd /c chcp 65001 & " + Common.replace( cmd , "\\" , "\\\\" ) );
-		action.trace( executor.name + " execute: " + cmd );
+		String execLine = prepareExecute( action , cmd , debug );
 		
 		int status = localSession.runCommandGetStatus( action , execLine , debug );
 		cmdout.addAll( localSession.cmdout );

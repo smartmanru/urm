@@ -57,7 +57,10 @@ public class ShellCoreUnix extends ShellCore {
 		if( action.context.CTX_TRACEINTERNAL )
 			action.trace( "write cmd line=" + execLine );
 		
-		writer.write( execLine );
+		if( windowsHelper )
+			stdin.write( execLine.getBytes( "Cp1251" ) );
+		else
+			writer.write( execLine );
 		try {
 			writer.flush();
 		}
