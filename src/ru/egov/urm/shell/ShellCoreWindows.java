@@ -324,6 +324,7 @@ public class ShellCoreWindows extends ShellCore {
 		
 		List<String> list = dirs; 
 		for( String s : cmdout ) {
+System.out.println( "." + s + "." );			
 			if( s.equals( delimiter ) ) {
 				list = files;
 				continue;
