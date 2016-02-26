@@ -324,14 +324,16 @@ public class ShellCoreWindows extends ShellCore {
 		
 		List<String> list = dirs; 
 		for( String s : cmdout ) {
-System.out.println( "." + s + "." );			
-			if( s.equals( delimiter ) ) {
+			if( s.startsWith( delimiter ) ) {
 				list = files;
 				continue;
 			}
 			
 			list.add( s );
 		}
+		
+		if( files.size() == 1 && files.get( 0 ).equals( "File Not Found" ) )
+			files.clear();
 	}
 
 	@Override public String cmdGetMD5( ActionBase action , String filePath ) throws Exception {
