@@ -317,7 +317,20 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public void cmdGetTopDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
-		action.exitNotImplemented();
+		String delimiter = "URM_DELIMITER";
+		String cmd = "dir /ad /b && echo " + delimiter + " && dir /a-d /b"; 
+		String dirCmd = getDirCmd( action , rootPath , cmd );
+		runCommand( action , dirCmd , true );
+		
+		List<String> list = dirs; 
+		for( String s : cmdout ) {
+			if( s.equals( delimiter ) ) {
+				list = files;
+				continue;
+			}
+			
+			list.add( s );
+		}
 	}
 
 	@Override public String cmdGetMD5( ActionBase action , String filePath ) throws Exception {
