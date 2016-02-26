@@ -57,20 +57,23 @@ public class ShellCoreWindows extends ShellCore {
 		return( execLine );
 	}
 	
+	private void getOutput( ActionBase action ) throws Exception {
+		cmdout.addAll( localSession.cmdout );
+		cmderr.addAll( localSession.cmderr );
+	}
+	
 	@Override public void runCommand( ActionBase action , String cmd , boolean debug ) throws Exception {
 		String execLine = prepareExecute( action , cmd , debug );
 		
 		localSession.runCommand( action , execLine , debug );
-		cmdout.addAll( localSession.cmdout );
-		cmderr.addAll( localSession.cmderr );
+		getOutput( action );
 	}
 
 	@Override public int runCommandGetStatus( ActionBase action , String cmd , boolean debug ) throws Exception {
 		String execLine = prepareExecute( action , cmd , debug );
 		
 		int status = localSession.runCommandGetStatus( action , execLine , debug );
-		cmdout.addAll( localSession.cmdout );
-		cmderr.addAll( localSession.cmderr );
+		getOutput( action );
 		
 		return( status );
 	}
