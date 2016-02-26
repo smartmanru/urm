@@ -52,8 +52,7 @@ public class ShellCoreWindows extends ShellCore {
 			execLine += " -i " + keyFile;
 
 		String cmdWin = Common.replace( cmd , "\\" , "\\\\" );
-		cmdWin = new String( cmdWin.getBytes() , "windows-1251" );
-		execLine += " " + executor.account.HOSTLOGIN + " " + Common.getQuoted( "cmd /c " + cmdWin );
+		execLine += " " + executor.account.HOSTLOGIN + " " + Common.getQuoted( "cmd /c 65001 & cmd /c " + cmdWin );
 		action.trace( executor.name + " execute: " + cmd );
 		return( execLine );
 	}
