@@ -52,7 +52,7 @@ public class ShellCoreWindows extends ShellCore {
 			execLine += " -i " + keyFile;
 
 		String cmdWin = Common.replace( cmd , "\\" , "\\\\" );
-		execLine += " " + executor.account.HOSTLOGIN + " " + Common.getQuoted( "cmd /c chcp 65001 & cmd /c " + cmdWin );
+		execLine += " " + executor.account.HOSTLOGIN + " " + Common.getQuoted( "cmd /c chcp 65001 & cmd /c \"" + cmdWin + "\"" );
 		action.trace( executor.name + " execute: " + cmd );
 		return( execLine );
 	}
@@ -84,12 +84,12 @@ public class ShellCoreWindows extends ShellCore {
 	
 	@Override public String getDirCmd( ActionBase action , String dir , String cmd ) throws Exception {
 		String dirWin = Common.getWinPath( action , dir );
-		return( "if exist " + dirWin + " ( cd " + dirWin + " & " + cmd + " \r\n)\r\nelse echo invalid directory: " + dir );
+		return( "if exist " + dirWin + " ( cd " + dirWin + " && " + cmd + " ) else echo invalid directory: " + dir );
 	}
 	
 	@Override public String getDirCmdIfDir( ActionBase action , String dir , String cmd ) throws Exception {
 		String dirWin = Common.getWinPath( action , dir );
-		return( "if exist " + dirWin + " ( cd " + dirWin + " & " + cmd + " )" );
+		return( "if exist " + dirWin + " ( cd " + dirWin + " && " + cmd + " )" );
 	}
 
 	@Override protected void killProcess( ActionBase action ) throws Exception {
@@ -164,7 +164,7 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public void cmdRemoveDirContent( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( action , dir );
-		runCommand( action , "if exist " + wdir + " ( rmdir /S /Q " + wdir + " & md " + wdir + " )" , false );
+		runCommand( action , "if exist " + wdir + " ( rmdir /S /Q " + wdir + " && md " + wdir + " )" , false );
 		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
 			action.exit( "remove directory content error" );
 	}
@@ -285,7 +285,7 @@ public class ShellCoreWindows extends ShellCore {
 	@Override public void cmdGetDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
 		String delimiter = "URM_DELIMITER";
 		List<String> res = runCommandCheckGetOutputDebug( action , rootPath , 
-				"chdir & dir /ad /s /b & echo " + delimiter + " & dir /a-d /b /s" );
+				"chdir && dir /ad /s /b && echo " + delimiter + " && dir /a-d /b /s" );
 		
 		if( res.isEmpty() )
 			action.exit( "directory " + rootPath + " does not exist" );
@@ -371,7 +371,7 @@ public class ShellCoreWindows extends ShellCore {
 	
 	@Override public Map<String,List<String>> cmdGetFilesContent( ActionBase action , String dir , String fileMask ) throws Exception {
 		String useMarker = "##";
-		String cmd = "for %x in (" + fileMask + ") do @echo %x & type %x & echo " + useMarker;
+		String cmd = "for %x in (" + fileMask + ") do @echo %x && type %x && echo " + useMarker;
 		String cmdDir = getDirCmd( action , dir , cmd );
 		runCommand( action , cmdDir , true );
 		
