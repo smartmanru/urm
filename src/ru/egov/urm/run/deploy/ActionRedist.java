@@ -10,6 +10,7 @@ import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.MetaReleaseTarget;
 import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
 import ru.egov.urm.meta.Metadata.VarDEPLOYTYPE;
+import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScope;
 import ru.egov.urm.run.ActionScopeTarget;
@@ -247,17 +248,41 @@ public class ActionRedist extends ActionBase {
 			return( false );
 		}
 		
-		String fileName = dist.getBinaryDistItemFile( this , binaryItem );
-		if( fileName.isEmpty() ) {
-			trace( "binary item=" + binaryItem.KEY + " is not found. Skipped." );
-			return( false );
+		if( binaryItem.DISTSOURCE == VarDISTITEMSOURCE.DISTITEM ) {
+			String fileName = dist.getBinaryDistItemFile( this , binaryItem.srcItem );
+			if( fileName.isEmpty() ) {
+				trace( "source of binary item=" + binaryItem.KEY + " is not found. Skipped." );
+				return( false );
+			}
+			
+			debug( "source of distributive item=" + binaryItem.KEY + " found in distributive, file=" + fileName );
+			String fileExtracted = getEmbeddedFile( binaryItem , fileName );
+			redist.copyReleaseFile( this , binaryItem , location , fileExtracted , deployBaseName , dist.RELEASEDIR , dist.info.RELEASEVER );
+			return( true );
 		}
-
-		debug( "distributive item=" + binaryItem.KEY + " found in distributive, file=" + fileName );
-		redist.copyReleaseFile( this , binaryItem , dist , location , fileName , deployBaseName );
-		return( true );
+		else if( binaryItem.DISTSOURCE == VarDISTITEMSOURCE.BUILD || binaryItem.DISTSOURCE == VarDISTITEMSOURCE.MANUAL ) {
+			String fileName = dist.getBinaryDistItemFile( this , binaryItem );
+			if( fileName.isEmpty() ) {
+				trace( "binary item=" + binaryItem.KEY + " is not found. Skipped." );
+				return( false );
+			}
+	
+			debug( "distributive item=" + binaryItem.KEY + " found in distributive, file=" + fileName );
+			redist.copyReleaseFile( this , binaryItem , dist , location , fileName , deployBaseName );
+			return( true );
+		}
+		else
+			exitUnexpectedState();
+		
+		return( false );
 	}
 
+	private String getEmbeddedFile( MetaDistrBinaryItem binaryItem , String fileName ) throws Exception {
+		dist.copyEmbeddedItemToFolder( this , artefactory.workFolder , binaryItem , fileName );
+		String filePath = artefactory.workFolder.getFilePath( this , fileName );
+		return( filePath  );
+	}
+	
 	private boolean executeNodeConfigComp( MetaEnvServer server , MetaEnvServerNode node , boolean clusterMode , boolean admin , MetaEnvServerLocation location , MetaDistrConfItem confItem , LocalFolder liveFolder ) throws Exception {
 		MetaReleaseTarget target = dist.info.findConfComponent( this , confItem.KEY );
 		

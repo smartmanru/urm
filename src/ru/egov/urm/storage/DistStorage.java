@@ -119,7 +119,13 @@ public class DistStorage {
 			action.exit( "distributive is not opened for use" );
 		return( copyDistToFolder( action , workFolder , "" , file ) );
 	}
-	
+
+	public void copyEmbeddedItemToFolder( ActionBase action , LocalFolder folder , MetaDistrBinaryItem item , String fileName ) throws Exception {
+		if( !openedForUse )
+			action.exit( "distributive is not opened for use" );
+		action.exitNotImplemented();
+	}
+
 	public String copyDistToFolder( ActionBase action , LocalFolder workFolder , String srcSubdir , String file ) throws Exception {
 		if( !openedForUse )
 			action.exit( "distributive is not opened for use" );

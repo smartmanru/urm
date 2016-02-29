@@ -207,6 +207,23 @@ public class RedistStorage extends ServerStorage {
 		locationDir.createFileFromString( action , verName , data );
 	}
 
+	public void copyReleaseFile( ActionBase action , MetaDistrBinaryItem item , MetaEnvServerLocation location , String filePath , String deployBaseName , String RELEASEDIR , String RELEASEVER ) throws Exception {
+		String LOCATION = location.DEPLOYPATH; 
+		VarCONTENTTYPE CONTENTTYPE = location.getContentType( action , true );
+		createLocation( action , RELEASEDIR , location , CONTENTTYPE );
+		RemoteFolder locationDir = getRedistLocationFolder( action , RELEASEDIR , LOCATION , CONTENTTYPE , true );
+
+		String redistFileName = getDeployVersionedName( action , location , item , deployBaseName , RELEASEVER );
+		locationDir.copyFileFromLocalRename( action , filePath , redistFileName );
+
+		// create state file
+		String runtimeName = getRedistBinaryFileDeployName( action , redistFileName );
+		String data = RedistStateInfo.getValue( action , locationDir , redistFileName , deployBaseName , RELEASEVER , runtimeName );
+		String stateBaseName = super.getStateBaseName( action , CONTENTTYPE , redistFileName );
+		String verName = super.getStateInfoName( action , stateBaseName );
+		locationDir.createFileFromString( action , verName , data );
+	}
+
 	public void copyReleaseFile( ActionBase action , MetaDistrConfItem item , DistStorage dist , MetaEnvServerLocation location , LocalFolder srcFolder , String fileName , String deployBaseName ) throws Exception {
 		String LOCATION = location.DEPLOYPATH; 
 		VarCONTENTTYPE CONTENTTYPE = location.getContentType( action , false );
