@@ -504,19 +504,24 @@ public class DistStorage {
 			
 			return( Common.getPath( "binary" , target.DISTFILE ) );
 		}
+		else if( item.DISTSOURCE == VarDISTITEMSOURCE.BUILD ) {
+			MetaReleaseTarget target = info.findBuildProject( action , item.sourceItem.project.PROJECT );
+			if( target == null )
+				return( "" );
+			
+			MetaReleaseTargetItem targetItem = target.getItem( action , item.KEY );
+			if( targetItem == null )
+				return( "" );
+			
+			if( targetItem.DISTFILE == null || targetItem.DISTFILE.isEmpty() )
+				return( "" );
+			
+			return( Common.getPath( "binary" , targetItem.DISTFILE ) );
+		}
+		else
+			action.exitUnexpectedState();
 		
-		MetaReleaseTarget target = info.findBuildProject( action , item.sourceItem.project.PROJECT );
-		if( target == null )
-			return( "" );
-		
-		MetaReleaseTargetItem targetItem = target.getItem( action , item.KEY );
-		if( targetItem == null )
-			return( "" );
-		
-		if( targetItem.DISTFILE == null || targetItem.DISTFILE.isEmpty() )
-			return( "" );
-		
-		return( Common.getPath( "binary" , targetItem.DISTFILE ) );
+		return( null );
 	}
 
 	private void gatherFiles( ActionBase action ) throws Exception {
