@@ -183,6 +183,10 @@ public abstract class ShellExecutor {
 		return( core.cmdLs( action , path ) );
 	}
 
+	public void createZipFromDirContent( ActionBase action , String tarFile , String dir , String content ) throws Exception {
+		core.cmdCreateZipFromDirContent( action , tarFile , dir , content );
+	}
+
 	public void createTarGzFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
 		core.cmdCreateTarGzFromDirContent( action , tarFile , dir , content , exclude );
 	}

@@ -205,6 +205,10 @@ public class ShellCoreWindows extends ShellCore {
 		return( "" );
 	}
 	
+	@Override public void cmdCreateZipFromDirContent( ActionBase action , String zipFile , String dir , String content ) throws Exception {
+		action.exitNotImplemented();
+	}
+	
 	@Override public void cmdCreateTarGzFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
 		action.exitNotImplemented();
 	}

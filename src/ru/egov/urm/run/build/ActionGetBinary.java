@@ -149,10 +149,9 @@ public class ActionGetBinary extends ActionBase {
 		else
 		if( scopeItem.sourceItem.ITEMSRCTYPE == VarITEMSRCTYPE.NUGET_PLATFORM ) {
 			// repack given item
-			NexusDownloadInfo NUPL = nexusStorage.repackageNugetPlatform( this , BINARY , scopeItem.sourceItem );
-			FILENAME = NUPL.DOWNLOAD_FILENAME;
-			BASENAME = NUPL.BASENAME;
-			EXT = NUPL.EXT;
+			FILENAME = nexusStorage.repackageNugetPlatform( this , BINARY , scopeItem.sourceItem );
+			BASENAME = scopeItem.sourceItem.distItem.DISTBASENAME;
+			EXT = scopeItem.sourceItem.ITEMEXTENSION;
 		}
 		
 		if( copyDistr ) {

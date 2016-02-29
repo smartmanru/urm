@@ -70,6 +70,7 @@ abstract class ShellCore {
 	abstract public void cmdMove( ActionBase action , String source , String target ) throws Exception;
 	abstract public void cmdExtractTarGz( ActionBase action , String tarFile , String targetFolder ) throws Exception;
 	abstract public String cmdLs( ActionBase action , String path ) throws Exception;
+	abstract public void cmdCreateZipFromDirContent( ActionBase action , String tarFile , String dir , String content ) throws Exception;
 	abstract public void cmdCreateTarGzFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception;
 	abstract public String cmdGetFileInfo( ActionBase action , String dir , String dirFile ) throws Exception;
 	abstract public void cmdCreateJarFromFolder( ActionBase action , String runDir , String jarFile , String folder ) throws Exception;

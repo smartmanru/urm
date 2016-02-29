@@ -257,6 +257,10 @@ public class ShellCoreUnix extends ShellCore {
 		String value = runCommandGetValueCheckDebug( action , path , "ls" );
 		return( value );
 	}
+
+	@Override public void cmdCreateZipFromDirContent( ActionBase action , String zipFile , String dir , String content ) throws Exception {
+		runCommandCheckDebug( action , dir , "zip " + zipFile + " " + content + " > /dev/null 2> /dev/null" );
+	}
 	
 	@Override public void cmdCreateTarGzFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
 		String find = this.getFindCommandIncludeExclude( content , exclude , true );

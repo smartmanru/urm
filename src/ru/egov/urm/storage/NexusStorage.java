@@ -67,16 +67,28 @@ public class NexusStorage {
 		return( info );
 	}
 
-	public NexusDownloadInfo repackageNugetPlatform( ActionBase action , NexusDownloadInfo src , MetaSourceProjectItem item ) throws Exception {
-		NexusDownloadInfo dst = new NexusDownloadInfo( artefactoryFolder );
+	public String repackageNugetPlatform( ActionBase action , NexusDownloadInfo src , MetaSourceProjectItem item ) throws Exception {
 		LocalFolder tmp = artefactoryFolder.getSubFolder( action , "tmp" );
 		tmp.ensureExists( action );
 		
 		action.session.unzipPart( action , artefactoryFolder.folderPath , src.DOWNLOAD_FILENAME , 
-				Common.getPath( "lib" , item.NUGET_PLATFORM , "*" ) , tmp.getFolderPath( action , "lib" ) );
+				Common.getPath( "lib" , item.NUGET_PLATFORM , "*" ) , tmp.folderPath );
 		action.session.unzipPart( action , artefactoryFolder.folderPath , src.DOWNLOAD_FILENAME , 
-				Common.getPath( "content" , "*" ) , tmp.getFolderPath( action , "content" ) );
-		return( dst );
+				Common.getPath( "content" , "*" ) , tmp.folderPath );
+		
+		// copy to final zip dir
+		LocalFolder zip = tmp.getSubFolder( action , "final" );
+		zip.ensureExists( action );
+		String zipLibPath = zip.getFilePath( action , item.NUGET_LIBNAME + ".zip" );
+		
+		tmp.createZipFromFolderContent( action , zipLibPath , Common.getPath( "lib" , item.NUGET_PLATFORM ) , "*" );
+		zip.copyDirContent( action , tmp.getSubFolder( action , "content" ) );
+		
+		// create final zip file
+		String finalFile = artefactoryFolder.getFilePath( action , item.distItem.DISTBASENAME + item.distItem.EXT );
+		zip.createZipFromContent( action , finalFile , "*" );
+		
+		return( finalFile );
 	}
 	
 	public void repackageStatic( ActionBase action , String PROJECT , String VERSION , String WARFILE , String STATICFILE , String TAGNAME , MetaDistrBinaryItem distItem ) throws Exception {

@@ -221,6 +221,15 @@ public abstract class Folder {
 		ShellExecutor session = getSession( action ); 
 		session.getTopDirsAndFiles( action , folderPath , dirs , files );
 	}
+
+	public void createZipFromContent( ActionBase action , String zipFilePath , String content ) throws Exception {
+		createZipFromFolderContent( action , zipFilePath , "" , content );
+	}
+	
+	public void createZipFromFolderContent( ActionBase action , String zipFilePath , String folder , String content ) throws Exception {
+		ShellExecutor session = getSession( action ); 
+		session.createZipFromDirContent( action , zipFilePath , Common.getPath( folderPath , folder ) , content );
+	}
 	
 	public void createTarGzFromFolderContent( ActionBase action , String tarFilePath , String folder , String content , String exclude ) throws Exception {
 		ShellExecutor session = getSession( action ); 
