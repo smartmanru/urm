@@ -3,6 +3,7 @@ package ru.egov.urm.storage;
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
+import ru.egov.urm.meta.MetaSourceProjectItem;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.run.ActionBase;
 
@@ -66,6 +67,18 @@ public class NexusStorage {
 		return( info );
 	}
 
+	public NexusDownloadInfo repackageNugetPlatform( ActionBase action , NexusDownloadInfo src , MetaSourceProjectItem item ) throws Exception {
+		NexusDownloadInfo dst = new NexusDownloadInfo( artefactoryFolder );
+		LocalFolder tmp = artefactoryFolder.getSubFolder( action , "tmp" );
+		tmp.ensureExists( action );
+		
+		action.session.unzipPart( action , artefactoryFolder.folderPath , src.DOWNLOAD_FILENAME , 
+				Common.getPath( "lib" , item.NUGET_PLATFORM , "*" ) , tmp.getFolderPath( action , "lib" ) );
+		action.session.unzipPart( action , artefactoryFolder.folderPath , src.DOWNLOAD_FILENAME , 
+				Common.getPath( "content" , "*" ) , tmp.getFolderPath( action , "content" ) );
+		return( dst );
+	}
+	
 	public void repackageStatic( ActionBase action , String PROJECT , String VERSION , String WARFILE , String STATICFILE , String TAGNAME , MetaDistrBinaryItem distItem ) throws Exception {
 		LocalFolder folder = artefactoryFolder.getSubFolder( action , distItem.delivery.FOLDER );
 		

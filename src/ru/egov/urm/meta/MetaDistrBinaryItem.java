@@ -67,7 +67,7 @@ public class MetaDistrBinaryItem {
 		}
 		else
 		// archive item
-		if( DISTTYPE == VarDISTITEMTYPE.ARCHIVE_CHILD || DISTTYPE == VarDISTITEMTYPE.ARCHIVE_DIRECT || DISTTYPE == VarDISTITEMTYPE.ARCHIVE_SUBDIR ) {
+		if( isArchive( action ) ) {
 			EXT = ConfReader.getAttrValue( action , node , "extension" , ".tar.gz" );
 			FILES = ConfReader.getAttrValue( action , node , "files" , "*" );
 			EXCLUDE = ConfReader.getAttrValue( action , node , "exclude" );

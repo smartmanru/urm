@@ -26,15 +26,13 @@ public class MonitoringStorage {
 	}
 	
 	public String getRrdFile( MetaMonitoringTarget target ) throws Exception {
-		String path = Common.getPath( mon.DIR_DATA , target.PRODUCT );
-		path = Common.getPath( path , target.ENV );
+		String path = Common.getPath( mon.DIR_DATA , target.PRODUCT , target.ENV );
 		String file = "env." + target.DC + ".rrd";
 		return( Common.getPath( path , file ) );
 	}
 	
 	public String getCheckEnvFile( MetaMonitoringTarget target ) throws Exception {
-		String path = Common.getPath( mon.DIR_DATA , target.PRODUCT );
-		path = Common.getPath( path , target.ENV );
+		String path = Common.getPath( mon.DIR_DATA , target.PRODUCT , target.ENV );
 		String file = "checkenv." + target.DC + ".log";
 		return( Common.getPath( path , file ) );
 	}

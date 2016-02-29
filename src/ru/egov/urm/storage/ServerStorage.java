@@ -112,7 +112,7 @@ public class ServerStorage {
 			action.exit( "getPathRedistReleaseRoot: invalid params" );
 
 		String C_COMMON_DIRPATH = getRedistFolderRootPath( action );
-		C_COMMON_DIRPATH = Common.getPath( Common.getPath( C_COMMON_DIRPATH , "releases" ) , RELEASEDIR );
+		C_COMMON_DIRPATH = Common.getPath( C_COMMON_DIRPATH , "releases" , RELEASEDIR );
 		
 		String folder = getRedistFolderByContent( action , CONTENTTYPE , rollout );
 		return( Common.getPath( C_COMMON_DIRPATH , folder ) );

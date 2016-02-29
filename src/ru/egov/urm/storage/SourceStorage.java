@@ -215,8 +215,7 @@ public class SourceStorage {
 	}
 
 	public String getLiveConfigDCPath( ActionBase action , MetaEnvDC dc ) throws Exception {
-		String PATH = Common.getPath( meta.product.CONFIG_SOURCE_CFG_LIVEROOTDIR , dc.env.ID );
-		PATH = Common.getPath( PATH , dc.NAME );
+		String PATH = Common.getPath( meta.product.CONFIG_SOURCE_CFG_LIVEROOTDIR , dc.env.ID , dc.NAME );
 		return( PATH );
 	}
 	

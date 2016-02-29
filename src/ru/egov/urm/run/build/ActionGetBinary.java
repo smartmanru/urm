@@ -55,15 +55,15 @@ public class ActionGetBinary extends ActionBase {
 		log( "get binary item " + distItem.KEY + " ..." );
 
 		// compare with release information
-		VarITEMSRCTYPE itemtype = scopeItem.sourceItem.ITEMSRCTYPE;
-		if( itemtype == VarITEMSRCTYPE.NEXUS )
-			downloadNexusItem( "nexus" , scopeProject , scopeItem );
+		if( scopeItem.sourceItem.isStoredInNexus( this ) ) {
+			if( scopeItem.sourceItem.ITEMSRCTYPE == VarITEMSRCTYPE.STATICWAR )
+				downloadNexusItem( "staticwar" , scopeProject , scopeItem );
+			else
+				downloadNexusItem( "nexus" , scopeProject , scopeItem );
+		}
 		else
-		if( itemtype == VarITEMSRCTYPE.NUGET )
+		if( scopeItem.sourceItem.isStoredInNuget( this ) )
 			downloadNugetItem( scopeProject , scopeItem );
-		else
-		if( itemtype == VarITEMSRCTYPE.STATICWAR )
-			downloadNexusItem( "staticwar" , scopeProject , scopeItem );
 		else
 			exit( "unexpected ITEMTYPE=" + Common.getEnumLower( scopeItem.sourceItem.ITEMSRCTYPE ) );
 	}
@@ -76,7 +76,7 @@ public class ActionGetBinary extends ActionBase {
 		String PACKAGING = "";
 
 		// get source item details
-		String GROUPID = scopeItem.sourceItem.ITEMPATH.replace( '/' , '.' );
+		String GROUPID = scopeItem.sourceItem.NEXUS_ITEMPATH.replace( '/' , '.' );
 		
 		if( EXT.isEmpty() ) {
 			CLASSIFIER = "webstatic";
@@ -129,7 +129,7 @@ public class ActionGetBinary extends ActionBase {
 	}
 
 	private void downloadNugetItem( ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
-		String ARTEFACTID = scopeItem.sourceItem.ITEMPATH;
+		String ARTEFACTID = scopeItem.sourceItem.NUGET_ITEMPATH;
 		String BUILDVERSION = scopeItem.getProjectItemBuildVersion( this );
 		boolean copyDistr = context.CTX_DIST;
 		if( scopeItem.sourceItem.INTERNAL )
@@ -137,10 +137,27 @@ public class ActionGetBinary extends ActionBase {
 
 		NexusStorage nexusStorage = artefactory.getDefaultNugetStorage( this , downloadFolder );
 		NexusDownloadInfo BINARY = nexusStorage.downloadNuget( this , ARTEFACTID , BUILDVERSION , scopeItem.distItem );
+
+		String FILENAME = "";
+		String BASENAME = "";
+		String EXT = "";
+		if( scopeItem.sourceItem.ITEMSRCTYPE == VarITEMSRCTYPE.NUGET ) {
+			FILENAME = BINARY.DOWNLOAD_FILENAME;
+			BASENAME = BINARY.BASENAME;
+			EXT = BINARY.EXT;
+		}
+		else
+		if( scopeItem.sourceItem.ITEMSRCTYPE == VarITEMSRCTYPE.NUGET_PLATFORM ) {
+			// repack given item
+			NexusDownloadInfo NUPL = nexusStorage.repackageNugetPlatform( this , BINARY , scopeItem.sourceItem );
+			FILENAME = NUPL.DOWNLOAD_FILENAME;
+			BASENAME = NUPL.BASENAME;
+			EXT = NUPL.EXT;
+		}
 		
 		if( copyDistr ) {
 			DistStorage releaseStorage = targetRelease;
-			releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , BINARY.DOWNLOAD_FILENAME , BINARY.BASENAME, BINARY.EXT );
+			releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , FILENAME , BASENAME, EXT );
 		}
 	}
 
@@ -159,7 +176,7 @@ public class ActionGetBinary extends ActionBase {
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , downloadFolder );
 		
 		if( scopeItem.sourceItem.isStoredInSvn( this ) ) {
-			String ITEMPATH = scopeItem.sourceItem.ITEMPATH;
+			String ITEMPATH = scopeItem.sourceItem.SVN_ITEMPATH;
 			String DISTFOLDER = scopeItem.distItem.delivery.FOLDER;
 			ITEMPATH = Common.replace( ITEMPATH , "@BUILDVERSION@" , BUILDVERSION ); 
 			sourceStorage.downloadThirdpartyItemFromVCS( this , ITEMPATH , DISTFOLDER );

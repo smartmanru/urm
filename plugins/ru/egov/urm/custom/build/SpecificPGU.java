@@ -277,7 +277,7 @@ public class SpecificPGU {
 		MetaSourceProjectItem sourceItem = sourceProject.getItem( action , "pgu-dependencies" );
 		MetaDistrBinaryItem distItem = meta.distr.getBinaryItem( action , sourceItem.ITEMNAME );
 		
-		String GROUPID = sourceItem.ITEMPATH.replace( '/' , '.' );
+		String GROUPID = sourceItem.NEXUS_ITEMPATH.replace( '/' , '.' );
 		String EXT = sourceItem.ITEMEXTENSION.substring( 1 );
 		
 		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , downloadFolder );

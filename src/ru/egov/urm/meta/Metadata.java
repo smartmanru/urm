@@ -47,6 +47,7 @@ public class Metadata {
 		UNKNOWN ,
 		NEXUS ,
 		NUGET ,
+		NUGET_PLATFORM ,
 		STATICWAR ,
 		SVN ,
 		SVNOLD ,

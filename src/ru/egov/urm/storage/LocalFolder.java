@@ -48,7 +48,7 @@ public class LocalFolder extends Folder {
 	}
 	
 	public void copyFile( ActionBase action , String srcFolder , String fileName , LocalFolder dstFolder , String newName ) throws Exception {
-		String srcFilePath = Common.getPath( Common.getPath( folderPath , srcFolder ) , fileName );
+		String srcFilePath = Common.getPath( folderPath , srcFolder , fileName );
 		String dstFilePath = Common.getPath( dstFolder.folderPath , newName );
 		ShellExecutor session = getSession( action ); 
 		session.copyFile( action , srcFilePath , dstFilePath );

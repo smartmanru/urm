@@ -119,7 +119,7 @@ public abstract class Folder {
 		if( targetSubFolder.isEmpty() )
 			session.copyFile( action , Common.getPath( folderPath , folder1 ) , Common.getPath( folderPath , folder2 ) , newName , "" );
 		else
-			session.copyFile( action , Common.getPath( folderPath , folder1 ) , Common.getPath( Common.getPath( folderPath ,targetSubFolder ) , folder2 ) , newName , "" );
+			session.copyFile( action , Common.getPath( folderPath , folder1 ) , Common.getPath( folderPath ,targetSubFolder , folder2 ) , newName , "" );
 	}
 
 	public String getFilePath( ActionBase action , String file ) {

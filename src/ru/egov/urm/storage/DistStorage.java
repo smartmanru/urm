@@ -608,8 +608,7 @@ public class DistStorage {
 			locationDir.copyFileFromLocal( action , work.getFilePath( action , redistFileName ) );
 		}
 		else {
-			String path = Common.getPath( distFolder.folderPath , item.delivery.FOLDER );
-			path = Common.getPath( path , fileName );
+			String path = Common.getPath( distFolder.folderPath , item.delivery.FOLDER , fileName );
 			locationDir.copyFileFromLocalRename( action , path , redistFileName );
 		}
 	}
@@ -764,7 +763,7 @@ public class DistStorage {
 					action.exit( "distributive delivery " + delivery.distDelivery.NAME + 
 							" has non-release config=" + dir );
 				
-				String folder = Common.getPath( delivery.distDelivery.FOLDER , Common.getPath( "config" , dir ) );
+				String folder = Common.getPath( delivery.distDelivery.FOLDER , "config" , dir );
 				action.log( "delete non-release configuration item delivery=" + delivery.distDelivery.NAME + " config=" + dir + " ..." );
 				distFolder.removeFolder( action , folder );
 			}

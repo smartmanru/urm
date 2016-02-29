@@ -13,10 +13,17 @@ public class MetaSourceProjectItem {
 	public String ITEMBASENAME;
 	public VarITEMSRCTYPE ITEMSRCTYPE;
 	public String ITEMEXTENSION;
-	public String ITEMPATH;
 	public String ITEMVERSION;
 	public String ITEMSTATICEXTENSION;
 	public boolean INTERNAL;
+	
+	public String SVN_ITEMPATH;
+	
+	public String NEXUS_ITEMPATH;
+	
+	public String NUGET_ITEMPATH;
+	public String NUGET_PLATFORM;
+	public String NUGET_LIBNAME;
 
 	Metadata meta;
 	public MetaDistrBinaryItem distItem;
@@ -41,14 +48,25 @@ public class MetaSourceProjectItem {
 		distItem.setSource( action , this );
 
 		ITEMEXTENSION = ConfReader.getAttrValue( action , node , "extension" );
+		ITEMVERSION = ConfReader.getAttrValue( action , node , "version" );
 
-		if( ITEMSRCTYPE != VarITEMSRCTYPE.GENERATED ) {
-			ITEMPATH = ConfReader.getAttrValue( action , node , "path" );
-			ITEMVERSION = ConfReader.getAttrValue( action , node , "version" );
+		if( isStoredInSvn( action ) ) {
+			SVN_ITEMPATH = ConfReader.getAttrValue( action , node , "svn.path" );
+		}
+
+		if( isStoredInNexus( action ) ) {
+			NEXUS_ITEMPATH = ConfReader.getAttrValue( action , node , "nexus.path" );
+		}
+
+		if( isStoredInNuget( action ) ) {
+			NUGET_ITEMPATH = ConfReader.getAttrValue( action , node , "nuget.path" );
+			NUGET_PLATFORM = ConfReader.getAttrValue( action , node , "nuget.platform" );
+			NUGET_LIBNAME = ConfReader.getAttrValue( action , node , "nuget.libname" );
 		}
 
 		if( ITEMSRCTYPE == VarITEMSRCTYPE.STATICWAR ) {
 			ITEMSTATICEXTENSION = ConfReader.getAttrValue( action , node , "staticextension" );
+			NEXUS_ITEMPATH = ConfReader.getAttrValue( action , node , "nexus.path" );
 
 			if( ITEMSTATICEXTENSION.isEmpty() )
 				ITEMSTATICEXTENSION="-webstatic.tar.gz";
@@ -74,13 +92,13 @@ public class MetaSourceProjectItem {
 	}
 
 	public boolean isStoredInNexus( ActionBase action ) throws Exception {
-		if( ITEMSRCTYPE == VarITEMSRCTYPE.NEXUS )
+		if( ITEMSRCTYPE == VarITEMSRCTYPE.NEXUS || ITEMSRCTYPE == VarITEMSRCTYPE.STATICWAR )
 			return( true );
 		return( false );
 	}
 
 	public boolean isStoredInNuget( ActionBase action ) throws Exception {
-		if( ITEMSRCTYPE == VarITEMSRCTYPE.NUGET )
+		if( ITEMSRCTYPE == VarITEMSRCTYPE.NUGET || ITEMSRCTYPE == VarITEMSRCTYPE.NUGET_PLATFORM )
 			return( true );
 		return( false );
 	}
