@@ -5,6 +5,7 @@ import org.w3c.dom.Node;
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.custom.ICustomDeploy;
+import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
 import ru.egov.urm.meta.Metadata.VarDISTITEMTYPE;
 import ru.egov.urm.meta.Metadata.VarITEMVERSION;
 import ru.egov.urm.meta.Metadata.VarNAMETYPE;
@@ -20,6 +21,9 @@ public class MetaDistrBinaryItem {
 	public String KEY;
 	public String EXT;
 	public VarDISTITEMTYPE DISTTYPE;
+	public VarDISTITEMSOURCE DISTSOURCE;
+	public String SRCDISTITEM;
+	public MetaDistrBinaryItem srcItem;
 	public String DISTBASENAME;
 	public String DEPLOYBASENAME;
 	public VarITEMVERSION DEPLOYVERSION;
@@ -27,7 +31,6 @@ public class MetaDistrBinaryItem {
 	public String WAR_CONTEXT;
 	public String WAR_STATICEXT;
 	public String BUILDINFO;
-	public boolean MANUAL;
 	public String FILES;
 	public String EXCLUDE;
 	
@@ -43,15 +46,18 @@ public class MetaDistrBinaryItem {
 	public void load( ActionBase action , Node node ) throws Exception {
 		this.node = node;
 		KEY = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
-		MANUAL = ConfReader.getBooleanAttrValue( action , node , "manual" , false );
 	
 		// read attrs
 		DISTTYPE = meta.getItemDistType( action , ConfReader.getRequiredAttrValue( action , node , "type" ) );
+		DISTSOURCE = meta.getItemDistSource( action , ConfReader.getRequiredAttrValue( action , node , "source" ) );
+		if( DISTSOURCE == VarDISTITEMSOURCE.DISTITEM )
+			SRCDISTITEM = ConfReader.getAttrValue( action , node , "srcitem" , KEY );
+		
 		DISTBASENAME = ConfReader.getAttrValue( action , node , "distname" , KEY );
 		DEPLOYBASENAME = ConfReader.getAttrValue( action , node , "deployname" , DISTBASENAME );
 		DEPLOYVERSION = meta.readItemVersionAttr( action , node , "deployversion" );
 		BUILDINFO = ConfReader.getAttrValue( action , node , "buildinfo" );
-	
+
 		// binary item
 		if( DISTTYPE == VarDISTITEMTYPE.BINARY ) {
 			EXT = ConfReader.getRequiredAttrValue( action , node , "extension" );
@@ -88,6 +94,11 @@ public class MetaDistrBinaryItem {
 		}
 	}
 
+	public void resolveReferences( ActionBase action ) throws Exception {
+		if( DISTSOURCE == VarDISTITEMSOURCE.DISTITEM )
+			srcItem = meta.distr.getBinaryItem( action , SRCDISTITEM ); 
+	}
+	
 	public boolean isArchive( ActionBase action ) throws Exception {
 		if( DISTTYPE == VarDISTITEMTYPE.ARCHIVE_CHILD || 
 			DISTTYPE == VarDISTITEMTYPE.ARCHIVE_DIRECT || 

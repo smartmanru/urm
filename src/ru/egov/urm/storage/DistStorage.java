@@ -21,6 +21,7 @@ import ru.egov.urm.meta.MetaSourceProjectSet;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
+import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
 import ru.egov.urm.meta.Metadata.VarDISTITEMTYPE;
 import ru.egov.urm.run.ActionBase;
 
@@ -465,7 +466,7 @@ public class DistStorage {
 		if( !openedForUse )
 			action.exit( "distributive is not opened for use" );
 		
-		if( item.MANUAL ) {
+		if( item.DISTSOURCE == VarDISTITEMSOURCE.MANUAL ) {
 			MetaReleaseTarget target = info.findCategoryTarget( action , VarCATEGORY.MANUAL , item.KEY );
 			if( target == null )
 				return( false );
@@ -486,7 +487,7 @@ public class DistStorage {
 		if( !openedForUse )
 			action.exit( "distributive is not opened for use" );
 		
-		if( item.MANUAL ) {
+		if( item.DISTSOURCE == VarDISTITEMSOURCE.MANUAL ) {
 			MetaReleaseTarget target = info.findCategoryTarget( action , VarCATEGORY.MANUAL , item.KEY );
 			if( target == null )
 				return( "" );

@@ -10,6 +10,7 @@ import org.w3c.dom.Node;
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
+import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
 import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 import ru.egov.urm.run.ActionBase;
 
@@ -232,7 +233,7 @@ public class MetaReleaseSet {
 
 	public void addAllManualItems( ActionBase action ) throws Exception {
 		for( MetaDistrBinaryItem item : meta.distr.getBinaryItems( action ).values() ) {
-			if( item.MANUAL )
+			if( item.DISTSOURCE == VarDISTITEMSOURCE.MANUAL )
 				addManualItem( action , item );
 		}
 	}

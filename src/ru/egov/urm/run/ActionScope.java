@@ -17,6 +17,7 @@ import ru.egov.urm.meta.MetaReleaseTarget;
 import ru.egov.urm.meta.MetaSourceProjectSet;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
+import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
 import ru.egov.urm.storage.DistStorage;
 
 public class ActionScope {
@@ -368,7 +369,7 @@ public class ActionScope {
 				action.exit( "unknown distributive item=" + itemName );
 			
 			ActionScopeSet sset = null;
-			if( item.MANUAL )
+			if( item.DISTSOURCE == VarDISTITEMSOURCE.MANUAL )
 				sset = createProductCategoryScopeSet( action , VarCATEGORY.MANUAL );
 			else
 				sset = createProjectScopeSet( action , item.sourceItem.project.set );
@@ -386,7 +387,7 @@ public class ActionScope {
 				action.exit( "unknown distributive item=" + itemName );
 			
 			ActionScopeSet sset = null;
-			if( item.MANUAL )
+			if( item.DISTSOURCE == VarDISTITEMSOURCE.MANUAL )
 				sset = createReleaseCategoryScopeSet( action , dist , VarCATEGORY.MANUAL );
 			else {
 				MetaReleaseSet rset = release.info.getSourceSet( action , item.sourceItem.project.set.NAME );

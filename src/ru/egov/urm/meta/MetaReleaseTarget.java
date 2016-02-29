@@ -11,6 +11,7 @@ import org.w3c.dom.Node;
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
+import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
 import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 import ru.egov.urm.run.ActionBase;
 
@@ -180,7 +181,7 @@ public class MetaReleaseTarget {
 	}
 	
 	public void createFromManualItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		if( !item.MANUAL )
+		if( item.DISTSOURCE != VarDISTITEMSOURCE.MANUAL )
 			action.exit( "unexpected non-manual item=" + item.KEY );
 		
 		this.distManualItem = item;

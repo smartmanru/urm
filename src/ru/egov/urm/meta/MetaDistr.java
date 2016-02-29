@@ -68,6 +68,10 @@ public class MetaDistr {
 			mapBinaryItems.putAll( item.getBinaryItems( action ) );
 			mapConfItems.putAll( item.getConfigurationItems( action ) );
 		}
+		
+		
+		for( MetaDistrBinaryItem item : mapBinaryItems.values() )
+			item.resolveReferences( action );
 	}
 
 	public void loadComponents( ActionBase action , Node node ) throws Exception {

@@ -107,6 +107,13 @@ public class Metadata {
 		ARCHIVE_SUBDIR		// deploydir/archivename = archive/content/fullcontent
 	};
 	
+	public enum VarDISTITEMSOURCE {
+		UNKNOWN ,
+		MANUAL ,
+		BUILD ,
+		DISTITEM
+	};
+	
 	public enum VarPROCESSMODE {
 		UNKNOWN ,
 		STARTED ,
@@ -299,6 +306,21 @@ public class Metadata {
 		
 		if( value == null )
 			action.exit( "unknown distributive item type=" + ID );
+		
+		return( value );
+	}
+	
+	public VarDISTITEMSOURCE getItemDistSource( ActionBase action , String ID ) throws Exception {
+		VarDISTITEMSOURCE value = null;
+		try {
+			value = VarDISTITEMSOURCE.valueOf( Common.xmlToEnumValue( ID ) );
+		}
+		catch( IllegalArgumentException e ) {
+			action.exit( "invalid distributive item source=" + ID );
+		}
+		
+		if( value == null )
+			action.exit( "unknown distributive item source=" + ID );
 		
 		return( value );
 	}

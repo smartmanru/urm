@@ -11,6 +11,7 @@ import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
+import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
 import ru.egov.urm.run.ActionBase;
 
 public class MetaRelease {
@@ -592,7 +593,7 @@ public class MetaRelease {
 	}
 
 	public boolean addManualItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		if( !item.MANUAL )
+		if( item.DISTSOURCE != VarDISTITEMSOURCE.MANUAL )
 			action.exit( "unexpected non-manual item=" + item.KEY );
 			
 		MetaReleaseSet set = getCategorySet( action , VarCATEGORY.MANUAL );

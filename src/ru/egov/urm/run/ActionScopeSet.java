@@ -23,6 +23,7 @@ import ru.egov.urm.meta.MetaSourceProject;
 import ru.egov.urm.meta.MetaSourceProjectSet;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
+import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
 import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.shell.Account;
 import ru.egov.urm.storage.DistStorage;
@@ -257,7 +258,7 @@ public class ActionScopeSet {
 		
 		for( String item : ITEMS ) {
 			MetaDistrBinaryItem distitem = meta.distr.getBinaryItem( action , item );
-			if( !distitem.MANUAL )
+			if( distitem.DISTSOURCE != VarDISTITEMSOURCE.MANUAL )
 				action.exit( "unexpected non-manual item=" + item );
 			
 			addProductManualItem( action , distitem , true );
