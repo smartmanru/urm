@@ -472,15 +472,22 @@ public class DistStorage {
 				return( false );
 			return( true );
 		}
+		else if( item.DISTSOURCE == VarDISTITEMSOURCE.DISTITEM )
+			return( checkIfReleaseItem( action , item.srcItem ) );
+		else if( item.DISTSOURCE == VarDISTITEMSOURCE.BUILD ) {
+			MetaReleaseTarget target = info.findBuildProject( action , item.sourceItem.project.PROJECT );
+			if( target == null )
+				return( false );
+			
+			if( target.getItem( action , item.KEY ) == null )
+				return( false );
+			
+			return( true );
+		}
+		else
+			action.exitUnexpectedState();
 		
-		MetaReleaseTarget target = info.findBuildProject( action , item.sourceItem.project.PROJECT );
-		if( target == null )
-			return( false );
-		
-		if( target.getItem( action , item.KEY ) == null )
-			return( false );
-		
-		return( true );
+		return( false );
 	}
 	
 	public String getBinaryDistItemFile( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
