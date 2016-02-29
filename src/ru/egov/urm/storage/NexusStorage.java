@@ -85,10 +85,12 @@ public class NexusStorage {
 		zip.copyDirContent( action , tmp.getSubFolder( action , "content" ) );
 		
 		// create final zip file
-		String finalFile = artefactoryFolder.getFilePath( action , item.distItem.DISTBASENAME + item.distItem.EXT );
+		String FILENAME = item.distItem.DISTBASENAME + item.distItem.EXT;
+		String finalFile = artefactoryFolder.getFilePath( action , FILENAME );
 		zip.createZipFromContent( action , finalFile , "*" );
+		action.session.createMD5( action , finalFile );
 		
-		return( finalFile );
+		return( FILENAME );
 	}
 	
 	public void repackageStatic( ActionBase action , String PROJECT , String VERSION , String WARFILE , String STATICFILE , String TAGNAME , MetaDistrBinaryItem distItem ) throws Exception {
