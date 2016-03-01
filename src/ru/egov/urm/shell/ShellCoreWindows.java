@@ -98,7 +98,7 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public void cmdEnsureDirExists( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( action , dir );
-		runCommand( action , "if not exist " + wdir + " md " + wdir , false );
+		runCommand( action , "if not exist " + wdir + " md " + wdir , true );
 		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
 			action.exit( "check/create directory error" );
 	}
@@ -182,14 +182,14 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public void cmdRemoveDirContent( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( action , dir );
-		runCommand( action , "if exist " + wdir + " ( rmdir /S /Q " + wdir + " && md " + wdir + " )" , false );
+		runCommand( action , "if exist " + wdir + " ( rmdir /S /Q " + wdir + " && md " + wdir + " )" , true );
 		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
 			action.exit( "remove directory content error" );
 	}
 	
 	@Override public void cmdRemoveDir( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( action , dir );
-		runCommand( action , "if exist " + wdir + " rmdir /S /Q " + wdir , false );
+		runCommand( action , "if exist " + wdir + " rmdir /S /Q " + wdir , true );
 		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
 			action.exit( "remove directory error" );
 	}
@@ -199,7 +199,10 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public void cmdRemoveFiles( ActionBase action , String dir , String files ) throws Exception {
-		action.exitNotImplemented();
+		String cmdDir = getDirCmdIfDir( action , dir , "del /Q " + files + " && rmdir /Q /S " + files );
+		runCommand( action , cmdDir , true );
+		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
+			action.exit( "remove directory error" );
 	}
 
 	@Override public void cmdRemoveFilesWithExclude( ActionBase action , String dir , String files , String exclude ) throws Exception {
@@ -260,7 +263,7 @@ public class ShellCoreWindows extends ShellCore {
 		action.debug( "copy " + fileFrom + " to " + fileTo + " ..." );
 		String wfileFrom = Common.getWinPath( action , fileFrom );
 		String wfileTo = Common.getWinPath( action , fileTo );
-		runCommandCheckStatus( action , "copy /Y " + wfileFrom + " " + wfileTo , false );
+		runCommandCheckStatus( action , "copy /Y " + wfileFrom + " " + wfileTo , true );
 	}
 	
 	@Override public void cmdCopyFile( ActionBase action , String fileFrom , String targetDir , String finalName , String FOLDER ) throws Exception {
@@ -387,7 +390,7 @@ public class ShellCoreWindows extends ShellCore {
 	@Override public void cmdAppendExecuteLog( ActionBase action , String msg ) throws Exception {
 		String executeLog = Common.getWinPath( action , Common.getPath( executor.rootPath , "execute.log" ) );
 		String ts = Common.getLogTimeStamp();
-		runCommand( action , "echo " + Common.getQuoted( ts + ": " + msg ) + " >> " + executeLog , false );
+		runCommand( action , "echo " + Common.getQuoted( ts + ": " + msg ) + " >> " + executeLog , true );
 	}
 
 	@Override public void cmdAppendUploadLog( ActionBase action , String src , String dst ) throws Exception {
