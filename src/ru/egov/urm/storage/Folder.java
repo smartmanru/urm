@@ -338,14 +338,16 @@ public abstract class Folder {
 	}
 
 	public String findBinaryDistItemFile( ActionBase action , MetaDistrBinaryItem item , String specificDeployName ) throws Exception {
-		String deployName = specificDeployName;
-		if( deployName.isEmpty() )
-			deployName = item.DEPLOYBASENAME;
-		String filePath = findOneTopWithGrep( action , "*" + deployName + "*" + item.EXT , item.getGrepMask( action , deployName ) );
+		String deployBasename = specificDeployName;
+		if( deployBasename.isEmpty() )
+			deployBasename = item.DEPLOYBASENAME;
+		else
+			deployBasename = deployBasename.substring( 0 , deployBasename.lastIndexOf( item.EXT ) );
+		String filePath = findOneTopWithGrep( action , "*" + deployBasename + "*" + item.EXT , item.getGrepMask( action , deployBasename ) );
 
 		// ensure correct file
 		if( filePath.isEmpty() ) {
-			action.trace( "findBinaryDistItem: file " + deployName + item.EXT + " not found in " + folderPath );
+			action.trace( "findBinaryDistItem: file " + deployBasename + item.EXT + " not found in " + folderPath );
 			return( "" );
 		}
 

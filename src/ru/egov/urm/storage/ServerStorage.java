@@ -218,7 +218,8 @@ public class ServerStorage {
 
 	public String getRedistBinaryFileDeployName( ActionBase action , String redistFile ) throws Exception {
 		String fileNoType = Common.getPartAfterFirst( redistFile , "-" );
-		return( Common.getPartAfterFirst( fileNoType , "-" ) );
+		String fileWithExt = Common.getPartAfterFirst( fileNoType , "-" );
+		return( fileWithExt );
 	}
 	
 	public boolean getRedistFileConfFull( ActionBase action , String redistFile ) throws Exception {
