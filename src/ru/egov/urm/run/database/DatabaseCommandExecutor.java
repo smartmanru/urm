@@ -46,7 +46,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 			impl = new DatabaseCommand();
 			meta.loadDistr( action );
 			meta.loadSources( action );
-			meta.loadEnv( action , action.context.env , action.context.dc , true );
+			action.context.loadEnv( action , true );
 		}
 		catch( Throwable e ) {
 			action.log( e );
@@ -90,7 +90,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
 		DistStorage dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		String SERVER = options.getRequiredArg( action , 1 , "DBSERVER" );
-		MetaEnvServer server = action.meta.dc.getServer( action , SERVER );
+		MetaEnvServer server = action.context.dc.getServer( action , SERVER );
 		ActionScope scope = getIndexScope( action , dist , 2 );
 		impl.applyManual( action , scope , dist , server );
 	}

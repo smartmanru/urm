@@ -23,7 +23,7 @@ public class ActionLogin extends ActionBase {
 		if( context.CTX_ROOTUSER )
 			account = account.getRootAccount( this );
 
-		String F_KEY = meta.env.KEYNAME;
+		String F_KEY = context.env.KEYNAME;
 		if( !context.CTX_KEYNAME.isEmpty() )
 			F_KEY = context.CTX_KEYNAME;
 

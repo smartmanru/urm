@@ -53,10 +53,10 @@ public class ServerStorage {
 	
 	public RemoteFolder getRedistTmpFolder( ActionBase action ) throws Exception {
 		String path;
-		if( action.meta == null || action.meta.env == null )
+		if( action.meta == null || action.context.env == null )
 			path = action.meta.product.CONFIG_REDISTPATH;
 		else
-			path = action.meta.env.REDISTPATH;
+			path = action.context.env.REDISTPATH;
 		
 		path = Common.getPath( path , "tmp-" + account.USER );
 		RemoteFolder rf = new RemoteFolder( artefactory , account , path );
@@ -77,7 +77,7 @@ public class ServerStorage {
 	}
 	
 	public RemoteFolder getRedistHostRootFolder( ActionBase action ) throws Exception {
-		String path = ( action.meta.env == null )? action.meta.product.CONFIG_REDISTPATH : action.meta.env.REDISTPATH;
+		String path = ( action.context.env == null )? action.meta.product.CONFIG_REDISTPATH : action.context.env.REDISTPATH;
 		Account rootAccount = account.getRootAccount( action );
 		RemoteFolder rf = new RemoteFolder( artefactory , rootAccount , path );
 		return( rf );
@@ -155,10 +155,10 @@ public class ServerStorage {
 	}
 	
 	protected String getRedistFolderRootPath( ActionBase action ) throws Exception {
-		if( action.meta == null || action.meta.env == null )
+		if( action.meta == null || action.context.env == null )
 			return( action.meta.product.CONFIG_REDISTPATH );
 		
-		String path = action.meta.env.REDISTPATH;
+		String path = action.context.env.REDISTPATH;
 		if( server != null )
 			path = Common.getPath( path , server.NAME + "-node" + node.POS );
 		else

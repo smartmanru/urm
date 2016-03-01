@@ -82,7 +82,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 			meta.loadSources( action );
 			
 			boolean loadProps = Common.checkPartOfSpacedList( commandAction.name , propertyBasedMethods ); 
-			meta.loadEnv( action , action.context.env , action.context.dc , loadProps );
+			action.context.loadEnv( action , loadProps );
 		}
 		catch( Throwable e ) {
 			action.log( e );
@@ -117,11 +117,11 @@ public class DeployCommandExecutor extends CommandExecutor {
 		if( s.matches( "[0-9]+" ) ) {
 			String SERVER = options.getArg( posFrom );
 			String[] NODES = options.getArgList( posFrom + 1 );
-			return( ActionScope.getEnvServerNodesScope( action , SERVER , NODES , release ) );
+			return( ActionScope.getEnvServerNodesScope( action , action.context.dc , SERVER , NODES , release ) );
 		}
 		
 		String[] SERVERS = options.getArgList( posFrom );
-		return( ActionScope.getEnvServersScope( action , SERVERS , release ) );
+		return( ActionScope.getEnvServersScope( action , action.context.dc , SERVERS , release ) );
 	}
 	
 	private class CheckEnv extends CommandAction {
@@ -215,7 +215,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String SERVER = options.getRequiredArg( action , 0 , "SERVER" );
 		String NODE = options.getArg( 1 );
-		impl.login( action , SERVER , NODE );
+		impl.login( action , action.context.dc , SERVER , NODE );
 	}
 	}
 

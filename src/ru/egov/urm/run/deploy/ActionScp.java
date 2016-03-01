@@ -22,8 +22,8 @@ public class ActionScp extends ActionBase {
 		if( !session.checkFileExists( this , srcInfo ) ) 
 			F_CMD += " -r";
 
-		if( !meta.env.KEYNAME.isEmpty() )
-			F_CMD += " -i " + meta.env.KEYNAME;
+		if( !context.env.KEYNAME.isEmpty() )
+			F_CMD += " -i " + context.env.KEYNAME;
 		
 		String F_SRC = Common.replace( srcInfo ,  "\\" , "" );
 		F_CMD += " " + F_SRC + " " + account.HOSTLOGIN + ":" + dstPath;

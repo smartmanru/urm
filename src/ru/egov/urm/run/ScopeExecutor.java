@@ -17,6 +17,7 @@ import ru.egov.urm.shell.Account;
 public class ScopeExecutor {
 
 	ActionBase action;
+	CommandContext context;
 
 	boolean runFailed = false;
 	boolean exception = false;
@@ -25,6 +26,7 @@ public class ScopeExecutor {
 	
 	public ScopeExecutor( ActionBase action ) {
 		this.action = action;
+		this.context = action.context;
 	}
 
 	private boolean checkFailed() {
@@ -47,6 +49,15 @@ public class ScopeExecutor {
 		runFailed = false;
 		exception = false;
 		if( !runAllInternal( scope ) )
+			return( false );
+		
+		return( getFinalStatus() );
+	}
+	
+	public boolean runAll( ActionScopeSet set ) {
+		runFailed = false;
+		exception = false;
+		if( !runTargetSetInternal( set ) )
 			return( false );
 		
 		return( getFinalStatus() );
@@ -635,8 +646,8 @@ public class ScopeExecutor {
 		for( ActionScopeSet set : scope.getCategorySets( action ) )
 			list.add( set );
 		
-		if( action.meta.env != null ) {
-			for( MetaEnvDC envSet : action.meta.env.getOriginalDCList( action ) ) {
+		if( context.env != null ) {
+			for( MetaEnvDC envSet : context.env.getOriginalDCList( action ) ) {
 				ActionScopeSet set = scope.findSet( action , VarCATEGORY.ENV , envSet.NAME );
 				if( set != null )
 					list.add( set );

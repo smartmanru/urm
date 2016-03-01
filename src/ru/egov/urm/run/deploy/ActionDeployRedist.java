@@ -5,7 +5,6 @@ import java.util.Map;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScope;
 import ru.egov.urm.run.ActionScopeSet;
 import ru.egov.urm.run.ActionScopeTarget;
 import ru.egov.urm.run.ActionScopeTargetItem;
@@ -23,8 +22,8 @@ public class ActionDeployRedist extends ActionBase {
 		this.dist = dist;
 	}
 
-	@Override protected void runBefore( ActionScope scope ) throws Exception {
-		logAction( "execute dc=" + meta.dc.NAME + ", releasedir=" + dist.RELEASEDIR + ", servers={" + scope.getScopeInfo( this ) + "} ..." );
+	@Override protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+		logAction( "execute dc=" + set.dc.NAME + ", releasedir=" + dist.RELEASEDIR + ", servers={" + set.getScopeInfo( this ) + "} ..." );
 	}
 	
 	@Override protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {

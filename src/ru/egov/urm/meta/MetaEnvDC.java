@@ -162,5 +162,13 @@ public class MetaEnvDC {
 		}
 		return( s );
 	}
+
+	public boolean hasDatabaseServers( ActionBase action ) throws Exception {
+		for( MetaEnvServer server : originalList )
+			if( server.isDatabase( action ) )
+				return( true );
+		
+		return( false );
+	}
 	
 }

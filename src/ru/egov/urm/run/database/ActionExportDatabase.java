@@ -48,7 +48,7 @@ public class ActionExportDatabase extends ActionBase {
 	public ActionExportDatabase( ActionBase action , String stream , MetaEnvServer server , String CMD , String SCHEMA ) {
 		super( action , stream );
 		this.server = server;
-		this.SPECFILE = "export-" + meta.env.ID + "-" + meta.dc.NAME + "-" + server.NAME + ".conf";
+		this.SPECFILE = "export-" + context.env.ID + "-" + server.dc.NAME + "-" + server.NAME + ".conf";
 		this.CMD = CMD;
 		this.SCHEMA = SCHEMA;
 	}

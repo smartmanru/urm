@@ -17,13 +17,13 @@ public class ActionStopEnv extends ActionBase {
 	}
 
 	@Override protected void runBefore( ActionScope scope ) throws Exception {
-		logAction( "stop environment dc=" + meta.dc.NAME + " (" + getMode() + ") ..." );
+		logAction( "stop environment (" + getMode() + ") ..." );
 		if( !context.CTX_SHOWONLY )
-			ActionSendChatMsg.sendMsg( this , "[stopenv] stopping " + scope.getScopeInfo( this ) + " ..." , false );
+			ActionSendChatMsg.sendMsg( this , "[stopenv] stopping " + scope.getScopeInfo( this ) + " ..." , null );
 	}
 
 	@Override protected void runAfter( ActionScope scope ) throws Exception {
-		ActionSendChatMsg.sendMsg( this , "[stopenv] done." , false );
+		ActionSendChatMsg.sendMsg( this , "[stopenv] done." , null );
 		logAction( "done." );
 	}
 	

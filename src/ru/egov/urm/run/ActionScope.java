@@ -23,6 +23,7 @@ import ru.egov.urm.storage.DistStorage;
 public class ActionScope {
 
 	public Metadata meta;
+	public CommandContext context;
 	public DistStorage release;
 	public boolean releaseBound;
 
@@ -32,8 +33,9 @@ public class ActionScope {
 
 	public boolean scopeFull;
 	
-	public ActionScope( Metadata meta , DistStorage release ) {
-		this.meta = meta;
+	public ActionScope( ActionBase action , DistStorage release ) {
+		this.meta = action.meta;
+		this.context = action.context;
 		this.release = release;
 		
 		releaseBound = ( release == null )? false : true;
@@ -49,7 +51,7 @@ public class ActionScope {
 
 	public static ActionScope getProductSetScope( ActionBase action , String set , String[] TARGETS ) throws Exception {
 		action.trace( "scope: Product Set Scope, set=" + set + ", targets=" + Common.getListSet( TARGETS ) );
-		ActionScope scope = new ActionScope( action.meta , null );
+		ActionScope scope = new ActionScope( action , null );
 		
 		if( set == null || set.isEmpty() )
 			action.exit( "missing set name (use \"all\" to reference all sets)" );
@@ -75,14 +77,14 @@ public class ActionScope {
 
 	public static ActionScope getDatabaseManualItemsScope( ActionBase action , DistStorage release , String[] INDEXES ) throws Exception {
 		action.trace( "scope: Release Manual Database Scope, release=" + release.RELEASEDIR + ", items=" + Common.getListSet( INDEXES ) );
-		ActionScope scope = new ActionScope( action.meta , release );
+		ActionScope scope = new ActionScope( action , release );
 		scope.getDatabaseItemsScope( action , release , null , INDEXES );
 		return( scope );
 	}
 	
 	public static ActionScope getDatabaseDeliveryItemsScope( ActionBase action , DistStorage release , String DELIVERY , String[] INDEXES ) throws Exception {
 		action.trace( "scope: Release Delivery Database Scope, release=" + release.RELEASEDIR + ", delivery=" + DELIVERY + ", items=" + Common.getListSet( INDEXES ) );
-		ActionScope scope = new ActionScope( action.meta , release );
+		ActionScope scope = new ActionScope( action , release );
 		scope.getDatabaseItemsScope( action , release , DELIVERY , INDEXES );
 		return( scope );
 	}
@@ -93,7 +95,7 @@ public class ActionScope {
 	
 	public static ActionScope getReleaseSetScope( ActionBase action , DistStorage release , String set , String[] TARGETS ) throws Exception {
 		action.trace( "scope: Release Set Scope, release=" + release.RELEASEDIR + ", set=" + set + ", targets=" + Common.getListSet( TARGETS ) );
-		ActionScope scope = new ActionScope( action.meta , release );
+		ActionScope scope = new ActionScope( action , release );
 		
 		if( set == null || set.isEmpty() )
 			action.exit( "missing set name (use \"all\" to reference all sets)" );
@@ -119,7 +121,7 @@ public class ActionScope {
 
 	public static ActionScope getProductDistItemsScope( ActionBase action , String[] ITEMS ) throws Exception {
 		action.trace( "scope: Product Dist Items Scope, items=" + Common.getListSet( ITEMS ) );
-		ActionScope scope = new ActionScope( action.meta , null );
+		ActionScope scope = new ActionScope( action , null );
 
 		if( ITEMS == null || ITEMS.length == 0 )
 			action.exit( "missing items (use \"all\" to reference all items)" );
@@ -133,7 +135,7 @@ public class ActionScope {
 
 	public static ActionScope getReleaseDistItemsScope( ActionBase action , DistStorage dist , String[] ITEMS ) throws Exception {
 		action.trace( "scope: Release Dist Items Scope, release=" + dist.RELEASEDIR + ", items=" + Common.getListSet( ITEMS ) );
-		ActionScope scope = new ActionScope( action.meta , null );
+		ActionScope scope = new ActionScope( action , null );
 
 		if( ITEMS == null || ITEMS.length == 0 )
 			action.exit( "missing items (use \"all\" to reference all items)" );
@@ -152,7 +154,7 @@ public class ActionScope {
 	
 	public static ActionScopeTarget getReleaseProjectItemsScopeTarget( ActionBase action , DistStorage release , String PROJECT , String[] ITEMS ) throws Exception {
 		action.trace( "scope: Release Project Items Scope Target, release=" + release.RELEASEDIR + ", project=" + PROJECT + ", items=" + Common.getListSet( ITEMS ) );
-		ActionScope scope = new ActionScope( action.meta , release );
+		ActionScope scope = new ActionScope( action , release );
 
 		if( PROJECT == null || PROJECT.isEmpty() )
 			action.exit( "missing project" );
@@ -166,17 +168,14 @@ public class ActionScope {
 		return( scope.createReleaseProjectItemsScope( action , release , PROJECT , ITEMS ) );
 	}
 
-	public static ActionScope getEnvServerNodesScope( ActionBase action , String SERVER , String[] NODES , DistStorage release ) throws Exception {
+	public static ActionScope getEnvServerNodesScope( ActionBase action , MetaEnvDC dc , String SERVER , String[] NODES , DistStorage release ) throws Exception {
 		if( release != null )
 			action.trace( "scope: Env Server Nodes Scope, release=" + release.RELEASEDIR + ", server=" + SERVER + ", nodes=" + Common.getListSet( NODES ) );
 		else
 			action.trace( "scope: Env Server Nodes Scope, server=" + SERVER + ", nodes=" + Common.getListSet( NODES ) );
 		
-		ActionScope scope = new ActionScope( action.meta , null );
+		ActionScope scope = new ActionScope( action , null );
 
-		if( action.meta.dc == null )
-			action.exit( "datacenter is underfined" );
-		
 		if( SERVER == null || SERVER.isEmpty() )
 			action.exit( "missing server" );
 		
@@ -184,27 +183,27 @@ public class ActionScope {
 			action.exit( "missing items (use \"all\" to reference all items)" );
 		
 		if( NODES.length == 1 && NODES[0].equals( "all" ) )
-			scope.createEnvServerNodesScope( action , action.meta.dc , SERVER , null , release );
+			scope.createEnvServerNodesScope( action , dc , SERVER , null , release );
 		else
-			scope.createEnvServerNodesScope( action , action.meta.dc , SERVER , NODES , release );
+			scope.createEnvServerNodesScope( action , dc , SERVER , NODES , release );
 		return( scope );
 	}
 
 	public static ActionScopeTarget getEnvServerNodesScope( ActionBase action , MetaEnvServer srv , List<MetaEnvServerNode> nodes ) throws Exception {
-		ActionScope scope = new ActionScope( action.meta , null );
+		ActionScope scope = new ActionScope( action , null );
 		
 		String nodeList = "";
 		for( MetaEnvServerNode node : nodes )
 			nodeList = Common.addToList( nodeList , "" + node.POS , " " );
 			
 		action.trace( "scope: Env Server Nodes Scope, server=" + srv.NAME + ", nodes=" + nodeList );
-		return( scope.createEnvServerNodesScope( action , action.meta.dc , srv , nodes ) );
+		return( scope.createEnvServerNodesScope( action , srv.dc , srv , nodes ) );
 	}
 	
 	public static ActionScope getEnvScope( ActionBase action , DistStorage release ) throws Exception {
-		String[] SERVERS = new String[1];
-		SERVERS[0] = "all";
-		return( getEnvServersScope( action , SERVERS , release ) );
+		ActionScope scope = new ActionScope( action , release );
+		scope.createEnvScope( action );
+		return( scope );
 	}
 	
 	public static ActionScope getEnvDatabaseScope( ActionBase action , DistStorage release ) throws Exception {
@@ -213,34 +212,34 @@ public class ActionScope {
 		else
 			action.trace( "scope: Env Database Scope" );
 		
-		ActionScope scope = new ActionScope( action.meta , null );
-		scope.createEnvDatabaseScope( action , release , action.meta.dc );
+		ActionScope scope = new ActionScope( action , null );
+		scope.createEnvDatabaseScope( action , release );
 		return( scope );
 	}
 	
-	public static ActionScope getEnvServersScope( ActionBase action , String[] SERVERS , DistStorage release ) throws Exception {
+	public static ActionScope getEnvServersScope( ActionBase action , MetaEnvDC dc , String[] SERVERS , DistStorage release ) throws Exception {
 		if( release != null )
 			action.trace( "scope: Env Servers Scope, release=" + release.RELEASEDIR + ", servers=" + Common.getListSet( SERVERS ) );
 		else
 			action.trace( "scope: Env Servers Scope, servers=" + Common.getListSet( SERVERS ) );
 		
-		ActionScope scope = new ActionScope( action.meta , null );
+		ActionScope scope = new ActionScope( action , release );
 
 		if( SERVERS == null || SERVERS.length == 0 )
 			action.exit( "missing items (use \"all\" to reference all items)" );
 		
 		if( SERVERS.length == 1 && SERVERS[0].equals( "all" ) ) {
-			if( action.meta.dc == null )
-				scope.createEnvScope( action , release );
+			if( dc == null )
+				scope.createEnvScope( action );
 			else
-				scope.createEnvServersScope( action , action.meta.dc , null , release );
+				scope.createEnvServersScope( action , dc , null );
 			return( scope );
 		}
 			
-		if( action.meta.dc == null )
+		if( dc == null )
 			action.exit( "datacenter is underfined" );
 		
-		scope.createEnvServersScope( action , action.meta.dc , SERVERS , release );
+		scope.createEnvServersScope( action , dc , SERVERS );
 		return( scope );
 	}
 
@@ -284,8 +283,7 @@ public class ActionScope {
 		}
 	}
 	
-	private void createEnvScope( ActionBase action , DistStorage release ) throws Exception {
-		this.release = release;
+	private void createEnvScope( ActionBase action ) throws Exception {
 		String dcMask = action.context.CTX_DCMASK;
 		
 		if( dcMask.isEmpty() )
@@ -293,36 +291,40 @@ public class ActionScope {
 		else
 			scopeFull = false;
 		
-		for( MetaEnvDC dc : action.meta.env.getDCMap( action ).values() ) {
+		for( MetaEnvDC dc : context.env.getDCMap( action ).values() ) {
 			if( dcMask.isEmpty() || dc.NAME.matches( dcMask ) ) {
 				boolean specifiedExplicitly = ( dcMask.isEmpty() )? false : true;
-				ActionScopeSet sset = createEnvScopeSet( action , action.meta.env , dc , specifiedExplicitly );
+				ActionScopeSet sset = createEnvScopeSet( action , dc.env , dc , specifiedExplicitly );
 				sset.addEnvServers( action , null , release );
 			}
 		}
 	}
 
-	private void createEnvServersScope( ActionBase action , MetaEnvDC dc , String[] SERVERS , DistStorage release ) throws Exception {
-		this.release = release;
+	private void createEnvServersScope( ActionBase action , MetaEnvDC dc , String[] SERVERS ) throws Exception {
 		scopeFull = false;
 		if( ( SERVERS == null || SERVERS.length == 0 ) && 
 			dc.env.getDCMap( action ).size() == 1 )
 			scopeFull = true;
 			
-		ActionScopeSet sset = createEnvScopeSet( action , action.meta.env , dc , true );
+		ActionScopeSet sset = createEnvScopeSet( action , context.env , dc , true );
 		sset.addEnvServers( action , SERVERS , release ); 
 	}
 
-	private void createEnvDatabaseScope( ActionBase action , DistStorage release , MetaEnvDC dc ) throws Exception {
+	private void createEnvDatabaseScope( ActionBase action , DistStorage release ) throws Exception {
 		this.release = release;
 		scopeFull = true;
-		ActionScopeSet sset = createEnvScopeSet( action , action.meta.env , dc , false );
-		sset.addEnvDatabases( action , release ); 
+		for( MetaEnvDC dc : context.env.getDCMap( action ).values() ) {
+			if( !dc.hasDatabaseServers( action ) )
+				continue;
+			
+			ActionScopeSet sset = createEnvScopeSet( action , context.env , dc , false );
+			sset.addEnvDatabases( action , release );
+		}
 	}
 	
 	private ActionScopeTarget createEnvServerNodesScope( ActionBase action , MetaEnvDC dc , MetaEnvServer srv , List<MetaEnvServerNode> nodes ) throws Exception {
 		scopeFull = false;
-		ActionScopeSet sset = createEnvScopeSet( action , action.meta.env , dc , true );
+		ActionScopeSet sset = createEnvScopeSet( action , context.env , dc , true );
 		return( sset.addEnvServer( action , srv , nodes , true ) );
 	}
 	
@@ -330,7 +332,7 @@ public class ActionScope {
 		this.release = release;
 		
 		scopeFull = false;
-		ActionScopeSet sset = createEnvScopeSet( action , action.meta.env , dc , true );
+		ActionScopeSet sset = createEnvScopeSet( action , context.env , dc , true );
 		MetaEnvServer server = dc.getServer( action , SERVER );
 		
 		sset.addEnvServerNodes( action , server , NODES , true , release );

@@ -10,9 +10,7 @@ import ru.egov.urm.storage.MetadataStorage;
 public class Metadata {
 	public MetaProduct product;
 	public MetaDistr distr;
-	public MetaEnv env;
 	public MetaSource sources;
-	public MetaEnvDC dc;
 	
 	private String configurableExtensionsFindOptions = "";
 	
@@ -167,18 +165,6 @@ public class Metadata {
 		distr.load( action , storage );
 	}
 
-	public void loadEnv( ActionBase action , String envFile , String dcName , boolean loadProps ) throws Exception {
-		env = loadEnvData( action , envFile , loadProps );
-		
-		if( dcName == null || dcName.isEmpty() ) {
-			dc = null;
-			return;
-		}
-		
-		dc = env.getDC( action , dcName );
-		action.context.updateProperties( action );
-	}
-	
 	public MetaEnv loadEnvData( ActionBase action , String envFile , boolean loadProps ) throws Exception {
 		if( envFile.isEmpty() )
 			action.exit( "environment file name is empty" );

@@ -37,7 +37,7 @@ public class ActionCheckEnv extends ActionBase {
 
 	@Override protected void runBefore( ActionScope scope ) throws Exception {
 		// check all processes
-		logAction( "check environment=" + meta.env.ID + " ..." );
+		logAction( "check environment=" + context.env.ID + " ..." );
 	}
 
 	@Override protected void runAfter( ActionScope scope ) throws Exception {

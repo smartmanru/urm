@@ -17,7 +17,7 @@ public class HiddenFiles {
 	}
 
 	public boolean copyHiddenConf( ActionBase action , MetaEnvServer server , MetaDistrConfItem confItem , LocalFolder folder ) throws Exception {
-		if( meta.env.CONF_SECRETFILESPATH.isEmpty() )
+		if( action.context.env.CONF_SECRETFILESPATH.isEmpty() )
 			return( false );
 		
 		if( !action.context.CTX_HIDDEN ) {
@@ -26,7 +26,7 @@ public class HiddenFiles {
 		}
 		
 		LocalFolder srcServerFolder = artefactory.getAnyFolder( action , 
-			Common.getPath( meta.env.CONF_SECRETFILESPATH , confItem.KEY + "-" + server.NAME ) );
+			Common.getPath( action.context.env.CONF_SECRETFILESPATH , confItem.KEY + "-" + server.NAME ) );
 		if( srcServerFolder.checkExists( action ) ) {
 			action.trace( "found server-specific hidden configuration" );
 			folder.copyDirContent( action , srcServerFolder );
@@ -34,7 +34,7 @@ public class HiddenFiles {
 		}
 		else {
 			LocalFolder srcFolder = artefactory.getAnyFolder( action , 
-				Common.getPath( meta.env.CONF_SECRETFILESPATH , confItem.KEY ) );
+				Common.getPath( action.context.env.CONF_SECRETFILESPATH , confItem.KEY ) );
 			if( srcFolder.checkExists( action ) ) {
 				action.trace( "found environment-specific hidden configuration" );
 				folder.copyDirContent( action , srcFolder );

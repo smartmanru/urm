@@ -18,7 +18,7 @@ public class ActionChangeKeys extends ActionBase {
 	}
 
 	@Override protected boolean executeAccount( ActionScopeSet set , Account account ) throws Exception {
-		String F_NEWKEY = meta.env.KEYNAME;
+		String F_NEWKEY = context.env.KEYNAME;
 		String F_OLDKEY = F_NEWKEY;
 
 		if( !context.CTX_NEWKEY.isEmpty() )

@@ -58,7 +58,7 @@ public class DistStorage {
 	}
 
 	public void open( ActionBase action ) throws Exception {
-		state.ctlOpenForUse( action , action.meta.env.PROD );
+		state.ctlOpenForUse( action , action.context.env.PROD );
 		openedForUse = true;
 		gatherFiles( action );
 	}

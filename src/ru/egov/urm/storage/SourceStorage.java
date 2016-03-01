@@ -219,8 +219,13 @@ public class SourceStorage {
 		return( PATH );
 	}
 	
-	public String getLiveConfigServerPath( ActionBase action , String server ) throws Exception {
-		String PATH = getLiveConfigDCPath( action , action.meta.dc );
+	public String getLiveConfigPath( ActionBase action ) throws Exception {
+		String PATH = Common.getPath( meta.product.CONFIG_SOURCE_CFG_LIVEROOTDIR , action.context.env.ID );
+		return( PATH );
+	}
+	
+	public String getLiveConfigServerPath( ActionBase action , MetaEnvDC dc , String server ) throws Exception {
+		String PATH = getLiveConfigDCPath( action , dc );
 		PATH = Common.getPath( PATH , server );
 		return( PATH );
 	}
@@ -228,15 +233,15 @@ public class SourceStorage {
 	public String getLiveConfigItems( ActionBase action , MetaEnvServer server ) throws Exception {
 		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );
 		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
-		String PATH = getLiveConfigServerPath( action , server.NAME );
+		String PATH = getLiveConfigServerPath( action , server.dc , server.NAME );
 		String list = vcs.listMasterItems( REPOSITORY , PATH );
 		return( list );
 	}
 
-	public String getLiveConfigServers( ActionBase action ) throws Exception {
+	public String getLiveConfigServers( ActionBase action , MetaEnvDC dc ) throws Exception {
 		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );
 		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
-		String PATH = getLiveConfigDCPath( action , action.meta.dc );
+		String PATH = getLiveConfigDCPath( action , dc );
 		String list = vcs.listMasterItems( REPOSITORY , PATH );
 		return( list );
 	}
@@ -244,23 +249,23 @@ public class SourceStorage {
 	public void deleteLiveConfigItem( ActionBase action , MetaEnvServer server , String item , String commitMessage ) throws Exception {
 		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );
 		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
-		String PATH = getLiveConfigServerPath( action , server.NAME );
+		String PATH = getLiveConfigServerPath( action , server.dc , server.NAME );
 		PATH = Common.getPath( PATH , item );
 		vcs.deleteMasterFolder( REPOSITORY , PATH , commitMessage );
 	}
 
-	public void deleteLiveConfigServer( ActionBase action , String server , String commitMessage ) throws Exception {
+	public void deleteLiveConfigServer( ActionBase action , MetaEnvDC dc , String server , String commitMessage ) throws Exception {
 		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );
 		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
-		String PATH = getLiveConfigServerPath( action , server );
+		String PATH = getLiveConfigServerPath( action , dc , server );
 		vcs.deleteMasterFolder( REPOSITORY , PATH , commitMessage );
 	}
 
 	public void tagLiveConfigs( ActionBase action , String TAG , String commitMessage ) throws Exception {
 		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );
 		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
-		String PATH = getLiveConfigDCPath( action , meta.dc );
-		String setTAG = meta.product.CONFIG_PRODUCT + "-" + meta.env.ID + "-" + meta.dc.NAME + "-" + TAG;
+		String PATH = getLiveConfigPath( action );
+		String setTAG = meta.product.CONFIG_PRODUCT + "-" + action.context.env.ID + "-" + TAG;
 		vcs.createMasterTag( REPOSITORY , PATH , setTAG , commitMessage );
 	}
 
@@ -268,14 +273,14 @@ public class SourceStorage {
 		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );
 		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
 		
-		String SERVERPATH = getLiveConfigServerPath( action , server.NAME );
+		String SERVERPATH = getLiveConfigServerPath( action , server.dc , server.NAME );
 		String PATH = Common.getPath( SERVERPATH , confName );
 		if( TAG.isEmpty() ) {
 			if( !vcs.exportRepositoryMasterPath( folder , REPOSITORY , PATH , confName ) )
 				action.exit( "exportLiveConfigItem: unable to export " + confName + " from " + PATH );
 		}
 		else {
-			String useTAG = meta.product.CONFIG_PRODUCT + "-" + meta.env.ID + "-" + meta.dc.NAME + "-" + TAG;
+			String useTAG = meta.product.CONFIG_PRODUCT + "-" + action.context.env.ID + "-" + TAG;
 			if( !vcs.exportRepositoryTagPath( folder , REPOSITORY , useTAG , PATH , confName ) )
 				action.exit( "exportLiveConfigItem: unable to export " + confName + " from " + PATH + ", TAG=" + useTAG );
 		}
@@ -284,7 +289,7 @@ public class SourceStorage {
 		folder.prepareFolderForLinux( action , confName );
 	}
 	
-	public void exportTemplateConfigItem( ActionBase action , String confName , String TAG , LocalFolder folder ) throws Exception {
+	public void exportTemplateConfigItem( ActionBase action , MetaEnvDC dc , String confName , String TAG , LocalFolder folder ) throws Exception {
 		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );
 		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
 		
@@ -295,7 +300,7 @@ public class SourceStorage {
 				action.exit( "exportTemplateConfigItem: unable to export " + confName + " from " + PATH );
 		}
 		else {
-			String useTAG = meta.product.CONFIG_PRODUCT + "-" + meta.env.ID + "-" + meta.dc.NAME + "-" + TAG;
+			String useTAG = meta.product.CONFIG_PRODUCT + "-" + action.context.env.ID + "-" + dc.NAME + "-" + TAG;
 			if( !vcs.exportRepositoryTagPath( folder , REPOSITORY , useTAG , PATH , confName ) )
 				action.exit( "exportTemplateConfigItem: unable to export " + confName + " from " + PATH + ", TAG=" + useTAG );
 		}
@@ -307,7 +312,7 @@ public class SourceStorage {
 	public void saveLiveConfigItem( ActionBase action , MetaEnvServer server , MetaEnvServerNode node , String item , LocalFolder folder , String commitMessage ) throws Exception {
 		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );
 		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
-		String SERVERPATH = getLiveConfigServerPath( action , server.NAME );
+		String SERVERPATH = getLiveConfigServerPath( action , server.dc , server.NAME );
 		String PATH = Common.getPath( SERVERPATH , item );
 		
 		if( !vcs.isValidRepositoryMasterPath( REPOSITORY , PATH ) ) {
@@ -380,7 +385,7 @@ public class SourceStorage {
 	public void exportTemplates( ActionBase action , LocalFolder parent , MetaEnvServer server ) throws Exception {
 		for( MetaEnvServerDeployment deployment : server.getDeployments( action ) ) {
 			if( deployment.confItem != null ) {
-				exportTemplateConfigItem( action , deployment.confItem.KEY , action.context.CTX_TAG , parent );
+				exportTemplateConfigItem( action , server.dc , deployment.confItem.KEY , action.context.CTX_TAG , parent );
 				continue;
 			}
 				
@@ -390,14 +395,14 @@ public class SourceStorage {
 			
 			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems( action ).values() ) {
 				if( compItem.confItem != null )
-					exportTemplateConfigItem( action , compItem.confItem.KEY , action.context.CTX_TAG , parent );
+					exportTemplateConfigItem( action , server.dc , compItem.confItem.KEY , action.context.CTX_TAG , parent );
 			}
 		}
 	}
 
-	public void exportTemplates( ActionBase action , LocalFolder parent , MetaDistrConfItem[] items ) throws Exception {
+	public void exportTemplates( ActionBase action , MetaEnvDC dc , LocalFolder parent , MetaDistrConfItem[] items ) throws Exception {
 		for( MetaDistrConfItem item : items )
-			exportTemplateConfigItem( action , item.KEY , "" , parent );
+			exportTemplateConfigItem( action , dc , item.KEY , "" , parent );
 	}
 		
 	public void exportPostRefresh( ActionBase action , String name , LocalFolder folder ) throws Exception {

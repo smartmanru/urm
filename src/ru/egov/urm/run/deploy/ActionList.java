@@ -15,7 +15,7 @@ public class ActionList extends ActionBase {
 	}
 
 	@Override protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		String s = "servers of datacenter=" + meta.dc.NAME + ":";
+		String s = "servers of datacenter=" + set.dc.NAME + ":";
 		super.comment( s );
 		return( false );
 	}

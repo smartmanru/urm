@@ -8,6 +8,7 @@ import ru.egov.urm.meta.MetaEnvServerDeployment;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScope;
+import ru.egov.urm.run.ActionScopeSet;
 import ru.egov.urm.run.ActionScopeTarget;
 import ru.egov.urm.run.ActionScopeTargetItem;
 import ru.egov.urm.storage.LocalFolder;
@@ -23,7 +24,7 @@ public class ActionSaveConfigs extends ActionBase {
 	@Override protected void runAfter( ActionScope scope ) throws Exception {
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
 		if( scope.scopeFull && context.CTX_FORCE )
-			deleteOldConfServers();
+			deleteOldConfServers( scope );
 		
 		// check need to tag configuration
 		if( !context.CTX_TAG.isEmpty() )
@@ -101,16 +102,19 @@ public class ActionSaveConfigs extends ActionBase {
 		}
 	}
 
-	private void deleteOldConfServers() throws Exception {
+	private void deleteOldConfServers( ActionScope scope ) throws Exception {
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
-		String existingItems = sourceStorage.getLiveConfigServers( this );
+		
+		for( ActionScopeSet set : scope.getEnvSets( this ) ) {
+			String existingItems = sourceStorage.getLiveConfigServers( this , set.dc );
 
-		for( String item : Common.splitSpaced( existingItems ) ) {
-			if( meta.dc.findServer( this , item ) != null )
-				continue;
-			
-			log( "delete obsolete server=" + item + " ..." );
-			sourceStorage.deleteLiveConfigServer( this , item , "ActionSaveConfigs" );
+			for( String item : Common.splitSpaced( existingItems ) ) {
+				if( set.dc.findServer( this , item ) != null )
+					continue;
+				
+				log( "delete obsolete server=" + item + " ..." );
+				sourceStorage.deleteLiveConfigServer( this , set.dc , item , "ActionSaveConfigs" );
+			}
 		}
 	}
 

@@ -24,8 +24,8 @@ public class DistRepository {
 	public static DistRepository getDistRepository( ActionBase action , Artefactory artefactory ) throws Exception {
 		DistRepository repo = new DistRepository( artefactory ); 
 		
-		if( action.meta.env != null )
-			repo.repoFolder = new RemoteFolder( artefactory , Account.getAccount( action , action.meta.env.DISTR_HOSTLOGIN , VarOSTYPE.UNIX ) , action.meta.env.DISTR_PATH );
+		if( action.context.env != null )
+			repo.repoFolder = new RemoteFolder( artefactory , Account.getAccount( action , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.UNIX ) , action.context.env.DISTR_PATH );
 		else
 			repo.repoFolder = new RemoteFolder( artefactory , Account.getAccount( action , action.meta.product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.UNIX ) , action.meta.product.CONFIG_DISTR_PATH );
 		

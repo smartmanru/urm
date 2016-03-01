@@ -507,5 +507,11 @@ public class MetaEnvServer {
 		action.exit( "unable to find active node" );
 		return( null );
 	}
+
+	public boolean isDatabase( ActionBase action ) throws Exception {
+		if( TYPE == VarSERVERTYPE.DATABASE )
+			return( true );
+		return( false );
+	}
 	
 }

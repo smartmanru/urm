@@ -71,7 +71,7 @@ public class ActionConfigure extends ActionBase {
 		if( dist == null ) {
 			// download configuration templates
 			SourceStorage sourceStorage = artefactory.getSourceStorage( this );
-			sourceStorage.exportTemplateConfigItem( this , conf.KEY , "" , templateFolder );
+			sourceStorage.exportTemplateConfigItem( this , null , conf.KEY , "" , templateFolder );
 			return;
 		}
 		

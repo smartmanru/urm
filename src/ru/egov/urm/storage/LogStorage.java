@@ -30,7 +30,7 @@ public class LogStorage {
 	}
 
 	public void prepareDatabaseLogFolder( ActionBase action , String release ) throws Exception {
-		String dir = action.meta.product.CONFIG_SQL_LOGDIR + "/" + action.meta.env.ID + "/" + release + "-" + Common.getNameTimeStamp();  
+		String dir = action.meta.product.CONFIG_SQL_LOGDIR + "/" + action.context.env.ID + "/" + release + "-" + Common.getNameTimeStamp();  
 		logFolder = artefactory.getAnyFolder( action , dir );
 		logFolder.ensureExists( action );
 	}

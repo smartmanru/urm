@@ -12,7 +12,7 @@ import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
 import ru.egov.urm.meta.Metadata.VarDEPLOYTYPE;
 import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
 import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScope;
+import ru.egov.urm.run.ActionScopeSet;
 import ru.egov.urm.run.ActionScopeTarget;
 import ru.egov.urm.run.ActionScopeTargetItem;
 import ru.egov.urm.storage.DistStorage;
@@ -32,13 +32,13 @@ public class ActionRedist extends ActionBase {
 		this.templateFolder = templateFolder;
 	}
 
-	@Override protected void runBefore( ActionScope scope ) throws Exception {
-		logAction( "execute dc=" + meta.dc.NAME + ", releasedir=" + dist.RELEASEDIR + ", servers={" + scope.getScopeInfo( this ) + "} ..." );
+	@Override protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+		logAction( "execute dc=" + set.dc.NAME + ", releasedir=" + dist.RELEASEDIR + ", servers={" + set.getScopeInfo( this ) + "} ..." );
 
 		// if configuration deployment requested - validate environment data
 		if( context.CTX_CONFDEPLOY ) {
 			ActionConfCheck check = new ActionConfCheck( this , null );
-			if( !check.runAll( scope ) ) {
+			if( !check.runAll( set ) ) {
 				logAction( "configuration check failed: invalid environment data" );
 				super.setFailed();
 				return;

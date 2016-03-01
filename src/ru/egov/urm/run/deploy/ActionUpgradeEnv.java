@@ -21,9 +21,9 @@ public class ActionUpgradeEnv extends ActionBase {
 	}
 
 	@Override protected boolean executeAccount( ActionScopeSet set , Account account ) throws Exception {
-		PATCHFILE = session.findOneTop( this , meta.env.UPGRADE_PATH, PATCHID + "-*" );
+		PATCHFILE = session.findOneTop( this , context.env.UPGRADE_PATH, PATCHID + "-*" );
 		if( PATCHFILE.isEmpty() )
-			exit( "unable to find patch file=" + PATCHID + "-* in " + meta.env.UPGRADE_PATH );
+			exit( "unable to find patch file=" + PATCHID + "-* in " + context.env.UPGRADE_PATH );
 		
 		// execute
 		if( !checkNeed( account ) )
@@ -31,7 +31,7 @@ public class ActionUpgradeEnv extends ActionBase {
 			
 		// execute
 		int timeout = setTimeoutUnlimited();
-		int status = session.customGetStatus( this , "sh " + Common.getPath( meta.env.UPGRADE_PATH , PATCHFILE ) +
+		int status = session.customGetStatus( this , "sh " + Common.getPath( context.env.UPGRADE_PATH , PATCHFILE ) +
 				" " + account.HOSTLOGIN + " " + context.CTX_EXTRAARGS );
 		setTimeout( timeout );
 		if( status < 0 )

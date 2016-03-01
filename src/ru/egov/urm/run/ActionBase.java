@@ -51,7 +51,7 @@ abstract public class ActionBase {
 		this.output = output;
 		this.meta = meta;
 		
-		this.artefactory = new Artefactory( meta );
+		this.artefactory = new Artefactory( meta , context );
 		this.actionFailed = false;
 		this.commandTimeout = 0;
 		
@@ -215,6 +215,11 @@ abstract public class ActionBase {
 	public boolean runAll( ActionScope scope ) {
 		ScopeExecutor executor = new ScopeExecutor( this );
 		return( executor.runAll( scope ) );
+	}
+	
+	public boolean runAll( ActionScopeSet set ) {
+		ScopeExecutor executor = new ScopeExecutor( this );
+		return( executor.runAll( set ) );
 	}
 	
 	public boolean runSingleTarget( ActionScopeTarget item ) {

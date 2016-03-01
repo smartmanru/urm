@@ -22,7 +22,7 @@ public class ActionConfCheck extends ActionBase {
 	}
 	
 	@Override protected boolean executeScope( ActionScope scope ) throws Exception {
-		log( "check configuration parameters in env=" + meta.env.ID + " ..." );
+		log( "check configuration parameters in env=" + context.env.ID + " ..." );
 		S_CONFCHECK_STATUS = true;
 
 		// read properties
@@ -31,7 +31,7 @@ public class ActionConfCheck extends ActionBase {
 	}
 	
 	@Override protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		log( "check configuration parameters in datacenter=" + meta.dc.NAME + " ..." );
+		log( "check configuration parameters in datacenter=" + set.dc.NAME + " ..." );
 
 		// read properties
 		executeDC( set.dc );
@@ -46,22 +46,22 @@ public class ActionConfCheck extends ActionBase {
 
 	private void executeEnv() throws Exception {
 		// read env properties...
-		String[] S_CONFCHECK_PROPLIST_ENV = meta.env.getPropertyList( this );
+		String[] S_CONFCHECK_PROPLIST_ENV = context.env.getPropertyList( this );
 
 		if( context.CTX_SHOWONLY ) {
 			// show values
 			log( "============================================ show env properties ..." );
 			for( String var : S_CONFCHECK_PROPLIST_ENV ) {
-				String value = meta.env.getPropertyValue( this , var );
+				String value = context.env.getPropertyValue( this , var );
 				log( var + "=" + value );
 			}
 		}
 		else {
-			if( meta.env.hasBaseline( this ) ) {
-				String S_CONFCHECK_BASELINE_ENV = meta.env.getBaselineFile( this );
+			if( context.env.hasBaseline( this ) ) {
+				String S_CONFCHECK_BASELINE_ENV = context.env.getBaselineFile( this );
 				log( "============================================ check env properties baseline=" + S_CONFCHECK_BASELINE_ENV + " ..." );
 				baselineEnv = meta.loadEnvData( this , S_CONFCHECK_BASELINE_ENV , true );
-				checkConfEnv( meta.env , baselineEnv , S_CONFCHECK_PROPLIST_ENV );
+				checkConfEnv( context.env , baselineEnv , S_CONFCHECK_PROPLIST_ENV );
 			}
 			else
 				trace( "ignore check env - no baseline defined" );
@@ -81,7 +81,7 @@ public class ActionConfCheck extends ActionBase {
 			}
 		}
 		else {
-			if( meta.env.hasBaseline( this ) && dc.hasBaseline( this ) ) {
+			if( context.env.hasBaseline( this ) && dc.hasBaseline( this ) ) {
 				String S_CONFCHECK_BASELINE_DC = dc.getBaselineDC( this );
 				log( "============================================ check dc=" + dc.NAME + " properties baseline=" + S_CONFCHECK_BASELINE_DC + " ..." );
 				baselineDC = baselineEnv.getDC( this , S_CONFCHECK_BASELINE_DC );
@@ -105,7 +105,7 @@ public class ActionConfCheck extends ActionBase {
 			}
 		}
 		else {
-			if( meta.env.hasBaseline( this ) &&
+			if( context.env.hasBaseline( this ) &&
 			   server.dc.hasBaseline( this ) &&
 			   server.hasBaseline( this ) ) {
 				String S_CONFCHECK_BASELINE_SERVER = server.getBaselineServer( this );

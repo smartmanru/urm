@@ -1,6 +1,8 @@
 package ru.egov.urm.run;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.meta.MetaEnv;
+import ru.egov.urm.meta.MetaEnvDC;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.run.CommandOptions.SQLMODE;
@@ -16,8 +18,10 @@ public class CommandContext {
 	public Account account;
 	public String productHome;
 	public VarBUILDMODE buildMode = VarBUILDMODE.UNKNOWN;
-	public String env;
-	public String dc;
+	public String ENV;
+	public MetaEnv env; 
+	public String DC;
+	public MetaEnvDC dc;
 
 	// generic settings
 	public boolean CTX_TRACEINTERNAL;
@@ -155,6 +159,25 @@ public class CommandContext {
 		this.CTX_NEWKEY = context.CTX_NEWKEY;
 	}
 
+	public void loadEnv( ActionBase action , boolean loadProps ) throws Exception {
+		loadEnv( action , ENV , DC , loadProps );
+	}
+	
+	public void loadEnv( ActionBase action , String ENV , String DC , boolean loadProps ) throws Exception {
+		this.ENV = ENV;
+		this.DC = DC;
+		
+		env = action.meta.loadEnvData( action , ENV , loadProps );
+		
+		if( DC == null || DC.isEmpty() ) {
+			dc = null;
+			return;
+		}
+		
+		dc = env.getDC( action , DC );
+		updateProperties( action );
+	}
+	
 	public void updateProperties( ActionBase action ) throws Exception {
 		action.options.updateContext( action );
 	}
@@ -193,12 +216,12 @@ public class CommandContext {
 		this.productHome = productHome;
 		String value = System.getProperty( "build.mode" ).toUpperCase();
 		this.buildMode = ( value == null || value.isEmpty() )? VarBUILDMODE.UNKNOWN : VarBUILDMODE.valueOf( value );
-		this.env = System.getProperty( "env" );
-		if( env == null )
-			env = "";
-		this.dc = System.getProperty( "dc" );
-		if( dc == null )
-			dc = "";
+		this.ENV = System.getProperty( "env" );
+		if( ENV == null )
+			ENV = "";
+		this.DC = System.getProperty( "dc" );
+		if( DC == null )
+			DC = "";
 		
 		return( true );
 	}
@@ -207,10 +230,10 @@ public class CommandContext {
 		String contextInfo = "productHome=" + productHome;
 		if( buildMode != VarBUILDMODE.UNKNOWN )
 			contextInfo += ", buildMode=" + getBuildModeName();
-		if( !env.isEmpty() )
-			contextInfo += ", env=" + env;
-		if( !dc.isEmpty() )
-			contextInfo += ", dc=" + dc;
+		if( !ENV.isEmpty() )
+			contextInfo += ", env=" + ENV;
+		if( !DC.isEmpty() )
+			contextInfo += ", dc=" + DC;
 		action.debug( "context: " + contextInfo );
 	}
 	

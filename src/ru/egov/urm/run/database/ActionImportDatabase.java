@@ -50,7 +50,7 @@ public class ActionImportDatabase extends ActionBase {
 	public ActionImportDatabase( ActionBase action , String stream , MetaEnvServer server , String CMD , String SCHEMA ) {
 		super( action , stream );
 		this.server = server;
-		this.SPECFILE = "import-" + meta.env.ID + "-" + meta.dc.NAME + "-" + server.NAME + ".conf";
+		this.SPECFILE = "import-" + context.env.ID + "-" + server.dc.NAME + "-" + server.NAME + ".conf";
 		this.CMD = CMD;
 		this.SCHEMA = SCHEMA;
 	}

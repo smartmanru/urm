@@ -119,8 +119,8 @@ public class CommandOptions {
 	}
 
 	public void updateContext( ActionBase action ) throws Exception {
-		boolean isenv = ( action.meta.env == null )? false : true; 
-		boolean def = ( isenv && action.meta.env.PROD )? true : false;
+		boolean isenv = ( action.context.env == null )? false : true; 
+		boolean def = ( isenv && action.context.env.PROD )? true : false;
 		String value;
 		
 		CommandContext ctx = action.context;
@@ -128,7 +128,7 @@ public class CommandOptions {
 		// generic
 		ctx.CTX_TRACEINTERNAL = ( getFlagValue( action , "GETOPT_TRACE" ) && getFlagValue( action , "GETOPT_SHOWALL" ) )? true : false;
 		ctx.CTX_TRACE = getFlagValue( action , "GETOPT_TRACE" );
-		ctx.CTX_SHOWONLY = combineValue( action , "GETOPT_SHOWONLY" , ( isenv )? action.meta.env.SHOWONLY : null , def );
+		ctx.CTX_SHOWONLY = combineValue( action , "GETOPT_SHOWONLY" , ( isenv )? action.context.env.SHOWONLY : null , def );
 		ctx.CTX_SHOWALL = getFlagValue( action , "GETOPT_SHOWALL" );
 		if( ctx.CTX_TRACE )
 			ctx.CTX_SHOWALL = true;
@@ -137,7 +137,7 @@ public class CommandOptions {
 		ctx.CTX_ALL = getFlagValue( action , "GETOPT_ALL" );
 		ctx.CTX_COMMANDTIMEOUT = getIntParamValue( action , "GETOPT_COMMANDTIMEOUT" , optDefaultCommandTimeout ) * 1000;
 		value = getParamValue( action , "GETOPT_KEY" ); 
-		ctx.CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? action.meta.env.KEYNAME : "" ) : value;
+		ctx.CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? action.context.env.KEYNAME : "" ) : value;
 
 		// specific
 		ctx.CTX_GET = getFlagValue( action , "GETOPT_GET" );
@@ -146,15 +146,15 @@ public class CommandOptions {
 		ctx.CTX_CHECK = getFlagValue( action , "GETOPT_CHECK" , true );
 		ctx.CTX_MOVE_ERRORS = getFlagValue( action , "GETOPT_MOVE_ERRORS" );
 		ctx.CTX_REPLACE = getFlagValue( action , "GETOPT_REPLACE" );
-		ctx.CTX_BACKUP = combineValue( action , "GETOPT_BACKUP" , ( isenv )? action.meta.env.BACKUP : null , def );
-		ctx.CTX_OBSOLETE = combineValue( action , "GETOPT_OBSOLETE" , ( isenv )? action.meta.env.OBSOLETE : null , true );
-		ctx.CTX_CONFDEPLOY = combineValue( action , "GETOPT_DEPLOYCONF" , ( isenv )? action.meta.env.CONF_DEPLOY : null , true );
+		ctx.CTX_BACKUP = combineValue( action , "GETOPT_BACKUP" , ( isenv )? action.context.env.BACKUP : null , def );
+		ctx.CTX_OBSOLETE = combineValue( action , "GETOPT_OBSOLETE" , ( isenv )? action.context.env.OBSOLETE : null , true );
+		ctx.CTX_CONFDEPLOY = combineValue( action , "GETOPT_DEPLOYCONF" , ( isenv )? action.context.env.CONF_DEPLOY : null , true );
 		ctx.CTX_PARTIALCONF = getFlagValue( action , "GETOPT_PARTIALCONF" );
 		ctx.CTX_DEPLOYBINARY = getFlagValue( action , "GETOPT_DEPLOYBINARY" , true );
 		ctx.CTX_DEPLOYHOT = getFlagValue( action , "GETOPT_DEPLOYHOT" );
 		ctx.CTX_DEPLOYCOLD = getFlagValue( action , "GETOPT_DEPLOYCOLD" );
 		ctx.CTX_DEPLOYRAW = getFlagValue( action , "GETOPT_DEPLOYRAW" );
-		ctx.CTX_CONFKEEPALIVE = combineValue( action , "GETOPT_KEEPALIVE" , ( isenv )? action.meta.env.CONF_KEEPALIVE : null , true );
+		ctx.CTX_CONFKEEPALIVE = combineValue( action , "GETOPT_KEEPALIVE" , ( isenv )? action.context.env.CONF_KEEPALIVE : null , true );
 		ctx.CTX_ZERODOWNTIME = getFlagValue( action , "GETOPT_ZERODOWNTIME" );
 		ctx.CTX_NONODES = getFlagValue( action , "GETOPT_NONODES" );
 		ctx.CTX_NOCHATMSG = getFlagValue( action , "GETOPT_NOCHATMSG" );
@@ -166,7 +166,7 @@ public class CommandOptions {
 		value = getEnumValue( action , "GETOPT_DBMODE" );
 		ctx.CTX_DBMODE = ( value.isEmpty() )? SQLMODE.UNKNOWN : SQLMODE.valueOf( value );
 		ctx.CTX_DBMOVE = getFlagValue( action , "GETOPT_DBMOVE" );
-		ctx.CTX_DBAUTH = combineValue( action , "GETOPT_DBAUTH" , ( isenv )? action.meta.env.DB_AUTH : null , false );
+		ctx.CTX_DBAUTH = combineValue( action , "GETOPT_DBAUTH" , ( isenv )? action.context.env.DB_AUTH : null , false );
 		ctx.CTX_DBALIGNED = getParamValue( action , "GETOPT_DBALIGNED" );
 		ctx.CTX_DB = getParamValue( action , "GETOPT_DB" );
 		ctx.CTX_DBPASSWORD = getParamValue( action , "GETOPT_DBPASSWORD" );

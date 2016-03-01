@@ -8,6 +8,7 @@ import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.run.CommandContext;
 import ru.egov.urm.run.CommandExecutor;
 import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
@@ -18,13 +19,15 @@ import ru.egov.urm.vcs.SubversionVCS;
 public class Artefactory {
 
 	Metadata meta;
+	CommandContext context;
 	public Artefactory parentArtefactory;
 	public LocalFolder workFolder;
 	String workFolderProcessId;
 	boolean ownFolder;
 	
-	public Artefactory( Metadata meta ) {
+	public Artefactory( Metadata meta , CommandContext context ) {
 		this.meta = meta;
+		this.context = context;
 		this.parentArtefactory = null;
 		ownFolder = false;
 	}
@@ -286,8 +289,8 @@ public class Artefactory {
 	}
 
 	public RemoteFolder getReleaseHostRedistFolder( ActionBase action ) throws Exception {
-		Account account = Account.getAccount( action , meta.env.DISTR_HOSTLOGIN , VarOSTYPE.UNIX );
-		return( new RemoteFolder( this , account , meta.env.REDISTPATH ) );
+		Account account = Account.getAccount( action , context.env.DISTR_HOSTLOGIN , VarOSTYPE.UNIX );
+		return( new RemoteFolder( this , account , context.env.REDISTPATH ) );
 	}
 	
 }

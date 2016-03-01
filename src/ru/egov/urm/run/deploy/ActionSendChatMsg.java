@@ -1,36 +1,37 @@
 package ru.egov.urm.run.deploy;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.meta.MetaEnvDC;
 import ru.egov.urm.run.ActionBase;
 
 public class ActionSendChatMsg extends ActionBase {
 
 	String msg;
-	boolean forAll;
+	MetaEnvDC dc;
 	
-	public static void sendMsg( ActionBase action , String msg , boolean forAll ) throws Exception {
-		ActionSendChatMsg ca = new ActionSendChatMsg( action , null , msg , forAll );
+	public static void sendMsg( ActionBase action , String msg , MetaEnvDC dc ) throws Exception {
+		ActionSendChatMsg ca = new ActionSendChatMsg( action , null , msg , dc );
 		ca.runSimple();
 	}
 	
-	public ActionSendChatMsg( ActionBase action , String stream , String msg , boolean forAll ) {
+	public ActionSendChatMsg( ActionBase action , String stream , String msg , MetaEnvDC dc ) {
 		super( action , stream );
 		
 		this.msg = msg;
-		this.forAll = forAll;
+		this.dc = dc;
 	}
 
 	@Override protected boolean executeSimple() throws Exception {
 		if( context.CTX_NOCHATMSG )
 			return( false );
 		
-		if( meta.env.CHATROOMFILE.isEmpty() )
+		if( context.env.CHATROOMFILE.isEmpty() )
 			return( false );
 
-		if( forAll )
-			msg += " (dc=" + meta.dc.NAME + ")"; 
+		if( dc != null )
+			msg += " (dc=" + dc.NAME + ")"; 
 		
-		String filePath = Common.getPath( meta.product.CONFIG_PRODUCTHOME , meta.env.CHATROOMFILE ); 
+		String filePath = Common.getPath( meta.product.CONFIG_PRODUCTHOME , context.env.CHATROOMFILE ); 
 		session.appendFileWithString( this , filePath , msg );
 		trace( "ActionSendChatMsg: msg sent to " + filePath );
 		return( true );

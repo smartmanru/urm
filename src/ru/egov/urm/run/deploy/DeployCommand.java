@@ -1,6 +1,7 @@
 package ru.egov.urm.run.deploy;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.meta.MetaEnvDC;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.run.ActionBase;
@@ -69,8 +70,8 @@ public class DeployCommand {
 		ca.runEnvUniqueAccounts( scope );
 	}
 
-	public void login( ActionBase action , String SERVER , String NODE ) throws Exception {
-		MetaEnvServer server = action.meta.dc.getServer( action , SERVER );
+	public void login( ActionBase action , MetaEnvDC dc , String SERVER , String NODE ) throws Exception {
+		MetaEnvServer server = dc.getServer( action , SERVER );
 		
 		int nodePos = ( NODE.isEmpty() )? 1 : Integer.parseInt( NODE );
 		MetaEnvServerNode node = server.getNode( action , nodePos );
@@ -155,7 +156,7 @@ public class DeployCommand {
 	}
 
 	public void sendMsg( ActionBase action , String msg ) throws Exception {
-		ActionSendChatMsg.sendMsg( action , msg , false );
+		ActionSendChatMsg.sendMsg( action , msg , null );
 	}
 
 	public void startEnv( ActionBase action , ActionScope scope ) throws Exception {

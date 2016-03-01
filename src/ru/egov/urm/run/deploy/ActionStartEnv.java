@@ -17,27 +17,16 @@ public class ActionStartEnv extends ActionBase {
 	}
 
 	@Override protected void runBefore( ActionScope scope ) throws Exception {
-		logAction( "start environment dc=" + meta.dc.NAME + " (" + getMode() + ") ..." );
+		logAction( "start environment (" + getMode() + ") ..." );
 		if( !context.CTX_SHOWONLY )
-			ActionSendChatMsg.sendMsg( this , "[startenv] starting " + scope.getScopeInfo( this ) + " ..." , false );
-	}
-
-	@Override protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		logAction( "start environment dc=" + meta.dc.NAME + " (" + getMode() + ") ..." );
-		if( !context.CTX_SHOWONLY )
-			ActionSendChatMsg.sendMsg( this , "[startenv] starting selected targets ..." , false );
+			ActionSendChatMsg.sendMsg( this , "[startenv] starting " + scope.getScopeInfo( this ) + " ..." , null );
 	}
 
 	@Override protected void runAfter( ActionScope scope ) throws Exception {
-		ActionSendChatMsg.sendMsg( this , "[startenv] done." , false );
+		ActionSendChatMsg.sendMsg( this , "[startenv] done." , null );
 		logAction( "done." );
 	}
 	
-	@Override protected void runAfter( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		ActionSendChatMsg.sendMsg( this , "[startenv] done." , false );
-		logAction( "done." );
-	}
-
 	@Override protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		List<MetaEnvStartGroup> groups = set.dc.startInfo.getForwardGroupList( this );
 		for( MetaEnvStartGroup group : groups ) {
