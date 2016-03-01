@@ -24,6 +24,7 @@ public class MetaDistrBinaryItem {
 	public VarDISTITEMSOURCE DISTSOURCE;
 	public String SRCDISTITEM;
 	public MetaDistrBinaryItem srcItem;
+	public String SRCITEMPATH; 
 	public String DISTBASENAME;
 	public String DEPLOYBASENAME;
 	public VarITEMVERSION DEPLOYVERSION;
@@ -50,8 +51,10 @@ public class MetaDistrBinaryItem {
 		// read attrs
 		DISTTYPE = meta.getItemDistType( action , ConfReader.getRequiredAttrValue( action , node , "type" ) );
 		DISTSOURCE = meta.getItemDistSource( action , ConfReader.getRequiredAttrValue( action , node , "source" ) );
-		if( DISTSOURCE == VarDISTITEMSOURCE.DISTITEM )
+		if( DISTSOURCE == VarDISTITEMSOURCE.DISTITEM ) {
 			SRCDISTITEM = ConfReader.getAttrValue( action , node , "srcitem" , KEY );
+			SRCITEMPATH = ConfReader.getAttrValue( action , node , "srcpath" , KEY );
+		}
 		
 		DISTBASENAME = ConfReader.getAttrValue( action , node , "distname" , KEY );
 		DEPLOYBASENAME = ConfReader.getAttrValue( action , node , "deployname" , DISTBASENAME );

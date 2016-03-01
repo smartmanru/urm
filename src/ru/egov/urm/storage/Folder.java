@@ -266,6 +266,13 @@ public abstract class Folder {
 		session.unzip( action , folderPath , zipFile , folder );
 	}
 	
+	public void unzipSingleFile( ActionBase action , String zipFile , String zipPart , String newName ) throws Exception {
+		ShellExecutor session = getSession( action ); 
+		session.unzipPart( action , folderPath , zipFile , zipPart , "" );
+		if( !newName.equals( zipPart ) )
+			renameFile( action , zipPart , newName );
+	}
+	
 	public void renameThis( ActionBase action , String newName ) throws Exception {
 		ShellExecutor session = getSession( action );
 		String parentPath = Common.getDirName( folderPath );

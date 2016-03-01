@@ -123,7 +123,19 @@ public class DistStorage {
 	public void copyEmbeddedItemToFolder( ActionBase action , LocalFolder folder , MetaDistrBinaryItem item , String fileName ) throws Exception {
 		if( !openedForUse )
 			action.exit( "distributive is not opened for use" );
-		action.exitNotImplemented();
+
+		MetaDistrBinaryItem srcItem = item.srcItem;
+		
+		// extract on remote redist
+		RedistStorage redist = artefactory.getRedistStorage( "dist" , distFolder.account );
+		RemoteFolder tmp = redist.getRedistTmpFolder( action );
+		tmp.ensureExists( action );
+		String srcFilePath = distFolder.getFilePath( action , Common.getPath( srcItem.delivery.FOLDER , fileName ) );
+		String distFile = item.DISTBASENAME + item.EXT;
+		tmp.unzipSingleFile( action , srcFilePath , item.SRCITEMPATH , distFile );
+		
+		// move to folder
+		tmp.copyFilesToLocal( action , folder , distFile );
 	}
 
 	public String copyDistToFolder( ActionBase action , LocalFolder workFolder , String srcSubdir , String file ) throws Exception {
