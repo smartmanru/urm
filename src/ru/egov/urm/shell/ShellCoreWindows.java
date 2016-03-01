@@ -153,7 +153,8 @@ public class ShellCoreWindows extends ShellCore {
 		String[] values = this.runCommandGetLines( action , cmdDir , true );
 		if( values.length == 0 || values[0].equals( "File Not Found" ) )
 			return( "" );
-		
+
+		action.trace( "filter out files using mask=" + grepMask + " ..." );
 		String[] list = Common.grep( values , grepMask );
 		if( list.length == 0 )
 			return( "" );

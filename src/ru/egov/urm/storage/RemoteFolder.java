@@ -10,7 +10,7 @@ public class RemoteFolder extends Folder {
 	public Account account;
 	
 	public RemoteFolder( Artefactory artefactory , Account account , String folderPath ) {
-		super( artefactory , folderPath , true );
+		super( artefactory , folderPath , true , account.isWindows() );
 		this.account = account;
 	}
 

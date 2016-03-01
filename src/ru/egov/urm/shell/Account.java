@@ -27,6 +27,10 @@ public class Account {
 		this.OSTYPE = OSTYPE;
 	}
 	
+	public boolean isWindows() {
+		return( OSTYPE == VarOSTYPE.WINDOWS );
+	}
+	
 	public static Account getAccount( ActionBase action , String user , String host , VarOSTYPE OSTYPE ) throws Exception {
 		if( host.isEmpty() || user.isEmpty() )
 			action.exit( "account details are not provided" );

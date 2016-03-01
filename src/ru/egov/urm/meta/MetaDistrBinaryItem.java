@@ -114,11 +114,16 @@ public class MetaDistrBinaryItem {
 		this.sourceItem = sourceItem;
 	}
 
-	public String getGrepMask( ActionBase action , String baseName ) throws Exception {
-		return( "./" + baseName + EXT + 
-				"|./.*[0-9]-" + baseName + EXT + 
-				"|./" + baseName + "-[0-9].*" + EXT +
-				"|./" + baseName + "##[0-9].*" + EXT );
+	public String getGrepMask( ActionBase action , String baseName , boolean addDotSlash ) throws Exception {
+		if( addDotSlash )
+			return( "./" + baseName + EXT + 
+					"|./.*[0-9]-" + baseName + EXT + 
+					"|./" + baseName + "-[0-9].*" + EXT +
+					"|./" + baseName + "##[0-9].*" + EXT );
+		return( baseName + EXT + 
+				"|.*[0-9]-" + baseName + EXT + 
+				"|" + baseName + "-[0-9].*" + EXT +
+				"|" + baseName + "##[0-9].*" + EXT );
 	}
 	
 	public String getBaseFile( ActionBase action ) throws Exception {

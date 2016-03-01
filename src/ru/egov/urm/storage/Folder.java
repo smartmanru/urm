@@ -16,14 +16,16 @@ public abstract class Folder {
 	public String folderPath;
 	public String folderName;
 	public boolean remote;
+	public boolean windows;
 	
 	public abstract ShellExecutor getSession( ActionBase action ) throws Exception; 
 
-	protected Folder( Artefactory artefactory , String folderPath , boolean remote ) {
+	protected Folder( Artefactory artefactory , String folderPath , boolean remote , boolean windows ) {
 		this.artefactory = artefactory;
 		this.folderPath = folderPath;
 		this.meta = artefactory.meta;
 		this.remote = remote;
+		this.windows = windows;
 		
 		folderName = Common.getBaseName( folderPath );
 	}
@@ -343,7 +345,8 @@ public abstract class Folder {
 			deployBasename = item.DEPLOYBASENAME;
 		else
 			deployBasename = deployBasename.substring( 0 , deployBasename.lastIndexOf( item.EXT ) );
-		String filePath = findOneTopWithGrep( action , "*" + deployBasename + "*" + item.EXT , item.getGrepMask( action , deployBasename ) );
+		boolean addDotSlash = ( windows )? false : true;
+		String filePath = findOneTopWithGrep( action , "*" + deployBasename + "*" + item.EXT , item.getGrepMask( action , deployBasename , addDotSlash ) );
 
 		// ensure correct file
 		if( filePath.isEmpty() ) {
