@@ -15,6 +15,8 @@ public class RedistStateInfo {
 	private Map<String,FileInfo> verData;
 
 	public void gather( ActionBase action , MetaEnvServerNode node , String STATEDIR ) throws Exception {
+		action.debug( "gather state: node=" + node.HOSTLOGIN + ", dir=" + STATEDIR );
+		
 		verData = new HashMap<String,FileInfo>(); 
 		ShellExecutor shell = action.getShell( action.getAccount( node ) );
 		if( !shell.checkDirExists( action , STATEDIR ) ) {
