@@ -27,12 +27,12 @@ abstract public class ActionBase {
 	public String NAME;
 	public int commandTimeout;
 	
-	protected boolean executeSimple() throws Exception { debug( NAME + ": simple action execute is not implemented" ); return( false ); };
-	protected boolean executeScope( ActionScope scope ) throws Exception { debug( NAME + ": full scope action execute is not implemented" ); return( false ); };
-	protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception { debug( NAME + ": scope set action execute is not implemented" ); return( false ); };
-	protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception { debug( NAME + ": scope target action execute is not implemented" ); return( false ); };
-	protected boolean executeScopeTargetItem( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception { debug( NAME + ": scope target item action execute is not implemented" ); return( false ); };
-	protected boolean executeAccount( ActionScopeSet set , Account account ) throws Exception { debug( NAME + ": host action execute is not implemented" ); return( false ); };
+	protected boolean executeSimple() throws Exception { trace( NAME + ": simple action execute is not implemented" ); return( false ); };
+	protected boolean executeScope( ActionScope scope ) throws Exception { trace( NAME + ": full scope action execute is not implemented" ); return( false ); };
+	protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception { trace( NAME + ": scope set action execute is not implemented" ); return( false ); };
+	protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception { trace( NAME + ": scope target action execute is not implemented" ); return( false ); };
+	protected boolean executeScopeTargetItem( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception { trace( NAME + ": scope target item action execute is not implemented" ); return( false ); };
+	protected boolean executeAccount( ActionScopeSet set , Account account ) throws Exception { trace( NAME + ": host action execute is not implemented" ); return( false ); };
 	protected void runBefore() throws Exception { trace( NAME + ": blank execute before is not implemented" ); };
 	protected void runAfter() throws Exception { trace( NAME + ": blank execute after is not implemented" ); };
 	protected void runBefore( ActionScope scope ) throws Exception { trace( NAME + ": scope execute before is not implemented" ); };
