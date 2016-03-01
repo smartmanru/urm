@@ -16,7 +16,6 @@ import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.deploy.ServerDeployment;
 import ru.egov.urm.shell.Account;
-import ru.egov.urm.shell.ShellExecutor;
 
 public class RedistStorage extends ServerStorage {
 
@@ -174,13 +173,10 @@ public class RedistStorage extends ServerStorage {
 
 	public void createLocationBackup( ActionBase action , String RELEASEDIR , MetaEnvServerLocation location , VarCONTENTTYPE CONTENTTYPE ) throws Exception {
 		String LOCATION = location.DEPLOYPATH;
-		String F_DSTDIR_BACKUP = getPathRedistLocation( action , RELEASEDIR , LOCATION , CONTENTTYPE , false );
+		RemoteFolder F_DSTDIR_DEPLOY = getRedistLocationFolder( action , RELEASEDIR , LOCATION , CONTENTTYPE , false );
 
 		// create empty initial script
-		ShellExecutor shell = action.getShell( node );
-		
-		String cmd = "mkdir -p " + F_DSTDIR_BACKUP;
-		shell.customCheckErrorsDebug( action , cmd );
+		F_DSTDIR_DEPLOY.ensureExists( action );
 	}
 	
 	public RedistStateInfo getStateInfo( ActionBase action , String LOCATION , VarCONTENTTYPE CONTENTTYPE ) throws Exception {

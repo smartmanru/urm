@@ -162,7 +162,7 @@ public class ActionRedist extends ActionBase {
 			
 			executeNodeConfig( server , node , clusterMode , admin , F_ENV_LOCATIONS_CONFIG , liveFolder );
 		}
-		
+
 		if( context.CTX_BACKUP )
 			executeNodeBackup( server , node );
 	}
