@@ -204,7 +204,7 @@ public class ShellCoreWindows extends ShellCore {
 		if( cmderr.isEmpty() == false )
 			action.exit( "remove files error" );
 		for( String s : cmdout ) {
-			if( !s.startsWith( "The system cannot find" ) )
+			if( s.startsWith( "The system cannot find" ) == false && s.startsWith( "Could Not Find" ) == false )
 				action.exit( "remove files error" );
 		}
 	}
