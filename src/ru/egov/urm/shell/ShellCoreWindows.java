@@ -435,6 +435,9 @@ public class ShellCoreWindows extends ShellCore {
 		int pos = 0;
 		List<String> data = null;
 		for( String s : cmdout ) {
+			if( action.context.CTX_TRACEINTERNAL )
+				action.trace( "cmdout=" + s );
+			
 			if( pos == 0 ) {
 				data = new LinkedList<String>();
 				map.put( s , data );
