@@ -201,8 +201,12 @@ public class ShellCoreWindows extends ShellCore {
 	@Override public void cmdRemoveFiles( ActionBase action , String dir , String files ) throws Exception {
 		String cmdDir = getDirCmdIfDir( action , dir , "del /Q " + files + " && rmdir /Q /S " + files );
 		runCommand( action , cmdDir , true );
-		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
-			action.exit( "remove directory error" );
+		if( cmderr.isEmpty() == false )
+			action.exit( "remove files error" );
+		for( String s : cmdout ) {
+			if( !s.startsWith( "The system cannot find" ) )
+				action.exit( "remove files error" );
+		}
 	}
 
 	@Override public void cmdRemoveFilesWithExclude( ActionBase action , String dir , String files , String exclude ) throws Exception {
