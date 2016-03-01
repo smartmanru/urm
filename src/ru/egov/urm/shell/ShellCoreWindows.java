@@ -257,11 +257,22 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public void cmdCopyFile( ActionBase action , String fileFrom , String fileTo ) throws Exception {
-		action.exitNotImplemented();
+		action.debug( "copy " + fileFrom + " to " + fileTo + " ..." );
+		String wfileFrom = Common.getWinPath( action , fileFrom );
+		String wfileTo = Common.getWinPath( action , fileTo );
+		runCommandCheckStatus( action , "copy /Y " + wfileFrom + " " + wfileTo , false );
 	}
 	
 	@Override public void cmdCopyFile( ActionBase action , String fileFrom , String targetDir , String finalName , String FOLDER ) throws Exception {
-		action.exitNotImplemented();
+		String finalDir = Common.getPath( targetDir , FOLDER );
+		String baseName = Common.getBaseName( fileFrom );
+		String finalFile;
+		if( !finalName.isEmpty() )
+			finalFile = finalDir + "/" + finalName;
+		else
+			finalFile = finalDir + "/" + baseName;
+
+		cmdCopyFile( action , fileFrom , finalFile );
 	}
 
 	@Override public void cmdCopyDirContent( ActionBase action , String srcDir , String dstDir ) throws Exception {
