@@ -15,8 +15,6 @@ public class RedistStateInfo {
 	private Map<String,FileInfo> verData;
 
 	public void gather( ActionBase action , MetaEnvServerNode node , String STATEDIR ) throws Exception {
-		action.debug( "gather state: node=" + node.HOSTLOGIN + ", dir=" + STATEDIR );
-		
 		verData = new HashMap<String,FileInfo>(); 
 		ShellExecutor shell = action.getShell( action.getAccount( node ) );
 		if( !shell.checkDirExists( action , STATEDIR ) ) {
@@ -24,7 +22,6 @@ public class RedistStateInfo {
 			return;
 		}
 		
-		shell.getFilesContent( action , STATEDIR , "*.ver" );
 		Map<String,List<String>> items = shell.getFilesContent( action , STATEDIR , "*.ver" );
 		for( String verName : items.keySet() ) {
 			List<String> data = items.get( verName );
