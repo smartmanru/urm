@@ -15,4 +15,4 @@ shift 1
 . ./_context.sh
 
 F_ACTION=${P_PROXY_SCRIPT%.sh}
-../bin/urm.sh deploy $F_ACTION $*
+../../bin/urm.sh deploy $F_ACTION $*
