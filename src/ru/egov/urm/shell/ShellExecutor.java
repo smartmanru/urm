@@ -164,7 +164,7 @@ public abstract class ShellExecutor {
 	}
 	
 	public void unzip( ActionBase action , String runDir , String zipFile , String folder ) throws Exception {
-		core.cmdUnzipPart( action , runDir , zipFile , null , folder );
+		core.cmdUnzipPart( action , runDir , zipFile , "" , folder );
 	}
 
 	public void unzipPart( ActionBase action , String unzipDir , String zipFile , String zipPart , String targetDir ) throws Exception {
