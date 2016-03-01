@@ -165,8 +165,15 @@ public class ShellCoreWindows extends ShellCore {
 	}
 	
 	@Override public String cmdFindOneTop( ActionBase action , String path , String mask ) throws Exception {
-		action.exitNotImplemented();
-		return( "" );
+		String cmdDir = getDirCmdIfDir( action , path , "dir /b " + mask );
+		String[] list = this.runCommandGetLines( action , cmdDir , true );
+		if( list.length == 0 || list[0].equals( "File Not Found" ) )
+			return( "" );
+		
+		if( list.length > 1 )
+			action.exit( "too many files found in path=" + path + ", mask=" + Common.getQuoted( mask ) + " (" + Common.getList( list ) + ")" );
+		
+		return( list[0] );
 	}
 
 	@Override public void cmdCreateMD5( ActionBase action , String filepath ) throws Exception {
