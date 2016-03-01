@@ -341,7 +341,7 @@ public abstract class Folder {
 		String deployName = specificDeployName;
 		if( deployName.isEmpty() )
 			deployName = item.DEPLOYBASENAME;
-		String filePath = findOneTopWithGrep( action , "*" + item.EXT , item.getGrepMask( action , deployName ) );
+		String filePath = findOneTopWithGrep( action , "*" + deployName + "*" + item.EXT , item.getGrepMask( action , deployName ) );
 
 		// ensure correct file
 		if( filePath.isEmpty() ) {

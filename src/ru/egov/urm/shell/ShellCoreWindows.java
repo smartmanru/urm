@@ -149,8 +149,19 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public String cmdFindOneTopWithGrep( ActionBase action , String path , String mask , String grepMask ) throws Exception {
-		action.exitNotImplemented();
-		return( "" );
+		String cmdDir = getDirCmdIfDir( action , path , "dir /b " + mask );
+		String[] values = this.runCommandGetLines( action , cmdDir , true );
+		if( values.length == 0 || values[0].equals( "File Not Found" ) )
+			return( "" );
+		
+		String[] list = Common.grep( values , grepMask );
+		if( list.length == 0 )
+			return( "" );
+			
+		if( list.length > 1 )
+			action.exit( "too many files found in path=" + path + ", mask=" + Common.getQuoted( mask ) + " (" + Common.getList( list ) + ")" );
+		
+		return( list[0] );
 	}
 	
 	@Override public String cmdFindOneTop( ActionBase action , String path , String mask ) throws Exception {
