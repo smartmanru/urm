@@ -237,7 +237,7 @@ public class ActionScope {
 		}
 			
 		if( dc == null )
-			action.exit( "datacenter is underfined" );
+			action.exit( "datacenter is undefined" );
 		
 		scope.createEnvServersScope( action , dc , SERVERS );
 		return( scope );
