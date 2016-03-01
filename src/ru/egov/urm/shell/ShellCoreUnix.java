@@ -239,10 +239,14 @@ public class ShellCoreUnix extends ShellCore {
 	}
 
 	@Override public void cmdUnzipPart( ActionBase action , String unzipDir , String zipFile , String zipPart , String targetDir ) throws Exception {
+		String dirOption = "";
+		if( !targetDir.isEmpty() )
+			dirOption = " -d " + targetDir;
+		
 		if( zipPart == null || zipPart.equals( "*" ) )
-			runCommandCheckDebug( action , unzipDir , "unzip -d " + targetDir + " " + zipFile + " > /dev/null" );
+			runCommandCheckDebug( action , unzipDir , "unzip" + dirOption + " " + zipFile + " > /dev/null" );
 		else
-			runCommandCheckDebug( action , unzipDir , "unzip -d " + targetDir + " " + zipFile + " " + zipPart + " > /dev/null" );
+			runCommandCheckDebug( action , unzipDir , "unzip" + dirOption + " " + zipFile + " " + zipPart + " > /dev/null" );
 	}
 
 	@Override public void cmdMove( ActionBase action , String source , String target ) throws Exception {
