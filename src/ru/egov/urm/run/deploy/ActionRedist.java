@@ -316,6 +316,7 @@ public class ActionRedist extends ActionBase {
 	}
 	
 	private void executeNodeBackup( MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
+		debug( node.HOSTLOGIN + ": save backup ..." );
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		ServerDeployment deployment = redist.getDeployment( this , dist.RELEASEDIR );
 		
