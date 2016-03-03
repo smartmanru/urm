@@ -50,7 +50,8 @@ function f_execute_all() {
 	git push origin
 	git -C $S_URMMIRROR push origin
 
-	rm -rf $F_DIR_TMP
+	cd $F_CURDIR
+	rm -rf $F_DIR_REL $F_DIR_REL
 }
 
 f_execute_all
