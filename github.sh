@@ -21,16 +21,31 @@ function f_execute_all() {
 	# get release
 	local F_CURDIR=`pwd`
 	local F_DIR_MASTER=$F_CURDIR/releases/$P_RELEASE
-	local F_DIR_TMP=$F_CURDIR/urm.git
+	local F_DIR_GIT=$F_CURDIR/urm.git
+	local F_DIR_REL=$F_CURDIR/urm.rel
 
 	echo "github.sh: upload release $P_RELEASE to github ..."
-	rm -rf $F_DIR_TMP
-	git clone $S_URMMIRROR --shared -b master $F_DIR_TMP
-
-	mkdir -p $F_DIR_TMP
-	cd $F_DIR_TMP
+	rm -rf $F_DIR_GIT $F_DIR_REL
+	git clone $S_URMMIRROR --shared -b master $F_DIR_GIT
+	mkdir -p $F_DIR_REL
+	cd $F_DIR_REL
 	tar xf $F_DIR_MASTER/master.tar > /dev/null
-	git add `git diff --name-only`
+
+	# copy release over git
+	cp -R * $F_DIR_GIT/
+
+	cd $F_DIR_GIT
+	local F_NEW=`git ls-files --others --exclude-standard`
+	if [ "$F_NEW" != "" ]; then
+		git add $F_NEW
+	fi
+
+	local F_CHANGED=`git diff --name-only`
+	if [ "$F_CHANGED" != "" ]; then
+		git add $F_CHANGED
+	fi
+
+	# note: remove deleted manually
 	git commit -m "push updates"
 	git push origin
 	git -C $S_URMMIRROR push origin
