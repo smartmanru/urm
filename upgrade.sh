@@ -16,7 +16,7 @@ fi
 
 function f_execute_all() {
 	# copy master files
-	cp -R master/* $P_DSTDIR/master
+	cp -R * $P_DSTDIR/master
 	local F_STATUS=$?
 	if [ "$F_STATUS" != "0" ]; then
 		echo "upgrade.sh: cannot copy master to $P_DSTDIR/master . Exiting"

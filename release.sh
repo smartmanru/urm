@@ -179,7 +179,7 @@ function f_execute_all() {
 
 	# release folder
 	cp $F_TMPDIRNAME/master/master.version.info $F_RELEASEPATH/master.version.info
-	cd $F_TMPDIRNAME
+	cd $F_TMPDIRNAME/master
 	tar cf $F_RELEASEPATH/master.tar * > /dev/null
 	F_CHECK=$?
 	if [ "$F_CHECK" != "0" ]; then
