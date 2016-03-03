@@ -156,12 +156,6 @@ function f_execute_all() {
 	cd $F_SAVEDIR
 
 	# release files
-	rm -rf $F_TMPDIRNAME/upgrade.sh
-	svn export $P_MASTERAUTH $F_CURRENT_BRANCH/upgrade.sh $F_TMPDIRNAME/upgrade.sh > /dev/null
-	cat $F_TMPDIRNAME/upgrade.sh | sed 's/\r//g' > fntmp
-        mv fntmp $F_TMPDIRNAME/upgrade.sh
-	chmod 744 $F_TMPDIRNAME/upgrade.sh
-
 	cd $F_TMPDIRNAME/master
 	find . -type f | sed "s/^\.\//core:/" | sort > ../master.files.info
 	mv ../master.files.info .
