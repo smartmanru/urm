@@ -144,23 +144,19 @@ public class ActionRedist extends ActionBase {
 	
 	private void executeNode( MetaEnvServer deployServer , MetaEnvServer server , MetaEnvServerNode node , boolean clusterMode , boolean admin , MetaEnvServerLocation[] F_ENV_LOCATIONS_BINARY , MetaEnvServerLocation[] F_ENV_LOCATIONS_CONFIG , LocalFolder liveFolder ) throws Exception {
 		if( context.CTX_DEPLOYBINARY ) {
-			if( F_ENV_LOCATIONS_BINARY.length == 0 ) {
+			if( F_ENV_LOCATIONS_BINARY.length == 0 )
 				trace( "server=" + server.NAME + ", node=" + node.POS + " - ignore binary deploy due to no locations" );
-				return;
-			}
-			
-			executeNodeBinary( server , node , clusterMode , admin , F_ENV_LOCATIONS_BINARY );
+			else
+				executeNodeBinary( server , node , clusterMode , admin , F_ENV_LOCATIONS_BINARY );
 		}
 		else
 			trace( "server=" + server.NAME + ", node=" + node.POS + " - ignore binary deploy due to options" );
 		
 		if( context.CTX_CONFDEPLOY ) {
-			if( F_ENV_LOCATIONS_CONFIG.length == 0 ) {
+			if( F_ENV_LOCATIONS_CONFIG.length == 0 )
 				trace( "server=" + server.NAME + ", node=" + node.POS + " - ignore config deploy due to no locations" );
-				return;
-			}
-			
-			executeNodeConfig( server , node , clusterMode , admin , F_ENV_LOCATIONS_CONFIG , liveFolder );
+			else
+				executeNodeConfig( server , node , clusterMode , admin , F_ENV_LOCATIONS_CONFIG , liveFolder );
 		}
 
 		if( context.CTX_BACKUP )
