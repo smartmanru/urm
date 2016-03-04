@@ -238,7 +238,7 @@ public class ActionRedist extends ActionBase {
 		LocalFolder confFolder = liveFolder.getSubFolder( this , name );
 		
 		// not in distributive
-		if( confFolder.checkExists( this ) ) {
+		if( !confFolder.checkExists( this ) ) {
 			trace( "missing release component=" + confItem.KEY );
 			return( false );
 		}
