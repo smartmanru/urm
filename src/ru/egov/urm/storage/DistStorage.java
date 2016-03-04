@@ -226,6 +226,19 @@ public class DistStorage {
 		distFolder.copyDirContentToLocal( action , localFolder , confFolder );
 	}
 	
+	public void copyDistConfToFolder( ActionBase action , MetaDistrConfItem conf , LocalFolder localFolder ) throws Exception {
+		if( !openedForUse )
+			action.exit( "distributive is not opened for use" );
+		
+		MetaReleaseDelivery delivery = info.findDelivery( action , conf.delivery.NAME );
+		if( delivery == null )
+			action.exit( "unknown release delivery=" + conf.delivery.NAME );
+		
+		String confFolder = getDeliveryConfFolder( action , delivery.distDelivery );
+		confFolder = Common.getPath( confFolder , conf.KEY );
+		distFolder.copyDirContentToLocal( action , localFolder , confFolder );
+	}
+	
 	public boolean copyDistConfToFolder( ActionBase action , MetaReleaseTarget confTarget , LocalFolder parentFolder ) throws Exception {
 		if( !openedForUse )
 			action.exit( "distributive is not opened for use" );

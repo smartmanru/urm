@@ -10,7 +10,6 @@ import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerDeployment;
 import ru.egov.urm.meta.MetaEnvServerNode;
-import ru.egov.urm.meta.MetaReleaseDelivery;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScope;
 import ru.egov.urm.run.ActionScopeSet;
@@ -76,11 +75,7 @@ public class ActionConfigure extends ActionBase {
 		}
 		
 		// copy from release
-		MetaReleaseDelivery delivery = dist.info.findDelivery( this , conf.delivery.NAME );
-		if( delivery == null )
-			return;
-		
-		dist.copyDistConfToFolder( this , delivery , templateFolder.getSubFolder( this , conf.KEY ) );
+		dist.copyDistConfToFolder( this , conf , templateFolder.getSubFolder( this , conf.KEY ) );
 	}
 	
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
