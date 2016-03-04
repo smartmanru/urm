@@ -179,6 +179,10 @@ public abstract class ShellExecutor {
 		core.cmdExtractTarGz( action , tarFile , targetFolder );
 	}
 
+	public void extractTar( ActionBase action , String tarFile , String targetFolder ) throws Exception {
+		core.cmdExtractTar( action , tarFile , targetFolder );
+	}
+
 	public String ls( ActionBase action , String path ) throws Exception {
 		return( core.cmdLs( action , path ) );
 	}
@@ -189,6 +193,10 @@ public abstract class ShellExecutor {
 
 	public void createTarGzFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
 		core.cmdCreateTarGzFromDirContent( action , tarFile , dir , content , exclude );
+	}
+
+	public void createTarFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
+		core.cmdCreateTarFromDirContent( action , tarFile , dir , content , exclude );
 	}
 
 	public String getFileInfo( ActionBase action , String dir , String dirFile ) throws Exception {

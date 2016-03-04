@@ -227,6 +227,11 @@ public class ShellCoreWindows extends ShellCore {
 		runCommandCheckStatusDebug( action , targetFolder , "tar -zxmf " + wtarFile );
 	}
 	
+	@Override public void cmdExtractTar( ActionBase action , String tarFile , String targetFolder ) throws Exception {
+		String wtarFile = Common.getWinPath( action , tarFile );
+		runCommandCheckStatusDebug( action , targetFolder , "tar -xmf " + wtarFile );
+	}
+	
 	@Override public String cmdLs( ActionBase action , String path ) throws Exception {
 		action.exitNotImplemented();
 		return( "" );
@@ -237,6 +242,10 @@ public class ShellCoreWindows extends ShellCore {
 	}
 	
 	@Override public void cmdCreateTarGzFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
+		action.exitNotImplemented();
+	}
+
+	@Override public void cmdCreateTarFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
 		action.exitNotImplemented();
 	}
 

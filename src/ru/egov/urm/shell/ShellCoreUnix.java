@@ -264,6 +264,10 @@ public class ShellCoreUnix extends ShellCore {
 		runCommandCheckDebug( action , targetFolder , "tar --no-same-owner --overwrite -zxmf " + tarFile + " > /dev/null" );
 	}
 	
+	@Override public void cmdExtractTar( ActionBase action , String tarFile , String targetFolder ) throws Exception {
+		runCommandCheckDebug( action , targetFolder , "tar --no-same-owner --overwrite -xmf " + tarFile + " > /dev/null" );
+	}
+	
 	@Override public String cmdLs( ActionBase action , String path ) throws Exception {
 		String value = runCommandGetValueCheckDebug( action , path , "ls" );
 		return( value );
@@ -277,6 +281,12 @@ public class ShellCoreUnix extends ShellCore {
 		String find = this.getFindCommandIncludeExclude( content , exclude , true );
 		String listFile = tmpFolder.getFilePath( action , "fileList.txt" );
 		runCommandCheckDebug( action , dir , find + " > " + listFile + "; tar -zcf " + tarFile + " --files-from=" + listFile + " > /dev/null 2> /dev/null" );
+	}
+
+	@Override public void cmdCreateTarFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
+		String find = this.getFindCommandIncludeExclude( content , exclude , true );
+		String listFile = tmpFolder.getFilePath( action , "fileList.txt" );
+		runCommandCheckDebug( action , dir , find + " > " + listFile + "; tar -cf " + tarFile + " --files-from=" + listFile + " > /dev/null 2> /dev/null" );
 	}
 
 	@Override public String cmdGetFileInfo( ActionBase action , String dir , String dirFile ) throws Exception {

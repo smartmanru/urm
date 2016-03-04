@@ -248,7 +248,7 @@ public class ActionRedist extends ActionBase {
 		String fileBaseName = redist.getConfigArchiveName( this , confItem , target.ALL );
 		String fileName = "node" + node.POS + "-" + fileBaseName;
 		String filePath = liveFolder.getFilePath( this , fileName );
-		confFolder.createTarGzFromContent( this , filePath , "*" , "" );
+		confFolder.createTarFromContent( this , filePath , "*" , "" );
 		
 		redist.copyReleaseFile( this , confItem , dist , location , liveFolder , fileName , fileBaseName );
 		return( true );

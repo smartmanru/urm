@@ -198,6 +198,11 @@ public abstract class Folder {
 		session.extractTarGz( action , tarFile , Common.getPath( folderPath , targetFolder ) );
 	}
 	
+	public void extractTar( ActionBase action , String tarFile , String targetFolder ) throws Exception {
+		ShellExecutor session = getSession( action ); 
+		session.extractTar( action , tarFile , Common.getPath( folderPath , targetFolder ) );
+	}
+	
 	public String getFolderContent( ActionBase action , String folder ) throws Exception {
 		ShellExecutor session = getSession( action ); 
 		return( session.ls( action , Common.getPath( folderPath , folder ) ) );
@@ -241,6 +246,16 @@ public abstract class Folder {
 	public void createTarGzFromContent( ActionBase action , String tarFilePath , String content , String exclude ) throws Exception {
 		ShellExecutor session = getSession( action ); 
 		session.createTarGzFromDirContent( action , tarFilePath , folderPath , content , exclude );
+	}
+	
+	public void createTarFromFolderContent( ActionBase action , String tarFilePath , String folder , String content , String exclude ) throws Exception {
+		ShellExecutor session = getSession( action ); 
+		session.createTarFromDirContent( action , tarFilePath , Common.getPath( folderPath , folder ) , content , exclude );
+	}
+	
+	public void createTarFromContent( ActionBase action , String tarFilePath , String content , String exclude ) throws Exception {
+		ShellExecutor session = getSession( action ); 
+		session.createTarFromDirContent( action , tarFilePath , folderPath , content , exclude );
 	}
 	
 	public void createFileFromString( ActionBase action , String filepath , String value ) throws Exception {

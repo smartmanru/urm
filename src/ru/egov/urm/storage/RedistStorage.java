@@ -39,11 +39,11 @@ public class RedistStorage extends ServerStorage {
 		RemoteFolder tmpDir = getRedistTmpFolder( action );
 		tmpDir.recreateThis( action );
 		
-		String F_CONFIGTARFILE = "config.tgz";
+		String F_CONFIGTARFILE = "config.tar";
 		RemoteFolder runtimeDir = new RemoteFolder( artefactory , action.getAccount( node ) , F_RUNTIMEDIR );
 		
 		try {
-			runtimeDir.createTarGzFromContent( action , tmpDir.getFilePath( action , F_CONFIGTARFILE ) , F_FILES , "" );
+			runtimeDir.createTarFromContent( action , tmpDir.getFilePath( action , F_CONFIGTARFILE ) , F_FILES , "" );
 		}
 		catch( Throwable e ) {
 			action.log( e );
@@ -69,7 +69,7 @@ public class RedistStorage extends ServerStorage {
 		String F_EXCLUDE = confItem.getLiveExcludeFiles( action );
 		
 		RemoteFolder deployDir = getRuntimeLocationFolder( action , LOCATION );
-		deployDir.createTarGzFromContent( action , filePath , F_INCLUDE , F_EXCLUDE );
+		deployDir.createTarFromContent( action , filePath , F_INCLUDE , F_EXCLUDE );
 	}
 
 	public String getConfigItemMD5( ActionBase action , MetaDistrConfItem confItem , String LOCATION ) throws Exception {

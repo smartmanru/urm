@@ -23,7 +23,7 @@ public class ServerStorage {
 	static String S_REDIST_ARCHIVE_TYPE_CHILD = "child";
 	static String S_REDIST_ARCHIVE_TYPE_SUBDIR = "subdir";
 
-	static String S_CONFIGTARFILE = "config.tgz";
+	static String S_CONFIGTARFILE = "config.tar";
 	
 	public Artefactory artefactory;
 	public MetaEnvServer server;
@@ -232,7 +232,7 @@ public class ServerStorage {
 	
 	public String getConfigArchiveName( ActionBase action , MetaDistrConfItem item , boolean full ) throws Exception {
 		String mode = ( full )? "full" : "partial";
-		return( "config-" + item.KEY + "-" + mode + ".tgz" );
+		return( "config-" + item.KEY + "-" + mode + ".tar" );
 	}
 
 	public String getRedistArchiveName( ActionBase action , MetaDistrBinaryItem item ) throws Exception {

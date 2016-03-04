@@ -42,9 +42,9 @@ public class RuntimeStorage extends ServerStorage {
 		// prepare on local
 		LocalFolder localDir = artefactory.getWorkFolder( action , "tmp" );
 		localDir.ensureExists( action );
-		String F_CONFIGTARFILE = "config.tgz";
+		String F_CONFIGTARFILE = "config.tar";
 		String tarFilePath = localDir.getFilePath( action , F_CONFIGTARFILE );
-		srcFolder.createTarGzFromContent( action , tarFilePath , "*" , "" );
+		srcFolder.createTarFromContent( action , tarFilePath , "*" , "" );
 		
 		// rollout to destination
 		ShellExecutor shell = action.getShell( node );
@@ -74,9 +74,9 @@ public class RuntimeStorage extends ServerStorage {
 		// prepare on local
 		LocalFolder localDir = artefactory.getWorkFolder( action , "tmp" );
 		localDir.ensureExists( action );
-		String F_CONFIGTARFILE = "config.tgz";
+		String F_CONFIGTARFILE = "config.tar";
 		String tarFilePath = localDir.getFilePath( action , F_CONFIGTARFILE );
-		srcFolder.createTarGzFromContent( action , tarFilePath , "*" , "" );
+		srcFolder.createTarFromContent( action , tarFilePath , "*" , "" );
 		
 		// rollout to destination
 		ShellExecutor shell = action.getShell( node );
