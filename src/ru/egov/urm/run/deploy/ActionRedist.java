@@ -23,12 +23,12 @@ import ru.egov.urm.storage.SourceStorage;
 public class ActionRedist extends ActionBase {
 
 	DistStorage dist;
-	LocalFolder liveFolder;
+	LocalFolder liveEnvFolder;
 
-	public ActionRedist( ActionBase action , String stream , DistStorage dist , LocalFolder liveFolder ) {
+	public ActionRedist( ActionBase action , String stream , DistStorage dist , LocalFolder liveEnvFolder ) {
 		super( action , stream );
 		this.dist = dist;
-		this.liveFolder = liveFolder;
+		this.liveEnvFolder = liveEnvFolder;
 	}
 
 	@Override protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
@@ -50,8 +50,11 @@ public class ActionRedist extends ActionBase {
 			F_ENV_LOCATIONS_BINARY = server.getLocations( this , true , false );
 		
 		MetaEnvServerLocation[] F_ENV_LOCATIONS_CONFIG = new MetaEnvServerLocation[0];
-		if( context.CTX_CONFDEPLOY )
+		LocalFolder liveServerFolder = null;
+		if( context.CTX_CONFDEPLOY ) {
 			F_ENV_LOCATIONS_CONFIG = server.getLocations( this , false , true );
+			liveServerFolder = liveEnvFolder.getSubFolder( this , server.NAME );
+		}
 		
 		if( F_ENV_LOCATIONS_BINARY.length == 0 && F_ENV_LOCATIONS_CONFIG.length == 0 ) {
 			debug( "server=$P_SERVER - no locations. Skipped." );
@@ -66,7 +69,7 @@ public class ActionRedist extends ActionBase {
 			F_CLUSTER_MODE = true;
 			MetaEnvServer adminServer = server.hotdeployServer;
 			MetaEnvServerNode adminNode = adminServer.getPrimaryNode( this );
-			executeNode( server , adminServer , adminNode , F_CLUSTER_MODE , true , F_ENV_LOCATIONS_BINARY , F_ENV_LOCATIONS_CONFIG , liveFolder );
+			executeNode( server , adminServer , adminNode , F_CLUSTER_MODE , true , F_ENV_LOCATIONS_BINARY , F_ENV_LOCATIONS_CONFIG , liveServerFolder );
 		}
 
 		// iterate by nodes
@@ -75,7 +78,7 @@ public class ActionRedist extends ActionBase {
 			log( "execute server=" + server.NAME + " node=" + node.POS + " ..." );
 
 			// deploy both binaries and configs to each node
-			executeNode( server , server , node , F_CLUSTER_MODE , false , F_ENV_LOCATIONS_BINARY , F_ENV_LOCATIONS_CONFIG , liveFolder );
+			executeNode( server , server , node , F_CLUSTER_MODE , false , F_ENV_LOCATIONS_BINARY , F_ENV_LOCATIONS_CONFIG , liveServerFolder );
 		}
 
 		if( context.CTX_DEPLOYBINARY && server.staticServer != null )
