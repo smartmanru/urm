@@ -224,7 +224,7 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public void cmdExtractTarGz( ActionBase action , String tarFile , String targetFolder ) throws Exception {
 		String wtarFile = Common.getWinPath( action , tarFile );
-		runCommandCheckDebug( action , targetFolder , "tar --no-same-owner --overwrite -zxmf " + wtarFile );
+		runCommandCheckStatusDebug( action , targetFolder , "tar --no-same-owner --overwrite -zxmf " + wtarFile );
 	}
 	
 	@Override public String cmdLs( ActionBase action , String path ) throws Exception {
