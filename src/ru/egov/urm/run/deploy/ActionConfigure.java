@@ -36,6 +36,11 @@ public class ActionConfigure extends ActionBase {
 		this.baseFolder = baseFolder;
 	}
 
+	public LocalFolder getLiveFolder() throws Exception {
+		LocalFolder serverFolder = baseFolder.getSubFolder( this , "live" );
+		return( serverFolder );
+	}
+	
 	public LocalFolder getLiveFolder( MetaEnvServer server ) throws Exception {
 		LocalFolder serverFolder = baseFolder.getSubFolder( this , Common.getPath( "live" , server.NAME ) );
 		return( serverFolder );

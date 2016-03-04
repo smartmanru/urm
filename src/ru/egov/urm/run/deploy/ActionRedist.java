@@ -1,7 +1,6 @@
 package ru.egov.urm.run.deploy;
 
 import ru.egov.urm.Common;
-import ru.egov.urm.conf.ConfBuilder;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServer;
@@ -24,26 +23,16 @@ import ru.egov.urm.storage.SourceStorage;
 public class ActionRedist extends ActionBase {
 
 	DistStorage dist;
-	LocalFolder templateFolder;
+	LocalFolder liveFolder;
 
-	public ActionRedist( ActionBase action , String stream , DistStorage dist , LocalFolder templateFolder ) {
+	public ActionRedist( ActionBase action , String stream , DistStorage dist , LocalFolder liveFolder ) {
 		super( action , stream );
 		this.dist = dist;
-		this.templateFolder = templateFolder;
+		this.liveFolder = liveFolder;
 	}
 
 	@Override protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		logAction( "execute dc=" + set.dc.NAME + ", releasedir=" + dist.RELEASEDIR + ", servers={" + set.getScopeInfo( this ) + "} ..." );
-
-		// if configuration deployment requested - validate environment data
-		if( context.CTX_CONFDEPLOY ) {
-			ActionConfCheck check = new ActionConfCheck( this , null );
-			if( !check.runAll( set ) ) {
-				logAction( "configuration check failed: invalid environment data" );
-				super.setFailed();
-				return;
-			}
-		}
 	}
 	
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
@@ -71,9 +60,6 @@ public class ActionRedist extends ActionBase {
 
 		log( "============================================ execute server=" + server.NAME + ", type=" + Common.getEnumLower( server.TYPE ) + " ..." );
 
-		// export configuration templates
-		LocalFolder liveFolder = prepareServerConfiguration( target , F_ENV_LOCATIONS_CONFIG );
-		
 		// cluster hot deploy - redist hotdeploy components to admin server only
 		boolean F_CLUSTER_MODE = false;
 		if( server.hotdeployServer != null && target.itemFull ) {
@@ -96,52 +82,6 @@ public class ActionRedist extends ActionBase {
 			exitNotImplemented();
 	}
 
-	private LocalFolder prepareServerConfiguration( ActionScopeTarget target, MetaEnvServerLocation[] locations ) throws Exception {
-		MetaEnvServer server = target.envServer;
-		if( !context.CTX_CONFDEPLOY )
-			return( null );
-		
-		MetaDistrConfItem[] confItems = dist.getLocationConfItems( this , locations );
-		if( confItems.length == 0 ) {
-			trace( "no configuration in release found for server. Skipped" );
-			return( null );
-		}
-		
-		String PATH = "configuration";
-		PATH = Common.getPath( PATH , server.NAME );
-		LocalFolder confFolder = artefactory.getWorkFolder( this , PATH );
-		LocalFolder templateFolder = confFolder.getSubFolder( this , "templates" );
-		templateFolder.recreateThis( this );
-		
-		// copy from release templates
-		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
-		for( MetaDistrConfItem confItem : confItems ) {
-			MetaReleaseTarget confTarget = dist.info.getConfComponent( this , confItem.KEY );
-			if( !dist.copyDistConfToFolder( this , confTarget , templateFolder ) )
-				debug( "missing release conf=" + confItem.KEY );
-		}
-		
-		// configure 
-		LocalFolder liveAllFolder = confFolder.getSubFolder( this , "live" );
-		liveAllFolder.recreateThis( this );
-		
-		ConfBuilder builder = new ConfBuilder( this );
-		for( ActionScopeTargetItem targetItem : target.getItems( this ) ) {
-			MetaEnvServerNode node = targetItem.envServerNode;
-			for( MetaDistrConfItem confItem : confItems ) {
-				LocalFolder confTemplateFolder = templateFolder.getSubFolder( this , confItem.KEY );
-				
-				String name = sourceStorage.getConfItemLiveName( this , node , confItem );
-				LocalFolder live = liveAllFolder.getSubFolder( this , name );
-				confFolder.recreateThis( this );
-				
-				builder.configureComponent( confTemplateFolder , live , confItem , server , node );
-			}
-		}
-		
-		return( liveAllFolder );
-	}
-	
 	private void executeNode( MetaEnvServer deployServer , MetaEnvServer server , MetaEnvServerNode node , boolean clusterMode , boolean admin , MetaEnvServerLocation[] F_ENV_LOCATIONS_BINARY , MetaEnvServerLocation[] F_ENV_LOCATIONS_CONFIG , LocalFolder liveFolder ) throws Exception {
 		if( context.CTX_DEPLOYBINARY ) {
 			if( F_ENV_LOCATIONS_BINARY.length == 0 )

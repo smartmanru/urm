@@ -90,12 +90,19 @@ public class DeployCommand {
 		
 		// download configuration templates
 		LocalFolder folder = null;
+		LocalFolder live = null;
 		if( action.context.CTX_CONFDEPLOY && !dist.info.isEmptyConfiguration( action ) ) {
+			ActionConfCheck check = new ActionConfCheck( action , null );
+			if( !check.runAll( scope ) )
+				action.exit( "configuration check failed: invalid environment data" );
+			
 			action.log( "prepare configuration ..." );
 			folder = action.artefactory.getWorkFolder( action , "configuration" );
 			ActionConfigure ca = new ActionConfigure( action , null , dist , folder ); 
 			if( !ca.runAll( scope ) )
 				action.exit( "unable to prepare configuration" );
+			
+			live = ca.getLiveFolder();
 		}
 		
 		action.log( "open sessions and create redist folders ..." );
@@ -104,7 +111,7 @@ public class DeployCommand {
 			action.exit( "unable to create folders" );
 		
 		action.log( "upload to redist ..." );
-		ActionRedist ma = new ActionRedist( action , null , dist , folder );
+		ActionRedist ma = new ActionRedist( action , null , dist , live );
 		ma.runAll( scope );
 		action.log( "redist successfully done." );
 	}
