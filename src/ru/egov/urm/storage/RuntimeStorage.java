@@ -58,7 +58,7 @@ public class RuntimeStorage extends ServerStorage {
 		shell.appendExecuteLog( action , "restore server system configuration (" + confFullPath + ")" + " to " + runtimeDir.folderPath );
 		if( server.TYPE != VarSERVERTYPE.SERVICE )
 			runtimeDir.removeFiles( action , F_FILES );
-		runtimeDir.extractTarGz( action , confFullPath , "" );
+		runtimeDir.extractTar( action , confFullPath , "" );
 
 		remoteDir.removeFiles( action , F_CONFIGTARFILE );
 		localDir.removeFiles( action , F_CONFIGTARFILE );
@@ -121,7 +121,7 @@ public class RuntimeStorage extends ServerStorage {
 			deployDir.removeFilesWithExclude( action , includeFiles , excludeFiles );
 		}
 
-		deployDir.extractTarGz( action , stagingPath , "" );
+		deployDir.extractTar( action , stagingPath , "" );
 	}
 
 	public void rollout( ActionBase action , String RELEASEDIR , ServerDeployment deployment ) throws Exception {

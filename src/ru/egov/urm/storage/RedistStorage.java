@@ -57,7 +57,7 @@ public class RedistStorage extends ServerStorage {
 		if( !dstFolder.checkFileExists( action , F_CONFIGTARFILE ) )
 			action.exit( "unable to create " + Common.getPath( dstFolder.folderPath , F_CONFIGTARFILE ) );
 
-		dstFolder.extractTarGz( action , F_CONFIGTARFILE , "" );
+		dstFolder.extractTar( action , F_CONFIGTARFILE , "" );
 		dstFolder.removeFiles( action , F_CONFIGTARFILE );
 		tmpDir.removeFiles( action , F_CONFIGTARFILE );
 		
@@ -100,7 +100,7 @@ public class RedistStorage extends ServerStorage {
 		if( !dstFolder.checkFileExists( action , S_CONFIGTARFILE ) )
 			action.exit( "unable to create " + Common.getPath( dstFolder.folderPath , S_CONFIGTARFILE ) );
 
-		dstFolder.extractTarGz( action , S_CONFIGTARFILE , "" );
+		dstFolder.extractTar( action , S_CONFIGTARFILE , "" );
 		dstFolder.removeFiles( action , S_CONFIGTARFILE );
 		tmpDir.removeFiles( action , S_CONFIGTARFILE );
 		
