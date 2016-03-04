@@ -44,6 +44,7 @@ public class DistStorage {
 
 	ReleaseState state;
 	boolean openedForUse;
+	boolean openedForChange;
 	
 	public DistStorage( Artefactory artefactory , RemoteFolder distFolder , boolean prod ) {
 		this.artefactory = artefactory; 
@@ -54,7 +55,9 @@ public class DistStorage {
 		RELEASEDIR = distFolder.folderName;
 		state = new ReleaseState( distFolder );
 		files = null;
+		
 		openedForUse = false;
+		openedForChange = false;
 	}
 
 	public void open( ActionBase action ) throws Exception {
@@ -84,18 +87,27 @@ public class DistStorage {
 	}
 
 	public void copyConfToDistr( ActionBase action , LocalFolder sourceFolder , MetaDistrConfItem conf ) throws Exception {
+		if( !openedForChange )
+			action.exit( "distributive is not opened for change" );
+		
 		state.checkDistChangeEnabled( action );
 		String parentFolder = getReleaseConfCompParentFolder( action , conf );
 		distFolder.copyDirFromLocal( action , sourceFolder , parentFolder );
 	}
 	
 	public void copyVFileToDistr( ActionBase action , MetaDistrBinaryItem distItem , LocalFolder sourceFolder , String FNAME , String BASENAME , String EXT ) throws Exception {
+		if( !openedForChange )
+			action.exit( "distributive is not opened for change" );
+		
 		state.checkDistChangeEnabled( action );
 		String folder = getReleaseBinaryFolder( action , distItem );
 		distFolder.copyVFileFromLocal( action , sourceFolder , FNAME , folder , BASENAME , EXT );
 	}
 
 	public void copyDatabaseFilesToDistr( ActionBase action , MetaDistrDelivery dbDelivery , LocalFolder srcPrepared ) throws Exception {
+		if( !openedForChange )
+			action.exit( "distributive is not opened for change" );
+		
 		state.checkDistChangeEnabled( action );
 		String folder = getDeliveryDatabaseFolder( action , dbDelivery );
 		distFolder.removeFolder( action , folder );
@@ -106,6 +118,9 @@ public class DistStorage {
 	}
 
 	public void copyManualFilesToDistr( ActionBase action , LocalFolder src ) throws Exception {
+		if( !openedForChange )
+			action.exit( "distributive is not opened for change" );
+		
 		state.checkDistChangeEnabled( action );
 		String folder = getManualFolder( action  );
 		distFolder.removeFolder( action , folder );
@@ -252,10 +267,14 @@ public class DistStorage {
 	
 	public void openForChange( ActionBase action ) throws Exception {
 		state.ctlOpenForChange( action );
+		openedForChange = true;
+		openedForUse = true;
 	}
 	
 	public void closeChange( ActionBase action ) throws Exception {
 		state.ctlCloseChange( action );
+		openedForChange = false;
+		openedForUse = false;
 	}
 
 	public void forceClose( ActionBase action ) throws Exception {
