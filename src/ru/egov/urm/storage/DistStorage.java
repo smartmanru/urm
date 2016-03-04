@@ -393,9 +393,6 @@ public class DistStorage {
 	}
 	
 	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrBinaryItem item , boolean getMD5 ) throws Exception {
-		if( !openedForUse )
-			action.exit( "distributive is not opened for use" );
-		
 		DistItemInfo info = new DistItemInfo( item );
 		info.subPath = getReleaseBinaryFolder( action , item );
 		info.fileName = getFiles( action ).findDistItem( action , item , info.subPath );
@@ -420,9 +417,6 @@ public class DistStorage {
 	}
 
 	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrConfItem item ) throws Exception {
-		if( !openedForUse )
-			action.exit( "distributive is not opened for use" );
-		
 		DistItemInfo info = new DistItemInfo( item );
 		info.subPath = getReleaseConfCompParentFolder( action , item );
 		info.fileName = getFiles( action ).findDistItem( action , item , info.subPath );

@@ -106,6 +106,7 @@ public class DeployCommand {
 		action.log( "upload to redist ..." );
 		ActionRedist ma = new ActionRedist( action , null , dist , folder );
 		ma.runAll( scope );
+		action.log( "redist successfully done." );
 	}
 
 	public void restartEnv( ActionBase action , ActionScope scope ) throws Exception {
