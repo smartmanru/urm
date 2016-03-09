@@ -29,7 +29,7 @@ public class MetaEnvServerDeployment {
 		
 		DEPLOYTYPE = action.meta.getDeployType( action , ConfReader.getAttrValue( action , node , "deploytype" , "cold" ) );
 		DEPLOYPATH = ConfReader.getAttrValue( action , node , "deploypath" );
-		NODETYPE = ConfReader.getAttrValue( action , node , "deploytype" , "unknown" );
+		NODETYPE = ConfReader.getAttrValue( action , node , "nodetype" , "unknown" );
 		nodeType = action.meta.getNodeType( action , NODETYPE );
 		
 		String COMP = ConfReader.getAttrValue( action , node , "component" );
