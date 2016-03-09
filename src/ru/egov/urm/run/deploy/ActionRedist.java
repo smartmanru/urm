@@ -211,7 +211,7 @@ public class ActionRedist extends ActionBase {
 			return( false );
 		}
 		
-		boolean F_PARTIAL = target.ALL; 
+		boolean F_PARTIAL = ( target.ALL )? false : true; 
 
 		debug( "redist configuraton component=" + confItem.KEY + " (partial=" + F_PARTIAL + ") ..." );
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
