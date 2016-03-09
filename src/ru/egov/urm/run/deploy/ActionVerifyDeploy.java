@@ -9,7 +9,6 @@ import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerLocation;
 import ru.egov.urm.meta.MetaEnvServerNode;
-import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScope;
 import ru.egov.urm.run.ActionScopeTarget;
@@ -63,10 +62,8 @@ public class ActionVerifyDeploy extends ActionBase {
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		// ignore database and unreachable
 		MetaEnvServer server = target.envServer;
-		if( server.TYPE == VarSERVERTYPE.DATABASE || 
-			server.TYPE == VarSERVERTYPE.GENERIC_NOSSH ||
-			server.TYPE == VarSERVERTYPE.UNKNOWN ) {
-			trace( "ignore due to server type=" + Common.getEnumLower( server.TYPE ) );
+		if( !server.isDeployPossible( this ) ) {
+			trace( "ignore due to server empty deployment" );
 			return( true );
 		}
 
@@ -94,7 +91,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			return;
 		}
 
-		log( "============================================ execute server=" + server.NAME + ", type=" + Common.getEnumLower( server.TYPE ) + " ..." );
+		log( "============================================ execute server=" + server.NAME + ", type=" + server.SERVERTYPE + " ..." );
 
 		// iterate by nodes
 		LocalFolder tobeServerFolder = configure.getLiveFolder( server );
@@ -123,7 +120,9 @@ public class ActionVerifyDeploy extends ActionBase {
 		// binaries
 		log( "verify binaries ..." );
 		for( MetaEnvServerLocation location : binaryLocations ) {
-			for( MetaDistrBinaryItem binaryItem : location.binaryItems.values() ) {
+			String[] items = location.getNodeBinaryItems( this , node );
+			for( String item : items ) {
+				MetaDistrBinaryItem binaryItem = meta.distr.getBinaryItem( this , item );
 				if( !executeNodeBinary( server , node , location , binaryItem , tobeServerFolder , asisServerFolder ) )
 					verifyNode = false;
 			}
@@ -131,9 +130,13 @@ public class ActionVerifyDeploy extends ActionBase {
 	
 		// configuration
 		log( "verify configuration ..." );
-		for( MetaEnvServerLocation location : confLocations )
-			for( MetaDistrConfItem confItem : location.confItems.values() )
+		for( MetaEnvServerLocation location : confLocations ) {
+			String[] items = location.getNodeConfItems( this , node );
+			for( String item : items ) {
+				MetaDistrConfItem confItem = meta.distr.getConfItem( this , item );
 				executeNodeConf( server , node , location , confItem );
+			}
+		}
 			
 		// compare configuration tobe and as is
 		if( confLocations.length > 0 ) {

@@ -26,7 +26,8 @@ public class MetaEnvServer {
 	private String BASELINE;
 	public boolean OFFLINE;
 	
-	public VarSERVERTYPE TYPE;
+	public String SERVERTYPE;
+	private VarSERVERTYPE serverType;
 	public String ROOTPATH;
 	public String BINPATH;
 	public String SERVICENAME;
@@ -41,12 +42,9 @@ public class MetaEnvServer {
 	public MetaEnvServer[] subordinateServers;
 	public int STARTTIME;
 	public int STOPTIME;
-	public VarDEPLOYTYPE DEPLOYTYPE;
 	public String DEPLOYPATH;
 	public String LINKFROMPATH;
 	public String DEPLOYSCRIPT;
-	private String HOTDEPLOYSERVER;
-	public MetaEnvServer hotdeployServer;
 	public String HOTDEPLOYPATH;
 	public String HOTDEPLOYDATA;
 	public String WEBDOMAIN;
@@ -121,8 +119,6 @@ public class MetaEnvServer {
 			proxyServer = dc.getServer( action , PROXYSERVER );
 		if( STATICSERVER != null && !STATICSERVER.isEmpty() )
 			staticServer = dc.getServer( action , STATICSERVER );
-		if( HOTDEPLOYSERVER != null && !HOTDEPLOYSERVER.isEmpty() )
-			hotdeployServer = dc.getServer( action , HOTDEPLOYSERVER );
 		if( SUBORDINATESERVERS != null && !SUBORDINATESERVERS.isEmpty() ) {
 			String[] SERVERS = Common.splitSpaced( SUBORDINATESERVERS );
 			subordinateServers = new MetaEnvServer[ SERVERS.length ];
@@ -131,7 +127,7 @@ public class MetaEnvServer {
 		}
 		
 		// verify aligned
-		if( TYPE == VarSERVERTYPE.DATABASE ) {
+		if( serverType == VarSERVERTYPE.DATABASE ) {
 			for( String id : Common.splitSpaced( ALIGNED ) )
 				action.meta.distr.database.alignedGetIDByBame( action , id );
 		}
@@ -168,12 +164,13 @@ public class MetaEnvServer {
 		if( BASELINE.equals( "default" ) )
 			BASELINE = NAME;
 		
-		TYPE = action.meta.getServerType( action , properties.getSystemRequiredProperty( action , "type" , systemProps ) );
+		SERVERTYPE = properties.getSystemRequiredProperty( action , "type" , systemProps );
+		serverType = action.meta.getServerType( action , SERVERTYPE );
 		OSTYPE = action.meta.getOSType( action , properties.getSystemProperty( action , "ostype" , "unix" , systemProps ) );
 		OFFLINE = properties.getSystemBooleanProperty( action , "offline" , false , systemProps );
 		XDOC = properties.getSystemProperty( action , "xdoc" , NAME , systemProps );
 		
-		if( TYPE == VarSERVERTYPE.DATABASE ) {
+		if( serverType == VarSERVERTYPE.DATABASE ) {
 			DBMSTYPE = action.meta.getDbmsType( action , properties.getSystemRequiredProperty( action , "dbmstype" , systemProps ) );
 			DBMSADDR = properties.getSystemRequiredProperty( action , "dbmsaddr" , systemProps );
 			DATAGROUPS = properties.getSystemRequiredProperty( action , "datagroups" , systemProps );
@@ -190,7 +187,7 @@ public class MetaEnvServer {
 			admSchema = database.getSchema( action , ADMSCHEMA );
 		}
 		else
-		if( TYPE != VarSERVERTYPE.UNKNOWN ) {
+		if( serverType != VarSERVERTYPE.UNKNOWN ) {
 			ROOTPATH = properties.getSystemProperty( action , "rootpath" , "" , systemProps );
 			BINPATH = properties.getSystemProperty( action , "binpath" , "" , systemProps );
 			SERVICENAME = properties.getSystemProperty( action , "servicename" , "" , systemProps );
@@ -201,11 +198,9 @@ public class MetaEnvServer {
 			SUBORDINATESERVERS = properties.getSystemProperty( action , "subordinate-servers" , "" , systemProps );
 			STARTTIME = properties.getSystemIntProperty( action , "starttime" , 0 , systemProps );
 			STOPTIME = properties.getSystemIntProperty( action , "stoptime" , 0 , systemProps );
-			DEPLOYTYPE = action.meta.getDeployType( action , properties.getSystemProperty( action , "deploytype" , "default" , systemProps ) );
 			DEPLOYPATH = properties.getSystemProperty( action , "deploypath" , "" , systemProps );
 			LINKFROMPATH = properties.getSystemProperty( action , "linkfrompath" , "" , systemProps );
 			DEPLOYSCRIPT = properties.getSystemProperty( action , "deployscript" , "" , systemProps );
-			HOTDEPLOYSERVER = properties.getSystemProperty( action , "hotdeployserver" , "" , systemProps );
 			HOTDEPLOYPATH = properties.getSystemProperty( action , "hotdeploypath" , "" , systemProps );
 			HOTDEPLOYDATA = properties.getSystemProperty( action , "hotdeploydata" , "" , systemProps );
 			WEBDOMAIN = properties.getSystemProperty( action , "webdomain" , "" , systemProps );
@@ -321,10 +316,10 @@ public class MetaEnvServer {
 	}
 	
 	public boolean isConfigurable( ActionBase action ) throws Exception {
-		if( TYPE == VarSERVERTYPE.GENERIC_COMMAND || 
-			TYPE == VarSERVERTYPE.GENERIC_SERVER ||
-			TYPE == VarSERVERTYPE.GENERIC_WEB ||
-			TYPE == VarSERVERTYPE.SERVICE ) 
+		if( serverType == VarSERVERTYPE.GENERIC_COMMAND || 
+			serverType == VarSERVERTYPE.GENERIC_SERVER ||
+			serverType == VarSERVERTYPE.GENERIC_WEB ||
+			serverType == VarSERVERTYPE.SERVICE ) 
 			return( true );
 		return( false );
 	}
@@ -414,7 +409,7 @@ public class MetaEnvServer {
 						location = new MetaEnvServerLocation( this , deployType , deployPath );
 						locations.put( key , location );
 					}
-					location.addBinaryItem( action , deployment.binaryItem , "" );
+					location.addBinaryItem( action , deployment , deployment.binaryItem , "" );
 				}
 			}
 			else
@@ -425,7 +420,7 @@ public class MetaEnvServer {
 						location = new MetaEnvServerLocation( this , deployType , deployPath );
 						locations.put( key , location );
 					}
-					location.addConfItem( action , deployment.confItem );
+					location.addConfItem( action , deployment , deployment.confItem );
 				}
 			}
 			else
@@ -439,7 +434,7 @@ public class MetaEnvServer {
 					
 					for( MetaDistrComponentItem item : deployment.comp.mapBinaryItems.values() ) {
 						if( item.binaryItem != null )
-							location.addBinaryItem( action , item.binaryItem , item.DEPLOYNAME );
+							location.addBinaryItem( action , deployment , item.binaryItem , item.DEPLOYNAME );
 					}
 				}
 				
@@ -452,7 +447,7 @@ public class MetaEnvServer {
 					
 					for( MetaDistrComponentItem item : deployment.comp.mapBinaryItems.values() ) {
 						if( item.confItem != null )
-							location.addConfItem( action , item.confItem );
+							location.addConfItem( action , deployment , item.confItem );
 					}
 				}
 			}
@@ -462,21 +457,21 @@ public class MetaEnvServer {
 	}
 
 	public boolean isDeployPossible( ActionBase action ) throws Exception {
-		if( TYPE == VarSERVERTYPE.DATABASE || 
-			TYPE == VarSERVERTYPE.GENERIC_NOSSH ||
-			TYPE == VarSERVERTYPE.UNKNOWN ) {
-			action.trace( "ignore due to server type=" + Common.getEnumLower( TYPE ) );
+		if( serverType == VarSERVERTYPE.DATABASE || 
+			serverType == VarSERVERTYPE.GENERIC_NOSSH ||
+			serverType == VarSERVERTYPE.UNKNOWN ) {
+			action.trace( "ignore due to server type=" + Common.getEnumLower( serverType ) );
 			return( false );
 		}
 		
-		// ignore deployment type
-		if( DEPLOYTYPE == VarDEPLOYTYPE.MANUAL ||
-			DEPLOYTYPE == VarDEPLOYTYPE.NONE ) {
-			action.trace( "ignore due to server deployment type=" + Common.getEnumLower( DEPLOYTYPE ) );
-			return( false );
+		// check deploy items
+		for( MetaEnvServerDeployment item : deployments ) {
+			if( !item.isManual( action ) )
+				return( true );
 		}
 		
-		return( true );
+		action.trace( "ignore due to empty non-manual server deployments" );
+		return( false );
 	}
 
 	public Map<String,MetaDatabaseSchema> getSchemaSet( ActionBase action ) throws Exception {
@@ -509,7 +504,44 @@ public class MetaEnvServer {
 	}
 
 	public boolean isDatabase( ActionBase action ) throws Exception {
-		if( TYPE == VarSERVERTYPE.DATABASE )
+		return( serverType == VarSERVERTYPE.DATABASE );
+	}
+
+	public boolean isService( ActionBase action ) throws Exception {
+		return( serverType == VarSERVERTYPE.SERVICE );
+	}
+
+	public boolean isCommand( ActionBase action ) throws Exception {
+		return( serverType == VarSERVERTYPE.GENERIC_COMMAND );
+	}
+	
+	public boolean isGeneric( ActionBase action ) throws Exception {
+		if( serverType == VarSERVERTYPE.GENERIC_COMMAND || 
+			serverType == VarSERVERTYPE.GENERIC_SERVER ||
+			serverType == VarSERVERTYPE.GENERIC_WEB )
+			return( true );
+		return( false );
+	}
+
+	public boolean isGenericWeb( ActionBase action ) throws Exception {
+		return( serverType == VarSERVERTYPE.GENERIC_WEB );
+	}
+
+	public boolean isCallable( ActionBase action ) throws Exception {
+		if( serverType == VarSERVERTYPE.SERVICE ||
+			serverType == VarSERVERTYPE.GENERIC_SERVER || 
+			serverType == VarSERVERTYPE.GENERIC_COMMAND ||
+			serverType == VarSERVERTYPE.GENERIC_NOSSH ) 
+			return( true );
+		return( false );
+			
+	}
+
+	public boolean isStartable( ActionBase action ) throws Exception {
+		if( serverType == VarSERVERTYPE.GENERIC_SERVER || 
+			serverType == VarSERVERTYPE.GENERIC_WEB || 
+			serverType == VarSERVERTYPE.GENERIC_COMMAND || 
+			serverType == VarSERVERTYPE.SERVICE )
 			return( true );
 		return( false );
 	}

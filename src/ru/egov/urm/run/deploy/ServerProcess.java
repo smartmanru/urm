@@ -4,7 +4,6 @@ import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata.VarPROCESSMODE;
-import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.database.DatabaseProcess;
 import ru.egov.urm.shell.ShellExecutor;
@@ -29,23 +28,15 @@ public class ServerProcess {
 	}
 
 	public boolean isGeneric( ActionBase action ) throws Exception {
-		if( srv.TYPE == VarSERVERTYPE.GENERIC_COMMAND || 
-			srv.TYPE == VarSERVERTYPE.GENERIC_SERVER ||
-			srv.TYPE == VarSERVERTYPE.GENERIC_WEB )
-			return( true );
-		return( false );
+		return( srv.isGeneric( action ) );
 	}
 
 	public boolean isService( ActionBase action ) throws Exception {
-		if( srv.TYPE == VarSERVERTYPE.SERVICE )
-			return( true );
-		return( false );
+		return( srv.isService( action ) );
 	}
 
 	public boolean isDatabase( ActionBase action ) throws Exception {
-		if( srv.TYPE == VarSERVERTYPE.DATABASE )
-			return( true );
-		return( false );
+		return( srv.isDatabase( action ) );
 	}
 	
 	public void gatherPids( ActionBase action ) throws Exception {
@@ -66,7 +57,7 @@ public class ServerProcess {
 		if( isDatabase( action ) )
 			gatherDatabaseStatus( action );
 		else
-			action.exitUnexpectedServerType( srv.TYPE );
+			action.exitUnexpectedState();
 	}
 
 	public boolean isStarted( ActionBase action ) throws Exception {
@@ -151,7 +142,7 @@ public class ServerProcess {
 		if( isGeneric( action ) )
 			res = stopGeneric( action );
 		else
-			action.exitUnexpectedServerType( node.server.TYPE );
+			action.exitUnexpectedState();
 		return( res );
 	}
 
@@ -194,7 +185,7 @@ public class ServerProcess {
 		if( isGeneric( action ) )
 			res = waitStoppedGeneric( action , startMillis );
 		else
-			action.exitUnexpectedServerType( node.server.TYPE );
+			action.exitUnexpectedState();
 		return( res );
 	}
 
@@ -271,7 +262,7 @@ public class ServerProcess {
 		if( isGeneric( action ) )
 			res = startGeneric( action );
 		else
-			action.exitUnexpectedServerType( node.server.TYPE );
+			action.exitUnexpectedState();
 		return( res );
 	}
 
@@ -325,7 +316,7 @@ public class ServerProcess {
 		if( isGeneric( action ) )
 			res = waitStartedGeneric( action , startMillis );
 		else
-			action.exitUnexpectedServerType( node.server.TYPE );
+			action.exitUnexpectedState();
 		return( res );
 	}
 

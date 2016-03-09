@@ -12,7 +12,6 @@ import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
 import ru.egov.urm.meta.Metadata.VarDEPLOYTYPE;
 import ru.egov.urm.meta.Metadata.VarDISTITEMTYPE;
 import ru.egov.urm.meta.Metadata.VarITEMVERSION;
-import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.deploy.ServerDeployment;
 import ru.egov.urm.shell.Account;
@@ -27,7 +26,7 @@ public class RedistStorage extends ServerStorage {
 		String F_RUNTIMEDIR;
 		String F_FILES;
 		
-		if( server.TYPE == VarSERVERTYPE.SERVICE ) {
+		if( server.isService( action ) ) {
 			F_RUNTIMEDIR = "/etc/init.d";
 			F_FILES = server.SERVICENAME;
 		}

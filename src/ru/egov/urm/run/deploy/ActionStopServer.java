@@ -3,10 +3,8 @@ package ru.egov.urm.run.deploy;
 import java.util.LinkedList;
 import java.util.List;
 
-import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
-import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScopeTarget;
 import ru.egov.urm.run.ActionScopeTargetItem;
@@ -29,7 +27,7 @@ public class ActionStopServer extends ActionBase {
 			return( true );
 		}
 		
-		log( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.TYPE ) + " ..." );
+		log( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.SERVERTYPE + " ..." );
 
 		// stop proxy if any
 		if( target.itemFull && server.proxyServer != null ) {
@@ -69,23 +67,20 @@ public class ActionStopServer extends ActionBase {
 			return;
 		}
 	
-		if( actionServer.TYPE == VarSERVERTYPE.GENERIC_COMMAND ) {
+		if( actionServer.isCommand( this ) ) {
 			if( !context.CTX_FORCE ) {
 				debug( "server=" + actionServer.NAME + " is command server. Skipped." );
 				return;
 			}
 		}
 		
-		if( actionServer.TYPE == VarSERVERTYPE.GENERIC_SERVER || 
-			actionServer.TYPE == VarSERVERTYPE.GENERIC_WEB || 
-			actionServer.TYPE == VarSERVERTYPE.GENERIC_COMMAND || 
-			actionServer.TYPE == VarSERVERTYPE.SERVICE ) {
+		if( actionServer.isStartable( this ) ) {
 			ServerCluster cluster = new ServerCluster( actionServer , nodes );
 			if( !cluster.stop( this ) )
 				setFailed();
 		}
 		else
-			debug( "server=" + server.NAME + ", type=" + Common.getEnumLower( actionServer.TYPE ) + " is not supported for stop. Skipped." );
+			debug( "server=" + server.NAME + ", type=" + actionServer.SERVERTYPE + " is not supported for stop. Skipped." );
 	}
 	
 }

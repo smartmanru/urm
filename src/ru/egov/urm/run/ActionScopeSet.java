@@ -24,7 +24,6 @@ import ru.egov.urm.meta.MetaSourceProjectSet;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
 import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
-import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.shell.Account;
 import ru.egov.urm.storage.DistStorage;
 
@@ -426,7 +425,7 @@ public class ActionScopeSet {
 			setFull = false;
 		
 		for( MetaEnvServer server : dc.getServerMap( action ).values() ) {
-			if( server.TYPE != VarSERVERTYPE.DATABASE )
+			if( !server.isDatabase( action ) )
 				continue;
 			
 			boolean addServer = ( release == null )? true : releaseServers.containsKey( server.NAME );

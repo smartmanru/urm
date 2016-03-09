@@ -8,7 +8,6 @@ import ru.egov.urm.meta.MetaEnvServerLocation;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.MetaReleaseTarget;
 import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
-import ru.egov.urm.meta.Metadata.VarDEPLOYTYPE;
 import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScopeSet;
@@ -61,16 +60,7 @@ public class ActionRedist extends ActionBase {
 			return;
 		}
 
-		log( "============================================ execute server=" + server.NAME + ", type=" + Common.getEnumLower( server.TYPE ) + " ..." );
-
-		// cluster hot deploy - redist hotdeploy components to admin server only
-		boolean F_CLUSTER_MODE = false;
-		if( server.hotdeployServer != null && target.itemFull ) {
-			F_CLUSTER_MODE = true;
-			MetaEnvServer adminServer = server.hotdeployServer;
-			MetaEnvServerNode adminNode = adminServer.getPrimaryNode( this );
-			executeNode( server , adminServer , adminNode , F_CLUSTER_MODE , true , F_ENV_LOCATIONS_BINARY , F_ENV_LOCATIONS_CONFIG , liveServerFolder );
-		}
+		log( "============================================ execute server=" + server.NAME + ", type=" + server.SERVERTYPE + " ..." );
 
 		// iterate by nodes
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
@@ -78,19 +68,19 @@ public class ActionRedist extends ActionBase {
 			log( "execute server=" + server.NAME + " node=" + node.POS + " ..." );
 
 			// deploy both binaries and configs to each node
-			executeNode( server , server , node , F_CLUSTER_MODE , false , F_ENV_LOCATIONS_BINARY , F_ENV_LOCATIONS_CONFIG , liveServerFolder );
+			executeNode( server , node , F_ENV_LOCATIONS_BINARY , F_ENV_LOCATIONS_CONFIG , liveServerFolder );
 		}
 
 		if( context.CTX_DEPLOYBINARY && server.staticServer != null )
 			exitNotImplemented();
 	}
 
-	private void executeNode( MetaEnvServer deployServer , MetaEnvServer server , MetaEnvServerNode node , boolean clusterMode , boolean admin , MetaEnvServerLocation[] F_ENV_LOCATIONS_BINARY , MetaEnvServerLocation[] F_ENV_LOCATIONS_CONFIG , LocalFolder liveFolder ) throws Exception {
+	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] F_ENV_LOCATIONS_BINARY , MetaEnvServerLocation[] F_ENV_LOCATIONS_CONFIG , LocalFolder liveFolder ) throws Exception {
 		if( context.CTX_DEPLOYBINARY ) {
 			if( F_ENV_LOCATIONS_BINARY.length == 0 )
 				trace( "server=" + server.NAME + ", node=" + node.POS + " - ignore binary deploy due to no locations" );
 			else
-				executeNodeBinary( server , node , clusterMode , admin , F_ENV_LOCATIONS_BINARY );
+				executeNodeBinary( server , node , F_ENV_LOCATIONS_BINARY );
 		}
 		else
 			trace( "server=" + server.NAME + ", node=" + node.POS + " - ignore binary deploy due to options" );
@@ -99,55 +89,44 @@ public class ActionRedist extends ActionBase {
 			if( F_ENV_LOCATIONS_CONFIG.length == 0 )
 				trace( "server=" + server.NAME + ", node=" + node.POS + " - ignore config deploy due to no locations" );
 			else
-				executeNodeConfig( server , node , clusterMode , admin , F_ENV_LOCATIONS_CONFIG , liveFolder );
+				executeNodeConfig( server , node , F_ENV_LOCATIONS_CONFIG , liveFolder );
 		}
 
 		if( context.CTX_BACKUP )
 			executeNodeBackup( server , node );
 	}
 
-	private void executeNodeConfig( MetaEnvServer server , MetaEnvServerNode node , boolean clusterMode , boolean admin , MetaEnvServerLocation[] locations , LocalFolder liveFolder ) throws Exception {
+	private void executeNodeConfig( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] locations , LocalFolder liveFolder ) throws Exception {
 		log( "redist configuration to server=" + server.NAME + " node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
 		
 		// by deployment location and conf component
-		for( MetaEnvServerLocation location : locations ) 
-			for( MetaDistrConfItem conf : location.confItems.values() ) 
-				executeNodeConfigComp( server , node , clusterMode , admin , location , conf , liveFolder );
+		for( MetaEnvServerLocation location : locations ) { 
+			String[] items = location.getNodeConfItems( this , node );
+			if( items.length == 0 ) {
+				debug( "redist location=$F_LOCATIONFINAL no configuration to deploy, skipped." );
+				continue;
+			}
+			
+			for( String item : items ) {
+				MetaDistrConfItem conf = meta.distr.getConfItem( this , item );
+				executeNodeConfigComp( server , node , location , conf , liveFolder );
+			}
+		}
 	}
 	
-	private void executeNodeBinary( MetaEnvServer server , MetaEnvServerNode node , boolean clusterMode , boolean admin , MetaEnvServerLocation[] locations ) throws Exception {
+	private void executeNodeBinary( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] locations ) throws Exception {
 		log( "redist binaries to server=" + server.NAME + " node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
 		
 		// by deployment location
 		for( MetaEnvServerLocation location : locations ) 
-			executeNodeBinaryLocation( server , node , clusterMode , admin , location );
+			executeNodeBinaryLocation( server , node , location );
 	}
 
-	private VarCONTENTTYPE getDirType( boolean clusterMode , VarDEPLOYTYPE deploytype , boolean admin , VarCONTENTTYPE itemValue ) {
-		// deploy to admin node only hotdeploy and in cluster mode
-		if( ( clusterMode == false || deploytype != VarDEPLOYTYPE.HOTDEPLOY ) && admin == true )
-			return( null );
-
-		// in cluster mode deploy hotdeploy to admin node only, not to other nodes
-		if( clusterMode == true && deploytype == VarDEPLOYTYPE.HOTDEPLOY && admin == false )
-			return( null );
-
-		// other case
-		return( itemValue );
-	}
-
-	private void executeNodeBinaryLocation( MetaEnvServer server , MetaEnvServerNode node , boolean clusterMode , boolean admin , MetaEnvServerLocation location ) throws Exception {
+	private void executeNodeBinaryLocation( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location ) throws Exception {
 		// get components by location
-		if( location.binaryItems.size() == 0 ) {
-			debug( "redist location=$F_LOCATIONFINAL no components to deploy, skipped." );
-			return;
-		}
-
-		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
-		VarCONTENTTYPE C_REDIST_DEFAULT = location.getContentType( this , true );
-		VarCONTENTTYPE C_REDIST_DIRTYPE = getDirType( clusterMode , location.DEPLOYTYPE , admin , C_REDIST_DEFAULT );
-		if( C_REDIST_DIRTYPE.equals( "none" ) ) {
-			debug( "ignore deploy binary location=" + location.DEPLOYPATH + " clustermode=" + clusterMode + " node=" + node.POS + " deploytype=" + Common.getEnumLower( location.DEPLOYTYPE ) );
+		String[] items = location.getNodeBinaryItems( this , node );
+		if( items.length == 0 ) {
+			debug( "redist location=$F_LOCATIONFINAL no binaries to deploy, skipped." );
 			return;
 		}
 
@@ -157,25 +136,27 @@ public class ActionRedist extends ActionBase {
 			return;
 		}
 
-		String items = Common.getSortedKeySet( location.binaryItems );
+		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
+		VarCONTENTTYPE C_REDIST_DIRTYPE = location.getContentType( this , true );
+
 		log( "redist location=" + location.DEPLOYPATH + " deploytype=" + Common.getEnumLower( location.DEPLOYTYPE ) +
-				" items=" + items + " contenttype=" + Common.getEnumLower( C_REDIST_DIRTYPE ) + " ..." );
+				" items=" + Common.getListSet( items ) + " contenttype=" + Common.getEnumLower( C_REDIST_DIRTYPE ) + " ..." );
 
 		redist.createLocation( this , dist.RELEASEDIR , location , C_REDIST_DIRTYPE );
 
-		debug( "transfer items - " + items + " ..." );
+		debug( "transfer items - " + Common.getListSet( items ) + " ..." );
 		transferFileSet( server , node , redist , location , items );
 	}
 
-	private void transferFileSet( MetaEnvServer server , MetaEnvServerNode node , RedistStorage redist , MetaEnvServerLocation location , String items ) throws Exception {
+	private void transferFileSet( MetaEnvServer server , MetaEnvServerNode node , RedistStorage redist , MetaEnvServerLocation location , String[] items ) throws Exception {
 		// ensure redist created
 		VarCONTENTTYPE CONTENTTYPE = location.getContentType( this , true );
 		redist.createLocation( this , dist.RELEASEDIR , location , CONTENTTYPE );
 		RedistStateInfo stateInfo = redist.getStateInfo( this , location.DEPLOYPATH , CONTENTTYPE );
 
-		debug( node.HOSTLOGIN + ": redist content=" + Common.getEnumLower( CONTENTTYPE ) + ": items - " + items + " ..." );
-		for( String key : Common.getSortedKeys( location.binaryItems ) ) {
-			MetaDistrBinaryItem binaryItem = location.binaryItems.get( key );
+		debug( node.HOSTLOGIN + ": redist content=" + Common.getEnumLower( CONTENTTYPE ) + ": items - " + Common.getListSet( items ) + " ..." );
+		for( String key : items ) {
+			MetaDistrBinaryItem binaryItem = meta.distr.getBinaryItem( this , key );
 			String deployBaseName = location.getDeployName( this , key );
 			transferFile( server , node , redist , location , binaryItem , stateInfo , deployBaseName );
 		}
@@ -221,7 +202,7 @@ public class ActionRedist extends ActionBase {
 		return( artefactory.workFolder.getFilePath( this , fileExtracted ) );
 	}
 	
-	private boolean executeNodeConfigComp( MetaEnvServer server , MetaEnvServerNode node , boolean clusterMode , boolean admin , MetaEnvServerLocation location , MetaDistrConfItem confItem , LocalFolder liveFolder ) throws Exception {
+	private boolean executeNodeConfigComp( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrConfItem confItem , LocalFolder liveFolder ) throws Exception {
 		MetaReleaseTarget target = dist.info.findConfComponent( this , confItem.KEY );
 		
 		// not in release

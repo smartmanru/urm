@@ -1,6 +1,5 @@
 package ru.egov.urm.run.deploy;
 
-import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.run.ActionBase;
@@ -28,7 +27,7 @@ public class ActionList extends ActionBase {
 	}
 
 	private void showServerInfo( MetaEnvServer server ) throws Exception {
-		String s = "\tserver: " + server.NAME + " type=" + Common.getEnumLower( server.TYPE );
+		String s = "\tserver: " + server.NAME + " type=" + server.SERVERTYPE;
 		if( server.OFFLINE )
 			s += " (offline)";
 		super.comment( s );

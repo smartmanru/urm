@@ -611,14 +611,17 @@ public class DistStorage {
 	
 	public MetaDistrConfItem[] getLocationConfItems( ActionBase action , MetaEnvServerLocation[] locations ) throws Exception {
 		Map<String,MetaDistrConfItem> confs = new HashMap<String,MetaDistrConfItem>(); 
-		for( MetaEnvServerLocation location : locations )
-			for( MetaDistrConfItem conf : location.confItems.values() ) {
+		for( MetaEnvServerLocation location : locations ) {
+			String[] items = location.getConfItems( action );
+			for( String item : items ) {
+				MetaDistrConfItem conf = meta.distr.getConfItem( action , item );
 				if( info.findConfComponent( action , conf.KEY ) == null )
 					continue;
 				
 				if( !confs.containsKey( conf.KEY ) )
 					confs.put( conf.KEY , conf );
 			}
+		}
 		return( confs.values().toArray( new MetaDistrConfItem[0] ) );
 	}
 

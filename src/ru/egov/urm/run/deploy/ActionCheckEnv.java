@@ -7,7 +7,6 @@ import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerDeployment;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata.VarPROCESSMODE;
-import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScope;
 import ru.egov.urm.run.ActionScopeSet;
@@ -122,7 +121,7 @@ public class ActionCheckEnv extends ActionBase {
 		S_CHECKENV_SERVER_COMPS_FAILED = "";
 
 		// ignore command servers except when specifically called 
-		if( server.TYPE == VarSERVERTYPE.GENERIC_COMMAND ) {
+		if( server.isCommand( this ) ) {
 			if( context.CTX_ALL == false || main == false ) {
 				debug( "ignore command server=" + server.NAME );
 				return;
@@ -166,27 +165,21 @@ public class ActionCheckEnv extends ActionBase {
 		
 		boolean wholeOk = true;
 		
-		VarSERVERTYPE F_SERVER_TYPE = server.TYPE;
-		if( F_SERVER_TYPE == VarSERVERTYPE.GENERIC_WEB ) {
+		if( server.isGenericWeb( this ) ) {
 			if( !server.WEBMAINURL.isEmpty() )
 				if( !checkOneServerWholeUrl( server.WEBMAINURL , "main web url" ) )
 					wholeOk = false;
 		}
-		else 
-		if( F_SERVER_TYPE == VarSERVERTYPE.SERVICE ||
-			F_SERVER_TYPE == VarSERVERTYPE.GENERIC_SERVER || 
-			F_SERVER_TYPE == VarSERVERTYPE.GENERIC_COMMAND ||
-			F_SERVER_TYPE == VarSERVERTYPE.GENERIC_NOSSH ) {
+
+		if( server.isCallable( this ) ) {
 			if( !checkOneServerWholeComps( server ) )
 				wholeOk = false;
 		}
-		else 
-		if( F_SERVER_TYPE == VarSERVERTYPE.DATABASE ) {
+
+		if( server.isDatabase( this ) ) {
 			if( !checkOneServerWholeDatabase( server ) )
 				wholeOk = false;
 		}
-		else
-			exit( "unknown server type=" + Common.getEnumLower( F_SERVER_TYPE ) );
 		
 		if( wholeOk )
 			return;

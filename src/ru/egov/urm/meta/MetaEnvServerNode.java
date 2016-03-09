@@ -6,7 +6,7 @@ import java.util.List;
 import org.w3c.dom.Node;
 
 import ru.egov.urm.PropertySet;
-import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
+import ru.egov.urm.meta.Metadata.VarNODETYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.shell.Account;
 
@@ -20,6 +20,8 @@ public class MetaEnvServerNode {
 	public String INSTANCE;
 	public boolean OFFLINE;
 	public boolean STANDBY;
+	public String NODETYPE;
+	private VarNODETYPE nodeType;
 	
 	public PropertySet properties;
 	
@@ -43,8 +45,11 @@ public class MetaEnvServerNode {
 		HOSTLOGIN = properties.getSystemRequiredProperty( action , "hostlogin" , systemProps );
 		DEPLOYGROUP = properties.getSystemProperty( action , "deploygroup" , "" , systemProps );
 		
-		if( server.TYPE == VarSERVERTYPE.DATABASE )
+		if( server.isDatabase( action ) )
 			INSTANCE = properties.getSystemRequiredProperty( action , "instance" , systemProps );
+		
+		NODETYPE = properties.getSystemProperty( action , "type" , "self" , systemProps );
+		nodeType = action.meta.getNodeType( action , NODETYPE );
 		
 		OFFLINE = properties.getSystemBooleanProperty( action , "offline" , false , systemProps );
 		STANDBY = properties.getSystemBooleanProperty( action , "standby" , false , systemProps );
@@ -71,5 +76,17 @@ public class MetaEnvServerNode {
 	public String getHost( ActionBase action ) throws Exception {
 		Account account = action.getAccount( this );
 		return( account.HOST );
+	}
+	
+	public boolean isSelf( ActionBase action ) throws Exception {
+		return( nodeType == VarNODETYPE.SELF );
+	}
+
+	public boolean isAdmin( ActionBase action ) throws Exception {
+		return( nodeType == VarNODETYPE.ADMIN );
+	}
+
+	public boolean isSlave( ActionBase action ) throws Exception {
+		return( nodeType == VarNODETYPE.SLAVE );
 	}
 }

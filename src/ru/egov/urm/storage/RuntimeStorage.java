@@ -9,7 +9,6 @@ import ru.egov.urm.meta.MetaEnvServerLocation;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
 import ru.egov.urm.meta.Metadata.VarDISTITEMTYPE;
-import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.deploy.ServerDeployment;
 import ru.egov.urm.shell.Account;
@@ -30,7 +29,7 @@ public class RuntimeStorage extends ServerStorage {
 		String F_RUNTIMEDIR;
 		String F_FILES;
 		
-		if( server.TYPE == VarSERVERTYPE.SERVICE ) {
+		if( server.isService( action ) ) {
 			F_RUNTIMEDIR = "/etc/init.d";
 			F_FILES = server.SERVICENAME;
 		}
@@ -56,7 +55,7 @@ public class RuntimeStorage extends ServerStorage {
 		RemoteFolder runtimeDir = new RemoteFolder( artefactory , action.getAccount( node ) , F_RUNTIMEDIR );
 		String confFullPath = remoteDir.getFilePath( action , F_CONFIGTARFILE );
 		shell.appendExecuteLog( action , "restore server system configuration (" + confFullPath + ")" + " to " + runtimeDir.folderPath );
-		if( server.TYPE != VarSERVERTYPE.SERVICE )
+		if( !server.isService( action ) )
 			runtimeDir.removeFiles( action , F_FILES );
 		runtimeDir.extractTar( action , confFullPath , "" );
 
@@ -93,7 +92,6 @@ public class RuntimeStorage extends ServerStorage {
 		deployConfigItem( action , stagingPath , confItem , deployDir , true );
 		
 		// add to state
-		deployment.getLocation( action );
 		MetaEnvServerLocation location = deployment.getLocation( action );
 		redist.restoreConfigFile( action , confItem , location , stagingPath , version );
 	}

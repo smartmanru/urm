@@ -1,6 +1,5 @@
 package ru.egov.urm.run.deploy;
 
-import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScopeSet;
@@ -28,7 +27,7 @@ public class ActionDropRedist extends ActionBase {
 
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
-		log( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.TYPE ) + " ..." );
+		log( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.SERVERTYPE + " ..." );
 		
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			RedistStorage redist = artefactory.getRedistStorage( this , target.envServer , item.envServerNode );

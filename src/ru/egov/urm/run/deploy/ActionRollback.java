@@ -1,9 +1,7 @@
 package ru.egov.urm.run.deploy;
 
-import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
-import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScopeTarget;
 import ru.egov.urm.run.ActionScopeTargetItem;
@@ -23,10 +21,8 @@ public class ActionRollback extends ActionBase {
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		// ignore database and unreachable
 		MetaEnvServer server = target.envServer;
-		if( server.TYPE == VarSERVERTYPE.DATABASE || 
-			server.TYPE == VarSERVERTYPE.GENERIC_NOSSH ||
-			server.TYPE == VarSERVERTYPE.UNKNOWN ) {
-			trace( "ignore due to server type=" + Common.getEnumLower( server.TYPE ) );
+		if( !server.isDeployPossible( this ) ) {
+			trace( "ignore due to server empty deployments" );
 			return( true );
 		}
 
@@ -60,7 +56,7 @@ public class ActionRollback extends ActionBase {
 			return;
 		}
 		
-		log( "============================================ execute server=" + server.NAME + ", type=" + Common.getEnumLower( server.TYPE ) + " ..." );
+		log( "============================================ execute server=" + server.NAME + ", type=" + server.SERVERTYPE + " ..." );
 
 		k = 0;
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {

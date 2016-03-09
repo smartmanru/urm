@@ -72,15 +72,22 @@ public class Metadata {
 		DATABASE
 	};
 
+	public enum VarNODETYPE {
+		UNKNOWN ,
+		SELF ,
+		ADMIN ,
+		SLAVE
+	};
+	
 	public enum VarDEPLOYTYPE {
 		UNKNOWN ,
 		NONE , 
 		MANUAL , 
-		DEFAULT , 
-		HOTDEPLOY ,
+		COLD , 
+		HOT ,
 		LINKS_SINGLEDIR ,
 		LINKS_MULTIDIR ,
-		STATIC
+		COPYONLY
 	};
 	
 	public enum VarDBMSTYPE {
@@ -129,8 +136,10 @@ public class Metadata {
 	public enum VarCONTENTTYPE {
 		BINARYCOLDDEPLOY ,
 		BINARYHOTDEPLOY ,
+		BINARYCOPYONLY ,
 		CONFCOLDDEPLOY ,
-		CONFHOTDEPLOY
+		CONFHOTDEPLOY ,
+		CONFCOPYONLY
 	};
 
 	public enum VarNAMETYPE {
@@ -228,6 +237,21 @@ public class Metadata {
 		}
 		catch( IllegalArgumentException e ) {
 			action.exit( "invalid server type=" + ID );
+		}
+		
+		if( value == null )
+			action.exit( "missing server type" );
+		
+		return( value );
+	}
+	
+	public VarNODETYPE getNodeType( ActionBase action , String ID ) throws Exception {
+		VarNODETYPE value = null;
+		try {
+			value = VarNODETYPE.valueOf( Common.xmlToEnumValue( ID ) );
+		}
+		catch( IllegalArgumentException e ) {
+			action.exit( "invalid node type=" + ID );
 		}
 		
 		if( value == null )

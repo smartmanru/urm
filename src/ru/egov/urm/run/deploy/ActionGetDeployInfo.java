@@ -1,6 +1,5 @@
 package ru.egov.urm.run.deploy;
 
-import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerLocation;
 import ru.egov.urm.meta.MetaEnvServerNode;
@@ -19,7 +18,7 @@ public class ActionGetDeployInfo extends ActionBase {
 
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
-		comment( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.TYPE ) + " ..." );
+		comment( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.SERVERTYPE + " ..." );
 		comment( "root path: " + server.ROOTPATH );
 		
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {

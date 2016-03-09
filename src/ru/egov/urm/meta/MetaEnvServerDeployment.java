@@ -4,6 +4,7 @@ import org.w3c.dom.Node;
 
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.meta.Metadata.VarDEPLOYTYPE;
+import ru.egov.urm.meta.Metadata.VarNODETYPE;
 import ru.egov.urm.run.ActionBase;
 
 public class MetaEnvServerDeployment {
@@ -16,6 +17,8 @@ public class MetaEnvServerDeployment {
 	
 	private VarDEPLOYTYPE DEPLOYTYPE;
 	private String DEPLOYPATH;
+	public String NODETYPE;
+	private VarNODETYPE nodeType;
 	
 	public MetaEnvServerDeployment( MetaEnvServer server ) {
 		this.server = server;
@@ -24,8 +27,10 @@ public class MetaEnvServerDeployment {
 	public void load( ActionBase action , Node node ) throws Exception {
 		MetaDistr distr = action.meta.distr;
 		
-		DEPLOYTYPE = action.meta.getDeployType( action , ConfReader.getAttrValue( action , node , "deploytype" , "default" ) );
+		DEPLOYTYPE = action.meta.getDeployType( action , ConfReader.getAttrValue( action , node , "deploytype" , "cold" ) );
 		DEPLOYPATH = ConfReader.getAttrValue( action , node , "deploypath" );
+		NODETYPE = ConfReader.getAttrValue( action , node , "deploytype" , "unknown" );
+		nodeType = action.meta.getNodeType( action , NODETYPE );
 		
 		String COMP = ConfReader.getAttrValue( action , node , "component" );
 		if( !COMP.isEmpty() ) {
@@ -83,19 +88,52 @@ public class MetaEnvServerDeployment {
 	}
 
 	public VarDEPLOYTYPE getDeployType( ActionBase action ) throws Exception {
-		if( DEPLOYTYPE == VarDEPLOYTYPE.UNKNOWN ) {
-			if( server.DEPLOYTYPE == VarDEPLOYTYPE.UNKNOWN )
-				return( VarDEPLOYTYPE.DEFAULT );
-			return( server.DEPLOYTYPE );
-		}
-		
 		return( DEPLOYTYPE );
 	}
 
+	public boolean isManual( ActionBase action ) throws Exception {
+		return( DEPLOYTYPE == VarDEPLOYTYPE.MANUAL );
+	}
+	
 	public MetaEnvServerLocation getLocation( ActionBase action ) throws Exception {
 		VarDEPLOYTYPE deployType = getDeployType( action );
 		String deployPath = getDeployPath( action );
 		return( new MetaEnvServerLocation( server , deployType , deployPath ) );
 	}
-	
+
+	public boolean isNodeAdminDeployment( ActionBase action ) throws Exception {
+		if( nodeType == VarNODETYPE.ADMIN )
+			return( true );
+		
+		if( DEPLOYTYPE == VarDEPLOYTYPE.HOT ) {
+			if( nodeType == VarNODETYPE.UNKNOWN )
+				return( true );
+			return( false );
+		}
+		
+		return( false );
+	}
+
+	public boolean isNodeSlaveDeployment( ActionBase action ) throws Exception {
+		if( nodeType == VarNODETYPE.SLAVE )
+			return( true );
+		
+		if( DEPLOYTYPE != VarDEPLOYTYPE.HOT ) {
+			if( nodeType == VarNODETYPE.UNKNOWN )
+				return( true );
+			return( false );
+		}
+		
+		return( false );
+	}
+
+	public boolean isNodeSelfDeployment( ActionBase action ) throws Exception {
+		if( nodeType == VarNODETYPE.SELF )
+			return( true );
+		
+		if( nodeType == VarNODETYPE.UNKNOWN )
+			return( true );
+		
+		return( false );
+	}
 }

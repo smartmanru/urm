@@ -1,9 +1,7 @@
 package ru.egov.urm.run.deploy;
 
-import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
-import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScopeTarget;
 import ru.egov.urm.storage.DistStorage;
@@ -24,9 +22,8 @@ public class ActionPrepareRedist extends ActionBase {
 		// ignore database and manual deployments
 		MetaEnvServer server = target.envServer;
 	
-		if( server.TYPE == VarSERVERTYPE.GENERIC_NOSSH ||
-			server.TYPE == VarSERVERTYPE.UNKNOWN ) {
-			trace( "ignore due to deployment type=" + Common.getEnumLower( server.TYPE ) );
+		if( !server.isDeployPossible( this ) ) {
+			trace( "ignore due to server properties" );
 			return( true );
 		}
 			
@@ -41,9 +38,6 @@ public class ActionPrepareRedist extends ActionBase {
 		
 		if( server.staticServer != null )
 			recreateFoldersSingle( server.staticServer );
-	
-		if( server.hotdeployServer != null )
-			recreateFoldersSingle( server.hotdeployServer );
 	}
 	
 	private void recreateFoldersSingle( MetaEnvServer server ) throws Exception {
