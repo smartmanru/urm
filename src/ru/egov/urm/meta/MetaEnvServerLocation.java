@@ -94,10 +94,13 @@ public class MetaEnvServerLocation {
 
 	public VarCONTENTTYPE getContentType( ActionBase action , boolean binary ) throws Exception {
 		VarCONTENTTYPE contentType;
-		if( binary )
-			contentType = ( DEPLOYTYPE == VarDEPLOYTYPE.HOT )? VarCONTENTTYPE.BINARYHOTDEPLOY : VarCONTENTTYPE.BINARYCOLDDEPLOY;
+		if( DEPLOYTYPE == VarDEPLOYTYPE.HOT )
+			contentType = ( binary )? VarCONTENTTYPE.BINARYHOTDEPLOY : VarCONTENTTYPE.CONFHOTDEPLOY;
 		else
-			contentType = ( DEPLOYTYPE == VarDEPLOYTYPE.HOT )? VarCONTENTTYPE.CONFHOTDEPLOY : VarCONTENTTYPE.CONFCOLDDEPLOY;
+		if( DEPLOYTYPE == VarDEPLOYTYPE.COPYONLY )
+			contentType = ( binary )? VarCONTENTTYPE.BINARYCOPYONLY : VarCONTENTTYPE.CONFCOPYONLY;
+		else
+			contentType = ( binary )? VarCONTENTTYPE.BINARYCOLDDEPLOY : VarCONTENTTYPE.CONFCOLDDEPLOY;
 		return( contentType );
 	}
 

@@ -129,8 +129,15 @@ public class ServerDeployment {
 	}
 
 	public boolean checkDeploy( ActionBase action , ServerDeployment cd , ServerDeployment ld , ServerDeployment fd ) throws Exception {
-		if( cd.CONTENTTYPE == VarCONTENTTYPE.BINARYCOLDDEPLOY ) {
+		if( cd.CONTENTTYPE == VarCONTENTTYPE.BINARYCOLDDEPLOY || cd.CONTENTTYPE == VarCONTENTTYPE.BINARYCOPYONLY ) {
 			if( action.context.CTX_DEPLOYBINARY == false && action.context.CTX_CONFDEPLOY == true )
+				return( false );
+			if( action.context.CTX_DEPLOYCOLD == false && action.context.CTX_DEPLOYHOT == true )
+				return( false );
+			return( true );
+		}
+		if( cd.CONTENTTYPE == VarCONTENTTYPE.CONFCOLDDEPLOY || cd.CONTENTTYPE == VarCONTENTTYPE.CONFCOPYONLY ) {
+			if( action.context.CTX_DEPLOYBINARY == true && action.context.CTX_CONFDEPLOY == false )
 				return( false );
 			if( action.context.CTX_DEPLOYCOLD == false && action.context.CTX_DEPLOYHOT == true )
 				return( false );
@@ -140,13 +147,6 @@ public class ServerDeployment {
 			if( action.context.CTX_DEPLOYBINARY == false && action.context.CTX_CONFDEPLOY == true )
 				return( false );
 			if( action.context.CTX_DEPLOYCOLD == true && action.context.CTX_DEPLOYHOT == false )
-				return( false );
-			return( true );
-		}
-		if( cd.CONTENTTYPE == VarCONTENTTYPE.CONFCOLDDEPLOY ) {
-			if( action.context.CTX_DEPLOYBINARY == true && action.context.CTX_CONFDEPLOY == false )
-				return( false );
-			if( action.context.CTX_DEPLOYCOLD == false && action.context.CTX_DEPLOYHOT == true )
 				return( false );
 			return( true );
 		}
