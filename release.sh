@@ -194,6 +194,10 @@ function f_execute_all() {
 	fi
 
 	rm -rf $F_TMPDIRNAME
+
+	# publish to github
+	cd $F_SAVEDIR
+	./github.sh $P_RELEASE
 }
 
 f_execute_all
