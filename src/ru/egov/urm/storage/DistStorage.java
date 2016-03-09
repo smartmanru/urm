@@ -236,6 +236,7 @@ public class DistStorage {
 		
 		String confFolder = getDeliveryConfFolder( action , delivery.distDelivery );
 		confFolder = Common.getPath( confFolder , conf.KEY );
+		localFolder.ensureExists( action );
 		distFolder.copyDirContentToLocal( action , localFolder , confFolder );
 	}
 	
