@@ -224,12 +224,12 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public void cmdExtractTarGz( ActionBase action , String tarFile , String targetFolder ) throws Exception {
 		String wtarFile = Common.getWinPath( action , tarFile );
-		runCommandCheckStatusDebug( action , targetFolder , "tar -zxmf " + wtarFile );
+		runCommandCheckStatusDebug( action , targetFolder , "7z x -y -bd " + wtarFile );
 	}
 	
 	@Override public void cmdExtractTar( ActionBase action , String tarFile , String targetFolder ) throws Exception {
 		String wtarFile = Common.getWinPath( action , tarFile );
-		runCommandCheckStatusDebug( action , targetFolder , "tar -xmf " + wtarFile );
+		runCommandCheckStatusDebug( action , targetFolder , "7z x -y -bd " + wtarFile );
 	}
 	
 	@Override public String cmdLs( ActionBase action , String path ) throws Exception {
