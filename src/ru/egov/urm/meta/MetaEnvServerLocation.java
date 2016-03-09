@@ -50,6 +50,7 @@ public class MetaEnvServerLocation {
 		binaryItems = new LinkedList<BinaryDeploymentPair>();
 		deployNameMap = new HashMap<String,String>();
 		confItems = new LinkedList<ConfDeploymentPair>();
+		deployments = new LinkedList<MetaEnvServerDeployment>(); 
 	}
 	
 	public void addBinaryItem( ActionBase action , MetaEnvServerDeployment deployment , MetaDistrBinaryItem binaryItem , String deployName ) throws Exception {
