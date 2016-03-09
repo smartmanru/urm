@@ -112,8 +112,10 @@ public class DeployCommand {
 		
 		action.log( "upload to redist ..." );
 		ActionRedist ma = new ActionRedist( action , null , dist , live );
-		ma.runAll( scope );
-		action.log( "redist successfully done." );
+		if( ma.runAll( scope ) )
+			action.log( "redist successfully done." );
+		else
+			action.log( "redist failed, see logs." );
 	}
 
 	public void restartEnv( ActionBase action , ActionScope scope ) throws Exception {
