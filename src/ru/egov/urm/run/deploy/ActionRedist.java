@@ -50,7 +50,7 @@ public class ActionRedist extends ActionBase {
 		
 		MetaEnvServerLocation[] F_ENV_LOCATIONS_CONFIG = new MetaEnvServerLocation[0];
 		LocalFolder liveServerFolder = null;
-		if( context.CTX_CONFDEPLOY ) {
+		if( liveEnvFolder != null & context.CTX_CONFDEPLOY ) {
 			F_ENV_LOCATIONS_CONFIG = server.getLocations( this , false , true );
 			liveServerFolder = liveEnvFolder.getSubFolder( this , server.NAME );
 		}
@@ -85,7 +85,7 @@ public class ActionRedist extends ActionBase {
 		else
 			trace( "server=" + server.NAME + ", node=" + node.POS + " - ignore binary deploy due to options" );
 		
-		if( context.CTX_CONFDEPLOY ) {
+		if( liveFolder != null && context.CTX_CONFDEPLOY ) {
 			if( F_ENV_LOCATIONS_CONFIG.length == 0 )
 				trace( "server=" + server.NAME + ", node=" + node.POS + " - ignore config deploy due to no locations" );
 			else
