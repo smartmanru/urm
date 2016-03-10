@@ -575,7 +575,7 @@ public class ShellCoreUnix extends ShellCore {
 
 	@Override public Map<String,List<String>> cmdGetFilesContent( ActionBase action , String dir , String fileMask ) throws Exception {
 		String delimiter = "URM_DELIMITER";
-		String cmd = "for x in $(find . -name " + Common.getQuoted( fileMask ) + "); do echo $x; cat $x; echo " + delimiter + "; done";
+		String cmd = "for x in $(find . -maxdepth 1 -name " + Common.getQuoted( fileMask ) + "); do echo $x; cat $x; echo " + delimiter + "; done";
 		String cmdDir = getDirCmd( action , dir , cmd );
 		runCommand( action , cmdDir , true );
 		
