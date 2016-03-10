@@ -9,7 +9,6 @@ import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.storage.FileSet;
 import ru.egov.urm.storage.RedistStorage;
 import ru.egov.urm.storage.RemoteFolder;
-import ru.egov.urm.storage.ServerStorage.RedistFileType;
 
 public class ServerDeployment {
 
@@ -25,7 +24,7 @@ public class ServerDeployment {
 
 	VarCONTENTTYPE CONTENTTYPE;
 	boolean rollout;
-	RedistFileType fileType;
+	String file;
 	
 	public ServerDeployment() {
 	}
@@ -95,7 +94,7 @@ public class ServerDeployment {
 	
 	private void readLocationFile( ActionBase action , RedistStorage redist , String file ) throws Exception {
 		type = DeployInfoType.FILE;
-		fileType = redist.getRedistFileType( action , file );
+		this.file = file; 
 	}
 
 	public String[] getLocations( ActionBase action , VarCONTENTTYPE CONTENTTYPE , boolean rollout ) throws Exception {

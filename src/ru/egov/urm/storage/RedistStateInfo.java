@@ -77,9 +77,9 @@ public class RedistStateInfo {
 		return( info );
 	}
 
-	public static FileInfo getFileInfo( ActionBase action , MetaDistrConfItem item , RemoteFolder stateFolder , String stateFileName , String deployNameNoVersion , String version , String finalName ) throws Exception {
+	public static FileInfo getFileInfo( ActionBase action , MetaDistrConfItem item , RemoteFolder stateFolder , String stateFileName , String version , boolean partial ) throws Exception {
 		String md5value = stateFolder.md5value( action , stateFileName );
-		FileInfo info = new FileInfo( item , version , md5value , deployNameNoVersion , finalName ); 
+		FileInfo info = new FileInfo( item , version , md5value , partial ); 
 		return( info );
 	}
 

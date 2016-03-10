@@ -229,7 +229,7 @@ public class ActionRedist extends ActionBase {
 		String filePath = liveFolder.getFilePath( this , fileName );
 		confFolder.createTarFromContent( this , filePath , "*" , "" );
 		
-		redist.copyReleaseFile( this , confItem , dist , location , liveFolder , fileName , fileBaseName );
+		redist.copyReleaseFile( this , confItem , dist , location , liveFolder , fileName , F_PARTIAL );
 		return( true );
 	}
 	
@@ -241,8 +241,12 @@ public class ActionRedist extends ActionBase {
 		// backup binary items
 		for( VarCONTENTTYPE content : VarCONTENTTYPE.values() ) {
 			for( String location : deployment.getLocations( this , content , true ) ) {
-				for( String file : deployment.getLocationFiles( this , content , true , location ) )
-					redist.backupRedistItem( this , dist.RELEASEDIR  , content , location , file );
+				RedistStateInfo info = new RedistStateInfo();
+				String STATEDIR = redist.getPathRedistLocation( this , dist.RELEASEDIR , location , content , true );
+				info.gather( this , node , content , STATEDIR );
+				
+				for( String key : info.getKeys( this ) )
+					redist.backupRedistItem( this , dist.RELEASEDIR  , content , location , info.getVerData( this , key ) );
 			}
 		}
 	}

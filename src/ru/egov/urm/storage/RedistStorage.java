@@ -190,7 +190,7 @@ public class RedistStorage extends ServerStorage {
 		String LOCATION = location.DEPLOYPATH; 
 		VarCONTENTTYPE CONTENTTYPE = location.getContentType( action , true );
 		RemoteFolder locationDir = getRedistLocationFolder( action , dist.RELEASEDIR , LOCATION , CONTENTTYPE , true );
-		String redistFileName = getDeployVersionedName( action , location , item , deployBaseName , dist.info.RELEASEVER );  
+		String redistFileName = FileInfo.getFileName( action , item );  
 
 		// check need redist
 		if( !stateInfo.needUpdate( action , item , dist , fileName , deployBaseName ) )
@@ -212,7 +212,7 @@ public class RedistStorage extends ServerStorage {
 		String LOCATION = location.DEPLOYPATH; 
 		VarCONTENTTYPE CONTENTTYPE = location.getContentType( action , true );
 		RemoteFolder locationDir = getRedistLocationFolder( action , RELEASEDIR , LOCATION , CONTENTTYPE , true );
-		String redistFileName = getDeployVersionedName( action , location , item , deployBaseName , RELEASEVER );
+		String redistFileName = FileInfo.getFileName( action , item );
 
 		// check need redist
 		if( !stateInfo.needUpdate( action , item , filePath , deployBaseName , RELEASEVER ) )
@@ -229,17 +229,17 @@ public class RedistStorage extends ServerStorage {
 		return( true );
 	}
 
-	public void copyReleaseFile( ActionBase action , MetaDistrConfItem item , DistStorage dist , MetaEnvServerLocation location , LocalFolder srcFolder , String fileName , String deployBaseName ) throws Exception {
+	public void copyReleaseFile( ActionBase action , MetaDistrConfItem item , DistStorage dist , MetaEnvServerLocation location , LocalFolder srcFolder , String configTarFile , boolean partial ) throws Exception {
 		String LOCATION = location.DEPLOYPATH; 
 		VarCONTENTTYPE CONTENTTYPE = location.getContentType( action , false );
 		RemoteFolder locationDir = getRedistLocationFolder( action , dist.RELEASEDIR , LOCATION , CONTENTTYPE , true );
-		String path = srcFolder.getFilePath( action , fileName );
-		String redistFileName = deployBaseName;
+		String path = srcFolder.getFilePath( action , configTarFile );
+		String redistFileName = FileInfo.getFileName( action , item );
 		createLocation( action , dist.RELEASEDIR , location , CONTENTTYPE );
-		locationDir.copyFileFromLocalRename( action , path , deployBaseName );
+		locationDir.copyFileFromLocalRename( action , path , FileInfo.getFileName( action , item ) );
 
 		// create state file
-		FileInfo data = RedistStateInfo.getFileInfo( action , item , locationDir , redistFileName , deployBaseName , dist.info.RELEASEVER , "ignore" );
+		FileInfo data = RedistStateInfo.getFileInfo( action , item , locationDir , redistFileName , dist.info.RELEASEVER , partial );
 		String verName = data.getInfoName( action );
 		locationDir.createFileFromString( action , verName , data.value( action ) );
 	}
@@ -252,7 +252,7 @@ public class RedistStorage extends ServerStorage {
 		locationDir.copyFileRename( action , redistPath , fileBaseName );
 		
 		// create state file
-		FileInfo data = RedistStateInfo.getFileInfo( action , confItem , locationDir , fileBaseName , fileBaseName , version , "ignore" );
+		FileInfo data = RedistStateInfo.getFileInfo( action , confItem , locationDir , fileBaseName , version , false );
 		String verName = data.getInfoName( action );
 		locationDir.createFileFromString( action , verName , data.value( action ) );
 	}
@@ -282,67 +282,61 @@ public class RedistStorage extends ServerStorage {
 		return( deployment );
 	}
 
-	public void backupRedistItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , String redistFile ) throws Exception {
+	public void backupRedistItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , FileInfo redistFile ) throws Exception {
 		RemoteFolder backupFolder = getRedistLocationFolder( action , RELEASEDIR , LOCATION , CONTENTTYPE , false );
 		RemoteFolder stateFolder = getStateLocationFolder( action , LOCATION , CONTENTTYPE );
-		RedistFileType rft = getRedistFileType( action , redistFile );
 		
-		if( rft == RedistFileType.CONFCOMP )
+		if( redistFile.confItem != null )
 			backupRedistConfItem( action , RELEASEDIR , CONTENTTYPE , LOCATION , redistFile , backupFolder , stateFolder );
 		else
-		if( rft == RedistFileType.BINARY )
-			backupRedistBinaryItem( action , RELEASEDIR , CONTENTTYPE , LOCATION , redistFile , backupFolder , stateFolder );
-		else
-		if( rft == RedistFileType.ARCHIVE )
-			backupRedistArchiveItem( action , RELEASEDIR , CONTENTTYPE , LOCATION , redistFile , backupFolder , stateFolder );
+		if( redistFile.binaryItem != null ) {
+			if( redistFile.binaryItem.isArchive( action ) )
+				backupRedistArchiveItem( action , RELEASEDIR , CONTENTTYPE , LOCATION , redistFile , backupFolder , stateFolder );
+			else
+				backupRedistBinaryItem( action , RELEASEDIR , CONTENTTYPE , LOCATION , redistFile , backupFolder , stateFolder );
+		}
 		else
 			action.exitUnexpectedState();
 	}
 
-	public void backupRedistConfItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , String redistFile , RemoteFolder backupFolder , RemoteFolder stateFolder ) throws Exception {
-		MetaDistrConfItem confItem = getRedistFileConfComp( action , redistFile );
-		
-		String filePath = backupFolder.getFilePath( action , redistFile );
-		tarRuntimeConfigItem( action , confItem , LOCATION , filePath );
+	public void backupRedistConfItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , FileInfo redistFile , RemoteFolder backupFolder , RemoteFolder stateFolder ) throws Exception {
+		String filePath = backupFolder.getFilePath( action , redistFile.getFileName( action ) );
+		tarRuntimeConfigItem( action , redistFile.confItem , LOCATION , filePath );
 		action.log( "backup done, item path=" + backupFolder.folderPath + ", file=" + redistFile );
 		
 		// copy version file from state
-		String stateVerName = FileInfo.getInfoName( action , confItem );
+		String stateVerName = FileInfo.getInfoName( action , redistFile.confItem );
 		if( stateFolder.checkFileExists( action , stateVerName ) )
 			backupFolder.copyFile( action , stateFolder , stateVerName , "" );
 	}
 
-	public void backupRedistBinaryItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , String redistFile , RemoteFolder backupFolder , RemoteFolder stateFolder ) throws Exception {
-		MetaDistrBinaryItem binaryItem = getRedistFileBinaryItem( action , redistFile );
+	public void backupRedistBinaryItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , FileInfo redistFile , RemoteFolder backupFolder , RemoteFolder stateFolder ) throws Exception {
 		RemoteFolder deployFolder = getRuntimeLocationFolder( action , LOCATION );
-		String deployName = getRedistBinaryFileDeployName( action , redistFile );
-		
-		String runtimeFile = deployFolder.findBinaryDistItemFile( action , binaryItem , deployName );
+		String runtimeFile = deployFolder.findBinaryDistItemFile( action , redistFile.binaryItem , redistFile.deployNameNoVersion );
 		
 		if( runtimeFile.isEmpty() ) {
-			action.debug( "unable to backup, item=" + binaryItem.KEY + ", not found in " + deployFolder.folderPath );
+			action.debug( "unable to backup, item=" + redistFile.itemName + ", not found in " + deployFolder.folderPath );
 			return;
 		}
 		
-		String redistBackupFile = getRedistBinaryName( action , binaryItem , runtimeFile );  
+		String redistBackupFile = redistFile.getFileName( action );  
 		backupFolder.copyFile( action , deployFolder , runtimeFile , redistBackupFile );
 		action.log( "redist backup done, item file=" + redistBackupFile );
 		
 		// copy version file from state
-		String stateVerName = FileInfo.getInfoName( action , binaryItem );
+		String stateVerName = redistFile.getInfoName( action );
 		if( stateFolder.checkFileExists( action , stateVerName ) )
 			backupFolder.copyFile( action , stateFolder , stateVerName , "" );
 	}
 	
-	public void backupRedistArchiveItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , String redistFile , RemoteFolder backupFolder , RemoteFolder stateFolder ) throws Exception {
-		MetaDistrBinaryItem archiveItem = getRedistFileArchiveItem( action , redistFile );
+	public void backupRedistArchiveItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , FileInfo redistFile , RemoteFolder backupFolder , RemoteFolder stateFolder ) throws Exception {
 		RemoteFolder deployFolder = getRuntimeLocationFolder( action , LOCATION );
 
-		saveArchiveItem( action , archiveItem , deployFolder , redistFile , backupFolder );
-		action.log( "redist backup done, item file=" + redistFile );
+		saveArchiveItem( action , redistFile.binaryItem , deployFolder , redistFile.getFileName( action ) , backupFolder );
+		action.log( "redist backup done, item file=" + redistFile.getFileName( action ) );
 		
 		// copy version file from state
-		String stateVerName = FileInfo.getInfoName( action , archiveItem );
+		String stateVerName = redistFile.getInfoName( action );
 		if( stateFolder.checkFileExists( action , stateVerName ) )
 			backupFolder.copyFile( action , stateFolder , stateVerName , "" );
 	}
@@ -457,47 +451,39 @@ public class RedistStorage extends ServerStorage {
 		return( null );
 	}
 	
-	public void changeStateItem( ActionBase action , MetaDistrConfItem confItem , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , String redistFile , boolean rollout ) throws Exception {
-		String stateFileName = FileInfo.getFileName( action , confItem );
-		String stateInfoName = FileInfo.getInfoName( action , confItem );
-		changeStateItem( action , stateFileName , stateInfoName , RELEASEDIR , CONTENTTYPE , LOCATION , redistFile , rollout );
-	}
-
-	public void changeStateItem( ActionBase action , MetaDistrBinaryItem binaryItem , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , String redistFile , boolean rollout ) throws Exception {
-		String stateFileName = FileInfo.getFileName( action , binaryItem );
-		String stateInfoName = FileInfo.getInfoName( action , binaryItem );
-		changeStateItem( action , stateFileName , stateInfoName , RELEASEDIR , CONTENTTYPE , LOCATION , redistFile , rollout );
-	}
-
-	public void changeStateItem( ActionBase action , String stateFileName , String stateInfoName , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , String redistFile , boolean rollout ) throws Exception {
+	public void changeStateItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , FileInfo redistFile , boolean rollout ) throws Exception {
+		String stateFileName = redistFile.getFileName( action );
+		String stateInfoName = redistFile.getInfoName( action );
+		
 		RemoteFolder redistFolder = getRedistLocationFolder( action , RELEASEDIR , LOCATION , CONTENTTYPE , rollout );
 		RemoteFolder stateFolder = getStateLocationFolder( action , LOCATION , CONTENTTYPE );
 		
 		stateFolder.removeFiles( action , stateFileName + " " + stateInfoName );
-		stateFolder.copyFile( action , redistFolder , redistFile , stateFileName );
+		stateFolder.copyFile( action , redistFolder , stateFileName , stateFileName );
 
 		// copy version file from source folder to state folder
 		if( redistFolder.checkFileExists( action , stateInfoName ) )
 			stateFolder.copyFile( action , redistFolder , stateInfoName , "" );
 	}
-	
+
 	public String getDeployVersionedName( ActionBase action , MetaEnvServerLocation location , MetaDistrBinaryItem item , String deployBaseName , String RELEASEVER ) throws Exception {
 		if( item.DISTTYPE == VarDISTITEMTYPE.BINARY ) {
 			if( location.DEPLOYTYPE == VarDEPLOYTYPE.LINKS_MULTIDIR ||
 				location.DEPLOYTYPE == VarDEPLOYTYPE.LINKS_SINGLEDIR ) {
-				String redistName = getRedistBinaryName( action , item , deployBaseName + item.EXT );
+				String redistName = getDeployBinaryName( action , item , deployBaseName + item.EXT );
 				return( redistName );
 			}
 			
 			String name = getVersionItem( action , item , deployBaseName , RELEASEVER );
-			String redistName = getRedistBinaryName( action , item , name );
+			String redistName = getDeployBinaryName( action , item , name );
 			return( redistName );
 		}
 		else
 		if( item.DISTTYPE == VarDISTITEMTYPE.DOTNETPKG )
-			return( getRedistNupkgName( action , item ) );
+			return( getDeployNupkgName( action , item ) );
 
-		return( getRedistArchiveName( action , item ) ); 
+		action.exitUnexpectedState();
+		return( null );
 	}
 
 	private String getVersionItem( ActionBase action , MetaDistrBinaryItem item , String deployBaseName , String version ) throws Exception {

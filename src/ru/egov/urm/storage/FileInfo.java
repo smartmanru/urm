@@ -14,6 +14,7 @@ public class FileInfo {
 	public String md5value;
 	public String deployNameNoVersion;
 	public String finalName;
+	boolean partial;
 	
 	public FileInfo() {
 	}
@@ -27,13 +28,11 @@ public class FileInfo {
 		this.finalName = finalName;
 	}
 	
-	public FileInfo( MetaDistrConfItem item , String version , String md5value , String deployNameNoVersion , String finalName ) {
+	public FileInfo( MetaDistrConfItem item , String version , String md5value , boolean partial) {
 		this.confItem = item;
 		this.itemName = item.KEY;
 		this.version = version;
 		this.md5value = md5value;
-		this.deployNameNoVersion = deployNameNoVersion;
-		this.finalName = finalName;
 	}
 	
 	public void set( ActionBase action , MetaDistrBinaryItem item , String value ) throws Exception {
@@ -52,13 +51,13 @@ public class FileInfo {
 		this.itemName = item.KEY;
 		this.version = Common.getListItem( value , ":" , 0 );
 		this.md5value = Common.getListItem( value , ":" , 1 );
-		this.deployNameNoVersion = Common.getListItem( value , ":" , 2 );
-		this.finalName = Common.getListItem( value , ":" , 3 );
+		this.partial = Common.getBooleanValue( Common.getListItem( value , ":" , 2 ) );
 	}
 
 	public String value( ActionBase action ) throws Exception {
-		String value = version + ":" + md5value + ":" + deployNameNoVersion + ":" + finalName;
-		return( value );
+		if( confItem != null )
+			return( version + ":" + md5value + ":" + Common.getBooleanValue( partial ) );
+		return( version + ":" + md5value + ":" + deployNameNoVersion + ":" + finalName );
 	}
 
 	public String getInfoName( ActionBase action ) throws Exception {

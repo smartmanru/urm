@@ -12,13 +12,6 @@ import ru.egov.urm.shell.Account;
 
 public class ServerStorage {
 
-	public enum RedistFileType {
-		CONFCOMP ,
-		BINARY ,
-		NUPKG ,
-		ARCHIVE
-	};
-
 	static String S_REDIST_ARCHIVE_TYPE_DIRECT = "direct";
 	static String S_REDIST_ARCHIVE_TYPE_CHILD = "child";
 	static String S_REDIST_ARCHIVE_TYPE_SUBDIR = "subdir";
@@ -129,7 +122,7 @@ public class ServerStorage {
 		return( Common.getPath( C_COMMON_DIRPATH , folder ) );
 	}
 	
-	protected String getPathRedistLocation( ActionBase action , String RELEASEDIR , String LOCATION , VarCONTENTTYPE CONTENTTYPE , boolean rollout ) throws Exception {
+	public String getPathRedistLocation( ActionBase action , String RELEASEDIR , String LOCATION , VarCONTENTTYPE CONTENTTYPE , boolean rollout ) throws Exception {
 		checkRelativeDir( action , LOCATION );
 		String C_COMMON_DIRPATH = getPathRedistReleaseRoot( action , RELEASEDIR , CONTENTTYPE , rollout );
 		return( Common.getPath( C_COMMON_DIRPATH , LOCATION ) );
@@ -170,23 +163,6 @@ public class ServerStorage {
 		return( Common.getListItem( redistFile , "-" , 1 ) );
 	}
 	
-	public RedistFileType getRedistFileType( ActionBase action , String redistFile ) throws Exception {
-		if( redistFile.startsWith( "config-" ) )
-			return( RedistFileType.CONFCOMP );
-		
-		if( redistFile.startsWith( "archive-" ) )
-			return( RedistFileType.ARCHIVE );
-		
-		if( redistFile.startsWith( "binary-" ) )
-			return( RedistFileType.BINARY );
-		
-		if( redistFile.startsWith( "nupkg-" ) )
-			return( RedistFileType.NUPKG );
-		
-		action.exitUnexpectedState();
-		return( null );
-	}
-
 	public MetaDistrConfItem getRedistFileConfComp( ActionBase action , String redistFile ) throws Exception {
 		String key = Common.getListItem( redistFile , "-" , 1 );
 		MetaDistrConfItem item = action.meta.distr.findConfItem( action , key );
@@ -211,7 +187,7 @@ public class ServerStorage {
 		return( item );
 	}
 	
-	public String getRedistBinaryName( ActionBase action , MetaDistrBinaryItem item , String deployName ) throws Exception {
+	public String getDeployBinaryName( ActionBase action , MetaDistrBinaryItem item , String deployName ) throws Exception {
 		String name = "binary-" + item.KEY + "-" + deployName;
 		return( name );
 	}
@@ -249,7 +225,7 @@ public class ServerStorage {
 		return( null );
 	}
 
-	public String getRedistNupkgName( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
+	public String getDeployNupkgName( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
 		return( "nupkg-" + item.KEY + "-files" + item.EXT );
 	}
 
