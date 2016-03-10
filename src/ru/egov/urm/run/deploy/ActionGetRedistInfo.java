@@ -76,6 +76,7 @@ public class ActionGetRedistInfo extends ActionBase {
 
 					String text = info.itemName;
 					text += ", version: " + info.version;
+					text += ", deployname: " + info.finalName;
 					comment( "\t\t\tfile: " + info.getFileName( this ) + " (" + text + ")" );
 				}
 			}
