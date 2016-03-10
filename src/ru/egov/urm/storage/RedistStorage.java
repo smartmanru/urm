@@ -200,7 +200,10 @@ public class RedistStorage extends ServerStorage {
 		createLocation( action , dist.RELEASEDIR , location , CONTENTTYPE );
 		dist.copyDistItemToTarget( action , item , fileName , locationDir , redistFileName );
 
-		String runtimeName = getDeployVersionedName( action , location , item , deployBaseName , dist.info.RELEASEVER );
+		String runtimeName = "";
+		if( !item.isArchive( action ) )
+			runtimeName = getDeployVersionedName( action , location , item , deployBaseName , dist.info.RELEASEVER );
+		
 		FileInfo data = RedistStateInfo.getFileInfo( action , item , locationDir , redistFileName , deployBaseName , dist.info.RELEASEVER , runtimeName );
 		String verName = data.getInfoName( action );
 		locationDir.createFileFromString( action , verName , data.value( action ) );
