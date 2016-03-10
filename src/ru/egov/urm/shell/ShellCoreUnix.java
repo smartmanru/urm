@@ -574,7 +574,8 @@ public class ShellCoreUnix extends ShellCore {
 	}
 
 	@Override public Map<String,List<String>> cmdGetFilesContent( ActionBase action , String dir , String fileMask ) throws Exception {
-		String cmd = "for x in $(find . -name " + Common.getQuoted( fileMask ) + "); do echo $x; cat $x; echo " + finishMarker + "; done";
+		String delimiter = "URM_DELIMITER";
+		String cmd = "for x in $(find . -name " + Common.getQuoted( fileMask ) + "); do echo $x; cat $x; echo " + delimiter + "; done";
 		String cmdDir = getDirCmd( action , dir , cmd );
 		runCommand( action , cmdDir , true );
 		
@@ -592,13 +593,13 @@ public class ShellCoreUnix extends ShellCore {
 				continue;
 			}
 
-			if( s.equals( finishMarker ) ) {
+			if( s.equals( delimiter ) ) {
 				pos = 0;
 				continue;
 			}
 
-			if( s.endsWith( finishMarker ) ) {
-				data.add( s.substring( 0 , data.size() - finishMarker.length() ) );
+			if( s.endsWith( delimiter ) ) {
+				data.add( s.substring( 0 , data.size() - delimiter.length() ) );
 				pos = 0;
 				continue;
 			}
