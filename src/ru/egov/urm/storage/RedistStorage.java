@@ -312,7 +312,7 @@ public class RedistStorage extends ServerStorage {
 
 	public void backupRedistBinaryItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , FileInfo redistFile , RemoteFolder backupFolder , RemoteFolder stateFolder ) throws Exception {
 		RemoteFolder deployFolder = getRuntimeLocationFolder( action , LOCATION );
-		String runtimeFile = deployFolder.findBinaryDistItemFile( action , redistFile.binaryItem , redistFile.deployNameNoVersion );
+		String runtimeFile = deployFolder.findBinaryDistItemFile( action , redistFile.binaryItem , redistFile.deployBaseName );
 		
 		if( runtimeFile.isEmpty() ) {
 			action.debug( "unable to backup, item=" + redistFile.itemName + ", not found in " + deployFolder.folderPath );
@@ -401,16 +401,16 @@ public class RedistStorage extends ServerStorage {
 		return( true );
 	}
 
-	public FileInfo getRuntimeItemInfo( ActionBase action , MetaDistrBinaryItem binaryItem , String LOCATION , String specificDeployName ) throws Exception {
+	public FileInfo getRuntimeItemInfo( ActionBase action , MetaDistrBinaryItem binaryItem , String LOCATION , String specificDeployBaseName ) throws Exception {
 		RemoteFolder deployFolder = getRuntimeLocationFolder( action , LOCATION );
 		
 		if( binaryItem.DISTTYPE == VarDISTITEMTYPE.BINARY ) {
-			String runtimeFile = deployFolder.findBinaryDistItemFile( action , binaryItem , specificDeployName );
+			String runtimeFile = deployFolder.findBinaryDistItemFile( action , binaryItem , specificDeployBaseName );
 			if( runtimeFile.isEmpty() )
 				action.exit( "item=" + binaryItem.KEY + ", is not found in " + deployFolder.folderPath );
 			
 			String md5value = deployFolder.getFileMD5( action , runtimeFile );
-			FileInfo info = binaryItem.getFileInfo( action , runtimeFile , specificDeployName , md5value );
+			FileInfo info = binaryItem.getFileInfo( action , runtimeFile , specificDeployBaseName , md5value );
 			return( info );
 		}
 		

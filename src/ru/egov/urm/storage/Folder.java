@@ -354,12 +354,11 @@ public abstract class Folder {
 		return( session.getFolders( action , folderPath ) );
 	}
 
-	public String findBinaryDistItemFile( ActionBase action , MetaDistrBinaryItem item , String specificDeployName ) throws Exception {
-		String deployBasename = specificDeployName;
+	public String findBinaryDistItemFile( ActionBase action , MetaDistrBinaryItem item , String specificDeployBaseName ) throws Exception {
+		String deployBasename = specificDeployBaseName;
 		if( deployBasename.isEmpty() )
 			deployBasename = item.DEPLOYBASENAME;
-		else
-			deployBasename = deployBasename.substring( 0 , deployBasename.lastIndexOf( item.EXT ) );
+		
 		boolean addDotSlash = ( windows )? false : true;
 		String filePath = findOneTopWithGrep( action , "*" + deployBasename + "*" + item.EXT , item.getGrepMask( action , deployBasename , addDotSlash ) );
 

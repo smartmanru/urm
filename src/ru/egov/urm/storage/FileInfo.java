@@ -12,8 +12,8 @@ public class FileInfo {
 	public String itemName;
 	public String version;
 	public String md5value;
-	public String deployNameNoVersion;
-	public String finalName;
+	public String deployBaseName;
+	public String deployFinalName;
 	boolean partial;
 	
 	public FileInfo() {
@@ -24,8 +24,8 @@ public class FileInfo {
 		this.itemName = item.KEY;
 		this.version = version;
 		this.md5value = md5value;
-		this.deployNameNoVersion = deployNameNoVersion;
-		this.finalName = finalName;
+		this.deployBaseName = deployNameNoVersion;
+		this.deployFinalName = finalName;
 	}
 	
 	public FileInfo( MetaDistrConfItem item , String version , String md5value , boolean partial) {
@@ -41,8 +41,8 @@ public class FileInfo {
 		this.itemName = item.KEY;
 		this.version = Common.getListItem( value , ":" , 0 );
 		this.md5value = Common.getListItem( value , ":" , 1 );
-		this.deployNameNoVersion = Common.getListItem( value , ":" , 2 );
-		this.finalName = Common.getListItem( value , ":" , 3 );
+		this.deployBaseName = Common.getListItem( value , ":" , 2 );
+		this.deployFinalName = Common.getListItem( value , ":" , 3 );
 	}
 
 	public void set( ActionBase action , MetaDistrConfItem item , String value ) throws Exception {
@@ -57,7 +57,7 @@ public class FileInfo {
 	public String value( ActionBase action ) throws Exception {
 		if( confItem != null )
 			return( version + ":" + md5value + ":" + Common.getBooleanValue( partial ) );
-		return( version + ":" + md5value + ":" + deployNameNoVersion + ":" + finalName );
+		return( version + ":" + md5value + ":" + deployBaseName + ":" + deployFinalName );
 	}
 
 	public String getInfoName( ActionBase action ) throws Exception {

@@ -63,12 +63,12 @@ public class RedistStateInfo {
 	
 	public String getKeyDeployName( ActionBase action , String key ) throws Exception {
 		FileInfo value = getVerData( action , key );
-		return( value.deployNameNoVersion );
+		return( value.deployBaseName );
 	}
 	
 	public String getKeyFileName( ActionBase action , String key ) throws Exception {
 		FileInfo value = getVerData( action , key );
-		return( value.finalName );
+		return( value.deployFinalName );
 	}
 	
 	public static FileInfo getFileInfo( ActionBase action , MetaDistrBinaryItem item , RemoteFolder stateFolder , String stateFileName , String deployNameNoVersion , String version , String finalName ) throws Exception {

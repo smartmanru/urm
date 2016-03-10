@@ -294,10 +294,10 @@ public class ActionVerifyDeploy extends ActionBase {
 		
 		String redistFileName = redist.getDeployVersionedName( this , location , binaryItem , deployBaseName , dist.info.RELEASEVER );
 		String runtimeName = redist.getRedistBinaryFileDeployName( this , redistFileName );
-		if( !runInfo.finalName.equals( runtimeName ) ) {
+		if( !runInfo.deployFinalName.equals( runtimeName ) ) {
 			log( "dist item=" + binaryItem.KEY + " is the same in location=" + location.DEPLOYPATH + 
 					", but name differs from expected (" + 
-					runInfo.finalName + " != " + distInfo.fileName + ")" );
+					runInfo.deployFinalName + " != " + distInfo.fileName + ")" );
 			return( true );
 		}
 		

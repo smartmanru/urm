@@ -181,15 +181,13 @@ public class RuntimeStorage extends ServerStorage {
 	}
 	
 	private void deployRedistBinaryItem( ActionBase action , RedistStorage redist , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , RemoteFolder redistFolder , RemoteFolder deployFolder , FileInfo redistFile , boolean rollout ) throws Exception {
-		String deployName = redistFile.finalName;
-		
 		// delete old
-		String oldFile = deployFolder.findBinaryDistItemFile( action , redistFile.binaryItem , deployName );
+		String oldFile = deployFolder.findBinaryDistItemFile( action , redistFile.binaryItem , redistFile.deployBaseName );
 		if( !oldFile.isEmpty() )
 			deployFolder.removeFiles( action , oldFile );
 		
 		// deploy new
-		deployFolder.copyFile( action , redistFolder , redistFile.getFileName( action ) , deployName );
+		deployFolder.copyFile( action , redistFolder , redistFile.getFileName( action ) , redistFile.deployFinalName );
 		redist.changeStateItem( action , RELEASEDIR , CONTENTTYPE , LOCATION , redistFile , rollout );
 	}
 	
