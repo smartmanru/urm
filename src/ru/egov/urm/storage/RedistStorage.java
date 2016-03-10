@@ -196,14 +196,13 @@ public class RedistStorage extends ServerStorage {
 		if( !stateInfo.needUpdate( action , item , dist , fileName , deployBaseName ) )
 			return( false );
 		
-		// new state file
+		// copy and save state info
+		createLocation( action , dist.RELEASEDIR , location , CONTENTTYPE );
+		dist.copyDistItemToTarget( action , item , fileName , locationDir , redistFileName );
+
 		String runtimeName = getRedistBinaryFileDeployName( action , redistFileName );
 		FileInfo data = RedistStateInfo.getFileInfo( action , item , locationDir , redistFileName , deployBaseName , dist.info.RELEASEVER , runtimeName );
 		String verName = data.getStateInfoName( action );
-		
-		// action
-		createLocation( action , dist.RELEASEDIR , location , CONTENTTYPE );
-		dist.copyDistItemToTarget( action , item , fileName , locationDir , redistFileName );
 		locationDir.createFileFromString( action , verName , data.value( action ) );
 		return( true );
 	}
@@ -219,14 +218,13 @@ public class RedistStorage extends ServerStorage {
 		if( !stateInfo.needUpdate( action , item , filePath , deployBaseName , RELEASEVER ) )
 			return( false );
 		
-		// new state file
+		// copy and save state info
+		createLocation( action , RELEASEDIR , location , CONTENTTYPE );
+		locationDir.copyFileFromLocalRename( action , filePath , redistFileName );
+
 		String runtimeName = getRedistBinaryFileDeployName( action , redistFileName );
 		FileInfo data = RedistStateInfo.getFileInfo( action , item , locationDir , redistFileName , deployBaseName , RELEASEVER , runtimeName );
 		String verName = data.getStateInfoName( action );
-		
-		// action
-		createLocation( action , RELEASEDIR , location , CONTENTTYPE );
-		locationDir.copyFileFromLocalRename( action , filePath , redistFileName );
 		locationDir.createFileFromString( action , verName , data.value( action ) );
 		return( true );
 	}
