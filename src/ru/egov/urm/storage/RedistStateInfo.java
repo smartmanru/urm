@@ -28,7 +28,7 @@ public class RedistStateInfo {
 		Map<String,List<String>> items = shell.getFilesContent( action , STATEDIR , "*.ver" );
 		for( String verFile : items.keySet() ) {
 			String verName = Common.getPartBeforeLast( verFile , ".ver" );
-			List<String> data = items.get( verName );
+			List<String> data = items.get( verFile );
 			if( data.size() != 1 )
 				action.exit( "invalid state file=" + verName );
 			
