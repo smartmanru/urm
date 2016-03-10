@@ -246,7 +246,16 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public void cmdCreateTarFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
-		action.exitNotImplemented();
+		String wtarFile = Common.getWinPath( action , tarFile );
+		String contentArgs = "";
+		for( String item : Common.split( content , " " ) )
+			contentArgs += " -i!" + Common.getWinPath( action , item );
+		
+		String excludeArgs = "";
+		for( String item : Common.split( exclude , " " ) )
+			excludeArgs += " -x!" + Common.getWinPath( action , item );
+		
+		runCommandCheckStatusDebug( action , dir , "7z a -ttar -r -bd " + wtarFile + " " + contentArgs + " " + excludeArgs );
 	}
 
 	@Override public String cmdGetFileInfo( ActionBase action , String dir , String dirFile ) throws Exception {
