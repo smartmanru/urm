@@ -134,7 +134,7 @@ public class RuntimeStorage extends ServerStorage {
 		for( VarCONTENTTYPE content : VarCONTENTTYPE.values() ) {
 			for( String location : deployment.getLocations( action , content , rollout ) ) {
 				RedistStateInfo info = new RedistStateInfo();
-				info.gather( action , node , content , super.getPathRedistReleaseRoot( action , RELEASEDIR , content , rollout ) );
+				info.gather( action , node , content , super.getPathRedistLocation( action , RELEASEDIR , location , content , rollout ) );
 				
 				for( String key : info.getKeys( action ) ) {
 					FileInfo redistFile = info.getVerData( action , key );
