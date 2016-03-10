@@ -211,20 +211,6 @@ public class ServerStorage {
 		return( "config-" + item.KEY + "-" + mode + ".tar" );
 	}
 
-	public String getRedistArchiveName( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		if( item.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_DIRECT )
-			return( "archive-" + item.KEY + "-" + S_REDIST_ARCHIVE_TYPE_DIRECT + "-files" + item.EXT );
-	
-		if( item.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_SUBDIR )
-			return( "archive-" + item.KEY + "-" + S_REDIST_ARCHIVE_TYPE_SUBDIR + "-" + item.DEPLOYBASENAME + item.EXT );
-	
-		if( item.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_CHILD )
-			return( "archive-" + item.KEY + "-" + S_REDIST_ARCHIVE_TYPE_CHILD + "-" + item.DEPLOYBASENAME + item.EXT );
-		
-		action.exitUnexpectedState();
-		return( null );
-	}
-
 	public String getDeployNupkgName( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
 		return( "nupkg-" + item.KEY + "-files" + item.EXT );
 	}
