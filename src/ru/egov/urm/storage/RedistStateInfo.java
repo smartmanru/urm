@@ -26,7 +26,8 @@ public class RedistStateInfo {
 		}
 		
 		Map<String,List<String>> items = shell.getFilesContent( action , STATEDIR , "*.ver" );
-		for( String verName : items.keySet() ) {
+		for( String verFile : items.keySet() ) {
+			String verName = Common.getPartBeforeLast( verFile , ".ver" );
 			List<String> data = items.get( verName );
 			if( data.size() != 1 )
 				action.exit( "invalid state file=" + verName );
@@ -84,11 +85,11 @@ public class RedistStateInfo {
 
 	public String getKeyItem( ActionBase action , String key ) throws Exception {
 		getVerData( action , key );
-		return( Common.getPartBeforeLast( Common.getPartAfterFirst( key , "-" ) , ".ver" ) );
+		return( key );
 	}
 	
 	private FileInfo createFileInfo( ActionBase action , VarCONTENTTYPE CONTENTTYPE , String verName , String verInfo ) throws Exception {
-		String baseitem = Common.getListItem( verName , "-" , 1 );
+		String baseitem = verName;
 		if( action.meta.isBinaryContent( action , CONTENTTYPE ) ) {
 			MetaDistrBinaryItem item = action.meta.distr.getBinaryItem( action , baseitem );
 			FileInfo info = new FileInfo();
