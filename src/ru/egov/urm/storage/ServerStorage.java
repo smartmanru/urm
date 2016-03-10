@@ -252,19 +252,5 @@ public class ServerStorage {
 	public String getRedistNupkgName( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
 		return( "nupkg-" + item.KEY + "-files" + item.EXT );
 	}
-	
-	public String getStateBaseName( ActionBase action , VarCONTENTTYPE CONTENTTYPE , String redistFile ) throws Exception {
-		String fileNoType = Common.getPartAfterFirst( redistFile , "-" );
-		String fileStateName = Common.getPartBeforeFirst( redistFile , "-" ) + "-" + Common.getPartBeforeFirst( fileNoType , "-" );
-		return( fileStateName );
-	}
-
-	public String getStateFileName( ActionBase action , String stateBaseName ) throws Exception {
-		return( stateBaseName + ".file" );
-	}
-
-	public String getStateInfoName( ActionBase action , String stateBaseName ) throws Exception {
-		return( stateBaseName + ".ver" );
-	}
 
 }

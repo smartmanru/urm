@@ -157,25 +157,25 @@ public class MetaDistrBinaryItem {
 		if( vtype == VarITEMVERSION.NONE ) {
 			String version = "";
 			String deployNameNoVersion = name;
-			return( new FileInfo( version , md5value , deployNameNoVersion , runtimeFile ) );
+			return( new FileInfo( this , version , md5value , deployNameNoVersion , runtimeFile ) );
 		}
 		
 		if( vtype == VarITEMVERSION.PREFIX ) {
 			String version = Common.getPartBeforeFirst( name , "-" );
 			String deployNameNoVersion = Common.getPartAfterFirst( name , "-" );
-			return( new FileInfo( version , md5value , deployNameNoVersion , runtimeFile ) );
+			return( new FileInfo( this , version , md5value , deployNameNoVersion , runtimeFile ) );
 		}
 		
 		if( vtype == VarITEMVERSION.MIDDASH ) {
 			String version = Common.getPartAfterLast( name , "-" );
 			String deployNameNoVersion = Common.getPartBeforeLast( name , "-" );
-			return( new FileInfo( version , md5value , deployNameNoVersion , runtimeFile ) );
+			return( new FileInfo( this , version , md5value , deployNameNoVersion , runtimeFile ) );
 		}
 		
 		if( vtype == VarITEMVERSION.MIDPOUND ) {
 			String version = Common.getPartAfterLast( name , "##" );
 			String deployNameNoVersion = Common.getPartBeforeLast( name , "##" );
-			return( new FileInfo( version , md5value , deployNameNoVersion , runtimeFile ) );
+			return( new FileInfo( this , version , md5value , deployNameNoVersion , runtimeFile ) );
 		}
 		
 		action.exitUnexpectedState();

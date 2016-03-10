@@ -150,35 +150,33 @@ public class RuntimeStorage extends ServerStorage {
 
 		RemoteFolder redistFolder = getRedistLocationFolder( action , RELEASEDIR , LOCATION , CONTENTTYPE , rollout );
 		RemoteFolder deployFolder = getRuntimeLocationFolder( action , LOCATION );
+		RedistStorage redist = artefactory.getRedistStorage( action , server , node ); 
 		
 		RedistFileType rft = getRedistFileType( action , file );
 		if( rft == RedistFileType.CONFCOMP )
-			deployRedistConfItem( action , RELEASEDIR , CONTENTTYPE , LOCATION , redistFolder , deployFolder , file , rollout );
+			deployRedistConfItem( action , redist , RELEASEDIR , CONTENTTYPE , LOCATION , redistFolder , deployFolder , file , rollout );
 		else
 		if( rft == RedistFileType.BINARY )
-			deployRedistBinaryItem( action , RELEASEDIR , CONTENTTYPE , LOCATION , redistFolder , deployFolder , file , rollout );
+			deployRedistBinaryItem( action , redist , RELEASEDIR , CONTENTTYPE , LOCATION , redistFolder , deployFolder , file , rollout );
 		else
 		if( rft == RedistFileType.ARCHIVE )
-			deployRedistArchiveItem( action , RELEASEDIR , CONTENTTYPE , LOCATION , redistFolder , deployFolder , file , rollout );
+			deployRedistArchiveItem( action , redist , RELEASEDIR , CONTENTTYPE , LOCATION , redistFolder , deployFolder , file , rollout );
 		else
 			action.exitUnexpectedState();
 
-		// copy to state folder
-		RedistStorage redist = artefactory.getRedistStorage( action , server , node ); 
-		redist.changeStateItem( action , RELEASEDIR , CONTENTTYPE , LOCATION , file , rollout );
-		
 		action.debug( "deploy done location=" + LOCATION + ", file=" + file );
 	}
 
-	private void deployRedistConfItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , RemoteFolder redistFolder , RemoteFolder deployFolder , String file , boolean rollout ) throws Exception {
+	private void deployRedistConfItem( ActionBase action , RedistStorage redist , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , RemoteFolder redistFolder , RemoteFolder deployFolder , String file , boolean rollout ) throws Exception {
 		MetaDistrConfItem confItem = getRedistFileConfComp( action , file );
 		boolean full = getRedistFileConfFull( action , file );
 		String stagingPath = redistFolder.getFilePath( action , file );
 		
 		deployConfigItem( action , stagingPath , confItem , deployFolder , full );
+		redist.changeStateItem( action , confItem , RELEASEDIR , CONTENTTYPE , LOCATION , file , rollout );
 	}
 	
-	private void deployRedistBinaryItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , RemoteFolder redistFolder , RemoteFolder deployFolder , String file , boolean rollout ) throws Exception {
+	private void deployRedistBinaryItem( ActionBase action , RedistStorage redist , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , RemoteFolder redistFolder , RemoteFolder deployFolder , String file , boolean rollout ) throws Exception {
 		MetaDistrBinaryItem binaryItem = getRedistFileBinaryItem( action , file );
 		String deployName = getRedistBinaryFileDeployName( action , file );
 		
@@ -189,9 +187,10 @@ public class RuntimeStorage extends ServerStorage {
 		
 		// deploy new
 		deployFolder.copyFile( action , redistFolder , file , deployName );
+		redist.changeStateItem( action , binaryItem , RELEASEDIR , CONTENTTYPE , LOCATION , file , rollout );
 	}
 	
-	private void deployRedistArchiveItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , RemoteFolder redistFolder , RemoteFolder deployFolder , String file , boolean rollout ) throws Exception {
+	private void deployRedistArchiveItem( ActionBase action , RedistStorage redist , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , RemoteFolder redistFolder , RemoteFolder deployFolder , String file , boolean rollout ) throws Exception {
 		MetaDistrBinaryItem archiveItem = getRedistFileArchiveItem( action , file );
 
 		String tarFilePath = redistFolder.getFilePath( action , file );
@@ -242,6 +241,8 @@ public class RuntimeStorage extends ServerStorage {
 		}
 		else
 			action.exitUnexpectedState();
+		
+		redist.changeStateItem( action , archiveItem , RELEASEDIR , CONTENTTYPE , LOCATION , file , rollout );
 	}
 	
 }

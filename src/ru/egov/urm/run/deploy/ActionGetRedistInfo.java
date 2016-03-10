@@ -1,6 +1,8 @@
 package ru.egov.urm.run.deploy;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.meta.MetaDistrBinaryItem;
+import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
@@ -8,6 +10,7 @@ import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScopeTarget;
 import ru.egov.urm.run.ActionScopeTargetItem;
 import ru.egov.urm.storage.DistStorage;
+import ru.egov.urm.storage.FileInfo;
 import ru.egov.urm.storage.RedistStorage;
 import ru.egov.urm.storage.RemoteFolder;
 import ru.egov.urm.storage.ServerStorage.RedistFileType;
@@ -70,8 +73,16 @@ public class ActionGetRedistInfo extends ActionBase {
 				comment( "\t\tlocation: " + LOCATION + " (" + rf.folderPath + ")" );
 				for( String redistFile : items ) {
 					RedistFileType fileType = redist.getRedistFileType( this , redistFile );
-					String stateBaseName = redist.getStateBaseName( this , CONTENTTYPE , redistFile );
-					String stateInfoName = redist.getStateInfoName( this , stateBaseName );
+					String stateInfoName;
+					
+					if( fileType == RedistFileType.CONFCOMP ) {
+						MetaDistrConfItem item = redist.getRedistFileConfComp( this , redistFile );
+						stateInfoName = FileInfo.getStateInfoName( this , item );
+					}
+					else {
+						MetaDistrBinaryItem item = redist.getRedistFileBinaryItem( this , redistFile );
+						stateInfoName = FileInfo.getStateInfoName( this , item );
+					}
 
 					String info = Common.getEnumLower( fileType );
 					if( rf.checkFileExists( this , stateInfoName ) )

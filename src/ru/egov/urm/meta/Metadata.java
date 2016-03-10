@@ -453,4 +453,16 @@ public class Metadata {
 		product.updateProperties( action );
 	}
 
+	public boolean isBinaryContent( ActionBase action , VarCONTENTTYPE c ) throws Exception {
+		if( c == VarCONTENTTYPE.BINARYCOLDDEPLOY || c == VarCONTENTTYPE.BINARYCOPYONLY || c == VarCONTENTTYPE.BINARYHOTDEPLOY )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isConfContent( ActionBase action , VarCONTENTTYPE c ) throws Exception {
+		if( c == VarCONTENTTYPE.CONFCOLDDEPLOY || c == VarCONTENTTYPE.CONFCOPYONLY || c == VarCONTENTTYPE.CONFHOTDEPLOY )
+			return( true );
+		return( false );
+	}
+	
 }

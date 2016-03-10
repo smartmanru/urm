@@ -177,8 +177,7 @@ public class ActionRedist extends ActionBase {
 			
 			debug( "source of distributive item=" + binaryItem.KEY + " found in distributive, file=" + fileName );
 			String fileExtracted = getEmbeddedFile( binaryItem , fileName );
-			redist.copyReleaseFile( this , binaryItem , location , fileExtracted , deployBaseName , dist.RELEASEDIR , dist.info.RELEASEVER );
-			return( true );
+			return( redist.copyReleaseFile( this , binaryItem , location , fileExtracted , deployBaseName , dist.RELEASEDIR , dist.info.RELEASEVER , stateInfo ) );
 		}
 		else if( binaryItem.DISTSOURCE == VarDISTITEMSOURCE.BUILD || binaryItem.DISTSOURCE == VarDISTITEMSOURCE.MANUAL ) {
 			String fileName = dist.getBinaryDistItemFile( this , binaryItem );
@@ -188,8 +187,7 @@ public class ActionRedist extends ActionBase {
 			}
 	
 			debug( "distributive item=" + binaryItem.KEY + " found in distributive, file=" + fileName );
-			redist.copyReleaseFile( this , binaryItem , dist , location , fileName , deployBaseName );
-			return( true );
+			return( redist.copyReleaseFile( this , binaryItem , dist , location , fileName , deployBaseName , stateInfo ) );
 		}
 		else
 			exitUnexpectedState();
