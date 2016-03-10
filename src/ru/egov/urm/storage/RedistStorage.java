@@ -323,10 +323,12 @@ public class RedistStorage extends ServerStorage {
 		backupFolder.copyFile( action , deployFolder , runtimeFile , redistBackupFile );
 		action.log( "redist backup done, item file=" + redistBackupFile );
 		
-		// copy version file from state
-		String stateVerName = redistFile.getInfoName( action );
+		// create backup state
+		String md5 = backupFolder.getFileMD5( action , redistBackupFile );
+		FileInfo newInfo = new FileInfo( redistFile.binaryItem , redistFile.version , md5 , redistFile.deployBaseName , runtimeFile );
+		String stateVerName = newInfo.getInfoName( action );
 		if( stateFolder.checkFileExists( action , stateVerName ) )
-			backupFolder.copyFile( action , stateFolder , stateVerName , "" );
+			backupFolder.createFileFromString( action , stateVerName , newInfo.value( action ) );
 	}
 	
 	public void backupRedistArchiveItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , FileInfo redistFile , RemoteFolder backupFolder , RemoteFolder stateFolder ) throws Exception {
