@@ -574,7 +574,7 @@ public class ShellCoreUnix extends ShellCore {
 	}
 
 	@Override public Map<String,List<String>> cmdGetFilesContent( ActionBase action , String dir , String fileMask ) throws Exception {
-		String cmd = "for x in " + fileMask + "; do echo $x; cat $x; echo " + finishMarker + "; done";
+		String cmd = "for x in $(find . -name " + Common.getQuoted( fileMask ) + "); do echo $x; cat $x; echo " + finishMarker + "; done";
 		String cmdDir = getDirCmd( action , dir , cmd );
 		runCommand( action , cmdDir , true );
 		
@@ -583,6 +583,9 @@ public class ShellCoreUnix extends ShellCore {
 		List<String> data = null;
 		for( String s : cmdout ) {
 			if( pos == 0 ) {
+				if( s.startsWith( "./" ) )
+					s = s.substring( 2 );
+				
 				data = new LinkedList<String>();
 				map.put( s , data );
 				pos = 1;
