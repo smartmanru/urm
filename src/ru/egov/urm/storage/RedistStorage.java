@@ -202,7 +202,7 @@ public class RedistStorage extends ServerStorage {
 
 		String runtimeName = getRedistBinaryFileDeployName( action , redistFileName );
 		FileInfo data = RedistStateInfo.getFileInfo( action , item , locationDir , redistFileName , deployBaseName , dist.info.RELEASEVER , runtimeName );
-		String verName = data.getStateInfoName( action );
+		String verName = data.getInfoName( action );
 		locationDir.createFileFromString( action , verName , data.value( action ) );
 		return( true );
 	}
@@ -224,7 +224,7 @@ public class RedistStorage extends ServerStorage {
 
 		String runtimeName = getRedistBinaryFileDeployName( action , redistFileName );
 		FileInfo data = RedistStateInfo.getFileInfo( action , item , locationDir , redistFileName , deployBaseName , RELEASEVER , runtimeName );
-		String verName = data.getStateInfoName( action );
+		String verName = data.getInfoName( action );
 		locationDir.createFileFromString( action , verName , data.value( action ) );
 		return( true );
 	}
@@ -240,7 +240,7 @@ public class RedistStorage extends ServerStorage {
 
 		// create state file
 		FileInfo data = RedistStateInfo.getFileInfo( action , item , locationDir , redistFileName , deployBaseName , dist.info.RELEASEVER , "ignore" );
-		String verName = data.getStateInfoName( action );
+		String verName = data.getInfoName( action );
 		locationDir.createFileFromString( action , verName , data.value( action ) );
 	}
 
@@ -253,7 +253,7 @@ public class RedistStorage extends ServerStorage {
 		
 		// create state file
 		FileInfo data = RedistStateInfo.getFileInfo( action , confItem , locationDir , fileBaseName , fileBaseName , version , "ignore" );
-		String verName = data.getStateInfoName( action );
+		String verName = data.getInfoName( action );
 		locationDir.createFileFromString( action , verName , data.value( action ) );
 	}
 	
@@ -307,7 +307,7 @@ public class RedistStorage extends ServerStorage {
 		action.log( "backup done, item path=" + backupFolder.folderPath + ", file=" + redistFile );
 		
 		// copy version file from state
-		String stateVerName = FileInfo.getStateInfoName( action , confItem );
+		String stateVerName = FileInfo.getInfoName( action , confItem );
 		if( stateFolder.checkFileExists( action , stateVerName ) )
 			backupFolder.copyFile( action , stateFolder , stateVerName , "" );
 	}
@@ -329,7 +329,7 @@ public class RedistStorage extends ServerStorage {
 		action.log( "redist backup done, item file=" + redistBackupFile );
 		
 		// copy version file from state
-		String stateVerName = FileInfo.getStateInfoName( action , binaryItem );
+		String stateVerName = FileInfo.getInfoName( action , binaryItem );
 		if( stateFolder.checkFileExists( action , stateVerName ) )
 			backupFolder.copyFile( action , stateFolder , stateVerName , "" );
 	}
@@ -342,7 +342,7 @@ public class RedistStorage extends ServerStorage {
 		action.log( "redist backup done, item file=" + redistFile );
 		
 		// copy version file from state
-		String stateVerName = FileInfo.getStateInfoName( action , archiveItem );
+		String stateVerName = FileInfo.getInfoName( action , archiveItem );
 		if( stateFolder.checkFileExists( action , stateVerName ) )
 			backupFolder.copyFile( action , stateFolder , stateVerName , "" );
 	}
@@ -458,14 +458,14 @@ public class RedistStorage extends ServerStorage {
 	}
 	
 	public void changeStateItem( ActionBase action , MetaDistrConfItem confItem , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , String redistFile , boolean rollout ) throws Exception {
-		String stateFileName = FileInfo.getStateFileName( action , confItem );
-		String stateInfoName = FileInfo.getStateInfoName( action , confItem );
+		String stateFileName = FileInfo.getFileName( action , confItem );
+		String stateInfoName = FileInfo.getInfoName( action , confItem );
 		changeStateItem( action , stateFileName , stateInfoName , RELEASEDIR , CONTENTTYPE , LOCATION , redistFile , rollout );
 	}
 
 	public void changeStateItem( ActionBase action , MetaDistrBinaryItem binaryItem , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , String redistFile , boolean rollout ) throws Exception {
-		String stateFileName = FileInfo.getStateFileName( action , binaryItem );
-		String stateInfoName = FileInfo.getStateInfoName( action , binaryItem );
+		String stateFileName = FileInfo.getFileName( action , binaryItem );
+		String stateInfoName = FileInfo.getInfoName( action , binaryItem );
 		changeStateItem( action , stateFileName , stateInfoName , RELEASEDIR , CONTENTTYPE , LOCATION , redistFile , rollout );
 	}
 

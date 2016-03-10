@@ -9,7 +9,7 @@ public class FileInfo {
 
 	MetaDistrBinaryItem binaryItem;
 	MetaDistrConfItem confItem;
-	public String stateBaseName;
+	public String itemName;
 	public String version;
 	public String md5value;
 	public String deployNameNoVersion;
@@ -20,7 +20,7 @@ public class FileInfo {
 
 	public FileInfo( MetaDistrBinaryItem item , String version , String md5value , String deployNameNoVersion , String finalName ) {
 		this.binaryItem = item;
-		this.stateBaseName = item.KEY;
+		this.itemName = item.KEY;
 		this.version = version;
 		this.md5value = md5value;
 		this.deployNameNoVersion = deployNameNoVersion;
@@ -29,7 +29,7 @@ public class FileInfo {
 	
 	public FileInfo( MetaDistrConfItem item , String version , String md5value , String deployNameNoVersion , String finalName ) {
 		this.confItem = item;
-		this.stateBaseName = item.KEY;
+		this.itemName = item.KEY;
 		this.version = version;
 		this.md5value = md5value;
 		this.deployNameNoVersion = deployNameNoVersion;
@@ -39,7 +39,7 @@ public class FileInfo {
 	public void set( ActionBase action , MetaDistrBinaryItem item , String value ) throws Exception {
 		this.binaryItem = item; 
 		this.confItem = null; 
-		this.stateBaseName = item.KEY;
+		this.itemName = item.KEY;
 		this.version = Common.getListItem( value , ":" , 0 );
 		this.md5value = Common.getListItem( value , ":" , 1 );
 		this.deployNameNoVersion = Common.getListItem( value , ":" , 2 );
@@ -49,7 +49,7 @@ public class FileInfo {
 	public void set( ActionBase action , MetaDistrConfItem item , String value ) throws Exception {
 		this.binaryItem = null; 
 		this.confItem = item; 
-		this.stateBaseName = item.KEY;
+		this.itemName = item.KEY;
 		this.version = Common.getListItem( value , ":" , 0 );
 		this.md5value = Common.getListItem( value , ":" , 1 );
 		this.deployNameNoVersion = Common.getListItem( value , ":" , 2 );
@@ -61,27 +61,27 @@ public class FileInfo {
 		return( value );
 	}
 
-	public String getStateInfoName( ActionBase action ) throws Exception {
-		return( stateBaseName + ".ver" );
+	public String getInfoName( ActionBase action ) throws Exception {
+		return( itemName + ".ver" );
 	}
 	
-	public String getStateFileName( ActionBase action ) throws Exception {
-		return( stateBaseName + ".file" );
+	public String getFileName( ActionBase action ) throws Exception {
+		return( itemName + ".file" );
 	}
 	
-	public static String getStateInfoName( ActionBase action , MetaDistrConfItem confItem ) throws Exception {
+	public static String getInfoName( ActionBase action , MetaDistrConfItem confItem ) throws Exception {
 		return( confItem.KEY + ".ver" );
 	}
 	
-	public static String getStateInfoName( ActionBase action , MetaDistrBinaryItem binaryItem ) throws Exception {
+	public static String getInfoName( ActionBase action , MetaDistrBinaryItem binaryItem ) throws Exception {
 		return( binaryItem.KEY + ".ver" );
 	}
 	
-	public static String getStateFileName( ActionBase action , MetaDistrConfItem confItem ) throws Exception {
+	public static String getFileName( ActionBase action , MetaDistrConfItem confItem ) throws Exception {
 		return( confItem.KEY + ".file" );
 	}
 	
-	public static String getStateFileName( ActionBase action , MetaDistrBinaryItem binaryItem ) throws Exception {
+	public static String getFileName( ActionBase action , MetaDistrBinaryItem binaryItem ) throws Exception {
 		return( binaryItem.KEY + ".file" );
 	}
 	
