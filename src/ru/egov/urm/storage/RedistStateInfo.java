@@ -108,7 +108,11 @@ public class RedistStateInfo {
 		return( null );
 	}
 	
-	public boolean needUpdate( ActionBase action , FileInfo data ) throws Exception {
+	public boolean needUpdate( ActionBase action , MetaDistrBinaryItem item , DistStorage dist , String fileName , String deployBaseName ) throws Exception {
+		return( true );
+	}
+
+	public boolean needUpdate( ActionBase action , MetaDistrBinaryItem item , String filePath , String deployBaseName , String RELEASEVER ) throws Exception {
 		return( true );
 	}
 

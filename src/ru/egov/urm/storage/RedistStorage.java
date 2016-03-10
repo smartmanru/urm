@@ -192,14 +192,14 @@ public class RedistStorage extends ServerStorage {
 		RemoteFolder locationDir = getRedistLocationFolder( action , dist.RELEASEDIR , LOCATION , CONTENTTYPE , true );
 		String redistFileName = getDeployVersionedName( action , location , item , deployBaseName , dist.info.RELEASEVER );  
 
-		// state file
+		// check need redist
+		if( !stateInfo.needUpdate( action , item , dist , fileName , deployBaseName ) )
+			return( false );
+		
+		// new state file
 		String runtimeName = getRedistBinaryFileDeployName( action , redistFileName );
 		FileInfo data = RedistStateInfo.getFileInfo( action , item , locationDir , redistFileName , deployBaseName , dist.info.RELEASEVER , runtimeName );
 		String verName = data.getStateInfoName( action );
-		
-		// check need redist
-		if( !stateInfo.needUpdate( action , data ) )
-			return( false );
 		
 		// action
 		createLocation( action , dist.RELEASEDIR , location , CONTENTTYPE );
@@ -215,14 +215,14 @@ public class RedistStorage extends ServerStorage {
 		RemoteFolder locationDir = getRedistLocationFolder( action , RELEASEDIR , LOCATION , CONTENTTYPE , true );
 		String redistFileName = getDeployVersionedName( action , location , item , deployBaseName , RELEASEVER );
 
-		// state file
+		// check need redist
+		if( !stateInfo.needUpdate( action , item , filePath , deployBaseName , RELEASEVER ) )
+			return( false );
+		
+		// new state file
 		String runtimeName = getRedistBinaryFileDeployName( action , redistFileName );
 		FileInfo data = RedistStateInfo.getFileInfo( action , item , locationDir , redistFileName , deployBaseName , RELEASEVER , runtimeName );
 		String verName = data.getStateInfoName( action );
-		
-		// check need redist
-		if( !stateInfo.needUpdate( action , data ) )
-			return( false );
 		
 		// action
 		createLocation( action , RELEASEDIR , location , CONTENTTYPE );
