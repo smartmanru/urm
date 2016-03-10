@@ -450,7 +450,7 @@ public class DistStorage {
 	}
 
 	public String getDistItemMD5( ActionBase action , MetaDistrBinaryItem item , String fileName ) throws Exception {
-		RemoteFolder fileFolder = distFolder.getSubFolder( action , getReleaseBinaryFolder( action , item ) );  
+		RemoteFolder fileFolder = distFolder.getSubFolder( action , item.delivery.FOLDER );  
 		return( fileFolder.getFileMD5( action , fileName ) );
 	}
 	
