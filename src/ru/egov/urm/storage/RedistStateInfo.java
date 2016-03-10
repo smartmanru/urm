@@ -108,12 +108,79 @@ public class RedistStateInfo {
 		return( null );
 	}
 	
-	public boolean needUpdate( ActionBase action , MetaDistrBinaryItem item , DistStorage dist , String fileName , String deployBaseName ) throws Exception {
-		return( true );
+	public boolean needUpdate( ActionBase action , MetaDistrBinaryItem item , DistStorage dist , String fileName , String deployBaseName , String deployFinalName ) throws Exception {
+		if( action.context.CTX_FORCE )
+			return( true );
+
+		// get current state if any
+		FileInfo info = verData.get( item.KEY );
+		if( info == null ) {
+			action.debug( "redist item=" + item.KEY + " - nothing found in live" );
+			return( true );
+		}
+		
+		// check deploy name changed
+		if( !info.deployBaseName.equals( deployBaseName ) ) {
+			action.debug( "redist item=" + item.KEY + " - deploy basename has been changed" );
+			return( true );
+		}
+		
+		// check md5
+		String ms5value = dist.getDistItemMD5( action , item , fileName );
+		if( !ms5value.equals( info.md5value ) ) {
+			action.debug( "redist item=" + item.KEY + " - md5 differs (" + info.md5value + "/" + ms5value + ")" );
+			return( true );
+		}
+
+		// check deploy name
+		if( !info.deployFinalName.equals( deployFinalName ) ) {
+			// check version change ignored
+			if( action.context.CTX_IGNOREVERSION ) {
+				action.debug( "redist item=" + item.KEY + " - skip deploy, version change only" );
+				return( false );
+			}
+
+			action.debug( "redist item=" + item.KEY + " - deploy version has been changed" );
+			return( true );
+		}
+		
+		action.debug( "redist item=" + item.KEY + " - skip deploy, no changes" );
+		return( false );
 	}
 
-	public boolean needUpdate( ActionBase action , MetaDistrBinaryItem item , String filePath , String deployBaseName , String RELEASEVER ) throws Exception {
-		return( true );
+	public boolean needUpdate( ActionBase action , MetaDistrBinaryItem item , String filePath , String deployBaseName , String RELEASEVER , String deployFinalName ) throws Exception {
+		if( action.context.CTX_FORCE )
+			return( true );
+
+		// get current state if any
+		FileInfo info = verData.get( item.KEY );
+		if( info == null ) {
+			action.debug( "redist item=" + item.KEY + " - nothing found in live" );
+			return( true );
+		}
+		
+		// check deploy name changed
+		if( !info.deployBaseName.equals( deployBaseName ) ) {
+			action.debug( "redist item=" + item.KEY + " - deploy basename has been changed" );
+			return( true );
+		}
+		
+		// check md5
+		String ms5value = action.session.getMD5( action , filePath );
+		if( !ms5value.equals( info.md5value ) ) {
+			action.debug( "redist item=" + item.KEY + " - md5 differs (" + info.md5value + "/" + ms5value + ")" );
+			return( true );
+		}
+
+		// check version change ignored
+		if( !action.context.CTX_IGNOREVERSION )
+			return( true );
+
+		// check deploy name
+		if( !info.deployFinalName.equals( deployFinalName ) )
+			return( true );
+		
+		return( false );
 	}
 
 }

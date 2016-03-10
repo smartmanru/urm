@@ -192,18 +192,18 @@ public class RedistStorage extends ServerStorage {
 		RemoteFolder locationDir = getRedistLocationFolder( action , dist.RELEASEDIR , LOCATION , CONTENTTYPE , true );
 		String redistFileName = FileInfo.getFileName( action , item );  
 
-		// check need redist
-		if( !stateInfo.needUpdate( action , item , dist , fileName , deployBaseName ) )
+		String runtimeName = "";
+		if( !item.isArchive( action ) )
+			runtimeName = getDeployVersionedName( action , location , item , deployBaseName , dist.info.RELEASEVER );
+		
+		// check need redist - from distributive
+		if( !stateInfo.needUpdate( action , item , dist , fileName , deployBaseName , runtimeName ) )
 			return( false );
 		
 		// copy and save state info
 		createLocation( action , dist.RELEASEDIR , location , CONTENTTYPE );
 		dist.copyDistItemToTarget( action , item , fileName , locationDir , redistFileName );
 
-		String runtimeName = "";
-		if( !item.isArchive( action ) )
-			runtimeName = getDeployVersionedName( action , location , item , deployBaseName , dist.info.RELEASEVER );
-		
 		FileInfo data = RedistStateInfo.getFileInfo( action , item , locationDir , redistFileName , deployBaseName , dist.info.RELEASEVER , runtimeName );
 		String verName = data.getInfoName( action );
 		locationDir.createFileFromString( action , verName , data.value( action ) );
@@ -216,17 +216,17 @@ public class RedistStorage extends ServerStorage {
 		VarCONTENTTYPE CONTENTTYPE = location.getContentType( action , true );
 		RemoteFolder locationDir = getRedistLocationFolder( action , RELEASEDIR , LOCATION , CONTENTTYPE , true );
 		String redistFileName = FileInfo.getFileName( action , item );
+		String deployFinalName = getDeployVersionedName( action , location , item , deployBaseName , RELEASEVER );
 
-		// check need redist
-		if( !stateInfo.needUpdate( action , item , filePath , deployBaseName , RELEASEVER ) )
+		// check need redist - extracted file
+		if( !stateInfo.needUpdate( action , item , filePath , deployBaseName , RELEASEVER , deployFinalName ) )
 			return( false );
 		
 		// copy and save state info
 		createLocation( action , RELEASEDIR , location , CONTENTTYPE );
 		locationDir.copyFileFromLocalRename( action , filePath , redistFileName );
 
-		String runtimeName = getDeployVersionedName( action , location , item , deployBaseName , RELEASEVER );
-		FileInfo data = RedistStateInfo.getFileInfo( action , item , locationDir , redistFileName , deployBaseName , RELEASEVER , runtimeName );
+		FileInfo data = RedistStateInfo.getFileInfo( action , item , locationDir , redistFileName , deployBaseName , RELEASEVER , deployFinalName );
 		String verName = data.getInfoName( action );
 		locationDir.createFileFromString( action , verName , data.value( action ) );
 		return( true );

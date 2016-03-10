@@ -449,6 +449,11 @@ public class DistStorage {
 		return( info );
 	}
 
+	public String getDistItemMD5( ActionBase action , MetaDistrBinaryItem item , String fileName ) throws Exception {
+		RemoteFolder fileFolder = distFolder.getSubFolder( action , getReleaseBinaryFolder( action , item ) );  
+		return( fileFolder.getFileMD5( action , fileName ) );
+	}
+	
 	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrConfItem item ) throws Exception {
 		DistItemInfo info = new DistItemInfo( item );
 		info.subPath = getReleaseConfCompParentFolder( action , item );
