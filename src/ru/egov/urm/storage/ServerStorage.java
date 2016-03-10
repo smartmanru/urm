@@ -1,8 +1,6 @@
 package ru.egov.urm.storage;
 
 import ru.egov.urm.Common;
-import ru.egov.urm.meta.MetaDistrBinaryItem;
-import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
@@ -156,62 +154,6 @@ public class ServerStorage {
 		else
 			path = Common.getPath( path , type );
 		return( path );
-	}
-
-	public String getRedistFileKey( ActionBase action , String redistFile ) throws Exception {
-		return( Common.getListItem( redistFile , "-" , 1 ) );
-	}
-	
-	public MetaDistrConfItem getRedistFileConfComp( ActionBase action , String redistFile ) throws Exception {
-		String key = Common.getListItem( redistFile , "-" , 1 );
-		MetaDistrConfItem item = action.meta.distr.findConfItem( action , key );
-		if( item == null )
-			action.exit( "unable to find configuration item=" + key + ", file=" + redistFile );
-		return( item );
-	}
-
-	public MetaDistrBinaryItem getRedistFileBinaryItem( ActionBase action , String redistFile ) throws Exception {
-		String key = Common.getListItem( redistFile , "-" , 1 );
-		MetaDistrBinaryItem item = action.meta.distr.findBinaryItem( action , key );
-		if( item == null )
-			action.exit( "unable to find binary item=" + key + ", file=" + redistFile );
-		return( item );
-	}
-	
-	public MetaDistrBinaryItem getRedistFileArchiveItem( ActionBase action , String redistFile ) throws Exception {
-		String key = Common.getListItem( redistFile , "-" , 1 );
-		MetaDistrBinaryItem item = action.meta.distr.findBinaryItem( action , key );
-		if( item == null )
-			action.exit( "unable to find archive item=" + key + ", file=" + redistFile );
-		return( item );
-	}
-	
-	public String getDeployBinaryName( ActionBase action , MetaDistrBinaryItem item , String deployName ) throws Exception {
-		String name = "binary-" + item.KEY + "-" + deployName;
-		return( name );
-	}
-
-	public String getRedistBinaryFileDeployName( ActionBase action , String redistFile ) throws Exception {
-		String fileNoType = Common.getPartAfterFirst( redistFile , "-" );
-		String fileWithExt = Common.getPartAfterFirst( fileNoType , "-" );
-		return( fileWithExt );
-	}
-	
-	public boolean getRedistFileConfFull( ActionBase action , String redistFile ) throws Exception {
-		String fileNoType = Common.getPartAfterFirst( redistFile , "-" );
-		String fileAfterKey = Common.getPartAfterFirst( fileNoType , "-" );
-		if( fileAfterKey.startsWith( "full." ) )
-			return( true );
-		return( false );
-	}
-	
-	public String getConfigArchiveName( ActionBase action , MetaDistrConfItem item , boolean full ) throws Exception {
-		String mode = ( full )? "full" : "partial";
-		return( "config-" + item.KEY + "-" + mode + ".tar" );
-	}
-
-	public String getDeployNupkgName( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		return( "nupkg-" + item.KEY + "-files" + item.EXT );
 	}
 
 }

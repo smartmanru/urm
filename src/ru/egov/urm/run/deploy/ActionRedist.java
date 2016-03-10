@@ -14,6 +14,7 @@ import ru.egov.urm.run.ActionScopeSet;
 import ru.egov.urm.run.ActionScopeTarget;
 import ru.egov.urm.run.ActionScopeTargetItem;
 import ru.egov.urm.storage.DistStorage;
+import ru.egov.urm.storage.FileInfo;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.RedistStateInfo;
 import ru.egov.urm.storage.RedistStorage;
@@ -224,7 +225,7 @@ public class ActionRedist extends ActionBase {
 		
 		// archive
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
-		String fileBaseName = redist.getConfigArchiveName( this , confItem , target.ALL );
+		String fileBaseName = FileInfo.getFileName( this , confItem );
 		String fileName = "node" + node.POS + "-" + fileBaseName;
 		String filePath = liveFolder.getFilePath( this , fileName );
 		confFolder.createTarFromContent( this , filePath , "*" , "" );

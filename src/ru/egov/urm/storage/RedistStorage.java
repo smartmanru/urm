@@ -200,7 +200,7 @@ public class RedistStorage extends ServerStorage {
 		createLocation( action , dist.RELEASEDIR , location , CONTENTTYPE );
 		dist.copyDistItemToTarget( action , item , fileName , locationDir , redistFileName );
 
-		String runtimeName = getRedistBinaryFileDeployName( action , redistFileName );
+		String runtimeName = getDeployVersionedName( action , location , item , deployBaseName , dist.info.RELEASEVER );
 		FileInfo data = RedistStateInfo.getFileInfo( action , item , locationDir , redistFileName , deployBaseName , dist.info.RELEASEVER , runtimeName );
 		String verName = data.getInfoName( action );
 		locationDir.createFileFromString( action , verName , data.value( action ) );
@@ -222,7 +222,7 @@ public class RedistStorage extends ServerStorage {
 		createLocation( action , RELEASEDIR , location , CONTENTTYPE );
 		locationDir.copyFileFromLocalRename( action , filePath , redistFileName );
 
-		String runtimeName = getRedistBinaryFileDeployName( action , redistFileName );
+		String runtimeName = getDeployVersionedName( action , location , item , deployBaseName , RELEASEVER );
 		FileInfo data = RedistStateInfo.getFileInfo( action , item , locationDir , redistFileName , deployBaseName , RELEASEVER , runtimeName );
 		String verName = data.getInfoName( action );
 		locationDir.createFileFromString( action , verName , data.value( action ) );
@@ -245,7 +245,7 @@ public class RedistStorage extends ServerStorage {
 	}
 
 	public void restoreConfigFile( ActionBase action , MetaDistrConfItem confItem , MetaEnvServerLocation location , String redistPath , String version ) throws Exception {
-		String fileBaseName = getConfigArchiveName( action , confItem , true );
+		String fileBaseName = FileInfo.getFileName( action , confItem );
 		VarCONTENTTYPE CONTENTTYPE = location.getContentType( action , false );
 		RemoteFolder locationDir = getStateLocationFolder( action , location.DEPLOYPATH , CONTENTTYPE );
 		locationDir.ensureExists( action );
@@ -472,17 +472,13 @@ public class RedistStorage extends ServerStorage {
 		if( item.DISTTYPE == VarDISTITEMTYPE.BINARY ) {
 			if( location.DEPLOYTYPE == VarDEPLOYTYPE.LINKS_MULTIDIR ||
 				location.DEPLOYTYPE == VarDEPLOYTYPE.LINKS_SINGLEDIR ) {
-				String redistName = getDeployBinaryName( action , item , deployBaseName + item.EXT );
-				return( redistName );
+				String deployName = deployBaseName + item.EXT;
+				return( deployName );
 			}
 			
-			String name = getVersionItem( action , item , deployBaseName , RELEASEVER );
-			String redistName = getDeployBinaryName( action , item , name );
-			return( redistName );
+			String deployName = getVersionItem( action , item , deployBaseName , RELEASEVER );
+			return( deployName );
 		}
-		else
-		if( item.DISTTYPE == VarDISTITEMTYPE.DOTNETPKG )
-			return( getDeployNupkgName( action , item ) );
 
 		action.exitUnexpectedState();
 		return( null );
