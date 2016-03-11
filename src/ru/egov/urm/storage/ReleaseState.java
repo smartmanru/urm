@@ -77,8 +77,10 @@ public class ReleaseState {
 			if( newState == RELEASESTATE.ARCHIVED )
 				ok = true;
 		}
-		if( !ok )
-			action.exit( "unable to change release state from " + state.name() + " to " + newState.name() );
+		if( !ok ) {
+			if( !action.context.CTX_FORCE )
+				action.exit( "unable to change release state from " + state.name() + " to " + newState.name() );
+		}
 		
 		String timeStamp = Common.getNameTimeStamp();
 		String hash = getHashValue( action );
