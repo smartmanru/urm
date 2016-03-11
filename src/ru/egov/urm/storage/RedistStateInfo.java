@@ -160,14 +160,14 @@ public class RedistStateInfo {
 		}
 		
 		// check deploy name changed
-		if( !info.deployBaseName.equals( deployBaseName ) ) {
+		if( info.deployBaseName == null || info.deployBaseName.equals( deployBaseName ) == false ) {
 			action.debug( "redist item=" + item.KEY + " - deploy basename has been changed" );
 			return( true );
 		}
 		
 		// check md5
 		String ms5value = action.session.getMD5( action , filePath );
-		if( !ms5value.equals( info.md5value ) ) {
+		if( info.md5value == null || ms5value.equals( info.md5value ) == false ) {
 			action.debug( "redist item=" + item.KEY + " - md5 differs (" + info.md5value + "/" + ms5value + ")" );
 			return( true );
 		}
@@ -177,7 +177,7 @@ public class RedistStateInfo {
 			return( true );
 
 		// check deploy name
-		if( !info.deployFinalName.equals( deployFinalName ) )
+		if( info.deployFinalName == null || info.deployFinalName.equals( deployFinalName ) == false )
 			return( true );
 		
 		return( false );
