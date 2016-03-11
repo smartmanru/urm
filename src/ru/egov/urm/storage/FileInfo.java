@@ -1,5 +1,8 @@
 package ru.egov.urm.storage;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaDistrConfItem;
@@ -35,29 +38,63 @@ public class FileInfo {
 		this.md5value = md5value;
 	}
 	
+	private Map<String,String> getParams( ActionBase action , String value ) throws Exception {
+		Map<String,String> params = new HashMap<String,String>();
+		for( String pair : Common.split( value , "," ) ) {
+			String[] values = Common.split( pair , "=" );
+			params.put( values[0] , values[1] );
+		}
+		
+		return( params );
+	}
+	
+	private void scatterParams( ActionBase action , String value ) throws Exception {
+		Map<String,String> params = getParams( action , value );
+		version = params.get( "version" );
+		md5value = params.get( "md5" );
+		deployBaseName = params.get( "base" );
+		deployFinalName = params.get( "final" );
+		if( confItem != null );
+			partial = Common.getBooleanValue( params.get( "partial" ) );
+	}
+	
+	private String gatherParams( ActionBase action ) throws Exception {
+		Map<String,String> params = new HashMap<String,String>();
+		params.put( "version" , version );
+		params.put( "md5" , md5value );
+		params.put( "base" , deployBaseName );
+		params.put( "final" , deployFinalName );
+		if( confItem != null )
+			params.put( "partial" , Common.getBooleanValue( partial ) );
+		
+		String value = "";
+		for( String key : params.keySet() ) {
+			String data = params.get( key );
+			if( !data.isEmpty() ) {
+				if( !value.isEmpty() )
+					value += ",";
+				value += key + "=" + data;
+			}
+		}
+		return( value );
+	}
+	
 	public void set( ActionBase action , MetaDistrBinaryItem item , String value ) throws Exception {
 		this.binaryItem = item; 
 		this.confItem = null; 
 		this.itemName = item.KEY;
-		this.version = Common.getListItem( value , ":" , 0 );
-		this.md5value = Common.getListItem( value , ":" , 1 );
-		this.deployBaseName = Common.getListItem( value , ":" , 2 );
-		this.deployFinalName = Common.getListItem( value , ":" , 3 );
+		scatterParams( action , value );
 	}
 
 	public void set( ActionBase action , MetaDistrConfItem item , String value ) throws Exception {
 		this.binaryItem = null; 
 		this.confItem = item; 
 		this.itemName = item.KEY;
-		this.version = Common.getListItem( value , ":" , 0 );
-		this.md5value = Common.getListItem( value , ":" , 1 );
-		this.partial = Common.getBooleanValue( Common.getListItem( value , ":" , 2 ) );
+		scatterParams( action , value );
 	}
 
 	public String value( ActionBase action ) throws Exception {
-		if( confItem != null )
-			return( version + ":" + md5value + ":" + Common.getBooleanValue( partial ) );
-		return( version + ":" + md5value + ":" + deployBaseName + ":" + deployFinalName );
+		return( gatherParams( action ) );
 	}
 
 	public String getInfoName( ActionBase action ) throws Exception {
