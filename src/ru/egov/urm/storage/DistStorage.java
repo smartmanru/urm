@@ -731,7 +731,7 @@ public class DistStorage {
 			if( delivery == null || delivery.isEmpty() ) {
 				if( dirFilesDist.hasFiles() ) {
 					if( !action.context.CTX_FORCE )
-						action.exit( "distributive delivery " + dir + " has files, while nothing is declared in release" );
+						action.exit( "distributive delivery=" + delivery.distDelivery.NAME + " has files, while nothing is declared in release" );
 				}
 				
 				action.log( "delete non-release delivery=" + dir + " ..." );
@@ -763,8 +763,8 @@ public class DistStorage {
 			if( dirFilesRelease == null ) {
 				if( dirFilesDist.hasFiles() ) {
 					if( !action.context.CTX_FORCE )
-						action.exit( "distributive delivery " + delivery.distDelivery.NAME + 
-								" dir= " + dir + " has files, while nothing is declared in release" );
+						action.exit( "distributive delivery=" + delivery.distDelivery.NAME + 
+								" has files, while nothing is declared in release" );
 				}
 				
 				String folder = Common.getPath( delivery.distDelivery.FOLDER , dir );
