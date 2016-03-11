@@ -22,7 +22,6 @@ import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
 import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
-import ru.egov.urm.meta.Metadata.VarDISTITEMTYPE;
 import ru.egov.urm.run.ActionBase;
 
 public class DistStorage {
@@ -443,10 +442,10 @@ public class DistStorage {
 		
 		if( info.found && getMD5 ) {
 			RemoteFolder fileFolder = distFolder.getSubFolder( action , info.subPath );
-			if( item.DISTTYPE == VarDISTITEMTYPE.BINARY )
-				info.md5value = fileFolder.getFileMD5( action , info.fileName );
+			if( item.isDerived( action ) )
+				info.md5value = fileFolder.getArchivePartMD5( action , info.fileName , item.SRCITEMPATH , item.srcItem.EXT );
 			else
-				info.md5value = fileFolder.getArchivePartMD5( action , info.fileName , item.SRCITEMPATH , item.EXT );
+				info.md5value = fileFolder.getFileMD5( action , info.fileName );
 		}
 		
 		return( info );
