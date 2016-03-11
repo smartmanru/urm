@@ -465,6 +465,10 @@ public abstract class ShellExecutor {
 		return( core.cmdGetTarContentMD5( action , filePath ) );
 	}
 	
+	public String getArchivePartMD5( ActionBase action , String filePath , String archivePartPath , String EXT ) throws Exception {
+		return( core.cmdGetArchivePartMD5( action , filePath , archivePartPath , EXT ) );
+	}
+	
 	public String getFilesMD5( ActionBase action , String dir , String includeList , String excludeList ) throws Exception {
 		return( core.cmdGetFilesMD5( action , dir , includeList , excludeList ) );
 	}

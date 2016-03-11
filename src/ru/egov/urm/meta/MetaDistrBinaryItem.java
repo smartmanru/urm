@@ -182,4 +182,10 @@ public class MetaDistrBinaryItem {
 		return( null );
 	}
 
+	public boolean isDerived( ActionBase action ) throws Exception {
+		if( srcItem != null )
+			return( true );
+		return( false );
+	}
+	
 }

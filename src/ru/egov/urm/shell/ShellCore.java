@@ -99,6 +99,7 @@ abstract class ShellCore {
 	abstract public String[] cmdFindFiles( ActionBase action , String dir , String mask ) throws Exception;
 	abstract public String cmdGetMD5( ActionBase action , String filePath ) throws Exception;
 	abstract public String cmdGetTarContentMD5( ActionBase action , String filePath ) throws Exception;
+	abstract public String cmdGetArchivePartMD5( ActionBase action , String filePath , String archivePartPath , String EXT ) throws Exception;
 	abstract public String cmdGetFilesMD5( ActionBase action , String dir , String includeList , String excludeList ) throws Exception;
 	abstract public String cmdGetFileContentAsString( ActionBase action , String filePath ) throws Exception;
 	abstract public void cmdAppendExecuteLog( ActionBase action , String msg ) throws Exception;

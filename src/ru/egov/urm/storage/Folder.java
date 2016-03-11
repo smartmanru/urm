@@ -403,4 +403,10 @@ public abstract class Folder {
 		return( (( LocalFolder )this).getSubFolder( action , subFolder ) );
 	}
 
+	public String getArchivePartMD5( ActionBase action , String fileName , String archivePartPath , String EXT ) throws Exception {
+		ShellExecutor session = getSession( action );
+		String filePath = getFilePath( action , fileName );
+		return( session.getArchivePartMD5( action , filePath , archivePartPath , EXT ) );
+	}
+
 }

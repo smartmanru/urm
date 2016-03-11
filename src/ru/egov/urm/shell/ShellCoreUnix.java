@@ -518,6 +518,23 @@ public class ShellCoreUnix extends ShellCore {
 		return( value );
 	}
 
+	@Override public String cmdGetArchivePartMD5( ActionBase action , String filePath , String archivePartPath , String EXT ) throws Exception {
+		String extractCmd = "";
+		if( EXT.equals( ".zip" ) )
+			extractCmd = "unzip -p " + filePath + " " + archivePartPath;
+		else
+		if( EXT.equals( ".tar" ) )
+			extractCmd = "tar -xf -q -O " + filePath + " " + archivePartPath;
+		else
+		if( EXT.equals( ".tgz" ) || EXT.equals( ".tar.gz" ) )
+			extractCmd = "tar -zxf -q -O " + filePath + " " + archivePartPath;
+		else
+			action.exitUnexpectedState();
+		
+		String value = runCommandGetValueCheckDebug( action , extractCmd + " | md5sum | cut -d " + Common.getQuoted( " " ) + " -f1" );
+		return( value );
+	}
+	
 	@Override public String cmdGetFileContentAsString( ActionBase action , String filePath ) throws Exception {
 		String value = runCommandGetValueCheckDebug( action , "cat " + filePath );
 		return( value );

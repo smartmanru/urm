@@ -429,23 +429,24 @@ public class DistStorage {
 	
 	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrBinaryItem item , boolean getMD5 ) throws Exception {
 		DistItemInfo info = new DistItemInfo( item );
-		info.subPath = getReleaseBinaryFolder( action , item );
-		info.fileName = getFiles( action ).findDistItem( action , item , info.subPath );
-		info.found = ( info.fileName.isEmpty() )? false : true;
+		if( item.isDerived( action ) ) {
+			DistItemInfo infosrc = getDistItemInfo( action , item.srcItem , false );
+			info.subPath = infosrc.subPath;
+			info.fileName = infosrc.fileName;
+			info.found = infosrc.found;
+		}
+		else {
+			info.subPath = getReleaseBinaryFolder( action , item );
+			info.fileName = getFiles( action ).findDistItem( action , item , info.subPath );
+			info.found = ( info.fileName.isEmpty() )? false : true;
+		}
 		
 		if( info.found && getMD5 ) {
 			RemoteFolder fileFolder = distFolder.getSubFolder( action , info.subPath );
 			if( item.DISTTYPE == VarDISTITEMTYPE.BINARY )
 				info.md5value = fileFolder.getFileMD5( action , info.fileName );
-			else {
-				RedistStorage redist = artefactory.getRedistStorage( "tmp" , fileFolder.account );
-				RemoteFolder tmp = redist.getRedistTmpFolder( action );
-				RemoteFolder tmpTar = tmp.getSubFolder( action , "tar" );
-				tmpTar.recreateThis( action );
-				tmpTar.extractTarGz( action , fileFolder.getFilePath( action , info.fileName ) , "" );
-				info.md5value = redist.getArchiveMD5( action , item , tmpTar , false );
-				tmpTar.removeThis( action );
-			}
+			else
+				info.md5value = fileFolder.getArchivePartMD5( action , info.fileName , item.SRCITEMPATH , item.EXT );
 		}
 		
 		return( info );

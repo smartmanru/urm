@@ -435,6 +435,11 @@ public class ShellCoreWindows extends ShellCore {
 		return( Common.replace( cmdout.get( 1 ) , " " , "" ) );
 	}
 
+	@Override public String cmdGetArchivePartMD5( ActionBase action , String filePath , String archivePartPath , String EXT ) throws Exception {
+		action.exitNotImplemented();
+		return( null );
+	}
+
 	@Override public String cmdGetFileContentAsString( ActionBase action , String filePath ) throws Exception {
 		String fileWin = Common.getWinPath( action , filePath );
 		String value = runCommandGetValueCheckDebug( action , "type " + fileWin );
@@ -452,6 +457,7 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public String[] cmdGetFolders( ActionBase action , String rootPath ) throws Exception {
+		action.exitNotImplemented();
 		return( null );
 	}
 
