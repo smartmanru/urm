@@ -34,6 +34,12 @@ public class ReleaseCommand {
 		ma.runSimple();
 	}
 	
+	public void finishRelease( ActionBase action , String RELEASELABEL ) throws Exception {
+		DistStorage dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		ActionFinishRelease ma = new ActionFinishRelease( action , null , dist );
+		ma.runSimple();
+	}
+	
 	public void statusRelease( ActionBase action , String RELEASELABEL ) throws Exception {
 		DistStorage dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		ActionPrintReleaseStatus ma = new ActionPrintReleaseStatus( action , null , dist );
