@@ -800,8 +800,8 @@ public class DistStorage {
 			String fileRelease = fsr.files.get( fileDist );
 			if( fileRelease == null ) {
 				if( !action.context.CTX_FORCE )
-					action.exit( "distributive delivery " + delivery.distDelivery.NAME + 
-						" dir= " + delivery.distDelivery.FOLDER + " has non-release file=" + fileDist );
+					action.exit( "distributive delivery=" + delivery.distDelivery.NAME + 
+						" has non-release file=" + fileDist );
 				
 				String folder = Common.getPath( delivery.distDelivery.FOLDER , "binary" );
 				action.log( "delete non-release delivery item folder=" + folder + " file=" + fileDist + " ..." );
