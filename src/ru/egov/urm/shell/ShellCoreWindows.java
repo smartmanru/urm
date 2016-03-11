@@ -199,19 +199,44 @@ public class ShellCoreWindows extends ShellCore {
 		action.exitNotImplemented();
 	}
 
-	@Override public void cmdRemoveFiles( ActionBase action , String dir , String files ) throws Exception {
-		String cmdDir = getDirCmdIfDir( action , dir , "del /Q " + files + " && rmdir /Q /S " + files );
-		runCommand( action , cmdDir , true );
-		if( cmderr.isEmpty() == false )
-			action.exit( "remove files error" );
-		for( String s : cmdout ) {
-			if( s.startsWith( "The system cannot find" ) == false && s.startsWith( "Could Not Find" ) == false )
-				action.exit( "remove files error" );
+	public String getRegularMaskList( ActionBase action , String maskList ) throws Exception {
+		String reg = "";
+		for( String mask : Common.splitSpaced( maskList ) ) {
+			if( !reg.isEmpty() )
+				reg += " ";
+			mask = Common.replace( mask , "." , "\\." );
+			mask = Common.replace( mask , "*" , ".*" );
+			reg += "^mask$";
 		}
+		return( reg );
+	}
+
+	@Override public void cmdRemoveFiles( ActionBase action , String dir , String files ) throws Exception {
+		String filesRegular = getRegularMaskList( action , files );
+		String cmdDir = getDirCmdIfDir( action , dir , 
+				"( for /f %x in ('dir /b /ad | findstr /R " + 
+				Common.getQuoted( filesRegular ) + "') do rmdir /Q /S %x ) && " +
+				"( for /f %x in ('dir /b /a-d | findstr /R " + 
+				Common.getQuoted( filesRegular ) + "') do del /Q %x )" );
+		runCommand( action , cmdDir , true );
 	}
 
 	@Override public void cmdRemoveFilesWithExclude( ActionBase action , String dir , String files , String exclude ) throws Exception {
-		action.exitNotImplemented();
+		if( exclude.isEmpty() ) {
+			cmdRemoveFiles( action , dir , files );
+			return;
+		}
+		
+		String filesRegular = getRegularMaskList( action , files );
+		String excludeRegular = getRegularMaskList( action , exclude );
+		String cmdDir = getDirCmdIfDir( action , dir , 
+				"( for /f %x in ('dir /b /ad | findstr /R " + 
+				Common.getQuoted( filesRegular ) + " | findstr /V " +
+				Common.getQuoted( excludeRegular ) + "') do rmdir /Q /S %x ) && " +
+				"( for /f %x in ('dir /b /a-d | findstr /R " + 
+				Common.getQuoted( filesRegular ) + " | findstr /V " +
+				Common.getQuoted( excludeRegular ) + "') do del /Q %x )" );
+		runCommand( action , cmdDir , true );
 	}
 
 	@Override public void cmdUnzipPart( ActionBase action , String unzipDir , String zipFile , String zipPart , String targetDir ) throws Exception {
