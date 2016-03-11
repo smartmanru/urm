@@ -28,7 +28,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		FileSet files = dist.getFiles( this );
 		
 		comment( "RELEASE " + dist.RELEASEDIR + " STATUS:" );
-		comment( "location: " + meta.product.CONFIG_DISTR_HOSTLOGIN + " dir=" + dist.getDistFolder( this ) );
+		comment( "location: " + meta.product.CONFIG_DISTR_HOSTLOGIN + ":" + dist.getDistPath( this ) );
 		comment( "state: " + dist.getState( this ) );
 		comment( "version: " + release.RELEASEVER );
 		comment( "property::buildMode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );

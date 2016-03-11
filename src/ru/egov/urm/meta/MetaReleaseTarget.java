@@ -310,7 +310,7 @@ public class MetaReleaseTarget {
 		if( distDatabaseItem != null )
 			return( createXmlDatabase( action , doc , parent ) );
 		if( distManualItem != null )
-			return( createXmlDatabase( action , doc , parent ) );
+			return( createXmlManual( action , doc , parent ) );
 		return( null );
 	}
 	

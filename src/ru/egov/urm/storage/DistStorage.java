@@ -186,6 +186,10 @@ public class DistStorage {
 		return( distFolder.folderName );
 	}
 	
+	public String getDistPath( ActionBase action ) throws Exception {
+		return( distFolder.folderPath );
+	}
+	
 	public String getManualFolder( ActionBase action ) throws Exception {
 		return( "manual" );
 	}
