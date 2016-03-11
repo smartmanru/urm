@@ -107,8 +107,10 @@ public class DistRepository {
 		DistStorage storage = new DistStorage( artefactory , distFolder , false );
 		
 		// check release directory exists
-		if( distFolder.checkExists( action ) )
-			action.exit( "release already exists at " + RELEASEPATH );
+		if( distFolder.checkExists( action ) ) {
+			if( !action.context.CTX_FORCE )
+				action.exit( "release already exists at " + RELEASEPATH );
+		}
 
 		storage.create( action , BUILDMODE );
 		return( storage );
