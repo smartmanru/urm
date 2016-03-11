@@ -70,7 +70,7 @@ public class FileInfo {
 		String value = "";
 		for( String key : params.keySet() ) {
 			String data = params.get( key );
-			if( !data.isEmpty() ) {
+			if( data != null && data.isEmpty() == false ) {
 				if( !value.isEmpty() )
 					value += ",";
 				value += key + "=" + data;
