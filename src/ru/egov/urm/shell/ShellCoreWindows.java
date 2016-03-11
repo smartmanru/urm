@@ -195,8 +195,9 @@ public class ShellCoreWindows extends ShellCore {
 			action.exit( "remove directory error" );
 	}
 	
-	@Override public void cmdRecreateDir( ActionBase action , String dirpath ) throws Exception {
-		action.exitNotImplemented();
+	@Override public void cmdRecreateDir( ActionBase action , String dir ) throws Exception {
+		String wdir = Common.getWinPath( action , dir );
+		runCommand( action , "( if exist " + wdir + " rmdir /S /Q " + wdir + " ) && md " + wdir , true );
 	}
 
 	public String getRegularMaskList( ActionBase action , String maskList ) throws Exception {
