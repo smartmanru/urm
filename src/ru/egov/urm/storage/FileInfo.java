@@ -10,8 +10,8 @@ import ru.egov.urm.run.ActionBase;
 
 public class FileInfo {
 
-	MetaDistrBinaryItem binaryItem;
-	MetaDistrConfItem confItem;
+	public MetaDistrBinaryItem binaryItem;
+	public MetaDistrConfItem confItem;
 	public String itemName;
 	public String version;
 	public String md5value;

@@ -1,5 +1,6 @@
 package ru.egov.urm.run.deploy;
 
+import ru.egov.urm.Common;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerLocation;
 import ru.egov.urm.meta.MetaEnvServerNode;
@@ -7,6 +8,7 @@ import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
 import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.run.ActionScopeTarget;
 import ru.egov.urm.run.ActionScopeTargetItem;
+import ru.egov.urm.storage.FileInfo;
 import ru.egov.urm.storage.RedistStateInfo;
 import ru.egov.urm.storage.RedistStorage;
 
@@ -54,11 +56,15 @@ public class ActionGetDeployInfo extends ActionBase {
 		}
 			
 		for( String key : info.getKeys( this ) ) {
-			String item = info.getKeyItem( this , key );
-			if( binary )
-				comment( "\t\tdistitem " + item + ": file=" + info.getKeyFileName( this , key ) + ", version=" + info.getKeyVersion( this , key ) );
+			FileInfo data = info.getVerData( this , key );
+			if( binary ) {
+				if( data.binaryItem.isArchive( this ) )
+					comment( "\t\tdistitem " + data.itemName + ": archive (" + Common.getEnumLower( data.binaryItem.DISTTYPE ) + ", version=" + data.version );
+				else
+					comment( "\t\tdistitem " + data.itemName + ": file=" + data.deployFinalName + ", version=" + data.version );
+			}
 			else
-				comment( "\t\tconfitem " + item + ": version=" + info.getKeyVersion( this , key ) );
+				comment( "\t\tconfitem " + data.itemName + ": version=" + data.version );
 		}
 	}
 	
