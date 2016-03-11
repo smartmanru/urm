@@ -59,7 +59,7 @@ public class ActionGetDeployInfo extends ActionBase {
 			FileInfo data = info.getVerData( this , key );
 			if( binary ) {
 				if( data.binaryItem.isArchive( this ) )
-					comment( "\t\tdistitem " + data.itemName + ": archive (" + Common.getEnumLower( data.binaryItem.DISTTYPE ) + ", version=" + data.version );
+					comment( "\t\tdistitem " + data.itemName + ": archive (" + Common.getEnumLower( data.binaryItem.DISTTYPE ) + "), version=" + data.version );
 				else
 					comment( "\t\tdistitem " + data.itemName + ": file=" + data.deployFinalName + ", version=" + data.version );
 			}
