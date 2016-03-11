@@ -76,7 +76,12 @@ public class ActionGetRedistInfo extends ActionBase {
 
 					String text = info.itemName;
 					text += ", version: " + info.version;
-					text += ", deployname: " + info.deployFinalName;
+					if( info.binaryItem != null ) {
+						if( info.binaryItem.isArchive( this ) )
+							text += ", archive";
+						else
+							text += ", deployname: " + info.deployFinalName;
+					}
 					comment( "\t\t\tfile: " + info.getFileName( this ) + " (" + text + ")" );
 				}
 			}
