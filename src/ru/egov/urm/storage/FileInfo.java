@@ -42,7 +42,8 @@ public class FileInfo {
 		Map<String,String> params = new HashMap<String,String>();
 		for( String pair : Common.split( value , "," ) ) {
 			String[] values = Common.split( pair , "=" );
-			params.put( values[0] , values[1] );
+			if( values.length == 2 )
+				params.put( values[0] , values[1] );
 		}
 		
 		return( params );
