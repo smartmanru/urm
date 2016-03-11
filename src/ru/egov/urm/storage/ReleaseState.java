@@ -137,8 +137,10 @@ public class ReleaseState {
 		// create release.xml, create status file, set closed dirty state
 		// check current status
 		ctlLoadReleaseState( action );
-		if( state != RELEASESTATE.MISSINGDIST )
-			action.exit( "unable to create existing distributive" );
+		if( state != RELEASESTATE.MISSINGDIST ) {
+			if( !action.context.CTX_FORCE )
+				action.exit( "unable to create existing distributive" );
+		}
 			
 		// create directory
 		distFolder.ensureExists( action );
