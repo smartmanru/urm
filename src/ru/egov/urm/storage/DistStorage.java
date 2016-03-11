@@ -799,9 +799,11 @@ public class DistStorage {
 		for( String fileDist : fsd.files.keySet() ) {
 			String fileRelease = fsr.files.get( fileDist );
 			if( fileRelease == null ) {
-				if( !action.context.CTX_FORCE )
-					action.exit( "distributive delivery=" + delivery.distDelivery.NAME + 
+				if( !action.context.CTX_FORCE ) {
+					action.log( "distributive delivery=" + delivery.distDelivery.NAME + 
 						" has non-release file=" + fileDist );
+					return( false );
+				}
 				
 				String folder = Common.getPath( delivery.distDelivery.FOLDER , "binary" );
 				action.log( "delete non-release delivery item folder=" + folder + " file=" + fileDist + " ..." );
