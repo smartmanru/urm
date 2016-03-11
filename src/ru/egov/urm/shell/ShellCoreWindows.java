@@ -206,7 +206,7 @@ public class ShellCoreWindows extends ShellCore {
 				reg += " ";
 			mask = Common.replace( mask , "." , "\\." );
 			mask = Common.replace( mask , "*" , ".*" );
-			reg += "^mask$";
+			reg += "^mask\\$";
 		}
 		return( reg );
 	}
@@ -214,9 +214,9 @@ public class ShellCoreWindows extends ShellCore {
 	@Override public void cmdRemoveFiles( ActionBase action , String dir , String files ) throws Exception {
 		String filesRegular = getRegularMaskList( action , files );
 		String cmdDir = getDirCmdIfDir( action , dir , 
-				"( for /f %x in ('dir /b /ad | findstr /R " + 
+				"( for /f %x in ('dir /b /ad ^| findstr /R " + 
 				Common.getQuoted( filesRegular ) + "') do rmdir /Q /S %x ) && " +
-				"( for /f %x in ('dir /b /a-d | findstr /R " + 
+				"( for /f %x in ('dir /b /a-d ^| findstr /R " + 
 				Common.getQuoted( filesRegular ) + "') do del /Q %x )" );
 		runCommandCheckStatus( action , cmdDir , true );
 	}
@@ -230,11 +230,11 @@ public class ShellCoreWindows extends ShellCore {
 		String filesRegular = getRegularMaskList( action , files );
 		String excludeRegular = getRegularMaskList( action , exclude );
 		String cmdDir = getDirCmdIfDir( action , dir , 
-				"( for /f %x in ('dir /b /ad | findstr /R " + 
-				Common.getQuoted( filesRegular ) + " | findstr /V " +
+				"( for /f %x in ('dir /b /ad ^| findstr /R " + 
+				Common.getQuoted( filesRegular ) + " ^| findstr /V " +
 				Common.getQuoted( excludeRegular ) + "') do rmdir /Q /S %x ) && " +
-				"( for /f %x in ('dir /b /a-d | findstr /R " + 
-				Common.getQuoted( filesRegular ) + " | findstr /V " +
+				"( for /f %x in ('dir /b /a-d ^| findstr /R " + 
+				Common.getQuoted( filesRegular ) + " ^| findstr /V " +
 				Common.getQuoted( excludeRegular ) + "') do del /Q %x )" );
 		runCommandCheckStatus( action , cmdDir , true );
 	}
