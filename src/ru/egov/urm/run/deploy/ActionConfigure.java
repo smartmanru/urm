@@ -126,7 +126,7 @@ public class ActionConfigure extends ActionBase {
 			return;
 		}
 		
-		log( "node" + node.POS + ": prepare configuraton item=" + confItem.KEY );
+		log( "server=" + server.NAME + ", node" + node.POS + ": prepare configuraton item=" + confItem.KEY );
 		LocalFolder live = parent.getSubFolder( this , name );
 		live.recreateThis( this );
 		

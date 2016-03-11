@@ -34,7 +34,7 @@ public class MetaRelease {
 		this.RELEASEVER = RELEASEVER;
 		this.PROPERTY_BUILDMODE = BUILDMODE;
 		this.PROPERTY_OBSOLETE = obsolete;
-		createEmptyXml( action , BUILDMODE , obsolete , RELEASEFILEPATH );
+		createEmptyXml( action , RELEASEFILEPATH );
 	}
 	
 	public void createProd( ActionBase action , String RELEASEVER , String filePath ) throws Exception {
@@ -103,9 +103,7 @@ public class MetaRelease {
 			
 	}
 	
-	public Document load( ActionBase action , String RELEASEVER , String RELEASEFILEPATH ) throws Exception {
-		this.RELEASEVER = RELEASEVER; 
-		
+	public Document load( ActionBase action , String RELEASEFILEPATH ) throws Exception {
 		// read xml
 		String file = RELEASEFILEPATH;
 		
@@ -116,6 +114,9 @@ public class MetaRelease {
 		// properties
 		PROPERTY_BUILDMODE = getReleasePropertyBuildMode( action , root , "buildMode" ); 
 		PROPERTY_OBSOLETE = getReleasePropertyBoolean( action , root , "obsolete" , true );
+		RELEASEVER = getReleaseProperty( action , root , "version" );
+		if( RELEASEVER.isEmpty() )
+			action.exit( "release version property is not set, unable to use distributive" );
 
 		// get projectsets
 		for( VarCATEGORY CATEGORY : meta.getAllReleaseCategories( action ) )
@@ -328,24 +329,25 @@ public class MetaRelease {
 		return( false );
 	}
 	
-	public static Document createEmptyXmlDoc( ActionBase action , VarBUILDMODE BUILDMODE , boolean obsolete ) throws Exception {
+	public Document createEmptyXmlDoc( ActionBase action ) throws Exception {
 		Document doc = Common.xmlCreateDoc( "release" );
 		Element root = doc.getDocumentElement();
-		Common.xmlCreatePropertyElement( doc , root , "buildMode" , Common.getEnumLower( BUILDMODE ) );
-		Common.xmlCreateBooleanPropertyElement( doc , root , "obsolete" , obsolete );
+		Common.xmlCreatePropertyElement( doc , root , "version" , RELEASEVER );
+		Common.xmlCreatePropertyElement( doc , root , "buildMode" , Common.getEnumLower( PROPERTY_BUILDMODE ) );
+		Common.xmlCreateBooleanPropertyElement( doc , root , "obsolete" , PROPERTY_OBSOLETE );
 		
 		for( VarCATEGORY CATEGORY : action.meta.getAllReleaseCategories( action ) )
 			Common.xmlCreateElement( doc , root , Common.getEnumLower( CATEGORY ) );
 		return( doc );
 	}
 	
-	public static void createEmptyXml( ActionBase action , VarBUILDMODE BUILDMODE , boolean obsolete , String filePath ) throws Exception {
-		Document doc = createEmptyXmlDoc( action , BUILDMODE , obsolete );
+	public void createEmptyXml( ActionBase action , String filePath ) throws Exception {
+		Document doc = createEmptyXmlDoc( action );
 		Common.xmlSaveDoc( doc , filePath );
 	}
 
 	public Document createXml( ActionBase action ) throws Exception {
-		Document doc = createEmptyXmlDoc( action , PROPERTY_BUILDMODE , PROPERTY_OBSOLETE );
+		Document doc = createEmptyXmlDoc( action );
 		Element root = doc.getDocumentElement();
 		
 		for( MetaReleaseSet set : sourceSetMap.values() ) {

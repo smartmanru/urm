@@ -81,9 +81,7 @@ public class DistStorage {
 		
 		infoPath = distFolder.copyFileToLocal( action , artefactory.workFolder , metaFileName , "" );
 		info = new MetaRelease( meta );
-		
-		String RELEASEVER = Common.getPartBeforeFirst( RELEASEDIR , "-" );
-		info.load( action , RELEASEVER , infoPath );
+		info.load( action , infoPath );
 	}
 
 	public void copyConfToDistr( ActionBase action , LocalFolder sourceFolder , MetaDistrConfItem conf ) throws Exception {
