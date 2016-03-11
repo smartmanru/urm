@@ -218,7 +218,9 @@ public class ShellCoreWindows extends ShellCore {
 				Common.getQuoted( filesRegular ) + "') do rmdir /Q /S %x ) && " +
 				"( for /f %x in ('dir /b /a-d ^| findstr /R " + 
 				Common.getQuoted( filesRegular ) + "') do del /Q %x )" );
-		runCommandCheckStatus( action , cmdDir , true );
+		runCommand( action , cmdDir , true );
+		if( !cmdout.isEmpty() )
+			action.exit( "errors on delete files" );
 	}
 
 	@Override public void cmdRemoveFilesWithExclude( ActionBase action , String dir , String files , String exclude ) throws Exception {
@@ -236,7 +238,9 @@ public class ShellCoreWindows extends ShellCore {
 				"( for /f %x in ('dir /b /a-d ^| findstr /R " + 
 				Common.getQuoted( filesRegular ) + " ^| findstr /V " +
 				Common.getQuoted( excludeRegular ) + "') do del /Q %x )" );
-		runCommandCheckStatus( action , cmdDir , true );
+		runCommand( action , cmdDir , true );
+		if( !cmdout.isEmpty() )
+			action.exit( "errors on delete files" );
 	}
 
 	@Override public void cmdUnzipPart( ActionBase action , String unzipDir , String zipFile , String zipPart , String targetDir ) throws Exception {
