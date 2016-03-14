@@ -152,7 +152,6 @@ public class ActionRedist extends ActionBase {
 	private void transferFileSet( MetaEnvServer server , MetaEnvServerNode node , RedistStorage redist , MetaEnvServerLocation location , String[] items ) throws Exception {
 		// ensure redist created
 		VarCONTENTTYPE CONTENTTYPE = location.getContentType( this , true );
-		redist.createLocation( this , dist.RELEASEDIR , location , CONTENTTYPE );
 		RedistStateInfo stateInfo = redist.getStateInfo( this , location.DEPLOYPATH , CONTENTTYPE );
 
 		debug( node.HOSTLOGIN + ": redist content=" + Common.getEnumLower( CONTENTTYPE ) + ": items - " + Common.getListSet( items ) + " ..." );
