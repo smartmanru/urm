@@ -281,7 +281,8 @@ public class RedistStorage extends ServerStorage {
 	public ServerDeployment getDeployment( ActionBase action , String RELEASEDIR ) throws Exception {
 		RemoteFolder releaseFolder = getRedistReleaseFolder( action , RELEASEDIR );
 		ServerDeployment deployment = new ServerDeployment();
-		deployment.getFromRedistReleaseFolder( action , this , releaseFolder );
+		if( releaseFolder.checkExists( action ) )
+			deployment.getFromRedistReleaseFolder( action , this , releaseFolder );
 		return( deployment );
 	}
 
