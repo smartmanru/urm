@@ -305,7 +305,7 @@ public class RedistStorage extends ServerStorage {
 	public void backupRedistConfItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , FileInfo redistFile , RemoteFolder backupFolder , RemoteFolder stateFolder ) throws Exception {
 		String filePath = backupFolder.getFilePath( action , redistFile.getFileName( action ) );
 		tarRuntimeConfigItem( action , redistFile.confItem , LOCATION , filePath );
-		action.log( "redist backup done, item file=" + redistFile );
+		action.log( "redist backup done, item file=" + redistFile.getFileName( action ) );
 		
 		// copy version file from state
 		String stateVerName = FileInfo.getInfoName( action , redistFile.confItem );
