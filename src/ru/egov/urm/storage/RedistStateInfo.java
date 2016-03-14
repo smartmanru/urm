@@ -172,14 +172,14 @@ public class RedistStateInfo {
 			return( true );
 		}
 
-		// check version change ignored
-		if( !action.context.CTX_IGNOREVERSION ) {
-			action.debug( "redist item=" + item.KEY + " - deploy version has been changed" );
-			return( true );
-		}
-
 		// check deploy name
 		if( info.deployFinalName == null || info.deployFinalName.equals( deployFinalName ) == false ) {
+			// check version change ignored
+			if( action.context.CTX_IGNOREVERSION ) {
+				action.debug( "redist item=" + item.KEY + " - only deploy version changed. Skipped." );
+				return( false );
+			}
+
 			action.debug( "redist item=" + item.KEY + " - deploy name has been changed" );
 			return( true );
 		}
