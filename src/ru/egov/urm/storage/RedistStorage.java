@@ -305,7 +305,7 @@ public class RedistStorage extends ServerStorage {
 	public void backupRedistConfItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , FileInfo redistFile , RemoteFolder backupFolder , RemoteFolder stateFolder ) throws Exception {
 		String filePath = backupFolder.getFilePath( action , redistFile.getFileName( action ) );
 		tarRuntimeConfigItem( action , redistFile.confItem , LOCATION , filePath );
-		action.log( "redist backup done, item file=" + redistFile.getFileName( action ) );
+		action.log( "redist backup done, config item file=" + redistFile.getFileName( action ) );
 		
 		// copy version file from state
 		String stateVerName = FileInfo.getInfoName( action , redistFile.confItem );
@@ -324,7 +324,7 @@ public class RedistStorage extends ServerStorage {
 		
 		String redistBackupFile = redistFile.getFileName( action );  
 		backupFolder.copyFile( action , deployFolder , runtimeFile , redistBackupFile );
-		action.log( "redist backup done, item file=" + redistBackupFile );
+		action.log( "redist backup done, binary item file=" + redistBackupFile );
 		
 		// create backup state
 		String md5 = backupFolder.getFileMD5( action , redistBackupFile );
@@ -338,7 +338,7 @@ public class RedistStorage extends ServerStorage {
 		RemoteFolder deployFolder = getRuntimeLocationFolder( action , LOCATION );
 
 		saveArchiveItem( action , redistFile.binaryItem , deployFolder , redistFile.getFileName( action ) , backupFolder );
-		action.log( "redist backup done, item file=" + redistFile.getFileName( action ) );
+		action.log( "redist backup done, archive item file=" + redistFile.getFileName( action ) );
 		
 		// copy version file from state
 		String stateVerName = redistFile.getInfoName( action );
