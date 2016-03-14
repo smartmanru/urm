@@ -223,7 +223,6 @@ public class RedistStorage extends ServerStorage {
 			return( false );
 		
 		// copy and save state info
-		createLocation( action , RELEASEDIR , location , CONTENTTYPE );
 		locationDir.copyFileFromLocalRename( action , filePath , redistFileName );
 
 		FileInfo data = RedistStateInfo.getFileInfo( action , item , locationDir , redistFileName , deployBaseName , RELEASEVER , deployFinalName );

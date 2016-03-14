@@ -173,13 +173,18 @@ public class RedistStateInfo {
 		}
 
 		// check version change ignored
-		if( !action.context.CTX_IGNOREVERSION )
+		if( !action.context.CTX_IGNOREVERSION ) {
+			action.debug( "redist item=" + item.KEY + " - deploy version has been changed" );
 			return( true );
+		}
 
 		// check deploy name
-		if( info.deployFinalName == null || info.deployFinalName.equals( deployFinalName ) == false )
+		if( info.deployFinalName == null || info.deployFinalName.equals( deployFinalName ) == false ) {
+			action.debug( "redist item=" + item.KEY + " - deploy name has been changed" );
 			return( true );
+		}
 		
+		action.debug( "redist item=" + item.KEY + " - no changes. Skipped." );
 		return( false );
 	}
 
