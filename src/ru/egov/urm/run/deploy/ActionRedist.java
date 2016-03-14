@@ -249,7 +249,7 @@ public class ActionRedist extends ActionBase {
 				sinfo.gather( this , node , content , STATEDIR );
 				
 				for( String key : rinfo.getKeys( this ) )
-					redist.backupRedistItem( this , dist.RELEASEDIR  , content , location , rinfo.getVerData( this , key ) , sinfo.getVerData( this , key ) );
+					redist.backupRedistItem( this , dist.RELEASEDIR  , content , location , rinfo.getVerData( this , key ) , sinfo.findVerData( this , key ) );
 			}
 		}
 	}

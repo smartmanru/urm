@@ -51,6 +51,10 @@ public class RedistStateInfo {
 		return( value );
 	}
 	
+	public FileInfo findVerData( ActionBase action , String key ) throws Exception {
+		return( verData.get( key ) );
+	}
+	
 	public String getKeyVersion( ActionBase action , String key ) throws Exception {
 		FileInfo value = getVerData( action , key );
 		return( value.version );
