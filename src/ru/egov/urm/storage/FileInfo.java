@@ -25,17 +25,17 @@ public class FileInfo {
 	public FileInfo( MetaDistrBinaryItem item , String version , String md5value , String deployNameNoVersion , String finalName ) {
 		this.binaryItem = item;
 		this.itemName = item.KEY;
-		this.version = version;
-		this.md5value = md5value;
-		this.deployBaseName = deployNameNoVersion;
-		this.deployFinalName = finalName;
+		this.version = Common.nonull( version );
+		this.md5value = Common.nonull( md5value );
+		this.deployBaseName = Common.nonull( deployNameNoVersion );
+		this.deployFinalName = Common.nonull( finalName );
 	}
 	
-	public FileInfo( MetaDistrConfItem item , String version , String md5value , boolean partial) {
+	public FileInfo( MetaDistrConfItem item , String version , String md5value , boolean partial ) {
 		this.confItem = item;
 		this.itemName = item.KEY;
-		this.version = version;
-		this.md5value = md5value;
+		this.version = Common.nonull( version );
+		this.md5value = Common.nonull( md5value );
 	}
 	
 	private Map<String,String> getParams( ActionBase action , String value ) throws Exception {
@@ -51,10 +51,10 @@ public class FileInfo {
 	
 	private void scatterParams( ActionBase action , String value ) throws Exception {
 		Map<String,String> params = getParams( action , value );
-		version = params.get( "version" );
-		md5value = params.get( "md5" );
-		deployBaseName = params.get( "base" );
-		deployFinalName = params.get( "final" );
+		version = Common.nonull( params.get( "version" ) );
+		md5value = Common.nonull( params.get( "md5" ) );
+		deployBaseName = Common.nonull( params.get( "base" ) );
+		deployFinalName = Common.nonull( params.get( "final" ) );
 		if( confItem != null );
 			partial = Common.getBooleanValue( params.get( "partial" ) );
 	}

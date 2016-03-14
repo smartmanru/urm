@@ -303,14 +303,17 @@ public class RedistStorage extends ServerStorage {
 	}
 
 	public void backupRedistConfItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , FileInfo redistFile , RemoteFolder backupFolder , RemoteFolder stateFolder ) throws Exception {
-		String filePath = backupFolder.getFilePath( action , redistFile.getFileName( action ) );
+		String redistBackupFile = redistFile.getFileName( action );  
+		String filePath = backupFolder.getFilePath( action , redistBackupFile );
 		tarRuntimeConfigItem( action , redistFile.confItem , LOCATION , filePath );
 		action.log( "redist backup done, config item file=" + redistFile.getFileName( action ) );
 		
 		// copy version file from state
-		String stateVerName = FileInfo.getInfoName( action , redistFile.confItem );
-		if( stateFolder.checkFileExists( action , stateVerName ) )
-			backupFolder.copyFile( action , stateFolder , stateVerName , "" );
+		String md5 = backupFolder.getFileMD5( action , redistBackupFile );
+		String version = ( redistFile.version.isEmpty() )? "unknown" : redistFile.version;
+		FileInfo newInfo = new FileInfo( redistFile.confItem , version , md5 , false );
+		String stateVerName = newInfo.getInfoName( action );
+		backupFolder.createFileFromString( action , stateVerName , newInfo.value( action ) );
 	}
 
 	public void backupRedistBinaryItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , FileInfo redistFile , RemoteFolder backupFolder , RemoteFolder stateFolder ) throws Exception {
@@ -328,22 +331,25 @@ public class RedistStorage extends ServerStorage {
 		
 		// create backup state
 		String md5 = backupFolder.getFileMD5( action , redistBackupFile );
-		FileInfo newInfo = new FileInfo( redistFile.binaryItem , redistFile.version , md5 , redistFile.deployBaseName , runtimeFile );
+		String version = ( redistFile.version.isEmpty() )? "unknown" : redistFile.version;
+		FileInfo newInfo = new FileInfo( redistFile.binaryItem , version , md5 , redistFile.deployBaseName , runtimeFile );
 		String stateVerName = newInfo.getInfoName( action );
-		if( stateFolder.checkFileExists( action , stateVerName ) )
-			backupFolder.createFileFromString( action , stateVerName , newInfo.value( action ) );
+		backupFolder.createFileFromString( action , stateVerName , newInfo.value( action ) );
 	}
 	
 	public void backupRedistArchiveItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , FileInfo redistFile , RemoteFolder backupFolder , RemoteFolder stateFolder ) throws Exception {
 		RemoteFolder deployFolder = getRuntimeLocationFolder( action , LOCATION );
 
-		saveArchiveItem( action , redistFile.binaryItem , deployFolder , redistFile.getFileName( action ) , backupFolder );
-		action.log( "redist backup done, archive item file=" + redistFile.getFileName( action ) );
+		String redistBackupFile = redistFile.getFileName( action );  
+		saveArchiveItem( action , redistFile.binaryItem , deployFolder , redistBackupFile , backupFolder );
+		action.log( "redist backup done, archive item file=" + redistBackupFile );
 		
 		// copy version file from state
+		String md5 = backupFolder.getFileMD5( action , redistBackupFile );
+		String version = ( redistFile.version.isEmpty() )? "unknown" : redistFile.version;
+		FileInfo newInfo = new FileInfo( redistFile.binaryItem , version , md5 , redistFile.deployBaseName , "" );
 		String stateVerName = redistFile.getInfoName( action );
-		if( stateFolder.checkFileExists( action , stateVerName ) )
-			backupFolder.copyFile( action , stateFolder , stateVerName , "" );
+		backupFolder.createFileFromString( action , stateVerName , newInfo.value( action ) );
 	}
 
 	public void saveTmpArchiveItem( ActionBase action , String LOCATION , MetaDistrBinaryItem archiveItem , String tmpName ) throws Exception {

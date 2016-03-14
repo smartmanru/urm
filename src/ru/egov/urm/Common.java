@@ -707,5 +707,8 @@ public class Common {
 		
 		return( xl.toArray( new String[0] ) );
 	}
-	
+
+	public static String nonull( String v ) {
+		return( ( v == null )? "" : v );
+	}
 }
