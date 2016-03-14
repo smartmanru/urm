@@ -125,7 +125,7 @@ public class ServerStorage {
 		return( Common.getPath( C_COMMON_DIRPATH , LOCATION ) );
 	}
 
-	protected String getPathStateLocation( ActionBase action , String LOCATION , VarCONTENTTYPE CONTENTTYPE ) throws Exception {
+	public String getPathStateLocation( ActionBase action , String LOCATION , VarCONTENTTYPE CONTENTTYPE ) throws Exception {
 		checkRelativeDir( action , LOCATION );
 		String C_COMMON_DIRPATH = getPathRedistStateRoot( action , CONTENTTYPE );
 		return( Common.getPath( C_COMMON_DIRPATH , LOCATION ) );

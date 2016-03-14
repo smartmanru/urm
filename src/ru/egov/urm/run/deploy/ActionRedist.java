@@ -241,12 +241,15 @@ public class ActionRedist extends ActionBase {
 		// backup binary items
 		for( VarCONTENTTYPE content : VarCONTENTTYPE.values() ) {
 			for( String location : deployment.getLocations( this , content , true ) ) {
-				RedistStateInfo info = new RedistStateInfo();
-				String STATEDIR = redist.getPathRedistLocation( this , dist.RELEASEDIR , location , content , true );
-				info.gather( this , node , content , STATEDIR );
+				RedistStateInfo rinfo = new RedistStateInfo();
+				RedistStateInfo sinfo = new RedistStateInfo();
+				String RELEASEDIR = redist.getPathRedistLocation( this , dist.RELEASEDIR , location , content , true );
+				rinfo.gather( this , node , content , RELEASEDIR );
+				String STATEDIR = redist.getPathStateLocation( this , location , content );
+				sinfo.gather( this , node , content , STATEDIR );
 				
-				for( String key : info.getKeys( this ) )
-					redist.backupRedistItem( this , dist.RELEASEDIR  , content , location , info.getVerData( this , key ) );
+				for( String key : rinfo.getKeys( this ) )
+					redist.backupRedistItem( this , dist.RELEASEDIR  , content , location , rinfo.getVerData( this , key ) , sinfo.getVerData( this , key ) );
 			}
 		}
 	}
