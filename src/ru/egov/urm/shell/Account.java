@@ -58,6 +58,8 @@ public class Account {
 	}
 	
 	public Account getRootAccount( ActionBase action ) throws Exception {
+		if( isWindows() )
+			return( this );
 		return( getAccount( action , "root" , HOST , OSTYPE ) );
 	}
 	
