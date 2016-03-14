@@ -201,7 +201,7 @@ public class RedistStorage extends ServerStorage {
 			return( false );
 		
 		// copy and save state info
-		createLocation( action , dist.RELEASEDIR , location , CONTENTTYPE );
+		action.debug( "copy dist file " + fileName + " to " + redistFileName + " ..." );
 		dist.copyDistItemToTarget( action , item , fileName , locationDir , redistFileName );
 
 		FileInfo data = RedistStateInfo.getFileInfo( action , item , locationDir , redistFileName , deployBaseName , dist.info.RELEASEVER , runtimeName );
@@ -223,6 +223,7 @@ public class RedistStorage extends ServerStorage {
 			return( false );
 		
 		// copy and save state info
+		action.debug( "copy extracted file " + filePath + " to " + redistFileName + " ..." );
 		locationDir.copyFileFromLocalRename( action , filePath , redistFileName );
 
 		FileInfo data = RedistStateInfo.getFileInfo( action , item , locationDir , redistFileName , deployBaseName , RELEASEVER , deployFinalName );
