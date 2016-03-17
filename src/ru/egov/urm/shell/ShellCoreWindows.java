@@ -52,6 +52,7 @@ public class ShellCoreWindows extends ShellCore {
 			execLine += " -i " + keyFile;
 
 		String cmdWin = Common.replace( cmd , "\\" , "\\\\" );
+		cmdWin = Common.replace( cmdWin , "\\\\$" , "\\$" );
 		execLine += " " + executor.account.HOSTLOGIN + " " + Common.getQuoted( "cmd /c chcp 65001 & cmd /c \"" + cmdWin + "\"" );
 		action.trace( executor.name + " execute: " + cmd );
 		return( execLine );
@@ -207,7 +208,7 @@ public class ShellCoreWindows extends ShellCore {
 				reg += " ";
 			mask = Common.replace( mask , "." , "\\." );
 			mask = Common.replace( mask , "*" , ".*" );
-			reg += "^" + mask + "$";
+			reg += "^" + mask + "\\$";
 		}
 		return( reg );
 	}
