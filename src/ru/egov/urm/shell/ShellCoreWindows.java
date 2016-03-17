@@ -217,14 +217,14 @@ public class ShellCoreWindows extends ShellCore {
 		String filesRegular = getRegularMaskList( action , files );
 		String cmdDir = getDirCmdIfDir( action , dir , 
 				"for /f %x in ('dir /b /ad ^| findstr /R " + 
-				Common.getQuoted( filesRegular ) + "') do rmdir /Q /S %x" );
+				Common.getQuoted( filesRegular ) + "') do @rmdir /Q /S %x" );
 		runCommand( action , cmdDir , true );
 		if( !cmdout.isEmpty() )
 			action.exit( "errors on delete dirs" );
 						
 		cmdDir = getDirCmdIfDir( action , dir , 
 				"for /f %x in ('dir /b /a-d ^| findstr /R " + 
-				Common.getQuoted( filesRegular ) + "') do del /Q %x" );
+				Common.getQuoted( filesRegular ) + "') do @del /Q %x" );
 		runCommand( action , cmdDir , true );
 		if( !cmdout.isEmpty() )
 			action.exit( "errors on delete files" );
@@ -241,7 +241,7 @@ public class ShellCoreWindows extends ShellCore {
 		String cmdDir = getDirCmdIfDir( action , dir , 
 				"for /f %x in ('dir /b /ad ^| findstr /R " + 
 				Common.getQuoted( filesRegular ) + " ^| findstr /V " +
-				Common.getQuoted( excludeRegular ) + "') do rmdir /Q /S %x" );
+				Common.getQuoted( excludeRegular ) + "') do @rmdir /Q /S %x" );
 		runCommand( action , cmdDir , true );
 		if( !cmdout.isEmpty() )
 			action.exit( "errors on delete dirs" );
@@ -249,7 +249,7 @@ public class ShellCoreWindows extends ShellCore {
 		cmdDir = getDirCmdIfDir( action , dir , 
 				"for /f %x in ('dir /b /a-d ^| findstr /R " + 
 				Common.getQuoted( filesRegular ) + " ^| findstr /V " +
-				Common.getQuoted( excludeRegular ) + "') do del /Q %x" );
+				Common.getQuoted( excludeRegular ) + "') do @del /Q %x" );
 		runCommand( action , cmdDir , true );
 		if( !cmdout.isEmpty() )
 			action.exit( "errors on delete files" );
