@@ -207,7 +207,7 @@ public class ShellCoreWindows extends ShellCore {
 				reg += " ";
 			mask = Common.replace( mask , "." , "\\." );
 			mask = Common.replace( mask , "*" , ".*" );
-			reg += "^" + mask + "\\$";
+			reg += "^" + mask + "$";
 		}
 		return( reg );
 	}
