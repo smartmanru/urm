@@ -213,21 +213,29 @@ public class ShellCoreWindows extends ShellCore {
 		return( reg );
 	}
 
+	private void checkOut( ActionBase action , String s ) throws Exception {
+		if( cmdout.isEmpty() )
+			return;
+		
+		if( cmdout.size() == 1 && cmdout.get( 0 ).equals( "File Not Found" ) )
+			return;
+		
+		action.exit( "errors on delete dirs" );
+	}
+	
 	@Override public void cmdRemoveFiles( ActionBase action , String dir , String files ) throws Exception {
 		String filesRegular = getRegularMaskList( action , files );
 		String cmdDir = getDirCmdIfDir( action , dir , 
 				"for /f %x in ('dir /b /ad ^| findstr /R " + 
 				Common.getQuoted( filesRegular ) + "') do @rmdir /Q /S %x" );
 		runCommand( action , cmdDir , true );
-		if( !cmdout.isEmpty() )
-			action.exit( "errors on delete dirs" );
+		checkOut( action , "errors on delete dirs" );
 						
 		cmdDir = getDirCmdIfDir( action , dir , 
 				"for /f %x in ('dir /b /a-d ^| findstr /R " + 
 				Common.getQuoted( filesRegular ) + "') do @del /Q %x" );
 		runCommand( action , cmdDir , true );
-		if( !cmdout.isEmpty() )
-			action.exit( "errors on delete files" );
+		checkOut( action , "errors on delete files" );
 	}
 
 	@Override public void cmdRemoveFilesWithExclude( ActionBase action , String dir , String files , String exclude ) throws Exception {
@@ -243,16 +251,14 @@ public class ShellCoreWindows extends ShellCore {
 				Common.getQuoted( filesRegular ) + " ^| findstr /V " +
 				Common.getQuoted( excludeRegular ) + "') do @rmdir /Q /S %x" );
 		runCommand( action , cmdDir , true );
-		if( !cmdout.isEmpty() )
-			action.exit( "errors on delete dirs" );
+		checkOut( action , "errors on delete dirs" );
 		
 		cmdDir = getDirCmdIfDir( action , dir , 
 				"for /f %x in ('dir /b /a-d ^| findstr /R " + 
 				Common.getQuoted( filesRegular ) + " ^| findstr /V " +
 				Common.getQuoted( excludeRegular ) + "') do @del /Q %x" );
 		runCommand( action , cmdDir , true );
-		if( !cmdout.isEmpty() )
-			action.exit( "errors on delete files" );
+		checkOut( action , "errors on delete files" );
 	}
 
 	@Override public void cmdUnzipPart( ActionBase action , String unzipDir , String zipFile , String zipPart , String targetDir ) throws Exception {
