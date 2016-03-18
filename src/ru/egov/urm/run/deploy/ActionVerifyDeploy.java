@@ -53,10 +53,14 @@ public class ActionVerifyDeploy extends ActionBase {
 	}
 
 	@Override protected void runAfter( ActionScope scope ) throws Exception {
-		if( verifyOk )
-			log( "environment is exactly matched" );
-		else
-			log( "environment differs from distributive" );
+		if( super.isFailed() )
+			log( "errors checking environment" );
+		else {
+			if( verifyOk )
+				log( "environment is exactly matched" );
+			else
+				log( "environment differs from distributive" );
+		}
 	}
 	
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
