@@ -95,7 +95,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		String specifics = project.getSpecifics( this );
 		if( meta.isBuildableCategory( this , set.CATEGORY ) ) {
 			if( project.sourceProject.isEmpty( this ) ) {
-				comment( "\tbuild PROJECT=" + project.sourceProject.PROJECT + " (internal)" + Common.getCommentIfAny( specifics ) );
+				comment( "\tbuild project=" + project.sourceProject.PROJECT + " (internal)" + Common.getCommentIfAny( specifics ) );
 				return;
 			}
 			
@@ -131,7 +131,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		DistItemInfo info = dist.getDistItemInfo( this , distItem , false );
 		String status = ( info.found )? "OK (" + Common.getPath( info.subPath , info.fileName ) + ")" : "missing";
 		
-		comment( "\t" + distItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
+		comment( "\tdistitem=" + distItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printReleaseConfStatus( DistStorage dist , FileSet files , MetaReleaseTarget conf ) throws Exception {
@@ -139,15 +139,15 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		DistItemInfo info = dist.getDistItemInfo( this , conf.distConfItem );
 		String status = ( info.found )? "OK (" + Common.getPath( info.subPath , info.fileName ) + ")" : "missing";
 		
-		comment( "\t" + conf.distConfItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
+		comment( "\tconfitem=" + conf.distConfItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
 	}
 
-	private void printReleaseManualStatus( DistStorage dist , FileSet files , MetaReleaseTarget conf ) throws Exception {
-		String specifics = conf.getSpecifics( this );
-		DistItemInfo info = dist.getDistItemInfo( this , conf.distManualItem , false );
+	private void printReleaseManualStatus( DistStorage dist , FileSet files , MetaReleaseTarget manual ) throws Exception {
+		String specifics = manual.getSpecifics( this );
+		DistItemInfo info = dist.getDistItemInfo( this , manual.distManualItem , false );
 		String status = ( info.found )? "OK (" + Common.getPath( info.subPath , info.fileName ) + ")" : "missing";
 		
-		comment( "\t" + conf.distManualItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
+		comment( "\tdistitem=" + manual.distManualItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printReleaseDatabaseStatus( DistStorage dist , FileSet files , MetaReleaseTarget db ) throws Exception {
@@ -156,7 +156,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		String folder = dist.getDeliveryDatabaseFolder( this , delivery );
 		FileSet dbset = files.getDirByPath( this , folder );
 		String status = ( dbset == null || dbset.isEmpty() )? "missing" : "OK";
-		comment( "\t" + delivery.NAME + ": " + status + Common.getCommentIfAny( folder ) );
+		comment( "\tdelivery=" + delivery.NAME + ": " + status + Common.getCommentIfAny( folder ) );
 	}
 
 }
