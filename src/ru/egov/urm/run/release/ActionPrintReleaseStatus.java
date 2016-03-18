@@ -28,18 +28,18 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		FileSet files = dist.getFiles( this );
 		
 		comment( "RELEASE " + dist.RELEASEDIR + " STATUS:" );
-		comment( "location: " + meta.product.CONFIG_DISTR_HOSTLOGIN + ":" + dist.getDistPath( this ) );
-		comment( "state: " + dist.getState( this ) );
-		comment( "version: " + release.RELEASEVER );
-		comment( "property::buildMode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );
-		comment( "property::obsolete: " + Common.getBooleanValue( release.PROPERTY_OBSOLETE ) );
+		comment( "\tlocation: " + meta.product.CONFIG_DISTR_HOSTLOGIN + ":" + dist.getDistPath( this ) );
+		comment( "\tstate: " + dist.getState( this ) );
+		comment( "\tversion: " + release.RELEASEVER );
+		comment( "\tproperty::buildMode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );
+		comment( "\tproperty::obsolete: " + Common.getBooleanValue( release.PROPERTY_OBSOLETE ) );
 		
 		if( release.isEmpty( this ) ) {
 			comment( "scope is empty" );
 			return( true );
 		}
 		
-		comment( "deliveries: " + Common.getList( release.getDeliveries( this ).keySet().toArray( new String[0] ) , ", " ) );
+		comment( "DELIVERIES: " + Common.getList( release.getDeliveries( this ).keySet().toArray( new String[0] ) , ", " ) );
 		comment( "SCOPE:" );
 
 		for( String set : Common.getSortedKeys( release.getSourceSets( this ) ) )
@@ -105,8 +105,10 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			}
 			
 			comment( "\t\tbuild PROJECT=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
-			if( project.isEmpty( this ) )
-				comment( "\t\t\t(no items)" );
+			if( !project.isEmpty( this ) )
+				comment( "\t\tbuild PROJECT=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
+			else
+				comment( "\t\tbuild PROJECT=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + " (no items)" );
 		}
 		else
 		if( set.CATEGORY == VarCATEGORY.PREBUILT ) {
@@ -130,7 +132,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		DistItemInfo info = dist.getDistItemInfo( this , distItem , false );
 		String status = ( info.found )? "OK (" + Common.getPath( info.subPath , info.fileName ) + ")" : "missing";
 		
-		comment( "\t\t\t" + distItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
+		comment( "\t\t" + distItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printReleaseConfStatus( DistStorage dist , FileSet files , MetaReleaseTarget conf ) throws Exception {
