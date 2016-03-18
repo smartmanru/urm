@@ -58,9 +58,9 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			return;
 		
 		String specifics = set.getSpecifics( this );
-		comment( "\tSET=" + set.NAME + " CATEGORY=" + Common.getEnumLower( set.CATEGORY ) + Common.getCommentIfAny( specifics ) + ":" );
+		comment( "SET=" + set.NAME + " CATEGORY=" + Common.getEnumLower( set.CATEGORY ) + Common.getCommentIfAny( specifics ) + ":" );
 		if( set.getTargets( this ).isEmpty() )
-			comment( "\t\t(no items)" );
+			comment( "\t(no items)" );
 			
 		for( String key : Common.getSortedKeys( set.getTargets( this ) ) ) {
 			MetaReleaseTarget project = set.getTarget( this , key );
@@ -100,21 +100,21 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			}
 			
 			if( project.isEmpty( this ) ) {
-				comment( "\tbuild PROJECT=" + project.sourceProject.PROJECT + " (no items added)" + Common.getCommentIfAny( specifics ) );
+				comment( "\tbuild project=" + project.sourceProject.PROJECT + " (no items added)" + Common.getCommentIfAny( specifics ) );
 				return;
 			}
 			
 			if( !project.isEmpty( this ) )
-				comment( "\tbuild PROJECT=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
+				comment( "\tbuild project=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
 			else
-				comment( "\tbuild PROJECT=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + " (no items)" );
+				comment( "\tbuild project=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + " (no items)" );
 		}
 		else
 		if( set.CATEGORY == VarCATEGORY.PREBUILT ) {
 			if( project.isEmpty( this ) )
 				return;
 			
-			comment( "\tget PROJECT=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
+			comment( "\tprebuilt project=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
 		}
 		else
 			exitUnexpectedCategory( set.CATEGORY );
