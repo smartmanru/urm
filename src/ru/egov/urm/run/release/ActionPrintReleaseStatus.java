@@ -73,7 +73,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			return;
 		
 		// configuration
-		comment( "\tSET=" + Common.getEnumLower( set.CATEGORY ) + ":" );
+		comment( "SET=" + Common.getEnumLower( set.CATEGORY ) + ":" );
 		
 		for( String key : Common.getSortedKeys( set.getTargets( this ) ) ) {
 			MetaReleaseTarget target = set.getTarget( this , key );
@@ -95,27 +95,26 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		String specifics = project.getSpecifics( this );
 		if( meta.isBuildableCategory( this , set.CATEGORY ) ) {
 			if( project.sourceProject.isEmpty( this ) ) {
-				comment( "\t\tbuild PROJECT=" + project.sourceProject.PROJECT + " (internal)" + Common.getCommentIfAny( specifics ) );
+				comment( "\tbuild PROJECT=" + project.sourceProject.PROJECT + " (internal)" + Common.getCommentIfAny( specifics ) );
 				return;
 			}
 			
 			if( project.isEmpty( this ) ) {
-				comment( "\t\tbuild PROJECT=" + project.sourceProject.PROJECT + " (no items added)" + Common.getCommentIfAny( specifics ) );
+				comment( "\tbuild PROJECT=" + project.sourceProject.PROJECT + " (no items added)" + Common.getCommentIfAny( specifics ) );
 				return;
 			}
 			
-			comment( "\t\tbuild PROJECT=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
 			if( !project.isEmpty( this ) )
-				comment( "\t\tbuild PROJECT=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
+				comment( "\tbuild PROJECT=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
 			else
-				comment( "\t\tbuild PROJECT=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + " (no items)" );
+				comment( "\tbuild PROJECT=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + " (no items)" );
 		}
 		else
 		if( set.CATEGORY == VarCATEGORY.PREBUILT ) {
 			if( project.isEmpty( this ) )
 				return;
 			
-			comment( "\t\tget PROJECT=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
+			comment( "\tget PROJECT=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
 		}
 		else
 			exitUnexpectedCategory( set.CATEGORY );
