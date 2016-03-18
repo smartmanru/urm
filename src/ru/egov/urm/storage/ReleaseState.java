@@ -233,6 +233,15 @@ public class ReleaseState {
 	}
 
 	public void ctlReopen( ActionBase action ) throws Exception {
+		// check current status
+		ctlLoadReleaseState( action );
+		
+		// dirty state expected
+		if( state != RELEASESTATE.RELEASED )
+			action.exit( "distributive is not released, state=" + state.name() );
+		
+		ctlSetStatus( action , RELEASESTATE.CHANGING );
+		action.debug( "distributive has been opened for change, ID=" + activeChangeID );
 	}
 
 	public void ctlOpenForUse( ActionBase action , boolean PROD ) throws Exception {

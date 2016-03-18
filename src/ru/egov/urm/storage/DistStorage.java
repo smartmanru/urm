@@ -313,7 +313,7 @@ public class DistStorage {
 	}
 
 	public void reopen( ActionBase action ) throws Exception {
-		state.ctlOpenForChange( action );
+		state.ctlReopen( action );
 		state.ctlCloseChange( action );
 	}
 
