@@ -312,6 +312,11 @@ public class DistStorage {
 		state.ctlFinish( action );
 	}
 
+	public void reopen( ActionBase action ) throws Exception {
+		state.ctlOpenForChange( action );
+		state.ctlCloseChange( action );
+	}
+
 	public void dropRelease( ActionBase action ) throws Exception {
 		state.ctlCheckCanDropRelease( action );
 		distFolder.removeThis( action );

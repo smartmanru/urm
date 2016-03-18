@@ -22,6 +22,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		defineAction( CommandAction.newAction( new StatusRelease() , "status" , "get release status" , releaseOpts , "./status.sh [OPTIONS] <RELEASELABEL>" ) );
 		defineAction( CommandAction.newAction( new CloseRelease() , "close" , "close release" , releaseOpts , "./close.sh [OPTIONS] <RELEASELABEL>" ) );
 		defineAction( CommandAction.newAction( new FinishRelease() , "finish" , "finish release" , releaseOpts , "./finish.sh [OPTIONS] <RELEASELABEL>" ) );
+		defineAction( CommandAction.newAction( new ReopenRelease() , "reopen" , "reopen release" , releaseOpts , "./reopen.sh [OPTIONS] <RELEASELABEL>" ) );
 		defineAction( CommandAction.newAction( new MaintainProd() , "prod" , "create master distributive from predefined set" , releaseOpts , "./prod.sh [OPTIONS] create <initial version>" ) );
 		String addOpts = "GETOPT_BRANCH,GETOPT_TAG,GETOPT_VERSION,GETOPT_REPLACE";
 		defineAction( CommandAction.newAction( new AddReleaseBuildProjects() , "scope" , "add projects to build (except for prebuilt) and use all its binary items" , addOpts , "./scope.sh [OPTIONS] <RELEASELABEL> <set> [target1 target2 ...]" ) );
@@ -85,6 +86,14 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
 		options.checkNoArgs( action , 1 );
 		impl.finishRelease( action , RELEASELABEL );
+	}
+	}
+
+	private class ReopenRelease extends CommandAction {
+	public void run( ActionInit action ) throws Exception {
+		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
+		options.checkNoArgs( action , 1 );
+		impl.reopenRelease( action , RELEASELABEL );
 	}
 	}
 
