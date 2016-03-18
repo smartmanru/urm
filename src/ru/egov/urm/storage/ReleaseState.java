@@ -241,7 +241,7 @@ public class ReleaseState {
 			action.exit( "distributive is not released, state=" + state.name() );
 		
 		ctlSetStatus( action , RELEASESTATE.CHANGING );
-		action.debug( "distributive has been opened for change, ID=" + activeChangeID );
+		action.log( "distributive has been reopened" );
 	}
 
 	public void ctlOpenForUse( ActionBase action , boolean PROD ) throws Exception {
