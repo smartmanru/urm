@@ -131,7 +131,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		DistItemInfo info = dist.getDistItemInfo( this , distItem , false );
 		String status = ( info.found )? "OK (" + Common.getPath( info.subPath , info.fileName ) + ")" : "missing";
 		
-		comment( "\t\t" + distItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
+		comment( "\t" + distItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printReleaseConfStatus( DistStorage dist , FileSet files , MetaReleaseTarget conf ) throws Exception {
@@ -139,7 +139,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		DistItemInfo info = dist.getDistItemInfo( this , conf.distConfItem );
 		String status = ( info.found )? "OK (" + Common.getPath( info.subPath , info.fileName ) + ")" : "missing";
 		
-		comment( "\t\t" + conf.distConfItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
+		comment( "\t" + conf.distConfItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printReleaseManualStatus( DistStorage dist , FileSet files , MetaReleaseTarget conf ) throws Exception {
@@ -147,7 +147,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		DistItemInfo info = dist.getDistItemInfo( this , conf.distManualItem , false );
 		String status = ( info.found )? "OK (" + Common.getPath( info.subPath , info.fileName ) + ")" : "missing";
 		
-		comment( "\t\t" + conf.distManualItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
+		comment( "\t" + conf.distManualItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printReleaseDatabaseStatus( DistStorage dist , FileSet files , MetaReleaseTarget db ) throws Exception {
@@ -156,7 +156,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		String folder = dist.getDeliveryDatabaseFolder( this , delivery );
 		FileSet dbset = files.getDirByPath( this , folder );
 		String status = ( dbset == null || dbset.isEmpty() )? "missing" : "OK";
-		comment( "\t\t" + delivery.NAME + ": " + status + Common.getCommentIfAny( folder ) );
+		comment( "\t" + delivery.NAME + ": " + status + Common.getCommentIfAny( folder ) );
 	}
 
 }
