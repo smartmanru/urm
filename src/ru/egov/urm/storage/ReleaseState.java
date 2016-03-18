@@ -69,7 +69,7 @@ public class ReleaseState {
 		}
 		else
 		if( state == RELEASESTATE.RELEASED ) {
-			if( newState == RELEASESTATE.PROD || newState == RELEASESTATE.CANCELLED )
+			if( newState == RELEASESTATE.PROD || newState == RELEASESTATE.CANCELLED || newState == RELEASESTATE.DIRTY )
 				ok = true;
 		}
 		else
