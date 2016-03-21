@@ -410,6 +410,9 @@ public class ShellCoreWindows extends ShellCore {
 				continue;
 			}
 
+			if( s.equals( "File Not Found" ) )
+				continue;
+			
 			if( s.startsWith( pwd ) )
 				s = s.substring( skipStart );
 			else
