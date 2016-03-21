@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionScope;
+import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.storage.Artefactory;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.DistStorage;
@@ -14,9 +17,6 @@ import ru.egov.urm.meta.MetaSourceProject;
 import ru.egov.urm.meta.MetaSourceProjectItem;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScope;
-import ru.egov.urm.run.ActionScopeTarget;
 
 public class SpecificPGU {
 

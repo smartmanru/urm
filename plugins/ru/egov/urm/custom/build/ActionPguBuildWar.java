@@ -3,10 +3,10 @@ package ru.egov.urm.custom.build;
 import org.w3c.dom.Node;
 
 import ru.egov.urm.ConfReader;
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.custom.ICustomBuild;
 import ru.egov.urm.meta.MetaSourceProject;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScopeTarget;
 
 public class ActionPguBuildWar implements ICustomBuild {
 	
