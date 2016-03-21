@@ -1,4 +1,4 @@
-package ru.egov.urm.run;
+package ru.egov.urm.action;
 
 import java.io.PrintWriter;
 import java.util.LinkedList;

@@ -1,6 +1,7 @@
-package ru.egov.urm.run.release;
+package ru.egov.urm.action.release;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaDistrDelivery;
 import ru.egov.urm.meta.MetaRelease;
@@ -8,7 +9,6 @@ import ru.egov.urm.meta.MetaReleaseTargetItem;
 import ru.egov.urm.meta.MetaReleaseSet;
 import ru.egov.urm.meta.MetaReleaseTarget;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
-import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.storage.DistItemInfo;
 import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.FileSet;

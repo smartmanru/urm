@@ -1,9 +1,9 @@
-package ru.egov.urm.run.monitor;
+package ru.egov.urm.action.monitor;
 
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionScope;
+import ru.egov.urm.action.deploy.ActionCheckEnv;
 import ru.egov.urm.meta.MetaMonitoringTarget;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScope;
-import ru.egov.urm.run.deploy.ActionCheckEnv;
 import ru.egov.urm.storage.MonitoringStorage;
 
 public class ActionMonitorCheckEnv extends ActionBase {

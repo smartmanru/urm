@@ -1,9 +1,9 @@
-package ru.egov.urm.run.xdoc;
+package ru.egov.urm.action.xdoc;
 
-import ru.egov.urm.run.ActionInit;
-import ru.egov.urm.run.CommandAction;
-import ru.egov.urm.run.CommandBuilder;
-import ru.egov.urm.run.CommandExecutor;
+import ru.egov.urm.action.ActionInit;
+import ru.egov.urm.action.CommandAction;
+import ru.egov.urm.action.CommandBuilder;
+import ru.egov.urm.action.CommandExecutor;
 
 public class XDocCommandExecutor extends CommandExecutor {
 

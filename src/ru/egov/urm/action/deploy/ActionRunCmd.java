@@ -1,7 +1,7 @@
-package ru.egov.urm.run.deploy;
+package ru.egov.urm.action.deploy;
 
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScopeSet;
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionScopeSet;
 import ru.egov.urm.shell.Account;
 
 public class ActionRunCmd extends ActionBase {

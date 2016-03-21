@@ -1,15 +1,15 @@
-package ru.egov.urm.run.database;
+package ru.egov.urm.action.database;
 
+import ru.egov.urm.action.ActionInit;
+import ru.egov.urm.action.ActionScope;
+import ru.egov.urm.action.CommandAction;
+import ru.egov.urm.action.CommandBuilder;
+import ru.egov.urm.action.CommandExecutor;
 import ru.egov.urm.meta.MetaEnv;
 import ru.egov.urm.meta.MetaEnvDC;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaReleaseDelivery;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
-import ru.egov.urm.run.ActionInit;
-import ru.egov.urm.run.ActionScope;
-import ru.egov.urm.run.CommandAction;
-import ru.egov.urm.run.CommandBuilder;
-import ru.egov.urm.run.CommandExecutor;
 import ru.egov.urm.storage.DistStorage;
 
 public class DatabaseCommandExecutor extends CommandExecutor {

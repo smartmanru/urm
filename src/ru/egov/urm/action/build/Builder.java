@@ -1,7 +1,7 @@
-package ru.egov.urm.run.build;
+package ru.egov.urm.action.build;
 
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaSourceProject;
-import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.BuildStorage;
 

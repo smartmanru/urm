@@ -1,7 +1,7 @@
-package ru.egov.urm.run.monitor;
+package ru.egov.urm.action.monitor;
 
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaMonitoring;
-import ru.egov.urm.run.ActionBase;
 
 public class MonitorCommand {
 

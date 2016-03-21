@@ -1,18 +1,18 @@
-package ru.egov.urm.run.deploy;
+package ru.egov.urm.action.deploy;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.SimpleHttp;
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionScope;
+import ru.egov.urm.action.ActionScopeSet;
+import ru.egov.urm.action.ActionScopeTarget;
+import ru.egov.urm.action.ActionScopeTargetItem;
+import ru.egov.urm.action.database.DatabaseClient;
 import ru.egov.urm.meta.MetaDistrComponentWS;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerDeployment;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata.VarPROCESSMODE;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScope;
-import ru.egov.urm.run.ActionScopeSet;
-import ru.egov.urm.run.ActionScopeTarget;
-import ru.egov.urm.run.ActionScopeTargetItem;
-import ru.egov.urm.run.database.DatabaseClient;
 
 public class ActionCheckEnv extends ActionBase {
 

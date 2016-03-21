@@ -1,10 +1,10 @@
-package ru.egov.urm.run.monitor;
+package ru.egov.urm.action.monitor;
 
+import ru.egov.urm.action.ActionInit;
+import ru.egov.urm.action.CommandAction;
+import ru.egov.urm.action.CommandBuilder;
+import ru.egov.urm.action.CommandExecutor;
 import ru.egov.urm.meta.MetaMonitoring;
-import ru.egov.urm.run.ActionInit;
-import ru.egov.urm.run.CommandAction;
-import ru.egov.urm.run.CommandBuilder;
-import ru.egov.urm.run.CommandExecutor;
 
 public class MonitorCommandExecutor extends CommandExecutor {
 

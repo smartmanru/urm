@@ -1,9 +1,9 @@
-package ru.egov.urm.run.deploy;
+package ru.egov.urm.action.deploy;
 
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScopeTarget;
 import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.RedistStorage;
 

@@ -1,9 +1,9 @@
-package ru.egov.urm.run.database;
+package ru.egov.urm.action.database;
 
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata.VarPROCESSMODE;
-import ru.egov.urm.run.ActionBase;
 
 public class DatabaseProcess {
 

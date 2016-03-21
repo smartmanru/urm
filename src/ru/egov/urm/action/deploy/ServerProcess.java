@@ -1,11 +1,11 @@
-package ru.egov.urm.run.deploy;
+package ru.egov.urm.action.deploy;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.database.DatabaseProcess;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata.VarPROCESSMODE;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.database.DatabaseProcess;
 import ru.egov.urm.shell.ShellExecutor;
 
 public class ServerProcess {

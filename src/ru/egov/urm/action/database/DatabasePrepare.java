@@ -1,12 +1,12 @@
-package ru.egov.urm.run.database;
+package ru.egov.urm.action.database;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaDatabase;
 import ru.egov.urm.meta.MetaDatabaseSchema;
 import ru.egov.urm.meta.MetaDistr;
 import ru.egov.urm.meta.MetaDistrDelivery;
 import ru.egov.urm.meta.Metadata;
-import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.FileSet;
 import ru.egov.urm.storage.LocalFolder;

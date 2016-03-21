@@ -1,8 +1,8 @@
-package ru.egov.urm.run.deploy;
+package ru.egov.urm.action.deploy;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaEnvDC;
-import ru.egov.urm.run.ActionBase;
 
 public class ActionSendChatMsg extends ActionBase {
 

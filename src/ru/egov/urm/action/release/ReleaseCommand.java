@@ -1,10 +1,10 @@
-package ru.egov.urm.run.release;
+package ru.egov.urm.action.release;
 
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionScope;
+import ru.egov.urm.action.build.BuildCommand;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScope;
-import ru.egov.urm.run.build.BuildCommand;
 import ru.egov.urm.storage.DistStorage;
 
 public class ReleaseCommand {

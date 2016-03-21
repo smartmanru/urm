@@ -1,8 +1,11 @@
-package ru.egov.urm.run.build;
+package ru.egov.urm.action.build;
 
 import java.util.List;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionScopeTarget;
+import ru.egov.urm.action.ActionScopeTargetItem;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.NexusDownloadInfo;
@@ -11,9 +14,6 @@ import ru.egov.urm.storage.SourceStorage;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
 import ru.egov.urm.meta.Metadata.VarITEMSRCTYPE;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScopeTarget;
-import ru.egov.urm.run.ActionScopeTargetItem;
 
 public class ActionGetBinary extends ActionBase {
 

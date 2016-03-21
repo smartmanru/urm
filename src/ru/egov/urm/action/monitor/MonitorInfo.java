@@ -1,13 +1,13 @@
-package ru.egov.urm.run.monitor;
+package ru.egov.urm.action.monitor;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaMonitoringTarget;
 import ru.egov.urm.meta.Metadata;
-import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.storage.MonitoringStorage;
 
 public class MonitorInfo {

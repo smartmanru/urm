@@ -1,4 +1,4 @@
-package ru.egov.urm.run.xdoc;
+package ru.egov.urm.action.xdoc;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.Map;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaDesign;
 import ru.egov.urm.meta.MetaDesignElement;
 import ru.egov.urm.meta.MetaDesignLink;
 import ru.egov.urm.meta.MetaEnv;
 import ru.egov.urm.meta.MetaEnvDC;
 import ru.egov.urm.meta.MetaEnvServer;
-import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.storage.MetadataStorage;
 
 public class ActionCreateDesignDoc extends ActionBase {

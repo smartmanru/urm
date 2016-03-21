@@ -1,14 +1,14 @@
-package ru.egov.urm.run.deploy;
+package ru.egov.urm.action.deploy;
 
 import java.util.List;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionScope;
+import ru.egov.urm.action.ActionScopeSet;
+import ru.egov.urm.action.ActionScopeTarget;
+import ru.egov.urm.action.ActionSet;
 import ru.egov.urm.meta.MetaEnvStartGroup;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScope;
-import ru.egov.urm.run.ActionScopeSet;
-import ru.egov.urm.run.ActionScopeTarget;
-import ru.egov.urm.run.ActionSet;
 
 public class ActionStartEnv extends ActionBase {
 

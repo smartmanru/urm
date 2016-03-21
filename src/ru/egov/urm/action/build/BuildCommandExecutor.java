@@ -1,12 +1,12 @@
-package ru.egov.urm.run.build;
+package ru.egov.urm.action.build;
 
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionInit;
-import ru.egov.urm.run.ActionScope;
-import ru.egov.urm.run.ActionScopeTarget;
-import ru.egov.urm.run.CommandAction;
-import ru.egov.urm.run.CommandBuilder;
-import ru.egov.urm.run.CommandExecutor;
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionInit;
+import ru.egov.urm.action.ActionScope;
+import ru.egov.urm.action.ActionScopeTarget;
+import ru.egov.urm.action.CommandAction;
+import ru.egov.urm.action.CommandBuilder;
+import ru.egov.urm.action.CommandExecutor;
 import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.LocalFolder;
 

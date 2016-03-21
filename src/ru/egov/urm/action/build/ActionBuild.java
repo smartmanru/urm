@@ -1,12 +1,12 @@
-package ru.egov.urm.run.build;
+package ru.egov.urm.action.build;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionScope;
+import ru.egov.urm.action.ActionScopeSet;
+import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.meta.MetaSourceProject;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScope;
-import ru.egov.urm.run.ActionScopeSet;
-import ru.egov.urm.run.ActionScopeTarget;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.BuildStorage;
 import ru.egov.urm.storage.LocalFolder;

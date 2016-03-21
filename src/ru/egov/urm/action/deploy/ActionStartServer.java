@@ -1,13 +1,13 @@
-package ru.egov.urm.run.deploy;
+package ru.egov.urm.action.deploy;
 
 import java.util.LinkedList;
 import java.util.List;
 
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionScopeTarget;
+import ru.egov.urm.action.ActionScopeTargetItem;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScopeTarget;
-import ru.egov.urm.run.ActionScopeTargetItem;
 
 public class ActionStartServer extends ActionBase {
 	

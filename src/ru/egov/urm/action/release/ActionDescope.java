@@ -1,13 +1,13 @@
-package ru.egov.urm.run.release;
+package ru.egov.urm.action.release;
 
 import java.util.LinkedList;
 import java.util.List;
 
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionScopeSet;
+import ru.egov.urm.action.ActionScopeTarget;
+import ru.egov.urm.action.ActionScopeTargetItem;
 import ru.egov.urm.meta.MetaReleaseTargetItem;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScopeSet;
-import ru.egov.urm.run.ActionScopeTarget;
-import ru.egov.urm.run.ActionScopeTargetItem;
 import ru.egov.urm.storage.DistStorage;
 
 public class ActionDescope extends ActionBase {

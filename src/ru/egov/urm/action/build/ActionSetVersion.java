@@ -1,7 +1,7 @@
-package ru.egov.urm.run.build;
+package ru.egov.urm.action.build;
 
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScopeTarget;
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.storage.BuildStorage;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.vcs.ProjectVersionControl;

@@ -1,12 +1,12 @@
-package ru.egov.urm.run.deploy;
+package ru.egov.urm.action.deploy;
 
 import java.util.List;
 
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionScope;
+import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScope;
-import ru.egov.urm.run.ActionScopeTarget;
 
 public class ServerCluster {
 

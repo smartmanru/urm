@@ -1,4 +1,4 @@
-package ru.egov.urm.run;
+package ru.egov.urm.action;
 
 public class ActionSetItem implements Runnable {
 

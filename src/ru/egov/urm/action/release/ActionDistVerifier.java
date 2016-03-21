@@ -1,14 +1,14 @@
-package ru.egov.urm.run.release;
+package ru.egov.urm.action.release;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionScope;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaRelease;
 import ru.egov.urm.meta.MetaReleaseTargetItem;
 import ru.egov.urm.meta.MetaReleaseDelivery;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScope;
 import ru.egov.urm.storage.DistItemInfo;
 import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.FileSet;

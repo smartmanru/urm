@@ -1,12 +1,12 @@
-package ru.egov.urm.run;
+package ru.egov.urm.action;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.action.CommandOptions.SQLMODE;
+import ru.egov.urm.action.CommandOptions.SQLTYPE;
 import ru.egov.urm.meta.MetaEnv;
 import ru.egov.urm.meta.MetaEnvDC;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
-import ru.egov.urm.run.CommandOptions.SQLMODE;
-import ru.egov.urm.run.CommandOptions.SQLTYPE;
 import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutorPool;
 

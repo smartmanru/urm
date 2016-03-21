@@ -1,11 +1,11 @@
-package ru.egov.urm.run.database;
+package ru.egov.urm.action.database;
 
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionScope;
+import ru.egov.urm.action.CommandOptions.SQLMODE;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.MetaReleaseDelivery;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScope;
-import ru.egov.urm.run.CommandOptions.SQLMODE;
 import ru.egov.urm.storage.DistStorage;
 
 public class DatabaseCommand {

@@ -1,4 +1,4 @@
-package ru.egov.urm.run.database;
+package ru.egov.urm.action.database;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -7,10 +7,10 @@ import java.util.Properties;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.conf.ConfBuilder;
 import ru.egov.urm.meta.MetaDatabaseSchema;
 import ru.egov.urm.meta.MetaEnvServer;
-import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.DistRepository;
 import ru.egov.urm.storage.FileSet;

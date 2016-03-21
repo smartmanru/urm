@@ -1,6 +1,10 @@
-package ru.egov.urm.run.deploy;
+package ru.egov.urm.action.deploy;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionScopeSet;
+import ru.egov.urm.action.ActionScopeTarget;
+import ru.egov.urm.action.ActionScopeTargetItem;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServer;
@@ -9,10 +13,6 @@ import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.MetaReleaseTarget;
 import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
 import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScopeSet;
-import ru.egov.urm.run.ActionScopeTarget;
-import ru.egov.urm.run.ActionScopeTargetItem;
 import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.FileInfo;
 import ru.egov.urm.storage.LocalFolder;

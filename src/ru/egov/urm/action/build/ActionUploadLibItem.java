@@ -1,8 +1,8 @@
-package ru.egov.urm.run.build;
+package ru.egov.urm.action.build;
 
 import ru.egov.urm.Common;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScopeTarget;
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionScopeTarget;
 
 public class ActionUploadLibItem extends ActionBase {
 

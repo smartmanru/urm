@@ -1,12 +1,12 @@
-package ru.egov.urm.run;
+package ru.egov.urm.action;
 
+import ru.egov.urm.action.build.BuildCommandExecutor;
+import ru.egov.urm.action.database.DatabaseCommandExecutor;
+import ru.egov.urm.action.deploy.DeployCommandExecutor;
+import ru.egov.urm.action.monitor.MonitorCommandExecutor;
+import ru.egov.urm.action.release.ReleaseCommandExecutor;
+import ru.egov.urm.action.xdoc.XDocCommandExecutor;
 import ru.egov.urm.meta.Metadata;
-import ru.egov.urm.run.build.BuildCommandExecutor;
-import ru.egov.urm.run.database.DatabaseCommandExecutor;
-import ru.egov.urm.run.deploy.DeployCommandExecutor;
-import ru.egov.urm.run.monitor.MonitorCommandExecutor;
-import ru.egov.urm.run.release.ReleaseCommandExecutor;
-import ru.egov.urm.run.xdoc.XDocCommandExecutor;
 
 public class CommandBuilder {
 

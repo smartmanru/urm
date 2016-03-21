@@ -1,16 +1,16 @@
-package ru.egov.urm.run.monitor;
+package ru.egov.urm.action.monitor;
 
 import java.util.LinkedList;
 import java.util.List;
 
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionInit;
+import ru.egov.urm.action.ActionSet;
+import ru.egov.urm.action.CommandContext;
 import ru.egov.urm.meta.MetaMonitoring;
 import ru.egov.urm.meta.MetaMonitoringItem;
 import ru.egov.urm.meta.MetaMonitoringTarget;
 import ru.egov.urm.meta.Metadata;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionInit;
-import ru.egov.urm.run.ActionSet;
-import ru.egov.urm.run.CommandContext;
 import ru.egov.urm.storage.MonitoringStorage;
 
 public class ActionMonitorTop extends ActionBase {

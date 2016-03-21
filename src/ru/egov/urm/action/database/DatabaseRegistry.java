@@ -1,15 +1,15 @@
-package ru.egov.urm.run.database;
+package ru.egov.urm.action.database;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.CommandOptions.SQLMODE;
 import ru.egov.urm.meta.MetaDistrDelivery;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaRelease;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.CommandOptions.SQLMODE;
 
 public class DatabaseRegistry {
 

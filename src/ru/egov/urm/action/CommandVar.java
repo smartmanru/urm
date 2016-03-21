@@ -1,6 +1,6 @@
-package ru.egov.urm.run;
+package ru.egov.urm.action;
 
-import ru.egov.urm.run.CommandOptions.FLAG;
+import ru.egov.urm.action.CommandOptions.FLAG;
 
 public class CommandVar {
 

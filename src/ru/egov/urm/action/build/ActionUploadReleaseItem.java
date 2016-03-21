@@ -1,11 +1,11 @@
-package ru.egov.urm.run.build;
+package ru.egov.urm.action.build;
 
 import java.util.List;
 
 import ru.egov.urm.Common;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScopeTarget;
-import ru.egov.urm.run.ActionScopeTargetItem;
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionScopeTarget;
+import ru.egov.urm.action.ActionScopeTargetItem;
 import ru.egov.urm.storage.DistStorage;
 
 public class ActionUploadReleaseItem extends ActionBase {

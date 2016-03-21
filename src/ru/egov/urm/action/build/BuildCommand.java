@@ -1,16 +1,16 @@
-package ru.egov.urm.run.build;
+package ru.egov.urm.action.build;
 
 import java.util.Map;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionScope;
+import ru.egov.urm.action.ActionScopeTarget;
+import ru.egov.urm.action.database.ActionGetDB;
 import ru.egov.urm.conf.ActionGetConf;
 import ru.egov.urm.conf.ConfBuilder;
 import ru.egov.urm.meta.MetaReleaseDelivery;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScope;
-import ru.egov.urm.run.ActionScopeTarget;
-import ru.egov.urm.run.database.ActionGetDB;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.LocalFolder;

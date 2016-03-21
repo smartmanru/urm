@@ -1,12 +1,12 @@
-package ru.egov.urm.run.build;
+package ru.egov.urm.action.build;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaSourceProject;
-import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.BuildStorage;
 import ru.egov.urm.storage.LocalFolder;

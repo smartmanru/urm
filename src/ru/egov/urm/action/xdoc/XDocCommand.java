@@ -1,6 +1,6 @@
-package ru.egov.urm.run.xdoc;
+package ru.egov.urm.action.xdoc;
 
-import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.action.ActionBase;
 
 public class XDocCommand {
 
