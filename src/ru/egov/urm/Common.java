@@ -295,8 +295,11 @@ public class Common {
 	public static String getPath( String path1 , String path2 ) {
 		if( path2.isEmpty() || path2.equals( "/" ) )
 			return( path1 );
-		if( path1.isEmpty() )
+		if( path1.isEmpty() ) {
+			if( path2.startsWith( "/" ) )
+				return( "./" + path2 );
 			return( path2 );
+		}
 		if( path2.equals( "." ) )
 			return( path1 );
 		return( path1 + "/" + path2 );
