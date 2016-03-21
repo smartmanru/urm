@@ -54,9 +54,10 @@ public class ActionGetRedistInfo extends ActionBase {
 	private void showReleaseState( RedistStorage redist ) throws Exception {
 		ServerDeployment deployment = redist.getDeployment( this , dist.RELEASEDIR );
 		for( String category : deployment.getCategories( this ) ) {
+			boolean first = true;
+			
 			VarCONTENTTYPE CONTENTTYPE = deployment.getCategoryContent( this , category );
 			boolean rollout = deployment.getCategoryRollout( this , category );
-			comment( "\tcategory: " + category );
 			
 			for( String LOCATION : deployment.getCategoryLocations( this , category ) ) {
 				RemoteFolder rf = redist.getRedistLocationFolder( this , dist.RELEASEDIR , LOCATION , CONTENTTYPE , rollout );
@@ -65,6 +66,11 @@ public class ActionGetRedistInfo extends ActionBase {
 				if( items.length == 0 ) {
 					if( !context.CTX_SHOWALL )
 						continue;
+				}
+
+				if( first ) {
+					comment( "\tcategory: " + category );
+					first = false;
 				}
 				
 				comment( "\t\tlocation: " + LOCATION + " (" + rf.folderPath + ")" );
