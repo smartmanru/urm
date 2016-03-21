@@ -302,12 +302,12 @@ abstract public class ActionBase {
 	}
 	
 	public ShellExecutor getShell( MetaEnvServerNode node ) throws Exception {
-		Account account = Account.getAccount( this , node.HOSTLOGIN , node.server.OSTYPE );
+		Account account = Account.getAccount( this , node.HOSTLOGIN , node.server.osType );
 		return( getShell( account ) );
 	}
 	
 	public Account getAccount( MetaEnvServerNode node ) throws Exception {
-		return( Account.getAccount( this , node.HOSTLOGIN , node.server.OSTYPE ) );
+		return( Account.getAccount( this , node.HOSTLOGIN , node.server.osType ) );
 	}
 	
 	public void startRedirect( String title , String logFile ) throws Exception {

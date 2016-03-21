@@ -64,7 +64,7 @@ public class MetaEnvServer {
 	public String ALIGNED;
 	public String REGIONS;
 	
-	public VarOSTYPE OSTYPE;
+	public VarOSTYPE osType;
 	
 	public PropertySet properties;
 
@@ -169,7 +169,7 @@ public class MetaEnvServer {
 		
 		SERVERTYPE = properties.getSystemRequiredProperty( action , "type" , systemProps );
 		serverType = action.meta.getServerType( action , SERVERTYPE );
-		OSTYPE = action.meta.getOSType( action , properties.getSystemProperty( action , "ostype" , "unix" , systemProps ) );
+		osType = action.meta.getOSType( action , properties.getSystemProperty( action , "ostype" , "unix" , systemProps ) );
 		OFFLINE = properties.getSystemBooleanProperty( action , "offline" , false , systemProps );
 		XDOC = properties.getSystemProperty( action , "xdoc" , NAME , systemProps );
 		
@@ -514,6 +514,14 @@ public class MetaEnvServer {
 		return( null );
 	}
 
+	public boolean isWindows( ActionBase action ) throws Exception {
+		return( osType == VarOSTYPE.WINDOWS );
+	}
+
+	public boolean isLinux( ActionBase action ) throws Exception {
+		return( osType == VarOSTYPE.UNIX );
+	}
+
 	public boolean isDatabase( ActionBase action ) throws Exception {
 		return( serverType == VarSERVERTYPE.DATABASE );
 	}
@@ -558,17 +566,20 @@ public class MetaEnvServer {
 	}
 
 	public String getSystemPath( ActionBase action ) throws Exception {
-		if( isService( action ) )
+		if( isLinux( action ) && isService( action ) )
 			return( "/etc/init.d" );
 		
 		return( Common.getPath( ROOTPATH , BINPATH ) );
 	}
 	
 	public String getSystemFiles( ActionBase action ) throws Exception {
-		if( isService( action ) )
-			return( "server.SERVICENAME" );
+		if( isLinux( action ) && isService( action ) )
+			return( SERVICENAME );
 		
-		return( "server.*.sh" );
+		if( isLinux( action ) )
+			return( "server.*.sh" );
+		
+		return( "server.*.cmd" );
 	}
 	
 }
