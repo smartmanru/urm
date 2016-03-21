@@ -26,17 +26,8 @@ public class RuntimeStorage extends ServerStorage {
 		if( action.context.CTX_SHOWONLY )
 			return;
 		
-		String F_RUNTIMEDIR;
-		String F_FILES;
-		
-		if( server.isService( action ) ) {
-			F_RUNTIMEDIR = "/etc/init.d";
-			F_FILES = server.SERVICENAME;
-		}
-		else {
-			F_RUNTIMEDIR = Common.getPath( server.ROOTPATH , server.BINPATH );
-			F_FILES = "server.*.sh";
-		}
+		String F_RUNTIMEDIR = server.getSystemPath( action );
+		String F_FILES = server.getSystemFiles( action );
 
 		// prepare on local
 		LocalFolder localDir = artefactory.getWorkFolder( action , "tmp" );

@@ -556,5 +556,19 @@ public class MetaEnvServer {
 			return( true );
 		return( false );
 	}
+
+	public String getSystemPath( ActionBase action ) throws Exception {
+		if( isService( action ) )
+			return( "/etc/init.d" );
+		
+		return( Common.getPath( ROOTPATH , BINPATH ) );
+	}
+	
+	public String getSystemFiles( ActionBase action ) throws Exception {
+		if( isService( action ) )
+			return( "server.SERVICENAME" );
+		
+		return( "server.*.sh" );
+	}
 	
 }

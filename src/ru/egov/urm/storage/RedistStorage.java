@@ -23,17 +23,8 @@ public class RedistStorage extends ServerStorage {
 	}
 
 	public boolean getSysConfigs( ActionBase action , LocalFolder dstFolder ) throws Exception {
-		String F_RUNTIMEDIR;
-		String F_FILES;
-		
-		if( server.isService( action ) ) {
-			F_RUNTIMEDIR = "/etc/init.d";
-			F_FILES = server.SERVICENAME;
-		}
-		else {
-			F_RUNTIMEDIR = Common.getPath( server.ROOTPATH , server.BINPATH );
-			F_FILES = "server.*.sh";
-		}
+		String F_RUNTIMEDIR = server.getSystemPath( action );
+		String F_FILES = server.getSystemFiles( action );
 
 		RemoteFolder tmpDir = getRedistTmpFolder( action );
 		tmpDir.recreateThis( action );
