@@ -68,6 +68,7 @@ public class MetaEnvServer {
 	
 	public PropertySet properties;
 
+	MetaEnvServerBase base;
 	List<MetaEnvServerDeployment> deployments;
 	List<MetaEnvServerNode> nodes;
 	
@@ -77,6 +78,7 @@ public class MetaEnvServer {
 	public MetaEnvServer( MetaEnvDC dc ) {
 		this.dc = dc;
 		this.primary = false;
+		this.base = new MetaEnvServerBase( this );
 	}
 
 	public String getFullId( ActionBase action ) throws Exception {
@@ -102,6 +104,7 @@ public class MetaEnvServer {
 
 		loadNodes( action , node , loadProps );
 		loadDeployments( action , node );
+		loadBase( action , node );
 	}
 	
 	public String[] getPropertyList( ActionBase action ) throws Exception {
@@ -230,6 +233,14 @@ public class MetaEnvServer {
 		}
 	}
 	
+	private void loadBase( ActionBase action , Node node ) throws Exception {
+		Node item = ConfReader.xmlGetFirstChild( action , node , "deploy" );
+		if( item == null )
+			return;
+		
+		base.load( action , item );
+	}
+		
 	private void loadDeployments( ActionBase action , Node node ) throws Exception {
 		deployments = new LinkedList<MetaEnvServerDeployment>(); 
 		

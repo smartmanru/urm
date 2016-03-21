@@ -22,6 +22,8 @@ public class DeployCommandExecutor extends CommandExecutor {
 		super( builder );
 		
 		String cmdOpts = "GETOPT_ALL, GETOPT_DEPLOYGROUP, GETOPT_STARTGROUP, GETOPT_DCMASK, GETOPT_EXTRAARGS, GETOPT_UNIT, GETOPT_BUILDINFO, GETOPT_TAG, GETOPT_HOSTUSER, GETOPT_KEY, GETOPT_NEWKEY, GETOPT_BACKUP, GETOPT_OBSOLETE, GETOPT_DEPLOYCONF, GETOPT_PARTIALCONF, GETOPT_DEPLOYBINARY, GETOPT_DEPLOYHOT, GETOPT_DEPLOYCOLD, GETOPT_KEEPALIVE, GETOPT_SKIPERRORS, GETOPT_ZERODOWNTIME, GETOPT_NONODES, GETOPT_NOCHATMSG, GETOPT_ROOTUSER, GETOPT_IGNOREVERSION";
+		cmdOpts = "GETOPT_ALL, GETOPT_DEPLOYGROUP, GETOPT_STARTGROUP, GETOPT_DCMASK";
+		super.defineAction( CommandAction.newAction( new BaseOps() , "base" , "base software operations" , cmdOpts , "./base.sh [OPTIONS] {install|check} {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "GETOPT_ALL, GETOPT_DEPLOYGROUP, GETOPT_STARTGROUP, GETOPT_DCMASK, GETOPT_EXTRAARGS, GETOPT_UNIT, GETOPT_KEY, GETOPT_OBSOLETE, GETOPT_NONODES";
 		super.defineAction( CommandAction.newAction( new CheckEnv() , "checkenv" , "check environment run status" , cmdOpts , "./checkenv.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "GETOPT_ALL, GETOPT_DCMASK, GETOPT_STARTGROUP, GETOPT_UNIT";
@@ -124,6 +126,14 @@ public class DeployCommandExecutor extends CommandExecutor {
 		return( ActionScope.getEnvServersScope( action , action.context.dc , SERVERS , release ) );
 	}
 	
+	private class BaseOps extends CommandAction {
+	public void run( ActionInit action ) throws Exception {
+		String CMD = options.getRequiredArg( action , 0 , "CMD" );
+		ActionScope scope = getServerScope( action , 1 );
+		impl.baseOps( action , scope , CMD );
+	}
+	}
+
 	private class CheckEnv extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		ActionScope scope = getServerScope( action );

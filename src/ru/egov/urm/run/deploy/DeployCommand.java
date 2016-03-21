@@ -14,6 +14,11 @@ public class DeployCommand {
 	public DeployCommand() {
 	}
 
+	public void baseOps( ActionBase action , ActionScope scope , String cmd ) throws Exception {
+		ActionBaseCmd ma = new ActionBaseCmd( action , null , cmd );
+		ma.runAll( scope );
+	}
+
 	public void checkEnv( ActionBase action , ActionScope scope ) throws Exception {
 		ActionCheckEnv ma = new ActionCheckEnv( action , null );
 		ma.runAll( scope );
