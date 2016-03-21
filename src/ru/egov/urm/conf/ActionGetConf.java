@@ -1,9 +1,9 @@
 package ru.egov.urm.conf;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.meta.MetaSourceFolder;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.ActionScopeTarget;
 import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.SourceStorage;

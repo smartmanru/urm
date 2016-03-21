@@ -1,11 +1,11 @@
 package ru.egov.urm.storage;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
-import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.shell.Account;
 
 public class DistRepository {

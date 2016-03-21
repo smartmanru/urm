@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
 import ru.egov.urm.meta.Metadata.VarDEPLOYTYPE;
-import ru.egov.urm.run.ActionBase;
 
 public class MetaEnvServerLocation {
 

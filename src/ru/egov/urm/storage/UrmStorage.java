@@ -1,8 +1,8 @@
 package ru.egov.urm.storage;
 
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarDBMSTYPE;
-import ru.egov.urm.run.ActionBase;
 
 public class UrmStorage {
 

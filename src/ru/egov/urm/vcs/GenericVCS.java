@@ -1,8 +1,8 @@
 package ru.egov.urm.vcs;
 
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaSourceProject;
 import ru.egov.urm.meta.Metadata;
-import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.Folder;
 import ru.egov.urm.storage.LocalFolder;

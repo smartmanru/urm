@@ -11,8 +11,8 @@ import org.w3c.dom.Node;
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.PropertySet;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.CommandOptions.FLAG;
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.CommandOptions.FLAG;
 import ru.egov.urm.storage.MetadataStorage;
 
 public class MetaEnv {

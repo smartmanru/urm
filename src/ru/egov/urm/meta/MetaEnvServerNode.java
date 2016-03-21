@@ -6,8 +6,8 @@ import java.util.List;
 import org.w3c.dom.Node;
 
 import ru.egov.urm.PropertySet;
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.Metadata.VarNODETYPE;
-import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.shell.Account;
 
 public class MetaEnvServerNode {

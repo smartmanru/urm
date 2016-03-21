@@ -7,9 +7,9 @@ import org.w3c.dom.Node;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaDesign.VarELEMENTTYPE;
 import ru.egov.urm.meta.Metadata.VarNAMETYPE;
-import ru.egov.urm.run.ActionBase;
 
 public class MetaDesignElement {
 	

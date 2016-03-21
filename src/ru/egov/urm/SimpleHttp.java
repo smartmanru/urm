@@ -9,7 +9,7 @@ import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.action.ActionBase;
 
 public class SimpleHttp {
 

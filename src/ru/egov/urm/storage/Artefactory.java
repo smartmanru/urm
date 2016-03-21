@@ -1,5 +1,8 @@
 package ru.egov.urm.storage;
 
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.CommandContext;
+import ru.egov.urm.action.CommandExecutor;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.MetaMonitoring;
@@ -7,9 +10,6 @@ import ru.egov.urm.meta.MetaSourceProject;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.CommandContext;
-import ru.egov.urm.run.CommandExecutor;
 import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.vcs.GenericVCS;

@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.Map;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
-import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.shell.ShellExecutor;
 
 public class RedistStateInfo {

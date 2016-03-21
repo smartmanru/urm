@@ -1,7 +1,7 @@
 package ru.egov.urm.shell;
 
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
-import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.storage.Folder;
 
 public class RemoteShellExecutor extends ShellExecutor {

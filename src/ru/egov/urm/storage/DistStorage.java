@@ -6,6 +6,7 @@ import java.util.Map;
 import org.w3c.dom.Document;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaDistrDelivery;
@@ -22,7 +23,6 @@ import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
 import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
-import ru.egov.urm.run.ActionBase;
 
 public class DistStorage {
 

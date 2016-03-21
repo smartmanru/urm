@@ -3,7 +3,7 @@ package ru.egov.urm.meta;
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.action.ActionBase;
 
 public class MetaReleaseDelivery {
 

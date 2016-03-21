@@ -30,9 +30,9 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.custom.ICustomBuild;
 import ru.egov.urm.custom.ICustomDeploy;
-import ru.egov.urm.run.ActionBase;
 
 public class Common {
 

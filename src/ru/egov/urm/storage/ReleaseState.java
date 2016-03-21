@@ -1,9 +1,9 @@
 package ru.egov.urm.storage;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaRelease;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
-import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.shell.ShellExecutor;
 
 public class ReleaseState {

@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.storage.Folder;
 import ru.egov.urm.storage.LocalFolder;
 

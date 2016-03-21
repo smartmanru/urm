@@ -10,11 +10,11 @@ import org.w3c.dom.Node;
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.PropertySet;
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.Metadata.VarDBMSTYPE;
 import ru.egov.urm.meta.Metadata.VarDEPLOYTYPE;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
-import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.shell.Account;
 
 public class MetaEnvServer {

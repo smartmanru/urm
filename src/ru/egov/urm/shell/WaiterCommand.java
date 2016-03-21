@@ -1,6 +1,6 @@
 package ru.egov.urm.shell;
 
-import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.action.ActionBase;
 
 public abstract class WaiterCommand implements Runnable {
 

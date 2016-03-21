@@ -1,7 +1,7 @@
 package ru.egov.urm.storage;
 
 import ru.egov.urm.Common;
-import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
 

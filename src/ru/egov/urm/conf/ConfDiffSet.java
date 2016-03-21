@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaRelease;
 import ru.egov.urm.meta.MetaReleaseTarget;
-import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.storage.FileSet;
 
 public class ConfDiffSet {

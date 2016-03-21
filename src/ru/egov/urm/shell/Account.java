@@ -1,8 +1,8 @@
 package ru.egov.urm.shell;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
-import ru.egov.urm.run.ActionBase;
 
 public class Account {
 

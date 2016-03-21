@@ -6,8 +6,8 @@ import java.util.Map;
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.PropertySet;
+import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
-import ru.egov.urm.run.ActionBase;
 import ru.egov.urm.storage.MetadataStorage;
 
 public class MetaProduct {

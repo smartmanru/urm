@@ -8,7 +8,7 @@ import java.util.Map;
 import org.w3c.dom.Node;
 
 import ru.egov.urm.ConfReader;
-import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.action.ActionBase;
 
 public class MetaEnvStartInfo {
 

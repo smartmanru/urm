@@ -1,6 +1,8 @@
 package ru.egov.urm.storage;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.deploy.ServerDeployment;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServer;
@@ -9,8 +11,6 @@ import ru.egov.urm.meta.MetaEnvServerLocation;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
 import ru.egov.urm.meta.Metadata.VarDISTITEMTYPE;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.deploy.ServerDeployment;
 import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
 

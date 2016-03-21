@@ -7,11 +7,11 @@ import java.util.Map;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.database.DatabaseClient;
 import ru.egov.urm.meta.MetaDatabaseSchema;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.Metadata;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.database.DatabaseClient;
 
 public class MetadataStorage {
 

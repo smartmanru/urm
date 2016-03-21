@@ -3,10 +3,10 @@ package ru.egov.urm.meta;
 import org.w3c.dom.Node;
 
 import ru.egov.urm.ConfReader;
+import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.database.DatabaseSpecific;
 import ru.egov.urm.meta.Metadata.VarDBMSTYPE;
 import ru.egov.urm.meta.Metadata.VarNAMETYPE;
-import ru.egov.urm.run.ActionBase;
-import ru.egov.urm.run.database.DatabaseSpecific;
 
 public class MetaDatabaseSchema {
 

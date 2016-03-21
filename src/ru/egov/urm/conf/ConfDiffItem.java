@@ -2,7 +2,7 @@ package ru.egov.urm.conf;
 
 import java.io.BufferedWriter;
 
-import ru.egov.urm.run.ActionBase;
+import ru.egov.urm.action.ActionBase;
 
 public class ConfDiffItem {
 
