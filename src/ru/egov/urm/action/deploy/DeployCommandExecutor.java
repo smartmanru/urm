@@ -130,7 +130,10 @@ public class DeployCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String CMD = options.getRequiredArg( action , 0 , "CMD" );
 		ActionScope scope = getServerScope( action , 1 );
-		impl.baseOps( action , scope , CMD );
+		if( CMD.equals( "install" ) )
+			impl.baseInstall( action , scope );
+		else
+			action.exitUnexpectedState();
 	}
 	}
 

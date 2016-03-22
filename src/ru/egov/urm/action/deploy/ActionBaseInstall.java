@@ -12,11 +12,8 @@ import ru.egov.urm.storage.BaseRepository;
 
 public class ActionBaseInstall extends ActionBase {
 
-	String cmd;
-	
-	public ActionBaseInstall( ActionBase action , String stream , String cmd ) {
+	public ActionBaseInstall( ActionBase action , String stream ) {
 		super( action , stream );
-		this.cmd = cmd;
 	}
 
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
@@ -38,7 +35,7 @@ public class ActionBaseInstall extends ActionBase {
 
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
-			log( cmd + " server=" + server.NAME + " node=" + node.POS + " ..." );
+			log( "install server=" + server.NAME + " node=" + node.POS + " ..." );
 			executeNode( server , node , base );
 		}
 	}
