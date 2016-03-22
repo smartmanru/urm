@@ -1,5 +1,6 @@
 package ru.egov.urm.action.deploy;
 
+import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.ActionScopeTargetItem;
@@ -57,6 +58,7 @@ public class ActionBaseCmd extends ActionBase {
 	}
 
 	private void executeNodeInstall( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info ) throws Exception {
+		log( "install base=" + info.ID + ", type=" + Common.getEnumLower( info.type ) + " ..." );
 		if( info.isArchiveLink() )
 			executeNodeArchiveLink( server , node , info );
 		else
@@ -67,11 +69,9 @@ public class ActionBaseCmd extends ActionBase {
 	}
 	
 	private void executeNodeArchiveLink( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info ) throws Exception {
-		log( "install node base=" + info.ID + " ..." );
 	}
 	
 	private void executeNodeArchiveDirect( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info ) throws Exception {
-		log( "install node base=" + info.ID + " ..." );
 	}
 	
 }

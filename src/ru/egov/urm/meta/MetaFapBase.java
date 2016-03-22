@@ -89,8 +89,10 @@ public class MetaFapBase {
 	}
 
 	private void loadCompatibility( ActionBase action , Node node ) throws Exception {
-		Node comp = ConfReader.xmlGetFirstChild( action , node , "compatibility" );
 		compatibilityMap = new HashMap<String,String>();
+		Node comp = ConfReader.xmlGetFirstChild( action , node , "compatibility" );
+		if( comp == null )
+			return;
 		
 		Node[] items = ConfReader.xmlGetChildren( action , comp , "os" );
 		if( items == null )
@@ -107,8 +109,10 @@ public class MetaFapBase {
 	}
 	
 	private void loadDependencies( ActionBase action , Node node ) throws Exception {
-		Node deps = ConfReader.xmlGetFirstChild( action , node , "dependencies" );
 		dependencies = new LinkedList<String>();
+		Node deps = ConfReader.xmlGetFirstChild( action , node , "dependencies" );
+		if( deps == null )
+			return;
 		
 		Node[] items = ConfReader.xmlGetChildren( action , deps , "base" );
 		if( items == null )
