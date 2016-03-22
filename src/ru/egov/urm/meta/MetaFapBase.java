@@ -15,8 +15,8 @@ import ru.egov.urm.action.ActionBase;
 public class MetaFapBase {
 
 	public enum VarBASESRCTYPE {
-		ARCHIVE_LINK ,
-		ARCHIVE_DIRECT
+		LINUX_ARCHIVE_LINK ,
+		LINUX_ARCHIVE_DIRECT
 	};
 	
 	public enum VarBASESRCFORMAT {
@@ -124,32 +124,32 @@ public class MetaFapBase {
 		}
 	}
 
-	public boolean isArchiveLink() {
-		if( type == VarBASESRCTYPE.ARCHIVE_LINK )
+	public boolean isLinuxArchiveLink() {
+		if( type == VarBASESRCTYPE.LINUX_ARCHIVE_LINK )
 			return( true );
 		return( false );
 	}
 	
-	public boolean isArchiveDirect() {
-		if( type == VarBASESRCTYPE.ARCHIVE_DIRECT )
+	public boolean isLinuxArchiveDirect() {
+		if( type == VarBASESRCTYPE.LINUX_ARCHIVE_DIRECT )
 			return( true );
 		return( false );
 	}
 	
 	private void scatterVariables( ActionBase action ) throws Exception {
 		List<String> systemProps = new LinkedList<String>();
-		if( isArchiveLink() )
-			scatterArchiveLink( action , systemProps );
+		if( isLinuxArchiveLink() )
+			scatterLinuxArchiveLink( action , systemProps );
 		else
-		if( isArchiveDirect() )
-			scatterArchiveDirect( action , systemProps );
+		if( isLinuxArchiveDirect() )
+			scatterLinuxArchiveDirect( action , systemProps );
 		else
 			action.exitUnexpectedState();
 		
 		properties.checkUnexpected( action , systemProps );
 	}
 
-	private void scatterArchiveLink( ActionBase action , List<String> systemProps ) throws Exception {
+	private void scatterLinuxArchiveLink( ActionBase action , List<String> systemProps ) throws Exception {
 		srcFormat = getSrcFormat( action , properties.getSystemRequiredProperty( action , "srcformat" , systemProps ) );
 		SRCFILE = properties.getSystemRequiredProperty( action , "srcfile" , systemProps );
 		SRCSTOREDIR = properties.getSystemRequiredProperty( action , "srcstoreddir" , systemProps );
@@ -157,7 +157,7 @@ public class MetaFapBase {
 		INSTALLLINK = properties.getSystemRequiredProperty( action , "installlink" , systemProps );
 	}
 	
-	private void scatterArchiveDirect( ActionBase action , List<String> systemProps ) throws Exception {
+	private void scatterLinuxArchiveDirect( ActionBase action , List<String> systemProps ) throws Exception {
 		srcFormat = getSrcFormat( action , properties.getSystemRequiredProperty( action , "srcformat" , systemProps ) );
 		SRCFILE = properties.getSystemRequiredProperty( action , "srcfile" , systemProps );
 		SRCSTOREDIR = properties.getSystemRequiredProperty( action , "srcstoreddir" , systemProps );

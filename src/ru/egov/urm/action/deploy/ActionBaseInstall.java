@@ -56,19 +56,19 @@ public class ActionBaseInstall extends ActionBase {
 
 	private void executeNodeInstall( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info ) throws Exception {
 		log( "install base=" + info.ID + ", type=" + Common.getEnumLower( info.type ) + " ..." );
-		if( info.isArchiveLink() )
-			executeNodeArchiveLink( server , node , info );
+		if( info.isLinuxArchiveLink() )
+			executeNodeLinuxArchiveLink( server , node , info );
 		else
-		if( info.isArchiveDirect() )
-			executeNodeArchiveDirect( server , node , info );
+		if( info.isLinuxArchiveDirect() )
+			executeNodeLinuxArchiveDirect( server , node , info );
 		else
 			exitUnexpectedState();
 	}
 	
-	private void executeNodeArchiveLink( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info ) throws Exception {
+	private void executeNodeLinuxArchiveLink( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info ) throws Exception {
 	}
 	
-	private void executeNodeArchiveDirect( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info ) throws Exception {
+	private void executeNodeLinuxArchiveDirect( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info ) throws Exception {
 	}
 	
 }
