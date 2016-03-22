@@ -24,19 +24,24 @@ public class ActionBaseCmd extends ActionBase {
 
 	private void executeServer( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
-		
+		MetaEnvServerBase base = server.base;
 		log( "============================================ execute server=" + server.NAME + ", type=" + server.SERVERTYPE + " ..." );
+		
+		if( base == null ) {
+			log( "server has no base defined. Skipped" );
+			return;
+		}
+			
 		log( "rootpath=" + server.ROOTPATH );
 
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
 			log( cmd + " server=" + server.NAME + " node=" + node.POS + " ..." );
-			executeNode( server , node );
+			executeNode( server , node , base );
 		}
 	}
 
-	private void executeNode( MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
-		MetaEnvServerBase base = server.base;
+	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerBase base ) throws Exception {
 		BaseRepository repo = artefactory.getBaseRepository( this );
 		repo.getBaseInfo( this , base.ID );
 	}

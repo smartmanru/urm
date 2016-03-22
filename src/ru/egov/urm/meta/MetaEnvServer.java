@@ -78,7 +78,6 @@ public class MetaEnvServer {
 	public MetaEnvServer( MetaEnvDC dc ) {
 		this.dc = dc;
 		this.primary = false;
-		this.base = new MetaEnvServerBase( this );
 	}
 
 	public String getFullId( ActionBase action ) throws Exception {
@@ -238,6 +237,7 @@ public class MetaEnvServer {
 		if( item == null )
 			return;
 		
+		base = new MetaEnvServerBase( this );
 		base.load( action , item );
 	}
 		
