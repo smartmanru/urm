@@ -32,7 +32,7 @@ public class ActionBaseCmd extends ActionBase {
 			return;
 		}
 			
-		log( "rootpath=" + server.ROOTPATH );
+		log( "rootpath=" + server.ROOTPATH + ", base=" + base.ID );
 
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
