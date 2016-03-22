@@ -237,4 +237,11 @@ public class PropertySet {
 		}
 	}
 
+	public void printValues( ActionBase action ) throws Exception {
+		for( String prop : properties.keySet() ) {
+			String value = properties.get( prop );
+			action.log( "property " + prop + "=" + value );
+		}
+	}
+
 }

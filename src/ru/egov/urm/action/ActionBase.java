@@ -124,6 +124,14 @@ abstract public class ActionBase {
 	public void logAction( String s ) {
 		log( this.getClass().getSimpleName() + ": " + s );
 	}
+
+	public boolean isDebug() {
+		return( context.CTX_SHOWALL );
+	}
+	
+	public boolean isTrace() {
+		return( context.CTX_TRACE );
+	}
 	
 	public void debug( Throwable e ) {
 		if( !context.CTX_SHOWALL )

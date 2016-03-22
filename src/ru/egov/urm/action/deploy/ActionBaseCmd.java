@@ -6,6 +6,7 @@ import ru.egov.urm.action.ActionScopeTargetItem;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerBase;
 import ru.egov.urm.meta.MetaEnvServerNode;
+import ru.egov.urm.meta.MetaFapBase;
 import ru.egov.urm.storage.BaseRepository;
 
 public class ActionBaseCmd extends ActionBase {
@@ -43,7 +44,34 @@ public class ActionBaseCmd extends ActionBase {
 
 	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerBase base ) throws Exception {
 		BaseRepository repo = artefactory.getBaseRepository( this );
-		repo.getBaseInfo( this , base.ID );
+		MetaFapBase info = repo.getBaseInfo( this , base.ID , node.properties );
+		
+		// install dependencies
+		for( String depBase : info.dependencies ) {
+			MetaFapBase depInfo = repo.getBaseInfo( this , depBase , node.properties );
+			executeNodeInstall( server , node , depInfo );
+		}
+
+		// install main
+		executeNodeInstall( server , node , info );
+	}
+
+	private void executeNodeInstall( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info ) throws Exception {
+		if( info.isArchiveLink() )
+			executeNodeArchiveLink( server , node , info );
+		else
+		if( info.isArchiveDirect() )
+			executeNodeArchiveDirect( server , node , info );
+		else
+			exitUnexpectedState();
+	}
+	
+	private void executeNodeArchiveLink( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info ) throws Exception {
+		log( "install node base=" + info.ID + " ..." );
+	}
+	
+	private void executeNodeArchiveDirect( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info ) throws Exception {
+		log( "install node base=" + info.ID + " ..." );
 	}
 	
 }
