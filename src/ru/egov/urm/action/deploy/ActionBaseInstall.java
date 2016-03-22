@@ -10,11 +10,11 @@ import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.MetaFapBase;
 import ru.egov.urm.storage.BaseRepository;
 
-public class ActionBaseCmd extends ActionBase {
+public class ActionBaseInstall extends ActionBase {
 
 	String cmd;
 	
-	public ActionBaseCmd( ActionBase action , String stream , String cmd ) {
+	public ActionBaseInstall( ActionBase action , String stream , String cmd ) {
 		super( action , stream );
 		this.cmd = cmd;
 	}

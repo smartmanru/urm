@@ -15,7 +15,7 @@ public class DeployCommand {
 	}
 
 	public void baseOps( ActionBase action , ActionScope scope , String cmd ) throws Exception {
-		ActionBaseCmd ma = new ActionBaseCmd( action , null , cmd );
+		ActionBaseInstall ma = new ActionBaseInstall( action , null , cmd );
 		ma.runAll( scope );
 	}
 
