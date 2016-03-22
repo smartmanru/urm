@@ -26,7 +26,7 @@ public class MetaEnvServerBase {
 	public void load( ActionBase action , Node node ) throws Exception {
 		Map<String,MetaEnvServerPrepareApp> prepareMap = new HashMap<String,MetaEnvServerPrepareApp>();
 		
-		PropertySet properties = new PropertySet( "base" , server.properties );
+		properties = new PropertySet( "base" , server.properties );
 		List<String> systemProps = new LinkedList<String>();
 		properties.loadFromAttributes( action , node );
 		ID = properties.getSystemRequiredProperty( action , "id" , systemProps );
