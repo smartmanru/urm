@@ -135,6 +135,11 @@ public class Artefactory {
 		return( repo );
 	}
 	
+	public BaseRepository getBaseRepository( ActionBase action ) throws Exception {
+		BaseRepository repo = BaseRepository.getBaseRepository( action , this );
+		return( repo );
+	}
+	
 	public MonitoringStorage getMonitoringStorage( ActionBase action , MetaMonitoring mon ) throws Exception {
 		return( new MonitoringStorage( this , workFolder , mon ) );
 	}

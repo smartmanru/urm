@@ -164,4 +164,11 @@ public class RemoteFolder extends Folder {
 		return( true );
 	}
 
+	public String readFile( ActionBase action , String file ) throws Exception {
+		if( !account.local )
+			action.exitNotImplemented();
+		
+		return( action.session.getFileContentAsString( action , getFilePath( action , file ) ) );
+	}
+	
 }

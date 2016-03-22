@@ -68,7 +68,7 @@ public class MetaEnvServer {
 	
 	public PropertySet properties;
 
-	MetaEnvServerBase base;
+	public MetaEnvServerBase base;
 	List<MetaEnvServerDeployment> deployments;
 	List<MetaEnvServerNode> nodes;
 	

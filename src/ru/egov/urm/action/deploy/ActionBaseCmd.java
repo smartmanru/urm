@@ -4,7 +4,9 @@ import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.ActionScopeTargetItem;
 import ru.egov.urm.meta.MetaEnvServer;
+import ru.egov.urm.meta.MetaEnvServerBase;
 import ru.egov.urm.meta.MetaEnvServerNode;
+import ru.egov.urm.storage.BaseRepository;
 
 public class ActionBaseCmd extends ActionBase {
 
@@ -34,6 +36,9 @@ public class ActionBaseCmd extends ActionBase {
 	}
 
 	private void executeNode( MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
+		MetaEnvServerBase base = server.base;
+		BaseRepository repo = artefactory.getBaseRepository( this );
+		repo.getBaseInfo( this , base.ID );
 	}
 	
 }

@@ -19,6 +19,7 @@ public abstract class Folder {
 	public boolean windows;
 	
 	public abstract ShellExecutor getSession( ActionBase action ) throws Exception; 
+	public abstract String readFile( ActionBase action , String subPath ) throws Exception;
 
 	protected Folder( Artefactory artefactory , String folderPath , boolean remote , boolean windows ) {
 		this.artefactory = artefactory;
@@ -409,4 +410,8 @@ public abstract class Folder {
 		return( session.getArchivePartMD5( action , filePath , archivePartPath , EXT ) );
 	}
 
+	public boolean isRemote( ActionBase action ) throws Exception {
+		return( false );
+	}
+	
 }
