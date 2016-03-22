@@ -234,7 +234,7 @@ public class MetaEnvServer {
 	}
 	
 	private void loadBase( ActionBase action , Node node ) throws Exception {
-		Node item = ConfReader.xmlGetFirstChild( action , node , "deploy" );
+		Node item = ConfReader.xmlGetFirstChild( action , node , "base" );
 		if( item == null )
 			return;
 		

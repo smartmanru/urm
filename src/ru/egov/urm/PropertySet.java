@@ -136,7 +136,7 @@ public class PropertySet {
 		
 		// parent var
 		if( parent == null || system )
-			action.exit( "unexpected unresolved variable=" + name );
+			action.exit( "unresolved variable=" + name );
 			
 		return( parent.getProperty( action , name ) );
 	}
