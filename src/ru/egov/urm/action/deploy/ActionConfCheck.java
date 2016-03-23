@@ -48,7 +48,7 @@ public class ActionConfCheck extends ActionBase {
 		// read env properties...
 		String[] S_CONFCHECK_PROPLIST_ENV = context.env.getPropertyList( this );
 
-		if( context.CTX_SHOWONLY ) {
+		if( !isExecute() ) {
 			// show values
 			log( "============================================ show env properties ..." );
 			for( String var : S_CONFCHECK_PROPLIST_ENV ) {
@@ -72,7 +72,7 @@ public class ActionConfCheck extends ActionBase {
 		// echo read data center=$DC properties...
 		String[] S_CONFCHECK_PROPLIST_DC = dc.getPropertyList( this );
 
-		if( context.CTX_SHOWONLY ) {
+		if( !isExecute() ) {
 			// show values
 			log( "============================================ data center=" + dc.NAME + " properties ..." );
 			for( String var : S_CONFCHECK_PROPLIST_DC ) {
@@ -96,7 +96,7 @@ public class ActionConfCheck extends ActionBase {
 		// echo read server properties...
 		String[] S_CONFCHECK_PROPLIST_SERVER = server.getPropertyList( this );
 
-		if( context.CTX_SHOWONLY ) {
+		if( !isExecute() ) {
 			// show values
 			log( "============================================ data center=" + server.dc.NAME + " server=" + server.NAME + " properties ..." );
 			for( String var : S_CONFCHECK_PROPLIST_SERVER ) {

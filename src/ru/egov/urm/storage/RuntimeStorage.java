@@ -23,7 +23,7 @@ public class RuntimeStorage extends ServerStorage {
 	public void restoreSysConfigs( ActionBase action , RedistStorage redist , LocalFolder srcFolder ) throws Exception {
 		String msg = "restore server control configuratuion files";
 		action.executeLogLive( action.getAccount( node ) , msg );
-		if( action.context.CTX_SHOWONLY )
+		if( !action.isExecute() )
 			return;
 		
 		String F_RUNTIMEDIR = server.getSystemPath( action );
@@ -58,7 +58,7 @@ public class RuntimeStorage extends ServerStorage {
 		String LOCATION = deployment.getDeployPath( action );
 		String msg = "restore server configuratuion files item=" + confItem.KEY + ", location=" + LOCATION;
 		action.executeLogLive( action.getAccount( node ) , msg );
-		if( action.context.CTX_SHOWONLY )
+		if( !action.isExecute() )
 			return;
 		
 		// prepare on local
@@ -141,7 +141,7 @@ public class RuntimeStorage extends ServerStorage {
 				Common.getEnumLower( CONTENTTYPE ) + ", location=" + LOCATION + ", file=" + redistFile.getFileName( action );
 		
 		action.executeLogLive( action.getAccount( node ) , msg );
-		if( action.context.CTX_SHOWONLY )
+		if( !action.isExecute() )
 			return;
 
 		RemoteFolder redistFolder = getRedistLocationFolder( action , RELEASEDIR , LOCATION , CONTENTTYPE , rollout );

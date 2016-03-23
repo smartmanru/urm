@@ -9,6 +9,8 @@ import ru.egov.urm.meta.MetaEnvServerBase;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.MetaFapBase;
 import ru.egov.urm.storage.BaseRepository;
+import ru.egov.urm.storage.RedistStorage;
+import ru.egov.urm.storage.RuntimeStorage;
 
 public class ActionBaseInstall extends ActionBase {
 
@@ -24,7 +26,7 @@ public class ActionBaseInstall extends ActionBase {
 	private void executeServer( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		MetaEnvServerBase base = server.base;
-		log( "============================================ execute server=" + server.NAME + ", type=" + server.SERVERTYPE + " ..." );
+		log( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.SERVERTYPE + " ..." );
 		
 		if( base == null ) {
 			log( "server has no base defined. Skipped" );
@@ -56,19 +58,25 @@ public class ActionBaseInstall extends ActionBase {
 
 	private void executeNodeInstall( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info ) throws Exception {
 		log( "install base=" + info.ID + ", type=" + Common.getEnumLower( info.type ) + " ..." );
+		if( !isExecute() )
+			return;
+		
+		RedistStorage redist = artefactory.getRedistStorage( this , server, node );
+		RuntimeStorage runtime = artefactory.getRootRuntimeStorage( this , server , node , info.adm );
+		
 		if( info.isLinuxArchiveLink() )
-			executeNodeLinuxArchiveLink( server , node , info );
+			executeNodeLinuxArchiveLink( server , node , info , redist , runtime );
 		else
 		if( info.isLinuxArchiveDirect() )
-			executeNodeLinuxArchiveDirect( server , node , info );
+			executeNodeLinuxArchiveDirect( server , node , info , redist , runtime );
 		else
 			exitUnexpectedState();
 	}
 	
-	private void executeNodeLinuxArchiveLink( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info ) throws Exception {
+	private void executeNodeLinuxArchiveLink( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
 	}
 	
-	private void executeNodeLinuxArchiveDirect( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info ) throws Exception {
+	private void executeNodeLinuxArchiveDirect( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
 	}
 	
 }

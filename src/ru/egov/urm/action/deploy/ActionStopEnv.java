@@ -18,7 +18,7 @@ public class ActionStopEnv extends ActionBase {
 
 	@Override protected void runBefore( ActionScope scope ) throws Exception {
 		logAction( "stop environment (" + getMode() + ") ..." );
-		if( !context.CTX_SHOWONLY )
+		if( isExecute() )
 			ActionSendChatMsg.sendMsg( this , "[stopenv] stopping " + scope.getScopeInfo( this ) + " ..." , null );
 	}
 

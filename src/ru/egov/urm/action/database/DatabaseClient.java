@@ -122,7 +122,7 @@ public class DatabaseClient {
 		String fileLog = logFolder.getFilePath( action , Common.getBaseName( file ) + ".out" );
 		
 		action.executeLogLive( shell , "apply manual script: " + file );
-		if( action.context.CTX_SHOWONLY )
+		if( !action.isExecute() )
 			return( true );
 		
 		return( specific.applySystemScript( action , shell , fileRun , fileLog ) );

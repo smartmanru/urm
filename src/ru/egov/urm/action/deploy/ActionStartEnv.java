@@ -18,7 +18,7 @@ public class ActionStartEnv extends ActionBase {
 
 	@Override protected void runBefore( ActionScope scope ) throws Exception {
 		logAction( "start environment (" + getMode() + ") ..." );
-		if( !context.CTX_SHOWONLY )
+		if( isExecute() )
 			ActionSendChatMsg.sendMsg( this , "[startenv] starting " + scope.getScopeInfo( this ) + " ..." , null );
 	}
 

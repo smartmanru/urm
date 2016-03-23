@@ -29,7 +29,7 @@ public class ActionScp extends ActionBase {
 		F_CMD += " " + F_SRC + " " + account.HOSTLOGIN + ":" + dstPath;
 		
 		super.executeLogLive( account , "scp from " + Common.getQuoted( srcInfo ) + " to " + Common.getQuoted( dstPath ) );
-		if( context.CTX_SHOWONLY )
+		if( !isExecute() )
 			return( true );
 		
 		int timeout = setTimeoutUnlimited();

@@ -45,7 +45,7 @@ public class ActionUpgradeEnv extends ActionBase {
 
 	private boolean checkNeed( Account account ) throws Exception {
 		if( context.CTX_FORCE ) {
-			if( context.CTX_SHOWONLY ) {
+			if( !isExecute() ) {
 				log( account.HOSTLOGIN + ": forced upgrade " + PATCHFILE + " (showonly)" );
 				return( false );
 			}

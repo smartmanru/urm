@@ -96,12 +96,16 @@ abstract public class ActionBase {
 	}
 	
 	public String getMode() {
-		if( context.CTX_SHOWONLY )
-			return( "showonly" );
-		else
+		if( isExecute() )
 			return( "execute" );
+		else
+			return( "showonly" );
 	}
 
+	public boolean isExecute() {
+		return( ( context.CTX_SHOWONLY )? false : true );
+	}
+	
 	public void log( String prompt , Throwable e ) {
 		try {
 			String s = "[" + context.streamName + "]";
@@ -393,7 +397,7 @@ abstract public class ActionBase {
 	}
 
 	public void executeLogLive( ShellExecutor shell , String msg ) throws Exception {
-		if( context.CTX_SHOWONLY ) {
+		if( !isExecute() ) {
 			log( shell.name + ": " + msg + " (showonly)" );
 			return;
 		}
@@ -404,7 +408,7 @@ abstract public class ActionBase {
 	
 	public void executeLogLive( Account account , String msg ) throws Exception {
 		ShellExecutor shell = getShell( account );
-		if( context.CTX_SHOWONLY ) {
+		if( !isExecute() ) {
 			log( account.HOSTLOGIN + ": " + msg + " (showonly)" );
 			return;
 		}
@@ -414,7 +418,7 @@ abstract public class ActionBase {
 	}
 	
 	public void executeCmdLive( Account account , String cmdRun ) throws Exception {
-		if( context.CTX_SHOWONLY ) {
+		if( !isExecute() ) {
 			log( account.HOSTLOGIN + ": " + cmdRun + " (showonly)" );
 			return;
 		}

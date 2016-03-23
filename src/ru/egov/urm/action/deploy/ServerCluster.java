@@ -29,7 +29,7 @@ public class ServerCluster {
 				res = false;
 		}	
 
-		if( action.context.CTX_SHOWONLY )
+		if( !action.isExecute() )
 			return( res );
 
 		// ensure processes are stopped
@@ -63,7 +63,7 @@ public class ServerCluster {
 				res = false;
 		}	
 
-		if( action.context.CTX_SHOWONLY )
+		if( !action.isExecute() )
 			return( res );
 
 		// enforce timeout before querying status

@@ -280,6 +280,13 @@ public class Artefactory {
 		return( new RedistStorage( this , type , account , null , null ) );
 	}
 
+	public RuntimeStorage getRootRuntimeStorage( ActionBase action , MetaEnvServer server , MetaEnvServerNode node , boolean adm ) throws Exception {
+		Account account = action.getAccount( node );
+		if( adm )
+			account = account.getRootAccount( action );
+		return( new RuntimeStorage( this , "default" , account , server , node ) );
+	}
+
 	public RuntimeStorage getRuntimeStorage( ActionBase action , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
 		Account account = action.getAccount( node );
 		return( new RuntimeStorage( this , "default" , account , server , node ) );

@@ -96,13 +96,13 @@ public class ShellCoreUnix extends ShellCore {
 	}
 
 	@Override public void runCommandCritical( ActionBase action , String cmd ) throws Exception {
-		if( action.context.CTX_SHOWONLY ) {
-			action.debug( executor.name + ": showonly " + cmd );
-		}
-		else {
+		if( action.isExecute() ) {
 			action.debug( executor.name + ": execute " + cmd );
 			runCommand( action , "echo `date` " + Common.getQuoted( "(SSH_CLIENT=\\$SSH_CLIENT): " + cmd ) + " >> ~/execute.log" , false );
 			runCommand( action , cmd , false );
+		}
+		else {
+			action.debug( executor.name + ": showonly " + cmd );
 		}
 	}
 	
