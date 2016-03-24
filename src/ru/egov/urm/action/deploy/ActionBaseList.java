@@ -18,14 +18,13 @@ public class ActionBaseList extends ActionBase {
 		VersionInfoStorage vis = artefactory.getVersionInfoStorage( this , account );
 		Map<String,String> items = vis.getBaseList( this );
 		if( items.isEmpty() ) {
-			log( account.HOSTLOGIN + ": no base items" );
+			comment( account.HOSTLOGIN + ": no base items" );
 			return( true );
 		}
 		
-		log( account.HOSTLOGIN + ":" );
 		for( String key : Common.getSortedKeys( items ) ) {
 			String value = items.get( key );
-			log( "base=" + key + " value=" + value );
+			comment( "base=" + key + " value=" + value );
 		}
 		
 		return( true );
