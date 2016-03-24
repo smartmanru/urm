@@ -246,5 +246,21 @@ public class RuntimeStorage extends ServerStorage {
 		rf.removeFolder( action , installName );
 		rf.extractTarGz( action , tarPath );
 	}
+
+	public void createDirLink( ActionBase action , String link , String runtimePath ) throws Exception {
+		if( account.isWindows() )
+			action.exitUnexpectedState();
+		
+		ShellExecutor session = action.getShell( account );
+		if( link.startsWith( "/" ) ) {
+			session.customCheckErrorsDebug( action , "if [ -d " + link + "; then unlink " + link + 
+					"; fi; ln -s " + runtimePath + " " + link );
+		}
+		else {
+			String dir = Common.getDirName( runtimePath );
+			session.customCheckErrorsDebug( action , dir , "if [ -d " + link + "; then unlink " + link + 
+					"; fi; ln -s " + runtimePath + " " + link );
+		}
+	}
 	
 }

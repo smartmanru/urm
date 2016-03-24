@@ -211,6 +211,13 @@ public abstract class ShellExecutor {
 		core.runCommand( action , dir , cmd , false );
 	}
 
+	public void customCheckErrorsDebug( ActionBase action , String dir , String cmd ) throws Exception {
+		core.runCommand( action , dir , cmd , true );
+		String err = core.getErr();
+		if( !err.isEmpty() )
+			action.exit( "error executind CMD=" + cmd + ": " + err );
+	}
+
 	public void customCritical( ActionBase action , String dir , String cmd ) throws Exception {
 		String cmdDir = core.getDirCmd( action , dir , cmd );
 		core.runCommandCritical( action , cmdDir );
