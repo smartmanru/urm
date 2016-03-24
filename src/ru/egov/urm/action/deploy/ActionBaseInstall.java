@@ -77,7 +77,7 @@ public class ActionBaseInstall extends ActionBase {
 		else
 			exitUnexpectedState();
 		
-		finishUpdate( info , redist );
+		finishUpdate( info , redist , vis );
 	}
 	
 	private void executeNodeLinuxArchiveLink( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
@@ -106,7 +106,8 @@ public class ActionBaseInstall extends ActionBase {
 		return( true );
 	}
 
-	private void finishUpdate( MetaFapBase info , RedistStorage redist ) throws Exception {
+	private void finishUpdate( MetaFapBase info , RedistStorage redist , VersionInfoStorage vis ) throws Exception {
+		vis.setBaseStatus( this , info.ID , "ok" );
 	}
 
 	private String copySourceToLocal( MetaFapBase info ) throws Exception {
