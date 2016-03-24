@@ -8,9 +8,11 @@ import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerBase;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.MetaFapBase;
+import ru.egov.urm.meta.MetaFapBase.VarBASESRCFORMAT;
 import ru.egov.urm.storage.BaseRepository;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.RedistStorage;
+import ru.egov.urm.storage.RemoteFolder;
 import ru.egov.urm.storage.RuntimeStorage;
 import ru.egov.urm.storage.VersionInfoStorage;
 
@@ -131,15 +133,27 @@ public class ActionBaseInstall extends ActionBase {
 		if( !session.checkFileExists( this , localPath ) )
 			exit( "unable to find file: " + localPath );
 		
-		trace( "source local path: " + localPath );
+		debug( "source local path: " + localPath );
 		return( localPath );
 	}
 
 	private String copyLocalToRedist( MetaFapBase info , String localPath , RedistStorage redist ) throws Exception {
-		return( null );
+		RemoteFolder folder = redist.getRedistTmpFolder( this );
+		folder.copyFileFromLocal( this , localPath );
+		String baseName = Common.getBaseName( localPath );
+		String redistPath = folder.getFilePath( this , baseName );
+		debug( "redist path: " + redistPath );
+		return( redistPath );
 	}
 	
 	private String extractArchiveFromRedist( MetaFapBase info , RedistStorage redist , String redistPath , RuntimeStorage runtime ) throws Exception {
+		if( info.srcFormat == VarBASESRCFORMAT.TARGZ_SINGLEDIR ) {
+			runtime.extractBaseTarGzSingleDir( this , redistPath , info.SRCSTOREDIR , info.INSTALLPATH );
+			debug( "runtime path: " + info.INSTALLPATH );
+			return( info.INSTALLPATH );
+		}
+
+		exitUnexpectedState();
 		return( null );
 	}
 

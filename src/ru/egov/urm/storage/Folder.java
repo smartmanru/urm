@@ -194,6 +194,10 @@ public abstract class Folder {
 		session.move( action , Common.getPath( folderPath , file ) , Common.getPath( folderPath , folder ) );
 	}
 	
+	public void extractTarGz( ActionBase action , String tarFile ) throws Exception {
+		extractTarGz( action , tarFile , "" );
+	}
+	
 	public void extractTarGz( ActionBase action , String tarFile , String targetFolder ) throws Exception {
 		ShellExecutor session = getSession( action ); 
 		session.extractTarGz( action , tarFile , Common.getPath( folderPath , targetFolder ) );

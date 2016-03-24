@@ -235,5 +235,16 @@ public class RuntimeStorage extends ServerStorage {
 		
 		redist.changeStateItem( action , RELEASEDIR , CONTENTTYPE , LOCATION , redistFile , rollout );
 	}
+
+	public void extractBaseTarGzSingleDir( ActionBase action , String tarPath , String tarDir , String installPath ) throws Exception {
+		ShellExecutor session = action.getShell( account );
+		session.appendExecuteLog( action , "install/upgrade base from " + tarPath + " to " + installPath + " ..." );
+		String installDir = Common.getDirName( installPath );
+		String installName = Common.getBaseName( installPath );
+		
+		RemoteFolder rf = new RemoteFolder( artefactory , account , installDir );
+		rf.removeFolder( action , installName );
+		rf.extractTarGz( action , tarPath );
+	}
 	
 }
