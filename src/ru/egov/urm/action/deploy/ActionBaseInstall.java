@@ -159,6 +159,7 @@ public class ActionBaseInstall extends ActionBase {
 
 	private void linkNewBase( MetaFapBase info , RuntimeStorage runtime , String runtimePath ) throws Exception {
 		runtime.createDirLink( this , info.INSTALLLINK , runtimePath );
+		debug( "link path: " + info.INSTALLLINK );
 	}
 	
 }
