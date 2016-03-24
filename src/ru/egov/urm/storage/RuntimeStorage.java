@@ -253,12 +253,12 @@ public class RuntimeStorage extends ServerStorage {
 		
 		ShellExecutor session = action.getShell( account );
 		if( link.startsWith( "/" ) ) {
-			session.customCheckErrorsDebug( action , "if [ -d " + link + "; then unlink " + link + 
+			session.customCheckErrorsDebug( action , "if [ -d " + link + " ]; then unlink " + link + 
 					"; fi; ln -s " + runtimePath + " " + link );
 		}
 		else {
 			String dir = Common.getDirName( runtimePath );
-			session.customCheckErrorsDebug( action , dir , "if [ -d " + link + "; then unlink " + link + 
+			session.customCheckErrorsDebug( action , dir , "if [ -d " + link + " ]; then unlink " + link + 
 					"; fi; ln -s " + runtimePath + " " + link );
 		}
 	}
