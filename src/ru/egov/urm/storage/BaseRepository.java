@@ -33,6 +33,10 @@ public class BaseRepository {
 		return( ID + "/metadata.xml" );
 	}
 
+	public String getBaseItemPath( ActionBase action , String itemPath ) throws Exception {
+		return( repoFolder.getFilePath( action , itemPath ) );
+	}
+
 	public MetaFapBase getBaseInfo( ActionBase action , String ID , PropertySet parentProperties ) throws Exception {
 		String basePath = getBasePath( action , ID );
 		String text = repoFolder.readFile( action , basePath );

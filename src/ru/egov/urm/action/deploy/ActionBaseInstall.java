@@ -9,6 +9,7 @@ import ru.egov.urm.meta.MetaEnvServerBase;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.MetaFapBase;
 import ru.egov.urm.storage.BaseRepository;
+import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.RedistStorage;
 import ru.egov.urm.storage.RuntimeStorage;
 import ru.egov.urm.storage.VersionInfoStorage;
@@ -50,14 +51,14 @@ public class ActionBaseInstall extends ActionBase {
 		// install dependencies
 		for( String depBase : info.dependencies ) {
 			MetaFapBase depInfo = repo.getBaseInfo( this , depBase , node.properties );
-			executeNodeInstall( server , node , depInfo );
+			executeNodeInstall( server , node , repo , depInfo );
 		}
 
 		// install main
-		executeNodeInstall( server , node , info );
+		executeNodeInstall( server , node , repo , info );
 	}
 
-	private void executeNodeInstall( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info ) throws Exception {
+	private void executeNodeInstall( MetaEnvServer server , MetaEnvServerNode node , BaseRepository repo , MetaFapBase info ) throws Exception {
 		if( !isExecute() )
 			return;
 
@@ -70,25 +71,27 @@ public class ActionBaseInstall extends ActionBase {
 			
 		log( "install base=" + info.ID + ", type=" + Common.getEnumLower( info.type ) + " ..." );
 		if( info.isLinuxArchiveLink() )
-			executeNodeLinuxArchiveLink( server , node , info , redist , runtime );
+			executeNodeLinuxArchiveLink( server , node , repo , info , redist , runtime );
 		else
 		if( info.isLinuxArchiveDirect() )
-			executeNodeLinuxArchiveDirect( server , node , info , redist , runtime );
+			executeNodeLinuxArchiveDirect( server , node , repo , info , redist , runtime );
 		else
 			exitUnexpectedState();
 		
 		finishUpdate( info , redist , vis );
 	}
 	
-	private void executeNodeLinuxArchiveLink( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
-		String localPath = copySourceToLocal( info );
+	private void executeNodeLinuxArchiveLink( MetaEnvServer server , MetaEnvServerNode node , BaseRepository repo , MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
+		String localPath = copySourceToLocal( repo , info );
+		trace( "source local path: " + localPath );
 		String redistPath = copyLocalToRedist( info , localPath , redist );
 		String runtimePath = extractArchiveFromRedist( info , redist , redistPath , runtime );
 		linkNewBase( info , runtime , runtimePath );
 	}
 	
-	private void executeNodeLinuxArchiveDirect( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
-		String localPath = copySourceToLocal( info );
+	private void executeNodeLinuxArchiveDirect( MetaEnvServer server , MetaEnvServerNode node , BaseRepository repo , MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
+		String localPath = copySourceToLocal( repo , info );
+		trace( "source local path: " + localPath );
 		String redistPath = copyLocalToRedist( info , localPath , redist );
 		extractArchiveFromRedist( info , redist , redistPath , runtime );
 	}
@@ -110,8 +113,21 @@ public class ActionBaseInstall extends ActionBase {
 		vis.setBaseStatus( this , info.ID , "ok" );
 	}
 
-	private String copySourceToLocal( MetaFapBase info ) throws Exception {
-		return( null );
+	private String copySourceToLocal( BaseRepository repo , MetaFapBase info ) throws Exception {
+		if( info.SRCFILE.startsWith( "http:" ) || info.SRCFILE.startsWith( "https:" ) ) {
+			LocalFolder folder = artefactory.getArtefactFolder( this , "base" );
+			String baseName = Common.getBaseName( info.SRCFILE );
+			String filePath = folder.getFilePath( this , baseName );
+			session.downloadUnix( this , info.SRCFILE , filePath , "" );
+			return( filePath );
+		}
+
+		// check absolute
+		if( info.SRCFILE.startsWith( "/" ) )
+			return( info.SRCFILE );
+		
+		String filePath = repo.getBaseItemPath( this , info.SRCFILE );
+		return( filePath );
 	}
 
 	private String copyLocalToRedist( MetaFapBase info , String localPath , RedistStorage redist ) throws Exception {
