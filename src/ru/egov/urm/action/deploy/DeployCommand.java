@@ -20,7 +20,7 @@ public class DeployCommand {
 	}
 
 	public void baseList( ActionBase action , ActionScope scope ) throws Exception {
-		ActionBaseInstall ma = new ActionBaseInstall( action , null );
+		ActionBaseList ma = new ActionBaseList( action , null );
 		ma.runEnvUniqueAccounts( scope );
 	}
 
