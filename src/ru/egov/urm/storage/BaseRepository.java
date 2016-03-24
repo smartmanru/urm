@@ -33,8 +33,8 @@ public class BaseRepository {
 		return( ID + "/metadata.xml" );
 	}
 
-	public String getBaseItemPath( ActionBase action , String itemPath ) throws Exception {
-		return( repoFolder.getFilePath( action , itemPath ) );
+	public String getBaseItemPath( ActionBase action , String BASEID , String itemPath ) throws Exception {
+		return( repoFolder.getFilePath( action , BASEID + "/" + itemPath ) );
 	}
 
 	public MetaFapBase getBaseInfo( ActionBase action , String ID , PropertySet parentProperties ) throws Exception {

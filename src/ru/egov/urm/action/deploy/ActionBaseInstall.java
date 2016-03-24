@@ -83,7 +83,6 @@ public class ActionBaseInstall extends ActionBase {
 	
 	private void executeNodeLinuxArchiveLink( MetaEnvServer server , MetaEnvServerNode node , BaseRepository repo , MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
 		String localPath = copySourceToLocal( repo , info );
-		trace( "source local path: " + localPath );
 		String redistPath = copyLocalToRedist( info , localPath , redist );
 		String runtimePath = extractArchiveFromRedist( info , redist , redistPath , runtime );
 		linkNewBase( info , runtime , runtimePath );
@@ -91,7 +90,6 @@ public class ActionBaseInstall extends ActionBase {
 	
 	private void executeNodeLinuxArchiveDirect( MetaEnvServer server , MetaEnvServerNode node , BaseRepository repo , MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
 		String localPath = copySourceToLocal( repo , info );
-		trace( "source local path: " + localPath );
 		String redistPath = copyLocalToRedist( info , localPath , redist );
 		extractArchiveFromRedist( info , redist , redistPath , runtime );
 	}
@@ -114,20 +112,27 @@ public class ActionBaseInstall extends ActionBase {
 	}
 
 	private String copySourceToLocal( BaseRepository repo , MetaFapBase info ) throws Exception {
+		String localPath = null;
 		if( info.SRCFILE.startsWith( "http:" ) || info.SRCFILE.startsWith( "https:" ) ) {
 			LocalFolder folder = artefactory.getArtefactFolder( this , "base" );
 			String baseName = Common.getBaseName( info.SRCFILE );
 			String filePath = folder.getFilePath( this , baseName );
 			session.downloadUnix( this , info.SRCFILE , filePath , "" );
-			return( filePath );
+			localPath = filePath;
 		}
-
-		// check absolute
-		if( info.SRCFILE.startsWith( "/" ) )
-			return( info.SRCFILE );
+		else {
+			// check absolute
+			if( info.SRCFILE.startsWith( "/" ) )
+				localPath = info.SRCFILE;
+			else
+				localPath = repo.getBaseItemPath( this , info.ID , info.SRCFILE );
+		}
 		
-		String filePath = repo.getBaseItemPath( this , info.SRCFILE );
-		return( filePath );
+		if( !session.checkFileExists( this , localPath ) )
+			exit( "unable to find file: " + localPath );
+		
+		trace( "source local path: " + localPath );
+		return( localPath );
 	}
 
 	private String copyLocalToRedist( MetaFapBase info , String localPath , RedistStorage redist ) throws Exception {
