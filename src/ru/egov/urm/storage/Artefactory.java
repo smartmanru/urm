@@ -304,5 +304,10 @@ public class Artefactory {
 		Account account = Account.getAccount( action , context.env.DISTR_HOSTLOGIN , VarOSTYPE.UNIX );
 		return( new RemoteFolder( this , account , context.env.REDISTPATH ) );
 	}
+
+	public VersionInfoStorage getVersionInfoStorage( ActionBase action , Account account ) throws Exception {
+		RedistStorage redist = getRedistStorage( "version" , account ); 
+		return( new VersionInfoStorage( redist ) );
+	}
 	
 }

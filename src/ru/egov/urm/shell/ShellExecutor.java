@@ -477,6 +477,14 @@ public abstract class ShellExecutor {
 		return( core.cmdGetFileContentAsString( action , filePath ) );
 	}
 
+	public String[] grepFile( ActionBase action , String filePath , String mask ) throws Exception {
+		return( core.cmdGrepFile( action , filePath , mask ) );
+	}
+	
+	public void replaceFileLine( ActionBase action , String filePath , String mask , String newLine ) throws Exception {
+		core.cmdReplaceFileLine( action , filePath , mask , newLine );
+	}
+	
 	public void appendExecuteLog( ActionBase action , String msg ) throws Exception {
 		core.cmdAppendExecuteLog( action , msg ); 
 	}
@@ -485,6 +493,14 @@ public abstract class ShellExecutor {
 		core.cmdAppendUploadLog( action , src , dst );
 	}
 
+	public void createPublicDir( ActionBase action , String dir ) throws Exception {
+		core.cmdCreatePublicDir( action , dir );
+	}
+
+	public String[] getFileLines( ActionBase action , String filePath ) throws Exception {
+		return( core.cmdGetFileLines( action , filePath ) );
+	}
+	
 	public void downloadUnix( ActionBase action , String URL , String TARGETNAME , String auth ) throws Exception {
 		if( core.OSTYPE != VarOSTYPE.UNIX )
 			action.exitUnexpectedState();

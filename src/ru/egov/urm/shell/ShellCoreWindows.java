@@ -201,6 +201,27 @@ public class ShellCoreWindows extends ShellCore {
 		runCommand( action , "( if exist " + wdir + " rmdir /S /Q " + wdir + " ) && md " + wdir , true );
 	}
 
+	@Override public void cmdCreatePublicDir( ActionBase action , String dir ) throws Exception {
+		String wdir = Common.getWinPath( action , dir );
+		runCommand( action , "md " + wdir , true );
+	}
+
+	@Override public String[] cmdGrepFile( ActionBase action , String filePath , String mask ) throws Exception {
+		return( runCommandGetLines( action , "type " + filePath + " | findstr " + mask , true ) );
+	}
+
+	@Override public void cmdReplaceFileLine( ActionBase action , String filePath , String mask , String newLine ) throws Exception {
+		String filePathWin = Common.getWinPath( action , filePath );
+		String filePathTmp = filePathWin + ".new";
+		String cmd = "findstr /V " + mask + " " + filePathWin + " > " + filePathTmp + 
+				" && del /Q " + filePathWin + 
+				" && rename " + filePathTmp + " " + Common.getBaseName( filePathWin );
+		
+		if( !newLine.isEmpty() )
+			cmd += "; echo " + newLine + " >> " + filePath;
+		runCommandCheckDebug( action , cmd );
+	}
+	
 	public String getRegularMaskList( ActionBase action , String maskList ) throws Exception {
 		String reg = "";
 		for( String mask : Common.splitSpaced( maskList ) ) {
@@ -466,6 +487,11 @@ public class ShellCoreWindows extends ShellCore {
 		return( value );
 	}
 
+	@Override public String[] cmdGetFileLines( ActionBase action , String filePath ) throws Exception {
+		String fileWin = Common.getWinPath( action , filePath );
+		return( this.runCommandGetLines( action , "type  " + fileWin , true ) );
+	}
+	
 	@Override public void cmdAppendExecuteLog( ActionBase action , String msg ) throws Exception {
 		String executeLog = Common.getWinPath( action , Common.getPath( executor.rootPath , "execute.log" ) );
 		String ts = Common.getLogTimeStamp();

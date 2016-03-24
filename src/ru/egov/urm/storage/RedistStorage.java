@@ -15,6 +15,7 @@ import ru.egov.urm.meta.Metadata.VarDEPLOYTYPE;
 import ru.egov.urm.meta.Metadata.VarDISTITEMTYPE;
 import ru.egov.urm.meta.Metadata.VarITEMVERSION;
 import ru.egov.urm.shell.Account;
+import ru.egov.urm.shell.ShellExecutor;
 
 public class RedistStorage extends ServerStorage {
 
@@ -97,6 +98,20 @@ public class RedistStorage extends ServerStorage {
 		return( true );
 	}
 
+	public RemoteFolder getRedistStateBaseFolder( ActionBase action ) throws Exception {
+		RemoteFolder folder = getRedistFolder( action );
+		RemoteFolder folderBase = folder.getSubFolder( action , "base" );
+		if( !folderBase.checkExists( action ) ) {
+			Account accountRoot = account.getRootAccount( action );
+			ShellExecutor remoteSession = action.getShell( accountRoot );
+			remoteSession.createPublicDir( action , folderBase.folderPath );
+		}
+		
+		RemoteFolder folderState = folderBase.getSubFolder( action , account.USER );
+		folderState.ensureExists( action );
+		return( folderState );
+	}
+	
 	public RemoteFolder getRedistReleaseFolder( ActionBase action , String RELEASEDIR ) throws Exception {
 		return( getReleaseFolder( action , RELEASEDIR ) );
 	}

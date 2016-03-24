@@ -19,6 +19,11 @@ public class DeployCommand {
 		ma.runAll( scope );
 	}
 
+	public void baseList( ActionBase action , ActionScope scope ) throws Exception {
+		ActionBaseInstall ma = new ActionBaseInstall( action , null );
+		ma.runEnvUniqueAccounts( scope );
+	}
+
 	public void checkEnv( ActionBase action , ActionScope scope ) throws Exception {
 		ActionCheckEnv ma = new ActionCheckEnv( action , null );
 		ma.runAll( scope );

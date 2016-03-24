@@ -11,6 +11,7 @@ import ru.egov.urm.meta.MetaFapBase;
 import ru.egov.urm.storage.BaseRepository;
 import ru.egov.urm.storage.RedistStorage;
 import ru.egov.urm.storage.RuntimeStorage;
+import ru.egov.urm.storage.VersionInfoStorage;
 
 public class ActionBaseInstall extends ActionBase {
 
@@ -57,13 +58,17 @@ public class ActionBaseInstall extends ActionBase {
 	}
 
 	private void executeNodeInstall( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info ) throws Exception {
-		log( "install base=" + info.ID + ", type=" + Common.getEnumLower( info.type ) + " ..." );
 		if( !isExecute() )
 			return;
-		
+
 		RedistStorage redist = artefactory.getRedistStorage( this , server, node );
 		RuntimeStorage runtime = artefactory.getRootRuntimeStorage( this , server , node , info.adm );
-		
+		VersionInfoStorage vis = artefactory.getVersionInfoStorage( this , redist.account );
+
+		if( !startUpdate( info , redist , vis ) )
+			return;
+			
+		log( "install base=" + info.ID + ", type=" + Common.getEnumLower( info.type ) + " ..." );
 		if( info.isLinuxArchiveLink() )
 			executeNodeLinuxArchiveLink( server , node , info , redist , runtime );
 		else
@@ -71,12 +76,52 @@ public class ActionBaseInstall extends ActionBase {
 			executeNodeLinuxArchiveDirect( server , node , info , redist , runtime );
 		else
 			exitUnexpectedState();
+		
+		finishUpdate( info , redist );
 	}
 	
 	private void executeNodeLinuxArchiveLink( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
+		String localPath = copySourceToLocal( info );
+		String redistPath = copyLocalToRedist( info , localPath , redist );
+		String runtimePath = extractArchiveFromRedist( info , redist , redistPath , runtime );
+		linkNewBase( info , runtime , runtimePath );
 	}
 	
 	private void executeNodeLinuxArchiveDirect( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
+		String localPath = copySourceToLocal( info );
+		String redistPath = copyLocalToRedist( info , localPath , redist );
+		extractArchiveFromRedist( info , redist , redistPath , runtime );
+	}
+
+	private boolean startUpdate( MetaFapBase info , RedistStorage redist , VersionInfoStorage vis ) throws Exception {
+		String STATUS = vis.getBaseStatus( this , info.ID );
+		if( STATUS.equals( "ok" ) ) {
+			if( !context.CTX_FORCE ) {
+				log( "skip updating base=" + info.ID + ". Up-to-date" );
+				return( false );
+			}
+		}
+				
+		vis.setBaseStatus( this , info.ID , "upgrading" );
+		return( true );
+	}
+
+	private void finishUpdate( MetaFapBase info , RedistStorage redist ) throws Exception {
+	}
+
+	private String copySourceToLocal( MetaFapBase info ) throws Exception {
+		return( null );
+	}
+
+	private String copyLocalToRedist( MetaFapBase info , String localPath , RedistStorage redist ) throws Exception {
+		return( null );
+	}
+	
+	private String extractArchiveFromRedist( MetaFapBase info , RedistStorage redist , String redistPath , RuntimeStorage runtime ) throws Exception {
+		return( null );
+	}
+
+	private void linkNewBase( MetaFapBase info , RuntimeStorage runtime , String runtimePath ) throws Exception {
 	}
 	
 }

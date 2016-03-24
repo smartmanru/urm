@@ -169,6 +169,19 @@ public class ShellCoreUnix extends ShellCore {
 		return( value );
 	}
 	
+	@Override public String[] cmdGrepFile( ActionBase action , String filePath , String mask ) throws Exception {
+		return( runCommandGetLines( action , "grep " + mask + " " + filePath , true ) );
+	}
+	
+	@Override public void cmdReplaceFileLine( ActionBase action , String filePath , String mask , String newLine ) throws Exception {
+		String filePathTmp = filePath + ".new";
+		String cmd = "grep -v " + mask + " " + filePath + " > " + filePathTmp + 
+				"; mv " + filePathTmp + " " + filePath;
+		if( !newLine.isEmpty() )
+			cmd += "; echo " + Common.getQuoted( newLine ) + " >> " + filePath;
+		runCommandCheckDebug( action , cmd );
+	}
+	
 	@Override public String cmdFindOneTop( ActionBase action , String path , String mask ) throws Exception {
 		String value = runCommandGetValueCheckDebug( action , path , "find . -maxdepth 1 -name " + Common.getQuoted( mask ) + " | tr '\\n' ' '" );
 		value = value.trim();
@@ -540,6 +553,10 @@ public class ShellCoreUnix extends ShellCore {
 		return( value );
 	}
 
+	@Override public String[] cmdGetFileLines( ActionBase action , String filePath ) throws Exception {
+		return( this.runCommandGetLines( action , "cat " + filePath , true ) );
+	}
+	
 	@Override public void cmdAppendExecuteLog( ActionBase action , String msg ) throws Exception {
 		cmdAppendFileWithString( action , "~/execute.log" , Common.getQuoted( "`date` (SSH_CLIENT=$SSH_CLIENT): " + msg ) ); 
 	}
@@ -549,6 +566,10 @@ public class ShellCoreUnix extends ShellCore {
 		cmdAppendFileWithString( action , "~/upload.log" , Common.getQuoted( "`date` (SSH_CLIENT=$SSH_CLIENT): " + msg ) ); 
 	}
 
+	@Override public void cmdCreatePublicDir( ActionBase action , String dir ) throws Exception {
+		runCommandCheckDebug( action , "mkdir -p " + dir + "; chmod 777 " + dir );
+	}
+	
 	@Override public String[] cmdGetFolders( ActionBase action , String rootPath ) throws Exception {
 		String list = runCommandGetValueCheckDebug( action , rootPath , "find . -type d | grep -v \"^.$\"" );
 		return( Common.split( list , "\n" ) );

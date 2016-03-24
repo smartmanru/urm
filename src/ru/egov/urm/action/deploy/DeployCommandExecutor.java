@@ -133,6 +133,9 @@ public class DeployCommandExecutor extends CommandExecutor {
 		if( CMD.equals( "install" ) )
 			impl.baseInstall( action , scope );
 		else
+		if( CMD.equals( "list" ) )
+			impl.baseList( action , scope );
+		else
 			action.exitUnexpectedState();
 	}
 	}

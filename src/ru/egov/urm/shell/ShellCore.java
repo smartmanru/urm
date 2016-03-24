@@ -102,8 +102,12 @@ abstract class ShellCore {
 	abstract public String cmdGetArchivePartMD5( ActionBase action , String filePath , String archivePartPath , String EXT ) throws Exception;
 	abstract public String cmdGetFilesMD5( ActionBase action , String dir , String includeList , String excludeList ) throws Exception;
 	abstract public String cmdGetFileContentAsString( ActionBase action , String filePath ) throws Exception;
+	abstract public String[] cmdGrepFile( ActionBase action , String filePath , String mask ) throws Exception;
+	abstract public void cmdReplaceFileLine( ActionBase action , String filePath , String mask , String newLine ) throws Exception;
 	abstract public void cmdAppendExecuteLog( ActionBase action , String msg ) throws Exception;
 	abstract public void cmdAppendUploadLog( ActionBase action , String src , String dst ) throws Exception;
+	abstract public void cmdCreatePublicDir( ActionBase action , String dir ) throws Exception;
+	abstract public String[] cmdGetFileLines( ActionBase action , String filePath ) throws Exception;
 	abstract public Map<String,List<String>> cmdGetFilesContent( ActionBase action , String dir , String fileMask ) throws Exception;
 	
 	public static ShellCore createShellCore( ActionBase action , ShellExecutor executor , VarOSTYPE osType ) throws Exception {
