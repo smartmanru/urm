@@ -98,7 +98,7 @@ public class ActionBaseInstall extends ActionBase {
 		String STATUS = vis.getBaseStatus( this , info.ID );
 		if( STATUS.equals( "ok" ) ) {
 			if( !context.CTX_FORCE ) {
-				log( "skip updating base=" + info.ID + ". Up-to-date" );
+				log( "skip updating base=" + info.ID + ". Already installed." );
 				return( false );
 			}
 		}

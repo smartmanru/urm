@@ -24,6 +24,11 @@ public class DeployCommand {
 		ma.runEnvUniqueAccounts( scope );
 	}
 
+	public void baseClear( ActionBase action , ActionScope scope ) throws Exception {
+		ActionBaseClear ma = new ActionBaseClear( action , null );
+		ma.runEnvUniqueAccounts( scope );
+	}
+
 	public void checkEnv( ActionBase action , ActionScope scope ) throws Exception {
 		ActionCheckEnv ma = new ActionCheckEnv( action , null );
 		ma.runAll( scope );

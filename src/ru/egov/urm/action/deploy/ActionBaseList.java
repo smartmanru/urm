@@ -29,6 +29,5 @@ public class ActionBaseList extends ActionBase {
 		
 		return( true );
 	}
-
 	
 }

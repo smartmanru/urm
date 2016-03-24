@@ -10,6 +10,7 @@ import ru.egov.urm.shell.ShellExecutor;
 public class VersionInfoStorage {
 
 	RedistStorage redist;
+	static String VERSION_FILENAME = "version.txt";
 	
 	public VersionInfoStorage( RedistStorage redist ) {
 		this.redist = redist;
@@ -17,13 +18,21 @@ public class VersionInfoStorage {
 
 	private String getFilePath( ActionBase action ) throws Exception {
 		RemoteFolder folder = redist.getRedistStateBaseFolder( action );
-		String fileName = "version.txt";
 		
-		String filePath = folder.getFilePath( action , fileName ); 
-		if( !folder.checkFileExists( action , fileName ) )
-			folder.createFileFromString( action , fileName , "ignore" );
+		String filePath = folder.getFilePath( action , VERSION_FILENAME ); 
+		if( !folder.checkFileExists( action , VERSION_FILENAME ) )
+			folder.createFileFromString( action , VERSION_FILENAME , "ignore" );
 		
 		return( filePath );
+	}
+
+	public void clearAll( ActionBase action ) throws Exception {
+		RemoteFolder folder = redist.getRedistStateBaseFolder( action );
+		
+		if( folder.checkFileExists( action , VERSION_FILENAME ) ) {
+			folder.removeFiles( action , VERSION_FILENAME );
+			folder.createFileFromString( action , VERSION_FILENAME , "ignore" );
+		}
 	}
 	
 	public String getBaseStatus( ActionBase action , String BASEID ) throws Exception {
