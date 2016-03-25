@@ -6,7 +6,7 @@
   - Linux-based command center, powerful command-line interface
   - Linux/Windows builds and deployments, maven/gradle/dotnet
   - full/incremental releases for generic multi-datacenter application sets
-  - build and deployments without writing scripts, compact declarative tobe-specifications
+  - build and deployments without writing script, compact declarative tobe-specifications
   - align with specific technologies, not replacing with its own
   - multi-repository codebase management, svn/git repositories
   - multi-datacenter heterogenious environment management, flexible but controlled configurations
