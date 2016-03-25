@@ -194,30 +194,26 @@ public class CommandContext {
 	
 	public boolean loadDefaults( RunContext rc ) {
 		// read env
-		if( rc.hostName == null || rc.hostName.isEmpty() ) {
+		if( rc.hostName.isEmpty() ) {
 			System.out.println( "HOSTNAME is not set. Exiting" );
 			return( false );
 		}
 
-		if( rc.userName == null || rc.userName.isEmpty() ) {
+		if( rc.userName.isEmpty() ) {
 			System.out.println( "USER is not set. Exiting" );
 			return( false );
 		}
 
-		if( rc.productHome == null || productHome.isEmpty() ) {
+		if( rc.productHome.isEmpty() ) {
 			System.out.println( "you need to add -Dproduct.home=<your product home> to run" );
 			return( false );
 		}
 
 		this.account = new Account( rc.userName , rc.hostName , true , VarOSTYPE.UNIX );
 		this.productHome = rc.productHome;
-		this.buildMode = ( rc.buildMode == null || rc.buildMode.isEmpty() )? VarBUILDMODE.UNKNOWN : VarBUILDMODE.valueOf( rc.buildMode );
+		this.buildMode = ( rc.buildMode.isEmpty() )? VarBUILDMODE.UNKNOWN : VarBUILDMODE.valueOf( rc.buildMode );
 		this.ENV = rc.envName;
-		if( ENV == null )
-			ENV = "";
 		this.DC = rc.dcName;
-		if( DC == null )
-			DC = "";
 		
 		return( true );
 	}
