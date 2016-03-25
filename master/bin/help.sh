@@ -4,7 +4,7 @@ cd `dirname $0`
 
 # top help
 if [ "$1" = "" ]; then
-	./bin/urm.sh help "$@"
+	./urm.sh help "$@"
 	exit 0
 fi
 
@@ -12,4 +12,4 @@ fi
 CATEGORY=$1
 shift 1
 
-./bin/urm.sh $CATEGORY help "$@"
+./urm.sh $CATEGORY help "$@"

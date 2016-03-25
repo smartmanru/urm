@@ -7,10 +7,12 @@ import java.util.Map;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.ExitException;
+import ru.egov.urm.RunContext;
 import ru.egov.urm.meta.Metadata;
 
 public abstract class CommandExecutor {
 
+	public RunContext rc;
 	public CommandAction commandAction;
 	public CommandBuilder builder;
 	public Metadata meta;
@@ -25,6 +27,7 @@ public abstract class CommandExecutor {
 	public boolean setManualOptions( CommandOptions options ) { return( false ); };
 	
 	public CommandExecutor( CommandBuilder builder ) {
+		this.rc = builder.rc;
 		this.builder = builder;
 		this.manualActions = false;
 		this.options = new CommandOptions();

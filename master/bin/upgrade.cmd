@@ -27,7 +27,7 @@ function f_execute_all() {
 	local F_SAVEDIR=`pwd`
 	cd $P_DSTDIR/master
 	if [ -f bin/configure.sh ]; then
-		bin/configure.sh
+		bin/configure.sh default
 	fi
 }
 

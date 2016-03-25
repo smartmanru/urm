@@ -1,5 +1,7 @@
 package ru.egov.urm.action;
 
+import ru.egov.urm.RunContext;
+import ru.egov.urm.UrmConfigurator;
 import ru.egov.urm.action.build.BuildCommandExecutor;
 import ru.egov.urm.action.database.DatabaseCommandExecutor;
 import ru.egov.urm.action.deploy.DeployCommandExecutor;
@@ -10,31 +12,39 @@ import ru.egov.urm.meta.Metadata;
 
 public class CommandBuilder {
 
+	public RunContext rc;
 	public String cmd;
 	public CommandOutput output = null;
 	public CommandOptions options = null;
 	public CommandContext context = null;
 	
 	void out( String s ) {
-		System.out.println( s );
+		System.out.println( "# " + s );
 	}
 
 	public CommandBuilder() {
 	}
 
 	public CommandExecutor buildCommand( String[] args ) throws Exception {
+		rc = new RunContext();
+		rc.load();
+		
+		String urmName = ( rc.osType.equals( "windows" ) )? "urm.cmd" : "./urm.sh";
 		if( args.length == 0 ) {
-			out( "invalid URM call, execute one of:" );
-			out( "urm help" );
-			out( "urm cmd help" );
-			out( "urm help cmd" );
-			out( "urm cmd [options] [args]" );
+			out( "URM HELP" );
+			out( "Available operations:" );
+			out( "\t" + urmName + " help" );
+			out( "\t" + urmName + " help cmd" );
+			out( "\t" + urmName + " cmd help" );
+			out( "\t" + urmName + " cmd [options] [args]" );
 			return( null );
 		}
 		
 		cmd = args[0]; 
+		String helpName = ( rc.osType.equals( "windows" ) )? "help.cmd" : "./help.sh";
 		if( cmd.equals( "help" ) ) { 
 			out( "URM HELP" );
+			out( "Syntax: " + urmName + " <command> <action> <args>" );
 			out( "Available commands are:" );
 			out( "\tbuild - build sources, codebase and distributive management" );
 			out( "\tdeploy - deploy distributive items to environment and environment maintenance operations" );
@@ -43,13 +53,15 @@ public class CommandBuilder {
 			out( "\trelease - release operations" );
 			out( "\txdoc - create technical documentation" );
 			out( "" );
-			out( "To see help on operations run ./help.sh <command> [<action>]" );
+			out( "To see help on operations run " + helpName + " <command> [<action>]" );
 			return( null );
 		}
 
 		// discriminate
 		CommandExecutor executor;
-		if( cmd.equals( "build" ) )
+		if( cmd.equals( "configure" ) )
+			executor = new UrmConfigurator( this );
+		else if( cmd.equals( "build" ) )
 			executor = new BuildCommandExecutor( this );
 		else if( cmd.equals( "deploy" ) )
 			executor = new DeployCommandExecutor( this );
@@ -62,7 +74,7 @@ public class CommandBuilder {
 		else if( cmd.equals( "xdoc" ) )
 			executor = new XDocCommandExecutor( this );
 		else {
-			out( "invalid URM args - unknown command category=" + cmd + " (expected one of build/deploy/database/monitor)" );
+			out( "Unexpected URM args - unknown command category=" + cmd + " (need one of build/deploy/database/monitor)" );
 			return( null );
 		}
 		
@@ -110,7 +122,7 @@ public class CommandBuilder {
 
 	private boolean createCommandContext( CommandExecutor executor ) throws Exception {
 		context = new CommandContext();
-		if( !context.loadDefaults() )
+		if( !context.loadDefaults( executor.rc ) )
 			return( false );
 
 		return( true );

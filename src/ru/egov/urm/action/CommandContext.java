@@ -1,6 +1,7 @@
 package ru.egov.urm.action;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.RunContext;
 import ru.egov.urm.action.CommandOptions.SQLMODE;
 import ru.egov.urm.action.CommandOptions.SQLTYPE;
 import ru.egov.urm.meta.MetaEnv;
@@ -182,9 +183,8 @@ public class CommandContext {
 		action.options.updateContext( action );
 	}
 
-	public CommandContext getProductContext( String productHome , String stream ) {
+	public CommandContext getProductContext( String stream ) {
 		CommandContext context = new CommandContext( this , stream );
-		context.productHome = productHome;
 		return( context );
 	}
 	
@@ -192,34 +192,30 @@ public class CommandContext {
 		return( Common.getEnumLower( buildMode ) );
 	}
 	
-	public boolean loadDefaults() {
+	public boolean loadDefaults( RunContext rc ) {
 		// read env
-		String hostName = System.getenv( "HOSTNAME" );
-		if( hostName == null || hostName.isEmpty() ) {
+		if( rc.hostName == null || rc.hostName.isEmpty() ) {
 			System.out.println( "HOSTNAME is not set. Exiting" );
 			return( false );
 		}
 
-		String userName = System.getenv( "USER" );
-		if( userName == null || userName.isEmpty() ) {
+		if( rc.userName == null || rc.userName.isEmpty() ) {
 			System.out.println( "USER is not set. Exiting" );
 			return( false );
 		}
 
-		String productHome = System.getProperty( "product.home" );
-		if( productHome == null || productHome.isEmpty() ) {
+		if( rc.productHome == null || productHome.isEmpty() ) {
 			System.out.println( "you need to add -Dproduct.home=<your product home> to run" );
 			return( false );
 		}
 
-		this.account = new Account( userName , hostName , true , VarOSTYPE.UNIX );
-		this.productHome = productHome;
-		String value = System.getProperty( "build.mode" ).toUpperCase();
-		this.buildMode = ( value == null || value.isEmpty() )? VarBUILDMODE.UNKNOWN : VarBUILDMODE.valueOf( value );
-		this.ENV = System.getProperty( "env" );
+		this.account = new Account( rc.userName , rc.hostName , true , VarOSTYPE.UNIX );
+		this.productHome = rc.productHome;
+		this.buildMode = ( rc.buildMode == null || rc.buildMode.isEmpty() )? VarBUILDMODE.UNKNOWN : VarBUILDMODE.valueOf( rc.buildMode );
+		this.ENV = rc.envName;
 		if( ENV == null )
 			ENV = "";
-		this.DC = System.getProperty( "dc" );
+		this.DC = rc.dcName;
 		if( DC == null )
 			DC = "";
 		
