@@ -87,7 +87,7 @@ public class ShellCoreWindows extends ShellCore {
 			cmdout.clear();
 			cmderr.clear();
 			
-			String execLine = cmd + " && ( echo " + finishMarker + " >&2 ) && ( echo " + finishMarker + " )\n";
+			String execLine = cmd + " && ( echo " + finishMarker + " >&2 ) && ( echo " + finishMarker + " )\r\n";
 			action.trace( executor.name + " execute: " + cmd );
 			if( action.context.CTX_TRACEINTERNAL )
 				action.trace( "write cmd line=" + execLine );
