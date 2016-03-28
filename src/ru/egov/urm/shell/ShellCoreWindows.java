@@ -1,5 +1,6 @@
 package ru.egov.urm.shell;
 
+import java.io.BufferedReader;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,11 +27,16 @@ public class ShellCoreWindows extends ShellCore {
 			running = true;
 			localSession.createProcess( action , builder , rootPath );
 			initialized = true;
+			return;
 		}
+		
+		super.createProcess( action , builder , rootPath );
 	}
 	
 	@Override public void kill( ActionBase action ) throws Exception {
-		localSession.kill( action );
+		if( sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX )
+			localSession.kill( action );
+		
 		super.kill( action );
 	}
 	
@@ -67,19 +73,62 @@ public class ShellCoreWindows extends ShellCore {
 	}
 	
 	@Override public void runCommand( ActionBase action , String cmd , boolean debug ) throws Exception {
-		String execLine = prepareExecute( action , cmd , debug );
+		if( !running )
+			exitError( action , "attempt to run command in closed session: " + cmd );
 		
-		localSession.runCommand( action , execLine , debug );
-		getOutput( action );
+		if( sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX ) {
+			String execLine = prepareExecute( action , cmd , debug );
+			localSession.runCommand( action , execLine , debug );
+			getOutput( action );
+		}
+		else {
+			cmdCurrent = cmd;
+
+			cmdout.clear();
+			cmderr.clear();
+			
+			String execLine = cmd + "; echo " + finishMarker + " >&2; echo " + finishMarker + "\n";
+			action.trace( executor.name + " execute: " + cmd );
+			if( action.context.CTX_TRACEINTERNAL )
+				action.trace( "write cmd line=" + execLine );
+			
+			writer.write( execLine );
+			try {
+				writer.flush();
+			}
+			catch( Throwable e ) {
+				if( action.context.CTX_TRACEINTERNAL )
+					e.printStackTrace();
+			}
+			
+			ShellWaiter waiter = new ShellWaiter( executor , new CommandReaderWindows( debug ) );
+			boolean res = waiter.wait( action , action.commandTimeout );
+			
+			if( !res )
+				exitError( action , "command has been killed" );
+		}
 	}
 
 	@Override public int runCommandGetStatus( ActionBase action , String cmd , boolean debug ) throws Exception {
-		String execLine = prepareExecute( action , cmd , debug );
+		if( sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX ) {
+			String execLine = prepareExecute( action , cmd , debug );
+			int status = localSession.runCommandGetStatus( action , execLine , debug );
+			getOutput( action );
+			return( status );
+		}
+		else {
+			runCommand( action , cmd + " && echo status=%errorlevel%" , debug );
+			if( cmdout.size() > 0 ) {
+				String last = cmdout.get( cmdout.size() - 1 );
+				if( last.startsWith( "status=" ) ) {
+					int status = Integer.parseInt( Common.getPartAfterFirst( last , "status=" ) );
+					return( status );
+				}
+			}
+		}
 		
-		int status = localSession.runCommandGetStatus( action , execLine , debug );
-		getOutput( action );
-		
-		return( status );
+		action.exit( "error executing cmd=(" + cmd + ")" );
+		return( 0 );
 	}
 
 	@Override public void runCommandCritical( ActionBase action , String cmd ) throws Exception {
@@ -567,6 +616,77 @@ public class ShellCoreWindows extends ShellCore {
 			action.exit( "error reading files in dir=" + dir );
 		
 		return( map );
+	}
+	
+	/*##################################################*/
+	/*##################################################*/
+	
+	class CommandReaderWindows extends WaiterCommand {
+		boolean debug;
+		
+		public CommandReaderWindows( boolean debug ) {
+			this.debug = debug;
+		}
+		
+		public void run( ActionBase action ) throws Exception {
+			readStreamToMarker( action , reader , cmdout , "" );
+			readStreamToMarker( action , errreader , cmderr , "stderr:" );
+		}
+		
+		private void outStreamLine( ActionBase action , String line , List<String> text ) throws Exception {
+			text.add( line );
+			if( debug )
+				action.trace( line );
+			else
+				action.log( line );
+		}
+
+		private void readStreamToMarker( ActionBase action , BufferedReader textreader , List<String> text , String prompt ) throws Exception {
+			String line;
+			boolean first = true;
+			
+			String buffer = "";
+			if( action.context.CTX_TRACEINTERNAL )
+				action.trace( "readStreamToMarker - start reading ..." );
+			
+			while ( true ) {
+				int index = buffer.indexOf( '\n' );
+				if( index < 0 ) {
+					String newBuffer = readBuffer( action , textreader , buffer , '\n' );
+					if( newBuffer != null )
+						buffer = newBuffer;
+					continue;
+				}
+				
+				line = buffer.substring( 0 , index );
+				buffer = buffer.substring( index + 1 );
+				
+				if( action.context.CTX_TRACEINTERNAL )
+					action.trace( "readStreamToMarker - line=" + line.replaceAll("\\p{C}", "?") );
+				
+				index = line.indexOf( finishMarker );
+				if( index >= 0 ) {
+					line = line.substring( 0 , index );
+					if( index > 0 ) {
+						if( first && !prompt.isEmpty() ) {
+							outStreamLine( action , prompt , text );
+							first = false;
+						}
+						outStreamLine( action , line , text );
+					}
+				}
+				else {
+					if( first && !prompt.isEmpty() ) {
+						outStreamLine( action , prompt , text );
+						first = false;
+					}
+					outStreamLine( action , line , text );
+				}
+				
+				if( index >= 0 )
+					break;
+			}
+		}
 	}
 	
 }

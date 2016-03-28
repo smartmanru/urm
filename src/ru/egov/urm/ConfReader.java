@@ -2,6 +2,7 @@ package ru.egov.urm;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
@@ -73,7 +74,8 @@ public class ConfReader {
     	
     	Properties props = new Properties();
         InputStream inputStream = getResourceStream( action , path );
-        props.load( inputStream );
+        InputStreamReader reader = new InputStreamReader( inputStream , "UTF8" );
+        props.load( reader );
         
         // remove quotes if any
         for( Object key : props.keySet() ) {
