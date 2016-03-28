@@ -46,9 +46,9 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override protected void getProcessAttributes( ActionBase action ) throws Exception {
-		runCommand( action , "echo off" , true );
 		super.homePath = action.context.productHome;
 		super.processId = Common.getPartBeforeFirst( ManagementFactory.getRuntimeMXBean().getName() , "@" );
+		runCommand( action , "echo off" , true );
 	}
 	
 	private String prepareExecute( ActionBase action , String cmd , boolean debug ) throws Exception {

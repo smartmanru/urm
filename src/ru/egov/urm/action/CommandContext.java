@@ -17,6 +17,7 @@ public class CommandContext {
 	
 	public String streamName;
 	public Account account;
+	public String userHome;
 	public String productHome;
 	public VarBUILDMODE buildMode = VarBUILDMODE.UNKNOWN;
 	public String ENV;
@@ -96,6 +97,7 @@ public class CommandContext {
 		
 		// copy all properties
 		this.account = context.account;
+		this.userHome = context.userHome;
 		this.productHome = context.productHome;
 		this.buildMode = context.buildMode;
 		this.env = context.env;
@@ -211,6 +213,7 @@ public class CommandContext {
 
 		VarOSTYPE osType = ( rc.OSTYPE.equals( "WINDOWS" ) )? VarOSTYPE.WINDOWS : VarOSTYPE.UNIX;
 		this.account = new Account( rc.userName , rc.hostName , true , osType );
+		this.userHome = rc.userHome;
 		this.productHome = rc.productHome;
 		this.buildMode = ( rc.buildMode.isEmpty() )? VarBUILDMODE.UNKNOWN : VarBUILDMODE.valueOf( rc.buildMode );
 		this.ENV = rc.envName;

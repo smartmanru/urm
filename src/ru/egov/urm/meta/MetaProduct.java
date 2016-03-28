@@ -187,7 +187,7 @@ public class MetaProduct {
 				
 				String val = props.getProperty( action , name );
 				if( val.startsWith( "~/") )
-					val = ConfReader.userHome + val.substring( 1 );
+					val = action.context.userHome + val.substring( 1 );
 				
 				// trim quotes
 				val = val.trim();

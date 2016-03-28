@@ -33,7 +33,6 @@ import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 public class ConfReader {
 
     private static DocumentBuilder xmlParser = null;
-    public static String userHome;
 
     private ConfReader() {
     };
@@ -43,8 +42,6 @@ public class ConfReader {
         	DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         	xmlParser = dbf.newDocumentBuilder();
     	}
-
-    	userHome = System.getenv( "HOME");
     }
     
     public static Document readXmlFile( ActionBase action , String path ) throws Exception {
@@ -99,7 +96,7 @@ public class ConfReader {
 	public static List<String> readFileLines( ActionBase action , String path ) throws Exception {
     	String fullPath = path;
     	if( fullPath.startsWith( "~/" ) )
-    		fullPath = userHome + fullPath.substring( 1 );
+    		fullPath = action.context.userHome + fullPath.substring( 1 );
     	
     	init();
     	
@@ -130,7 +127,7 @@ public class ConfReader {
     private static InputStream getResourceStream( ActionBase action , String path ) throws Exception {
     	String fullPath = path;
     	if( fullPath.startsWith( "~/" ) )
-    		fullPath = userHome + fullPath.substring( 1 ); 
+    		fullPath = action.context.userHome + fullPath.substring( 1 ); 
         InputStream inputStream = new FileInputStream( fullPath );
         return( inputStream );
     }

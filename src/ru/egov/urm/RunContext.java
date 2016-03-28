@@ -3,6 +3,8 @@ package ru.egov.urm;
 public class RunContext {
 
 	public String OSTYPE;
+
+	public String userHome;
 	public String productHome;
 	public String buildMode;
 	public String envName;
@@ -23,10 +25,12 @@ public class RunContext {
 		if( OSTYPE.equals( "LINUX" ) ) {
 			hostName = System.getenv( "HOSTNAME" );
 			userName = System.getenv( "USER" );
+	    	userHome = System.getenv( "HOME" );
 		}
 		else {
 			hostName = "windows";
 			userName = "user";
+	    	userHome = productHome;
 		}
 	}
 	
