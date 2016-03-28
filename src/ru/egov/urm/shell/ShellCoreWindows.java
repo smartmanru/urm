@@ -45,6 +45,7 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override protected void getProcessAttributes( ActionBase action ) throws Exception {
+		runCommand( action , "echo off" , true );
 	}
 	
 	private String prepareExecute( ActionBase action , String cmd , boolean debug ) throws Exception {
@@ -87,7 +88,7 @@ public class ShellCoreWindows extends ShellCore {
 			cmdout.clear();
 			cmderr.clear();
 			
-			String execLine = cmd + " && ( echo " + finishMarker + " >&2 ) && ( echo " + finishMarker + " )\r\n";
+			String execLine = "( @" + cmd + " ) && ( echo " + finishMarker + " >&2 ) && ( echo " + finishMarker + " )\r\n";
 			action.trace( executor.name + " execute: " + cmd );
 			if( action.context.CTX_TRACEINTERNAL )
 				action.trace( "write cmd line=" + execLine );
