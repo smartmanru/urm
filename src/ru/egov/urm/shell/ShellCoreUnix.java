@@ -400,7 +400,7 @@ public class ShellCoreUnix extends ShellCore {
 		
 		int timeout = action.setTimeoutUnlimited();
 		String preserveOption = "-p ";
-		if( account.OSTYPE == VarOSTYPE.WINDOWS )
+		if( account.isWindows() )
 			preserveOption = "";
 		
 		runCommandCheckDebug( action , "scp -q -B " + preserveOption + keyOption + srcPath + " " + account.HOSTLOGIN + ":" + dstPath );
@@ -420,7 +420,7 @@ public class ShellCoreUnix extends ShellCore {
 		
 		int timeout = action.setTimeoutUnlimited();
 		String preserveOption = "-p ";
-		if( account.OSTYPE == VarOSTYPE.WINDOWS )
+		if( account.isWindows() )
 			preserveOption = "";
 		
 		runCommandCheckDebug( action , "scp -r -q -B " + preserveOption + keyOption + srcDirPath + " " + account.HOSTLOGIN + ":" + baseDstDir );
@@ -438,7 +438,7 @@ public class ShellCoreUnix extends ShellCore {
 		
 		int timeout = action.setTimeoutUnlimited();
 		String preserveOption = "-p ";
-		if( account.OSTYPE == VarOSTYPE.WINDOWS )
+		if( account.isWindows() )
 			preserveOption = "";
 		
 		runCommandCheckDebug( action , "scp -r -q -B " + preserveOption + keyOption + srcDirPath + "/* " + account.HOSTLOGIN + ":" + dstDir );

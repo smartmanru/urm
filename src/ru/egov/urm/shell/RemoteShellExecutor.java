@@ -10,14 +10,14 @@ public class RemoteShellExecutor extends ShellExecutor {
 	}
 
 	public void start( ActionBase action ) throws Exception {
-		ProcessBuilder builder;
+		ProcessBuilder builder = null;
 		
-		if( account.OSTYPE == VarOSTYPE.WINDOWS ) {
+		if( account.OSTYPE == VarOSTYPE.WINREMOTE ) {
 			if( action.context.CTX_TRACEINTERNAL )
 				action.trace( "create local sh process on behalf of " + account.HOSTLOGIN );
 			builder = new ProcessBuilder( "sh" );
 		}
-		else {
+		else if( account.OSTYPE == VarOSTYPE.UNIX ) {
 			String keyFile = action.context.CTX_KEYNAME;
 			if( !keyFile.isEmpty() ) {
 				if( action.context.CTX_TRACEINTERNAL )
@@ -30,6 +30,8 @@ public class RemoteShellExecutor extends ShellExecutor {
 				builder = new ProcessBuilder( "ssh" , "-T" , account.HOSTLOGIN );
 			}
 		}
+		else
+			action.exitUnexpectedState();
 			
 		super.createProcess( action , builder , rootPath );
 	}

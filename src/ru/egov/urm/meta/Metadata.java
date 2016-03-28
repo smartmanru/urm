@@ -99,7 +99,8 @@ public class Metadata {
 	public enum VarOSTYPE {
 		UNKNOWN ,
 		UNIX ,
-		WINDOWS
+		WINREMOTE ,
+		WINLOCAL
 	};
 
 	public enum VarDISTITEMTYPE {

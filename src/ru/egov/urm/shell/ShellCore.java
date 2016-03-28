@@ -116,7 +116,7 @@ abstract class ShellCore {
 		if( osType == VarOSTYPE.UNIX )
 			core = new ShellCoreUnix( executor , osType , executor.tmpFolder );
 		else
-		if( osType == VarOSTYPE.WINDOWS )
+		if( osType == VarOSTYPE.WINREMOTE || osType == VarOSTYPE.WINLOCAL )
 			core = new ShellCoreWindows( executor , osType , executor.tmpFolder );
 		else
 			action.exitUnexpectedState();

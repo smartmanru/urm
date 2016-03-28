@@ -28,7 +28,7 @@ public class Account {
 	}
 	
 	public boolean isWindows() {
-		return( OSTYPE == VarOSTYPE.WINDOWS );
+		return( OSTYPE == VarOSTYPE.WINLOCAL || OSTYPE == VarOSTYPE.WINREMOTE );
 	}
 	
 	public static Account getAccount( ActionBase action , String user , String host , VarOSTYPE OSTYPE ) throws Exception {

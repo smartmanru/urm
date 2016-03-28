@@ -515,7 +515,7 @@ public class MetaEnvServer {
 	}
 
 	public boolean isWindows( ActionBase action ) throws Exception {
-		return( osType == VarOSTYPE.WINDOWS );
+		return( osType == VarOSTYPE.WINLOCAL || osType == VarOSTYPE.WINREMOTE );
 	}
 
 	public boolean isLinux( ActionBase action ) throws Exception {

@@ -460,7 +460,11 @@ abstract public class ActionBase {
 	}
 
 	public Account getWinBuildAccount() throws Exception {
-		Account account = Account.getAccount( this , meta.product.CONFIG_WINBUILD_HOSTLOGIN , VarOSTYPE.WINDOWS );
+		VarOSTYPE osType = VarOSTYPE.WINREMOTE;
+		if( meta.product.CONFIG_WINBUILD_HOSTLOGIN.equals( context.account.HOSTLOGIN ) )
+			osType = VarOSTYPE.WINLOCAL;
+		
+		Account account = Account.getAccount( this , meta.product.CONFIG_WINBUILD_HOSTLOGIN , osType );
 		return( account );
 	}
 	

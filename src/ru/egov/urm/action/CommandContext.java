@@ -209,7 +209,8 @@ public class CommandContext {
 			return( false );
 		}
 
-		this.account = new Account( rc.userName , rc.hostName , true , VarOSTYPE.UNIX );
+		VarOSTYPE osType = ( rc.osType.equals( "windows" ) )? VarOSTYPE.WINLOCAL : VarOSTYPE.UNIX;
+		this.account = new Account( rc.userName , rc.hostName , true , osType );
 		this.productHome = rc.productHome;
 		this.buildMode = ( rc.buildMode.isEmpty() )? VarBUILDMODE.UNKNOWN : VarBUILDMODE.valueOf( rc.buildMode );
 		this.ENV = rc.envName;

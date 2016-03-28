@@ -31,7 +31,7 @@ public abstract class ShellExecutor {
 	
 	public static ShellExecutor getLocalShellExecutor( ActionBase action , String name , ShellExecutorPool pool , String rootPath , Folder tmpFolder ) throws Exception {
 		ShellExecutor executor = new LocalShellExecutor( name , pool , rootPath , tmpFolder );
-		executor.core = ShellCore.createShellCore( action, executor , VarOSTYPE.UNIX );
+		executor.core = ShellCore.createShellCore( action, executor , action.context.account.OSTYPE );
 		return( executor );
 	}
 
