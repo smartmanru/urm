@@ -2,7 +2,7 @@ package ru.egov.urm;
 
 public class RunContext {
 
-	public String osType;
+	public String OSTYPE;
 	public String productHome;
 	public String buildMode;
 	public String envName;
@@ -14,13 +14,13 @@ public class RunContext {
 	}
 	
 	public void load() {
-		osType = getProperty( "urm.os" ).toUpperCase();
+		OSTYPE = getProperty( "urm.os" ).toUpperCase();
 		productHome = getProperty( "product.home" );
 		buildMode = getProperty( "build.mode" ).toUpperCase();
 		envName = getProperty( "env" );
 		dcName = getProperty( "dc" );
 		
-		if( osType.equals( "linux" ) ) {
+		if( OSTYPE.equals( "LINUX" ) ) {
 			hostName = System.getenv( "HOSTNAME" );
 			userName = System.getenv( "USER" );
 		}
