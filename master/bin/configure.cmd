@@ -1,2 +1,2 @@
 @cd %~dp0
-@urm.cmd configure configure-windows "$@"
+@urm.cmd configure configure-windows %*
