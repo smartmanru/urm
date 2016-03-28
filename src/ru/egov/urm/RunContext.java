@@ -14,8 +14,8 @@ public class RunContext {
 	}
 	
 	public void load() {
-		osType = getProperty( "urm.os" );
-		productHome = getProperty( "product.home" ).toUpperCase();
+		osType = getProperty( "urm.os" ).toUpperCase();
+		productHome = getProperty( "product.home" );
 		buildMode = getProperty( "build.mode" ).toUpperCase();
 		envName = getProperty( "env" );
 		dcName = getProperty( "dc" );
