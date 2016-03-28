@@ -99,8 +99,16 @@ public class Metadata {
 	public enum VarOSTYPE {
 		UNKNOWN ,
 		UNIX ,
-		WINREMOTE ,
-		WINLOCAL
+		WINDOWS
+	};
+
+	public enum VarSESSIONTYPE {
+		UNKNOWN ,
+		UNIXLOCAL ,
+		UNIXREMOTE ,
+		WINDOWSLOCAL ,
+		WINDOWSREMOTE ,
+		WINDOWSFROMUNIX
 	};
 
 	public enum VarDISTITEMTYPE {
@@ -217,6 +225,21 @@ public class Metadata {
 		return( configurableExtensions );
 	}
 
+	public VarOSTYPE getOSType( ActionBase action , String ID ) throws Exception {
+		VarOSTYPE value = null;
+		try {
+			value = VarOSTYPE.valueOf( Common.xmlToEnumValue( ID ) );
+		}
+		catch( IllegalArgumentException e ) {
+			action.exit( "invalid operation system type=" + ID );
+		}
+		
+		if( value == null )
+			action.exit( "missing operating system type" );
+		
+		return( value );
+	}
+	
 	public VarCATEGORY getCategory( ActionBase action , String ID ) throws Exception {
 		VarCATEGORY value = null;
 		try {
@@ -257,21 +280,6 @@ public class Metadata {
 		
 		if( value == null )
 			action.exit( "missing server type" );
-		
-		return( value );
-	}
-	
-	public VarOSTYPE getOSType( ActionBase action , String ID ) throws Exception {
-		VarOSTYPE value = null;
-		try {
-			value = VarOSTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			action.exit( "invalid operation system type=" + ID );
-		}
-		
-		if( value == null )
-			action.exit( "missing operating system type" );
 		
 		return( value );
 	}

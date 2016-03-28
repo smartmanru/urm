@@ -9,14 +9,15 @@ import java.util.Map;
 import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
+import ru.egov.urm.meta.Metadata.VarSESSIONTYPE;
 import ru.egov.urm.storage.Folder;
 
 public class ShellCoreUnix extends ShellCore {
 
 	boolean windowsHelper = false;
 	
-	public ShellCoreUnix( ShellExecutor executor , VarOSTYPE osType , Folder tmpFolder ) {
-		super( executor , osType , tmpFolder );
+	public ShellCoreUnix( ShellExecutor executor , VarSESSIONTYPE sessionType , Folder tmpFolder , boolean local ) {
+		super( executor , VarOSTYPE.UNIX , sessionType , tmpFolder , local );
 	}
 
 	public void setWindowsHelper() {

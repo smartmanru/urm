@@ -8,22 +8,25 @@ import java.util.Map;
 import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
+import ru.egov.urm.meta.Metadata.VarSESSIONTYPE;
 import ru.egov.urm.storage.Folder;
 
 public class ShellCoreWindows extends ShellCore {
 
 	ShellCoreUnix localSession;
 	
-	public ShellCoreWindows( ShellExecutor executor , VarOSTYPE osType , Folder tmpFolder ) {
-		super( executor , osType , tmpFolder );
+	public ShellCoreWindows( ShellExecutor executor , VarSESSIONTYPE sessionType , Folder tmpFolder , boolean local ) {
+		super( executor , VarOSTYPE.WINDOWS , sessionType , tmpFolder , local );
 	}
 
 	@Override public void createProcess( ActionBase action , ProcessBuilder builder , String rootPath ) throws Exception {
-		localSession = new ShellCoreUnix( executor , executor.account.OSTYPE , tmpFolder );
-		localSession.setWindowsHelper();
-		running = true;
-		localSession.createProcess( action , builder , rootPath );
-		initialized = true;
+		if( sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX ) {
+			localSession = new ShellCoreUnix( executor , VarSESSIONTYPE.UNIXLOCAL , tmpFolder , true );
+			localSession.setWindowsHelper();
+			running = true;
+			localSession.createProcess( action , builder , rootPath );
+			initialized = true;
+		}
 	}
 	
 	@Override public void kill( ActionBase action ) throws Exception {

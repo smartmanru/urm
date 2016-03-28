@@ -209,7 +209,7 @@ public class CommandContext {
 			return( false );
 		}
 
-		VarOSTYPE osType = ( rc.OSTYPE.equals( "WINDOWS" ) )? VarOSTYPE.WINLOCAL : VarOSTYPE.UNIX;
+		VarOSTYPE osType = ( rc.OSTYPE.equals( "WINDOWS" ) )? VarOSTYPE.WINDOWS : VarOSTYPE.UNIX;
 		this.account = new Account( rc.userName , rc.hostName , true , osType );
 		this.productHome = rc.productHome;
 		this.buildMode = ( rc.buildMode.isEmpty() )? VarBUILDMODE.UNKNOWN : VarBUILDMODE.valueOf( rc.buildMode );

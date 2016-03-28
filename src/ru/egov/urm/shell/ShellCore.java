@@ -13,11 +13,14 @@ import java.util.Map;
 
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
+import ru.egov.urm.meta.Metadata.VarSESSIONTYPE;
 import ru.egov.urm.storage.Folder;
 
 abstract class ShellCore {
 
-	public VarOSTYPE OSTYPE;
+	public boolean local;
+	public VarOSTYPE osType;
+	public VarSESSIONTYPE sessionType;
 	public Folder tmpFolder;
 	ShellExecutor executor;
 	
@@ -110,25 +113,40 @@ abstract class ShellCore {
 	abstract public String[] cmdGetFileLines( ActionBase action , String filePath ) throws Exception;
 	abstract public Map<String,List<String>> cmdGetFilesContent( ActionBase action , String dir , String fileMask ) throws Exception;
 	
-	public static ShellCore createShellCore( ActionBase action , ShellExecutor executor , VarOSTYPE osType ) throws Exception {
+	public static ShellCore createShellCore( ActionBase action , ShellExecutor executor , VarOSTYPE osType , boolean local ) throws Exception {
 		ShellCore core = null;
 		
-		if( osType == VarOSTYPE.UNIX )
-			core = new ShellCoreUnix( executor , osType , executor.tmpFolder );
+		if( osType == VarOSTYPE.UNIX ) {
+			VarSESSIONTYPE sessionType = ( local )? VarSESSIONTYPE.UNIXLOCAL : VarSESSIONTYPE.UNIXREMOTE;
+			core = new ShellCoreUnix( executor , sessionType , executor.tmpFolder , local );
+		}
 		else
-		if( osType == VarOSTYPE.WINREMOTE || osType == VarOSTYPE.WINLOCAL )
-			core = new ShellCoreWindows( executor , osType , executor.tmpFolder );
+		if( osType == VarOSTYPE.WINDOWS ) {
+			VarSESSIONTYPE sessionType = null;
+			if( action.context.account.isWindows() ) {
+				if( !local )
+					action.exitUnexpectedState();
+				sessionType = VarSESSIONTYPE.WINDOWSLOCAL;
+			}
+			else {
+				if( local )
+					action.exitUnexpectedState();
+				sessionType = VarSESSIONTYPE.WINDOWSFROMUNIX;
+			}
+				
+			core = new ShellCoreWindows( executor , sessionType , executor.tmpFolder , local );
+		}
 		else
 			action.exitUnexpectedState();
-		
-		core.OSTYPE = osType;
 		
 		return( core );
 	}
 	
-	protected ShellCore( ShellExecutor executor , VarOSTYPE osType , Folder tmpFolder ) {
+	protected ShellCore( ShellExecutor executor , VarOSTYPE osType , VarSESSIONTYPE sessionType , Folder tmpFolder , boolean local ) {
+		this.local = local;
 		this.executor = executor;
-		this.OSTYPE = osType;
+		this.osType = osType;
+		this.sessionType = sessionType;
 		this.tmpFolder = tmpFolder;
 		
 		cmdout = new LinkedList<String>();

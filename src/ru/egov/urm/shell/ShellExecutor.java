@@ -31,7 +31,7 @@ public abstract class ShellExecutor {
 	
 	public static ShellExecutor getLocalShellExecutor( ActionBase action , String name , ShellExecutorPool pool , String rootPath , Folder tmpFolder ) throws Exception {
 		ShellExecutor executor = new LocalShellExecutor( name , pool , rootPath , tmpFolder );
-		executor.core = ShellCore.createShellCore( action, executor , action.context.account.OSTYPE );
+		executor.core = ShellCore.createShellCore( action, executor , action.context.account.osType , true );
 		return( executor );
 	}
 
@@ -40,7 +40,7 @@ public abstract class ShellExecutor {
 		Folder tmpFolder = storage.getRedistTmpFolder( action );
 
 		ShellExecutor executor = new RemoteShellExecutor( name , pool , account , rootPath , tmpFolder );
-		executor.core = ShellCore.createShellCore( action, executor , account.OSTYPE );
+		executor.core = ShellCore.createShellCore( action, executor , account.osType , false );
 		return( executor );
 	}
 
@@ -55,7 +55,7 @@ public abstract class ShellExecutor {
 		if( !initialized )
 			action.exit( "session=" + name + " failed on init stage" );
 		
-		core = ShellCore.createShellCore( action , this , core.OSTYPE );
+		core = ShellCore.createShellCore( action , this , core.osType , core.local );
 		start( action );
 	}
 	
@@ -509,7 +509,7 @@ public abstract class ShellExecutor {
 	}
 	
 	public void downloadUnix( ActionBase action , String URL , String TARGETNAME , String auth ) throws Exception {
-		if( core.OSTYPE != VarOSTYPE.UNIX )
+		if( core.osType != VarOSTYPE.UNIX )
 			action.exitUnexpectedState();
 		
 		String TARGETDIRNAME;

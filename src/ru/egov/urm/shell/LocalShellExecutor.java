@@ -10,7 +10,8 @@ public class LocalShellExecutor extends ShellExecutor {
 	}
 	
 	public void start( ActionBase action ) throws Exception {
-		ProcessBuilder builder = new ProcessBuilder( "sh" );
+		String cmd = ( account.isWindows() )? "cmd" : "sh";
+		ProcessBuilder builder = new ProcessBuilder( cmd );
 		super.createProcess( action , builder , rootPath );
 	}
 }
