@@ -16,6 +16,7 @@ fi
 
 function f_execute_all() {
 	# copy master files
+	cd ..
 	cp -R * $P_DSTDIR/master
 	local F_STATUS=$?
 	if [ "$F_STATUS" != "0" ]; then
