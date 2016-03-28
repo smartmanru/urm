@@ -1,5 +1,6 @@
 package ru.egov.urm.storage;
 
+import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.CommandContext;
 import ru.egov.urm.action.CommandExecutor;
@@ -52,6 +53,15 @@ public class Artefactory {
 			dirname = action.session.rootPath + dirname.substring( 1 );
 		
 		return( new LocalFolder( this , dirname ) );
+	}
+
+	public LocalFolder getProductFolder( ActionBase action ) throws Exception {
+		return( getProductFolder( action , "" ) );
+	}
+
+	public LocalFolder getProductFolder( ActionBase action , String dirname ) throws Exception {
+		String dir = Common.getPath( action.context.productHome , dirname );
+		return( getAnyFolder( action , dir ) );
 	}
 
 	public void createWorkFolder( ActionBase action ) throws Exception {

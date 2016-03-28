@@ -31,7 +31,7 @@ public class MetadataStorage {
 	}
 
 	public String[] getDesignFiles( ActionBase action ) throws Exception {
-		LocalFolder folder = artefactory.getAnyFolder( action , Common.getPath( action.context.productHome , xdocDir ) );
+		LocalFolder folder = artefactory.getProductFolder( action , xdocDir );
 		if( !folder.checkExists( action ) )
 			return( new String[0] );
 		
@@ -40,7 +40,7 @@ public class MetadataStorage {
 	}
 	
 	public String getDesignFile( ActionBase action , String fileName ) throws Exception {
-		LocalFolder folder = artefactory.getAnyFolder( action , Common.getPath( action.context.productHome , xdocDir ) );
+		LocalFolder folder = artefactory.getProductFolder( action , xdocDir );
 		return( folder.getFilePath( action , fileName ) );
 	}
 	

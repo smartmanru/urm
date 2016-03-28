@@ -29,12 +29,12 @@ public class UrmStorage {
 	
 	public LocalFolder getInitScripts( ActionBase action , VarDBMSTYPE dbtype ) throws Exception {
 		String dbFolder = getSpecificFolder( action , dbtype );
-		return( artefactory.getAnyFolder( action , action.context.productHome + "/master/database/init/" + dbFolder ) );
+		return( artefactory.getProductFolder( action , "master/database/init/" + dbFolder ) );
 	}
 	
 	public LocalFolder getDatapumpScripts( ActionBase action , VarDBMSTYPE dbtype ) throws Exception {
 		String dbFolder = getSpecificFolder( action , dbtype );
-		return( artefactory.getAnyFolder( action , action.context.productHome + "/master/database/datapump/" + dbFolder ) );
+		return( artefactory.getProductFolder( action , "master/database/datapump/" + dbFolder ) );
 	}
 	
 }

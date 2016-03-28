@@ -18,14 +18,12 @@ public class LogStorage {
 	}
 
 	public void prepareReleaseBuildLogFolder( ActionBase action , String release ) throws Exception {
-		String dir = action.context.productHome + "/master/makedistr/" + action.context.getBuildModeName() + "/" + release;
-		logFolder = artefactory.getAnyFolder( action , dir );
+		logFolder = artefactory.getProductFolder( action , "master/makedistr/" + action.context.getBuildModeName() + "/" + release );
 		logFolder.ensureExists( action );
 	}
 
 	public void prepareTagBuildLogFolder( ActionBase action , String TAG ) throws Exception {
-		String dir = action.context.productHome + "/master/makedistr/" + action.context.getBuildModeName() + "/tag-" + TAG;
-		logFolder = artefactory.getAnyFolder( action , dir );
+		logFolder = artefactory.getProductFolder( action , "master/makedistr/" + action.context.getBuildModeName() + "/tag-" + TAG );
 		logFolder.ensureExists( action );
 	}
 

@@ -1,6 +1,7 @@
 package ru.egov.urm.shell;
 
 import java.io.BufferedReader;
+import java.lang.management.ManagementFactory;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,6 +47,8 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override protected void getProcessAttributes( ActionBase action ) throws Exception {
 		runCommand( action , "echo off" , true );
+		super.homePath = action.context.productHome;
+		super.processId = Common.getPartBeforeFirst( ManagementFactory.getRuntimeMXBean().getName() , "@" );
 	}
 	
 	private String prepareExecute( ActionBase action , String cmd , boolean debug ) throws Exception {
@@ -566,8 +569,10 @@ public class ShellCoreWindows extends ShellCore {
 	}
 	
 	@Override public String[] cmdFindFiles( ActionBase action , String dir , String mask ) throws Exception {
-		action.exitNotImplemented();
-		return( null );
+		String filesRegular = getRegularMaskList( action , mask );
+		String cmdDir = getDirCmdIfDir( action , dir , 
+				"dir /b | findstr /R " + Common.getQuoted( filesRegular ) );
+		return( runCommandGetLines( action , cmdDir , true ) );
 	}
 
 	@Override public String cmdGetTarContentMD5( ActionBase action , String filePath ) throws Exception {
