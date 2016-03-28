@@ -1,5 +1,6 @@
 package ru.egov.urm.meta;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -162,11 +163,16 @@ public class MetaProduct {
 	
 	private void addPredefined( ActionBase action ) throws Exception {
 		// get last prod tag
-		String lastProdTag = ConfReader.readStringFile( action , lastProdTagFile );
-		int nextProdTag = Integer.parseInt( lastProdTag ) + 1; 
+		int lastProdTag = 0;
+		int nextProdTag = 1;
+		File file = new File( lastProdTagFile );
+		if( file.exists() ) {
+			lastProdTag = Integer.parseInt( ConfReader.readStringFile( action , lastProdTagFile ) );
+			nextProdTag = lastProdTag + 1;
+		}
 		
 		props.setProperty( "CONFIG_PRODUCTHOME" , action.context.productHome );
-		props.setProperty( "CONFIG_LASTPRODTAG" , lastProdTag );
+		props.setProperty( "CONFIG_LASTPRODTAG" , "" + lastProdTag );
 		props.setProperty( "CONFIG_NEXTPRODTAG" , "" + nextProdTag );
 	}
 	
