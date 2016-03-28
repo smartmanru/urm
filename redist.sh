@@ -36,7 +36,7 @@ function f_execute_product() {
 	svn update $F_DIR_RUNCOPY/master > /dev/null
 
 	# execute upgrade script
-	cd $P_DIR_TMP
+	cd $P_DIR_TMP/bin
 	./upgrade.sh $F_DIR_RUNCOPY
 	F_STAT=$?
 	if [ "$F_STAT" != "0" ]; then
