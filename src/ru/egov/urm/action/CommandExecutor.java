@@ -12,6 +12,7 @@ import ru.egov.urm.meta.Metadata;
 
 public abstract class CommandExecutor {
 
+	public String name;
 	public RunContext rc;
 	public CommandAction commandAction;
 	public CommandBuilder builder;
@@ -19,14 +20,15 @@ public abstract class CommandExecutor {
 	public boolean manualActions;
 	public CommandOptions options;
 		
-	Map<String,CommandAction> actionsMap = new HashMap<String,CommandAction>();
-	List<CommandAction> actionsList = new LinkedList<CommandAction>();
+	public Map<String,CommandAction> actionsMap = new HashMap<String,CommandAction>();
+	public List<CommandAction> actionsList = new LinkedList<CommandAction>();
 	public boolean executorFailed;
 	
 	public abstract boolean run( ActionInit action );
 	public boolean setManualOptions( CommandOptions options ) { return( false ); };
 	
-	public CommandExecutor( CommandBuilder builder ) {
+	public CommandExecutor( CommandBuilder builder , String name ) {
+		this.name = name;
 		this.rc = builder.rc;
 		this.builder = builder;
 		this.manualActions = false;

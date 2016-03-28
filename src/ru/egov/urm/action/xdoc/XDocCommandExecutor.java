@@ -10,10 +10,10 @@ public class XDocCommandExecutor extends CommandExecutor {
 	XDocCommand impl;
 	
 	public XDocCommandExecutor( CommandBuilder builder ) {
-		super( builder );
+		super( builder , "xdoc" );
 		
 		String releaseOpts = "";
-		defineAction( CommandAction.newAction( new DesignDoc() , "design" , "create design docs" , releaseOpts , "./design.sh [OPTIONS] {dot|png} <outdir>" ) );
+		defineAction( CommandAction.newAction( new DesignDoc() , "design" , true , "create design docs" , releaseOpts , "./design.sh [OPTIONS] {dot|png} <outdir>" ) );
 	}	
 
 	public boolean run( ActionInit action ) {

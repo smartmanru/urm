@@ -11,10 +11,10 @@ public class MonitorCommandExecutor extends CommandExecutor {
 	MonitorCommand impl;
 	
 	public MonitorCommandExecutor( CommandBuilder builder ) {
-		super( builder );
+		super( builder , "monitor" );
 		
 		String cmdOpts = "";
-		super.defineAction( CommandAction.newAction( new RunMonitor() , "start" , "start monitor server" , cmdOpts , "./start.sh [OPTIONS]" ) );
+		super.defineAction( CommandAction.newAction( new RunMonitor() , "start" , true , "start monitor server" , cmdOpts , "./start.sh [OPTIONS]" ) );
 	}
 	
 	public boolean run( ActionInit action ) {

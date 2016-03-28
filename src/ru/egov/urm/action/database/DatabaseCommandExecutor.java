@@ -21,23 +21,23 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	String envMethods;
 	
 	public DatabaseCommandExecutor( CommandBuilder builder ) {
-		super( builder );
+		super( builder , "database" );
 		
 		String cmdOpts = "";
 		cmdOpts = "";
-		super.defineAction( CommandAction.newAction( new InitDB() , "initdb" , "prepare database for operation" , cmdOpts , "./initdb.sh [OPTIONS] <server>" ) );
+		super.defineAction( CommandAction.newAction( new InitDB() , "initdb" , false , "prepare database for operation" , cmdOpts , "./initdb.sh [OPTIONS] <server>" ) );
 		cmdOpts = "";
-		super.defineAction( CommandAction.newAction( new GetReleaseScripts() , "getsql" , "get database release content" , cmdOpts , "./getsql.sh [OPTIONS] {all|<deliveries>}" ) );
+		super.defineAction( CommandAction.newAction( new GetReleaseScripts() , "getsql" , true , "get database release content" , cmdOpts , "./getsql.sh [OPTIONS] {all|<deliveries>}" ) );
 		cmdOpts = "";
-		super.defineAction( CommandAction.newAction( new ApplyManual() , "dbmanual" , "apply manual scripts under system account" , cmdOpts , "./dbmanual.sh [OPTIONS] <RELEASELABEL> <DBSERVER> {all|<indexes>}" ) );
+		super.defineAction( CommandAction.newAction( new ApplyManual() , "dbmanual" , false , "apply manual scripts under system account" , cmdOpts , "./dbmanual.sh [OPTIONS] <RELEASELABEL> <DBSERVER> {all|<indexes>}" ) );
 		cmdOpts = "GETOPT_DBMODE, GETOPT_DB, GETOPT_DBTYPE, GETOPT_DBALIGNED";
-		super.defineAction( CommandAction.newAction( new ApplyAutomatic() , "dbapply" , "apply application scripts and load data files" , cmdOpts , "./dbapply.sh [OPTIONS] <RELEASELABEL> {all|<delivery> {all|<mask>}} (mask is distributive file mask)" ) );
+		super.defineAction( CommandAction.newAction( new ApplyAutomatic() , "dbapply" , false , "apply application scripts and load data files" , cmdOpts , "./dbapply.sh [OPTIONS] <RELEASELABEL> {all|<delivery> {all|<mask>}} (mask is distributive file mask)" ) );
 		cmdOpts = "";
-		super.defineAction( CommandAction.newAction( new ManageRelease() , "manage" , "manage accounting information" , cmdOpts , "./manage.sh [OPTIONS] <RELEASELABEL> <print|correct|rollback> [{all|<indexes>}]" ) );
+		super.defineAction( CommandAction.newAction( new ManageRelease() , "manage" , false , "manage accounting information" , cmdOpts , "./manage.sh [OPTIONS] <RELEASELABEL> <print|correct|rollback> [{all|<indexes>}]" ) );
 		cmdOpts = "";
-		super.defineAction( CommandAction.newAction( new ImportDB() , "import" , "import specified in etc/datapump/file dump to database" , cmdOpts , "./import.sh [OPTIONS] <server> {all|meta|data} [schema]" ) );
+		super.defineAction( CommandAction.newAction( new ImportDB() , "import" , false , "import specified in etc/datapump/file dump to database" , cmdOpts , "./import.sh [OPTIONS] <server> {all|meta|data} [schema]" ) );
 		cmdOpts = "";
-		super.defineAction( CommandAction.newAction( new ExportDB() , "export" , "export specified in etc/datapump/file dump from database" , cmdOpts , "./export.sh [OPTIONS] <server> {all|meta|data [schema]}" ) );
+		super.defineAction( CommandAction.newAction( new ExportDB() , "export" , false , "export specified in etc/datapump/file dump from database" , cmdOpts , "./export.sh [OPTIONS] <server> {all|meta|data [schema]}" ) );
 	}
 	
 	public boolean run( ActionInit action ) {

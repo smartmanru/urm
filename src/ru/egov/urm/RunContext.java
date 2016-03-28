@@ -30,7 +30,7 @@ public class RunContext {
 		else {
 			hostName = "windows";
 			userName = "user";
-	    	userHome = productHome;
+	    	userHome = System.getenv( "HOMEPATH" );
 		}
 	}
 	

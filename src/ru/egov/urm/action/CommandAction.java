@@ -5,14 +5,16 @@ import ru.egov.urm.Common;
 abstract public class CommandAction {
 
 	public String name;
+	public boolean top;
 	public String help;
 	public String[] vars;
 	public String syntax;
 
 	abstract public void run( ActionInit action ) throws Exception;
 	
-	public static CommandAction newAction( CommandAction method , String name , String help , String varList , String syntax ) {
+	public static CommandAction newAction( CommandAction method , String name , boolean top , String help , String varList , String syntax ) {
 		method.name = name;
+		method.top = top;
 		method.help = help;
 		method.vars = Common.split( varList , "," );
 		method.syntax = syntax;

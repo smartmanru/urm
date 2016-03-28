@@ -1,5 +1,8 @@
 package ru.egov.urm.action;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import ru.egov.urm.RunContext;
 import ru.egov.urm.UrmConfigurator;
 import ru.egov.urm.action.build.BuildCommandExecutor;
@@ -92,6 +95,23 @@ public class CommandBuilder {
 		return( executor );
 	}
 
+	public CommandExecutor[] getExecutors( ActionBase action , boolean build , boolean deploy ) throws Exception {
+		List<CommandExecutor> list = new LinkedList<CommandExecutor>();
+		if( build )
+			list.add( new BuildCommandExecutor( this ) );
+		if( deploy ) {
+			list.add( new DeployCommandExecutor( this ) );
+			list.add( new MonitorCommandExecutor( this ) );
+		}
+		if( build || deploy ) {
+			list.add( new DatabaseCommandExecutor( this ) );
+			list.add( new ReleaseCommandExecutor( this ) );
+			list.add( new XDocCommandExecutor( this ) );
+		}
+		
+		return( list.toArray( new CommandExecutor[0] ) );
+	}
+	
 	public boolean run( CommandExecutor executor ) throws Exception {
 		// create context
 		if( !createCommandContext( executor ) )
