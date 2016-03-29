@@ -268,7 +268,7 @@ public class MainExecutor extends CommandExecutor {
 		List<String> lines = ConfReader.readFileLines( action , masterPath );
 		FileSet set = pfMaster.getFileSet( action );
 		
-		vcs = action.artefactory.getSvnVCS( action );
+		vcs = action.artefactory.getSvnDirect( action );
 		List<String> filesNotInSvn = vcs.getFilesNotInSvn( action , pfMaster );
 		
 		executeDir( action , set , lines , filesNotInSvn );
