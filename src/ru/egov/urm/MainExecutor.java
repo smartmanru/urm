@@ -280,7 +280,7 @@ public class MainExecutor extends CommandExecutor {
 			// check dir in lines
 			boolean dirInLines = false;
 			for( String line : lines ) {
-				String filePath = Common.getPartAfterFirst( line , PROXYPREFIX );
+				String filePath = Common.getPartAfterFirst( line , ":" );
 				if( filePath.startsWith( set.dirPath ) ) {
 					dirInLines = true;
 					break;
@@ -302,7 +302,7 @@ public class MainExecutor extends CommandExecutor {
 			// check file in lines
 			boolean fileInLines = false;
 			for( String line : lines ) {
-				String filePath = Common.getPartAfterFirst( line , PROXYPREFIX );
+				String filePath = Common.getPartAfterFirst( line , ":" );
 				if( fileActual.equals( filePath ) ) {
 					fileInLines = true;
 					break;
