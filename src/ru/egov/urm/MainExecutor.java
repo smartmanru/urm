@@ -20,13 +20,17 @@ public class MainExecutor extends CommandExecutor {
 	public static String PROXYPREFIX = "proxy:";
 	
 	LocalFolder pfMaster = null;
+	String ENV;
+	String DC;
+	List<String> linesProxy;
+	List<String> linesAffected;
 	
 	public MainExecutor( CommandBuilder builder ) {
 		super( builder , NAME );
 		
 		String cmdOpts = "";
-		super.defineAction( CommandAction.newAction( new ConfigureLinux() , "configure-linux" , true , "configure as linux" , cmdOpts , "./configure.sh [OPTIONS] {all|build|env} [envname [dcname]]" ) );
-		super.defineAction( CommandAction.newAction( new ConfigureWindows() , "configure-windows" , true , "configure as windows" , cmdOpts , "./configure.cmd [OPTIONS] {all|build|env} [envname [dcname]]" ) );
+		super.defineAction( CommandAction.newAction( new Configure() , "configure" , true , "configure proxy files" , cmdOpts , "configure [OPTIONS] {linux|windows} {all|build|env} [envname [dcname]]" ) );
+		super.defineAction( CommandAction.newAction( new SvnSave() , "svnsave" , true , "save master file set in svn" , cmdOpts , "svnsave [OPTIONS]" ) );
 	}
 
 	public boolean run( ActionInit action ) {
@@ -35,7 +39,78 @@ public class MainExecutor extends CommandExecutor {
 		return( res );
 	}
 
-	private void configureDefault( ActionInit action , LocalFolder pfMaster , List<String> linesProxy ) throws Exception {
+	
+	private class Configure extends CommandAction {
+	public void run( ActionInit action ) throws Exception {
+		String PLATFORM = options.getRequiredArg( action , 0 , "PLATFORM" );
+		String ACTION = options.getRequiredArg( action , 1 , "ACTION" );
+		
+		boolean linux = ( PLATFORM.equals( "linux" ) )? true : false;
+		LocalFolder pf = action.artefactory.getProductFolder( action );
+		pfMaster = pf.getSubFolder( action , "master" );
+		
+		String masterPath = pfMaster.getFilePath( action , MASTERFILE );
+		List<String> lines = ConfReader.readFileLines( action , masterPath );
+		linesProxy = new LinkedList<String>();
+		linesAffected = new LinkedList<String>();
+		
+		if( ACTION.equals( "default" ) )
+			configureDefault( action , pfMaster );
+		else
+		if( ACTION.equals( "build" ) )
+			configureAll( action , pfMaster , true , false , linux );
+		else
+		if( ACTION.equals( "deploy" ) ) {
+			ENV = options.getArg( 2 );
+			DC = options.getArg( 3 );
+			configureAll( action , pfMaster , false , true , linux );
+		}
+		else
+		if( ACTION.equals( "all" ) )
+			configureAll( action , pfMaster , true , true , linux );
+		else
+			action.exitUnexpectedState();
+		
+		// recreate master file
+		List<String> linesNew = new LinkedList<String>();
+		for( String s : lines ) {
+			if( !s.startsWith( PROXYPREFIX ) )
+				linesNew.add( s );
+			else {
+				boolean affected = false;
+				String filePath = Common.getPartAfterFirst( s , PROXYPREFIX );
+				for( String x : linesAffected ) {
+					String platform = Common.getListItem( x , ":" , 0 );
+					String findpath = Common.getListItem( x , ":" , 1 );
+					String files = Common.getListItem( x , ":" , 2 );
+					
+					if( !filePath.startsWith( findpath ) )
+						continue;
+					
+					if( !filePath.endsWith( platform ) )
+						continue;
+					
+					if( files.equals( "*" ) ) {
+						affected = true;
+						break;
+					}
+					
+					if( filePath.indexOf( findpath.length() , '/' ) < 0 ) {
+						affected = true;
+						break;
+					}
+				}
+				
+				if( affected )
+					linesNew.add( s );
+			}
+		}
+		
+		linesNew.addAll( linesProxy );
+		Common.createFileFromStringList( masterPath , linesNew );
+	}
+
+	private void configureDefault( ActionInit action , LocalFolder pfMaster ) throws Exception {
 		LocalFolder pfBuild = pfMaster.getSubFolder( action , "makedistr" );
 		LocalFolder pfDeploy = pfMaster.getSubFolder( action , "deployment" );
 		
@@ -57,12 +132,12 @@ public class MainExecutor extends CommandExecutor {
 		}
 		
 		if( buildUnix || deployUnix )
-			configureAll( action , pfMaster , buildUnix , deployUnix , "" , true , linesProxy );
+			configureAll( action , pfMaster , buildUnix , deployUnix , true );
 		if( buildWindows || deployWindows )
-			configureAll( action , pfMaster , buildWindows , deployWindows , "" , false , linesProxy );
+			configureAll( action , pfMaster , buildWindows , deployWindows , false );
 	}
 	
-	private void configureAll( ActionInit action , LocalFolder pfMaster , boolean build , boolean deploy , String ENV , boolean linux , List<String> linesProxy ) throws Exception {
+	private void configureAll( ActionInit action , LocalFolder pfMaster , boolean build , boolean deploy , boolean linux ) throws Exception {
 		CommandExecutor[] executors = builder.getExecutors( action , build , deploy );
 		CommandExecutor dbe = null;
 		for( CommandExecutor executor : executors ) {
@@ -73,27 +148,30 @@ public class MainExecutor extends CommandExecutor {
 		}
 			
 		for( CommandExecutor executor : executors )
-			configureExecutor( action , pfMaster , executor , ENV , linux , dbe , linesProxy );
+			configureExecutor( action , pfMaster , executor , linux , dbe );
 	}
 
-	private void configureExecutor( ActionInit action , LocalFolder pfMaster , CommandExecutor executor , String ENV , boolean linux , CommandExecutor dbe , List<String> linesProxy ) throws Exception {
+	private void configureExecutor( ActionInit action , LocalFolder pfMaster , CommandExecutor executor , boolean linux , CommandExecutor dbe ) throws Exception {
 		LocalFolder exeFolder = pfMaster.getSubFolder( action , executor.name );
 		exeFolder.ensureExists( action );
 
 		// add help action
-		configureExecutorWrapper( action , exeFolder , executor , "help" , linux , linesProxy );
+		configureExecutorWrapper( action , exeFolder , executor , "help" , linux );
 		
 		// top items
 		for( CommandAction cmdAction : executor.actionsList ) {
 			if( cmdAction.top )
-				configureExecutorWrapper( action , exeFolder , executor , cmdAction.name , linux , linesProxy );
+				configureExecutorWrapper( action , exeFolder , executor , cmdAction.name , linux );
 		}
 		
 		if( executor.name.equals( "deployment" ) ) {
+			String proxyPath = "deployment";
+			
 			List<MetaEnv> envs = new LinkedList<MetaEnv>(); 
 			MetadataStorage ms = action.artefactory.getMetadataStorage( action );
 			
 			if( ENV.isEmpty() ) {
+				addAffected( action , linux , proxyPath , true );
 				String[] envFiles = ms.getEnvFiles( action );
 				for( String envFile : envFiles ) {
 					MetaEnv env = meta.loadEnvData( action , envFile , false );
@@ -101,12 +179,27 @@ public class MainExecutor extends CommandExecutor {
 				}
 			}
 			else {
+				addAffected( action , linux , proxyPath , false );
 				MetaEnv env = meta.loadEnvData( action , ENV , false );
+				
+				if( DC.isEmpty() ) {
+					proxyPath = Common.getPath( proxyPath , ENV );
+					addAffected( action , linux , proxyPath , true );
+				}
+				else {
+					proxyPath = Common.getPath( proxyPath , ENV , DC );
+					addAffected( action , linux , proxyPath , true );
+				}
+					
 				envs.add( env );
 			}
 			
 			for( MetaEnv env : envs )
-				configureDeploymentEnv( action , exeFolder , executor , env , linux , dbe , linesProxy );
+				configureDeploymentEnv( action , exeFolder , executor , env , linux , dbe );
+		}
+		else {
+			String proxyPath = executor.name;
+			addAffected( action , linux , proxyPath , true );
 		}
 		
 		if( executor.name.equals( "makedistr" ) ) {
@@ -114,18 +207,25 @@ public class MainExecutor extends CommandExecutor {
 				if( mode == VarBUILDMODE.UNKNOWN )
 					continue;
 				
-				configureMakedistrMode( action , exeFolder , executor , mode , linux , linesProxy );
+				configureMakedistrMode( action , exeFolder , executor , mode , linux );
 			}
 		}
 	}
 
-	private void configureDeploymentEnv( ActionInit action , LocalFolder ef , CommandExecutor executor , MetaEnv env , boolean linux , CommandExecutor dbe , List<String> linesProxy ) throws Exception {
-	}
-
-	private void configureMakedistrMode( ActionInit action , LocalFolder ef , CommandExecutor executor , VarBUILDMODE mode , boolean linux , List<String> linesProxy ) throws Exception {
+	private void addAffected( ActionInit action , boolean linux , String proxyPath , boolean recursive ) throws Exception {
+		String item = ( linux )? ".sh" : ".cmd";
+		item += ":" + proxyPath + "/";
+		item += ( recursive )? ":*" : ":F";
+		linesAffected.add( item );
 	}
 	
-	private void configureExecutorWrapper( ActionInit action , LocalFolder ef , CommandExecutor executor , String method , boolean linux , List<String> linesProxy ) throws Exception {
+	private void configureDeploymentEnv( ActionInit action , LocalFolder ef , CommandExecutor executor , MetaEnv env , boolean linux , CommandExecutor dbe ) throws Exception {
+	}
+
+	private void configureMakedistrMode( ActionInit action , LocalFolder ef , CommandExecutor executor , VarBUILDMODE mode , boolean linux ) throws Exception {
+	}
+	
+	private void configureExecutorWrapper( ActionInit action , LocalFolder ef , CommandExecutor executor , String method , boolean linux ) throws Exception {
 		String fileName = method + ( ( linux )? ".sh" : ".cmd" );
 		String filePath = ef.getFilePath( action , fileName );
 
@@ -145,60 +245,17 @@ public class MainExecutor extends CommandExecutor {
 		}
 		
 		Common.createFileFromStringList( filePath , lines );
-		addProxyLine( action , linesProxy , ef , fileName );
+		addProxyLine( action , ef , fileName );
 	}
 
-	private void addProxyLine( ActionInit action , List<String> linesProxy , LocalFolder ef , String fileName ) throws Exception {
+	private void addProxyLine( ActionInit action , LocalFolder ef , String fileName ) throws Exception {
 		String subPath = Common.getPartAfterFirst( ef.getFilePath( action , fileName ) , pfMaster.folderPath + "/" );
 		linesProxy.add( PROXYPREFIX + subPath );
 	}
-	
-	private void configureAny( ActionInit action , boolean linux ) throws Exception {
-		String ACTION = options.getRequiredArg( action , 0 , "ACTION" );
-		
-		LocalFolder pf = action.artefactory.getProductFolder( action );
-		pfMaster = pf.getSubFolder( action , "master" );
-		
-		String masterPath = pfMaster.getFilePath( action , MASTERFILE );
-		List<String> lines = ConfReader.readFileLines( action , masterPath );
-		List<String> linesProxy = new LinkedList<String>();
-		
-		if( ACTION.equals( "default" ) )
-			configureDefault( action , pfMaster , linesProxy );
-		else
-		if( ACTION.equals( "build" ) )
-			configureAll( action , pfMaster , true , false , null , linux , linesProxy );
-		else
-		if( ACTION.equals( "deploy" ) ) {
-			String ENV = options.getArg( 1 );
-			configureAll( action , pfMaster , false , true , ENV , linux , linesProxy );
-		}
-		else
-		if( ACTION.equals( "all" ) )
-			configureAll( action , pfMaster , true , true , "" , linux , linesProxy );
-		else
-			action.exitUnexpectedState();
-		
-		// recreate master file
-		List<String> linesNew = new LinkedList<String>();
-		for( String s : lines ) {
-			if( !s.startsWith( PROXYPREFIX ) )
-				linesNew.add( s );
-		}
-		
-		linesNew.addAll( linesProxy );
-		Common.createFileFromStringList( masterPath , linesNew );
-	}
-	
-	private class ConfigureLinux extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
-		configureAny( action , true );
-	}
 	}
 
-	private class ConfigureWindows extends CommandAction {
+	private class SvnSave extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		configureAny( action , false );
 	}
 	}
 
