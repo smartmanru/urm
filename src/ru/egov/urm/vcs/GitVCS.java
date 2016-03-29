@@ -300,7 +300,7 @@ public class GitVCS extends GenericVCS {
 
 	private void refreshMirror( GitRepo repo ) throws Exception {
 		if( repo.storage.winBuild ) {
-			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			String WINPATH = Common.getWinPath( repo.MIRRORPATH );
 			ShellExecutor shell = action.getShell( repo.storage.account );
 			shell.customCheckStatus( action , "git -C " + WINPATH + " fetch origin" );
 		}
@@ -311,8 +311,8 @@ public class GitVCS extends GenericVCS {
 
 	private void createLocalFromBranch( GitRepo repo , String BRANCH ) throws Exception {
 		if( repo.storage.winBuild ) {
-			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
-			String WINPATHPROJECT = Common.getWinPath( action , repo.PATCHFOLDER.folderPath );
+			String WINPATH = Common.getWinPath( repo.MIRRORPATH );
+			String WINPATHPROJECT = Common.getWinPath( repo.PATCHFOLDER.folderPath );
 			ShellExecutor shell = action.getShell( repo.storage.account );
 			shell.customCheckStatus( action , "git -C " + WINPATH + " clone " + WINPATH + " --shared -b " + BRANCH + " " + WINPATHPROJECT );
 		}
@@ -335,8 +335,8 @@ public class GitVCS extends GenericVCS {
 			PATCHFOLDER.ensureExists( action );
 			if( SUBPATH.isEmpty() ) {
 				if( repo.storage.winBuild ) {
-					String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
-					String WINPATHPROJECT = Common.getWinPath( action , PATCHFOLDER.folderPath );
+					String WINPATH = Common.getWinPath( repo.MIRRORPATH );
+					String WINPATHPROJECT = Common.getWinPath( PATCHFOLDER.folderPath );
 					ShellExecutor shell = action.getShell( repo.storage.account );
 					shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + BRANCHTAG + " " + 
 							" . | ( cd " + WINPATHPROJECT + " & tar x --exclude pax_global_header)" );
@@ -351,9 +351,9 @@ public class GitVCS extends GenericVCS {
 				String STRIPOPTION = "--strip-components=" + COMPS;
 				
 				if( repo.storage.winBuild ) {
-					String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
-					String WINPATHPROJECT = Common.getWinPath( action , PATCHFOLDER.folderPath );
-					String WINPATHSUB = Common.getWinPath( action , SUBPATH );
+					String WINPATH = Common.getWinPath( repo.MIRRORPATH );
+					String WINPATHPROJECT = Common.getWinPath( PATCHFOLDER.folderPath );
+					String WINPATHSUB = Common.getWinPath( SUBPATH );
 					ShellExecutor shell = action.getShell( repo.storage.account );
 					shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + BRANCHTAG + " " + 
 							WINPATHSUB + " | ( cd " + WINPATHPROJECT + " & tar x " + WINPATHSUB + " " + STRIPOPTION + " )" );
@@ -379,9 +379,9 @@ public class GitVCS extends GenericVCS {
 			String FILEPATH = Common.getPath( SUBPATH , FILENAME );
 			
 			if( repo.storage.winBuild ) {
-				String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
-				String WINPATHBASE = Common.getWinPath( action , BASEDIR.folderPath );
-				String WINPATHFILE = Common.getWinPath( action , FILEPATH );
+				String WINPATH = Common.getWinPath( repo.MIRRORPATH );
+				String WINPATHBASE = Common.getWinPath( BASEDIR.folderPath );
+				String WINPATHFILE = Common.getWinPath( FILEPATH );
 				ShellExecutor shell = action.getShell( repo.storage.account );
 				shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + BRANCHTAG + " " + 
 						WINPATHFILE + " | ( cd " + WINPATHBASE + " & tar x --exclude pax_global_header " + WINPATHFILE + " " + STRIPOPTION + " )" );
@@ -412,7 +412,7 @@ public class GitVCS extends GenericVCS {
 		String REVMARK = "";
 		if( !TAGDATE.isEmpty() ) {
 			if( repo.storage.winBuild ) {
-				String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+				String WINPATH = Common.getWinPath( repo.MIRRORPATH );
 				ShellExecutor shell = action.getShell( repo.storage.account );
 				REVMARK = shell.customGetValue( action , "git -C " + WINPATH + " log --format=oneline -n 1 --before=" + Common.getQuoted( TAGDATE ) + 
 						" refs/heads/" + BRANCH );
@@ -427,7 +427,7 @@ public class GitVCS extends GenericVCS {
 		}
 
 		if( repo.storage.winBuild ) {
-			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			String WINPATH = Common.getWinPath( repo.MIRRORPATH );
 			ShellExecutor shell = action.getShell( repo.storage.account );
 			shell.customCheckStatus( action , "git -C " + WINPATH + " tag " + TAG + " -a -f -m " + Common.getQuoted( "$P_MESSAGE" ) + " refs/heads/" + BRANCH + " " + REVMARK );
 		}
@@ -438,7 +438,7 @@ public class GitVCS extends GenericVCS {
 
 	private void dropMirrorTag( GitRepo repo , String TAG ) throws Exception {
 		if( repo.storage.winBuild ) {
-			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			String WINPATH = Common.getWinPath( repo.MIRRORPATH );
 			ShellExecutor shell = action.getShell( repo.storage.account );
 			shell.customCheckStatus( action , "git -C " + WINPATH + " tag -d " + TAG );
 		}
@@ -449,7 +449,7 @@ public class GitVCS extends GenericVCS {
 
 	private void dropMirrorBranch( GitRepo repo , String BRANCH ) throws Exception {
 		if( repo.storage.winBuild ) {
-			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			String WINPATH = Common.getWinPath( repo.MIRRORPATH );
 			ShellExecutor shell = action.getShell( repo.storage.account );
 			shell.customCheckStatus( action , "git -C " + WINPATH + " branch -D " + BRANCH );
 		}
@@ -461,7 +461,7 @@ public class GitVCS extends GenericVCS {
 	private boolean checkTagExists( GitRepo repo , String TAG ) throws Exception {
 		String STATUS;
 		if( repo.storage.winBuild ) {
-			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			String WINPATH = Common.getWinPath( repo.MIRRORPATH );
 			ShellExecutor shell = action.getShell( repo.storage.account );
 			STATUS = shell.customGetValue( action , "git -C " + WINPATH + " tag -l " + TAG );
 		}
@@ -477,7 +477,7 @@ public class GitVCS extends GenericVCS {
 	private boolean checkBranchExists( GitRepo repo , String BRANCH ) throws Exception {
 		String STATUS;
 		if( repo.storage.winBuild ) {
-			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			String WINPATH = Common.getWinPath( repo.MIRRORPATH );
 			ShellExecutor shell = action.getShell( repo.storage.account );
 			STATUS = shell.customGetValue( action , "git -C " + WINPATH + " branch --list " + BRANCH );
 		}
@@ -497,7 +497,7 @@ public class GitVCS extends GenericVCS {
 
 		String REPOVERSION;
 		if( repo.storage.winBuild ) {
-			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			String WINPATH = Common.getWinPath( repo.MIRRORPATH );
 			ShellExecutor shell = action.getShell( repo.storage.account );
 			String[] lines = shell.customGetLines( action , "git -C " + WINPATH + " show --format=raw " + TAG );
 			String[] grep = Common.grep( lines , "commit " );
@@ -519,7 +519,7 @@ public class GitVCS extends GenericVCS {
 
 		String REPOVERSION;
 		if( repo.storage.winBuild ) {
-			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			String WINPATH = Common.getWinPath( repo.MIRRORPATH );
 			ShellExecutor shell = action.getShell( repo.storage.account );
 			String[] lines = shell.customGetLines( action , "git -C " + WINPATH + " show --format=raw " + BRANCH );
 			String[] grep = Common.grep( lines , "commit " );
@@ -536,7 +536,7 @@ public class GitVCS extends GenericVCS {
 	private void copyMirrorTagFromTag( GitRepo repo , String TAG_FROM , String TAG_TO , String MESSAGE ) throws Exception {
 		// drop if exists
 		if( repo.storage.winBuild ) {
-			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			String WINPATH = Common.getWinPath( repo.MIRRORPATH );
 			ShellExecutor shell = action.getShell( repo.storage.account );
 			shell.customCheckStatus( action , "git -C " + WINPATH + " tag -a -f -m " + Common.getQuoted( MESSAGE ) + " " + TAG_TO + " refs/tags/" + TAG_FROM );
 		}
@@ -547,7 +547,7 @@ public class GitVCS extends GenericVCS {
 
 	private void copyMirrorBranchFromTag( GitRepo repo , String TAG_FROM , String BRANCH_TO , String MESSAGE ) throws Exception {
 		if( repo.storage.winBuild ) {
-			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			String WINPATH = Common.getWinPath( repo.MIRRORPATH );
 			ShellExecutor shell = action.getShell( repo.storage.account );
 			shell.customCheckStatus( action , "git -C " + WINPATH + " branch " + BRANCH_TO + " refs/tags/" + TAG_FROM );
 		}
@@ -558,7 +558,7 @@ public class GitVCS extends GenericVCS {
 
 	private void copyMirrorBranchFromBranch( GitRepo repo , String BRANCH_FROM , String BRANCH_TO , String MESSAGE ) throws Exception {
 		if( repo.storage.winBuild ) {
-			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			String WINPATH = Common.getWinPath( repo.MIRRORPATH );
 			ShellExecutor shell = action.getShell( repo.storage.account );
 			shell.customCheckStatus( action , "git -C " + WINPATH + " branch " + BRANCH_TO + " refs/heads/" + BRANCH_FROM );
 		}
@@ -569,7 +569,7 @@ public class GitVCS extends GenericVCS {
 
 	private void pushMirror( GitRepo repo ) throws Exception {
 		if( repo.storage.winBuild ) {
-			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			String WINPATH = Common.getWinPath( repo.MIRRORPATH );
 			ShellExecutor shell = action.getShell( repo.storage.account );
 			shell.customCheckStatus( action , "git -C " + WINPATH + " push origin" );
 		}
@@ -601,8 +601,8 @@ public class GitVCS extends GenericVCS {
 		
 		int status;
 		if( repo.storage.winBuild ) {
-			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
-			String WINPATHDIR = Common.getWinPath( action , path );
+			String WINPATH = Common.getWinPath( repo.MIRRORPATH );
+			String WINPATHDIR = Common.getWinPath( path );
 			ShellExecutor shell = action.getShell( repo.storage.account );
 			status = shell.customGetStatus( action , "git -C " + WINPATH + " cat-file -e master:" + WINPATHDIR );
 		}
@@ -640,9 +640,9 @@ public class GitVCS extends GenericVCS {
 		refreshMirror( repo );
 		
 		if( repo.storage.winBuild ) {
-			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
-			String WINPATHDIR = Common.getWinPath( action , ITEMPATH );
-			String WINPATHPATCH = Common.getWinPath( action , PATCHFOLDER.folderPath );
+			String WINPATH = Common.getWinPath( repo.MIRRORPATH );
+			String WINPATHDIR = Common.getWinPath( ITEMPATH );
+			String WINPATHPATCH = Common.getWinPath( PATCHFOLDER.folderPath );
 			ShellExecutor shell = action.getShell( repo.storage.account );
 			shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + WINPATHDIR + " . | ( cd " + WINPATHPATCH + " & tar x --exclude pax_global_header)" );
 		}
@@ -677,7 +677,7 @@ public class GitVCS extends GenericVCS {
 		
 		String s;
 		if( repo.storage.winBuild ) {
-			String WINPATH = Common.getWinPath( action , repo.MIRRORPATH );
+			String WINPATH = Common.getWinPath( repo.MIRRORPATH );
 			ShellExecutor shell = action.getShell( repo.storage.account );
 			s = shell.customGetValue( action , "git -C " + WINPATH + " ls-tree master --name-only" );
 			s = Common.replace( s , "\\n" , " \"" );
