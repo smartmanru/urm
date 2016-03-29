@@ -1,5 +1,8 @@
 package ru.egov.urm.vcs;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaSourceProject;
@@ -408,6 +411,39 @@ public class SubversionVCS extends GenericVCS {
 		}
 
 		session.customCheckStatus( action , "svn copy " + SVNAUTH + " " + fullPathSrc + " " + fullPathTag + " -m " + Common.getQuoted( commitMessage ) );
+	}
+	
+	public List<String> getFilesNotInSvn( ActionBase action , LocalFolder pfMaster ) throws Exception {
+		String[] lines = action.session.customGetLines( action , pfMaster.folderPath , "svn status" );
+		List<String> values = new LinkedList<String>();
+		for( String s : lines ) {
+			if( s.startsWith( "?" ) ) {
+				s = s.substring( 1 );
+				s.trim();
+				values.add( s );
+			}
+		}
+		return( values );
+	}
+	
+	public void addDirToSvn( ActionBase action , LocalFolder pfMaster , String dirPath ) throws Exception {
+		String cmd = "svn add " + action.session.getOSPath( action , dirPath );
+		action.session.custom( action , pfMaster.folderPath , cmd );
+	}
+
+	public void addFileToSvn( ActionBase action , LocalFolder pfMaster , String filePath ) throws Exception {
+		String cmd = "svn add " + action.session.getOSPath( action , filePath );
+		action.session.custom( action , pfMaster.folderPath , cmd );
+	}
+	
+	public void deleteDirFromSvn( ActionBase action , LocalFolder pfMaster , String dirPath ) throws Exception {
+		String cmd = "svn delete " + action.session.getOSPath( action , dirPath );
+		action.session.custom( action , pfMaster.folderPath , cmd );
+	}
+
+	public void deleteFileFromSvn( ActionBase action , LocalFolder pfMaster , String filePath ) throws Exception {
+		String cmd = "svn delete " + action.session.getOSPath( action , filePath );
+		action.session.custom( action , pfMaster.folderPath , cmd );
 	}
 	
 }

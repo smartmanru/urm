@@ -561,5 +561,11 @@ public abstract class ShellExecutor {
 				"; x=`find . -name " + Common.getQuoted( "*.sh" ) + "`" +
 				"; if [ " + Common.getQuoted( "$x" ) + " != " + Common.getQuoted( "" ) + " ]; then chmod 744 $x; fi" );
 	}
+
+	public String getOSPath( ActionBase action , String path ) throws Exception {
+		if( account.isWindows() )
+			return( Common.getWinPath( action , path ) );
+		return( path );
+	}
 	
 }

@@ -10,20 +10,16 @@ import ru.egov.urm.action.CommandBuilder;
 import ru.egov.urm.action.CommandExecutor;
 import ru.egov.urm.meta.MetaEnv;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
+import ru.egov.urm.storage.FileSet;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.MetadataStorage;
+import ru.egov.urm.vcs.SubversionVCS;
 
 public class MainExecutor extends CommandExecutor {
 
 	public static String NAME = "bin";
 	public static String MASTERFILE = "master.files.info";
 	public static String PROXYPREFIX = "proxy:";
-	
-	LocalFolder pfMaster = null;
-	String ENV;
-	String DC;
-	List<String> linesProxy;
-	List<String> linesAffected;
 	
 	public MainExecutor( CommandBuilder builder ) {
 		super( builder , NAME );
@@ -38,9 +34,14 @@ public class MainExecutor extends CommandExecutor {
 		boolean res = super.runMethod( action , commandAction );
 		return( res );
 	}
-
 	
 	private class Configure extends CommandAction {
+		LocalFolder pfMaster = null;
+		String ENV;
+		String DC;
+		List<String> linesProxy;
+		List<String> linesAffected;
+		
 	public void run( ActionInit action ) throws Exception {
 		String PLATFORM = options.getRequiredArg( action , 0 , "PLATFORM" );
 		String ACTION = options.getRequiredArg( action , 1 , "ACTION" );
@@ -255,7 +256,82 @@ public class MainExecutor extends CommandExecutor {
 	}
 
 	private class SvnSave extends CommandAction {
+		LocalFolder pfMaster = null;
+		SubversionVCS vcs = null;
+		
 	public void run( ActionInit action ) throws Exception {
+		LocalFolder pf = action.artefactory.getProductFolder( action );
+		pfMaster = pf.getSubFolder( action , "master" );
+		
+		// read master file and make up all files to the list
+		String masterPath = pfMaster.getFilePath( action , MASTERFILE );
+		List<String> lines = ConfReader.readFileLines( action , masterPath );
+		FileSet set = pfMaster.getFileSet( action );
+		
+		List<String> filesNotInSvn = vcs.getFilesNotInSvn( action , pfMaster );
+		vcs = action.artefactory.getSvnVCS( action );
+		
+		executeDir( action , set , lines , filesNotInSvn );
+		vcs.commitMasterFolder( pfMaster , "" , "" , "svnsave" );
+	}
+
+	private void executeDir( ActionInit action , FileSet set , List<String> lines , List<String> filesNotInSvn ) throws Exception {
+		for( FileSet dir : set.dirs.values() ) {
+			// check dir in lines
+			boolean dirInLines = false;
+			for( String line : lines ) {
+				String filePath = Common.getPartAfterFirst( line , PROXYPREFIX );
+				if( filePath.startsWith( set.dirPath ) ) {
+					dirInLines = true;
+					break;
+				}
+			}
+			
+			boolean dirInSvn = checkDirInSvn( action , dir.dirPath , filesNotInSvn );
+			if( dirInLines && dirInSvn )
+				executeDir( action , dir , lines , filesNotInSvn );
+			else {
+				if( dirInLines )
+					vcs.addDirToSvn( action , pfMaster , dir.dirPath );
+				else
+					vcs.deleteDirFromSvn( action , pfMaster , dir.dirPath );
+			}
+		}
+		
+		for( String fileActual : set.files.values() ) {
+			// check file in lines
+			boolean fileInLines = false;
+			for( String line : lines ) {
+				String filePath = Common.getPartAfterFirst( line , PROXYPREFIX );
+				if( fileActual.equals( filePath ) ) {
+					fileInLines = true;
+					break;
+				}
+			}
+			
+			boolean fileInSvn = checkFileInSvn( action , Common.getPath( set.dirPath , fileActual ) , filesNotInSvn );
+			if( fileInLines && fileInSvn )
+				continue;
+			
+			if( fileInLines )
+				vcs.addFileToSvn( action , pfMaster , fileActual );
+			else
+				vcs.deleteFileFromSvn( action , pfMaster , fileActual );
+		}
+	}
+
+	private boolean checkDirInSvn( ActionInit action , String dirPath , List<String> filesNotInSvn ) throws Exception {
+		for( String xMissing : filesNotInSvn )
+			if( dirPath.equals( xMissing ) || dirPath.startsWith( xMissing + "/" ) )
+				return( false );
+		return( true );
+	}
+	
+	private boolean checkFileInSvn( ActionInit action , String filePath , List<String> filesNotInSvn ) throws Exception {
+		for( String xMissing : filesNotInSvn )
+			if( filePath.equals( xMissing ) || filePath.startsWith( xMissing + "/" ) )
+				return( false );
+		return( true );
 	}
 	}
 

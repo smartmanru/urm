@@ -281,6 +281,12 @@ public class Artefactory {
 		return( null );
 	}
 
+	public SubversionVCS getSvnVCS( ActionBase action ) throws Exception {
+		AuthStorage auth = getAuthStorage( action );
+		String SVNAUTH = auth.getOldSvnAuthParams( action );
+		return( new SubversionVCS( action , action.meta.product.CONFIG_SVNOLD_PATH , SVNAUTH ) );
+	}
+	
 	public RedistStorage getRedistStorage( ActionBase action , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
 		Account account = action.getAccount( node );
 		return( new RedistStorage( this , "default" , account , server , node ) );
