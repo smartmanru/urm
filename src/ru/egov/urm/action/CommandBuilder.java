@@ -3,8 +3,8 @@ package ru.egov.urm.action;
 import java.util.LinkedList;
 import java.util.List;
 
+import ru.egov.urm.MainExecutor;
 import ru.egov.urm.RunContext;
-import ru.egov.urm.UrmConfigurator;
 import ru.egov.urm.action.build.BuildCommandExecutor;
 import ru.egov.urm.action.database.DatabaseCommandExecutor;
 import ru.egov.urm.action.deploy.DeployCommandExecutor;
@@ -62,8 +62,8 @@ public class CommandBuilder {
 
 		// discriminate
 		CommandExecutor executor;
-		if( cmd.equals( UrmConfigurator.NAME ) )
-			executor = new UrmConfigurator( this );
+		if( cmd.equals( MainExecutor.NAME ) )
+			executor = new MainExecutor( this );
 		else if( cmd.equals( BuildCommandExecutor.NAME ) )
 			executor = new BuildCommandExecutor( this );
 		else if( cmd.equals( DeployCommandExecutor.NAME ) )

@@ -13,11 +13,11 @@ import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.MetadataStorage;
 
-public class UrmConfigurator extends CommandExecutor {
+public class MainExecutor extends CommandExecutor {
 
 	public static String NAME = "bin";
 	
-	public UrmConfigurator( CommandBuilder builder ) {
+	public MainExecutor( CommandBuilder builder ) {
 		super( builder , NAME );
 		
 		String cmdOpts = "";
