@@ -23,15 +23,17 @@ public class Engine {
 			if( builder.context != null )
 				debug = builder.context.CTX_SHOWALL;
 			
-			if( ex != null ) {
-				if( args.length > 0 && args[0].equals( "-trace" ) )
-					output( true , e , null );
-				else
+			String trace = System.getenv( "TRACE" );
+			if( trace != null && trace.equals( "yes" ) )
+				e.printStackTrace();
+			else {
+				if( ex != null ) {
 					output( debug , e , ex.getMessage() );
-				System.exit( 2 );
+					System.exit( 2 );
+				}
+				else
+					output( debug , e , null );
 			}
-			else
-				output( debug , e , null );
 		}
 		
 		System.exit( 3 );
