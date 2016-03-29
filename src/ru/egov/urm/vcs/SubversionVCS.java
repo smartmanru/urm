@@ -420,7 +420,11 @@ public class SubversionVCS extends GenericVCS {
 			if( s.startsWith( "?" ) ) {
 				s = s.substring( 1 );
 				s = s.trim();
-				values.add( s );
+				
+				if( action.session.account.isWindows() )
+					values.add( Common.getLinuxPath( s ) );
+				else
+					values.add( s );
 			}
 		}
 		return( values );
