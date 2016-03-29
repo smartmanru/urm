@@ -91,12 +91,20 @@ public class ShellCoreWindows extends ShellCore {
 			cmdout.clear();
 			cmderr.clear();
 			
-			String execLine = "( " + cmd + " ) && ( echo " + finishMarker + " >&2 ) && ( echo " + finishMarker + " )\r\n";
 			action.trace( executor.name + " execute: " + cmd );
+			String execLine = cmd + "\r\n";
 			if( action.context.CTX_TRACEINTERNAL )
-				action.trace( "write cmd line=" + execLine );
-			
+				action.trace( execLine );
 			writer.write( execLine );
+			execLine = "echo " + finishMarker + " >&2\r\n";
+			if( action.context.CTX_TRACEINTERNAL )
+				action.trace( execLine );
+			writer.write( execLine );
+			execLine = "echo " + finishMarker + "\r\n";
+			if( action.context.CTX_TRACEINTERNAL )
+				action.trace( execLine );
+			writer.write( execLine );
+			
 			try {
 				writer.flush();
 			}
