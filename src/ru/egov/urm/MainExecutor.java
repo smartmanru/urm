@@ -8,6 +8,9 @@ import ru.egov.urm.action.ActionInit;
 import ru.egov.urm.action.CommandAction;
 import ru.egov.urm.action.CommandBuilder;
 import ru.egov.urm.action.CommandExecutor;
+import ru.egov.urm.action.build.BuildCommandExecutor;
+import ru.egov.urm.action.database.DatabaseCommandExecutor;
+import ru.egov.urm.action.deploy.DeployCommandExecutor;
 import ru.egov.urm.meta.MetaEnv;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.storage.FileSet;
@@ -116,8 +119,8 @@ public class MainExecutor extends CommandExecutor {
 	}
 
 	private void configureDefault( ActionInit action , LocalFolder pfMaster ) throws Exception {
-		LocalFolder pfBuild = pfMaster.getSubFolder( action , "makedistr" );
-		LocalFolder pfDeploy = pfMaster.getSubFolder( action , "deployment" );
+		LocalFolder pfBuild = pfMaster.getSubFolder( action , BuildCommandExecutor.NAME );
+		LocalFolder pfDeploy = pfMaster.getSubFolder( action , DeployCommandExecutor.NAME );
 		
 		boolean buildUnix = false;
 		boolean buildWindows = false;
@@ -146,7 +149,7 @@ public class MainExecutor extends CommandExecutor {
 		CommandExecutor[] executors = builder.getExecutors( action , build , deploy );
 		CommandExecutor dbe = null;
 		for( CommandExecutor executor : executors ) {
-			if( executor.name.equals( "database" ) ) {
+			if( executor.name.equals( DatabaseCommandExecutor.NAME ) ) {
 				dbe = executor;
 				break;
 			}
