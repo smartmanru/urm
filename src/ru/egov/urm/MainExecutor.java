@@ -309,7 +309,7 @@ public class MainExecutor extends CommandExecutor {
 				}
 			}
 			
-			boolean fileInSvn = checkFileInSvn( action , Common.getPath( set.dirPath , fileActual ) , filesNotInSvn );
+			boolean fileInSvn = checkFileInSvn( action , fileActual , filesNotInSvn );
 			if( fileInLines && fileInSvn )
 				continue;
 			
