@@ -463,5 +463,9 @@ abstract public class ActionBase {
 		Account account = Account.getAccount( this , meta.product.CONFIG_WINBUILD_HOSTLOGIN , VarOSTYPE.WINDOWS );
 		return( account );
 	}
+
+	public String getOSPath( String dirPath ) throws Exception {
+		return( session.getOSPath( this , dirPath ) );	
+	}
 	
 }

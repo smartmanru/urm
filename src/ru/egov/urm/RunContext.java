@@ -17,17 +17,18 @@ public class RunContext {
 	
 	public void load() {
 		OSTYPE = getProperty( "urm.os" ).toUpperCase();
-		productHome = getProperty( "product.home" );
 		buildMode = getProperty( "build.mode" ).toUpperCase();
 		envName = getProperty( "env" );
 		dcName = getProperty( "dc" );
 		
 		if( OSTYPE.equals( "LINUX" ) ) {
+			productHome = getProperty( "product.home" );
 			hostName = System.getenv( "HOSTNAME" );
 			userName = System.getenv( "USER" );
 	    	userHome = System.getenv( "HOME" );
 		}
 		else {
+			productHome = Common.getLinuxPath( getProperty( "product.home" ) );
 			hostName = "windows";
 			userName = "user";
 	    	userHome = System.getenv( "HOMEPATH" );

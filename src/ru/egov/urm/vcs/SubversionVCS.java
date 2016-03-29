@@ -427,25 +427,25 @@ public class SubversionVCS extends GenericVCS {
 	}
 	
 	public void addDirToSvn( ActionBase action , LocalFolder pfMaster , String dirPath ) throws Exception {
-		String cmd = "svn add " + action.session.getOSPath( action , dirPath );
+		String cmd = "svn add " + action.getOSPath( dirPath );
 		action.trace( "addDirToSvn: " + cmd );
 		action.session.custom( action , pfMaster.folderPath , cmd );
 	}
 
 	public void addFileToSvn( ActionBase action , LocalFolder pfMaster , String filePath ) throws Exception {
-		String cmd = "svn add " + action.session.getOSPath( action , filePath );
+		String cmd = "svn add " + action.getOSPath( filePath );
 		action.trace( "addFileToSvn: " + cmd );
 		action.session.custom( action , pfMaster.folderPath , cmd );
 	}
 	
 	public void deleteDirFromSvn( ActionBase action , LocalFolder pfMaster , String dirPath ) throws Exception {
-		String cmd = "svn delete " + action.session.getOSPath( action , dirPath );
+		String cmd = "svn delete " + action.getOSPath( dirPath );
 		action.trace( "deleteDirFromSvn: " + cmd );
 		action.session.custom( action , pfMaster.folderPath , cmd );
 	}
 
 	public void deleteFileFromSvn( ActionBase action , LocalFolder pfMaster , String filePath ) throws Exception {
-		String cmd = "svn delete " + action.session.getOSPath( action , filePath );
+		String cmd = "svn delete " + action.getOSPath( filePath );
 		action.trace( "deleteFileFromSvn: " + cmd );
 		action.session.custom( action , pfMaster.folderPath , cmd );
 	}

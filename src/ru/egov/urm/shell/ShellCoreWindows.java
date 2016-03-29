@@ -140,12 +140,12 @@ public class ShellCoreWindows extends ShellCore {
 	}
 	
 	@Override public String getDirCmd( ActionBase action , String dir , String cmd ) throws Exception {
-		String dirWin = Common.getWinPath( action , dir );
+		String dirWin = Common.getWinPath( dir );
 		return( "if exist " + dirWin + " ( cd " + dirWin + " && " + cmd + " ) else echo invalid directory: " + dir );
 	}
 	
 	@Override public String getDirCmdIfDir( ActionBase action , String dir , String cmd ) throws Exception {
-		String dirWin = Common.getWinPath( action , dir );
+		String dirWin = Common.getWinPath( dir );
 		return( "if exist " + dirWin + " ( cd " + dirWin + " && " + cmd + " )" );
 	}
 
@@ -154,14 +154,14 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public void cmdEnsureDirExists( ActionBase action , String dir ) throws Exception {
-		String wdir = Common.getWinPath( action , dir );
+		String wdir = Common.getWinPath( dir );
 		runCommand( action , "if not exist " + wdir + " md " + wdir , true );
 		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
 			action.exit( "check/create directory error" );
 	}
 
 	@Override public void cmdCreateFileFromString( ActionBase action , String path , String value ) throws Exception {
-		String pathWin = Common.getWinPath( action , path );
+		String pathWin = Common.getWinPath( path );
 		runCommand( action , "echo " + value + " > " + pathWin , true );
 	}
 
@@ -174,7 +174,7 @@ public class ShellCoreWindows extends ShellCore {
 	}
 	
 	@Override public boolean cmdCheckDirExists( ActionBase action , String dir ) throws Exception {
-		String wdir = Common.getWinPath( action , dir );
+		String wdir = Common.getWinPath( dir );
 		String value = this.runCommandGetValueCheck( action , "if exist " + wdir + " echo ok" , true );
 		if( value.equals( "ok" ) )
 			return( true );
@@ -190,7 +190,7 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public boolean cmdCheckFileExists( ActionBase action , String path ) throws Exception {
-		String wpath = Common.getWinPath( action , path );
+		String wpath = Common.getWinPath( path );
 		String value = this.runCommandGetValueCheckDebug( action , "if exist " + wpath + "/ ( echo dir ) else if exist " + wpath + " echo file" );
 		if( value.equals( "file" ) )
 			return( true );
@@ -198,7 +198,7 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public boolean cmdCheckPathExists( ActionBase action , String path ) throws Exception {
-		String wpath = Common.getWinPath( action , path );
+		String wpath = Common.getWinPath( path );
 		String value = this.runCommandGetValueCheckDebug( action , "if exist " + wpath + " echo ok" );
 		if( value.equals( "ok" ) )
 			return( true );
@@ -239,26 +239,26 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public void cmdRemoveDirContent( ActionBase action , String dir ) throws Exception {
-		String wdir = Common.getWinPath( action , dir );
+		String wdir = Common.getWinPath( dir );
 		runCommand( action , "if exist " + wdir + " ( rmdir /S /Q " + wdir + " && md " + wdir + " )" , true );
 		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
 			action.exit( "remove directory content error" );
 	}
 	
 	@Override public void cmdRemoveDir( ActionBase action , String dir ) throws Exception {
-		String wdir = Common.getWinPath( action , dir );
+		String wdir = Common.getWinPath( dir );
 		runCommand( action , "if exist " + wdir + " rmdir /S /Q " + wdir , true );
 		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
 			action.exit( "remove directory error" );
 	}
 	
 	@Override public void cmdRecreateDir( ActionBase action , String dir ) throws Exception {
-		String wdir = Common.getWinPath( action , dir );
+		String wdir = Common.getWinPath( dir );
 		runCommand( action , "( if exist " + wdir + " rmdir /S /Q " + wdir + " ) && md " + wdir , true );
 	}
 
 	@Override public void cmdCreatePublicDir( ActionBase action , String dir ) throws Exception {
-		String wdir = Common.getWinPath( action , dir );
+		String wdir = Common.getWinPath( dir );
 		runCommand( action , "md " + wdir , true );
 	}
 
@@ -267,7 +267,7 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public void cmdReplaceFileLine( ActionBase action , String filePath , String mask , String newLine ) throws Exception {
-		String filePathWin = Common.getWinPath( action , filePath );
+		String filePathWin = Common.getWinPath( filePath );
 		String filePathTmp = filePathWin + ".new";
 		String cmd = "findstr /V " + mask + " " + filePathWin + " > " + filePathTmp + 
 				" && del /Q " + filePathWin + 
@@ -352,12 +352,12 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public void cmdExtractTarGz( ActionBase action , String tarFile , String targetFolder ) throws Exception {
-		String wtarFile = Common.getWinPath( action , tarFile );
+		String wtarFile = Common.getWinPath( tarFile );
 		runCommandCheckStatusDebug( action , targetFolder , "7z x -y -bd " + wtarFile );
 	}
 	
 	@Override public void cmdExtractTar( ActionBase action , String tarFile , String targetFolder ) throws Exception {
-		String wtarFile = Common.getWinPath( action , tarFile );
+		String wtarFile = Common.getWinPath( tarFile );
 		runCommandCheckStatusDebug( action , targetFolder , "7z x -y -bd " + wtarFile );
 	}
 	
@@ -375,14 +375,14 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public void cmdCreateTarFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
-		String wtarFile = Common.getWinPath( action , tarFile );
+		String wtarFile = Common.getWinPath( tarFile );
 		String contentArgs = "";
 		for( String item : Common.split( content , " " ) )
-			contentArgs += " -i!" + Common.getWinPath( action , item );
+			contentArgs += " -i!" + Common.getWinPath( item );
 		
 		String excludeArgs = "";
 		for( String item : Common.split( exclude , " " ) )
-			excludeArgs += " -x!" + Common.getWinPath( action , item );
+			excludeArgs += " -x!" + Common.getWinPath( item );
 		
 		runCommandCheckStatusDebug( action , dir , "7z a -ttar -r -bd " + wtarFile + " " + contentArgs + " " + excludeArgs );
 	}
@@ -414,8 +414,8 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public void cmdCopyFile( ActionBase action , String fileFrom , String fileTo ) throws Exception {
 		action.debug( "copy " + fileFrom + " to " + fileTo + " ..." );
-		String wfileFrom = Common.getWinPath( action , fileFrom );
-		String wfileTo = Common.getWinPath( action , fileTo );
+		String wfileFrom = Common.getWinPath( fileFrom );
+		String wfileTo = Common.getWinPath( fileTo );
 		runCommandCheckStatus( action , "copy /Y " + wfileFrom + " " + wfileTo , true );
 	}
 	
@@ -529,7 +529,7 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public String cmdGetMD5( ActionBase action , String filePath ) throws Exception {
-		String fileWin = Common.getWinPath( action , filePath );
+		String fileWin = Common.getWinPath( filePath );
 		runCommand( action , "certutil -hashfile " + fileWin + " MD5" , true );
 		if( cmdout.size() != 3 )
 			action.exit( "unable to get md5sum of " + filePath );
@@ -543,18 +543,18 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public String cmdGetFileContentAsString( ActionBase action , String filePath ) throws Exception {
-		String fileWin = Common.getWinPath( action , filePath );
+		String fileWin = Common.getWinPath( filePath );
 		String value = runCommandGetValueCheckDebug( action , "type " + fileWin );
 		return( value );
 	}
 
 	@Override public String[] cmdGetFileLines( ActionBase action , String filePath ) throws Exception {
-		String fileWin = Common.getWinPath( action , filePath );
+		String fileWin = Common.getWinPath( filePath );
 		return( this.runCommandGetLines( action , "type  " + fileWin , true ) );
 	}
 	
 	@Override public void cmdAppendExecuteLog( ActionBase action , String msg ) throws Exception {
-		String executeLog = Common.getWinPath( action , Common.getPath( executor.rootPath , "execute.log" ) );
+		String executeLog = Common.getWinPath( Common.getPath( executor.rootPath , "execute.log" ) );
 		String ts = Common.getLogTimeStamp();
 		runCommand( action , "echo " + Common.getQuoted( ts + ": " + msg ) + " >> " + executeLog , true );
 	}

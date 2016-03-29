@@ -564,7 +564,7 @@ public abstract class ShellExecutor {
 
 	public String getOSPath( ActionBase action , String path ) throws Exception {
 		if( account.isWindows() )
-			return( Common.getWinPath( action , path ) );
+			return( Common.getWinPath( path ) );
 		return( path );
 	}
 	

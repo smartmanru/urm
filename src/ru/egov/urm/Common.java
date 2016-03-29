@@ -697,8 +697,12 @@ public class Common {
 		return( s );
 	}
 
-	public static String getWinPath( ActionBase action , String dir ) throws Exception {
+	public static String getWinPath( String dir ) {
 		return( Common.replace( dir , "/" , "\\" ) );
+	}
+	
+	public static String getLinuxPath( String dir ) {
+		return( Common.replace( dir , "\\" , "/" ) );
 	}
 	
 	public static String[] grep( String[] list , String mask ) throws Exception {
