@@ -153,7 +153,7 @@ public class UrmConfigurator extends CommandExecutor {
 			configureAll( action , pfMaster , true , false , null , linux );
 		else
 		if( ACTION.equals( "deploy" ) ) {
-			String ENV = options.getRequiredArg( action , 1 , "ENV" );
+			String ENV = options.getArg( 1 );
 			configureAll( action , pfMaster , false , true , ENV , linux );
 		}
 		else

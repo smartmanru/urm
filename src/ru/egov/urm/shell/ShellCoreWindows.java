@@ -278,14 +278,19 @@ public class ShellCoreWindows extends ShellCore {
 		runCommandCheckDebug( action , cmd );
 	}
 	
-	public String getRegularMaskList( ActionBase action , String maskList ) throws Exception {
+	private String getRegularMaskList( ActionBase action , String maskList ) throws Exception {
 		String reg = "";
 		for( String mask : Common.splitSpaced( maskList ) ) {
 			if( !reg.isEmpty() )
 				reg += " ";
 			mask = Common.replace( mask , "." , "\\." );
 			mask = Common.replace( mask , "*" , ".*" );
-			reg += "^" + mask + "\\$";
+			
+			reg += "^" + mask;
+			if( sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX )
+				reg += "\\$";
+			else
+				reg += "$";
 		}
 		return( reg );
 	}
