@@ -44,7 +44,6 @@ function f_execute_product() {
 		exit 1
 	fi
 
-exit 0
 	# save in svn
 	cd $F_DIR_RUNCOPY/master
 	bin/svnsave.sh
