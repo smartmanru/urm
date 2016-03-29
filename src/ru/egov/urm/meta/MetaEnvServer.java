@@ -102,7 +102,8 @@ public class MetaEnvServer {
 			properties.loadFromElements( action , node );
 
 		loadNodes( action , node , loadProps );
-		loadDeployments( action , node );
+		if( action.meta.distr != null )
+			loadDeployments( action , node );
 		loadBase( action , node );
 	}
 	
@@ -180,13 +181,15 @@ public class MetaEnvServer {
 			REGIONS = properties.getSystemProperty( action , "regions" , "" , systemProps );
 			ADMSCHEMA = properties.getSystemProperty( action , "admschema" , "" , systemProps );
 			
-			MetaDatabase database = action.meta.distr.database;
-			for( String dg : Common.splitSpaced( DATAGROUPS ) ) {
-				MetaDatabaseDatagroup datagroup = database.getDatagroup( action , dg );
-				datagroupMap.put( datagroup.NAME , datagroup );
+			if( action.meta.distr != null ) {
+				MetaDatabase database = action.meta.distr.database;
+				for( String dg : Common.splitSpaced( DATAGROUPS ) ) {
+					MetaDatabaseDatagroup datagroup = database.getDatagroup( action , dg );
+					datagroupMap.put( datagroup.NAME , datagroup );
+				}
+				
+				admSchema = database.getSchema( action , ADMSCHEMA );
 			}
-			
-			admSchema = database.getSchema( action , ADMSCHEMA );
 		}
 		else
 		if( serverType != VarSERVERTYPE.UNKNOWN ) {
