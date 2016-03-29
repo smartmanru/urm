@@ -268,8 +268,8 @@ public class MainExecutor extends CommandExecutor {
 		List<String> lines = ConfReader.readFileLines( action , masterPath );
 		FileSet set = pfMaster.getFileSet( action );
 		
-		List<String> filesNotInSvn = vcs.getFilesNotInSvn( action , pfMaster );
 		vcs = action.artefactory.getSvnVCS( action );
+		List<String> filesNotInSvn = vcs.getFilesNotInSvn( action , pfMaster );
 		
 		executeDir( action , set , lines , filesNotInSvn );
 		vcs.commitMasterFolder( pfMaster , "" , "" , "svnsave" );
