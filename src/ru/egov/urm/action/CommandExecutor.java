@@ -178,11 +178,16 @@ public abstract class CommandExecutor {
 			method.run( action );
 		}
 		catch( Throwable e ) {
-			ExitException ex = Common.getExitException( e );
-			if( ex == null || action.context.CTX_SHOWALL )
-				action.log( e );
-			else
-				action.log( ex.getMessage() );
+			String trace = System.getenv( "TRACE" );
+			if( trace != null && trace.equals( "yes" ) )
+				e.printStackTrace();
+			else {
+				ExitException ex = Common.getExitException( e );
+				if( ex == null || action.context.CTX_SHOWALL )
+					action.log( e );
+				else
+					action.log( ex.getMessage() );
+			}
 				
 			return( false );
 		}

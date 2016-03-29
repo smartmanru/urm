@@ -25,7 +25,8 @@ public class MainExecutor extends CommandExecutor {
 		super( builder , NAME );
 		
 		String cmdOpts = "";
-		super.defineAction( CommandAction.newAction( new Configure() , "configure" , true , "configure proxy files" , cmdOpts , "configure [OPTIONS] {linux|windows} {all|build|env} [envname [dcname]]" ) );
+		super.defineAction( CommandAction.newAction( new Configure( true ) , "configure-linux" , true , "configure proxy files" , cmdOpts , "./configure.sh [OPTIONS] {linux|windows} {all|build|env} [envname [dcname]]" ) );
+		super.defineAction( CommandAction.newAction( new Configure( false ) , "configure-windows" , true , "configure proxy files" , cmdOpts , "configure.cmd [OPTIONS] {linux|windows} {all|build|env} [envname [dcname]]" ) );
 		super.defineAction( CommandAction.newAction( new SvnSave() , "svnsave" , true , "save master file set in svn" , cmdOpts , "svnsave [OPTIONS]" ) );
 	}
 
@@ -36,17 +37,20 @@ public class MainExecutor extends CommandExecutor {
 	}
 	
 	private class Configure extends CommandAction {
+		boolean linux;
 		LocalFolder pfMaster = null;
 		String ENV;
 		String DC;
 		List<String> linesProxy;
 		List<String> linesAffected;
 		
+	public Configure( boolean linux ) {
+		this.linux = linux;
+	}
+	
 	public void run( ActionInit action ) throws Exception {
-		String PLATFORM = options.getRequiredArg( action , 0 , "PLATFORM" );
-		String ACTION = options.getRequiredArg( action , 1 , "ACTION" );
+		String ACTION = options.getRequiredArg( action , 0 , "ACTION" );
 		
-		boolean linux = ( PLATFORM.equals( "linux" ) )? true : false;
 		LocalFolder pf = action.artefactory.getProductFolder( action );
 		pfMaster = pf.getSubFolder( action , "master" );
 		
