@@ -29,9 +29,9 @@ public class UrmConfigurator extends CommandExecutor {
 		return( res );
 	}
 
-	private void configureDefault( ActionInit action , LocalFolder pf ) throws Exception {
-		LocalFolder pfBuild = pf.getSubFolder( action , "makedistr" );
-		LocalFolder pfDeploy = pf.getSubFolder( action , "deployment" );
+	private void configureDefault( ActionInit action , LocalFolder pfMaster ) throws Exception {
+		LocalFolder pfBuild = pfMaster.getSubFolder( action , "makedistr" );
+		LocalFolder pfDeploy = pfMaster.getSubFolder( action , "deployment" );
 		
 		boolean buildUnix = ( pfBuild.findFiles( action , "*.sh" ).length > 0 )? true : false;
 		boolean buildWindows = ( pfBuild.findFiles( action , "*.cmd" ).length > 0 )? true : false;
@@ -39,12 +39,12 @@ public class UrmConfigurator extends CommandExecutor {
 		boolean deployWindows = ( pfDeploy.findFiles( action , "*.cmd" ).length > 0 )? true : false;
 		
 		if( buildUnix || deployUnix )
-			configureAll( action , pf , buildUnix , deployUnix , "" , true );
+			configureAll( action , pfMaster , buildUnix , deployUnix , "" , true );
 		if( buildWindows || deployWindows )
-			configureAll( action , pf , buildWindows , deployWindows , "" , false );
+			configureAll( action , pfMaster , buildWindows , deployWindows , "" , false );
 	}
 	
-	private void configureAll( ActionInit action , LocalFolder pf , boolean build , boolean deploy , String ENV , boolean linux ) throws Exception {
+	private void configureAll( ActionInit action , LocalFolder pfMaster , boolean build , boolean deploy , String ENV , boolean linux ) throws Exception {
 		CommandExecutor[] executors = builder.getExecutors( action , build , deploy );
 		CommandExecutor dbe = null;
 		for( CommandExecutor executor : executors ) {
@@ -55,11 +55,11 @@ public class UrmConfigurator extends CommandExecutor {
 		}
 			
 		for( CommandExecutor executor : executors )
-			configureExecutor( action , pf , executor , ENV , linux , dbe );
+			configureExecutor( action , pfMaster , executor , ENV , linux , dbe );
 	}
 
-	private void configureExecutor( ActionInit action , LocalFolder pf , CommandExecutor executor , String ENV , boolean linux , CommandExecutor dbe ) throws Exception {
-		LocalFolder exeFolder = pf.getSubFolder( action , executor.name );
+	private void configureExecutor( ActionInit action , LocalFolder pfMaster , CommandExecutor executor , String ENV , boolean linux , CommandExecutor dbe ) throws Exception {
+		LocalFolder exeFolder = pfMaster.getSubFolder( action , executor.name );
 		exeFolder.ensureExists( action );
 
 		// add help action
@@ -109,8 +109,9 @@ public class UrmConfigurator extends CommandExecutor {
 	
 	private void configureExecutorWrapper( ActionInit action , LocalFolder ef , CommandExecutor executor , String method , boolean linux ) throws Exception {
 		String fileName = method + ( ( linux )? ".sh" : ".cmd" );
+		String filePath = ef.getFilePath( action , fileName );
 
-		File f = new File( fileName );
+		File f = new File( filePath );
 		if( f.exists() )
 			f.delete();
 		
@@ -125,52 +126,40 @@ public class UrmConfigurator extends CommandExecutor {
 			lines.add( "@..\\bin\\urm.cmd " + executor.name + " " + method + " %*" );			
 		}
 		
-		Common.createFileFromStringList( fileName , lines );
+		Common.createFileFromStringList( filePath , lines );
+	}
+
+	private void configureAny( ActionInit action , boolean linux ) throws Exception {
+		String ACTION = options.getRequiredArg( action , 0 , "ACTION" );
+		
+		LocalFolder pf = action.artefactory.getProductFolder( action );
+		LocalFolder pfMaster = pf.getSubFolder( action , "master" );
+		if( ACTION.equals( "default" ) )
+			configureDefault( action , pfMaster );
+		else
+		if( ACTION.equals( "build" ) )
+			configureAll( action , pfMaster , true , false , null , linux );
+		else
+		if( ACTION.equals( "deploy" ) ) {
+			String ENV = options.getRequiredArg( action , 1 , "ENV" );
+			configureAll( action , pfMaster , false , true , ENV , linux );
+		}
+		else
+		if( ACTION.equals( "all" ) )
+			configureAll( action , pfMaster , true , true , "" , linux );
+		else
+			action.exitUnexpectedState();
 	}
 	
 	private class ConfigureLinux extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		String ACTION = options.getRequiredArg( action , 0 , "ACTION" );
-		
-		LocalFolder pf = action.artefactory.getProductFolder( action );
-		if( ACTION.equals( "default" ) )
-			configureDefault( action , pf );
-		else
-		if( ACTION.equals( "build" ) )
-			configureAll( action , pf , true , false , null , true );
-		else
-		if( ACTION.equals( "deploy" ) ) {
-			String ENV = options.getRequiredArg( action , 1 , "ENV" );
-			configureAll( action , pf , false , true , ENV , true );
-		}
-		else
-		if( ACTION.equals( "all" ) )
-			configureAll( action , pf , true , true , "" , true );
-		else
-			action.exitUnexpectedState();
+		configureAny( action , true );
 	}
 	}
 
 	private class ConfigureWindows extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		String ACTION = options.getRequiredArg( action , 0 , "ACTION" );
-		
-		LocalFolder pf = action.artefactory.getProductFolder( action );
-		if( ACTION.equals( "default" ) )
-			configureDefault( action , pf );
-		else
-		if( ACTION.equals( "build" ) )
-			configureAll( action , pf , true , false , null , false );
-		else
-		if( ACTION.equals( "deploy" ) ) {
-			String ENV = options.getRequiredArg( action , 1 , "ENV" );
-			configureAll( action , pf , false , true , ENV , false );
-		}
-		else
-		if( ACTION.equals( "all" ) )
-			configureAll( action , pf , true , true , "" , false );
-		else
-			action.exitUnexpectedState();
+		configureAny( action , false );
 	}
 	}
 
