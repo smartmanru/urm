@@ -13,7 +13,7 @@ IF NOT EXIST %P_DSTDIR%\master (
 )
 
 cd ..\..
-xcopy master %P_DSTDIR%\master /s /e
+robocopy master %P_DSTDIR%\master /s /e
 
 cd %P_DSTDIR%\master\bin
 configure.cmd default
