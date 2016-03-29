@@ -321,16 +321,26 @@ public class MainExecutor extends CommandExecutor {
 	}
 
 	private boolean checkDirInSvn( ActionInit action , String dirPath , List<String> filesNotInSvn ) throws Exception {
-		for( String xMissing : filesNotInSvn )
-			if( dirPath.equals( xMissing ) || dirPath.startsWith( xMissing + "/" ) )
+		for( String xMissing : filesNotInSvn ) {
+			if( dirPath.equals( xMissing ) || dirPath.startsWith( xMissing + "/" ) ) {
+				action.trace( "checkDirInSvn: false, dirPath=" + dirPath + ", filesNotInSvn=" + xMissing );
 				return( false );
+			}
+		}
+		
+		action.trace( "checkDirInSvn: true, dirPath=" + dirPath );
 		return( true );
 	}
 	
 	private boolean checkFileInSvn( ActionInit action , String filePath , List<String> filesNotInSvn ) throws Exception {
-		for( String xMissing : filesNotInSvn )
-			if( filePath.equals( xMissing ) || filePath.startsWith( xMissing + "/" ) )
+		for( String xMissing : filesNotInSvn ) {
+			if( filePath.equals( xMissing ) || filePath.startsWith( xMissing + "/" ) ) {
+				action.trace( "checkDirInSvn: false, dirPath=" + filePath + ", filesNotInSvn=" + xMissing );
 				return( false );
+			}
+		}
+		
+		action.trace( "checkFileInSvn: true, filePath=" + filePath );
 		return( true );
 	}
 	}
