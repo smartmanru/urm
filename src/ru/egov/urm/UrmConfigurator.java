@@ -33,10 +33,22 @@ public class UrmConfigurator extends CommandExecutor {
 		LocalFolder pfBuild = pfMaster.getSubFolder( action , "makedistr" );
 		LocalFolder pfDeploy = pfMaster.getSubFolder( action , "deployment" );
 		
-		boolean buildUnix = ( pfBuild.findFiles( action , "*.sh" ).length > 0 )? true : false;
-		boolean buildWindows = ( pfBuild.findFiles( action , "*.cmd" ).length > 0 )? true : false;
-		boolean deployUnix = ( pfDeploy.findFiles( action , "*.sh" ).length > 0 )? true : false;
-		boolean deployWindows = ( pfDeploy.findFiles( action , "*.cmd" ).length > 0 )? true : false;
+		boolean buildUnix = false;
+		boolean buildWindows = false;
+		if( pfBuild.checkExists( action ) ) {
+			if( pfBuild.findFiles( action , "*.sh" ).length > 0 )
+				buildUnix = true;
+			if( pfBuild.findFiles( action , "*.cmd" ).length > 0 )
+				buildWindows = true;
+		}
+		boolean deployUnix = false;
+		boolean deployWindows = false;
+		if( pfDeploy.checkExists( action ) ) {
+			if( pfDeploy.findFiles( action , "*.sh" ).length > 0 )
+				deployUnix = true;
+			if( pfDeploy.findFiles( action , "*.cmd" ).length > 0 )
+				deployWindows = true;
+		}
 		
 		if( buildUnix || deployUnix )
 			configureAll( action , pfMaster , buildUnix , deployUnix , "" , true );
