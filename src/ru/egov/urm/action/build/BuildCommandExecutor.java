@@ -12,10 +12,11 @@ import ru.egov.urm.storage.LocalFolder;
 
 public class BuildCommandExecutor extends CommandExecutor {
 
+	public static String NAME = "build";
 	BuildCommand impl;
 
 	public BuildCommandExecutor( CommandBuilder builder ) {
-		super( builder , "makedistr" );
+		super( builder , NAME );
 		
 		String cmdOpts;
 		cmdOpts = "GETOPT_GET,GETOPT_CHECK,GETOPT_RELEASE,GETOPT_BRANCH,GETOPT_TAG,GETOPT_DATE,GETOPT_GROUP,GETOPT_VERSION";

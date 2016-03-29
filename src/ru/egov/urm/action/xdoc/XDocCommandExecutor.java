@@ -7,10 +7,11 @@ import ru.egov.urm.action.CommandExecutor;
 
 public class XDocCommandExecutor extends CommandExecutor {
 
+	public static String NAME = "xdoc";
 	XDocCommand impl;
 	
 	public XDocCommandExecutor( CommandBuilder builder ) {
-		super( builder , "xdoc" );
+		super( builder , NAME );
 		
 		String releaseOpts = "";
 		defineAction( CommandAction.newAction( new DesignDoc() , "design" , true , "create design docs" , releaseOpts , "./design.sh [OPTIONS] {dot|png} <outdir>" ) );

@@ -8,10 +8,11 @@ import ru.egov.urm.meta.MetaMonitoring;
 
 public class MonitorCommandExecutor extends CommandExecutor {
 
+	public static String NAME = "monitor";
 	MonitorCommand impl;
 	
 	public MonitorCommandExecutor( CommandBuilder builder ) {
-		super( builder , "monitor" );
+		super( builder , NAME );
 		
 		String cmdOpts = "";
 		super.defineAction( CommandAction.newAction( new RunMonitor() , "start" , true , "start monitor server" , cmdOpts , "./start.sh [OPTIONS]" ) );

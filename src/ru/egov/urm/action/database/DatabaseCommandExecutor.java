@@ -14,6 +14,7 @@ import ru.egov.urm.storage.DistStorage;
 
 public class DatabaseCommandExecutor extends CommandExecutor {
 
+	public static String NAME = "database";
 	DatabaseCommand impl;
 	MetaEnv env;
 	MetaEnvDC dc;
@@ -21,7 +22,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	String envMethods;
 	
 	public DatabaseCommandExecutor( CommandBuilder builder ) {
-		super( builder , "database" );
+		super( builder , NAME );
 		
 		String cmdOpts = "";
 		cmdOpts = "";

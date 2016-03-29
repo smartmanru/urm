@@ -12,6 +12,7 @@ import ru.egov.urm.storage.DistStorage;
 
 public class DeployCommandExecutor extends CommandExecutor {
 
+	public static String NAME = "deploy";
 	DeployCommand impl;
 	MetaEnv env;
 	MetaEnvDC dc;
@@ -19,7 +20,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 	String propertyBasedMethods;
 	
 	public DeployCommandExecutor( CommandBuilder builder ) {
-		super( builder , "deployment" );
+		super( builder , NAME );
 		
 		String cmdOpts = "GETOPT_ALL, GETOPT_DEPLOYGROUP, GETOPT_STARTGROUP, GETOPT_DCMASK, GETOPT_EXTRAARGS, GETOPT_UNIT, GETOPT_BUILDINFO, GETOPT_TAG, GETOPT_HOSTUSER, GETOPT_KEY, GETOPT_NEWKEY, GETOPT_BACKUP, GETOPT_OBSOLETE, GETOPT_DEPLOYCONF, GETOPT_PARTIALCONF, GETOPT_DEPLOYBINARY, GETOPT_DEPLOYHOT, GETOPT_DEPLOYCOLD, GETOPT_KEEPALIVE, GETOPT_SKIPERRORS, GETOPT_ZERODOWNTIME, GETOPT_NONODES, GETOPT_NOCHATMSG, GETOPT_ROOTUSER, GETOPT_IGNOREVERSION";
 		cmdOpts = "GETOPT_ALL, GETOPT_DEPLOYGROUP, GETOPT_STARTGROUP, GETOPT_DCMASK";

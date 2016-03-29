@@ -11,10 +11,11 @@ import ru.egov.urm.storage.DistStorage;
 
 public class ReleaseCommandExecutor extends CommandExecutor {
 
+	public static String NAME = "release";
 	ReleaseCommand impl;
 	
 	public ReleaseCommandExecutor( CommandBuilder builder ) {
-		super( builder , "release" );
+		super( builder , NAME );
 		
 		String releaseOpts = "";
 		defineAction( CommandAction.newAction( new CreateRelease() , "create" , true , "create release" , releaseOpts , "./create.sh [OPTIONS] <RELEASELABEL> {branch|trunk|majorbranch|devbranch|devtrunk}" ) );

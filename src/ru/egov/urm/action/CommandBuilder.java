@@ -62,19 +62,19 @@ public class CommandBuilder {
 
 		// discriminate
 		CommandExecutor executor;
-		if( cmd.equals( "configure" ) )
+		if( cmd.equals( UrmConfigurator.NAME ) )
 			executor = new UrmConfigurator( this );
-		else if( cmd.equals( "build" ) )
+		else if( cmd.equals( BuildCommandExecutor.NAME ) )
 			executor = new BuildCommandExecutor( this );
-		else if( cmd.equals( "deploy" ) )
+		else if( cmd.equals( DeployCommandExecutor.NAME ) )
 			executor = new DeployCommandExecutor( this );
-		else if( cmd.equals( "database" ) )
+		else if( cmd.equals( DatabaseCommandExecutor.NAME ) )
 			executor = new DatabaseCommandExecutor( this );
-		else if( cmd.equals( "monitor" ) )
+		else if( cmd.equals( MonitorCommandExecutor.NAME ) )
 			executor = new MonitorCommandExecutor( this );
-		else if( cmd.equals( "release" ) )
+		else if( cmd.equals( ReleaseCommandExecutor.NAME ) )
 			executor = new ReleaseCommandExecutor( this );
-		else if( cmd.equals( "xdoc" ) )
+		else if( cmd.equals( XDocCommandExecutor.NAME ) )
 			executor = new XDocCommandExecutor( this );
 		else {
 			out( "Unexpected URM args - unknown command category=" + cmd + " (need one of build/deploy/database/monitor)" );

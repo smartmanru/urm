@@ -15,8 +15,10 @@ import ru.egov.urm.storage.MetadataStorage;
 
 public class UrmConfigurator extends CommandExecutor {
 
+	public static String NAME = "bin";
+	
 	public UrmConfigurator( CommandBuilder builder ) {
-		super( builder , "bin" );
+		super( builder , NAME );
 		
 		String cmdOpts = "";
 		super.defineAction( CommandAction.newAction( new ConfigureLinux() , "configure-linux" , true , "configure as linux" , cmdOpts , "./configure.sh [OPTIONS] {all|build|env} [envname [dcname]]" ) );
