@@ -335,7 +335,7 @@ public class MainExecutor extends CommandExecutor {
 	private boolean checkFileInSvn( ActionInit action , String filePath , List<String> filesNotInSvn ) throws Exception {
 		for( String xMissing : filesNotInSvn ) {
 			if( filePath.equals( xMissing ) || filePath.startsWith( xMissing + "/" ) ) {
-				action.trace( "checkDirInSvn: false, dirPath=" + filePath + ", filesNotInSvn=" + xMissing );
+				action.trace( "checkFileInSvn: false, filePath=" + filePath + ", filesNotInSvn=" + xMissing );
 				return( false );
 			}
 		}

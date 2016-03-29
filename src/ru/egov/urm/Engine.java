@@ -24,7 +24,10 @@ public class Engine {
 				debug = builder.context.CTX_SHOWALL;
 			
 			if( ex != null ) {
-				output( debug , e , ex.getMessage() );
+				if( args.length > 0 && args[0].equals( "-trace" ) )
+					output( true , e , null );
+				else
+					output( debug , e , ex.getMessage() );
 				System.exit( 2 );
 			}
 			else
