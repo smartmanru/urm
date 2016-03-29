@@ -1,36 +1,19 @@
-#!/bin/bash
+@cd %~dp0
 
-cd `dirname $0`
+set P_DSTDIR=%1
 
-P_DSTDIR=$1
-
-# check target dir
-if [ "$P_DSTDIR" = "" ]; then
-	echo "P_DSTDIR is empty. Exiting"
+if "%P_DSTDIR" == "" (
+	echo P_DSTDIR is empty. Exiting
 	exit 1
-fi
-if [ ! -d "$P_DSTDIR/master" ]; then
-	echo "upgrade.sh: invalid product URM directory $P_DSTDIR . Exiting"
+)
+
+IF NOT EXIST %P_DSTDIR%\master (
+	echo upgrade.cmd: invalid product URM directory %P_DSTDIR% . Exiting"
 	exit 1
-fi
+)
 
-function f_execute_all() {
-	# copy master files
-	cp -R * $P_DSTDIR/master
-	local F_STATUS=$?
-	if [ "$F_STATUS" != "0" ]; then
-		echo "upgrade.sh: cannot copy master to $P_DSTDIR/master . Exiting"
-		exit 1
-	fi
+cd ..\..
+xcopy master %P_DSTDIR% /s /e
 
-	# execute configuration script
-	local F_SAVEDIR=`pwd`
-	cd $P_DSTDIR/master
-	if [ -f bin/configure.sh ]; then
-		bin/configure.sh default
-	fi
-}
-
-f_execute_all
-
-echo upgrade.sh: successfully done
+cd %P_DSTDIR%\master\bin
+configure.cmd default
