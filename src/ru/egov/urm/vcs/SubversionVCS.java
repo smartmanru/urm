@@ -419,7 +419,7 @@ public class SubversionVCS extends GenericVCS {
 		for( String s : lines ) {
 			if( s.startsWith( "?" ) ) {
 				s = s.substring( 1 );
-				s.trim();
+				s = s.trim();
 				values.add( s );
 			}
 		}
