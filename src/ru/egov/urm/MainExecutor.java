@@ -109,7 +109,7 @@ public class MainExecutor extends CommandExecutor {
 					}
 				}
 				
-				if( affected )
+				if( !affected )
 					linesNew.add( s );
 			}
 		}
