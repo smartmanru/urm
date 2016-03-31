@@ -315,11 +315,13 @@ public class MainExecutor extends CommandExecutor {
 			lines.add( "export C_CONTEXT_ENV=" + ENVFILE );
 			lines.add( "export C_CONTEXT_DC=" + DC );
 			Common.createFileFromStringList( ef.getFilePath( action , CONTEXT_FILENAME_LIXUX ) , lines );
+			addProxyLine( action , ef , CONTEXT_FILENAME_LIXUX );
 		}
 		else {
 			lines.add( "set C_CONTEXT_ENV=" + ENVFILE );
 			lines.add( "set C_CONTEXT_DC=" + DC );			
 			Common.createFileFromStringList( ef.getFilePath( action , CONTEXT_FILENAME_WIN ) , lines );
+			addProxyLine( action , ef , CONTEXT_FILENAME_WIN );
 		}
 	}
 	
@@ -328,10 +330,12 @@ public class MainExecutor extends CommandExecutor {
 		if( linux ) {
 			lines.add( "export C_CONTEXT_VERSIONMODE=" + Common.getEnumLower( mode ) );
 			Common.createFileFromStringList( ef.getFilePath( action , CONTEXT_FILENAME_LIXUX ) , lines );
+			addProxyLine( action , ef , CONTEXT_FILENAME_LIXUX );
 		}
 		else {
 			lines.add( "set C_CONTEXT_VERSIONMODE=" + Common.getEnumLower( mode ) );
 			Common.createFileFromStringList( ef.getFilePath( action , CONTEXT_FILENAME_WIN ) , lines );
+			addProxyLine( action , ef , CONTEXT_FILENAME_WIN );
 		}
 	}
 	
