@@ -175,8 +175,8 @@ public class MainExecutor extends CommandExecutor {
 				configureExecutorWrapper( action , exeFolder , executor , cmdAction.name , linux , ".." , false , null );
 		}
 		
-		if( executor.name.equals( "deployment" ) ) {
-			String proxyPath = "deployment";
+		if( executor.name.equals( DeployCommandExecutor.NAME ) ) {
+			String proxyPath = DeployCommandExecutor.NAME;
 			
 			List<MetaEnv> envs = new LinkedList<MetaEnv>(); 
 			MetadataStorage ms = action.artefactory.getMetadataStorage( action );
@@ -215,12 +215,12 @@ public class MainExecutor extends CommandExecutor {
 			addAffected( action , linux , proxyPath , true );
 		}
 		
-		if( executor.name.equals( "makedistr" ) ) {
+		if( executor.name.equals( BuildCommandExecutor.NAME ) ) {
 			for( VarBUILDMODE mode : VarBUILDMODE.values() ) {
 				if( mode == VarBUILDMODE.UNKNOWN )
 					continue;
 				
-				configureMakedistrMode( action , exeFolder , executor , mode , linux );
+				configureBuildMode( action , exeFolder , executor , mode , linux );
 			}
 		}
 	}
@@ -266,14 +266,14 @@ public class MainExecutor extends CommandExecutor {
 		}
 		
 		// database wrappers
-		LocalFolder efDB = ef.getSubFolder( action , "database" );
+		LocalFolder efDB = ef.getSubFolder( action , DatabaseCommandExecutor.NAME );
 		for( CommandAction cmdAction : dbe.actionsList ) {
 			if( !cmdAction.top )
 				configureExecutorWrapper( action , efDB , executor , cmdAction.name , linux , xp + "/.." , true , ".." );
 		}
 	}
 	
-	private void configureMakedistrMode( ActionInit action , LocalFolder ef , CommandExecutor executor , VarBUILDMODE mode , boolean linux ) throws Exception {
+	private void configureBuildMode( ActionInit action , LocalFolder ef , CommandExecutor executor , VarBUILDMODE mode , boolean linux ) throws Exception {
 		LocalFolder efBuild = ef.getSubFolder( action , Common.getEnumLower( mode ) );
 		configureExecutorContextBuildMode( action , efBuild , mode , linux );
 		
