@@ -2,6 +2,12 @@
 
 cd `dirname $0`
 
+URM_TRACE=""
+if [ "$1" = "-trace" ]; then
+	URM_TRACE=" -trace"
+	shift 1
+fi
+
 P_RELEASE=$1
 P_PRODUCT=$2
 
@@ -37,7 +43,7 @@ function f_execute_product() {
 
 	# execute upgrade script
 	cd $P_DIR_TMP/bin
-	./upgrade.sh $F_DIR_RUNCOPY
+	./upgrade.sh $URM_TRACE $F_DIR_RUNCOPY
 	F_STAT=$?
 	if [ "$F_STAT" != "0" ]; then
 		echo "redist.sh: upgrade.sh execution failed. Exiting"
@@ -46,7 +52,7 @@ function f_execute_product() {
 
 	# save in svn
 	cd $F_DIR_RUNCOPY/master
-	bin/svnsave.sh
+	bin/svnsave.sh $URM_TRACE
 	F_STAT=$?
 	if [ "$F_STAT" != "0" ]; then
 		echo "redist.sh: svnsave.sh execution failed. Exiting"
