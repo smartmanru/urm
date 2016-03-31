@@ -1,8 +1,10 @@
 package ru.egov.urm;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import ru.egov.urm.action.ActionInit;
 import ru.egov.urm.action.CommandAction;
@@ -45,8 +47,8 @@ public class MainExecutor extends CommandExecutor {
 	private class Configure extends CommandAction {
 		boolean linux;
 		LocalFolder pfMaster = null;
-		String ENV;
-		String DC;
+		String USEENV;
+		String USEDC;
 		List<String> linesProxy;
 		List<String> linesAffected;
 		
@@ -72,8 +74,8 @@ public class MainExecutor extends CommandExecutor {
 			configureAll( action , pfMaster , true , false , linux );
 		else
 		if( ACTION.equals( "deploy" ) ) {
-			ENV = options.getArg( 2 );
-			DC = options.getArg( 3 );
+			USEENV = options.getArg( 2 );
+			USEDC = options.getArg( 3 );
 			configureAll( action , pfMaster , false , true , linux );
 		}
 		else
@@ -178,37 +180,50 @@ public class MainExecutor extends CommandExecutor {
 		if( executor.name.equals( DeployCommandExecutor.NAME ) ) {
 			String proxyPath = DeployCommandExecutor.NAME;
 			
-			List<MetaEnv> envs = new LinkedList<MetaEnv>(); 
+			Map<String,MetaEnv> envs = new HashMap<String,MetaEnv>(); 
 			MetadataStorage ms = action.artefactory.getMetadataStorage( action );
 			
 			MetaEnvDC dc = null;
-			if( ENV.isEmpty() ) {
+			if( USEENV.isEmpty() ) {
 				addAffected( action , linux , proxyPath , true );
 				String[] envFiles = ms.getEnvFiles( action );
 				for( String envFile : envFiles ) {
 					MetaEnv env = meta.loadEnvData( action , envFile , false );
-					envs.add( env );
+					envs.put( envFile , env );
 				}
 			}
 			else {
-				addAffected( action , linux , proxyPath , false );
-				MetaEnv env = meta.loadEnvData( action , ENV , false );
+				MetaEnv env = null;
+				String[] envFiles = ms.getEnvFiles( action );
+				for( String envFile : envFiles ) {
+					MetaEnv envx = meta.loadEnvData( action , envFile , false );
+					if( envx.ID.equals( USEENV ) ) {
+						env = envx;
+						envs.put( envFile , envx );
+						break;
+					}
+				}
 				
-				if( DC.isEmpty() ) {
-					proxyPath = Common.getPath( proxyPath , ENV );
+				if( env == null )
+					action.exit( "unknown environment ID=" + USEENV );
+				
+				addAffected( action , linux , proxyPath , false );
+				
+				if( USEDC.isEmpty() ) {
+					proxyPath = Common.getPath( proxyPath , env.ID );
 					addAffected( action , linux , proxyPath , true );
 				}
 				else {
-					dc = env.getDC( action , DC );
-					proxyPath = Common.getPath( proxyPath , ENV , DC );
+					dc = env.getDC( action , USEDC );
+					proxyPath = Common.getPath( proxyPath , env.ID , USEDC );
 					addAffected( action , linux , proxyPath , true );
 				}
-					
-				envs.add( env );
 			}
 			
-			for( MetaEnv env : envs )
-				configureDeploymentEnv( action , exeFolder , executor , env , dc , linux , dbe );
+			for( String envFile : envs.keySet() ) {
+				MetaEnv env = envs.get( envFile );
+				configureDeploymentEnv( action , exeFolder , executor , envFile , env , dc , linux , dbe );
+			}
 		}
 		else {
 			String proxyPath = executor.name;
@@ -232,34 +247,34 @@ public class MainExecutor extends CommandExecutor {
 		linesAffected.add( item );
 	}
 	
-	private void configureDeploymentEnv( ActionInit action , LocalFolder ef , CommandExecutor executor , MetaEnv env , MetaEnvDC dc , boolean linux , CommandExecutor dbe ) throws Exception {
+	private void configureDeploymentEnv( ActionInit action , LocalFolder ef , CommandExecutor executor , String envFile , MetaEnv env , MetaEnvDC dc , boolean linux , CommandExecutor dbe ) throws Exception {
 		LocalFolder efEnv = ef.getSubFolder( action , "env" );
 		efEnv.ensureExists( action );
 		
 		// env-level
-		if( DC.isEmpty() || !env.isMultiDC( action ) )
-			configureDeploymentEnvContent( action , efEnv , executor , env , null , linux , dbe );
+		if( USEDC.isEmpty() || !env.isMultiDC( action ) )
+			configureDeploymentEnvContent( action , efEnv , executor , envFile , null , linux , dbe );
 		
 		if( env.isMultiDC( action ) ) {
-			if( DC.isEmpty() ) {
+			if( USEDC.isEmpty() ) {
 				for( MetaEnvDC envdc : env.getOriginalDCList( action ) ) {
 					LocalFolder efEnvDC = efEnv.getSubFolder( action , envdc.NAME );
-					configureDeploymentEnvContent( action , efEnvDC , executor , env , envdc , linux , dbe );
+					configureDeploymentEnvContent( action , efEnvDC , executor , envFile , envdc.NAME , linux , dbe );
 				}
 			}
 			else {
 				LocalFolder efEnvDC = efEnv.getSubFolder( action , dc.NAME );
-				configureDeploymentEnvContent( action , efEnvDC , executor , env , dc , linux , dbe );
+				configureDeploymentEnvContent( action , efEnvDC , executor , envFile , dc.NAME , linux , dbe );
 			}
 		}
 	}
 
-	private void configureDeploymentEnvContent( ActionInit action , LocalFolder ef , CommandExecutor executor , MetaEnv env , MetaEnvDC dc , boolean linux , CommandExecutor dbe ) throws Exception {
+	private void configureDeploymentEnvContent( ActionInit action , LocalFolder ef , CommandExecutor executor , String ENVFILE , String DC , boolean linux , CommandExecutor dbe ) throws Exception {
 		// env-level context
 		ef.ensureExists( action );
-		configureExecutorContextDeployment( action , ef , env.ID , DC , linux );
+		configureExecutorContextDeployment( action , ef , ENVFILE , DC , linux );
 
-		String xp = ( dc == null )? "../.." : "../../..";
+		String xp = ( DC == null )? "../.." : "../../..";
 		
 		// env-level wrappers
 		for( CommandAction cmdAction : executor.actionsList ) {
