@@ -24,8 +24,8 @@ public class MainExecutor extends CommandExecutor {
 	public static String NAME = "bin";
 	public static String MASTERFILE = "master.files.info";
 	public static String PROXYPREFIX = "proxy:";
-	public static String CONTEXT_FILENAME_LIXUX = "context.sh";
-	public static String CONTEXT_FILENAME_WIN = "context.cmd";
+	public static String CONTEXT_FILENAME_LIXUX = "_context.sh";
+	public static String CONTEXT_FILENAME_WIN = "_context.cmd";
 	
 	public MainExecutor( CommandBuilder builder ) {
 		super( builder , NAME );
@@ -234,6 +234,7 @@ public class MainExecutor extends CommandExecutor {
 	
 	private void configureDeploymentEnv( ActionInit action , LocalFolder ef , CommandExecutor executor , MetaEnv env , MetaEnvDC dc , boolean linux , CommandExecutor dbe ) throws Exception {
 		LocalFolder efEnv = ef.getSubFolder( action , "env" );
+		efEnv.ensureExists( action );
 		
 		// env-level
 		if( DC.isEmpty() || !env.isMultiDC( action ) )
@@ -255,6 +256,7 @@ public class MainExecutor extends CommandExecutor {
 
 	private void configureDeploymentEnvContent( ActionInit action , LocalFolder ef , CommandExecutor executor , MetaEnv env , MetaEnvDC dc , boolean linux , CommandExecutor dbe ) throws Exception {
 		// env-level context
+		ef.ensureExists( action );
 		configureExecutorContextDeployment( action , ef , env.ID , DC , linux );
 
 		String xp = ( dc == null )? "../.." : "../../..";
@@ -267,6 +269,7 @@ public class MainExecutor extends CommandExecutor {
 		
 		// database wrappers
 		LocalFolder efDB = ef.getSubFolder( action , DatabaseCommandExecutor.NAME );
+		efDB.ensureExists( action );
 		for( CommandAction cmdAction : dbe.actionsList ) {
 			if( !cmdAction.top )
 				configureExecutorWrapper( action , efDB , executor , cmdAction.name , linux , xp + "/.." , true , ".." );
@@ -275,6 +278,7 @@ public class MainExecutor extends CommandExecutor {
 	
 	private void configureBuildMode( ActionInit action , LocalFolder ef , CommandExecutor executor , VarBUILDMODE mode , boolean linux ) throws Exception {
 		LocalFolder efBuild = ef.getSubFolder( action , Common.getEnumLower( mode ) );
+		efBuild.ensureExists( action );
 		configureExecutorContextBuildMode( action , efBuild , mode , linux );
 		
 		// env-level wrappers
