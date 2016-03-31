@@ -67,6 +67,8 @@ public class MainExecutor extends CommandExecutor {
 		linesProxy = new LinkedList<String>();
 		linesAffected = new LinkedList<String>();
 		
+		USEENV = "";
+		USEDC = "";
 		if( ACTION.equals( "default" ) )
 			configureDefault( action , pfMaster );
 		else
@@ -75,9 +77,9 @@ public class MainExecutor extends CommandExecutor {
 		else
 		if( ACTION.equals( "deploy" ) ) {
 			USEENV = options.getArg( 2 );
+			USEDC = options.getArg( 3 );
 			if( USEENV == null )
 				USEENV = "";
-			USEDC = options.getArg( 3 );
 			if( USEDC == null )
 				USEDC = "";
 			configureAll( action , pfMaster , false , true , linux );
