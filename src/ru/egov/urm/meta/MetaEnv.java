@@ -195,4 +195,13 @@ public class MetaEnv {
 	public boolean isMultiDC( ActionBase action ) throws Exception {
 		return( originalList.size() > 1 );
 	}
+	
+	public MetaEnvDC getMainDC( ActionBase action ) throws Exception {
+		if( originalList.size() == 0 )
+			action.exit( "no datacenter defined" );
+		if( originalList.size() > 1 )
+			action.exitUnexpectedState();
+		return( originalList.get( 0 ) );
+	}
+	
 }

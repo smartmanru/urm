@@ -12,6 +12,7 @@ import ru.egov.urm.action.build.BuildCommandExecutor;
 import ru.egov.urm.action.database.DatabaseCommandExecutor;
 import ru.egov.urm.action.deploy.DeployCommandExecutor;
 import ru.egov.urm.meta.MetaEnv;
+import ru.egov.urm.meta.MetaEnvDC;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.storage.FileSet;
 import ru.egov.urm.storage.LocalFolder;
@@ -23,6 +24,8 @@ public class MainExecutor extends CommandExecutor {
 	public static String NAME = "bin";
 	public static String MASTERFILE = "master.files.info";
 	public static String PROXYPREFIX = "proxy:";
+	public static String CONTEXT_FILENAME_LIXUX = "context.sh";
+	public static String CONTEXT_FILENAME_WIN = "context.cmd";
 	
 	public MainExecutor( CommandBuilder builder ) {
 		super( builder , NAME );
@@ -164,12 +167,12 @@ public class MainExecutor extends CommandExecutor {
 		exeFolder.ensureExists( action );
 
 		// add help action
-		configureExecutorWrapper( action , exeFolder , executor , "help" , linux );
+		configureExecutorWrapper( action , exeFolder , executor , "help" , linux , ".." , false , null );
 		
 		// top items
 		for( CommandAction cmdAction : executor.actionsList ) {
 			if( cmdAction.top )
-				configureExecutorWrapper( action , exeFolder , executor , cmdAction.name , linux );
+				configureExecutorWrapper( action , exeFolder , executor , cmdAction.name , linux , ".." , false , null );
 		}
 		
 		if( executor.name.equals( "deployment" ) ) {
@@ -178,6 +181,7 @@ public class MainExecutor extends CommandExecutor {
 			List<MetaEnv> envs = new LinkedList<MetaEnv>(); 
 			MetadataStorage ms = action.artefactory.getMetadataStorage( action );
 			
+			MetaEnvDC dc = null;
 			if( ENV.isEmpty() ) {
 				addAffected( action , linux , proxyPath , true );
 				String[] envFiles = ms.getEnvFiles( action );
@@ -195,6 +199,7 @@ public class MainExecutor extends CommandExecutor {
 					addAffected( action , linux , proxyPath , true );
 				}
 				else {
+					dc = env.getDC( action , DC );
 					proxyPath = Common.getPath( proxyPath , ENV , DC );
 					addAffected( action , linux , proxyPath , true );
 				}
@@ -203,7 +208,7 @@ public class MainExecutor extends CommandExecutor {
 			}
 			
 			for( MetaEnv env : envs )
-				configureDeploymentEnv( action , exeFolder , executor , env , linux , dbe );
+				configureDeploymentEnv( action , exeFolder , executor , env , dc , linux , dbe );
 		}
 		else {
 			String proxyPath = executor.name;
@@ -227,13 +232,85 @@ public class MainExecutor extends CommandExecutor {
 		linesAffected.add( item );
 	}
 	
-	private void configureDeploymentEnv( ActionInit action , LocalFolder ef , CommandExecutor executor , MetaEnv env , boolean linux , CommandExecutor dbe ) throws Exception {
+	private void configureDeploymentEnv( ActionInit action , LocalFolder ef , CommandExecutor executor , MetaEnv env , MetaEnvDC dc , boolean linux , CommandExecutor dbe ) throws Exception {
+		LocalFolder efEnv = ef.getSubFolder( action , "env" );
+		
+		// env-level
+		if( DC.isEmpty() || !env.isMultiDC( action ) )
+			configureDeploymentEnvContent( action , efEnv , executor , env , null , linux , dbe );
+		
+		if( env.isMultiDC( action ) ) {
+			if( DC.isEmpty() ) {
+				for( MetaEnvDC envdc : env.getOriginalDCList( action ) ) {
+					LocalFolder efEnvDC = efEnv.getSubFolder( action , envdc.NAME );
+					configureDeploymentEnvContent( action , efEnvDC , executor , env , envdc , linux , dbe );
+				}
+			}
+			else {
+				LocalFolder efEnvDC = efEnv.getSubFolder( action , dc.NAME );
+				configureDeploymentEnvContent( action , efEnvDC , executor , env , dc , linux , dbe );
+			}
+		}
 	}
 
-	private void configureMakedistrMode( ActionInit action , LocalFolder ef , CommandExecutor executor , VarBUILDMODE mode , boolean linux ) throws Exception {
+	private void configureDeploymentEnvContent( ActionInit action , LocalFolder ef , CommandExecutor executor , MetaEnv env , MetaEnvDC dc , boolean linux , CommandExecutor dbe ) throws Exception {
+		// env-level context
+		configureExecutorContextDeployment( action , ef , env.ID , DC , linux );
+
+		String xp = ( dc == null )? "../.." : "../../..";
+		
+		// env-level wrappers
+		for( CommandAction cmdAction : executor.actionsList ) {
+			if( !cmdAction.top )
+				configureExecutorWrapper( action , ef , executor , cmdAction.name , linux , xp , true , null );
+		}
+		
+		// database wrappers
+		LocalFolder efDB = ef.getSubFolder( action , "database" );
+		for( CommandAction cmdAction : dbe.actionsList ) {
+			if( !cmdAction.top )
+				configureExecutorWrapper( action , efDB , executor , cmdAction.name , linux , xp + "/.." , true , ".." );
+		}
 	}
 	
-	private void configureExecutorWrapper( ActionInit action , LocalFolder ef , CommandExecutor executor , String method , boolean linux ) throws Exception {
+	private void configureMakedistrMode( ActionInit action , LocalFolder ef , CommandExecutor executor , VarBUILDMODE mode , boolean linux ) throws Exception {
+		LocalFolder efBuild = ef.getSubFolder( action , Common.getEnumLower( mode ) );
+		configureExecutorContextBuildMode( action , efBuild , mode , linux );
+		
+		// env-level wrappers
+		for( CommandAction cmdAction : executor.actionsList ) {
+			if( !cmdAction.top )
+				configureExecutorWrapper( action , efBuild , executor , cmdAction.name , linux , "../.." , true , null );
+		}
+	}
+
+	private void configureExecutorContextDeployment( ActionInit action , LocalFolder ef , String ENVFILE , String DC , boolean linux ) throws Exception {
+		List<String> lines = new LinkedList<String>();
+		if( linux ) {
+			lines.add( "export C_CONTEXT_ENV=" + ENVFILE );
+			lines.add( "export C_CONTEXT_DC=" + DC );
+			Common.createFileFromStringList( ef.getFilePath( action , CONTEXT_FILENAME_LIXUX ) , lines );
+		}
+		else {
+			lines.add( "set C_CONTEXT_ENV=" + ENVFILE );
+			lines.add( "set C_CONTEXT_DC=" + DC );			
+			Common.createFileFromStringList( ef.getFilePath( action , CONTEXT_FILENAME_WIN ) , lines );
+		}
+	}
+	
+	private void configureExecutorContextBuildMode( ActionInit action , LocalFolder ef , VarBUILDMODE mode , boolean linux ) throws Exception {
+		List<String> lines = new LinkedList<String>();
+		if( linux ) {
+			lines.add( "export C_CONTEXT_VERSIONMODE=" + Common.getEnumLower( mode ) );
+			Common.createFileFromStringList( ef.getFilePath( action , CONTEXT_FILENAME_LIXUX ) , lines );
+		}
+		else {
+			lines.add( "set C_CONTEXT_VERSIONMODE=" + Common.getEnumLower( mode ) );
+			Common.createFileFromStringList( ef.getFilePath( action , CONTEXT_FILENAME_WIN ) , lines );
+		}
+	}
+	
+	private void configureExecutorWrapper( ActionInit action , LocalFolder ef , CommandExecutor executor , String method , boolean linux , String relativePath , boolean context , String relativeContext ) throws Exception {
 		String fileName = method + ( ( linux )? ".sh" : ".cmd" );
 		String filePath = ef.getFilePath( action , fileName );
 
@@ -245,11 +322,24 @@ public class MainExecutor extends CommandExecutor {
 		if( linux ) {
 			lines.add( "#!/bin/bash" );
 			lines.add( "cd `dirname $0`" );
-			lines.add( "../bin/urm.sh " + executor.name + " " + method + " " + Common.getQuoted( "$@" ) );			
+			if( context ) {
+				if( relativeContext == null )
+					lines.add( ". ./" + CONTEXT_FILENAME_LIXUX );
+				else
+					lines.add( ". " + relativeContext + "/" + CONTEXT_FILENAME_LIXUX );
+			}
+			lines.add( relativePath + "/bin/urm.sh " + executor.name + " " + method + " " + Common.getQuoted( "$@" ) );			
 		}
 		else {
+			relativePath = Common.getWinPath( relativePath );
 			lines.add( "@cd %~dp0" );
-			lines.add( "@..\\bin\\urm.cmd " + executor.name + " " + method + " %*" );			
+			if( context ) {
+				if( relativeContext == null )
+					lines.add( "call " + CONTEXT_FILENAME_WIN );
+				else
+					lines.add( "call " + Common.getWinPath( relativeContext + "/" + CONTEXT_FILENAME_WIN ) );
+			}
+			lines.add( "@" + relativePath + "\\bin\\urm.cmd " + executor.name + " " + method + " %*" );			
 		}
 		
 		Common.createFileFromStringList( filePath , lines );
