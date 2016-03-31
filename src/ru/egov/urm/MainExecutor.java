@@ -75,7 +75,11 @@ public class MainExecutor extends CommandExecutor {
 		else
 		if( ACTION.equals( "deploy" ) ) {
 			USEENV = options.getArg( 2 );
+			if( USEENV == null )
+				USEENV = "";
 			USEDC = options.getArg( 3 );
+			if( USEDC == null )
+				USEDC = "";
 			configureAll( action , pfMaster , false , true , linux );
 		}
 		else
