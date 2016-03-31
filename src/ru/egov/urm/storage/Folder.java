@@ -107,14 +107,14 @@ public abstract class Folder {
 		return( session.checkDirExists( action , Common.getPath( folderPath , folder ) ) );
 	}
 
-	public void copyFile( ActionBase action , String srcFile ) throws Exception {
+	public void copyFiles( ActionBase action , String srcFiles ) throws Exception {
 		ShellExecutor session = getSession( action );
-		session.copyFile( action , srcFile , Common.ensureDir( folderPath ) );
+		session.copyFiles( action , srcFiles , Common.ensureDir( folderPath ) );
 	}
 	
 	public void copyFileRename( ActionBase action , String srcFile , String newName ) throws Exception {
 		ShellExecutor session = getSession( action );
-		session.copyFile( action , srcFile , Common.getPath( folderPath , newName ) );
+		session.copyFiles( action , srcFile , Common.getPath( folderPath , newName ) );
 	}
 	
 	public void copyFile( ActionBase action , String folder1 , String folder2 , String newName , String targetSubFolder ) throws Exception {

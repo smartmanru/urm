@@ -334,8 +334,8 @@ public class ShellCoreUnix extends ShellCore {
 	}
 	
 	@Override public void cmdCopyFiles( ActionBase action , String dirFrom , String files , String dirTo ) throws Exception {
-		action.debug( "copy " + files + " from " + dirFrom + " to " + dirTo + " ..." );
-		runCommandCheckDebug( action , dirFrom , "cp -p " + files + " " + dirTo );
+		action.debug( "copy files (" + files + ") from " + dirFrom + " to " + dirTo + " ..." );
+		runCommandCheckDebug( action , dirFrom , "cp -p -t " + dirTo + " " + files );
 	}
 
 	@Override public void cmdCopyFile( ActionBase action , String fileFrom , String fileTo ) throws Exception {

@@ -12,6 +12,8 @@ import ru.egov.urm.ConfReader;
 import ru.egov.urm.PropertySet;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
+import ru.egov.urm.storage.BaseRepository;
+import ru.egov.urm.storage.RemoteFolder;
 
 public class MetaFapBase {
 
@@ -24,6 +26,7 @@ public class MetaFapBase {
 		TARGZ_SINGLEDIR
 	};
 	
+	public BaseRepository repo;
 	public PropertySet properties;
 	public String ID;
 	public VarBASESRCTYPE type;
@@ -39,7 +42,8 @@ public class MetaFapBase {
 	public List<String> dependencies;
 	public Map<String,String> compatibilityMap;
 	
-	public MetaFapBase() {
+	public MetaFapBase( BaseRepository repo ) {
+		this.repo = repo;
 	}
 	
 	public VarBASESRCTYPE getType( ActionBase action , String TYPE ) throws Exception {
@@ -167,5 +171,12 @@ public class MetaFapBase {
 		SRCSTOREDIR = properties.getSystemRequiredProperty( action , "srcstoreddir" , systemProps );
 		INSTALLPATH = properties.getSystemRequiredProperty( action , "installpath" , systemProps );
 	}
-	
+
+	public String getItemPath( ActionBase action , String SRCFILE ) throws Exception {
+		return( repo.getBaseItemPath( action , ID , SRCFILE ) );
+	}
+
+	public RemoteFolder getFolder( ActionBase action ) throws Exception {
+		return( repo.getBaseFolder( action , ID ) );
+	}
 }

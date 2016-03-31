@@ -321,7 +321,7 @@ public abstract class ShellExecutor {
 		core.cmdCopyFiles( action , dirFrom , files , dirTo );
 	}
 	
-	public void copyFile( ActionBase action , String fileFrom , String fileTo ) throws Exception {
+	public void copyFiles( ActionBase action , String fileFrom , String fileTo ) throws Exception {
 		core.cmdCopyFile( action, fileFrom , fileTo );
 	}
 	
@@ -369,7 +369,7 @@ public abstract class ShellExecutor {
 
 	public void copyFileTargetToLocalDir( ActionBase action , Account account , String srcFilePath , String dstDir ) throws Exception {
 		if( account.local )
-			copyFile( action , srcFilePath , dstDir );
+			copyFiles( action , srcFilePath , dstDir );
 		else {
 			scpFilesRemoteToLocal( action , srcFilePath , account , Common.ensureDir( dstDir ) );
 		}
@@ -377,7 +377,7 @@ public abstract class ShellExecutor {
 
 	public void copyFileTargetToLocalFile( ActionBase action , Account account , String srcFilePath , String dstFilePath ) throws Exception {
 		if( account.local )
-			copyFile( action , srcFilePath , dstFilePath );
+			copyFiles( action , srcFilePath , dstFilePath );
 		else {
 			scpFilesRemoteToLocal( action , srcFilePath , account , dstFilePath );
 		}

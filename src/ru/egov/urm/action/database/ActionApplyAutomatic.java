@@ -130,7 +130,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		scriptFolder.copyFiles( this , file , logReleaseExecute );
 		
 		ConfBuilder builder = new ConfBuilder( this );
-		builder.parseConfigParameters( logReleaseExecute , file , server );
+		builder.configureFile( logReleaseExecute , file , server , null );
 		
 		if( !parts[3].equals( "RR" ) )
 			return;

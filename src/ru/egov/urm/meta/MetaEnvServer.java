@@ -106,6 +106,10 @@ public class MetaEnvServer {
 			loadDeployments( action , node );
 		loadBase( action , node );
 	}
+
+	public boolean isLinux() {
+		return( osType == VarOSTYPE.UNIX );
+	}
 	
 	public String[] getPropertyList( ActionBase action ) throws Exception {
 		return( properties.getOwnProperties( action ) );

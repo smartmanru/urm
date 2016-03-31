@@ -362,7 +362,7 @@ public class ActionImportDatabase extends ActionBase {
 		
 		// configure
 		ConfBuilder builder = new ConfBuilder( this );
-		builder.parseConfigParameters( this , folder , server );
+		builder.configureFolder( this , folder , server , null );
 		
 		// apply
 		if( !client.applyManualSet( this , folder ) )

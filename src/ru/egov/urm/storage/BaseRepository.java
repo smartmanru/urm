@@ -37,12 +37,16 @@ public class BaseRepository {
 		return( repoFolder.getFilePath( action , BASEID + "/" + itemPath ) );
 	}
 
+	public RemoteFolder getBaseFolder( ActionBase action , String BASEID ) throws Exception {
+		return( repoFolder.getSubFolder( action , BASEID ) );
+	}
+
 	public MetaFapBase getBaseInfo( ActionBase action , String ID , PropertySet parentProperties ) throws Exception {
 		String basePath = getBasePath( action , ID );
 		String text = repoFolder.readFile( action , basePath );
 		Document xml = ConfReader.readXmlString( action , text );
 		
-		MetaFapBase base = new MetaFapBase();
+		MetaFapBase base = new MetaFapBase( this );
 		base.load( action , xml.getDocumentElement() , parentProperties );
 		return( base );
 	}

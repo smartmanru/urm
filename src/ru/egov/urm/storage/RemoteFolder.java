@@ -155,7 +155,7 @@ public class RemoteFolder extends Folder {
 	
 	public void copyFile( ActionBase action , Folder srcFolder , String fileSrc , String newName ) throws Exception {
 		ShellExecutor session = getSession( action );
-		session.copyFile( action , srcFolder.getFilePath( action , fileSrc ) , getFilePath( action , newName ) );
+		session.copyFiles( action , srcFolder.getFilePath( action , fileSrc ) , getFilePath( action , newName ) );
 	}
 	
 	public boolean isRemote( ActionBase action ) throws Exception {

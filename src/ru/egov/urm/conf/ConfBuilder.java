@@ -4,6 +4,7 @@ import java.util.List;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
+import ru.egov.urm.PropertySet;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServer;
@@ -110,18 +111,32 @@ public class ConfBuilder {
 		for( String file : files ) {
 			if( file.startsWith( "./" ) )
 				file = file.substring( 2 );
-			parseConfigParameters( live , file , node );
+			configureFile( live , file , node , null );
 		}
 	}
 
-	public void parseConfigParameters( ActionBase action , LocalFolder folder , MetaEnvServer server ) throws Exception {
+	public void configureFolder( ActionBase action , LocalFolder folder , MetaEnvServer server , PropertySet props ) throws Exception {
 		action.trace( "parse configuration files in folder=" + folder.folderPath + " ..." );
 		FileSet files = folder.getFileSet( action );
+		if( props == null )
+			props = server.properties;
+		
 		for( String file : files.fileList )
-			parseConfigParameters( folder , file , server );
+			configureFile( folder , file , server , props );
 	}
 	
-	public void parseConfigParameters( LocalFolder live , String file , MetaEnvServer server ) throws Exception {
+	public void configureFolder( ActionBase action , LocalFolder folder , MetaEnvServerNode node , PropertySet props ) throws Exception {
+		action.trace( "parse configuration files in folder=" + folder.folderPath + " ..." );
+		FileSet files = folder.getFileSet( action );
+		
+		if( props == null )
+			props = node.properties;
+		
+		for( String file : files.fileList )
+			configureFile( folder , file , node , props );
+	}
+	
+	public void configureFile( LocalFolder live , String file , MetaEnvServer server , PropertySet props ) throws Exception {
 		action.trace( "parse file=" + file + " ..." );
 		String filePath = live.getFilePath( action , file );
 		List<String> fileLines = ConfReader.readFileLines( action , filePath );
@@ -129,7 +144,7 @@ public class ConfBuilder {
 		boolean changed = false;
 		for( int k = 0; k < fileLines.size(); k++ ) {
 			String s = fileLines.get( k );
-			String res = server.properties.processValue( action , s );
+			String res = props.processValue( action , s );
 			if( res != null ) {
 				fileLines.set( k , res );
 				changed = true;
@@ -140,7 +155,7 @@ public class ConfBuilder {
 			Common.createFileFromStringList( filePath , fileLines );
 	}
 	
-	private void parseConfigParameters( LocalFolder live , String file , MetaEnvServerNode node ) throws Exception {
+	public void configureFile( LocalFolder live , String file , MetaEnvServerNode node , PropertySet props ) throws Exception {
 		action.trace( "parse file=" + file + " ..." );
 		String filePath = live.getFilePath( action , file );
 		List<String> fileLines = ConfReader.readFileLines( action , filePath );
@@ -148,7 +163,7 @@ public class ConfBuilder {
 		boolean changed = false;
 		for( int k = 0; k < fileLines.size(); k++ ) {
 			String s = fileLines.get( k );
-			String res = node.properties.processValue( action , s );
+			String res = props.processValue( action , s );
 			if( res != null ) {
 				fileLines.set( k , res );
 				changed = true;
