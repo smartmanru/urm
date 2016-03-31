@@ -273,8 +273,11 @@ public class RuntimeStorage extends ServerStorage {
 			RemoteFolder runtimeDir = new RemoteFolder( artefactory , action.getAccount( node ) , servicePath );
 			if( !runtimeDir.checkFileExists( action , "service" ) )
 				action.exit( "unable to find service file in " + runtimeDir.folderPath );
-				
-			runtimeDir.copyFile( action , "service" , "/etc/init.d/" + server.SERVICENAME );
+
+			String targetFile = "/etc/init.d/" + server.SERVICENAME;
+			runtimeDir.copyFile( action , "service" , targetFile );
+			ShellExecutor session = action.getShell( account );
+			session.custom( action , "chmod 744 " + targetFile );
 		}
 		else
 			action.exitUnexpectedState();
