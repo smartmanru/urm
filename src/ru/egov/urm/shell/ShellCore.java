@@ -71,8 +71,8 @@ abstract class ShellCore {
 	abstract public void cmdRemoveFilesWithExclude( ActionBase action , String dir , String files , String exclude ) throws Exception;
 	abstract public void cmdUnzipPart( ActionBase action , String unzipDir , String zipFile , String zipPart , String targetDir ) throws Exception;
 	abstract public void cmdMove( ActionBase action , String source , String target ) throws Exception;
-	abstract public void cmdExtractTarGz( ActionBase action , String tarFile , String targetFolder ) throws Exception;
-	abstract public void cmdExtractTar( ActionBase action , String tarFile , String targetFolder ) throws Exception;
+	abstract public void cmdExtractTarGz( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception;
+	abstract public void cmdExtractTar( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception;
 	abstract public String cmdLs( ActionBase action , String path ) throws Exception;
 	abstract public void cmdCreateZipFromDirContent( ActionBase action , String tarFile , String dir , String content ) throws Exception;
 	abstract public void cmdCreateTarGzFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception;

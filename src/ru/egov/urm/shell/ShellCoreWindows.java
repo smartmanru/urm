@@ -359,14 +359,14 @@ public class ShellCoreWindows extends ShellCore {
 		action.exitNotImplemented();
 	}
 
-	@Override public void cmdExtractTarGz( ActionBase action , String tarFile , String targetFolder ) throws Exception {
+	@Override public void cmdExtractTarGz( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
 		String wtarFile = Common.getWinPath( tarFile );
-		runCommandCheckStatusDebug( action , targetFolder , "7z x -y -bd " + wtarFile );
+		runCommandCheckStatusDebug( action , targetFolder , "7z x -y -bd " + wtarFile + " " + part );
 	}
 	
-	@Override public void cmdExtractTar( ActionBase action , String tarFile , String targetFolder ) throws Exception {
+	@Override public void cmdExtractTar( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
 		String wtarFile = Common.getWinPath( tarFile );
-		runCommandCheckStatusDebug( action , targetFolder , "7z x -y -bd " + wtarFile );
+		runCommandCheckStatusDebug( action , targetFolder , "7z x -y -bd " + wtarFile + " " + part );
 	}
 	
 	@Override public String cmdLs( ActionBase action , String path ) throws Exception {

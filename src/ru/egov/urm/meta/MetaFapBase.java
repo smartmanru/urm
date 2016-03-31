@@ -11,6 +11,7 @@ import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.PropertySet;
 import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 
 public class MetaFapBase {
 
@@ -27,6 +28,7 @@ public class MetaFapBase {
 	public String ID;
 	public VarBASESRCTYPE type;
 	public boolean adm;
+	public VarSERVERTYPE serverType;
 
 	public VarBASESRCFORMAT srcFormat;
 	public String SRCFILE;
@@ -76,6 +78,8 @@ public class MetaFapBase {
 		ID = ConfReader.getRequiredAttrValue( action , node , "id" );
 		type = getType( action , ConfReader.getRequiredAttrValue( action , node , "type" ) );
 		adm = ConfReader.getBooleanAttrValue( action , node , "adminstall" , false );
+		String SERVERTYPE = ConfReader.getRequiredAttrValue( action , node , "servertype" );
+		serverType = action.meta.getServerType( action , SERVERTYPE );
 		
 		properties = new PropertySet( "fapbase" , parentProperties );
 		properties.loadFromElements( action , node );

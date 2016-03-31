@@ -175,12 +175,20 @@ public abstract class ShellExecutor {
 		core.cmdMove( action , source , target );
 	}
 
+	public void extractTarGz( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
+		core.cmdExtractTarGz( action , tarFile , targetFolder , part );
+	}
+
+	public void extractTar( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
+		core.cmdExtractTar( action , tarFile , targetFolder , part );
+	}
+
 	public void extractTarGz( ActionBase action , String tarFile , String targetFolder ) throws Exception {
-		core.cmdExtractTarGz( action , tarFile , targetFolder );
+		core.cmdExtractTarGz( action , tarFile , targetFolder , "" );
 	}
 
 	public void extractTar( ActionBase action , String tarFile , String targetFolder ) throws Exception {
-		core.cmdExtractTar( action , tarFile , targetFolder );
+		core.cmdExtractTar( action , tarFile , targetFolder , "" );
 	}
 
 	public String ls( ActionBase action , String path ) throws Exception {

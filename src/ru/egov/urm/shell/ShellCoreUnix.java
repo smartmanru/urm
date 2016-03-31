@@ -274,12 +274,14 @@ public class ShellCoreUnix extends ShellCore {
 		runCommandCheckDebug( action , "mv " + source + " " + target );
 	}
 
-	@Override public void cmdExtractTarGz( ActionBase action , String tarFile , String targetFolder ) throws Exception {
-		runCommandCheckDebug( action , targetFolder , "tar --no-same-owner --overwrite -zxmf " + tarFile + " > /dev/null" );
+	@Override public void cmdExtractTarGz( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
+		String extractPart = ( part == null || part.isEmpty() )? "" : part;
+		runCommandCheckDebug( action , targetFolder , "tar --no-same-owner --overwrite -zxmf " + tarFile + " " + extractPart + " > /dev/null" );
 	}
 	
-	@Override public void cmdExtractTar( ActionBase action , String tarFile , String targetFolder ) throws Exception {
-		runCommandCheckDebug( action , targetFolder , "tar --no-same-owner --overwrite -xmf " + tarFile + " > /dev/null" );
+	@Override public void cmdExtractTar( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
+		String extractPart = ( part == null || part.isEmpty() )? "" : part;
+		runCommandCheckDebug( action , targetFolder , "tar --no-same-owner --overwrite -xmf " + tarFile + " " + extractPart + " > /dev/null" );
 	}
 	
 	@Override public String cmdLs( ActionBase action , String path ) throws Exception {

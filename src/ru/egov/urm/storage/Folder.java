@@ -208,6 +208,16 @@ public abstract class Folder {
 		session.extractTar( action , tarFile , Common.getPath( folderPath , targetFolder ) );
 	}
 	
+	public void extractTarGzPart( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
+		ShellExecutor session = getSession( action ); 
+		session.extractTarGz( action , tarFile , Common.getPath( folderPath , targetFolder , part ) );
+	}
+	
+	public void extractTarPart( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
+		ShellExecutor session = getSession( action ); 
+		session.extractTar( action , tarFile , Common.getPath( folderPath , targetFolder , part ) );
+	}
+	
 	public String getFolderContent( ActionBase action , String folder ) throws Exception {
 		ShellExecutor session = getSession( action ); 
 		return( session.ls( action , Common.getPath( folderPath , folder ) ) );

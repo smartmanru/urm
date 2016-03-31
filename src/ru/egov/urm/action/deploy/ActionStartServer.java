@@ -3,6 +3,7 @@ package ru.egov.urm.action.deploy;
 import java.util.LinkedList;
 import java.util.List;
 
+import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.ActionScopeTargetItem;
@@ -27,7 +28,7 @@ public class ActionStartServer extends ActionBase {
 			return( true );
 		}
 		
-		log( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.SERVERTYPE + " ..." );
+		log( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
 
 		// first start childs
 		if( target.itemFull && server.subordinateServers != null && server.subordinateServers.length != 0 ) {
@@ -79,7 +80,7 @@ public class ActionStartServer extends ActionBase {
 				setFailed();
 		}
 		else
-			debug( "server=" + server.NAME + ", type=" + actionServer.SERVERTYPE + " is not supported for start. Skipped." );
+			debug( "server=" + server.NAME + ", type=" + Common.getEnumLower( actionServer.serverType ) + " is not supported for start. Skipped." );
 	}
 	
 }

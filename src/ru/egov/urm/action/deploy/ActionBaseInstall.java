@@ -9,6 +9,7 @@ import ru.egov.urm.meta.MetaEnvServerBase;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.MetaFapBase;
 import ru.egov.urm.meta.MetaFapBase.VarBASESRCFORMAT;
+import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.storage.BaseRepository;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.RedistStorage;
@@ -30,7 +31,7 @@ public class ActionBaseInstall extends ActionBase {
 	private void executeServer( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		MetaEnvServerBase base = server.base;
-		log( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.SERVERTYPE + " ..." );
+		log( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
 		
 		if( base == null ) {
 			log( "server has no base defined. Skipped" );
@@ -49,6 +50,8 @@ public class ActionBaseInstall extends ActionBase {
 	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerBase base ) throws Exception {
 		BaseRepository repo = artefactory.getBaseRepository( this );
 		MetaFapBase info = repo.getBaseInfo( this , base.ID , node.properties );
+		if( info.serverType != server.serverType )
+			exit( "base server type mismatched: " + Common.getEnumLower( info.serverType ) + " <> " + Common.getEnumLower( server.serverType ) );
 		
 		// install dependencies
 		for( String depBase : info.dependencies ) {
@@ -79,6 +82,10 @@ public class ActionBaseInstall extends ActionBase {
 			executeNodeLinuxArchiveDirect( server , node , repo , info , redist , runtime );
 		else
 			exitUnexpectedState();
+		
+		// prepare
+		ServerProcess process = new ServerProcess( server , node );
+		process.prepare( this );
 		
 		finishUpdate( info , redist , vis );
 	}
@@ -150,6 +157,11 @@ public class ActionBaseInstall extends ActionBase {
 		if( info.srcFormat == VarBASESRCFORMAT.TARGZ_SINGLEDIR ) {
 			runtime.extractBaseTarGzSingleDir( this , redistPath , info.SRCSTOREDIR , info.INSTALLPATH );
 			debug( "runtime path: " + info.INSTALLPATH );
+			
+			// copy service if any
+			if( info.serverType == VarSERVERTYPE.SERVICE )
+				runtime.installService( this , info.INSTALLPATH );
+			
 			return( info.INSTALLPATH );
 		}
 

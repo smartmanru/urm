@@ -1,5 +1,6 @@
 package ru.egov.urm.action.deploy;
 
+import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.ActionScopeTargetItem;
@@ -23,7 +24,7 @@ public class ActionGetRedistInfo extends ActionBase {
 
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
-		comment( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.SERVERTYPE + " ..." );
+		comment( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
 		comment( "root path: " + server.ROOTPATH );
 		
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {

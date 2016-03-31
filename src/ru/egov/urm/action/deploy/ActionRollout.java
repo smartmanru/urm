@@ -1,5 +1,6 @@
 package ru.egov.urm.action.deploy;
 
+import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.ActionScopeTargetItem;
@@ -56,7 +57,7 @@ public class ActionRollout extends ActionBase {
 			return;
 		}
 		
-		log( "============================================ execute server=" + server.NAME + ", type=" + server.SERVERTYPE + " ..." );
+		log( "============================================ execute server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
 		log( "rootpath=" + server.ROOTPATH );
 
 		k = 0;

@@ -11,6 +11,8 @@ import ru.egov.urm.meta.MetaEnvServerLocation;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
 import ru.egov.urm.meta.Metadata.VarDISTITEMTYPE;
+import ru.egov.urm.meta.Metadata.VarOSTYPE;
+import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
 
@@ -244,7 +246,7 @@ public class RuntimeStorage extends ServerStorage {
 		
 		RemoteFolder rf = new RemoteFolder( artefactory , account , installDir );
 		rf.removeFolder( action , installName );
-		rf.extractTarGz( action , tarPath );
+		rf.extractTarGzPart( action , tarPath , installName , tarDir );
 	}
 
 	public void createDirLink( ActionBase action , String link , String runtimePath ) throws Exception {
@@ -262,5 +264,20 @@ public class RuntimeStorage extends ServerStorage {
 					"; fi; ln -s " + runtimePath + " " + link );
 		}
 	}
-	
+
+	public void installService( ActionBase action , String servicePath ) throws Exception {
+		if( server.serverType != VarSERVERTYPE.SERVICE )
+			action.exitUnexpectedState();
+		
+		if( server.osType == VarOSTYPE.UNIX ) {
+			RemoteFolder runtimeDir = new RemoteFolder( artefactory , action.getAccount( node ) , servicePath );
+			if( !runtimeDir.checkFileExists( action , "service" ) )
+				action.exit( "unable to find service file in " + runtimeDir.folderPath );
+				
+			runtimeDir.copyFile( action , "service" , "/etc/init.d/" + server.SERVICENAME );
+		}
+		else
+			action.exitUnexpectedState();
+	}
+
 }

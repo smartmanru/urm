@@ -26,8 +26,8 @@ public class MetaEnvServer {
 	private String BASELINE;
 	public boolean OFFLINE;
 	
-	public String SERVERTYPE;
-	private VarSERVERTYPE serverType;
+	private String SERVERTYPE;
+	public VarSERVERTYPE serverType;
 	public String ROOTPATH;
 	public String BINPATH;
 	public String SERVICENAME;

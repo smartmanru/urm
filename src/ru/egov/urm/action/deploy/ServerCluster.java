@@ -2,6 +2,7 @@ package ru.egov.urm.action.deploy;
 
 import java.util.List;
 
+import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScope;
 import ru.egov.urm.action.ActionScopeTarget;
@@ -22,7 +23,7 @@ public class ServerCluster {
 		boolean res = true;
 		long startMillis = System.currentTimeMillis();
 		for( MetaEnvServerNode node : nodes ) {
-			action.log( "stop " + srv.SERVERTYPE + " app=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
+			action.log( "stop " + Common.getEnumLower( srv.serverType ) + " app=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
 			
 			ServerProcess process = new ServerProcess( srv , node ); 
 			if( !process.stop( action ) )
@@ -42,7 +43,7 @@ public class ServerCluster {
 	public boolean waitStopped( ActionBase action , long startMillis ) throws Exception {
 		boolean res = true;
 		for( MetaEnvServerNode node : nodes ) {
-			action.debug( "wait for stop " + srv.SERVERTYPE + " server=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
+			action.debug( "wait for stop " + Common.getEnumLower( srv.serverType ) + " server=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
 			
 			ServerProcess process = new ServerProcess( srv , node ); 
 			if( !process.waitStopped( action , startMillis ) )
@@ -56,7 +57,7 @@ public class ServerCluster {
 		boolean res = true;
 		long startMillis = System.currentTimeMillis();
 		for( MetaEnvServerNode node : nodes ) {
-			action.log( "start " + srv.SERVERTYPE + " app=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
+			action.log( "start " + Common.getEnumLower( srv.serverType ) + " app=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
 			
 			ServerProcess process = new ServerProcess( srv , node ); 
 			if( !process.start( action ) )
@@ -84,7 +85,7 @@ public class ServerCluster {
 	public boolean waitStarted( ActionBase action , long startMillis ) throws Exception {
 		boolean res = true;
 		for( MetaEnvServerNode node : nodes ) {
-			action.debug( "wait for start " + srv.SERVERTYPE + " server=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
+			action.debug( "wait for start " + Common.getEnumLower( srv.serverType ) + " server=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
 			
 			ServerProcess process = new ServerProcess( srv , node ); 
 			if( !process.waitStarted( action , startMillis ) )

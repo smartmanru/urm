@@ -394,4 +394,39 @@ public class ServerProcess {
 		return( true );
 	}
 	
+	public boolean prepare( ActionBase action ) throws Exception {
+		boolean res = false;
+		if( isService( action ) )
+			res = prepareService( action );
+		else
+		if( isGeneric( action ) )
+			res = prepareGeneric( action );
+		else
+			action.exitUnexpectedState();
+		return( res );
+	}
+
+	private boolean prepareService( ActionBase action ) throws Exception {
+		ShellExecutor executor = action.getShell( node );
+		executor.customCritical( action , "service " + srv.SERVICENAME + " prepare " + srv.ROOTPATH + " > /dev/null 2>&1" );
+		return( true );
+	}
+	
+	private boolean prepareGeneric( ActionBase action ) throws Exception {
+		// check status
+		gatherPids( action );
+		if( pids.isEmpty() ) {
+			action.debug( node.HOSTLOGIN + ": server already stopped" );
+			return( true );
+		}
+
+		// prepare instance
+		String F_FULLBINPATH = srv.getFullBinPath( action );
+		ShellExecutor executor = action.getShell( node );
+		executor.customCritical( action , F_FULLBINPATH , "./server.prepare.sh " + srv.NAME + " " +
+				srv.ROOTPATH + " " + action.context.CTX_EXTRAARGS + " > /dev/null" );
+		
+		return( true );
+	}
+
 }

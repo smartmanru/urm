@@ -95,7 +95,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			return;
 		}
 
-		log( "============================================ execute server=" + server.NAME + ", type=" + server.SERVERTYPE + " ..." );
+		log( "============================================ execute server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
 
 		// iterate by nodes
 		LocalFolder tobeServerFolder = configure.getLiveFolder( server );
