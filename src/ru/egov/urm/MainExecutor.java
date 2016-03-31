@@ -279,8 +279,12 @@ public class MainExecutor extends CommandExecutor {
 		// env-level context
 		ef.ensureExists( action );
 		String CTXDC = DC;
-		if( DC == null )
-			CTXDC = env.getMainDC( action ).NAME;
+		if( DC == null ) {
+			if( env.isMultiDC( action ) )
+				CTXDC = "";
+			else
+				CTXDC = env.getMainDC( action ).NAME;
+		}
 		configureExecutorContextDeployment( action , ef , ENVFILE , CTXDC , linux );
 
 		String xp = ( DC == null )? "../.." : "../../..";
