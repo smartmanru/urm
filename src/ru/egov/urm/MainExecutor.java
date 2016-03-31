@@ -325,8 +325,8 @@ public class MainExecutor extends CommandExecutor {
 			addProxyLine( action , ef , CONTEXT_FILENAME_LIXUX );
 		}
 		else {
-			lines.add( "set C_CONTEXT_ENV=" + ENVFILE );
-			lines.add( "set C_CONTEXT_DC=" + DC );			
+			lines.add( "@set C_CONTEXT_ENV=" + ENVFILE );
+			lines.add( "@set C_CONTEXT_DC=" + DC );			
 			Common.createFileFromStringList( ef.getFilePath( action , CONTEXT_FILENAME_WIN ) , lines );
 			addProxyLine( action , ef , CONTEXT_FILENAME_WIN );
 		}
@@ -340,7 +340,7 @@ public class MainExecutor extends CommandExecutor {
 			addProxyLine( action , ef , CONTEXT_FILENAME_LIXUX );
 		}
 		else {
-			lines.add( "set C_CONTEXT_VERSIONMODE=" + Common.getEnumLower( mode ) );
+			lines.add( "@set C_CONTEXT_VERSIONMODE=" + Common.getEnumLower( mode ) );
 			Common.createFileFromStringList( ef.getFilePath( action , CONTEXT_FILENAME_WIN ) , lines );
 			addProxyLine( action , ef , CONTEXT_FILENAME_WIN );
 		}
@@ -371,9 +371,9 @@ public class MainExecutor extends CommandExecutor {
 			lines.add( "@cd %~dp0" );
 			if( context ) {
 				if( relativeContext == null )
-					lines.add( "call " + CONTEXT_FILENAME_WIN );
+					lines.add( "@call " + CONTEXT_FILENAME_WIN );
 				else
-					lines.add( "call " + Common.getWinPath( relativeContext + "/" + CONTEXT_FILENAME_WIN ) );
+					lines.add( "@call " + Common.getWinPath( relativeContext + "/" + CONTEXT_FILENAME_WIN ) );
 			}
 			lines.add( "@" + relativePath + "\\bin\\urm.cmd " + executor.name + " " + method + " %*" );			
 		}
