@@ -380,6 +380,7 @@ public class MainExecutor extends CommandExecutor {
 				String filePath = Common.getPartAfterFirst( line , ":" );
 				if( filePath.startsWith( set.dirPath ) ) {
 					dirInLines = true;
+					action.trace( "executeDir: dirInLines " + filePath + " in " + set.dirPath );
 					break;
 				}
 			}
@@ -402,6 +403,7 @@ public class MainExecutor extends CommandExecutor {
 				String filePath = Common.getPartAfterFirst( line , ":" );
 				if( fileActual.equals( filePath ) ) {
 					fileInLines = true;
+					action.trace( "executeDir: fileInLines " + filePath );
 					break;
 				}
 			}
