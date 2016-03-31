@@ -1,6 +1,13 @@
 @cd %~dp0
 
-set P_DSTDIR=%1
+set URM_TRACE=
+if "%1" == "-trace" (
+	set URM_TRACE=-trace
+	set P_DSTDIR=%2
+)
+else (
+	set P_DSTDIR=%1
+)
 
 if "%P_DSTDIR" == "" (
 	echo P_DSTDIR is empty. Exiting
@@ -16,4 +23,4 @@ cd ..\..
 robocopy master %P_DSTDIR%\master /s /e
 
 cd %P_DSTDIR%\master\bin
-configure.cmd default
+configure.cmd %URM_TRACE% default

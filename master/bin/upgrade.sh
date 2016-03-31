@@ -2,7 +2,13 @@
 
 cd `dirname $0`
 
-P_DSTDIR=$1
+URM_TRACE=
+if [ "$1" = "-trace" ]; then
+	URM_TRACE="-trace"
+	P_DSTDIR=$2
+else
+	P_DSTDIR=$1
+fi
 
 # check target dir
 if [ "$P_DSTDIR" = "" ]; then
@@ -28,7 +34,7 @@ function f_execute_all() {
 	local F_SAVEDIR=`pwd`
 	cd $P_DSTDIR/master
 	if [ -f bin/configure.sh ]; then
-		bin/configure.sh default
+		bin/configure.sh $URM_TRACE default
 	fi
 }
 
