@@ -254,7 +254,7 @@ public class MainExecutor extends CommandExecutor {
 	}
 	
 	private void configureDeploymentEnv( ActionInit action , LocalFolder ef , CommandExecutor executor , String envFile , MetaEnv env , MetaEnvDC dc , boolean linux , CommandExecutor dbe ) throws Exception {
-		LocalFolder efEnv = ef.getSubFolder( action , "env" );
+		LocalFolder efEnv = ef.getSubFolder( action , env.ID );
 		efEnv.ensureExists( action );
 		
 		// env-level
