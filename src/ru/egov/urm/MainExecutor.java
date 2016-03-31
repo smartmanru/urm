@@ -378,7 +378,7 @@ public class MainExecutor extends CommandExecutor {
 			boolean dirInLines = false;
 			for( String line : lines ) {
 				String filePath = Common.getPartAfterFirst( line , ":" );
-				if( filePath.startsWith( set.dirPath ) ) {
+				if( filePath.startsWith( dir.dirPath ) ) {
 					dirInLines = true;
 					action.trace( "executeDir: dirInLines " + filePath + " in " + dir.dirPath );
 					break;
