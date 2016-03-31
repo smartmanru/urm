@@ -259,26 +259,29 @@ public class MainExecutor extends CommandExecutor {
 		
 		// env-level
 		if( USEDC.isEmpty() || !env.isMultiDC( action ) )
-			configureDeploymentEnvContent( action , efEnv , executor , envFile , null , linux , dbe );
+			configureDeploymentEnvContent( action , efEnv , executor , env , envFile , null , linux , dbe );
 		
 		if( env.isMultiDC( action ) ) {
 			if( USEDC.isEmpty() ) {
 				for( MetaEnvDC envdc : env.getOriginalDCList( action ) ) {
 					LocalFolder efEnvDC = efEnv.getSubFolder( action , envdc.NAME );
-					configureDeploymentEnvContent( action , efEnvDC , executor , envFile , envdc.NAME , linux , dbe );
+					configureDeploymentEnvContent( action , efEnvDC , executor , env , envFile , envdc.NAME , linux , dbe );
 				}
 			}
 			else {
 				LocalFolder efEnvDC = efEnv.getSubFolder( action , dc.NAME );
-				configureDeploymentEnvContent( action , efEnvDC , executor , envFile , dc.NAME , linux , dbe );
+				configureDeploymentEnvContent( action , efEnvDC , executor , env , envFile , dc.NAME , linux , dbe );
 			}
 		}
 	}
 
-	private void configureDeploymentEnvContent( ActionInit action , LocalFolder ef , CommandExecutor executor , String ENVFILE , String DC , boolean linux , CommandExecutor dbe ) throws Exception {
+	private void configureDeploymentEnvContent( ActionInit action , LocalFolder ef , CommandExecutor executor , MetaEnv env , String ENVFILE , String DC , boolean linux , CommandExecutor dbe ) throws Exception {
 		// env-level context
 		ef.ensureExists( action );
-		configureExecutorContextDeployment( action , ef , ENVFILE , DC , linux );
+		String CTXDC = DC;
+		if( DC == null )
+			CTXDC = env.getMainDC( action ).NAME;
+		configureExecutorContextDeployment( action , ef , ENVFILE , CTXDC , linux );
 
 		String xp = ( DC == null )? "../.." : "../../..";
 		
