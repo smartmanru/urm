@@ -360,8 +360,17 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public void cmdExtractTarGz( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
+		String extractPart = ( part == null || part.isEmpty() )? "" : part;
+		String targetParent = Common.getDirName( targetFolder );
+		String targetDir = Common.getBaseName( targetFolder );
+		
 		String wtarFile = Common.getWinPath( tarFile );
-		runCommandCheckStatusDebug( action , targetFolder , "7z x -y -bd " + wtarFile + " " + part );
+		String cmd = "7z x -y -bd " + wtarFile + " " + extractPart;
+		if( !extractPart.isEmpty() )
+			if( !extractPart.equals( targetDir ) )
+				cmd += " && rmdir /S /Q " + targetDir + " && rename " + extractPart + " " + targetDir;
+		String wtargetParent = Common.getWinPath( targetParent );
+		runCommandCheckStatusDebug( action , wtargetParent , cmd );
 	}
 	
 	@Override public void cmdExtractTar( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {

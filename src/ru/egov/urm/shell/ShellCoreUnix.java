@@ -276,7 +276,14 @@ public class ShellCoreUnix extends ShellCore {
 
 	@Override public void cmdExtractTarGz( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
 		String extractPart = ( part == null || part.isEmpty() )? "" : part;
-		runCommandCheckDebug( action , targetFolder , "tar --no-same-owner --overwrite -zxmf " + tarFile + " " + extractPart + " > /dev/null" );
+		String targetParent = Common.getDirName( targetFolder );
+		String targetDir = Common.getBaseName( targetFolder );
+		
+		String cmd = "tar --no-same-owner --overwrite -zxmf " + tarFile + " " + extractPart + " > /dev/null";
+		if( !extractPart.isEmpty() )
+			if( !extractPart.equals( targetDir ) )
+				cmd += "; rm -rf " + targetDir + "; mv " + extractPart + " " + targetDir;
+		runCommandCheckDebug( action , targetParent , cmd ); 
 	}
 	
 	@Override public void cmdExtractTar( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {

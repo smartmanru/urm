@@ -210,7 +210,7 @@ public abstract class Folder {
 	
 	public void extractTarGzPart( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
 		ShellExecutor session = getSession( action ); 
-		session.extractTarGz( action , tarFile , Common.getPath( folderPath , targetFolder , part ) );
+		session.extractTarGz( action , tarFile , Common.getPath( folderPath , targetFolder ) , part );
 	}
 	
 	public void extractTarPart( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
