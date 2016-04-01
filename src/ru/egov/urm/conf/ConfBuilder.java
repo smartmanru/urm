@@ -141,6 +141,9 @@ public class ConfBuilder {
 		String filePath = live.getFilePath( action , file );
 		List<String> fileLines = ConfReader.readFileLines( action , filePath );
 		
+		if( props == null )
+			props = server.properties;
+		
 		boolean changed = false;
 		for( int k = 0; k < fileLines.size(); k++ ) {
 			String s = fileLines.get( k );
@@ -159,6 +162,9 @@ public class ConfBuilder {
 		action.trace( "parse file=" + file + " ..." );
 		String filePath = live.getFilePath( action , file );
 		List<String> fileLines = ConfReader.readFileLines( action , filePath );
+		
+		if( props == null )
+			props = node.properties;
 		
 		boolean changed = false;
 		for( int k = 0; k < fileLines.size(); k++ ) {
