@@ -215,7 +215,7 @@ public abstract class Folder {
 	
 	public void extractTarPart( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
 		ShellExecutor session = getSession( action ); 
-		session.extractTar( action , tarFile , Common.getPath( folderPath , targetFolder , part ) );
+		session.extractTar( action , tarFile , Common.getPath( folderPath , targetFolder ) , part );
 	}
 	
 	public String getFolderContent( ActionBase action , String folder ) throws Exception {
