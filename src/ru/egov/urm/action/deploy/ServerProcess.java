@@ -408,7 +408,7 @@ public class ServerProcess {
 
 	private boolean prepareService( ActionBase action ) throws Exception {
 		ShellExecutor executor = action.getShell( node );
-		executor.customCritical( action , "service " + srv.SERVICENAME + " prepare " + srv.ROOTPATH + " > /dev/null 2>&1" );
+		executor.customCritical( action , "service " + srv.SERVICENAME + " prepare" );
 		return( true );
 	}
 	

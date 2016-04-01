@@ -182,7 +182,7 @@ public class ActionBaseInstall extends ActionBase {
 		// copy system files from base
 		RemoteFolder baseMaster = info.getFolder( this );
 		if( info.serverType == VarSERVERTYPE.SERVICE )
-			baseMaster.copyFilesToLocal( this , workBase , "service" );
+			baseMaster.copyFileToLocalRename( this , workBase , "service" , runtime.server.SERVICENAME );
 		else
 			baseMaster.copyFilesToLocal( this , workBase , "server.*.sh" );
 		
