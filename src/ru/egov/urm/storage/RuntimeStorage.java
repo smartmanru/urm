@@ -51,6 +51,8 @@ public class RuntimeStorage extends ServerStorage {
 		if( !server.isService( action ) )
 			runtimeDir.removeFiles( action , F_FILES );
 		runtimeDir.extractTar( action , confFullPath , "" );
+		if( server.isLinux( action ) )
+			shell.custom( action , F_RUNTIMEDIR , "chmod 744 " + F_FILES );
 
 		remoteDir.removeFiles( action , F_CONFIGTARFILE );
 		localDir.removeFiles( action , F_CONFIGTARFILE );

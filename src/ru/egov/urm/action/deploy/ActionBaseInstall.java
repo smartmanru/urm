@@ -173,7 +173,7 @@ public class ActionBaseInstall extends ActionBase {
 	}
 
 	private void copySystemFiles( MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
-		if( !runtime.server.isLinux() )
+		if( !runtime.server.isLinux( this ) )
 			exitUnexpectedState();
 		
 		LocalFolder workBase = artefactory.getWorkFolder( this , "sysbase" );
