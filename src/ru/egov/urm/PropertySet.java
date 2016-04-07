@@ -33,7 +33,7 @@ public class PropertySet {
 	public void copyProperties( PropertySet set ) throws Exception {
 		for( String key : set.properties.keySet() ) {
 			String primaryKey = Common.getPartAfterFirst( key , set.set + "." );
-			properties.put( primaryKey , set.properties.get( key ) );
+			setProperty( primaryKey , set.properties.get( key ) );
 		}
 	}
 	
