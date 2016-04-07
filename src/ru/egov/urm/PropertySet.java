@@ -29,6 +29,13 @@ public class PropertySet {
 	public String[] getOwnProperties( ActionBase action ) throws Exception {
 		return( Common.getSortedKeys( properties ) );
 	}
+
+	public void copyProperties( PropertySet set ) throws Exception {
+		for( String key : set.properties.keySet() ) {
+			String primaryKey = Common.getPartAfterFirst( key , set.set + "." );
+			properties.put( primaryKey , set.properties.get( key ) );
+		}
+	}
 	
 	public void loadFromAttributes( ActionBase action , Node node ) throws Exception {
 		Map<String,String> attrs = new HashMap<String,String>();

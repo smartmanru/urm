@@ -50,13 +50,13 @@ public class ActionBaseInstall extends ActionBase {
 
 	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerBase base ) throws Exception {
 		BaseRepository repo = artefactory.getBaseRepository( this );
-		MetaFapBase info = repo.getBaseInfo( this , base.ID , node.properties );
+		MetaFapBase info = repo.getBaseInfo( this , base.ID , node );
 		if( info.serverType != server.serverType )
 			exit( "base server type mismatched: " + Common.getEnumLower( info.serverType ) + " <> " + Common.getEnumLower( server.serverType ) );
 		
 		// install dependencies
 		for( String depBase : info.dependencies ) {
-			MetaFapBase depInfo = repo.getBaseInfo( this , depBase , node.properties );
+			MetaFapBase depInfo = repo.getBaseInfo( this , depBase , node );
 			executeNodeInstall( server , node , depInfo );
 		}
 

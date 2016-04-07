@@ -3,8 +3,8 @@ package ru.egov.urm.storage;
 import org.w3c.dom.Document;
 
 import ru.egov.urm.ConfReader;
-import ru.egov.urm.PropertySet;
 import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.MetaFapBase;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
@@ -41,13 +41,13 @@ public class BaseRepository {
 		return( repoFolder.getSubFolder( action , BASEID ) );
 	}
 
-	public MetaFapBase getBaseInfo( ActionBase action , String ID , PropertySet parentProperties ) throws Exception {
+	public MetaFapBase getBaseInfo( ActionBase action , String ID , MetaEnvServerNode node ) throws Exception {
 		String basePath = getBasePath( action , ID );
 		String text = repoFolder.readFile( action , basePath );
 		Document xml = ConfReader.readXmlString( action , text );
 		
 		MetaFapBase base = new MetaFapBase( this );
-		base.load( action , xml.getDocumentElement() , parentProperties );
+		base.load( action , xml.getDocumentElement() , node );
 		return( base );
 	}
 	

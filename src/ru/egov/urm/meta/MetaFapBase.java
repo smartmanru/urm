@@ -78,14 +78,16 @@ public class MetaFapBase {
 		return( value );
 	}
 
-	public void load( ActionBase action , Node node , PropertySet parentProperties ) throws Exception {
+	public void load( ActionBase action , Node node , MetaEnvServerNode serverNode ) throws Exception {
 		ID = ConfReader.getRequiredAttrValue( action , node , "id" );
 		type = getType( action , ConfReader.getRequiredAttrValue( action , node , "type" ) );
 		adm = ConfReader.getBooleanAttrValue( action , node , "adminstall" , false );
 		String SERVERTYPE = ConfReader.getRequiredAttrValue( action , node , "servertype" );
 		serverType = action.meta.getServerType( action , SERVERTYPE );
 		
-		properties = new PropertySet( "fapbase" , parentProperties );
+		PropertySet metaProps = new PropertySet( "meta" , serverNode.properties );
+		properties = new PropertySet( "final" , serverNode.server.base.properties );
+		properties.copyProperties( metaProps );
 		properties.loadFromElements( action , node );
 		if( action.isDebug() )
 			properties.printValues( action );
