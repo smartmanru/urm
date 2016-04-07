@@ -79,16 +79,9 @@ public class MetaFapBase {
 	}
 
 	public void load( ActionBase action , Node node , MetaEnvServerNode serverNode ) throws Exception {
-		ID = ConfReader.getRequiredAttrValue( action , node , "id" );
-		type = getType( action , ConfReader.getRequiredAttrValue( action , node , "type" ) );
-		adm = ConfReader.getBooleanAttrValue( action , node , "adminstall" , false );
-		String SERVERTYPE = ConfReader.getRequiredAttrValue( action , node , "servertype" );
-		serverType = action.meta.getServerType( action , SERVERTYPE );
-		
 		PropertySet resolveProps = new PropertySet( "meta" , serverNode.properties );
 		resolveProps.copyProperties( serverNode.server.base.properties );
 		resolveProps.loadFromAttributes( action , node );
-		resolveProps.loadFromElements( action , node );
 		
 		properties = new PropertySet( "final" , null );
 		properties.copyProperties( resolveProps );
@@ -96,6 +89,8 @@ public class MetaFapBase {
 			properties.printValues( action );
 		
 		scatterVariables( action );
+		
+		resolveProps.loadFromElements( action , node );
 		
 		loadCompatibility( action , node );
 		loadDependencies( action , node );
@@ -151,6 +146,16 @@ public class MetaFapBase {
 	
 	private void scatterVariables( ActionBase action ) throws Exception {
 		List<String> systemProps = new LinkedList<String>();
+
+		// unified properties
+		ID = properties.getSystemRequiredProperty( action , "id" , systemProps );
+		String TYPE = properties.getSystemRequiredProperty( action , "type" , systemProps );
+		type = getType( action , TYPE );
+		adm = properties.getSystemBooleanProperty( action , "adminstall" , false , systemProps );
+		String SERVERTYPE = properties.getSystemRequiredProperty( action , "servertype" , systemProps ); 
+		serverType = action.meta.getServerType( action , SERVERTYPE );
+		
+		// type properties
 		if( isLinuxArchiveLink() )
 			scatterLinuxArchiveLink( action , systemProps );
 		else
