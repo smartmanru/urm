@@ -85,10 +85,13 @@ public class MetaFapBase {
 		String SERVERTYPE = ConfReader.getRequiredAttrValue( action , node , "servertype" );
 		serverType = action.meta.getServerType( action , SERVERTYPE );
 		
-		PropertySet metaProps = new PropertySet( "meta" , serverNode.properties );
-		properties = new PropertySet( "final" , serverNode.server.base.properties );
-		properties.copyProperties( metaProps );
-		properties.loadFromElements( action , node );
+		PropertySet resolveProps = new PropertySet( "meta" , serverNode.properties );
+		resolveProps.copyProperties( serverNode.server.base.properties );
+		resolveProps.loadFromAttributes( action , node );
+		resolveProps.loadFromElements( action , node );
+		
+		properties = new PropertySet( "final" , null );
+		properties.copyProperties( resolveProps );
 		if( action.isDebug() )
 			properties.printValues( action );
 		
