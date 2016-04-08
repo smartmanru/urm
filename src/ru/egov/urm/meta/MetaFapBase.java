@@ -79,18 +79,19 @@ public class MetaFapBase {
 	}
 
 	public void load( ActionBase action , Node node , MetaEnvServerNode serverNode ) throws Exception {
-		PropertySet resolveProps = new PropertySet( "meta" , serverNode.properties );
-		resolveProps.copyProperties( serverNode.server.base.properties );
-		resolveProps.loadFromAttributes( action , node );
+		PropertySet resolveProps = new PropertySet( "resolve" , serverNode.server.base.properties );
+		resolveProps.copyProperties( serverNode.properties );
+		
+		PropertySet metaAttrs = new PropertySet( "meta" , resolveProps );
+		metaAttrs.loadFromAttributes( action , node );
+		scatterVariables( action , metaAttrs );
 		
 		properties = new PropertySet( "final" , null );
-		properties.copyProperties( resolveProps );
+		properties.copyProperties( metaAttrs );
+		properties.loadFromElements( action , node );
+
 		if( action.isDebug() )
 			properties.printValues( action );
-		
-		scatterVariables( action );
-		
-		resolveProps.loadFromElements( action , node );
 		
 		loadCompatibility( action , node );
 		loadDependencies( action , node );
@@ -144,42 +145,42 @@ public class MetaFapBase {
 		return( false );
 	}
 	
-	private void scatterVariables( ActionBase action ) throws Exception {
+	private void scatterVariables( ActionBase action , PropertySet props ) throws Exception {
 		List<String> systemProps = new LinkedList<String>();
 
 		// unified properties
-		ID = properties.getSystemRequiredProperty( action , "id" , systemProps );
-		String TYPE = properties.getSystemRequiredProperty( action , "type" , systemProps );
+		ID = props.getSystemRequiredProperty( action , "id" , systemProps );
+		String TYPE = props.getSystemRequiredProperty( action , "type" , systemProps );
 		type = getType( action , TYPE );
-		adm = properties.getSystemBooleanProperty( action , "adminstall" , false , systemProps );
-		String SERVERTYPE = properties.getSystemRequiredProperty( action , "servertype" , systemProps ); 
+		adm = props.getSystemBooleanProperty( action , "adminstall" , false , systemProps );
+		String SERVERTYPE = props.getSystemRequiredProperty( action , "servertype" , systemProps ); 
 		serverType = action.meta.getServerType( action , SERVERTYPE );
 		
 		// type properties
 		if( isLinuxArchiveLink() )
-			scatterLinuxArchiveLink( action , systemProps );
+			scatterLinuxArchiveLink( action , props , systemProps );
 		else
 		if( isLinuxArchiveDirect() )
-			scatterLinuxArchiveDirect( action , systemProps );
+			scatterLinuxArchiveDirect( action , props , systemProps );
 		else
 			action.exitUnexpectedState();
 		
 		properties.checkUnexpected( action , systemProps );
 	}
 
-	private void scatterLinuxArchiveLink( ActionBase action , List<String> systemProps ) throws Exception {
-		srcFormat = getSrcFormat( action , properties.getSystemRequiredProperty( action , "srcformat" , systemProps ) );
-		SRCFILE = properties.getSystemRequiredProperty( action , "srcfile" , systemProps );
-		SRCSTOREDIR = properties.getSystemRequiredProperty( action , "srcstoreddir" , systemProps );
-		INSTALLPATH = properties.getSystemRequiredProperty( action , "installpath" , systemProps );
-		INSTALLLINK = properties.getSystemRequiredProperty( action , "installlink" , systemProps );
+	private void scatterLinuxArchiveLink( ActionBase action , PropertySet props , List<String> systemProps ) throws Exception {
+		srcFormat = getSrcFormat( action , props.getSystemRequiredProperty( action , "srcformat" , systemProps ) );
+		SRCFILE = props.getSystemRequiredProperty( action , "srcfile" , systemProps );
+		SRCSTOREDIR = props.getSystemRequiredProperty( action , "srcstoreddir" , systemProps );
+		INSTALLPATH = props.getSystemRequiredProperty( action , "installpath" , systemProps );
+		INSTALLLINK = props.getSystemRequiredProperty( action , "installlink" , systemProps );
 	}
 	
-	private void scatterLinuxArchiveDirect( ActionBase action , List<String> systemProps ) throws Exception {
-		srcFormat = getSrcFormat( action , properties.getSystemRequiredProperty( action , "srcformat" , systemProps ) );
-		SRCFILE = properties.getSystemRequiredProperty( action , "srcfile" , systemProps );
-		SRCSTOREDIR = properties.getSystemRequiredProperty( action , "srcstoreddir" , systemProps );
-		INSTALLPATH = properties.getSystemRequiredProperty( action , "installpath" , systemProps );
+	private void scatterLinuxArchiveDirect( ActionBase action , PropertySet props , List<String> systemProps ) throws Exception {
+		srcFormat = getSrcFormat( action , props.getSystemRequiredProperty( action , "srcformat" , systemProps ) );
+		SRCFILE = props.getSystemRequiredProperty( action , "srcfile" , systemProps );
+		SRCSTOREDIR = props.getSystemRequiredProperty( action , "srcstoreddir" , systemProps );
+		INSTALLPATH = props.getSystemRequiredProperty( action , "installpath" , systemProps );
 	}
 
 	public String getItemPath( ActionBase action , String SRCFILE ) throws Exception {
