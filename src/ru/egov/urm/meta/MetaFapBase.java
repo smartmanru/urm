@@ -165,7 +165,7 @@ public class MetaFapBase {
 		else
 			action.exitUnexpectedState();
 		
-		properties.checkUnexpected( action , systemProps );
+		props.checkUnexpected( action , systemProps );
 	}
 
 	private void scatterLinuxArchiveLink( ActionBase action , PropertySet props , List<String> systemProps ) throws Exception {
