@@ -85,10 +85,13 @@ public class MetaFapBase {
 		PropertySet metaAttrs = new PropertySet( "meta" , resolveProps );
 		metaAttrs.loadFromAttributes( action , node );
 		scatterVariables( action , metaAttrs );
+
+		PropertySet metaProps = new PropertySet( "meta" , resolveProps );
+		metaProps.copyProperties( metaAttrs );
+		metaProps.loadFromElements( action , node );
 		
 		properties = new PropertySet( "final" , null );
-		properties.copyProperties( metaAttrs );
-		properties.loadFromElements( action , node );
+		properties.copyProperties( metaProps );
 
 		if( action.isDebug() )
 			properties.printValues( action );
