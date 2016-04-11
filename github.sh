@@ -26,6 +26,7 @@ function f_execute_all() {
 
 	echo "github.sh: upload release $P_RELEASE to github ..."
 	rm -rf $F_DIR_GIT $F_DIR_REL
+	git -C $S_URMMIRROR fetch origin
 	git clone $S_URMMIRROR --shared -b master $F_DIR_GIT
 	mkdir -p $F_DIR_REL
 	cd $F_DIR_REL
