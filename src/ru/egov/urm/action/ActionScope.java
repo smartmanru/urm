@@ -367,17 +367,20 @@ public class ActionScope {
 		scopeFull = false;
 		for( String itemName : ITEMS ) {
 			MetaDistrBinaryItem item = meta.distr.getBinaryItem( action , itemName );
-			if( item.sourceItem == null )
+			if( item == null )
 				action.exit( "unknown distributive item=" + itemName );
 			
 			ActionScopeSet sset = null;
-			if( item.DISTSOURCE == VarDISTITEMSOURCE.MANUAL )
+			if( item.DISTSOURCE == VarDISTITEMSOURCE.MANUAL ) {
 				sset = createProductCategoryScopeSet( action , VarCATEGORY.MANUAL );
-			else
+				sset.addManualItems( action , new String[] { itemName } );
+			}
+			else {
 				sset = createProjectScopeSet( action , item.sourceItem.project.set );
 			
-			ActionScopeTarget scopeProject = sset.addSourceProject( action , item.sourceItem.project , false , true ); 
-			scopeProject.addProjectItem( action , item.sourceItem , specifiedExplicitly );
+				ActionScopeTarget scopeProject = sset.addSourceProject( action , item.sourceItem.project , false , true ); 
+				scopeProject.addProjectItem( action , item.sourceItem , specifiedExplicitly );
+			}
 		}
 	}
 	
