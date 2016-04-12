@@ -400,7 +400,7 @@ public class ShellCoreUnix extends ShellCore {
 		if( !keyFile.isEmpty() )
 			keyOption = "-i " + keyFile + " ";
 		
-		runCommandCheckDebug( action , "scp -q -B -p " + keyOption + account.HOSTLOGIN + ":" + srcPath + " " + dstPath );
+		runCommandCheckDebug( action , "scp -q -B " + keyOption + account.HOSTLOGIN + ":" + srcPath + " " + dstPath );
 	}
 
 	@Override public void cmdScpDirContentRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
@@ -410,7 +410,7 @@ public class ShellCoreUnix extends ShellCore {
 			keyOption = "-i " + keyFile + " ";
 		
 		int timeout = action.setTimeoutUnlimited();
-		runCommandCheckDebug( action , "scp -q -B -p " + keyOption + account.HOSTLOGIN + ":" + srcPath + "/* " + dstPath );
+		runCommandCheckDebug( action , "scp -q -B " + keyOption + account.HOSTLOGIN + ":" + srcPath + "/* " + dstPath );
 		action.setTimeout( timeout );
 	}
 
@@ -474,7 +474,7 @@ public class ShellCoreUnix extends ShellCore {
 			keyOption = "-i " + keyFile + " ";
 		
 		int timeout = action.setTimeoutUnlimited();
-		runCommandCheckDebug( action , "scp -r -q -B -p " + keyOption + account.HOSTLOGIN + ":" + srcPath + " " + dstPath );
+		runCommandCheckDebug( action , "scp -r -q -B " + keyOption + account.HOSTLOGIN + ":" + srcPath + " " + dstPath );
 		action.setTimeout( timeout );
 	}
 
