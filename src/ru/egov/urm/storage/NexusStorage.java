@@ -81,13 +81,13 @@ public class NexusStorage {
 		zip.ensureExists( action );
 		String zipLibPath = zip.getFilePath( action , item.NUGET_LIBNAME + ".zip" );
 		
-		tmp.createZipFromFolderContent( action , zipLibPath , Common.getPath( "lib" , item.NUGET_PLATFORM ) , "*" );
+		tmp.createZipFromFolderContent( action , zipLibPath , Common.getPath( "lib" , item.NUGET_PLATFORM ) , "*" , "" );
 		zip.copyDirContent( action , tmp.getSubFolder( action , "content" ) );
 		
 		// create final zip file
 		String FILENAME = item.distItem.DISTBASENAME + item.distItem.EXT;
 		String finalFile = artefactoryFolder.getFilePath( action , FILENAME );
-		zip.createZipFromContent( action , finalFile , "*" );
+		zip.createZipFromContent( action , finalFile , "*" , "" );
 		action.session.createMD5( action , finalFile );
 		
 		return( FILENAME );

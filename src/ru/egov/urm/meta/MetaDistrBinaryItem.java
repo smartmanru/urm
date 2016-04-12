@@ -6,6 +6,7 @@ import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.custom.ICustomDeploy;
+import ru.egov.urm.meta.Metadata.VarARCHIVETYPE;
 import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
 import ru.egov.urm.meta.Metadata.VarDISTITEMTYPE;
 import ru.egov.urm.meta.Metadata.VarITEMVERSION;
@@ -187,5 +188,18 @@ public class MetaDistrBinaryItem {
 			return( true );
 		return( false );
 	}
-	
+
+	public VarARCHIVETYPE getArchiveType( ActionBase action ) throws Exception {
+		if( EXT.equals( ".tar.gz" ) || EXT.equals( ".tgz" ) )
+			return( VarARCHIVETYPE.TARGZ );
+		
+		if( EXT.equals( ".tar" ) )
+			return( VarARCHIVETYPE.TAR );
+		
+		if( EXT.equals( ".zip" ) )
+			return( VarARCHIVETYPE.ZIP );
+		
+		action.exit( "not supported archive type=" + EXT );
+		return( null );
+	}
 }

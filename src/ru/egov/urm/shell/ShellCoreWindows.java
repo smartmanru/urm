@@ -392,12 +392,21 @@ public class ShellCoreWindows extends ShellCore {
 		return( "" );
 	}
 	
-	@Override public void cmdCreateZipFromDirContent( ActionBase action , String zipFile , String dir , String content ) throws Exception {
+	@Override public void cmdCreateZipFromDirContent( ActionBase action , String zipFile , String dir , String content , String exclude ) throws Exception {
 		action.exitNotImplemented();
 	}
 	
 	@Override public void cmdCreateTarGzFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
-		action.exitNotImplemented();
+		String wtarFile = Common.getWinPath( tarFile );
+		String contentArgs = "";
+		for( String item : Common.split( content , " " ) )
+			contentArgs += " -i!" + Common.getWinPath( item );
+		
+		String excludeArgs = "";
+		for( String item : Common.split( exclude , " " ) )
+			excludeArgs += " -x!" + Common.getWinPath( item );
+		
+		runCommandCheckStatusDebug( action , dir , "7z a -tzip -r -bd " + wtarFile + " " + contentArgs + " " + excludeArgs );
 	}
 
 	@Override public void cmdCreateTarFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {

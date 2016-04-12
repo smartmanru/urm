@@ -74,7 +74,7 @@ abstract class ShellCore {
 	abstract public void cmdExtractTarGz( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception;
 	abstract public void cmdExtractTar( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception;
 	abstract public String cmdLs( ActionBase action , String path ) throws Exception;
-	abstract public void cmdCreateZipFromDirContent( ActionBase action , String tarFile , String dir , String content ) throws Exception;
+	abstract public void cmdCreateZipFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception;
 	abstract public void cmdCreateTarGzFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception;
 	abstract public void cmdCreateTarFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception;
 	abstract public String cmdGetFileInfo( ActionBase action , String dir , String dirFile ) throws Exception;

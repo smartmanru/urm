@@ -303,8 +303,13 @@ public class ShellCoreUnix extends ShellCore {
 		return( value );
 	}
 
-	@Override public void cmdCreateZipFromDirContent( ActionBase action , String zipFile , String dir , String content ) throws Exception {
-		runCommandCheckDebug( action , dir , "zip " + zipFile + " " + content + " > /dev/null 2> /dev/null" );
+	@Override public void cmdCreateZipFromDirContent( ActionBase action , String zipFile , String dir , String content , String exclude ) throws Exception {
+		String excludeOptions = "";
+		if( !exclude.isEmpty() ) {
+			for( String s : Common.splitSpaced( exclude ) )
+				excludeOptions = " -x " + Common.getQuoted( s ) + " -x " + Common.getQuoted( s + "/*" );
+		}
+		runCommandCheckDebug( action , dir , "zip " + zipFile + " " + content + excludeOptions + " > /dev/null 2> /dev/null" );
 	}
 	
 	@Override public void cmdCreateTarGzFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {

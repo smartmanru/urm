@@ -7,6 +7,7 @@ import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.Metadata;
+import ru.egov.urm.meta.Metadata.VarARCHIVETYPE;
 import ru.egov.urm.shell.ShellExecutor;
 
 public abstract class Folder {
@@ -244,13 +245,39 @@ public abstract class Folder {
 		session.getTopDirsAndFiles( action , folderPath , dirs , files );
 	}
 
-	public void createZipFromContent( ActionBase action , String zipFilePath , String content ) throws Exception {
-		createZipFromFolderContent( action , zipFilePath , "" , content );
+	public void createArchiveFromContent( ActionBase action , VarARCHIVETYPE atype , String archiveFilePath , String content , String exclude ) throws Exception {
+		if( atype == VarARCHIVETYPE.TAR )
+			createTarFromContent( action , archiveFilePath , content , exclude );
+		else
+		if( atype == VarARCHIVETYPE.TARGZ )
+			createTarGzFromContent( action , archiveFilePath , content , exclude );
+		else
+		if( atype == VarARCHIVETYPE.ZIP )
+			createZipFromContent( action , archiveFilePath , content , exclude );
+		else
+			action.exitUnexpectedState();
 	}
 	
-	public void createZipFromFolderContent( ActionBase action , String zipFilePath , String folder , String content ) throws Exception {
+	public void createArchiveFromFolderContent( ActionBase action , VarARCHIVETYPE atype , String archiveFilePath , String folder , String content , String exclude ) throws Exception {
+		if( atype == VarARCHIVETYPE.TAR )
+			createTarFromFolderContent( action , archiveFilePath , folder , content , exclude );
+		else
+		if( atype == VarARCHIVETYPE.TARGZ )
+			createTarGzFromFolderContent( action , archiveFilePath , folder , content , exclude );
+		else
+		if( atype == VarARCHIVETYPE.ZIP )
+			createZipFromFolderContent( action , archiveFilePath , folder , content , exclude );
+		else
+			action.exitUnexpectedState();
+	}
+	
+	public void createZipFromContent( ActionBase action , String zipFilePath , String content , String exclude ) throws Exception {
+		createZipFromFolderContent( action , zipFilePath , "" , content , exclude );
+	}
+	
+	public void createZipFromFolderContent( ActionBase action , String zipFilePath , String folder , String content , String exclude ) throws Exception {
 		ShellExecutor session = getSession( action ); 
-		session.createZipFromDirContent( action , zipFilePath , Common.getPath( folderPath , folder ) , content );
+		session.createZipFromDirContent( action , zipFilePath , Common.getPath( folderPath , folder ) , content , exclude );
 	}
 	
 	public void createTarGzFromFolderContent( ActionBase action , String tarFilePath , String folder , String content , String exclude ) throws Exception {

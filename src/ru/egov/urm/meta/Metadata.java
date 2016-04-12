@@ -158,6 +158,12 @@ public class Metadata {
 		ALPHANUMDOTDASH
 	};
 	
+	public enum VarARCHIVETYPE {
+		TARGZ ,
+		TAR ,
+		ZIP
+	};
+	
 	public Metadata() {
 		configurableExtensionsFindOptions = "";
 		for( int k = 0; k < configurableExtensions.length; k++ ) {

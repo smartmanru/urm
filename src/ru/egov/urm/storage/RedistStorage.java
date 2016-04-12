@@ -10,6 +10,7 @@ import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerLocation;
 import ru.egov.urm.meta.MetaEnvServerNode;
+import ru.egov.urm.meta.Metadata.VarARCHIVETYPE;
 import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
 import ru.egov.urm.meta.Metadata.VarDEPLOYTYPE;
 import ru.egov.urm.meta.Metadata.VarDISTITEMTYPE;
@@ -372,11 +373,8 @@ public class RedistStorage extends ServerStorage {
 	}
 	
 	private boolean saveArchiveItem( ActionBase action , MetaDistrBinaryItem archiveItem , RemoteFolder deployFolder , String fileName , RemoteFolder saveFolder ) throws Exception {
-		if( archiveItem.EXT.equals( ".tar.gz" ) == false && 
-			archiveItem.EXT.equals( ".tgz" ) == false )
-			action.exitNotImplemented();
-		
-		String tarFilePath = saveFolder.getFilePath( action , fileName );
+		VarARCHIVETYPE atype = archiveItem.getArchiveType( action );
+		String archiveFilePath = saveFolder.getFilePath( action , fileName );
 		
 		if( archiveItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_CHILD ) {
 			if( !deployFolder.checkFolderExists( action , archiveItem.DEPLOYBASENAME ) ) {
@@ -393,7 +391,7 @@ public class RedistStorage extends ServerStorage {
 			for( String s : Common.splitSpaced( archiveItem.EXCLUDE ) )
 				exclude = Common.addItemToUniqueSpacedList( exclude , prefix + s );
 
-			deployFolder.createTarGzFromContent( action , tarFilePath , content , exclude );
+			deployFolder.createArchiveFromContent( action , atype , archiveFilePath , content , exclude );
 		}
 		else
 		if( archiveItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_DIRECT ) {
@@ -402,7 +400,7 @@ public class RedistStorage extends ServerStorage {
 				return( false );
 			}
 				
-			deployFolder.createTarGzFromContent( action , tarFilePath , archiveItem.FILES , archiveItem.EXCLUDE );
+			deployFolder.createArchiveFromContent( action , atype , archiveFilePath , archiveItem.FILES , archiveItem.EXCLUDE );
 		}
 		else
 		if( archiveItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_SUBDIR ) {
@@ -411,7 +409,7 @@ public class RedistStorage extends ServerStorage {
 				return( false );
 			}
 				
-			deployFolder.createTarGzFromFolderContent( action , tarFilePath , archiveItem.DEPLOYBASENAME , archiveItem.FILES , archiveItem.EXCLUDE );
+			deployFolder.createArchiveFromFolderContent( action , atype , archiveFilePath , archiveItem.DEPLOYBASENAME , archiveItem.FILES , archiveItem.EXCLUDE );
 		}
 		else
 			action.exitUnexpectedState();
