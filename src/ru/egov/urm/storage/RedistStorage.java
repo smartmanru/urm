@@ -348,8 +348,10 @@ public class RedistStorage extends ServerStorage {
 	public void backupRedistArchiveItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , FileInfo redistFile , RemoteFolder backupFolder , RemoteFolder stateFolder , FileInfo stateFile ) throws Exception {
 		RemoteFolder deployFolder = getRuntimeLocationFolder( action , LOCATION );
 
-		String redistBackupFile = redistFile.getFileName( action );  
+		String redistBackupFile = redistFile.getFileName( action );
+		int timeout = action.setTimeoutUnlimited();
 		saveArchiveItem( action , redistFile.binaryItem , deployFolder , redistBackupFile , backupFolder );
+		action.setTimeout( timeout );
 		action.log( "redist backup done, archive item file=" + redistBackupFile );
 		
 		// copy version file from state
@@ -364,7 +366,9 @@ public class RedistStorage extends ServerStorage {
 		RemoteFolder deployFolder = getRuntimeLocationFolder( action , LOCATION );
 		RemoteFolder tmpFolder = getRedistTmpFolder( action );
 		tmpFolder.ensureExists( action );
+		int timeout = action.setTimeoutUnlimited();
 		saveArchiveItem( action , archiveItem , deployFolder , tmpName , tmpFolder );
+		action.setTimeout( timeout );
 	}
 	
 	public void copyTmpFileToLocal( ActionBase action , String tmpName , LocalFolder localFolder ) throws Exception {

@@ -334,7 +334,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			// copy from runtime area and extract
 			LocalFolder liveFolder = asisServerFolder.getSubFolder( this , "archive.live" );
 			liveFolder.recreateThis( this );
-			String fileName = "archive.tar.gz";
+			String fileName = "archive" + archiveItem.EXT;
 			redist.saveTmpArchiveItem( this , location.DEPLOYPATH , archiveItem , fileName );
 			redist.copyTmpFileToLocal( this , fileName , liveFolder );
 			liveFolder.extractTarGz( this , fileName , "" );
