@@ -340,7 +340,7 @@ public abstract class Folder {
 	
 	public void unzipSingleFile( ActionBase action , String zipFile , String zipPart , String newName ) throws Exception {
 		ShellExecutor session = getSession( action ); 
-		session.unzipPart( action , folderPath , zipFile , zipPart , "" );
+		session.unzipPart( action , folderPath , zipFile , "" , zipPart );
 		if( !newName.equals( zipPart ) )
 			renameFile( action , zipPart , newName );
 	}

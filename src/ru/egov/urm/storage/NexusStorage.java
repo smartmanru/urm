@@ -71,10 +71,10 @@ public class NexusStorage {
 		LocalFolder tmp = artefactoryFolder.getSubFolder( action , "tmp" );
 		tmp.ensureExists( action );
 		
-		action.session.unzipPart( action , artefactoryFolder.folderPath , src.DOWNLOAD_FILENAME , 
-				Common.getPath( "lib" , item.NUGET_PLATFORM , "*" ) , tmp.folderPath );
-		action.session.unzipPart( action , artefactoryFolder.folderPath , src.DOWNLOAD_FILENAME , 
-				Common.getPath( "content" , "*" ) , tmp.folderPath );
+		action.session.unzipPart( action , artefactoryFolder.folderPath , src.DOWNLOAD_FILENAME , tmp.folderPath , 
+				Common.getPath( "lib" , item.NUGET_PLATFORM , "*" ) );
+		action.session.unzipPart( action , artefactoryFolder.folderPath , src.DOWNLOAD_FILENAME , tmp.folderPath , 
+				Common.getPath( "content" , "*" ) );
 		
 		// copy to final zip dir
 		LocalFolder zip = tmp.getSubFolder( action , "final" );

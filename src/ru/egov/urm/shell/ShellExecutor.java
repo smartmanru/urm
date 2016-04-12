@@ -164,11 +164,11 @@ public abstract class ShellExecutor {
 	}
 	
 	public void unzip( ActionBase action , String runDir , String zipFile , String folder ) throws Exception {
-		core.cmdUnzipPart( action , runDir , zipFile , "" , folder );
+		core.cmdUnzipPart( action , runDir , zipFile , folder , "" );
 	}
 
 	public void unzipPart( ActionBase action , String unzipDir , String zipFile , String zipPart , String targetDir ) throws Exception {
-		core.cmdUnzipPart( action , unzipDir , zipFile , zipPart , targetDir );
+		core.cmdUnzipPart( action , unzipDir , zipFile , targetDir , zipPart );
 	}
 
 	public void move( ActionBase action , String source , String target ) throws Exception {

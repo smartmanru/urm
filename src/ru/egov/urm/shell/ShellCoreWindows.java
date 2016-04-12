@@ -351,8 +351,16 @@ public class ShellCoreWindows extends ShellCore {
 		checkOut( action , "errors on delete files" );
 	}
 
-	@Override public void cmdUnzipPart( ActionBase action , String unzipDir , String zipFile , String part , String targetFolder ) throws Exception {
-		cmdExtractAny( action , zipFile , targetFolder , part , "zip" );
+	@Override public void cmdUnzipPart( ActionBase action , String unzipDir , String zipFile , String targetFolder , String part ) throws Exception {
+		String extractPart = ( part == null || part.isEmpty() )? "" : part;
+		
+		String wtarFile = Common.getWinPath( zipFile );
+		String cmd = "7z x -tzip -y -bd " + wtarFile + " " + extractPart;
+		if( !extractPart.isEmpty() )
+			if( !extractPart.equals( targetFolder ) )
+				cmd += " && rmdir /S /Q " + targetFolder + " && rename " + extractPart + " " + targetFolder;
+		String wtargetParent = Common.getWinPath( unzipDir );
+		runCommandCheckStatusDebug( action , wtargetParent , cmd );
 	}
 
 	@Override public void cmdMove( ActionBase action , String source , String target ) throws Exception {
