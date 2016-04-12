@@ -9,6 +9,7 @@ import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerDeployment;
 import ru.egov.urm.meta.MetaEnvServerLocation;
 import ru.egov.urm.meta.MetaEnvServerNode;
+import ru.egov.urm.meta.Metadata.VarARCHIVETYPE;
 import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
 import ru.egov.urm.meta.Metadata.VarDISTITEMTYPE;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
@@ -187,12 +188,10 @@ public class RuntimeStorage extends ServerStorage {
 	}
 	
 	private void deployRedistArchiveItem( ActionBase action , RedistStorage redist , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , RemoteFolder redistFolder , RemoteFolder deployFolder , FileInfo redistFile , boolean rollout ) throws Exception {
-		String tarFilePath = redistFolder.getFilePath( action , redistFile.getFileName( action ) );
+		String archiveFilePath = redistFolder.getFilePath( action , redistFile.getFileName( action ) );
 
 		MetaDistrBinaryItem archiveItem = redistFile.binaryItem;
-		if( archiveItem.EXT.equals( ".tar.gz" ) == false && 
-			archiveItem.EXT.equals( ".tgz" ) == false )
-			action.exitNotImplemented();
+		VarARCHIVETYPE atype = archiveItem.getArchiveType( action );
 
 		deployFolder.ensureExists( action );
 		if( archiveItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_CHILD ) {
@@ -211,7 +210,7 @@ public class RuntimeStorage extends ServerStorage {
 			}
 			
 			// deploy new
-			deployFolder.extractTarGz( action , tarFilePath , "" );
+			deployFolder.extractArchive( action , atype , archiveFilePath , "" );
 		}
 		else
 		if( archiveItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_DIRECT ) {
@@ -219,7 +218,7 @@ public class RuntimeStorage extends ServerStorage {
 			deployFolder.removeFilesWithExclude( action , archiveItem.FILES , archiveItem.EXCLUDE );
 			
 			// deploy new
-			deployFolder.extractTarGz( action , tarFilePath , "" );
+			deployFolder.extractArchive( action , atype , archiveFilePath , "" );
 		}
 		else
 		if( archiveItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_SUBDIR ) {
@@ -232,7 +231,7 @@ public class RuntimeStorage extends ServerStorage {
 			}
 			
 			// deploy new
-			deployTarFolder.extractTarGz( action , tarFilePath , "" );
+			deployTarFolder.extractArchive( action , atype , archiveFilePath , "" );
 		}
 		else
 			action.exitUnexpectedState();

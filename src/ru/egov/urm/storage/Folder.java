@@ -195,6 +195,19 @@ public abstract class Folder {
 		session.move( action , Common.getPath( folderPath , file ) , Common.getPath( folderPath , folder ) );
 	}
 	
+	public void extractArchive( ActionBase action , VarARCHIVETYPE atype , String archiveFile , String targetFolder ) throws Exception {
+		if( atype == VarARCHIVETYPE.TAR )
+			extractTar( action , archiveFile , targetFolder );
+		else
+		if( atype == VarARCHIVETYPE.TARGZ )
+			extractTarGz( action , archiveFile , targetFolder );
+		else
+		if( atype == VarARCHIVETYPE.ZIP )
+			unzipToFolder( action , archiveFile , targetFolder );
+		else
+			action.exitUnexpectedState();
+	}
+	
 	public void extractTarGz( ActionBase action , String tarFile ) throws Exception {
 		extractTarGz( action , tarFile , "" );
 	}
