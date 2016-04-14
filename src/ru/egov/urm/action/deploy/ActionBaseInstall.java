@@ -85,8 +85,10 @@ public class ActionBaseInstall extends ActionBase {
 			exitUnexpectedState();
 		
 		// prepare
-		ServerProcess process = new ServerProcess( server , node );
-		process.prepare( this );
+		if( info.serverType != null ) {
+			ServerProcess process = new ServerProcess( server , node );
+			process.prepare( this );
+		}
 		
 		finishUpdate( info , redist , vis );
 	}
