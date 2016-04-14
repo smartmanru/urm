@@ -30,11 +30,13 @@ public class PropertySet {
 		return( Common.getSortedKeys( properties ) );
 	}
 
-	public void copyProperties( PropertySet set ) throws Exception {
+	public void copyProperties( ActionBase action , PropertySet set ) throws Exception {
 		for( String key : set.properties.keySet() ) {
 			String primaryKey = Common.getPartAfterFirst( key , set.set + "." );
 			setProperty( primaryKey , set.properties.get( key ) );
 		}
+		
+		resolveProperties( action );
 	}
 	
 	public void loadFromAttributes( ActionBase action , Node node ) throws Exception {

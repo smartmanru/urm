@@ -82,19 +82,14 @@ public class MetaFapBase {
 	}
 
 	public void load( ActionBase action , Node node , MetaEnvServerNode serverNode ) throws Exception {
-		PropertySet resolveProps = new PropertySet( "resolve" , serverNode.server.base.properties );
-		resolveProps.copyProperties( serverNode.properties );
-		
-		PropertySet metaAttrs = new PropertySet( "meta" , resolveProps );
-		metaAttrs.loadFromAttributes( action , node );
-		scatterVariables( action , metaAttrs );
+		PropertySet meta = new PropertySet( "meta" , serverNode.properties );
+		meta.loadFromAttributes( action , node );
+		scatterVariables( action , meta );
+		meta.loadFromElements( action , node );
+		meta.copyProperties( action , serverNode.server.base.properties );
 
-		PropertySet metaProps = new PropertySet( "meta" , resolveProps );
-		metaProps.copyProperties( metaAttrs );
-		metaProps.loadFromElements( action , node );
-		
 		properties = new PropertySet( "final" , null );
-		properties.copyProperties( metaProps );
+		properties.copyProperties( action , meta );
 
 		if( action.isDebug() )
 			properties.printValues( action );
