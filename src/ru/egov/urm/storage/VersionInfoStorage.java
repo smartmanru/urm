@@ -50,6 +50,7 @@ public class VersionInfoStorage {
 	}
 	
 	public void setBaseStatus( ActionBase action , String BASEID , String VALUE ) throws Exception {
+		action.debug( "set base id=" + BASEID + " status=" + VALUE + " ..." );
 		ShellExecutor remoteSession = action.getShell( redist.account );
 		String filePath = getFilePath( action );
 		
