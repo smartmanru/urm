@@ -413,13 +413,6 @@ public class ServerProcess {
 	}
 	
 	private boolean prepareGeneric( ActionBase action ) throws Exception {
-		// check status
-		gatherPids( action );
-		if( pids.isEmpty() ) {
-			action.debug( node.HOSTLOGIN + ": server already stopped" );
-			return( true );
-		}
-
 		// prepare instance
 		String F_FULLBINPATH = srv.getFullBinPath( action );
 		ShellExecutor executor = action.getShell( node );
