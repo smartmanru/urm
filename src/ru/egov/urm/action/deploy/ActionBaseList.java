@@ -17,8 +17,10 @@ public class ActionBaseList extends ActionBase {
 	@Override protected boolean executeAccount( ActionScopeSet set , Account account ) throws Exception {
 		VersionInfoStorage vis = artefactory.getVersionInfoStorage( this , account );
 		Map<String,String> items = vis.getBaseList( this );
+		comment( "============================================ account=" + account.HOSTLOGIN );
+		
 		if( items.isEmpty() ) {
-			comment( account.HOSTLOGIN + ": no base items" );
+			comment( "(no base items)" );
 			return( true );
 		}
 		
