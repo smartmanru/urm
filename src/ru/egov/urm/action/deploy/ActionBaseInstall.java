@@ -68,14 +68,13 @@ public class ActionBaseInstall extends ActionBase {
 		if( !isExecute() )
 			return;
 
-		RedistStorage redist = artefactory.getRedistStorage( this , server, node );
+		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		RuntimeStorage runtime = artefactory.getRootRuntimeStorage( this , server , node , info.adm );
 		VersionInfoStorage vis = artefactory.getVersionInfoStorage( this , redist.account );
 
-		if( !startUpdate( info , redist , vis ) )
+		if( !startUpdate( info , runtime , vis ) )
 			return;
 			
-		log( "install base=" + info.ID + ", type=" + Common.getEnumLower( info.type ) + " ..." );
 		if( info.isLinuxArchiveLink() )
 			executeNodeLinuxArchiveLink( server , node , info , redist , runtime );
 		else
@@ -108,7 +107,7 @@ public class ActionBaseInstall extends ActionBase {
 		copySystemFiles( info , redist , runtime );
 	}
 
-	private boolean startUpdate( MetaFapBase info , RedistStorage redist , VersionInfoStorage vis ) throws Exception {
+	private boolean startUpdate( MetaFapBase info , RuntimeStorage runtime , VersionInfoStorage vis ) throws Exception {
 		String STATUS = vis.getBaseStatus( this , info.ID );
 		if( STATUS.equals( "ok" ) ) {
 			if( !context.CTX_FORCE ) {
@@ -116,7 +115,8 @@ public class ActionBaseInstall extends ActionBase {
 				return( false );
 			}
 		}
-				
+
+		log( runtime.account.HOSTLOGIN + ": install base=" + info.ID + ", type=" + Common.getEnumLower( info.type ) + " ..." );
 		vis.setBaseStatus( this , info.ID , "upgrading" );
 		return( true );
 	}
