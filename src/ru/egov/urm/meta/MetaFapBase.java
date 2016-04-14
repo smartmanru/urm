@@ -159,8 +159,11 @@ public class MetaFapBase {
 		String TYPE = props.getSystemRequiredProperty( action , "type" , systemProps );
 		type = getType( action , TYPE );
 		adm = props.getSystemBooleanProperty( action , "adminstall" , false , systemProps );
-		String SERVERTYPE = props.getSystemRequiredProperty( action , "servertype" , systemProps ); 
-		serverType = action.meta.getServerType( action , SERVERTYPE );
+		
+		if( primary ) {
+			String SERVERTYPE = props.getSystemRequiredProperty( action , "servertype" , systemProps ); 
+			serverType = action.meta.getServerType( action , SERVERTYPE );
+		}
 		
 		// type properties
 		if( isLinuxArchiveLink() )
