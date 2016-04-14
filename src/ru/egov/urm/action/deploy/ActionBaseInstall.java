@@ -173,6 +173,9 @@ public class ActionBaseInstall extends ActionBase {
 	}
 
 	private void copySystemFiles( MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
+		if( info.serverType == null )
+			return;
+		
 		if( !runtime.server.isLinux( this ) )
 			exitUnexpectedState();
 		
