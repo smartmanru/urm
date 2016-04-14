@@ -29,6 +29,7 @@ public class MetaEnvServerBase {
 		properties.loadFromAttributes( action , node );
 		ID = properties.getSystemRequiredProperty( action , "id" , systemProps );
 		properties.checkUnexpected( action , systemProps );
+		properties.loadFromElements( action , node );
 		
 		loadPrepare( action , node );
 	}
