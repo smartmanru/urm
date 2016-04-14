@@ -41,12 +41,13 @@ public class BaseRepository {
 		return( repoFolder.getSubFolder( action , BASEID ) );
 	}
 
-	public MetaFapBase getBaseInfo( ActionBase action , String ID , MetaEnvServerNode node ) throws Exception {
+	public MetaFapBase getBaseInfo( ActionBase action , String ID , MetaEnvServerNode node , boolean primary ) throws Exception {
 		String basePath = getBasePath( action , ID );
 		String text = repoFolder.readFile( action , basePath );
 		Document xml = ConfReader.readXmlString( action , text );
 		
-		MetaFapBase base = new MetaFapBase( this );
+		action.debug( "load base info id=" + ID + " ..." );
+		MetaFapBase base = new MetaFapBase( this , primary );
 		base.load( action , xml.getDocumentElement() , node );
 		return( base );
 	}

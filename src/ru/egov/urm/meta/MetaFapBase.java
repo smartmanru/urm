@@ -27,6 +27,8 @@ public class MetaFapBase {
 	};
 	
 	public BaseRepository repo;
+	public boolean primary;
+	
 	public PropertySet properties;
 	public String ID;
 	public VarBASESRCTYPE type;
@@ -42,8 +44,9 @@ public class MetaFapBase {
 	public List<String> dependencies;
 	public Map<String,String> compatibilityMap;
 	
-	public MetaFapBase( BaseRepository repo ) {
+	public MetaFapBase( BaseRepository repo , boolean primary ) {
 		this.repo = repo;
+		this.primary = primary;
 	}
 	
 	public VarBASESRCTYPE getType( ActionBase action , String TYPE ) throws Exception {
