@@ -246,7 +246,7 @@ public class ServerProcess {
 		// windows operations
 		if( srv.isWindows( action ) ) {
 			shell.customCritical( action , F_FULLBINPATH , "server.stop.cmd " + srv.NAME + " " +
-					Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS + " > /dev/null" );
+					Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS );
 			shell.checkErrors( action );
 			return( false );
 		}
@@ -444,7 +444,7 @@ public class ServerProcess {
 		// windows operations
 		if( srv.isWindows( action ) ) {
 			shell.customCritical( action , F_FULLBINPATH , "server.start.cmd " + srv.NAME + " " +
-				action.context.CTX_EXTRAARGS + " > /dev/null" );
+				action.context.CTX_EXTRAARGS );
 				shell.checkErrors( action );
 			return( false );
 		}
@@ -586,7 +586,9 @@ public class ServerProcess {
 		
 		// windows operations
 		if( srv.isWindows( action ) ) {
-			action.exitNotImplemented();
+			shell.customCritical( action , F_FULLBINPATH , "server.prepare.cmd " + srv.NAME + " " +
+					srv.ROOTPATH + " " + action.context.CTX_EXTRAARGS );
+			shell.checkErrors( action );
 			return( false );
 		}
 		
