@@ -145,7 +145,7 @@ public class PropertySet {
 		
 		// parent var
 		if( parent == null || system )
-			action.exit( "unresolved variable=" + name );
+			action.exit( "set=" + set + ": unresolved variable=" + name );
 			
 		return( parent.getProperty( action , name ) );
 	}
@@ -187,7 +187,7 @@ public class PropertySet {
 	private String getRequiredPropertyInternal( ActionBase action , String name , boolean system ) throws Exception {
 		String value = getPropertyInternal( action , name , system );
 		if( value == null || value.isEmpty() )
-			action.exit( "empty property=" + name );
+			action.exit( "set=" + set + ": empty property=" + name );
 		return( value );
 	}
 
@@ -242,7 +242,7 @@ public class PropertySet {
 	public void checkUnexpected( ActionBase action , List<String> props ) throws Exception {
 		for( String prop : properties.keySet() ) {
 			if( !props.contains( prop ) )
-				action.exit( "set=" + set + " has unexpected property=" + prop );
+				action.exit( "set=" + set + ": unexpected property=" + prop );
 		}
 	}
 
