@@ -46,7 +46,8 @@ public class RuntimeStorage extends ServerStorage {
 		remoteDir.ensureExists( action );
 		remoteDir.copyFileFromLocal( action , tarFilePath );
 
-		Account account = action.getAccount( node );
+		Account nodeAccount = action.getAccount( node );
+		Account account = nodeAccount;
 		if( server.isService( action ) )
 			account = account.getRootAccount( action );
 		
@@ -59,9 +60,13 @@ public class RuntimeStorage extends ServerStorage {
 		
 		runtimeDir.extractTar( action , confFullPath , "" );
 		if( server.isLinux( action ) ) {
-			if( server.isService( action ) )
+			if( server.isService( action ) ) {
 				shell = action.getShell( account );
-			shell.customCheckErrorsDebug( action , F_RUNTIMEDIR , "chmod 744 " + F_FILES );
+				shell.customCheckErrorsDebug( action , F_RUNTIMEDIR , "chown " + nodeAccount.USER + ": " + F_FILES + 
+						"; chmod 744 " + F_FILES );
+			}
+			else
+				shell.customCheckErrorsDebug( action , F_RUNTIMEDIR , "chmod 744 " + F_FILES );
 		}
 
 		remoteDir.removeFiles( action , F_CONFIGTARFILE );
