@@ -74,7 +74,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 		cmdOpts = "GETOPT_ROOTUSER, GETOPT_HOSTUSER, GETOPT_KEY";
 		super.defineAction( CommandAction.newAction( new Login() , "login" , false , "open ssh session to specified server node" , cmdOpts , "./login.sh [OPTIONS] <server> [node]" ) );
 		
-		propertyBasedMethods = "confcheck configure deployredist redist restartenv startenv restoreconfigs verifydeploy";
+		propertyBasedMethods = "confcheck configure deployredist redist restoreconfigs verifydeploy";
 	}
 	
 	public boolean run( ActionInit action ) {
