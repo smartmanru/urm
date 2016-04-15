@@ -96,17 +96,6 @@ public class ShellCoreUnix extends ShellCore {
 		return( -1 );
 	}
 
-	@Override public void runCommandCritical( ActionBase action , String cmd ) throws Exception {
-		if( action.isExecute() ) {
-			action.debug( executor.name + ": execute " + cmd );
-			runCommand( action , "echo `date` " + Common.getQuoted( "(SSH_CLIENT=\\$SSH_CLIENT): " + cmd ) + " >> ~/execute.log" , false );
-			runCommand( action , cmd , false );
-		}
-		else {
-			action.debug( executor.name + ": showonly " + cmd );
-		}
-	}
-	
 	@Override public String getDirCmd( ActionBase action , String dir , String cmd ) throws Exception {
 		return( "( if [ -d " + Common.getQuoted( dir ) + " ]; then cd " + dir + "; " + cmd + "; else echo invalid directory: " + dir + " >&2; fi )" );
 	}

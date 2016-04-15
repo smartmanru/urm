@@ -48,7 +48,6 @@ abstract class ShellCore {
 	abstract protected void getProcessAttributes( ActionBase action ) throws Exception;
 	abstract public void runCommand( ActionBase action , String cmd , boolean debug ) throws Exception;
 	abstract public int runCommandGetStatus( ActionBase action , String cmd , boolean debug ) throws Exception;
-	abstract public void runCommandCritical( ActionBase action , String cmd ) throws Exception;
 	abstract public String getDirCmd( ActionBase action , String dir , String cmd ) throws Exception;
 	abstract public String getDirCmdIfDir( ActionBase action , String dir , String cmd ) throws Exception;
 	abstract protected void killProcess( ActionBase action ) throws Exception;
@@ -228,6 +227,17 @@ abstract class ShellCore {
 		}
 		
 		return( res );
+	}
+
+	public void runCommandCritical( ActionBase action , String cmd ) throws Exception {
+		if( action.isExecute() ) {
+			action.debug( executor.name + ": execute " + cmd );
+			cmdAppendExecuteLog( action , "run: " + cmd );
+			runCommand( action , cmd , false );
+		}
+		else {
+			action.debug( executor.name + ": showonly " + cmd );
+		}
 	}
 	
 	public String runCommandCheckNormal( ActionBase action , String cmd ) throws Exception {
