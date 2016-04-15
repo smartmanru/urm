@@ -99,6 +99,7 @@ public class ReleaseCommand {
 
 	public void getAllRelease( ActionBase action , String SET , String[] PROJECTS , DistStorage release ) throws Exception {
 		BuildCommand buildImpl = new BuildCommand();
+		action.context.CTX_DIST = true;
 		buildImpl.getAllRelease( action , SET , PROJECTS , release );
 	}
 
