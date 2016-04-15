@@ -46,11 +46,17 @@ public class RuntimeStorage extends ServerStorage {
 		remoteDir.ensureExists( action );
 		remoteDir.copyFileFromLocal( action , tarFilePath );
 
-		RemoteFolder runtimeDir = new RemoteFolder( artefactory , action.getAccount( node ) , F_RUNTIMEDIR );
+		Account account = action.getAccount( node );
+		if( server.isService( action ) )
+			account = account.getRootAccount( action );
+		
+		RemoteFolder runtimeDir = new RemoteFolder( artefactory , account , F_RUNTIMEDIR );
 		String confFullPath = remoteDir.getFilePath( action , F_CONFIGTARFILE );
 		shell.appendExecuteLog( action , "restore server system configuration (" + confFullPath + ")" + " to " + runtimeDir.folderPath );
+		
 		if( !server.isService( action ) )
 			runtimeDir.removeFiles( action , F_FILES );
+		
 		runtimeDir.extractTar( action , confFullPath , "" );
 		if( server.isLinux( action ) )
 			shell.custom( action , F_RUNTIMEDIR , "chmod 744 " + F_FILES );
