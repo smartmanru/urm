@@ -31,6 +31,10 @@ public class Account {
 		return( osType == VarOSTYPE.WINDOWS );
 	}
 	
+	public boolean isLinux() {
+		return( osType == VarOSTYPE.UNIX );
+	}
+	
 	public static Account getAccount( ActionBase action , String user , String host , VarOSTYPE osType ) throws Exception {
 		if( host.isEmpty() || user.isEmpty() )
 			action.exit( "account details are not provided" );

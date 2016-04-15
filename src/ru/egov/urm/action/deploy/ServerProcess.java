@@ -40,10 +40,7 @@ public class ServerProcess {
 	}
 	
 	public void gatherPids( ActionBase action ) throws Exception {
-		// find program process
-		ShellExecutor shell = action.getShell( node );
-		pids = shell.customGetValue( action , "pgrep -f " + Common.getQuoted( "Dprogram.name=" + srv.NAME + " " ) );
-		pids = Common.replace( pids , "\n" , " " );
+		getPids( action );
 	}
 	
 	public void gatherStatus( ActionBase action ) throws Exception {
@@ -66,32 +63,47 @@ public class ServerProcess {
 		
 		if( mode == VarPROCESSMODE.STARTED )
 			return( true );
+		
 		return( false );
 	}
 	
 	private void gatherServiceStatus( ActionBase action ) throws Exception {
 		ShellExecutor shell = action.getShell( node );
-		cmdValue = shell.customGetValue( action , "service " + srv.SERVICENAME + " status 2>&1" );
 		
-		if( cmdValue.indexOf( "is stopped" ) >= 0 || cmdValue.indexOf( "is not running" ) >= 0 ) {
-			mode = VarPROCESSMODE.STOPPED;
+		// linux operations
+		if( srv.isLinux( action ) ) {
+			cmdValue = shell.customGetValue( action , "service " + srv.SERVICENAME + " status 2>&1" );
+			
+			if( cmdValue.indexOf( "is stopped" ) >= 0 || cmdValue.indexOf( "is not running" ) >= 0 ) {
+				mode = VarPROCESSMODE.STOPPED;
+				return;
+			}
+			
+			if( cmdValue.indexOf( "is running" ) >= 0 || cmdValue.indexOf( "is already running" ) >= 0 ) {
+				mode = VarPROCESSMODE.STARTED;
+				return;
+			}
+	
+			if( cmdValue.indexOf( "is starting" ) >= 0 ) {
+				mode = VarPROCESSMODE.STARTING;
+				return;
+			}
+			
+			mode = VarPROCESSMODE.ERRORS;
 			return;
 		}
 		
-		if( cmdValue.indexOf( "is running" ) >= 0 || cmdValue.indexOf( "is already running" ) >= 0 ) {
-			mode = VarPROCESSMODE.STARTED;
-			return;
-		}
-
-		if( cmdValue.indexOf( "is starting" ) >= 0 ) {
-			mode = VarPROCESSMODE.STARTING;
+		// windows operations
+		if( srv.isWindows( action ) ) {
+			action.exitNotImplemented();
 			return;
 		}
 		
-		mode = VarPROCESSMODE.ERRORS;
+		action.exitUnexpectedState();
 	}
 
 	private void gatherGenericStatus( ActionBase action ) throws Exception {
+		mode = VarPROCESSMODE.UNKNOWN;
 		getPids( action );
 		
 		if( pids.isEmpty() ) {
@@ -101,21 +113,34 @@ public class ServerProcess {
 
 		// check process status
 		ShellExecutor shell = action.getShell( node );
-		cmdValue = shell.customGetValue( action , srv.getFullBinPath( action ) , "./server.status.sh " + srv.NAME + " " + action.context.CTX_EXTRAARGS );
-				
-		if( cmdValue.indexOf( "Started=true" ) >= 0 || 
-			cmdValue.indexOf( "RUNNING" ) >= 0 || 
-			cmdValue.indexOf( "is running" ) >= 0 ) {
-			mode = VarPROCESSMODE.STARTED;
+		
+		// linux operations
+		if( srv.isLinux( action ) ) {
+			cmdValue = shell.customGetValue( action , srv.getFullBinPath( action ) , "./server.status.sh " + srv.NAME + " " + action.context.CTX_EXTRAARGS );
+					
+			if( cmdValue.indexOf( "Started=true" ) >= 0 || 
+				cmdValue.indexOf( "RUNNING" ) >= 0 || 
+				cmdValue.indexOf( "is running" ) >= 0 ) {
+				mode = VarPROCESSMODE.STARTED;
+				return;
+			}
+			
+			if( cmdValue.isEmpty() ) {
+				mode = VarPROCESSMODE.STARTING;
+				return;
+			}
+			
+			mode = VarPROCESSMODE.ERRORS;
 			return;
 		}
 		
-		if( cmdValue.isEmpty() ) {
-			mode = VarPROCESSMODE.STARTING;
+		// windows operations
+		if( srv.isWindows( action ) ) {
+			action.exitNotImplemented();
 			return;
 		}
 		
-		mode = VarPROCESSMODE.ERRORS;
+		action.exitUnexpectedState();
 	}
 
 	private void gatherDatabaseStatus( ActionBase action ) throws Exception {
@@ -123,15 +148,27 @@ public class ServerProcess {
 		mode = process.getStatus( action );
 	}
 
-	public void getPids( ActionBase action ) throws Exception {
-		mode = VarPROCESSMODE.UNKNOWN;
+	private void getPids( ActionBase action ) throws Exception {
 		pids = "";
 		
 		// find program process
 		ShellExecutor shell = action.getShell( node );
-		String value = shell.customGetValue( action , "pgrep -f \"Dprogram.name=" + srv.NAME + " \"" );
-		if( !value.isEmpty() )
-			pids = value.replace( '\n' ,  ' ' );
+
+		// linux operations
+		if( srv.isLinux( action ) ) {
+			String value = shell.customGetValue( action , "pgrep -f \"Dprogram.name=" + srv.NAME + " \"" );
+			if( !value.isEmpty() )
+				pids = value.replace( '\n' ,  ' ' );
+			return;
+		}
+		
+		// windows operations
+		if( srv.isWindows( action ) ) {
+			action.exitNotImplemented();
+			return;
+		}
+		
+		action.exitUnexpectedState();
 	}
 
 	public boolean stop( ActionBase action ) throws Exception {
@@ -155,9 +192,22 @@ public class ServerProcess {
 			return( true );
 		}
 
-		ShellExecutor executor = action.getShell( node );
-		executor.customCritical( action , "service " + srv.SERVICENAME + " stop > /dev/null 2>&1" );
-		return( true );
+		ShellExecutor shell = action.getShell( node );
+
+		// linux operations
+		if( srv.isLinux( action ) ) {
+			shell.customCritical( action , "service " + srv.SERVICENAME + " stop > /dev/null 2>&1" );
+			return( true );
+		}
+		
+		// windows operations
+		if( srv.isWindows( action ) ) {
+			action.exitNotImplemented();
+			return( false );
+		}
+		
+		action.exitUnexpectedState();
+		return( false );
 	}
 	
 	private boolean stopGeneric( ActionBase action ) throws Exception {
@@ -170,11 +220,23 @@ public class ServerProcess {
 
 		// stop kindly
 		String F_FULLBINPATH = srv.getFullBinPath( action );
-		ShellExecutor executor = action.getShell( node );
-		executor.customCritical( action , F_FULLBINPATH , "./server.stop.sh " + srv.NAME + " " +
-				Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS + " > /dev/null" );
+		ShellExecutor shell = action.getShell( node );
 		
-		return( true );
+		// linux operations
+		if( srv.isLinux( action ) ) {
+			shell.customCritical( action , F_FULLBINPATH , "./server.stop.sh " + srv.NAME + " " +
+					Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS + " > /dev/null" );
+			return( true );
+		}
+		
+		// windows operations
+		if( srv.isWindows( action ) ) {
+			action.exitNotImplemented();
+			return( false );
+		}
+		
+		action.exitUnexpectedState();
+		return( false );
 	}
 
 	public boolean waitStopped( ActionBase action , long startMillis ) throws Exception {
@@ -223,8 +285,9 @@ public class ServerProcess {
 			stoptime = defaultStopServerTimeSecs;
 		long stopMillis = startMillis + stoptime * 1000;
 		
-		ShellExecutor executor = action.getShell( node );
+		mode = VarPROCESSMODE.UNKNOWN;
 		getPids( action );
+		
 		while( !pids.isEmpty() ) {
 		    synchronized( this ) {
 		    	Thread.sleep( 1000 );
@@ -234,7 +297,7 @@ public class ServerProcess {
 				action.log( node.HOSTLOGIN + ": failed to stop generic server=" + srv.NAME + " within " + stoptime + " seconds. Killing ..." );
 				
 				// enforced stop
-				executor.customCritical( action , "kill -9 " + pids );
+				killServer( action );
 				getPids( action );
 				
 				if( pids.isEmpty() ) {
@@ -252,6 +315,25 @@ public class ServerProcess {
 	
 		action.log( node.HOSTLOGIN + ": server successfully stopped" );
 		return( true );
+	}
+
+	private void killServer( ActionBase action ) throws Exception {
+		ShellExecutor shell = action.getShell( node );
+		
+		// linux operations
+		if( srv.isLinux( action ) ) {
+			shell.customCritical( action , "kill -9 " + pids );
+			return;
+		}
+		
+		// windows operations
+		if( srv.isWindows( action ) ) {
+			action.exitNotImplemented();
+			return;
+		}
+		
+		action.exitUnexpectedState();
+		return;
 	}
 	
 	public boolean start( ActionBase action ) throws Exception {
@@ -280,9 +362,22 @@ public class ServerProcess {
 			return( false );
 		}
 
-		ShellExecutor executor = action.getShell( node );
-		executor.customCritical( action , "service " + srv.SERVICENAME + " start > /dev/null 2>&1" );
-		return( true );
+		ShellExecutor shell = action.getShell( node );
+		
+		// linux operations
+		if( srv.isLinux( action ) ) {
+			shell.customCritical( action , "service " + srv.SERVICENAME + " start > /dev/null 2>&1" );
+			return( true );
+		}
+		
+		// windows operations
+		if( srv.isWindows( action ) ) {
+			action.exitNotImplemented();
+			return( false );
+		}
+		
+		action.exitUnexpectedState();
+		return( false );
 	}
 	
 	private boolean startGeneric( ActionBase action ) throws Exception {
@@ -301,11 +396,23 @@ public class ServerProcess {
 		
 		// proceed with startup
 		String F_FULLBINPATH = srv.getFullBinPath( action );
-		ShellExecutor executor = action.getShell( node );
-		executor.customCritical( action , F_FULLBINPATH , "./server.start.sh " + srv.NAME + " " +
+		ShellExecutor shell = action.getShell( node );
+
+		// linux operations
+		if( srv.isLinux( action ) ) {
+			shell.customCritical( action , F_FULLBINPATH , "./server.start.sh " + srv.NAME + " " +
 				Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS + " > /dev/null" );
+			return( true );
+		}
 		
-		return( true );
+		// windows operations
+		if( srv.isWindows( action ) ) {
+			action.exitNotImplemented();
+			return( false );
+		}
+		
+		action.exitUnexpectedState();
+		return( false );
 	}
 
 	public boolean waitStarted( ActionBase action , long startMillis ) throws Exception {
@@ -407,19 +514,44 @@ public class ServerProcess {
 	}
 
 	private boolean prepareService( ActionBase action ) throws Exception {
-		ShellExecutor executor = action.getShell( node );
-		executor.customCritical( action , "service " + srv.SERVICENAME + " prepare" );
-		return( true );
+		ShellExecutor shell = action.getShell( node );
+		
+		// linux operations
+		if( srv.isLinux( action ) ) {
+			shell.customCritical( action , "service " + srv.SERVICENAME + " prepare" );
+			return( true );
+		}
+		
+		// windows operations
+		if( srv.isWindows( action ) ) {
+			action.exitNotImplemented();
+			return( false );
+		}
+		
+		action.exitUnexpectedState();
+		return( false );
 	}
 	
 	private boolean prepareGeneric( ActionBase action ) throws Exception {
 		// prepare instance
 		String F_FULLBINPATH = srv.getFullBinPath( action );
-		ShellExecutor executor = action.getShell( node );
-		executor.customCritical( action , F_FULLBINPATH , "./server.prepare.sh " + srv.NAME + " " +
-				srv.ROOTPATH + " " + action.context.CTX_EXTRAARGS + " > /dev/null" );
+		ShellExecutor shell = action.getShell( node );
 		
-		return( true );
+		// linux operations
+		if( srv.isLinux( action ) ) {
+			shell.customCritical( action , F_FULLBINPATH , "./server.prepare.sh " + srv.NAME + " " +
+					srv.ROOTPATH + " " + action.context.CTX_EXTRAARGS + " > /dev/null" );
+			return( true );
+		}
+		
+		// windows operations
+		if( srv.isWindows( action ) ) {
+			action.exitNotImplemented();
+			return( false );
+		}
+		
+		action.exitUnexpectedState();
+		return( false );
 	}
 
 }
