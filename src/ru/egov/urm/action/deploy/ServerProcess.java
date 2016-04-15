@@ -519,6 +519,7 @@ public class ServerProcess {
 		// linux operations
 		if( srv.isLinux( action ) ) {
 			shell.customCritical( action , "service " + srv.SERVICENAME + " prepare" );
+			shell.checkErrors( action );
 			return( true );
 		}
 		
@@ -541,6 +542,7 @@ public class ServerProcess {
 		if( srv.isLinux( action ) ) {
 			shell.customCritical( action , F_FULLBINPATH , "./server.prepare.sh " + srv.NAME + " " +
 					srv.ROOTPATH + " " + action.context.CTX_EXTRAARGS + " > /dev/null" );
+			shell.checkErrors( action );
 			return( true );
 		}
 		

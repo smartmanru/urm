@@ -38,7 +38,7 @@ abstract class ShellCore {
 	Writer writer;
 	BufferedReader errreader;
 
-	String cmdCurrent;
+	public String cmdCurrent;
 	public boolean running = false;
 	public boolean initialized = false;
 	
