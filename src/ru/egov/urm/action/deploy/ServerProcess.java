@@ -114,43 +114,37 @@ public class ServerProcess {
 		// check process status
 		ShellExecutor shell = action.getShell( node );
 		
-		// linux operations
-		if( srv.isLinux( action ) ) {
+		if( srv.isLinux( action ) )
 			cmdValue = shell.customGetValue( action , srv.getFullBinPath( action ) , "./server.status.sh " + srv.NAME + " " + action.context.CTX_EXTRAARGS );
-					
-			if( cmdValue.indexOf( "Started=true" ) >= 0 || 
-				cmdValue.indexOf( "RUNNING" ) >= 0 || 
-				cmdValue.indexOf( "is running" ) >= 0 ) {
-				mode = VarPROCESSMODE.STARTED;
-				return;
-			}
-			
-			if( cmdValue.isEmpty() ) {
-				mode = VarPROCESSMODE.STARTING;
-				return;
-			}
-			
-			if( !srv.NOPIDS ) {
-				if( cmdValue.indexOf( "Started=false" ) >= 0 || 
-					cmdValue.indexOf( "STOPPED" ) >= 0 || 
-					cmdValue.indexOf( "is not running" ) >= 0 || 
-					cmdValue.indexOf( "is stopped" ) >= 0 ) {
-					mode = VarPROCESSMODE.STOPPED;
-					return;
-				}
-			}
-			
-			mode = VarPROCESSMODE.ERRORS;
+		else
+		if( srv.isWindows( action ) )
+			cmdValue = shell.customGetValue( action , srv.getFullBinPath( action ) , "server.status.cmd " + srv.NAME + " " + action.context.CTX_EXTRAARGS );
+		else
+			action.exitUnexpectedState();
+
+		if( cmdValue.indexOf( "Started=true" ) >= 0 || 
+			cmdValue.indexOf( "RUNNING" ) >= 0 || 
+			cmdValue.indexOf( "is running" ) >= 0 ) {
+			mode = VarPROCESSMODE.STARTED;
 			return;
 		}
 		
-		// windows operations
-		if( srv.isWindows( action ) ) {
-			action.exitNotImplemented();
+		if( cmdValue.isEmpty() ) {
+			mode = VarPROCESSMODE.STARTING;
 			return;
 		}
 		
-		action.exitUnexpectedState();
+		if( !srv.NOPIDS ) {
+			if( cmdValue.indexOf( "Started=false" ) >= 0 || 
+				cmdValue.indexOf( "STOPPED" ) >= 0 || 
+				cmdValue.indexOf( "is not running" ) >= 0 || 
+				cmdValue.indexOf( "is stopped" ) >= 0 ) {
+				mode = VarPROCESSMODE.STOPPED;
+				return;
+			}
+		}
+		
+		mode = VarPROCESSMODE.ERRORS;
 	}
 
 	private void gatherDatabaseStatus( ActionBase action ) throws Exception {
@@ -245,12 +239,15 @@ public class ServerProcess {
 		if( srv.isLinux( action ) ) {
 			shell.customCritical( action , F_FULLBINPATH , "./server.stop.sh " + srv.NAME + " " +
 					Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS + " > /dev/null" );
+			shell.checkErrors( action );
 			return( true );
 		}
 		
 		// windows operations
 		if( srv.isWindows( action ) ) {
-			action.exitNotImplemented();
+			shell.customCritical( action , F_FULLBINPATH , "server.stop.cmd " + srv.NAME + " " +
+					Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS + " > /dev/null" );
+			shell.checkErrors( action );
 			return( false );
 		}
 		
@@ -439,13 +436,16 @@ public class ServerProcess {
 		// linux operations
 		if( srv.isLinux( action ) ) {
 			shell.customCritical( action , F_FULLBINPATH , "./server.start.sh " + srv.NAME + " " +
-				Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS + " > /dev/null" );
+				action.context.CTX_EXTRAARGS + " > /dev/null" );
+			shell.checkErrors( action );
 			return( true );
 		}
 		
 		// windows operations
 		if( srv.isWindows( action ) ) {
-			action.exitNotImplemented();
+			shell.customCritical( action , F_FULLBINPATH , "server.start.cmd " + srv.NAME + " " +
+				action.context.CTX_EXTRAARGS + " > /dev/null" );
+				shell.checkErrors( action );
 			return( false );
 		}
 		
