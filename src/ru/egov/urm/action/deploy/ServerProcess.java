@@ -25,6 +25,7 @@ public class ServerProcess {
 		this.srv = srv;
 		this.node = node;
 		this.mode = VarPROCESSMODE.UNKNOWN;
+		this.pids = "ignore";
 	}
 
 	public boolean isGeneric( ActionBase action ) throws Exception {
@@ -37,10 +38,6 @@ public class ServerProcess {
 
 	public boolean isDatabase( ActionBase action ) throws Exception {
 		return( srv.isDatabase( action ) );
-	}
-	
-	public void gatherPids( ActionBase action ) throws Exception {
-		getPids( action );
 	}
 	
 	public void gatherStatus( ActionBase action ) throws Exception {
@@ -104,11 +101,14 @@ public class ServerProcess {
 
 	private void gatherGenericStatus( ActionBase action ) throws Exception {
 		mode = VarPROCESSMODE.UNKNOWN;
-		getPids( action );
 		
-		if( pids.isEmpty() ) {
-			mode = VarPROCESSMODE.STOPPED;
-			return;
+		if( !srv.NOPIDS ) {
+			getPids( action );
+			
+			if( pids.isEmpty() ) {
+				mode = VarPROCESSMODE.STOPPED;
+				return;
+			}
 		}
 
 		// check process status
@@ -128,6 +128,16 @@ public class ServerProcess {
 			if( cmdValue.isEmpty() ) {
 				mode = VarPROCESSMODE.STARTING;
 				return;
+			}
+			
+			if( !srv.NOPIDS ) {
+				if( cmdValue.indexOf( "Started=false" ) >= 0 || 
+					cmdValue.indexOf( "STOPPED" ) >= 0 || 
+					cmdValue.indexOf( "is not running" ) >= 0 || 
+					cmdValue.indexOf( "is stopped" ) >= 0 ) {
+					mode = VarPROCESSMODE.STOPPED;
+					return;
+				}
 			}
 			
 			mode = VarPROCESSMODE.ERRORS;
@@ -212,10 +222,19 @@ public class ServerProcess {
 	
 	private boolean stopGeneric( ActionBase action ) throws Exception {
 		// check status
-		gatherPids( action );
-		if( pids.isEmpty() ) {
-			action.debug( node.HOSTLOGIN + ": server already stopped" );
-			return( true );
+		if( srv.NOPIDS ) {
+			gatherStatus( action );
+			if( mode == VarPROCESSMODE.STOPPED ) {
+				action.debug( node.HOSTLOGIN + ": server already stopped" );
+				return( true );
+			}
+		}
+		else {
+			getPids( action );
+			if( pids.isEmpty() ) {
+				action.debug( node.HOSTLOGIN + ": server already stopped" );
+				return( true );
+			}
 		}
 
 		// stop kindly
@@ -285,16 +304,32 @@ public class ServerProcess {
 			stoptime = defaultStopServerTimeSecs;
 		long stopMillis = startMillis + stoptime * 1000;
 		
-		mode = VarPROCESSMODE.UNKNOWN;
-		getPids( action );
+		if( srv.NOPIDS )
+			gatherStatus( action );
+		else {
+			mode = VarPROCESSMODE.UNKNOWN;
+			getPids( action );
+		}
 		
-		while( !pids.isEmpty() ) {
+		while( true ) {
+			if( srv.NOPIDS ) {
+				if( mode == VarPROCESSMODE.STOPPED )
+					break;
+			}
+			else {
+				if( pids.isEmpty() )
+					break;
+			}
+			
 		    synchronized( this ) {
 		    	Thread.sleep( 1000 );
 		    }
 		    
 			if( System.currentTimeMillis() > stopMillis ) {
 				action.log( node.HOSTLOGIN + ": failed to stop generic server=" + srv.NAME + " within " + stoptime + " seconds. Killing ..." );
+				
+				if( srv.NOPIDS )
+					return( false );
 				
 				// enforced stop
 				killServer( action );
@@ -310,7 +345,10 @@ public class ServerProcess {
 			}
 			
 			// check stopped
-			getPids( action );
+			if( srv.NOPIDS )
+				gatherStatus( action );
+			else
+				getPids( action );
 		}
 	
 		action.log( node.HOSTLOGIN + ": server successfully stopped" );

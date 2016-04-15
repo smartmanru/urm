@@ -53,6 +53,7 @@ public class MetaEnvServer {
 	public String APPSERVERVERSION;
 	public String LOGPATH;
 	public String LOGFILEPATH;
+	public boolean NOPIDS;
 
 	public VarDBMSTYPE DBMSTYPE;
 	public String DBMSADDR;
@@ -214,6 +215,7 @@ public class MetaEnvServer {
 			APPSERVERVERSION = properties.getSystemProperty( action , "appserver-version" , "" , systemProps );
 			LOGPATH = properties.getSystemProperty( action , "logpath" , "" , systemProps );
 			LOGFILEPATH = properties.getSystemProperty( action , "logfilepath" , "" , systemProps );
+			NOPIDS = properties.getSystemBooleanProperty( action , "nopids" , false , systemProps );
 		}
 		
 		properties.checkUnexpected( action , systemProps );
