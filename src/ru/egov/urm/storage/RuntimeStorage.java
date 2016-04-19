@@ -142,6 +142,19 @@ public class RuntimeStorage extends ServerStorage {
 	
 	private void deploy( ActionBase action , String RELEASEDIR , ServerDeployment deployment , boolean rollout ) throws Exception {
 		for( VarCONTENTTYPE content : VarCONTENTTYPE.values() ) {
+			if( action.meta.isBinaryContent( action , content ) ) {
+				if( !action.context.CTX_DEPLOYBINARY ) {
+					action.trace( "ignore conf deploy content" );
+					continue;
+				}
+			}
+			else {
+				if( !action.context.CTX_CONFDEPLOY ) {
+					action.trace( "ignore conf deploy content" );
+					return;
+				}
+			}
+			
 			for( String location : deployment.getLocations( action , content , rollout ) ) {
 				RedistStateInfo info = new RedistStateInfo();
 				info.gather( action , node , content , super.getPathRedistLocation( action , RELEASEDIR , location , content , rollout ) );
@@ -155,19 +168,6 @@ public class RuntimeStorage extends ServerStorage {
 	}
 	
 	public void deployRedistItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , FileInfo redistFile , boolean rollout ) throws Exception {
-		if( redistFile.confItem != null ) {
-			if( !action.context.CTX_CONFDEPLOY ) {
-				action.trace( "ignore conf deploy item=" + redistFile.itemName );
-				return;
-			}
-		}
-		else {
-			if( !action.context.CTX_DEPLOYBINARY ) {
-				action.trace( "ignore conf deploy item=" + redistFile.itemName );
-				return;
-			}
-		}
-		
 		String mode = ( rollout )? "rollout" : "rollback";
 		String msg = "deploy redist item mode=" + mode + ", release=" + RELEASEDIR + ", content=" + 
 				Common.getEnumLower( CONTENTTYPE ) + ", location=" + LOCATION + ", file=" + redistFile.getFileName( action );
