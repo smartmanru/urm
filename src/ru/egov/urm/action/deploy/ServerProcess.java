@@ -248,7 +248,7 @@ public class ServerProcess {
 			shell.customCritical( action , F_FULLBINPATH , "server.stop.cmd " + srv.NAME + " " +
 					Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS );
 			shell.checkErrors( action );
-			return( false );
+			return( true );
 		}
 		
 		action.exitUnexpectedState();
@@ -446,7 +446,7 @@ public class ServerProcess {
 			shell.customCritical( action , F_FULLBINPATH , "server.start.cmd " + srv.NAME + " " +
 				action.context.CTX_EXTRAARGS );
 				shell.checkErrors( action );
-			return( false );
+			return( true );
 		}
 		
 		action.exitUnexpectedState();
@@ -589,7 +589,7 @@ public class ServerProcess {
 			shell.customCritical( action , F_FULLBINPATH , "server.prepare.cmd " + srv.NAME + " " +
 					srv.ROOTPATH + " " + action.context.CTX_EXTRAARGS );
 			shell.checkErrors( action );
-			return( false );
+			return( true );
 		}
 		
 		action.exitUnexpectedState();
