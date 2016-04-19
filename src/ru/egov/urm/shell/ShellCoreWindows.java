@@ -356,7 +356,10 @@ public class ShellCoreWindows extends ShellCore {
 			if( !extractPart.equals( targetFolder ) )
 				cmd += " && rmdir /S /Q " + targetFolder + " && rename " + extractPart + " " + targetFolder;
 		String wtargetParent = Common.getWinPath( unzipDir );
+		
+		int timeout = action.setTimeoutUnlimited();
 		runCommandCheckStatusDebug( action , wtargetParent , cmd );
+		action.setTimeout( timeout );
 	}
 
 	@Override public void cmdMove( ActionBase action , String source , String target ) throws Exception {
@@ -374,7 +377,10 @@ public class ShellCoreWindows extends ShellCore {
 			if( !extractPart.equals( targetDir ) )
 				cmd += " && rmdir /S /Q " + targetDir + " && rename " + extractPart + " " + targetDir;
 		String wtargetParent = Common.getWinPath( targetParent );
+		
+		int timeout = action.setTimeoutUnlimited();
 		runCommandCheckStatusDebug( action , wtargetParent , cmd );
+		action.setTimeout( timeout );
 	}
 	
 	@Override public void cmdExtractTarGz( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
@@ -400,7 +406,9 @@ public class ShellCoreWindows extends ShellCore {
 		for( String item : Common.split( exclude , " " ) )
 			excludeArgs += " -x!" + Common.getWinPath( item );
 		
+		int timeout = action.setTimeoutUnlimited();
 		runCommandCheckStatusDebug( action , dir , "7z a -t" + type + " -r -bd " + wtarFile + " " + contentArgs + " " + excludeArgs );
+		action.setTimeout( timeout );
 	}
 	
 	@Override public void cmdCreateZipFromDirContent( ActionBase action , String zipFile , String dir , String content , String exclude ) throws Exception {
