@@ -155,6 +155,19 @@ public class RuntimeStorage extends ServerStorage {
 	}
 	
 	public void deployRedistItem( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , String LOCATION , FileInfo redistFile , boolean rollout ) throws Exception {
+		if( redistFile.confItem != null ) {
+			if( !action.context.CTX_CONFDEPLOY ) {
+				action.trace( "ignore conf deploy item=" + redistFile.itemName );
+				return;
+			}
+		}
+		else {
+			if( !action.context.CTX_DEPLOYBINARY ) {
+				action.trace( "ignore conf deploy item=" + redistFile.itemName );
+				return;
+			}
+		}
+		
 		String mode = ( rollout )? "rollout" : "rollback";
 		String msg = "deploy redist item mode=" + mode + ", release=" + RELEASEDIR + ", content=" + 
 				Common.getEnumLower( CONTENTTYPE ) + ", location=" + LOCATION + ", file=" + redistFile.getFileName( action );
