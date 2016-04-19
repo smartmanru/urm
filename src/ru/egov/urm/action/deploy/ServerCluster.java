@@ -55,13 +55,16 @@ public class ServerCluster {
 	
 	public boolean start( ActionBase action ) throws Exception {
 		boolean res = true;
+		
 		long startMillis = System.currentTimeMillis();
 		for( MetaEnvServerNode node : nodes ) {
 			action.log( "start " + Common.getEnumLower( srv.serverType ) + " app=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
 			
 			ServerProcess process = new ServerProcess( srv , node ); 
-			if( !process.start( action ) )
+			if( !process.start( action ) ) {
+				action.trace( "process start failed" );
 				res = false;
+			}
 		}	
 
 		if( !action.isExecute() )
@@ -71,13 +74,18 @@ public class ServerCluster {
 		action.sleep( 1000 );
 		
 		// ensure processes are started
-		if( !waitStarted( action , startMillis ) )
+		if( !waitStarted( action , startMillis ) ) {
+			action.trace( "wait for start failed" );
 			res = false;
-
-		ActionCheckEnv ca = new ActionCheckEnv( action , null );
-		ActionScopeTarget scope = ActionScope.getEnvServerNodesScope( action , srv , nodes ); 
-		if( !ca.runSingleTarget( scope ) )
-			res = false;
+		}
+		else {
+			ActionCheckEnv ca = new ActionCheckEnv( action , null );
+			ActionScopeTarget scope = ActionScope.getEnvServerNodesScope( action , srv , nodes ); 
+			if( !ca.runSingleTarget( scope ) ) {
+				action.trace( "checkenv failed" );
+				res = false;
+			}
+		}
 		
 		return( res );
 	}

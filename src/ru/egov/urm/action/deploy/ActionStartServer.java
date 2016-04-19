@@ -76,8 +76,10 @@ public class ActionStartServer extends ActionBase {
 		
 		if( actionServer.isStartable( this ) ) {
 			ServerCluster cluster = new ServerCluster( actionServer , nodes );
-			if( !cluster.start( this ) )
+			if( !cluster.start( this ) ) {
+				trace( "server cluster failed" );
 				setFailed();
+			}
 		}
 		else
 			debug( "server=" + server.NAME + ", type=" + Common.getEnumLower( actionServer.serverType ) + " is not supported for start. Skipped." );
