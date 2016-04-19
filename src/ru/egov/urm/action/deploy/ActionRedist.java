@@ -196,8 +196,10 @@ public class ActionRedist extends ActionBase {
 	}
 
 	private String getEmbeddedFile( MetaDistrBinaryItem binaryItem , String fileName ) throws Exception {
-		String fileExtracted = dist.copyEmbeddedItemToFolder( this , artefactory.workFolder , binaryItem , fileName );
-		return( artefactory.workFolder.getFilePath( this , fileExtracted ) );
+		LocalFolder tmpFolder = artefactory.getWorkFolder( this , "extract" );
+		tmpFolder.recreateThis( this );
+		String fileExtracted = dist.copyEmbeddedItemToFolder( this , tmpFolder , binaryItem , fileName );
+		return( tmpFolder.getFilePath( this , fileExtracted ) );
 	}
 	
 	private boolean executeNodeConfigComp( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrConfItem confItem , LocalFolder liveFolder ) throws Exception {
