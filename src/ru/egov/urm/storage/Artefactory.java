@@ -286,7 +286,7 @@ public class Artefactory {
 	}
 	
 	public RedistStorage getRedistStorage( ActionBase action , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
-		Account account = action.getAccount( node );
+		Account account = action.getNodeAccount( node );
 		return( new RedistStorage( this , "default" , account , server , node ) );
 	}
 
@@ -295,14 +295,14 @@ public class Artefactory {
 	}
 
 	public RuntimeStorage getRootRuntimeStorage( ActionBase action , MetaEnvServer server , MetaEnvServerNode node , boolean adm ) throws Exception {
-		Account account = action.getAccount( node );
+		Account account = action.getNodeAccount( node );
 		if( adm )
 			account = account.getRootAccount( action );
 		return( new RuntimeStorage( this , "default" , account , server , node ) );
 	}
 
 	public RuntimeStorage getRuntimeStorage( ActionBase action , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
-		Account account = action.getAccount( node );
+		Account account = action.getNodeAccount( node );
 		return( new RuntimeStorage( this , "default" , account , server , node ) );
 	}
 

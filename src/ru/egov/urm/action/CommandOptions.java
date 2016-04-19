@@ -53,6 +53,7 @@ public class CommandOptions {
 		defineGenericOption( CommandVar.newFlagYesOption( "ignore" , "GETOPT_SKIPERRORS" , "continue run disregarding errors" ) );
 		defineGenericOption( CommandVar.newFlagNoOption( "strict" , "GETOPT_SKIPERRORS" , "stop execution after error" ) );
 		defineGenericOption( CommandVar.newFlagYesOption( "all" , "GETOPT_ALL" , "use all possible items in scope, ignore reduce defaults" ) );
+		defineGenericOption( CommandVar.newFlagYesOption( "local" , "GETOPT_LOCAL" , "any session is opened as local under current user" ) );
 		defineGenericOption( CommandVar.newParam( "timeout" , "GETOPT_COMMANDTIMEOUT" , "use specific default timeout" ) );
 		defineGenericOption( CommandVar.newParam( "key" , "GETOPT_KEY" , "use given key to connect to host" ) );
 		genericOptionsCount = optionsDefined.size();
@@ -135,6 +136,7 @@ public class CommandOptions {
 		ctx.CTX_FORCE = getFlagValue( action , "GETOPT_FORCE" );
 		ctx.CTX_IGNORE = getFlagValue( action , "GETOPT_SKIPERRORS" );
 		ctx.CTX_ALL = getFlagValue( action , "GETOPT_ALL" );
+		ctx.CTX_LOCAL = getFlagValue( action , "GETOPT_LOCAL" );
 		ctx.CTX_COMMANDTIMEOUT = getIntParamValue( action , "GETOPT_COMMANDTIMEOUT" , optDefaultCommandTimeout ) * 1000;
 		value = getParamValue( action , "GETOPT_KEY" ); 
 		ctx.CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? action.context.env.KEYNAME : "" ) : value;

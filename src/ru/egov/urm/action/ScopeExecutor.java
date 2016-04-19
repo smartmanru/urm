@@ -360,13 +360,8 @@ public class ScopeExecutor {
 	private boolean runSingleHostInternal( ActionScopeSet set , String host , VarOSTYPE OSTYPE ) {
 		boolean runDone = false;
 		try {
-			String user = action.context.CTX_HOSTUSER;
-			if( user.isEmpty() )
-				user = "root";
-			
-			String serverNodes;
-			Account account = new Account( user , host , false , OSTYPE );
-			serverNodes = set.dc.getServerNodesByHost( action , host );
+			Account account = action.getSingleHostAccount( host , OSTYPE );
+			String serverNodes = set.dc.getServerNodesByHost( action , host );
 			action.log( account.HOSTLOGIN + ": serverNodes={" + serverNodes + "}" );
 			
 			runDone = true;

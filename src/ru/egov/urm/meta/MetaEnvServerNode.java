@@ -67,14 +67,14 @@ public class MetaEnvServerNode {
 	}
 
 	public String getAccessPoint( ActionBase action ) throws Exception {
-		Account account = action.getAccount( this ); 
+		Account account = action.getNodeAccount( this ); 
 		if( server.PORT > 0 )
 			return( account.HOST + ":" + server.PORT );
 		return( account.HOST );
 	}
 
 	public String getHost( ActionBase action ) throws Exception {
-		Account account = action.getAccount( this );
+		Account account = action.getNodeAccount( this );
 		return( account.HOST );
 	}
 	

@@ -12,12 +12,16 @@ public class Account {
 	public String HOST;
 	public VarOSTYPE osType;
 	
-	public Account( String user , String host , boolean local , VarOSTYPE osType ) {
+	private Account( String user , String host , boolean local , VarOSTYPE osType ) {
 		this.USER = user;
 		this.HOST = host;
 		this.HOSTLOGIN = user + "@" + host;
 		this.local = local;
 		this.osType = osType;
+	}
+	
+	public static Account getLocalAccount( String user , String host , VarOSTYPE osType ) {
+		return( new Account( user , host , true , osType ) );
 	}
 	
 	private Account( String user , String host , VarOSTYPE osType ) {
@@ -40,7 +44,8 @@ public class Account {
 			action.exit( "account details are not provided" );
 		
 		Account account = new Account( user , host , osType ); 
-		if( account.HOSTLOGIN.equals( "local" ) || 
+		if( action.context.CTX_LOCAL ||
+			host.equals( "local" ) || 
 			account.HOSTLOGIN.equals( action.context.account.HOSTLOGIN ) )
 			account.local = true;
 		else

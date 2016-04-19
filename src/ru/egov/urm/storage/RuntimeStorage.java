@@ -25,7 +25,7 @@ public class RuntimeStorage extends ServerStorage {
 
 	public void restoreSysConfigs( ActionBase action , RedistStorage redist , LocalFolder srcFolder ) throws Exception {
 		String msg = "restore server control configuratuion files";
-		action.executeLogLive( action.getAccount( node ) , msg );
+		action.executeLogLive( action.getNodeAccount( node ) , msg );
 		if( !action.isExecute() )
 			return;
 		
@@ -46,7 +46,7 @@ public class RuntimeStorage extends ServerStorage {
 		remoteDir.ensureExists( action );
 		remoteDir.copyFileFromLocal( action , tarFilePath );
 
-		Account nodeAccount = action.getAccount( node );
+		Account nodeAccount = action.getNodeAccount( node );
 		Account account = nodeAccount;
 		if( server.isService( action ) )
 			account = account.getRootAccount( action );
@@ -76,7 +76,7 @@ public class RuntimeStorage extends ServerStorage {
 	public void restoreConfigItem( ActionBase action , RedistStorage redist , LocalFolder srcFolder , MetaEnvServerDeployment deployment , MetaDistrConfItem confItem , String version ) throws Exception {
 		String LOCATION = deployment.getDeployPath( action );
 		String msg = "restore server configuratuion files item=" + confItem.KEY + ", location=" + LOCATION;
-		action.executeLogLive( action.getAccount( node ) , msg );
+		action.executeLogLive( action.getNodeAccount( node ) , msg );
 		if( !action.isExecute() )
 			return;
 		
@@ -172,7 +172,7 @@ public class RuntimeStorage extends ServerStorage {
 		String msg = "deploy redist item mode=" + mode + ", release=" + RELEASEDIR + ", content=" + 
 				Common.getEnumLower( CONTENTTYPE ) + ", location=" + LOCATION + ", file=" + redistFile.getFileName( action );
 		
-		action.executeLogLive( action.getAccount( node ) , msg );
+		action.executeLogLive( action.getNodeAccount( node ) , msg );
 		if( !action.isExecute() )
 			return;
 
@@ -298,7 +298,7 @@ public class RuntimeStorage extends ServerStorage {
 			action.exitUnexpectedState();
 		
 		if( server.osType == VarOSTYPE.UNIX ) {
-			RemoteFolder runtimeDir = new RemoteFolder( artefactory , action.getAccount( node ) , servicePath );
+			RemoteFolder runtimeDir = new RemoteFolder( artefactory , action.getNodeAccount( node ) , servicePath );
 			if( !runtimeDir.checkFileExists( action , "service" ) )
 				action.exit( "unable to find service file in " + runtimeDir.folderPath );
 

@@ -83,7 +83,7 @@ public class DatabaseClient {
 			action.exit( "need to check connectivity first" );
 			
 		// copy folder to remote
-		Account account = action.getAccount( specific.node );
+		Account account = action.getNodeAccount( specific.node );
 		RedistStorage storage = action.artefactory.getRedistStorage( "database" , account );
 		RemoteFolder folder = storage.getRedistTmpFolder( action );
 		folder.recreateThis( action );
@@ -129,7 +129,7 @@ public class DatabaseClient {
 	}
 
 	public Account getDatabaseAccount( ActionBase action ) throws Exception {
-		return( action.getAccount( specific.node ) );
+		return( action.getNodeAccount( specific.node ) );
 	}
 
 	public String readCellValue( ActionBase action , MetaDatabaseSchema schema , String table , String column , String ansiCondition ) throws Exception {

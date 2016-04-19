@@ -33,7 +33,7 @@ public class DatabaseOracleSpecific extends DatabaseSpecific {
 	}
 
 	@Override public boolean checkConnect( ActionBase action , String user , String password ) throws Exception {
-		String dbmsAddr = action.getAccount( node ).HOST;
+		String dbmsAddr = action.getNodeAccount( node ).HOST;
 		String value = action.session.customGetValue( action ,  
 				"(echo " + Common.getQuoted( "'value=ok' as x from dual\\;" ) +  
 				" ) | sqlplus " + user + "/" + password + "@" + dbmsAddr );

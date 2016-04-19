@@ -318,10 +318,19 @@ abstract public class ActionBase {
 		return( getShell( account ) );
 	}
 	
-	public Account getAccount( MetaEnvServerNode node ) throws Exception {
+	public Account getNodeAccount( MetaEnvServerNode node ) throws Exception {
 		return( Account.getAccount( this , node.HOSTLOGIN , node.server.osType ) );
 	}
 	
+	public Account getSingleHostAccount( String host , VarOSTYPE OSTYPE ) throws Exception {
+		String user = context.CTX_HOSTUSER;
+		if( user.isEmpty() )
+			user = "root";
+		
+		Account account = Account.getAccount( this , user , host , OSTYPE );
+		return( account );
+	}
+
 	public void startRedirect( String title , String logFile ) throws Exception {
 		String file = logFile;
 		if( file.startsWith( "~/" ) )

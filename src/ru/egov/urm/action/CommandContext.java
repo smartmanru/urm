@@ -33,6 +33,7 @@ public class CommandContext {
 	public boolean CTX_FORCE;
 	public boolean CTX_IGNORE;
 	public boolean CTX_ALL;
+	public boolean CTX_LOCAL;
 	public int CTX_COMMANDTIMEOUT;
 	public String CTX_KEYNAME = "";
 
@@ -111,6 +112,7 @@ public class CommandContext {
 		this.CTX_FORCE = context.CTX_FORCE;
 		this.CTX_IGNORE = context.CTX_IGNORE;
 		this.CTX_ALL = context.CTX_ALL;
+		this.CTX_LOCAL = context.CTX_LOCAL;
 		this.CTX_COMMANDTIMEOUT = context.CTX_COMMANDTIMEOUT;
 		this.CTX_KEYNAME = context.CTX_KEYNAME;
 		
@@ -212,7 +214,7 @@ public class CommandContext {
 		}
 
 		VarOSTYPE osType = ( rc.OSTYPE.equals( "WINDOWS" ) )? VarOSTYPE.WINDOWS : VarOSTYPE.UNIX;
-		this.account = new Account( rc.userName , rc.hostName , true , osType );
+		this.account = Account.getLocalAccount( rc.userName , rc.hostName , osType );
 		this.userHome = rc.userHome;
 		this.productHome = rc.productHome;
 		this.buildMode = ( rc.buildMode.isEmpty() )? VarBUILDMODE.UNKNOWN : VarBUILDMODE.valueOf( rc.buildMode );

@@ -299,7 +299,7 @@ public class MetaEnvServer {
 	public String getNodesAsStringByHost( ActionBase action , String host ) throws Exception {
 		String s = "";
 		for( MetaEnvServerNode node : nodes ) {
-			Account account = action.getAccount( node );
+			Account account = action.getNodeAccount( node );
 			if( account.HOST.equals( host ) ) {
 				if( !s.isEmpty() )
 					s += " ";
@@ -312,7 +312,7 @@ public class MetaEnvServer {
 	public String getNodesAsStringByAccount( ActionBase action , Account account ) throws Exception {
 		String s = "";
 		for( MetaEnvServerNode node : nodes ) {
-			Account nodeAccount = action.getAccount( node );
+			Account nodeAccount = action.getNodeAccount( node );
 			if( nodeAccount.HOSTLOGIN.equals( account.HOSTLOGIN ) ) {
 				if( !s.isEmpty() )
 					s += " ";

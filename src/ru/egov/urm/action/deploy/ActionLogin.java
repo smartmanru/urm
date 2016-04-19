@@ -16,7 +16,7 @@ public class ActionLogin extends ActionBase {
 
 	@Override protected boolean executeSimple() throws Exception {
 		// handle user options
-		Account account = getAccount( node );
+		Account account = getNodeAccount( node );
 		if( !context.CTX_HOSTUSER.isEmpty() )
 			account = account.getUserAccount( this , context.CTX_HOSTUSER );
 		else

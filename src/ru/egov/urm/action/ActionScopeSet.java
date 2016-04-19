@@ -492,8 +492,8 @@ public class ActionScopeSet {
 		Map<String,Account> map = new HashMap<String,Account>(); 
 		for( ActionScopeTarget target : targets ) {
 			for( ActionScopeTargetItem item : target.getItems( action ) ) {
-				Account account = action.getAccount( item.envServerNode );
-				map.put( account.HOST , action.getAccount( item.envServerNode ) );
+				Account account = action.getNodeAccount( item.envServerNode );
+				map.put( account.HOST , action.getNodeAccount( item.envServerNode ) );
 			}
 		}
 		
@@ -517,7 +517,7 @@ public class ActionScopeSet {
 		Account[] accounts = new Account[ hostLogins.length ];
 		
 		for( int k = 0; k < hostLogins.length; k++ )
-			accounts[ k ] = action.getAccount( map.get( hostLogins[ k ] ) );
+			accounts[ k ] = action.getNodeAccount( map.get( hostLogins[ k ] ) );
 		return( accounts );
 	}
 
