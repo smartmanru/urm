@@ -20,6 +20,8 @@ public class ServerCluster {
 	}
 
 	public boolean stop( ActionBase action ) throws Exception {
+		action.trace( "cluster stop ..." );
+		
 		boolean res = true;
 		long startMillis = System.currentTimeMillis();
 		for( MetaEnvServerNode node : nodes ) {
@@ -45,6 +47,8 @@ public class ServerCluster {
 	}
 	
 	public boolean waitStopped( ActionBase action , long startMillis ) throws Exception {
+		action.trace( "cluster wait stop ..." );
+		
 		boolean res = true;
 		for( MetaEnvServerNode node : nodes ) {
 			action.debug( "wait for stop " + Common.getEnumLower( srv.serverType ) + " server=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
@@ -61,6 +65,8 @@ public class ServerCluster {
 	
 	public boolean start( ActionBase action ) throws Exception {
 		boolean res = true;
+		
+		action.trace( "cluster start ..." );
 		
 		long startMillis = System.currentTimeMillis();
 		for( MetaEnvServerNode node : nodes ) {
@@ -97,13 +103,17 @@ public class ServerCluster {
 	}
 
 	public boolean waitStarted( ActionBase action , long startMillis ) throws Exception {
+		action.trace( "cluster wait started ..." );
+		
 		boolean res = true;
 		for( MetaEnvServerNode node : nodes ) {
 			action.debug( "wait for start " + Common.getEnumLower( srv.serverType ) + " server=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
 			
 			ServerProcess process = new ServerProcess( srv , node ); 
-			if( !process.waitStarted( action , startMillis ) )
+			if( !process.waitStarted( action , startMillis ) ) {
+				action.trace( "process wait start failed" );
 				res = false;
+			}
 		}	
 
 		return( res );
