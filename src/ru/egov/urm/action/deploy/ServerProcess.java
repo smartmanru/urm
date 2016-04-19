@@ -134,7 +134,7 @@ public class ServerProcess {
 			return;
 		}
 		
-		if( !srv.NOPIDS ) {
+		if( srv.NOPIDS ) {
 			if( cmdValue.indexOf( "Started=false" ) >= 0 || 
 				cmdValue.indexOf( "STOPPED" ) >= 0 || 
 				cmdValue.indexOf( "is not running" ) >= 0 || 
