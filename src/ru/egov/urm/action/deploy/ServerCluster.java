@@ -26,16 +26,20 @@ public class ServerCluster {
 			action.log( "stop " + Common.getEnumLower( srv.serverType ) + " app=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
 			
 			ServerProcess process = new ServerProcess( srv , node ); 
-			if( !process.stop( action ) )
+			if( !process.stop( action ) ) {
+				action.trace( "process stop failed" );
 				res = false;
+			}
 		}	
 
 		if( !action.isExecute() )
 			return( res );
 
 		// ensure processes are stopped
-		if( !waitStopped( action , startMillis ) )
+		if( !waitStopped( action , startMillis ) ) {
+			action.trace( "wait for stop failed" );
 			res = false;
+		}
 		
 		return( res );
 	}
@@ -46,8 +50,10 @@ public class ServerCluster {
 			action.debug( "wait for stop " + Common.getEnumLower( srv.serverType ) + " server=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
 			
 			ServerProcess process = new ServerProcess( srv , node ); 
-			if( !process.waitStopped( action , startMillis ) )
+			if( !process.waitStopped( action , startMillis ) ) {
+				action.trace( "process wait for stop failed" );
 				res = false;
+			}
 		}	
 
 		return( res );
