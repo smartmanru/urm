@@ -2,6 +2,7 @@ package ru.egov.urm.action.deploy;
 
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScopeTarget;
+import ru.egov.urm.action.ActionScopeTargetItem;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.storage.DistStorage;
@@ -26,25 +27,28 @@ public class ActionPrepareRedist extends ActionBase {
 			trace( "ignore due to server properties" );
 			return( true );
 		}
-			
-		recreateFolders( server );
+		
+		for( ActionScopeTargetItem item : target.getItems( this ) )
+			recreateFolders( server , item.envServerNode );
+		
+		if( target.itemFull ) {
+			if( server.staticServer != null )
+				recreateFoldersSingle( server.staticServer );
+		}
+		
 		return( true );
 	}
 
-	private void recreateFolders( MetaEnvServer server ) throws Exception {
-		log( "prepare server=" + server.NAME + " ..." );
+	private void recreateFolders( MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
+		log( "prepare server=" + server.NAME + ", node=" + node.POS + " ..." );
 		
-		recreateFoldersSingle( server );
-		
-		if( server.staticServer != null )
-			recreateFoldersSingle( server.staticServer );
+		RedistStorage storage = artefactory.getRedistStorage( this , server , node );
+		recreateFoldersNode( storage );
 	}
 	
 	private void recreateFoldersSingle( MetaEnvServer server ) throws Exception {
-		for( MetaEnvServerNode node : server.getNodes( this ) ) {
-			RedistStorage storage = artefactory.getRedistStorage( this , server , node );
-			recreateFoldersNode( storage );
-		}
+		for( MetaEnvServerNode node : server.getNodes( this ) )
+			recreateFolders( server , node );
 	}
 
 	private void recreateFoldersNode( RedistStorage storage ) throws Exception {
