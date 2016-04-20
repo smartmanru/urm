@@ -16,9 +16,12 @@ import ru.egov.urm.storage.Folder;
 public class ShellCoreWindows extends ShellCore {
 
 	ShellCoreUnix localSession;
+
+	String cmdAnd;
 	
 	public ShellCoreWindows( ShellExecutor executor , VarSESSIONTYPE sessionType , Folder tmpFolder , boolean local ) {
 		super( executor , VarOSTYPE.WINDOWS , sessionType , tmpFolder , local );
+		cmdAnd = ( sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX )? "&&" : "&";
 	}
 
 	@Override public void createProcess( ActionBase action , ProcessBuilder builder , String rootPath ) throws Exception {
@@ -129,7 +132,7 @@ public class ShellCoreWindows extends ShellCore {
 			return( status );
 		}
 		else {
-			runCommand( action , cmd + " && echo status=%errorlevel%" , debug );
+			runCommand( action , cmd + " " + cmdAnd + " echo status=%errorlevel%" , debug );
 			if( cmdout.size() > 0 ) {
 				String last = cmdout.get( cmdout.size() - 1 );
 				if( last.startsWith( "status=" ) ) {
@@ -145,12 +148,12 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public String getDirCmd( ActionBase action , String dir , String cmd ) throws Exception {
 		String dirWin = Common.getWinPath( dir );
-		return( "if exist " + dirWin + " ( cd " + dirWin + " && " + cmd + " ) else echo invalid directory: " + dirWin );
+		return( "if exist " + dirWin + " ( cd " + dirWin + " " + cmdAnd + " " + cmd + " ) else echo invalid directory: " + dirWin );
 	}
 	
 	@Override public String getDirCmdIfDir( ActionBase action , String dir , String cmd ) throws Exception {
 		String dirWin = Common.getWinPath( dir );
-		return( "if exist " + dirWin + " ( cd " + dirWin + " && " + cmd + " )" );
+		return( "if exist " + dirWin + " ( cd " + dirWin + " " + cmdAnd + " " + cmd + " )" );
 	}
 
 	@Override protected void killProcess( ActionBase action ) throws Exception {
@@ -195,7 +198,8 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public boolean cmdCheckFileExists( ActionBase action , String path ) throws Exception {
 		String wpath = Common.getWinPath( path );
-		String value = this.runCommandGetValueCheckDebug( action , "if exist " + wpath + "/ ( echo dir ) else if exist " + wpath + " echo file" );
+		String value = this.runCommandGetValueCheckDebug( action , "if exist " + wpath + "/ ( echo dir ) else if exist " + 
+				wpath + " echo file" );
 		if( value.equals( "file" ) )
 			return( true );
 		return( false );
@@ -244,7 +248,7 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public void cmdRemoveDirContent( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( dir );
-		runCommand( action , "if exist " + wdir + " ( rmdir /S /Q " + wdir + " && md " + wdir + " )" , true );
+		runCommand( action , "if exist " + wdir + " ( rmdir /S /Q " + wdir + " " + cmdAnd + " md " + wdir + " )" , true );
 		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
 			action.exit( "remove directory content error" );
 	}
@@ -258,7 +262,7 @@ public class ShellCoreWindows extends ShellCore {
 	
 	@Override public void cmdRecreateDir( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( dir );
-		runCommand( action , "( if exist " + wdir + " rmdir /S /Q " + wdir + " ) && md " + wdir , true );
+		runCommand( action , "( if exist " + wdir + " rmdir /S /Q " + wdir + " ) " + cmdAnd + " md " + wdir , true );
 	}
 
 	@Override public void cmdCreatePublicDir( ActionBase action , String dir ) throws Exception {
@@ -274,8 +278,8 @@ public class ShellCoreWindows extends ShellCore {
 		String filePathWin = Common.getWinPath( filePath );
 		String filePathTmp = filePathWin + ".new";
 		String cmd = "findstr /V " + mask + " " + filePathWin + " > " + filePathTmp + 
-				" && del /Q " + filePathWin + 
-				" && rename " + filePathTmp + " " + Common.getBaseName( filePathWin );
+				" " + cmdAnd + " del /Q " + filePathWin + 
+				" " + cmdAnd + " rename " + filePathTmp + " " + Common.getBaseName( filePathWin );
 		
 		if( !newLine.isEmpty() )
 			cmd += "; echo " + newLine + " >> " + filePath;
@@ -354,7 +358,7 @@ public class ShellCoreWindows extends ShellCore {
 		String cmd = "7z x -tzip -y -bd " + wtarFile + " " + extractPart;
 		if( !extractPart.isEmpty() )
 			if( !extractPart.equals( targetFolder ) )
-				cmd += " && rmdir /S /Q " + targetFolder + " && rename " + extractPart + " " + targetFolder;
+				cmd += " " + cmdAnd + " rmdir /S /Q " + targetFolder + " " + cmdAnd + " rename " + extractPart + " " + targetFolder;
 		String wtargetParent = Common.getWinPath( unzipDir );
 		
 		int timeout = action.setTimeoutUnlimited();
@@ -375,7 +379,7 @@ public class ShellCoreWindows extends ShellCore {
 		String cmd = "7z x -t" + type + " -y -bd " + wtarFile + " " + extractPart;
 		if( !extractPart.isEmpty() )
 			if( !extractPart.equals( targetDir ) )
-				cmd += " && rmdir /S /Q " + targetDir + " && rename " + extractPart + " " + targetDir;
+				cmd += " " + cmdAnd + " rmdir /S /Q " + targetDir + " " + cmdAnd + " rename " + extractPart + " " + targetDir;
 		String wtargetParent = Common.getWinPath( targetParent );
 		
 		int timeout = action.setTimeoutUnlimited();
@@ -510,7 +514,7 @@ public class ShellCoreWindows extends ShellCore {
 	@Override public void cmdGetDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
 		String delimiter = "URM_DELIMITER";
 		List<String> res = runCommandCheckGetOutputDebug( action , rootPath , 
-				"chdir && dir /ad /s /b && echo " + delimiter + " && dir /a-d /b /s" );
+				"chdir " + cmdAnd + " dir /ad /s /b " + cmdAnd + " echo " + delimiter + " " + cmdAnd + " dir /a-d /b /s" );
 		
 		if( res.isEmpty() )
 			action.exit( "directory " + rootPath + " does not exist" );
@@ -546,7 +550,7 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public void cmdGetTopDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
 		String delimiter = "URM_DELIMITER";
-		String cmd = "dir /ad /b && echo " + delimiter + " && dir /a-d /b"; 
+		String cmd = "dir /ad /b " + cmdAnd + " echo " + delimiter + " " + cmdAnd + " dir /a-d /b"; 
 		String dirCmd = getDirCmd( action , rootPath , cmd );
 		runCommand( action , dirCmd , true );
 		
@@ -628,7 +632,7 @@ public class ShellCoreWindows extends ShellCore {
 	
 	@Override public Map<String,List<String>> cmdGetFilesContent( ActionBase action , String dir , String fileMask ) throws Exception {
 		String useMarker = "##";
-		String cmd = "for %x in (" + fileMask + ") do @echo %x && type %x && echo " + useMarker;
+		String cmd = "for %x in (" + fileMask + ") do @echo %x " + cmdAnd + " type %x " + cmdAnd + " echo " + useMarker;
 		String cmdDir = getDirCmd( action , dir , cmd );
 		runCommand( action , cmdDir , true );
 		
