@@ -92,7 +92,7 @@ public class DistRepository {
 		
 		// check release directory exists
 		if( !distFolder.checkExists( action ) )
-			action.exit( "release does not exist at " + RELEASEPATH );
+			action.exit( "release does not exist at " + distFolder.folderPath );
 		
 		storage.load( action );
 		return( storage );
