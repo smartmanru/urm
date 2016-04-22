@@ -208,7 +208,7 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public boolean cmdCheckFileExists( ActionBase action , String path ) throws Exception {
 		String wpath = Common.getWinPath( path );
-		String value = this.runCommandGetValueCheckDebug( action , "if exist " + wpath + "/ ( echo dir ) else if exist " + 
+		String value = this.runCommandGetValueCheckDebug( action , "if exist " + wpath + "\\ ( echo dir ) else if exist " + 
 				wpath + " echo file" );
 		if( value.equals( "file" ) )
 			return( true );
