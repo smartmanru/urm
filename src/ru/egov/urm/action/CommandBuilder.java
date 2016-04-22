@@ -32,7 +32,7 @@ public class CommandBuilder {
 		rc = new RunContext();
 		rc.load();
 		
-		String urmName = ( rc.OSTYPE.equals( "WINDOWS" ) )? "urm.cmd" : "./urm.sh";
+		String urmName = ( rc.isWindows() )? "urm.cmd" : "./urm.sh";
 		if( args.length == 0 ) {
 			out( "URM HELP" );
 			out( "Available operations:" );
@@ -44,7 +44,7 @@ public class CommandBuilder {
 		}
 		
 		cmd = args[0]; 
-		String helpName = ( rc.OSTYPE.equals( "WINDOWS" ) )? "help.cmd" : "./help.sh";
+		String helpName = ( rc.isWindows() )? "help.cmd" : "./help.sh";
 		if( cmd.equals( "help" ) ) { 
 			out( "URM HELP" );
 			out( "Syntax: " + urmName + " <command> <action> <args>" );

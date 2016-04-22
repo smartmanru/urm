@@ -1,8 +1,11 @@
 package ru.egov.urm;
 
+import ru.egov.urm.meta.Metadata.VarOSTYPE;
+
 public class RunContext {
 
-	public String OSTYPE;
+	private String OSTYPE;
+	public VarOSTYPE osType;
 
 	public String userHome;
 	public String productHome;
@@ -17,11 +20,12 @@ public class RunContext {
 	
 	public void load() {
 		OSTYPE = getProperty( "urm.os" ).toUpperCase();
+		osType = VarOSTYPE.valueOf( Common.xmlToEnumValue( OSTYPE ) );
 		buildMode = getProperty( "build.mode" ).toUpperCase();
 		envName = getProperty( "env" );
 		dcName = getProperty( "dc" );
 		
-		if( OSTYPE.equals( "LINUX" ) ) {
+		if( osType == VarOSTYPE.UNIX ) {
 			productHome = getProperty( "product.home" );
 			hostName = System.getenv( "HOSTNAME" );
 			userName = System.getenv( "USER" );
@@ -31,7 +35,7 @@ public class RunContext {
 			productHome = Common.getLinuxPath( getProperty( "product.home" ) );
 			hostName = "windows";
 			userName = "user";
-	    	userHome = System.getenv( "HOMEPATH" );
+	    	userHome = Common.getLinuxPath( System.getenv( "HOMEPATH" ) );
 		}
 	}
 	
@@ -40,6 +44,14 @@ public class RunContext {
 		if( value == null )
 			return( "" );
 		return( value );
+	}
+	
+	public boolean isWindows() {
+		return( OSTYPE.equals( "WINDOWS" ) );		
+	}
+	
+	public boolean isLinux() {
+		return( OSTYPE.equals( "LINUX" ) );		
 	}
 	
 }
