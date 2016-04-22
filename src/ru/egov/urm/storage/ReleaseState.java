@@ -1,5 +1,10 @@
 package ru.egov.urm.storage;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
+
 import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaRelease;
@@ -93,9 +98,50 @@ public class ReleaseState {
 
 	private String getHashValue( ActionBase action ) throws Exception {
 		ShellExecutor shell = distFolder.getSession( action );
-		String cmd = "find . -type f -printf " + Common.getQuoted( "%p %s %TD %Tr\\n" ) + " | sort | grep -v state.txt | md5sum | cut -d \" \" -f1";
-		String hash = shell.customGetValue( action , distFolder.folderPath , cmd );
+		String hash;
+		if( shell.account.isLinux() ) {
+			String cmd = "find . -type f -printf " + Common.getQuoted( "%p %s %TD %Tr\\n" ) + " | sort | grep -v state.txt | md5sum | cut -d \" \" -f1";
+			hash = shell.customGetValue( action , distFolder.folderPath , cmd );
+		}
+		else {
+			hash = getWindowsHashValue( action , shell );
+		}
 		return( hash );
+	}
+
+	private String getWindowsHashValue( ActionBase action , ShellExecutor shell ) throws Exception {
+		Map<String,File> fileMap = new HashMap<String,File>(); 
+		scanFiles( action , fileMap , distFolder , "./" );
+		
+		// generate hash file
+		LocalFolder workFolder = action.artefactory.getWorkFolder( action );
+		String content = "";
+		SimpleDateFormat sdf = new SimpleDateFormat( "MM/dd/yy hh:mm:ss a");
+		for( String name : Common.getSortedKeys( fileMap ) ) {
+			File f = fileMap.get( name );
+			String ftext = name + " " + f.length() + " " + sdf.format( f.lastModified() );
+			content += ftext + "\n";
+		}
+		
+		String hashFile = workFolder.getFilePath( action , "hash.txt" );
+		Common.createFileFromString( hashFile , content );
+		return( action.session.getMD5( action , hashFile ) );
+	}
+
+	private void scanFiles( ActionBase action , Map<String,File> fileMap , RemoteFolder folder , String path ) throws Exception {
+		File folderFile = new File( folder.folderPath );
+		File[] list = folderFile.listFiles();
+		if( list == null )
+			return;
+		
+		for ( File f : list ) {
+			String name = f.getName();
+			String namePath = Common.getPath( path ,  name );
+            if ( f.isDirectory() )
+                scanFiles( action , fileMap , folder.getSubFolder( action , name ) , namePath );
+            else
+                fileMap.put( namePath , f );
+        }		
 	}
 	
 	public void checkDistChangeEnabled( ActionBase action ) throws Exception {
