@@ -111,13 +111,16 @@ public class ReleaseState {
 
 	private String getWindowsHashValue( ActionBase action , ShellExecutor shell ) throws Exception {
 		Map<String,File> fileMap = new HashMap<String,File>(); 
-		scanFiles( action , fileMap , distFolder , "./" );
+		scanFiles( action , fileMap , distFolder , "." );
 		
 		// generate hash file
 		LocalFolder workFolder = action.artefactory.getWorkFolder( action );
 		String content = "";
 		SimpleDateFormat sdf = new SimpleDateFormat( "MM/dd/yy hh:mm:ss a");
 		for( String name : Common.getSortedKeys( fileMap ) ) {
+			if( name.equals( "./state.txt" ) )
+				continue;
+			
 			File f = fileMap.get( name );
 			String ftext = name + " " + f.length() + " " + sdf.format( f.lastModified() );
 			content += ftext + "\n";
