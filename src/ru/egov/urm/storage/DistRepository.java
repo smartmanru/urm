@@ -24,11 +24,22 @@ public class DistRepository {
 	public static DistRepository getDistRepository( ActionBase action , Artefactory artefactory ) throws Exception {
 		DistRepository repo = new DistRepository( artefactory ); 
 		
-		if( action.context.env != null )
-			repo.repoFolder = new RemoteFolder( artefactory , Account.getAccount( action , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.UNIX ) , action.context.env.DISTR_PATH );
-		else
-			repo.repoFolder = new RemoteFolder( artefactory , Account.getAccount( action , action.meta.product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.UNIX ) , action.meta.product.CONFIG_DISTR_PATH );
+		String distPath = action.context.CTX_DISTPATH;
+		Account account = action.session.account;
+		if( action.context.env != null ) {
+			if( distPath.isEmpty() )
+				distPath = action.context.env.DISTR_PATH;
+			if( !action.context.CTX_LOCAL )
+				account = Account.getAccount( action , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.UNIX );
+		}
+		else {
+			if( distPath.isEmpty() )
+				distPath = action.context.env.DISTR_PATH;
+			if( !action.context.CTX_LOCAL )
+				account = Account.getAccount( action , action.meta.product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.UNIX );
+		}
 		
+		repo.repoFolder = new RemoteFolder( artefactory , account , distPath );
 		return( repo );
 	}
 
@@ -122,6 +133,9 @@ public class DistRepository {
 	
 	private String getReleasePathByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
+
+		if( RELEASELABEL.equals( "default" ) && !action.context.CTX_DISTPATH.isEmpty() )
+			return( "." );
 		
 		String RELEASEPATH = "";
 		if( RELEASELABEL.equals( "last" ) ) {
