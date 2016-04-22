@@ -475,7 +475,7 @@ public class ShellCoreWindows extends ShellCore {
 		action.debug( "copy content from " + srcDir + " to " + dstDir + " ..." );
 		String wdirFrom = Common.getWinPath( srcDir );
 		String wdirTo = Common.getWinPath( dstDir );
-		runCommandCheckDebug( action , "copy /Q /Y /E " + wdirFrom + "\\* " + wdirTo + "\\" );
+		runCommandCheckDebug( action , "xcopy /Q /Y /E " + wdirFrom + "\\* " + wdirTo + "\\" );
 	}
 	
 	@Override public void cmdCopyDirDirect( ActionBase action , String dirFrom , String dirTo ) throws Exception {
