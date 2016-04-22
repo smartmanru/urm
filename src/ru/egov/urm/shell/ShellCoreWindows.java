@@ -103,8 +103,11 @@ public class ShellCoreWindows extends ShellCore {
 			if( action.context.CTX_TRACEINTERNAL )
 				action.trace( execLine );
 			writer.write( execLine );
-			if( addErrorLevel )
-				writer.write( "echo status=%errorlevel%" );
+			if( addErrorLevel ) {
+				execLine = "echo status=%errorlevel%\r\n";
+				action.trace( execLine );
+				writer.write( execLine );
+			}
 			
 			execLine = "echo " + finishMarker + " >&2\r\n";
 			if( action.context.CTX_TRACEINTERNAL )
