@@ -64,6 +64,20 @@ public class Artefactory {
 		return( getAnyFolder( action , dir ) );
 	}
 
+	public String getMetadataPath( ActionBase action , String dirname ) throws Exception {
+		String dir;
+		if( action.context.CTX_ETCPATH.isEmpty() )
+			dir = Common.getPath( action.context.productHome , "etc" , dirname );
+		else
+			dir = Common.getPath( action.context.CTX_ETCPATH , dirname );
+		return( dir );
+	}
+
+	public LocalFolder getMetadataFolder( ActionBase action , String dirname ) throws Exception {
+		String dir = getMetadataPath( action , dirname );
+		return( getAnyFolder( action , dir ) );
+	}
+
 	public void createWorkFolder( ActionBase action ) throws Exception {
 		workFolder = getWorkFolder( action , action.context.streamName );
 		workFolder.recreateThis( action );

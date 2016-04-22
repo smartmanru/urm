@@ -16,7 +16,7 @@ import ru.egov.urm.meta.Metadata;
 public class MetadataStorage {
 
 	public static String tablesFileName = "tableset.txt";
-	public static String xdocDir = "etc/xdoc";
+	public static String xdocDir = "xdoc";
 	
 	public Artefactory artefactory;
 	public Metadata meta;
@@ -27,11 +27,11 @@ public class MetadataStorage {
 	}
 	
 	public String getDistrFile( ActionBase action ) throws Exception {
-		 return( action.context.productHome + "/etc/distr.xml" );
+		 return( artefactory.getMetadataPath( action , "distr.xml" ) );
 	}
 
 	public String[] getDesignFiles( ActionBase action ) throws Exception {
-		LocalFolder folder = artefactory.getProductFolder( action , xdocDir );
+		LocalFolder folder = artefactory.getMetadataFolder( action , xdocDir );
 		if( !folder.checkExists( action ) )
 			return( new String[0] );
 		
@@ -40,42 +40,44 @@ public class MetadataStorage {
 	}
 	
 	public String getDesignFile( ActionBase action , String fileName ) throws Exception {
-		LocalFolder folder = artefactory.getProductFolder( action , xdocDir );
-		return( folder.getFilePath( action , fileName ) );
+		String dir = artefactory.getMetadataPath( action , xdocDir );
+		return( Common.getPath( dir , fileName ) );
 	}
 	
 	public String getLastProdTagFile( ActionBase action ) throws Exception {
-		return( action.context.productHome + "/etc/last-prod-tag.txt" );
+		return( artefactory.getMetadataPath( action , "last-prod-tag.txt" ) );
 	}
 	
 	public String getProductConfFile( ActionBase action ) throws Exception {
-		return( action.context.productHome + "/etc/product.conf" );
+		return( artefactory.getMetadataPath( action , "product.conf" ) );
 	}
 	
 	public String getSourceConfFile( ActionBase action ) throws Exception {
-		return( action.context.productHome + "/etc/source.xml" );
+		return( artefactory.getMetadataPath( action , "source.xml" ) );
 	}
 
 	public String getMonitoringFile( ActionBase action ) throws Exception {
-		return( action.context.productHome + "/etc/monitoring.xml" );
+		return( artefactory.getMetadataPath( action , "monitoring.xml" ) );
 	}
 	
 	public String getOrgInfoFile( ActionBase action ) throws Exception {
-		return( action.context.productHome + "/etc/orginfo.txt" );
+		return( artefactory.getMetadataPath( action , "orginfo.txt" ) );
 	}
 
 	public String getEnvFile( ActionBase action , String envFile ) throws Exception {
-		 return( action.context.productHome + "/etc/env/" + envFile );
+		String dir = artefactory.getMetadataPath( action , "env" );
+		return( Common.getPath( dir , envFile ) );
 	}
 	
 	public String[] getEnvFiles( ActionBase action ) throws Exception {
-		LocalFolder folder = artefactory.getAnyFolder( action , action.context.productHome + "/etc/env/" );
+		LocalFolder folder = artefactory.getMetadataFolder( action , "env" );
 		String[] files = folder.findFiles( action , "*.xml" );
 		return( files );
 	}
 	
 	public String getDatapumpFile( ActionBase action , String specFile ) throws Exception {
-		 return( action.context.productHome + "/etc/datapump/" + specFile );
+		String dir = artefactory.getMetadataPath( action , "datapump" );
+		return( Common.getPath( dir , specFile ) );
 	}
 
 	public HashMap<String,Map<String,String>> readDatapumpFile( ActionBase action , String specFile , String schema ) throws Exception {

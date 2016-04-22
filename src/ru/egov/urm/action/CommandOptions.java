@@ -56,6 +56,7 @@ public class CommandOptions {
 		defineGenericOption( CommandVar.newFlagYesOption( "local" , "GETOPT_LOCAL" , "any session is opened as local under current user" ) );
 		defineGenericOption( CommandVar.newParam( "timeout" , "GETOPT_COMMANDTIMEOUT" , "use specific default timeout" ) );
 		defineGenericOption( CommandVar.newParam( "key" , "GETOPT_KEY" , "use given key to connect to host" ) );
+		defineGenericOption( CommandVar.newParam( "etcpath" , "GETOPT_ETCPATH" , "use given path to find metedata files" ) );
 		genericOptionsCount = optionsDefined.size();
 		
 		defineOption( CommandVar.newFlagYesOption( "get" , "GETOPT_GET" , "run getall after build" ) );
@@ -140,7 +141,8 @@ public class CommandOptions {
 		ctx.CTX_COMMANDTIMEOUT = getIntParamValue( action , "GETOPT_COMMANDTIMEOUT" , optDefaultCommandTimeout ) * 1000;
 		value = getParamValue( action , "GETOPT_KEY" ); 
 		ctx.CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? action.context.env.KEYNAME : "" ) : value;
-
+		ctx.CTX_ETCPATH = getParamValue( action , "GETOPT_ETCPATH" );
+		
 		// specific
 		ctx.CTX_GET = getFlagValue( action , "GETOPT_GET" );
 		ctx.CTX_DIST = getFlagValue( action , "GETOPT_DIST" );
