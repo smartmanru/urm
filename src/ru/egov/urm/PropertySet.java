@@ -191,6 +191,11 @@ public class PropertySet {
 		return( value );
 	}
 
+	public String getSystemPathProperty( ActionBase action , String name , String defaultValue , List<String> props ) throws Exception {
+		String dir = getSystemProperty( action , name , defaultValue , props );
+		return( Common.getLinuxPath( dir ) );
+	}
+	
 	public String getSystemProperty( ActionBase action , String name , String defaultValue , List<String> props ) throws Exception {
 		props.add( set + "." + name );
 		return( getPropertyInternal( action , name , defaultValue , true ) );

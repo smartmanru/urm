@@ -143,9 +143,9 @@ public class CommandOptions {
 		ctx.CTX_COMMANDTIMEOUT = getIntParamValue( action , "GETOPT_COMMANDTIMEOUT" , optDefaultCommandTimeout ) * 1000;
 		value = getParamValue( action , "GETOPT_KEY" ); 
 		ctx.CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? action.context.env.KEYNAME : "" ) : value;
-		ctx.CTX_ETCPATH = getParamValue( action , "GETOPT_ETCPATH" );
-		ctx.CTX_DISTPATH = getParamValue( action , "GETOPT_DISTPATH" );
-		value = getParamValue( action , "GETOPT_HIDDENPATH" ); 
+		ctx.CTX_ETCPATH = getParamPathValue( action , "GETOPT_ETCPATH" );
+		ctx.CTX_DISTPATH = getParamPathValue( action , "GETOPT_DISTPATH" );
+		value = getParamPathValue( action , "GETOPT_HIDDENPATH" ); 
 		ctx.CTX_HIDDENPATH = ( value.isEmpty() )? ( ( isenv )? action.context.env.CONF_SECRETFILESPATH : "" ) : value;
 		
 		// specific
@@ -500,6 +500,11 @@ public class CommandOptions {
 		if( val == null )
 			return( "" );
 		return( val );
+	}
+
+	public String getParamPathValue( ActionBase action , String var ) throws Exception {
+		String dir = getParamValue( action , var );
+		return( Common.getLinuxPath( dir ) );
 	}
 	
 	public String getParamValue( ActionBase action , String var ) throws Exception {

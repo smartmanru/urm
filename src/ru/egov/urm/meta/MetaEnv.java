@@ -117,20 +117,20 @@ public class MetaEnv {
 		ID = properties.getSystemRequiredProperty( action , "id" , systemProps );
 		action.trace( "load properties of env=" + ID );
 		
-		CONF_SECRETFILESPATH = properties.getSystemProperty( action , "configuration-secretfilespath" , "" , systemProps );
+		CONF_SECRETFILESPATH = properties.getSystemPathProperty( action , "configuration-secretfilespath" , "" , systemProps );
 		BASELINE = properties.getSystemProperty( action , "configuration-baseline" , "" , systemProps );
-		REDISTPATH = properties.getSystemProperty( action , "redist-path" , meta.product.CONFIG_REDISTPATH , systemProps );
+		REDISTPATH = properties.getSystemPathProperty( action , "redist-path" , meta.product.CONFIG_REDISTPATH , systemProps );
 		DISTR_USELOCAL = properties.getSystemBooleanProperty( action , "distr-use-local" , true , systemProps );
 		if( DISTR_USELOCAL )
 			DISTR_HOSTLOGIN = action.context.account.HOSTLOGIN;
 		else
 			DISTR_HOSTLOGIN = properties.getSystemProperty( action , "distr-hostlogin" , meta.product.CONFIG_DISTR_HOSTLOGIN , systemProps );
 		
-		DISTR_PATH = properties.getSystemProperty( action , "distr-path" , meta.product.CONFIG_DISTR_PATH , systemProps );
-		UPGRADE_PATH = properties.getSystemProperty( action , "upgrade-path" , meta.product.CONFIG_UPGRADE_PATH , systemProps );
-		CHATROOMFILE = properties.getSystemProperty( action , "chatroomfile" , "" , systemProps );
-		KEYNAME = properties.getSystemProperty( action , "keyname" , "" , systemProps );
-		DB_AUTHFILE = properties.getSystemProperty( action , "db-authfile" , "" , systemProps );
+		DISTR_PATH = properties.getSystemPathProperty( action , "distr-path" , meta.product.CONFIG_DISTR_PATH , systemProps );
+		UPGRADE_PATH = properties.getSystemPathProperty( action , "upgrade-path" , meta.product.CONFIG_UPGRADE_PATH , systemProps );
+		CHATROOMFILE = properties.getSystemPathProperty( action , "chatroomfile" , "" , systemProps );
+		KEYNAME = properties.getSystemPathProperty( action , "keyname" , "" , systemProps );
+		DB_AUTHFILE = properties.getSystemPathProperty( action , "db-authfile" , "" , systemProps );
 		PROD = properties.getSystemBooleanProperty( action , "prod" , false , systemProps );
 
 		// affect runtime options
