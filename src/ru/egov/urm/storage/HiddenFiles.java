@@ -17,13 +17,13 @@ public class HiddenFiles {
 	}
 
 	public boolean copyHiddenConf( ActionBase action , MetaEnvServer server , MetaDistrConfItem confItem , LocalFolder folder ) throws Exception {
-		if( action.context.env.CONF_SECRETFILESPATH.isEmpty() )
-			return( false );
-		
 		if( !action.context.CTX_HIDDEN ) {
 			action.debug( "ignore hidden files without option" );
 			return( false );
 		}
+		
+		if( action.context.env.CONF_SECRETFILESPATH.isEmpty() )
+			return( false );
 		
 		LocalFolder srcServerFolder = artefactory.getAnyFolder( action , 
 			Common.getPath( action.context.env.CONF_SECRETFILESPATH , confItem.KEY + "-" + server.NAME ) );

@@ -38,6 +38,7 @@ public class CommandContext {
 	public String CTX_KEYNAME = "";
 	public String CTX_ETCPATH = "";
 	public String CTX_DISTPATH = "";
+	public String CTX_HIDDENPATH = "";
 
 	// specific settings
 	public boolean CTX_GET;
@@ -119,6 +120,7 @@ public class CommandContext {
 		this.CTX_KEYNAME = context.CTX_KEYNAME;
 		this.CTX_ETCPATH = context.CTX_ETCPATH;
 		this.CTX_DISTPATH = context.CTX_DISTPATH;
+		this.CTX_HIDDENPATH = context.CTX_HIDDENPATH;
 		
 		// specific
 		this.CTX_GET = context.CTX_GET;
@@ -185,6 +187,9 @@ public class CommandContext {
 		
 		dc = env.getDC( action , DC );
 		updateProperties( action );
+		
+		if( loadProps )
+			env.loadSecretProperties( action );
 	}
 	
 	public void updateProperties( ActionBase action ) throws Exception {

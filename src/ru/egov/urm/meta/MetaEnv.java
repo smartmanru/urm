@@ -46,6 +46,8 @@ public class MetaEnv {
 	public FLAG CONF_DEPLOY;
 	public FLAG CONF_KEEPALIVE;
 
+	public static String SECRETPROPERTYFILE = "secret.properties";
+	
 	List<MetaEnvDC> originalList;
 	Map<String,MetaEnvDC> dcMap;
 	List<String> systemProps;
@@ -88,12 +90,19 @@ public class MetaEnv {
 		secretProperties = new PropertySet( "secret" , meta.product.props ); 		
 		properties = new PropertySet( "env" , secretProperties );
 		properties.loadFromAttributes( action , node );
-		scatterSystemProperties( action , loadProps );
+		scatterSystemProperties( action );
 		
 		if( loadProps )
 			properties.loadFromElements( action , node );
 	}
 
+	public void loadSecretProperties( ActionBase action ) throws Exception {
+		if( !action.context.CTX_HIDDENPATH.isEmpty() ) {
+			String propFile = Common.getPath( action.context.CTX_HIDDENPATH , SECRETPROPERTYFILE );
+			secretProperties.loadFromFile( action , propFile );
+		}
+	}
+	
 	public String[] getPropertyList( ActionBase action ) throws Exception {
 		return( properties.getOwnProperties( action ) );
 	}
@@ -102,16 +111,13 @@ public class MetaEnv {
 		return( properties.getProperty( action , var ) );
 	}
 	
-	private void scatterSystemProperties( ActionBase action , boolean loadProps ) throws Exception {
+	private void scatterSystemProperties( ActionBase action ) throws Exception {
 		systemProps.clear();
 		
 		ID = properties.getSystemRequiredProperty( action , "id" , systemProps );
 		action.trace( "load properties of env=" + ID );
 		
-		CONF_SECRETPROPERTYFILE = properties.getSystemProperty( action , "configuration-secretpropertyfile" , "" , systemProps );
-		if( loadProps && !CONF_SECRETPROPERTYFILE.isEmpty() )
-			secretProperties.loadFromFile( action , CONF_SECRETPROPERTYFILE );
-	
+		CONF_SECRETFILESPATH = properties.getSystemProperty( action , "configuration-secretfilespath" , "" , systemProps );
 		BASELINE = properties.getSystemProperty( action , "configuration-baseline" , "" , systemProps );
 		REDISTPATH = properties.getSystemProperty( action , "redist-path" , meta.product.CONFIG_REDISTPATH , systemProps );
 		DISTR_USELOCAL = properties.getSystemBooleanProperty( action , "distr-use-local" , true , systemProps );
@@ -122,7 +128,6 @@ public class MetaEnv {
 		
 		DISTR_PATH = properties.getSystemProperty( action , "distr-path" , meta.product.CONFIG_DISTR_PATH , systemProps );
 		UPGRADE_PATH = properties.getSystemProperty( action , "upgrade-path" , meta.product.CONFIG_UPGRADE_PATH , systemProps );
-		CONF_SECRETFILESPATH = properties.getSystemProperty( action , "configuration-secretfilespath" , "" , systemProps );
 		CHATROOMFILE = properties.getSystemProperty( action , "chatroomfile" , "" , systemProps );
 		KEYNAME = properties.getSystemProperty( action , "keyname" , "" , systemProps );
 		DB_AUTHFILE = properties.getSystemProperty( action , "db-authfile" , "" , systemProps );
