@@ -37,6 +37,7 @@ public class CommandContext {
 	public int CTX_COMMANDTIMEOUT;
 	public String CTX_KEYNAME = "";
 	public String CTX_ETCPATH = "";
+	public String CTX_DISTPATH = "";
 
 	// specific settings
 	public boolean CTX_GET;
@@ -117,6 +118,7 @@ public class CommandContext {
 		this.CTX_COMMANDTIMEOUT = context.CTX_COMMANDTIMEOUT;
 		this.CTX_KEYNAME = context.CTX_KEYNAME;
 		this.CTX_ETCPATH = context.CTX_ETCPATH;
+		this.CTX_DISTPATH = context.CTX_DISTPATH;
 		
 		// specific
 		this.CTX_GET = context.CTX_GET;
