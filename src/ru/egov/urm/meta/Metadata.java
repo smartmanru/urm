@@ -15,7 +15,7 @@ public class Metadata {
 	private String configurableExtensionsFindOptions = "";
 	
 	static String[] configurableExtensions = {
-		"sh" , "xml" , "txt" , "properties" , "conf" , "config" , "xconf" , "groovy" , "sql" , "yml" 
+		"cmd" , "sh" , "xml" , "txt" , "properties" , "conf" , "config" , "xconf" , "groovy" , "sql" , "yml" 
 	};
 
 	static String S_REDIST_ARCHIVE_TYPE_DIRECT = "direct";

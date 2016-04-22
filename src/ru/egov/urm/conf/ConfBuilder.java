@@ -1,5 +1,6 @@
 package ru.egov.urm.conf;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import ru.egov.urm.Common;
@@ -98,6 +99,15 @@ public class ConfBuilder {
 		hidden.copyHiddenConf( action , server , confItem , live );
 		
 		// process parameters
+		String[] files = ( action.context.account.isLinux() )? getLinuxFiles( live , confItem ) : getWindowsFiles( live , confItem ); 
+		for( String file : files ) {
+			if( file.startsWith( "./" ) )
+				file = file.substring( 2 );
+			configureFile( live , file , node , null );
+		}
+	}
+
+	private String[] getLinuxFiles( LocalFolder live , MetaDistrConfItem confItem ) throws Exception {
 		String extOptions = meta.getConfigurableExtensionsFindOptions( action );
 		String extCompOptions = extOptions;
 		for( String mask : Common.splitSpaced( confItem.EXTCONF ) ) {
@@ -107,14 +117,37 @@ public class ConfBuilder {
 		}
 		String list = action.session.customGetValue( action , live.folderPath , "F_FILES=`find . -type f -a \\( " + 
 				extCompOptions + " \\) | tr \"\\n\" \" \"`; if [ \"$F_FILES\" != \"\" ]; then grep -l \"@.*@\" $F_FILES; fi" );
-		String[] files = Common.splitLines( list ); 
-		for( String file : files ) {
-			if( file.startsWith( "./" ) )
-				file = file.substring( 2 );
-			configureFile( live , file , node , null );
-		}
+		String[] files = Common.splitLines( list );
+		return( files );
 	}
-
+	
+	private String[] getWindowsFiles( LocalFolder live , MetaDistrConfItem confItem ) throws Exception {
+		String[] extOptions = meta.getConfigurableExtensions( action );
+		String[] extConf = Common.splitSpaced( confItem.EXTCONF );
+		FileSet files = live.getFileSet( action );
+		
+		List<String> filtered = new LinkedList<String>(); 
+		for( String file : files.fileList ) {
+			boolean confRun = false;
+			for( String s : extOptions ) {
+				if( file.endsWith( s ) ) {
+					confRun = true;
+					break;
+				}
+			}
+			for( String s : extConf ) {
+				if( file.endsWith( s ) ) {
+					confRun = true;
+					break;
+				}
+			}
+			if( confRun )
+				filtered.add( file );
+		}
+		
+		return( filtered.toArray( new String[0] ) );
+	}
+	
 	public void configureFolder( ActionBase action , LocalFolder folder , MetaEnvServer server , PropertySet props ) throws Exception {
 		action.trace( "parse configuration files in folder=" + folder.folderPath + " ..." );
 		FileSet files = folder.getFileSet( action );
