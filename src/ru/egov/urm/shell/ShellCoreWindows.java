@@ -21,7 +21,7 @@ public class ShellCoreWindows extends ShellCore {
 	
 	public ShellCoreWindows( ShellExecutor executor , VarSESSIONTYPE sessionType , Folder tmpFolder , boolean local ) {
 		super( executor , VarOSTYPE.WINDOWS , sessionType , tmpFolder , local );
-		cmdAnd = ( sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX )? "&&" : "&";
+		cmdAnd = "&&";
 	}
 
 	@Override public void createProcess( ActionBase action , ProcessBuilder builder , String rootPath ) throws Exception {
@@ -78,8 +78,12 @@ public class ShellCoreWindows extends ShellCore {
 		cmdout.addAll( localSession.cmdout );
 		cmderr.addAll( localSession.cmderr );
 	}
-	
+
 	@Override public void runCommand( ActionBase action , String cmd , boolean debug ) throws Exception {
+		runCommand( action , cmd , debug , false );
+	}
+	
+	private void runCommand( ActionBase action , String cmd , boolean debug , boolean addErrorLevel ) throws Exception {
 		if( !running )
 			exitError( action , "attempt to run command in closed session: " + cmd );
 		
@@ -99,6 +103,9 @@ public class ShellCoreWindows extends ShellCore {
 			if( action.context.CTX_TRACEINTERNAL )
 				action.trace( execLine );
 			writer.write( execLine );
+			if( addErrorLevel )
+				writer.write( "echo status=%errorlevel%" );
+			
 			execLine = "echo " + finishMarker + " >&2\r\n";
 			if( action.context.CTX_TRACEINTERNAL )
 				action.trace( execLine );
@@ -132,7 +139,7 @@ public class ShellCoreWindows extends ShellCore {
 			return( status );
 		}
 		else {
-			runCommand( action , cmd + " " + cmdAnd + " echo status=%errorlevel%" , debug );
+			runCommand( action , cmd , debug , true );
 			if( cmdout.size() > 0 ) {
 				String last = cmdout.get( cmdout.size() - 1 );
 				if( last.startsWith( "status=" ) ) {
