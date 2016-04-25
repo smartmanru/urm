@@ -72,6 +72,9 @@ public class ActionRollout extends ActionBase {
 	}
 
 	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , ServerDeployment deployment ) throws Exception {
+		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
+		redist.recreateTmpFolder( this );
+		
 		RuntimeStorage runtime = artefactory.getRuntimeStorage( this , server , node );
 		runtime.rollout( this , dist.RELEASEDIR , deployment );
 	}

@@ -298,19 +298,15 @@ public class Artefactory {
 	public SubversionVCS getSvnDirect( ActionBase action ) throws Exception {
 		return( new SubversionVCS( action , action.meta.product.CONFIG_SVNOLD_PATH , "" ) );
 	}
-	
+
 	public RedistStorage getRedistStorage( ActionBase action , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
 		Account account = action.getNodeAccount( node );
 		RedistStorage redist = new RedistStorage( this , "default" , account , server , node );
-		RemoteFolder tmp = redist.getRedistTmpFolder( action );
-		tmp.recreateThis( action );
 		return( redist );
 	}
 
 	public RedistStorage getRedistStorage( ActionBase action , String type , Account account ) throws Exception {
 		RedistStorage redist = new RedistStorage( this , type , account , null , null );
-		RemoteFolder tmp = redist.getRedistTmpFolder( action );
-		tmp.recreateThis( action );
 		return( redist );
 	}
 

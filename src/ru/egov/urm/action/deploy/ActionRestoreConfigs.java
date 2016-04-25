@@ -73,6 +73,9 @@ public class ActionRestoreConfigs extends ActionBase {
 	}
 
 	private void executeNode( LocalFolder parent , SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , boolean prepare ) throws Exception {
+		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
+		redist.recreateTmpFolder( this );
+		
 		for( MetaEnvServerDeployment deployment : server.getDeployments( this ) ) {
 			if( deployment.confItem != null ) {
 				String name = sourceStorage.getConfItemLiveName( this , node , deployment.confItem );

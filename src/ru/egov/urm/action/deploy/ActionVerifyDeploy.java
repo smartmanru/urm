@@ -119,6 +119,9 @@ public class ActionVerifyDeploy extends ActionBase {
 	}
 
 	private boolean executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] confLocations , MetaEnvServerLocation[] binaryLocations , LocalFolder tobeServerFolder , LocalFolder asisServerFolder ) throws Exception {
+		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
+		redist.recreateTmpFolder( this );
+		
 		boolean verifyNode = true;
 		
 		// binaries

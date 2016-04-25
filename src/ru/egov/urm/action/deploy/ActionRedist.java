@@ -77,6 +77,9 @@ public class ActionRedist extends ActionBase {
 	}
 
 	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] F_ENV_LOCATIONS_BINARY , MetaEnvServerLocation[] F_ENV_LOCATIONS_CONFIG , LocalFolder liveFolder ) throws Exception {
+		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
+		redist.recreateTmpFolder( this );
+		
 		if( context.CTX_DEPLOYBINARY ) {
 			if( F_ENV_LOCATIONS_BINARY.length == 0 )
 				trace( "server=" + server.NAME + ", node=" + node.POS + " - ignore binary deploy due to no locations" );

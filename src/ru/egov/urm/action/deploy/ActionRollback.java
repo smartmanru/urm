@@ -71,6 +71,9 @@ public class ActionRollback extends ActionBase {
 	}
 
 	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , ServerDeployment deployment ) throws Exception {
+		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
+		redist.recreateTmpFolder( this );
+		
 		RuntimeStorage runtime = artefactory.getRuntimeStorage( this , server , node );
 		runtime.rollback( this , dist.RELEASEDIR , deployment );
 	}

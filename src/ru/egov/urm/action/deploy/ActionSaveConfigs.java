@@ -58,6 +58,9 @@ public class ActionSaveConfigs extends ActionBase {
 	}
 
 	private String executeNode( MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
+		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
+		redist.recreateTmpFolder( this );
+		
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
 		String vcsCompList = "";
 		

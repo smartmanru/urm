@@ -24,6 +24,11 @@ public class RedistStorage extends ServerStorage {
 		super( artefactory , type , account , server , node );
 	}
 
+	public void recreateTmpFolder( ActionBase action ) throws Exception {
+		RemoteFolder tmp = getRedistTmpFolder( action );
+		tmp.recreateThis( action );
+	}
+	
 	public boolean getSysConfigs( ActionBase action , LocalFolder dstFolder ) throws Exception {
 		String F_RUNTIMEDIR = server.getSystemPath( action );
 		String F_FILES = server.getSystemFiles( action );

@@ -69,6 +69,7 @@ public class ActionBaseInstall extends ActionBase {
 			return;
 
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
+		redist.recreateTmpFolder( this );
 		RuntimeStorage runtime = artefactory.getRootRuntimeStorage( this , server , node , info.adm );
 		VersionInfoStorage vis = artefactory.getVersionInfoStorage( this , redist.account );
 
