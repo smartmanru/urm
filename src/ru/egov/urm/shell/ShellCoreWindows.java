@@ -461,10 +461,10 @@ public class ShellCoreWindows extends ShellCore {
 	}
 	
 	@Override public void cmdCopyFiles( ActionBase action , String dirFrom , String files , String dirTo ) throws Exception {
-		action.debug( "copy " + files + " to " + dirTo + " ..." );
+		action.debug( "copy " + files + " from " + dirFrom + " to " + dirTo + " ..." );
 		String wfilesFrom = Common.getWinPath( files );
 		String wdirTo = Common.getWinPath( dirTo ) + "\\";
-		runCommandCheckStatus( action , dirFrom , "for %%x in ( " + wfilesFrom + " ) xcopy /Y /Q \"%%~x\" " + wdirTo , true );
+		runCommandCheckStatus( action , dirFrom , "for %x in ( " + wfilesFrom + " ) do xcopy /Y /Q \"%~x\" " + wdirTo , true );
 	}
 
 	@Override public void cmdCopyFile( ActionBase action , String fileFrom , String fileTo ) throws Exception {
@@ -650,7 +650,7 @@ public class ShellCoreWindows extends ShellCore {
 	
 	@Override public Map<String,List<String>> cmdGetFilesContent( ActionBase action , String dir , String fileMask ) throws Exception {
 		String useMarker = "##";
-		String cmd = "for %x in (" + fileMask + ") do @echo %x " + cmdAnd + " type %x " + cmdAnd + " echo " + useMarker;
+		String cmd = "for %x in (" + fileMask + ") do echo %x " + cmdAnd + " type %x " + cmdAnd + " echo " + useMarker;
 		String cmdDir = getDirCmd( action , dir , cmd );
 		runCommand( action , cmdDir , true );
 		
