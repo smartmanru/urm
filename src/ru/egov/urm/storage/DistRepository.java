@@ -113,6 +113,7 @@ public class DistRepository {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 		
 		String RELEASEPATH = getReleasePathByLabel( action , RELEASELABEL );
+		String RELEASEVER = Common.getBaseName( RELEASEPATH );
 		
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , RELEASEPATH );
 		DistStorage storage = new DistStorage( artefactory , distFolder , false );
@@ -123,7 +124,7 @@ public class DistRepository {
 				action.exit( "release already exists at " + RELEASEPATH );
 		}
 
-		storage.create( action , BUILDMODE );
+		storage.create( action , RELEASEVER , BUILDMODE );
 		return( storage );
 	}
 

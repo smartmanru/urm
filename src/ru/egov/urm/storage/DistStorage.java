@@ -51,7 +51,6 @@ public class DistStorage {
 		this.meta = artefactory.meta;
 		this.prod = prod;
 				
-		RELEASEDIR = distFolder.folderName;
 		state = new ReleaseState( distFolder );
 		files = null;
 		
@@ -81,6 +80,8 @@ public class DistStorage {
 		infoPath = distFolder.copyFileToLocal( action , artefactory.workFolder , metaFileName , "" );
 		info = new MetaRelease( meta );
 		info.load( action , infoPath );
+		
+		RELEASEDIR = info.RELEASEVER;
 	}
 
 	public void copyConfToDistr( ActionBase action , LocalFolder sourceFolder , MetaDistrConfItem conf ) throws Exception {
@@ -270,12 +271,14 @@ public class DistStorage {
 	}
 	
 	// top-level control
-	public void create( ActionBase action , VarBUILDMODE BUILDMODE ) throws Exception {
+	public void create( ActionBase action , String RELEASEVER , VarBUILDMODE BUILDMODE ) throws Exception {
+		RELEASEDIR = RELEASEVER;
 		state.ctlCreate( action , BUILDMODE );
 		load( action );
 	}
 
 	public void createProd( ActionBase action , String RELEASEVER ) throws Exception {
+		RELEASEDIR = RELEASEVER;
 		state.ctlCreateProd( action , RELEASEVER );
 		load( action );
 	}
