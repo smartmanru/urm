@@ -208,6 +208,7 @@ public class RuntimeStorage extends ServerStorage {
 			deployFolder.removeFiles( action , oldFile );
 		
 		// deploy new
+		deployFolder.ensureExists( action );
 		deployFolder.copyFile( action , redistFolder , redistFile.getFileName( action ) , redistFile.deployFinalName );
 		redist.changeStateItem( action , RELEASEDIR , CONTENTTYPE , LOCATION , redistFile , rollout );
 	}
