@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.storage.Folder;
 import ru.egov.urm.storage.LocalFolder;
@@ -26,7 +27,8 @@ public class ShellExecutorPool {
 	}
 	
 	public void create( ActionBase action ) throws Exception {
-		tmpFolder = new LocalFolder( action.artefactory , action.meta.product.CONFIG_REDISTPATH );
+		String tmpPath = Common.getPath( action.meta.product.CONFIG_REDISTPATH , "tmp" );
+		tmpFolder = new LocalFolder( action.artefactory , tmpPath );
 		account = action.context.account;
 		master = createDedicatedLocalShell( action , "master" );
 		tmpFolder.ensureExists( action );
