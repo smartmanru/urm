@@ -464,7 +464,7 @@ public class ShellCoreWindows extends ShellCore {
 		action.debug( "copy " + files + " to " + dirTo + " ..." );
 		String wfilesFrom = Common.getWinPath( files );
 		String wdirTo = Common.getWinPath( dirTo ) + "\\";
-		runCommandCheckStatus( action , "for %%x in ( " + wfilesFrom + " ) xcopy /Y /Q \"%%~x\" " + wdirTo , true );
+		runCommandCheckStatus( action , dirFrom , "for %%x in ( " + wfilesFrom + " ) xcopy /Y /Q \"%%~x\" " + wdirTo , true );
 	}
 
 	@Override public void cmdCopyFile( ActionBase action , String fileFrom , String fileTo ) throws Exception {

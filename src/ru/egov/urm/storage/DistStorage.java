@@ -132,7 +132,7 @@ public class DistStorage {
 		return( copyDistToFolder( action , workFolder , "" , file ) );
 	}
 
-	public String copyEmbeddedItemToFolder( ActionBase action , LocalFolder folder , MetaDistrBinaryItem item , String fileName ) throws Exception {
+	public String extractEmbeddedItemToFolder( ActionBase action , LocalFolder folder , MetaDistrBinaryItem item , String fileName ) throws Exception {
 		if( !openedForUse )
 			action.exit( "distributive is not opened for use" );
 

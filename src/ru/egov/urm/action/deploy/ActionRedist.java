@@ -176,7 +176,7 @@ public class ActionRedist extends ActionBase {
 			}
 			
 			debug( "source of distributive item=" + binaryItem.KEY + " found in distributive, file=" + fileName );
-			String fileExtracted = getEmbeddedFile( binaryItem , fileName );
+			String fileExtracted = extractEmbeddedFile( binaryItem , fileName );
 			return( redist.copyReleaseFile( this , binaryItem , location , fileExtracted , deployBaseName , dist.RELEASEDIR , dist.info.RELEASEVER , stateInfo ) );
 		}
 		else if( binaryItem.DISTSOURCE == VarDISTITEMSOURCE.BUILD || binaryItem.DISTSOURCE == VarDISTITEMSOURCE.MANUAL ) {
@@ -195,11 +195,14 @@ public class ActionRedist extends ActionBase {
 		return( false );
 	}
 
-	private String getEmbeddedFile( MetaDistrBinaryItem binaryItem , String fileName ) throws Exception {
+	private String extractEmbeddedFile( MetaDistrBinaryItem binaryItem , String fileName ) throws Exception {
 		LocalFolder tmpFolder = artefactory.getWorkFolder( this , "extract" );
 		tmpFolder.recreateThis( this );
-		String fileExtracted = dist.copyEmbeddedItemToFolder( this , tmpFolder , binaryItem , fileName );
-		return( tmpFolder.getFilePath( this , fileExtracted ) );
+		
+		String fileExtracted = dist.extractEmbeddedItemToFolder( this , tmpFolder , binaryItem , fileName );
+		String pathExtracted = tmpFolder.getFilePath( this , fileExtracted );
+		debug( "file extracted path=" + pathExtracted );
+		return( pathExtracted );
 	}
 	
 	private boolean executeNodeConfigComp( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrConfItem confItem , LocalFolder liveFolder ) throws Exception {

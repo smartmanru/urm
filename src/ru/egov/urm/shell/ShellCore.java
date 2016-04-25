@@ -325,7 +325,16 @@ abstract class ShellCore {
 		runCommandCheckStatus( action , cmdDir , true );
 		if( !cmdout.isEmpty() ) {
 			if( cmdout.get( 0 ).startsWith( "invalid directory:" ) )
-				exitError( action , "error executing command: " + cmd + ", " + cmdout.get( 0 ) );
+				exitError( action , "invalid directory, error executing command: " + cmd + ", " + cmdout.get( 0 ) );
+		}
+	}
+	
+	public void runCommandCheckStatus( ActionBase action , String dir , String cmd , boolean debug ) throws Exception {
+		String cmdDir = getDirCmd( action , dir , cmd );
+		runCommandCheckStatus( action , cmdDir , debug );
+		if( !cmdout.isEmpty() ) {
+			if( cmdout.get( 0 ).startsWith( "invalid directory:" ) )
+				exitError( action , "invalid directory, error executing command: " + cmd + ", " + cmdout.get( 0 ) );
 		}
 	}
 	
