@@ -7,6 +7,7 @@ import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.shell.Account;
+import ru.egov.urm.shell.ShellExecutor;
 
 public class DistRepository {
 
@@ -40,6 +41,9 @@ public class DistRepository {
 		}
 		
 		repo.repoFolder = new RemoteFolder( artefactory , account , distPath );
+		ShellExecutor shell = action.getShell( account );
+		shell.tmpFolder.recreateThis( action );
+				
 		return( repo );
 	}
 

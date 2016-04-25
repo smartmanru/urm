@@ -43,7 +43,6 @@ public class RuntimeStorage extends ServerStorage {
 		ShellExecutor shell = action.getShell( node );
 		RemoteFolder remoteDir = redist.getRedistTmpFolder( action );
 		shell.appendUploadLog( action , tarFilePath , remoteDir.folderPath );
-		remoteDir.ensureExists( action );
 		remoteDir.copyFileFromLocal( action , tarFilePath );
 
 		Account nodeAccount = action.getNodeAccount( node );
@@ -91,7 +90,6 @@ public class RuntimeStorage extends ServerStorage {
 		ShellExecutor shell = action.getShell( node );
 		RemoteFolder remoteDir = redist.getRedistTmpFolder( action );
 		shell.appendUploadLog( action , tarFilePath , remoteDir.folderPath );
-		remoteDir.ensureExists( action );
 		
 		remoteDir.copyFileFromLocal( action , tarFilePath );
 		String stagingPath = remoteDir.getFilePath( action , F_CONFIGTARFILE );

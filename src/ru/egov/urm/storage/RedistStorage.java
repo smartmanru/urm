@@ -29,7 +29,6 @@ public class RedistStorage extends ServerStorage {
 		String F_FILES = server.getSystemFiles( action );
 
 		RemoteFolder tmpDir = getRedistTmpFolder( action );
-		tmpDir.recreateThis( action );
 		
 		String F_CONFIGTARFILE = "config.tar";
 		RemoteFolder runtimeDir = new RemoteFolder( artefactory , action.getNodeAccount( node ) , F_RUNTIMEDIR );
@@ -74,7 +73,6 @@ public class RedistStorage extends ServerStorage {
 	
 	public boolean getConfigItem( ActionBase action , LocalFolder dstFolder , MetaDistrConfItem confItem , String LOCATION ) throws Exception {
 		RemoteFolder tmpDir = getRedistTmpFolder( action );
-		tmpDir.recreateThis( action );
 		String tarPath = tmpDir.getFilePath( action , S_CONFIGTARFILE );
 		
 		try {
@@ -365,8 +363,9 @@ public class RedistStorage extends ServerStorage {
 	public void saveTmpArchiveItem( ActionBase action , String LOCATION , MetaDistrBinaryItem archiveItem , String tmpName ) throws Exception {
 		RemoteFolder deployFolder = getRuntimeLocationFolder( action , LOCATION );
 		RemoteFolder tmpFolder = getRedistTmpFolder( action );
-		tmpFolder.ensureExists( action );
+		
 		int timeout = action.setTimeoutUnlimited();
+		tmpFolder.removeFiles( action , tmpName );
 		saveArchiveItem( action , archiveItem , deployFolder , tmpName , tmpFolder );
 		action.setTimeout( timeout );
 	}
@@ -374,6 +373,7 @@ public class RedistStorage extends ServerStorage {
 	public void copyTmpFileToLocal( ActionBase action , String tmpName , LocalFolder localFolder ) throws Exception {
 		RemoteFolder tmpFolder = this.getRedistTmpFolder( action );
 		tmpFolder.copyFileToLocal( action , localFolder , tmpName );
+		localFolder.removeFiles( action , tmpName );
 	}
 	
 	private boolean saveArchiveItem( ActionBase action , MetaDistrBinaryItem archiveItem , RemoteFolder deployFolder , String fileName , RemoteFolder saveFolder ) throws Exception {

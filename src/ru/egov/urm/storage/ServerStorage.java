@@ -42,13 +42,7 @@ public class ServerStorage {
 	}
 	
 	public RemoteFolder getRedistTmpFolder( ActionBase action ) throws Exception {
-		String path;
-		if( action.meta == null || action.context.env == null )
-			path = action.meta.product.CONFIG_REDISTPATH;
-		else
-			path = action.context.env.REDISTPATH;
-		
-		path = Common.getPath( path , "tmp-" + account.USER );
+		String path = Common.getPath( action.context.CTX_REDISTPATH , "tmp" );
 		RemoteFolder rf = new RemoteFolder( artefactory , account , path );
 		return( rf );
 	}

@@ -86,7 +86,6 @@ public class DatabaseClient {
 		Account account = action.getNodeAccount( specific.node );
 		RedistStorage storage = action.artefactory.getRedistStorage( "database" , account );
 		RemoteFolder folder = storage.getRedistTmpFolder( action );
-		folder.recreateThis( action );
 		
 		FileSet set = files.getFileSet( action );
 		if( set.isEmpty() ) {

@@ -152,6 +152,7 @@ public class ActionBaseInstall extends ActionBase {
 	private String copyLocalToRedist( MetaFapBase info , String localPath , RedistStorage redist ) throws Exception {
 		RemoteFolder folder = redist.getRedistTmpFolder( this );
 		folder.copyFileFromLocal( this , localPath );
+		
 		String baseName = Common.getBaseName( localPath );
 		String redistPath = folder.getFilePath( this , baseName );
 		debug( "redist path: " + redistPath );
