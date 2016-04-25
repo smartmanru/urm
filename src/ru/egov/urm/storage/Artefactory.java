@@ -237,7 +237,7 @@ public class Artefactory {
 	private GitMirrorStorage getGitMirrorStorage( ActionBase action , String NAME , boolean winBuild ) throws Exception {
 		RedistStorage storage;
 		Account account = ( winBuild )? action.getWinBuildAccount() : action.session.account; 
-		storage = getRedistStorage( "build" , account ); 
+		storage = getRedistStorage( action , "build" , account ); 
 		
 		Folder mirrorFolder = storage.getMirrorFolder( action , winBuild );
 		Folder projectFolder = mirrorFolder.getSubFolder( action , NAME );
@@ -301,11 +301,17 @@ public class Artefactory {
 	
 	public RedistStorage getRedistStorage( ActionBase action , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
 		Account account = action.getNodeAccount( node );
-		return( new RedistStorage( this , "default" , account , server , node ) );
+		RedistStorage redist = new RedistStorage( this , "default" , account , server , node );
+		RemoteFolder tmp = redist.getRedistTmpFolder( action );
+		tmp.recreateThis( action );
+		return( redist );
 	}
 
-	public RedistStorage getRedistStorage( String type , Account account ) throws Exception {
-		return( new RedistStorage( this , type , account , null , null ) );
+	public RedistStorage getRedistStorage( ActionBase action , String type , Account account ) throws Exception {
+		RedistStorage redist = new RedistStorage( this , type , account , null , null );
+		RemoteFolder tmp = redist.getRedistTmpFolder( action );
+		tmp.recreateThis( action );
+		return( redist );
 	}
 
 	public RuntimeStorage getRootRuntimeStorage( ActionBase action , MetaEnvServer server , MetaEnvServerNode node , boolean adm ) throws Exception {
@@ -334,7 +340,7 @@ public class Artefactory {
 	}
 
 	public VersionInfoStorage getVersionInfoStorage( ActionBase action , Account account ) throws Exception {
-		RedistStorage redist = getRedistStorage( "version" , account ); 
+		RedistStorage redist = getRedistStorage( action , "version" , account ); 
 		return( new VersionInfoStorage( redist ) );
 	}
 	

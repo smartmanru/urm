@@ -146,7 +146,7 @@ public class CommandOptions {
 		ctx.CTX_ETCPATH = getParamPathValue( action , "GETOPT_ETCPATH" );
 		ctx.CTX_DISTPATH = getParamPathValue( action , "GETOPT_DISTPATH" );
 		value = getParamPathValue( action , "GETOPT_HIDDENPATH" );
-		ctx.CTX_REDISTPATH = action.meta.product.CONFIG_REDISTPATH;
+		ctx.CTX_REDISTPATH = ( action.meta != null && action.meta.product != null )? action.meta.product.CONFIG_REDISTPATH : null;
 		if( isenv && !action.context.env.REDISTPATH.isEmpty() )
 			ctx.CTX_REDISTPATH = action.context.env.REDISTPATH;
 		ctx.CTX_HIDDENPATH = ( value.isEmpty() )? ( ( isenv )? action.context.env.CONF_SECRETFILESPATH : "" ) : value;

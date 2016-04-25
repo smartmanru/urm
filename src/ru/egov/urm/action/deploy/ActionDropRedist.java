@@ -21,7 +21,7 @@ public class ActionDropRedist extends ActionBase {
 
 	@Override protected boolean executeAccount( ActionScopeSet set , Account account ) throws Exception {
 		// drop all redist information for all servers
-		RedistStorage redist = artefactory.getRedistStorage( "all" , account );
+		RedistStorage redist = artefactory.getRedistStorage( this , "all" , account );
 		redist.dropAll( this );
 		return( true );
 	}
