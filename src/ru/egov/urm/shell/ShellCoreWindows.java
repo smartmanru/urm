@@ -379,7 +379,9 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public void cmdMove( ActionBase action , String source , String target ) throws Exception {
-		action.exitNotImplemented();
+		String wsource = Common.getWinPath( source );
+		String wtarget = Common.getWinPath( target );
+		runCommandCheckStatus( action , "move /Y " + wsource + " " + wtarget , true );
 	}
 
 	private void cmdExtractAny( ActionBase action , String tarFile , String targetFolder , String part , String type ) throws Exception {
