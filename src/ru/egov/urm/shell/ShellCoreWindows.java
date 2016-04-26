@@ -534,7 +534,7 @@ public class ShellCoreWindows extends ShellCore {
 	@Override public void cmdGetDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
 		String delimiter = "URM_DELIMITER";
 		List<String> res = runCommandCheckGetOutputDebug( action , rootPath , 
-				"chdir " + cmdAnd + " dir /ad /s /b " + cmdAnd + " echo " + delimiter + " " + cmdAnd + " dir /a-d /b /s" );
+				"chdir " + cmdAnd + " dir /ad /s /b " + cmdAnd + " echo " + delimiter + " " + cmdAnd + " dir /a-d /b /s 2>nul" );
 		
 		if( res.isEmpty() )
 			action.exit( "directory " + rootPath + " does not exist" );
@@ -552,9 +552,6 @@ public class ShellCoreWindows extends ShellCore {
 				continue;
 			}
 
-			if( s.equals( "File Not Found" ) )
-				continue;
-			
 			if( s.startsWith( pwd ) )
 				s = s.substring( skipStart );
 			else
@@ -570,7 +567,7 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public void cmdGetTopDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
 		String delimiter = "URM_DELIMITER";
-		String cmd = "dir /ad /b " + cmdAnd + " echo " + delimiter + " " + cmdAnd + " dir /a-d /b"; 
+		String cmd = "dir /ad /b " + cmdAnd + " echo " + delimiter + " " + cmdAnd + " dir /a-d /b 2>nul"; 
 		String dirCmd = getDirCmd( action , rootPath , cmd );
 		runCommand( action , dirCmd , true );
 		
