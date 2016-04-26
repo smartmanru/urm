@@ -205,6 +205,9 @@ public abstract class CommandExecutor {
 		CommandOutput output = new CommandOutput();
 		ActionInit action = new ActionInit( this , context , options , output , meta );
 		
+		// load product properties
+		meta.loadProduct( action );
+
 		// scatter into variables
 		options.updateContext( action );
 		output.setContext( context );
@@ -213,9 +216,6 @@ public abstract class CommandExecutor {
 		if( context.CTX_SHOWALL )
 			options.printRunningOptions();
 		
-		// load product properties
-		meta.loadProduct( action );
-
 		// create shell pool
 		context.createPool( action );
 		

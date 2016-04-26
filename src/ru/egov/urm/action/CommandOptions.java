@@ -144,7 +144,7 @@ public class CommandOptions {
 		value = getParamValue( action , "GETOPT_KEY" ); 
 		ctx.CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? action.context.env.KEYNAME : "" ) : value;
 		ctx.CTX_ETCPATH = getParamPathValue( action , "GETOPT_ETCPATH" );
-		ctx.CTX_DISTPATH = getParamPathValue( action , "GETOPT_DISTPATH" );
+		ctx.CTX_DISTPATH = getParamPathValue( action , "GETOPT_DISTPATH" , action.meta.product.CONFIG_DISTR_PATH );
 		value = getParamPathValue( action , "GETOPT_HIDDENPATH" );
 		ctx.CTX_REDISTPATH = ( action.meta != null && action.meta.product != null )? action.meta.product.CONFIG_REDISTPATH : null;
 		if( isenv && !action.context.env.REDISTPATH.isEmpty() )
@@ -505,6 +505,17 @@ public class CommandOptions {
 		return( val );
 	}
 
+	public String getParamPathValue( ActionBase action , String var , String defaultValue ) throws Exception {
+		String value = getParamPathValue( action , var );
+		if( value.isEmpty() )
+			value = defaultValue;
+		
+		if( value.isEmpty() )
+			action.exit( "undefined configuration variable=" + var );
+		
+		return( value );
+	}
+	
 	public String getParamPathValue( ActionBase action , String var ) throws Exception {
 		String dir = getParamValue( action , var );
 		return( Common.getLinuxPath( dir ) );
