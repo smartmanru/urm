@@ -34,14 +34,13 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		comment( "\tproperty::buildMode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );
 		comment( "\tproperty::obsolete: " + Common.getBooleanValue( release.PROPERTY_OBSOLETE ) );
 		
+		comment( "SCOPE:" );
+
 		if( release.isEmpty( this ) ) {
-			comment( "scope is empty" );
+			comment( "\t(scope is empty)" );
 			return( true );
 		}
 		
-		comment( "DELIVERIES: " + Common.getList( release.getDeliveries( this ).keySet().toArray( new String[0] ) , ", " ) );
-		comment( "SCOPE:" );
-
 		for( String set : Common.getSortedKeys( release.getSourceSets( this ) ) )
 			printReleaseSourceSetStatus( dist , files , release.getSourceSet( this , set ) );
 		for( VarCATEGORY CATEGORY : meta.getAllReleaseCategories( this ) ) {
@@ -50,6 +49,10 @@ public class ActionPrintReleaseStatus extends ActionBase {
 				printReleaseCategorySetStatus( dist , files , set );
 		}
 
+		comment( "DELIVERIES:" );
+		for( String s : Common.getSortedKeys( release.getDeliveries( this ) ) )
+			comment( "\tdelivery=" + s );
+	
 		return( true );
 	}
 
