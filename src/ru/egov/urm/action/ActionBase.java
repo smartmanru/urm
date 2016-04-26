@@ -68,6 +68,7 @@ abstract public class ActionBase {
 		this.options = base.options;
 		this.output = base.output;
 		this.meta = base.meta;
+		this.custom = base.custom;
 		
 		this.session = base.session;
 		this.artefactory = new Artefactory( base.artefactory );
