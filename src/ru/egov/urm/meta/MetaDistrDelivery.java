@@ -16,7 +16,6 @@ public class MetaDistrDelivery {
 	
 	public String NAME;
 	public String FOLDER;
-	public String DATAGROUPS;
 	public String SCHEMASET;
 
 	Map<String,MetaDistrBinaryItem> mapBinaryItems;
@@ -87,16 +86,15 @@ public class MetaDistrDelivery {
 		mapDatabaseSchema = new HashMap<String,MetaDatabaseSchema>();
 		mapDatabaseDatagroup = new HashMap<String,MetaDatabaseDatagroup>();
 		
-		Node[] items = ConfReader.xmlGetChildren( action , node , "database" );
+		Node[] items = ConfReader.xmlGetChildren( action , node , "datagroup" );
 		if( items == null )
 			return;
 		
 		MetaDatabase database = meta.distr.database;
 		for( Node item : items ) {
-			String datagroupName = ConfReader.getAttrValue( action , item , "datagroup" );
+			String datagroupName = ConfReader.getAttrValue( action , item , "name" );
 			MetaDatabaseDatagroup datagroup = database.getDatagroup( action , datagroupName );
-			if( !mapDatabaseDatagroup.containsKey( datagroupName ) )
-				mapDatabaseDatagroup.put( datagroupName , datagroup );
+			mapDatabaseDatagroup.put( datagroupName , datagroup );
 			
 			for( MetaDatabaseSchema schema : datagroup.getSchemes( action ).values() ) {
 				if( !mapDatabaseSchema.containsKey( schema.SCHEMA ) )
