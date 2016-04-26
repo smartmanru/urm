@@ -340,8 +340,9 @@ abstract class ShellCore {
 	
 	public void runCommandCheckStatus( ActionBase action , String cmd , boolean debug ) throws Exception {
 		int status = runCommandGetStatus( action , cmd , debug );
-		if( status != 0 )
-			exitError( action , "error executing command: " + cmd + ", status=" + status + ", stderr: " + getErr() );
+		String err = getErr();
+		if( status != 0 || !err.isEmpty() )
+			exitError( action , "error executing command: " + cmd + ", status=" + status + ", stderr: " + err );
 	}
 
 	public String runCommandGetValueCheckNormal( ActionBase action , String cmd ) throws Exception {
