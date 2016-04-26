@@ -480,5 +480,13 @@ abstract public class ActionBase {
 	public String getOSPath( String dirPath ) throws Exception {
 		return( session.getOSPath( this , dirPath ) );	
 	}
-	
+
+	public boolean isWindows() {
+		return( session.isWindows() );
+	}
+
+	public boolean isLinux() {
+		return( session.isLinux() );
+	}
+
 }

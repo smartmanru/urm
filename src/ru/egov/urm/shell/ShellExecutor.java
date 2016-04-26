@@ -582,4 +582,20 @@ public abstract class ShellExecutor {
 		return( path );
 	}
 	
+	public boolean isWindows() {
+		return( account.isWindows() );
+	}
+
+	public boolean isLinux() {
+		return( account.isLinux() );
+	}
+
+	public String getOSDevNull() {
+		if( isLinux() )
+			return( "/dev/null" );
+		if( isWindows() )
+			return( "nul" );
+		return( null );
+	}
+	
 }

@@ -32,11 +32,22 @@ public class SubversionVCS extends GenericVCS {
 		
 		CO_PATH = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/" + XBRANCH;
 
-		String REVISION = session.customGetValue( action , "svn info --non-interactive " + SVNAUTH + " " + CO_PATH + " | grep Revision | tr -d " + Common.getQuoted( " " ) + 
-				" | cut -d " + Common.getQuoted( ":" ) + " -f2" );
+		String REVISION;
+		if( action.isLinux() ) {
+			REVISION = session.customGetValue( action , "svn info --non-interactive " + SVNAUTH + " " + CO_PATH + " | grep Revision | tr -d " + Common.getQuoted( " " ) + 
+					" | cut -d " + Common.getQuoted( ":" ) + " -f2" );
+		}
+		else {
+			REVISION = session.customGetValue( action , "svn info --non-interactive " + SVNAUTH + " " + CO_PATH + " | findstr Revision" );
+			REVISION = Common.getListItem( REVISION , ":" , 1 );
+		}
+		
+		REVISION = REVISION.trim();
 
 		action.log( "svn: checkout sources from " + CO_PATH + " (branch=" + BRANCH + ", revision=" + REVISION + ") to " + PATCHFOLDER.folderPath + "..." );
-		int status = session.customGetStatus( action , "svn co --non-interactive " + SVNAUTH + " " + CO_PATH + " " + PATCHFOLDER.folderPath );
+		
+		String ospath = action.getOSPath( PATCHFOLDER.folderPath );
+		int status = session.customGetStatus( action , "svn co --non-interactive " + SVNAUTH + " " + CO_PATH + " " + ospath );
 
 		if( status == 0 )
 			return( true );
@@ -51,7 +62,8 @@ public class SubversionVCS extends GenericVCS {
 			return( false );
 		}
 		
-		session.customCheckStatus( action , "svn commit -m " + Common.getQuoted( COMMENT ) + " " + SVNAUTH + " " + PATCHFOLDER.folderPath );
+		String ospath = action.getOSPath( PATCHFOLDER.folderPath );
+		session.customCheckStatus( action , "svn commit -m " + Common.getQuoted( COMMENT ) + " " + SVNAUTH + " " + ospath );
 		return( true );
 	}
 
@@ -244,7 +256,8 @@ public class SubversionVCS extends GenericVCS {
 				action.exit( "exportFromPath: local directory " + PATCHFOLDER.folderPath + " does not exist" );
 		}
 
-		session.customCheckStatus( action , "svn export --non-interactive " + SVNAUTH + " " + CO_PATH + " " + PATCHFOLDER.folderPath );
+		String ospath = action.getOSPath( PATCHFOLDER.folderPath );
+		session.customCheckStatus( action , "svn export --non-interactive " + SVNAUTH + " " + CO_PATH + " " + ospath );
 		return( true );
 	}
 
@@ -277,7 +290,7 @@ public class SubversionVCS extends GenericVCS {
 	
 	// implementation
 	private boolean checkSvnPathExists( String path ) throws Exception {
-		int status = session.customGetStatus( action , "svn info " + SVNAUTH + " " + path + " > /dev/null" );
+		int status = session.customGetStatus( action , "svn info " + SVNAUTH + " " + path + " > " + session.getOSDevNull() );
 		if( status != 0 )
 			return( false );
 		return( true );
@@ -304,7 +317,7 @@ public class SubversionVCS extends GenericVCS {
 		if( name.isEmpty() )
 			name = Common.getBaseName( ITEMPATH );
 		
-		session.customCheckStatus( action , PATCHFOLDER.folderPath , "svn export --non-interactive " + SVNAUTH + " " + CO_PATH + " " + name + " > /dev/null" );
+		session.customCheckStatus( action , PATCHFOLDER.folderPath , "svn export --non-interactive " + SVNAUTH + " " + CO_PATH + " " + name + " > " + session.getOSDevNull()  );
 		return( true );
 	}
 
@@ -320,7 +333,7 @@ public class SubversionVCS extends GenericVCS {
 		if( name.isEmpty() )
 			name = Common.getBaseName( ITEMPATH );
 		
-		session.customCheckStatus( action , "( cd " + PATCHFOLDER.folderPath + "; svn export --non-interactive " + SVNAUTH + " " + CO_PATH + " " + name + " > /dev/null )" );
+		session.customCheckStatus( action , PATCHFOLDER.folderPath , "svn export --non-interactive " + SVNAUTH + " " + CO_PATH + " " + name + " > " + session.getOSDevNull() );
 		return( true );
 	}
 
@@ -331,7 +344,7 @@ public class SubversionVCS extends GenericVCS {
 
 	@Override public boolean createMasterFolder( String repository , String ITEMPATH , String commitMessage ) throws Exception {
 		String fullPath = SVNPATH + "/" + repository + "/" + ITEMPATH; 
-		session.customCheckStatus( action , "svn mkdir " + SVNAUTH + " -m " + Common.getQuoted( commitMessage ) + " --parents " + Common.getQuoted( fullPath ) + " > /dev/null" );
+		session.customCheckStatus( action , "svn mkdir " + SVNAUTH + " -m " + Common.getQuoted( commitMessage ) + " --parents " + Common.getQuoted( fullPath ) + " > " + session.getOSDevNull() );
 		return( true );
 	}
 	
@@ -339,8 +352,8 @@ public class SubversionVCS extends GenericVCS {
 		String F_ITEMDIR = Common.getDirName( itemPath );
 		String dstFullPath = SVNPATH + "/" + repository + "/" + dstFolder + "/" + F_ITEMDIR; 
 		String srcFullPath = SVNPATH + "/" + repository + "/" + srcFolder + "/" + itemPath; 
-		session.customCheckStatus( action , "svn mkdir " + SVNAUTH + " -m " + Common.getQuoted( commitMessage ) + " --parents " + Common.getQuoted( srcFullPath ) + " > /dev/null" );
-		session.customCheckStatus( action , "svn rename " + SVNAUTH + " -m " + Common.getQuoted( commitMessage ) + " " + Common.getQuoted( srcFullPath ) + " " + Common.getQuoted( dstFullPath ) + " > /dev/null" );
+		session.customCheckStatus( action , "svn mkdir " + SVNAUTH + " -m " + Common.getQuoted( commitMessage ) + " --parents " + Common.getQuoted( srcFullPath ) + " > " + session.getOSDevNull() );
+		session.customCheckStatus( action , "svn rename " + SVNAUTH + " -m " + Common.getQuoted( commitMessage ) + " " + Common.getQuoted( srcFullPath ) + " " + Common.getQuoted( dstFullPath ) + " > " + session.getOSDevNull() );
 		return( true );
 	}
 
@@ -360,12 +373,14 @@ public class SubversionVCS extends GenericVCS {
 	
 	@Override public void checkoutMasterFolder( LocalFolder PATCHPATH , String repository , String masterFolder ) throws Exception {
 		String fullPath = SVNPATH + "/" + repository + "/" + masterFolder;
-		session.customCheckStatus( action , "svn co " + SVNAUTH + " " + fullPath + " " + PATCHPATH.folderPath );
+		String ospath = action.getOSPath( PATCHPATH.folderPath );
+		session.customCheckStatus( action , "svn co " + SVNAUTH + " " + fullPath + " " + ospath );
 	}
 	
 	@Override public void importMasterFolder( LocalFolder PATCHPATH , String repository , String masterFolder , String commitMessage ) throws Exception {
 		String fullPath = SVNPATH + "/" + repository + "/" + masterFolder;
-		session.customCheckStatus( action , "svn import -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH + " " + PATCHPATH.folderPath + " " + fullPath );
+		String ospath = action.getOSPath( PATCHPATH.folderPath );
+		session.customCheckStatus( action , "svn import -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH + " " + ospath + " " + fullPath );
 	}
 	
 	@Override public void ensureMasterFolderExists( String repository , String masterFolder , String commitMessage ) throws Exception {
@@ -374,26 +389,30 @@ public class SubversionVCS extends GenericVCS {
 	}
 	
 	@Override public boolean commitMasterFolder( LocalFolder PATCHPATH , String repository , String masterFolder , String commitMessage ) throws Exception {
-		String res = session.customGetValue( action , PATCHPATH.folderPath , "svn commit -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH + " | grep -c \"^\"" );
-		if( res.equals( "0" ) )
+		int status = session.customGetStatus( action , PATCHPATH.folderPath , "svn commit -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH );
+		if( status != 0 )
 			return( false );
 		return( true );
 	}
 	
 	@Override public void addFileToCommit( LocalFolder PATCHPATH , String folder , String file ) throws Exception {
-		session.customCheckStatus( action , PATCHPATH.folderPath , "svn add " + Common.getPath( folder , file ) );
+		String ospath = action.getOSPath( Common.getPath( folder , file ) );
+		session.customCheckStatus( action , PATCHPATH.folderPath , "svn add " + ospath );
 	}
 	
 	@Override public void deleteFileToCommit( LocalFolder PATCHPATH , String folder , String file ) throws Exception {
-		session.customCheckStatus( action , PATCHPATH.folderPath , "svn delete " + Common.getPath( folder , file ) );
+		String ospath = action.getOSPath( Common.getPath( folder , file ) );
+		session.customCheckStatus( action , PATCHPATH.folderPath , "svn delete " + ospath );
 	}
 	
 	@Override public void addDirToCommit( LocalFolder PATCHPATH , String folder ) throws Exception {
-		session.customCheckStatus( action , PATCHPATH.folderPath , "svn add " + folder );
+		String ospath = action.getOSPath( folder );
+		session.customCheckStatus( action , PATCHPATH.folderPath , "svn add " + ospath );
 	}
 	
 	@Override public void deleteDirToCommit( LocalFolder PATCHPATH , String folder ) throws Exception {
-		session.customCheckStatus( action , PATCHPATH.folderPath , "svn delete " + folder );
+		String ospath = action.getOSPath( folder );
+		session.customCheckStatus( action , PATCHPATH.folderPath , "svn delete " + ospath );
 	}
 
 	@Override public void createMasterTag( String repository , String masterFolder , String TAG , String commitMessage ) throws Exception {
