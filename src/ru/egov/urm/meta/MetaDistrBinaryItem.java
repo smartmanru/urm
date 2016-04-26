@@ -5,7 +5,6 @@ import org.w3c.dom.Node;
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.action.ActionBase;
-import ru.egov.urm.custom.ICustomDeploy;
 import ru.egov.urm.meta.Metadata.VarARCHIVETYPE;
 import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
 import ru.egov.urm.meta.Metadata.VarDISTITEMTYPE;
@@ -38,7 +37,6 @@ public class MetaDistrBinaryItem {
 	
 	public boolean CUSTOMDEPLOY;
 	Node node;
-	ICustomDeploy deploy;
 	
 	public MetaDistrBinaryItem( Metadata meta , MetaDistrDelivery delivery ) {
 		this.meta = meta;
@@ -91,11 +89,8 @@ public class MetaDistrBinaryItem {
 			action.exit( "distribution item " + KEY + " has unknown type=" + Common.getEnumLower( DISTTYPE ) );
 		
 		CUSTOMDEPLOY = ConfReader.getBooleanAttrValue( action , node , "customdeploy" , false );
-		if( CUSTOMDEPLOY ) {
-			String className = ConfReader.getRequiredAttrValue( action , node , "class" );
-			deploy = Common.getDeployClass( action , className );
-			deploy.parseDistItem( action , this , node );
-		}
+		if( CUSTOMDEPLOY )
+			action.custom.parseDistItem( action , this , node );
 	}
 
 	public void resolveReferences( ActionBase action ) throws Exception {

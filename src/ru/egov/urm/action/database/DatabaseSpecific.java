@@ -26,6 +26,9 @@ abstract public class DatabaseSpecific {
 		if( dbmsType == VarDBMSTYPE.POSTGRESQL )
 			specific = new DatabasePostgresSpecific();
 		else
+		if( dbmsType == VarDBMSTYPE.FIREBIRD )
+			specific = new DatabaseFirebirdSpecific();
+		else
 			action.exit( "unexpected database type=" + dbmsType.name() );
 		
 		if( server == null )
@@ -69,12 +72,5 @@ abstract public class DatabaseSpecific {
 	abstract public String getComments( ActionBase action , String grep , LocalFolder srcDir , String srcFile ) throws Exception;
 	abstract public void grepComments( ActionBase action , String grep , LocalFolder srcDir , String srcFile , LocalFolder dstDir , String outfile ) throws Exception;
 	abstract public void addComment( ActionBase action , String comment , LocalFolder dstDir , String outfile ) throws Exception;
-	
-	abstract public void uddiBegin( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception;
-	abstract public void uddiEnd( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception;
-	abstract public void uddiAddEndpoint( ActionBase action , String UDDI_KEY , String UDDI_UAT , LocalFolder dstDir , String outfile ) throws Exception;
-	abstract public void smevAttrBegin( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception;
-	abstract public void smevAttrEnd( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception;
-	abstract public void smevAttrAddValue( ActionBase action , String UDDI_ATTR_ID , String UDDI_ATTR_NAME , String UDDI_ATTR_CODE , String UDDI_ATTR_REGION , String UDDI_ATTR_ACCESSPOINT , 
-			LocalFolder dstDir , String outfile ) throws Exception;
+
 }

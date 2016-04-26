@@ -70,6 +70,10 @@ public class MetaProduct {
 	public String CONFIG_SOURCE_SQL_POSTREFRESH;
 	public String CONFIG_SQL_LOGDIR;
 	public String CONFIG_WINBUILD_HOSTLOGIN;
+
+	public String CONFIG_CUSTOM_BUILD;
+	public String CONFIG_CUSTOM_DEPLOY;
+	public String CONFIG_CUSTOM_DATABASE;
 	
 	Map<String,String> refMap; 
 	
@@ -125,6 +129,10 @@ public class MetaProduct {
 		CONFIG_SOURCE_SQL_POSTREFRESH = getPropertyRequired( action , "CONFIG_SOURCE_SQL_POSTREFRESH" );
 		CONFIG_SQL_LOGDIR = getPropertyRequired( action , "CONFIG_SQL_LOGDIR" );
 		CONFIG_WINBUILD_HOSTLOGIN = getProperty( action , "CONFIG_WINBUILD_HOSTLOGIN" );
+		
+		CONFIG_CUSTOM_BUILD = getProperty( action , "CONFIG_CUSTOM_BUILD" );
+		CONFIG_CUSTOM_DEPLOY = getProperty( action , "CONFIG_CUSTOM_DEPLOY" );
+		CONFIG_CUSTOM_DATABASE = getProperty( action , "CONFIG_CUSTOM_DATABASE" );
 	}
 
 	public MetaProduct( Metadata meta ) {

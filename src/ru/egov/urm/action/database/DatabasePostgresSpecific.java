@@ -243,24 +243,5 @@ public class DatabasePostgresSpecific extends DatabaseSpecific {
 	
 	@Override public void addComment( ActionBase action , String comment , LocalFolder dstDir , String outfile ) throws Exception {
 	}
-	
-	@Override public void uddiBegin( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception {
-	}
-	
-	@Override public void uddiEnd( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception {
-	}
-	
-	@Override public void uddiAddEndpoint( ActionBase action , String UDDI_KEY , String UDDI_UAT , LocalFolder dstDir , String outfile ) throws Exception {
-	}
-	
-	@Override public void smevAttrBegin( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception {
-	}
-	
-	@Override public void smevAttrEnd( ActionBase action , LocalFolder dstDir , String outfile ) throws Exception {
-	}
-	
-	@Override public void smevAttrAddValue( ActionBase action , String UDDI_ATTR_ID , String UDDI_ATTR_NAME , String UDDI_ATTR_CODE , String UDDI_ATTR_REGION , String UDDI_ATTR_ACCESSPOINT , 
-			LocalFolder dstDir , String outfile ) throws Exception {
-	}
 
 }

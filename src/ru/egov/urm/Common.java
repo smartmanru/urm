@@ -31,8 +31,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import ru.egov.urm.action.ActionBase;
-import ru.egov.urm.custom.ICustomBuild;
-import ru.egov.urm.custom.ICustomDeploy;
 
 public class Common {
 
@@ -541,28 +539,6 @@ public class Common {
 		return( enumToXmlValue( value.name() ) );
 	}
 	
-	public static ICustomBuild getBuildClass( ActionBase action , String className ) {
-		try {
-			Class<?> cls = Class.forName( "ru.egov.urm.custom.build." + className );
-			return( ( ICustomBuild )cls.newInstance() );
-		}
-		catch( Throwable e ) {
-			action.log( "unable to find custom build class=" + className , e );
-		}
-		return( null );
-	}
-	
-	public static ICustomDeploy getDeployClass( ActionBase action , String className ) {
-		try {
-			Class<?> cls = Class.forName( "ru.egov.urm.custom.deploy." + className );
-			return( ( ICustomDeploy )cls.newInstance() );
-		}
-		catch( Throwable e ) {
-			action.log( "unable to find custom deploy class=" + className , e );
-		}
-		return( null );
-	}
-
 	public static String getListSet( String[] set ) {
 		return( "{" + getList( set ) + "}" );
 	}

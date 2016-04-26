@@ -22,6 +22,9 @@ public class UrmStorage {
 		if( dbtype == VarDBMSTYPE.POSTGRESQL )
 			dbFolder = "postgres";
 		else
+		if( dbtype == VarDBMSTYPE.FIREBIRD )
+			dbFolder = "firebird";
+		else
 			action.exitUnexpectedState();
 		
 		return( dbFolder );

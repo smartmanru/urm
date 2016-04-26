@@ -7,10 +7,8 @@ import java.util.Map;
 
 import org.w3c.dom.Node;
 
-import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.action.ActionBase;
-import ru.egov.urm.custom.ICustomBuild;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
 import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 
@@ -42,7 +40,6 @@ public class MetaSourceProject {
 
 	public boolean CUSTOMBUILD;
 	public boolean CUSTOMGET;
-	ICustomBuild custom;
 	
 	public MetaSourceProject( Metadata meta , MetaSourceProjectSet set ) {
 		this.meta = meta;
@@ -98,11 +95,8 @@ public class MetaSourceProject {
 		CUSTOMBUILD = ConfReader.getBooleanAttrValue( action , node , "custombuild" , false );
 		CUSTOMGET = ConfReader.getBooleanAttrValue( action , node , "customget" , false );
 		
-		if( CUSTOMBUILD || CUSTOMGET ) {
-			String className = ConfReader.getRequiredAttrValue( action , node , "class" );
-			custom = Common.getBuildClass( action , className );
-			custom.parseProject( action , this , node );
-		}
+		if( CUSTOMBUILD || CUSTOMGET )
+			action.custom.parseProject( action , this , node );
 	}
 
 	public String getVCS( ActionBase action ) {

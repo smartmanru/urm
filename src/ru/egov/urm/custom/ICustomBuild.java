@@ -7,6 +7,6 @@ import ru.egov.urm.meta.MetaSourceProject;
 
 public interface ICustomBuild {
 
-	public void parseProject( ActionBase action , MetaSourceProject project , Node node ) throws Exception;
+	public void parseProject( ActionBase action , CommandCustom custom , MetaSourceProject project , Node node ) throws Exception;
 	
 }

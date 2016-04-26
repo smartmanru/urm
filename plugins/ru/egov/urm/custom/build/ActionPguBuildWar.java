@@ -5,6 +5,7 @@ import org.w3c.dom.Node;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScopeTarget;
+import ru.egov.urm.custom.CommandCustom;
 import ru.egov.urm.custom.ICustomBuild;
 import ru.egov.urm.meta.MetaSourceProject;
 
@@ -12,7 +13,7 @@ public class ActionPguBuildWar implements ICustomBuild {
 	
 	String DISTLIBITEM;
 	
-	public void parseProject( ActionBase action , MetaSourceProject project , Node node ) throws Exception {
+	public void parseProject( ActionBase action , CommandCustom custom , MetaSourceProject project , Node node ) throws Exception {
 		DISTLIBITEM = ConfReader.getAttrValue( action , node , "distlibitem" );
 		if( DISTLIBITEM.isEmpty() )
 			DISTLIBITEM = project.PROJECT + "-lib";

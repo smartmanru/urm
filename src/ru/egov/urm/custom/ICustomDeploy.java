@@ -7,5 +7,6 @@ import ru.egov.urm.meta.MetaDistrBinaryItem;
 
 public interface ICustomDeploy {
 
-	public void parseDistItem( ActionBase action , MetaDistrBinaryItem item , Node node ) throws Exception;
+	public void parseDistItem( ActionBase action , CommandCustom custom , MetaDistrBinaryItem item , Node node ) throws Exception;
+	
 }

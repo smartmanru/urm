@@ -1,6 +1,7 @@
 package ru.egov.urm.action;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.custom.CommandCustom;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
@@ -18,6 +19,7 @@ abstract public class ActionBase {
 	public CommandContext context;
 	public Artefactory artefactory;
 	public CommandOptions options;
+	public CommandCustom custom;
 	
 	public ShellExecutor session;
 	public Metadata meta;
@@ -54,6 +56,8 @@ abstract public class ActionBase {
 		this.artefactory = new Artefactory( meta , context );
 		this.actionFailed = false;
 		this.commandTimeout = 0;
+
+		this.custom = new CommandCustom( meta );
 		
 		NAME = this.getClass().getSimpleName();
 	}

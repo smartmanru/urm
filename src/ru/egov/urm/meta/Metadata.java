@@ -93,7 +93,8 @@ public class Metadata {
 	public enum VarDBMSTYPE {
 		UNKNOWN ,
 		ORACLE ,
-		POSTGRESQL
+		POSTGRESQL ,
+		FIREBIRD
 	};
 
 	public enum VarOSTYPE {

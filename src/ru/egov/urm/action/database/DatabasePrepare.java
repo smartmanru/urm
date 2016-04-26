@@ -23,9 +23,6 @@ public class DatabasePrepare {
 	String errorFolder;
 	
 	boolean S_CHECK_FAILED;
-	boolean S_DIC_CONTENT;
-	boolean S_SVC_CONTENT;
-	boolean S_SMEVATTR_CONTENT;
 
 	private String S_ERROR_MSG;
 	private String ALL_SCHEMA_LIST; 
@@ -46,9 +43,6 @@ public class DatabasePrepare {
 		errorFolder = "db-" + Common.getNameTimeStamp();
 		
 		S_CHECK_FAILED = false;
-		S_DIC_CONTENT = false;
-		S_SVC_CONTENT = false;
-		S_SMEVATTR_CONTENT = false;
 		ALL_SCHEMA_LIST = dbDelivery.SCHEMASET;
 		
 		action.debug( "prepare from " + src.folderPath + " to " + dst.folderPath + " (permitted schema list={" + ALL_SCHEMA_LIST + "}) ..." );
@@ -99,6 +93,46 @@ public class DatabasePrepare {
 		}
 	}
 
+	private void check( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID ) throws Exception {
+		S_CHECK_FAILED = false;
+
+		// check folders
+		for( String dir : Common.getSortedKeys( P_ALIGNEDNAME.dirs ) ) {
+			if( dir.equals( "coreddl" ) || dir.equals( "coredml" ) || dir.equals( "coreprodonly" ) || dir.equals( "coreuatonly" ) )
+				checkDir( action , P_ALIGNEDNAME , P_ALIGNEDID , dir , "sql" , ALL_SCHEMA_LIST );
+			else
+			if( dir.equals( "dataload" ) ) 
+				checkDir( action , P_ALIGNEDNAME , P_ALIGNEDID , dir , "ctl" , ALL_SCHEMA_LIST );
+			else
+			if( dir.equals( "aligned" ) && P_ALIGNEDNAME == srcFileSet )
+				continue;
+			else
+			if( dir.equals( "manual" ) )
+				continue;
+			else {
+				boolean failed = true;
+				if( action.custom.isCustomDatabase() ) {
+					failed = false;
+					
+					String folderName = action.custom.getGroupName( action , dir );
+					if( folderName != null ) {
+						if( !action.custom.checkDatabaseDir( action , P_ALIGNEDNAME , P_ALIGNEDID , dir , ALL_SCHEMA_LIST ) )
+							failed = true;
+					}
+				}
+				
+				if( failed ) {
+					action.log( "prepare: aligned=" + P_ALIGNEDNAME + " - invalid release folder: " + dir );
+					moveErrors( action , P_ALIGNEDNAME , P_ALIGNEDID , dir , "invalid release folder" );
+					S_CHECK_FAILED = true;
+				}
+			}
+		}
+
+		if( S_CHECK_FAILED && !action.context.CTX_FORCE )
+			action.exit( "release database file set check failed" );
+	}
+
 	private void copyAll( ActionBase action , FileSet[] P_ALIGNEDDIRLIST ) throws Exception {
 		// common
 		String S_COMMON_ALIGNEDID = database.alignedGetIDByBame( action , "common" );
@@ -106,7 +140,8 @@ public class DatabasePrepare {
 		
 		LocalFolder F_TARGETDIR = dstFolder;
 		copyCore( action , srcFileSet , S_COMMON_ALIGNEDID , F_TARGETDIR );
-		copyServices( action , srcFileSet , S_COMMON_ALIGNEDID , F_TARGETDIR );
+		if( action.custom.isCustomDatabase() )
+			action.custom.copyCustom( action , srcFileSet , S_COMMON_ALIGNEDID , F_TARGETDIR );
 
 		// aligned
 		if( P_ALIGNEDDIRLIST == null )
@@ -118,113 +153,10 @@ public class DatabasePrepare {
 			action.log( "prepare: =================================== copy aligned dir=" + aligneddir + " id=" + S_COMMON_ALIGNEDID + " ..." );
 			
 			copyCore( action , aligneddir , S_COMMON_ALIGNEDID , F_TARGETDIR );
-			copyServices( action , aligneddir , S_COMMON_ALIGNEDID , F_TARGETDIR );
+			action.custom.copyCustom( action , aligneddir , S_COMMON_ALIGNEDID , F_TARGETDIR );
 		}
 	}
 	
-	private void copyServices( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , LocalFolder P_TARGETDIR ) throws Exception {
-		LocalFolder scriptDir = P_TARGETDIR.getSubFolder( action , "scripts" );
-		
-		for( FileSet name : P_ALIGNEDNAME.dirs.values() ) {
-			if( name.dirName.startsWith( "war." ) )
-				copyOneWar( action , P_ALIGNEDNAME , P_ALIGNEDID , scriptDir , name );
-			if( name.dirName.startsWith( "forms." ) )
-				copyOneForms( action , P_ALIGNEDNAME , P_ALIGNEDID , scriptDir , name );
-		}
-			
-		if( S_CHECK_FAILED ) {
-			if( action.context.CTX_FORCE )
-				action.log( "prepare: errors in script set. Ignored." );
-			else
-				action.exit( "prepare: errors in script set" );
-		}
-	}
-
-	private void copyOneForms( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , LocalFolder P_TARGETDIR , FileSet P_ORGNAME ) throws Exception {
-		action.log( "process forms regional folder: " + P_ORGNAME.dirName + " ..." );
-		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ORGNAME.getDirByPath( action , "svcdic" ) , P_TARGETDIR.getSubFolder( action , "svcrun" ) );
-		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ORGNAME.getDirByPath( action , "svcspec" ) , P_TARGETDIR.getSubFolder( action , "svcrun" ) );
-		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ORGNAME.getDirByPath( action , "svcform" ) , P_TARGETDIR.getSubFolder( action , "svcrun" ) );
-		copyUddi( action , P_ALIGNEDNAME , P_ALIGNEDID , P_TARGETDIR , P_ORGNAME );
-
-		// copy publisher part
-		FileSet svcpub = P_ORGNAME.getDirByPath( action , "svcpub" ); 
-		if( svcpub != null )
-			copyZip( action , P_ALIGNEDNAME , P_ALIGNEDID , svcpub , P_TARGETDIR.getSubFolder( action , "svcpub" ) );
-	}
-
-	private void copyOneWar( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , LocalFolder P_TARGETDIR , FileSet P_MPNAME ) throws Exception {
-		action.log( "process war regional folder: " + P_MPNAME.dirName + " ..." );
-		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_MPNAME.getDirByPath( action , "svcdic" ) , P_TARGETDIR.getSubFolder( action , "svcrun" ) );
-		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_MPNAME.getDirByPath( action , "svcspec" ) , P_TARGETDIR.getSubFolder( action , "svcrun" ) );
-		copyUddi( action , P_ALIGNEDNAME , P_ALIGNEDID , P_TARGETDIR , P_MPNAME );
-	}
-
-	private void copyUddi( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , LocalFolder P_TARGETDIR , FileSet P_UDDIDIR ) throws Exception {
-		MetaDatabaseSchema schema = database.getSchema( action , "juddi" ); 
-		String F_UDDINUM = database.getSqlIndexPrefix( action , P_UDDIDIR.dirName + ".juddi" , P_ALIGNEDID );
-
-		// regional tail
-		String F_REGIONALINDEX = "";
-		if( P_ALIGNEDNAME.equals( "regional" ) )
-			F_REGIONALINDEX = "RR";
-
-		// process UDDI
-		String SRC_DICFILE_EP = "svcrun/uddidic." + F_UDDINUM + F_REGIONALINDEX + ".ep.txt";
-		String SRC_SVCFILE_EP = "svcrun/uddisvc." + F_UDDINUM + F_REGIONALINDEX + ".ep.txt";
-		String SRC_SMEVATTRFILE = "svcrun/uddisvc." + F_UDDINUM + F_REGIONALINDEX + ".smevattr.txt";
-
-		FileSet svcdic = P_UDDIDIR.getDirByPath( action , "svcdic" );
-		if( svcdic != null ) {
-			P_TARGETDIR.ensureFolderExists( action , "svcrun" );
-			action.log( P_UDDIDIR + "/svcdic ..." );
-			if( svcdic.files.containsKey( "extdicuddi.txt" ) )
-				schema.specific.grepComments( action , "UDDI" , srcFolder , Common.getPath( svcdic.dirPath , "extdicuddi.txt" ) , P_TARGETDIR , SRC_DICFILE_EP );
-		}
-
-		FileSet svcspec = P_UDDIDIR.getDirByPath( action , "svcspec" );
-		if( svcspec != null && svcspec.hasFilesEndingWith( ".sql" ) ) {
-			P_TARGETDIR.ensureFolderExists( action , "svcrun" );
-			action.debug( "process uddi " + svcspec.dirPath + " ..." );
-
-			// empty resulting files
-			P_TARGETDIR.removeFiles( action , SRC_SVCFILE_EP );
-			P_TARGETDIR.removeFiles( action , SRC_SMEVATTRFILE );
-
-			for( String script : Common.getSortedKeys( svcspec.files ) ) {
-				if( !script.endsWith( ".sql" ) )
-					continue;
-					
-				// extract required smev attributes
-				schema.specific.grepComments( action , "SMEVATTR" , srcFolder , Common.getPath( svcspec.dirPath , script ) , P_TARGETDIR , SRC_SMEVATTRFILE );
-				schema.specific.grepComments( action , "UDDI" , srcFolder , Common.getPath( svcspec.dirPath , script ) , P_TARGETDIR , SRC_SVCFILE_EP );
-			}
-		}
-
-		if( !checkUddi( action , P_TARGETDIR , SRC_DICFILE_EP , SRC_SVCFILE_EP , SRC_SMEVATTRFILE ) ) {
-			action.debug( "prepare: no UDDI content" );
-			return;
-		}
-
-		String DST_FNAME_UAT = "svcrun/uatonly/" + F_UDDINUM + "000" + F_REGIONALINDEX + "-juddi-uat.sql";
-		String DST_FNAME_PROD = "svcrun/prodonly/" + F_UDDINUM + "000" + F_REGIONALINDEX + "-juddi-prod.sql";
-
-		// process content
-		P_TARGETDIR.ensureFolderExists( action , Common.getDirName( DST_FNAME_UAT ) );
-		P_TARGETDIR.ensureFolderExists( action , Common.getDirName( DST_FNAME_PROD ) );
-
-		schema.specific.addComment( action , "UAT UDDI setup script" , P_TARGETDIR , DST_FNAME_UAT );
-		schema.specific.addComment( action , "PROD UDDI setup script" , P_TARGETDIR , DST_FNAME_PROD );
-
-		// process endpoints
-		if( S_DIC_CONTENT || S_SVC_CONTENT )
-			processUddiEndpoints( action , F_UDDINUM , P_TARGETDIR , DST_FNAME_UAT , DST_FNAME_PROD , SRC_DICFILE_EP , SRC_SVCFILE_EP );
-
-		// process smev attrs
-		if( S_SMEVATTR_CONTENT )
-			processUddiSmevAttrs( action , F_UDDINUM , P_TARGETDIR , DST_FNAME_UAT , DST_FNAME_PROD , SRC_SMEVATTRFILE );
-	}
-			
 	private void copyCore( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , LocalFolder P_TARGETDIR ) throws Exception {
 		action.log( "preparing core scripts aligned=" + P_ALIGNEDNAME.dirName + " ..." );
 		LocalFolder scriptDir = P_TARGETDIR.getSubFolder( action , "scripts" );
@@ -232,38 +164,12 @@ public class DatabasePrepare {
 		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ALIGNEDNAME.getDirByPath( action , "coredml" ) , scriptDir );
 		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ALIGNEDNAME.getDirByPath( action , "coreprodonly" ) , scriptDir );
 		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ALIGNEDNAME.getDirByPath( action , "coreuatonly" ) , scriptDir );
-		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ALIGNEDNAME.getDirByPath( action , "coresvc" ) , scriptDir );
 
 		// copy dataload part
 		FileSet dataload = P_ALIGNEDNAME.getDirByPath( action , "dataload" );
 		LocalFolder dataloadDir = P_TARGETDIR.getSubFolder( action , "dataload" );
 		if( dataload != null )
 			copyCtl( action , P_ALIGNEDNAME , P_ALIGNEDID , dataload , dataloadDir );
-	}
-
-	private void copyZip( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , FileSet P_DIRFROM , LocalFolder P_DIRTO ) throws Exception {
-		action.log( "prepare/copy " + P_DIRFROM.dirPath + " ..." );
-
-		P_DIRTO.ensureExists( action );
-
-		// regional tail
-		String F_REGIONALINDEX = "";
-		if( P_ALIGNEDNAME.dirName.equals( "regional" ) )
-			F_REGIONALINDEX = "RR";
-
-		// add registration index
-		for( String x : Common.getSortedKeys( P_DIRFROM.files ) ) {
-			if( !x.endsWith( ".zip" ) )
-				continue;
-			
-			String F_SCRIPTNUM = Common.getPartBeforeFirst( x , "-" );
-			
-			// get filename without index
-			String F_FILEBASE = Common.getPartAfterFirst( x , "-" );
-			
-			// rename - by index
-			srcFolder.copyFile( action , P_DIRFROM.dirPath , x , P_DIRTO , "18" + P_ALIGNEDID + F_SCRIPTNUM + F_REGIONALINDEX + "-" + F_FILEBASE );
-		}
 	}
 
 	private void copyCtl( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , FileSet P_CTLFROM , LocalFolder P_CTLTO ) throws Exception {
@@ -295,227 +201,6 @@ public class DatabasePrepare {
 			if( P_CTLTO.checkFileExists( action , F_FILEBASE + ".sql" ) )
 				P_CTLTO.renameFile( action , F_FILEBASE + ".sql" , "21" + P_ALIGNEDID + F_SCRIPTNUM + F_REGIONALINDEX + "-" + F_FILEBASENOINDEX + ".sql" );
 		}
-	}
-
-	private void processUddiSmevAttrs( ActionBase action , String P_SVCNUM , LocalFolder P_TARGETDIR , String FNAME_UAT , String FNAME_PROD , String SMEVATTRFILE ) throws Exception {
-		MetaDatabaseSchema schema = database.getSchema( action , "juddi" );
-		
-		// process content for endpoints
-		String LOCAL_UDDI_FNAME = "uddi.txt";
-		P_TARGETDIR.removeFiles( action , LOCAL_UDDI_FNAME );
-
-		P_TARGETDIR.appendFileWithFile( action , LOCAL_UDDI_FNAME , SMEVATTRFILE );
-
-		schema.specific.smevAttrBegin( action , P_TARGETDIR , FNAME_UAT );
-		schema.specific.smevAttrBegin( action , P_TARGETDIR , FNAME_PROD );
-
-		for( String line : P_TARGETDIR.readFileLines( action , LOCAL_UDDI_FNAME ) ) {
-			line = line.replace( '"' , '@' );
-			String first = Common.getListItem( line , "@" , 0 );
-			
-			String UDDI_ATTR_ID = Common.getListItem( first , " " , 2 );
-			String UDDI_ATTR_NAME = Common.getListItem( line , "@" , 1 );
-			String UDDI_ATTR_CODE = Common.getListItem( line , "@" , 3 );
-			String UDDI_ATTR_REGION = Common.getListItem( line , "@" , 5 );
-			String UDDI_ATTR_ACCESSPOINT = Common.getListItem( line , "@" , 7 );
-
-			if( UDDI_ATTR_ID.isEmpty() || UDDI_ATTR_NAME.isEmpty() || UDDI_ATTR_CODE.isEmpty() || UDDI_ATTR_REGION.isEmpty() || UDDI_ATTR_ACCESSPOINT.isEmpty() ) {
-				S_CHECK_FAILED = true;
-				action.log( "prepare: invalid string - line=" + line );
-			}
-
-			schema.specific.smevAttrAddValue( action , UDDI_ATTR_ID , UDDI_ATTR_NAME , UDDI_ATTR_CODE , UDDI_ATTR_REGION , UDDI_ATTR_ACCESSPOINT , P_TARGETDIR , FNAME_UAT );
-			schema.specific.smevAttrAddValue( action , UDDI_ATTR_ID , UDDI_ATTR_NAME , UDDI_ATTR_CODE , UDDI_ATTR_REGION , UDDI_ATTR_ACCESSPOINT , P_TARGETDIR , FNAME_PROD );
-		}
-
-		schema.specific.smevAttrEnd( action , P_TARGETDIR , FNAME_UAT );
-		schema.specific.smevAttrEnd( action , P_TARGETDIR , FNAME_PROD );
-
-		action.debug( "prepare: SVCNUM=" + P_SVCNUM + " - UDDI content has been created for smev attributes." );
-	}
-
-	private void processUddiEndpoints( ActionBase action , String P_SVCNUM , LocalFolder P_TARGETDIR , String FNAME_UAT , String FNAME_PROD , String DICFILE , String SVCFILE ) throws Exception {
-		MetaDatabaseSchema schema = database.getSchema( action , "juddi" );
-		
-		// process content for endpoints
-		String LOCAL_UDDI_FNAME = "uddi.txt";
-		P_TARGETDIR.removeFiles( action , LOCAL_UDDI_FNAME );
-
-		if( S_DIC_CONTENT )
-			P_TARGETDIR.appendFileWithFile( action , LOCAL_UDDI_FNAME , DICFILE );
-
-		if( S_SVC_CONTENT )
-			P_TARGETDIR.appendFileWithFile( action , LOCAL_UDDI_FNAME , SVCFILE );
-
-		schema.specific.uddiBegin( action , P_TARGETDIR , FNAME_UAT );
-		schema.specific.uddiBegin( action , P_TARGETDIR , FNAME_PROD );
-
-		for( String line : P_TARGETDIR.readFileLines( action , LOCAL_UDDI_FNAME ) ) {
-			if( !line.startsWith( "-- UDDI" ) )
-				continue;
-			
-			// format:
-			// -- UDDI 10000034549 testurl produrl
-			String[] lineParts = Common.splitSpaced( line );
-			if( lineParts.length != 5 ) {
-				action.log( "prepare: invalid UDDI line: " + line );
-				S_CHECK_FAILED = true;
-			}
-			else {
-				String UDDI_KEY = lineParts[2];
-				String UDDI_UAT = lineParts[3];
-				String UDDI_PROD = lineParts[4];
-				if( UDDI_KEY.isEmpty() || UDDI_UAT.isEmpty() || UDDI_PROD.isEmpty() ) {
-					action.log( "prepare: invalid UDDI data: key=" + UDDI_KEY + ", UDDI_UAT=" + UDDI_UAT + ", UDDI_PROD=" + UDDI_PROD );
-					S_CHECK_FAILED = true;
-				}
-				else {
-					schema.specific.uddiAddEndpoint( action , UDDI_KEY , UDDI_UAT , P_TARGETDIR , FNAME_UAT );
-					schema.specific.uddiAddEndpoint( action , UDDI_KEY , UDDI_PROD , P_TARGETDIR , FNAME_PROD );
-				}
-			}
-		}
-
-		schema.specific.uddiEnd( action , P_TARGETDIR , FNAME_UAT );
-		schema.specific.uddiEnd( action , P_TARGETDIR , FNAME_PROD );
-
-		action.debug( "prepare: SVCNUM=" + P_SVCNUM + " - UDDI content has been created for endpoints." );
-	}
-
-	private boolean checkUddi( ActionBase action , LocalFolder P_TARGETDIR , String P_DICFILE_EP , String P_SVCFILE_EP , String P_SMEVATTRFILE ) throws Exception {
-		// check files have content
-		S_DIC_CONTENT = false;
-		S_SVC_CONTENT = false;
-		S_SMEVATTR_CONTENT = false;
-
-		boolean CHECK_CONTENT = false;
-		if( P_TARGETDIR.checkFileExists( action , P_DICFILE_EP ) ) {
-			if( !P_TARGETDIR.isFileEmpty( action , P_DICFILE_EP ) ) {
-				S_DIC_CONTENT = true;
-				CHECK_CONTENT = true;
-			}
-		}
-
-		if( P_TARGETDIR.checkFileExists( action , P_SVCFILE_EP ) ) {
-			if( !P_TARGETDIR.isFileEmpty( action , P_SVCFILE_EP ) ) {
-				S_SVC_CONTENT = true;
-				CHECK_CONTENT = true;
-			}
-		}
-
-		if( P_TARGETDIR.checkFileExists( action , P_SMEVATTRFILE ) ) {
-			if( !P_TARGETDIR.isFileEmpty( action , P_SMEVATTRFILE ) ) {
-				S_SMEVATTR_CONTENT = true;
-				CHECK_CONTENT = true;
-			}
-		}
-
-		if( !CHECK_CONTENT )
-			return( false );
-
-		return( true );
-	}
-
-	private void check( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID ) throws Exception {
-		S_CHECK_FAILED = false;
-
-		// check folders
-		for( String dir : Common.getSortedKeys( P_ALIGNEDNAME.dirs ) ) {
-			if( dir.equals( "coreddl" ) || dir.equals( "coredml" ) || dir.equals( "coresvc" ) || dir.equals( "coreprodonly" ) || dir.equals( "coreuatonly" ) )
-				checkDir( action , P_ALIGNEDNAME , P_ALIGNEDID , dir , "sql" , ALL_SCHEMA_LIST );
-			else
-			if( dir.equals( "dataload" ) ) 
-				checkDir( action , P_ALIGNEDNAME , P_ALIGNEDID , dir , "ctl" , ALL_SCHEMA_LIST );
-			else
-			if( dir.startsWith( "war." ) )
-				checkOneWar( action , P_ALIGNEDNAME , P_ALIGNEDID , dir );
-			else
-			if( dir.startsWith( "forms." ) )
-				checkOneForms( action , P_ALIGNEDNAME , P_ALIGNEDID , dir );
-			else
-			if( dir.equals( "aligned" ) && P_ALIGNEDNAME == srcFileSet )
-				continue;
-			else
-			if( dir.equals( "manual" ) )
-				continue;
-			else {
-				action.log( "prepare: aligned=" + P_ALIGNEDNAME + " - invalid release folder: " + dir );
-				moveErrors( action , P_ALIGNEDNAME , P_ALIGNEDID , dir , "invalid release folder" );
-				S_CHECK_FAILED = true;
-			}
-		}
-
-		if( S_CHECK_FAILED && !action.context.CTX_FORCE )
-			action.exit( "release database file set check failed" );
-	}
-
-	private void checkOneForms( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , String P_ORGNAME ) throws Exception {
-		String[] items = Common.splitDotted( P_ORGNAME );
-		String F_REGION = items[1];
-		String F_ORGID = items[2];
-
-		boolean F_DIR_FAILED = false;
-		if( F_REGION.isEmpty() || F_ORGID.isEmpty() ) {
-			action.log( "prepare: invalid regional forms folder name=" + P_ORGNAME + ", expected format is forms.regnum.orgcode" );
-			F_DIR_FAILED = true;
-		}
-
-		// check region is NN
-		if( !F_REGION.matches( "[0-9][0-9]" ) ) {
-			action.log( "prepare: invalid regional folder name=" + P_ORGNAME + ", region=" + F_REGION + ", expected NN" );
-			F_DIR_FAILED = true;
-		}
-
-		if( F_DIR_FAILED ) {
-			S_CHECK_FAILED = true;
-			moveErrors( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ORGNAME , "invalid regional forms folder name=" + P_ORGNAME + ", expected format is forms.regnum.orgcode" );
-		}
-
-		// check ORGID
-		if( !database.checkOrgInfo( action , F_ORGID ) ) {
-			S_CHECK_FAILED = true;
-			moveErrors( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ORGNAME , "invalid orgId=" + F_ORGID );
-		}
-
-		action.debug( "check forms region=" + F_REGION + ", orgname=" + P_ORGNAME + " ..." );
-		checkDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ORGNAME + "/svcdic" , "sql" , "nsi" );
-		checkDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ORGNAME + "/svcspec" , "sql" , "pgu pguapi" );
-		checkDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ORGNAME + "/svcform" , "form" , ALL_SCHEMA_LIST );
-		checkDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ORGNAME + "/svcpub" , "pub" , ALL_SCHEMA_LIST );
-	}
-
-	private void checkOneWar( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , String P_MPNAME ) throws Exception {
-		String[] items = Common.splitDotted( P_MPNAME );
-		String F_REGION = items[1];
-		String F_WAR = items[2];
-
-		boolean F_DIR_FAILED = false;
-		if( F_REGION.isEmpty() || F_WAR.isEmpty() ) {
-			action.log( "prepare: invalid regional war folder name=" + P_MPNAME + ", expected format is war.regnum.warname" );
-			F_DIR_FAILED = true;
-		}
-
-		// check region is NN
-		if( !F_REGION.matches( "[0-9][0-9]" ) ) {
-			action.log( "prepare: invalid regional folder name=" + P_MPNAME + ", region=" + F_REGION + ", expected NN" );
-			F_DIR_FAILED = true;
-		}
-
-		if( F_DIR_FAILED ) {
-			S_CHECK_FAILED = true;
-			moveErrors( action , P_ALIGNEDNAME , P_ALIGNEDID , P_MPNAME , "invalid regional war folder name=" + P_MPNAME + ", expected format is war.regnum.warname" );
-			return;
-		}
-
-		if( !distr.checkWarMRId( action , F_WAR ) ) {
-			S_CHECK_FAILED = true;
-			moveErrors( action , P_ALIGNEDNAME , P_ALIGNEDID , P_MPNAME , "unknown war=" + F_WAR );
-			return;
-		}
-
-		action.debug( "check war region=" + F_REGION + ", mpname=" + P_MPNAME + " ..." );
-		checkDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_MPNAME + "/svcdic" , "sql" , "nsi" );
-		checkDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_MPNAME + "/svcspec" , "sql" , "pguapi" );
 	}
 
 	private boolean checkDuplicateIndex( ActionBase action , FileSet dir , String index , String ext ) throws Exception {
@@ -606,31 +291,7 @@ public class DatabasePrepare {
 				}
 			}
 			else
-			if( P_TYPE.equals( "form" ) ) {
-				// for form script file should have ESERVICEID-pguforms-orderform.sql format
-				String F_SERVICEID = Common.getListItem( xbase , "-" , 0 );
-
-				if( !xbase.equals( F_SERVICEID + "-pguforms-orderform.sql" ) ) {
-					F_ONEFAILED_MSG = Common.concat( F_ONEFAILED_MSG , "invalid script name=" + xbase + ", expected - ESERVICEID-pguforms-orderform.sql" , "; " );
-					F_ONEFAILED = true;
-				}
-			}
-			else
-			if( P_TYPE.equals( "pub" ) ) {
-				// publisher file should have ESERVICEID-publisher-orderform.zip format
-				String F_SERVICEID = Common.getListItem( xbase , "-" , 0 );
-				String F_PUBLISHER = Common.getListItem( xbase , "-" , 1 );
-
-				if( !xbase.equals( F_SERVICEID + "-" + F_PUBLISHER + "-orderform.zip" ) ) {
-					F_ONEFAILED_MSG = Common.concat( F_ONEFAILED_MSG , "invalid script name=" + xbase + ", expected - ESERVICEID-PUBLISHER-orderform.zip" , "; " );
-					F_ONEFAILED = true;
-				}
-				
-				if( !database.checkPublisher( action , F_PUBLISHER ) ) {
-					F_ONEFAILED_MSG = Common.concat( F_ONEFAILED_MSG , "unknown publisher=" + F_PUBLISHER + " for " + xbase , "; " );
-					F_ONEFAILED = true;
-				}
-			}
+				action.exitUnexpectedState();
 
 			// check sql file content
 			if( F_ONEFAILED == false && F_EXT.equals( "sql" ) ) {
