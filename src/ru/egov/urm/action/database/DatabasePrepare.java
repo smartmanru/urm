@@ -159,7 +159,7 @@ public class DatabasePrepare {
 	
 	private void copyCore( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , LocalFolder P_TARGETDIR ) throws Exception {
 		action.log( "preparing core scripts aligned=" + P_ALIGNEDNAME.dirName + " ..." );
-		LocalFolder scriptDir = P_TARGETDIR.getSubFolder( action , "scripts" );
+		LocalFolder scriptDir = P_TARGETDIR.getSubFolder( action , "sql" );
 		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ALIGNEDNAME.getDirByPath( action , "coreddl" ) , scriptDir );
 		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ALIGNEDNAME.getDirByPath( action , "coredml" ) , scriptDir );
 		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ALIGNEDNAME.getDirByPath( action , "coreprodonly" ) , scriptDir );
