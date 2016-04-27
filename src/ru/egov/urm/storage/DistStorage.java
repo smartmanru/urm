@@ -73,7 +73,7 @@ public class DistStorage {
 	}
 	
 	public void load( ActionBase action ) throws Exception {
-		action.debug( "loading release " + RELEASEDIR + " ...");
+		action.debug( "loading release from " + metaFileName + " ..." );
 		
 		state.ctlLoadReleaseState( action );
 		
