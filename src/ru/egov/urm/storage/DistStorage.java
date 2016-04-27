@@ -35,6 +35,7 @@ public class DistStorage {
 	public static String DATABASE_FOLDER = "db";
 	public static String DBSCRIPTS_FOLDER = "scripts";
 	public static String DBDATALOAD_FOLDER = "dataload";
+	public static String ROLLBACK_FOLDER = "rollback";
 	public static String DBMANUAL_FOLDER = "manual/db";
 	
 	Artefactory artefactory;

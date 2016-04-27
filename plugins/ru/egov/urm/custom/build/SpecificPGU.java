@@ -318,4 +318,25 @@ public class SpecificPGU {
 		}
 	}
 	
+
+	public String getWarMRId( ActionBase action , String P_WAR ) throws Exception {
+		// get war from distributive info
+		MetaDistrBinaryItem item = action.meta.distr.getBinaryItem( action , P_WAR );
+
+		String S_WAR_MRID = item.WAR_MRID;
+		if( S_WAR_MRID.isEmpty() )
+			S_WAR_MRID = "00";
+		
+		return( S_WAR_MRID );
+	}
+
+	public boolean checkWarMRId( ActionBase action , String P_WAR ) throws Exception {
+		// get war from distributive info
+		MetaDistrBinaryItem item = action.meta.distr.findBinaryItem( action , P_WAR );
+		if( item == null )
+			return( false );
+
+		return( true );
+	}
+	
 }

@@ -133,7 +133,7 @@ public class MetaEnvServer {
 		// verify aligned
 		if( serverType == VarSERVERTYPE.DATABASE ) {
 			for( String id : Common.splitSpaced( ALIGNED ) )
-				action.meta.distr.database.alignedGetIDByBame( action , id );
+				action.meta.distr.database.checkAligned( action , id );
 		}
 	}
 	

@@ -6,6 +6,7 @@ import ru.egov.urm.custom.CommandCustom;
 import ru.egov.urm.custom.ICustomDatabase;
 import ru.egov.urm.storage.FileSet;
 import ru.egov.urm.storage.LocalFolder;
+import ru.egov.urm.storage.MetadataStorage;
 
 public class ActionPguDatabase implements ICustomDatabase {
 
@@ -13,6 +14,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 	boolean S_SVC_CONTENT;
 	boolean S_SMEVATTR_CONTENT;
 	boolean S_CHECK_FAILED = false;
+	public String PUBLISHERS;
 
 	public ActionPguDatabase() {
 		S_DIC_CONTENT = false;
@@ -426,6 +428,28 @@ public class ActionPguDatabase implements ICustomDatabase {
 		}
 		
 		return( F_ONEFAILED );
+	}
+	
+	public boolean checkOrgInfo( ActionBase action , String S_ORG_EXTID ) throws Exception {
+		String S_ORG_FOLDERID = getOrgInfo( action , S_ORG_EXTID );
+		if( S_ORG_FOLDERID.isEmpty() )
+			return( false );
+		return( true );
+	}
+
+	public String getOrgInfo( ActionBase action , String S_ORG_EXTID ) throws Exception {
+		// read org item mapping
+		MetadataStorage storage = action.artefactory.getMetadataStorage( action );
+		String path = storage.getOrgInfoFile( action );
+		if( !action.session.checkFileExists( action , path ) )
+			action.exit( "organizational mapping file " + path + " not found" );
+			
+		String S_ORG_FOLDERID = action.session.customGetValue( action , "grep " + Common.getQuoted( "^" + S_ORG_EXTID + "=" ) + " " + path + " | cut -d " + Common.getQuoted( "=" ) + " -f2" );
+		return( S_ORG_FOLDERID );
+	}
+	
+	public boolean checkPublisher( ActionBase action , String F_PUBLISHER )	throws Exception {
+		return( Common.checkPartOfSpacedList( F_PUBLISHER , PUBLISHERS ) );
 	}
 	
 }

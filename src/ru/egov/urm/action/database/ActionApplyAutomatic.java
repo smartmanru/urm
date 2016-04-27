@@ -168,7 +168,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		}
 		
 		if( !context.CTX_DBALIGNED.isEmpty() ) {
-			String alignedid = meta.distr.database.alignedGetIDByBame( this , context.CTX_DBALIGNED );
+			String alignedid = context.CTX_DBALIGNED;
 			if( !alignedid.equals( parts[0].substring( 1 ) ) ) {
 				trace( "script " + file + " is filtered by alignedid" );
 				return( false );
