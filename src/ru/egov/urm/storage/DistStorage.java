@@ -26,10 +26,17 @@ import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
 
 public class DistStorage {
 
-	public static String metaFileName = "release.xml";
-	public static String confDiffFileName = "diffconf.txt";
-	public static String stateFileName = "state.txt";
+	public static String META_FILENAME = "release.xml";
+	public static String CONFDIFF_FILENAME = "diffconf.txt";
+	public static String STATE_FILENAME = "state.txt";
 
+	public static String BINARY_FOLDER = "binary";
+	public static String CONFIG_FOLDER = "config";
+	public static String DATABASE_FOLDER = "db";
+	public static String DBSCRIPTS_FOLDER = "scripts";
+	public static String DBDATALOAD_FOLDER = "dataload";
+	public static String DBMANUAL_FOLDER = "manual/db";
+	
 	Artefactory artefactory;
 	private RemoteFolder distFolder;
 	Metadata meta;
@@ -73,11 +80,11 @@ public class DistStorage {
 	}
 	
 	public void load( ActionBase action ) throws Exception {
-		action.debug( "loading release from " + metaFileName + " ..." );
+		action.debug( "loading release specification from " + META_FILENAME + " ..." );
 		
 		state.ctlLoadReleaseState( action );
 		
-		infoPath = distFolder.copyFileToLocal( action , artefactory.workFolder , metaFileName , "" );
+		infoPath = distFolder.copyFileToLocal( action , artefactory.workFolder , META_FILENAME , "" );
 		info = new MetaRelease( meta );
 		info.load( action , infoPath );
 		
@@ -195,23 +202,23 @@ public class DistStorage {
 	}
 	
 	public String getDeliveryConfFolder( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
-		return( Common.getPath( delivery.FOLDER , "config" ) );
+		return( Common.getPath( delivery.FOLDER , CONFIG_FOLDER ) );
 	}
 	
 	public String getDeliveryDatabaseFolder( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
-		return( Common.getPath( delivery.FOLDER , "db" ) );
+		return( Common.getPath( delivery.FOLDER , DATABASE_FOLDER ) );
 	}
 	
 	public String getDeliveryDatabaseScriptFolder( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
-		return( Common.getPath( getDeliveryDatabaseFolder( action , delivery ) , "scripts" ) );
+		return( Common.getPath( getDeliveryDatabaseFolder( action , delivery ) , DBSCRIPTS_FOLDER ) );
 	}
 	
 	public String getDeliveryDatabaseLoadFolder( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
-		return( Common.getPath( getDeliveryDatabaseFolder( action , delivery ) , "dataload" ) );
+		return( Common.getPath( getDeliveryDatabaseFolder( action , delivery ) , DBDATALOAD_FOLDER ) );
 	}
 	
 	public String getDeliveryBinaryFolder( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
-		return( Common.getPath( delivery.FOLDER , "binary" ) );
+		return( Common.getPath( delivery.FOLDER , BINARY_FOLDER ) );
 	}
 	
 	public void replaceConfDiffFile( ActionBase action , String filePath , MetaReleaseDelivery delivery ) throws Exception {
@@ -341,7 +348,7 @@ public class DistStorage {
 	public void saveReleaseXml( ActionBase action ) throws Exception {
 		state.ctlReloadCheckOpened( action );
 		
-		String filePath = artefactory.workFolder.getFilePath( action , metaFileName );
+		String filePath = artefactory.workFolder.getFilePath( action , META_FILENAME );
 		Document doc = info.createXml( action );
 		Common.xmlSaveDoc( doc , filePath );
 		distFolder.copyFileFromLocal( action , filePath );
@@ -563,7 +570,7 @@ public class DistStorage {
 			if( target.DISTFILE == null || target.DISTFILE.isEmpty() )
 				return( "" );
 			
-			return( Common.getPath( "binary" , target.DISTFILE ) );
+			return( Common.getPath( BINARY_FOLDER , target.DISTFILE ) );
 		}
 		else if( item.DISTSOURCE == VarDISTITEMSOURCE.BUILD ) {
 			MetaReleaseTarget target = info.findBuildProject( action , item.sourceItem.project.PROJECT );
@@ -577,7 +584,7 @@ public class DistStorage {
 			if( targetItem.DISTFILE == null || targetItem.DISTFILE.isEmpty() )
 				return( "" );
 			
-			return( Common.getPath( "binary" , targetItem.DISTFILE ) );
+			return( Common.getPath( BINARY_FOLDER , targetItem.DISTFILE ) );
 		}
 		else
 			action.exitUnexpectedState();
@@ -603,7 +610,7 @@ public class DistStorage {
 	private void gatherDeliveryBinaryItem( ActionBase action , MetaReleaseDelivery delivery , FileSet deliveryFiles , MetaReleaseTargetItem targetItem ) throws Exception {
 		FileSet binaryFiles = null;
 		if( deliveryFiles != null )
-			binaryFiles = deliveryFiles.getDirByPath( action , "binary" );
+			binaryFiles = deliveryFiles.getDirByPath( action , BINARY_FOLDER );
 		String fileName = "";
 		
 		if( binaryFiles != null )
@@ -615,7 +622,7 @@ public class DistStorage {
 	private void gatherDeliveryManualItem( ActionBase action , MetaReleaseDelivery delivery , FileSet deliveryFiles , MetaReleaseTarget targetItem ) throws Exception {
 		FileSet binaryFiles = null;
 		if( deliveryFiles != null )
-			binaryFiles = deliveryFiles.getDirByPath( action , "binary" );
+			binaryFiles = deliveryFiles.getDirByPath( action , BINARY_FOLDER );
 		String fileName = "";
 		
 		if( binaryFiles != null )
@@ -644,7 +651,7 @@ public class DistStorage {
 		if( !openedForUse )
 			action.exit( "distributive is not opened for use" );
 		
-		FileSet set = files.getDirByPath( action , "manual/db" );
+		FileSet set = files.getDirByPath( action , DBMANUAL_FOLDER );
 		if( set == null )
 			return( new String[0] );
 		
@@ -775,6 +782,11 @@ public class DistStorage {
 			FileSet dirFilesDist = fsd.dirs.get( dir );
 			FileSet dirFilesRelease = fsr.dirs.get( dir );
 			if( dirFilesRelease == null ) {
+				if( dir.equals( DATABASE_FOLDER ) ) {
+					if( !finishDistDeliveryBinary( action , delivery , dirFilesDist , dirFilesRelease ) )
+						return( false );
+				}
+				
 				if( dirFilesDist.hasFiles() ) {
 					if( !action.context.CTX_FORCE ) {
 						action.log( "distributive delivery=" + delivery.distDelivery.NAME + 
@@ -788,12 +800,12 @@ public class DistStorage {
 				distFolder.removeFolder( action , folder );
 			}
 			else {
-				if( dir.equals( "binary" ) ) {
+				if( dir.equals( BINARY_FOLDER ) ) {
 					if( !finishDistDeliveryBinary( action , delivery , dirFilesDist , dirFilesRelease ) )
 						return( false );
 				}
 				else
-				if( dir.equals( "config" ) ) {
+				if( dir.equals( CONFIG_FOLDER ) ) {
 					if( !finishDistDeliveryConfig( action , delivery , dirFilesDist , dirFilesRelease ) )
 						return( false );
 				}
@@ -821,7 +833,7 @@ public class DistStorage {
 					return( false );
 				}
 				
-				String folder = Common.getPath( delivery.distDelivery.FOLDER , "binary" );
+				String folder = Common.getPath( delivery.distDelivery.FOLDER , BINARY_FOLDER );
 				action.log( "delete non-release delivery item folder=" + folder + " file=" + fileDist + " ..." );
 				distFolder.removeFolderFile( action , folder , fileDist );
 			}
@@ -848,7 +860,7 @@ public class DistStorage {
 					return( false );
 				}
 				
-				String folder = Common.getPath( delivery.distDelivery.FOLDER , "config" , dir );
+				String folder = Common.getPath( delivery.distDelivery.FOLDER , CONFIG_FOLDER , dir );
 				action.log( "delete non-release configuration item delivery=" + delivery.distDelivery.NAME + " config=" + dir + " ..." );
 				distFolder.removeFolder( action , folder );
 			}

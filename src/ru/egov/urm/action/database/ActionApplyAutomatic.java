@@ -7,7 +7,7 @@ import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScope;
 import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.CommandOptions.SQLTYPE;
-import ru.egov.urm.conf.ConfBuilder;
+import ru.egov.urm.action.conf.ConfBuilder;
 import ru.egov.urm.meta.MetaDatabaseSchema;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaReleaseDelivery;

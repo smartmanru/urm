@@ -90,7 +90,7 @@ public class ReleaseState {
 		String timeStamp = Common.getNameTimeStamp();
 		String hash = getHashValue( action );
 		String value = newState + ":" + timeStamp + ":" + hash;
-		distFolder.createFileFromString( action , DistStorage.stateFileName , value );
+		distFolder.createFileFromString( action , DistStorage.STATE_FILENAME , value );
 		activeChangeID = timeStamp;
 		stateMem = newState;
 		stateHash = hash;
@@ -161,14 +161,14 @@ public class ReleaseState {
 			return;
 		}
 		
-		if( !distFolder.checkFileExists( action, DistStorage.stateFileName ) ) {
+		if( !distFolder.checkFileExists( action, DistStorage.STATE_FILENAME ) ) {
 			state = RELEASESTATE.MISSINGSTATE;
 			return;
 		}
 		
 		// file format - state:changeID:md5, changeID is timestamp, md5 is hash of distributive
 		try {
-			String stateInfo = distFolder.getFileContentAsString( action , DistStorage.stateFileName );
+			String stateInfo = distFolder.getFileContentAsString( action , DistStorage.STATE_FILENAME );
 			String[] parts = Common.split( stateInfo , ":" );
 			if( parts.length != 3 ) {
 				state = RELEASESTATE.BROKEN;
@@ -197,7 +197,7 @@ public class ReleaseState {
 		distFolder.ensureExists( action );
 		
 		// create empty release.xml
-		String filePath = action.artefactory.workFolder.getFilePath( action , DistStorage.metaFileName );
+		String filePath = action.artefactory.workFolder.getFilePath( action , DistStorage.META_FILENAME );
 		String RELEASEDIR = distFolder.folderName;
 		String RELEASEVER = Common.getPartBeforeFirst( RELEASEDIR , "-" );
 		
@@ -221,7 +221,7 @@ public class ReleaseState {
 			action.exit( "state file should not exist" );
 		
 		// create empty release.xml
-		String filePath = action.artefactory.workFolder.getFilePath( action , DistStorage.metaFileName );
+		String filePath = action.artefactory.workFolder.getFilePath( action , DistStorage.META_FILENAME );
 		
 		MetaRelease info = new MetaRelease( action.meta );
 		info.createProd( action , RELEASEVER , filePath );

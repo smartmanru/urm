@@ -19,6 +19,10 @@ public class SourceStorage {
 	Artefactory artefactory;
 	LocalFolder downloadFolder;
 	Metadata meta;
+
+	private static String CONFIG_FOLDER = "config";
+	private static String DATABASE_FOLDER = "db";
+	private static String ERRORS_FOLDER = "errors";
 	
 	public SourceStorage( Artefactory artefactory , LocalFolder downloadFolder ) {
 		this.artefactory = artefactory;
@@ -107,10 +111,10 @@ public class SourceStorage {
 			return( false );
 	
 		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
-		if( !vcs.exportRepositoryMasterPath( dstFolder , REPOSITORY , ITEMPATH , "db" ) )
+		if( !vcs.exportRepositoryMasterPath( dstFolder , REPOSITORY , ITEMPATH , DATABASE_FOLDER ) )
 			action.exit( "unable to export from REPOSITORY=" + REPOSITORY + ", ITEMPATH=" + ITEMPATH );
 		
-		dstFolder.prepareFolderForLinux( action , "db" );
+		dstFolder.prepareFolderForLinux( action , DATABASE_FOLDER );
 		return( true );
 	}
 	
@@ -122,8 +126,8 @@ public class SourceStorage {
 		if( !vcs.exportRepositoryMasterPath( dstManualFolder.getParentFolder( action ) , REPOSITORY , PATH , dstManualFolder.folderName ) )
 			action.exit( "unable to export from REPOSITORY=" + REPOSITORY + ", PATH=" + PATH );
 		
-		if( dstManualFolder.checkFolderExists( action , "db" ) )
-			dstManualFolder.prepareFolderForLinux( action , "db" );
+		if( dstManualFolder.checkFolderExists( action , DATABASE_FOLDER ) )
+			dstManualFolder.prepareFolderForLinux( action , DATABASE_FOLDER );
 		return( true );
 	}
 	
@@ -197,19 +201,24 @@ public class SourceStorage {
 		return( PATH );
 	}
 
+	public String getConfFolderRelPath( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
+		String PATH = Common.getPath( delivery.FOLDER , SourceStorage.CONFIG_FOLDER );
+		return( PATH );
+	}
+	
 	public String getConfFolderRelPath( ActionBase action , MetaDistrConfItem distrComp ) throws Exception {
-		String PATH = Common.getPath( distrComp.delivery.FOLDER , "config" );
+		String PATH = Common.getPath( distrComp.delivery.FOLDER , SourceStorage.CONFIG_FOLDER );
 		PATH += "/" + distrComp.KEY;
 		return( PATH );
 	}
 	
 	public String getDBFolderRelPath( ActionBase action , MetaDistrDelivery dbDelivery ) throws Exception {
-		String PATH = Common.getPath( dbDelivery.FOLDER , "db" );
+		String PATH = Common.getPath( dbDelivery.FOLDER , SourceStorage.DATABASE_FOLDER );
 		return( PATH );
 	}
 	
 	public String getErrorFolderRelPath( ActionBase action , MetaDistrDelivery dbDelivery , String errorFolder ) throws Exception {
-		String PATH = Common.getPath( dbDelivery.FOLDER , "errors" );
+		String PATH = Common.getPath( dbDelivery.FOLDER , SourceStorage.ERRORS_FOLDER );
 		PATH = Common.getPath( PATH , errorFolder );
 		return( PATH );
 	}
