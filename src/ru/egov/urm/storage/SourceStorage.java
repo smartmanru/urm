@@ -20,9 +20,10 @@ public class SourceStorage {
 	LocalFolder downloadFolder;
 	Metadata meta;
 
-	private static String CONFIG_FOLDER = "config";
-	private static String DATABASE_FOLDER = "db";
-	private static String ERRORS_FOLDER = "errors";
+	public static String CONFIG_FOLDER = "config";
+	public static String DATABASE_FOLDER = "db";
+	public static String ERRORS_FOLDER = "errors";
+	public static String MANUAL_FOLDER = "manual";
 	
 	public SourceStorage( Artefactory artefactory , LocalFolder downloadFolder ) {
 		this.artefactory = artefactory;
@@ -114,7 +115,8 @@ public class SourceStorage {
 		if( !vcs.exportRepositoryMasterPath( dstFolder , REPOSITORY , ITEMPATH , DATABASE_FOLDER ) )
 			action.exit( "unable to export from REPOSITORY=" + REPOSITORY + ", ITEMPATH=" + ITEMPATH );
 		
-		dstFolder.prepareFolderForLinux( action , DATABASE_FOLDER );
+		if( action.isLinux() )
+			dstFolder.prepareFolderForLinux( action , DATABASE_FOLDER );
 		return( true );
 	}
 	
@@ -161,38 +163,33 @@ public class SourceStorage {
 		return( "prod-patch-" + RELEASEVER );
 	}
 
+	public String getReleasePath( ActionBase action , DistStorage distStorage ) throws Exception {
+		String PATH = Common.getPath( meta.product.CONFIG_SOURCE_RELEASEROOTDIR , 
+				getReleaseGroupFolder( action ) ,
+				getReleaseFolder( action , distStorage ) );
+		return( PATH );
+	}
+	
 	public String getReleaseManualPath( ActionBase action , DistStorage distStorage ) throws Exception {
-		String PATH = meta.product.CONFIG_SOURCE_RELEASEROOTDIR + "/" + 
-			getReleaseGroupFolder( action ) + "/" + 
-			getReleaseFolder( action , distStorage ) + "/manual";
-		
+		String PATH = Common.getPath( getReleasePath( action , distStorage ) , MANUAL_FOLDER );
 		return( PATH );
 	}
 
 	public String getReleaseConfigSourcePath( ActionBase action , DistStorage distStorage , MetaReleaseTarget releaseComp ) throws Exception {
-		String PATH = meta.product.CONFIG_SOURCE_RELEASEROOTDIR + "/" + 
-			getReleaseGroupFolder( action ) + "/" + 
-			getReleaseFolder( action , distStorage ) + "/" +
-			getConfFolderRelPath( action , releaseComp.distConfItem );
-		
+		String PATH = Common.getPath( getReleasePath( action , distStorage ) , 
+			getConfFolderRelPath( action , releaseComp.distConfItem ) );
 		return( PATH );
 	}
 
 	public String getReleaseDBSourcePath( ActionBase action , DistStorage distStorage , MetaDistrDelivery dbDelivery ) throws Exception {
-		String PATH = meta.product.CONFIG_SOURCE_RELEASEROOTDIR + "/" + 
-			getReleaseGroupFolder( action ) + "/" + 
-			getReleaseFolder( action , distStorage ) + "/" +
-			getDBFolderRelPath( action , dbDelivery );
-		
+		String PATH = Common.getPath( getReleasePath( action , distStorage ) , 
+			getDBFolderRelPath( action , dbDelivery ) );
 		return( PATH );
 	}
 
 	public String getReleaseErrorsPath( ActionBase action , DistStorage distStorage , MetaDistrDelivery dbDelivery , String errorFolder ) throws Exception {
-		String PATH = meta.product.CONFIG_SOURCE_RELEASEROOTDIR + "/" + 
-			getReleaseGroupFolder( action ) + "/" + 
-			getReleaseFolder( action , distStorage ) + "/" +
-			getErrorFolderRelPath( action , dbDelivery , errorFolder );
-		
+		String PATH = Common.getPath( getReleasePath( action , distStorage ) , 
+			getErrorFolderRelPath( action , dbDelivery , errorFolder ) );
 		return( PATH );
 	}
 
@@ -207,8 +204,7 @@ public class SourceStorage {
 	}
 	
 	public String getConfFolderRelPath( ActionBase action , MetaDistrConfItem distrComp ) throws Exception {
-		String PATH = Common.getPath( distrComp.delivery.FOLDER , SourceStorage.CONFIG_FOLDER );
-		PATH += "/" + distrComp.KEY;
+		String PATH = Common.getPath( distrComp.delivery.FOLDER , SourceStorage.CONFIG_FOLDER , distrComp.KEY );
 		return( PATH );
 	}
 	
@@ -218,8 +214,7 @@ public class SourceStorage {
 	}
 	
 	public String getErrorFolderRelPath( ActionBase action , MetaDistrDelivery dbDelivery , String errorFolder ) throws Exception {
-		String PATH = Common.getPath( dbDelivery.FOLDER , SourceStorage.ERRORS_FOLDER );
-		PATH = Common.getPath( PATH , errorFolder );
+		String PATH = Common.getPath( dbDelivery.FOLDER , SourceStorage.ERRORS_FOLDER , errorFolder );
 		return( PATH );
 	}
 
@@ -234,8 +229,7 @@ public class SourceStorage {
 	}
 	
 	public String getLiveConfigServerPath( ActionBase action , MetaEnvDC dc , String server ) throws Exception {
-		String PATH = getLiveConfigDCPath( action , dc );
-		PATH = Common.getPath( PATH , server );
+		String PATH = Common.getPath( getLiveConfigDCPath( action , dc ) , server );
 		return( PATH );
 	}
 	
@@ -424,7 +418,8 @@ public class SourceStorage {
 			action.exit( "exportTemplateConfigItem: unable to export " + name + " from " + PATH );
 		
 		// remove windows newlines and add permissions to shell files
-		folder.prepareFolderForLinux( action , name );
+		if( action.isLinux() )
+			folder.prepareFolderForLinux( action , name );
 	}
 	
 }
