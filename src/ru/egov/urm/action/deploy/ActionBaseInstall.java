@@ -120,6 +120,7 @@ public class ActionBaseInstall extends ActionBase {
 
 		log( runtime.account.HOSTLOGIN + ": install base=" + info.ID + ", type=" + Common.getEnumLower( info.type ) + " ..." );
 		vis.setBaseStatus( this , info.ID , "upgrading" );
+		runtime.createRootPath( this );
 		return( true );
 	}
 

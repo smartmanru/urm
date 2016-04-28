@@ -315,4 +315,9 @@ public class RuntimeStorage extends ServerStorage {
 			action.exitUnexpectedState();
 	}
 
+	public void createRootPath( ActionBase action ) throws Exception {
+		RemoteFolder runtimeDir = new RemoteFolder( artefactory , action.getNodeAccount( node ) , server.ROOTPATH );
+		runtimeDir.ensureExists( action );
+	}
+	
 }
