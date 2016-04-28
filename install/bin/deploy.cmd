@@ -19,10 +19,13 @@ call _context.cmd
 set RELEASEPATH=%ROOTPATH%\releases\%RELEASE%
 set PATH=%ROOTPATH%\install\jre7\bin;%PATH%
 
-set STDOPTS=%ADDOPT% -local -etcpath %RELEASEPATH%\urm.conf -distpath %RELEASEPATH%\urm.distr -hiddenpath %ROOTPATH%\secured
+set STDOPTS=%ADDOPT% -local -etcpath %RELEASEPATH%\urm.conf -distpath %RELEASEPATH%\urm.distr -hiddenpath %ROOTPATH%\secured\%C_CONTEXT_SECUREDPATH%
 
 cd %ROOTPATH%\install\master\bin
 call urm.cmd deploy redist %STDOPTS% default paymain
 
 cd %ROOTPATH%\install\master\bin
 call urm.cmd deploy getredistinfo %STDOPTS% -release default paymain
+
+cd %ROOTPATH%\install\master\bin
+call urm.cmd deploy rollout %STDOPTS% default paymain
