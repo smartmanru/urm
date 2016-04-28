@@ -536,7 +536,8 @@ public class MetaEnvServer {
 	}
 
 	public boolean isDatabase( ActionBase action ) throws Exception {
-		return( serverType == VarSERVERTYPE.DATABASE );
+		return( serverType == VarSERVERTYPE.DATABASE ||
+				serverType == VarSERVERTYPE.GENERIC_DATABASE );
 	}
 
 	public boolean isService( ActionBase action ) throws Exception {
@@ -573,7 +574,8 @@ public class MetaEnvServer {
 	public boolean isStartable( ActionBase action ) throws Exception {
 		if( serverType == VarSERVERTYPE.GENERIC_SERVER || 
 			serverType == VarSERVERTYPE.GENERIC_WEB || 
-			serverType == VarSERVERTYPE.GENERIC_COMMAND || 
+			serverType == VarSERVERTYPE.GENERIC_COMMAND ||
+			serverType == VarSERVERTYPE.GENERIC_DATABASE ||
 			serverType == VarSERVERTYPE.SERVICE )
 			return( true );
 		return( false );
