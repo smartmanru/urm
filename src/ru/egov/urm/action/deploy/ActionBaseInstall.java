@@ -10,6 +10,7 @@ import ru.egov.urm.meta.MetaEnvServerBase;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.MetaFapBase;
 import ru.egov.urm.meta.MetaFapBase.VarBASESRCFORMAT;
+import ru.egov.urm.meta.Metadata.VarARCHIVETYPE;
 import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.storage.BaseRepository;
 import ru.egov.urm.storage.LocalFolder;
@@ -79,7 +80,7 @@ public class ActionBaseInstall extends ActionBase {
 		if( info.isLinuxArchiveLink() )
 			executeNodeLinuxArchiveLink( server , node , info , redist , runtime );
 		else
-		if( info.isLinuxArchiveDirect() )
+		if( info.isArchiveDirect() )
 			executeNodeLinuxArchiveDirect( server , node , info , redist , runtime );
 		else
 			exitUnexpectedState();
@@ -162,11 +163,17 @@ public class ActionBaseInstall extends ActionBase {
 	
 	private String extractArchiveFromRedist( MetaFapBase info , RedistStorage redist , String redistPath , RuntimeStorage runtime ) throws Exception {
 		if( info.srcFormat == VarBASESRCFORMAT.TARGZ_SINGLEDIR ) {
-			runtime.extractBaseTarGzSingleDir( this , redistPath , info.SRCSTOREDIR , info.INSTALLPATH );
+			runtime.extractBaseArchiveSingleDir( this , redistPath , info.SRCSTOREDIR , info.INSTALLPATH , VarARCHIVETYPE.TARGZ );
 			debug( "runtime path: " + info.INSTALLPATH );
 			return( info.INSTALLPATH );
 		}
 
+		if( info.srcFormat == VarBASESRCFORMAT.ZIP_SINGLEDIR ) {
+			runtime.extractBaseArchiveSingleDir( this , redistPath , info.SRCSTOREDIR , info.INSTALLPATH , VarARCHIVETYPE.ZIP );
+			debug( "runtime path: " + info.INSTALLPATH );
+			return( info.INSTALLPATH );
+		}
+		
 		exitUnexpectedState();
 		return( null );
 	}

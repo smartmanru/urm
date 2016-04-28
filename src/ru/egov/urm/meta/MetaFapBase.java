@@ -19,11 +19,13 @@ public class MetaFapBase {
 
 	public enum VarBASESRCTYPE {
 		LINUX_ARCHIVE_LINK ,
-		LINUX_ARCHIVE_DIRECT
+		LINUX_ARCHIVE_DIRECT ,
+		ARCHIVE_DIRECT
 	};
 	
 	public enum VarBASESRCFORMAT {
-		TARGZ_SINGLEDIR
+		TARGZ_SINGLEDIR ,
+		ZIP_SINGLEDIR
 	};
 	
 	public BaseRepository repo;
@@ -140,8 +142,9 @@ public class MetaFapBase {
 		return( false );
 	}
 	
-	public boolean isLinuxArchiveDirect() {
-		if( type == VarBASESRCTYPE.LINUX_ARCHIVE_DIRECT )
+	public boolean isArchiveDirect() {
+		if( type == VarBASESRCTYPE.LINUX_ARCHIVE_DIRECT || 
+			type == VarBASESRCTYPE.ARCHIVE_DIRECT )
 			return( true );
 		return( false );
 	}
@@ -168,7 +171,7 @@ public class MetaFapBase {
 		if( isLinuxArchiveLink() )
 			scatterLinuxArchiveLink( action , props , systemProps );
 		else
-		if( isLinuxArchiveDirect() )
+		if( isArchiveDirect() )
 			scatterLinuxArchiveDirect( action , props , systemProps );
 		else
 			action.exitUnexpectedState();

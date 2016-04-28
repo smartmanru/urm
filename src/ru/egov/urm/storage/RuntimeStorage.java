@@ -265,15 +265,20 @@ public class RuntimeStorage extends ServerStorage {
 		redist.changeStateItem( action , RELEASEDIR , CONTENTTYPE , LOCATION , redistFile , rollout );
 	}
 
-	public void extractBaseTarGzSingleDir( ActionBase action , String tarPath , String tarDir , String installPath ) throws Exception {
+	public void extractBaseArchiveSingleDir( ActionBase action , String archivePath , String archiveDir , String installPath , VarARCHIVETYPE archiveType ) throws Exception {
 		ShellExecutor session = action.getShell( account );
-		session.appendExecuteLog( action , "install/upgrade base from " + tarPath + " to " + installPath + " ..." );
+		session.appendExecuteLog( action , "install/upgrade base from " + archivePath + " to " + installPath + " ..." );
 		String installDir = Common.getDirName( installPath );
 		String installName = Common.getBaseName( installPath );
 		
 		RemoteFolder rf = new RemoteFolder( artefactory , account , installDir );
 		rf.removeFolder( action , installName );
-		rf.extractTarGzPart( action , tarPath , installName , tarDir );
+		
+		if( archiveType == VarARCHIVETYPE.TAR || archiveType == VarARCHIVETYPE.TARGZ )
+			rf.extractTarGzPart( action , archivePath , installName , archiveDir );
+		else
+		if( archiveType == VarARCHIVETYPE.ZIP )
+			rf.unzipSingleFile( action , archivePath , archiveDir , installName );
 	}
 
 	public void createDirLink( ActionBase action , String link , String runtimePath ) throws Exception {
