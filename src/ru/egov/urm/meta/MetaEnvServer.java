@@ -182,7 +182,7 @@ public class MetaEnvServer {
 		OFFLINE = properties.getSystemBooleanProperty( action , "offline" , false , systemProps );
 		XDOC = properties.getSystemProperty( action , "xdoc" , NAME , systemProps );
 		
-		if( serverType == VarSERVERTYPE.DATABASE ) {
+		if( isDatabase( action ) ) {
 			DBMSTYPE = action.meta.getDbmsType( action , properties.getSystemRequiredProperty( action , "dbmstype" , systemProps ) );
 			DBMSADDR = properties.getSystemRequiredProperty( action , "dbmsaddr" , systemProps );
 			DATAGROUPS = properties.getSystemRequiredProperty( action , "datagroups" , systemProps );
@@ -201,7 +201,7 @@ public class MetaEnvServer {
 			}
 		}
 		else
-		if( serverType != VarSERVERTYPE.UNKNOWN ) {
+		if( isStartable( action ) ) {
 			ROOTPATH = properties.getSystemProperty( action , "rootpath" , "" , systemProps );
 			BINPATH = properties.getSystemProperty( action , "binpath" , "" , systemProps );
 			SERVICENAME = properties.getSystemProperty( action , "servicename" , "" , systemProps );
