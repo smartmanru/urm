@@ -200,7 +200,7 @@ public class MetaEnvServer {
 				admSchema = database.getSchema( action , ADMSCHEMA );
 			}
 		}
-		else
+		
 		if( isStartable( action ) ) {
 			ROOTPATH = properties.getSystemProperty( action , "rootpath" , "" , systemProps );
 			BINPATH = properties.getSystemProperty( action , "binpath" , "" , systemProps );
