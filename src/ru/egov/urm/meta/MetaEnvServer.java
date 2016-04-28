@@ -117,6 +117,14 @@ public class MetaEnvServer {
 	}
 	
 	public void resolveLinks( ActionBase action ) throws Exception {
+		// check props
+		if( ROOTPATH.isEmpty() ) {
+			if( deployments.isEmpty() == false )
+				action.exit( "rootpath is empty, required for deployments" );
+			if( isGeneric( action ) )
+				action.exit( "rootpath is empty, required for generic server" );
+		}
+		
 		if( NLBSERVER != null && !NLBSERVER.isEmpty() )
 			nlbServer = dc.getServer( action , NLBSERVER );
 		if( PROXYSERVER != null && !PROXYSERVER.isEmpty() )
