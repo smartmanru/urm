@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.ConfReader;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.storage.Folder;
@@ -495,6 +496,9 @@ public abstract class ShellExecutor {
 	}
 	
 	public String getFileContentAsString( ActionBase action , String filePath ) throws Exception {
+		if( account.local )
+			return( ConfReader.readFile( action , filePath ) );
+		
 		return( core.cmdGetFileContentAsString( action , filePath ) );
 	}
 
@@ -519,6 +523,9 @@ public abstract class ShellExecutor {
 	}
 
 	public String[] getFileLines( ActionBase action , String filePath ) throws Exception {
+		if( account.local )
+			return( ConfReader.readFileLines( action , filePath ).toArray( new String[0] ) );
+		
 		return( core.cmdGetFileLines( action , filePath ) );
 	}
 	
