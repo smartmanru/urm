@@ -300,7 +300,7 @@ public class MainExecutor extends CommandExecutor {
 		efDB.ensureExists( action );
 		for( CommandAction cmdAction : dbe.actionsList ) {
 			if( !cmdAction.top )
-				configureExecutorWrapper( action , efDB , executor , cmdAction.name , linux , xp + "/.." , true , ".." );
+				configureExecutorWrapper( action , efDB , dbe , cmdAction.name , linux , xp + "/.." , true , ".." );
 		}
 	}
 	
