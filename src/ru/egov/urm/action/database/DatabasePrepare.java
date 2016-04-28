@@ -100,26 +100,26 @@ public class DatabasePrepare {
 		for( FileSet aligneddir : P_ALIGNEDDIRLIST ) {
 			S_COMMON_ALIGNEDID = aligneddir.dirName;
 
-			action.log( "prepare: =================================== check aligned dir=" + aligneddir + " ..." );
+			action.log( "prepare: =================================== check aligned dir=" + aligneddir.dirName + " ..." );
 			check( action , aligneddir , S_COMMON_ALIGNEDID );
 		}
 	}
 
-	private void check( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID ) throws Exception {
+	private void check( ActionBase action , FileSet P_ALIGNEDSET , String P_ALIGNEDID ) throws Exception {
 		S_CHECK_FAILED = false;
 
 		// check folders
-		for( String dir : Common.getSortedKeys( P_ALIGNEDNAME.dirs ) ) {
+		for( String dir : Common.getSortedKeys( P_ALIGNEDSET.dirs ) ) {
 			if( dir.equals( COREDDL_FOLDER ) || 
 				dir.equals( COREDML_FOLDER ) || 
 				dir.equals( COREPRODONLY_FOLDER ) || 
 				dir.equals( COREUATONLY_FOLDER ) )
-				checkDir( action , P_ALIGNEDNAME , P_ALIGNEDID , dir , "sql" , ALL_SCHEMA_LIST );
+				checkDir( action , P_ALIGNEDSET , P_ALIGNEDID , dir , "sql" , ALL_SCHEMA_LIST );
 			else
 			if( dir.equals( DATALOAD_FOLDER ) ) 
-				checkDir( action , P_ALIGNEDNAME , P_ALIGNEDID , dir , "ctl" , ALL_SCHEMA_LIST );
+				checkDir( action , P_ALIGNEDSET , P_ALIGNEDID , dir , "ctl" , ALL_SCHEMA_LIST );
 			else
-			if( dir.equals( ALIGNED_FOLDER ) && P_ALIGNEDNAME == srcFileSet )
+			if( dir.equals( ALIGNED_FOLDER ) && P_ALIGNEDSET == srcFileSet )
 				continue;
 			else
 			if( dir.equals( MANUAL_FOLDER ) )
@@ -131,14 +131,15 @@ public class DatabasePrepare {
 					
 					String folderName = action.custom.getGroupName( action , dir );
 					if( folderName != null ) {
-						if( !action.custom.checkDatabaseDir( action , P_ALIGNEDNAME , P_ALIGNEDID , dir , ALL_SCHEMA_LIST ) )
+						if( !action.custom.checkDatabaseDir( action , P_ALIGNEDSET , P_ALIGNEDID , dir , ALL_SCHEMA_LIST ) )
 							failed = true;
 					}
 				}
 				
 				if( failed ) {
-					action.log( "prepare: aligned=" + P_ALIGNEDNAME + " - invalid release folder: " + dir );
-					moveErrors( action , P_ALIGNEDNAME , P_ALIGNEDID , dir , "invalid release folder" );
+					String alignedName = ( P_ALIGNEDSET.dirName.isEmpty() )? "common" : P_ALIGNEDSET.dirName;
+					action.log( "prepare: aligned=" + alignedName + " - invalid release folder: " + dir );
+					moveErrors( action , P_ALIGNEDSET , P_ALIGNEDID , dir , "invalid release folder" );
 					S_CHECK_FAILED = true;
 				}
 			}
@@ -151,7 +152,7 @@ public class DatabasePrepare {
 	private void copyAll( ActionBase action , FileSet[] P_ALIGNEDDIRLIST ) throws Exception {
 		// common
 		String S_COMMON_ALIGNEDID = ALIGNED_COMMON;
-		action.log( "prepare: =================================== copy common id=" + S_COMMON_ALIGNEDID + " ..." );
+		action.log( "prepare: =================================== copy common ..." );
 		
 		LocalFolder F_TARGETDIR = dstFolder;
 		copyCore( action , srcFileSet , S_COMMON_ALIGNEDID , F_TARGETDIR );
@@ -174,8 +175,8 @@ public class DatabasePrepare {
 	}
 	
 	private void copyCore( ActionBase action , FileSet P_ALIGNEDSET , String P_ALIGNEDID , LocalFolder P_TARGETDIR ) throws Exception {
-		action.log( "preparing core scripts aligned=" + P_ALIGNEDSET.dirName + " ..." );
-		LocalFolder scriptDir = P_TARGETDIR.getSubFolder( action , "sql" );
+		action.log( "prepare core scripts aligned=" + P_ALIGNEDID + " ..." );
+		LocalFolder scriptDir = P_TARGETDIR.getSubFolder( action , DistStorage.DBSCRIPTS_FOLDER );
 		copyDir( action , P_ALIGNEDSET , P_ALIGNEDID , P_ALIGNEDSET.getDirByPath( action , COREDDL_FOLDER ) , scriptDir );
 		copyDir( action , P_ALIGNEDSET , P_ALIGNEDID , P_ALIGNEDSET.getDirByPath( action , COREDML_FOLDER ) , scriptDir );
 		copyDir( action , P_ALIGNEDSET , P_ALIGNEDID , P_ALIGNEDSET.getDirByPath( action , COREPRODONLY_FOLDER ) , scriptDir );
@@ -233,11 +234,9 @@ public class DatabasePrepare {
 	
 	private void checkDir( ActionBase action , FileSet P_ALIGNEDSET , String P_ALIGNEDID , String P_DIR , String P_TYPE , String P_SCHEMALIST ) throws Exception {
 		FileSet dir = P_ALIGNEDSET.getDirByPath( action , P_DIR );
-		if( dir == null )
-			return;
-
+		action.trace( "check dir=" + P_DIR + " ..." );
 		for( String xbase : Common.getSortedKeys( dir.files ) ) {
-			action.trace( "check file=" + xbase );
+			action.trace( "check file=" + xbase + " ..." );
 			
 			boolean F_ONEFAILED = false;
 			String F_ONEFAILED_MSG = "";
@@ -451,7 +450,7 @@ public class DatabasePrepare {
 		String F_FOLDERNAME = Common.replace( P_FORLDERNAME , "/" , "." );
 		String F_FOLDERBASE = Common.getPartBeforeFirst( F_FOLDERNAME , "." );
 
-		String X_ALIGNED = "a" + P_ALIGNEDID;
+		String X_ALIGNED = P_ALIGNEDID;
 		String X_TYPE = null;
 		String X_INSTANCE = "main";
 		
@@ -467,7 +466,7 @@ public class DatabasePrepare {
 		else
 			action.exit( "invalid database folder=" + P_FORLDERNAME );
 		
-		S_SQL_DIRID = X_ALIGNED + "-t" + X_TYPE + "-i" + X_INSTANCE;
+		S_SQL_DIRID = X_ALIGNED + "." + X_TYPE + "." + X_INSTANCE;
 		return( S_SQL_DIRID );
 	}
 

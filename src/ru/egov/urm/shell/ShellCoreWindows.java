@@ -501,13 +501,14 @@ public class ShellCoreWindows extends ShellCore {
 	
 	@Override public void cmdCopyDirToBase( ActionBase action , String dirFrom , String baseDstDir ) throws Exception {
 		String baseName = Common.getBaseName( dirFrom );
-		cmdRemoveDir( action , baseDstDir + "/" + baseName );
-		cmdEnsureDirExists( action , baseDstDir );
+		String dirTo = baseDstDir + "/" + baseName;
+		cmdRemoveDir( action , dirTo );
+		cmdEnsureDirExists( action , dirTo );
 		
-		action.debug( "copy " + dirFrom + " to " + baseDstDir + " ..." );
+		action.debug( "copy " + dirFrom + " to " + dirTo + " ..." );
 		String wdirFrom = Common.getWinPath( dirFrom );
-		String wdirTo = Common.getWinPath( baseDstDir );
-		runCommandCheckDebug( action , "xcopy /Q /Y /E " + wdirFrom + "\\* " + wdirTo + "\\" );
+		String wdirTo = Common.getWinPath( dirTo );
+		runCommandCheckDebug( action , "xcopy /Q /Y /E " + wdirFrom + " " + wdirTo  );
 	}
 	
 	@Override public void cmdScpFilesRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
