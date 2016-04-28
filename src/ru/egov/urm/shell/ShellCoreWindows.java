@@ -160,12 +160,14 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public String getDirCmd( ActionBase action , String dir , String cmd ) throws Exception {
 		String dirWin = Common.getWinPath( dir );
-		return( "if exist " + dirWin + " ( cd " + dirWin + " " + cmdAnd + " " + cmd + " " + cmdAnd + " " + "cd " + rootPath + " ) else echo invalid directory: " + dirWin );
+		String rootPathWin = Common.getWinPath( rootPath );
+		return( "if exist " + dirWin + " ( cd " + dirWin + " " + cmdAnd + " " + cmd + " " + cmdAnd + " " + "cd " + rootPathWin + " ) else echo invalid directory: " + dirWin );
 	}
 	
 	@Override public String getDirCmdIfDir( ActionBase action , String dir , String cmd ) throws Exception {
 		String dirWin = Common.getWinPath( dir );
-		return( "if exist " + dirWin + " ( cd " + dirWin + " " + cmdAnd + " " + cmd + " " + cmdAnd + " " + "cd " + rootPath + " )" );
+		String rootPathWin = Common.getWinPath( rootPath );
+		return( "if exist " + dirWin + " ( cd " + dirWin + " " + cmdAnd + " " + cmd + " " + cmdAnd + " " + "cd " + rootPathWin + " )" );
 	}
 
 	@Override protected void killProcess( ActionBase action ) throws Exception {
