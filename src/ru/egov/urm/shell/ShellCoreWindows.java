@@ -283,7 +283,8 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public String[] cmdGrepFile( ActionBase action , String filePath , String mask ) throws Exception {
-		return( runCommandGetLines( action , "type " + filePath + " | findstr " + mask , true ) );
+		String wpath = Common.getWinPath( filePath );
+		return( runCommandGetLines( action , "type " + wpath + " | findstr " + mask , true ) );
 	}
 
 	@Override public void cmdReplaceFileLine( ActionBase action , String filePath , String mask , String newLine ) throws Exception {
