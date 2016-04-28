@@ -69,6 +69,7 @@ public class Metadata {
 		GENERIC_SERVER ,
 		GENERIC_COMMAND ,
 		GENERIC_NOSSH ,
+		GENERIC_DATABASE ,
 		DATABASE
 	};
 

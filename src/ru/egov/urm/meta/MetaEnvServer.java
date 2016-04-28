@@ -550,7 +550,8 @@ public class MetaEnvServer {
 	public boolean isGeneric( ActionBase action ) throws Exception {
 		if( serverType == VarSERVERTYPE.GENERIC_COMMAND || 
 			serverType == VarSERVERTYPE.GENERIC_SERVER ||
-			serverType == VarSERVERTYPE.GENERIC_WEB )
+			serverType == VarSERVERTYPE.GENERIC_WEB ||
+			serverType == VarSERVERTYPE.GENERIC_DATABASE )
 			return( true );
 		return( false );
 	}

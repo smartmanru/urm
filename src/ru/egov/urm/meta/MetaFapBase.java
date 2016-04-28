@@ -84,11 +84,11 @@ public class MetaFapBase {
 	}
 
 	public void load( ActionBase action , Node node , MetaEnvServerNode serverNode ) throws Exception {
-		PropertySet meta = new PropertySet( "meta" , serverNode.properties );
+		PropertySet meta = new PropertySet( "meta" , serverNode.server.base.properties );
 		meta.loadFromAttributes( action , node );
 		scatterVariables( action , meta );
 		meta.loadFromElements( action , node );
-		meta.copyProperties( action , serverNode.server.base.properties );
+		meta.copyProperties( action , serverNode.properties );
 
 		properties = new PropertySet( "final" , null );
 		properties.copyProperties( action , meta );
