@@ -119,7 +119,7 @@ public class MetaEnvServer {
 	public void resolveLinks( ActionBase action ) throws Exception {
 		// check props
 		if( ROOTPATH == null || ROOTPATH.isEmpty() ) {
-			if( !deployments.isEmpty() )
+			if( deployments != null && !deployments.isEmpty() )
 				action.exit( "rootpath is empty, required for deployments" );
 			if( isGeneric( action ) )
 				action.exit( "rootpath is empty, required for generic server" );
