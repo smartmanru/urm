@@ -295,7 +295,7 @@ public class ShellCoreWindows extends ShellCore {
 				" " + cmdAnd + " rename " + filePathTmp + " " + Common.getBaseName( filePathWin );
 		
 		if( !newLine.isEmpty() )
-			cmd += "; echo " + newLine + " >> " + filePath;
+			cmd += " " + cmdAnd + " echo " + newLine + " >> " + filePath;
 		runCommandCheckDebug( action , cmd );
 	}
 	
@@ -352,14 +352,14 @@ public class ShellCoreWindows extends ShellCore {
 		String cmdDir = getDirCmdIfDir( action , dir , 
 				"for /f %x in ('dir /b /ad ^| findstr /R " + 
 				Common.getQuoted( filesRegular ) + " ^| findstr /V " +
-				Common.getQuoted( excludeRegular ) + "') do @rmdir /Q /S %x" );
+				Common.getQuoted( excludeRegular ) + "') do rmdir /Q /S %x" );
 		runCommand( action , cmdDir , true );
 		checkOut( action , "errors on delete dirs" );
 		
 		cmdDir = getDirCmdIfDir( action , dir , 
 				"for /f %x in ('dir /b /a-d ^| findstr /R " + 
 				Common.getQuoted( filesRegular ) + " ^| findstr /V " +
-				Common.getQuoted( excludeRegular ) + "') do @del /Q %x" );
+				Common.getQuoted( excludeRegular ) + "') do del /Q %x" );
 		runCommand( action , cmdDir , true );
 		checkOut( action , "errors on delete files" );
 	}
