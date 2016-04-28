@@ -1,5 +1,6 @@
 package ru.egov.urm.action.database;
 
+import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionInit;
 import ru.egov.urm.action.ActionScope;
 import ru.egov.urm.action.CommandAction;
@@ -19,7 +20,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	MetaEnv env;
 	MetaEnvDC dc;
 	
-	String envMethods;
+	String propertyBasedMethods;
 	
 	public DatabaseCommandExecutor( CommandBuilder builder ) {
 		super( builder , NAME );
@@ -39,6 +40,8 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		super.defineAction( CommandAction.newAction( new ImportDB() , "import" , false , "import specified in etc/datapump/file dump to database" , cmdOpts , "./import.sh [OPTIONS] <server> {all|meta|data} [schema]" ) );
 		cmdOpts = "";
 		super.defineAction( CommandAction.newAction( new ExportDB() , "export" , false , "export specified in etc/datapump/file dump from database" , cmdOpts , "./export.sh [OPTIONS] <server> {all|meta|data [schema]}" ) );
+		
+		propertyBasedMethods = "initdb dbmanual dbapply import";
 	}
 	
 	public boolean run( ActionInit action ) {
@@ -47,7 +50,9 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 			impl = new DatabaseCommand();
 			meta.loadDistr( action );
 			meta.loadSources( action );
-			action.context.loadEnv( action , true );
+			
+			boolean loadProps = Common.checkPartOfSpacedList( commandAction.name , propertyBasedMethods ); 
+			action.context.loadEnv( action , loadProps );
 		}
 		catch( Throwable e ) {
 			action.log( e );
