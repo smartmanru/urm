@@ -586,8 +586,9 @@ public class ServerProcess {
 		
 		// windows operations
 		if( srv.isWindows( action ) ) {
+			String wpath = Common.getWinPath( srv.ROOTPATH ); 
 			shell.customCritical( action , F_FULLBINPATH , "server.prepare.cmd " + srv.NAME + " " +
-					srv.ROOTPATH + " " + action.context.CTX_EXTRAARGS );
+					wpath + " " + action.context.CTX_EXTRAARGS );
 			shell.checkErrors( action );
 			return( true );
 		}
