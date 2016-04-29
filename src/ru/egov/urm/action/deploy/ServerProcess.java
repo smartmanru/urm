@@ -541,6 +541,8 @@ public class ServerProcess {
 	
 	public boolean prepare( ActionBase action ) throws Exception {
 		boolean res = false;
+		int timeout = action.setTimeoutUnlimited();
+		
 		if( isService( action ) )
 			res = prepareService( action );
 		else
@@ -548,6 +550,8 @@ public class ServerProcess {
 			res = prepareGeneric( action );
 		else
 			action.exitUnexpectedState();
+		
+		action.setTimeout( timeout );
 		return( res );
 	}
 
