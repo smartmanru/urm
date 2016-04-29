@@ -1,8 +1,5 @@
 package ru.egov.urm.meta;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.w3c.dom.Node;
 
 import ru.egov.urm.PropertySet;
@@ -32,29 +29,29 @@ public class MetaEnvServerNode {
 
 	public void load( ActionBase action , Node node , boolean loadProps ) throws Exception {
 		properties = new PropertySet( "node" , server.properties );
-		properties.loadFromAttributes( action , node );
+		properties.loadRawFromAttributes( action , node );
 		scatterSystemProperties( action );
-		if( loadProps )
-			properties.loadFromElements( action , node );
+		if( loadProps ) {
+			properties.loadRawFromElements( action , node );
+			properties.moveRawAsStrings( action );
+		}
 	}
 	
 	public void scatterSystemProperties( ActionBase action ) throws Exception {
-		List<String> systemProps = new LinkedList<String>();
-	
 		action.trace( "load properties of node=" + POS );
-		HOSTLOGIN = properties.getSystemRequiredProperty( action , "hostlogin" , systemProps );
-		DEPLOYGROUP = properties.getSystemProperty( action , "deploygroup" , "" , systemProps );
+		HOSTLOGIN = properties.getSystemRequiredStringProperty( action , "hostlogin" );
+		DEPLOYGROUP = properties.getSystemStringProperty( action , "deploygroup" , "" );
 		
 		if( server.isDatabase( action ) )
-			INSTANCE = properties.getSystemRequiredProperty( action , "instance" , systemProps );
+			INSTANCE = properties.getSystemRequiredStringProperty( action , "instance" );
 		
-		NODETYPE = properties.getSystemProperty( action , "type" , "self" , systemProps );
+		NODETYPE = properties.getSystemStringProperty( action , "type" , "self" );
 		nodeType = action.meta.getNodeType( action , NODETYPE );
 		
-		OFFLINE = properties.getSystemBooleanProperty( action , "offline" , false , systemProps );
-		STANDBY = properties.getSystemBooleanProperty( action , "standby" , false , systemProps );
+		OFFLINE = properties.getSystemBooleanProperty( action , "offline" , false );
+		STANDBY = properties.getSystemBooleanProperty( action , "standby" , false );
 		
-		properties.checkUnexpected( action , systemProps );
+		properties.finishRawProperties( action );
 	}
 
 	public MetaEnvServerNode getProxyNode( ActionBase action ) throws Exception {

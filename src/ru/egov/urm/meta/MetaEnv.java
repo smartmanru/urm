@@ -50,7 +50,6 @@ public class MetaEnv {
 	
 	List<MetaEnvDC> originalList;
 	Map<String,MetaEnvDC> dcMap;
-	List<String> systemProps;
 	
 	public MetaEnv( Metadata meta ) {
 		this.meta = meta;
@@ -67,7 +66,6 @@ public class MetaEnv {
 	}
 	
 	public void load( ActionBase action , MetadataStorage storage , String envFile , boolean loadProps ) throws Exception {
-		systemProps = new LinkedList<String>();
 		if( loaded )
 			return;
 
@@ -89,17 +87,20 @@ public class MetaEnv {
 		
 		secretProperties = new PropertySet( "secret" , meta.product.props ); 		
 		properties = new PropertySet( "env" , secretProperties );
-		properties.loadFromAttributes( action , node );
+		properties.loadRawFromAttributes( action , node );
 		scatterSystemProperties( action );
 		
-		if( loadProps )
-			properties.loadFromElements( action , node );
+		if( loadProps ) {
+			properties.loadRawFromElements( action , node );
+			properties.moveRawAsStrings( action );
+		}
 	}
 
 	public void loadSecretProperties( ActionBase action ) throws Exception {
 		if( !action.context.CTX_HIDDENPATH.isEmpty() ) {
 			String propFile = Common.getPath( action.context.CTX_HIDDENPATH , SECRETPROPERTYFILE );
-			secretProperties.loadFromFile( action , propFile );
+			secretProperties.loadRawFromFile( action , propFile );
+			secretProperties.moveRawAsStrings( action );
 		}
 	}
 	
@@ -108,30 +109,28 @@ public class MetaEnv {
 	}
 
 	public String getPropertyValue( ActionBase action , String var ) throws Exception {
-		return( properties.getProperty( action , var ) );
+		return( properties.getPropertyAny( action , var ) );
 	}
 	
 	private void scatterSystemProperties( ActionBase action ) throws Exception {
-		systemProps.clear();
-		
-		ID = properties.getSystemRequiredProperty( action , "id" , systemProps );
+		ID = properties.getSystemRequiredStringProperty( action , "id" );
 		action.trace( "load properties of env=" + ID );
 		
-		CONF_SECRETFILESPATH = properties.getSystemPathProperty( action , "configuration-secretfilespath" , "" , systemProps );
-		BASELINE = properties.getSystemProperty( action , "configuration-baseline" , "" , systemProps );
-		REDISTPATH = properties.getSystemPathProperty( action , "redist-path" , meta.product.CONFIG_REDISTPATH , systemProps );
-		DISTR_USELOCAL = properties.getSystemBooleanProperty( action , "distr-use-local" , true , systemProps );
+		CONF_SECRETFILESPATH = properties.getSystemPathProperty( action , "configuration-secretfilespath" , "" );
+		BASELINE = properties.getSystemStringProperty( action , "configuration-baseline" , "" );
+		REDISTPATH = properties.getSystemPathProperty( action , "redist-path" , meta.product.CONFIG_REDISTPATH );
+		DISTR_USELOCAL = properties.getSystemBooleanProperty( action , "distr-use-local" , true );
 		if( DISTR_USELOCAL )
 			DISTR_HOSTLOGIN = action.context.account.HOSTLOGIN;
 		else
-			DISTR_HOSTLOGIN = properties.getSystemProperty( action , "distr-hostlogin" , meta.product.CONFIG_DISTR_HOSTLOGIN , systemProps );
+			DISTR_HOSTLOGIN = properties.getSystemStringProperty( action , "distr-hostlogin" , meta.product.CONFIG_DISTR_HOSTLOGIN );
 		
-		DISTR_PATH = properties.getSystemPathProperty( action , "distr-path" , meta.product.CONFIG_DISTR_PATH , systemProps );
-		UPGRADE_PATH = properties.getSystemPathProperty( action , "upgrade-path" , meta.product.CONFIG_UPGRADE_PATH , systemProps );
-		CHATROOMFILE = properties.getSystemPathProperty( action , "chatroomfile" , "" , systemProps );
-		KEYNAME = properties.getSystemPathProperty( action , "keyname" , "" , systemProps );
-		DB_AUTHFILE = properties.getSystemPathProperty( action , "db-authfile" , "" , systemProps );
-		PROD = properties.getSystemBooleanProperty( action , "prod" , false , systemProps );
+		DISTR_PATH = properties.getSystemPathProperty( action , "distr-path" , meta.product.CONFIG_DISTR_PATH );
+		UPGRADE_PATH = properties.getSystemPathProperty( action , "upgrade-path" , meta.product.CONFIG_UPGRADE_PATH );
+		CHATROOMFILE = properties.getSystemPathProperty( action , "chatroomfile" , "" );
+		KEYNAME = properties.getSystemPathProperty( action , "keyname" , "" );
+		DB_AUTHFILE = properties.getSystemPathProperty( action , "db-authfile" , "" );
+		PROD = properties.getSystemBooleanProperty( action , "prod" , false );
 
 		// affect runtime options
 		DB_AUTH = getOptionFlag( action , "db-auth" );
@@ -141,12 +140,11 @@ public class MetaEnv {
 		CONF_DEPLOY = getOptionFlag( action , "configuration-deploy" );
 		CONF_KEEPALIVE = getOptionFlag( action , "configuration-keepalive" );
 
-		properties.checkUnexpected( action , systemProps );
+		properties.finishRawProperties( action );
 	}
 
 	private FLAG getOptionFlag( ActionBase action , String envParam ) throws Exception {
-		systemProps.add( properties.set + "." + envParam );
-		String value = properties.findProperty( action , envParam , null );
+		String value = properties.getStringProperty( action , envParam , null );
 		
 		FLAG retval;
 		if( value == null || value.isEmpty() )

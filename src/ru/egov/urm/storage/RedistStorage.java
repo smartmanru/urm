@@ -141,13 +141,6 @@ public class RedistStorage extends ServerStorage {
 	}
 
 	public Folder getMirrorFolder( ActionBase action , boolean winBuild ) throws Exception {
-		if( winBuild ) {
-			RemoteFolder folder = getRedistFolder( action );
-			if( action.meta.product.CONFIG_GITMIRRORPATHWIN.isEmpty() )
-				action.exit( "missing configuraion parameter: CONFIG_GITMIRRORPATHWIN" );
-			return( folder.getSubFolder( action , action.meta.product.CONFIG_GITMIRRORPATHWIN ) );
-		}
-		
 		if( action.meta.product.CONFIG_GITMIRRORPATH.isEmpty() )
 			action.exit( "missing configuraion parameter: CONFIG_GITMIRRORPATH" );
 		

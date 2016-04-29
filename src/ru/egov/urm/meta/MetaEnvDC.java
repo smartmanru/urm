@@ -45,10 +45,12 @@ public class MetaEnvDC {
 	
 	public void load( ActionBase action , Node node , boolean loadProps ) throws Exception {
 		properties = new PropertySet( "dc" , env.properties );
-		properties.loadFromAttributes( action , node );
+		properties.loadRawFromAttributes( action , node );
 		scatterSystemProperties( action );
-		if( loadProps )
-			properties.loadFromElements( action , node );
+		if( loadProps ) {
+			properties.loadRawFromElements( action , node );
+			properties.moveRawAsStrings( action );
+		}
 		
 		loadServers( action , node , loadProps );
 		loadStartOrder( action , node );
@@ -60,20 +62,18 @@ public class MetaEnvDC {
 	}
 
 	public String getPropertyValue( ActionBase action , String var ) throws Exception {
-		return( properties.getProperty( action , var ) );
+		return( properties.getPropertyAny( action , var ) );
 	}
 	
 	private void scatterSystemProperties( ActionBase action ) throws Exception {
-		List<String> systemProps = new LinkedList<String>();
-		
-		NAME = properties.getSystemRequiredProperty( action , "name" , systemProps );
+		NAME = properties.getSystemRequiredStringProperty( action , "name" );
 		action.trace( "load properties of dc=" + NAME );
 		
-		BASELINE = properties.getSystemProperty( action , "configuration-baseline" , "" , systemProps );
+		BASELINE = properties.getSystemStringProperty( action , "configuration-baseline" , "" );
 		if( BASELINE.equals( "default" ) )
 			BASELINE = NAME;
 		
-		properties.checkUnexpected( action , systemProps );
+		properties.finishRawProperties( action );
 	}
 	
 	public void loadDeployment( ActionBase action , Node node ) throws Exception {
@@ -101,7 +101,6 @@ public class MetaEnvDC {
 			originalList.add( server );
 		}
 	}
-
 	
 	public void resolveLinks( ActionBase action ) throws Exception {
 		for( MetaEnvServer server : originalList )

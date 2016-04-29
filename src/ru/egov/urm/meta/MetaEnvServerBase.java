@@ -1,8 +1,6 @@
 package ru.egov.urm.meta;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.w3c.dom.Node;
@@ -25,11 +23,11 @@ public class MetaEnvServerBase {
 
 	public void load( ActionBase action , Node node ) throws Exception {
 		properties = new PropertySet( "base" , server.properties );
-		List<String> systemProps = new LinkedList<String>();
-		properties.loadFromAttributes( action , node );
-		ID = properties.getSystemRequiredProperty( action , "id" , systemProps );
-		properties.checkUnexpected( action , systemProps );
-		properties.loadFromElements( action , node );
+		properties.loadRawFromAttributes( action , node );
+		ID = properties.getSystemRequiredStringProperty( action , "id" );
+		properties.finishRawProperties( action );
+		properties.loadRawFromElements( action , node );
+		properties.moveRawAsStrings( action );
 		
 		loadPrepare( action , node );
 	}

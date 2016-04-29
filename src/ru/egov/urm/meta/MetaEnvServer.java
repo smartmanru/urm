@@ -97,10 +97,12 @@ public class MetaEnvServer {
 	
 	public void load( ActionBase action , Node node , boolean loadProps ) throws Exception {
 		properties = new PropertySet( "server" , dc.properties );
-		properties.loadFromAttributes( action , node );
+		properties.loadRawFromAttributes( action , node );
 		scatterSystemProperties( action );
-		if( loadProps )
-			properties.loadFromElements( action , node );
+		if( loadProps ) {
+			properties.loadRawFromElements( action , node );
+			properties.moveRawAsStrings( action );
+		}
 
 		loadNodes( action , node , loadProps );
 		if( action.meta.distr != null )
@@ -113,7 +115,7 @@ public class MetaEnvServer {
 	}
 	
 	public String getPropertyValue( ActionBase action , String var ) throws Exception {
-		return( properties.getProperty( action , var ) );
+		return( properties.getPropertyAny( action , var ) );
 	}
 	
 	public void resolveLinks( ActionBase action ) throws Exception {
@@ -166,29 +168,28 @@ public class MetaEnvServer {
 	}
 	
 	private void scatterSystemProperties( ActionBase action ) throws Exception {
-		List<String> systemProps = new LinkedList<String>();
 		datagroupMap = new HashMap<String,MetaDatabaseDatagroup>(); 
 		
-		NAME = properties.getSystemRequiredProperty( action , "name" , systemProps );
+		NAME = properties.getSystemRequiredStringProperty( action , "name" );
 		action.trace( "load properties of server=" + NAME );
 		
-		BASELINE = properties.getSystemProperty( action , "configuration-baseline" , "" , systemProps ); 
+		BASELINE = properties.getSystemStringProperty( action , "configuration-baseline" , "" ); 
 		if( BASELINE.equals( "default" ) )
 			BASELINE = NAME;
 		
-		SERVERTYPE = properties.getSystemRequiredProperty( action , "type" , systemProps );
+		SERVERTYPE = properties.getSystemRequiredStringProperty( action , "type" );
 		serverType = action.meta.getServerType( action , SERVERTYPE );
-		osType = action.meta.getOSType( action , properties.getSystemProperty( action , "ostype" , "unix" , systemProps ) );
-		OFFLINE = properties.getSystemBooleanProperty( action , "offline" , false , systemProps );
-		XDOC = properties.getSystemProperty( action , "xdoc" , NAME , systemProps );
+		osType = action.meta.getOSType( action , properties.getSystemStringProperty( action , "ostype" , "unix" ) );
+		OFFLINE = properties.getSystemBooleanProperty( action , "offline" , false );
+		XDOC = properties.getSystemPathProperty( action , "xdoc" , NAME );
 		
 		if( isDatabase( action ) ) {
-			DBMSTYPE = action.meta.getDbmsType( action , properties.getSystemRequiredProperty( action , "dbmstype" , systemProps ) );
-			DBMSADDR = properties.getSystemRequiredProperty( action , "dbmsaddr" , systemProps );
-			DATAGROUPS = properties.getSystemRequiredProperty( action , "datagroups" , systemProps );
-			ALIGNED = properties.getSystemProperty( action , "aligned" , "" , systemProps );
-			REGIONS = properties.getSystemProperty( action , "regions" , "" , systemProps );
-			ADMSCHEMA = properties.getSystemProperty( action , "admschema" , "" , systemProps );
+			DBMSTYPE = action.meta.getDbmsType( action , properties.getSystemRequiredStringProperty( action , "dbmstype" ) );
+			DBMSADDR = properties.getSystemRequiredStringProperty( action , "dbmsaddr" );
+			DATAGROUPS = properties.getSystemRequiredStringProperty( action , "datagroups" );
+			ALIGNED = properties.getSystemStringProperty( action , "aligned" , "" );
+			REGIONS = properties.getSystemStringProperty( action , "regions" , "" );
+			ADMSCHEMA = properties.getSystemStringProperty( action , "admschema" , "" );
 			
 			if( action.meta.distr != null ) {
 				MetaDatabase database = action.meta.distr.database;
@@ -202,31 +203,31 @@ public class MetaEnvServer {
 		}
 		
 		if( isStartable( action ) ) {
-			ROOTPATH = properties.getSystemProperty( action , "rootpath" , "" , systemProps );
-			BINPATH = properties.getSystemProperty( action , "binpath" , "" , systemProps );
-			SERVICENAME = properties.getSystemProperty( action , "servicename" , "" , systemProps );
-			PORT = properties.getSystemIntProperty( action , "port" , 0 , systemProps );
-			NLBSERVER = properties.getSystemProperty( action , "nlbserver" , "" , systemProps );
-			PROXYSERVER = properties.getSystemProperty( action , "proxy-server" , "" , systemProps );
-			STATICSERVER = properties.getSystemProperty( action , "static-server" , "" , systemProps );
-			SUBORDINATESERVERS = properties.getSystemProperty( action , "subordinate-servers" , "" , systemProps );
-			STARTTIME = properties.getSystemIntProperty( action , "starttime" , 0 , systemProps );
-			STOPTIME = properties.getSystemIntProperty( action , "stoptime" , 0 , systemProps );
-			DEPLOYPATH = properties.getSystemProperty( action , "deploypath" , "" , systemProps );
-			LINKFROMPATH = properties.getSystemProperty( action , "linkfrompath" , "" , systemProps );
-			DEPLOYSCRIPT = properties.getSystemProperty( action , "deployscript" , "" , systemProps );
-			HOTDEPLOYPATH = properties.getSystemProperty( action , "hotdeploypath" , "" , systemProps );
-			HOTDEPLOYDATA = properties.getSystemProperty( action , "hotdeploydata" , "" , systemProps );
-			WEBDOMAIN = properties.getSystemProperty( action , "webdomain" , "" , systemProps );
-			WEBMAINURL = properties.getSystemProperty( action , "webmainurl" , "" , systemProps );
-			APPSERVER = properties.getSystemProperty( action , "appserver" , "" , systemProps );
-			APPSERVERVERSION = properties.getSystemProperty( action , "appserver-version" , "" , systemProps );
-			LOGPATH = properties.getSystemProperty( action , "logpath" , "" , systemProps );
-			LOGFILEPATH = properties.getSystemProperty( action , "logfilepath" , "" , systemProps );
-			NOPIDS = properties.getSystemBooleanProperty( action , "nopids" , false , systemProps );
+			ROOTPATH = properties.getSystemPathProperty( action , "rootpath" , "" );
+			BINPATH = properties.getSystemPathProperty( action , "binpath" , "" );
+			SERVICENAME = properties.getSystemStringProperty( action , "servicename" , "" );
+			PORT = properties.getSystemIntProperty( action , "port" , 0 );
+			NLBSERVER = properties.getSystemStringProperty( action , "nlbserver" , "" );
+			PROXYSERVER = properties.getSystemStringProperty( action , "proxy-server" , "" );
+			STATICSERVER = properties.getSystemStringProperty( action , "static-server" , "" );
+			SUBORDINATESERVERS = properties.getSystemStringProperty( action , "subordinate-servers" , "" );
+			STARTTIME = properties.getSystemIntProperty( action , "starttime" , 0 );
+			STOPTIME = properties.getSystemIntProperty( action , "stoptime" , 0 );
+			DEPLOYPATH = properties.getSystemPathProperty( action , "deploypath" , "" );
+			LINKFROMPATH = properties.getSystemPathProperty( action , "linkfrompath" , "" );
+			DEPLOYSCRIPT = properties.getSystemPathProperty( action , "deployscript" , "" );
+			HOTDEPLOYPATH = properties.getSystemPathProperty( action , "hotdeploypath" , "" );
+			HOTDEPLOYDATA = properties.getSystemStringProperty( action , "hotdeploydata" , "" );
+			WEBDOMAIN = properties.getSystemStringProperty( action , "webdomain" , "" );
+			WEBMAINURL = properties.getSystemStringProperty( action , "webmainurl" , "" );
+			APPSERVER = properties.getSystemStringProperty( action , "appserver" , "" );
+			APPSERVERVERSION = properties.getSystemStringProperty( action , "appserver-version" , "" );
+			LOGPATH = properties.getSystemPathProperty( action , "logpath" , "" );
+			LOGFILEPATH = properties.getSystemPathProperty( action , "logfilepath" , "" );
+			NOPIDS = properties.getSystemBooleanProperty( action , "nopids" , false );
 		}
 		
-		properties.checkUnexpected( action , systemProps );
+		properties.finishRawProperties( action );
 	}
 	
 	private void loadNodes( ActionBase action , Node node , boolean loadProps ) throws Exception {

@@ -180,7 +180,7 @@ public class ConfBuilder {
 		boolean changed = false;
 		for( int k = 0; k < fileLines.size(); k++ ) {
 			String s = fileLines.get( k );
-			String res = props.processValue( action , s );
+			String res = props.processFinalValue( action , s , server.osType );
 			if( res != null ) {
 				fileLines.set( k , res );
 				changed = true;
@@ -202,7 +202,7 @@ public class ConfBuilder {
 		boolean changed = false;
 		for( int k = 0; k < fileLines.size(); k++ ) {
 			String s = fileLines.get( k );
-			String res = props.processValue( action , s );
+			String res = props.processFinalValue( action , s , node.server.osType );
 			if( res != null ) {
 				fileLines.set( k , res );
 				changed = true;

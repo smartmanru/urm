@@ -120,12 +120,10 @@ public class BuildCommand {
 				action.log( "export " + key + "=" + exports.get( key ) );
 		}
 		
-		Map<String,String> props = action.meta.product.getProductProperties();
 		action.log( "-------------------");
 		action.log( "product properties:");
 		action.log( "-------------------");
-		for( String key : Common.getSortedKeys( props ) )
-			action.log( "property " + key + "=" + props.get( key ) );
+		action.meta.product.props.printValues( action );
 	}
 
 	public void checkout( ActionBase action , ActionScope scope , LocalFolder CODIR ) throws Exception {

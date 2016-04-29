@@ -1,6 +1,7 @@
 package ru.egov.urm;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -11,16 +12,87 @@ import org.w3c.dom.Node;
 
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.Metadata.VarNAMETYPE;
+import ru.egov.urm.meta.Metadata.VarOSTYPE;
 
 public class PropertySet {
 
+	private enum PropertyValueType {
+		PROPERTY_STRING ,
+		PROPERTY_NUMBER ,
+		PROPERTY_BOOL ,
+		PROPERTY_PATH
+	};
+	
+	private class PropertyValue {
+		PropertyValueType type;
+		String data;
+		
+		public PropertyValue() {
+		}
+		
+		public void setString( ActionBase action , String value ) throws Exception {
+			type = PropertyValueType.PROPERTY_STRING;
+			if( value == null || value.isEmpty() )
+				data = "";
+			else
+				data = value;
+		}
+		
+		public void setNumber( ActionBase action , String value ) throws Exception {
+			if( value == null || value.isEmpty() ) {
+				type = PropertyValueType.PROPERTY_NUMBER;
+				data = "";
+				return;
+			}
+			
+			try {
+				Integer.parseInt( value );
+			}
+			catch( Throwable e ) {
+				action.exit( "invalid number value=" + value );
+			}
+			
+			type = PropertyValueType.PROPERTY_NUMBER;
+			data = value;
+		}
+		
+		public void setBool( ActionBase action , String value ) throws Exception {
+			if( value == null || value.isEmpty() ) {
+				type = PropertyValueType.PROPERTY_BOOL;
+				data = "";
+				return;
+			}
+			
+			try {
+				Common.getBooleanValue( value );
+			}
+			catch( Throwable e ) {
+				action.exit( "invalid number value=" + value );
+			}
+			
+			type = PropertyValueType.PROPERTY_BOOL;
+			data = value;
+		}
+		
+		public void setPath( ActionBase action , String value ) throws Exception {
+			type = PropertyValueType.PROPERTY_PATH;
+			if( value == null || value.isEmpty() )
+				data = "";
+			else
+				data = Common.getLinuxPath( value ); 
+		}
+	}
+	
 	public String set;
 	PropertySet parent;
 	
-	private Map<String,String> properties;
+	private Map<String,PropertyValue> properties;
+	private Map<String,String> raw;
+	List<String> systemProps = new LinkedList<String>();
 
 	public PropertySet( String set , PropertySet parent ) {
-		properties = new HashMap<String,String>();
+		properties = new HashMap<String,PropertyValue>();
+		raw = new HashMap<String,String>();
 		
 		this.set = set;
 		this.parent = parent;
@@ -38,17 +110,23 @@ public class PropertySet {
 		
 		resolveProperties( action );
 	}
-	
-	public void loadFromAttributes( ActionBase action , Node node ) throws Exception {
-		Map<String,String> attrs = new HashMap<String,String>();
-		ConfReader.addAttributes( action , node , attrs );
-		for( String attr : attrs.keySet() )
-			setProperty( attr , attrs.get( attr ) );
+
+	public void moveRawAsStrings( ActionBase action ) throws Exception {
+		for( String key : raw.keySet() )
+			setStringProperty( action , key , raw.get( key ) );
 		
+		raw.clear();
 		resolveProperties( action );
 	}
 	
-	public void loadFromElements( ActionBase action , Node node ) throws Exception {
+	public void loadRawFromAttributes( ActionBase action , Node node ) throws Exception {
+		Map<String,String> attrs = new HashMap<String,String>();
+		ConfReader.addAttributes( action , node , attrs );
+		for( String attr : attrs.keySet() )
+			setRawProperty( attr , attrs.get( attr ) );
+	}
+	
+	public void loadRawFromElements( ActionBase action , Node node ) throws Exception {
 		Node[] items = ConfReader.xmlGetChildren( action , node , "property" );
 		if( items == null )
 			return;
@@ -56,38 +134,82 @@ public class PropertySet {
 		for( Node property : items ) {
 			String name = ConfReader.getNameAttr( action , property , VarNAMETYPE.ALPHANUMDOT );
 			String value = ConfReader.getAttrValue( action , property , "value" );
-			setProperty( name , value );
+			setRawProperty( name , value );
 		}
-
-		resolveProperties( action );
 	}
 
-	public void loadFromFile( ActionBase action , String path ) throws Exception {
+	public void loadRawFromFile( ActionBase action , String path ) throws Exception {
 		Properties props = ConfReader.readPropertyFile( action , path );
 		for( Object xkey : props.keySet() ) {
 			String key = ( String )xkey;
 			String value = props.getProperty( ( String )key );
-			setProperty( key , value );
+			
+			if( value.startsWith( "\"" ) && value.endsWith( "\"" ) )
+				value = value.substring( 1 , value.length() - 1 );
+			setRawProperty( key , value );
 		}
-		
-		resolveProperties( action );
 	}
 	
 	private void resolveProperties( ActionBase action ) throws Exception {
 		// resolve properties
-		for( Entry<String,String> entry : properties.entrySet() )
+		for( Entry<String,PropertyValue> entry : properties.entrySet() )
 			processEntry( action , entry );
 	}
 	
-	public void setProperty( String key , String value ) {
+	private void setProperty( String key , PropertyValue value ) {
 		properties.put( set + "." + key , value );
+	}
+
+	public void setRawProperty( String key , String value ) {
+		raw.put( set + "." + key , value );
+	}
+
+	private String getRawProperty( String key ) {
+		return( raw.get( set + "." + key ) );
+	}
+
+	public void setStringProperty( ActionBase action , String key , String value ) throws Exception {
+		PropertyValue pv = new PropertyValue();
+		pv.setString( action , value );
+		properties.put( set + "." + key , pv );
+	}
+
+	public void setBooleanProperty( ActionBase action , String key , String value ) throws Exception {
+		PropertyValue pv = new PropertyValue();
+		pv.setBool( action , value );
+		properties.put( set + "." + key , pv );
+	}
+
+	public void setNumberProperty( ActionBase action , String key , String value ) throws Exception {
+		PropertyValue pv = new PropertyValue();
+		pv.setNumber( action , value );
+		properties.put( set + "." + key , pv );
+	}
+
+	public void setPathProperty( ActionBase action , String key , String value ) throws Exception {
+		PropertyValue pv = new PropertyValue();
+		pv.setPath( action , value );
+		properties.put( set + "." + key , pv );
 	}
 
 	public Set<String> keySet() {
 		return( properties.keySet() );
 	}
+
+	public PropertyValue processValue( ActionBase action , PropertyValue value ) throws Exception {
+		PropertyValue newValue = new PropertyValue();
+		newValue.type = value.type;
+		newValue.data = processValue( action , value.data , false , null );
+		if( newValue.data == null )
+			newValue.data = "";
+		return( newValue );
+	}
+
+	public String processFinalValue( ActionBase action , String value , VarOSTYPE osType ) throws Exception {
+		return( processValue( action , value , true , osType ) );
+	}
 	
-	public String processValue( ActionBase action , String value ) throws Exception {
+	private String processValue( ActionBase action , String value , boolean finalValue , VarOSTYPE osType ) throws Exception {
 		int indexFrom = value.indexOf( '@' );
 		if( indexFrom < 0 )
 			return( null );
@@ -101,8 +223,28 @@ public class PropertySet {
 			String var = value.substring( indexFrom + 1 , indexTo );
 			if( var.isEmpty() )
 				res += "@";
-			else
-				res += getProperty( action , var );
+			else {
+				PropertyValue pv = getPropertyInternal( action , var , false );
+				if( pv.type == PropertyValueType.PROPERTY_PATH ) {
+					String s = pv.data;
+					if( s.startsWith( "~/") )
+						s = action.context.userHome + s.substring( 1 );
+					
+					if( finalValue ) {
+						if( osType == VarOSTYPE.UNIX )
+							s = Common.getLinuxPath( s );
+						else
+						if( osType == VarOSTYPE.WINDOWS )
+							s = Common.getWinPath( s );
+						else
+							action.exitUnexpectedState();
+					}
+					
+					res += s;
+				}
+				else
+					res += pv.data; 
+			}
 			
 			indexFrom = value.indexOf( '@' , indexTo + 1 );
 			if( indexFrom < 0 ) {
@@ -123,20 +265,41 @@ public class PropertySet {
 		return( res );
 	}
 	
-	private void processEntry( ActionBase action , Entry<String,String> entry ) throws Exception {
-		String res = processValue( action , entry.getValue() );
+	private void processEntry( ActionBase action , Entry<String,PropertyValue> entry ) throws Exception {
+		PropertyValue res = processValue( action , entry.getValue() );
 		if( res != null )
 			entry.setValue( res );
 	}
 
-	public String getProperty( ActionBase action , String name ) throws Exception {
-		return( getPropertyInternal( action , name , false ) );
+	public String getPropertyAny( ActionBase action , String name ) throws Exception {
+		PropertyValue pv = getPropertyInternal( action , name , false );
+		if( pv == null )
+			return( null );
+		return( pv.data );
 	}
 	
-	private String getPropertyInternal( ActionBase action , String name , boolean system ) throws Exception {
+	public String getFinalProperty( ActionBase action , String name , boolean system ) throws Exception {
+		PropertyValue pv = getPropertyInternal( action , name , system );
+		if( pv == null )
+			return( "" );
+		if( pv.type != PropertyValueType.PROPERTY_PATH )
+			return( pv.data );
+		
+		if( action.isLinux() )
+			return( Common.getLinuxPath( pv.data ) );
+		if( action.isWindows() )
+			return( Common.getWinPath( pv.data ) );
+		
+		action.exitUnexpectedState();
+		return( null );
+	}
+	
+	private PropertyValue getPropertyInternal( ActionBase action , String name , boolean system ) throws Exception {
 		// prefixed var
-		if( properties.containsKey( name ) )
-			return( properties.get( name ) );
+		if( properties.containsKey( name ) ) {
+			PropertyValue pv = properties.get( name );
+			return( pv );
+		}
 		
 		// unprefixed var
 		String setName = set + "." + name;
@@ -147,18 +310,21 @@ public class PropertySet {
 		if( parent == null || system )
 			action.exit( "set=" + set + ": unresolved variable=" + name );
 			
-		return( parent.getProperty( action , name ) );
+		return( parent.getPropertyInternal( action , name , false ) );
 	}
 
-	public String findProperty( ActionBase action , String name ) throws Exception {
-		return( findProperty( action , name , "" ) );
+	public String findPropertyAny( ActionBase action , String name ) throws Exception {
+		return( findPropertyAny( action , name , "" ) );
 	}
 
-	public String findProperty( ActionBase action , String name , String defaultValue ) throws Exception {
-		return( findPropertyInternal( action , name , defaultValue , false ) );
+	public String findPropertyAny( ActionBase action , String name , String defaultValue ) throws Exception {
+		PropertyValue pv = findPropertyInternal( action , name , null , false );
+		if( pv == null )
+			return( defaultValue );
+		return( pv.data );
 	}
 	
-	private String findPropertyInternal( ActionBase action , String name , String defaultValue , boolean system ) throws Exception {
+	private PropertyValue findPropertyInternal( ActionBase action , String name , PropertyValue defaultValue , boolean system ) throws Exception {
 		// prefixed var
 		if( properties.containsKey( name ) )
 			return( properties.get( name ) );
@@ -172,49 +338,45 @@ public class PropertySet {
 		if( parent == null || system )
 			return( defaultValue );
 			
-		return( parent.getProperty( action , setName , defaultValue ) );
+		return( parent.findPropertyInternal( action , setName , defaultValue , false ) );
 	}
 
-	public String getSystemRequiredProperty( ActionBase action , String name , List<String> props ) throws Exception {
-		props.add( set + "." + name );
-		return( getRequiredPropertyInternal( action , name , true ) );
-	}
-
-	public String getRequiredProperty( ActionBase action , String name ) throws Exception {
-		return( getRequiredPropertyInternal( action , name , false ) );
+	public String getRequiredPropertyAny( ActionBase action , String name ) throws Exception {
+		PropertyValue pv = getRequiredPropertyInternal( action , name , false );
+		return( pv.data );
 	}
 	
-	private String getRequiredPropertyInternal( ActionBase action , String name , boolean system ) throws Exception {
-		String value = getPropertyInternal( action , name , system );
-		if( value == null || value.isEmpty() )
+	private PropertyValue getRequiredPropertyInternal( ActionBase action , String name , boolean system ) throws Exception {
+		PropertyValue pv = getPropertyInternal( action , name , system );
+		if( pv == null )
 			action.exit( "set=" + set + ": empty property=" + name );
-		return( value );
+		return( pv );
 	}
 
-	public String getSystemPathProperty( ActionBase action , String name , String defaultValue , List<String> props ) throws Exception {
-		String dir = getSystemProperty( action , name , defaultValue , props );
-		return( Common.getLinuxPath( dir ) );
-	}
-	
-	public String getSystemProperty( ActionBase action , String name , String defaultValue , List<String> props ) throws Exception {
-		props.add( set + "." + name );
-		return( getPropertyInternal( action , name , defaultValue , true ) );
+	private String getPathPropertyInternal( ActionBase action , String name , String defaultValue , boolean system ) throws Exception {
+		PropertyValue pv = findPropertyInternal( action , name , null , system );
+		if( pv == null )
+			return( Common.getLinuxPath( defaultValue ) );
+		if( pv.type != PropertyValueType.PROPERTY_PATH )
+			action.exit( "property is not string name=" + name );
+		return( pv.data );
 	}
 
-	public String getProperty( ActionBase action , String name , String defaultValue ) throws Exception {
-		return( getPropertyInternal( action , name , defaultValue , false ) );
+	public String getStringProperty( ActionBase action , String name , String defaultValue ) throws Exception {
+		return( getStringPropertyInternal( action , name , defaultValue , false ) );
 	}
 	
-	private String getPropertyInternal( ActionBase action , String name , String defaultValue , boolean system ) throws Exception {
-		String value = findPropertyInternal( action , name , defaultValue , system );
-		if( value == null || value.isEmpty() )
+	public String getPathProperty( ActionBase action , String name , String defaultValue ) throws Exception {
+		return( getPathPropertyInternal( action , name , defaultValue , false ) );
+	}
+	
+	private String getStringPropertyInternal( ActionBase action , String name , String defaultValue , boolean system ) throws Exception {
+		PropertyValue pv = findPropertyInternal( action , name , null , system );
+		if( pv == null )
 			return( defaultValue );
-		return( value );
-	}
-
-	public int getSystemIntProperty( ActionBase action , String name , int defaultValue , List<String> props ) throws Exception {
-		props.add( set + "." + name );
-		return( getIntPropertyInternal( action , name , defaultValue , true ) );
+		if( pv.type != PropertyValueType.PROPERTY_STRING )
+			action.exit( "property is not string name=" + name );
+		return( pv.data );
 	}
 
 	public int getIntProperty( ActionBase action , String name , int defaultValue ) throws Exception {
@@ -222,15 +384,12 @@ public class PropertySet {
 	}
 	
 	private int getIntPropertyInternal( ActionBase action , String name , int defaultValue , boolean system ) throws Exception {
-		String value = findPropertyInternal( action , name , null , system );
-		if( value == null || value.isEmpty() )
+		PropertyValue pv = findPropertyInternal( action , name , null , system );
+		if( pv == null )
 			return( defaultValue );
-		return( Integer.parseInt( value ) );
-	}
-
-	public boolean getSystemBooleanProperty( ActionBase action , String name , boolean defaultValue , List<String> props ) throws Exception {
-		props.add( set + "." + name );
-		return( getBooleanPropertyInternal( action , name , defaultValue , true ) );
+		if( pv.type != PropertyValueType.PROPERTY_NUMBER )
+			action.exit( "property is not number name=" + name );
+		return( Integer.parseInt( pv.data ) );
 	}
 
 	public boolean getBooleanProperty( ActionBase action , String name , boolean defaultValue ) throws Exception {
@@ -238,24 +397,98 @@ public class PropertySet {
 	}
 	
 	private boolean getBooleanPropertyInternal( ActionBase action , String name , boolean defaultValue , boolean system ) throws Exception {
-		String value = findPropertyInternal( action , name , null , system );
-		if( value == null || value.isEmpty() )
+		PropertyValue pv = findPropertyInternal( action , name , null , system );
+		if( pv == null )
 			return( defaultValue );
-		return( Common.getBooleanValue( value ) );
-	}
-
-	public void checkUnexpected( ActionBase action , List<String> props ) throws Exception {
-		for( String prop : properties.keySet() ) {
-			if( !props.contains( prop ) )
-				action.exit( "set=" + set + ": unexpected property=" + prop );
-		}
+		if( pv.type != PropertyValueType.PROPERTY_BOOL )
+			action.exit( "property is not boolean name=" + name );
+		return( Common.getBooleanValue( pv.data ) );
 	}
 
 	public void printValues( ActionBase action ) throws Exception {
 		for( String prop : properties.keySet() ) {
-			String value = properties.get( prop );
-			action.log( "property " + prop + "=" + value );
+			PropertyValue pv = properties.get( prop );
+			action.log( "property " + prop + "=" + pv.data );
 		}
+	}
+
+	public String getSystemRequiredStringProperty( ActionBase action , String name ) throws Exception {
+		systemProps.add( set + "." + name );
+		String value = getRawProperty( name );
+		if( value != null ) {
+			PropertyValue pv = new PropertyValue();
+			pv.setString( action , value );
+			setProperty( name , pv );
+		}
+		
+		PropertyValue pv = getRequiredPropertyInternal( action , name , true );
+		if( pv.type != PropertyValueType.PROPERTY_STRING )
+			action.exit( "property is not boolean name=" + name );
+		
+		return( pv.data );
+	}
+
+	public String getSystemRequiredPathProperty( ActionBase action , String name ) throws Exception {
+		String path = getSystemPathProperty( action , name , null );
+		if( path == null || path.isEmpty() )
+			action.exit( "property is required name=" + name );
+		return( path );
+	}
+	
+	public String getSystemPathProperty( ActionBase action , String name , String defaultValue ) throws Exception {
+		systemProps.add( set + "." + name );
+		String value = getRawProperty( name );
+		if( value != null ) {
+			PropertyValue pv = new PropertyValue();
+			pv.setPath( action , value );
+			setProperty( name , pv );
+		}
+		
+		return( getPathPropertyInternal( action , name , defaultValue , true ) );
+	}
+	
+	public String getSystemStringProperty( ActionBase action , String name , String defaultValue ) throws Exception {
+		systemProps.add( set + "." + name );
+		String value = getRawProperty( name );
+		if( value != null ) {
+			PropertyValue pv = new PropertyValue();
+			pv.setString( action , value );
+			setProperty( name , pv );
+		}
+		
+		return( getStringPropertyInternal( action , name , defaultValue , true ) );
+	}
+
+	public int getSystemIntProperty( ActionBase action , String name , int defaultValue ) throws Exception {
+		systemProps.add( set + "." + name );
+		String value = getRawProperty( name );
+		if( value != null ) {
+			PropertyValue pv = new PropertyValue();
+			pv.setNumber( action , value );
+			setProperty( name , pv );
+		}
+		
+		return( getIntPropertyInternal( action , name , defaultValue , true ) );
+	}
+
+	public boolean getSystemBooleanProperty( ActionBase action , String name , boolean defaultValue ) throws Exception {
+		systemProps.add( set + "." + name );
+		String value = getRawProperty( name );
+		if( value != null ) {
+			PropertyValue pv = new PropertyValue();
+			pv.setBool( action , value );
+			setProperty( name , pv );
+		}
+		
+		return( getBooleanPropertyInternal( action , name , defaultValue , true ) );
+	}
+
+	public void finishRawProperties( ActionBase action ) throws Exception {
+		for( String prop : raw.keySet() ) {
+			if( !systemProps.contains( prop ) )
+				action.exit( "set=" + set + ": unexpected property=" + prop );
+		}
+		raw.clear();
 	}
 
 }
