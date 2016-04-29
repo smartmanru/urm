@@ -34,6 +34,7 @@ function f_execute_all() {
 	local F_SAVEDIR=`pwd`
 	cd $P_DSTDIR/master
 	if [ -f bin/configure.sh ]; then
+		echo "run: configure.sh $URM_TRACE default ..."
 		bin/configure.sh $URM_TRACE default
 	fi
 }
