@@ -297,7 +297,7 @@ public class ShellCoreWindows extends ShellCore {
 				" " + cmdAnd + " rename " + filePathTmp + " " + Common.getBaseName( filePathWin );
 		
 		if( !newLine.isEmpty() )
-			cmd += " " + cmdAnd + " echo " + newLine + " >> " + filePath;
+			cmd += " " + cmdAnd + " echo " + newLine + " >> " + filePathWin;
 		runCommandCheckDebug( action , cmd );
 	}
 	
