@@ -294,7 +294,7 @@ public class ShellCoreWindows extends ShellCore {
 		String filePathTmp = filePathWin + ".new";
 		String cmd = "findstr /V " + mask + " " + filePathWin + " > " + filePathTmp + 
 				" " + cmdAnd + " del /Q " + filePathWin + 
-				" " + cmdAnd + " rename " + filePathTmp + " " + Common.getBaseName( filePathWin );
+				" " + cmdAnd + " rename " + filePathTmp + " " + Common.getBaseName( filePath );
 		
 		if( !newLine.isEmpty() )
 			cmd += " " + cmdAnd + " echo " + newLine + " >> " + filePathWin;
