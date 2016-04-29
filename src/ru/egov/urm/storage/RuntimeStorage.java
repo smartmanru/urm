@@ -283,7 +283,7 @@ public class RuntimeStorage extends ServerStorage {
 			action.exitUnexpectedState();
 		
 		if( !rf.checkFolderExists( action , installName ) )
-			action.exit( "unabled to extract " + archiveDir + " from archive" );
+			action.exit( "unable to extract " + archiveDir + " from archive" );
 	}
 
 	public void createDirLink( ActionBase action , String link , String runtimePath ) throws Exception {
