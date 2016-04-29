@@ -279,6 +279,11 @@ public class RuntimeStorage extends ServerStorage {
 		else
 		if( archiveType == VarARCHIVETYPE.ZIP )
 			rf.unzipSingleFile( action , archivePath , archiveDir , installName );
+		else
+			action.exitUnexpectedState();
+		
+		if( !rf.checkFolderExists( action , installName ) )
+			action.exit( "unabled to extract " + archiveDir + " from archive" );
 	}
 
 	public void createDirLink( ActionBase action , String link , String runtimePath ) throws Exception {
