@@ -325,4 +325,10 @@ public class RuntimeStorage extends ServerStorage {
 		runtimeDir.ensureExists( action );
 	}
 	
+	public void createBinPath( ActionBase action ) throws Exception {
+		String path = Common.getPath( server.ROOTPATH , server.BINPATH );
+		RemoteFolder runtimeDir = new RemoteFolder( artefactory , action.getNodeAccount( node ) , path );
+		runtimeDir.ensureExists( action );
+	}
+	
 }

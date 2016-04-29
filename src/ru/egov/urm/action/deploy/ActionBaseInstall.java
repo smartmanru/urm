@@ -212,6 +212,8 @@ public class ActionBaseInstall extends ActionBase {
 		builder.configureFolder( this , workBase , runtime.node , info.properties );
 		
 		// deploy
+		if( info.serverType != VarSERVERTYPE.SERVICE )
+			runtime.createBinPath( this );
 		runtime.restoreSysConfigs( this , redist , workBase );
 	}
 	
