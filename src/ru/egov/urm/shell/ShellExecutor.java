@@ -223,14 +223,14 @@ public abstract class ShellExecutor {
 	public void checkErrors( ActionBase action ) throws Exception {
 		String err = core.getErr();
 		if( !err.isEmpty() )
-			action.exit( "error executind CMD=" + core.cmdCurrent + ": " + err );
+			action.exit( "error executing CMD=" + core.cmdCurrent + ": " + err );
 	}
 
 	public void customCheckErrorsDebug( ActionBase action , String dir , String cmd ) throws Exception {
 		core.runCommand( action , dir , cmd , true );
 		String err = core.getErr();
 		if( !err.isEmpty() )
-			action.exit( "error executind CMD=" + cmd + ": " + err );
+			action.exit( "error executing CMD=" + cmd + ": " + err );
 	}
 
 	public void customCritical( ActionBase action , String dir , String cmd ) throws Exception {
