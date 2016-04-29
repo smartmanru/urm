@@ -188,18 +188,23 @@ public class ActionBaseInstall extends ActionBase {
 		if( info.serverType == null )
 			return;
 		
-		if( !runtime.server.isLinux( this ) )
-			exitUnexpectedState();
-		
 		LocalFolder workBase = artefactory.getWorkFolder( this , "sysbase" );
 		workBase.recreateThis( this );
 		
 		// copy system files from base
 		RemoteFolder baseMaster = info.getFolder( this );
-		if( info.serverType == VarSERVERTYPE.SERVICE )
+		if( info.serverType == VarSERVERTYPE.SERVICE ) {
+			if( !runtime.server.isLinux( this ) )
+				exitUnexpectedState();
+			
 			baseMaster.copyFileToLocalRename( this , workBase , "service" , runtime.server.SERVICENAME );
-		else
-			baseMaster.copyFilesToLocal( this , workBase , "server.*.sh" );
+		}
+		else {
+			if( runtime.server.isLinux( this ) )
+				baseMaster.copyFilesToLocal( this , workBase , "server.*.sh" );
+			else
+				baseMaster.copyFilesToLocal( this , workBase , "server.*.cmd" );
+		}
 		
 		// configure
 		ConfBuilder builder = new ConfBuilder( this );
