@@ -42,7 +42,9 @@ abstract class ShellCore {
 	public boolean running = false;
 	public boolean initialized = false;
 	
-	static String finishMarker = "URM.MARKER";  
+	static String finishMarker = "URM.MARKER";
+	static String EXECUTE_LOG = "execute.log";
+	static String UPLOAD_LOG = "upload.log";
 
 	abstract protected String getExportCmd( ActionBase action ) throws Exception;
 	abstract protected void getProcessAttributes( ActionBase action ) throws Exception;

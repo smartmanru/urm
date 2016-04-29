@@ -569,12 +569,12 @@ public class ShellCoreUnix extends ShellCore {
 	}
 	
 	@Override public void cmdAppendExecuteLog( ActionBase action , String msg ) throws Exception {
-		cmdAppendFileWithString( action , "~/execute.log" , Common.getQuoted( "`date` (SSH_CLIENT=$SSH_CLIENT): " + msg ) ); 
+		cmdAppendFileWithString( action , "~/" + EXECUTE_LOG , Common.getQuoted( "`date` (SSH_CLIENT=$SSH_CLIENT): " + msg ) ); 
 	}
 
 	@Override public void cmdAppendUploadLog( ActionBase action , String src , String dst ) throws Exception {
 		String msg = "upload " + dst + " from " + src;
-		cmdAppendFileWithString( action , "~/upload.log" , Common.getQuoted( "`date` (SSH_CLIENT=$SSH_CLIENT): " + msg ) ); 
+		cmdAppendFileWithString( action , "~/" + UPLOAD_LOG , Common.getQuoted( "`date` (SSH_CLIENT=$SSH_CLIENT): " + msg ) ); 
 	}
 
 	@Override public void cmdCreatePublicDir( ActionBase action , String dir ) throws Exception {

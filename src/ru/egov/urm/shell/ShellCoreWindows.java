@@ -622,13 +622,16 @@ public class ShellCoreWindows extends ShellCore {
 	}
 	
 	@Override public void cmdAppendExecuteLog( ActionBase action , String msg ) throws Exception {
-		String executeLog = Common.getWinPath( Common.getPath( executor.rootPath , "execute.log" ) );
+		String executeLog = Common.getWinPath( Common.getPath( executor.rootPath , EXECUTE_LOG ) );
 		String ts = Common.getLogTimeStamp();
 		runCommand( action , "echo " + Common.getQuoted( ts + ": " + msg ) + " >> " + executeLog , true );
 	}
 
 	@Override public void cmdAppendUploadLog( ActionBase action , String src , String dst ) throws Exception {
-		action.exitNotImplemented();
+		String executeLog = Common.getWinPath( Common.getPath( executor.rootPath , UPLOAD_LOG ) );
+		String ts = Common.getLogTimeStamp();
+		String msg = "upload " + dst + " from " + src;
+		runCommand( action , "echo " + Common.getQuoted( ts + ": " + msg ) + " >> " + executeLog , true );
 	}
 
 	@Override public String[] cmdGetFolders( ActionBase action , String rootPath ) throws Exception {
