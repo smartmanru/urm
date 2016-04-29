@@ -355,8 +355,11 @@ public class PropertySet {
 
 	private String getPathPropertyInternal( ActionBase action , String name , String defaultValue , boolean system ) throws Exception {
 		PropertyValue pv = findPropertyInternal( action , name , null , system );
-		if( pv == null )
+		if( pv == null ) {
+			if( defaultValue == null )
+				return( null );
 			return( Common.getLinuxPath( defaultValue ) );
+		}
 		if( pv.type != PropertyValueType.PROPERTY_PATH )
 			action.exit( "property is not string name=" + name );
 		return( pv.data );
