@@ -46,7 +46,7 @@ public class MetaEnvServerNode {
 			INSTANCE = properties.getSystemRequiredStringProperty( action , "instance" );
 		
 		NODETYPE = properties.getSystemStringProperty( action , "type" , "self" );
-		nodeType = action.meta.getNodeType( action , NODETYPE );
+		nodeType = action.meta.getNodeType( action , NODETYPE , VarNODETYPE.SELF );
 		
 		OFFLINE = properties.getSystemBooleanProperty( action , "offline" , false );
 		STANDBY = properties.getSystemBooleanProperty( action , "standby" , false );

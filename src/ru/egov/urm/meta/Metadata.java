@@ -277,7 +277,10 @@ public class Metadata {
 		return( value );
 	}
 	
-	public VarNODETYPE getNodeType( ActionBase action , String ID ) throws Exception {
+	public VarNODETYPE getNodeType( ActionBase action , String ID , VarNODETYPE defValue ) throws Exception {
+		if( ID == null || ID.isEmpty() )
+			return( defValue );
+		
 		VarNODETYPE value = null;
 		try {
 			value = VarNODETYPE.valueOf( Common.xmlToEnumValue( ID ) );
