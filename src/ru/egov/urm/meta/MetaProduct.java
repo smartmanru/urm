@@ -51,6 +51,7 @@ public class MetaProduct {
 	public String CONFIG_MAVEN_CMD;
 	public String CONFIG_MAVEN_ADDITIONAL_OPTIONS;
 	public String CONFIG_ADM_TRACKER;
+	public String CONFIG_COMMIT_TRACKERLIST;
 	public String CONFIG_RELEASEVER;
 	public String CONFIG_DISTR_PATH;
 	public String CONFIG_DISTR_HOSTLOGIN;
@@ -117,6 +118,7 @@ public class MetaProduct {
 		CONFIG_MAVEN_CMD = getStringProperty( action , "CONFIG_MAVEN_CMD" );
 		CONFIG_MAVEN_ADDITIONAL_OPTIONS = getStringProperty( action , "CONFIG_MAVEN_ADDITIONAL_OPTIONS" );
 		CONFIG_ADM_TRACKER = getStringPropertyRequired( action , "CONFIG_ADM_TRACKER" );
+		CONFIG_COMMIT_TRACKERLIST = getStringPropertyRequired( action , "CONFIG_COMMIT_TRACKERLIST" );
 		CONFIG_RELEASEVER = getStringProperty( action , "CONFIG_RELEASEVER" );
 		CONFIG_DISTR_PATH = getPathPropertyRequired( action , "CONFIG_DISTR_PATH" );
 		CONFIG_DISTR_HOSTLOGIN = getStringPropertyRequired( action , "CONFIG_DISTR_HOSTLOGIN" );
