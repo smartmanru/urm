@@ -490,4 +490,9 @@ abstract public class ActionBase {
 		return( session.isLinux() );
 	}
 
+	public void commentExecutor( String msg ) throws Exception {
+		String name = "URM " + executor.name + "::" + executor.commandAction.name;
+		comment( name + ": " + msg );
+	}
+	
 }

@@ -16,7 +16,6 @@ import ru.egov.urm.meta.Metadata;
 public class CommandBuilder {
 
 	public RunContext rc;
-	public String cmd;
 	public CommandOutput output = null;
 	public CommandOptions options = null;
 	public CommandContext context = null;
@@ -43,7 +42,7 @@ public class CommandBuilder {
 			return( null );
 		}
 		
-		cmd = args[0]; 
+		String cmd = args[0]; 
 		String helpName = ( rc.isWindows() )? "help.cmd" : "./help.sh";
 		if( cmd.equals( "help" ) ) { 
 			out( "URM HELP" );
@@ -131,11 +130,10 @@ public class CommandBuilder {
 			context.killPool( action );
 		}
 
-		String name = "URM " + cmd + "::" + executor.commandAction.name;
 		if( res )
-			action.comment( name + ": COMMAND SUCCESSFUL" );
+			action.commentExecutor( "COMMAND SUCCESSFUL" );
 		else
-			action.comment( name + ": COMMAND FAILED" );
+			action.commentExecutor( "COMMAND FAILED" );
 			
 		return( res );
 	}

@@ -58,6 +58,7 @@ public class MainExecutor extends CommandExecutor {
 	
 	public void run( ActionInit action ) throws Exception {
 		String ACTION = options.getRequiredArg( action , 0 , "ACTION" );
+		action.commentExecutor( "run " + ACTION + " ..." );
 		
 		LocalFolder pf = action.artefactory.getProductFolder( action );
 		pfMaster = pf.getSubFolder( action , "master" );
