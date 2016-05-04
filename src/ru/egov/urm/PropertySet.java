@@ -212,11 +212,11 @@ public class PropertySet {
 	private String processValue( ActionBase action , String value , boolean finalValue , VarOSTYPE osType ) throws Exception {
 		int indexFrom = value.indexOf( '@' );
 		if( indexFrom < 0 )
-			return( null );
+			return( value );
 		
 		int indexTo = value.indexOf( '@' , indexFrom + 1 );
 		if( indexTo < 0 )
-			return( null );
+			return( value );
 		
 		String res = value.substring( 0 , indexFrom );
 		while( true ) {
