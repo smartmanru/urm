@@ -56,6 +56,8 @@ public class MetaProduct {
 	public String CONFIG_DISTR_HOSTLOGIN;
 	public String CONFIG_UPGRADE_PATH;
 	public String CONFIG_BASE_PATH;
+	public String CONFIG_LAST_VERSION_BUILD;
+	public String CONFIG_NEXT_VERSION_BUILD;
 	public String CONFIG_VERSION_LAST_FULL;
 	public String CONFIG_VERSION_NEXT_FULL;
 	public String CONFIG_BRANCHNAME;
@@ -115,6 +117,8 @@ public class MetaProduct {
 		CONFIG_DISTR_HOSTLOGIN = getStringPropertyRequired( action , "CONFIG_DISTR_HOSTLOGIN" );
 		CONFIG_UPGRADE_PATH = getPathPropertyRequired( action , "CONFIG_UPGRADE_PATH" );
 		CONFIG_BASE_PATH = getPathPropertyRequired( action , "CONFIG_BASE_PATH" );
+		CONFIG_LAST_VERSION_BUILD = getStringProperty( action , "CONFIG_LAST_VERSION_BUILD" );
+		CONFIG_NEXT_VERSION_BUILD = getStringProperty( action , "CONFIG_NEXT_VERSION_BUILD" );
 		CONFIG_VERSION_LAST_FULL = getStringProperty( action , "CONFIG_VERSION_LAST_FULL" );
 		CONFIG_VERSION_NEXT_FULL = getStringProperty( action , "CONFIG_VERSION_NEXT_FULL" );
 		CONFIG_BRANCHNAME = getStringProperty( action , "CONFIG_BRANCHNAME" );
