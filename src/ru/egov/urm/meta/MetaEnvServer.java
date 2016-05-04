@@ -55,7 +55,7 @@ public class MetaEnvServer {
 	public String LOGFILEPATH;
 	public boolean NOPIDS;
 
-	public VarDBMSTYPE DBMSTYPE;
+	public VarDBMSTYPE dbType;
 	public String DBMSADDR;
 	public String DATAGROUPS;
 	public String ADMSCHEMA;
@@ -141,7 +141,7 @@ public class MetaEnvServer {
 		}
 		
 		// verify aligned
-		if( serverType == VarSERVERTYPE.DATABASE ) {
+		if( isDatabase( action ) ) {
 			for( String id : Common.splitSpaced( ALIGNED ) )
 				action.meta.distr.database.checkAligned( action , id );
 		}
@@ -184,7 +184,7 @@ public class MetaEnvServer {
 		XDOC = properties.getSystemPathProperty( action , "xdoc" , NAME );
 		
 		if( isDatabase( action ) ) {
-			DBMSTYPE = action.meta.getDbmsType( action , properties.getSystemRequiredStringProperty( action , "dbmstype" ) );
+			dbType = action.meta.getDbmsType( action , properties.getSystemRequiredStringProperty( action , "dbmstype" ) );
 			DBMSADDR = properties.getSystemRequiredStringProperty( action , "dbmsaddr" );
 			DATAGROUPS = properties.getSystemRequiredStringProperty( action , "datagroups" );
 			ALIGNED = properties.getSystemStringProperty( action , "aligned" , "" );
@@ -482,7 +482,7 @@ public class MetaEnvServer {
 	}
 
 	public boolean isDeployPossible( ActionBase action ) throws Exception {
-		if( serverType == VarSERVERTYPE.DATABASE || 
+		if( isDatabase( action ) || 
 			serverType == VarSERVERTYPE.GENERIC_NOSSH ||
 			serverType == VarSERVERTYPE.UNKNOWN ) {
 			action.trace( "ignore due to server type=" + Common.getEnumLower( serverType ) );
@@ -537,12 +537,13 @@ public class MetaEnvServer {
 	}
 
 	public boolean isDatabase( ActionBase action ) throws Exception {
-		return( serverType == VarSERVERTYPE.DATABASE ||
+		return( serverType == VarSERVERTYPE.SERVICE_DATABASE ||
 				serverType == VarSERVERTYPE.GENERIC_DATABASE );
 	}
 
 	public boolean isService( ActionBase action ) throws Exception {
-		return( serverType == VarSERVERTYPE.SERVICE );
+		return( serverType == VarSERVERTYPE.SERVICE ||
+				serverType == VarSERVERTYPE.SERVICE_DATABASE  );
 	}
 
 	public boolean isCommand( ActionBase action ) throws Exception {

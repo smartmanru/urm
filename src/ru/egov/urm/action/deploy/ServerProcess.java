@@ -2,7 +2,6 @@ package ru.egov.urm.action.deploy;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
-import ru.egov.urm.action.database.DatabaseProcess;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata.VarPROCESSMODE;
@@ -36,10 +35,6 @@ public class ServerProcess {
 		return( srv.isService( action ) );
 	}
 
-	public boolean isDatabase( ActionBase action ) throws Exception {
-		return( srv.isDatabase( action ) );
-	}
-	
 	public void gatherStatus( ActionBase action ) throws Exception {
 		mode = VarPROCESSMODE.UNKNOWN;
 		if( isService( action ) )
@@ -47,9 +42,6 @@ public class ServerProcess {
 		else
 		if( isGeneric( action ) )
 			gatherGenericStatus( action );
-		else
-		if( isDatabase( action ) )
-			gatherDatabaseStatus( action );
 		else
 			action.exitUnexpectedState();
 	}
@@ -145,11 +137,6 @@ public class ServerProcess {
 		}
 		
 		mode = VarPROCESSMODE.ERRORS;
-	}
-
-	private void gatherDatabaseStatus( ActionBase action ) throws Exception {
-		DatabaseProcess process = new DatabaseProcess( node );
-		mode = process.getStatus( action );
 	}
 
 	private void getPids( ActionBase action ) throws Exception {

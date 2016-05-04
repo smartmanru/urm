@@ -31,7 +31,7 @@ public class MetaDatabaseSchema {
 		DBNAME = ConfReader.getAttrValue( action , node , "dbname" , SCHEMA );
 		DBUSER = ConfReader.getAttrValue( action , node , "dbuser" , SCHEMA );
 		
-		specific = DatabaseSpecific.getSpecificHandler( action , dbmsType , null , null );
+		specific = new DatabaseSpecific( dbmsType );
 	}
 
 }

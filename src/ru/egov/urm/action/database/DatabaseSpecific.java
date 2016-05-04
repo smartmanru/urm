@@ -10,34 +10,23 @@ import ru.egov.urm.meta.Metadata.VarPROCESSMODE;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.LocalFolder;
 
-abstract public class DatabaseSpecific {
+public class DatabaseSpecific {
 
+	VarDBMSTYPE dbmsType;
 	MetaEnvServer server;
 	MetaEnvServerNode node;
 	
 	protected DatabaseSpecific() {
 	}
 	
-	public static DatabaseSpecific getSpecificHandler( ActionBase action , VarDBMSTYPE dbmsType , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
-		DatabaseSpecific specific = null;
-		if( dbmsType == VarDBMSTYPE.ORACLE )
-			specific = new DatabaseOracleSpecific();
-		else
-		if( dbmsType == VarDBMSTYPE.POSTGRESQL )
-			specific = new DatabasePostgresSpecific();
-		else
-		if( dbmsType == VarDBMSTYPE.FIREBIRD )
-			specific = new DatabaseFirebirdSpecific();
-		else
-			action.exit( "unexpected database type=" + dbmsType.name() );
-		
-		if( server == null )
-			return( specific );
-		
-		specific.server = server;
-		specific.node = node;
-		
-		return( specific );
+	public DatabaseSpecific( VarDBMSTYPE dbmsType ) {
+		this.dbmsType = dbmsType; 
+	}
+
+	public DatabaseSpecific( MetaEnvServer server , MetaEnvServerNode node ) {
+		this.server = server;
+		this.node = node;
+		this.dbmsType = server.dbType; 
 	}
 
 	public static MetaEnvServerNode getDatabaseNode( ActionBase action , MetaEnvServer server ) throws Exception {
@@ -56,21 +45,46 @@ abstract public class DatabaseSpecific {
 		return( server.admSchema.DBNAME );
 	}
 	
-	abstract public VarPROCESSMODE getProcessStatus( ActionBase action ) throws Exception;
-	abstract public boolean checkConnect( ActionBase action , String user , String password ) throws Exception;
-	abstract public boolean applySystemScript( ActionBase action , ShellExecutor shell , String file , String fileLog ) throws Exception;
+	public VarPROCESSMODE getProcessStatus( ActionBase action ) throws Exception {
+	}
 	
-	abstract public String readCellValue( ActionBase action , String schema , String user , String password , String table , String column , String condition ) throws Exception;
-	abstract public void readTableData( ActionBase action , String schema , String user , String password , String table , String condition , String[] columns , List<String[]> rows ) throws Exception;
-	abstract public void createTableData( ActionBase action , String schema , String user , String password , String table , String[] columns , String columntypes[] , List<String[]> rows ) throws Exception;
-	abstract public void writeTableData( ActionBase action , String schema , String user , String password , String table , String[] columns , List<String[]> rows ) throws Exception;
-	abstract public void insertRow( ActionBase action , String schema , String user , String password , String table , String[] columns , String[] values ) throws Exception;
-	abstract public void updateRow( ActionBase action , String schema , String user , String password , String table , String[] columns , String[] values , String condition ) throws Exception;
-	abstract public boolean applyScript( ActionBase action , String schema , String user , String password , String scriptFile , String outFile ) throws Exception;
+	public boolean checkConnect( ActionBase action , String user , String password ) throws Exception {
+	}
 	
-	abstract public boolean validateScriptContent( ActionBase action , LocalFolder dir , String script ) throws Exception;
-	abstract public String getComments( ActionBase action , String grep , LocalFolder srcDir , String srcFile ) throws Exception;
-	abstract public void grepComments( ActionBase action , String grep , LocalFolder srcDir , String srcFile , LocalFolder dstDir , String outfile ) throws Exception;
-	abstract public void addComment( ActionBase action , String comment , LocalFolder dstDir , String outfile ) throws Exception;
+	public boolean applySystemScript( ActionBase action , ShellExecutor shell , String file , String fileLog ) throws Exception {
+	}
+	
+	public String readCellValue( ActionBase action , String schema , String user , String password , String table , String column , String condition ) throws Exception {
+	}
+
+	public void readTableData( ActionBase action , String schema , String user , String password , String table , String condition , String[] columns , List<String[]> rows ) throws Exception {
+	}
+	
+	public void createTableData( ActionBase action , String schema , String user , String password , String table , String[] columns , String columntypes[] , List<String[]> rows ) throws Exception {
+	}
+	
+	public void writeTableData( ActionBase action , String schema , String user , String password , String table , String[] columns , List<String[]> rows ) throws Exception {
+	}
+	
+	public void insertRow( ActionBase action , String schema , String user , String password , String table , String[] columns , String[] values ) throws Exception {
+	}
+	
+	public void updateRow( ActionBase action , String schema , String user , String password , String table , String[] columns , String[] values , String condition ) throws Exception {
+	}
+	
+	public boolean applyScript( ActionBase action , String schema , String user , String password , String scriptFile , String outFile ) throws Exception {
+	}
+	
+	public boolean validateScriptContent( ActionBase action , LocalFolder dir , String script ) throws Exception {
+	}
+	
+	public String getComments( ActionBase action , String grep , LocalFolder srcDir , String srcFile ) throws Exception {
+	}
+	
+	public void grepComments( ActionBase action , String grep , LocalFolder srcDir , String srcFile , LocalFolder dstDir , String outfile ) throws Exception {
+	}
+	
+	public void addComment( ActionBase action , String comment , LocalFolder dstDir , String outfile ) throws Exception {
+	}
 
 }

@@ -31,7 +31,7 @@ public class DatabaseClient {
 	}
 	
 	public boolean checkConnect( ActionBase action , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
-		specific = DatabaseSpecific.getSpecificHandler( action , server.DBMSTYPE , server , node );
+		specific = new DatabaseSpecific( server , node );
 		
 		// check connect to admin schema
 		String user = server.admSchema.DBUSER;

@@ -26,7 +26,7 @@ public class ActionInitDatabase extends ActionBase {
 			exit( "unable to connect to administrative db" );
 
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder urmScripts = urm.getInitScripts( this , server.DBMSTYPE );
+		LocalFolder urmScripts = urm.getInitScripts( this , server );
 		
 		LocalFolder logs = artefactory.getWorkFolder( this , "initdb" );
 		logs.ensureExists( this );
