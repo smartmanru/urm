@@ -122,9 +122,9 @@ public class MetaEnvServer {
 		// check props
 		if( ROOTPATH == null || ROOTPATH.isEmpty() ) {
 			if( deployments != null && !deployments.isEmpty() )
-				action.exit( "rootpath is empty, required for deployments" );
+				action.exit( "rootpath is empty, required for deployments server=" + NAME );
 			if( isGeneric( action ) )
-				action.exit( "rootpath is empty, required for generic server" );
+				action.exit( "rootpath is empty, required for generic server=" + NAME );
 		}
 		
 		if( NLBSERVER != null && !NLBSERVER.isEmpty() )
