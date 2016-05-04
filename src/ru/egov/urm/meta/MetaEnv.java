@@ -144,7 +144,7 @@ public class MetaEnv {
 	}
 
 	private FLAG getOptionFlag( ActionBase action , String envParam ) throws Exception {
-		String value = properties.getStringProperty( action , envParam , null );
+		String value = properties.getSystemStringProperty( action , envParam , null );
 		
 		FLAG retval;
 		if( value == null || value.isEmpty() )
