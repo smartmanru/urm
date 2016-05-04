@@ -71,17 +71,18 @@ public class ServerProcess {
 		if( srv.isLinux( action ) ) {
 			cmdValue = shell.customGetValue( action , "service " + srv.SERVICENAME + " status 2>&1" );
 			
-			if( cmdValue.indexOf( "is stopped" ) >= 0 || cmdValue.indexOf( "is not running" ) >= 0 ) {
+			String check = cmdValue.toUpperCase();
+			if( check.indexOf( "IS STOPPED" ) >= 0 || check.indexOf( "NOT RUNNING" ) >= 0 ) {
 				mode = VarPROCESSMODE.STOPPED;
 				return;
 			}
 			
-			if( cmdValue.indexOf( "is running" ) >= 0 || cmdValue.indexOf( "is already running" ) >= 0 ) {
+			if( check.indexOf( "RUNNING" ) >= 0 ) {
 				mode = VarPROCESSMODE.STARTED;
 				return;
 			}
 	
-			if( cmdValue.indexOf( "is starting" ) >= 0 ) {
+			if( check.indexOf( "IS STARTING" ) >= 0 ) {
 				mode = VarPROCESSMODE.STARTING;
 				return;
 			}
@@ -122,26 +123,25 @@ public class ServerProcess {
 		else
 			action.exitUnexpectedState();
 
-		if( cmdValue.indexOf( "Started=true" ) >= 0 || 
-			cmdValue.indexOf( "RUNNING" ) >= 0 || 
-			cmdValue.indexOf( "is running" ) >= 0 ) {
-			mode = VarPROCESSMODE.STARTED;
-			return;
-		}
-		
-		if( cmdValue.isEmpty() ) {
+		String check = cmdValue.toUpperCase();
+		if( check.isEmpty() ) {
 			mode = VarPROCESSMODE.STARTING;
 			return;
 		}
 		
 		if( srv.NOPIDS ) {
-			if( cmdValue.indexOf( "Started=false" ) >= 0 || 
-				cmdValue.indexOf( "STOPPED" ) >= 0 || 
-				cmdValue.indexOf( "is not running" ) >= 0 || 
-				cmdValue.indexOf( "is stopped" ) >= 0 ) {
+			if( check.indexOf( "STARTED=FALSE" ) >= 0 || 
+				check.indexOf( "STOPPED" ) >= 0 || 
+				check.indexOf( "NOT RUNNING" ) >= 0 ) {
 				mode = VarPROCESSMODE.STOPPED;
 				return;
 			}
+		}
+		
+		if( check.indexOf( "STARTED=TRUE" ) >= 0 || 
+			check.indexOf( "RUNNING" ) >= 0 ) {
+			mode = VarPROCESSMODE.STARTED;
+			return;
 		}
 		
 		mode = VarPROCESSMODE.ERRORS;
