@@ -409,6 +409,8 @@ public class PropertySet {
 			return( defaultValue );
 		if( pv.type != PropertyValueType.PROPERTY_BOOL )
 			action.exit( "property is not boolean name=" + name );
+		if( pv.data.isEmpty() )
+			return( defaultValue );
 		return( Common.getBooleanValue( pv.data ) );
 	}
 
