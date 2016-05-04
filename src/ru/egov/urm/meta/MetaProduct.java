@@ -173,9 +173,6 @@ public class MetaProduct {
 		initial = true;
 		scatterVariables( action );
 		props.finishRawProperties( action );
-		
-		initial = false;
-		scatterVariables( action );
 	}
 
 	public void updateProperties( ActionBase action ) throws Exception {
@@ -205,9 +202,6 @@ public class MetaProduct {
 	
 	private String getStringProperty( ActionBase action , String name , String defValue ) throws Exception {
 		String value = getPropertyType( action , name , "S" );
-		if( initial )
-			return( null );
-		
 		if( value == null || value.isEmpty() )
 			return( defValue );
 		return( value );
@@ -215,9 +209,6 @@ public class MetaProduct {
 	
 	private String getStringPropertyRequired( ActionBase action , String name ) throws Exception {
 		String value = getPropertyType( action , name , "S" );
-		if( initial )
-			return( null );
-		
 		if( value.isEmpty() )
 			action.exit( "product property is not set: " + name );
 		
@@ -230,9 +221,6 @@ public class MetaProduct {
 	
 	private String getPathPropertyRequired( ActionBase action , String name ) throws Exception {
 		String value = getPropertyType( action , name , "P" );
-		if( initial )
-			return( null );
-		
 		if( value.isEmpty() )
 			action.exit( "product property is not set: " + name );
 		
@@ -241,9 +229,6 @@ public class MetaProduct {
 	
 	private String getPathPropertyBuildRequired( ActionBase action , String name ) throws Exception {
 		String value = getPropertyType( action , name , "P" );
-		if( initial )
-			return( null );
-		
 		if( value.isEmpty() && action.context.buildMode != VarBUILDMODE.UNKNOWN )
 			action.exit( "product property is not set: " + name );
 		
@@ -255,7 +240,6 @@ public class MetaProduct {
 			getPropertyInitial( action , name , type );
 			for( String mode : modes )
 				getPropertyInitial( action , mode + "." + name , type );
-			return( null );
 		}
 		
 		String value;

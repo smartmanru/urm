@@ -164,8 +164,9 @@ public class PropertySet {
 		raw.put( set + "." + key , value );
 	}
 
-	private String getRawProperty( String key ) {
-		return( raw.get( set + "." + key ) );
+	private String getRawProperty( ActionBase action , String key ) throws Exception {
+		String rawValue = raw.get( set + "." + key );
+		return( processValue( action , rawValue , false , null ) );
 	}
 
 	public void setStringProperty( ActionBase action , String key , String value ) throws Exception {
@@ -417,7 +418,7 @@ public class PropertySet {
 
 	public String getSystemRequiredStringProperty( ActionBase action , String name ) throws Exception {
 		systemProps.add( set + "." + name );
-		String value = getRawProperty( name );
+		String value = getRawProperty( action , name );
 		if( value != null ) {
 			PropertyValue pv = new PropertyValue();
 			pv.setString( action , value );
@@ -440,7 +441,7 @@ public class PropertySet {
 	
 	public String getSystemPathProperty( ActionBase action , String name , String defaultValue ) throws Exception {
 		systemProps.add( set + "." + name );
-		String value = getRawProperty( name );
+		String value = getRawProperty( action , name );
 		if( value != null ) {
 			PropertyValue pv = new PropertyValue();
 			pv.setPath( action , value );
@@ -452,7 +453,7 @@ public class PropertySet {
 	
 	public String getSystemStringProperty( ActionBase action , String name , String defaultValue ) throws Exception {
 		systemProps.add( set + "." + name );
-		String value = getRawProperty( name );
+		String value = getRawProperty( action , name );
 		if( value != null ) {
 			PropertyValue pv = new PropertyValue();
 			pv.setString( action , value );
@@ -464,7 +465,7 @@ public class PropertySet {
 
 	public int getSystemIntProperty( ActionBase action , String name , int defaultValue ) throws Exception {
 		systemProps.add( set + "." + name );
-		String value = getRawProperty( name );
+		String value = getRawProperty( action , name );
 		if( value != null ) {
 			PropertyValue pv = new PropertyValue();
 			pv.setNumber( action , value );
@@ -476,7 +477,7 @@ public class PropertySet {
 
 	public boolean getSystemBooleanProperty( ActionBase action , String name , boolean defaultValue ) throws Exception {
 		systemProps.add( set + "." + name );
-		String value = getRawProperty( name );
+		String value = getRawProperty( action , name );
 		if( value != null ) {
 			PropertyValue pv = new PropertyValue();
 			pv.setBool( action , value );
@@ -493,7 +494,6 @@ public class PropertySet {
 		}
 		
 		raw.clear();
-		resolveProperties( action );
 	}
 
 }
