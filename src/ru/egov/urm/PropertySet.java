@@ -396,6 +396,8 @@ public class PropertySet {
 			return( defaultValue );
 		if( pv.type != PropertyValueType.PROPERTY_NUMBER )
 			action.exit( "property is not number name=" + name );
+		if( pv.data.isEmpty() )
+			return( defaultValue );
 		return( Integer.parseInt( pv.data ) );
 	}
 
