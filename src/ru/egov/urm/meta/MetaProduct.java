@@ -62,6 +62,10 @@ public class MetaProduct {
 	public String CONFIG_VERSION_NEXT_FULL;
 	public String CONFIG_BRANCHNAME;
 	public String CONFIG_APPVERSION_TAG;
+	public String CONFIG_VERSION_BRANCH_MAJOR;
+	public String CONFIG_VERSION_BRANCH_MINOR;
+	public String CONFIG_VERSION_BRANCH_NEXTMINOR;
+	public String CONFIG_VERSIONBRANCH;
 	
 	public String CONFIG_SOURCE_VCS;
 	public String CONFIG_SOURCE_REPOSITORY;
@@ -124,6 +128,10 @@ public class MetaProduct {
 		CONFIG_VERSION_NEXT_FULL = getStringProperty( action , "CONFIG_VERSION_NEXT_FULL" );
 		CONFIG_BRANCHNAME = getStringProperty( action , "CONFIG_BRANCHNAME" );
 		CONFIG_APPVERSION_TAG = getStringProperty( action , "CONFIG_APPVERSION_TAG" );
+		CONFIG_VERSION_BRANCH_MAJOR = getStringProperty( action , "CONFIG_VERSION_BRANCH_MAJOR" );
+		CONFIG_VERSION_BRANCH_MINOR = getStringProperty( action , "CONFIG_VERSION_BRANCH_MINOR" );
+		CONFIG_VERSION_BRANCH_NEXTMINOR = getStringProperty( action , "CONFIG_VERSION_BRANCH_NEXTMINOR" );
+		CONFIG_VERSIONBRANCH = getStringProperty( action , "CONFIG_VERSIONBRANCH" );
 
 		CONFIG_SOURCE_VCS = getStringPropertyRequired( action , "CONFIG_SOURCE_VCS" );
 		CONFIG_SOURCE_REPOSITORY = getStringPropertyRequired( action , "CONFIG_SOURCE_REPOSITORY" );
