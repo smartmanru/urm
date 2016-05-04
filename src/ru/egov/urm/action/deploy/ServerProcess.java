@@ -118,7 +118,7 @@ public class ServerProcess {
 			cmdValue = shell.customGetValue( action , srv.getFullBinPath( action ) , "./server.status.sh " + srv.NAME + " " + action.context.CTX_EXTRAARGS );
 		else
 		if( srv.isWindows( action ) )
-			cmdValue = shell.customGetValue( action , srv.getFullBinPath( action ) , "server.status.cmd " + srv.NAME + " " + action.context.CTX_EXTRAARGS );
+			cmdValue = shell.customGetValue( action , srv.getFullBinPath( action ) , "call server.status.cmd " + srv.NAME + " " + action.context.CTX_EXTRAARGS );
 		else
 			action.exitUnexpectedState();
 
@@ -245,7 +245,7 @@ public class ServerProcess {
 		
 		// windows operations
 		if( srv.isWindows( action ) ) {
-			shell.customCritical( action , F_FULLBINPATH , "server.stop.cmd " + srv.NAME + " " +
+			shell.customCritical( action , F_FULLBINPATH , "call server.stop.cmd " + srv.NAME + " " +
 					Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS );
 			shell.checkErrors( action );
 			return( true );
@@ -443,7 +443,7 @@ public class ServerProcess {
 		
 		// windows operations
 		if( srv.isWindows( action ) ) {
-			shell.customCritical( action , F_FULLBINPATH , "server.start.cmd " + srv.NAME + " " +
+			shell.customCritical( action , F_FULLBINPATH , "call server.start.cmd " + srv.NAME + " " +
 				action.context.CTX_EXTRAARGS );
 				shell.checkErrors( action );
 			return( true );
@@ -591,7 +591,7 @@ public class ServerProcess {
 		// windows operations
 		if( srv.isWindows( action ) ) {
 			String wpath = Common.getWinPath( srv.ROOTPATH ); 
-			shell.customCritical( action , F_FULLBINPATH , "server.prepare.cmd " + srv.NAME + " " +
+			shell.customCritical( action , F_FULLBINPATH , "call server.prepare.cmd " + srv.NAME + " " +
 					wpath + " " + action.context.CTX_EXTRAARGS );
 			shell.checkErrors( action );
 			return( true );
