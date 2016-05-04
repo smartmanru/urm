@@ -173,6 +173,9 @@ public class MetaProduct {
 		initial = true;
 		scatterVariables( action );
 		props.finishRawProperties( action );
+		
+		initial = false;
+		scatterVariables( action );
 	}
 
 	public void updateProperties( ActionBase action ) throws Exception {
@@ -196,26 +199,15 @@ public class MetaProduct {
 		props.setStringProperty( action , "CONFIG_NEXTPRODTAG" , "" + nextProdTag );
 	}
 
-	public Map<String,String> getExportProperties( ActionBase action ) throws Exception {
-		// export all variables
-		Map<String,String> map = new HashMap<String,String>();
-		String prefix = "export.";
-		
-		for( String var : props.getOwnProperties( action ) ) {
-			String name = ( String )var;
-			if( name.startsWith( prefix ) )
-				map.put( name.substring( prefix.length() ) , props.getFinalProperty( action , name , false ) ); 
-		}
-		
-		return( map );
-	}
-
 	private String getStringProperty( ActionBase action , String name ) throws Exception {
 		return( getPropertyType( action , name , "S" ) );
 	}
 	
 	private String getStringProperty( ActionBase action , String name , String defValue ) throws Exception {
 		String value = getPropertyType( action , name , "S" );
+		if( initial )
+			return( null );
+		
 		if( value == null || value.isEmpty() )
 			return( defValue );
 		return( value );
@@ -223,6 +215,9 @@ public class MetaProduct {
 	
 	private String getStringPropertyRequired( ActionBase action , String name ) throws Exception {
 		String value = getPropertyType( action , name , "S" );
+		if( initial )
+			return( null );
+		
 		if( value.isEmpty() )
 			action.exit( "product property is not set: " + name );
 		
@@ -235,6 +230,9 @@ public class MetaProduct {
 	
 	private String getPathPropertyRequired( ActionBase action , String name ) throws Exception {
 		String value = getPropertyType( action , name , "P" );
+		if( initial )
+			return( null );
+		
 		if( value.isEmpty() )
 			action.exit( "product property is not set: " + name );
 		
@@ -243,14 +241,12 @@ public class MetaProduct {
 	
 	private String getPathPropertyBuildRequired( ActionBase action , String name ) throws Exception {
 		String value = getPropertyType( action , name , "P" );
+		if( initial )
+			return( null );
+		
 		if( value.isEmpty() && action.context.buildMode != VarBUILDMODE.UNKNOWN )
 			action.exit( "product property is not set: " + name );
 		
-		return( value );
-	}
-	
-	public String getPropertyAny( ActionBase action , String name ) throws Exception {
-		String value = props.findPropertyAny( action , name );
 		return( value );
 	}
 	
@@ -259,6 +255,7 @@ public class MetaProduct {
 			getPropertyInitial( action , name , type );
 			for( String mode : modes )
 				getPropertyInitial( action , mode + "." + name , type );
+			return( null );
 		}
 		
 		String value;
@@ -306,11 +303,30 @@ public class MetaProduct {
 		}
 		else
 		if( type.equals( "N" ) )
-			props.getSystemIntProperty( action , name , 0 );
+			props.getIntProperty( action , name , 0 );
 		else
 			action.exitUnexpectedState();
 		
 		return( null );
 	}
 	
+	public String getPropertyAny( ActionBase action , String name ) throws Exception {
+		String value = props.findPropertyAny( action , name );
+		return( value );
+	}
+	
+	public Map<String,String> getExportProperties( ActionBase action ) throws Exception {
+		// export all variables
+		Map<String,String> map = new HashMap<String,String>();
+		String prefix = "export.";
+		
+		for( String var : props.getOwnProperties( action ) ) {
+			String name = ( String )var;
+			if( name.startsWith( prefix ) )
+				map.put( name.substring( prefix.length() ) , props.getFinalProperty( action , name , false ) ); 
+		}
+		
+		return( map );
+	}
+
 }
