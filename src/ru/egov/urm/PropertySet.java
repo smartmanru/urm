@@ -491,7 +491,9 @@ public class PropertySet {
 			if( !systemProps.contains( prop ) )
 				action.exit( "set=" + set + ": unexpected property=" + prop );
 		}
+		
 		raw.clear();
+		resolveProperties( action );
 	}
 
 }
