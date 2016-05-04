@@ -109,7 +109,6 @@ public class MetaProduct {
 		CONFIG_JAVA_VERSION = getStringProperty( action , "CONFIG_JAVA_VERSION" );
 		CONFIG_MAVEN_VERSION = getStringPropertyRequired( action , "CONFIG_MAVEN_VERSION" );
 		CONFIG_MODULE_BUILD_OPTIONS_CORE = getStringProperty( action , "CONFIG_MODULE_BUILD_OPTIONS_CORE" );
-		CONFIG_NEXT_MAJORRELEASE = getStringPropertyRequired( action , "CONFIG_NEXT_MAJORRELEASE" );
 		CONFIG_MAVEN_PROFILES = getStringPropertyRequired( action , "CONFIG_MAVEN_PROFILES" );
 		CONFIG_MAVEN_CMD = getStringProperty( action , "CONFIG_MAVEN_CMD" );
 		CONFIG_MAVEN_ADDITIONAL_OPTIONS = getStringProperty( action , "CONFIG_MAVEN_ADDITIONAL_OPTIONS" );
@@ -121,6 +120,7 @@ public class MetaProduct {
 		CONFIG_VERSION_BRANCH_MINOR = getStringProperty( action , "CONFIG_VERSION_BRANCH_MINOR" );
 		CONFIG_VERSION_BRANCH_NEXTMINOR = getStringProperty( action , "CONFIG_VERSION_BRANCH_NEXTMINOR" );
 		CONFIG_VERSIONBRANCH = getStringProperty( action , "CONFIG_VERSIONBRANCH" );
+		CONFIG_NEXT_MAJORRELEASE = getStringPropertyRequired( action , "CONFIG_NEXT_MAJORRELEASE" );
 		CONFIG_VERSION_LAST_FULL = getStringProperty( action , "CONFIG_VERSION_LAST_FULL" );
 		CONFIG_VERSION_NEXT_FULL = getStringProperty( action , "CONFIG_VERSION_NEXT_FULL" );
 
