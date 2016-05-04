@@ -18,14 +18,14 @@ public class MetaProduct {
 	
 	Metadata meta;
 	String lastProdTagFile;
-
-	public String CONFIG_PRODUCT;
-	public String CONFIG_PRODUCTHOME;
-	public String CONFIG_REDISTPATH;
-	public String CONFIG_BUILDBASE;
 	
+	public String CONFIG_PRODUCTHOME;
 	public String CONFIG_LASTPRODTAG;
 	public String CONFIG_NEXTPRODTAG;
+
+	public String CONFIG_PRODUCT;
+	public String CONFIG_REDISTPATH;
+	public String CONFIG_BUILDBASE;
 	public String CONFIG_PROD_TAG;
 
 	public String CONFIG_NEXUS_BASE;
@@ -87,12 +87,8 @@ public class MetaProduct {
 	
 	private void scatterVariables( ActionBase action ) throws Exception {
 		CONFIG_PRODUCT = getStringPropertyRequired( action , "CONFIG_PRODUCT" );
-		CONFIG_PRODUCTHOME = getPathPropertyRequired( action , "CONFIG_PRODUCTHOME" );
 		CONFIG_REDISTPATH = getPathPropertyRequired( action , "CONFIG_REDISTPATH" );
 		CONFIG_BUILDBASE = getPathPropertyBuildRequired( action , "CONFIG_BUILDBASE" );
-		
-		CONFIG_LASTPRODTAG = getStringPropertyRequired( action , "CONFIG_LASTPRODTAG" );
-		CONFIG_NEXTPRODTAG = getStringPropertyRequired( action , "CONFIG_NEXTPRODTAG" );
 		CONFIG_PROD_TAG = getStringProperty( action , "CONFIG_PROD_TAG" );
 
 		CONFIG_NEXUS_BASE = getStringPropertyRequired( action , "CONFIG_NEXUS_BASE" );
@@ -191,9 +187,13 @@ public class MetaProduct {
 			nextProdTag = lastProdTag + 1;
 		}
 		
-		props.setPathProperty( action , "CONFIG_PRODUCTHOME" , action.context.productHome );
-		props.setStringProperty( action , "CONFIG_LASTPRODTAG" , "" + lastProdTag );
-		props.setStringProperty( action , "CONFIG_NEXTPRODTAG" , "" + nextProdTag );
+		CONFIG_PRODUCTHOME = action.context.productHome;
+		CONFIG_LASTPRODTAG = "" + lastProdTag;
+		CONFIG_NEXTPRODTAG = "" + nextProdTag;
+		
+		props.setPathProperty( action , "CONFIG_PRODUCTHOME" , CONFIG_PRODUCTHOME );
+		props.setStringProperty( action , "CONFIG_LASTPRODTAG" , CONFIG_LASTPRODTAG );
+		props.setStringProperty( action , "CONFIG_NEXTPRODTAG" , CONFIG_NEXTPRODTAG );
 	}
 
 	private String getStringProperty( ActionBase action , String name ) throws Exception {
