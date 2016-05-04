@@ -113,7 +113,7 @@ public class Artefactory {
 				dirname += "/" + name + "/session-" + workFolderProcessId;
 		}
 		else {
-			dirname = meta.product.CONFIG_BUILDPATH + "/" + name + "/session-" + workFolderProcessId;
+			dirname = meta.product.CONFIG_WORKPATH + "/" + name + "/session-" + workFolderProcessId;
 		}
 				 
 		LocalFolder folder = getAnyFolder( action , dirname );
@@ -261,7 +261,7 @@ public class Artefactory {
 		if( MODE.isEmpty() ) 
 			MODE = "default";
 
-		String PATCHDIR = meta.product.CONFIG_BUILDPATH + "/" + MODE;
+		String PATCHDIR = meta.product.CONFIG_WORKPATH + "/" + MODE;
 		action.session.ensureDirExists( action , PATCHDIR );
 		String PATCHPATH = PATCHDIR + "/" + sourceProject.PROJECT;
 		

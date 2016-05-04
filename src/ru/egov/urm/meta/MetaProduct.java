@@ -43,7 +43,7 @@ public class MetaProduct {
 	public String CONFIG_MAVEN_VERSION;
 	public String CONFIG_MODULE_BUILD_OPTIONS_CORE;
 	public String CONFIG_APPVERSION;
-	public String CONFIG_BUILDPATH;
+	public String CONFIG_WORKPATH;
 	public String CONFIG_ARTEFACTDIR;
 	public String CONFIG_NEXT_MAJORRELEASE;
 	public String CONFIG_MAVEN_PROFILES;
@@ -87,49 +87,42 @@ public class MetaProduct {
 	
 	private void scatterVariables( ActionBase action ) throws Exception {
 		CONFIG_PRODUCT = getStringPropertyRequired( action , "CONFIG_PRODUCT" );
+		
 		CONFIG_REDISTPATH = getPathPropertyRequired( action , "CONFIG_REDISTPATH" );
 		CONFIG_BUILDBASE = getPathPropertyBuildRequired( action , "CONFIG_BUILDBASE" );
-		CONFIG_PROD_TAG = getStringProperty( action , "CONFIG_PROD_TAG" );
-
 		CONFIG_NEXUS_BASE = getStringPropertyRequired( action , "CONFIG_NEXUS_BASE" );
-		CONFIG_NEXUS_REPO = getStringProperty( action , "CONFIG_NEXUS_REPO" );
 		CONFIG_NEXUS_REPO_THIRDPARTY = getStringProperty( action , "CONFIG_NEXUS_REPO_THIRDPARTY" );
 		CONFIG_SVNOLD_PATH = getStringPropertyRequired( action , "CONFIG_SVNOLD_PATH" );
 		CONFIG_SVNNEW_PATH = getStringPropertyRequired( action , "CONFIG_SVNNEW_PATH" );
 		CONFIG_SVNOLD_AUTH = getPathPropertyRequired( action , "CONFIG_SVNOLD_AUTH" );
 		CONFIG_SVNNEW_AUTH = getPathPropertyRequired( action , "CONFIG_SVNNEW_AUTH" );
 		CONFIG_GITMIRRORPATH = getPathProperty( action , "CONFIG_GITMIRRORPATH" );
+		CONFIG_UPGRADE_PATH = getPathPropertyRequired( action , "CONFIG_UPGRADE_PATH" );
+		CONFIG_BASE_PATH = getPathPropertyRequired( action , "CONFIG_BASE_PATH" );
+		CONFIG_WORKPATH = getPathPropertyRequired( action , "CONFIG_WORKPATH" );
+		CONFIG_ARTEFACTDIR = getPathPropertyRequired( action , "CONFIG_ARTEFACTDIR" );
+		CONFIG_DISTR_PATH = getPathPropertyRequired( action , "CONFIG_DISTR_PATH" );
+		CONFIG_DISTR_HOSTLOGIN = getStringPropertyRequired( action , "CONFIG_DISTR_HOSTLOGIN" );
 		
 		CONFIG_BUILDER_TYPE = getStringProperty( action , "CONFIG_BUILDER_TYPE" , "maven" );
 		CONFIG_BUILDER_VERSION = getStringProperty( action , "CONFIG_BUILDER_VERSION" );
 		CONFIG_JAVA_VERSION = getStringProperty( action , "CONFIG_JAVA_VERSION" );
 		CONFIG_MAVEN_VERSION = getStringPropertyRequired( action , "CONFIG_MAVEN_VERSION" );
 		CONFIG_MODULE_BUILD_OPTIONS_CORE = getStringProperty( action , "CONFIG_MODULE_BUILD_OPTIONS_CORE" );
-		CONFIG_APPVERSION = getStringProperty( action , "CONFIG_APPVERSION" );
-		CONFIG_BUILDPATH = getPathPropertyRequired( action , "CONFIG_BUILDPATH" );
-		CONFIG_ARTEFACTDIR = getPathPropertyRequired( action , "CONFIG_ARTEFACTDIR" );
 		CONFIG_NEXT_MAJORRELEASE = getStringPropertyRequired( action , "CONFIG_NEXT_MAJORRELEASE" );
 		CONFIG_MAVEN_PROFILES = getStringPropertyRequired( action , "CONFIG_MAVEN_PROFILES" );
-		CONFIG_MAVEN_CFGFILE = getPathProperty( action , "CONFIG_MAVEN_CFGFILE" );
 		CONFIG_MAVEN_CMD = getStringProperty( action , "CONFIG_MAVEN_CMD" );
 		CONFIG_MAVEN_ADDITIONAL_OPTIONS = getStringProperty( action , "CONFIG_MAVEN_ADDITIONAL_OPTIONS" );
 		CONFIG_ADM_TRACKER = getStringPropertyRequired( action , "CONFIG_ADM_TRACKER" );
 		CONFIG_COMMIT_TRACKERLIST = getStringPropertyRequired( action , "CONFIG_COMMIT_TRACKERLIST" );
-		CONFIG_RELEASEVER = getStringProperty( action , "CONFIG_RELEASEVER" );
-		CONFIG_DISTR_PATH = getPathPropertyRequired( action , "CONFIG_DISTR_PATH" );
-		CONFIG_DISTR_HOSTLOGIN = getStringPropertyRequired( action , "CONFIG_DISTR_HOSTLOGIN" );
-		CONFIG_UPGRADE_PATH = getPathPropertyRequired( action , "CONFIG_UPGRADE_PATH" );
-		CONFIG_BASE_PATH = getPathPropertyRequired( action , "CONFIG_BASE_PATH" );
 		CONFIG_LAST_VERSION_BUILD = getStringProperty( action , "CONFIG_LAST_VERSION_BUILD" );
 		CONFIG_NEXT_VERSION_BUILD = getStringProperty( action , "CONFIG_NEXT_VERSION_BUILD" );
-		CONFIG_VERSION_LAST_FULL = getStringProperty( action , "CONFIG_VERSION_LAST_FULL" );
-		CONFIG_VERSION_NEXT_FULL = getStringProperty( action , "CONFIG_VERSION_NEXT_FULL" );
-		CONFIG_BRANCHNAME = getStringProperty( action , "CONFIG_BRANCHNAME" );
-		CONFIG_APPVERSION_TAG = getStringProperty( action , "CONFIG_APPVERSION_TAG" );
 		CONFIG_VERSION_BRANCH_MAJOR = getStringProperty( action , "CONFIG_VERSION_BRANCH_MAJOR" );
 		CONFIG_VERSION_BRANCH_MINOR = getStringProperty( action , "CONFIG_VERSION_BRANCH_MINOR" );
 		CONFIG_VERSION_BRANCH_NEXTMINOR = getStringProperty( action , "CONFIG_VERSION_BRANCH_NEXTMINOR" );
 		CONFIG_VERSIONBRANCH = getStringProperty( action , "CONFIG_VERSIONBRANCH" );
+		CONFIG_VERSION_LAST_FULL = getStringProperty( action , "CONFIG_VERSION_LAST_FULL" );
+		CONFIG_VERSION_NEXT_FULL = getStringProperty( action , "CONFIG_VERSION_NEXT_FULL" );
 
 		CONFIG_SOURCE_VCS = getStringPropertyRequired( action , "CONFIG_SOURCE_VCS" );
 		CONFIG_SOURCE_REPOSITORY = getStringPropertyRequired( action , "CONFIG_SOURCE_REPOSITORY" );
@@ -140,6 +133,14 @@ public class MetaProduct {
 		CONFIG_SOURCE_SQL_POSTREFRESH = getStringPropertyRequired( action , "CONFIG_SOURCE_SQL_POSTREFRESH" );
 		CONFIG_SQL_LOGDIR = getPathPropertyRequired( action , "CONFIG_SQL_LOGDIR" );
 		CONFIG_WINBUILD_HOSTLOGIN = getStringProperty( action , "CONFIG_WINBUILD_HOSTLOGIN" );
+
+		CONFIG_APPVERSION = getStringProperty( action , "CONFIG_APPVERSION" );
+		CONFIG_APPVERSION_TAG = getStringProperty( action , "CONFIG_APPVERSION_TAG" );
+		CONFIG_BRANCHNAME = getStringProperty( action , "CONFIG_BRANCHNAME" );
+		CONFIG_MAVEN_CFGFILE = getPathProperty( action , "CONFIG_MAVEN_CFGFILE" );
+		CONFIG_NEXUS_REPO = getStringProperty( action , "CONFIG_NEXUS_REPO" );
+		CONFIG_PROD_TAG = getStringProperty( action , "CONFIG_PROD_TAG" );
+		CONFIG_RELEASEVER = getStringProperty( action , "CONFIG_RELEASEVER" );
 		
 		CONFIG_CUSTOM_BUILD = getStringProperty( action , "CONFIG_CUSTOM_BUILD" );
 		CONFIG_CUSTOM_DEPLOY = getStringProperty( action , "CONFIG_CUSTOM_DEPLOY" );

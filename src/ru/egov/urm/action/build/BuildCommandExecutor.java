@@ -101,7 +101,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		if( CODIR.startsWith( "/" ) || CODIR.startsWith( "." ) || CODIR.startsWith( "$" ) || CODIR.startsWith( "~" ) )
 			return( CODIR );
 		
-		return( meta.product.CONFIG_BUILDPATH + "/default/" + CODIR );
+		return( meta.product.CONFIG_WORKPATH + "/default/" + CODIR );
 	}
 	
 	// script interface
