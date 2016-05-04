@@ -211,6 +211,9 @@ public class PropertySet {
 	}
 	
 	private String processValue( ActionBase action , String value , boolean finalValue , VarOSTYPE osType ) throws Exception {
+		if( value == null )
+			return( "" );
+		
 		int indexFrom = value.indexOf( '@' );
 		if( indexFrom < 0 )
 			return( value );
