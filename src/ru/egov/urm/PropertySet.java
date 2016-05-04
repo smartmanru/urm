@@ -112,8 +112,11 @@ public class PropertySet {
 	}
 
 	public void moveRawAsStrings( ActionBase action ) throws Exception {
-		for( String key : raw.keySet() )
-			setStringProperty( action , key , raw.get( key ) );
+		for( String key : raw.keySet() ) {
+			PropertyValue pv = new PropertyValue();
+			pv.setString( action , raw.get( key ) );
+			properties.put( key , pv );
+		}
 		
 		raw.clear();
 		resolveProperties( action );
