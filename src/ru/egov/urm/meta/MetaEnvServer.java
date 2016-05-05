@@ -205,7 +205,6 @@ public class MetaEnvServer {
 		if( isStartable( action ) ) {
 			ROOTPATH = properties.getSystemPathProperty( action , "rootpath" , "" );
 			BINPATH = properties.getSystemPathProperty( action , "binpath" , "" );
-			SERVICENAME = properties.getSystemStringProperty( action , "servicename" , "" );
 			PORT = properties.getSystemIntProperty( action , "port" , 0 );
 			NLBSERVER = properties.getSystemStringProperty( action , "nlbserver" , "" );
 			PROXYSERVER = properties.getSystemStringProperty( action , "proxy-server" , "" );
@@ -226,6 +225,9 @@ public class MetaEnvServer {
 			LOGFILEPATH = properties.getSystemPathProperty( action , "logfilepath" , "" );
 			NOPIDS = properties.getSystemBooleanProperty( action , "nopids" , false );
 		}
+
+		if( isService( action ) )
+			SERVICENAME = properties.getSystemRequiredStringProperty( action , "servicename" );
 		
 		properties.finishRawProperties( action );
 	}
