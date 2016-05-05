@@ -55,6 +55,31 @@ public class ServerProcess {
 		
 		return( false );
 	}
+
+	private boolean isStoppedStatus( ActionBase action , String check ) throws Exception {
+		if( check.indexOf( "STARTED=FALSE" ) >= 0 || 
+			check.indexOf( "STOPPED" ) >= 0 || 
+			check.indexOf( "OFFLINE" ) >= 0 || 
+			check.indexOf( "NOT RUNNING" ) >= 0 )
+			return( true );
+		return( false );
+			
+	}
+	
+	private boolean isStartedStatus( ActionBase action , String check ) throws Exception {
+		if( check.indexOf( "STARTED=TRUE" ) >= 0 || 
+			check.indexOf( "ONLINE" ) >= 0 || 
+			check.indexOf( "RUNNING" ) >= 0 )
+			return( true );
+		return( false );
+	}
+
+	private boolean isStartingStatus( ActionBase action , String check ) throws Exception {
+		if( check.indexOf( "STARTING" ) >= 0 || 
+			check.isEmpty() )
+			return( true );
+		return( false );
+	}
 	
 	private void gatherServiceStatus( ActionBase action ) throws Exception {
 		ShellExecutor shell = action.getShell( node );
@@ -64,17 +89,17 @@ public class ServerProcess {
 			cmdValue = shell.customGetValue( action , "service " + srv.SERVICENAME + " status 2>&1" );
 			
 			String check = cmdValue.toUpperCase();
-			if( check.indexOf( "IS STOPPED" ) >= 0 || check.indexOf( "NOT RUNNING" ) >= 0 ) {
+			if( isStoppedStatus( action , check ) ) {
 				mode = VarPROCESSMODE.STOPPED;
 				return;
 			}
 			
-			if( check.indexOf( "RUNNING" ) >= 0 ) {
+			if( isStartedStatus( action , check ) ) {
 				mode = VarPROCESSMODE.STARTED;
 				return;
 			}
 	
-			if( check.indexOf( "IS STARTING" ) >= 0 ) {
+			if( isStartingStatus( action , check ) ) {
 				mode = VarPROCESSMODE.STARTING;
 				return;
 			}
@@ -116,22 +141,19 @@ public class ServerProcess {
 			action.exitUnexpectedState();
 
 		String check = cmdValue.toUpperCase();
-		if( check.isEmpty() ) {
+		if( isStartingStatus( action , check ) ) {
 			mode = VarPROCESSMODE.STARTING;
 			return;
 		}
 		
 		if( srv.NOPIDS ) {
-			if( check.indexOf( "STARTED=FALSE" ) >= 0 || 
-				check.indexOf( "STOPPED" ) >= 0 || 
-				check.indexOf( "NOT RUNNING" ) >= 0 ) {
+			if( isStoppedStatus( action , check  ) ) {
 				mode = VarPROCESSMODE.STOPPED;
 				return;
 			}
 		}
 		
-		if( check.indexOf( "STARTED=TRUE" ) >= 0 || 
-			check.indexOf( "RUNNING" ) >= 0 ) {
+		if( isStartedStatus( action , check ) ) {
 			mode = VarPROCESSMODE.STARTED;
 			return;
 		}
