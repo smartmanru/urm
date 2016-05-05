@@ -267,10 +267,10 @@ public class DatabaseSpecific {
 		List<String> lines = new LinkedList<String>();
 		String name = null;
 		if( action.isLinux() ) {
-			lines.add( "URMDB_USER=" + user );
-			lines.add( "URMDB_PWD=" + password );
-			lines.add( "URMDB_DBHOST=" + server.DBMSADDR );
-			lines.add( "URMDB_DBNAME=" + dbschema );
+			lines.add( "export URMDB_USER=" + user );
+			lines.add( "export URMDB_PWD=" + password );
+			lines.add( "export URMDB_DBHOST=" + server.DBMSADDR );
+			lines.add( "export URMDB_DBNAME=" + dbschema );
 			name = "urmdb." + key + ".sh"; 
 		}
 		else
