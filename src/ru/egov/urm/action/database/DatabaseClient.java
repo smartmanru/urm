@@ -22,9 +22,6 @@ public class DatabaseClient {
 	public DatabaseClient() {
 	}
 
-	public DatabaseClient( MetaEnvServer server , MetaEnvServerNode node ) {
-	}
-
 	public boolean checkConnect( ActionBase action , MetaEnvServer server ) throws Exception {
 		MetaEnvServerNode node = server.getActiveNode( action );
 		return( checkConnect( action , server , node ) );

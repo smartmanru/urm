@@ -125,30 +125,32 @@ public class ActionApplyAutomatic extends ActionBase {
 	}
 
 	private void prepareFile( MetaEnvServer server , LocalFolder scriptFolder , LocalFolder logReleaseExecute , String distFolder , String file ) throws Exception {
-		String[] parts = Common.splitDashed( file );
+		DatabaseScriptFile dsf = new DatabaseScriptFile();
+		dsf.setDistFile( this , file );
 		dist.copyDistToFolder( this , scriptFolder , distFolder , file );
 		scriptFolder.copyFiles( this , file , logReleaseExecute );
 		
 		ConfBuilder builder = new ConfBuilder( this );
 		builder.configureFile( logReleaseExecute , file , server , null );
 		
-		if( !parts[3].equals( "RR" ) )
+		if( !dsf.REGIONALINDEX.equals( "RR" ) )
 			return;
 
 		// regional
-		String regions = session.customGetValue( this , logReleaseExecute.folderPath , "grep \"^-- REGIONS \" " + file );
+		String[] lines = session.grepFile( this , logReleaseExecute.getFilePath( this , file ) , "^-- REGIONS " );
+		String regions = ( lines.length == 1 )? lines[0] : "";
 		if( regions.isEmpty() )
 			exit( "region set not found in regional script=" + file );
 
 		// replicate regional file
-		String schema = parts[5]; 
+		String schema = dsf.SRCSCHEMA; 
 			
 		regions = " " + regions + " ";
 		for( String region : Common.split( server.REGIONS , " " ) ) {
 			if( regions.indexOf( region ) >= 0 ) {
-				parts[3] = region;
-				parts[5] = Common.replace( schema , "RR" , region );
-				String newName = Common.getList( parts , "-" );
+				dsf.REGIONALINDEX = region;
+				dsf.SRCSCHEMA = Common.replace( schema , "RR" , region );
+				String newName = dsf.getDistFile();
 				
 				session.customCheckStatus( this , logReleaseExecute.folderPath , "sed " + Common.getQuoted( "s/@region@/" + region + "/g" ) + 
 						" " + file + " > " + newName ); 
@@ -160,8 +162,10 @@ public class ActionApplyAutomatic extends ActionBase {
 
 	private boolean checkApplicable( MetaEnvServer server , String file , Map<String,MetaDatabaseSchema> schemaSet ) throws Exception {
 		// check schema
-		String[] parts = Common.splitDashed( file );
-		MetaDatabaseSchema schema = meta.distr.database.getSchema( this , parts[5] );
+		DatabaseScriptFile dsf = new DatabaseScriptFile();
+		dsf.setDistFile( this , file );
+		
+		MetaDatabaseSchema schema = meta.distr.database.getSchema( this , dsf.SRCSCHEMA );
 		if( !schemaSet.containsKey( schema.SCHEMA ) ) {
 			trace( "script " + file + " is filtered by schema" );
 			return( false );
@@ -169,7 +173,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		
 		if( !context.CTX_DBALIGNED.isEmpty() ) {
 			String alignedid = context.CTX_DBALIGNED;
-			if( !alignedid.equals( parts[0].substring( 1 ) ) ) {
+			if( !alignedid.equals( dsf.PREFIXALIGNED ) ) {
 				trace( "script " + file + " is filtered by alignedid" );
 				return( false );
 			}

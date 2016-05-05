@@ -364,10 +364,9 @@ public class DatabasePrepare {
 			if( !x.endsWith( ".sql" ) )
 				continue;
 			
-			String[] items = Common.splitDashed( x );
-			String xrindex = items[0];
-			String xrschema = items[1];
-			String xrtail = x.substring( xrindex.length() + 1 + xrschema.length() + 1 );
+			DatabaseScriptFile dsf = new DatabaseScriptFile();
+			dsf.setSrcFile( action , x );
+			String xrschema = dsf.SRCSCHEMA;
 			
 			// regional tail
 			String F_REGIONALINDEX;
@@ -376,7 +375,10 @@ public class DatabasePrepare {
 			else
 				F_REGIONALINDEX = "ZZ";
 
-			String newName = SQL_PREFIX + "-" + F_REGIONALINDEX + "-" + xrindex + "-" + xrschema + "-" + xrtail;
+			dsf.PREFIX = SQL_PREFIX;
+			dsf.REGIONALINDEX = F_REGIONALINDEX;
+			String newName = dsf.getDistFile();
+			
 			copySql( action , SQL_SRC_DIR , x , SQL_DST_DIR , newName );
 		}
 
@@ -390,9 +392,9 @@ public class DatabasePrepare {
 				if( !x.endsWith( ".sql" ) )
 					continue;
 			
-				String xrindex = Common.getListItem( x , "-" , 0 );
-				String xrschema = Common.getListItem( x , "-" , 1 );
-				String xrtail = x.substring( xrindex.length() + 1 + xrschema.length() + 1 );
+				DatabaseScriptFile dsf = new DatabaseScriptFile();
+				dsf.setSrcFile( action , x );
+				String xrschema = dsf.SRCSCHEMA;
 			
 				// regional tail
 				String F_REGIONALINDEX;
@@ -401,7 +403,9 @@ public class DatabasePrepare {
 				else
 					F_REGIONALINDEX = "ZZ";
 
-				String newName = SQL_PREFIX + "-" + F_REGIONALINDEX + "-" + xrindex + "-" + xrschema + "-" + xrtail;
+				dsf.PREFIX = SQL_PREFIX;
+				dsf.REGIONALINDEX = F_REGIONALINDEX;
+				String newName = dsf.getDistFile();
 				copySql( action , srcRollback , x , dstRollback , newName );
 			}
 		}
@@ -466,7 +470,7 @@ public class DatabasePrepare {
 		else
 			action.exit( "invalid database folder=" + P_FORLDERNAME );
 		
-		S_SQL_DIRID = X_ALIGNED + "." + X_TYPE + "." + X_INSTANCE;
+		S_SQL_DIRID = DatabaseScriptFile.getPrefix( X_ALIGNED , X_TYPE , X_INSTANCE );
 		return( S_SQL_DIRID );
 	}
 
