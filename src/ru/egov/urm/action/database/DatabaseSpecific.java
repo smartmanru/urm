@@ -48,8 +48,7 @@ public class DatabaseSpecific {
 		int status = runScriptCmd( action , ctxScript , "checkconnect" , "" );
 		if( status != 0 )
 			return( false );
-		
-		return( false );
+		return( true );
 	}
 	
 	public boolean applySystemScript( ActionBase action , ShellExecutor shell , String file , String fileLog ) throws Exception {
