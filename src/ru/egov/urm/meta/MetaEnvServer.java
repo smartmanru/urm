@@ -533,7 +533,7 @@ public class MetaEnvServer {
 	}
 
 	public boolean isLinux( ActionBase action ) throws Exception {
-		return( osType == VarOSTYPE.UNIX );
+		return( osType == VarOSTYPE.LINUX );
 	}
 
 	public boolean isDatabase( ActionBase action ) throws Exception {

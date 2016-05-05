@@ -100,7 +100,7 @@ public class Metadata {
 
 	public enum VarOSTYPE {
 		UNKNOWN ,
-		UNIX ,
+		LINUX ,
 		WINDOWS
 	};
 

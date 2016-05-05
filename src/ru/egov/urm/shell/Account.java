@@ -36,7 +36,7 @@ public class Account {
 	}
 	
 	public boolean isLinux() {
-		return( osType == VarOSTYPE.UNIX );
+		return( osType == VarOSTYPE.LINUX );
 	}
 	
 	public static Account getAccount( ActionBase action , String user , String host , VarOSTYPE osType ) throws Exception {

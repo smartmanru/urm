@@ -117,7 +117,7 @@ abstract class ShellCore {
 	public static ShellCore createShellCore( ActionBase action , ShellExecutor executor , VarOSTYPE osType , boolean local ) throws Exception {
 		ShellCore core = null;
 		
-		if( osType == VarOSTYPE.UNIX ) {
+		if( osType == VarOSTYPE.LINUX ) {
 			VarSESSIONTYPE sessionType = ( local )? VarSESSIONTYPE.UNIXLOCAL : VarSESSIONTYPE.UNIXREMOTE;
 			core = new ShellCoreUnix( executor , sessionType , executor.tmpFolder , local );
 		}

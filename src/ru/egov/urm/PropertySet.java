@@ -238,7 +238,7 @@ public class PropertySet {
 						s = action.context.userHome + s.substring( 1 );
 					
 					if( finalValue ) {
-						if( osType == VarOSTYPE.UNIX )
+						if( osType == VarOSTYPE.LINUX )
 							s = Common.getLinuxPath( s );
 						else
 						if( osType == VarOSTYPE.WINDOWS )

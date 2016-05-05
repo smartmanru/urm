@@ -224,7 +224,7 @@ public class CommandContext {
 			return( false );
 		}
 
-		VarOSTYPE osType = ( rc.isWindows() )? VarOSTYPE.WINDOWS : VarOSTYPE.UNIX;
+		VarOSTYPE osType = ( rc.isWindows() )? VarOSTYPE.WINDOWS : VarOSTYPE.LINUX;
 		this.account = Account.getLocalAccount( rc.userName , rc.hostName , osType );
 		this.userHome = rc.userHome;
 		this.productHome = rc.productHome;

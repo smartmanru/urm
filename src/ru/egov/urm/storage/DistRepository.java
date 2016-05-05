@@ -35,11 +35,11 @@ public class DistRepository {
 		Account account = action.session.account;
 		if( action.context.env != null ) {
 			if( !action.context.CTX_LOCAL )
-				account = Account.getAccount( action , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.UNIX );
+				account = Account.getAccount( action , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
 		}
 		else {
 			if( !action.context.CTX_LOCAL )
-				account = Account.getAccount( action , action.meta.product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.UNIX );
+				account = Account.getAccount( action , action.meta.product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
 		}
 		
 		repo.repoFolder = new RemoteFolder( artefactory , account , distPath );

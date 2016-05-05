@@ -331,7 +331,7 @@ public class Artefactory {
 	}
 
 	public RemoteFolder getReleaseHostRedistFolder( ActionBase action ) throws Exception {
-		Account account = Account.getAccount( action , context.env.DISTR_HOSTLOGIN , VarOSTYPE.UNIX );
+		Account account = Account.getAccount( action , context.env.DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
 		return( new RemoteFolder( this , account , context.env.REDISTPATH ) );
 	}
 

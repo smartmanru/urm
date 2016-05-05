@@ -306,7 +306,7 @@ public class RuntimeStorage extends ServerStorage {
 		if( server.serverType != VarSERVERTYPE.SERVICE )
 			action.exitUnexpectedState();
 		
-		if( server.osType == VarOSTYPE.UNIX ) {
+		if( server.osType == VarOSTYPE.LINUX ) {
 			RemoteFolder runtimeDir = new RemoteFolder( artefactory , action.getNodeAccount( node ) , servicePath );
 			if( !runtimeDir.checkFileExists( action , "service" ) )
 				action.exit( "unable to find service file in " + runtimeDir.folderPath );

@@ -530,7 +530,7 @@ public abstract class ShellExecutor {
 	}
 	
 	public void downloadUnix( ActionBase action , String URL , String TARGETNAME , String auth ) throws Exception {
-		if( core.osType != VarOSTYPE.UNIX )
+		if( core.osType != VarOSTYPE.LINUX )
 			action.exitUnexpectedState();
 		
 		String TARGETDIRNAME;

@@ -17,7 +17,7 @@ public class ShellCoreUnix extends ShellCore {
 	boolean windowsHelper = false;
 	
 	public ShellCoreUnix( ShellExecutor executor , VarSESSIONTYPE sessionType , Folder tmpFolder , boolean local ) {
-		super( executor , VarOSTYPE.UNIX , sessionType , tmpFolder , local );
+		super( executor , VarOSTYPE.LINUX , sessionType , tmpFolder , local );
 	}
 
 	public void setWindowsHelper() {

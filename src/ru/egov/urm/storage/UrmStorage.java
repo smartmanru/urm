@@ -31,7 +31,7 @@ public class UrmStorage {
 			action.exitUnexpectedState();
 		
 		String osFolder = "";
-		if( ostype == VarOSTYPE.UNIX )
+		if( ostype == VarOSTYPE.LINUX )
 			osFolder = "linux";
 		else
 		if( ostype == VarOSTYPE.WINDOWS )

@@ -25,7 +25,7 @@ public class RunContext {
 		envName = getProperty( "env" );
 		dcName = getProperty( "dc" );
 		
-		if( osType == VarOSTYPE.UNIX ) {
+		if( osType == VarOSTYPE.LINUX ) {
 			productHome = getProperty( "product.home" );
 			hostName = System.getenv( "HOSTNAME" );
 			userName = System.getenv( "USER" );
