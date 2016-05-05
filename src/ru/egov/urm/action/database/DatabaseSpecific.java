@@ -11,7 +11,10 @@ import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata.VarDBMSTYPE;
 import ru.egov.urm.shell.ShellExecutor;
+import ru.egov.urm.storage.Folder;
 import ru.egov.urm.storage.LocalFolder;
+import ru.egov.urm.storage.RedistStorage;
+import ru.egov.urm.storage.RemoteFolder;
 import ru.egov.urm.storage.UrmStorage;
 
 public class DatabaseSpecific {
@@ -21,6 +24,8 @@ public class DatabaseSpecific {
 	MetaEnvServerNode node;
 
 	Map<String,String> ctxFiles = new HashMap<String,String>();
+	String lastValue = null;
+	boolean applysystemscriptCopied = false;
 	
 	protected DatabaseSpecific() {
 	}
@@ -52,13 +57,45 @@ public class DatabaseSpecific {
 	}
 	
 	public boolean applySystemScript( ActionBase action , ShellExecutor shell , String file , String fileLog ) throws Exception {
-		int status = shell.customGetStatus( action , "psql -a -e " + " < " + file + " > " + fileLog + " 2>&1" );
+		UrmStorage urm = action.artefactory.getUrmStorage();
+		LocalFolder scripts = urm.getSqlScripts( action , server );
+		
+		Folder execFolder = scripts;
+		String applyName = "applysystemscript" + ( ( shell.isLinux() )? ".sh" : ".cmd" );
+		
+		if( !applysystemscriptCopied ) {
+			if( !action.context.CTX_LOCAL ) {
+				RedistStorage redist = action.artefactory.getRedistStorage( action , server , node );
+				RemoteFolder folder = redist.getRedistTmpFolder( action );
+				execFolder = folder;
+				
+				folder.copyFileFromLocal( action , scripts , applyName );
+				applysystemscriptCopied = true;
+			}
+		}
+		
+		String cmd = null;
+		if( shell.isLinux() )
+			cmd = "./" + applyName + " " + file + " " + fileLog;
+		else
+			cmd = applyName + " " + file + " " + fileLog;
+		
+		int status = shell.customGetStatus( action , execFolder.folderPath , cmd );
 		if( status != 0 ) {
 			action.log( "errors, status=" + status + " (see logs)" );
 			return( false );
 		}
 		
-		String err = shell.customGetValue( action , "cat " + fileLog + " | grep ^ERROR: | head -1" );
+		String err = "";
+		if( shell.isLinux() ) {
+			err = shell.customGetValue( action , "cat " + fileLog + " | grep ^ERROR: | head -1" );
+		}
+		else {
+			String[] lines = shell.customGetLines( action , "type " + fileLog + " | findstr ^ERROR:" );
+			if( lines.length > 0 )
+				err = lines[0];
+		}
+		
 		if( err.isEmpty() )
 			return( true );
 		
@@ -67,19 +104,11 @@ public class DatabaseSpecific {
 	}
 	
 	public String readCellValue( ActionBase action , String dbschema , String user , String password , String table , String column , String condition ) throws Exception {
-//		String value = action.session.customGetValue( action , "export PGPASSWORD='" + password + "'; " + 
-//				"(echo " + Common.getQuoted( "select 'value=' || " + column + " as x from " + table + 
-//						" where " + condition + ";" ) +  
-//				" ) | psql -A -q -t -d " + schema + " -h " + dbmsAddrHost + " -U " + user );
-//		
-//		if( value.indexOf( "ERROR:" ) >= 0 )
-//			action.exit( "unexpected error: " + value );
-//		
-//		if( value.indexOf( "value=" ) < 0 )
-//			return( null );
-//
-//		return( Common.getPartAfterFirst( value , "value=" ) );
-		return( null );
+		String ctxScript = getContextScript( action , dbschema , user , password );
+		if( !runScriptCmdGetValueCheckStatus( action , ctxScript , "readcellvalue" , "" ) )
+			action.exit( "unexpected error" );
+		
+		return( lastValue );
 	}
 
 	public void readTableData( ActionBase action , String dbschema , String user , String password , String table , String condition , String[] columns , List<String[]> rows ) throws Exception {
@@ -257,7 +286,7 @@ public class DatabaseSpecific {
 	}
 
 	private String getContextScript( ActionBase action , String dbschema , String user , String password ) throws Exception {
-		String key = dbschema + "." + user;
+		String key = server.NAME + "." + dbschema + "." + user;
 		String ctxFile = ctxFiles.get( key );
 		if( ctxFile != null )
 			return( ctxFile );
@@ -303,6 +332,19 @@ public class DatabaseSpecific {
 		
 		int status = action.session.customGetStatus( action , scripts.folderPath , ctxCmd );
 		return( status );
+	}
+
+	private boolean runScriptCmdGetValueCheckStatus( ActionBase action , String ctxFile , String cmd , String params ) throws Exception {
+		int status = runScriptCmd( action , ctxFile , cmd , params );
+		if( status != 0 )
+			return( false );
+		
+		lastValue = action.session.getValue( action );
+		if( lastValue.isEmpty() )
+			return( true );
+		
+		lastValue = Common.getPartAfterFirst( lastValue , "value=" );
+		return( true );
 	}
 	
 }

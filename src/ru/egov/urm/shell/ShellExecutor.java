@@ -605,4 +605,8 @@ public abstract class ShellExecutor {
 		return( null );
 	}
 	
+	public String getValue( ActionBase action ) throws Exception {
+		return( core.getOut() );
+	}
+	
 }
