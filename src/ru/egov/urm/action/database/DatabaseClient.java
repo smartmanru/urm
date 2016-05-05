@@ -34,11 +34,12 @@ public class DatabaseClient {
 		specific = new DatabaseSpecific( server , node );
 		
 		// check connect to admin schema
-		String user = server.admSchema.DBUSER;
+		String schema = specific.getAdmSchema( action );
+		String user = specific.getAdmUser( action );
 		String pwd = getUserPassword( action , user );
 		try { 
 			action.log( "check connect to database server=" + server.NAME + ", node=" + node.POS + " ..." );
-			return( specific.checkConnect( action , user , pwd ) );
+			return( specific.checkConnect( action , schema , user , pwd ) );
 		}
 		catch( Throwable e ) {
 			action.log( e );
