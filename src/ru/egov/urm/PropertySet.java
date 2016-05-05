@@ -355,7 +355,7 @@ public class PropertySet {
 	
 	private PropertyValue getRequiredPropertyInternal( ActionBase action , String name , boolean system ) throws Exception {
 		PropertyValue pv = getPropertyInternal( action , name , system );
-		if( pv == null )
+		if( pv == null || pv.data.isEmpty() )
 			action.exit( "set=" + set + ": empty property=" + name );
 		return( pv );
 	}
