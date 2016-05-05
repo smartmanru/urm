@@ -1,7 +1,9 @@
 package ru.egov.urm.action.database;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
@@ -18,6 +20,8 @@ public class DatabaseSpecific {
 	MetaEnvServer server;
 	MetaEnvServerNode node;
 
+	Map<String,String> ctxFiles = new HashMap<String,String>();
+	
 	protected DatabaseSpecific() {
 	}
 	
@@ -39,8 +43,8 @@ public class DatabaseSpecific {
 		return( server.admSchema.DBNAME );
 	}
 	
-	public boolean checkConnect( ActionBase action , String schema , String user , String password ) throws Exception {
-		String ctxScript = getContextScript( action , schema , user , password );
+	public boolean checkConnect( ActionBase action , String dbschema , String user , String password ) throws Exception {
+		String ctxScript = getContextScript( action , dbschema , user , password );
 		int status = runScriptCmd( action , ctxScript , "checkconnect" , "" );
 		if( status != 0 )
 			return( false );
@@ -63,7 +67,7 @@ public class DatabaseSpecific {
 		return( false );
 	}
 	
-	public String readCellValue( ActionBase action , String schema , String user , String password , String table , String column , String condition ) throws Exception {
+	public String readCellValue( ActionBase action , String dbschema , String user , String password , String table , String column , String condition ) throws Exception {
 //		String value = action.session.customGetValue( action , "export PGPASSWORD='" + password + "'; " + 
 //				"(echo " + Common.getQuoted( "select 'value=' || " + column + " as x from " + table + 
 //						" where " + condition + ";" ) +  
@@ -79,7 +83,7 @@ public class DatabaseSpecific {
 		return( null );
 	}
 
-	public void readTableData( ActionBase action , String schema , String user , String password , String table , String condition , String[] columns , List<String[]> rows ) throws Exception {
+	public void readTableData( ActionBase action , String dbschema , String user , String password , String table , String condition , String[] columns , List<String[]> rows ) throws Exception {
 //		String query = "select ";
 //		boolean first = true;
 //		for( String column : columns ) {
@@ -113,7 +117,7 @@ public class DatabaseSpecific {
 //		}
 	}
 	
-	public void createTableData( ActionBase action , String schema , String user , String password , String table , String[] columns , String columntypes[] , List<String[]> rows ) throws Exception {
+	public void createTableData( ActionBase action , String dbschema , String user , String password , String table , String[] columns , String columntypes[] , List<String[]> rows ) throws Exception {
 //		List<String> lines = new LinkedList<String>();
 //		lines.add( "DROP TABLE IF EXISTS " + table + ";" );
 //		
@@ -133,7 +137,7 @@ public class DatabaseSpecific {
 //		writeTableDataInternal( action , schema , user , password , table , columns , rows , lines );
 	}
 	
-	private void writeTableDataInternal( ActionBase action , String schema , String user , String password , String table , String[] columns , List<String[]> rows , List<String> lines ) throws Exception {
+	private void writeTableDataInternal( ActionBase action , String dbschema , String user , String password , String table , String[] columns , List<String[]> rows , List<String> lines ) throws Exception {
 //		lines.add( "begin;" );
 //		for( String[] values : rows ) {
 //			String query = getInsertRowString( action , table , columns , values );
@@ -185,12 +189,12 @@ public class DatabaseSpecific {
 		return( null );
 	}
 	
-	public void writeTableData( ActionBase action , String schema , String user , String password , String table , String[] columns , List<String[]> rows ) throws Exception {
+	public void writeTableData( ActionBase action , String dbschema , String user , String password , String table , String[] columns , List<String[]> rows ) throws Exception {
 //		List<String> lines = new LinkedList<String>();
 //		writeTableDataInternal( action , schema , user , password , table , columns , rows , lines );
 	}
 	
-	public void insertRow( ActionBase action , String schema , String user , String password , String table , String[] columns , String[] values ) throws Exception {
+	public void insertRow( ActionBase action , String dbschema , String user , String password , String table , String[] columns , String[] values ) throws Exception {
 //		String query = getInsertRowString( action , table , columns , values );
 //		String value = action.session.customGetValue( action , "export PGPASSWORD='" + password + "'; " + 
 //				"(echo " + Common.getQuoted( query ) +  
@@ -200,7 +204,7 @@ public class DatabaseSpecific {
 //			action.exit( "unexpected error: " + value );
 	}
 	
-	public void updateRow( ActionBase action , String schema , String user , String password , String table , String[] columns , String[] values , String condition ) throws Exception {
+	public void updateRow( ActionBase action , String dbschema , String user , String password , String table , String[] columns , String[] values , String condition ) throws Exception {
 //		if( values.length != columns.length )
 //			action.exit( "number of values should be equal to number of columns" );
 //			
@@ -227,7 +231,7 @@ public class DatabaseSpecific {
 //			action.exit( "unexpected error: " + value );
 	}
 	
-	public boolean applyScript( ActionBase action , String schema , String user , String password , String scriptFile , String outFile ) throws Exception {
+	public boolean applyScript( ActionBase action , String dbschema , String user , String password , String scriptFile , String outFile ) throws Exception {
 //		action.session.customCheckStatus( action , "export PGPASSWORD='" + password + "'; " + 
 //				"cat " + scriptFile + " | psql -d " + schema + " -h " + dbmsAddrHost + " -U " + user + " > " + outFile + " 2>&1" );
 //		
@@ -253,10 +257,36 @@ public class DatabaseSpecific {
 	public void addComment( ActionBase action , String comment , LocalFolder dstDir , String outfile ) throws Exception {
 	}
 
-	private String getContextScript( ActionBase action , String schema , String user , String password ) throws Exception {
-//		String dbmsAddrDB = getAdmSchema( action );
-//		String dbmsAddrHost = node.getHost( action );
-		return( "" );
+	private String getContextScript( ActionBase action , String dbschema , String user , String password ) throws Exception {
+		String key = dbschema + "." + user;
+		String ctxFile = ctxFiles.get( key );
+		if( ctxFile != null )
+			return( ctxFile );
+
+		LocalFolder work = action.artefactory.getWorkFolder( action );
+		List<String> lines = new LinkedList<String>();
+		String name = null;
+		if( action.isLinux() ) {
+			lines.add( "URMDB_USER=" + user );
+			lines.add( "URMDB_PWD=" + password );
+			lines.add( "URMDB_DBHOST=" + server.DBMSADDR );
+			lines.add( "URMDB_DBNAME=" + dbschema );
+			name = "urmdb." + key + ".sh"; 
+		}
+		else
+		if( action.isWindows() ) {
+			lines.add( "set URMDB_USER=" + user );
+			lines.add( "set URMDB_PWD=" + password );
+			lines.add( "set URMDB_DBHOST=" + server.DBMSADDR );
+			lines.add( "set URMDB_DBNAME=" + dbschema );
+			name = "urmdb." + key + ".cmd"; 
+		}
+		else
+			action.exitUnexpectedState();
+		
+		String file = work.getFilePath( action , name );
+		Common.createFileFromStringList( file , lines );
+		return( file );
 	}
 
 	private int runScriptCmd( ActionBase action , String ctxFile , String cmd , String params ) throws Exception {

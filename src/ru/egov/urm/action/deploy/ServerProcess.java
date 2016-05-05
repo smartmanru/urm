@@ -63,7 +63,6 @@ public class ServerProcess {
 			check.indexOf( "NOT RUNNING" ) >= 0 )
 			return( true );
 		return( false );
-			
 	}
 	
 	private boolean isStartedStatus( ActionBase action , String check ) throws Exception {
