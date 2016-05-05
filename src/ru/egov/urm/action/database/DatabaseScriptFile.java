@@ -65,5 +65,8 @@ public class DatabaseScriptFile {
 	public String getDistFile() {
 		return( PREFIX + "-" + REGIONALINDEX + "-" + SRCINDEX + "-" + SRCSCHEMA + "-" + SRCTAIL );
 	}
-	
+
+	public String getDistKey() {
+		return( PREFIX + "-" + REGIONALINDEX + "-" + SRCINDEX );
+	}
 }

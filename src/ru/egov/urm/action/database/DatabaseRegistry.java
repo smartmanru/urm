@@ -38,20 +38,6 @@ public class DatabaseRegistry {
 		deliveryState = new HashMap<String,Map<String,String>>();
 	}
 
-	public static String getKey( ActionBase action , String file ) throws Exception {
-		int index = Common.getIndexOf( file , "-" , 4 );
-		if( index < 0 )
-			action.exit( "invalid file name " + file );
-		return( file.substring( 0 , index ) );
-	}
-	
-	public static String getSchema( ActionBase action , String file ) throws Exception {
-		String s = Common.cutItem( file , "-" , 5 );
-		if( s.isEmpty() )
-			action.exit( "invalid file name=" + file );
-		return( s );
-	}
-	
 	public static DatabaseRegistry getRegistry( ActionBase action , DatabaseClient client , MetaRelease release ) throws Exception {
 		DatabaseRegistry registry = new DatabaseRegistry( client , release );
 		registry.readReleaseState( action );
@@ -98,7 +84,9 @@ public class DatabaseRegistry {
 			}
 			
 			String file = row[1];
-			String key = getKey( action , file );
+			DatabaseScriptFile dsf = new DatabaseScriptFile();
+			dsf.setDistFile( action , file );
+			String key = dsf.getDistKey();
 			files.put( key , file );
 		}
 	}
@@ -174,7 +162,9 @@ public class DatabaseRegistry {
 	
 	public boolean checkNeedApply( ActionBase action , MetaDistrDelivery delivery , String file ) throws Exception {
 		Map<String,String> data = deliveryState.get( delivery.NAME );
-		String key = getKey( action , file );
+		DatabaseScriptFile dsf = new DatabaseScriptFile();
+		dsf.setDistFile( action , file );
+		String key = dsf.getDistKey();
 		String status = data.get( key );
 		
 		if( status == null ) {
@@ -209,10 +199,12 @@ public class DatabaseRegistry {
 
 	public void startApplyScript( ActionBase action , MetaDistrDelivery delivery , String file ) throws Exception {
 		Map<String,String> data = deliveryState.get( delivery.NAME );
-		String key = getKey( action , file );
+		DatabaseScriptFile dsf = new DatabaseScriptFile();
+		dsf.setDistFile( action , file );
+		String key = dsf.getDistKey();
 		String status = data.get( key );
 		
-		String schema = getSchema( action , file );
+		String schema = dsf.SRCSCHEMA;
 		if( status == null ) {
 			client.insertRow( action , server.admSchema , TABLE_SCRIPTS ,
 					new String[] { "release" , "delivery" , "key" , "schema" , "filename" , "begin_apply_time" , "script_status" } , 
@@ -229,7 +221,9 @@ public class DatabaseRegistry {
 	}
 	
 	public void finishApplyScript( ActionBase action , MetaDistrDelivery delivery , String file ) throws Exception {
-		String key = getKey( action , file );
+		DatabaseScriptFile dsf = new DatabaseScriptFile();
+		dsf.setDistFile( action , file );
+		String key = dsf.getDistKey();
 		
 		client.updateRow( action , server.admSchema , TABLE_SCRIPTS ,
 				new String[] { "end_apply_time" , "script_status" } , 

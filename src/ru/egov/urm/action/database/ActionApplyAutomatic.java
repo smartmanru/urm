@@ -216,7 +216,9 @@ public class ActionApplyAutomatic extends ActionBase {
 		registry.startApplyScript( this , releaseDelivery.distDelivery , file );
 		
 		String log = file + ".out";
-		String schemaName = DatabaseRegistry.getSchema( this , file );
+		DatabaseScriptFile dsf = new DatabaseScriptFile();
+		dsf.setDistFile( this , file );
+		String schemaName = dsf.SRCSCHEMA;
 		MetaDatabaseSchema schema = meta.distr.database.getSchema( this , schemaName );
 		if( !client.applyScript( this , schema , logReleaseExecute , file , logReleaseExecute , log ) ) {
 			exit( "error applying script " + file + ", see logs." );
