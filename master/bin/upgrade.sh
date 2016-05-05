@@ -36,6 +36,12 @@ function f_execute_all() {
 	if [ -f bin/configure.sh ]; then
 		echo "run: configure.sh $URM_TRACE default ..."
 		bin/configure.sh $URM_TRACE default
+
+		F_STATUS=$?
+		if [ "$F_STATUS" != "0" ]; then
+			echo "upgrade.sh: confugure.sh failed. Exiting"
+			exit 1
+		fi
 	fi
 }
 
