@@ -105,7 +105,7 @@ public class DatabaseSpecific {
 	
 	public String readCellValue( ActionBase action , String dbschema , String user , String password , String table , String column , String condition ) throws Exception {
 		String ctxScript = getContextScript( action , dbschema , user , password );
-		if( !runScriptCmdGetValueCheckStatus( action , ctxScript , "readcellvalue" , "" ) )
+		if( !runScriptCmdGetValueCheckStatus( action , ctxScript , "readcellvalue" , table + " " + column + " " + Common.getQuoted( condition ) ) )
 			action.exit( "unexpected error" );
 		
 		return( lastValue );
@@ -331,7 +331,14 @@ public class DatabaseSpecific {
 			action.exitUnexpectedState();
 		
 		int status = action.session.customGetStatus( action , scripts.folderPath , ctxCmd );
-		return( status );
+		if( status != 0 )
+			return( status );
+		
+		String errors = action.session.getErrors( action );
+		if( !errors.isEmpty() )
+			return( -1 );
+		
+		return( 0 );
 	}
 
 	private boolean runScriptCmdGetValueCheckStatus( ActionBase action , String ctxFile , String cmd , String params ) throws Exception {
