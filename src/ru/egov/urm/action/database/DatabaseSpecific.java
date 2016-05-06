@@ -106,7 +106,15 @@ public class DatabaseSpecific {
 	
 	public boolean applyScript( ActionBase action , String dbschema , String user , String password , String scriptFile , String outFile ) throws Exception {
 		String ctxScript = getContextScript( action , dbschema , user , password );
-		int status = runScriptCmd( action , ctxScript , "applyscript" , "" );
+		
+		String file = scriptFile;
+		String fileLog = outFile;
+		if( action.isWindows() ) {
+			file = Common.getWinPath( file );
+			fileLog = Common.getWinPath( fileLog );
+		}
+		
+		int status = runScriptCmd( action , ctxScript , "applyscript" , file + " " + fileLog );
 		if( status != 0 ) {
 			action.log( "error: (see logs)" );
 			return( false );
@@ -114,10 +122,10 @@ public class DatabaseSpecific {
 		
 		String err = "";
 		if( action.isLinux() ) {
-			err = action.session.customGetValue( action , "cat " + outFile + " | grep ^ERROR: | head -1" );
+			err = action.session.customGetValue( action , "cat " + fileLog + " | grep ^ERROR: | head -1" );
 		}
 		else {
-			String[] lines = action.session.customGetLines( action , "type " + outFile + " | findstr ^ERROR:" );
+			String[] lines = action.session.customGetLines( action , "type " + fileLog + " | findstr ^ERROR:" );
 			if( lines.length > 0 )
 				err = lines[0];
 		}
