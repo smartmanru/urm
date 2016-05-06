@@ -50,11 +50,11 @@ public class DatabaseClient {
 		String serverId = specific.server.getFullId( action );
 		
 		String S_DB_USE_SCHEMA_PASSWORD = "";
-		if( !action.context.CTX_DBAUTH )
-			S_DB_USE_SCHEMA_PASSWORD = user;
-		else
 		if( action.context.CTX_DBPASSWORD.isEmpty() )
 			S_DB_USE_SCHEMA_PASSWORD = action.context.CTX_DBPASSWORD;
+		else
+		if( !action.context.CTX_DBAUTH )
+			S_DB_USE_SCHEMA_PASSWORD = user;
 		else
 		if( !specific.server.dc.env.DB_AUTHFILE.isEmpty() ) {
 			String F_FNAME = specific.server.dc.env.DB_AUTHFILE;
