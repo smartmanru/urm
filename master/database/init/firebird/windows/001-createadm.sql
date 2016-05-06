@@ -1,7 +1,11 @@
+execute block
+as
+begin
 if (exists(select * from rdb$relations where RDB$RELATION_NAME = 'ADM_SCRIPTS')) then
   execute statement 'drop table ADM_SCRIPTS';
 if (exists(select * from rdb$relations where RDB$RELATION_NAME = 'ADM_RELEASES')) then
   execute statement 'drop table ADM_RELEASES';
+end;
 
   CREATE TABLE adm_releases
    (	
