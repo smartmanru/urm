@@ -1,4 +1,7 @@
-  RECREATE TABLE adm_releases
+DROP TABLE IF EXISTS adm_scripts;
+DROP TABLE IF EXISTS adm_releases;
+
+  CREATE TABLE adm_releases
    (	
 	zrelease varchar(30) ,
 	zrel_p1 int default 0 ,
@@ -11,7 +14,7 @@
 	constraint pk_adm_releases primary key (zrelease) using index idx_pk_adm_releases
    ) ;
 
-  RECREATE TABLE adm_scripts
+  CREATE TABLE adm_scripts
    (	
 	zrelease varchar(30) references adm_releases ,
 	zdelivery varchar(30) ,
