@@ -1,2 +1,2 @@
 echo not ready
-exit 1
+exit /B 1
