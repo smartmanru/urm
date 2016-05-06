@@ -326,7 +326,7 @@ public class DatabaseSpecific {
 			ctxCmd = "( . " + ctxFile + "; ./" + cmd + ".sh " + params + " )";
 		else
 		if( action.isWindows() )
-			ctxCmd = "call " + ctxFile + " && call " + cmd + ".cmd " + params;
+			ctxCmd = "call " + Common.getWinPath( ctxFile ) + " && call " + cmd + ".cmd " + params;
 		else
 			action.exitUnexpectedState();
 		
