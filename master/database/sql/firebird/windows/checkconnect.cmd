@@ -1,4 +1,4 @@
-echo show database; | %FBPATH%\isql -u %URMDB_USER% -p %URMDB_PWD% "%URMDB_DBHOST%:%URMDB_DBNAME%"
+echo show database; | %FBPATH%\isql -q -u %URMDB_USER% -p %URMDB_PWD% "%URMDB_DBHOST%:%URMDB_DBNAME%"
 SET status=%errorlevel%
 echo status=%status%
 
