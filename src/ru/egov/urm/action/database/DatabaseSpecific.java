@@ -61,7 +61,8 @@ public class DatabaseSpecific {
 		LocalFolder scripts = urm.getSqlScripts( action , server );
 		
 		Folder execFolder = scripts;
-		String applyName = "applysystemscript" + ( ( shell.isLinux() )? ".sh" : ".cmd" );
+		String applyName = "applysystemscript";
+		applyName += ( ( shell.isLinux() )? ".sh" : ".cmd" );
 		
 		if( !applysystemscriptCopied ) {
 			if( !action.isLocal() ) {
@@ -92,6 +93,31 @@ public class DatabaseSpecific {
 		}
 		else {
 			String[] lines = shell.customGetLines( action , "type " + fileLog + " | findstr ^ERROR:" );
+			if( lines.length > 0 )
+				err = lines[0];
+		}
+		
+		if( err.isEmpty() )
+			return( true );
+		
+		action.log( "error: " + err + " (see logs)" );
+		return( false );
+	}
+	
+	public boolean applyScript( ActionBase action , String dbschema , String user , String password , String scriptFile , String outFile ) throws Exception {
+		String ctxScript = getContextScript( action , dbschema , user , password );
+		int status = runScriptCmd( action , ctxScript , "applyscript" , "" );
+		if( status != 0 ) {
+			action.log( "error: (see logs)" );
+			return( false );
+		}
+		
+		String err = "";
+		if( action.isLinux() ) {
+			err = action.session.customGetValue( action , "cat " + outFile + " | grep ^ERROR: | head -1" );
+		}
+		else {
+			String[] lines = action.session.customGetLines( action , "type " + outFile + " | findstr ^ERROR:" );
 			if( lines.length > 0 )
 				err = lines[0];
 		}
@@ -257,18 +283,6 @@ public class DatabaseSpecific {
 //		
 //		if( value.indexOf( "ERROR:" ) >= 0 )
 //			action.exit( "unexpected error: " + value );
-	}
-	
-	public boolean applyScript( ActionBase action , String dbschema , String user , String password , String scriptFile , String outFile ) throws Exception {
-//		action.session.customCheckStatus( action , "export PGPASSWORD='" + password + "'; " + 
-//				"cat " + scriptFile + " | psql -d " + schema + " -h " + dbmsAddrHost + " -U " + user + " > " + outFile + " 2>&1" );
-//		
-//		String err = action.session.customGetValue( action , "cat " + outFile + " | grep ^ERROR: | head -1" );
-//		if( err.isEmpty() )
-//			return( true );
-//		
-//		action.log( "error: " + err + " (see logs at " + outFile + ")" );
-		return( false );
 	}
 	
 	public boolean validateScriptContent( ActionBase action , LocalFolder dir , String script ) throws Exception {
