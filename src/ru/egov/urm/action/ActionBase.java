@@ -494,5 +494,9 @@ abstract public class ActionBase {
 		String name = "URM " + executor.name + "::" + executor.commandAction.name;
 		comment( name + ": " + msg );
 	}
+
+	public boolean isLocal() {
+		return( context.CTX_LOCAL );
+	}
 	
 }

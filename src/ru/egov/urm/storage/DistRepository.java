@@ -34,11 +34,11 @@ public class DistRepository {
 		
 		Account account = action.session.account;
 		if( action.context.env != null ) {
-			if( !action.context.CTX_LOCAL )
+			if( !action.isLocal() )
 				account = Account.getAccount( action , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
 		}
 		else {
-			if( !action.context.CTX_LOCAL )
+			if( !action.isLocal() )
 				account = Account.getAccount( action , action.meta.product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
 		}
 		

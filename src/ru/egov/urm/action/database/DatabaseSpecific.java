@@ -64,7 +64,7 @@ public class DatabaseSpecific {
 		String applyName = "applysystemscript" + ( ( shell.isLinux() )? ".sh" : ".cmd" );
 		
 		if( !applysystemscriptCopied ) {
-			if( !action.context.CTX_LOCAL ) {
+			if( !action.isLocal() ) {
 				RedistStorage redist = action.artefactory.getRedistStorage( action , server , node );
 				RemoteFolder folder = redist.getRedistTmpFolder( action );
 				execFolder = folder;
@@ -294,10 +294,11 @@ public class DatabaseSpecific {
 		LocalFolder work = action.artefactory.getWorkFolder( action );
 		List<String> lines = new LinkedList<String>();
 		String name = null;
+		String DBHOST = ( action.isLocal() )? "localhost" : server.DBMSADDR;
 		if( action.isLinux() ) {
 			lines.add( "export URMDB_USER=" + user );
 			lines.add( "export URMDB_PWD=" + password );
-			lines.add( "export URMDB_DBHOST=" + server.DBMSADDR );
+			lines.add( "export URMDB_DBHOST=" + DBHOST );
 			lines.add( "export URMDB_DBNAME=" + dbschema );
 			name = "urmdb." + key + ".sh"; 
 		}
@@ -305,7 +306,7 @@ public class DatabaseSpecific {
 		if( action.isWindows() ) {
 			lines.add( "set URMDB_USER=" + user );
 			lines.add( "set URMDB_PWD=" + password );
-			lines.add( "set URMDB_DBHOST=" + server.DBMSADDR );
+			lines.add( "set URMDB_DBHOST=" + DBHOST );
 			lines.add( "set URMDB_DBNAME=" + dbschema );
 			name = "urmdb." + key + ".cmd"; 
 		}
