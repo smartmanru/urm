@@ -49,8 +49,6 @@ public class Artefactory {
 		action.checkRequired( dirname , "dirname" );
 		if( dirname.equals( "/" ) )
 			action.exit( "/ is not permitted for operations" );
-		if( dirname.startsWith( "~/" ) )
-			dirname = action.session.rootPath + dirname.substring( 1 );
 		
 		return( new LocalFolder( this , dirname ) );
 	}

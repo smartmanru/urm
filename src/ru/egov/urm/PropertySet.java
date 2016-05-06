@@ -79,7 +79,10 @@ public class PropertySet {
 			if( value == null || value.isEmpty() )
 				data = "";
 			else
-				data = Common.getLinuxPath( value ); 
+				data = Common.getLinuxPath( value );
+			
+			if( data.startsWith( "~/") )
+				data = action.context.userHome + data.substring( 1 );
 		}
 	}
 	
@@ -234,9 +237,6 @@ public class PropertySet {
 				PropertyValue pv = getPropertyInternal( action , var , false );
 				if( pv.type == PropertyValueType.PROPERTY_PATH ) {
 					String s = pv.data;
-					if( s.startsWith( "~/") )
-						s = action.context.userHome + s.substring( 1 );
-					
 					if( finalValue ) {
 						if( osType == VarOSTYPE.LINUX )
 							s = Common.getLinuxPath( s );
