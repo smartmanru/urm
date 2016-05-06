@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS adm_scripts;
-DROP TABLE IF EXISTS adm_releases;
+DROP TABLE adm_scripts;
+DROP TABLE adm_releases;
 
   CREATE TABLE adm_releases
    (	
