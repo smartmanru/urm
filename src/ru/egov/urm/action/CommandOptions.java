@@ -101,7 +101,7 @@ public class CommandOptions {
 		defineOption( CommandVar.newFlagNoOption( "noauth" , "GETOPT_DBAUTH" , "use simple authorization" ) );
 		defineOption( CommandVar.newParam( "aligned" , "GETOPT_DBALIGNED" , "use specific aligned set of scipts to apply" ) );
 		defineOption( CommandVar.newParam( "db" , "GETOPT_DB" , "use specific database server to apply" ) );
-		defineOption( CommandVar.newParam( "dbpassword" , "GETOPT_DBPASSWORD" , "use specified password to access database" ) );
+		defineOption( CommandVar.newParam( "dbpwd" , "GETOPT_DBPASSWORD" , "use specified password to access database" ) );
 		defineOption( CommandVar.newParam( "regions" , "GETOPT_REGIONS" , "use specific set of regions to apply" ) );
 		defineOption( CommandVar.newFlagEnumOption( "sql" , "SQL" , "GETOPT_DBTYPE" , "execute database set - only scripts" ) );
 		defineOption( CommandVar.newFlagEnumOption( "ctl" , "CTL" , "GETOPT_DBTYPE" , "execute database set - only load files" ) );
