@@ -215,7 +215,7 @@ public class DatabaseRegistry {
 			res = client.updateRow( action , server.admSchema , TABLE_SCRIPTS ,
 					new String[] { "zschema" , "zfilename" , "zbegin_apply_time" , "zend_apply_time" , "zscript_status" } , 
 					new String[] { Common.getSQLQuoted( schema ) , Common.getSQLQuoted( file ) , "TIMESTAMP" , "NULL" , Common.getSQLQuoted( "S" ) } ,
-					"release = " + Common.getSQLQuoted( full ) + " and " +
+					"zrelease = " + Common.getSQLQuoted( full ) + " and " +
 							"zdelivery = " + Common.getSQLQuoted( delivery.NAME ) + " and " +
 							"zkey = " + Common.getSQLQuoted( key ) ); 
 		}
@@ -237,7 +237,7 @@ public class DatabaseRegistry {
 		boolean res = client.updateRow( action , server.admSchema , TABLE_SCRIPTS ,
 				new String[] { "zend_apply_time" , "zscript_status" } , 
 				new String[] { "TIMESTAMP" , Common.getSQLQuoted( "A" ) } ,
-				"release = " + Common.getSQLQuoted( full ) + " and " +
+				"zrelease = " + Common.getSQLQuoted( full ) + " and " +
 						"zdelivery = " + Common.getSQLQuoted( delivery.NAME ) + " and " + 
 						"zkey = " + Common.getSQLQuoted( key ) );
 		if( !res ) {
