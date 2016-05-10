@@ -172,14 +172,12 @@ public class DatabaseSpecific {
 	public String readCellValue( ActionBase action , String dbschema , String user , String password , String table , String column , String condition ) throws Exception {
 		String query = "select 'value=' || " + column + " as x from " + getTableName( action , dbschema , table ) + " where " + condition + ";";
 		String[] lines = queryLines( action , dbschema , user , password , query );
+		lines = Common.grep( lines , "^value=" );
 		if( lines.length == 0 )
 			return( "" );
 		
 		if( lines.length != 1 )
 			action.exit( "unexpected output: " + Common.getList( lines ) );
-		
-		if( !lines[0].startsWith( "value=" ) )
-			action.exit( "unexpected output: " + lines[0] );
 		
 		return( Common.getPartAfterFirst( lines[0] , "value=" ) );
 	}
