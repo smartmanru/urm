@@ -139,12 +139,46 @@ public class DatabaseSpecific {
 		return( false );
 	}
 	
-	public String readCellValue( ActionBase action , String dbschema , String user , String password , String table , String column , String condition ) throws Exception {
+	public String[] queryLines( ActionBase action , String dbschema , String user , String password , String query ) throws Exception {
 		String ctxScript = getContextScript( action , dbschema , user , password );
-		if( !runScriptCmdGetValueCheckStatus( action , ctxScript , "readcellvalue" , table + " " + column + " " + Common.getQuoted( condition ) ) )
-			action.exit( "unexpected error" );
 		
-		return( lastValue );
+		String file = work.getFilePath( action , "query.sql" );
+		String fileLog = file + ".out";
+		if( action.isWindows() ) {
+			file = Common.getWinPath( file );
+			fileLog = Common.getWinPath( fileLog );
+		}
+		
+		int status = runScriptCmd( action , ctxScript , "queryscript" , file + " " + fileLog );
+		if( status != 0 )
+			action.exit( "error: (see logs)" );
+
+		String err =  action.session.getErrors( action );
+		if( !err.isEmpty() )
+			action.exit( "error: " + err + " (see logs)" );
+		
+		List<String> data = ConfReader.readFileLines( action , fileLog );
+		String[] lines = data.toArray( new String[0] );
+		String[] errors = Common.grep( lines , "^ERROR" );
+		if( errors.length > 0 )
+			action.exit( "error: " + " (" + errors[0] + " ...)" );
+		
+		return( lines );
+	}
+	
+	public String readCellValue( ActionBase action , String dbschema , String user , String password , String table , String column , String condition ) throws Exception {
+		String query = "select 'value=' || " + column + " as x from " + dbschema + "." + table + " where " + condition + ";";
+		String[] lines = queryLines( action , dbschema , user , password , query );
+		if( lines.length == 0 )
+			return( "" );
+		
+		if( lines.length != 1 )
+			action.exit( "unexpected output: " + Common.getList( lines ) );
+		
+		if( !lines[0].startsWith( "value=" ) )
+			action.exit( "unexpected output: " + lines[0] );
+		
+		return( Common.getPartAfterFirst( lines[0] , "value=" ) );
 	}
 
 	public void readTableData( ActionBase action , String dbschema , String user , String password , String table , String condition , String[] columns , List<String[]> rows ) throws Exception {
@@ -157,13 +191,9 @@ public class DatabaseSpecific {
 			query += "'c=' || " + column;
 		}
 		query += " from " + table + " where " + condition;
-		String scriptFile = work.getFilePath( action , "control.sql" );
-		String outFile = scriptFile + ".out";
-		Common.createFileFromString( scriptFile , query );
-		applyScript( action , dbschema , user , password , scriptFile , outFile );
+		String[] lines = queryLines( action , dbschema , user , password , query );
 		
-		List<String> data = ConfReader.readFileLines( action , outFile );
-		for( String value : data ) {
+		for( String value : lines ) {
 			String[] values = Common.split( value , "\\|" );
 			if( values.length != columns.length )
 				action.exit( "unexpected table row output: " + value + " (" + values.length + ", " + columns.length + ")" );
