@@ -151,6 +151,9 @@ public class DatabaseSpecific {
 
 		List<String> data = ConfReader.readFileLines( action , fileLog );
 		String[] lines = data.toArray( new String[0] );
+		for( int k = 0; k < lines.length; k++ )
+			lines[ k ] = lines[ k ].trim();
+		
 		String[] errors = Common.grep( lines , "^ERROR" );
 		if( errors.length > 0 )
 			action.exit( "error: " + " (" + errors[0] + " ...)" );
