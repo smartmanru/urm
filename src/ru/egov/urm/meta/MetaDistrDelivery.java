@@ -86,13 +86,13 @@ public class MetaDistrDelivery {
 		mapDatabaseSchema = new HashMap<String,MetaDatabaseSchema>();
 		mapDatabaseDatagroup = new HashMap<String,MetaDatabaseDatagroup>();
 		
-		Node[] items = ConfReader.xmlGetChildren( action , node , "database" );
+		Node[] items = ConfReader.xmlGetChildren( action , node , "datagroup" );
 		if( items == null )
 			return;
 		
 		MetaDatabase database = meta.distr.database;
 		for( Node item : items ) {
-			String datagroupName = ConfReader.getAttrValue( action , item , "datagroup" );
+			String datagroupName = ConfReader.getAttrValue( action , item , "name" );
 			MetaDatabaseDatagroup datagroup = database.getDatagroup( action , datagroupName );
 			mapDatabaseDatagroup.put( datagroupName , datagroup );
 			
