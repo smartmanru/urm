@@ -605,6 +605,10 @@ public abstract class ShellExecutor {
 		return( null );
 	}
 	
+	public String[] getLines( ActionBase action ) throws Exception {
+		return( core.cmdout.toArray( new String[0] ) );
+	}
+	
 	public String getValue( ActionBase action ) throws Exception {
 		return( core.getOut() );
 	}

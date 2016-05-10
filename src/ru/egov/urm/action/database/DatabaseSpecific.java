@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.ConfReader;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
@@ -26,6 +27,7 @@ public class DatabaseSpecific {
 	Map<String,String> ctxFiles = new HashMap<String,String>();
 	String lastValue = null;
 	boolean applysystemscriptCopied = false;
+	LocalFolder work;
 	
 	protected DatabaseSpecific() {
 	}
@@ -146,174 +148,183 @@ public class DatabaseSpecific {
 	}
 
 	public void readTableData( ActionBase action , String dbschema , String user , String password , String table , String condition , String[] columns , List<String[]> rows ) throws Exception {
-//		String query = "select ";
-//		boolean first = true;
-//		for( String column : columns ) {
-//			if( !first )
-//				query += ", ";
-//			first = false;
-//			query += "'c=' || " + column;
-//		}
-//		query += " from " + table + " where " + condition;
-//		
-//		String[] data = action.session.customGetLines( action , "export PGPASSWORD='" + password + "'; " + 
-//				"(echo " + Common.getQuoted( query + ";" ) +  
-//				" ) | psql -A -q -t -d " + schema + " -h " + dbmsAddrHost + " -U " + user );
-//
-//		for( String value : data ) {
-//			String[] values = Common.split( value , "\\|" );
-//			if( values.length != columns.length )
-//				action.exit( "unexpected table row output: " + value + " (" + values.length + ", " + columns.length + ")" );
-//			
-//			String[] row = new String[ columns.length ];
-//			int pos = 0;
-//			for( String s : values ) {
-//				if( !s.startsWith( "c=" ) )
-//					action.exit( "unexpected table row output: " + value );
-//				
-//				row[ pos ] = s.substring( 2 );
-//				pos++;
-//			}
-//			
-//			rows.add( row );
-//		}
+		String query = "select ";
+		boolean first = true;
+		for( String column : columns ) {
+			if( !first )
+				query += ", ";
+			first = false;
+			query += "'c=' || " + column;
+		}
+		query += " from " + table + " where " + condition;
+		String scriptFile = work.getFilePath( action , "control.sql" );
+		String outFile = scriptFile + ".out";
+		Common.createFileFromString( scriptFile , query );
+		applyScript( action , dbschema , user , password , scriptFile , outFile );
+		
+		List<String> data = ConfReader.readFileLines( action , outFile );
+		for( String value : data ) {
+			String[] values = Common.split( value , "\\|" );
+			if( values.length != columns.length )
+				action.exit( "unexpected table row output: " + value + " (" + values.length + ", " + columns.length + ")" );
+			
+			String[] row = new String[ columns.length ];
+			int pos = 0;
+			for( String s : values ) {
+				if( !s.startsWith( "c=" ) )
+					action.exit( "unexpected table row output: " + value );
+				
+				row[ pos ] = s.substring( 2 );
+				pos++;
+			}
+			
+			rows.add( row );
+		}
+	}
+
+	public boolean dropTable( ActionBase action , String dbschema , String user , String password , String table ) throws Exception {
+		String query = "drop table " + dbschema + "." + table ;
+		String scriptFile = work.getFilePath( action , "control.sql" );
+		String outFile = scriptFile + ".out";
+		Common.createFileFromString( scriptFile , query );
+
+		return( applyScript( action , dbschema , user , password , scriptFile , outFile ) );
 	}
 	
 	public void createTableData( ActionBase action , String dbschema , String user , String password , String table , String[] columns , String columntypes[] , List<String[]> rows ) throws Exception {
-//		List<String> lines = new LinkedList<String>();
-//		lines.add( "DROP TABLE IF EXISTS " + table + ";" );
-//		
-//		String ct = "create table " + table + " ( ";
-//		if( columns.length != columntypes.length )
-//			action.exit( "invalid column names and types" );
-//		
-//		for( int k = 0; k < columns.length; k++ ) {
-//			if( k > 0 )
-//				ct += ", ";
-//			String type = columntypes[ k ];
-//			ct += columns[k] + " " + type + "";
-//		}
-//		ct += " );";
-//		lines.add( ct );
-//				
-//		writeTableDataInternal( action , schema , user , password , table , columns , rows , lines );
+		dropTable( action , dbschema , user , password , table );
+		
+		List<String> lines = new LinkedList<String>();
+		String ct = "create table " + dbschema + "." + table + " ( ";
+		if( columns.length != columntypes.length )
+			action.exit( "invalid column names and types" );
+		
+		for( int k = 0; k < columns.length; k++ ) {
+			if( k > 0 )
+				ct += ", ";
+			String type = columntypes[ k ];
+			ct += columns[k] + " " + type + "";
+		}
+		ct += " );";
+		lines.add( ct );
+				
+		writeTableDataInternal( action , dbschema , user , password , table , columns , rows , lines );
 	}
 	
-	private void writeTableDataInternal( ActionBase action , String dbschema , String user , String password , String table , String[] columns , List<String[]> rows , List<String> lines ) throws Exception {
-//		lines.add( "begin;" );
-//		for( String[] values : rows ) {
-//			String query = getInsertRowString( action , table , columns , values );
-//			lines.add( query );
-//		}
-//		lines.add( "commit;" );
-//		
-//		LocalFolder work = action.artefactory.getWorkFolder( action );
-//		String scriptFile = work.getFilePath( action , "run.sql" );
-//		Common.createFileFromStringList( scriptFile , lines );
-//
-//		String value = action.session.customGetValue( action , "export PGPASSWORD='" + password + "'; " + 
-//				"cat " + scriptFile +  
-//				" | psql -d " + schema + " -h " + dbmsAddrHost + " -U " + user + " 2>&1" );
-//		
-//		if( value.indexOf( "ERROR:" ) >= 0 )
-//			action.exit( "unexpected error: " + value );
+	private boolean writeTableDataInternal( ActionBase action , String dbschema , String user , String password , String table , String[] columns , List<String[]> rows , List<String> lines ) throws Exception {
+		beginTransaction( action , lines );
+		for( String[] values : rows ) {
+			String query = getInsertRowString( action , table , columns , values );
+			lines.add( query );
+		}
+		endTransaction( action , lines );
+		
+		String scriptFile = work.getFilePath( action , "run.sql" );
+		String outFile = scriptFile + ".out";
+		Common.createFileFromStringList( scriptFile , lines );
+
+		return( applyScript( action , dbschema , user , password , scriptFile , outFile ) );
 	}
 
+	private void beginTransaction( ActionBase action , List<String> lines ) throws Exception {
+		if( server.dbType == VarDBMSTYPE.POSTGRESQL )
+			lines.add( "begin;" );
+	}
+	
+	private void endTransaction( ActionBase action , List<String> lines ) throws Exception {
+		lines.add( "commit;" );
+	}
+	
 	private String getInsertRowString( ActionBase action , String table , String[] columns , String[] values ) throws Exception {
-//		if( values.length != columns.length )
-//			action.exit( "number of values should be equal to number of columns" );
-//			
-//		String query = "insert into " + table + " (";
-//		boolean first = true;
-//		for( String column : columns ) {
-//			if( !first )
-//				query += ", ";
-//			
-//			first = false;
-//			query += column; 
-//		}
-//		query += " ) values (";
-//		
-//		first = true;
-//		for( String value : values ) {
-//			if( !first )
-//				query += ", ";
-//			
-//			first = false;
-//			if( value.equals( "TIMESTAMP" ) )
-//				query += "now()";
-//			else
-//				query += value;
-//		}
-//		query += " );";
-//		
-//		return( query );
-		return( null );
+		if( values.length != columns.length )
+			action.exit( "number of values should be equal to number of columns" );
+			
+		String query = "insert into " + table + " (";
+		boolean first = true;
+		for( String column : columns ) {
+			if( !first )
+				query += ", ";
+			
+			first = false;
+			query += column; 
+		}
+		query += " ) values (";
+		
+		first = true;
+		for( String value : values ) {
+			if( !first )
+				query += ", ";
+			
+			first = false;
+			if( value.equals( "TIMESTAMP" ) )
+				query += getTimestampValue( action );
+			else
+				query += value;
+		}
+		query += " );";
+		
+		return( query );
 	}
 	
 	public void writeTableData( ActionBase action , String dbschema , String user , String password , String table , String[] columns , List<String[]> rows ) throws Exception {
-//		List<String> lines = new LinkedList<String>();
-//		writeTableDataInternal( action , schema , user , password , table , columns , rows , lines );
+		List<String> lines = new LinkedList<String>();
+		writeTableDataInternal( action , dbschema , user , password , table , columns , rows , lines );
 	}
 	
-	public void insertRow( ActionBase action , String dbschema , String user , String password , String table , String[] columns , String[] values ) throws Exception {
-//		String query = getInsertRowString( action , table , columns , values );
-//		String value = action.session.customGetValue( action , "export PGPASSWORD='" + password + "'; " + 
-//				"(echo " + Common.getQuoted( query ) +  
-//				" ) | psql -d " + schema + " -h " + dbmsAddrHost + " -U " + user );
-//		
-//		if( value.indexOf( "ERROR:" ) >= 0 )
-//			action.exit( "unexpected error: " + value );
-	}
-	
-	public void updateRow( ActionBase action , String dbschema , String user , String password , String table , String[] columns , String[] values , String condition ) throws Exception {
-//		if( values.length != columns.length )
-//			action.exit( "number of values should be equal to number of columns" );
-//			
-//		String query = "update " + table + " set ";
-//		for( int pos = 0; pos < columns.length; pos++ ) {
-//			if( pos > 0 )
-//				query += ", ";
-//			
-//			query += columns[ pos ] + " = ";
-//			
-//			String value = values[ pos ];
-//			if( value.equals( "TIMESTAMP" ) )
-//				query += "now()";
-//			else
-//				query += value;
-//		}
-//		query += " where " + condition;
-//		
-//		String value = action.session.customGetValue( action , "export PGPASSWORD='" + password + "'; " + 
-//				"(echo " + Common.getQuoted( query ) +  
-//				" ) | psql -d " + schema + " -h " + dbmsAddrHost + " -U " + user );
-//		
-//		if( value.indexOf( "ERROR:" ) >= 0 )
-//			action.exit( "unexpected error: " + value );
-	}
-	
-	public boolean validateScriptContent( ActionBase action , LocalFolder dir , String script ) throws Exception {
-		return( true );
-	}
-	
-	public String getComments( ActionBase action , String grep , LocalFolder srcDir , String srcFile ) throws Exception {
-		return( "" );
-	}
-	
-	public void grepComments( ActionBase action , String grep , LocalFolder srcDir , String srcFile , LocalFolder dstDir , String outfile ) throws Exception {
-	}
-	
-	public void addComment( ActionBase action , String comment , LocalFolder dstDir , String outfile ) throws Exception {
-	}
+	public boolean insertRow( ActionBase action , String dbschema , String user , String password , String table , String[] columns , String[] values ) throws Exception {
+		String query = getInsertRowString( action , table , columns , values );
+		String scriptFile = work.getFilePath( action , "control.sql" );
+		String outFile = scriptFile + ".out";
+		Common.createFileFromString( scriptFile , query );
 
+		return( applyScript( action , dbschema , user , password , scriptFile , outFile ) );
+	}
+	
+	public boolean updateRow( ActionBase action , String dbschema , String user , String password , String table , String[] columns , String[] values , String condition ) throws Exception {
+		if( values.length != columns.length )
+			action.exit( "number of values should be equal to number of columns" );
+			
+		// ANSI query
+		String query = "update " + dbschema + "." + table + " set ";
+		for( int pos = 0; pos < columns.length; pos++ ) {
+			if( pos > 0 )
+				query += ", ";
+			
+			query += columns[ pos ] + " = ";
+			
+			String value = values[ pos ];
+			if( value.equals( "TIMESTAMP" ) )
+				query += getTimestampValue( action );
+			else
+				query += value;
+		}
+		query += " where " + condition;
+
+		String scriptFile = work.getFilePath( action , "control.sql" );
+		String outFile = scriptFile + ".out";
+		Common.createFileFromString( scriptFile , query );
+		
+		return( applyScript( action , dbschema , user , password , scriptFile , outFile ) );
+	}
+	
+	private String getTimestampValue( ActionBase action ) throws Exception {
+		if( server.dbType == VarDBMSTYPE.POSTGRESQL )
+			return( "now()" );
+		else
+		if( server.dbType == VarDBMSTYPE.ORACLE )
+			return( "SYSDATE" );
+		
+		action.exitUnexpectedState();
+		return( null );
+	}
+	
 	private String getContextScript( ActionBase action , String dbschema , String user , String password ) throws Exception {
 		String key = server.NAME + "." + dbschema + "." + user;
 		String ctxFile = ctxFiles.get( key );
 		if( ctxFile != null )
 			return( ctxFile );
 
-		LocalFolder work = action.artefactory.getWorkFolder( action );
+		work = action.artefactory.getWorkFolder( action );
 		List<String> lines = new LinkedList<String>();
 		String name = null;
 		String DBHOST = ( action.isLocal() )? "localhost" : server.DBMSADDR;
@@ -377,4 +388,18 @@ public class DatabaseSpecific {
 		return( true );
 	}
 	
+	public boolean validateScriptContent( ActionBase action , LocalFolder dir , String script ) throws Exception {
+		return( true );
+	}
+	
+	public String getComments( ActionBase action , String grep , LocalFolder srcDir , String srcFile ) throws Exception {
+		return( "" );
+	}
+	
+	public void grepComments( ActionBase action , String grep , LocalFolder srcDir , String srcFile , LocalFolder dstDir , String outfile ) throws Exception {
+	}
+	
+	public void addComment( ActionBase action , String comment , LocalFolder dstDir , String outfile ) throws Exception {
+	}
+
 }

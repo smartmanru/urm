@@ -58,8 +58,8 @@ public class DatabaseRegistry {
 	}
 
 	private void readReleaseStatus( ActionBase action ) throws Exception {
-		releaseStatus = client.readCellValue( action , server.admSchema , TABLE_RELEASES , "rel_status" , 
-				"release = " + Common.getSQLQuoted( full ) ); 
+		releaseStatus = client.readCellValue( action , server.admSchema , TABLE_RELEASES , "zrel_status" , 
+				"zrelease = " + Common.getSQLQuoted( full ) ); 
 	}
 
 	public int getScriptCount( ActionBase action ) throws Exception {
@@ -71,8 +71,8 @@ public class DatabaseRegistry {
 	
 	public void readIncompleteScripts( ActionBase action ) throws Exception {
 		List<String[]> rows = client.readTableData( action , server.admSchema , TABLE_SCRIPTS , 
-				"release = " + Common.getSQLQuoted( full ) + " and script_status = 'S'" , 
-				new String[] { "delivery" , "filename" } );
+				"zrelease = " + Common.getSQLQuoted( full ) + " and zscript_status = 'S'" , 
+				new String[] { "zdelivery" , "zfilename" } );
 		
 		deliveryState.clear();
 		for( String[] row : rows ) {
@@ -112,15 +112,15 @@ public class DatabaseRegistry {
 		// check current release state
 		if( isReleaseUnknown( action ) ) {
 			client.insertRow( action , server.admSchema , TABLE_RELEASES ,
-				new String[] { "release" , "rel_p1" , "rel_p2" , "rel_p3" , "rel_p4" , "begin_apply_time" , "rel_status" } , 
+				new String[] { "zrelease" , "zrel_p1" , "zrel_p2" , "zrel_p3" , "zrel_p4" , "zbegin_apply_time" , "zrel_status" } , 
 				new String[] { Common.getSQLQuoted( full ) , Common.getSQLQuoted( major1 ) , Common.getSQLQuoted( major2 ) , Common.getSQLQuoted( minor1 ) , Common.getSQLQuoted( minor2 ) , "TIMESTAMP" , Common.getSQLQuoted( "S" ) } );
 		}
 		else
 		if( isReleaseStarted( action ) ) {
 			client.updateRow( action , server.admSchema , TABLE_RELEASES ,
-					new String[] { "end_apply_time" } , 
+					new String[] { "zend_apply_time" } , 
 					new String[] { "NULL" } ,
-					"release = " + Common.getSQLQuoted( full ) ); 
+					"zrelease = " + Common.getSQLQuoted( full ) ); 
 		}
 		else
 		if( isReleaseFinished( action ) ) {
@@ -129,9 +129,9 @@ public class DatabaseRegistry {
 			
 			releaseStatus = "S";
 			client.updateRow( action , server.admSchema , TABLE_RELEASES ,
-					new String[] { "rel_status" , "end_apply_time" } , 
+					new String[] { "zrel_status" , "zend_apply_time" } , 
 					new String[] { Common.getSQLQuoted( releaseStatus ) , "NULL" } ,
-					"release = " + Common.getSQLQuoted( full ) ); 
+					"zrelease = " + Common.getSQLQuoted( full ) ); 
 		}
 		else
 			action.exitUnexpectedState();
@@ -140,19 +140,19 @@ public class DatabaseRegistry {
 	public void finishApplyRelease( ActionBase action ) throws Exception {
 		releaseStatus = "A";
 		client.updateRow( action , server.admSchema , TABLE_RELEASES ,
-				new String[] { "rel_status" , "end_apply_time" } , 
+				new String[] { "zrel_status" , "end_apply_time" } , 
 				new String[] { Common.getSQLQuoted( releaseStatus ) , "TIMESTAMP" } ,
-				"release = " + Common.getSQLQuoted( full ) ); 
+				"zrelease = " + Common.getSQLQuoted( full ) ); 
 	}
 	
 	public void readDeliveryState( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
 		Map<String,String> data = new HashMap<String,String>(); 
 		
 		// check connect to admin schema
-		String[] columns = { "key" , "script_status" };
+		String[] columns = { "key" , "zscript_status" };
 		List<String[]> rows = client.readTableData( action , server.admSchema , TABLE_SCRIPTS  , 
-				"release = " + Common.getSQLQuoted( full ) + " and " +
-				"delivery = " + Common.getSQLQuoted( delivery.NAME ) , columns ); 
+				"zrelease = " + Common.getSQLQuoted( full ) + " and " +
+				"zdelivery = " + Common.getSQLQuoted( delivery.NAME ) , columns ); 
 		
 		for( String[] row : rows )
 			data.put( row[0] , row[1] );
@@ -205,18 +205,27 @@ public class DatabaseRegistry {
 		String status = data.get( key );
 		
 		String schema = dsf.SRCSCHEMA;
+		boolean res = false;
 		if( status == null ) {
-			client.insertRow( action , server.admSchema , TABLE_SCRIPTS ,
-					new String[] { "release" , "delivery" , "key" , "schema" , "filename" , "begin_apply_time" , "script_status" } , 
+			res = client.insertRow( action , server.admSchema , TABLE_SCRIPTS ,
+					new String[] { "zrelease" , "zdelivery" , "zkey" , "zschema" , "zfilename" , "zbegin_apply_time" , "zscript_status" } , 
 					new String[] { Common.getSQLQuoted( full ) , Common.getSQLQuoted( delivery.NAME ) , Common.getSQLQuoted( key ) , Common.getSQLQuoted( schema ) , Common.getSQLQuoted( file ) , "TIMESTAMP" , Common.getSQLQuoted( "S" ) } );
 		}
 		else {
-			client.updateRow( action , server.admSchema , TABLE_SCRIPTS ,
-					new String[] { "schema" , "filename" , "begin_apply_time" , "end_apply_time" , "script_status" } , 
+			res = client.updateRow( action , server.admSchema , TABLE_SCRIPTS ,
+					new String[] { "zschema" , "zfilename" , "zbegin_apply_time" , "zend_apply_time" , "zscript_status" } , 
 					new String[] { Common.getSQLQuoted( schema ) , Common.getSQLQuoted( file ) , "TIMESTAMP" , "NULL" , Common.getSQLQuoted( "S" ) } ,
 					"release = " + Common.getSQLQuoted( full ) + " and " +
-							"delivery = " + Common.getSQLQuoted( delivery.NAME ) + " and " +
-							"key = " + Common.getSQLQuoted( key ) ); 
+							"zdelivery = " + Common.getSQLQuoted( delivery.NAME ) + " and " +
+							"zkey = " + Common.getSQLQuoted( key ) ); 
+		}
+		
+		if( !res ) {
+			String msg = "unable to register script execution: " + file ;
+			if( action.context.CTX_FORCE )
+				action.log( msg + ", ignored." );
+			else
+				action.exit( msg );
 		}
 	}
 	
@@ -225,12 +234,19 @@ public class DatabaseRegistry {
 		dsf.setDistFile( action , file );
 		String key = dsf.getDistKey();
 		
-		client.updateRow( action , server.admSchema , TABLE_SCRIPTS ,
-				new String[] { "end_apply_time" , "script_status" } , 
+		boolean res = client.updateRow( action , server.admSchema , TABLE_SCRIPTS ,
+				new String[] { "zend_apply_time" , "script_status" } , 
 				new String[] { "TIMESTAMP" , Common.getSQLQuoted( "A" ) } ,
 				"release = " + Common.getSQLQuoted( full ) + " and " +
-						"delivery = " + Common.getSQLQuoted( delivery.NAME ) + " and " + 
-						"key = " + Common.getSQLQuoted( key ) ); 
+						"zdelivery = " + Common.getSQLQuoted( delivery.NAME ) + " and " + 
+						"zkey = " + Common.getSQLQuoted( key ) );
+		if( !res ) {
+			String msg = "unable to register script execution: " + file ;
+			if( action.context.CTX_FORCE )
+				action.log( msg + ", ignored." );
+			else
+				action.exit( msg );
+		}
 	}
 	
 }

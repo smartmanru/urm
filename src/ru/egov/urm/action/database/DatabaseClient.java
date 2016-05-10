@@ -151,14 +151,14 @@ public class DatabaseClient {
 		specific.writeTableData( action , schema.DBNAME , schema.DBUSER , password , table , columns , data );
 	}
 
-	public void insertRow( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] values ) throws Exception {
+	public boolean insertRow( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] values ) throws Exception {
 		String password = getUserPassword( action , schema.DBUSER );
-		specific.insertRow( action , schema.DBNAME , schema.DBUSER , password , table , columns , values );
+		return( specific.insertRow( action , schema.DBNAME , schema.DBUSER , password , table , columns , values ) );
 	}
 	
-	public void updateRow( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] values , String ansiCondition ) throws Exception {
+	public boolean updateRow( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] values , String ansiCondition ) throws Exception {
 		String password = getUserPassword( action , schema.DBUSER );
-		specific.updateRow( action , schema.DBNAME , schema.DBUSER , password , table , columns , values , ansiCondition );
+		return( specific.updateRow( action , schema.DBNAME , schema.DBUSER , password , table , columns , values , ansiCondition ) );
 	}
 
 	public boolean applyScript( ActionBase action , MetaDatabaseSchema schema , LocalFolder scriptFolder , String scriptFile , LocalFolder outFolder , String outFile ) throws Exception {
