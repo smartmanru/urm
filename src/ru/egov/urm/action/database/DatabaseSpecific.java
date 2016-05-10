@@ -200,6 +200,10 @@ public class DatabaseSpecific {
 		String[] lines = queryLines( action , dbschema , user , password , query );
 		
 		for( String value : lines ) {
+			value = value.trim();
+			if( value.isEmpty() )
+				continue;
+			
 			String[] values = Common.split( value , "\\|" );
 			if( values.length != columns.length )
 				action.exit( "unexpected table row output: " + value + " (" + values.length + ", " + columns.length + ")" );
@@ -208,7 +212,7 @@ public class DatabaseSpecific {
 			int pos = 0;
 			for( String s : values ) {
 				if( !s.startsWith( "c=" ) )
-					action.exit( "unexpected table row output: " + value );
+					continue;
 				
 				row[ pos ] = s.substring( 2 ).trim();
 				pos++;
