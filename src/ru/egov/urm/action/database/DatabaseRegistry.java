@@ -134,7 +134,7 @@ public class DatabaseRegistry {
 					"zrelease = " + Common.getSQLQuoted( full ) ); 
 		}
 		else
-			action.exitUnexpectedState();
+			action.exit( "unexpected release status=" + releaseStatus );
 	}
 
 	public void finishApplyRelease( ActionBase action ) throws Exception {
