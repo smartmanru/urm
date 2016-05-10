@@ -203,7 +203,7 @@ public class DatabaseSpecific {
 			value = value.trim();
 			if( value.isEmpty() )
 				continue;
-			if( value.startsWith( "c=" ) )
+			if( !value.startsWith( "c=" ) )
 				continue;
 			
 			String[] values = Common.split( value , "\\|" );
