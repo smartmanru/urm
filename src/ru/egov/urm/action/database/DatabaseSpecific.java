@@ -191,7 +191,7 @@ public class DatabaseSpecific {
 			first = false;
 			query += "'c=' || " + column;
 		}
-		query += " from " + getTableName( action , dbschema , table ) + " where " + condition;
+		query += " from " + getTableName( action , dbschema , table ) + " where " + condition + ";";
 		String[] lines = queryLines( action , dbschema , user , password , query );
 		
 		for( String value : lines ) {
@@ -214,7 +214,7 @@ public class DatabaseSpecific {
 	}
 
 	public boolean dropTable( ActionBase action , String dbschema , String user , String password , String table ) throws Exception {
-		String query = "drop table " + getTableName( action , dbschema , table );
+		String query = "drop table " + getTableName( action , dbschema , table ) + ";";
 		String scriptFile = work.getFilePath( action , "control.sql" );
 		String outFile = scriptFile + ".out";
 		Common.createFileFromString( scriptFile , query );
@@ -329,7 +329,7 @@ public class DatabaseSpecific {
 			else
 				query += value;
 		}
-		query += " where " + condition;
+		query += " where " + condition + ";";
 
 		String scriptFile = work.getFilePath( action , "control.sql" );
 		String outFile = scriptFile + ".out";
