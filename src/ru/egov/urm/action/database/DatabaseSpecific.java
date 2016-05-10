@@ -190,9 +190,9 @@ public class DatabaseSpecific {
 		boolean first = true;
 		for( String column : columns ) {
 			if( !first )
-				query += ", ";
+				query += " || ";
 			first = false;
-			query += "'c=' || " + column;
+			query += "'|c=' || " + column;
 		}
 		query += " from " + getTableName( action , dbschema , table ) + " where " + condition + ";";
 		String[] lines = queryLines( action , dbschema , user , password , query );
