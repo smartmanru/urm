@@ -122,21 +122,15 @@ public class DatabaseSpecific {
 			return( false );
 		}
 		
-		String err = "";
-		if( action.isLinux() ) {
-			err = action.session.customGetValue( action , "cat " + fileLog + " | grep ^ERROR: | head -1" );
-		}
-		else {
-			String[] lines = action.session.customGetLines( action , "type " + fileLog + " | findstr ^ERROR:" );
-			if( lines.length > 0 )
-				err = lines[0];
+		List<String> data = ConfReader.readFileLines( action , fileLog );
+		String[] lines = data.toArray( new String[0] );
+		String[] errors = Common.grep( lines , "^ERROR" );
+		if( errors.length > 0 ) {
+			action.log( "error: " + " (" + errors[0] + " ...)" );
+			return( false );
 		}
 		
-		if( err.isEmpty() )
-			return( true );
-		
-		action.log( "error: " + err + " (see logs)" );
-		return( false );
+		return( true );
 	}
 	
 	public String[] queryLines( ActionBase action , String dbschema , String user , String password , String query ) throws Exception {
@@ -163,9 +157,20 @@ public class DatabaseSpecific {
 		
 		return( lines );
 	}
+
+	public String getTableName( ActionBase action , String dbschema , String table ) throws Exception {
+		if( server.dbType == VarDBMSTYPE.ORACLE )
+			return( dbschema + "." + table );
+		if( server.dbType == VarDBMSTYPE.FIREBIRD ||
+			server.dbType == VarDBMSTYPE.POSTGRESQL )
+			return( table );
+		
+		action.exitUnexpectedState();
+		return( null );
+	}
 	
 	public String readCellValue( ActionBase action , String dbschema , String user , String password , String table , String column , String condition ) throws Exception {
-		String query = "select 'value=' || " + column + " as x from " + dbschema + "." + table + " where " + condition + ";";
+		String query = "select 'value=' || " + column + " as x from " + getTableName( action , dbschema , table ) + " where " + condition + ";";
 		String[] lines = queryLines( action , dbschema , user , password , query );
 		if( lines.length == 0 )
 			return( "" );
@@ -188,7 +193,7 @@ public class DatabaseSpecific {
 			first = false;
 			query += "'c=' || " + column;
 		}
-		query += " from " + table + " where " + condition;
+		query += " from " + getTableName( action , dbschema , table ) + " where " + condition;
 		String[] lines = queryLines( action , dbschema , user , password , query );
 		
 		for( String value : lines ) {
@@ -211,7 +216,7 @@ public class DatabaseSpecific {
 	}
 
 	public boolean dropTable( ActionBase action , String dbschema , String user , String password , String table ) throws Exception {
-		String query = "drop table " + dbschema + "." + table ;
+		String query = "drop table " + getTableName( action , dbschema , table );
 		String scriptFile = work.getFilePath( action , "control.sql" );
 		String outFile = scriptFile + ".out";
 		Common.createFileFromString( scriptFile , query );
@@ -223,7 +228,7 @@ public class DatabaseSpecific {
 		dropTable( action , dbschema , user , password , table );
 		
 		List<String> lines = new LinkedList<String>();
-		String ct = "create table " + dbschema + "." + table + " ( ";
+		String ct = "create table " + getTableName( action , dbschema , table ) + " ( ";
 		if( columns.length != columntypes.length )
 			action.exit( "invalid column names and types" );
 		
@@ -242,7 +247,7 @@ public class DatabaseSpecific {
 	private boolean writeTableDataInternal( ActionBase action , String dbschema , String user , String password , String table , String[] columns , List<String[]> rows , List<String> lines ) throws Exception {
 		beginTransaction( action , lines );
 		for( String[] values : rows ) {
-			String query = getInsertRowString( action , table , columns , values );
+			String query = getInsertRowString( action , dbschema , table , columns , values );
 			lines.add( query );
 		}
 		endTransaction( action , lines );
@@ -263,11 +268,11 @@ public class DatabaseSpecific {
 		lines.add( "commit;" );
 	}
 	
-	private String getInsertRowString( ActionBase action , String table , String[] columns , String[] values ) throws Exception {
+	private String getInsertRowString( ActionBase action , String dbschema , String table , String[] columns , String[] values ) throws Exception {
 		if( values.length != columns.length )
 			action.exit( "number of values should be equal to number of columns" );
 			
-		String query = "insert into " + table + " (";
+		String query = "insert into " + getTableName( action , dbschema , table ) + " (";
 		boolean first = true;
 		for( String column : columns ) {
 			if( !first )
@@ -300,7 +305,7 @@ public class DatabaseSpecific {
 	}
 	
 	public boolean insertRow( ActionBase action , String dbschema , String user , String password , String table , String[] columns , String[] values ) throws Exception {
-		String query = getInsertRowString( action , table , columns , values );
+		String query = getInsertRowString( action , dbschema , table , columns , values );
 		String scriptFile = work.getFilePath( action , "control.sql" );
 		String outFile = scriptFile + ".out";
 		Common.createFileFromString( scriptFile , query );
@@ -313,7 +318,7 @@ public class DatabaseSpecific {
 			action.exit( "number of values should be equal to number of columns" );
 			
 		// ANSI query
-		String query = "update " + dbschema + "." + table + " set ";
+		String query = "update " + getTableName( action , dbschema , table ) + " set ";
 		for( int pos = 0; pos < columns.length; pos++ ) {
 			if( pos > 0 )
 				query += ", ";
