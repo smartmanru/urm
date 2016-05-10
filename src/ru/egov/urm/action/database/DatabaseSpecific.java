@@ -344,6 +344,9 @@ public class DatabaseSpecific {
 		else
 		if( server.dbType == VarDBMSTYPE.ORACLE )
 			return( "SYSDATE" );
+		else
+		if( server.dbType == VarDBMSTYPE.FIREBIRD )
+			return( "CURRENT_TIMESTAMP" );
 		
 		action.exitUnexpectedState();
 		return( null );
