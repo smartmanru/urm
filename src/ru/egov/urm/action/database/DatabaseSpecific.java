@@ -190,9 +190,11 @@ public class DatabaseSpecific {
 		boolean first = true;
 		for( String column : columns ) {
 			if( !first )
-				query += " || ";
+				query += " || '|c=' || ";
+			else
+				query += "'c=' || ";
 			first = false;
-			query += "'|c=' || " + column;
+			query += column;
 		}
 		query += " from " + getTableName( action , dbschema , table ) + " where " + condition + ";";
 		String[] lines = queryLines( action , dbschema , user , password , query );
@@ -208,7 +210,7 @@ public class DatabaseSpecific {
 				if( !s.startsWith( "c=" ) )
 					action.exit( "unexpected table row output: " + value );
 				
-				row[ pos ] = s.substring( 2 );
+				row[ pos ] = s.substring( 2 ).trim();
 				pos++;
 			}
 			
