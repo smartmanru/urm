@@ -140,7 +140,7 @@ public class DatabaseRegistry {
 	public void finishApplyRelease( ActionBase action ) throws Exception {
 		releaseStatus = "A";
 		client.updateRow( action , server.admSchema , TABLE_RELEASES ,
-				new String[] { "zrel_status" , "end_apply_time" } , 
+				new String[] { "zrel_status" , "zend_apply_time" } , 
 				new String[] { Common.getSQLQuoted( releaseStatus ) , "TIMESTAMP" } ,
 				"zrelease = " + Common.getSQLQuoted( full ) ); 
 	}
@@ -149,7 +149,7 @@ public class DatabaseRegistry {
 		Map<String,String> data = new HashMap<String,String>(); 
 		
 		// check connect to admin schema
-		String[] columns = { "key" , "zscript_status" };
+		String[] columns = { "zkey" , "zscript_status" };
 		List<String[]> rows = client.readTableData( action , server.admSchema , TABLE_SCRIPTS  , 
 				"zrelease = " + Common.getSQLQuoted( full ) + " and " +
 				"zdelivery = " + Common.getSQLQuoted( delivery.NAME ) , columns ); 
@@ -235,7 +235,7 @@ public class DatabaseRegistry {
 		String key = dsf.getDistKey();
 		
 		boolean res = client.updateRow( action , server.admSchema , TABLE_SCRIPTS ,
-				new String[] { "zend_apply_time" , "script_status" } , 
+				new String[] { "zend_apply_time" , "zscript_status" } , 
 				new String[] { "TIMESTAMP" , Common.getSQLQuoted( "A" ) } ,
 				"release = " + Common.getSQLQuoted( full ) + " and " +
 						"zdelivery = " + Common.getSQLQuoted( delivery.NAME ) + " and " + 
