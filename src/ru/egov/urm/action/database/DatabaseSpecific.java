@@ -149,14 +149,12 @@ public class DatabaseSpecific {
 			fileLog = Common.getWinPath( fileLog );
 		}
 		
+		Common.createFileFromString( file , query );
+		
 		int status = runScriptCmd( action , ctxScript , "queryscript" , file + " " + fileLog );
 		if( status != 0 )
 			action.exit( "error: (see logs)" );
 
-		String err =  action.session.getErrors( action );
-		if( !err.isEmpty() )
-			action.exit( "error: " + err + " (see logs)" );
-		
 		List<String> data = ConfReader.readFileLines( action , fileLog );
 		String[] lines = data.toArray( new String[0] );
 		String[] errors = Common.grep( lines , "^ERROR" );
@@ -405,19 +403,6 @@ public class DatabaseSpecific {
 		return( 0 );
 	}
 
-	private boolean runScriptCmdGetValueCheckStatus( ActionBase action , String ctxFile , String cmd , String params ) throws Exception {
-		int status = runScriptCmd( action , ctxFile , cmd , params );
-		if( status != 0 )
-			return( false );
-		
-		lastValue = action.session.getValue( action );
-		if( lastValue.isEmpty() )
-			return( true );
-		
-		lastValue = Common.getPartAfterFirst( lastValue , "value=" );
-		return( true );
-	}
-	
 	public boolean validateScriptContent( ActionBase action , LocalFolder dir , String script ) throws Exception {
 		return( true );
 	}
