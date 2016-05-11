@@ -108,7 +108,7 @@ public class DatabaseRegistry {
 		return( releaseStatus.equals( "A" ) );
 	}
 	
-	public void startApplyRelease( ActionBase action ) throws Exception {
+	public boolean startApplyRelease( ActionBase action ) throws Exception {
 		// check current release state
 		if( isReleaseUnknown( action ) ) {
 			client.insertRow( action , server.admSchema , TABLE_RELEASES ,
@@ -124,8 +124,10 @@ public class DatabaseRegistry {
 		}
 		else
 		if( isReleaseFinished( action ) ) {
-			if( !action.context.CTX_FORCE )
-				action.exit( "release is completely done, use force to reapply" );
+			if( !action.context.CTX_FORCE ) {
+				action.log( "release is completely done, use -force to reapply" );
+				return( false );
+			}
 			
 			releaseStatus = "S";
 			client.updateRow( action , server.admSchema , TABLE_RELEASES ,
@@ -135,6 +137,8 @@ public class DatabaseRegistry {
 		}
 		else
 			action.exit( "unexpected release status=" + releaseStatus );
+		
+		return( true );
 	}
 
 	public void finishApplyRelease( ActionBase action ) throws Exception {

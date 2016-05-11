@@ -59,7 +59,8 @@ public class ActionApplyAutomatic extends ActionBase {
 	}
 
 	private boolean applyDatabase( MetaEnvServer server , DatabaseClient client , DatabaseRegistry registry ) throws Exception {
-		registry.startApplyRelease( this );
+		if( !registry.startApplyRelease( this ) )
+			return( false );
 		
 		Map<String,MetaDatabaseSchema> schemaSet = server.getSchemaSet( this );
 		boolean done = false;
