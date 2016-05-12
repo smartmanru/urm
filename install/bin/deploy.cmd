@@ -62,7 +62,7 @@ if "%F_DEPLOY%" == "yes" (
 cd %ROOTPATH%\install\master\bin
 call urm.cmd deploy deployredist %STDOPTS% default paymain
 if %errorlevel% <> 0 (
-	echo unable to redist release
+	echo unable to deploy release
 	exit /B 1
 )
 )
