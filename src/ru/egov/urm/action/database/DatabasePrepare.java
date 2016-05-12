@@ -355,8 +355,6 @@ public class DatabasePrepare {
 			return;
 		}
 
-		String SQL_PREFIX = getSqlIndexPrefix( action , SQL_SRC_DIR.dirPath , P_ALIGNEDID );
-
 		action.debug( "prepare/copy " + SQL_SRC_DIR.dirPath + " ..." );
 
 		if( !process ) {
@@ -365,6 +363,8 @@ public class DatabasePrepare {
 			SQL_DST_DIR.copyDirContent( action , folder );
 		}
 		
+		String SQL_PREFIX = getSqlIndexPrefix( action , SQL_SRC_DIR.dirPath , P_ALIGNEDID );
+
 		// process apply scripts
 		SQL_DST_DIR.ensureExists( action );
 		for( String x : Common.getSortedKeys( SQL_SRC_DIR.files ) ) {
