@@ -23,6 +23,7 @@ import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
 import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
+import ru.egov.urm.shell.ShellExecutor;
 
 public class DistStorage {
 
@@ -328,6 +329,24 @@ public class DistStorage {
 		state.ctlCloseChange( action );
 	}
 
+	public void copyRelease( ActionBase action , DistStorage src ) throws Exception {
+		String filePath = artefactory.workFolder.getFilePath( action , DistStorage.META_FILENAME );
+		Document doc = src.info.createXml( action , info.RELEASEVER );
+		Common.xmlSaveDoc( doc , filePath );
+		
+		openForChange( action );
+		
+		distFolder.copyFileFromLocal( action , filePath );
+		ShellExecutor shell = action.getShell( distFolder.account );
+		for( MetaReleaseDelivery delivery : src.info.getDeliveries( action ).values() ) {
+			String dirFrom = src.distFolder.getFolderPath( action , delivery.distDelivery.FOLDER );
+			String dirTo = distFolder.getFolderPath( action , delivery.distDelivery.FOLDER );
+			shell.copyDirDirect( action , dirFrom, dirTo );
+		}
+		
+		closeChange( action );
+	}
+	
 	public void dropRelease( ActionBase action ) throws Exception {
 		state.ctlCheckCanDropRelease( action );
 		distFolder.removeThis( action );

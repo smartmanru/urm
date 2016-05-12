@@ -22,6 +22,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		defineAction( CommandAction.newAction( new DeleteRelease() , "drop" , true , "delete release" , releaseOpts , "./drop.sh [OPTIONS] <RELEASELABEL>" ) );
 		defineAction( CommandAction.newAction( new StatusRelease() , "status" , true , "get release status" , releaseOpts , "./status.sh [OPTIONS] <RELEASELABEL>" ) );
 		defineAction( CommandAction.newAction( new CloseRelease() , "close" , true , "close release" , releaseOpts , "./close.sh [OPTIONS] <RELEASELABEL>" ) );
+		defineAction( CommandAction.newAction( new CopyRelease() , "copy" , true , "copy release" , releaseOpts , "./close.sh [OPTIONS] <RELEASESRC> <RELEASEDST>" ) );
 		defineAction( CommandAction.newAction( new FinishRelease() , "finish" , true , "finish release" , releaseOpts , "./finish.sh [OPTIONS] <RELEASELABEL>" ) );
 		defineAction( CommandAction.newAction( new ReopenRelease() , "reopen" , true , "reopen release" , releaseOpts , "./reopen.sh [OPTIONS] <RELEASELABEL>" ) );
 		defineAction( CommandAction.newAction( new MaintainProd() , "prod" , true , "create master distributive from predefined set" , releaseOpts , "./prod.sh [OPTIONS] create <initial version>" ) );
@@ -79,6 +80,15 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
 		options.checkNoArgs( action , 1 );
 		impl.closeRelease( action , RELEASELABEL );
+	}
+	}
+
+	private class CopyRelease extends CommandAction {
+	public void run( ActionInit action ) throws Exception {
+		String RELEASESRC = options.getRequiredArg( action , 0 , "RELEASESRC" );
+		String RELEASEDST = options.getRequiredArg( action , 0 , "RELEASEDST" );
+		options.checkNoArgs( action , 2 );
+		impl.copyRelease( action , RELEASESRC , RELEASEDST );
 	}
 	}
 

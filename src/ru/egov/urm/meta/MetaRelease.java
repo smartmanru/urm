@@ -329,10 +329,10 @@ public class MetaRelease {
 		return( false );
 	}
 	
-	public Document createEmptyXmlDoc( ActionBase action ) throws Exception {
+	public Document createEmptyXmlDoc( ActionBase action , String version ) throws Exception {
 		Document doc = Common.xmlCreateDoc( "release" );
 		Element root = doc.getDocumentElement();
-		Common.xmlCreatePropertyElement( doc , root , "version" , RELEASEVER );
+		Common.xmlCreatePropertyElement( doc , root , "version" , version );
 		Common.xmlCreatePropertyElement( doc , root , "buildMode" , Common.getEnumLower( PROPERTY_BUILDMODE ) );
 		Common.xmlCreateBooleanPropertyElement( doc , root , "obsolete" , PROPERTY_OBSOLETE );
 		
@@ -342,12 +342,16 @@ public class MetaRelease {
 	}
 	
 	public void createEmptyXml( ActionBase action , String filePath ) throws Exception {
-		Document doc = createEmptyXmlDoc( action );
+		Document doc = createEmptyXmlDoc( action , RELEASEVER );
 		Common.xmlSaveDoc( doc , filePath );
 	}
 
 	public Document createXml( ActionBase action ) throws Exception {
-		Document doc = createEmptyXmlDoc( action );
+		return( createXml( action , RELEASEVER ) );
+	}
+	
+	public Document createXml( ActionBase action , String version ) throws Exception {
+		Document doc = createEmptyXmlDoc( action , version );
 		Element root = doc.getDocumentElement();
 		
 		for( MetaReleaseSet set : sourceSetMap.values() ) {

@@ -34,6 +34,12 @@ public class ReleaseCommand {
 		ma.runSimple();
 	}
 	
+	public void copyRelease( ActionBase action , String RELEASESRC , String RELEASEDST ) throws Exception {
+		DistStorage distSrc = action.artefactory.getDistStorageByLabel( action , RELEASESRC );
+		ActionCopyRelease ma = new ActionCopyRelease( action , null , distSrc , RELEASEDST );
+		ma.runSimple();
+	}
+	
 	public void finishRelease( ActionBase action , String RELEASELABEL ) throws Exception {
 		DistStorage dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		ActionFinishRelease ma = new ActionFinishRelease( action , null , dist );
