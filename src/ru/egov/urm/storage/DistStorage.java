@@ -751,7 +751,7 @@ public class DistStorage {
 			if( delivery == null || delivery.isEmpty() ) {
 				if( dirFilesDist.hasFiles() ) {
 					if( !action.context.CTX_FORCE ) {
-						action.log( "distributive delivery=" + delivery.distDelivery.NAME + " has files, while nothing is declared in release" );
+						action.log( "distributive delivery=" + delivery.distDelivery.NAME + ", dir=" + dir + " has files, while nothing is declared in release" );
 						return( false );
 					}
 				}
@@ -790,7 +790,7 @@ public class DistStorage {
 				
 				if( dirFilesDist.hasFiles() ) {
 					if( !action.context.CTX_FORCE ) {
-						action.log( "distributive delivery=" + delivery.distDelivery.NAME + 
+						action.log( "distributive delivery=" + delivery.distDelivery.NAME + ", dir=" + dir +  
 								" has files, while nothing is declared in release" );
 						return( false );
 					}
@@ -816,7 +816,7 @@ public class DistStorage {
 		for( String dir : fsr.dirs.keySet() ) {
 			FileSet dirFilesDist = fsd.dirs.get( dir );
 			if( dirFilesDist == null ) {
-				action.log( "distributive has missing delivery=" + delivery.distDelivery.NAME + ", category=" + dir );
+				action.log( "distributive has missing delivery=" + delivery.distDelivery.NAME + ", dir=" + dir );
 				return( false );
 			}
 		}
