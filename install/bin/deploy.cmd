@@ -52,7 +52,7 @@ if %errorlevel% != 0 (
 
 cd %ROOTPATH%\install\master\bin
 call urm.cmd deploy getredistinfo %STDOPTS% -release default paymain
-if %errorlevel% <> 0 (
+if %errorlevel% != 0 (
 	echo unable to get dist info
 	exit /B 1
 )
