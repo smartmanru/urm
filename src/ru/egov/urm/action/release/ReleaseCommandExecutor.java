@@ -86,7 +86,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	private class CopyRelease extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASESRC = options.getRequiredArg( action , 0 , "RELEASESRC" );
-		String RELEASEDST = options.getRequiredArg( action , 0 , "RELEASEDST" );
+		String RELEASEDST = options.getRequiredArg( action , 1 , "RELEASEDST" );
 		options.checkNoArgs( action , 2 );
 		impl.copyRelease( action , RELEASESRC , RELEASEDST );
 	}
