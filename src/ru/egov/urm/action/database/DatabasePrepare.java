@@ -177,10 +177,11 @@ public class DatabasePrepare {
 	private void copyCore( ActionBase action , FileSet P_ALIGNEDSET , String P_ALIGNEDID , LocalFolder P_TARGETDIR ) throws Exception {
 		action.log( "prepare core scripts aligned=" + P_ALIGNEDID + " ..." );
 		LocalFolder scriptDir = P_TARGETDIR.getSubFolder( action , DistStorage.DBSCRIPTS_FOLDER );
-		copyDir( action , P_ALIGNEDSET , P_ALIGNEDID , P_ALIGNEDSET.getDirByPath( action , COREDDL_FOLDER ) , scriptDir );
-		copyDir( action , P_ALIGNEDSET , P_ALIGNEDID , P_ALIGNEDSET.getDirByPath( action , COREDML_FOLDER ) , scriptDir );
-		copyDir( action , P_ALIGNEDSET , P_ALIGNEDID , P_ALIGNEDSET.getDirByPath( action , COREPRODONLY_FOLDER ) , scriptDir );
-		copyDir( action , P_ALIGNEDSET , P_ALIGNEDID , P_ALIGNEDSET.getDirByPath( action , COREUATONLY_FOLDER ) , scriptDir );
+		copyDir( action , P_ALIGNEDSET , P_ALIGNEDID , P_ALIGNEDSET.getDirByPath( action , MANUAL_FOLDER ) , scriptDir , false );
+		copyDir( action , P_ALIGNEDSET , P_ALIGNEDID , P_ALIGNEDSET.getDirByPath( action , COREDDL_FOLDER ) , scriptDir , true );
+		copyDir( action , P_ALIGNEDSET , P_ALIGNEDID , P_ALIGNEDSET.getDirByPath( action , COREDML_FOLDER ) , scriptDir , true );
+		copyDir( action , P_ALIGNEDSET , P_ALIGNEDID , P_ALIGNEDSET.getDirByPath( action , COREPRODONLY_FOLDER ) , scriptDir , true );
+		copyDir( action , P_ALIGNEDSET , P_ALIGNEDID , P_ALIGNEDSET.getDirByPath( action , COREUATONLY_FOLDER ) , scriptDir , true );
 
 		// copy dataload part
 		FileSet dataload = P_ALIGNEDSET.getDirByPath( action , DATALOAD_FOLDER );
@@ -345,7 +346,7 @@ public class DatabasePrepare {
 		return( false );
 	}
 
-	private void copyDir( ActionBase action , FileSet P_ALIGNEDSET , String P_ALIGNEDID , FileSet SQL_SRC_DIR , LocalFolder SQL_DST_DIR ) throws Exception {
+	private void copyDir( ActionBase action , FileSet P_ALIGNEDSET , String P_ALIGNEDID , FileSet SQL_SRC_DIR , LocalFolder SQL_DST_DIR , boolean process ) throws Exception {
 		if( SQL_SRC_DIR == null )
 			return;
 		
@@ -356,10 +357,16 @@ public class DatabasePrepare {
 
 		String SQL_PREFIX = getSqlIndexPrefix( action , SQL_SRC_DIR.dirPath , P_ALIGNEDID );
 
-		SQL_DST_DIR.ensureExists( action );
 		action.debug( "prepare/copy " + SQL_SRC_DIR.dirPath + " ..." );
 
+		if( !process ) {
+			LocalFolder folder = srcFolder.getSubFolder( action , SQL_SRC_DIR.dirPath );
+			SQL_DST_DIR.ensureExists( action );
+			SQL_DST_DIR.copyDirContent( action , folder );
+		}
+		
 		// process apply scripts
+		SQL_DST_DIR.ensureExists( action );
 		for( String x : Common.getSortedKeys( SQL_SRC_DIR.files ) ) {
 			if( !x.endsWith( ".sql" ) )
 				continue;
