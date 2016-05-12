@@ -29,9 +29,9 @@ set STDOPTS=%ADDOPT% -local -etcpath %RELEASEPATH%\urm.conf -distpath %RELEASEPA
 set F_DBAPPLY=yes
 set F_REDIST=yes
 set F_DEPLOY=yes
-if "%CMD%" <> "all" if "%CMD%" <> "dbapply" set F_DBAPPLY=no
-if "%CMD%" <> "all" if "%CMD%" <> "redist" set F_REDIST=no
-if "%CMD%" <> "all" if "%CMD%" <> "deployredist" set F_DEPLOY=no
+if "%CMD%" != "all" if "%CMD%" != "dbapply" set F_DBAPPLY=no
+if "%CMD%" != "all" if "%CMD%" != "redist" set F_REDIST=no
+if "%CMD%" != "all" if "%CMD%" != "deployredist" set F_DEPLOY=no
 
 if "%F_DBAPPLY%" == "yes" (
 cd %ROOTPATH%\install\master\bin
