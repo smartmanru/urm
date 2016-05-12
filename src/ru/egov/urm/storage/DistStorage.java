@@ -347,6 +347,7 @@ public class DistStorage {
 		}
 		
 		closeChange( action );
+		action.log( "release " + RELEASEDIR + " has beed copied from " + src.RELEASEDIR );
 	}
 	
 	public void dropRelease( ActionBase action ) throws Exception {
