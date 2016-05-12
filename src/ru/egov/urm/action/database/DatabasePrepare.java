@@ -175,9 +175,10 @@ public class DatabasePrepare {
 	}
 	
 	private void copyCore( ActionBase action , FileSet P_ALIGNEDSET , String P_ALIGNEDID , LocalFolder P_TARGETDIR ) throws Exception {
-		action.log( "prepare core scripts aligned=" + P_ALIGNEDID + " ..." );
+		action.log( "prepare core aligned=" + P_ALIGNEDID + " ..." );
+		copyDir( action , P_ALIGNEDSET , P_ALIGNEDID , P_ALIGNEDSET.getDirByPath( action , MANUAL_FOLDER ) , P_TARGETDIR , false );
+		
 		LocalFolder scriptDir = P_TARGETDIR.getSubFolder( action , DistStorage.DBSCRIPTS_FOLDER );
-		copyDir( action , P_ALIGNEDSET , P_ALIGNEDID , P_ALIGNEDSET.getDirByPath( action , MANUAL_FOLDER ) , scriptDir , false );
 		copyDir( action , P_ALIGNEDSET , P_ALIGNEDID , P_ALIGNEDSET.getDirByPath( action , COREDDL_FOLDER ) , scriptDir , true );
 		copyDir( action , P_ALIGNEDSET , P_ALIGNEDID , P_ALIGNEDSET.getDirByPath( action , COREDML_FOLDER ) , scriptDir , true );
 		copyDir( action , P_ALIGNEDSET , P_ALIGNEDID , P_ALIGNEDSET.getDirByPath( action , COREPRODONLY_FOLDER ) , scriptDir , true );
