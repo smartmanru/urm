@@ -205,17 +205,14 @@ public abstract class CommandExecutor {
 		CommandOutput output = new CommandOutput();
 		ActionInit action = new ActionInit( this , context , options , output , meta );
 		
-		// scatter into variables
+		// load product properties
+		context.CTX_ETCPATH = options.getMetaPath( action );
+		meta.loadProduct( action );
 		options.updateContext( action );
-		output.setContext( context );
 		
 		// print
 		if( context.CTX_SHOWALL )
 			options.printRunningOptions();
-		
-		// load product properties
-		meta.loadProduct( action );
-		options.updateContext( action );
 		
 		// create shell pool
 		context.createPool( action );

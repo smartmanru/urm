@@ -122,6 +122,10 @@ public class CommandOptions {
 		defineOption( CommandVar.newParam( "newkey" , "GETOPT_NEWKEY" , "use given key to change on host" ) );
 	}
 
+	public String getMetaPath( ActionBase action ) throws Exception {
+		return( getParamValue( action , "GETOPT_ETCPATH" ) ); 
+	}
+	
 	public void updateContext( ActionBase action ) throws Exception {
 		boolean isenv = ( action.context.env == null )? false : true; 
 		boolean def = ( isenv && action.context.env.PROD )? true : false;
@@ -143,7 +147,6 @@ public class CommandOptions {
 		ctx.CTX_COMMANDTIMEOUT = getIntParamValue( action , "GETOPT_COMMANDTIMEOUT" , optDefaultCommandTimeout ) * 1000;
 		value = getParamValue( action , "GETOPT_KEY" ); 
 		ctx.CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? action.context.env.KEYNAME : "" ) : value;
-		ctx.CTX_ETCPATH = getParamPathValue( action , "GETOPT_ETCPATH" );
 		ctx.CTX_DISTPATH = getParamPathValue( action , "GETOPT_DISTPATH" , action.meta.product.CONFIG_DISTR_PATH );
 		value = getParamPathValue( action , "GETOPT_HIDDENPATH" );
 		ctx.CTX_REDISTPATH = ( action.meta != null && action.meta.product != null )? action.meta.product.CONFIG_REDISTPATH : null;

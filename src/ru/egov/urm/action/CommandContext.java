@@ -188,16 +188,12 @@ public class CommandContext {
 		}
 		
 		dc = env.getDC( action , DC );
-		updateProperties( action );
+		action.options.updateContext( action );
 		
 		if( loadProps )
 			env.loadSecretProperties( action );
 	}
 	
-	public void updateProperties( ActionBase action ) throws Exception {
-		action.options.updateContext( action );
-	}
-
 	public CommandContext getProductContext( String stream ) {
 		CommandContext context = new CommandContext( this , stream );
 		return( context );
