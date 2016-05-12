@@ -361,6 +361,7 @@ public class DatabasePrepare {
 			LocalFolder folder = srcFolder.getSubFolder( action , SQL_SRC_DIR.dirPath );
 			SQL_DST_DIR.ensureExists( action );
 			SQL_DST_DIR.copyDirContent( action , folder );
+			return;
 		}
 		
 		String SQL_PREFIX = getSqlIndexPrefix( action , SQL_SRC_DIR.dirPath , P_ALIGNEDID );
