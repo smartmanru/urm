@@ -35,7 +35,7 @@ if not "%CMD%" == "all" if not "%CMD%" == "deployredist" set F_DEPLOY=no
 
 if "%F_DBAPPLY%" == "yes" (
 cd %ROOTPATH%\install\master\bin
-call urm.cmd database dbapply %STDOPTS% -db maindb default all
+call urm.cmd database dbapply %STDOPTS% -a -db maindb default all
 if not %errorlevel% == 0 (
 	echo unable to apply database changes
 	exit /B 1
