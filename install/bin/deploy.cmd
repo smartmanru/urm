@@ -36,7 +36,7 @@ if "%CMD%" <> "all" if "%CMD%" <> "deployredist" set F_DEPLOY=no
 if "%F_DBAPPLY%" == "yes" (
 cd %ROOTPATH%\install\master\bin
 call urm.cmd database dbapply %STDOPTS% -db maindb default all
-if %errorlevel% <> 0 (
+if %errorlevel% != 0 (
 	echo unable to apply database changes
 	exit /B 1
 )
@@ -45,7 +45,7 @@ if %errorlevel% <> 0 (
 if "%F_REDIST%" == "yes" (
 cd %ROOTPATH%\install\master\bin
 call urm.cmd deploy redist %STDOPTS% default paymain
-if %errorlevel% <> 0 (
+if %errorlevel% != 0 (
 	echo unable to redist release
 	exit /B 1
 )
@@ -61,7 +61,7 @@ if %errorlevel% <> 0 (
 if "%F_DEPLOY%" == "yes" (
 cd %ROOTPATH%\install\master\bin
 call urm.cmd deploy deployredist %STDOPTS% default paymain
-if %errorlevel% <> 0 (
+if %errorlevel% != 0 (
 	echo unable to deploy release
 	exit /B 1
 )
