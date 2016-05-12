@@ -840,6 +840,9 @@ public class DistStorage {
 			}
 		}
 		
+		if( fsr == null )
+			return( true );
+		
 		for( String fileRelease : fsr.files.keySet() ) {
 			String fileDist = fsd.files.get( fileRelease );
 			if( fileDist == null ) {
