@@ -42,7 +42,7 @@ public class DatabaseScriptFile {
 	}
 
 	public void setSrcFile( ActionBase action , String name ) throws Exception {
-		String[] parts = Common.splitDotted( name );
+		String[] parts = Common.splitDashed( name );
 		if( parts.length < 3 ) 
 			action.exit( "invalid script name=" + name );
 		
