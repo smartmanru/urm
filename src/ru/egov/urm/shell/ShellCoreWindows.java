@@ -499,7 +499,12 @@ public class ShellCoreWindows extends ShellCore {
 	}
 	
 	@Override public void cmdCopyDirDirect( ActionBase action , String dirFrom , String dirTo ) throws Exception {
-		action.exitNotImplemented();
+		action.debug( "copy dir " + dirFrom + " to " + dirTo + " ..." );
+		String wdirFrom = Common.getWinPath( dirFrom );
+		String wdirTo = Common.getWinPath( dirTo );
+		cmdRemoveDir( action , dirTo );
+		cmdEnsureDirExists( action , dirTo );
+		runCommandCheckDebug( action , "xcopy /Q /Y /E " + wdirFrom + "\\* " + wdirTo + "\\" );
 	}
 	
 	@Override public void cmdCopyDirToBase( ActionBase action , String dirFrom , String baseDstDir ) throws Exception {

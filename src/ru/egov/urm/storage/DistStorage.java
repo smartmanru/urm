@@ -341,7 +341,7 @@ public class DistStorage {
 		for( MetaReleaseDelivery delivery : src.info.getDeliveries( action ).values() ) {
 			String dirFrom = src.distFolder.getFolderPath( action , delivery.distDelivery.FOLDER );
 			String dirTo = distFolder.getFolderPath( action , delivery.distDelivery.FOLDER );
-			shell.copyDirDirect( action , dirFrom, dirTo );
+			shell.copyDirDirect( action , dirFrom , dirTo );
 		}
 		
 		closeChange( action );

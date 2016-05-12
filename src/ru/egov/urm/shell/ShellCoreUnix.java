@@ -371,7 +371,7 @@ public class ShellCoreUnix extends ShellCore {
 	
 	@Override public void cmdCopyDirDirect( ActionBase action , String dirFrom , String dirTo ) throws Exception {
 		action.debug( "copy dir " + dirFrom + " to " + dirTo + " ..." );
-		runCommandCheckDebug( action , "mkdir -p `dirname " + dirTo + "`; rm -rf " + dirTo + "; cp -R -p " + dirFrom + "/* " + dirTo );
+		runCommandCheckDebug( action , "mkdir -p `dirname " + dirTo + "`; rm -rf " + dirTo + "; cp -R -p " + dirFrom + " " + dirTo );
 	}
 	
 	@Override public void cmdCopyDirToBase( ActionBase action , String dirFrom , String baseDstDir ) throws Exception {
