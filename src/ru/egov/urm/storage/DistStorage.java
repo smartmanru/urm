@@ -341,7 +341,9 @@ public class DistStorage {
 		for( MetaReleaseDelivery delivery : src.info.getDeliveries( action ).values() ) {
 			String dirFrom = src.distFolder.getFolderPath( action , delivery.distDelivery.FOLDER );
 			String dirTo = distFolder.getFolderPath( action , delivery.distDelivery.FOLDER );
+			int timeout = action.setTimeoutUnlimited();
 			shell.copyDirDirect( action , dirFrom , dirTo );
+			action.setTimeout( timeout );
 		}
 		
 		closeChange( action );
