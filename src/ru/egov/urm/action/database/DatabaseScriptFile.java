@@ -29,7 +29,7 @@ public class DatabaseScriptFile {
 		
 		String s = "";
 		for( int k = 4; k < parts.length; k++ ) {
-			if( k > 0 )
+			if( k > 4 )
 				s += "-";
 			s += parts[ k ];
 		}
@@ -50,7 +50,7 @@ public class DatabaseScriptFile {
 		SRCSCHEMA = parts[1];
 		String s = "";
 		for( int k = 2; k < parts.length; k++ ) {
-			if( k > 0 )
+			if( k > 2 )
 				s += "-";
 			s += parts[ k ];
 		}
