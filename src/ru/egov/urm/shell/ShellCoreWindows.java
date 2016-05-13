@@ -25,11 +25,15 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public void createProcess( ActionBase action , ProcessBuilder builder , String rootPath ) throws Exception {
+		if( rootPath == null )
+			action.exitUnexpectedState();
+		
 		if( sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX ) {
+			super.setRootPath( rootPath );
 			localSession = new ShellCoreUnix( executor , VarSESSIONTYPE.UNIXLOCAL , tmpFolder , true );
 			localSession.setWindowsHelper();
 			running = true;
-			localSession.createProcess( action , builder , rootPath );
+			localSession.createProcess( action , builder , action.context.CTX_REDISTPATH );
 			initialized = true;
 			return;
 		}
@@ -69,7 +73,7 @@ public class ShellCoreWindows extends ShellCore {
 
 		String cmdWin = Common.replace( cmd , "\\" , "\\\\" );
 		cmdWin = Common.replace( cmdWin , "\\\\$" , "\\$" );
-		execLine += " " + executor.account.HOSTLOGIN + " " + Common.getQuoted( "cmd /c chcp 65001 & cmd /c \"" + cmdWin + "\"" );
+		execLine += " " + executor.account.HOSTLOGIN + " " + Common.getQuoted( "cmd /c chcp 65001 & cmd /c \"echo off & " + cmdWin + "\"" );
 		action.trace( executor.name + " execute: " + cmd );
 		return( execLine );
 	}
@@ -159,7 +163,6 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public String getDirCmd( ActionBase action , String dir , String cmd ) throws Exception {
-System.out.println( "rootPath=" + rootPath );		
 		String dirWin = Common.getWinPath( dir );
 		String rootPathWin = Common.getWinPath( rootPath );
 		return( "if exist " + dirWin + " ( cd " + dirWin + " " + cmdAnd + " ( " + cmd + " ) " + cmdAnd + " " + "cd " + rootPathWin + " ) else echo invalid directory: " + dirWin );

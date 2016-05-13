@@ -182,6 +182,10 @@ abstract class ShellCore {
 		
 		initialized = true;
 	}
+
+	public void setRootPath( String rootPath ) {
+		this.rootPath = rootPath;
+	}
 	
 	public void kill( ActionBase action ) throws Exception {
 		if( process != null ) {

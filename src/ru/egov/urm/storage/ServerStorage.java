@@ -139,10 +139,7 @@ public class ServerStorage {
 	}
 	
 	protected String getRedistFolderRootPath( ActionBase action ) throws Exception {
-		if( action.meta == null || action.context.env == null )
-			return( action.meta.product.CONFIG_REDISTPATH );
-		
-		String path = action.context.env.REDISTPATH;
+		String path = action.context.CTX_REDISTPATH;
 		if( server != null )
 			path = Common.getPath( path , server.NAME + "-node" + node.POS );
 		else
