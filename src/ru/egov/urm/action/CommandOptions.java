@@ -206,6 +206,7 @@ public class CommandOptions {
 		ctx.CTX_NEWKEY = getParamValue( action , "GETOPT_NEWKEY" );
 		
 		action.setTimeout( ctx.CTX_COMMANDTIMEOUT );
+		action.output.setContext( ctx );
 	}
 
 	void print( String s ) {
