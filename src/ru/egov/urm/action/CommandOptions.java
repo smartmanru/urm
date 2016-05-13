@@ -515,9 +515,6 @@ public class CommandOptions {
 		if( value.isEmpty() )
 			value = defaultValue;
 		
-		if( value.isEmpty() )
-			action.exit( "undefined configuration variable=" + var );
-		
 		return( value );
 	}
 	
