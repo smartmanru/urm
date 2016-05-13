@@ -127,6 +127,7 @@ public class CommandOptions {
 	}
 	
 	public void updateContext( ActionBase action ) throws Exception {
+		boolean isproduct = ( action.meta == null || action.meta.product == null )? false : true; 
 		boolean isenv = ( action.context.env == null )? false : true; 
 		boolean def = ( isenv && action.context.env.PROD )? true : false;
 		String value;
@@ -147,9 +148,10 @@ public class CommandOptions {
 		ctx.CTX_COMMANDTIMEOUT = getIntParamValue( action , "GETOPT_COMMANDTIMEOUT" , optDefaultCommandTimeout ) * 1000;
 		value = getParamValue( action , "GETOPT_KEY" ); 
 		ctx.CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? action.context.env.KEYNAME : "" ) : value;
-		ctx.CTX_DISTPATH = getParamPathValue( action , "GETOPT_DISTPATH" , action.meta.product.CONFIG_DISTR_PATH );
+		String productValue = ( isproduct )? action.meta.product.CONFIG_DISTR_PATH : "";
+		ctx.CTX_DISTPATH = getParamPathValue( action , "GETOPT_DISTPATH" , productValue );
 		value = getParamPathValue( action , "GETOPT_HIDDENPATH" );
-		ctx.CTX_REDISTPATH = ( action.meta != null && action.meta.product != null )? action.meta.product.CONFIG_REDISTPATH : null;
+		ctx.CTX_REDISTPATH = ( isproduct )? action.meta.product.CONFIG_REDISTPATH : null;
 		if( isenv && !action.context.env.REDISTPATH.isEmpty() )
 			ctx.CTX_REDISTPATH = action.context.env.REDISTPATH;
 		ctx.CTX_HIDDENPATH = ( value.isEmpty() )? ( ( isenv )? action.context.env.CONF_SECRETFILESPATH : "" ) : value;

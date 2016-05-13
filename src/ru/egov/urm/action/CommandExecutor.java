@@ -207,6 +207,7 @@ public abstract class CommandExecutor {
 		
 		// load product properties
 		context.CTX_ETCPATH = options.getMetaPath( action );
+		options.updateContext( action );
 		meta.loadProduct( action );
 		options.updateContext( action );
 		
