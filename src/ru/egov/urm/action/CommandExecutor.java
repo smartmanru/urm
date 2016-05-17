@@ -220,6 +220,7 @@ public abstract class CommandExecutor {
 		
 		// create work folder
 		action.createWorkFolder();
+		action.tee();
 		
 		return( action );
 	}

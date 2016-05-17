@@ -258,11 +258,6 @@ public class BuildCommand {
 			return;
 		}
 	
-		String RELEASEDIR = release.RELEASEDIR;
-		LogStorage storage = action.artefactory.getReleaseBuildLogStorage( action , RELEASEDIR );
-		LocalFolder OUTDIR = storage.logFolder;
-		action.teeTS( "getAllRelease:" , OUTDIR.folderPath , "buildall" , "out" );
-	
 		action.logAction();
 		
 		// execute

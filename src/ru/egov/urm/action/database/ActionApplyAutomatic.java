@@ -75,7 +75,7 @@ public class ActionApplyAutomatic extends ActionBase {
 			registry.readIncompleteScripts( this );
 			int n = registry.getScriptCount( this );
 			if( n > 0 )
-				log( "release is not finalized, total " + n + " incomplete scripts" );
+				log( "release is not finalized, total " + n + " incomplete script(s)" );
 			else {
 				registry.finishApplyRelease( this );
 				log( "release is finalized." );
@@ -225,7 +225,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		String schemaName = dsf.SRCSCHEMA;
 		MetaDatabaseSchema schema = meta.distr.database.getSchema( this , schemaName );
 		if( !client.applyScript( this , schema , logReleaseExecute , file , logReleaseExecute , log ) ) {
-			exit( "error applying script " + file + ", see logs." );
+			exit( "error applying script " + file + ", see logs" );
 			if( !context.CTX_FORCE )
 				exit( "cancel apply script set due to errors." );
 			

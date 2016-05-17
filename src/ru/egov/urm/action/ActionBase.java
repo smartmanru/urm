@@ -12,6 +12,7 @@ import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.Artefactory;
 import ru.egov.urm.storage.DistStorage;
+import ru.egov.urm.storage.LocalFolder;
 
 abstract public class ActionBase {
 
@@ -349,9 +350,10 @@ abstract public class ActionBase {
 		output.stopOutputFile();
 	}
 	
-	public void teeTS( String title , String dir , String basename , String ext ) throws Exception {
-		String fname = dir + "/" + output.getTimeStampedName( basename , ext );
-		output.tee( title , fname );
+	public void tee() throws Exception {
+		LocalFolder folder = artefactory.getWorkFolder( this );
+		String fname = folder.getFilePath( this , "executor.log" );
+		output.tee( NAME , fname );
 	}
 	
 	public void redirectTS( String title , String dir , String basename , String ext ) throws Exception {
