@@ -213,7 +213,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		if( !registry.checkNeedApply( this , releaseDelivery.distDelivery , file ) )
 			return( true );
 		
-		log( "apply script " + file + " (" + getMode() + " ..." );
+		log( "apply script " + file + " (" + getMode() + ") ..." );
 		if( context.CTX_SHOWONLY )
 			return( true );
 		
