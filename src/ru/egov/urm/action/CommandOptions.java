@@ -112,7 +112,7 @@ public class CommandOptions {
 		defineOption( CommandVar.newParam( "date" , "GETOPT_DATE" , "use codebase state on given date (ISO-8601)" ) );
 		defineOption( CommandVar.newParam( "group" , "GETOPT_GROUP" , "use specific codebase project group" ) );
 		defineOption( CommandVar.newParam( "version" , "GETOPT_VERSION" , "use specific codebase version" ) );
-		defineOption( CommandVar.newParam( "dc" , "GETOPT_DCMASK" , "use datacenters which names meet given regular mask" ) );
+		defineOption( CommandVar.newParam( "dc" , "GETOPT_DC" , "use datacenters which names meet given regular mask" ) );
 		defineOption( CommandVar.newParam( "deploygroup" , "GETOPT_DEPLOYGROUP" , "use only nodes belonging to specified deploygroup" ) );
 		defineOption( CommandVar.newParam( "startgroup" , "GETOPT_STARTGROUP" , "use only servers belonging to specified startgroup" ) );
 		defineOption( CommandVar.newParam( "args" , "GETOPT_EXTRAARGS" , "extra arguments for server interface scripts" ) );
@@ -196,7 +196,7 @@ public class CommandOptions {
 		ctx.CTX_DATE = getParamValue( action , "GETOPT_DATE" );
 		ctx.CTX_GROUP = getParamValue( action , "GETOPT_GROUP" );
 		ctx.CTX_VERSION = getParamValue( action , "GETOPT_VERSION" );
-		ctx.CTX_DCMASK = getParamValue( action , "GETOPT_DCMASK" );
+		ctx.CTX_DC = getParamValue( action , "GETOPT_DC" );
 		ctx.CTX_DEPLOYGROUP = getParamValue( action , "GETOPT_DEPLOYGROUP" );
 		ctx.CTX_STARTGROUP = getParamValue( action , "GETOPT_STARTGROUP" );
 		ctx.CTX_EXTRAARGS = getParamValue( action , "GETOPT_EXTRAARGS" );

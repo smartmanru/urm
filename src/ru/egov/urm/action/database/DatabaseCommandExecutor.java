@@ -26,19 +26,19 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		super( builder , NAME );
 		
 		String cmdOpts = "";
-		cmdOpts = "GETOPT_DBPASSWORD";
+		cmdOpts = "GETOPT_DC, GETOPT_DBPASSWORD";
 		super.defineAction( CommandAction.newAction( new InitDB() , "initdb" , false , "prepare database for operation" , cmdOpts , "./initdb.sh [OPTIONS] <server>" ) );
 		cmdOpts = "GETOPT_DBPASSWORD";
 		super.defineAction( CommandAction.newAction( new GetReleaseScripts() , "getsql" , true , "get database release content" , cmdOpts , "./getsql.sh [OPTIONS] {all|<deliveries>}" ) );
-		cmdOpts = "GETOPT_DBPASSWORD";
+		cmdOpts = "GETOPT_DC, GETOPT_DBPASSWORD";
 		super.defineAction( CommandAction.newAction( new ApplyManual() , "dbmanual" , false , "apply manual scripts under system account" , cmdOpts , "./dbmanual.sh [OPTIONS] <RELEASELABEL> <DBSERVER> {all|<indexes>}" ) );
-		cmdOpts = "GETOPT_DBPASSWORD, GETOPT_DBMODE, GETOPT_DB, GETOPT_DBTYPE, GETOPT_DBALIGNED";
+		cmdOpts = "GETOPT_DBPASSWORD, GETOPT_DBMODE, GETOPT_DC, GETOPT_DB, GETOPT_DBTYPE, GETOPT_DBALIGNED";
 		super.defineAction( CommandAction.newAction( new ApplyAutomatic() , "dbapply" , false , "apply application scripts and load data files" , cmdOpts , "./dbapply.sh [OPTIONS] <RELEASELABEL> {all|<delivery> {all|<mask>}} (mask is distributive file mask)" ) );
-		cmdOpts = "GETOPT_DBPASSWORD";
+		cmdOpts = "GETOPT_DC, GETOPT_DBPASSWORD";
 		super.defineAction( CommandAction.newAction( new ManageRelease() , "manage" , false , "manage accounting information" , cmdOpts , "./manage.sh [OPTIONS] <RELEASELABEL> <print|correct|rollback> [{all|<indexes>}]" ) );
-		cmdOpts = "GETOPT_DBPASSWORD";
+		cmdOpts = "GETOPT_DC, GETOPT_DBPASSWORD";
 		super.defineAction( CommandAction.newAction( new ImportDB() , "import" , false , "import specified in etc/datapump/file dump to database" , cmdOpts , "./import.sh [OPTIONS] <server> {all|meta|data} [schema]" ) );
-		cmdOpts = "GETOPT_DBPASSWORD";
+		cmdOpts = "GETOPT_DC, GETOPT_DBPASSWORD";
 		super.defineAction( CommandAction.newAction( new ExportDB() , "export" , false , "export specified in etc/datapump/file dump from database" , cmdOpts , "./export.sh [OPTIONS] <server> {all|meta|data [schema]}" ) );
 		
 		propertyBasedMethods = "initdb dbmanual dbapply import";

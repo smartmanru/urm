@@ -79,7 +79,7 @@ public class CommandContext {
 	public String CTX_DATE = "";
 	public String CTX_GROUP = "";
 	public String CTX_VERSION = "";
-	public String CTX_DCMASK = "";
+	public String CTX_DC = "";
 	public String CTX_DEPLOYGROUP = "";
 	public String CTX_STARTGROUP = "";
 	public String CTX_EXTRAARGS = "";
@@ -162,7 +162,7 @@ public class CommandContext {
 		this.CTX_DATE = context.CTX_DATE;
 		this.CTX_GROUP = context.CTX_GROUP;
 		this.CTX_VERSION = context.CTX_VERSION;
-		this.CTX_DCMASK = context.CTX_DCMASK;
+		this.CTX_DC = context.CTX_DC;
 		this.CTX_DEPLOYGROUP = context.CTX_DEPLOYGROUP;
 		this.CTX_STARTGROUP = context.CTX_STARTGROUP;
 		this.CTX_EXTRAARGS = context.CTX_EXTRAARGS;
@@ -173,12 +173,15 @@ public class CommandContext {
 	}
 
 	public void loadEnv( ActionBase action , boolean loadProps ) throws Exception {
-		loadEnv( action , ENV , DC , loadProps );
+		String useDC = DC;
+		if( DC.isEmpty() )
+			useDC = CTX_DC;
+		loadEnv( action , ENV , useDC , loadProps );
 	}
 	
 	public void loadEnv( ActionBase action , String ENV , String DC , boolean loadProps ) throws Exception {
 		this.ENV = ENV;
-		this.DC = DC;
+		this.CTX_DC = DC;
 		
 		env = action.meta.loadEnvData( action , ENV , loadProps );
 		

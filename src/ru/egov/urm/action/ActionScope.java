@@ -284,7 +284,7 @@ public class ActionScope {
 	}
 	
 	private void createEnvScope( ActionBase action ) throws Exception {
-		String dcMask = action.context.CTX_DCMASK;
+		String dcMask = action.context.CTX_DC;
 		
 		if( dcMask.isEmpty() )
 			scopeFull = true;
