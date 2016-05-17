@@ -378,7 +378,7 @@ public class DatabaseSpecific {
 			lines.add( "export URMDB_PWD=" + password );
 			lines.add( "export URMDB_DBHOST=" + DBHOST );
 			lines.add( "export URMDB_DBNAME=" + dbschema );
-			lines.add( "export URMDB_DBCHARSET=" + action.meta.product.charset.name() );
+			lines.add( "export URMDB_CHARSET=" + action.meta.product.charset.name() );
 			name = "urmdb." + key + ".sh"; 
 		}
 		else
@@ -387,6 +387,7 @@ public class DatabaseSpecific {
 			lines.add( "set URMDB_PWD=" + password );
 			lines.add( "set URMDB_DBHOST=" + DBHOST );
 			lines.add( "set URMDB_DBNAME=" + dbschema );
+			lines.add( "set URMDB_CHARSET=" + action.meta.product.charset.name() );
 			name = "urmdb." + key + ".cmd"; 
 		}
 		else
