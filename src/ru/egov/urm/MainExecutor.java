@@ -264,9 +264,11 @@ public class MainExecutor extends CommandExecutor {
 		
 		if( env.isMultiDC( action ) ) {
 			if( USEDC.isEmpty() ) {
-				for( MetaEnvDC envdc : env.getOriginalDCList( action ) ) {
-					LocalFolder efEnvDC = efEnv.getSubFolder( action , envdc.NAME );
-					configureDeploymentEnvContent( action , efEnvDC , executor , env , envFile , envdc.NAME , linux , dbe );
+				if( action.context.CTX_ALL ) {
+					for( MetaEnvDC envdc : env.getOriginalDCList( action ) ) {
+						LocalFolder efEnvDC = efEnv.getSubFolder( action , envdc.NAME );
+						configureDeploymentEnvContent( action , efEnvDC , executor , env , envFile , envdc.NAME , linux , dbe );
+					}
 				}
 			}
 			else {
