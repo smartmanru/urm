@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -92,8 +93,12 @@ public class ConfReader {
     	
     	return( list.get( 0 ) );
     }
-    
+
 	public static List<String> readFileLines( ActionBase action , String path ) throws Exception {
+		return( readFileLines( action , path , StandardCharsets.UTF_8 ) );
+	}
+    
+	public static List<String> readFileLines( ActionBase action , String path , Charset charset ) throws Exception {
     	String fullPath = path;
     	if( fullPath.startsWith( "~/" ) )
     		fullPath = action.context.userHome + fullPath.substring( 1 );
@@ -102,7 +107,7 @@ public class ConfReader {
     	
     	List<String> lines = null;
     	try {
-    		lines = Files.readAllLines( Paths.get(fullPath), StandardCharsets.UTF_8 );
+    		lines = Files.readAllLines( Paths.get( fullPath ) , charset );
     	}
     	catch( Throwable e ) {
     		action.log( e );

@@ -1,6 +1,7 @@
 package ru.egov.urm.meta;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ public class MetaProduct {
 	
 	Metadata meta;
 	String lastProdTagFile;
+	public Charset charset;;
 	
 	public String CONFIG_PRODUCTHOME;
 	public String CONFIG_LASTPRODTAG;
@@ -75,6 +77,7 @@ public class MetaProduct {
 	public String CONFIG_SOURCE_CFG_ROOTDIR;
 	public String CONFIG_SOURCE_CFG_LIVEROOTDIR;
 	public String CONFIG_SOURCE_SQL_POSTREFRESH;
+	public String CONFIG_SOURCE_SQL_CHARSET;
 	public String CONFIG_SQL_LOGDIR;
 	public String CONFIG_WINBUILD_HOSTLOGIN;
 
@@ -131,6 +134,7 @@ public class MetaProduct {
 		CONFIG_SOURCE_CFG_ROOTDIR = getStringPropertyRequired( action , "CONFIG_SOURCE_CFG_ROOTDIR" );
 		CONFIG_SOURCE_CFG_LIVEROOTDIR = getStringPropertyRequired( action , "CONFIG_SOURCE_CFG_LIVEROOTDIR" );
 		CONFIG_SOURCE_SQL_POSTREFRESH = getStringPropertyRequired( action , "CONFIG_SOURCE_SQL_POSTREFRESH" );
+		CONFIG_SOURCE_SQL_CHARSET = getStringPropertyRequired( action , "CONFIG_SOURCE_SQL_CHARSET" );
 		CONFIG_SQL_LOGDIR = getPathPropertyRequired( action , "CONFIG_SQL_LOGDIR" );
 		CONFIG_WINBUILD_HOSTLOGIN = getStringProperty( action , "CONFIG_WINBUILD_HOSTLOGIN" );
 
@@ -145,6 +149,10 @@ public class MetaProduct {
 		CONFIG_CUSTOM_BUILD = getStringProperty( action , "CONFIG_CUSTOM_BUILD" );
 		CONFIG_CUSTOM_DEPLOY = getStringProperty( action , "CONFIG_CUSTOM_DEPLOY" );
 		CONFIG_CUSTOM_DATABASE = getStringProperty( action , "CONFIG_CUSTOM_DATABASE" );
+		
+		charset = Charset.availableCharsets().get( CONFIG_SOURCE_SQL_CHARSET );
+		if( charset == null )
+			action.exit( "unknown database files charset=" + CONFIG_SOURCE_SQL_CHARSET );
 	}
 
 	public MetaProduct( Metadata meta ) {

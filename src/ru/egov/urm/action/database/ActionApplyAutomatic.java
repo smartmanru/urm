@@ -132,7 +132,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		scriptFolder.copyFiles( this , file , logReleaseExecute );
 		
 		ConfBuilder builder = new ConfBuilder( this );
-		builder.configureFile( logReleaseExecute , file , server , null );
+		builder.configureFile( logReleaseExecute , file , server , null , meta.product.charset );
 		
 		if( !dsf.REGIONALINDEX.equals( "RR" ) )
 			return;

@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -133,8 +135,12 @@ public class Common {
 		writer.write( content );
 		writer.close();
 	}
-	
+
 	public static void createFileFromStringList( String path , List<String> content ) throws Exception {
+		createFileFromStringList( path , content , StandardCharsets.UTF_8 );
+	}
+	
+	public static void createFileFromStringList( String path , List<String> content , Charset charset ) throws Exception {
 		FileWriter writer = new FileWriter( path );
 		for( String s : content )
 			writer.write( s + "\n" );

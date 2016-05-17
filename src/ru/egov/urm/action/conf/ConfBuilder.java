@@ -1,5 +1,7 @@
 package ru.egov.urm.action.conf;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -103,7 +105,7 @@ public class ConfBuilder {
 		for( String file : files ) {
 			if( file.startsWith( "./" ) )
 				file = file.substring( 2 );
-			configureFile( live , file , node , null );
+			configureFile( live , file , node , null , StandardCharsets.UTF_8 );
 		}
 	}
 
@@ -148,17 +150,21 @@ public class ConfBuilder {
 		return( filtered.toArray( new String[0] ) );
 	}
 	
-	public void configureFolder( ActionBase action , LocalFolder folder , MetaEnvServer server , PropertySet props ) throws Exception {
+	public void configureFolder( ActionBase action , LocalFolder folder , MetaEnvServer server , PropertySet props , Charset charset ) throws Exception {
 		action.trace( "parse configuration files in folder=" + folder.folderPath + " ..." );
 		FileSet files = folder.getFileSet( action );
 		if( props == null )
 			props = server.properties;
 		
 		for( String file : files.fileList )
-			configureFile( folder , file , server , props );
+			configureFile( folder , file , server , props , charset );
+	}
+
+	public void configureFolder( ActionBase action , LocalFolder folder , MetaEnvServerNode node , PropertySet props ) throws Exception {
+		configureFolder( action , folder , node , props , StandardCharsets.UTF_8 );
 	}
 	
-	public void configureFolder( ActionBase action , LocalFolder folder , MetaEnvServerNode node , PropertySet props ) throws Exception {
+	public void configureFolder( ActionBase action , LocalFolder folder , MetaEnvServerNode node , PropertySet props , Charset charset ) throws Exception {
 		action.trace( "parse configuration files in folder=" + folder.folderPath + " ..." );
 		FileSet files = folder.getFileSet( action );
 		
@@ -166,13 +172,13 @@ public class ConfBuilder {
 			props = node.properties;
 		
 		for( String file : files.fileList )
-			configureFile( folder , file , node , props );
+			configureFile( folder , file , node , props , charset );
 	}
 	
-	public void configureFile( LocalFolder live , String file , MetaEnvServer server , PropertySet props ) throws Exception {
+	public void configureFile( LocalFolder live , String file , MetaEnvServer server , PropertySet props , Charset charset ) throws Exception {
 		action.trace( "parse file=" + file + " ..." );
 		String filePath = live.getFilePath( action , file );
-		List<String> fileLines = ConfReader.readFileLines( action , filePath );
+		List<String> fileLines = ConfReader.readFileLines( action , filePath , charset );
 		
 		if( props == null )
 			props = server.properties;
@@ -188,13 +194,13 @@ public class ConfBuilder {
 		}
 
 		if( changed )
-			Common.createFileFromStringList( filePath , fileLines );
+			Common.createFileFromStringList( filePath , fileLines , charset );
 	}
 	
-	public void configureFile( LocalFolder live , String file , MetaEnvServerNode node , PropertySet props ) throws Exception {
+	public void configureFile( LocalFolder live , String file , MetaEnvServerNode node , PropertySet props , Charset charset ) throws Exception {
 		action.trace( "parse file=" + file + " ..." );
 		String filePath = live.getFilePath( action , file );
-		List<String> fileLines = ConfReader.readFileLines( action , filePath );
+		List<String> fileLines = ConfReader.readFileLines( action , filePath , charset );
 		
 		if( props == null )
 			props = node.properties;
@@ -210,7 +216,7 @@ public class ConfBuilder {
 		}
 
 		if( changed )
-			Common.createFileFromStringList( filePath , fileLines );
+			Common.createFileFromStringList( filePath , fileLines , charset );
 	}
 	
 }

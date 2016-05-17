@@ -60,7 +60,7 @@ public class ActionApplyManual extends ActionBase {
 		
 		// configure
 		ConfBuilder builder = new ConfBuilder( this );
-		builder.configureFile( logReleaseExecute , file , server , null );
+		builder.configureFile( logReleaseExecute , file , server , null , meta.product.charset );
 	}
 	
 }
