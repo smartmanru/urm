@@ -247,11 +247,15 @@ public class CommandContext {
 	
 	public void createPool( ActionBase action ) throws Exception {
 		pool = new ShellExecutorPool( productHome );
-		pool.create( action );
+		pool.start( action );
 	}
 
 	public void killPool( ActionBase action ) throws Exception {
 		pool.kill( action );
+	}
+	
+	public void stopPool( ActionBase action ) throws Exception {
+		pool.stop( action );
 	}
 	
 	public void setBuildMode( ActionBase action , VarBUILDMODE value ) throws Exception {

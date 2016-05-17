@@ -26,7 +26,7 @@ public class ShellExecutorPool {
 		this.rootPath = rootPath;
 	}
 	
-	public void create( ActionBase action ) throws Exception {
+	public void start( ActionBase action ) throws Exception {
 		String tmpPath = Common.getPath( action.meta.product.CONFIG_REDISTPATH , "tmp" );
 		tmpFolder = new LocalFolder( action.artefactory , tmpPath );
 		account = action.context.account;
@@ -66,8 +66,20 @@ public class ShellExecutorPool {
 		action.setShell( shell );
 		
 		shell.start( action );
-		listDedicated.add( shell );
+		if( !name.equals( "master" ) )
+			listDedicated.add( shell );
+		
 		return( shell );
+	}
+
+	public void stop( ActionBase action ) throws Exception {
+		try {
+			master.kill( action );
+		}
+		catch( Throwable e ) {
+			if( action.context.CTX_TRACEINTERNAL )
+				action.trace( "exception when killing session=" + master.name + " (" + e.getMessage() + ")" );
+		}
 	}
 	
 	public void kill( ActionBase action ) throws Exception {

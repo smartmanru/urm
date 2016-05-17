@@ -128,6 +128,7 @@ public class CommandBuilder {
 		finally {
 			context.killPool( action );
 			executor.finish( action );
+			context.stopPool( action );
 		}
 
 		if( res )
