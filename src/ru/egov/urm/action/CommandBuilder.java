@@ -126,8 +126,8 @@ public class CommandBuilder {
 			res = executor.run( action );
 		}
 		finally {
-			executor.finish( action );
 			context.killPool( action );
+			executor.finish( action );
 		}
 
 		if( res )
