@@ -184,23 +184,8 @@ public class MetaEnvServer {
 		OFFLINE = properties.getSystemBooleanProperty( action , "offline" , false );
 		XDOC = properties.getSystemPathProperty( action , "xdoc" , NAME );
 		
-		if( isDatabase( action ) ) {
-			dbType = action.meta.getDbmsType( action , properties.getSystemRequiredStringProperty( action , "dbmstype" ) );
-			DBMSADDR = properties.getSystemRequiredStringProperty( action , "dbmsaddr" );
-			DATAGROUPS = properties.getSystemRequiredStringProperty( action , "datagroups" );
-			ALIGNED = properties.getSystemStringProperty( action , "aligned" , "" );
-			REGIONS = properties.getSystemStringProperty( action , "regions" , "" );
-			ADMSCHEMA = properties.getSystemStringProperty( action , "admschema" , "" );
-			
-			if( action.meta.distr != null ) {
-				MetaDatabase database = action.meta.distr.database;
-				for( String dg : Common.splitSpaced( DATAGROUPS ) ) {
-					MetaDatabaseDatagroup datagroup = database.getDatagroup( action , dg );
-					datagroupMap.put( datagroup.NAME , datagroup );
-				}
-				
-				admSchema = database.getSchema( action , ADMSCHEMA );
-			}
+		if( isStartable( action ) || isDeployPossible( action ) ) {
+			ROOTPATH = properties.getSystemPathProperty( action , "rootpath" , "" );
 		}
 		
 		if( isStartable( action ) ) {
@@ -225,12 +210,30 @@ public class MetaEnvServer {
 			SERVICENAME = properties.getSystemRequiredStringProperty( action , "servicename" );
 
 		if( isDeployPossible( action ) ) {
-			ROOTPATH = properties.getSystemPathProperty( action , "rootpath" , "" );
 			DEPLOYPATH = properties.getSystemPathProperty( action , "deploypath" , "" );
 			LINKFROMPATH = properties.getSystemPathProperty( action , "linkfrompath" , "" );
 			DEPLOYSCRIPT = properties.getSystemPathProperty( action , "deployscript" , "" );
 		}
 		
+		if( isDatabase( action ) ) {
+			dbType = action.meta.getDbmsType( action , properties.getSystemRequiredStringProperty( action , "dbmstype" ) );
+			DBMSADDR = properties.getSystemRequiredStringProperty( action , "dbmsaddr" );
+			DATAGROUPS = properties.getSystemRequiredStringProperty( action , "datagroups" );
+			ALIGNED = properties.getSystemStringProperty( action , "aligned" , "" );
+			REGIONS = properties.getSystemStringProperty( action , "regions" , "" );
+			ADMSCHEMA = properties.getSystemStringProperty( action , "admschema" , "" );
+			
+			if( action.meta.distr != null ) {
+				MetaDatabase database = action.meta.distr.database;
+				for( String dg : Common.splitSpaced( DATAGROUPS ) ) {
+					MetaDatabaseDatagroup datagroup = database.getDatagroup( action , dg );
+					datagroupMap.put( datagroup.NAME , datagroup );
+				}
+				
+				admSchema = database.getSchema( action , ADMSCHEMA );
+			}
+		}
+
 		properties.finishRawProperties( action );
 	}
 	
