@@ -96,6 +96,9 @@ public class MetaEnvServer {
 	}
 	
 	public void load( ActionBase action , Node node , boolean loadProps ) throws Exception {
+		if( action.meta.distr != null )
+			loadDeployments( action , node );
+		
 		properties = new PropertySet( "server" , dc.properties );
 		properties.loadRawFromAttributes( action , node );
 		scatterSystemProperties( action );
@@ -105,8 +108,6 @@ public class MetaEnvServer {
 		}
 
 		loadNodes( action , node , loadProps );
-		if( action.meta.distr != null )
-			loadDeployments( action , node );
 		loadBase( action , node );
 	}
 
