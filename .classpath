@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="master/lib/smack-3.4.1-0cec571.jar"/>
 	<classpathentry kind="lib" path="master/lib/smackx-3.4.1-0cec571.jar"/>
 	<classpathentry kind="lib" path="master/lib/json-simple-1.1.jar"/>
+	<classpathentry kind="lib" path="master/lib/jna-4.1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
