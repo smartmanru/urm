@@ -55,6 +55,7 @@ public class ShellCoreWindows extends ShellCore {
 	@Override protected void getProcessAttributes( ActionBase action ) throws Exception {
 		super.homePath = action.context.productHome;
 		super.processId = Common.getPartBeforeFirst( ManagementFactory.getRuntimeMXBean().getName() , "@" );
+		action.debug( "process started: name=" + super.executor.name + ", id=" + super.processId );
 		runCommand( action , "echo off" , true );
 	}
 	

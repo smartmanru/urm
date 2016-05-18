@@ -22,7 +22,7 @@ abstract class ShellCore {
 	public VarOSTYPE osType;
 	public VarSESSIONTYPE sessionType;
 	public Folder tmpFolder;
-	ShellExecutor executor;
+	protected ShellExecutor executor;
 	
 	List<String> cmdout; 
 	List<String> cmderr;
