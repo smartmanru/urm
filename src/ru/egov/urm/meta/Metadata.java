@@ -70,7 +70,8 @@ public class Metadata {
 		GENERIC_SERVER ,
 		GENERIC_COMMAND ,
 		GENERIC_NOSSH ,
-		GENERIC_DATABASE
+		GENERIC_DATABASE ,
+		OFFLINE
 	};
 
 	public enum VarNODETYPE {

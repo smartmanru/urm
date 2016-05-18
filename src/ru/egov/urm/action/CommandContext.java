@@ -10,6 +10,7 @@ import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutorPool;
+import ru.egov.urm.storage.LocalFolder;
 
 public class CommandContext {
 	
@@ -252,6 +253,10 @@ public class CommandContext {
 
 	public void killPool( ActionBase action ) throws Exception {
 		pool.kill( action );
+	}
+	
+	public void deleteWorkFolder( ActionBase action , LocalFolder workFolder ) throws Exception {
+		pool.master.removeDir( action , workFolder.folderPath );
 	}
 	
 	public void stopPool( ActionBase action ) throws Exception {

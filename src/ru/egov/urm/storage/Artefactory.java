@@ -90,7 +90,7 @@ public class Artefactory {
 		if( executor.isFailed() || action.context.CTX_SHOWALL )
 			action.log( "saved work directory: " + workFolder.folderPath );
 		else
-			workFolder.removeThis( action );
+			action.context.deleteWorkFolder( action , workFolder );
 	}
 
 	public LocalFolder getWorkFolder( ActionBase action ) throws Exception {
