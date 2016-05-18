@@ -223,7 +223,7 @@ public class MetaEnvServer {
 		if( isService( action ) )
 			SERVICENAME = properties.getSystemRequiredStringProperty( action , "servicename" );
 
-		if( this.isDeployPossible( action ) ) {
+		if( isDeployPossible( action ) ) {
 			ROOTPATH = properties.getSystemPathProperty( action , "rootpath" , "" );
 			DEPLOYPATH = properties.getSystemPathProperty( action , "deploypath" , "" );
 			LINKFROMPATH = properties.getSystemPathProperty( action , "linkfrompath" , "" );

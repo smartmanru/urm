@@ -40,6 +40,14 @@ public class MainExecutor extends CommandExecutor {
 
 	public boolean run( ActionInit action ) {
 		// log action and run 
+		try {
+			meta.loadDistr( action );
+		}
+		catch( Throwable e ) {
+			action.log( e );
+			return( false );
+		}
+		
 		boolean res = super.runMethod( action , commandAction );
 		return( res );
 	}
