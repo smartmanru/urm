@@ -85,7 +85,10 @@ public class MetaEnv {
 		if( node == null || !node.getNodeName().equals( "env" ) )
 			action.exit( "unable to find environment root node=env" );
 		
-		secretProperties = new PropertySet( "secret" , meta.product.props ); 		
+		secretProperties = new PropertySet( "secret" , meta.product.props );
+		if( loadProps )
+			loadSecretProperties( action );
+		
 		properties = new PropertySet( "env" , secretProperties );
 		properties.loadRawFromAttributes( action , node );
 		scatterSystemProperties( action );
@@ -96,7 +99,7 @@ public class MetaEnv {
 		}
 	}
 
-	public void loadSecretProperties( ActionBase action ) throws Exception {
+	private void loadSecretProperties( ActionBase action ) throws Exception {
 		if( !action.context.CTX_HIDDENPATH.isEmpty() ) {
 			String propFile = Common.getPath( action.context.CTX_HIDDENPATH , SECRETPROPERTYFILE );
 			secretProperties.loadRawFromFile( action , propFile );

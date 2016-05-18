@@ -193,9 +193,6 @@ public class CommandContext {
 		
 		dc = env.getDC( action , DC );
 		action.options.updateContext( action );
-		
-		if( loadProps )
-			env.loadSecretProperties( action );
 	}
 	
 	public CommandContext getProductContext( String stream ) {
