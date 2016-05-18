@@ -183,7 +183,7 @@ public class MetaEnv {
 	public MetaEnvDC getDC( ActionBase action , String name ) throws Exception {
 		MetaEnvDC dc = dcMap.get( name );
 		if( dc == null )
-			action.exit( "unknown datacenter=" + dc );
+			action.exit( "unknown datacenter=" + name );
 		return( dc );
 	}
 
