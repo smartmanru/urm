@@ -135,7 +135,8 @@ public class CommandOutput {
 	
 	public void tee( String title , String file ) throws Exception {
 		outtee = Common.createOutfileFile( file );
-		out( title );
+		outtee.println( title );
+		outtee.flush();
 	}
 	
 	public void createOutputFile( String title , String file ) throws Exception {
