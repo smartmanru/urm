@@ -203,7 +203,6 @@ public class MetaEnvServer {
 		}
 		
 		if( isStartable( action ) ) {
-			ROOTPATH = properties.getSystemPathProperty( action , "rootpath" , "" );
 			BINPATH = properties.getSystemPathProperty( action , "binpath" , "" );
 			PORT = properties.getSystemIntProperty( action , "port" , 0 );
 			NLBSERVER = properties.getSystemStringProperty( action , "nlbserver" , "" );
@@ -212,15 +211,10 @@ public class MetaEnvServer {
 			SUBORDINATESERVERS = properties.getSystemStringProperty( action , "subordinate-servers" , "" );
 			STARTTIME = properties.getSystemIntProperty( action , "starttime" , 0 );
 			STOPTIME = properties.getSystemIntProperty( action , "stoptime" , 0 );
-			DEPLOYPATH = properties.getSystemPathProperty( action , "deploypath" , "" );
-			LINKFROMPATH = properties.getSystemPathProperty( action , "linkfrompath" , "" );
-			DEPLOYSCRIPT = properties.getSystemPathProperty( action , "deployscript" , "" );
 			HOTDEPLOYPATH = properties.getSystemPathProperty( action , "hotdeploypath" , "" );
 			HOTDEPLOYDATA = properties.getSystemStringProperty( action , "hotdeploydata" , "" );
 			WEBDOMAIN = properties.getSystemStringProperty( action , "webdomain" , "" );
 			WEBMAINURL = properties.getSystemStringProperty( action , "webmainurl" , "" );
-			APPSERVER = properties.getSystemStringProperty( action , "appserver" , "" );
-			APPSERVERVERSION = properties.getSystemStringProperty( action , "appserver-version" , "" );
 			LOGPATH = properties.getSystemPathProperty( action , "logpath" , "" );
 			LOGFILEPATH = properties.getSystemPathProperty( action , "logfilepath" , "" );
 			NOPIDS = properties.getSystemBooleanProperty( action , "nopids" , false );
@@ -228,6 +222,13 @@ public class MetaEnvServer {
 
 		if( isService( action ) )
 			SERVICENAME = properties.getSystemRequiredStringProperty( action , "servicename" );
+
+		if( this.isDeployPossible( action ) ) {
+			ROOTPATH = properties.getSystemPathProperty( action , "rootpath" , "" );
+			DEPLOYPATH = properties.getSystemPathProperty( action , "deploypath" , "" );
+			LINKFROMPATH = properties.getSystemPathProperty( action , "linkfrompath" , "" );
+			DEPLOYSCRIPT = properties.getSystemPathProperty( action , "deployscript" , "" );
+		}
 		
 		properties.finishRawProperties( action );
 	}
