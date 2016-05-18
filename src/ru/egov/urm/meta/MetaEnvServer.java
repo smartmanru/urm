@@ -493,9 +493,11 @@ public class MetaEnvServer {
 		}
 		
 		// check deploy items
-		for( MetaEnvServerDeployment item : deployments ) {
-			if( !item.isManual( action ) )
-				return( true );
+		if( deployments != null ) {
+			for( MetaEnvServerDeployment item : deployments ) {
+				if( !item.isManual( action ) )
+					return( true );
+			}
 		}
 		
 		action.trace( "ignore due to empty non-manual server deployments" );
