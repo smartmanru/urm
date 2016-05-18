@@ -39,6 +39,9 @@
 
   <path id="classpath">
 	<pathelement path="${classpath}" />
+        <fileset dir="${common.jars}">
+                  <include name="*.jar" />
+        </fileset>
   </path>
 
   <path id="classpathMessenger">
