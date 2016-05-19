@@ -128,14 +128,16 @@ public class CommandBuilder {
 		finally {
 			context.killPool( action );
 			executor.finish( action );
+			
+			if( res )
+				action.commentExecutor( "COMMAND SUCCESSFUL" );
+			else
+				action.commentExecutor( "COMMAND FAILED" );
+			
+			output.stopAllOutputs();
 			context.stopPool( action );
 		}
 
-		if( res )
-			action.commentExecutor( "COMMAND SUCCESSFUL" );
-		else
-			action.commentExecutor( "COMMAND FAILED" );
-			
 		return( res );
 	}
 
