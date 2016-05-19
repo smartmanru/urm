@@ -120,21 +120,23 @@ public class CommandBuilder {
 		ActionInit action = executor.prepare( context , meta );
 		
 		// execute
-		boolean res = false;
 		try {
-			res = executor.run( action );
-		}
-		finally {
+			executor.run( action );
 			context.killPool( action );
-			
-			if( res )
-				action.commentExecutor( "COMMAND SUCCESSFUL" );
-			else
-				action.commentExecutor( "COMMAND FAILED" );
-			
-			executor.finish( action );
-			context.stopPool( action );
 		}
+		catch( Throwable e ) {
+			action.log( e );
+		}
+
+		boolean res = ( executor.isFailed() )? false : true;
+		
+		if( res )
+			action.commentExecutor( "COMMAND SUCCESSFUL" );
+		else
+			action.commentExecutor( "COMMAND FAILED" );
+			
+		executor.finish( action );
+		context.stopPool( action );
 
 		return( res );
 	}
