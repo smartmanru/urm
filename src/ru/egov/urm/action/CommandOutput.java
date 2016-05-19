@@ -163,5 +163,13 @@ public class CommandOutput {
 	public void stopAllOutputs() throws Exception {
 		while( outchild != null )
 			stopOutputFile();
+		
+		if( outtee != null ) {
+			outtee.println( "stop logging" );
+			outtee.println( "############" );
+			outtee.flush();
+			outtee.close();
+			outtee = null;
+		}
 	}
 }

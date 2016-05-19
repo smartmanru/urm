@@ -254,7 +254,7 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override protected void killProcess( ActionBase action ) throws Exception {
-		executor.pool.master.custom( action , "taskkill /pid " + processId + " /f" );	
+		executor.pool.master.custom( action , "taskkill /pid " + processId + " /f" , true );	
 	}
 
 	@Override public void cmdEnsureDirExists( ActionBase action , String dir ) throws Exception {

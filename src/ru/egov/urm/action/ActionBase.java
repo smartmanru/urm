@@ -79,7 +79,7 @@ abstract public class ActionBase {
 		NAME = this.getClass().getSimpleName();
 	}
 	
-	public void finish() throws Exception {
+	public void deleteWorkFolder() throws Exception {
 		artefactory.deleteWorkFolder( this );
 	}
 
@@ -499,6 +499,10 @@ abstract public class ActionBase {
 
 	public boolean isLocal() {
 		return( context.CTX_LOCAL );
+	}
+
+	public void stopAllOutputs() throws Exception {
+		output.stopAllOutputs();
 	}
 	
 }

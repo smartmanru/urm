@@ -16,7 +16,6 @@ import ru.egov.urm.meta.Metadata;
 public class CommandBuilder {
 
 	public RunContext rc;
-	public CommandOutput output = null;
 	public CommandOptions options = null;
 	public CommandContext context = null;
 	
@@ -127,14 +126,13 @@ public class CommandBuilder {
 		}
 		finally {
 			context.killPool( action );
-			executor.finish( action );
 			
 			if( res )
 				action.commentExecutor( "COMMAND SUCCESSFUL" );
 			else
 				action.commentExecutor( "COMMAND FAILED" );
 			
-			output.stopAllOutputs();
+			executor.finish( action );
 			context.stopPool( action );
 		}
 

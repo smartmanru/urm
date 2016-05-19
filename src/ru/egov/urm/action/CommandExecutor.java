@@ -226,7 +226,8 @@ public abstract class CommandExecutor {
 	}
 	
 	public void finish( ActionBase action ) throws Exception {
-		action.finish();
+		action.stopAllOutputs();
+		action.deleteWorkFolder();
 	}
 	
 	public void checkRequired( ActionBase action , String value , String name ) throws Exception {

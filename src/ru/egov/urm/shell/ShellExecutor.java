@@ -213,7 +213,11 @@ public abstract class ShellExecutor {
 	}
 
 	public void custom( ActionBase action , String cmd ) throws Exception {
-		core.runCommand( action , cmd , false );
+		custom( action , cmd , false );
+	}
+	
+	public void custom( ActionBase action , String cmd , boolean debug ) throws Exception {
+		core.runCommand( action , cmd , debug );
 	}
 	
 	public void custom( ActionBase action , String dir , String cmd ) throws Exception {

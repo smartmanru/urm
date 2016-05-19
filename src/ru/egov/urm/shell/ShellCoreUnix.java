@@ -105,7 +105,7 @@ public class ShellCoreUnix extends ShellCore {
 	}
 
 	@Override protected void killProcess( ActionBase action ) throws Exception {
-		executor.pool.master.custom( action , "pkill -9 -P " + processId );
+		executor.pool.master.custom( action , "pkill -9 -P " + processId , true );
 	}
 
 	@Override public void cmdEnsureDirExists( ActionBase action , String dir ) throws Exception {
