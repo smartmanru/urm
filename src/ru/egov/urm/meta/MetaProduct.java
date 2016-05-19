@@ -19,7 +19,7 @@ public class MetaProduct {
 	
 	Metadata meta;
 	String lastProdTagFile;
-	public Charset charset;;
+	public Charset charset;
 	
 	public String CONFIG_PRODUCTHOME;
 	public String CONFIG_LASTPRODTAG;
