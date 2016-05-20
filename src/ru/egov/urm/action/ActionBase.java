@@ -111,13 +111,21 @@ abstract public class ActionBase {
 	public boolean isExecute() {
 		return( ( context.CTX_SHOWONLY )? false : true );
 	}
-	
+
+	public void log( Throwable e ) {
+		log( "" , e );
+	}
+
 	public void log( String prompt , Throwable e ) {
+		log( prompt , e , CommandOutput.LOGLEVEL_DEBUG );
+	}
+	
+	private void log( String prompt , Throwable e , int logLevel ) {
 		try {
 			String s = "[" + context.streamName + "]";
 			if( !prompt.isEmpty() )
-				s += " " + prompt;
-			output.log( s , e , CommandOutput.LOGLEVEL_DEBUG );
+				s = prompt + " " + s;
+			output.log( s , e , logLevel );
 		}
 		catch( Throwable ez ) {
 			System.err.println( "unable to log exception:" );
@@ -127,10 +135,6 @@ abstract public class ActionBase {
 		}
 	}
 	
-	public void log( Throwable e ) {
-		log( "" , e );
-	}
-
 	public void logAction( String s ) {
 		log( this.getClass().getSimpleName() + ": " + s );
 	}
@@ -144,21 +148,11 @@ abstract public class ActionBase {
 	}
 	
 	public void debug( Throwable e ) {
-		if( !context.CTX_SHOWALL )
-			return;
-		
-		log( e );
+		log( "" , e , CommandOutput.LOGLEVEL_DEBUG );
 	}
 
 	public void trace( Throwable e ) {
-		if( !context.CTX_TRACE )
-			return;
-		
-		log( e );
-	}
-
-	public void out( String s , int logLevel ) throws Exception {
-		output.log( s , logLevel );
+		log( "" , e , CommandOutput.LOGLEVEL_TRACE );
 	}
 
 	public void trace( String s ) throws Exception {
@@ -175,7 +169,7 @@ abstract public class ActionBase {
 	
 	public void log( String s ) {
 		try {
-			output.log( "[" + context.streamName + "] " + s , CommandOutput.LOGLEVEL_INFO );
+			output.info( s + " [" + context.streamName + "]" );
 		}
 		catch( Throwable ez ) {
 			System.err.println( "unable to log message:" );
@@ -186,7 +180,7 @@ abstract public class ActionBase {
 	
 	public void debug( String s ) {
 		try {
-			output.debug( "[" + context.streamName + "] " + s );
+			output.debug( s + " [" + context.streamName + "]" );
 		}
 		catch( Throwable ez ) {
 			System.err.println( "unable to log message:" );

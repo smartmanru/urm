@@ -83,6 +83,10 @@ public class CommandOutput {
 		}
 	}
 	
+	public void info( String s ) throws Exception {
+		log( s , LOGLEVEL_INFO );
+	}
+	
 	public void debug( String s ) throws Exception {
 		log( s , LOGLEVEL_DEBUG );
 	}
