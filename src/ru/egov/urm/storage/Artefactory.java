@@ -35,6 +35,7 @@ public class Artefactory {
 
 	public Artefactory( Artefactory base ) {
 		this.meta = base.meta;
+		this.context = base.context;
 		this.workFolder = base.workFolder;
 		ownFolder = false;
 		this.parentArtefactory = base;

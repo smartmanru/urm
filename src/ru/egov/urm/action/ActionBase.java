@@ -120,7 +120,7 @@ abstract public class ActionBase {
 		log( prompt , e , CommandOutput.LOGLEVEL_DEBUG );
 	}
 	
-	private void log( String prompt , Throwable e , int logLevel ) {
+	private synchronized void log( String prompt , Throwable e , int logLevel ) {
 		try {
 			String s = "[" + context.streamName + "]";
 			if( !prompt.isEmpty() )

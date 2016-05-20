@@ -10,7 +10,7 @@ import ru.egov.urm.shell.ShellExecutor;
 public class LocalFolder extends Folder {
 
 	public LocalFolder( Artefactory artefactory , String folderPath ) {
-		super( artefactory , folderPath , false , false );
+		super( artefactory , folderPath , false , artefactory.context.account.isWindows() );
 	}
 
 	@Override public ShellExecutor getSession( ActionBase action ) throws Exception {
