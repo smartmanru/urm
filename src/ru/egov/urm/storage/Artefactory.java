@@ -77,7 +77,7 @@ public class Artefactory {
 	}
 
 	public void createWorkFolder( ActionBase action ) throws Exception {
-		workFolder = getWorkFolder( action );
+		workFolder = getWorkFolder( action , "" );
 		workFolder.recreateThis( action );
 		ownFolder = true;
 	}
@@ -104,30 +104,27 @@ public class Artefactory {
 	}
 	
 	public String getWorkPath( ActionBase action , String name , boolean addSession ) throws Exception {
-		action.checkRequired( name , "name" );
 		String dirname;
 		
 		workFolderProcessId = action.session.getProcessId();
 		if( parentArtefactory != null ) {
 			dirname = parentArtefactory.workFolder.folderPath;
-		
-			if( workFolderProcessId.equals( parentArtefactory.workFolderProcessId ) )
-				dirname += "/" + name;
-			else {
-				dirname += "/" + name;
+			dirname = Common.getPath( dirname , "/" + name );
+			if( !workFolderProcessId.equals( parentArtefactory.workFolderProcessId ) ) {
 				if( addSession )
 					dirname += "/session-" + workFolderProcessId;
 			}
 		}
 		else {
-			if( !action.context.CTX_WORKPATH.isEmpty() )
-				dirname = action.context.CTX_WORKPATH;
-			else
-				dirname = meta.product.CONFIG_WORKPATH;
+			if( !action.context.CTX_WORKPATH.isEmpty() ) {
+				dirname = Common.getPath( action.context.CTX_WORKPATH , name );
+			}
+			else {
+				dirname = Common.getPath( meta.product.CONFIG_WORKPATH , name );
+				if( addSession )
+					dirname += "/session-" + workFolderProcessId;
+			}
 			
-			dirname += "/" + name;
-			if( addSession )
-				dirname += "/session-" + workFolderProcessId;
 		}
 		
 		return( dirname );	
