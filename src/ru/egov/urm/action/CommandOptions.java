@@ -229,7 +229,7 @@ public class CommandOptions {
 		print( "# " + s );
 	}
 
-	public void printRunningOptions() {
+	public void printRunningOptions( ActionBase action ) throws Exception {
 		String values = "";
 		for( CommandVar option : optionsSet ) {
 			String value = getOptionValue( option );
@@ -238,7 +238,7 @@ public class CommandOptions {
 		
 		String info = "execute options={" + values + "}, args={" + 
 				Common.getList( args.toArray( new String[0] ) , ", " ) + "}";
-		printhelp( info );
+		action.commentExecutor( info );
 	}
 	
 	public String getOptionValue( CommandVar var ) {

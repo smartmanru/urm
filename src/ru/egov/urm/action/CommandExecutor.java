@@ -220,7 +220,7 @@ public abstract class CommandExecutor {
 		
 		// print
 		if( context.CTX_SHOWALL )
-			options.printRunningOptions();
+			options.printRunningOptions( action );
 		
 		return( action );
 	}
