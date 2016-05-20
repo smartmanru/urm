@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.CommandOutput;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.meta.Metadata.VarSESSIONTYPE;
 import ru.egov.urm.storage.Folder;
@@ -48,8 +49,8 @@ abstract class ShellCore {
 
 	abstract protected String getExportCmd( ActionBase action ) throws Exception;
 	abstract protected void getProcessAttributes( ActionBase action ) throws Exception;
-	abstract public void runCommand( ActionBase action , String cmd , boolean debug ) throws Exception;
-	abstract public int runCommandGetStatus( ActionBase action , String cmd , boolean debug ) throws Exception;
+	abstract public void runCommand( ActionBase action , String cmd , int logLevel ) throws Exception;
+	abstract public int runCommandGetStatus( ActionBase action , String cmd , int logLevel ) throws Exception;
 	abstract public String getDirCmd( ActionBase action , String dir , String cmd ) throws Exception;
 	abstract public String getDirCmdIfDir( ActionBase action , String dir , String cmd ) throws Exception;
 	abstract protected void killProcess( ActionBase action ) throws Exception;
@@ -239,7 +240,7 @@ abstract class ShellCore {
 		if( action.isExecute() ) {
 			action.debug( executor.name + ": execute " + cmd );
 			cmdAppendExecuteLog( action , "run: " + cmd );
-			runCommand( action , cmd , false );
+			runCommand( action , cmd , CommandOutput.LOGLEVEL_INFO );
 		}
 		else {
 			action.debug( executor.name + ": showonly " + cmd );
@@ -247,35 +248,35 @@ abstract class ShellCore {
 	}
 	
 	public String runCommandCheckNormal( ActionBase action , String cmd ) throws Exception {
-		return( runCommandCheck( action , cmd , false ) ); 
+		return( runCommandCheck( action , cmd , CommandOutput.LOGLEVEL_INFO ) ); 
 	}
 
 	public String runCommandCheckNormal( ActionBase action , String dir , String cmd ) throws Exception {
 		String cmdDir = getDirCmd( action , dir , cmd );
-		return( runCommandCheck( action , cmdDir , false ) ); 
+		return( runCommandCheck( action , cmdDir , CommandOutput.LOGLEVEL_INFO ) ); 
 	}
 
 	public String runCommandCheckDebug( ActionBase action , String cmd ) throws Exception {
-		return( runCommandCheck( action , cmd , true ) ); 
+		return( runCommandCheck( action , cmd , CommandOutput.LOGLEVEL_TRACE ) ); 
 	}
 
 	public String runCommandCheckDebugIfDir( ActionBase action , String dir , String cmd ) throws Exception {
 		String cmdDir = getDirCmdIfDir( action , dir , cmd );
-		return( runCommandCheck( action , cmdDir , true ) ); 
+		return( runCommandCheck( action , cmdDir , CommandOutput.LOGLEVEL_TRACE ) ); 
 	}
 
-	public void runCommand( ActionBase action , String dir , String cmd , boolean debug ) throws Exception {
+	public void runCommand( ActionBase action , String dir , String cmd , int logLevel ) throws Exception {
 		String cmdDir = getDirCmd( action , dir , cmd );
-		runCommand( action , cmdDir , debug ); 
+		runCommand( action , cmdDir , logLevel ); 
 	}
 
 	public String runCommandCheckDebug( ActionBase action , String dir , String cmd ) throws Exception {
 		String cmdDir = getDirCmd( action , dir , cmd );
-		return( runCommandCheck( action , cmdDir , true ) ); 
+		return( runCommandCheck( action , cmdDir , CommandOutput.LOGLEVEL_TRACE ) ); 
 	}
 
-	public String[] runCommandGetLines( ActionBase action , String dir , String cmd , boolean debug ) throws Exception {
-		runCommand( action , dir , cmd , debug );
+	public String[] runCommandGetLines( ActionBase action , String dir , String cmd , int logLevel ) throws Exception {
+		runCommand( action , dir , cmd , logLevel );
 		String err = getErr();
 		
 		if( !err.isEmpty() )
@@ -284,8 +285,8 @@ abstract class ShellCore {
 		return( cmdout.toArray( new String[0] ) );
 	}
 	
-	public String[] runCommandGetLines( ActionBase action , String cmd , boolean debug ) throws Exception {
-		runCommand( action , cmd , debug );
+	public String[] runCommandGetLines( ActionBase action , String cmd , int logLevel ) throws Exception {
+		runCommand( action , cmd , logLevel );
 		String err = getErr();
 		
 		if( !err.isEmpty() )
@@ -294,8 +295,8 @@ abstract class ShellCore {
 		return( cmdout.toArray( new String[0] ) );
 	}
 	
-	public String runCommandCheck( ActionBase action , String cmd , boolean debug ) throws Exception {
-		runCommand( action , cmd , debug );
+	public String runCommandCheck( ActionBase action , String cmd , int logLevel ) throws Exception {
+		runCommand( action , cmd , logLevel );
 		String err = getErr();
 		
 		if( !err.isEmpty() )
@@ -306,83 +307,83 @@ abstract class ShellCore {
 	}
 
 	public int runCommandGetStatusNormal( ActionBase action , String cmd ) throws Exception {
-		return( runCommandGetStatus( action , cmd , false ) );
+		return( runCommandGetStatus( action , cmd , CommandOutput.LOGLEVEL_INFO ) );
 	}
 	
 	public int runCommandGetStatusDebug( ActionBase action , String cmd ) throws Exception {
-		return( runCommandGetStatus( action , cmd , true ) );
+		return( runCommandGetStatus( action , cmd , CommandOutput.LOGLEVEL_TRACE ) );
 	}
 	
 	public void runCommandCheckStatusNormal( ActionBase action , String cmd ) throws Exception {
-		runCommandCheckStatus( action , cmd , false );
+		runCommandCheckStatus( action , cmd , CommandOutput.LOGLEVEL_INFO );
 	}
 	
 	public void runCommandCheckStatusNormal( ActionBase action , String dir , String cmd ) throws Exception {
 		String cmdDir = getDirCmd( action , dir , cmd );
-		runCommandCheckStatus( action , cmdDir , false );
+		runCommandCheckStatus( action , cmdDir , CommandOutput.LOGLEVEL_INFO );
 	}
 	
 	public void runCommandCheckStatusDebug( ActionBase action , String cmd ) throws Exception {
-		runCommandCheckStatus( action , cmd , true );
+		runCommandCheckStatus( action , cmd , CommandOutput.LOGLEVEL_TRACE );
 	}
 	
 	public void runCommandCheckStatusDebug( ActionBase action , String dir , String cmd ) throws Exception {
 		String cmdDir = getDirCmd( action , dir , cmd );
-		runCommandCheckStatus( action , cmdDir , true );
+		runCommandCheckStatus( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
 		if( !cmdout.isEmpty() ) {
 			if( cmdout.get( 0 ).startsWith( "invalid directory:" ) )
 				exitError( action , "invalid directory, error executing command: " + cmd + ", " + cmdout.get( 0 ) );
 		}
 	}
 	
-	public void runCommandCheckStatus( ActionBase action , String dir , String cmd , boolean debug ) throws Exception {
+	public void runCommandCheckStatus( ActionBase action , String dir , String cmd , int logLevel ) throws Exception {
 		String cmdDir = getDirCmd( action , dir , cmd );
-		runCommandCheckStatus( action , cmdDir , debug );
+		runCommandCheckStatus( action , cmdDir , logLevel );
 		if( !cmdout.isEmpty() ) {
 			if( cmdout.get( 0 ).startsWith( "invalid directory:" ) )
 				exitError( action , "invalid directory, error executing command: " + cmd + ", " + cmdout.get( 0 ) );
 		}
 	}
 	
-	public void runCommandCheckStatus( ActionBase action , String cmd , boolean debug ) throws Exception {
-		int status = runCommandGetStatus( action , cmd , debug );
+	public void runCommandCheckStatus( ActionBase action , String cmd , int logLevel ) throws Exception {
+		int status = runCommandGetStatus( action , cmd , logLevel );
 		String err = getErr();
 		if( status != 0 || !err.isEmpty() )
 			exitError( action , "error executing command: " + cmd + ", status=" + status + ", stderr: " + err );
 	}
 
 	public String runCommandGetValueCheckNormal( ActionBase action , String cmd ) throws Exception {
-		return( runCommandGetValueCheck( action , cmd , false ) );
+		return( runCommandGetValueCheck( action , cmd , CommandOutput.LOGLEVEL_INFO ) );
 	}
 	
 	public String runCommandGetValueCheckNormal( ActionBase action , String dir , String cmd ) throws Exception {
 		String cmdDir = getDirCmd( action , dir , cmd );
-		String value = runCommandGetValueCheck( action , cmdDir , false );
+		String value = runCommandGetValueCheck( action , cmdDir , CommandOutput.LOGLEVEL_INFO );
 		if( value.startsWith( "invalid directory" ) )
 			action.exit( value );
 		return( value );
 	}
 	
 	public String runCommandGetValueCheckDebug( ActionBase action , String cmd ) throws Exception {
-		return( runCommandGetValueCheck( action , cmd , true ) );
+		return( runCommandGetValueCheck( action , cmd , CommandOutput.LOGLEVEL_TRACE ) );
 	}
 	
 	public String runCommandGetValueCheckDebug( ActionBase action , String dir , String cmd ) throws Exception {
 		String cmdDir = getDirCmd( action , dir , cmd );
-		String value = runCommandGetValueCheck( action , cmdDir , true );
+		String value = runCommandGetValueCheck( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
 		if( value.startsWith( "invalid directory" ) )
 			action.exit( value );
 		return( value );
 	}
 	
-	public String runCommandGetValueCheck( ActionBase action , String cmd , boolean debug ) throws Exception {
-		String value = runCommandCheck( action , cmd , debug );
+	public String runCommandGetValueCheck( ActionBase action , String cmd , int logLevel ) throws Exception {
+		String value = runCommandCheck( action , cmd , logLevel );
 		value = value.trim();
 		return( value );
 	}
 
-	public String runCommandGetValueNoCheck( ActionBase action , String cmd , boolean debug ) throws Exception {
-		runCommand( action , cmd , debug );
+	public String runCommandGetValueNoCheck( ActionBase action , String cmd , int logLevel ) throws Exception {
+		runCommand( action , cmd , logLevel );
 		String value = getOut();
 		return( value );
 	}
@@ -397,7 +398,7 @@ abstract class ShellCore {
 	}
 	
 	public List<String> runCommandCheckGetOutputDebug( ActionBase action , String cmd ) throws Exception {
-		runCommand( action , cmd , true );
+		runCommand( action , cmd , CommandOutput.LOGLEVEL_TRACE );
 		String err = getErr();
 		
 		if( !err.isEmpty() )

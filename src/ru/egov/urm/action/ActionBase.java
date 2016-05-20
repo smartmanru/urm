@@ -155,6 +155,14 @@ abstract public class ActionBase {
 		log( "" , e , CommandOutput.LOGLEVEL_TRACE );
 	}
 
+	public void log( String s , int logLevel ) throws Exception {
+		output.log( s , logLevel );
+	}
+	
+	public void logExact( String s , int logLevel ) throws Exception {
+		output.logExact( s , logLevel );
+	}
+	
 	public void trace( String s ) throws Exception {
 		output.trace( s );
 	}

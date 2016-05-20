@@ -6,6 +6,7 @@ import java.util.Map;
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.CommandOutput;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.storage.Folder;
 import ru.egov.urm.storage.RedistStorage;
@@ -213,15 +214,15 @@ public abstract class ShellExecutor {
 	}
 
 	public void custom( ActionBase action , String cmd ) throws Exception {
-		custom( action , cmd , false );
+		custom( action , cmd , CommandOutput.LOGLEVEL_INFO );
 	}
 	
-	public void custom( ActionBase action , String cmd , boolean debug ) throws Exception {
-		core.runCommand( action , cmd , debug );
+	public void custom( ActionBase action , String cmd , int logLevel ) throws Exception {
+		core.runCommand( action , cmd , logLevel );
 	}
 	
 	public void custom( ActionBase action , String dir , String cmd ) throws Exception {
-		core.runCommand( action , dir , cmd , false );
+		core.runCommand( action , dir , cmd , CommandOutput.LOGLEVEL_INFO );
 	}
 
 	public void checkErrors( ActionBase action ) throws Exception {
@@ -231,7 +232,7 @@ public abstract class ShellExecutor {
 	}
 
 	public void customCheckErrorsDebug( ActionBase action , String dir , String cmd ) throws Exception {
-		core.runCommand( action , dir , cmd , true );
+		core.runCommand( action , dir , cmd , CommandOutput.LOGLEVEL_TRACE );
 		String err = core.getErr();
 		if( !err.isEmpty() )
 			action.exit( "error executing CMD=" + cmd + ": " + err );
@@ -281,7 +282,7 @@ public abstract class ShellExecutor {
 	}
 
 	public String customGetValueNoCheck( ActionBase action , String cmd ) throws Exception {
-		return( core.runCommandGetValueNoCheck( action , cmd , true ) );
+		return( core.runCommandGetValueNoCheck( action , cmd , CommandOutput.LOGLEVEL_TRACE ) );
 	}
 
 	public String customGetValue( ActionBase action , String cmd ) throws Exception {
@@ -289,11 +290,11 @@ public abstract class ShellExecutor {
 	}
 
 	public String[] customGetLines( ActionBase action , String cmd ) throws Exception {
-		return( core.runCommandGetLines( action , cmd , true ) );
+		return( core.runCommandGetLines( action , cmd , CommandOutput.LOGLEVEL_TRACE ) );
 	}
 
 	public String[] customGetLines( ActionBase action , String dir , String cmd ) throws Exception {
-		return( core.runCommandGetLines( action , dir , cmd , true ) );
+		return( core.runCommandGetLines( action , dir , cmd , CommandOutput.LOGLEVEL_TRACE ) );
 	}
 
 	public String customGetValue( ActionBase action , String dir , String cmd ) throws Exception {

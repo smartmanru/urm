@@ -17,6 +17,7 @@ import com.sun.jna.win32.W32APITypeMapper;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.CommandOutput;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.meta.Metadata.VarSESSIONTYPE;
 import ru.egov.urm.storage.Folder;
@@ -134,10 +135,10 @@ public class ShellCoreWindows extends ShellCore {
 		}
 		
 		action.debug( "process started: name=" + super.executor.name + ", id=" + super.processId );
-		runCommand( action , "echo off" , true );
+		runCommand( action , "echo off" , CommandOutput.LOGLEVEL_TRACE );
 	}
 	
-	private String prepareExecute( ActionBase action , String cmd , boolean debug ) throws Exception {
+	private String prepareExecute( ActionBase action , String cmd , int logLevel ) throws Exception {
 		if( !running )
 			exitError( action , "attempt to run command in closed session: " + cmd );
 			
@@ -162,17 +163,17 @@ public class ShellCoreWindows extends ShellCore {
 		cmderr.addAll( localSession.cmderr );
 	}
 
-	@Override public void runCommand( ActionBase action , String cmd , boolean debug ) throws Exception {
-		runCommand( action , cmd , debug , false );
+	@Override public void runCommand( ActionBase action , String cmd , int logLevel ) throws Exception {
+		runCommand( action , cmd , logLevel , false );
 	}
 	
-	private void runCommand( ActionBase action , String cmd , boolean debug , boolean addErrorLevel ) throws Exception {
+	private void runCommand( ActionBase action , String cmd , int logLevel , boolean addErrorLevel ) throws Exception {
 		if( !running )
 			exitError( action , "attempt to run command in closed session: " + cmd );
 		
 		if( sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX ) {
-			String execLine = prepareExecute( action , cmd , debug );
-			localSession.runCommand( action , execLine , debug );
+			String execLine = prepareExecute( action , cmd , logLevel );
+			localSession.runCommand( action , execLine , logLevel );
 			getOutput( action );
 		}
 		else {
@@ -211,7 +212,7 @@ public class ShellCoreWindows extends ShellCore {
 					e.printStackTrace();
 			}
 			
-			ShellWaiter waiter = new ShellWaiter( executor , new CommandReaderWindows( debug ) );
+			ShellWaiter waiter = new ShellWaiter( executor , new CommandReaderWindows( logLevel ) );
 			boolean res = waiter.wait( action , action.commandTimeout );
 			
 			if( !res )
@@ -219,15 +220,15 @@ public class ShellCoreWindows extends ShellCore {
 		}
 	}
 
-	@Override public int runCommandGetStatus( ActionBase action , String cmd , boolean debug ) throws Exception {
+	@Override public int runCommandGetStatus( ActionBase action , String cmd , int logLevel ) throws Exception {
 		if( sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX ) {
-			String execLine = prepareExecute( action , cmd , debug );
-			int status = localSession.runCommandGetStatus( action , execLine , debug );
+			String execLine = prepareExecute( action , cmd , logLevel );
+			int status = localSession.runCommandGetStatus( action , execLine , logLevel );
 			getOutput( action );
 			return( status );
 		}
 		else {
-			runCommand( action , cmd , debug , true );
+			runCommand( action , cmd , logLevel , true );
 			if( cmdout.size() > 0 ) {
 				String last = cmdout.get( cmdout.size() - 1 );
 				if( last.startsWith( "status=" ) ) {
@@ -254,19 +255,19 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override protected void killProcess( ActionBase action ) throws Exception {
-		executor.pool.master.custom( action , "taskkill /pid " + processId + " /f" , true );	
+		executor.pool.master.custom( action , "taskkill /pid " + processId + " /f" , CommandOutput.LOGLEVEL_TRACE );	
 	}
 
 	@Override public void cmdEnsureDirExists( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( dir );
-		runCommand( action , "if not exist " + wdir + " md " + wdir , true );
+		runCommand( action , "if not exist " + wdir + " md " + wdir , CommandOutput.LOGLEVEL_TRACE );
 		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
 			action.exit( "check/create directory error" );
 	}
 
 	@Override public void cmdCreateFileFromString( ActionBase action , String path , String value ) throws Exception {
 		String pathWin = Common.getWinPath( path );
-		runCommand( action , "echo " + value + " > " + pathWin , true );
+		runCommand( action , "echo " + value + " > " + pathWin , CommandOutput.LOGLEVEL_TRACE );
 	}
 
 	@Override public void cmdAppendFileWithString( ActionBase action , String path , String value ) throws Exception {
@@ -279,7 +280,7 @@ public class ShellCoreWindows extends ShellCore {
 	
 	@Override public boolean cmdCheckDirExists( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( dir );
-		String value = this.runCommandGetValueCheck( action , "if exist " + wdir + " echo ok" , true );
+		String value = this.runCommandGetValueCheck( action , "if exist " + wdir + " echo ok" , CommandOutput.LOGLEVEL_TRACE );
 		if( value.equals( "ok" ) )
 			return( true );
 		
@@ -312,7 +313,7 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public String cmdFindOneTopWithGrep( ActionBase action , String path , String mask , String grepMask ) throws Exception {
 		String cmdDir = getDirCmdIfDir( action , path , "dir /b " + mask );
-		String[] values = this.runCommandGetLines( action , cmdDir , true );
+		String[] values = this.runCommandGetLines( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
 		if( values.length == 0 || values[0].equals( "File Not Found" ) )
 			return( "" );
 
@@ -329,7 +330,7 @@ public class ShellCoreWindows extends ShellCore {
 	
 	@Override public String cmdFindOneTop( ActionBase action , String path , String mask ) throws Exception {
 		String cmdDir = getDirCmdIfDir( action , path , "dir /b " + mask );
-		String[] list = this.runCommandGetLines( action , cmdDir , true );
+		String[] list = this.runCommandGetLines( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
 		if( list.length == 0 || list[0].equals( "File Not Found" ) )
 			return( "" );
 		
@@ -345,31 +346,31 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public void cmdRemoveDirContent( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( dir );
-		runCommand( action , "if exist " + wdir + " ( rmdir /S /Q " + wdir + " " + cmdAnd + " md " + wdir + " )" , true );
+		runCommand( action , "if exist " + wdir + " ( rmdir /S /Q " + wdir + " " + cmdAnd + " md " + wdir + " )" , CommandOutput.LOGLEVEL_TRACE );
 		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
 			action.exit( "remove directory content error" );
 	}
 	
 	@Override public void cmdRemoveDir( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( dir );
-		runCommand( action , "if exist " + wdir + " rmdir /S /Q " + wdir , true );
+		runCommand( action , "if exist " + wdir + " rmdir /S /Q " + wdir , CommandOutput.LOGLEVEL_TRACE );
 		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
 			action.exit( "remove directory error" );
 	}
 	
 	@Override public void cmdRecreateDir( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( dir );
-		runCommand( action , "( if exist " + wdir + " rmdir /S /Q " + wdir + " ) " + cmdAnd + " md " + wdir , true );
+		runCommand( action , "( if exist " + wdir + " rmdir /S /Q " + wdir + " ) " + cmdAnd + " md " + wdir , CommandOutput.LOGLEVEL_TRACE );
 	}
 
 	@Override public void cmdCreatePublicDir( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( dir );
-		runCommand( action , "md " + wdir , true );
+		runCommand( action , "md " + wdir , CommandOutput.LOGLEVEL_TRACE );
 	}
 
 	@Override public String[] cmdGrepFile( ActionBase action , String filePath , String mask ) throws Exception {
 		String wpath = Common.getWinPath( filePath );
-		return( runCommandGetLines( action , "type " + wpath + " | findstr /C:" + Common.getQuoted( mask ) , true ) );
+		return( runCommandGetLines( action , "type " + wpath + " | findstr /C:" + Common.getQuoted( mask ) , CommandOutput.LOGLEVEL_TRACE ) );
 	}
 
 	@Override public void cmdReplaceFileLine( ActionBase action , String filePath , String mask , String newLine ) throws Exception {
@@ -416,13 +417,13 @@ public class ShellCoreWindows extends ShellCore {
 		String cmdDir = getDirCmdIfDir( action , dir , 
 				"for /f %x in ('dir /b /ad ^| findstr /R " + 
 				Common.getQuoted( filesRegular ) + "') do @rmdir /Q /S %x" );
-		runCommand( action , cmdDir , true );
+		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
 		checkOut( action , "errors on delete dirs" );
 						
 		cmdDir = getDirCmdIfDir( action , dir , 
 				"for /f %x in ('dir /b /a-d ^| findstr /R " + 
 				Common.getQuoted( filesRegular ) + "') do @del /Q %x" );
-		runCommand( action , cmdDir , true );
+		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
 		checkOut( action , "errors on delete files" );
 	}
 
@@ -438,14 +439,14 @@ public class ShellCoreWindows extends ShellCore {
 				"for /f %x in ('dir /b /ad ^| findstr /R " + 
 				Common.getQuoted( filesRegular ) + " ^| findstr /V " +
 				Common.getQuoted( excludeRegular ) + "') do rmdir /Q /S %x" );
-		runCommand( action , cmdDir , true );
+		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
 		checkOut( action , "errors on delete dirs" );
 		
 		cmdDir = getDirCmdIfDir( action , dir , 
 				"for /f %x in ('dir /b /a-d ^| findstr /R " + 
 				Common.getQuoted( filesRegular ) + " ^| findstr /V " +
 				Common.getQuoted( excludeRegular ) + "') do del /Q %x" );
-		runCommand( action , cmdDir , true );
+		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
 		checkOut( action , "errors on delete files" );
 	}
 
@@ -467,7 +468,7 @@ public class ShellCoreWindows extends ShellCore {
 	@Override public void cmdMove( ActionBase action , String source , String target ) throws Exception {
 		String wsource = Common.getWinPath( source );
 		String wtarget = Common.getWinPath( target );
-		runCommandCheckStatus( action , "move /Y " + wsource + " " + wtarget , true );
+		runCommandCheckStatus( action , "move /Y " + wsource + " " + wtarget , CommandOutput.LOGLEVEL_TRACE );
 	}
 
 	private void cmdExtractAny( ActionBase action , String tarFile , String targetFolder , String part , String type ) throws Exception {
@@ -552,14 +553,14 @@ public class ShellCoreWindows extends ShellCore {
 		action.debug( "copy " + files + " from " + dirFrom + " to " + dirTo + " ..." );
 		String wfilesFrom = Common.getWinPath( files );
 		String wdirTo = Common.getWinPath( dirTo ) + "\\";
-		runCommandCheckStatus( action , dirFrom , "for %x in ( " + wfilesFrom + " ) do xcopy /Y /Q \"%~x\" " + wdirTo , true );
+		runCommandCheckStatus( action , dirFrom , "for %x in ( " + wfilesFrom + " ) do xcopy /Y /Q \"%~x\" " + wdirTo , CommandOutput.LOGLEVEL_TRACE );
 	}
 
 	@Override public void cmdCopyFile( ActionBase action , String fileFrom , String fileTo ) throws Exception {
 		action.debug( "copy " + fileFrom + " to " + fileTo + " ..." );
 		String wfileFrom = Common.getWinPath( fileFrom );
 		String wfileTo = Common.getWinPath( fileTo );
-		runCommandCheckStatus( action , "copy /Y " + wfileFrom + " " + wfileTo , true );
+		runCommandCheckStatus( action , "copy /Y " + wfileFrom + " " + wfileTo , CommandOutput.LOGLEVEL_TRACE );
 	}
 	
 	@Override public void cmdCopyFile( ActionBase action , String fileFrom , String targetDir , String finalName , String FOLDER ) throws Exception {
@@ -668,7 +669,7 @@ public class ShellCoreWindows extends ShellCore {
 		String delimiter = "URM_DELIMITER";
 		String cmd = "dir /ad /b " + cmdAnd + " echo " + delimiter + " " + cmdAnd + " dir /a-d /b 2>nul"; 
 		String dirCmd = getDirCmd( action , rootPath , cmd );
-		runCommand( action , dirCmd , true );
+		runCommand( action , dirCmd , CommandOutput.LOGLEVEL_TRACE );
 		
 		List<String> list = dirs; 
 		for( String s : cmdout ) {
@@ -686,7 +687,7 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public String cmdGetMD5( ActionBase action , String filePath ) throws Exception {
 		String fileWin = Common.getWinPath( filePath );
-		runCommand( action , "certutil -hashfile " + fileWin + " MD5" , true );
+		runCommand( action , "certutil -hashfile " + fileWin + " MD5" , CommandOutput.LOGLEVEL_TRACE );
 		if( cmdout.size() != 3 )
 			action.exit( "unable to get md5sum of " + filePath );
 		
@@ -706,20 +707,20 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public String[] cmdGetFileLines( ActionBase action , String filePath ) throws Exception {
 		String fileWin = Common.getWinPath( filePath );
-		return( this.runCommandGetLines( action , "type  " + fileWin , true ) );
+		return( this.runCommandGetLines( action , "type  " + fileWin , CommandOutput.LOGLEVEL_TRACE ) );
 	}
 	
 	@Override public void cmdAppendExecuteLog( ActionBase action , String msg ) throws Exception {
 		String executeLog = Common.getWinPath( Common.getPath( executor.rootPath , EXECUTE_LOG ) );
 		String ts = Common.getLogTimeStamp();
-		runCommand( action , "echo " + Common.getQuoted( ts + ": " + msg ) + " >> " + executeLog , true );
+		runCommand( action , "echo " + Common.getQuoted( ts + ": " + msg ) + " >> " + executeLog , CommandOutput.LOGLEVEL_TRACE );
 	}
 
 	@Override public void cmdAppendUploadLog( ActionBase action , String src , String dst ) throws Exception {
 		String executeLog = Common.getWinPath( Common.getPath( executor.rootPath , UPLOAD_LOG ) );
 		String ts = Common.getLogTimeStamp();
 		String msg = "upload " + dst + " from " + src;
-		runCommand( action , "echo " + Common.getQuoted( ts + ": " + msg ) + " >> " + executeLog , true );
+		runCommand( action , "echo " + Common.getQuoted( ts + ": " + msg ) + " >> " + executeLog , CommandOutput.LOGLEVEL_TRACE );
 	}
 
 	@Override public String[] cmdGetFolders( ActionBase action , String rootPath ) throws Exception {
@@ -736,7 +737,7 @@ public class ShellCoreWindows extends ShellCore {
 		String filesRegular = getRegularMaskList( action , mask );
 		String cmdDir = getDirCmdIfDir( action , dir , 
 				"dir /b | findstr /R " + Common.getQuoted( filesRegular ) );
-		return( runCommandGetLines( action , cmdDir , true ) );
+		return( runCommandGetLines( action , cmdDir , CommandOutput.LOGLEVEL_TRACE ) );
 	}
 
 	@Override public String cmdGetTarContentMD5( ActionBase action , String filePath ) throws Exception {
@@ -753,7 +754,7 @@ public class ShellCoreWindows extends ShellCore {
 		String useMarker = "##";
 		String cmd = "for %x in (" + fileMask + ") do echo %x " + cmdAnd + " type %x " + cmdAnd + " echo " + useMarker;
 		String cmdDir = getDirCmd( action , dir , cmd );
-		runCommand( action , cmdDir , true );
+		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
 		
 		Map<String,List<String>> map = new HashMap<String,List<String>>();
 		int pos = 0;
@@ -792,10 +793,10 @@ public class ShellCoreWindows extends ShellCore {
 	/*##################################################*/
 	
 	class CommandReaderWindows extends WaiterCommand {
-		boolean debug;
+		int logLevel;
 		
-		public CommandReaderWindows( boolean debug ) {
-			this.debug = debug;
+		public CommandReaderWindows( int logLevel ) {
+			this.logLevel = logLevel;
 		}
 		
 		public void run( ActionBase action ) throws Exception {
@@ -805,10 +806,7 @@ public class ShellCoreWindows extends ShellCore {
 		
 		private void outStreamLine( ActionBase action , String line , List<String> text ) throws Exception {
 			text.add( line );
-			if( debug )
-				action.trace( line );
-			else
-				action.log( line );
+			action.logExact( line , logLevel );
 		}
 
 		private void readStreamToMarker( ActionBase action , BufferedReader textreader , List<String> text , String prompt ) throws Exception {

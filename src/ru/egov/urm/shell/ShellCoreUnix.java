@@ -8,6 +8,7 @@ import java.util.Map;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.CommandOutput;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.meta.Metadata.VarSESSIONTYPE;
 import ru.egov.urm.storage.Folder;
@@ -39,12 +40,12 @@ public class ShellCoreUnix extends ShellCore {
 	}
 
 	@Override protected void getProcessAttributes( ActionBase action ) throws Exception {
-		this.runCommand( action , "echo check and skip banner ... " , true );
+		this.runCommand( action , "echo check and skip banner ... " , CommandOutput.LOGLEVEL_TRACE );
 		processId = runCommandGetValueCheckDebug( action , "echo $$" );
 		homePath = runCommandGetValueCheckDebug( action , "echo $HOME" );
 	}
 	
-	@Override public void runCommand( ActionBase action , String cmd , boolean debug ) throws Exception {
+	@Override public void runCommand( ActionBase action , String cmd , int logLevel ) throws Exception {
 		if( !running )
 			exitError( action , "attempt to run command in closed session: " + cmd );
 			
@@ -70,7 +71,7 @@ public class ShellCoreUnix extends ShellCore {
 				e.printStackTrace();
 		}
 		
-		ShellWaiter waiter = new ShellWaiter( executor , new CommandReaderUnix( debug ) );
+		ShellWaiter waiter = new ShellWaiter( executor , new CommandReaderUnix( logLevel ) );
 		if( windowsHelper )
 			waiter.setWindowsHelper();
 		boolean res = waiter.wait( action , action.commandTimeout );
@@ -79,8 +80,8 @@ public class ShellCoreUnix extends ShellCore {
 			exitError( action , "command has been killed" );
 	}
 
-	@Override public int runCommandGetStatus( ActionBase action , String cmd , boolean debug ) throws Exception {
-		runCommand( action , cmd + "; echo COMMAND_STATUS=$?" , debug );
+	@Override public int runCommandGetStatus( ActionBase action , String cmd , int logLevel ) throws Exception {
+		runCommand( action , cmd + "; echo COMMAND_STATUS=$?" , logLevel );
 		
 		if( cmdout.size() > 0 ) {
 			String last = cmdout.get( cmdout.size() - 1 );
@@ -105,7 +106,7 @@ public class ShellCoreUnix extends ShellCore {
 	}
 
 	@Override protected void killProcess( ActionBase action ) throws Exception {
-		executor.pool.master.custom( action , "pkill -9 -P " + processId , true );
+		executor.pool.master.custom( action , "pkill -9 -P " + processId , CommandOutput.LOGLEVEL_TRACE );
 	}
 
 	@Override public void cmdEnsureDirExists( ActionBase action , String dir ) throws Exception {
@@ -160,7 +161,7 @@ public class ShellCoreUnix extends ShellCore {
 	}
 	
 	@Override public String[] cmdGrepFile( ActionBase action , String filePath , String mask ) throws Exception {
-		return( runCommandGetLines( action , "grep " + mask + " " + filePath , true ) );
+		return( runCommandGetLines( action , "grep " + mask + " " + filePath , CommandOutput.LOGLEVEL_TRACE ) );
 	}
 	
 	@Override public void cmdReplaceFileLine( ActionBase action , String filePath , String mask , String newLine ) throws Exception {
@@ -565,7 +566,7 @@ public class ShellCoreUnix extends ShellCore {
 	}
 
 	@Override public String[] cmdGetFileLines( ActionBase action , String filePath ) throws Exception {
-		return( this.runCommandGetLines( action , "cat " + filePath , true ) );
+		return( this.runCommandGetLines( action , "cat " + filePath , CommandOutput.LOGLEVEL_TRACE ) );
 	}
 	
 	@Override public void cmdAppendExecuteLog( ActionBase action , String msg ) throws Exception {
@@ -592,7 +593,7 @@ public class ShellCoreUnix extends ShellCore {
 	}
 	
 	@Override public String[] cmdFindFiles( ActionBase action , String dir , String mask ) throws Exception {
-		String[] list = runCommandGetLines( action , dir , "find . -type f -name " + Common.getQuoted( mask ) , true );
+		String[] list = runCommandGetLines( action , dir , "find . -type f -name " + Common.getQuoted( mask ) , CommandOutput.LOGLEVEL_TRACE );
 		List<String> items = new LinkedList<String>();
 		for( String item : list ) {
 			if( item.equals( "." ) || item.equals( ".." ) )
@@ -626,7 +627,7 @@ public class ShellCoreUnix extends ShellCore {
 		String delimiter = "URM_DELIMITER";
 		String cmd = "for x in $(find . -maxdepth 1 -name " + Common.getQuoted( fileMask ) + "); do echo $x; cat $x; echo " + delimiter + "; done";
 		String cmdDir = getDirCmd( action , dir , cmd );
-		runCommand( action , cmdDir , true );
+		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
 		
 		Map<String,List<String>> map = new HashMap<String,List<String>>();
 		int pos = 0;
@@ -666,10 +667,10 @@ public class ShellCoreUnix extends ShellCore {
 	/*##################################################*/
 	
 	class CommandReaderUnix extends WaiterCommand {
-		boolean debug;
+		int logLevel;
 		
-		public CommandReaderUnix( boolean debug ) {
-			this.debug = debug;
+		public CommandReaderUnix( int logLevel ) {
+			this.logLevel = logLevel;
 		}
 		
 		public void run( ActionBase action ) throws Exception {
@@ -680,15 +681,12 @@ public class ShellCoreUnix extends ShellCore {
 		private void outStreamLine( ActionBase action , String line , List<String> text ) throws Exception {
 			if( windowsHelper && line.equals( "Active code page: 65001" ) ) {
 				if( action.context.CTX_TRACE ) 
-					action.trace( line );
+					action.logExact( line , CommandOutput.LOGLEVEL_TRACE );
 				return;
 			}
 			
 			text.add( line );
-			if( debug )
-				action.trace( line );
-			else
-				action.log( line );
+			action.logExact( line , logLevel );
 		}
 
 		private void readStreamToMarker( ActionBase action , BufferedReader textreader , List<String> text , String prompt ) throws Exception {
