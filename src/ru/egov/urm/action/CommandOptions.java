@@ -206,7 +206,19 @@ public class CommandOptions {
 		ctx.CTX_NEWKEY = getParamValue( action , "GETOPT_NEWKEY" );
 		
 		action.setTimeout( ctx.CTX_COMMANDTIMEOUT );
-		action.output.setContext( ctx );
+		
+		int logLevelLimit = CommandOutput.LOGLEVEL_INFO;
+		if( ctx.CTX_TRACE ) {
+			if( ctx.CTX_SHOWALL )
+				logLevelLimit = CommandOutput.LOGLEVEL_INTERNAL;
+			else
+				logLevelLimit = CommandOutput.LOGLEVEL_TRACE;
+		}
+		else
+		if( ctx.CTX_SHOWALL )
+			logLevelLimit = CommandOutput.LOGLEVEL_DEBUG;
+		
+		action.output.setLogLevel( logLevelLimit );
 	}
 
 	void print( String s ) {

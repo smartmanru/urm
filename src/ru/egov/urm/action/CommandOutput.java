@@ -9,33 +9,55 @@ import ru.egov.urm.ExitException;
 
 public class CommandOutput {
 
-	boolean debugOutput;
-	boolean traceOutput;
-	boolean traceInternal;
 	PrintWriter outchild = null;
 	PrintWriter outtee = null;
+	int logLevelLimit;
 
+	public static int LOGLEVEL_INTERNAL = -1;
+	public static int LOGLEVEL_INFO = 0;
+	public static int LOGLEVEL_DEBUG = 1;
+	public static int LOGLEVEL_TRACE = 2;
+	
 	List<PrintWriter> parentOutputs = new LinkedList<PrintWriter>();
 	
 	public CommandOutput() {
+		logLevelLimit = 0;
 	}
 
-	public void setContext( CommandContext context ) {
-		this.traceInternal = context.CTX_TRACEINTERNAL;
-		this.debugOutput = context.CTX_SHOWALL;
-		this.traceOutput = context.CTX_TRACE;
+	public void setLogLevel( int logLevelLimit ) {
+		this.logLevelLimit = logLevelLimit;
 	}
 	
-	public void log( String s ) throws Exception {
-		out( s );
+	public void log( String s , int logLevel ) throws Exception {
+		if( logLevelLimit < 0 || logLevel <= logLevelLimit ) {
+			String prefix = null;
+			if( logLevel == LOGLEVEL_INFO )
+				prefix = "[INFO ] ";
+			else
+			if( logLevel == LOGLEVEL_DEBUG )
+				prefix = "[DEBUG] ";
+			else
+			if( logLevel == LOGLEVEL_TRACE )
+				prefix = "[TRACE] ";
+			else
+				throw new ExitException( "unexpected log level" );
+			out( prefix + s );
+		}
 	}
 	
-	public void logExact( String s ) throws Exception {
-		outExact( s );
+	public void logExact( String s , int logLevel ) throws Exception {
+		if( logLevelLimit < 0 || logLevel <= logLevelLimit )
+			outExact( s );
 	}
 	
-	public synchronized void log( String prompt , Throwable e ) throws Exception {
-		if( !debugOutput ) {
+	public synchronized void log( String prompt , Throwable e , int logLevel ) throws Exception {
+		if( logLevelLimit < 0 ) {
+			System.out.println( "TRACEINTERNAL: " + prompt );
+			e.printStackTrace();
+			return;
+		}
+		
+		if( logLevel > logLevelLimit ) {
 			ExitException ee = Common.getExitException( e );
 			if( ee != null ) {
 				String s = prompt;
@@ -47,12 +69,6 @@ public class CommandOutput {
 			}
 		}
 
-		if( traceInternal ) {
-			System.out.println( "TRACEINTERNAL: " + prompt );
-			e.printStackTrace();
-			return;
-		}
-		
 		if( outchild != null ) {
 			e.printStackTrace( outchild );
 			outchild.flush();
@@ -68,22 +84,15 @@ public class CommandOutput {
 	}
 	
 	public void debug( String s ) throws Exception {
-		if( debugOutput )
-			out( s );
+		log( s , LOGLEVEL_DEBUG );
 	}
 	
 	public void trace( String s ) throws Exception {
-		if( traceOutput )
-			out( s );
+		log( s , LOGLEVEL_TRACE );
 	}
 	
-	public void trace( String s , boolean trace ) throws Exception {
-		if( ( traceOutput && trace ) || trace == false )
-			out( s );
-	}
-
 	private synchronized void outExact( String s ) throws Exception {
-		if( traceInternal ) {
+		if( logLevelLimit < 0 ) {
 			System.out.println( "TRACEINTERNAL: line=" + s.replaceAll("\\p{C}", "?") );
 			return;
 		}
@@ -110,7 +119,7 @@ public class CommandOutput {
 	public synchronized void exit( String s ) throws Exception {
 		String errmsg = "ERROR: " + s + ". Exiting";
 
-		if( traceInternal ) {
+		if( logLevelLimit < 0 ) {
 			System.out.println( "TRACEINTERNAL: exit, line=" + errmsg );
 		}
 		else {

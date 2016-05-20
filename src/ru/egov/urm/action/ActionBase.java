@@ -117,7 +117,7 @@ abstract public class ActionBase {
 			String s = "[" + context.streamName + "]";
 			if( !prompt.isEmpty() )
 				s += " " + prompt;
-			output.log( s , e );
+			output.log( s , e , CommandOutput.LOGLEVEL_DEBUG );
 		}
 		catch( Throwable ez ) {
 			System.err.println( "unable to log exception:" );
@@ -157,11 +157,8 @@ abstract public class ActionBase {
 		log( e );
 	}
 
-	public void out( String s , boolean debug ) throws Exception {
-		if( debug )
-			output.debug( s );
-		else
-			output.log( s );
+	public void out( String s , int logLevel ) throws Exception {
+		output.log( s , logLevel );
 	}
 
 	public void trace( String s ) throws Exception {
@@ -169,16 +166,16 @@ abstract public class ActionBase {
 	}
 	
 	public void printExact( String s ) throws Exception {
-		output.logExact( s );
+		output.logExact( s , CommandOutput.LOGLEVEL_INFO );
 	}
 	
 	public void comment( String s ) throws Exception {
-		output.logExact( "# " + s );
+		output.logExact( "# " + s , CommandOutput.LOGLEVEL_INFO );
 	}
 	
 	public void log( String s ) {
 		try {
-			output.log( "[" + context.streamName + "] " + s );
+			output.log( "[" + context.streamName + "] " + s , CommandOutput.LOGLEVEL_INFO );
 		}
 		catch( Throwable ez ) {
 			System.err.println( "unable to log message:" );
