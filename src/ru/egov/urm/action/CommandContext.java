@@ -41,6 +41,7 @@ public class CommandContext {
 	public String CTX_DISTPATH = "";
 	public String CTX_REDISTPATH = "";
 	public String CTX_HIDDENPATH = "";
+	public String CTX_WORKPATH = "";
 
 	// specific settings
 	public boolean CTX_GET;
@@ -124,6 +125,7 @@ public class CommandContext {
 		this.CTX_DISTPATH = context.CTX_DISTPATH;
 		this.CTX_REDISTPATH = context.CTX_REDISTPATH;
 		this.CTX_HIDDENPATH = context.CTX_HIDDENPATH;
+		this.CTX_WORKPATH = context.CTX_WORKPATH;
 		
 		// specific
 		this.CTX_GET = context.CTX_GET;

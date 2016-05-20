@@ -77,7 +77,7 @@ public class Artefactory {
 	}
 
 	public void createWorkFolder( ActionBase action ) throws Exception {
-		workFolder = getWorkFolder( action , action.context.streamName );
+		workFolder = getWorkFolder( action );
 		workFolder.recreateThis( action );
 		ownFolder = true;
 	}
@@ -96,8 +96,14 @@ public class Artefactory {
 	public LocalFolder getWorkFolder( ActionBase action ) throws Exception {
 		return( workFolder );
 	}
-	
+
 	public LocalFolder getWorkFolder( ActionBase action , String name ) throws Exception {
+		String dirname = getWorkPath( action , name , true );
+		LocalFolder folder = getAnyFolder( action , dirname );
+		return( folder );
+	}
+	
+	public String getWorkPath( ActionBase action , String name , boolean addSession ) throws Exception {
 		action.checkRequired( name , "name" );
 		String dirname;
 		
@@ -107,15 +113,24 @@ public class Artefactory {
 		
 			if( workFolderProcessId.equals( parentArtefactory.workFolderProcessId ) )
 				dirname += "/" + name;
-			else
-				dirname += "/" + name + "/session-" + workFolderProcessId;
+			else {
+				dirname += "/" + name;
+				if( addSession )
+					dirname += "/session-" + workFolderProcessId;
+			}
 		}
 		else {
-			dirname = meta.product.CONFIG_WORKPATH + "/" + name + "/session-" + workFolderProcessId;
+			if( !action.context.CTX_WORKPATH.isEmpty() )
+				dirname = action.context.CTX_WORKPATH;
+			else
+				dirname = meta.product.CONFIG_WORKPATH;
+			
+			dirname += "/" + name;
+			if( addSession )
+				dirname += "/session-" + workFolderProcessId;
 		}
-				 
-		LocalFolder folder = getAnyFolder( action , dirname );
-		return( folder );	
+		
+		return( dirname );	
 	}
 	
 	public LocalFolder getDownloadFolder( ActionBase action ) throws Exception {
@@ -259,7 +274,7 @@ public class Artefactory {
 		if( MODE.isEmpty() ) 
 			MODE = "default";
 
-		String PATCHDIR = meta.product.CONFIG_WORKPATH + "/" + MODE;
+		String PATCHDIR = getWorkPath( action , MODE , false );
 		action.session.ensureDirExists( action , PATCHDIR );
 		String PATCHPATH = PATCHDIR + "/" + sourceProject.PROJECT;
 		

@@ -59,6 +59,7 @@ public class CommandOptions {
 		defineGenericOption( CommandVar.newParam( "etcpath" , "GETOPT_ETCPATH" , "use given path to find metedata files" ) );
 		defineGenericOption( CommandVar.newParam( "distpath" , "GETOPT_DISTPATH" , "use given path to find distributive files" ) );
 		defineGenericOption( CommandVar.newParam( "hiddenpath" , "GETOPT_HIDDENPATH" , "use given path to find hidden files and properties" ) );
+		defineGenericOption( CommandVar.newParam( "workpath" , "GETOPT_WORKPATH" , "use given path to store working files and logs" ) );
 		genericOptionsCount = optionsDefined.size();
 		
 		defineOption( CommandVar.newFlagYesOption( "get" , "GETOPT_GET" , "run getall after build" ) );
@@ -155,6 +156,7 @@ public class CommandOptions {
 		if( isenv && !action.context.env.REDISTPATH.isEmpty() )
 			ctx.CTX_REDISTPATH = action.context.env.REDISTPATH;
 		ctx.CTX_HIDDENPATH = ( value.isEmpty() )? ( ( isenv )? action.context.env.CONF_SECRETFILESPATH : "" ) : value;
+		ctx.CTX_WORKPATH = getParamPathValue( action , "GETOPT_WORKPATH" , "" );
 		
 		// specific
 		ctx.CTX_GET = getFlagValue( action , "GETOPT_GET" );
