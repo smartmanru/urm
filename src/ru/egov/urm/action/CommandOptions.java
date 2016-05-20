@@ -209,7 +209,7 @@ public class CommandOptions {
 		
 		int logLevelLimit = CommandOutput.LOGLEVEL_INFO;
 		if( ctx.CTX_TRACE ) {
-			if( ctx.CTX_SHOWALL )
+			if( ctx.CTX_TRACEINTERNAL )
 				logLevelLimit = CommandOutput.LOGLEVEL_INTERNAL;
 			else
 				logLevelLimit = CommandOutput.LOGLEVEL_TRACE;
