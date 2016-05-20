@@ -135,7 +135,7 @@ public class CommandOutput {
 	
 	public void tee( String title , String file ) throws Exception {
 		outtee = Common.createOutfileFile( file );
-		outtee.println( title + ": start logging" );
+		outtee.println( "############# start logging" );
 		outtee.flush();
 	}
 	
@@ -165,8 +165,7 @@ public class CommandOutput {
 			stopOutputFile();
 		
 		if( outtee != null ) {
-			outtee.println( "stop logging" );
-			outtee.println( "############" );
+			outtee.println( "############# stop logging" );
 			outtee.flush();
 			outtee.close();
 			outtee = null;

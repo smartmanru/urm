@@ -211,16 +211,16 @@ public abstract class CommandExecutor {
 		meta.loadProduct( action );
 		options.updateContext( action );
 		
-		// print
-		if( context.CTX_SHOWALL )
-			options.printRunningOptions();
-		
 		// create shell pool
 		context.createPool( action );
 		
 		// create work folder
 		action.createWorkFolder();
 		action.tee();
+		
+		// print
+		if( context.CTX_SHOWALL )
+			options.printRunningOptions();
 		
 		return( action );
 	}
