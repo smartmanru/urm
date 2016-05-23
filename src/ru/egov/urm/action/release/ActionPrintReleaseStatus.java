@@ -34,6 +34,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		comment( "PROPERTIES:" );
 		comment( "\tproperty=buildMode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );
 		comment( "\tproperty=obsolete: " + Common.getBooleanValue( release.PROPERTY_OBSOLETE ) );
+		comment( "\tproperty=over: " + Common.getBooleanValue( release.PROPERTY_OLDRELEASE ) );
 		
 		if( release.isEmpty( this ) ) {
 			comment( "(scope is empty)" );
