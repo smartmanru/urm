@@ -20,7 +20,8 @@ public class MetaFapBase {
 	public enum VarBASESRCTYPE {
 		LINUX_ARCHIVE_LINK ,
 		LINUX_ARCHIVE_DIRECT ,
-		ARCHIVE_DIRECT
+		ARCHIVE_DIRECT ,
+		NODIST
 	};
 	
 	public enum VarBASESRCFORMAT {
@@ -138,6 +139,12 @@ public class MetaFapBase {
 		}
 	}
 
+	public boolean isNoDist() {
+		if( type == VarBASESRCTYPE.NODIST )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isLinuxArchiveLink() {
 		if( type == VarBASESRCTYPE.LINUX_ARCHIVE_LINK )
 			return( true );
@@ -174,6 +181,9 @@ public class MetaFapBase {
 		if( isArchiveDirect() )
 			scatterLinuxArchiveDirect( action , props );
 		else
+		if( isNoDist() )
+			scatterNoDist( action , props );
+		else
 			action.exitUnexpectedState();
 		
 		props.finishRawProperties( action );
@@ -192,6 +202,9 @@ public class MetaFapBase {
 		SRCFILE = props.getSystemRequiredPathProperty( action , "srcfile" );
 		SRCSTOREDIR = props.getSystemRequiredPathProperty( action , "srcstoreddir" );
 		INSTALLPATH = props.getSystemRequiredPathProperty( action , "installpath" );
+	}
+
+	private void scatterNoDist( ActionBase action , PropertySet props ) throws Exception {
 	}
 
 	public String getItemPath( ActionBase action , String SRCFILE ) throws Exception {

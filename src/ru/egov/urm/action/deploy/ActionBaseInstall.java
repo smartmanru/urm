@@ -83,6 +83,9 @@ public class ActionBaseInstall extends ActionBase {
 		if( info.isArchiveDirect() )
 			executeNodeLinuxArchiveDirect( server , node , info , redist , runtime );
 		else
+		if( info.isNoDist() )
+			executeNodeNoDist( server , node , info , redist , runtime );
+		else
 			exitUnexpectedState();
 		
 		// prepare
@@ -109,6 +112,10 @@ public class ActionBaseInstall extends ActionBase {
 		copySystemFiles( info , redist , runtime );
 	}
 
+	private void executeNodeNoDist( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
+		copySystemFiles( info , redist , runtime );
+	}
+	
 	private boolean startUpdate( MetaFapBase info , RuntimeStorage runtime , VersionInfoStorage vis ) throws Exception {
 		String STATUS = vis.getBaseStatus( this , info.ID );
 		if( STATUS.equals( "ok" ) ) {
