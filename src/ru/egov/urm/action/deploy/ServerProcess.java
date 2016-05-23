@@ -548,6 +548,8 @@ public class ServerProcess {
 	}
 	
 	public boolean prepare( ActionBase action ) throws Exception {
+		action.log( "prepare server ..." );
+		
 		boolean res = false;
 		int timeout = action.setTimeoutUnlimited();
 		
