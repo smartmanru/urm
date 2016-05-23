@@ -49,7 +49,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 				printReleaseCategorySetStatus( dist , files , set );
 		}
 
-		comment( "DELIVERABLES:" );
+		comment( "DELIVERIES:" );
 		for( String s : Common.getSortedKeys( release.getDeliveries( this ) ) )
 			comment( "\tdelivery=" + s );
 	
