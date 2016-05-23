@@ -107,6 +107,8 @@ public class ConfReader {
     	
     	List<String> lines = null;
     	try {
+    		if( action.isWindows() )
+    			fullPath = Common.getWinPath( fullPath );
     		lines = Files.readAllLines( Paths.get( fullPath ) , charset );
     	}
     	catch( Throwable e ) {

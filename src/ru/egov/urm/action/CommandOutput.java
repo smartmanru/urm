@@ -28,7 +28,7 @@ public class CommandOutput {
 		this.logLevelLimit = logLevelLimit;
 	}
 	
-	public void log( String s , int logLevel ) throws Exception {
+	public synchronized void log( String s , int logLevel ) throws Exception {
 		if( logLevelLimit < 0 || logLevel <= logLevelLimit ) {
 			String prefix = null;
 			if( logLevel == LOGLEVEL_INFO )
@@ -45,7 +45,7 @@ public class CommandOutput {
 		}
 	}
 	
-	public void logExact( String s , int logLevel ) throws Exception {
+	public synchronized void logExact( String s , int logLevel ) throws Exception {
 		if( logLevelLimit < 0 || logLevel <= logLevelLimit )
 			outExact( s );
 	}
@@ -95,7 +95,7 @@ public class CommandOutput {
 		log( s , LOGLEVEL_TRACE );
 	}
 	
-	private synchronized void outExact( String s ) throws Exception {
+	private void outExact( String s ) throws Exception {
 		if( logLevelLimit < 0 ) {
 			System.out.println( "TRACEINTERNAL: line=" + s.replaceAll("\\p{C}", "?") );
 			return;

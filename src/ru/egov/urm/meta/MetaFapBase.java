@@ -174,9 +174,9 @@ public class MetaFapBase {
 
 		String CHARSET = props.getSystemStringProperty( action , "charset" , "" );
 		if( !CHARSET.isEmpty() ) {
-			charset = Charset.availableCharsets().get( CHARSET );
+			charset = Charset.forName( CHARSET );
 			if( charset == null )
-				action.exit( "unknown database files charset=" + CHARSET );
+				action.exit( "unknown system files charset=" + CHARSET );
 		}
 		
 		String SERVERTYPE = null;

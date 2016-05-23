@@ -109,10 +109,10 @@ public class Artefactory {
 		workFolderProcessId = action.session.getProcessId();
 		if( parentArtefactory != null ) {
 			dirname = parentArtefactory.workFolder.folderPath;
-			dirname = Common.getPath( dirname , "/" + name );
+			dirname = Common.getPath( dirname , name );
 			if( !workFolderProcessId.equals( parentArtefactory.workFolderProcessId ) ) {
 				if( addSession )
-					dirname += "/session-" + workFolderProcessId;
+					dirname = Common.getPath( dirname , "session-" + workFolderProcessId );
 			}
 		}
 		else {
@@ -122,7 +122,7 @@ public class Artefactory {
 			else {
 				dirname = Common.getPath( meta.product.CONFIG_WORKPATH , name );
 				if( addSession )
-					dirname += "/session-" + workFolderProcessId;
+					dirname = Common.getPath( dirname , "session-" + workFolderProcessId );
 			}
 			
 		}
