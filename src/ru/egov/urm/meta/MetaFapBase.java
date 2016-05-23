@@ -11,6 +11,7 @@ import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.PropertySet;
 import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.storage.BaseRepository;
 import ru.egov.urm.storage.RemoteFolder;
@@ -36,6 +37,7 @@ public class MetaFapBase {
 	public String ID;
 	public VarBASESRCTYPE type;
 	public boolean adm;
+	public VarOSTYPE osType;
 	public VarSERVERTYPE serverType;
 
 	public VarBASESRCFORMAT srcFormat;
@@ -164,6 +166,9 @@ public class MetaFapBase {
 		String TYPE = props.getSystemRequiredStringProperty( action , "type" );
 		type = getType( action , TYPE );
 		adm = props.getSystemBooleanProperty( action , "adminstall" , false );
+		
+		String OSTYPE = props.getSystemStringProperty( action , "ostype" , null );
+		osType = action.meta.getOSType( action , OSTYPE );
 		
 		String SERVERTYPE = null;
 		if( primary )
