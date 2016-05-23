@@ -216,7 +216,7 @@ public class ActionBaseInstall extends ActionBase {
 		
 		// configure
 		ConfBuilder builder = new ConfBuilder( this );
-		builder.configureFolder( this , workBase , runtime.node , info.properties );
+		builder.configureFolder( this , workBase , runtime.node , info.properties , info.charset );
 		
 		// deploy
 		if( info.serverType != VarSERVERTYPE.SERVICE )

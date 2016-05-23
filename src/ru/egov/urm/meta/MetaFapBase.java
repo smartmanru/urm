@@ -1,5 +1,6 @@
 package ru.egov.urm.meta;
 
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,6 +40,7 @@ public class MetaFapBase {
 	public boolean adm;
 	public VarOSTYPE osType;
 	public VarSERVERTYPE serverType;
+	public Charset charset;
 
 	public VarBASESRCFORMAT srcFormat;
 	public String SRCFILE;
@@ -169,6 +171,13 @@ public class MetaFapBase {
 		
 		String OSTYPE = props.getSystemStringProperty( action , "ostype" , null );
 		osType = action.meta.getOSType( action , OSTYPE );
+
+		String CHARSET = props.getSystemStringProperty( action , "charset" , "" );
+		if( !CHARSET.isEmpty() ) {
+			charset = Charset.availableCharsets().get( CHARSET );
+			if( charset == null )
+				action.exit( "unknown database files charset=" + CHARSET );
+		}
 		
 		String SERVERTYPE = null;
 		if( primary )
