@@ -376,6 +376,9 @@ public class Metadata {
 	}
 	
 	public VarBUILDMODE getBuildMode( ActionBase action , String ID ) throws Exception {
+		if( ID == null || ID.isEmpty() )
+			return( VarBUILDMODE.UNKNOWN );
+		
 		VarBUILDMODE value = null;
 		try {
 			value = VarBUILDMODE.valueOf( Common.xmlToEnumValue( ID ) );
