@@ -379,7 +379,7 @@ public class MetaRelease {
 		Common.xmlSetElementAttr( doc , root , "version" , RELEASEVER );
 		Common.xmlCreatePropertyElement( doc , root , "buildMode" , Common.getEnumLower( PROPERTY_BUILDMODE ) );
 		Common.xmlCreateBooleanPropertyElement( doc , root , "obsolete" , PROPERTY_OBSOLETE );
-		Common.xmlCreatePropertyElement( doc , root , "buildMode" , PROPERTY_OLDRELEASE );
+		Common.xmlCreatePropertyElement( doc , root , "over" , PROPERTY_OLDRELEASE );
 		
 		for( VarCATEGORY CATEGORY : action.meta.getAllReleaseCategories( action ) )
 			Common.xmlCreateElement( doc , root , Common.getEnumLower( CATEGORY ) );

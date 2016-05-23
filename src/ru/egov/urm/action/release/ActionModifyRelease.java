@@ -16,6 +16,7 @@ public class ActionModifyRelease extends ActionBase {
 		release.openForChange( this );
 		release.info.setProperties( this );
 		release.saveReleaseXml( this );
+		release.closeChange( this );
 		return( true );
 	}
 	
