@@ -484,7 +484,7 @@ abstract public class ActionBase {
 	}
 
 	public boolean isWindows() {
-		return( session.isWindows() );
+		return( context.account.isWindows() );
 	}
 
 	public boolean isLinux() {
