@@ -75,7 +75,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			return;
 		
 		// configuration
-		comment( "SET=" + Common.getEnumLower( set.CATEGORY ) + ":" );
+		comment( "SCOPE SET=" + Common.getEnumLower( set.CATEGORY ) + ":" );
 		
 		for( String key : Common.getSortedKeys( set.getTargets( this ) ) ) {
 			MetaReleaseTarget target = set.getTarget( this , key );
