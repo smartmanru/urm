@@ -35,10 +35,8 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		comment( "\tproperty=buildMode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );
 		comment( "\tproperty=obsolete: " + Common.getBooleanValue( release.PROPERTY_OBSOLETE ) );
 		
-		comment( "SCOPE:" );
-
 		if( release.isEmpty( this ) ) {
-			comment( "\t(scope is empty)" );
+			comment( "(scope is empty)" );
 			return( true );
 		}
 		
@@ -50,7 +48,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 				printReleaseCategorySetStatus( dist , files , set );
 		}
 
-		comment( "DELIVERIES:" );
+		comment( "DELIVERABLES:" );
 		for( String s : Common.getSortedKeys( release.getDeliveries( this ) ) )
 			comment( "\tdelivery=" + s );
 	
@@ -62,7 +60,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			return;
 		
 		String specifics = set.getSpecifics( this );
-		comment( "SET=" + set.NAME + " CATEGORY=" + Common.getEnumLower( set.CATEGORY ) + Common.getCommentIfAny( specifics ) + ":" );
+		comment( "SCOPE SET=" + set.NAME + " CATEGORY=" + Common.getEnumLower( set.CATEGORY ) + Common.getCommentIfAny( specifics ) + ":" );
 		if( set.getTargets( this ).isEmpty() )
 			comment( "\t(no items)" );
 			
