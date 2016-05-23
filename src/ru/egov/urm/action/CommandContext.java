@@ -89,6 +89,8 @@ public class CommandContext {
 	public String CTX_BUILDINFO = "";
 	public String CTX_HOSTUSER = "";
 	public String CTX_NEWKEY = "";
+	public VarBUILDMODE CTX_BUILDMODE = VarBUILDMODE.UNKNOWN;
+	public String CTX_OLDRELEASE = "";
 
 	public CommandContext() {
 		this.streamName = "main";
@@ -173,6 +175,8 @@ public class CommandContext {
 		this.CTX_BUILDINFO = context.CTX_BUILDINFO;
 		this.CTX_HOSTUSER = context.CTX_HOSTUSER;
 		this.CTX_NEWKEY = context.CTX_NEWKEY;
+		this.CTX_BUILDMODE = context.CTX_BUILDMODE;
+		this.CTX_OLDRELEASE = context.CTX_OLDRELEASE;
 	}
 
 	public void loadEnv( ActionBase action , boolean loadProps ) throws Exception {

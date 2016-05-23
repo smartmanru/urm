@@ -51,7 +51,7 @@ public class DatabasePrepare {
 		
 		meta = action.meta;
 		distr = meta.distr;
-		database = distr.database;
+		database = meta.database;
 		errorFolder = "db-" + Common.getNameTimeStamp();
 		
 		S_CHECK_FAILED = false;

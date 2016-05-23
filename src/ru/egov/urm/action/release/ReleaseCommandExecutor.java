@@ -5,7 +5,6 @@ import ru.egov.urm.action.ActionInit;
 import ru.egov.urm.action.CommandAction;
 import ru.egov.urm.action.CommandBuilder;
 import ru.egov.urm.action.CommandExecutor;
-import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
 import ru.egov.urm.storage.DistStorage;
 
@@ -17,8 +16,10 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	public ReleaseCommandExecutor( CommandBuilder builder ) {
 		super( builder , NAME );
 		
-		String releaseOpts = "";
-		defineAction( CommandAction.newAction( new CreateRelease() , "create" , true , "create release" , releaseOpts , "./create.sh [OPTIONS] <RELEASELABEL> {branch|trunk|majorbranch|devbranch|devtrunk}" ) );
+		String releaseOpts = "GETOPT_BUILDMODE,GETOPT_OBSOLETE,GETOPT_OLDRELEASE";
+		defineAction( CommandAction.newAction( new CreateRelease() , "create" , true , "create release" , releaseOpts , "./create.sh [OPTIONS] <RELEASELABEL>" ) );
+		defineAction( CommandAction.newAction( new ModifyRelease() , "modify" , true , "set release properties" , releaseOpts , "./modify.sh [OPTIONS] <RELEASELABEL>" ) );
+		releaseOpts = "";
 		defineAction( CommandAction.newAction( new DeleteRelease() , "drop" , true , "delete release" , releaseOpts , "./drop.sh [OPTIONS] <RELEASELABEL>" ) );
 		defineAction( CommandAction.newAction( new StatusRelease() , "status" , true , "get release status" , releaseOpts , "./status.sh [OPTIONS] <RELEASELABEL>" ) );
 		defineAction( CommandAction.newAction( new CloseRelease() , "close" , true , "close release" , releaseOpts , "./close.sh [OPTIONS] <RELEASELABEL>" ) );
@@ -61,9 +62,17 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	private class CreateRelease extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
-		VarBUILDMODE BUILDMODE = options.getRequiredBuildModeArg( action , 1 );
-		options.checkNoArgs( action , 2 );
-		impl.createRelease( action , RELEASELABEL , BUILDMODE );
+		options.checkNoArgs( action , 1 );
+		impl.createRelease( action , RELEASELABEL );
+	}
+	}
+
+	private class ModifyRelease extends CommandAction {
+	public void run( ActionInit action ) throws Exception {
+		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
+		options.checkNoArgs( action , 1 );
+		DistStorage release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		impl.modifyRelease( action , release );
 	}
 	}
 

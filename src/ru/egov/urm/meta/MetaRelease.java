@@ -2,6 +2,7 @@ package ru.egov.urm.meta;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -21,6 +22,7 @@ public class MetaRelease {
 	public String RELEASEVER;
 	public boolean PROPERTY_OBSOLETE;
 	public VarBUILDMODE PROPERTY_BUILDMODE;
+	public String PROPERTY_OLDRELEASE;
 	
 	Map<String,MetaReleaseSet> sourceSetMap = new HashMap<String,MetaReleaseSet>();
 	Map<VarCATEGORY,MetaReleaseSet> categorySetMap = new HashMap<VarCATEGORY,MetaReleaseSet>();
@@ -30,11 +32,51 @@ public class MetaRelease {
 		this.meta = meta;
 	}
 
-	public void create( ActionBase action , String RELEASEVER , VarBUILDMODE BUILDMODE , String RELEASEFILEPATH , boolean obsolete ) throws Exception {
+	public void copy( ActionBase action , MetaRelease src ) throws Exception {
+		this.meta = src.meta;
+		this.RELEASEVER = src.RELEASEVER;
+		this.PROPERTY_OBSOLETE = src.PROPERTY_OBSOLETE;
+		this.PROPERTY_BUILDMODE = src.PROPERTY_BUILDMODE;
+		this.PROPERTY_OLDRELEASE = src.PROPERTY_OLDRELEASE;
+		
+		sourceSetMap.clear();
+		categorySetMap.clear();
+		deliveryMap.clear();
+		
+		for( Entry<String,MetaReleaseSet> entry : src.sourceSetMap.entrySet() ) {
+			MetaReleaseSet set = entry.getValue().copy( action , this );
+			sourceSetMap.put( entry.getKey() , set );
+			
+			if( set.isCategorySet( action ) )
+				categorySetMap.put( set.CATEGORY , set );
+		}
+		
+		for( Entry<String,MetaReleaseDelivery> entry : src.deliveryMap.entrySet() ) {
+			MetaReleaseDelivery set = entry.getValue().copy( action , this );
+			deliveryMap.put( entry.getKey() , set );
+		}
+	}
+	
+	public void create( ActionBase action , String RELEASEVER , String RELEASEFILEPATH ) throws Exception {
 		this.RELEASEVER = RELEASEVER;
-		this.PROPERTY_BUILDMODE = BUILDMODE;
-		this.PROPERTY_OBSOLETE = obsolete;
 		createEmptyXml( action , RELEASEFILEPATH );
+		setProperties( action );
+	}
+
+	public void setReleaseVer( String RELEASEVER ) {
+		this.RELEASEVER = RELEASEVER;
+	}
+	
+	public void setProperties( ActionBase action ) throws Exception {
+		PROPERTY_BUILDMODE = action.context.CTX_BUILDMODE;
+		PROPERTY_OBSOLETE = action.context.CTX_OBSOLETE;
+		PROPERTY_OLDRELEASE = action.context.CTX_OLDRELEASE;
+	}
+	
+	public void setProperties( ActionBase action , MetaRelease src ) throws Exception {
+		PROPERTY_BUILDMODE = src.PROPERTY_BUILDMODE;
+		PROPERTY_OBSOLETE = src.PROPERTY_OBSOLETE;
+		PROPERTY_OLDRELEASE = src.PROPERTY_OLDRELEASE;
 	}
 	
 	public void createProd( ActionBase action , String RELEASEVER , String filePath ) throws Exception {
@@ -90,13 +132,13 @@ public class MetaRelease {
 				return;
 			
 			for( Node node : sets ) {
-				MetaReleaseSet set = new MetaReleaseSet( meta , CATEGORY );
+				MetaReleaseSet set = new MetaReleaseSet( meta , this , CATEGORY );
 				set.load( action , node );
 				registerSet( action , set );
 			}
 		}
 		else {
-			MetaReleaseSet set = new MetaReleaseSet( meta , CATEGORY );
+			MetaReleaseSet set = new MetaReleaseSet( meta , this , CATEGORY );
 			set.load( action , element );
 			registerSet( action , set );
 		}
@@ -110,13 +152,15 @@ public class MetaRelease {
 		action.debug( "read release file " + file + "..." );
 		Document doc = ConfReader.readXmlFile( action , file );
 		Node root = doc.getDocumentElement();
+
+		RELEASEVER = ConfReader.getAttrValue( action , root , "version" );
+		if( RELEASEVER.isEmpty() )
+			action.exit( "release version property is not set, unable to use distributive" );
 		
 		// properties
 		PROPERTY_BUILDMODE = getReleasePropertyBuildMode( action , root , "buildMode" ); 
 		PROPERTY_OBSOLETE = getReleasePropertyBoolean( action , root , "obsolete" , true );
-		RELEASEVER = getReleaseProperty( action , root , "version" );
-		if( RELEASEVER.isEmpty() )
-			action.exit( "release version property is not set, unable to use distributive" );
+		PROPERTY_OLDRELEASE = getReleaseProperty( action , root , "over" );
 
 		// get projectsets
 		for( VarCATEGORY CATEGORY : meta.getAllReleaseCategories( action ) )
@@ -158,7 +202,7 @@ public class MetaRelease {
 		MetaReleaseDelivery releaseDelivery = deliveryMap.get( distDelivery.NAME );
 		if( releaseDelivery == null ) {
 			action.trace( "add delivery=" + distDelivery.NAME );
-			releaseDelivery = new MetaReleaseDelivery( this , distDelivery );
+			releaseDelivery = new MetaReleaseDelivery( meta , this , distDelivery );
 			deliveryMap.put( distDelivery.NAME , releaseDelivery );
 		}
 		return( releaseDelivery );
@@ -329,12 +373,13 @@ public class MetaRelease {
 		return( false );
 	}
 	
-	public Document createEmptyXmlDoc( ActionBase action , String version ) throws Exception {
+	public Document createEmptyXmlDoc( ActionBase action ) throws Exception {
 		Document doc = Common.xmlCreateDoc( "release" );
 		Element root = doc.getDocumentElement();
-		Common.xmlCreatePropertyElement( doc , root , "version" , version );
+		Common.xmlSetElementAttr( doc , root , "version" , RELEASEVER );
 		Common.xmlCreatePropertyElement( doc , root , "buildMode" , Common.getEnumLower( PROPERTY_BUILDMODE ) );
 		Common.xmlCreateBooleanPropertyElement( doc , root , "obsolete" , PROPERTY_OBSOLETE );
+		Common.xmlCreatePropertyElement( doc , root , "buildMode" , PROPERTY_OLDRELEASE );
 		
 		for( VarCATEGORY CATEGORY : action.meta.getAllReleaseCategories( action ) )
 			Common.xmlCreateElement( doc , root , Common.getEnumLower( CATEGORY ) );
@@ -342,16 +387,12 @@ public class MetaRelease {
 	}
 	
 	public void createEmptyXml( ActionBase action , String filePath ) throws Exception {
-		Document doc = createEmptyXmlDoc( action , RELEASEVER );
+		Document doc = createEmptyXmlDoc( action );
 		Common.xmlSaveDoc( doc , filePath );
 	}
 
 	public Document createXml( ActionBase action ) throws Exception {
-		return( createXml( action , RELEASEVER ) );
-	}
-	
-	public Document createXml( ActionBase action , String version ) throws Exception {
-		Document doc = createEmptyXmlDoc( action , version );
+		Document doc = createEmptyXmlDoc( action );
 		Element root = doc.getDocumentElement();
 		
 		for( MetaReleaseSet set : sourceSetMap.values() ) {
@@ -375,7 +416,7 @@ public class MetaRelease {
 	public boolean addSourceSet( ActionBase action , MetaSourceProjectSet sourceSet , boolean all ) throws Exception {
 		MetaReleaseSet set = findSourceSet( action , sourceSet.NAME );
 		if( set == null ) {
-			set = new MetaReleaseSet( meta , sourceSet.CATEGORY );
+			set = new MetaReleaseSet( meta , this , sourceSet.CATEGORY );
 			set.createSourceSet( action , sourceSet , all );
 			registerSet( action , set );
 			return( true );
@@ -396,7 +437,7 @@ public class MetaRelease {
 	public boolean addCategorySet( ActionBase action , VarCATEGORY CATEGORY , boolean all ) throws Exception {
 		MetaReleaseSet set = findCategorySet( action , CATEGORY );
 		if( set == null ) {
-			set = new MetaReleaseSet( meta , CATEGORY );
+			set = new MetaReleaseSet( meta , this , CATEGORY );
 			set.createCategorySet( action , CATEGORY , all );
 			registerSet( action , set );
 			return( true );
@@ -541,8 +582,8 @@ public class MetaRelease {
 	}
 
 	public void deleteProjectItem( ActionBase action , MetaReleaseTargetItem item ) throws Exception {
-		item.releaseProject.set.makePartial( action );
-		item.releaseProject.removeSourceItem( action , item );
+		item.target.set.makePartial( action );
+		item.target.removeSourceItem( action , item );
 		unregisterTargetItem( action , item );
 	}
 	

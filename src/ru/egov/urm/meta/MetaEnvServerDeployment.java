@@ -9,6 +9,7 @@ import ru.egov.urm.meta.Metadata.VarNODETYPE;
 
 public class MetaEnvServerDeployment {
 	
+	Metadata meta;
 	MetaEnvServer server;
 	
 	public MetaDistrComponent comp;
@@ -20,7 +21,8 @@ public class MetaEnvServerDeployment {
 	public String NODETYPE;
 	private VarNODETYPE nodeType;
 	
-	public MetaEnvServerDeployment( MetaEnvServer server ) {
+	public MetaEnvServerDeployment( Metadata meta , MetaEnvServer server ) {
+		this.meta = meta;
 		this.server = server;
 	}
 
@@ -98,7 +100,7 @@ public class MetaEnvServerDeployment {
 	public MetaEnvServerLocation getLocation( ActionBase action ) throws Exception {
 		VarDEPLOYTYPE deployType = getDeployType( action );
 		String deployPath = getDeployPath( action );
-		return( new MetaEnvServerLocation( server , deployType , deployPath ) );
+		return( new MetaEnvServerLocation( meta , server , deployType , deployPath ) );
 	}
 
 	public boolean isNodeAdminDeployment( ActionBase action ) throws Exception {

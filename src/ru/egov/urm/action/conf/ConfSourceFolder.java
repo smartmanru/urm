@@ -1,8 +1,11 @@
-package ru.egov.urm.meta;
+package ru.egov.urm.action.conf;
 
 import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.meta.MetaDistrConfItem;
+import ru.egov.urm.meta.MetaReleaseTarget;
+import ru.egov.urm.meta.Metadata;
 
-public class MetaSourceFolder {
+public class ConfSourceFolder {
 	
 	Metadata meta;
 	
@@ -12,7 +15,7 @@ public class MetaSourceFolder {
 	public boolean productFolder = false;
 	public boolean releaseFolder = false;
 	
-	public MetaSourceFolder( Metadata meta ) {
+	public ConfSourceFolder( Metadata meta ) {
 		this.meta = meta;
 	}
 

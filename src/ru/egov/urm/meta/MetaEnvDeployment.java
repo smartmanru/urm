@@ -6,9 +6,11 @@ import ru.egov.urm.action.ActionBase;
 
 public class MetaEnvDeployment {
 
+	Metadata meta;
 	public MetaEnvDC dc;
 	
-	public MetaEnvDeployment( MetaEnvDC dc ) {
+	public MetaEnvDeployment( Metadata meta , MetaEnvDC dc ) {
+		this.meta = meta;
 		this.dc = dc;
 	}
 	

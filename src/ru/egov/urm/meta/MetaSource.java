@@ -46,7 +46,7 @@ public class MetaSource {
 			return;
 		
 		for( Node node : sets ) {
-			MetaSourceProjectSet projectset = new MetaSourceProjectSet( meta );
+			MetaSourceProjectSet projectset = new MetaSourceProjectSet( meta , this );
 			projectset.load( action , node );
 
 			originalList.add( projectset );

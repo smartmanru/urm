@@ -14,6 +14,7 @@ import ru.egov.urm.shell.Account;
 
 public class MetaEnvDC {
 
+	Metadata meta;
 	public MetaEnv env;
 	
 	public String NAME;
@@ -25,7 +26,8 @@ public class MetaEnvDC {
 	public List<MetaEnvServer> originalList;
 	public Map<String,MetaEnvServer> serverMap;
 	
-	public MetaEnvDC( MetaEnv env ) {
+	public MetaEnvDC( Metadata meta , MetaEnv env ) {
+		this.meta = meta;
 		this.env = env;
 	}
 
@@ -77,7 +79,7 @@ public class MetaEnvDC {
 	}
 	
 	public void loadDeployment( ActionBase action , Node node ) throws Exception {
-		deploy = new MetaEnvDeployment( this );
+		deploy = new MetaEnvDeployment( meta , this );
 		
 		Node deployment = ConfReader.xmlGetFirstChild( action , node , "deployment" );
 		if( deployment == null )
@@ -95,7 +97,7 @@ public class MetaEnvDC {
 			return;
 		
 		for( Node srvnode : items ) {
-			MetaEnvServer server = new MetaEnvServer( this );
+			MetaEnvServer server = new MetaEnvServer( meta , this );
 			server.load( action , srvnode , loadProps );
 			serverMap.put( server.NAME , server );
 			originalList.add( server );
@@ -108,7 +110,7 @@ public class MetaEnvDC {
 	}
 	
 	public void loadStartOrder( ActionBase action , Node node ) throws Exception {
-		startInfo = new MetaEnvStartInfo( this );
+		startInfo = new MetaEnvStartInfo( meta , this );
 		
 		Node startorder = ConfReader.xmlGetFirstChild( action , node , "startorder" );
 		if( startorder == null )

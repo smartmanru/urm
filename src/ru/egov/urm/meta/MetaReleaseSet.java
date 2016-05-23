@@ -2,6 +2,7 @@ package ru.egov.urm.meta;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -17,11 +18,12 @@ import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 public class MetaReleaseSet {
 
 	Metadata meta;
+	MetaRelease release;
+	public VarCATEGORY CATEGORY;
 	
 	public MetaSourceProjectSet set;
 	
 	public String NAME;
-	public VarCATEGORY CATEGORY;
 	public boolean ALL;
 	public String BUILDBRANCH = "";
 	public String BUILDTAG = "";
@@ -29,15 +31,41 @@ public class MetaReleaseSet {
 
 	Map<String,MetaReleaseTarget> map = new HashMap<String,MetaReleaseTarget>(); 
 	
-	public MetaReleaseSet( Metadata meta , VarCATEGORY CATEGORY ) {
+	public MetaReleaseSet( Metadata meta , MetaRelease release , VarCATEGORY CATEGORY ) {
 		this.meta = meta;
+		this.release = release;
 		this.CATEGORY = CATEGORY;
+	}
+	
+	public MetaReleaseSet copy( ActionBase action , MetaRelease nr ) throws Exception {
+		MetaReleaseSet nx = new MetaReleaseSet( meta , nr , CATEGORY );
+		nx.NAME = NAME;
+		nx.ALL = ALL;
+		nx.BUILDBRANCH = BUILDBRANCH;
+		nx.BUILDTAG = BUILDTAG;
+		nx.BUILDVERSION = BUILDVERSION;
+		nx.set = set;
+		
+		for( Entry<String,MetaReleaseTarget> entry : map.entrySet() ) {
+			MetaReleaseTarget item = entry.getValue().copy( action , nr , this );
+			nx.map.put( entry.getKey() , item );
+		}
+		
+		return( nx );
 	}
 	
 	public String getId() {
 		return( set.NAME );
 	}
 
+	public boolean isSourceSet( ActionBase action ) throws Exception {
+		return( meta.isSourceCategory( action , set.CATEGORY ) );
+	}
+	
+	public boolean isCategorySet( ActionBase action ) throws Exception {
+		return( !isSourceSet( action ) );
+	}
+	
 	public void load( ActionBase action , Node node ) throws Exception {
 		ALL = ConfReader.getBooleanAttrValue( action , node , "all" , false );
 		if( meta.isSourceCategory( action , CATEGORY ) )
@@ -58,7 +86,7 @@ public class MetaReleaseSet {
 	}
 
 	private MetaReleaseTarget loadTarget( ActionBase action , Node node ) throws Exception {
-		MetaReleaseTarget target = new MetaReleaseTarget( this , CATEGORY );
+		MetaReleaseTarget target = new MetaReleaseTarget( meta , this , CATEGORY );
 		target.load( action , node );
 		
 		map.put( target.NAME , target );
@@ -211,7 +239,7 @@ public class MetaReleaseSet {
 
 	public MetaReleaseTarget addSourceProject( ActionBase action , MetaSourceProject sourceProject , boolean allItems ) throws Exception {
 		action.trace( "add source project=" + sourceProject.PROJECT + " to release ..." );
-		MetaReleaseTarget project = new MetaReleaseTarget( this , CATEGORY );
+		MetaReleaseTarget project = new MetaReleaseTarget( meta , this , CATEGORY );
 		project.createFromProject( action , sourceProject , allItems );
 		project.BUILDBRANCH = BUILDBRANCH;
 		project.BUILDTAG = BUILDTAG;
@@ -239,7 +267,7 @@ public class MetaReleaseSet {
 	}
 
 	public MetaReleaseTarget addConfItem( ActionBase action , MetaDistrConfItem item , boolean allFiles ) throws Exception {
-		MetaReleaseTarget confItem = new MetaReleaseTarget( this , CATEGORY );
+		MetaReleaseTarget confItem = new MetaReleaseTarget( meta , this , CATEGORY );
 		confItem.createFromConfItem( action , item , allFiles );
 		
 		map.put( confItem.NAME , confItem );
@@ -247,7 +275,7 @@ public class MetaReleaseSet {
 	}
 	
 	public MetaReleaseTarget addDatabaseItem( ActionBase action , MetaDistrDelivery item ) throws Exception {
-		MetaReleaseTarget dbItem = new MetaReleaseTarget( this , CATEGORY );
+		MetaReleaseTarget dbItem = new MetaReleaseTarget( meta , this , CATEGORY );
 		dbItem.createFromDatabaseItem( action , item );
 		
 		map.put( dbItem.NAME , dbItem );
@@ -255,7 +283,7 @@ public class MetaReleaseSet {
 	}
 	
 	public MetaReleaseTarget addManualItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		MetaReleaseTarget manualItem = new MetaReleaseTarget( this , CATEGORY );
+		MetaReleaseTarget manualItem = new MetaReleaseTarget( meta , this , CATEGORY );
 		manualItem.createFromManualItem( action , item );
 		
 		map.put( manualItem.NAME , manualItem );

@@ -171,7 +171,7 @@ public class MetaEnv {
 			return;
 		
 		for( Node dcnode : items ) {
-			MetaEnvDC dc = new MetaEnvDC( this );
+			MetaEnvDC dc = new MetaEnvDC( meta , this );
 			dc.load( action , dcnode , loadProps );
 			originalList.add( dc );
 			dcMap.put( dc.NAME , dc );

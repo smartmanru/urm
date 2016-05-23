@@ -9,7 +9,6 @@ import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.MetaMonitoring;
 import ru.egov.urm.meta.MetaSourceProject;
 import ru.egov.urm.meta.Metadata;
-import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
@@ -158,10 +157,10 @@ public class Artefactory {
 		return( storage );
 	}
 	
-	public DistStorage createDistStorage( ActionBase action , String RELEASELABEL , VarBUILDMODE BUILDMODE ) throws Exception {
+	public DistStorage createDistStorage( ActionBase action , String RELEASELABEL ) throws Exception {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 		DistRepository repo = getDistRepository( action );
-		DistStorage storage = repo.createDist( action , RELEASELABEL , BUILDMODE );
+		DistStorage storage = repo.createDist( action , RELEASELABEL );
 		return( storage );
 	}
 	

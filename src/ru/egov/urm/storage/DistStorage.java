@@ -20,7 +20,6 @@ import ru.egov.urm.meta.MetaSourceProject;
 import ru.egov.urm.meta.MetaSourceProjectItem;
 import ru.egov.urm.meta.MetaSourceProjectSet;
 import ru.egov.urm.meta.Metadata;
-import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
 import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
 import ru.egov.urm.shell.ShellExecutor;
@@ -280,9 +279,9 @@ public class DistStorage {
 	}
 	
 	// top-level control
-	public void create( ActionBase action , String RELEASEVER , VarBUILDMODE BUILDMODE ) throws Exception {
+	public void create( ActionBase action , String RELEASEVER ) throws Exception {
 		RELEASEDIR = RELEASEVER;
-		state.ctlCreate( action , BUILDMODE );
+		state.ctlCreate( action );
 		load( action );
 	}
 
@@ -331,7 +330,11 @@ public class DistStorage {
 
 	public void copyRelease( ActionBase action , DistStorage src ) throws Exception {
 		String filePath = artefactory.workFolder.getFilePath( action , DistStorage.META_FILENAME );
-		Document doc = src.info.createXml( action , info.RELEASEVER );
+		
+		String saveReleaseVer = info.RELEASEVER;
+		info.copy( action , src.info );
+		info.setReleaseVer( saveReleaseVer ); 
+		Document doc = src.info.createXml( action );
 		Common.xmlSaveDoc( doc , filePath );
 		
 		openForChange( action );

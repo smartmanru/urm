@@ -103,7 +103,7 @@ public class MetadataStorage {
 			
 			Map<String,String> tables = tableSet.get( SN );
 			if( tables == null ) {
-				meta.distr.database.getSchema( action , SN );
+				meta.database.getSchema( action , SN );
 				tables = new HashMap<String,String>();
 				tableSet.put( SN , tables );
 			}

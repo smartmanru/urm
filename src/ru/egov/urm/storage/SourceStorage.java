@@ -2,6 +2,7 @@ package ru.egov.urm.storage;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.action.conf.ConfSourceFolder;
 import ru.egov.urm.meta.MetaDistrComponentItem;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaDistrDelivery;
@@ -10,7 +11,6 @@ import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerDeployment;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.MetaReleaseTarget;
-import ru.egov.urm.meta.MetaSourceFolder;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.vcs.GenericVCS;
 
@@ -59,7 +59,7 @@ public class SourceStorage {
 		return( false );
 	}
 	
-	public boolean downloadReleaseConfigItem( ActionBase action , DistStorage distStorage , MetaSourceFolder sourceFolder , LocalFolder dstFolder ) throws Exception {
+	public boolean downloadReleaseConfigItem( ActionBase action , DistStorage distStorage , ConfSourceFolder sourceFolder , LocalFolder dstFolder ) throws Exception {
 		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );  
 		String PATH = getReleaseConfigSourcePath( action , distStorage , sourceFolder.releaseComp );
 		
@@ -81,7 +81,7 @@ public class SourceStorage {
 		return( false );
 	}
 	
-	public boolean downloadProductConfigItem( ActionBase action , MetaSourceFolder sourceFolder , LocalFolder dstFolder ) throws Exception {
+	public boolean downloadProductConfigItem( ActionBase action , ConfSourceFolder sourceFolder , LocalFolder dstFolder ) throws Exception {
 		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );  
 		String PATH = getProductConfigSourcePath( action , sourceFolder.distrComp );
 

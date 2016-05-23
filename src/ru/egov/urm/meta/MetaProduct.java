@@ -88,6 +88,11 @@ public class MetaProduct {
 	public boolean initial;
 	public String[] modes = { "devtrunk" , "trunk" , "majorbranch" , "devbranch" , "branch" };
 	
+	public MetaProduct( Metadata meta ) {
+		this.meta = meta;
+		props = new PropertySet( "product" , null );
+	}
+	
 	private void scatterVariables( ActionBase action ) throws Exception {
 		CONFIG_PRODUCT = getStringPropertyRequired( action , "CONFIG_PRODUCT" );
 		
@@ -155,11 +160,6 @@ public class MetaProduct {
 			action.exit( "unknown database files charset=" + CONFIG_SOURCE_SQL_CHARSET );
 	}
 
-	public MetaProduct( Metadata meta ) {
-		this.meta = meta;
-		props = new PropertySet( "product" , null );
-	}
-	
 	public void load( ActionBase action , MetadataStorage storage ) throws Exception {
 		if( loaded )
 			return;

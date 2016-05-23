@@ -9,13 +9,16 @@ import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 public class MetaDistrComponentItem {
 
 	Metadata meta;
+	MetaDistrComponent comp;
+	
 	public MetaDistrBinaryItem binaryItem;
 	public MetaDistrConfItem confItem;
 	public boolean OBSOLETE;
 	public String DEPLOYNAME;
 
-	public MetaDistrComponentItem( Metadata meta ) {
+	public MetaDistrComponentItem( Metadata meta , MetaDistrComponent comp ) {
 		this.meta = meta;
+		this.comp = comp;
 	}
 
 	public void loadBinary( ActionBase action , Node node ) throws Exception {

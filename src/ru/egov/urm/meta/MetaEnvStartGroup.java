@@ -14,15 +14,17 @@ import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 
 public class MetaEnvStartGroup {
 
-	public MetaEnvDC dc;
+	Metadata meta;
+	public MetaEnvStartInfo startInfo;
 	
 	public String NAME;
 	public String SERVERS;
 	public List<MetaEnvServer> servers;
 	public Map<String,MetaEnvServer> serverMap;
 	
-	public MetaEnvStartGroup( MetaEnvDC dc ) {
-		this.dc = dc;
+	public MetaEnvStartGroup( Metadata meta , MetaEnvStartInfo startInfo ) {
+		this.meta = meta;
+		this.startInfo = startInfo;
 	}
 
 	public void load( ActionBase action , Node node ) throws Exception {
@@ -33,7 +35,7 @@ public class MetaEnvStartGroup {
 		SERVERS = ConfReader.getAttrValue( action , node , "servers" );
 		
 		for( String name : Common.splitSpaced( SERVERS ) ) {
-			MetaEnvServer server = dc.getServer( action , name );
+			MetaEnvServer server = startInfo.dc.getServer( action , name );
 			servers.add( server );
 			serverMap.put( server.NAME , server );
 			server.setStartGroup( action , this );

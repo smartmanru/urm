@@ -12,12 +12,14 @@ import ru.egov.urm.action.ActionBase;
 
 public class MetaEnvStartInfo {
 
+	Metadata meta;
 	public MetaEnvDC dc;
 	
 	Map<String,MetaEnvStartGroup> groupMap;
 	List<MetaEnvStartGroup> groups;
 	
-	public MetaEnvStartInfo( MetaEnvDC dc ) {
+	public MetaEnvStartInfo( Metadata meta , MetaEnvDC dc ) {
+		this.meta = meta;
 		this.dc = dc;
 	}
 	
@@ -30,7 +32,7 @@ public class MetaEnvStartInfo {
 			return;
 		
 		for( Node sgnode : items ) {
-			MetaEnvStartGroup sg = new MetaEnvStartGroup( dc );
+			MetaEnvStartGroup sg = new MetaEnvStartGroup( meta , this );
 			sg.load( action , sgnode );
 			groupMap.put( sg.NAME , sg );
 			groups.add( sg );

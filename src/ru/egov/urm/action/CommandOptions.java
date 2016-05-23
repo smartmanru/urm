@@ -121,6 +121,8 @@ public class CommandOptions {
 		defineOption( CommandVar.newParam( "buildinfo" , "GETOPT_BUILDINFO" , "use given build info parameter" ) );
 		defineOption( CommandVar.newParam( "hostuser" , "GETOPT_HOSTUSER" , "use given user when connecting to host" ) );
 		defineOption( CommandVar.newParam( "newkey" , "GETOPT_NEWKEY" , "use given key to change on host" ) );
+		defineOption( CommandVar.newParam( "mode" , "GETOPT_BUILDMODE" , "use given build mode (branch, trunk, major, devbranch, devtrunk)" ) );
+		defineOption( CommandVar.newParam( "over" , "GETOPT_OLDRELEASE" , "previous release installed" ) );
 	}
 
 	public String getMetaPath( ActionBase action ) throws Exception {
@@ -206,6 +208,8 @@ public class CommandOptions {
 		ctx.CTX_BUILDINFO = getParamValue( action , "GETOPT_BUILDINFO" );
 		ctx.CTX_HOSTUSER = getParamValue( action , "GETOPT_HOSTUSER" );
 		ctx.CTX_NEWKEY = getParamValue( action , "GETOPT_NEWKEY" );
+		ctx.CTX_BUILDMODE = action.meta.getBuildMode( action , getParamValue( action , "GETOPT_BUILDMODE" ) );
+		ctx.CTX_OLDRELEASE = getParamValue( action , "GETOPT_OLDRELEASE" );
 		
 		action.setTimeout( ctx.CTX_COMMANDTIMEOUT );
 		

@@ -3,7 +3,6 @@ package ru.egov.urm.action.release;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScope;
 import ru.egov.urm.action.build.BuildCommand;
-import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
 import ru.egov.urm.storage.DistStorage;
 
@@ -17,8 +16,13 @@ public class ReleaseCommand {
 		ma.runSimple();
 	}
 	
-	public void createRelease( ActionBase action , String RELEASELABEL , VarBUILDMODE BUILDMODE ) throws Exception {
-		ActionCreateRelease ma = new ActionCreateRelease( action , null , RELEASELABEL , BUILDMODE );
+	public void createRelease( ActionBase action , String RELEASELABEL ) throws Exception {
+		ActionCreateRelease ma = new ActionCreateRelease( action , null , RELEASELABEL );
+		ma.runSimple();
+	}
+
+	public void modifyRelease( ActionBase action , DistStorage dist ) throws Exception {
+		ActionModifyRelease ma = new ActionModifyRelease( action , null , dist );
 		ma.runSimple();
 	}
 

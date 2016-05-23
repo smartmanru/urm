@@ -71,7 +71,7 @@ public class MetaMonitoring {
 			return;
 		
 		for( Node deliveryNode : items ) {
-			MetaMonitoringTarget item = new MetaMonitoringTarget( meta );
+			MetaMonitoringTarget item = new MetaMonitoringTarget( meta , this );
 			item.loadEnv( action , deliveryNode );
 			mapEnvs.put( item.NAME , item );
 		}

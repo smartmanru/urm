@@ -11,13 +11,15 @@ import ru.egov.urm.action.ActionBase;
 
 public class MetaEnvServerBase {
 
+	Metadata meta;
 	public MetaEnvServer server;
 
 	public String ID;
 	public Map<String,MetaEnvServerPrepareApp> prepareMap;
 	public PropertySet properties;
 	
-	public MetaEnvServerBase( MetaEnvServer server ) {
+	public MetaEnvServerBase( Metadata meta , MetaEnvServer server ) {
+		this.meta = meta;
 		this.server = server;
 	}
 
@@ -40,7 +42,7 @@ public class MetaEnvServerBase {
 			return;
 		
 		for( Node snnode : items ) {
-			MetaEnvServerPrepareApp sn = new MetaEnvServerPrepareApp( this );
+			MetaEnvServerPrepareApp sn = new MetaEnvServerPrepareApp( meta , this );
 			sn.load( action , snnode );
 			prepareMap.put( sn.APP , sn );
 		}

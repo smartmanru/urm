@@ -15,7 +15,7 @@ public class ActionCopyRelease extends ActionBase {
 	}
 
 	@Override protected boolean executeSimple() throws Exception {
-		DistStorage dst = artefactory.createDistStorage( this , RELEASEDST , src.info.PROPERTY_BUILDMODE );
+		DistStorage dst = artefactory.createDistStorage( this , RELEASEDST );
 		dst.copyRelease( this , src );
 		return( true );
 	}

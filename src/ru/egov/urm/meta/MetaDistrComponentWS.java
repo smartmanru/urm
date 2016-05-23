@@ -8,11 +8,14 @@ import ru.egov.urm.action.ActionBase;
 public class MetaDistrComponentWS {
 
 	Metadata meta;
+	MetaDistrComponent comp;
+	
 	public String URL;
 	boolean OBSOLETE;
 	
-	public MetaDistrComponentWS( Metadata meta ) {
+	public MetaDistrComponentWS( Metadata meta , MetaDistrComponent comp ) {
 		this.meta = meta;
+		this.comp = comp;
 	}
 
 	public void load( ActionBase action , Node node ) throws Exception {

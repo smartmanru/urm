@@ -8,12 +8,14 @@ import ru.egov.urm.action.ActionBase;
 
 public class MetaEnvServerPrepareApp {
 
+	Metadata meta;
 	public MetaEnvServerBase base;
 
 	public String APP;
 	public PropertySet properties;
 	
-	public MetaEnvServerPrepareApp( MetaEnvServerBase base ) {
+	public MetaEnvServerPrepareApp( Metadata meta , MetaEnvServerBase base ) {
+		this.meta = meta;
 		this.base = base;
 	}
 	

@@ -166,7 +166,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		DatabaseScriptFile dsf = new DatabaseScriptFile();
 		dsf.setDistFile( this , file );
 		
-		MetaDatabaseSchema schema = meta.distr.database.getSchema( this , dsf.SRCSCHEMA );
+		MetaDatabaseSchema schema = meta.database.getSchema( this , dsf.SRCSCHEMA );
 		if( !schemaSet.containsKey( schema.SCHEMA ) ) {
 			trace( "script " + file + " is filtered by schema" );
 			return( false );
@@ -223,7 +223,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		DatabaseScriptFile dsf = new DatabaseScriptFile();
 		dsf.setDistFile( this , file );
 		String schemaName = dsf.SRCSCHEMA;
-		MetaDatabaseSchema schema = meta.distr.database.getSchema( this , schemaName );
+		MetaDatabaseSchema schema = meta.database.getSchema( this , schemaName );
 		if( !client.applyScript( this , schema , logReleaseExecute , file , logReleaseExecute , log ) ) {
 			exit( "error applying script " + file + ", see logs" );
 			if( !context.CTX_FORCE )

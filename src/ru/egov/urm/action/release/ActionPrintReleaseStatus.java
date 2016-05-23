@@ -31,8 +31,9 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		comment( "\tlocation: " + meta.product.CONFIG_DISTR_HOSTLOGIN + ":" + dist.getDistPath( this ) );
 		comment( "\tstate: " + dist.getState( this ) );
 		comment( "\tversion: " + release.RELEASEVER );
-		comment( "\tproperty::buildMode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );
-		comment( "\tproperty::obsolete: " + Common.getBooleanValue( release.PROPERTY_OBSOLETE ) );
+		comment( "PROPERTIES:" );
+		comment( "\tproperty=buildMode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );
+		comment( "\tproperty=obsolete: " + Common.getBooleanValue( release.PROPERTY_OBSOLETE ) );
 		
 		comment( "SCOPE:" );
 

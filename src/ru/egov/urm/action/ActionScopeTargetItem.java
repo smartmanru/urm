@@ -62,7 +62,7 @@ public class ActionScopeTargetItem {
 			BUILDVERSION = releaseItem.BUILDVERSION;
 			
 			if( BUILDVERSION.isEmpty() )
-				BUILDVERSION = releaseItem.releaseProject.BUILDVERSION;
+				BUILDVERSION = releaseItem.target.BUILDVERSION;
 		}
 		
 		if( BUILDVERSION.isEmpty() )

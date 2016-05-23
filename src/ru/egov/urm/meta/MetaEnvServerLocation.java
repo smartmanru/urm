@@ -32,6 +32,7 @@ public class MetaEnvServerLocation {
 		}
 	}
 	
+	Metadata meta;
 	MetaEnvServer server;
 	
 	public VarDEPLOYTYPE DEPLOYTYPE;
@@ -42,7 +43,8 @@ public class MetaEnvServerLocation {
 	private List<ConfDeploymentPair> confItems;
 	private List<MetaEnvServerDeployment> deployments;
 	
-	public MetaEnvServerLocation( MetaEnvServer server , VarDEPLOYTYPE DEPLOYTYPE , String DEPLOYPATH ) {
+	public MetaEnvServerLocation( Metadata meta , MetaEnvServer server , VarDEPLOYTYPE DEPLOYTYPE , String DEPLOYPATH ) {
+		this.meta = meta;
 		this.server = server;
 		this.DEPLOYTYPE = DEPLOYTYPE;
 		this.DEPLOYPATH = DEPLOYPATH;

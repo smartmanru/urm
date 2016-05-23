@@ -7,6 +7,7 @@ import ru.egov.urm.action.ActionBase;
 
 public class MetaMonitoringItem {
 
+	Metadata meta;
 	MetaMonitoringTarget target;
 	
 	public String NAME;
@@ -18,7 +19,8 @@ public class MetaMonitoringItem {
 	public String WSDATA;
 	public String WSCHECK;
 	
-	public MetaMonitoringItem( MetaMonitoringTarget target ) {
+	public MetaMonitoringItem( Metadata meta , MetaMonitoringTarget target ) {
+		this.meta = meta; 
 		this.target = target;
 	}
 

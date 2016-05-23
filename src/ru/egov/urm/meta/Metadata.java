@@ -1,5 +1,6 @@
 package ru.egov.urm.meta;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ru.egov.urm.Common;
@@ -8,7 +9,9 @@ import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.storage.MetadataStorage;
 
 public class Metadata {
+	
 	public MetaProduct product;
+	public MetaDatabase database;
 	public MetaDistr distr;
 	public MetaSource sources;
 	
@@ -188,10 +191,26 @@ public class Metadata {
 	
 	public void loadDistr( ActionBase action ) throws Exception {
 		distr = new MetaDistr( this );
-		MetadataStorage storage = action.artefactory.getMetadataStorage( action ); 
-		distr.load( action , storage );
+		MetadataStorage storage = action.artefactory.getMetadataStorage( action );
+		
+		// read xml
+		String file = storage.getDistrFile( action );
+		
+		action.debug( "read distributive definition file " + file + "..." );
+		Document doc = ConfReader.readXmlFile( action , file );
+		Node root = doc.getDocumentElement();
+		
+		loadDatabase( action , ConfReader.xmlGetPathNode( action , root , "distributive/database" ) );
+		
+		distr.load( action , root );
 	}
 
+	public void loadDatabase( ActionBase action , Node node ) throws Exception {
+		database = new MetaDatabase( this );
+		if( node != null )
+			database.load( action , node );
+	}
+	
 	public MetaEnv loadEnvData( ActionBase action , String envFile , boolean loadProps ) throws Exception {
 		if( envFile.isEmpty() )
 			action.exit( "environment file name is empty" );
@@ -352,6 +371,21 @@ public class Metadata {
 		
 		if( value == null )
 			action.exit( "unknown distributive item source=" + ID );
+		
+		return( value );
+	}
+	
+	public VarBUILDMODE getBuildMode( ActionBase action , String ID ) throws Exception {
+		VarBUILDMODE value = null;
+		try {
+			value = VarBUILDMODE.valueOf( Common.xmlToEnumValue( ID ) );
+		}
+		catch( IllegalArgumentException e ) {
+			action.exit( "invalid build mode=" + ID );
+		}
+		
+		if( value == null )
+			action.exit( "unknown build mode=" + ID );
 		
 		return( value );
 	}

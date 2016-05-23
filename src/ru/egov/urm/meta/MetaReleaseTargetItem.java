@@ -12,8 +12,8 @@ import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 public class MetaReleaseTargetItem {
 
 	Metadata meta;
+	public MetaReleaseTarget target;
 	
-	public MetaReleaseTarget releaseProject;
 	public MetaSourceProjectItem sourceItem;
 	public MetaDistrBinaryItem distItem;
 	public String NAME = "";
@@ -21,16 +21,28 @@ public class MetaReleaseTargetItem {
 	
 	public String DISTFILE;
 
-	public MetaReleaseTargetItem( Metadata meta ) {
+	public MetaReleaseTargetItem( Metadata meta , MetaReleaseTarget target ) {
 		this.meta = meta;
+		this.target = target;
 	}
 
+	public MetaReleaseTargetItem copy( ActionBase action , MetaRelease nr , MetaReleaseSet ns , MetaReleaseTarget nt ) throws Exception {
+		MetaReleaseTargetItem nx = new MetaReleaseTargetItem( meta , nt );
+		
+		nx.sourceItem = sourceItem;
+		nx.distItem = distItem;
+		nx.NAME = NAME;
+		nx.BUILDVERSION = BUILDVERSION;
+		
+		return( nx );
+	}
+	
 	public void setDistFile( ActionBase action , String DISTFILE ) throws Exception {
 		this.DISTFILE = DISTFILE;
 	}
 	
 	public String getId() {
-		return( releaseProject.NAME + ":" + distItem.KEY );
+		return( target.NAME + ":" + distItem.KEY );
 	}
 	
 	public boolean checkPropsEqualsToOptions( ActionBase action ) throws Exception {
@@ -47,24 +59,21 @@ public class MetaReleaseTargetItem {
 		return( distItem.delivery );
 	}
 	
-	public void load( ActionBase action , Node node , MetaReleaseTarget releaseProject ) throws Exception {
-		this.releaseProject = releaseProject;
+	public void loadSourceItem( ActionBase action , Node node ) throws Exception {
 		NAME = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
 		BUILDVERSION = ConfReader.getAttrValue( action , node , "BUILDVERSION" );
-		this.sourceItem = releaseProject.sourceProject.getItem( action , NAME );
+		this.sourceItem = target.sourceProject.getItem( action , NAME );
 		this.distItem = sourceItem.distItem;
 	}
 	
-	public void createFromProjectItem( ActionBase action , MetaReleaseTarget releaseProject , MetaSourceProjectItem projectItem ) {
-		this.releaseProject = releaseProject;
+	public void createFromSourceItem( ActionBase action , MetaSourceProjectItem projectItem ) {
 		this.sourceItem = projectItem;
 		this.distItem = sourceItem.distItem;
 		NAME = sourceItem.ITEMNAME;
 		BUILDVERSION = "";
 	}
 	
-	public void createFromDistrItem( ActionBase action , MetaReleaseTarget releaseProject , MetaDistrBinaryItem distItem ) {
-		this.releaseProject = releaseProject;
+	public void createFromDistrItem( ActionBase action , MetaDistrBinaryItem distItem ) {
 		this.distItem = distItem;
 		NAME = distItem.KEY;
 		BUILDVERSION = "";

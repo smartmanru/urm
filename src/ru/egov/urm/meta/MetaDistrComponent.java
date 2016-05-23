@@ -14,6 +14,7 @@ import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 public class MetaDistrComponent {
 
 	Metadata meta;
+	MetaDistr dist;
 
 	public String NAME;
 	public String UNIT;
@@ -23,8 +24,9 @@ public class MetaDistrComponent {
 	Map<String,MetaDistrComponentItem> mapConfItems;
 	List<MetaDistrComponentWS> listWS;
 	
-	public MetaDistrComponent( Metadata meta ) {
+	public MetaDistrComponent( Metadata meta , MetaDistr dist ) {
 		this.meta = meta;
+		this.dist = dist;
 	}
 
 	public void load( ActionBase action , Node node ) throws Exception {
@@ -39,7 +41,7 @@ public class MetaDistrComponent {
 		Node[] items = ConfReader.xmlGetChildren( action , node , "distitem" );
 		if( items != null ) {
 			for( Node itemNode : items ) {
-				MetaDistrComponentItem item = new MetaDistrComponentItem( meta );
+				MetaDistrComponentItem item = new MetaDistrComponentItem( meta , this );
 				item.loadBinary( action , itemNode );
 				mapBinaryItems.put( item.binaryItem.KEY , item );
 			}
@@ -48,7 +50,7 @@ public class MetaDistrComponent {
 		items = ConfReader.xmlGetChildren( action , node , "confitem" );
 		if( items != null ) {
 			for( Node itemNode : items ) {
-				MetaDistrComponentItem item = new MetaDistrComponentItem( meta );
+				MetaDistrComponentItem item = new MetaDistrComponentItem( meta , this );
 				item.loadConf( action , itemNode );
 				mapConfItems.put( item.confItem.KEY , item );
 			}
@@ -59,7 +61,7 @@ public class MetaDistrComponent {
 			return;
 		
 		for( Node itemNode : items ) {
-			MetaDistrComponentWS item = new MetaDistrComponentWS( meta );
+			MetaDistrComponentWS item = new MetaDistrComponentWS( meta , this );
 			item.load( action , itemNode );
 			listWS.add( item );
 		}

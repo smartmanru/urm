@@ -12,6 +12,8 @@ import ru.egov.urm.action.ActionBase;
 public class MetaMonitoringTarget {
 
 	Metadata meta;
+	MetaMonitoring monitoring;
+	
 	public String NAME;
 	
 	public String HOME;
@@ -24,8 +26,9 @@ public class MetaMonitoringTarget {
 	private List<MetaMonitoringItem> listUrls;
 	private List<MetaMonitoringItem> listWS;
 
-	public MetaMonitoringTarget( Metadata meta ) {
+	public MetaMonitoringTarget( Metadata meta , MetaMonitoring monitoring ) {
 		this.meta = meta;
+		this.monitoring = monitoring;
 	}
 
 	public List<MetaMonitoringItem> getUrlsList( ActionBase action ) throws Exception {
@@ -59,7 +62,7 @@ public class MetaMonitoringTarget {
 			return;
 		
 		for( Node checkNode : items ) {
-			MetaMonitoringItem item = new MetaMonitoringItem( this );
+			MetaMonitoringItem item = new MetaMonitoringItem( meta , this );
 			item.loadUrl( action , checkNode );
 			listUrls.add( item );
 		}
@@ -73,7 +76,7 @@ public class MetaMonitoringTarget {
 			return;
 		
 		for( Node checkNode : items ) {
-			MetaMonitoringItem item = new MetaMonitoringItem( this );
+			MetaMonitoringItem item = new MetaMonitoringItem( meta , this );
 			item.loadUrl( action , checkNode );
 			listWS.add( item );
 		}

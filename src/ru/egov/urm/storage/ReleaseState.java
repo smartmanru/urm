@@ -8,7 +8,6 @@ import java.util.Map;
 import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaRelease;
-import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.shell.ShellExecutor;
 
 public class ReleaseState {
@@ -184,7 +183,7 @@ public class ReleaseState {
 		}
 	}
 
-	public void ctlCreate( ActionBase action , VarBUILDMODE BUILDMODE ) throws Exception {
+	public void ctlCreate( ActionBase action ) throws Exception {
 		// create release.xml, create status file, set closed dirty state
 		// check current status
 		ctlLoadReleaseState( action );
@@ -202,7 +201,7 @@ public class ReleaseState {
 		String RELEASEVER = Common.getPartBeforeFirst( RELEASEDIR , "-" );
 		
 		MetaRelease info = new MetaRelease( action.meta );
-		info.create( action , RELEASEVER , BUILDMODE , filePath , false );
+		info.create( action , RELEASEVER , filePath );
 		distFolder.copyFileFromLocal( action , filePath );
 		
 		// set status

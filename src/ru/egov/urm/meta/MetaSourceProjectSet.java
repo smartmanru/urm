@@ -18,6 +18,7 @@ public class MetaSourceProjectSet {
 	boolean loaded = false;
 	
 	Metadata meta;
+	MetaSource source;
 
 	public VarCATEGORY CATEGORY;
 	public String NAME;
@@ -25,8 +26,9 @@ public class MetaSourceProjectSet {
 	List<MetaSourceProject> originalList;
 	Map<String,MetaSourceProject> map;
 	
-	public MetaSourceProjectSet( Metadata meta ) {
+	public MetaSourceProjectSet( Metadata meta , MetaSource source ) {
 		this.meta = meta;
+		this.source = source;
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {

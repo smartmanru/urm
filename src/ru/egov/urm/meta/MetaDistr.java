@@ -5,12 +5,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.action.ActionBase;
-import ru.egov.urm.storage.MetadataStorage;
 
 public class MetaDistr {
 
@@ -22,34 +20,20 @@ public class MetaDistr {
 	private Map<String,MetaDistrConfItem> mapConfItems;
 	private Map<String,MetaDistrComponent> mapComps;
 	
-	public MetaDatabase database;
-	
 	public MetaDistr( Metadata meta ) {
 		this.meta = meta;
 	}
 	
-	public void load( ActionBase action , MetadataStorage storage ) throws Exception {
+	public void load( ActionBase action , Node root ) throws Exception {
 		if( loaded )
 			return;
 
 		loaded = true;
 		
-		// read xml
-		String file = storage.getDistrFile( action );
-		
-		action.debug( "read distributive definition file " + file + "..." );
-		Document doc = ConfReader.readXmlFile( action , file );
-		loadDatabase( action , ConfReader.xmlGetPathNode( action , doc.getDocumentElement() , "distributive/database" ) );
-		loadDeliveries( action , ConfReader.xmlGetPathNode( action , doc.getDocumentElement() , "distributive" ) );
-		loadComponents( action , ConfReader.xmlGetPathNode( action , doc.getDocumentElement() , "deployment" ) );
+		loadDeliveries( action , ConfReader.xmlGetPathNode( action , root , "distributive" ) );
+		loadComponents( action , ConfReader.xmlGetPathNode( action , root , "deployment" ) );
 	}
 	
-	public void loadDatabase( ActionBase action , Node node ) throws Exception {
-		database = new MetaDatabase( meta );
-		if( node != null )
-			database.load( action , node );
-	}
-
 	public void loadDeliveries( ActionBase action , Node node ) throws Exception {
 		mapDeliveries = new HashMap<String,MetaDistrDelivery>();
 		mapBinaryItems = new HashMap<String,MetaDistrBinaryItem>();
@@ -62,7 +46,7 @@ public class MetaDistr {
 			return;
 		
 		for( Node deliveryNode : items ) {
-			MetaDistrDelivery item = new MetaDistrDelivery( meta );
+			MetaDistrDelivery item = new MetaDistrDelivery( meta , this );
 			item.load( action , deliveryNode );
 			mapDeliveries.put( item.NAME , item );
 			mapBinaryItems.putAll( item.getBinaryItems( action ) );
@@ -84,7 +68,7 @@ public class MetaDistr {
 			return;
 		
 		for( Node compNode : items ) {
-			MetaDistrComponent item = new MetaDistrComponent( meta );
+			MetaDistrComponent item = new MetaDistrComponent( meta , this );
 			item.load( action , compNode );
 			mapComps.put( item.NAME , item );
 		}

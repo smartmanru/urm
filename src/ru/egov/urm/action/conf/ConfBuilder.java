@@ -14,7 +14,6 @@ import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.MetaReleaseDelivery;
 import ru.egov.urm.meta.MetaReleaseTarget;
-import ru.egov.urm.meta.MetaSourceFolder;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.storage.Artefactory;
 import ru.egov.urm.storage.DistStorage;
@@ -48,8 +47,9 @@ public class ConfBuilder {
 		LocalFolder prodFolder = artefactory.getWorkFolder( action , "prod.delivery.conf" );
 		prodFolder.recreateThis( action );
 		SourceStorage storage = artefactory.getSourceStorage( action , prodFolder );
+		
 		for( MetaReleaseTarget releaseComp : delivery.getConfItems( action ).values() ) {
-			MetaSourceFolder sourceFolder = new MetaSourceFolder( meta );
+			ConfSourceFolder sourceFolder = new ConfSourceFolder( meta );
 			sourceFolder.createReleaseConfigurationFolder( action , releaseComp );
 			storage.downloadProductConfigItem( action , sourceFolder , prodFolder );
 		}

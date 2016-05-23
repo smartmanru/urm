@@ -19,6 +19,7 @@ import ru.egov.urm.shell.Account;
 
 public class MetaEnvServer {
 
+	Metadata meta;
 	public MetaEnvDC dc;
 	
 	public String NAME;
@@ -76,7 +77,8 @@ public class MetaEnvServer {
 	public boolean primary;
 	public MetaEnvStartGroup startGroup;
 	
-	public MetaEnvServer( MetaEnvDC dc ) {
+	public MetaEnvServer( Metadata meta , MetaEnvDC dc ) {
+		this.meta = meta;
 		this.dc = dc;
 		this.primary = false;
 	}
@@ -144,7 +146,7 @@ public class MetaEnvServer {
 		// verify aligned
 		if( isDatabase( action ) ) {
 			for( String id : Common.splitSpaced( ALIGNED ) )
-				action.meta.distr.database.checkAligned( action , id );
+				action.meta.database.checkAligned( action , id );
 		}
 	}
 	
@@ -224,7 +226,7 @@ public class MetaEnvServer {
 			ADMSCHEMA = properties.getSystemStringProperty( action , "admschema" , "" );
 			
 			if( action.meta.distr != null ) {
-				MetaDatabase database = action.meta.distr.database;
+				MetaDatabase database = action.meta.database;
 				for( String dg : Common.splitSpaced( DATAGROUPS ) ) {
 					MetaDatabaseDatagroup datagroup = database.getDatagroup( action , dg );
 					datagroupMap.put( datagroup.NAME , datagroup );
@@ -246,7 +248,7 @@ public class MetaEnvServer {
 		
 		int pos = 1;
 		for( Node snnode : items ) {
-			MetaEnvServerNode sn = new MetaEnvServerNode( this , pos );
+			MetaEnvServerNode sn = new MetaEnvServerNode( meta , this , pos );
 			sn.load( action , snnode , loadProps );
 			nodes.add( sn );
 			pos++;
@@ -258,7 +260,7 @@ public class MetaEnvServer {
 		if( item == null )
 			return;
 		
-		base = new MetaEnvServerBase( this );
+		base = new MetaEnvServerBase( meta , this );
 		base.load( action , item );
 	}
 		
@@ -270,7 +272,7 @@ public class MetaEnvServer {
 			return;
 		
 		for( Node dpnode : items ) {
-			MetaEnvServerDeployment dp = new MetaEnvServerDeployment( this );
+			MetaEnvServerDeployment dp = new MetaEnvServerDeployment( meta , this );
 			dp.load( action , dpnode );
 			deployments.add( dp );
 		}
@@ -438,7 +440,7 @@ public class MetaEnvServer {
 				if( binary ) {
 					MetaEnvServerLocation location = locations.get( key ); 
 					if( location == null ) {
-						location = new MetaEnvServerLocation( this , deployType , deployPath );
+						location = new MetaEnvServerLocation( meta , this , deployType , deployPath );
 						locations.put( key , location );
 					}
 					location.addBinaryItem( action , deployment , deployment.binaryItem , "" );
@@ -449,7 +451,7 @@ public class MetaEnvServer {
 				if( conf ) {
 					MetaEnvServerLocation location = locations.get( key ); 
 					if( location == null ) {
-						location = new MetaEnvServerLocation( this , deployType , deployPath );
+						location = new MetaEnvServerLocation( meta , this , deployType , deployPath );
 						locations.put( key , location );
 					}
 					location.addConfItem( action , deployment , deployment.confItem );
@@ -460,7 +462,7 @@ public class MetaEnvServer {
 				if( binary && deployment.comp.hasBinaryItems( action ) ) {
 					MetaEnvServerLocation location = locations.get( key ); 
 					if( location == null ) {
-						location = new MetaEnvServerLocation( this , deployType , deployPath );
+						location = new MetaEnvServerLocation( meta , this , deployType , deployPath );
 						locations.put( key , location );
 					}
 					
@@ -473,7 +475,7 @@ public class MetaEnvServer {
 				if( conf && deployment.comp.hasConfItems( action ) ) {
 					MetaEnvServerLocation location = locations.get( key ); 
 					if( location == null ) {
-						location = new MetaEnvServerLocation( this , deployType , deployPath );
+						location = new MetaEnvServerLocation( meta , this , deployType , deployPath );
 						locations.put( key , location );
 					}
 					

@@ -9,6 +9,7 @@ import ru.egov.urm.shell.Account;
 
 public class MetaEnvServerNode {
 
+	Metadata meta;
 	public MetaEnvServer server;
 	
 	public int POS;
@@ -22,7 +23,8 @@ public class MetaEnvServerNode {
 	
 	public PropertySet properties;
 	
-	public MetaEnvServerNode( MetaEnvServer server , int POS ) {
+	public MetaEnvServerNode( Metadata meta , MetaEnvServer server , int POS ) {
+		this.meta = meta;
 		this.server = server;
 		this.POS = POS;
 	}

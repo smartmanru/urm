@@ -3,6 +3,7 @@ package ru.egov.urm.meta;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -19,6 +20,7 @@ public class MetaReleaseTarget {
 
 	Metadata meta;
 	public MetaReleaseSet set;
+	public VarCATEGORY CATEGORY;
 
 	public boolean ALL;
 	public String NAME = "";
@@ -27,7 +29,6 @@ public class MetaReleaseTarget {
 	public String BUILDTAG = ""; 
 	public String BUILDVERSION = "";
 	
-	public VarCATEGORY CATEGORY;
 	public MetaSourceProject sourceProject;
 	public MetaDistrConfItem distConfItem;
 	public MetaDistrDelivery distDatabaseItem;
@@ -37,10 +38,33 @@ public class MetaReleaseTarget {
 	
 	public String DISTFILE;
 
-	public MetaReleaseTarget( MetaReleaseSet set , VarCATEGORY CATEGORY ) {
+	public MetaReleaseTarget( Metadata meta , MetaReleaseSet set , VarCATEGORY CATEGORY ) {
+		this.meta = meta;
 		this.set = set;
-		this.meta = set.meta;
 		this.CATEGORY = CATEGORY;
+	}
+
+	public MetaReleaseTarget copy( ActionBase action , MetaRelease nr , MetaReleaseSet ns ) throws Exception {
+		MetaReleaseTarget nx = new MetaReleaseTarget( meta , ns , CATEGORY );
+		
+		nx.ALL = ALL;
+		nx.NAME = NAME;
+		
+		nx.BUILDBRANCH = BUILDBRANCH; 
+		nx.BUILDTAG = BUILDTAG; 
+		nx.BUILDVERSION = BUILDVERSION;
+		
+		nx.sourceProject = sourceProject;
+		nx.distConfItem = distConfItem;
+		nx.distDatabaseItem = distDatabaseItem;
+		nx.distManualItem = distManualItem;
+
+		for( Entry<String,MetaReleaseTargetItem> entry : itemMap.entrySet() ) {
+			MetaReleaseTargetItem item = entry.getValue().copy( action , nr , ns , this );
+			nx.itemMap.put( entry.getKey() , item );
+		}
+		
+		return( nx );
 	}
 	
 	public void setDistFile( ActionBase action , String DISTFILE ) throws Exception {
@@ -121,8 +145,8 @@ public class MetaReleaseTarget {
 
 		ALL = false;
 		for( Node inode : items ) {
-			MetaReleaseTargetItem item = new MetaReleaseTargetItem( meta );
-			item.load( action , inode , this );
+			MetaReleaseTargetItem item = new MetaReleaseTargetItem( meta , this );
+			item.loadSourceItem( action , inode );
 			itemMap.put( item.NAME , item );
 		}
 	}
@@ -216,8 +240,8 @@ public class MetaReleaseTarget {
 		if( projectitem.INTERNAL )
 			return( null );
 		
-		MetaReleaseTargetItem item = new MetaReleaseTargetItem( meta );
-		item.createFromProjectItem( action , this , projectitem );
+		MetaReleaseTargetItem item = new MetaReleaseTargetItem( meta , this );
+		item.createFromSourceItem( action , projectitem );
 		itemMap.put( item.NAME , item );
 		return( item );
 	}
@@ -229,8 +253,8 @@ public class MetaReleaseTarget {
 	public void addAllSourceItems( ActionBase action , MetaSourceProject sourceProject ) throws Exception {
 		ALL = true;
 		if( sourceProject.distItem != null ) {
-			MetaReleaseTargetItem item = new MetaReleaseTargetItem( meta );
-			item.createFromDistrItem( action , this , sourceProject.distItem );
+			MetaReleaseTargetItem item = new MetaReleaseTargetItem( meta , this );
+			item.createFromDistrItem( action , sourceProject.distItem );
 			itemMap.put( item.NAME , item );
 			return;
 		}

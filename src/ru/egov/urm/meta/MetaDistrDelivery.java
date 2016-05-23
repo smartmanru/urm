@@ -13,6 +13,7 @@ import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 public class MetaDistrDelivery {
 
 	Metadata meta;
+	MetaDistr dist;
 	
 	public String NAME;
 	public String FOLDER;
@@ -23,8 +24,9 @@ public class MetaDistrDelivery {
 	Map<String,MetaDatabaseSchema> mapDatabaseSchema;
 	Map<String,MetaDatabaseDatagroup> mapDatabaseDatagroup;
 	
-	public MetaDistrDelivery( Metadata meta ) {
+	public MetaDistrDelivery( Metadata meta , MetaDistr dist ) {
 		this.meta = meta;
+		this.dist = dist;
 	}
 
 	public void load( ActionBase action , Node node ) throws Exception {
@@ -90,7 +92,7 @@ public class MetaDistrDelivery {
 		if( items == null )
 			return;
 		
-		MetaDatabase database = meta.distr.database;
+		MetaDatabase database = meta.database;
 		for( Node item : items ) {
 			String datagroupName = ConfReader.getAttrValue( action , item , "name" );
 			MetaDatabaseDatagroup datagroup = database.getDatagroup( action , datagroupName );

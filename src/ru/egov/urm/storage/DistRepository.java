@@ -4,7 +4,6 @@ import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.Metadata;
-import ru.egov.urm.meta.Metadata.VarBUILDMODE;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
@@ -115,7 +114,7 @@ public class DistRepository {
 		return( storage );
 	}
 
-	public DistStorage createDist( ActionBase action , String RELEASELABEL , VarBUILDMODE BUILDMODE ) throws Exception {
+	public DistStorage createDist( ActionBase action , String RELEASELABEL ) throws Exception {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 		
 		String RELEASEPATH = getReleasePathByLabel( action , RELEASELABEL );
@@ -130,7 +129,7 @@ public class DistRepository {
 				action.exit( "release already exists at " + RELEASEPATH );
 		}
 
-		storage.create( action , RELEASEVER , BUILDMODE );
+		storage.create( action , RELEASEVER );
 		return( storage );
 	}
 

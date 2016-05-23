@@ -2,11 +2,13 @@ package ru.egov.urm.meta;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import ru.egov.urm.action.ActionBase;
 
 public class MetaReleaseDelivery {
 
+	Metadata meta;
 	public MetaRelease release;
 	public MetaDistrDelivery distDelivery;
 	
@@ -15,7 +17,8 @@ public class MetaReleaseDelivery {
 	private Map<String,MetaReleaseTarget> manualItems;
 	private MetaReleaseTarget dbItem;
 	
-	public MetaReleaseDelivery( MetaRelease release , MetaDistrDelivery distDelivery ) {
+	public MetaReleaseDelivery( Metadata meta , MetaRelease release , MetaDistrDelivery distDelivery ) {
+		this.meta = meta; 
 		this.release = release;
 		this.distDelivery = distDelivery;
 		
@@ -23,6 +26,37 @@ public class MetaReleaseDelivery {
 		confItems = new HashMap<String,MetaReleaseTarget>();
 		manualItems = new HashMap<String,MetaReleaseTarget>();
 		dbItem = null;
+	}
+
+	public MetaReleaseDelivery copy( ActionBase action , MetaRelease nr ) throws Exception {
+		MetaReleaseDelivery nx = new MetaReleaseDelivery( meta , nr , distDelivery );
+		
+		for( Entry<String,MetaReleaseTargetItem> entry : projectItems.entrySet() ) {
+			MetaReleaseTargetItem src = entry.getValue();
+			MetaReleaseSet srcSet = src.target.set;
+			MetaReleaseSet dstSet = nr.getSourceSet( action , srcSet.NAME );
+			MetaReleaseTarget dstTarget = dstSet.getTarget( action , src.NAME );
+			MetaReleaseTargetItem dst = dstTarget.getItem( action , src.NAME );
+			nx.projectItems.put( entry.getKey() , dst );
+		}
+		
+		for( Entry<String,MetaReleaseTarget> entry : confItems.entrySet() ) {
+			MetaReleaseTarget src = entry.getValue();
+			MetaReleaseSet dstSet = nr.getCategorySet( action , src.set.CATEGORY );
+			MetaReleaseTarget dst = dstSet.getTarget( action , src.NAME );
+			nx.confItems.put( entry.getKey() , dst );
+		}
+		
+		for( Entry<String,MetaReleaseTarget> entry : manualItems.entrySet() ) {
+			MetaReleaseTarget src = entry.getValue();
+			MetaReleaseSet dstSet = nr.getCategorySet( action , src.set.CATEGORY );
+			MetaReleaseTarget dst = dstSet.getTarget( action , src.NAME );
+			nx.manualItems.put( entry.getKey() , dst );
+		}
+		
+		nx.dbItem = dbItem;
+		
+		return( nx );
 	}
 	
 	public void addTargetItem( ActionBase action , MetaReleaseTargetItem item ) throws Exception {
