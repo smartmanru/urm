@@ -8,6 +8,8 @@ import ru.egov.urm.meta.Metadata;
 
 public class HiddenFiles {
 
+	public static String SECRETPROPERTYFILE = "secret.properties";
+	
 	Artefactory artefactory;
 	Metadata meta;
 	
@@ -16,6 +18,12 @@ public class HiddenFiles {
 		this.meta = artefactory.meta;
 	}
 
+	public String getSecretPropertyFile( ActionBase action ) throws Exception {
+		if( action.context.CTX_HIDDENPATH.isEmpty() )
+			return( "" );
+		return( Common.getPath( action.context.CTX_HIDDENPATH , SECRETPROPERTYFILE ) );
+	}
+	
 	public boolean copyHiddenConf( ActionBase action , MetaEnvServer server , MetaDistrConfItem confItem , LocalFolder folder ) throws Exception {
 		if( !action.context.CTX_HIDDEN ) {
 			action.debug( "ignore hidden files without option" );

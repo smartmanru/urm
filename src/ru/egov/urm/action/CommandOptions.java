@@ -153,10 +153,10 @@ public class CommandOptions {
 		ctx.CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? action.context.env.KEYNAME : "" ) : value;
 		String productValue = ( isproduct )? action.meta.product.CONFIG_DISTR_PATH : "";
 		ctx.CTX_DISTPATH = getParamPathValue( action , "GETOPT_DISTPATH" , productValue );
-		value = getParamPathValue( action , "GETOPT_HIDDENPATH" );
 		ctx.CTX_REDISTPATH = ( isproduct )? action.meta.product.CONFIG_REDISTPATH : null;
 		if( isenv && !action.context.env.REDISTPATH.isEmpty() )
 			ctx.CTX_REDISTPATH = action.context.env.REDISTPATH;
+		value = getParamPathValue( action , "GETOPT_HIDDENPATH" );
 		ctx.CTX_HIDDENPATH = ( value.isEmpty() )? ( ( isenv )? action.context.env.CONF_SECRETFILESPATH : "" ) : value;
 		ctx.CTX_WORKPATH = getParamPathValue( action , "GETOPT_WORKPATH" , "" );
 		

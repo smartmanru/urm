@@ -13,6 +13,7 @@ import ru.egov.urm.ConfReader;
 import ru.egov.urm.PropertySet;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.CommandOptions.FLAG;
+import ru.egov.urm.storage.HiddenFiles;
 import ru.egov.urm.storage.MetadataStorage;
 
 public class MetaEnv {
@@ -46,8 +47,6 @@ public class MetaEnv {
 	public FLAG CONF_DEPLOY;
 	public FLAG CONF_KEEPALIVE;
 
-	public static String SECRETPROPERTYFILE = "secret.properties";
-	
 	List<MetaEnvDC> originalList;
 	Map<String,MetaEnvDC> dcMap;
 	
@@ -100,11 +99,13 @@ public class MetaEnv {
 	}
 
 	private void loadSecretProperties( ActionBase action ) throws Exception {
-		if( !action.context.CTX_HIDDENPATH.isEmpty() ) {
-			String propFile = Common.getPath( action.context.CTX_HIDDENPATH , SECRETPROPERTYFILE );
-			secretProperties.loadRawFromFile( action , propFile );
-			secretProperties.moveRawAsStrings( action );
-		}
+		HiddenFiles hidden = action.artefactory.getHiddenFiles();
+		String propFile = hidden.getSecretPropertyFile( action );
+		if( propFile.isEmpty() )
+			return;
+		
+		secretProperties.loadRawFromFile( action , propFile );
+		secretProperties.moveRawAsStrings( action );
 	}
 	
 	public String[] getPropertyList( ActionBase action ) throws Exception {
