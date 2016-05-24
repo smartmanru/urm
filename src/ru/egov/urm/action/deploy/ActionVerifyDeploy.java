@@ -8,6 +8,10 @@ import ru.egov.urm.action.ActionScope;
 import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.ActionScopeTargetItem;
 import ru.egov.urm.action.conf.ConfDiffSet;
+import ru.egov.urm.action.database.DatabaseClient;
+import ru.egov.urm.action.database.DatabaseRegistry;
+import ru.egov.urm.action.database.DatabaseRegistryRelease;
+import ru.egov.urm.action.database.DatabaseRegistryRelease.RELEASE_STATE;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServer;
@@ -82,6 +86,37 @@ public class ActionVerifyDeploy extends ActionBase {
 	
 	private void executeServer( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
+		
+		log( "============================================ execute server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
+
+		if( server.isDatabase( this ) )
+			executeServerDatabase( server );
+		else
+			executeServerApp( target , server );
+	}
+
+	private void executeServerDatabase( MetaEnvServer server ) throws Exception {
+		DatabaseClient client = new DatabaseClient();
+		if( !client.checkConnect( this , server ) )
+			exit( "unable to connect to server=" + server.NAME );
+
+		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client );
+		DatabaseRegistryRelease release = registry.getLastRelease( this );
+		
+		if( release.state == RELEASE_STATE.UNKNOWN ) {
+			log( "nothing has been applied to database" );
+			return;
+		}
+		
+		if( !release.version.equals( dist.info.RELEASEVER ) ) {
+			log( "release has not been applied to database" );
+			return;
+		}
+		
+		log( "release has been applied to database, state=" + Common.getEnumLower( release.state ) );
+	}
+	
+	private void executeServerApp( ActionScopeTarget target , MetaEnvServer server ) throws Exception {
 		MetaEnvServerLocation[] F_ENV_LOCATIONS_BINARY = new MetaEnvServerLocation[0];
 		if( context.CTX_DEPLOYBINARY )
 			F_ENV_LOCATIONS_BINARY = server.getLocations( this , true , false );
@@ -94,8 +129,6 @@ public class ActionVerifyDeploy extends ActionBase {
 			debug( "server=$P_SERVER - no locations. Skipped." );
 			return;
 		}
-
-		log( "============================================ execute server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
 
 		// iterate by nodes
 		LocalFolder tobeServerFolder = configure.getLiveFolder( server );

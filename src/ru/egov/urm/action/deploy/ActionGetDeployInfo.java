@@ -40,6 +40,7 @@ public class ActionGetDeployInfo extends ActionBase {
 
 		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client );
 		DatabaseRegistryRelease release = registry.getLastRelease( this );
+		super.comment( "database: " );
 		super.comment( "\trelease: " + release.version );
 		super.comment( "\tstate: " + Common.getEnumLower( release.state ) );
 	}
