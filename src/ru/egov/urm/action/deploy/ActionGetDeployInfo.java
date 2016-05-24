@@ -4,6 +4,9 @@ import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.ActionScopeTargetItem;
+import ru.egov.urm.action.database.DatabaseClient;
+import ru.egov.urm.action.database.DatabaseRegistry;
+import ru.egov.urm.action.database.DatabaseRegistryRelease;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerLocation;
 import ru.egov.urm.meta.MetaEnvServerNode;
@@ -21,6 +24,27 @@ public class ActionGetDeployInfo extends ActionBase {
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		comment( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
+
+		if( server.isDatabase( this ) )
+			executeTargetDatabase( server );
+		else
+			executeTargetApp( target , server );
+		
+		return( true );
+	}
+	
+	private void executeTargetDatabase( MetaEnvServer server ) throws Exception {
+		DatabaseClient client = new DatabaseClient();
+		if( !client.checkConnect( this , server ) )
+			exit( "unable to connect to server=" + server.NAME );
+
+		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client );
+		DatabaseRegistryRelease release = registry.getLastRelease( this );
+		super.comment( "\trelease: " + release.version );
+		super.comment( "\tstate: " + Common.getEnumLower( release.state ) );
+	}
+		
+	private void executeTargetApp( ActionScopeTarget target , MetaEnvServer server ) throws Exception {
 		comment( "root path: " + server.ROOTPATH );
 		
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
@@ -28,12 +52,11 @@ public class ActionGetDeployInfo extends ActionBase {
 			comment( "node" + node.POS + " (" + node.HOSTLOGIN + "):" );
 			
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
-			showDeployInfo( server , redist );
+			showDeployInfoApp( server , redist );
 		}
-		return( true );
 	}
 
-	private void showDeployInfo( MetaEnvServer server , RedistStorage redist ) throws Exception {
+	private void showDeployInfoApp( MetaEnvServer server , RedistStorage redist ) throws Exception {
 		boolean binary = context.CTX_DEPLOYBINARY;
 		boolean conf = context.CTX_CONFDEPLOY;
 

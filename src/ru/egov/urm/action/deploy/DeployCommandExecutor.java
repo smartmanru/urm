@@ -35,7 +35,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 		super.defineAction( CommandAction.newAction( new DeployRedist() , "deployredist" , false , "copy items from staging area to runtime area and restart servers when required" , cmdOpts , "./deployredist.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "GETOPT_ALL, GETOPT_DEPLOYGROUP, GETOPT_STARTGROUP, GETOPT_DC, GETOPT_UNIT, GETOPT_RELEASE, GETOPT_KEY, GETOPT_BACKUP";
 		super.defineAction( CommandAction.newAction( new DropRedist() , "dropredist" , false , "clean staging area" , cmdOpts , "./dropredist.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
-		cmdOpts = "GETOPT_ALL, GETOPT_DEPLOYGROUP, GETOPT_STARTGROUP, GETOPT_DC, GETOPT_UNIT, GETOPT_KEY, GETOPT_DEPLOYCONF, GETOPT_DEPLOYBINARY, GETOPT_DEPLOYHOT, GETOPT_DEPLOYCOLD";
+		cmdOpts = "GETOPT_ALL, GETOPT_DEPLOYGROUP, GETOPT_STARTGROUP, GETOPT_DBPASSWORD, GETOPT_DC, GETOPT_UNIT, GETOPT_KEY, GETOPT_DEPLOYCONF, GETOPT_DEPLOYBINARY, GETOPT_DEPLOYHOT, GETOPT_DEPLOYCOLD";
 		super.defineAction( CommandAction.newAction( new GetDeployInfo() , "getdeployinfo" , false , "get information about items deployed to environment by state information" , cmdOpts , "./getdeployinfo.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "GETOPT_ALL, GETOPT_DEPLOYGROUP, GETOPT_STARTGROUP, GETOPT_DC, GETOPT_UNIT, GETOPT_KEY, GETOPT_RELEASE, GETOPT_OBSOLETE, GETOPT_DEPLOYCONF, GETOPT_DEPLOYBINARY, GETOPT_DEPLOYHOT, GETOPT_DEPLOYCOLD";
 		super.defineAction( CommandAction.newAction( new GetRedistInfo() , "getredistinfo" , false , "get information about staging content" , cmdOpts , "./getredistinfo.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
@@ -66,7 +66,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 		super.defineAction( CommandAction.newAction( new SaveConfigs() , "saveconfigs" , false , "save environment configuration files in live configuration repository" , cmdOpts , "./saveconfigs.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "GETOPT_ALL, GETOPT_DEPLOYGROUP, GETOPT_STARTGROUP, GETOPT_DC, GETOPT_UNIT, GETOPT_HOSTUSER, GETOPT_KEY, GETOPT_SKIPERRORS, GETOPT_ROOTUSER";
 		super.defineAction( CommandAction.newAction( new UpgradeEnv() , "upgradeenv" , false , "apply system patch to environment hosts" , cmdOpts , "./upgradeenv.sh [OPTIONS] PATCHID {all|<servers>|<server> <node1> ... <nodeN>}" ) );
-		cmdOpts = "GETOPT_ALL, GETOPT_RELEASE, GETOPT_STARTGROUP, GETOPT_DEPLOYGROUP, GETOPT_DC, GETOPT_UNIT, GETOPT_KEY, GETOPT_BACKUP, GETOPT_OBSOLETE, GETOPT_DEPLOYCONF, GETOPT_DEPLOYBINARY, GETOPT_CHECK";
+		cmdOpts = "GETOPT_ALL, GETOPT_RELEASE, GETOPT_STARTGROUP, GETOPT_DEPLOYGROUP, GETOPT_DBPASSWORD, GETOPT_DC, GETOPT_UNIT, GETOPT_KEY, GETOPT_BACKUP, GETOPT_OBSOLETE, GETOPT_DEPLOYCONF, GETOPT_DEPLOYBINARY, GETOPT_CHECK";
 		super.defineAction( CommandAction.newAction( new VerifyDeploy() , "verifydeploy" , false , "check release items in environment runtime area" , cmdOpts , "./verifydeploy.sh [OPTIONS] <RELEASELABEL> {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "GETOPT_ALL, GETOPT_DEPLOYGROUP, GETOPT_STARTGROUP, GETOPT_DC, GETOPT_EXTRAARGS, GETOPT_UNIT, GETOPT_KEY, GETOPT_SKIPERRORS";
 		super.defineAction( CommandAction.newAction( new WaitEnv() , "waitenv" , false , "wait until specified servers have been successfully started" , cmdOpts , "./waitenv.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );

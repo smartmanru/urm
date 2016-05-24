@@ -224,6 +224,31 @@ public class DatabaseSpecific {
 		}
 	}
 
+	public void readSelectData( ActionBase action , String dbschema , String user , String password , String select , List<String[]> rows ) throws Exception {
+		String[] lines = queryLines( action , dbschema , user , password , select + ";" );
+		
+		for( String value : lines ) {
+			value = value.trim();
+			if( value.isEmpty() )
+				continue;
+			if( !value.startsWith( "c=" ) )
+				continue;
+			
+			String[] values = Common.split( value , "\\|" );
+			String[] row = new String[ values.length ];
+			int pos = 0;
+			for( String s : values ) {
+				if( !s.startsWith( "c=" ) )
+					continue;
+				
+				row[ pos ] = s.substring( 2 ).trim();
+				pos++;
+			}
+			
+			rows.add( row );
+		}
+	}
+
 	public boolean dropTable( ActionBase action , String dbschema , String user , String password , String table ) throws Exception {
 		String query = "drop table " + getTableName( action , dbschema , table ) + ";";
 		String scriptFile = work.getFilePath( action , "control.sql" );

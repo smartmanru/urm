@@ -141,6 +141,13 @@ public class DatabaseClient {
 		return( list );
 	}
 
+	public List<String[]> readSelectData( ActionBase action , MetaDatabaseSchema schema , String select ) throws Exception {
+		List<String[]> list = new LinkedList<String[]>();
+		String password = getUserPassword( action , schema.DBUSER );
+		specific.readSelectData( action , schema.DBNAME , schema.DBUSER , password , select , list );
+		return( list );
+	}
+
 	public void createTableData( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] columntypes , List<String[]> data ) throws Exception {
 		String password = getUserPassword( action , schema.DBUSER );
 		specific.createTableData( action , schema.DBNAME , schema.DBUSER , password , table , columns , columntypes , data );

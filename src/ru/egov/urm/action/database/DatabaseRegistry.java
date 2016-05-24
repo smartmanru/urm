@@ -7,6 +7,7 @@ import java.util.Map;
 import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.CommandOptions.SQLMODE;
+import ru.egov.urm.action.database.DatabaseRegistryRelease.RELEASE_STATE;
 import ru.egov.urm.meta.MetaDistrDelivery;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaRelease;
@@ -41,6 +42,11 @@ public class DatabaseRegistry {
 	public static DatabaseRegistry getRegistry( ActionBase action , DatabaseClient client , MetaRelease release ) throws Exception {
 		DatabaseRegistry registry = new DatabaseRegistry( client , release );
 		registry.readReleaseState( action );
+		return( registry );
+	}
+
+	public static DatabaseRegistry getRegistry( ActionBase action , DatabaseClient client ) throws Exception {
+		DatabaseRegistry registry = new DatabaseRegistry( client , null );
 		return( registry );
 	}
 	
@@ -252,5 +258,35 @@ public class DatabaseRegistry {
 				action.exit( msg );
 		}
 	}
+
+	public RELEASE_STATE getReleaseState( ActionBase action , String value ) throws Exception {
+		if( value == null || value.isEmpty() )
+			return( RELEASE_STATE.UNKNOWN );
+		if( value.equals( "S" ) )
+			return( RELEASE_STATE.STARTED );
+		if( value.equals( "A" ) )
+			return( RELEASE_STATE.FINISHED );
+		action.exitUnexpectedState();
+		return( null );
+	}
 	
+	public DatabaseRegistryRelease getLastRelease( ActionBase action ) throws Exception {
+		List<String[]> rows = client.readSelectData( action , server.admSchema , "select zrelease , zrel_status from " + TABLE_RELEASES +
+				" where zrelease = ( select max( zrelease ) from " + TABLE_RELEASES + " )" );
+		
+		DatabaseRegistryRelease release = new DatabaseRegistryRelease();  
+		if( rows.isEmpty() ) {
+			release.version = "";
+			release.state = RELEASE_STATE.UNKNOWN;
+			return( release );
+		}
+		
+		String[] row = rows.get( 0 );
+		if( rows.size() != 1 && row.length != 2 )
+			action.exitUnexpectedState();
+		
+		release.version = row[0];
+		release.state = getReleaseState( action , row[1] );
+		return( release );
+	}
 }
