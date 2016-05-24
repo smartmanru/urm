@@ -403,20 +403,32 @@ public class ActionVerifyDeploy extends ActionBase {
 			String name = "node" + node.POS + "-" + archiveItem.KEY + ".diff";
 			String diffFile = asisServerFolder.getFilePath( this , name );
 			
-			FileSet releaseSet = distFolder.getFileSet( this );
-			FileSet prodSet = liveFolder.getFileSet( this );
+			boolean isdiff = false;
+			if( isWindows() ) {
+				FileSet releaseSet = distFolder.getFileSet( this );
+				FileSet prodSet = liveFolder.getFileSet( this );
+				
+				debug( "calculate diff between: " + distFolder.folderPath + " and " + liveFolder.folderPath + " ..." );
+				ConfDiffSet diff = new ConfDiffSet( releaseSet , prodSet , "" , false );
+				diff.calculate( this , null );
+				
+				if( diff.isDifferent( this ) ) {
+					diff.save( this , diffFile );
+					isdiff = true;
+				}
+			}
+			else {
+				int status = session.customGetStatus( this , "diff -r " + liveFolder.folderPath + " " + distFolder.folderPath + " > " + diffFile );
+				if( status != 0 )
+					isdiff = true;
+			}
 			
-			debug( "calculate diff between: " + distFolder.folderPath + " and " + liveFolder.folderPath + " ..." );
-			ConfDiffSet diff = new ConfDiffSet( releaseSet , prodSet , "" , false );
-			diff.calculate( this , null );
-			
-			if( diff.isDifferent( this ) ) {
-				diff.save( this , diffFile );
+			if( isdiff ) {
 				if( context.CTX_SHOWALL )
 					log( "dist item=" + archiveItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive (see " + diffFile + ")" );
 				else {
 					log( "dist item=" + archiveItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive:" );
-					session.custom( this , "cat " + diffFile );
+					log( "see differences at " + diffFile );
 				}
 				return( false );
 			}
