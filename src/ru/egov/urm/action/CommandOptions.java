@@ -164,7 +164,7 @@ public class CommandOptions {
 		ctx.CTX_GET = getFlagValue( action , "GETOPT_GET" );
 		ctx.CTX_DIST = getFlagValue( action , "GETOPT_DIST" );
 		ctx.CTX_UPDATENEXUS = getFlagValue( action , "GETOPT_UPDATENEXUS" );
-		ctx.CTX_CHECK = getFlagValue( action , "GETOPT_CHECK" , true );
+		ctx.CTX_CHECK = getFlagValue( action , "GETOPT_CHECK" , false );
 		ctx.CTX_MOVE_ERRORS = getFlagValue( action , "GETOPT_MOVE_ERRORS" );
 		ctx.CTX_REPLACE = getFlagValue( action , "GETOPT_REPLACE" );
 		ctx.CTX_BACKUP = combineValue( action , "GETOPT_BACKUP" , ( isenv )? action.context.env.BACKUP : null , def );
