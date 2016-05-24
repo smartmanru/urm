@@ -333,10 +333,12 @@ public class ServerProcess {
 		    }
 		    
 			if( System.currentTimeMillis() > stopMillis ) {
-				action.log( node.HOSTLOGIN + ": failed to stop generic server=" + srv.NAME + " within " + stoptime + " seconds. Killing ..." );
-				
-				if( srv.NOPIDS )
+				if( srv.NOPIDS ) {
+					action.log( node.HOSTLOGIN + ": failed to stop generic server=" + srv.NAME + " within " + stoptime + " seconds" );
 					return( false );
+				}
+				
+				action.log( node.HOSTLOGIN + ": failed to stop generic server=" + srv.NAME + " within " + stoptime + " seconds. Killing ..." );
 				
 				// enforced stop
 				killServer( action );
