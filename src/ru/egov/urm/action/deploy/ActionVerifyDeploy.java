@@ -49,7 +49,10 @@ public class ActionVerifyDeploy extends ActionBase {
 		else
 			configure = new ActionConfigure( this , null , dist , tobeFolder );
 		configure.context.CTX_HIDDEN = true;
-		configure.runAll( scope );
+		if( !configure.runAll( scope ) ) {
+			if( !context.CTX_FORCE )
+				exit( "unable to prepare configurarion files for comparison" );
+		}
 		
 		asisFolder = artefactory.getWorkFolder( this , "asis" );
 		asisFolder.ensureExists( this );
