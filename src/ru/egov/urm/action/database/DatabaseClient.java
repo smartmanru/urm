@@ -35,7 +35,7 @@ public class DatabaseClient {
 		String user = specific.getAdmUser( action );
 		String pwd = getUserPassword( action , user );
 		try { 
-			action.log( "check connect to database server=" + server.NAME + ", node=" + node.POS + " ..." );
+			action.debug( "check connect to database server=" + server.NAME + ", node=" + node.POS + " ..." );
 			return( specific.checkConnect( action , schema , user , pwd ) );
 		}
 		catch( Throwable e ) {

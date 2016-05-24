@@ -271,7 +271,7 @@ public class DatabaseRegistry {
 	}
 	
 	public DatabaseRegistryRelease getLastRelease( ActionBase action ) throws Exception {
-		List<String[]> rows = client.readSelectData( action , server.admSchema , "select zrelease , zrel_status from " + TABLE_RELEASES +
+		List<String[]> rows = client.readSelectData( action , server.admSchema , "select 'c=' || zrelease || '|c=' || zrel_status from " + TABLE_RELEASES +
 				" where zrelease = ( select max( zrelease ) from " + TABLE_RELEASES + " )" );
 		
 		DatabaseRegistryRelease release = new DatabaseRegistryRelease();  
