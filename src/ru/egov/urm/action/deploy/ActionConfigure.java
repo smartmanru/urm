@@ -15,6 +15,7 @@ import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerDeployment;
 import ru.egov.urm.meta.MetaEnvServerNode;
+import ru.egov.urm.meta.Metadata.VarCATEGORY;
 import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.SourceStorage;
@@ -80,7 +81,8 @@ public class ActionConfigure extends ActionBase {
 		}
 		
 		// copy from release
-		dist.copyDistConfToFolder( this , conf , templateFolder.getSubFolder( this , conf.KEY ) );
+		if( dist.info.findCategoryTarget( this , VarCATEGORY.CONFIG , conf.KEY ) != null )
+			dist.copyDistConfToFolder( this , conf , templateFolder.getSubFolder( this , conf.KEY ) );
 	}
 	
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
