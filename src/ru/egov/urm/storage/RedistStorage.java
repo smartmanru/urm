@@ -371,7 +371,7 @@ public class RedistStorage extends ServerStorage {
 	public void copyTmpFileToLocal( ActionBase action , String tmpName , LocalFolder localFolder ) throws Exception {
 		RemoteFolder tmpFolder = this.getRedistTmpFolder( action );
 		tmpFolder.copyFileToLocal( action , localFolder , tmpName );
-		localFolder.removeFiles( action , tmpName );
+		tmpFolder.removeFiles( action , tmpName );
 	}
 	
 	private boolean saveArchiveItem( ActionBase action , MetaDistrBinaryItem archiveItem , RemoteFolder deployFolder , String fileName , RemoteFolder saveFolder ) throws Exception {
