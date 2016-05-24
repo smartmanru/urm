@@ -422,13 +422,17 @@ abstract public class ActionBase {
 	}
 	
 	public void executeLogLive( Account account , String msg ) throws Exception {
+		String loc = account.HOSTLOGIN;
+		if( context.CTX_LOCAL )
+			loc = "local";
+		
 		ShellExecutor shell = getShell( account );
 		if( !isExecute() ) {
-			log( account.HOSTLOGIN + ": " + msg + " (showonly)" );
+			log( loc + ": " + msg + " (showonly)" );
 			return;
 		}
 
-		log( account.HOSTLOGIN + ": " + msg + " (execute)" );
+		log( loc + ": " + msg + " (execute)" );
 		shell.appendExecuteLog( this , msg );
 	}
 	
