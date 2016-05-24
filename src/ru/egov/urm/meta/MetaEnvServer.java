@@ -557,6 +557,11 @@ public class MetaEnvServer {
 				serverType == VarSERVERTYPE.SERVICE_DATABASE  );
 	}
 
+	public boolean isOffline( ActionBase action ) throws Exception {
+		return( OFFLINE ||
+				serverType == VarSERVERTYPE.OFFLINE );
+	}
+	
 	public boolean isCommand( ActionBase action ) throws Exception {
 		return( serverType == VarSERVERTYPE.GENERIC_COMMAND );
 	}
@@ -575,6 +580,8 @@ public class MetaEnvServer {
 	}
 
 	public boolean isCallable( ActionBase action ) throws Exception {
+		if( OFFLINE )
+			return( false );
 		if( serverType == VarSERVERTYPE.SERVICE ||
 			serverType == VarSERVERTYPE.GENERIC_SERVER || 
 			serverType == VarSERVERTYPE.GENERIC_COMMAND ||
@@ -585,6 +592,8 @@ public class MetaEnvServer {
 	}
 
 	public boolean isStartable( ActionBase action ) throws Exception {
+		if( OFFLINE )
+			return( false );
 		if( serverType == VarSERVERTYPE.GENERIC_SERVER || 
 			serverType == VarSERVERTYPE.GENERIC_WEB || 
 			serverType == VarSERVERTYPE.GENERIC_COMMAND ||

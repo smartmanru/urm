@@ -120,6 +120,12 @@ public class ActionCheckEnv extends ActionBase {
 		S_CHECKENV_SERVER_NODES_FAILED = "";
 		S_CHECKENV_SERVER_COMPS_FAILED = "";
 
+		// ignore offline server
+		if( server.isOffline( this ) ) {
+			debug( "ignore offline server=" + server.NAME );
+			return;
+		}
+		
 		// ignore command servers except when specifically called 
 		if( server.isCommand( this ) ) {
 			if( context.CTX_ALL == false || main == false ) {
