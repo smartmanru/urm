@@ -616,7 +616,7 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public String cmdGetMD5( ActionBase action , String filePath ) throws Exception {
 		String fileWin = Common.getWinPath( filePath );
-		runCommand( action , "certutil -hashfile " + fileWin + " MD5" , CommandOutput.LOGLEVEL_TRACE );
+		runCommand( action , "certutil -hashfile " + Common.getQuoted( fileWin ) + " MD5" , CommandOutput.LOGLEVEL_TRACE );
 		if( cmdout.size() != 3 )
 			action.exit( "unable to get md5sum of " + filePath );
 		

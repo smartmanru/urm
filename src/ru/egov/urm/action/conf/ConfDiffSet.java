@@ -18,6 +18,8 @@ public class ConfDiffSet {
 	FileSet releaseSet;
 	FileSet prodSet;
 	String dirPrefix;
+	boolean confComps;
+	
 	List<ConfDiffItem> diffs;
 
 	Map<String,ConfDiffItem> dirNew;
@@ -27,12 +29,13 @@ public class ConfDiffSet {
 	Map<String,ConfDiffItem> fileModified;
 	
 	Map<String,MetaDistrConfItem> fileMatched;
-	Map<String,MetaDistrConfItem> compMatched;
+	Map<String,MetaDistrConfItem> topMatched;
 	
-	public ConfDiffSet( FileSet releaseSet , FileSet prodSet , String dirPrefix ) {
+	public ConfDiffSet( FileSet releaseSet , FileSet prodSet , String dirPrefix , boolean confComps ) {
 		this.releaseSet = releaseSet;
 		this.prodSet = prodSet;
 		this.dirPrefix = dirPrefix;
+		this.confComps = confComps;
 	}
 	
 	public boolean isDifferent( ActionBase action ) throws Exception {
@@ -48,7 +51,7 @@ public class ConfDiffSet {
 		fileModified = new HashMap<String,ConfDiffItem>();
 		
 		fileMatched = new HashMap<String,MetaDistrConfItem>();  
-		compMatched = new HashMap<String,MetaDistrConfItem>(); 
+		topMatched = new HashMap<String,MetaDistrConfItem>(); 
 		
 		getFileSetDiffs( action , release );
 		getFileContentDiffs( action );
@@ -82,14 +85,17 @@ public class ConfDiffSet {
 					continue;
 			}
 			
-			String compName = Common.getTopDir( key );
+			String itemName = Common.getTopDir( key );
+			String topName = itemName;
 			if( dirPrefix != null )
-				compName = Common.getPartAfterFirst( compName , dirPrefix );
+				topName = Common.getPartAfterFirst( topName , dirPrefix );
+
+			MetaDistrConfItem comp = null;
+			if( confComps )
+				comp = action.meta.distr.getConfItem( action , topName );
 			
-			MetaDistrConfItem comp = action.meta.distr.getConfItem( action , compName );
-			
-			if( !compMatched.containsKey( compName ) )
-				compMatched.put( compName , comp );
+			if( !topMatched.containsKey( topName ) )
+				topMatched.put( topName , comp );
 			
 			if( !dirProd.containsKey( key ) ) {
 				// if parent directory is new then do not add new diff, but add new dir
@@ -115,7 +121,7 @@ public class ConfDiffSet {
 			}
 			
 			// ignore check for partial component
-			if( release != null ) {
+			if( confComps && release != null ) {
 				String compName = Common.getTopDir( key );
 				if( dirPrefix != null )
 					compName = Common.getPartAfterFirst( compName , dirPrefix );
@@ -162,17 +168,19 @@ public class ConfDiffSet {
 				dirNew.put( key , diff );
 			}
 			else {
-				String compName = Common.getTopDir( key );
+				MetaDistrConfItem comp = null;
+				String topName = Common.getTopDir( key );
 				if( dirPrefix != null )
-					compName = Common.getPartAfterFirst( compName , dirPrefix );
+					topName = Common.getPartAfterFirst( topName , dirPrefix );
 				
-				MetaDistrConfItem comp = action.meta.distr.getConfItem( action , compName );
+				if( confComps )
+					comp = action.meta.distr.getConfItem( action , topName );
 				fileMatched.put( key , comp );
 			}
 		}
 
 		for( String key : fileProd.keySet() ) {
-			if( release != null ) {
+			if( confComps && release != null ) {
 				// ignore check for partial component
 				String compName = Common.getTopDir( key );
 				if( dirPrefix != null )

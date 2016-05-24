@@ -30,22 +30,22 @@ abstract public class ActionBase {
 	public String NAME;
 	public int commandTimeout;
 	
-	protected boolean executeSimple() throws Exception { trace( NAME + ": simple action execute is not implemented" ); return( false ); };
-	protected boolean executeScope( ActionScope scope ) throws Exception { trace( NAME + ": full scope action execute is not implemented" ); return( false ); };
-	protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception { trace( NAME + ": scope set action execute is not implemented" ); return( false ); };
-	protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception { trace( NAME + ": scope target action execute is not implemented" ); return( false ); };
-	protected boolean executeScopeTargetItem( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception { trace( NAME + ": scope target item action execute is not implemented" ); return( false ); };
-	protected boolean executeAccount( ActionScopeSet set , Account account ) throws Exception { trace( NAME + ": host action execute is not implemented" ); return( false ); };
-	protected void runBefore() throws Exception { trace( NAME + ": blank execute before is not implemented" ); };
-	protected void runAfter() throws Exception { trace( NAME + ": blank execute after is not implemented" ); };
-	protected void runBefore( ActionScope scope ) throws Exception { trace( NAME + ": scope execute before is not implemented" ); };
-	protected void runAfter( ActionScope scope ) throws Exception { trace( NAME + ": scope execute after is not implemented" ); };
-	protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception { trace( NAME + ": scope set target list execute before is not implemented" ); };
-	protected void runAfter( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception { trace( NAME + ": scope set target list execute after is not implemented" ); };
-	protected void runBefore( ActionScopeTarget target ) throws Exception { trace( NAME + ": scope target execute before is not implemented" ); };
-	protected void runAfter( ActionScopeTarget target ) throws Exception { trace( NAME + ": scope target execute after is not implemented" ); };
-	protected void runBefore( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception { trace( NAME + ": scope target item execute before is not implemented" ); };
-	protected void runAfter( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception { trace( NAME + ": scope target item execute after is not implemented" ); };
+	protected boolean executeSimple() throws Exception { return( false ); };
+	protected boolean executeScope( ActionScope scope ) throws Exception { return( false ); };
+	protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception { return( false ); };
+	protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception { return( false ); };
+	protected boolean executeScopeTargetItem( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception { return( false ); };
+	protected boolean executeAccount( ActionScopeSet set , Account account ) throws Exception { return( false ); };
+	protected void runBefore() throws Exception {};
+	protected void runAfter() throws Exception {};
+	protected void runBefore( ActionScope scope ) throws Exception {};
+	protected void runAfter( ActionScope scope ) throws Exception {};
+	protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {};
+	protected void runAfter( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {};
+	protected void runBefore( ActionScopeTarget target ) throws Exception {};
+	protected void runAfter( ActionScopeTarget target ) throws Exception {};
+	protected void runBefore( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
+	protected void runAfter( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
 	
 	public ActionBase( CommandExecutor executor , CommandContext context , CommandOptions options , CommandOutput output , Metadata meta ) {
 		this.executor = executor;

@@ -30,6 +30,10 @@ public class ActionVerifyDeploy extends ActionBase {
 	DistStorage dist;
 	LocalFolder tobeFolder;
 	LocalFolder asisFolder;
+	LocalFolder tobeConfigFolder;
+	LocalFolder asisConfigFolder;
+	LocalFolder tobeBinaryFolder;
+	LocalFolder asisBinaryFolder;
 	ActionConfigure configure;
 	boolean verifyOk;
 
@@ -42,12 +46,15 @@ public class ActionVerifyDeploy extends ActionBase {
 
 	@Override protected void runBefore( ActionScope scope ) throws Exception {
 		tobeFolder = artefactory.getWorkFolder( this , "tobe" );
-		tobeFolder.ensureExists( this );
+		tobeConfigFolder = tobeFolder.getSubFolder( this , "config" );
+		tobeConfigFolder.ensureExists( this );
+		tobeBinaryFolder = tobeFolder.getSubFolder( this , "binary" );
+		tobeBinaryFolder.ensureExists( this );
 		
 		if( dist.prod )
-			configure = new ActionConfigure( this , null , tobeFolder );
+			configure = new ActionConfigure( this , null , tobeConfigFolder );
 		else
-			configure = new ActionConfigure( this , null , dist , tobeFolder );
+			configure = new ActionConfigure( this , null , dist , tobeConfigFolder );
 		configure.context.CTX_HIDDEN = true;
 		if( !configure.runAll( scope ) ) {
 			if( !context.CTX_FORCE )
@@ -55,7 +62,10 @@ public class ActionVerifyDeploy extends ActionBase {
 		}
 		
 		asisFolder = artefactory.getWorkFolder( this , "asis" );
-		asisFolder.ensureExists( this );
+		asisConfigFolder = asisFolder.getSubFolder( this , "config" );
+		asisConfigFolder.ensureExists( this );
+		asisBinaryFolder = asisFolder.getSubFolder( this , "binary" );
+		asisBinaryFolder.ensureExists( this );
 		verifyOk = true;
 	}
 
@@ -134,9 +144,12 @@ public class ActionVerifyDeploy extends ActionBase {
 		}
 
 		// iterate by nodes
-		LocalFolder tobeServerFolder = configure.getLiveFolder( server );
-		LocalFolder asisServerFolder = asisFolder.getSubFolder( this , server.NAME );
-		asisServerFolder.ensureExists( this );
+		LocalFolder tobeConfigServerFolder = configure.getLiveFolder( server );
+		LocalFolder asisConfigServerFolder = asisConfigFolder.getSubFolder( this , server.NAME );
+		LocalFolder tobeBinaryServerFolder = tobeBinaryFolder.getSubFolder( this , server.NAME );
+		LocalFolder asisBinaryServerFolder = asisBinaryFolder.getSubFolder( this , server.NAME );
+		tobeConfigServerFolder.ensureExists( this );
+		asisConfigServerFolder.ensureExists( this );
 
 		boolean verifyServer = true;
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
@@ -144,7 +157,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			log( "execute server=" + server.NAME + " node=" + node.POS + " ..." );
 
 			// verify configs to each node
-			if( !executeNode( server , node , F_ENV_LOCATIONS_CONFIG , F_ENV_LOCATIONS_BINARY , tobeServerFolder , asisServerFolder ) )
+			if( !executeNode( server , node , F_ENV_LOCATIONS_CONFIG , F_ENV_LOCATIONS_BINARY , tobeConfigServerFolder , asisConfigServerFolder , tobeBinaryServerFolder , asisBinaryServerFolder ) )
 				verifyServer = false;
 		}
 		
@@ -154,7 +167,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			log( "server differs from distributive" );
 	}
 
-	private boolean executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] confLocations , MetaEnvServerLocation[] binaryLocations , LocalFolder tobeServerFolder , LocalFolder asisServerFolder ) throws Exception {
+	private boolean executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] confLocations , MetaEnvServerLocation[] binaryLocations , LocalFolder tobeConfigServerFolder , LocalFolder asisConfigServerFolder , LocalFolder tobeBinaryServerFolder , LocalFolder asisBinaryServerFolder ) throws Exception {
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		redist.recreateTmpFolder( this );
 		
@@ -166,7 +179,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			String[] items = location.getNodeBinaryItems( this , node );
 			for( String item : items ) {
 				MetaDistrBinaryItem binaryItem = meta.distr.getBinaryItem( this , item );
-				if( !executeNodeBinary( server , node , location , binaryItem , tobeServerFolder , asisServerFolder ) )
+				if( !executeNodeBinary( server , node , location , binaryItem , tobeBinaryServerFolder , asisBinaryServerFolder ) )
 					verifyNode = false;
 			}
 		}
@@ -177,7 +190,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			String[] items = location.getNodeConfItems( this , node );
 			for( String item : items ) {
 				MetaDistrConfItem confItem = meta.distr.getConfItem( this , item );
-				executeNodeConf( server , node , location , confItem );
+				executeNodeConf( server , node , location , confItem , asisConfigServerFolder );
 			}
 		}
 			
@@ -185,11 +198,11 @@ public class ActionVerifyDeploy extends ActionBase {
 		if( confLocations.length > 0 ) {
 			String nodePrefix = "node" + node.POS + "-";
 			if( context.CTX_CHECK ) {
-				if( !showConfDiffs( server , node , tobeServerFolder , asisServerFolder , nodePrefix ) )
+				if( !showConfDiffs( server , node , tobeConfigServerFolder , asisConfigServerFolder , nodePrefix ) )
 					verifyNode = false;
 			}
 			else {
-				if( !checkConfDiffs( server , node , tobeServerFolder , asisServerFolder , nodePrefix ) )
+				if( !checkConfDiffs( server , node , tobeConfigServerFolder , asisConfigServerFolder , nodePrefix ) )
 					verifyNode = false;
 			}
 		}
@@ -211,7 +224,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		FileSet prodSet = asisServerFolder.getFileSet( this );
 		
 		debug( "calculate diff between: " + tobeServerFolder.folderPath + " and " + asisServerFolder.folderPath + " (prefix=" + nodePrefix + ") ..." );
-		ConfDiffSet diff = new ConfDiffSet( releaseSet , prodSet , nodePrefix );
+		ConfDiffSet diff = new ConfDiffSet( releaseSet , prodSet , nodePrefix , true );
 		if( !dist.prod )
 			diff.calculate( this , dist.info );
 		else
@@ -219,7 +232,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		
 		if( diff.isDifferent( this ) ) {
 			verifyNode = false;
-			String diffFile = asisFolder.getFilePath( this , "diff.txt" );
+			String diffFile = asisServerFolder.getFilePath( this , "confdiff.txt" );
 			diff.save( this , diffFile );
 			if( context.CTX_SHOWALL )
 				log( "found configuration differences in node=" + node.POS + ", see " + diffFile );
@@ -280,7 +293,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		return( verifyNode );
 	}
 	
-	private void executeNodeConf( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrConfItem confItem ) throws Exception {
+	private void executeNodeConf( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrConfItem confItem , LocalFolder asisConfigServerFolder ) throws Exception {
 		if( !dist.prod ) {
 			if( dist.info.findConfComponent( this , confItem.KEY ) == null ) {
 				trace( "ignore non-release conf item=" + confItem.KEY );
@@ -292,7 +305,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		String name = sourceStorage.getConfItemLiveName( this , node , confItem );
 		
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
-		LocalFolder asisConfFolder = asisFolder.getSubFolder( this , Common.getPath( server.NAME , name ) );
+		LocalFolder asisConfFolder = asisConfigServerFolder.getSubFolder( this , name );
 		asisConfFolder.ensureExists( this );
 		
 		if( context.CTX_CHECK ) {
@@ -376,20 +389,29 @@ public class ActionVerifyDeploy extends ActionBase {
 			String fileName = "archive" + archiveItem.EXT;
 			redist.saveTmpArchiveItem( this , location.DEPLOYPATH , archiveItem , fileName );
 			redist.copyTmpFileToLocal( this , fileName , liveFolder );
-			liveFolder.extractTarGz( this , fileName , "" );
+			liveFolder.extractArchive( this , archiveItem.getArchiveType( this ), fileName , "" );
 			liveFolder.removeFiles( this , fileName );
 			
 			// copy file from dist area and extract
 			LocalFolder distFolder = tobeServerFolder.getSubFolder( this , "archive.dist" );
 			distFolder.recreateThis( this );
 			dist.copyDistFileToFolderRename( this , distFolder , distInfo.subPath , distInfo.fileName , fileName );
-			distFolder.extractTarGz( this , fileName , "" );
+			distFolder.extractArchive( this , archiveItem.getArchiveType( this ), fileName , "" );
 			distFolder.removeFiles( this , fileName );
 			
 			// compare using diff
-			String diffFile = asisServerFolder.getFilePath( this , "diff.txt" );
-			int status = session.customGetStatus( this , "diff -r " + liveFolder.folderPath + " " + distFolder.folderPath + " > " + diffFile );
-			if( status != 0 ) {
+			String name = "node" + node.POS + "-" + archiveItem.KEY + ".diff";
+			String diffFile = asisServerFolder.getFilePath( this , name );
+			
+			FileSet releaseSet = distFolder.getFileSet( this );
+			FileSet prodSet = liveFolder.getFileSet( this );
+			
+			debug( "calculate diff between: " + distFolder.folderPath + " and " + liveFolder.folderPath + " ..." );
+			ConfDiffSet diff = new ConfDiffSet( releaseSet , prodSet , "" , false );
+			diff.calculate( this , null );
+			
+			if( diff.isDifferent( this ) ) {
+				diff.save( this , diffFile );
 				if( context.CTX_SHOWALL )
 					log( "dist item=" + archiveItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive (see " + diffFile + ")" );
 				else {
