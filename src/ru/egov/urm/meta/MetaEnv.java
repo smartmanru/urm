@@ -104,6 +104,7 @@ public class MetaEnv {
 		if( propFile.isEmpty() )
 			return;
 		
+		action.debug( "load hidden properties file " + propFile );
 		secretProperties.loadRawFromFile( action , propFile );
 		secretProperties.moveRawAsStrings( action );
 	}
