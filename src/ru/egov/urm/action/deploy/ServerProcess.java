@@ -60,7 +60,8 @@ public class ServerProcess {
 		if( check.indexOf( "STARTED=FALSE" ) >= 0 || 
 			check.indexOf( "STOPPED" ) >= 0 || 
 			check.indexOf( "OFFLINE" ) >= 0 || 
-			check.indexOf( "NOT RUNNING" ) >= 0 )
+			check.indexOf( "NOT RUNNING" ) >= 0 ||
+			check.indexOf( "NOT STARTED" ) >= 0 )
 			return( true );
 		return( false );
 	}
@@ -68,7 +69,8 @@ public class ServerProcess {
 	private boolean isStartedStatus( ActionBase action , String check ) throws Exception {
 		if( check.indexOf( "STARTED=TRUE" ) >= 0 || 
 			check.indexOf( "ONLINE" ) >= 0 || 
-			check.indexOf( "RUNNING" ) >= 0 )
+			check.indexOf( "RUNNING" ) >= 0 ||
+			check.indexOf( "STARTED" ) >= 0 )
 			return( true );
 		return( false );
 	}
