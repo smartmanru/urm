@@ -684,9 +684,10 @@ public class ShellCoreWindows extends ShellCore {
 			cmd += " ^| findstr /V " + Common.getQuoted( excludeRegular );
 		}
 		
+		String wtmpFile = Common.getWinPath( tmpFile );
 		String cmdDir = getDirCmdIfDir( action , dir , 
 				"for /f %x in ('dir /O N /b /a-d ^| " + cmd + "') do certutil -hashfile %x MD5 | findstr /V " + 
-				Common.getQuoted( "MD5 CertUtil" ) + " > " + tmpFile );
+				Common.getQuoted( "MD5 CertUtil" ) + " > " + wtmpFile );
 		executor.customCheckErrorsDebug( action , cmdDir );
 		
 		String[] lines = executor.getFileLines( action , tmpFile );
