@@ -686,7 +686,7 @@ public class ShellCoreWindows extends ShellCore {
 		
 		String wtmpFile = Common.getWinPath( tmpFile );
 		String cmdDir = getDirCmdIfDir( action , dir , 
-				"for /f %x in ('dir /S /b /a-d /ON ^| " + cmd + "') do certutil -hashfile %x MD5 | findstr /V " + 
+				"( for /f %x in ('dir /S /b /a-d /ON ^| " + cmd + "') do certutil -hashfile %x MD5 | findstr /V " + 
 				Common.getQuoted( "MD5 CertUtil" ) + " ) > " + wtmpFile );
 		int timeout = action.setTimeoutUnlimited();
 		executor.customCheckErrorsDebug( action , cmdDir );
