@@ -687,7 +687,8 @@ public class ShellCoreWindows extends ShellCore {
 		String cmdDir = getDirCmdIfDir( action , dir , 
 				"for /f %x in ('dir /O N /b /a-d ^| " + cmd + "') do certutil -hashfile %x MD5 | findstr /V " + 
 				Common.getQuoted( "MD5 CertUtil" ) + " > " + tmpFile );
-		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
+		executor.customCheckErrorsDebug( action , cmdDir );
+		
 		String[] lines = executor.getFileLines( action , tmpFile );
 		for( int k = 0; k < lines.length; k++ )
 			lines[ k ] = Common.replace( lines[ k ] , " " , "" );
