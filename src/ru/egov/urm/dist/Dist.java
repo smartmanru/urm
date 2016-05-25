@@ -319,7 +319,7 @@ public class Dist {
 	}
 
 	public void finish( ActionBase action ) throws Exception {
-		state.ctlOpenForChange( action );
+		openForChange( action );
 
 		DistFinalizer finalizer = new DistFinalizer( action , this , distFolder , info );
 		if( !finalizer.finish() ) {
