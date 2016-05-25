@@ -11,11 +11,6 @@ import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaDistrDelivery;
 import ru.egov.urm.meta.MetaEnvServerLocation;
-import ru.egov.urm.meta.MetaRelease;
-import ru.egov.urm.meta.MetaReleaseDelivery;
-import ru.egov.urm.meta.MetaReleaseSet;
-import ru.egov.urm.meta.MetaReleaseTarget;
-import ru.egov.urm.meta.MetaReleaseTargetItem;
 import ru.egov.urm.meta.MetaSourceProject;
 import ru.egov.urm.meta.MetaSourceProjectItem;
 import ru.egov.urm.meta.MetaSourceProjectSet;
@@ -50,7 +45,7 @@ public class Dist {
 	Metadata meta;
 	
 	public String RELEASEDIR;
-	public MetaRelease info;
+	public Release info;
 	public boolean prod;
 	String infoPath;
 
@@ -93,7 +88,7 @@ public class Dist {
 		state.ctlLoadReleaseState( action );
 		
 		infoPath = distFolder.copyFileToLocal( action , artefactory.workFolder , META_FILENAME , "" );
-		info = new MetaRelease( meta );
+		info = new Release( meta );
 		info.load( action , infoPath );
 		
 		RELEASEDIR = info.RELEASEVER;
@@ -233,13 +228,13 @@ public class Dist {
 		return( Common.getPath( delivery.FOLDER , BINARY_FOLDER ) );
 	}
 	
-	public void replaceConfDiffFile( ActionBase action , String filePath , MetaReleaseDelivery delivery ) throws Exception {
+	public void replaceConfDiffFile( ActionBase action , String filePath , ReleaseDelivery delivery ) throws Exception {
 		state.checkDistChangeEnabled( action );
 		String confFolder = getDeliveryConfFolder( action , delivery.distDelivery );
 		distFolder.copyFileFromLocal( action , filePath , confFolder );
 	}
 	
-	public void copyDistConfToFolder( ActionBase action , MetaReleaseDelivery delivery , LocalFolder localFolder ) throws Exception {
+	public void copyDistConfToFolder( ActionBase action , ReleaseDelivery delivery , LocalFolder localFolder ) throws Exception {
 		if( !openedForUse )
 			action.exit( "distributive is not opened for use" );
 		
@@ -251,7 +246,7 @@ public class Dist {
 		if( !openedForUse )
 			action.exit( "distributive is not opened for use" );
 		
-		MetaReleaseDelivery delivery = info.findDelivery( action , conf.delivery.NAME );
+		ReleaseDelivery delivery = info.findDelivery( action , conf.delivery.NAME );
 		if( delivery == null )
 			action.exit( "unknown release delivery=" + conf.delivery.NAME );
 		
@@ -261,7 +256,7 @@ public class Dist {
 		distFolder.copyDirContentToLocal( action , localFolder , confFolder );
 	}
 	
-	public boolean copyDistConfToFolder( ActionBase action , MetaReleaseTarget confTarget , LocalFolder parentFolder ) throws Exception {
+	public boolean copyDistConfToFolder( ActionBase action , ReleaseTarget confTarget , LocalFolder parentFolder ) throws Exception {
 		if( !openedForUse )
 			action.exit( "distributive is not opened for use" );
 		
@@ -277,7 +272,7 @@ public class Dist {
 	
 	public void createDeliveryFolders( ActionBase action ) throws Exception {
 		state.checkDistChangeEnabled( action );
-		for( MetaReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
+		for( ReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
 			createInternalDeliveryFolder( action , getDeliveryBinaryFolder( action , delivery.distDelivery ) );
 			createInternalDeliveryFolder( action , getDeliveryConfFolder( action , delivery.distDelivery ) );
 			createInternalDeliveryFolder( action , getDeliveryDatabaseFolder( action , delivery.distDelivery ) );
@@ -349,7 +344,7 @@ public class Dist {
 		
 		distFolder.copyFileFromLocal( action , filePath );
 		ShellExecutor shell = action.getShell( distFolder.account );
-		for( MetaReleaseDelivery delivery : src.info.getDeliveries( action ).values() ) {
+		for( ReleaseDelivery delivery : src.info.getDeliveries( action ).values() ) {
 			String dirFrom = src.distFolder.getFolderPath( action , delivery.distDelivery.FOLDER );
 			String dirTo = distFolder.getFolderPath( action , delivery.distDelivery.FOLDER );
 			int timeout = action.setTimeoutUnlimited();
@@ -464,13 +459,13 @@ public class Dist {
 	}
 
 	public String getReleaseConfCompParentFolder( ActionBase action , MetaDistrConfItem comp ) throws Exception {
-		MetaReleaseDelivery delivery = info.getDelivery( action , comp.delivery.NAME );
+		ReleaseDelivery delivery = info.getDelivery( action , comp.delivery.NAME );
 		String folder = getDeliveryConfFolder( action , delivery.distDelivery );
 		return( folder );
 	}
 	
 	public String getReleaseBinaryFolder( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		MetaReleaseDelivery delivery = info.getDelivery( action , item.delivery.NAME );
+		ReleaseDelivery delivery = info.getDelivery( action , item.delivery.NAME );
 		String folder = getDeliveryBinaryFolder( action , delivery.distDelivery );
 		return( folder );
 	}
@@ -516,9 +511,9 @@ public class Dist {
 		return( info );
 	}
 
-	public void descopeSet( ActionBase action , MetaReleaseSet set ) throws Exception {
+	public void descopeSet( ActionBase action , ReleaseSet set ) throws Exception {
 		state.ctlReloadCheckOpened( action );
-		for( MetaReleaseTarget target : set.getTargets( action ).values() )
+		for( ReleaseTarget target : set.getTargets( action ).values() )
 			dropTarget( action , target );
 		
 		if( action.meta.isSourceCategory( action , set.CATEGORY ) )
@@ -527,21 +522,21 @@ public class Dist {
 			info.deleteCategorySet( action , set.CATEGORY );
 	}
 	
-	public void descopeTarget( ActionBase action , MetaReleaseTarget target ) throws Exception {
+	public void descopeTarget( ActionBase action , ReleaseTarget target ) throws Exception {
 		state.ctlReloadCheckOpened( action );
 		dropTarget( action , target );
 		info.deleteTarget( action , target );
 	}
 	
-	public void descopeTargetItems( ActionBase action , MetaReleaseTargetItem[] items ) throws Exception {
+	public void descopeTargetItems( ActionBase action , ReleaseTargetItem[] items ) throws Exception {
 		state.ctlReloadCheckOpened( action );
-		for( MetaReleaseTargetItem item : items ) {
+		for( ReleaseTargetItem item : items ) {
 			dropTargetItem( action , item );
 			info.deleteProjectItem( action , item );
 		}
 	}
 	
-	private void dropTarget( ActionBase action , MetaReleaseTarget target ) throws Exception {
+	private void dropTarget( ActionBase action , ReleaseTarget target ) throws Exception {
 		if( target.CATEGORY == VarCATEGORY.CONFIG ) {
 			String folder = getDeliveryConfFolder( action , target.distConfItem.delivery );
 			distFolder.removeFolder( action , folder );
@@ -557,12 +552,12 @@ public class Dist {
 			distFolder.deleteVFile( action , folder , target.distManualItem.DISTBASENAME , target.distManualItem.EXT );
 		}
 		else {
-			for( MetaReleaseTargetItem item : target.getItems( action ).values() )
+			for( ReleaseTargetItem item : target.getItems( action ).values() )
 				dropTargetItem( action , item );
 		}
 	}
 
-	private void dropTargetItem( ActionBase action , MetaReleaseTargetItem item ) throws Exception {
+	private void dropTargetItem( ActionBase action , ReleaseTargetItem item ) throws Exception {
 		String folder = getReleaseBinaryFolder( action , item.distItem );
 		distFolder.deleteVFile( action , folder , item.distItem.DISTBASENAME , item.distItem.EXT );
 	}
@@ -572,7 +567,7 @@ public class Dist {
 			action.exit( "distributive is not opened for use" );
 		
 		if( item.DISTSOURCE == VarDISTITEMSOURCE.MANUAL ) {
-			MetaReleaseTarget target = info.findCategoryTarget( action , VarCATEGORY.MANUAL , item.KEY );
+			ReleaseTarget target = info.findCategoryTarget( action , VarCATEGORY.MANUAL , item.KEY );
 			if( target == null )
 				return( false );
 			return( true );
@@ -580,7 +575,7 @@ public class Dist {
 		else if( item.DISTSOURCE == VarDISTITEMSOURCE.DISTITEM )
 			return( checkIfReleaseItem( action , item.srcItem ) );
 		else if( item.DISTSOURCE == VarDISTITEMSOURCE.BUILD ) {
-			MetaReleaseTarget target = info.findBuildProject( action , item.sourceItem.project.PROJECT );
+			ReleaseTarget target = info.findBuildProject( action , item.sourceItem.project.PROJECT );
 			if( target == null )
 				return( false );
 			
@@ -600,7 +595,7 @@ public class Dist {
 			action.exit( "distributive is not opened for use" );
 		
 		if( item.DISTSOURCE == VarDISTITEMSOURCE.MANUAL ) {
-			MetaReleaseTarget target = info.findCategoryTarget( action , VarCATEGORY.MANUAL , item.KEY );
+			ReleaseTarget target = info.findCategoryTarget( action , VarCATEGORY.MANUAL , item.KEY );
 			if( target == null )
 				return( "" );
 			
@@ -610,11 +605,11 @@ public class Dist {
 			return( Common.getPath( BINARY_FOLDER , target.DISTFILE ) );
 		}
 		else if( item.DISTSOURCE == VarDISTITEMSOURCE.BUILD ) {
-			MetaReleaseTarget target = info.findBuildProject( action , item.sourceItem.project.PROJECT );
+			ReleaseTarget target = info.findBuildProject( action , item.sourceItem.project.PROJECT );
 			if( target == null )
 				return( "" );
 			
-			MetaReleaseTargetItem targetItem = target.getItem( action , item.KEY );
+			ReleaseTargetItem targetItem = target.getItem( action , item.KEY );
 			if( targetItem == null )
 				return( "" );
 			
@@ -633,18 +628,18 @@ public class Dist {
 		action.log( "find distributive files ..." );
 		files = distFolder.getFileSet( action );
 		
-		for( MetaReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
+		for( ReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
 			FileSet deliveryFiles = files.getDirByPath( action , delivery.distDelivery.FOLDER );
 			
-			for( MetaReleaseTargetItem targetItem : delivery.getProjectItems( action ).values() )
+			for( ReleaseTargetItem targetItem : delivery.getProjectItems( action ).values() )
 				gatherDeliveryBinaryItem( action , delivery , deliveryFiles , targetItem );
 				
-			for( MetaReleaseTarget targetItem : delivery.getManualItems( action ).values() )
+			for( ReleaseTarget targetItem : delivery.getManualItems( action ).values() )
 				gatherDeliveryManualItem( action , delivery , deliveryFiles , targetItem );
 		}
 	}
 
-	private void gatherDeliveryBinaryItem( ActionBase action , MetaReleaseDelivery delivery , FileSet deliveryFiles , MetaReleaseTargetItem targetItem ) throws Exception {
+	private void gatherDeliveryBinaryItem( ActionBase action , ReleaseDelivery delivery , FileSet deliveryFiles , ReleaseTargetItem targetItem ) throws Exception {
 		FileSet binaryFiles = null;
 		if( deliveryFiles != null )
 			binaryFiles = deliveryFiles.getDirByPath( action , BINARY_FOLDER );
@@ -656,7 +651,7 @@ public class Dist {
 		action.trace( "item=" + targetItem.distItem.KEY + ", file=" + ( ( fileName.isEmpty() )? "(missing)" : fileName ) );
 	}
 
-	private void gatherDeliveryManualItem( ActionBase action , MetaReleaseDelivery delivery , FileSet deliveryFiles , MetaReleaseTarget targetItem ) throws Exception {
+	private void gatherDeliveryManualItem( ActionBase action , ReleaseDelivery delivery , FileSet deliveryFiles , ReleaseTarget targetItem ) throws Exception {
 		FileSet binaryFiles = null;
 		if( deliveryFiles != null )
 			binaryFiles = deliveryFiles.getDirByPath( action , BINARY_FOLDER );

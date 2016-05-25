@@ -5,10 +5,6 @@ import java.util.List;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
-import ru.egov.urm.meta.MetaRelease;
-import ru.egov.urm.meta.MetaReleaseDelivery;
-import ru.egov.urm.meta.MetaReleaseTarget;
-import ru.egov.urm.meta.MetaReleaseTargetItem;
 import ru.egov.urm.storage.FileSet;
 import ru.egov.urm.storage.RemoteFolder;
 
@@ -17,9 +13,9 @@ public class DistFinalizer {
 	ActionBase action;
 	Dist dist;
 	RemoteFolder distFolder;
-	MetaRelease info;
+	Release info;
 	
-	public DistFinalizer( ActionBase action , Dist dist , RemoteFolder distFolder , MetaRelease info ) {
+	public DistFinalizer( ActionBase action , Dist dist , RemoteFolder distFolder , Release info ) {
 		this.action = action;
 		this.dist = dist;
 		this.distFolder = distFolder;
@@ -42,14 +38,14 @@ public class DistFinalizer {
 		dist.gatherFiles( action );
 		
 		FileSet fs = new FileSet( null );
-		for( MetaReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
-			for( MetaReleaseTarget item : delivery.getConfItems( action ).values() )
+		for( ReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
+			for( ReleaseTarget item : delivery.getConfItems( action ).values() )
 				createExpectedConfDeliveryItem( action , fs , delivery , item );
-			for( MetaReleaseTargetItem item : delivery.getProjectItems( action ).values() )
+			for( ReleaseTargetItem item : delivery.getProjectItems( action ).values() )
 				createExpectedProjectDeliveryItem( action , fs , delivery , item );
-			for( MetaReleaseTarget item : delivery.getManualItems( action ).values() )
+			for( ReleaseTarget item : delivery.getManualItems( action ).values() )
 				createExpectedManualDeliveryItem( action , fs , delivery , item );
-			MetaReleaseTarget dbitem = delivery.getDatabaseItem( action );
+			ReleaseTarget dbitem = delivery.getDatabaseItem( action );
 			if( dbitem != null )
 				createExpectedDatabaseDeliveryItem( action , fs , delivery , dbitem );
 		}
@@ -57,12 +53,12 @@ public class DistFinalizer {
 		return( fs );
 	}
 	
-	private void createExpectedConfDeliveryItem( ActionBase action , FileSet fs , MetaReleaseDelivery delivery , MetaReleaseTarget item ) throws Exception {
+	private void createExpectedConfDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseTarget item ) throws Exception {
 		FileSet dir = fs.createDir( dist.getDeliveryConfFolder( action , delivery.distDelivery ) );
 		dir.createDir( item.distConfItem.KEY );
 	}
 	
-	private void createExpectedProjectDeliveryItem( ActionBase action , FileSet fs , MetaReleaseDelivery delivery , MetaReleaseTargetItem item ) throws Exception {
+	private void createExpectedProjectDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseTargetItem item ) throws Exception {
 		FileSet dir = fs.createDir( dist.getDeliveryBinaryFolder( action , delivery.distDelivery ) );
 		if( !item.DISTFILE.isEmpty() )
 			dir.addFile( item.DISTFILE );
@@ -70,7 +66,7 @@ public class DistFinalizer {
 			dir.addFile( item.distItem.getBaseFile( action ) );
 	}
 	
-	private void createExpectedManualDeliveryItem( ActionBase action , FileSet fs , MetaReleaseDelivery delivery , MetaReleaseTarget item ) throws Exception {
+	private void createExpectedManualDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseTarget item ) throws Exception {
 		FileSet dir = fs.createDir( dist.getDeliveryBinaryFolder( action , delivery.distDelivery ) );
 		if( !item.DISTFILE.isEmpty() )
 			dir.addFile( item.DISTFILE );
@@ -78,7 +74,7 @@ public class DistFinalizer {
 			dir.addFile( item.distManualItem.getBaseFile( action ) );
 	}
 	
-	private void createExpectedDatabaseDeliveryItem( ActionBase action , FileSet fs , MetaReleaseDelivery delivery , MetaReleaseTarget item ) throws Exception {
+	private void createExpectedDatabaseDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseTarget item ) throws Exception {
 		fs.createDir( dist.getDeliveryDatabaseFolder( action , delivery.distDelivery ) );
 	}
 	
@@ -87,7 +83,7 @@ public class DistFinalizer {
 		// folders = deliveries
 		for( String dir : fsd.dirs.keySet() ) {
 			FileSet dirFilesDist = fsd.dirs.get( dir );
-			MetaReleaseDelivery delivery = info.findDeliveryByFolder( action , dir );
+			ReleaseDelivery delivery = info.findDeliveryByFolder( action , dir );
 			if( delivery == null || delivery.isEmpty() ) {
 				if( dirFilesDist.hasFiles() ) {
 					if( !action.context.CTX_FORCE ) {
@@ -117,7 +113,7 @@ public class DistFinalizer {
 		return( true );
 	}
 
-	private boolean finishDistDelivery( ActionBase action , MetaReleaseDelivery delivery , FileSet fsd , FileSet fsr ) throws Exception {
+	private boolean finishDistDelivery( ActionBase action , ReleaseDelivery delivery , FileSet fsd , FileSet fsr ) throws Exception {
 		// check by category
 		for( String dir : fsd.dirs.keySet() ) {
 			FileSet dirFilesDist = fsd.dirs.get( dir );
@@ -164,7 +160,7 @@ public class DistFinalizer {
 		return( true );
 	}
 
-	private boolean finishDistDeliveryBinary( ActionBase action , MetaReleaseDelivery delivery , FileSet fsd , FileSet fsr ) throws Exception {
+	private boolean finishDistDeliveryBinary( ActionBase action , ReleaseDelivery delivery , FileSet fsd , FileSet fsr ) throws Exception {
 		for( String fileDist : fsd.files.keySet() ) {
 			String fileRelease = fsr.files.get( fileDist );
 			if( fileRelease == null ) {
@@ -194,7 +190,7 @@ public class DistFinalizer {
 		return( true );
 	}
 	
-	private boolean finishDistDeliveryConfig( ActionBase action , MetaReleaseDelivery delivery , FileSet fsd , FileSet fsr ) throws Exception {
+	private boolean finishDistDeliveryConfig( ActionBase action , ReleaseDelivery delivery , FileSet fsd , FileSet fsr ) throws Exception {
 		for( String dir : fsd.dirs.keySet() ) {
 			FileSet dirFilesRelease = fsr.dirs.get( dir );
 			if( dirFilesRelease == null ) {
@@ -225,10 +221,10 @@ public class DistFinalizer {
 		String md5file = action.getTmpFilePath( "state.md5" );
 		
 		List<String> lines = new LinkedList<String>();
-		for( MetaReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
-			for( MetaReleaseTarget manualItem : delivery.getManualItems( action ).values() )
+		for( ReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
+			for( ReleaseTarget manualItem : delivery.getManualItems( action ).values() )
 				lines.add( DistMD5.getManualItemRecord( action , dist , manualItem ) );
-			for( MetaReleaseTargetItem projectItem : delivery.getProjectItems( action ).values() )
+			for( ReleaseTargetItem projectItem : delivery.getProjectItems( action ).values() )
 				lines.add( DistMD5.getProjectItemRecord( action , dist , projectItem ) );
 		}
 		

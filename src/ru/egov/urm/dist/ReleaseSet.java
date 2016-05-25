@@ -1,4 +1,4 @@
-package ru.egov.urm.meta;
+package ru.egov.urm.dist;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,14 +11,20 @@ import org.w3c.dom.Node;
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.meta.MetaDistrBinaryItem;
+import ru.egov.urm.meta.MetaDistrConfItem;
+import ru.egov.urm.meta.MetaDistrDelivery;
+import ru.egov.urm.meta.MetaSourceProject;
+import ru.egov.urm.meta.MetaSourceProjectSet;
+import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
 import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
 import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 
-public class MetaReleaseSet {
+public class ReleaseSet {
 
 	Metadata meta;
-	MetaRelease release;
+	Release release;
 	public VarCATEGORY CATEGORY;
 	
 	public MetaSourceProjectSet set;
@@ -29,16 +35,16 @@ public class MetaReleaseSet {
 	public String BUILDTAG = "";
 	public String BUILDVERSION = "";
 
-	Map<String,MetaReleaseTarget> map = new HashMap<String,MetaReleaseTarget>(); 
+	Map<String,ReleaseTarget> map = new HashMap<String,ReleaseTarget>(); 
 	
-	public MetaReleaseSet( Metadata meta , MetaRelease release , VarCATEGORY CATEGORY ) {
+	public ReleaseSet( Metadata meta , Release release , VarCATEGORY CATEGORY ) {
 		this.meta = meta;
 		this.release = release;
 		this.CATEGORY = CATEGORY;
 	}
 	
-	public MetaReleaseSet copy( ActionBase action , MetaRelease nr ) throws Exception {
-		MetaReleaseSet nx = new MetaReleaseSet( meta , nr , CATEGORY );
+	public ReleaseSet copy( ActionBase action , Release nr ) throws Exception {
+		ReleaseSet nx = new ReleaseSet( meta , nr , CATEGORY );
 		nx.NAME = NAME;
 		nx.ALL = ALL;
 		nx.BUILDBRANCH = BUILDBRANCH;
@@ -46,8 +52,8 @@ public class MetaReleaseSet {
 		nx.BUILDVERSION = BUILDVERSION;
 		nx.set = set;
 		
-		for( Entry<String,MetaReleaseTarget> entry : map.entrySet() ) {
-			MetaReleaseTarget item = entry.getValue().copy( action , nr , this );
+		for( Entry<String,ReleaseTarget> entry : map.entrySet() ) {
+			ReleaseTarget item = entry.getValue().copy( action , nr , this );
 			nx.map.put( entry.getKey() , item );
 		}
 		
@@ -85,8 +91,8 @@ public class MetaReleaseSet {
 		}
 	}
 
-	private MetaReleaseTarget loadTarget( ActionBase action , Node node ) throws Exception {
-		MetaReleaseTarget target = new MetaReleaseTarget( meta , this , CATEGORY );
+	private ReleaseTarget loadTarget( ActionBase action , Node node ) throws Exception {
+		ReleaseTarget target = new ReleaseTarget( meta , this , CATEGORY );
 		target.load( action , node );
 		
 		map.put( target.NAME , target );
@@ -116,7 +122,7 @@ public class MetaReleaseSet {
 			return;
 		
 		for( Node pnode : projects ) {
-			MetaReleaseTarget buildProject = loadTarget( action , pnode ); 
+			ReleaseTarget buildProject = loadTarget( action , pnode ); 
 			buildProject.BUILDBRANCH = BUILDBRANCH;
 			buildProject.BUILDTAG = BUILDTAG;
 			buildProject.BUILDVERSION = BUILDVERSION;
@@ -237,9 +243,9 @@ public class MetaReleaseSet {
 			addSourceProject( action , project , true );
 	}
 
-	public MetaReleaseTarget addSourceProject( ActionBase action , MetaSourceProject sourceProject , boolean allItems ) throws Exception {
+	public ReleaseTarget addSourceProject( ActionBase action , MetaSourceProject sourceProject , boolean allItems ) throws Exception {
 		action.trace( "add source project=" + sourceProject.PROJECT + " to release ..." );
-		MetaReleaseTarget project = new MetaReleaseTarget( meta , this , CATEGORY );
+		ReleaseTarget project = new ReleaseTarget( meta , this , CATEGORY );
 		project.createFromProject( action , sourceProject , allItems );
 		project.BUILDBRANCH = BUILDBRANCH;
 		project.BUILDTAG = BUILDTAG;
@@ -266,41 +272,41 @@ public class MetaReleaseSet {
 		}
 	}
 
-	public MetaReleaseTarget addConfItem( ActionBase action , MetaDistrConfItem item , boolean allFiles ) throws Exception {
-		MetaReleaseTarget confItem = new MetaReleaseTarget( meta , this , CATEGORY );
+	public ReleaseTarget addConfItem( ActionBase action , MetaDistrConfItem item , boolean allFiles ) throws Exception {
+		ReleaseTarget confItem = new ReleaseTarget( meta , this , CATEGORY );
 		confItem.createFromConfItem( action , item , allFiles );
 		
 		map.put( confItem.NAME , confItem );
 		return( confItem );
 	}
 	
-	public MetaReleaseTarget addDatabaseItem( ActionBase action , MetaDistrDelivery item ) throws Exception {
-		MetaReleaseTarget dbItem = new MetaReleaseTarget( meta , this , CATEGORY );
+	public ReleaseTarget addDatabaseItem( ActionBase action , MetaDistrDelivery item ) throws Exception {
+		ReleaseTarget dbItem = new ReleaseTarget( meta , this , CATEGORY );
 		dbItem.createFromDatabaseItem( action , item );
 		
 		map.put( dbItem.NAME , dbItem );
 		return( dbItem );
 	}
 	
-	public MetaReleaseTarget addManualItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		MetaReleaseTarget manualItem = new MetaReleaseTarget( meta , this , CATEGORY );
+	public ReleaseTarget addManualItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
+		ReleaseTarget manualItem = new ReleaseTarget( meta , this , CATEGORY );
 		manualItem.createFromManualItem( action , item );
 		
 		map.put( manualItem.NAME , manualItem );
 		return( manualItem );
 	}
 
-	public void removeTarget( ActionBase action , MetaReleaseTarget source ) throws Exception {
+	public void removeTarget( ActionBase action , ReleaseTarget source ) throws Exception {
 		map.remove( source.NAME );
 		ALL = false;
 	}
 	
-	public Map<String,MetaReleaseTarget> getTargets( ActionBase action ) {
+	public Map<String,ReleaseTarget> getTargets( ActionBase action ) {
 		return( map );
 	}
 
 	public String getProjectBranch( ActionBase action , String name ) throws Exception {
-		MetaReleaseTarget project = findTarget( action , name );
+		ReleaseTarget project = findTarget( action , name );
 		if( project == null )
 			return( "" );
 	
@@ -311,7 +317,7 @@ public class MetaReleaseSet {
 	}
 	
 	public String getProjectTag( ActionBase action , String name ) throws Exception {
-		MetaReleaseTarget project = findTarget( action , name );
+		ReleaseTarget project = findTarget( action , name );
 		if( project == null )
 			return( "" );
 	
@@ -321,12 +327,12 @@ public class MetaReleaseSet {
 		return( BUILDTAG );
 	}
 
-	public MetaReleaseTarget findTarget( ActionBase action , String key ) throws Exception {
+	public ReleaseTarget findTarget( ActionBase action , String key ) throws Exception {
  		return( map.get( key ) );
 	}
 	
-	public MetaReleaseTarget getTarget( ActionBase action , String key ) throws Exception {
-		MetaReleaseTarget source = findTarget( action , key );
+	public ReleaseTarget getTarget( ActionBase action , String key ) throws Exception {
+		ReleaseTarget source = findTarget( action , key );
 		if( source == null || !source.isCategoryItem( action , CATEGORY ) )
 			action.exit( "unknown release target key=" + key );
 		return( source );
@@ -385,7 +391,7 @@ public class MetaReleaseSet {
 		}
 
 		for( String key : Common.getSortedKeys( map ) ) {
-			MetaReleaseTarget target = map.get( key );
+			ReleaseTarget target = map.get( key );
 			target.createXml( action , doc , element );
 		}
 		
@@ -394,7 +400,7 @@ public class MetaReleaseSet {
 
 	public boolean checkAllBinaryIncluded( ActionBase action ) throws Exception {
 		for( MetaSourceProject project : set.originalList ) {
-			MetaReleaseTarget target = findTarget( action , project.PROJECT );
+			ReleaseTarget target = findTarget( action , project.PROJECT );
 			if( target == null )
 				return( false );
 			

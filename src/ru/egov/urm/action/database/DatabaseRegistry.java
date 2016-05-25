@@ -8,16 +8,16 @@ import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.CommandOptions.SQLMODE;
 import ru.egov.urm.action.database.DatabaseRegistryRelease.RELEASE_STATE;
+import ru.egov.urm.dist.Release;
 import ru.egov.urm.meta.MetaDistrDelivery;
 import ru.egov.urm.meta.MetaEnvServer;
-import ru.egov.urm.meta.MetaRelease;
 
 public class DatabaseRegistry {
 
 	// script file name: A<alignedid>-T<type>-I<instance>-{ZZ|RR}-<index>-<schema>-<any>.sql
 	
 	MetaEnvServer server;
-	MetaRelease release;
+	Release release;
 	DatabaseClient client;
 	
 	String major1;
@@ -32,14 +32,14 @@ public class DatabaseRegistry {
 	static String TABLE_RELEASES = "adm_releases"; 
 	static String TABLE_SCRIPTS = "adm_scripts"; 
 	
-	private DatabaseRegistry( DatabaseClient client , MetaRelease release ) {
+	private DatabaseRegistry( DatabaseClient client , Release release ) {
 		this.client = client;
 		this.server = client.specific.server;
 		this.release = release;
 		deliveryState = new HashMap<String,Map<String,String>>();
 	}
 
-	public static DatabaseRegistry getRegistry( ActionBase action , DatabaseClient client , MetaRelease release ) throws Exception {
+	public static DatabaseRegistry getRegistry( ActionBase action , DatabaseClient client , Release release ) throws Exception {
 		DatabaseRegistry registry = new DatabaseRegistry( client , release );
 		registry.readReleaseState( action );
 		return( registry );

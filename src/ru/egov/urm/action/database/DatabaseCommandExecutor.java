@@ -7,10 +7,10 @@ import ru.egov.urm.action.CommandAction;
 import ru.egov.urm.action.CommandBuilder;
 import ru.egov.urm.action.CommandExecutor;
 import ru.egov.urm.dist.Dist;
+import ru.egov.urm.dist.ReleaseDelivery;
 import ru.egov.urm.meta.MetaEnv;
 import ru.egov.urm.meta.MetaEnvDC;
 import ru.egov.urm.meta.MetaEnvServer;
-import ru.egov.urm.meta.MetaReleaseDelivery;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
 
 public class DatabaseCommandExecutor extends CommandExecutor {
@@ -108,7 +108,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		String DELIVERY = options.getRequiredArg( action , 1 , "delivery" );
 		
-		MetaReleaseDelivery delivery = null;
+		ReleaseDelivery delivery = null;
 		String indexScope = null;
 		if( DELIVERY.equals( "all" ) )
 			options.checkNoArgs( action , 2 );

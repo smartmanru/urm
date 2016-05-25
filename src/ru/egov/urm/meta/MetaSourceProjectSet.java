@@ -23,8 +23,8 @@ public class MetaSourceProjectSet {
 	public VarCATEGORY CATEGORY;
 	public String NAME;
 
-	List<MetaSourceProject> originalList;
-	Map<String,MetaSourceProject> map;
+	public List<MetaSourceProject> originalList;
+	public Map<String,MetaSourceProject> map;
 	
 	public MetaSourceProjectSet( Metadata meta , MetaSource source ) {
 		this.meta = meta;

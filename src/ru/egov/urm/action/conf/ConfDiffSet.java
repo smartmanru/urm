@@ -8,9 +8,9 @@ import java.util.Map;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.dist.Release;
+import ru.egov.urm.dist.ReleaseTarget;
 import ru.egov.urm.meta.MetaDistrConfItem;
-import ru.egov.urm.meta.MetaRelease;
-import ru.egov.urm.meta.MetaReleaseTarget;
 import ru.egov.urm.storage.FileSet;
 
 public class ConfDiffSet {
@@ -42,7 +42,7 @@ public class ConfDiffSet {
 		return( diffs.size() > 0 );
 	}
 	
-	public void calculate( ActionBase action , MetaRelease release ) throws Exception {
+	public void calculate( ActionBase action , Release release ) throws Exception {
 		diffs = new LinkedList<ConfDiffItem>();
 		dirNew = new HashMap<String,ConfDiffItem>();
 		dirOld = new HashMap<String,ConfDiffItem>();
@@ -57,7 +57,7 @@ public class ConfDiffSet {
 		getFileContentDiffs( action );
 	}
 
-	private void getFileSetDiffs( ActionBase action , MetaRelease release ) throws Exception {
+	private void getFileSetDiffs( ActionBase action , Release release ) throws Exception {
 		compareDirSet( action , release );
 		compareFileSet( action , release );
 	}
@@ -75,7 +75,7 @@ public class ConfDiffSet {
 		return( map );
 	}
 
-	private void compareDirSet( ActionBase action , MetaRelease release ) throws Exception {
+	private void compareDirSet( ActionBase action , Release release ) throws Exception {
 		Map<String,String> dirRel = getMap( action , releaseSet.dirList );
 		Map<String,String> dirProd = getMap( action , prodSet.dirList );
 		
@@ -126,7 +126,7 @@ public class ConfDiffSet {
 				if( dirPrefix != null )
 					compName = Common.getPartAfterFirst( compName , dirPrefix );
 				
-				MetaReleaseTarget comp = release.getConfComponent( action , compName );
+				ReleaseTarget comp = release.getConfComponent( action , compName );
 				if( !comp.ALL )
 					continue;
 			}
@@ -149,7 +149,7 @@ public class ConfDiffSet {
 		}
 	}
 
-	private void compareFileSet( ActionBase action , MetaRelease release ) throws Exception {
+	private void compareFileSet( ActionBase action , Release release ) throws Exception {
 		Map<String,String> fileRel = getMap( action , releaseSet.fileList );
 		Map<String,String> fileProd = getMap( action , prodSet.fileList );
 		
@@ -186,7 +186,7 @@ public class ConfDiffSet {
 				if( dirPrefix != null )
 					compName = Common.getPartAfterFirst( compName , dirPrefix );
 				
-				MetaReleaseTarget comp = release.getConfComponent( action , compName );
+				ReleaseTarget comp = release.getConfComponent( action , compName );
 				if( !comp.ALL )
 					continue;
 			}

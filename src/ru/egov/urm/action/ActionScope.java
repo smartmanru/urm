@@ -7,14 +7,14 @@ import java.util.Map;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.dist.Dist;
+import ru.egov.urm.dist.ReleaseDelivery;
+import ru.egov.urm.dist.ReleaseSet;
+import ru.egov.urm.dist.ReleaseTarget;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaEnv;
 import ru.egov.urm.meta.MetaEnvDC;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
-import ru.egov.urm.meta.MetaReleaseDelivery;
-import ru.egov.urm.meta.MetaReleaseSet;
-import ru.egov.urm.meta.MetaReleaseTarget;
 import ru.egov.urm.meta.MetaSourceProjectSet;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
@@ -268,14 +268,14 @@ public class ActionScope {
 				return;
 			
 			if( DELIVERY.equals( "all" ) ) {
-				for( MetaReleaseDelivery delivery : release.info.getDeliveries( action ).values() ) {
+				for( ReleaseDelivery delivery : release.info.getDeliveries( action ).values() ) {
 					ActionScopeTarget target = sset.addDatabaseDelivery( action , delivery , false , all );
 					if( !all )
 						target.addIndexItems( action , INDEXES );
 				}
 			}
 			else {
-				MetaReleaseDelivery delivery = release.info.getDelivery( action , DELIVERY );
+				ReleaseDelivery delivery = release.info.getDelivery( action , DELIVERY );
 				ActionScopeTarget target = sset.addDatabaseDelivery( action , delivery , true , all );
 				if( !all )
 					target.addIndexItems( action , INDEXES );
@@ -352,7 +352,7 @@ public class ActionScope {
 	private ActionScopeTarget createReleaseProjectItemsScope( ActionBase action , Dist release , String PROJECT , String[] ITEMS ) throws Exception {
 		scopeFull = false;
 		
-		MetaReleaseTarget releaseProject = release.info.findBuildProject( action , PROJECT );
+		ReleaseTarget releaseProject = release.info.findBuildProject( action , PROJECT );
 		if( releaseProject == null ) {
 			action.log( "ignore non-release project=" + PROJECT );
 			return( null );
@@ -395,7 +395,7 @@ public class ActionScope {
 			if( item.DISTSOURCE == VarDISTITEMSOURCE.MANUAL )
 				sset = createReleaseCategoryScopeSet( action , dist , VarCATEGORY.MANUAL );
 			else {
-				MetaReleaseSet rset = release.info.getSourceSet( action , item.sourceItem.project.set.NAME );
+				ReleaseSet rset = release.info.getSourceSet( action , item.sourceItem.project.set.NAME );
 				sset = createReleaseScopeSet( action , rset );
 			}
 			
@@ -449,7 +449,7 @@ public class ActionScope {
 		else {
 			MetaSourceProjectSet set = meta.sources.getProjectSet( action , SET );
 			if( release.info.addSourceSet( action , set , false ) ) {
-				MetaReleaseSet rset = release.info.getSourceSet( action , SET );  
+				ReleaseSet rset = release.info.getSourceSet( action , SET );  
 				addReleaseProjects( action , release , rset , TARGETS );
 			}
 		}
@@ -464,7 +464,7 @@ public class ActionScope {
 		if( sset != null )
 			return( sset );
 		
-		MetaReleaseSet rset = release.info.findCategorySet( action , CATEGORY );
+		ReleaseSet rset = release.info.findCategorySet( action , CATEGORY );
 		if( rset == null ) {
 			action.log( "ignore non-release set=" + Common.getEnumLower( CATEGORY ) );
 			return( null );
@@ -507,7 +507,7 @@ public class ActionScope {
 		return( categoryMap.get( CATEGORY ) );
 	}
 
-	private ActionScopeSet createReleaseScopeSet( ActionBase action , MetaReleaseSet rset ) throws Exception {
+	private ActionScopeSet createReleaseScopeSet( ActionBase action , ReleaseSet rset ) throws Exception {
 		ActionScopeSet sset = getScopeSet( action , rset.CATEGORY , rset.NAME );
 		if( sset != null )
 			return( sset );
@@ -693,13 +693,13 @@ public class ActionScope {
 	}
 		
 	private void addAllReleaseProjects( ActionBase action , Dist release ) throws Exception {
-		for( MetaReleaseSet rset : release.info.getSourceSets( action ).values() ) {
+		for( ReleaseSet rset : release.info.getSourceSets( action ).values() ) {
 			ActionScopeSet sset = createReleaseScopeSet( action , rset );
 			sset.addProjects( action , null );
 		}
 	}
 		
-	private void addReleaseProjects( ActionBase action , Dist release , MetaReleaseSet rset , String[] PROJECTS ) throws Exception {
+	private void addReleaseProjects( ActionBase action , Dist release , ReleaseSet rset , String[] PROJECTS ) throws Exception {
 		ActionScopeSet sset = createReleaseScopeSet( action , rset );
 		sset.addProjects( action , PROJECTS );
 	}

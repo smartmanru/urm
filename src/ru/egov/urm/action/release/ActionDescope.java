@@ -8,7 +8,7 @@ import ru.egov.urm.action.ActionScopeSet;
 import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.ActionScopeTargetItem;
 import ru.egov.urm.dist.Dist;
-import ru.egov.urm.meta.MetaReleaseTargetItem;
+import ru.egov.urm.dist.ReleaseTargetItem;
 
 public class ActionDescope extends ActionBase {
 
@@ -33,11 +33,11 @@ public class ActionDescope extends ActionBase {
 			return( true );
 		}
 		
-		List<MetaReleaseTargetItem> items = new LinkedList<MetaReleaseTargetItem>();
+		List<ReleaseTargetItem> items = new LinkedList<ReleaseTargetItem>();
 		for( ActionScopeTargetItem item : target.getItems( this ) )
 			items.add( item.releaseItem );
 		
-		dist.descopeTargetItems( this , items.toArray( new MetaReleaseTargetItem[0] ) );
+		dist.descopeTargetItems( this , items.toArray( new ReleaseTargetItem[0] ) );
 		
 		return( true );
 	}

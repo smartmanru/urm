@@ -7,6 +7,11 @@ import java.util.Map;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.dist.Dist;
+import ru.egov.urm.dist.Release;
+import ru.egov.urm.dist.ReleaseDelivery;
+import ru.egov.urm.dist.ReleaseSet;
+import ru.egov.urm.dist.ReleaseTarget;
+import ru.egov.urm.dist.ReleaseTargetItem;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaDistrDelivery;
@@ -15,11 +20,6 @@ import ru.egov.urm.meta.MetaEnvDC;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.MetaEnvStartGroup;
-import ru.egov.urm.meta.MetaRelease;
-import ru.egov.urm.meta.MetaReleaseDelivery;
-import ru.egov.urm.meta.MetaReleaseSet;
-import ru.egov.urm.meta.MetaReleaseTarget;
-import ru.egov.urm.meta.MetaReleaseTargetItem;
 import ru.egov.urm.meta.MetaSourceProject;
 import ru.egov.urm.meta.MetaSourceProjectSet;
 import ru.egov.urm.meta.Metadata;
@@ -36,7 +36,7 @@ public class ActionScopeSet {
 	public boolean setFull;
 	
 	public MetaSourceProjectSet pset;
-	public MetaReleaseSet rset;
+	public ReleaseSet rset;
 	
 	Map<String,ActionScopeTarget> targets = new HashMap<String,ActionScopeTarget>();
 	ActionScopeTarget manualTarget;
@@ -70,7 +70,7 @@ public class ActionScopeSet {
 		this.setFull = false;
 	}
 
-	public void create( ActionBase action , MetaReleaseSet rset ) throws Exception {
+	public void create( ActionBase action , ReleaseSet rset ) throws Exception {
 		this.rset = rset;
 		this.pset = rset.set;
 		this.NAME = rset.NAME;
@@ -109,7 +109,7 @@ public class ActionScopeSet {
 		return( target );
 	}
 		
-	public ActionScopeTarget addReleaseProject( ActionBase action , MetaReleaseTarget releaseProject , boolean allItems , boolean specifiedExplicitly ) throws Exception {
+	public ActionScopeTarget addReleaseProject( ActionBase action , ReleaseTarget releaseProject , boolean allItems , boolean specifiedExplicitly ) throws Exception {
 		ActionScopeTarget target = ActionScopeTarget.createReleaseSourceProjectTarget( this , releaseProject , specifiedExplicitly ); 
 		addTarget( action , target );
 		
@@ -125,13 +125,13 @@ public class ActionScopeSet {
 		return( target );
 	}
 	
-	public ActionScopeTarget addDatabaseDelivery( ActionBase action , MetaReleaseDelivery delivery , boolean specifiedExplicitly , boolean all ) throws Exception {
+	public ActionScopeTarget addDatabaseDelivery( ActionBase action , ReleaseDelivery delivery , boolean specifiedExplicitly , boolean all ) throws Exception {
 		ActionScopeTarget target = ActionScopeTarget.createDatabaseDeliveryTarget( this , delivery.distDelivery , specifiedExplicitly , all );
 		addTarget( action , target );
 		return( target );
 	}
 	
-	public ActionScopeTarget addReleaseProjectItems( ActionBase action , MetaReleaseTarget releaseProject , String[] ITEMS ) throws Exception {
+	public ActionScopeTarget addReleaseProjectItems( ActionBase action , ReleaseTarget releaseProject , String[] ITEMS ) throws Exception {
 		ActionScopeTarget target = ActionScopeTarget.createReleaseSourceProjectTarget( this, releaseProject , true );
 		addTarget( action , target );
 		target.addProjectItems( action , ITEMS );
@@ -189,13 +189,13 @@ public class ActionScopeSet {
 	private void addReleaseProjects( ActionBase action , String[] PROJECTS ) throws Exception {
 		if( PROJECTS == null || PROJECTS.length == 0 ) {
 			setFull = true; 
-			for( MetaReleaseTarget project : rset.getTargets( action ).values() )
+			for( ReleaseTarget project : rset.getTargets( action ).values() )
 				addReleaseProject( action , project , true , false );
 			return;
 		}
 		
 		for( String name : PROJECTS ) {
-			MetaReleaseTarget sourceProject = rset.getTarget( action ,  name );
+			ReleaseTarget sourceProject = rset.getTarget( action ,  name );
 			addReleaseProject( action , sourceProject , true , true );
 		}
 	}
@@ -229,13 +229,13 @@ public class ActionScopeSet {
 	private void addReleaseConfigComps( ActionBase action , String[] COMPS ) throws Exception {
 		if( COMPS == null || COMPS.length == 0 ) {
 			setFull = true; 
-			for( MetaReleaseTarget item : rset.getTargets( action ).values() )
+			for( ReleaseTarget item : rset.getTargets( action ).values() )
 				addReleaseTarget( action , item , false );
 			return;
 		}
 		
 		for( String key : COMPS ) {
-			MetaReleaseTarget item = rset.getTarget( action , key );
+			ReleaseTarget item = rset.getTarget( action , key );
 			addReleaseTarget( action , item , true );
 		}
 	}
@@ -272,18 +272,18 @@ public class ActionScopeSet {
 	private void addReleaseManualItems( ActionBase action , String[] ITEMS ) throws Exception {
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			setFull = true; 
-			for( MetaReleaseTarget item : rset.getTargets( action ).values() )
+			for( ReleaseTarget item : rset.getTargets( action ).values() )
 				addReleaseTarget( action , item , false );
 			return;
 		}
 		
 		for( String key : ITEMS ) {
-			MetaReleaseTarget item = rset.getTarget( action , key );
+			ReleaseTarget item = rset.getTarget( action , key );
 			addReleaseTarget( action , item , true );
 		}
 	}
 
-	private void addReleaseTarget( ActionBase action , MetaReleaseTarget releaseItem , boolean specifiedExplicitly ) throws Exception {
+	private void addReleaseTarget( ActionBase action , ReleaseTarget releaseItem , boolean specifiedExplicitly ) throws Exception {
 		ActionScopeTarget target = ActionScopeTarget.createReleaseSourceProjectTarget( this , releaseItem , specifiedExplicitly );
 		addTarget( action , target );
 	}
@@ -317,41 +317,41 @@ public class ActionScopeSet {
 	private void addReleaseDatabaseItems( ActionBase action , String[] DELIVERIES ) throws Exception {
 		if( DELIVERIES == null || DELIVERIES.length == 0 ) {
 			setFull = true; 
-			for( MetaReleaseTarget item : rset.getTargets( action ).values() )
+			for( ReleaseTarget item : rset.getTargets( action ).values() )
 				addReleaseTarget( action , item , false );
 			return;
 		}
 		
 		for( String key : DELIVERIES ) {
-			MetaReleaseTarget item = rset.getTarget( action , key );
+			ReleaseTarget item = rset.getTarget( action , key );
 			addReleaseTarget( action , item , true );
 		}
 	}
 
-	private boolean checkServerDatabaseDelivery( ActionBase action , MetaEnvServer server , MetaReleaseDelivery delivery ) throws Exception {
+	private boolean checkServerDatabaseDelivery( ActionBase action , MetaEnvServer server , ReleaseDelivery delivery ) throws Exception {
 		return( server.hasDatabaseItemDeployment( action , delivery.distDelivery ) );
 	}
 	
-	private boolean checkServerDelivery( ActionBase action , MetaEnvServer server , MetaReleaseDelivery delivery ) throws Exception {
+	private boolean checkServerDelivery( ActionBase action , MetaEnvServer server , ReleaseDelivery delivery ) throws Exception {
 		if( action.context.CTX_CONFDEPLOY ) {
-			for( MetaReleaseTarget target : delivery.getConfItems( action ).values() ) {
+			for( ReleaseTarget target : delivery.getConfItems( action ).values() ) {
 				if( server.hasConfItemDeployment( action , target.distConfItem ) )
 					return( true );
 			}
 		}
 		
-		MetaReleaseTarget dbtarget  = delivery.getDatabaseItem( action );
+		ReleaseTarget dbtarget  = delivery.getDatabaseItem( action );
 		if( dbtarget != null ) {
 			if( server.hasDatabaseItemDeployment( action , dbtarget.distDatabaseItem ) )
 				return( true );
 		}
 
 		if( action.context.CTX_DEPLOYBINARY ) {
-			for( MetaReleaseTarget target : delivery.getManualItems( action ).values() ) {
+			for( ReleaseTarget target : delivery.getManualItems( action ).values() ) {
 				if( server.hasBinaryItemDeployment( action , target.distManualItem ) )
 					return( true );
 			}
-			for( MetaReleaseTargetItem item : delivery.getProjectItems( action ).values() ) {
+			for( ReleaseTargetItem item : delivery.getProjectItems( action ).values() ) {
 				if( server.hasBinaryItemDeployment( action , item.distItem ) )
 					return( true );
 			}
@@ -362,9 +362,9 @@ public class ActionScopeSet {
 	
 	private Map<String,MetaEnvServer> getReleaseServers( ActionBase action , Dist release ) throws Exception {
 		Map<String,MetaEnvServer> mapServers = new HashMap<String,MetaEnvServer>();
-		MetaRelease info = release.info;
+		Release info = release.info;
 
-		for( MetaReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
+		for( ReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
 			for( MetaEnvServer server : dc.getServerMap( action ).values() ) {
 				if( checkServerDelivery( action , server , delivery ) )
 					mapServers.put( server.NAME , server );
@@ -375,9 +375,9 @@ public class ActionScopeSet {
 	
 	private Map<String,MetaEnvServer> getReleaseDatabaseServers( ActionBase action , Dist release ) throws Exception {
 		Map<String,MetaEnvServer> mapServers = new HashMap<String,MetaEnvServer>();
-		MetaRelease info = release.info;
+		Release info = release.info;
 
-		for( MetaReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
+		for( ReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
 			for( MetaEnvServer server : dc.getServerMap( action ).values() ) {
 				if( checkServerDatabaseDelivery( action , server , delivery ) )
 					mapServers.put( server.NAME , server );

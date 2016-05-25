@@ -1,4 +1,4 @@
-package ru.egov.urm.meta;
+package ru.egov.urm.dist;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,14 +12,20 @@ import org.w3c.dom.Node;
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.meta.MetaDistrBinaryItem;
+import ru.egov.urm.meta.MetaDistrConfItem;
+import ru.egov.urm.meta.MetaDistrDelivery;
+import ru.egov.urm.meta.MetaSourceProject;
+import ru.egov.urm.meta.MetaSourceProjectItem;
+import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
 import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
 import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 
-public class MetaReleaseTarget {
+public class ReleaseTarget {
 
 	Metadata meta;
-	public MetaReleaseSet set;
+	public ReleaseSet set;
 	public VarCATEGORY CATEGORY;
 
 	public boolean ALL;
@@ -34,18 +40,18 @@ public class MetaReleaseTarget {
 	public MetaDistrDelivery distDatabaseItem;
 	public MetaDistrBinaryItem distManualItem;
 	
-	Map<String,MetaReleaseTargetItem> itemMap = new HashMap<String,MetaReleaseTargetItem>();
+	Map<String,ReleaseTargetItem> itemMap = new HashMap<String,ReleaseTargetItem>();
 	
 	public String DISTFILE;
 
-	public MetaReleaseTarget( Metadata meta , MetaReleaseSet set , VarCATEGORY CATEGORY ) {
+	public ReleaseTarget( Metadata meta , ReleaseSet set , VarCATEGORY CATEGORY ) {
 		this.meta = meta;
 		this.set = set;
 		this.CATEGORY = CATEGORY;
 	}
 
-	public MetaReleaseTarget copy( ActionBase action , MetaRelease nr , MetaReleaseSet ns ) throws Exception {
-		MetaReleaseTarget nx = new MetaReleaseTarget( meta , ns , CATEGORY );
+	public ReleaseTarget copy( ActionBase action , Release nr , ReleaseSet ns ) throws Exception {
+		ReleaseTarget nx = new ReleaseTarget( meta , ns , CATEGORY );
 		
 		nx.ALL = ALL;
 		nx.NAME = NAME;
@@ -59,8 +65,8 @@ public class MetaReleaseTarget {
 		nx.distDatabaseItem = distDatabaseItem;
 		nx.distManualItem = distManualItem;
 
-		for( Entry<String,MetaReleaseTargetItem> entry : itemMap.entrySet() ) {
-			MetaReleaseTargetItem item = entry.getValue().copy( action , nr , ns , this );
+		for( Entry<String,ReleaseTargetItem> entry : itemMap.entrySet() ) {
+			ReleaseTargetItem item = entry.getValue().copy( action , nr , ns , this );
 			nx.itemMap.put( entry.getKey() , item );
 		}
 		
@@ -145,7 +151,7 @@ public class MetaReleaseTarget {
 
 		ALL = false;
 		for( Node inode : items ) {
-			MetaReleaseTargetItem item = new MetaReleaseTargetItem( meta , this );
+			ReleaseTargetItem item = new ReleaseTargetItem( meta , this );
 			item.loadSourceItem( action , inode );
 			itemMap.put( item.NAME , item );
 		}
@@ -235,25 +241,25 @@ public class MetaReleaseTarget {
 		return( true );
 	}
 	
-	public MetaReleaseTargetItem addSourceItem( ActionBase action , MetaSourceProjectItem projectitem ) throws Exception {
+	public ReleaseTargetItem addSourceItem( ActionBase action , MetaSourceProjectItem projectitem ) throws Exception {
 		// ignore internal items
 		if( projectitem.INTERNAL )
 			return( null );
 		
-		MetaReleaseTargetItem item = new MetaReleaseTargetItem( meta , this );
+		ReleaseTargetItem item = new ReleaseTargetItem( meta , this );
 		item.createFromSourceItem( action , projectitem );
 		itemMap.put( item.NAME , item );
 		return( item );
 	}
 	
-	public MetaReleaseTargetItem getItem( ActionBase action , String ITEMNAME ) throws Exception {
+	public ReleaseTargetItem getItem( ActionBase action , String ITEMNAME ) throws Exception {
 		return( itemMap.get( ITEMNAME ) );
 	}
 	
 	public void addAllSourceItems( ActionBase action , MetaSourceProject sourceProject ) throws Exception {
 		ALL = true;
 		if( sourceProject.distItem != null ) {
-			MetaReleaseTargetItem item = new MetaReleaseTargetItem( meta , this );
+			ReleaseTargetItem item = new ReleaseTargetItem( meta , this );
 			item.createFromDistrItem( action , sourceProject.distItem );
 			itemMap.put( item.NAME , item );
 			return;
@@ -265,7 +271,7 @@ public class MetaReleaseTarget {
 			addSourceItem( action , projectitem );
 	}
 
-	public Map<String,MetaReleaseTargetItem> getItems( ActionBase action ) throws Exception {
+	public Map<String,ReleaseTargetItem> getItems( ActionBase action ) throws Exception {
 		return( itemMap );
 	}
 	
@@ -360,7 +366,7 @@ public class MetaReleaseTarget {
 		}
 		
 		// selected items
-		for( MetaReleaseTargetItem item : itemMap.values() )
+		for( ReleaseTargetItem item : itemMap.values() )
 			item.createXml( action , doc , element );
 		
 		return( element );
@@ -388,7 +394,7 @@ public class MetaReleaseTarget {
 
 	public boolean checkSourceAllIncluded( ActionBase action ) throws Exception {
 		for( MetaSourceProjectItem projectitem : sourceProject.getIitemList( action ) ) {
-			MetaReleaseTargetItem source = itemMap.get( projectitem.ITEMNAME );
+			ReleaseTargetItem source = itemMap.get( projectitem.ITEMNAME );
 			if( source == null )
 				return( false );
 		}
@@ -396,7 +402,7 @@ public class MetaReleaseTarget {
 		return( true );
 	}
 	
-	public void removeSourceItem( ActionBase action , MetaReleaseTargetItem buildItem ) throws Exception {
+	public void removeSourceItem( ActionBase action , ReleaseTargetItem buildItem ) throws Exception {
 		itemMap.remove( buildItem.NAME );
 		ALL = false;
 	}

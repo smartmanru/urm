@@ -10,11 +10,11 @@ import ru.egov.urm.ConfReader;
 import ru.egov.urm.PropertySet;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.dist.Dist;
+import ru.egov.urm.dist.ReleaseDelivery;
+import ru.egov.urm.dist.ReleaseTarget;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
-import ru.egov.urm.meta.MetaReleaseDelivery;
-import ru.egov.urm.meta.MetaReleaseTarget;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.storage.Artefactory;
 import ru.egov.urm.storage.FileSet;
@@ -36,7 +36,7 @@ public class ConfBuilder {
 		this.meta = action.meta;
 	}
 
-	public String createConfDiffFile( Dist release , MetaReleaseDelivery delivery ) throws Exception {
+	public String createConfDiffFile( Dist release , ReleaseDelivery delivery ) throws Exception {
 		// copy conf from release
 		LocalFolder releaseFolder = artefactory.getWorkFolder( action , "release.delivery.conf" );
 		releaseFolder.recreateThis( action );
@@ -48,7 +48,7 @@ public class ConfBuilder {
 		prodFolder.recreateThis( action );
 		SourceStorage storage = artefactory.getSourceStorage( action , prodFolder );
 		
-		for( MetaReleaseTarget releaseComp : delivery.getConfItems( action ).values() ) {
+		for( ReleaseTarget releaseComp : delivery.getConfItems( action ).values() ) {
 			ConfSourceFolder sourceFolder = new ConfSourceFolder( meta );
 			sourceFolder.createReleaseConfigurationFolder( action , releaseComp );
 			storage.downloadProductConfigItem( action , sourceFolder , prodFolder );

@@ -1,9 +1,9 @@
 package ru.egov.urm.action;
 
+import ru.egov.urm.dist.ReleaseTargetItem;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.MetaSourceProjectItem;
-import ru.egov.urm.meta.MetaReleaseTargetItem;
 
 public class ActionScopeTargetItem {
 
@@ -11,7 +11,7 @@ public class ActionScopeTargetItem {
 	public MetaDistrBinaryItem distItem;
 	public MetaSourceProjectItem sourceItem;
 	public MetaEnvServerNode envServerNode; 
-	public MetaReleaseTargetItem releaseItem;
+	public ReleaseTargetItem releaseItem;
 	public boolean scriptIndex = false;
 	public boolean specifiedExplicitly;
 	
@@ -35,7 +35,7 @@ public class ActionScopeTargetItem {
 		return( ti );
 	}
 	
-	public static ActionScopeTargetItem createReleaseTargetItem( MetaReleaseTargetItem releaseItem , boolean specifiedExplicitly ) {
+	public static ActionScopeTargetItem createReleaseTargetItem( ReleaseTargetItem releaseItem , boolean specifiedExplicitly ) {
 		ActionScopeTargetItem ti = new ActionScopeTargetItem(); 
 		ti.distItem = releaseItem.distItem;
 		ti.sourceItem = releaseItem.sourceItem;

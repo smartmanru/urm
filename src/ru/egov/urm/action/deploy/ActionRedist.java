@@ -6,12 +6,12 @@ import ru.egov.urm.action.ActionScopeSet;
 import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.ActionScopeTargetItem;
 import ru.egov.urm.dist.Dist;
+import ru.egov.urm.dist.ReleaseTarget;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerLocation;
 import ru.egov.urm.meta.MetaEnvServerNode;
-import ru.egov.urm.meta.MetaReleaseTarget;
 import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
 import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
 import ru.egov.urm.storage.FileInfo;
@@ -209,7 +209,7 @@ public class ActionRedist extends ActionBase {
 	}
 	
 	private boolean executeNodeConfigComp( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrConfItem confItem , LocalFolder liveFolder ) throws Exception {
-		MetaReleaseTarget target = dist.info.findConfComponent( this , confItem.KEY );
+		ReleaseTarget target = dist.info.findConfComponent( this , confItem.KEY );
 		
 		// not in release
 		if( target == null ) {

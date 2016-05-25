@@ -6,11 +6,11 @@ import java.util.Map;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScope;
 import ru.egov.urm.dist.DistItemInfo;
+import ru.egov.urm.dist.Release;
+import ru.egov.urm.dist.ReleaseDelivery;
+import ru.egov.urm.dist.ReleaseTargetItem;
 import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
-import ru.egov.urm.meta.MetaRelease;
-import ru.egov.urm.meta.MetaReleaseTargetItem;
-import ru.egov.urm.meta.MetaReleaseDelivery;
 import ru.egov.urm.storage.FileSet;
 
 public class ActionDistVerifier extends ActionBase {
@@ -22,7 +22,7 @@ public class ActionDistVerifier extends ActionBase {
 	@Override protected boolean executeScope( ActionScope scope ) throws Exception {
 		Dist dist = scope.release;
 		FileSet set = dist.getFiles( this );
-		MetaRelease info = dist.info;
+		Release info = dist.info;
 		
 		// delete empty top folders, top directories are deliveries only
 		for( String dirPath : set.dirList ) {
@@ -32,7 +32,7 @@ public class ActionDistVerifier extends ActionBase {
 			
 			// find delivery
 			if( !dir.isEmpty() ) {
-				MetaReleaseDelivery delivery = info.getDeliveryByFolder( this , dir.dirName );
+				ReleaseDelivery delivery = info.getDeliveryByFolder( this , dir.dirName );
 				if( delivery.isEmpty() ) {
 					log( "distributive folder=" + dir.dirName + " is expected to be empty" );
 					super.setFailed();
@@ -42,7 +42,7 @@ public class ActionDistVerifier extends ActionBase {
 		}
 
 		// check all deliveries are stored in distributive
-		for( MetaReleaseDelivery delivery : info.getDeliveries( this ).values() ) {
+		for( ReleaseDelivery delivery : info.getDeliveries( this ).values() ) {
 			if( !delivery.isEmpty() ) {
 				FileSet dir = set.getDirByPath( this , delivery.distDelivery.FOLDER );
 				if( dir == null ) {
@@ -70,12 +70,12 @@ public class ActionDistVerifier extends ActionBase {
 		return( true );
 	}
 
-	private boolean checkFinalizeItems( Dist dist , MetaReleaseDelivery delivery ) throws Exception {
+	private boolean checkFinalizeItems( Dist dist , ReleaseDelivery delivery ) throws Exception {
 		FileSet set = dist.getFiles( this );
 		Map<String,MetaDistrBinaryItem> items = new HashMap<String,MetaDistrBinaryItem>(); 
 		
 		// find distributive files
-		for( MetaReleaseTargetItem item : delivery.getProjectItems( this ).values() ) {
+		for( ReleaseTargetItem item : delivery.getProjectItems( this ).values() ) {
 			MetaDistrBinaryItem distItem = item.distItem;
 			DistItemInfo info = dist.getDistItemInfo( this , distItem , false );
 			if( !info.found ) {
@@ -97,11 +97,11 @@ public class ActionDistVerifier extends ActionBase {
 		return( true );
 	}
 	
-	private boolean checkFinalizeDatabase( Dist dist , MetaReleaseDelivery delivery ) throws Exception {
+	private boolean checkFinalizeDatabase( Dist dist , ReleaseDelivery delivery ) throws Exception {
 		return( false );
 	}
 	
-	private boolean checkFinalizeConfiguration( Dist dist , MetaReleaseDelivery delivery ) throws Exception {
+	private boolean checkFinalizeConfiguration( Dist dist , ReleaseDelivery delivery ) throws Exception {
 		return( false );
 	}
 

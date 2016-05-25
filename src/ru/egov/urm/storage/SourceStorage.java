@@ -4,6 +4,7 @@ import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.conf.ConfSourceFolder;
 import ru.egov.urm.dist.Dist;
+import ru.egov.urm.dist.ReleaseTarget;
 import ru.egov.urm.meta.MetaDistrComponentItem;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaDistrDelivery;
@@ -11,7 +12,6 @@ import ru.egov.urm.meta.MetaEnvDC;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerDeployment;
 import ru.egov.urm.meta.MetaEnvServerNode;
-import ru.egov.urm.meta.MetaReleaseTarget;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.vcs.GenericVCS;
 
@@ -176,7 +176,7 @@ public class SourceStorage {
 		return( PATH );
 	}
 
-	public String getReleaseConfigSourcePath( ActionBase action , Dist distStorage , MetaReleaseTarget releaseComp ) throws Exception {
+	public String getReleaseConfigSourcePath( ActionBase action , Dist distStorage , ReleaseTarget releaseComp ) throws Exception {
 		String PATH = Common.getPath( getReleasePath( action , distStorage ) , 
 			getConfFolderRelPath( action , releaseComp.distConfItem ) );
 		return( PATH );

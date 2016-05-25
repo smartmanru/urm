@@ -1,56 +1,58 @@
-package ru.egov.urm.meta;
+package ru.egov.urm.dist;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.meta.MetaDistrDelivery;
+import ru.egov.urm.meta.Metadata;
 
-public class MetaReleaseDelivery {
+public class ReleaseDelivery {
 
 	Metadata meta;
-	public MetaRelease release;
+	public Release release;
 	public MetaDistrDelivery distDelivery;
 	
-	private Map<String,MetaReleaseTargetItem> projectItems;
-	private Map<String,MetaReleaseTarget> confItems;
-	private Map<String,MetaReleaseTarget> manualItems;
-	private MetaReleaseTarget dbItem;
+	private Map<String,ReleaseTargetItem> projectItems;
+	private Map<String,ReleaseTarget> confItems;
+	private Map<String,ReleaseTarget> manualItems;
+	private ReleaseTarget dbItem;
 	
-	public MetaReleaseDelivery( Metadata meta , MetaRelease release , MetaDistrDelivery distDelivery ) {
+	public ReleaseDelivery( Metadata meta , Release release , MetaDistrDelivery distDelivery ) {
 		this.meta = meta; 
 		this.release = release;
 		this.distDelivery = distDelivery;
 		
-		projectItems = new HashMap<String,MetaReleaseTargetItem>();
-		confItems = new HashMap<String,MetaReleaseTarget>();
-		manualItems = new HashMap<String,MetaReleaseTarget>();
+		projectItems = new HashMap<String,ReleaseTargetItem>();
+		confItems = new HashMap<String,ReleaseTarget>();
+		manualItems = new HashMap<String,ReleaseTarget>();
 		dbItem = null;
 	}
 
-	public MetaReleaseDelivery copy( ActionBase action , MetaRelease nr ) throws Exception {
-		MetaReleaseDelivery nx = new MetaReleaseDelivery( meta , nr , distDelivery );
+	public ReleaseDelivery copy( ActionBase action , Release nr ) throws Exception {
+		ReleaseDelivery nx = new ReleaseDelivery( meta , nr , distDelivery );
 		
-		for( Entry<String,MetaReleaseTargetItem> entry : projectItems.entrySet() ) {
-			MetaReleaseTargetItem src = entry.getValue();
-			MetaReleaseSet srcSet = src.target.set;
-			MetaReleaseSet dstSet = nr.getSourceSet( action , srcSet.NAME );
-			MetaReleaseTarget dstTarget = dstSet.getTarget( action , src.NAME );
-			MetaReleaseTargetItem dst = dstTarget.getItem( action , src.NAME );
+		for( Entry<String,ReleaseTargetItem> entry : projectItems.entrySet() ) {
+			ReleaseTargetItem src = entry.getValue();
+			ReleaseSet srcSet = src.target.set;
+			ReleaseSet dstSet = nr.getSourceSet( action , srcSet.NAME );
+			ReleaseTarget dstTarget = dstSet.getTarget( action , src.NAME );
+			ReleaseTargetItem dst = dstTarget.getItem( action , src.NAME );
 			nx.projectItems.put( entry.getKey() , dst );
 		}
 		
-		for( Entry<String,MetaReleaseTarget> entry : confItems.entrySet() ) {
-			MetaReleaseTarget src = entry.getValue();
-			MetaReleaseSet dstSet = nr.getCategorySet( action , src.set.CATEGORY );
-			MetaReleaseTarget dst = dstSet.getTarget( action , src.NAME );
+		for( Entry<String,ReleaseTarget> entry : confItems.entrySet() ) {
+			ReleaseTarget src = entry.getValue();
+			ReleaseSet dstSet = nr.getCategorySet( action , src.set.CATEGORY );
+			ReleaseTarget dst = dstSet.getTarget( action , src.NAME );
 			nx.confItems.put( entry.getKey() , dst );
 		}
 		
-		for( Entry<String,MetaReleaseTarget> entry : manualItems.entrySet() ) {
-			MetaReleaseTarget src = entry.getValue();
-			MetaReleaseSet dstSet = nr.getCategorySet( action , src.set.CATEGORY );
-			MetaReleaseTarget dst = dstSet.getTarget( action , src.NAME );
+		for( Entry<String,ReleaseTarget> entry : manualItems.entrySet() ) {
+			ReleaseTarget src = entry.getValue();
+			ReleaseSet dstSet = nr.getCategorySet( action , src.set.CATEGORY );
+			ReleaseTarget dst = dstSet.getTarget( action , src.NAME );
 			nx.manualItems.put( entry.getKey() , dst );
 		}
 		
@@ -59,17 +61,17 @@ public class MetaReleaseDelivery {
 		return( nx );
 	}
 	
-	public void addTargetItem( ActionBase action , MetaReleaseTargetItem item ) throws Exception {
+	public void addTargetItem( ActionBase action , ReleaseTargetItem item ) throws Exception {
 		action.debug( "add delivery binary item: " + distDelivery.NAME + "::" + item.distItem.KEY );
 		projectItems.put( item.distItem.KEY , item );
 	}
 
-	public void removeTargetItem( ActionBase action , MetaReleaseTargetItem item ) throws Exception {
+	public void removeTargetItem( ActionBase action , ReleaseTargetItem item ) throws Exception {
 		action.debug( "remove delivery binary item: " + distDelivery.NAME + "::" + item.distItem.KEY );
 		projectItems.remove( item.sourceItem.ITEMNAME );
 	}
 
-	public void addCategoryTarget( ActionBase action , MetaReleaseTarget target ) throws Exception {
+	public void addCategoryTarget( ActionBase action , ReleaseTarget target ) throws Exception {
 		if( target.distConfItem != null ) {
 			action.debug( "add delivery configuration item: " + distDelivery.NAME + "::" + target.distConfItem.KEY );
 			confItems.put( target.distConfItem.KEY , target );
@@ -91,7 +93,7 @@ public class MetaReleaseDelivery {
 			action.exit( "unexpected type of release source =" + target.NAME );
 	}
 	
-	public void removeCategoryTarget( ActionBase action , MetaReleaseTarget target ) throws Exception {
+	public void removeCategoryTarget( ActionBase action , ReleaseTarget target ) throws Exception {
 		if( target.distConfItem != null ) {
 			action.debug( "remove delivery configuration item: " + distDelivery.NAME + "::" + target.distConfItem.KEY );
 			confItems.remove( target.distConfItem.KEY );
@@ -110,19 +112,19 @@ public class MetaReleaseDelivery {
 			action.exit( "unexpected type of release source =" + target.NAME );
 	}
 
-	public MetaReleaseTarget getDatabaseItem( ActionBase action ) throws Exception {
+	public ReleaseTarget getDatabaseItem( ActionBase action ) throws Exception {
 		return( dbItem );
 	}
 	
-	public Map<String,MetaReleaseTarget> getConfItems( ActionBase action ) throws Exception {
+	public Map<String,ReleaseTarget> getConfItems( ActionBase action ) throws Exception {
 		return( confItems );
 	}
 	
-	public Map<String,MetaReleaseTarget> getManualItems( ActionBase action ) throws Exception {
+	public Map<String,ReleaseTarget> getManualItems( ActionBase action ) throws Exception {
 		return( manualItems );
 	}
 	
-	public Map<String,MetaReleaseTargetItem> getProjectItems( ActionBase action ) throws Exception {
+	public Map<String,ReleaseTargetItem> getProjectItems( ActionBase action ) throws Exception {
 		return( projectItems );
 	}
 	

@@ -8,7 +8,7 @@ import java.util.Map;
 import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.dist.Dist;
-import ru.egov.urm.meta.MetaRelease;
+import ru.egov.urm.dist.Release;
 import ru.egov.urm.shell.ShellExecutor;
 
 public class ReleaseState {
@@ -201,7 +201,7 @@ public class ReleaseState {
 		String RELEASEDIR = distFolder.folderName;
 		String RELEASEVER = Common.getPartBeforeFirst( RELEASEDIR , "-" );
 		
-		MetaRelease info = new MetaRelease( action.meta );
+		Release info = new Release( action.meta );
 		info.create( action , RELEASEVER , filePath );
 		distFolder.copyFileFromLocal( action , filePath );
 		
@@ -223,7 +223,7 @@ public class ReleaseState {
 		// create empty release.xml
 		String filePath = action.artefactory.workFolder.getFilePath( action , Dist.META_FILENAME );
 		
-		MetaRelease info = new MetaRelease( action.meta );
+		Release info = new Release( action.meta );
 		info.createProd( action , RELEASEVER , filePath );
 		distFolder.copyFileFromLocal( action , filePath );
 		

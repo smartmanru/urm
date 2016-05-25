@@ -10,7 +10,7 @@ import ru.egov.urm.action.conf.ActionGetConf;
 import ru.egov.urm.action.conf.ConfBuilder;
 import ru.egov.urm.action.database.ActionGetDB;
 import ru.egov.urm.dist.Dist;
-import ru.egov.urm.meta.MetaReleaseDelivery;
+import ru.egov.urm.dist.ReleaseDelivery;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.LocalFolder;
@@ -97,7 +97,7 @@ public class BuildCommand {
 		action.log( "update configuration difference information ..." );
 		ConfBuilder builder = new ConfBuilder( action );
 		
-		for( MetaReleaseDelivery delivery : scope.release.info.getDeliveries( action ).values() ) {
+		for( ReleaseDelivery delivery : scope.release.info.getDeliveries( action ).values() ) {
 			if( delivery.getConfItems( action ).size() > 0 ) {
 				String file = builder.createConfDiffFile( scope.release , delivery );
 				scope.release.replaceConfDiffFile( action , file , delivery );

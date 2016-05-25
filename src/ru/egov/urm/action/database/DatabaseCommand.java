@@ -4,9 +4,9 @@ import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScope;
 import ru.egov.urm.action.CommandOptions.SQLMODE;
 import ru.egov.urm.dist.Dist;
+import ru.egov.urm.dist.ReleaseDelivery;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
-import ru.egov.urm.meta.MetaReleaseDelivery;
 
 public class DatabaseCommand {
 
@@ -37,7 +37,7 @@ public class DatabaseCommand {
 		ma.runAll( scope );
 	}
 
-	public void applyAutomatic( ActionBase action , Dist dist , MetaReleaseDelivery delivery , String indexScope ) throws Exception {
+	public void applyAutomatic( ActionBase action , Dist dist , ReleaseDelivery delivery , String indexScope ) throws Exception {
 		dist.open( action );
 		
 		String deliveryInfo = ( delivery != null )? delivery.distDelivery.NAME : "(all)";

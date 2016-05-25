@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.dist.ReleaseTarget;
+import ru.egov.urm.dist.ReleaseTargetItem;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaDistrDelivery;
@@ -12,8 +14,6 @@ import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.MetaSourceProject;
 import ru.egov.urm.meta.MetaSourceProjectItem;
-import ru.egov.urm.meta.MetaReleaseTargetItem;
-import ru.egov.urm.meta.MetaReleaseTarget;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
 
 public class ActionScopeTarget {
@@ -21,7 +21,7 @@ public class ActionScopeTarget {
 	public ActionScopeSet set;
 	public VarCATEGORY CATEGORY; 
 	public String NAME;
-	public MetaReleaseTarget releaseTarget;
+	public ReleaseTarget releaseTarget;
 	public MetaSourceProject sourceProject;
 	public MetaDistrDelivery dbDelivery;
 	public MetaDistrConfItem confItem;
@@ -56,7 +56,7 @@ public class ActionScopeTarget {
 		return( target );
 	}
 	
-	public static ActionScopeTarget createReleaseSourceProjectTarget( ActionScopeSet set , MetaReleaseTarget releaseProject , boolean specifiedExplicitly ) {
+	public static ActionScopeTarget createReleaseSourceProjectTarget( ActionScopeSet set , ReleaseTarget releaseProject , boolean specifiedExplicitly ) {
 		ActionScopeTarget target = new ActionScopeTarget( set );
 		target.NAME = releaseProject.NAME;
 		target.releaseTarget = releaseProject;
@@ -166,18 +166,18 @@ public class ActionScopeTarget {
 	private void addReleaseProjectItems( ActionBase action , String[] ITEMS ) throws Exception {
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			itemFull = true;
-			for( MetaReleaseTargetItem item : releaseTarget.getItems( action ).values() )
+			for( ReleaseTargetItem item : releaseTarget.getItems( action ).values() )
 				addItem( action , item , false );
 			return;
 		}
 		
-		Map<String,MetaReleaseTargetItem> releaseItems = releaseTarget.getItems( action );
+		Map<String,ReleaseTargetItem> releaseItems = releaseTarget.getItems( action );
 		for( String itemName : ITEMS ) {
 			MetaDistrBinaryItem item = action.meta.distr.getBinaryItem( action , itemName );
 			if( item.sourceItem == null )
 				action.exit( "unknown distributive item=" + itemName );
 			
-			MetaReleaseTargetItem releaseItem = releaseItems.get( itemName );
+			ReleaseTargetItem releaseItem = releaseItems.get( itemName );
 			if( releaseItem != null )
 				addItem( action , releaseItem , true );
 			else
@@ -190,7 +190,7 @@ public class ActionScopeTarget {
 		items.add( scopeItem );
 	}
 	
-	public void addItem( ActionBase action , MetaReleaseTargetItem item , boolean specifiedExplicitly ) throws Exception {
+	public void addItem( ActionBase action , ReleaseTargetItem item , boolean specifiedExplicitly ) throws Exception {
 		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createReleaseTargetItem( item , specifiedExplicitly );
 		items.add( scopeItem );
 	}

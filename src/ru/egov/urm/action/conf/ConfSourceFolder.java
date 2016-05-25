@@ -1,8 +1,8 @@
 package ru.egov.urm.action.conf;
 
 import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.dist.ReleaseTarget;
 import ru.egov.urm.meta.MetaDistrConfItem;
-import ru.egov.urm.meta.MetaReleaseTarget;
 import ru.egov.urm.meta.Metadata;
 
 public class ConfSourceFolder {
@@ -10,7 +10,7 @@ public class ConfSourceFolder {
 	Metadata meta;
 	
 	public MetaDistrConfItem distrComp;
-	public MetaReleaseTarget releaseComp;
+	public ReleaseTarget releaseComp;
 	
 	public boolean productFolder = false;
 	public boolean releaseFolder = false;
@@ -24,7 +24,7 @@ public class ConfSourceFolder {
 		this.productFolder = true;
 	}
 
-	public void createReleaseConfigurationFolder( ActionBase action , MetaReleaseTarget releaseComp ) throws Exception {
+	public void createReleaseConfigurationFolder( ActionBase action , ReleaseTarget releaseComp ) throws Exception {
 		this.releaseComp = releaseComp;
 		this.distrComp = releaseComp.distConfItem;
 		

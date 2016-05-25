@@ -1,4 +1,4 @@
-package ru.egov.urm.meta;
+package ru.egov.urm.dist;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -7,12 +7,16 @@ import org.w3c.dom.Node;
 import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.meta.MetaDistrBinaryItem;
+import ru.egov.urm.meta.MetaDistrDelivery;
+import ru.egov.urm.meta.MetaSourceProjectItem;
+import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarNAMETYPE;
 
-public class MetaReleaseTargetItem {
+public class ReleaseTargetItem {
 
 	Metadata meta;
-	public MetaReleaseTarget target;
+	public ReleaseTarget target;
 	
 	public MetaSourceProjectItem sourceItem;
 	public MetaDistrBinaryItem distItem;
@@ -21,13 +25,13 @@ public class MetaReleaseTargetItem {
 	
 	public String DISTFILE;
 
-	public MetaReleaseTargetItem( Metadata meta , MetaReleaseTarget target ) {
+	public ReleaseTargetItem( Metadata meta , ReleaseTarget target ) {
 		this.meta = meta;
 		this.target = target;
 	}
 
-	public MetaReleaseTargetItem copy( ActionBase action , MetaRelease nr , MetaReleaseSet ns , MetaReleaseTarget nt ) throws Exception {
-		MetaReleaseTargetItem nx = new MetaReleaseTargetItem( meta , nt );
+	public ReleaseTargetItem copy( ActionBase action , Release nr , ReleaseSet ns , ReleaseTarget nt ) throws Exception {
+		ReleaseTargetItem nx = new ReleaseTargetItem( meta , nt );
 		
 		nx.sourceItem = sourceItem;
 		nx.distItem = distItem;
