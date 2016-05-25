@@ -5,6 +5,7 @@ import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScopeSet;
 import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.ActionScopeTargetItem;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServer;
@@ -13,7 +14,6 @@ import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.MetaReleaseTarget;
 import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
 import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
-import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.FileInfo;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.RedistStateInfo;
@@ -22,10 +22,10 @@ import ru.egov.urm.storage.SourceStorage;
 
 public class ActionRedist extends ActionBase {
 
-	DistStorage dist;
+	Dist dist;
 	LocalFolder liveEnvFolder;
 
-	public ActionRedist( ActionBase action , String stream , DistStorage dist , LocalFolder liveEnvFolder ) {
+	public ActionRedist( ActionBase action , String stream , Dist dist , LocalFolder liveEnvFolder ) {
 		super( action , stream );
 		this.dist = dist;
 		this.liveEnvFolder = liveEnvFolder;

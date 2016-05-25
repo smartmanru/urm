@@ -3,6 +3,7 @@ package ru.egov.urm.storage;
 import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.conf.ConfSourceFolder;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaDistrComponentItem;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaDistrDelivery;
@@ -48,7 +49,7 @@ public class SourceStorage {
 			action.exit( "unable to export from REPOSITORY=" + REPOSITORY + ", ITEMPATH=" + ITEMPATH );
 	}
 	
-	public boolean downloadReleaseManualFolder( ActionBase action , DistStorage distStorage , LocalFolder dstFolder ) throws Exception {
+	public boolean downloadReleaseManualFolder( ActionBase action , Dist distStorage , LocalFolder dstFolder ) throws Exception {
 		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );  
 		String PATH = getReleaseManualPath( action , distStorage );
 
@@ -59,7 +60,7 @@ public class SourceStorage {
 		return( false );
 	}
 	
-	public boolean downloadReleaseConfigItem( ActionBase action , DistStorage distStorage , ConfSourceFolder sourceFolder , LocalFolder dstFolder ) throws Exception {
+	public boolean downloadReleaseConfigItem( ActionBase action , Dist distStorage , ConfSourceFolder sourceFolder , LocalFolder dstFolder ) throws Exception {
 		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );  
 		String PATH = getReleaseConfigSourcePath( action , distStorage , sourceFolder.releaseComp );
 		
@@ -70,7 +71,7 @@ public class SourceStorage {
 		return( false );
 	}
 
-	public boolean downloadReleaseDatabaseFiles( ActionBase action , DistStorage distStorage , MetaDistrDelivery dbDelivery , LocalFolder dstFolder ) throws Exception {
+	public boolean downloadReleaseDatabaseFiles( ActionBase action , Dist distStorage , MetaDistrDelivery dbDelivery , LocalFolder dstFolder ) throws Exception {
 		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );  
 		String PATH = getReleaseDBSourcePath( action , distStorage , dbDelivery );
 		
@@ -133,7 +134,7 @@ public class SourceStorage {
 		return( true );
 	}
 	
-	public void moveReleaseDatabaseFilesToErrors( ActionBase action , String errorFolder , DistStorage distStorage , MetaDistrDelivery dbDelivery , String movePath , String message ) throws Exception {
+	public void moveReleaseDatabaseFilesToErrors( ActionBase action , String errorFolder , Dist distStorage , MetaDistrDelivery dbDelivery , String movePath , String message ) throws Exception {
 		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );  
 		String SRCPATH = getReleaseDBSourcePath( action , distStorage , dbDelivery );
 		String ERRORPATH = getReleaseErrorsPath( action , distStorage , dbDelivery , errorFolder );
@@ -152,7 +153,7 @@ public class SourceStorage {
 		return( meta.product.CONFIG_RELEASE_GROUPFOLDER );
 	}
 	
-	public String getReleaseFolder( ActionBase action , DistStorage release ) throws Exception {
+	public String getReleaseFolder( ActionBase action , Dist release ) throws Exception {
 		String RELEASEVER = Common.getPartBeforeFirst( release.RELEASEDIR , "-" );
 		if( release.RELEASEDIR.indexOf( "-demo-" ) > 0 )
 			return( Common.getPartAfterFirst( release.RELEASEDIR , "-" ) + "-" + RELEASEVER );
@@ -163,31 +164,31 @@ public class SourceStorage {
 		return( "prod-patch-" + RELEASEVER );
 	}
 
-	public String getReleasePath( ActionBase action , DistStorage distStorage ) throws Exception {
+	public String getReleasePath( ActionBase action , Dist distStorage ) throws Exception {
 		String PATH = Common.getPath( meta.product.CONFIG_SOURCE_RELEASEROOTDIR , 
 				getReleaseGroupFolder( action ) ,
 				getReleaseFolder( action , distStorage ) );
 		return( PATH );
 	}
 	
-	public String getReleaseManualPath( ActionBase action , DistStorage distStorage ) throws Exception {
+	public String getReleaseManualPath( ActionBase action , Dist distStorage ) throws Exception {
 		String PATH = Common.getPath( getReleasePath( action , distStorage ) , MANUAL_FOLDER );
 		return( PATH );
 	}
 
-	public String getReleaseConfigSourcePath( ActionBase action , DistStorage distStorage , MetaReleaseTarget releaseComp ) throws Exception {
+	public String getReleaseConfigSourcePath( ActionBase action , Dist distStorage , MetaReleaseTarget releaseComp ) throws Exception {
 		String PATH = Common.getPath( getReleasePath( action , distStorage ) , 
 			getConfFolderRelPath( action , releaseComp.distConfItem ) );
 		return( PATH );
 	}
 
-	public String getReleaseDBSourcePath( ActionBase action , DistStorage distStorage , MetaDistrDelivery dbDelivery ) throws Exception {
+	public String getReleaseDBSourcePath( ActionBase action , Dist distStorage , MetaDistrDelivery dbDelivery ) throws Exception {
 		String PATH = Common.getPath( getReleasePath( action , distStorage ) , 
 			getDBFolderRelPath( action , dbDelivery ) );
 		return( PATH );
 	}
 
-	public String getReleaseErrorsPath( ActionBase action , DistStorage distStorage , MetaDistrDelivery dbDelivery , String errorFolder ) throws Exception {
+	public String getReleaseErrorsPath( ActionBase action , Dist distStorage , MetaDistrDelivery dbDelivery , String errorFolder ) throws Exception {
 		String PATH = Common.getPath( getReleasePath( action , distStorage ) , 
 			getErrorFolderRelPath( action , dbDelivery , errorFolder ) );
 		return( PATH );

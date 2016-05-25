@@ -5,6 +5,7 @@ import java.util.List;
 import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.deploy.ServerDeployment;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServer;
@@ -188,7 +189,7 @@ public class RedistStorage extends ServerStorage {
 		return( state );
 	}
 
-	public boolean copyReleaseFile( ActionBase action , MetaDistrBinaryItem item , DistStorage dist , MetaEnvServerLocation location , String fileName , String deployBaseName , RedistStateInfo stateInfo ) throws Exception {
+	public boolean copyReleaseFile( ActionBase action , MetaDistrBinaryItem item , Dist dist , MetaEnvServerLocation location , String fileName , String deployBaseName , RedistStateInfo stateInfo ) throws Exception {
 		// primary file
 		String LOCATION = location.DEPLOYPATH; 
 		VarCONTENTTYPE CONTENTTYPE = location.getContentType( action , true );
@@ -235,7 +236,7 @@ public class RedistStorage extends ServerStorage {
 		return( true );
 	}
 
-	public void copyReleaseFile( ActionBase action , MetaDistrConfItem item , DistStorage dist , MetaEnvServerLocation location , LocalFolder srcFolder , String configTarFile , boolean partial ) throws Exception {
+	public void copyReleaseFile( ActionBase action , MetaDistrConfItem item , Dist dist , MetaEnvServerLocation location , LocalFolder srcFolder , String configTarFile , boolean partial ) throws Exception {
 		String LOCATION = location.DEPLOYPATH; 
 		VarCONTENTTYPE CONTENTTYPE = location.getContentType( action , false );
 		RemoteFolder locationDir = getRedistLocationFolder( action , dist.RELEASEDIR , LOCATION , CONTENTTYPE , true );

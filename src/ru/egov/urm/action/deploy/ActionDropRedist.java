@@ -5,16 +5,16 @@ import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScopeSet;
 import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.ActionScopeTargetItem;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.shell.Account;
-import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.RedistStorage;
 
 public class ActionDropRedist extends ActionBase {
 
-	DistStorage dist;
+	Dist dist;
 	
-	public ActionDropRedist( ActionBase action , String stream , DistStorage dist ) {
+	public ActionDropRedist( ActionBase action , String stream , Dist dist ) {
 		super( action , stream );
 		this.dist = dist;
 	}

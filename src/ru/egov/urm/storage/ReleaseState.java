@@ -7,12 +7,13 @@ import java.util.Map;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaRelease;
 import ru.egov.urm.shell.ShellExecutor;
 
 public class ReleaseState {
 
-	enum RELEASESTATE {
+	public enum RELEASESTATE {
 		UNKNOWN ,
 		MISSINGDIST ,
 		MISSINGSTATE ,
@@ -89,7 +90,7 @@ public class ReleaseState {
 		String timeStamp = Common.getNameTimeStamp();
 		String hash = getHashValue( action );
 		String value = newState + ":" + timeStamp + ":" + hash;
-		distFolder.createFileFromString( action , DistStorage.STATE_FILENAME , value );
+		distFolder.createFileFromString( action , Dist.STATE_FILENAME , value );
 		activeChangeID = timeStamp;
 		stateMem = newState;
 		stateHash = hash;
@@ -160,14 +161,14 @@ public class ReleaseState {
 			return;
 		}
 		
-		if( !distFolder.checkFileExists( action, DistStorage.STATE_FILENAME ) ) {
+		if( !distFolder.checkFileExists( action, Dist.STATE_FILENAME ) ) {
 			state = RELEASESTATE.MISSINGSTATE;
 			return;
 		}
 		
 		// file format - state:changeID:md5, changeID is timestamp, md5 is hash of distributive
 		try {
-			String stateInfo = distFolder.getFileContentAsString( action , DistStorage.STATE_FILENAME );
+			String stateInfo = distFolder.getFileContentAsString( action , Dist.STATE_FILENAME );
 			String[] parts = Common.split( stateInfo , ":" );
 			if( parts.length != 3 ) {
 				state = RELEASESTATE.BROKEN;
@@ -196,7 +197,7 @@ public class ReleaseState {
 		distFolder.ensureExists( action );
 		
 		// create empty release.xml
-		String filePath = action.artefactory.workFolder.getFilePath( action , DistStorage.META_FILENAME );
+		String filePath = action.artefactory.workFolder.getFilePath( action , Dist.META_FILENAME );
 		String RELEASEDIR = distFolder.folderName;
 		String RELEASEVER = Common.getPartBeforeFirst( RELEASEDIR , "-" );
 		
@@ -220,7 +221,7 @@ public class ReleaseState {
 			action.exit( "state file should not exist" );
 		
 		// create empty release.xml
-		String filePath = action.artefactory.workFolder.getFilePath( action , DistStorage.META_FILENAME );
+		String filePath = action.artefactory.workFolder.getFilePath( action , Dist.META_FILENAME );
 		
 		MetaRelease info = new MetaRelease( action.meta );
 		info.createProd( action , RELEASEVER , filePath );

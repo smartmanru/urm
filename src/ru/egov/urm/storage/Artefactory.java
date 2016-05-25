@@ -4,6 +4,8 @@ import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.CommandContext;
 import ru.egov.urm.action.CommandExecutor;
+import ru.egov.urm.dist.DistRepository;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.MetaMonitoring;
@@ -18,12 +20,12 @@ import ru.egov.urm.vcs.SubversionVCS;
 
 public class Artefactory {
 
-	Metadata meta;
-	CommandContext context;
+	public Metadata meta;
+	public CommandContext context;
 	public Artefactory parentArtefactory;
 	public LocalFolder workFolder;
-	String workFolderProcessId;
-	boolean ownFolder;
+	public String workFolderProcessId;
+	public boolean ownFolder;
 	
 	public Artefactory( Metadata meta , CommandContext context ) {
 		this.meta = meta;
@@ -145,22 +147,22 @@ public class Artefactory {
 		return( folder );
 	}
 	
-	public DistStorage getDistProdStorage( ActionBase action ) throws Exception {
+	public Dist getDistProdStorage( ActionBase action ) throws Exception {
 		return( getDistStorageByLabel( action , "prod" ) );
 	}
 	
-	public DistStorage getDistStorageByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
+	public Dist getDistStorageByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 
 		DistRepository repo = getDistRepository( action );
-		DistStorage storage = repo.getDistByLabel( action , RELEASELABEL );
+		Dist storage = repo.getDistByLabel( action , RELEASELABEL );
 		return( storage );
 	}
 	
-	public DistStorage createDistStorage( ActionBase action , String RELEASELABEL ) throws Exception {
+	public Dist createDistStorage( ActionBase action , String RELEASELABEL ) throws Exception {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 		DistRepository repo = getDistRepository( action );
-		DistStorage storage = repo.createDist( action , RELEASELABEL );
+		Dist storage = repo.createDist( action , RELEASELABEL );
 		return( storage );
 	}
 	

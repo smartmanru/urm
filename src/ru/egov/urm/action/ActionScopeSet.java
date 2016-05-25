@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaDistrDelivery;
@@ -25,7 +26,6 @@ import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
 import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
 import ru.egov.urm.shell.Account;
-import ru.egov.urm.storage.DistStorage;
 
 public class ActionScopeSet {
 
@@ -360,7 +360,7 @@ public class ActionScopeSet {
 		return( false );
 	}
 	
-	private Map<String,MetaEnvServer> getReleaseServers( ActionBase action , DistStorage release ) throws Exception {
+	private Map<String,MetaEnvServer> getReleaseServers( ActionBase action , Dist release ) throws Exception {
 		Map<String,MetaEnvServer> mapServers = new HashMap<String,MetaEnvServer>();
 		MetaRelease info = release.info;
 
@@ -373,7 +373,7 @@ public class ActionScopeSet {
 		return( mapServers );
 	}
 	
-	private Map<String,MetaEnvServer> getReleaseDatabaseServers( ActionBase action , DistStorage release ) throws Exception {
+	private Map<String,MetaEnvServer> getReleaseDatabaseServers( ActionBase action , Dist release ) throws Exception {
 		Map<String,MetaEnvServer> mapServers = new HashMap<String,MetaEnvServer>();
 		MetaRelease info = release.info;
 
@@ -386,7 +386,7 @@ public class ActionScopeSet {
 		return( mapServers );
 	}
 	
-	public void addEnvServers( ActionBase action , String[] SERVERS , DistStorage release ) throws Exception {
+	public void addEnvServers( ActionBase action , String[] SERVERS , Dist release ) throws Exception {
 		Map<String,MetaEnvServer> releaseServers = null;
 		if( release != null )
 			releaseServers = getReleaseServers( action , release );
@@ -416,7 +416,7 @@ public class ActionScopeSet {
 		}
 	}
 
-	public void addEnvDatabases( ActionBase action , DistStorage release ) throws Exception {
+	public void addEnvDatabases( ActionBase action , Dist release ) throws Exception {
 		Map<String,MetaEnvServer> releaseServers = getReleaseDatabaseServers( action , release );
 	
 		if( action.context.CTX_DB.isEmpty() )
@@ -469,7 +469,7 @@ public class ActionScopeSet {
 		return( target );
 	}
 	
-	public ActionScopeTarget addEnvServerNodes( ActionBase action , MetaEnvServer server , String[] NODES , boolean specifiedExplicitly , DistStorage release ) throws Exception {
+	public ActionScopeTarget addEnvServerNodes( ActionBase action , MetaEnvServer server , String[] NODES , boolean specifiedExplicitly , Dist release ) throws Exception {
 		Map<String,MetaEnvServer> releaseServers = null;
 		if( release != null ) {
 			releaseServers = getReleaseServers( action , release );

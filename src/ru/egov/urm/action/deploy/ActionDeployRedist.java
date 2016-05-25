@@ -8,16 +8,16 @@ import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScopeSet;
 import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.ActionScopeTargetItem;
-import ru.egov.urm.storage.DistStorage;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.storage.RedistStorage;
 
 public class ActionDeployRedist extends ActionBase {
 
-	DistStorage dist;
+	Dist dist;
 	Map<ActionScopeTargetItem,ServerDeployment> deployments;
 	ActionScopeTarget[] affectedTargets;
 
-	public ActionDeployRedist( ActionBase action , String stream , DistStorage dist ) {
+	public ActionDeployRedist( ActionBase action , String stream , Dist dist ) {
 		super( action , stream );
 		this.dist = dist;
 	}

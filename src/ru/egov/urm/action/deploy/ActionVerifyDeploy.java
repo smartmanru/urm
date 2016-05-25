@@ -12,13 +12,13 @@ import ru.egov.urm.action.database.DatabaseClient;
 import ru.egov.urm.action.database.DatabaseRegistry;
 import ru.egov.urm.action.database.DatabaseRegistryRelease;
 import ru.egov.urm.action.database.DatabaseRegistryRelease.RELEASE_STATE;
+import ru.egov.urm.dist.DistItemInfo;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerLocation;
 import ru.egov.urm.meta.MetaEnvServerNode;
-import ru.egov.urm.storage.DistItemInfo;
-import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.FileInfo;
 import ru.egov.urm.storage.FileSet;
 import ru.egov.urm.storage.LocalFolder;
@@ -27,7 +27,7 @@ import ru.egov.urm.storage.SourceStorage;
 
 public class ActionVerifyDeploy extends ActionBase {
 
-	DistStorage dist;
+	Dist dist;
 	LocalFolder tobeFolder;
 	LocalFolder asisFolder;
 	LocalFolder tobeConfigFolder;
@@ -39,7 +39,7 @@ public class ActionVerifyDeploy extends ActionBase {
 
 	static String MD5FILE = "md5sum.txt";
 	
-	public ActionVerifyDeploy( ActionBase action , String stream , DistStorage dist ) {
+	public ActionVerifyDeploy( ActionBase action , String stream , Dist dist ) {
 		super( action , stream );
 		this.dist = dist;
 	}

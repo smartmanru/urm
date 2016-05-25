@@ -6,12 +6,12 @@ import ru.egov.urm.action.ActionScope;
 import ru.egov.urm.action.CommandAction;
 import ru.egov.urm.action.CommandBuilder;
 import ru.egov.urm.action.CommandExecutor;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaEnv;
 import ru.egov.urm.meta.MetaEnvDC;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaReleaseDelivery;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
-import ru.egov.urm.storage.DistStorage;
 
 public class DatabaseCommandExecutor extends CommandExecutor {
 
@@ -66,12 +66,12 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 
 	private ActionScope getReleaseScope( ActionInit action ) throws Exception {
 		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
-		DistStorage dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		String[] DELIVERIES = options.getArgList( 1 );
 		return( ActionScope.getReleaseCategoryScope( action , dist , VarCATEGORY.DB , DELIVERIES ) );
 	}
 	
-	private ActionScope getIndexScope( ActionInit action , DistStorage dist , int posFrom ) throws Exception {
+	private ActionScope getIndexScope( ActionInit action , Dist dist , int posFrom ) throws Exception {
 		String[] INDEXES = options.getArgList( posFrom );
 		return( ActionScope.getDatabaseManualItemsScope( action , dist , INDEXES ) );
 	}
@@ -94,7 +94,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	private class ApplyManual extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
-		DistStorage dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		String SERVER = options.getRequiredArg( action , 1 , "DBSERVER" );
 		MetaEnvServer server = action.context.dc.getServer( action , SERVER );
 		ActionScope scope = getIndexScope( action , dist , 2 );
@@ -105,7 +105,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	private class ApplyAutomatic extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
-		DistStorage dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		String DELIVERY = options.getRequiredArg( action , 1 , "delivery" );
 		
 		MetaReleaseDelivery delivery = null;
@@ -125,7 +125,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	private class ManageRelease extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
-		DistStorage dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		ActionScope scope = getIndexScope( action , dist , 1 );
 		impl.manageRelease( action , scope , scope.release );
 	}

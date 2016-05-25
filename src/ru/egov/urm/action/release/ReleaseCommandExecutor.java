@@ -5,8 +5,8 @@ import ru.egov.urm.action.ActionInit;
 import ru.egov.urm.action.CommandAction;
 import ru.egov.urm.action.CommandBuilder;
 import ru.egov.urm.action.CommandExecutor;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
-import ru.egov.urm.storage.DistStorage;
 
 public class ReleaseCommandExecutor extends CommandExecutor {
 
@@ -71,7 +71,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
 		options.checkNoArgs( action , 1 );
-		DistStorage release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		impl.modifyRelease( action , release );
 	}
 	}
@@ -181,7 +181,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String SET = options.getArg( 1 );
 		String[] PROJECTS = options.getArgList( 2 );
 
-		DistStorage release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		
 		impl.buildRelease( action , SET , PROJECTS , release );
 	}
@@ -193,7 +193,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String SET = options.getArg( 1 );
 		String[] PROJECTS = options.getArgList( 2 );
 
-		DistStorage release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		
 		impl.getAllRelease( action , SET , PROJECTS , release );
 	}
@@ -202,7 +202,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	private class DescopeRelease extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
-		DistStorage release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		
 		String SET = options.getRequiredArg( action , 1 , "SET" );
 		if( SET.equals( "all" ) ) {

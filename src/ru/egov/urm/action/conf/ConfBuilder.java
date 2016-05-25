@@ -9,6 +9,7 @@ import ru.egov.urm.Common;
 import ru.egov.urm.ConfReader;
 import ru.egov.urm.PropertySet;
 import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
@@ -16,7 +17,6 @@ import ru.egov.urm.meta.MetaReleaseDelivery;
 import ru.egov.urm.meta.MetaReleaseTarget;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.storage.Artefactory;
-import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.FileSet;
 import ru.egov.urm.storage.HiddenFiles;
 import ru.egov.urm.storage.LocalFolder;
@@ -36,7 +36,7 @@ public class ConfBuilder {
 		this.meta = action.meta;
 	}
 
-	public String createConfDiffFile( DistStorage release , MetaReleaseDelivery delivery ) throws Exception {
+	public String createConfDiffFile( Dist release , MetaReleaseDelivery delivery ) throws Exception {
 		// copy conf from release
 		LocalFolder releaseFolder = artefactory.getWorkFolder( action , "release.delivery.conf" );
 		releaseFolder.recreateThis( action );
@@ -55,7 +55,7 @@ public class ConfBuilder {
 		}
 		
 		// create diff
-		String diffFile = DistStorage.CONFDIFF_FILENAME;
+		String diffFile = Dist.CONFDIFF_FILENAME;
 		releaseFolder.removeFiles( action , diffFile );
 
 		// compare file sets

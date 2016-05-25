@@ -4,17 +4,17 @@ import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.ActionScopeTargetItem;
 import ru.egov.urm.action.conf.ConfBuilder;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaEnvServer;
-import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.LogStorage;
 
 public class ActionApplyManual extends ActionBase {
 
-	DistStorage release;
+	Dist release;
 	MetaEnvServer server;
 	
-	public ActionApplyManual( ActionBase action , String stream , DistStorage release , MetaEnvServer server ) {
+	public ActionApplyManual( ActionBase action , String stream , Dist release , MetaEnvServer server ) {
 		super( action , stream );
 		this.release = release;
 		this.server = server;

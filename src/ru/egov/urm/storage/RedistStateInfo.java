@@ -6,6 +6,7 @@ import java.util.Map;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServerNode;
@@ -76,13 +77,13 @@ public class RedistStateInfo {
 	}
 	
 	public static FileInfo getFileInfo( ActionBase action , MetaDistrBinaryItem item , RemoteFolder stateFolder , String stateFileName , String deployNameNoVersion , String version , String finalName ) throws Exception {
-		String md5value = stateFolder.md5value( action , stateFileName );
+		String md5value = stateFolder.getFileMD5( action , stateFileName );
 		FileInfo info = new FileInfo( item , version , md5value , deployNameNoVersion , finalName ); 
 		return( info );
 	}
 
 	public static FileInfo getFileInfo( ActionBase action , MetaDistrConfItem item , RemoteFolder stateFolder , String stateFileName , String version , boolean partial ) throws Exception {
-		String md5value = stateFolder.md5value( action , stateFileName );
+		String md5value = stateFolder.getFileMD5( action , stateFileName );
 		FileInfo info = new FileInfo( item , version , md5value , partial ); 
 		return( info );
 	}
@@ -112,7 +113,7 @@ public class RedistStateInfo {
 		return( null );
 	}
 	
-	public boolean needUpdate( ActionBase action , MetaDistrBinaryItem item , DistStorage dist , String fileName , String deployBaseName , String deployFinalName ) throws Exception {
+	public boolean needUpdate( ActionBase action , MetaDistrBinaryItem item , Dist dist , String fileName , String deployBaseName , String deployFinalName ) throws Exception {
 		if( action.context.CTX_FORCE )
 			return( true );
 

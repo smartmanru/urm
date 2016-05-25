@@ -8,24 +8,24 @@ import ru.egov.urm.action.ActionScope;
 import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.CommandOptions.SQLTYPE;
 import ru.egov.urm.action.conf.ConfBuilder;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaDatabaseSchema;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaReleaseDelivery;
-import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.FileSet;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.LogStorage;
 
 public class ActionApplyAutomatic extends ActionBase {
 
-	DistStorage dist;
+	Dist dist;
 	MetaReleaseDelivery optDelivery;
 	String indexScope;
 	LogStorage logs;
 	
 	boolean applyFailed;
 
-	public ActionApplyAutomatic( ActionBase action , String stream , DistStorage dist , MetaReleaseDelivery optDelivery , String indexScope ) {
+	public ActionApplyAutomatic( ActionBase action , String stream , Dist dist , MetaReleaseDelivery optDelivery , String indexScope ) {
 		super( action , stream );
 		this.dist = dist;
 		this.optDelivery = optDelivery;

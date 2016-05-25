@@ -6,9 +6,9 @@ import ru.egov.urm.action.ActionScope;
 import ru.egov.urm.action.CommandAction;
 import ru.egov.urm.action.CommandBuilder;
 import ru.egov.urm.action.CommandExecutor;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaEnv;
 import ru.egov.urm.meta.MetaEnvDC;
-import ru.egov.urm.storage.DistStorage;
 
 public class DeployCommandExecutor extends CommandExecutor {
 
@@ -99,7 +99,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 
 	private ActionScope getReleaseScope( ActionInit action ) throws Exception {
 		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
-		DistStorage dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		return( getServerScope( action , 1 , dist ) );
 	}
 	
@@ -108,14 +108,14 @@ public class DeployCommandExecutor extends CommandExecutor {
 	}
 	
 	private ActionScope getServerScope( ActionInit action , int posFrom ) throws Exception {
-		DistStorage dist = null;
+		Dist dist = null;
 		if( !action.context.CTX_RELEASELABEL.isEmpty() )
 			dist = action.artefactory.getDistStorageByLabel( action , action.context.CTX_RELEASELABEL );
 		
 		return( getServerScope( action , posFrom , dist ) );
 	}
 
-	private ActionScope getServerScope( ActionInit action , int posFrom , DistStorage release ) throws Exception {
+	private ActionScope getServerScope( ActionInit action , int posFrom , Dist release ) throws Exception {
 		String s = options.getArg( posFrom + 1 );
 		if( s.matches( "[0-9]+" ) ) {
 			String SERVER = options.getArg( posFrom );

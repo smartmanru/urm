@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.egov.urm.Common;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaEnv;
 import ru.egov.urm.meta.MetaEnvDC;
@@ -18,13 +19,12 @@ import ru.egov.urm.meta.MetaSourceProjectSet;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
 import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
-import ru.egov.urm.storage.DistStorage;
 
 public class ActionScope {
 
 	public Metadata meta;
 	public CommandContext context;
-	public DistStorage release;
+	public Dist release;
 	public boolean releaseBound;
 
 	private Map<VarCATEGORY,ActionScopeSet> categoryMap = new HashMap<VarCATEGORY,ActionScopeSet>();
@@ -33,7 +33,7 @@ public class ActionScope {
 
 	public boolean scopeFull;
 	
-	public ActionScope( ActionBase action , DistStorage release ) {
+	public ActionScope( ActionBase action , Dist release ) {
 		this.meta = action.meta;
 		this.context = action.context;
 		this.release = release;
@@ -75,25 +75,25 @@ public class ActionScope {
 		return( scope );
 	}
 
-	public static ActionScope getDatabaseManualItemsScope( ActionBase action , DistStorage release , String[] INDEXES ) throws Exception {
+	public static ActionScope getDatabaseManualItemsScope( ActionBase action , Dist release , String[] INDEXES ) throws Exception {
 		action.trace( "scope: Release Manual Database Scope, release=" + release.RELEASEDIR + ", items=" + Common.getListSet( INDEXES ) );
 		ActionScope scope = new ActionScope( action , release );
 		scope.getDatabaseItemsScope( action , release , null , INDEXES );
 		return( scope );
 	}
 	
-	public static ActionScope getDatabaseDeliveryItemsScope( ActionBase action , DistStorage release , String DELIVERY , String[] INDEXES ) throws Exception {
+	public static ActionScope getDatabaseDeliveryItemsScope( ActionBase action , Dist release , String DELIVERY , String[] INDEXES ) throws Exception {
 		action.trace( "scope: Release Delivery Database Scope, release=" + release.RELEASEDIR + ", delivery=" + DELIVERY + ", items=" + Common.getListSet( INDEXES ) );
 		ActionScope scope = new ActionScope( action , release );
 		scope.getDatabaseItemsScope( action , release , DELIVERY , INDEXES );
 		return( scope );
 	}
 	
-	public static ActionScope getReleaseCategoryScope( ActionBase action , DistStorage release , VarCATEGORY CATEGORY , String[] TARGETS ) throws Exception {
+	public static ActionScope getReleaseCategoryScope( ActionBase action , Dist release , VarCATEGORY CATEGORY , String[] TARGETS ) throws Exception {
 		return( getReleaseSetScope( action , release , Common.getEnumLower( CATEGORY ) , TARGETS ) ); 
 	}
 	
-	public static ActionScope getReleaseSetScope( ActionBase action , DistStorage release , String set , String[] TARGETS ) throws Exception {
+	public static ActionScope getReleaseSetScope( ActionBase action , Dist release , String set , String[] TARGETS ) throws Exception {
 		action.trace( "scope: Release Set Scope, release=" + release.RELEASEDIR + ", set=" + set + ", targets=" + Common.getListSet( TARGETS ) );
 		ActionScope scope = new ActionScope( action , release );
 		
@@ -133,7 +133,7 @@ public class ActionScope {
 		return( scope );
 	}
 
-	public static ActionScope getReleaseDistItemsScope( ActionBase action , DistStorage dist , String[] ITEMS ) throws Exception {
+	public static ActionScope getReleaseDistItemsScope( ActionBase action , Dist dist , String[] ITEMS ) throws Exception {
 		action.trace( "scope: Release Dist Items Scope, release=" + dist.RELEASEDIR + ", items=" + Common.getListSet( ITEMS ) );
 		ActionScope scope = new ActionScope( action , null );
 
@@ -147,12 +147,12 @@ public class ActionScope {
 		return( scope );
 	}
 
-	public static ActionScope getReleaseProjectItemsScope( ActionBase action , DistStorage release , String PROJECT , String[] ITEMS ) throws Exception {
+	public static ActionScope getReleaseProjectItemsScope( ActionBase action , Dist release , String PROJECT , String[] ITEMS ) throws Exception {
 		ActionScopeTarget target = getReleaseProjectItemsScopeTarget( action , release , PROJECT , ITEMS );
 		return( target.set.scope );
 	}
 	
-	public static ActionScopeTarget getReleaseProjectItemsScopeTarget( ActionBase action , DistStorage release , String PROJECT , String[] ITEMS ) throws Exception {
+	public static ActionScopeTarget getReleaseProjectItemsScopeTarget( ActionBase action , Dist release , String PROJECT , String[] ITEMS ) throws Exception {
 		action.trace( "scope: Release Project Items Scope Target, release=" + release.RELEASEDIR + ", project=" + PROJECT + ", items=" + Common.getListSet( ITEMS ) );
 		ActionScope scope = new ActionScope( action , release );
 
@@ -168,7 +168,7 @@ public class ActionScope {
 		return( scope.createReleaseProjectItemsScope( action , release , PROJECT , ITEMS ) );
 	}
 
-	public static ActionScope getEnvServerNodesScope( ActionBase action , MetaEnvDC dc , String SERVER , String[] NODES , DistStorage release ) throws Exception {
+	public static ActionScope getEnvServerNodesScope( ActionBase action , MetaEnvDC dc , String SERVER , String[] NODES , Dist release ) throws Exception {
 		if( release != null )
 			action.trace( "scope: Env Server Nodes Scope, release=" + release.RELEASEDIR + ", server=" + SERVER + ", nodes=" + Common.getListSet( NODES ) );
 		else
@@ -200,13 +200,13 @@ public class ActionScope {
 		return( scope.createEnvServerNodesScope( action , srv.dc , srv , nodes ) );
 	}
 	
-	public static ActionScope getEnvScope( ActionBase action , DistStorage release ) throws Exception {
+	public static ActionScope getEnvScope( ActionBase action , Dist release ) throws Exception {
 		ActionScope scope = new ActionScope( action , release );
 		scope.createEnvScope( action );
 		return( scope );
 	}
 	
-	public static ActionScope getEnvDatabaseScope( ActionBase action , DistStorage release ) throws Exception {
+	public static ActionScope getEnvDatabaseScope( ActionBase action , Dist release ) throws Exception {
 		if( release != null )
 			action.trace( "scope: Env Database Scope, release=" + release.RELEASEDIR );
 		else
@@ -217,7 +217,7 @@ public class ActionScope {
 		return( scope );
 	}
 	
-	public static ActionScope getEnvServersScope( ActionBase action , MetaEnvDC dc , String[] SERVERS , DistStorage release ) throws Exception {
+	public static ActionScope getEnvServersScope( ActionBase action , MetaEnvDC dc , String[] SERVERS , Dist release ) throws Exception {
 		if( release != null )
 			action.trace( "scope: Env Servers Scope, release=" + release.RELEASEDIR + ", servers=" + Common.getListSet( SERVERS ) );
 		else
@@ -243,7 +243,7 @@ public class ActionScope {
 		return( scope );
 	}
 
-	private void getDatabaseItemsScope( ActionBase action , DistStorage release , String DELIVERY , String[] INDEXES ) throws Exception {
+	private void getDatabaseItemsScope( ActionBase action , Dist release , String DELIVERY , String[] INDEXES ) throws Exception {
 		VarCATEGORY CATEGORY;
 
 		if( INDEXES.length == 0 )
@@ -310,7 +310,7 @@ public class ActionScope {
 		sset.addEnvServers( action , SERVERS , release ); 
 	}
 
-	private void createEnvDatabaseScope( ActionBase action , DistStorage release ) throws Exception {
+	private void createEnvDatabaseScope( ActionBase action , Dist release ) throws Exception {
 		this.release = release;
 		scopeFull = true;
 		for( MetaEnvDC dc : context.env.getDCMap( action ).values() ) {
@@ -328,7 +328,7 @@ public class ActionScope {
 		return( sset.addEnvServer( action , srv , nodes , true ) );
 	}
 	
-	private void createEnvServerNodesScope( ActionBase action , MetaEnvDC dc , String SERVER , String[] NODES , DistStorage release ) throws Exception {
+	private void createEnvServerNodesScope( ActionBase action , MetaEnvDC dc , String SERVER , String[] NODES , Dist release ) throws Exception {
 		this.release = release;
 		
 		scopeFull = false;
@@ -349,7 +349,7 @@ public class ActionScope {
 		return( sset );
 	}
 	
-	private ActionScopeTarget createReleaseProjectItemsScope( ActionBase action , DistStorage release , String PROJECT , String[] ITEMS ) throws Exception {
+	private ActionScopeTarget createReleaseProjectItemsScope( ActionBase action , Dist release , String PROJECT , String[] ITEMS ) throws Exception {
 		scopeFull = false;
 		
 		MetaReleaseTarget releaseProject = release.info.findBuildProject( action , PROJECT );
@@ -384,7 +384,7 @@ public class ActionScope {
 		}
 	}
 	
-	private void createReleaseDistItemsScope( ActionBase action , DistStorage dist , String ITEMS[] , boolean specifiedExplicitly ) throws Exception {
+	private void createReleaseDistItemsScope( ActionBase action , Dist dist , String ITEMS[] , boolean specifiedExplicitly ) throws Exception {
 		scopeFull = false;
 		for( String itemName : ITEMS ) {
 			MetaDistrBinaryItem item = meta.distr.getBinaryItem( action , itemName );
@@ -428,7 +428,7 @@ public class ActionScope {
 		}
 	}
 	
-	private void createFullRelease( ActionBase action , DistStorage release )	throws Exception {
+	private void createFullRelease( ActionBase action , Dist release )	throws Exception {
 		scopeFull = true;
 		addAllReleaseProjects( action , release );
 		addAllReleaseConfigs( action , release );
@@ -436,7 +436,7 @@ public class ActionScope {
 		addAllReleaseManualItems( action , release );
 	}
 	
-	private void createReleaseSet( ActionBase action , DistStorage release , String SET , String[] TARGETS )	throws Exception {
+	private void createReleaseSet( ActionBase action , Dist release , String SET , String[] TARGETS )	throws Exception {
 		scopeFull = false;
 		if( SET.equals( Common.getEnumLower( VarCATEGORY.CONFIG ) ) )
 			addReleaseConfigs( action , release , TARGETS );
@@ -459,7 +459,7 @@ public class ActionScope {
 		return( categoryMap.get( CATEGORY ) );
 	}
 	
-	private ActionScopeSet createReleaseCategoryScopeSet( ActionBase action , DistStorage release , VarCATEGORY CATEGORY ) throws Exception {
+	private ActionScopeSet createReleaseCategoryScopeSet( ActionBase action , Dist release , VarCATEGORY CATEGORY ) throws Exception {
 		ActionScopeSet sset = getCategorySet( action , CATEGORY );
 		if( sset != null )
 			return( sset );
@@ -670,13 +670,13 @@ public class ActionScope {
 		set.addManualItems( action , null );
 	}
 
- 	private void addReleaseManualItems( ActionBase action , DistStorage release , String[] ITEMS ) throws Exception {
+ 	private void addReleaseManualItems( ActionBase action , Dist release , String[] ITEMS ) throws Exception {
 		ActionScopeSet set = createReleaseCategoryScopeSet( action , release , VarCATEGORY.MANUAL );
 		if( set != null )
 			set.addManualItems( action , ITEMS );
  	}
 	
- 	private void addAllReleaseManualItems( ActionBase action , DistStorage release ) throws Exception {
+ 	private void addAllReleaseManualItems( ActionBase action , Dist release ) throws Exception {
  		addReleaseManualItems( action , release , null );
  	}
 	
@@ -692,14 +692,14 @@ public class ActionScope {
 		sset.addProjects( action , PROJECTS );
 	}
 		
-	private void addAllReleaseProjects( ActionBase action , DistStorage release ) throws Exception {
+	private void addAllReleaseProjects( ActionBase action , Dist release ) throws Exception {
 		for( MetaReleaseSet rset : release.info.getSourceSets( action ).values() ) {
 			ActionScopeSet sset = createReleaseScopeSet( action , rset );
 			sset.addProjects( action , null );
 		}
 	}
 		
-	private void addReleaseProjects( ActionBase action , DistStorage release , MetaReleaseSet rset , String[] PROJECTS ) throws Exception {
+	private void addReleaseProjects( ActionBase action , Dist release , MetaReleaseSet rset , String[] PROJECTS ) throws Exception {
 		ActionScopeSet sset = createReleaseScopeSet( action , rset );
 		sset.addProjects( action , PROJECTS );
 	}
@@ -713,13 +713,13 @@ public class ActionScope {
 		sset.addConfigComps( action , CONFCOMPS );
 	}
 
-	private void addReleaseConfigs( ActionBase action , DistStorage release , String[] CONFCOMPS ) throws Exception {
+	private void addReleaseConfigs( ActionBase action , Dist release , String[] CONFCOMPS ) throws Exception {
 		ActionScopeSet sset = createReleaseCategoryScopeSet( action , release , VarCATEGORY.CONFIG );
 		if( sset != null )
 			sset.addConfigComps( action , CONFCOMPS );
 	}
 
-	private void addAllReleaseConfigs( ActionBase action , DistStorage release ) throws Exception {
+	private void addAllReleaseConfigs( ActionBase action , Dist release ) throws Exception {
 		addReleaseConfigs( action , release , null );
 	}
 	
@@ -737,11 +737,11 @@ public class ActionScope {
 		sset.addManualItems( action , DISTITEMS );
 	}
 	
- 	private void addAllReleaseDatabase( ActionBase action , DistStorage release ) throws Exception {
+ 	private void addAllReleaseDatabase( ActionBase action , Dist release ) throws Exception {
 		addReleaseDatabase( action , release , null );
 	}
 
-	private void addReleaseDatabase( ActionBase action , DistStorage release , String[] DBSETS ) throws Exception {
+	private void addReleaseDatabase( ActionBase action , Dist release , String[] DBSETS ) throws Exception {
 		ActionScopeSet sset = createReleaseCategoryScopeSet( action , release ,VarCATEGORY.DB );
 		if( sset != null )
 			sset.addDatabaseItems( action , DBSETS );

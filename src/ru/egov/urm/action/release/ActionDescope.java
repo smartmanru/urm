@@ -7,14 +7,14 @@ import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScopeSet;
 import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.ActionScopeTargetItem;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaReleaseTargetItem;
-import ru.egov.urm.storage.DistStorage;
 
 public class ActionDescope extends ActionBase {
 
-	DistStorage dist;
+	Dist dist;
 	
-	public ActionDescope( ActionBase action , String stream , DistStorage dist ) {
+	public ActionDescope( ActionBase action , String stream , Dist dist ) {
 		super( action , stream );
 		this.dist = dist;
 	}

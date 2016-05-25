@@ -1,11 +1,11 @@
 package ru.egov.urm.action.release;
 
 import ru.egov.urm.action.ActionBase;
-import ru.egov.urm.storage.DistStorage;
+import ru.egov.urm.dist.Dist;
 
 public class ActionCreateRelease extends ActionBase {
 
-	public DistStorage release;
+	public Dist release;
 	String RELEASELABEL;
 	
 	public ActionCreateRelease( ActionBase action , String stream , String RELEASELABEL ) {

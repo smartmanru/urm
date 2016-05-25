@@ -2,6 +2,7 @@ package ru.egov.urm.action;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.custom.CommandCustom;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
@@ -11,7 +12,6 @@ import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.Artefactory;
-import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.LocalFolder;
 
 abstract public class ActionBase {
@@ -403,7 +403,7 @@ abstract public class ActionBase {
 	public ActionScope getFullScope( String set , String[] TARGETS , String RELEASELABEL ) throws Exception {
 		ActionScope scope;
 		if( !RELEASELABEL.isEmpty() ) {
-			DistStorage release = artefactory.getDistStorageByLabel( this , RELEASELABEL );
+			Dist release = artefactory.getDistStorageByLabel( this , RELEASELABEL );
 			scope = ActionScope.getReleaseSetScope( this , release , set , TARGETS );
 		}
 		else

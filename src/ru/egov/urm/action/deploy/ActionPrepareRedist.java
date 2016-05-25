@@ -3,17 +3,17 @@ package ru.egov.urm.action.deploy;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.ActionScopeTargetItem;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
-import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.RedistStorage;
 
 public class ActionPrepareRedist extends ActionBase {
 
-	DistStorage dist;
+	Dist dist;
 	boolean recreate;
 	
-	public ActionPrepareRedist( ActionBase action , String stream , DistStorage dist , boolean recreate ) {
+	public ActionPrepareRedist( ActionBase action , String stream , Dist dist , boolean recreate ) {
 		super( action , stream );
 		this.dist = dist;
 		this.recreate = recreate;

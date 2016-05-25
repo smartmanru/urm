@@ -1,4 +1,4 @@
-package ru.egov.urm.storage;
+package ru.egov.urm.dist;
 
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaDistrConfItem;

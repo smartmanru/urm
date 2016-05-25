@@ -9,10 +9,10 @@ import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.conf.ActionGetConf;
 import ru.egov.urm.action.conf.ConfBuilder;
 import ru.egov.urm.action.database.ActionGetDB;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaReleaseDelivery;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
 import ru.egov.urm.shell.ShellExecutor;
-import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.LogStorage;
 
@@ -218,7 +218,7 @@ public class BuildCommand {
 		action.exitNotImplemented();
 	}
 	
-	public void buildRelease( ActionBase action , String SET , String[] PROJECTS , DistStorage release ) throws Exception {
+	public void buildRelease( ActionBase action , String SET , String[] PROJECTS , Dist release ) throws Exception {
 		action.setBuildMode( release.info.PROPERTY_BUILDMODE );
 		
 		String TAG;
@@ -249,7 +249,7 @@ public class BuildCommand {
 		buildTags( action , TAG , scope , OUTDIR , OUTFILE );
 	}
 
-	public void getAllRelease( ActionBase action , String SET , String[] PROJECTS , DistStorage release ) throws Exception {
+	public void getAllRelease( ActionBase action , String SET , String[] PROJECTS , Dist release ) throws Exception {
 		action.setBuildMode( release.info.PROPERTY_BUILDMODE );
 		
 		ActionScope scope = ActionScope.getReleaseSetScope( action , release , SET , PROJECTS );
@@ -264,7 +264,7 @@ public class BuildCommand {
 		getAll( action , scope );
 	}
 
-	public void thirdpartyUploadDist( ActionBase action , ActionScopeTarget scopeProject , DistStorage release ) throws Exception {
+	public void thirdpartyUploadDist( ActionBase action , ActionScopeTarget scopeProject , Dist release ) throws Exception {
 		ActionUploadReleaseItem ca = new ActionUploadReleaseItem( action , null , release );
 		ShellExecutor bs = action.context.pool.createDedicatedLocalShell( ca , "build"  );
 		

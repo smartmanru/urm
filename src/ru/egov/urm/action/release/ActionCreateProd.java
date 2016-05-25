@@ -1,7 +1,7 @@
 package ru.egov.urm.action.release;
 
 import ru.egov.urm.action.ActionBase;
-import ru.egov.urm.storage.DistRepository;
+import ru.egov.urm.dist.DistRepository;
 
 public class ActionCreateProd extends ActionBase { 
 

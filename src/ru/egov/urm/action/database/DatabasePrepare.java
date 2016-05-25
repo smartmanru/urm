@@ -2,19 +2,19 @@ package ru.egov.urm.action.database;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaDatabase;
 import ru.egov.urm.meta.MetaDatabaseSchema;
 import ru.egov.urm.meta.MetaDistr;
 import ru.egov.urm.meta.MetaDistrDelivery;
 import ru.egov.urm.meta.Metadata;
-import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.FileSet;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.SourceStorage;
 
 public class DatabasePrepare {
 
-	private DistStorage distStorage;
+	private Dist distStorage;
 	private MetaDistrDelivery dbDelivery;
 	private LocalFolder srcFolder;
 	private LocalFolder dstFolder;
@@ -43,7 +43,7 @@ public class DatabasePrepare {
 	
 	public static String ALIGNED_COMMON = "common";
 	
-	public boolean processDatabaseFiles( ActionBase action , DistStorage distStorage , MetaDistrDelivery dbDelivery , LocalFolder src , LocalFolder dst ) throws Exception {
+	public boolean processDatabaseFiles( ActionBase action , Dist distStorage , MetaDistrDelivery dbDelivery , LocalFolder src , LocalFolder dst ) throws Exception {
 		this.distStorage = distStorage;
 		this.dbDelivery = dbDelivery;
 		this.srcFolder = src;
@@ -179,7 +179,7 @@ public class DatabasePrepare {
 		LocalFolder manualDir = P_TARGETDIR.getSubFolder( action , MANUAL_FOLDER );
 		copyDir( action , P_ALIGNEDSET , P_ALIGNEDID , P_ALIGNEDSET.getDirByPath( action , MANUAL_FOLDER ) , manualDir , false );
 		
-		LocalFolder scriptDir = P_TARGETDIR.getSubFolder( action , DistStorage.DBSCRIPTS_FOLDER );
+		LocalFolder scriptDir = P_TARGETDIR.getSubFolder( action , Dist.DBSCRIPTS_FOLDER );
 		copyDir( action , P_ALIGNEDSET , P_ALIGNEDID , P_ALIGNEDSET.getDirByPath( action , COREDDL_FOLDER ) , scriptDir , true );
 		copyDir( action , P_ALIGNEDSET , P_ALIGNEDID , P_ALIGNEDSET.getDirByPath( action , COREDML_FOLDER ) , scriptDir , true );
 		copyDir( action , P_ALIGNEDSET , P_ALIGNEDID , P_ALIGNEDSET.getDirByPath( action , COREPRODONLY_FOLDER ) , scriptDir , true );
@@ -395,7 +395,7 @@ public class DatabasePrepare {
 		// process rollback scripts
 		FileSet srcRollback = SQL_SRC_DIR.getDirByPath( action , ROLLBACK_FOLDER );
 		if( srcRollback != null ) {
-			LocalFolder dstRollback = SQL_DST_DIR.getSubFolder( action , DistStorage.ROLLBACK_FOLDER );
+			LocalFolder dstRollback = SQL_DST_DIR.getSubFolder( action , Dist.ROLLBACK_FOLDER );
 			dstRollback.ensureExists( action );
 
 			for( String x : Common.getSortedKeys( srcRollback.files ) ) {

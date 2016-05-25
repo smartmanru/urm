@@ -52,12 +52,6 @@ public abstract class Folder {
 		session.createMD5( action , fname );
 	}
 
-	public String md5value( ActionBase action , String filePath ) throws Exception {
-		String fname = Common.getPath( folderPath , filePath );
-		ShellExecutor session = getSession( action ); 
-		return( session.getMD5( action , fname ) );
-	}
-
 	public String getFilesMD5( ActionBase action ) throws Exception {
 		return( getFilesMD5( action , "*" , "" ) );
 	}

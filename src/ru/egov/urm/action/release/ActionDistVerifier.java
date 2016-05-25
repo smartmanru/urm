@@ -5,12 +5,12 @@ import java.util.Map;
 
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScope;
+import ru.egov.urm.dist.DistItemInfo;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
 import ru.egov.urm.meta.MetaRelease;
 import ru.egov.urm.meta.MetaReleaseTargetItem;
 import ru.egov.urm.meta.MetaReleaseDelivery;
-import ru.egov.urm.storage.DistItemInfo;
-import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.FileSet;
 
 public class ActionDistVerifier extends ActionBase {
@@ -20,7 +20,7 @@ public class ActionDistVerifier extends ActionBase {
 	}
 
 	@Override protected boolean executeScope( ActionScope scope ) throws Exception {
-		DistStorage dist = scope.release;
+		Dist dist = scope.release;
 		FileSet set = dist.getFiles( this );
 		MetaRelease info = dist.info;
 		
@@ -70,7 +70,7 @@ public class ActionDistVerifier extends ActionBase {
 		return( true );
 	}
 
-	private boolean checkFinalizeItems( DistStorage dist , MetaReleaseDelivery delivery ) throws Exception {
+	private boolean checkFinalizeItems( Dist dist , MetaReleaseDelivery delivery ) throws Exception {
 		FileSet set = dist.getFiles( this );
 		Map<String,MetaDistrBinaryItem> items = new HashMap<String,MetaDistrBinaryItem>(); 
 		
@@ -97,11 +97,11 @@ public class ActionDistVerifier extends ActionBase {
 		return( true );
 	}
 	
-	private boolean checkFinalizeDatabase( DistStorage dist , MetaReleaseDelivery delivery ) throws Exception {
+	private boolean checkFinalizeDatabase( Dist dist , MetaReleaseDelivery delivery ) throws Exception {
 		return( false );
 	}
 	
-	private boolean checkFinalizeConfiguration( DistStorage dist , MetaReleaseDelivery delivery ) throws Exception {
+	private boolean checkFinalizeConfiguration( Dist dist , MetaReleaseDelivery delivery ) throws Exception {
 		return( false );
 	}
 

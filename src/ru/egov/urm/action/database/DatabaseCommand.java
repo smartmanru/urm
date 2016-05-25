@@ -3,10 +3,10 @@ package ru.egov.urm.action.database;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScope;
 import ru.egov.urm.action.CommandOptions.SQLMODE;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.MetaReleaseDelivery;
-import ru.egov.urm.storage.DistStorage;
 
 public class DatabaseCommand {
 
@@ -25,19 +25,19 @@ public class DatabaseCommand {
 		ma.runSimple();
 	}
 
-	public void getReleaseScripts( ActionBase action , ActionScope scope , DistStorage dist ) throws Exception {
+	public void getReleaseScripts( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
 		ActionGetDB ma = new ActionGetDB( action , null , dist );
 		ma.runAll( scope );
 	}
 
-	public void applyManual( ActionBase action , ActionScope scope , DistStorage dist , MetaEnvServer server ) throws Exception {
+	public void applyManual( ActionBase action , ActionScope scope , Dist dist , MetaEnvServer server ) throws Exception {
 		dist.open( action );
 		
 		ActionApplyManual ma = new ActionApplyManual( action , null , dist , server );
 		ma.runAll( scope );
 	}
 
-	public void applyAutomatic( ActionBase action , DistStorage dist , MetaReleaseDelivery delivery , String indexScope ) throws Exception {
+	public void applyAutomatic( ActionBase action , Dist dist , MetaReleaseDelivery delivery , String indexScope ) throws Exception {
 		dist.open( action );
 		
 		String deliveryInfo = ( delivery != null )? delivery.distDelivery.NAME : "(all)";
@@ -59,7 +59,7 @@ public class DatabaseCommand {
 		ma.runAll( scope );
 	}
 
-	public void manageRelease( ActionBase action , ActionScope scope , DistStorage dist ) throws Exception {
+	public void manageRelease( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
 		action.exitNotImplemented();
 	}
 

@@ -4,10 +4,10 @@ import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.ActionScopeTargetItem;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata.VarCONTENTTYPE;
-import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.FileInfo;
 import ru.egov.urm.storage.RedistStateInfo;
 import ru.egov.urm.storage.RedistStorage;
@@ -15,9 +15,9 @@ import ru.egov.urm.storage.RemoteFolder;
 
 public class ActionGetRedistInfo extends ActionBase {
 
-	DistStorage dist;
+	Dist dist;
 
-	public ActionGetRedistInfo( ActionBase action , String stream , DistStorage dist ) {
+	public ActionGetRedistInfo( ActionBase action , String stream , Dist dist ) {
 		super( action , stream );
 		this.dist = dist;
 	}

@@ -1,4 +1,4 @@
-package ru.egov.urm.storage;
+package ru.egov.urm.dist;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
@@ -7,6 +7,8 @@ import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarOSTYPE;
 import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
+import ru.egov.urm.storage.Artefactory;
+import ru.egov.urm.storage.RemoteFolder;
 
 public class DistRepository {
 
@@ -97,14 +99,14 @@ public class DistRepository {
 		return( repoFolder.getSubFolder( action , "data/" + dataSet + "/log-import-" + location ) );
 	}
 	
-	public DistStorage getDistByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
+	public Dist getDistByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 		
 		String RELEASEPATH = getReleasePathByLabel( action , RELEASELABEL );
 		boolean prod = RELEASELABEL.equals( "prod" );
 		
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , RELEASEPATH );
-		DistStorage storage = new DistStorage( artefactory , distFolder , prod );
+		Dist storage = new Dist( artefactory , distFolder , prod );
 		
 		// check release directory exists
 		if( !distFolder.checkExists( action ) )
@@ -114,14 +116,14 @@ public class DistRepository {
 		return( storage );
 	}
 
-	public DistStorage createDist( ActionBase action , String RELEASELABEL ) throws Exception {
+	public Dist createDist( ActionBase action , String RELEASELABEL ) throws Exception {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 		
 		String RELEASEPATH = getReleasePathByLabel( action , RELEASELABEL );
 		String RELEASEVER = Common.getBaseName( RELEASEPATH );
 		
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , RELEASEPATH );
-		DistStorage storage = new DistStorage( artefactory , distFolder , false );
+		Dist storage = new Dist( artefactory , distFolder , false );
 		
 		// check release directory exists
 		if( distFolder.checkExists( action ) ) {
@@ -189,7 +191,7 @@ public class DistRepository {
 				action.exit( "prod folder is probably already initialized, delete history.txt manually to recreate" );
 		}
 		
-		DistStorage storage = new DistStorage( artefactory , distFolder , true );
+		Dist storage = new Dist( artefactory , distFolder , true );
 		distFolder.createFileFromString( action , RELEASEHISTORYFILE , getHistoryRecord( action , RELEASEVER , "add" ) );
 		storage.createProd( action , RELEASEVER );
 		

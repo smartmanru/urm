@@ -6,13 +6,13 @@ import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.ActionScopeTargetItem;
-import ru.egov.urm.storage.DistStorage;
+import ru.egov.urm.dist.Dist;
 
 public class ActionUploadReleaseItem extends ActionBase {
 
-	DistStorage release;
+	Dist release;
 	
-	public ActionUploadReleaseItem( ActionBase action , String stream , DistStorage release ) {
+	public ActionUploadReleaseItem( ActionBase action , String stream , Dist release ) {
 		super( action , stream );
 		this.release = release;
 	}
@@ -33,6 +33,6 @@ public class ActionUploadReleaseItem extends ActionBase {
 		return( true );
 	}
 
-	private void uploadItem( ActionScopeTarget scopeProject , DistStorage release , ActionScopeTargetItem scopeItem ) throws Exception {
+	private void uploadItem( ActionScopeTarget scopeProject , Dist release , ActionScopeTargetItem scopeItem ) throws Exception {
 	}
 }

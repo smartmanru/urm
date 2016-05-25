@@ -3,10 +3,10 @@ package ru.egov.urm.action.deploy;
 import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScope;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaEnvDC;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
-import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.LocalFolder;
 
 public class DeployCommand {
@@ -45,12 +45,12 @@ public class DeployCommand {
 		ma.runAll( scope );
 	}
 
-	public void deployRedist( ActionBase action , ActionScope scope , DistStorage dist ) throws Exception {
+	public void deployRedist( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
 		ActionDeployRedist ca = new ActionDeployRedist( action , null , scope.release );
 		ca.runAll( scope );
 	}
 
-	public void dropRedist( ActionBase action , ActionScope scope , DistStorage dist ) throws Exception {
+	public void dropRedist( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
 		ActionDropRedist ca = new ActionDropRedist( action , null , scope.release );
 		
 		if( action.context.CTX_FORCE )
@@ -64,7 +64,7 @@ public class DeployCommand {
 		ca.runAll( scope );
 	}
 
-	public void getRedistInfo( ActionBase action , ActionScope scope , DistStorage dist ) throws Exception {
+	public void getRedistInfo( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
 		ActionGetRedistInfo ca = new ActionGetRedistInfo( action , null , dist );
 		ca.runAll( scope );
 	}
@@ -94,7 +94,7 @@ public class DeployCommand {
 		ca.runSimple();
 	}
 
-	public void redist( ActionBase action , ActionScope scope , DistStorage dist ) throws Exception {
+	public void redist( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
 		if( scope.isEmpty( action ) ) {
 			action.log( "nothing to redist" );
 			return;
@@ -155,12 +155,12 @@ public class DeployCommand {
 		sendMsg( action , "[restartenv] done." );
 	}
 
-	public void rollback( ActionBase action , ActionScope scope , DistStorage dist ) throws Exception {
+	public void rollback( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
 		ActionRollback ca = new ActionRollback( action , null , dist );
 		ca.runAll( scope );
 	}
 
-	public void rollout( ActionBase action , ActionScope scope , DistStorage dist ) throws Exception {
+	public void rollout( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
 		ActionRollout ca = new ActionRollout( action , null , dist );
 		ca.runAll( scope );
 	}
@@ -209,7 +209,7 @@ public class DeployCommand {
 		ca.runEnvUniqueAccounts( scope );
 	}
 
-	public void verifyDeploy( ActionBase action , ActionScope scope , DistStorage dist ) throws Exception {
+	public void verifyDeploy( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
 		dist.open( action );
 		ActionVerifyDeploy ca = new ActionVerifyDeploy( action , null , dist );
 		ca.runAll( scope );

@@ -2,15 +2,15 @@ package ru.egov.urm.action.conf;
 
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScopeTarget;
-import ru.egov.urm.storage.DistStorage;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.SourceStorage;
 
 public class ActionGetConf extends ActionBase {
 
-	DistStorage release;
+	Dist release;
 	
-	public ActionGetConf( ActionBase action , String stream , DistStorage release ) {
+	public ActionGetConf( ActionBase action , String stream , Dist release ) {
 		super( action , stream );
 		this.release = release;
 	}

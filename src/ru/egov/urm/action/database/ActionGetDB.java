@@ -2,15 +2,15 @@ package ru.egov.urm.action.database;
 
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScopeTarget;
-import ru.egov.urm.storage.DistStorage;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.SourceStorage;
 
 public class ActionGetDB extends ActionBase {
 
-	DistStorage release;
+	Dist release;
 	
-	public ActionGetDB( ActionBase action , String stream , DistStorage release ) {
+	public ActionGetDB( ActionBase action , String stream , Dist release ) {
 		super( action , stream );
 		this.release = release;
 	}
@@ -27,11 +27,11 @@ public class ActionGetDB extends ActionBase {
 
 		LocalFolder downloadFolder = artefactory.getDownloadFolder( this );
 		LocalFolder deliveryFolder = downloadFolder.getSubFolder( this , item.dbDelivery.FOLDER );
-		LocalFolder dbPreparedFolder = deliveryFolder.getSubFolder( this , DistStorage.DATABASE_FOLDER );
+		LocalFolder dbPreparedFolder = deliveryFolder.getSubFolder( this , Dist.DATABASE_FOLDER );
 		deliveryFolder.ensureExists( this );
 		dbPreparedFolder.recreateThis( this );
 
-		LocalFolder dbWorkFolder = workFolder.getSubFolder( this , DistStorage.DATABASE_FOLDER );
+		LocalFolder dbWorkFolder = workFolder.getSubFolder( this , Dist.DATABASE_FOLDER );
 		downloadDBDir( item , dbWorkFolder , dbPreparedFolder );
 		
 		return( true );

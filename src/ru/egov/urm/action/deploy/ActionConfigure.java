@@ -10,19 +10,19 @@ import ru.egov.urm.action.ActionScopeSet;
 import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.ActionScopeTargetItem;
 import ru.egov.urm.action.conf.ConfBuilder;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaDistrComponentItem;
 import ru.egov.urm.meta.MetaDistrConfItem;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerDeployment;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
-import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.SourceStorage;
 
 public class ActionConfigure extends ActionBase {
 
-	DistStorage dist;
+	Dist dist;
 	LocalFolder baseFolder;
 	LocalFolder templateFolder;
 	
@@ -31,7 +31,7 @@ public class ActionConfigure extends ActionBase {
 		this.baseFolder = baseFolder;
 	}
 	
-	public ActionConfigure( ActionBase action , String stream , DistStorage dist , LocalFolder baseFolder ) {
+	public ActionConfigure( ActionBase action , String stream , Dist dist , LocalFolder baseFolder ) {
 		super( action , stream );
 		this.dist = dist;
 		this.baseFolder = baseFolder;

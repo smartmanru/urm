@@ -7,7 +7,7 @@ import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.CommandAction;
 import ru.egov.urm.action.CommandBuilder;
 import ru.egov.urm.action.CommandExecutor;
-import ru.egov.urm.storage.DistStorage;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.storage.LocalFolder;
 
 public class BuildCommandExecutor extends CommandExecutor {
@@ -72,7 +72,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		return( res );
 	}
 
-	private DistStorage loadCommandRelease( ActionBase action ) throws Exception {
+	private Dist loadCommandRelease( ActionBase action ) throws Exception {
 		String RELEASELABEL = action.context.CTX_RELEASELABEL;
 		
 		if( RELEASELABEL.isEmpty() )
@@ -80,7 +80,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		if( RELEASELABEL.isEmpty() )
 			RELEASELABEL = "next";
 		
-		DistStorage release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		return( release );
 	}
 	
@@ -118,7 +118,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		action.checkRequired( action.context.buildMode , "BUILDMODE" );
 		String SET = options.getArg( 0 );
 		String[] PROJECTS = options.getArgList( 1 );
-		DistStorage release = loadCommandRelease( action );
+		Dist release = loadCommandRelease( action );
 		impl.buildRelease( action , SET , PROJECTS , release );
 	}
 	}
@@ -152,7 +152,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		String SET = options.getArg( 0 );
 		String[] TARGETS = options.getArgList( 1 );
 
-		DistStorage release = loadCommandRelease( action );
+		Dist release = loadCommandRelease( action );
 		impl.getAllRelease( action , SET , TARGETS , release );
 	}
 	}
@@ -286,7 +286,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
 		
-		DistStorage release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		
 		ActionScopeTarget scopeProject = ActionScope.getReleaseProjectItemsScopeTarget( action , release , "thirdparty" , null );
 		impl.thirdpartyUploadDist( action , scopeProject , release );

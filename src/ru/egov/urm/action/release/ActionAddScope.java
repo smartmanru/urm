@@ -5,14 +5,14 @@ import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScopeSet;
 import ru.egov.urm.action.ActionScopeTarget;
 import ru.egov.urm.action.ActionScopeTargetItem;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
-import ru.egov.urm.storage.DistStorage;
 
 public class ActionAddScope extends ActionBase {
 
-	DistStorage dist;
+	Dist dist;
 	
-	public ActionAddScope( ActionBase action , String stream , DistStorage dist ) {
+	public ActionAddScope( ActionBase action , String stream , Dist dist ) {
 		super( action , stream );
 		this.dist = dist;
 	}

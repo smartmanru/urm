@@ -1,13 +1,13 @@
 package ru.egov.urm.action.release;
 
 import ru.egov.urm.action.ActionBase;
-import ru.egov.urm.storage.DistStorage;
+import ru.egov.urm.dist.Dist;
 
 public class ActionReopenRelease extends ActionBase {
 
-	DistStorage release;
+	Dist release;
 	
-	public ActionReopenRelease( ActionBase action , String stream , DistStorage release ) {
+	public ActionReopenRelease( ActionBase action , String stream , Dist release ) {
 		super( action , stream );
 		this.release = release;
 	}
