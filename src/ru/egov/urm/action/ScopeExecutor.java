@@ -79,7 +79,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
-			runFailed = true;
+			action.setFailed();
 		}
 
 		try {
@@ -89,6 +89,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
+			action.setFailed();
 		}
 		
 		return( getFinalStatus() );
@@ -110,7 +111,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
-			runFailed = true;
+			action.setFailed();
 		}
 		
 		try {
@@ -120,6 +121,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
+			action.setFailed();
 		}
 		
 		return( getFinalStatus() );
@@ -144,7 +146,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
-			runFailed = true;
+			action.setFailed();
 		}
 		
 		try {
@@ -154,6 +156,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
+			action.setFailed();
 		}
 		
 		return( getFinalStatus() );
@@ -175,7 +178,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
-			runFailed = true;
+			action.setFailed();
 		}
 		
 		try {
@@ -185,6 +188,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
+			action.setFailed();
 		}
 		
 		return( getFinalStatus() );
@@ -209,7 +213,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
-			runFailed = true;
+			action.setFailed();
 		}
 		
 		try {
@@ -219,6 +223,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
+			action.setFailed();
 		}
 		
 		return( getFinalStatus() );
@@ -248,7 +253,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
-			runFailed = true;
+			action.setFailed();
 		}
 		
 		try {
@@ -258,6 +263,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
+			action.setFailed();
 		}
 		
 		return( getFinalStatus() );
@@ -280,7 +286,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
-			runFailed = true;
+			action.setFailed();
 		}
 
 		try {
@@ -290,6 +296,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
+			action.setFailed();
 		}
 		
 		runFailed = checkFailed();
@@ -320,7 +327,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception:" , e );
 			exception = true;
-			runFailed = true;
+			action.setFailed();
 		}
 		
 		runFailed = localFailed;
@@ -350,7 +357,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception:" , e );
 			exception = true;
-			runFailed = true;
+			action.setFailed();
 		}
 		
 		try {
@@ -360,6 +367,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
+			action.setFailed();
 		}
 		
 		runFailed = checkFailed();
@@ -380,7 +388,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception:"  , e );
 			exception = true;
-			runFailed = true;
+			action.setFailed();
 		}
 		
 		runFailed = checkFailed();
@@ -399,7 +407,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
-			runFailed = true;
+			action.setFailed();
 		}
 		
 		runFailed = checkFailed();
@@ -425,7 +433,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
-			runFailed = true;
+			action.setFailed();
 		}
 		
 		runFailed = localFailed;
@@ -452,7 +460,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
-			runFailed = true;
+			action.setFailed();
 		}
 		
 		runFailed = localFailed;
@@ -502,7 +510,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
-			runFailed = true;
+			action.setFailed();
 		}
 		
 		try {
@@ -514,6 +522,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
+			action.setFailed();
 		}
 		
 		runFailed = localFailed;
@@ -546,7 +555,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
-			runFailed = true;
+			action.setFailed();
 		}
 		
 		try {
@@ -556,6 +565,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
+			action.setFailed();
 		}
 		
 		runFailed = checkFailed();
@@ -599,7 +609,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
-			runFailed = true;
+			action.setFailed();
 		}
 		
 		runFailed = localFailed;
@@ -629,7 +639,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
-			runFailed = true;
+			action.setFailed();
 		}
 		
 		try {
@@ -639,6 +649,7 @@ public class ScopeExecutor {
 		catch( Throwable e ) {
 			action.log( action.NAME + " exception" , e );
 			exception = true;
+			action.setFailed();
 		}
 		
 		runFailed = checkFailed();
