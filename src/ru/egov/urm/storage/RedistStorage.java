@@ -369,7 +369,7 @@ public class RedistStorage extends ServerStorage {
 	}
 	
 	public void copyTmpFileToLocal( ActionBase action , String tmpName , LocalFolder localFolder ) throws Exception {
-		RemoteFolder tmpFolder = this.getRedistTmpFolder( action );
+		RemoteFolder tmpFolder = getRedistTmpFolder( action );
 		tmpFolder.copyFileToLocal( action , localFolder , tmpName );
 		tmpFolder.removeFiles( action , tmpName );
 	}

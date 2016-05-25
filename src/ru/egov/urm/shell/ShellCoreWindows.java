@@ -675,8 +675,29 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public String cmdGetFilesMD5( ActionBase action , String dir , String includeList , String excludeList ) throws Exception {
-		action.exitNotImplemented();
-		return( null );
+		String tmpFile = action.getTmpFilePath( "cmdGetFilesMD5" );
+		String filesRegular = getRegularMaskList( action , includeList );
+
+		String cmd = "findstr /R " + Common.getQuoted( filesRegular );
+		if( !excludeList.isEmpty() ) {
+			String excludeRegular = getRegularMaskList( action , excludeList );
+			cmd += " ^| findstr /V " + Common.getQuoted( excludeRegular );
+		}
+		
+		String cmdDir = getDirCmdIfDir( action , dir , 
+				"for /f %x in ('dir /O N /b /a-d ^| " + cmd + "') do certutil -hashfile %x MD5 | findstr /V " + 
+				Common.getQuoted( "MD5 CertUtil" ) + " > " + tmpFile );
+		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
+		String[] lines = executor.getFileLines( action , tmpFile );
+		for( int k = 0; k < lines.length; k++ )
+			lines[ k ] = Common.replace( lines[ k ] , " " , "" );
+		
+		String workFile = action.getTmpFilePath( "cmdGetFilesMD5.md5" );
+		Common.createFileFromStringList( workFile , lines );
+		ShellExecutor local = action.getLocalShell();
+		String value = local.getMD5( action , workFile );
+		
+		return( value );
 	}
 	
 	@Override public Map<String,List<String>> cmdGetFilesContent( ActionBase action , String dir , String fileMask ) throws Exception {

@@ -136,6 +136,17 @@ public class Common {
 		writer.close();
 	}
 
+	public static void createFileFromStringList( String path , String[] content ) throws Exception {
+		createFileFromStringList( path , content , StandardCharsets.UTF_8 );
+	}
+	
+	public static void createFileFromStringList( String path , String[] content , Charset charset ) throws Exception {
+		FileWriter writer = new FileWriter( path );
+		for( String s : content )
+			writer.write( s + "\n" );
+		writer.close();
+	}
+	
 	public static void createFileFromStringList( String path , List<String> content ) throws Exception {
 		createFileFromStringList( path , content , StandardCharsets.UTF_8 );
 	}

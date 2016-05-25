@@ -507,5 +507,20 @@ abstract public class ActionBase {
 	public void stopAllOutputs() throws Exception {
 		output.stopAllOutputs();
 	}
+
+	public String getTmpFilePath( String name ) throws Exception {
+		if( session.account.local )
+			return( getWorkFilePath( name ) );
+		return( Common.getPath( context.CTX_REDISTPATH , "tmp" , name ) );
+	}
+
+	public String getWorkFilePath( String name ) throws Exception {
+		String path = artefactory.workFolder.getFilePath( this , name );
+		return( path );
+	}
+	
+	public ShellExecutor getLocalShell() throws Exception {
+		return( getShell( context.account ) );
+	}
 	
 }
