@@ -7,9 +7,9 @@ import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.action.ActionScope;
 import ru.egov.urm.action.ActionScopeTarget;
+import ru.egov.urm.dist.Dist;
 import ru.egov.urm.storage.Artefactory;
 import ru.egov.urm.storage.LocalFolder;
-import ru.egov.urm.storage.DistStorage;
 import ru.egov.urm.storage.NexusDownloadInfo;
 import ru.egov.urm.storage.NexusStorage;
 import ru.egov.urm.meta.MetaDistrBinaryItem;
@@ -29,7 +29,7 @@ public class SpecificPGU {
 
 	boolean USE_PROD_DISTR;
 	String VERSION;
-	DistStorage srcRelease;
+	Dist srcRelease;
 	String SERVICECALL_EXT;
 	String STORAGESERVICE_EXT;
 
@@ -71,7 +71,7 @@ public class SpecificPGU {
 		return( "ear" );
 	}
 
-	public void downloadWarCopyDistr( boolean copyDistr , DistStorage release , String VERSION_TAGNAME , ActionScopeTarget scopeProject ) throws Exception {
+	public void downloadWarCopyDistr( boolean copyDistr , Dist release , String VERSION_TAGNAME , ActionScopeTarget scopeProject ) throws Exception {
 		MetaDistrBinaryItem distItem = scopeProject.sourceProject.distItem;
 		
 		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , downloadFolder );
@@ -80,13 +80,13 @@ public class SpecificPGU {
 		nexusStorage.repackageStatic( action , scopeProject.sourceProject.PROJECT , VERSION , WAR.DOWNLOAD_FILENAME , STATIC.DOWNLOAD_FILENAME , VERSION_TAGNAME , distItem );
 
 		if( copyDistr ) {
-			DistStorage distStorage = release;
+			Dist distStorage = release;
 			distStorage.copyVFileToDistr( action , distItem , downloadFolder , WAR.DOWNLOAD_FILENAME , WAR.BASENAME , WAR.EXT );
 			distStorage.copyVFileToDistr( action , distItem , downloadFolder , STATIC.DOWNLOAD_FILENAME , STATIC.BASENAME , STATIC.EXT );
 		}
 	}
 	
-	public void getAllWarApp( boolean copyDistr , DistStorage release , boolean USE_PROD_DISTR , String VERSION , DistStorage srcRelease , ActionScope scope ) throws Exception {
+	public void getAllWarApp( boolean copyDistr , Dist release , boolean USE_PROD_DISTR , String VERSION , Dist srcRelease , ActionScope scope ) throws Exception {
 		this.USE_PROD_DISTR = USE_PROD_DISTR;
 		this.srcRelease = srcRelease;
 		this.VERSION = VERSION;
@@ -130,7 +130,7 @@ public class SpecificPGU {
 			nexusStorage.downloadNexus( action , C_STORAGESERVICEGROUPID , "storageservice" , VERSION , STORAGESERVICE_EXT , "" , storageserviceItem );
 		}
 		else {
-			DistStorage distStorage = srcRelease;
+			Dist distStorage = srcRelease;
 			action.log( "copy servicecall and storageservice from " + distStorage.RELEASEDIR + " - to " + downloadFolder.folderPath + " ..." );
 			distStorage.copyDistToFolder( action , downloadFolder , "servicecall-" + VERSION + "." + SERVICECALL_EXT );
 			distStorage.copyDistToFolder( action , downloadFolder , "storageservice-" + VERSION + "." + STORAGESERVICE_EXT );
@@ -151,13 +151,13 @@ public class SpecificPGU {
 	}
 	
 	private void getAllWarAppCopyProd() throws Exception {
-		DistStorage distStorage = artefactory.getDistProdStorage( action );
+		Dist distStorage = artefactory.getDistProdStorage( action );
 
 		action.debug( "copy libraries from " + distStorage.RELEASEDIR + "/servicecall." + SERVICECALL_EXT + " to servicecall-prod-libs ..." );
 		distStorage.unzipDistFileToFolder( action , downloadFolder , "servicecall-*." + SERVICECALL_EXT , servicecallItem.delivery.FOLDER , Common.getQuoted( SERVICECALL_DIR + "/lib/*" ) , "servicecall-prod-libs" );
 	}
 	
-	private void getAllWarAppDownloadLibs( DistStorage release ) throws Exception {
+	private void getAllWarAppDownloadLibs( Dist release ) throws Exception {
 		// create directory for libs and "cd" to it
 		LocalFolder libFolder = downloadFolder.getSubFolder( action , "pgu-services-lib" );
 		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , libFolder );
@@ -179,7 +179,7 @@ public class SpecificPGU {
 		}
 	}
 
-	private void getAllWarAppUpdateLibs( DistStorage release ) throws Exception {
+	private void getAllWarAppUpdateLibs( Dist release ) throws Exception {
 		// copy all libs from -
 		//   current release - if microportal exists in current release distributive
 		//   previous release (prod) - otherwise
@@ -192,14 +192,14 @@ public class SpecificPGU {
 
 		action.debug( "copy libs to servicecall and storageservice from pgu-services-lib and servicecall-prod-libs ..." );
 		List<MetaSourceProject> list = meta.sources.getAllProjectList( action , VarCATEGORY.BUILD );
-		DistStorage releaseStorage = release;
+		Dist releaseStorage = release;
 		
 		for( MetaSourceProject sourceProject : list ) {
 			getAllWarAppGetProjectLib( sourceProject , releaseStorage );
 		}
 	}
 	
-	private void getAllWarAppGetProjectLib( MetaSourceProject sourceProject , DistStorage release ) throws Exception {
+	private void getAllWarAppGetProjectLib( MetaSourceProject sourceProject , Dist release ) throws Exception {
 		String lib = sourceProject.DISTLIBITEM + "-" + VERSION + ".jar";
 
 		boolean RELEASED_TO_PROD = false;
@@ -247,7 +247,7 @@ public class SpecificPGU {
 		}
 	}
 	
-	private void getAllWarAppCreateBinaries( boolean copyDistr , DistStorage release ) throws Exception {
+	private void getAllWarAppCreateBinaries( boolean copyDistr , Dist release ) throws Exception {
 		// Compress modified servicecall and storageservice
 		action.debug( "compressing patched servicecall." + SERVICECALL_EXT + " ..." );
 		String jarFile = "servicecall-" + VERSION + ".jar";
@@ -266,13 +266,13 @@ public class SpecificPGU {
 		downloadFolder.md5file( action , finalName );
 		
 		if( copyDistr ) {
-			DistStorage releaseStorage = release;
+			Dist releaseStorage = release;
 			releaseStorage.copyVFileToDistr( action , servicecallItem , downloadFolder , "servicecall-" + VERSION + "." + SERVICECALL_EXT , "servicecall" , SERVICECALL_EXT );
 			releaseStorage.copyVFileToDistr( action , storageserviceItem , downloadFolder , "storageservice-" + VERSION + "." + STORAGESERVICE_EXT , "storageservice" , STORAGESERVICE_EXT );
 		}
 	}
 	
-	private void getAllWarAppDownloadDeps( boolean copyDistr , DistStorage release ) throws Exception {
+	private void getAllWarAppDownloadDeps( boolean copyDistr , Dist release ) throws Exception {
 		MetaSourceProject sourceProject = meta.sources.getProject( action , "pgu-portal" );
 		MetaSourceProjectItem sourceItem = sourceProject.getItem( action , "pgu-dependencies" );
 		MetaDistrBinaryItem distItem = meta.distr.getBinaryItem( action , sourceItem.ITEMNAME );
@@ -283,7 +283,7 @@ public class SpecificPGU {
 		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , downloadFolder );
 		nexusStorage.downloadNexus( action , GROUPID , sourceItem.ITEMBASENAME , VERSION , EXT , "" , distItem );
 		if( copyDistr ) {
-			DistStorage releaseStorage = release;
+			Dist releaseStorage = release;
 			releaseStorage.copyVFileToDistr( action , distItem , downloadFolder , sourceItem.ITEMBASENAME + "-" + VERSION + "." + EXT , sourceItem.ITEMBASENAME , EXT );
 		}
 	}
