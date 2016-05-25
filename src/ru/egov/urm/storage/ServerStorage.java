@@ -32,8 +32,19 @@ public class ServerStorage {
 	}
 	
 	public void checkRootDir( ActionBase action , String rootPath ) throws Exception {
-		if( rootPath.isEmpty() || rootPath.equals( "/" ) || rootPath.startsWith( "/" ) == false || rootPath.endsWith( "/" ) )
-			action.exit( "checkRootDir: invalid root dir=" + rootPath );
+		if( account.isLinux() ) {
+			if( rootPath.isEmpty() || rootPath.equals( "/" ) || rootPath.startsWith( "/" ) == false || rootPath.endsWith( "/" ) )
+				action.exit( "checkRootDir: invalid root dir=" + rootPath );
+		}
+		else
+		if( account.isWindows() ) {
+			if( rootPath.isEmpty() || rootPath.equals( "/" ) )
+				action.exit( "checkRootDir: invalid root dir=" + rootPath );
+			
+			String noletter = rootPath.substring( 1 );
+			if( noletter.startsWith( ":/" ) == false || noletter.equals( ":/" ) )
+				action.exit( "checkRootDir: invalid root dir=" + rootPath );
+		}
 	}
 
 	public void checkRelativeDir( ActionBase action , String folder ) throws Exception {
