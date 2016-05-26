@@ -146,8 +146,9 @@ public class RemoteFolder extends Folder {
 		action.session.copyFileLocalToTarget( action , account , filePath , folderPath );
 	}
 
-	public void copyFileFromLocal( ActionBase action , String filePath ) throws Exception {
+	public String copyFileFromLocal( ActionBase action , String filePath ) throws Exception {
 		action.session.copyFileLocalToTarget( action , account , filePath , folderPath );
+		return( Common.getPath( folderPath , Common.getBaseName( filePath ) ) );
 	}
 
 	public void copyFileFromLocalRename( ActionBase action , String filePath , String newName ) throws Exception {

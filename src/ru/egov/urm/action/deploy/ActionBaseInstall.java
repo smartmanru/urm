@@ -12,6 +12,7 @@ import ru.egov.urm.meta.MetaFapBase;
 import ru.egov.urm.meta.MetaFapBase.VarBASESRCFORMAT;
 import ru.egov.urm.meta.Metadata.VarARCHIVETYPE;
 import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
+import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.BaseRepository;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.RedistStorage;
@@ -86,6 +87,9 @@ public class ActionBaseInstall extends ActionBase {
 		if( info.isNoDist() )
 			executeNodeNoDist( server , node , info , redist , runtime );
 		else
+		if( info.isInstaller() )
+			executeNodeInstaller( server , node , info , redist , runtime );
+		else
 			exitUnexpectedState();
 		
 		// prepare
@@ -100,7 +104,9 @@ public class ActionBaseInstall extends ActionBase {
 	private void executeNodeLinuxArchiveLink( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
 		String localPath = copySourceToLocal( info );
 		String redistPath = copyLocalToRedist( info , localPath , redist );
-		String runtimePath = extractArchiveFromRedist( info , redist , redistPath , runtime );
+		String runtimePath = info.INSTALLPATH;
+		
+		extractArchiveFromRedist( info , redistPath , runtimePath , runtime );
 		linkNewBase( info , runtime , runtimePath );
 		copySystemFiles( info , redist , runtime );
 	}
@@ -108,12 +114,32 @@ public class ActionBaseInstall extends ActionBase {
 	private void executeNodeLinuxArchiveDirect( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
 		String localPath = copySourceToLocal( info );
 		String redistPath = copyLocalToRedist( info , localPath , redist );
-		extractArchiveFromRedist( info , redist , redistPath , runtime );
+		String runtimePath = info.INSTALLPATH;
+		
+		extractArchiveFromRedist( info , redistPath , runtimePath , runtime );
 		copySystemFiles( info , redist , runtime );
 	}
 
 	private void executeNodeNoDist( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
 		copySystemFiles( info , redist , runtime );
+	}
+	
+	private void executeNodeInstaller( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
+		LocalFolder workBase = getSystemFiles( info , redist.server , redist.node );
+		String installerFile = copySourceToLocal( info );
+		RemoteFolder redistFolder = redist.getRedistTmpFolder( this );
+		
+		String redistFile = redistFolder.copyFileFromLocal( this , installerFile );
+		
+		if( info.isArchive() )
+			extractArchiveFromRedist( info , redistFile , redistFolder.folderPath , runtime );
+		
+		redistFolder.copyDirContentFromLocal( this , workBase , "" );
+		
+		if( server.isLinux( this ) ) {
+			ShellExecutor shell = super.getShell( node );
+			shell.customCheckErrorsDebug( this , redistFolder.folderPath , "chmod 777 server.*.sh" );
+		}
 	}
 	
 	private boolean startUpdate( MetaFapBase info , RuntimeStorage runtime , VersionInfoStorage vis ) throws Exception {
@@ -170,21 +196,18 @@ public class ActionBaseInstall extends ActionBase {
 		return( redistPath );
 	}
 	
-	private String extractArchiveFromRedist( MetaFapBase info , RedistStorage redist , String redistPath , RuntimeStorage runtime ) throws Exception {
+	private void extractArchiveFromRedist( MetaFapBase info , String redistPath , String installPath , RuntimeStorage runtime ) throws Exception {
 		if( info.srcFormat == VarBASESRCFORMAT.TARGZ_SINGLEDIR ) {
-			runtime.extractBaseArchiveSingleDir( this , redistPath , info.SRCSTOREDIR , info.INSTALLPATH , VarARCHIVETYPE.TARGZ );
+			runtime.extractBaseArchiveSingleDir( this , redistPath , info.SRCSTOREDIR , installPath , VarARCHIVETYPE.TARGZ );
 			debug( "runtime path: " + info.INSTALLPATH );
-			return( info.INSTALLPATH );
 		}
 
 		if( info.srcFormat == VarBASESRCFORMAT.ZIP_SINGLEDIR ) {
-			runtime.extractBaseArchiveSingleDir( this , redistPath , info.SRCSTOREDIR , info.INSTALLPATH , VarARCHIVETYPE.ZIP );
+			runtime.extractBaseArchiveSingleDir( this , redistPath , info.SRCSTOREDIR , installPath , VarARCHIVETYPE.ZIP );
 			debug( "runtime path: " + info.INSTALLPATH );
-			return( info.INSTALLPATH );
 		}
 		
 		exitUnexpectedState();
-		return( null );
 	}
 
 	private void linkNewBase( MetaFapBase info , RuntimeStorage runtime , String runtimePath ) throws Exception {
@@ -196,19 +219,28 @@ public class ActionBaseInstall extends ActionBase {
 		if( info.serverType == null )
 			return;
 		
+		LocalFolder workBase = getSystemFiles( info , redist.server , redist.node );
+		
+		// deploy
+		if( info.serverType != VarSERVERTYPE.SERVICE )
+			runtime.createBinPath( this );
+		runtime.restoreSysConfigs( this , redist , workBase );
+	}
+
+	private LocalFolder getSystemFiles( MetaFapBase info , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
 		LocalFolder workBase = artefactory.getWorkFolder( this , "sysbase" );
 		workBase.recreateThis( this );
 		
 		// copy system files from base
 		RemoteFolder baseMaster = info.getFolder( this );
 		if( info.serverType == VarSERVERTYPE.SERVICE ) {
-			if( !runtime.server.isLinux( this ) )
+			if( !server.isLinux( this ) )
 				exitUnexpectedState();
 			
-			baseMaster.copyFileToLocalRename( this , workBase , "service" , runtime.server.SERVICENAME );
+			baseMaster.copyFileToLocalRename( this , workBase , "service" , server.SERVICENAME );
 		}
 		else {
-			if( runtime.server.isLinux( this ) )
+			if( server.isLinux( this ) )
 				baseMaster.copyFilesToLocal( this , workBase , "server.*.sh" );
 			else
 				baseMaster.copyFilesToLocal( this , workBase , "server.*.cmd" );
@@ -216,12 +248,7 @@ public class ActionBaseInstall extends ActionBase {
 		
 		// configure
 		ConfBuilder builder = new ConfBuilder( this );
-		builder.configureFolder( this , workBase , runtime.node , info.properties , info.charset );
-		
-		// deploy
-		if( info.serverType != VarSERVERTYPE.SERVICE )
-			runtime.createBinPath( this );
-		runtime.restoreSysConfigs( this , redist , workBase );
+		builder.configureFolder( this , workBase , node , info.properties , info.charset );
+		return( workBase );
 	}
-	
 }

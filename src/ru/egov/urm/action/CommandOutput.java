@@ -67,11 +67,11 @@ public class CommandOutput {
 			s += " ";
 		
 		if( ee != null ) {
-			s += "exception=" + ee.getMessage();
+			s += "exception: " + ee.getMessage();
 			s += ", exiting [" + stream + "]";
 		}
 		else {
-			s += "exception=" + e.getMessage();
+			s += "exception: " + e.getMessage();
 			s += ", exiting [" + stream + "]";
 		}
 		error( s );

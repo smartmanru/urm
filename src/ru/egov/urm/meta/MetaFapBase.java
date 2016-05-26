@@ -23,12 +23,14 @@ public class MetaFapBase {
 		LINUX_ARCHIVE_LINK ,
 		LINUX_ARCHIVE_DIRECT ,
 		ARCHIVE_DIRECT ,
-		NODIST
+		NODIST ,
+		INSTALLER
 	};
 	
 	public enum VarBASESRCFORMAT {
 		TARGZ_SINGLEDIR ,
-		ZIP_SINGLEDIR
+		ZIP_SINGLEDIR ,
+		SINGLEFILE
 	};
 	
 	public BaseRepository repo;
@@ -149,6 +151,12 @@ public class MetaFapBase {
 		return( false );
 	}
 	
+	public boolean isInstaller() {
+		if( type == VarBASESRCTYPE.INSTALLER )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isLinuxArchiveLink() {
 		if( type == VarBASESRCTYPE.LINUX_ARCHIVE_LINK )
 			return( true );
@@ -158,6 +166,13 @@ public class MetaFapBase {
 	public boolean isArchiveDirect() {
 		if( type == VarBASESRCTYPE.LINUX_ARCHIVE_DIRECT || 
 			type == VarBASESRCTYPE.ARCHIVE_DIRECT )
+			return( true );
+		return( false );
+	}
+
+	public boolean isArchive() {
+		if( isLinuxArchiveLink() ||
+			isArchiveDirect() )
 			return( true );
 		return( false );
 	}
