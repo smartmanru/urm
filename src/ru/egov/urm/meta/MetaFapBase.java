@@ -33,6 +33,7 @@ public class MetaFapBase {
 		SINGLEFILE
 	};
 	
+	public Metadata meta;
 	public BaseRepository repo;
 	public boolean primary;
 	
@@ -53,7 +54,8 @@ public class MetaFapBase {
 	public List<String> dependencies;
 	public Map<String,String> compatibilityMap;
 	
-	public MetaFapBase( BaseRepository repo , boolean primary ) {
+	public MetaFapBase( Metadata meta , BaseRepository repo , boolean primary ) {
+		this.meta = meta;
 		this.repo = repo;
 		this.primary = primary;
 	}
@@ -242,7 +244,6 @@ public class MetaFapBase {
 	private void scatterInstaller( ActionBase action , PropertySet props ) throws Exception {
 		srcFormat = getSrcFormat( action , props.getSystemRequiredStringProperty( action , "srcformat" ) );
 		SRCFILE = props.getSystemRequiredPathProperty( action , "srcfile" );
-		SRCSTOREDIR = props.getSystemRequiredPathProperty( action , "srcstoreddir" );
 	}
 
 	public String getItemPath( ActionBase action , String SRCFILE ) throws Exception {

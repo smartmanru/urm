@@ -47,7 +47,7 @@ public class BaseRepository {
 		Document xml = ConfReader.readXmlString( action , text );
 		
 		action.debug( "load base info id=" + ID + " ..." );
-		MetaFapBase base = new MetaFapBase( this , primary );
+		MetaFapBase base = new MetaFapBase( meta , this , primary );
 		base.load( action , xml.getDocumentElement() , node );
 		return( base );
 	}
