@@ -283,6 +283,9 @@ public class Metadata {
 	}
 	
 	public VarSERVERTYPE getServerType( ActionBase action , String ID ) throws Exception {
+		if( ID == null || ID.isEmpty() )
+			return( VarSERVERTYPE.UNKNOWN );
+		
 		VarSERVERTYPE value = null;
 		try {
 			value = VarSERVERTYPE.valueOf( Common.xmlToEnumValue( ID ) );
@@ -290,9 +293,6 @@ public class Metadata {
 		catch( IllegalArgumentException e ) {
 			action.exit( "invalid server type=" + ID );
 		}
-		
-		if( value == null )
-			action.exit( "missing server type" );
 		
 		return( value );
 	}
