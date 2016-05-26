@@ -136,10 +136,13 @@ public class ActionBaseInstall extends ActionBase {
 		
 		redistFolder.copyDirContentFromLocal( this , workBase , "" );
 		
-		if( server.isLinux( this ) ) {
-			ShellExecutor shell = super.getShell( node );
+		ShellExecutor shell = super.getShell( node );
+		if( server.isLinux( this ) )
 			shell.customCheckErrorsDebug( this , redistFolder.folderPath , "chmod 777 server.*.sh" );
-		}
+		
+		// run installer
+		String cmd = ( server.isLinux( this ) )? "./server.prepare.sh" : "call server.prepare.cmd";
+		shell.customCheckStatus( this , redistFolder.folderPath , cmd );
 	}
 	
 	private boolean startUpdate( MetaFapBase info , RuntimeStorage runtime , VersionInfoStorage vis ) throws Exception {
