@@ -109,7 +109,9 @@ public class ConfReader {
     	try {
     		if( action.isWindows() )
     			fullPath = Common.getWinPath( fullPath );
-    		lines = Files.readAllLines( Paths.get( fullPath ) , charset );
+    		if( charset == null )
+    			charset = StandardCharsets.UTF_8;
+   			lines = Files.readAllLines( Paths.get( fullPath ) , charset );
     	}
     	catch( Throwable e ) {
     		action.log( e );
