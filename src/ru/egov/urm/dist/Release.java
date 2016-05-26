@@ -239,7 +239,7 @@ public class Release {
 	private VarBUILDMODE getReleasePropertyBuildMode( ActionBase action , Node node , String name ) throws Exception {
 		String value = getReleaseProperty( action , node , name );
 		if( value.isEmpty() )
-			action.exit( "build mode is empty - attribute " + name );
+			return( VarBUILDMODE.UNKNOWN );
 		return( VarBUILDMODE.valueOf( value.toUpperCase() ) );
 	}
 	
