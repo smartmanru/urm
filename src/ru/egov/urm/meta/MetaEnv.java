@@ -85,12 +85,12 @@ public class MetaEnv {
 			action.exit( "unable to find environment root node=env" );
 		
 		secretProperties = new PropertySet( "secret" , meta.product.props );
-		if( loadProps )
-			loadSecretProperties( action );
-		
 		properties = new PropertySet( "env" , secretProperties );
 		properties.loadRawFromAttributes( action , node );
 		scatterSystemProperties( action );
+		
+		if( loadProps )
+			loadSecretProperties( action );
 		
 		if( loadProps ) {
 			properties.loadRawFromElements( action , node );
@@ -100,7 +100,7 @@ public class MetaEnv {
 
 	private void loadSecretProperties( ActionBase action ) throws Exception {
 		HiddenFiles hidden = action.artefactory.getHiddenFiles();
-		String propFile = hidden.getSecretPropertyFile( action );
+		String propFile = hidden.getSecretPropertyFile( action , CONF_SECRETFILESPATH );
 		if( propFile.isEmpty() )
 			return;
 		

@@ -18,10 +18,15 @@ public class HiddenFiles {
 		this.meta = artefactory.meta;
 	}
 
-	public String getSecretPropertyFile( ActionBase action ) throws Exception {
-		if( action.context.CTX_HIDDENPATH.isEmpty() )
+	public String getSecretPropertyFile( ActionBase action , String envPath ) throws Exception {
+		String secretPath = action.context.CTX_HIDDENPATH;
+		if( secretPath.isEmpty() )
+			secretPath = envPath;
+			
+		if( secretPath.isEmpty() )
 			return( "" );
-		return( Common.getPath( action.context.CTX_HIDDENPATH , SECRETPROPERTYFILE ) );
+		
+		return( Common.getPath( secretPath , SECRETPROPERTYFILE ) );
 	}
 	
 	public boolean copyHiddenConf( ActionBase action , MetaEnvServer server , MetaDistrConfItem confItem , LocalFolder folder ) throws Exception {
