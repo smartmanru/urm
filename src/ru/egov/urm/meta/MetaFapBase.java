@@ -213,6 +213,9 @@ public class MetaFapBase {
 		if( isNoDist() )
 			scatterNoDist( action , props );
 		else
+		if( isInstaller() )
+			scatterInstaller( action , props );
+		else
 			action.exitUnexpectedState();
 		
 		props.finishRawProperties( action );
@@ -234,6 +237,12 @@ public class MetaFapBase {
 	}
 
 	private void scatterNoDist( ActionBase action , PropertySet props ) throws Exception {
+	}
+
+	private void scatterInstaller( ActionBase action , PropertySet props ) throws Exception {
+		srcFormat = getSrcFormat( action , props.getSystemRequiredStringProperty( action , "srcformat" ) );
+		SRCFILE = props.getSystemRequiredPathProperty( action , "srcfile" );
+		SRCSTOREDIR = props.getSystemRequiredPathProperty( action , "srcstoreddir" );
 	}
 
 	public String getItemPath( ActionBase action , String SRCFILE ) throws Exception {
