@@ -30,7 +30,6 @@ public class ActionSet {
 	        }
 		}
 		catch( Throwable e ) {
-			owner.error( "exception: " + e.getMessage() );
 			owner.log( e );
 		}
         

@@ -77,7 +77,7 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -87,7 +87,7 @@ public class ScopeExecutor {
 				action.runAfter();
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -109,7 +109,7 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -119,7 +119,7 @@ public class ScopeExecutor {
 				action.runAfter();
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -144,7 +144,7 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -154,7 +154,7 @@ public class ScopeExecutor {
 				action.runAfter();
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -176,7 +176,7 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -186,7 +186,7 @@ public class ScopeExecutor {
 				action.runAfter( scope );
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -211,7 +211,7 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -221,7 +221,7 @@ public class ScopeExecutor {
 				action.runAfter( scope );
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -251,7 +251,7 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -261,7 +261,7 @@ public class ScopeExecutor {
 				action.runAfter( scope );
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -284,7 +284,7 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -294,7 +294,7 @@ public class ScopeExecutor {
 				action.runAfter( target , item );
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -325,7 +325,7 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception:" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -355,7 +355,7 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception:" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -365,7 +365,7 @@ public class ScopeExecutor {
 				action.runAfter( target );
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -386,7 +386,7 @@ public class ScopeExecutor {
 				runDone = false;
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception:"  , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -405,7 +405,7 @@ public class ScopeExecutor {
 				runDone = false;
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -431,7 +431,7 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -458,7 +458,7 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -508,7 +508,7 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -520,7 +520,7 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -553,7 +553,7 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -563,7 +563,7 @@ public class ScopeExecutor {
 				action.runAfter( set , items );
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -607,7 +607,7 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -637,7 +637,7 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}
@@ -647,7 +647,7 @@ public class ScopeExecutor {
 				action.runAfter( scope );
 		}
 		catch( Throwable e ) {
-			action.log( action.NAME + " exception" , e );
+			action.log( e );
 			exception = true;
 			action.setFailed();
 		}

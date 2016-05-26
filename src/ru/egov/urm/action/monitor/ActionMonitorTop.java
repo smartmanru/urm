@@ -67,7 +67,6 @@ public class ActionMonitorTop extends ActionBase {
 				}
 			}
 			catch( Throwable e ) {
-				error( "exception: " + e.getMessage() );
 				log( e );
 			}
 
@@ -110,7 +109,6 @@ public class ActionMonitorTop extends ActionBase {
 			}
 		}
 		catch( Throwable e ) {
-			error( "exception: " + e.getMessage() );
 			log( e );
 		}
 		

@@ -36,7 +36,7 @@ public class ActionCheckEnv extends ActionBase {
 
 	@Override protected void runBefore( ActionScope scope ) throws Exception {
 		// check all processes
-		logAction( "check environment=" + context.env.ID + " ..." );
+		infoAction( "check environment=" + context.env.ID + " ..." );
 	}
 
 	@Override protected void runAfter( ActionScope scope ) throws Exception {
@@ -47,7 +47,7 @@ public class ActionCheckEnv extends ActionBase {
 		if( super.isFailed() )
 			status = "FAILED";
 		
-		logAction( "total status is " + status );
+		infoAction( "total status is " + status );
 	}
 	
 	@Override protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {

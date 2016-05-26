@@ -34,14 +34,7 @@ public class ShellWaiter {
             cleanup( action );
 		}
 		catch( Throwable e ) {
-			try {
-				action.trace( "timeout command=" + command.getClass().getSimpleName() );
-				action.log( e );
-			}
-			catch( Throwable ep ) {
-				System.out.println( "unable to log exception:" );
-				ep.printStackTrace();
-			}
+			action.log( "timeout command=" + command.getClass().getSimpleName() , e );
 		}
 
 		return( false );

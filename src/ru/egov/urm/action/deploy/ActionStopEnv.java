@@ -17,14 +17,14 @@ public class ActionStopEnv extends ActionBase {
 	}
 
 	@Override protected void runBefore( ActionScope scope ) throws Exception {
-		logAction( "stop environment (" + getMode() + ") ..." );
+		infoAction( "stop environment (" + getMode() + ") ..." );
 		if( isExecute() )
 			ActionSendChatMsg.sendMsg( this , "[stopenv] stopping " + scope.getScopeInfo( this ) + " ..." , null );
 	}
 
 	@Override protected void runAfter( ActionScope scope ) throws Exception {
 		ActionSendChatMsg.sendMsg( this , "[stopenv] done." , null );
-		logAction( "done." );
+		infoAction( "done." );
 	}
 	
 	@Override protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
@@ -47,7 +47,7 @@ public class ActionStopEnv extends ActionBase {
 		}
 		
 		// execute servers in parallel within subprocess
-		logAction( getMode() + " stop group=" + group.NAME + " servers=(" + ActionScope.getList( servers ) + ") ..." );
+		infoAction( getMode() + " stop group=" + group.NAME + " servers=(" + ActionScope.getList( servers ) + ") ..." );
 
 		ActionSet actions = new ActionSet( this , "stop.dc" );
 		for( ActionScopeTarget target : servers ) {
@@ -60,11 +60,11 @@ public class ActionStopEnv extends ActionBase {
 
 		// wait all
 		if( actions.waitDone() ) {
-			logAction( "group=" + group.NAME + " successfully stopped." );
+			infoAction( "group=" + group.NAME + " successfully stopped." );
 			return( true );
 		}
 		
-		logAction( "group=" + group.NAME + " failed to stop." );
+		errorAction( "group=" + group.NAME + " failed to stop." );
 		setFailed();
 		return( false );
 	}

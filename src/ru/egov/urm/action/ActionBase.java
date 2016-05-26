@@ -117,14 +117,18 @@ abstract public class ActionBase {
 	}
 
 	public synchronized void log( String prompt , Throwable e ) {
-		String s = "[" + context.streamName + "]";
+		String s = NAME;
 		if( !prompt.isEmpty() )
-			s = prompt + " " + s;
-		output.log( s , e );
+			s += " " + prompt;
+		output.log( s , context.streamName , e );
 	}
 	
-	public void logAction( String s ) {
+	public void infoAction( String s ) {
 		info( this.getClass().getSimpleName() + ": " + s );
+	}
+
+	public void errorAction( String s ) {
+		error( this.getClass().getSimpleName() + ": " + s );
 	}
 
 	public boolean isDebug() {

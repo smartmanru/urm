@@ -54,25 +54,27 @@ public class CommandOutput {
 			outExact( s );
 	}
 	
-	public synchronized void log( String prompt , Throwable e ) {
+	public synchronized void log( String prompt , String stream , Throwable e ) {
 		if( logLevelLimit < 0 ) {
 			System.out.println( "TRACEINTERNAL: " + prompt );
 			e.printStackTrace();
 			return;
 		}
 		
-		if( logLevelLimit < LOGLEVEL_DEBUG ) {
-			ExitException ee = Common.getExitException( e );
-			if( ee != null ) {
-				String s = prompt;
-				if( !s.isEmpty() )
-					s += " ";
-				s += ee.getMessage();
-				out( s );
-				return;
-			}
+		ExitException ee = Common.getExitException( e );
+		if( ee != null ) {
+			String s = prompt;
+			if( !s.isEmpty() )
+				s += " ";
+			s += ee.getMessage();
+			s += " [" + stream + "]";
+			error( s );
+			return;
 		}
 
+		if( logLevelLimit < LOGLEVEL_DEBUG )
+			return;
+		
 		if( outchild != null ) {
 			e.printStackTrace( outchild );
 			outchild.flush();

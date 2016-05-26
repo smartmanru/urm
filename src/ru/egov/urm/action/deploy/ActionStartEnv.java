@@ -17,14 +17,14 @@ public class ActionStartEnv extends ActionBase {
 	}
 
 	@Override protected void runBefore( ActionScope scope ) throws Exception {
-		logAction( "start environment (" + getMode() + ") ..." );
+		infoAction( "start environment (" + getMode() + ") ..." );
 		if( isExecute() )
 			ActionSendChatMsg.sendMsg( this , "[startenv] starting " + scope.getScopeInfo( this ) + " ..." , null );
 	}
 
 	@Override protected void runAfter( ActionScope scope ) throws Exception {
 		ActionSendChatMsg.sendMsg( this , "[startenv] done." , null );
-		logAction( "done." );
+		infoAction( "done." );
 	}
 	
 	@Override protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
@@ -47,7 +47,7 @@ public class ActionStartEnv extends ActionBase {
 		}
 		
 		// execute servers in parallel within subprocess
-		logAction( getMode() + " start group=" + group.NAME + " servers=(" + ActionScope.getList( servers ) + ") ..." );
+		infoAction( getMode() + " start group=" + group.NAME + " servers=(" + ActionScope.getList( servers ) + ") ..." );
 
 		ActionSet actions = new ActionSet( this , "start.dc" );
 		for( ActionScopeTarget target : servers ) {
@@ -60,11 +60,11 @@ public class ActionStartEnv extends ActionBase {
 
 		// wait all
 		if( actions.waitDone() ) {
-			logAction( "group=" + group.NAME + " successfully started." );
+			infoAction( "group=" + group.NAME + " successfully started." );
 			return( true );
 		}
 		
-		logAction( "group=" + group.NAME + " failed to start." );
+		errorAction( "group=" + group.NAME + " failed to start." );
 		setFailed();
 		return( false );
 	}
