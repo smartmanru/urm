@@ -62,15 +62,19 @@ public class CommandOutput {
 		}
 		
 		ExitException ee = Common.getExitException( e );
+		String s = prompt;
+		if( !s.isEmpty() )
+			s += " ";
+		
 		if( ee != null ) {
-			String s = prompt;
-			if( !s.isEmpty() )
-				s += " ";
-			s += ee.getMessage();
+			s += "exception=" + ee.getMessage();
 			s += ", exiting [" + stream + "]";
-			error( s );
-			return;
 		}
+		else {
+			s += "exception=" + e.getMessage();
+			s += ", exiting [" + stream + "]";
+		}
+		error( s );
 
 		if( logLevelLimit < LOGLEVEL_DEBUG )
 			return;
