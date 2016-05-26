@@ -33,7 +33,7 @@ public class CommandOutput {
 		if( logLevelLimit < 0 || logLevel <= logLevelLimit ) {
 			String prefix = null;
 			if( logLevel == LOGLEVEL_ERROR )
-				prefix = "[ERROR ] ";
+				prefix = "[ERROR] ";
 			else
 			if( logLevel == LOGLEVEL_INFO )
 				prefix = "[INFO ] ";
