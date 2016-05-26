@@ -98,7 +98,7 @@ public class SpecificPGU {
 		SERVICECALL_DIR = ( SERVICECALL_EXT.equals( "ear" ) )? "APP-INF" : "WEB-INF";  
 		STORAGESERVICE_DIR = ( STORAGESERVICE_EXT.equals( "ear" ) )? "APP-INF" : "WEB-INF";  
 		
-		action.log( "getAllWarApp: create servicecall." + SERVICECALL_EXT + " and storageservice." + STORAGESERVICE_EXT + " ..." );
+		action.info( "getAllWarApp: create servicecall." + SERVICECALL_EXT + " and storageservice." + STORAGESERVICE_EXT + " ..." );
 		
 		downloadFolder.removeFolder( action , "pgu-services-lib" );
 		downloadFolder.removeFolder( action , "servicecall-prod-libs" );
@@ -123,7 +123,7 @@ public class SpecificPGU {
 
 	private void getAllWarAppDownloadCore() throws Exception {
 		if( srcRelease == null ) {
-			action.log( "downloading core servicecall and storageservice from Nexus - to " + artefactory.workFolder.folderPath + " ..." );
+			action.info( "downloading core servicecall and storageservice from Nexus - to " + artefactory.workFolder.folderPath + " ..." );
 			
 			NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , downloadFolder );
 			nexusStorage.downloadNexus( action , C_SERVICECALLGROUPID , "servicecall" , VERSION , SERVICECALL_EXT , "" , servicecallItem );
@@ -131,7 +131,7 @@ public class SpecificPGU {
 		}
 		else {
 			Dist distStorage = srcRelease;
-			action.log( "copy servicecall and storageservice from " + distStorage.RELEASEDIR + " - to " + downloadFolder.folderPath + " ..." );
+			action.info( "copy servicecall and storageservice from " + distStorage.RELEASEDIR + " - to " + downloadFolder.folderPath + " ..." );
 			distStorage.copyDistToFolder( action , downloadFolder , "servicecall-" + VERSION + "." + SERVICECALL_EXT );
 			distStorage.copyDistToFolder( action , downloadFolder , "storageservice-" + VERSION + "." + STORAGESERVICE_EXT );
 		}

@@ -52,7 +52,7 @@ public class ActionGetBinary extends ActionBase {
 	private void downloadBuiltItem( ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
 		// get dist item details
 		MetaDistrBinaryItem distItem = scopeItem.distItem;
-		log( "get binary item " + distItem.KEY + " ..." );
+		info( "get binary item " + distItem.KEY + " ..." );
 
 		// compare with release information
 		if( scopeItem.sourceItem.isStoredInNexus( this ) ) {

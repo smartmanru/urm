@@ -75,7 +75,7 @@ public class ReleaseCommand {
 		dist.createDeliveryFolders( action );
 		dist.closeChange( action );
 		
-		action.log( "scope (" + scope.getScopeInfo( action ) + ") - added to release" );
+		action.info( "scope (" + scope.getScopeInfo( action ) + ") - added to release" );
 	}
 	
 	public void addReleaseBuildProjects( ActionBase action , String RELEASELABEL , String SET , String[] elements ) throws Exception {
@@ -125,7 +125,7 @@ public class ReleaseCommand {
 		dist.saveReleaseXml( action );
 		dist.closeChange( action );
 		
-		action.log( "scope (" + scope.getScopeInfo( action ) + ") - removed from release" );
+		action.info( "scope (" + scope.getScopeInfo( action ) + ") - removed from release" );
 	}
 	
 	public void descopeAll( ActionBase action , Dist dist ) throws Exception {

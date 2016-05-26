@@ -77,7 +77,7 @@ public class ActionExportDatabase extends ActionBase {
 		MetadataStorage ms = artefactory.getMetadataStorage( this ); 
 		String specPath = ms.getDatapumpFile( this , SPECFILE );
 		
-		log( "reading export specification file " + specPath + " ..." );
+		info( "reading export specification file " + specPath + " ..." );
 		Properties props = ConfReader.readPropertyFile( this , specPath );
 		
 		DATASET = props.getProperty( "CONFIG_DATASET" );
@@ -122,7 +122,7 @@ public class ActionExportDatabase extends ActionBase {
 				exit( "unable to start because export is already running" );
 		}
 		
-		log( "copy execution part to " + redist.folderPath + " ..." );
+		info( "copy execution part to " + redist.folderPath + " ..." );
 		exportFolder.recreateThis( this );
 		exportScriptsFolder.ensureExists( this );
 		exportScriptsFolder.copyDirContentFromLocal( this , urmScripts , "" );
@@ -179,7 +179,7 @@ public class ActionExportDatabase extends ActionBase {
 			}
 		}
 
-		log( "export has been finished, dumps are copied to " + distDataFolder.folderPath );
+		info( "export has been finished, dumps are copied to " + distDataFolder.folderPath );
 		
 		// complete
 		repository.copyNewToPrimary( this , DATASET , full );
@@ -195,7 +195,7 @@ public class ActionExportDatabase extends ActionBase {
 		// skip data for missing schema
 		if( cmd.equals( "data" ) ) {
 			if( !tableSet.containsKey( SN ) ) {
-				log( "skip export data schema=" + SN + " due to empty tableset" );
+				info( "skip export data schema=" + SN + " due to empty tableset" );
 				return;
 			}
 		}
@@ -203,7 +203,7 @@ public class ActionExportDatabase extends ActionBase {
 		LocalFolder workFolder = artefactory.getWorkFolder( this );
 		
 		// initiate execution
-		log( "start export cmd=" + cmd + " schemaset=" + SN + " ..." );
+		info( "start export cmd=" + cmd + " schemaset=" + SN + " ..." );
 		ShellExecutor shell = exportScriptsFolder.getSession( this );
 		shell.customCheckStatus( this , exportScriptsFolder.folderPath , "./run.sh export start " + cmd + " " + Common.getQuoted( SN ) );
 		
@@ -211,7 +211,7 @@ public class ActionExportDatabase extends ActionBase {
 		Common.sleep( this , 1000 );
 		String value = checkStatus( exportScriptsFolder );
 		if( value.equals( "RUNNING" ) == false && value.equals( "FINISHED" ) == false ) {
-			log( "export has not been started (status=" + value + "), save logs ..." );
+			info( "export has not been started (status=" + value + "), save logs ..." );
 			
 			String logFileName = cmd + "-" + SN + "run.sh.log";
 			exportScriptsFolder.copyFileToLocalRename( this , workFolder , "run.sh.log" , logFileName );
@@ -222,7 +222,7 @@ public class ActionExportDatabase extends ActionBase {
 		
 		// wait for completion - unlimited
 		if( value.equals( "RUNNING" ) )
-			log( "wait export to complete ..." );
+			info( "wait export to complete ..." );
 		while( value.equals( "RUNNING" ) ) {
 			Common.sleep( this , context.CTX_COMMANDTIMEOUT );
 			value = checkStatus( exportScriptsFolder );
@@ -235,12 +235,12 @@ public class ActionExportDatabase extends ActionBase {
 		
 		// check final status
 		if( !value.equals( "FINISHED" ) ) {
-			log( "export finished with errors, save logs ..." );
+			info( "export finished with errors, save logs ..." );
 			copyDataAndLogs( false , cmd , SN );
 			exit( "export process completed with errors, see logs" );
 		}
 		
-		log( "export successfully finished, copy data and logs ..." );
+		info( "export successfully finished, copy data and logs ..." );
 		copyDataAndLogs( true , cmd , SN );
 	}
 	
@@ -274,7 +274,7 @@ public class ActionExportDatabase extends ActionBase {
 	}
 
 	private void copyFiles( String files , RemoteFolder exportFolder , RemoteFolder distFolder ) throws Exception {
-		log( "copy files: " + files + " ..." );
+		info( "copy files: " + files + " ..." );
 		
 		LocalFolder workDataFolder = artefactory.getWorkFolder( this , "data" );
 		workDataFolder.recreateThis( this );

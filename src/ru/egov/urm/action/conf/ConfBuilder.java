@@ -84,7 +84,7 @@ public class ConfBuilder {
 		// run preconfigure
 		String runScript = CONFIGURE_SCRIPT;
 		if( live.checkFileExists( action , runScript ) ) {
-			action.log( "run " + runScript );
+			action.info( "run " + runScript );
 			action.session.custom( action , live.folderPath , "chmod 744 " + runScript + "; ./" + runScript + " " + 
 				server.dc.env.ID + " " + server.dc.NAME + " " + server.NAME + " " + node.POS );
 		}

@@ -137,7 +137,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		
 		ActionScope scope = action.getFullScope( SET , TARGETS , action.context.CTX_RELEASELABEL );
 		if( scope.isEmpty( action ) ) {
-			action.log( "nothing to get" );
+			action.info( "nothing to get" );
 			return;
 		}
 		

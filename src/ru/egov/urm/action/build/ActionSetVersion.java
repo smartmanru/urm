@@ -29,7 +29,7 @@ public class ActionSetVersion extends ActionBase {
 		session.export( this , "M2" , "$M2_HOME/bin" );
 		session.export( this , "PATH" , "$M2:$PATH" );
 
-		log( "execute: " + MAVEN_CMD + " ..." );
+		info( "execute: " + MAVEN_CMD + " ..." );
 		session.mvnCheckStatus( this , CODEPATH.folderPath , MAVEN_CMD );
 
 		// handle git specifics
@@ -40,7 +40,7 @@ public class ActionSetVersion extends ActionBase {
 	@Override protected boolean executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
 		// ignore if builder is not maven
 		if( !scopeProject.sourceProject.getBuilder( this ).equals( "maven" ) ) {
-			log( "project=" + scopeProject.sourceProject.PROJECT + " is not built by maven. Skipped." );
+			info( "project=" + scopeProject.sourceProject.PROJECT + " is not built by maven. Skipped." );
 			return( true );
 		}
 		
@@ -48,7 +48,7 @@ public class ActionSetVersion extends ActionBase {
 		BuildStorage PATCHPATH = artefactory.getEmptyBuildStorage( this , scopeProject.sourceProject );
 		String BRANCH = scopeProject.getProjectBuildBranch( this );
 		
-		log( "setVersionProject: PROJECT=" + scopeProject.sourceProject.PROJECT + ", REPOSITORY=" + scopeProject.sourceProject.REPOSITORY + 
+		info( "setVersionProject: PROJECT=" + scopeProject.sourceProject.PROJECT + ", REPOSITORY=" + scopeProject.sourceProject.REPOSITORY + 
 				", PATH=" + scopeProject.sourceProject.PATH + ", BRANCH=" + BRANCH + ", VERSION=" + BUILDVERSION + ", PATCHPATH=" + PATCHPATH.buildFolder.folderPath + " ..." );
 
 		ProjectVersionControl vcs = new ProjectVersionControl( this , false );

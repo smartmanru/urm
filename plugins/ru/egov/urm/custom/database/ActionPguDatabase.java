@@ -56,14 +56,14 @@ public class ActionPguDatabase implements ICustomDatabase {
 			
 		if( S_CHECK_FAILED ) {
 			if( action.context.CTX_FORCE )
-				action.log( "prepare: errors in script set. Ignored." );
+				action.error( "prepare: errors in script set. Ignored." );
 			else
 				action.exit( "prepare: errors in script set" );
 		}
 	}
 
 	private void copyOneForms( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , LocalFolder P_TARGETDIR , FileSet P_ORGNAME ) throws Exception {
-		action.log( "process forms regional folder: " + P_ORGNAME.dirName + " ..." );
+		action.info( "process forms regional folder: " + P_ORGNAME.dirName + " ..." );
 //		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ORGNAME.getDirByPath( action , "svcdic" ) , P_TARGETDIR.getSubFolder( action , "svcrun" ) );
 //		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ORGNAME.getDirByPath( action , "svcspec" ) , P_TARGETDIR.getSubFolder( action , "svcrun" ) );
 //		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ORGNAME.getDirByPath( action , "svcform" ) , P_TARGETDIR.getSubFolder( action , "svcrun" ) );
@@ -76,7 +76,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 	}
 
 	private void copyOneWar( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , LocalFolder P_TARGETDIR , FileSet P_MPNAME ) throws Exception {
-		action.log( "process war regional folder: " + P_MPNAME.dirName + " ..." );
+		action.info( "process war regional folder: " + P_MPNAME.dirName + " ..." );
 //		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_MPNAME.getDirByPath( action , "svcdic" ) , P_TARGETDIR.getSubFolder( action , "svcrun" ) );
 //		copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_MPNAME.getDirByPath( action , "svcspec" ) , P_TARGETDIR.getSubFolder( action , "svcrun" ) );
 		copyUddi( action , P_ALIGNEDNAME , P_ALIGNEDID , P_TARGETDIR , P_MPNAME );
@@ -100,7 +100,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 		FileSet svcdic = P_UDDIDIR.getDirByPath( action , "svcdic" );
 		if( svcdic != null ) {
 			P_TARGETDIR.ensureFolderExists( action , "svcrun" );
-			action.log( P_UDDIDIR + "/svcdic ..." );
+			action.info( P_UDDIDIR + "/svcdic ..." );
 //			if( svcdic.files.containsKey( "extdicuddi.txt" ) )
 //				schema.specific.grepComments( action , "UDDI" , srcFolder , Common.getPath( svcdic.dirPath , "extdicuddi.txt" ) , P_TARGETDIR , SRC_DICFILE_EP );
 		}
@@ -149,7 +149,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 	}
 			
 	private void copyZip( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , FileSet P_DIRFROM , LocalFolder P_DIRTO ) throws Exception {
-		action.log( "prepare/copy " + P_DIRFROM.dirPath + " ..." );
+		action.info( "prepare/copy " + P_DIRFROM.dirPath + " ..." );
 
 		P_DIRTO.ensureExists( action );
 
@@ -221,7 +221,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 			if( dir.equals( "manual" ) )
 				continue;
 			else {
-				action.log( "prepare: aligned=" + P_ALIGNEDNAME + " - invalid release folder: " + dir );
+				action.error( "prepare: aligned=" + P_ALIGNEDNAME + " - invalid release folder: " + dir );
 //				moveErrors( action , P_ALIGNEDNAME , P_ALIGNEDID , dir , "invalid release folder" );
 				S_CHECK_FAILED = true;
 			}
@@ -238,13 +238,13 @@ public class ActionPguDatabase implements ICustomDatabase {
 
 		boolean F_DIR_FAILED = false;
 		if( F_REGION.isEmpty() || F_ORGID.isEmpty() ) {
-			action.log( "prepare: invalid regional forms folder name=" + P_ORGNAME + ", expected format is forms.regnum.orgcode" );
+			action.error( "prepare: invalid regional forms folder name=" + P_ORGNAME + ", expected format is forms.regnum.orgcode" );
 			F_DIR_FAILED = true;
 		}
 
 		// check region is NN
 		if( !F_REGION.matches( "[0-9][0-9]" ) ) {
-			action.log( "prepare: invalid regional folder name=" + P_ORGNAME + ", region=" + F_REGION + ", expected NN" );
+			action.error( "prepare: invalid regional folder name=" + P_ORGNAME + ", region=" + F_REGION + ", expected NN" );
 			F_DIR_FAILED = true;
 		}
 
@@ -273,13 +273,13 @@ public class ActionPguDatabase implements ICustomDatabase {
 
 		boolean F_DIR_FAILED = false;
 		if( F_REGION.isEmpty() || F_WAR.isEmpty() ) {
-			action.log( "prepare: invalid regional war folder name=" + P_MPNAME + ", expected format is war.regnum.warname" );
+			action.error( "prepare: invalid regional war folder name=" + P_MPNAME + ", expected format is war.regnum.warname" );
 			F_DIR_FAILED = true;
 		}
 
 		// check region is NN
 		if( !F_REGION.matches( "[0-9][0-9]" ) ) {
-			action.log( "prepare: invalid regional folder name=" + P_MPNAME + ", region=" + F_REGION + ", expected NN" );
+			action.error( "prepare: invalid regional folder name=" + P_MPNAME + ", region=" + F_REGION + ", expected NN" );
 			F_DIR_FAILED = true;
 		}
 
@@ -324,7 +324,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 
 			if( UDDI_ATTR_ID.isEmpty() || UDDI_ATTR_NAME.isEmpty() || UDDI_ATTR_CODE.isEmpty() || UDDI_ATTR_REGION.isEmpty() || UDDI_ATTR_ACCESSPOINT.isEmpty() ) {
 				S_CHECK_FAILED = true;
-				action.log( "prepare: invalid string - line=" + line );
+				action.error( "prepare: invalid string - line=" + line );
 			}
 
 //			schema.specific.smevAttrAddValue( action , UDDI_ATTR_ID , UDDI_ATTR_NAME , UDDI_ATTR_CODE , UDDI_ATTR_REGION , UDDI_ATTR_ACCESSPOINT , P_TARGETDIR , FNAME_UAT );
@@ -361,7 +361,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 			// -- UDDI 10000034549 testurl produrl
 			String[] lineParts = Common.splitSpaced( line );
 			if( lineParts.length != 5 ) {
-				action.log( "prepare: invalid UDDI line: " + line );
+				action.error( "prepare: invalid UDDI line: " + line );
 				S_CHECK_FAILED = true;
 			}
 			else {
@@ -369,7 +369,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 				String UDDI_UAT = lineParts[3];
 				String UDDI_PROD = lineParts[4];
 				if( UDDI_KEY.isEmpty() || UDDI_UAT.isEmpty() || UDDI_PROD.isEmpty() ) {
-					action.log( "prepare: invalid UDDI data: key=" + UDDI_KEY + ", UDDI_UAT=" + UDDI_UAT + ", UDDI_PROD=" + UDDI_PROD );
+					action.error( "prepare: invalid UDDI data: key=" + UDDI_KEY + ", UDDI_UAT=" + UDDI_UAT + ", UDDI_PROD=" + UDDI_PROD );
 					S_CHECK_FAILED = true;
 				}
 				else {

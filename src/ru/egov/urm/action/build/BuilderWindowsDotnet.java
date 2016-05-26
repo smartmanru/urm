@@ -35,7 +35,7 @@ public class BuilderWindowsDotnet extends Builder {
 		// checkout
 		ProjectVersionControl vcs = new ProjectVersionControl( action , true ); 
 		if( !vcs.export( CODEPATH , project , "" , TAG , "" ) ) {
-			action.log( "patchCheckout: having problem to export code" );
+			action.error( "patchCheckout: having problem to export code" );
 			return( false );
 		}
 		
@@ -65,7 +65,7 @@ public class BuilderWindowsDotnet extends Builder {
 			MSBUILD_OPTIONS += " /verbosity:detailed";
 
 		String BUILD_CMD = MSBUILD_PATH + " " + MSBUILD_OPTIONS;
-		action.log( "build PATCHPATH=" + CODEPATH.folderPath + ", options=" + MSBUILD_OPTIONS + ", cmd=" + BUILD_CMD + 
+		action.info( "build PATCHPATH=" + CODEPATH.folderPath + ", options=" + MSBUILD_OPTIONS + ", cmd=" + BUILD_CMD + 
 				" using nuget to nexus path " + NUGET_PATH + "..." );
 
 		ShellExecutor session = createShell( action );
@@ -74,7 +74,7 @@ public class BuilderWindowsDotnet extends Builder {
 		action.setTimeout( timeout );
 
 		if( status != 0 ) {
-			action.log( "buildDotnet: msbuild failed" );
+			action.error( "buildDotnet: msbuild failed" );
 			return( false );
 		}
 
@@ -87,7 +87,7 @@ public class BuilderWindowsDotnet extends Builder {
 		action.setTimeout( timeout );
 		
 		if( status != 0 ) {
-			action.log( "buildDotnet: nuget pack failed" );
+			action.error( "buildDotnet: nuget pack failed" );
 			return( false );
 		}
 
@@ -98,11 +98,11 @@ public class BuilderWindowsDotnet extends Builder {
 		action.setTimeout( timeout );
 		
 		if( status != 0 ) {
-			action.log( "buildDotnet: nuget push failed" );
+			action.error( "buildDotnet: nuget push failed" );
 			return( false );
 		}
 
-		action.log( "buildDotnet: msbuild successfully finished" );
+		action.info( "buildDotnet: msbuild successfully finished" );
 		return( true );
 	}
 	

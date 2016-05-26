@@ -16,7 +16,7 @@ public class ActionGetDB extends ActionBase {
 	}
 
 	protected boolean executeScopeTarget( ActionScopeTarget item ) throws Exception {
-		log( "get database items of delivery=" + item.NAME + " ..." );
+		info( "get database items of delivery=" + item.NAME + " ..." );
 
 		LocalFolder workFolder = artefactory.getWorkFolder( this , "download" );
 		workFolder.recreateThis( this );
@@ -42,7 +42,7 @@ public class ActionGetDB extends ActionBase {
 		
 		debug( "prepare scripts dir=" + workFolder.folderPath + " ..." );
 		if( !prepare.processDatabaseFiles( this , release , item.dbDelivery , workFolder , preparedFolder ) ) {
-			log( "script set check errors, do not copy to dist" );
+			error( "script set check errors, do not copy to dist" );
 			return;
 		}
 		

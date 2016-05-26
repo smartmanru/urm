@@ -233,7 +233,7 @@ public class ReleaseSet {
 			this.BUILDVERSION.equals( action.context.CTX_VERSION ) )
 			return( true );
 		
-		action.log( getId() + " set attributes are different, please delete first" );
+		action.error( getId() + " set attributes are different, please delete first" );
 		return( false );
 	}
 	

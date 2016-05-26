@@ -42,7 +42,7 @@ public class DatabaseClient {
 			action.log( e );
 		}
 		
-		action.log( "unable to connect to database server=" + server.NAME );
+		action.error( "unable to connect to database server=" + server.NAME );
 		return( false );
 	}
 	
@@ -87,7 +87,7 @@ public class DatabaseClient {
 		
 		FileSet set = files.getFileSet( action );
 		if( set.isEmpty() ) {
-			action.log( "nothing to apply" );
+			action.info( "nothing to apply" );
 			return( true );
 		}
 
@@ -102,7 +102,7 @@ public class DatabaseClient {
 			if( !applyManualScript( action , shell , folder , file , logFolder ) ) {
 				res = false;
 				if( !action.context.CTX_FORCE ) {
-					action.log( "error executing manual script, cancel set execution" );
+					action.error( "error executing manual script, cancel set execution" );
 					break;
 				}
 			}
@@ -113,7 +113,7 @@ public class DatabaseClient {
 	}
 	
 	private boolean applyManualScript( ActionBase action , ShellExecutor shell , RemoteFolder folder , String file , RemoteFolder logFolder ) throws Exception {
-		action.log( specific.server.NAME + ": apply " + file + " ..." );
+		action.info( specific.server.NAME + ": apply " + file + " ..." );
 		
 		String fileRun = folder.getFilePath( action , Common.getBaseName( file ) );
 		String fileLog = logFolder.getFilePath( action , Common.getBaseName( file ) + ".out" );

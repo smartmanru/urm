@@ -28,7 +28,7 @@ public class ActionDeployRedist extends ActionBase {
 	
 	@Override protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		if( !getDeployments( set , targets ) ) {
-			log( "nothing to deploy in release " + dist.RELEASEDIR + " to specified server" );
+			info( "nothing to deploy in release " + dist.RELEASEDIR + " to specified server" );
 			return( true );
 		}
 		
@@ -47,7 +47,7 @@ public class ActionDeployRedist extends ActionBase {
 				exit( "unable to start after deployment, unsuccessful deployment" );
 		}
 
-		log( "RELEASE " + dist.RELEASEDIR + " SUCCESSFULLY DEPLOYED" );
+		info( "RELEASE " + dist.RELEASEDIR + " SUCCESSFULLY DEPLOYED" );
 		return( true );
 	}
 

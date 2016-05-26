@@ -53,17 +53,17 @@ public class ActionRollout extends ActionBase {
 		}
 
 		if( !hasDeployments ) {
-			log( "specified nodes of server=" + server.NAME + " have no deployments. Skipped." );
+			info( "specified nodes of server=" + server.NAME + " have no deployments. Skipped." );
 			return;
 		}
 		
-		log( "============================================ execute server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
-		log( "rootpath=" + server.ROOTPATH );
+		info( "============================================ execute server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
+		info( "rootpath=" + server.ROOTPATH );
 
 		k = 0;
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
-			log( "rollout server=" + server.NAME + " node=" + node.POS + " ..." );
+			info( "rollout server=" + server.NAME + " node=" + node.POS + " ..." );
 
 			// deploy both binaries and configs to each node
 			ServerDeployment deployment = deps[ k++ ];

@@ -37,14 +37,14 @@ public class MonitorInfo {
 	}
 	
 	public void addCheckEnvData( MetaMonitoringTarget target , long timeMillis , boolean status ) throws Exception {
-		action.log( "addCheckEnvData: product=" + target.PRODUCT + ", env=" + target.ENV + ", dc=" + target.DC + 
+		action.info( "addCheckEnvData: product=" + target.PRODUCT + ", env=" + target.ENV + ", dc=" + target.DC + 
 				", timeMillis=" + timeMillis + ", succeeded:" + Common.getBooleanValue( status ) );
 		MonitorTargetInfo info = getTargetInfo( target );
 		info.setLastMajor( status , timeMillis );
 	}
 
 	public void addCheckMinorsData( MetaMonitoringTarget target , boolean status ) throws Exception {
-		action.log( "addCheckMinorsData: product=" + target.PRODUCT + ", env=" + target.ENV + ", dc=" + target.DC + 
+		action.info( "addCheckMinorsData: product=" + target.PRODUCT + ", env=" + target.ENV + ", dc=" + target.DC + 
 				", succeeded:" + Common.getBooleanValue( status ) );
 		MonitorTargetInfo info = getTargetInfo( target );
 		info.setLastMinor( status );

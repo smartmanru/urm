@@ -32,8 +32,8 @@ public class ActionRestoreConfigs extends ActionBase {
 			return( true );
 		}
 
-		log( "============================================ " + getMode() + " server=" + server.NAME + " ..." );
-		log( "rootpath=" + server.ROOTPATH );
+		info( "============================================ " + getMode() + " server=" + server.NAME + " ..." );
+		info( "rootpath=" + server.ROOTPATH );
 
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
 
@@ -65,7 +65,7 @@ public class ActionRestoreConfigs extends ActionBase {
 		// iterate by nodes - rollout
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
-			log( "execute server=" + server.NAME + " node=" + node.POS + " ..." );
+			info( "execute server=" + server.NAME + " node=" + node.POS + " ..." );
 			executeNode( folder , sourceStorage , server , node , false );
 		}
 
@@ -112,7 +112,7 @@ public class ActionRestoreConfigs extends ActionBase {
 			sourceStorage.exportLiveConfigItem( this , server , name , context.CTX_TAG , parent );
 		}
 		else {
-			log( "restore system configuraton component from live ..." );
+			info( "restore system configuraton component from live ..." );
 			RuntimeStorage runtime = artefactory.getRuntimeStorage( this , server , node );
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 			runtime.restoreSysConfigs( this , redist , parent.getSubFolder( this , name ) );
@@ -136,7 +136,7 @@ public class ActionRestoreConfigs extends ActionBase {
 			builder.configureLiveComponent( live , confItem , server , node );
 		}
 		else {
-			log( "restore configuraton item=" + confItem.KEY + " from live ..." );
+			info( "restore configuraton item=" + confItem.KEY + " from live ..." );
 			
 			RuntimeStorage runtime = artefactory.getRuntimeStorage( this , server , node );
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
@@ -156,7 +156,7 @@ public class ActionRestoreConfigs extends ActionBase {
 			builder.configureComponent( template , live , confItem , server , node );
 		}
 		else {
-			log( "restore configuraton item=" + confItem.KEY + " from templates ..." );
+			info( "restore configuraton item=" + confItem.KEY + " from templates ..." );
 			
 			RuntimeStorage runtime = artefactory.getRuntimeStorage( this , server , node );
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );

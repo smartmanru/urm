@@ -68,7 +68,7 @@ public class ActionImportDatabase extends ActionBase {
 		makeTargetConfig();
 		runAll();
 		
-		log( "import has been finished, dumps are loaded from " + distDataFolder.folderPath );
+		info( "import has been finished, dumps are loaded from " + distDataFolder.folderPath );
 		
 		return( true );
 	}
@@ -77,7 +77,7 @@ public class ActionImportDatabase extends ActionBase {
 		MetadataStorage ms = artefactory.getMetadataStorage( this ); 
 		String specPath = ms.getDatapumpFile( this , SPECFILE );
 		
-		log( "reading import specification file " + specPath + " ..." );
+		info( "reading import specification file " + specPath + " ..." );
 		Properties props = ConfReader.readPropertyFile( this , specPath );
 		
 		DATASET = props.getProperty( "CONFIG_DATASET" , "" );
@@ -146,7 +146,7 @@ public class ActionImportDatabase extends ActionBase {
 				exit( "unable to start because import is already running" );
 		}
 		
-		log( "copy execution part to " + redist.folderPath + " ..." );
+		info( "copy execution part to " + redist.folderPath + " ..." );
 		importFolder.recreateThis( this );
 		importScriptsFolder.ensureExists( this );
 		importScriptsFolder.copyDirContentFromLocal( this , urmScripts , "" );
@@ -215,13 +215,13 @@ public class ActionImportDatabase extends ActionBase {
 		// skip data for missing schema
 		if( cmd.equals( "data" ) ) {
 			if( !tableSet.containsKey( SN ) ) {
-				log( "skip import data schema=" + SN + " due to empty tableset" );
+				info( "skip import data schema=" + SN + " due to empty tableset" );
 				return;
 			}
 		}
 		
 		// initiate execution
-		log( "start import cmd=" + cmd + " schemaset=" + SN + " ..." );
+		info( "start import cmd=" + cmd + " schemaset=" + SN + " ..." );
 		
 		// copy dump files
 		String dataFiles = null;
@@ -241,7 +241,7 @@ public class ActionImportDatabase extends ActionBase {
 		Common.sleep( this , 1000 );
 		String value = checkStatus( importScriptsFolder );
 		if( value.equals( "RUNNING" ) == false && value.equals( "FINISHED" ) == false ) {
-			log( "import has not been started (status=" + value + "), save logs ..." );
+			info( "import has not been started (status=" + value + "), save logs ..." );
 			
 			importScriptsFolder.copyFileToLocalRename( this , workFolder , "run.sh.log" , cmd + "-" + SN + "run.sh.log" );
 			copyLogs( false , cmd , SN );
@@ -250,7 +250,7 @@ public class ActionImportDatabase extends ActionBase {
 		
 		// wait for completion - unlimited
 		if( value.equals( "RUNNING" ) )
-			log( "wait import to complete ..." );
+			info( "wait import to complete ..." );
 		while( value.equals( "RUNNING" ) ) {
 			Common.sleep( this , context.CTX_COMMANDTIMEOUT );
 			value = checkStatus( importScriptsFolder );
@@ -261,12 +261,12 @@ public class ActionImportDatabase extends ActionBase {
 		
 		// check final status
 		if( !value.equals( "FINISHED" ) ) {
-			log( "import finished with errors, save logs ..." );
+			info( "import finished with errors, save logs ..." );
 			copyLogs( false , cmd , SN );
 			exit( "import process completed with errors, see logs" );
 		}
 		
-		log( "import successfully finished, copy logs ..." );
+		info( "import successfully finished, copy logs ..." );
 		copyLogs( true , cmd , SN );
 		
 		// cleanup target
@@ -291,7 +291,7 @@ public class ActionImportDatabase extends ActionBase {
 	}
 
 	private void copyLogFiles( String files ) throws Exception {
-		log( "copy files: " + files + " ..." );
+		info( "copy files: " + files + " ..." );
 		
 		importLogFolder.copyFilesToLocal( this , workFolder , files );
 		String[] copied = workFolder.findFiles( this , files );
@@ -308,7 +308,7 @@ public class ActionImportDatabase extends ActionBase {
 			return;
 		}
 		
-		log( "upload files: " + files + " ..." );
+		info( "upload files: " + files + " ..." );
 
 		String[] copied = distFolder.findFiles( this , files );
 		if( copied.length == 0 )
@@ -332,7 +332,7 @@ public class ActionImportDatabase extends ActionBase {
 
 	private void applyPostRefresh() throws Exception {
 		if( POSTREFRESH.isEmpty() ) {
-			log( "no post-refresh defined. Skipped." );
+			info( "no post-refresh defined. Skipped." );
 			return;
 		}
 		
@@ -346,13 +346,13 @@ public class ActionImportDatabase extends ActionBase {
 			applyPostRefreshFolder( client , post , name );
 		
 		if( isFailed() )
-			log( "post-refresh applied with errors" );
+			error( "post-refresh applied with errors" );
 		else
-			log( "post-refresh successfully applied" );
+			info( "post-refresh successfully applied" );
 	}
 	
 	private void applyPostRefreshFolder( DatabaseClient client , LocalFolder post , String name ) throws Exception {
-		log( "apply post-refresh " + name + " ..." );
+		info( "apply post-refresh " + name + " ..." );
 	
 		// export
 		LocalFolder folder = post.getSubFolder( this , name );

@@ -33,18 +33,18 @@ public class ActionBaseInstall extends ActionBase {
 	private void executeServer( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		MetaEnvServerBase base = server.base;
-		log( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
+		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
 		
 		if( base == null ) {
-			log( "server has no base defined. Skipped" );
+			info( "server has no base defined. Skipped" );
 			return;
 		}
 			
-		log( "rootpath=" + server.ROOTPATH + ", base=" + base.ID );
+		info( "rootpath=" + server.ROOTPATH + ", base=" + base.ID );
 
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
-			log( "install server=" + server.NAME + " node=" + node.POS + " ..." );
+			info( "install server=" + server.NAME + " node=" + node.POS + " ..." );
 			executeNode( server , node , base );
 		}
 	}
@@ -120,13 +120,13 @@ public class ActionBaseInstall extends ActionBase {
 		String STATUS = vis.getBaseStatus( this , info.ID );
 		if( STATUS.equals( "ok" ) ) {
 			if( !context.CTX_FORCE ) {
-				log( "skip updating base=" + info.ID + ". Already installed." );
+				info( "skip updating base=" + info.ID + ". Already installed." );
 				return( false );
 			}
 		}
 
 		String dowhat = ( STATUS.isEmpty() )? "install" : "reinstall";
-		log( runtime.account.HOSTLOGIN + ": " + dowhat + " base=" + info.ID + ", type=" + Common.getEnumLower( info.type ) + " ..." );
+		info( runtime.account.HOSTLOGIN + ": " + dowhat + " base=" + info.ID + ", type=" + Common.getEnumLower( info.type ) + " ..." );
 		vis.setBaseStatus( this , info.ID , "upgrading" );
 		runtime.createRootPath( this );
 		return( true );

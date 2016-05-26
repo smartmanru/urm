@@ -44,7 +44,7 @@ public class SubversionVCS extends GenericVCS {
 		
 		REVISION = REVISION.trim();
 
-		action.log( "svn: checkout sources from " + CO_PATH + " (branch=" + BRANCH + ", revision=" + REVISION + ") to " + PATCHFOLDER.folderPath + "..." );
+		action.info( "svn: checkout sources from " + CO_PATH + " (branch=" + BRANCH + ", revision=" + REVISION + ") to " + PATCHFOLDER.folderPath + "..." );
 		
 		String ospath = action.getOSPath( PATCHFOLDER.folderPath );
 		int status = session.customGetStatus( action , "svn co --non-interactive " + SVNAUTH + " " + CO_PATH + " " + ospath );
@@ -52,13 +52,13 @@ public class SubversionVCS extends GenericVCS {
 		if( status == 0 )
 			return( true );
 		
-		action.log( "svn: having problem to check out " + CO_PATH );
+		action.error( "svn: having problem to check out " + CO_PATH );
 		return( false );
 	}
 
 	@Override public boolean commit( LocalFolder PATCHFOLDER , MetaSourceProject project , String COMMENT ) throws Exception {
 		if( !PATCHFOLDER.checkExists( action ) ) {
-			action.log( "directory " + PATCHFOLDER.folderPath + " does not exist " );
+			action.error( "directory " + PATCHFOLDER.folderPath + " does not exist " );
 			return( false );
 		}
 		
@@ -75,7 +75,7 @@ public class SubversionVCS extends GenericVCS {
 		
 		String branch1Path = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/" + BRANCH1X;
 		if( !checkSvnPathExists( branch1Path ) ) {
-			action.log( branch1Path + ": svn path does not exist" );
+			action.error( branch1Path + ": svn path does not exist" );
 			return( false );
 		}
 
@@ -86,7 +86,7 @@ public class SubversionVCS extends GenericVCS {
 		
 		String branch2Path = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/" + BRANCH2X;
 		if( checkSvnPathExists( branch2Path ) ) {
-			action.log( "skip copy branch to branch - target branch already exists" );
+			action.error( "cannot copy branch to branch - target branch already exists" );
 			return( false );
 		}
 
@@ -102,7 +102,7 @@ public class SubversionVCS extends GenericVCS {
 		
 		String branch1Path = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/" + BRANCH1X;
 		if( !checkSvnPathExists( branch1Path ) ) {
-			action.log( branch1Path + ": svn path does not exist" );
+			action.error( branch1Path + ": svn path does not exist" );
 			return( false );
 		}
 
@@ -113,7 +113,7 @@ public class SubversionVCS extends GenericVCS {
 		
 		String branch2Path = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/" + BRANCH2X;
 		if( checkSvnPathExists( branch2Path ) ) {
-			action.log( "skip rename branch to branch - target branch already exists" );
+			action.info( "skip rename branch to branch - target branch already exists" );
 			return( false );
 		}
 
@@ -125,14 +125,14 @@ public class SubversionVCS extends GenericVCS {
 		// check source status
 		String tag1Path = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/tags/" + TAG1;
 		if( !checkSvnPathExists( tag1Path ) ) {
-			action.log( tag1Path + ": svn path does not exist" );
+			action.error( tag1Path + ": svn path does not exist" );
 			return( false );
 		}
 
 		// check destination status
 		String tag2Path = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/tags/" + TAG2;
 		if( checkSvnPathExists( tag2Path ) ) {
-			action.log( "skip copy tag - target tag already exists" );
+			action.error( "cannot copy tag - target tag already exists" );
 			return( false );
 		}
 
@@ -144,14 +144,14 @@ public class SubversionVCS extends GenericVCS {
 		// check source status
 		String tag1Path = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/tags/" + TAG1;
 		if( !checkSvnPathExists( tag1Path ) ) {
-			action.log( tag1Path + ": svn path does not exist" );
+			action.error( tag1Path + ": svn path does not exist" );
 			return( false );
 		}
 
 		// check destination status
 		String tag2Path = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/tags/" + TAG2;
 		if( checkSvnPathExists( tag2Path ) ) {
-			action.log( "drop already existing new tag ..." );
+			action.info( "drop already existing new tag ..." );
 			session.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tag2Path + " -m " + Common.getQuoted( meta.product.CONFIG_ADM_TRACKER + "-0000: drop tag before svn copy" ) );
 		}
 
@@ -163,14 +163,14 @@ public class SubversionVCS extends GenericVCS {
 		// check source status
 		String tag1Path = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/tags/" + TAG1;
 		if( !checkSvnPathExists( tag1Path ) ) {
-			action.log( tag1Path + ": svn path does not exist" );
+			action.error( tag1Path + ": svn path does not exist" );
 			return( false );
 		}
 
 		// check destination status
 		String tag2Path = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/tags/" + TAG2;
 		if( checkSvnPathExists( tag2Path ) ) {
-			action.log( "drop already existing new tag ..." );
+			action.info( "drop already existing new tag ..." );
 			session.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tag2Path + " -m " + Common.getQuoted( meta.product.CONFIG_ADM_TRACKER + "-0000: drop tag before svn rename" ) );
 		}
 
@@ -182,7 +182,7 @@ public class SubversionVCS extends GenericVCS {
 		// check source status
 		String tag1Path = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/tags/" + TAG1;
 		if( !checkSvnPathExists( tag1Path ) ) {
-			action.log( tag1Path + ": svn path does not exist" );
+			action.error( tag1Path + ": svn path does not exist" );
 			return( false );
 		}
 
@@ -192,7 +192,7 @@ public class SubversionVCS extends GenericVCS {
 			BRANCH2X = "branches/" + BRANCH2;
 		String branch2Path = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/" + BRANCH2X;
 		if( checkSvnPathExists( branch2Path ) ) {
-			action.log( "skip copy tag to branch - target branch already exists" );
+			action.error( "cannot copy tag to branch - target branch already exists" );
 			return( false );
 		}
 
@@ -204,7 +204,7 @@ public class SubversionVCS extends GenericVCS {
 		// check status
 		String tagPath = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/tags/" + TAG;
 		if( !checkSvnPathExists( tagPath ) ) {
-			action.log( tagPath + ": svn path does not exist" );
+			action.error( tagPath + ": svn path does not exist" );
 			return( false );
 		}
 		
@@ -219,7 +219,7 @@ public class SubversionVCS extends GenericVCS {
 			BRANCHX = "branches/" + BRANCH;
 		String branchPath = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/" + BRANCHX;
 		if( !checkSvnPathExists( branchPath ) ) {
-			action.log( branchPath + ": svn path does not exist" );
+			action.error( branchPath + ": svn path does not exist" );
 			return( false );
 		}
 		
@@ -268,13 +268,13 @@ public class SubversionVCS extends GenericVCS {
 			BRANCHX = "branches/" + BRANCH;
 		String branchPath = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/" + BRANCHX;
 		if( !checkSvnPathExists( branchPath ) ) {
-			action.log( branchPath + ": svn path does not exist" );
+			action.error( branchPath + ": svn path does not exist" );
 			return( false );
 		}
 		
 		String tagPath = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/tags/" + TAG;
 		if( checkSvnPathExists( tagPath ) ) {
-			action.log( "drop already existing tag ..." );
+			action.info( "drop already existing tag ..." );
 			session.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tagPath + " -m " + Common.getQuoted( meta.product.CONFIG_ADM_TRACKER + "-0000: drop tag before svn rename" ) );
 		}
 		
@@ -425,7 +425,7 @@ public class SubversionVCS extends GenericVCS {
 
 		// check destination status
 		if( checkSvnPathExists( fullPathTag ) ) {
-			action.log( "drop already existing new tag ..." );
+			action.info( "drop already existing new tag ..." );
 			session.customCheckStatus( action , "svn delete " + SVNAUTH + " " + fullPathTag + " -m " + Common.getQuoted( commitMessage ) );
 		}
 

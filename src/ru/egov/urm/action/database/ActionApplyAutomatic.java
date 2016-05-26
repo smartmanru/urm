@@ -34,7 +34,7 @@ public class ActionApplyAutomatic extends ActionBase {
 
 	@Override protected void runBefore( ActionScope scope ) throws Exception {
 		logs = artefactory.getDatabaseLogStorage( this , dist.info.RELEASEVER );
-		log( "log to " + logs.logFolder.folderPath );
+		info( "log to " + logs.logFolder.folderPath );
 	}
 	
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
@@ -43,14 +43,14 @@ public class ActionApplyAutomatic extends ActionBase {
 		if( !client.checkConnect( this , server ) )
 			exit( "unable to connect to server=" + server.NAME );
 
-		log( "apply changes to database=" + server.NAME + " ..." );
+		info( "apply changes to database=" + server.NAME + " ..." );
 		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client , dist.info );
 		
 		applyFailed = false;
 		if( applyDatabase( server , client , registry ) )
-			log( "apply done." );
+			info( "apply done." );
 		else
-			log( "nothing to apply." );
+			info( "nothing to apply." );
 		
 		if( applyFailed )
 			super.setFailed();
@@ -75,10 +75,10 @@ public class ActionApplyAutomatic extends ActionBase {
 			registry.readIncompleteScripts( this );
 			int n = registry.getScriptCount( this );
 			if( n > 0 )
-				log( "release is not finalized, total " + n + " incomplete script(s)" );
+				info( "release is not finalized, total " + n + " incomplete script(s)" );
 			else {
 				registry.finishApplyRelease( this );
-				log( "release is finalized." );
+				info( "release is finalized." );
 			}
 		}
 		
@@ -213,7 +213,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		if( !registry.checkNeedApply( this , releaseDelivery.distDelivery , file ) )
 			return( true );
 		
-		log( "apply script " + file + " (" + getMode() + ") ..." );
+		info( "apply script " + file + " (" + getMode() + ") ..." );
 		if( context.CTX_SHOWONLY )
 			return( true );
 		
@@ -233,7 +233,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		}
 
 		registry.finishApplyScript( this , releaseDelivery.distDelivery , file );
-		log( "script " + file + " has been successfully applied to " + server.NAME );
+		info( "script " + file + " has been successfully applied to " + server.NAME );
 		return( true );
 	}
 	

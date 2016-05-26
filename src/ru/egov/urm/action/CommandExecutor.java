@@ -186,7 +186,7 @@ public abstract class CommandExecutor {
 				if( ex == null || action.context.CTX_SHOWALL )
 					action.log( e );
 				else
-					action.log( ex.getMessage() );
+					action.error( "exception: " + ex.getMessage() );
 			}
 				
 			return( false );

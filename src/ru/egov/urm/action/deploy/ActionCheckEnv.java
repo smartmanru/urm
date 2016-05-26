@@ -51,17 +51,17 @@ public class ActionCheckEnv extends ActionBase {
 	}
 	
 	@Override protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		log( "execute datacenter=" + set.dc.NAME + " ..." );
+		info( "execute datacenter=" + set.dc.NAME + " ..." );
 	}
 
 	@Override protected void runAfter( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		String F_STATUSOBJECT = set.dc.NAME;
 		if( !S_CHECKENV_TOTAL_SERVERS_FAILED.isEmpty() ) {
-			log( "## dc " + F_STATUSOBJECT + " check FAILED: issues on servers - {" + S_CHECKENV_TOTAL_SERVERS_FAILED + "}" );
+			info( "## dc " + F_STATUSOBJECT + " check FAILED: issues on servers - {" + S_CHECKENV_TOTAL_SERVERS_FAILED + "}" );
 			return;
 		}
 		
-		log( "## dc " + F_STATUSOBJECT + " check OK" );
+		info( "## dc " + F_STATUSOBJECT + " check OK" );
 	}
 	
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
@@ -74,7 +74,7 @@ public class ActionCheckEnv extends ActionBase {
 			S_CHECKENV_TARGET_COMPS_FAILED = "";
 			
 			// execute server
-			log( "============================================ check server=" + target.envServer.NAME + " ..." );
+			info( "============================================ check server=" + target.envServer.NAME + " ..." );
 	
 			checkOneServer( target , target.envServer , true , "main" );
 			
@@ -98,7 +98,7 @@ public class ActionCheckEnv extends ActionBase {
 		// check status
 		String F_STATUSOBJECT = set.dc.NAME + "." + target.envServer.NAME;
 		if( !S_CHECKENV_TARGET_FAILED ) {
-			log( "## server " + F_STATUSOBJECT + " check OK" );
+			info( "## server " + F_STATUSOBJECT + " check OK" );
 			return( true );
 		}
 
@@ -109,7 +109,7 @@ public class ActionCheckEnv extends ActionBase {
 			MSG = Common.addToList( MSG , "nodes.failed={" + S_CHECKENV_TARGET_NODES_FAILED + "}" , " " );
 		if( !S_CHECKENV_TARGET_COMPS_FAILED.isEmpty() )
 			MSG = Common.addToList( MSG , "components.failed={" + S_CHECKENV_TARGET_COMPS_FAILED + "}" , " " );
-		log( MSG );
+		info( MSG );
 		
 		S_CHECKENV_TOTAL_SERVERS_FAILED = Common.addItemToUniqueSpacedList( S_CHECKENV_TOTAL_SERVERS_FAILED , target.NAME );
 		return( true );
@@ -134,7 +134,7 @@ public class ActionCheckEnv extends ActionBase {
 			}
 		}
 		
-		log( "check " + role + " server=" + server.NAME + " ..." );
+		info( "check " + role + " server=" + server.NAME + " ..." );
 
 		if( main ) {
 			debug( "check nodes ..." );
@@ -200,7 +200,7 @@ public class ActionCheckEnv extends ActionBase {
 		if( res )
 			debug( msg );
 		else
-			log( msg );
+			info( msg );
 		return( res );
 	}
 
@@ -242,7 +242,7 @@ public class ActionCheckEnv extends ActionBase {
 		if( process.checkConnect( this , server ) )
 			return( true );
 		
-		log( "database server=" + server.NAME + ": client is not available" );
+		error( "database server=" + server.NAME + ": client is not available" );
 		return( false );
 	}
 	
@@ -250,7 +250,7 @@ public class ActionCheckEnv extends ActionBase {
 		S_CHECKENV_NODE_FAILED = false;
 		S_CHECKENV_NODE_STOPPED = false;
 		
-		log( "node " + node.POS + "=" + node.HOSTLOGIN );
+		info( "node " + node.POS + "=" + node.HOSTLOGIN );
 
 		if( checkOneServerNodeStatus( server , node ) ) {
 			if( !checkOneServerNodeComps( server , node ) )
@@ -263,7 +263,7 @@ public class ActionCheckEnv extends ActionBase {
 		
 		// check proxy node
 		if( main && server.proxyServer != null ) { 
-			log( "check proxy node ..." );
+			info( "check proxy node ..." );
 			if( !checkOneServerNodeStatus( server.proxyServer , node.getProxyNode( this ) ) )
 				S_CHECKENV_NODE_FAILED = true;
 		}
@@ -290,13 +290,13 @@ public class ActionCheckEnv extends ActionBase {
 			return( true );
 		
 		if( process.mode == VarPROCESSMODE.ERRORS )
-			log( node.HOSTLOGIN + ": status=errors (" + process.cmdValue + ")" ); 
+			info( node.HOSTLOGIN + ": status=errors (" + process.cmdValue + ")" ); 
 		else
 		if( process.mode == VarPROCESSMODE.STARTING )
-			log( node.HOSTLOGIN + ": status=starting" );
+			info( node.HOSTLOGIN + ": status=starting" );
 		else
 		if( process.mode == VarPROCESSMODE.STOPPED )
-			log( node.HOSTLOGIN + ": status=stopped" );
+			info( node.HOSTLOGIN + ": status=stopped" );
 		else
 			this.exitUnexpectedState();
 		return( false );

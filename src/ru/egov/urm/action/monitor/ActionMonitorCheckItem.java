@@ -28,13 +28,13 @@ public class ActionMonitorCheckItem extends ActionBase {
 	}
 
 	private void monitorUrl( String URL ) throws Exception {
-		log( "monitor check URL " + URL + " ..." );
+		info( "monitor check URL " + URL + " ..." );
 		if( !SimpleHttp.check( this , URL ) )
 			super.setFailed();
 	}
 	
 	private void monitorWS( String URL , String WSDATA , String WSCHECK ) throws Exception {
-		log( "monitor check WS " + URL + " ..." );
+		info( "monitor check WS " + URL + " ..." );
 		SimpleHttp query = SimpleHttp.post( this , URL , WSDATA );
 		if( !query.valid( this ) ) {
 			super.setFailed();

@@ -56,7 +56,7 @@ public class SourceStorage {
 		if( downloadManualFolder( action , vcs , PATH , dstFolder ) )
 			return( true );
 		
-		action.log( "no manual files in " + PATH + ". Skipped." );
+		action.info( "no manual files in " + PATH + ". Skipped." );
 		return( false );
 	}
 	
@@ -67,7 +67,7 @@ public class SourceStorage {
 		if( downloadConfigItem( action , vcs , PATH , sourceFolder.distrComp , dstFolder ) )
 			return( true );
 		
-		action.log( "no configuration in " + PATH + ". Skipped." );
+		action.info( "no configuration in " + PATH + ". Skipped." );
 		return( false );
 	}
 
@@ -78,7 +78,7 @@ public class SourceStorage {
 		if( downloadDBFiles( action , vcs , PATH , dbDelivery , dstFolder ) )
 			return( true );
 		
-		action.log( "no database changes in " + PATH + ". Skipped." );
+		action.info( "no database changes in " + PATH + ". Skipped." );
 		return( false );
 	}
 	
@@ -92,7 +92,7 @@ public class SourceStorage {
 		if( !action.context.CTX_FORCE )
 			action.exit( "unable to find configuration at " + vcs.getInfoMasterPath( meta.product.CONFIG_SOURCE_REPOSITORY , PATH ) );
 		
-		action.log( "no configuration in " + PATH + ". Skipped." );
+		action.info( "no configuration in " + PATH + ". Skipped." );
 		return( false );
 	}
 
@@ -323,7 +323,7 @@ public class SourceStorage {
 			if( !vcs.isValidRepositoryMasterPath( REPOSITORY , SERVERPATH ) )
 				vcs.ensureMasterFolderExists( REPOSITORY , SERVERPATH , commitMessage );
 			vcs.importMasterFolder( folder , REPOSITORY , PATH , commitMessage );
-			action.log( node.HOSTLOGIN + ": live created at " + PATH );
+			action.info( node.HOSTLOGIN + ": live created at " + PATH );
 			return;
 		}
 		
@@ -342,7 +342,7 @@ public class SourceStorage {
 		saveLiveConfigItemCopyFolder( action , vcs , tobeFiles , coFiles , folder , coFolder );
 
 		if( vcs.commitMasterFolder( coFolder , REPOSITORY , PATH , commitMessage ) )
-			action.log( node.HOSTLOGIN + ": live updated at " + PATH );
+			action.info( node.HOSTLOGIN + ": live updated at " + PATH );
 		else
 			action.debug( node.HOSTLOGIN + ": live not changed at " + PATH );
 	}

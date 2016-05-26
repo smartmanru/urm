@@ -25,7 +25,7 @@ public class BuilderLinuxGradle extends Builder {
 		// checkout
 		ProjectVersionControl vcs = new ProjectVersionControl( action , true ); 
 		if( !vcs.export( CODEPATH , project , "" , TAG , "" ) ) {
-			action.log( "patchCheckout: having problem to export code" );
+			action.error( "patchCheckout: having problem to export code" );
 			return( false );
 		}
 		
@@ -55,21 +55,21 @@ public class BuilderLinuxGradle extends Builder {
 
 		// execute gradle
 		session.cd( action , storage.buildFolder.folderPath );
-		action.log( "using gradle:" );
+		action.info( "using gradle:" );
 		session.customCheckErrorsNormal( action , "which gradle" );
 		session.customCheckErrorsNormal( action , "gradle --version" );
 		
-		action.log( "execute: " + GRADLE_CMD );
+		action.info( "execute: " + GRADLE_CMD );
 		int timeout = action.setTimeoutUnlimited();
 		int status = session.customGetStatusNormal( action , GRADLE_CMD );
 		action.setTimeout( timeout );
 
 		if( status != 0 ) {
-			action.log( "buildGradle: gradle build failed" );
+			action.error( "buildGradle: gradle build failed" );
 			return( false );
 		}
 		
-		action.log( "buildGradle: gradle build successfully finished" );
+		action.info( "buildGradle: gradle build successfully finished" );
 		return( true );
 	}
 

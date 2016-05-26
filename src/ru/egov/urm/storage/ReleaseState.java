@@ -207,7 +207,7 @@ public class ReleaseState {
 		
 		// set status
 		ctlSetStatus( action , RELEASESTATE.DIRTY );
-		action.log( "release has been created: " + RELEASEDIR );
+		action.info( "release has been created: " + RELEASEDIR );
 	}
 	
 	public void ctlCreateProd( ActionBase action , String RELEASEVER ) throws Exception {
@@ -229,7 +229,7 @@ public class ReleaseState {
 		
 		// set status
 		ctlSetStatus( action , RELEASESTATE.DIRTY );
-		action.log( "prod has been created at " + distFolder.folderPath );
+		action.info( "prod has been created at " + distFolder.folderPath );
 	}
 	
 	public void ctlOpenForChange( ActionBase action ) throws Exception {
@@ -271,14 +271,14 @@ public class ReleaseState {
 			action.exit( "distributive is not opened for change, state=" + state.name() );
 		
 		ctlSetStatus( action , RELEASESTATE.DIRTY );
-		action.log( "distributive has been closed after change, ID=" + stateChangeID );
+		action.info( "distributive has been closed after change, ID=" + stateChangeID );
 	}
 
 	public void ctlFinish( ActionBase action ) throws Exception {
 		ctlReloadCheckOpened( action );
 
 		ctlSetStatus( action , RELEASESTATE.RELEASED );
-		action.log( "distributive has been finalized, hash=" + stateHash );
+		action.info( "distributive has been finalized, hash=" + stateHash );
 	}
 
 	public void ctlReopen( ActionBase action ) throws Exception {
@@ -290,7 +290,7 @@ public class ReleaseState {
 			action.exit( "distributive is not released, state=" + state.name() );
 		
 		ctlSetStatus( action , RELEASESTATE.CHANGING );
-		action.log( "distributive has been reopened" );
+		action.info( "distributive has been reopened" );
 	}
 
 	public void ctlOpenForUse( ActionBase action , boolean PROD ) throws Exception {
@@ -324,7 +324,7 @@ public class ReleaseState {
 
 	public void ctlClearRelease( ActionBase action ) throws Exception {
 		stateMem = RELEASESTATE.MISSINGDIST;
-		action.log( "distributive has been deleted: " + distFolder.folderName );
+		action.info( "distributive has been deleted: " + distFolder.folderName );
 	}
 
 	public void ctlCheckCanForceDropRelease( ActionBase action ) throws Exception {

@@ -90,7 +90,7 @@ public class Artefactory {
 		
 		CommandExecutor executor = action.executor; 
 		if( executor.isFailed() || action.context.CTX_SHOWALL )
-			action.log( "saved work directory: " + workFolder.folderPath );
+			action.info( "saved work directory: " + workFolder.folderPath );
 		else
 			action.context.deleteWorkFolder( action , workFolder );
 	}

@@ -96,7 +96,7 @@ public class DeployCommand {
 
 	public void redist( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
 		if( scope.isEmpty( action ) ) {
-			action.log( "nothing to redist" );
+			action.info( "nothing to redist" );
 			return;
 		}
 		
@@ -111,7 +111,7 @@ public class DeployCommand {
 			if( !check.runAll( scope ) )
 				action.exit( "configuration check failed: invalid environment data" );
 			
-			action.log( "prepare configuration ..." );
+			action.info( "prepare configuration ..." );
 			folder = action.artefactory.getWorkFolder( action , "configuration" );
 			ActionConfigure ca = new ActionConfigure( action , null , dist , folder ); 
 			if( !ca.runAll( scope ) )
@@ -120,17 +120,17 @@ public class DeployCommand {
 			live = ca.getLiveFolder();
 		}
 		
-		action.log( "open sessions and create redist folders ..." );
+		action.info( "open sessions and create redist folders ..." );
 		ActionPrepareRedist pa = new ActionPrepareRedist( action , null , dist , true );
 		if( !pa.runAll( scope ) )
 			action.exit( "unable to create folders" );
 		
-		action.log( "upload to redist ..." );
+		action.info( "upload to redist ..." );
 		ActionRedist ma = new ActionRedist( action , null , dist , live );
 		if( ma.runAll( scope ) )
-			action.log( "redist successfully done." );
+			action.info( "redist successfully done." );
 		else
-			action.log( "redist failed, see logs." );
+			action.error( "redist failed, see logs." );
 	}
 
 	public void restartEnv( ActionBase action , ActionScope scope ) throws Exception {

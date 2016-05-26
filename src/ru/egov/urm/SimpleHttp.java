@@ -24,7 +24,7 @@ public class SimpleHttp {
 		}
 		catch( Throwable e ) {
 			http.responseCode = -1;
-			action.trace( e );
+			action.log( e );
 		}
 		return( false );
 	}
@@ -36,7 +36,7 @@ public class SimpleHttp {
 		}
 		catch( Throwable e ) {
 			http.responseCode = -1;
-			action.trace( e );
+			action.log( e );
 		}
 		return( http );
 	}
@@ -48,7 +48,7 @@ public class SimpleHttp {
 		}
 		catch( Throwable e ) {
 			http.responseCode = -1;
-			action.trace( e );
+			action.log( e );
 		}
 		return( http );
 	}

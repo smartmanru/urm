@@ -53,7 +53,7 @@ public class DatabaseCommand {
 		else 
 			action.exit( "database mode is not set" );
 		
-		action.log( "apply database changes (" + op + ") release=" + dist.RELEASEDIR + ", delivery=" + deliveryInfo + ", items=" + itemsInfo );
+		action.info( "apply database changes (" + op + ") release=" + dist.RELEASEDIR + ", delivery=" + deliveryInfo + ", items=" + itemsInfo );
 		ActionApplyAutomatic ma = new ActionApplyAutomatic( action , null , dist , delivery , indexScope );
 		ActionScope scope = ActionScope.getEnvDatabaseScope( action , dist );
 		ma.runAll( scope );

@@ -61,12 +61,12 @@ public class ActionRedist extends ActionBase {
 			return;
 		}
 
-		log( "============================================ execute server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
+		info( "============================================ execute server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
 
 		// iterate by nodes
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
-			log( "execute server=" + server.NAME + " node=" + node.POS + " ..." );
+			info( "execute server=" + server.NAME + " node=" + node.POS + " ..." );
 
 			// deploy both binaries and configs to each node
 			executeNode( server , node , F_ENV_LOCATIONS_BINARY , F_ENV_LOCATIONS_CONFIG , liveServerFolder );
@@ -101,7 +101,7 @@ public class ActionRedist extends ActionBase {
 	}
 
 	private void executeNodeConfig( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] locations , LocalFolder liveFolder ) throws Exception {
-		log( "redist configuration to server=" + server.NAME + " node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
+		info( "redist configuration to server=" + server.NAME + " node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
 		
 		// by deployment location and conf component
 		for( MetaEnvServerLocation location : locations ) { 
@@ -119,7 +119,7 @@ public class ActionRedist extends ActionBase {
 	}
 	
 	private void executeNodeBinary( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] locations ) throws Exception {
-		log( "redist binaries to server=" + server.NAME + " node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
+		info( "redist binaries to server=" + server.NAME + " node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
 		
 		// by deployment location
 		for( MetaEnvServerLocation location : locations ) 
@@ -143,7 +143,7 @@ public class ActionRedist extends ActionBase {
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		VarCONTENTTYPE C_REDIST_DIRTYPE = location.getContentType( this , true );
 
-		log( "redist location=" + location.DEPLOYPATH + " deploytype=" + Common.getEnumLower( location.DEPLOYTYPE ) +
+		info( "redist location=" + location.DEPLOYPATH + " deploytype=" + Common.getEnumLower( location.DEPLOYTYPE ) +
 				" items=" + Common.getListSet( items ) + " contenttype=" + Common.getEnumLower( C_REDIST_DIRTYPE ) + " ..." );
 
 		redist.createLocation( this , dist.RELEASEDIR , location , C_REDIST_DIRTYPE );

@@ -58,7 +58,7 @@ public class ActionConfigure extends ActionBase {
 	@Override protected void runBefore( ActionScope scope ) throws Exception {
 		baseFolder.recreateThis( this );
 		templateFolder = baseFolder.getSubFolder( this , "templates" );
-		log( "prepare configuraton files in " + baseFolder.folderPath + " ..." );
+		info( "prepare configuraton files in " + baseFolder.folderPath + " ..." );
 		templateFolder.recreateThis( this );
 		
 		// collect components
@@ -128,7 +128,7 @@ public class ActionConfigure extends ActionBase {
 			return;
 		}
 		
-		log( "server=" + server.NAME + ", node" + node.POS + ": prepare configuraton item=" + confItem.KEY );
+		info( "server=" + server.NAME + ", node" + node.POS + ": prepare configuraton item=" + confItem.KEY );
 		LocalFolder live = parent.getSubFolder( this , name );
 		live.recreateThis( this );
 		

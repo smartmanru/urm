@@ -75,11 +75,11 @@ public class DatabasePrepare {
 		checkAll( action , F_ALIGNEDDIRLIST );
 		if( S_CHECK_FAILED ) {
 			if( !action.context.CTX_FORCE ) {
-				action.log( "script set check failed, cancelled" );
+				action.error( "script set check failed, cancelled" );
 				return( false );
 			}
 				
-			action.log( "script set check failed, ignored" );
+			action.error( "script set check failed, ignored" );
 		}
 
 		// change script numbers and copy to ../patches.log (exit on errors if no -s option)
@@ -90,7 +90,7 @@ public class DatabasePrepare {
 	private void checkAll( ActionBase action , FileSet[] P_ALIGNEDDIRLIST ) throws Exception {
 		// common
 		String S_COMMON_ALIGNEDID = ALIGNED_COMMON;
-		action.log( "prepare: =================================== check common ..." );
+		action.info( "prepare: =================================== check common ..." );
 		check( action , srcFileSet , S_COMMON_ALIGNEDID );
 
 		// aligned
@@ -100,7 +100,7 @@ public class DatabasePrepare {
 		for( FileSet aligneddir : P_ALIGNEDDIRLIST ) {
 			S_COMMON_ALIGNEDID = aligneddir.dirName;
 
-			action.log( "prepare: =================================== check aligned dir=" + aligneddir.dirName + " ..." );
+			action.info( "prepare: =================================== check aligned dir=" + aligneddir.dirName + " ..." );
 			check( action , aligneddir , S_COMMON_ALIGNEDID );
 		}
 	}
@@ -138,7 +138,7 @@ public class DatabasePrepare {
 				
 				if( failed ) {
 					String alignedName = ( P_ALIGNEDSET.dirName.isEmpty() )? "common" : P_ALIGNEDSET.dirName;
-					action.log( "prepare: aligned=" + alignedName + " - invalid release folder: " + dir );
+					action.info( "prepare: aligned=" + alignedName + " - invalid release folder: " + dir );
 					moveErrors( action , P_ALIGNEDSET , P_ALIGNEDID , dir , "invalid release folder" );
 					S_CHECK_FAILED = true;
 				}
@@ -152,7 +152,7 @@ public class DatabasePrepare {
 	private void copyAll( ActionBase action , FileSet[] P_ALIGNEDDIRLIST ) throws Exception {
 		// common
 		String S_COMMON_ALIGNEDID = ALIGNED_COMMON;
-		action.log( "prepare: =================================== copy common ..." );
+		action.info( "prepare: =================================== copy common ..." );
 		
 		LocalFolder F_TARGETDIR = dstFolder;
 		copyCore( action , srcFileSet , S_COMMON_ALIGNEDID , F_TARGETDIR );
@@ -166,7 +166,7 @@ public class DatabasePrepare {
 		for( FileSet aligneddir : P_ALIGNEDDIRLIST ) {
 			S_COMMON_ALIGNEDID = aligneddir.dirName;
 
-			action.log( "prepare: =================================== copy aligned dir=" + aligneddir + " id=" + S_COMMON_ALIGNEDID + " ..." );
+			action.info( "prepare: =================================== copy aligned dir=" + aligneddir + " id=" + S_COMMON_ALIGNEDID + " ..." );
 			
 			copyCore( action , aligneddir , S_COMMON_ALIGNEDID , F_TARGETDIR );
 			if( action.custom.isCustomDatabase() )
@@ -175,7 +175,7 @@ public class DatabasePrepare {
 	}
 	
 	private void copyCore( ActionBase action , FileSet P_ALIGNEDSET , String P_ALIGNEDID , LocalFolder P_TARGETDIR ) throws Exception {
-		action.log( "prepare core aligned=" + P_ALIGNEDID + " ..." );
+		action.info( "prepare core aligned=" + P_ALIGNEDID + " ..." );
 		LocalFolder manualDir = P_TARGETDIR.getSubFolder( action , MANUAL_FOLDER );
 		copyDir( action , P_ALIGNEDSET , P_ALIGNEDID , P_ALIGNEDSET.getDirByPath( action , MANUAL_FOLDER ) , manualDir , false );
 		
@@ -423,11 +423,11 @@ public class DatabasePrepare {
 
 	private void moveErrors( ActionBase action , FileSet P_ALIGNEDSET , String P_ALIGNEDID , String P_PATH , String P_COMMENT ) throws Exception {
 		if( !action.context.CTX_MOVE_ERRORS ) {
-			action.log( "errors in " + P_PATH + ": " + P_COMMENT );
+			action.error( "errors in " + P_PATH + ": " + P_COMMENT );
 			return;
 		}
 
-		action.log( "moving " + P_PATH + " to errors folder ..." );
+		action.info( "moving " + P_PATH + " to errors folder ..." );
 
 		SourceStorage sourceStorage = action.artefactory.getSourceStorage( action );
 		String movePath = Common.getPath( P_ALIGNEDSET.dirPath , P_PATH );

@@ -60,7 +60,7 @@ public class GitVCS extends GenericVCS {
 
 		String REPOVERSION = "(branch head)";
 
-		action.log( "git: checkout sources from " + repo.MIRRORPATH + " (branch=" + BRANCH + ", revision=" + REPOVERSION + ") to " + PATCHFOLDER.folderPath + " ..." );
+		action.info( "git: checkout sources from " + repo.MIRRORPATH + " (branch=" + BRANCH + ", revision=" + REPOVERSION + ") to " + PATCHFOLDER.folderPath + " ..." );
 		createLocalFromBranch( repo , BRANCH );
 		
 		return( true );
@@ -68,7 +68,7 @@ public class GitVCS extends GenericVCS {
 
 	@Override public boolean commit( LocalFolder PATCHFOLDER , MetaSourceProject project , String MESSAGE ) throws Exception {
 		if( !PATCHFOLDER.checkExists( action ) ) {
-			action.log( "directory " + PATCHFOLDER.folderPath + " does not exist " );
+			action.error( "directory " + PATCHFOLDER.folderPath + " does not exist " );
 			return( false );
 		}
 
@@ -89,12 +89,12 @@ public class GitVCS extends GenericVCS {
 		refreshMirror( repo );
 		
 		if( !checkBranchExists( repo , BRANCH1 ) ) {
-			action.log( repo.MIRRORPATH + ": branch " + BRANCH1 + " does not exist" );
+			action.error( repo.MIRRORPATH + ": branch " + BRANCH1 + " does not exist" );
 			return( false );
 		}
 
 		if( checkBranchExists( repo , BRANCH2 ) ) {
-			action.log( "skip copy branch to branch - target branch already exists" );
+			action.error( "skip copy branch to branch - target branch already exists" );
 			return( false );
 		}
 
@@ -110,12 +110,12 @@ public class GitVCS extends GenericVCS {
 		refreshMirror( repo );
 		
 		if( !checkBranchExists( repo , BRANCH1 ) ) {
-			action.log( repo.MIRRORPATH + ": branch " + BRANCH1 + " does not exist" );
+			action.error( repo.MIRRORPATH + ": branch " + BRANCH1 + " does not exist" );
 			return( false );
 		}
 
 		if( checkBranchExists( repo , BRANCH2 ) ) {
-			action.log( "skip rename branch to branch - target branch already exists" );
+			action.error( "cannot rename branch to branch - target branch already exists" );
 			return( false );
 		}
 
@@ -132,12 +132,12 @@ public class GitVCS extends GenericVCS {
 		refreshMirror( repo );
 		
 		if( !checkTagExists( repo , TAG1 ) ) {
-			action.log( repo.MIRRORPATH + ": tag " + TAG1 + " does not exist" );
+			action.error( repo.MIRRORPATH + ": tag " + TAG1 + " does not exist" );
 			return( false );
 		}
 
 		if( checkTagExists( repo , TAG2 ) ) {
-			action.log( repo.MIRRORPATH + ": tag " + TAG2 + " exists" );
+			action.error( repo.MIRRORPATH + ": tag " + TAG2 + " already exists" );
 			return( false );
 		}
 
@@ -153,7 +153,7 @@ public class GitVCS extends GenericVCS {
 		refreshMirror( repo );
 		
 		if( !checkTagExists( repo , TAG1 ) ) {
-			action.log( repo.MIRRORPATH + ": tag " + TAG1 + " does not exist" );
+			action.error( repo.MIRRORPATH + ": tag " + TAG1 + " does not exist" );
 			return( false );
 		}
 
@@ -175,7 +175,7 @@ public class GitVCS extends GenericVCS {
 		refreshMirror( repo );
 		
 		if( !checkTagExists( repo , TAG1 ) ) {
-			action.log( repo + ": tag " + TAG1 + " does not exist" );
+			action.error( repo + ": tag " + TAG1 + " does not exist" );
 			return( false );
 		}
 
@@ -198,12 +198,12 @@ public class GitVCS extends GenericVCS {
 		refreshMirror( repo );
 		
 		if( !checkTagExists( repo , TAG1 ) ) {
-			action.log( repo + ": tag " + TAG1 + " does not exist" );
+			action.error( repo + ": tag " + TAG1 + " does not exist" );
 			return( false );
 		}
 
 		if( checkBranchExists( repo , BRANCH2 ) ) {
-			action.log( "skip copy branch to branch - target branch already exists" );
+			action.error( "cannot copy branch to branch - target branch already exists" );
 			return( false );
 		}
 
@@ -218,7 +218,7 @@ public class GitVCS extends GenericVCS {
 		refreshMirror( repo );
 		
 		if( !checkTagExists( repo , TAG ) ) {
-			action.log( repo.MIRRORPATH + ": tag " + TAG + " does not exist" );
+			action.error( repo.MIRRORPATH + ": tag " + TAG + " does not exist" );
 			return( false );
 		}
 		
@@ -234,7 +234,7 @@ public class GitVCS extends GenericVCS {
 		refreshMirror( repo );
 		
 		if( !checkBranchExists( repo , BRANCH ) ) {
-			action.log( repo.MIRRORPATH + ": branch " + BRANCH + " does not exist" );
+			action.error( repo.MIRRORPATH + ": branch " + BRANCH + " does not exist" );
 			return( false );
 		}
 		
@@ -276,7 +276,7 @@ public class GitVCS extends GenericVCS {
 			CO_BRANCH = CO_BRANCH.substring( "branches/".length() );
 
 		if( !checkBranchExists( repo , BRANCH ) ) {
-			action.log( repo.MIRRORPATH + ": branch " + BRANCH + " does not exist" );
+			action.error( repo.MIRRORPATH + ": branch " + BRANCH + " does not exist" );
 			return( false );
 		}
 		

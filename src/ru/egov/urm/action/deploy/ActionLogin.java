@@ -27,7 +27,7 @@ public class ActionLogin extends ActionBase {
 		if( !context.CTX_KEYNAME.isEmpty() )
 			F_KEY = context.CTX_KEYNAME;
 
-		log( "login dc=" + node.server.dc.NAME + ", server=" + node.server.NAME + 
+		info( "login dc=" + node.server.dc.NAME + ", server=" + node.server.NAME + 
 				", node=" + node.POS + ", hostlogin=" + account.HOSTLOGIN + " ..." );
 		
 		int timeout = setTimeoutUnlimited();

@@ -85,7 +85,7 @@ public class DatabaseSpecific {
 		
 		int status = shell.customGetStatus( action , execFolder.folderPath , cmd );
 		if( status != 0 ) {
-			action.log( "errors, status=" + status + " (see logs)" );
+			action.error( "errors, status=" + status + " (see log at " + fileLog + ")" );
 			return( false );
 		}
 		
@@ -102,7 +102,7 @@ public class DatabaseSpecific {
 		if( err.isEmpty() )
 			return( true );
 		
-		action.log( "error: " + err + " (see logs)" );
+		action.error( "error: " + err + " (see log at " + fileLog + ")" );
 		return( false );
 	}
 	
@@ -118,7 +118,7 @@ public class DatabaseSpecific {
 		
 		int status = runScriptCmd( action , ctxScript , "applyscript" , file + " " + fileLog );
 		if( status != 0 ) {
-			action.log( "error: (see logs)" );
+			action.error( "error: (see log at " + fileLog + ")" );
 			return( false );
 		}
 		
@@ -126,7 +126,7 @@ public class DatabaseSpecific {
 		String[] lines = data.toArray( new String[0] );
 		String[] errors = Common.grep( lines , "^ERROR" );
 		if( errors.length > 0 ) {
-			action.log( "error: " + " (" + errors[0] + " ...)" );
+			action.error( "error: " + " (" + errors[0] + " ...)" );
 			return( false );
 		}
 		

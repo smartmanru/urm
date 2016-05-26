@@ -82,7 +82,7 @@ public class MetadataStorage {
 
 	public HashMap<String,Map<String,String>> readDatapumpFile( ActionBase action , String specFile , String schema ) throws Exception {
 		String tablesetPath = getDatapumpFile( action , specFile );
-		action.log( "reading export table set file " + tablesetPath + " ..." );
+		action.info( "reading export table set file " + tablesetPath + " ..." );
 		
 		HashMap<String,Map<String,String>> tableSet = new HashMap<String,Map<String,String>>();
 		for( String line : ConfReader.readFileLines( action , tablesetPath ) ) {
@@ -116,7 +116,7 @@ public class MetadataStorage {
 	
 	public void loadDatapumpSet( ActionBase action , Map<String,Map<String,String>> tableSet , MetaEnvServer server , boolean standby , boolean export ) throws Exception {
 		String table = ( export )? "urm_export" : "urm_import";  
-		action.log( "create table " + table + " in administrative database ..." );
+		action.info( "create table " + table + " in administrative database ..." );
 		
 		// load table set into database
 		String[] columns = { "xschema" , "xtable" };

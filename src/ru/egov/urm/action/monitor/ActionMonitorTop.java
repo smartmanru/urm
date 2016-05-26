@@ -50,25 +50,25 @@ public class ActionMonitorTop extends ActionBase {
 				if( runMajor ) {
 					runMajor = false;
 					lastStartMajor = current;
-					log( "start major checks: " );
+					info( "start major checks: " );
 					executeOnceMajor();
 					current = System.currentTimeMillis();
 					lastStopMajor = current;
-					log( "major checks done in : " + ( lastStopMajor - lastStartMajor ) + "ms" );
+					info( "major checks done in : " + ( lastStopMajor - lastStartMajor ) + "ms" );
 					continue;
 				}
 				else {
 					lastStartMinor = current;
-					log( "start minor checks: " );
+					info( "start minor checks: " );
 					executeOnceMinor();
 					current = System.currentTimeMillis();
 					lastStopMinor = current; 
-					log( "minor checks done in : " + ( lastStopMinor - lastStartMinor ) + "ms" );
+					info( "minor checks done in : " + ( lastStopMinor - lastStartMinor ) + "ms" );
 				}
 			}
 			catch( Throwable e ) {
-				log( "exception: " + e.getMessage() );
-				debug( e );
+				error( "exception: " + e.getMessage() );
+				log( e );
 			}
 
 			if( runMajor && lastStartMinor == 0 ) {
@@ -110,8 +110,8 @@ public class ActionMonitorTop extends ActionBase {
 			}
 		}
 		catch( Throwable e ) {
-			log( "exception: " + e.getMessage() );
-			debug( e );
+			error( "exception: " + e.getMessage() );
+			log( e );
 		}
 		
 		return( false );

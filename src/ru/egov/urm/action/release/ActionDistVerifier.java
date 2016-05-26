@@ -34,7 +34,7 @@ public class ActionDistVerifier extends ActionBase {
 			if( !dir.isEmpty() ) {
 				ReleaseDelivery delivery = info.getDeliveryByFolder( this , dir.dirName );
 				if( delivery.isEmpty() ) {
-					log( "distributive folder=" + dir.dirName + " is expected to be empty" );
+					error( "distributive folder=" + dir.dirName + " is expected to be empty" );
 					super.setFailed();
  					return( true );
 				}
@@ -46,12 +46,12 @@ public class ActionDistVerifier extends ActionBase {
 			if( !delivery.isEmpty() ) {
 				FileSet dir = set.getDirByPath( this , delivery.distDelivery.FOLDER );
 				if( dir == null ) {
-					log( "delivery folder=" + delivery.distDelivery.FOLDER + " is missing" );
+					error( "delivery folder=" + delivery.distDelivery.FOLDER + " is missing" );
 					return( false );
 				}
 				
 				if( dir.isEmpty() && !delivery.isEmpty() ) {
-					log( "delivery folder=" + delivery.distDelivery.FOLDER + " is empty" );
+					error( "delivery folder=" + delivery.distDelivery.FOLDER + " is empty" );
 					super.setFailed();
  					return( true );
 				}
@@ -79,7 +79,7 @@ public class ActionDistVerifier extends ActionBase {
 			MetaDistrBinaryItem distItem = item.distItem;
 			DistItemInfo info = dist.getDistItemInfo( this , distItem , false );
 			if( !info.found ) {
-				log( "unable to find in delivery=" + delivery.distDelivery.NAME + " - item=" + distItem.KEY );
+				error( "unable to find in delivery=" + delivery.distDelivery.NAME + " - item=" + distItem.KEY );
 				return( false );
 			}
 			
@@ -89,7 +89,7 @@ public class ActionDistVerifier extends ActionBase {
 		// check all distributive files have been matched
 		for( String fileName : set.files.keySet() ) {
 			if( !items.containsKey( fileName ) ) {
-				log( "unexpected distributive file=" + fileName + " in folder=" + delivery.distDelivery.FOLDER );
+				error( "unexpected distributive file=" + fileName + " in folder=" + delivery.distDelivery.FOLDER );
 				return( false );
 			}
 		}

@@ -38,13 +38,13 @@ public class ActionSaveConfigs extends ActionBase {
 			return( true );
 		}
 
-		log( "============================================ execute server=" + server.NAME + " ..." );
+		info( "============================================ execute server=" + server.NAME + " ..." );
 
 		// iterate by nodes
 		String F_REDIST_SAVEITEMS = "";
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
-			log( "execute server=" + server.NAME + " node=" + node.POS + " ..." );
+			info( "execute server=" + server.NAME + " node=" + node.POS + " ..." );
 			
 			String confList = executeNode( server , node );
 			F_REDIST_SAVEITEMS = Common.addItemToUniqueSpacedList( F_REDIST_SAVEITEMS , confList );
@@ -100,7 +100,7 @@ public class ActionSaveConfigs extends ActionBase {
 			if( Common.checkPartOfSpacedList( item , saveItems ) )
 				continue;
 			
-			log( "delete obsolete configuration item=" + item + " ..." );
+			info( "delete obsolete configuration item=" + item + " ..." );
 			sourceStorage.deleteLiveConfigItem( this , server , item , "ActionSaveConfigs" );
 		}
 	}
@@ -115,14 +115,14 @@ public class ActionSaveConfigs extends ActionBase {
 				if( set.dc.findServer( this , item ) != null )
 					continue;
 				
-				log( "delete obsolete server=" + item + " ..." );
+				info( "delete obsolete server=" + item + " ..." );
 				sourceStorage.deleteLiveConfigServer( this , set.dc , item , "ActionSaveConfigs" );
 			}
 		}
 	}
 
 	private void executeNodeSysConf( SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , String name ) throws Exception {
-		log( "extract system configuraton component ..." );
+		info( "extract system configuraton component ..." );
 
 		LocalFolder folder = artefactory.getWorkFolder( this , "config.live" );
 		folder.recreateThis( this );
@@ -138,7 +138,7 @@ public class ActionSaveConfigs extends ActionBase {
 	}
 	
 	private void executeNodeConf( SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerDeployment deployment , MetaDistrConfItem confItem , String name ) throws Exception {
-		log( "extract configuraton item=" + name + " ..." );
+		info( "extract configuraton item=" + name + " ..." );
 		
 		String LOCATION = deployment.getDeployPath( this );
 		

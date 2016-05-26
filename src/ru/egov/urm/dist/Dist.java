@@ -318,7 +318,7 @@ public class Dist {
 
 		DistFinalizer finalizer = new DistFinalizer( action , this , distFolder , info );
 		if( !finalizer.finish() ) {
-			action.log( "distributive is not ready to be finished" );
+			action.error( "distributive is not ready to be finished" );
 			state.ctlCloseChange( action );
 			return;
 		}
@@ -353,7 +353,7 @@ public class Dist {
 		}
 		
 		closeChange( action );
-		action.log( "release " + RELEASEDIR + " has beed copied from " + src.RELEASEDIR );
+		action.info( "release " + RELEASEDIR + " has beed copied from " + src.RELEASEDIR );
 	}
 	
 	public void dropRelease( ActionBase action ) throws Exception {
@@ -408,7 +408,7 @@ public class Dist {
 		
 		// ignore internal items
 		if( item.INTERNAL ) {
-			action.log( "item=" + item.ITEMNAME + " is internal. Skipped.");
+			action.info( "item=" + item.ITEMNAME + " is internal. Skipped.");
 			return( true );
 		}
 		
@@ -625,7 +625,7 @@ public class Dist {
 	}
 
 	public void gatherFiles( ActionBase action ) throws Exception {
-		action.log( "find distributive files ..." );
+		action.info( "find distributive files ..." );
 		files = distFolder.getFileSet( action );
 		
 		for( ReleaseDelivery delivery : info.getDeliveries( action ).values() ) {

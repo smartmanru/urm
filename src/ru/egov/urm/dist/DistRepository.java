@@ -82,14 +82,14 @@ public class DistRepository {
 		// move data to backup, if not partial
 		dataFolder.ensureExists( action );
 		if( full && !dataFolder.isEmpty( action ) ) {
-			action.log( "save data backup to " + backupFolder.folderPath + " ..." );
+			action.info( "save data backup to " + backupFolder.folderPath + " ..." );
 			backupFolder.removeThis( action );
 			backupFolder.ensureExists( action );
 			dataFolder.moveAll( action , backupFolder.folderPath );
 		}
 
 		// move all from new to data
-		action.log( "move new data to " + dataFolder.folderPath + " ..." );
+		action.info( "move new data to " + dataFolder.folderPath + " ..." );
 		newFolder.moveAll( action , dataFolder.folderPath );
 		newFolder.removeThis( action );
 	}

@@ -28,21 +28,21 @@ public class ActionStartServer extends ActionBase {
 			return( true );
 		}
 		
-		log( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
+		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
 
 		// first start childs
 		if( target.itemFull && server.subordinateServers != null && server.subordinateServers.length != 0 ) {
-			log( "start subordinate servers ..." );
+			info( "start subordinate servers ..." );
 			for( MetaEnvServer sub : server.subordinateServers )
 				executeServerSingle( sub , null );
 		}
 		
 		// start main
-		log( "start main server ..." );
+		info( "start main server ..." );
 		executeServerSingle( server , nodes );
 
 		if( target.itemFull && server.proxyServer != null ) {
-			log( "start proxy server=" + server.proxyServer.NAME + " ..." );
+			info( "start proxy server=" + server.proxyServer.NAME + " ..." );
 			executeServerSingle( server.proxyServer , null );
 		}
 

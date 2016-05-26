@@ -21,7 +21,7 @@ public class ActionGetConf extends ActionBase {
 		// export from source
 		String KEY = scopeItem.confItem.KEY;
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , downloadFolder );
-		log( "get configuration item " + KEY + " ..." );
+		info( "get configuration item " + KEY + " ..." );
 		
 		LocalFolder confFolder = downloadFolder.getSubFolder( this , sourceStorage.getConfFolderRelPath( this , scopeItem.confItem ) );
 		confFolder.ensureExists( this );

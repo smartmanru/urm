@@ -48,11 +48,11 @@ public class ActionUpgradeEnv extends ActionBase {
 	private boolean checkNeed( Account account , VersionInfoStorage vis ) throws Exception {
 		if( context.CTX_FORCE ) {
 			if( !isExecute() ) {
-				log( account.HOSTLOGIN + ": forced upgrade " + PATCHFILE + " (showonly)" );
+				info( account.HOSTLOGIN + ": forced upgrade " + PATCHFILE + " (showonly)" );
 				return( false );
 			}
 			
-			log( account.HOSTLOGIN + ": force upgrade " + PATCHFILE + " (execute)" );
+			info( account.HOSTLOGIN + ": force upgrade " + PATCHFILE + " (execute)" );
 			return( true );
 		}
 		
@@ -63,7 +63,7 @@ public class ActionUpgradeEnv extends ActionBase {
 
 		if( !F_STATUS.isEmpty() ) {
 			if( F_STATUS.indexOf( PATCHID + ":ok" ) >= 0 ) {
-				log( account.HOSTLOGIN + ": upgrade " + PATCHFILE + " is already done. Skipped" );
+				info( account.HOSTLOGIN + ": upgrade " + PATCHFILE + " is already done. Skipped" );
 				return( false );
 			}
 
@@ -71,7 +71,7 @@ public class ActionUpgradeEnv extends ActionBase {
 		}	
 
 		if( context.CTX_SHOWONLY ) {
-			log( account.HOSTLOGIN + ": upgrade " + F_ACTION + " " + PATCHFILE + " (showonly)" );
+			info( account.HOSTLOGIN + ": upgrade " + F_ACTION + " " + PATCHFILE + " (showonly)" );
 			return( false );
 		}
 
@@ -82,7 +82,7 @@ public class ActionUpgradeEnv extends ActionBase {
 		// add before record to data
 		vis.setBaseStatus( this , PATCHID , "upgrading" );
 
-		log( account.HOSTLOGIN + ": upgrade " + F_ACTION + " " + PATCHFILE + " (execute) ..." );
+		info( account.HOSTLOGIN + ": upgrade " + F_ACTION + " " + PATCHFILE + " (execute) ..." );
 		return( true );
 	}
 

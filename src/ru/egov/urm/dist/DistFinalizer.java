@@ -87,12 +87,12 @@ public class DistFinalizer {
 			if( delivery == null || delivery.isEmpty() ) {
 				if( dirFilesDist.hasFiles() ) {
 					if( !action.context.CTX_FORCE ) {
-						action.log( "distributive delivery=" + delivery.distDelivery.NAME + ", dir=" + dir + " has files, while nothing is declared in release" );
+						action.error( "distributive delivery=" + delivery.distDelivery.NAME + ", dir=" + dir + " has files, while nothing is declared in release" );
 						return( false );
 					}
 				}
 				
-				action.log( "delete non-release delivery=" + dir + " ..." );
+				action.info( "delete non-release delivery=" + dir + " ..." );
 				distFolder.removeFiles( action , dir );
 			}
 			else {
@@ -105,7 +105,7 @@ public class DistFinalizer {
 		for( String dir : fsr.dirs.keySet() ) {
 			FileSet dirFilesDist = fsd.dirs.get( dir );
 			if( dirFilesDist == null ) {
-				action.log( "distributive has missing delivery=" + dir );
+				action.error( "distributive has missing delivery=" + dir );
 				return( false );
 			}
 		}
@@ -126,14 +126,14 @@ public class DistFinalizer {
 				
 				if( dirFilesDist.hasFiles() ) {
 					if( !action.context.CTX_FORCE ) {
-						action.log( "distributive delivery=" + delivery.distDelivery.NAME + ", dir=" + dir +  
+						action.error( "distributive delivery=" + delivery.distDelivery.NAME + ", dir=" + dir +  
 								" has files, while nothing is declared in release" );
 						return( false );
 					}
 				}
 				
 				String folder = Common.getPath( delivery.distDelivery.FOLDER , dir );
-				action.log( "delete non-release delivery folder=" + folder + " ..." );
+				action.info( "delete non-release delivery folder=" + folder + " ..." );
 				distFolder.removeFolder( action , folder );
 			}
 			else {
@@ -152,7 +152,7 @@ public class DistFinalizer {
 		for( String dir : fsr.dirs.keySet() ) {
 			FileSet dirFilesDist = fsd.dirs.get( dir );
 			if( dirFilesDist == null ) {
-				action.log( "distributive has missing delivery=" + delivery.distDelivery.NAME + ", dir=" + dir );
+				action.error( "distributive has missing delivery=" + delivery.distDelivery.NAME + ", dir=" + dir );
 				return( false );
 			}
 		}
@@ -165,13 +165,13 @@ public class DistFinalizer {
 			String fileRelease = fsr.files.get( fileDist );
 			if( fileRelease == null ) {
 				if( !action.context.CTX_FORCE ) {
-					action.log( "distributive delivery=" + delivery.distDelivery.NAME + 
+					action.error( "distributive delivery=" + delivery.distDelivery.NAME + 
 						" has non-release file=" + fileDist );
 					return( false );
 				}
 				
 				String folder = Common.getPath( delivery.distDelivery.FOLDER , Dist.BINARY_FOLDER );
-				action.log( "delete non-release delivery item folder=" + folder + " file=" + fileDist + " ..." );
+				action.info( "delete non-release delivery item folder=" + folder + " file=" + fileDist + " ..." );
 				distFolder.removeFolderFile( action , folder , fileDist );
 			}
 		}
@@ -182,7 +182,7 @@ public class DistFinalizer {
 		for( String fileRelease : fsr.files.keySet() ) {
 			String fileDist = fsd.files.get( fileRelease );
 			if( fileDist == null ) {
-				action.log( "distributive has missing delivery=" + delivery.distDelivery.NAME + " file=" + fileRelease );
+				action.error( "distributive has missing delivery=" + delivery.distDelivery.NAME + " file=" + fileRelease );
 				return( false );
 			}
 		}
@@ -195,13 +195,13 @@ public class DistFinalizer {
 			FileSet dirFilesRelease = fsr.dirs.get( dir );
 			if( dirFilesRelease == null ) {
 				if( !action.context.CTX_FORCE ) {
-					action.log( "distributive delivery " + delivery.distDelivery.NAME + 
+					action.error( "distributive delivery " + delivery.distDelivery.NAME + 
 							" has non-release config=" + dir );
 					return( false );
 				}
 				
 				String folder = Common.getPath( delivery.distDelivery.FOLDER , Dist.CONFIG_FOLDER , dir );
-				action.log( "delete non-release configuration item delivery=" + delivery.distDelivery.NAME + " config=" + dir + " ..." );
+				action.info( "delete non-release configuration item delivery=" + delivery.distDelivery.NAME + " config=" + dir + " ..." );
 				distFolder.removeFolder( action , folder );
 			}
 		}
@@ -209,7 +209,7 @@ public class DistFinalizer {
 		for( String dir : fsr.dirs.keySet() ) {
 			FileSet dirFilesDist = fsd.dirs.get( dir );
 			if( dirFilesDist == null ) {
-				action.log( "distributive has missing delivery=" + delivery.distDelivery.NAME + ", config=" + dir );
+				action.error( "distributive has missing delivery=" + delivery.distDelivery.NAME + ", config=" + dir );
 				return( false );
 			}
 		}

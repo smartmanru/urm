@@ -53,16 +53,16 @@ public class ActionRollback extends ActionBase {
 		}
 
 		if( !hasDeployments ) {
-			log( "specified nodes of server=" + server.NAME + " have no deployments. Skipped." );
+			info( "specified nodes of server=" + server.NAME + " have no deployments. Skipped." );
 			return;
 		}
 		
-		log( "============================================ execute server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
+		info( "============================================ execute server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
 
 		k = 0;
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
-			log( "rollback server=" + server.NAME + " node=" + node.POS + " ..." );
+			info( "rollback server=" + server.NAME + " node=" + node.POS + " ..." );
 
 			// deploy both binaries and configs to each node
 			ServerDeployment deployment = deps[ k++ ];

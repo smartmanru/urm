@@ -21,7 +21,7 @@ public class ActionInitDatabase extends ActionBase {
 
 	@Override protected boolean executeSimple() throws Exception {
 		DatabaseClient client = new DatabaseClient();
-		log( "initialize administrative database on database server " + server.NAME + ", node=" + node.POS + " ..." );
+		info( "initialize administrative database on database server " + server.NAME + ", node=" + node.POS + " ..." );
 		if( !client.checkConnect( this , server , node ) )
 			exit( "unable to connect to administrative db" );
 
@@ -39,7 +39,7 @@ public class ActionInitDatabase extends ActionBase {
 	}
 	
 	private void executeInitScript( DatabaseClient client , LocalFolder scripts , LocalFolder logs , String file ) throws Exception {
-		log( "apply " + file + " ..." );
+		info( "apply " + file + " ..." );
 		String logfile = file + ".out";
 		if( !client.applyAdmScript( this , scripts , file , logs , logfile ) )
 			exit( "unable to initialize database, see errors" );

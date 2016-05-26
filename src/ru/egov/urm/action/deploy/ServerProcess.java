@@ -288,7 +288,7 @@ public class ServerProcess {
 		
 		while( mode != VarPROCESSMODE.STOPPED ) {
 			if( System.currentTimeMillis() > stopMillis ) {
-				action.log( node.HOSTLOGIN + ": failed to stop service=" + srv.SERVICENAME + " within " + stoptime + " seconds" );
+				action.error( node.HOSTLOGIN + ": failed to stop service=" + srv.SERVICENAME + " within " + stoptime + " seconds" );
 				return( false );
 			}
 						
@@ -299,7 +299,7 @@ public class ServerProcess {
 		    }
 		}
 
-		action.log( node.HOSTLOGIN + " service=" + srv.SERVICENAME + " successfully stopped" );
+		action.info( node.HOSTLOGIN + " service=" + srv.SERVICENAME + " successfully stopped" );
 		return( true );
 	}
 	
@@ -334,22 +334,22 @@ public class ServerProcess {
 		    
 			if( System.currentTimeMillis() > stopMillis ) {
 				if( srv.NOPIDS ) {
-					action.log( node.HOSTLOGIN + ": failed to stop generic server=" + srv.NAME + " within " + stoptime + " seconds" );
+					action.error( node.HOSTLOGIN + ": failed to stop generic server=" + srv.NAME + " within " + stoptime + " seconds" );
 					return( false );
 				}
 				
-				action.log( node.HOSTLOGIN + ": failed to stop generic server=" + srv.NAME + " within " + stoptime + " seconds. Killing ..." );
+				action.error( node.HOSTLOGIN + ": failed to stop generic server=" + srv.NAME + " within " + stoptime + " seconds. Killing ..." );
 				
 				// enforced stop
 				killServer( action );
 				getPids( action );
 				
 				if( pids.isEmpty() ) {
-					action.log( node.HOSTLOGIN + ": server successfully killed" );
+					action.info( node.HOSTLOGIN + ": server successfully killed" );
 					return( true );
 				}
 				
-				action.log( node.HOSTLOGIN + ": generic server=" + srv.NAME + " - unable to kill" );
+				action.info( node.HOSTLOGIN + ": generic server=" + srv.NAME + " - unable to kill" );
 				return( false );
 			}
 			
@@ -360,7 +360,7 @@ public class ServerProcess {
 				getPids( action );
 		}
 	
-		action.log( node.HOSTLOGIN + ": server successfully stopped" );
+		action.info( node.HOSTLOGIN + ": server successfully stopped" );
 		return( true );
 	}
 
@@ -405,7 +405,7 @@ public class ServerProcess {
 		}
 
 		if( mode != VarPROCESSMODE.STOPPED ) {
-			action.log( node.HOSTLOGIN + ": " + srv.SERVICENAME + " is in unexpected state" );
+			action.error( node.HOSTLOGIN + ": " + srv.SERVICENAME + " is in unexpected state" );
 			return( false );
 		}
 
@@ -437,7 +437,7 @@ public class ServerProcess {
 		}
 
 		if( mode != VarPROCESSMODE.STOPPED ) {
-			action.log( node.HOSTLOGIN + ": server=" + srv.NAME + " is in unexpected state (pids=" + pids + ")" );
+			action.error( node.HOSTLOGIN + ": server=" + srv.NAME + " is in unexpected state (pids=" + pids + ")" );
 			return( false );
 		}
 		
@@ -492,17 +492,17 @@ public class ServerProcess {
 			Common.sleep( action , 1000 );
 		    
 			if( System.currentTimeMillis() > stopMillis ) {
-				action.log( node.HOSTLOGIN + ": failed to start service=" + srv.SERVICENAME + " within " + starttime + " seconds" );
+				action.error( node.HOSTLOGIN + ": failed to start service=" + srv.SERVICENAME + " within " + starttime + " seconds" );
 				return( false );
 			}
 
 			if( mode == VarPROCESSMODE.STOPPED && System.currentTimeMillis() > startTimeoutMillis ) {
-				action.log( node.HOSTLOGIN + ": failed to start service=" + srv.SERVICENAME + " - process launch timeout is " + defaultStartProcessTimeSecs + " seconds" );
+				action.info( node.HOSTLOGIN + ": failed to start service=" + srv.SERVICENAME + " - process launch timeout is " + defaultStartProcessTimeSecs + " seconds" );
 				return( false );
 			}
 
 			if( mode != VarPROCESSMODE.STOPPED && mode != VarPROCESSMODE.STARTING ) {
-				action.log( node.HOSTLOGIN + ": failed to start service=" + srv.SERVICENAME + " - process is in unexpected state (" + cmdValue + ")" );
+				action.info( node.HOSTLOGIN + ": failed to start service=" + srv.SERVICENAME + " - process is in unexpected state (" + cmdValue + ")" );
 				return( false );
 			}
 			
@@ -510,7 +510,7 @@ public class ServerProcess {
 			gatherStatus( action );
 		}
 
-		action.log( node.HOSTLOGIN + " service=" + srv.SERVICENAME + " successfully started" );
+		action.info( node.HOSTLOGIN + " service=" + srv.SERVICENAME + " successfully started" );
 		return( true );
 	}
 	
@@ -529,17 +529,17 @@ public class ServerProcess {
 			Common.sleep( action , 1000 );
 		    
 			if( System.currentTimeMillis() > stopMillis ) {
-				action.log( node.HOSTLOGIN + ": failed to start generic server=" + srv.NAME + " within " + starttime + " seconds" );
+				action.error( node.HOSTLOGIN + ": failed to start generic server=" + srv.NAME + " within " + starttime + " seconds" );
 				return( false );
 			}
 
 			if( mode == VarPROCESSMODE.STOPPED && System.currentTimeMillis() > startTimeoutMillis ) {
-				action.log( node.HOSTLOGIN + ": failed to start generic server=" + srv.NAME + " - process launch timeout is " + defaultStartProcessTimeSecs + " seconds" );
+				action.info( node.HOSTLOGIN + ": failed to start generic server=" + srv.NAME + " - process launch timeout is " + defaultStartProcessTimeSecs + " seconds" );
 				return( false );
 			}
 
 			if( mode != VarPROCESSMODE.STOPPED && mode != VarPROCESSMODE.STARTING ) {
-				action.log( node.HOSTLOGIN + ": failed to start generic server=" + srv.NAME + " - process is in unexpected state (" + cmdValue + ")" );
+				action.info( node.HOSTLOGIN + ": failed to start generic server=" + srv.NAME + " - process is in unexpected state (" + cmdValue + ")" );
 				return( false );
 			}
 			
@@ -547,12 +547,12 @@ public class ServerProcess {
 			gatherStatus( action );
 		}
 
-		action.log( node.HOSTLOGIN + " generic server=" + srv.NAME + " successfully started" );
+		action.info( node.HOSTLOGIN + " generic server=" + srv.NAME + " successfully started" );
 		return( true );
 	}
 	
 	public boolean prepare( ActionBase action ) throws Exception {
-		action.log( "prepare server ..." );
+		action.info( "prepare server ..." );
 		
 		boolean res = false;
 		int timeout = action.setTimeoutUnlimited();

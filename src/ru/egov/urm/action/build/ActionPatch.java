@@ -21,7 +21,7 @@ public class ActionPatch extends ActionBase {
 		
 		String logFile = LOGDIR.getFilePath( this , builder.project.PROJECT + "-build.log" );
 		super.startRedirect( "PROJECT BUILD LOG:" , logFile );
-		log( "ActionPatch: BUILDER=" + builder.BUILDER + ", BUILDMODE=" + context.getBuildModeName() + ", CATEGORY=" + Common.getEnumLower( builder.project.CATEGORY ) + ", PROJECT=" + builder.project.PROJECT + 
+		info( "ActionPatch: BUILDER=" + builder.BUILDER + ", BUILDMODE=" + context.getBuildModeName() + ", CATEGORY=" + Common.getEnumLower( builder.project.CATEGORY ) + ", PROJECT=" + builder.project.PROJECT + 
 				", REPOSITORY=" + builder.project.REPOSITORY + ", VCS=" + builder.project.getVCS( this ) + ", VCSPATH=" + builder.project.PATH + 
 				", VCSREPO=" + builder.project.REPOSITORY + ", TAG=" + builder.TAG + ", VERSION=" + builder.APPVERSION + ", NEXUS_PATH=" + builder.getNexusPath( this , builder.project ) );
 
@@ -43,27 +43,27 @@ public class ActionPatch extends ActionBase {
 	private boolean executePatch() throws Exception {
 		// checkout sources
 		if( !builder.exportCode( this ) ) {
-			log( "patch: checkout failed" );
+			error( "patch: checkout failed" );
 			return( false );
 		}
 
 		// execute source preprocessing
 		if( !builder.prepareSource( this ) ) {
-			log( "patch: prepare source failed" );
+			error( "patch: prepare source failed" );
 			return( false );
 		}
 
 		// check source code
 		if( context.CTX_CHECK ) {
 			if( !builder.checkSourceCode( this ) ) {
-				log( "patch: maven build skipped - source code invalid (" + builder.storage.buildFolder.folderPath + ". Exiting" );
+				error( "patch: source code invalid (" + builder.storage.buildFolder.folderPath + ". Exiting" );
 				return( false );
 			}
 		}
 
 		// build
 		if( !builder.runBuild( this ) ) {
-			log( "patch: build failed" );
+			error( "patch: build failed" );
 			return( false );
 		}
 

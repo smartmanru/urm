@@ -30,8 +30,8 @@ public class ActionSet {
 	        }
 		}
 		catch( Throwable e ) {
-			owner.log( "exception: " + e.getMessage() );
-			owner.debug( e );
+			owner.error( "exception: " + e.getMessage() );
+			owner.log( e );
 		}
         
         boolean ok = true;

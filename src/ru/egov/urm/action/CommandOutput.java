@@ -14,9 +14,10 @@ public class CommandOutput {
 	int logLevelLimit;
 
 	public static int LOGLEVEL_INTERNAL = -1;
-	public static int LOGLEVEL_INFO = 0;
-	public static int LOGLEVEL_DEBUG = 1;
-	public static int LOGLEVEL_TRACE = 2;
+	public static int LOGLEVEL_ERROR = 0;
+	public static int LOGLEVEL_INFO = 1;
+	public static int LOGLEVEL_DEBUG = 2;
+	public static int LOGLEVEL_TRACE = 3;
 	
 	List<PrintWriter> parentOutputs = new LinkedList<PrintWriter>();
 	
@@ -28,9 +29,12 @@ public class CommandOutput {
 		this.logLevelLimit = logLevelLimit;
 	}
 	
-	public synchronized void log( String s , int logLevel ) throws Exception {
+	public synchronized void log( String s , int logLevel ) {
 		if( logLevelLimit < 0 || logLevel <= logLevelLimit ) {
 			String prefix = null;
+			if( logLevel == LOGLEVEL_ERROR )
+				prefix = "[ERROR ] ";
+			else
 			if( logLevel == LOGLEVEL_INFO )
 				prefix = "[INFO ] ";
 			else
@@ -40,24 +44,24 @@ public class CommandOutput {
 			if( logLevel == LOGLEVEL_TRACE )
 				prefix = "[TRACE] ";
 			else
-				throw new ExitException( "unexpected log level" );
+				outExact( "unexpected log level=" + logLevel + ", msg=" + s );
 			out( prefix + s );
 		}
 	}
 	
-	public synchronized void logExact( String s , int logLevel ) throws Exception {
+	public synchronized void logExact( String s , int logLevel ) {
 		if( logLevelLimit < 0 || logLevel <= logLevelLimit )
 			outExact( s );
 	}
 	
-	public synchronized void log( String prompt , Throwable e , int logLevel ) throws Exception {
+	public synchronized void log( String prompt , Throwable e ) {
 		if( logLevelLimit < 0 ) {
 			System.out.println( "TRACEINTERNAL: " + prompt );
 			e.printStackTrace();
 			return;
 		}
 		
-		if( logLevel > logLevelLimit ) {
+		if( logLevelLimit < LOGLEVEL_DEBUG ) {
 			ExitException ee = Common.getExitException( e );
 			if( ee != null ) {
 				String s = prompt;
@@ -83,19 +87,23 @@ public class CommandOutput {
 		}
 	}
 	
-	public void info( String s ) throws Exception {
+	public void error( String s ) {
+		log( s , LOGLEVEL_ERROR );
+	}
+	
+	public void info( String s ) {
 		log( s , LOGLEVEL_INFO );
 	}
 	
-	public void debug( String s ) throws Exception {
+	public void debug( String s ) {
 		log( s , LOGLEVEL_DEBUG );
 	}
 	
-	public void trace( String s ) throws Exception {
+	public void trace( String s ) {
 		log( s , LOGLEVEL_TRACE );
 	}
 	
-	private void outExact( String s ) throws Exception {
+	private void outExact( String s ) {
 		if( logLevelLimit < 0 ) {
 			System.out.println( "TRACEINTERNAL: line=" + s.replaceAll("\\p{C}", "?") );
 			return;
@@ -115,7 +123,7 @@ public class CommandOutput {
 		}
 	}
 	
-	private void out( String s ) throws Exception {
+	private void out( String s ) {
 		String ts = Common.getLogTimeStamp() + " " + s;
 		outExact( ts );
 	}
@@ -140,7 +148,7 @@ public class CommandOutput {
 		throw new ExitException( errmsg );
 	}
 	
-	public String getTimeStampedName( String basename , String ext ) throws Exception {
+	public String getTimeStampedName( String basename , String ext ) {
         String dates = Common.getNameTimeStamp();
 		String fname = basename + "-" + dates + "." + ext;
 		return( fname );

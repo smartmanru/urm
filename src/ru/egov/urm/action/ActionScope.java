@@ -354,7 +354,7 @@ public class ActionScope {
 		
 		ReleaseTarget releaseProject = release.info.findBuildProject( action , PROJECT );
 		if( releaseProject == null ) {
-			action.log( "ignore non-release project=" + PROJECT );
+			action.info( "ignore non-release project=" + PROJECT );
 			return( null );
 		}
 
@@ -466,7 +466,7 @@ public class ActionScope {
 		
 		ReleaseSet rset = release.info.findCategorySet( action , CATEGORY );
 		if( rset == null ) {
-			action.log( "ignore non-release set=" + Common.getEnumLower( CATEGORY ) );
+			action.info( "ignore non-release set=" + Common.getEnumLower( CATEGORY ) );
 			return( null );
 		}
 		

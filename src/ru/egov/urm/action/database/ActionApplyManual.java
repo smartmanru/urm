@@ -21,9 +21,9 @@ public class ActionApplyManual extends ActionBase {
 	}
 
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
-		log( "apply manual database items ..." );
+		info( "apply manual database items ..." );
 		LogStorage logs = artefactory.getDatabaseLogStorage( this , release.info.RELEASEVER );
-		log( "log to " + logs.logFolder.folderPath );
+		info( "log to " + logs.logFolder.folderPath );
 		
 		LocalFolder logReleaseCopy = logs.getDatabaseLogReleaseCopyFolder( this );
 		LocalFolder logReleaseExecute = logs.getDatabaseLogExecuteFolder( this , server );

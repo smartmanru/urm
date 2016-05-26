@@ -131,7 +131,7 @@ public class DatabaseRegistry {
 		else
 		if( isReleaseFinished( action ) ) {
 			if( !action.context.CTX_FORCE ) {
-				action.log( "release is completely done, use -force to reapply" );
+				action.error( "release is completely done, use -force to reapply" );
 				return( false );
 			}
 			
@@ -182,7 +182,7 @@ public class DatabaseRegistry {
 				action.context.CTX_DBMODE == SQLMODE.APPLY )
 				return( true );
 			
-			action.log( "script " + file + " is new. Skipped" );
+			action.info( "script " + file + " is new. Skipped" );
 			return( false );
 		}
 		
@@ -191,7 +191,7 @@ public class DatabaseRegistry {
 				action.context.CTX_DBMODE == SQLMODE.CORRECT )
 				return( true );
 			
-			action.log( "script " + file + " is already applied with errors. Skipped" );
+			action.info( "script " + file + " is already applied with errors. Skipped" );
 			return( false );
 		}
 		
@@ -199,7 +199,7 @@ public class DatabaseRegistry {
 			if( action.context.CTX_DBMODE == SQLMODE.ANYWAY )
 				return( true );
 			
-			action.log( "script " + file + " is already successfully applied. Skipped" );
+			action.info( "script " + file + " is already successfully applied. Skipped" );
 			return( false );
 		}
 		
@@ -233,7 +233,7 @@ public class DatabaseRegistry {
 		if( !res ) {
 			String msg = "unable to register script execution: " + file ;
 			if( action.context.CTX_FORCE )
-				action.log( msg + ", ignored." );
+				action.error( msg + ", ignored." );
 			else
 				action.exit( msg );
 		}
@@ -253,7 +253,7 @@ public class DatabaseRegistry {
 		if( !res ) {
 			String msg = "unable to register script execution: " + file ;
 			if( action.context.CTX_FORCE )
-				action.log( msg + ", ignored." );
+				action.error( msg + ", ignored." );
 			else
 				action.exit( msg );
 		}

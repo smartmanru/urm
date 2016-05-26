@@ -53,7 +53,7 @@ public class ReleaseTargetItem {
 		if( this.BUILDVERSION.equals( action.context.CTX_VERSION ) )
 			return( true );
 		
-		action.log( getId() + " item attributes are different, please delete first" );
+		action.error( getId() + " item attributes are different, please delete first" );
 		return( false );
 	}
 

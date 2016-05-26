@@ -234,7 +234,7 @@ public class ReleaseTarget {
 			change = true; 
 
 		if( change ) {
-			action.log( NAME + " project attributes are different, please delete first" );
+			action.error( NAME + " project attributes are different, please delete first" );
 			return( false );
 		}
 		

@@ -71,12 +71,12 @@ public class ActionVerifyDeploy extends ActionBase {
 
 	@Override protected void runAfter( ActionScope scope ) throws Exception {
 		if( super.isFailed() )
-			log( "errors checking environment" );
+			error( "errors checking environment" );
 		else {
 			if( verifyOk )
-				log( "environment is exactly matched" );
+				info( "environment is exactly matched" );
 			else
-				log( "environment differs from distributive" );
+				error( "environment differs from distributive" );
 		}
 	}
 	
@@ -100,7 +100,7 @@ public class ActionVerifyDeploy extends ActionBase {
 	private void executeServer( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		
-		log( "============================================ execute server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
+		info( "============================================ execute server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
 
 		if( server.isDatabase( this ) )
 			executeServerDatabase( server );
@@ -117,16 +117,16 @@ public class ActionVerifyDeploy extends ActionBase {
 		DatabaseRegistryRelease release = registry.getLastRelease( this );
 		
 		if( release.state == RELEASE_STATE.UNKNOWN ) {
-			log( "nothing has been applied to database" );
+			info( "nothing has been applied to database" );
 			return;
 		}
 		
 		if( !release.version.equals( dist.info.RELEASEVER ) ) {
-			log( "release has not been applied to database" );
+			info( "release has not been applied to database" );
 			return;
 		}
 		
-		log( "release has been applied to database, state=" + Common.getEnumLower( release.state ) );
+		info( "release has been applied to database, state=" + Common.getEnumLower( release.state ) );
 	}
 	
 	private void executeServerApp( ActionScopeTarget target , MetaEnvServer server ) throws Exception {
@@ -154,7 +154,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		boolean verifyServer = true;
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
-			log( "execute server=" + server.NAME + " node=" + node.POS + " ..." );
+			info( "execute server=" + server.NAME + " node=" + node.POS + " ..." );
 
 			// verify configs to each node
 			if( !executeNode( server , node , F_ENV_LOCATIONS_CONFIG , F_ENV_LOCATIONS_BINARY , tobeConfigServerFolder , asisConfigServerFolder , tobeBinaryServerFolder , asisBinaryServerFolder ) )
@@ -162,9 +162,9 @@ public class ActionVerifyDeploy extends ActionBase {
 		}
 		
 		if( verifyServer )
-			log( "server is exactly matched" );
+			info( "server is exactly matched" );
 		else
-			log( "server differs from distributive" );
+			error( "server differs from distributive" );
 	}
 
 	private boolean executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] confLocations , MetaEnvServerLocation[] binaryLocations , LocalFolder tobeConfigServerFolder , LocalFolder asisConfigServerFolder , LocalFolder tobeBinaryServerFolder , LocalFolder asisBinaryServerFolder ) throws Exception {
@@ -174,7 +174,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		boolean verifyNode = true;
 		
 		// binaries
-		log( "verify binaries ..." );
+		info( "verify binaries ..." );
 		for( MetaEnvServerLocation location : binaryLocations ) {
 			String[] items = location.getNodeBinaryItems( this , node );
 			for( String item : items ) {
@@ -185,7 +185,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		}
 	
 		// configuration
-		log( "verify configuration ..." );
+		info( "verify configuration ..." );
 		for( MetaEnvServerLocation location : confLocations ) {
 			String[] items = location.getNodeConfItems( this , node );
 			for( String item : items ) {
@@ -208,7 +208,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		}
 		
 		if( !verifyNode ) {
-			log( "node differs from distributive" );
+			error( "node differs from distributive" );
 			verifyOk = false;
 		}
 		else
@@ -235,10 +235,10 @@ public class ActionVerifyDeploy extends ActionBase {
 			String diffFile = asisServerFolder.getFilePath( this , "confdiff.txt" );
 			diff.save( this , diffFile );
 			if( context.CTX_SHOWALL )
-				log( "found configuration differences in node=" + node.POS + ", see " + diffFile );
+				error( "found configuration differences in node=" + node.POS + ", see " + diffFile );
 			else {
-				log( "found configuration differences in node=" + node.POS + ":" );
-				session.custom( this , "cat " + diffFile );
+				error( "found configuration differences in node=" + node.POS + ":" );
+				info( "see " + diffFile );
 			}
 		}
 		
@@ -260,7 +260,7 @@ public class ActionVerifyDeploy extends ActionBase {
 
 			if( !asisDirs.containsKey( dir ) ) {
 				verifyNode = false;
-				log( "not found expected dir, existing in live: " + dir );
+				error( "not found expected dir, existing in live: " + dir );
 				continue;
 			}
 			
@@ -273,7 +273,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			
 			if( !tobeMD5.equals( asisMD5 ) ) {
 				verifyNode = false;
-				log( "not matched component: " + Common.getPartAfterFirst( dir , nodePrefix ) );
+				error( "not matched component: " + Common.getPartAfterFirst( dir , nodePrefix ) );
 			}
 			else
 				debug( "exactly matched component: " + Common.getPartAfterFirst( dir , nodePrefix ) );
@@ -285,7 +285,7 @@ public class ActionVerifyDeploy extends ActionBase {
 
 			if( !tobeDirs.containsKey( dir ) ) {
 				verifyNode = false;
-				log( "not found live dir, existing in expected: " + dir );
+				error( "not found live dir, existing in expected: " + dir );
 				continue;
 			}
 		}
@@ -338,19 +338,19 @@ public class ActionVerifyDeploy extends ActionBase {
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		FileInfo runInfo = redist.getRuntimeItemInfo( this , binaryItem , location.DEPLOYPATH , deployBaseName );
 		if( runInfo.md5value == null ) {
-			log( "dist item=" + binaryItem.KEY + " is not found in location=" + location.DEPLOYPATH );
+			error( "dist item=" + binaryItem.KEY + " is not found in location=" + location.DEPLOYPATH );
 			return( false );
 		}
 		
 		if( !runInfo.md5value.equals( distInfo.md5value ) ) {
-			log( "dist item=" + binaryItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive (" +
+			error( "dist item=" + binaryItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive (" +
 				runInfo.md5value + " != " + distInfo.md5value + ")" );
 			return( false );
 		}
 		
 		String runtimeName = redist.getDeployVersionedName( this , location , binaryItem , deployBaseName , dist.info.RELEASEVER );
 		if( !runInfo.deployFinalName.equals( runtimeName ) ) {
-			log( "dist item=" + binaryItem.KEY + " is the same in location=" + location.DEPLOYPATH + 
+			info( "dist item=" + binaryItem.KEY + " is the same in location=" + location.DEPLOYPATH + 
 					", but name differs from expected (" + 
 					runInfo.deployFinalName + " != " + distInfo.fileName + ")" );
 			return( true );
@@ -372,12 +372,12 @@ public class ActionVerifyDeploy extends ActionBase {
 		if( !context.CTX_CHECK ) {
 			FileInfo runInfo = redist.getRuntimeItemInfo( this , archiveItem , location.DEPLOYPATH , "" );
 			if( runInfo.md5value == null ) {
-				log( "dist item=" + archiveItem.KEY + " is not found in location=" + location.DEPLOYPATH );
+				error( "dist item=" + archiveItem.KEY + " is not found in location=" + location.DEPLOYPATH );
 				return( false );
 			}
 			
 			if( !runInfo.md5value.equals( distInfo.md5value ) ) {
-				log( "dist item=" + archiveItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive (" +
+				error( "dist item=" + archiveItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive (" +
 					runInfo.md5value + " != " + distInfo.md5value + ")" );
 				return( false );
 			}
@@ -425,10 +425,10 @@ public class ActionVerifyDeploy extends ActionBase {
 			
 			if( isdiff ) {
 				if( context.CTX_SHOWALL )
-					log( "dist item=" + archiveItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive (see " + diffFile + ")" );
+					error( "dist item=" + archiveItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive (see " + diffFile + ")" );
 				else {
-					log( "dist item=" + archiveItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive:" );
-					log( "see differences at " + diffFile );
+					error( "dist item=" + archiveItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive:" );
+					info( "see differences at " + diffFile );
 				}
 				return( false );
 			}

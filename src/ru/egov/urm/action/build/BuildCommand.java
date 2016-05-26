@@ -27,12 +27,12 @@ public class BuildCommand {
 		
 		if( ca.isFailed() ) {
 			if( action.context.CTX_GET || action.context.CTX_DIST )
-				action.log( "BUILD FAILED, do not download any artefacts" );
+				action.error( "BUILD FAILED, do not download any artefacts" );
 			else
-				action.log( "BUILD FAILED" );
+				action.error( "BUILD FAILED" );
 		}
 		else {
-			action.log( "BUILD SUCCESSFUL" );
+			action.info( "BUILD SUCCESSFUL" );
 			
 			if( action.context.CTX_GET || action.context.CTX_DIST )
 				getAll( action , scope );
@@ -52,7 +52,7 @@ public class BuildCommand {
 			scope.release.createDeliveryFolders( action );
 		}
 		
-		action.log( "getAll: download scope={" + scope.getScopeInfo( action ) + "}" );
+		action.info( "getAll: download scope={" + scope.getScopeInfo( action ) + "}" );
 
 		boolean res = true;
 		ActionGetBinary ca = new ActionGetBinary( action , null , copyDist , scope.release , downloadFolder );
@@ -88,13 +88,13 @@ public class BuildCommand {
 			action.exit( "there are errors in release, please check" );
 			
 		if( copyDist )
-			action.log( "getAll: download has been finished, copied to distribution directory " + scope.release.RELEASEDIR );
+			action.info( "getAll: download has been finished, copied to distribution directory " + scope.release.RELEASEDIR );
 		else
-			action.log( "getAll: download has been finished, saved to artefacts directory " + downloadFolder.folderPath );
+			action.info( "getAll: download has been finished, saved to artefacts directory " + downloadFolder.folderPath );
 	}
 	
 	private void createConfigDiffFile( ActionBase action , ActionScope scope ) throws Exception {
-		action.log( "update configuration difference information ..." );
+		action.info( "update configuration difference information ..." );
 		ConfBuilder builder = new ConfBuilder( action );
 		
 		for( ReleaseDelivery delivery : scope.release.info.getDeliveries( action ).values() ) {
@@ -113,16 +113,16 @@ public class BuildCommand {
 	public void printActiveProperties( ActionBase action ) throws Exception {
 		Map<String,String> exports = action.meta.product.getExportProperties( action );
 		if( !exports.isEmpty() ) {
-			action.log( "----------------");
-			action.log( "product exports:");
-			action.log( "----------------");
+			action.info( "----------------");
+			action.info( "product exports:");
+			action.info( "----------------");
 			for( String key : Common.getSortedKeys( exports ) )
-				action.log( "export " + key + "=" + exports.get( key ) );
+				action.info( "export " + key + "=" + exports.get( key ) );
 		}
 		
-		action.log( "-------------------");
-		action.log( "product properties:");
-		action.log( "-------------------");
+		action.info( "-------------------");
+		action.info( "product properties:");
+		action.info( "-------------------");
 		action.meta.product.props.printValues( action );
 	}
 
@@ -203,12 +203,12 @@ public class BuildCommand {
 		
 		ActionScope scope = action.getFullScope( SET , PROJECTS , action.context.CTX_RELEASELABEL );
 		if( scope.isEmpty( action ) ) {
-			action.log( "nothing to build" );
+			action.info( "nothing to build" );
 			return;
 		}
 		
-		action.log( "buildAllTags: TAG=" + TAG + ", " + scope.getScopeInfo( action ) );
-		action.log( "BUILD TARGETS ..." );
+		action.info( "buildAllTags: TAG=" + TAG + ", " + scope.getScopeInfo( action ) );
+		action.info( "BUILD TARGETS ..." );
 		action.session.createFileFromString( action , OUTFILE , "FINAL STATUS:" );
 
 		buildTags( action , TAG , scope , OUTDIR , OUTFILE );
@@ -236,14 +236,14 @@ public class BuildCommand {
 	
 		ActionScope scope = ActionScope.getReleaseSetScope( action , release , SET , PROJECTS );
 		if( scope.isEmpty( action ) ) {
-			action.log( "nothing to build" );
+			action.info( "nothing to build" );
 			return;
 		}
 		
-		action.log( "buildRelease: set TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , action.meta.getAllBuildableCategories( action ) ) + "}" );
+		action.info( "buildRelease: set TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , action.meta.getAllBuildableCategories( action ) ) + "}" );
 		setTag( action , TAG , scope );
 		
-		action.log( "buildRelease: build TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , action.meta.getAllBuildableCategories( action ) ) + "}" );
+		action.info( "buildRelease: build TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , action.meta.getAllBuildableCategories( action ) ) + "}" );
 		String OUTFILE = OUTDIR.folderPath + "/build.final.out"; 
 		action.session.createFileFromString( action , OUTFILE , "FINAL STATUS:" );
 		buildTags( action , TAG , scope , OUTDIR , OUTFILE );
@@ -254,7 +254,7 @@ public class BuildCommand {
 		
 		ActionScope scope = ActionScope.getReleaseSetScope( action , release , SET , PROJECTS );
 		if( scope.isEmpty( action ) ) {
-			action.log( "nothing to get" );
+			action.info( "nothing to get" );
 			return;
 		}
 	

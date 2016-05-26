@@ -54,7 +54,7 @@ public class BuilderLinuxMaven extends Builder {
 		// checkout
 		ProjectVersionControl vcs = new ProjectVersionControl( action , true ); 
 		if( !vcs.export( CODEPATH , project , "" , TAG , "" ) ) {
-			action.log( "patchCheckout: having problem to export code" );
+			action.error( "patchCheckout: having problem to export code" );
 			return( false );
 		}
 		
@@ -64,11 +64,11 @@ public class BuilderLinuxMaven extends Builder {
 	@Override public boolean prepareSource( ActionBase action ) throws Exception {
 		// handle module options
 
-		action.log( "patchPrepareSource: prepare source code..." );
+		action.info( "patchPrepareSource: prepare source code..." );
 
 		LocalFolder CODEPATH = storage.buildFolder; 
 		if( MODULEOPTIONS_POMNEW == true ) {
-			action.log( "patchPrepareSource: prepare for new pom.xml..." );
+			action.info( "patchPrepareSource: prepare for new pom.xml..." );
 
 			String cmd = "";
 			cmd += "for x in $(find " + CODEPATH + " -name " + Common.getQuoted( "*.new" ) + "); do\n";
@@ -83,7 +83,7 @@ public class BuilderLinuxMaven extends Builder {
 			action.session.customCheckErrorsDebug( action , "( cd " + CODEPATH + "; mvn versions:set -DnewVersion=" + APPVERSION + " )" );
 
 		if( MODULEOPTIONS_REPLACESNAPSHOTS == true ) {
-			action.log( "patchPrepareSource: replace snapshots..." );
+			action.info( "patchPrepareSource: replace snapshots..." );
 			String NEXT_MAJORRELEASE = action.meta.product.CONFIG_NEXT_MAJORRELEASE;
 
 			String cmd = "";
@@ -116,7 +116,7 @@ public class BuilderLinuxMaven extends Builder {
 		}
 
 		if( !MAIN_POM_VER.equals( APPVERSION ) ) {
-			action.log( "invalid pom.xml version: " + MAIN_POM_VER + ", expected " + APPVERSION + ". Exiting" );
+			action.error( "invalid pom.xml version: " + MAIN_POM_VER + ", expected " + APPVERSION + ". Exiting" );
 			return( false );
 		}
 		
@@ -142,7 +142,7 @@ public class BuilderLinuxMaven extends Builder {
 		if( action.context.CTX_SHOWALL )
 			MAVEN_ADDITIONAL_OPTIONS += " -X";
 
-		action.log( "build PATCHPATH=" + CODEPATH.folderPath + ", profile=" + MODULE_MAVEN_PROFILES + ", options=" + MAVEN_ADDITIONAL_OPTIONS + ", cmd=" + MODULE_MAVEN_CMD + 
+		action.info( "build PATCHPATH=" + CODEPATH.folderPath + ", profile=" + MODULE_MAVEN_PROFILES + ", options=" + MAVEN_ADDITIONAL_OPTIONS + ", cmd=" + MODULE_MAVEN_CMD + 
 				" using maven to nexus path " + NEXUS_PATH + "..." );
 
 		// set environment
@@ -161,21 +161,21 @@ public class BuilderLinuxMaven extends Builder {
 
 		// execute maven
 		session.cd( action , CODEPATH.folderPath );
-		action.log( "using maven:" );
+		action.info( "using maven:" );
 		session.customCheckErrorsNormal( action , "which mvn" );
 		session.customCheckErrorsNormal( action , "mvn --version" );
 		
-		action.log( "execute: " + MAVEN_CMD );
+		action.info( "execute: " + MAVEN_CMD );
 		int timeout = action.setTimeoutUnlimited();
 		int status = session.customGetStatusNormal( action , MAVEN_CMD );
 		action.setTimeout( timeout );
 
 		if( status != 0 ) {
-			action.log( "buildMaven: maven build failed" );
+			action.error( "buildMaven: maven build failed" );
 			return( false );
 		}
 					
-		action.log( "buildMaven: maven build successfully finished" );
+		action.info( "buildMaven: maven build successfully finished" );
 		return( true );
 	}
 

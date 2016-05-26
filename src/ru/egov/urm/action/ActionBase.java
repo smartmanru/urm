@@ -116,27 +116,15 @@ abstract public class ActionBase {
 		log( "" , e );
 	}
 
-	public void log( String prompt , Throwable e ) {
-		log( prompt , e , CommandOutput.LOGLEVEL_DEBUG );
-	}
-	
-	private synchronized void log( String prompt , Throwable e , int logLevel ) {
-		try {
-			String s = "[" + context.streamName + "]";
-			if( !prompt.isEmpty() )
-				s = prompt + " " + s;
-			output.log( s , e , logLevel );
-		}
-		catch( Throwable ez ) {
-			System.err.println( "unable to log exception:" );
-			ez.printStackTrace();
-			System.err.println( "original exception:" );
-			e.printStackTrace();
-		}
+	public synchronized void log( String prompt , Throwable e ) {
+		String s = "[" + context.streamName + "]";
+		if( !prompt.isEmpty() )
+			s = prompt + " " + s;
+		output.log( s , e );
 	}
 	
 	public void logAction( String s ) {
-		log( this.getClass().getSimpleName() + ": " + s );
+		info( this.getClass().getSimpleName() + ": " + s );
 	}
 
 	public boolean isDebug() {
@@ -147,54 +135,32 @@ abstract public class ActionBase {
 		return( context.CTX_TRACE );
 	}
 	
-	public void debug( Throwable e ) {
-		log( "" , e , CommandOutput.LOGLEVEL_DEBUG );
-	}
-
-	public void trace( Throwable e ) {
-		log( "" , e , CommandOutput.LOGLEVEL_TRACE );
-	}
-
-	public void log( String s , int logLevel ) throws Exception {
-		output.log( s , logLevel );
-	}
-	
-	public void logExact( String s , int logLevel ) throws Exception {
+	public void logExact( String s , int logLevel ) {
 		output.logExact( s , logLevel );
 	}
 	
-	public void trace( String s ) throws Exception {
+	public void error( String s ) {
+		output.error( s );
+	}
+	
+	public void trace( String s ) {
 		output.trace( s );
 	}
 	
-	public void printExact( String s ) throws Exception {
+	public void printExact( String s ) {
 		output.logExact( s , CommandOutput.LOGLEVEL_INFO );
 	}
 	
-	public void comment( String s ) throws Exception {
+	public void comment( String s ) {
 		output.logExact( "# " + s , CommandOutput.LOGLEVEL_INFO );
 	}
 	
-	public void log( String s ) {
-		try {
-			output.info( s + " [" + context.streamName + "]" );
-		}
-		catch( Throwable ez ) {
-			System.err.println( "unable to log message:" );
-			ez.printStackTrace();
-			System.err.println( "original message: " + s );
-		}
+	public void info( String s ) {
+		output.info( s + " [" + context.streamName + "]" );
 	}
 	
 	public void debug( String s ) {
-		try {
-			output.debug( s + " [" + context.streamName + "]" );
-		}
-		catch( Throwable ez ) {
-			System.err.println( "unable to log message:" );
-			ez.printStackTrace();
-			System.err.println( "original message: " + s );
-		}
+		output.debug( s + " [" + context.streamName + "]" );
 	}
 	
 	public void exit( String s ) throws Exception {
@@ -392,7 +358,7 @@ abstract public class ActionBase {
 		if( !args.isEmpty() )
 			log += " " + args;
 		
-		log( "run: " + log );
+		info( "run: " + log );
 	}
 
 	public void setBuildMode( VarBUILDMODE value ) throws Exception {
@@ -413,11 +379,11 @@ abstract public class ActionBase {
 
 	public void executeLogLive( ShellExecutor shell , String msg ) throws Exception {
 		if( !isExecute() ) {
-			log( shell.name + ": " + msg + " (showonly)" );
+			info( shell.name + ": " + msg + " (showonly)" );
 			return;
 		}
 
-		log( shell.name + ": " + msg + " (execute)" );
+		info( shell.name + ": " + msg + " (execute)" );
 		shell.appendExecuteLog( this , msg );
 	}
 	
@@ -428,21 +394,21 @@ abstract public class ActionBase {
 		
 		ShellExecutor shell = getShell( account );
 		if( !isExecute() ) {
-			log( loc + ": " + msg + " (showonly)" );
+			info( loc + ": " + msg + " (showonly)" );
 			return;
 		}
 
-		log( loc + ": " + msg + " (execute)" );
+		info( loc + ": " + msg + " (execute)" );
 		shell.appendExecuteLog( this , msg );
 	}
 	
 	public void executeCmdLive( Account account , String cmdRun ) throws Exception {
 		if( !isExecute() ) {
-			log( account.HOSTLOGIN + ": " + cmdRun + " (showonly)" );
+			info( account.HOSTLOGIN + ": " + cmdRun + " (showonly)" );
 			return;
 		}
 
-		log( account.HOSTLOGIN + ": " + cmdRun + " (execute)" );
+		info( account.HOSTLOGIN + ": " + cmdRun + " (execute)" );
 		ShellExecutor shell = getShell( account );
 		shell.appendExecuteLog( this , cmdRun );
 

@@ -28,21 +28,21 @@ public class ActionStopServer extends ActionBase {
 			return( true );
 		}
 		
-		log( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
+		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
 
 		// stop proxy if any
 		if( target.itemFull && server.proxyServer != null ) {
-			log( "stop proxy server=" + server.proxyServer.NAME + " ..." );
+			info( "stop proxy server=" + server.proxyServer.NAME + " ..." );
 			executeServerSingle( server.proxyServer , null );
 		}
 
 		// stop main
-		log( "stop main server ..." );
+		info( "stop main server ..." );
 		executeServerSingle( server , nodes );
 
 		// then stop childs
 		if( target.itemFull && server.subordinateServers != null && server.subordinateServers.length > 0 ) {
-			log( "stop subordinate servers ..." );
+			info( "stop subordinate servers ..." );
 			for( MetaEnvServer sub : server.subordinateServers )
 				executeServerSingle( sub , null );
 		}

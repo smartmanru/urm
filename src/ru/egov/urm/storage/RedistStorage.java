@@ -129,14 +129,14 @@ public class RedistStorage extends ServerStorage {
 	
 	public void dropReleaseAll( ActionBase action ) throws Exception {
 		RemoteFolder folder = getReleasesFolder( action );
-		action.log( folder.account.HOSTLOGIN + ": drop all release data at " + folder.folderPath + " ..." );
+		action.info( folder.account.HOSTLOGIN + ": drop all release data at " + folder.folderPath + " ..." );
 		folder.ensureExists( action );
 		folder.removeContent( action );
 	}
 
 	public void dropAll( ActionBase action ) throws Exception {
 		RemoteFolder folder = getRedistHostRootFolder( action );
-		action.log( folder.account.HOSTLOGIN + ": drop redist completely at " + folder.folderPath + " ..." );
+		action.info( folder.account.HOSTLOGIN + ": drop redist completely at " + folder.folderPath + " ..." );
 		folder.ensureExists( action );
 		folder.removeContent( action );
 	}
@@ -150,14 +150,14 @@ public class RedistStorage extends ServerStorage {
 	
 	public void dropStateData( ActionBase action ) throws Exception {
 		RemoteFolder folder = getStateFolder( action );
-		action.log( folder.account.HOSTLOGIN + ": drop state data at " + folder.folderPath + " ..." );
+		action.info( folder.account.HOSTLOGIN + ": drop state data at " + folder.folderPath + " ..." );
 		folder.ensureExists( action );
 		folder.removeContent( action );
 	}
 
 	public void dropReleaseData( ActionBase action , String RELEASEDIR ) throws Exception {
 		RemoteFolder folder = getReleaseFolder( action , RELEASEDIR );
-		action.log( folder.account.HOSTLOGIN + ": drop release=" + RELEASEDIR + " at " + folder.folderPath + " ..." );
+		action.info( folder.account.HOSTLOGIN + ": drop release=" + RELEASEDIR + " at " + folder.folderPath + " ..." );
 		folder.recreateThis( action );
 	}
 
@@ -311,7 +311,7 @@ public class RedistStorage extends ServerStorage {
 		String redistBackupFile = redistFile.getFileName( action );  
 		String filePath = backupFolder.getFilePath( action , redistBackupFile );
 		tarRuntimeConfigItem( action , redistFile.confItem , LOCATION , filePath );
-		action.log( "redist backup done, config item file=" + redistFile.getFileName( action ) );
+		action.info( "redist backup done, config item file=" + redistFile.getFileName( action ) );
 		
 		// copy version file from state
 		String md5 = backupFolder.getFileMD5( action , redistBackupFile );
@@ -332,7 +332,7 @@ public class RedistStorage extends ServerStorage {
 		
 		String redistBackupFile = redistFile.getFileName( action );  
 		backupFolder.copyFile( action , deployFolder , runtimeFile , redistBackupFile );
-		action.log( "redist backup done, binary item file=" + redistBackupFile );
+		action.info( "redist backup done, binary item file=" + redistBackupFile );
 		
 		// create backup state
 		String md5 = backupFolder.getFileMD5( action , redistBackupFile );
@@ -349,7 +349,7 @@ public class RedistStorage extends ServerStorage {
 		int timeout = action.setTimeoutUnlimited();
 		saveArchiveItem( action , redistFile.binaryItem , deployFolder , redistBackupFile , backupFolder );
 		action.setTimeout( timeout );
-		action.log( "redist backup done, archive item file=" + redistBackupFile );
+		action.info( "redist backup done, archive item file=" + redistBackupFile );
 		
 		// copy version file from state
 		String md5 = backupFolder.getFileMD5( action , redistBackupFile );

@@ -22,7 +22,7 @@ public class ActionConfCheck extends ActionBase {
 	}
 	
 	@Override protected boolean executeScope( ActionScope scope ) throws Exception {
-		log( "check configuration parameters in env=" + context.env.ID + " ..." );
+		info( "check configuration parameters in env=" + context.env.ID + " ..." );
 		S_CONFCHECK_STATUS = true;
 
 		// read properties
@@ -31,7 +31,7 @@ public class ActionConfCheck extends ActionBase {
 	}
 	
 	@Override protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		log( "check configuration parameters in datacenter=" + set.dc.NAME + " ..." );
+		info( "check configuration parameters in datacenter=" + set.dc.NAME + " ..." );
 
 		// read properties
 		executeDC( set.dc );
@@ -50,16 +50,16 @@ public class ActionConfCheck extends ActionBase {
 
 		if( !isExecute() ) {
 			// show values
-			log( "============================================ show env properties ..." );
+			info( "============================================ show env properties ..." );
 			for( String var : S_CONFCHECK_PROPLIST_ENV ) {
 				String value = context.env.getPropertyValue( this , var );
-				log( var + "=" + value );
+				info( var + "=" + value );
 			}
 		}
 		else {
 			if( context.env.hasBaseline( this ) ) {
 				String S_CONFCHECK_BASELINE_ENV = context.env.getBaselineFile( this );
-				log( "============================================ check env properties baseline=" + S_CONFCHECK_BASELINE_ENV + " ..." );
+				info( "============================================ check env properties baseline=" + S_CONFCHECK_BASELINE_ENV + " ..." );
 				baselineEnv = meta.loadEnvData( this , S_CONFCHECK_BASELINE_ENV , true );
 				checkConfEnv( context.env , baselineEnv , S_CONFCHECK_PROPLIST_ENV );
 			}
@@ -74,16 +74,16 @@ public class ActionConfCheck extends ActionBase {
 
 		if( !isExecute() ) {
 			// show values
-			log( "============================================ data center=" + dc.NAME + " properties ..." );
+			info( "============================================ data center=" + dc.NAME + " properties ..." );
 			for( String var : S_CONFCHECK_PROPLIST_DC ) {
 				String value = dc.getPropertyValue( this , var );
-				log( var + "=" + value );
+				info( var + "=" + value );
 			}
 		}
 		else {
 			if( context.env.hasBaseline( this ) && dc.hasBaseline( this ) ) {
 				String S_CONFCHECK_BASELINE_DC = dc.getBaselineDC( this );
-				log( "============================================ check dc=" + dc.NAME + " properties baseline=" + S_CONFCHECK_BASELINE_DC + " ..." );
+				info( "============================================ check dc=" + dc.NAME + " properties baseline=" + S_CONFCHECK_BASELINE_DC + " ..." );
 				baselineDC = baselineEnv.getDC( this , S_CONFCHECK_BASELINE_DC );
 				checkConfDC( dc , baselineDC , S_CONFCHECK_PROPLIST_DC );
 			}
@@ -98,10 +98,10 @@ public class ActionConfCheck extends ActionBase {
 
 		if( !isExecute() ) {
 			// show values
-			log( "============================================ data center=" + server.dc.NAME + " server=" + server.NAME + " properties ..." );
+			info( "============================================ data center=" + server.dc.NAME + " server=" + server.NAME + " properties ..." );
 			for( String var : S_CONFCHECK_PROPLIST_SERVER ) {
 				String value = server.getPropertyValue( this , var );
-				log( var + "=" + value );
+				info( var + "=" + value );
 			}
 		}
 		else {
@@ -109,7 +109,7 @@ public class ActionConfCheck extends ActionBase {
 			   server.dc.hasBaseline( this ) &&
 			   server.hasBaseline( this ) ) {
 				String S_CONFCHECK_BASELINE_SERVER = server.getBaselineServer( this );
-				log( "============================================ check dc=" + server.dc.NAME + " server=" + server.NAME + " properties baseline=" + S_CONFCHECK_BASELINE_SERVER + " ..." );
+				info( "============================================ check dc=" + server.dc.NAME + " server=" + server.NAME + " properties baseline=" + S_CONFCHECK_BASELINE_SERVER + " ..." );
 				baselineServer = baselineDC.getServer( this , S_CONFCHECK_BASELINE_SERVER );
 				checkConfServer( server , baselineServer , S_CONFCHECK_PROPLIST_SERVER );
 			}
@@ -143,7 +143,7 @@ public class ActionConfCheck extends ActionBase {
 				String error = "unexpected variable=" + var + " in " + scope; 
 			
 				if( context.CTX_SHOWALL ) {
-					log( error );
+					error( error );
 					S_CONFCHECK_STATUS = false;
 				}
 				else
@@ -151,7 +151,7 @@ public class ActionConfCheck extends ActionBase {
 			}
 			else {
 				if( context.CTX_SHOWALL )
-					log( "variable=" + var + " in " + scope + " - ok" );
+					info( "variable=" + var + " in " + scope + " - ok" );
 			}
 		}
 
@@ -164,7 +164,7 @@ public class ActionConfCheck extends ActionBase {
 				String error = "missing variable=" + var + " in " + scope;
 			
 				if( context.CTX_SHOWALL ) {
-					log( error );
+					error( error );
 					S_CONFCHECK_STATUS = false;
 				}
 				else
@@ -172,7 +172,7 @@ public class ActionConfCheck extends ActionBase {
 			}
 			else {
 				if( context.CTX_SHOWALL )
-					log( "variable=" + var + " in " + scope + " - ok" );
+					info( "variable=" + var + " in " + scope + " - ok" );
 			}
 		}
 	}

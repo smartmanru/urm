@@ -46,7 +46,7 @@ public class ActionBuild extends ActionBase {
 				
 			debug( "build project=" + project.PROJECT );
 			if( !executeTarget( target ) ) {
-				log( "cancel build due to errors" );
+				error( "cancel build due to errors" );
 				return( false );
 			}
 			
@@ -69,7 +69,7 @@ public class ActionBuild extends ActionBase {
 		
 		// execute
 		MetaSourceProject project = scopeProject.sourceProject;
-		log( "ActionBuild: CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) + ", PROJECT=" + project.PROJECT + 
+		info( "ActionBuild: CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) + ", PROJECT=" + project.PROJECT + 
 				", REPOSITORY=" + project.REPOSITORY + ", TAG=" + TAG + ", VERSION=" + version + ", MODULEOPTIONS=" + BUILD_OPTIONS );
 
 		// in separate shell
@@ -87,7 +87,7 @@ public class ActionBuild extends ActionBase {
 		bs.kill( this );
 	
 		// check status
-		log( "ActionBuild: build finished for CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) + ", TAG=" + TAG + ", VERSION=" + version + ", BUILDSTATUS=" + BUILDSTATUS );
+		info( "ActionBuild: build finished for CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) + ", TAG=" + TAG + ", VERSION=" + version + ", BUILDSTATUS=" + BUILDSTATUS );
 		return( true );
 	}
 	
