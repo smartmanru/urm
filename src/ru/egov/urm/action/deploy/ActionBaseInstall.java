@@ -141,8 +141,10 @@ public class ActionBaseInstall extends ActionBase {
 			shell.customCheckErrorsDebug( this , redistFolder.folderPath , "chmod 777 server.*.sh" );
 		
 		// run installer
+		int timeout = setTimeoutUnlimited();
 		String cmd = ( server.isLinux( this ) )? "./server.prepare.sh" : "call server.prepare.cmd";
 		shell.customCheckStatus( this , redistFolder.folderPath , cmd );
+		setTimeout( timeout );
 	}
 	
 	private boolean startUpdate( MetaFapBase info , RuntimeStorage runtime , VersionInfoStorage vis ) throws Exception {
