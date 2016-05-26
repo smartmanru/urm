@@ -166,6 +166,8 @@ public class ActionBaseInstall extends ActionBase {
 	}
 
 	private String copySourceToLocal( MetaFapBase info ) throws Exception {
+		int timeout = setTimeoutUnlimited();
+		
 		String localPath = null;
 		if( info.SRCFILE.startsWith( "http:" ) || info.SRCFILE.startsWith( "https:" ) ) {
 			LocalFolder folder = artefactory.getArtefactFolder( this , "base" );
@@ -181,6 +183,7 @@ public class ActionBaseInstall extends ActionBase {
 			else
 				localPath = info.getItemPath( this , info.SRCFILE );
 		}
+		setTimeout( timeout );
 		
 		if( !session.checkFileExists( this , localPath ) )
 			exit( "unable to find file: " + localPath );
@@ -200,6 +203,8 @@ public class ActionBaseInstall extends ActionBase {
 	}
 	
 	private void extractArchiveFromRedist( MetaFapBase info , String redistPath , String installPath , RuntimeStorage runtime ) throws Exception {
+		int timeout = setTimeoutUnlimited();
+
 		if( info.srcFormat == VarBASESRCFORMAT.TARGZ_SINGLEDIR ) {
 			runtime.extractBaseArchiveSingleDir( this , redistPath , info.SRCSTOREDIR , installPath , VarARCHIVETYPE.TARGZ );
 			debug( "runtime path: " + info.INSTALLPATH );
@@ -209,7 +214,8 @@ public class ActionBaseInstall extends ActionBase {
 			runtime.extractBaseArchiveSingleDir( this , redistPath , info.SRCSTOREDIR , installPath , VarARCHIVETYPE.ZIP );
 			debug( "runtime path: " + info.INSTALLPATH );
 		}
-		
+
+		setTimeout( timeout );
 		exitUnexpectedState();
 	}
 
