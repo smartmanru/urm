@@ -67,7 +67,7 @@ public class CommandOutput {
 			if( !s.isEmpty() )
 				s += " ";
 			s += ee.getMessage();
-			s += " [" + stream + "]";
+			s += ", exiting [" + stream + "]";
 			error( s );
 			return;
 		}
@@ -147,7 +147,7 @@ public class CommandOutput {
 			}
 		}
 			
-		throw new ExitException( errmsg );
+		throw new ExitException( s );
 	}
 	
 	public String getTimeStampedName( String basename , String ext ) {
