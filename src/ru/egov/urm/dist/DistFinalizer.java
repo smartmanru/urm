@@ -146,6 +146,13 @@ public class DistFinalizer {
 					if( !finishDistDeliveryConfig( action , delivery , dirFilesDist , dirFilesRelease ) )
 						return( false );
 				}
+				else
+				if( dir.equals( Dist.DATABASE_FOLDER ) ) {
+					if( !finishDistDeliveryDatabase( action , delivery , dirFilesDist , dirFilesRelease ) )
+						return( false );
+				}
+				else
+					action.exitUnexpectedState();
 			}
 		}
 
@@ -217,6 +224,15 @@ public class DistFinalizer {
 		return( true );
 	}
 
+	private boolean finishDistDeliveryDatabase( ActionBase action , ReleaseDelivery delivery , FileSet fsd , FileSet fsr ) throws Exception {
+		if( fsd.isEmpty() ) {
+			action.error( "distributive has missing database delivery=" + delivery.distDelivery.NAME );
+			return( false );
+		}
+		
+		return( true );
+	}
+	
 	private void createMD5( ActionBase action ) throws Exception {
 		String md5file = action.getTmpFilePath( "state.md5" );
 		
