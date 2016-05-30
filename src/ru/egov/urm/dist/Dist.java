@@ -18,7 +18,6 @@ import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarCATEGORY;
 import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
 import ru.egov.urm.shell.ShellExecutor;
-import ru.egov.urm.storage.Artefactory;
 import ru.egov.urm.storage.FileSet;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.RedistStorage;
@@ -39,9 +38,10 @@ public class Dist {
 	public static String ROLLBACK_FOLDER = "rollback";
 	public static String DBMANUAL_FOLDER = "manual/db";
 	
-	Artefactory artefactory;
+	public Metadata meta;
+	public DistRepository repo;
+	
 	private RemoteFolder distFolder;
-	Metadata meta;
 	
 	public String RELEASEDIR;
 	public Release info;
@@ -54,13 +54,18 @@ public class Dist {
 	boolean openedForUse;
 	boolean openedForChange;
 	
-	public Dist( Artefactory artefactory , RemoteFolder distFolder , boolean prod ) {
-		this.artefactory = artefactory; 
+	public Dist( Metadata meta , DistRepository repo ) {
+		this.meta = meta;
+		this.repo = repo;
+	}
+	
+	public void setFolder( RemoteFolder distFolder , boolean prod ) {
 		this.distFolder = distFolder;
-		this.meta = artefactory.meta;
 		this.prod = prod;
+		
+		this.RELEASEDIR = distFolder.folderName;
 				
-		state = new DistState( distFolder );
+		state = new DistState( this , distFolder );
 		files = null;
 		
 		openedForUse = false;
@@ -86,11 +91,9 @@ public class Dist {
 		
 		state.ctlLoadReleaseState( action );
 		
-		infoPath = distFolder.copyFileToLocal( action , artefactory.workFolder , META_FILENAME , "" );
-		info = new Release( meta );
+		infoPath = distFolder.copyFileToLocal( action , action.getWorkFolder() , META_FILENAME , "" );
+		info = new Release( meta , this );
 		info.load( action , infoPath );
-		
-		RELEASEDIR = info.RELEASEVER;
 	}
 
 	public void copyConfToDistr( ActionBase action , LocalFolder sourceFolder , MetaDistrConfItem conf ) throws Exception {
@@ -153,7 +156,7 @@ public class Dist {
 		MetaDistrBinaryItem srcItem = item.srcItem;
 		
 		// extract on remote redist
-		RedistStorage redist = artefactory.getRedistStorage( action , "dist" , distFolder.account );
+		RedistStorage redist = action.artefactory.getRedistStorage( action , "dist" , distFolder.account );
 		RemoteFolder tmp = redist.getRedistTmpFolder( action );
 		
 		String srcFilePath = distFolder.getFilePath( action , Common.getPath( srcItem.delivery.FOLDER , fileName ) );
@@ -284,15 +287,15 @@ public class Dist {
 	}
 	
 	// top-level control
-	public void create( ActionBase action , String RELEASEVER ) throws Exception {
-		RELEASEDIR = RELEASEVER;
+	public void create( ActionBase action , String RELEASEDIR ) throws Exception {
+		this.RELEASEDIR = RELEASEDIR;
 		state.ctlCreate( action );
 		load( action );
 	}
 
-	public void createProd( ActionBase action , String RELEASEVER ) throws Exception {
-		RELEASEDIR = RELEASEVER;
-		state.ctlCreateProd( action , RELEASEVER );
+	public void createProd( ActionBase action , String RELEASEDIR ) throws Exception {
+		this.RELEASEDIR = RELEASEDIR;
+		state.ctlCreateProd( action , RELEASEDIR );
 		load( action );
 	}
 	
@@ -331,7 +334,7 @@ public class Dist {
 	}
 
 	public void copyRelease( ActionBase action , Dist src ) throws Exception {
-		String filePath = artefactory.workFolder.getFilePath( action , Dist.META_FILENAME );
+		String filePath = action.getWorkFilePath( Dist.META_FILENAME );
 		
 		String saveReleaseVer = info.RELEASEVER;
 		info.copy( action , src.info );
@@ -376,7 +379,7 @@ public class Dist {
 	public void saveReleaseXml( ActionBase action ) throws Exception {
 		state.ctlReloadCheckOpened( action );
 		
-		String filePath = artefactory.workFolder.getFilePath( action , META_FILENAME );
+		String filePath = action.getWorkFilePath( META_FILENAME );
 		Document doc = info.createXml( action );
 		Common.xmlSaveDoc( doc , filePath );
 		distFolder.copyFileFromLocal( action , filePath );
@@ -718,7 +721,7 @@ public class Dist {
 		
 		if( isRemote( action ) ) {
 			// copy via local
-			LocalFolder work = artefactory.getWorkFolder( action , "copy" );
+			LocalFolder work = action.getWorkFolder( "copy" );
 			copyDistFileToFolderRename( action , work , item.delivery.FOLDER , fileName , redistFileName );
 			locationDir.copyFileFromLocal( action , work.getFilePath( action , redistFileName ) );
 		}

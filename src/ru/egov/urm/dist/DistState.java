@@ -34,9 +34,11 @@ public class DistState {
 
 	String activeChangeID;
 	
+	private Dist dist;
 	private RemoteFolder distFolder;
 
-	public DistState( RemoteFolder distFolder ) {
+	public DistState( Dist dist , RemoteFolder distFolder ) {
+		this.dist = dist;
 		this.distFolder = distFolder;
 		this.state = DISTSTATE.UNKNOWN;
 	}
@@ -90,63 +92,12 @@ public class DistState {
 		String timeStamp = Common.getNameTimeStamp();
 		String hash = getHashValue( action );
 		String value = newState + ":" + timeStamp + ":" + hash;
-		distFolder.createFileFromString( action , Dist.STATE_FILENAME , value );
+		createStateFile( action , value );
 		activeChangeID = timeStamp;
 		stateMem = newState;
 		stateHash = hash;
 	}
 
-	private String getHashValue( ActionBase action ) throws Exception {
-		ShellExecutor shell = distFolder.getSession( action );
-		String hash;
-		if( shell.account.isLinux() ) {
-			String cmd = "find . -type f -printf " + Common.getQuoted( "%p %s %TD %Tr\\n" ) + " | sort | grep -v state.txt | md5sum | cut -d \" \" -f1";
-			hash = shell.customGetValue( action , distFolder.folderPath , cmd );
-		}
-		else {
-			hash = getWindowsHashValue( action , shell );
-		}
-		return( hash );
-	}
-
-	private String getWindowsHashValue( ActionBase action , ShellExecutor shell ) throws Exception {
-		Map<String,File> fileMap = new HashMap<String,File>(); 
-		scanFiles( action , fileMap , distFolder , "." );
-		
-		// generate hash file
-		LocalFolder workFolder = action.artefactory.getWorkFolder( action );
-		String content = "";
-		SimpleDateFormat sdf = new SimpleDateFormat( "MM/dd/yy hh:mm:ss a");
-		for( String name : Common.getSortedKeys( fileMap ) ) {
-			if( name.equals( "./state.txt" ) )
-				continue;
-			
-			File f = fileMap.get( name );
-			String ftext = name + " " + f.length() + " " + sdf.format( f.lastModified() );
-			content += ftext + "\n";
-		}
-		
-		String hashFile = workFolder.getFilePath( action , "hash.txt" );
-		Common.createFileFromString( hashFile , content );
-		return( action.session.getMD5( action , hashFile ) );
-	}
-
-	private void scanFiles( ActionBase action , Map<String,File> fileMap , RemoteFolder folder , String path ) throws Exception {
-		File folderFile = new File( folder.folderPath );
-		File[] list = folderFile.listFiles();
-		if( list == null )
-			return;
-		
-		for ( File f : list ) {
-			String name = f.getName();
-			String namePath = Common.getPath( path ,  name );
-            if ( f.isDirectory() )
-                scanFiles( action , fileMap , folder.getSubFolder( action , name ) , namePath );
-            else
-                fileMap.put( namePath , f );
-        }		
-	}
-	
 	public void checkDistChangeEnabled( ActionBase action ) throws Exception {
 		if( stateMem != DISTSTATE.CHANGING )
 			action.exit( "distributive is not open for changes" );
@@ -194,20 +145,11 @@ public class DistState {
 		}
 			
 		// create directory
-		distFolder.ensureExists( action );
-		
-		// create empty release.xml
-		String filePath = action.artefactory.workFolder.getFilePath( action , Dist.META_FILENAME );
-		String RELEASEDIR = distFolder.folderName;
-		String RELEASEVER = Common.getPartBeforeFirst( RELEASEDIR , "-" );
-		
-		Release info = new Release( action.meta );
-		info.create( action , RELEASEVER , filePath );
-		distFolder.copyFileFromLocal( action , filePath );
+		createMetaFile( action );
 		
 		// set status
 		ctlSetStatus( action , DISTSTATE.DIRTY );
-		action.info( "release has been created: " + RELEASEDIR );
+		action.info( "release has been created: " + dist.RELEASEDIR );
 	}
 	
 	public void ctlCreateProd( ActionBase action , String RELEASEVER ) throws Exception {
@@ -223,7 +165,7 @@ public class DistState {
 		// create empty release.xml
 		String filePath = action.artefactory.workFolder.getFilePath( action , Dist.META_FILENAME );
 		
-		Release info = new Release( action.meta );
+		Release info = new Release( action.meta , dist );
 		info.createProd( action , RELEASEVER , filePath );
 		distFolder.copyFileFromLocal( action , filePath );
 		
@@ -336,4 +278,72 @@ public class DistState {
 		action.exit( "distributive is protected, can be deleted only manually, state=" + state.name() );
 	}
 
+	public void createStateFile( ActionBase action , String value ) throws Exception {
+		distFolder.createFileFromString( action , Dist.STATE_FILENAME , value );
+	}
+	
+	public String getHashValue( ActionBase action ) throws Exception {
+		ShellExecutor shell = distFolder.getSession( action );
+		String hash;
+		if( shell.account.isLinux() ) {
+			String cmd = "find . -type f -printf " + Common.getQuoted( "%p %s %TD %Tr\\n" ) + " | sort | grep -v state.txt | md5sum | cut -d \" \" -f1";
+			hash = shell.customGetValue( action , distFolder.folderPath , cmd );
+		}
+		else {
+			hash = getWindowsHashValue( action , shell );
+		}
+		return( hash );
+	}
+
+	private String getWindowsHashValue( ActionBase action , ShellExecutor shell ) throws Exception {
+		Map<String,File> fileMap = new HashMap<String,File>(); 
+		scanFiles( action , fileMap , distFolder , "." );
+		
+		// generate hash file
+		LocalFolder workFolder = action.artefactory.getWorkFolder( action );
+		String content = "";
+		SimpleDateFormat sdf = new SimpleDateFormat( "MM/dd/yy hh:mm:ss a");
+		for( String name : Common.getSortedKeys( fileMap ) ) {
+			if( name.equals( "./state.txt" ) )
+				continue;
+			
+			File f = fileMap.get( name );
+			String ftext = name + " " + f.length() + " " + sdf.format( f.lastModified() );
+			content += ftext + "\n";
+		}
+		
+		String hashFile = workFolder.getFilePath( action , "hash.txt" );
+		Common.createFileFromString( hashFile , content );
+		return( action.session.getMD5( action , hashFile ) );
+	}
+
+	private void scanFiles( ActionBase action , Map<String,File> fileMap , RemoteFolder folder , String path ) throws Exception {
+		File folderFile = new File( folder.folderPath );
+		File[] list = folderFile.listFiles();
+		if( list == null )
+			return;
+		
+		for ( File f : list ) {
+			String name = f.getName();
+			String namePath = Common.getPath( path ,  name );
+            if ( f.isDirectory() )
+                scanFiles( action , fileMap , folder.getSubFolder( action , name ) , namePath );
+            else
+                fileMap.put( namePath , f );
+        }		
+	}
+
+	public void createMetaFile( ActionBase action ) throws Exception {
+		// create empty release.xml
+		String filePath = action.getWorkFilePath( Dist.META_FILENAME );
+		String RELEASEDIR = distFolder.folderName;
+		
+		Release info = new Release( action.meta , dist );
+		String RELEASEVER = dist.repo.getReleaseVerByDir( action , RELEASEDIR ); 
+		info.create( action , RELEASEVER , filePath );
+		
+		distFolder.ensureExists( action );
+		distFolder.copyFileFromLocal( action , filePath );
+	}
+	
 }

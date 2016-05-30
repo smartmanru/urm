@@ -25,6 +25,7 @@ import ru.egov.urm.meta.Metadata.VarDISTITEMSOURCE;
 public class Release {
 
 	public Metadata meta;
+	public Dist dist;
 	
 	public String RELEASEVER;
 	public boolean PROPERTY_OBSOLETE;
@@ -35,8 +36,9 @@ public class Release {
 	Map<VarCATEGORY,ReleaseSet> categorySetMap = new HashMap<VarCATEGORY,ReleaseSet>();
 	Map<String,ReleaseDelivery> deliveryMap = new HashMap<String,ReleaseDelivery>();
 	
-	public Release( Metadata meta ) {
+	public Release( Metadata meta , Dist dist ) {
 		this.meta = meta;
+		this.dist = dist;
 	}
 
 	public void copy( ActionBase action , Release src ) throws Exception {
@@ -65,13 +67,13 @@ public class Release {
 	}
 	
 	public void create( ActionBase action , String RELEASEVER , String RELEASEFILEPATH ) throws Exception {
-		this.RELEASEVER = normalize( action , RELEASEVER );
+		this.RELEASEVER = dist.repo.normalizeReleaseVer( action , RELEASEVER );
 		createEmptyXml( action , RELEASEFILEPATH );
 		setProperties( action );
 	}
 
 	public void setReleaseVer( ActionBase action , String RELEASEVER ) throws Exception {
-		this.RELEASEVER = normalize( action , RELEASEVER );
+		this.RELEASEVER = RELEASEVER;
 	}
 	
 	public void setProperties( ActionBase action ) throws Exception {
@@ -79,12 +81,10 @@ public class Release {
 		PROPERTY_OBSOLETE = action.context.CTX_OBSOLETE;
 		
 		if( action.context.CTX_ALL )
-			PROPERTY_COMPATIBILITY = action.context.CTX_OLDRELEASE;
-		else {
-			for( String OLDRELEASE : Common.splitSpaced( action.context.CTX_OLDRELEASE ) ) {
-				OLDRELEASE = normalize( action , OLDRELEASE );
-				PROPERTY_COMPATIBILITY = Common.addItemToUniqueSpacedList( PROPERTY_COMPATIBILITY , OLDRELEASE );
-			}
+			PROPERTY_COMPATIBILITY = "";
+		for( String OLDRELEASE : Common.splitSpaced( action.context.CTX_OLDRELEASE ) ) {
+			OLDRELEASE = dist.repo.normalizeReleaseVer( action , OLDRELEASE );
+			PROPERTY_COMPATIBILITY = Common.addItemToUniqueSpacedList( PROPERTY_COMPATIBILITY , OLDRELEASE );
 		}
 	}
 	
@@ -678,29 +678,6 @@ public class Release {
 		if( Common.checkPartOfSpacedList( RELEASEVER , PROPERTY_COMPATIBILITY ) )
 			return( true );
 		return( false );
-	}
-
-	public String normalize( ActionBase action , String RELEASEVER ) throws Exception {
-		String[] items = Common.splitDotted( RELEASEVER );
-		if( items.length < 2 && items.length > 4 )
-			action.exit( "invalid release version=" + RELEASEVER );
-		
-		String value = "";
-		for( int k = 0; k < 4; k++ ) {
-			if( k > 0 )
-				value += ".";
-			if( k >= items.length )
-				value += "0";
-			else {
-				if( !items[k].matches( "[0-9]+" ) )
-					action.exit( "invalid release version=" + RELEASEVER );
-				if( items[k].length() > 3 )
-					action.exit( "invalid release version=" + RELEASEVER );
-				value += items[0];
-			}
-		}
-		
-		return( value );
 	}
 
 }

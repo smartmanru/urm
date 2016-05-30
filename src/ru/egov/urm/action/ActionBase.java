@@ -484,6 +484,14 @@ abstract public class ActionBase {
 		return( Common.getPath( context.CTX_REDISTPATH , "tmp" , name ) );
 	}
 
+	public LocalFolder getWorkFolder() {
+		return( artefactory.workFolder );
+	}
+	
+	public LocalFolder getWorkFolder( String subFolder ) throws Exception {
+		return( artefactory.workFolder.getSubFolder( this , subFolder ) );
+	}
+	
 	public String getWorkFilePath( String name ) throws Exception {
 		String path = artefactory.workFolder.getFilePath( this , name );
 		return( path );

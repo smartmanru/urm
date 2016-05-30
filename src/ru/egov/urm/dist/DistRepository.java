@@ -106,7 +106,8 @@ public class DistRepository {
 		boolean prod = RELEASELABEL.equals( "prod" );
 		
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , RELEASEPATH );
-		Dist storage = new Dist( artefactory , distFolder , prod );
+		Dist storage = new Dist( meta , this );
+		storage.setFolder( distFolder , prod );
 		
 		// check release directory exists
 		if( !distFolder.checkExists( action ) )
@@ -120,10 +121,11 @@ public class DistRepository {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 		
 		String RELEASEPATH = getReleasePathByLabel( action , RELEASELABEL );
-		String RELEASEVER = Common.getBaseName( RELEASEPATH );
+		String RELEASEDIR = Common.getBaseName( RELEASEPATH );
 		
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , RELEASEPATH );
-		Dist storage = new Dist( artefactory , distFolder , false );
+		Dist storage = new Dist( meta , this );
+		storage.setFolder( distFolder , false );
 		
 		// check release directory exists
 		if( distFolder.checkExists( action ) ) {
@@ -131,12 +133,52 @@ public class DistRepository {
 				action.exit( "release already exists at " + RELEASEPATH );
 		}
 
-		storage.create( action , RELEASEVER );
+		storage.create( action , RELEASEDIR );
 		return( storage );
 	}
 
 	public String getReleaseProdDir( ActionBase action ) throws Exception {
 		return( getReleasePathByLabel( action , "prod" ) );
+	}
+
+	public String normalizeReleaseVer( ActionBase action , String RELEASEVER ) throws Exception {
+		String[] items = Common.splitDotted( RELEASEVER );
+		if( items.length < 2 && items.length > 4 )
+			action.exit( "invalid release version=" + RELEASEVER );
+		
+		String value = "";
+		for( int k = 0; k < 4; k++ ) {
+			if( k > 0 )
+				value += ".";
+			if( k >= items.length )
+				value += "0";
+			else {
+				if( !items[k].matches( "[0-9]+" ) )
+					action.exit( "invalid release version=" + RELEASEVER );
+				if( items[k].length() > 3 )
+					action.exit( "invalid release version=" + RELEASEVER );
+				value += items[0];
+			}
+		}
+		
+		return( value );
+	}
+	
+	private String getReleaseDirByVer( ActionBase action , String RELEASEVER ) throws Exception {
+		RELEASEVER = normalizeReleaseVer( action , RELEASEVER );
+		String[] items = Common.splitDotted( RELEASEVER );
+		if( items[3].equals( "0" ) ) {
+			if( items[2].equals( "0" ) )
+				return( items[0] + "." + items[1] );
+			return( items[0] + "." + items[1] + "." + items[2] );
+		}
+		return( RELEASEVER );
+	}
+	
+	public String getReleaseVerByDir( ActionBase action , String RELEASEDIR ) throws Exception {
+		String RELEASEVER = Common.getPartBeforeFirst( RELEASEDIR , "-" );
+		RELEASEVER = normalizeReleaseVer( action , RELEASEVER );
+		return( RELEASEVER );
 	}
 	
 	private String getReleasePathByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
@@ -146,33 +188,38 @@ public class DistRepository {
 			return( "." );
 		
 		String RELEASEPATH = "";
+		String RELEASEVER = "";
 		if( RELEASELABEL.equals( "last" ) ) {
-			RELEASEPATH = meta.product.CONFIG_VERSION_LAST_FULL;
-			if( RELEASEPATH.isEmpty() )
+			RELEASEVER = meta.product.CONFIG_VERSION_LAST_FULL;
+			if( RELEASEVER.isEmpty() )
 				action.exit( "CONFIG_VERSION_LAST_FULL is not set in product.conf" );
 			
-			RELEASEPATH = "releases/" + RELEASEPATH;
+			String RELEASEDIR = getReleaseDirByVer( action , RELEASEVER );
+			RELEASEPATH = "releases/" + RELEASEDIR;
 		}
 		else if( RELEASELABEL.equals( "next" ) ) {
-			RELEASEPATH = meta.product.CONFIG_VERSION_NEXT_FULL;
-			if( RELEASEPATH.isEmpty() )
+			RELEASEVER = meta.product.CONFIG_VERSION_NEXT_FULL;
+			if( RELEASEVER.isEmpty() )
 				action.exit( "CONFIG_VERSION_NEXT_FULL is not set in product.conf" );
 
-			RELEASEPATH = "releases/" + RELEASEPATH;
+			String RELEASEDIR = getReleaseDirByVer( action , RELEASEVER );
+			RELEASEPATH = "releases/" + RELEASEDIR;
 		}
 		else if( RELEASELABEL.equals( "prod" ) ) {
 			RELEASEPATH = "prod";
+			RELEASEVER = "(prod)";
 
 			// check content
 			if( !repoFolder.checkFolderExists( action , RELEASEPATH ) )
 				action.exit( "getReleaseVerByLabel: unable to find prod distributive" );
 		}
-		else
-			RELEASEPATH = "releases/" + RELEASELABEL;
+		else {
+			String RELEASEDIR = RELEASELABEL;
+			RELEASEVER = getReleaseVerByDir( action , RELEASELABEL );
+			RELEASEPATH = "releases/" + RELEASEDIR;
+		}
 		
-		if( !RELEASELABEL.equals( RELEASEPATH ))
-			action.debug( "found release directory=" + RELEASEPATH + " by label=" + RELEASELABEL );
-		
+		action.debug( "found release directory=" + RELEASEPATH + " by label=" + RELEASELABEL + "( RELEASEVER=" + RELEASEVER + ")" );
 		return( RELEASEPATH );
 	}
 	
@@ -191,7 +238,8 @@ public class DistRepository {
 				action.exit( "prod folder is probably already initialized, delete history.txt manually to recreate" );
 		}
 		
-		Dist storage = new Dist( artefactory , distFolder , true );
+		Dist storage = new Dist( meta , this );
+		storage.setFolder( distFolder , true );
 		distFolder.createFileFromString( action , RELEASEHISTORYFILE , getHistoryRecord( action , RELEASEVER , "add" ) );
 		storage.createProd( action , RELEASEVER );
 		
