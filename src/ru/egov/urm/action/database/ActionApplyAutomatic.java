@@ -50,7 +50,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		if( applyDatabase( server , client , registry ) )
 			info( "apply done." );
 		else
-			info( "nothing to apply." );
+			super.setFailed();
 		
 		if( applyFailed )
 			super.setFailed();
