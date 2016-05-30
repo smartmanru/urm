@@ -29,7 +29,7 @@ public class Release {
 	public String RELEASEVER;
 	public boolean PROPERTY_OBSOLETE;
 	public VarBUILDMODE PROPERTY_BUILDMODE;
-	public String PROPERTY_OLDRELEASE;
+	public String PROPERTY_COMPATIBILITY;
 	
 	Map<String,ReleaseSet> sourceSetMap = new HashMap<String,ReleaseSet>();
 	Map<VarCATEGORY,ReleaseSet> categorySetMap = new HashMap<VarCATEGORY,ReleaseSet>();
@@ -44,7 +44,7 @@ public class Release {
 		this.RELEASEVER = src.RELEASEVER;
 		this.PROPERTY_OBSOLETE = src.PROPERTY_OBSOLETE;
 		this.PROPERTY_BUILDMODE = src.PROPERTY_BUILDMODE;
-		this.PROPERTY_OLDRELEASE = src.PROPERTY_OLDRELEASE;
+		this.PROPERTY_COMPATIBILITY = src.PROPERTY_COMPATIBILITY;
 		
 		sourceSetMap.clear();
 		categorySetMap.clear();
@@ -77,13 +77,17 @@ public class Release {
 	public void setProperties( ActionBase action ) throws Exception {
 		PROPERTY_BUILDMODE = action.context.CTX_BUILDMODE;
 		PROPERTY_OBSOLETE = action.context.CTX_OBSOLETE;
-		PROPERTY_OLDRELEASE = action.context.CTX_OLDRELEASE;
+		
+		if( action.context.CTX_ALL )
+			PROPERTY_COMPATIBILITY = action.context.CTX_OLDRELEASE;
+		else
+			PROPERTY_COMPATIBILITY = Common.addListToUniqueSpacedList( PROPERTY_COMPATIBILITY , action.context.CTX_OLDRELEASE );
 	}
 	
 	public void setProperties( ActionBase action , Release src ) throws Exception {
 		PROPERTY_BUILDMODE = src.PROPERTY_BUILDMODE;
 		PROPERTY_OBSOLETE = src.PROPERTY_OBSOLETE;
-		PROPERTY_OLDRELEASE = src.PROPERTY_OLDRELEASE;
+		PROPERTY_COMPATIBILITY = src.PROPERTY_COMPATIBILITY;
 	}
 	
 	public void createProd( ActionBase action , String RELEASEVER , String filePath ) throws Exception {
@@ -167,7 +171,7 @@ public class Release {
 		// properties
 		PROPERTY_BUILDMODE = getReleasePropertyBuildMode( action , root , "buildMode" ); 
 		PROPERTY_OBSOLETE = getReleasePropertyBoolean( action , root , "obsolete" , true );
-		PROPERTY_OLDRELEASE = getReleaseProperty( action , root , "over" );
+		PROPERTY_COMPATIBILITY = getReleaseProperty( action , root , "over" );
 
 		// get projectsets
 		for( VarCATEGORY CATEGORY : meta.getAllReleaseCategories( action ) )
@@ -386,7 +390,7 @@ public class Release {
 		Common.xmlSetElementAttr( doc , root , "version" , RELEASEVER );
 		Common.xmlCreatePropertyElement( doc , root , "buildMode" , Common.getEnumLower( PROPERTY_BUILDMODE ) );
 		Common.xmlCreateBooleanPropertyElement( doc , root , "obsolete" , PROPERTY_OBSOLETE );
-		Common.xmlCreatePropertyElement( doc , root , "over" , PROPERTY_OLDRELEASE );
+		Common.xmlCreatePropertyElement( doc , root , "over" , PROPERTY_COMPATIBILITY );
 		
 		for( VarCATEGORY CATEGORY : action.meta.getAllReleaseCategories( action ) )
 			Common.xmlCreateElement( doc , root , Common.getEnumLower( CATEGORY ) );
@@ -663,4 +667,13 @@ public class Release {
 		return( true );
 	}
 
+	public boolean isCompatible( ActionBase action , String RELEASEVER ) throws Exception {
+		if( PROPERTY_COMPATIBILITY.isEmpty() )
+			return( true );
+			
+		if( Common.checkPartOfSpacedList( RELEASEVER , PROPERTY_COMPATIBILITY ) )
+			return( true );
+		return( false );
+	}
+	
 }

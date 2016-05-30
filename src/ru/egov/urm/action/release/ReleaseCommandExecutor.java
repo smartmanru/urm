@@ -16,8 +16,9 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	public ReleaseCommandExecutor( CommandBuilder builder ) {
 		super( builder , NAME );
 		
-		String releaseOpts = "GETOPT_BUILDMODE,GETOPT_OBSOLETE,GETOPT_OLDRELEASE";
+		String releaseOpts = "GETOPT_BUILDMODE,GETOPT_OBSOLETE,GETOPT_COMPATIBILITY";
 		defineAction( CommandAction.newAction( new CreateRelease() , "create" , true , "create release" , releaseOpts , "./create.sh [OPTIONS] <RELEASELABEL>" ) );
+		releaseOpts = "GETOPT_ALL,GETOPT_BUILDMODE,GETOPT_OBSOLETE,GETOPT_COMPATIBILITY";
 		defineAction( CommandAction.newAction( new ModifyRelease() , "modify" , true , "set release properties" , releaseOpts , "./modify.sh [OPTIONS] <RELEASELABEL>" ) );
 		releaseOpts = "";
 		defineAction( CommandAction.newAction( new DeleteRelease() , "drop" , true , "delete release" , releaseOpts , "./drop.sh [OPTIONS] <RELEASELABEL>" ) );

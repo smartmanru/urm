@@ -115,6 +115,12 @@ public class DatabaseRegistry {
 	}
 	
 	public boolean startApplyRelease( ActionBase action ) throws Exception {
+		// check last release if not forced
+		if( !action.context.CTX_FORCE ) {
+			if( !checkLastRelease( action ) )
+				return( false );
+		}
+		
 		// check current release state
 		if( isReleaseUnknown( action ) ) {
 			client.insertRow( action , server.admSchema , TABLE_RELEASES ,
@@ -147,6 +153,36 @@ public class DatabaseRegistry {
 		return( true );
 	}
 
+	public boolean checkLastRelease( ActionBase action ) throws Exception {
+		DatabaseRegistryRelease last = getLastRelease( action );
+		
+		// no last
+		if( last.state == RELEASE_STATE.UNKNOWN ) {
+			action.debug( "last release - no information, ignore checks" );
+			return( true );
+		}
+		
+		// last is current
+		if( last.version.equals( full ) ) {
+			action.debug( "last release reapply" );
+			return( true );
+		}
+		
+		// check last is completed
+		if( last.state != RELEASE_STATE.FINISHED ) {
+			action.error( "last release is not finilized, please complete (state=" + Common.getEnumLower( last.state ) + ")" );
+			return( false );
+		}
+		
+		// check compatibility
+		if( !release.isCompatible( action , last.version ) ) {
+			action.error( "last release=" + last.version + " is not compatible with current, compatibility list={" + release.PROPERTY_COMPATIBILITY + "}" );
+			return( false );
+		}
+	
+		return( true );
+	}
+	
 	public void finishApplyRelease( ActionBase action ) throws Exception {
 		releaseStatus = "A";
 		client.updateRow( action , server.admSchema , TABLE_RELEASES ,
