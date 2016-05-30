@@ -157,7 +157,7 @@ public class DistRepository {
 					action.exit( "invalid release version=" + RELEASEVER );
 				if( items[k].length() > 3 )
 					action.exit( "invalid release version=" + RELEASEVER );
-				value += items[0];
+				value += items[k];
 			}
 		}
 		
