@@ -22,7 +22,6 @@ import ru.egov.urm.storage.Artefactory;
 import ru.egov.urm.storage.FileSet;
 import ru.egov.urm.storage.LocalFolder;
 import ru.egov.urm.storage.RedistStorage;
-import ru.egov.urm.storage.ReleaseState;
 import ru.egov.urm.storage.RemoteFolder;
 
 public class Dist {
@@ -51,7 +50,7 @@ public class Dist {
 
 	private FileSet files;
 
-	ReleaseState state;
+	DistState state;
 	boolean openedForUse;
 	boolean openedForChange;
 	
@@ -61,7 +60,7 @@ public class Dist {
 		this.meta = artefactory.meta;
 		this.prod = prod;
 				
-		state = new ReleaseState( distFolder );
+		state = new DistState( distFolder );
 		files = null;
 		
 		openedForUse = false;
@@ -336,7 +335,7 @@ public class Dist {
 		
 		String saveReleaseVer = info.RELEASEVER;
 		info.copy( action , src.info );
-		info.setReleaseVer( saveReleaseVer ); 
+		info.setReleaseVer( action , saveReleaseVer ); 
 		Document doc = src.info.createXml( action );
 		Common.xmlSaveDoc( doc , filePath );
 		

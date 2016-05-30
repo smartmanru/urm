@@ -65,13 +65,13 @@ public class Release {
 	}
 	
 	public void create( ActionBase action , String RELEASEVER , String RELEASEFILEPATH ) throws Exception {
-		this.RELEASEVER = RELEASEVER;
+		this.RELEASEVER = normalize( action , RELEASEVER );
 		createEmptyXml( action , RELEASEFILEPATH );
 		setProperties( action );
 	}
 
-	public void setReleaseVer( String RELEASEVER ) {
-		this.RELEASEVER = RELEASEVER;
+	public void setReleaseVer( ActionBase action , String RELEASEVER ) throws Exception {
+		this.RELEASEVER = normalize( action , RELEASEVER );
 	}
 	
 	public void setProperties( ActionBase action ) throws Exception {
@@ -80,8 +80,12 @@ public class Release {
 		
 		if( action.context.CTX_ALL )
 			PROPERTY_COMPATIBILITY = action.context.CTX_OLDRELEASE;
-		else
-			PROPERTY_COMPATIBILITY = Common.addListToUniqueSpacedList( PROPERTY_COMPATIBILITY , action.context.CTX_OLDRELEASE );
+		else {
+			for( String OLDRELEASE : Common.splitSpaced( action.context.CTX_OLDRELEASE ) ) {
+				OLDRELEASE = normalize( action , OLDRELEASE );
+				PROPERTY_COMPATIBILITY = Common.addItemToUniqueSpacedList( PROPERTY_COMPATIBILITY , OLDRELEASE );
+			}
+		}
 	}
 	
 	public void setProperties( ActionBase action , Release src ) throws Exception {
@@ -675,5 +679,28 @@ public class Release {
 			return( true );
 		return( false );
 	}
-	
+
+	public String normalize( ActionBase action , String RELEASEVER ) throws Exception {
+		String[] items = Common.splitDotted( RELEASEVER );
+		if( items.length < 2 && items.length > 4 )
+			action.exit( "invalid release version=" + RELEASEVER );
+		
+		String value = "";
+		for( int k = 0; k < 4; k++ ) {
+			if( k > 0 )
+				value += ".";
+			if( k >= items.length )
+				value += "0";
+			else {
+				if( !items[k].matches( "[0-9]+" ) )
+					action.exit( "invalid release version=" + RELEASEVER );
+				if( items[k].length() > 3 )
+					action.exit( "invalid release version=" + RELEASEVER );
+				value += items[0];
+			}
+		}
+		
+		return( value );
+	}
+
 }

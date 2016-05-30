@@ -1,4 +1,4 @@
-package ru.egov.urm.storage;
+package ru.egov.urm.dist;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -7,13 +7,13 @@ import java.util.Map;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.action.ActionBase;
-import ru.egov.urm.dist.Dist;
-import ru.egov.urm.dist.Release;
 import ru.egov.urm.shell.ShellExecutor;
+import ru.egov.urm.storage.LocalFolder;
+import ru.egov.urm.storage.RemoteFolder;
 
-public class ReleaseState {
+public class DistState {
 
-	public enum RELEASESTATE {
+	public enum DISTSTATE {
 		UNKNOWN ,
 		MISSINGDIST ,
 		MISSINGSTATE ,
@@ -27,8 +27,8 @@ public class ReleaseState {
 	}
 	
 	// state
-	public RELEASESTATE state;
-	RELEASESTATE stateMem;
+	public DISTSTATE state;
+	DISTSTATE stateMem;
 	String stateChangeID;
 	String stateHash;
 
@@ -36,12 +36,12 @@ public class ReleaseState {
 	
 	private RemoteFolder distFolder;
 
-	public ReleaseState( RemoteFolder distFolder ) {
+	public DistState( RemoteFolder distFolder ) {
 		this.distFolder = distFolder;
-		this.state = RELEASESTATE.UNKNOWN;
+		this.state = DISTSTATE.UNKNOWN;
 	}
 	
-	private void ctlSetStatus( ActionBase action , RELEASESTATE newState ) throws Exception {
+	private void ctlSetStatus( ActionBase action , DISTSTATE newState ) throws Exception {
 		// UNKNOWN = before read -> any
 		// MISSING [no distributive] -> DIRTY
 		// BROKEN [inconsistent]
@@ -53,33 +53,33 @@ public class ReleaseState {
 		// ARCHIVED
 
 		boolean ok = false;
-		if( state == RELEASESTATE.MISSINGDIST ) {
-			if( newState == RELEASESTATE.DIRTY )
+		if( state == DISTSTATE.MISSINGDIST ) {
+			if( newState == DISTSTATE.DIRTY )
 				ok = true;
 		}
 		else
-		if( state == RELEASESTATE.MISSINGSTATE ) {
-			if( newState == RELEASESTATE.DIRTY )
+		if( state == DISTSTATE.MISSINGSTATE ) {
+			if( newState == DISTSTATE.DIRTY )
 				ok = true;
 		}
 		else
-		if( state == RELEASESTATE.DIRTY ) {
-			if( newState == RELEASESTATE.CHANGING )
+		if( state == DISTSTATE.DIRTY ) {
+			if( newState == DISTSTATE.CHANGING )
 				ok = true;
 		}
 		else
-		if( state == RELEASESTATE.CHANGING ) {
-			if( newState == RELEASESTATE.DIRTY || newState == RELEASESTATE.RELEASED )
+		if( state == DISTSTATE.CHANGING ) {
+			if( newState == DISTSTATE.DIRTY || newState == DISTSTATE.RELEASED )
 				ok = true;
 		}
 		else
-		if( state == RELEASESTATE.RELEASED ) {
-			if( newState == RELEASESTATE.PROD || newState == RELEASESTATE.CANCELLED || newState == RELEASESTATE.CHANGING )
+		if( state == DISTSTATE.RELEASED ) {
+			if( newState == DISTSTATE.PROD || newState == DISTSTATE.CANCELLED || newState == DISTSTATE.CHANGING )
 				ok = true;
 		}
 		else
-		if( state == RELEASESTATE.PROD ) {
-			if( newState == RELEASESTATE.ARCHIVED )
+		if( state == DISTSTATE.PROD ) {
+			if( newState == DISTSTATE.ARCHIVED )
 				ok = true;
 		}
 		if( !ok ) {
@@ -148,7 +148,7 @@ public class ReleaseState {
 	}
 	
 	public void checkDistChangeEnabled( ActionBase action ) throws Exception {
-		if( stateMem != RELEASESTATE.CHANGING )
+		if( stateMem != DISTSTATE.CHANGING )
 			action.exit( "distributive is not open for changes" );
 	}
 	
@@ -157,12 +157,12 @@ public class ReleaseState {
 		stateHash = "";
 		
 		if( !distFolder.checkExists( action ) ) {
-			state = RELEASESTATE.MISSINGDIST;
+			state = DISTSTATE.MISSINGDIST;
 			return;
 		}
 		
 		if( !distFolder.checkFileExists( action, Dist.STATE_FILENAME ) ) {
-			state = RELEASESTATE.MISSINGSTATE;
+			state = DISTSTATE.MISSINGSTATE;
 			return;
 		}
 		
@@ -171,16 +171,16 @@ public class ReleaseState {
 			String stateInfo = distFolder.getFileContentAsString( action , Dist.STATE_FILENAME );
 			String[] parts = Common.split( stateInfo , ":" );
 			if( parts.length != 3 ) {
-				state = RELEASESTATE.BROKEN;
+				state = DISTSTATE.BROKEN;
 				return;
 			}
 			
-			state = RELEASESTATE.valueOf( parts[ 0 ] );
+			state = DISTSTATE.valueOf( parts[ 0 ] );
 			stateChangeID = parts[ 1 ];
 			stateHash = parts[ 2 ];
 		}
 		catch( IllegalArgumentException e ) {
-			state = RELEASESTATE.BROKEN;
+			state = DISTSTATE.BROKEN;
 		}
 	}
 
@@ -188,7 +188,7 @@ public class ReleaseState {
 		// create release.xml, create status file, set closed dirty state
 		// check current status
 		ctlLoadReleaseState( action );
-		if( state != RELEASESTATE.MISSINGDIST ) {
+		if( state != DISTSTATE.MISSINGDIST ) {
 			if( !action.context.CTX_FORCE )
 				action.exit( "unable to create existing distributive" );
 		}
@@ -206,7 +206,7 @@ public class ReleaseState {
 		distFolder.copyFileFromLocal( action , filePath );
 		
 		// set status
-		ctlSetStatus( action , RELEASESTATE.DIRTY );
+		ctlSetStatus( action , DISTSTATE.DIRTY );
 		action.info( "release has been created: " + RELEASEDIR );
 	}
 	
@@ -217,7 +217,7 @@ public class ReleaseState {
 		
 		// check current status
 		ctlLoadReleaseState( action );
-		if( state != RELEASESTATE.MISSINGSTATE )
+		if( state != DISTSTATE.MISSINGSTATE )
 			action.exit( "state file should not exist" );
 		
 		// create empty release.xml
@@ -228,7 +228,7 @@ public class ReleaseState {
 		distFolder.copyFileFromLocal( action , filePath );
 		
 		// set status
-		ctlSetStatus( action , RELEASESTATE.DIRTY );
+		ctlSetStatus( action , DISTSTATE.DIRTY );
 		action.info( "prod has been created at " + distFolder.folderPath );
 	}
 	
@@ -237,10 +237,10 @@ public class ReleaseState {
 		ctlLoadReleaseState( action );
 		
 		// dirty state expected
-		if( state != RELEASESTATE.DIRTY )
+		if( state != DISTSTATE.DIRTY )
 			action.exit( "distributive is not ready for change, state=" + state.name() );
 		
-		ctlSetStatus( action , RELEASESTATE.CHANGING );
+		ctlSetStatus( action , DISTSTATE.CHANGING );
 		action.debug( "distributive has been opened for change, ID=" + activeChangeID );
 	}
 
@@ -249,7 +249,7 @@ public class ReleaseState {
 		ctlLoadReleaseState( action );
 		
 		// dirty state expected
-		if( state != RELEASESTATE.CHANGING )
+		if( state != DISTSTATE.CHANGING )
 			action.exit( "distributive is not opened for change, state=" + state.name() );
 		
 		if( !activeChangeID.equals( stateChangeID ) )
@@ -258,7 +258,7 @@ public class ReleaseState {
 	
 	public void ctlCloseChange( ActionBase action ) throws Exception {
 		ctlReloadCheckOpened( action );
-		ctlSetStatus( action , RELEASESTATE.DIRTY );
+		ctlSetStatus( action , DISTSTATE.DIRTY );
 		action.debug( "distributive has been closed after change, ID=" + stateChangeID );
 	}
 
@@ -267,17 +267,17 @@ public class ReleaseState {
 		ctlLoadReleaseState( action );
 		
 		// dirty state expected
-		if( state != RELEASESTATE.CHANGING )
+		if( state != DISTSTATE.CHANGING )
 			action.exit( "distributive is not opened for change, state=" + state.name() );
 		
-		ctlSetStatus( action , RELEASESTATE.DIRTY );
+		ctlSetStatus( action , DISTSTATE.DIRTY );
 		action.info( "distributive has been closed after change, ID=" + stateChangeID );
 	}
 
 	public void ctlFinish( ActionBase action ) throws Exception {
 		ctlReloadCheckOpened( action );
 
-		ctlSetStatus( action , RELEASESTATE.RELEASED );
+		ctlSetStatus( action , DISTSTATE.RELEASED );
 		action.info( "distributive has been finalized, hash=" + stateHash );
 	}
 
@@ -286,10 +286,10 @@ public class ReleaseState {
 		ctlLoadReleaseState( action );
 		
 		// dirty state expected
-		if( state != RELEASESTATE.RELEASED )
+		if( state != DISTSTATE.RELEASED )
 			action.exit( "distributive is not released, state=" + state.name() );
 		
-		ctlSetStatus( action , RELEASESTATE.CHANGING );
+		ctlSetStatus( action , DISTSTATE.CHANGING );
 		action.info( "distributive has been reopened" );
 	}
 
@@ -298,12 +298,12 @@ public class ReleaseState {
 		ctlLoadReleaseState( action );
 		
 		if( PROD == false ) {
-			if( state != RELEASESTATE.PROD && state != RELEASESTATE.RELEASED && state != RELEASESTATE.DIRTY )
+			if( state != DISTSTATE.PROD && state != DISTSTATE.RELEASED && state != DISTSTATE.DIRTY )
 				action.exit( "distributive is not ready for use, state=" + state.name() );
 		}
 		
 		if( PROD == true ) {
-			if( state != RELEASESTATE.PROD && state != RELEASESTATE.RELEASED )
+			if( state != DISTSTATE.PROD && state != DISTSTATE.RELEASED )
 				action.exit( "distributive is not ready for use in prod environment, state=" + state.name() );
 		}
 
@@ -318,19 +318,19 @@ public class ReleaseState {
 	public void ctlCheckCanDropRelease( ActionBase action ) throws Exception {
 		// check current status
 		ctlLoadReleaseState( action );
-		if( state != RELEASESTATE.DIRTY )
+		if( state != DISTSTATE.DIRTY )
 			action.exit( "distributive is not closed, state=" + state.name() );
 	}
 
 	public void ctlClearRelease( ActionBase action ) throws Exception {
-		stateMem = RELEASESTATE.MISSINGDIST;
+		stateMem = DISTSTATE.MISSINGDIST;
 		action.info( "distributive has been deleted: " + distFolder.folderName );
 	}
 
 	public void ctlCheckCanForceDropRelease( ActionBase action ) throws Exception {
 		// check current status
 		ctlLoadReleaseState( action );
-		if( state == RELEASESTATE.DIRTY || state == RELEASESTATE.BROKEN || state == RELEASESTATE.CHANGING || state == RELEASESTATE.CANCELLED )
+		if( state == DISTSTATE.DIRTY || state == DISTSTATE.BROKEN || state == DISTSTATE.CHANGING || state == DISTSTATE.CANCELLED )
 			return;
 		
 		action.exit( "distributive is protected, can be deleted only manually, state=" + state.name() );
