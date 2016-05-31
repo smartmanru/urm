@@ -50,21 +50,45 @@ public class Release {
 		this.PROPERTY_COMPATIBILITY = src.PROPERTY_COMPATIBILITY;
 		this.PROPERTY_CUMULATIVE = src.PROPERTY_CUMULATIVE;
 		
-		sourceSetMap.clear();
-		categorySetMap.clear();
-		deliveryMap.clear();
+		descopeAll( action );
 		
 		for( Entry<String,ReleaseSet> entry : src.sourceSetMap.entrySet() ) {
 			ReleaseSet set = entry.getValue().copy( action , this );
 			sourceSetMap.put( entry.getKey() , set );
-			
-			if( set.isCategorySet( action ) )
-				categorySetMap.put( set.CATEGORY , set );
+		}
+		
+		for( Entry<VarCATEGORY,ReleaseSet> entry : src.categorySetMap.entrySet() ) {
+			ReleaseSet set = entry.getValue().copy( action , this );
+			categorySetMap.put( entry.getKey() , set );
 		}
 		
 		for( Entry<String,ReleaseDelivery> entry : src.deliveryMap.entrySet() ) {
 			ReleaseDelivery set = entry.getValue().copy( action , this );
 			deliveryMap.put( entry.getKey() , set );
+		}
+	}
+	
+	public void addRelease( ActionBase action , Release src ) throws Exception {
+		for( Entry<String,ReleaseSet> entry : src.sourceSetMap.entrySet() ) {
+			ReleaseSet set = sourceSetMap.get( entry.getKey() );
+			ReleaseSet srcset = entry.getValue();
+			if( set == null ) {
+				set = srcset.copy( action , this );
+				sourceSetMap.put( entry.getKey() , set );
+			}
+			else
+				set.addReleaseSet( action , srcset );
+		}
+		
+		for( Entry<VarCATEGORY,ReleaseSet> entry : src.categorySetMap.entrySet() ) {
+			ReleaseSet set = categorySetMap.get( entry.getKey() );
+			ReleaseSet srcset = entry.getValue();
+			if( set == null ) {
+				set = srcset.copy( action , this );
+				categorySetMap.put( entry.getKey() , set );
+			}
+			else
+				set.addReleaseSet( action , srcset );
 		}
 	}
 	
@@ -170,7 +194,6 @@ public class Release {
 			set.load( action , element );
 			registerSet( action , set );
 		}
-			
 	}
 	
 	public Document load( ActionBase action , String RELEASEFILEPATH ) throws Exception {
@@ -705,6 +728,24 @@ public class Release {
 		sourceSetMap.clear();
 		categorySetMap.clear();
 		deliveryMap.clear();
+	}
+
+	public void rebuildDeliveries( ActionBase action ) throws Exception {
+		deliveryMap.clear();
+		
+		for( ReleaseSet set : sourceSetMap.values() ) {
+			for( ReleaseTarget target : set.getTargets( action ).values() ) {
+				for( ReleaseTargetItem item : target.getItems( action ).values() ) {
+					registerTargetItem( action , item );
+				}
+			}
+		}
+		
+		for( ReleaseSet set : categorySetMap.values() ) {
+			for( ReleaseTarget target : set.getTargets( action ).values() ) {
+				registerTarget( action , target );
+			}
+		}
 	}
 	
 }

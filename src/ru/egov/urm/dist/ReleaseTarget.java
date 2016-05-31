@@ -73,6 +73,17 @@ public class ReleaseTarget {
 		return( nx );
 	}
 	
+	public void addReleaseTarget( ActionBase action , ReleaseTarget srctarget ) throws Exception {
+		for( Entry<String,ReleaseTargetItem> entry : srctarget.itemMap.entrySet() ) {
+			ReleaseTargetItem srcitem = entry.getValue();
+			ReleaseTargetItem item = itemMap.get( entry.getKey() );
+			if( item == null ) {
+				item = srcitem.copy( action , set.release , set , this );
+				itemMap.put( entry.getKey() , item );
+			}
+		}
+	}
+	
 	public void setDistFile( ActionBase action , String DISTFILE ) throws Exception {
 		this.DISTFILE = DISTFILE;
 	}

@@ -30,18 +30,22 @@ public class ActionGetCumulative extends ActionBase {
 			}	
 		}
 
+		release.rebuildDeliveries( this );
+		dist.saveReleaseXml( this );
 		dist.closeChange( this );
 		return( true );
 	}
 
 	private boolean addCumulativeVersion( DistRepository repo , Release release , String version ) throws Exception {
 		info( "add cumulative release version=" + version + " ..." );
-		Dist dist = repo.getDistByLabel( this , version );
-		if( !dist.isFinalized( this ) ) {
+		Dist cumdist = repo.getDistByLabel( this , version );
+		
+		if( !cumdist.isFinalized( this ) ) {
 			error( "cannot settle cumulative release from non-finalized release version=" + version );
 			return( false );
 		}
 		
+		release.addRelease( this , cumdist.release );
 		return( true );
 	}
 	

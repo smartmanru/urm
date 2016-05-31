@@ -60,6 +60,19 @@ public class ReleaseSet {
 		return( nx );
 	}
 	
+	public void addReleaseSet( ActionBase action , ReleaseSet srcset ) throws Exception {
+		for( Entry<String,ReleaseTarget> entry : srcset.map.entrySet() ) {
+			ReleaseTarget srcitem = entry.getValue();
+			ReleaseTarget item = map.get( entry.getKey() );
+			if( item == null ) {
+				item = srcitem.copy( action , release , srcset );
+				map.put( entry.getKey() , item );
+			}
+			else
+				item.addReleaseTarget( action , item );
+		}
+	}
+	
 	public String getId() {
 		return( set.NAME );
 	}
