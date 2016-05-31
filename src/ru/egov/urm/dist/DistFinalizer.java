@@ -120,7 +120,7 @@ public class DistFinalizer {
 			FileSet dirFilesRelease = fsr.dirs.get( dir );
 			if( dirFilesRelease == null ) {
 				if( dir.equals( Dist.DATABASE_FOLDER ) ) {
-					if( !finishDistDeliveryBinary( action , delivery , dirFilesDist , dirFilesRelease ) )
+					if( !finishDistDeliveryDatabase( action , delivery , dirFilesDist , null ) )
 						return( false );
 				}
 				
