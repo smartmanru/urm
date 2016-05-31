@@ -158,11 +158,25 @@ public class ActionPrintReleaseStatus extends ActionBase {
 
 	private void printReleaseDatabaseStatus( Dist dist , FileSet files , ReleaseTarget db ) throws Exception {
 		MetaDistrDelivery delivery = db.distDatabaseItem;
+
+		if( dist.release.PROPERTY_CUMULATIVE ) {
+			String[] versions = dist.release.getCumulativeVersions( this );
 			
-		String folder = dist.getDeliveryDatabaseFolder( this , delivery );
-		FileSet dbset = files.getDirByPath( this , folder );
-		String status = ( dbset == null || dbset.isEmpty() )? "missing" : "OK";
-		comment( "\tdelivery=" + delivery.NAME + ": " + status + " (" + folder + ")" + Common.getCommentIfAny( folder ) );
+			for( String version : versions ) {
+				String folder = dist.getDeliveryDatabaseFolder( this , delivery , version );
+				FileSet dbset = files.getDirByPath( this , folder );
+				if( dbset == null || dbset.isEmpty() )
+					continue;
+				
+				comment( "\tdelivery=" + delivery.NAME + ", version=" + version + ": OK (" + folder + ")" + Common.getCommentIfAny( folder ) );
+			}
+		}
+		else {
+			String folder = dist.getDeliveryDatabaseFolder( this , delivery );
+			FileSet dbset = files.getDirByPath( this , folder );
+			String status = ( dbset == null || dbset.isEmpty() )? "missing" : "OK";
+			comment( "\tdelivery=" + delivery.NAME + ": " + status + " (" + folder + ")" + Common.getCommentIfAny( folder ) );
+		}
 	}
 
 }

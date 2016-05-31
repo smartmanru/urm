@@ -625,7 +625,7 @@ public class Common {
 
 	public static boolean checkListItem( Object[] list , Object item ) {
 		for( Object xitem : list ) {
-			if( xitem == item )
+			if( xitem.equals( item ) )
 				return( true );
 		}
 		return( false );
