@@ -32,9 +32,10 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		comment( "\tstate: " + dist.getState( this ) );
 		comment( "\tversion: " + release.RELEASEVER );
 		comment( "PROPERTIES:" );
-		comment( "\tproperty=buildMode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );
+		comment( "\tproperty=buildmode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );
 		comment( "\tproperty=obsolete: " + Common.getBooleanValue( release.PROPERTY_OBSOLETE ) );
 		comment( "\tproperty=over: " + release.PROPERTY_COMPATIBILITY );
+		comment( "\tproperty=cumulative: " + Common.getBooleanValue( release.PROPERTY_CUMULATIVE ) );
 		
 		if( release.isEmpty( this ) ) {
 			comment( "(scope is empty)" );
