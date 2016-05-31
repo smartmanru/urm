@@ -215,7 +215,7 @@ public class DistRepository {
 		}
 		else {
 			String RELEASEDIR = "";
-			if( RELEASELABEL.indexOf( "-" ) >= 0 ) {
+			if( RELEASELABEL.indexOf( "-" ) < 0 ) {
 				RELEASEVER = normalizeReleaseVer( action , RELEASELABEL );
 				RELEASEDIR = getReleaseDirByVer( action , RELEASEVER );
 			}
