@@ -70,6 +70,8 @@ public class Release {
 	
 	public void create( ActionBase action , String RELEASEVER , String RELEASEFILEPATH ) throws Exception {
 		this.RELEASEVER = dist.repo.normalizeReleaseVer( action , RELEASEVER );
+		this.PROPERTY_CUMULATIVE = action.context.CTX_CUMULATIVE;
+		
 		setProperties( action );
 		createEmptyXml( action , RELEASEFILEPATH );
 	}
@@ -81,7 +83,6 @@ public class Release {
 	public void setProperties( ActionBase action ) throws Exception {
 		PROPERTY_BUILDMODE = action.context.CTX_BUILDMODE;
 		PROPERTY_OBSOLETE = action.context.CTX_OBSOLETE;
-		PROPERTY_CUMULATIVE = action.context.CTX_CUMULATIVE;
 		
 		if( action.context.CTX_ALL )
 			PROPERTY_COMPATIBILITY = "";
