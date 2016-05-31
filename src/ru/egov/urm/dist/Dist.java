@@ -755,7 +755,8 @@ public class Dist {
 		ReleaseDelivery reldel = src.release.findDelivery( action , delivery.distDelivery.NAME );
 		if( reldel != null ) {
 			String folder = src.getDeliveryDatabaseFolder( action , reldel.distDelivery );
-			distFolder.copyDir( action , src.distFolder.getFilePath( action , folder ) , folder );
+			if( src.distFolder.checkFolderExists( action , folder ) )
+				distFolder.copyDir( action , src.distFolder.getFilePath( action , folder ) , folder );
 		}
 	}
 	
