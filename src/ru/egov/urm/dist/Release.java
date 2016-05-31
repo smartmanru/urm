@@ -93,7 +93,7 @@ public class Release {
 		for( String OLDRELEASE : Common.splitSpaced( action.context.CTX_OLDRELEASE ) ) {
 			OLDRELEASE = dist.repo.normalizeReleaseVer( action , OLDRELEASE );
 			if( OLDRELEASE.compareTo( RELEASEVER ) >= 0 )
-				action.exit( "comatibility is expected for earlier release (version=" + OLDRELEASE + ")" );
+				action.exit( "compatibility is expected for earlier release (version=" + OLDRELEASE + ")" );
 			
 			PROPERTY_COMPATIBILITY = Common.addItemToUniqueSpacedList( PROPERTY_COMPATIBILITY , OLDRELEASE );
 		}
