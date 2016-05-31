@@ -72,8 +72,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
 		options.checkNoArgs( action , 1 );
-		Dist release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
-		impl.modifyRelease( action , release );
+		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		impl.modifyRelease( action , dist );
 	}
 	}
 
@@ -182,9 +182,9 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String SET = options.getArg( 1 );
 		String[] PROJECTS = options.getArgList( 2 );
 
-		Dist release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		
-		impl.buildRelease( action , SET , PROJECTS , release );
+		impl.buildRelease( action , SET , PROJECTS , dist );
 	}
 	}
 
@@ -194,47 +194,47 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String SET = options.getArg( 1 );
 		String[] PROJECTS = options.getArgList( 2 );
 
-		Dist release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		
-		if( action.context.CTX_CUMULATIVE ) {
+		if( dist.release.isCumulative() ) {
 			if( SET.isEmpty() || SET.equals( "all" ) )
-				impl.getCumulativeRelease( action , release );
+				impl.getCumulativeRelease( action , dist );
 			else
 				action.exit( "unexpected parameters to settle cumulative release" );
 		}
 		else
-			impl.getAllRelease( action , SET , PROJECTS , release );
+			impl.getAllRelease( action , SET , PROJECTS , dist );
 	}
 	}
 
 	private class DescopeRelease extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
-		Dist release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		
 		String SET = options.getRequiredArg( action , 1 , "SET" );
 		if( SET.equals( "all" ) ) {
-			impl.descopeAll( action , release );
+			impl.descopeAll( action , dist );
 		}
 		else
 		if( SET.equals( Common.getEnumLower( VarCATEGORY.CONFIG ) ) ) {
 			String[] COMPS = options.getArgList( 2 );
-			impl.descopeConfComps( action , release , COMPS );
+			impl.descopeConfComps( action , dist , COMPS );
 		}
 		else
 		if( SET.equals( Common.getEnumLower( VarCATEGORY.DB ) ) ) {
 			String[] ITEMS = options.getArgList( 2 );
-			impl.descopeDatabase( action , release , ITEMS );
+			impl.descopeDatabase( action , dist , ITEMS );
 		}
 		else
 		if( SET.equals( Common.getEnumLower( VarCATEGORY.MANUAL ) ) ) {
 			String[] ITEMS = options.getArgList( 2 );
-			impl.descopeManualItems( action , release , ITEMS );
+			impl.descopeManualItems( action , dist , ITEMS );
 		}
 		else {
 			String PROJECT = options.getArg( 2 );
 			String[] ITEMS = options.getArgList( 3 );
-			impl.descopeBinary( action , release , SET , PROJECT , ITEMS );
+			impl.descopeBinary( action , dist , SET , PROJECT , ITEMS );
 		}
 	}
 	}
