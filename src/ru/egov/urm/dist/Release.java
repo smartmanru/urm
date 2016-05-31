@@ -92,6 +92,9 @@ public class Release {
 			PROPERTY_COMPATIBILITY = "";
 		for( String OLDRELEASE : Common.splitSpaced( action.context.CTX_OLDRELEASE ) ) {
 			OLDRELEASE = dist.repo.normalizeReleaseVer( action , OLDRELEASE );
+			if( OLDRELEASE.compareTo( RELEASEVER ) >= 0 )
+				action.exit( "comatibility should be settle for earlier release (version=" + OLDRELEASE + ")" );
+			
 			PROPERTY_COMPATIBILITY = Common.addItemToUniqueSpacedList( PROPERTY_COMPATIBILITY , OLDRELEASE );
 		}
 	}
@@ -693,7 +696,7 @@ public class Release {
 	}
 
 	public String[] getCumulativeVersions( ActionBase action ) throws Exception {
-		String versions = Common.getSortedUniqueSpacedList( PROPERTY_COMPATIBILITY );
+		String versions = Common.getSortedUniqueSpacedList( PROPERTY_COMPATIBILITY + " " + RELEASEVER );
 		versions = Common.getPartAfterFirst( versions , " " );
 		return( Common.splitSpaced( versions ) );
 	}
