@@ -35,6 +35,7 @@ public class ActionGetCumulative extends ActionBase {
 	}
 
 	private boolean addCumulativeVersion( DistRepository repo , Release release , String version ) throws Exception {
+		info( "add cumulative release version=" + version + " ..." );
 		Dist dist = repo.getDistByLabel( this , version );
 		if( !dist.isFinalized( this ) ) {
 			error( "cannot settle cumulative release from non-finalized release version=" + version );
