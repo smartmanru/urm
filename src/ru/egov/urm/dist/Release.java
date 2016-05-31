@@ -70,8 +70,8 @@ public class Release {
 	
 	public void create( ActionBase action , String RELEASEVER , String RELEASEFILEPATH ) throws Exception {
 		this.RELEASEVER = dist.repo.normalizeReleaseVer( action , RELEASEVER );
-		createEmptyXml( action , RELEASEFILEPATH );
 		setProperties( action );
+		createEmptyXml( action , RELEASEFILEPATH );
 	}
 
 	public void setReleaseVer( ActionBase action , String RELEASEVER ) throws Exception {
@@ -95,6 +95,7 @@ public class Release {
 		PROPERTY_BUILDMODE = src.PROPERTY_BUILDMODE;
 		PROPERTY_OBSOLETE = src.PROPERTY_OBSOLETE;
 		PROPERTY_COMPATIBILITY = src.PROPERTY_COMPATIBILITY;
+		PROPERTY_CUMULATIVE = src.PROPERTY_CUMULATIVE;
 	}
 	
 	public void createProd( ActionBase action , String RELEASEVER , String filePath ) throws Exception {
