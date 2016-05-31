@@ -32,7 +32,8 @@ public class ActionGetCumulative extends ActionBase {
 			dists[ versions.length - k - 1 ] = repo.getDistByLabel( this , versions[ k ] );
 			if( !addCumulativeVersion( repo , versions[ k ] , dists[ k ] ) ) {
 				super.setFailed();
-				break;
+				dist.closeChange( this );
+				return( true );
 			}	
 		}
 
