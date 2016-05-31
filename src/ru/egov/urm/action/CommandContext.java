@@ -70,6 +70,8 @@ public class CommandContext {
 	public SQLMODE CTX_DBMODE; 
 	public boolean CTX_DBMOVE;
 	public boolean CTX_DBAUTH;
+	public boolean CTX_CUMULATIVE;
+	
 	public String CTX_DBALIGNED = "";
 	public String CTX_DB = "";
 	public String CTX_DBPASSWORD = "";
@@ -156,6 +158,8 @@ public class CommandContext {
 		this.CTX_DBMODE = context.CTX_DBMODE;
 		this.CTX_DBMOVE = context.CTX_DBMOVE;
 		this.CTX_DBAUTH = context.CTX_DBAUTH;
+		this.CTX_CUMULATIVE = context.CTX_CUMULATIVE;
+		
 		this.CTX_DBALIGNED = context.CTX_DBALIGNED;
 		this.CTX_DB = context.CTX_DB;
 		this.CTX_DBPASSWORD = context.CTX_DBPASSWORD;

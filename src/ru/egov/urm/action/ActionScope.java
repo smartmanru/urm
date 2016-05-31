@@ -268,14 +268,14 @@ public class ActionScope {
 				return;
 			
 			if( DELIVERY.equals( "all" ) ) {
-				for( ReleaseDelivery delivery : release.info.getDeliveries( action ).values() ) {
+				for( ReleaseDelivery delivery : release.release.getDeliveries( action ).values() ) {
 					ActionScopeTarget target = sset.addDatabaseDelivery( action , delivery , false , all );
 					if( !all )
 						target.addIndexItems( action , INDEXES );
 				}
 			}
 			else {
-				ReleaseDelivery delivery = release.info.getDelivery( action , DELIVERY );
+				ReleaseDelivery delivery = release.release.getDelivery( action , DELIVERY );
 				ActionScopeTarget target = sset.addDatabaseDelivery( action , delivery , true , all );
 				if( !all )
 					target.addIndexItems( action , INDEXES );
@@ -352,7 +352,7 @@ public class ActionScope {
 	private ActionScopeTarget createReleaseProjectItemsScope( ActionBase action , Dist release , String PROJECT , String[] ITEMS ) throws Exception {
 		scopeFull = false;
 		
-		ReleaseTarget releaseProject = release.info.findBuildProject( action , PROJECT );
+		ReleaseTarget releaseProject = release.release.findBuildProject( action , PROJECT );
 		if( releaseProject == null ) {
 			action.info( "ignore non-release project=" + PROJECT );
 			return( null );
@@ -395,7 +395,7 @@ public class ActionScope {
 			if( item.DISTSOURCE == VarDISTITEMSOURCE.MANUAL )
 				sset = createReleaseCategoryScopeSet( action , dist , VarCATEGORY.MANUAL );
 			else {
-				ReleaseSet rset = release.info.getSourceSet( action , item.sourceItem.project.set.NAME );
+				ReleaseSet rset = release.release.getSourceSet( action , item.sourceItem.project.set.NAME );
 				sset = createReleaseScopeSet( action , rset );
 			}
 			
@@ -448,8 +448,8 @@ public class ActionScope {
 			addReleaseManualItems( action , release , TARGETS );
 		else {
 			MetaSourceProjectSet set = meta.sources.getProjectSet( action , SET );
-			if( release.info.addSourceSet( action , set , false ) ) {
-				ReleaseSet rset = release.info.getSourceSet( action , SET );  
+			if( release.release.addSourceSet( action , set , false ) ) {
+				ReleaseSet rset = release.release.getSourceSet( action , SET );  
 				addReleaseProjects( action , release , rset , TARGETS );
 			}
 		}
@@ -464,7 +464,7 @@ public class ActionScope {
 		if( sset != null )
 			return( sset );
 		
-		ReleaseSet rset = release.info.findCategorySet( action , CATEGORY );
+		ReleaseSet rset = release.release.findCategorySet( action , CATEGORY );
 		if( rset == null ) {
 			action.info( "ignore non-release set=" + Common.getEnumLower( CATEGORY ) );
 			return( null );
@@ -693,7 +693,7 @@ public class ActionScope {
 	}
 		
 	private void addAllReleaseProjects( ActionBase action , Dist release ) throws Exception {
-		for( ReleaseSet rset : release.info.getSourceSets( action ).values() ) {
+		for( ReleaseSet rset : release.release.getSourceSets( action ).values() ) {
 			ActionScopeSet sset = createReleaseScopeSet( action , rset );
 			sset.addProjects( action , null );
 		}

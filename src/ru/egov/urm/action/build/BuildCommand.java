@@ -97,7 +97,7 @@ public class BuildCommand {
 		action.info( "update configuration difference information ..." );
 		ConfBuilder builder = new ConfBuilder( action );
 		
-		for( ReleaseDelivery delivery : scope.release.info.getDeliveries( action ).values() ) {
+		for( ReleaseDelivery delivery : scope.release.release.getDeliveries( action ).values() ) {
 			if( delivery.getConfItems( action ).size() > 0 ) {
 				String file = builder.createConfDiffFile( scope.release , delivery );
 				scope.release.replaceConfDiffFile( action , file , delivery );
@@ -219,13 +219,13 @@ public class BuildCommand {
 	}
 	
 	public void buildRelease( ActionBase action , String SET , String[] PROJECTS , Dist release ) throws Exception {
-		action.setBuildMode( release.info.PROPERTY_BUILDMODE );
+		action.setBuildMode( release.release.PROPERTY_BUILDMODE );
 		
 		String TAG;
 		if( !action.context.CTX_TAG.isEmpty() )
 			TAG = action.context.CTX_TAG;
 		else
-			TAG = release.info.getReleaseCandidateTag( action );
+			TAG = release.release.getReleaseCandidateTag( action );
 		String RELEASEDIR = release.RELEASEDIR;
 		
 		LogStorage storage = action.artefactory.getReleaseBuildLogStorage( action , RELEASEDIR );
@@ -250,7 +250,7 @@ public class BuildCommand {
 	}
 
 	public void getAllRelease( ActionBase action , String SET , String[] PROJECTS , Dist release ) throws Exception {
-		action.setBuildMode( release.info.PROPERTY_BUILDMODE );
+		action.setBuildMode( release.release.PROPERTY_BUILDMODE );
 		
 		ActionScope scope = ActionScope.getReleaseSetScope( action , release , SET , PROJECTS );
 		if( scope.isEmpty( action ) ) {

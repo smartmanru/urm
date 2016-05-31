@@ -14,7 +14,7 @@ public class ActionCreateRelease extends ActionBase {
 	}
 
 	@Override protected boolean executeSimple() throws Exception {
-		release = artefactory.createDistStorage( this , RELEASELABEL );
+		release = artefactory.createDist( this , RELEASELABEL );
 		return( true );
 	}
 	

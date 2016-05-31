@@ -100,6 +100,7 @@ public class CommandOptions {
 		defineOption( CommandVar.newFlagYesOption( "m" , "GETOPT_DBMOVE" , "move erroneous scripts to error subfolder in source folder" ) );
 		defineOption( CommandVar.newFlagYesOption( "auth" , "GETOPT_DBAUTH" , "do not use simple authorization" ) );
 		defineOption( CommandVar.newFlagNoOption( "noauth" , "GETOPT_DBAUTH" , "use simple authorization" ) );
+		defineOption( CommandVar.newFlagYesOption( "cumulative" , "GETOPT_CUMULATIVE" , "cumulative release" ) );
 		defineOption( CommandVar.newParam( "aligned" , "GETOPT_DBALIGNED" , "use specific aligned set of scipts to apply" ) );
 		defineOption( CommandVar.newParam( "db" , "GETOPT_DB" , "use specific database server to apply" ) );
 		defineOption( CommandVar.newParam( "dbpwd" , "GETOPT_DBPASSWORD" , "use specified password to access database" ) );

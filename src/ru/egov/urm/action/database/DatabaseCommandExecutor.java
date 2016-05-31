@@ -113,7 +113,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		if( DELIVERY.equals( "all" ) )
 			options.checkNoArgs( action , 2 );
 		else {
-			delivery = dist.info.getDelivery( action , DELIVERY );
+			delivery = dist.release.getDelivery( action , DELIVERY );
 			indexScope = options.getRequiredArg( action , 2 , "mask" );
 			options.checkNoArgs( action , 3 );
 		}

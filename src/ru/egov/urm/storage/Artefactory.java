@@ -159,7 +159,7 @@ public class Artefactory {
 		return( storage );
 	}
 	
-	public Dist createDistStorage( ActionBase action , String RELEASELABEL ) throws Exception {
+	public Dist createDist( ActionBase action , String RELEASELABEL ) throws Exception {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 		DistRepository repo = getDistRepository( action );
 		Dist storage = repo.createDist( action , RELEASELABEL );

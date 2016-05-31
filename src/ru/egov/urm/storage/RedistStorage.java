@@ -198,7 +198,7 @@ public class RedistStorage extends ServerStorage {
 
 		String runtimeName = "";
 		if( !item.isArchive( action ) )
-			runtimeName = getDeployVersionedName( action , location , item , deployBaseName , dist.info.RELEASEVER );
+			runtimeName = getDeployVersionedName( action , location , item , deployBaseName , dist.release.RELEASEVER );
 		
 		// check need redist - from distributive
 		if( !stateInfo.needUpdate( action , item , dist , fileName , deployBaseName , runtimeName ) )
@@ -208,7 +208,7 @@ public class RedistStorage extends ServerStorage {
 		action.debug( "copy dist file " + fileName + " to " + redistFileName + " ..." );
 		dist.copyDistItemToTarget( action , item , fileName , locationDir , redistFileName );
 
-		FileInfo data = RedistStateInfo.getFileInfo( action , item , locationDir , redistFileName , deployBaseName , dist.info.RELEASEVER , runtimeName );
+		FileInfo data = RedistStateInfo.getFileInfo( action , item , locationDir , redistFileName , deployBaseName , dist.release.RELEASEVER , runtimeName );
 		String verName = data.getInfoName( action );
 		locationDir.createFileFromString( action , verName , data.value( action ) );
 		return( true );
@@ -246,7 +246,7 @@ public class RedistStorage extends ServerStorage {
 		locationDir.copyFileFromLocalRename( action , path , FileInfo.getFileName( action , item ) );
 
 		// create state file
-		FileInfo data = RedistStateInfo.getFileInfo( action , item , locationDir , redistFileName , dist.info.RELEASEVER , partial );
+		FileInfo data = RedistStateInfo.getFileInfo( action , item , locationDir , redistFileName , dist.release.RELEASEVER , partial );
 		String verName = data.getInfoName( action );
 		locationDir.createFileFromString( action , verName , data.value( action ) );
 	}

@@ -8,11 +8,11 @@ import ru.egov.urm.storage.SourceStorage;
 
 public class ActionGetDB extends ActionBase {
 
-	Dist release;
+	Dist dist;
 	
-	public ActionGetDB( ActionBase action , String stream , Dist release ) {
+	public ActionGetDB( ActionBase action , String stream , Dist dist ) {
 		super( action , stream );
-		this.release = release;
+		this.dist = dist;
 	}
 
 	protected boolean executeScopeTarget( ActionScopeTarget item ) throws Exception {
@@ -22,16 +22,14 @@ public class ActionGetDB extends ActionBase {
 		workFolder.recreateThis( this );
 		
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , workFolder );
-		if( !sourceStorage.downloadReleaseDatabaseFiles( this , release , item.dbDelivery , workFolder ) )
+		if( !sourceStorage.downloadReleaseDatabaseFiles( this , dist , item.dbDelivery , workFolder ) )
 			return( false );
 
 		LocalFolder downloadFolder = artefactory.getDownloadFolder( this );
-		LocalFolder deliveryFolder = downloadFolder.getSubFolder( this , item.dbDelivery.FOLDER );
-		LocalFolder dbPreparedFolder = deliveryFolder.getSubFolder( this , Dist.DATABASE_FOLDER );
-		deliveryFolder.ensureExists( this );
+		LocalFolder dbPreparedFolder = downloadFolder.getSubFolder( this , dist.getDeliveryDatabaseFolder( this , item.dbDelivery ) );
 		dbPreparedFolder.recreateThis( this );
 
-		LocalFolder dbWorkFolder = workFolder.getSubFolder( this , Dist.DATABASE_FOLDER );
+		LocalFolder dbWorkFolder = workFolder.getSubFolder( this , SourceStorage.DATABASE_FOLDER );
 		downloadDBDir( item , dbWorkFolder , dbPreparedFolder );
 		
 		return( true );
@@ -41,13 +39,13 @@ public class ActionGetDB extends ActionBase {
 		DatabasePrepare prepare = new DatabasePrepare();
 		
 		debug( "prepare scripts dir=" + workFolder.folderPath + " ..." );
-		if( !prepare.processDatabaseFiles( this , release , item.dbDelivery , workFolder , preparedFolder ) ) {
+		if( !prepare.processDatabaseFiles( this , dist , item.dbDelivery , workFolder , preparedFolder ) ) {
 			error( "script set check errors, do not copy to dist" );
 			return;
 		}
 		
 		// copy
 		if( context.CTX_DIST )
-			release.copyDatabaseFilesToDistr( this , item.dbDelivery , preparedFolder );
+			dist.copyDatabaseFilesToDistr( this , item.dbDelivery , preparedFolder );
 	}
 }

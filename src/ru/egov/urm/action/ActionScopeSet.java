@@ -362,7 +362,7 @@ public class ActionScopeSet {
 	
 	private Map<String,MetaEnvServer> getReleaseServers( ActionBase action , Dist release ) throws Exception {
 		Map<String,MetaEnvServer> mapServers = new HashMap<String,MetaEnvServer>();
-		Release info = release.info;
+		Release info = release.release;
 
 		for( ReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
 			for( MetaEnvServer server : dc.getServerMap( action ).values() ) {
@@ -375,7 +375,7 @@ public class ActionScopeSet {
 	
 	private Map<String,MetaEnvServer> getReleaseDatabaseServers( ActionBase action , Dist release ) throws Exception {
 		Map<String,MetaEnvServer> mapServers = new HashMap<String,MetaEnvServer>();
-		Release info = release.info;
+		Release info = release.release;
 
 		for( ReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
 			for( MetaEnvServer server : dc.getServerMap( action ).values() ) {

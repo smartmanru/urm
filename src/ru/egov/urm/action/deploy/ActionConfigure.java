@@ -81,7 +81,7 @@ public class ActionConfigure extends ActionBase {
 		}
 		
 		// copy from release
-		if( dist.info.findCategoryTarget( this , VarCATEGORY.CONFIG , conf.KEY ) != null )
+		if( dist.release.findCategoryTarget( this , VarCATEGORY.CONFIG , conf.KEY ) != null )
 			dist.copyDistConfToFolder( this , conf , templateFolder.getSubFolder( this , conf.KEY ) );
 	}
 	

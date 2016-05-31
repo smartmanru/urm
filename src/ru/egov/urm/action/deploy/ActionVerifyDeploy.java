@@ -121,7 +121,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			return;
 		}
 		
-		if( !release.version.equals( dist.info.RELEASEVER ) ) {
+		if( !release.version.equals( dist.release.RELEASEVER ) ) {
 			info( "release has not been applied to database" );
 			return;
 		}
@@ -226,7 +226,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		debug( "calculate diff between: " + tobeServerFolder.folderPath + " and " + asisServerFolder.folderPath + " (prefix=" + nodePrefix + ") ..." );
 		ConfDiffSet diff = new ConfDiffSet( releaseSet , prodSet , nodePrefix , true );
 		if( !dist.prod )
-			diff.calculate( this , dist.info );
+			diff.calculate( this , dist.release );
 		else
 			diff.calculate( this , null );
 		
@@ -295,7 +295,7 @@ public class ActionVerifyDeploy extends ActionBase {
 	
 	private void executeNodeConf( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrConfItem confItem , LocalFolder asisConfigServerFolder ) throws Exception {
 		if( !dist.prod ) {
-			if( dist.info.findConfComponent( this , confItem.KEY ) == null ) {
+			if( dist.release.findConfComponent( this , confItem.KEY ) == null ) {
 				trace( "ignore non-release conf item=" + confItem.KEY );
 				return;
 			}
@@ -348,7 +348,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			return( false );
 		}
 		
-		String runtimeName = redist.getDeployVersionedName( this , location , binaryItem , deployBaseName , dist.info.RELEASEVER );
+		String runtimeName = redist.getDeployVersionedName( this , location , binaryItem , deployBaseName , dist.release.RELEASEVER );
 		if( !runInfo.deployFinalName.equals( runtimeName ) ) {
 			info( "dist item=" + binaryItem.KEY + " is the same in location=" + location.DEPLOYPATH + 
 					", but name differs from expected (" + 

@@ -22,7 +22,7 @@ public class ActionDistVerifier extends ActionBase {
 	@Override protected boolean executeScope( ActionScope scope ) throws Exception {
 		Dist dist = scope.release;
 		FileSet set = dist.getFiles( this );
-		Release info = dist.info;
+		Release info = dist.release;
 		
 		// delete empty top folders, top directories are deliveries only
 		for( String dirPath : set.dirList ) {

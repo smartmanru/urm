@@ -23,7 +23,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 	}
 
 	@Override protected boolean executeSimple() throws Exception {
-		Release release = dist.info;
+		Release release = dist.release;
 		
 		FileSet files = dist.getFiles( this );
 		

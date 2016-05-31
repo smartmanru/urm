@@ -33,7 +33,7 @@ public class ActionApplyAutomatic extends ActionBase {
 	}
 
 	@Override protected void runBefore( ActionScope scope ) throws Exception {
-		logs = artefactory.getDatabaseLogStorage( this , dist.info.RELEASEVER );
+		logs = artefactory.getDatabaseLogStorage( this , dist.release.RELEASEVER );
 		info( "log to " + logs.logFolder.folderPath );
 	}
 	
@@ -44,7 +44,7 @@ public class ActionApplyAutomatic extends ActionBase {
 			exit( "unable to connect to server=" + server.NAME );
 
 		info( "apply changes to database=" + server.NAME + " ..." );
-		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client , dist.info );
+		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client , dist.release );
 		
 		applyFailed = false;
 		if( applyDatabase( server , client , registry ) )
@@ -64,7 +64,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		
 		Map<String,MetaDatabaseSchema> schemaSet = server.getSchemaSet( this );
 		boolean done = false;
-		for( ReleaseDelivery releaseDelivery : dist.info.getDeliveries( this ).values() ) {
+		for( ReleaseDelivery releaseDelivery : dist.release.getDeliveries( this ).values() ) {
 			if( optDelivery == null || optDelivery == releaseDelivery )
 				if( applyDelivery( server , client , registry , releaseDelivery , schemaSet , logs ) )
 					done = true;

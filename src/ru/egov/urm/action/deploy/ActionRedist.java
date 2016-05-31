@@ -180,7 +180,7 @@ public class ActionRedist extends ActionBase {
 			
 			debug( "source of distributive item=" + binaryItem.KEY + " found in distributive, file=" + fileName );
 			String fileExtracted = extractEmbeddedFile( binaryItem , fileName );
-			return( redist.copyReleaseFile( this , binaryItem , location , fileExtracted , deployBaseName , dist.RELEASEDIR , dist.info.RELEASEVER , stateInfo ) );
+			return( redist.copyReleaseFile( this , binaryItem , location , fileExtracted , deployBaseName , dist.RELEASEDIR , dist.release.RELEASEVER , stateInfo ) );
 		}
 		else if( binaryItem.DISTSOURCE == VarDISTITEMSOURCE.BUILD || binaryItem.DISTSOURCE == VarDISTITEMSOURCE.MANUAL ) {
 			String fileName = dist.getBinaryDistItemFile( this , binaryItem );
@@ -209,7 +209,7 @@ public class ActionRedist extends ActionBase {
 	}
 	
 	private boolean executeNodeConfigComp( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrConfItem confItem , LocalFolder liveFolder ) throws Exception {
-		ReleaseTarget target = dist.info.findConfComponent( this , confItem.KEY );
+		ReleaseTarget target = dist.release.findConfComponent( this , confItem.KEY );
 		
 		// not in release
 		if( target == null ) {

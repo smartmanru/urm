@@ -14,7 +14,7 @@ public class ActionModifyRelease extends ActionBase {
 
 	@Override protected boolean executeSimple() throws Exception {
 		release.openForChange( this );
-		release.info.setProperties( this );
+		release.release.setProperties( this );
 		release.saveReleaseXml( this );
 		release.closeChange( this );
 		return( true );

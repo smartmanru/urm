@@ -31,6 +31,7 @@ public class Release {
 	public boolean PROPERTY_OBSOLETE;
 	public VarBUILDMODE PROPERTY_BUILDMODE;
 	public String PROPERTY_COMPATIBILITY;
+	public boolean PROPERTY_CUMULATIVE;
 	
 	Map<String,ReleaseSet> sourceSetMap = new HashMap<String,ReleaseSet>();
 	Map<VarCATEGORY,ReleaseSet> categorySetMap = new HashMap<VarCATEGORY,ReleaseSet>();
@@ -47,6 +48,7 @@ public class Release {
 		this.PROPERTY_OBSOLETE = src.PROPERTY_OBSOLETE;
 		this.PROPERTY_BUILDMODE = src.PROPERTY_BUILDMODE;
 		this.PROPERTY_COMPATIBILITY = src.PROPERTY_COMPATIBILITY;
+		this.PROPERTY_CUMULATIVE = src.PROPERTY_CUMULATIVE;
 		
 		sourceSetMap.clear();
 		categorySetMap.clear();
@@ -79,6 +81,7 @@ public class Release {
 	public void setProperties( ActionBase action ) throws Exception {
 		PROPERTY_BUILDMODE = action.context.CTX_BUILDMODE;
 		PROPERTY_OBSOLETE = action.context.CTX_OBSOLETE;
+		PROPERTY_CUMULATIVE = action.context.CTX_CUMULATIVE;
 		
 		if( action.context.CTX_ALL )
 			PROPERTY_COMPATIBILITY = "";
@@ -98,6 +101,7 @@ public class Release {
 		this.RELEASEVER = RELEASEVER;
 		this.PROPERTY_BUILDMODE = VarBUILDMODE.MAJORBRANCH;
 		this.PROPERTY_OBSOLETE = true;
+		this.PROPERTY_CUMULATIVE = false;
 		
 		addSourceAll( action );
 		addCategorySet( action , VarCATEGORY.MANUAL , true );
@@ -176,6 +180,7 @@ public class Release {
 		PROPERTY_BUILDMODE = getReleasePropertyBuildMode( action , root , "buildMode" ); 
 		PROPERTY_OBSOLETE = getReleasePropertyBoolean( action , root , "obsolete" , true );
 		PROPERTY_COMPATIBILITY = getReleaseProperty( action , root , "over" );
+		PROPERTY_CUMULATIVE = getReleasePropertyBoolean( action , root , "cumulative" , false );
 
 		// get projectsets
 		for( VarCATEGORY CATEGORY : meta.getAllReleaseCategories( action ) )
@@ -395,6 +400,7 @@ public class Release {
 		Common.xmlCreatePropertyElement( doc , root , "buildMode" , Common.getEnumLower( PROPERTY_BUILDMODE ) );
 		Common.xmlCreateBooleanPropertyElement( doc , root , "obsolete" , PROPERTY_OBSOLETE );
 		Common.xmlCreatePropertyElement( doc , root , "over" , PROPERTY_COMPATIBILITY );
+		Common.xmlCreateBooleanPropertyElement( doc , root , "cumulative" , PROPERTY_CUMULATIVE );
 		
 		for( VarCATEGORY CATEGORY : action.meta.getAllReleaseCategories( action ) )
 			Common.xmlCreateElement( doc , root , Common.getEnumLower( CATEGORY ) );
