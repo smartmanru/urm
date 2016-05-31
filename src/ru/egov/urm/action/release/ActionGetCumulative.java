@@ -56,7 +56,7 @@ public class ActionGetCumulative extends ActionBase {
 		
 		dist.release.addRelease( this , cumdist.release );
 		dist.release.rebuildDeliveries( this );
-		cumdist.gatherFiles( this );
+		cumdist.open( this );
 		return( true );
 	}
 	
