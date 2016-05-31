@@ -31,7 +31,7 @@ public class Release {
 	public boolean PROPERTY_OBSOLETE;
 	public VarBUILDMODE PROPERTY_BUILDMODE;
 	public String PROPERTY_COMPATIBILITY;
-	public boolean PROPERTY_CUMULATIVE;
+	private boolean PROPERTY_CUMULATIVE;
 	
 	Map<String,ReleaseSet> sourceSetMap = new HashMap<String,ReleaseSet>();
 	Map<VarCATEGORY,ReleaseSet> categorySetMap = new HashMap<VarCATEGORY,ReleaseSet>();
@@ -76,6 +76,10 @@ public class Release {
 		createEmptyXml( action , RELEASEFILEPATH );
 	}
 
+	public boolean isCumulative() {
+		return( PROPERTY_CUMULATIVE );
+	}
+	
 	public void setReleaseVer( ActionBase action , String RELEASEVER ) throws Exception {
 		this.RELEASEVER = RELEASEVER;
 	}
@@ -692,6 +696,12 @@ public class Release {
 		String versions = Common.getSortedUniqueSpacedList( PROPERTY_COMPATIBILITY );
 		versions = Common.getPartAfterFirst( versions , " " );
 		return( Common.splitSpaced( versions ) );
+	}
+
+	public void descopeAll( ActionBase action ) throws Exception {
+		sourceSetMap.clear();
+		categorySetMap.clear();
+		deliveryMap.clear();
 	}
 	
 }

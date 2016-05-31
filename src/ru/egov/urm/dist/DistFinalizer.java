@@ -256,7 +256,7 @@ public class DistFinalizer {
 
 	private boolean finishDistDeliveryDatabaseSet( ActionBase action , ReleaseDelivery delivery , FileSet fsd ) throws Exception {
 		String[] versions = null;
-		if( dist.release.PROPERTY_CUMULATIVE )
+		if( dist.release.isCumulative() )
 			versions = dist.release.getCumulativeVersions( action );
 		else
 			versions = new String[] { dist.release.RELEASEVER };

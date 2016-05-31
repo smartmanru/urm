@@ -78,6 +78,10 @@ public class Dist {
 		gatherFiles( action );
 	}
 	
+	public boolean isFinalized( ActionBase action ) throws Exception {
+		return( state.isFinalized( action ) );
+	}
+	
 	public boolean isRemote( ActionBase action ) throws Exception {
 		return( distFolder.isRemote( action ) );
 	}
@@ -735,4 +739,16 @@ public class Dist {
 		}
 	}
 
+	public void descopeAll( ActionBase action ) throws Exception {
+		if( !openedForChange )
+			action.exit( "distributive is not opened for change" );
+		
+		action.info( "remove distributive content ..." );
+		for( String dir : distFolder.getTopDirs( action ) )
+			distFolder.removeFolder( action , dir );
+		
+		action.info( "remove all scope ..." );
+		release.descopeAll( action );
+	}
+	
 }

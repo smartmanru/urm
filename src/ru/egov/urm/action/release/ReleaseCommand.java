@@ -80,40 +80,69 @@ public class ReleaseCommand {
 	
 	public void addReleaseBuildProjects( ActionBase action , String RELEASELABEL , String SET , String[] elements ) throws Exception {
 		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		if( dist.release.isCumulative() )
+			action.exit( "cannot change scope of cumulative release" );
+		
 		ActionScope scope = ActionScope.getProductSetScope( action , SET , elements );
 		addReleaseScope( action , dist , scope );
 	}
 
 	public void addReleaseConfigItems( ActionBase action , String RELEASELABEL , String[] elements ) throws Exception {
 		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		if( dist.release.isCumulative() )
+			action.exit( "cannot change scope of cumulative release" );
+		
 		ActionScope scope = ActionScope.getProductCategoryScope( action , VarCATEGORY.CONFIG , elements );
 		addReleaseScope( action , dist , scope );
 	}
 
 	public void addReleaseDatabaseItems( ActionBase action , String RELEASELABEL , String[] DELIVERIES ) throws Exception {
 		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		if( dist.release.isCumulative() )
+			action.exit( "cannot change scope of cumulative release" );
+		
 		ActionScope scope = ActionScope.getProductCategoryScope( action , VarCATEGORY.DB , DELIVERIES );
 		addReleaseScope( action , dist , scope );
 	}
 
 	public void addReleaseBuildItems( ActionBase action , String RELEASELABEL , String[] ITEMS ) throws Exception {
 		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		if( dist.release.isCumulative() )
+			action.exit( "cannot change scope of cumulative release" );
+		
 		ActionScope scope = ActionScope.getProductDistItemsScope( action , ITEMS );
 		addReleaseScope( action , dist , scope );
 	}
 
-	public void buildRelease( ActionBase action , String SET , String[] PROJECTS , Dist release ) throws Exception {
+	public void buildRelease( ActionBase action , String SET , String[] PROJECTS , Dist dist ) throws Exception {
+		if( dist.release.isCumulative() )
+			action.exit( "cannot build cumulative release" );
+		
 		BuildCommand buildImpl = new BuildCommand();
-		buildImpl.buildRelease( action , SET , PROJECTS , release );
+		buildImpl.buildRelease( action , SET , PROJECTS , dist );
 	}
 
-	public void getAllRelease( ActionBase action , String SET , String[] PROJECTS , Dist release ) throws Exception {
+	public void getAllRelease( ActionBase action , String SET , String[] PROJECTS , Dist dist ) throws Exception {
+		if( dist.release.isCumulative() )
+			action.exit( "cannot download cumulative release" );
+		
 		BuildCommand buildImpl = new BuildCommand();
 		action.context.CTX_DIST = true;
-		buildImpl.getAllRelease( action , SET , PROJECTS , release );
+		buildImpl.getAllRelease( action , SET , PROJECTS , dist );
+	}
+
+	public void getCumulativeRelease( ActionBase action , Dist dist ) throws Exception {
+		if( !dist.release.isCumulative() )
+			action.exit( "should be cumulative release" );
+		
+		ActionGetCumulative ca = new ActionGetCumulative( action , null , dist );
+		ca.runSimple();
 	}
 
 	private void descope( ActionBase action , Dist dist , ActionScope scope ) throws Exception {
+		if( dist.release.isCumulative() )
+			action.exit( "cannot change scope of cumulative release" );
+		
 		ActionDescope ma = new ActionDescope( action , null , dist );
 		
 		dist.openForChange( action );
@@ -129,21 +158,32 @@ public class ReleaseCommand {
 	}
 	
 	public void descopeAll( ActionBase action , Dist dist ) throws Exception {
-		ActionScope scope = ActionScope.getReleaseSetScope( action , dist , "all" , null );
-		descope( action , dist , scope );
+		if( dist.release.isCumulative() )
+			action.exit( "cannot change scope of cumulative release" );
+		
+		dist.descopeAll( action );
 	}
 	
 	public void descopeConfComps( ActionBase action , Dist dist , String[] COMPS ) throws Exception {
+		if( dist.release.isCumulative() )
+			action.exit( "cannot change scope of cumulative release" );
+		
 		ActionScope scope = ActionScope.getReleaseCategoryScope( action , dist , VarCATEGORY.CONFIG , COMPS );
 		descope( action , dist , scope );
 	}
 	
 	public void descopeManualItems( ActionBase action , Dist dist , String[] ITEMS ) throws Exception {
+		if( dist.release.isCumulative() )
+			action.exit( "cannot change scope of cumulative release" );
+		
 		ActionScope scope = ActionScope.getReleaseCategoryScope( action , dist , VarCATEGORY.MANUAL , ITEMS );
 		descope( action , dist , scope );
 	}
 	
 	public void descopeBinary( ActionBase action , Dist dist , String SET , String PROJECT , String[] ITEMS ) throws Exception {
+		if( dist.release.isCumulative() )
+			action.exit( "cannot change scope of cumulative release" );
+		
 		ActionScope scope;
 		if( PROJECT.equals( "all" ) )
 			scope = ActionScope.getReleaseSetScope( action , dist , SET , new String [] { "all" } );
@@ -153,6 +193,9 @@ public class ReleaseCommand {
 	}
 	
 	public void descopeDatabase( ActionBase action , Dist dist , String[] DELIVERIES ) throws Exception {
+		if( dist.release.isCumulative() )
+			action.exit( "cannot change scope of cumulative release" );
+		
 		ActionScope scope = ActionScope.getReleaseCategoryScope( action , dist , VarCATEGORY.DB , DELIVERIES );
 		descope( action , dist , scope );
 	}

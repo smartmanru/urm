@@ -345,5 +345,11 @@ public class DistState {
 		distFolder.ensureExists( action );
 		distFolder.copyFileFromLocal( action , filePath );
 	}
+
+	public boolean isFinalized( ActionBase action ) throws Exception {
+		if( state == DISTSTATE.PROD || state == DISTSTATE.RELEASED )
+			return( true );
+		return( false );
+	}
 	
 }

@@ -35,7 +35,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		comment( "\tproperty=buildmode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );
 		comment( "\tproperty=obsolete: " + Common.getBooleanValue( release.PROPERTY_OBSOLETE ) );
 		comment( "\tproperty=over: " + release.PROPERTY_COMPATIBILITY );
-		comment( "\tproperty=cumulative: " + Common.getBooleanValue( release.PROPERTY_CUMULATIVE ) );
+		comment( "\tproperty=cumulative: " + Common.getBooleanValue( release.isCumulative() ) );
 		
 		if( release.isEmpty( this ) ) {
 			comment( "(scope is empty)" );
@@ -159,7 +159,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 	private void printReleaseDatabaseStatus( Dist dist , FileSet files , ReleaseTarget db ) throws Exception {
 		MetaDistrDelivery delivery = db.distDatabaseItem;
 
-		if( dist.release.PROPERTY_CUMULATIVE ) {
+		if( dist.release.isCumulative() ) {
 			String[] versions = dist.release.getCumulativeVersions( this );
 			
 			for( String version : versions ) {

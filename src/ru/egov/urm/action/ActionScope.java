@@ -33,7 +33,7 @@ public class ActionScope {
 
 	public boolean scopeFull;
 	
-	public ActionScope( ActionBase action , Dist release ) {
+	private ActionScope( ActionBase action , Dist release ) {
 		this.meta = action.meta;
 		this.context = action.context;
 		this.release = release;

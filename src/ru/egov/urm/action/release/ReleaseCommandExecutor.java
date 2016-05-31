@@ -196,7 +196,14 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 
 		Dist release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
 		
-		impl.getAllRelease( action , SET , PROJECTS , release );
+		if( action.context.CTX_CUMULATIVE ) {
+			if( SET.isEmpty() || SET.equals( "all" ) )
+				impl.getCumulativeRelease( action , release );
+			else
+				action.exit( "unexpected parameters to settle cumulative release" );
+		}
+		else
+			impl.getAllRelease( action , SET , PROJECTS , release );
 	}
 	}
 
