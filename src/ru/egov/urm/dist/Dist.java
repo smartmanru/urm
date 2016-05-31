@@ -764,7 +764,7 @@ public class Dist {
 	public void copyBinaryDistrToDistr( ActionBase action , ReleaseDelivery delivery , Dist src , String file ) throws Exception {
 		ReleaseDelivery reldel = src.release.findDelivery( action , delivery.distDelivery.NAME );
 		if( reldel != null ) {
-			String folder = src.getDeliveryDatabaseFolder( action , reldel.distDelivery );
+			String folder = src.getDeliveryBinaryFolder( action , reldel.distDelivery );
 			String fileSrc = src.distFolder.getFilePath( action , Common.getPath( folder , file ) );
 			String fileDst = Common.getPath( folder , file );
 			action.debug( "copy " + fileSrc + " to " + fileDst + " ..." );
