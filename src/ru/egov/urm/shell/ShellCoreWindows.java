@@ -560,7 +560,7 @@ public class ShellCoreWindows extends ShellCore {
 		String wfileSrc = Common.getWinPath( fileSrc );
 		String wfileDst = Common.getWinPath( fileDst );
 		String cmdDir = getDirCmdIfDir( action , dirPath , "copy /Y " + wfileSrc + " " + wfileDst );
-		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
+		runCommandCheckDebug( action , cmdDir );
 	}
 
 	@Override public void cmdGetDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
