@@ -29,8 +29,10 @@ public class ActionGetCumulative extends ActionBase {
 		String[] versions = dist.release.getCumulativeVersions( this );
 		Dist[] dists = new Dist[ versions.length ];
 		for( int k = 0; k < versions.length; k++ ) {
-			dists[ versions.length - k - 1 ] = repo.getDistByLabel( this , versions[ k ] );
-			if( !addCumulativeVersion( repo , versions[ k ] , dists[ k ] ) ) {
+			Dist cumdist = repo.getDistByLabel( this , versions[ k ] );
+			dists[ versions.length - k - 1 ] = cumdist;
+			
+			if( !addCumulativeVersion( repo , versions[ k ] , cumdist ) ) {
 				super.setFailed();
 				dist.closeChange( this );
 				return( true );
