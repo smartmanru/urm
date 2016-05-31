@@ -557,7 +557,10 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override public void cmdCopyDirFileToFile( ActionBase action , Account account , String dirPath , String fileSrc , String fileDst ) throws Exception {
-		action.exitNotImplemented();
+		String wfileSrc = Common.getWinPath( fileSrc );
+		String wfileDst = Common.getWinPath( fileDst );
+		String cmdDir = getDirCmdIfDir( action , dirPath , "copy /Y " + wfileSrc + " " + wfileDst );
+		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
 	}
 
 	@Override public void cmdGetDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
