@@ -686,4 +686,10 @@ public class Release {
 		return( false );
 	}
 
+	public String[] getCumulativeVersions( ActionBase action ) throws Exception {
+		String versions = Common.getSortedUniqueSpacedList( PROPERTY_COMPATIBILITY );
+		versions = Common.getPartAfterFirst( versions , " " );
+		return( Common.splitSpaced( versions ) );
+	}
+	
 }

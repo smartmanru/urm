@@ -225,11 +225,53 @@ public class DistFinalizer {
 	}
 
 	private boolean finishDistDeliveryDatabase( ActionBase action , ReleaseDelivery delivery , FileSet fsd , FileSet fsr ) throws Exception {
+		if( fsr == null ) {
+			String folder = fsd.dirPath;
+			if( !fsd.isEmpty() ) {
+				if( !action.context.CTX_FORCE ) {
+					action.error( "distributive delivery " + delivery.distDelivery.NAME + 
+							" has non-release database folder=" + folder );
+					return( false );
+				}
+			}
+			
+			action.info( "delete non-release database delivery=" + delivery.distDelivery.NAME + " folder=" + folder + " ..." );
+			distFolder.removeFolder( action , folder );
+			return( true );
+		}
+		
 		if( fsd.isEmpty() ) {
 			action.error( "distributive has missing database delivery=" + delivery.distDelivery.NAME );
 			return( false );
 		}
 		
+		for( String dir : fsd.dirs.keySet() ) {
+			FileSet dirFilesDist = fsd.dirs.get( dir );
+			if( !finishDistDeliveryDatabaseSet( action , delivery , dirFilesDist ) )
+				return( false );
+		}
+		
+		return( true );
+	}
+
+	private boolean finishDistDeliveryDatabaseSet( ActionBase action , ReleaseDelivery delivery , FileSet fsd ) throws Exception {
+		String[] versions = null;
+		if( dist.release.PROPERTY_CUMULATIVE )
+			versions = dist.release.getCumulativeVersions( action );
+		else
+			versions = new String[] { dist.release.RELEASEVER };
+		
+		if( Common.checkListItem( versions , fsd.dirName ) )
+			return( true );
+		
+		if( !action.context.CTX_FORCE ) {
+			action.error( "distributive has unexpected database delivery folder=" + fsd.dirPath );
+			return( false );
+		}
+	
+		String folder = fsd.dirPath;
+		action.info( "delete non-release database delivery folder=" + folder + " ..." );
+		distFolder.removeFolder( action , folder );
 		return( true );
 	}
 	
