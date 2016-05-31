@@ -750,5 +750,38 @@ public class Dist {
 		action.info( "remove all scope ..." );
 		release.descopeAll( action );
 	}
+
+	public void copyDatabaseDistrToDistr( ActionBase action , ReleaseDelivery delivery , Dist src ) throws Exception {
+		ReleaseDelivery reldel = src.release.findDelivery( action , delivery.distDelivery.NAME );
+		if( reldel != null ) {
+			String folder = src.getDeliveryDatabaseFolder( action , reldel.distDelivery );
+			distFolder.copyDir( action , src.distFolder.getFilePath( action , folder ) , folder );
+		}
+	}
+	
+	public void copyBinaryDistrToDistr( ActionBase action , ReleaseDelivery delivery , Dist src , String file ) throws Exception {
+		ReleaseDelivery reldel = src.release.findDelivery( action , delivery.distDelivery.NAME );
+		if( reldel != null ) {
+			String folder = src.getDeliveryDatabaseFolder( action , reldel.distDelivery );
+			String fileSrc = src.distFolder.getFilePath( action , Common.getPath( folder , file ) );
+			String fileDst = Common.getPath( folder , file );
+			action.debug( "copy " + fileSrc + " to " + fileDst + " ..." );
+			
+			distFolder.ensureFolderExists( action , Common.getDirName( fileDst ) );
+			distFolder.copyFile( action , fileSrc , fileDst );
+		}
+	}
+	
+	public void appendConfDistrToDistr( ActionBase action , ReleaseDelivery delivery , Dist src , MetaDistrConfItem item ) throws Exception {
+		ReleaseDelivery reldel = src.release.findDelivery( action , delivery.distDelivery.NAME );
+		if( reldel != null ) {
+			String folder = src.getDeliveryConfFolder( action , reldel.distDelivery );
+			ShellExecutor session = distFolder.getSession( action );
+			String folderSrc = src.distFolder.getFilePath( action , Common.getPath( folder , item.KEY ) );
+			String folderDst = distFolder.getFilePath( action , Common.getPath( folder , item.KEY ) );
+			distFolder.ensureFolderExists( action , folderDst );
+			session.copyDirContent( action , folderSrc , folderDst );
+		}
+	}
 	
 }

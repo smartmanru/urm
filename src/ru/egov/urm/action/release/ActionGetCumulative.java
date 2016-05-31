@@ -3,7 +3,11 @@ package ru.egov.urm.action.release;
 import ru.egov.urm.action.ActionBase;
 import ru.egov.urm.dist.Dist;
 import ru.egov.urm.dist.DistRepository;
-import ru.egov.urm.dist.Release;
+import ru.egov.urm.dist.ReleaseDelivery;
+import ru.egov.urm.dist.ReleaseTarget;
+import ru.egov.urm.dist.ReleaseTargetItem;
+import ru.egov.urm.meta.MetaDistrBinaryItem;
+import ru.egov.urm.meta.MetaDistrConfItem;
 
 public class ActionGetCumulative extends ActionBase {
 
@@ -20,33 +24,86 @@ public class ActionGetCumulative extends ActionBase {
 		dist.saveReleaseXml( this );
 		
 		DistRepository repo = artefactory.getDistRepository( this );
-		Release release = dist.release;
-		
-		String[] versions = release.getCumulativeVersions( this );
-		for( String version : versions ) {
-			if( !addCumulativeVersion( repo , release , version ) ) {
+
+		// dists - source releases sorted from last to most earlier
+		String[] versions = dist.release.getCumulativeVersions( this );
+		Dist[] dists = new Dist[ versions.length ];
+		for( int k = 0; k < versions.length; k++ ) {
+			dists[ versions.length - k - 1 ] = repo.getDistByLabel( this , versions[ k ] );
+			if( !addCumulativeVersion( repo , versions[ k ] , dists[ k ] ) ) {
 				super.setFailed();
 				break;
 			}	
 		}
 
-		release.rebuildDeliveries( this );
+		copyFiles( dists );
+		
 		dist.saveReleaseXml( this );
 		dist.closeChange( this );
 		return( true );
 	}
 
-	private boolean addCumulativeVersion( DistRepository repo , Release release , String version ) throws Exception {
-		info( "add cumulative release version=" + version + " ..." );
-		Dist cumdist = repo.getDistByLabel( this , version );
+	private boolean addCumulativeVersion( DistRepository repo , String cumver , Dist cumdist ) throws Exception {
+		info( "add cumulative release version=" + cumver + " ..." );
 		
 		if( !cumdist.isFinalized( this ) ) {
-			error( "cannot settle cumulative release from non-finalized release version=" + version );
+			error( "cannot settle cumulative release from non-finalized release version=" + cumver );
 			return( false );
 		}
 		
-		release.addRelease( this , cumdist.release );
+		dist.release.addRelease( this , cumdist.release );
+		dist.release.rebuildDeliveries( this );
+		cumdist.gatherFiles( this );
 		return( true );
+	}
+	
+	private void copyFiles( Dist[] cumdists ) throws Exception {
+		for( ReleaseDelivery delivery : dist.release.getDeliveries( this ).values() ) {
+			if( delivery.hasDatabaseItems( this ) )
+				copyDatabaseItems( cumdists , delivery );
+			for( ReleaseTargetItem item : delivery.getProjectItems( this ).values() )
+				copyBinaryItem( cumdists , delivery , item.distItem );
+			for( ReleaseTarget item : delivery.getManualItems( this ).values() )
+				copyBinaryItem( cumdists , delivery , item.distManualItem );
+			for( ReleaseTarget item : delivery.getConfItems( this ).values() )
+				copyConfItem( cumdists , delivery , item.distConfItem );
+		}
+	}
+
+	private void copyDatabaseItems( Dist[] cumdists , ReleaseDelivery delivery ) throws Exception {
+		for( Dist cumdist : cumdists )
+			dist.copyDatabaseDistrToDistr( this , delivery , cumdist );
+	}
+	
+	private void copyBinaryItem( Dist[] cumdists , ReleaseDelivery delivery , MetaDistrBinaryItem item ) throws Exception {
+		for( Dist cumdist : cumdists ) {
+			String file = cumdist.getBinaryDistItemFile( this , item );
+			if( !file.isEmpty() ) {
+				dist.copyBinaryDistrToDistr( this , delivery , cumdist , file );
+				return;
+			}
+		}
+	}
+	
+	private void copyConfItem( Dist[] cumdists , ReleaseDelivery delivery , MetaDistrConfItem item ) throws Exception {
+		// find last full
+		int lastIndex = cumdists.length - 1;
+		for( int k = 0; k < cumdists.length; k++ ) {
+			ReleaseTarget target = cumdists[k].release.findConfComponent( this , item.KEY );
+			if( target != null && target.ALL ) {
+				lastIndex = k;
+				break;
+			}
+		}
+		
+		for( int k = lastIndex; k >= 0; k-- ) {
+			Dist cumdist = cumdists[k];
+			ReleaseTarget target = cumdist.release.findConfComponent( this , item.KEY );
+			if( target == null )
+				continue;
+			
+			dist.appendConfDistrToDistr( this , delivery , cumdist , item );
+		}
 	}
 	
 }
