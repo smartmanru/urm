@@ -214,8 +214,15 @@ public class DistRepository {
 				action.exit( "getReleaseVerByLabel: unable to find prod distributive" );
 		}
 		else {
-			String RELEASEDIR = RELEASELABEL;
-			RELEASEVER = getReleaseVerByDir( action , RELEASELABEL );
+			String RELEASEDIR = "";
+			if( RELEASELABEL.indexOf( "-" ) >= 0 ) {
+				RELEASEVER = RELEASELABEL;
+				RELEASEDIR = getReleaseDirByVer( action , RELEASEVER );
+			}
+			else {
+				RELEASEDIR = RELEASELABEL;
+				RELEASEVER = getReleaseVerByDir( action , RELEASELABEL );
+			}
 			RELEASEPATH = "releases/" + RELEASEDIR;
 		}
 		
