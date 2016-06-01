@@ -113,20 +113,18 @@ public class ActionVerifyDeploy extends ActionBase {
 		if( !client.checkConnect( this , server ) )
 			exit( "unable to connect to server=" + server.NAME );
 
-		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client );
-		DatabaseRegistryRelease release = registry.getLastRelease( this );
-		
-		if( release.state == RELEASE_STATE.UNKNOWN ) {
-			info( "nothing has been applied to database" );
-			return;
+		for( String version : dist.release.getApplyVersions( this ) ) {
+			DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client , dist.release , version );
+			DatabaseRegistryRelease release = registry.getLastRelease( this );
+			
+			if( release.state == RELEASE_STATE.UNKNOWN )
+				info( version + ": nothing has been applied to database" );
+			else
+			if( !release.version.equals( dist.release.RELEASEVER ) )
+				info( version + ": release has not been applied to database" );
+			else
+				info( version + ": release has been applied to database, state=" + Common.getEnumLower( release.state ) );
 		}
-		
-		if( !release.version.equals( dist.release.RELEASEVER ) ) {
-			info( "release has not been applied to database" );
-			return;
-		}
-		
-		info( "release has been applied to database, state=" + Common.getEnumLower( release.state ) );
 	}
 	
 	private void executeServerApp( ActionScopeTarget target , MetaEnvServer server ) throws Exception {
