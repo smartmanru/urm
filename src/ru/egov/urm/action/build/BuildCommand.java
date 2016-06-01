@@ -21,7 +21,7 @@ public class BuildCommand {
 	public BuildCommand() {
 	}
 
-	public void buildTags( ActionBase action , String TAG , ActionScope scope , LocalFolder OUTDIR , String OUTFILE ) throws Exception {
+	public void buildTags( ActionBase action , String TAG , ActionScope scope , LocalFolder OUTDIR , String OUTFILE , Dist dist ) throws Exception {
 		ActionBuild ca = new ActionBuild( action , null , OUTDIR , OUTFILE , TAG );
 		ca.runEachBuildableProject( scope );
 		
@@ -35,11 +35,11 @@ public class BuildCommand {
 			action.info( "BUILD SUCCESSFUL" );
 			
 			if( action.context.CTX_GET || action.context.CTX_DIST )
-				getAll( action , scope );
+				getAll( action , scope , dist );
 		}
 	}
 	
-	public void getAll( ActionBase action , ActionScope scope ) throws Exception {
+	public void getAll( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
 		boolean copyDist = action.context.CTX_DIST;
 		
 		// required for serviceCall and storageService processing, even without -dist option
@@ -48,59 +48,59 @@ public class BuildCommand {
 	
 		// precreate delivery folders in release
 		if( copyDist ) {
-			scope.release.openForChange( action );
-			scope.release.createDeliveryFolders( action );
+			dist.openForChange( action );
+			dist.createDeliveryFolders( action );
 		}
 		
 		action.info( "getAll: download scope={" + scope.getScopeInfo( action ) + "}" );
 
 		boolean res = true;
-		ActionGetBinary ca = new ActionGetBinary( action , null , copyDist , scope.release , downloadFolder );
+		ActionGetBinary ca = new ActionGetBinary( action , null , copyDist , dist , downloadFolder );
 		if( !ca.runEachSourceProject( scope ) )
 			res = false;
 
 		if( scope.releaseBound && scope.hasConfig( action ) ) {
-			ActionGetConf cacf = new ActionGetConf( action , null , scope.release );
+			ActionGetConf cacf = new ActionGetConf( action , null , dist );
 			if( !cacf.runEachCategoryTarget( scope , VarCATEGORY.CONFIG ) )
 				res = false;
 			
 			// automatically create configuration difference after distributive update
 			if( action.context.CTX_DIST )
-				createConfigDiffFile( action , scope );
+				createConfigDiffFile( action , scope , dist );
 		}
 		
 		if( scope.releaseBound && scope.hasDatabase( action ) ) {
-			ActionGetDB cadb = new ActionGetDB( action , null , scope.release );
+			ActionGetDB cadb = new ActionGetDB( action , null , dist );
 			if( !cadb.runEachCategoryTarget( scope , VarCATEGORY.DB ) )
 				res = false;
 		}
 		
 		if( scope.releaseBound && scope.hasManual( action ) ) {
-			ActionGetManual cam = new ActionGetManual( action , null , copyDist , scope.release , downloadFolder );
+			ActionGetManual cam = new ActionGetManual( action , null , copyDist , dist , downloadFolder );
 			if( !cam.runSimple() )
 				res = false;
 		}
 		
 		if( copyDist )
-			scope.release.closeChange( action );
+			dist.closeChange( action );
 		
 		if( !res )
 			action.exit( "there are errors in release, please check" );
 			
 		if( copyDist )
-			action.info( "getAll: download has been finished, copied to distribution directory " + scope.release.RELEASEDIR );
+			action.info( "getAll: download has been finished, copied to distribution directory " + dist.RELEASEDIR );
 		else
 			action.info( "getAll: download has been finished, saved to artefacts directory " + downloadFolder.folderPath );
 	}
 	
-	private void createConfigDiffFile( ActionBase action , ActionScope scope ) throws Exception {
+	private void createConfigDiffFile( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
 		action.info( "update configuration difference information ..." );
 		ConfBuilder builder = new ConfBuilder( action );
 		
-		for( ReleaseDelivery delivery : scope.release.release.getDeliveries( action ).values() ) {
+		for( ReleaseDelivery delivery : dist.release.getDeliveries( action ).values() ) {
 			if( delivery.getConfItems( action ).size() > 0 ) {
-				String file = builder.createConfDiffFile( scope.release , delivery );
-				scope.release.replaceConfDiffFile( action , file , delivery );
+				String file = builder.createConfDiffFile( dist , delivery );
+				dist.replaceConfDiffFile( action , file , delivery );
 			}
 		}
 	}
@@ -191,7 +191,7 @@ public class BuildCommand {
 		ca.runEachBuildableProject( scope );
 	}
 	
-	public void buildAllTags( ActionBase action , String TAG , String SET , String[] PROJECTS ) throws Exception {
+	public void buildAllTags( ActionBase action , String TAG , String SET , String[] PROJECTS , Dist dist ) throws Exception {
 		action.checkRequired( action.context.buildMode , "BUILDMODE" );
 		
 		// execute
@@ -201,7 +201,12 @@ public class BuildCommand {
 		action.redirectTS( "buildAllTags:" , OUTDIR.folderPath , "buildall" , "out" );
 		action.logAction();
 		
-		ActionScope scope = action.getFullScope( SET , PROJECTS , action.context.CTX_RELEASELABEL );
+		ActionScope scope;
+		if( dist == null )
+			scope = ActionScope.getProductSetScope( action , SET , PROJECTS );
+		else
+			scope = ActionScope.getReleaseSetScope( action , dist , SET , PROJECTS );
+			
 		if( scope.isEmpty( action ) ) {
 			action.info( "nothing to build" );
 			return;
@@ -211,22 +216,22 @@ public class BuildCommand {
 		action.info( "BUILD TARGETS ..." );
 		action.session.createFileFromString( action , OUTFILE , "FINAL STATUS:" );
 
-		buildTags( action , TAG , scope , OUTDIR , OUTFILE );
+		buildTags( action , TAG , scope , OUTDIR , OUTFILE , dist );
 	}
 
 	public void buildCustom( ActionBase action , String SET , String[] PROJECTS ) throws Exception {
 		action.exitNotImplemented();
 	}
 	
-	public void buildRelease( ActionBase action , String SET , String[] PROJECTS , Dist release ) throws Exception {
-		action.setBuildMode( release.release.PROPERTY_BUILDMODE );
+	public void buildRelease( ActionBase action , String SET , String[] PROJECTS , Dist dist ) throws Exception {
+		action.setBuildMode( dist.release.PROPERTY_BUILDMODE );
 		
 		String TAG;
 		if( !action.context.CTX_TAG.isEmpty() )
 			TAG = action.context.CTX_TAG;
 		else
-			TAG = release.release.getReleaseCandidateTag( action );
-		String RELEASEDIR = release.RELEASEDIR;
+			TAG = dist.release.getReleaseCandidateTag( action );
+		String RELEASEDIR = dist.RELEASEDIR;
 		
 		LogStorage storage = action.artefactory.getReleaseBuildLogStorage( action , RELEASEDIR );
 		LocalFolder OUTDIR = storage.logFolder;
@@ -234,7 +239,7 @@ public class BuildCommand {
 	
 		action.logAction();
 	
-		ActionScope scope = ActionScope.getReleaseSetScope( action , release , SET , PROJECTS );
+		ActionScope scope = ActionScope.getReleaseSetScope( action , dist , SET , PROJECTS );
 		if( scope.isEmpty( action ) ) {
 			action.info( "nothing to build" );
 			return;
@@ -246,13 +251,13 @@ public class BuildCommand {
 		action.info( "buildRelease: build TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , action.meta.getAllBuildableCategories( action ) ) + "}" );
 		String OUTFILE = OUTDIR.folderPath + "/build.final.out"; 
 		action.session.createFileFromString( action , OUTFILE , "FINAL STATUS:" );
-		buildTags( action , TAG , scope , OUTDIR , OUTFILE );
+		buildTags( action , TAG , scope , OUTDIR , OUTFILE , dist );
 	}
 
-	public void getAllRelease( ActionBase action , String SET , String[] PROJECTS , Dist release ) throws Exception {
-		action.setBuildMode( release.release.PROPERTY_BUILDMODE );
+	public void getAllRelease( ActionBase action , String SET , String[] PROJECTS , Dist dist ) throws Exception {
+		action.setBuildMode( dist.release.PROPERTY_BUILDMODE );
 		
-		ActionScope scope = ActionScope.getReleaseSetScope( action , release , SET , PROJECTS );
+		ActionScope scope = ActionScope.getReleaseSetScope( action , dist , SET , PROJECTS );
 		if( scope.isEmpty( action ) ) {
 			action.info( "nothing to get" );
 			return;
@@ -261,11 +266,11 @@ public class BuildCommand {
 		action.logAction();
 		
 		// execute
-		getAll( action , scope );
+		getAll( action , scope , dist );
 	}
 
-	public void thirdpartyUploadDist( ActionBase action , ActionScopeTarget scopeProject , Dist release ) throws Exception {
-		ActionUploadReleaseItem ca = new ActionUploadReleaseItem( action , null , release );
+	public void thirdpartyUploadDist( ActionBase action , ActionScopeTarget scopeProject , Dist dist ) throws Exception {
+		ActionUploadReleaseItem ca = new ActionUploadReleaseItem( action , null , dist );
 		ShellExecutor bs = action.context.pool.createDedicatedLocalShell( ca , "build"  );
 		
 		try {

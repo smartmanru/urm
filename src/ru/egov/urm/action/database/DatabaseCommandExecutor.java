@@ -64,13 +64,6 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		return( res );
 	}
 
-	private ActionScope getReleaseScope( ActionInit action ) throws Exception {
-		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
-		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
-		String[] DELIVERIES = options.getArgList( 1 );
-		return( ActionScope.getReleaseCategoryScope( action , dist , VarCATEGORY.DB , DELIVERIES ) );
-	}
-	
 	private ActionScope getIndexScope( ActionInit action , Dist dist , int posFrom ) throws Exception {
 		String[] INDEXES = options.getArgList( posFrom );
 		return( ActionScope.getDatabaseManualItemsScope( action , dist , INDEXES ) );
@@ -78,8 +71,11 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	
 	private class GetReleaseScripts extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		ActionScope scope = getReleaseScope( action );
-		impl.getReleaseScripts( action , scope , scope.release );
+		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
+		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		String[] DELIVERIES = options.getArgList( 1 );
+		ActionScope scope = ActionScope.getReleaseCategoryScope( action , dist , VarCATEGORY.DB , DELIVERIES );
+		impl.getReleaseScripts( action , scope , dist );
 	}
 	}
 	
@@ -126,8 +122,9 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
 		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
-		ActionScope scope = getIndexScope( action , dist , 1 );
-		impl.manageRelease( action , scope , scope.release );
+		String CMD = options.getRequiredArg( action , 1 , "CMD" );
+		ActionScope scope = getIndexScope( action , dist , 2 );
+		impl.manageRelease( action , scope , dist , CMD );
 	}
 	}
 	

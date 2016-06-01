@@ -2,7 +2,6 @@ package ru.egov.urm.action;
 
 import ru.egov.urm.Common;
 import ru.egov.urm.custom.CommandCustom;
-import ru.egov.urm.dist.Dist;
 import ru.egov.urm.meta.MetaEnvServerNode;
 import ru.egov.urm.meta.Metadata;
 import ru.egov.urm.meta.Metadata.VarBUILDMODE;
@@ -368,17 +367,6 @@ abstract public class ActionBase {
 	public void setBuildMode( VarBUILDMODE value ) throws Exception {
 		context.setBuildMode( this , value );
 		meta.updateProduct( this );
-	}
-
-	public ActionScope getFullScope( String set , String[] TARGETS , String RELEASELABEL ) throws Exception {
-		ActionScope scope;
-		if( !RELEASELABEL.isEmpty() ) {
-			Dist release = artefactory.getDistStorageByLabel( this , RELEASELABEL );
-			scope = ActionScope.getReleaseSetScope( this , release , set , TARGETS );
-		}
-		else
-			scope = ActionScope.getProductSetScope( this , set , TARGETS );
-		return( scope );
 	}
 
 	public void executeLogLive( ShellExecutor shell , String msg ) throws Exception {

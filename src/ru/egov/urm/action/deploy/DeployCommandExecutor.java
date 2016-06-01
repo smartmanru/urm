@@ -97,10 +97,10 @@ public class DeployCommandExecutor extends CommandExecutor {
 		return( res );
 	}
 
-	private ActionScope getReleaseScope( ActionInit action ) throws Exception {
+	private Dist getDist( ActionInit action ) throws Exception {
 		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
 		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
-		return( getServerScope( action , 1 , dist ) );
+		return( dist );
 	}
 	
 	private ActionScope getServerScope( ActionInit action ) throws Exception {
@@ -167,15 +167,17 @@ public class DeployCommandExecutor extends CommandExecutor {
 
 	private class DeployRedist extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		ActionScope scope = getReleaseScope( action );
-		impl.deployRedist( action , scope , scope.release );
+		Dist dist = getDist( action );
+		ActionScope scope = getServerScope( action , 1 );
+		impl.deployRedist( action , scope , dist );
 	}
 	}
 
 	private class DropRedist extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		ActionScope scope = getServerScope( action );
-		impl.dropRedist( action , scope , scope.release );
+		Dist dist = getDist( action );
+		ActionScope scope = getServerScope( action , 1 );
+		impl.dropRedist( action , scope , dist );
 	}
 	}
 
@@ -188,8 +190,9 @@ public class DeployCommandExecutor extends CommandExecutor {
 
 	private class GetRedistInfo extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		ActionScope scope = getServerScope( action );
-		impl.getRedistInfo( action , scope , scope.release );
+		Dist dist = getDist( action );
+		ActionScope scope = getServerScope( action , 1 );
+		impl.getRedistInfo( action , scope , dist );
 	}
 	}
 
@@ -241,8 +244,9 @@ public class DeployCommandExecutor extends CommandExecutor {
 
 	private class Redist extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		ActionScope scope = getReleaseScope( action );
-		impl.redist( action , scope , scope.release );
+		Dist dist = getDist( action );
+		ActionScope scope = getServerScope( action , 1 );
+		impl.redist( action , scope , dist );
 	}
 	}
 
@@ -255,15 +259,17 @@ public class DeployCommandExecutor extends CommandExecutor {
 
 	private class Rollback extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		ActionScope scope = getReleaseScope( action );
-		impl.rollback( action , scope , scope.release );
+		Dist dist = getDist( action );
+		ActionScope scope = getServerScope( action , 1 );
+		impl.rollback( action , scope , dist );
 	}
 	}
 
 	private class Rollout extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		ActionScope scope = getReleaseScope( action );
-		impl.rollout( action , scope , scope.release );
+		Dist dist = getDist( action );
+		ActionScope scope = getServerScope( action , 1 );
+		impl.rollout( action , scope , dist );
 	}
 	}
 
@@ -337,8 +343,9 @@ public class DeployCommandExecutor extends CommandExecutor {
 
 	private class VerifyDeploy extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		ActionScope scope = getReleaseScope( action );
-		impl.verifyDeploy( action , scope , scope.release );
+		Dist dist = getDist( action );
+		ActionScope scope = getServerScope( action , 1 );
+		impl.verifyDeploy( action , scope , dist );
 	}
 	}
 

@@ -46,12 +46,12 @@ public class DeployCommand {
 	}
 
 	public void deployRedist( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
-		ActionDeployRedist ca = new ActionDeployRedist( action , null , scope.release );
+		ActionDeployRedist ca = new ActionDeployRedist( action , null , dist );
 		ca.runAll( scope );
 	}
 
 	public void dropRedist( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
-		ActionDropRedist ca = new ActionDropRedist( action , null , scope.release );
+		ActionDropRedist ca = new ActionDropRedist( action , null , dist );
 		
 		if( action.context.CTX_FORCE )
 			ca.runEnvUniqueHosts( scope );

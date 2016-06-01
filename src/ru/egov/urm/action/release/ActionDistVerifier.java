@@ -15,12 +15,14 @@ import ru.egov.urm.storage.FileSet;
 
 public class ActionDistVerifier extends ActionBase {
 
-	public ActionDistVerifier( ActionBase action , String stream ) {
+	Dist dist;
+	
+	public ActionDistVerifier( ActionBase action , String stream , Dist dist ) {
 		super( action , stream );
+		this.dist = dist;
 	}
 
 	@Override protected boolean executeScope( ActionScope scope ) throws Exception {
-		Dist dist = scope.release;
 		FileSet set = dist.getFiles( this );
 		Release info = dist.release;
 		

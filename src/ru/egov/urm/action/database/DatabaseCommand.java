@@ -59,7 +59,7 @@ public class DatabaseCommand {
 		ma.runAll( scope );
 	}
 
-	public void manageRelease( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
+	public void manageRelease( ActionBase action , ActionScope scope , Dist dist , String CMD ) throws Exception {
 		action.exitNotImplemented();
 	}
 

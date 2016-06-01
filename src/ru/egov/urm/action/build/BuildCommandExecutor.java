@@ -89,7 +89,16 @@ public class BuildCommandExecutor extends CommandExecutor {
 		String[] PROJECTS = options.getArgList( argStart + 1 );
 		action.logAction();
 
-		ActionScope scope = action.getFullScope( SET , PROJECTS , action.context.CTX_RELEASELABEL );
+		ActionScope scope;
+		Dist dist = null;
+		String RELEASELABEL = action.context.CTX_RELEASELABEL;
+		if( !RELEASELABEL.isEmpty() ) {
+			dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+			scope = ActionScope.getReleaseSetScope( action , dist , SET , PROJECTS );
+		}
+		else
+			scope = ActionScope.getProductSetScope( action , SET , PROJECTS );
+		
 		if( scope.isEmpty( action ) )
 			action.exit( "nothing to do, scope is empty" );
 		
@@ -135,13 +144,22 @@ public class BuildCommandExecutor extends CommandExecutor {
 		String[] TARGETS = options.getArgList( 1 );
 		action.logAction();
 		
-		ActionScope scope = action.getFullScope( SET , TARGETS , action.context.CTX_RELEASELABEL );
+		ActionScope scope;
+		Dist dist = null;
+		String RELEASELABEL = action.context.CTX_RELEASELABEL;
+		if( !RELEASELABEL.isEmpty() ) {
+			dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+			scope = ActionScope.getReleaseSetScope( action , dist , SET , TARGETS );
+		}
+		else
+			scope = ActionScope.getProductSetScope( action , SET , TARGETS );
+		
 		if( scope.isEmpty( action ) ) {
 			action.info( "nothing to get" );
 			return;
 		}
 		
-		impl.getAll( action , scope );
+		impl.getAll( action , scope , dist );
 	}
 	}
 	
@@ -152,8 +170,8 @@ public class BuildCommandExecutor extends CommandExecutor {
 		String SET = options.getArg( 0 );
 		String[] TARGETS = options.getArgList( 1 );
 
-		Dist release = loadCommandRelease( action );
-		impl.getAllRelease( action , SET , TARGETS , release );
+		Dist dist = loadCommandRelease( action );
+		impl.getAllRelease( action , SET , TARGETS , dist );
 	}
 	}
 	
@@ -163,7 +181,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		String TAG = options.getArg( 0 );
 		String SET = options.getArg( 1 );
 		String[] PROJECTS = options.getArgList( 2 );
-		impl.buildAllTags( action , TAG , SET , PROJECTS );
+		impl.buildAllTags( action , TAG , SET , PROJECTS , null );
 	}
 	}
 
