@@ -131,8 +131,10 @@ public class ActionVerifyDeploy extends ActionBase {
 
 		if( verifyServer )
 			info( "server is exactly matched" );
-		else
+		else {
+			verifyOk = false;
 			error( "server state differs from expected" );
+		}
 	}
 	
 	private void executeServerApp( ActionScopeTarget target , MetaEnvServer server ) throws Exception {
@@ -169,8 +171,10 @@ public class ActionVerifyDeploy extends ActionBase {
 		
 		if( verifyServer )
 			info( "server is exactly matched" );
-		else
+		else {
+			verifyOk = false;
 			error( "server state differs from expected" );
+		}
 	}
 
 	private boolean executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] confLocations , MetaEnvServerLocation[] binaryLocations , LocalFolder tobeConfigServerFolder , LocalFolder asisConfigServerFolder , LocalFolder tobeBinaryServerFolder , LocalFolder asisBinaryServerFolder ) throws Exception {
@@ -213,10 +217,8 @@ public class ActionVerifyDeploy extends ActionBase {
 			}
 		}
 		
-		if( !verifyNode ) {
+		if( !verifyNode )
 			error( "node differs from distributive" );
-			verifyOk = false;
-		}
 		else
 			debug( "node matched" );
 		
