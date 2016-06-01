@@ -63,12 +63,10 @@ public class ActionManageRegistry extends ActionBase {
 		for( String delivery : registry.getStateDeliveries( this ) ) {
 			comment( "DELIVERY: " + delivery );
 			Map<String,String> data = registry.getStateData( this , delivery );
-			DatabaseScriptFile file = new DatabaseScriptFile();
-			for( String name : Common.getSortedKeys( data ) ) {
-				file.setDistFile( this , name );
-				String status = data.get( name );
+			for( String key : Common.getSortedKeys( data ) ) {
+				String status = data.get( key );
 				String value = ( status.equals( DatabaseRegistry.SCRIPT_STATUS_APPLIED ) )? "OK" : "FAILED";
-				comment( "\tkey=" + file.getDistKey() + ", status=" + value );
+				comment( "\tkey=" + key + ", status=" + value );
 			}
 		}
 	}
