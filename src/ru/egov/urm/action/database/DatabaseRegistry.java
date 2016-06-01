@@ -17,7 +17,6 @@ public class DatabaseRegistry {
 	// script file name: A<alignedid>-T<type>-I<instance>-{ZZ|RR}-<index>-<schema>-<any>.sql
 	
 	MetaEnvServer server;
-	Release release;
 	String RELEASEVER;
 	
 	DatabaseClient client;
@@ -32,27 +31,26 @@ public class DatabaseRegistry {
 	
 	static String TABLE_RELEASES = "adm_releases"; 
 	static String TABLE_SCRIPTS = "adm_scripts"; 
+
+	static String RELEASE_STATUS_STARTED = "S";
+	static String RELEASE_STATUS_APPLIED = "A";
+	static String SCRIPT_STATUS_STARTED = "S";
+	static String SCRIPT_STATUS_APPLIED = "A";
 	
-	private DatabaseRegistry( DatabaseClient client , Release release , String RELEASEVER ) {
+	private DatabaseRegistry( DatabaseClient client ) {
 		this.client = client;
 		this.server = client.specific.server;
-		this.release = release;
-		this.RELEASEVER = RELEASEVER;
 		deliveryState = new HashMap<String,Map<String,String>>();
 	}
 
-	public static DatabaseRegistry getRegistry( ActionBase action , DatabaseClient client , Release release , String RELEASEVER ) throws Exception {
-		DatabaseRegistry registry = new DatabaseRegistry( client , release , RELEASEVER );
-		registry.readReleaseState( action );
-		return( registry );
-	}
-
 	public static DatabaseRegistry getRegistry( ActionBase action , DatabaseClient client ) throws Exception {
-		DatabaseRegistry registry = new DatabaseRegistry( client , null , null );
+		DatabaseRegistry registry = new DatabaseRegistry( client );
 		return( registry );
 	}
 	
-	private void parseReleaseNumber( ActionBase action ) throws Exception {
+	private void parseReleaseNumber( ActionBase action , String RELEASEVER ) throws Exception {
+		this.RELEASEVER = RELEASEVER;
+		
 		String[] parts = Common.splitDotted( RELEASEVER );
 		if( parts.length != 4 )
 			action.exit( "invalid release version=" + RELEASEVER );
@@ -77,7 +75,8 @@ public class DatabaseRegistry {
 	
 	public void readIncompleteScripts( ActionBase action ) throws Exception {
 		List<String[]> rows = client.readTableData( action , server.admSchema , TABLE_SCRIPTS , 
-				"zrelease = " + Common.getSQLQuoted( RELEASEVER ) + " and zscript_status = 'S'" , 
+				"zrelease = " + Common.getSQLQuoted( RELEASEVER ) + 
+				" and zscript_status = " + Common.getSQLQuoted( RELEASE_STATUS_STARTED ) , 
 				new String[] { "zdelivery" , "zfilename" } );
 		
 		deliveryState.clear();
@@ -97,35 +96,46 @@ public class DatabaseRegistry {
 		}
 	}
 	
-	private void readReleaseState( ActionBase action ) throws Exception {
-		parseReleaseNumber( action );
-		readReleaseStatus( action );
+	public String[] getStateDeliveries( ActionBase action ) throws Exception {
+		return( Common.getSortedKeys( deliveryState ) );
 	}
-
+	
+	public Map<String,String> getStateData( ActionBase action , String delivery ) throws Exception {
+		return( deliveryState.get( delivery ) );
+	}
+	
 	public boolean isReleaseUnknown( ActionBase action ) throws Exception {
 		return( releaseStatus == null || releaseStatus.isEmpty() );
 	}
 	
 	public boolean isReleaseStarted( ActionBase action ) throws Exception {
-		return( releaseStatus.equals( "S" ) );
+		return( releaseStatus.equals( RELEASE_STATUS_STARTED ) );
 	}
 	
 	public boolean isReleaseFinished( ActionBase action ) throws Exception {
-		return( releaseStatus.equals( "A" ) );
+		return( releaseStatus.equals( RELEASE_STATUS_APPLIED ) );
+	}
+
+	public void setActiveRelease( ActionBase action , String version ) throws Exception {
+		parseReleaseNumber( action , version );
+		readReleaseStatus( action );
 	}
 	
-	public boolean startApplyRelease( ActionBase action ) throws Exception {
+	public boolean startApplyRelease( ActionBase action , Release release ) throws Exception {
+		parseReleaseNumber( action , release.RELEASEVER );
+		
 		// check last release if not forced
 		if( !action.context.CTX_FORCE ) {
-			if( !checkLastRelease( action ) )
+			if( !checkLastRelease( action , release ) )
 				return( false );
 		}
 		
 		// check current release state
+		readReleaseStatus( action );
 		if( isReleaseUnknown( action ) ) {
 			client.insertRow( action , server.admSchema , TABLE_RELEASES ,
 				new String[] { "zrelease" , "zrel_p1" , "zrel_p2" , "zrel_p3" , "zrel_p4" , "zbegin_apply_time" , "zrel_status" } , 
-				new String[] { Common.getSQLQuoted( RELEASEVER ) , Common.getSQLQuoted( major1 ) , Common.getSQLQuoted( major2 ) , Common.getSQLQuoted( minor1 ) , Common.getSQLQuoted( minor2 ) , "TIMESTAMP" , Common.getSQLQuoted( "S" ) } );
+				new String[] { Common.getSQLQuoted( RELEASEVER ) , Common.getSQLQuoted( major1 ) , Common.getSQLQuoted( major2 ) , Common.getSQLQuoted( minor1 ) , Common.getSQLQuoted( minor2 ) , "TIMESTAMP" , Common.getSQLQuoted( RELEASE_STATUS_STARTED ) } );
 		}
 		else
 		if( isReleaseStarted( action ) ) {
@@ -141,7 +151,7 @@ public class DatabaseRegistry {
 				return( false );
 			}
 			
-			releaseStatus = "S";
+			releaseStatus = RELEASE_STATUS_STARTED;
 			client.updateRow( action , server.admSchema , TABLE_RELEASES ,
 					new String[] { "zrel_status" , "zend_apply_time" } , 
 					new String[] { Common.getSQLQuoted( releaseStatus ) , "NULL" } ,
@@ -153,7 +163,7 @@ public class DatabaseRegistry {
 		return( true );
 	}
 
-	public boolean checkLastRelease( ActionBase action ) throws Exception {
+	public boolean checkLastRelease( ActionBase action , Release release ) throws Exception {
 		DatabaseRegistryRelease last = getLastReleaseInfo( action );
 		
 		// no last
@@ -163,7 +173,7 @@ public class DatabaseRegistry {
 		}
 		
 		// last is current
-		if( last.version.equals( RELEASEVER ) ) {
+		if( last.version.equals( release.RELEASEVER ) ) {
 			action.debug( "last release reapply" );
 			return( true );
 		}
@@ -184,7 +194,7 @@ public class DatabaseRegistry {
 	}
 	
 	public void finishApplyRelease( ActionBase action ) throws Exception {
-		releaseStatus = "A";
+		releaseStatus = RELEASE_STATUS_APPLIED;
 		client.updateRow( action , server.admSchema , TABLE_RELEASES ,
 				new String[] { "zrel_status" , "zend_apply_time" } , 
 				new String[] { Common.getSQLQuoted( releaseStatus ) , "TIMESTAMP" } ,
@@ -231,7 +241,7 @@ public class DatabaseRegistry {
 			return( false );
 		}
 		
-		if( status.equals( "A" ) ) {
+		if( status.equals( RELEASE_STATUS_APPLIED ) ) {
 			if( action.context.CTX_DBMODE == SQLMODE.ANYWAY )
 				return( true );
 			
@@ -255,12 +265,12 @@ public class DatabaseRegistry {
 		if( status == null ) {
 			res = client.insertRow( action , server.admSchema , TABLE_SCRIPTS ,
 					new String[] { "zrelease" , "zdelivery" , "zkey" , "zschema" , "zfilename" , "zbegin_apply_time" , "zscript_status" } , 
-					new String[] { Common.getSQLQuoted( RELEASEVER ) , Common.getSQLQuoted( delivery.NAME ) , Common.getSQLQuoted( key ) , Common.getSQLQuoted( schema ) , Common.getSQLQuoted( file ) , "TIMESTAMP" , Common.getSQLQuoted( "S" ) } );
+					new String[] { Common.getSQLQuoted( RELEASEVER ) , Common.getSQLQuoted( delivery.NAME ) , Common.getSQLQuoted( key ) , Common.getSQLQuoted( schema ) , Common.getSQLQuoted( file ) , "TIMESTAMP" , Common.getSQLQuoted( SCRIPT_STATUS_STARTED ) } );
 		}
 		else {
 			res = client.updateRow( action , server.admSchema , TABLE_SCRIPTS ,
 					new String[] { "zschema" , "zfilename" , "zbegin_apply_time" , "zend_apply_time" , "zscript_status" } , 
-					new String[] { Common.getSQLQuoted( schema ) , Common.getSQLQuoted( file ) , "TIMESTAMP" , "NULL" , Common.getSQLQuoted( "S" ) } ,
+					new String[] { Common.getSQLQuoted( schema ) , Common.getSQLQuoted( file ) , "TIMESTAMP" , "NULL" , Common.getSQLQuoted( SCRIPT_STATUS_STARTED ) } ,
 					"zrelease = " + Common.getSQLQuoted( RELEASEVER ) + " and " +
 							"zdelivery = " + Common.getSQLQuoted( delivery.NAME ) + " and " +
 							"zkey = " + Common.getSQLQuoted( key ) ); 
@@ -282,7 +292,7 @@ public class DatabaseRegistry {
 		
 		boolean res = client.updateRow( action , server.admSchema , TABLE_SCRIPTS ,
 				new String[] { "zend_apply_time" , "zscript_status" } , 
-				new String[] { "TIMESTAMP" , Common.getSQLQuoted( "A" ) } ,
+				new String[] { "TIMESTAMP" , Common.getSQLQuoted( SCRIPT_STATUS_APPLIED ) } ,
 				"zrelease = " + Common.getSQLQuoted( RELEASEVER ) + " and " +
 						"zdelivery = " + Common.getSQLQuoted( delivery.NAME ) + " and " + 
 						"zkey = " + Common.getSQLQuoted( key ) );

@@ -7,7 +7,9 @@ import ru.egov.urm.action.CommandAction;
 import ru.egov.urm.action.CommandBuilder;
 import ru.egov.urm.action.CommandExecutor;
 import ru.egov.urm.dist.Dist;
+import ru.egov.urm.dist.DistRepository;
 import ru.egov.urm.dist.ReleaseDelivery;
+import ru.egov.urm.meta.MetaDistrDelivery;
 import ru.egov.urm.meta.MetaEnv;
 import ru.egov.urm.meta.MetaEnvDC;
 import ru.egov.urm.meta.MetaEnvServer;
@@ -34,7 +36,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		super.defineAction( CommandAction.newAction( new ApplyManual() , "dbmanual" , false , "apply manual scripts under system account" , cmdOpts , "./dbmanual.sh [OPTIONS] <RELEASELABEL> <DBSERVER> {all|<indexes>}" ) );
 		cmdOpts = "GETOPT_DBPASSWORD, GETOPT_DBMODE, GETOPT_DC, GETOPT_DB, GETOPT_DBTYPE, GETOPT_DBALIGNED";
 		super.defineAction( CommandAction.newAction( new ApplyAutomatic() , "dbapply" , false , "apply application scripts and load data files" , cmdOpts , "./dbapply.sh [OPTIONS] <RELEASELABEL> {all|<delivery> {all|<mask>}} (mask is distributive file mask)" ) );
-		cmdOpts = "GETOPT_DC, GETOPT_DBPASSWORD";
+		cmdOpts = "GETOPT_DC, GETOPT_DBPASSWORD, GETOPT_DB";
 		super.defineAction( CommandAction.newAction( new ManageRelease() , "manage" , false , "manage accounting information" , cmdOpts , "./manage.sh [OPTIONS] <RELEASELABEL> <print|correct|rollback> [{all|<indexes>}]" ) );
 		cmdOpts = "GETOPT_DC, GETOPT_DBPASSWORD";
 		super.defineAction( CommandAction.newAction( new ImportDB() , "import" , false , "import specified in etc/datapump/file dump to database" , cmdOpts , "./import.sh [OPTIONS] <server> {all|meta|data} [schema]" ) );
@@ -121,10 +123,23 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	private class ManageRelease extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = options.getRequiredArg( action , 0 , "RELEASELABEL" );
-		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		DistRepository repo = action.artefactory.getDistRepository( action );
+		String RELEASEVER = repo.getReleaseVerByLabel( action , RELEASELABEL );
+		
 		String CMD = options.getRequiredArg( action , 1 , "CMD" );
-		ActionScope scope = getIndexScope( action , dist , 2 );
-		impl.manageRelease( action , scope , dist , CMD );
+		String DELIVERY = options.getRequiredArg( action , 2 , "delivery" );
+		
+		MetaDistrDelivery delivery = null;
+		String indexScope = null;
+		if( DELIVERY.equals( "all" ) )
+			options.checkNoArgs( action , 3 );
+		else {
+			delivery = action.meta.distr.getDelivery( action , DELIVERY );
+			indexScope = options.getRequiredArg( action , 3 , "mask" );
+			options.checkNoArgs( action , 4 );
+		}
+		
+		impl.manageRelease( action , RELEASEVER , delivery , CMD , indexScope );
 	}
 	}
 	

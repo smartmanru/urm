@@ -115,8 +115,8 @@ public class ActionVerifyDeploy extends ActionBase {
 
 		boolean verifyServer = true; 
 		for( String version : dist.release.getApplyVersions( this ) ) {
-			DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client , dist.release , version );
-			DatabaseRegistryRelease release = registry.getReleaseInfo( this );
+			DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client );
+			DatabaseRegistryRelease release = registry.getReleaseInfo( this , version );
 			
 			if( release.state == RELEASE_STATE.FINISHED )
 				info( version + ": release has been successfully applied to database" );

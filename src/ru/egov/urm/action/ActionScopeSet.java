@@ -373,9 +373,12 @@ public class ActionScopeSet {
 		return( mapServers );
 	}
 	
-	private Map<String,MetaEnvServer> getReleaseDatabaseServers( ActionBase action , Dist release ) throws Exception {
+	private Map<String,MetaEnvServer> getEnvDatabaseServers( ActionBase action , Dist dist ) throws Exception {
+		if( dist == null )
+			return( dc.getServerMap( action ) );
+		
 		Map<String,MetaEnvServer> mapServers = new HashMap<String,MetaEnvServer>();
-		Release info = release.release;
+		Release info = dist.release;
 
 		for( ReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
 			for( MetaEnvServer server : dc.getServerMap( action ).values() ) {
@@ -416,8 +419,8 @@ public class ActionScopeSet {
 		}
 	}
 
-	public void addEnvDatabases( ActionBase action , Dist release ) throws Exception {
-		Map<String,MetaEnvServer> releaseServers = getReleaseDatabaseServers( action , release );
+	public void addEnvDatabases( ActionBase action , Dist dist ) throws Exception {
+		Map<String,MetaEnvServer> releaseServers = getEnvDatabaseServers( action , dist );
 	
 		if( action.context.CTX_DB.isEmpty() )
 			setFull = true; 
@@ -428,7 +431,7 @@ public class ActionScopeSet {
 			if( !server.isDatabase( action ) )
 				continue;
 			
-			boolean addServer = ( release == null )? true : releaseServers.containsKey( server.NAME );
+			boolean addServer = ( dist == null )? true : releaseServers.containsKey( server.NAME );
 			if( addServer ) {
 				if( action.context.CTX_DB.isEmpty() == false && action.context.CTX_DB.equals( server.NAME ) == false )
 					action.trace( "ignore not-action scope server=" + server.NAME );

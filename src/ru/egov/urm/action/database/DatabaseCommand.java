@@ -5,6 +5,7 @@ import ru.egov.urm.action.ActionScope;
 import ru.egov.urm.action.CommandOptions.SQLMODE;
 import ru.egov.urm.dist.Dist;
 import ru.egov.urm.dist.ReleaseDelivery;
+import ru.egov.urm.meta.MetaDistrDelivery;
 import ru.egov.urm.meta.MetaEnvServer;
 import ru.egov.urm.meta.MetaEnvServerNode;
 
@@ -59,8 +60,10 @@ public class DatabaseCommand {
 		ma.runAll( scope );
 	}
 
-	public void manageRelease( ActionBase action , ActionScope scope , Dist dist , String CMD ) throws Exception {
-		action.exitNotImplemented();
+	public void manageRelease( ActionBase action , String RELEASEVER , MetaDistrDelivery delivery , String CMD , String indexScope ) throws Exception {
+		ActionManageRegistry ma = new ActionManageRegistry( action , null , RELEASEVER , CMD , delivery , indexScope );
+		ActionScope scope = ActionScope.getEnvDatabaseScope( action , null );
+		ma.runAll( scope );
 	}
 
 	public void importDatabase( ActionBase action , String SERVER , String CMD , String SCHEMA ) throws Exception {

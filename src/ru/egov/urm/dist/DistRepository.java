@@ -189,23 +189,9 @@ public class DistRepository {
 		
 		String RELEASEPATH = "";
 		String RELEASEVER = "";
-		if( RELEASELABEL.equals( "last" ) ) {
-			RELEASEVER = meta.product.CONFIG_VERSION_LAST_FULL;
-			if( RELEASEVER.isEmpty() )
-				action.exit( "CONFIG_VERSION_LAST_FULL is not set in product.conf" );
-			
-			String RELEASEDIR = getReleaseDirByVer( action , RELEASEVER );
-			RELEASEPATH = "releases/" + RELEASEDIR;
-		}
-		else if( RELEASELABEL.equals( "next" ) ) {
-			RELEASEVER = meta.product.CONFIG_VERSION_NEXT_FULL;
-			if( RELEASEVER.isEmpty() )
-				action.exit( "CONFIG_VERSION_NEXT_FULL is not set in product.conf" );
-
-			String RELEASEDIR = getReleaseDirByVer( action , RELEASEVER );
-			RELEASEPATH = "releases/" + RELEASEDIR;
-		}
-		else if( RELEASELABEL.equals( "prod" ) ) {
+		String RELEASEDIR = "";
+		
+		if( RELEASELABEL.equals( "prod" ) ) {
 			RELEASEPATH = "prod";
 			RELEASEVER = "(prod)";
 
@@ -213,21 +199,49 @@ public class DistRepository {
 			if( !repoFolder.checkFolderExists( action , RELEASEPATH ) )
 				action.exit( "getReleaseVerByLabel: unable to find prod distributive" );
 		}
+		else
+		if( RELEASELABEL.indexOf( "-" ) > 0 ) {
+			RELEASEDIR = RELEASELABEL;
+			RELEASEVER = getReleaseVerByDir( action , RELEASEDIR );
+			RELEASEPATH = "releases/" + RELEASEDIR;
+		}
 		else {
-			String RELEASEDIR = "";
-			if( RELEASELABEL.indexOf( "-" ) < 0 ) {
-				RELEASEVER = normalizeReleaseVer( action , RELEASELABEL );
-				RELEASEDIR = getReleaseDirByVer( action , RELEASEVER );
-			}
-			else {
-				RELEASEDIR = RELEASELABEL;
-				RELEASEVER = getReleaseVerByDir( action , RELEASELABEL );
-			}
+			RELEASEVER = getReleaseVerByLabel( action , RELEASELABEL );
+			RELEASEDIR = getReleaseDirByVer( action , RELEASEVER );
 			RELEASEPATH = "releases/" + RELEASEDIR;
 		}
 		
 		action.debug( "found release directory=" + RELEASEPATH + " by label=" + RELEASELABEL + "( RELEASEVER=" + RELEASEVER + ")" );
 		return( RELEASEPATH );
+	}
+	
+	public String getReleaseVerByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
+		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
+
+		String RELEASEVER = "";
+		if( RELEASELABEL.equals( "last" ) ) {
+			RELEASEVER = meta.product.CONFIG_VERSION_LAST_FULL;
+			if( RELEASEVER.isEmpty() )
+				action.exit( "CONFIG_VERSION_LAST_FULL is not set in product.conf" );
+
+			return( RELEASEVER );
+		}
+		
+		if( RELEASELABEL.equals( "next" ) ) {
+			RELEASEVER = meta.product.CONFIG_VERSION_NEXT_FULL;
+			if( RELEASEVER.isEmpty() )
+				action.exit( "CONFIG_VERSION_NEXT_FULL is not set in product.conf" );
+
+			return( RELEASEVER );
+		}
+		
+		if( RELEASELABEL.indexOf( "-" ) < 0 ) {
+			RELEASEVER = normalizeReleaseVer( action , RELEASELABEL );
+			return( RELEASEVER );
+		}
+
+		action.exit( "unexpected release label=" + RELEASELABEL );
+		return( null );
 	}
 	
 	public void createProd( ActionBase action , String RELEASEVER ) throws Exception {

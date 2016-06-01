@@ -68,8 +68,8 @@ public class ActionApplyAutomatic extends ActionBase {
 	private boolean applyDatabaseVersion( MetaEnvServer server , DatabaseClient client , LogStorage logs , String version ) throws Exception {
 		info( version + " " + getMode() + ": apply database changes ..." );
 		
-		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client , dist.release , version );
-		if( !registry.startApplyRelease( this ) )
+		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client );
+		if( !registry.startApplyRelease( this , dist.release ) )
 			return( false );
 
 		boolean done = false;
