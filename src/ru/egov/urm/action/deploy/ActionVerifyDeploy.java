@@ -113,18 +113,26 @@ public class ActionVerifyDeploy extends ActionBase {
 		if( !client.checkConnect( this , server ) )
 			exit( "unable to connect to server=" + server.NAME );
 
+		boolean verifyServer = true; 
 		for( String version : dist.release.getApplyVersions( this ) ) {
 			DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client , dist.release , version );
 			DatabaseRegistryRelease release = registry.getLastRelease( this );
 			
-			if( release.state == RELEASE_STATE.UNKNOWN )
-				info( version + ": nothing has been applied to database" );
-			else
 			if( release.state == RELEASE_STATE.FINISHED )
 				info( version + ": release has been successfully applied to database" );
-			else
-				info( version + ": release has not been completed, state=" + Common.getEnumLower( release.state ) );
+			else {
+				verifyServer = false;
+				if( release.state == RELEASE_STATE.UNKNOWN )
+					info( version + ": nothing has been applied to database" );
+				else
+					info( version + ": release has not been completed, state=" + Common.getEnumLower( release.state ) );
+			}
 		}
+
+		if( verifyServer )
+			info( "server is exactly matched" );
+		else
+			error( "server state differs from expected" );
 	}
 	
 	private void executeServerApp( ActionScopeTarget target , MetaEnvServer server ) throws Exception {
@@ -162,7 +170,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		if( verifyServer )
 			info( "server is exactly matched" );
 		else
-			error( "server differs from distributive" );
+			error( "server state differs from expected" );
 	}
 
 	private boolean executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] confLocations , MetaEnvServerLocation[] binaryLocations , LocalFolder tobeConfigServerFolder , LocalFolder asisConfigServerFolder , LocalFolder tobeBinaryServerFolder , LocalFolder asisBinaryServerFolder ) throws Exception {
