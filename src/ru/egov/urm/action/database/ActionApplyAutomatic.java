@@ -48,8 +48,6 @@ public class ActionApplyAutomatic extends ActionBase {
 		applyFailed = false;
 		if( applyDatabase( server , client ) )
 			info( "apply done." );
-		else
-			super.setFailed();
 		
 		if( applyFailed )
 			super.setFailed();
@@ -68,8 +66,9 @@ public class ActionApplyAutomatic extends ActionBase {
 	}
 
 	private boolean applyDatabaseVersion( MetaEnvServer server , DatabaseClient client , LogStorage logs , String version ) throws Exception {
-		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client , dist.release , version );
+		info( version + " " + getMode() + ": apply database changes ..." );
 		
+		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client , dist.release , version );
 		if( !registry.startApplyRelease( this ) )
 			return( false );
 
@@ -82,15 +81,17 @@ public class ActionApplyAutomatic extends ActionBase {
 		}
 		
 		// check release is finished
-		if( !applyFailed ) {
+		int n = 0;
+		if( isExecute() && done ) {
 			registry.readIncompleteScripts( this );
-			int n = registry.getScriptCount( this );
-			if( n > 0 )
-				info( "release is not finalized, total " + n + " incomplete script(s)" );
-			else {
-				registry.finishApplyRelease( this );
-				info( "release is finalized." );
-			}
+			n = registry.getScriptCount( this );
+		}
+		
+		if( n > 0 )
+			info( version + " " + getMode() + ": release is not finalized, total " + n + " incomplete script(s)" );
+		else {
+			registry.finishApplyRelease( this );
+			info( version + " " + getMode() + ": release is finalized." );
 		}
 		
 		return( done );
