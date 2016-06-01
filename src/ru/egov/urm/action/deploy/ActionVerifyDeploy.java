@@ -76,7 +76,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			if( verifyOk )
 				info( "environment is exactly matched" );
 			else
-				error( "environment differs from distributive" );
+				error( "environment state differs from expected" );
 		}
 	}
 	
