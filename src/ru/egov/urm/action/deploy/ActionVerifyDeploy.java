@@ -120,10 +120,10 @@ public class ActionVerifyDeploy extends ActionBase {
 			if( release.state == RELEASE_STATE.UNKNOWN )
 				info( version + ": nothing has been applied to database" );
 			else
-			if( !release.version.equals( dist.release.RELEASEVER ) )
-				info( version + ": release has not been applied to database" );
+			if( release.state == RELEASE_STATE.FINISHED )
+				info( version + ": release has been successfully applied to database" );
 			else
-				info( version + ": release has been applied to database, state=" + Common.getEnumLower( release.state ) );
+				info( version + ": release has not been completed, state=" + Common.getEnumLower( release.state ) );
 		}
 	}
 	
