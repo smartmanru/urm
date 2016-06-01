@@ -201,6 +201,14 @@ public class DatabaseRegistry {
 				"zrelease = " + Common.getSQLQuoted( RELEASEVER ) ); 
 	}
 	
+	public void finishReleaseState( ActionBase action ) throws Exception {
+		readIncompleteScripts( action );
+		if( deliveryState.isEmpty() )
+			finishApplyRelease( action );
+		else
+			action.debug( "there are incomplete scripts" );
+	}
+	
 	public void readDeliveryState( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
 		Map<String,String> data = new HashMap<String,String>(); 
 		
@@ -284,20 +292,34 @@ public class DatabaseRegistry {
 				action.exit( msg );
 		}
 	}
+
+	public void correctScript( ActionBase action , String delivery , String key ) throws Exception {
+		Map<String,String> data = deliveryState.get( delivery );
+		if( data == null )
+			action.exitUnexpectedState();
+		String status = data.get( key );
+		if( status == null )
+			action.exitUnexpectedState();
+		
+		finishApplyScript( action , delivery , key , SCRIPT_STATUS_APPLIED );
+	}
 	
 	public void finishApplyScript( ActionBase action , MetaDistrDelivery delivery , String file ) throws Exception {
 		DatabaseScriptFile dsf = new DatabaseScriptFile();
 		dsf.setDistFile( action , file );
 		String key = dsf.getDistKey();
+		finishApplyScript( action , delivery.NAME , key , SCRIPT_STATUS_APPLIED );
+	}
 		
+	private void finishApplyScript( ActionBase action , String delivery , String key , String status ) throws Exception {
 		boolean res = client.updateRow( action , server.admSchema , TABLE_SCRIPTS ,
 				new String[] { "zend_apply_time" , "zscript_status" } , 
-				new String[] { "TIMESTAMP" , Common.getSQLQuoted( SCRIPT_STATUS_APPLIED ) } ,
+				new String[] { "TIMESTAMP" , Common.getSQLQuoted( status ) } ,
 				"zrelease = " + Common.getSQLQuoted( RELEASEVER ) + " and " +
-						"zdelivery = " + Common.getSQLQuoted( delivery.NAME ) + " and " + 
+						"zdelivery = " + Common.getSQLQuoted( delivery ) + " and " + 
 						"zkey = " + Common.getSQLQuoted( key ) );
 		if( !res ) {
-			String msg = "unable to register script execution: " + file ;
+			String msg = "unable to register script execution: " + key ;
 			if( action.context.CTX_FORCE )
 				action.error( msg + ", ignored." );
 			else
