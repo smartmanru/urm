@@ -321,7 +321,7 @@ public class DatabaseRegistry {
 				" where zrelease = ( select max( zrelease ) from " + TABLE_RELEASES + " )";
 		else
 			query = "select 'c=' || zrelease || '|c=' || zrel_status from " + TABLE_RELEASES +
-				" where zrelease = '";
+				" where zrelease = '" + version + "'";
 		
 		List<String[]> rows = client.readSelectData( action , server.admSchema , query );
 		
