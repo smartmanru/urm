@@ -26,7 +26,7 @@ public class ActionGetDB extends ActionBase {
 			return( false );
 
 		LocalFolder downloadFolder = artefactory.getDownloadFolder( this );
-		LocalFolder dbPreparedFolder = downloadFolder.getSubFolder( this , dist.getDeliveryDatabaseFolder( this , item.dbDelivery ) );
+		LocalFolder dbPreparedFolder = downloadFolder.getSubFolder( this , dist.getDeliveryDatabaseFolder( this , item.dbDelivery , dist.release.RELEASEVER ) );
 		dbPreparedFolder.recreateThis( this );
 
 		LocalFolder dbWorkFolder = workFolder.getSubFolder( this , SourceStorage.DATABASE_FOLDER );

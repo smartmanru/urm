@@ -124,7 +124,7 @@ public class Dist {
 			action.exit( "distributive is not opened for change" );
 		
 		state.checkDistChangeEnabled( action );
-		String folder = getDeliveryDatabaseFolder( action , dbDelivery );
+		String folder = getDeliveryDatabaseFolder( action , dbDelivery , release.RELEASEVER );
 		distFolder.removeFolder( action , folder );
 		
 		String parentFolder = Common.getDirName( folder );
@@ -219,20 +219,16 @@ public class Dist {
 		return( Common.getPath( delivery.FOLDER , CONFIG_FOLDER ) );
 	}
 	
-	public String getDeliveryDatabaseFolder( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
-		return( Common.getPath( delivery.FOLDER , DATABASE_FOLDER , release.RELEASEVER ) );
-	}
-	
 	public String getDeliveryDatabaseFolder( ActionBase action , MetaDistrDelivery delivery , String RELEASEVER ) throws Exception {
 		return( Common.getPath( delivery.FOLDER , DATABASE_FOLDER , RELEASEVER ) );
 	}
 	
-	public String getDeliveryDatabaseScriptFolder( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
-		return( Common.getPath( getDeliveryDatabaseFolder( action , delivery ) , DBSCRIPTS_FOLDER ) );
+	public String getDeliveryDatabaseScriptFolder( ActionBase action , MetaDistrDelivery delivery , String RELEASEVER ) throws Exception {
+		return( Common.getPath( getDeliveryDatabaseFolder( action , delivery , RELEASEVER ) , DBSCRIPTS_FOLDER ) );
 	}
 	
-	public String getDeliveryDatabaseLoadFolder( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
-		return( Common.getPath( getDeliveryDatabaseFolder( action , delivery ) , DBDATALOAD_FOLDER ) );
+	public String getDeliveryDatabaseLoadFolder( ActionBase action , MetaDistrDelivery delivery , String RELEASEVER ) throws Exception {
+		return( Common.getPath( getDeliveryDatabaseFolder( action , delivery , RELEASEVER ) , DBDATALOAD_FOLDER ) );
 	}
 	
 	public String getDeliveryBinaryFolder( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
@@ -286,7 +282,7 @@ public class Dist {
 		for( ReleaseDelivery delivery : release.getDeliveries( action ).values() ) {
 			createInternalDeliveryFolder( action , getDeliveryBinaryFolder( action , delivery.distDelivery ) );
 			createInternalDeliveryFolder( action , getDeliveryConfFolder( action , delivery.distDelivery ) );
-			createInternalDeliveryFolder( action , getDeliveryDatabaseFolder( action , delivery.distDelivery ) );
+			createInternalDeliveryFolder( action , getDeliveryDatabaseFolder( action , delivery.distDelivery , release.RELEASEVER ) );
 		}
 	}
 
@@ -554,7 +550,7 @@ public class Dist {
 		}
 		else
 		if( target.CATEGORY == VarCATEGORY.DB ) {
-			String folder = getDeliveryDatabaseFolder( action , target.distDatabaseItem );
+			String folder = getDeliveryDatabaseFolder( action , target.distDatabaseItem , release.RELEASEVER );
 			distFolder.removeFolderContent( action , folder );
 		}
 		else
@@ -755,7 +751,7 @@ public class Dist {
 	public void copyDatabaseDistrToDistr( ActionBase action , ReleaseDelivery delivery , Dist src ) throws Exception {
 		ReleaseDelivery reldel = src.release.findDelivery( action , delivery.distDelivery.NAME );
 		if( reldel != null ) {
-			String folder = src.getDeliveryDatabaseFolder( action , reldel.distDelivery );
+			String folder = src.getDeliveryDatabaseFolder( action , reldel.distDelivery , src.release.RELEASEVER );
 			if( src.distFolder.checkFolderExists( action , folder ) )
 				distFolder.copyDir( action , src.distFolder.getFilePath( action , folder ) , folder );
 		}

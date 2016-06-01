@@ -44,10 +44,9 @@ public class ActionApplyAutomatic extends ActionBase {
 			exit( "unable to connect to server=" + server.NAME );
 
 		info( "apply changes to database=" + server.NAME + " ..." );
-		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client , dist.release );
 		
 		applyFailed = false;
-		if( applyDatabase( server , client , registry ) )
+		if( applyDatabase( server , client ) )
 			info( "apply done." );
 		else
 			super.setFailed();
@@ -58,15 +57,27 @@ public class ActionApplyAutomatic extends ActionBase {
 		return( true );
 	}
 
-	private boolean applyDatabase( MetaEnvServer server , DatabaseClient client , DatabaseRegistry registry ) throws Exception {
+	private boolean applyDatabase( MetaEnvServer server , DatabaseClient client ) throws Exception {
+		boolean done = false;
+		String[] versions = dist.release.getApplyVersions( this );
+		for( String version : versions )
+			if( applyDatabaseVersion( server , client , logs , version ) )
+				done = true;
+		
+		return( done );
+	}
+
+	private boolean applyDatabaseVersion( MetaEnvServer server , DatabaseClient client , LogStorage logs , String version ) throws Exception {
+		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client , dist.release , version );
+		
 		if( !registry.startApplyRelease( this ) )
 			return( false );
-		
-		Map<String,MetaDatabaseSchema> schemaSet = server.getSchemaSet( this );
+
 		boolean done = false;
+		Map<String,MetaDatabaseSchema> schemaSet = server.getSchemaSet( this );
 		for( ReleaseDelivery releaseDelivery : dist.release.getDeliveries( this ).values() ) {
 			if( optDelivery == null || optDelivery == releaseDelivery )
-				if( applyDelivery( server , client , registry , releaseDelivery , schemaSet , logs ) )
+				if( applyDelivery( server , client , registry , version , releaseDelivery , schemaSet , logs ) )
 					done = true;
 		}
 		
@@ -85,21 +96,21 @@ public class ActionApplyAutomatic extends ActionBase {
 		return( done );
 	}
 	
-	private boolean applyDelivery( MetaEnvServer server , DatabaseClient client , DatabaseRegistry registry , ReleaseDelivery releaseDelivery , Map<String,MetaDatabaseSchema> schemaSet , LogStorage logs ) throws Exception {
-		LocalFolder logReleaseCopy = logs.getDatabaseLogReleaseCopyFolder( this , server , releaseDelivery );
-		LocalFolder logReleaseExecute = logs.getDatabaseLogExecuteFolder( this , server , releaseDelivery );
+	private boolean applyDelivery( MetaEnvServer server , DatabaseClient client , DatabaseRegistry registry , String version , ReleaseDelivery releaseDelivery , Map<String,MetaDatabaseSchema> schemaSet , LogStorage logs ) throws Exception {
+		LocalFolder logReleaseCopy = logs.getDatabaseLogReleaseCopyFolder( this , server , releaseDelivery , version );
+		LocalFolder logReleaseExecute = logs.getDatabaseLogExecuteFolder( this , server , releaseDelivery , version );
 		
-		if( !createRunSet( server , releaseDelivery , logReleaseCopy , logReleaseExecute , schemaSet ) )
+		if( !createRunSet( server , releaseDelivery , logReleaseCopy , logReleaseExecute , schemaSet , version ) )
 			return( false );
 		
-		if( !executeRunSet( server , client , registry , releaseDelivery , logReleaseExecute ) )
+		if( !executeRunSet( server , client , registry , releaseDelivery , logReleaseExecute , version ) )
 			applyFailed = true;
 		
 		return( true );
 	}
 
-	private boolean createRunSet( MetaEnvServer server , ReleaseDelivery releaseDelivery , LocalFolder logReleaseCopy , LocalFolder logReleaseExecute , Map<String,MetaDatabaseSchema> schemaSet ) throws Exception {
-		String distFolder = dist.getDeliveryDatabaseScriptFolder( this , releaseDelivery.distDelivery );
+	private boolean createRunSet( MetaEnvServer server , ReleaseDelivery releaseDelivery , LocalFolder logReleaseCopy , LocalFolder logReleaseExecute , Map<String,MetaDatabaseSchema> schemaSet , String version ) throws Exception {
+		String distFolder = dist.getDeliveryDatabaseScriptFolder( this , releaseDelivery.distDelivery , version );
 		FileSet files = dist.getFiles( this );
 		FileSet deliveryFiles = files.getDirByPath( this , distFolder );
 		if( deliveryFiles == null ) {
@@ -196,7 +207,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		return( true );
 	}
 
-	private boolean executeRunSet( MetaEnvServer server , DatabaseClient client , DatabaseRegistry registry , ReleaseDelivery releaseDelivery , LocalFolder logReleaseExecute ) throws Exception {
+	private boolean executeRunSet( MetaEnvServer server , DatabaseClient client , DatabaseRegistry registry , ReleaseDelivery releaseDelivery , LocalFolder logReleaseExecute , String version ) throws Exception {
 		registry.readDeliveryState( this , releaseDelivery.distDelivery );
 
 		FileSet files = logReleaseExecute.getFileSet( this );

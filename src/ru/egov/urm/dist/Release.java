@@ -106,6 +106,12 @@ public class Release {
 		return( PROPERTY_CUMULATIVE );
 	}
 	
+	public String[] getApplyVersions( ActionBase action ) throws Exception {
+		if( dist.release.isCumulative() )
+			return( dist.release.getCumulativeVersions( action ) );
+		return( new String[] { dist.release.RELEASEVER } );
+	}
+	
 	public void setReleaseVer( ActionBase action , String RELEASEVER ) throws Exception {
 		this.RELEASEVER = RELEASEVER;
 	}

@@ -75,7 +75,7 @@ public class DistFinalizer {
 	}
 	
 	private void createExpectedDatabaseDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseTarget item ) throws Exception {
-		fs.createDir( dist.getDeliveryDatabaseFolder( action , delivery.distDelivery ) );
+		fs.createDir( dist.getDeliveryDatabaseFolder( action , delivery.distDelivery , dist.release.RELEASEVER ) );
 	}
 	
 	private boolean finishDist( ActionBase action , FileSet fsd , FileSet fsr ) throws Exception {
@@ -245,22 +245,17 @@ public class DistFinalizer {
 			return( false );
 		}
 		
+		String[] versions = dist.release.getApplyVersions( action );
 		for( String dir : fsd.dirs.keySet() ) {
 			FileSet dirFilesDist = fsd.dirs.get( dir );
-			if( !finishDistDeliveryDatabaseSet( action , delivery , dirFilesDist ) )
+			if( !finishDistDeliveryDatabaseSet( action , delivery , dirFilesDist , versions ) )
 				return( false );
 		}
 		
 		return( true );
 	}
 
-	private boolean finishDistDeliveryDatabaseSet( ActionBase action , ReleaseDelivery delivery , FileSet fsd ) throws Exception {
-		String[] versions = null;
-		if( dist.release.isCumulative() )
-			versions = dist.release.getCumulativeVersions( action );
-		else
-			versions = new String[] { dist.release.RELEASEVER };
-		
+	private boolean finishDistDeliveryDatabaseSet( ActionBase action , ReleaseDelivery delivery , FileSet fsd , String[] versions ) throws Exception {
 		if( Common.checkListItem( versions , fsd.dirName ) )
 			return( true );
 		

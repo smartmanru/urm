@@ -108,15 +108,19 @@ public class DatabaseClient {
 			}
 		}
 
-		logFolder.copyDirToLocal( action , files );
+		if( action.isExecute() )
+			logFolder.copyDirToLocal( action , files );
 		return( res );
 	}
 	
 	private boolean applyManualScript( ActionBase action , ShellExecutor shell , RemoteFolder folder , String file , RemoteFolder logFolder ) throws Exception {
-		action.info( specific.server.NAME + ": apply " + file + " ..." );
+		action.info( specific.server.NAME + " " + action.getMode() + ": apply " + file + " ..." );
 		
 		String fileRun = folder.getFilePath( action , Common.getBaseName( file ) );
 		String fileLog = logFolder.getFilePath( action , Common.getBaseName( file ) + ".out" );
+		
+		if( !action.isExecute() )
+			return( true );
 		
 		action.executeLogLive( shell , "apply manual script: " + file );
 		if( !action.isExecute() )
@@ -150,21 +154,34 @@ public class DatabaseClient {
 
 	public void createTableData( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] columntypes , List<String[]> data ) throws Exception {
 		String password = getUserPassword( action , schema.DBUSER );
+		
+		if( !action.isExecute() )
+			return;
+		
 		specific.createTableData( action , schema.DBNAME , schema.DBUSER , password , table , columns , columntypes , data );
 	}
 
 	public void writeTableData( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , List<String[]> data ) throws Exception {
 		String password = getUserPassword( action , schema.DBUSER );
+		if( !action.isExecute() )
+			return;
+		
 		specific.writeTableData( action , schema.DBNAME , schema.DBUSER , password , table , columns , data );
 	}
 
 	public boolean insertRow( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] values ) throws Exception {
 		String password = getUserPassword( action , schema.DBUSER );
+		if( !action.isExecute() )
+			return( true );
+		
 		return( specific.insertRow( action , schema.DBNAME , schema.DBUSER , password , table , columns , values ) );
 	}
 	
 	public boolean updateRow( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] values , String ansiCondition ) throws Exception {
 		String password = getUserPassword( action , schema.DBUSER );
+		if( !action.isExecute() )
+			return( true );
+		
 		return( specific.updateRow( action , schema.DBNAME , schema.DBUSER , password , table , columns , values , ansiCondition ) );
 	}
 
@@ -172,6 +189,9 @@ public class DatabaseClient {
 		String password = getUserPassword( action , schema.DBUSER );
 		String file = scriptFolder.getFilePath( action , scriptFile );
 		String log = outFolder.getFilePath( action , outFile );
+		if( !action.isExecute() )
+			return( true );
+		
 		return( specific.applyScript( action , schema.DBNAME , schema.DBUSER , password , file , log ) );
 	}
 	
@@ -181,6 +201,9 @@ public class DatabaseClient {
 		String password = getUserPassword( action , DBUSER );
 		String file = scriptFolder.getFilePath( action , scriptFile );
 		String log = outFolder.getFilePath( action , outFile );
+		if( !action.isExecute() )
+			return( true );
+		
 		return( specific.applyScript( action , DBSCHEMA , DBUSER , password , file , log ) );
 	}
 	
