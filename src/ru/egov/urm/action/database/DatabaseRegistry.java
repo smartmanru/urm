@@ -316,12 +316,12 @@ public class DatabaseRegistry {
 	
 	public DatabaseRegistryRelease getReleaseInfo( ActionBase action , String version ) throws Exception {
 		String query = null;
-		if( version == null ) 
+		if( version == null || version.isEmpty() ) 
 			query = "select 'c=' || zrelease || '|c=' || zrel_status from " + TABLE_RELEASES +
 				" where zrelease = ( select max( zrelease ) from " + TABLE_RELEASES + " )";
 		else
 			query = "select 'c=' || zrelease || '|c=' || zrel_status from " + TABLE_RELEASES +
-				" where zrelease = '" + version + "' from " + TABLE_RELEASES + " )";
+				" where zrelease = '";
 		
 		List<String[]> rows = client.readSelectData( action , server.admSchema , query );
 		
