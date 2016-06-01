@@ -154,7 +154,7 @@ public class DatabaseRegistry {
 	}
 
 	public boolean checkLastRelease( ActionBase action ) throws Exception {
-		DatabaseRegistryRelease last = getLastRelease( action );
+		DatabaseRegistryRelease last = getLastReleaseInfo( action );
 		
 		// no last
 		if( last.state == RELEASE_STATE.UNKNOWN ) {
@@ -306,9 +306,24 @@ public class DatabaseRegistry {
 		return( null );
 	}
 	
-	public DatabaseRegistryRelease getLastRelease( ActionBase action ) throws Exception {
-		List<String[]> rows = client.readSelectData( action , server.admSchema , "select 'c=' || zrelease || '|c=' || zrel_status from " + TABLE_RELEASES +
-				" where zrelease = ( select max( zrelease ) from " + TABLE_RELEASES + " )" );
+	public DatabaseRegistryRelease getLastReleaseInfo( ActionBase action ) throws Exception {
+		return( getReleaseInfo( action , null ) );
+	}
+
+	public DatabaseRegistryRelease getReleaseInfo( ActionBase action ) throws Exception {
+		return( getReleaseInfo( action , RELEASEVER ) );
+	}
+	
+	public DatabaseRegistryRelease getReleaseInfo( ActionBase action , String version ) throws Exception {
+		String query = null;
+		if( version == null ) 
+			query = "select 'c=' || zrelease || '|c=' || zrel_status from " + TABLE_RELEASES +
+				" where zrelease = ( select max( zrelease ) from " + TABLE_RELEASES + " )";
+		else
+			query = "select 'c=' || zrelease || '|c=' || zrel_status from " + TABLE_RELEASES +
+				" where zrelease = '" + version + "' from " + TABLE_RELEASES + " )";
+		
+		List<String[]> rows = client.readSelectData( action , server.admSchema , query );
 		
 		DatabaseRegistryRelease release = new DatabaseRegistryRelease();  
 		if( rows.isEmpty() ) {
@@ -325,4 +340,5 @@ public class DatabaseRegistry {
 		release.state = getReleaseState( action , row[1] );
 		return( release );
 	}
+	
 }

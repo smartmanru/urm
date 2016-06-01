@@ -39,7 +39,7 @@ public class ActionGetDeployInfo extends ActionBase {
 			exit( "unable to connect to server=" + server.NAME );
 
 		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client );
-		DatabaseRegistryRelease release = registry.getLastRelease( this );
+		DatabaseRegistryRelease release = registry.getLastReleaseInfo( this );
 		super.comment( "database: " );
 		super.comment( "\trelease: " + release.version );
 		super.comment( "\tstate: " + Common.getEnumLower( release.state ) );
