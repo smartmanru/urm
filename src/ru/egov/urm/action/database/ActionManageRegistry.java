@@ -29,7 +29,7 @@ public class ActionManageRegistry extends ActionBase {
 		if( !client.checkConnect( this , server ) )
 			exit( "unable to connect to server=" + server.NAME );
 
-		info( RELEASEVER + ": " + CMD + " database registry ..." );
+		comment( RELEASEVER + ": " + CMD + " database registry ..." );
 		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client );
 		registry.setActiveRelease( this , RELEASEVER );
 		
@@ -54,10 +54,8 @@ public class ActionManageRegistry extends ActionBase {
 		if( registry.isReleaseUnknown( this ) )
 			exit( "unknown release version=" + RELEASEVER );
 		
-		comment( "DATABASE RELEASE STATUS" );
-		comment( "\tversion=" + RELEASEVER );
 		String state = ( registry.isReleaseFinished( this ) )? "APPLIED" : "INCOMPLETE";
-		comment( "\tstate=" + state );
+		comment( "VERSION=" + RELEASEVER + " STATE=" + state );
 		
 		registry.readIncompleteScripts( this );
 		for( String delivery : registry.getStateDeliveries( this ) ) {
