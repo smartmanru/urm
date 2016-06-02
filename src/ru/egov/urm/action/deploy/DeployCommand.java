@@ -123,11 +123,13 @@ public class DeployCommand {
 		action.info( "open sessions and create redist folders ..." );
 		ActionPrepareRedist pa = new ActionPrepareRedist( action , null , dist , true );
 		if( !pa.runAll( scope ) )
-			action.exit( "unable to create folders" );
+			action.ifexit( "unable to create folders" );
 		
 		action.info( "upload to redist ..." );
 		ActionRedist ma = new ActionRedist( action , null , dist , live );
-		if( ma.runAll( scope ) )
+		ma.runAll( scope );
+		
+		if( action.executor.isFailed() )
 			action.info( "redist successfully done." );
 		else
 			action.error( "redist failed, see logs." );
