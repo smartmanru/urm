@@ -456,6 +456,10 @@ public abstract class Folder {
 		return( (( LocalFolder )this).getSubFolder( action , subFolder ) );
 	}
 
+	public String getArchiveContentMD5( ActionBase action , String fileName , String EXT ) throws Exception {
+		return( getArchivePartMD5( action , fileName , "" , EXT ) );
+	}
+	
 	public String getArchivePartMD5( ActionBase action , String fileName , String archivePartPath , String EXT ) throws Exception {
 		ShellExecutor session = getSession( action );
 		String filePath = getFilePath( action , fileName );
