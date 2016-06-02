@@ -279,6 +279,8 @@ public class ActionVerifyDeploy extends ActionBase {
 			
 			if( !tobeMD5.equals( asisMD5 ) ) {
 				verifyNode = false;
+				debug( "asis MD5 hash: " + asisMD5 );
+				debug( "tobe MD5 hash: " + tobeMD5 );
 				error( "not matched component: " + Common.getPartAfterFirst( dir , nodePrefix ) );
 			}
 			else
