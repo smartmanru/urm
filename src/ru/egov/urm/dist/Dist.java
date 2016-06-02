@@ -504,7 +504,7 @@ public class Dist {
 				info.md5value = fileFolder.getArchivePartMD5( action , info.fileName , item.SRCITEMPATH , item.srcItem.EXT );
 			else
 			if( item.isArchive( action ) )
-				info.md5value = fileFolder.getArchiveContentMD5( action , info.fileName , item.srcItem.EXT );
+				info.md5value = fileFolder.getArchiveContentMD5( action , info.fileName , item.EXT );
 			else
 				info.md5value = fileFolder.getFileMD5( action , info.fileName );
 		}
