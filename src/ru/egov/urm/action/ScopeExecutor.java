@@ -70,7 +70,7 @@ public class ScopeExecutor {
 		try {
 			action.debug( action.NAME + ": run without scope" );
 			action.runBefore();
-			if( !action.actionFailed ) {
+			if( action.continueRun() ) {
 				runDone = true;
 				if( !action.executeSimple() )
 					runDone = false;
@@ -101,7 +101,7 @@ public class ScopeExecutor {
 		boolean runDone = false;
 		try {
 			action.runBefore();
-			if( !action.actionFailed ) {
+			if( action.continueRun() ) {
 				action.debug( action.NAME + ": run scope={" + item.set.NAME + "={" + item.NAME + "}}" );
 				runDone = true;
 				if( !runTargetListInternal( item.CATEGORY , item.set , new ActionScopeTarget[] { item } , true ) )
@@ -133,7 +133,7 @@ public class ScopeExecutor {
 		boolean runDone = false;
 		try {
 			action.runBefore();
-			if( !action.actionFailed ) {
+			if( action.continueRun() ) {
 				String list = "";
 				for( ActionScopeTarget target : targets )
 					list = Common.addItemToUniqueSpacedList( list , target.NAME );
@@ -169,7 +169,7 @@ public class ScopeExecutor {
 		try {
 			action.debug( action.NAME + ": run scope={" + scope.getScopeInfo( action , categories ) + "}" );
 			action.runBefore( scope );
-			if( !action.actionFailed ) {
+			if( action.continueRun() ) {
 				runDone = true;
 				if( !runTargetCategoriesInternal( scope , categories ) )
 					runDone = false;
@@ -202,7 +202,7 @@ public class ScopeExecutor {
 			VarCATEGORY[] categories = new VarCATEGORY[] { VarCATEGORY.ENV };
 			action.debug( action.NAME + ": run unique hosts of scope={" + scope.getScopeInfo( action , categories ) + "}" );
 			action.runBefore( scope );
-			if( !action.actionFailed ) {
+			if( action.continueRun() ) {
 				runDone = true;
 				
 				runUniqueHosts = true;
@@ -242,7 +242,7 @@ public class ScopeExecutor {
 			VarCATEGORY[] categories = new VarCATEGORY[] { VarCATEGORY.ENV };
 			action.debug( action.NAME + ": run unique accounts of scope={" + scope.getScopeInfo( action , categories ) + "}" );
 			action.runBefore( scope );
-			if( !action.actionFailed ) {
+			if( action.continueRun() ) {
 				runDone = true;
 			
 				runUniqueAccounts = true;
@@ -275,7 +275,7 @@ public class ScopeExecutor {
 		try {
 			action.debug( action.NAME + ": run item=" + item.NAME );
 			action.runBefore( target , item );
-			if( !action.actionFailed ) {
+			if( action.continueRun() ) {
 				runDone = true;
 				if( !action.executeScopeTargetItem( target , item ) ) {
 					runDone = false;
@@ -305,7 +305,6 @@ public class ScopeExecutor {
 	
 	private boolean runTargetItemsInternal( VarCATEGORY CATEGORY , ActionScopeTarget target ) {
 		boolean runDone = false;
-		boolean localFailed = false;
 		try {
 			List<ActionScopeTargetItem> items = target.getItems( action );
 			if( items.isEmpty() ) {
@@ -316,11 +315,8 @@ public class ScopeExecutor {
 			for( ActionScopeTargetItem item : items ) {
 				if( runSingleTargetItemInternal( CATEGORY , target , item ) ) {
 					runDone = true;
-					if( runFailed ) {
-						localFailed = true;
-						if( !action.context.CTX_FORCE )
-							break;
-					}
+					if( !action.continueRun() )
+						break;
 				}
 			}
 		}
@@ -330,7 +326,6 @@ public class ScopeExecutor {
 			action.setFailed();
 		}
 		
-		runFailed = localFailed;
 		runFailed = checkFailed();
 		return( runDone );
 	}
@@ -341,7 +336,7 @@ public class ScopeExecutor {
 			String all = ( target.itemFull )? " (all)" : "";
 			action.debug( action.NAME + ": execute target=" + target.NAME + all + " ..." );
 			action.runBefore( target );
-			if( !action.actionFailed ) {
+			if( action.continueRun() ) {
 				runDone = true;
 			
 				if( !action.executeScopeTarget( target ) )
@@ -416,17 +411,12 @@ public class ScopeExecutor {
 
 	private boolean runHostListInternal( ActionScopeSet set , Account[] hosts ) {
 		boolean runDone = false;
-		boolean localFailed = false;
 		try {
 			for( Account host : hosts ) {
 				if( runSingleHostInternal( set , host.HOST , host.osType ) ) {
 					runDone = true;
-
-					if( runFailed ) {
-						localFailed = true;
-						if( !action.context.CTX_FORCE )
-							break;
-					}
+					if( !action.continueRun() )
+						break;
 				}
 			}
 		}
@@ -436,24 +426,18 @@ public class ScopeExecutor {
 			action.setFailed();
 		}
 		
-		runFailed = localFailed;
 		runFailed = checkFailed();
 		return( runDone );
 	}
 	
 	private boolean runAccountListInternal( ActionScopeSet set , Account[] accounts ) {
 		boolean runDone = false;
-		boolean localFailed = false;
 		try {
 			for( Account account : accounts ) {
 				if( runSingleAccountInternal( set , account ) ) {
 					runDone = true;
-
-					if( runFailed ) {
-						localFailed = true;
-						if( !action.context.CTX_FORCE )
-							break;
-					}
+					if( !action.continueRun() )
+						break;
 				}
 			}
 		}
@@ -463,14 +447,12 @@ public class ScopeExecutor {
 			action.setFailed();
 		}
 		
-		runFailed = localFailed;
 		runFailed = checkFailed();
 		return( runDone );
 	}
 	
 	private boolean runTargetListInternal( VarCATEGORY CATEGORY , ActionScopeSet set , ActionScopeTarget[] items , boolean runBeforeAfter ) {
 		boolean runDone = false;
-		boolean localFailed = false;
 		try {
 			if( runUniqueHosts ) {
 				Account[] hosts = set.getUniqueHosts( action , items );
@@ -486,7 +468,7 @@ public class ScopeExecutor {
 			if( runBeforeAfter ) {
 				action.runBefore( set , items );
 			
-				if( !action.isFailed() ) {
+				if( action.continueRun() ) {
 					runDone = true;
 					if( !action.executeScopeSet( set , items ) )
 						runDone = false;
@@ -497,12 +479,8 @@ public class ScopeExecutor {
 				for( ActionScopeTarget target : getOrderedTargets( set , items ) ) {
 					if( runSingleTargetInternal( CATEGORY , target ) ) {
 						runDone = true;
-	
-						if( runFailed ) {
-							localFailed = true;
-							if( !action.context.CTX_FORCE )
-								break;
-						}
+						if( !action.continueRun() )
+							break;
 					}
 				}
 			}
@@ -525,7 +503,6 @@ public class ScopeExecutor {
 			action.setFailed();
 		}
 		
-		runFailed = localFailed;
 		runFailed = checkFailed();
 		return( runDone );
 	}
@@ -539,7 +516,7 @@ public class ScopeExecutor {
 			
 			items = set.getTargets( action ).values().toArray( new ActionScopeTarget[0] ); 
 			action.runBefore( set , items );
-			if( !action.actionFailed ) {
+			if( action.continueRun() ) {
 				runDone = true;
 
 				if( !action.executeScopeSet( set , items ) )
@@ -574,7 +551,6 @@ public class ScopeExecutor {
 	
 	private boolean runTargetCategoriesInternal( ActionScope scope , VarCATEGORY[] categories ) {
 		boolean runDone = false;
-		boolean localFailed = false;
 		try {
 			if( scope.isEmpty( action , categories ) ) {
 				action.debug( action.NAME + ": nothing to execute" );
@@ -597,12 +573,8 @@ public class ScopeExecutor {
 				// execute set
 				if( runTargetSetInternal( set ) ) {
 					runDone = true;
-					
-					if( runFailed ) {
-						localFailed = true;
-						if( !action.context.CTX_FORCE )
-							break;
-					}
+					if( !action.continueRun() )
+						break;
 				}
 			}
 		}
@@ -612,7 +584,6 @@ public class ScopeExecutor {
 			action.setFailed();
 		}
 		
-		runFailed = localFailed;
 		runFailed = checkFailed();
 		return( runDone );
 	}
@@ -623,7 +594,7 @@ public class ScopeExecutor {
 			String all = ( scope.scopeFull )? " (all)" : "";
 			action.debug( action.NAME + ": execute scope" + all + " ..." );
 			action.runBefore( scope );
-			if( !action.actionFailed ) {
+			if( action.continueRun() ) {
 				runDone = true;
 			
 				if( !action.executeScope( scope ) )

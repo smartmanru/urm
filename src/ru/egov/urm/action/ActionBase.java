@@ -96,6 +96,14 @@ abstract public class ActionBase {
 		executor.setFailed();
 	}
 	
+	public boolean continueRun() {
+		if( !actionFailed )
+			return( true );
+		if( context.CTX_FORCE )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isOK() {
 		return( ( actionFailed )? false : true );
 	}
