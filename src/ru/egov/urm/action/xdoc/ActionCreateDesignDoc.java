@@ -90,7 +90,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 			
 			List<MetaEnvServer> servers = prodServers.get( element.NAME );
 			if( servers == null )
-				exit( "design server=" + element.NAME + " is not found in PROD (production environments)" );
+				ifexit( "design server=" + element.NAME + " is not found in PROD (production environments)" );
 			
 			designServers.put( element.NAME , servers );
 		}
@@ -99,7 +99,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		if( design.fullProd ) {
 			for( String server : prodServers.keySet() ) {
 				if( !designServers.containsKey( server ) )
-					exit( "design server=" + server + " is not part of any PROD environment" );
+					ifexit( "design server=" + server + " is not part of any PROD environment" );
 			}
 		}
 	}

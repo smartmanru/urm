@@ -33,18 +33,15 @@ public class ActionDeployRedist extends ActionBase {
 		}
 		
 		if( !stopServers( set ) ) {
-			if( !context.CTX_FORCE )
-				exit( "unable to stop servers, cancel deployment." );
+			ifexit( "unable to stop servers" );
 		}
 		
 		if( !rolloutServers( set ) ) {
-			if( !context.CTX_FORCE )
-				exit( "unable to rollout release, cancel deployment." );
+			ifexit( "unable to rollout release" );
 		}
 	
 		if( !startServers( set ) ) {
-			if( !context.CTX_FORCE )
-				exit( "unable to start after deployment, unsuccessful deployment" );
+			exit( "unable to start servers after deployment" );
 		}
 
 		info( "RELEASE " + dist.RELEASEDIR + " SUCCESSFULLY DEPLOYED" );

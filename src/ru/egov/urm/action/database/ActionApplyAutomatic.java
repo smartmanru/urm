@@ -237,10 +237,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		String schemaName = dsf.SRCSCHEMA;
 		MetaDatabaseSchema schema = meta.database.getSchema( this , schemaName );
 		if( !client.applyScript( this , schema , logReleaseExecute , file , logReleaseExecute , log ) ) {
-			exit( "error applying script " + file + ", see logs" );
-			if( !context.CTX_FORCE )
-				exit( "cancel apply script set due to errors." );
-			
+			ifexit( "error applying script " + file + ", see logs" );
 			return( false );
 		}
 

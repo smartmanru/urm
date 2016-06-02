@@ -178,6 +178,13 @@ abstract public class ActionBase {
 		output.exit( s );
 	}
 
+	public void ifexit( String s ) throws Exception {
+		if( context.CTX_FORCE )
+			error( s + ", ignored" );
+		else
+			output.exit( s + ", exiting (use -force to override)" );
+	}
+
 	public void exitAction( String s ) throws Exception {
 		exit( this.getClass().getSimpleName() + ": " + s );
 	}

@@ -106,10 +106,8 @@ public class ActionManageRegistry extends ActionBase {
 	}
 	
 	private void executeDropRegistry( DatabaseRegistry registry ) throws Exception {
-		if( registry.isReleaseFinished( this ) ) {
-			if( !context.CTX_FORCE )
-				exit( "release is finished, use -force to override" );
-		}
+		if( registry.isReleaseFinished( this ) )
+			ifexit( "release is finished" );
 		
 		if( delivery == null )
 			registry.dropRelease( this );

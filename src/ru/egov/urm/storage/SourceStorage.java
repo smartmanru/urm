@@ -89,8 +89,7 @@ public class SourceStorage {
 		if( downloadConfigItem( action , vcs , PATH , sourceFolder.distrComp , dstFolder ) )
 			return( true );
 		
-		if( !action.context.CTX_FORCE )
-			action.exit( "unable to find configuration at " + vcs.getInfoMasterPath( meta.product.CONFIG_SOURCE_REPOSITORY , PATH ) );
+		action.ifexit( "unable to find configuration at " + vcs.getInfoMasterPath( meta.product.CONFIG_SOURCE_REPOSITORY , PATH ) );
 		
 		action.info( "no configuration in " + PATH + ". Skipped." );
 		return( false );

@@ -84,10 +84,8 @@ public class DistState {
 			if( newState == DISTSTATE.ARCHIVED )
 				ok = true;
 		}
-		if( !ok ) {
-			if( !action.context.CTX_FORCE )
-				action.exit( "unable to change release state from " + state.name() + " to " + newState.name() );
-		}
+		if( !ok )
+			action.ifexit( "unable to change release state from " + state.name() + " to " + newState.name() );
 		
 		String timeStamp = Common.getNameTimeStamp();
 		String hash = getHashValue( action );

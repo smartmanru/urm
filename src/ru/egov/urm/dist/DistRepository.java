@@ -128,10 +128,8 @@ public class DistRepository {
 		storage.setFolder( distFolder , false );
 		
 		// check release directory exists
-		if( distFolder.checkExists( action ) ) {
-			if( !action.context.CTX_FORCE )
-				action.exit( "release already exists at " + RELEASEPATH );
-		}
+		if( distFolder.checkExists( action ) )
+			action.ifexit( "release already exists at " + RELEASEPATH );
 
 		storage.create( action , RELEASEDIR );
 		return( storage );

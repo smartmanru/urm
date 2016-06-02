@@ -30,10 +30,8 @@ public class ActionStartEnv extends ActionBase {
 	@Override protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		List<MetaEnvStartGroup> groups = set.dc.startInfo.getForwardGroupList( this );
 		for( MetaEnvStartGroup group : groups ) {
-			if( !startServerGroup( set , group , targets ) ) {
-				if( !context.CTX_FORCE )
-					exit( "cancel execution due to failed group operation" );
-			}
+			if( !startServerGroup( set , group , targets ) )
+				ifexit( "failed group operation" );
 		}
 		
 		return( true );

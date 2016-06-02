@@ -56,10 +56,8 @@ public class ActionVerifyDeploy extends ActionBase {
 		else
 			configure = new ActionConfigure( this , null , dist , tobeConfigFolder );
 		configure.context.CTX_HIDDEN = true;
-		if( !configure.runAll( scope ) ) {
-			if( !context.CTX_FORCE )
-				exit( "unable to prepare configurarion files for comparison" );
-		}
+		if( !configure.runAll( scope ) )
+			exit( "unable to prepare configurarion files for comparison" );
 		
 		asisFolder = artefactory.getWorkFolder( this , "asis" );
 		asisConfigFolder = asisFolder.getSubFolder( this , "config" );
@@ -317,17 +315,13 @@ public class ActionVerifyDeploy extends ActionBase {
 		asisConfFolder.ensureExists( this );
 		
 		if( context.CTX_CHECK ) {
-			if( !redist.getConfigItem( this , asisConfFolder , confItem , location.DEPLOYPATH ) ) {
-				if( !context.CTX_FORCE )
-					exit( "unable to get configuration item=" + confItem.KEY );
-			}
+			if( !redist.getConfigItem( this , asisConfFolder , confItem , location.DEPLOYPATH ) )
+				ifexit( "unable to get configuration item=" + confItem.KEY );
 		}
 		else {
 			String asisMD5 = redist.getConfigItemMD5( this , confItem , location.DEPLOYPATH );
-			if( asisMD5 == null ) {
-				if( !context.CTX_FORCE )
-					exit( "unable to get configuration item=" + confItem.KEY );
-			}
+			if( asisMD5 == null )
+				ifexit( "unable to get configuration item=" + confItem.KEY );
 			asisConfFolder.createFileFromString( this , MD5FILE , asisMD5 );
 		}
 	}

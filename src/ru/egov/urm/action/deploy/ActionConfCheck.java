@@ -147,7 +147,7 @@ public class ActionConfCheck extends ActionBase {
 					S_CONFCHECK_STATUS = false;
 				}
 				else
-					exit( error );
+					ifexit( error );
 			}
 			else {
 				if( context.CTX_SHOWALL )
@@ -168,7 +168,7 @@ public class ActionConfCheck extends ActionBase {
 					S_CONFCHECK_STATUS = false;
 				}
 				else
-					exit( error );
+					ifexit( error );
 			}
 			else {
 				if( context.CTX_SHOWALL )

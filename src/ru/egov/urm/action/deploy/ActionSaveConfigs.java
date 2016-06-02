@@ -129,8 +129,7 @@ public class ActionSaveConfigs extends ActionBase {
 
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		if( !redist.getSysConfigs( this , folder ) ) {
-			if( !context.CTX_FORCE )
-				exit( "unable to get system files configuration" );
+			ifexit( "unable to get system files configuration" );
 			return;
 		}
 		
@@ -147,8 +146,7 @@ public class ActionSaveConfigs extends ActionBase {
 
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		if( !redist.getConfigItem( this , folder , confItem , LOCATION ) ) {
-			if( !context.CTX_FORCE )
-				exit( "unable to get configuration item=" + confItem.KEY );
+			ifexit( "unable to get configuration item=" + confItem.KEY );
 			return;
 		}
 		

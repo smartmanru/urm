@@ -290,13 +290,8 @@ public class DatabaseRegistry {
 							true ); 
 		}
 		
-		if( !res ) {
-			String msg = "unable to register script execution: " + file ;
-			if( action.context.CTX_FORCE )
-				action.error( msg + ", ignored." );
-			else
-				action.exit( msg );
-		}
+		if( !res )
+			action.ifexit( "unable to register script execution: " + file );
 	}
 
 	public void correctScript( ActionBase action , String delivery , String key ) throws Exception {

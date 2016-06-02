@@ -227,8 +227,8 @@ public class ActionPguDatabase implements ICustomDatabase {
 			}
 		}
 
-		if( S_CHECK_FAILED && !action.context.CTX_FORCE )
-			action.exit( "release database file set check failed" );
+		if( S_CHECK_FAILED )
+			action.ifexit( "release database file set check failed" );
 	}
 
 	private void checkOneForms( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , String P_ORGNAME ) throws Exception {

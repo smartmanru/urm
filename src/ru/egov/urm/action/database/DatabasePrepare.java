@@ -145,8 +145,8 @@ public class DatabasePrepare {
 			}
 		}
 
-		if( S_CHECK_FAILED && !action.context.CTX_FORCE )
-			action.exit( "release database file set check failed" );
+		if( S_CHECK_FAILED )
+			action.ifexit( "release database file set check failed" );
 	}
 
 	private void copyAll( ActionBase action , FileSet[] P_ALIGNEDDIRLIST ) throws Exception {

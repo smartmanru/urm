@@ -139,18 +139,14 @@ public class DeployCommand {
 		ActionStopEnv stop = new ActionStopEnv( action , null );
 		stop.context.CTX_NOCHATMSG = true;
 		
-		if( !stop.runAll( scope ) ) {
-			if( !action.context.CTX_FORCE )
-				action.exit( "restartEnv: stopenv failed, not trying to start" );
-		}
+		if( !stop.runAll( scope ) )
+			action.ifexit( "restartEnv: stopenv failed" );
 		
 		ActionStartEnv start = new ActionStartEnv( action , null );
 		start.context.CTX_NOCHATMSG = true;
 		
-		if( !start.runAll( scope ) ) {
-			if( !action.context.CTX_FORCE )
-				action.exit( "restartEnv: startenv failed" );
-		}
+		if( !start.runAll( scope ) )
+			action.ifexit( "restartEnv: startenv failed" );
 		
 		sendMsg( action , "[restartenv] done." );
 	}
