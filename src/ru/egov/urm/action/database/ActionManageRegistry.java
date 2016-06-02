@@ -1,5 +1,7 @@
 package ru.egov.urm.action.database;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import ru.egov.urm.Common;
@@ -80,7 +82,7 @@ public class ActionManageRegistry extends ActionBase {
 			}
 			
 			Map<String,String> data = registry.getStateData( this , deliveryName );
-			info( "DELIVERY: " + delivery );
+			info( "DELIVERY: " + delivery.NAME );
 			
 			for( String key : Common.getSortedKeys( data ) ) {
 				if( indexScope.isEmpty() == false && key.matches( indexScope ) )
@@ -104,6 +106,33 @@ public class ActionManageRegistry extends ActionBase {
 	}
 	
 	private void executeDropRegistry( DatabaseRegistry registry ) throws Exception {
+		if( registry.isReleaseFinished( this ) ) {
+			if( !context.CTX_FORCE )
+				exit( "release is finished, use -force to override" );
+		}
+		
+		if( delivery == null )
+			registry.dropRelease( this );
+		else
+		if( indexScope.equals( "all" ) )
+			registry.dropReleaseDelivery( this , delivery );
+		else {
+			registry.readDeliveryState( this , delivery );
+			Map<String,String> data = registry.getStateData( this , delivery.NAME );
+			
+			List<String> items = new LinkedList<String>(); 
+			for( String item : data.keySet() ) {
+				if( item.matches( indexScope ) )
+					items.add( item );
+			}
+			
+			if( items.isEmpty() ) {
+				info( "nothing matched, ignored." );
+				return;
+			}
+			
+			registry.dropReleaseDeliveryItems( this , delivery , items.toArray( new String[0] ) );
+		}
 	}
 	
 }

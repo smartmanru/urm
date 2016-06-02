@@ -275,10 +275,10 @@ public class DatabaseSpecific {
 		ct += " );";
 		lines.add( ct );
 				
-		writeTableDataInternal( action , dbschema , user , password , table , columns , rows , lines );
+		writeTableDataInternal( action , dbschema , user , password , table , columns , rows , lines , true );
 	}
 	
-	private boolean writeTableDataInternal( ActionBase action , String dbschema , String user , String password , String table , String[] columns , List<String[]> rows , List<String> lines ) throws Exception {
+	private boolean writeTableDataInternal( ActionBase action , String dbschema , String user , String password , String table , String[] columns , List<String[]> rows , List<String> lines , boolean commit ) throws Exception {
 		beginTransaction( action , lines );
 		for( String[] values : rows ) {
 			String query = getInsertRowString( action , dbschema , table , columns , values );
@@ -333,12 +333,12 @@ public class DatabaseSpecific {
 		return( query );
 	}
 	
-	public void writeTableData( ActionBase action , String dbschema , String user , String password , String table , String[] columns , List<String[]> rows ) throws Exception {
+	public void writeTableData( ActionBase action , String dbschema , String user , String password , String table , String[] columns , List<String[]> rows , boolean commit ) throws Exception {
 		List<String> lines = new LinkedList<String>();
-		writeTableDataInternal( action , dbschema , user , password , table , columns , rows , lines );
+		writeTableDataInternal( action , dbschema , user , password , table , columns , rows , lines , commit );
 	}
 	
-	public boolean insertRow( ActionBase action , String dbschema , String user , String password , String table , String[] columns , String[] values ) throws Exception {
+	public boolean insertRow( ActionBase action , String dbschema , String user , String password , String table , String[] columns , String[] values , boolean commit ) throws Exception {
 		String query = getInsertRowString( action , dbschema , table , columns , values );
 		String scriptFile = work.getFilePath( action , "control.sql" );
 		String outFile = scriptFile + ".out";
@@ -347,7 +347,7 @@ public class DatabaseSpecific {
 		return( applyScript( action , dbschema , user , password , scriptFile , outFile ) );
 	}
 	
-	public boolean updateRow( ActionBase action , String dbschema , String user , String password , String table , String[] columns , String[] values , String condition ) throws Exception {
+	public boolean updateRow( ActionBase action , String dbschema , String user , String password , String table , String[] columns , String[] values , String condition , boolean commit ) throws Exception {
 		if( values.length != columns.length )
 			action.exit( "number of values should be equal to number of columns" );
 			
@@ -365,6 +365,18 @@ public class DatabaseSpecific {
 			else
 				query += value;
 		}
+		query += " where " + condition + ";";
+
+		String scriptFile = work.getFilePath( action , "control.sql" );
+		String outFile = scriptFile + ".out";
+		Common.createFileFromString( scriptFile , query );
+		
+		return( applyScript( action , dbschema , user , password , scriptFile , outFile ) );
+	}
+	
+	public boolean deleteRows( ActionBase action , String dbschema , String user , String password , String table , String condition , boolean commit ) throws Exception {
+		// ANSI query
+		String query = "delete from " + getTableName( action , dbschema , table );
 		query += " where " + condition + ";";
 
 		String scriptFile = work.getFilePath( action , "control.sql" );

@@ -161,30 +161,38 @@ public class DatabaseClient {
 		specific.createTableData( action , schema.DBNAME , schema.DBUSER , password , table , columns , columntypes , data );
 	}
 
-	public void writeTableData( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , List<String[]> data ) throws Exception {
+	public void writeTableData( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , List<String[]> data , boolean commit ) throws Exception {
 		String password = getUserPassword( action , schema.DBUSER );
 		if( !action.isExecute() )
 			return;
 		
-		specific.writeTableData( action , schema.DBNAME , schema.DBUSER , password , table , columns , data );
+		specific.writeTableData( action , schema.DBNAME , schema.DBUSER , password , table , columns , data , commit );
 	}
 
-	public boolean insertRow( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] values ) throws Exception {
+	public boolean insertRow( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] values , boolean commit ) throws Exception {
 		String password = getUserPassword( action , schema.DBUSER );
 		if( !action.isExecute() )
 			return( true );
 		
-		return( specific.insertRow( action , schema.DBNAME , schema.DBUSER , password , table , columns , values ) );
+		return( specific.insertRow( action , schema.DBNAME , schema.DBUSER , password , table , columns , values , commit ) );
 	}
 	
-	public boolean updateRow( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] values , String ansiCondition ) throws Exception {
+	public boolean updateRow( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] values , String ansiCondition , boolean commit ) throws Exception {
 		String password = getUserPassword( action , schema.DBUSER );
 		if( !action.isExecute() )
 			return( true );
 		
-		return( specific.updateRow( action , schema.DBNAME , schema.DBUSER , password , table , columns , values , ansiCondition ) );
+		return( specific.updateRow( action , schema.DBNAME , schema.DBUSER , password , table , columns , values , ansiCondition , commit ) );
 	}
 
+	public boolean deleteRows( ActionBase action , MetaDatabaseSchema schema , String table , String ansiCondition , boolean commit ) throws Exception {
+		String password = getUserPassword( action , schema.DBUSER );
+		if( !action.isExecute() )
+			return( true );
+		
+		return( specific.deleteRows( action , schema.DBNAME , schema.DBUSER , password , table , ansiCondition , commit ) );
+	}
+	
 	public boolean applyScript( ActionBase action , MetaDatabaseSchema schema , LocalFolder scriptFolder , String scriptFile , LocalFolder outFolder , String outFile ) throws Exception {
 		String password = getUserPassword( action , schema.DBUSER );
 		String file = scriptFolder.getFilePath( action , scriptFile );
