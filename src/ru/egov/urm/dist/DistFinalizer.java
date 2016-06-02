@@ -252,6 +252,14 @@ public class DistFinalizer {
 				return( false );
 		}
 		
+		for( String dir : fsr.dirs.keySet() ) {
+			FileSet dirFilesDist = fsd.dirs.get( dir );
+			if( dirFilesDist == null ) {
+				action.error( "distributive has missing database delivery=" + delivery.distDelivery.NAME + ", set=" + dir );
+				return( false );
+			}
+		}
+		
 		return( true );
 	}
 
