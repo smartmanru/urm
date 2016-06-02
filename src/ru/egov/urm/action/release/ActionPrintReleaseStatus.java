@@ -174,8 +174,8 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		else {
 			String folder = dist.getDeliveryDatabaseFolder( this , delivery , dist.release.RELEASEVER );
 			FileSet dbset = files.getDirByPath( this , folder );
-			String status = ( dbset == null || dbset.isEmpty() )? "missing" : "OK";
-			comment( "\tdelivery=" + delivery.NAME + ": " + status + " " + Common.getCommentIfAny( folder ) );
+			String status = ( dbset == null || dbset.isEmpty() )? "missing/empty" : "OK";
+			comment( "\tdelivery=" + delivery.NAME + ": " + status + Common.getCommentIfAny( folder ) );
 		}
 	}
 
