@@ -549,10 +549,10 @@ public class ShellCoreUnix extends ShellCore {
 			extractCmd = "unzip -p " + filePath + " " + archivePartPath;
 		else
 		if( EXT.equals( ".tar" ) )
-			extractCmd = "tar -xf -q -O " + filePath + " " + archivePartPath;
+			extractCmd = "tar -O -xf " + filePath + " " + archivePartPath;
 		else
 		if( EXT.equals( ".tgz" ) || EXT.equals( ".tar.gz" ) )
-			extractCmd = "tar -zxf -q -O " + filePath + " " + archivePartPath;
+			extractCmd = "tar -O -zxf " + filePath + " " + archivePartPath;
 		else
 			action.exitUnexpectedState();
 		
