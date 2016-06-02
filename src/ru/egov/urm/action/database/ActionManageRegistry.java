@@ -38,7 +38,7 @@ public class ActionManageRegistry extends ActionBase {
 		if( registry.isReleaseUnknown( this ) )
 			exit( "unknown release version=" + RELEASEVER );
 		
-		if( CMD.equals( "print" ) )
+		if( CMD.equals( "status" ) )
 			executePrintRegistry( registry );
 		else
 		if( CMD.equals( "correct" ) )
