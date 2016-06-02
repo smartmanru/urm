@@ -101,6 +101,13 @@ public class Dist {
 		release.load( action , infoPath );
 	}
 
+	public boolean checkHash( ActionBase action ) throws Exception {
+		String actualHash = state.getHashValue( action );
+		if( actualHash.equals( state.stateHash ) )
+			return( true );
+		return( false );
+	}
+	
 	public void copyConfToDistr( ActionBase action , LocalFolder sourceFolder , MetaDistrConfItem conf ) throws Exception {
 		if( !openedForChange )
 			action.exit( "distributive is not opened for change" );

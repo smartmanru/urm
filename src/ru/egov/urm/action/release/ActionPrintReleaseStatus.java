@@ -26,11 +26,13 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		Release release = dist.release;
 		
 		FileSet files = dist.getFiles( this );
+		String hashStatus = dist.checkHash( this )? "ok" : "not matched";
 		
 		comment( "RELEASE " + dist.RELEASEDIR + " STATUS:" );
 		comment( "\tlocation: " + meta.product.CONFIG_DISTR_HOSTLOGIN + ":" + dist.getDistPath( this ) );
-		comment( "\tstate: " + dist.getState( this ) );
 		comment( "\tversion: " + release.RELEASEVER );
+		comment( "\tstate: " + dist.getState( this ) );
+		comment( "\thash: " + hashStatus );
 		comment( "PROPERTIES:" );
 		comment( "\tproperty=buildmode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );
 		comment( "\tproperty=obsolete: " + Common.getBooleanValue( release.PROPERTY_OBSOLETE ) );
