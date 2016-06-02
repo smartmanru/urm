@@ -273,7 +273,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			// match
 			String file = Common.getPath( dir , MD5FILE );
 			String asisMD5 = asisServerFolder.getFileContentAsString( this , file );
-			asisMD5.trim();
+			asisMD5 = asisMD5.trim();
 			
 			LocalFolder confFolder = tobeServerFolder.getSubFolder( this , dir ); 
 			String tobeMD5 = confFolder.getFilesMD5( this );
