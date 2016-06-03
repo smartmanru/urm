@@ -548,33 +548,33 @@ public class ShellCoreUnix extends ShellCore {
 
 	@Override public String cmdGetArchivePartMD5( ActionBase action , String filePath , String archivePartPath , String EXT ) throws Exception {
 		String extractCmd = "";
-		Folder tmp = null;
-		if( EXT.equals( ".zip" ) )
+		if( EXT.equals( ".zip" ) ) {
 			extractCmd = "unzip -p " + filePath + " " + archivePartPath;
-		else {
-			// extract
-			tmp = action.getTmpFolder( "cmdGetArchivePartMD5" );
-			tmp.ensureExists( action );
-			
-			if( EXT.equals( ".tar" ) )
-				tmp.extractTarPart( action , filePath , archivePartPath );
-			else
-			if( EXT.equals( ".tgz" ) || EXT.equals( ".tar.gz" ) )
-				tmp.extractTarGzPart( action , filePath , archivePartPath );
-			else
-				action.exitUnexpectedState();
-
-			// ordered cat and md5sum
-			tmp.createFileFromString( action , "placeholder" , "" );
-			extractCmd = "cat `find . -type f | sort`"; 
+			extractCmd += " | md5sum | cut -d " + Common.getQuoted( " " ) + " -f1";
+			return( this.runCommandCheckDebug( action , extractCmd ) );
 		}
+		
+			// extract
+		Folder tmp = action.getTmpFolder( "cmdGetArchivePartMD5" );
+		tmp.ensureExists( action );
+		
+		if( EXT.equals( ".tar" ) )
+			tmp.extractTarPart( action , filePath , archivePartPath );
+		else
+		if( EXT.equals( ".tgz" ) || EXT.equals( ".tar.gz" ) )
+			tmp.extractTarGzPart( action , filePath , archivePartPath );
+		else
+			action.exitUnexpectedState();
 
+		// ordered cat and md5sum
+		tmp.createFileFromString( action , "placeholder" , "" );
+		extractCmd = "cat `find . -type f | sort`"; 
 		extractCmd += " | md5sum | cut -d " + Common.getQuoted( " " ) + " -f1";
+		
+		String value = runCommandCheckDebug( action , tmp.folderPath , extractCmd );
 		if( !action.isDebug() )
 			tmp.removeThis( action );
 		
-		String value = this.runCommandCheckDebug( action , extractCmd );
-			
 		return( value );
 	}
 	
