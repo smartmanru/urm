@@ -565,9 +565,6 @@ public class ShellCoreUnix extends ShellCore {
 		}
 
 		extractCmd += " | md5sum | cut -d " + Common.getQuoted( " " ) + " -f1";
-		if( listfile != null )
-			extractCmd += "; rm -rf " + listfile;
-			
 		String value = runCommandGetValueCheckDebug( action , extractCmd );
 		return( value );
 	}
