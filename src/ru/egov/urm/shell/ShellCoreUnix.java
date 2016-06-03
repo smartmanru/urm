@@ -545,18 +545,30 @@ public class ShellCoreUnix extends ShellCore {
 
 	@Override public String cmdGetArchivePartMD5( ActionBase action , String filePath , String archivePartPath , String EXT ) throws Exception {
 		String extractCmd = "";
+		String listfile = null;
 		if( EXT.equals( ".zip" ) )
 			extractCmd = "unzip -p " + filePath + " " + archivePartPath;
-		else
-		if( EXT.equals( ".tar" ) )
-			extractCmd = "tar -O -xf " + filePath + " " + archivePartPath;
-		else
-		if( EXT.equals( ".tgz" ) || EXT.equals( ".tar.gz" ) )
-			extractCmd = "tar -O -zxf " + filePath + " " + archivePartPath;
-		else
-			action.exitUnexpectedState();
-		
-		String value = runCommandGetValueCheckDebug( action , extractCmd + " | md5sum | cut -d " + Common.getQuoted( " " ) + " -f1" );
+		else {
+			// extract in sorted order
+			listfile = action.getTmpFilePath( "cmdGetArchivePartMD5.txt" );
+			String outcmd = " | grep -v " + Common.getQuoted( "/$" ) + " | sort > ; " + listfile; 
+			
+			if( EXT.equals( ".tar" ) )
+				extractCmd = "tar -tf " + filePath + " " + archivePartPath + outcmd + "; " + 
+					"tar -O -T " + listfile + " -xf " + filePath;
+			else
+			if( EXT.equals( ".tgz" ) || EXT.equals( ".tar.gz" ) )
+				extractCmd = "tar -ztf " + filePath + " " + archivePartPath + outcmd + "; " +
+					"tar -O -T " + listfile + " -zxf " + filePath;
+			else
+				action.exitUnexpectedState();
+		}
+
+		extractCmd += " | md5sum | cut -d " + Common.getQuoted( " " ) + " -f1";
+		if( listfile != null )
+			extractCmd += "; rm -rf " + listfile;
+			
+		String value = runCommandGetValueCheckDebug( action , extractCmd );
 		return( value );
 	}
 	
