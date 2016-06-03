@@ -27,8 +27,8 @@ public class BuilderWindowsDotnet extends Builder {
 		ShellExecutor session = createShell( action );
 		
 		// drop old
-		RedistStorage storage = action.artefactory.getRedistStorage( action , "build" , session.account );
-		RemoteFolder buildFolder = storage.getRedistTmpFolder( action );
+		RedistStorage storage = action.artefactory.getRedistStorage( action , session.account );
+		RemoteFolder buildFolder = storage.getRedistTmpFolder( action , "build" );
 		CODEPATH = buildFolder.getSubFolder( action , project.PROJECT );
 		CODEPATH.removeThis( action );
 	
@@ -108,8 +108,8 @@ public class BuilderWindowsDotnet extends Builder {
 	
 	@Override public void removeExportedCode( ActionBase action ) throws Exception {
 		ShellExecutor session = createShell( action );
-		RedistStorage storage = action.artefactory.getRedistStorage( action , "build" , session.account );
-		RemoteFolder buildFolder = storage.getRedistTmpFolder( action );
+		RedistStorage storage = action.artefactory.getRedistStorage( action , session.account );
+		RemoteFolder buildFolder = storage.getRedistTmpFolder( action , "export" );
 		RemoteFolder CODEPATH = buildFolder.getSubFolder( action , project.PROJECT );
 		CODEPATH.removeThis( action );
 	}

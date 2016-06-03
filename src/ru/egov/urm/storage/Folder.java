@@ -219,10 +219,18 @@ public abstract class Folder {
 		ShellExecutor session = getSession( action ); 
 		session.extractTar( action , tarFile , Common.getPath( folderPath , targetFolder ) );
 	}
+
+	public void extractTarGzPart( ActionBase action , String tarFile , String part ) throws Exception {
+		extractTarGzPart( action , tarFile , "" , part );
+	}
 	
 	public void extractTarGzPart( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
 		ShellExecutor session = getSession( action ); 
 		session.extractTarGz( action , tarFile , Common.getPath( folderPath , targetFolder ) , part );
+	}
+
+	public void extractTarPart( ActionBase action , String tarFile , String part ) throws Exception {
+		extractTarPart( action , tarFile , "" , part );
 	}
 	
 	public void extractTarPart( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {

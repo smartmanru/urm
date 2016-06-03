@@ -114,7 +114,10 @@ public class ShellCoreUnix extends ShellCore {
 	}
 
 	@Override public void cmdCreateFileFromString( ActionBase action , String path , String value ) throws Exception {
-		runCommandCheckDebug( action , "echo " + Common.getQuoted( value ) + " > " + path );
+		if( value.isEmpty() )
+			runCommandCheckDebug( action , "touch " + path );
+		else
+			runCommandCheckDebug( action , "echo " + Common.getQuoted( value ) + " > " + path );
 	}
 
 	@Override public void cmdAppendFileWithString( ActionBase action , String path , String value ) throws Exception {
@@ -545,32 +548,27 @@ public class ShellCoreUnix extends ShellCore {
 
 	@Override public String cmdGetArchivePartMD5( ActionBase action , String filePath , String archivePartPath , String EXT ) throws Exception {
 		String extractCmd = "";
-		String listfile = null;
 		if( EXT.equals( ".zip" ) )
 			extractCmd = "unzip -p " + filePath + " " + archivePartPath;
 		else {
-			// extract in sorted order
-			listfile = action.getTmpFilePath( "cmdGetArchivePartMD5.txt" );
-			String outcmd = " | grep -v " + Common.getQuoted( "/$" ) + " | sort > " + listfile; 
-			
+			// extract
+			Folder tmp = action.getTmpFolder( "cmdGetArchivePartMD5" );
 			if( EXT.equals( ".tar" ) )
-				extractCmd = "tar -tf " + filePath + " " + archivePartPath + outcmd + "; " + 
-					"tar -O -T " + listfile + " -xf " + filePath;
+				tmp.extractTarPart( action , filePath , archivePartPath );
 			else
 			if( EXT.equals( ".tgz" ) || EXT.equals( ".tar.gz" ) )
-				extractCmd = "tar -ztf " + filePath + " " + archivePartPath + outcmd + "; " +
-					"tar -O -T " + listfile + " -zxf " + filePath;
+				tmp.extractTarGzPart( action , filePath , archivePartPath );
 			else
 				action.exitUnexpectedState();
+
+			// ordered cat and md5sum
+			tmp.createFileFromString( action , "placeholder" , "" );
+			extractCmd = "cat `find . -type f | sort`"; 
 		}
 
 		extractCmd += " | md5sum | cut -d " + Common.getQuoted( " " ) + " -f1";
-		if( !action.isDebug() ) {
-			if( listfile != null )
-				extractCmd += "; rm -rf " + listfile;
-		}
+		String value = this.runCommandCheckDebug( action , extractCmd );
 			
-		String value = runCommandGetValueCheckDebug( action , extractCmd );
 		return( value );
 	}
 	

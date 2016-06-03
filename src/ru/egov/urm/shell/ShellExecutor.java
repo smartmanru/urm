@@ -38,7 +38,7 @@ public abstract class ShellExecutor {
 	}
 
 	public static ShellExecutor getRemoteShellExecutor( ActionBase action , String name , ShellExecutorPool pool , Account account , String rootPath ) throws Exception {
-		RedistStorage storage = action.artefactory.getRedistStorage( action , "default" , account );
+		RedistStorage storage = action.artefactory.getRedistStorage( action , account );
 		Folder tmpFolder = storage.getRedistTmpFolder( action );
 
 		ShellExecutor executor = new RemoteShellExecutor( name , pool , account , rootPath , tmpFolder );

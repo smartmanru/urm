@@ -109,8 +109,8 @@ public class ActionExportDatabase extends ActionBase {
 		// copy scripts
 		UrmStorage urm = artefactory.getUrmStorage();
 		LocalFolder urmScripts = urm.getDatapumpScripts( this , server );
-		RedistStorage storage = artefactory.getRedistStorage( this , "database" , client.getDatabaseAccount( this ) );
-		RemoteFolder redist = storage.getRedistTmpFolder( this );
+		RedistStorage storage = artefactory.getRedistStorage( this , client.getDatabaseAccount( this ) );
+		RemoteFolder redist = storage.getRedistTmpFolder( this , "database" );
 		
 		RemoteFolder exportFolder = redist.getSubFolder( this , "export" );
 		exportScriptsFolder = exportFolder.getSubFolder( this , "scripts" );

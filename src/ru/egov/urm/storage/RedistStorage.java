@@ -21,8 +21,8 @@ import ru.egov.urm.shell.ShellExecutor;
 
 public class RedistStorage extends ServerStorage {
 
-	public RedistStorage( Artefactory artefactory , String type , Account account , MetaEnvServer server , MetaEnvServerNode node ) {
-		super( artefactory , type , account , server , node );
+	public RedistStorage( Artefactory artefactory , Account account , MetaEnvServer server , MetaEnvServerNode node ) {
+		super( artefactory , account , server , node );
 	}
 
 	public void recreateTmpFolder( ActionBase action ) throws Exception {

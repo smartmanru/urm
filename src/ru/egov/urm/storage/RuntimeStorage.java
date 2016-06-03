@@ -19,8 +19,8 @@ import ru.egov.urm.shell.ShellExecutor;
 
 public class RuntimeStorage extends ServerStorage {
 
-	public RuntimeStorage( Artefactory artefactory , String type , Account account , MetaEnvServer server , MetaEnvServerNode node ) {
-		super( artefactory , type , account , server , node );
+	public RuntimeStorage( Artefactory artefactory , Account account , MetaEnvServer server , MetaEnvServerNode node ) {
+		super( artefactory , account , server , node );
 	}
 
 	public void restoreSysConfigs( ActionBase action , RedistStorage redist , LocalFolder srcFolder ) throws Exception {

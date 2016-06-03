@@ -82,8 +82,8 @@ public class DatabaseClient {
 			
 		// copy folder to remote
 		Account account = action.getNodeAccount( specific.node );
-		RedistStorage storage = action.artefactory.getRedistStorage( action , "database" , account );
-		RemoteFolder folder = storage.getRedistTmpFolder( action );
+		RedistStorage storage = action.artefactory.getRedistStorage( action , account );
+		RemoteFolder folder = storage.getRedistTmpFolder( action , "database" );
 		
 		FileSet set = files.getFileSet( action );
 		if( set.isEmpty() ) {

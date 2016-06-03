@@ -168,8 +168,8 @@ public class Dist {
 		MetaDistrBinaryItem srcItem = item.srcItem;
 		
 		// extract on remote redist
-		RedistStorage redist = action.artefactory.getRedistStorage( action , "dist" , distFolder.account );
-		RemoteFolder tmp = redist.getRedistTmpFolder( action );
+		RedistStorage redist = action.artefactory.getRedistStorage( action , distFolder.account );
+		RemoteFolder tmp = redist.getRedistTmpFolder( action , "dist" );
 		
 		String srcFilePath = distFolder.getFilePath( action , Common.getPath( srcItem.delivery.FOLDER , fileName ) );
 		String distFile = item.DISTBASENAME + item.EXT;

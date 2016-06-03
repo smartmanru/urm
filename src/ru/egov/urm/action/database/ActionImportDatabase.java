@@ -133,8 +133,8 @@ public class ActionImportDatabase extends ActionBase {
 		// copy scripts
 		UrmStorage urm = artefactory.getUrmStorage();
 		LocalFolder urmScripts = urm.getDatapumpScripts( this , server );
-		RedistStorage storage = artefactory.getRedistStorage( this , "database" , client.getDatabaseAccount( this ) );
-		RemoteFolder redist = storage.getRedistTmpFolder( this );
+		RedistStorage storage = artefactory.getRedistStorage( this , client.getDatabaseAccount( this ) );
+		RemoteFolder redist = storage.getRedistTmpFolder( this , "database" );
 		
 		RemoteFolder importFolder = redist.getSubFolder( this , "import" );
 		importScriptsFolder = importFolder.getSubFolder( this , "scripts" );

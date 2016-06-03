@@ -19,14 +19,12 @@ public class ServerStorage {
 	public MetaEnvServer server;
 	public MetaEnvServerNode node;
 	public Account account;
-	public String type;
 	
-	public ServerStorage( Artefactory artefactory , String type , Account account , MetaEnvServer server , MetaEnvServerNode node ) {
+	public ServerStorage( Artefactory artefactory , Account account , MetaEnvServer server , MetaEnvServerNode node ) {
 		this.artefactory = artefactory;
 		this.server = null;
 		this.node = null;
 		this.account = account;
-		this.type = type;
 		this.server = server;
 		this.node = node;		
 	}
@@ -56,6 +54,11 @@ public class ServerStorage {
 		String path = Common.getPath( action.context.CTX_REDISTPATH , "tmp" );
 		RemoteFolder rf = new RemoteFolder( artefactory , account , path );
 		return( rf );
+	}
+	
+	public RemoteFolder getRedistTmpFolder( ActionBase action , String folder ) throws Exception {
+		RemoteFolder rf = getRedistTmpFolder( action );
+		return( rf.getSubFolder( action , folder ) );
 	}
 	
 	public RemoteFolder getRedistLocationFolder( ActionBase action , String RELEASEDIR , String LOCATION , VarCONTENTTYPE CONTENTTYPE , boolean rollout ) throws Exception {
@@ -153,8 +156,6 @@ public class ServerStorage {
 		String path = action.context.CTX_REDISTPATH;
 		if( server != null )
 			path = Common.getPath( path , server.NAME + "-node" + node.POS );
-		else
-			path = Common.getPath( path , type );
 		return( path );
 	}
 

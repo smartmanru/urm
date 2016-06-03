@@ -249,7 +249,7 @@ public class Artefactory {
 	private GitMirrorStorage getGitMirrorStorage( ActionBase action , String NAME , boolean winBuild ) throws Exception {
 		RedistStorage storage;
 		Account account = ( winBuild )? action.getWinBuildAccount() : action.session.account; 
-		storage = getRedistStorage( action , "build" , account ); 
+		storage = getRedistStorage( action , account ); 
 		
 		Folder mirrorFolder = storage.getMirrorFolder( action , winBuild );
 		Folder projectFolder = mirrorFolder.getSubFolder( action , NAME );
@@ -313,12 +313,12 @@ public class Artefactory {
 
 	public RedistStorage getRedistStorage( ActionBase action , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
 		Account account = action.getNodeAccount( node );
-		RedistStorage redist = new RedistStorage( this , "default" , account , server , node );
+		RedistStorage redist = new RedistStorage( this , account , server , node );
 		return( redist );
 	}
 
-	public RedistStorage getRedistStorage( ActionBase action , String type , Account account ) throws Exception {
-		RedistStorage redist = new RedistStorage( this , type , account , null , null );
+	public RedistStorage getRedistStorage( ActionBase action , Account account ) throws Exception {
+		RedistStorage redist = new RedistStorage( this , account , null , null );
 		return( redist );
 	}
 
@@ -326,12 +326,12 @@ public class Artefactory {
 		Account account = action.getNodeAccount( node );
 		if( adm )
 			account = account.getRootAccount( action );
-		return( new RuntimeStorage( this , "default" , account , server , node ) );
+		return( new RuntimeStorage( this , account , server , node ) );
 	}
 
 	public RuntimeStorage getRuntimeStorage( ActionBase action , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
 		Account account = action.getNodeAccount( node );
-		return( new RuntimeStorage( this , "default" , account , server , node ) );
+		return( new RuntimeStorage( this , account , server , node ) );
 	}
 
 	public HiddenFiles getHiddenFiles() throws Exception {
@@ -348,7 +348,7 @@ public class Artefactory {
 	}
 
 	public VersionInfoStorage getVersionInfoStorage( ActionBase action , Account account ) throws Exception {
-		RedistStorage redist = getRedistStorage( action , "version" , account ); 
+		RedistStorage redist = getRedistStorage( action , account ); 
 		return( new VersionInfoStorage( redist ) );
 	}
 	

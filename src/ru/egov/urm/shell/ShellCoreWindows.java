@@ -196,7 +196,10 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public void cmdCreateFileFromString( ActionBase action , String path , String value ) throws Exception {
 		String pathWin = Common.getWinPath( path );
-		runCommand( action , "echo " + value + " > " + pathWin , CommandOutput.LOGLEVEL_TRACE );
+		if( value.isEmpty() )
+			runCommand( action , "type NUL > " + pathWin , CommandOutput.LOGLEVEL_TRACE );
+		else
+			runCommand( action , "echo " + value + " > " + pathWin , CommandOutput.LOGLEVEL_TRACE );
 	}
 
 	@Override public void cmdAppendFileWithString( ActionBase action , String path , String value ) throws Exception {

@@ -11,7 +11,10 @@ import ru.egov.urm.meta.Metadata.VarSERVERTYPE;
 import ru.egov.urm.shell.Account;
 import ru.egov.urm.shell.ShellExecutor;
 import ru.egov.urm.storage.Artefactory;
+import ru.egov.urm.storage.Folder;
 import ru.egov.urm.storage.LocalFolder;
+import ru.egov.urm.storage.RedistStorage;
+import ru.egov.urm.storage.RemoteFolder;
 
 abstract public class ActionBase {
 
@@ -485,6 +488,14 @@ abstract public class ActionBase {
 		if( session.account.local )
 			return( getWorkFilePath( name ) );
 		return( Common.getPath( context.CTX_REDISTPATH , "tmp" , name ) );
+	}
+
+	public Folder getTmpFolder( String folder ) throws Exception {
+		if( session.account.local )
+			return( new LocalFolder( artefactory , getWorkFilePath( folder ) ) );
+		RedistStorage redist = artefactory.getRedistStorage( this , session.account );
+		RemoteFolder rf = redist.getRedistTmpFolder( this );
+		return( rf.getSubFolder( this , folder ) );
 	}
 
 	public LocalFolder getWorkFolder() {
