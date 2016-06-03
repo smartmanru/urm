@@ -554,6 +554,8 @@ public class ShellCoreUnix extends ShellCore {
 		else {
 			// extract
 			tmp = action.getTmpFolder( "cmdGetArchivePartMD5" );
+			tmp.ensureExists( action );
+			
 			if( EXT.equals( ".tar" ) )
 				tmp.extractTarPart( action , filePath , archivePartPath );
 			else
