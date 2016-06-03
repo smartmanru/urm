@@ -548,11 +548,12 @@ public class ShellCoreUnix extends ShellCore {
 
 	@Override public String cmdGetArchivePartMD5( ActionBase action , String filePath , String archivePartPath , String EXT ) throws Exception {
 		String extractCmd = "";
+		Folder tmp = null;
 		if( EXT.equals( ".zip" ) )
 			extractCmd = "unzip -p " + filePath + " " + archivePartPath;
 		else {
 			// extract
-			Folder tmp = action.getTmpFolder( "cmdGetArchivePartMD5" );
+			tmp = action.getTmpFolder( "cmdGetArchivePartMD5" );
 			if( EXT.equals( ".tar" ) )
 				tmp.extractTarPart( action , filePath , archivePartPath );
 			else
@@ -567,6 +568,9 @@ public class ShellCoreUnix extends ShellCore {
 		}
 
 		extractCmd += " | md5sum | cut -d " + Common.getQuoted( " " ) + " -f1";
+		if( !action.isDebug() )
+			tmp.removeThis( action );
+		
 		String value = this.runCommandCheckDebug( action , extractCmd );
 			
 		return( value );

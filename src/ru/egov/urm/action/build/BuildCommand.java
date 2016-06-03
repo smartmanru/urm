@@ -44,7 +44,7 @@ public class BuildCommand {
 		
 		// required for serviceCall and storageService processing, even without -dist option
 		LocalFolder downloadFolder = action.artefactory.getDownloadFolder( action );
-		downloadFolder.removeAll( action );
+		downloadFolder.removeContent( action );
 	
 		// precreate delivery folders in release
 		if( copyDist ) {

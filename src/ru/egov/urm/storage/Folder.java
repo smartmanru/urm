@@ -61,14 +61,6 @@ public abstract class Folder {
 		return( session.getFilesMD5( action , folderPath , includeList , excludeList ) );
 	}
 	
-	public void removeAll( ActionBase action ) throws Exception {
-		if( folderPath.isEmpty() || folderPath.equals( "/" ) )
-			action.exit( "attempt to delete files at root" );
-		
-		ShellExecutor session = getSession( action ); 
-		session.removeDirContent( action , folderPath );
-	}
-
 	public void moveAll( ActionBase action , String targetPath ) throws Exception {
 		if( folderPath.isEmpty() || folderPath.equals( "/" ) )
 			action.exit( "attempt to delete files at root" );
@@ -140,8 +132,12 @@ public abstract class Folder {
 	}
 	
 	public void removeFolderContent( ActionBase action , String folder ) throws Exception {
-		ShellExecutor session = getSession( action ); 
-		session.removeDirContent( action , Common.getPath( folderPath , folder ) );
+		ShellExecutor session = getSession( action );
+		String path = Common.getPath( folderPath , folder );
+		if( path.isEmpty() || path.equals( "/" ) )
+			action.exit( "attempt to delete files at root" );
+		
+		session.removeDirContent( action , path );
 	}
 
 	public void removeFolder( ActionBase action , String folder ) throws Exception {
