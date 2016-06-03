@@ -551,7 +551,7 @@ public class ShellCoreUnix extends ShellCore {
 		else {
 			// extract in sorted order
 			listfile = action.getTmpFilePath( "cmdGetArchivePartMD5.txt" );
-			String outcmd = " | grep -v " + Common.getQuoted( "/$" ) + " | sort > ; " + listfile; 
+			String outcmd = " | grep -v " + Common.getQuoted( "/$" ) + " | sort > " + listfile; 
 			
 			if( EXT.equals( ".tar" ) )
 				extractCmd = "tar -tf " + filePath + " " + archivePartPath + outcmd + "; " + 
