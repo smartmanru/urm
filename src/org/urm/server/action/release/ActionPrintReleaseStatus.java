@@ -1,16 +1,16 @@
 package org.urm.server.action.release;
 
 import org.urm.common.Common;
-import org.urm.dist.Dist;
-import org.urm.dist.DistItemInfo;
-import org.urm.dist.Release;
-import org.urm.dist.ReleaseSet;
-import org.urm.dist.ReleaseTarget;
-import org.urm.dist.ReleaseTargetItem;
-import org.urm.meta.MetaDistrBinaryItem;
-import org.urm.meta.MetaDistrDelivery;
-import org.urm.meta.Metadata.VarCATEGORY;
 import org.urm.server.action.ActionBase;
+import org.urm.server.dist.Dist;
+import org.urm.server.dist.DistItemInfo;
+import org.urm.server.dist.Release;
+import org.urm.server.dist.ReleaseSet;
+import org.urm.server.dist.ReleaseTarget;
+import org.urm.server.dist.ReleaseTargetItem;
+import org.urm.server.meta.MetaDistrBinaryItem;
+import org.urm.server.meta.MetaDistrDelivery;
+import org.urm.server.meta.Metadata.VarCATEGORY;
 import org.urm.server.storage.FileSet;
 
 public class ActionPrintReleaseStatus extends ActionBase {

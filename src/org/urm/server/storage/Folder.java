@@ -4,10 +4,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.common.Common;
-import org.urm.meta.MetaDistrBinaryItem;
-import org.urm.meta.Metadata;
-import org.urm.meta.Metadata.VarARCHIVETYPE;
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.MetaDistrBinaryItem;
+import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Metadata.VarARCHIVETYPE;
 import org.urm.server.shell.ShellExecutor;
 
 public abstract class Folder {

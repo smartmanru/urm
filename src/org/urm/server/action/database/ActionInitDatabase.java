@@ -1,9 +1,9 @@
 package org.urm.server.action.database;
 
 import org.urm.common.Common;
-import org.urm.meta.MetaEnvServer;
-import org.urm.meta.MetaEnvServerNode;
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.MetaEnvServer;
+import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.storage.FileSet;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.UrmStorage;

@@ -1,13 +1,13 @@
 package org.urm.server.action.deploy;
 
 import org.urm.common.Common;
-import org.urm.dist.Dist;
-import org.urm.meta.MetaEnvServer;
-import org.urm.meta.MetaEnvServerNode;
-import org.urm.meta.Metadata.VarCONTENTTYPE;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScopeTarget;
 import org.urm.server.action.ActionScopeTargetItem;
+import org.urm.server.dist.Dist;
+import org.urm.server.meta.MetaEnvServer;
+import org.urm.server.meta.MetaEnvServerNode;
+import org.urm.server.meta.Metadata.VarCONTENTTYPE;
 import org.urm.server.storage.FileInfo;
 import org.urm.server.storage.RedistStateInfo;
 import org.urm.server.storage.RedistStorage;

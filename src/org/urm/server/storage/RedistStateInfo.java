@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.dist.Dist;
-import org.urm.meta.MetaDistrBinaryItem;
-import org.urm.meta.MetaDistrConfItem;
-import org.urm.meta.MetaEnvServerNode;
-import org.urm.meta.Metadata.VarCONTENTTYPE;
 import org.urm.server.action.ActionBase;
+import org.urm.server.dist.Dist;
+import org.urm.server.meta.MetaDistrBinaryItem;
+import org.urm.server.meta.MetaDistrConfItem;
+import org.urm.server.meta.MetaEnvServerNode;
+import org.urm.server.meta.Metadata.VarCONTENTTYPE;
 import org.urm.server.shell.ShellExecutor;
 
 public class RedistStateInfo {

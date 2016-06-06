@@ -4,8 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.common.Common;
-import org.urm.meta.MetaSourceProject;
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.storage.Folder;
 import org.urm.server.storage.LocalFolder;
 

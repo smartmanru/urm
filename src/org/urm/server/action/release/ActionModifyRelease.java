@@ -1,7 +1,7 @@
 package org.urm.server.action.release;
 
-import org.urm.dist.Dist;
 import org.urm.server.action.ActionBase;
+import org.urm.server.dist.Dist;
 
 public class ActionModifyRelease extends ActionBase {
 

@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.meta.MetaDistrDelivery;
-import org.urm.meta.MetaEnvServer;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScopeTarget;
+import org.urm.server.meta.MetaDistrDelivery;
+import org.urm.server.meta.MetaEnvServer;
 
 public class ActionManageRegistry extends ActionBase {
 

@@ -1,7 +1,7 @@
 package org.urm.server.action.build;
 
-import org.urm.meta.MetaSourceProject;
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.BuildStorage;
 

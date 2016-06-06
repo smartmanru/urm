@@ -1,9 +1,9 @@
 package org.urm.server.action.conf;
 
-import org.urm.dist.ReleaseTarget;
-import org.urm.meta.MetaDistrConfItem;
-import org.urm.meta.Metadata;
 import org.urm.server.action.ActionBase;
+import org.urm.server.dist.ReleaseTarget;
+import org.urm.server.meta.MetaDistrConfItem;
+import org.urm.server.meta.Metadata;
 
 public class ConfSourceFolder {
 	

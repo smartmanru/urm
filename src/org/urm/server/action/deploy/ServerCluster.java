@@ -3,11 +3,11 @@ package org.urm.server.action.deploy;
 import java.util.List;
 
 import org.urm.common.Common;
-import org.urm.meta.MetaEnvServer;
-import org.urm.meta.MetaEnvServerNode;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScope;
 import org.urm.server.action.ActionScopeTarget;
+import org.urm.server.meta.MetaEnvServer;
+import org.urm.server.meta.MetaEnvServerNode;
 
 public class ServerCluster {
 

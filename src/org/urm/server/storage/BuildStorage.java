@@ -1,6 +1,6 @@
 package org.urm.server.storage;
 
-import org.urm.meta.Metadata;
+import org.urm.server.meta.Metadata;
 
 public class BuildStorage {
 

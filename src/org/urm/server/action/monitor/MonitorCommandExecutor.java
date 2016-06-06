@@ -1,10 +1,10 @@
 package org.urm.server.action.monitor;
 
-import org.urm.meta.MetaMonitoring;
 import org.urm.server.action.ActionInit;
 import org.urm.server.action.CommandAction;
 import org.urm.server.action.CommandBuilder;
 import org.urm.server.action.CommandExecutor;
+import org.urm.server.meta.MetaMonitoring;
 
 public class MonitorCommandExecutor extends CommandExecutor {
 

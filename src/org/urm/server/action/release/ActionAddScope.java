@@ -1,12 +1,12 @@
 package org.urm.server.action.release;
 
 import org.urm.common.Common;
-import org.urm.dist.Dist;
-import org.urm.meta.Metadata.VarCATEGORY;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScopeSet;
 import org.urm.server.action.ActionScopeTarget;
 import org.urm.server.action.ActionScopeTargetItem;
+import org.urm.server.dist.Dist;
+import org.urm.server.meta.Metadata.VarCATEGORY;
 
 public class ActionAddScope extends ActionBase {
 

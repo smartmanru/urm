@@ -1,7 +1,7 @@
 package org.urm.server.action.release;
 
-import org.urm.dist.DistRepository;
 import org.urm.server.action.ActionBase;
+import org.urm.server.dist.DistRepository;
 
 public class ActionCreateProd extends ActionBase { 
 

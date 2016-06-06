@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.dist.Release;
-import org.urm.dist.ReleaseTarget;
-import org.urm.meta.MetaDistrConfItem;
 import org.urm.server.action.ActionBase;
+import org.urm.server.dist.Release;
+import org.urm.server.dist.ReleaseTarget;
+import org.urm.server.meta.MetaDistrConfItem;
 import org.urm.server.storage.FileSet;
 
 public class ConfDiffSet {

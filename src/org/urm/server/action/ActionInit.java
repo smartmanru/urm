@@ -1,6 +1,6 @@
 package org.urm.server.action;
 
-import org.urm.meta.Metadata;
+import org.urm.server.meta.Metadata;
 
 public class ActionInit extends ActionBase {
 

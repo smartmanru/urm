@@ -1,13 +1,13 @@
 package org.urm.server.action.database;
 
 import org.urm.common.Common;
-import org.urm.dist.Dist;
-import org.urm.meta.MetaDatabase;
-import org.urm.meta.MetaDatabaseSchema;
-import org.urm.meta.MetaDistr;
-import org.urm.meta.MetaDistrDelivery;
-import org.urm.meta.Metadata;
 import org.urm.server.action.ActionBase;
+import org.urm.server.dist.Dist;
+import org.urm.server.meta.MetaDatabase;
+import org.urm.server.meta.MetaDatabaseSchema;
+import org.urm.server.meta.MetaDistr;
+import org.urm.server.meta.MetaDistrDelivery;
+import org.urm.server.meta.Metadata;
 import org.urm.server.storage.FileSet;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.SourceStorage;

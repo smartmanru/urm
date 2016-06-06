@@ -1,13 +1,13 @@
 package org.urm.server.action.database;
 
-import org.urm.dist.Dist;
-import org.urm.dist.ReleaseDelivery;
-import org.urm.meta.MetaDistrDelivery;
-import org.urm.meta.MetaEnvServer;
-import org.urm.meta.MetaEnvServerNode;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScope;
 import org.urm.server.action.CommandOptions.SQLMODE;
+import org.urm.server.dist.Dist;
+import org.urm.server.dist.ReleaseDelivery;
+import org.urm.server.meta.MetaDistrDelivery;
+import org.urm.server.meta.MetaEnvServer;
+import org.urm.server.meta.MetaEnvServerNode;
 
 public class DatabaseCommand {
 

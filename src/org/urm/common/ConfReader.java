@@ -22,8 +22,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.urm.meta.Metadata.VarNAMETYPE;
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.Metadata.VarNAMETYPE;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;

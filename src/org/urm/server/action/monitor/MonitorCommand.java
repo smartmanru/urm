@@ -1,7 +1,7 @@
 package org.urm.server.action.monitor;
 
-import org.urm.meta.MetaMonitoring;
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.MetaMonitoring;
 
 public class MonitorCommand {
 

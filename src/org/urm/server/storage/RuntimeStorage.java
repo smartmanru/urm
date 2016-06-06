@@ -1,19 +1,19 @@
 package org.urm.server.storage;
 
 import org.urm.common.Common;
-import org.urm.meta.MetaDistrBinaryItem;
-import org.urm.meta.MetaDistrConfItem;
-import org.urm.meta.MetaEnvServer;
-import org.urm.meta.MetaEnvServerDeployment;
-import org.urm.meta.MetaEnvServerLocation;
-import org.urm.meta.MetaEnvServerNode;
-import org.urm.meta.Metadata.VarARCHIVETYPE;
-import org.urm.meta.Metadata.VarCONTENTTYPE;
-import org.urm.meta.Metadata.VarDISTITEMTYPE;
-import org.urm.meta.Metadata.VarOSTYPE;
-import org.urm.meta.Metadata.VarSERVERTYPE;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.deploy.ServerDeployment;
+import org.urm.server.meta.MetaDistrBinaryItem;
+import org.urm.server.meta.MetaDistrConfItem;
+import org.urm.server.meta.MetaEnvServer;
+import org.urm.server.meta.MetaEnvServerDeployment;
+import org.urm.server.meta.MetaEnvServerLocation;
+import org.urm.server.meta.MetaEnvServerNode;
+import org.urm.server.meta.Metadata.VarARCHIVETYPE;
+import org.urm.server.meta.Metadata.VarCONTENTTYPE;
+import org.urm.server.meta.Metadata.VarDISTITEMTYPE;
+import org.urm.server.meta.Metadata.VarOSTYPE;
+import org.urm.server.meta.Metadata.VarSERVERTYPE;
 import org.urm.server.shell.Account;
 import org.urm.server.shell.ShellExecutor;
 

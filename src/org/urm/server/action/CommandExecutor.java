@@ -8,7 +8,7 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.common.ExitException;
 import org.urm.common.RunContext;
-import org.urm.meta.Metadata;
+import org.urm.server.meta.Metadata;
 
 public abstract class CommandExecutor {
 

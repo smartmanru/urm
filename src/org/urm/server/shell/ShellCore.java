@@ -11,10 +11,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.urm.meta.Metadata.VarOSTYPE;
-import org.urm.meta.Metadata.VarSESSIONTYPE;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.CommandOutput;
+import org.urm.server.meta.Metadata.VarOSTYPE;
+import org.urm.server.meta.Metadata.VarSESSIONTYPE;
 import org.urm.server.storage.Folder;
 
 abstract class ShellCore {

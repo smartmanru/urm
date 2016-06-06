@@ -2,12 +2,12 @@ package org.urm.server.action;
 
 import org.urm.common.Common;
 import org.urm.common.RunContext;
-import org.urm.meta.MetaEnv;
-import org.urm.meta.MetaEnvDC;
-import org.urm.meta.Metadata.VarBUILDMODE;
-import org.urm.meta.Metadata.VarOSTYPE;
 import org.urm.server.action.CommandOptions.SQLMODE;
 import org.urm.server.action.CommandOptions.SQLTYPE;
+import org.urm.server.meta.MetaEnv;
+import org.urm.server.meta.MetaEnvDC;
+import org.urm.server.meta.Metadata.VarBUILDMODE;
+import org.urm.server.meta.Metadata.VarOSTYPE;
 import org.urm.server.shell.Account;
 import org.urm.server.shell.ShellExecutorPool;
 import org.urm.server.storage.LocalFolder;

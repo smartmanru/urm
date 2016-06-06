@@ -1,14 +1,14 @@
 package org.urm.server.action.deploy;
 
 import org.urm.common.Common;
-import org.urm.dist.Dist;
-import org.urm.meta.MetaEnv;
-import org.urm.meta.MetaEnvDC;
 import org.urm.server.action.ActionInit;
 import org.urm.server.action.ActionScope;
 import org.urm.server.action.CommandAction;
 import org.urm.server.action.CommandBuilder;
 import org.urm.server.action.CommandExecutor;
+import org.urm.server.dist.Dist;
+import org.urm.server.meta.MetaEnv;
+import org.urm.server.meta.MetaEnvDC;
 
 public class DeployCommandExecutor extends CommandExecutor {
 

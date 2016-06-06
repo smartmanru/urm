@@ -1,12 +1,12 @@
 package org.urm.custom.database;
 
-import org.urm.Common;
-import org.urm.action.ActionBase;
-import org.urm.custom.CommandCustom;
-import org.urm.custom.ICustomDatabase;
-import org.urm.storage.FileSet;
-import org.urm.storage.LocalFolder;
-import org.urm.storage.MetadataStorage;
+import org.urm.common.Common;
+import org.urm.server.action.ActionBase;
+import org.urm.server.custom.CommandCustom;
+import org.urm.server.custom.ICustomDatabase;
+import org.urm.server.storage.FileSet;
+import org.urm.server.storage.LocalFolder;
+import org.urm.server.storage.MetadataStorage;
 
 public class ActionPguDatabase implements ICustomDatabase {
 

@@ -1,8 +1,8 @@
 package org.urm.server.shell;
 
 import org.urm.common.Common;
-import org.urm.meta.Metadata.VarOSTYPE;
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.Metadata.VarOSTYPE;
 
 public class Account {
 

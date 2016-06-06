@@ -1,11 +1,11 @@
 package org.urm.server.action.deploy;
 
-import org.urm.dist.Dist;
-import org.urm.meta.MetaEnvServer;
-import org.urm.meta.MetaEnvServerNode;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScopeTarget;
 import org.urm.server.action.ActionScopeTargetItem;
+import org.urm.server.dist.Dist;
+import org.urm.server.meta.MetaEnvServer;
+import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.storage.RedistStorage;
 
 public class ActionPrepareRedist extends ActionBase {

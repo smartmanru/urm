@@ -3,12 +3,12 @@ package org.urm.server.action.release;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.urm.dist.Dist;
-import org.urm.dist.ReleaseTargetItem;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScopeSet;
 import org.urm.server.action.ActionScopeTarget;
 import org.urm.server.action.ActionScopeTargetItem;
+import org.urm.server.dist.Dist;
+import org.urm.server.dist.ReleaseTargetItem;
 
 public class ActionDescope extends ActionBase {
 

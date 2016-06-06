@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.meta.MetaEnvDC;
-import org.urm.meta.MetaEnvServer;
-import org.urm.meta.MetaSourceProject;
-import org.urm.meta.MetaSourceProjectSet;
-import org.urm.meta.Metadata.VarCATEGORY;
-import org.urm.meta.Metadata.VarOSTYPE;
+import org.urm.server.meta.MetaEnvDC;
+import org.urm.server.meta.MetaEnvServer;
+import org.urm.server.meta.MetaSourceProject;
+import org.urm.server.meta.MetaSourceProjectSet;
+import org.urm.server.meta.Metadata.VarCATEGORY;
+import org.urm.server.meta.Metadata.VarOSTYPE;
 import org.urm.server.shell.Account;
 
 public class ScopeExecutor {

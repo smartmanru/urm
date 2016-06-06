@@ -6,19 +6,19 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.dist.Dist;
-import org.urm.dist.ReleaseDelivery;
-import org.urm.dist.ReleaseSet;
-import org.urm.dist.ReleaseTarget;
-import org.urm.meta.MetaDistrBinaryItem;
-import org.urm.meta.MetaEnv;
-import org.urm.meta.MetaEnvDC;
-import org.urm.meta.MetaEnvServer;
-import org.urm.meta.MetaEnvServerNode;
-import org.urm.meta.MetaSourceProjectSet;
-import org.urm.meta.Metadata;
-import org.urm.meta.Metadata.VarCATEGORY;
-import org.urm.meta.Metadata.VarDISTITEMSOURCE;
+import org.urm.server.dist.Dist;
+import org.urm.server.dist.ReleaseDelivery;
+import org.urm.server.dist.ReleaseSet;
+import org.urm.server.dist.ReleaseTarget;
+import org.urm.server.meta.MetaDistrBinaryItem;
+import org.urm.server.meta.MetaEnv;
+import org.urm.server.meta.MetaEnvDC;
+import org.urm.server.meta.MetaEnvServer;
+import org.urm.server.meta.MetaEnvServerNode;
+import org.urm.server.meta.MetaSourceProjectSet;
+import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Metadata.VarCATEGORY;
+import org.urm.server.meta.Metadata.VarDISTITEMSOURCE;
 
 public class ActionScope {
 

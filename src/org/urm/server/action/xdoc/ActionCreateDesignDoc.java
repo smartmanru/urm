@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.meta.MetaDesign;
-import org.urm.meta.MetaDesignElement;
-import org.urm.meta.MetaDesignLink;
-import org.urm.meta.MetaEnv;
-import org.urm.meta.MetaEnvDC;
-import org.urm.meta.MetaEnvServer;
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.MetaDesign;
+import org.urm.server.meta.MetaDesignElement;
+import org.urm.server.meta.MetaDesignLink;
+import org.urm.server.meta.MetaEnv;
+import org.urm.server.meta.MetaEnvDC;
+import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.storage.MetadataStorage;
 
 public class ActionCreateDesignDoc extends ActionBase {

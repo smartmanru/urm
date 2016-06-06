@@ -1,9 +1,9 @@
 package org.urm.server.action;
 
-import org.urm.dist.ReleaseTargetItem;
-import org.urm.meta.MetaDistrBinaryItem;
-import org.urm.meta.MetaEnvServerNode;
-import org.urm.meta.MetaSourceProjectItem;
+import org.urm.server.dist.ReleaseTargetItem;
+import org.urm.server.meta.MetaDistrBinaryItem;
+import org.urm.server.meta.MetaEnvServerNode;
+import org.urm.server.meta.MetaSourceProjectItem;
 
 public class ActionScopeTargetItem {
 

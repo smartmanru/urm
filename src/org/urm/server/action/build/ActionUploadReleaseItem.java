@@ -3,10 +3,10 @@ package org.urm.server.action.build;
 import java.util.List;
 
 import org.urm.common.Common;
-import org.urm.dist.Dist;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScopeTarget;
 import org.urm.server.action.ActionScopeTargetItem;
+import org.urm.server.dist.Dist;
 
 public class ActionUploadReleaseItem extends ActionBase {
 

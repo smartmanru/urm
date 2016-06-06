@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.meta.MetaDistrBinaryItem;
-import org.urm.meta.MetaDistrConfItem;
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.MetaDistrBinaryItem;
+import org.urm.server.meta.MetaDistrConfItem;
 
 public class FileInfo {
 

@@ -3,15 +3,15 @@ package org.urm.server.action.build;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.dist.Dist;
-import org.urm.dist.ReleaseDelivery;
-import org.urm.meta.Metadata.VarCATEGORY;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScope;
 import org.urm.server.action.ActionScopeTarget;
 import org.urm.server.action.conf.ActionGetConf;
 import org.urm.server.action.conf.ConfBuilder;
 import org.urm.server.action.database.ActionGetDB;
+import org.urm.server.dist.Dist;
+import org.urm.server.dist.ReleaseDelivery;
+import org.urm.server.meta.Metadata.VarCATEGORY;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.LogStorage;

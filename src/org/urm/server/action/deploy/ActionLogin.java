@@ -1,7 +1,7 @@
 package org.urm.server.action.deploy;
 
-import org.urm.meta.MetaEnvServerNode;
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.shell.Account;
 
 public class ActionLogin extends ActionBase {

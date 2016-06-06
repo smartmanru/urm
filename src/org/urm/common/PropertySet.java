@@ -8,9 +8,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.urm.meta.Metadata.VarNAMETYPE;
-import org.urm.meta.Metadata.VarOSTYPE;
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.Metadata.VarNAMETYPE;
+import org.urm.server.meta.Metadata.VarOSTYPE;
 import org.w3c.dom.Node;
 
 public class PropertySet {

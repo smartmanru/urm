@@ -1,15 +1,15 @@
 package org.urm.server.action.deploy;
 
 import org.urm.common.Common;
-import org.urm.meta.MetaDistrComponentItem;
-import org.urm.meta.MetaDistrConfItem;
-import org.urm.meta.MetaEnvServer;
-import org.urm.meta.MetaEnvServerDeployment;
-import org.urm.meta.MetaEnvServerNode;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScopeTarget;
 import org.urm.server.action.ActionScopeTargetItem;
 import org.urm.server.action.conf.ConfBuilder;
+import org.urm.server.meta.MetaDistrComponentItem;
+import org.urm.server.meta.MetaDistrConfItem;
+import org.urm.server.meta.MetaEnvServer;
+import org.urm.server.meta.MetaEnvServerDeployment;
+import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.RedistStorage;
 import org.urm.server.storage.RuntimeStorage;

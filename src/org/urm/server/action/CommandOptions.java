@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.meta.Metadata.VarBUILDMODE;
-import org.urm.meta.Metadata.VarCATEGORY;
+import org.urm.server.meta.Metadata.VarBUILDMODE;
+import org.urm.server.meta.Metadata.VarCATEGORY;
 
 public class CommandOptions {
 

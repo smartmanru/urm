@@ -1,17 +1,17 @@
 package org.urm.server.action.deploy;
 
 import org.urm.common.Common;
-import org.urm.meta.MetaEnvServer;
-import org.urm.meta.MetaEnvServerBase;
-import org.urm.meta.MetaEnvServerNode;
-import org.urm.meta.MetaFapBase;
-import org.urm.meta.MetaFapBase.VarBASESRCFORMAT;
-import org.urm.meta.Metadata.VarARCHIVETYPE;
-import org.urm.meta.Metadata.VarSERVERTYPE;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScopeTarget;
 import org.urm.server.action.ActionScopeTargetItem;
 import org.urm.server.action.conf.ConfBuilder;
+import org.urm.server.meta.MetaEnvServer;
+import org.urm.server.meta.MetaEnvServerBase;
+import org.urm.server.meta.MetaEnvServerNode;
+import org.urm.server.meta.MetaFapBase;
+import org.urm.server.meta.MetaFapBase.VarBASESRCFORMAT;
+import org.urm.server.meta.Metadata.VarARCHIVETYPE;
+import org.urm.server.meta.Metadata.VarSERVERTYPE;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.BaseRepository;
 import org.urm.server.storage.LocalFolder;

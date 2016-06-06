@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.dist.Dist;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScopeSet;
 import org.urm.server.action.ActionScopeTarget;
 import org.urm.server.action.ActionScopeTargetItem;
+import org.urm.server.dist.Dist;
 import org.urm.server.storage.RedistStorage;
 
 public class ActionDeployRedist extends ActionBase {

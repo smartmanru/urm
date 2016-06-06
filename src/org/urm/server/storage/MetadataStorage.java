@@ -7,11 +7,11 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.meta.MetaDatabaseSchema;
-import org.urm.meta.MetaEnvServer;
-import org.urm.meta.Metadata;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.database.DatabaseClient;
+import org.urm.server.meta.MetaDatabaseSchema;
+import org.urm.server.meta.MetaEnvServer;
+import org.urm.server.meta.Metadata;
 
 public class MetadataStorage {
 

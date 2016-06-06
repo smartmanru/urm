@@ -1,12 +1,12 @@
 package org.urm.server.action.build;
 
 import org.urm.common.Common;
-import org.urm.meta.MetaSourceProject;
-import org.urm.meta.Metadata.VarCATEGORY;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScope;
 import org.urm.server.action.ActionScopeSet;
 import org.urm.server.action.ActionScopeTarget;
+import org.urm.server.meta.MetaSourceProject;
+import org.urm.server.meta.Metadata.VarCATEGORY;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.BuildStorage;
 import org.urm.server.storage.LocalFolder;

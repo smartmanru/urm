@@ -1,8 +1,8 @@
 package org.urm.server.vcs;
 
 import org.urm.common.Common;
-import org.urm.meta.MetaSourceProject;
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.Folder;
 import org.urm.server.storage.GitMirrorStorage;

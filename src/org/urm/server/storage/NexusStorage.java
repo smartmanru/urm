@@ -2,10 +2,10 @@ package org.urm.server.storage;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.meta.MetaDistrBinaryItem;
-import org.urm.meta.MetaSourceProjectItem;
-import org.urm.meta.Metadata;
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.MetaDistrBinaryItem;
+import org.urm.server.meta.MetaSourceProjectItem;
+import org.urm.server.meta.Metadata;
 
 public class NexusStorage {
 

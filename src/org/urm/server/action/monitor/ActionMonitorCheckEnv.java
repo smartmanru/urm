@@ -1,9 +1,9 @@
 package org.urm.server.action.monitor;
 
-import org.urm.meta.MetaMonitoringTarget;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScope;
 import org.urm.server.action.deploy.ActionCheckEnv;
+import org.urm.server.meta.MetaMonitoringTarget;
 import org.urm.server.storage.MonitoringStorage;
 
 public class ActionMonitorCheckEnv extends ActionBase {

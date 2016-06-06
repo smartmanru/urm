@@ -1,8 +1,8 @@
 package org.urm.server.storage;
 
 import org.urm.common.ConfReader;
-import org.urm.meta.Metadata;
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.Metadata;
 
 public class AuthStorage {
 

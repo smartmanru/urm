@@ -1,9 +1,9 @@
 package org.urm.custom.build;
 
-import org.urm.action.ActionBase;
-import org.urm.custom.CommandCustom;
-import org.urm.custom.ICustomBuild;
-import org.urm.meta.MetaSourceProject;
+import org.urm.server.action.ActionBase;
+import org.urm.server.custom.CommandCustom;
+import org.urm.server.custom.ICustomBuild;
+import org.urm.server.meta.MetaSourceProject;
 import org.w3c.dom.Node;
 
 public class ActionPguBuildWarApp implements ICustomBuild {

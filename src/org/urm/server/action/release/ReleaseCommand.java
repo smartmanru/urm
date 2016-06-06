@@ -1,10 +1,10 @@
 package org.urm.server.action.release;
 
-import org.urm.dist.Dist;
-import org.urm.meta.Metadata.VarCATEGORY;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScope;
 import org.urm.server.action.build.BuildCommand;
+import org.urm.server.dist.Dist;
+import org.urm.server.meta.Metadata.VarCATEGORY;
 
 public class ReleaseCommand {
 

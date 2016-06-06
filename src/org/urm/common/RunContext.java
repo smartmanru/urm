@@ -1,6 +1,6 @@
 package org.urm.common;
 
-import org.urm.meta.Metadata.VarOSTYPE;
+import org.urm.server.meta.Metadata.VarOSTYPE;
 
 public class RunContext {
 

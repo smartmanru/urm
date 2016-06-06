@@ -1,13 +1,13 @@
 package org.urm.server.action.release;
 
-import org.urm.dist.Dist;
-import org.urm.dist.DistRepository;
-import org.urm.dist.ReleaseDelivery;
-import org.urm.dist.ReleaseTarget;
-import org.urm.dist.ReleaseTargetItem;
-import org.urm.meta.MetaDistrBinaryItem;
-import org.urm.meta.MetaDistrConfItem;
 import org.urm.server.action.ActionBase;
+import org.urm.server.dist.Dist;
+import org.urm.server.dist.DistRepository;
+import org.urm.server.dist.ReleaseDelivery;
+import org.urm.server.dist.ReleaseTarget;
+import org.urm.server.dist.ReleaseTargetItem;
+import org.urm.server.meta.MetaDistrBinaryItem;
+import org.urm.server.meta.MetaDistrConfItem;
 
 public class ActionGetCumulative extends ActionBase {
 

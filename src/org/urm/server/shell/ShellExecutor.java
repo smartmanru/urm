@@ -5,9 +5,9 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.meta.Metadata.VarOSTYPE;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.CommandOutput;
+import org.urm.server.meta.Metadata.VarOSTYPE;
 import org.urm.server.storage.Folder;
 import org.urm.server.storage.RedistStorage;
 

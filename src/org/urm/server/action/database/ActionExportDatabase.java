@@ -7,11 +7,11 @@ import java.util.Properties;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.dist.DistRepository;
-import org.urm.meta.MetaDatabaseSchema;
-import org.urm.meta.MetaEnvServer;
-import org.urm.meta.MetaEnvServerNode;
 import org.urm.server.action.ActionBase;
+import org.urm.server.dist.DistRepository;
+import org.urm.server.meta.MetaDatabaseSchema;
+import org.urm.server.meta.MetaEnvServer;
+import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.MetadataStorage;

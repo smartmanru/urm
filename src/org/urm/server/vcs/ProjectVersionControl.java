@@ -1,7 +1,7 @@
 package org.urm.server.vcs;
 
-import org.urm.meta.MetaSourceProject;
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.storage.Artefactory;
 import org.urm.server.storage.Folder;
 import org.urm.server.storage.LocalFolder;

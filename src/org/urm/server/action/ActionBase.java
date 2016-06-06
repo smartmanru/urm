@@ -1,13 +1,13 @@
 package org.urm.server.action;
 
 import org.urm.common.Common;
-import org.urm.common.custom.CommandCustom;
-import org.urm.meta.MetaEnvServerNode;
-import org.urm.meta.Metadata;
-import org.urm.meta.Metadata.VarBUILDMODE;
-import org.urm.meta.Metadata.VarCATEGORY;
-import org.urm.meta.Metadata.VarOSTYPE;
-import org.urm.meta.Metadata.VarSERVERTYPE;
+import org.urm.server.custom.CommandCustom;
+import org.urm.server.meta.MetaEnvServerNode;
+import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Metadata.VarBUILDMODE;
+import org.urm.server.meta.Metadata.VarCATEGORY;
+import org.urm.server.meta.Metadata.VarOSTYPE;
+import org.urm.server.meta.Metadata.VarSERVERTYPE;
 import org.urm.server.shell.Account;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.Artefactory;

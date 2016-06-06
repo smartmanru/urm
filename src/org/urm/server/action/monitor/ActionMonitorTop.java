@@ -3,14 +3,14 @@ package org.urm.server.action.monitor;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.urm.meta.MetaMonitoring;
-import org.urm.meta.MetaMonitoringItem;
-import org.urm.meta.MetaMonitoringTarget;
-import org.urm.meta.Metadata;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionInit;
 import org.urm.server.action.ActionSet;
 import org.urm.server.action.CommandContext;
+import org.urm.server.meta.MetaMonitoring;
+import org.urm.server.meta.MetaMonitoringItem;
+import org.urm.server.meta.MetaMonitoringTarget;
+import org.urm.server.meta.Metadata;
 import org.urm.server.storage.MonitoringStorage;
 
 public class ActionMonitorTop extends ActionBase {

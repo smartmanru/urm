@@ -1,9 +1,9 @@
 package org.urm.server.storage;
 
 import org.urm.common.Common;
-import org.urm.meta.MetaMonitoring;
-import org.urm.meta.MetaMonitoringTarget;
-import org.urm.meta.Metadata;
+import org.urm.server.meta.MetaMonitoring;
+import org.urm.server.meta.MetaMonitoringTarget;
+import org.urm.server.meta.Metadata;
 
 public class MonitoringStorage {
 

@@ -1,13 +1,13 @@
 package org.urm.server.action.deploy;
 
 import org.urm.common.Common;
-import org.urm.meta.MetaEnv;
-import org.urm.meta.MetaEnvDC;
-import org.urm.meta.MetaEnvServer;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScope;
 import org.urm.server.action.ActionScopeSet;
 import org.urm.server.action.ActionScopeTarget;
+import org.urm.server.meta.MetaEnv;
+import org.urm.server.meta.MetaEnvDC;
+import org.urm.server.meta.MetaEnvServer;
 
 public class ActionConfCheck extends ActionBase {
 
