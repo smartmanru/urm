@@ -1,0 +1,98 @@
+package org.urm.action.deploy;
+
+import org.urm.Common;
+import org.urm.action.ActionBase;
+import org.urm.action.ActionScopeTarget;
+import org.urm.action.ActionScopeTargetItem;
+import org.urm.dist.Dist;
+import org.urm.meta.MetaEnvServer;
+import org.urm.meta.MetaEnvServerNode;
+import org.urm.meta.Metadata.VarCONTENTTYPE;
+import org.urm.storage.FileInfo;
+import org.urm.storage.RedistStateInfo;
+import org.urm.storage.RedistStorage;
+import org.urm.storage.RemoteFolder;
+
+public class ActionGetRedistInfo extends ActionBase {
+
+	Dist dist;
+
+	public ActionGetRedistInfo( ActionBase action , String stream , Dist dist ) {
+		super( action , stream );
+		this.dist = dist;
+	}
+
+	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
+		MetaEnvServer server = target.envServer;
+		comment( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
+		comment( "root path: " + server.ROOTPATH );
+		
+		for( ActionScopeTargetItem item : target.getItems( this ) ) {
+			MetaEnvServerNode node = item.envServerNode;
+			comment( "node" + node.POS + " (" + node.HOSTLOGIN + "):" );
+			
+			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
+			if( dist == null )
+				showReleases( redist );
+			else
+				showReleaseState( redist );
+		}
+		return( true );
+	}
+
+	private void showReleases( RedistStorage redist ) throws Exception {
+		String[] releases = redist.getRedistReleases( this );
+		if( releases == null || releases.length == 0 ) {
+			comment( "\t(nothing)" );
+			return;
+		}
+		
+		for( String release : releases ) {
+			comment( "\trelease: " + release );
+		}
+	}
+	
+	private void showReleaseState( RedistStorage redist ) throws Exception {
+		ServerDeployment deployment = redist.getDeployment( this , dist.RELEASEDIR );
+		for( String category : deployment.getCategories( this ) ) {
+			boolean first = true;
+			
+			VarCONTENTTYPE CONTENTTYPE = deployment.getCategoryContent( this , category );
+			boolean rollout = deployment.getCategoryRollout( this , category );
+			
+			for( String LOCATION : deployment.getCategoryLocations( this , category ) ) {
+				RemoteFolder rf = redist.getRedistLocationFolder( this , dist.RELEASEDIR , LOCATION , CONTENTTYPE , rollout );
+				
+				String[] items = deployment.getLocationItems( this , category , LOCATION );
+				if( items.length == 0 ) {
+					if( !context.CTX_SHOWALL )
+						continue;
+				}
+
+				if( first ) {
+					comment( "\tcategory: " + category );
+					first = false;
+				}
+				
+				comment( "\t\tlocation: " + LOCATION + " (" + rf.folderPath + ")" );
+				RedistStateInfo stateInfo = new RedistStateInfo();
+				stateInfo.gather( this , redist.node , CONTENTTYPE , rf.folderPath );
+				
+				for( String key : stateInfo.getKeys( this ) ) {
+					FileInfo info = stateInfo.getVerData( this , key );
+
+					String text = info.itemName;
+					text += ", version: " + info.version;
+					if( info.binaryItem != null ) {
+						if( info.binaryItem.isArchive( this ) )
+							text += ", archive";
+						else
+							text += ", deployname: " + info.deployFinalName;
+					}
+					comment( "\t\t\tfile: " + info.getFileName( this ) + " (" + text + ")" );
+				}
+			}
+		}
+	}
+	
+}
