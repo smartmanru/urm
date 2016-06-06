@@ -1,4 +1,4 @@
-package org.urm.server.action.deploy;
+package org.urm.client;
 
 import org.urm.common.Common;
 import org.urm.server.action.ActionInit;
@@ -6,6 +6,7 @@ import org.urm.server.action.ActionScope;
 import org.urm.server.action.CommandAction;
 import org.urm.server.action.CommandBuilder;
 import org.urm.server.action.CommandExecutor;
+import org.urm.server.action.deploy.DeployCommand;
 import org.urm.server.dist.Dist;
 import org.urm.server.meta.MetaEnv;
 import org.urm.server.meta.MetaEnvDC;

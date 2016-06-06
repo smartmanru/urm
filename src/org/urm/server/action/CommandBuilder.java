@@ -3,14 +3,14 @@ package org.urm.server.action;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.urm.client.BuildCommandExecutor;
+import org.urm.client.DatabaseCommandExecutor;
+import org.urm.client.DeployCommandExecutor;
 import org.urm.client.MainExecutor;
+import org.urm.client.MonitorCommandExecutor;
+import org.urm.client.ReleaseCommandExecutor;
+import org.urm.client.XDocCommandExecutor;
 import org.urm.common.RunContext;
-import org.urm.server.action.build.BuildCommandExecutor;
-import org.urm.server.action.database.DatabaseCommandExecutor;
-import org.urm.server.action.deploy.DeployCommandExecutor;
-import org.urm.server.action.monitor.MonitorCommandExecutor;
-import org.urm.server.action.release.ReleaseCommandExecutor;
-import org.urm.server.action.xdoc.XDocCommandExecutor;
 import org.urm.server.meta.Metadata;
 
 public class CommandBuilder {
