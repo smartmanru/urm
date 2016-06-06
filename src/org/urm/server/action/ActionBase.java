@@ -1,6 +1,8 @@
 package org.urm.server.action;
 
 import org.urm.common.Common;
+import org.urm.common.action.CommandExecutor;
+import org.urm.common.action.CommandOptions;
 import org.urm.server.custom.CommandCustom;
 import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.meta.Metadata;
@@ -440,6 +442,10 @@ abstract public class ActionBase {
         Thread.sleep(millis);
     }
 
+	public void setLogLevel( int logLevelLimit ) {
+		output.setLogLevel( logLevelLimit );
+	}
+    
 	public int setTimeout( int timeout ) {
 		int saveTimeout = commandTimeout;
 		commandTimeout = timeout;

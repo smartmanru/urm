@@ -2,8 +2,8 @@ package org.urm.server.action;
 
 import org.urm.common.Common;
 import org.urm.common.RunContext;
-import org.urm.server.action.CommandOptions.SQLMODE;
-import org.urm.server.action.CommandOptions.SQLTYPE;
+import org.urm.common.action.CommandOptions.SQLMODE;
+import org.urm.common.action.CommandOptions.SQLTYPE;
 import org.urm.server.meta.MetaEnv;
 import org.urm.server.meta.MetaEnvDC;
 import org.urm.server.meta.Metadata.VarBUILDMODE;

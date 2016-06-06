@@ -1,5 +1,7 @@
 package org.urm.server.action;
 
+import org.urm.common.action.CommandExecutor;
+import org.urm.common.action.CommandOptions;
 import org.urm.server.meta.Metadata;
 
 public class ActionInit extends ActionBase {

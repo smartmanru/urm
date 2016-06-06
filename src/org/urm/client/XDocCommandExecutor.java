@@ -1,9 +1,9 @@
 package org.urm.client;
 
+import org.urm.common.action.CommandAction;
+import org.urm.common.action.CommandBuilder;
+import org.urm.common.action.CommandExecutor;
 import org.urm.server.action.ActionInit;
-import org.urm.server.action.CommandAction;
-import org.urm.server.action.CommandBuilder;
-import org.urm.server.action.CommandExecutor;
 import org.urm.server.action.xdoc.XDocCommand;
 
 public class XDocCommandExecutor extends CommandExecutor {

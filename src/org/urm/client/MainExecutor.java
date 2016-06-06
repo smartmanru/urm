@@ -8,10 +8,10 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.common.action.CommandAction;
+import org.urm.common.action.CommandBuilder;
+import org.urm.common.action.CommandExecutor;
 import org.urm.server.action.ActionInit;
-import org.urm.server.action.CommandAction;
-import org.urm.server.action.CommandBuilder;
-import org.urm.server.action.CommandExecutor;
 import org.urm.server.meta.MetaEnv;
 import org.urm.server.meta.MetaEnvDC;
 import org.urm.server.meta.Metadata.VarBUILDMODE;

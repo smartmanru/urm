@@ -1,6 +1,6 @@
-package org.urm.server.action;
+package org.urm.common.action;
 
-import org.urm.server.action.CommandOptions.FLAG;
+import org.urm.common.action.CommandOptions.FLAG;
 
 public class CommandVar {
 

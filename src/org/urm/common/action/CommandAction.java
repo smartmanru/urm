@@ -1,6 +1,7 @@
-package org.urm.server.action;
+package org.urm.common.action;
 
 import org.urm.common.Common;
+import org.urm.server.action.ActionInit;
 
 abstract public class CommandAction {
 

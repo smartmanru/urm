@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.server.action.ActionBase;
-import org.urm.server.action.CommandOptions.SQLMODE;
 import org.urm.server.action.database.DatabaseRegistryRelease.RELEASE_STATE;
 import org.urm.server.dist.Release;
 import org.urm.server.meta.MetaDistrDelivery;

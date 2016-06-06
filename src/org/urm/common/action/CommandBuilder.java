@@ -1,4 +1,4 @@
-package org.urm.server.action;
+package org.urm.common.action;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -11,6 +11,9 @@ import org.urm.client.MonitorCommandExecutor;
 import org.urm.client.ReleaseCommandExecutor;
 import org.urm.client.XDocCommandExecutor;
 import org.urm.common.RunContext;
+import org.urm.server.action.ActionBase;
+import org.urm.server.action.ActionInit;
+import org.urm.server.action.CommandContext;
 import org.urm.server.meta.Metadata;
 
 public class CommandBuilder {

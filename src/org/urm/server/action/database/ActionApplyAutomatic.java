@@ -3,10 +3,10 @@ package org.urm.server.action.database;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.common.action.CommandOptions.SQLTYPE;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScope;
 import org.urm.server.action.ActionScopeTarget;
-import org.urm.server.action.CommandOptions.SQLTYPE;
 import org.urm.server.action.conf.ConfBuilder;
 import org.urm.server.dist.Dist;
 import org.urm.server.dist.ReleaseDelivery;

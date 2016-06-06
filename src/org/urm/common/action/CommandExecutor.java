@@ -1,4 +1,4 @@
-package org.urm.server.action;
+package org.urm.common.action;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -8,6 +8,10 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.common.ExitException;
 import org.urm.common.RunContext;
+import org.urm.server.action.ActionBase;
+import org.urm.server.action.ActionInit;
+import org.urm.server.action.CommandContext;
+import org.urm.server.action.CommandOutput;
 import org.urm.server.meta.Metadata;
 
 public abstract class CommandExecutor {
@@ -44,7 +48,7 @@ public abstract class CommandExecutor {
 		return( executorFailed );
 	}
 	
-	protected void setFailed() {
+	public void setFailed() {
 		executorFailed = true;
 	}
 	

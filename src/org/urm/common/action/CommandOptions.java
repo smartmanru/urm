@@ -1,4 +1,4 @@
-package org.urm.server.action;
+package org.urm.common.action;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.server.action.ActionBase;
+import org.urm.server.action.CommandContext;
+import org.urm.server.action.CommandOutput;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
 import org.urm.server.meta.Metadata.VarCATEGORY;
 
@@ -227,7 +230,7 @@ public class CommandOptions {
 		if( ctx.CTX_SHOWALL )
 			logLevelLimit = CommandOutput.LOGLEVEL_DEBUG;
 		
-		action.output.setLogLevel( logLevelLimit );
+		action.setLogLevel( logLevelLimit );
 	}
 
 	void print( String s ) {
@@ -565,7 +568,7 @@ public class CommandOptions {
 		return( Integer.parseInt( val ) );
 	}
 	
-	String getFlagsSet() {
+	public String getFlagsSet() {
 		String s = "";
 		for( int k = 0; k < optionsSet.size(); k++ ) {
 			CommandVar var = optionsSet.get( k );
@@ -583,7 +586,7 @@ public class CommandOptions {
 		return( s );
 	}
 	
-	String getParamsSet() {
+	public String getParamsSet() {
 		String s = "";
 		for( int k = 0; k < optionsSet.size(); k++ ) {
 			CommandVar var = optionsSet.get( k );
@@ -601,7 +604,7 @@ public class CommandOptions {
 		return( optionsSet );
 	}
 	
-	String getArgsSet() {
+	public String getArgsSet() {
 		String s = "";
 		for( int k = 0; k < args.size(); k++ ) {
 			if( !s.isEmpty() )

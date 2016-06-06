@@ -2,8 +2,8 @@ package org.urm.client;
 
 import org.urm.common.Common;
 import org.urm.common.ExitException;
-import org.urm.server.action.CommandBuilder;
-import org.urm.server.action.CommandExecutor;
+import org.urm.common.action.CommandBuilder;
+import org.urm.common.action.CommandExecutor;
 
 public class Engine {
 
