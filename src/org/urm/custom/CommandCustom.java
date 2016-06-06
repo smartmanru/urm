@@ -71,9 +71,9 @@ public class CommandCustom {
 		if( className.isEmpty() )
 			action.exit( "custom build class is not set (CONFIG_CUSTOM_BUILD" );
 		
-		className = "ru.egov.urm.custom.build." + className;
+		className = getClass().getPackage().getName() + ".build." + className;
 		try {
-			Class<?> cls = Class.forName( "ru.egov.urm.custom.build." + meta.product.CONFIG_CUSTOM_BUILD );
+			Class<?> cls = Class.forName( className );
 			customBuild = ( ICustomBuild )cls.newInstance();
 			return;
 		}
@@ -92,7 +92,7 @@ public class CommandCustom {
 		if( className.isEmpty() )
 			action.exit( "custom deploy class is not set (CONFIG_CUSTOM_DEPLOY" );
 		
-		className = "ru.egov.urm.custom.deploy." + className;
+		className = getClass().getPackage().getName() + ".deploy." + className;
 		try {
 			Class<?> cls = Class.forName( className );
 			customDeploy = ( ICustomDeploy )cls.newInstance();
@@ -113,7 +113,7 @@ public class CommandCustom {
 		if( className.isEmpty() )
 			action.exit( "custom deploy class is not set (CONFIG_CUSTOM_DATABASE" );
 		
-		className = "ru.egov.urm.custom.database." + className;
+		className = getClass().getPackage().getName() + ".database." + className;
 		try {
 			Class<?> cls = Class.forName( className );
 			customDatabase = ( ICustomDatabase )cls.newInstance();
