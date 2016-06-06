@@ -10,9 +10,9 @@ if [ ! -f "$P_PROPS" ]; then
 fi
 
 EXTRA_LIB="../lib"
-JAVA_CLASSPATH=".:urm.jar:$EXTRA_LIB/smack-3.4.1-0cec571.jar:$EXTRA_LIB/smackx-3.4.1-0cec571.jar"
+JAVA_CLASSPATH=".:urms.jar:$EXTRA_LIB/smack-3.4.1-0cec571.jar:$EXTRA_LIB/smackx-3.4.1-0cec571.jar"
 FNAME=$P_PROPS
 
 echo "jabber-messenger: use $FNAME"
-/usr/bin/nohup java -classpath "$JAVA_CLASSPATH" ru.egov.urm.messenger.ChatMain jabber $FNAME > jabber.log 2>&1&
+/usr/bin/nohup java -classpath "$JAVA_CLASSPATH" org.urm.messenger.ChatMain jabber $FNAME > jabber.log 2>&1&
 echo "jabber-messenger: finished"
