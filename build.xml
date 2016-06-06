@@ -110,7 +110,8 @@
       =======================================================================-->
 
     <target name="runJar" depends="runCompile">
-	<jar jarfile="${build.dir}/urm.jar" basedir="${runClasses}" includes="ru/egov/urm/**/*.class"/>
+	<jar jarfile="${build.dir}/urms.jar" basedir="${runClasses}" includes="org/urm/**/*.class"/>
+	<jar jarfile="${build.dir}/urmc.jar" basedir="${runClasses}" includes="org/urm/common/**/*.class org/urm/client/**/*.class"/>
     </target>
 
     <target name="package" depends="runJar">
