@@ -1,9 +1,9 @@
 package org.urm.meta;
 
-import org.urm.PropertySet;
-import org.urm.action.ActionBase;
+import org.urm.common.PropertySet;
 import org.urm.meta.Metadata.VarNODETYPE;
-import org.urm.shell.Account;
+import org.urm.server.action.ActionBase;
+import org.urm.server.shell.Account;
 import org.w3c.dom.Node;
 
 public class MetaEnvServerNode {

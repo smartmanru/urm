@@ -1,13 +1,13 @@
 package org.urm.dist;
 
-import org.urm.Common;
-import org.urm.ConfReader;
-import org.urm.action.ActionBase;
+import org.urm.common.Common;
+import org.urm.common.ConfReader;
 import org.urm.meta.MetaDistrBinaryItem;
 import org.urm.meta.MetaDistrDelivery;
 import org.urm.meta.MetaSourceProjectItem;
 import org.urm.meta.Metadata;
 import org.urm.meta.Metadata.VarNAMETYPE;
+import org.urm.server.action.ActionBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

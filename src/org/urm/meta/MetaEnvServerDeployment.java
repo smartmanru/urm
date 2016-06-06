@@ -1,9 +1,9 @@
 package org.urm.meta;
 
-import org.urm.ConfReader;
-import org.urm.action.ActionBase;
+import org.urm.common.ConfReader;
 import org.urm.meta.Metadata.VarDEPLOYTYPE;
 import org.urm.meta.Metadata.VarNODETYPE;
+import org.urm.server.action.ActionBase;
 import org.w3c.dom.Node;
 
 public class MetaEnvServerDeployment {

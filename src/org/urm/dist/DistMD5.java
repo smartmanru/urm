@@ -1,8 +1,8 @@
 package org.urm.dist;
 
-import org.urm.Common;
-import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.meta.MetaDistrBinaryItem;
+import org.urm.server.action.ActionBase;
 
 public class DistMD5 {
 

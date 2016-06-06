@@ -3,8 +3,7 @@ package org.urm.dist;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.Common;
-import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.meta.MetaDistrBinaryItem;
 import org.urm.meta.MetaDistrConfItem;
 import org.urm.meta.MetaDistrDelivery;
@@ -15,11 +14,12 @@ import org.urm.meta.MetaSourceProjectSet;
 import org.urm.meta.Metadata;
 import org.urm.meta.Metadata.VarCATEGORY;
 import org.urm.meta.Metadata.VarDISTITEMSOURCE;
-import org.urm.shell.ShellExecutor;
-import org.urm.storage.FileSet;
-import org.urm.storage.LocalFolder;
-import org.urm.storage.RedistStorage;
-import org.urm.storage.RemoteFolder;
+import org.urm.server.action.ActionBase;
+import org.urm.server.shell.ShellExecutor;
+import org.urm.server.storage.FileSet;
+import org.urm.server.storage.LocalFolder;
+import org.urm.server.storage.RedistStorage;
+import org.urm.server.storage.RemoteFolder;
 import org.w3c.dom.Document;
 
 public class Dist {

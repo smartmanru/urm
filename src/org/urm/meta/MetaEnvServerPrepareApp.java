@@ -1,8 +1,8 @@
 package org.urm.meta;
 
-import org.urm.ConfReader;
-import org.urm.PropertySet;
-import org.urm.action.ActionBase;
+import org.urm.common.ConfReader;
+import org.urm.common.PropertySet;
+import org.urm.server.action.ActionBase;
 import org.w3c.dom.Node;
 
 public class MetaEnvServerPrepareApp {

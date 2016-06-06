@@ -1,14 +1,14 @@
 package org.urm.dist;
 
-import org.urm.Common;
-import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.meta.MetaEnvServer;
 import org.urm.meta.Metadata;
 import org.urm.meta.Metadata.VarOSTYPE;
-import org.urm.shell.Account;
-import org.urm.shell.ShellExecutor;
-import org.urm.storage.Artefactory;
-import org.urm.storage.RemoteFolder;
+import org.urm.server.action.ActionBase;
+import org.urm.server.shell.Account;
+import org.urm.server.shell.ShellExecutor;
+import org.urm.server.storage.Artefactory;
+import org.urm.server.storage.RemoteFolder;
 
 public class DistRepository {
 

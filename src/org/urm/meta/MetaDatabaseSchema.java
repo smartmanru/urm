@@ -1,10 +1,10 @@
 package org.urm.meta;
 
-import org.urm.ConfReader;
-import org.urm.action.ActionBase;
-import org.urm.action.database.DatabaseSpecific;
+import org.urm.common.ConfReader;
 import org.urm.meta.Metadata.VarDBMSTYPE;
 import org.urm.meta.Metadata.VarNAMETYPE;
+import org.urm.server.action.ActionBase;
+import org.urm.server.action.database.DatabaseSpecific;
 import org.w3c.dom.Node;
 
 public class MetaDatabaseSchema {

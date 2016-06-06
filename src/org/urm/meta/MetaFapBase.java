@@ -6,14 +6,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.urm.Common;
-import org.urm.ConfReader;
-import org.urm.PropertySet;
-import org.urm.action.ActionBase;
+import org.urm.common.Common;
+import org.urm.common.ConfReader;
+import org.urm.common.PropertySet;
 import org.urm.meta.Metadata.VarOSTYPE;
 import org.urm.meta.Metadata.VarSERVERTYPE;
-import org.urm.storage.BaseRepository;
-import org.urm.storage.RemoteFolder;
+import org.urm.server.action.ActionBase;
+import org.urm.server.storage.BaseRepository;
+import org.urm.server.storage.RemoteFolder;
 import org.w3c.dom.Node;
 
 public class MetaFapBase {

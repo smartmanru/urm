@@ -5,11 +5,11 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.Common;
-import org.urm.action.ActionBase;
-import org.urm.shell.ShellExecutor;
-import org.urm.storage.LocalFolder;
-import org.urm.storage.RemoteFolder;
+import org.urm.common.Common;
+import org.urm.server.action.ActionBase;
+import org.urm.server.shell.ShellExecutor;
+import org.urm.server.storage.LocalFolder;
+import org.urm.server.storage.RemoteFolder;
 
 public class DistState {
 

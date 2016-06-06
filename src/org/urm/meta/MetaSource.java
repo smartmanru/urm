@@ -5,11 +5,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.urm.ConfReader;
-import org.urm.action.ActionBase;
+import org.urm.common.ConfReader;
 import org.urm.meta.Metadata.VarBUILDMODE;
 import org.urm.meta.Metadata.VarCATEGORY;
-import org.urm.storage.MetadataStorage;
+import org.urm.server.action.ActionBase;
+import org.urm.server.storage.MetadataStorage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 

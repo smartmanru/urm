@@ -5,13 +5,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.urm.Common;
-import org.urm.ConfReader;
-import org.urm.PropertySet;
-import org.urm.action.ActionBase;
-import org.urm.action.CommandOptions.FLAG;
-import org.urm.storage.HiddenFiles;
-import org.urm.storage.MetadataStorage;
+import org.urm.common.Common;
+import org.urm.common.ConfReader;
+import org.urm.common.PropertySet;
+import org.urm.server.action.ActionBase;
+import org.urm.server.action.CommandOptions.FLAG;
+import org.urm.server.storage.HiddenFiles;
+import org.urm.server.storage.MetadataStorage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 

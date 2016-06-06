@@ -3,10 +3,10 @@ package org.urm.dist;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.urm.Common;
-import org.urm.action.ActionBase;
-import org.urm.storage.FileSet;
-import org.urm.storage.RemoteFolder;
+import org.urm.common.Common;
+import org.urm.server.action.ActionBase;
+import org.urm.server.storage.FileSet;
+import org.urm.server.storage.RemoteFolder;
 
 public class DistFinalizer {
 

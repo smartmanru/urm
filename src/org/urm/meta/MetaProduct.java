@@ -5,12 +5,12 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.Common;
-import org.urm.ConfReader;
-import org.urm.PropertySet;
-import org.urm.action.ActionBase;
+import org.urm.common.Common;
+import org.urm.common.ConfReader;
+import org.urm.common.PropertySet;
 import org.urm.meta.Metadata.VarBUILDMODE;
-import org.urm.storage.MetadataStorage;
+import org.urm.server.action.ActionBase;
+import org.urm.server.storage.MetadataStorage;
 
 public class MetaProduct {
 

@@ -3,10 +3,10 @@ package org.urm.meta;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.Common;
-import org.urm.ConfReader;
-import org.urm.action.ActionBase;
-import org.urm.storage.MetadataStorage;
+import org.urm.common.Common;
+import org.urm.common.ConfReader;
+import org.urm.server.action.ActionBase;
+import org.urm.server.storage.MetadataStorage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 

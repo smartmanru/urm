@@ -1,6 +1,6 @@
 package org.urm.meta;
 
-import org.urm.action.ActionBase;
+import org.urm.server.action.ActionBase;
 import org.w3c.dom.Node;
 
 public class MetaEnvDeployment {

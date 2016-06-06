@@ -5,10 +5,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.urm.Common;
-import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.meta.Metadata.VarCONTENTTYPE;
 import org.urm.meta.Metadata.VarDEPLOYTYPE;
+import org.urm.server.action.ActionBase;
 
 public class MetaEnvServerLocation {
 
