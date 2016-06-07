@@ -4,7 +4,8 @@ import org.urm.server.meta.Metadata.VarOSTYPE;
 
 public class RunContext {
 
-	private String OSTYPE;
+	public boolean serverMode;
+	public String OSTYPE;
 	public VarOSTYPE osType;
 
 	public String userHome;
@@ -19,6 +20,7 @@ public class RunContext {
 	}
 	
 	public void load() {
+		serverMode = Common.getBooleanValue( getProperty( "urm.server" ) );
 		OSTYPE = getProperty( "urm.os" ).toUpperCase();
 		osType = VarOSTYPE.valueOf( Common.xmlToEnumValue( OSTYPE ) );
 		buildMode = getProperty( "build.mode" ).toUpperCase();
@@ -44,6 +46,10 @@ public class RunContext {
 		if( value == null )
 			return( "" );
 		return( value );
+	}
+
+	public boolean isServer() {
+		return( serverMode );		
 	}
 	
 	public boolean isWindows() {

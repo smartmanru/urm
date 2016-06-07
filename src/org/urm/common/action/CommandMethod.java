@@ -1,9 +1,8 @@
 package org.urm.common.action;
 
 import org.urm.common.Common;
-import org.urm.server.action.ActionInit;
 
-abstract public class CommandAction {
+public class CommandMethod {
 
 	public String name;
 	public boolean top;
@@ -11,9 +10,8 @@ abstract public class CommandAction {
 	public String[] vars;
 	public String syntax;
 
-	abstract public void run( ActionInit action ) throws Exception;
-	
-	public static CommandAction newAction( CommandAction method , String name , boolean top , String help , String varList , String syntax ) {
+	public static CommandMethod newAction( String name , boolean top , String help , String varList , String syntax ) {
+		CommandMethod method = new CommandMethod();
 		method.name = name;
 		method.top = top;
 		method.help = help;
@@ -32,4 +30,5 @@ abstract public class CommandAction {
 				return( true );
 		return( false );
 	}
+	
 }

@@ -6,11 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.server.action.ActionBase;
-import org.urm.server.action.CommandContext;
-import org.urm.server.action.CommandOutput;
-import org.urm.server.meta.Metadata.VarBUILDMODE;
-import org.urm.server.meta.Metadata.VarCATEGORY;
 
 public class CommandOptions {
 
@@ -19,7 +14,7 @@ public class CommandOptions {
 	public enum SQLMODE { UNKNOWN , APPLY , ANYWAY , CORRECT , ROLLBACK , PRINT };
 	public enum SQLTYPE { UNKNOWN , SQL , CTL , PUB };
 
-	static int optDefaultCommandTimeout = 10;
+	public int optDefaultCommandTimeout = 10;
 	
 	// standard command parameters 
 	public String command;
@@ -129,111 +124,11 @@ public class CommandOptions {
 		defineOption( CommandVar.newParam( "over" , "GETOPT_COMPATIBILITY" , "previous release installed" ) );
 	}
 
-	public String getMetaPath( ActionBase action ) throws Exception {
-		return( getParamValue( action , "GETOPT_ETCPATH" ) ); 
+	public String getMetaPath() throws Exception {
+		return( getParamValue( "GETOPT_ETCPATH" ) ); 
 	}
 	
-	public void updateContext( ActionBase action ) throws Exception {
-		boolean isproduct = ( action.meta == null || action.meta.product == null )? false : true; 
-		boolean isenv = ( action.context.env == null )? false : true; 
-		boolean def = ( isenv && action.context.env.PROD )? true : false;
-		String value;
-		
-		CommandContext ctx = action.context;
-		
-		// generic
-		ctx.CTX_TRACEINTERNAL = ( getFlagValue( action , "GETOPT_TRACE" ) && getFlagValue( action , "GETOPT_SHOWALL" ) )? true : false;
-		ctx.CTX_TRACE = getFlagValue( action , "GETOPT_TRACE" );
-		ctx.CTX_SHOWONLY = combineValue( action , "GETOPT_SHOWONLY" , ( isenv )? action.context.env.SHOWONLY : null , def );
-		ctx.CTX_SHOWALL = getFlagValue( action , "GETOPT_SHOWALL" );
-		if( ctx.CTX_TRACE )
-			ctx.CTX_SHOWALL = true;
-		ctx.CTX_FORCE = getFlagValue( action , "GETOPT_FORCE" );
-		ctx.CTX_IGNORE = getFlagValue( action , "GETOPT_SKIPERRORS" );
-		ctx.CTX_ALL = getFlagValue( action , "GETOPT_ALL" );
-		ctx.CTX_LOCAL = getFlagValue( action , "GETOPT_LOCAL" );
-		ctx.CTX_COMMANDTIMEOUT = getIntParamValue( action , "GETOPT_COMMANDTIMEOUT" , optDefaultCommandTimeout ) * 1000;
-		value = getParamValue( action , "GETOPT_KEY" ); 
-		ctx.CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? action.context.env.KEYNAME : "" ) : value;
-		String productValue = ( isproduct )? action.meta.product.CONFIG_DISTR_PATH : "";
-		ctx.CTX_DISTPATH = getParamPathValue( action , "GETOPT_DISTPATH" , productValue );
-		ctx.CTX_REDISTPATH = ( isproduct )? action.meta.product.CONFIG_REDISTPATH : null;
-		if( isenv && !action.context.env.REDISTPATH.isEmpty() )
-			ctx.CTX_REDISTPATH = action.context.env.REDISTPATH;
-		value = getParamPathValue( action , "GETOPT_HIDDENPATH" );
-		ctx.CTX_HIDDENPATH = ( value.isEmpty() )? ( ( isenv )? action.context.env.CONF_SECRETFILESPATH : "" ) : value;
-		ctx.CTX_WORKPATH = getParamPathValue( action , "GETOPT_WORKPATH" , "" );
-		
-		// specific
-		ctx.CTX_GET = getFlagValue( action , "GETOPT_GET" );
-		ctx.CTX_DIST = getFlagValue( action , "GETOPT_DIST" );
-		ctx.CTX_UPDATENEXUS = getFlagValue( action , "GETOPT_UPDATENEXUS" );
-		ctx.CTX_CHECK = getFlagValue( action , "GETOPT_CHECK" , false );
-		ctx.CTX_MOVE_ERRORS = getFlagValue( action , "GETOPT_MOVE_ERRORS" );
-		ctx.CTX_REPLACE = getFlagValue( action , "GETOPT_REPLACE" );
-		ctx.CTX_BACKUP = combineValue( action , "GETOPT_BACKUP" , ( isenv )? action.context.env.BACKUP : null , def );
-		ctx.CTX_OBSOLETE = combineValue( action , "GETOPT_OBSOLETE" , ( isenv )? action.context.env.OBSOLETE : null , true );
-		ctx.CTX_CONFDEPLOY = combineValue( action , "GETOPT_DEPLOYCONF" , ( isenv )? action.context.env.CONF_DEPLOY : null , true );
-		ctx.CTX_PARTIALCONF = getFlagValue( action , "GETOPT_PARTIALCONF" );
-		ctx.CTX_DEPLOYBINARY = getFlagValue( action , "GETOPT_DEPLOYBINARY" , true );
-		ctx.CTX_DEPLOYHOT = getFlagValue( action , "GETOPT_DEPLOYHOT" );
-		ctx.CTX_DEPLOYCOLD = getFlagValue( action , "GETOPT_DEPLOYCOLD" );
-		ctx.CTX_DEPLOYRAW = getFlagValue( action , "GETOPT_DEPLOYRAW" );
-		ctx.CTX_CONFKEEPALIVE = combineValue( action , "GETOPT_KEEPALIVE" , ( isenv )? action.context.env.CONF_KEEPALIVE : null , true );
-		ctx.CTX_ZERODOWNTIME = getFlagValue( action , "GETOPT_ZERODOWNTIME" );
-		ctx.CTX_NONODES = getFlagValue( action , "GETOPT_NONODES" );
-		ctx.CTX_NOCHATMSG = getFlagValue( action , "GETOPT_NOCHATMSG" );
-		ctx.CTX_ROOTUSER = getFlagValue( action , "GETOPT_ROOTUSER" );
-		ctx.CTX_SUDO = getFlagValue( action , "GETOPT_SUDO" );
-		ctx.CTX_IGNOREVERSION = getFlagValue( action , "GETOPT_IGNOREVERSION" );
-		ctx.CTX_LIVE = getFlagValue( action , "GETOPT_LIVE" );
-		ctx.CTX_HIDDEN = getFlagValue( action , "GETOPT_HIDDEN" );
-		value = getEnumValue( action , "GETOPT_DBMODE" );
-		ctx.CTX_DBMODE = ( value.isEmpty() )? SQLMODE.UNKNOWN : SQLMODE.valueOf( value );
-		ctx.CTX_DBMOVE = getFlagValue( action , "GETOPT_DBMOVE" );
-		ctx.CTX_DBAUTH = combineValue( action , "GETOPT_DBAUTH" , ( isenv )? action.context.env.DB_AUTH : null , false );
-		ctx.CTX_CUMULATIVE = getFlagValue( action , "GETOPT_CUMULATIVE" );
-		
-		ctx.CTX_DBALIGNED = getParamValue( action , "GETOPT_DBALIGNED" );
-		ctx.CTX_DB = getParamValue( action , "GETOPT_DB" );
-		ctx.CTX_DBPASSWORD = getParamValue( action , "GETOPT_DBPASSWORD" );
-		ctx.CTX_REGIONS = getParamValue( action , "GETOPT_REGIONS" );
-		value = getEnumValue( action , "GETOPT_DBTYPE" );
-		ctx.CTX_DBTYPE = ( value.isEmpty() )? SQLTYPE.UNKNOWN : SQLTYPE.valueOf( value );
-		ctx.CTX_RELEASELABEL = getParamValue( action , "GETOPT_RELEASE" );
-		ctx.CTX_BRANCH = getParamValue( action , "GETOPT_BRANCH" );
-		ctx.CTX_TAG = getParamValue( action , "GETOPT_TAG" );
-		ctx.CTX_DATE = getParamValue( action , "GETOPT_DATE" );
-		ctx.CTX_GROUP = getParamValue( action , "GETOPT_GROUP" );
-		ctx.CTX_VERSION = getParamValue( action , "GETOPT_VERSION" );
-		ctx.CTX_DC = getParamValue( action , "GETOPT_DC" );
-		ctx.CTX_DEPLOYGROUP = getParamValue( action , "GETOPT_DEPLOYGROUP" );
-		ctx.CTX_STARTGROUP = getParamValue( action , "GETOPT_STARTGROUP" );
-		ctx.CTX_EXTRAARGS = getParamValue( action , "GETOPT_EXTRAARGS" );
-		ctx.CTX_UNIT = getParamValue( action , "GETOPT_UNIT" );
-		ctx.CTX_BUILDINFO = getParamValue( action , "GETOPT_BUILDINFO" );
-		ctx.CTX_HOSTUSER = getParamValue( action , "GETOPT_HOSTUSER" );
-		ctx.CTX_NEWKEY = getParamValue( action , "GETOPT_NEWKEY" );
-		ctx.CTX_BUILDMODE = action.meta.getBuildMode( action , getParamValue( action , "GETOPT_BUILDMODE" ) );
-		ctx.CTX_OLDRELEASE = getParamValue( action , "GETOPT_COMPATIBILITY" );
-		
-		action.setTimeout( ctx.CTX_COMMANDTIMEOUT );
-		
-		int logLevelLimit = CommandOutput.LOGLEVEL_INFO;
-		if( ctx.CTX_TRACE ) {
-			if( ctx.CTX_TRACEINTERNAL )
-				logLevelLimit = CommandOutput.LOGLEVEL_INTERNAL;
-			else
-				logLevelLimit = CommandOutput.LOGLEVEL_TRACE;
-		}
-		else
-		if( ctx.CTX_SHOWALL )
-			logLevelLimit = CommandOutput.LOGLEVEL_DEBUG;
-		
-		action.setLogLevel( logLevelLimit );
-	}
-
-	void print( String s ) {
+	public void print( String s ) {
 		System.out.println( s );
 	}
 
@@ -241,7 +136,7 @@ public class CommandOptions {
 		print( "# " + s );
 	}
 
-	public void printRunningOptions( ActionBase action ) throws Exception {
+	public String getRunningOptions() {
 		String values = "";
 		for( CommandVar option : optionsSet ) {
 			String value = getOptionValue( option );
@@ -250,7 +145,7 @@ public class CommandOptions {
 		
 		String info = "execute options={" + values + "}, args={" + 
 				Common.getList( args.toArray( new String[0] ) , ", " ) + "}";
-		action.commentExecutor( info );
+		return( info );
 	}
 	
 	public String getOptionValue( CommandVar var ) {
@@ -405,7 +300,16 @@ public class CommandOptions {
 		printhelp( "\t" + identity + spacing + var.help ); 
 	}
 	
-	public void showTopHelp( CommandExecutor executor ) {
+	public void showTopHelp( CommandMeta commandInfo ) {
+		printhelp( "URM HELP" );
+		printhelp( "Available actions are:" );
+		for( CommandMethod action : commandInfo.actionsList ) {
+			String spacing = Common.replicate( " " , 50 - action.name.length() ); 
+			printhelp( "\t" + action.name + spacing + action.help );
+		}
+		
+		printhelp( "" );
+		
 		printhelp( "All options defined for command " + command + ":" );
 		printhelp( "Generic options:" );
 		for( int k = 0; k < genericOptionsCount; k++ ) {
@@ -417,7 +321,7 @@ public class CommandOptions {
 		boolean specific = false;
 		for( int k = genericOptionsCount; k < optionsDefined.size(); k++ ) {
 			CommandVar var = optionsDefined.get( k );
-			if( !executor.isOptionApplicaple( var ) )
+			if( !commandInfo.isOptionApplicaple( var ) )
 				continue;
 			
 			showOptionHelp( var );
@@ -427,7 +331,16 @@ public class CommandOptions {
 			printhelp( "\t(no specific options)" );
 	}
 	
-	public void showActionOptionsHelp( CommandAction action ) {
+	
+	public void showActionHelp( CommandMethod action ) {
+		printhelp( "URM HELP" );
+		
+		printhelp( "Action: " + action.name );
+		printhelp( "Function: " + action.help );
+		printhelp( "Syntax: " + action.syntax );
+		printhelp( "" );
+		
+		// show action options
 		printhelp( "All options defined for " + action.name + ":" );
 		printhelp( "Generic options:" );
 		for( int k = 0; k < genericOptionsCount; k++ ) {
@@ -449,7 +362,7 @@ public class CommandOptions {
 			printhelp( "\t(no specific options)" );
 	}
 	
-	public boolean parseArgs( String[] cmdParams , boolean manualActions ) {
+	public boolean parseArgs( String[] cmdParams ) {
 		if( cmdParams.length < 2 ) {
 			command = "help";
 			return( false );
@@ -459,10 +372,8 @@ public class CommandOptions {
 		command = cmdParams[0];
 		
 		int k = 1;
-		if( !manualActions ) {
-			action = cmdParams[1];
-			k++;
-		}
+		action = cmdParams[1];
+		k++;
 
 		// next items are options
 		for( ; k < cmdParams.length; k++ ) {
@@ -507,14 +418,7 @@ public class CommandOptions {
 		return( true );
 	}
 
-	public boolean getFlagValue( ActionBase action , String var ) throws Exception {
-		return( getFlagValue( action , var , false ) );
-	}
-	
-	public boolean getFlagValue( ActionBase action , String var , boolean defValue ) throws Exception {
-		if( !isFlagVar( var ) )
-			action.exit( "unknown flag var=" + var );
-		
+	public boolean getFlagValue( String var , boolean defValue ) {
 		FLAG val = flags.get( var );
 		if( val == null )
 			return( defValue );
@@ -525,43 +429,21 @@ public class CommandOptions {
 		return( false );
 	}
 	
-	public String getEnumValue( ActionBase action , String var ) throws Exception {
-		if( !isEnumVar( var ) )
-			action.exit( "unknown enum var=" + var );
-		
+	public String getEnumValue( String var ) {
 		String val = enums.get( var );
 		if( val == null )
 			return( "" );
 		return( val );
 	}
 
-	public String getParamPathValue( ActionBase action , String var , String defaultValue ) throws Exception {
-		String value = getParamPathValue( action , var );
-		if( value.isEmpty() )
-			value = defaultValue;
-		
-		return( value );
-	}
-	
-	public String getParamPathValue( ActionBase action , String var ) throws Exception {
-		String dir = getParamValue( action , var );
-		return( Common.getLinuxPath( dir ) );
-	}
-	
-	public String getParamValue( ActionBase action , String var ) throws Exception {
-		if( !isParamVar( var ) )
-			action.exit( "unknown param var=" + var );
-		
+	public String getParamValue( String var ) {
 		String val = params.get( var );
 		if( val == null )
 			return( "" );
 		return( val );
 	}
 	
-	public int getIntParamValue( ActionBase action , String var , int defaultValue ) throws Exception {
-		if( !isParamVar( var ) )
-			action.exit( "unknown param var=" + var );
-		
+	public int getIntParamValue( String var , int defaultValue ) {
 		String val = params.get( var );
 		if( val == null || val.isEmpty() )
 			return( defaultValue );
@@ -621,47 +503,8 @@ public class CommandOptions {
 		return( args.get( pos ) );
 	}
 	
-	public void checkNoArgs( ActionBase action , int pos ) throws Exception {
-		if( pos >= args.size() )
-			return;
-		
-		action.exit( "unexpected extra arguments: " + Common.getQuoted( Common.getSubList( args , pos ) ) + "; see help to find syntax" );
-	}
-	
-	public VarCATEGORY getRequiredCategoryArg( ActionBase action , int pos ) throws Exception {
-		VarCATEGORY CATEGORY = getCategoryArg( action , pos );
-		if( CATEGORY == null )
-			action.exit( "CATEGORY argument is required" );
-		return( CATEGORY );
-	}
-	
-	public VarBUILDMODE getRequiredBuildModeArg( ActionBase action , int pos ) throws Exception {
-		String value = getRequiredArg( action , pos , "BUILDMODE" );
-		VarBUILDMODE BUILDMODE = null;
-		for( VarBUILDMODE x : VarBUILDMODE.values() )
-			if( value.equals( Common.getEnumLower( x ) ) ) {
-				BUILDMODE = x;
-				break;
-			}
-				
-		if( BUILDMODE == null )
-			action.exit( "unknown buildMode=" + value );
-		return( BUILDMODE );
-	}
-	
-	public VarCATEGORY getCategoryArg( ActionBase action , int pos ) throws Exception {
-		if( pos >= args.size() )
-			return( null );
-		
-		return( action.meta.getCategory( action, args.get( pos ) ) );
-	}
-	
-	public String getRequiredArg( ActionBase action , int pos , String argName ) throws Exception {
-		String value = getArg( pos );
-		if( value.isEmpty() )
-			action.exit( argName + " is empty" );
-		
-		return( value );
+	public int getArgCount() {
+		return( args.size() );
 	}
 	
 	public int getIntArg( int pos , int defValue ) {
@@ -682,10 +525,7 @@ public class CommandOptions {
 		return( list );
 	}
 	
-	public boolean combineValue( ActionBase action , String optVar , FLAG confValue , boolean defValue ) throws Exception {
-		if( !isValidVar( optVar ) )
-			action.exit( "unknown flag var=" + optVar );
-		
+	public boolean combineValue( String optVar , FLAG confValue , boolean defValue ) {
 		FLAG optValue = flags.get( optVar );
 
 		// option always overrides
@@ -697,6 +537,25 @@ public class CommandOptions {
 			return( confValue == FLAG.YES );
 		
 		return( defValue );
+	}
+	
+	public boolean checkValidOptions( CommandMethod commandAction ) {
+		for( CommandVar var : optionsSet ) {
+			if( !commandAction.isOptionApplicable( var ) ) {
+				print( "option " + var.varName + " is not applicable for action " + commandAction.name );
+				return( false );
+			}
+		}
+
+		// check defined options
+		for( String varUsed : commandAction.vars ) {
+			if( !isValidVar( varUsed ) ) {
+				print( "unknown command var=" + varUsed );
+				return( false );
+			}
+		}
+		
+		return( true );
 	}
 	
 }

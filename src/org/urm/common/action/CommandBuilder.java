@@ -3,24 +3,18 @@ package org.urm.common.action;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.urm.client.BuildCommandExecutor;
-import org.urm.client.DatabaseCommandExecutor;
-import org.urm.client.DeployCommandExecutor;
-import org.urm.client.MainExecutor;
-import org.urm.client.MonitorCommandExecutor;
-import org.urm.client.ReleaseCommandExecutor;
-import org.urm.client.XDocCommandExecutor;
+import org.urm.client.meta.BuildCommandMeta;
+import org.urm.client.meta.DatabaseCommandMeta;
+import org.urm.client.meta.DeployCommandMeta;
+import org.urm.client.meta.MonitorCommandMeta;
+import org.urm.client.meta.ReleaseCommandMeta;
+import org.urm.client.meta.XDocCommandMeta;
 import org.urm.common.RunContext;
-import org.urm.server.action.ActionBase;
-import org.urm.server.action.ActionInit;
-import org.urm.server.action.CommandContext;
-import org.urm.server.meta.Metadata;
 
 public class CommandBuilder {
 
 	public RunContext rc;
 	public CommandOptions options = null;
-	public CommandContext context = null;
 	
 	void out( String s ) {
 		System.out.println( "# " + s );
@@ -29,7 +23,7 @@ public class CommandBuilder {
 	public CommandBuilder() {
 	}
 
-	public CommandExecutor buildCommand( String[] args ) throws Exception {
+	public CommandMeta buildCommand( String[] args ) throws Exception {
 		rc = new RunContext();
 		rc.load();
 		
@@ -62,94 +56,50 @@ public class CommandBuilder {
 		}
 
 		// discriminate
-		CommandExecutor executor;
-		if( cmd.equals( MainExecutor.NAME ) )
-			executor = new MainExecutor( this );
-		else if( cmd.equals( BuildCommandExecutor.NAME ) )
-			executor = new BuildCommandExecutor( this );
-		else if( cmd.equals( DeployCommandExecutor.NAME ) )
-			executor = new DeployCommandExecutor( this );
-		else if( cmd.equals( DatabaseCommandExecutor.NAME ) )
-			executor = new DatabaseCommandExecutor( this );
-		else if( cmd.equals( MonitorCommandExecutor.NAME ) )
-			executor = new MonitorCommandExecutor( this );
-		else if( cmd.equals( ReleaseCommandExecutor.NAME ) )
-			executor = new ReleaseCommandExecutor( this );
-		else if( cmd.equals( XDocCommandExecutor.NAME ) )
-			executor = new XDocCommandExecutor( this );
+		CommandMeta commandInfo = null;
+		if( cmd.equals( BuildCommandMeta.NAME ) )
+			commandInfo = new BuildCommandMeta( this );
+		else if( cmd.equals( DeployCommandMeta.NAME ) )
+			commandInfo = new DeployCommandMeta( this );
+		else if( cmd.equals( DatabaseCommandMeta.NAME ) )
+			commandInfo = new DatabaseCommandMeta( this );
+		else if( cmd.equals( MonitorCommandMeta.NAME ) )
+			commandInfo = new MonitorCommandMeta( this );
+		else if( cmd.equals( ReleaseCommandMeta.NAME ) )
+			commandInfo = new ReleaseCommandMeta( this );
+		else if( cmd.equals( XDocCommandMeta.NAME ) )
+			commandInfo = new XDocCommandMeta( this );
 		else {
-			out( "Unexpected URM args - unknown command category=" + cmd + " (need one of build/deploy/database/monitor)" );
+			out( "Unexpected URM args - unknown command executor=" + cmd + " (need one of build/deploy/database/monitor)" );
 			return( null );
 		}
 		
 		// process options
-		options = executor.getOptions();
-		if( !options.parseArgs( args , executor.manualActions ) ) {
+		options = new CommandOptions();
+		if( !options.parseArgs( args ) ) {
 			if( options.command.equals( "help" ) )
-				executor.showTopHelp();
+				options.showTopHelp( commandInfo );
 			return( null );
 		}
 
-		if( !executor.setOptions( options ) )
-			return( null );
-
-		return( executor );
+		return( commandInfo );
 	}
 
-	public CommandExecutor[] getExecutors( ActionBase action , boolean build , boolean deploy ) throws Exception {
-		List<CommandExecutor> list = new LinkedList<CommandExecutor>();
+	public CommandMeta[] getExecutors( boolean build , boolean deploy ) throws Exception {
+		List<CommandMeta> list = new LinkedList<CommandMeta>();
 		if( build )
-			list.add( new BuildCommandExecutor( this ) );
+			list.add( new BuildCommandMeta( this ) );
 		if( deploy ) {
-			list.add( new DeployCommandExecutor( this ) );
-			list.add( new MonitorCommandExecutor( this ) );
+			list.add( new DeployCommandMeta( this ) );
+			list.add( new MonitorCommandMeta( this ) );
 		}
 		if( build || deploy ) {
-			list.add( new DatabaseCommandExecutor( this ) );
-			list.add( new ReleaseCommandExecutor( this ) );
-			list.add( new XDocCommandExecutor( this ) );
+			list.add( new DatabaseCommandMeta( this ) );
+			list.add( new ReleaseCommandMeta( this ) );
+			list.add( new XDocCommandMeta( this ) );
 		}
 		
-		return( list.toArray( new CommandExecutor[0] ) );
-	}
-	
-	public boolean run( CommandExecutor executor ) throws Exception {
-		// create context
-		if( !createCommandContext( executor ) )
-			return( false );
-
-		// init environment
-		Metadata meta = new Metadata();
-		ActionInit action = executor.prepare( context , meta );
-		
-		// execute
-		try {
-			executor.run( action );
-			context.killPool( action );
-		}
-		catch( Throwable e ) {
-			action.log( e );
-		}
-
-		boolean res = ( executor.isFailed() )? false : true;
-		
-		if( res )
-			action.commentExecutor( "COMMAND SUCCESSFUL" );
-		else
-			action.commentExecutor( "COMMAND FAILED" );
-			
-		executor.finish( action );
-		context.stopPool( action );
-
-		return( res );
-	}
-
-	private boolean createCommandContext( CommandExecutor executor ) throws Exception {
-		context = new CommandContext();
-		if( !context.loadDefaults( executor.rc ) )
-			return( false );
-
-		return( true );
+		return( list.toArray( new CommandMeta[0] ) );
 	}
 	
 }
