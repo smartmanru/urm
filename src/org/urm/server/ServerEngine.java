@@ -78,7 +78,7 @@ public class ServerEngine {
 		else if( cmd.equals( XDocCommandMeta.NAME ) )
 			executor = new XDocCommandExecutor( commandInfo );
 		else
-			throw new ExitException( "Unexpected URM args - unknown command executor=" + cmd + " (need one of build/deploy/database/monitor)" );
+			throw new ExitException( "Unexpected URM args - unknown command executor=" + cmd + " (expected one of build/deploy/database/monitor)" );
 		
 		return( executor );
 	}

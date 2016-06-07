@@ -14,17 +14,17 @@ public class Main {
 		}
 		catch( Throwable e ) {
 			ExitException ex = Common.getExitException( e );
-			output( e , ex.getMessage() );
+			output( e , ex );
 			System.exit( 1 );
 		}
 		
 		System.exit( 3 );
 	}
 	
-	private static void output( Throwable e , String msg ) {
+	private static void output( Throwable e , ExitException ex ) {
 		e.printStackTrace();
-		if( msg != null )
-			System.err.println( msg );
+		if( ex != null )
+			System.err.println( ex.getMessage() );
 	}
 
 }
