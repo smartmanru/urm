@@ -5,11 +5,11 @@ cd ../..
 
 PRODUCT_HOME=`pwd`
 
-if [ "$C_URM_MODE" == "main" ]; then
+if [ "$C_URM_MODE" = "main" ]; then
 	C_CONTEXT_URMSERVER=
-	C_UMR_CLASS=org.urm.client.Main
+	C_UMR_CLASS=org.urm.server.Main
 else
-	C_UMR_CLASS=org.urm.client.Client
+	C_UMR_CLASS=org.urm.client.Main
 fi
 
 if [ "$C_CONTEXT_URMSERVER" = "" ]; then

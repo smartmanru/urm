@@ -7,10 +7,10 @@ set PRODUCT_HOME=%CD%
 
 if ! "%C_URM_MODE%" == "main" (
 	set C_CONTEXT_URMSERVER=
-	set C_UMR_CLASS=org.urm.client.Main
+	set C_UMR_CLASS=org.urm.server.Main
 )
 else (
-	set C_UMR_CLASS=org.urm.client.Client
+	set C_UMR_CLASS=org.urm.client.Main
 )
 
 if "%C_CONTEXT_URMSERVER%" == "" (
