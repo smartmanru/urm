@@ -4,6 +4,7 @@ import org.urm.server.meta.Metadata.VarOSTYPE;
 
 public class RunContext {
 
+	public boolean mainMode;
 	public boolean serverMode;
 	public String OSTYPE;
 	public VarOSTYPE osType;
@@ -20,7 +21,21 @@ public class RunContext {
 	}
 	
 	public void load() {
-		serverMode = Common.getBooleanValue( getProperty( "urm.server" ) );
+		String mode = getProperty( "urm.mode" );
+		if( mode.isEmpty() || mode.equals( "standalone" ) ) {
+			mainMode = false;
+			serverMode = false;
+		}
+		else if( mode.equals( "server" ) ) {
+			mainMode = false;
+			serverMode = true;
+		}
+		else
+		if( mode.equals( "main" ) ) {
+			mainMode = true;
+			serverMode = false;
+		}
+			
 		OSTYPE = getProperty( "urm.os" ).toUpperCase();
 		osType = VarOSTYPE.valueOf( Common.xmlToEnumValue( OSTYPE ) );
 		buildMode = getProperty( "build.mode" ).toUpperCase();
@@ -50,6 +65,10 @@ public class RunContext {
 
 	public boolean isServer() {
 		return( serverMode );		
+	}
+
+	public boolean isMain() {
+		return( mainMode );		
 	}
 	
 	public boolean isWindows() {

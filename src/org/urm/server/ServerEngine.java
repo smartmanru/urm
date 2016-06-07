@@ -7,6 +7,7 @@ import org.urm.client.meta.MonitorCommandMeta;
 import org.urm.client.meta.ReleaseCommandMeta;
 import org.urm.client.meta.XDocCommandMeta;
 import org.urm.common.ExitException;
+import org.urm.common.RunContext;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 import org.urm.server.action.ActionInit;
@@ -15,13 +16,26 @@ import org.urm.server.meta.Metadata;
 
 public class ServerEngine {
 
-	public boolean runArgs( String[] args ) {
-		return( false );
+	public boolean runArgs( String[] args ) throws Exception {
+		RunContext rc = new RunContext();
+		rc.load();
+
+		if( !rc.isMain() )
+			throw new ExitException( "only main executor id expected" );
+
+		CommandBuilder builder = new CommandBuilder( rc );
+		CommandExecutor executor = MainExecutor.create( builder );
+		
+		return( runExecutor( builder , executor ) );
 	}
 	
 	public boolean runClientMode( CommandBuilder builder , CommandMeta commandInfo ) throws Exception {
 		// init action stream
 		CommandExecutor executor = createExecutor( commandInfo );
+		return( runExecutor( builder , executor ) );
+	}
+		
+	private boolean runExecutor( CommandBuilder builder , CommandExecutor executor ) throws Exception {
 		ActionInit action = createAction( builder , executor );
 		if( action == null )
 			return( false );

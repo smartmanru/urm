@@ -20,13 +20,11 @@ public class CommandBuilder {
 		System.out.println( "# " + s );
 	}
 
-	public CommandBuilder() {
+	public CommandBuilder( RunContext rc ) {
+		this.rc = rc;
 	}
 
 	public CommandMeta buildCommand( String[] args ) throws Exception {
-		rc = new RunContext();
-		rc.load();
-		
 		String urmName = ( rc.isWindows() )? "urm.cmd" : "./urm.sh";
 		if( args.length == 0 ) {
 			out( "URM HELP" );
@@ -73,16 +71,23 @@ public class CommandBuilder {
 			out( "Unexpected URM args - unknown command executor=" + cmd + " (need one of build/deploy/database/monitor)" );
 			return( null );
 		}
+	
+		if( !setOptions( commandInfo , args ) )
+			return( null );
 		
+		return( commandInfo );
+	}
+		
+	public boolean setOptions( CommandMeta commandInfo , String[] args ) throws Exception {
 		// process options
 		options = new CommandOptions();
 		if( !options.parseArgs( args ) ) {
 			if( options.command.equals( "help" ) )
 				options.showTopHelp( commandInfo );
-			return( null );
+			return( false );
 		}
 
-		return( commandInfo );
+		return( true );
 	}
 
 	public CommandMeta[] getExecutors( boolean build , boolean deploy ) throws Exception {

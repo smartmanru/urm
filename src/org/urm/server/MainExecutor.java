@@ -11,6 +11,7 @@ import org.urm.client.meta.DatabaseCommandMeta;
 import org.urm.client.meta.DeployCommandMeta;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.common.RunContext;
 import org.urm.common.action.CommandMethod;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
@@ -31,14 +32,17 @@ public class MainExecutor extends CommandExecutor {
 	public static String CONTEXT_FILENAME_LIXUX = "_context.sh";
 	public static String CONTEXT_FILENAME_WIN = "_context.cmd";
 
+	RunContext rc;
+	
 	public static MainExecutor create( CommandBuilder builder ) throws Exception {
 		MainMeta commandInfo = new MainMeta( builder );
-		return( new MainExecutor( commandInfo ) );
+		return( new MainExecutor( builder.rc , commandInfo ) );
 	}
 
-	private MainExecutor( MainMeta commandInfo ) throws Exception {
+	private MainExecutor( RunContext rc , MainMeta commandInfo ) throws Exception {
 		super( commandInfo );
 		
+		this.rc = rc;
 		super.defineAction( new Configure( true ) , "configure-linux" );
 		super.defineAction( new Configure( false ) , "configure-windows" );
 		super.defineAction( new SvnSave() , "svnsave" );
@@ -172,7 +176,7 @@ public class MainExecutor extends CommandExecutor {
 	}
 	
 	private void configureAll( ActionInit action , LocalFolder pfMaster , boolean build , boolean deploy , boolean linux ) throws Exception {
-		CommandBuilder builder = new CommandBuilder();
+		CommandBuilder builder = new CommandBuilder( rc );
 		CommandMeta[] executors = builder.getExecutors( build , deploy );
 		CommandMeta dbe = null;
 		for( CommandMeta executor : executors ) {

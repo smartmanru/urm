@@ -1,6 +1,7 @@
 package org.urm.client;
 
 import org.urm.common.ExitException;
+import org.urm.common.RunContext;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 import org.urm.server.ServerEngine;
@@ -11,13 +12,16 @@ public class ClientEngine {
 	}
 
 	public boolean runArgs( String[] args ) throws Exception {
-		CommandBuilder builder = new CommandBuilder();
+		RunContext rc = new RunContext();
+		rc.load();
+		
+		CommandBuilder builder = new CommandBuilder( rc );
 		CommandMeta commandInfo = builder.buildCommand( args ); 
 		if( commandInfo == null )
 			return( false );
 
 		boolean res = false;
-		if( builder.rc.isServer() )
+		if( rc.isServer() )
 			res = runServerMode( builder , commandInfo );
 		else
 			res = runClientMode( builder , commandInfo );
