@@ -1,8 +1,7 @@
 package org.urm.server.action;
 
 import org.urm.common.Common;
-import org.urm.common.action.CommandExecutor;
-import org.urm.common.action.CommandOptions;
+import org.urm.server.CommandExecutor;
 import org.urm.server.custom.CommandCustom;
 import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.meta.Metadata;
@@ -23,7 +22,6 @@ abstract public class ActionBase {
 	public CommandExecutor executor;
 	public CommandContext context;
 	public Artefactory artefactory;
-	public CommandOptions options;
 	public CommandCustom custom;
 	
 	public ShellExecutor session;
@@ -51,10 +49,9 @@ abstract public class ActionBase {
 	protected void runBefore( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
 	protected void runAfter( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
 	
-	public ActionBase( CommandExecutor executor , CommandContext context , CommandOptions options , CommandOutput output , Metadata meta ) {
+	public ActionBase( CommandExecutor executor , CommandContext context , CommandOutput output , Metadata meta ) {
 		this.executor = executor;
 		this.context = context;
-		this.options = options;
 		this.output = output;
 		this.meta = meta;
 		
@@ -70,7 +67,6 @@ abstract public class ActionBase {
 	public ActionBase( ActionBase base , String stream ) {
 		this.executor = base.executor;
 		this.context = new CommandContext( base.context , stream );
-		this.options = base.options;
 		this.output = base.output;
 		this.meta = base.meta;
 		this.custom = base.custom;
@@ -98,7 +94,7 @@ abstract public class ActionBase {
 	
 	protected void setFailed() {
 		actionFailed = true;
-		executor.setFailed();
+		context.setFailed();
 	}
 	
 	public boolean continueRun() {
@@ -369,11 +365,11 @@ abstract public class ActionBase {
 	}
 	
 	public void logAction() throws Exception {
-		String flags = options.getFlagsSet();
-		String params = options.getParamsSet();
-		String args = options.getArgsSet();
+		String flags = context.options.getFlagsSet();
+		String params = context.options.getParamsSet();
+		String args = context.options.getArgsSet();
 		
-		String log = "command=" + options.command + " action=" + options.action;
+		String log = "command=" + context.options.command + " action=" + context.options.action;
 		if( !flags.isEmpty() )
 			log += " " + flags;
 		if( !params.isEmpty() )
@@ -478,7 +474,7 @@ abstract public class ActionBase {
 	}
 
 	public void commentExecutor( String msg ) throws Exception {
-		String name = "URM " + executor.name + "::" + executor.commandAction.name;
+		String name = "URM " + executor.commandInfo.name + "::" + context.options.action;
 		comment( name + ": " + msg );
 	}
 

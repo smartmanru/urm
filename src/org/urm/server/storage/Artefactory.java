@@ -1,7 +1,6 @@
 package org.urm.server.storage;
 
 import org.urm.common.Common;
-import org.urm.common.action.CommandExecutor;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.CommandContext;
 import org.urm.server.dist.Dist;
@@ -88,8 +87,7 @@ public class Artefactory {
 		if( workFolder == null || ownFolder == false )
 			return;
 		
-		CommandExecutor executor = action.executor; 
-		if( executor.isFailed() || action.context.CTX_SHOWALL )
+		if( action.context.isFailed() || action.context.CTX_SHOWALL )
 			action.info( "saved work directory: " + workFolder.folderPath );
 		else
 			action.context.deleteWorkFolder( action , workFolder );

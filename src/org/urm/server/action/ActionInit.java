@@ -1,13 +1,17 @@
 package org.urm.server.action;
 
-import org.urm.common.action.CommandExecutor;
-import org.urm.common.action.CommandOptions;
+import org.urm.server.CommandExecutor;
 import org.urm.server.meta.Metadata;
 
 public class ActionInit extends ActionBase {
 
-	public ActionInit( CommandExecutor executor , CommandContext context , CommandOptions options , CommandOutput output , Metadata meta ) {
-		super( executor , context , options , output , meta );
+	public CommandAction commandAction;
+	public String actionName;
+	
+	public ActionInit( CommandExecutor executor , CommandContext context , CommandOutput output , Metadata meta , CommandAction commandAction , String actionName ) {
+		super( executor , context , output , meta );
+		this.commandAction = commandAction;
+		this.actionName = actionName;
 	}
 
 	protected boolean executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {

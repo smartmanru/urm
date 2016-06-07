@@ -150,7 +150,7 @@ public class ActionMonitorTop extends ActionBase {
 	private ActionInit initProduct( MetaMonitoringTarget target ) throws Exception {
 		CommandContext initContext = context.getProductContext( target.NAME );
 		Metadata meta = new Metadata();
-		ActionInit action = new ActionInit( executor , initContext , options , output , meta );
+		ActionInit action = new ActionInit( executor , initContext , output , meta , null , null );
 		action.setShell( session );
 		return( action );
 	}

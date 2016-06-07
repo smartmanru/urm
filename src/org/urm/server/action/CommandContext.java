@@ -1,9 +1,14 @@
 package org.urm.server.action;
 
 import org.urm.common.Common;
+import org.urm.common.ExitException;
 import org.urm.common.RunContext;
+import org.urm.common.action.CommandMethod;
+import org.urm.common.action.CommandOptions;
+import org.urm.common.action.CommandOptions.FLAG;
 import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.common.action.CommandOptions.SQLTYPE;
+import org.urm.server.CommandExecutor;
 import org.urm.server.meta.MetaEnv;
 import org.urm.server.meta.MetaEnvDC;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
@@ -14,17 +19,23 @@ import org.urm.server.storage.LocalFolder;
 
 public class CommandContext {
 	
-	public ShellExecutorPool pool;
+	public CommandOptions options;
+	public CommandMethod commandMethod;
+	public CommandAction commandAction;
+
+	public MetaEnv env; 
+	public MetaEnvDC dc;
 	
+	public ShellExecutorPool pool;
+
 	public String streamName;
 	public Account account;
 	public String userHome;
 	public String productHome;
 	public VarBUILDMODE buildMode = VarBUILDMODE.UNKNOWN;
 	public String ENV;
-	public MetaEnv env; 
 	public String DC;
-	public MetaEnvDC dc;
+	public boolean executorFailed;
 
 	// generic settings
 	public boolean CTX_TRACEINTERNAL;
@@ -94,11 +105,17 @@ public class CommandContext {
 	public VarBUILDMODE CTX_BUILDMODE = VarBUILDMODE.UNKNOWN;
 	public String CTX_OLDRELEASE = "";
 
-	public CommandContext() {
+	public CommandContext( CommandOptions options ) {
+		this.options = options;
 		this.streamName = "main";
+		this.executorFailed = false;
 	}
 
 	public CommandContext( CommandContext context , String stream ) {
+		this.env = context.env;
+		this.dc = context.dc;
+		this.executorFailed = context.executorFailed;
+		
 		this.pool = context.pool;
 
 		if( stream == null || stream.isEmpty() )
@@ -111,8 +128,6 @@ public class CommandContext {
 		this.userHome = context.userHome;
 		this.productHome = context.productHome;
 		this.buildMode = context.buildMode;
-		this.env = context.env;
-		this.dc = context.dc;
 
 		// generic
 		this.CTX_TRACEINTERNAL = context.CTX_TRACEINTERNAL;
@@ -183,6 +198,104 @@ public class CommandContext {
 		this.CTX_OLDRELEASE = context.CTX_OLDRELEASE;
 	}
 
+	public void update( ActionBase action ) throws Exception {
+		boolean isproduct = ( action.meta == null || action.meta.product == null )? false : true; 
+		boolean isenv = ( env == null )? false : true; 
+		boolean def = ( isenv && env.PROD )? true : false;
+		String value;
+		
+		// generic
+		CTX_TRACEINTERNAL = ( getFlagValue( action , "GETOPT_TRACE" ) && getFlagValue( action , "GETOPT_SHOWALL" ) )? true : false;
+		CTX_TRACE = getFlagValue( action , "GETOPT_TRACE" );
+		CTX_SHOWONLY = combineValue( action , "GETOPT_SHOWONLY" , ( isenv )? action.context.env.SHOWONLY : null , def );
+		CTX_SHOWALL = getFlagValue( action , "GETOPT_SHOWALL" );
+		if( CTX_TRACE )
+			CTX_SHOWALL = true;
+		CTX_FORCE = getFlagValue( action , "GETOPT_FORCE" );
+		CTX_IGNORE = getFlagValue( action , "GETOPT_SKIPERRORS" );
+		CTX_ALL = getFlagValue( action , "GETOPT_ALL" );
+		CTX_LOCAL = getFlagValue( action , "GETOPT_LOCAL" );
+		CTX_COMMANDTIMEOUT = getIntParamValue( action , "GETOPT_COMMANDTIMEOUT" , options.optDefaultCommandTimeout ) * 1000;
+		value = getParamValue( action , "GETOPT_KEY" ); 
+		CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? action.context.env.KEYNAME : "" ) : value;
+		String productValue = ( isproduct )? action.meta.product.CONFIG_DISTR_PATH : "";
+		CTX_DISTPATH = getParamPathValue( action , "GETOPT_DISTPATH" , productValue );
+		CTX_REDISTPATH = ( isproduct )? action.meta.product.CONFIG_REDISTPATH : null;
+		if( isenv && !action.context.env.REDISTPATH.isEmpty() )
+			CTX_REDISTPATH = action.context.env.REDISTPATH;
+		value = getParamPathValue( action , "GETOPT_HIDDENPATH" );
+		CTX_HIDDENPATH = ( value.isEmpty() )? ( ( isenv )? action.context.env.CONF_SECRETFILESPATH : "" ) : value;
+		CTX_WORKPATH = getParamPathValue( action , "GETOPT_WORKPATH" , "" );
+		
+		// specific
+		CTX_GET = getFlagValue( action , "GETOPT_GET" );
+		CTX_DIST = getFlagValue( action , "GETOPT_DIST" );
+		CTX_UPDATENEXUS = getFlagValue( action , "GETOPT_UPDATENEXUS" );
+		CTX_CHECK = getFlagValue( action , "GETOPT_CHECK" , false );
+		CTX_MOVE_ERRORS = getFlagValue( action , "GETOPT_MOVE_ERRORS" );
+		CTX_REPLACE = getFlagValue( action , "GETOPT_REPLACE" );
+		CTX_BACKUP = combineValue( action , "GETOPT_BACKUP" , ( isenv )? action.context.env.BACKUP : null , def );
+		CTX_OBSOLETE = combineValue( action , "GETOPT_OBSOLETE" , ( isenv )? action.context.env.OBSOLETE : null , true );
+		CTX_CONFDEPLOY = combineValue( action , "GETOPT_DEPLOYCONF" , ( isenv )? action.context.env.CONF_DEPLOY : null , true );
+		CTX_PARTIALCONF = getFlagValue( action , "GETOPT_PARTIALCONF" );
+		CTX_DEPLOYBINARY = getFlagValue( action , "GETOPT_DEPLOYBINARY" , true );
+		CTX_DEPLOYHOT = getFlagValue( action , "GETOPT_DEPLOYHOT" );
+		CTX_DEPLOYCOLD = getFlagValue( action , "GETOPT_DEPLOYCOLD" );
+		CTX_DEPLOYRAW = getFlagValue( action , "GETOPT_DEPLOYRAW" );
+		CTX_CONFKEEPALIVE = combineValue( action , "GETOPT_KEEPALIVE" , ( isenv )? action.context.env.CONF_KEEPALIVE : null , true );
+		CTX_ZERODOWNTIME = getFlagValue( action , "GETOPT_ZERODOWNTIME" );
+		CTX_NONODES = getFlagValue( action , "GETOPT_NONODES" );
+		CTX_NOCHATMSG = getFlagValue( action , "GETOPT_NOCHATMSG" );
+		CTX_ROOTUSER = getFlagValue( action , "GETOPT_ROOTUSER" );
+		CTX_SUDO = getFlagValue( action , "GETOPT_SUDO" );
+		CTX_IGNOREVERSION = getFlagValue( action , "GETOPT_IGNOREVERSION" );
+		CTX_LIVE = getFlagValue( action , "GETOPT_LIVE" );
+		CTX_HIDDEN = getFlagValue( action , "GETOPT_HIDDEN" );
+		value = getEnumValue( action , "GETOPT_DBMODE" );
+		CTX_DBMODE = ( value.isEmpty() )? SQLMODE.UNKNOWN : SQLMODE.valueOf( value );
+		CTX_DBMOVE = getFlagValue( action , "GETOPT_DBMOVE" );
+		CTX_DBAUTH = combineValue( action , "GETOPT_DBAUTH" , ( isenv )? action.context.env.DB_AUTH : null , false );
+		CTX_CUMULATIVE = getFlagValue( action , "GETOPT_CUMULATIVE" );
+		
+		CTX_DBALIGNED = getParamValue( action , "GETOPT_DBALIGNED" );
+		CTX_DB = getParamValue( action , "GETOPT_DB" );
+		CTX_DBPASSWORD = getParamValue( action , "GETOPT_DBPASSWORD" );
+		CTX_REGIONS = getParamValue( action , "GETOPT_REGIONS" );
+		value = getEnumValue( action , "GETOPT_DBTYPE" );
+		CTX_DBTYPE = ( value.isEmpty() )? SQLTYPE.UNKNOWN : SQLTYPE.valueOf( value );
+		CTX_RELEASELABEL = getParamValue( action , "GETOPT_RELEASE" );
+		CTX_BRANCH = getParamValue( action , "GETOPT_BRANCH" );
+		CTX_TAG = getParamValue( action , "GETOPT_TAG" );
+		CTX_DATE = getParamValue( action , "GETOPT_DATE" );
+		CTX_GROUP = getParamValue( action , "GETOPT_GROUP" );
+		CTX_VERSION = getParamValue( action , "GETOPT_VERSION" );
+		CTX_DC = getParamValue( action , "GETOPT_DC" );
+		CTX_DEPLOYGROUP = getParamValue( action , "GETOPT_DEPLOYGROUP" );
+		CTX_STARTGROUP = getParamValue( action , "GETOPT_STARTGROUP" );
+		CTX_EXTRAARGS = getParamValue( action , "GETOPT_EXTRAARGS" );
+		CTX_UNIT = getParamValue( action , "GETOPT_UNIT" );
+		CTX_BUILDINFO = getParamValue( action , "GETOPT_BUILDINFO" );
+		CTX_HOSTUSER = getParamValue( action , "GETOPT_HOSTUSER" );
+		CTX_NEWKEY = getParamValue( action , "GETOPT_NEWKEY" );
+		CTX_BUILDMODE = action.meta.getBuildMode( action , getParamValue( action , "GETOPT_BUILDMODE" ) );
+		CTX_OLDRELEASE = getParamValue( action , "GETOPT_COMPATIBILITY" );
+		
+		action.setTimeout( CTX_COMMANDTIMEOUT );
+		
+		int logLevelLimit = CommandOutput.LOGLEVEL_INFO;
+		if( CTX_TRACE ) {
+			if( CTX_TRACEINTERNAL )
+				logLevelLimit = CommandOutput.LOGLEVEL_INTERNAL;
+			else
+				logLevelLimit = CommandOutput.LOGLEVEL_TRACE;
+		}
+		else
+		if( CTX_SHOWALL )
+			logLevelLimit = CommandOutput.LOGLEVEL_DEBUG;
+		
+		action.setLogLevel( logLevelLimit );
+	}
+
 	public void loadEnv( ActionBase action , boolean loadProps ) throws Exception {
 		String useDC = DC;
 		if( DC.isEmpty() )
@@ -202,7 +315,7 @@ public class CommandContext {
 		}
 		
 		dc = env.getDC( action , DC );
-		action.options.updateContext( action );
+		update( action );
 	}
 	
 	public CommandContext getProductContext( String stream ) {
@@ -275,6 +388,102 @@ public class CommandContext {
 			action.exit( "release is defined for " + getBuildModeName() + " build mode, please use appropriate context folder" );
 		
 		buildMode = value;
+	}
+
+	public boolean getFlagValue( ActionBase action , String var ) throws Exception {
+		return( getFlagValue( action , var , false ) );
+	}
+	
+	public boolean getFlagValue( ActionBase action , String var , boolean defValue ) throws Exception {
+		if( !options.isFlagVar( var ) )
+			action.exit( "unknown flag var=" + var );
+		return( options.getFlagValue( var , defValue ) );
+	}
+
+	public String getEnumValue( ActionBase action , String var ) throws Exception {
+		if( !options.isEnumVar( var ) )
+			action.exit( "unknown enum var=" + var );
+		return( options.getEnumValue( var ) );
+	}
+
+	public String getParamPathValue( ActionBase action , String var , String defaultValue ) throws Exception {
+		String value = getParamPathValue( action , var );
+		if( value.isEmpty() )
+			value = defaultValue;
+		
+		return( value );
+	}
+	
+	public String getParamPathValue( ActionBase action , String var ) throws Exception {
+		String dir = getParamValue( action , var );
+		return( Common.getLinuxPath( dir ) );
+	}
+	
+	public String getParamValue( ActionBase action , String var ) throws Exception {
+		if( !options.isParamVar( var ) )
+			action.exit( "unknown param var=" + var );
+		return( options.getParamValue( var ) );
+	}		
+
+	public int getIntParamValue( ActionBase action , String var , int defaultValue ) throws Exception {
+		if( !options.isParamVar( var ) )
+			action.exit( "unknown param var=" + var );
+		return( options.getIntParamValue( var , defaultValue ) );
+	}
+
+	public boolean combineValue( ActionBase action , String optVar , FLAG confValue , boolean defValue ) throws Exception {
+		if( !options.isValidVar( optVar ) )
+			action.exit( "unknown flag var=" + optVar );
+		return( options.combineValue( optVar , confValue , defValue ) );
+	}
+	
+	public void setFailed() {
+		executorFailed = true;
+	}
+	
+	public boolean isFailed() {
+		return( executorFailed );
+	}
+	
+	public boolean isOK() {
+		return( ( executorFailed )? false : true );
+	}
+	
+	public boolean prepareExecution( CommandExecutor executor , CommandOptions options ) throws Exception {
+		this.options = options;
+		
+		String actionName = options.action;
+		String firstArg = options.getArg( 0 );
+		
+		// check action
+		if( options.command.isEmpty() || actionName.isEmpty() || actionName.equals( "help" ) ) {
+			if( !firstArg.isEmpty() ) {
+				commandAction = executor.getAction( firstArg );
+				if( commandAction == null )
+					throw new ExitException( "unknown action=" + firstArg );
+				
+				options.showActionHelp( commandAction.method );
+			}
+			else
+				options.showTopHelp( executor.commandInfo );
+			
+			return( false );
+		}
+
+		commandAction = executor.getAction( actionName );
+		if( commandAction == null )
+			throw new ExitException( "unknown action=" + actionName );
+
+		if( firstArg.equals( "help" ) ) {
+			options.showActionHelp( commandAction.method );
+			return( false );
+		}
+		
+		if( !options.checkValidOptions( commandAction.method ) )
+			return( false );
+		
+		options.action = commandAction.method.name;
+		return( true );
 	}
 
 }
