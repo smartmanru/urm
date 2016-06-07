@@ -12,4 +12,4 @@ else (
 	set JAVACP=master/bin/urmc.jar
 )
 
-java -cp %JAVACP% -Duser.language=ru -Durm.os=windows -Dproduct.home=%PRODUCT_HOME% -Dbuild.mode=%C_CONTEXT_VERSIONMODE% -Denv=%C_CONTEXT_ENV% -Ddc=%C_CONTEXT_DC% org.urm.client.Engine %*
+java -cp %JAVACP% -Duser.language=ru -Durm.mode=%C_URM_MODE% -Durm.os=windows -Dproduct.home=%PRODUCT_HOME% -Dbuild.mode=%C_CONTEXT_VERSIONMODE% -Denv=%C_CONTEXT_ENV% -Ddc=%C_CONTEXT_DC% org.urm.client.Engine %*

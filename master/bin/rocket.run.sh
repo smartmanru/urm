@@ -4,6 +4,8 @@ P_PROPS=$1
 
 cd `dirname $0`
 
+export URM_MODE=main
+
 if [ ! -f "$P_PROPS" ]; then
 	echo unknown property file=$P_PROPS. Exiting
 	exit 1

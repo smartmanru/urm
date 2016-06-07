@@ -2,6 +2,8 @@
 
 cd `dirname $0`
 
+export URM_MODE=main
+
 # top help
 if [ "$1" = "" ]; then
 	./urm.sh help "$@"

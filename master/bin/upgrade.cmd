@@ -1,4 +1,7 @@
-@cd %~dp0
+@echo off
+
+cd %~dp0
+set URM_MODE=main
 
 set URM_TRACE=
 if "%1" == "-trace" (

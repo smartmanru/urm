@@ -2,6 +2,8 @@
 
 cd `dirname $0`
 
+export URM_MODE=main
+
 URM_TRACE=
 if [ "$1" = "-trace" ]; then
 	URM_TRACE="-trace"
