@@ -2,7 +2,7 @@
 
 cd `dirname $0`
 
-export URM_MODE=main
+export C_URM_MODE=main
 
 # top help
 if [ "$1" = "" ]; then

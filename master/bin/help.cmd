@@ -1,7 +1,7 @@
 @echo off
 
 cd %~dp0
-set URM_MODE=main
+set C_URM_MODE=main
 
 if ".%1." == ".." (
 	call urm.cmd help "%*"

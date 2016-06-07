@@ -2,6 +2,6 @@
 
 cd `dirname $0`
 
-export URM_MODE=main
+export C_URM_MODE=main
 
 ./urm.sh bin svnsave "$@"
