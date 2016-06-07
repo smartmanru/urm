@@ -34,8 +34,11 @@ public class MainExecutor extends CommandExecutor {
 
 	RunContext rc;
 	
-	public static MainExecutor create( CommandBuilder builder ) throws Exception {
+	public static MainExecutor create( CommandBuilder builder , String[] args ) throws Exception {
 		MainMeta commandInfo = new MainMeta( builder );
+		if( !builder.setOptions( commandInfo , args ) )
+			return( null );
+		
 		return( new MainExecutor( builder.rc , commandInfo ) );
 	}
 

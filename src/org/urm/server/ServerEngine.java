@@ -24,7 +24,9 @@ public class ServerEngine {
 			throw new ExitException( "only main executor id expected" );
 
 		CommandBuilder builder = new CommandBuilder( rc );
-		CommandExecutor executor = MainExecutor.create( builder );
+		CommandExecutor executor = MainExecutor.create( builder , args );
+		if( executor == null )
+			return( false );
 		
 		return( runExecutor( builder , executor ) );
 	}
