@@ -7,8 +7,7 @@ set URM_TRACE=
 if "%1" == "-trace" (
 	set URM_TRACE=-trace
 	set P_DSTDIR=%2
-)
-else (
+) else (
 	set P_DSTDIR=%1
 )
 

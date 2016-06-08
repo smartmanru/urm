@@ -8,15 +8,13 @@ set PRODUCT_HOME=%CD%
 if ! "%C_URM_MODE%" == "main" (
 	set C_CONTEXT_URMSERVER=
 	set C_UMR_CLASS=org.urm.server.Main
-)
-else (
+) else (
 	set C_UMR_CLASS=org.urm.client.Main
 )
 
 if "%C_CONTEXT_URMSERVER%" == "" (
 	set JAVACP=master/bin/urms.jar;master/lib/jna-4.1.0.jar
-)
-else (
+) else (
 	set JAVACP=master/bin/urmc.jar
 )
 
