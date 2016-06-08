@@ -5,7 +5,7 @@ cd ..\..
 
 set PRODUCT_HOME=%CD%
 
-if ! "%C_URM_MODE%" == "main" (
+if not "%C_URM_MODE%" == "main" (
 	set C_CONTEXT_URMSERVER=
 	set C_UMR_CLASS=org.urm.server.Main
 ) else (
