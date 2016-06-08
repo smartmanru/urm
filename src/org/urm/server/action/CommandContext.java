@@ -456,7 +456,7 @@ public class CommandContext {
 		String firstArg = options.getArg( 0 );
 		
 		// check action
-		if( options.command.isEmpty() || actionName.isEmpty() || actionName.equals( "help" ) ) {
+		if( actionName.isEmpty() || actionName.equals( "help" ) ) {
 			if( !firstArg.isEmpty() ) {
 				commandAction = executor.getAction( firstArg );
 				if( commandAction == null )

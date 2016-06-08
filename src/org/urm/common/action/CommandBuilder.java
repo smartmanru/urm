@@ -82,7 +82,7 @@ public class CommandBuilder {
 		// process options
 		options = new CommandOptions();
 		if( !options.parseArgs( args ) ) {
-			if( options.command.equals( "help" ) )
+			if( options.action.equals( "help" ) )
 				options.showTopHelp( commandInfo );
 			return( false );
 		}

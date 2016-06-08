@@ -91,7 +91,8 @@ public class ServerEngine {
 		if( !context.loadDefaults( builder.rc ) )
 			return( null );
 		
-		context.prepareExecution( executor , builder.options );
+		if( !context.prepareExecution( executor , builder.options ) )
+			return( null );
 		
 		Metadata meta = new Metadata();
 		ActionInit action = executor.prepare( context , meta , builder.options.action );
