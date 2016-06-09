@@ -17,8 +17,8 @@ public class MainMeta extends CommandMeta {
 		super( builder , NAME );
 		
 		String cmdOpts = "";
-		super.defineAction( CommandMethod.newAction( "configure-linux" , true , "configure proxy files" , cmdOpts , "./configure.sh [OPTIONS] {linux|windows} {all|build|env} [envname [dcname]]" ) );
-		super.defineAction( CommandMethod.newAction( "configure-windows" , true , "configure proxy files" , cmdOpts , "configure.cmd [OPTIONS] {linux|windows} {all|build|env} [envname [dcname]]" ) );
+		super.defineAction( CommandMethod.newAction( "configure-linux" , true , "configure proxy files" , cmdOpts , "./configure.sh [OPTIONS] {default|server|standalone} [envname [dcname]]" ) );
+		super.defineAction( CommandMethod.newAction( "configure-windows" , true , "configure proxy files" , cmdOpts , "configure.cmd [OPTIONS] {default|server|standalone} [envname [dcname]]" ) );
 		super.defineAction( CommandMethod.newAction( "svnsave" , true , "save master file set in svn" , cmdOpts , "svnsave [OPTIONS]" ) );
 	}
 	

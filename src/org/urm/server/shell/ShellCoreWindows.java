@@ -54,7 +54,7 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override protected void getProcessAttributes( ActionBase action ) throws Exception {
-		super.homePath = action.context.session.masterPath;
+		super.homePath = action.context.session.installPath;
 		super.processId = getProcessId( action );
 		
 		action.debug( "process started: name=" + super.executor.name + ", id=" + super.processId );

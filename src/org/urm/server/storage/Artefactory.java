@@ -45,6 +45,10 @@ public class Artefactory {
 	public void setShell( ShellExecutor session ) {
 		this.workFolderProcessId = session.getProcessId();
 	}
+
+	public LocalFolder getInstallFolder( ActionBase action ) throws Exception {
+		return( getAnyFolder( action , action.context.rc.installPath ) );
+	}
 	
 	public LocalFolder getAnyFolder( ActionBase action , String dirname ) throws Exception {
 		action.checkRequired( dirname , "dirname" );

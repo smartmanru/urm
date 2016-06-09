@@ -12,9 +12,10 @@ public class SessionContext {
 	public String DC;
 	public boolean executorFailed;
 
+	public String installPath = "";
 	public String masterPath = "";
-	public String binPath = "";
 	public String productPath = "";
+	public String binPath = "";
 	public String etcPath = "";
 	public String proxyPath = "";
 	
@@ -31,10 +32,11 @@ public class SessionContext {
 	}
 	
 	public void setServerLayout( CommandOptions options ) throws Exception {
-		masterPath = cmdrc.installPath;
-		if( masterPath.isEmpty() )
+		installPath = cmdrc.installPath;
+		if( installPath.isEmpty() )
 			exit( "masterpath is empty" );
 		
+		masterPath = Common.getPath( installPath , "master" );
 		binPath = Common.getPath( masterPath , "bin" );
 		
 		productPath = "";
@@ -42,23 +44,21 @@ public class SessionContext {
 		proxyPath = "";
 	}
 	
+	public void setServerProductLayout( String product ) throws Exception {
+		if( product.isEmpty() )
+			exit( "unknown product" );
+		
+		productPath = Common.getPath( installPath , "products" , product );
+		etcPath = Common.getPath( productPath , "etc" );
+		proxyPath = Common.getPath( productPath , "master" );
+	}
+	
 	public void setServerClientLayout( CommandOptions options , SessionContext serverSession ) throws Exception {
+		installPath = serverSession.installPath;
 		masterPath = serverSession.masterPath;
 		binPath = serverSession.binPath;
 		
-		if( cmdrc.productName.isEmpty() )
-			exit( "unknown product" );
-		
-		productPath = Common.getPath( masterPath , "products" , cmdrc.productName );
-		if( !serverSession.etcPath.isEmpty() )
-			etcPath = Common.getPath( serverSession.etcPath , cmdrc.productName );
-		else
-			etcPath = Common.getPath( productPath , "etc" );
-			
-		if( !serverSession.proxyPath.isEmpty() )
-			etcPath = Common.getPath( serverSession.proxyPath , cmdrc.productName );
-		else
-			proxyPath = Common.getPath( productPath , "master" );
+		setServerProductLayout( cmdrc.productName );
 	}
 	
 	public void setStandaloneLayout( CommandOptions options ) throws Exception {

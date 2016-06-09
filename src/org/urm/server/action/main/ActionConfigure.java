@@ -42,13 +42,35 @@ public class ActionConfigure extends ActionBase {
 
 	@Override protected boolean executeSimple() throws Exception {
 		commentExecutor( "run " + ACTION + " ..." );
-		configureStandalone();
+		
+		if( ACTION.equals( "server" ) ) {
+			context.session.setServerLayout( context.options );
+			configureServer( true );
+		}
+		else
+		if( ACTION.equals( "standalone" ) ) {
+			context.session.setStandaloneLayout( context.options );
+			configureProduct( true );
+		}
+		else
+		if( ACTION.equals( "default" ) )
+			configureDefault();
+		else
+			exit( "action is not set, see help" );
 		return( true );
 	}
 
-	private void configureStandalone() throws Exception {
-		context.session.setStandaloneLayout( context.options );
-		
+	private void configureServer( boolean initial ) throws Exception {
+		LocalFolder pf = artefactory.getInstallFolder( this );
+		LocalFolder pfProducts = pf.getSubFolder( this , "products" );
+
+		for( String product : pfProducts.getTopDirs( this ) ) {
+			context.session.setServerProductLayout( product );
+			configureProduct( initial );
+		}
+	}
+	
+	private void configureProduct( boolean initial ) throws Exception {
 		meta.loadProduct( this );
 		meta.loadDistr( this );
 		
@@ -57,29 +79,33 @@ public class ActionConfigure extends ActionBase {
 		String masterPath = pfMaster.getFilePath( this , MainMeta.MASTERFILE );
 		List<String> lines = readFileLines( masterPath );
 		
-		configure( lines );
+		configureProduct( lines , initial );
 		createMasterFile( masterPath , lines );
 	}
+
+	private void configureDefault() throws Exception {
+		LocalFolder pf = artefactory.getInstallFolder( this );
+		if( pf.checkFolderExists( this , "products" ) ) {
+			context.session.setServerLayout( context.options );
+			configureServer( false );
+		}
+		else {
+			context.session.setStandaloneLayout( context.options );
+			configureProduct( false );
+		}
+	}
 	
-	private void configure( List<String> lines ) throws Exception {
+	private void configureProduct( List<String> lines , boolean initial ) throws Exception {
 		linesProxy = new LinkedList<String>();
 		linesAffected = new LinkedList<String>();
 		
 		USEENV = "";
 		USEDC = "";
-		if( ACTION.equals( "default" ) )
-			configureDefault();
+		
+		if( initial )
+			configureProductAll( true , true , configureLinux );
 		else
-		if( ACTION.equals( "build" ) )
-			configureAll( true , false , configureLinux );
-		else
-		if( ACTION.equals( "deploy" ) )
-			configureAll( false , true , configureLinux );
-		else
-		if( ACTION.equals( "all" ) )
-			configureAll( true , true , configureLinux );
-		else
-			exitUnexpectedState();
+			configureProductDefault();
 	}
 
 	private void createMasterFile( String masterPath , List<String> lines ) throws Exception {
@@ -123,7 +149,7 @@ public class ActionConfigure extends ActionBase {
 		Common.createFileFromStringList( masterPath , linesNew );
 	}
 	
-	private void configureDefault() throws Exception {
+	private void configureProductDefault() throws Exception {
 		LocalFolder pfBuild = pfMaster.getSubFolder( this , BuildCommandMeta.NAME );
 		LocalFolder pfDeploy = pfMaster.getSubFolder( this , DeployCommandMeta.NAME );
 		
@@ -145,12 +171,12 @@ public class ActionConfigure extends ActionBase {
 		}
 		
 		if( buildUnix || deployUnix )
-			configureAll( buildUnix , deployUnix , true );
+			configureProductAll( buildUnix , deployUnix , true );
 		if( buildWindows || deployWindows )
-			configureAll( buildWindows , deployWindows , false );
+			configureProductAll( buildWindows , deployWindows , false );
 	}
 	
-	private void configureAll( boolean build , boolean deploy , boolean linux ) throws Exception {
+	private void configureProductAll( boolean build , boolean deploy , boolean linux ) throws Exception {
 		CommandBuilder builder = new CommandBuilder( context.rc );
 		CommandMeta[] executors = builder.getExecutors( build , deploy );
 		CommandMeta dbe = null;
