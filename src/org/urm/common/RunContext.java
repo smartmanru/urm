@@ -12,6 +12,7 @@ public class RunContext {
 	public boolean serverMode;
 	public String OSTYPE;
 	public VarOSTYPE osType;
+	public String serverURL;
 
 	public String userHome;
 	public String productPath;
@@ -50,9 +51,10 @@ public class RunContext {
 		envName = getProperty( "urm.env" );
 		dcName = getProperty( "urm.dc" );
 		productName = getProperty( "urm.product" );
+		serverURL = getProperty( "urm.server" );
 		
 		if( osType == VarOSTYPE.LINUX ) {
-			productPath = getProperty( "urm.productpath" );
+			productPath = getProperty( "urm.producthome" );
 			etcPath = getProperty( "urm.etcpath" );
 			proxyPath = getProperty( "urm.proxypath" );
 			
@@ -61,7 +63,7 @@ public class RunContext {
 	    	userHome = System.getenv( "HOME" );
 		}
 		else {
-			productPath = Common.getLinuxPath( getProperty( "urm.productpath" ) );
+			productPath = Common.getLinuxPath( getProperty( "urm.producthome" ) );
 			etcPath = Common.getLinuxPath( getProperty( "urm.etcpath" ) );
 			proxyPath = Common.getLinuxPath( getProperty( "urm.proxypath" ) );
 			
