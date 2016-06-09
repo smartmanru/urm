@@ -310,7 +310,11 @@ public class Artefactory {
 	}
 
 	public SubversionVCS getSvnDirect( ActionBase action ) throws Exception {
-		return( new SubversionVCS( action , action.meta.product.CONFIG_SVNOLD_PATH , "" ) );
+		String svnUrl = "";
+		if( action.meta != null && action.meta.product != null )
+			svnUrl = action.meta.product.CONFIG_SVNOLD_PATH;
+		
+		return( new SubversionVCS( action , svnUrl , "" ) );
 	}
 
 	public RedistStorage getRedistStorage( ActionBase action , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
