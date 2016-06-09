@@ -1,6 +1,7 @@
 package org.urm.server.storage;
 
 import org.urm.common.Common;
+import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.CommandContext;
 import org.urm.server.dist.Dist;
@@ -10,7 +11,6 @@ import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.meta.MetaMonitoring;
 import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.meta.Metadata;
-import org.urm.server.meta.Metadata.VarOSTYPE;
 import org.urm.server.shell.Account;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.vcs.GenericVCS;

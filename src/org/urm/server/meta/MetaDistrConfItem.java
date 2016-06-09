@@ -28,15 +28,15 @@ public class MetaDistrConfItem {
 	}
 
 	public void load( ActionBase action , Node node ) throws Exception {
-		KEY = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
-		TYPE = action.meta.getConfItemType( action , ConfReader.getRequiredAttrValue( action , node , "type" ) );
-		FILES = ConfReader.getAttrValue( action , node , "files" );
-		SECURED = ConfReader.getAttrValue( action , node , "secured" );
-		EXCLUDE = ConfReader.getAttrValue( action , node , "exclude" );
-		TEMPLATES = ConfReader.getAttrValue( action , node , "templates" );
-		EXTCONF = ConfReader.getAttrValue( action , node , "extconf" );
-		OBSOLETE = ConfReader.getBooleanAttrValue( action , node , "obsolete" , false );
-		CREATEDIR = ConfReader.getBooleanAttrValue( action , node , "createdir" , false );
+		KEY = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+		TYPE = action.meta.getConfItemType( action , ConfReader.getRequiredAttrValue( node , "type" ) );
+		FILES = ConfReader.getAttrValue( node , "files" );
+		SECURED = ConfReader.getAttrValue( node , "secured" );
+		EXCLUDE = ConfReader.getAttrValue( node , "exclude" );
+		TEMPLATES = ConfReader.getAttrValue( node , "templates" );
+		EXTCONF = ConfReader.getAttrValue( node , "extconf" );
+		OBSOLETE = ConfReader.getBooleanAttrValue( node , "obsolete" , false );
+		CREATEDIR = ConfReader.getBooleanAttrValue( node , "createdir" , false );
 		
 		if( TYPE == VarCONFITEMTYPE.DIR ) {
 			if( FILES.isEmpty() == false || TEMPLATES.isEmpty() == false )

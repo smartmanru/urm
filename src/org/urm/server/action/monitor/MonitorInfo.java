@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaMonitoringTarget;
 import org.urm.server.meta.Metadata;
@@ -106,7 +105,7 @@ public class MonitorInfo {
 		String F_RESFILE = storage.getStatusReportTemplateFile();
 		String F_RESCONTEXT = storage.getMonitoringUrl();
 		
-		String template = ConfReader.readFile( action , F_RESFILE );
+		String template = action.readFile( F_RESFILE );
 		template = Common.replace( template , "@IMAGE@" , F_RESCONTEXT + "/" + F_IMAGEFILE );  
 		template = Common.replace( template , "@TEXT@" , F_IMAGETEXT );  
 		

@@ -39,8 +39,8 @@ public class MetaSource {
 		String file = storage.getSourceConfFile( action );
 		
 		action.debug( "read source definition file " + file + "..." );
-		Document doc = ConfReader.readXmlFile( action , file );
-		Node[] sets = ConfReader.xmlGetChildren( action , doc.getDocumentElement() , "projectset" );
+		Document doc = action.readXmlFile( file );
+		Node[] sets = ConfReader.xmlGetChildren( doc.getDocumentElement() , "projectset" );
 		if( sets == null )
 			return;
 		

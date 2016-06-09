@@ -43,21 +43,21 @@ public class MetaMonitoring {
 		String file = storage.getMonitoringFile( action );
 		
 		action.debug( "read monitoring definition file " + file + "..." );
-		Document doc = ConfReader.readXmlFile( action , file );
+		Document doc = action.readXmlFile( file );
 
 		loadProperties( action , doc.getDocumentElement() );
-		loadEnvironments( action , ConfReader.xmlGetPathNode( action , doc.getDocumentElement() , "scope" ) );
+		loadEnvironments( action , ConfReader.xmlGetPathNode( doc.getDocumentElement() , "scope" ) );
 	}
 
 	private void loadProperties( ActionBase action , Node node ) throws Exception {
-		DIR_DATA = ConfReader.getRequiredPropertyValue( action , node , "dataPath" );
-		DIR_REPORTS = ConfReader.getRequiredPropertyValue( action , node , "reportPath" );
-		DIR_RES = ConfReader.getRequiredPropertyValue( action , node , "resourcePath" );
-		RESOURCE_CONTEXT = ConfReader.getRequiredPropertyValue( action , node , "resourceContext" );
+		DIR_DATA = ConfReader.getRequiredPropertyValue( node , "dataPath" );
+		DIR_REPORTS = ConfReader.getRequiredPropertyValue( node , "reportPath" );
+		DIR_RES = ConfReader.getRequiredPropertyValue( node , "resourcePath" );
+		RESOURCE_CONTEXT = ConfReader.getRequiredPropertyValue( node , "resourceContext" );
 		
-		MAJORINTERVAL = ConfReader.getIntegerPropertyValue( action , node , "majorInterval" , 300 );
-		MINORINTERVAL = ConfReader.getIntegerPropertyValue( action , node , "minorInterval" , 60 );
-		MINSILENT = ConfReader.getIntegerPropertyValue( action , node , "minSilent" , 30 );
+		MAJORINTERVAL = ConfReader.getIntegerPropertyValue( node , "majorInterval" , 300 );
+		MINORINTERVAL = ConfReader.getIntegerPropertyValue( node , "minorInterval" , 60 );
+		MINSILENT = ConfReader.getIntegerPropertyValue( node , "minSilent" , 30 );
 	}
 	
 	private void loadEnvironments( ActionBase action , Node node ) throws Exception {
@@ -65,7 +65,7 @@ public class MetaMonitoring {
 			action.exit( "no environments defined for monitoring" );
 
 		mapEnvs = new HashMap<String,MetaMonitoringTarget>();
-		Node[] items = ConfReader.xmlGetChildren( action , node , "environment" );
+		Node[] items = ConfReader.xmlGetChildren( node , "environment" );
 		if( items == null )
 			return;
 		

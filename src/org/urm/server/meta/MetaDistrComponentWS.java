@@ -18,7 +18,7 @@ public class MetaDistrComponentWS {
 	}
 
 	public void load( ActionBase action , Node node ) throws Exception {
-		URL = ConfReader.getRequiredAttrValue( action , node , "url" );
-		OBSOLETE = ConfReader.getBooleanAttrValue( action , node , "obsolete" , false );
+		URL = ConfReader.getRequiredAttrValue( node , "url" );
+		OBSOLETE = ConfReader.getBooleanAttrValue( node , "obsolete" , false );
 	}
 }

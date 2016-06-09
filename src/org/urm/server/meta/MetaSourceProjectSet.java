@@ -43,7 +43,7 @@ public class MetaSourceProjectSet {
 		if( !meta.isSourceCategory( action , CATEGORY ) )
 			action.exit( "invalid source.xml: unknown project category=" + Common.getEnumLower( CATEGORY ) );
 		
-		NAME = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
+		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		loadProjects( action , CATEGORY , node );
 	}
 
@@ -56,7 +56,7 @@ public class MetaSourceProjectSet {
 	}
 
 	void loadProjects( ActionBase action , VarCATEGORY CATEGORY , Node pset ) throws Exception {
-		Node[] projects = ConfReader.xmlGetChildren( action , pset , "project" );
+		Node[] projects = ConfReader.xmlGetChildren( pset , "project" );
 		if( projects == null )
 			return;
 		

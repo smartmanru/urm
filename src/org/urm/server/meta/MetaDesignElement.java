@@ -33,20 +33,20 @@ public class MetaDesignElement {
 		links = new HashMap<String,MetaDesignLink>();
 		childs = new HashMap<String,MetaDesignElement>();
 		
-		NAME = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
-		TYPE = ConfReader.getRequiredAttrValue( action , node , "type" );
+		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+		TYPE = ConfReader.getRequiredAttrValue( node , "type" );
 		elementType = design.getElementType( action , TYPE );
-		FUNCTION = ConfReader.getAttrValue( action , node , "function" );
+		FUNCTION = ConfReader.getAttrValue( node , "function" );
 
 		if( isGroup() ) {
 			if( group != null )
 				action.exit( "nested groups are diasallowed, item=" + NAME );
-			GROUPCOLOR = ConfReader.getAttrValue( action , node , "color" );
-			GROUPFILLCOLOR = ConfReader.getAttrValue( action , node , "fillcolor" );
+			GROUPCOLOR = ConfReader.getAttrValue( node , "color" );
+			GROUPFILLCOLOR = ConfReader.getAttrValue( node , "fillcolor" );
 		}
 		
 		// subgraph
-		Node[] items = ConfReader.xmlGetChildren( action , node , "element" );
+		Node[] items = ConfReader.xmlGetChildren( node , "element" );
 		if( items != null ) {
 			if( !isGroup() )
 				action.exit( "non-group item has childs, item=" + NAME );
@@ -60,7 +60,7 @@ public class MetaDesignElement {
 		}
 		
 		// links
-		items = ConfReader.xmlGetChildren( action , node , "link" );
+		items = ConfReader.xmlGetChildren( node , "link" );
 		if( items != null ) {
 			for( Node elementNode : items ) {
 				MetaDesignLink link = new MetaDesignLink( design , this );

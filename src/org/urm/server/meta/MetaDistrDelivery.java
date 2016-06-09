@@ -29,8 +29,8 @@ public class MetaDistrDelivery {
 	}
 
 	public void load( ActionBase action , Node node ) throws Exception {
-		NAME = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
-		FOLDER = ConfReader.getAttrValue( action , node , "folder" , NAME );
+		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+		FOLDER = ConfReader.getAttrValue( node , "folder" , NAME );
 		
 		loadBinaryItems( action , node );
 		loadConfigurationComponents( action , node );
@@ -58,7 +58,7 @@ public class MetaDistrDelivery {
 	public void loadBinaryItems( ActionBase action , Node node ) throws Exception {
 		mapBinaryItems = new HashMap<String,MetaDistrBinaryItem>();
 		
-		Node[] items = ConfReader.xmlGetChildren( action , node , "distitem" );
+		Node[] items = ConfReader.xmlGetChildren( node , "distitem" );
 		if( items == null )
 			return;
 		
@@ -72,7 +72,7 @@ public class MetaDistrDelivery {
 	public void loadConfigurationComponents( ActionBase action , Node node ) throws Exception {
 		mapConfComps = new HashMap<String,MetaDistrConfItem>();
 		
-		Node[] items = ConfReader.xmlGetChildren( action , node , "confitem" );
+		Node[] items = ConfReader.xmlGetChildren( node , "confitem" );
 		if( items == null )
 			return;
 		
@@ -87,13 +87,13 @@ public class MetaDistrDelivery {
 		mapDatabaseSchema = new HashMap<String,MetaDatabaseSchema>();
 		mapDatabaseDatagroup = new HashMap<String,MetaDatabaseDatagroup>();
 		
-		Node[] items = ConfReader.xmlGetChildren( action , node , "datagroup" );
+		Node[] items = ConfReader.xmlGetChildren( node , "datagroup" );
 		if( items == null )
 			return;
 		
 		MetaDatabase database = meta.database;
 		for( Node item : items ) {
-			String datagroupName = ConfReader.getAttrValue( action , item , "name" );
+			String datagroupName = ConfReader.getAttrValue( item , "name" );
 			MetaDatabaseDatagroup datagroup = database.getDatagroup( action , datagroupName );
 			mapDatabaseDatagroup.put( datagroupName , datagroup );
 			

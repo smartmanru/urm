@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.ConfReader;
-import org.urm.common.PropertySet;
 import org.urm.server.action.ActionBase;
+import org.urm.server.action.PropertySet;
 import org.urm.server.shell.Account;
 import org.w3c.dom.Node;
 
@@ -80,7 +80,7 @@ public class MetaEnvDC {
 	public void loadDeployment( ActionBase action , Node node ) throws Exception {
 		deploy = new MetaEnvDeployment( meta , this );
 		
-		Node deployment = ConfReader.xmlGetFirstChild( action , node , "deployment" );
+		Node deployment = ConfReader.xmlGetFirstChild( node , "deployment" );
 		if( deployment == null )
 			return;
 		
@@ -91,7 +91,7 @@ public class MetaEnvDC {
 		serverMap = new HashMap<String,MetaEnvServer>();
 		originalList = new LinkedList<MetaEnvServer>();
 		
-		Node[] items = ConfReader.xmlGetChildren( action , node , "server" );
+		Node[] items = ConfReader.xmlGetChildren( node , "server" );
 		if( items == null )
 			return;
 		
@@ -111,7 +111,7 @@ public class MetaEnvDC {
 	public void loadStartOrder( ActionBase action , Node node ) throws Exception {
 		startInfo = new MetaEnvStartInfo( meta , this );
 		
-		Node startorder = ConfReader.xmlGetFirstChild( action , node , "startorder" );
+		Node startorder = ConfReader.xmlGetFirstChild( node , "startorder" );
 		if( startorder == null )
 			return;
 		

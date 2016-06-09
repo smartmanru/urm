@@ -25,8 +25,8 @@ public class MetaDatabaseDatagroup {
 	public void load( ActionBase action , Node node ) throws Exception {
 		schemaSet = new HashMap<String,MetaDatabaseSchema>(); 
 
-		NAME = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
-		String schemalist = ConfReader.getAttrValue( action , node , "schemaset" ); 
+		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+		String schemalist = ConfReader.getAttrValue( node , "schemaset" ); 
 		
 		for( String schemaName : Common.splitSpaced( schemalist ) ) {
 			MetaDatabaseSchema schema = database.getSchema( action , schemaName );

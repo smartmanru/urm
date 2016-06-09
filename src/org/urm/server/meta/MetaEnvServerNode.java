@@ -1,7 +1,7 @@
 package org.urm.server.meta;
 
-import org.urm.common.PropertySet;
 import org.urm.server.action.ActionBase;
+import org.urm.server.action.PropertySet;
 import org.urm.server.meta.Metadata.VarNODETYPE;
 import org.urm.server.shell.Account;
 import org.w3c.dom.Node;

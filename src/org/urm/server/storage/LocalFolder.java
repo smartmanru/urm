@@ -3,7 +3,6 @@ package org.urm.server.storage;
 import java.util.List;
 
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
 import org.urm.server.shell.ShellExecutor;
 
@@ -30,12 +29,12 @@ public class LocalFolder extends Folder {
 	
 	public String readFile( ActionBase action , String FILENAME ) throws Exception {
 		String filePath = getFilePath( action , FILENAME );
-		return( ConfReader.readFile( action , filePath ) );
+		return( action.readFile( filePath ) );
 	}
 	
 	public List<String> readFileLines( ActionBase action , String FILENAME ) throws Exception {
 		String filePath = getFilePath( action , FILENAME );
-		return( ConfReader.readFileLines( action , filePath ) );
+		return( action.readFileLines( filePath ) );
 	}
 
 	public void copyFiles( ActionBase action , String fileNames , LocalFolder dstFolder ) throws Exception {

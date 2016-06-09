@@ -21,16 +21,16 @@ public class MetaDistrComponentItem {
 	}
 
 	public void loadBinary( ActionBase action , Node node ) throws Exception {
-		String NAME = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
+		String NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		binaryItem = meta.distr.getBinaryItem( action , NAME );
-		OBSOLETE = ConfReader.getBooleanAttrValue( action , node , "obsolete" , false );
-		DEPLOYNAME = ConfReader.getAttrValue( action , node , "deployname" );
+		OBSOLETE = ConfReader.getBooleanAttrValue( node , "obsolete" , false );
+		DEPLOYNAME = ConfReader.getAttrValue( node , "deployname" );
 	}
 
 	public void loadConf( ActionBase action , Node node ) throws Exception {
-		String NAME = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
+		String NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		confItem = meta.distr.getConfItem( action , NAME );
-		OBSOLETE = ConfReader.getBooleanAttrValue( action , node , "obsolete" , false );
+		OBSOLETE = ConfReader.getBooleanAttrValue( node , "obsolete" , false );
 	}
 
 }

@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
 import org.urm.server.storage.Folder;
 
@@ -54,8 +53,8 @@ public class ConfFileDiff {
 	}
 		
 	private boolean getConfigurableDiff( ActionBase action ) throws Exception {
-		rel = ConfReader.readFileLines( action , relFile ); 
-		prod = ConfReader.readFileLines( action , prodFile );
+		rel = action.readFileLines( relFile ); 
+		prod = action.readFileLines( prodFile );
 		
 		nextRelLine = 0;
 		nextProdLine = 0;

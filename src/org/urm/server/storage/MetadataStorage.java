@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.database.DatabaseClient;
 import org.urm.server.meta.MetaDatabaseSchema;
@@ -85,7 +84,7 @@ public class MetadataStorage {
 		action.info( "reading export table set file " + tablesetPath + " ..." );
 		
 		HashMap<String,Map<String,String>> tableSet = new HashMap<String,Map<String,String>>();
-		for( String line : ConfReader.readFileLines( action , tablesetPath ) ) {
+		for( String line : action.readFileLines( tablesetPath ) ) {
 			if( line.isEmpty() || line.startsWith( "#" ) )
 				continue;
 			

@@ -4,10 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
+import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.CommandOutput;
-import org.urm.server.meta.Metadata.VarOSTYPE;
 import org.urm.server.storage.Folder;
 import org.urm.server.storage.RedistStorage;
 
@@ -502,7 +501,7 @@ public abstract class ShellExecutor {
 	
 	public String getFileContentAsString( ActionBase action , String filePath ) throws Exception {
 		if( account.local )
-			return( ConfReader.readFile( action , filePath ) );
+			return( action.readFile( filePath ) );
 		
 		return( core.cmdGetFileContentAsString( action , filePath ) );
 	}
@@ -529,7 +528,7 @@ public abstract class ShellExecutor {
 
 	public String[] getFileLines( ActionBase action , String filePath ) throws Exception {
 		if( account.local )
-			return( ConfReader.readFileLines( action , filePath ).toArray( new String[0] ) );
+			return( action.readFileLines( filePath ).toArray( new String[0] ) );
 		
 		return( core.cmdGetFileLines( action , filePath ) );
 	}

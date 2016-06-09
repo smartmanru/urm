@@ -1,6 +1,7 @@
 package org.urm.server.storage;
 
 import org.urm.common.Common;
+import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.deploy.ServerDeployment;
 import org.urm.server.meta.MetaDistrBinaryItem;
@@ -12,7 +13,6 @@ import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.meta.Metadata.VarARCHIVETYPE;
 import org.urm.server.meta.Metadata.VarCONTENTTYPE;
 import org.urm.server.meta.Metadata.VarDISTITEMTYPE;
-import org.urm.server.meta.Metadata.VarOSTYPE;
 import org.urm.server.meta.Metadata.VarSERVERTYPE;
 import org.urm.server.shell.Account;
 import org.urm.server.shell.ShellExecutor;

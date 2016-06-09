@@ -1,8 +1,8 @@
 package org.urm.server.meta;
 
 import org.urm.common.ConfReader;
-import org.urm.common.PropertySet;
 import org.urm.server.action.ActionBase;
+import org.urm.server.action.PropertySet;
 import org.w3c.dom.Node;
 
 public class MetaEnvServerPrepareApp {
@@ -19,7 +19,7 @@ public class MetaEnvServerPrepareApp {
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
-		APP = ConfReader.getRequiredAttrValue( action , node , "app" );
+		APP = ConfReader.getRequiredAttrValue( node , "app" );
 		properties = new PropertySet( "prepare" , base.properties );
 		properties.loadRawFromElements( action , node );
 		properties.moveRawAsStrings( action );

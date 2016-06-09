@@ -1,9 +1,13 @@
 package org.urm.common;
 
-import org.urm.server.meta.Metadata.VarOSTYPE;
-
 public class RunContext {
 
+	public enum VarOSTYPE {
+		UNKNOWN ,
+		LINUX ,
+		WINDOWS
+	};
+	
 	public boolean mainMode;
 	public boolean serverMode;
 	public String OSTYPE;

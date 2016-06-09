@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.ConfReader;
-import org.urm.common.PropertySet;
 import org.urm.server.action.ActionBase;
+import org.urm.server.action.PropertySet;
 import org.w3c.dom.Node;
 
 public class MetaEnvServerBase {
@@ -36,7 +36,7 @@ public class MetaEnvServerBase {
 	private void loadPrepare( ActionBase action , Node node ) throws Exception {
 		prepareMap = new HashMap<String,MetaEnvServerPrepareApp>();
 		
-		Node[] items = ConfReader.xmlGetChildren( action , node , "prepare" );
+		Node[] items = ConfReader.xmlGetChildren( node , "prepare" );
 		if( items == null )
 			return;
 		

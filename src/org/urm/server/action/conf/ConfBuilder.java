@@ -6,9 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.common.PropertySet;
 import org.urm.server.action.ActionBase;
+import org.urm.server.action.PropertySet;
 import org.urm.server.dist.Dist;
 import org.urm.server.dist.ReleaseDelivery;
 import org.urm.server.dist.ReleaseTarget;
@@ -178,7 +177,7 @@ public class ConfBuilder {
 	public void configureFile( LocalFolder live , String file , MetaEnvServer server , PropertySet props , Charset charset ) throws Exception {
 		action.trace( "parse file=" + file + " ..." );
 		String filePath = live.getFilePath( action , file );
-		List<String> fileLines = ConfReader.readFileLines( action , filePath , charset );
+		List<String> fileLines = action.readFileLines( filePath , charset );
 		
 		if( props == null )
 			props = server.properties;
@@ -200,7 +199,7 @@ public class ConfBuilder {
 	public void configureFile( LocalFolder live , String file , MetaEnvServerNode node , PropertySet props , Charset charset ) throws Exception {
 		action.trace( "parse file=" + file + " ..." );
 		String filePath = live.getFilePath( action , file );
-		List<String> fileLines = ConfReader.readFileLines( action , filePath , charset );
+		List<String> fileLines = action.readFileLines( filePath , charset );
 		
 		if( props == null )
 			props = node.properties;

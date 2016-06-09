@@ -28,24 +28,24 @@ public class MetaEnvServerDeployment {
 	public void load( ActionBase action , Node node ) throws Exception {
 		MetaDistr distr = action.meta.distr;
 		
-		DEPLOYTYPE = action.meta.getDeployType( action , ConfReader.getAttrValue( action , node , "deploytype" , "cold" ) );
-		DEPLOYPATH = ConfReader.getAttrValue( action , node , "deploypath" );
-		NODETYPE = ConfReader.getAttrValue( action , node , "nodetype" , "unknown" );
+		DEPLOYTYPE = action.meta.getDeployType( action , ConfReader.getAttrValue( node , "deploytype" , "cold" ) );
+		DEPLOYPATH = ConfReader.getAttrValue( node , "deploypath" );
+		NODETYPE = ConfReader.getAttrValue( node , "nodetype" , "unknown" );
 		nodeType = action.meta.getNodeType( action , NODETYPE , VarNODETYPE.SELF );
 		
-		String COMP = ConfReader.getAttrValue( action , node , "component" );
+		String COMP = ConfReader.getAttrValue( node , "component" );
 		if( !COMP.isEmpty() ) {
 			comp = distr.getComponent( action , COMP );
 			return;
 		}
 		
-		String DISTITEM = ConfReader.getAttrValue( action , node , "distitem" );
+		String DISTITEM = ConfReader.getAttrValue( node , "distitem" );
 		if( !DISTITEM.isEmpty() ) {
 			binaryItem = distr.getBinaryItem( action , DISTITEM );
 			return;
 		}
 		
-		String CONFITEM = ConfReader.getAttrValue( action , node , "confitem" );
+		String CONFITEM = ConfReader.getAttrValue( node , "confitem" );
 		if( !CONFITEM.isEmpty() ) {
 			confItem = distr.getConfItem( action , CONFITEM );
 			return;

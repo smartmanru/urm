@@ -29,8 +29,8 @@ public class MetaDistr {
 
 		loaded = true;
 		
-		loadDeliveries( action , ConfReader.xmlGetPathNode( action , root , "distributive" ) );
-		loadComponents( action , ConfReader.xmlGetPathNode( action , root , "deployment" ) );
+		loadDeliveries( action , ConfReader.xmlGetPathNode( root , "distributive" ) );
+		loadComponents( action , ConfReader.xmlGetPathNode( root , "deployment" ) );
 	}
 	
 	public void loadDeliveries( ActionBase action , Node node ) throws Exception {
@@ -40,7 +40,7 @@ public class MetaDistr {
 		if( node == null )
 			return;
 		
-		Node[] items = ConfReader.xmlGetChildren( action , node , "delivery" );
+		Node[] items = ConfReader.xmlGetChildren( node , "delivery" );
 		if( items == null )
 			return;
 		
@@ -62,7 +62,7 @@ public class MetaDistr {
 		if( node == null )
 			return;
 		
-		Node[] items = ConfReader.xmlGetChildren( action , node , "component" );
+		Node[] items = ConfReader.xmlGetChildren( node , "component" );
 		if( items == null )
 			return;
 		

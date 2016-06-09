@@ -3,6 +3,7 @@ package org.urm.server.action;
 import org.urm.common.Common;
 import org.urm.common.ExitException;
 import org.urm.common.RunContext;
+import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.common.action.CommandMethod;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.action.CommandOptions.FLAG;
@@ -12,7 +13,6 @@ import org.urm.server.CommandExecutor;
 import org.urm.server.meta.MetaEnv;
 import org.urm.server.meta.MetaEnvDC;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
-import org.urm.server.meta.Metadata.VarOSTYPE;
 import org.urm.server.shell.Account;
 import org.urm.server.shell.ShellExecutorPool;
 import org.urm.server.storage.LocalFolder;
@@ -20,6 +20,7 @@ import org.urm.server.storage.LocalFolder;
 public class CommandContext {
 	
 	public CommandOptions options;
+	public RunContext rc;
 	public CommandMethod commandMethod;
 	public CommandAction commandAction;
 
@@ -105,8 +106,10 @@ public class CommandContext {
 	public VarBUILDMODE CTX_BUILDMODE = VarBUILDMODE.UNKNOWN;
 	public String CTX_OLDRELEASE = "";
 
-	public CommandContext( CommandOptions options ) {
+	public CommandContext( CommandOptions options , RunContext rc ) {
 		this.options = options;
+		this.rc = rc;
+		
 		this.streamName = "main";
 		this.executorFailed = false;
 	}
@@ -449,9 +452,7 @@ public class CommandContext {
 		return( ( executorFailed )? false : true );
 	}
 	
-	public boolean prepareExecution( CommandExecutor executor , CommandOptions options ) throws Exception {
-		this.options = options;
-		
+	public boolean prepareExecution( CommandExecutor executor ) throws Exception {
 		String actionName = options.action;
 		String firstArg = options.getArg( 0 );
 		

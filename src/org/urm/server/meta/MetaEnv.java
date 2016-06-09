@@ -7,9 +7,9 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.common.PropertySet;
 import org.urm.common.action.CommandOptions.FLAG;
 import org.urm.server.action.ActionBase;
+import org.urm.server.action.PropertySet;
 import org.urm.server.storage.HiddenFiles;
 import org.urm.server.storage.MetadataStorage;
 import org.w3c.dom.Document;
@@ -73,7 +73,7 @@ public class MetaEnv {
 		String file = storage.getEnvFile( action , envFile );
 		
 		action.debug( "read environment definition file " + file + "..." );
-		Document doc = ConfReader.readXmlFile( action , file );
+		Document doc = action.readXmlFile( file );
 		loadProperties( action , doc.getDocumentElement() , loadProps );
 		loadDatacenters( action , doc.getDocumentElement() , loadProps );
 		resolveLinks( action );
@@ -166,7 +166,7 @@ public class MetaEnv {
 		originalList = new LinkedList<MetaEnvDC>();
 		dcMap = new HashMap<String,MetaEnvDC>();
 		
-		Node[] items = ConfReader.xmlGetChildren( action , node , "datacenter" );
+		Node[] items = ConfReader.xmlGetChildren( node , "datacenter" );
 		if( items == null )
 			return;
 		

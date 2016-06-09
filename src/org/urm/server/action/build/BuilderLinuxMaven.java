@@ -101,17 +101,17 @@ public class BuilderLinuxMaven extends Builder {
 	@Override public boolean checkSourceCode( ActionBase action ) throws Exception {
 		// check pom version
 		LocalFolder CODEPATH = storage.buildFolder; 
-		Document file = ConfReader.readXmlFile( action , CODEPATH.getFilePath( action , "pom.xml" ) );
-		String MAIN_POM_VER = ConfReader.xmlGetPathNodeText( action , file , "project/version" );
+		Document file = action.readXmlFile( CODEPATH.getFilePath( action , "pom.xml" ) );
+		String MAIN_POM_VER = ConfReader.xmlGetPathNodeText( file , "project/version" );
 
 		// check if property
 		if( MAIN_POM_VER.startsWith( "${" ) ) {
-			Node node = ConfReader.xmlGetPathNode( action , file , "project/properties" );
+			Node node = ConfReader.xmlGetPathNode( file , "project/properties" );
 			if( node == null )
 				action.exit( "unable to find project/properties in pom.xml " );
 			
 			String VAR = MAIN_POM_VER.substring( 2 , MAIN_POM_VER.length() - 1 );
-			MAIN_POM_VER = ConfReader.xmlGetPathNodeText( action , node , VAR );
+			MAIN_POM_VER = ConfReader.xmlGetPathNodeText( node , VAR );
 		}
 
 		if( !MAIN_POM_VER.equals( APPVERSION ) ) {

@@ -144,16 +144,16 @@ public class ReleaseTarget {
 	}
 	
 	private void loadProject( ActionBase action , Node node ) throws Exception {
-		String name = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOTDASH );
-		BUILDBRANCH = ConfReader.getAttrValue( action , node , "buildbranch" , BUILDBRANCH );
-		BUILDTAG = ConfReader.getAttrValue( action , node , "buildtag" , BUILDTAG );
-		BUILDVERSION = ConfReader.getAttrValue( action , node , "buildversion" , BUILDVERSION );
+		String name = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
+		BUILDBRANCH = ConfReader.getAttrValue( node , "buildbranch" , BUILDBRANCH );
+		BUILDTAG = ConfReader.getAttrValue( node , "buildtag" , BUILDTAG );
+		BUILDVERSION = ConfReader.getAttrValue( node , "buildversion" , BUILDVERSION );
 		
 		// find in sources
 		sourceProject = meta.sources.getProject( action , name ); 
 		NAME = sourceProject.PROJECT;
 		
-		Node[] items = ConfReader.xmlGetChildren( action , node , "distitem" );
+		Node[] items = ConfReader.xmlGetChildren( node , "distitem" );
 		if( items == null ) {
 			addAllSourceItems( action , sourceProject );
 			return;
@@ -168,15 +168,15 @@ public class ReleaseTarget {
 	}
 
 	private void loadConfiguration( ActionBase action , Node node ) throws Exception {
-		String name = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
+		String name = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		distConfItem = meta.distr.getConfItem( action , name );
 		this.NAME = name;
 		
-		ALL = ( ConfReader.getBooleanAttrValue( action , node , "partial" , true ) )? false : true;
+		ALL = ( ConfReader.getBooleanAttrValue( node , "partial" , true ) )? false : true;
 	}
 	
 	private void loadDatabase( ActionBase action , Node node ) throws Exception {
-		String name = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
+		String name = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		distDatabaseItem = meta.distr.getDelivery( action , name );
 		this.NAME = name;
 		
@@ -184,7 +184,7 @@ public class ReleaseTarget {
 	}
 
 	private void loadManual( ActionBase action , Node node ) throws Exception {
-		String name = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
+		String name = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		distManualItem = meta.distr.getBinaryItem( action , name );
 		this.NAME = name;
 		

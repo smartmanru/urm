@@ -2,6 +2,8 @@ package org.urm.server.meta;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.common.ExitException;
+import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.action.ActionBase;
 import org.urm.server.storage.MetadataStorage;
 import org.w3c.dom.Document;
@@ -101,12 +103,6 @@ public class Metadata {
 		FIREBIRD
 	};
 
-	public enum VarOSTYPE {
-		UNKNOWN ,
-		LINUX ,
-		WINDOWS
-	};
-
 	public enum VarSESSIONTYPE {
 		UNKNOWN ,
 		UNIXLOCAL ,
@@ -196,10 +192,10 @@ public class Metadata {
 		String file = storage.getDistrFile( action );
 		
 		action.debug( "read distributive definition file " + file + "..." );
-		Document doc = ConfReader.readXmlFile( action , file );
+		Document doc = action.readXmlFile( file );
 		Node root = doc.getDocumentElement();
 		
-		loadDatabase( action , ConfReader.xmlGetPathNode( action , root , "distributive/database" ) );
+		loadDatabase( action , ConfReader.xmlGetPathNode( root , "distributive/database" ) );
 		
 		distr.load( action , root );
 	}
@@ -425,12 +421,12 @@ public class Metadata {
 	}
 	
 	public VarCATEGORY readCategoryAttr( ActionBase action , Node node ) throws Exception {
-		String value = ConfReader.getRequiredAttrValue( action , node , "category" );
+		String value = ConfReader.getRequiredAttrValue( node , "category" );
 		return( getCategory( action , value ) );
 	}
 	
 	public VarITEMVERSION readItemVersionAttr( ActionBase action , Node node , String attrName ) throws Exception {
-		String ID = ConfReader.getAttrValue( action , node , attrName , "default" );
+		String ID = ConfReader.getAttrValue( node , attrName , "default" );
 		if( ID.equals( "default" ) )
 			return( VarITEMVERSION.PREFIX );
 		
@@ -522,4 +518,26 @@ public class Metadata {
 		return( false );
 	}
 	
+    public String getNameAttr( ActionBase action , Node node , VarNAMETYPE nameType ) throws Exception {
+    	String name = ConfReader.getRequiredAttrValue( node , "name" );
+    	if( nameType == VarNAMETYPE.ANY )
+    		return( name );
+    	
+    	String mask = null;
+    	if( nameType == VarNAMETYPE.ALPHANUM )
+    		mask = "[0-9a-zA-Z_]+";
+    	else
+    	if( nameType == VarNAMETYPE.ALPHANUMDOT )
+    		mask = "[0-9a-zA-Z_.]+";
+    	else
+    	if( nameType == VarNAMETYPE.ALPHANUMDOTDASH )
+    		mask = "[0-9a-zA-Z_.-]+";
+    	else
+    		throw new ExitException( "unexpected state" );
+    		
+    	if( !name.matches( mask ) )
+    		action.exit( "name attribute should contain only alphanumeric or dot characters, value=" + name );
+    	return( name );	
+    }
+    
 }

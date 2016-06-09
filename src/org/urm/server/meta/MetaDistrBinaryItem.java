@@ -44,50 +44,50 @@ public class MetaDistrBinaryItem {
 
 	public void load( ActionBase action , Node node ) throws Exception {
 		this.node = node;
-		KEY = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
+		KEY = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 	
 		// read attrs
-		DISTTYPE = meta.getItemDistType( action , ConfReader.getRequiredAttrValue( action , node , "type" ) );
-		DISTSOURCE = meta.getItemDistSource( action , ConfReader.getRequiredAttrValue( action , node , "source" ) );
+		DISTTYPE = meta.getItemDistType( action , ConfReader.getRequiredAttrValue( node , "type" ) );
+		DISTSOURCE = meta.getItemDistSource( action , ConfReader.getRequiredAttrValue( node , "source" ) );
 		if( DISTSOURCE == VarDISTITEMSOURCE.DISTITEM ) {
-			SRCDISTITEM = ConfReader.getAttrValue( action , node , "srcitem" );
-			SRCITEMPATH = ConfReader.getAttrValue( action , node , "srcpath" );
+			SRCDISTITEM = ConfReader.getAttrValue( node , "srcitem" );
+			SRCITEMPATH = ConfReader.getAttrValue( node , "srcpath" );
 		}
 		
-		DISTBASENAME = ConfReader.getAttrValue( action , node , "distname" , KEY );
-		DEPLOYBASENAME = ConfReader.getAttrValue( action , node , "deployname" , DISTBASENAME );
+		DISTBASENAME = ConfReader.getAttrValue( node , "distname" , KEY );
+		DEPLOYBASENAME = ConfReader.getAttrValue( node , "deployname" , DISTBASENAME );
 		DEPLOYVERSION = meta.readItemVersionAttr( action , node , "deployversion" );
-		BUILDINFO = ConfReader.getAttrValue( action , node , "buildinfo" );
+		BUILDINFO = ConfReader.getAttrValue( node , "buildinfo" );
 
 		// binary item
 		if( DISTTYPE == VarDISTITEMTYPE.BINARY ) {
-			EXT = ConfReader.getRequiredAttrValue( action , node , "extension" );
+			EXT = ConfReader.getRequiredAttrValue( node , "extension" );
 		}
 		else
 		// war item and static
 		if( DISTTYPE == VarDISTITEMTYPE.WAR ) {
 			EXT = ".war";
 	
-			WAR_MRID = ConfReader.getAttrValue( action , node , "mrid" );
-			WAR_CONTEXT = ConfReader.getAttrValue( action , node , "context" , DEPLOYBASENAME );
-			WAR_STATICEXT = ConfReader.getAttrValue( action , node , "extension" , "-webstatic.tar.gz" );
+			WAR_MRID = ConfReader.getAttrValue( node , "mrid" );
+			WAR_CONTEXT = ConfReader.getAttrValue( node , "context" , DEPLOYBASENAME );
+			WAR_STATICEXT = ConfReader.getAttrValue( node , "extension" , "-webstatic.tar.gz" );
 		}
 		else
 		// archive item
 		if( isArchive( action ) ) {
-			EXT = ConfReader.getAttrValue( action , node , "extension" , ".tar.gz" );
-			FILES = ConfReader.getAttrValue( action , node , "files" , "*" );
-			EXCLUDE = ConfReader.getAttrValue( action , node , "exclude" );
+			EXT = ConfReader.getAttrValue( node , "extension" , ".tar.gz" );
+			FILES = ConfReader.getAttrValue( node , "files" , "*" );
+			EXCLUDE = ConfReader.getAttrValue( node , "exclude" );
 		}
 		else
 		// nupkg item
 		if( DISTTYPE == VarDISTITEMTYPE.DOTNETPKG ) {
-			EXT = ConfReader.getRequiredAttrValue( action , node , "extension" );
+			EXT = ConfReader.getRequiredAttrValue( node , "extension" );
 		}
 		else
 			action.exit( "distribution item " + KEY + " has unknown type=" + Common.getEnumLower( DISTTYPE ) );
 		
-		CUSTOMDEPLOY = ConfReader.getBooleanAttrValue( action , node , "customdeploy" , false );
+		CUSTOMDEPLOY = ConfReader.getBooleanAttrValue( node , "customdeploy" , false );
 		if( CUSTOMDEPLOY )
 			action.custom.parseDistItem( action , this , node );
 	}

@@ -8,9 +8,9 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.common.PropertySet;
+import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.Metadata.VarOSTYPE;
+import org.urm.server.action.PropertySet;
 import org.urm.server.meta.Metadata.VarSERVERTYPE;
 import org.urm.server.storage.BaseRepository;
 import org.urm.server.storage.RemoteFolder;
@@ -112,17 +112,17 @@ public class MetaFapBase {
 
 	private void loadCompatibility( ActionBase action , Node node ) throws Exception {
 		compatibilityMap = new HashMap<String,String>();
-		Node comp = ConfReader.xmlGetFirstChild( action , node , "compatibility" );
+		Node comp = ConfReader.xmlGetFirstChild( node , "compatibility" );
 		if( comp == null )
 			return;
 		
-		Node[] items = ConfReader.xmlGetChildren( action , comp , "os" );
+		Node[] items = ConfReader.xmlGetChildren( comp , "os" );
 		if( items == null )
 			return;
 		
 		for( Node snnode : items ) {
-			String TYPE = ConfReader.getRequiredAttrValue( action , snnode , "type" );
-			String VERSION = ConfReader.getRequiredAttrValue( action , snnode , "version" );
+			String TYPE = ConfReader.getRequiredAttrValue( snnode , "type" );
+			String VERSION = ConfReader.getRequiredAttrValue( snnode , "version" );
 			if( compatibilityMap.get( TYPE ) != null )
 				action.exit( "unexpected duplicate type=" + TYPE );
 			
@@ -132,16 +132,16 @@ public class MetaFapBase {
 	
 	private void loadDependencies( ActionBase action , Node node ) throws Exception {
 		dependencies = new LinkedList<String>();
-		Node deps = ConfReader.xmlGetFirstChild( action , node , "dependencies" );
+		Node deps = ConfReader.xmlGetFirstChild( node , "dependencies" );
 		if( deps == null )
 			return;
 		
-		Node[] items = ConfReader.xmlGetChildren( action , deps , "base" );
+		Node[] items = ConfReader.xmlGetChildren( deps , "base" );
 		if( items == null )
 			return;
 		
 		for( Node snnode : items ) {
-			String BASEID = ConfReader.getRequiredAttrValue( action , snnode , "id" );
+			String BASEID = ConfReader.getRequiredAttrValue( snnode , "id" );
 			dependencies.add( BASEID );
 		}
 	}

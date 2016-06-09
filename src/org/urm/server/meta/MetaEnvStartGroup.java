@@ -30,8 +30,8 @@ public class MetaEnvStartGroup {
 		serverMap = new HashMap<String,MetaEnvServer>();
 		servers = new LinkedList<MetaEnvServer>();
 		
-		NAME = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
-		SERVERS = ConfReader.getAttrValue( action , node , "servers" );
+		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+		SERVERS = ConfReader.getAttrValue( node , "servers" );
 		
 		for( String name : Common.splitSpaced( SERVERS ) ) {
 			MetaEnvServer server = startInfo.dc.getServer( action , name );

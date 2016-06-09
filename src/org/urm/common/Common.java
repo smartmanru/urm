@@ -28,7 +28,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.urm.server.action.ActionBase;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -662,8 +661,8 @@ public class Common {
 		return( s.substring( index1 + delimiter.length() , index2 ) );
 	}
 
-	public static void sleep( ActionBase action , long millis ) throws Exception {
-	    synchronized( action ) {
+	public static void sleep( Object object , long millis ) throws Exception {
+	    synchronized( object ) {
 	    	Thread.sleep( millis );
 	    }
 	}

@@ -34,38 +34,38 @@ public class MetaSourceProjectItem {
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
-		ITEMNAME = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
+		ITEMNAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		distItem = null;
 		
-		ITEMSRCTYPE = meta.getItemSrcType( action , ConfReader.getRequiredAttrValue( action , node , "type" ) );
-		ITEMBASENAME = ConfReader.getAttrValue( action , node , "basename" );
+		ITEMSRCTYPE = meta.getItemSrcType( action , ConfReader.getRequiredAttrValue( node , "type" ) );
+		ITEMBASENAME = ConfReader.getAttrValue( node , "basename" );
 		if( ITEMBASENAME.isEmpty() )
 			ITEMBASENAME = ITEMNAME;
 
-		INTERNAL = ConfReader.getBooleanAttrValue( action , node , "internal" , false );
+		INTERNAL = ConfReader.getBooleanAttrValue( node , "internal" , false );
 		distItem = meta.distr.getBinaryItem( action , ITEMNAME );
 		distItem.setSource( action , this );
 
-		ITEMEXTENSION = ConfReader.getAttrValue( action , node , "extension" );
-		ITEMVERSION = ConfReader.getAttrValue( action , node , "version" );
+		ITEMEXTENSION = ConfReader.getAttrValue( node , "extension" );
+		ITEMVERSION = ConfReader.getAttrValue( node , "version" );
 
 		if( isStoredInSvn( action ) ) {
-			SVN_ITEMPATH = ConfReader.getAttrValue( action , node , "svn.path" );
+			SVN_ITEMPATH = ConfReader.getAttrValue( node , "svn.path" );
 		}
 
 		if( isStoredInNexus( action ) ) {
-			NEXUS_ITEMPATH = ConfReader.getAttrValue( action , node , "nexus.path" );
+			NEXUS_ITEMPATH = ConfReader.getAttrValue( node , "nexus.path" );
 		}
 
 		if( isStoredInNuget( action ) ) {
-			NUGET_ITEMPATH = ConfReader.getAttrValue( action , node , "nuget.path" );
-			NUGET_PLATFORM = ConfReader.getAttrValue( action , node , "nuget.platform" );
-			NUGET_LIBNAME = ConfReader.getAttrValue( action , node , "nuget.libname" );
+			NUGET_ITEMPATH = ConfReader.getAttrValue( node , "nuget.path" );
+			NUGET_PLATFORM = ConfReader.getAttrValue( node , "nuget.platform" );
+			NUGET_LIBNAME = ConfReader.getAttrValue( node , "nuget.libname" );
 		}
 
 		if( ITEMSRCTYPE == VarITEMSRCTYPE.STATICWAR ) {
-			ITEMSTATICEXTENSION = ConfReader.getAttrValue( action , node , "staticextension" );
-			NEXUS_ITEMPATH = ConfReader.getAttrValue( action , node , "nexus.path" );
+			ITEMSTATICEXTENSION = ConfReader.getAttrValue( node , "staticextension" );
+			NEXUS_ITEMPATH = ConfReader.getAttrValue( node , "nexus.path" );
 
 			if( ITEMSTATICEXTENSION.isEmpty() )
 				ITEMSTATICEXTENSION="-webstatic.tar.gz";

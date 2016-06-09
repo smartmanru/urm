@@ -6,9 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.common.PropertySet;
 import org.urm.server.action.ActionBase;
+import org.urm.server.action.PropertySet;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
 import org.urm.server.storage.MetadataStorage;
 
@@ -192,7 +191,7 @@ public class MetaProduct {
 		int nextProdTag = 1;
 		File file = new File( lastProdTagFile );
 		if( file.exists() ) {
-			lastProdTag = Integer.parseInt( ConfReader.readStringFile( action , lastProdTagFile ) );
+			lastProdTag = Integer.parseInt( action.readStringFile( lastProdTagFile ) );
 			nextProdTag = lastProdTag + 1;
 		}
 		

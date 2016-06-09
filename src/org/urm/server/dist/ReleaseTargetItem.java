@@ -63,8 +63,8 @@ public class ReleaseTargetItem {
 	}
 	
 	public void loadSourceItem( ActionBase action , Node node ) throws Exception {
-		NAME = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
-		BUILDVERSION = ConfReader.getAttrValue( action , node , "BUILDVERSION" );
+		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+		BUILDVERSION = ConfReader.getAttrValue( node , "BUILDVERSION" );
 		this.sourceItem = target.sourceProject.getItem( action , NAME );
 		this.distItem = sourceItem.distItem;
 	}

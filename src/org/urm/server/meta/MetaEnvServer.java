@@ -7,11 +7,11 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.common.PropertySet;
+import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.action.ActionBase;
+import org.urm.server.action.PropertySet;
 import org.urm.server.meta.Metadata.VarDBMSTYPE;
 import org.urm.server.meta.Metadata.VarDEPLOYTYPE;
-import org.urm.server.meta.Metadata.VarOSTYPE;
 import org.urm.server.meta.Metadata.VarSERVERTYPE;
 import org.urm.server.shell.Account;
 import org.w3c.dom.Node;
@@ -241,7 +241,7 @@ public class MetaEnvServer {
 	private void loadNodes( ActionBase action , Node node , boolean loadProps ) throws Exception {
 		nodes = new LinkedList<MetaEnvServerNode>(); 
 		
-		Node[] items = ConfReader.xmlGetChildren( action , node , "node" );
+		Node[] items = ConfReader.xmlGetChildren( node , "node" );
 		if( items == null )
 			return;
 		
@@ -255,7 +255,7 @@ public class MetaEnvServer {
 	}
 	
 	private void loadBase( ActionBase action , Node node ) throws Exception {
-		Node item = ConfReader.xmlGetFirstChild( action , node , "base" );
+		Node item = ConfReader.xmlGetFirstChild( node , "base" );
 		if( item == null )
 			return;
 		
@@ -266,7 +266,7 @@ public class MetaEnvServer {
 	private void loadDeployments( ActionBase action , Node node ) throws Exception {
 		deployments = new LinkedList<MetaEnvServerDeployment>(); 
 		
-		Node[] items = ConfReader.xmlGetChildren( action , node , "deploy" );
+		Node[] items = ConfReader.xmlGetChildren( node , "deploy" );
 		if( items == null )
 			return;
 		

@@ -13,7 +13,7 @@ public class ActionPguBuildWar implements ICustomBuild {
 	String DISTLIBITEM;
 	
 	public void parseProject( ActionBase action , CommandCustom custom , MetaSourceProject project , Node node ) throws Exception {
-		DISTLIBITEM = ConfReader.getAttrValue( action , node , "distlibitem" );
+		DISTLIBITEM = ConfReader.getAttrValue( node , "distlibitem" );
 		if( DISTLIBITEM.isEmpty() )
 			DISTLIBITEM = project.PROJECT + "-lib";
 	}

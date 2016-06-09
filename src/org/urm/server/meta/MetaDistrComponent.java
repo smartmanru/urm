@@ -33,11 +33,11 @@ public class MetaDistrComponent {
 		mapConfItems = new HashMap<String,MetaDistrComponentItem>();
 		listWS = new LinkedList<MetaDistrComponentWS>();
 		
-		NAME = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
-		UNIT = ConfReader.getAttrValue( action , node , "unit" );
-		OBSOLETE = ConfReader.getBooleanAttrValue( action , node , "obsolete" , false );
+		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+		UNIT = ConfReader.getAttrValue( node , "unit" );
+		OBSOLETE = ConfReader.getBooleanAttrValue( node , "obsolete" , false );
 		
-		Node[] items = ConfReader.xmlGetChildren( action , node , "distitem" );
+		Node[] items = ConfReader.xmlGetChildren( node , "distitem" );
 		if( items != null ) {
 			for( Node itemNode : items ) {
 				MetaDistrComponentItem item = new MetaDistrComponentItem( meta , this );
@@ -46,7 +46,7 @@ public class MetaDistrComponent {
 			}
 		}
 		
-		items = ConfReader.xmlGetChildren( action , node , "confitem" );
+		items = ConfReader.xmlGetChildren( node , "confitem" );
 		if( items != null ) {
 			for( Node itemNode : items ) {
 				MetaDistrComponentItem item = new MetaDistrComponentItem( meta , this );
@@ -55,7 +55,7 @@ public class MetaDistrComponent {
 			}
 		}
 		
-		items = ConfReader.xmlGetChildren( action , node , "webservice" );
+		items = ConfReader.xmlGetChildren( node , "webservice" );
 		if( items == null )
 			return;
 		

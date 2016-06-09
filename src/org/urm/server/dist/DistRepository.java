@@ -1,10 +1,10 @@
 package org.urm.server.dist;
 
 import org.urm.common.Common;
+import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.Metadata;
-import org.urm.server.meta.Metadata.VarOSTYPE;
 import org.urm.server.shell.Account;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.Artefactory;

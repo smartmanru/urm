@@ -26,7 +26,7 @@ public class MetaEnvStartInfo {
 		groupMap = new HashMap<String,MetaEnvStartGroup>();
 		groups = new LinkedList<MetaEnvStartGroup>();
 		
-		Node[] items = ConfReader.xmlGetChildren( action , node , "startgroup" );
+		Node[] items = ConfReader.xmlGetChildren( node , "startgroup" );
 		if( items == null )
 			return;
 		

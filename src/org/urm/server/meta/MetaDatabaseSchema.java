@@ -25,10 +25,10 @@ public class MetaDatabaseSchema {
 	}
 
 	public void load( ActionBase action , Node node ) throws Exception {
-		SCHEMA = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUM );
-		dbmsType = meta.getDbmsType( action , ConfReader.getAttrValue( action , node , "dbtype" ) );
-		DBNAME = ConfReader.getAttrValue( action , node , "dbname" , SCHEMA );
-		DBUSER = ConfReader.getAttrValue( action , node , "dbuser" , SCHEMA );
+		SCHEMA = action.getNameAttr( node , VarNAMETYPE.ALPHANUM );
+		dbmsType = meta.getDbmsType( action , ConfReader.getAttrValue( node , "dbtype" ) );
+		DBNAME = ConfReader.getAttrValue( node , "dbname" , SCHEMA );
+		DBUSER = ConfReader.getAttrValue( node , "dbuser" , SCHEMA );
 		
 		specific = new DatabaseSpecific( dbmsType );
 	}

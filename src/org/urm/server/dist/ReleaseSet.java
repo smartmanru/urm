@@ -85,7 +85,7 @@ public class ReleaseSet {
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
-		ALL = ConfReader.getBooleanAttrValue( action , node , "all" , false );
+		ALL = ConfReader.getBooleanAttrValue( node , "all" , false );
 		if( meta.isSourceCategory( action , CATEGORY ) )
 			loadBinary( action , node );
 		else {
@@ -112,15 +112,15 @@ public class ReleaseSet {
 	}
 	
 	private void loadBinary( ActionBase action , Node node ) throws Exception {
-		String SET = ConfReader.getNameAttr( action , node , VarNAMETYPE.ALPHANUMDOT );
+		String SET = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		set = meta.sources.getProjectSet( action , SET );
 		NAME = set.NAME;
 		
-		BUILDBRANCH = ConfReader.getAttrValue( action , node , "buildbranch" );
-		BUILDTAG = ConfReader.getAttrValue( action , node , "buildtag" );
-		BUILDVERSION = ConfReader.getAttrValue( action , node , "buildversion" );
+		BUILDBRANCH = ConfReader.getAttrValue( node , "buildbranch" );
+		BUILDTAG = ConfReader.getAttrValue( node , "buildtag" );
+		BUILDVERSION = ConfReader.getAttrValue( node , "buildversion" );
 
-		Node[] projects = ConfReader.xmlGetChildren( action , node , "project" );
+		Node[] projects = ConfReader.xmlGetChildren( node , "project" );
 		if( ALL ) {
 			if( projects == null || projects.length == 0 ) {
 				addAllSourceProjects( action );
@@ -143,9 +143,9 @@ public class ReleaseSet {
 	
 	private void loadConfiguration( ActionBase action , Node node ) throws Exception {
 		NAME = Common.getEnumLower( VarCATEGORY.CONFIG );
-		ALL = ConfReader.getBooleanAttrValue( action , node , "all" , false );
+		ALL = ConfReader.getBooleanAttrValue( node , "all" , false );
 
-		Node[] confitems = ConfReader.xmlGetChildren( action , node , "confitem" );
+		Node[] confitems = ConfReader.xmlGetChildren( node , "confitem" );
 		if( ALL ) {
 			if( confitems == null || confitems.length == 0 ) {
 				addAllConfItems( action );
@@ -164,9 +164,9 @@ public class ReleaseSet {
 	
 	private void loadDatabase( ActionBase action , Node node ) throws Exception {
 		NAME = Common.getEnumLower( VarCATEGORY.DB );
-		ALL = ConfReader.getBooleanAttrValue( action , node , "all" , false );
+		ALL = ConfReader.getBooleanAttrValue( node , "all" , false );
 
-		Node[] dbitems = ConfReader.xmlGetChildren( action , node , "delivery" );
+		Node[] dbitems = ConfReader.xmlGetChildren( node , "delivery" );
 		if( ALL ) {
 			if( dbitems == null || dbitems.length == 0 ) {
 				addAllDatabaseItems( action );
@@ -185,9 +185,9 @@ public class ReleaseSet {
 
 	private void loadManual( ActionBase action , Node node ) throws Exception {
 		NAME = Common.getEnumLower( VarCATEGORY.MANUAL );
-		ALL = ConfReader.getBooleanAttrValue( action , node , "all" , false );
+		ALL = ConfReader.getBooleanAttrValue( node , "all" , false );
 
-		Node[] manualitems = ConfReader.xmlGetChildren( action , node , "distitem" );
+		Node[] manualitems = ConfReader.xmlGetChildren( node , "distitem" );
 		if( ALL ) {
 			if( manualitems == null || manualitems.length == 0 ) {
 				addAllManualItems( action );

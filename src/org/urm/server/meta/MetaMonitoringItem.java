@@ -24,13 +24,13 @@ public class MetaMonitoringItem {
 	}
 
 	public void loadUrl( ActionBase action , Node node ) throws Exception {
-		URL = ConfReader.getRequiredAttrValue( action , node , "url" );
+		URL = ConfReader.getRequiredAttrValue( node , "url" );
 		NAME = URL;
 		monitorUrl = true;
 	}
 
 	private String getNodeSubTree( ActionBase action , Node node , String name ) throws Exception {
-		Node parent = ConfReader.xmlGetFirstChild( action , node , name );
+		Node parent = ConfReader.xmlGetFirstChild( node , name );
 		if( parent == null )
 			return( null );
 		
@@ -38,11 +38,11 @@ public class MetaMonitoringItem {
 		if( content == null )
 			return( null );
 		
-		return( ConfReader.getNodeSubTree( action , content ) );
+		return( ConfReader.getNodeSubTree( content ) );
 	}
 	
 	public void loadWS( ActionBase action , Node node ) throws Exception {
-		URL = ConfReader.getRequiredAttrValue( action , node , "url" );
+		URL = ConfReader.getRequiredAttrValue( node , "url" );
 		WSDATA = getNodeSubTree( action , node , "wsdata" );
 		WSCHECK = getNodeSubTree( action , node , "wscheck" );
 		NAME = URL;

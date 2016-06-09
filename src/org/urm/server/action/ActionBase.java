@@ -1,13 +1,19 @@
 package org.urm.server.action;
 
+import java.nio.charset.Charset;
+import java.util.List;
+import java.util.Properties;
+
 import org.urm.common.Common;
+import org.urm.common.ConfReader;
+import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.CommandExecutor;
 import org.urm.server.custom.CommandCustom;
 import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.meta.Metadata;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
 import org.urm.server.meta.Metadata.VarCATEGORY;
-import org.urm.server.meta.Metadata.VarOSTYPE;
+import org.urm.server.meta.Metadata.VarNAMETYPE;
 import org.urm.server.meta.Metadata.VarSERVERTYPE;
 import org.urm.server.shell.Account;
 import org.urm.server.shell.ShellExecutor;
@@ -16,6 +22,8 @@ import org.urm.server.storage.Folder;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.RedistStorage;
 import org.urm.server.storage.RemoteFolder;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 abstract public class ActionBase {
 
@@ -517,4 +525,37 @@ abstract public class ActionBase {
 		return( getShell( context.account ) );
 	}
 	
+	public String readFile( String path ) throws Exception {
+    	trace( "read file path=" + path + " ..." );
+		return( ConfReader.readFile( context.rc , path ) );
+	}
+	
+	public Document readXmlFile( String path ) throws Exception {
+    	trace( "read xml file path=" + path + " ..." );
+		return( ConfReader.readXmlFile( context.rc , path ) );
+	}
+	
+    public Properties readPropertyFile( String path ) throws Exception {
+    	trace( "read property file path=" + path + " ..." );
+    	return( ConfReader.readPropertyFile( context.rc , path ) );
+    }
+
+    public List<String> readFileLines( String path ) throws Exception {
+    	trace( "read file lines path=" + path + " ..." );
+    	return( ConfReader.readFileLines( context.rc , path ) );
+    }
+    
+	public List<String> readFileLines( String path , Charset charset ) throws Exception {
+    	trace( "read file lines path=" + path + " ..." );
+		return( ConfReader.readFileLines( context.rc , path , charset ) );
+	}
+
+    public String getNameAttr( Node node , VarNAMETYPE nameType ) throws Exception {
+    	return( meta.getNameAttr( this , node , nameType ) );
+    }
+
+    public String readStringFile( String path ) throws Exception {
+    	return( ConfReader.readStringFile( context.rc , path ) );
+    }
+    
 }

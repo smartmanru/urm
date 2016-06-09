@@ -28,7 +28,7 @@ public class MetaDatabase {
 	}
 
 	public boolean loadAdministration( ActionBase action , Node node ) throws Exception {
-		Node administration = ConfReader.xmlGetFirstChild( action , node , "administration" );
+		Node administration = ConfReader.xmlGetFirstChild( node , "administration" );
 		if( administration == null ) {
 			action.debug( "database administration is missing, ignore database information." );
 			return( false );
@@ -38,7 +38,7 @@ public class MetaDatabase {
 	}
 
 	public void loadSchemaSet( ActionBase action , Node node ) throws Exception {
-		Node[] items = ConfReader.xmlGetChildren( action , node , "schema" );
+		Node[] items = ConfReader.xmlGetChildren( node , "schema" );
 		if( items == null )
 			return;
 		
@@ -48,7 +48,7 @@ public class MetaDatabase {
 			mapSchema.put( item.SCHEMA , item );
 		}
 		
-		items = ConfReader.xmlGetChildren( action , node , "datagroup" );
+		items = ConfReader.xmlGetChildren( node , "datagroup" );
 		if( items == null )
 			return;
 		

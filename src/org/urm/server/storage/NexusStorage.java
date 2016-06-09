@@ -1,7 +1,6 @@
 package org.urm.server.storage;
 
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaDistrBinaryItem;
 import org.urm.server.meta.MetaSourceProjectItem;
@@ -33,7 +32,7 @@ public class NexusStorage {
 
 		NexusDownloadInfo info = new NexusDownloadInfo( artefactoryFolder ); 
 		String GROUPIDSLASHED = GROUPID.replace( '.' , '/' );
-		String nexusAuth = ConfReader.readStringFile( action , authFile );
+		String nexusAuth = action.readStringFile( authFile );
 		
 		info.DOWNLOAD_FILENAME = Common.getPath( item.delivery.FOLDER , NAME );
 		info.DOWNLOAD_URL = REPOPATH + "/" + GROUPIDSLASHED + "/" + ARTEFACTID + "/" + VERSION + "/" + NAME;
@@ -56,7 +55,7 @@ public class NexusStorage {
 		String NAME = ARTEFACTID + "-" + VERSION + ".nupkg";
 
 		NexusDownloadInfo info = new NexusDownloadInfo( artefactoryFolder ); 
-		String nexusAuth = ConfReader.readStringFile( action , authFile );
+		String nexusAuth = action.readStringFile( authFile );
 		
 		info.DOWNLOAD_FILENAME = Common.getPath( item.delivery.FOLDER , NAME );
 		info.DOWNLOAD_URL = REPOPATH + "/" + ARTEFACTID + "/" + VERSION + "/" + NAME;

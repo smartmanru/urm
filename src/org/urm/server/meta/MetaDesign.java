@@ -50,13 +50,13 @@ public class MetaDesign {
 		String filePath = storage.getDesignFile( action , fileName );
 		
 		action.debug( "read design definition file " + filePath + "..." );
-		Document doc = ConfReader.readXmlFile( action , filePath );
+		Document doc = action.readXmlFile( filePath );
 		loadAttributes( action , doc.getDocumentElement() );
 		loadElements( action , doc.getDocumentElement() );
 	}
 
 	public void loadAttributes( ActionBase action , Node node ) throws Exception {
-		fullProd = ConfReader.getBooleanAttrValue( action , node , "fullprod" , false );
+		fullProd = ConfReader.getBooleanAttrValue( node , "fullprod" , false );
 	}
 	
 	public void loadElements( ActionBase action , Node node ) throws Exception {
@@ -64,7 +64,7 @@ public class MetaDesign {
 		childs = new HashMap<String,MetaDesignElement>();
 		groups = new HashMap<String,MetaDesignElement>();
 
-		Node[] items = ConfReader.xmlGetChildren( action , node , "element" );
+		Node[] items = ConfReader.xmlGetChildren( node , "element" );
 		if( items == null )
 			return;
 		

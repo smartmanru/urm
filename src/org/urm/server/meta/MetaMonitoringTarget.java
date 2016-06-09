@@ -39,11 +39,11 @@ public class MetaMonitoringTarget {
 	}
 	
 	public void loadEnv( ActionBase action , Node node ) throws Exception {
-		HOME = ConfReader.getRequiredAttrValue( action , node , "home" );
-		PRODUCT = ConfReader.getRequiredAttrValue( action , node , "product" );
-		ENVFILE = ConfReader.getRequiredAttrValue( action , node , "env" );
-		DC = ConfReader.getRequiredAttrValue( action , node , "dc" );
-		MAXTIME = ConfReader.getIntegerAttrValue( action , node , "maxtime" , 300000 );
+		HOME = ConfReader.getRequiredAttrValue( node , "home" );
+		PRODUCT = ConfReader.getRequiredAttrValue( node , "product" );
+		ENVFILE = ConfReader.getRequiredAttrValue( node , "env" );
+		DC = ConfReader.getRequiredAttrValue( node , "dc" );
+		MAXTIME = ConfReader.getIntegerAttrValue( node , "maxtime" , 300000 );
 		
 		String basename = Common.getBaseName( ENVFILE );
 		ENV = Common.cutExtension( basename );
@@ -56,7 +56,7 @@ public class MetaMonitoringTarget {
 	private void loadCheckUrls( ActionBase action , Node node ) throws Exception {
 		listUrls = new LinkedList<MetaMonitoringItem>();
 		
-		Node[] items = ConfReader.xmlGetChildren( action , node , "checkurl" );
+		Node[] items = ConfReader.xmlGetChildren( node , "checkurl" );
 		if( items == null )
 			return;
 		
@@ -70,7 +70,7 @@ public class MetaMonitoringTarget {
 	private void loadCheckWS( ActionBase action , Node node ) throws Exception {
 		listWS = new LinkedList<MetaMonitoringItem>();
 		
-		Node[] items = ConfReader.xmlGetChildren( action , node , "checkws" );
+		Node[] items = ConfReader.xmlGetChildren( node , "checkws" );
 		if( items == null )
 			return;
 		

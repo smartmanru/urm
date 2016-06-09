@@ -181,12 +181,12 @@ public class Release {
 	}
 
 	private void loadSets( ActionBase action , Node root , VarCATEGORY CATEGORY ) throws Exception {
-		Node element = ConfReader.xmlGetFirstChild( action , root , Common.getEnumLower( CATEGORY ) );
+		Node element = ConfReader.xmlGetFirstChild( root , Common.getEnumLower( CATEGORY ) );
 		if( element == null )
 			return;
 		
 		if( meta.isSourceCategory( action , CATEGORY ) ) {
-			Node[] sets = ConfReader.xmlGetChildren( action , element , "set" );
+			Node[] sets = ConfReader.xmlGetChildren( element , "set" );
 			if( sets == null )
 				return;
 			
@@ -208,10 +208,10 @@ public class Release {
 		String file = RELEASEFILEPATH;
 		
 		action.debug( "read release file " + file + "..." );
-		Document doc = ConfReader.readXmlFile( action , file );
+		Document doc = action.readXmlFile( file );
 		Node root = doc.getDocumentElement();
 
-		RELEASEVER = ConfReader.getAttrValue( action , root , "version" );
+		RELEASEVER = ConfReader.getAttrValue( root , "version" );
 		if( RELEASEVER.isEmpty() )
 			action.exit( "release version property is not set, unable to use distributive" );
 		
@@ -280,11 +280,11 @@ public class Release {
 	}
 
 	private String getReleaseProperty( ActionBase action , Node node , String name ) throws Exception {
-		Node prop = ConfReader.xmlGetNamedNode( action , node , "property" , name );
+		Node prop = ConfReader.xmlGetNamedNode( node , "property" , name );
 		if( prop == null )
 			return( "" );
 		
-		String value = ConfReader.getAttrValue( action , prop , "value" );
+		String value = ConfReader.getAttrValue( prop , "value" );
 		return( value );
 	}
 
@@ -456,12 +456,12 @@ public class Release {
 		Element root = doc.getDocumentElement();
 		
 		for( ReleaseSet set : sourceSetMap.values() ) {
-			Element parent = ( Element )ConfReader.xmlGetFirstChild( action , root , Common.getEnumLower( set.CATEGORY ) );
+			Element parent = ( Element )ConfReader.xmlGetFirstChild( root , Common.getEnumLower( set.CATEGORY ) );
 			set.createXml( action , doc , parent );
 		}
 
 		for( ReleaseSet set : categorySetMap.values() ) {
-			Element parent = ( Element )ConfReader.xmlGetFirstChild( action , root , Common.getEnumLower( set.CATEGORY ) );
+			Element parent = ( Element )ConfReader.xmlGetFirstChild( root , Common.getEnumLower( set.CATEGORY ) );
 			set.createXml( action , doc , parent );
 		}
 			

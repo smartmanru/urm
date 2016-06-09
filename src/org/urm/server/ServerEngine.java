@@ -12,6 +12,13 @@ import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 import org.urm.server.action.ActionInit;
 import org.urm.server.action.CommandContext;
+import org.urm.server.action.build.BuildCommandExecutor;
+import org.urm.server.action.database.DatabaseCommandExecutor;
+import org.urm.server.action.deploy.DeployCommandExecutor;
+import org.urm.server.action.main.MainExecutor;
+import org.urm.server.action.monitor.MonitorCommandExecutor;
+import org.urm.server.action.release.ReleaseCommandExecutor;
+import org.urm.server.action.xdoc.XDocCommandExecutor;
 import org.urm.server.meta.Metadata;
 
 public class ServerEngine {
@@ -87,11 +94,11 @@ public class ServerEngine {
 
 	public ActionInit createAction( CommandBuilder builder , CommandExecutor executor ) throws Exception {
 		// create context
-		CommandContext context = new CommandContext( builder.options );
+		CommandContext context = new CommandContext( builder.options , builder.rc );
 		if( !context.loadDefaults( builder.rc ) )
 			return( null );
 		
-		if( !context.prepareExecution( executor , builder.options ) )
+		if( !context.prepareExecution( executor ) )
 			return( null );
 		
 		Metadata meta = new Metadata();

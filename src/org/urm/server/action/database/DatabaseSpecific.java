@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.MetaEnvServerNode;
@@ -122,7 +121,7 @@ public class DatabaseSpecific {
 			return( false );
 		}
 		
-		List<String> data = ConfReader.readFileLines( action , fileLog , action.meta.product.charset );
+		List<String> data = action.readFileLines( fileLog , action.meta.product.charset );
 		String[] lines = data.toArray( new String[0] );
 		String[] errors = Common.grep( lines , "^ERROR" );
 		if( errors.length > 0 ) {
@@ -149,7 +148,7 @@ public class DatabaseSpecific {
 		if( status != 0 )
 			action.exit( "error: (see logs)" );
 
-		List<String> data = ConfReader.readFileLines( action , fileLog , action.meta.product.charset );
+		List<String> data = action.readFileLines( fileLog , action.meta.product.charset );
 		String[] lines = data.toArray( new String[0] );
 		for( int k = 0; k < lines.length; k++ )
 			lines[ k ] = lines[ k ].trim();

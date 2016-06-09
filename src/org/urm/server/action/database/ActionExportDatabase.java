@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
 import org.urm.server.dist.DistRepository;
 import org.urm.server.meta.MetaDatabaseSchema;
@@ -78,7 +77,7 @@ public class ActionExportDatabase extends ActionBase {
 		String specPath = ms.getDatapumpFile( this , SPECFILE );
 		
 		info( "reading export specification file " + specPath + " ..." );
-		Properties props = ConfReader.readPropertyFile( this , specPath );
+		Properties props = readPropertyFile( specPath );
 		
 		DATASET = props.getProperty( "CONFIG_DATASET" );
 		TABLESETFILE = props.getProperty( "CONFIG_TABLESETFILE" );

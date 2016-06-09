@@ -22,10 +22,10 @@ public class MetaDesignLink {
 	}
 
 	public void load( ActionBase action , Node node ) throws Exception {
-		TARGET = ConfReader.getRequiredAttrValue( action , node , "target" );
-		TYPE = ConfReader.getRequiredAttrValue( action , node , "type" );
+		TARGET = ConfReader.getRequiredAttrValue( node , "target" );
+		TYPE = ConfReader.getRequiredAttrValue( node , "type" );
 		linkType = design.getLinkType( action , TYPE );
-		TEXT = ConfReader.getAttrValue( action , node , "text" );
+		TEXT = ConfReader.getAttrValue( node , "text" );
 	}
 
 	public void resolve( ActionBase action ) throws Exception {
