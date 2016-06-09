@@ -18,6 +18,16 @@ public class ActionSave extends ActionBase {
 	}
 
 	@Override protected boolean executeSimple() throws Exception {
+		executeStandalone();
+		return( true );
+	}
+
+	private void executeStandalone() throws Exception {
+		context.session.setStandaloneLayout( context.options );
+		
+		meta.loadProduct( this );
+		meta.loadDistr( this );
+
 		LocalFolder pf = artefactory.getProductFolder( this );
 		pfMaster = pf.getSubFolder( this , "master" );
 		
@@ -31,7 +41,6 @@ public class ActionSave extends ActionBase {
 		
 		executeDir( set , lines , filesNotInSvn );
 		vcs.commitMasterFolder( pfMaster , "" , "" , "svnsave" );
-		return( true );
 	}
 	
 	private void executeDir( FileSet set , List<String> lines , List<String> filesNotInSvn ) throws Exception {
