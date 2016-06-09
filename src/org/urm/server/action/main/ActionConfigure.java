@@ -95,7 +95,12 @@ public class ActionConfigure extends ActionBase {
 			lines.add( MainMeta.RELEASEPREFIX + MainMeta.MASTERFILE );
 		}
 		
-		configureProduct( lines , initial );
+		configureProduct( initial );
+		if( standalone ) {
+			linesProxy.add( MainMeta.RELEASEPREFIX + MainMeta.MASTERFILE );
+			linesAffected.add( MainMeta.RELEASEPREFIX + MainMeta.MASTERFILE );
+		}
+		
 		createMasterFile( masterPath , lines );
 	}
 
@@ -111,7 +116,7 @@ public class ActionConfigure extends ActionBase {
 		}
 	}
 	
-	private void configureProduct( List<String> lines , boolean initial ) throws Exception {
+	private void configureProduct( boolean initial ) throws Exception {
 		linesProxy = new LinkedList<String>();
 		linesAffected = new LinkedList<String>();
 		
