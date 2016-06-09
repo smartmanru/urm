@@ -96,11 +96,6 @@ public class ActionConfigure extends ActionBase {
 		}
 		
 		configureProduct( initial );
-		if( standalone ) {
-			linesProxy.add( MainMeta.RELEASEPREFIX + MainMeta.MASTERFILE );
-			linesAffected.add( MainMeta.RELEASEPREFIX + MainMeta.MASTERFILE );
-		}
-		
 		createMasterFile( masterPath , lines );
 	}
 

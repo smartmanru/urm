@@ -9,7 +9,7 @@ public class MainMeta extends CommandMeta {
 	public static String NAME = "bin";
 	
 	public static String MASTERFILE = "master.files.info";
-	public static String RELEASEPREFIX = "proxy:";
+	public static String RELEASEPREFIX = "release:";
 	public static String PROXYPREFIX = "proxy:";
 	public static String CONTEXT_FILENAME_LIXUX = "_context.sh";
 	public static String CONTEXT_FILENAME_WIN = "_context.cmd";
