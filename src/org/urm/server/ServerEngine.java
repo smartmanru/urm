@@ -25,6 +25,7 @@ import org.urm.server.meta.Metadata;
 public class ServerEngine {
 
 	RunContext execrc;
+	SessionContext serverSession;
 	
 	public boolean runArgs( String[] args ) throws Exception {
 		execrc = new RunContext();
@@ -38,15 +39,26 @@ public class ServerEngine {
 		if( executor == null )
 			return( false );
 		
-		SessionContext session = new SessionContext( execrc );
-		return( runExecutor( builder.options , executor , session ) );
+		serverSession = new SessionContext( execrc );
+		ActionInit action = createAction( builder.options , executor , serverSession );
+		if( action == null )
+			return( false );
+		
+		return( runAction( serverSession , executor , action ) );
 	}
 	
 	public boolean runClientMode( CommandOptions options , RunContext clientrc , CommandMeta commandInfo ) throws Exception {
 		execrc = clientrc;
 		CommandExecutor executor = createExecutor( commandInfo );
 		SessionContext session = new SessionContext( clientrc );
-		return( runExecutor( options , executor , session ) );
+		session.setStandaloneLayout( options );
+		
+		ActionInit action = createAction( options , executor , session );
+		if( action == null )
+			return( false );
+		
+		action.meta.loadProduct( action );
+		return( runAction( session , executor , action ) );
 	}
 		
 	public boolean runClientRemote( CommandOptions options , RunContext clientrc ) throws Exception {
@@ -57,14 +69,17 @@ public class ServerEngine {
 		
 		CommandExecutor executor = createExecutor( commandInfo );
 		SessionContext session = new SessionContext( clientrc );
-		return( runExecutor( options , executor , session ) );
-	}
+		session.setServerClientLayout( options , serverSession );
 		
-	private boolean runExecutor( CommandOptions options , CommandExecutor executor , SessionContext session ) throws Exception {
 		ActionInit action = createAction( options , executor , session );
 		if( action == null )
 			return( false );
 		
+		action.meta.loadProduct( action );
+		return( runAction( session , executor , action ) );
+	}
+		
+	private boolean runAction( SessionContext session , CommandExecutor executor , ActionInit action ) throws Exception {
 		// execute
 		try {
 			executor.run( action );
