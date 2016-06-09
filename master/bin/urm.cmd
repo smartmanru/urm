@@ -3,7 +3,7 @@
 cd %~dp0
 cd ..\..
 
-set PRODUCT_HOME=%CD%
+set INSTALL_PATH=%CD%
 
 if "%C_URM_MODE%" == "main" (
 	set C_CONTEXT_URMSERVER=
@@ -18,4 +18,4 @@ if "%C_CONTEXT_URMSERVER%" == "" (
 	set JAVACP=master/bin/urmc.jar
 )
 
-java -cp %JAVACP% -Duser.language=ru -Durm.mode=%C_URM_MODE% -Durm.os=windows -Durm.server=%C_CONTEXT_URMSERVER% -Durm.product=%C_CONTEXT_PRODUCT% -Durm.producthome=%PRODUCT_HOME% -Durm.build=%C_CONTEXT_VERSIONMODE% -Durm.env=%C_CONTEXT_ENV% -Durm.dc=%C_CONTEXT_DC% %C_UMR_CLASS% %*
+java -cp %JAVACP% -Duser.language=ru -Durm.mode=%C_URM_MODE% -Durm.os=windows -Durm.installpath=%INSTALL_PATH% -Durm.server=%C_CONTEXT_URMSERVER% -Durm.product=%C_CONTEXT_PRODUCT% -Durm.build=%C_CONTEXT_VERSIONMODE% -Durm.env=%C_CONTEXT_ENV% -Durm.dc=%C_CONTEXT_DC% %C_UMR_CLASS% %*

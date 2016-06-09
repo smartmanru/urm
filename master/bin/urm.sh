@@ -3,7 +3,7 @@
 cd `dirname $0`
 cd ../..
 
-PRODUCT_HOME=`pwd`
+INSTALL_PATH=`pwd`
 
 if [ "$C_URM_MODE" = "main" ]; then
 	C_CONTEXT_URMSERVER=
@@ -18,4 +18,4 @@ else
 	JAVACP=master/bin/urmc.jar
 fi
 
-java -cp $JAVACP -Duser.language=ru -Dfile.encoding=utf-8 -Durm.mode=$C_URM_MODE -Durm.os=linux -Durm.server=%C_CONTEXT_URMSERVER% -Durm.product=$C_CONTEXT_PRODUCT -Durm.producthome=$PRODUCT_HOME -Durm.build=$C_CONTEXT_VERSIONMODE -Durm.env=$C_CONTEXT_ENV -Durm.dc=$C_CONTEXT_DC $C_UMR_CLASS "$@"
+java -cp $JAVACP -Duser.language=ru -Dfile.encoding=utf-8 -Durm.mode=$C_URM_MODE -Durm.os=linux -Durm.installpath=$INSTALL_PATH -Durm.server=$C_CONTEXT_URMSERVER -Durm.product=$C_CONTEXT_PRODUCT -Durm.build=$C_CONTEXT_VERSIONMODE -Durm.env=$C_CONTEXT_ENV -Durm.dc=$C_CONTEXT_DC $C_UMR_CLASS "$@"

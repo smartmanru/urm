@@ -12,11 +12,11 @@ public class SessionContext {
 	public String DC;
 	public boolean executorFailed;
 
-	public String masterPath;
-	public String binPath;
-	public String productPath;
-	public String etcPath;
-	public String proxyPath;
+	public String masterPath = "";
+	public String binPath = "";
+	public String productPath = "";
+	public String etcPath = "";
+	public String proxyPath = "";
 	
 	public SessionContext( RunContext cmdrc ) {
 		this.cmdrc = cmdrc;
@@ -31,15 +31,15 @@ public class SessionContext {
 	}
 	
 	public void setServerLayout( CommandOptions options ) throws Exception {
-		masterPath = cmdrc.productPath;
+		masterPath = cmdrc.installPath;
 		if( masterPath.isEmpty() )
 			exit( "masterpath is empty" );
 		
 		binPath = Common.getPath( masterPath , "bin" );
 		
 		productPath = "";
-		etcPath = cmdrc.etcPath;
-		proxyPath = cmdrc.proxyPath;
+		etcPath = "";
+		proxyPath = "";
 	}
 	
 	public void setServerClientLayout( CommandOptions options , SessionContext serverSession ) throws Exception {
@@ -62,21 +62,15 @@ public class SessionContext {
 	}
 	
 	public void setStandaloneLayout( CommandOptions options ) throws Exception {
-		productPath = cmdrc.productPath;
+		productPath = cmdrc.installPath;
 		if( productPath.isEmpty() )
-			exit( "prouctpath is empty" );
+			exit( "productpath is empty" );
 		
 		masterPath = Common.getPath( productPath , "master" );
 		binPath = Common.getPath( masterPath , "bin" );
 
-		productPath = masterPath;
-		etcPath = cmdrc.etcPath;
-		if( etcPath.isEmpty() )
-			etcPath = Common.getPath( productPath , "etc" );
-		
-		proxyPath = cmdrc.proxyPath;
-		if( proxyPath.isEmpty() )
-			proxyPath = Common.getPath( productPath , "master" );
+		etcPath = Common.getPath( productPath , "etc" );
+		proxyPath = Common.getPath( productPath , "master" );
 	}
 	
 	public void setFailed() {

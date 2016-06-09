@@ -75,8 +75,6 @@ public abstract class CommandExecutor {
 		
 		// load product properties
 		context.update( action );
-		meta.loadProduct( action );
-		context.update( action );
 		
 		// create shell pool
 		context.createPool( action );

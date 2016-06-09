@@ -116,11 +116,15 @@ public class Artefactory {
 				dirname = Common.getPath( action.context.CTX_WORKPATH , name );
 			}
 			else {
-				dirname = Common.getPath( meta.product.CONFIG_WORKPATH , name );
+				if( meta.product != null && meta.product.CONFIG_WORKPATH.isEmpty() == false )
+					dirname = meta.product.CONFIG_WORKPATH;
+				else
+					dirname = action.context.rc.userHome;
+				dirname = Common.getPath( dirname , name );
+				
 				if( addSession )
 					dirname = Common.getPath( dirname , "session-" + workFolderProcessId );
 			}
-			
 		}
 		
 		return( dirname );	

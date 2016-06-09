@@ -29,14 +29,6 @@ public class MainExecutor extends CommandExecutor {
 
 	public boolean run( ActionInit action ) {
 		// log action and run 
-		try {
-			action.meta.loadDistr( action );
-		}
-		catch( Throwable e ) {
-			action.log( e );
-			return( false );
-		}
-		
 		boolean res = super.runMethod( action , action.commandAction );
 		return( res );
 	}

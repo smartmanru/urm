@@ -337,11 +337,6 @@ public class CommandContext {
 			return( false );
 		}
 
-		if( rc.productPath.isEmpty() ) {
-			System.out.println( "you need to add -Dproduct.home=<your product home> to run" );
-			return( false );
-		}
-
 		VarOSTYPE osType = ( rc.isWindows() )? VarOSTYPE.WINDOWS : VarOSTYPE.LINUX;
 		this.account = Account.getLocalAccount( rc.userName , rc.hostName , osType );
 		this.userHome = rc.userHome;
@@ -351,7 +346,9 @@ public class CommandContext {
 	}
 	
 	public void logDebug( ActionBase action ) throws Exception {
-		String contextInfo = "productHome=" + session.productPath;
+		String contextInfo = "";
+		if( !session.productPath.isEmpty() )
+			contextInfo = "productHome=" + session.productPath;
 		if( buildMode != VarBUILDMODE.UNKNOWN )
 			contextInfo += ", buildMode=" + getBuildModeName();
 		if( !session.ENV.isEmpty() )
@@ -362,7 +359,7 @@ public class CommandContext {
 	}
 	
 	public void createPool( ActionBase action ) throws Exception {
-		pool = new ShellExecutorPool( session.masterPath );
+		pool = new ShellExecutorPool();
 		pool.start( action );
 	}
 

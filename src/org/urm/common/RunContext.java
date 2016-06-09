@@ -15,9 +15,7 @@ public class RunContext {
 	public String serverURL;
 
 	public String userHome;
-	public String productPath;
-	public String etcPath;
-	public String proxyPath;
+	public String installPath;
 	
 	public String productName;
 	public String buildMode;
@@ -29,7 +27,7 @@ public class RunContext {
 	public RunContext() {
 	}
 	
-	public void load() {
+	public void load() throws Exception {
 		String mode = getProperty( "urm.mode" );
 		if( mode.isEmpty() || mode.equals( "standalone" ) ) {
 			mainMode = false;
@@ -54,23 +52,22 @@ public class RunContext {
 		serverURL = getProperty( "urm.server" );
 		
 		if( osType == VarOSTYPE.LINUX ) {
-			productPath = getProperty( "urm.producthome" );
-			etcPath = getProperty( "urm.etcpath" );
-			proxyPath = getProperty( "urm.proxypath" );
+			installPath = getProperty( "urm.installpath" );
 			
 			hostName = System.getenv( "HOSTNAME" );
 			userName = System.getenv( "USER" );
 	    	userHome = System.getenv( "HOME" );
 		}
 		else {
-			productPath = Common.getLinuxPath( getProperty( "urm.producthome" ) );
-			etcPath = Common.getLinuxPath( getProperty( "urm.etcpath" ) );
-			proxyPath = Common.getLinuxPath( getProperty( "urm.proxypath" ) );
+			installPath = Common.getLinuxPath( getProperty( "urm.installpath" ) );
 			
 			hostName = "windows";
 			userName = "user";
 	    	userHome = Common.getLinuxPath( System.getenv( "HOMEPATH" ) );
 		}
+		
+		if( installPath.isEmpty() )
+			throw new ExitException( "install path is not set" );
 	}
 	
 	private String getProperty( String name ) {

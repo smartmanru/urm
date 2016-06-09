@@ -42,6 +42,15 @@ public class ActionConfigure extends ActionBase {
 
 	@Override protected boolean executeSimple() throws Exception {
 		commentExecutor( "run " + ACTION + " ..." );
+		configureStandalone();
+		return( true );
+	}
+
+	private void configureStandalone() throws Exception {
+		context.session.setStandaloneLayout( context.options );
+		
+		meta.loadProduct( this );
+		meta.loadDistr( this );
 		
 		LocalFolder pf = artefactory.getProductFolder( this );
 		pfMaster = pf.getSubFolder( this , "master" );
@@ -50,9 +59,8 @@ public class ActionConfigure extends ActionBase {
 		
 		configure( lines );
 		createMasterFile( masterPath , lines );
-		return( true );
 	}
-
+	
 	private void configure( List<String> lines ) throws Exception {
 		linesProxy = new LinkedList<String>();
 		linesAffected = new LinkedList<String>();

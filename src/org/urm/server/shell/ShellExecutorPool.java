@@ -22,12 +22,12 @@ public class ShellExecutorPool {
 	public Account account;
 	public Folder tmpFolder;
 	
-	public ShellExecutorPool( String rootPath ) {
-		this.rootPath = rootPath;
+	public ShellExecutorPool() {
 	}
 	
 	public void start( ActionBase action ) throws Exception {
-		String tmpPath = Common.getPath( action.meta.product.CONFIG_REDISTPATH , "tmp" );
+		rootPath = action.context.rc.userHome;
+		String tmpPath = Common.getPath( rootPath , "tmp" );
 		tmpFolder = new LocalFolder( action.artefactory , tmpPath );
 		account = action.context.account;
 		master = createDedicatedLocalShell( action , "master" );
