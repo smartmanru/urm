@@ -92,6 +92,7 @@ public class ActionConfigure extends ActionBase {
 		else {
 			pfMaster.ensureExists( this );
 			lines = new LinkedList<String>();
+			lines.add( MainMeta.RELEASEPREFIX + MainMeta.MASTERFILE );
 		}
 		
 		configureProduct( lines , initial );
