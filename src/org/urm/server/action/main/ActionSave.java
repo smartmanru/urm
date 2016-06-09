@@ -31,6 +31,7 @@ public class ActionSave extends ActionBase {
 	}
 
 	private void saveServer( LocalFolder pf ) throws Exception {
+		comment( "configure master ..." );
 		saveProduct( pf , false );
 		LocalFolder pfProducts = pf.getSubFolder( this , "products" );
 
