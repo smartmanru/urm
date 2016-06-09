@@ -45,7 +45,8 @@ public class ServerEngine {
 	}
 		
 	private boolean runExecutor( CommandBuilder builder , CommandExecutor executor ) throws Exception {
-		ActionInit action = createAction( builder , executor );
+		SessionContext session = new SessionContext();
+		ActionInit action = createAction( builder , executor , session );
 		if( action == null )
 			return( false );
 		
@@ -58,7 +59,7 @@ public class ServerEngine {
 			action.log( e );
 		}
 
-		boolean res = ( action.context.isFailed() )? false : true;
+		boolean res = ( session.isFailed() )? false : true;
 		
 		if( res )
 			action.commentExecutor( "COMMAND SUCCESSFUL" );
@@ -92,9 +93,9 @@ public class ServerEngine {
 		return( executor );
 	}
 
-	public ActionInit createAction( CommandBuilder builder , CommandExecutor executor ) throws Exception {
+	public ActionInit createAction( CommandBuilder builder , CommandExecutor executor , SessionContext session ) throws Exception {
 		// create context
-		CommandContext context = new CommandContext( builder.options , builder.rc );
+		CommandContext context = new CommandContext( builder.options , builder.rc , session );
 		if( !context.loadDefaults( builder.rc ) )
 			return( null );
 		

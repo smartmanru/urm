@@ -102,7 +102,7 @@ abstract public class ActionBase {
 	
 	protected void setFailed() {
 		actionFailed = true;
-		context.setFailed();
+		context.session.setFailed();
 	}
 	
 	public boolean continueRun() {

@@ -10,6 +10,7 @@ import org.urm.common.action.CommandOptions.FLAG;
 import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.common.action.CommandOptions.SQLTYPE;
 import org.urm.server.CommandExecutor;
+import org.urm.server.SessionContext;
 import org.urm.server.meta.MetaEnv;
 import org.urm.server.meta.MetaEnvDC;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
@@ -21,6 +22,7 @@ public class CommandContext {
 	
 	public CommandOptions options;
 	public RunContext rc;
+	public SessionContext session;
 	public CommandMethod commandMethod;
 	public CommandAction commandAction;
 
@@ -36,7 +38,6 @@ public class CommandContext {
 	public VarBUILDMODE buildMode = VarBUILDMODE.UNKNOWN;
 	public String ENV;
 	public String DC;
-	public boolean executorFailed;
 
 	// generic settings
 	public boolean CTX_TRACEINTERNAL;
@@ -106,18 +107,18 @@ public class CommandContext {
 	public VarBUILDMODE CTX_BUILDMODE = VarBUILDMODE.UNKNOWN;
 	public String CTX_OLDRELEASE = "";
 
-	public CommandContext( CommandOptions options , RunContext rc ) {
+	public CommandContext( CommandOptions options , RunContext rc , SessionContext session ) {
 		this.options = options;
 		this.rc = rc;
-		
+
+		this.session = session;
 		this.streamName = "main";
-		this.executorFailed = false;
 	}
 
 	public CommandContext( CommandContext context , String stream ) {
 		this.env = context.env;
 		this.dc = context.dc;
-		this.executorFailed = context.executorFailed;
+		this.session = context.session;
 		
 		this.pool = context.pool;
 
@@ -438,18 +439,6 @@ public class CommandContext {
 		if( !options.isValidVar( optVar ) )
 			action.exit( "unknown flag var=" + optVar );
 		return( options.combineValue( optVar , confValue , defValue ) );
-	}
-	
-	public void setFailed() {
-		executorFailed = true;
-	}
-	
-	public boolean isFailed() {
-		return( executorFailed );
-	}
-	
-	public boolean isOK() {
-		return( ( executorFailed )? false : true );
 	}
 	
 	public boolean prepareExecution( CommandExecutor executor ) throws Exception {

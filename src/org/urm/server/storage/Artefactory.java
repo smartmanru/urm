@@ -87,7 +87,7 @@ public class Artefactory {
 		if( workFolder == null || ownFolder == false )
 			return;
 		
-		if( action.context.isFailed() || action.context.CTX_SHOWALL )
+		if( action.context.session.isFailed() || action.context.CTX_SHOWALL )
 			action.info( "saved work directory: " + workFolder.folderPath );
 		else
 			action.context.deleteWorkFolder( action , workFolder );
