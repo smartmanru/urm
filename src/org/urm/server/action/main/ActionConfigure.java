@@ -31,6 +31,13 @@ public class ActionConfigure extends ActionBase {
 	LocalFolder pfMaster = null;
 	List<String> linesProxy;
 	List<String> linesAffected;
+
+	String executorMasterFolderRel;
+	String envMasterFolderRel;
+	String dcMasterFolderRel;
+	String envDbMasterFolderRel;
+	String dcDbMasterFolderRel;
+	String buildMasterFolderRel;
 	
 	public ActionConfigure( ActionBase action , String stream , boolean configureLinux , String ACTION , String USEENV , String USEDC ) {
 		super( action , stream );
@@ -43,7 +50,21 @@ public class ActionConfigure extends ActionBase {
 	@Override protected boolean executeSimple() throws Exception {
 		commentExecutor( "run " + ACTION + " ..." );
 		
+		executorMasterFolderRel = "..";
+		envMasterFolderRel = "../..";
+		dcMasterFolderRel = "../../..";
+		envDbMasterFolderRel = "../../..";
+		dcDbMasterFolderRel = "../../../..";
+		buildMasterFolderRel = "../..";
+
 		if( ACTION.equals( "server" ) ) {
+			executorMasterFolderRel += "/../../../master";
+			envMasterFolderRel += "/../../../master";
+			dcMasterFolderRel += "/../../../master";
+			envDbMasterFolderRel += "/../../../master";
+			dcDbMasterFolderRel += "/../../../master";
+			buildMasterFolderRel += "/../../../master";
+			
 			context.session.setServerLayout( context.options );
 			configureServer( true );
 		}
@@ -212,12 +233,12 @@ public class ActionConfigure extends ActionBase {
 		exeFolder.ensureExists( this );
 
 		// add help action
-		configureExecutorWrapper( exeFolder , executor , "help" , linux , ".." , false , null );
+		configureExecutorWrapper( exeFolder , executor , "help" , linux , executorMasterFolderRel , false , null );
 		
 		// top items
 		for( CommandMethod cmdAction : executor.actionsList ) {
 			if( cmdAction.top )
-				configureExecutorWrapper( exeFolder , executor , cmdAction.name , linux , ".." , false , null );
+				configureExecutorWrapper( exeFolder , executor , cmdAction.name , linux , executorMasterFolderRel , false , null );
 		}
 		
 		if( executor.name.equals( DeployCommandMeta.NAME ) ) {
@@ -326,7 +347,8 @@ public class ActionConfigure extends ActionBase {
 		}
 		configureExecutorContextDeployment( ef , ENVFILE , CTXDC , linux );
 
-		String xp = ( DC == null )? "../.." : "../../..";
+		String xp = ( DC == null )? envMasterFolderRel : dcMasterFolderRel;
+		String xpdb = ( DC == null )? envDbMasterFolderRel : dcDbMasterFolderRel;
 		
 		// env-level wrappers
 		for( CommandMethod cmdAction : executor.actionsList ) {
@@ -339,7 +361,7 @@ public class ActionConfigure extends ActionBase {
 		efDB.ensureExists( this );
 		for( CommandMethod cmdAction : dbe.actionsList ) {
 			if( !cmdAction.top )
-				configureExecutorWrapper( efDB , dbe , cmdAction.name , linux , xp + "/.." , true , ".." );
+				configureExecutorWrapper( efDB , dbe , cmdAction.name , linux , xpdb , true , ".." );
 		}
 	}
 	
@@ -351,7 +373,7 @@ public class ActionConfigure extends ActionBase {
 		// env-level wrappers
 		for( CommandMethod cmdAction : executor.actionsList ) {
 			if( !cmdAction.top )
-				configureExecutorWrapper( efBuild , executor , cmdAction.name , linux , "../.." , true , null );
+				configureExecutorWrapper( efBuild , executor , cmdAction.name , linux , buildMasterFolderRel , true , null );
 		}
 	}
 
