@@ -63,6 +63,8 @@ public class ActionConfigure extends ActionBase {
 	private void configureServer( boolean initial ) throws Exception {
 		LocalFolder pf = artefactory.getInstallFolder( this );
 		LocalFolder pfProducts = pf.getSubFolder( this , "products" );
+		if( !pfProducts.checkExists( this ) )
+			exit( "before configure, please create directory: " + pfProducts.folderPath );
 
 		for( String product : pfProducts.getTopDirs( this ) ) {
 			context.session.setServerProductLayout( product );
