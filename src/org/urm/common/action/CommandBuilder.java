@@ -54,6 +54,18 @@ public class CommandBuilder {
 		}
 
 		// discriminate
+		CommandMeta commandInfo = createMeta( cmd );
+		if( commandInfo == null )
+			return( null );
+	
+		if( !setOptions( commandInfo , args ) )
+			return( null );
+		
+		return( commandInfo );
+	}
+
+	public CommandMeta createMeta( String cmd ) {
+		// discriminate
 		CommandMeta commandInfo = null;
 		if( cmd.equals( BuildCommandMeta.NAME ) )
 			commandInfo = new BuildCommandMeta( this );
@@ -67,17 +79,12 @@ public class CommandBuilder {
 			commandInfo = new ReleaseCommandMeta( this );
 		else if( cmd.equals( XDocCommandMeta.NAME ) )
 			commandInfo = new XDocCommandMeta( this );
-		else {
+		else
 			out( "Unexpected URM args - unknown command executor=" + cmd + " (expected one of build/deploy/database/monitor)" );
-			return( null );
-		}
-	
-		if( !setOptions( commandInfo , args ) )
-			return( null );
-		
+			
 		return( commandInfo );
 	}
-		
+	
 	public boolean setOptions( CommandMeta commandInfo , String[] args ) throws Exception {
 		// process options
 		options = new CommandOptions();

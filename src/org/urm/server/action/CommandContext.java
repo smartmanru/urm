@@ -34,7 +34,6 @@ public class CommandContext {
 	public String streamName;
 	public Account account;
 	public String userHome;
-	public String productHome;
 	public VarBUILDMODE buildMode = VarBUILDMODE.UNKNOWN;
 
 	// generic settings
@@ -48,7 +47,6 @@ public class CommandContext {
 	public boolean CTX_LOCAL;
 	public int CTX_COMMANDTIMEOUT;
 	public String CTX_KEYNAME = "";
-	public String CTX_ETCPATH = "";
 	public String CTX_DISTPATH = "";
 	public String CTX_REDISTPATH = "";
 	public String CTX_HIDDENPATH = "";
@@ -105,9 +103,8 @@ public class CommandContext {
 	public VarBUILDMODE CTX_BUILDMODE = VarBUILDMODE.UNKNOWN;
 	public String CTX_OLDRELEASE = "";
 
-	public CommandContext( CommandOptions options , RunContext rc , SessionContext session ) {
+	public CommandContext( CommandOptions options , SessionContext session ) {
 		this.options = options;
-		this.rc = rc;
 		this.session = session;
 		
 		this.streamName = "main";
@@ -130,7 +127,6 @@ public class CommandContext {
 		// copy all properties
 		this.account = context.account;
 		this.userHome = context.userHome;
-		this.productHome = context.productHome;
 		this.buildMode = context.buildMode;
 
 		// generic
@@ -144,7 +140,6 @@ public class CommandContext {
 		this.CTX_LOCAL = context.CTX_LOCAL;
 		this.CTX_COMMANDTIMEOUT = context.CTX_COMMANDTIMEOUT;
 		this.CTX_KEYNAME = context.CTX_KEYNAME;
-		this.CTX_ETCPATH = context.CTX_ETCPATH;
 		this.CTX_DISTPATH = context.CTX_DISTPATH;
 		this.CTX_REDISTPATH = context.CTX_REDISTPATH;
 		this.CTX_HIDDENPATH = context.CTX_HIDDENPATH;
@@ -328,7 +323,9 @@ public class CommandContext {
 		return( Common.getEnumLower( buildMode ) );
 	}
 	
-	public boolean loadDefaults( RunContext rc ) {
+	public boolean setRunContext( RunContext rc ) {
+		this.rc = rc;
+		
 		// read env
 		if( rc.hostName.isEmpty() ) {
 			System.out.println( "HOSTNAME is not set. Exiting" );
@@ -340,7 +337,7 @@ public class CommandContext {
 			return( false );
 		}
 
-		if( rc.productHome.isEmpty() ) {
+		if( rc.productPath.isEmpty() ) {
 			System.out.println( "you need to add -Dproduct.home=<your product home> to run" );
 			return( false );
 		}
@@ -348,14 +345,13 @@ public class CommandContext {
 		VarOSTYPE osType = ( rc.isWindows() )? VarOSTYPE.WINDOWS : VarOSTYPE.LINUX;
 		this.account = Account.getLocalAccount( rc.userName , rc.hostName , osType );
 		this.userHome = rc.userHome;
-		this.productHome = rc.productHome;
 		this.buildMode = ( rc.buildMode.isEmpty() )? VarBUILDMODE.UNKNOWN : VarBUILDMODE.valueOf( rc.buildMode );
 		
 		return( true );
 	}
 	
 	public void logDebug( ActionBase action ) throws Exception {
-		String contextInfo = "productHome=" + productHome;
+		String contextInfo = "productHome=" + session.productPath;
 		if( buildMode != VarBUILDMODE.UNKNOWN )
 			contextInfo += ", buildMode=" + getBuildModeName();
 		if( !session.ENV.isEmpty() )
@@ -366,7 +362,7 @@ public class CommandContext {
 	}
 	
 	public void createPool( ActionBase action ) throws Exception {
-		pool = new ShellExecutorPool( productHome );
+		pool = new ShellExecutorPool( session.masterPath );
 		pool.start( action );
 	}
 

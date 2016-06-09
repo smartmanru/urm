@@ -10,6 +10,7 @@ import org.urm.common.ExitException;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
+import org.urm.common.action.CommandOptions;
 import org.urm.server.action.ActionInit;
 import org.urm.server.action.CommandContext;
 import org.urm.server.action.build.BuildCommandExecutor;
@@ -23,31 +24,44 @@ import org.urm.server.meta.Metadata;
 
 public class ServerEngine {
 
+	RunContext execrc;
+	
 	public boolean runArgs( String[] args ) throws Exception {
-		RunContext rc = new RunContext();
-		rc.load();
+		execrc = new RunContext();
+		execrc.load();
 
-		if( !rc.isMain() )
+		if( !execrc.isMain() )
 			throw new ExitException( "only main executor id expected" );
 
-		CommandBuilder builder = new CommandBuilder( rc );
+		CommandBuilder builder = new CommandBuilder( execrc );
 		CommandExecutor executor = MainExecutor.create( builder , args );
 		if( executor == null )
 			return( false );
 		
-		SessionContext session = new SessionContext( rc );
-		return( runExecutor( builder , executor , session ) );
+		SessionContext session = new SessionContext( execrc );
+		return( runExecutor( builder.options , executor , session ) );
 	}
 	
-	public boolean runClientMode( CommandBuilder builder , CommandMeta commandInfo ) throws Exception {
-		// init action stream
+	public boolean runClientMode( CommandOptions options , RunContext clientrc , CommandMeta commandInfo ) throws Exception {
+		execrc = clientrc;
 		CommandExecutor executor = createExecutor( commandInfo );
-		SessionContext session = new SessionContext( builder.rc );
-		return( runExecutor( builder , executor , session ) );
+		SessionContext session = new SessionContext( clientrc );
+		return( runExecutor( options , executor , session ) );
 	}
 		
-	private boolean runExecutor( CommandBuilder builder , CommandExecutor executor , SessionContext session ) throws Exception {
-		ActionInit action = createAction( builder , executor , session );
+	public boolean runClientRemote( CommandOptions options , RunContext clientrc ) throws Exception {
+		CommandBuilder builder = new CommandBuilder( execrc );
+		CommandMeta commandInfo = builder.createMeta( options.command );
+		if( commandInfo == null )
+			return( false );
+		
+		CommandExecutor executor = createExecutor( commandInfo );
+		SessionContext session = new SessionContext( clientrc );
+		return( runExecutor( options , executor , session ) );
+	}
+		
+	private boolean runExecutor( CommandOptions options , CommandExecutor executor , SessionContext session ) throws Exception {
+		ActionInit action = createAction( options , executor , session );
 		if( action == null )
 			return( false );
 		
@@ -94,17 +108,17 @@ public class ServerEngine {
 		return( executor );
 	}
 
-	public ActionInit createAction( CommandBuilder builder , CommandExecutor executor , SessionContext session ) throws Exception {
+	public ActionInit createAction( CommandOptions options , CommandExecutor executor , SessionContext session ) throws Exception {
 		// create context
-		CommandContext context = new CommandContext( builder.options , builder.rc , session );
-		if( !context.loadDefaults( builder.rc ) )
+		CommandContext context = new CommandContext( options , session );
+		if( !context.setRunContext( execrc ) )
 			return( null );
 		
 		if( !context.prepareExecution( executor ) )
 			return( null );
 		
 		Metadata meta = new Metadata();
-		ActionInit action = executor.prepare( context , meta , builder.options.action );
+		ActionInit action = executor.prepare( context , meta , options.action );
 		return( action );
 	}
 	

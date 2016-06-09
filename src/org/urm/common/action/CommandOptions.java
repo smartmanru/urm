@@ -54,7 +54,6 @@ public class CommandOptions {
 		defineGenericOption( CommandVar.newFlagYesOption( "local" , "GETOPT_LOCAL" , "any session is opened as local under current user" ) );
 		defineGenericOption( CommandVar.newParam( "timeout" , "GETOPT_COMMANDTIMEOUT" , "use specific default timeout" ) );
 		defineGenericOption( CommandVar.newParam( "key" , "GETOPT_KEY" , "use given key to connect to host" ) );
-		defineGenericOption( CommandVar.newParam( "etcpath" , "GETOPT_ETCPATH" , "use given path to find metedata files" ) );
 		defineGenericOption( CommandVar.newParam( "distpath" , "GETOPT_DISTPATH" , "use given path to find distributive files" ) );
 		defineGenericOption( CommandVar.newParam( "hiddenpath" , "GETOPT_HIDDENPATH" , "use given path to find hidden files and properties" ) );
 		defineGenericOption( CommandVar.newParam( "workpath" , "GETOPT_WORKPATH" , "use given path to store working files and logs" ) );
@@ -124,10 +123,6 @@ public class CommandOptions {
 		defineOption( CommandVar.newParam( "over" , "GETOPT_COMPATIBILITY" , "previous release installed" ) );
 	}
 
-	public String getMetaPath() throws Exception {
-		return( getParamValue( "GETOPT_ETCPATH" ) ); 
-	}
-	
 	public void print( String s ) {
 		System.out.println( s );
 	}

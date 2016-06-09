@@ -59,16 +59,12 @@ public class Artefactory {
 	}
 
 	public LocalFolder getProductFolder( ActionBase action , String dirname ) throws Exception {
-		String dir = Common.getPath( action.context.productHome , dirname );
+		String dir = Common.getPath( action.context.session.productPath , dirname );
 		return( getAnyFolder( action , dir ) );
 	}
 
 	public String getMetadataPath( ActionBase action , String dirname ) throws Exception {
-		String dir;
-		if( action.context.CTX_ETCPATH.isEmpty() )
-			dir = Common.getPath( action.context.productHome , "etc" , dirname );
-		else
-			dir = Common.getPath( action.context.CTX_ETCPATH , dirname );
+		String dir = Common.getPath( action.context.session.etcPath , dirname );
 		return( dir );
 	}
 

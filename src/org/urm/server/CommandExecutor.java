@@ -74,7 +74,6 @@ public abstract class CommandExecutor {
 		ActionInit action = new ActionInit( this , context , output , meta , commandAction , actionName );
 		
 		// load product properties
-		context.CTX_ETCPATH = context.options.getMetaPath();
 		context.update( action );
 		meta.loadProduct( action );
 		context.update( action );

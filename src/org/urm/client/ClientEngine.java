@@ -30,7 +30,7 @@ public class ClientEngine {
 
 	private boolean runClientMode( CommandBuilder builder , CommandMeta commandInfo ) throws Exception {
 		ServerEngine server = new ServerEngine();
-		return( server.runClientMode( builder , commandInfo ) );
+		return( server.runClientMode( builder.options , builder.rc , commandInfo ) );
 	}
 	
 	private boolean runServerMode( CommandBuilder builder , CommandMeta commandInfo ) throws Exception {

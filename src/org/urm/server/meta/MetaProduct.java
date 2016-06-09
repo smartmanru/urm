@@ -195,7 +195,7 @@ public class MetaProduct {
 			nextProdTag = lastProdTag + 1;
 		}
 		
-		CONFIG_PRODUCTHOME = action.context.productHome;
+		CONFIG_PRODUCTHOME = action.context.session.productPath;
 		CONFIG_LASTPRODTAG = "" + lastProdTag;
 		CONFIG_NEXTPRODTAG = "" + nextProdTag;
 		

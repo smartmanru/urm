@@ -14,7 +14,11 @@ public class RunContext {
 	public VarOSTYPE osType;
 
 	public String userHome;
-	public String productHome;
+	public String productPath;
+	public String etcPath;
+	public String proxyPath;
+	
+	public String productName;
 	public String buildMode;
 	public String envName;
 	public String dcName;
@@ -42,18 +46,25 @@ public class RunContext {
 			
 		OSTYPE = getProperty( "urm.os" ).toUpperCase();
 		osType = VarOSTYPE.valueOf( Common.xmlToEnumValue( OSTYPE ) );
-		buildMode = getProperty( "build.mode" ).toUpperCase();
-		envName = getProperty( "env" );
-		dcName = getProperty( "dc" );
+		buildMode = getProperty( "urm.build" ).toUpperCase();
+		envName = getProperty( "urm.env" );
+		dcName = getProperty( "urm.dc" );
+		productName = getProperty( "urm.product" );
 		
 		if( osType == VarOSTYPE.LINUX ) {
-			productHome = getProperty( "product.home" );
+			productPath = getProperty( "urm.productpath" );
+			etcPath = getProperty( "urm.etcpath" );
+			proxyPath = getProperty( "urm.proxypath" );
+			
 			hostName = System.getenv( "HOSTNAME" );
 			userName = System.getenv( "USER" );
 	    	userHome = System.getenv( "HOME" );
 		}
 		else {
-			productHome = Common.getLinuxPath( getProperty( "product.home" ) );
+			productPath = Common.getLinuxPath( getProperty( "urm.productpath" ) );
+			etcPath = Common.getLinuxPath( getProperty( "urm.etcpath" ) );
+			proxyPath = Common.getLinuxPath( getProperty( "urm.proxypath" ) );
+			
 			hostName = "windows";
 			userName = "user";
 	    	userHome = Common.getLinuxPath( System.getenv( "HOMEPATH" ) );
