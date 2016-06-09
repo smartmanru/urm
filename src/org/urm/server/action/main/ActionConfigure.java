@@ -50,7 +50,7 @@ public class ActionConfigure extends ActionBase {
 		else
 		if( ACTION.equals( "standalone" ) ) {
 			context.session.setStandaloneLayout( context.options );
-			configureProduct( true );
+			configureProduct( true , true );
 		}
 		else
 		if( ACTION.equals( "default" ) )
@@ -66,20 +66,33 @@ public class ActionConfigure extends ActionBase {
 		if( !pfProducts.checkExists( this ) )
 			exit( "before configure, please create directory: " + pfProducts.folderPath );
 
+		boolean found = false;
 		for( String product : pfProducts.getTopDirs( this ) ) {
+			comment( "configure product=" + product + " ..." );
+			found = true;
 			context.session.setServerProductLayout( product );
-			configureProduct( initial );
+			configureProduct( initial , false );
 		}
+		
+		if( !found )
+			info( "no products found in " + pfProducts.folderPath + ", nothing to configure" );
 	}
 	
-	private void configureProduct( boolean initial ) throws Exception {
+	private void configureProduct( boolean initial , boolean standalone ) throws Exception {
 		meta.loadProduct( this );
 		meta.loadDistr( this );
 		
 		LocalFolder pf = artefactory.getProductFolder( this );
 		pfMaster = pf.getSubFolder( this , "master" );
 		String masterPath = pfMaster.getFilePath( this , MainMeta.MASTERFILE );
-		List<String> lines = readFileLines( masterPath );
+		
+		List<String> lines = null;
+		if( standalone ) 
+			lines = readFileLines( masterPath );
+		else {
+			pfMaster.ensureExists( this );
+			lines = new LinkedList<String>();
+		}
 		
 		configureProduct( lines , initial );
 		createMasterFile( masterPath , lines );
@@ -93,7 +106,7 @@ public class ActionConfigure extends ActionBase {
 		}
 		else {
 			context.session.setStandaloneLayout( context.options );
-			configureProduct( false );
+			configureProduct( false , true );
 		}
 	}
 	

@@ -18,17 +18,36 @@ public class ActionSave extends ActionBase {
 	}
 
 	@Override protected boolean executeSimple() throws Exception {
-		executeStandalone();
+		LocalFolder pf = artefactory.getInstallFolder( this );
+		if( pf.checkFolderExists( this , "products" ) ) {
+			context.session.setServerLayout( context.options );
+			saveServer( pf );
+		}
+		else {
+			context.session.setStandaloneLayout( context.options );
+			saveProduct( pf , true );
+		}
 		return( true );
 	}
 
-	private void executeStandalone() throws Exception {
-		context.session.setStandaloneLayout( context.options );
-		
-		meta.loadProduct( this );
-		meta.loadDistr( this );
+	private void saveServer( LocalFolder pf ) throws Exception {
+		saveProduct( pf , false );
+		LocalFolder pfProducts = pf.getSubFolder( this , "products" );
 
-		LocalFolder pf = artefactory.getProductFolder( this );
+		boolean found = false;
+		for( String product : pfProducts.getTopDirs( this ) ) {
+			comment( "configure product=" + product + " ..." );
+			found = true;
+			context.session.setServerProductLayout( product );
+			LocalFolder productFolder = pfProducts.getSubFolder( this , product );
+			saveProduct( productFolder , false );
+		}
+		
+		if( !found )
+			info( "no products found in " + pfProducts.folderPath + ", nothing to save" );
+	}
+	
+	private void saveProduct( LocalFolder pf , boolean standalone ) throws Exception {
 		pfMaster = pf.getSubFolder( this , "master" );
 		
 		// read master file and make up all files to the list
