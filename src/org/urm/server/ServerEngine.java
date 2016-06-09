@@ -35,17 +35,18 @@ public class ServerEngine {
 		if( executor == null )
 			return( false );
 		
-		return( runExecutor( builder , executor ) );
+		SessionContext session = new SessionContext( rc );
+		return( runExecutor( builder , executor , session ) );
 	}
 	
 	public boolean runClientMode( CommandBuilder builder , CommandMeta commandInfo ) throws Exception {
 		// init action stream
 		CommandExecutor executor = createExecutor( commandInfo );
-		return( runExecutor( builder , executor ) );
+		SessionContext session = new SessionContext( builder.rc );
+		return( runExecutor( builder , executor , session ) );
 	}
 		
-	private boolean runExecutor( CommandBuilder builder , CommandExecutor executor ) throws Exception {
-		SessionContext session = new SessionContext();
+	private boolean runExecutor( CommandBuilder builder , CommandExecutor executor , SessionContext session ) throws Exception {
 		ActionInit action = createAction( builder , executor , session );
 		if( action == null )
 			return( false );

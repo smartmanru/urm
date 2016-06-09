@@ -36,8 +36,6 @@ public class CommandContext {
 	public String userHome;
 	public String productHome;
 	public VarBUILDMODE buildMode = VarBUILDMODE.UNKNOWN;
-	public String ENV;
-	public String DC;
 
 	// generic settings
 	public boolean CTX_TRACEINTERNAL;
@@ -110,16 +108,18 @@ public class CommandContext {
 	public CommandContext( CommandOptions options , RunContext rc , SessionContext session ) {
 		this.options = options;
 		this.rc = rc;
-
 		this.session = session;
+		
 		this.streamName = "main";
 	}
 
 	public CommandContext( CommandContext context , String stream ) {
-		this.env = context.env;
-		this.dc = context.dc;
+		this.options = context.options;
+		this.rc = context.rc;
 		this.session = context.session;
 		
+		this.env = context.env;
+		this.dc = context.dc;
 		this.pool = context.pool;
 
 		if( stream == null || stream.isEmpty() )
@@ -301,16 +301,13 @@ public class CommandContext {
 	}
 
 	public void loadEnv( ActionBase action , boolean loadProps ) throws Exception {
-		String useDC = DC;
-		if( DC.isEmpty() )
+		String useDC = session.DC;
+		if( useDC.isEmpty() )
 			useDC = CTX_DC;
-		loadEnv( action , ENV , useDC , loadProps );
+		loadEnv( action , session.ENV , useDC , loadProps );
 	}
 	
 	public void loadEnv( ActionBase action , String ENV , String DC , boolean loadProps ) throws Exception {
-		this.ENV = ENV;
-		this.CTX_DC = DC;
-		
 		env = action.meta.loadEnvData( action , ENV , loadProps );
 		
 		if( DC == null || DC.isEmpty() ) {
@@ -353,8 +350,6 @@ public class CommandContext {
 		this.userHome = rc.userHome;
 		this.productHome = rc.productHome;
 		this.buildMode = ( rc.buildMode.isEmpty() )? VarBUILDMODE.UNKNOWN : VarBUILDMODE.valueOf( rc.buildMode );
-		this.ENV = rc.envName;
-		this.DC = rc.dcName;
 		
 		return( true );
 	}
@@ -363,10 +358,10 @@ public class CommandContext {
 		String contextInfo = "productHome=" + productHome;
 		if( buildMode != VarBUILDMODE.UNKNOWN )
 			contextInfo += ", buildMode=" + getBuildModeName();
-		if( !ENV.isEmpty() )
-			contextInfo += ", env=" + ENV;
-		if( !DC.isEmpty() )
-			contextInfo += ", dc=" + DC;
+		if( !session.ENV.isEmpty() )
+			contextInfo += ", env=" + session.ENV;
+		if( !session.DC.isEmpty() )
+			contextInfo += ", dc=" + session.DC;
 		action.debug( "context: " + contextInfo );
 	}
 	
