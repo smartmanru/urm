@@ -504,7 +504,6 @@ public class MetaEnvServer {
 			}
 		}
 		
-		action.trace( "ignore due to empty non-manual server deployments" );
 		return( false );
 	}
 
