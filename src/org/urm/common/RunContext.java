@@ -17,7 +17,7 @@ public class RunContext {
 	public String userHome;
 	public String installPath;
 	
-	public String productName;
+	public String productDir;
 	public String buildMode;
 	public String envName;
 	public String dcName;
@@ -48,7 +48,7 @@ public class RunContext {
 		buildMode = getProperty( "urm.build" ).toUpperCase();
 		envName = getProperty( "urm.env" );
 		dcName = getProperty( "urm.dc" );
-		productName = getProperty( "urm.product" );
+		productDir = getProperty( "urm.product" );
 		serverURL = getProperty( "urm.server" );
 		
 		if( osType == VarOSTYPE.LINUX ) {

@@ -44,11 +44,11 @@ public class SessionContext {
 		proxyPath = "";
 	}
 	
-	public void setServerProductLayout( String product ) throws Exception {
-		if( product.isEmpty() )
-			exit( "unknown product" );
+	public void setServerProductLayout( String productDir ) throws Exception {
+		if( productDir.isEmpty() )
+			exit( "missing product folder" );
 		
-		productPath = Common.getPath( installPath , "products" , product );
+		productPath = Common.getPath( installPath , "products" , productDir );
 		etcPath = Common.getPath( productPath , "etc" );
 		proxyPath = Common.getPath( productPath , "master" );
 	}
@@ -58,7 +58,7 @@ public class SessionContext {
 		masterPath = serverSession.masterPath;
 		binPath = serverSession.binPath;
 		
-		setServerProductLayout( cmdrc.productName );
+		setServerProductLayout( cmdrc.productDir );
 	}
 	
 	public void setStandaloneLayout( CommandOptions options ) throws Exception {

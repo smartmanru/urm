@@ -39,8 +39,6 @@ public class ActionConfigure extends ActionBase {
 	String dcDbMasterFolderRel;
 	String buildMasterFolderRel;
 
-	String useProduct;
-	
 	public ActionConfigure( ActionBase action , String stream , boolean configureLinux , String ACTION , String USEENV , String USEDC ) {
 		super( action , stream );
 		this.configureLinux = configureLinux;
@@ -73,8 +71,7 @@ public class ActionConfigure extends ActionBase {
 		else
 		if( ACTION.equals( "standalone" ) ) {
 			context.session.setStandaloneLayout( context.options );
-			useProduct = "";
-			configureProduct( true , true );
+			configureProduct( true , true , "" );
 		}
 		else
 		if( ACTION.equals( "default" ) )
@@ -91,19 +88,18 @@ public class ActionConfigure extends ActionBase {
 			exit( "before configure, please create directory: " + pfProducts.folderPath );
 
 		boolean found = false;
-		for( String product : pfProducts.getTopDirs( this ) ) {
-			comment( "configure product=" + product + " ..." );
+		for( String productDir : pfProducts.getTopDirs( this ) ) {
+			comment( "configure product folder=" + productDir + " ..." );
 			found = true;
-			context.session.setServerProductLayout( product );
-			useProduct = product;
-			configureProduct( initial , false );
+			context.session.setServerProductLayout( productDir );
+			configureProduct( initial , false , productDir );
 		}
 		
 		if( !found )
 			info( "no products found in " + pfProducts.folderPath + ", nothing to configure" );
 	}
 	
-	private void configureProduct( boolean initial , boolean standalone ) throws Exception {
+	private void configureProduct( boolean initial , boolean standalone , String productDir ) throws Exception {
 		meta.loadProduct( this );
 		meta.loadDistr( this );
 		
@@ -120,7 +116,7 @@ public class ActionConfigure extends ActionBase {
 			lines.add( MainMeta.RELEASEPREFIX + MainMeta.MASTERFILE );
 		}
 		
-		configureProduct( initial );
+		configureProduct( initial , productDir );
 		createMasterFile( masterPath , lines );
 	}
 
@@ -132,11 +128,11 @@ public class ActionConfigure extends ActionBase {
 		}
 		else {
 			context.session.setStandaloneLayout( context.options );
-			configureProduct( false , true );
+			configureProduct( false , true , "" );
 		}
 	}
 	
-	private void configureProduct( boolean initial ) throws Exception {
+	private void configureProduct( boolean initial , String productDir ) throws Exception {
 		linesProxy = new LinkedList<String>();
 		linesAffected = new LinkedList<String>();
 		
@@ -144,9 +140,9 @@ public class ActionConfigure extends ActionBase {
 		USEDC = "";
 		
 		if( initial )
-			configureProductAll( true , true , configureLinux );
+			configureProductAll( true , true , configureLinux , productDir );
 		else
-			configureProductDefault();
+			configureProductDefault( productDir );
 	}
 
 	private void createMasterFile( String masterPath , List<String> lines ) throws Exception {
@@ -190,7 +186,7 @@ public class ActionConfigure extends ActionBase {
 		Common.createFileFromStringList( masterPath , linesNew );
 	}
 	
-	private void configureProductDefault() throws Exception {
+	private void configureProductDefault( String productDir ) throws Exception {
 		LocalFolder pfBuild = pfMaster.getSubFolder( this , BuildCommandMeta.NAME );
 		LocalFolder pfDeploy = pfMaster.getSubFolder( this , DeployCommandMeta.NAME );
 		
@@ -212,12 +208,12 @@ public class ActionConfigure extends ActionBase {
 		}
 		
 		if( buildUnix || deployUnix )
-			configureProductAll( buildUnix , deployUnix , true );
+			configureProductAll( buildUnix , deployUnix , true , productDir );
 		if( buildWindows || deployWindows )
-			configureProductAll( buildWindows , deployWindows , false );
+			configureProductAll( buildWindows , deployWindows , false , productDir );
 	}
 	
-	private void configureProductAll( boolean build , boolean deploy , boolean linux ) throws Exception {
+	private void configureProductAll( boolean build , boolean deploy , boolean linux , String productDir ) throws Exception {
 		CommandBuilder builder = new CommandBuilder( context.rc );
 		CommandMeta[] executors = builder.getExecutors( build , deploy );
 		CommandMeta dbe = null;
@@ -229,10 +225,10 @@ public class ActionConfigure extends ActionBase {
 		}
 			
 		for( CommandMeta executor : executors )
-			configureExecutor( executor , dbe , linux );
+			configureExecutor( executor , dbe , linux , productDir );
 	}
 
-	private void configureExecutor( CommandMeta executor , CommandMeta dbe , boolean linux ) throws Exception {
+	private void configureExecutor( CommandMeta executor , CommandMeta dbe , boolean linux , String productDir ) throws Exception {
 		LocalFolder exeFolder = pfMaster.getSubFolder( this , executor.name );
 		exeFolder.ensureExists( this );
 
