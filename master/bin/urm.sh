@@ -18,4 +18,8 @@ else
 	JAVACP=master/bin/urmc.jar
 fi
 
+if [ "$1" = "-trace" ] || [ "$2" = "-trace" ]; then
+	echo run: java -cp $JAVACP -Duser.language=ru -Dfile.encoding=utf-8 -Durm.mode=$C_URM_MODE -Durm.os=linux -Durm.installpath=$INSTALL_PATH -Durm.server=$C_CONTEXT_URMSERVER -Durm.product=$C_CONTEXT_PRODUCT -Durm.build=$C_CONTEXT_VERSIONMODE -Durm.env=$C_CONTEXT_ENV -Durm.dc=$C_CONTEXT_DC $C_UMR_CLASS "$@"
+fi
+
 java -cp $JAVACP -Duser.language=ru -Dfile.encoding=utf-8 -Durm.mode=$C_URM_MODE -Durm.os=linux -Durm.installpath=$INSTALL_PATH -Durm.server=$C_CONTEXT_URMSERVER -Durm.product=$C_CONTEXT_PRODUCT -Durm.build=$C_CONTEXT_VERSIONMODE -Durm.env=$C_CONTEXT_ENV -Durm.dc=$C_CONTEXT_DC $C_UMR_CLASS "$@"
