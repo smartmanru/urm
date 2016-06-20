@@ -73,7 +73,7 @@ public abstract class CommandExecutor {
 		CommandAction commandAction = actionsMap.get( actionName );
 		ActionInit action = new ActionInit( this , context , output , meta , commandAction , actionName );
 		
-		// load product properties
+		// load initial properties
 		context.update( action );
 		
 		// create shell pool

@@ -429,7 +429,7 @@ public class CommandContext {
 		return( options.combineValue( optVar , confValue , defValue ) );
 	}
 	
-	public boolean prepareExecution( CommandExecutor executor ) throws Exception {
+	public boolean setAction( CommandExecutor executor ) throws Exception {
 		String actionName = options.action;
 		String firstArg = options.getArg( 0 );
 		

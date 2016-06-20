@@ -69,7 +69,7 @@ public class ServerEngine {
 		
 		CommandExecutor executor = createExecutor( commandInfo );
 		SessionContext session = new SessionContext( clientrc );
-		session.setServerClientLayout( options , serverSession );
+		session.setServerClientLayout( clientrc , serverSession );
 		
 		ActionInit action = createAction( options , executor , session );
 		if( action == null )
@@ -129,7 +129,7 @@ public class ServerEngine {
 		if( !context.setRunContext( execrc ) )
 			return( null );
 		
-		if( !context.prepareExecution( executor ) )
+		if( !context.setAction( executor ) )
 			return( null );
 		
 		Metadata meta = new Metadata();

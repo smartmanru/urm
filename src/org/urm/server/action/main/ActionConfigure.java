@@ -71,7 +71,7 @@ public class ActionConfigure extends ActionBase {
 		else
 		if( ACTION.equals( "standalone" ) ) {
 			context.session.setStandaloneLayout( context.options );
-			configureProduct( true , true , "" );
+			configureProduct( true , true );
 		}
 		else
 		if( ACTION.equals( "default" ) )
@@ -92,14 +92,14 @@ public class ActionConfigure extends ActionBase {
 			comment( "configure product folder=" + productDir + " ..." );
 			found = true;
 			context.session.setServerProductLayout( productDir );
-			configureProduct( initial , false , productDir );
+			configureProduct( initial , false );
 		}
 		
 		if( !found )
 			info( "no products found in " + pfProducts.folderPath + ", nothing to configure" );
 	}
 	
-	private void configureProduct( boolean initial , boolean standalone , String productDir ) throws Exception {
+	private void configureProduct( boolean initial , boolean standalone ) throws Exception {
 		meta.loadProduct( this );
 		meta.loadDistr( this );
 		
@@ -116,7 +116,7 @@ public class ActionConfigure extends ActionBase {
 			lines.add( MainMeta.RELEASEPREFIX + MainMeta.MASTERFILE );
 		}
 		
-		configureProduct( initial , productDir );
+		configureProduct( initial );
 		createMasterFile( masterPath , lines );
 	}
 
@@ -128,11 +128,11 @@ public class ActionConfigure extends ActionBase {
 		}
 		else {
 			context.session.setStandaloneLayout( context.options );
-			configureProduct( false , true , "" );
+			configureProduct( false , true );
 		}
 	}
 	
-	private void configureProduct( boolean initial , String productDir ) throws Exception {
+	private void configureProduct( boolean initial ) throws Exception {
 		linesProxy = new LinkedList<String>();
 		linesAffected = new LinkedList<String>();
 		
@@ -140,9 +140,9 @@ public class ActionConfigure extends ActionBase {
 		USEDC = "";
 		
 		if( initial )
-			configureProductAll( true , true , configureLinux , productDir );
+			configureProductAll( true , true , configureLinux );
 		else
-			configureProductDefault( productDir );
+			configureProductDefault();
 	}
 
 	private void createMasterFile( String masterPath , List<String> lines ) throws Exception {
@@ -186,7 +186,7 @@ public class ActionConfigure extends ActionBase {
 		Common.createFileFromStringList( masterPath , linesNew );
 	}
 	
-	private void configureProductDefault( String productDir ) throws Exception {
+	private void configureProductDefault() throws Exception {
 		LocalFolder pfBuild = pfMaster.getSubFolder( this , BuildCommandMeta.NAME );
 		LocalFolder pfDeploy = pfMaster.getSubFolder( this , DeployCommandMeta.NAME );
 		
@@ -208,12 +208,12 @@ public class ActionConfigure extends ActionBase {
 		}
 		
 		if( buildUnix || deployUnix )
-			configureProductAll( buildUnix , deployUnix , true , productDir );
+			configureProductAll( buildUnix , deployUnix , true );
 		if( buildWindows || deployWindows )
-			configureProductAll( buildWindows , deployWindows , false , productDir );
+			configureProductAll( buildWindows , deployWindows , false );
 	}
 	
-	private void configureProductAll( boolean build , boolean deploy , boolean linux , String productDir ) throws Exception {
+	private void configureProductAll( boolean build , boolean deploy , boolean linux ) throws Exception {
 		CommandBuilder builder = new CommandBuilder( context.rc );
 		CommandMeta[] executors = builder.getExecutors( build , deploy );
 		CommandMeta dbe = null;
@@ -225,20 +225,23 @@ public class ActionConfigure extends ActionBase {
 		}
 			
 		for( CommandMeta executor : executors )
-			configureExecutor( executor , dbe , linux , productDir );
+			configureExecutor( executor , dbe , linux );
 	}
 
-	private void configureExecutor( CommandMeta executor , CommandMeta dbe , boolean linux , String productDir ) throws Exception {
+	private void configureExecutor( CommandMeta executor , CommandMeta dbe , boolean linux ) throws Exception {
 		LocalFolder exeFolder = pfMaster.getSubFolder( this , executor.name );
 		exeFolder.ensureExists( this );
 
+		// context
+		configureExecutorContextSimple( exeFolder , linux );
+		
 		// add help action
-		configureExecutorWrapper( exeFolder , executor , "help" , linux , executorMasterFolderRel , false , null );
+		configureExecutorWrapper( exeFolder , executor , "help" , linux , executorMasterFolderRel , null );
 		
 		// top items
 		for( CommandMethod cmdAction : executor.actionsList ) {
 			if( cmdAction.top )
-				configureExecutorWrapper( exeFolder , executor , cmdAction.name , linux , executorMasterFolderRel , false , null );
+				configureExecutorWrapper( exeFolder , executor , cmdAction.name , linux , executorMasterFolderRel , null );
 		}
 		
 		if( executor.name.equals( DeployCommandMeta.NAME ) ) {
@@ -353,7 +356,7 @@ public class ActionConfigure extends ActionBase {
 		// env-level wrappers
 		for( CommandMethod cmdAction : executor.actionsList ) {
 			if( !cmdAction.top )
-				configureExecutorWrapper( ef , executor , cmdAction.name , linux , xp , true , null );
+				configureExecutorWrapper( ef , executor , cmdAction.name , linux , xp , null );
 		}
 		
 		// database wrappers
@@ -361,7 +364,7 @@ public class ActionConfigure extends ActionBase {
 		efDB.ensureExists( this );
 		for( CommandMethod cmdAction : dbe.actionsList ) {
 			if( !cmdAction.top )
-				configureExecutorWrapper( efDB , dbe , cmdAction.name , linux , xpdb , true , ".." );
+				configureExecutorWrapper( efDB , dbe , cmdAction.name , linux , xpdb , ".." );
 		}
 	}
 	
@@ -373,19 +376,45 @@ public class ActionConfigure extends ActionBase {
 		// env-level wrappers
 		for( CommandMethod cmdAction : executor.actionsList ) {
 			if( !cmdAction.top )
-				configureExecutorWrapper( efBuild , executor , cmdAction.name , linux , buildMasterFolderRel , true , null );
+				configureExecutorWrapper( efBuild , executor , cmdAction.name , linux , buildMasterFolderRel , null );
 		}
 	}
 
+	private void configureExecutorContextSimple( LocalFolder ef , boolean linux ) throws Exception {
+		List<String> lines = new LinkedList<String>();
+		
+		String productDir = context.session.productDir;
+		
+		if( linux ) {
+			if( !productDir.isEmpty() )
+				lines.add( "export C_CONTEXT_PRODUCT=" + productDir );
+			Common.createFileFromStringList( ef.getFilePath( this , MainMeta.CONTEXT_FILENAME_LIXUX ) , lines );
+			addProxyLine( ef , MainMeta.CONTEXT_FILENAME_LIXUX );
+		}
+		else {
+			if( !productDir.isEmpty() )
+				lines.add( "@set C_CONTEXT_PRODUCT=" + productDir );
+			Common.createFileFromStringList( ef.getFilePath( this , MainMeta.CONTEXT_FILENAME_WIN ) , lines );
+			addProxyLine( ef , MainMeta.CONTEXT_FILENAME_WIN );
+		}
+	}
+	
 	private void configureExecutorContextDeployment( LocalFolder ef , String ENVFILE , String DC , boolean linux ) throws Exception {
 		List<String> lines = new LinkedList<String>();
+		
+		String productDir = context.session.productDir;
+		
 		if( linux ) {
+			if( !productDir.isEmpty() )
+				lines.add( "export C_CONTEXT_PRODUCT=" + productDir );
 			lines.add( "export C_CONTEXT_ENV=" + ENVFILE );
 			lines.add( "export C_CONTEXT_DC=" + DC );
 			Common.createFileFromStringList( ef.getFilePath( this , MainMeta.CONTEXT_FILENAME_LIXUX ) , lines );
 			addProxyLine( ef , MainMeta.CONTEXT_FILENAME_LIXUX );
 		}
 		else {
+			if( !productDir.isEmpty() )
+				lines.add( "@set C_CONTEXT_PRODUCT=" + productDir );
 			lines.add( "@set C_CONTEXT_ENV=" + ENVFILE );
 			lines.add( "@set C_CONTEXT_DC=" + DC );			
 			Common.createFileFromStringList( ef.getFilePath( this , MainMeta.CONTEXT_FILENAME_WIN ) , lines );
@@ -395,19 +424,26 @@ public class ActionConfigure extends ActionBase {
 	
 	private void configureExecutorContextBuildMode( LocalFolder ef , VarBUILDMODE mode , boolean linux ) throws Exception {
 		List<String> lines = new LinkedList<String>();
+
+		String productDir = context.session.productDir;
+		
 		if( linux ) {
+			if( !productDir.isEmpty() )
+				lines.add( "export C_CONTEXT_PRODUCT=" + productDir );
 			lines.add( "export C_CONTEXT_VERSIONMODE=" + Common.getEnumLower( mode ) );
 			Common.createFileFromStringList( ef.getFilePath( this , MainMeta.CONTEXT_FILENAME_LIXUX ) , lines );
 			addProxyLine( ef , MainMeta.CONTEXT_FILENAME_LIXUX );
 		}
 		else {
+			if( !productDir.isEmpty() )
+				lines.add( "@set C_CONTEXT_PRODUCT=" + productDir );
 			lines.add( "@set C_CONTEXT_VERSIONMODE=" + Common.getEnumLower( mode ) );
 			Common.createFileFromStringList( ef.getFilePath( this , MainMeta.CONTEXT_FILENAME_WIN ) , lines );
 			addProxyLine( ef , MainMeta.CONTEXT_FILENAME_WIN );
 		}
 	}
 	
-	private void configureExecutorWrapper( LocalFolder ef , CommandMeta executor , String method , boolean linux , String relativePath , boolean context , String relativeContext ) throws Exception {
+	private void configureExecutorWrapper( LocalFolder ef , CommandMeta executor , String method , boolean linux , String relativePath , String relativeContext ) throws Exception {
 		String fileName = method + ( ( linux )? ".sh" : ".cmd" );
 		String filePath = ef.getFilePath( this , fileName );
 
@@ -419,23 +455,23 @@ public class ActionConfigure extends ActionBase {
 		if( linux ) {
 			lines.add( "#!/bin/bash" );
 			lines.add( "cd `dirname $0`" );
-			if( context ) {
-				if( relativeContext == null )
-					lines.add( ". ./" + MainMeta.CONTEXT_FILENAME_LIXUX );
-				else
-					lines.add( ". " + relativeContext + "/" + MainMeta.CONTEXT_FILENAME_LIXUX );
-			}
+			
+			if( relativeContext == null )
+				lines.add( ". ./" + MainMeta.CONTEXT_FILENAME_LIXUX );
+			else
+				lines.add( ". " + relativeContext + "/" + MainMeta.CONTEXT_FILENAME_LIXUX );
+			
 			lines.add( relativePath + "/bin/urm.sh " + executor.name + " " + method + " " + Common.getQuoted( "$@" ) );			
 		}
 		else {
 			relativePath = Common.getWinPath( relativePath );
 			lines.add( "@cd %~dp0" );
-			if( context ) {
-				if( relativeContext == null )
-					lines.add( "@call " + MainMeta.CONTEXT_FILENAME_WIN );
-				else
-					lines.add( "@call " + Common.getWinPath( relativeContext + "/" + MainMeta.CONTEXT_FILENAME_WIN ) );
-			}
+			
+			if( relativeContext == null )
+				lines.add( "@call " + MainMeta.CONTEXT_FILENAME_WIN );
+			else
+				lines.add( "@call " + Common.getWinPath( relativeContext + "/" + MainMeta.CONTEXT_FILENAME_WIN ) );
+			
 			lines.add( "@" + relativePath + "\\bin\\urm.cmd " + executor.name + " " + method + " %*" );			
 		}
 		
