@@ -60,12 +60,12 @@ public class ActionConfigure extends ActionBase {
 		buildMasterFolderRel = "../..";
 
 		if( ACTION.equals( "server" ) ) {
-			executorMasterFolderRel += "../../../master";
-			envMasterFolderRel += "../../../master";
-			dcMasterFolderRel += "../../../master";
-			envDbMasterFolderRel += "../../../master";
-			dcDbMasterFolderRel += "../../../master";
-			buildMasterFolderRel += "../../../master";
+			executorMasterFolderRel += "/../../../master";
+			envMasterFolderRel += "/../../../master";
+			dcMasterFolderRel += "/../../../master";
+			envDbMasterFolderRel += "/../../../master";
+			dcDbMasterFolderRel += "/../../../master";
+			buildMasterFolderRel += "/../../../master";
 			
 			context.session.setServerLayout( context.options );
 			configureServer( true );
