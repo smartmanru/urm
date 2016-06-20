@@ -38,6 +38,8 @@ public class ActionConfigure extends ActionBase {
 	String envDbMasterFolderRel;
 	String dcDbMasterFolderRel;
 	String buildMasterFolderRel;
+
+	String useProduct;
 	
 	public ActionConfigure( ActionBase action , String stream , boolean configureLinux , String ACTION , String USEENV , String USEDC ) {
 		super( action , stream );
@@ -48,7 +50,7 @@ public class ActionConfigure extends ActionBase {
 	}
 
 	@Override protected boolean executeSimple() throws Exception {
-		commentExecutor( "run " + ACTION + " ..." );
+		commentExecutor( "configure " + ACTION + " ..." );
 		
 		executorMasterFolderRel = "..";
 		envMasterFolderRel = "../..";
@@ -58,12 +60,12 @@ public class ActionConfigure extends ActionBase {
 		buildMasterFolderRel = "../..";
 
 		if( ACTION.equals( "server" ) ) {
-			executorMasterFolderRel += "/../../../master";
-			envMasterFolderRel += "/../../../master";
-			dcMasterFolderRel += "/../../../master";
-			envDbMasterFolderRel += "/../../../master";
-			dcDbMasterFolderRel += "/../../../master";
-			buildMasterFolderRel += "/../../../master";
+			executorMasterFolderRel += "../../../master";
+			envMasterFolderRel += "../../../master";
+			dcMasterFolderRel += "../../../master";
+			envDbMasterFolderRel += "../../../master";
+			dcDbMasterFolderRel += "../../../master";
+			buildMasterFolderRel += "../../../master";
 			
 			context.session.setServerLayout( context.options );
 			configureServer( true );
@@ -71,6 +73,7 @@ public class ActionConfigure extends ActionBase {
 		else
 		if( ACTION.equals( "standalone" ) ) {
 			context.session.setStandaloneLayout( context.options );
+			useProduct = "";
 			configureProduct( true , true );
 		}
 		else
@@ -92,6 +95,7 @@ public class ActionConfigure extends ActionBase {
 			comment( "configure product=" + product + " ..." );
 			found = true;
 			context.session.setServerProductLayout( product );
+			useProduct = product;
 			configureProduct( initial , false );
 		}
 		
