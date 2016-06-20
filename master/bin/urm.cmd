@@ -13,9 +13,9 @@ if "%C_URM_MODE%" == "main" (
 )
 
 if "%C_CONTEXT_URMSERVER%" == "" (
-	set JAVACP=master/bin/urms.jar;master/lib/jna-4.1.0.jar
+	set JAVACP=master/bin/urms.jar;master/lib/jmxtools-1.2.1.jar;master/lib/jna-4.1.0.jar
 ) else (
-	set JAVACP=master/bin/urmc.jar
+	set JAVACP=master/bin/urmc.jar;master/lib/jmxtools-1.2.1.jar
 )
 
 set x=0

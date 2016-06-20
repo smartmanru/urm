@@ -13,9 +13,9 @@ else
 fi
 
 if [ "$C_CONTEXT_URMSERVER" = "" ]; then
-	JAVACP=master/bin/urms.jar:master/lib/jna-4.1.0.jar
+	JAVACP=master/bin/urms.jar:master/lib/jmxtools-1.2.1.jar:master/lib/jna-4.1.0.jar
 else
-	JAVACP=master/bin/urmc.jar
+	JAVACP=master/bin/urmc.jar:master/lib/jmxtools-1.2.1.jar
 fi
 
 if [ "$1" = "-trace" ] || [ "$2" = "-trace" ] || [ "$3" = "-trace" ]; then
