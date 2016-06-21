@@ -77,8 +77,10 @@ public class RunContext {
 		return( value );
 	}
 
-	public boolean isServer() {
-		return( serverMode );		
+	public boolean isRemoteMode() {
+		if( serverHostPort.isEmpty() )
+			return( false );
+		return( true );
 	}
 
 	public boolean isMain() {

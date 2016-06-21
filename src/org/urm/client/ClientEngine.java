@@ -19,7 +19,7 @@ public class ClientEngine {
 			return( false );
 
 		boolean res = false;
-		if( rc.isServer() )
+		if( rc.isRemoteMode() )
 			res = runServerMode( builder , commandInfo );
 		else
 			res = runClientMode( builder , commandInfo );
