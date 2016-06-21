@@ -16,7 +16,7 @@ if [ "$P_RELEASE" = "" ]; then
 	exit 1
 fi
 
-S_URMHOME=~/jurm/products
+S_URMHOME=~/urm/products
 S_PRODUCT_LIST=`( cd $S_URMHOME; ls | tr "\n" " " )`
 
 function f_execute_product() {
@@ -35,11 +35,15 @@ function f_execute_product() {
 	fi
 
 	local F_STAT
-
-	# update etc directory
-	~/svnget $F_DIR_RUNCOPY/etc
 	rm -rf $F_DIR_RUNCOPY/master/*
-	svn update $F_DIR_RUNCOPY/master > /dev/null
+	~/svnget $F_DIR_RUNCOPY/master > /dev/null
+
+	# update etc directory if any
+	if [ -d $F_DIR_RUNCOPY/products ]; then
+		~/svnget $F_DIR_RUNCOPY/products > /dev/null
+	else
+		~/svnget $F_DIR_RUNCOPY/etc > /dev/null
+	fi
 
 	# execute upgrade script
 	cd $P_DIR_TMP/bin
