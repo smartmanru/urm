@@ -48,8 +48,8 @@ public class MainExecutor extends CommandExecutor {
 			String USEENV = "";
 			String USEDC = "";
 			if( ACTION.equals( "deploy" ) ) {
-				USEENV = getArg( action , 2 );
-				USEDC = getArg( action , 3 );
+				USEENV = getArg( action , 1 );
+				USEDC = getArg( action , 2 );
 				if( USEENV == null )
 					USEENV = "";
 				if( USEDC == null )

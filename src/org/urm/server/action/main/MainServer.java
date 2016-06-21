@@ -14,6 +14,8 @@ import com.sun.jdmk.comm.HtmlAdaptorServer;
 
 public class MainServer {
 
+	public static int DEFAULT_SERVER_PORT = 8800;
+	
 	private MBeanServer mbs = null;
 	CommandMeta[] executors = null;
 	
@@ -35,7 +37,7 @@ public class MainServer {
 		
 		int port = action.context.CTX_PORT;
 		if( port <= 0 )
-			port = 8800;
+			port = DEFAULT_SERVER_PORT;
 		
 		ObjectName adapterName = new ObjectName( "urm:name=HtmlAdapter" );
         adapter.setPort( port );

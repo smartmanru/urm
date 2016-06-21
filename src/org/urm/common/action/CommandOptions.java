@@ -122,6 +122,7 @@ public class CommandOptions {
 		defineOption( CommandVar.newParam( "mode" , "OPT_BUILDMODE" , true , "use given build mode (branch, trunk, major, devbranch, devtrunk)" ) );
 		defineOption( CommandVar.newParam( "over" , "OPT_COMPATIBILITY" , true , "previous release installed" ) );
 		defineOption( CommandVar.newIntParam( "port" , "OPT_PORT" , false , "server port" ) );
+		defineOption( CommandVar.newParam( "host" , "OPT_HOST" , false , "server host" ) );
 	}
 
 	public CommandVar getVar( String varName ) {

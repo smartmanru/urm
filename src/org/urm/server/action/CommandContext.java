@@ -102,6 +102,7 @@ public class CommandContext {
 	public String CTX_NEWKEY = "";
 	public VarBUILDMODE CTX_BUILDMODE = VarBUILDMODE.UNKNOWN;
 	public String CTX_OLDRELEASE = "";
+	public String CTX_HOST = "";
 	public int CTX_PORT = -1;
 
 	public CommandContext( CommandOptions options , SessionContext session ) {
@@ -197,6 +198,7 @@ public class CommandContext {
 		this.CTX_BUILDMODE = context.CTX_BUILDMODE;
 		this.CTX_OLDRELEASE = context.CTX_OLDRELEASE;
 		this.CTX_PORT = context.CTX_PORT;
+		this.CTX_HOST = context.CTX_HOST;
 	}
 
 	public void update( ActionBase action ) throws Exception {
@@ -281,6 +283,7 @@ public class CommandContext {
 		CTX_BUILDMODE = action.meta.getBuildMode( action , getParamValue( action , "OPT_BUILDMODE" ) );
 		CTX_OLDRELEASE = getParamValue( action , "OPT_COMPATIBILITY" );
 		CTX_PORT = getIntParamValue( action , "OPT_PORT" , -1 );
+		CTX_HOST = getParamValue( action , "OPT_HOST" );
 		
 		action.setTimeout( CTX_COMMANDTIMEOUT );
 		

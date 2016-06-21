@@ -383,67 +383,63 @@ public class ActionConfigure extends ActionBase {
 		}
 	}
 
-	private void configureExecutorContextSimple( LocalFolder ef , boolean linux ) throws Exception {
-		List<String> lines = new LinkedList<String>();
-		
+	private void addExecutorContextItem( LocalFolder ef , boolean linux , List<String> lines , String var , String value ) throws Exception {
+		if( linux )
+			lines.add( "export " + var + "=" + value );
+		else
+			lines.add( "@set " + var + "=" + value );
+	}
+	
+	private void addExecutorContextBase( LocalFolder ef , boolean linux , List<String> lines ) throws Exception {
 		String productDir = context.session.productDir;
 		
+		if( !productDir.isEmpty() ) {
+			addExecutorContextItem( ef , linux , lines , "C_URM_PRODUCT" , productDir );
+			if( !context.CTX_HOST.isEmpty() ) {
+				String value = context.CTX_HOST + ":";
+				if( context.CTX_PORT > 0 )
+					value += context.CTX_PORT;
+				else
+					value += MainServer.DEFAULT_SERVER_PORT; 
+				addExecutorContextItem( ef , linux , lines , "C_URM_HOSTPORT" , value );
+			}
+		}
+
+		String fileName = ( linux )? MainMeta.CONTEXT_FILENAME_LIXUX : MainMeta.CONTEXT_FILENAME_WIN;
+		Common.createFileFromStringList( ef.getFilePath( this , fileName ) , lines );
+		addProxyLine( ef , fileName );
+	}
+
+	private void saveExecutorContext( LocalFolder ef , boolean linux , List<String> lines ) throws Exception {
 		if( linux ) {
-			if( !productDir.isEmpty() )
-				lines.add( "export C_CONTEXT_PRODUCT=" + productDir );
 			Common.createFileFromStringList( ef.getFilePath( this , MainMeta.CONTEXT_FILENAME_LIXUX ) , lines );
 			addProxyLine( ef , MainMeta.CONTEXT_FILENAME_LIXUX );
 		}
 		else {
-			if( !productDir.isEmpty() )
-				lines.add( "@set C_CONTEXT_PRODUCT=" + productDir );
 			Common.createFileFromStringList( ef.getFilePath( this , MainMeta.CONTEXT_FILENAME_WIN ) , lines );
 			addProxyLine( ef , MainMeta.CONTEXT_FILENAME_WIN );
 		}
+	}
+	
+	private void configureExecutorContextSimple( LocalFolder ef , boolean linux ) throws Exception {
+		List<String> lines = new LinkedList<String>();
+		addExecutorContextBase( ef , linux , lines );
+		saveExecutorContext( ef , linux , lines );
 	}
 	
 	private void configureExecutorContextDeployment( LocalFolder ef , String ENVFILE , String DC , boolean linux ) throws Exception {
 		List<String> lines = new LinkedList<String>();
-		
-		String productDir = context.session.productDir;
-		
-		if( linux ) {
-			if( !productDir.isEmpty() )
-				lines.add( "export C_CONTEXT_PRODUCT=" + productDir );
-			lines.add( "export C_CONTEXT_ENV=" + ENVFILE );
-			lines.add( "export C_CONTEXT_DC=" + DC );
-			Common.createFileFromStringList( ef.getFilePath( this , MainMeta.CONTEXT_FILENAME_LIXUX ) , lines );
-			addProxyLine( ef , MainMeta.CONTEXT_FILENAME_LIXUX );
-		}
-		else {
-			if( !productDir.isEmpty() )
-				lines.add( "@set C_CONTEXT_PRODUCT=" + productDir );
-			lines.add( "@set C_CONTEXT_ENV=" + ENVFILE );
-			lines.add( "@set C_CONTEXT_DC=" + DC );			
-			Common.createFileFromStringList( ef.getFilePath( this , MainMeta.CONTEXT_FILENAME_WIN ) , lines );
-			addProxyLine( ef , MainMeta.CONTEXT_FILENAME_WIN );
-		}
+		addExecutorContextBase( ef , linux , lines );
+		addExecutorContextItem( ef , linux , lines , "C_URM_ENV" , ENVFILE );
+		addExecutorContextItem( ef , linux , lines , "C_URM_DC" , DC );
+		saveExecutorContext( ef , linux , lines );
 	}
 	
 	private void configureExecutorContextBuildMode( LocalFolder ef , VarBUILDMODE mode , boolean linux ) throws Exception {
 		List<String> lines = new LinkedList<String>();
-
-		String productDir = context.session.productDir;
-		
-		if( linux ) {
-			if( !productDir.isEmpty() )
-				lines.add( "export C_CONTEXT_PRODUCT=" + productDir );
-			lines.add( "export C_CONTEXT_VERSIONMODE=" + Common.getEnumLower( mode ) );
-			Common.createFileFromStringList( ef.getFilePath( this , MainMeta.CONTEXT_FILENAME_LIXUX ) , lines );
-			addProxyLine( ef , MainMeta.CONTEXT_FILENAME_LIXUX );
-		}
-		else {
-			if( !productDir.isEmpty() )
-				lines.add( "@set C_CONTEXT_PRODUCT=" + productDir );
-			lines.add( "@set C_CONTEXT_VERSIONMODE=" + Common.getEnumLower( mode ) );
-			Common.createFileFromStringList( ef.getFilePath( this , MainMeta.CONTEXT_FILENAME_WIN ) , lines );
-			addProxyLine( ef , MainMeta.CONTEXT_FILENAME_WIN );
-		}
+		addExecutorContextBase( ef , linux , lines );
+		addExecutorContextItem( ef , linux , lines , "C_URM_VERSIONMODE" , Common.getEnumLower( mode ) );
+		saveExecutorContext( ef , linux , lines );
 	}
 	
 	private void configureExecutorWrapper( LocalFolder ef , CommandMeta executor , String method , boolean linux , String relativePath , String relativeContext ) throws Exception {
