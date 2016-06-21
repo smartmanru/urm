@@ -1,10 +1,8 @@
 package org.urm.client;
 
-import org.urm.common.ExitException;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
-import org.urm.server.ServerEngine;
 
 public class ClientEngine {
 
@@ -29,12 +27,13 @@ public class ClientEngine {
 	}
 
 	private boolean runClientMode( CommandBuilder builder , CommandMeta commandInfo ) throws Exception {
-		ServerEngine server = new ServerEngine();
-		return( server.runClientMode( builder.options , builder.rc , commandInfo ) );
+		ClientCallLocal call = new ClientCallLocal();
+		return( call.runClient( builder , commandInfo ) );
 	}
 	
 	private boolean runServerMode( CommandBuilder builder , CommandMeta commandInfo ) throws Exception {
-		throw new ExitException( "sorry, not implemented yet" );
+		ClientCallRemote call = new ClientCallRemote();
+		return( call.runClient( builder , commandInfo ) );
 	}
 
 }
