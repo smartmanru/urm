@@ -1,5 +1,8 @@
 package org.urm.server.action.main;
 
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
@@ -48,6 +51,14 @@ public class MainServer {
         mbs.registerMBean( adapter , adapterName );
         
         adapter.start();
+        
+        // force unbind
+        try {
+	        Registry registry = LocateRegistry.getRegistry( port );
+	        registry.unbind( "jmxrmi" );
+        }
+        catch( Throwable e ) {
+        }
         
         // create jmx
         JMXServiceURL URL = new JMXServiceURL( "service:jmx:rmi:///jndi/rmi://localhost:" + port + "/jmxrmi"  );
