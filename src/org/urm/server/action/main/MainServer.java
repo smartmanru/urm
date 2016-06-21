@@ -44,13 +44,13 @@ public class MainServer {
 			port = DEFAULT_SERVER_PORT;
 		
 		ObjectName adapterName = new ObjectName( "urm:name=HtmlAdapter" );
-        adapter.setPort( port );
+        adapter.setPort( port + 1 );
         mbs.registerMBean( adapter , adapterName );
         
         adapter.start();
         
         // create jmx
-        JMXServiceURL URL = new JMXServiceURL( "rmi" , null , port + 1 );
+        JMXServiceURL URL = new JMXServiceURL( "service:jmx:rmi:///jndi/rmi://:" + port + "/jmxrmi"  );
         jmxConnector = JMXConnectorServerFactory.newJMXConnectorServer( URL , null , mbs ); 
 	}
 
