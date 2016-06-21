@@ -404,21 +404,13 @@ public class ActionConfigure extends ActionBase {
 				addExecutorContextItem( ef , linux , lines , "C_URM_SERVER" , value );
 			}
 		}
-
-		String fileName = ( linux )? MainMeta.CONTEXT_FILENAME_LIXUX : MainMeta.CONTEXT_FILENAME_WIN;
-		Common.createFileFromStringList( ef.getFilePath( this , fileName ) , lines );
-		addProxyLine( ef , fileName );
 	}
 
 	private void saveExecutorContext( LocalFolder ef , boolean linux , List<String> lines ) throws Exception {
-		if( linux ) {
-			Common.createFileFromStringList( ef.getFilePath( this , MainMeta.CONTEXT_FILENAME_LIXUX ) , lines );
-			addProxyLine( ef , MainMeta.CONTEXT_FILENAME_LIXUX );
-		}
-		else {
-			Common.createFileFromStringList( ef.getFilePath( this , MainMeta.CONTEXT_FILENAME_WIN ) , lines );
-			addProxyLine( ef , MainMeta.CONTEXT_FILENAME_WIN );
-		}
+		String fileName = ( linux )? MainMeta.CONTEXT_FILENAME_LIXUX : MainMeta.CONTEXT_FILENAME_WIN;
+		if( !ACTION.equals( "default" ) )
+			Common.createFileFromStringList( ef.getFilePath( this , fileName ) , lines );
+		addProxyLine( ef , fileName );
 	}
 	
 	private void configureExecutorContextSimple( LocalFolder ef , boolean linux ) throws Exception {
