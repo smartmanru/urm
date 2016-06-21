@@ -51,7 +51,8 @@ public class MainServer {
         
         // create jmx
         JMXServiceURL URL = new JMXServiceURL( "service:jmx:rmi:///jndi/rmi://:" + port + "/jmxrmi"  );
-        jmxConnector = JMXConnectorServerFactory.newJMXConnectorServer( URL , null , mbs ); 
+        jmxConnector = JMXConnectorServerFactory.newJMXConnectorServer( URL , null , mbs );
+        jmxConnector.start();
 	}
 
 	private void addProduct( ActionBase action , String productDir ) throws Exception {
