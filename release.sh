@@ -11,7 +11,7 @@ fi
 P_RELEASE=$1
 P_TAG=$2
 
-S_URMHOME=~/jurm
+S_URMHOME=~/urm
 P_MASTERAUTH="`cat $S_URMHOME/.auth/svnjurm.auth.txt`"
 
 if [ "$P_MASTERAUTH" = "" ]; then
