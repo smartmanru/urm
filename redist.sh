@@ -63,6 +63,11 @@ function f_execute_product() {
 		exit 1
 	fi
 
+	~/svnget $F_DIR_RUNCOPY/master > /dev/null
+	if [ -d $F_DIR_RUNCOPY/products ]; then
+		~/svnget $F_DIR_RUNCOPY/products > /dev/null
+	fi
+
 	cd $F_SAVEDIR
 }
 
