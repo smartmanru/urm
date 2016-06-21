@@ -14,9 +14,19 @@ import org.urm.common.action.CommandMeta;
 public class ClientCallRemote {
 
 	public boolean runClient( CommandBuilder builder , CommandMeta commandInfo ) throws Exception {
-		JMXServiceURL url = new JMXServiceURL( "service:jmx:rmi:///jndi/rmi://" + builder.rc.serverHostPort + "/jmxrmi" );
-		JMXConnector jmxc = JMXConnectorFactory.connect( url , null );
-		MBeanServerConnection mbsc = jmxc.getMBeanServerConnection();
+		String URL = "service:jmx:rmi:///jndi/rmi://" + builder.rc.serverHostPort + "/jmxrmi";
+		JMXServiceURL url = new JMXServiceURL( URL );
+		
+		JMXConnector jmxc = null;
+		MBeanServerConnection mbsc = null;
+		
+		try {
+			jmxc = JMXConnectorFactory.connect( url , null );
+			mbsc = jmxc.getMBeanServerConnection();
+		}
+		catch( Throwable e ) {
+			System.out.println( "unable to connect to: " + URL );
+		}
 		
 		System.out.println("\nDomains:");
 		String domains[] = mbsc.getDomains();
