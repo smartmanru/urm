@@ -50,7 +50,7 @@ public class MainServer {
         adapter.start();
         
         // create jmx
-        JMXServiceURL URL = new JMXServiceURL( "service:jmx:rmi:///jndi/rmi://:" + port + "/jmxrmi"  );
+        JMXServiceURL URL = new JMXServiceURL( "service:jmx:rmi:///jndi/rmi://localhost:" + port + "/jmxrmi"  );
         jmxConnector = JMXConnectorServerFactory.newJMXConnectorServer( URL , null , mbs );
         jmxConnector.start();
 	}
