@@ -3,6 +3,9 @@ package org.urm.server.action.main;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
+import javax.management.remote.JMXConnectorServer;
+import javax.management.remote.JMXConnectorServerFactory;
+import javax.management.remote.JMXServiceURL;
 
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
@@ -18,6 +21,7 @@ public class MainServer {
 	
 	private MBeanServer mbs = null;
 	CommandMeta[] executors = null;
+	JMXConnectorServer jmxConnector;
 	
 	public void start( ActionBase action ) throws Exception {
 		mbs = MBeanServerFactory.createMBeanServer();
@@ -44,6 +48,10 @@ public class MainServer {
         mbs.registerMBean( adapter , adapterName );
         
         adapter.start();
+        
+        // create jmx
+        JMXServiceURL URL = new JMXServiceURL( null , null , port + 1 );
+        jmxConnector = JMXConnectorServerFactory.newJMXConnectorServer( URL , null , mbs ); 
 	}
 
 	private void addProduct( ActionBase action , String productDir ) throws Exception {
