@@ -58,14 +58,27 @@ public class ActionConfigure extends ActionBase {
 		dcDbMasterFolderRel = "../../../..";
 		buildMasterFolderRel = "../..";
 
-		if( ACTION.equals( "server" ) ) {
+		boolean serverMode = false;
+		if( ACTION.equals( "server" ) )
+			serverMode = true;
+		else
+		if( ACTION.equals( "default" ) ) {
+			UrmStorage urm = artefactory.getUrmStorage();
+			if( urm.isServerMode( this ) )
+				serverMode = true;
+		}
+		
+		if( serverMode ) {
 			executorMasterFolderRel += "/../../../master";
 			envMasterFolderRel += "/../../../master";
 			dcMasterFolderRel += "/../../../master";
 			envDbMasterFolderRel += "/../../../master";
 			dcDbMasterFolderRel += "/../../../master";
 			buildMasterFolderRel += "/../../../master";
-			
+		}
+
+		// set execution context
+		if( ACTION.equals( "server" ) ) {
 			context.session.setServerLayout( context.options );
 			configureServer( true );
 		}

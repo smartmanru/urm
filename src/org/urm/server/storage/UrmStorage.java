@@ -11,12 +11,22 @@ public class UrmStorage {
 
 	public Artefactory artefactory;
 	public Metadata meta;
+
+	public static String PRODUCTS_FOLDER = "products";
 	
 	public UrmStorage( Artefactory artefactory ) {
 		this.artefactory = artefactory;
 		this.meta = artefactory.meta;
 	}
 
+	public boolean isServerMode( ActionBase action ) throws Exception {
+		LocalFolder folder = getInstallFolder( action );
+		if( folder.checkFolderExists( action , PRODUCTS_FOLDER ) )
+			return( true );
+		
+		return( false );
+	}
+	
 	private String getSpecificFolder( ActionBase action , VarDBMSTYPE dbtype , VarOSTYPE ostype ) throws Exception {
 		String dbFolder = "";
 		if( dbtype == VarDBMSTYPE.ORACLE )
@@ -90,7 +100,7 @@ public class UrmStorage {
 
 	public LocalFolder getServerProductsFolder( ActionBase action ) throws Exception {
 		LocalFolder folder = getInstallFolder( action );
-		return( folder.getSubFolder( action , "products" ) );
+		return( folder.getSubFolder( action , PRODUCTS_FOLDER ) );
 	}
 	
 }
