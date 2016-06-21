@@ -12,7 +12,7 @@ public class RunContext {
 	public boolean serverMode;
 	public String OSTYPE;
 	public VarOSTYPE osType;
-	public String serverURL;
+	public String serverHostPort;
 
 	public String userHome;
 	public String installPath;
@@ -49,7 +49,7 @@ public class RunContext {
 		envName = getProperty( "urm.env" );
 		dcName = getProperty( "urm.dc" );
 		productDir = getProperty( "urm.product" );
-		serverURL = getProperty( "urm.server" );
+		serverHostPort = getProperty( "urm.server" );
 		
 		if( osType == VarOSTYPE.LINUX ) {
 			installPath = getProperty( "urm.installpath" );

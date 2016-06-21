@@ -401,7 +401,7 @@ public class ActionConfigure extends ActionBase {
 					value += context.CTX_PORT;
 				else
 					value += MainServer.DEFAULT_SERVER_PORT; 
-				addExecutorContextItem( ef , linux , lines , "C_URM_HOSTPORT" , value );
+				addExecutorContextItem( ef , linux , lines , "C_URM_SERVER" , value );
 			}
 		}
 
