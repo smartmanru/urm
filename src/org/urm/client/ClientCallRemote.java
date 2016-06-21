@@ -26,6 +26,7 @@ public class ClientCallRemote {
 		}
 		catch( Throwable e ) {
 			System.out.println( "unable to connect to: " + URL );
+			e.printStackTrace();
 			return( false );
 		}
 		
