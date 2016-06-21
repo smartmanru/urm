@@ -46,7 +46,7 @@ public class UrmStorage {
 	private LocalFolder getDatabaseFolder( ActionBase action , MetaEnvServer server , String parentPath ) throws Exception {
 		String folderPath = getSpecificFolder( action , server.dbType , server.osType );
 		
-		LocalFolder folder = artefactory.getProductFolder( action , Common.getPath( parentPath , folderPath ) );
+		LocalFolder folder = getProductFolder( action , Common.getPath( parentPath , folderPath ) );
 		if( !folder.checkExists( action ) )
 			action.exit( "database is not supported: dbtype=" + Common.getEnumLower( server.dbType ) + ", ostype=" + Common.getEnumLower( server.osType ) );
 		
@@ -63,6 +63,34 @@ public class UrmStorage {
 	
 	public LocalFolder getDatapumpScripts( ActionBase action , MetaEnvServer server ) throws Exception {
 		return( getDatabaseFolder( action , server , "master/database/datapump" ) ); 
+	}
+	
+	public LocalFolder getProductFolder( ActionBase action ) throws Exception {
+		return( getProductFolder( action , "" ) );
+	}
+
+	public LocalFolder getProductFolder( ActionBase action , String dirname ) throws Exception {
+		String dir = Common.getPath( action.context.session.productPath , dirname );
+		return( artefactory.getAnyFolder( action , dir ) );
+	}
+
+	public String getMetadataPath( ActionBase action , String dirname ) throws Exception {
+		String dir = Common.getPath( action.context.session.etcPath , dirname );
+		return( dir );
+	}
+
+	public LocalFolder getMetadataFolder( ActionBase action , String dirname ) throws Exception {
+		String dir = getMetadataPath( action , dirname );
+		return( artefactory.getAnyFolder( action , dir ) );
+	}
+
+	public LocalFolder getInstallFolder( ActionBase action ) throws Exception {
+		return( artefactory.getAnyFolder( action , action.context.rc.installPath ) );
+	}
+
+	public LocalFolder getServerProductsFolder( ActionBase action ) throws Exception {
+		LocalFolder folder = getInstallFolder( action );
+		return( folder.getSubFolder( action , "products" ) );
 	}
 	
 }

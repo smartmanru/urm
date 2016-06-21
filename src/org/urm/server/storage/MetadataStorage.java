@@ -26,11 +26,13 @@ public class MetadataStorage {
 	}
 	
 	public String getDistrFile( ActionBase action ) throws Exception {
-		 return( artefactory.getMetadataPath( action , "distr.xml" ) );
+		UrmStorage urm = artefactory.getUrmStorage();
+		return( urm.getMetadataPath( action , "distr.xml" ) );
 	}
 
 	public String[] getDesignFiles( ActionBase action ) throws Exception {
-		LocalFolder folder = artefactory.getMetadataFolder( action , xdocDir );
+		UrmStorage urm = artefactory.getUrmStorage();
+		LocalFolder folder = urm.getMetadataFolder( action , xdocDir );
 		if( !folder.checkExists( action ) )
 			return( new String[0] );
 		
@@ -39,43 +41,52 @@ public class MetadataStorage {
 	}
 	
 	public String getDesignFile( ActionBase action , String fileName ) throws Exception {
-		String dir = artefactory.getMetadataPath( action , xdocDir );
+		UrmStorage urm = artefactory.getUrmStorage();
+		String dir = urm.getMetadataPath( action , xdocDir );
 		return( Common.getPath( dir , fileName ) );
 	}
 	
 	public String getLastProdTagFile( ActionBase action ) throws Exception {
-		return( artefactory.getMetadataPath( action , "last-prod-tag.txt" ) );
+		UrmStorage urm = artefactory.getUrmStorage();
+		return( urm.getMetadataPath( action , "last-prod-tag.txt" ) );
 	}
 	
 	public String getProductConfFile( ActionBase action ) throws Exception {
-		return( artefactory.getMetadataPath( action , "product.conf" ) );
+		UrmStorage urm = artefactory.getUrmStorage();
+		return( urm.getMetadataPath( action , "product.conf" ) );
 	}
 	
 	public String getSourceConfFile( ActionBase action ) throws Exception {
-		return( artefactory.getMetadataPath( action , "source.xml" ) );
+		UrmStorage urm = artefactory.getUrmStorage();
+		return( urm.getMetadataPath( action , "source.xml" ) );
 	}
 
 	public String getMonitoringFile( ActionBase action ) throws Exception {
-		return( artefactory.getMetadataPath( action , "monitoring.xml" ) );
+		UrmStorage urm = artefactory.getUrmStorage();
+		return( urm.getMetadataPath( action , "monitoring.xml" ) );
 	}
 	
 	public String getOrgInfoFile( ActionBase action ) throws Exception {
-		return( artefactory.getMetadataPath( action , "orginfo.txt" ) );
+		UrmStorage urm = artefactory.getUrmStorage();
+		return( urm.getMetadataPath( action , "orginfo.txt" ) );
 	}
 
 	public String getEnvFile( ActionBase action , String envFile ) throws Exception {
-		String dir = artefactory.getMetadataPath( action , "env" );
+		UrmStorage urm = artefactory.getUrmStorage();
+		String dir = urm.getMetadataPath( action , "env" );
 		return( Common.getPath( dir , envFile ) );
 	}
 	
 	public String[] getEnvFiles( ActionBase action ) throws Exception {
-		LocalFolder folder = artefactory.getMetadataFolder( action , "env" );
+		UrmStorage urm = artefactory.getUrmStorage();
+		LocalFolder folder = urm.getMetadataFolder( action , "env" );
 		String[] files = folder.findFiles( action , "*.xml" );
 		return( files );
 	}
 	
 	public String getDatapumpFile( ActionBase action , String specFile ) throws Exception {
-		String dir = artefactory.getMetadataPath( action , "datapump" );
+		UrmStorage urm = artefactory.getUrmStorage();
+		String dir = urm.getMetadataPath( action , "datapump" );
 		return( Common.getPath( dir , specFile ) );
 	}
 

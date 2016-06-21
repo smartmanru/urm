@@ -20,6 +20,7 @@ import org.urm.server.meta.Metadata.VarCATEGORY;
 
 public abstract class CommandExecutor {
 
+	public ServerEngine engine;
 	public CommandMeta commandInfo;
 		
 	public Map<String,CommandAction> actionsMap = new HashMap<String,CommandAction>();
@@ -27,7 +28,8 @@ public abstract class CommandExecutor {
 	
 	public abstract boolean run( ActionInit action );
 	
-	public CommandExecutor( CommandMeta commandInfo ) {
+	public CommandExecutor( ServerEngine engine , CommandMeta commandInfo ) {
+		this.engine = engine;
 		this.commandInfo = commandInfo;
 	}
 	

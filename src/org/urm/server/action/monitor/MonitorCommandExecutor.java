@@ -2,6 +2,7 @@ package org.urm.server.action.monitor;
 
 import org.urm.common.action.CommandMeta;
 import org.urm.server.CommandExecutor;
+import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionInit;
 import org.urm.server.action.CommandAction;
 import org.urm.server.meta.MetaMonitoring;
@@ -10,8 +11,8 @@ public class MonitorCommandExecutor extends CommandExecutor {
 
 	MonitorCommand impl;
 	
-	public MonitorCommandExecutor( CommandMeta commandInfo ) throws Exception {
-		super( commandInfo );
+	public MonitorCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
+		super( engine , commandInfo );
 		super.defineAction( new RunMonitor() , "start" );
 	}
 	

@@ -6,6 +6,7 @@ import org.urm.common.Common;
 import org.urm.server.action.ActionBase;
 import org.urm.server.storage.FileSet;
 import org.urm.server.storage.LocalFolder;
+import org.urm.server.storage.UrmStorage;
 import org.urm.server.vcs.SubversionVCS;
 
 public class ActionSave extends ActionBase {
@@ -18,8 +19,10 @@ public class ActionSave extends ActionBase {
 	}
 
 	@Override protected boolean executeSimple() throws Exception {
-		LocalFolder pf = artefactory.getInstallFolder( this );
-		if( pf.checkFolderExists( this , "products" ) ) {
+		UrmStorage urm = artefactory.getUrmStorage();
+		LocalFolder pf = urm.getInstallFolder( this );
+		LocalFolder pfProducts = urm.getServerProductsFolder( this );
+		if( pfProducts.checkExists( this ) ) {
 			context.session.setServerLayout( context.options );
 			saveServer( pf );
 		}
@@ -33,7 +36,9 @@ public class ActionSave extends ActionBase {
 	private void saveServer( LocalFolder pf ) throws Exception {
 		comment( "save master ..." );
 		saveProduct( pf , false );
-		LocalFolder pfProducts = pf.getSubFolder( this , "products" );
+		
+		UrmStorage urm = artefactory.getUrmStorage();
+		LocalFolder pfProducts = urm.getServerProductsFolder( this );
 
 		boolean found = false;
 		for( String product : pfProducts.getTopDirs( this ) ) {

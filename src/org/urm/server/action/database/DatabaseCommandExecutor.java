@@ -3,6 +3,7 @@ package org.urm.server.action.database;
 import org.urm.common.Common;
 import org.urm.common.action.CommandMeta;
 import org.urm.server.CommandExecutor;
+import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionInit;
 import org.urm.server.action.ActionScope;
 import org.urm.server.action.CommandAction;
@@ -23,8 +24,8 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	
 	String propertyBasedMethods;
 	
-	public DatabaseCommandExecutor( CommandMeta commandInfo ) throws Exception {
-		super( commandInfo );
+	public DatabaseCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
+		super( engine , commandInfo );
 		
 		super.defineAction( new InitDB() , "initdb" );
 		super.defineAction( new GetReleaseScripts() , "getsql" );

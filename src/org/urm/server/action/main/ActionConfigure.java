@@ -20,6 +20,7 @@ import org.urm.server.meta.MetaEnvDC;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.MetadataStorage;
+import org.urm.server.storage.UrmStorage;
 
 public class ActionConfigure extends ActionBase {
 
@@ -82,8 +83,8 @@ public class ActionConfigure extends ActionBase {
 	}
 
 	private void configureServer( boolean initial ) throws Exception {
-		LocalFolder pf = artefactory.getInstallFolder( this );
-		LocalFolder pfProducts = pf.getSubFolder( this , "products" );
+		UrmStorage urm = artefactory.getUrmStorage();
+		LocalFolder pfProducts = urm.getServerProductsFolder( this );
 		if( !pfProducts.checkExists( this ) )
 			exit( "before configure, please create directory: " + pfProducts.folderPath );
 
@@ -103,7 +104,8 @@ public class ActionConfigure extends ActionBase {
 		meta.loadProduct( this );
 		meta.loadDistr( this );
 		
-		LocalFolder pf = artefactory.getProductFolder( this );
+		UrmStorage urm = artefactory.getUrmStorage();
+		LocalFolder pf = urm.getProductFolder( this );
 		pfMaster = pf.getSubFolder( this , "master" );
 		String masterPath = pfMaster.getFilePath( this , MainMeta.MASTERFILE );
 		
@@ -121,8 +123,9 @@ public class ActionConfigure extends ActionBase {
 	}
 
 	private void configureDefault() throws Exception {
-		LocalFolder pf = artefactory.getInstallFolder( this );
-		if( pf.checkFolderExists( this , "products" ) ) {
+		UrmStorage urm = artefactory.getUrmStorage();
+		LocalFolder pfProducts = urm.getServerProductsFolder( this );
+		if( pfProducts.checkExists( this ) ) {
 			context.session.setServerLayout( context.options );
 			configureServer( false );
 		}

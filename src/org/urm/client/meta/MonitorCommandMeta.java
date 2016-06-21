@@ -12,7 +12,7 @@ public class MonitorCommandMeta extends CommandMeta {
 		super( builder , NAME );
 		
 		String cmdOpts = "";
-		super.defineAction( CommandMethod.newAction( "start" , true , "start monitor server" , cmdOpts , "./start.sh [OPTIONS]" ) );
+		super.defineAction( CommandMethod.newNormal( "start" , true , "start monitor server" , cmdOpts , "./start.sh [OPTIONS]" ) );
 	}
 	
 }

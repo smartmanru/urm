@@ -12,7 +12,7 @@ public class XDocCommandMeta extends CommandMeta {
 		super( builder , NAME );
 		
 		String releaseOpts = "";
-		defineAction( CommandMethod.newAction( "design" , true , "create design docs" , releaseOpts , "./design.sh [OPTIONS] {dot|png} <outdir>" ) );
+		defineAction( CommandMethod.newNormal( "design" , true , "create design docs" , releaseOpts , "./design.sh [OPTIONS] {dot|png} <outdir>" ) );
 	}	
 
 }

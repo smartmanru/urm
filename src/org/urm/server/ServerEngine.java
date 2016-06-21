@@ -27,6 +27,12 @@ public class ServerEngine {
 	RunContext execrc;
 	SessionContext serverSession;
 	
+	boolean waitRequested;
+	
+	public ServerEngine() {
+		waitRequested = false;
+	}
+	
 	public boolean runArgs( String[] args ) throws Exception {
 		execrc = new RunContext();
 		execrc.load();
@@ -35,7 +41,7 @@ public class ServerEngine {
 			throw new ExitException( "only main executor id expected" );
 
 		CommandBuilder builder = new CommandBuilder( execrc );
-		CommandExecutor executor = MainExecutor.create( builder , args );
+		CommandExecutor executor = MainExecutor.create( this , builder , args );
 		if( executor == null )
 			return( false );
 		
@@ -87,7 +93,6 @@ public class ServerEngine {
 		// execute
 		try {
 			executor.run( action );
-			action.context.killPool( action );
 		}
 		catch( Throwable e ) {
 			action.log( e );
@@ -100,6 +105,19 @@ public class ServerEngine {
 		else
 			action.commentExecutor( "COMMAND FAILED" );
 			
+		try {
+			if( res && waitRequested ) {
+				synchronized( this ) {
+					wait();
+				}
+			}
+			
+			action.context.killPool( action );
+		}
+		catch( Throwable e ) {
+			action.log( e );
+		}
+
 		executor.finish( action );
 		action.context.stopPool( action );
 
@@ -110,17 +128,17 @@ public class ServerEngine {
 		CommandExecutor executor = null;
 		String cmd = commandInfo.name;
 		if( cmd.equals( BuildCommandMeta.NAME ) )
-			executor = new BuildCommandExecutor( commandInfo );
+			executor = new BuildCommandExecutor( this , commandInfo );
 		else if( cmd.equals( DeployCommandMeta.NAME ) )
-			executor = new DeployCommandExecutor( commandInfo );
+			executor = new DeployCommandExecutor( this , commandInfo );
 		else if( cmd.equals( DatabaseCommandMeta.NAME ) )
-			executor = new DatabaseCommandExecutor( commandInfo );
+			executor = new DatabaseCommandExecutor( this , commandInfo );
 		else if( cmd.equals( MonitorCommandMeta.NAME ) )
-			executor = new MonitorCommandExecutor( commandInfo );
+			executor = new MonitorCommandExecutor( this , commandInfo );
 		else if( cmd.equals( ReleaseCommandMeta.NAME ) )
-			executor = new ReleaseCommandExecutor( commandInfo );
+			executor = new ReleaseCommandExecutor( this , commandInfo );
 		else if( cmd.equals( XDocCommandMeta.NAME ) )
-			executor = new XDocCommandExecutor( commandInfo );
+			executor = new XDocCommandExecutor( this , commandInfo );
 		else
 			throw new ExitException( "Unexpected URM args - unknown command executor=" + cmd + " (expected one of build/deploy/database/monitor)" );
 		
@@ -139,6 +157,10 @@ public class ServerEngine {
 		Metadata meta = new Metadata();
 		ActionInit action = executor.prepare( context , meta , options.action );
 		return( action );
+	}
+
+	public void requestWaitForCompletion() {
+		waitRequested = true;
 	}
 	
 }

@@ -46,35 +46,12 @@ public class Artefactory {
 		this.workFolderProcessId = session.getProcessId();
 	}
 
-	public LocalFolder getInstallFolder( ActionBase action ) throws Exception {
-		return( getAnyFolder( action , action.context.rc.installPath ) );
-	}
-	
 	public LocalFolder getAnyFolder( ActionBase action , String dirname ) throws Exception {
 		action.checkRequired( dirname , "dirname" );
 		if( dirname.equals( "/" ) )
 			action.exit( "/ is not permitted for operations" );
 		
 		return( new LocalFolder( this , dirname ) );
-	}
-
-	public LocalFolder getProductFolder( ActionBase action ) throws Exception {
-		return( getProductFolder( action , "" ) );
-	}
-
-	public LocalFolder getProductFolder( ActionBase action , String dirname ) throws Exception {
-		String dir = Common.getPath( action.context.session.productPath , dirname );
-		return( getAnyFolder( action , dir ) );
-	}
-
-	public String getMetadataPath( ActionBase action , String dirname ) throws Exception {
-		String dir = Common.getPath( action.context.session.etcPath , dirname );
-		return( dir );
-	}
-
-	public LocalFolder getMetadataFolder( ActionBase action , String dirname ) throws Exception {
-		String dir = getMetadataPath( action , dirname );
-		return( getAnyFolder( action , dir ) );
 	}
 
 	public void createWorkFolder( ActionBase action ) throws Exception {

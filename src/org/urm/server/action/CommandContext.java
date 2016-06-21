@@ -102,6 +102,7 @@ public class CommandContext {
 	public String CTX_NEWKEY = "";
 	public VarBUILDMODE CTX_BUILDMODE = VarBUILDMODE.UNKNOWN;
 	public String CTX_OLDRELEASE = "";
+	public int CTX_PORT = -1;
 
 	public CommandContext( CommandOptions options , SessionContext session ) {
 		this.options = options;
@@ -195,6 +196,7 @@ public class CommandContext {
 		this.CTX_NEWKEY = context.CTX_NEWKEY;
 		this.CTX_BUILDMODE = context.CTX_BUILDMODE;
 		this.CTX_OLDRELEASE = context.CTX_OLDRELEASE;
+		this.CTX_PORT = context.CTX_PORT;
 	}
 
 	public void update( ActionBase action ) throws Exception {
@@ -204,80 +206,81 @@ public class CommandContext {
 		String value;
 		
 		// generic
-		CTX_TRACEINTERNAL = ( getFlagValue( action , "GETOPT_TRACE" ) && getFlagValue( action , "GETOPT_SHOWALL" ) )? true : false;
-		CTX_TRACE = getFlagValue( action , "GETOPT_TRACE" );
-		CTX_SHOWONLY = combineValue( action , "GETOPT_SHOWONLY" , ( isenv )? action.context.env.SHOWONLY : null , def );
-		CTX_SHOWALL = getFlagValue( action , "GETOPT_SHOWALL" );
+		CTX_TRACEINTERNAL = ( getFlagValue( action , "OPT_TRACE" ) && getFlagValue( action , "OPT_SHOWALL" ) )? true : false;
+		CTX_TRACE = getFlagValue( action , "OPT_TRACE" );
+		CTX_SHOWONLY = combineValue( action , "OPT_SHOWONLY" , ( isenv )? action.context.env.SHOWONLY : null , def );
+		CTX_SHOWALL = getFlagValue( action , "OPT_SHOWALL" );
 		if( CTX_TRACE )
 			CTX_SHOWALL = true;
-		CTX_FORCE = getFlagValue( action , "GETOPT_FORCE" );
-		CTX_IGNORE = getFlagValue( action , "GETOPT_SKIPERRORS" );
-		CTX_ALL = getFlagValue( action , "GETOPT_ALL" );
-		CTX_LOCAL = getFlagValue( action , "GETOPT_LOCAL" );
-		CTX_COMMANDTIMEOUT = getIntParamValue( action , "GETOPT_COMMANDTIMEOUT" , options.optDefaultCommandTimeout ) * 1000;
-		value = getParamValue( action , "GETOPT_KEY" ); 
+		CTX_FORCE = getFlagValue( action , "OPT_FORCE" );
+		CTX_IGNORE = getFlagValue( action , "OPT_SKIPERRORS" );
+		CTX_ALL = getFlagValue( action , "OPT_ALL" );
+		CTX_LOCAL = getFlagValue( action , "OPT_LOCAL" );
+		CTX_COMMANDTIMEOUT = getIntParamValue( action , "OPT_COMMANDTIMEOUT" , options.optDefaultCommandTimeout ) * 1000;
+		value = getParamValue( action , "OPT_KEY" ); 
 		CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? action.context.env.KEYNAME : "" ) : value;
 		String productValue = ( isproduct )? action.meta.product.CONFIG_DISTR_PATH : "";
-		CTX_DISTPATH = getParamPathValue( action , "GETOPT_DISTPATH" , productValue );
+		CTX_DISTPATH = getParamPathValue( action , "OPT_DISTPATH" , productValue );
 		CTX_REDISTPATH = ( isproduct )? action.meta.product.CONFIG_REDISTPATH : null;
 		if( isenv && !action.context.env.REDISTPATH.isEmpty() )
 			CTX_REDISTPATH = action.context.env.REDISTPATH;
-		value = getParamPathValue( action , "GETOPT_HIDDENPATH" );
+		value = getParamPathValue( action , "OPT_HIDDENPATH" );
 		CTX_HIDDENPATH = ( value.isEmpty() )? ( ( isenv )? action.context.env.CONF_SECRETFILESPATH : "" ) : value;
-		CTX_WORKPATH = getParamPathValue( action , "GETOPT_WORKPATH" , "" );
+		CTX_WORKPATH = getParamPathValue( action , "OPT_WORKPATH" , "" );
 		
 		// specific
-		CTX_GET = getFlagValue( action , "GETOPT_GET" );
-		CTX_DIST = getFlagValue( action , "GETOPT_DIST" );
-		CTX_UPDATENEXUS = getFlagValue( action , "GETOPT_UPDATENEXUS" );
-		CTX_CHECK = getFlagValue( action , "GETOPT_CHECK" , false );
-		CTX_MOVE_ERRORS = getFlagValue( action , "GETOPT_MOVE_ERRORS" );
-		CTX_REPLACE = getFlagValue( action , "GETOPT_REPLACE" );
-		CTX_BACKUP = combineValue( action , "GETOPT_BACKUP" , ( isenv )? action.context.env.BACKUP : null , def );
-		CTX_OBSOLETE = combineValue( action , "GETOPT_OBSOLETE" , ( isenv )? action.context.env.OBSOLETE : null , true );
-		CTX_CONFDEPLOY = combineValue( action , "GETOPT_DEPLOYCONF" , ( isenv )? action.context.env.CONF_DEPLOY : null , true );
-		CTX_PARTIALCONF = getFlagValue( action , "GETOPT_PARTIALCONF" );
-		CTX_DEPLOYBINARY = getFlagValue( action , "GETOPT_DEPLOYBINARY" , true );
-		CTX_DEPLOYHOT = getFlagValue( action , "GETOPT_DEPLOYHOT" );
-		CTX_DEPLOYCOLD = getFlagValue( action , "GETOPT_DEPLOYCOLD" );
-		CTX_DEPLOYRAW = getFlagValue( action , "GETOPT_DEPLOYRAW" );
-		CTX_CONFKEEPALIVE = combineValue( action , "GETOPT_KEEPALIVE" , ( isenv )? action.context.env.CONF_KEEPALIVE : null , true );
-		CTX_ZERODOWNTIME = getFlagValue( action , "GETOPT_ZERODOWNTIME" );
-		CTX_NONODES = getFlagValue( action , "GETOPT_NONODES" );
-		CTX_NOCHATMSG = getFlagValue( action , "GETOPT_NOCHATMSG" );
-		CTX_ROOTUSER = getFlagValue( action , "GETOPT_ROOTUSER" );
-		CTX_SUDO = getFlagValue( action , "GETOPT_SUDO" );
-		CTX_IGNOREVERSION = getFlagValue( action , "GETOPT_IGNOREVERSION" );
-		CTX_LIVE = getFlagValue( action , "GETOPT_LIVE" );
-		CTX_HIDDEN = getFlagValue( action , "GETOPT_HIDDEN" );
-		value = getEnumValue( action , "GETOPT_DBMODE" );
+		CTX_GET = getFlagValue( action , "OPT_GET" );
+		CTX_DIST = getFlagValue( action , "OPT_DIST" );
+		CTX_UPDATENEXUS = getFlagValue( action , "OPT_UPDATENEXUS" );
+		CTX_CHECK = getFlagValue( action , "OPT_CHECK" , false );
+		CTX_MOVE_ERRORS = getFlagValue( action , "OPT_MOVE_ERRORS" );
+		CTX_REPLACE = getFlagValue( action , "OPT_REPLACE" );
+		CTX_BACKUP = combineValue( action , "OPT_BACKUP" , ( isenv )? action.context.env.BACKUP : null , def );
+		CTX_OBSOLETE = combineValue( action , "OPT_OBSOLETE" , ( isenv )? action.context.env.OBSOLETE : null , true );
+		CTX_CONFDEPLOY = combineValue( action , "OPT_DEPLOYCONF" , ( isenv )? action.context.env.CONF_DEPLOY : null , true );
+		CTX_PARTIALCONF = getFlagValue( action , "OPT_PARTIALCONF" );
+		CTX_DEPLOYBINARY = getFlagValue( action , "OPT_DEPLOYBINARY" , true );
+		CTX_DEPLOYHOT = getFlagValue( action , "OPT_DEPLOYHOT" );
+		CTX_DEPLOYCOLD = getFlagValue( action , "OPT_DEPLOYCOLD" );
+		CTX_DEPLOYRAW = getFlagValue( action , "OPT_DEPLOYRAW" );
+		CTX_CONFKEEPALIVE = combineValue( action , "OPT_KEEPALIVE" , ( isenv )? action.context.env.CONF_KEEPALIVE : null , true );
+		CTX_ZERODOWNTIME = getFlagValue( action , "OPT_ZERODOWNTIME" );
+		CTX_NONODES = getFlagValue( action , "OPT_NONODES" );
+		CTX_NOCHATMSG = getFlagValue( action , "OPT_NOCHATMSG" );
+		CTX_ROOTUSER = getFlagValue( action , "OPT_ROOTUSER" );
+		CTX_SUDO = getFlagValue( action , "OPT_SUDO" );
+		CTX_IGNOREVERSION = getFlagValue( action , "OPT_IGNOREVERSION" );
+		CTX_LIVE = getFlagValue( action , "OPT_LIVE" );
+		CTX_HIDDEN = getFlagValue( action , "OPT_HIDDEN" );
+		value = getEnumValue( action , "OPT_DBMODE" );
 		CTX_DBMODE = ( value.isEmpty() )? SQLMODE.UNKNOWN : SQLMODE.valueOf( value );
-		CTX_DBMOVE = getFlagValue( action , "GETOPT_DBMOVE" );
-		CTX_DBAUTH = combineValue( action , "GETOPT_DBAUTH" , ( isenv )? action.context.env.DB_AUTH : null , false );
-		CTX_CUMULATIVE = getFlagValue( action , "GETOPT_CUMULATIVE" );
+		CTX_DBMOVE = getFlagValue( action , "OPT_DBMOVE" );
+		CTX_DBAUTH = combineValue( action , "OPT_DBAUTH" , ( isenv )? action.context.env.DB_AUTH : null , false );
+		CTX_CUMULATIVE = getFlagValue( action , "OPT_CUMULATIVE" );
 		
-		CTX_DBALIGNED = getParamValue( action , "GETOPT_DBALIGNED" );
-		CTX_DB = getParamValue( action , "GETOPT_DB" );
-		CTX_DBPASSWORD = getParamValue( action , "GETOPT_DBPASSWORD" );
-		CTX_REGIONS = getParamValue( action , "GETOPT_REGIONS" );
-		value = getEnumValue( action , "GETOPT_DBTYPE" );
+		CTX_DBALIGNED = getParamValue( action , "OPT_DBALIGNED" );
+		CTX_DB = getParamValue( action , "OPT_DB" );
+		CTX_DBPASSWORD = getParamValue( action , "OPT_DBPASSWORD" );
+		CTX_REGIONS = getParamValue( action , "OPT_REGIONS" );
+		value = getEnumValue( action , "OPT_DBTYPE" );
 		CTX_DBTYPE = ( value.isEmpty() )? SQLTYPE.UNKNOWN : SQLTYPE.valueOf( value );
-		CTX_RELEASELABEL = getParamValue( action , "GETOPT_RELEASE" );
-		CTX_BRANCH = getParamValue( action , "GETOPT_BRANCH" );
-		CTX_TAG = getParamValue( action , "GETOPT_TAG" );
-		CTX_DATE = getParamValue( action , "GETOPT_DATE" );
-		CTX_GROUP = getParamValue( action , "GETOPT_GROUP" );
-		CTX_VERSION = getParamValue( action , "GETOPT_VERSION" );
-		CTX_DC = getParamValue( action , "GETOPT_DC" );
-		CTX_DEPLOYGROUP = getParamValue( action , "GETOPT_DEPLOYGROUP" );
-		CTX_STARTGROUP = getParamValue( action , "GETOPT_STARTGROUP" );
-		CTX_EXTRAARGS = getParamValue( action , "GETOPT_EXTRAARGS" );
-		CTX_UNIT = getParamValue( action , "GETOPT_UNIT" );
-		CTX_BUILDINFO = getParamValue( action , "GETOPT_BUILDINFO" );
-		CTX_HOSTUSER = getParamValue( action , "GETOPT_HOSTUSER" );
-		CTX_NEWKEY = getParamValue( action , "GETOPT_NEWKEY" );
-		CTX_BUILDMODE = action.meta.getBuildMode( action , getParamValue( action , "GETOPT_BUILDMODE" ) );
-		CTX_OLDRELEASE = getParamValue( action , "GETOPT_COMPATIBILITY" );
+		CTX_RELEASELABEL = getParamValue( action , "OPT_RELEASE" );
+		CTX_BRANCH = getParamValue( action , "OPT_BRANCH" );
+		CTX_TAG = getParamValue( action , "OPT_TAG" );
+		CTX_DATE = getParamValue( action , "OPT_DATE" );
+		CTX_GROUP = getParamValue( action , "OPT_GROUP" );
+		CTX_VERSION = getParamValue( action , "OPT_VERSION" );
+		CTX_DC = getParamValue( action , "OPT_DC" );
+		CTX_DEPLOYGROUP = getParamValue( action , "OPT_DEPLOYGROUP" );
+		CTX_STARTGROUP = getParamValue( action , "OPT_STARTGROUP" );
+		CTX_EXTRAARGS = getParamValue( action , "OPT_EXTRAARGS" );
+		CTX_UNIT = getParamValue( action , "OPT_UNIT" );
+		CTX_BUILDINFO = getParamValue( action , "OPT_BUILDINFO" );
+		CTX_HOSTUSER = getParamValue( action , "OPT_HOSTUSER" );
+		CTX_NEWKEY = getParamValue( action , "OPT_NEWKEY" );
+		CTX_BUILDMODE = action.meta.getBuildMode( action , getParamValue( action , "OPT_BUILDMODE" ) );
+		CTX_OLDRELEASE = getParamValue( action , "OPT_COMPATIBILITY" );
+		CTX_PORT = getIntParamValue( action , "OPT_PORT" , -1 );
 		
 		action.setTimeout( CTX_COMMANDTIMEOUT );
 		
