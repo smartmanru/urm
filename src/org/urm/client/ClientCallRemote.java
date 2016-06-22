@@ -8,9 +8,9 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
-import org.urm.common.action.ActionLogNotification;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
+import org.urm.common.jmx.ActionLogNotification;
 
 public class ClientCallRemote implements NotificationListener {
 

@@ -11,6 +11,7 @@ import org.urm.common.Common;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethod;
+import org.urm.common.jmx.Controller;
 import org.urm.common.meta.BuildCommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
 import org.urm.common.meta.DeployCommandMeta;
@@ -431,7 +432,7 @@ public class ActionConfigure extends ActionBase {
 				if( context.CTX_PORT > 0 )
 					value += context.CTX_PORT;
 				else
-					value += MainServer.DEFAULT_SERVER_PORT; 
+					value += Controller.DEFAULT_SERVER_PORT; 
 				addExecutorContextItem( ef , linux , lines , "C_URM_SERVER" , value );
 			}
 		}

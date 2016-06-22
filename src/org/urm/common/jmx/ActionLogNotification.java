@@ -1,4 +1,4 @@
-package org.urm.common.action;
+package org.urm.common.jmx;
 
 import javax.management.DynamicMBean;
 import javax.management.Notification;

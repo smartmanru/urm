@@ -1,4 +1,4 @@
-package org.urm.server.action.main;
+package org.urm.common.jmx;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -19,7 +19,6 @@ import javax.management.NotificationBroadcasterSupport;
 import javax.management.ReflectionException;
 
 import org.urm.common.Common;
-import org.urm.common.action.ActionLogNotification;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethod;
 import org.urm.common.action.CommandMethod.ACTION_TYPE;
@@ -28,7 +27,7 @@ import org.urm.common.action.CommandVar;
 import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionBase;
 
-public class MainServerMBean extends NotificationBroadcasterSupport implements DynamicMBean {
+public class ServerCommandMBean extends NotificationBroadcasterSupport implements DynamicMBean {
 
 	int notificationSequence = 0;
 	
@@ -39,7 +38,7 @@ public class MainServerMBean extends NotificationBroadcasterSupport implements D
 	MBeanInfo mbean;
 	CommandOptions options;
 	
-	public MainServerMBean( ServerEngine engine , String productDir , CommandMeta meta ) {
+	public ServerCommandMBean( ServerEngine engine , String productDir , CommandMeta meta ) {
 		this.engine = engine;
 		this.productDir = productDir;
 		this.meta = meta;
