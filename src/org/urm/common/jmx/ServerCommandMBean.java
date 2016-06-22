@@ -224,11 +224,13 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 			}
 			
 			if( args[0].getClass() != ActionData.class ) {
-				notifyLog( null , "invalid args calling command=" + meta.name + ", action=" + name + ", class=" + args[0].getClass().getName() );
+				action.error( "invalid args calling command=" + meta.name + ", action=" + name + ", class=" + args[0].getClass().getName() );
 				return( null );
 			}
 			
 			String sessionId = createSessionId( name );
+			action.debug( "invoke operation sessionId=" + sessionId + " ..." );
+			
 			ServerCommandThread thread = new ServerCommandThread( sessionId , this , ( ActionData )args[0] );
 			thread.run();
 			return( sessionId );

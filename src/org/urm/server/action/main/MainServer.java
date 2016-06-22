@@ -24,6 +24,11 @@ public class MainServer {
 		CommandBuilder builder = new CommandBuilder( action.context.clientrc , action.context.execrc );
 		executors = builder.getExecutors( true , true );
 		controller.start();
+		
+		action.info( "server successfully started, accepting connections." );
+		synchronized( this ) {
+			wait();
+		}
 	}
 
 }
