@@ -2,6 +2,8 @@ package org.urm.common.jmx;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
@@ -26,13 +28,14 @@ public class Controller {
 	
 	private MBeanServer mbs = null;
 	JMXConnectorServer jmxConnector;
+	Map<String,ServerCommandThread> threads;
 	
 	public Controller( MainServer server ) {
 		this.server = server;
+		threads = new HashMap<String,ServerCommandThread>();
 	}
 	
 	public void start( ActionBase action ) throws Exception {
-		
 		mbs = MBeanServerFactory.createMBeanServer();
 		HtmlAdaptorServer adapter = new HtmlAdaptorServer();
 		
@@ -71,7 +74,7 @@ public class Controller {
 
 	private void addProduct( ActionBase action , String productDir ) throws Exception {
 		for( CommandMeta meta : server.executors  ) {
-			ServerCommandMBean bean = new ServerCommandMBean( action.executor.engine , productDir , meta );
+			ServerCommandMBean bean = new ServerCommandMBean( this , action.executor.engine , productDir , meta );
 			bean.createInfo( action );
 			
 			String name = action.executor.commandInfo.builder.getCommandMBeanName( productDir , meta.name );
@@ -79,5 +82,13 @@ public class Controller {
 			mbs.registerMBean( bean , object );
 		}
 	}
-	
+
+	public synchronized void threadStarted( ServerCommandThread thread ) {
+		threads.put( thread.sessionId , thread );
+	}
+
+	public synchronized void threadStopped( ServerCommandThread thread ) {
+		threads.remove( thread.sessionId );
+	}
+
 }

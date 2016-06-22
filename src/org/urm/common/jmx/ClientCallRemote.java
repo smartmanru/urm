@@ -50,8 +50,15 @@ public class ClientCallRemote implements NotificationListener {
 	}
 
 	public void handleNotification( Notification notif , Object handback ) {
-		ActionLogNotification n = ( ActionLogNotification )notif;
-		System.out.println( n.getMessage() );
+		if( notif.getType().equals( ActionLogNotification.EVENT ) ) {
+			ActionLogNotification n = ( ActionLogNotification )notif;
+			System.out.println( n.getMessage() );
+		}
+		else if( notif.getType().equals( ActionStopNotification.EVENT ) ) {
+			ActionStopNotification n = ( ActionStopNotification )notif;
+			System.out.println( n.getMessage() );
+			notify();
+		}
 	}
 	
 }

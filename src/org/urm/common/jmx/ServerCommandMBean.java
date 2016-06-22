@@ -19,6 +19,7 @@ import javax.management.NotificationBroadcasterSupport;
 import javax.management.ReflectionException;
 
 import org.urm.common.Common;
+import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethod;
 import org.urm.common.action.CommandMethod.ACTION_TYPE;
@@ -30,15 +31,18 @@ import org.urm.server.action.ActionBase;
 public class ServerCommandMBean extends NotificationBroadcasterSupport implements DynamicMBean {
 
 	int notificationSequence = 0;
+	int invokeSequence = 0;
 	
-	ServerEngine engine;
-	String productDir;
+	public Controller controller;
+	public ServerEngine engine;
+	public String productDir;
 	
-	CommandMeta meta;
-	MBeanInfo mbean;
-	CommandOptions options;
+	public CommandMeta meta;
+	public MBeanInfo mbean;
+	public CommandOptions options;
 	
-	public ServerCommandMBean( ServerEngine engine , String productDir , CommandMeta meta ) {
+	public ServerCommandMBean( Controller controller , ServerEngine engine , String productDir , CommandMeta meta ) {
+		this.controller = controller;
 		this.engine = engine;
 		this.productDir = productDir;
 		this.meta = meta;
@@ -65,8 +69,10 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 		}
 		
 		// notifications
-		MBeanNotificationInfo mbn = new MBeanNotificationInfo( new String[] { ActionLogNotification.EVENT } , 
+		MBeanNotificationInfo mbnLog = new MBeanNotificationInfo( new String[] { ActionLogNotification.EVENT } , 
 				ActionLogNotification.class.getName() , "output of action executed" );
+		MBeanNotificationInfo mbnStop = new MBeanNotificationInfo( new String[] { ActionStopNotification.EVENT } , 
+				ActionStopNotification.class.getName() , "stop of action" );
 		
 		// register
 		Collections.reverse( opers );
@@ -74,9 +80,9 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 			this.getClass().getName() ,
 			"PRODUCT=" + productDir + ": actions for COMMAND TYPE=" + meta.name ,
             attrs.toArray( new MBeanAttributeInfo[0] ) ,
-            null ,  // constructors
+            null , 
             opers.toArray( new MBeanOperationInfo[0] ) ,
-            new MBeanNotificationInfo[] { mbn } ); // notifications
+            new MBeanNotificationInfo[] { mbnLog , mbnStop } );
 	}
 
 	public MBeanOperationInfo addOperation( ActionBase action , CommandMethod method ) throws Exception {
@@ -174,11 +180,61 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 	}
     
 	public Object invoke( String name , Object[] args , String[] sig ) throws MBeanException, ReflectionException {
-		ActionLogNotification n = new ActionLogNotification( this , ++notificationSequence , "test" ); 
-		sendNotification( n );
-		return( null );
+		String sessionId = null;
+		try {
+			sessionId = notifyExecute( name , args );
+		}
+		catch( Throwable e ) {
+			notifyLog( null , e.getMessage() );
+		}
+
+		return( sessionId );
 	}
 
+	private synchronized String createSessionId( String name ) {
+		invokeSequence++;
+		return( name + "-" + invokeSequence );
+	}
+	
+	public void notifyLog( String sessionId , String msg ) {
+		try {
+			ActionLogNotification n = new ActionLogNotification( this , ++notificationSequence , sessionId + ": " ); 
+			sendNotification( n );
+		}
+		catch( Throwable e ) {
+		}
+	}
+	
+	public void notifyStop( String sessionId ) {
+		try {
+			ActionStopNotification n = new ActionStopNotification( this , ++notificationSequence , sessionId ); 
+			sendNotification( n );
+		}
+		catch( Throwable e ) {
+		}
+	}
+	
+	private String notifyExecute( String name , Object[] args ) throws Exception {
+		if( name.equals( "execute" ) ) {
+			if( args.length < 1 ) {
+				notifyLog( null , "invalid args" );
+				return( null );
+			}
+			
+			if( args[0].getClass() != ActionData.class ) {
+				notifyLog( null , "invalid args" );
+				return( null );
+			}
+			
+			String sessionId = createSessionId( name );
+			ServerCommandThread thread = new ServerCommandThread( sessionId , this , ( ActionData )args[0] );
+			thread.run();
+			return( sessionId );
+		}
+		
+		return( null );
+	}
+	
 	public synchronized MBeanInfo getMBeanInfo() {
 		return( mbean );
 	}
