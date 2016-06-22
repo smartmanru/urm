@@ -229,7 +229,7 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 			}
 			
 			String sessionId = createSessionId( name );
-			action.debug( "invoke operation sessionId=" + sessionId + " ..." );
+			action.debug( "operation invoked, sessionId=" + sessionId );
 			
 			ServerCommandThread thread = new ServerCommandThread( sessionId , this , ( ActionData )args[0] );
 			thread.run();
