@@ -1,5 +1,6 @@
 package org.urm.common.action;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,8 +10,13 @@ import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandOptions.FLAG;
 
-public class ActionData {
+public class ActionData implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4728461832076034211L;
+
 	// standard command parameters
 	public RunContext clientrc;
 

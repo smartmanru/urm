@@ -1,6 +1,13 @@
 package org.urm.common;
 
-public class RunContext {
+import java.io.Serializable;
+
+public class RunContext implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2043100035583299557L;
 
 	public enum VarOSTYPE {
 		UNKNOWN ,
