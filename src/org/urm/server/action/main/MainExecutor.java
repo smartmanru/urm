@@ -2,6 +2,7 @@ package org.urm.server.action.main;
 
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandBuilder;
+import org.urm.common.meta.MainCommandMeta;
 import org.urm.server.CommandExecutor;
 import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionInit;
@@ -12,14 +13,14 @@ public class MainExecutor extends CommandExecutor {
 	RunContext rc;
 	
 	public static MainExecutor create( ServerEngine engine , CommandBuilder builder , String[] args ) throws Exception {
-		MainMeta commandInfo = new MainMeta( builder );
+		MainCommandMeta commandInfo = new MainCommandMeta( builder );
 		if( !builder.setOptions( commandInfo , args ) )
 			return( null );
 		
 		return( new MainExecutor( engine , builder.execrc , commandInfo ) );
 	}
 
-	private MainExecutor( ServerEngine engine , RunContext rc , MainMeta commandInfo ) throws Exception {
+	private MainExecutor( ServerEngine engine , RunContext rc , MainCommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		
 		this.rc = rc;

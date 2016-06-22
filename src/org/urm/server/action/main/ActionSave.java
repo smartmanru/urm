@@ -3,6 +3,7 @@ package org.urm.server.action.main;
 import java.util.List;
 
 import org.urm.common.Common;
+import org.urm.common.meta.MainCommandMeta;
 import org.urm.server.action.ActionBase;
 import org.urm.server.storage.FileSet;
 import org.urm.server.storage.LocalFolder;
@@ -57,7 +58,7 @@ public class ActionSave extends ActionBase {
 		pfMaster = pf.getSubFolder( this , "master" );
 		
 		// read master file and make up all files to the list
-		String masterPath = pfMaster.getFilePath( this , MainMeta.MASTERFILE );
+		String masterPath = pfMaster.getFilePath( this , MainCommandMeta.MASTERFILE );
 		List<String> lines = readFileLines( masterPath );
 		FileSet set = pfMaster.getFileSet( this );
 		

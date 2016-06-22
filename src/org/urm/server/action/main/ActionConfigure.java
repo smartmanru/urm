@@ -7,13 +7,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.urm.client.meta.BuildCommandMeta;
-import org.urm.client.meta.DatabaseCommandMeta;
-import org.urm.client.meta.DeployCommandMeta;
 import org.urm.common.Common;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethod;
+import org.urm.common.meta.BuildCommandMeta;
+import org.urm.common.meta.DatabaseCommandMeta;
+import org.urm.common.meta.DeployCommandMeta;
+import org.urm.common.meta.MainCommandMeta;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaEnv;
 import org.urm.server.meta.MetaEnvDC;
@@ -120,7 +121,7 @@ public class ActionConfigure extends ActionBase {
 		UrmStorage urm = artefactory.getUrmStorage();
 		LocalFolder pf = urm.getProductFolder( this );
 		pfMaster = pf.getSubFolder( this , "master" );
-		String masterPath = pfMaster.getFilePath( this , MainMeta.MASTERFILE );
+		String masterPath = pfMaster.getFilePath( this , MainCommandMeta.MASTERFILE );
 		
 		List<String> lines = null;
 		if( standalone ) 
@@ -128,7 +129,7 @@ public class ActionConfigure extends ActionBase {
 		else {
 			pfMaster.ensureExists( this );
 			lines = new LinkedList<String>();
-			lines.add( MainMeta.RELEASEPREFIX + MainMeta.MASTERFILE );
+			lines.add( MainCommandMeta.RELEASEPREFIX + MainCommandMeta.MASTERFILE );
 		}
 		
 		configureProduct( initial );
@@ -165,11 +166,11 @@ public class ActionConfigure extends ActionBase {
 		// recreate master file
 		List<String> linesNew = new LinkedList<String>();
 		for( String s : lines ) {
-			if( !s.startsWith( MainMeta.PROXYPREFIX ) )
+			if( !s.startsWith( MainCommandMeta.PROXYPREFIX ) )
 				linesNew.add( s );
 			else {
 				boolean affected = false;
-				String filePath = Common.getPartAfterFirst( s , MainMeta.PROXYPREFIX );
+				String filePath = Common.getPartAfterFirst( s , MainCommandMeta.PROXYPREFIX );
 				for( String x : linesAffected ) {
 					String platform = Common.getListItem( x , ":" , 0 );
 					String findpath = Common.getListItem( x , ":" , 1 );
@@ -420,7 +421,7 @@ public class ActionConfigure extends ActionBase {
 	}
 
 	private void saveExecutorContext( LocalFolder ef , boolean linux , List<String> lines ) throws Exception {
-		String fileName = ( linux )? MainMeta.CONTEXT_FILENAME_LIXUX : MainMeta.CONTEXT_FILENAME_WIN;
+		String fileName = ( linux )? MainCommandMeta.CONTEXT_FILENAME_LIXUX : MainCommandMeta.CONTEXT_FILENAME_WIN;
 		if( !ACTION.equals( "default" ) )
 			Common.createFileFromStringList( ef.getFilePath( this , fileName ) , lines );
 		addProxyLine( ef , fileName );
@@ -461,9 +462,9 @@ public class ActionConfigure extends ActionBase {
 			lines.add( "cd `dirname $0`" );
 			
 			if( relativeContext == null )
-				lines.add( ". ./" + MainMeta.CONTEXT_FILENAME_LIXUX );
+				lines.add( ". ./" + MainCommandMeta.CONTEXT_FILENAME_LIXUX );
 			else
-				lines.add( ". " + relativeContext + "/" + MainMeta.CONTEXT_FILENAME_LIXUX );
+				lines.add( ". " + relativeContext + "/" + MainCommandMeta.CONTEXT_FILENAME_LIXUX );
 			
 			lines.add( relativePath + "/bin/urm.sh " + executor.name + " " + method + " " + Common.getQuoted( "$@" ) );			
 		}
@@ -472,9 +473,9 @@ public class ActionConfigure extends ActionBase {
 			lines.add( "@cd %~dp0" );
 			
 			if( relativeContext == null )
-				lines.add( "@call " + MainMeta.CONTEXT_FILENAME_WIN );
+				lines.add( "@call " + MainCommandMeta.CONTEXT_FILENAME_WIN );
 			else
-				lines.add( "@call " + Common.getWinPath( relativeContext + "/" + MainMeta.CONTEXT_FILENAME_WIN ) );
+				lines.add( "@call " + Common.getWinPath( relativeContext + "/" + MainCommandMeta.CONTEXT_FILENAME_WIN ) );
 			
 			lines.add( "@" + relativePath + "\\bin\\urm.cmd " + executor.name + " " + method + " %*" );			
 		}
@@ -485,7 +486,7 @@ public class ActionConfigure extends ActionBase {
 
 	private void addProxyLine( LocalFolder ef , String fileName ) throws Exception {
 		String subPath = Common.getPartAfterFirst( ef.getFilePath( this , fileName ) , pfMaster.folderPath + "/" );
-		linesProxy.add( MainMeta.PROXYPREFIX + subPath );
+		linesProxy.add( MainCommandMeta.PROXYPREFIX + subPath );
 	}
 
 }

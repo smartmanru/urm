@@ -1,4 +1,4 @@
-package org.urm.client.meta;
+package org.urm.common.meta;
 
 import org.urm.common.action.CommandMethod;
 import org.urm.common.action.CommandBuilder;

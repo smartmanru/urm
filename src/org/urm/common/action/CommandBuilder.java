@@ -3,14 +3,14 @@ package org.urm.common.action;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.urm.client.meta.BuildCommandMeta;
-import org.urm.client.meta.DatabaseCommandMeta;
-import org.urm.client.meta.DeployCommandMeta;
-import org.urm.client.meta.MonitorCommandMeta;
-import org.urm.client.meta.ReleaseCommandMeta;
-import org.urm.client.meta.XDocCommandMeta;
 import org.urm.common.RunContext;
-import org.urm.server.action.main.MainMeta;
+import org.urm.common.meta.BuildCommandMeta;
+import org.urm.common.meta.DatabaseCommandMeta;
+import org.urm.common.meta.DeployCommandMeta;
+import org.urm.common.meta.MainCommandMeta;
+import org.urm.common.meta.MonitorCommandMeta;
+import org.urm.common.meta.ReleaseCommandMeta;
+import org.urm.common.meta.XDocCommandMeta;
 
 public class CommandBuilder {
 
@@ -93,8 +93,8 @@ public class CommandBuilder {
 			if( options.action != null && !options.action.equals( "help" ) )
 				return( false );
 				
-			if( commandInfo.name.equals( MainMeta.NAME ) ) {
-				MainMeta main = new MainMeta( this );
+			if( commandInfo.name.equals( MainCommandMeta.NAME ) ) {
+				MainCommandMeta main = new MainCommandMeta( this );
 				CommandMeta[] executors = getExecutors( true , true );
 				options.showTopHelp( main , executors );
 				return( false );
