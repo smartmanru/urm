@@ -44,7 +44,7 @@ public class Account {
 			action.exit( "account details are not provided" );
 		
 		Account account = new Account( user , host , osType ); 
-		if( action.isLocal() ||
+		if( action.isLocalRun() ||
 			host.equals( "local" ) || host.equals( "localhost" ) ||
 			account.HOSTLOGIN.equals( action.context.account.HOSTLOGIN ) )
 			account.local = true;

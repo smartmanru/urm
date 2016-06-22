@@ -66,7 +66,7 @@ public class DatabaseSpecific {
 		applyName += ( ( shell.isLinux() )? ".sh" : ".cmd" );
 		
 		if( !applysystemscriptCopied ) {
-			if( !action.isLocal() ) {
+			if( !action.isLocalAccount() ) {
 				RedistStorage redist = action.artefactory.getRedistStorage( action , server , node );
 				RemoteFolder folder = redist.getRedistTmpFolder( action );
 				execFolder = folder;
@@ -408,7 +408,7 @@ public class DatabaseSpecific {
 		work = action.artefactory.getWorkFolder( action );
 		List<String> lines = new LinkedList<String>();
 		String name = null;
-		String DBHOST = ( action.isLocal() )? "localhost" : server.DBMSADDR;
+		String DBHOST = ( action.isLocalAccount() )? "localhost" : server.DBMSADDR;
 		if( action.isLinux() ) {
 			lines.add( "export URMDB_USER=" + user );
 			lines.add( "export URMDB_PWD=" + password );

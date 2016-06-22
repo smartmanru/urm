@@ -486,8 +486,12 @@ abstract public class ActionBase {
 		comment( name + ": " + msg );
 	}
 
-	public boolean isLocal() {
+	public boolean isLocalRun() {
 		return( context.CTX_LOCAL );
+	}
+
+	public boolean isLocalAccount() {
+		return( session.account.local );
 	}
 
 	public void stopAllOutputs() throws Exception {

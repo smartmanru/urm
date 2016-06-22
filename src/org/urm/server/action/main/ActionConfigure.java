@@ -166,36 +166,49 @@ public class ActionConfigure extends ActionBase {
 		// recreate master file
 		List<String> linesNew = new LinkedList<String>();
 		for( String s : lines ) {
+			boolean process = true;
 			if( !s.startsWith( MainCommandMeta.PROXYPREFIX ) )
+				process = false;
+			else
+			if( !ACTION.equals( "default" ) ) {
+				if( isLinux() && !s.endsWith( ".sh" ) )
+					process = false;
+				else
+				if( isWindows() && !s.endsWith( ".cmd" ) )
+					process = false;
+			}
+
+			if( !process ) {
 				linesNew.add( s );
-			else {
-				boolean affected = false;
-				String filePath = Common.getPartAfterFirst( s , MainCommandMeta.PROXYPREFIX );
-				for( String x : linesAffected ) {
-					String platform = Common.getListItem( x , ":" , 0 );
-					String findpath = Common.getListItem( x , ":" , 1 );
-					String files = Common.getListItem( x , ":" , 2 );
-					
-					if( !filePath.startsWith( findpath ) )
-						continue;
-					
-					if( !filePath.endsWith( platform ) )
-						continue;
-					
-					if( files.equals( "*" ) ) {
-						affected = true;
-						break;
-					}
-					
-					if( filePath.indexOf( findpath.length() , '/' ) < 0 ) {
-						affected = true;
-						break;
-					}
+				continue;
+			}
+			
+			boolean affected = false;
+			String filePath = Common.getPartAfterFirst( s , MainCommandMeta.PROXYPREFIX );
+			for( String x : linesAffected ) {
+				String platform = Common.getListItem( x , ":" , 0 );
+				String findpath = Common.getListItem( x , ":" , 1 );
+				String files = Common.getListItem( x , ":" , 2 );
+				
+				if( !filePath.startsWith( findpath ) )
+					continue;
+				
+				if( !filePath.endsWith( platform ) )
+					continue;
+				
+				if( files.equals( "*" ) ) {
+					affected = true;
+					break;
 				}
 				
-				if( !affected )
-					linesNew.add( s );
+				if( filePath.indexOf( findpath.length() , '/' ) < 0 ) {
+					affected = true;
+					break;
+				}
 			}
+			
+			if( !affected )
+				linesNew.add( s );
 		}
 		
 		linesNew.addAll( linesProxy );

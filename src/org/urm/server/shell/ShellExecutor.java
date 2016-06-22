@@ -1,5 +1,9 @@
 package org.urm.server.shell;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -102,6 +106,9 @@ public abstract class ShellExecutor {
 	public boolean checkDirExists( ActionBase action , String path ) throws Exception {
 		if( path.isEmpty() )
 			return( false );
+		
+		if( action.isLocalAccount() )
+			return( Files.isDirectory( Paths.get( path ) , LinkOption.NOFOLLOW_LINKS ) );
 		
 		return( core.cmdCheckDirExists( action , path ) );
 	}
@@ -480,7 +487,24 @@ public abstract class ShellExecutor {
 	}
 	
 	public void getTopDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
-		core.cmdGetTopDirsAndFiles( action , rootPath , dirs , files );
+		if( !action.isLocalAccount() ) {
+			core.cmdGetTopDirsAndFiles( action , rootPath , dirs , files );
+			return;
+		}
+		
+		File folder = new File( rootPath );
+		if( folder.exists() == false )
+			return;
+		
+		if( !folder.isDirectory() )
+			action.exit( "not a directory path=" + rootPath );
+		
+		for( final File fileEntry : folder.listFiles() ) {
+	        if( fileEntry.isDirectory() )
+	        	dirs.add( fileEntry.getName() );
+	        else
+	        	files.add( fileEntry.getName() );
+	    }
 	}
 	
 	public String getMD5( ActionBase action , String filePath ) throws Exception {
