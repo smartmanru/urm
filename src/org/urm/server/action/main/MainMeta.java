@@ -7,6 +7,7 @@ import org.urm.common.action.CommandMethod;
 public class MainMeta extends CommandMeta {
 
 	public static String NAME = "bin";
+	public static String DESC = "URM instance administration";
 	
 	public static String MASTERFILE = "master.files.info";
 	public static String RELEASEPREFIX = "release:";
@@ -15,7 +16,7 @@ public class MainMeta extends CommandMeta {
 	public static String CONTEXT_FILENAME_WIN = "_context.cmd";
 	
 	public MainMeta( CommandBuilder builder ) {
-		super( builder , NAME );
+		super( builder , NAME , DESC );
 		
 		String cmdOpts = "OPT_HOST,OPT_PORT";
 		super.defineAction( CommandMethod.newCritical( "configure-linux" , true , "configure proxy files" , cmdOpts , "./configure.sh [OPTIONS] {default|server|standalone} [envname [dcname]]" ) );

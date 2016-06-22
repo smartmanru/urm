@@ -7,9 +7,10 @@ import org.urm.common.action.CommandMeta;
 public class XDocCommandMeta extends CommandMeta {
 
 	public static String NAME = "xdoc";
+	public static String DESC = "create and update documentation";
 	
 	public XDocCommandMeta( CommandBuilder builder ) {
-		super( builder , NAME );
+		super( builder , NAME , DESC );
 		
 		String releaseOpts = "";
 		defineAction( CommandMethod.newNormal( "design" , true , "create design docs" , releaseOpts , "./design.sh [OPTIONS] {dot|png} <outdir>" ) );

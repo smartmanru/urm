@@ -10,12 +10,14 @@ import org.urm.common.ExitException;
 public class CommandMeta {
 
 	public String name;
+	public String desc;
 
 	public Map<String,CommandMethod> actionsMap = new HashMap<String,CommandMethod>();
 	public List<CommandMethod> actionsList = new LinkedList<CommandMethod>();
 	
-	public CommandMeta( CommandBuilder builder , String name ) {
+	public CommandMeta( CommandBuilder builder , String name , String desc ) {
 		this.name = name;
+		this.desc = desc;
 	}
 	
 	public void defineAction( CommandMethod action ) {

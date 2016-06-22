@@ -300,9 +300,20 @@ public class CommandOptions {
 		String spacing = Common.replicate( " " , 50 - identity.length() ); 
 		printhelp( "\t" + identity + spacing + var.help ); 
 	}
+
+	public void showTopHelp( CommandMeta main , CommandMeta[] commands ) {
+		printhelp( "URM HELP (top)" );
+		
+		printhelp( "Available commands are:" );
+		printhelp( "Available commands are:" );
+	}
 	
-	public void showTopHelp( CommandMeta commandInfo ) {
-		printhelp( "URM HELP" );
+	public void showCommandHelp( CommandMeta commandInfo ) {
+		printhelp( "URM HELP (command=" + commandInfo.name + ")" );
+		
+		printhelp( "Command: " + commandInfo.name );
+		printhelp( "Functions: " + commandInfo.desc );
+		printhelp( "" );
 		printhelp( "Available actions are:" );
 		for( CommandMethod action : commandInfo.actionsList ) {
 			String spacing = Common.replicate( " " , 50 - action.name.length() ); 
@@ -334,7 +345,7 @@ public class CommandOptions {
 	
 	
 	public void showActionHelp( CommandMethod action ) {
-		printhelp( "URM HELP" );
+		printhelp( "URM HELP (action)" );
 		
 		printhelp( "Action: " + action.name );
 		printhelp( "Function: " + action.help );

@@ -10,6 +10,7 @@ import org.urm.client.meta.MonitorCommandMeta;
 import org.urm.client.meta.ReleaseCommandMeta;
 import org.urm.client.meta.XDocCommandMeta;
 import org.urm.common.RunContext;
+import org.urm.server.action.main.MainMeta;
 
 public class CommandBuilder {
 
@@ -89,8 +90,17 @@ public class CommandBuilder {
 		// process options
 		options = new CommandOptions();
 		if( !options.parseArgs( args ) ) {
-			if( options.action != null && options.action.equals( "help" ) )
-				options.showTopHelp( commandInfo );
+			if( options.action != null && !options.action.equals( "help" ) )
+				return( false );
+				
+			if( commandInfo.name.equals( MainMeta.NAME ) ) {
+				MainMeta main = new MainMeta( this );
+				CommandMeta[] executors = getExecutors( true , true );
+				options.showTopHelp( main , executors );
+				return( false );
+			}
+				
+			options.showCommandHelp( commandInfo );
 			return( false );
 		}
 

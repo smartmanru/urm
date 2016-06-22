@@ -449,7 +449,7 @@ public class CommandContext {
 				options.showActionHelp( commandAction.method );
 			}
 			else
-				options.showTopHelp( executor.commandInfo );
+				options.showCommandHelp( executor.commandInfo );
 			
 			return( false );
 		}

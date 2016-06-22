@@ -7,9 +7,10 @@ import org.urm.common.action.CommandMeta;
 public class ReleaseCommandMeta extends CommandMeta {
 
 	public static String NAME = "release";
+	public static String DESC = "create, populate and manage lifecycle of releases";
 	
 	public ReleaseCommandMeta( CommandBuilder builder ) {
-		super( builder , NAME );
+		super( builder , NAME , DESC );
 		
 		String releaseOpts = "OPT_BUILDMODE,OPT_OBSOLETE,OPT_COMPATIBILITY,OPT_CUMULATIVE";
 		defineAction( CommandMethod.newNormal( "create" , true , "create release" , releaseOpts , "./create.sh [OPTIONS] <RELEASELABEL>" ) );

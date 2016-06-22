@@ -7,9 +7,10 @@ import org.urm.common.action.CommandMeta;
 public class DatabaseCommandMeta extends CommandMeta {
 
 	public static String NAME = "database";
+	public static String DESC = "manage databases, export/import operations, apply changes";
 	
 	public DatabaseCommandMeta( CommandBuilder builder ) {
-		super( builder , NAME );
+		super( builder , NAME , DESC );
 		
 		String cmdOpts = "";
 		cmdOpts = "OPT_DC, OPT_DBPASSWORD";
