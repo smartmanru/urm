@@ -8,6 +8,7 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
+import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 
@@ -31,14 +32,22 @@ public class ClientCallRemote implements NotificationListener {
 		}
 		
 		String name = builder.getCommandMBeanName( builder.execrc.productDir , commandInfo.name );
+		Object sessionId;
 		try {
 			ObjectName mbeanName = new ObjectName( name );
 			mbsc.addNotificationListener( mbeanName , this , null , null );
-			mbsc.invoke( mbeanName , builder.options.action , null , null );
+			sessionId = mbsc.invoke( mbeanName , "execute" , 
+					new Object[] { builder.options.data } , 
+					new String[] { ActionData.class.getName() } );
 		}
 		catch( Throwable e ) {
 			System.out.println( "unable to call operation: " + name );
 			e.printStackTrace();
+			return( false );
+		}
+
+		if( sessionId == null ) {
+			System.out.println( "server rejected to call operation: " + name );
 			return( false );
 		}
 		
