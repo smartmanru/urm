@@ -33,6 +33,7 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 	int notificationSequence = 0;
 	int invokeSequence = 0;
 	
+	public ActionBase action;
 	public Controller controller;
 	public ServerEngine engine;
 	public String productDir;
@@ -41,14 +42,15 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 	public MBeanInfo mbean;
 	public CommandOptions options;
 	
-	public ServerCommandMBean( Controller controller , ServerEngine engine , String productDir , CommandMeta meta ) {
+	public ServerCommandMBean( ActionBase action , Controller controller , ServerEngine engine , String productDir , CommandMeta meta ) {
+		this.action = action;
 		this.controller = controller;
 		this.engine = engine;
 		this.productDir = productDir;
 		this.meta = meta;
 	}
 
-	public void createInfo( ActionBase action ) throws Exception {
+	public void createInfo() throws Exception {
 		options = new CommandOptions( meta );
 		
 		// attributes
@@ -185,7 +187,7 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 			sessionId = notifyExecute( name , args );
 		}
 		catch( Throwable e ) {
-			notifyLog( null , e.getMessage() );
+			action.error( e.getMessage() );
 		}
 
 		return( sessionId );
@@ -217,12 +219,12 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 	private String notifyExecute( String name , Object[] args ) throws Exception {
 		if( name.equals( "execute" ) ) {
 			if( args.length < 1 ) {
-				notifyLog( null , "invalid args" );
+				action.error( "missing args calling command=" + meta.name + ", action=" + name );
 				return( null );
 			}
 			
 			if( args[0].getClass() != ActionData.class ) {
-				notifyLog( null , "invalid args" );
+				notifyLog( null , "invalid args calling command=" + meta.name + ", action=" + name + ", class=" + args[0].getClass().getName() );
 				return( null );
 			}
 			

@@ -27,10 +27,7 @@ public class ServerEngine {
 	public RunContext execrc;
 	public SessionContext serverSession;
 	
-	boolean waitRequested;
-	
 	public ServerEngine() {
-		waitRequested = false;
 	}
 	
 	public boolean runArgs( String[] args ) throws Exception {
@@ -93,6 +90,7 @@ public class ServerEngine {
 		// execute
 		try {
 			executor.run( action );
+			action.context.killPool( action );
 		}
 		catch( Throwable e ) {
 			action.log( e );
@@ -105,19 +103,6 @@ public class ServerEngine {
 		else
 			action.commentExecutor( "COMMAND FAILED" );
 			
-		try {
-			if( res && waitRequested ) {
-				synchronized( this ) {
-					wait();
-				}
-			}
-			
-			action.context.killPool( action );
-		}
-		catch( Throwable e ) {
-			action.log( e );
-		}
-
 		executor.finish( action );
 		action.context.stopPool( action );
 
@@ -157,10 +142,6 @@ public class ServerEngine {
 		Metadata meta = new Metadata();
 		ActionInit action = executor.prepare( context , meta , options.action );
 		return( action );
-	}
-
-	public void requestWaitForCompletion() {
-		waitRequested = true;
 	}
 	
 }

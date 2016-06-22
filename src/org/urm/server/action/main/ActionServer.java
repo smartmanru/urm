@@ -27,10 +27,8 @@ public class ActionServer extends ActionBase {
 	private void executeServerStart() throws Exception {
 		info( "start server ..." );
 		
-		MainServer server = new MainServer( executor.engine );
-		server.start( this );
-		
-		executor.engine.requestWaitForCompletion();
+		MainServer server = new MainServer( this , executor.engine );
+		server.start();
 	}
 	
 	private void executeServerStop() throws Exception {

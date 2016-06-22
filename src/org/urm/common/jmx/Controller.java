@@ -24,18 +24,20 @@ public class Controller {
 
 	public static int DEFAULT_SERVER_PORT = 8800;
 	
+	ActionBase action;
 	MainServer server;
 	
 	private MBeanServer mbs = null;
 	JMXConnectorServer jmxConnector;
 	Map<String,ServerCommandThread> threads;
 	
-	public Controller( MainServer server ) {
+	public Controller( ActionBase action , MainServer server ) {
+		this.action = action;
 		this.server = server;
 		threads = new HashMap<String,ServerCommandThread>();
 	}
 	
-	public void start( ActionBase action ) throws Exception {
+	public void start() throws Exception {
 		mbs = MBeanServerFactory.createMBeanServer();
 		HtmlAdaptorServer adapter = new HtmlAdaptorServer();
 		
@@ -46,7 +48,7 @@ public class Controller {
 			action.exit( "cannot find directory: " + products.folderPath );
 		
 		for( String productDir : products.getTopDirs( action ) )
-			addProduct( action , productDir );
+			addProduct( productDir );
 		
 		int port = action.context.CTX_PORT;
 		if( port <= 0 )
@@ -72,10 +74,10 @@ public class Controller {
         jmxConnector.start();
 	}
 
-	private void addProduct( ActionBase action , String productDir ) throws Exception {
+	private void addProduct( String productDir ) throws Exception {
 		for( CommandMeta meta : server.executors  ) {
-			ServerCommandMBean bean = new ServerCommandMBean( this , action.executor.engine , productDir , meta );
-			bean.createInfo( action );
+			ServerCommandMBean bean = new ServerCommandMBean( action , this , action.executor.engine , productDir , meta );
+			bean.createInfo();
 			
 			String name = action.executor.commandInfo.builder.getCommandMBeanName( productDir , meta.name );
 			ObjectName object = new ObjectName( name );
