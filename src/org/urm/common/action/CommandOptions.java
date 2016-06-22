@@ -303,13 +303,29 @@ public class CommandOptions {
 
 	public void showTopHelp( CommandMeta main , CommandMeta[] commands ) {
 		printhelp( "URM HELP (top)" );
+		printhelp( "" );
 		
+		printhelp( "URM assists to administer codebase, release process and to maintain testing and production environments." );
+		printhelp( "Release process consists of peforming builds from codebase and administration of distributives." );
+		printhelp( "Distributive adminstration contains managing release repository and specific release engineering." );
+		printhelp( "Release engineering are steps to populate distributive from ready and built items." );
+		printhelp( "Items are configuration files, database changes, binary files and archives." );
+		printhelp( "" );
+		
+		printhelp( "Operation are split into commands corresponding to master subfolders" );
 		printhelp( "Available commands are:" );
-		printhelp( "Available commands are:" );
+		for( CommandMeta meta : commands )
+			printhelp( "\t" + meta.name + ": " + meta.desc );
+		printhelp( "" );
+		
+		printhelp( "URM instance administration actions are described below:" );
+		printhelp( "" );
+		showCommandHelp( main );
 	}
 	
 	public void showCommandHelp( CommandMeta commandInfo ) {
-		printhelp( "URM HELP (command=" + commandInfo.name + ")" );
+		printhelp( "URM HELP (command)" );
+		printhelp( "" );
 		
 		printhelp( "Command: " + commandInfo.name );
 		printhelp( "Functions: " + commandInfo.desc );
@@ -346,6 +362,7 @@ public class CommandOptions {
 	
 	public void showActionHelp( CommandMethod action ) {
 		printhelp( "URM HELP (action)" );
+		printhelp( "" );
 		
 		printhelp( "Action: " + action.name );
 		printhelp( "Function: " + action.help );
