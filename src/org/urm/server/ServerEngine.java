@@ -24,8 +24,8 @@ import org.urm.server.meta.Metadata;
 
 public class ServerEngine {
 
-	RunContext execrc;
-	SessionContext serverSession;
+	public RunContext execrc;
+	public SessionContext serverSession;
 	
 	boolean waitRequested;
 	
@@ -79,7 +79,7 @@ public class ServerEngine {
 		
 		CommandExecutor executor = createExecutor( commandInfo );
 		SessionContext session = new SessionContext( clientrc );
-		session.setServerClientLayout( clientrc , serverSession );
+		session.setServerClientLayout( serverSession );
 		
 		ActionInit action = createAction( options , executor , session );
 		if( action == null )

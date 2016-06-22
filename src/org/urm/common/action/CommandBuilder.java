@@ -14,19 +14,19 @@ import org.urm.server.action.main.MainMeta;
 
 public class CommandBuilder {
 
-	public RunContext rc;
+	public RunContext execrc;
 	public CommandOptions options = null;
 	
 	void out( String s ) {
 		System.out.println( "# " + s );
 	}
 
-	public CommandBuilder( RunContext rc ) {
-		this.rc = rc;
+	public CommandBuilder( RunContext execrc ) {
+		this.execrc = execrc;
 	}
 
 	public CommandMeta buildCommand( String[] args ) throws Exception {
-		String urmName = ( rc.isWindows() )? "urm.cmd" : "./urm.sh";
+		String urmName = ( execrc.isWindows() )? "urm.cmd" : "./urm.sh";
 		if( args.length == 0 ) {
 			out( "URM HELP" );
 			out( "Available operations:" );
@@ -38,7 +38,7 @@ public class CommandBuilder {
 		}
 		
 		String cmd = args[0]; 
-		String helpName = ( rc.isWindows() )? "help.cmd" : "./help.sh";
+		String helpName = ( execrc.isWindows() )? "help.cmd" : "./help.sh";
 		if( cmd.equals( "help" ) ) { 
 			out( "URM HELP" );
 			out( "Syntax: " + urmName + " <command> <action> <args>" );
@@ -88,7 +88,7 @@ public class CommandBuilder {
 	
 	public boolean setOptions( CommandMeta commandInfo , String[] args ) throws Exception {
 		// process options
-		options = new CommandOptions();
+		options = new CommandOptions( execrc );
 		if( !options.parseArgs( args ) ) {
 			if( options.action != null && !options.action.equals( "help" ) )
 				return( false );

@@ -14,7 +14,7 @@ import org.urm.common.action.CommandMeta;
 public class ClientCallRemote {
 
 	public boolean runClient( CommandBuilder builder , CommandMeta commandInfo ) throws Exception {
-		String URL = "service:jmx:rmi:///jndi/rmi://" + builder.rc.serverHostPort + "/jmxrmi";
+		String URL = "service:jmx:rmi:///jndi/rmi://" + builder.execrc.serverHostPort + "/jmxrmi";
 		JMXServiceURL url = new JMXServiceURL( URL );
 		
 		JMXConnector jmxc = null;

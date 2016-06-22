@@ -16,7 +16,7 @@ public class MainExecutor extends CommandExecutor {
 		if( !builder.setOptions( commandInfo , args ) )
 			return( null );
 		
-		return( new MainExecutor( engine , builder.rc , commandInfo ) );
+		return( new MainExecutor( engine , builder.execrc , commandInfo ) );
 	}
 
 	private MainExecutor( ServerEngine engine , RunContext rc , MainMeta commandInfo ) throws Exception {

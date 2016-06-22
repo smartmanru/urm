@@ -41,7 +41,7 @@ public class MainServerMBean implements DynamicMBean {
 	}
 
 	public void createInfo( ActionBase action ) throws Exception {
-		options = new CommandOptions();
+		options = new CommandOptions( engine.execrc );
 		
 		// attributes
 		List<MBeanAttributeInfo> attrs = new LinkedList<MBeanAttributeInfo>();

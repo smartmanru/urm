@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.common.RunContext;
 
 public class CommandOptions {
 
@@ -16,7 +17,8 @@ public class CommandOptions {
 
 	public int optDefaultCommandTimeout = 10;
 	
-	// standard command parameters 
+	// standard command parameters
+	public RunContext rc;
 	public String command;
 	public String action;
 
@@ -32,7 +34,9 @@ public class CommandOptions {
 	protected List<String> args = new LinkedList<String>();
 	private int genericOptionsCount;
 
-	public CommandOptions() {
+	public CommandOptions( RunContext rc ) {
+		this.rc = rc;
+		
 		optionsDefined = new LinkedList<CommandVar>();
 		optionsSet = new LinkedList<CommandVar>();
 		optionsByName = new HashMap<String,CommandVar>();
@@ -316,6 +320,13 @@ public class CommandOptions {
 		printhelp( "Available commands are:" );
 		for( CommandMeta meta : commands )
 			printhelp( "\t" + meta.name + ": " + meta.desc );
+		printhelp( "" );
+
+		printhelp( "To get help on specific command, run:" );
+		if( rc.isLinux() )
+			printhelp( "\t./help.sh <command>" );
+		else
+			printhelp( "\thelp.cmd <command>" );
 		printhelp( "" );
 		
 		printhelp( "URM instance administration actions are described below:" );

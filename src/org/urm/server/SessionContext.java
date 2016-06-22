@@ -7,7 +7,7 @@ import org.urm.common.action.CommandOptions;
 
 public class SessionContext {
 
-	public RunContext cmdrc;
+	public RunContext clientrc;
 	public String ENV;
 	public String DC;
 	public boolean executorFailed;
@@ -21,10 +21,10 @@ public class SessionContext {
 	public String etcPath = "";
 	public String proxyPath = "";
 	
-	public SessionContext( RunContext cmdrc ) {
-		this.cmdrc = cmdrc;
-		this.ENV = cmdrc.envName;
-		this.DC = cmdrc.dcName;
+	public SessionContext( RunContext clientrc ) {
+		this.clientrc = clientrc;
+		this.ENV = clientrc.envName;
+		this.DC = clientrc.dcName;
 		
 		executorFailed = false;
 	}
@@ -34,7 +34,7 @@ public class SessionContext {
 	}
 	
 	public void setServerLayout( CommandOptions options ) throws Exception {
-		installPath = cmdrc.installPath;
+		installPath = clientrc.installPath;
 		if( installPath.isEmpty() )
 			exit( "masterpath is empty" );
 		
@@ -59,18 +59,18 @@ public class SessionContext {
 		proxyPath = Common.getPath( productPath , "master" );
 	}
 	
-	public void setServerClientLayout( RunContext clientrc , SessionContext serverSession ) throws Exception {
+	public void setServerClientLayout( SessionContext serverSession ) throws Exception {
 		standalone = false;
 		productDir = clientrc.productDir;
 		installPath = serverSession.installPath;
 		masterPath = serverSession.masterPath;
 		binPath = serverSession.binPath;
 		
-		setServerProductLayout( cmdrc.productDir );
+		setServerProductLayout( clientrc.productDir );
 	}
 	
 	public void setStandaloneLayout( CommandOptions options ) throws Exception {
-		productPath = cmdrc.installPath;
+		productPath = clientrc.installPath;
 		if( productPath.isEmpty() )
 			exit( "productpath is empty" );
 		
