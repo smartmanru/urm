@@ -12,6 +12,7 @@ import javax.management.remote.JMXServiceURL;
 
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
+import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionBase;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.UrmStorage;
@@ -22,15 +23,20 @@ public class MainServer {
 
 	public static int DEFAULT_SERVER_PORT = 8800;
 	
+	ServerEngine engine;
 	private MBeanServer mbs = null;
 	CommandMeta[] executors = null;
 	JMXConnectorServer jmxConnector;
+
+	public MainServer( ServerEngine engine ) {
+		engine = this.engine;
+	}
 	
 	public void start( ActionBase action ) throws Exception {
 		mbs = MBeanServerFactory.createMBeanServer();
 		HtmlAdaptorServer adapter = new HtmlAdaptorServer();
 		
-		CommandBuilder builder = new CommandBuilder( action.context.rc );
+		CommandBuilder builder = new CommandBuilder( action.context.clientrc , action.context.execrc );
 		executors = builder.getExecutors( true , true );
 		
 		// create meta jmx for products

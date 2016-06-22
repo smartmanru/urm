@@ -4,6 +4,7 @@ import org.urm.common.Common;
 import org.urm.common.ExitException;
 import org.urm.common.RunContext;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMethod;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.action.CommandOptions.FLAG;
@@ -20,8 +21,9 @@ import org.urm.server.storage.LocalFolder;
 
 public class CommandContext {
 	
+	public RunContext clientrc;
+	public RunContext execrc;
 	public CommandOptions options;
-	public RunContext rc;
 	public SessionContext session;
 	public CommandMethod commandMethod;
 	public CommandAction commandAction;
@@ -105,7 +107,9 @@ public class CommandContext {
 	public String CTX_HOST = "";
 	public int CTX_PORT = -1;
 
-	public CommandContext( CommandOptions options , SessionContext session ) {
+	public CommandContext( RunContext clientrc , RunContext execrc , CommandOptions options , SessionContext session ) {
+		this.clientrc = clientrc;
+		this.execrc = execrc;
 		this.options = options;
 		this.session = session;
 		
@@ -113,8 +117,9 @@ public class CommandContext {
 	}
 
 	public CommandContext( CommandContext context , String stream ) {
+		this.clientrc = context.clientrc;
+		this.execrc = context.execrc;
 		this.options = context.options;
-		this.rc = context.rc;
 		this.session = context.session;
 		
 		this.env = context.env;
@@ -329,24 +334,22 @@ public class CommandContext {
 		return( Common.getEnumLower( buildMode ) );
 	}
 	
-	public boolean setRunContext( RunContext rc ) {
-		this.rc = rc;
-		
+	public boolean setRunContext() {
 		// read env
-		if( rc.hostName.isEmpty() ) {
+		if( execrc.hostName.isEmpty() ) {
 			System.out.println( "HOSTNAME is not set. Exiting" );
 			return( false );
 		}
 
-		if( rc.userName.isEmpty() ) {
+		if( execrc.userName.isEmpty() ) {
 			System.out.println( "USER is not set. Exiting" );
 			return( false );
 		}
 
-		VarOSTYPE osType = ( rc.isWindows() )? VarOSTYPE.WINDOWS : VarOSTYPE.LINUX;
-		this.account = Account.getLocalAccount( rc.userName , rc.hostName , osType );
-		this.userHome = rc.userHome;
-		this.buildMode = ( rc.buildMode.isEmpty() )? VarBUILDMODE.UNKNOWN : VarBUILDMODE.valueOf( rc.buildMode );
+		VarOSTYPE osType = ( execrc.isWindows() )? VarOSTYPE.WINDOWS : VarOSTYPE.LINUX;
+		this.account = Account.getLocalAccount( execrc.userName , execrc.hostName , osType );
+		this.userHome = execrc.userHome;
+		this.buildMode = ( clientrc.buildMode.isEmpty() )? VarBUILDMODE.UNKNOWN : VarBUILDMODE.valueOf( clientrc.buildMode );
 		
 		return( true );
 	}
@@ -435,7 +438,7 @@ public class CommandContext {
 		return( options.combineValue( optVar , confValue , defValue ) );
 	}
 	
-	public boolean setAction( CommandExecutor executor ) throws Exception {
+	public boolean setAction( CommandBuilder builder , CommandExecutor executor ) throws Exception {
 		String actionName = options.action;
 		String firstArg = options.getArg( 0 );
 		
@@ -446,10 +449,10 @@ public class CommandContext {
 				if( commandAction == null )
 					throw new ExitException( "unknown action=" + firstArg );
 				
-				options.showActionHelp( commandAction.method );
+				options.showActionHelp( builder , commandAction.method );
 			}
 			else
-				options.showCommandHelp( executor.commandInfo );
+				options.showCommandHelp( builder , executor.commandInfo );
 			
 			return( false );
 		}
@@ -459,7 +462,7 @@ public class CommandContext {
 			throw new ExitException( "unknown action=" + actionName );
 
 		if( firstArg.equals( "help" ) ) {
-			options.showActionHelp( commandAction.method );
+			options.showActionHelp( builder , commandAction.method );
 			return( false );
 		}
 		

@@ -100,7 +100,7 @@ public class Artefactory {
 				if( meta.product != null && meta.product.CONFIG_WORKPATH.isEmpty() == false )
 					dirname = meta.product.CONFIG_WORKPATH;
 				else
-					dirname = action.context.rc.userHome;
+					dirname = action.context.execrc.userHome;
 				dirname = Common.getPath( dirname , name );
 				
 				if( addSession )

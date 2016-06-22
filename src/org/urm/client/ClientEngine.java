@@ -13,7 +13,7 @@ public class ClientEngine {
 		RunContext execrc = new RunContext();
 		execrc.load();
 		
-		CommandBuilder builder = new CommandBuilder( execrc );
+		CommandBuilder builder = new CommandBuilder( execrc , execrc );
 		CommandMeta commandInfo = builder.buildCommand( args ); 
 		if( commandInfo == null )
 			return( false );

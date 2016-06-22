@@ -40,20 +40,20 @@ public class ServerEngine {
 		if( !execrc.isMain() )
 			throw new ExitException( "only main executor id expected" );
 
-		CommandBuilder builder = new CommandBuilder( execrc );
+		CommandBuilder builder = new CommandBuilder( execrc , execrc );
 		CommandExecutor executor = MainExecutor.create( this , builder , args );
 		if( executor == null )
 			return( false );
 		
 		serverSession = new SessionContext( execrc );
-		ActionInit action = createAction( builder.options , executor , serverSession );
+		ActionInit action = createAction( builder , builder.options , executor , serverSession );
 		if( action == null )
 			return( false );
 		
 		return( runAction( serverSession , executor , action ) );
 	}
 	
-	public boolean runClientMode( CommandOptions options , RunContext clientrc , CommandMeta commandInfo ) throws Exception {
+	public boolean runClientMode( CommandBuilder builder , CommandOptions options , RunContext clientrc , CommandMeta commandInfo ) throws Exception {
 		execrc = clientrc;
 		CommandExecutor executor = createExecutor( commandInfo );
 		SessionContext session = new SessionContext( clientrc );
@@ -63,7 +63,7 @@ public class ServerEngine {
 		else
 			session.setServerProductLayout( clientrc.productDir );
 		
-		ActionInit action = createAction( options , executor , session );
+		ActionInit action = createAction( builder , options , executor , session );
 		if( action == null )
 			return( false );
 		
@@ -72,7 +72,7 @@ public class ServerEngine {
 	}
 		
 	public boolean runClientRemote( CommandOptions options , RunContext clientrc ) throws Exception {
-		CommandBuilder builder = new CommandBuilder( execrc );
+		CommandBuilder builder = new CommandBuilder( clientrc , execrc );
 		CommandMeta commandInfo = builder.createMeta( options.command );
 		if( commandInfo == null )
 			return( false );
@@ -81,7 +81,7 @@ public class ServerEngine {
 		SessionContext session = new SessionContext( clientrc );
 		session.setServerClientLayout( serverSession );
 		
-		ActionInit action = createAction( options , executor , session );
+		ActionInit action = createAction( builder , options , executor , session );
 		if( action == null )
 			return( false );
 		
@@ -145,13 +145,13 @@ public class ServerEngine {
 		return( executor );
 	}
 
-	public ActionInit createAction( CommandOptions options , CommandExecutor executor , SessionContext session ) throws Exception {
+	public ActionInit createAction( CommandBuilder builder , CommandOptions options , CommandExecutor executor , SessionContext session ) throws Exception {
 		// create context
-		CommandContext context = new CommandContext( options , session );
-		if( !context.setRunContext( execrc ) )
+		CommandContext context = new CommandContext( session.clientrc , execrc , options , session );
+		if( !context.setRunContext() )
 			return( null );
 		
-		if( !context.setAction( executor ) )
+		if( !context.setAction( builder , executor ) )
 			return( null );
 		
 		Metadata meta = new Metadata();

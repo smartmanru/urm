@@ -14,6 +14,7 @@ import org.urm.common.meta.XDocCommandMeta;
 
 public class CommandBuilder {
 
+	public RunContext clientrc;
 	public RunContext execrc;
 	public CommandOptions options = null;
 	
@@ -21,7 +22,8 @@ public class CommandBuilder {
 		System.out.println( "# " + s );
 	}
 
-	public CommandBuilder( RunContext execrc ) {
+	public CommandBuilder( RunContext clientrc , RunContext execrc ) {
+		this.clientrc = clientrc;
 		this.execrc = execrc;
 	}
 
@@ -88,7 +90,7 @@ public class CommandBuilder {
 	
 	public boolean setOptions( CommandMeta commandInfo , String[] args ) throws Exception {
 		// process options
-		options = new CommandOptions( execrc );
+		options = new CommandOptions( commandInfo );
 		if( !options.parseArgs( args ) ) {
 			if( options.action != null && !options.action.equals( "help" ) )
 				return( false );
@@ -96,11 +98,11 @@ public class CommandBuilder {
 			if( commandInfo.name.equals( MainCommandMeta.NAME ) ) {
 				MainCommandMeta main = new MainCommandMeta( this );
 				CommandMeta[] executors = getExecutors( true , true );
-				options.showTopHelp( main , executors );
+				options.showTopHelp( this , main , executors );
 				return( false );
 			}
 				
-			options.showCommandHelp( commandInfo );
+			options.showCommandHelp( this , commandInfo );
 			return( false );
 		}
 

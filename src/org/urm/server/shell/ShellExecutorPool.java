@@ -26,7 +26,7 @@ public class ShellExecutorPool {
 	}
 	
 	public void start( ActionBase action ) throws Exception {
-		rootPath = action.context.rc.userHome;
+		rootPath = action.context.execrc.userHome;
 		String tmpPath = Common.getPath( rootPath , "tmp" );
 		tmpFolder = new LocalFolder( action.artefactory , tmpPath );
 		account = action.context.account;

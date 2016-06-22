@@ -248,7 +248,7 @@ public class ActionConfigure extends ActionBase {
 	}
 	
 	private void configureProductAll( boolean build , boolean deploy , boolean linux ) throws Exception {
-		CommandBuilder builder = new CommandBuilder( context.rc );
+		CommandBuilder builder = new CommandBuilder( context.clientrc , context.execrc );
 		CommandMeta[] executors = builder.getExecutors( build , deploy );
 		CommandMeta dbe = null;
 		for( CommandMeta executor : executors ) {

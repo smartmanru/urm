@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.common.RunContext;
 
 public class CommandOptions {
 
@@ -15,36 +14,26 @@ public class CommandOptions {
 	public enum SQLMODE { UNKNOWN , APPLY , ANYWAY , CORRECT , ROLLBACK , PRINT };
 	public enum SQLTYPE { UNKNOWN , SQL , CTL , PUB };
 
+	CommandMeta commandInfo;
 	public int optDefaultCommandTimeout = 10;
 	
-	// standard command parameters
-	public RunContext rc;
-	public String command;
-	public String action;
-
 	// implementation
 	public List<CommandVar> optionsDefined = new LinkedList<CommandVar>();
 	public Map<String,CommandVar> optionsByName = new HashMap<String,CommandVar>();
 	public Map<String,CommandVar> varByName = new HashMap<String,CommandVar>();
+	private int genericOptionsCount;
 	
 	protected List<CommandVar> optionsSet = new LinkedList<CommandVar>();
-	protected Map<String,FLAG> flags = new HashMap<String,FLAG>();
-	protected Map<String,String> enums = new HashMap<String,String>();
-	protected Map<String,String> params = new HashMap<String,String>();
-	protected List<String> args = new LinkedList<String>();
-	private int genericOptionsCount;
+	public String command;
+	public String action;
+	public ActionData data = new ActionData();
 
-	public CommandOptions( RunContext rc ) {
-		this.rc = rc;
+	public CommandOptions( CommandMeta commandInfo ) {
+		this.commandInfo = commandInfo;
 		
 		optionsDefined = new LinkedList<CommandVar>();
 		optionsSet = new LinkedList<CommandVar>();
 		optionsByName = new HashMap<String,CommandVar>();
-		
-		flags = new HashMap<String,FLAG>();
-		enums = new HashMap<String,String>();
-		params = new HashMap<String,String>();
-		args = new LinkedList<String>();
 		
 		defineGenericOption( CommandVar.newFlagYesOption( "trace" , "OPT_TRACE" , true , "show commands" ) );
 		defineGenericOption( CommandVar.newFlagYesOption( "showall" , "OPT_SHOWALL" , true , "show all log records" ) );
@@ -149,20 +138,12 @@ public class CommandOptions {
 		}
 		
 		String info = "execute options={" + values + "}, args={" + 
-				Common.getList( args.toArray( new String[0] ) , ", " ) + "}";
+				Common.getList( data.args.toArray( new String[0] ) , ", " ) + "}";
 		return( info );
 	}
 	
 	public String getOptionValue( CommandVar var ) {
-		String value;
-		if( var.isFlag )
-			value = Common.getEnumLower( flags.get( var.varName ) );
-		else
-		if( var.isEnum )
-			value = enums.get( var.varName );
-		else
-			value = params.get( var.varName );
-		return( var.varName + "=" + value );
+		return( data.getOptionValue( var ) );
 	}
 	
 	public void defineGenericOption( CommandVar var ) {
@@ -240,15 +221,12 @@ public class CommandOptions {
 			throw new RuntimeException( "option=" + opt + " is not a flag" );
 		
 		CommandVar info = optionsByName.get( opt );
-		
-		if( flags.get( info.varName ) != null ) {
+		if( !data.addFlagOption( info ) ) {
 			print( "flag=" + info.varName + " is already set" );
 			return( false );
 		}
 		
-		flags.put( info.varName , info.varValue );
 		optionsSet.add( info );
-		
 		return( true );
 	}
 
@@ -257,15 +235,12 @@ public class CommandOptions {
 			throw new RuntimeException( "option=" + opt + " is not a enum" );
 		
 		CommandVar info = optionsByName.get( opt );
-		
-		if( enums.get( info.varName ) != null ) {
+		if( !data.addEnumOption( info ) ) {
 			print( "enum=" + info.varName + " is already set" );
 			return( false );
 		}
 		
-		enums.put( info.varName , info.varEnumValue );
 		optionsSet.add( info );
-		
 		return( true );
 	}
 
@@ -274,24 +249,20 @@ public class CommandOptions {
 			throw new RuntimeException( "option=" + opt + " is not a parameter" );
 		
 		CommandVar info = optionsByName.get( opt );
-		
-		if( params.get( info.varName ) != null ) {
+		if( !data.addParamOption( info , value ) ) {
 			print( "parameter=" + info.varName + " is already set" );
 			return( false );
 		}
 		
-		params.put( info.varName , value );
 		optionsSet.add( info );
-
 		return( true );
 	}
 
 	public boolean addArg( String value ) {
-		args.add( value );
-		return( true );
+		return( data.addArg( value ) );
 	}
 	
-	private void showOptionHelp( CommandVar var ) {
+	private void showOptionHelp( CommandBuilder builder , CommandVar var ) {
 		String identity;
 		if( var.isFlag )
 			identity = "-" + var.optName + ": flag " + var.varName + "=" + var.varValue;
@@ -305,7 +276,7 @@ public class CommandOptions {
 		printhelp( "\t" + identity + spacing + var.help ); 
 	}
 
-	public void showTopHelp( CommandMeta main , CommandMeta[] commands ) {
+	public void showTopHelp( CommandBuilder builder , CommandMeta main , CommandMeta[] commands ) {
 		printhelp( "URM HELP (top)" );
 		printhelp( "" );
 		
@@ -317,7 +288,7 @@ public class CommandOptions {
 		printhelp( "" );
 		
 		printhelp( "URM instance administration:" );
-		showCommandHelp( main );
+		showCommandHelp( builder , main );
 		printhelp( "" );
 		
 		printhelp( "Operation are split into commands corresponding to master subfolders" );
@@ -327,14 +298,14 @@ public class CommandOptions {
 		printhelp( "" );
 
 		printhelp( "To get help on specific command, run:" );
-		if( rc.isLinux() )
+		if( builder.clientrc.isLinux() )
 			printhelp( "\t./help.sh <command>" );
 		else
 			printhelp( "\thelp.cmd <command>" );
 		printhelp( "" );
 	}
 	
-	public void showCommandHelp( CommandMeta commandInfo ) {
+	public void showCommandHelp( CommandBuilder builder , CommandMeta commandInfo ) {
 		printhelp( "URM HELP (command)" );
 		printhelp( "" );
 		
@@ -353,7 +324,7 @@ public class CommandOptions {
 		printhelp( "Generic options:" );
 		for( int k = 0; k < genericOptionsCount; k++ ) {
 			CommandVar var = optionsDefined.get( k );
-			showOptionHelp( var );
+			showOptionHelp( builder , var );
 		}
 		
 		printhelp( "Specific options:" );
@@ -363,7 +334,7 @@ public class CommandOptions {
 			if( !commandInfo.isOptionApplicaple( var ) )
 				continue;
 			
-			showOptionHelp( var );
+			showOptionHelp( builder , var );
 			specific = true;
 		}
 		if( !specific )
@@ -371,7 +342,7 @@ public class CommandOptions {
 	}
 	
 	
-	public void showActionHelp( CommandMethod action ) {
+	public void showActionHelp( CommandBuilder builder , CommandMethod action ) {
 		printhelp( "URM HELP (action)" );
 		printhelp( "" );
 		
@@ -385,7 +356,7 @@ public class CommandOptions {
 		printhelp( "Generic options:" );
 		for( int k = 0; k < genericOptionsCount; k++ ) {
 			CommandVar var = optionsDefined.get( k );
-			showOptionHelp( var );
+			showOptionHelp( builder , var );
 		}
 
 		printhelp( "Specific options:" );
@@ -393,7 +364,7 @@ public class CommandOptions {
 		for( int k = genericOptionsCount; k < optionsDefined.size(); k++ ) {
 			CommandVar var = optionsDefined.get( k );
 			if( action.isOptionApplicable( var ) ) {
-				showOptionHelp( var );
+				showOptionHelp( builder , var );
 				specific = true;
 			}
 		}
@@ -459,35 +430,19 @@ public class CommandOptions {
 	}
 
 	public boolean getFlagValue( String var , boolean defValue ) {
-		FLAG val = flags.get( var );
-		if( val == null )
-			return( defValue );
-		
-		if( val == FLAG.YES )
-			return( true );
-		
-		return( false );
+		return( data.getFlagValue( var , defValue ) );
 	}
 	
 	public String getEnumValue( String var ) {
-		String val = enums.get( var );
-		if( val == null )
-			return( "" );
-		return( val );
+		return( data.getEnumValue( var ) );
 	}
 
 	public String getParamValue( String var ) {
-		String val = params.get( var );
-		if( val == null )
-			return( "" );
-		return( val );
+		return( data.getParamValue( var ) );
 	}
 	
 	public int getIntParamValue( String var , int defaultValue ) {
-		String val = params.get( var );
-		if( val == null || val.isEmpty() )
-			return( defaultValue );
-		return( Integer.parseInt( val ) );
+		return( data.getIntParamValue( var , defaultValue ) );
 	}
 	
 	public String getFlagsSet() {
@@ -497,12 +452,12 @@ public class CommandOptions {
 			if( var.isFlag ) {
 				if( !s.isEmpty() )
 					s += " ";
-				s += var.varName + "=" + flags.get( var.varName );
+				s += var.varName + "=" + data.flags.get( var.varName );
 			}
 			else if( var.isEnum ) {
 				if( !s.isEmpty() )
 					s += " ";
-				s += var.varName + "=" + enums.get( var.varName );
+				s += var.varName + "=" + data.enums.get( var.varName );
 			}
 		}
 		return( s );
@@ -517,7 +472,7 @@ public class CommandOptions {
 			
 			if( !s.isEmpty() )
 				s += " ";
-			s += var.varName + "=" + params.get( var.varName );
+			s += var.varName + "=" + data.params.get( var.varName );
 		}
 		return( s );
 	}
@@ -528,55 +483,32 @@ public class CommandOptions {
 	
 	public String getArgsSet() {
 		String s = "";
-		for( int k = 0; k < args.size(); k++ ) {
+		for( int k = 0; k < data.args.size(); k++ ) {
 			if( !s.isEmpty() )
 				s += " ";
-			s += args.get( k );
+			s += data.args.get( k );
 		}
 		return( s );
 	}
 	
 	public String getArg( int pos ) {
-		if( pos >= args.size() )
-			return( "" );
-		
-		return( args.get( pos ) );
+		return( data.getArg( pos ) );
 	}
 	
 	public int getArgCount() {
-		return( args.size() );
+		return( data.getArgCount() );
 	}
 	
 	public int getIntArg( int pos , int defValue ) {
-		String value = getArg( pos );
-		if( value.isEmpty() )
-			return( defValue );
-		return( Integer.parseInt( value ) );
+		return( data.getIntArg( pos , defValue ) );
 	}
 	
 	public String[] getArgList( int startFrom ) {
-		if( startFrom >= args.size() )
-			return( new String[0] );
-		
-		String[] list = new String[ args.size() - startFrom ];
-		for( int k = startFrom; k < args.size(); k++ )
-			list[ k - startFrom ] = args.get( k );
-
-		return( list );
+		return( data.getArgList( startFrom ) );
 	}
 	
 	public boolean combineValue( String optVar , FLAG confValue , boolean defValue ) {
-		FLAG optValue = flags.get( optVar );
-
-		// option always overrides
-		if( optValue != null && optValue != FLAG.DEFAULT )
-			return( optValue == FLAG.YES );
-		
-		// if configuration is present
-		if( confValue != null && confValue != FLAG.DEFAULT )
-			return( confValue == FLAG.YES );
-		
-		return( defValue );
+		return( data.combineValue( optVar , confValue , defValue ) );
 	}
 	
 	public boolean checkValidOptions( CommandMethod commandAction ) {

@@ -531,27 +531,27 @@ abstract public class ActionBase {
 	
 	public String readFile( String path ) throws Exception {
     	trace( "read file path=" + path + " ..." );
-		return( ConfReader.readFile( context.rc , path ) );
+		return( ConfReader.readFile( context.execrc , path ) );
 	}
 	
 	public Document readXmlFile( String path ) throws Exception {
     	trace( "read xml file path=" + path + " ..." );
-		return( ConfReader.readXmlFile( context.rc , path ) );
+		return( ConfReader.readXmlFile( context.execrc , path ) );
 	}
 	
     public Properties readPropertyFile( String path ) throws Exception {
     	trace( "read property file path=" + path + " ..." );
-    	return( ConfReader.readPropertyFile( context.rc , path ) );
+    	return( ConfReader.readPropertyFile( context.execrc , path ) );
     }
 
     public List<String> readFileLines( String path ) throws Exception {
     	trace( "read file lines path=" + path + " ..." );
-    	return( ConfReader.readFileLines( context.rc , path ) );
+    	return( ConfReader.readFileLines( context.execrc , path ) );
     }
     
 	public List<String> readFileLines( String path , Charset charset ) throws Exception {
     	trace( "read file lines path=" + path + " ..." );
-		return( ConfReader.readFileLines( context.rc , path , charset ) );
+		return( ConfReader.readFileLines( context.execrc , path , charset ) );
 	}
 
     public String getNameAttr( Node node , VarNAMETYPE nameType ) throws Exception {
@@ -559,7 +559,7 @@ abstract public class ActionBase {
     }
 
     public String readStringFile( String path ) throws Exception {
-    	return( ConfReader.readStringFile( context.rc , path ) );
+    	return( ConfReader.readStringFile( context.execrc , path ) );
     }
     
 }
