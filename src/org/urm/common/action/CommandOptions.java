@@ -316,6 +316,10 @@ public class CommandOptions {
 		printhelp( "Items are configuration files, database changes, binary files and archives." );
 		printhelp( "" );
 		
+		printhelp( "URM instance administration:" );
+		showCommandHelp( main );
+		printhelp( "" );
+		
 		printhelp( "Operation are split into commands corresponding to master subfolders" );
 		printhelp( "Available commands are:" );
 		for( CommandMeta meta : commands )
@@ -328,10 +332,6 @@ public class CommandOptions {
 		else
 			printhelp( "\thelp.cmd <command>" );
 		printhelp( "" );
-		
-		printhelp( "URM instance administration actions are described below:" );
-		printhelp( "" );
-		showCommandHelp( main );
 	}
 	
 	public void showCommandHelp( CommandMeta commandInfo ) {
