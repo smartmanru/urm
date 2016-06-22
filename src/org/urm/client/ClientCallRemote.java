@@ -1,15 +1,18 @@
 package org.urm.client;
 
 import javax.management.MBeanServerConnection;
+import javax.management.Notification;
+import javax.management.NotificationListener;
 import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
+import org.urm.common.action.ActionLogNotification;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 
-public class ClientCallRemote {
+public class ClientCallRemote implements NotificationListener {
 
 	public boolean runClient( CommandBuilder builder , CommandMeta commandInfo ) throws Exception {
 		String URL = "service:jmx:rmi:///jndi/rmi://" + builder.execrc.serverHostPort + "/jmxrmi";
@@ -31,6 +34,7 @@ public class ClientCallRemote {
 		String name = builder.getCommandMBeanName( builder.execrc.productDir , commandInfo.name );
 		try {
 			ObjectName mbeanName = new ObjectName( name );
+			mbsc.addNotificationListener( mbeanName , this , null , null );
 			mbsc.invoke( mbeanName , builder.options.action , null , null );
 		}
 		catch( Throwable e ) {
@@ -40,6 +44,11 @@ public class ClientCallRemote {
 		}
 		
 		return( true );
+	}
+
+	public void handleNotification( Notification notif , Object handback ) {
+		ActionLogNotification n = ( ActionLogNotification )notif;
+		System.out.println( n.getMessage() );
 	}
 	
 }

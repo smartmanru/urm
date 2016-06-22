@@ -12,11 +12,14 @@ import javax.management.InvalidAttributeValueException;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanException;
 import javax.management.MBeanInfo;
+import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.MBeanParameterInfo;
+import javax.management.NotificationBroadcasterSupport;
 import javax.management.ReflectionException;
 
 import org.urm.common.Common;
+import org.urm.common.action.ActionLogNotification;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethod;
 import org.urm.common.action.CommandMethod.ACTION_TYPE;
@@ -25,8 +28,10 @@ import org.urm.common.action.CommandVar;
 import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionBase;
 
-public class MainServerMBean implements DynamicMBean {
+public class MainServerMBean extends NotificationBroadcasterSupport implements DynamicMBean {
 
+	int notificationSequence = 0;
+	
 	ServerEngine engine;
 	String productDir;
 	
@@ -60,6 +65,10 @@ public class MainServerMBean implements DynamicMBean {
 			opers.add( op );
 		}
 		
+		// notifications
+		MBeanNotificationInfo mbn = new MBeanNotificationInfo( new String[] { ActionLogNotification.EVENT } , 
+				ActionLogNotification.class.getName() , "output of action executed" );
+		
 		// register
 		Collections.reverse( opers );
 		mbean = new MBeanInfo(
@@ -68,7 +77,7 @@ public class MainServerMBean implements DynamicMBean {
             attrs.toArray( new MBeanAttributeInfo[0] ) ,
             null ,  // constructors
             opers.toArray( new MBeanOperationInfo[0] ) ,
-            null ); // notifications
+            new MBeanNotificationInfo[] { mbn } ); // notifications
 	}
 
 	public MBeanOperationInfo addOperation( ActionBase action , CommandMethod method ) throws Exception {
@@ -165,10 +174,11 @@ public class MainServerMBean implements DynamicMBean {
     	return retlist;
 	}
     
-	public Object invoke(String name, Object[] args, String[] sig)
-    	    throws MBeanException, ReflectionException {
+	public Object invoke( String name , Object[] args , String[] sig ) throws MBeanException, ReflectionException {
+		ActionLogNotification n = new ActionLogNotification( this , ++notificationSequence , "test" ); 
+		sendNotification( n );
 		return( null );
-    }
+	}
 
 	public synchronized MBeanInfo getMBeanInfo() {
 		return( mbean );
