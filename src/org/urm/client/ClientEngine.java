@@ -10,16 +10,16 @@ public class ClientEngine {
 	}
 
 	public boolean runArgs( String[] args ) throws Exception {
-		RunContext rc = new RunContext();
-		rc.load();
+		RunContext execrc = new RunContext();
+		execrc.load();
 		
-		CommandBuilder builder = new CommandBuilder( rc );
+		CommandBuilder builder = new CommandBuilder( execrc );
 		CommandMeta commandInfo = builder.buildCommand( args ); 
 		if( commandInfo == null )
 			return( false );
 
 		boolean res = false;
-		if( rc.isRemoteMode() )
+		if( execrc.isRemoteMode() )
 			res = runServerMode( builder , commandInfo );
 		else
 			res = runClientMode( builder , commandInfo );

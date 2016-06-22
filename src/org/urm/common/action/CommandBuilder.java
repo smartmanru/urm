@@ -123,5 +123,8 @@ public class CommandBuilder {
 		
 		return( list.toArray( new CommandMeta[0] ) );
 	}
-	
+
+	public String getCommandMBeanName( String productDir , String command ) {
+		return( "urm-" + productDir + ":" + "name=" + command );
+	}
 }

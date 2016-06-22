@@ -1,13 +1,11 @@
 package org.urm.client;
 
-import java.util.Arrays;
-
 import javax.management.MBeanServerConnection;
+import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
-import org.urm.common.ExitException;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 
@@ -30,14 +28,18 @@ public class ClientCallRemote {
 			return( false );
 		}
 		
-		System.out.println("\nDomains:");
-		String domains[] = mbsc.getDomains();
-		Arrays.sort(domains);
-		for (String domain : domains) {
-			System.out.println("\tDomain = " + domain);
+		String name = builder.getCommandMBeanName( builder.execrc.productDir , commandInfo.name );
+		try {
+			ObjectName mbeanName = new ObjectName( name );
+			mbsc.invoke( mbeanName , builder.options.action , null , null );
+		}
+		catch( Throwable e ) {
+			System.out.println( "unable to call operation: " + name );
+			e.printStackTrace();
+			return( false );
 		}
 		
-		throw new ExitException( "sorry, not implemented yet" );
+		return( true );
 	}
 	
 }

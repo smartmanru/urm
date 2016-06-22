@@ -67,13 +67,13 @@ public class MainServer {
 	}
 
 	private void addProduct( ActionBase action , String productDir ) throws Exception {
-		String nameBase = "urm-" + productDir + ":";
 		for( CommandMeta meta : executors  ) {
 			MainServerMBean bean = new MainServerMBean( action.executor.engine , productDir , meta );
 			bean.createInfo( action );
 			
-			ObjectName name = new ObjectName( nameBase + "name=" + meta.name );
-			mbs.registerMBean( bean , name );
+			String name = action.executor.commandInfo.builder.getCommandMBeanName( productDir , meta.name );
+			ObjectName object = new ObjectName( name );
+			mbs.registerMBean( bean , object );
 		}
 	}
 	
