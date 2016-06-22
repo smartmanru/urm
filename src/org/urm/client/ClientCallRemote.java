@@ -43,6 +43,10 @@ public class ClientCallRemote implements NotificationListener {
 			return( false );
 		}
 		
+		synchronized( this ) {
+			wait();
+		}
+		
 		return( true );
 	}
 
