@@ -3,6 +3,7 @@ package org.urm.client;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
+import org.urm.common.jmx.ClientCallRemote;
 
 public class ClientEngine {
 
