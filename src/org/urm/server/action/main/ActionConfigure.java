@@ -128,8 +128,12 @@ public class ActionConfigure extends ActionBase {
 			lines = readFileLines( masterPath );
 		else {
 			pfMaster.ensureExists( this );
-			lines = new LinkedList<String>();
-			lines.add( MainCommandMeta.RELEASEPREFIX + MainCommandMeta.MASTERFILE );
+			if( pfMaster.checkFileExists( this , MainCommandMeta.MASTERFILE ) )
+				lines = readFileLines( masterPath );
+			else {
+				lines = new LinkedList<String>();
+				lines.add( MainCommandMeta.RELEASEPREFIX + MainCommandMeta.MASTERFILE );
+			}
 		}
 		
 		configureProduct( initial );
