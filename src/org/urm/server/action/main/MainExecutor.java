@@ -23,8 +23,7 @@ public class MainExecutor extends CommandExecutor {
 		super( engine , commandInfo );
 		
 		this.rc = rc;
-		super.defineAction( new Configure( true ) , "configure-linux" );
-		super.defineAction( new Configure( false ) , "configure-windows" );
+		super.defineAction( new Configure() , "configure" );
 		super.defineAction( new SvnSave() , "svnsave" );
 		super.defineAction( new ServerOp() , "server" );
 	}
@@ -39,11 +38,12 @@ public class MainExecutor extends CommandExecutor {
 	private class Configure extends CommandAction {
 		boolean linux;
 		
-		public Configure( boolean linux ) {
-			this.linux = linux;
+		public Configure() {
 		}
 		
 		public void run( ActionInit action ) throws Exception {
+			linux = action.isLinux();
+			
 			String ACTION = getRequiredArg( action , 0 , "ACTION" );
 			String USEENV = "";
 			String USEDC = "";
