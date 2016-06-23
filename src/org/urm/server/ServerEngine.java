@@ -2,6 +2,7 @@ package org.urm.server;
 
 import org.urm.common.ExitException;
 import org.urm.common.RunContext;
+import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandOptions;
@@ -26,6 +27,7 @@ public class ServerEngine {
 
 	public RunContext execrc;
 	public SessionContext serverSession;
+	public ActionInit serverAction;
 	
 	public ServerEngine() {
 	}
@@ -43,11 +45,11 @@ public class ServerEngine {
 			return( false );
 		
 		serverSession = new SessionContext( execrc );
-		ActionInit action = createAction( builder , builder.options , executor , serverSession );
-		if( action == null )
+		serverAction = createAction( builder , builder.options , executor , serverSession );
+		if( serverAction == null )
 			return( false );
 		
-		return( runAction( serverSession , executor , action ) );
+		return( runServerAction( serverSession , executor ) );
 	}
 	
 	public boolean runClientMode( CommandBuilder builder , CommandOptions options , RunContext clientrc , CommandMeta commandInfo ) throws Exception {
@@ -60,22 +62,24 @@ public class ServerEngine {
 		else
 			session.setServerProductLayout( clientrc.productDir );
 		
-		ActionInit action = createAction( builder , options , executor , session );
-		if( action == null )
+		serverAction = createAction( builder , options , executor , session );
+		if( serverAction == null )
 			return( false );
 		
-		action.meta.loadProduct( action );
-		return( runAction( session , executor , action ) );
+		serverAction.meta.loadProduct( serverAction );
+		return( runServerAction( session , executor ) );
 	}
 		
-	public boolean runClientRemote( CommandOptions options , RunContext clientrc ) throws Exception {
-		CommandBuilder builder = new CommandBuilder( clientrc , execrc );
+	public boolean runClientRemote( CommandMeta command , ActionData data ) throws Exception {
+		CommandBuilder builder = new CommandBuilder( data.clientrc , execrc );
+		
+		CommandOptions options = new CommandOptions();
 		CommandMeta commandInfo = builder.createMeta( options.command );
 		if( commandInfo == null )
 			return( false );
 		
 		CommandExecutor executor = createExecutor( commandInfo );
-		SessionContext session = new SessionContext( clientrc );
+		SessionContext session = new SessionContext( data.clientrc );
 		session.setServerClientLayout( serverSession );
 		
 		ActionInit action = createAction( builder , options , executor , session );
@@ -83,28 +87,49 @@ public class ServerEngine {
 			return( false );
 		
 		action.meta.loadProduct( action );
-		return( runAction( session , executor , action ) );
+		return( runClientAction( session , executor , action ) );
 	}
 		
-	private boolean runAction( SessionContext session , CommandExecutor executor , ActionInit action ) throws Exception {
+	private boolean runClientAction( SessionContext session , CommandExecutor executor , ActionInit clientAction ) throws Exception {
 		// execute
 		try {
-			executor.run( action );
-			action.context.killPool( action );
+			executor.run( clientAction );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			clientAction.log( e );
 		}
 
 		boolean res = ( session.isFailed() )? false : true;
 		
 		if( res )
-			action.commentExecutor( "COMMAND SUCCESSFUL" );
+			serverAction.commentExecutor( "COMMAND SUCCESSFUL" );
 		else
-			action.commentExecutor( "COMMAND FAILED" );
+			serverAction.commentExecutor( "COMMAND FAILED" );
 			
-		executor.finish( action );
-		action.context.stopPool( action );
+		executor.finish( serverAction );
+
+		return( res );
+	}
+
+	private boolean runServerAction( SessionContext session , CommandExecutor executor ) throws Exception {
+		// execute
+		try {
+			executor.run( serverAction );
+			serverAction.context.killPool( serverAction );
+		}
+		catch( Throwable e ) {
+			serverAction.log( e );
+		}
+
+		boolean res = ( session.isFailed() )? false : true;
+		
+		if( res )
+			serverAction.commentExecutor( "COMMAND SUCCESSFUL" );
+		else
+			serverAction.commentExecutor( "COMMAND FAILED" );
+			
+		executor.finish( serverAction );
+		serverAction.context.stopPool( serverAction );
 
 		return( res );
 	}

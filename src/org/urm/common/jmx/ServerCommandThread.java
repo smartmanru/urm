@@ -26,6 +26,13 @@ public class ServerCommandThread implements Runnable {
 
     @Override
     public void run() {
+    	try {
+    		command.engine.runClientRemote( command.meta , data );
+    	}
+    	catch( Throwable e ) {
+        	command.notifyLog( sessionId , "exception: " + e.getMessage() );
+    	}
+    	
     	command.notifyStop( sessionId );
     	controller.threadStopped( this );
     }

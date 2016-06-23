@@ -69,7 +69,7 @@ public class CommandBuilder {
 	
 	public boolean setOptions( CommandMeta commandInfo , String[] args ) throws Exception {
 		// process options
-		options = new CommandOptions( commandInfo );
+		options = new CommandOptions();
 		if( !options.parseArgs( args ) ) {
 			showTopHelp();
 			return( false );
@@ -108,7 +108,7 @@ public class CommandBuilder {
 
 	public void showTopHelp() {
 		CommandMeta main = new MainCommandMeta( this );
-		options = new CommandOptions( main );
+		options = new CommandOptions();
 		options.showTopHelp( this , main , getExecutors( true , true ) );
 	}
 
@@ -132,7 +132,7 @@ public class CommandBuilder {
 			CommandMeta meta = ( command.equals( MainCommandMeta.NAME ) )? new MainCommandMeta( this ) : createMeta( command );
 			boolean main = options.command.equals( MainCommandMeta.NAME );
 			
-			CommandOptions ho = new CommandOptions( meta );
+			CommandOptions ho = new CommandOptions();
 			ho.showCommandHelp( this , meta , main );
 			return( true );
 		}
@@ -150,7 +150,7 @@ public class CommandBuilder {
 				options.getArg( 0 ).equals( "help" ) ) {
 			String command = ( options.command.equals( MainCommandMeta.NAME ) )? options.getArg( 0 ) : options.command;
 			CommandMeta meta = ( command.equals( "bin" ) )? new MainCommandMeta( this ) : createMeta( command );
-			CommandOptions ho = new CommandOptions( meta );
+			CommandOptions ho = new CommandOptions();
 			
 			String action = ( options.command.equals( MainCommandMeta.NAME ) )? options.getArg( 1 ) :
 				( ( options.action.equals( "help" ) )? options.getArg( 0 ) : options.action );

@@ -81,9 +81,6 @@ public class ClientCallRemote implements NotificationListener {
 			System.out.println( n.getMessage() );
 		}
 		else if( notif.getType().equals( ActionStopNotification.EVENT ) ) {
-			ActionStopNotification n = ( ActionStopNotification )notif;
-			System.out.println( n.getMessage() );
-			
 			synchronized( this ) {
 				notifyAll();
 			}

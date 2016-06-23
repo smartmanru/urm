@@ -51,11 +51,11 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 	}
 
 	public void createInfo() throws Exception {
-		options = new CommandOptions( meta );
+		options = new CommandOptions();
 		
 		// attributes
 		List<MBeanAttributeInfo> attrs = new LinkedList<MBeanAttributeInfo>();
-		for( CommandVar var : options.varByName.values() ) {
+		for( CommandVar var : options.getDefinedVariables().values() ) {
 			if( var.isGeneric && var.jmx ) {
 				MBeanAttributeInfo attr = addGenericOption( action , var );
 				attrs.add( attr );
