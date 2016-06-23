@@ -21,7 +21,7 @@ if "%C_URM_SERVER%" == "" set x=1
 if "%x%" == "1" (
 	set JAVACP=master/bin/urms.jar;master/lib/jmxtools-1.2.1.jar;master/lib/jna-4.1.0.jar;master/lib/jmxremote_optional-repackaged-4.0.jar
 ) else (
-	set JAVACP=master/bin/urmc.jar;master/lib/jmxtools-1.2.1.jar
+	set JAVACP=master/bin/urmc.jar;master/lib/jmxtools-1.2.1.jar;master/lib/jmxremote_optional-repackaged-4.0.jar
 )
 
 set x=0
