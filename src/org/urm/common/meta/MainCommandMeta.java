@@ -21,7 +21,6 @@ public class MainCommandMeta extends CommandMeta {
 		String cmdOpts = "OPT_HOST,OPT_PORT";
 		super.defineAction( CommandMethod.newCritical( "configure" , true , "configure proxy files" , cmdOpts , "configure [OPTIONS] {default|server|standalone} [envname [dcname]]" ) );
 		super.defineAction( CommandMethod.newCritical( "svnsave" , true , "save master file set in svn" , cmdOpts , "svnsave [OPTIONS]" ) );
-		cmdOpts = "OPT_PORT";
 		super.defineAction( CommandMethod.newNormal( "server" , true , "server control" , cmdOpts , "srver [OPTIONS] {start|stop|status}" ) );
 	}
 	
