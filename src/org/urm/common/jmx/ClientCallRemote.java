@@ -32,6 +32,18 @@ public class ClientCallRemote implements NotificationListener {
 		}
 		
 		String name = builder.getCommandMBeanName( builder.execrc.productDir , commandInfo.name );
+		boolean res = makeCall( builder , name , mbsc );
+		
+		try {
+			jmxc.close();
+		}
+		catch( Throwable e ) {
+		}
+		
+		return( res );
+	}
+
+	private boolean makeCall( CommandBuilder builder , String name , MBeanServerConnection mbsc ) {
 		Object sessionId;
 		try {
 			ObjectName mbeanName = new ObjectName( name );
@@ -51,13 +63,18 @@ public class ClientCallRemote implements NotificationListener {
 			return( false );
 		}
 		
-		synchronized( this ) {
-			wait();
+		try {
+			synchronized( this ) {
+				wait();
+			}
+		}
+		catch( Throwable e ) {
+			return( false );
 		}
 		
 		return( true );
 	}
-
+	
 	public void handleNotification( Notification notif , Object handback ) {
 		if( notif.getType().equals( ActionLogNotification.EVENT ) ) {
 			ActionLogNotification n = ( ActionLogNotification )notif;

@@ -1,7 +1,5 @@
 package org.urm.common.jmx;
 
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,14 +57,6 @@ public class Controller {
         mbs.registerMBean( adapter , adapterName );
         
         adapter.start();
-        
-        // force unbind
-        try {
-	        Registry registry = LocateRegistry.getRegistry( port );
-	        registry.unbind( "jmxrmi" );
-        }
-        catch( Throwable e ) {
-        }
         
         // create jmx
 		String host = action.context.CTX_HOST;
