@@ -26,7 +26,8 @@ public class ActionData implements Serializable {
 	protected List<String> args = new LinkedList<String>();
 	protected List<CommandVar> optionsSet = new LinkedList<CommandVar>();
 
-	public ActionData() {
+	public ActionData( RunContext clientrc ) {
+		this.clientrc = clientrc;
 	}
 
 	public String getOptionValue( CommandVar var ) {

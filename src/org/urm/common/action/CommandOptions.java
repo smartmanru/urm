@@ -3,6 +3,7 @@ package org.urm.common.action;
 import java.util.List;
 import java.util.Map;
 
+import org.urm.common.RunContext;
 import org.urm.common.action.CommandVar.FLAG;
 
 public class CommandOptions {
@@ -32,7 +33,7 @@ public class CommandOptions {
 		this.data = data;
 	}
 	
-	public boolean parseArgs( String[] cmdParams ) {
+	public boolean parseArgs( RunContext clientrc , String[] cmdParams ) {
 		if( cmdParams.length < 2 ) {
 			command = "help";
 			return( false );
@@ -46,7 +47,7 @@ public class CommandOptions {
 		k++;
 
 		// next items are options
-		data = new ActionData();
+		data = new ActionData( clientrc );
 		for( ; k < cmdParams.length; k++ ) {
 			String arg = cmdParams[k];
 			if( !arg.startsWith( "-" ) )

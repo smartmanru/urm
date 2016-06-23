@@ -70,7 +70,7 @@ public class CommandBuilder {
 	public boolean setOptions( CommandMeta commandInfo , String[] args ) throws Exception {
 		// process options
 		options = new CommandOptions();
-		if( !options.parseArgs( args ) ) {
+		if( !options.parseArgs( clientrc , args ) ) {
 			showTopHelp();
 			return( false );
 		}

@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="master/lib/json-simple-1.1.jar"/>
 	<classpathentry kind="lib" path="master/lib/jna-4.1.0.jar"/>
 	<classpathentry kind="lib" path="master/lib/jmxtools-1.2.1.jar"/>
+	<classpathentry kind="lib" path="master/lib/jmxremote_optional-repackaged-4.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
