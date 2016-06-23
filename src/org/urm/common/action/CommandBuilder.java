@@ -129,8 +129,8 @@ public class CommandBuilder {
 				options.action.equals( "help" ) && 
 				options.getArgCount() == 0 ) ) {
 			String command = ( options.command.equals( MainCommandMeta.NAME ) )? options.getArg( 0 ) : options.command;
+			CommandMeta meta = ( command.equals( MainCommandMeta.NAME ) )? new MainCommandMeta( this ) : createMeta( command );
 			boolean main = options.command.equals( MainCommandMeta.NAME );
-			CommandMeta meta = ( main )? new MainCommandMeta( this ) : createMeta( command );
 			
 			CommandOptions ho = new CommandOptions( meta );
 			ho.showCommandHelp( this , meta , main );
