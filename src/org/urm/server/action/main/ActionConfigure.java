@@ -105,7 +105,7 @@ public class ActionConfigure extends ActionBase {
 
 		boolean found = false;
 		for( String productDir : pfProducts.getTopDirs( this ) ) {
-			comment( "configure product folder=" + productDir + " ..." );
+			info( "configure product folder=" + productDir + " ..." );
 			found = true;
 			context.session.setServerProductLayout( productDir );
 			configureProduct( initial , false );

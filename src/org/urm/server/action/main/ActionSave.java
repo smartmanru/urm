@@ -35,7 +35,7 @@ public class ActionSave extends ActionBase {
 	}
 
 	private void saveServer( LocalFolder pf ) throws Exception {
-		comment( "save master ..." );
+		info( "save master ..." );
 		saveProduct( pf , false );
 		
 		UrmStorage urm = artefactory.getUrmStorage();
@@ -43,7 +43,7 @@ public class ActionSave extends ActionBase {
 
 		boolean found = false;
 		for( String product : pfProducts.getTopDirs( this ) ) {
-			comment( "save product=" + product + " ..." );
+			info( "save product=" + product + " ..." );
 			found = true;
 			context.session.setServerProductLayout( product );
 			LocalFolder productFolder = pfProducts.getSubFolder( this , product );

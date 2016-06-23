@@ -16,7 +16,7 @@ public class ActionList extends ActionBase {
 
 	@Override protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		String s = "servers of datacenter=" + set.dc.NAME + ":";
-		super.comment( s );
+		info( s );
 		return( false );
 	}
 	
@@ -31,14 +31,14 @@ public class ActionList extends ActionBase {
 		String s = "\tserver: " + server.NAME + " type=" + Common.getEnumLower( server.serverType );
 		if( server.OFFLINE )
 			s += " (offline)";
-		super.comment( s );
+		info( s );
 	}
 	
 	private void showNodeInfo( MetaEnvServerNode node ) throws Exception {
 		String s = "\t\tnode " + node.POS + ": " + node.HOSTLOGIN;
 		if( node.OFFLINE )
 			s += " (offline)";
-		super.comment( s );
+		info( s );
 	}
 	
 }

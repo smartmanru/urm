@@ -31,7 +31,7 @@ public class ActionManageRegistry extends ActionBase {
 		if( !client.checkConnect( this , server ) )
 			exit( "unable to connect to server=" + server.NAME );
 
-		comment( "RELEASE " + RELEASEVER + ": " + CMD + " database registry ..." );
+		info( "RELEASE " + RELEASEVER + ": " + CMD + " database registry ..." );
 		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client );
 		registry.setActiveRelease( this , RELEASEVER );
 		
@@ -57,16 +57,16 @@ public class ActionManageRegistry extends ActionBase {
 
 	private void executePrintRegistry( DatabaseRegistry registry ) throws Exception {
 		String state = ( registry.isReleaseFinished( this ) )? "APPLIED" : "INCOMPLETE";
-		comment( "VERSION=" + RELEASEVER + " STATE=" + state );
+		info( "VERSION=" + RELEASEVER + " STATE=" + state );
 		
 		registry.readIncompleteScripts( this );
 		for( String delivery : registry.getStateDeliveries( this ) ) {
-			comment( "DELIVERY: " + delivery );
+			info( "DELIVERY: " + delivery );
 			Map<String,String> data = registry.getStateData( this , delivery );
 			for( String key : Common.getSortedKeys( data ) ) {
 				String status = data.get( key );
 				String value = ( status.equals( DatabaseRegistry.SCRIPT_STATUS_APPLIED ) )? "OK" : "FAILED";
-				comment( "\tkey=" + key + ", status=" + value );
+				info( "\tkey=" + key + ", status=" + value );
 			}
 		}
 	}

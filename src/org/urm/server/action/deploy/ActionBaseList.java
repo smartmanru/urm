@@ -17,16 +17,16 @@ public class ActionBaseList extends ActionBase {
 	@Override protected boolean executeAccount( ActionScopeSet set , Account account ) throws Exception {
 		VersionInfoStorage vis = artefactory.getVersionInfoStorage( this , account );
 		Map<String,String> items = vis.getBaseList( this );
-		comment( "============================================ account=" + account.HOSTLOGIN );
+		info( "============================================ account=" + account.HOSTLOGIN );
 		
 		if( items.isEmpty() ) {
-			comment( "(no base items)" );
+			info( "(no base items)" );
 			return( true );
 		}
 		
 		for( String key : Common.getSortedKeys( items ) ) {
 			String value = items.get( key );
-			comment( "base=" + key + " value=" + value );
+			info( "base=" + key + " value=" + value );
 		}
 		
 		return( true );

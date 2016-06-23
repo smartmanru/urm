@@ -24,12 +24,12 @@ public class ActionGetRedistInfo extends ActionBase {
 
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
-		comment( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
-		comment( "root path: " + server.ROOTPATH );
+		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
+		info( "root path: " + server.ROOTPATH );
 		
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
-			comment( "node" + node.POS + " (" + node.HOSTLOGIN + "):" );
+			info( "node" + node.POS + " (" + node.HOSTLOGIN + "):" );
 			
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 			if( dist == null )
@@ -43,12 +43,12 @@ public class ActionGetRedistInfo extends ActionBase {
 	private void showReleases( RedistStorage redist ) throws Exception {
 		String[] releases = redist.getRedistReleases( this );
 		if( releases == null || releases.length == 0 ) {
-			comment( "\t(nothing)" );
+			info( "\t(nothing)" );
 			return;
 		}
 		
 		for( String release : releases ) {
-			comment( "\trelease: " + release );
+			info( "\trelease: " + release );
 		}
 	}
 	
@@ -70,11 +70,11 @@ public class ActionGetRedistInfo extends ActionBase {
 				}
 
 				if( first ) {
-					comment( "\tcategory: " + category );
+					info( "\tcategory: " + category );
 					first = false;
 				}
 				
-				comment( "\t\tlocation: " + LOCATION + " (" + rf.folderPath + ")" );
+				info( "\t\tlocation: " + LOCATION + " (" + rf.folderPath + ")" );
 				RedistStateInfo stateInfo = new RedistStateInfo();
 				stateInfo.gather( this , redist.node , CONTENTTYPE , rf.folderPath );
 				
@@ -89,7 +89,7 @@ public class ActionGetRedistInfo extends ActionBase {
 						else
 							text += ", deployname: " + info.deployFinalName;
 					}
-					comment( "\t\t\tfile: " + info.getFileName( this ) + " (" + text + ")" );
+					info( "\t\t\tfile: " + info.getFileName( this ) + " (" + text + ")" );
 				}
 			}
 		}

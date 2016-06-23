@@ -23,7 +23,7 @@ public class ActionGetDeployInfo extends ActionBase {
 
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
-		comment( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
+		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
 
 		if( server.isDatabase( this ) )
 			executeTargetDatabase( server );
@@ -40,17 +40,17 @@ public class ActionGetDeployInfo extends ActionBase {
 
 		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client );
 		DatabaseRegistryRelease release = registry.getLastReleaseInfo( this );
-		super.comment( "database: " );
-		super.comment( "\trelease: " + release.version );
-		super.comment( "\tstate: " + Common.getEnumLower( release.state ) );
+		info( "database: " );
+		info( "\trelease: " + release.version );
+		info( "\tstate: " + Common.getEnumLower( release.state ) );
 	}
 		
 	private void executeTargetApp( ActionScopeTarget target , MetaEnvServer server ) throws Exception {
-		comment( "root path: " + server.ROOTPATH );
+		info( "root path: " + server.ROOTPATH );
 		
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
-			comment( "node" + node.POS + " (" + node.HOSTLOGIN + "):" );
+			info( "node" + node.POS + " (" + node.HOSTLOGIN + "):" );
 			
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 			showDeployInfoApp( server , redist );
@@ -62,7 +62,7 @@ public class ActionGetDeployInfo extends ActionBase {
 		boolean conf = context.CTX_CONFDEPLOY;
 
 		for( MetaEnvServerLocation location : server.getLocations( this , binary , conf ) ) {
-			super.comment( "\tlocation: " + location.DEPLOYPATH );
+			info( "\tlocation: " + location.DEPLOYPATH );
 			if( binary && location.hasBinaryItems( this ) )
 				showDeployInfoContent( server , redist , location , true );
 			if( conf && location.hasConfItems( this ) )
@@ -75,7 +75,7 @@ public class ActionGetDeployInfo extends ActionBase {
 		RedistStateInfo info = redist.getStateInfo( this , location.DEPLOYPATH , contentType );
 		if( !info.exists ) {
 			String type = ( binary )? "binary" : "conf";
-			comment( "\t\t(" + type + " state information is missing)" );
+			info( "\t\t(" + type + " state information is missing)" );
 			return;
 		}
 			
@@ -83,12 +83,12 @@ public class ActionGetDeployInfo extends ActionBase {
 			FileInfo data = info.getVerData( this , key );
 			if( binary ) {
 				if( data.binaryItem.isArchive( this ) )
-					comment( "\t\tdistitem=" + data.itemName + ": archive (" + Common.getEnumLower( data.binaryItem.DISTTYPE ) + "), version=" + data.version );
+					info( "\t\tdistitem=" + data.itemName + ": archive (" + Common.getEnumLower( data.binaryItem.DISTTYPE ) + "), version=" + data.version );
 				else
-					comment( "\t\tdistitem=" + data.itemName + ": file=" + data.deployFinalName + ", version=" + data.version );
+					info( "\t\tdistitem=" + data.itemName + ": file=" + data.deployFinalName + ", version=" + data.version );
 			}
 			else
-				comment( "\t\tconfitem=" + data.itemName + ": version=" + data.version );
+				info( "\t\tconfitem=" + data.itemName + ": version=" + data.version );
 		}
 	}
 	

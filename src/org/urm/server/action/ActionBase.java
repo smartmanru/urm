@@ -136,7 +136,7 @@ abstract public class ActionBase {
 		String s = NAME;
 		if( !prompt.isEmpty() )
 			s += " " + prompt;
-		output.log( s , context.streamName , e );
+		output.log( context , s , context.streamName , e );
 	}
 	
 	public void infoAction( String s ) {
@@ -156,42 +156,34 @@ abstract public class ActionBase {
 	}
 	
 	public void logExact( String s , int logLevel ) {
-		output.logExact( s , logLevel );
+		output.logExact( context , s , logLevel );
 	}
 	
 	public void error( String s ) {
-		output.error( s );
+		output.error( context , s );
 	}
 	
 	public void trace( String s ) {
-		output.trace( s );
-	}
-	
-	public void printExact( String s ) {
-		output.logExact( s , CommandOutput.LOGLEVEL_INFO );
-	}
-	
-	public void comment( String s ) {
-		output.logExact( "# " + s , CommandOutput.LOGLEVEL_INFO );
+		output.trace( context , s );
 	}
 	
 	public void info( String s ) {
-		output.info( s + " [" + context.streamName + "]" );
+		output.info( context , s + " [" + context.streamName + "]" );
 	}
 	
 	public void debug( String s ) {
-		output.debug( s + " [" + context.streamName + "]" );
+		output.debug( context , s + " [" + context.streamName + "]" );
 	}
 	
 	public void exit( String s ) throws Exception {
-		output.exit( s );
+		output.exit( context , s );
 	}
 
 	public void ifexit( String s ) throws Exception {
 		if( context.CTX_FORCE )
 			error( s + ", ignored" );
 		else
-			output.exit( s + ", exiting (use -force to override)" );
+			output.exit( context , s + ", exiting (use -force to override)" );
 	}
 
 	public void exitAction( String s ) throws Exception {
@@ -334,7 +326,7 @@ abstract public class ActionBase {
 		if( file.startsWith( "~/" ) )
 			file = session.getHomePath() + file.substring( 1 ); 
 		debug( "start logging to " + file );
-		output.createOutputFile( title , file );
+		output.createOutputFile( context , title , file );
 	}
 	
 	public void stopRedirect() throws Exception {
@@ -483,7 +475,7 @@ abstract public class ActionBase {
 
 	public void commentExecutor( String msg ) throws Exception {
 		String name = "URM " + executor.commandInfo.name + "::" + context.options.action;
-		comment( name + ": " + msg );
+		info( name + ": " + msg );
 	}
 
 	public boolean isLocalRun() {

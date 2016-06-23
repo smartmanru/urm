@@ -28,19 +28,19 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		FileSet files = dist.getFiles( this );
 		String hashStatus = dist.checkHash( this )? "OK" : "not matched";
 		
-		comment( "RELEASE " + dist.RELEASEDIR + " STATUS:" );
-		comment( "\tlocation: " + meta.product.CONFIG_DISTR_HOSTLOGIN + ":" + dist.getDistPath( this ) );
-		comment( "\tversion: " + release.RELEASEVER );
-		comment( "\tstate: " + dist.getState( this ) );
-		comment( "\tsignature: " + hashStatus );
-		comment( "PROPERTIES:" );
-		comment( "\tproperty=buildmode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );
-		comment( "\tproperty=obsolete: " + Common.getBooleanValue( release.PROPERTY_OBSOLETE ) );
-		comment( "\tproperty=over: " + release.PROPERTY_COMPATIBILITY );
-		comment( "\tproperty=cumulative: " + Common.getBooleanValue( release.isCumulative() ) );
+		info( "RELEASE " + dist.RELEASEDIR + " STATUS:" );
+		info( "\tlocation: " + meta.product.CONFIG_DISTR_HOSTLOGIN + ":" + dist.getDistPath( this ) );
+		info( "\tversion: " + release.RELEASEVER );
+		info( "\tstate: " + dist.getState( this ) );
+		info( "\tsignature: " + hashStatus );
+		info( "PROPERTIES:" );
+		info( "\tproperty=buildmode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );
+		info( "\tproperty=obsolete: " + Common.getBooleanValue( release.PROPERTY_OBSOLETE ) );
+		info( "\tproperty=over: " + release.PROPERTY_COMPATIBILITY );
+		info( "\tproperty=cumulative: " + Common.getBooleanValue( release.isCumulative() ) );
 		
 		if( release.isEmpty( this ) ) {
-			comment( "(scope is empty)" );
+			info( "(scope is empty)" );
 			return( true );
 		}
 		
@@ -52,9 +52,9 @@ public class ActionPrintReleaseStatus extends ActionBase {
 				printReleaseCategorySetStatus( dist , files , set );
 		}
 
-		comment( "DELIVERIES:" );
+		info( "DELIVERIES:" );
 		for( String s : Common.getSortedKeys( release.getDeliveries( this ) ) )
-			comment( "\tdelivery=" + s );
+			info( "\tdelivery=" + s );
 	
 		return( true );
 	}
@@ -64,9 +64,9 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			return;
 		
 		String specifics = set.getSpecifics( this );
-		comment( "SCOPE SET=" + set.NAME + " CATEGORY=" + Common.getEnumLower( set.CATEGORY ) + Common.getCommentIfAny( specifics ) + ":" );
+		info( "SCOPE SET=" + set.NAME + " CATEGORY=" + Common.getEnumLower( set.CATEGORY ) + Common.getCommentIfAny( specifics ) + ":" );
 		if( set.getTargets( this ).isEmpty() )
-			comment( "\t(no items)" );
+			info( "\t(no items)" );
 			
 		for( String key : Common.getSortedKeys( set.getTargets( this ) ) ) {
 			ReleaseTarget project = set.getTarget( this , key );
@@ -79,7 +79,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			return;
 		
 		// configuration
-		comment( "SCOPE SET=" + Common.getEnumLower( set.CATEGORY ) + ":" );
+		info( "SCOPE SET=" + Common.getEnumLower( set.CATEGORY ) + ":" );
 		
 		for( String key : Common.getSortedKeys( set.getTargets( this ) ) ) {
 			ReleaseTarget target = set.getTarget( this , key );
@@ -101,26 +101,26 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		String specifics = project.getSpecifics( this );
 		if( meta.isBuildableCategory( this , set.CATEGORY ) ) {
 			if( project.sourceProject.isEmpty( this ) ) {
-				comment( "\tbuild project=" + project.sourceProject.PROJECT + " (internal)" + Common.getCommentIfAny( specifics ) );
+				info( "\tbuild project=" + project.sourceProject.PROJECT + " (internal)" + Common.getCommentIfAny( specifics ) );
 				return;
 			}
 			
 			if( project.isEmpty( this ) ) {
-				comment( "\tbuild project=" + project.sourceProject.PROJECT + " (no items added)" + Common.getCommentIfAny( specifics ) );
+				info( "\tbuild project=" + project.sourceProject.PROJECT + " (no items added)" + Common.getCommentIfAny( specifics ) );
 				return;
 			}
 			
 			if( !project.isEmpty( this ) )
-				comment( "\tbuild project=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
+				info( "\tbuild project=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
 			else
-				comment( "\tbuild project=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + " (no items)" );
+				info( "\tbuild project=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + " (no items)" );
 		}
 		else
 		if( set.CATEGORY == VarCATEGORY.PREBUILT ) {
 			if( project.isEmpty( this ) )
 				return;
 			
-			comment( "\tprebuilt project=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
+			info( "\tprebuilt project=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
 		}
 		else
 			exitUnexpectedCategory( set.CATEGORY );
@@ -137,7 +137,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		DistItemInfo info = dist.getDistItemInfo( this , distItem , false );
 		String status = ( info.found )? "OK (" + Common.getPath( info.subPath , info.fileName ) + ")" : "missing (" + info.subPath + ")";
 		
-		comment( "\tdistitem=" + distItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
+		info( "\tdistitem=" + distItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printReleaseConfStatus( Dist dist , FileSet files , ReleaseTarget conf ) throws Exception {
@@ -146,7 +146,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		String folder = Common.getPath( info.subPath , info.fileName );
 		String status = ( info.found )? "OK" : "missing";
 		
-		comment( "\tconfitem=" + conf.distConfItem.KEY + ": " + status + " (" + folder + ")" + Common.getCommentIfAny( specifics ) );
+		info( "\tconfitem=" + conf.distConfItem.KEY + ": " + status + " (" + folder + ")" + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printReleaseManualStatus( Dist dist , FileSet files , ReleaseTarget manual ) throws Exception {
@@ -155,7 +155,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		String folder = Common.getPath( info.subPath , info.fileName );
 		String status = ( info.found )? "OK" : "missing";
 		
-		comment( "\tdistitem=" + manual.distManualItem.KEY + ": " + status + " (" + folder + ")" + Common.getCommentIfAny( specifics ) );
+		info( "\tdistitem=" + manual.distManualItem.KEY + ": " + status + " (" + folder + ")" + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printReleaseDatabaseStatus( Dist dist , FileSet files , ReleaseTarget db ) throws Exception {
@@ -170,14 +170,14 @@ public class ActionPrintReleaseStatus extends ActionBase {
 				if( dbset == null || dbset.isEmpty() )
 					continue;
 				
-				comment( "\tdelivery=" + delivery.NAME + ", version=" + version + ": OK (" + folder + ")" + Common.getCommentIfAny( folder ) );
+				info( "\tdelivery=" + delivery.NAME + ", version=" + version + ": OK (" + folder + ")" + Common.getCommentIfAny( folder ) );
 			}
 		}
 		else {
 			String folder = dist.getDeliveryDatabaseFolder( this , delivery , dist.release.RELEASEVER );
 			FileSet dbset = files.getDirByPath( this , folder );
 			String status = ( dbset == null || dbset.isEmpty() )? "missing/empty" : "OK";
-			comment( "\tdelivery=" + delivery.NAME + ": " + status + Common.getCommentIfAny( folder ) );
+			info( "\tdelivery=" + delivery.NAME + ": " + status + Common.getCommentIfAny( folder ) );
 		}
 	}
 
