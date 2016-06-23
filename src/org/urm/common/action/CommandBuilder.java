@@ -155,6 +155,7 @@ public class CommandBuilder {
 				( ( options.action.equals( "help" ) )? options.getArg( 0 ) : options.action );
 			CommandMethod method = meta.getAction( action );
 			ho.showActionHelp( this , method );
+			return( true );
 		}
 		
 		return( false );
