@@ -200,7 +200,7 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 	
 	public void notifyLog( String sessionId , String msg ) {
 		try {
-			ActionLogNotification n = new ActionLogNotification( this , ++notificationSequence , sessionId + ": " ); 
+			ActionLogNotification n = new ActionLogNotification( this , ++notificationSequence , sessionId + ": " + msg ); 
 			sendNotification( n );
 		}
 		catch( Throwable e ) {

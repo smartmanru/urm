@@ -34,22 +34,28 @@ public class ServerEngine {
 	}
 	
 	public boolean runArgs( String[] args ) throws Exception {
+		// server environment
 		execrc = new RunContext();
 		execrc.load();
-
 		if( !execrc.isMain() )
 			throw new ExitException( "only main executor id expected" );
 
+		// server run options
 		CommandBuilder builder = new CommandBuilder( execrc , execrc );
 		CommandExecutor executor = MainExecutor.create( this , builder , args );
 		if( executor == null )
 			return( false );
 		
+		// server action environment
 		serverSession = new SessionContext( execrc );
+		serverSession.setServerLayout( builder.options );
+
+		// create server action
 		serverAction = createAction( builder , builder.options , executor , serverSession );
 		if( serverAction == null )
 			return( false );
-		
+
+		// run server action
 		return( runServerAction( serverSession , executor ) );
 	}
 	
