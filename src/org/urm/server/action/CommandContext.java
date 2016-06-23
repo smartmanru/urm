@@ -440,32 +440,11 @@ public class CommandContext {
 	
 	public boolean setAction( CommandBuilder builder , CommandExecutor executor ) throws Exception {
 		String actionName = options.action;
-		String firstArg = options.getArg( 0 );
-		
-		// check action
-		if( actionName.isEmpty() || actionName.equals( "help" ) ) {
-			if( !firstArg.isEmpty() ) {
-				commandAction = executor.getAction( firstArg );
-				if( commandAction == null )
-					throw new ExitException( "unknown action=" + firstArg );
-				
-				options.showActionHelp( builder , commandAction.method );
-			}
-			else
-				options.showCommandHelp( builder , executor.commandInfo );
-			
-			return( false );
-		}
 
 		commandAction = executor.getAction( actionName );
 		if( commandAction == null )
 			throw new ExitException( "unknown action=" + actionName );
 
-		if( firstArg.equals( "help" ) ) {
-			options.showActionHelp( builder , commandAction.method );
-			return( false );
-		}
-		
 		if( !options.checkValidOptions( commandAction.method ) )
 			return( false );
 		

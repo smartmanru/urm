@@ -28,33 +28,12 @@ public class CommandBuilder {
 	}
 
 	public CommandMeta buildCommand( String[] args ) throws Exception {
-		String urmName = ( execrc.isWindows() )? "urm.cmd" : "./urm.sh";
 		if( args.length == 0 ) {
-			out( "URM HELP" );
-			out( "Available operations:" );
-			out( "\t" + urmName + " help" );
-			out( "\t" + urmName + " help cmd" );
-			out( "\t" + urmName + " cmd help" );
-			out( "\t" + urmName + " cmd [options] [args]" );
+			showTopHelp();
 			return( null );
 		}
 		
 		String cmd = args[0]; 
-		String helpName = ( execrc.isWindows() )? "help.cmd" : "./help.sh";
-		if( cmd.equals( "help" ) ) { 
-			out( "URM HELP" );
-			out( "Syntax: " + urmName + " <command> <action> <args>" );
-			out( "Available commands are:" );
-			out( "\tbuild - build sources, codebase and distributive management" );
-			out( "\tdeploy - deploy distributive items to environment and environment maintenance operations" );
-			out( "\tdatabase - apply database changes, perform database maintenance operations" );
-			out( "\tmonitor - check environments and create monitoring reports" );
-			out( "\trelease - release operations" );
-			out( "\txdoc - create technical documentation" );
-			out( "" );
-			out( "To see help on operations run " + helpName + " <command> [<action>]" );
-			return( null );
-		}
 
 		// discriminate
 		CommandMeta commandInfo = createMeta( cmd );
@@ -92,24 +71,17 @@ public class CommandBuilder {
 		// process options
 		options = new CommandOptions( commandInfo );
 		if( !options.parseArgs( args ) ) {
-			if( options.action != null && !options.action.equals( "help" ) )
-				return( false );
-				
-			if( commandInfo.name.equals( MainCommandMeta.NAME ) ) {
-				MainCommandMeta main = new MainCommandMeta( this );
-				CommandMeta[] executors = getExecutors( true , true );
-				options.showTopHelp( this , main , executors );
-				return( false );
-			}
-				
-			options.showCommandHelp( this , commandInfo );
+			showTopHelp();
 			return( false );
 		}
 
+		if( checkHelp() )
+			return( false );
+		
 		return( true );
 	}
 
-	public CommandMeta[] getExecutors( boolean build , boolean deploy ) throws Exception {
+	public CommandMeta[] getExecutors( boolean build , boolean deploy ) {
 		List<CommandMeta> list = new LinkedList<CommandMeta>();
 		if( build )
 			list.add( new BuildCommandMeta( this ) );
@@ -132,6 +104,60 @@ public class CommandBuilder {
 	
 	public boolean isLocalRun() {
 		return( options.getFlagValue( "OPT_LOCAL" , false ) );
+	}
+
+	public void showTopHelp() {
+		CommandMeta main = new MainCommandMeta( this );
+		options = new CommandOptions( main );
+		options.showTopHelp( this , main , getExecutors( true , true ) );
+	}
+
+	public boolean checkHelp() throws Exception {
+		// top help
+		if( options.command.equals( MainCommandMeta.NAME ) && 
+			options.action.equals( "help" ) && 
+			options.getArgCount() == 0 ) {
+			showTopHelp();
+			return( true );
+		}
+
+		// command help
+		if( ( options.command.equals( MainCommandMeta.NAME ) && 
+				options.action.equals( "help" ) && 
+				options.getArgCount() == 1 ) ||
+			( options.command.equals( MainCommandMeta.NAME ) == false &&
+				options.action.equals( "help" ) && 
+				options.getArgCount() == 0 ) ) {
+			String command = ( options.command.equals( MainCommandMeta.NAME ) )? options.getArg( 0 ) : options.command;
+			CommandMeta meta = ( command.equals( "bin" ) )? new MainCommandMeta( this ) : createMeta( command );
+			
+			CommandOptions ho = new CommandOptions( meta );
+			ho.showCommandHelp( this , meta );
+			return( true );
+		}
+
+		// action help
+		if( ( options.command.equals( MainCommandMeta.NAME ) && 
+				options.action.equals( "help" ) && 
+				options.getArgCount() >= 2 ) ||
+			( options.command.equals( MainCommandMeta.NAME ) == false &&
+				options.action.equals( "help" ) && 
+				options.getArgCount() > 0 ) ||
+			( options.command.equals( MainCommandMeta.NAME ) == false &&
+				options.action.equals( "help" ) == false && 
+				options.getArgCount() > 0 ) &&
+				options.getArg( 0 ).equals( "help" ) ) {
+			String command = ( options.command.equals( MainCommandMeta.NAME ) )? options.getArg( 0 ) : options.command;
+			CommandMeta meta = ( command.equals( "bin" ) )? new MainCommandMeta( this ) : createMeta( command );
+			CommandOptions ho = new CommandOptions( meta );
+			
+			String action = ( options.command.equals( MainCommandMeta.NAME ) )? options.getArg( 1 ) :
+				( ( options.action.equals( "help" ) )? options.getArg( 0 ) : options.action );
+			CommandMethod method = meta.getAction( action );
+			ho.showActionHelp( this , method );
+		}
+		
+		return( false );
 	}
 	
 }
