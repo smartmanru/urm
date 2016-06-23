@@ -1,9 +1,9 @@
 package org.urm.common.action;
 
-import org.urm.common.action.CommandOptions.FLAG;
-
 public class CommandVar {
 
+	public enum FLAG { DEFAULT , YES , NO }; 
+	
 	public String optName;
 	public String help;
 	public String varName;

@@ -14,6 +14,8 @@ import org.urm.common.action.CommandMeta;
 
 public class ClientCallRemote implements NotificationListener {
 
+	public static String GENERIC_ACTION_NAME = "execute";
+	
 	public boolean runClient( CommandBuilder builder , CommandMeta commandInfo ) throws Exception {
 		String URL = "service:jmx:jmxmp://" + builder.execrc.serverHostPort;
 		JMXServiceURL url = new JMXServiceURL( URL );
@@ -48,9 +50,9 @@ public class ClientCallRemote implements NotificationListener {
 		try {
 			ObjectName mbeanName = new ObjectName( name );
 			mbsc.addNotificationListener( mbeanName , this , null , null );
-			sessionId = mbsc.invoke( mbeanName , "execute" , 
-					new Object[] { builder.options.data } , 
-					new String[] { ActionData.class.getName() } );
+			sessionId = mbsc.invoke( mbeanName , GENERIC_ACTION_NAME , 
+					new Object[] { builder.options.action , builder.options.data } , 
+					new String[] { String.class.getName() , ActionData.class.getName() } );
 		}
 		catch( Throwable e ) {
 			System.out.println( "unable to call operation: " + name );

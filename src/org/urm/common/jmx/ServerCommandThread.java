@@ -1,18 +1,21 @@
 package org.urm.common.jmx;
 
 import org.urm.common.action.ActionData;
+import org.urm.common.action.CommandMethod;
 
 public class ServerCommandThread implements Runnable {
 
 	public String sessionId;
 	public ServerCommandMBean command;
+	public String action;
 	public ActionData data;
 
 	public Controller controller;
 	
-	public ServerCommandThread( String sessionId , ServerCommandMBean command , ActionData data ) {
+	public ServerCommandThread( String sessionId , ServerCommandMBean command , String action , ActionData data ) {
 		this.sessionId = sessionId;
 		this.command = command;
+		this.action = action;
 		this.data = data;
 		
 		controller = command.controller; 
@@ -27,7 +30,8 @@ public class ServerCommandThread implements Runnable {
     @Override
     public void run() {
     	try {
-    		command.engine.runClientRemote( command.meta , data );
+    		CommandMethod method = command.meta.getAction( action );
+    		command.engine.runClientRemote( command.meta , method , data );
     	}
     	catch( Throwable e ) {
         	command.notifyLog( sessionId , "exception: " + e.getMessage() );

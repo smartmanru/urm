@@ -1,14 +1,12 @@
 package org.urm.common.action;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.urm.common.Common;
+import org.urm.common.action.CommandVar.FLAG;
 
 public class CommandOptions {
 
-	public enum FLAG { DEFAULT , YES , NO }; 
 	public enum SQLMODE { UNKNOWN , APPLY , ANYWAY , CORRECT , ROLLBACK , PRINT };
 	public enum SQLTYPE { UNKNOWN , SQL , CTL , PUB };
 
@@ -16,24 +14,21 @@ public class CommandOptions {
 	
 	// implementation
 	public OptionsMeta meta;
-	protected List<CommandVar> optionsSet = new LinkedList<CommandVar>();
 	public String command;
 	public String action;
 	public ActionData data;
 
 	public CommandOptions() {
-		optionsSet = new LinkedList<CommandVar>();
 		meta = new OptionsMeta();
 	}
 
 	public CommandOptions( OptionsMeta meta ) {
-		optionsSet = new LinkedList<CommandVar>();
 		this.meta = meta;
 	}
 
-	public void setAction( String command , String action , ActionData data ) {
+	public void setAction( String command , CommandMethod method , ActionData data ) {
 		this.command = command;
-		this.action = action;
+		this.action = method.name;
 		this.data = data;
 	}
 	
@@ -99,15 +94,7 @@ public class CommandOptions {
 	}
 	
 	public String getRunningOptions() {
-		String values = "";
-		for( CommandVar option : optionsSet ) {
-			String value = getOptionValue( option );
-			values = Common.addToList( values , value , ", " );
-		}
-		
-		String info = "execute options={" + values + "}, args={" + 
-				Common.getList( data.args.toArray( new String[0] ) , ", " ) + "}";
-		return( info );
+		return( data.getRunningOptions() );
 	}
 	
 	public String getOptionValue( CommandVar var ) {
@@ -152,7 +139,6 @@ public class CommandOptions {
 			return( false );
 		}
 		
-		optionsSet.add( info );
 		return( true );
 	}
 
@@ -166,7 +152,6 @@ public class CommandOptions {
 			return( false );
 		}
 		
-		optionsSet.add( info );
 		return( true );
 	}
 
@@ -180,7 +165,6 @@ public class CommandOptions {
 			return( false );
 		}
 		
-		optionsSet.add( info );
 		return( true );
 	}
 
@@ -205,49 +189,19 @@ public class CommandOptions {
 	}
 	
 	public String getFlagsSet() {
-		String s = "";
-		for( int k = 0; k < optionsSet.size(); k++ ) {
-			CommandVar var = optionsSet.get( k );
-			if( var.isFlag ) {
-				if( !s.isEmpty() )
-					s += " ";
-				s += var.varName + "=" + data.flags.get( var.varName );
-			}
-			else if( var.isEnum ) {
-				if( !s.isEmpty() )
-					s += " ";
-				s += var.varName + "=" + data.enums.get( var.varName );
-			}
-		}
-		return( s );
+		return( data.getFlagsSet() );
 	}
 	
 	public String getParamsSet() {
-		String s = "";
-		for( int k = 0; k < optionsSet.size(); k++ ) {
-			CommandVar var = optionsSet.get( k );
-			if( var.isFlag || var.isEnum )
-				continue;
-			
-			if( !s.isEmpty() )
-				s += " ";
-			s += var.varName + "=" + data.params.get( var.varName );
-		}
-		return( s );
+		return( data.getParamsSet() );
 	}
 
 	public List<CommandVar> getOptionsSet() {
-		return( optionsSet );
+		return( data.getOptionsSet() );
 	}
 	
 	public String getArgsSet() {
-		String s = "";
-		for( int k = 0; k < data.args.size(); k++ ) {
-			if( !s.isEmpty() )
-				s += " ";
-			s += data.args.get( k );
-		}
-		return( s );
+		return( data.getArgsSet() );
 	}
 	
 	public String getArg( int pos ) {
@@ -271,7 +225,7 @@ public class CommandOptions {
 	}
 	
 	public boolean checkValidOptions( CommandMethod commandAction ) {
-		for( CommandVar var : optionsSet ) {
+		for( CommandVar var : data.getOptionsSet() ) {
 			if( !commandAction.isOptionApplicable( var ) ) {
 				print( "option " + var.varName + " is not applicable for action " + commandAction.name );
 				return( false );

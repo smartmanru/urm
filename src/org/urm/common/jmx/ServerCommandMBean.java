@@ -218,20 +218,20 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 	
 	private String notifyExecute( String name , Object[] args ) throws Exception {
 		if( name.equals( "execute" ) ) {
-			if( args.length < 1 ) {
-				action.error( "missing args calling command=" + meta.name + ", action=" + name );
+			if( args.length != 2 ) {
+				action.error( "missing args calling command=" + meta.name );
 				return( null );
 			}
 			
-			if( args[0].getClass() != ActionData.class ) {
-				action.error( "invalid args calling command=" + meta.name + ", action=" + name + ", class=" + args[0].getClass().getName() );
+			if( args[1].getClass() != ActionData.class || args[0].getClass() != String.class ) {
+				action.error( "invalid args calling command=" + meta.name );
 				return( null );
 			}
 			
 			String sessionId = createSessionId( name );
 			action.debug( "operation invoked, sessionId=" + sessionId );
 			
-			ServerCommandThread thread = new ServerCommandThread( sessionId , this , ( ActionData )args[0] );
+			ServerCommandThread thread = new ServerCommandThread( sessionId , this , ( String )args[0] , ( ActionData )args[1] );
 			thread.start();
 			return( sessionId );
 		}

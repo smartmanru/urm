@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.RunContext;
-import org.urm.common.action.CommandOptions.FLAG;
+import org.urm.common.action.CommandVar.FLAG;
 
 public class ActionData implements Serializable {
 	
@@ -24,6 +24,7 @@ public class ActionData implements Serializable {
 	protected Map<String,String> enums = new HashMap<String,String>();
 	protected Map<String,String> params = new HashMap<String,String>();
 	protected List<String> args = new LinkedList<String>();
+	protected List<CommandVar> optionsSet = new LinkedList<CommandVar>();
 
 	public ActionData() {
 	}
@@ -45,6 +46,7 @@ public class ActionData implements Serializable {
 			return( false );
 		
 		flags.put( var.varName , var.varValue );
+		optionsSet.add( var );
 		return( true );
 	}
 
@@ -53,6 +55,7 @@ public class ActionData implements Serializable {
 			return( false );
 		
 		enums.put( var.varName , var.varEnumValue );
+		optionsSet.add( var );
 		return( true );
 	}
 
@@ -61,6 +64,7 @@ public class ActionData implements Serializable {
 			return( false );
 		
 		params.put( var.varName , value );
+		optionsSet.add( var );
 		return( true );
 	}
 	
@@ -144,4 +148,62 @@ public class ActionData implements Serializable {
 		return( defValue );
 	}
 	
+	public String getRunningOptions() {
+		String values = "";
+		for( CommandVar option : optionsSet ) {
+			String value = getOptionValue( option );
+			values = Common.addToList( values , value , ", " );
+		}
+		
+		String info = "execute options={" + values + "}, args={" + 
+				Common.getList( args.toArray( new String[0] ) , ", " ) + "}";
+		return( info );
+	}
+	
+	public String getFlagsSet() {
+		String s = "";
+		for( int k = 0; k < optionsSet.size(); k++ ) {
+			CommandVar var = optionsSet.get( k );
+			if( var.isFlag ) {
+				if( !s.isEmpty() )
+					s += " ";
+				s += var.varName + "=" + flags.get( var.varName );
+			}
+			else if( var.isEnum ) {
+				if( !s.isEmpty() )
+					s += " ";
+				s += var.varName + "=" + enums.get( var.varName );
+			}
+		}
+		return( s );
+	}
+	
+	public String getParamsSet() {
+		String s = "";
+		for( int k = 0; k < optionsSet.size(); k++ ) {
+			CommandVar var = optionsSet.get( k );
+			if( var.isFlag || var.isEnum )
+				continue;
+			
+			if( !s.isEmpty() )
+				s += " ";
+			s += var.varName + "=" + params.get( var.varName );
+		}
+		return( s );
+	}
+
+	public List<CommandVar> getOptionsSet() {
+		return( optionsSet );
+	}
+	
+	public String getArgsSet() {
+		String s = "";
+		for( int k = 0; k < args.size(); k++ ) {
+			if( !s.isEmpty() )
+				s += " ";
+			s += args.get( k );
+		}
+		return( s );
+	}
+
 }

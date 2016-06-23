@@ -5,6 +5,7 @@ import org.urm.common.RunContext;
 import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
+import org.urm.common.action.CommandMethod;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.meta.BuildCommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
@@ -70,10 +71,12 @@ public class ServerEngine {
 		return( runServerAction( session , executor ) );
 	}
 		
-	public boolean runClientRemote( CommandMeta command , ActionData data ) throws Exception {
+	public boolean runClientRemote( CommandMeta command , CommandMethod method , ActionData data ) throws Exception {
 		CommandBuilder builder = new CommandBuilder( data.clientrc , execrc );
 		
-		CommandOptions options = new CommandOptions();
+		CommandOptions options = new CommandOptions( serverAction.context.options.meta );
+		options.setAction( command.name , method , data);
+		
 		CommandMeta commandInfo = builder.createMeta( options.command );
 		if( commandInfo == null )
 			return( false );

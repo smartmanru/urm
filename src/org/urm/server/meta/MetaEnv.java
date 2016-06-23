@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.common.action.CommandOptions.FLAG;
+import org.urm.common.action.CommandVar.FLAG;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.PropertySet;
 import org.urm.server.storage.HiddenFiles;
