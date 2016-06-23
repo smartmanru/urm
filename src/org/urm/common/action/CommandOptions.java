@@ -288,7 +288,7 @@ public class CommandOptions {
 		printhelp( "" );
 		
 		printhelp( "URM instance administration:" );
-		showCommandHelp( builder , main );
+		showCommandHelp( builder , main , true );
 		printhelp( "" );
 		
 		printhelp( "Operation are split into commands corresponding to master subfolders" );
@@ -303,9 +303,16 @@ public class CommandOptions {
 		else
 			printhelp( "\thelp.cmd <command>" );
 		printhelp( "" );
+		
+		printhelp( "To get help on specific action, run:" );
+		if( builder.clientrc.isLinux() )
+			printhelp( "\t./help.sh <command> <action>" );
+		else
+			printhelp( "\thelp.cmd <command> <action>" );
+		printhelp( "" );
 	}
 	
-	public void showCommandHelp( CommandBuilder builder , CommandMeta commandInfo ) {
+	public void showCommandHelp( CommandBuilder builder , CommandMeta commandInfo , boolean main ) {
 		printhelp( "URM HELP (command)" );
 		printhelp( "" );
 		
@@ -339,8 +346,22 @@ public class CommandOptions {
 		}
 		if( !specific )
 			printhelp( "\t(no specific options)" );
+		
+		printhelp( "To get help on specific action, run:" );
+		if( builder.clientrc.isLinux() ) {
+			if( main )
+				printhelp( "\t./help.sh <command> <action>" );
+			else
+				printhelp( "\t./help.sh <action> or ./<action>.sh help" );
+		}
+		else {
+			if( main )
+				printhelp( "\thelp.cmd <command> <action>" );
+			else
+				printhelp( "\thelp.cmd <action> or <action>.cmd help" );
+		}
+		printhelp( "" );
 	}
-	
 	
 	public void showActionHelp( CommandBuilder builder , CommandMethod action ) {
 		printhelp( "URM HELP (action)" );
