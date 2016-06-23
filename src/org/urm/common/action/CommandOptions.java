@@ -119,7 +119,7 @@ public class CommandOptions {
 	}
 	
 	public boolean isFlagOption( String opt ) {
-		return( isFlagOption( opt ) );
+		return( meta.isFlagOption( opt ) );
 	}
 	
 	public boolean isFlagVar( String var ) {
