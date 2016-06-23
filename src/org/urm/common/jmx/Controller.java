@@ -69,7 +69,11 @@ public class Controller {
         }
         
         // create jmx
-        JMXServiceURL URL = new JMXServiceURL( "service:jmx:rmi:///jndi/rmi://localhost:" + port + "/jmxrmi"  );
+		String host = action.context.CTX_HOST;
+		if( host.isEmpty() )
+			host = "localhost";
+		
+        JMXServiceURL URL = new JMXServiceURL( "service:jmx:rmi:///jndi/rmi://" + host + ":" + port + "/jmxrmi"  );
         jmxConnector = JMXConnectorServerFactory.newJMXConnectorServer( URL , null , mbs );
         jmxConnector.start();
 	}
