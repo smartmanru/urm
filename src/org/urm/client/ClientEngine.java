@@ -19,11 +19,18 @@ public class ClientEngine {
 		if( commandInfo == null )
 			return( false );
 
-		boolean res = false;
-		if( execrc.isRemoteMode() )
-			res = runServerMode( builder , commandInfo );
+		boolean localRun = false;
+		if( builder.isLocalRun() )
+			localRun = true;
 		else
+		if( !execrc.isRemoteMode() )
+			localRun = true;
+		
+		boolean res = false;
+		if( localRun )
 			res = runClientMode( builder , commandInfo );
+		else
+			res = runServerMode( builder , commandInfo );
 		return( res );
 	}
 

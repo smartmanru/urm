@@ -129,4 +129,9 @@ public class CommandBuilder {
 	public String getCommandMBeanName( String productDir , String command ) {
 		return( "urm-" + productDir + ":" + "name=" + command );
 	}
+	
+	public boolean isLocalRun() {
+		return( options.getFlagValue( "OPT_LOCAL" , false ) );
+	}
+	
 }
