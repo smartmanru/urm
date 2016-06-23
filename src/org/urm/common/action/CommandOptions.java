@@ -309,7 +309,6 @@ public class CommandOptions {
 			printhelp( "\t./help.sh <command> <action>" );
 		else
 			printhelp( "\thelp.cmd <command> <action>" );
-		printhelp( "" );
 	}
 	
 	public void showCommandHelp( CommandBuilder builder , CommandMeta commandInfo , boolean main ) {
@@ -347,6 +346,7 @@ public class CommandOptions {
 		if( !specific )
 			printhelp( "\t(no specific options)" );
 		
+		printhelp( "" );
 		printhelp( "To get help on specific action, run:" );
 		if( builder.clientrc.isLinux() ) {
 			if( main )
@@ -360,7 +360,6 @@ public class CommandOptions {
 			else
 				printhelp( "\thelp.cmd <action> or <action>.cmd help" );
 		}
-		printhelp( "" );
 	}
 	
 	public void showActionHelp( CommandBuilder builder , CommandMethod action ) {
