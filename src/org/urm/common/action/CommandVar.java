@@ -1,6 +1,13 @@
 package org.urm.common.action;
 
-public class CommandVar {
+import java.io.Serializable;
+
+public class CommandVar implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2840654112004844114L;
 
 	public enum FLAG { DEFAULT , YES , NO }; 
 	
