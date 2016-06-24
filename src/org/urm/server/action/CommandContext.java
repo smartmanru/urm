@@ -118,6 +118,7 @@ public class CommandContext {
 		
 		this.stream = stream;
 		this.sessionId = sessionId;
+		
 		setStreamLog();
 	}
 
@@ -130,7 +131,6 @@ public class CommandContext {
 			this.stream = context.stream;
 		else
 			this.stream = stream;
-		setStreamLog();
 		
 		// copy all properties
 		this.clientrc = context.clientrc;
@@ -215,6 +215,8 @@ public class CommandContext {
 		this.CTX_OLDRELEASE = context.CTX_OLDRELEASE;
 		this.CTX_PORT = context.CTX_PORT;
 		this.CTX_HOST = context.CTX_HOST;
+		
+		setStreamLog();
 	}
 
 	public void update( ActionBase action ) throws Exception {
