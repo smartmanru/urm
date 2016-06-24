@@ -46,7 +46,7 @@ public class CommandOutput {
 			else
 				outExact( context , "unexpected log level=" + logLevel + ", msg=" + s );
 			
-			out( context , prefix );
+			out( context , prefix + s );
 		}
 	}
 	
