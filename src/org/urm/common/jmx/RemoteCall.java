@@ -60,7 +60,6 @@ public class RemoteCall implements NotificationListener {
 		}
 		catch( Throwable e ) {
 			System.out.println( "unable to connect to: " + URL );
-			e.printStackTrace();
 			serverDisconnect();
 			return( false );
 		}
