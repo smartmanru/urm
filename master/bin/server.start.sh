@@ -1,4 +1,4 @@
 #!/bin/bash
 
 cd `dirname $0`
-./server.sh "$@" start
+nohup ./server.sh "$@" start > server.log 2>&1&
