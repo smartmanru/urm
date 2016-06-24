@@ -18,7 +18,7 @@ public class RemoteCall implements NotificationListener {
 
 	public static String GENERIC_ACTION_NAME = "execute";
 	
-	String URL;
+	public String URL;
 	JMXConnector jmxc = null;
 	MBeanServerConnection mbsc = null;
 

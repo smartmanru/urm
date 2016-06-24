@@ -36,19 +36,19 @@ public class ActionServer extends ActionBase {
 		info( "stopping server ..." );
 		RemoteCall call = new RemoteCall();
 		if( !call.serverConnect( context.execrc ) )
-			info( "server is already stopped" );
+			info( "server is already stopped (url=" + call.URL + ")" );
 		else {
 			String status = call.serverCall( this , "status" );
 			if( !status.equals( "running" ) ) {
 				call.serverDisconnect();
-				exit( "server is in unknown state" );
+				exit( "server is in unknown state (url=" + call.URL + ")" );
 				return;
 			}
 			
 			status = call.serverCall( this , "stop" );
 			call.serverDisconnect();
 			if( !status.equals( "ok" ) )
-				exit( "unable to stop server: " + status );
+				exit( "unable to stop server: " + status + " (url=" + call.URL + ")" );
 			
 			info( "server is successfull stopped" );
 		}
@@ -58,13 +58,13 @@ public class ActionServer extends ActionBase {
 		info( "check server status ..." );
 		RemoteCall call = new RemoteCall();
 		if( !call.serverConnect( context.execrc ) )
-			info( "server is stopped" );
+			info( "server is stopped (url=" + call.URL + ")" );
 		else {
 			String status = call.serverCall( this , "status" );
 			if( !status.equals( "running" ) )
-				info( "server is in unknown state" );
+				info( "server is in unknown state  (url=" + call.URL + ")" );
 			else
-				info( "server is running" );
+				info( "server is running (url=" + call.URL + ")" );
 			call.serverDisconnect();
 		}
 	}
