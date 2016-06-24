@@ -11,6 +11,7 @@ public class MainServer {
 	ActionBase action;
 	ServerEngine engine;
 	ServerMBean controller; 
+	boolean running = false;
 
 	public CommandMeta[] executors = null;
 	
@@ -27,14 +28,21 @@ public class MainServer {
 		
 		action.info( "server successfully started, accepting connections." );
 		synchronized( this ) {
+			running = true;
 			wait();
+			running = false;
 		}
 	}
 
 	public void stop() throws Exception {
+		action.info( "stopping server ..." );
+		synchronized( this ) {
+			notifyAll();
+		}
 	}
 	
-	public void status() throws Exception {
+	public boolean isRunning() {
+		return( running );
 	}
 	
 }

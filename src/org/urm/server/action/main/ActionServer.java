@@ -1,5 +1,6 @@
 package org.urm.server.action.main;
 
+import org.urm.common.jmx.RemoteCall;
 import org.urm.server.action.ActionBase;
 
 public class ActionServer extends ActionBase {
@@ -32,13 +33,38 @@ public class ActionServer extends ActionBase {
 	}
 	
 	private void executeServerStop() throws Exception {
-		MainServer server = new MainServer( this , executor.engine );
-		server.stop();
+		RemoteCall call = new RemoteCall();
+		if( !call.serverConnect( context.execrc ) )
+			info( "server is already stopped" );
+		else {
+			String status = call.serverCall( this , "status" );
+			if( !status.equals( "running" ) ) {
+				call.serverDisconnect();
+				exit( "server is in unknown state" );
+				return;
+			}
+			
+			status = call.serverCall( this , "stop" );
+			call.serverDisconnect();
+			if( !status.equals( "ok" ) )
+				exit( "unable to stop server: " + status );
+			
+			info( "server is successfull stopped" );
+		}
 	}
 	
 	private void executeServerStatus() throws Exception {
-		MainServer server = new MainServer( this , executor.engine );
-		server.status();
+		RemoteCall call = new RemoteCall();
+		if( !call.serverConnect( context.execrc ) )
+			info( "server is stopped" );
+		else {
+			String status = call.serverCall( this , "status" );
+			if( !status.equals( "running" ) )
+				info( "server is in unknown state" );
+			else
+				info( "server is running" );
+			call.serverDisconnect();
+		}
 	}
 	
 }

@@ -8,12 +8,9 @@ import javax.management.AttributeList;
 import javax.management.AttributeNotFoundException;
 import javax.management.DynamicMBean;
 import javax.management.InvalidAttributeValueException;
-import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanException;
 import javax.management.MBeanInfo;
-import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanOperationInfo;
-import javax.management.MBeanParameterInfo;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
@@ -73,11 +70,19 @@ public class ServerMBean implements DynamicMBean {
 	}
 
 	private String stop() {
-		return( null );
+		try {
+			server.stop();
+		}
+		catch( Throwable e ) {
+			return( "failed: " + e.getMessage() );
+		}
+		return( "ok" );
 	}
 	
 	private String status() {
-		return( null );
+		if( server.isRunning() )
+			return( "running" );
+		return( "stopped" );
 	}
 	
 	private void addServer() throws Exception {

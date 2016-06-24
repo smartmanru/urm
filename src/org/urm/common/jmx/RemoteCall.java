@@ -8,13 +8,17 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
+import org.urm.common.RunContext;
 import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
+import org.urm.server.action.ActionBase;
 
 public class RemoteCall implements NotificationListener {
 
 	public static String GENERIC_ACTION_NAME = "execute";
+	JMXConnector jmxc = null;
+	MBeanServerConnection mbsc = null;
 
 	public static String getCommandMBeanName( String productDir , String command ) {
 		return( "urm-" + productDir + ":" + "name=" + command );
@@ -25,35 +29,58 @@ public class RemoteCall implements NotificationListener {
 	}
 	
 	public boolean runClient( CommandBuilder builder , CommandMeta commandInfo ) throws Exception {
-		String URL = "service:jmx:jmxmp://" + builder.execrc.serverHostPort;
-		JMXServiceURL url = new JMXServiceURL( URL );
+		if( !serverConnect( builder.execrc ) )
+			return( false );
 		
-		JMXConnector jmxc = null;
-		MBeanServerConnection mbsc = null;
+		String name = getCommandMBeanName( builder.execrc.productDir , commandInfo.name );
+		boolean res = serverCommandCall( builder , name );
+
+		serverDisconnect();
+		return( res );
+	}
+
+	public void serverDisconnect() {
+		try {
+			if( jmxc != null ) {
+				jmxc.close();
+				jmxc = null;
+			}
+		}
+		catch( Throwable e ) {
+		}
+	}
+	
+	public boolean serverConnect( RunContext execrc ) {
+		String URL = "service:jmx:jmxmp://" + execrc.serverHostPort;
 		
 		try {
+			JMXServiceURL url = new JMXServiceURL( URL );
 			jmxc = JMXConnectorFactory.connect( url , null );
 			mbsc = jmxc.getMBeanServerConnection();
 		}
 		catch( Throwable e ) {
 			System.out.println( "unable to connect to: " + URL );
 			e.printStackTrace();
+			serverDisconnect();
 			return( false );
 		}
 		
-		String name = getCommandMBeanName( builder.execrc.productDir , commandInfo.name );
-		boolean res = makeCall( builder , name , mbsc );
-		
-		try {
-			jmxc.close();
-		}
-		catch( Throwable e ) {
-		}
-		
-		return( res );
+		return( true );
 	}
 
-	private boolean makeCall( CommandBuilder builder , String name , MBeanServerConnection mbsc ) {
+	public String serverCall( ActionBase action , String method ) throws Exception {
+		String name = getServerMBeanName();
+		try {
+			ObjectName mbeanName = new ObjectName( name );
+			String res = ( String )mbsc.invoke( mbeanName , method , null , null );
+			return( res );
+		}
+		catch( Throwable e ) {
+			return( "error: " + e.getMessage() );
+		}
+	}
+	
+	private boolean serverCommandCall( CommandBuilder builder , String name ) {
 		Object sessionId;
 		try {
 			ObjectName mbeanName = new ObjectName( name );
