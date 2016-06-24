@@ -107,13 +107,13 @@ public class CommandContext {
 	public String CTX_HOST = "";
 	public int CTX_PORT = -1;
 
-	public CommandContext( RunContext clientrc , RunContext execrc , CommandOptions options , SessionContext session ) {
+	public CommandContext( RunContext clientrc , RunContext execrc , CommandOptions options , SessionContext session , String stream ) {
 		this.clientrc = clientrc;
 		this.execrc = execrc;
 		this.options = options;
 		this.session = session;
 		
-		this.streamName = "main";
+		this.streamName = stream;
 	}
 
 	public CommandContext( CommandContext context , String stream ) {

@@ -31,7 +31,7 @@ public class ServerCommandThread implements Runnable {
     public void run() {
     	try {
     		CommandMethod method = command.meta.getAction( action );
-    		command.engine.runClientRemote( command.meta , method , data );
+    		command.engine.runClientRemote( sessionId , command.meta , method , data );
     	}
     	catch( Throwable e ) {
         	command.notifyLog( sessionId , "exception: " + e.getMessage() );

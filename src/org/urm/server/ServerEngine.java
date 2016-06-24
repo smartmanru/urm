@@ -51,7 +51,7 @@ public class ServerEngine {
 		serverSession.setServerLayout( builder.options );
 
 		// create server action
-		serverAction = createAction( builder , builder.options , executor , serverSession );
+		serverAction = createAction( builder , builder.options , executor , serverSession , "server" );
 		if( serverAction == null )
 			return( false );
 
@@ -69,7 +69,7 @@ public class ServerEngine {
 		else
 			session.setServerProductLayout( clientrc.productDir );
 		
-		serverAction = createAction( builder , options , executor , session );
+		serverAction = createAction( builder , options , executor , session , "client" );
 		if( serverAction == null )
 			return( false );
 		
@@ -77,7 +77,7 @@ public class ServerEngine {
 		return( runServerAction( session , executor ) );
 	}
 		
-	public boolean runClientRemote( CommandMeta command , CommandMethod method , ActionData data ) throws Exception {
+	public boolean runClientRemote( String sessionId , CommandMeta command , CommandMethod method , ActionData data ) throws Exception {
 		CommandBuilder builder = new CommandBuilder( data.clientrc , execrc );
 		
 		CommandOptions options = new CommandOptions( serverAction.context.options.meta );
@@ -91,7 +91,7 @@ public class ServerEngine {
 		SessionContext session = new SessionContext( data.clientrc );
 		session.setServerClientLayout( serverSession );
 		
-		ActionInit action = createAction( builder , options , executor , session );
+		ActionInit action = createAction( builder , options , executor , session , sessionId );
 		if( action == null )
 			return( false );
 		
@@ -164,9 +164,9 @@ public class ServerEngine {
 		return( executor );
 	}
 
-	public ActionInit createAction( CommandBuilder builder , CommandOptions options , CommandExecutor executor , SessionContext session ) throws Exception {
+	public ActionInit createAction( CommandBuilder builder , CommandOptions options , CommandExecutor executor , SessionContext session , String stream ) throws Exception {
 		// create context
-		CommandContext context = new CommandContext( session.clientrc , execrc , options , session );
+		CommandContext context = new CommandContext( session.clientrc , execrc , options , session , stream );
 		if( !context.setRunContext() )
 			return( null );
 		
