@@ -33,6 +33,7 @@ public class ActionServer extends ActionBase {
 	}
 	
 	private void executeServerStop() throws Exception {
+		info( "stopping server ..." );
 		RemoteCall call = new RemoteCall();
 		if( !call.serverConnect( context.execrc ) )
 			info( "server is already stopped" );
@@ -54,6 +55,7 @@ public class ActionServer extends ActionBase {
 	}
 	
 	private void executeServerStatus() throws Exception {
+		info( "check server status ..." );
 		RemoteCall call = new RemoteCall();
 		if( !call.serverConnect( context.execrc ) )
 			info( "server is stopped" );

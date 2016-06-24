@@ -17,6 +17,8 @@ import org.urm.server.action.ActionBase;
 public class RemoteCall implements NotificationListener {
 
 	public static String GENERIC_ACTION_NAME = "execute";
+	
+	String URL;
 	JMXConnector jmxc = null;
 	MBeanServerConnection mbsc = null;
 
@@ -29,8 +31,10 @@ public class RemoteCall implements NotificationListener {
 	}
 	
 	public boolean runClient( CommandBuilder builder , CommandMeta commandInfo ) throws Exception {
-		if( !serverConnect( builder.execrc ) )
+		if( !serverConnect( builder.execrc ) ) {
+			System.out.println( "unable to connect to: " + URL );
 			return( false );
+		}
 		
 		String name = getCommandMBeanName( builder.execrc.productDir , commandInfo.name );
 		boolean res = serverCommandCall( builder , name );
@@ -51,7 +55,7 @@ public class RemoteCall implements NotificationListener {
 	}
 	
 	public boolean serverConnect( RunContext execrc ) {
-		String URL = "service:jmx:jmxmp://" + execrc.serverHostPort;
+		URL = "service:jmx:jmxmp://" + execrc.serverHostPort;
 		
 		try {
 			JMXServiceURL url = new JMXServiceURL( URL );
@@ -59,7 +63,6 @@ public class RemoteCall implements NotificationListener {
 			mbsc = jmxc.getMBeanServerConnection();
 		}
 		catch( Throwable e ) {
-			System.out.println( "unable to connect to: " + URL );
 			serverDisconnect();
 			return( false );
 		}
