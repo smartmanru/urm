@@ -118,16 +118,19 @@ public class CommandContext {
 		
 		this.stream = stream;
 		this.sessionId = sessionId;
-		
-		streamLog = ( sessionId > 0 )? "[" + stream + "," + sessionId + "]" : "[" + stream + "]";
+		setStreamLog();
 	}
 
+	private void setStreamLog() {
+		streamLog = ( sessionId > 0 )? "[" + stream + "," + sessionId + "]" : "[" + stream + "]";
+	}
+	
 	public CommandContext( CommandContext context , String stream ) {
 		if( stream == null || stream.isEmpty() )
 			this.stream = context.stream;
 		else
 			this.stream = stream;
-		streamLog = ( sessionId > 0 )? "[" + stream + "," + sessionId + "]" : "[" + stream + "]";
+		setStreamLog();
 		
 		// copy all properties
 		this.clientrc = context.clientrc;

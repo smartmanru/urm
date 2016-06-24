@@ -168,11 +168,11 @@ abstract public class ActionBase {
 	}
 	
 	public void info( String s ) {
-		output.info( context , s + " [" + context.streamLog + "]" );
+		output.info( context , s + " " + context.streamLog );
 	}
 	
 	public void debug( String s ) {
-		output.debug( context , s + " [" + context.streamLog + "]" );
+		output.debug( context , s + " " + context.streamLog );
 	}
 	
 	public void exit( String s ) throws Exception {
