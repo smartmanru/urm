@@ -136,7 +136,7 @@ abstract public class ActionBase {
 		String s = NAME;
 		if( !prompt.isEmpty() )
 			s += " " + prompt;
-		output.log( context , s , context.streamName , e );
+		output.log( context , s , e );
 	}
 	
 	public void infoAction( String s ) {
@@ -168,11 +168,11 @@ abstract public class ActionBase {
 	}
 	
 	public void info( String s ) {
-		output.info( context , s + " [" + context.streamName + "]" );
+		output.info( context , s + " [" + context.streamLog + "]" );
 	}
 	
 	public void debug( String s ) {
-		output.debug( context , s + " [" + context.streamName + "]" );
+		output.debug( context , s + " [" + context.streamLog + "]" );
 	}
 	
 	public void exit( String s ) throws Exception {
@@ -300,7 +300,7 @@ abstract public class ActionBase {
 	}
 	
 	public ShellExecutor getShell( Account account ) throws Exception {
-		return( context.pool.getExecutor( this , account , context.streamName ) );
+		return( context.pool.getExecutor( this , account , context.stream ) );
 	}
 	
 	public ShellExecutor getShell( MetaEnvServerNode node ) throws Exception {

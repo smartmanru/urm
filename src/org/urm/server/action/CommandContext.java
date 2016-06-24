@@ -33,7 +33,8 @@ public class CommandContext {
 	
 	public ShellExecutorPool pool;
 
-	public String streamName;
+	public String stream;
+	public String streamLog;
 	public int sessionId;
 	
 	public Account account;
@@ -115,15 +116,18 @@ public class CommandContext {
 		this.options = options;
 		this.session = session;
 		
-		this.streamName = stream;
+		this.stream = stream;
 		this.sessionId = sessionId;
+		
+		streamLog = ( sessionId > 0 )? "[" + stream + "," + sessionId + "]" : "[" + stream + "]";
 	}
 
 	public CommandContext( CommandContext context , String stream ) {
 		if( stream == null || stream.isEmpty() )
-			this.streamName = context.streamName;
+			this.stream = context.stream;
 		else
-			this.streamName = stream;
+			this.stream = stream;
+		streamLog = ( sessionId > 0 )? "[" + stream + "," + sessionId + "]" : "[" + stream + "]";
 		
 		// copy all properties
 		this.clientrc = context.clientrc;

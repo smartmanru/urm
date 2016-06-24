@@ -54,7 +54,7 @@ public class CommandOutput {
 			outExact( context , s );
 	}
 	
-	public synchronized void log( CommandContext context , String prompt , String stream , Throwable e ) {
+	public synchronized void log( CommandContext context , String prompt , Throwable e ) {
 		if( logLevelLimit < 0 ) {
 			System.out.println( "TRACEINTERNAL: " + prompt );
 			e.printStackTrace();
@@ -68,11 +68,11 @@ public class CommandOutput {
 		
 		if( ee != null ) {
 			s += "exception: " + ee.getMessage();
-			s += ", exiting [" + stream + "]";
+			s += ", exiting [" + context.streamLog + "]";
 		}
 		else {
 			s += "exception: " + e.getMessage();
-			s += ", exiting [" + stream + "]";
+			s += ", exiting [" + context.streamLog + "]";
 		}
 		error( context , s );
 
