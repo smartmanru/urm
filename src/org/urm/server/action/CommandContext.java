@@ -34,6 +34,8 @@ public class CommandContext {
 	public ShellExecutorPool pool;
 
 	public String streamName;
+	public int sessionId;
+	
 	public Account account;
 	public String userHome;
 	public VarBUILDMODE buildMode = VarBUILDMODE.UNKNOWN;
@@ -107,16 +109,23 @@ public class CommandContext {
 	public String CTX_HOST = "";
 	public int CTX_PORT = -1;
 
-	public CommandContext( RunContext clientrc , RunContext execrc , CommandOptions options , SessionContext session , String stream ) {
+	public CommandContext( RunContext clientrc , RunContext execrc , CommandOptions options , SessionContext session , String stream , int sessionId ) {
 		this.clientrc = clientrc;
 		this.execrc = execrc;
 		this.options = options;
 		this.session = session;
 		
 		this.streamName = stream;
+		this.sessionId = sessionId;
 	}
 
 	public CommandContext( CommandContext context , String stream ) {
+		if( stream == null || stream.isEmpty() )
+			this.streamName = context.streamName;
+		else
+			this.streamName = stream;
+		
+		// copy all properties
 		this.clientrc = context.clientrc;
 		this.execrc = context.execrc;
 		this.options = context.options;
@@ -126,12 +135,7 @@ public class CommandContext {
 		this.dc = context.dc;
 		this.pool = context.pool;
 
-		if( stream == null || stream.isEmpty() )
-			this.streamName = context.streamName;
-		else
-			this.streamName = stream;
-		
-		// copy all properties
+		this.sessionId = context.sessionId;
 		this.account = context.account;
 		this.userHome = context.userHome;
 		this.buildMode = context.buildMode;

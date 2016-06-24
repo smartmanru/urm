@@ -12,8 +12,11 @@ public class ActionLogNotification extends Notification {
 	 */
 	private static final long serialVersionUID = -842716279929681284L;
 
-	public ActionLogNotification( DynamicMBean mbean , int sequence , String log ) {
+	public int sessionId; 
+	
+	public ActionLogNotification( DynamicMBean mbean , int sequence , int sessionId , String log ) {
 		super( EVENT , mbean , sequence , log );
+		this.sessionId = sessionId;
 	}
 	
 }

@@ -5,14 +5,14 @@ import org.urm.common.action.CommandMethod;
 
 public class ServerCommandThread implements Runnable {
 
-	public String sessionId;
+	public int sessionId;
 	public ServerCommandMBean command;
 	public String action;
 	public ActionData data;
 
 	public Controller controller;
 	
-	public ServerCommandThread( String sessionId , ServerCommandMBean command , String action , ActionData data ) {
+	public ServerCommandThread( int sessionId , ServerCommandMBean command , String action , ActionData data ) {
 		this.sessionId = sessionId;
 		this.command = command;
 		this.action = action;

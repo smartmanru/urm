@@ -83,12 +83,12 @@ public class Controller {
 	}
 
 	public synchronized void threadStarted( ServerCommandThread thread ) {
-		threads.put( thread.sessionId , thread );
+		threads.put( "" + thread.sessionId , thread );
 		action.debug( "thread started: " + thread.sessionId );
 	}
 
 	public synchronized void threadStopped( ServerCommandThread thread ) {
-		threads.remove( thread.sessionId );
+		threads.remove( "" + thread.sessionId );
 		action.debug( "thread stopped: " + thread.sessionId );
 	}
 

@@ -12,8 +12,11 @@ public class ActionStopNotification extends Notification {
 	 */
 	private static final long serialVersionUID = 320615245874080340L;
 
-	public ActionStopNotification( DynamicMBean mbean , int sequence , String log ) {
-		super( EVENT , mbean , sequence , log );
+	public int sessionId;
+	
+	public ActionStopNotification( DynamicMBean mbean , int sequence , int sessionId ) {
+		super( EVENT , mbean , sequence , "stopped" );
+		this.sessionId = sessionId;
 	}
 	
 }

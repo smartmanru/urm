@@ -31,7 +31,6 @@ import org.urm.server.action.ActionBase;
 public class ServerCommandMBean extends NotificationBroadcasterSupport implements DynamicMBean {
 
 	int notificationSequence = 0;
-	int invokeSequence = 0;
 	
 	public ActionBase action;
 	public Controller controller;
@@ -181,16 +180,16 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
     	return retlist;
 	}
     
-	public void notifyLog( String sessionId , String msg ) {
+	public void notifyLog( int sessionId , String msg ) {
 		try {
-			ActionLogNotification n = new ActionLogNotification( this , ++notificationSequence , sessionId + ": " + msg ); 
+			ActionLogNotification n = new ActionLogNotification( this , ++notificationSequence , sessionId , msg ); 
 			sendNotification( n );
 		}
 		catch( Throwable e ) {
 		}
 	}
 	
-	public void notifyStop( String sessionId ) {
+	public void notifyStop( int sessionId ) {
 		try {
 			ActionStopNotification n = new ActionStopNotification( this , ++notificationSequence , sessionId ); 
 			sendNotification( n );
@@ -200,7 +199,7 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 	}
 	
 	public Object invoke( String name , Object[] args , String[] sig ) throws MBeanException, ReflectionException {
-		String sessionId = null;
+		int sessionId = -1;
 		try {
 			sessionId = notifyExecute( name , args );
 		}
@@ -208,25 +207,26 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 			action.error( e.getMessage() );
 		}
 
-		return( sessionId );
+		String value = "" + sessionId;
+		return( value );
 	}
 
-	private String notifyExecute( String name , Object[] args ) throws Exception {
+	private int notifyExecute( String name , Object[] args ) throws Exception {
 		if( name.equals( "execute" ) ) {
 			if( args.length != 2 ) {
 				action.error( "missing args calling command=" + meta.name );
-				return( null );
+				return( -1 );
 			}
 			
 			if( args[1].getClass() != ActionData.class || args[0].getClass() != String.class ) {
 				action.error( "invalid args calling command=" + meta.name );
-				return( null );
+				return( -1 );
 			}
 			
 			String actionName = ( String )args[0];
 			ActionData data = ( ActionData )args[1];
 			
-			String sessionId = createSessionId( actionName , data );
+			int sessionId = engine.createSessionId();
 			action.debug( "operation invoked, sessionId=" + sessionId );
 			
 			ServerCommandThread thread = new ServerCommandThread( sessionId , this , actionName , data );
@@ -234,12 +234,7 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 			return( sessionId );
 		}
 		
-		return( null );
-	}
-	
-	private synchronized String createSessionId( String name , ActionData data ) {
-		invokeSequence++;
-		return( data.clientrc.productDir + "-" + meta.name + "-" + name + "-" + invokeSequence );
+		return( -1 );
 	}
 	
 	public synchronized MBeanInfo getMBeanInfo() {

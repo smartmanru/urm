@@ -29,8 +29,15 @@ public class ServerEngine {
 	public RunContext execrc;
 	public SessionContext serverSession;
 	public ActionInit serverAction;
+
+	int invokeSequence = 0;
 	
 	public ServerEngine() {
+	}
+	
+	public synchronized int createSessionId() {
+		invokeSequence++;
+		return( invokeSequence );
 	}
 	
 	public boolean runArgs( String[] args ) throws Exception {
@@ -51,7 +58,7 @@ public class ServerEngine {
 		serverSession.setServerLayout( builder.options );
 
 		// create server action
-		serverAction = createAction( builder , builder.options , executor , serverSession , "server" );
+		serverAction = createAction( builder , builder.options , executor , serverSession , "server" , 0 );
 		if( serverAction == null )
 			return( false );
 
@@ -69,7 +76,7 @@ public class ServerEngine {
 		else
 			session.setServerProductLayout( clientrc.productDir );
 		
-		serverAction = createAction( builder , options , executor , session , "client" );
+		serverAction = createAction( builder , options , executor , session , "client" , 0 );
 		if( serverAction == null )
 			return( false );
 		
@@ -77,7 +84,7 @@ public class ServerEngine {
 		return( runServerAction( session , executor ) );
 	}
 		
-	public boolean runClientRemote( String sessionId , CommandMeta command , CommandMethod method , ActionData data ) throws Exception {
+	public boolean runClientRemote( int sessionId , CommandMeta command , CommandMethod method , ActionData data ) throws Exception {
 		CommandBuilder builder = new CommandBuilder( data.clientrc , execrc );
 		
 		CommandOptions options = new CommandOptions( serverAction.context.options.meta );
@@ -91,7 +98,7 @@ public class ServerEngine {
 		SessionContext session = new SessionContext( data.clientrc );
 		session.setServerClientLayout( serverSession );
 		
-		ActionInit action = createAction( builder , options , executor , session , sessionId );
+		ActionInit action = createAction( builder , options , executor , session , "remote-" + data.clientrc.productDir , sessionId );
 		if( action == null )
 			return( false );
 		
@@ -164,9 +171,9 @@ public class ServerEngine {
 		return( executor );
 	}
 
-	public ActionInit createAction( CommandBuilder builder , CommandOptions options , CommandExecutor executor , SessionContext session , String stream ) throws Exception {
+	public ActionInit createAction( CommandBuilder builder , CommandOptions options , CommandExecutor executor , SessionContext session , String stream , int sessionId ) throws Exception {
 		// create context
-		CommandContext context = new CommandContext( session.clientrc , execrc , options , session , stream );
+		CommandContext context = new CommandContext( session.clientrc , execrc , options , session , stream , sessionId );
 		if( !context.setRunContext() )
 			return( null );
 		
