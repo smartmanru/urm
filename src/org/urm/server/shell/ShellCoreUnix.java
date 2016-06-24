@@ -48,7 +48,6 @@ public class ShellCoreUnix extends ShellCore {
 		this.runCommand( action , "echo check and skip banner ... " , CommandOutput.LOGLEVEL_TRACE );
 		processId = runCommandGetValueCheckDebug( action , "echo $$" );
 		homePath = runCommandGetValueCheckDebug( action , "echo $HOME" );
-		setProcessName( "anotherName" );
 	}
 	
 	@Override public void runCommand( ActionBase action , String cmd , int logLevel ) throws Exception {

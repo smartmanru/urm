@@ -3,7 +3,7 @@ package org.urm.client;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
-import org.urm.common.jmx.ClientCallRemote;
+import org.urm.common.jmx.RemoteCall;
 
 public class ClientEngine {
 
@@ -40,7 +40,7 @@ public class ClientEngine {
 	}
 	
 	private boolean runServerMode( CommandBuilder builder , CommandMeta commandInfo ) throws Exception {
-		ClientCallRemote call = new ClientCallRemote();
+		RemoteCall call = new RemoteCall();
 		return( call.runClient( builder , commandInfo ) );
 	}
 

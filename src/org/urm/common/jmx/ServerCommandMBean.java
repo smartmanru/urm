@@ -33,7 +33,7 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 	int notificationSequence = 0;
 	
 	public ActionBase action;
-	public Controller controller;
+	public ServerMBean controller;
 	public ServerEngine engine;
 	public String productDir;
 	
@@ -41,7 +41,7 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 	public MBeanInfo mbean;
 	public CommandOptions options;
 	
-	public ServerCommandMBean( ActionBase action , Controller controller , ServerEngine engine , String productDir , CommandMeta meta ) {
+	public ServerCommandMBean( ActionBase action , ServerMBean controller , ServerEngine engine , String productDir , CommandMeta meta ) {
 		this.action = action;
 		this.controller = controller;
 		this.engine = engine;
@@ -86,7 +86,7 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
             new MBeanNotificationInfo[] { mbnLog , mbnStop } );
 	}
 
-	public MBeanOperationInfo addOperation( ActionBase action , CommandMethod method ) throws Exception {
+	private MBeanOperationInfo addOperation( ActionBase action , CommandMethod method ) throws Exception {
 		List<MBeanParameterInfo> params = new LinkedList<MBeanParameterInfo>();
 		
 		MBeanParameterInfo args = new MBeanParameterInfo( "args" , "String" , "Command arguments" );
@@ -119,7 +119,7 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 		return( op );
 	}
 
-	public MBeanParameterInfo addParameter( ActionBase action , CommandVar var ) throws Exception {
+	private MBeanParameterInfo addParameter( ActionBase action , CommandVar var ) throws Exception {
 		String type = getType( var );
 		MBeanParameterInfo param = new MBeanParameterInfo(
 			var.varName ,
@@ -155,18 +155,21 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 		return( attr );
 	}
 	
+	@Override
 	public synchronized String getAttribute( String name ) throws AttributeNotFoundException {
 		return( null );
 	}
 
+	@Override
 	public synchronized void setAttribute( Attribute attribute) throws InvalidAttributeValueException, MBeanException, AttributeNotFoundException {
 	}
 
+	@Override
 	public synchronized AttributeList getAttributes(String[] names) {
-		AttributeList list = new AttributeList();
-        return list;
+        return( null );
 	}
 
+	@Override
 	public synchronized AttributeList setAttributes(AttributeList list) {
     	Attribute[] attrs = (Attribute[]) list.toArray( new Attribute[0] );
     	AttributeList retlist = new AttributeList();
@@ -198,6 +201,7 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 		}
 	}
 	
+	@Override
 	public Object invoke( String name , Object[] args , String[] sig ) throws MBeanException, ReflectionException {
 		int sessionId = -1;
 		try {
@@ -236,7 +240,8 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 		
 		return( -1 );
 	}
-	
+
+	@Override
 	public synchronized MBeanInfo getMBeanInfo() {
 		return( mbean );
 	}

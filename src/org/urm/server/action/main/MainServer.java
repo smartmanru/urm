@@ -2,7 +2,7 @@ package org.urm.server.action.main;
 
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
-import org.urm.common.jmx.Controller;
+import org.urm.common.jmx.ServerMBean;
 import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionBase;
 
@@ -10,14 +10,14 @@ public class MainServer {
 
 	ActionBase action;
 	ServerEngine engine;
-	Controller controller; 
+	ServerMBean controller; 
 
 	public CommandMeta[] executors = null;
 	
 	public MainServer( ActionBase action , ServerEngine engine ) {
 		this.action = action;
 		this.engine = engine;
-		controller = new Controller( action , this ); 
+		controller = new ServerMBean( action , this ); 
 	}
 	
 	public void start() throws Exception {
@@ -31,4 +31,10 @@ public class MainServer {
 		}
 	}
 
+	public void stop() throws Exception {
+	}
+	
+	public void status() throws Exception {
+	}
+	
 }

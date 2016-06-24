@@ -32,9 +32,13 @@ public class ActionServer extends ActionBase {
 	}
 	
 	private void executeServerStop() throws Exception {
+		MainServer server = new MainServer( this , executor.engine );
+		server.stop();
 	}
 	
 	private void executeServerStatus() throws Exception {
+		MainServer server = new MainServer( this , executor.engine );
+		server.status();
 	}
 	
 }

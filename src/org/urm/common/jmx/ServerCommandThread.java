@@ -10,7 +10,7 @@ public class ServerCommandThread implements Runnable {
 	public String action;
 	public ActionData data;
 
-	public Controller controller;
+	public ServerMBean controller;
 	
 	public ServerCommandThread( int sessionId , ServerCommandMBean command , String action , ActionData data ) {
 		this.sessionId = sessionId;

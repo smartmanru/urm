@@ -12,9 +12,17 @@ import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 
-public class ClientCallRemote implements NotificationListener {
+public class RemoteCall implements NotificationListener {
 
 	public static String GENERIC_ACTION_NAME = "execute";
+
+	public static String getCommandMBeanName( String productDir , String command ) {
+		return( "urm-" + productDir + ":" + "name=" + command );
+	}
+	
+	public static String getServerMBeanName() {
+		return( "urm:name=server" );
+	}
 	
 	public boolean runClient( CommandBuilder builder , CommandMeta commandInfo ) throws Exception {
 		String URL = "service:jmx:jmxmp://" + builder.execrc.serverHostPort;
@@ -33,7 +41,7 @@ public class ClientCallRemote implements NotificationListener {
 			return( false );
 		}
 		
-		String name = builder.getCommandMBeanName( builder.execrc.productDir , commandInfo.name );
+		String name = getCommandMBeanName( builder.execrc.productDir , commandInfo.name );
 		boolean res = makeCall( builder , name , mbsc );
 		
 		try {
