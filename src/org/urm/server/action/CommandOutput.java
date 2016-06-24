@@ -45,7 +45,8 @@ public class CommandOutput {
 				prefix = "[TRACE] ";
 			else
 				outExact( context , "unexpected log level=" + logLevel + ", msg=" + s );
-			out( context , prefix + s );
+			
+			out( context , prefix );
 		}
 	}
 	
@@ -130,7 +131,7 @@ public class CommandOutput {
 	}
 	
 	private void out( CommandContext context , String s ) {
-		String ts = Common.getLogTimeStamp() + " " + s;
+		String ts = Common.getLogTimeStamp() + " " + s + " " + context.streamLog ;
 		outExact( context , ts );
 	}
 
