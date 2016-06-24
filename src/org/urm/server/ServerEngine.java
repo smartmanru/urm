@@ -111,11 +111,11 @@ public class ServerEngine {
 		boolean res = ( session.isFailed() )? false : true;
 		
 		if( res )
-			serverAction.commentExecutor( "COMMAND SUCCESSFUL" );
+			clientAction.commentExecutor( "COMMAND SUCCESSFUL" );
 		else
-			serverAction.commentExecutor( "COMMAND FAILED" );
+			clientAction.commentExecutor( "COMMAND FAILED" );
 			
-		executor.finish( serverAction );
+		executor.finish( clientAction );
 
 		return( res );
 	}
