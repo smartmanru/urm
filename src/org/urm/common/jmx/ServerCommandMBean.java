@@ -181,23 +181,6 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
     	return retlist;
 	}
     
-	public Object invoke( String name , Object[] args , String[] sig ) throws MBeanException, ReflectionException {
-		String sessionId = null;
-		try {
-			sessionId = notifyExecute( name , args );
-		}
-		catch( Throwable e ) {
-			action.error( e.getMessage() );
-		}
-
-		return( sessionId );
-	}
-
-	private synchronized String createSessionId( String name ) {
-		invokeSequence++;
-		return( name + "-" + invokeSequence );
-	}
-	
 	public void notifyLog( String sessionId , String msg ) {
 		try {
 			ActionLogNotification n = new ActionLogNotification( this , ++notificationSequence , sessionId + ": " + msg ); 
@@ -216,6 +199,18 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 		}
 	}
 	
+	public Object invoke( String name , Object[] args , String[] sig ) throws MBeanException, ReflectionException {
+		String sessionId = null;
+		try {
+			sessionId = notifyExecute( name , args );
+		}
+		catch( Throwable e ) {
+			action.error( e.getMessage() );
+		}
+
+		return( sessionId );
+	}
+
 	private String notifyExecute( String name , Object[] args ) throws Exception {
 		if( name.equals( "execute" ) ) {
 			if( args.length != 2 ) {
@@ -228,15 +223,23 @@ public class ServerCommandMBean extends NotificationBroadcasterSupport implement
 				return( null );
 			}
 			
-			String sessionId = createSessionId( name );
+			String actionName = ( String )args[0];
+			ActionData data = ( ActionData )args[1];
+			
+			String sessionId = createSessionId( actionName , data );
 			action.debug( "operation invoked, sessionId=" + sessionId );
 			
-			ServerCommandThread thread = new ServerCommandThread( sessionId , this , ( String )args[0] , ( ActionData )args[1] );
+			ServerCommandThread thread = new ServerCommandThread( sessionId , this , actionName , data );
 			thread.start();
 			return( sessionId );
 		}
 		
 		return( null );
+	}
+	
+	private synchronized String createSessionId( String name , ActionData data ) {
+		invokeSequence++;
+		return( data.clientrc.productDir + "-" + meta.name + "-" + name + "-" + invokeSequence );
 	}
 	
 	public synchronized MBeanInfo getMBeanInfo() {
