@@ -47,6 +47,8 @@ abstract class ShellCore {
 	static String EXECUTE_LOG = "execute.log";
 	static String UPLOAD_LOG = "upload.log";
 
+	private static ShellCoreJNI osapi = null;
+	
 	abstract protected String getExportCmd( ActionBase action ) throws Exception;
 	abstract protected void getProcessAttributes( ActionBase action ) throws Exception;
 	abstract public void runCommand( ActionBase action , String cmd , int logLevel ) throws Exception;
@@ -471,5 +473,11 @@ abstract class ShellCore {
 		if( action.context.CTX_TRACEINTERNAL )
 			System.out.print( "\n" );
 	}		
+
+	protected synchronized ShellCoreJNI getOSAPI() {
+		if( osapi == null )
+			osapi = new ShellCoreJNI();
+		return( osapi );
+	}
 	
 }

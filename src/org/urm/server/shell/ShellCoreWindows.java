@@ -16,7 +16,6 @@ import org.urm.server.storage.Folder;
 public class ShellCoreWindows extends ShellCore {
 
 	ShellCoreUnix localSession;
-	static ShellCoreJNI winapi = null;
 
 	String cmdAnd;
 
@@ -62,9 +61,8 @@ public class ShellCoreWindows extends ShellCore {
 	}
 	
 	private synchronized String getProcessId( ActionBase action ) throws Exception {
-		if( winapi == null )
-			winapi = new ShellCoreJNI();
-		return( "" + winapi.getWindowsProcessId( action , super.process ) );
+		ShellCoreJNI osapi = getOSAPI();
+		return( "" + osapi.getWindowsProcessId( action , super.process ) );
 	}
 	
 	private String prepareExecute( ActionBase action , String cmd , int logLevel ) throws Exception {

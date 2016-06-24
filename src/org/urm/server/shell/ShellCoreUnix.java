@@ -24,6 +24,11 @@ public class ShellCoreUnix extends ShellCore {
 	public void setWindowsHelper() {
 		windowsHelper = true;
 	}
+
+	public void setProcessName( String name ) {
+		ShellCoreJNI osapi = getOSAPI();
+		osapi.setProcessName( name );
+	}
 	
 	@Override protected String getExportCmd( ActionBase action ) throws Exception {
 		if( action.meta == null || action.meta.product == null )
@@ -43,6 +48,7 @@ public class ShellCoreUnix extends ShellCore {
 		this.runCommand( action , "echo check and skip banner ... " , CommandOutput.LOGLEVEL_TRACE );
 		processId = runCommandGetValueCheckDebug( action , "echo $$" );
 		homePath = runCommandGetValueCheckDebug( action , "echo $HOME" );
+		setProcessName( "anotherName" );
 	}
 	
 	@Override public void runCommand( ActionBase action , String cmd , int logLevel ) throws Exception {

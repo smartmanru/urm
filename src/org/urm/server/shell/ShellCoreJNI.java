@@ -7,6 +7,7 @@ import java.util.Map;
 import org.urm.server.action.ActionBase;
 
 import com.sun.jna.FromNativeContext;
+import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
@@ -16,6 +17,17 @@ import com.sun.jna.win32.W32APITypeMapper;
 
 public class ShellCoreJNI {
 
+	public interface CStdLib extends Library {
+        int syscall(int number, Object... args);
+    }
+	
+	public void setProcessName( String name ) {
+		CStdLib c = ( CStdLib )Native.loadLibrary( "c" , CStdLib.class );
+		int SYSCALL_PRCTL = 157;
+		int PR_SET_NAME = 15;
+		c.syscall( SYSCALL_PRCTL , PR_SET_NAME , name , 0 , 0 , 0 );
+	}
+	
 	public interface Kernel32 extends W32API {
 	    Kernel32 INSTANCE = (Kernel32) Native.loadLibrary("kernel32", Kernel32.class, DEFAULT_OPTIONS);
 	    /* http://msdn.microsoft.com/en-us/library/ms683179(VS.85).aspx */
@@ -25,12 +37,10 @@ public class ShellCoreJNI {
 	}
 	
 	public interface W32Errors {
-		
 	    int NO_ERROR               = 0;
 	    int ERROR_INVALID_FUNCTION = 1;
 	    int ERROR_FILE_NOT_FOUND   = 2;
 	    int ERROR_PATH_NOT_FOUND   = 3;
-
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes", "serial" })
