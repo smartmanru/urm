@@ -9,17 +9,13 @@ import javax.management.AttributeList;
 import javax.management.AttributeNotFoundException;
 import javax.management.DynamicMBean;
 import javax.management.InvalidAttributeValueException;
-import javax.management.ListenerNotFoundException;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.MBeanParameterInfo;
-import javax.management.NotificationBroadcaster;
 import javax.management.NotificationBroadcasterSupport;
-import javax.management.NotificationFilter;
-import javax.management.NotificationListener;
 import javax.management.ReflectionException;
 
 import org.urm.common.Common;
@@ -32,9 +28,8 @@ import org.urm.common.action.CommandVar;
 import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionBase;
 
-public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster {
+public class ServerCommandMBean extends NotificationBroadcasterSupport implements DynamicMBean {
 
-	NotificationBroadcasterSupport broadcaster;
 	int notificationSequence = 0;
 	MBeanNotificationInfo[] notifyInfo;
 	
@@ -53,8 +48,6 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		this.engine = engine;
 		this.productDir = productDir;
 		this.meta = meta;
-		
-		broadcaster = new NotificationBroadcasterSupport(); 
 	}
 
 	public void createInfo() throws Exception {
@@ -197,7 +190,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 				return;
 			
 			ActionNotification n = new ActionNotification( this , ++notificationSequence , sessionId , call.clientId , msg ); 
-			broadcaster.sendNotification( n );
+			sendNotification( n );
 		}
 		catch( Throwable e ) {
 		}
@@ -210,7 +203,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 				return;
 			
 			ActionNotification n = new ActionNotification( this , ++notificationSequence , sessionId , call.clientId , "stop" ); 
-			broadcaster.sendNotification( n );
+			sendNotification( n );
 		}
 		catch( Throwable e ) {
 		}
@@ -264,18 +257,4 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		return( mbean );
 	}
 
-	@Override
-	public MBeanNotificationInfo[] getNotificationInfo() {
-		return( notifyInfo );
-	}
-
-	@Override
-	public void addNotificationListener( NotificationListener listener , NotificationFilter filter , Object handback ) {
-		broadcaster.addNotificationListener( listener , filter , handback );  
-	}
-		                  
-	@Override
-	public void removeNotificationListener( NotificationListener listener ) throws ListenerNotFoundException {
-		broadcaster.removeNotificationListener(listener);     
-	}	
 }
