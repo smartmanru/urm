@@ -93,11 +93,13 @@ public class RemoteCall implements NotificationListener {
 	private boolean serverCommandCall( CommandBuilder builder , String name ) {
 		Object sessionId;
 		try {
+			String clientId = builder.options.action + "-" + System.currentTimeMillis();
 			mbeanName = new ObjectName( name );
-			mbsc.addNotificationListener( mbeanName , this , null , "hello" );
+			RemoteCallFilter filter = new RemoteCallFilter( clientId ); 
+			mbsc.addNotificationListener( mbeanName , this , filter , null );
 			sessionId = mbsc.invoke( mbeanName , GENERIC_ACTION_NAME , 
-					new Object[] { builder.options.action , builder.options.data } , 
-					new String[] { String.class.getName() , ActionData.class.getName() } );
+					new Object[] { builder.options.action , builder.options.data , clientId } , 
+					new String[] { String.class.getName() , ActionData.class.getName() , String.class.getName() } );
 		}
 		catch( Throwable e ) {
 			System.out.println( "unable to call operation: " + name );
@@ -123,11 +125,14 @@ public class RemoteCall implements NotificationListener {
 	}
 	
 	public void handleNotification( Notification notif , Object handback ) {
-		if( notif.getType().equals( ActionLogNotification.EVENT ) ) {
-			ActionLogNotification n = ( ActionLogNotification )notif;
+		if( !notif.getType().equals( ActionNotification.EVENT ) )
+			return;
+		
+		ActionNotification n = ( ActionNotification )notif;
+		if( n.logEvent )
 			System.out.println( n.getMessage() );
-		}
-		else if( notif.getType().equals( ActionStopNotification.EVENT ) ) {
+		else
+		if( n.stopEvent ) {
 			synchronized( this ) {
 				notifyAll();
 			}

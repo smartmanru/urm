@@ -78,11 +78,9 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		}
 		
 		// notifications
-		MBeanNotificationInfo mbnLog = new MBeanNotificationInfo( new String[] { ActionLogNotification.EVENT } , 
-				ActionLogNotification.class.getName() , "output of action executed" );
-		MBeanNotificationInfo mbnStop = new MBeanNotificationInfo( new String[] { ActionStopNotification.EVENT } , 
-				ActionStopNotification.class.getName() , "stop of action" );
-		notifyInfo = new MBeanNotificationInfo[] { mbnLog , mbnStop };
+		MBeanNotificationInfo mbn = new MBeanNotificationInfo( new String[] { ActionNotification.EVENT } , 
+				ActionNotification.class.getName() , "action event" );
+		notifyInfo = new MBeanNotificationInfo[] { mbn };
 		
 		// register
 		Collections.reverse( opers );
@@ -194,7 +192,11 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
     
 	public void notifyLog( int sessionId , String msg ) {
 		try {
-			ActionLogNotification n = new ActionLogNotification( this , ++notificationSequence , sessionId , msg ); 
+			ServerCommandCall call = controller.getCall( sessionId );
+			if( call == null )
+				return;
+			
+			ActionNotification n = new ActionNotification( this , ++notificationSequence , sessionId , call.clientId , msg ); 
 			broadcaster.sendNotification( n );
 		}
 		catch( Throwable e ) {
@@ -203,7 +205,11 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 	
 	public void notifyStop( int sessionId ) {
 		try {
-			ActionStopNotification n = new ActionStopNotification( this , ++notificationSequence , sessionId ); 
+			ServerCommandCall call = controller.getCall( sessionId );
+			if( call == null )
+				return;
+			
+			ActionNotification n = new ActionNotification( this , ++notificationSequence , sessionId , call.clientId , "stop" ); 
 			broadcaster.sendNotification( n );
 		}
 		catch( Throwable e ) {
@@ -226,23 +232,26 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 
 	private int notifyExecute( String name , Object[] args ) throws Exception {
 		if( name.equals( "execute" ) ) {
-			if( args.length != 2 ) {
+			if( args.length != 3 ) {
 				action.error( "missing args calling command=" + meta.name );
 				return( -1 );
 			}
 			
-			if( args[1].getClass() != ActionData.class || args[0].getClass() != String.class ) {
+			if( args[1].getClass() != ActionData.class || 
+				args[0].getClass() != String.class ||
+				args[2].getClass() != String.class ) {
 				action.error( "invalid args calling command=" + meta.name );
 				return( -1 );
 			}
 			
 			String actionName = ( String )args[0];
 			ActionData data = ( ActionData )args[1];
+			String clientId = ( String )args[2];
 			
 			int sessionId = engine.createSessionId();
 			action.debug( "operation invoked, sessionId=" + sessionId );
 			
-			ServerCommandCall thread = new ServerCommandCall( sessionId , this , actionName , data );
+			ServerCommandCall thread = new ServerCommandCall( sessionId , clientId , this , actionName , data );
 			thread.start();
 			return( sessionId );
 		}

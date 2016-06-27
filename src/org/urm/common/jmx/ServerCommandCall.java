@@ -6,14 +6,16 @@ import org.urm.common.action.CommandMethod;
 public class ServerCommandCall implements Runnable {
 
 	public int sessionId;
+	public String clientId;
 	public ServerCommandMBean command;
 	public String action;
 	public ActionData data;
 
 	public ServerMBean controller;
 	
-	public ServerCommandCall( int sessionId , ServerCommandMBean command , String action , ActionData data ) {
+	public ServerCommandCall( int sessionId , String clientId , ServerCommandMBean command , String action , ActionData data ) {
 		this.sessionId = sessionId;
+		this.clientId = clientId;
 		this.command = command;
 		this.action = action;
 		this.data = data;
