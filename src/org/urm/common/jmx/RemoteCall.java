@@ -19,6 +19,7 @@ public class RemoteCall implements NotificationListener {
 	public static int DEFAULT_SERVER_PORT = 8800;
 	
 	public String URL;
+	ObjectName mbeanName;
 	JMXConnector jmxc = null;
 	MBeanServerConnection mbsc = null;
 
@@ -45,6 +46,9 @@ public class RemoteCall implements NotificationListener {
 
 	public void serverDisconnect() {
 		try {
+			if( mbsc != null )
+				mbsc.removeNotificationListener( mbeanName , this );
+			
 			if( jmxc != null ) {
 				jmxc.close();
 				jmxc = null;
@@ -89,7 +93,7 @@ public class RemoteCall implements NotificationListener {
 	private boolean serverCommandCall( CommandBuilder builder , String name ) {
 		Object sessionId;
 		try {
-			ObjectName mbeanName = new ObjectName( name );
+			mbeanName = new ObjectName( name );
 			mbsc.addNotificationListener( mbeanName , this , null , null );
 			sessionId = mbsc.invoke( mbeanName , GENERIC_ACTION_NAME , 
 					new Object[] { builder.options.action , builder.options.data } , 
