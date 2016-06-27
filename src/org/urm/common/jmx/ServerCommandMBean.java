@@ -29,6 +29,7 @@ import org.urm.common.action.CommandMethod;
 import org.urm.common.action.CommandMethod.ACTION_TYPE;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.action.CommandVar;
+import org.urm.common.action.CommandVar.FLAG;
 import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionBase;
 
@@ -57,6 +58,8 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 
 	public void createInfo() throws Exception {
 		options = new CommandOptions();
+		ActionData data = new ActionData( engine.execrc );
+		options.setCommand( meta.name , data );
 		
 		// attributes
 		List<MBeanAttributeInfo> attrs = new LinkedList<MBeanAttributeInfo>();
@@ -161,28 +164,106 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 	}
 	
 	@Override
-	public synchronized String getAttribute( String name ) throws AttributeNotFoundException {
+	public synchronized Object getAttribute( String name ) throws AttributeNotFoundException {
+		if( name.equals( "args" ) )
+			return( options.data.getArgsSet() );
+
+		CommandVar var = options.getVar( name );
+		if( var.isParam && var.isString )
+			return( options.data.getParamValue( var.varName ) );
+
+		if( var.isParam && var.isInteger ) {
+			int value = options.data.getIntParamValue( var.varName , -1 );
+			if( value < 0 )
+				return( null );
+			
+			return( new Integer( value ) );
+		}
+		
+		if( var.isFlag ) {
+			FLAG flag = options.data.getFlagValue( name );
+			if( flag == null )
+				return( null );
+			
+			return( new Integer( ( flag == FLAG.YES )? 1 : 0 ) );
+		}
+		
+		action.error( "unknown attr=" + name );
 		return( null );
 	}
 
 	@Override
 	public synchronized void setAttribute( Attribute attribute) throws InvalidAttributeValueException, MBeanException, AttributeNotFoundException {
+		String name = attribute.getName();
+		Object value = attribute.getValue();
+		setOption( options , name , value );
+	}
+	
+	public void setOption( CommandOptions setopts , String name , Object value ) {
+		if( name.equals( "args" ) ) {
+			setopts.setArgs( Common.splitSpaced( ( String )value ) );
+			return;
+		}
+		
+		CommandVar var = setopts.getVar( name );
+		if( var.isParam && var.isString ) {
+			setopts.setParam( var , ( String )value );
+			return;
+		}
+		
+		if( var.isParam && var.isInteger ) {
+			Integer intvalue = ( Integer )value;
+			if( intvalue == null )
+				setopts.clearParam( var );
+			else
+				setopts.setParam( var , "" + intvalue.intValue() );
+			return;
+		}
+		
+		if( var.isFlag ) {
+			Integer intvalue = ( Integer )value;
+			if( intvalue == null )
+				setopts.clearFlag( var );
+			else
+				setopts.setFlag( var , ( intvalue.intValue() == 1 )? true : false );
+			return;
+		}
+		
+		action.error( "unexpected var=" + var.varName );
 	}
 
 	@Override
 	public synchronized AttributeList getAttributes(String[] names) {
-        return( null );
+		AttributeList list = new AttributeList();
+		for( String name : names ) {
+			try {
+				Object value = getAttribute( name );
+				Attribute attr = new Attribute( name , value );
+				list.add( attr );
+			}
+			catch( Throwable e ) {
+				action.error( "unexpected var=" + name );
+			}
+		}
+		
+        return( list );
 	}
 
 	@Override
 	public synchronized AttributeList setAttributes(AttributeList list) {
+		options.clearData();
+		
     	Attribute[] attrs = (Attribute[]) list.toArray( new Attribute[0] );
     	AttributeList retlist = new AttributeList();
         
     	for (Attribute attr : attrs) {
-    		String name = attr.getName();
-    		Object value = attr.getValue();
-    		retlist.add( new Attribute(name, value) );
+    		try {
+    			setAttribute( attr );
+    		}
+    		catch( Throwable e ) {
+    			action.log( e );
+    		}
+    		retlist.add( attr );
     	}
         
     	return retlist;
@@ -231,34 +312,59 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 	}
 
 	private int notifyExecute( String name , Object[] args ) throws Exception {
-		if( name.equals( "execute" ) ) {
-			if( args.length != 3 ) {
-				action.error( "missing args calling command=" + meta.name );
-				return( -1 );
-			}
-			
-			if( args[1].getClass() != ActionData.class || 
-				args[0].getClass() != String.class ||
-				args[2].getClass() != String.class ) {
-				action.error( "invalid args calling command=" + meta.name );
-				return( -1 );
-			}
-			
-			String actionName = ( String )args[0];
-			ActionData data = ( ActionData )args[1];
-			String clientId = ( String )args[2];
-			
-			int sessionId = engine.createSessionId();
-			action.debug( "operation invoked, sessionId=" + sessionId );
-			
-			ServerCommandCall thread = new ServerCommandCall( sessionId , clientId , this , actionName , data );
-			thread.start();
-			return( sessionId );
+		if( name.equals( "execute" ) )
+			return( notifyExecuteGeneric( args ) );
+		
+		return( notifyExecuteSpecific( name , args ) );
+	}
+	
+	private int notifyExecuteSpecific( String name , Object[] args ) throws Exception {
+		// find action
+		CommandMethod method = meta.getAction( name );
+		if( args.length != method.vars.length )
+			return( -1 );
+		
+		CommandOptions cmdopts = new CommandOptions( options.meta );
+		ActionData data = new ActionData( engine.execrc );
+		data.set( options.data );
+		cmdopts.setAction( meta.name , method , data );
+		
+		for( int k = 0; k < args.length; k++ ) {
+			String varName = method.vars[ k ];
+			setOption( cmdopts , varName , args[ k ] );
 		}
 		
-		return( -1 );
+		if( !engine.runClientJmx( meta , cmdopts ) )
+			return( -1 );
+		
+		return( 0 );
 	}
 
+	private int notifyExecuteGeneric( Object[] args ) throws Exception {
+		if( args.length != 3 ) {
+			action.error( "missing args calling command=" + meta.name );
+			return( -1 );
+		}
+		
+		if( args[1].getClass() != ActionData.class || 
+			args[0].getClass() != String.class ||
+			args[2].getClass() != String.class ) {
+			action.error( "invalid args calling command=" + meta.name );
+			return( -1 );
+		}
+		
+		String actionName = ( String )args[0];
+		ActionData data = ( ActionData )args[1];
+		String clientId = ( String )args[2];
+		
+		int sessionId = engine.createSessionId();
+		action.debug( "operation invoked, sessionId=" + sessionId );
+		
+		ServerCommandCall thread = new ServerCommandCall( sessionId , clientId , this , actionName , data );
+		thread.start();
+		return( sessionId );
+	}
+	
 	@Override
 	public synchronized MBeanInfo getMBeanInfo() {
 		return( mbean );

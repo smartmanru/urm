@@ -106,7 +106,21 @@ public class ServerEngine {
 		action.meta.loadProduct( action );
 		return( runClientAction( session , executor , action ) );
 	}
+
+	public boolean runClientJmx( CommandMeta meta , CommandOptions options ) throws Exception {
+		CommandExecutor executor = createExecutor( meta );
+		SessionContext session = new SessionContext( execrc );
+		session.setServerClientLayout( serverSession );
 		
+		CommandBuilder builder = new CommandBuilder( execrc , execrc );
+		ActionInit action = createAction( builder , options , executor , session , "jmx-" + execrc.productDir , null );
+		if( action == null )
+			return( false );
+
+		action.meta.loadProduct( action );
+		return( runClientAction( session , executor , action ) );
+	}
+	
 	private boolean runClientAction( SessionContext session , CommandExecutor executor , ActionInit clientAction ) throws Exception {
 		// execute
 		try {

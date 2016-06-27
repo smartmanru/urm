@@ -27,6 +27,11 @@ public class CommandOptions {
 		this.meta = meta;
 	}
 
+	public void setCommand( String command , ActionData data ) {
+		this.command = command;
+		this.data = data;
+	}
+	
 	public void setAction( String command , CommandMethod method , ActionData data ) {
 		this.command = command;
 		this.action = method.name;
@@ -262,6 +267,30 @@ public class CommandOptions {
 
 	public Map<String,CommandVar> getDefinedVariables() {
 		return( meta.varByName );
+	}
+
+	public void setArgs( String[] args ) {
+		data.setArgs( args );
+	}
+
+	public void setParam( CommandVar var , String value ) {
+		data.setParam( var , value );
+	}
+	
+	public void setFlag( CommandVar var , boolean value ) {
+		data.setFlag( var , value );
+	}
+	
+	public void clearFlag( CommandVar var ) {
+		data.clearFlag( var );
+	}
+	
+	public void clearParam( CommandVar var ) {
+		data.clearParam( var );
+	}
+	
+	public void clearData() {
+		data.clear();
 	}
 	
 }

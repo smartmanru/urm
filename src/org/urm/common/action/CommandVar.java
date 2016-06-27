@@ -19,6 +19,7 @@ public class CommandVar implements Serializable {
 	public boolean jmx;
 	
 	public boolean isParam = false;
+	public boolean isString = false;
 	public boolean isFlag = false;
 	public boolean isEnum = false;
 	public boolean isGeneric = false;
@@ -31,6 +32,7 @@ public class CommandVar implements Serializable {
 		var.varName = varName;
 		var.varValue = FLAG.DEFAULT;
 		var.isParam = true;
+		var.isString = true;
 		var.jmx = jmx;
 		
 		return( var );
@@ -43,8 +45,8 @@ public class CommandVar implements Serializable {
 		var.varName = varName;
 		var.varValue = FLAG.DEFAULT;
 		var.isParam = true;
-		var.jmx = jmx;
 		var.isInteger = true;
+		var.jmx = jmx;
 		
 		return( var );
 	}

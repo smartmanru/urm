@@ -32,6 +32,8 @@ public class CommandOutput {
 		
 		if( action.context.call != null )
 			this.logServerLevelLimit = action.context.call.command.engine.serverAction.context.logLevelLimit;
+		else
+			this.logServerLevelLimit = this.logActionLevelLimit;
 	}
 	
 	private synchronized void log( CommandContext context , String s , int logLevel ) {
@@ -99,7 +101,10 @@ public class CommandOutput {
 			s += ", exiting ";
 		}
 		else {
-			s += "exception: " + e.getMessage();
+			s += "exception: " + e.getClass().getName();
+			String msg = e.getMessage();
+			if( msg != null )
+				s += " - " + msg;
 			s += ", exiting ";
 		}
 		error( context , s );

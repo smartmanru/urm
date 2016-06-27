@@ -73,6 +73,11 @@ public class ActionData implements Serializable {
 		args.add( value );
 		return( true );
 	}
+
+	public FLAG getFlagValue( String var ) {
+		FLAG val = flags.get( var );
+		return( val );
+	}
 	
 	public boolean getFlagValue( String var , boolean defValue ) {
 		FLAG val = flags.get( var );
@@ -207,4 +212,49 @@ public class ActionData implements Serializable {
 		return( s );
 	}
 
+	public void setArgs( String[] xargs ) {
+		args.clear();
+		for( String arg : xargs )
+			args.add( arg );
+	}
+	
+	public void setParam( CommandVar var , String value ) {
+		if( value.isEmpty() ) {
+			params.remove( var.varName );
+			return;
+		}
+		
+		params.put( var.varName , value );
+	}
+	
+	public void setFlag( CommandVar var , boolean value ) {
+		flags.put( var.varName , ( value )? FLAG.YES : FLAG.NO );
+	}
+	
+	public void clearFlag( CommandVar var ) {
+		flags.remove( var.varName );
+	}
+
+	public void clearParam( CommandVar var ) {
+		params.remove( var.varName );
+	}
+
+	public void clear() {
+		params.clear();
+		flags.clear();
+		enums.clear();
+		args.clear();
+		optionsSet.clear();
+	}
+
+	public void set( ActionData src ) {
+		clear();
+		
+		params.putAll( src.params );
+		flags.putAll( src.flags );
+		enums.putAll( src.enums );
+		args.addAll( src.args );
+		optionsSet.addAll( src.optionsSet );
+	}
+	
 }
