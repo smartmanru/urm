@@ -37,6 +37,7 @@ public class CommandContext {
 	public ServerCommandCall call;
 	public String stream;
 	public String streamLog;
+	int logLevelLimit;
 	
 	public Account account;
 	public String userHome;
@@ -120,11 +121,24 @@ public class CommandContext {
 		this.stream = stream;
 		this.call = call;
 		
-		setStreamLog();
+		this.logLevelLimit = 0;
 	}
 
-	private void setStreamLog() {
+	private void setStreamLog( ActionBase action ) {
 		streamLog = ( call != null )? "[" + stream + "," + call.sessionId + "]" : "[" + stream + "]";
+		
+		logLevelLimit = CommandOutput.LOGLEVEL_INFO;
+		if( CTX_TRACE ) {
+			if( CTX_TRACEINTERNAL )
+				logLevelLimit = CommandOutput.LOGLEVEL_INTERNAL;
+			else
+				logLevelLimit = CommandOutput.LOGLEVEL_TRACE;
+		}
+		else
+		if( CTX_SHOWALL )
+			logLevelLimit = CommandOutput.LOGLEVEL_DEBUG;
+		
+		action.setLogLevel( logLevelLimit );
 	}
 	
 	public CommandContext( CommandContext context , String stream ) {
@@ -147,6 +161,7 @@ public class CommandContext {
 		this.account = context.account;
 		this.userHome = context.userHome;
 		this.buildMode = context.buildMode;
+		this.logLevelLimit = context.logLevelLimit;
 
 		// generic
 		this.CTX_TRACEINTERNAL = context.CTX_TRACEINTERNAL;
@@ -216,8 +231,6 @@ public class CommandContext {
 		this.CTX_OLDRELEASE = context.CTX_OLDRELEASE;
 		this.CTX_PORT = context.CTX_PORT;
 		this.CTX_HOST = context.CTX_HOST;
-		
-		setStreamLog();
 	}
 
 	public void update( ActionBase action ) throws Exception {
@@ -304,20 +317,7 @@ public class CommandContext {
 		CTX_PORT = getIntParamValue( action , "OPT_PORT" , -1 );
 		CTX_HOST = getParamValue( action , "OPT_HOST" );
 		
-		action.setTimeout( CTX_COMMANDTIMEOUT );
-		
-		int logLevelLimit = CommandOutput.LOGLEVEL_INFO;
-		if( CTX_TRACE ) {
-			if( CTX_TRACEINTERNAL )
-				logLevelLimit = CommandOutput.LOGLEVEL_INTERNAL;
-			else
-				logLevelLimit = CommandOutput.LOGLEVEL_TRACE;
-		}
-		else
-		if( CTX_SHOWALL )
-			logLevelLimit = CommandOutput.LOGLEVEL_DEBUG;
-		
-		action.setLogLevel( logLevelLimit );
+		setStreamLog( action );
 	}
 
 	public void loadEnv( ActionBase action , boolean loadProps ) throws Exception {

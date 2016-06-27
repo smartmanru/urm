@@ -183,6 +183,7 @@ public class ServerEngine {
 		
 		Metadata meta = new Metadata();
 		ActionInit action = executor.prepare( context , meta , options.action );
+		
 		return( action );
 	}
 	

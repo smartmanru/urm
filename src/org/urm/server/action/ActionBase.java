@@ -439,7 +439,7 @@ abstract public class ActionBase {
     }
 
 	public void setLogLevel( int logLevelLimit ) {
-		output.setLogLevel( logLevelLimit );
+		output.setLogLevel( this , logLevelLimit );
 	}
     
 	public int setTimeout( int timeout ) {

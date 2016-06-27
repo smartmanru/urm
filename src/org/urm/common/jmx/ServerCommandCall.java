@@ -40,5 +40,9 @@ public class ServerCommandCall implements Runnable {
     	command.notifyStop( sessionId );
     	controller.threadStopped( this );
     }
+
+    public void addLog( String message ) {
+    	command.notifyLog( sessionId , message );
+    }
     
 }

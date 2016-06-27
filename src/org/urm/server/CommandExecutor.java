@@ -80,6 +80,7 @@ public abstract class CommandExecutor {
 		
 		// create shell pool
 		context.createPool( action );
+		action.setTimeout( context.CTX_COMMANDTIMEOUT );
 		
 		// create work folder
 		action.createWorkFolder();
