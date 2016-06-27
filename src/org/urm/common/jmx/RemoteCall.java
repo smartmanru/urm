@@ -12,11 +12,11 @@ import org.urm.common.RunContext;
 import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
-import org.urm.server.action.ActionBase;
 
 public class RemoteCall implements NotificationListener {
 
 	public static String GENERIC_ACTION_NAME = "execute";
+	public static int DEFAULT_SERVER_PORT = 8800;
 	
 	public String URL;
 	JMXConnector jmxc = null;
@@ -55,7 +55,11 @@ public class RemoteCall implements NotificationListener {
 	}
 	
 	public boolean serverConnect( RunContext execrc ) {
-		URL = "service:jmx:jmxmp://" + execrc.serverHostPort;
+		return( serverConnect( execrc.serverHostPort ) );
+	}
+	
+	public boolean serverConnect( String serverHostPort ) {
+		URL = "service:jmx:jmxmp://" + serverHostPort;
 		
 		try {
 			JMXServiceURL url = new JMXServiceURL( URL );
@@ -70,7 +74,7 @@ public class RemoteCall implements NotificationListener {
 		return( true );
 	}
 
-	public String serverCall( ActionBase action , String method ) throws Exception {
+	public String serverCall( String method ) throws Exception {
 		String name = getServerMBeanName();
 		try {
 			ObjectName mbeanName = new ObjectName( name );

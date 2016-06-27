@@ -32,20 +32,27 @@ public class ActionServer extends ActionBase {
 		server.start();
 	}
 	
+	private boolean serverConnect( RemoteCall call ) {
+		String host = ( context.CTX_HOST.isEmpty() )? "localhost" : context.CTX_HOST;
+		int port = ( context.CTX_PORT > 0 )? context.CTX_PORT : RemoteCall.DEFAULT_SERVER_PORT;
+		String serverHostPort = host + ":" + port;
+		return( call.serverConnect( serverHostPort ) );	
+	}
+	
 	private void executeServerStop() throws Exception {
 		info( "stopping server ..." );
 		RemoteCall call = new RemoteCall();
-		if( !call.serverConnect( context.execrc ) )
+		if( !serverConnect( call ) )
 			info( "server is already stopped (url=" + call.URL + ")" );
 		else {
-			String status = call.serverCall( this , "status" );
+			String status = call.serverCall( "status" );
 			if( !status.equals( "running" ) ) {
 				call.serverDisconnect();
 				exit( "server is in unknown state (url=" + call.URL + ")" );
 				return;
 			}
 			
-			status = call.serverCall( this , "stop" );
+			status = call.serverCall( "stop" );
 			call.serverDisconnect();
 			if( !status.equals( "ok" ) )
 				exit( "unable to stop server: " + status + " (url=" + call.URL + ")" );
@@ -57,10 +64,10 @@ public class ActionServer extends ActionBase {
 	private void executeServerStatus() throws Exception {
 		info( "check server status ..." );
 		RemoteCall call = new RemoteCall();
-		if( !call.serverConnect( context.execrc ) )
+		if( !serverConnect( call ) )
 			info( "server is stopped (url=" + call.URL + ")" );
 		else {
-			String status = call.serverCall( this , "status" );
+			String status = call.serverCall( "status" );
 			if( !status.equals( "running" ) )
 				info( "server is in unknown state  (url=" + call.URL + ")" );
 			else

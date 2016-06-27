@@ -29,8 +29,6 @@ import com.sun.jdmk.comm.HtmlAdaptorServer;
 
 public class ServerMBean implements DynamicMBean {
 
-	public static int DEFAULT_SERVER_PORT = 8800;
-	
 	ActionBase action;
 	MainServer server;
 	
@@ -48,7 +46,7 @@ public class ServerMBean implements DynamicMBean {
 	public void start() throws Exception {
 		int port = action.context.CTX_PORT;
 		if( port <= 0 )
-			port = DEFAULT_SERVER_PORT;
+			port = RemoteCall.DEFAULT_SERVER_PORT;
 		
 		// add mbeans
 		mbs = MBeanServerFactory.createMBeanServer();
