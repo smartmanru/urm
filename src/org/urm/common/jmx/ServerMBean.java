@@ -35,12 +35,12 @@ public class ServerMBean implements DynamicMBean {
 	private MBeanServer mbs = null;
 	private MBeanInfo mbean = null;
 	JMXConnectorServer jmxConnector;
-	Map<String,ServerCommandThread> threads;
+	Map<String,ServerCommandCall> threads;
 	
 	public ServerMBean( ActionBase action , MainServer server ) {
 		this.action = action;
 		this.server = server;
-		threads = new HashMap<String,ServerCommandThread>();
+		threads = new HashMap<String,ServerCommandCall>();
 	}
 	
 	public void start() throws Exception {
@@ -141,12 +141,12 @@ public class ServerMBean implements DynamicMBean {
 		}
 	}
 
-	public synchronized void threadStarted( ServerCommandThread thread ) {
+	public synchronized void threadStarted( ServerCommandCall thread ) {
 		threads.put( "" + thread.sessionId , thread );
 		action.debug( "thread started: " + thread.sessionId );
 	}
 
-	public synchronized void threadStopped( ServerCommandThread thread ) {
+	public synchronized void threadStopped( ServerCommandCall thread ) {
 		threads.remove( "" + thread.sessionId );
 		action.debug( "thread stopped: " + thread.sessionId );
 	}

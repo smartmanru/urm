@@ -7,6 +7,7 @@ import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethod;
 import org.urm.common.action.CommandOptions;
+import org.urm.common.jmx.ServerCommandCall;
 import org.urm.common.meta.BuildCommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
 import org.urm.common.meta.DeployCommandMeta;
@@ -58,7 +59,7 @@ public class ServerEngine {
 		serverSession.setServerLayout( builder.options );
 
 		// create server action
-		serverAction = createAction( builder , builder.options , executor , serverSession , "server" , 0 );
+		serverAction = createAction( builder , builder.options , executor , serverSession , "server" , null );
 		if( serverAction == null )
 			return( false );
 
@@ -76,7 +77,7 @@ public class ServerEngine {
 		else
 			session.setServerProductLayout( clientrc.productDir );
 		
-		serverAction = createAction( builder , options , executor , session , "client" , 0 );
+		serverAction = createAction( builder , options , executor , session , "client" , null );
 		if( serverAction == null )
 			return( false );
 		
@@ -84,11 +85,11 @@ public class ServerEngine {
 		return( runServerAction( session , executor ) );
 	}
 		
-	public boolean runClientRemote( int sessionId , CommandMeta command , CommandMethod method , ActionData data ) throws Exception {
+	public boolean runClientRemote( ServerCommandCall call , CommandMethod method , ActionData data ) throws Exception {
 		CommandBuilder builder = new CommandBuilder( data.clientrc , execrc );
 		
 		CommandOptions options = new CommandOptions( serverAction.context.options.meta );
-		options.setAction( command.name , method , data);
+		options.setAction( call.command.meta.name , method , data );
 		
 		CommandMeta commandInfo = builder.createMeta( options.command );
 		if( commandInfo == null )
@@ -98,10 +99,10 @@ public class ServerEngine {
 		SessionContext session = new SessionContext( data.clientrc );
 		session.setServerClientLayout( serverSession );
 		
-		ActionInit action = createAction( builder , options , executor , session , "remote-" + data.clientrc.productDir , sessionId );
+		ActionInit action = createAction( builder , options , executor , session , "remote-" + data.clientrc.productDir , call );
 		if( action == null )
 			return( false );
-		
+
 		action.meta.loadProduct( action );
 		return( runClientAction( session , executor , action ) );
 	}
@@ -171,9 +172,9 @@ public class ServerEngine {
 		return( executor );
 	}
 
-	public ActionInit createAction( CommandBuilder builder , CommandOptions options , CommandExecutor executor , SessionContext session , String stream , int sessionId ) throws Exception {
+	public ActionInit createAction( CommandBuilder builder , CommandOptions options , CommandExecutor executor , SessionContext session , String stream , ServerCommandCall call ) throws Exception {
 		// create context
-		CommandContext context = new CommandContext( session.clientrc , execrc , options , session , stream , sessionId );
+		CommandContext context = new CommandContext( session.clientrc , execrc , options , session , stream , call );
 		if( !context.setRunContext() )
 			return( null );
 		

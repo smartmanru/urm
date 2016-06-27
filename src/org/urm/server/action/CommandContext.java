@@ -10,6 +10,7 @@ import org.urm.common.action.CommandOptions;
 import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.common.action.CommandOptions.SQLTYPE;
 import org.urm.common.action.CommandVar.FLAG;
+import org.urm.common.jmx.ServerCommandCall;
 import org.urm.server.CommandExecutor;
 import org.urm.server.SessionContext;
 import org.urm.server.meta.MetaEnv;
@@ -33,9 +34,9 @@ public class CommandContext {
 	
 	public ShellExecutorPool pool;
 
+	public ServerCommandCall call;
 	public String stream;
 	public String streamLog;
-	public int sessionId;
 	
 	public Account account;
 	public String userHome;
@@ -110,20 +111,20 @@ public class CommandContext {
 	public String CTX_HOST = "";
 	public int CTX_PORT = -1;
 
-	public CommandContext( RunContext clientrc , RunContext execrc , CommandOptions options , SessionContext session , String stream , int sessionId ) {
+	public CommandContext( RunContext clientrc , RunContext execrc , CommandOptions options , SessionContext session , String stream , ServerCommandCall call ) {
 		this.clientrc = clientrc;
 		this.execrc = execrc;
 		this.options = options;
 		this.session = session;
 		
 		this.stream = stream;
-		this.sessionId = sessionId;
+		this.call = call;
 		
 		setStreamLog();
 	}
 
 	private void setStreamLog() {
-		streamLog = ( sessionId > 0 )? "[" + stream + "," + sessionId + "]" : "[" + stream + "]";
+		streamLog = ( call != null )? "[" + stream + "," + call.sessionId + "]" : "[" + stream + "]";
 	}
 	
 	public CommandContext( CommandContext context , String stream ) {
@@ -142,7 +143,7 @@ public class CommandContext {
 		this.dc = context.dc;
 		this.pool = context.pool;
 
-		this.sessionId = context.sessionId;
+		this.call = context.call;
 		this.account = context.account;
 		this.userHome = context.userHome;
 		this.buildMode = context.buildMode;

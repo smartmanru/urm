@@ -57,7 +57,7 @@ public class ActionServer extends ActionBase {
 			if( !status.equals( "ok" ) )
 				exit( "unable to stop server: " + status + " (url=" + call.URL + ")" );
 			
-			info( "server is successfull stopped" );
+			info( "server is successfully stopped" );
 		}
 	}
 	
