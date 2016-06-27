@@ -121,12 +121,15 @@ public class CommandContext {
 		this.stream = stream;
 		this.call = call;
 		
-		this.logLevelLimit = 0;
+		this.logLevelLimit = CommandOutput.LOGLEVEL_ERROR;
+		setLogStream();
 	}
 
-	private void setStreamLog( ActionBase action ) {
+	private void setLogStream() {
 		streamLog = ( call != null )? "[" + stream + "," + call.sessionId + "]" : "[" + stream + "]";
-		
+	}
+	
+	private void setLogLevel( ActionBase action ) {
 		logLevelLimit = CommandOutput.LOGLEVEL_INFO;
 		if( CTX_TRACE ) {
 			if( CTX_TRACEINTERNAL )
@@ -231,6 +234,8 @@ public class CommandContext {
 		this.CTX_OLDRELEASE = context.CTX_OLDRELEASE;
 		this.CTX_PORT = context.CTX_PORT;
 		this.CTX_HOST = context.CTX_HOST;
+		
+		setLogStream();
 	}
 
 	public void update( ActionBase action ) throws Exception {
@@ -317,7 +322,8 @@ public class CommandContext {
 		CTX_PORT = getIntParamValue( action , "OPT_PORT" , -1 );
 		CTX_HOST = getParamValue( action , "OPT_HOST" );
 		
-		setStreamLog( action );
+		setLogStream();
+		setLogLevel( action );
 	}
 
 	public void loadEnv( ActionBase action , boolean loadProps ) throws Exception {
