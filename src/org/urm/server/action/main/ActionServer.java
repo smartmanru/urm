@@ -43,7 +43,7 @@ public class ActionServer extends ActionBase {
 		info( "stopping server ..." );
 		RemoteCall call = new RemoteCall();
 		if( !serverConnect( call ) )
-			info( "server is already stopped (url=" + call.URL + ")" );
+			info( "server is not running on url=" + call.URL );
 		else {
 			String status = call.serverCall( "status" );
 			if( !status.equals( "running" ) ) {
@@ -65,7 +65,7 @@ public class ActionServer extends ActionBase {
 		info( "check server status ..." );
 		RemoteCall call = new RemoteCall();
 		if( !serverConnect( call ) )
-			info( "server is stopped (url=" + call.URL + ")" );
+			info( "server not running on url=" + call.URL );
 		else {
 			String status = call.serverCall( "status" );
 			if( !status.equals( "running" ) )
