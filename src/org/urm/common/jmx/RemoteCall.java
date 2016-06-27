@@ -97,7 +97,7 @@ public class RemoteCall implements NotificationListener {
 			mbeanName = new ObjectName( name );
 			RemoteCallFilter filter = new RemoteCallFilter( clientId );
 			
-			mbsc.addNotificationListener( mbeanName , this , filter , null );
+			mbsc.addNotificationListener( mbeanName , this , filter , clientId );
 			sessionId = mbsc.invoke( mbeanName , GENERIC_ACTION_NAME , 
 					new Object[] { builder.options.action , builder.options.data , clientId } , 
 					new String[] { String.class.getName() , ActionData.class.getName() , String.class.getName() } );
