@@ -69,11 +69,11 @@ public class CommandOutput {
 		
 		if( ee != null ) {
 			s += "exception: " + ee.getMessage();
-			s += ", exiting " + context.streamLog;
+			s += ", exiting ";
 		}
 		else {
 			s += "exception: " + e.getMessage();
-			s += ", exiting " + context.streamLog;
+			s += ", exiting ";
 		}
 		error( context , s );
 
