@@ -1,16 +1,30 @@
 package org.urm.server.shell;
 
 import org.urm.common.Common;
+import org.urm.common.RunContext;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.action.ActionBase;
 
 public class Account {
 
-	public boolean local;
+	public boolean local = false;
+	public boolean current = false;
+	
 	public String HOSTLOGIN;
 	public String USER;
 	public String HOST;
 	public VarOSTYPE osType;
+
+	public Account( RunContext execrc ) {
+		local = true;
+		current = true;
+		
+		HOSTLOGIN = "local";
+		USER = "current";
+		HOST = "localhost";
+		
+		osType = execrc.osType;
+	}
 	
 	private Account( String user , String host , boolean local , VarOSTYPE osType ) {
 		this.USER = user;

@@ -19,7 +19,7 @@ public class NexusStorage {
 		this.artefactory = artefactory;
 		this.artefactoryFolder = artefactoryFolder;
 		this.repository = repository;
-		this.meta = artefactoryFolder.meta;
+		this.meta = artefactory.meta;
 	}
 
 	public NexusDownloadInfo downloadNexus( ActionBase action , String GROUPID , String ARTEFACTID , String VERSION , String PACKAGING , String CLASSIFIER , MetaDistrBinaryItem item ) throws Exception {

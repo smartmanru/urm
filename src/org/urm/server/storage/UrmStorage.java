@@ -95,7 +95,7 @@ public class UrmStorage {
 	}
 
 	public LocalFolder getInstallFolder( ActionBase action ) throws Exception {
-		return( artefactory.getAnyFolder( action , action.context.execrc.installPath ) );
+		return( artefactory.getAnyFolder( action , action.context.session.execrc.installPath ) );
 	}
 
 	public LocalFolder getServerProductsFolder( ActionBase action ) throws Exception {

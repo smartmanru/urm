@@ -22,7 +22,7 @@ public class MainServer {
 	}
 	
 	public void start() throws Exception {
-		CommandBuilder builder = new CommandBuilder( action.context.clientrc , action.context.execrc );
+		CommandBuilder builder = new CommandBuilder( action.context.session.clientrc , action.context.session.execrc );
 		executors = builder.getExecutors( true , true );
 		controller.start();
 		

@@ -52,7 +52,7 @@ public class ServerStorage {
 	
 	public RemoteFolder getRedistTmpFolder( ActionBase action ) throws Exception {
 		String path = Common.getPath( action.context.CTX_REDISTPATH , "tmp" );
-		RemoteFolder rf = new RemoteFolder( artefactory , account , path );
+		RemoteFolder rf = new RemoteFolder( account , path );
 		return( rf );
 	}
 	
@@ -64,20 +64,20 @@ public class ServerStorage {
 	public RemoteFolder getRedistLocationFolder( ActionBase action , String RELEASEDIR , String LOCATION , VarCONTENTTYPE CONTENTTYPE , boolean rollout ) throws Exception {
 		String path = getPathRedistReleaseRoot( action , RELEASEDIR , CONTENTTYPE , rollout );
 		path = Common.getPath( path , LOCATION );
-		RemoteFolder rf = new RemoteFolder( artefactory , account , path );
+		RemoteFolder rf = new RemoteFolder( account , path );
 		return( rf );
 	}
 
 	protected RemoteFolder getStateLocationFolder( ActionBase action , String LOCATION , VarCONTENTTYPE CONTENTTYPE ) throws Exception {
 		String path = getPathStateLocation( action , LOCATION , CONTENTTYPE );
-		RemoteFolder rf = new RemoteFolder( artefactory , account , path );
+		RemoteFolder rf = new RemoteFolder( account , path );
 		return( rf );
 	}
 	
 	public RemoteFolder getRedistHostRootFolder( ActionBase action ) throws Exception {
 		String path = ( action.context.env == null )? action.meta.product.CONFIG_REDISTPATH : action.context.env.REDISTPATH;
 		Account rootAccount = account.getRootAccount( action );
-		RemoteFolder rf = new RemoteFolder( artefactory , rootAccount , path );
+		RemoteFolder rf = new RemoteFolder( rootAccount , path );
 		return( rf );
 	}
 
@@ -142,13 +142,13 @@ public class ServerStorage {
 	protected RemoteFolder getRuntimeLocationFolder( ActionBase action , String LOCATION ) throws Exception {
 		checkRootDir( action , server.ROOTPATH );
 		String path = Common.getPath( server.ROOTPATH , LOCATION );
-		RemoteFolder rf = new RemoteFolder( artefactory , account , path );
+		RemoteFolder rf = new RemoteFolder( account , path );
 		return( rf );
 	}
 	
 	protected RemoteFolder getRedistFolder( ActionBase action ) throws Exception {
 		String path = getRedistFolderRootPath( action );
-		RemoteFolder rf = new RemoteFolder( artefactory , account , path );
+		RemoteFolder rf = new RemoteFolder( account , path );
 		return( rf );
 	}
 	

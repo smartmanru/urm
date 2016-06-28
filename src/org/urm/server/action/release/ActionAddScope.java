@@ -46,7 +46,7 @@ public class ActionAddScope extends ActionBase {
 	}
 
 	private boolean addAllProductSetElements( ActionScopeSet set ) throws Exception {
-		if( meta.isSourceCategory( this , set.CATEGORY ) )
+		if( meta.isSourceCategory( set.CATEGORY ) )
 			return( dist.addAllSource( this , set.pset ) );
 		return( dist.addAllCategory( this , set.CATEGORY ) );
 	}
@@ -58,7 +58,7 @@ public class ActionAddScope extends ActionBase {
 			return( dist.addDatabaseItem( this , target.dbDelivery ) );
 		if( target.CATEGORY == VarCATEGORY.MANUAL )
 			return( dist.addManualItem( this , target.manualItem ) );
-		if( meta.isSourceCategory( this , target.CATEGORY ) )
+		if( meta.isSourceCategory( target.CATEGORY ) )
 			return( dist.addProjectAllItems( this , target.sourceProject ) );
 
 		this.exitUnexpectedCategory( target.CATEGORY );

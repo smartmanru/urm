@@ -185,7 +185,7 @@ public class Release {
 		if( element == null )
 			return;
 		
-		if( meta.isSourceCategory( action , CATEGORY ) ) {
+		if( meta.isSourceCategory( CATEGORY ) ) {
 			Node[] sets = ConfReader.xmlGetChildren( element , "set" );
 			if( sets == null )
 				return;
@@ -230,7 +230,7 @@ public class Release {
 
 	private void registerSet( ActionBase action , ReleaseSet set ) throws Exception {
 		action.trace( "add set=" + set.NAME + ", category=" + Common.getEnumLower( set.CATEGORY ) );
-		if( meta.isSourceCategory( action , set.CATEGORY ) )
+		if( meta.isSourceCategory( set.CATEGORY ) )
 			sourceSetMap.put( set.NAME , set );
 		else
 			categorySetMap.put( set.CATEGORY , set );
@@ -247,7 +247,7 @@ public class Release {
 	
 	private void registerTarget( ActionBase action , ReleaseTarget target ) throws Exception {
 		action.trace( "add target=" + target.NAME );
-		if( meta.isSourceCategory( action , target.CATEGORY ) ) {
+		if( meta.isSourceCategory( target.CATEGORY ) ) {
 			for( ReleaseTargetItem item : target.getItems( action ).values() )
 				registerTargetItem( action , item );
 		}
@@ -532,7 +532,7 @@ public class Release {
 	}
 
 	private void unregisterTarget( ActionBase action , ReleaseTarget target ) throws Exception {
-		if( meta.isSourceCategory( action , target.CATEGORY ) ) {
+		if( meta.isSourceCategory( target.CATEGORY ) ) {
 			for( ReleaseTargetItem item : target.getItems( action ).values() )
 				unregisterTargetItem( action , item );
 		}
@@ -553,7 +553,7 @@ public class Release {
 		for( ReleaseTarget project : set.getTargets( action ).values() )
 			unregisterTarget( action , project );
 		
-		if( meta.isSourceCategory( action , set.CATEGORY ) )
+		if( meta.isSourceCategory( set.CATEGORY ) )
 			sourceSetMap.remove( set.NAME );
 		else
 			categorySetMap.remove( set.CATEGORY );

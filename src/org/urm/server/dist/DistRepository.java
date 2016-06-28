@@ -43,7 +43,7 @@ public class DistRepository {
 				account = Account.getAccount( action , action.meta.product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
 		}
 		
-		repo.repoFolder = new RemoteFolder( artefactory , account , distPath );
+		repo.repoFolder = new RemoteFolder( account , distPath );
 		ShellExecutor shell = action.getShell( account );
 		shell.tmpFolder.recreateThis( action );
 				

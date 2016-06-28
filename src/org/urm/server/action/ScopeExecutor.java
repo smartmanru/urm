@@ -655,7 +655,7 @@ public class ScopeExecutor {
 		List<ActionScopeTarget> list = new LinkedList<ActionScopeTarget>();
 		Map<String,ActionScopeTarget> map = new HashMap<String,ActionScopeTarget>();
 		
-		if( action.meta.isSourceCategory( action , set.CATEGORY ) ) {
+		if( action.meta.isSourceCategory( set.CATEGORY ) ) {
 			for( ActionScopeTarget target : targets )
 				map.put( target.sourceProject.PROJECT , target );
 			

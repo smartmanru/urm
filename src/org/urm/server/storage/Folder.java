@@ -6,14 +6,11 @@ import java.util.List;
 import org.urm.common.Common;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaDistrBinaryItem;
-import org.urm.server.meta.Metadata;
 import org.urm.server.meta.Metadata.VarARCHIVETYPE;
 import org.urm.server.shell.ShellExecutor;
 
 public abstract class Folder {
 
-	Artefactory artefactory;
-	public Metadata meta;
 	public String folderPath;
 	public String folderName;
 	public boolean remote;
@@ -22,10 +19,8 @@ public abstract class Folder {
 	public abstract ShellExecutor getSession( ActionBase action ) throws Exception; 
 	public abstract String readFile( ActionBase action , String subPath ) throws Exception;
 
-	protected Folder( Artefactory artefactory , String folderPath , boolean remote , boolean windows ) {
-		this.artefactory = artefactory;
+	protected Folder( String folderPath , boolean remote , boolean windows ) {
 		this.folderPath = folderPath;
-		this.meta = artefactory.meta;
 		this.remote = remote;
 		this.windows = windows;
 		

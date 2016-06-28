@@ -9,8 +9,8 @@ public class RemoteFolder extends Folder {
 	
 	public Account account;
 	
-	public RemoteFolder( Artefactory artefactory , Account account , String folderPath ) {
-		super( artefactory , folderPath , true , account.isWindows() );
+	public RemoteFolder( Account account , String folderPath ) {
+		super( folderPath , true , account.isWindows() );
 		this.account = account;
 	}
 
@@ -66,12 +66,12 @@ public class RemoteFolder extends Folder {
 	
 	public RemoteFolder getSubFolder( ActionBase action , String subFolder ) throws Exception {
 		String PATH = Common.getPath( folderPath , subFolder );
-		return( new RemoteFolder( artefactory , account , PATH ) );
+		return( new RemoteFolder( account , PATH ) );
 	}
 
 	public RemoteFolder getParentFolder( ActionBase action ) throws Exception {
 		String BASEDIR = Common.getDirName( folderPath );
-		return( new RemoteFolder( artefactory , account , BASEDIR ) );
+		return( new RemoteFolder( account , BASEDIR ) );
 	}
 	
 	public String copyFileToLocal( ActionBase action , LocalFolder localFolder , String file ) throws Exception {

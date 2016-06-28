@@ -26,13 +26,13 @@ public class ShellExecutorPool {
 	
 	public ShellExecutorPool( ServerEngine engine ) {
 		this.engine = engine;
+		rootPath = engine.execrc.userHome;
+		account = new Account( engine.execrc );
 	}
 	
 	public void start( ActionBase action ) throws Exception {
-		rootPath = action.context.execrc.userHome;
 		String tmpPath = Common.getPath( rootPath , "tmp" );
-		tmpFolder = new LocalFolder( action.artefactory , tmpPath );
-		account = action.context.account;
+		tmpFolder = new LocalFolder( tmpPath , action.isWindows() );
 		master = createDedicatedLocalShell( action , "master" );
 		tmpFolder.ensureExists( action );
 	}

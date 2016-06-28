@@ -16,6 +16,7 @@ import org.urm.common.meta.ReleaseCommandMeta;
 import org.urm.common.meta.XDocCommandMeta;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionInit;
+import org.urm.server.action.CommandAction;
 import org.urm.server.action.CommandContext;
 import org.urm.server.action.build.BuildCommandExecutor;
 import org.urm.server.action.database.DatabaseCommandExecutor;
@@ -26,6 +27,7 @@ import org.urm.server.action.release.ReleaseCommandExecutor;
 import org.urm.server.action.xdoc.XDocCommandExecutor;
 import org.urm.server.meta.Metadata;
 import org.urm.server.shell.ShellExecutorPool;
+import org.urm.server.storage.Artefactory;
 import org.urm.server.storage.LocalFolder;
 
 public class ServerEngine {
@@ -64,30 +66,32 @@ public class ServerEngine {
 		serverSession.setServerLayout( builder.options );
 
 		// create server action
-		serverAction = createAction( builder , builder.options , executor , serverSession , "server" , null );
+		serverAction = createAction( builder.options , executor , serverSession , "server" , null );
 		if( serverAction == null )
 			return( false );
 
 		// run server action
+		startAction( serverAction );
 		return( runServerAction( serverSession , executor ) );
 	}
 	
 	public boolean runClientMode( CommandBuilder builder , CommandOptions options , RunContext clientrc , CommandMeta commandInfo ) throws Exception {
 		execrc = clientrc;
 		CommandExecutor executor = createExecutor( commandInfo );
-		SessionContext session = new SessionContext( clientrc , execrc );
+		serverSession = new SessionContext( clientrc , execrc );
 		
 		if( clientrc.productDir.isEmpty() )
-			session.setStandaloneLayout( options );
+			serverSession.setStandaloneLayout( options );
 		else
-			session.setServerProductLayout( clientrc.productDir );
+			serverSession.setServerProductLayout( clientrc.productDir );
 		
-		serverAction = createAction( builder , options , executor , session , "client" , null );
+		serverAction = createAction( options , executor , serverSession , "client" , null );
 		if( serverAction == null )
 			return( false );
 		
+		startAction( serverAction );
 		serverAction.meta.loadProduct( serverAction );
-		return( runServerAction( session , executor ) );
+		return( runServerAction( serverSession , executor ) );
 	}
 		
 	public boolean runClientRemote( ServerCommandCall call , CommandMethod method , ActionData data ) throws Exception {
@@ -104,11 +108,10 @@ public class ServerEngine {
 		SessionContext session = new SessionContext( data.clientrc , execrc );
 		session.setServerClientLayout( serverSession );
 		
-		ActionInit action = createAction( builder , options , executor , session , "remote-" + data.clientrc.productDir , call );
+		ActionInit action = createAction( options , executor , session , "remote-" + data.clientrc.productDir , call );
 		if( action == null )
 			return( false );
 
-		action.meta.loadProduct( action );
 		return( runClientAction( session , executor , action ) );
 	}
 
@@ -117,16 +120,17 @@ public class ServerEngine {
 		SessionContext session = new SessionContext( execrc , execrc );
 		session.setServerProductLayout( productDir );
 		
-		CommandBuilder builder = new CommandBuilder( execrc , execrc );
-		ActionInit action = createAction( builder , options , executor , session , "jmx-" + execrc.productDir , null );
+		ActionInit action = createAction( options , executor , session , "jmx-" + execrc.productDir , null );
 		if( action == null )
 			return( false );
 
-		action.meta.loadProduct( action );
 		return( runClientAction( session , executor , action ) );
 	}
 	
 	private boolean runClientAction( SessionContext session , CommandExecutor executor , ActionInit clientAction ) throws Exception {
+		startAction( clientAction );
+		clientAction.meta.loadProduct( clientAction );
+		
 		// execute
 		try {
 			executor.run( clientAction );
@@ -142,7 +146,7 @@ public class ServerEngine {
 		else
 			clientAction.commentExecutor( "COMMAND FAILED" );
 			
-		executor.finish( clientAction );
+		finishAction( clientAction );
 
 		return( res );
 	}
@@ -164,7 +168,7 @@ public class ServerEngine {
 		else
 			serverAction.commentExecutor( "COMMAND FAILED" );
 			
-		executor.finish( serverAction );
+		finishAction( serverAction );
 		stopPool();
 
 		return( res );
@@ -191,17 +195,23 @@ public class ServerEngine {
 		return( executor );
 	}
 
-	public ActionInit createAction( CommandBuilder builder , CommandOptions options , CommandExecutor executor , SessionContext session , String stream , ServerCommandCall call ) throws Exception {
+	public ActionInit createAction( CommandOptions options , CommandExecutor executor , SessionContext session , String stream , ServerCommandCall call ) throws Exception {
+		CommandAction commandAction = executor.getAction( options.action );
+		if( !options.checkValidOptions( commandAction.method ) )
+			return( null );
+		
 		// create context
 		CommandContext context = new CommandContext( this , options , session , stream , call );
 		if( !context.setRunContext() )
 			return( null );
+
+		// create artefactory
+		context.update();
+		Artefactory artefactory = createArtefactory( session , context );
 		
-		if( !context.setAction( builder , executor ) )
-			return( null );
-		
+		// create action
 		Metadata meta = new Metadata();
-		ActionInit action = executor.prepare( context , meta , options.action );
+		ActionInit action = executor.createAction( artefactory , context , meta , options.action );
 		
 		return( action );
 	}
@@ -223,4 +233,45 @@ public class ServerEngine {
 		pool.stop( serverAction );
 	}
 	
+	public void startAction( ActionBase action ) throws Exception {
+		// create work folder
+		LocalFolder folder = action.artefactory.getWorkFolder( action );
+		folder.recreateThis( action );
+		
+		action.tee();
+		
+		// print
+		if( action.context.CTX_SHOWALL ) {
+			String info = action.context.options.getRunningOptions();
+			action.commentExecutor( info );
+		}
+	}
+	
+	public void finishAction( ActionBase action ) throws Exception {
+		action.stopAllOutputs();
+		
+		if( action.context.session.isFailed() || action.context.CTX_SHOWALL )
+			action.info( "saved work directory: " + action.artefactory.workFolder.folderPath );
+		else
+			action.artefactory.workFolder.removeThis( action );
+	}
+
+	private Artefactory createArtefactory( SessionContext session , CommandContext context ) throws Exception {
+		String dirname;
+		
+		if( !context.CTX_WORKPATH.isEmpty() ) {
+			dirname = context.CTX_WORKPATH;
+		}
+		else {
+			if( context.meta.product != null && context.meta.product.CONFIG_WORKPATH.isEmpty() == false )
+				dirname = context.meta.product.CONFIG_WORKPATH;
+			else
+				dirname = session.execrc.userHome;
+		}
+		
+		LocalFolder folder = new LocalFolder( dirname , execrc.isWindows() );
+		Artefactory artefactory = new Artefactory( context.meta , folder );
+		return( artefactory );
+	}
+
 }

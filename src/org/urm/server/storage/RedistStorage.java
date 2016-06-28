@@ -37,7 +37,7 @@ public class RedistStorage extends ServerStorage {
 		RemoteFolder tmpDir = getRedistTmpFolder( action );
 		
 		String F_CONFIGTARFILE = "config.tar";
-		RemoteFolder runtimeDir = new RemoteFolder( artefactory , action.getNodeAccount( node ) , F_RUNTIMEDIR );
+		RemoteFolder runtimeDir = new RemoteFolder( action.getNodeAccount( node ) , F_RUNTIMEDIR );
 		
 		try {
 			runtimeDir.createTarFromContent( action , tmpDir.getFilePath( action , F_CONFIGTARFILE ) , F_FILES , "" );

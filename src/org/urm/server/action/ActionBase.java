@@ -59,14 +59,14 @@ abstract public class ActionBase {
 	protected void runBefore( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
 	protected void runAfter( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
 	
-	public ActionBase( CommandExecutor executor , CommandContext context , CommandOutput output , Metadata meta ) {
+	public ActionBase( Artefactory artefactory , CommandExecutor executor , CommandContext context , CommandOutput output , Metadata meta ) {
 		this.engine = executor.engine;
 		this.executor = executor;
 		this.context = context;
 		this.output = output;
 		this.meta = meta;
+		this.artefactory = artefactory;
 		
-		this.artefactory = new Artefactory( meta , context );
 		this.actionFailed = false;
 		this.commandTimeout = 0;
 
@@ -81,24 +81,18 @@ abstract public class ActionBase {
 		this.output = base.output;
 		this.meta = base.meta;
 		this.custom = base.custom;
+		this.artefactory = base.artefactory;
 		
 		this.session = base.session;
 		this.commandTimeout = base.commandTimeout;
 		
-		artefactory = new Artefactory( base.artefactory );
 		context = new CommandContext( base.context , stream );
-		
-		actionFailed = false;
 		NAME = this.getClass().getSimpleName();
+		actionFailed = false;
 	}
 	
-	public void deleteWorkFolder() throws Exception {
-		artefactory.deleteWorkFolder( this );
-	}
-
 	public void setShell( ShellExecutor session ) throws Exception {
 		this.session = session;
-		this.artefactory.setShell( session );
 	}
 	
 	public boolean isFailed() {
@@ -350,10 +344,6 @@ abstract public class ActionBase {
 		startRedirect( title , fname );
 	}
 	
-	public void createWorkFolder() throws Exception {
-		artefactory.createWorkFolder( this );
-	}
-
 	public void checkRequired( String value , String var ) throws Exception {
 		if( value == null || value.isEmpty() )
 			exit( var + " is empty" );
@@ -386,7 +376,7 @@ abstract public class ActionBase {
 	}
 
 	public void setBuildMode( VarBUILDMODE value ) throws Exception {
-		context.setBuildMode( this , value );
+		context.setBuildMode( value );
 		meta.updateProduct( this );
 	}
 
@@ -503,7 +493,7 @@ abstract public class ActionBase {
 
 	public Folder getTmpFolder( String folder ) throws Exception {
 		if( session.account.local )
-			return( new LocalFolder( artefactory , getWorkFilePath( folder ) ) );
+			return( new LocalFolder( getWorkFilePath( folder ) , isWindows() ) );
 		RedistStorage redist = artefactory.getRedistStorage( this , session.account );
 		RemoteFolder rf = redist.getRedistTmpFolder( this );
 		return( rf.getSubFolder( this , folder ) );
@@ -528,27 +518,27 @@ abstract public class ActionBase {
 	
 	public String readFile( String path ) throws Exception {
     	trace( "read file path=" + path + " ..." );
-		return( ConfReader.readFile( context.execrc , path ) );
+		return( ConfReader.readFile( context.session.execrc , path ) );
 	}
 	
 	public Document readXmlFile( String path ) throws Exception {
     	trace( "read xml file path=" + path + " ..." );
-		return( ConfReader.readXmlFile( context.execrc , path ) );
+		return( ConfReader.readXmlFile( context.session.execrc , path ) );
 	}
 	
     public Properties readPropertyFile( String path ) throws Exception {
     	trace( "read property file path=" + path + " ..." );
-    	return( ConfReader.readPropertyFile( context.execrc , path ) );
+    	return( ConfReader.readPropertyFile( context.session.execrc , path ) );
     }
 
     public List<String> readFileLines( String path ) throws Exception {
     	trace( "read file lines path=" + path + " ..." );
-    	return( ConfReader.readFileLines( context.execrc , path ) );
+    	return( ConfReader.readFileLines( context.session.execrc , path ) );
     }
     
 	public List<String> readFileLines( String path , Charset charset ) throws Exception {
     	trace( "read file lines path=" + path + " ..." );
-		return( ConfReader.readFileLines( context.execrc , path , charset ) );
+		return( ConfReader.readFileLines( context.session.execrc , path , charset ) );
 	}
 
     public String getNameAttr( Node node , VarNAMETYPE nameType ) throws Exception {
@@ -556,7 +546,7 @@ abstract public class ActionBase {
     }
 
     public String readStringFile( String path ) throws Exception {
-    	return( ConfReader.readStringFile( context.execrc , path ) );
+    	return( ConfReader.readStringFile( context.session.execrc , path ) );
     }
     
 }

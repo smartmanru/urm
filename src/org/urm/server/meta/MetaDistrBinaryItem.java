@@ -47,8 +47,8 @@ public class MetaDistrBinaryItem {
 		KEY = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 	
 		// read attrs
-		DISTTYPE = meta.getItemDistType( action , ConfReader.getRequiredAttrValue( node , "type" ) );
-		DISTSOURCE = meta.getItemDistSource( action , ConfReader.getRequiredAttrValue( node , "source" ) );
+		DISTTYPE = meta.getItemDistType( ConfReader.getRequiredAttrValue( node , "type" ) );
+		DISTSOURCE = meta.getItemDistSource( ConfReader.getRequiredAttrValue( node , "source" ) );
 		if( DISTSOURCE == VarDISTITEMSOURCE.DISTITEM ) {
 			SRCDISTITEM = ConfReader.getAttrValue( node , "srcitem" );
 			SRCITEMPATH = ConfReader.getAttrValue( node , "srcpath" );
@@ -56,7 +56,7 @@ public class MetaDistrBinaryItem {
 		
 		DISTBASENAME = ConfReader.getAttrValue( node , "distname" , KEY );
 		DEPLOYBASENAME = ConfReader.getAttrValue( node , "deployname" , DISTBASENAME );
-		DEPLOYVERSION = meta.readItemVersionAttr( action , node , "deployversion" );
+		DEPLOYVERSION = meta.readItemVersionAttr( node , "deployversion" );
 		BUILDINFO = ConfReader.getAttrValue( node , "buildinfo" );
 
 		// binary item

@@ -17,6 +17,7 @@ import org.urm.server.action.CommandOutput;
 import org.urm.server.meta.Metadata;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
 import org.urm.server.meta.Metadata.VarCATEGORY;
+import org.urm.server.storage.Artefactory;
 
 public abstract class CommandExecutor {
 
@@ -41,14 +42,17 @@ public abstract class CommandExecutor {
 		action.setMethod( method );
 	}
 	
-	public CommandAction getAction( String action ) {
-		return( actionsMap.get( action ) ); 
+	public CommandAction getAction( String action ) throws Exception {
+		CommandAction commandAction = actionsMap.get( action ); 
+		if( commandAction == null )
+			throw new ExitException( "unknown action=" + action );
+		return( commandAction );
 	}
 
 	public boolean runMethod( ActionInit action , CommandAction method ) {
 		try {
 			action.debug( "execute " + method.getClass().getSimpleName() + " ..." );
-			action.context.logDebug( action );
+			action.debug( "context: " + action.context.getInfo() );
 			method.run( action );
 		}
 		catch( Throwable e ) {
@@ -69,36 +73,20 @@ public abstract class CommandExecutor {
 		return( true );
 	}
 	
-	public ActionInit prepare( CommandContext context , Metadata meta , String actionName ) throws Exception {
+	public ActionInit createAction( Artefactory artefactory , CommandContext context , Metadata meta , String actionName ) throws Exception {
 		// start local shell
 		CommandOutput output = new CommandOutput();
 		CommandAction commandAction = actionsMap.get( actionName );
-		ActionInit action = new ActionInit( this , context , output , meta , commandAction , actionName );
+		ActionInit action = new ActionInit( artefactory , this , context , output , meta , commandAction , actionName );
 		
 		// load initial properties
-		context.update( action );
+		action.setLogLevel( context.logLevelLimit );
 		
 		// create shell pool
 		action.setTimeout( context.CTX_COMMANDTIMEOUT );
-		
-		// create work folder
-		action.createWorkFolder();
-		action.tee();
-		
-		// print
-		if( context.CTX_SHOWALL ) {
-			String info = context.options.getRunningOptions();
-			action.commentExecutor( info );
-		}
-		
 		return( action );
 	}
-	
-	public void finish( ActionBase action ) throws Exception {
-		action.stopAllOutputs();
-		action.deleteWorkFolder();
-	}
-	
+		
 	public void checkRequired( ActionBase action , String value , String name ) throws Exception {
 		if( value == null || value.isEmpty() )
 			exit( action , name + " is undefined. Exiting" );
@@ -146,7 +134,7 @@ public abstract class CommandExecutor {
 		if( pos >= action.context.options.getArgCount() )
 			return( null );
 		
-		return( action.meta.getCategory( action , getArg( action , pos ) ) );
+		return( action.meta.getCategory( getArg( action , pos ) ) );
 	}
 	
 	public String getRequiredArg( ActionBase action , int pos , String argName ) throws Exception {

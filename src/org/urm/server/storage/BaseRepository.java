@@ -24,7 +24,7 @@ public class BaseRepository {
 	
 	public static BaseRepository getBaseRepository( ActionBase action , Artefactory artefactory ) throws Exception {
 		BaseRepository repo = new BaseRepository( artefactory ); 
-		repo.repoFolder = new RemoteFolder( artefactory , Account.getAccount( action , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.LINUX ) , repo.meta.product.CONFIG_BASE_PATH );
+		repo.repoFolder = new RemoteFolder( Account.getAccount( action , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.LINUX ) , repo.meta.product.CONFIG_BASE_PATH );
 		return( repo );
 	}
 

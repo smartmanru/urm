@@ -180,8 +180,8 @@ public class MetaEnvServer {
 			BASELINE = NAME;
 		
 		SERVERTYPE = properties.getSystemRequiredStringProperty( action , "type" );
-		serverType = action.meta.getServerType( action , SERVERTYPE );
-		osType = action.meta.getOSType( action , properties.getSystemStringProperty( action , "ostype" , "unix" ) );
+		serverType = action.meta.getServerType( SERVERTYPE );
+		osType = action.meta.getOSType( properties.getSystemStringProperty( action , "ostype" , "unix" ) );
 		OFFLINE = properties.getSystemBooleanProperty( action , "offline" , false );
 		XDOC = properties.getSystemPathProperty( action , "xdoc" , NAME );
 		
@@ -217,7 +217,7 @@ public class MetaEnvServer {
 		}
 		
 		if( isDatabase( action ) ) {
-			dbType = action.meta.getDbmsType( action , properties.getSystemRequiredStringProperty( action , "dbmstype" ) );
+			dbType = action.meta.getDbmsType( properties.getSystemRequiredStringProperty( action , "dbmstype" ) );
 			DBMSADDR = properties.getSystemRequiredStringProperty( action , "dbmsaddr" );
 			DATAGROUPS = properties.getSystemRequiredStringProperty( action , "datagroups" );
 			ALIGNED = properties.getSystemStringProperty( action , "aligned" , "" );

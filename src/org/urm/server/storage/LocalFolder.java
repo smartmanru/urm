@@ -8,8 +8,8 @@ import org.urm.server.shell.ShellExecutor;
 
 public class LocalFolder extends Folder {
 
-	public LocalFolder( Artefactory artefactory , String folderPath ) {
-		super( artefactory , folderPath , false , artefactory.context.account.isWindows() );
+	public LocalFolder( String folderPath , boolean windows ) {
+		super( folderPath , false , windows );
 	}
 
 	@Override public ShellExecutor getSession( ActionBase action ) throws Exception {
@@ -19,12 +19,12 @@ public class LocalFolder extends Folder {
 	public LocalFolder getSubFolder( ActionBase action , String folder ) throws Exception {
 		if( folder.isEmpty() || folder.equals( "/" ) )
 			return( this );
-		return( new LocalFolder( artefactory , folderPath + "/" + folder ) );
+		return( new LocalFolder( folderPath + "/" + folder , windows ) );
 	}
 	
 	public LocalFolder getParentFolder( ActionBase action ) throws Exception {
 		String BASEDIR = Common.getDirName( folderPath );
-		return( new LocalFolder( artefactory , BASEDIR ) );
+		return( new LocalFolder( BASEDIR , windows ) );
 	}
 	
 	public String readFile( ActionBase action , String FILENAME ) throws Exception {

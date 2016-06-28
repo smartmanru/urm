@@ -248,36 +248,36 @@ public class Metadata {
 		return( configurableExtensions );
 	}
 
-	public VarOSTYPE getOSType( ActionBase action , String ID ) throws Exception {
+	public VarOSTYPE getOSType( String ID ) throws Exception {
 		VarOSTYPE value = null;
 		try {
 			value = VarOSTYPE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			action.exit( "invalid operation system type=" + ID );
+			throw new ExitException( "invalid operation system type=" + ID );
 		}
 		
 		if( value == null )
-			action.exit( "missing operating system type" );
+			throw new ExitException( "missing operating system type" );
 		
 		return( value );
 	}
 	
-	public VarCATEGORY getCategory( ActionBase action , String ID ) throws Exception {
+	public VarCATEGORY getCategory( String ID ) throws Exception {
 		VarCATEGORY value = null;
 		try {
 			value = VarCATEGORY.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			action.exit( "invalid category=" + ID );
+			throw new ExitException( "invalid category=" + ID );
 		}
 		if( value == null )
-			action.exit( "missing category" );
+			throw new ExitException( "missing category" );
 		
 		return( value );
 	}
 	
-	public VarSERVERTYPE getServerType( ActionBase action , String ID ) throws Exception {
+	public VarSERVERTYPE getServerType( String ID ) throws Exception {
 		if( ID == null || ID.isEmpty() )
 			return( VarSERVERTYPE.UNKNOWN );
 		
@@ -286,13 +286,13 @@ public class Metadata {
 			value = VarSERVERTYPE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			action.exit( "invalid server type=" + ID );
+			throw new ExitException( "invalid server type=" + ID );
 		}
 		
 		return( value );
 	}
 	
-	public VarNODETYPE getNodeType( ActionBase action , String ID , VarNODETYPE defValue ) throws Exception {
+	public VarNODETYPE getNodeType( String ID , VarNODETYPE defValue ) throws Exception {
 		if( ID == null || ID.isEmpty() )
 			return( defValue );
 		
@@ -301,76 +301,76 @@ public class Metadata {
 			value = VarNODETYPE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			action.exit( "invalid node type=" + ID );
+			throw new ExitException( "invalid node type=" + ID );
 		}
 		
 		if( value == null )
-			action.exit( "missing server type" );
+			throw new ExitException( "missing server type" );
 		
 		return( value );
 	}
 	
-	public VarDEPLOYTYPE getDeployType( ActionBase action , String ID ) throws Exception {
+	public VarDEPLOYTYPE getDeployType( String ID ) throws Exception {
 		VarDEPLOYTYPE value = null;
 		try {
 			value = VarDEPLOYTYPE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			action.exit( "invalid deploytype=" + ID );
+			throw new ExitException( "invalid deploytype=" + ID );
 		}
 		
 		if( value == null )
-			action.exit( "unknown deploy type=" + ID );
+			throw new ExitException( "unknown deploy type=" + ID );
 		
 		return( value );
 	}
 	
-	public VarITEMSRCTYPE getItemSrcType( ActionBase action , String ID ) throws Exception {
+	public VarITEMSRCTYPE getItemSrcType( String ID ) throws Exception {
 		VarITEMSRCTYPE value = null;
 		try {
 			value = VarITEMSRCTYPE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			action.exit( "invalid source item type=" + ID );
+			throw new ExitException( "invalid source item type=" + ID );
 		}
 		
 		if( value == null )
-			action.exit( "unknown source item type=" + ID );
+			throw new ExitException( "unknown source item type=" + ID );
 		
 		return( value );
 	}
 	
-	public VarDISTITEMTYPE getItemDistType( ActionBase action , String ID ) throws Exception {
+	public VarDISTITEMTYPE getItemDistType( String ID ) throws Exception {
 		VarDISTITEMTYPE value = null;
 		try {
 			value = VarDISTITEMTYPE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			action.exit( "invalid distributive item type=" + ID );
+			throw new ExitException( "invalid distributive item type=" + ID );
 		}
 		
 		if( value == null )
-			action.exit( "unknown distributive item type=" + ID );
+			throw new ExitException( "unknown distributive item type=" + ID );
 		
 		return( value );
 	}
 	
-	public VarDISTITEMSOURCE getItemDistSource( ActionBase action , String ID ) throws Exception {
+	public VarDISTITEMSOURCE getItemDistSource( String ID ) throws Exception {
 		VarDISTITEMSOURCE value = null;
 		try {
 			value = VarDISTITEMSOURCE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			action.exit( "invalid distributive item source=" + ID );
+			throw new ExitException( "invalid distributive item source=" + ID );
 		}
 		
 		if( value == null )
-			action.exit( "unknown distributive item source=" + ID );
+			throw new ExitException( "unknown distributive item source=" + ID );
 		
 		return( value );
 	}
 	
-	public VarBUILDMODE getBuildMode( ActionBase action , String ID ) throws Exception {
+	public VarBUILDMODE getBuildMode( String ID ) throws Exception {
 		if( ID == null || ID.isEmpty() )
 			return( VarBUILDMODE.UNKNOWN );
 		
@@ -379,71 +379,71 @@ public class Metadata {
 			value = VarBUILDMODE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			action.exit( "invalid build mode=" + ID );
+			throw new ExitException( "invalid build mode=" + ID );
 		}
 		
 		if( value == null )
-			action.exit( "unknown build mode=" + ID );
+			throw new ExitException( "unknown build mode=" + ID );
 		
 		return( value );
 	}
 	
-	public VarDBMSTYPE getDbmsType( ActionBase action , String ID ) throws Exception {
+	public VarDBMSTYPE getDbmsType( String ID ) throws Exception {
 		VarDBMSTYPE value = null;		
 		
 		try {
 			value = VarDBMSTYPE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			action.exit( "invalid dbmstype=" + ID );
+			throw new ExitException( "invalid dbmstype=" + ID );
 		}
 		
 		if( value == null )
-			action.exit( "unknown DBMS type=" + ID );
+			throw new ExitException( "unknown DBMS type=" + ID );
 		
 		return( value );
 	}
 	
-	public VarCONFITEMTYPE getConfItemType( ActionBase action , String ID ) throws Exception {
+	public VarCONFITEMTYPE getConfItemType( String ID ) throws Exception {
 		VarCONFITEMTYPE value = null;		
 		
 		try {
 			value = VarCONFITEMTYPE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			action.exit( "invalid confitemtype=" + ID );
+			throw new ExitException( "invalid confitemtype=" + ID );
 		}
 		
 		if( value == null )
-			action.exit( "unknown configuration item type=" + ID );
+			throw new ExitException( "unknown configuration item type=" + ID );
 		
 		return( value );
 	}
 	
-	public VarCATEGORY readCategoryAttr( ActionBase action , Node node ) throws Exception {
+	public VarCATEGORY readCategoryAttr( Node node ) throws Exception {
 		String value = ConfReader.getRequiredAttrValue( node , "category" );
-		return( getCategory( action , value ) );
+		return( getCategory( value ) );
 	}
 	
-	public VarITEMVERSION readItemVersionAttr( ActionBase action , Node node , String attrName ) throws Exception {
+	public VarITEMVERSION readItemVersionAttr( Node node , String attrName ) throws Exception {
 		String ID = ConfReader.getAttrValue( node , attrName , "default" );
 		if( ID.equals( "default" ) )
 			return( VarITEMVERSION.PREFIX );
 		
 		VarITEMVERSION value = VarITEMVERSION.valueOf( ID.toUpperCase() );
 		if( value == null )
-			action.exit( "unknown version type=" + ID );
+			throw new ExitException( "unknown version type=" + ID );
 		
 		return( value );
 	}
 	
-	public boolean isSourceCategory( ActionBase action , VarCATEGORY value ) throws Exception {
+	public boolean isSourceCategory( VarCATEGORY value ) throws Exception {
 		if( value == VarCATEGORY.BUILD || value == VarCATEGORY.PREBUILT )
 			return( true );
 		return( false );
 	}
 	
-	public boolean isBuildableCategory( ActionBase action , VarCATEGORY value ) throws Exception {
+	public boolean isBuildableCategory( VarCATEGORY value ) throws Exception {
 		if( value == VarCATEGORY.BUILD )
 			return( true );
 		return( false );

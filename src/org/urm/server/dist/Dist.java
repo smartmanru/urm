@@ -532,7 +532,7 @@ public class Dist {
 		for( ReleaseTarget target : set.getTargets( action ).values() )
 			dropTarget( action , target );
 		
-		if( action.meta.isSourceCategory( action , set.CATEGORY ) )
+		if( action.meta.isSourceCategory( set.CATEGORY ) )
 			release.deleteSourceSet( action , set.set );
 		else
 			release.deleteCategorySet( action , set.CATEGORY );

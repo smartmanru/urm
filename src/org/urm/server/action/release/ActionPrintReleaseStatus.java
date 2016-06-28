@@ -99,7 +99,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		
 	private void printReleaseBuildSetProjectStatus( Dist dist , FileSet files , ReleaseSet set , ReleaseTarget project ) throws Exception {
 		String specifics = project.getSpecifics( this );
-		if( meta.isBuildableCategory( this , set.CATEGORY ) ) {
+		if( meta.isBuildableCategory( set.CATEGORY ) ) {
 			if( project.sourceProject.isEmpty( this ) ) {
 				info( "\tbuild project=" + project.sourceProject.PROJECT + " (internal)" + Common.getCommentIfAny( specifics ) );
 				return;

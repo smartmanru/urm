@@ -96,7 +96,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		if( CODIR.startsWith( "/" ) || CODIR.startsWith( "." ) || CODIR.startsWith( "$" ) || CODIR.startsWith( "~" ) )
 			return( CODIR );
 		
-		return( action.artefactory.getWorkPath( action , "default/" + CODIR , false ) );
+		return( action.artefactory.getWorkPath( action , "default/" + CODIR ) );
 	}
 	
 	// script interface

@@ -493,7 +493,7 @@ public class ActionScope {
 	}
 
 	private ActionScopeSet getScopeSet( ActionBase action , VarCATEGORY CATEGORY , String name ) throws Exception {
-		if( meta.isSourceCategory( action , CATEGORY ) )
+		if( meta.isSourceCategory( CATEGORY ) )
 			return( sourceMap.get( name ) );
 		if( CATEGORY == VarCATEGORY.ENV )
 			return( envMap.get( name ) );
@@ -644,7 +644,7 @@ public class ActionScope {
 	public ActionScopeSet[] getBuildableSets( ActionBase action ) throws Exception {
 		List<ActionScopeSet> x = new LinkedList<ActionScopeSet>();
 		for( ActionScopeSet set : sourceMap.values() ) {
-			if( meta.isBuildableCategory( action , set.CATEGORY ) && !set.isEmpty( action ) )
+			if( meta.isBuildableCategory( set.CATEGORY ) && !set.isEmpty( action ) )
 				x.add( set );
 		}
 		return( x.toArray( new ActionScopeSet[0] ) );
@@ -743,7 +743,7 @@ public class ActionScope {
 	private void addScopeSet( ActionBase action , ActionScopeSet sset ) throws Exception {
 		action.trace( "scope add set category=" + Common.getEnumLower( sset.CATEGORY ) + ", name=" + sset.NAME );
 		
-		if( meta.isSourceCategory( action , sset.CATEGORY ) )
+		if( meta.isSourceCategory( sset.CATEGORY ) )
 			sourceMap.put( sset.NAME , sset );
 		else
 		if( sset.CATEGORY == VarCATEGORY.ENV )
@@ -753,7 +753,7 @@ public class ActionScope {
 	}
 	
 	public ActionScopeSet findSet( ActionBase action , VarCATEGORY CATEGORY , String NAME ) throws Exception {
-		if( meta.isSourceCategory( action , CATEGORY ) )
+		if( meta.isSourceCategory( CATEGORY ) )
 			return( sourceMap.get( NAME ) );
 		if( CATEGORY == VarCATEGORY.ENV )
 			return( envMap.get( NAME ) );

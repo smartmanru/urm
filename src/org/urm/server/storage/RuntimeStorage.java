@@ -50,7 +50,7 @@ public class RuntimeStorage extends ServerStorage {
 		if( server.isService( action ) )
 			account = account.getRootAccount( action );
 		
-		RemoteFolder runtimeDir = new RemoteFolder( artefactory , account , F_RUNTIMEDIR );
+		RemoteFolder runtimeDir = new RemoteFolder( account , F_RUNTIMEDIR );
 		String confFullPath = remoteDir.getFilePath( action , F_CONFIGTARFILE );
 		shell.appendExecuteLog( action , "restore server system configuration (" + confFullPath + ")" + " to " + runtimeDir.folderPath );
 		
@@ -271,7 +271,7 @@ public class RuntimeStorage extends ServerStorage {
 		String installDir = Common.getDirName( installPath );
 		String installName = Common.getBaseName( installPath );
 		
-		RemoteFolder rf = new RemoteFolder( artefactory , account , installDir );
+		RemoteFolder rf = new RemoteFolder( account , installDir );
 		rf.removeFolder( action , installName );
 		
 		if( archiveType == VarARCHIVETYPE.TAR || archiveType == VarARCHIVETYPE.TARGZ )
@@ -307,7 +307,7 @@ public class RuntimeStorage extends ServerStorage {
 			action.exitUnexpectedState();
 		
 		if( server.osType == VarOSTYPE.LINUX ) {
-			RemoteFolder runtimeDir = new RemoteFolder( artefactory , action.getNodeAccount( node ) , servicePath );
+			RemoteFolder runtimeDir = new RemoteFolder( action.getNodeAccount( node ) , servicePath );
 			if( !runtimeDir.checkFileExists( action , "service" ) )
 				action.exit( "unable to find service file in " + runtimeDir.folderPath );
 
@@ -321,13 +321,13 @@ public class RuntimeStorage extends ServerStorage {
 	}
 
 	public void createRootPath( ActionBase action ) throws Exception {
-		RemoteFolder runtimeDir = new RemoteFolder( artefactory , action.getNodeAccount( node ) , server.ROOTPATH );
+		RemoteFolder runtimeDir = new RemoteFolder( action.getNodeAccount( node ) , server.ROOTPATH );
 		runtimeDir.ensureExists( action );
 	}
 	
 	public void createBinPath( ActionBase action ) throws Exception {
 		String path = Common.getPath( server.ROOTPATH , server.BINPATH );
-		RemoteFolder runtimeDir = new RemoteFolder( artefactory , action.getNodeAccount( node ) , path );
+		RemoteFolder runtimeDir = new RemoteFolder( action.getNodeAccount( node ) , path );
 		runtimeDir.ensureExists( action );
 	}
 	

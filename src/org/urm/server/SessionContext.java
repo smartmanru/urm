@@ -14,7 +14,9 @@ public class SessionContext {
 	public String DC;
 	public boolean executorFailed;
 
-	public boolean standalone = true;
+	public boolean product = false;
+	public boolean standalone = false;
+	
 	public String installPath = "";
 	public String masterPath = "";
 	public String productDir = "";
@@ -38,11 +40,13 @@ public class SessionContext {
 	}
 	
 	public void setServerLayout( CommandOptions options ) throws Exception {
+		standalone = false;
+		product = false;
+		
 		installPath = clientrc.installPath;
 		if( installPath.isEmpty() )
 			exit( "masterpath is empty" );
 		
-		standalone = false;
 		productDir = "";
 		masterPath = Common.getPath( installPath , "master" );
 		binPath = Common.getPath( masterPath , "bin" );
@@ -53,18 +57,19 @@ public class SessionContext {
 	}
 	
 	public void setServerProductLayout( String productDir ) throws Exception {
+		standalone = false;
+		product = true;
+		
 		if( productDir.isEmpty() )
 			exit( "missing product folder" );
 		
 		this.productDir = productDir;
-		standalone = false;
 		productPath = Common.getPath( installPath , "products" , productDir );
 		etcPath = Common.getPath( productPath , "etc" );
 		proxyPath = Common.getPath( productPath , "master" );
 	}
 	
 	public void setServerClientLayout( SessionContext serverSession ) throws Exception {
-		standalone = false;
 		productDir = clientrc.productDir;
 		installPath = serverSession.installPath;
 		masterPath = serverSession.masterPath;
@@ -74,11 +79,13 @@ public class SessionContext {
 	}
 	
 	public void setStandaloneLayout( CommandOptions options ) throws Exception {
+		standalone = true;
+		product = true;
+		
 		productPath = clientrc.installPath;
 		if( productPath.isEmpty() )
 			exit( "productpath is empty" );
 		
-		standalone = true;
 		productDir = "";
 		masterPath = Common.getPath( productPath , "master" );
 		binPath = Common.getPath( masterPath , "bin" );

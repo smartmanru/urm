@@ -2,40 +2,37 @@ package org.urm.server.action;
 
 import org.urm.common.Common;
 import org.urm.common.ExitException;
-import org.urm.common.RunContext;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMethod;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.common.action.CommandOptions.SQLTYPE;
 import org.urm.common.action.CommandVar.FLAG;
 import org.urm.common.jmx.ServerCommandCall;
-import org.urm.server.CommandExecutor;
 import org.urm.server.ServerEngine;
 import org.urm.server.SessionContext;
 import org.urm.server.meta.MetaEnv;
 import org.urm.server.meta.MetaEnvDC;
+import org.urm.server.meta.Metadata;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
 import org.urm.server.shell.Account;
 
 public class CommandContext {
 
 	public ServerEngine engine;
-	public RunContext clientrc;
-	public RunContext execrc;
 	public CommandOptions options;
 	public SessionContext session;
 	public CommandMethod commandMethod;
 	public CommandAction commandAction;
 
+	public Metadata meta;
 	public MetaEnv env; 
 	public MetaEnvDC dc;
 	
 	public ServerCommandCall call;
 	public String stream;
 	public String streamLog;
-	int logLevelLimit;
+	public int logLevelLimit;
 	
 	public Account account;
 	public String userHome;
@@ -112,8 +109,6 @@ public class CommandContext {
 
 	public CommandContext( ServerEngine engine , CommandOptions options , SessionContext session , String stream , ServerCommandCall call ) {
 		this.engine = engine;
-		this.clientrc = session.clientrc;
-		this.execrc = session.execrc;
 		this.options = options;
 		this.session = session;
 		
@@ -121,14 +116,16 @@ public class CommandContext {
 		this.call = call;
 		
 		this.logLevelLimit = CommandOutput.LOGLEVEL_ERROR;
+		
 		setLogStream();
+		setLogLevel();
 	}
 
 	private void setLogStream() {
 		streamLog = ( call != null )? "[" + stream + "," + call.sessionId + "]" : "[" + stream + "]";
 	}
 	
-	private void setLogLevel( ActionBase action ) {
+	private void setLogLevel() {
 		logLevelLimit = CommandOutput.LOGLEVEL_INFO;
 		if( CTX_TRACE ) {
 			if( CTX_TRACEINTERNAL )
@@ -139,8 +136,6 @@ public class CommandContext {
 		else
 		if( CTX_SHOWALL )
 			logLevelLimit = CommandOutput.LOGLEVEL_DEBUG;
-		
-		action.setLogLevel( logLevelLimit );
 	}
 	
 	public CommandContext( CommandContext context , String stream ) {
@@ -151,8 +146,6 @@ public class CommandContext {
 		
 		// copy all properties
 		this.engine = context.engine;
-		this.clientrc = context.clientrc;
-		this.execrc = context.execrc;
 		this.options = context.options;
 		this.session = context.session;
 		
@@ -237,92 +230,91 @@ public class CommandContext {
 		setLogStream();
 	}
 
-	public void update( ActionBase action ) throws Exception {
-		boolean isproduct = ( action.meta == null || action.meta.product == null )? false : true; 
+	public void update() throws Exception {
+		boolean isproduct = ( meta == null || meta.product == null )? false : true; 
 		boolean isenv = ( env == null )? false : true; 
 		boolean def = ( isenv && env.PROD )? true : false;
 		String value;
 		
 		// generic
-		CTX_TRACEINTERNAL = ( getFlagValue( action , "OPT_TRACE" ) && getFlagValue( action , "OPT_SHOWALL" ) )? true : false;
-		CTX_TRACE = getFlagValue( action , "OPT_TRACE" );
-		CTX_SHOWONLY = combineValue( action , "OPT_SHOWONLY" , ( isenv )? action.context.env.SHOWONLY : null , def );
-		CTX_SHOWALL = getFlagValue( action , "OPT_SHOWALL" );
+		CTX_TRACEINTERNAL = ( getFlagValue( "OPT_TRACE" ) && getFlagValue( "OPT_SHOWALL" ) )? true : false;
+		CTX_TRACE = getFlagValue( "OPT_TRACE" );
+		CTX_SHOWONLY = combineValue( "OPT_SHOWONLY" , ( isenv )? env.SHOWONLY : null , def );
+		CTX_SHOWALL = getFlagValue( "OPT_SHOWALL" );
 		if( CTX_TRACE )
 			CTX_SHOWALL = true;
-		CTX_FORCE = getFlagValue( action , "OPT_FORCE" );
-		CTX_IGNORE = getFlagValue( action , "OPT_SKIPERRORS" );
-		CTX_ALL = getFlagValue( action , "OPT_ALL" );
-		CTX_LOCAL = getFlagValue( action , "OPT_LOCAL" );
-		CTX_COMMANDTIMEOUT = getIntParamValue( action , "OPT_COMMANDTIMEOUT" , options.optDefaultCommandTimeout ) * 1000;
-		value = getParamValue( action , "OPT_KEY" ); 
-		CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? action.context.env.KEYNAME : "" ) : value;
-		String productValue = ( isproduct )? action.meta.product.CONFIG_DISTR_PATH : "";
-		CTX_DISTPATH = getParamPathValue( action , "OPT_DISTPATH" , productValue );
-		CTX_REDISTPATH = ( isproduct )? action.meta.product.CONFIG_REDISTPATH : null;
-		if( isenv && !action.context.env.REDISTPATH.isEmpty() )
-			CTX_REDISTPATH = action.context.env.REDISTPATH;
-		value = getParamPathValue( action , "OPT_HIDDENPATH" );
-		CTX_HIDDENPATH = ( value.isEmpty() )? ( ( isenv )? action.context.env.CONF_SECRETFILESPATH : "" ) : value;
-		CTX_WORKPATH = getParamPathValue( action , "OPT_WORKPATH" , "" );
+		CTX_FORCE = getFlagValue( "OPT_FORCE" );
+		CTX_IGNORE = getFlagValue( "OPT_SKIPERRORS" );
+		CTX_ALL = getFlagValue( "OPT_ALL" );
+		CTX_LOCAL = getFlagValue( "OPT_LOCAL" );
+		CTX_COMMANDTIMEOUT = getIntParamValue( "OPT_COMMANDTIMEOUT" , options.optDefaultCommandTimeout ) * 1000;
+		value = getParamValue( "OPT_KEY" ); 
+		CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? env.KEYNAME : "" ) : value;
+		String productValue = ( isproduct )? meta.product.CONFIG_DISTR_PATH : "";
+		CTX_DISTPATH = getParamPathValue( "OPT_DISTPATH" , productValue );
+		CTX_REDISTPATH = ( isproduct )? meta.product.CONFIG_REDISTPATH : null;
+		if( isenv && !env.REDISTPATH.isEmpty() )
+			CTX_REDISTPATH = env.REDISTPATH;
+		value = getParamPathValue( "OPT_HIDDENPATH" );
+		CTX_HIDDENPATH = ( value.isEmpty() )? ( ( isenv )? env.CONF_SECRETFILESPATH : "" ) : value;
+		CTX_WORKPATH = getParamPathValue( "OPT_WORKPATH" , "" );
 		
 		// specific
-		CTX_GET = getFlagValue( action , "OPT_GET" );
-		CTX_DIST = getFlagValue( action , "OPT_DIST" );
-		CTX_UPDATENEXUS = getFlagValue( action , "OPT_UPDATENEXUS" );
-		CTX_CHECK = getFlagValue( action , "OPT_CHECK" , false );
-		CTX_MOVE_ERRORS = getFlagValue( action , "OPT_MOVE_ERRORS" );
-		CTX_REPLACE = getFlagValue( action , "OPT_REPLACE" );
-		CTX_BACKUP = combineValue( action , "OPT_BACKUP" , ( isenv )? action.context.env.BACKUP : null , def );
-		CTX_OBSOLETE = combineValue( action , "OPT_OBSOLETE" , ( isenv )? action.context.env.OBSOLETE : null , true );
-		CTX_CONFDEPLOY = combineValue( action , "OPT_DEPLOYCONF" , ( isenv )? action.context.env.CONF_DEPLOY : null , true );
-		CTX_PARTIALCONF = getFlagValue( action , "OPT_PARTIALCONF" );
-		CTX_DEPLOYBINARY = getFlagValue( action , "OPT_DEPLOYBINARY" , true );
-		CTX_DEPLOYHOT = getFlagValue( action , "OPT_DEPLOYHOT" );
-		CTX_DEPLOYCOLD = getFlagValue( action , "OPT_DEPLOYCOLD" );
-		CTX_DEPLOYRAW = getFlagValue( action , "OPT_DEPLOYRAW" );
-		CTX_CONFKEEPALIVE = combineValue( action , "OPT_KEEPALIVE" , ( isenv )? action.context.env.CONF_KEEPALIVE : null , true );
-		CTX_ZERODOWNTIME = getFlagValue( action , "OPT_ZERODOWNTIME" );
-		CTX_NONODES = getFlagValue( action , "OPT_NONODES" );
-		CTX_NOCHATMSG = getFlagValue( action , "OPT_NOCHATMSG" );
-		CTX_ROOTUSER = getFlagValue( action , "OPT_ROOTUSER" );
-		CTX_SUDO = getFlagValue( action , "OPT_SUDO" );
-		CTX_IGNOREVERSION = getFlagValue( action , "OPT_IGNOREVERSION" );
-		CTX_LIVE = getFlagValue( action , "OPT_LIVE" );
-		CTX_HIDDEN = getFlagValue( action , "OPT_HIDDEN" );
-		value = getEnumValue( action , "OPT_DBMODE" );
+		CTX_GET = getFlagValue( "OPT_GET" );
+		CTX_DIST = getFlagValue( "OPT_DIST" );
+		CTX_UPDATENEXUS = getFlagValue( "OPT_UPDATENEXUS" );
+		CTX_CHECK = getFlagValue( "OPT_CHECK" , false );
+		CTX_MOVE_ERRORS = getFlagValue( "OPT_MOVE_ERRORS" );
+		CTX_REPLACE = getFlagValue( "OPT_REPLACE" );
+		CTX_BACKUP = combineValue( "OPT_BACKUP" , ( isenv )? env.BACKUP : null , def );
+		CTX_OBSOLETE = combineValue( "OPT_OBSOLETE" , ( isenv )? env.OBSOLETE : null , true );
+		CTX_CONFDEPLOY = combineValue( "OPT_DEPLOYCONF" , ( isenv )? env.CONF_DEPLOY : null , true );
+		CTX_PARTIALCONF = getFlagValue( "OPT_PARTIALCONF" );
+		CTX_DEPLOYBINARY = getFlagValue( "OPT_DEPLOYBINARY" , true );
+		CTX_DEPLOYHOT = getFlagValue( "OPT_DEPLOYHOT" );
+		CTX_DEPLOYCOLD = getFlagValue( "OPT_DEPLOYCOLD" );
+		CTX_DEPLOYRAW = getFlagValue( "OPT_DEPLOYRAW" );
+		CTX_CONFKEEPALIVE = combineValue( "OPT_KEEPALIVE" , ( isenv )? env.CONF_KEEPALIVE : null , true );
+		CTX_ZERODOWNTIME = getFlagValue( "OPT_ZERODOWNTIME" );
+		CTX_NONODES = getFlagValue( "OPT_NONODES" );
+		CTX_NOCHATMSG = getFlagValue( "OPT_NOCHATMSG" );
+		CTX_ROOTUSER = getFlagValue( "OPT_ROOTUSER" );
+		CTX_SUDO = getFlagValue( "OPT_SUDO" );
+		CTX_IGNOREVERSION = getFlagValue( "OPT_IGNOREVERSION" );
+		CTX_LIVE = getFlagValue( "OPT_LIVE" );
+		CTX_HIDDEN = getFlagValue( "OPT_HIDDEN" );
+		value = getEnumValue( "OPT_DBMODE" );
 		CTX_DBMODE = ( value.isEmpty() )? SQLMODE.UNKNOWN : SQLMODE.valueOf( value );
-		CTX_DBMOVE = getFlagValue( action , "OPT_DBMOVE" );
-		CTX_DBAUTH = combineValue( action , "OPT_DBAUTH" , ( isenv )? action.context.env.DB_AUTH : null , false );
-		CTX_CUMULATIVE = getFlagValue( action , "OPT_CUMULATIVE" );
+		CTX_DBMOVE = getFlagValue( "OPT_DBMOVE" );
+		CTX_DBAUTH = combineValue( "OPT_DBAUTH" , ( isenv )? env.DB_AUTH : null , false );
+		CTX_CUMULATIVE = getFlagValue( "OPT_CUMULATIVE" );
 		
-		CTX_DBALIGNED = getParamValue( action , "OPT_DBALIGNED" );
-		CTX_DB = getParamValue( action , "OPT_DB" );
-		CTX_DBPASSWORD = getParamValue( action , "OPT_DBPASSWORD" );
-		CTX_REGIONS = getParamValue( action , "OPT_REGIONS" );
-		value = getEnumValue( action , "OPT_DBTYPE" );
+		CTX_DBALIGNED = getParamValue( "OPT_DBALIGNED" );
+		CTX_DB = getParamValue( "OPT_DB" );
+		CTX_DBPASSWORD = getParamValue( "OPT_DBPASSWORD" );
+		CTX_REGIONS = getParamValue( "OPT_REGIONS" );
+		value = getEnumValue( "OPT_DBTYPE" );
 		CTX_DBTYPE = ( value.isEmpty() )? SQLTYPE.UNKNOWN : SQLTYPE.valueOf( value );
-		CTX_RELEASELABEL = getParamValue( action , "OPT_RELEASE" );
-		CTX_BRANCH = getParamValue( action , "OPT_BRANCH" );
-		CTX_TAG = getParamValue( action , "OPT_TAG" );
-		CTX_DATE = getParamValue( action , "OPT_DATE" );
-		CTX_GROUP = getParamValue( action , "OPT_GROUP" );
-		CTX_VERSION = getParamValue( action , "OPT_VERSION" );
-		CTX_DC = getParamValue( action , "OPT_DC" );
-		CTX_DEPLOYGROUP = getParamValue( action , "OPT_DEPLOYGROUP" );
-		CTX_STARTGROUP = getParamValue( action , "OPT_STARTGROUP" );
-		CTX_EXTRAARGS = getParamValue( action , "OPT_EXTRAARGS" );
-		CTX_UNIT = getParamValue( action , "OPT_UNIT" );
-		CTX_BUILDINFO = getParamValue( action , "OPT_BUILDINFO" );
-		CTX_HOSTUSER = getParamValue( action , "OPT_HOSTUSER" );
-		CTX_NEWKEY = getParamValue( action , "OPT_NEWKEY" );
-		CTX_BUILDMODE = action.meta.getBuildMode( action , getParamValue( action , "OPT_BUILDMODE" ) );
-		CTX_OLDRELEASE = getParamValue( action , "OPT_COMPATIBILITY" );
-		CTX_PORT = getIntParamValue( action , "OPT_PORT" , -1 );
-		CTX_HOST = getParamValue( action , "OPT_HOST" );
+		CTX_RELEASELABEL = getParamValue( "OPT_RELEASE" );
+		CTX_BRANCH = getParamValue( "OPT_BRANCH" );
+		CTX_TAG = getParamValue( "OPT_TAG" );
+		CTX_DATE = getParamValue( "OPT_DATE" );
+		CTX_GROUP = getParamValue( "OPT_GROUP" );
+		CTX_VERSION = getParamValue( "OPT_VERSION" );
+		CTX_DC = getParamValue( "OPT_DC" );
+		CTX_DEPLOYGROUP = getParamValue( "OPT_DEPLOYGROUP" );
+		CTX_STARTGROUP = getParamValue( "OPT_STARTGROUP" );
+		CTX_EXTRAARGS = getParamValue( "OPT_EXTRAARGS" );
+		CTX_UNIT = getParamValue( "OPT_UNIT" );
+		CTX_BUILDINFO = getParamValue( "OPT_BUILDINFO" );
+		CTX_HOSTUSER = getParamValue( "OPT_HOSTUSER" );
+		CTX_NEWKEY = getParamValue( "OPT_NEWKEY" );
+		CTX_BUILDMODE = meta.getBuildMode( getParamValue( "OPT_BUILDMODE" ) );
+		CTX_OLDRELEASE = getParamValue( "OPT_COMPATIBILITY" );
+		CTX_PORT = getIntParamValue( "OPT_PORT" , -1 );
+		CTX_HOST = getParamValue( "OPT_HOST" );
 		
 		setLogStream();
-		setLogLevel( action );
 	}
 
 	public void loadEnv( ActionBase action , boolean loadProps ) throws Exception {
@@ -341,7 +333,7 @@ public class CommandContext {
 		}
 		
 		dc = env.getDC( action , DC );
-		update( action );
+		update();
 	}
 	
 	public CommandContext getProductContext( String stream ) {
@@ -355,25 +347,25 @@ public class CommandContext {
 	
 	public boolean setRunContext() {
 		// read env
-		if( execrc.hostName.isEmpty() ) {
+		if( session.execrc.hostName.isEmpty() ) {
 			System.out.println( "HOSTNAME is not set. Exiting" );
 			return( false );
 		}
 
-		if( execrc.userName.isEmpty() ) {
+		if( session.execrc.userName.isEmpty() ) {
 			System.out.println( "USER is not set. Exiting" );
 			return( false );
 		}
 
-		VarOSTYPE osType = ( execrc.isWindows() )? VarOSTYPE.WINDOWS : VarOSTYPE.LINUX;
-		this.account = Account.getLocalAccount( execrc.userName , execrc.hostName , osType );
-		this.userHome = execrc.userHome;
-		this.buildMode = ( clientrc.buildMode.isEmpty() )? VarBUILDMODE.UNKNOWN : VarBUILDMODE.valueOf( clientrc.buildMode );
+		VarOSTYPE osType = ( session.execrc.isWindows() )? VarOSTYPE.WINDOWS : VarOSTYPE.LINUX;
+		this.account = Account.getLocalAccount( session.execrc.userName , session.execrc.hostName , osType );
+		this.userHome = session.execrc.userHome;
+		this.buildMode = ( session.clientrc.buildMode.isEmpty() )? VarBUILDMODE.UNKNOWN : VarBUILDMODE.valueOf( session.clientrc.buildMode );
 		
 		return( true );
 	}
 	
-	public void logDebug( ActionBase action ) throws Exception {
+	public String getInfo() {
 		String contextInfo = "";
 		if( !session.productPath.isEmpty() )
 			contextInfo = "productHome=" + session.productPath;
@@ -383,75 +375,61 @@ public class CommandContext {
 			contextInfo += ", env=" + session.ENV;
 		if( !session.DC.isEmpty() )
 			contextInfo += ", dc=" + session.DC;
-		action.debug( "context: " + contextInfo );
+		return( contextInfo );
 	}
 	
-	public void setBuildMode( ActionBase action , VarBUILDMODE value ) throws Exception {
+	public void setBuildMode( VarBUILDMODE value ) throws Exception {
 		if( buildMode != VarBUILDMODE.UNKNOWN && buildMode != value )
-			action.exit( "release is defined for " + getBuildModeName() + " build mode, please use appropriate context folder" );
+			throw new ExitException( "release is defined for " + getBuildModeName() + " build mode, please use appropriate context" );
 		
 		buildMode = value;
 	}
 
-	public boolean getFlagValue( ActionBase action , String var ) throws Exception {
-		return( getFlagValue( action , var , false ) );
+	public boolean getFlagValue( String var ) throws Exception {
+		return( getFlagValue( var , false ) );
 	}
 	
-	public boolean getFlagValue( ActionBase action , String var , boolean defValue ) throws Exception {
+	public boolean getFlagValue( String var , boolean defValue ) throws Exception {
 		if( !options.isFlagVar( var ) )
-			action.exit( "unknown flag var=" + var );
+			throw new ExitException( "unknown flag var=" + var );
 		return( options.getFlagValue( var , defValue ) );
 	}
 
-	public String getEnumValue( ActionBase action , String var ) throws Exception {
+	public String getEnumValue( String var ) throws Exception {
 		if( !options.isEnumVar( var ) )
-			action.exit( "unknown enum var=" + var );
+			throw new ExitException( "unknown enum var=" + var );
 		return( options.getEnumValue( var ) );
 	}
 
-	public String getParamPathValue( ActionBase action , String var , String defaultValue ) throws Exception {
-		String value = getParamPathValue( action , var );
+	public String getParamPathValue( String var , String defaultValue ) throws Exception {
+		String value = getParamPathValue( var );
 		if( value.isEmpty() )
 			value = defaultValue;
 		
 		return( value );
 	}
 	
-	public String getParamPathValue( ActionBase action , String var ) throws Exception {
-		String dir = getParamValue( action , var );
+	public String getParamPathValue( String var ) throws Exception {
+		String dir = getParamValue( var );
 		return( Common.getLinuxPath( dir ) );
 	}
 	
-	public String getParamValue( ActionBase action , String var ) throws Exception {
+	public String getParamValue( String var ) throws Exception {
 		if( !options.isParamVar( var ) )
-			action.exit( "unknown param var=" + var );
+			throw new ExitException( "unknown param var=" + var );
 		return( options.getParamValue( var ) );
 	}		
 
-	public int getIntParamValue( ActionBase action , String var , int defaultValue ) throws Exception {
+	public int getIntParamValue( String var , int defaultValue ) throws Exception {
 		if( !options.isParamVar( var ) )
-			action.exit( "unknown param var=" + var );
+			throw new ExitException( "unknown param var=" + var );
 		return( options.getIntParamValue( var , defaultValue ) );
 	}
 
-	public boolean combineValue( ActionBase action , String optVar , FLAG confValue , boolean defValue ) throws Exception {
+	public boolean combineValue( String optVar , FLAG confValue , boolean defValue ) throws Exception {
 		if( !options.isValidVar( optVar ) )
-			action.exit( "unknown flag var=" + optVar );
+			throw new ExitException( "unknown flag var=" + optVar );
 		return( options.combineValue( optVar , confValue , defValue ) );
 	}
 	
-	public boolean setAction( CommandBuilder builder , CommandExecutor executor ) throws Exception {
-		String actionName = options.action;
-
-		commandAction = executor.getAction( actionName );
-		if( commandAction == null )
-			throw new ExitException( "unknown action=" + actionName );
-
-		if( !options.checkValidOptions( commandAction.method ) )
-			return( false );
-		
-		options.action = commandAction.method.name;
-		return( true );
-	}
-
 }

@@ -77,7 +77,7 @@ public class ReleaseSet {
 	}
 
 	public boolean isSourceSet( ActionBase action ) throws Exception {
-		return( meta.isSourceCategory( action , set.CATEGORY ) );
+		return( meta.isSourceCategory( set.CATEGORY ) );
 	}
 	
 	public boolean isCategorySet( ActionBase action ) throws Exception {
@@ -86,7 +86,7 @@ public class ReleaseSet {
 	
 	public void load( ActionBase action , Node node ) throws Exception {
 		ALL = ConfReader.getBooleanAttrValue( node , "all" , false );
-		if( meta.isSourceCategory( action , CATEGORY ) )
+		if( meta.isSourceCategory( CATEGORY ) )
 			loadBinary( action , node );
 		else {
 			NAME = Common.getEnumLower( CATEGORY );
@@ -372,7 +372,7 @@ public class ReleaseSet {
 	}
 
 	public Element createXml( ActionBase action , Document doc , Element parent ) throws Exception {
-		if( meta.isSourceCategory( action , CATEGORY ) )
+		if( meta.isSourceCategory( CATEGORY ) )
 			return( createXmlBinary( action , doc , parent ) );
 
 		return( createXmlCategory( action , doc , parent ) );

@@ -88,7 +88,7 @@ public class ReleaseTarget {
 	}
 	
 	public boolean isCategoryItem( ActionBase action , VarCATEGORY CATEGORY ) throws Exception {
-		if( meta.isSourceCategory( action , CATEGORY ) ) {
+		if( meta.isSourceCategory( CATEGORY ) ) {
 			if( sourceProject != null )
 				return( true );
 		}
@@ -128,7 +128,7 @@ public class ReleaseTarget {
 	}
 
 	public void load( ActionBase action , Node node ) throws Exception {
-		if( meta.isSourceCategory( action , CATEGORY ) )
+		if( meta.isSourceCategory( CATEGORY ) )
 			loadProject( action , node );
 		else
 		if( CATEGORY == VarCATEGORY.CONFIG )

@@ -36,11 +36,11 @@ public class MetaSourceProjectSet {
 
 		loaded = true;
 		
-		CATEGORY = meta.readCategoryAttr( action , node );
+		CATEGORY = meta.readCategoryAttr( node );
 		originalList = new LinkedList<MetaSourceProject>(); 
 		map = new HashMap<String, MetaSourceProject>();
 		
-		if( !meta.isSourceCategory( action , CATEGORY ) )
+		if( !meta.isSourceCategory( CATEGORY ) )
 			action.exit( "invalid source.xml: unknown project category=" + Common.getEnumLower( CATEGORY ) );
 		
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
