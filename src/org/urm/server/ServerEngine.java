@@ -1,5 +1,6 @@
 package org.urm.server;
 
+import org.urm.common.Common;
 import org.urm.common.ExitException;
 import org.urm.common.RunContext;
 import org.urm.common.action.ActionData;
@@ -26,6 +27,7 @@ import org.urm.server.action.monitor.MonitorCommandExecutor;
 import org.urm.server.action.release.ReleaseCommandExecutor;
 import org.urm.server.action.xdoc.XDocCommandExecutor;
 import org.urm.server.meta.Metadata;
+import org.urm.server.shell.ShellCoreJNI;
 import org.urm.server.shell.ShellExecutorPool;
 import org.urm.server.storage.Artefactory;
 import org.urm.server.storage.LocalFolder;
@@ -260,14 +262,39 @@ public class ServerEngine {
 	private Artefactory createArtefactory( SessionContext session , CommandContext context ) throws Exception {
 		String dirname;
 		
-		if( !context.CTX_WORKPATH.isEmpty() ) {
-			dirname = context.CTX_WORKPATH;
+		if( session.standalone ) {
+			if( !context.CTX_WORKPATH.isEmpty() )
+				dirname = context.CTX_WORKPATH;
+			else {
+				if( context.meta.product != null && context.meta.product.CONFIG_WORKPATH.isEmpty() == false )
+					dirname = context.meta.product.CONFIG_WORKPATH;
+				else
+					dirname = session.execrc.userHome;
+					
+				dirname = Common.getPath( "urm.work" , dirname , "session-" + ShellCoreJNI.getCurrentProcessId() );
+			}
 		}
 		else {
-			if( context.meta.product != null && context.meta.product.CONFIG_WORKPATH.isEmpty() == false )
-				dirname = context.meta.product.CONFIG_WORKPATH;
-			else
-				dirname = session.execrc.userHome;
+			if( !session.product ) {
+				if( !context.CTX_WORKPATH.isEmpty() )
+					dirname = context.CTX_WORKPATH;
+				else {
+					dirname = Common.getPath( session.execrc.userHome , "urm.work" , "server" );
+					dirname = Common.getPath( dirname , "session-" + ShellCoreJNI.getCurrentProcessId() );
+				}
+			}
+			else {
+				if( !serverAction.context.CTX_WORKPATH.isEmpty() )
+					dirname = serverAction.context.CTX_WORKPATH;
+				else {
+					if( context.meta.product != null && context.meta.product.CONFIG_WORKPATH.isEmpty() == false )
+						dirname = Common.getPath( "urm.work" , context.meta.product.CONFIG_WORKPATH );
+					else
+						dirname = Common.getPath( session.execrc.userHome , "urm.work" , "client" );
+						
+					dirname = Common.getPath( dirname , "session-" + ShellCoreJNI.getCurrentProcessId() );
+				}
+			}
 		}
 		
 		LocalFolder folder = new LocalFolder( dirname , execrc.isWindows() );

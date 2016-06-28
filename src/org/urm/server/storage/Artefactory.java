@@ -1,5 +1,6 @@
 package org.urm.server.storage;
 
+import org.urm.common.Common;
 import org.urm.server.action.ActionBase;
 import org.urm.server.dist.Dist;
 import org.urm.server.dist.DistRepository;
@@ -31,6 +32,11 @@ public class Artefactory {
 		return( new LocalFolder( dirname , action.isWindows() ) );
 	}
 
+	public LocalFolder getTmpFolder( ActionBase action ) throws Exception {
+		String folder = Common.getPath( action.session.execrc.userHome , "urm.tmp" );
+		return( getAnyFolder( action , folder ) );
+	}
+	
 	public LocalFolder getWorkFolder( ActionBase action ) throws Exception {
 		return( workFolder );
 	}

@@ -5,11 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.urm.common.Common;
 import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionBase;
 import org.urm.server.storage.Folder;
-import org.urm.server.storage.LocalFolder;
 
 public class ShellExecutorPool {
 
@@ -31,8 +29,7 @@ public class ShellExecutorPool {
 	}
 	
 	public void start( ActionBase action ) throws Exception {
-		String tmpPath = Common.getPath( rootPath , "tmp" );
-		tmpFolder = new LocalFolder( tmpPath , action.isWindows() );
+		tmpFolder = action.artefactory.getTmpFolder( action );
 		master = createDedicatedLocalShell( action , "master" );
 		tmpFolder.ensureExists( action );
 	}

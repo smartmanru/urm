@@ -1,9 +1,11 @@
 package org.urm.server.shell;
 
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.common.Common;
 import org.urm.server.action.ActionBase;
 
 import com.sun.jna.FromNativeContext;
@@ -84,6 +86,12 @@ public class ShellCoreJNI {
 	    };
 	}	
 
+	public static int getCurrentProcessId() {
+		String name = ManagementFactory.getRuntimeMXBean().getName();
+		String id = Common.getPartBeforeFirst( name , "@" );
+		return( Integer.parseInt( id ) );
+	}
+	
 	public int getWindowsProcessId( ActionBase action , Process process ) throws Exception {
 		try {
 			  Field f = process.getClass().getDeclaredField( "handle" );
