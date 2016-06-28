@@ -312,7 +312,7 @@ public class DistState {
 		
 		String hashFile = workFolder.getFilePath( action , "hash.txt" );
 		Common.createFileFromString( hashFile , content );
-		return( action.session.getMD5( action , hashFile ) );
+		return( action.shell.getMD5( action , hashFile ) );
 	}
 
 	private void scanFiles( ActionBase action , Map<String,File> fileMap , RemoteFolder folder , String path ) throws Exception {

@@ -33,7 +33,7 @@ public class ActionMonitorCheckEnv extends ActionBase {
 		action.stopRedirect();
 		
 		String logSave = storage.getCheckEnvFile( target );
-		action.session.move( this , logRunning , logSave );
+		action.shell.move( this , logRunning , logSave );
 		
 		return( true );
 	}

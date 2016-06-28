@@ -84,7 +84,7 @@ public class ConfBuilder {
 		String runScript = CONFIGURE_SCRIPT;
 		if( live.checkFileExists( action , runScript ) ) {
 			action.info( "run " + runScript );
-			action.session.custom( action , live.folderPath , "chmod 744 " + runScript + "; ./" + runScript + " " + 
+			action.shell.custom( action , live.folderPath , "chmod 744 " + runScript + "; ./" + runScript + " " + 
 				server.dc.env.ID + " " + server.dc.NAME + " " + server.NAME + " " + node.POS );
 		}
 		
@@ -116,7 +116,7 @@ public class ConfBuilder {
 				extCompOptions += " -o -name ";
 			extCompOptions += Common.getQuoted( mask );
 		}
-		String list = action.session.customGetValue( action , live.folderPath , "F_FILES=`find . -type f -a \\( " + 
+		String list = action.shell.customGetValue( action , live.folderPath , "F_FILES=`find . -type f -a \\( " + 
 				extCompOptions + " \\) | tr \"\\n\" \" \"`; if [ \"$F_FILES\" != \"\" ]; then grep -l \"@.*@\" $F_FILES; fi" );
 		String[] files = Common.splitLines( list );
 		return( files );

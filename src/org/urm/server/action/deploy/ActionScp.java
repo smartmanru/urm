@@ -19,7 +19,7 @@ public class ActionScp extends ActionBase {
 	@Override protected boolean executeAccount( ActionScopeSet set , Account account ) throws Exception {
 		String F_CMD = "scp";
 
-		if( !session.checkFileExists( this , srcInfo ) ) 
+		if( !shell.checkFileExists( this , srcInfo ) ) 
 			F_CMD += " -r";
 
 		if( !context.env.KEYNAME.isEmpty() )
@@ -33,7 +33,7 @@ public class ActionScp extends ActionBase {
 			return( true );
 		
 		int timeout = setTimeoutUnlimited();
-		session.customCheckStatus( this , F_CMD );
+		shell.customCheckStatus( this , F_CMD );
 		setTimeout( timeout );
 		return( true );
 	}

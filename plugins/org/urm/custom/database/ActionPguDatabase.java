@@ -441,10 +441,10 @@ public class ActionPguDatabase implements ICustomDatabase {
 		// read org item mapping
 		MetadataStorage storage = action.artefactory.getMetadataStorage( action );
 		String path = storage.getOrgInfoFile( action );
-		if( !action.session.checkFileExists( action , path ) )
+		if( !action.shell.checkFileExists( action , path ) )
 			action.exit( "organizational mapping file " + path + " not found" );
 			
-		String S_ORG_FOLDERID = action.session.customGetValue( action , "grep " + Common.getQuoted( "^" + S_ORG_EXTID + "=" ) + " " + path + " | cut -d " + Common.getQuoted( "=" ) + " -f2" );
+		String S_ORG_FOLDERID = action.shell.customGetValue( action , "grep " + Common.getQuoted( "^" + S_ORG_EXTID + "=" ) + " " + path + " | cut -d " + Common.getQuoted( "=" ) + " -f2" );
 		return( S_ORG_FOLDERID );
 	}
 	

@@ -201,7 +201,8 @@ public class ServerEngine {
 			return( null );
 		
 		// create context
-		CommandContext context = new CommandContext( this , options , session , stream , call );
+		Metadata meta = new Metadata();
+		CommandContext context = new CommandContext( this , session , meta , options , stream , call );
 		if( !context.setRunContext() )
 			return( null );
 
@@ -210,8 +211,7 @@ public class ServerEngine {
 		Artefactory artefactory = createArtefactory( session , context );
 		
 		// create action
-		Metadata meta = new Metadata();
-		ActionInit action = executor.createAction( artefactory , context , meta , options.action );
+		ActionInit action = executor.createAction( session , artefactory , context , options.action );
 		
 		return( action );
 	}

@@ -83,16 +83,16 @@ public class ActionPatch extends ActionBase {
 		String MODULE_MSETTINGS="--settings=" + meta.product.CONFIG_MAVEN_CFGFILE;
 		String UPLOAD_MAVEN_VERSION = meta.product.CONFIG_MAVEN_VERSION;
 
-		session.export( this , "M2_HOME" , meta.product.CONFIG_BUILDBASE + "/" + UPLOAD_MAVEN_VERSION );
-		session.export( this , "M2" , "$M2_HOME/bin" );
-		session.export( this , "PATH" , "$M2:$PATH" );
-		session.export( this , "MAVEN_OPTS" , Common.getQuoted( "-Xmx1g -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );
+		shell.export( this , "M2_HOME" , meta.product.CONFIG_BUILDBASE + "/" + UPLOAD_MAVEN_VERSION );
+		shell.export( this , "M2" , "$M2_HOME/bin" );
+		shell.export( this , "PATH" , "$M2:$PATH" );
+		shell.export( this , "MAVEN_OPTS" , Common.getQuoted( "-Xmx1g -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );
 
 		// upload versioninfo
 		String FILENAME = builder.project.PROJECT + "-versioninfo.txt";
 		LOGDIR.createFileFromString( this , FILENAME , builder.TAG );
 		int timeout = setTimeoutUnlimited();
-		int status = session.customGetStatusNormal( this , "mvn deploy:deploy-file -B " +
+		int status = shell.customGetStatusNormal( this , "mvn deploy:deploy-file -B " +
 			MODULE_MSETTINGS + " " +
 			"-Durl=" + builder.getNexusPath( this , builder.project ) + " " +
 			"-DuniqueVersion=false " +

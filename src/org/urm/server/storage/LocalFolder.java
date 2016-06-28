@@ -13,7 +13,7 @@ public class LocalFolder extends Folder {
 	}
 
 	@Override public ShellExecutor getSession( ActionBase action ) throws Exception {
-		return( action.session );
+		return( action.shell );
 	}
 	
 	public LocalFolder getSubFolder( ActionBase action , String folder ) throws Exception {

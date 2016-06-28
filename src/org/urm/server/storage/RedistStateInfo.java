@@ -171,7 +171,7 @@ public class RedistStateInfo {
 		}
 		
 		// check md5
-		String ms5value = action.session.getMD5( action , filePath );
+		String ms5value = action.shell.getMD5( action , filePath );
 		if( info.md5value == null || ms5value.equals( info.md5value ) == false ) {
 			action.debug( "redist item=" + item.KEY + " - md5 differs (" + info.md5value + "/" + ms5value + ")" );
 			return( true );

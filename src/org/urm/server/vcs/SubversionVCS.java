@@ -433,14 +433,14 @@ public class SubversionVCS extends GenericVCS {
 	}
 	
 	public List<String> getFilesNotInSvn( ActionBase action , LocalFolder pfMaster ) throws Exception {
-		String[] lines = action.session.customGetLines( action , pfMaster.folderPath , "svn status" );
+		String[] lines = action.shell.customGetLines( action , pfMaster.folderPath , "svn status" );
 		List<String> values = new LinkedList<String>();
 		for( String s : lines ) {
 			if( s.startsWith( "?" ) ) {
 				s = s.substring( 1 );
 				s = s.trim();
 				
-				if( action.session.account.isWindows() )
+				if( action.shell.account.isWindows() )
 					values.add( Common.getLinuxPath( s ) );
 				else
 					values.add( s );
@@ -452,25 +452,25 @@ public class SubversionVCS extends GenericVCS {
 	public void addDirToSvn( ActionBase action , LocalFolder pfMaster , String dirPath ) throws Exception {
 		String cmd = "svn add " + action.getOSPath( dirPath );
 		action.trace( "addDirToSvn: " + cmd );
-		action.session.custom( action , pfMaster.folderPath , cmd );
+		action.shell.custom( action , pfMaster.folderPath , cmd );
 	}
 
 	public void addFileToSvn( ActionBase action , LocalFolder pfMaster , String filePath ) throws Exception {
 		String cmd = "svn add " + action.getOSPath( filePath );
 		action.trace( "addFileToSvn: " + cmd );
-		action.session.custom( action , pfMaster.folderPath , cmd );
+		action.shell.custom( action , pfMaster.folderPath , cmd );
 	}
 	
 	public void deleteDirFromSvn( ActionBase action , LocalFolder pfMaster , String dirPath ) throws Exception {
 		String cmd = "svn delete " + action.getOSPath( dirPath );
 		action.trace( "deleteDirFromSvn: " + cmd );
-		action.session.custom( action , pfMaster.folderPath , cmd );
+		action.shell.custom( action , pfMaster.folderPath , cmd );
 	}
 
 	public void deleteFileFromSvn( ActionBase action , LocalFolder pfMaster , String filePath ) throws Exception {
 		String cmd = "svn delete " + action.getOSPath( filePath );
 		action.trace( "deleteFileFromSvn: " + cmd );
-		action.session.custom( action , pfMaster.folderPath , cmd );
+		action.shell.custom( action , pfMaster.folderPath , cmd );
 	}
 	
 }

@@ -150,7 +150,7 @@ public class ActionApplyAutomatic extends ActionBase {
 			return;
 
 		// regional
-		String[] lines = session.grepFile( this , logReleaseExecute.getFilePath( this , file ) , "^-- REGIONS " );
+		String[] lines = shell.grepFile( this , logReleaseExecute.getFilePath( this , file ) , "^-- REGIONS " );
 		String regions = ( lines.length == 1 )? lines[0] : "";
 		if( regions.isEmpty() )
 			exit( "region set not found in regional script=" + file );
@@ -165,7 +165,7 @@ public class ActionApplyAutomatic extends ActionBase {
 				dsf.SRCSCHEMA = Common.replace( schema , "RR" , region );
 				String newName = dsf.getDistFile();
 				
-				session.customCheckStatus( this , logReleaseExecute.folderPath , "sed " + Common.getQuoted( "s/@region@/" + region + "/g" ) + 
+				shell.customCheckStatus( this , logReleaseExecute.folderPath , "sed " + Common.getQuoted( "s/@region@/" + region + "/g" ) + 
 						" " + file + " > " + newName ); 
 			}
 		}

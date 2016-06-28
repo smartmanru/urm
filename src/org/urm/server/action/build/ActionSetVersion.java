@@ -19,22 +19,22 @@ public class ActionSetVersion extends ActionBase {
 		LocalFolder CODEPATH = PATCHPATH;
 		String JAVE_VERSION = scopeProject.sourceProject.getJavaVersion( this );
 		
-		session.export( this , "JAVA_HOME" , "/usr/java/" + JAVE_VERSION );
-		session.export( this , "PATH" , "$JAVA_HOME/bin:$PATH" );
+		shell.export( this , "JAVA_HOME" , "/usr/java/" + JAVE_VERSION );
+		shell.export( this , "PATH" , "$JAVA_HOME/bin:$PATH" );
 
 		String MAVEN_VERSION = scopeProject.sourceProject.getBuilderVersion( this );
 		String MAVEN_CMD = "mvn versions:set -DnewVersion=" + BUILDVERSION;
 
-		session.export( this , "M2_HOME" , "/usr/local/apache-maven-" + MAVEN_VERSION );
-		session.export( this , "M2" , "$M2_HOME/bin" );
-		session.export( this , "PATH" , "$M2:$PATH" );
+		shell.export( this , "M2_HOME" , "/usr/local/apache-maven-" + MAVEN_VERSION );
+		shell.export( this , "M2" , "$M2_HOME/bin" );
+		shell.export( this , "PATH" , "$M2:$PATH" );
 
 		info( "execute: " + MAVEN_CMD + " ..." );
-		session.mvnCheckStatus( this , CODEPATH.folderPath , MAVEN_CMD );
+		shell.mvnCheckStatus( this , CODEPATH.folderPath , MAVEN_CMD );
 
 		// handle git specifics
 		if( scopeProject.sourceProject.isGitVCS( this ) )
-			session.gitAddPomFiles( this , CODEPATH.folderPath );
+			shell.gitAddPomFiles( this , CODEPATH.folderPath );
 	}
 	
 	@Override protected boolean executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {

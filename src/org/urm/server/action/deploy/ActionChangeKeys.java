@@ -49,15 +49,15 @@ public class ActionChangeKeys extends ActionBase {
 		String F_KEYOWNER = null;
 		String F_KEYDATA = null;
 		if( !cmd.equals( "list" ) ) {
-			if( !session.checkFileExists( this , P_KEYFILENEXTPUB ) )
+			if( !shell.checkFileExists( this , P_KEYFILENEXTPUB ) )
 				exitAction( "cannot find public key file " + P_KEYFILENEXTPUB );
 	
-			if( session.checkFileExists( this , P_KEYFILENEXTPRV ) )
+			if( shell.checkFileExists( this , P_KEYFILENEXTPRV ) )
 				S_HASNEXTPRIVATEKEY = true;
 			
-			F_KEYPUB = session.getFileContentAsString( this , P_KEYFILENEXTPUB );
+			F_KEYPUB = shell.getFileContentAsString( this , P_KEYFILENEXTPUB );
 			F_KEYOWNER = Common.getListItem( F_KEYPUB , " " , 2 );
-			F_KEYDATA = session.getFileContentAsString( this , P_KEYFILENEXTPUB );
+			F_KEYDATA = shell.getFileContentAsString( this , P_KEYFILENEXTPUB );
 		}
 		
 		// access using private key
@@ -67,7 +67,7 @@ public class ActionChangeKeys extends ActionBase {
 			if( P_KEYACCESS.endsWith( ".pub" ) )
 				P_KEYACCESS = Common.getPartBeforeLast( P_KEYACCESS , ".pub" );
 		
-			if( !session.checkFileExists( this , P_KEYACCESS ) )
+			if( !shell.checkFileExists( this , P_KEYACCESS ) )
 				exitAction( "invalid private key file " + P_KEYACCESS );
 
 			F_ACCESSOPTION = "-i " + P_KEYACCESS;
@@ -150,7 +150,7 @@ public class ActionChangeKeys extends ActionBase {
 	}
 
 	private boolean tryConnect( Account account , String ACCESSOPTION ) throws Exception {
-		String F_CHECK = session.customGetValueNoCheck( this , "ssh -n " + ACCESSOPTION + 
+		String F_CHECK = shell.customGetValueNoCheck( this , "ssh -n " + ACCESSOPTION + 
 				" -o PasswordAuthentication=no " + account.HOSTLOGIN + " " + Common.getQuoted( "echo ok" ) );
 		if( F_CHECK.equals( "ok" ) )
 			return( true );
@@ -158,7 +158,7 @@ public class ActionChangeKeys extends ActionBase {
 	}
 
 	private boolean checkHostUser( Account account , String ACCESSOPTION , String user ) throws Exception {
-		int status = session.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " +
+		int status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " +
 				Common.getQuoted( "cd ~" + user ) );
 		if( status != 0 )
 			return( false );
@@ -202,7 +202,7 @@ public class ActionChangeKeys extends ActionBase {
 			exit( "unsupported with sudo" );
 		
 		int timeout = setTimeoutUnlimited();
-		int status = session.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " + 
+		int status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " + 
 			Common.getQuoted( SETUPAUTH + "; cat " + S_AUTHFILE + 
 				" | grep -v " + KEYOWNER + "\\$ > " + S_AUTHFILE + ".2; echo " + Common.getQuoted( KEYDATA ) + 
 				" >> " + S_AUTHFILE + ".2; cp " + S_AUTHFILE + ".2 " + S_AUTHFILE + 
@@ -219,11 +219,11 @@ public class ActionChangeKeys extends ActionBase {
 		
 		int timeout = setTimeoutUnlimited();
 		if( context.CTX_SUDO ) {
-			status = session.customGetStatus( this , "ssh -n -t -t " + ACCESSOPTION + " " + account.HOSTLOGIN + " " + 
+			status = shell.customGetStatus( this , "ssh -n -t -t " + ACCESSOPTION + " " + account.HOSTLOGIN + " " + 
 				Common.getQuoted( SETUPAUTH + "; echo " + Common.getQuoted( KEYDATA ) + " | sudo tee ~root/" + S_AUTHFILE ) );
 		}
 		else {
-			status = session.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " + 
+			status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " + 
 					Common.getQuoted( SETUPAUTH + "; echo " + Common.getQuoted( KEYDATA ) + " > " + S_AUTHFILE ) );
 		}
 		setTimeout( timeout );
@@ -237,7 +237,7 @@ public class ActionChangeKeys extends ActionBase {
 		if( context.CTX_SUDO )
 			exit( "unsupported with sudo" );
 		
-		int status = session.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " +
+		int status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " +
 		Common.getQuoted( SETUPAUTH + "; cat " + S_AUTHFILE + " | grep -v " + KEYOWNER + "\\$ > " +
 			S_AUTHFILE + ".2; cp " + S_AUTHFILE + ".2 " + S_AUTHFILE + "; rm -rf " + S_AUTHFILE + ".2;" ) );
 		if( status != 0 )
@@ -250,7 +250,7 @@ public class ActionChangeKeys extends ActionBase {
 			exit( "unsupported with sudo" );
 		
 		int timeout = setTimeoutUnlimited();
-		String[] list = session.customGetLines( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " +
+		String[] list = shell.customGetLines( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " +
 				Common.getQuoted( SETUPAUTH ) );
 		setTimeout( timeout );
 		if( list.length > 0 && list[0].equals( "NOAUTHFILE" ) )

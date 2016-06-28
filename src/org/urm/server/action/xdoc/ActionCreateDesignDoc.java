@@ -224,7 +224,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 
 	private void createPng( String fileDot , String filePng ) throws Exception {
 		String cmd = "dot -Tpng " + fileDot + " -o " + filePng;
-		session.customCheckStatus( this , cmd );
+		shell.customCheckStatus( this , cmd );
 	}
 	
 }

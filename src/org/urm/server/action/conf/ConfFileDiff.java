@@ -80,8 +80,8 @@ public class ConfFileDiff {
 	}
 
 	private boolean getBinaryDiff( ActionBase action ) throws Exception {
-		String relMD5 = action.session.getMD5( action , relFile );
-		String prodMD5 = action.session.getMD5( action , prodFile );
+		String relMD5 = action.shell.getMD5( action , relFile );
+		String prodMD5 = action.shell.getMD5( action , prodFile );
 		if( relMD5.equals( prodMD5 ) )
 			return( false );
 		

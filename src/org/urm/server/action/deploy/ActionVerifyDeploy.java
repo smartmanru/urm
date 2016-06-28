@@ -423,7 +423,7 @@ public class ActionVerifyDeploy extends ActionBase {
 				}
 			}
 			else {
-				int status = session.customGetStatus( this , "diff -r " + liveFolder.folderPath + " " + distFolder.folderPath + " > " + diffFile );
+				int status = shell.customGetStatus( this , "diff -r " + liveFolder.folderPath + " " + distFolder.folderPath + " > " + diffFile );
 				if( status != 0 )
 					isdiff = true;
 			}

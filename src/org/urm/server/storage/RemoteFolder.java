@@ -32,8 +32,8 @@ public class RemoteFolder extends Folder {
 		
 		String finalName = Common.getPath( srcDir , FNAME );
 		
-		action.session.copyFileLocalToTarget( action , account , finalName , dstDir );
-		action.session.copyFileLocalToTarget( action , account , finalName + ".md5" , dstDir );
+		action.shell.copyFileLocalToTarget( action , account , finalName , dstDir );
+		action.shell.copyFileLocalToTarget( action , account , finalName + ".md5" , dstDir );
 	}
 
 	public void deleteVOld( ActionBase action , ShellExecutor session , String FOLDER , String BASENAME , String EXT ) throws Exception {
@@ -54,14 +54,14 @@ public class RemoteFolder extends Folder {
 		String srcDir = sourceFolder.folderPath; 
 		String dstParentDir = Common.getPath( folderPath , dstParentFolder );
 		
-		action.session.copyDirLocalToTarget( action , account , srcDir , dstParentDir );
+		action.shell.copyDirLocalToTarget( action , account , srcDir , dstParentDir );
 	}
 	
 	public void copyDirContentFromLocal( ActionBase action , LocalFolder sourceFolder , String dstParentFolder ) throws Exception {
 		String srcDir = sourceFolder.folderPath; 
 		String dstParentDir = Common.getPath( folderPath , dstParentFolder );
 		
-		action.session.copyDirContentLocalToTarget( action , account , srcDir , dstParentDir );
+		action.shell.copyDirContentLocalToTarget( action , account , srcDir , dstParentDir );
 	}
 	
 	public RemoteFolder getSubFolder( ActionBase action , String subFolder ) throws Exception {
@@ -90,7 +90,7 @@ public class RemoteFolder extends Folder {
 		String srcPath = Common.getPath( folderPath , FOLDER );
 		String dstPath = Common.getPath( localFolder.folderPath , FOLDER );
 		
-		action.session.copyFileTargetToLocalDir( action , account , Common.getPath( srcPath , file ) , dstPath );
+		action.shell.copyFileTargetToLocalDir( action , account , Common.getPath( srcPath , file ) , dstPath );
 		return( Common.getPath( dstPath , file ) );
 	}
 
@@ -98,14 +98,14 @@ public class RemoteFolder extends Folder {
 		String srcPath = Common.getPath( folderPath , FOLDER );
 		String dstPath = Common.getPath( localFolder.folderPath , FOLDER );
 		
-		action.session.copyFilesTargetToLocal( action , account , Common.getPath( srcPath , files ) , dstPath );
+		action.shell.copyFilesTargetToLocal( action , account , Common.getPath( srcPath , files ) , dstPath );
 	}
 
 	public void moveFilesFromLocal( ActionBase action , LocalFolder localFolder , String files , String FOLDER ) throws Exception {
 		String dstPath = Common.getPath( folderPath , FOLDER );
 		String srcPath = Common.getPath( localFolder.folderPath , FOLDER );
 		
-		action.session.moveFilesTargetFromLocal( action , account , srcPath , files , dstPath );
+		action.shell.moveFilesTargetFromLocal( action , account , srcPath , files , dstPath );
 	}
 
 	public void copyFilesFromLocal( ActionBase action , LocalFolder localFolder , String files ) throws Exception {
@@ -116,47 +116,47 @@ public class RemoteFolder extends Folder {
 		String dstPath = Common.getPath( folderPath , FOLDER );
 		String srcPath = Common.getPath( localFolder.folderPath , FOLDER );
 		
-		action.session.copyFilesTargetFromLocal( action , account , srcPath , files , dstPath );
+		action.shell.copyFilesTargetFromLocal( action , account , srcPath , files , dstPath );
 	}
 
 	public String copyFileToLocalRename( ActionBase action , LocalFolder localFolder , String file , String newName ) throws Exception {
 		String srcPath = Common.getPath( folderPath , file );
 		String dstPath = Common.getPath( localFolder.folderPath , newName );
 		
-		action.session.copyFileTargetToLocalFile( action , account , srcPath , dstPath );
+		action.shell.copyFileTargetToLocalFile( action , account , srcPath , dstPath );
 		return( dstPath );
 	}
 
 	public void copyDirContentToLocal( ActionBase action , LocalFolder localFolder , String FOLDER ) throws Exception {
 		String srcPath = Common.getPath( folderPath , FOLDER );
-		action.session.copyDirContentTargetToLocal( action , account , srcPath , localFolder.folderPath );
+		action.shell.copyDirContentTargetToLocal( action , account , srcPath , localFolder.folderPath );
 	}
 	
 	public void copyDirToLocal( ActionBase action , LocalFolder localFolder ) throws Exception {
-		action.session.copyDirTargetToLocal( action , account , folderPath , localFolder.folderPath );
+		action.shell.copyDirTargetToLocal( action , account , folderPath , localFolder.folderPath );
 	}
 	
 	public void copyFileFromLocal( ActionBase action , String filePath , String FOLDER ) throws Exception {
 		String dstDir = Common.getPath( folderPath , FOLDER );
-		action.session.copyFileLocalToTarget( action , account , filePath , dstDir );
+		action.shell.copyFileLocalToTarget( action , account , filePath , dstDir );
 	}
 	
 	public void copyFileFromLocal( ActionBase action , LocalFolder folder , String fileName ) throws Exception {
 		String filePath = folder.getFilePath( action , fileName );
-		action.session.copyFileLocalToTarget( action , account , filePath , folderPath );
+		action.shell.copyFileLocalToTarget( action , account , filePath , folderPath );
 	}
 
 	public String copyFileFromLocal( ActionBase action , String filePath ) throws Exception {
-		action.session.copyFileLocalToTarget( action , account , filePath , folderPath );
+		action.shell.copyFileLocalToTarget( action , account , filePath , folderPath );
 		return( Common.getPath( folderPath , Common.getBaseName( filePath ) ) );
 	}
 
 	public void copyFileFromLocalRename( ActionBase action , String filePath , String newName ) throws Exception {
-		action.session.copyFileLocalToTargetRename( action , account , filePath , folderPath , newName );
+		action.shell.copyFileLocalToTargetRename( action , account , filePath , folderPath , newName );
 	}
 
 	public void copyFile( ActionBase action , String fileSrc , String fileDst ) throws Exception {
-		action.session.copyDirFileToFile( action , account , folderPath , fileSrc , fileDst );
+		action.shell.copyDirFileToFile( action , account , folderPath , fileSrc , fileDst );
 	}
 	
 	public void copyFile( ActionBase action , Folder srcFolder , String fileSrc , String newName ) throws Exception {
@@ -174,7 +174,7 @@ public class RemoteFolder extends Folder {
 		if( !account.local )
 			action.exitNotImplemented();
 		
-		return( action.session.getFileContentAsString( action , getFilePath( action , file ) ) );
+		return( action.shell.getFileContentAsString( action , getFilePath( action , file ) ) );
 	}
 	
 }

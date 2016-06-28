@@ -58,11 +58,11 @@ public class DatabaseClient {
 		else
 		if( !specific.server.dc.env.DB_AUTHFILE.isEmpty() ) {
 			String F_FNAME = specific.server.dc.env.DB_AUTHFILE;
-			if( !action.session.checkFileExists( action , F_FNAME ) )
+			if( !action.shell.checkFileExists( action , F_FNAME ) )
 				action.exit( "getSchemaPassword: password file " + F_FNAME + " does not exist" );
 
 			// get password
-			S_DB_USE_SCHEMA_PASSWORD = action.session.customGetValue( action , 
+			S_DB_USE_SCHEMA_PASSWORD = action.shell.customGetValue( action , 
 					"cat " + F_FNAME + " | grep " + Common.getQuoted( "^" + serverId + "." + user + "=" ) +
 					" | cut -d \"=\" -f2 | tr -d \"\n\r\"" );
 			

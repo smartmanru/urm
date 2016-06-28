@@ -14,7 +14,6 @@ import org.urm.server.action.ActionInit;
 import org.urm.server.action.CommandAction;
 import org.urm.server.action.CommandContext;
 import org.urm.server.action.CommandOutput;
-import org.urm.server.meta.Metadata;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
 import org.urm.server.meta.Metadata.VarCATEGORY;
 import org.urm.server.storage.Artefactory;
@@ -73,11 +72,11 @@ public abstract class CommandExecutor {
 		return( true );
 	}
 	
-	public ActionInit createAction( Artefactory artefactory , CommandContext context , Metadata meta , String actionName ) throws Exception {
+	public ActionInit createAction( SessionContext session , Artefactory artefactory , CommandContext context , String actionName ) throws Exception {
 		// start local shell
 		CommandOutput output = new CommandOutput();
 		CommandAction commandAction = actionsMap.get( actionName );
-		ActionInit action = new ActionInit( artefactory , this , context , output , meta , commandAction , actionName );
+		ActionInit action = new ActionInit( session , artefactory , this , context , output , commandAction , actionName );
 		
 		// load initial properties
 		action.setLogLevel( context.logLevelLimit );

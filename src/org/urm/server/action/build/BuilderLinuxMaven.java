@@ -75,11 +75,11 @@ public class BuilderLinuxMaven extends Builder {
 			cmd += "	rm $FNAME_ORIGINAL\n";
 			cmd += "	cp $x $FNAME_ORIGINAL\n";
 			cmd += "done";
-			action.session.customCheckErrorsDebug( action , cmd );
+			action.shell.customCheckErrorsDebug( action , cmd );
 		}
 
 		if( MODULEOPTIONS_SETVERSION == true )
-			action.session.customCheckErrorsDebug( action , "( cd " + CODEPATH + "; mvn versions:set -DnewVersion=" + APPVERSION + " )" );
+			action.shell.customCheckErrorsDebug( action , "( cd " + CODEPATH + "; mvn versions:set -DnewVersion=" + APPVERSION + " )" );
 
 		if( MODULEOPTIONS_REPLACESNAPSHOTS == true ) {
 			action.info( "patchPrepareSource: replace snapshots..." );
@@ -92,7 +92,7 @@ public class BuilderLinuxMaven extends Builder {
 			cmd += "	rm $fname\n";
 			cmd += "	mv $fname-new $fname\n";
 			cmd += "done";
-			action.session.customCheckErrorsDebug( action , cmd );
+			action.shell.customCheckErrorsDebug( action , cmd );
 		}
 		
 		return( true );
@@ -150,7 +150,7 @@ public class BuilderLinuxMaven extends Builder {
 		String MAVEN_CMD = "mvn -B -P " + MODULE_MAVEN_PROFILES + " " + MAVEN_ADDITIONAL_OPTIONS + " clean " + 
 				MODULE_MAVEN_CMD + " " + MODULE_ALT_REPO + " " + MODULE_MSETTINGS + " -Dmaven.test.skip=true";
 
-		ShellExecutor session = action.session;
+		ShellExecutor session = action.shell;
 		session.export( action , "JAVA_HOME" , action.meta.product.CONFIG_BUILDBASE + "/" + BUILD_JAVA_VERSION );
 		session.export( action , "PATH" , "$JAVA_HOME/bin:$PATH" );
 		session.export( action , "M2_HOME" , action.meta.product.CONFIG_BUILDBASE + "/" + BUILD_MAVEN_VERSION );

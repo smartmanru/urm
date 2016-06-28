@@ -159,7 +159,7 @@ public class Artefactory {
 
 	private GitMirrorStorage getGitMirrorStorage( ActionBase action , String NAME , boolean winBuild ) throws Exception {
 		RedistStorage storage;
-		Account account = ( winBuild )? action.getWinBuildAccount() : action.session.account; 
+		Account account = ( winBuild )? action.getWinBuildAccount() : action.shell.account; 
 		storage = getRedistStorage( action , account ); 
 		
 		Folder mirrorFolder = storage.getMirrorFolder( action , winBuild );
@@ -185,7 +185,7 @@ public class Artefactory {
 			MODE = "default";
 
 		String PATCHDIR = getWorkPath( action , MODE );
-		action.session.ensureDirExists( action , PATCHDIR );
+		action.shell.ensureDirExists( action , PATCHDIR );
 		String PATCHPATH = PATCHDIR + "/" + sourceProject.PROJECT;
 		
 		LocalFolder folder = getAnyFolder( action , PATCHPATH );

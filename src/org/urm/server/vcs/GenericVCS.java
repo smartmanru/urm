@@ -15,7 +15,7 @@ public abstract class GenericVCS {
 	
 	protected GenericVCS( ActionBase action ) {
 		this.action = action;
-		this.session = action.session;
+		this.session = action.shell;
 		this.meta = action.meta;
 	}
 	

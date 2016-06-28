@@ -175,7 +175,7 @@ public class ActionBaseInstall extends ActionBase {
 			LocalFolder folder = artefactory.getArtefactFolder( this , "base" );
 			String baseName = Common.getBaseName( info.SRCFILE );
 			String filePath = folder.getFilePath( this , baseName );
-			session.downloadUnix( this , info.SRCFILE , filePath , "" );
+			shell.downloadUnix( this , info.SRCFILE , filePath , "" );
 			localPath = filePath;
 		}
 		else {
@@ -187,7 +187,7 @@ public class ActionBaseInstall extends ActionBase {
 		}
 		setTimeout( timeout );
 		
-		if( !session.checkFileExists( this , localPath ) )
+		if( !shell.checkFileExists( this , localPath ) )
 			exit( "unable to find file: " + localPath );
 		
 		debug( "source local path: " + localPath );

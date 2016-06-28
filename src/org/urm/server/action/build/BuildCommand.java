@@ -214,7 +214,7 @@ public class BuildCommand {
 		
 		action.info( "buildAllTags: TAG=" + TAG + ", " + scope.getScopeInfo( action ) );
 		action.info( "BUILD TARGETS ..." );
-		action.session.createFileFromString( action , OUTFILE , "FINAL STATUS:" );
+		action.shell.createFileFromString( action , OUTFILE , "FINAL STATUS:" );
 
 		buildTags( action , TAG , scope , OUTDIR , OUTFILE , dist );
 	}
@@ -250,7 +250,7 @@ public class BuildCommand {
 		
 		action.info( "buildRelease: build TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , action.meta.getAllBuildableCategories( action ) ) + "}" );
 		String OUTFILE = OUTDIR.folderPath + "/build.final.out"; 
-		action.session.createFileFromString( action , OUTFILE , "FINAL STATUS:" );
+		action.shell.createFileFromString( action , OUTFILE , "FINAL STATUS:" );
 		buildTags( action , TAG , scope , OUTDIR , OUTFILE , dist );
 	}
 

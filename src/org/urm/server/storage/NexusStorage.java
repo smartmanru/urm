@@ -70,9 +70,9 @@ public class NexusStorage {
 		LocalFolder tmp = artefactoryFolder.getSubFolder( action , "tmp" );
 		tmp.ensureExists( action );
 		
-		action.session.unzipPart( action , artefactoryFolder.folderPath , src.DOWNLOAD_FILENAME , tmp.folderPath , 
+		action.shell.unzipPart( action , artefactoryFolder.folderPath , src.DOWNLOAD_FILENAME , tmp.folderPath , 
 				Common.getPath( "lib" , item.NUGET_PLATFORM , "*" ) );
-		action.session.unzipPart( action , artefactoryFolder.folderPath , src.DOWNLOAD_FILENAME , tmp.folderPath , 
+		action.shell.unzipPart( action , artefactoryFolder.folderPath , src.DOWNLOAD_FILENAME , tmp.folderPath , 
 				Common.getPath( "content" , "*" ) );
 		
 		// copy to final zip dir
@@ -87,7 +87,7 @@ public class NexusStorage {
 		String FILENAME = item.distItem.DISTBASENAME + item.distItem.EXT;
 		String finalFile = artefactoryFolder.getFilePath( action , FILENAME );
 		zip.createZipFromContent( action , finalFile , "*" , "" );
-		action.session.createMD5( action , finalFile );
+		action.shell.createMD5( action , finalFile );
 		
 		return( FILENAME );
 	}

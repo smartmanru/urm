@@ -447,11 +447,11 @@ public class DatabaseSpecific {
 		else
 			action.exitUnexpectedState();
 		
-		int status = action.session.customGetStatus( action , scripts.folderPath , ctxCmd );
+		int status = action.shell.customGetStatus( action , scripts.folderPath , ctxCmd );
 		if( status != 0 )
 			return( status );
 		
-		String errors = action.session.getErrors( action );
+		String errors = action.shell.getErrors( action );
 		if( !errors.isEmpty() )
 			return( -1 );
 		

@@ -107,11 +107,12 @@ public class CommandContext {
 	public String CTX_HOST = "";
 	public int CTX_PORT = -1;
 
-	public CommandContext( ServerEngine engine , CommandOptions options , SessionContext session , String stream , ServerCommandCall call ) {
+	public CommandContext( ServerEngine engine , SessionContext session , Metadata meta , CommandOptions options , String stream , ServerCommandCall call ) {
 		this.engine = engine;
-		this.options = options;
 		this.session = session;
+		this.meta = meta;
 		
+		this.options = options;
 		this.stream = stream;
 		this.call = call;
 		
@@ -146,9 +147,10 @@ public class CommandContext {
 		
 		// copy all properties
 		this.engine = context.engine;
-		this.options = context.options;
 		this.session = context.session;
+		this.meta = context.meta;
 		
+		this.options = context.options;
 		this.env = context.env;
 		this.dc = context.dc;
 

@@ -26,18 +26,18 @@ public class ActionUploadLibItem extends ActionBase {
 		String BUILD_JAVA_VERSION = meta.product.CONFIG_JAVA_VERSION;
 		String BUILD_MAVEN_VERSION = meta.product.CONFIG_MAVEN_VERSION;
 
-		session.export( this , "JAVA_HOME" , meta.product.CONFIG_BUILDBASE + "/" + BUILD_JAVA_VERSION );
-		session.export( this , "PATH" , "$JAVA_HOME/bin:$PATH" );
-		session.export( this , "M2_HOME" , meta.product.CONFIG_BUILDBASE + "/" + BUILD_MAVEN_VERSION );
-		session.export( this , "M2" , "$M2_HOME/bin" );
-		session.export( this , "PATH" , "$M2:$PATH" );
-		session.export( this , "MAVEN_OPTS" , Common.getQuoted( "-XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );
+		shell.export( this , "JAVA_HOME" , meta.product.CONFIG_BUILDBASE + "/" + BUILD_JAVA_VERSION );
+		shell.export( this , "PATH" , "$JAVA_HOME/bin:$PATH" );
+		shell.export( this , "M2_HOME" , meta.product.CONFIG_BUILDBASE + "/" + BUILD_MAVEN_VERSION );
+		shell.export( this , "M2" , "$M2_HOME/bin" );
+		shell.export( this , "PATH" , "$M2:$PATH" );
+		shell.export( this , "MAVEN_OPTS" , Common.getQuoted( "-XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );
 
 		// upload
 		if( GROUPID.isEmpty() || FILE.isEmpty() )
 			exit( "invalid parameters" );
 		
-		if( !session.checkFileExists( this , FILE ) )
+		if( !shell.checkFileExists( this , FILE ) )
 		     exit( "unknown file " + FILE );
 		
 		// extract extension
@@ -85,7 +85,7 @@ public class ActionUploadLibItem extends ActionBase {
 				" -DartifactId=" + F_ARTEFACTID + " " + F_CLASSIFIER + " -Dfile=" + FILE;
 		}
 		
-		session.custom( this , CMD );
+		shell.custom( this , CMD );
 		return( true );
 	}
 	

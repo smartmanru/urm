@@ -45,7 +45,7 @@ public class BuilderLinuxGradle extends Builder {
 		String BUILD_JAVA_VERSION = project.getJavaVersion( action );
 		String BUILD_GRADLE_VERSION = project.getBuilderVersion( action ); 
 
-		ShellExecutor session = action.session;
+		ShellExecutor session = action.shell;
 		session.export( action , "JAVA_HOME" , action.meta.product.CONFIG_BUILDBASE + "/" + BUILD_JAVA_VERSION );
 		session.export( action , "GR_HOME" , action.meta.product.CONFIG_BUILDBASE + "/" + BUILD_GRADLE_VERSION );
 		session.export( action , "GR" , "$GR_HOME/bin" );

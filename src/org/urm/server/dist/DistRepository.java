@@ -33,7 +33,7 @@ public class DistRepository {
 			distPath = action.context.env.DISTR_PATH;
 		}
 		
-		Account account = action.session.account;
+		Account account = action.shell.account;
 		if( action.context.env != null ) {
 			if( !action.isLocalRun() )
 				account = Account.getAccount( action , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.LINUX );

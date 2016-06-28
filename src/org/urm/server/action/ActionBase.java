@@ -9,6 +9,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.CommandExecutor;
 import org.urm.server.ServerEngine;
+import org.urm.server.SessionContext;
 import org.urm.server.custom.CommandCustom;
 import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.meta.Metadata;
@@ -28,13 +29,14 @@ import org.w3c.dom.Node;
 
 abstract public class ActionBase {
 
+	public SessionContext session;
 	public ServerEngine engine;
 	public CommandExecutor executor;
 	public CommandContext context;
 	public Artefactory artefactory;
 	public CommandCustom custom;
 	
-	public ShellExecutor session;
+	public ShellExecutor shell;
 	public Metadata meta;
 	protected CommandOutput output;
 	boolean actionFailed;
@@ -59,17 +61,18 @@ abstract public class ActionBase {
 	protected void runBefore( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
 	protected void runAfter( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
 	
-	public ActionBase( Artefactory artefactory , CommandExecutor executor , CommandContext context , CommandOutput output , Metadata meta ) {
-		this.engine = executor.engine;
+	public ActionBase( SessionContext session , Artefactory artefactory , CommandExecutor executor , CommandContext context , CommandOutput output ) {
+		this.session = session;
 		this.executor = executor;
 		this.context = context;
 		this.output = output;
-		this.meta = meta;
 		this.artefactory = artefactory;
 		
 		this.actionFailed = false;
 		this.commandTimeout = 0;
 
+		this.engine = executor.engine;
+		this.meta = context.meta;
 		custom = new CommandCustom( meta );
 		
 		NAME = this.getClass().getSimpleName();
@@ -83,7 +86,7 @@ abstract public class ActionBase {
 		this.custom = base.custom;
 		this.artefactory = base.artefactory;
 		
-		this.session = base.session;
+		this.shell = base.shell;
 		this.commandTimeout = base.commandTimeout;
 		
 		context = new CommandContext( base.context , stream );
@@ -92,7 +95,7 @@ abstract public class ActionBase {
 	}
 	
 	public void setShell( ShellExecutor session ) throws Exception {
-		this.session = session;
+		this.shell = session;
 	}
 	
 	public boolean isFailed() {
@@ -323,7 +326,7 @@ abstract public class ActionBase {
 	public void startRedirect( String title , String logFile ) throws Exception {
 		String file = logFile;
 		if( file.startsWith( "~/" ) )
-			file = session.getHomePath() + file.substring( 1 ); 
+			file = shell.getHomePath() + file.substring( 1 ); 
 		debug( "start logging to " + file );
 		output.createOutputFile( context , title , file );
 	}
@@ -457,7 +460,7 @@ abstract public class ActionBase {
 	}
 
 	public String getOSPath( String dirPath ) throws Exception {
-		return( session.getOSPath( this , dirPath ) );	
+		return( shell.getOSPath( this , dirPath ) );	
 	}
 
 	public boolean isWindows() {
@@ -465,7 +468,7 @@ abstract public class ActionBase {
 	}
 
 	public boolean isLinux() {
-		return( session.isLinux() );
+		return( shell.isLinux() );
 	}
 
 	public void commentExecutor( String msg ) throws Exception {
@@ -478,7 +481,7 @@ abstract public class ActionBase {
 	}
 
 	public boolean isLocalAccount() {
-		return( session.account.local );
+		return( shell.account.local );
 	}
 
 	public void stopAllOutputs() throws Exception {
@@ -486,15 +489,15 @@ abstract public class ActionBase {
 	}
 
 	public String getTmpFilePath( String name ) throws Exception {
-		if( session.account.local )
+		if( shell.account.local )
 			return( getWorkFilePath( name ) );
 		return( Common.getPath( context.CTX_REDISTPATH , "tmp" , name ) );
 	}
 
 	public Folder getTmpFolder( String folder ) throws Exception {
-		if( session.account.local )
+		if( shell.account.local )
 			return( new LocalFolder( getWorkFilePath( folder ) , isWindows() ) );
-		RedistStorage redist = artefactory.getRedistStorage( this , session.account );
+		RedistStorage redist = artefactory.getRedistStorage( this , shell.account );
 		RemoteFolder rf = redist.getRedistTmpFolder( this );
 		return( rf.getSubFolder( this , folder ) );
 	}

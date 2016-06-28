@@ -10,7 +10,6 @@ import org.urm.server.action.CommandContext;
 import org.urm.server.meta.MetaMonitoring;
 import org.urm.server.meta.MetaMonitoringItem;
 import org.urm.server.meta.MetaMonitoringTarget;
-import org.urm.server.meta.Metadata;
 import org.urm.server.storage.MonitoringStorage;
 
 public class ActionMonitorTop extends ActionBase {
@@ -149,9 +148,8 @@ public class ActionMonitorTop extends ActionBase {
 
 	private ActionInit initProduct( MetaMonitoringTarget target ) throws Exception {
 		CommandContext initContext = context.getProductContext( target.NAME );
-		Metadata meta = new Metadata();
-		ActionInit action = new ActionInit( artefactory , executor , initContext , output , meta , null , null );
-		action.setShell( session );
+		ActionInit action = new ActionInit( session , artefactory , executor , initContext , output , null , null );
+		action.setShell( shell );
 		return( action );
 	}
 

@@ -32,7 +32,7 @@ public class ActionSendChatMsg extends ActionBase {
 			msg += " (dc=" + dc.NAME + ")"; 
 		
 		String filePath = Common.getPath( meta.product.CONFIG_PRODUCTHOME , context.env.CHATROOMFILE ); 
-		session.appendFileWithString( this , filePath , msg );
+		shell.appendFileWithString( this , filePath , msg );
 		trace( "ActionSendChatMsg: msg sent to " + filePath );
 		return( true );
 	}

@@ -72,7 +72,7 @@ public class MonitorInfo {
 
 		String rrdfile = storage.getRrdFile( target );
 		String F_CREATEFILE = storage.getHistoryImageFile( target );
-		action.session.custom( action , "rrdtool graph " + F_CREATEFILE +
+		action.shell.custom( action , "rrdtool graph " + F_CREATEFILE +
 			" " + scale + " -v " + Common.getQuoted( "secs" ) + 
 			" -t " + Common.getQuoted( target.ENV + ", dc=" + target.DC + " checkenv.sh execution time (0 if not running)" ) +
 			" " + geometry + " " + color + 
@@ -113,7 +113,7 @@ public class MonitorInfo {
 	}
 
 	private void createRrdFile( String fname ) throws Exception {
-		action.session.custom( action , "rrdtool create " + fname + 
+		action.shell.custom( action , "rrdtool create " + fname + 
 			" --start 20150101" +
 			" --step 60" +
 			" DS:total:GAUGE:1000:0:U" +
@@ -139,12 +139,12 @@ public class MonitorInfo {
 		long F_TS = System.currentTimeMillis();
 		long X_TS = F_TS / 1000;
 
-		if( !action.session.checkFileExists( action , F_RRDFILE ) )
+		if( !action.shell.checkFileExists( action , F_RRDFILE ) )
 			createRrdFile( F_RRDFILE );
 		
-		action.session.appendFileWithString( action , F_RRDFILE_LOG , 
+		action.shell.appendFileWithString( action , F_RRDFILE_LOG , 
 				"rrdtool update: " + Common.getTimeStamp( F_TS ) + "=" + X_TS + ":" + X_VALUES );
-		action.session.custom( action , "rrdtool update " + F_RRDFILE + " " + X_TS + ":" + X_VALUES );
+		action.shell.custom( action , "rrdtool update " + F_RRDFILE + " " + X_TS + ":" + X_VALUES );
 	}
 	
 	class MonitorTargetInfo {

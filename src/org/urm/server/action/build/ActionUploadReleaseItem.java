@@ -22,10 +22,10 @@ public class ActionUploadReleaseItem extends ActionBase {
 		List<ActionScopeTargetItem> items = scopeProject.getItems( this );
 		
 		// set maven
-		session.export( this , "M2_HOME" , "/usr/local/apache-maven-" + meta.product.CONFIG_MAVEN_VERSION );
-		session.export( this , "M2" , "$M2_HOME/bin; export PATH=" + Common.getQuoted( "$PATH:$M2" ) );
-		session.export( this , "JAVA_HOME" , "/usr/java/" + meta.product.CONFIG_JAVA_VERSION );
-		session.export( this , "PATH" , "$PATH:$JAVA_HOME/bin" );
+		shell.export( this , "M2_HOME" , "/usr/local/apache-maven-" + meta.product.CONFIG_MAVEN_VERSION );
+		shell.export( this , "M2" , "$M2_HOME/bin; export PATH=" + Common.getQuoted( "$PATH:$M2" ) );
+		shell.export( this , "JAVA_HOME" , "/usr/java/" + meta.product.CONFIG_JAVA_VERSION );
+		shell.export( this , "PATH" , "$PATH:$JAVA_HOME/bin" );
 	
 		// get thirdparty information
 		for( ActionScopeTargetItem scopeItem : items )
