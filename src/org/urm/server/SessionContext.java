@@ -8,6 +8,8 @@ import org.urm.common.action.CommandOptions;
 public class SessionContext {
 
 	public RunContext clientrc;
+	public RunContext execrc;
+	
 	public String ENV;
 	public String DC;
 	public boolean executorFailed;
@@ -21,8 +23,10 @@ public class SessionContext {
 	public String etcPath = "";
 	public String proxyPath = "";
 	
-	public SessionContext( RunContext clientrc ) {
+	public SessionContext( RunContext clientrc , RunContext execrc ) {
 		this.clientrc = clientrc;
+		this.execrc = execrc;
+		
 		this.ENV = clientrc.envName;
 		this.DC = clientrc.dcName;
 		

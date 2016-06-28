@@ -20,7 +20,7 @@ public class BuilderWindowsDotnet extends Builder {
 
 	@Override public ShellExecutor createShell( ActionBase action ) throws Exception {
 		Account account = action.getWinBuildAccount();
-		return( action.context.pool.getExecutor( action , account , "build" ));
+		return( action.engine.pool.getExecutor( action , account , "build" ));
 	}
 
 	@Override public boolean exportCode( ActionBase action ) throws Exception {

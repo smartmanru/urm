@@ -8,6 +8,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.CommandExecutor;
+import org.urm.server.ServerEngine;
 import org.urm.server.custom.CommandCustom;
 import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.meta.Metadata;
@@ -27,6 +28,7 @@ import org.w3c.dom.Node;
 
 abstract public class ActionBase {
 
+	public ServerEngine engine;
 	public CommandExecutor executor;
 	public CommandContext context;
 	public Artefactory artefactory;
@@ -58,6 +60,7 @@ abstract public class ActionBase {
 	protected void runAfter( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
 	
 	public ActionBase( CommandExecutor executor , CommandContext context , CommandOutput output , Metadata meta ) {
+		this.engine = executor.engine;
 		this.executor = executor;
 		this.context = context;
 		this.output = output;
@@ -67,23 +70,25 @@ abstract public class ActionBase {
 		this.actionFailed = false;
 		this.commandTimeout = 0;
 
-		this.custom = new CommandCustom( meta );
+		custom = new CommandCustom( meta );
 		
 		NAME = this.getClass().getSimpleName();
 	}
 
 	public ActionBase( ActionBase base , String stream ) {
+		this.engine = base.engine;
 		this.executor = base.executor;
-		this.context = new CommandContext( base.context , stream );
 		this.output = base.output;
 		this.meta = base.meta;
 		this.custom = base.custom;
 		
 		this.session = base.session;
-		this.artefactory = new Artefactory( base.artefactory );
-		this.actionFailed = false;
 		this.commandTimeout = base.commandTimeout;
 		
+		artefactory = new Artefactory( base.artefactory );
+		context = new CommandContext( base.context , stream );
+		
+		actionFailed = false;
 		NAME = this.getClass().getSimpleName();
 	}
 	
@@ -300,7 +305,7 @@ abstract public class ActionBase {
 	}
 	
 	public ShellExecutor getShell( Account account ) throws Exception {
-		return( context.pool.getExecutor( this , account , context.stream ) );
+		return( engine.pool.getExecutor( this , account , context.stream ) );
 	}
 	
 	public ShellExecutor getShell( MetaEnvServerNode node ) throws Exception {

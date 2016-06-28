@@ -79,7 +79,6 @@ public abstract class CommandExecutor {
 		context.update( action );
 		
 		// create shell pool
-		context.createPool( action );
 		action.setTimeout( context.CTX_COMMANDTIMEOUT );
 		
 		// create work folder

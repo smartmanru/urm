@@ -12,16 +12,16 @@ import org.urm.common.action.CommandOptions.SQLTYPE;
 import org.urm.common.action.CommandVar.FLAG;
 import org.urm.common.jmx.ServerCommandCall;
 import org.urm.server.CommandExecutor;
+import org.urm.server.ServerEngine;
 import org.urm.server.SessionContext;
 import org.urm.server.meta.MetaEnv;
 import org.urm.server.meta.MetaEnvDC;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
 import org.urm.server.shell.Account;
-import org.urm.server.shell.ShellExecutorPool;
-import org.urm.server.storage.LocalFolder;
 
 public class CommandContext {
-	
+
+	public ServerEngine engine;
 	public RunContext clientrc;
 	public RunContext execrc;
 	public CommandOptions options;
@@ -32,8 +32,6 @@ public class CommandContext {
 	public MetaEnv env; 
 	public MetaEnvDC dc;
 	
-	public ShellExecutorPool pool;
-
 	public ServerCommandCall call;
 	public String stream;
 	public String streamLog;
@@ -112,9 +110,10 @@ public class CommandContext {
 	public String CTX_HOST = "";
 	public int CTX_PORT = -1;
 
-	public CommandContext( RunContext clientrc , RunContext execrc , CommandOptions options , SessionContext session , String stream , ServerCommandCall call ) {
-		this.clientrc = clientrc;
-		this.execrc = execrc;
+	public CommandContext( ServerEngine engine , CommandOptions options , SessionContext session , String stream , ServerCommandCall call ) {
+		this.engine = engine;
+		this.clientrc = session.clientrc;
+		this.execrc = session.execrc;
 		this.options = options;
 		this.session = session;
 		
@@ -151,6 +150,7 @@ public class CommandContext {
 			this.stream = stream;
 		
 		// copy all properties
+		this.engine = context.engine;
 		this.clientrc = context.clientrc;
 		this.execrc = context.execrc;
 		this.options = context.options;
@@ -158,7 +158,6 @@ public class CommandContext {
 		
 		this.env = context.env;
 		this.dc = context.dc;
-		this.pool = context.pool;
 
 		this.call = context.call;
 		this.account = context.account;
@@ -385,23 +384,6 @@ public class CommandContext {
 		if( !session.DC.isEmpty() )
 			contextInfo += ", dc=" + session.DC;
 		action.debug( "context: " + contextInfo );
-	}
-	
-	public void createPool( ActionBase action ) throws Exception {
-		pool = new ShellExecutorPool();
-		pool.start( action );
-	}
-
-	public void killPool( ActionBase action ) throws Exception {
-		pool.kill( action );
-	}
-	
-	public void deleteWorkFolder( ActionBase action , LocalFolder workFolder ) throws Exception {
-		pool.master.removeDir( action , workFolder.folderPath );
-	}
-	
-	public void stopPool( ActionBase action ) throws Exception {
-		pool.stop( action );
 	}
 	
 	public void setBuildMode( ActionBase action , VarBUILDMODE value ) throws Exception {

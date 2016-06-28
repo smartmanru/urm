@@ -14,6 +14,7 @@ import org.urm.common.meta.DeployCommandMeta;
 import org.urm.common.meta.MonitorCommandMeta;
 import org.urm.common.meta.ReleaseCommandMeta;
 import org.urm.common.meta.XDocCommandMeta;
+import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionInit;
 import org.urm.server.action.CommandContext;
 import org.urm.server.action.build.BuildCommandExecutor;
@@ -24,6 +25,8 @@ import org.urm.server.action.monitor.MonitorCommandExecutor;
 import org.urm.server.action.release.ReleaseCommandExecutor;
 import org.urm.server.action.xdoc.XDocCommandExecutor;
 import org.urm.server.meta.Metadata;
+import org.urm.server.shell.ShellExecutorPool;
+import org.urm.server.storage.LocalFolder;
 
 public class ServerEngine {
 
@@ -32,6 +35,8 @@ public class ServerEngine {
 	public ActionInit serverAction;
 
 	int invokeSequence = 0;
+	
+	public ShellExecutorPool pool;
 	
 	public ServerEngine() {
 	}
@@ -55,7 +60,7 @@ public class ServerEngine {
 			return( false );
 		
 		// server action environment
-		serverSession = new SessionContext( execrc );
+		serverSession = new SessionContext( execrc , execrc );
 		serverSession.setServerLayout( builder.options );
 
 		// create server action
@@ -70,7 +75,7 @@ public class ServerEngine {
 	public boolean runClientMode( CommandBuilder builder , CommandOptions options , RunContext clientrc , CommandMeta commandInfo ) throws Exception {
 		execrc = clientrc;
 		CommandExecutor executor = createExecutor( commandInfo );
-		SessionContext session = new SessionContext( clientrc );
+		SessionContext session = new SessionContext( clientrc , execrc );
 		
 		if( clientrc.productDir.isEmpty() )
 			session.setStandaloneLayout( options );
@@ -96,7 +101,7 @@ public class ServerEngine {
 			return( false );
 		
 		CommandExecutor executor = createExecutor( commandInfo );
-		SessionContext session = new SessionContext( data.clientrc );
+		SessionContext session = new SessionContext( data.clientrc , execrc );
 		session.setServerClientLayout( serverSession );
 		
 		ActionInit action = createAction( builder , options , executor , session , "remote-" + data.clientrc.productDir , call );
@@ -107,10 +112,10 @@ public class ServerEngine {
 		return( runClientAction( session , executor , action ) );
 	}
 
-	public boolean runClientJmx( CommandMeta meta , CommandOptions options ) throws Exception {
+	public boolean runClientJmx( String productDir , CommandMeta meta , CommandOptions options ) throws Exception {
 		CommandExecutor executor = createExecutor( meta );
-		SessionContext session = new SessionContext( execrc );
-		session.setServerClientLayout( serverSession );
+		SessionContext session = new SessionContext( execrc , execrc );
+		session.setServerProductLayout( productDir );
 		
 		CommandBuilder builder = new CommandBuilder( execrc , execrc );
 		ActionInit action = createAction( builder , options , executor , session , "jmx-" + execrc.productDir , null );
@@ -146,7 +151,7 @@ public class ServerEngine {
 		// execute
 		try {
 			executor.run( serverAction );
-			serverAction.context.killPool( serverAction );
+			killPool();
 		}
 		catch( Throwable e ) {
 			serverAction.log( e );
@@ -160,7 +165,7 @@ public class ServerEngine {
 			serverAction.commentExecutor( "COMMAND FAILED" );
 			
 		executor.finish( serverAction );
-		serverAction.context.stopPool( serverAction );
+		stopPool();
 
 		return( res );
 	}
@@ -188,7 +193,7 @@ public class ServerEngine {
 
 	public ActionInit createAction( CommandBuilder builder , CommandOptions options , CommandExecutor executor , SessionContext session , String stream , ServerCommandCall call ) throws Exception {
 		// create context
-		CommandContext context = new CommandContext( session.clientrc , execrc , options , session , stream , call );
+		CommandContext context = new CommandContext( this , options , session , stream , call );
 		if( !context.setRunContext() )
 			return( null );
 		
@@ -199,6 +204,23 @@ public class ServerEngine {
 		ActionInit action = executor.prepare( context , meta , options.action );
 		
 		return( action );
+	}
+	
+	public void createPool() throws Exception {
+		pool = new ShellExecutorPool( this );
+		pool.start( serverAction );
+	}
+
+	public void killPool() throws Exception {
+		pool.kill( serverAction );
+	}
+	
+	public void deleteWorkFolder( ActionBase action , LocalFolder workFolder ) throws Exception {
+		pool.master.removeDir( action , workFolder.folderPath );
+	}
+	
+	public void stopPool() throws Exception {
+		pool.stop( serverAction );
 	}
 	
 }

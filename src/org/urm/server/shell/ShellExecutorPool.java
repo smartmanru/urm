@@ -6,12 +6,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionBase;
 import org.urm.server.storage.Folder;
 import org.urm.server.storage.LocalFolder;
 
 public class ShellExecutorPool {
 
+	public ServerEngine engine;
 	public String rootPath;
 	
 	Map<String,ShellExecutor> pool = new HashMap<String,ShellExecutor>();
@@ -22,7 +24,8 @@ public class ShellExecutorPool {
 	public Account account;
 	public Folder tmpFolder;
 	
-	public ShellExecutorPool() {
+	public ShellExecutorPool( ServerEngine engine ) {
+		this.engine = engine;
 	}
 	
 	public void start( ActionBase action ) throws Exception {

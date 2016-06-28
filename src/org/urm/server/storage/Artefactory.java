@@ -67,7 +67,7 @@ public class Artefactory {
 		if( action.context.session.isFailed() || action.context.CTX_SHOWALL )
 			action.info( "saved work directory: " + workFolder.folderPath );
 		else
-			action.context.deleteWorkFolder( action , workFolder );
+			action.engine.deleteWorkFolder( action , workFolder );
 	}
 
 	public LocalFolder getWorkFolder( ActionBase action ) throws Exception {

@@ -31,7 +31,7 @@ public class ActionLogin extends ActionBase {
 				", node=" + node.POS + ", hostlogin=" + account.HOSTLOGIN + " ..." );
 		
 		int timeout = setTimeoutUnlimited();
-		context.pool.runInteractiveSsh( this , account , F_KEY );
+		engine.pool.runInteractiveSsh( this , account , F_KEY );
 		setTimeout( timeout );
 		
 		return( true );

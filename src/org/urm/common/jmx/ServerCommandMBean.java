@@ -319,9 +319,11 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 	}
 	
 	private int notifyExecuteSpecific( String name , Object[] args ) throws Exception {
+		action.debug( "operation invoked, name=" + name );
+		
 		// find action
 		CommandMethod method = meta.getAction( name );
-		if( args.length != method.vars.length )
+		if( args.length != ( 1 + method.vars.length ) )
 			return( -1 );
 		
 		CommandOptions cmdopts = new CommandOptions( options.meta );
@@ -329,12 +331,13 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		data.set( options.data );
 		cmdopts.setAction( meta.name , method , data );
 		
-		for( int k = 0; k < args.length; k++ ) {
+		data.setArgs( Common.splitSpaced( ( String )args[0] ) ); 
+		for( int k = 0; k < method.vars.length; k++ ) {
 			String varName = method.vars[ k ];
-			setOption( cmdopts , varName , args[ k ] );
+			setOption( cmdopts , varName , args[ k + 1 ] );
 		}
 		
-		if( !engine.runClientJmx( meta , cmdopts ) )
+		if( !engine.runClientJmx( productDir , meta , cmdopts ) )
 			return( -1 );
 		
 		return( 0 );

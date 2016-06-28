@@ -219,7 +219,7 @@ public class ActionData implements Serializable {
 	}
 	
 	public void setParam( CommandVar var , String value ) {
-		if( value.isEmpty() ) {
+		if( value == null || value.isEmpty() ) {
 			params.remove( var.varName );
 			return;
 		}
