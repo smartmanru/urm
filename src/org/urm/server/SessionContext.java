@@ -7,6 +7,7 @@ import org.urm.common.action.CommandOptions;
 
 public class SessionContext {
 
+	public ServerEngine engine;
 	public RunContext clientrc;
 	public RunContext execrc;
 	
@@ -25,9 +26,10 @@ public class SessionContext {
 	public String etcPath = "";
 	public String proxyPath = "";
 	
-	public SessionContext( RunContext clientrc , RunContext execrc ) {
+	public SessionContext( ServerEngine engine , RunContext clientrc ) {
+		this.engine = engine;
 		this.clientrc = clientrc;
-		this.execrc = execrc;
+		this.execrc = engine.execrc;
 		
 		this.ENV = clientrc.envName;
 		this.DC = clientrc.dcName;

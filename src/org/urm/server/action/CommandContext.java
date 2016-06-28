@@ -317,6 +317,7 @@ public class CommandContext {
 		CTX_HOST = getParamValue( "OPT_HOST" );
 		
 		setLogStream();
+		setLogLevel();
 	}
 
 	public void loadEnv( ActionBase action , boolean loadProps ) throws Exception {

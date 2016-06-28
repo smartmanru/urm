@@ -143,7 +143,7 @@ public class ShellCoreWindows extends ShellCore {
 			boolean res = waiter.wait( action , action.commandTimeout );
 			
 			if( !res )
-				exitError( action , "command has been killed" );
+				exitError( action , "command has been killed (" + cmd + ")" );
 		}
 	}
 

@@ -62,7 +62,7 @@ public class ServerEngine {
 			return( false );
 		
 		// server action environment
-		serverSession = new SessionContext( execrc , execrc );
+		serverSession = new SessionContext( this , execrc );
 		serverSession.setServerLayout( builder.options );
 
 		// create server action
@@ -71,6 +71,7 @@ public class ServerEngine {
 			return( false );
 
 		// run server action
+		createPool();
 		startAction( serverAction );
 		return( runServerAction( serverSession , executor ) );
 	}
@@ -78,7 +79,7 @@ public class ServerEngine {
 	public boolean runClientMode( CommandBuilder builder , CommandOptions options , RunContext clientrc , CommandMeta commandInfo ) throws Exception {
 		execrc = clientrc;
 		CommandExecutor executor = createExecutor( commandInfo );
-		serverSession = new SessionContext( clientrc , execrc );
+		serverSession = new SessionContext( this , clientrc );
 		
 		if( clientrc.productDir.isEmpty() )
 			serverSession.setStandaloneLayout( options );
@@ -105,7 +106,7 @@ public class ServerEngine {
 			return( false );
 		
 		CommandExecutor executor = createExecutor( commandInfo );
-		SessionContext session = new SessionContext( data.clientrc , execrc );
+		SessionContext session = new SessionContext( this , data.clientrc );
 		session.setServerClientLayout( serverSession );
 		
 		ActionInit action = createAction( options , executor , session , "remote-" + data.clientrc.productDir , call );
@@ -117,7 +118,7 @@ public class ServerEngine {
 
 	public boolean runClientJmx( String productDir , CommandMeta meta , CommandOptions options ) throws Exception {
 		CommandExecutor executor = createExecutor( meta );
-		SessionContext session = new SessionContext( execrc , execrc );
+		SessionContext session = new SessionContext( this , execrc );
 		session.setServerProductLayout( productDir );
 		
 		ActionInit action = createAction( options , executor , session , "jmx-" + execrc.productDir , null );
