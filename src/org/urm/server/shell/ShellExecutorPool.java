@@ -34,7 +34,7 @@ public class ShellExecutorPool {
 		tmpFolder.ensureExists( action );
 	}
 	
-	public ShellExecutor getExecutor( ActionBase action , Account account , String scope ) throws Exception {
+	public synchronized ShellExecutor getExecutor( ActionBase action , Account account , String scope ) throws Exception {
 		Account execAccount = account;
 
 		String name = ( account.local )? "local::" + scope : "remote::" + scope + "::" + account.HOSTLOGIN; 
