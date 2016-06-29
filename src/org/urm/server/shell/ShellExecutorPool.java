@@ -117,6 +117,9 @@ public class ShellExecutorPool {
 					action.trace( "exception when killing shell=" + session.name + " (" + e.getMessage() + ")" );
 			}
 		}
+		
+		list.clear();
+		mapDedicated.remove( action );
 	}
 
 	public void runInteractiveSsh( ActionBase action , Account account , String KEY ) throws Exception {
