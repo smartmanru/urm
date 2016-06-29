@@ -14,7 +14,7 @@ public class BuilderLinuxGradle extends Builder {
 	}
 	
 	@Override public ShellExecutor createShell( ActionBase action ) throws Exception {
-		return( action.engine.pool.createDedicatedLocalShell( action , "build" ) );
+		return( action.createDedicatedShell( "build" ) );
 	}
 	
 	@Override public boolean exportCode( ActionBase action ) throws Exception {

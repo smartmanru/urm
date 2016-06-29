@@ -271,7 +271,7 @@ public class BuildCommand {
 
 	public void thirdpartyUploadDist( ActionBase action , ActionScopeTarget scopeProject , Dist dist ) throws Exception {
 		ActionUploadReleaseItem ca = new ActionUploadReleaseItem( action , null , dist );
-		ShellExecutor bs = action.engine.pool.createDedicatedLocalShell( ca , "build"  );
+		ShellExecutor bs = ca.createDedicatedShell( "build"  );
 		
 		try {
 			ca.runSingleTarget( scopeProject );
@@ -283,7 +283,7 @@ public class BuildCommand {
 
 	public void thirdpartyUploadLib( ActionBase action , String GROUPID , String FILE , String ARTEFACTID , String VERSION , String CLASSIFIER ) throws Exception {
 		ActionUploadLibItem ca = new ActionUploadLibItem( action , null , GROUPID , FILE , ARTEFACTID , VERSION , CLASSIFIER );
-		ShellExecutor bs = action.engine.pool.createDedicatedLocalShell( ca , "build"  );
+		ShellExecutor bs = ca.createDedicatedShell( "build"  );
 		
 		try {
 			ca.runSimple();

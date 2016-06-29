@@ -58,14 +58,14 @@ public abstract class ShellExecutor {
 		
 		core.kill( action );
 		if( !initialized )
-			action.exit( "session=" + name + " failed on init stage" );
+			action.exit( "shell=" + name + " failed on init stage" );
 		
 		core = ShellCore.createShellCore( action , this , core.osType , core.local );
 		start( action );
 	}
 	
 	protected void createProcess( ActionBase action , ProcessBuilder builder , String rootPath ) throws Exception {
-		action.debug( "start session=" + name + " at rootPath=" + rootPath );
+		action.debug( "start shell=" + name + " at rootPath=" + rootPath );
 		core.createProcess( action , builder , rootPath );
 	}
 	

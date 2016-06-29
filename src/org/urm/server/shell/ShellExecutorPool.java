@@ -78,7 +78,7 @@ public class ShellExecutorPool {
 		}
 		catch( Throwable e ) {
 			if( action.context.CTX_TRACEINTERNAL )
-				action.trace( "exception when killing session=" + master.name + " (" + e.getMessage() + ")" );
+				action.trace( "exception when killing shell=" + master.name + " (" + e.getMessage() + ")" );
 		}
 	}
 	
@@ -90,7 +90,7 @@ public class ShellExecutorPool {
 				}
 				catch( Throwable e ) {
 					if( action.context.CTX_TRACEINTERNAL )
-						action.trace( "exception when killing session=" + session.name + " (" + e.getMessage() + ")" );
+						action.trace( "exception when killing shell=" + session.name + " (" + e.getMessage() + ")" );
 				}
 			}
 			
@@ -101,7 +101,7 @@ public class ShellExecutorPool {
 				}
 				catch( Throwable e ) {
 					if( action.context.CTX_TRACEINTERNAL )
-						action.trace( "exception when killing session=" + session.name + " (" + e.getMessage() + ")" );
+						action.trace( "exception when killing shell=" + session.name + " (" + e.getMessage() + ")" );
 				}
 			}
 		}

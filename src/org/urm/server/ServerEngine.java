@@ -37,7 +37,6 @@ public class ServerEngine {
 	public RunContext execrc;
 	public SessionContext serverSession;
 	public ActionInit serverAction;
-
 	public ShellExecutorPool pool;
 	
 	public ServerEngine() {
@@ -242,9 +241,10 @@ public class ServerEngine {
 		LocalFolder folder = action.artefactory.getWorkFolder( action );
 		folder.recreateThis( action );
 		
+		// start action log
 		action.tee();
 		
-		// print
+		// print args
 		if( action.context.CTX_SHOWALL ) {
 			String info = action.context.options.getRunningOptions();
 			action.commentExecutor( info );

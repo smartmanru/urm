@@ -304,6 +304,10 @@ abstract public class ActionBase {
 	public ShellExecutor getShell( Account account ) throws Exception {
 		return( engine.pool.getExecutor( this , account , context.stream ) );
 	}
+
+	public ShellExecutor createDedicatedShell( String name ) throws Exception {
+		return( engine.pool.createDedicatedLocalShell( this , name ) );
+	}
 	
 	public ShellExecutor getShell( MetaEnvServerNode node ) throws Exception {
 		Account account = Account.getAccount( this , node.HOSTLOGIN , node.server.osType );
