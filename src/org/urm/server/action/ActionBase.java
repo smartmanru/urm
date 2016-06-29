@@ -64,27 +64,29 @@ abstract public class ActionBase {
 	public ActionBase( SessionContext session , Artefactory artefactory , CommandExecutor executor , CommandContext context , CommandOutput output ) {
 		this.session = session;
 		this.executor = executor;
-		this.context = context;
 		this.output = output;
 		this.artefactory = artefactory;
 		
-		this.actionFailed = false;
-		this.commandTimeout = 0;
-
-		this.engine = executor.engine;
-		this.meta = context.meta;
-		custom = new CommandCustom( meta );
+		this.context = context;
 		
+		custom = new CommandCustom( meta );
+		engine = executor.engine;
+		meta = context.meta;
+		
+		commandTimeout = 0;
+		actionFailed = false;
 		NAME = this.getClass().getSimpleName();
 	}
 
 	public ActionBase( ActionBase base , String stream ) {
-		this.engine = base.engine;
+		this.session = base.session;
 		this.executor = base.executor;
 		this.output = base.output;
-		this.meta = base.meta;
-		this.custom = base.custom;
 		this.artefactory = base.artefactory;
+		
+		this.custom = base.custom;
+		this.engine = base.engine;
+		this.meta = base.meta;
 		
 		this.shell = base.shell;
 		this.commandTimeout = base.commandTimeout;
