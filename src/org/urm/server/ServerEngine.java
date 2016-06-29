@@ -138,6 +138,7 @@ public class ServerEngine {
 
 		boolean res = ( session.isFailed() )? false : true;
 		serverAction.debug( "client action workFolder=" + clientAction.artefactory.workFolder.folderPath + ", status=" + res );
+		pool.killDedicated( clientAction );
 		
 		if( res )
 			clientAction.commentExecutor( "COMMAND SUCCESSFUL" );
