@@ -138,7 +138,6 @@ public class ServerEngine {
 
 		boolean res = ( session.isFailed() )? false : true;
 		serverAction.debug( "client action workFolder=" + clientAction.artefactory.workFolder.folderPath + ", status=" + res );
-		pool.killDedicated( clientAction );
 		
 		if( res )
 			clientAction.commentExecutor( "COMMAND SUCCESSFUL" );
@@ -236,7 +235,7 @@ public class ServerEngine {
 	public void startAction( ActionBase action ) throws Exception {
 		// create action shell
 		if( action.shell == null )
-			pool.createDedicatedLocalShell( action , action.context.stream + "," + action.session.sessionId );
+			pool.createDedicatedLocalShell( action , action.context.stream + "::" + action.session.sessionId );
 		
 		// create work folder
 		LocalFolder folder = action.artefactory.getWorkFolder( action );
@@ -259,6 +258,8 @@ public class ServerEngine {
 			action.info( "saved work directory: " + action.artefactory.workFolder.folderPath );
 		else
 			action.artefactory.workFolder.removeThis( action );
+		
+		pool.killDedicated( action );
 	}
 
 	private Artefactory createArtefactory( SessionContext session , CommandContext context ) throws Exception {
