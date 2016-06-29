@@ -222,7 +222,7 @@ public class Release {
 		PROPERTY_CUMULATIVE = getReleasePropertyBoolean( action , root , "cumulative" , false );
 
 		// get projectsets
-		for( VarCATEGORY CATEGORY : meta.getAllReleaseCategories( action ) )
+		for( VarCATEGORY CATEGORY : meta.getAllReleaseCategories() )
 			loadSets( action , root , CATEGORY );
 		
 		return( doc );
@@ -441,7 +441,7 @@ public class Release {
 		Common.xmlCreatePropertyElement( doc , root , "over" , PROPERTY_COMPATIBILITY );
 		Common.xmlCreateBooleanPropertyElement( doc , root , "cumulative" , PROPERTY_CUMULATIVE );
 		
-		for( VarCATEGORY CATEGORY : action.meta.getAllReleaseCategories( action ) )
+		for( VarCATEGORY CATEGORY : action.meta.getAllReleaseCategories() )
 			Common.xmlCreateElement( doc , root , Common.getEnumLower( CATEGORY ) );
 		return( doc );
 	}

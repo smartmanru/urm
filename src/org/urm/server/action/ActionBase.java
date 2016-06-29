@@ -251,25 +251,13 @@ abstract public class ActionBase {
 	}
 	
 	public boolean runEachBuildableProject( ActionScope scope ) {
-		try {
-			VarCATEGORY[] categories = meta.getAllBuildableCategories( this );
-			return( runCategories( scope , categories ) );
-		}
-		catch( Throwable e ) {
-			log( e );
-		}
-		return( false );
+		VarCATEGORY[] categories = meta.getAllBuildableCategories();
+		return( runCategories( scope , categories ) );
 	}
 	
 	public boolean runEachSourceProject( ActionScope scope ) {
-		try {
-			VarCATEGORY[] categories = meta.getAllSourceCategories( this );
-			return( runCategories( scope , categories ) );
-		}
-		catch( Throwable e ) {
-			log( e );
-		}
-		return( false );
+		VarCATEGORY[] categories = meta.getAllSourceCategories();
+		return( runCategories( scope , categories ) );
 	}
 	
 	public boolean runEachCategoryTarget( ActionScope scope , VarCATEGORY category ) {
@@ -307,6 +295,10 @@ abstract public class ActionBase {
 
 	public ShellExecutor createDedicatedShell( String name ) throws Exception {
 		return( engine.pool.createDedicatedLocalShell( this , name ) );
+	}
+	
+	public void killAllDedicated() {
+		engine.pool.killDedicated( this );
 	}
 	
 	public ShellExecutor getShell( MetaEnvServerNode node ) throws Exception {

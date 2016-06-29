@@ -44,23 +44,26 @@ public class ScopeExecutor {
 		
 		return( true );
 	}
+
+	private boolean finishExecutor( boolean res ) {
+		if( res )
+			res = getFinalStatus();
+		action.engine.pool.killDedicated( action );
+		return( res );
+	}
 	
 	public boolean runAll( ActionScope scope ) {
 		runFailed = false;
 		exception = false;
-		if( !runAllInternal( scope ) )
-			return( false );
-		
-		return( getFinalStatus() );
+		boolean res = runAllInternal( scope );
+		return( finishExecutor( res ) );
 	}
 	
 	public boolean runAll( ActionScopeSet set ) {
 		runFailed = false;
 		exception = false;
-		if( !runTargetSetInternal( set ) )
-			return( false );
-		
-		return( getFinalStatus() );
+		boolean res = runTargetSetInternal( set );
+		return( finishExecutor( res ) );
 	}
 	
 	public boolean runSimple() {
@@ -92,7 +95,7 @@ public class ScopeExecutor {
 			action.setFailed();
 		}
 		
-		return( getFinalStatus() );
+		return( finishExecutor( true ) );
 	}
 
 	public boolean runSingleTarget( ActionScopeTarget item ) {
@@ -124,7 +127,7 @@ public class ScopeExecutor {
 			action.setFailed();
 		}
 		
-		return( getFinalStatus() );
+		return( finishExecutor( true ) );
 	}
 	
 	public boolean runTargetList( ActionScopeSet set , ActionScopeTarget[] targets ) {
@@ -159,7 +162,7 @@ public class ScopeExecutor {
 			action.setFailed();
 		}
 		
-		return( getFinalStatus() );
+		return( finishExecutor( true ) );
 	}
 	
 	public boolean runCategories( ActionScope scope , VarCATEGORY[] categories ) {
@@ -191,7 +194,7 @@ public class ScopeExecutor {
 			action.setFailed();
 		}
 		
-		return( getFinalStatus() );
+		return( finishExecutor( true ) );
 	}
 	
 	public boolean runEnvUniqueHosts( ActionScope scope ) {
@@ -226,7 +229,7 @@ public class ScopeExecutor {
 			action.setFailed();
 		}
 		
-		return( getFinalStatus() );
+		return( finishExecutor( true ) );
 	}
 	
 	public boolean runEnvUniqueAccounts( ActionScope scope ) {
@@ -266,7 +269,7 @@ public class ScopeExecutor {
 			action.setFailed();
 		}
 		
-		return( getFinalStatus() );
+		return( finishExecutor( true ) );
 	}
 	
 	// implementation

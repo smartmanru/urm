@@ -437,34 +437,34 @@ public class Metadata {
 		return( value );
 	}
 	
-	public boolean isSourceCategory( VarCATEGORY value ) throws Exception {
+	public boolean isSourceCategory( VarCATEGORY value ) {
 		if( value == VarCATEGORY.BUILD || value == VarCATEGORY.PREBUILT )
 			return( true );
 		return( false );
 	}
 	
-	public boolean isBuildableCategory( VarCATEGORY value ) throws Exception {
+	public boolean isBuildableCategory( VarCATEGORY value ) {
 		if( value == VarCATEGORY.BUILD )
 			return( true );
 		return( false );
 	}
 	
-	public VarCATEGORY[] getAllCategories( ActionBase action ) throws Exception {
+	public VarCATEGORY[] getAllCategories() {
 		VarCATEGORY[] categories = { VarCATEGORY.BUILD , VarCATEGORY.MANUAL , VarCATEGORY.PREBUILT , VarCATEGORY.CONFIG , VarCATEGORY.DB };
 		return( categories );
 	}
 
-	public VarCATEGORY[] getAllReleaseCategories( ActionBase action ) throws Exception {
+	public VarCATEGORY[] getAllReleaseCategories() {
 		VarCATEGORY[] categories = { VarCATEGORY.BUILD , VarCATEGORY.MANUAL , VarCATEGORY.PREBUILT , VarCATEGORY.CONFIG , VarCATEGORY.DB };
 		return( categories );
 	}
 
-	public VarCATEGORY[] getAllSourceCategories( ActionBase action ) throws Exception {
+	public VarCATEGORY[] getAllSourceCategories() {
 		VarCATEGORY[] categories = { VarCATEGORY.BUILD , VarCATEGORY.PREBUILT };
 		return( categories );
 	}
 
-	public VarCATEGORY[] getAllBuildableCategories( ActionBase action ) throws Exception {
+	public VarCATEGORY[] getAllBuildableCategories() {
 		VarCATEGORY[] categories = { VarCATEGORY.BUILD };
 		return( categories );
 	}

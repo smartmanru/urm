@@ -572,11 +572,11 @@ public class ActionScope {
 	}
 	
 	public String getBuildScopeInfo( ActionBase action ) throws Exception {
-		return( getScopeInfo( action , meta.getAllBuildableCategories( action ) ) );
+		return( getScopeInfo( action , meta.getAllBuildableCategories() ) );
 	}
 	
 	public String getSourceScopeInfo( ActionBase action ) throws Exception {
-		return( getScopeInfo( action , meta.getAllSourceCategories( action ) ) );
+		return( getScopeInfo( action , meta.getAllSourceCategories() ) );
 	}
 	
 	public boolean isEmpty( ActionBase action , VarCATEGORY[] categories ) throws Exception {

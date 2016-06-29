@@ -46,7 +46,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		
 		for( String set : Common.getSortedKeys( release.getSourceSets( this ) ) )
 			printReleaseSourceSetStatus( dist , files , release.getSourceSet( this , set ) );
-		for( VarCATEGORY CATEGORY : meta.getAllReleaseCategories( this ) ) {
+		for( VarCATEGORY CATEGORY : meta.getAllReleaseCategories() ) {
 			ReleaseSet set = release.findCategorySet( this , CATEGORY );
 			if( set != null )
 				printReleaseCategorySetStatus( dist , files , set );

@@ -221,7 +221,7 @@ public class ServerEngine {
 	}
 
 	public void killPool() throws Exception {
-		pool.kill( serverAction );
+		pool.killAll( serverAction );
 	}
 	
 	public void deleteWorkFolder( ActionBase action , LocalFolder workFolder ) throws Exception {

@@ -16,7 +16,7 @@ public class ShellExecutorPool {
 	
 	Map<String,ShellExecutor> pool = new HashMap<String,ShellExecutor>();
 	List<ShellExecutor> listRemote = new LinkedList<ShellExecutor>();
-	List<ShellExecutor> listDedicated = new LinkedList<ShellExecutor>();
+	Map<ActionBase,List<ShellExecutor>> mapDedicated = new HashMap<ActionBase,List<ShellExecutor>>();
 
 	public ShellExecutor master;
 	public Account account;
@@ -66,13 +66,21 @@ public class ShellExecutorPool {
 		action.setShell( shell );
 		
 		shell.start( action );
-		if( !name.equals( "master" ) )
-			listDedicated.add( shell );
+		if( !name.equals( "master" ) ) {
+			synchronized( this ) {
+				List<ShellExecutor> list = mapDedicated.get( action );
+				if( list == null ) {
+					list = new LinkedList<ShellExecutor>();
+					mapDedicated.put( action , list );
+				}
+				list.add( shell );
+			}
+		}
 		
 		return( shell );
 	}
 
-	public void stop( ActionBase action ) throws Exception {
+	public void stop( ActionBase action ) {
 		try {
 			master.kill( action );
 		}
@@ -82,31 +90,32 @@ public class ShellExecutorPool {
 		}
 	}
 	
-	public void kill( ActionBase action ) throws Exception {
-		try {
-			for( ShellExecutor session : listRemote ) {
-				try {
-					session.kill( action );
-				}
-				catch( Throwable e ) {
-					if( action.context.CTX_TRACEINTERNAL )
-						action.trace( "exception when killing shell=" + session.name + " (" + e.getMessage() + ")" );
-				}
+	public void killAll( ActionBase action ) {
+		for( ShellExecutor session : listRemote ) {
+			try {
+				session.kill( action );
 			}
-			
-			for( int k = listDedicated.size() - 1; k >= 0; k-- ) {
-				ShellExecutor session = listDedicated.get( k ); 
-				try {
-					session.kill( action );
-				}
-				catch( Throwable e ) {
-					if( action.context.CTX_TRACEINTERNAL )
-						action.trace( "exception when killing shell=" + session.name + " (" + e.getMessage() + ")" );
-				}
+			catch( Throwable e ) {
+				if( action.context.CTX_TRACEINTERNAL )
+					action.trace( "exception when killing shell=" + session.name + " (" + e.getMessage() + ")" );
 			}
 		}
-		catch( Throwable e ) {
-			// silently ignore
+		
+		for( ActionBase actionAffected : mapDedicated.keySet() )
+			killDedicated( actionAffected );
+	}
+
+	public void killDedicated( ActionBase action ) {
+		List<ShellExecutor> list = mapDedicated.get( action ); 
+		for( int k = list.size() - 1; k >= 0; k-- ) {
+			ShellExecutor session = list.get( k );  
+			try {
+				session.kill( action );
+			}
+			catch( Throwable e ) {
+				if( action.context.CTX_TRACEINTERNAL )
+					action.trace( "exception when killing shell=" + session.name + " (" + e.getMessage() + ")" );
+			}
 		}
 	}
 
