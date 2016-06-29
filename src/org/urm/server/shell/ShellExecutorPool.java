@@ -106,7 +106,10 @@ public class ShellExecutorPool {
 	}
 
 	public void killDedicated( ActionBase action ) {
-		List<ShellExecutor> list = mapDedicated.get( action ); 
+		List<ShellExecutor> list = mapDedicated.get( action );
+		if( list == null )
+			return;
+		
 		for( int k = list.size() - 1; k >= 0; k-- ) {
 			ShellExecutor session = list.get( k );  
 			try {
