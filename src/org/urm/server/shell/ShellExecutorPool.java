@@ -17,6 +17,7 @@ public class ShellExecutorPool {
 	Map<String,ShellExecutor> pool = new HashMap<String,ShellExecutor>();
 	List<ShellExecutor> listRemote = new LinkedList<ShellExecutor>();
 	Map<ActionBase,Map<String,ShellExecutor>> mapDedicated = new HashMap<ActionBase,Map<String,ShellExecutor>>();
+	Map<String,Object> staged = new HashMap<String,Object>(); 
 
 	public ShellExecutor master;
 	public Account account;
@@ -34,29 +35,42 @@ public class ShellExecutorPool {
 		tmpFolder.ensureExists( action );
 	}
 	
-	public synchronized ShellExecutor getExecutor( ActionBase action , Account account , String scope ) throws Exception {
+	public ShellExecutor getExecutor( ActionBase action , Account account , String scope ) throws Exception {
 		Account execAccount = account;
 
 		String name = ( account.local )? "local::" + scope : "remote::" + scope + "::" + account.HOSTLOGIN; 
-		ShellExecutor shell = pool.get( name );
-		if( shell != null )
-			return( shell );
-		
-		if( account.local ) {
-			shell = ShellExecutor.getLocalShellExecutor( action , name , this , rootPath , tmpFolder );
-			shell.start( action );
-		}
-		else {
-			String REDISTPATH = action.context.CTX_REDISTPATH;
-			shell = ShellExecutor.getRemoteShellExecutor( action , name , this , execAccount , REDISTPATH );
-			shell.start( action );
+
+		Object sync = null;
+		synchronized( this ) {
+			sync = staged.get( name );
+			if( sync == null ) {
+				sync = new Object();
+				staged.put( name , sync );
+			}
 		}
 		
-		pool.put( name , shell );
-		listRemote.add( shell );
-		
-		if( !account.local )
-			shell.tmpFolder.ensureExists( action );
+		ShellExecutor shell = null;
+		synchronized( sync ) {
+			shell = pool.get( name );
+			if( shell != null )
+				return( shell );
+
+			if( account.local ) {
+				shell = ShellExecutor.getLocalShellExecutor( action , name , this , rootPath , tmpFolder );
+				shell.start( action );
+			}
+			else {
+				String REDISTPATH = action.context.CTX_REDISTPATH;
+				shell = ShellExecutor.getRemoteShellExecutor( action , name , this , execAccount , REDISTPATH );
+				shell.start( action );
+			}
+			
+			pool.put( name , shell );
+			listRemote.add( shell );
+			
+			if( !account.local )
+				shell.tmpFolder.ensureExists( action );
+		}
 		
 		return( shell );
 	}
