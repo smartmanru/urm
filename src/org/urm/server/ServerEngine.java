@@ -235,7 +235,7 @@ public class ServerEngine {
 	public void startAction( ActionBase action ) throws Exception {
 		// create action shell
 		if( action.shell == null )
-			pool.createDedicatedLocalShell( action , action.context.streamLog );
+			pool.createDedicatedLocalShell( action , action.context.stream + "," + action.session.sessionId );
 		
 		// create work folder
 		LocalFolder folder = action.artefactory.getWorkFolder( action );

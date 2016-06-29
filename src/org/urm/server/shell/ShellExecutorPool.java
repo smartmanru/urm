@@ -16,7 +16,7 @@ public class ShellExecutorPool {
 	
 	Map<String,ShellExecutor> pool = new HashMap<String,ShellExecutor>();
 	List<ShellExecutor> listRemote = new LinkedList<ShellExecutor>();
-	Map<ActionBase,List<ShellExecutor>> mapDedicated = new HashMap<ActionBase,List<ShellExecutor>>();
+	Map<ActionBase,Map<String,ShellExecutor>> mapDedicated = new HashMap<ActionBase,Map<String,ShellExecutor>>();
 
 	public ShellExecutor master;
 	public Account account;
@@ -61,20 +61,33 @@ public class ShellExecutorPool {
 		return( shell );
 	}
 
-	public ShellExecutor createDedicatedLocalShell( ActionBase action , String name ) throws Exception {
+	private ShellExecutor createLocalShell( ActionBase action , String name ) throws Exception {
 		ShellExecutor shell = ShellExecutor.getLocalShellExecutor( action , "local::" + name , this , rootPath , tmpFolder );
 		action.setShell( shell );
-		
 		shell.start( action );
-		if( !name.equals( "master" ) ) {
-			synchronized( this ) {
-				List<ShellExecutor> list = mapDedicated.get( action );
-				if( list == null ) {
-					list = new LinkedList<ShellExecutor>();
-					mapDedicated.put( action , list );
-				}
-				list.add( shell );
+		return( shell );
+	}
+	
+	public ShellExecutor createDedicatedLocalShell( ActionBase action , String name ) throws Exception {
+		if( name.equals( "master" ) )
+			return( createLocalShell( action , name ) );
+		
+		ShellExecutor shell = null;
+		synchronized( this ) {
+			Map<String,ShellExecutor> list = mapDedicated.get( action );
+			if( list == null ) {
+				list = new HashMap<String,ShellExecutor>();
+				mapDedicated.put( action , list );
 			}
+			
+			shell = list.get( name );
+			if( shell != null ) {
+				action.setShell( shell );
+				return( shell );
+			}
+			
+			shell = createLocalShell( action , name );
+			list.put( name , shell );
 		}
 		
 		return( shell );
@@ -106,23 +119,26 @@ public class ShellExecutorPool {
 	}
 
 	public void killDedicated( ActionBase action ) {
-		List<ShellExecutor> list = mapDedicated.get( action );
+		Map<String,ShellExecutor> list = mapDedicated.get( action );
 		if( list == null )
 			return;
 		
-		for( int k = list.size() - 1; k >= 0; k-- ) {
-			ShellExecutor session = list.get( k );  
-			try {
-				session.kill( action );
+		synchronized( this ) {
+			ShellExecutor[] sessions = list.values().toArray( new ShellExecutor[0] );  
+			for( int k = sessions.length - 1; k >= 0; k-- ) {
+				ShellExecutor session = sessions[ k ]; 
+				try {
+					session.kill( action );
+				}
+				catch( Throwable e ) {
+					if( action.context.CTX_TRACEINTERNAL )
+						action.trace( "exception when killing shell=" + session.name + " (" + e.getMessage() + ")" );
+				}
 			}
-			catch( Throwable e ) {
-				if( action.context.CTX_TRACEINTERNAL )
-					action.trace( "exception when killing shell=" + session.name + " (" + e.getMessage() + ")" );
-			}
+			
+			list.clear();
+			mapDedicated.remove( action );
 		}
-		
-		list.clear();
-		mapDedicated.remove( action );
 	}
 
 	public void runInteractiveSsh( ActionBase action , Account account , String KEY ) throws Exception {
