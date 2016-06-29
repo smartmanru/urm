@@ -70,6 +70,7 @@ public abstract class ShellExecutor {
 	}
 	
 	public void kill( ActionBase action ) throws Exception {
+		action.debug( "kill shell=" + name + " at rootPath=" + rootPath );
 		core.kill( action );
 	}
 
