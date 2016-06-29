@@ -14,6 +14,8 @@ public class CommandOutput {
 	int logActionLevelLimit;
 	int logServerLevelLimit;
 
+	public static Object syncStatic = new Object(); 
+	
 	public static int LOGLEVEL_INTERNAL = -1;
 	public static int LOGLEVEL_ERROR = 0;
 	public static int LOGLEVEL_INFO = 1;
@@ -36,7 +38,13 @@ public class CommandOutput {
 			this.logServerLevelLimit = this.logActionLevelLimit;
 	}
 	
-	private synchronized void log( CommandContext context , String s , int logLevel ) {
+	private void outExactStatic( String s ) {
+		synchronized( syncStatic ) {
+			System.out.println( s );
+		}
+	}
+
+	private void log( CommandContext context , String s , int logLevel ) {
 		if( logActionLevelLimit >= 0 && logServerLevelLimit >= 0 && 
 			logLevel > logActionLevelLimit && logLevel > logServerLevelLimit )
 			return;
@@ -68,7 +76,7 @@ public class CommandOutput {
 		}
 	}
 	
-	public synchronized void logExact( CommandContext context , String s , int logLevel ) {
+	public void logExact( CommandContext context , String s , int logLevel ) {
 		if( logActionLevelLimit >= 0 && logServerLevelLimit >= 0 && 
 			logLevel > logActionLevelLimit && logLevel > logServerLevelLimit )
 			return;
@@ -84,10 +92,12 @@ public class CommandOutput {
 		}
 	}
 	
-	public synchronized void log( CommandContext context , String prompt , Throwable e ) {
+	public void log( CommandContext context , String prompt , Throwable e ) {
 		if( logActionLevelLimit < 0 || logServerLevelLimit < 0 ) {
-			System.out.println( "TRACEINTERNAL: " + prompt );
-			e.printStackTrace();
+			synchronized( syncStatic ) {
+				System.out.println( "TRACEINTERNAL: " + prompt );
+				e.printStackTrace();
+			}
 			return;
 		}
 		
@@ -107,24 +117,23 @@ public class CommandOutput {
 				s += " - " + msg;
 			s += ", exiting ";
 		}
-		error( context , s );
-
-		if( outchild != null ) {
-			if( logActionLevelLimit >= LOGLEVEL_DEBUG ) {
-				e.printStackTrace( outchild );
-				outchild.flush();
-			}
-		}
-		else {
-			if( outtee != null ) {
-				if( logActionLevelLimit >= LOGLEVEL_DEBUG ) {
-					e.printStackTrace( outtee );
-					outtee.flush();
+		
+		synchronized( syncStatic ) {
+			error( context , s );
+			if( logActionLevelLimit >= LOGLEVEL_DEBUG || logServerLevelLimit >= LOGLEVEL_DEBUG ) {
+				if( outchild != null ) {
+					e.printStackTrace( outchild );
+					outchild.flush();
+				}
+				else {
+					if( outtee != null ) {
+						e.printStackTrace( outtee );
+						outtee.flush();
+					}
+					
+					e.printStackTrace();
 				}
 			}
-			
-			if( logServerLevelLimit >= LOGLEVEL_DEBUG )
-				e.printStackTrace();
 		}
 	}
 	
@@ -143,10 +152,10 @@ public class CommandOutput {
 	public void trace( CommandContext context , String s ) {
 		log( context , s , LOGLEVEL_TRACE );
 	}
-	
+
 	private void outExact( CommandContext context , String s ) {
 		if( logActionLevelLimit < 0 || logServerLevelLimit < 0 ) {
-			System.out.println( "TRACEINTERNAL: line=" + s.replaceAll("\\p{C}", "?") );
+			outExactStatic( "TRACEINTERNAL: line=" + s.replaceAll("\\p{C}", "?") );
 			return;
 		}
 		
@@ -160,27 +169,11 @@ public class CommandOutput {
 				outtee.flush();
 			}
 			
-			System.out.println( s );
+			outExactStatic( s );
 		}
 	}
 	
 	public synchronized void exit( CommandContext context , String s ) throws Exception {
-		String errmsg = "ERROR: " + s + ". Exiting";
-
-		if( logActionLevelLimit < 0 || logServerLevelLimit < 0 ) {
-			System.out.println( "TRACEINTERNAL: exit, line=" + errmsg );
-			throw new ExitException( s );
-		}
-		
-		if( outchild != null ) {
-			outchild.println( errmsg );
-			outchild.flush();
-		}
-		else if( outtee != null ) {
-			outtee.println( errmsg );
-			outtee.flush();
-		}
-			
 		throw new ExitException( s );
 	}
 	
@@ -192,7 +185,7 @@ public class CommandOutput {
 	
 	public void tee( String title , String file ) throws Exception {
 		outtee = Common.createOutfileFile( file );
-		outtee.println( "############# start logging" );
+		outtee.println( "############# start logging on " + Common.getNameTimeStamp() );
 		outtee.flush();
 	}
 	
@@ -222,7 +215,7 @@ public class CommandOutput {
 			stopOutputFile();
 		
 		if( outtee != null ) {
-			outtee.println( "############# stop logging" );
+			outtee.println( "############# stop logging on " + Common.getNameTimeStamp() );
 			outtee.flush();
 			outtee.close();
 			outtee = null;

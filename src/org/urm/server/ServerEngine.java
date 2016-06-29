@@ -38,16 +38,9 @@ public class ServerEngine {
 	public SessionContext serverSession;
 	public ActionInit serverAction;
 
-	int invokeSequence = 0;
-	
 	public ShellExecutorPool pool;
 	
 	public ServerEngine() {
-	}
-	
-	public synchronized int createSessionId() {
-		invokeSequence++;
-		return( invokeSequence );
 	}
 	
 	public boolean runArgs( String[] args ) throws Exception {
@@ -64,7 +57,7 @@ public class ServerEngine {
 			return( false );
 		
 		// server action environment
-		serverSession = new SessionContext( this , execrc );
+		serverSession = new SessionContext( this , execrc , 0 );
 		serverSession.setServerLayout( builder.options );
 
 		// create server action
@@ -81,7 +74,7 @@ public class ServerEngine {
 	public boolean runClientMode( CommandBuilder builder , CommandOptions options , RunContext clientrc , CommandMeta commandInfo ) throws Exception {
 		execrc = clientrc;
 		CommandExecutor executor = createExecutor( commandInfo );
-		serverSession = new SessionContext( this , clientrc );
+		serverSession = new SessionContext( this , clientrc , 0 );
 		
 		if( clientrc.productDir.isEmpty() )
 			serverSession.setStandaloneLayout( options );
@@ -108,7 +101,7 @@ public class ServerEngine {
 			return( false );
 		
 		CommandExecutor executor = createExecutor( commandInfo );
-		SessionContext session = new SessionContext( this , data.clientrc );
+		SessionContext session = new SessionContext( this , data.clientrc , call.sessionId );
 		session.setServerClientLayout( serverSession );
 		
 		ActionInit action = createAction( options , executor , session , "remote-" + data.clientrc.productDir , call );
@@ -118,9 +111,9 @@ public class ServerEngine {
 		return( runClientAction( session , executor , action ) );
 	}
 
-	public boolean runClientJmx( String productDir , CommandMeta meta , CommandOptions options ) throws Exception {
+	public boolean runClientJmx( int sessionId , String productDir , CommandMeta meta , CommandOptions options ) throws Exception {
 		CommandExecutor executor = createExecutor( meta );
-		SessionContext session = new SessionContext( this , execrc );
+		SessionContext session = new SessionContext( this , execrc , sessionId );
 		session.setServerProductLayout( productDir );
 		
 		ActionInit action = createAction( options , executor , session , "jmx-" + execrc.productDir , null );
@@ -131,18 +124,21 @@ public class ServerEngine {
 	}
 	
 	private boolean runClientAction( SessionContext session , CommandExecutor executor , ActionInit clientAction ) throws Exception {
+		serverAction.debug( "run client action workFolder=" + clientAction.artefactory.workFolder.folderPath + " ..." );
+		
 		startAction( clientAction );
 		clientAction.meta.loadProduct( clientAction );
 		
 		// execute
 		try {
-			executor.run( clientAction );
+			executor.runAction( clientAction );
 		}
 		catch( Throwable e ) {
 			clientAction.log( e );
 		}
 
 		boolean res = ( session.isFailed() )? false : true;
+		serverAction.debug( "client action workFolder=" + clientAction.artefactory.workFolder.folderPath + ", status=" + res );
 		
 		if( res )
 			clientAction.commentExecutor( "COMMAND SUCCESSFUL" );
@@ -157,7 +153,7 @@ public class ServerEngine {
 	private boolean runServerAction( SessionContext session , CommandExecutor executor ) throws Exception {
 		// execute
 		try {
-			executor.run( serverAction );
+			executor.runAction( serverAction );
 			killPool();
 		}
 		catch( Throwable e ) {
@@ -215,6 +211,7 @@ public class ServerEngine {
 		
 		// create action
 		ActionInit action = executor.createAction( session , artefactory , context , options.action );
+		action.debug( "action created: name=" + action.actionName + ", workfolder=" + artefactory.workFolder.folderPath );
 		
 		return( action );
 	}
@@ -237,6 +234,10 @@ public class ServerEngine {
 	}
 	
 	public void startAction( ActionBase action ) throws Exception {
+		// create action shell
+		if( action.shell == null )
+			pool.createDedicatedLocalShell( action , action.context.streamLog );
+		
 		// create work folder
 		LocalFolder folder = action.artefactory.getWorkFolder( action );
 		folder.recreateThis( action );
@@ -287,12 +288,14 @@ public class ServerEngine {
 				if( !serverAction.context.CTX_WORKPATH.isEmpty() )
 					dirname = serverAction.context.CTX_WORKPATH;
 				else {
-					if( context.meta.product != null && context.meta.product.CONFIG_WORKPATH.isEmpty() == false )
+					if( context.meta.product != null && context.meta.product.CONFIG_WORKPATH.isEmpty() == false ) {
 						dirname = Common.getPath( "urm.work" , context.meta.product.CONFIG_WORKPATH );
-					else
+						dirname = Common.getPath( dirname , "session-" + ShellCoreJNI.getCurrentProcessId() );
+					}
+					else {
 						dirname = Common.getPath( session.execrc.userHome , "urm.work" , "client" );
-						
-					dirname = Common.getPath( dirname , "session-" + ShellCoreJNI.getCurrentProcessId() );
+						dirname = Common.getPath( dirname , session.productDir + "-" + session.timestamp + "-" + session.sessionId );
+					}
 				}
 			}
 		}

@@ -32,6 +32,7 @@ import org.urm.common.action.CommandVar;
 import org.urm.common.action.CommandVar.FLAG;
 import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionBase;
+import org.urm.server.action.main.MainServer;
 
 public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster {
 
@@ -42,6 +43,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 	public ActionBase action;
 	public ServerMBean controller;
 	public ServerEngine engine;
+	public MainServer server;
 	public String productDir;
 	
 	public CommandMeta meta;
@@ -54,6 +56,8 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		this.engine = engine;
 		this.productDir = productDir;
 		this.meta = meta;
+		
+		server = controller.server;
 	}
 
 	public void createInfo() throws Exception {
@@ -268,10 +272,19 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
         
     	return retlist;
 	}
-    
+
+	public void notifyLog( int sessionId , Throwable e ) {
+		String msg = "exception: " + e.getClass().getName();
+		String em = e.getMessage();
+		if( em != null && !em.isEmpty() )
+			msg += ", " + em;
+		
+		notifyLog( sessionId , msg );
+	}
+	
 	public void notifyLog( int sessionId , String msg ) {
 		try {
-			ServerCommandCall call = controller.getCall( sessionId );
+			ServerCommandCall call = controller.server.getCall( sessionId );
 			if( call == null )
 				return;
 			
@@ -285,7 +298,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 	
 	public void notifyStop( int sessionId ) {
 		try {
-			ServerCommandCall call = controller.getCall( sessionId );
+			ServerCommandCall call = controller.server.getCall( sessionId );
 			if( call == null )
 				return;
 			
@@ -337,7 +350,8 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 			setOption( cmdopts , varName , args[ k + 1 ] );
 		}
 		
-		if( !engine.runClientJmx( productDir , meta , cmdopts ) )
+		int sessionId = server.createSessionId();
+		if( !engine.runClientJmx( sessionId , productDir , meta , cmdopts ) )
 			return( -1 );
 		
 		return( 0 );
@@ -360,7 +374,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		ActionData data = ( ActionData )args[1];
 		String clientId = ( String )args[2];
 		
-		int sessionId = engine.createSessionId();
+		int sessionId = server.createSessionId();
 		action.debug( "operation invoked, sessionId=" + sessionId );
 		
 		ServerCommandCall thread = new ServerCommandCall( sessionId , clientId , this , actionName , data );

@@ -2,6 +2,7 @@ package org.urm.common.jmx;
 
 import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandMethod;
+import org.urm.server.action.main.MainServer;
 
 public class ServerCommandCall implements Runnable {
 
@@ -11,7 +12,7 @@ public class ServerCommandCall implements Runnable {
 	public String action;
 	public ActionData data;
 
-	public ServerMBean controller;
+	public MainServer server;
 	
 	public ServerCommandCall( int sessionId , String clientId , ServerCommandMBean command , String action , ActionData data ) {
 		this.sessionId = sessionId;
@@ -20,12 +21,12 @@ public class ServerCommandCall implements Runnable {
 		this.action = action;
 		this.data = data;
 		
-		controller = command.controller; 
+		server = command.controller.server; 
 	}
 	
     public void start() {
         Thread thread = new Thread( null , this , getClass().getSimpleName() );
-        controller.threadStarted( this );
+        server.threadStarted( this );
         thread.start();
     }
 
@@ -36,11 +37,11 @@ public class ServerCommandCall implements Runnable {
     		command.engine.runClientRemote( this , method , data );
     	}
     	catch( Throwable e ) {
-        	command.notifyLog( sessionId , "exception: " + e.getMessage() );
+        	command.notifyLog( sessionId , e );
     	}
     	
     	command.notifyStop( sessionId );
-    	controller.threadStopped( this );
+    	server.threadStopped( this );
     }
 
     public void addLog( String message ) {

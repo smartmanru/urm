@@ -26,8 +26,8 @@ public abstract class CommandExecutor {
 	public Map<String,CommandAction> actionsMap = new HashMap<String,CommandAction>();
 	public List<CommandAction> actionsList = new LinkedList<CommandAction>();
 	
-	public abstract boolean run( ActionInit action );
-	
+	protected abstract boolean run( ActionInit action );
+
 	public CommandExecutor( ServerEngine engine , CommandMeta commandInfo ) {
 		this.engine = engine;
 		this.commandInfo = commandInfo;
@@ -48,6 +48,14 @@ public abstract class CommandExecutor {
 		return( commandAction );
 	}
 
+	public boolean runAction( ActionInit action ) {
+		if( run( action ) )
+			return( true );
+		
+		action.session.setFailed();
+		return( false );
+	}
+	
 	public boolean runMethod( ActionInit action , CommandAction method ) {
 		try {
 			action.debug( "execute " + method.getClass().getSimpleName() + " ..." );

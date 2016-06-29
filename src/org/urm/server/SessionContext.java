@@ -10,6 +10,7 @@ public class SessionContext {
 	public ServerEngine engine;
 	public RunContext clientrc;
 	public RunContext execrc;
+	public int sessionId;
 	
 	public String ENV;
 	public String DC;
@@ -17,6 +18,7 @@ public class SessionContext {
 
 	public boolean product = false;
 	public boolean standalone = false;
+	public String timestamp;
 	
 	public String installPath = "";
 	public String masterPath = "";
@@ -26,15 +28,17 @@ public class SessionContext {
 	public String etcPath = "";
 	public String proxyPath = "";
 	
-	public SessionContext( ServerEngine engine , RunContext clientrc ) {
+	public SessionContext( ServerEngine engine , RunContext clientrc , int sessionId ) {
 		this.engine = engine;
 		this.clientrc = clientrc;
+		this.sessionId = sessionId;
 		this.execrc = engine.execrc;
 		
 		this.ENV = clientrc.envName;
 		this.DC = clientrc.dcName;
 		
 		executorFailed = false;
+		timestamp = Common.getNameTimeStamp();
 	}
 	
 	public void exit( String msg ) throws Exception {

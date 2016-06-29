@@ -1,8 +1,5 @@
 package org.urm.common.jmx;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.management.Attribute;
 import javax.management.AttributeList;
 import javax.management.AttributeNotFoundException;
@@ -35,17 +32,10 @@ public class ServerMBean implements DynamicMBean {
 	private MBeanServer mbs = null;
 	private MBeanInfo mbean = null;
 	JMXConnectorServer jmxConnector;
-	Map<String,ServerCommandCall> calls;
 	
 	public ServerMBean( ActionBase action , MainServer server ) {
 		this.action = action;
 		this.server = server;
-		calls = new HashMap<String,ServerCommandCall>();
-	}
-	
-	public ServerCommandCall getCall( int sessionId ) {
-		ServerCommandCall call = calls.get( "" + sessionId );
-		return( call );
 	}
 	
 	public void start() throws Exception {
@@ -144,16 +134,6 @@ public class ServerMBean implements DynamicMBean {
 			ObjectName object = new ObjectName( name );
 			mbs.registerMBean( bean , object );
 		}
-	}
-
-	public synchronized void threadStarted( ServerCommandCall thread ) {
-		calls.put( "" + thread.sessionId , thread );
-		action.debug( "thread started: " + thread.sessionId );
-	}
-
-	public synchronized void threadStopped( ServerCommandCall thread ) {
-		calls.remove( "" + thread.sessionId );
-		action.debug( "thread stopped: " + thread.sessionId );
 	}
 
 	@Override
