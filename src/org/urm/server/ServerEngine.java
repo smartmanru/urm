@@ -153,7 +153,6 @@ public class ServerEngine {
 		// execute
 		try {
 			executor.runAction( serverAction );
-			killPool();
 		}
 		catch( Throwable e ) {
 			serverAction.log( e );
