@@ -90,6 +90,11 @@ public abstract class ShellExecutor {
 		core.kill( action );
 	}
 
+	public void release( ActionBase action ) {
+		action.debug( "release shell=" + name );
+		pool.releaseShell( action , this );
+	}
+	
 	// information
 	public String getProcessId() {
 		return( core.processId );
