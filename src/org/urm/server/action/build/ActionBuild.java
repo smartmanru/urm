@@ -7,7 +7,6 @@ import org.urm.server.action.ActionScopeSet;
 import org.urm.server.action.ActionScopeTarget;
 import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.meta.Metadata.VarCATEGORY;
-import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.BuildStorage;
 import org.urm.server.storage.LocalFolder;
 
@@ -76,7 +75,7 @@ public class ActionBuild extends ActionBase {
 		Builder builder = createBuilder( project , TAG , BUILD_OPTIONS , version );
 		LocalFolder BUILDDIR = OUTDIR.getSubFolder( this , project.set.NAME );
 		ActionPatch action = new ActionPatch( this , null , builder , BUILDDIR );
-		ShellExecutor bs = builder.createShell( action );
+		builder.createShell( action );
 
 		BUILDSTATUS = "SUCCESSFUL"; 
 		if( !action.runSimple() ) {
@@ -84,8 +83,6 @@ public class ActionBuild extends ActionBase {
 			super.setFailed();
 		}
 
-		bs.kill( this );
-	
 		// check status
 		info( "ActionBuild: build finished for CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) + ", TAG=" + TAG + ", VERSION=" + version + ", BUILDSTATUS=" + BUILDSTATUS );
 		return( true );

@@ -20,6 +20,9 @@ public class MainExecutor extends CommandExecutor {
 		if( !builder.setOptions( commandInfo , args ) )
 			return( null );
 		
+		if( builder.checkHelp() )
+			return( null );
+
 		return( new MainExecutor( engine , builder.execrc , commandInfo ) );
 	}
 

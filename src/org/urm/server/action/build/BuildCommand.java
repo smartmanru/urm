@@ -12,7 +12,6 @@ import org.urm.server.action.database.ActionGetDB;
 import org.urm.server.dist.Dist;
 import org.urm.server.dist.ReleaseDelivery;
 import org.urm.server.meta.Metadata.VarCATEGORY;
-import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.LogStorage;
 
@@ -271,26 +270,12 @@ public class BuildCommand {
 
 	public void thirdpartyUploadDist( ActionBase action , ActionScopeTarget scopeProject , Dist dist ) throws Exception {
 		ActionUploadReleaseItem ca = new ActionUploadReleaseItem( action , null , dist );
-		ShellExecutor bs = ca.createDedicatedShell( "build"  );
-		
-		try {
-			ca.runSingleTarget( scopeProject );
-		}
-		finally {
-			bs.kill( ca );
-		}
+		ca.runSingleTarget( scopeProject );
 	}
 
 	public void thirdpartyUploadLib( ActionBase action , String GROUPID , String FILE , String ARTEFACTID , String VERSION , String CLASSIFIER ) throws Exception {
 		ActionUploadLibItem ca = new ActionUploadLibItem( action , null , GROUPID , FILE , ARTEFACTID , VERSION , CLASSIFIER );
-		ShellExecutor bs = ca.createDedicatedShell( "build"  );
-		
-		try {
-			ca.runSimple();
-		}
-		finally {
-			bs.kill( ca );
-		}
+		ca.runSimple();
 	}
 
 }
