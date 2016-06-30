@@ -208,7 +208,7 @@ public class ServerEngine {
 			if( !context.CTX_WORKPATH.isEmpty() )
 				dirname = context.CTX_WORKPATH;
 			else {
-				if( context.meta.product.CONFIG_WORKPATH.isEmpty() == false )
+				if( context.meta.product != null && context.meta.product.CONFIG_WORKPATH.isEmpty() == false )
 					dirname = context.meta.product.CONFIG_WORKPATH;
 				else
 					dirname = Common.getPath( session.execrc.userHome , "urm.work" , "session-" + ShellCoreJNI.getCurrentProcessId() );
