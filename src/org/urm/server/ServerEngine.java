@@ -84,6 +84,7 @@ public class ServerEngine {
 		if( serverAction == null )
 			return( false );
 		
+		createPool();
 		startAction( serverAction );
 		serverAction.meta.loadProduct( serverAction );
 		return( runServerAction( serverSession , executor ) );
