@@ -662,9 +662,7 @@ public class Common {
 	}
 
 	public static void sleep( Object object , long millis ) throws Exception {
-	    synchronized( object ) {
-	    	Thread.sleep( millis );
-	    }
+    	Thread.sleep( millis );
 	}
 
 	public static Map<String,String> copyListToMap( List<String> list ) {
