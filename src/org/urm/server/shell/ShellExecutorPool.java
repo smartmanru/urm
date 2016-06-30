@@ -56,20 +56,24 @@ public class ShellExecutorPool implements Runnable {
 		engine.serverAction.trace( "run thread pool house keeping ..." );
 		
 		// move pending to primary
+		tsHouseKeepTime = System.currentTimeMillis();
 		synchronized( this ) {
 			for( int k = 0; k < pending.size(); ) {
 				ShellExecutor shell = pending.get( k );
 				if( !pool.containsKey( shell.name ) ) {
 					pool.put( shell.name , shell );
 					pending.remove( k );
+					engine.serverAction.trace( "return action session to pool name=" + shell.name );
 				}
 				else
 				if( checkOldShell( shell ) ) {
 					pending.remove( k );
 					killShell( shell );
 				}
-				else
+				else {
 					k++;
+					engine.serverAction.trace( "stay in pending name=" + shell.name );
+				}
 			}
 		}
 		
@@ -80,6 +84,8 @@ public class ShellExecutorPool implements Runnable {
 					pool.remove( shell.name );
 					killShell( shell );
 				}
+				else
+					engine.serverAction.trace( "stay in pool name=" + shell.name );
 			}
 		}
 	}
@@ -259,10 +265,14 @@ public class ShellExecutorPool implements Runnable {
 		// put remote sessions to pool or to pending list, kill locals
 		if( !shell.account.local ) {
 			synchronized( this ) {
-				if( pool.get( shell.name ) == null )
+				if( pool.get( shell.name ) == null ) {
 					pool.put( shell.name , shell );
-				else
+					engine.serverAction.trace( "return action session to pool name=" + shell.name );
+				}
+				else {
 					pending.add( shell );
+					engine.serverAction.trace( "put action session to pending name=" + shell.name );
+				}
 			}
 		}
 		else {
