@@ -17,8 +17,8 @@ import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
 import org.urm.common.action.CommandMeta;
+import org.urm.server.MainServer;
 import org.urm.server.action.ActionBase;
-import org.urm.server.action.main.MainServer;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.UrmStorage;
 

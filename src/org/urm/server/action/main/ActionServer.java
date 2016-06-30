@@ -1,6 +1,7 @@
 package org.urm.server.action.main;
 
 import org.urm.common.jmx.RemoteCall;
+import org.urm.server.MainServer;
 import org.urm.server.action.ActionBase;
 
 public class ActionServer extends ActionBase {

@@ -1,4 +1,4 @@
-package org.urm.server.action.main;
+package org.urm.server.executor;
 
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandBuilder;
@@ -7,6 +7,9 @@ import org.urm.server.CommandExecutor;
 import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionInit;
 import org.urm.server.action.CommandAction;
+import org.urm.server.action.main.ActionConfigure;
+import org.urm.server.action.main.ActionSave;
+import org.urm.server.action.main.ActionServer;
 
 public class MainExecutor extends CommandExecutor {
 

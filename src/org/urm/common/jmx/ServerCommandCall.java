@@ -2,7 +2,7 @@ package org.urm.common.jmx;
 
 import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandMethod;
-import org.urm.server.action.main.MainServer;
+import org.urm.server.MainServer;
 
 public class ServerCommandCall implements Runnable {
 

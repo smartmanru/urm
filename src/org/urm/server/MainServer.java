@@ -1,4 +1,4 @@
-package org.urm.server.action.main;
+package org.urm.server;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,9 +10,6 @@ import org.urm.common.action.CommandMethod;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.jmx.ServerCommandCall;
 import org.urm.common.jmx.ServerMBean;
-import org.urm.server.CommandExecutor;
-import org.urm.server.ServerEngine;
-import org.urm.server.SessionContext;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionInit;
 
@@ -177,7 +174,7 @@ public class MainServer {
 			if( actions.size() == 0 )
 				return;
 			
-			serverAction.info( "waiting for " + actions.size() + " to complete ..." );
+			serverAction.info( "waiting for " + actions.size() + " action(s) to complete ..." );
 		}
 		
 		while( true ) {

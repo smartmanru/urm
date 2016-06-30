@@ -1,10 +1,11 @@
-package org.urm.server.action.xdoc;
+package org.urm.server.executor;
 
 import org.urm.common.action.CommandMeta;
 import org.urm.server.CommandExecutor;
 import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionInit;
 import org.urm.server.action.CommandAction;
+import org.urm.server.action.xdoc.XDocCommand;
 
 public class XDocCommandExecutor extends CommandExecutor {
 

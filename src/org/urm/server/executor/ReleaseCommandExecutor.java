@@ -1,4 +1,4 @@
-package org.urm.server.action.release;
+package org.urm.server.executor;
 
 import org.urm.common.Common;
 import org.urm.common.action.CommandMeta;
@@ -6,6 +6,7 @@ import org.urm.server.CommandExecutor;
 import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionInit;
 import org.urm.server.action.CommandAction;
+import org.urm.server.action.release.ReleaseCommand;
 import org.urm.server.dist.Dist;
 import org.urm.server.meta.Metadata.VarCATEGORY;
 
