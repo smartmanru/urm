@@ -48,7 +48,7 @@ public class ScopeExecutor {
 	private boolean finishExecutor( boolean res ) {
 		if( res )
 			res = getFinalStatus();
-		action.engine.pool.killDedicated( action );
+		action.engine.pool.releaseActionPool( action );
 		return( res );
 	}
 	

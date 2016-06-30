@@ -300,7 +300,7 @@ abstract public class ActionBase {
 	}
 	
 	public void killAllDedicated() {
-		engine.pool.killDedicated( this );
+		engine.pool.releaseActionPool( this );
 	}
 	
 	public ShellExecutor getShell( MetaEnvServerNode node ) throws Exception {

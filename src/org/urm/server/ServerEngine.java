@@ -199,7 +199,7 @@ public class ServerEngine {
 		else
 			action.artefactory.workFolder.removeThis( action );
 		
-		pool.killDedicated( action );
+		pool.releaseActionPool( action );
 	}
 
 	private Artefactory createArtefactory( SessionContext session , CommandContext context ) throws Exception {

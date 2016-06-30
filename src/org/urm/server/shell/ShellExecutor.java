@@ -22,6 +22,10 @@ public abstract class ShellExecutor {
 	public String rootPath;
 	public Folder tmpFolder;
 	
+	public long tsCreated;
+	public long tsLastStarted;
+	public long tsLastFinished;
+	
 	protected ShellCore core;
 	
 	abstract public void start( ActionBase action ) throws Exception;
@@ -33,6 +37,8 @@ public abstract class ShellExecutor {
 		this.account = account;
 		this.rootPath = rootPath;
 		this.tmpFolder = tmpFolder;
+		
+		tsCreated = System.currentTimeMillis();
 	}
 	
 	public static ShellExecutor getLocalShellExecutor( ActionBase action , String name , ShellExecutorPool pool , String rootPath , Folder tmpFolder ) throws Exception {
@@ -50,6 +56,15 @@ public abstract class ShellExecutor {
 		return( executor );
 	}
 
+	private void opstart() {
+		tsLastStarted = System.currentTimeMillis();
+		tsLastFinished = 0;
+	}
+	
+	private void opstop() {
+		tsLastFinished = System.currentTimeMillis();
+	}
+	
 	public void exitError( ActionBase action , String error ) throws Exception {
 		action.exit( name + ": " + error );
 	}
@@ -108,546 +123,1140 @@ public abstract class ShellExecutor {
 	
 	// operations
 	public synchronized String createDir( ActionBase action , String home , String dir ) throws Exception {
-		String path = Common.getPath( home , dir );
-		ensureDirExists( action , path );
-		return( path );
+		try {
+			opstart();
+			String path = Common.getPath( home , dir );
+			ensureDirExists( action , path );
+			return( path );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void ensureDirExists( ActionBase action , String dirpath ) throws Exception {
-		core.cmdEnsureDirExists( action , dirpath );
+		try {
+			opstart();
+			core.cmdEnsureDirExists( action , dirpath );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void createFileFromString( ActionBase action , String path , String value ) throws Exception {
-		core.cmdCreateFileFromString( action , path , value );
+		try {
+			opstart();
+			core.cmdCreateFileFromString( action , path , value );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void appendFileWithString( ActionBase action , String path , String value ) throws Exception {
-		core.cmdAppendFileWithString( action , path , value );
+		try {
+			opstart();
+			core.cmdAppendFileWithString( action , path , value );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void appendFileWithFile( ActionBase action , String pathDst , String pathSrc ) throws Exception {
-		core.cmdAppendFileWithFile( action , pathDst , pathSrc );
+		try {
+			opstart();
+			core.cmdAppendFileWithFile( action , pathDst , pathSrc );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized boolean checkDirExists( ActionBase action , String path ) throws Exception {
-		if( path.isEmpty() )
-			return( false );
-		
-		if( action.isLocalAccount() )
-			return( Files.isDirectory( Paths.get( path ) , LinkOption.NOFOLLOW_LINKS ) );
-		
-		return( core.cmdCheckDirExists( action , path ) );
+		try {
+			opstart();
+			if( path.isEmpty() )
+				return( false );
+			
+			if( action.isLocalAccount() )
+				return( Files.isDirectory( Paths.get( path ) , LinkOption.NOFOLLOW_LINKS ) );
+			
+			return( core.cmdCheckDirExists( action , path ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized Map<String,List<String>> getFilesContent( ActionBase action , String dir , String fileMask ) throws Exception {
-		return( core.cmdGetFilesContent( action , dir , fileMask ) );
+		try {
+			opstart();
+			return( core.cmdGetFilesContent( action , dir , fileMask ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized boolean isFileEmpty( ActionBase action , String path ) throws Exception {
-		return( core.cmdIsFileEmpty( action , path ) );
+		try {
+			opstart();
+			return( core.cmdIsFileEmpty( action , path ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized boolean checkFileExists( ActionBase action , String dir , String path ) throws Exception {
-		return( checkFileExists( action , Common.getPath( dir , path ) ) );
+		try {
+			opstart();
+			return( checkFileExists( action , Common.getPath( dir , path ) ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized boolean checkFileExists( ActionBase action , String path ) throws Exception {
-		if( path.isEmpty() )
-			return( false );
-
-		return( core.cmdCheckFileExists( action , path ) );
+		try {
+			opstart();
+			if( path.isEmpty() )
+				return( false );
+	
+			return( core.cmdCheckFileExists( action , path ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized boolean checkPathExists( ActionBase action , String path ) throws Exception {
-		if( path.isEmpty() )
-			return( false );
-
-		return( core.cmdCheckPathExists( action , path ) );
+		try {
+			opstart();
+			if( path.isEmpty() )
+				return( false );
+	
+			return( core.cmdCheckPathExists( action , path ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized String findOneTopWithGrep( ActionBase action , String path , String mask , String grepMask ) throws Exception {
-		return( core.cmdFindOneTopWithGrep( action , path , mask , grepMask ) );
+		try {
+			opstart();
+			return( core.cmdFindOneTopWithGrep( action , path , mask , grepMask ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized String findOneTop( ActionBase action , String path , String mask ) throws Exception {
-		return( core.cmdFindOneTop( action , path , mask ) );
+		try {
+			opstart();
+			return( core.cmdFindOneTop( action , path , mask ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void createMD5( ActionBase action , String filepath ) throws Exception {
-		core.cmdCreateMD5( action , filepath );
+		try {
+			opstart();
+			core.cmdCreateMD5( action , filepath );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void removeDirContent( ActionBase action , String dirpath ) throws Exception {
-		core.cmdRemoveDirContent( action , dirpath );
+		try {
+			opstart();
+			core.cmdRemoveDirContent( action , dirpath );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void removeDir( ActionBase action , String dirpath ) throws Exception {
-		core.cmdRemoveDir( action , dirpath );
+		try {
+			opstart();
+			core.cmdRemoveDir( action , dirpath );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void recreateDir( ActionBase action , String dirpath ) throws Exception {
-		core.cmdRecreateDir( action , dirpath );
+		try {
+			opstart();
+			core.cmdRecreateDir( action , dirpath );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void removeFiles( ActionBase action , String dir , String files ) throws Exception {
-		core.cmdRemoveFiles(action , dir , files );
+		try {
+			opstart();
+			core.cmdRemoveFiles(action , dir , files );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void removeFilesWithExclude( ActionBase action , String dir , String files , String exclude ) throws Exception {
-		core.cmdRemoveFilesWithExclude( action , dir , files , exclude );
+		try {
+			opstart();
+			core.cmdRemoveFilesWithExclude( action , dir , files , exclude );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void unzip( ActionBase action , String runDir , String zipFile , String folder ) throws Exception {
-		core.cmdUnzipPart( action , runDir , zipFile , folder , "" );
+		try {
+			opstart();
+			core.cmdUnzipPart( action , runDir , zipFile , folder , "" );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void unzipPart( ActionBase action , String unzipDir , String zipFile , String zipPart , String targetDir ) throws Exception {
-		core.cmdUnzipPart( action , unzipDir , zipFile , targetDir , zipPart );
+		try {
+			opstart();
+			core.cmdUnzipPart( action , unzipDir , zipFile , targetDir , zipPart );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void move( ActionBase action , String source , String target ) throws Exception {
-		core.cmdMove( action , source , target );
+		try {
+			opstart();
+			core.cmdMove( action , source , target );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void extractTarGz( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
-		core.cmdExtractTarGz( action , tarFile , targetFolder , part );
+		try {
+			opstart();
+			core.cmdExtractTarGz( action , tarFile , targetFolder , part );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void extractTar( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
-		core.cmdExtractTar( action , tarFile , targetFolder , part );
+		try {
+			opstart();
+			core.cmdExtractTar( action , tarFile , targetFolder , part );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void extractTarGz( ActionBase action , String tarFile , String targetFolder ) throws Exception {
-		core.cmdExtractTarGz( action , tarFile , targetFolder , "" );
+		try {
+			opstart();
+			core.cmdExtractTarGz( action , tarFile , targetFolder , "" );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void extractTar( ActionBase action , String tarFile , String targetFolder ) throws Exception {
-		core.cmdExtractTar( action , tarFile , targetFolder , "" );
+		try {
+			opstart();
+			core.cmdExtractTar( action , tarFile , targetFolder , "" );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized String ls( ActionBase action , String path ) throws Exception {
-		return( core.cmdLs( action , path ) );
+		try {
+			opstart();
+			return( core.cmdLs( action , path ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void createZipFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
-		core.cmdCreateZipFromDirContent( action , tarFile , dir , content , exclude );
+		try {
+			opstart();
+			core.cmdCreateZipFromDirContent( action , tarFile , dir , content , exclude );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void createTarGzFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
-		core.cmdCreateTarGzFromDirContent( action , tarFile , dir , content , exclude );
+		try {
+			opstart();
+			core.cmdCreateTarGzFromDirContent( action , tarFile , dir , content , exclude );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void createTarFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
-		core.cmdCreateTarFromDirContent( action , tarFile , dir , content , exclude );
+		try {
+			opstart();
+			core.cmdCreateTarFromDirContent( action , tarFile , dir , content , exclude );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized String getFileInfo( ActionBase action , String dir , String dirFile ) throws Exception {
-		return( core.cmdGetFileInfo( action , dir , dirFile ) );
+		try {
+			opstart();
+			return( core.cmdGetFileInfo( action , dir , dirFile ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void custom( ActionBase action , String cmd ) throws Exception {
-		custom( action , cmd , CommandOutput.LOGLEVEL_INFO );
+		try {
+			opstart();
+			custom( action , cmd , CommandOutput.LOGLEVEL_INFO );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void custom( ActionBase action , String cmd , int logLevel ) throws Exception {
-		core.runCommand( action , cmd , logLevel );
+		try {
+			opstart();
+			core.runCommand( action , cmd , logLevel );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void custom( ActionBase action , String dir , String cmd ) throws Exception {
-		core.runCommand( action , dir , cmd , CommandOutput.LOGLEVEL_INFO );
+		try {
+			opstart();
+			core.runCommand( action , dir , cmd , CommandOutput.LOGLEVEL_INFO );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void checkErrors( ActionBase action ) throws Exception {
-		String err = core.getErr();
-		if( !err.isEmpty() )
-			action.exit( "error executing CMD=" + core.cmdCurrent + ": " + err );
+		try {
+			opstart();
+			String err = core.getErr();
+			if( !err.isEmpty() )
+				action.exit( "error executing CMD=" + core.cmdCurrent + ": " + err );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void customCheckErrorsDebug( ActionBase action , String dir , String cmd ) throws Exception {
-		core.runCommand( action , dir , cmd , CommandOutput.LOGLEVEL_TRACE );
-		String err = core.getErr();
-		if( !err.isEmpty() )
-			action.exit( "error executing CMD=" + cmd + ": " + err );
+		try {
+			opstart();
+			core.runCommand( action , dir , cmd , CommandOutput.LOGLEVEL_TRACE );
+			String err = core.getErr();
+			if( !err.isEmpty() )
+				action.exit( "error executing CMD=" + cmd + ": " + err );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void customCritical( ActionBase action , String dir , String cmd ) throws Exception {
-		String cmdDir = core.getDirCmd( action , dir , cmd );
-		core.runCommandCritical( action , cmdDir );
+		try {
+			opstart();
+			String cmdDir = core.getDirCmd( action , dir , cmd );
+			core.runCommandCritical( action , cmdDir );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void customCritical( ActionBase action , String cmd ) throws Exception {
-		core.runCommandCritical( action , cmd );
+		try {
+			opstart();
+			core.runCommandCritical( action , cmd );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized int customGetStatus( ActionBase action , String cmd ) throws Exception {
-		return( core.runCommandGetStatusDebug( action , cmd ) );
+		try {
+			opstart();
+			return( core.runCommandGetStatusDebug( action , cmd ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized int customGetStatus( ActionBase action , String dir , String cmd ) throws Exception {
-		String cmdDir = core.getDirCmd( action , dir , cmd );
-		return( core.runCommandGetStatusDebug( action , cmdDir ) );
+		try {
+			opstart();
+			String cmdDir = core.getDirCmd( action , dir , cmd );
+			return( core.runCommandGetStatusDebug( action , cmdDir ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized int customGetStatusCheckErrors( ActionBase action , String dir , String cmd ) throws Exception {
-		String cmdDir = core.getDirCmd( action , dir , cmd );
-		int status = core.runCommandGetStatusDebug( action , cmdDir );
-		if( status != 0 )
-			return( status );
-		
-		String errors = core.getErr();
-		if( !errors.isEmpty() )
-			return( -1 );
-		
-		return( 0 );
+		try {
+			opstart();
+			String cmdDir = core.getDirCmd( action , dir , cmd );
+			int status = core.runCommandGetStatusDebug( action , cmdDir );
+			if( status != 0 )
+				return( status );
+			
+			String errors = core.getErr();
+			if( !errors.isEmpty() )
+				return( -1 );
+			
+			return( 0 );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized int customGetStatusNormal( ActionBase action , String cmd ) throws Exception {
-		return( core.runCommandGetStatusNormal( action , cmd ) );
+		try {
+			opstart();
+			return( core.runCommandGetStatusNormal( action , cmd ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized int customGetStatusNormal( ActionBase action , String dir , String cmd ) throws Exception {
-		String cmdDir = core.getDirCmd( action , dir , cmd );
-		return( core.runCommandGetStatusNormal( action , cmdDir ) );
+		try {
+			opstart();
+			String cmdDir = core.getDirCmd( action , dir , cmd );
+			return( core.runCommandGetStatusNormal( action , cmdDir ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void customCheckStatus( ActionBase action , String cmd ) throws Exception {
-		core.runCommandCheckStatusDebug( action , cmd );
+		try {
+			opstart();
+			core.runCommandCheckStatusDebug( action , cmd );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void customCheckStatus( ActionBase action , String dir , String cmd ) throws Exception {
-		core.runCommandCheckStatusDebug( action , dir , cmd );
+		try {
+			opstart();
+			core.runCommandCheckStatusDebug( action , dir , cmd );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void customCheckErrorsDebug( ActionBase action , String cmd ) throws Exception {
-		core.runCommandCheckDebug( action , cmd );
+		try {
+			opstart();
+			core.runCommandCheckDebug( action , cmd );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void customCheckErrorsNormal( ActionBase action , String cmd ) throws Exception {
-		core.runCommandCheckNormal( action , cmd );
+		try {
+			opstart();
+			core.runCommandCheckNormal( action , cmd );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized String customGetValueNoCheck( ActionBase action , String cmd ) throws Exception {
-		return( core.runCommandGetValueNoCheck( action , cmd , CommandOutput.LOGLEVEL_TRACE ) );
+		try {
+			opstart();
+			return( core.runCommandGetValueNoCheck( action , cmd , CommandOutput.LOGLEVEL_TRACE ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized String customGetValue( ActionBase action , String cmd ) throws Exception {
-		return( core.runCommandGetValueCheckDebug( action , cmd ) );
+		try {
+			opstart();
+			return( core.runCommandGetValueCheckDebug( action , cmd ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized String[] customGetLines( ActionBase action , String cmd ) throws Exception {
-		return( core.runCommandGetLines( action , cmd , CommandOutput.LOGLEVEL_TRACE ) );
+		try {
+			opstart();
+			return( core.runCommandGetLines( action , cmd , CommandOutput.LOGLEVEL_TRACE ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized String[] customGetLines( ActionBase action , String dir , String cmd ) throws Exception {
-		return( core.runCommandGetLines( action , dir , cmd , CommandOutput.LOGLEVEL_TRACE ) );
+		try {
+			opstart();
+			return( core.runCommandGetLines( action , dir , cmd , CommandOutput.LOGLEVEL_TRACE ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized String customGetValue( ActionBase action , String dir , String cmd ) throws Exception {
-		return( core.runCommandGetValueCheckDebug( action , dir , cmd ) );
+		try {
+			opstart();
+			return( core.runCommandGetValueCheckDebug( action , dir , cmd ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized String[] findFiles( ActionBase action , String dir , String mask ) throws Exception {
-		return( core.cmdFindFiles( action , dir , mask ) );
+		try {
+			opstart();
+			return( core.cmdFindFiles( action , dir , mask ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized String getFirstFile( ActionBase action , String dir ) throws Exception {
-		return( core.cmdGetFirstFile( action , dir ) );
+		try {
+			opstart();
+			return( core.cmdGetFirstFile( action , dir ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void createJarFromFolder( ActionBase action , String runDir , String jarFile , String folder ) throws Exception {
-		core.cmdCreateJarFromFolder( action , runDir , jarFile , folder );
+		try {
+			opstart();
+			core.cmdCreateJarFromFolder( action , runDir , jarFile , folder );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void export( ActionBase action , String var , String value ) throws Exception {
-		core.cmdSetShellVariable( action , var , value );
+		try {
+			opstart();
+			core.cmdSetShellVariable( action , var , value );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void mvnCheckStatus( ActionBase action , String runDir , String MAVEN_CMD ) throws Exception {
-		core.runCommandCheckStatusNormal( action , runDir , MAVEN_CMD );
+		try {
+			opstart();
+			core.runCommandCheckStatusNormal( action , runDir , MAVEN_CMD );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void gitAddPomFiles( ActionBase action , String runDir ) throws Exception {
-		core.cmdGitAddPomFiles( action , runDir );
+		try {
+			opstart();
+			core.cmdGitAddPomFiles( action , runDir );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void cd( ActionBase action , String dir ) throws Exception {
-		core.cmdCd( action , dir );
+		try {
+			opstart();
+			core.cmdCd( action , dir );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void copyFiles( ActionBase action , String dirFrom , String files , String dirTo ) throws Exception {
-		core.cmdCopyFiles( action , dirFrom , files , dirTo );
+		try {
+			opstart();
+			core.cmdCopyFiles( action , dirFrom , files , dirTo );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void copyFile( ActionBase action , String fileFrom , String fileTo ) throws Exception {
-		core.cmdCopyFile( action, fileFrom , fileTo );
+		try {
+			opstart();
+			core.cmdCopyFile( action, fileFrom , fileTo );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void copyFile( ActionBase action , String fileFrom , String targetDir , String finalName , String FOLDER ) throws Exception {
-		core.cmdCopyFile( action , fileFrom , targetDir , finalName , FOLDER );
+		try {
+			opstart();
+			core.cmdCopyFile( action , fileFrom , targetDir , finalName , FOLDER );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void copyDirContent( ActionBase action , String srcDir , String dstDir ) throws Exception {
-		core.cmdCopyDirContent( action , srcDir , dstDir );
+		try {
+			opstart();
+			core.cmdCopyDirContent( action , srcDir , dstDir );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void copyDirDirect( ActionBase action , String dirFrom , String dirTo ) throws Exception {
-		core.cmdCopyDirDirect( action , dirFrom , dirTo );
+		try {
+			opstart();
+			core.cmdCopyDirDirect( action , dirFrom , dirTo );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void copyDirToBase( ActionBase action , String dirFrom , String baseDstDir ) throws Exception {
-		core.cmdCopyDirToBase( action , dirFrom , baseDstDir );
+		try {
+			opstart();
+			core.cmdCopyDirToBase( action , dirFrom , baseDstDir );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void scpFilesRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
-		int timeout = action.setTimeoutUnlimited();
-		core.cmdScpFilesRemoteToLocal( action , srcPath , account , dstPath );
-		action.setTimeout( timeout );
+		try {
+			opstart();
+			int timeout = action.setTimeoutUnlimited();
+			core.cmdScpFilesRemoteToLocal( action , srcPath , account , dstPath );
+			action.setTimeout( timeout );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void scpDirContentRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
-		core.cmdScpDirContentRemoteToLocal( action , srcPath , account , dstPath );
+		try {
+			opstart();
+			core.cmdScpDirContentRemoteToLocal( action , srcPath , account , dstPath );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void scpFilesLocalToRemote( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
-		core.cmdScpFilesLocalToRemote( action , srcPath , account , dstPath );
+		try {
+			opstart();
+			core.cmdScpFilesLocalToRemote( action , srcPath , account , dstPath );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void scpDirLocalToRemote( ActionBase action , String srcDirPath , Account account , String baseDstDir ) throws Exception {
-		core.cmdScpDirLocalToRemote( action , srcDirPath , account , baseDstDir );
+		try {
+			opstart();
+			core.cmdScpDirLocalToRemote( action , srcDirPath , account , baseDstDir );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void scpDirContentLocalToRemote( ActionBase action , String srcDirPath , Account account , String dstDir ) throws Exception {
-		core.cmdScpDirContentLocalToRemote( action , srcDirPath , account , dstDir );
+		try {
+			opstart();
+			core.cmdScpDirContentLocalToRemote( action , srcDirPath , account , dstDir );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void scpDirRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
-		core.cmdScpDirRemoteToLocal( action , srcPath , account , dstPath );
+		try {
+			opstart();
+			core.cmdScpDirRemoteToLocal( action , srcPath , account , dstPath );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void copyFileTargetToLocalDir( ActionBase action , Account account , String srcFilePath , String dstDir ) throws Exception {
-		if( account.local )
-			copyFile( action , srcFilePath , dstDir );
-		else {
-			scpFilesRemoteToLocal( action , srcFilePath , account , Common.ensureDir( dstDir ) );
+		try {
+			opstart();
+			if( account.local )
+				copyFile( action , srcFilePath , dstDir );
+			else {
+				scpFilesRemoteToLocal( action , srcFilePath , account , Common.ensureDir( dstDir ) );
+			}
+		}
+		finally {
+			opstop();
 		}
 	}
 
 	public synchronized void copyFileTargetToLocalFile( ActionBase action , Account account , String srcFilePath , String dstFilePath ) throws Exception {
-		if( account.local )
-			copyFile( action , srcFilePath , dstFilePath );
-		else {
-			scpFilesRemoteToLocal( action , srcFilePath , account , dstFilePath );
+		try {
+			opstart();
+			if( account.local )
+				copyFile( action , srcFilePath , dstFilePath );
+			else {
+				scpFilesRemoteToLocal( action , srcFilePath , account , dstFilePath );
+			}
+		}
+		finally {
+			opstop();
 		}
 	}
 
 	public synchronized void copyFilesTargetToLocal( ActionBase action , Account account , String srcFiles , String dstDir ) throws Exception {
-		if( account.local )
-			copyFiles( action , Common.getDirName( srcFiles ) , Common.getBaseName( srcFiles ) , dstDir );
-		else {
-			scpFilesRemoteToLocal( action , srcFiles , account , Common.ensureDir( dstDir ) );
+		try {
+			opstart();
+			if( account.local )
+				copyFiles( action , Common.getDirName( srcFiles ) , Common.getBaseName( srcFiles ) , dstDir );
+			else {
+				scpFilesRemoteToLocal( action , srcFiles , account , Common.ensureDir( dstDir ) );
+			}
+		}
+		finally {
+			opstop();
 		}
 	}
 
 	public synchronized void moveFilesTargetFromLocal( ActionBase action , Account account , String srcDir , String srcFiles , String dstDir ) throws Exception {
-		if( account.local )
-			move( action , Common.getPath( srcDir , srcFiles ) , dstDir );
-		else {
-			scpFilesLocalToRemote( action , Common.getPath( srcDir , srcFiles ) , account , Common.ensureDir( dstDir ) );
-			removeFiles( action , srcDir , srcFiles );
+		try {
+			opstart();
+			if( account.local )
+				move( action , Common.getPath( srcDir , srcFiles ) , dstDir );
+			else {
+				scpFilesLocalToRemote( action , Common.getPath( srcDir , srcFiles ) , account , Common.ensureDir( dstDir ) );
+				removeFiles( action , srcDir , srcFiles );
+			}
+		}
+		finally {
+			opstop();
 		}
 	}
 
 	public synchronized void copyFilesTargetFromLocal( ActionBase action , Account account , String srcDir , String srcFiles , String dstDir ) throws Exception {
-		if( account.local )
-			this.copyFiles( action , srcDir , srcFiles , dstDir );
-		else {
-			scpFilesLocalToRemote( action , Common.getPath( srcDir , srcFiles ) , account , Common.ensureDir( dstDir ) );
+		try {
+			opstart();
+			if( account.local )
+				this.copyFiles( action , srcDir , srcFiles , dstDir );
+			else {
+				scpFilesLocalToRemote( action , Common.getPath( srcDir , srcFiles ) , account , Common.ensureDir( dstDir ) );
+			}
+		}
+		finally {
+			opstop();
 		}
 	}
 
 	public synchronized void copyDirContentTargetToLocal( ActionBase action , Account account , String srcDir , String dstDir ) throws Exception {
-		if( account.local )
-			copyDirContent( action , srcDir , dstDir );
-		else {
-			scpDirContentRemoteToLocal( action , srcDir , account , Common.ensureDir( dstDir ) );
+		try {
+			opstart();
+			if( account.local )
+				copyDirContent( action , srcDir , dstDir );
+			else {
+				scpDirContentRemoteToLocal( action , srcDir , account , Common.ensureDir( dstDir ) );
+			}
+		}
+		finally {
+			opstop();
 		}
 	}
 	
 	public synchronized void copyDirTargetToLocal( ActionBase action , Account account , String srcDir , String dstBaseDir ) throws Exception {
-		if( account.local )
-			copyDirToBase( action , srcDir , dstBaseDir );
-		else {
-			scpDirRemoteToLocal( action , srcDir , account , Common.ensureDir( dstBaseDir ) );
+		try {
+			opstart();
+			if( account.local )
+				copyDirToBase( action , srcDir , dstBaseDir );
+			else {
+				scpDirRemoteToLocal( action , srcDir , account , Common.ensureDir( dstBaseDir ) );
+			}
+		}
+		finally {
+			opstop();
 		}
 	}
 
 	public synchronized void copyFileLocalToTarget( ActionBase action , Account account , String srcFilePath , String dstDir ) throws Exception {
-		if( account.local )
-			copyFile( action , srcFilePath , dstDir , "" , "" );
-		else {
-			scpFilesLocalToRemote( action , srcFilePath , account , Common.ensureDir( dstDir ) );
+		try {
+			opstart();
+			if( account.local )
+				copyFile( action , srcFilePath , dstDir , "" , "" );
+			else {
+				scpFilesLocalToRemote( action , srcFilePath , account , Common.ensureDir( dstDir ) );
+			}
+		}
+		finally {
+			opstop();
 		}
 	}
 
 	public synchronized void copyFileLocalToTargetRename( ActionBase action , Account account , String srcFilePath , String dstDir , String newName ) throws Exception {
-		if( account.local )
-			copyFile( action , srcFilePath , dstDir , newName , "" );
-		else {
-			scpFilesLocalToRemote( action , srcFilePath , account , Common.getPath( dstDir , newName ) );
+		try {
+			opstart();
+			if( account.local )
+				copyFile( action , srcFilePath , dstDir , newName , "" );
+			else {
+				scpFilesLocalToRemote( action , srcFilePath , account , Common.getPath( dstDir , newName ) );
+			}
+		}
+		finally {
+			opstop();
 		}
 	}
 
 	public synchronized void copyDirFileToFile( ActionBase action , Account account , String dirPath , String fileSrc , String fileDst ) throws Exception {
-		core.cmdCopyDirFileToFile( action , account , dirPath , fileSrc , fileDst );
+		try {
+			opstart();
+			core.cmdCopyDirFileToFile( action , account , dirPath , fileSrc , fileDst );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void copyDirLocalToTarget( ActionBase action , Account account , String srcDirPath , String baseDstDir ) throws Exception {
-		if( account.local )
-			copyDirToBase( action , srcDirPath , baseDstDir );
-		else {
-			scpDirLocalToRemote( action , srcDirPath , account , Common.ensureDir( baseDstDir ) );
+		try {
+			opstart();
+			if( account.local )
+				copyDirToBase( action , srcDirPath , baseDstDir );
+			else {
+				scpDirLocalToRemote( action , srcDirPath , account , Common.ensureDir( baseDstDir ) );
+			}
+		}
+		finally {
+			opstop();
 		}
 	}
 
 	public synchronized void copyDirContentLocalToTarget( ActionBase action , Account account , String srcDirPath , String dstDir ) throws Exception {
-		if( account.local )
-			this.copyDirContent( action , srcDirPath , dstDir );
-		else {
-			this.scpDirContentLocalToRemote( action , srcDirPath , account , Common.ensureDir( dstDir ) );
+		try {
+			opstart();
+			if( account.local )
+				this.copyDirContent( action , srcDirPath , dstDir );
+			else {
+				this.scpDirContentLocalToRemote( action , srcDirPath , account , Common.ensureDir( dstDir ) );
+			}
+		}
+		finally {
+			opstop();
 		}
 	}
 
 	public synchronized String[] getFolders( ActionBase action , String rootPath ) throws Exception {
-		return( core.cmdGetFolders( action , rootPath ) );
+		try {
+			opstart();
+			return( core.cmdGetFolders( action , rootPath ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void getDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
-		core.cmdGetDirsAndFiles( action , rootPath , dirs , files );
+		try {
+			opstart();
+			core.cmdGetDirsAndFiles( action , rootPath , dirs , files );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void getTopDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
-		if( !action.isLocalAccount() ) {
-			core.cmdGetTopDirsAndFiles( action , rootPath , dirs , files );
-			return;
+		try {
+			opstart();
+			if( !action.isLocalAccount() ) {
+				core.cmdGetTopDirsAndFiles( action , rootPath , dirs , files );
+				return;
+			}
+		
+			File folder = new File( rootPath );
+			if( folder.exists() == false )
+				return;
+			
+			if( !folder.isDirectory() )
+				action.exit( "not a directory path=" + rootPath );
+			
+			for( final File fileEntry : folder.listFiles() ) {
+		        if( fileEntry.isDirectory() )
+		        	dirs.add( fileEntry.getName() );
+		        else
+		        	files.add( fileEntry.getName() );
+		    }
 		}
-		
-		File folder = new File( rootPath );
-		if( folder.exists() == false )
-			return;
-		
-		if( !folder.isDirectory() )
-			action.exit( "not a directory path=" + rootPath );
-		
-		for( final File fileEntry : folder.listFiles() ) {
-	        if( fileEntry.isDirectory() )
-	        	dirs.add( fileEntry.getName() );
-	        else
-	        	files.add( fileEntry.getName() );
-	    }
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized String getMD5( ActionBase action , String filePath ) throws Exception {
-		return( core.cmdGetMD5( action , filePath ) );
+		try {
+			opstart();
+			return( core.cmdGetMD5( action , filePath ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized String getTarContentMD5( ActionBase action , String filePath ) throws Exception {
-		return( core.cmdGetTarContentMD5( action , filePath ) );
+		try {
+			opstart();
+			return( core.cmdGetTarContentMD5( action , filePath ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized String getArchivePartMD5( ActionBase action , String filePath , String archivePartPath , String EXT ) throws Exception {
-		return( core.cmdGetArchivePartMD5( action , filePath , archivePartPath , EXT ) );
+		try {
+			opstart();
+			return( core.cmdGetArchivePartMD5( action , filePath , archivePartPath , EXT ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized String getFilesMD5( ActionBase action , String dir , String includeList , String excludeList ) throws Exception {
-		return( core.cmdGetFilesMD5( action , dir , includeList , excludeList ) );
+		try {
+			opstart();
+			return( core.cmdGetFilesMD5( action , dir , includeList , excludeList ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized String getFileContentAsString( ActionBase action , String filePath ) throws Exception {
-		if( account.local )
-			return( action.readFile( filePath ) );
-		
-		return( core.cmdGetFileContentAsString( action , filePath ) );
+		try {
+			opstart();
+			if( account.local )
+				return( action.readFile( filePath ) );
+			
+			return( core.cmdGetFileContentAsString( action , filePath ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized String[] grepFile( ActionBase action , String filePath , String mask ) throws Exception {
-		return( core.cmdGrepFile( action , filePath , mask ) );
+		try {
+			opstart();
+			return( core.cmdGrepFile( action , filePath , mask ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void replaceFileLine( ActionBase action , String filePath , String mask , String newLine ) throws Exception {
-		core.cmdReplaceFileLine( action , filePath , mask , newLine );
+		try {
+			opstart();
+			core.cmdReplaceFileLine( action , filePath , mask , newLine );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void appendExecuteLog( ActionBase action , String msg ) throws Exception {
-		core.cmdAppendExecuteLog( action , msg ); 
+		try {
+			opstart();
+			core.cmdAppendExecuteLog( action , msg ); 
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void appendUploadLog( ActionBase action , String src , String dst ) throws Exception {
-		core.cmdAppendUploadLog( action , src , dst );
+		try {
+			opstart();
+			core.cmdAppendUploadLog( action , src , dst );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized void createPublicDir( ActionBase action , String dir ) throws Exception {
-		core.cmdCreatePublicDir( action , dir );
+		try {
+			opstart();
+			core.cmdCreatePublicDir( action , dir );
+		}
+		finally {
+			opstop();
+		}
 	}
 
 	public synchronized String[] getFileLines( ActionBase action , String filePath ) throws Exception {
-		if( account.local )
-			return( action.readFileLines( filePath ).toArray( new String[0] ) );
-		
-		return( core.cmdGetFileLines( action , filePath ) );
+		try {
+			opstart();
+			if( account.local )
+				return( action.readFileLines( filePath ).toArray( new String[0] ) );
+			
+			return( core.cmdGetFileLines( action , filePath ) );
+		}
+		finally {
+			opstop();
+		}
 	}
 	
 	public synchronized void downloadUnix( ActionBase action , String URL , String TARGETNAME , String auth ) throws Exception {
-		if( core.osType != VarOSTYPE.LINUX )
-			action.exitUnexpectedState();
+		try {
+			opstart();
+			if( core.osType != VarOSTYPE.LINUX )
+				action.exitUnexpectedState();
+			
+			String TARGETDIRNAME;
+			String TARGETFINALNAME;
+			String FBASENAME;
+			if( TARGETNAME.isEmpty() ) {
+				FBASENAME = Common.getBaseName( URL );
+				TARGETFINALNAME = FBASENAME;
+			}
+			else {
+				FBASENAME = Common.getBaseName( TARGETNAME );
+				TARGETDIRNAME = Common.getDirName( TARGETNAME );
+				core.runCommandCheckDebug( action , "mkdir -p " + TARGETDIRNAME );
 		
-		String TARGETDIRNAME;
-		String TARGETFINALNAME;
-		String FBASENAME;
-		if( TARGETNAME.isEmpty() ) {
-			FBASENAME = Common.getBaseName( URL );
-			TARGETFINALNAME = FBASENAME;
+				TARGETFINALNAME = TARGETNAME;
+			}
+		
+			action.debug( FBASENAME + ": wget " + URL + " ..." );
+	
+			// delete old if partial download
+			core.runCommandCheckDebug( action , "rm -rf " + TARGETFINALNAME + " " + TARGETFINALNAME + ".md5" );
+			String cmd = "wget -q " + Common.getQuoted( URL ) + " -O " + TARGETFINALNAME;
+			if( auth != null && !auth.isEmpty() )
+				cmd += " " + auth;
+			int status = core.runCommandGetStatusDebug( action , cmd );
+		
+			if( status == 0 && checkFileExists( action , TARGETFINALNAME ) )
+				createMD5( action , TARGETFINALNAME );
+			else
+				action.exit( URL + ": unable to download" );
 		}
-		else {
-			FBASENAME = Common.getBaseName( TARGETNAME );
-			TARGETDIRNAME = Common.getDirName( TARGETNAME );
-			core.runCommandCheckDebug( action , "mkdir -p " + TARGETDIRNAME );
-	
-			TARGETFINALNAME = TARGETNAME;
+		finally {
+			opstop();
 		}
-	
-		action.debug( FBASENAME + ": wget " + URL + " ..." );
-
-		// delete old if partial download
-		core.runCommandCheckDebug( action , "rm -rf " + TARGETFINALNAME + " " + TARGETFINALNAME + ".md5" );
-		String cmd = "wget -q " + Common.getQuoted( URL ) + " -O " + TARGETFINALNAME;
-		if( auth != null && !auth.isEmpty() )
-			cmd += " " + auth;
-		int status = core.runCommandGetStatusDebug( action , cmd );
-	
-		if( status == 0 && checkFileExists( action , TARGETFINALNAME ) )
-			createMD5( action , TARGETFINALNAME );
-		else
-			action.exit( URL + ": unable to download" );
 	}
 
 	public synchronized void prepareDirForLinux( ActionBase action , String dirPath ) throws Exception {
-		String[] exts = action.meta.getConfigurableExtensions( action );
-		
-		// create find mask
-		String mask = "";
-		for( int k = 0; k < exts.length; k++ ) {
-			if( k > 0 )
-				mask += " -o ";
-			mask += "-name " + Common.getQuoted( "*." + exts[ k ] );
+		try {
+			opstart();
+			String[] exts = action.meta.getConfigurableExtensions( action );
+			
+			// create find mask
+			String mask = "";
+			for( int k = 0; k < exts.length; k++ ) {
+				if( k > 0 )
+					mask += " -o ";
+				mask += "-name " + Common.getQuoted( "*." + exts[ k ] );
+			}
+			
+			if( !mask.isEmpty() )
+				mask = " -a \\( " + mask + " \\) ";
+			core.runCommandCheckDebug( action , dirPath , 
+					"x=`find . -type f " + mask + "`" +
+					"; if [ " + Common.getQuoted( "$x" ) + " != " + Common.getQuoted( "" ) + " ]; then sed -i " + Common.getQuoted( "s/\\r//" ) + " $x; fi" +
+					"; x=`find . -name " + Common.getQuoted( "*.sh" ) + "`" +
+					"; if [ " + Common.getQuoted( "$x" ) + " != " + Common.getQuoted( "" ) + " ]; then chmod 744 $x; fi" );
 		}
-		
-		if( !mask.isEmpty() )
-			mask = " -a \\( " + mask + " \\) ";
-		core.runCommandCheckDebug( action , dirPath , 
-				"x=`find . -type f " + mask + "`" +
-				"; if [ " + Common.getQuoted( "$x" ) + " != " + Common.getQuoted( "" ) + " ]; then sed -i " + Common.getQuoted( "s/\\r//" ) + " $x; fi" +
-				"; x=`find . -name " + Common.getQuoted( "*.sh" ) + "`" +
-				"; if [ " + Common.getQuoted( "$x" ) + " != " + Common.getQuoted( "" ) + " ]; then chmod 744 $x; fi" );
+		finally {
+			opstop();
+		}
 	}
 
 }

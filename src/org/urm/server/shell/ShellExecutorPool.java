@@ -15,10 +15,10 @@ public class ShellExecutorPool implements Runnable {
 	public ServerEngine engine;
 	public String rootPath;
 	
+	Map<String,Object> staged = new HashMap<String,Object>();
 	Map<String,ShellExecutor> pool = new HashMap<String,ShellExecutor>();
-	List<ShellExecutor> listRemote = new LinkedList<ShellExecutor>();
-	Map<ActionBase,Map<String,ShellExecutor>> mapDedicated = new HashMap<ActionBase,Map<String,ShellExecutor>>();
-	Map<String,Object> staged = new HashMap<String,Object>(); 
+	Map<ActionBase,Map<String,ShellExecutor>> actionSessions = new HashMap<ActionBase,Map<String,ShellExecutor>>();
+	List<ShellExecutor> pending = new LinkedList<ShellExecutor>();
 
 	public ShellExecutor master;
 	public Account account;
@@ -27,6 +27,9 @@ public class ShellExecutorPool implements Runnable {
 	private Thread thread;
 	private boolean started = false;
 	private boolean stop = false;
+	
+	private long tsHouseKeepTime = 0;
+	private static long SHELL_SILENT_MAX = 60000;
 	
 	public ShellExecutorPool( ServerEngine engine ) {
 		this.engine = engine;
@@ -51,6 +54,41 @@ public class ShellExecutorPool implements Runnable {
 
 	private void runHouseKeeping() throws Exception {
 		engine.serverAction.trace( "run thread pool house keeping ..." );
+		
+		// move pending to primary
+		synchronized( this ) {
+			for( int k = 0; k < pending.size(); ) {
+				ShellExecutor shell = pending.get( k );
+				if( !pool.containsKey( shell.name ) ) {
+					pool.put( shell.name , shell );
+					pending.remove( k );
+				}
+				else
+				if( checkOldShell( shell ) ) {
+					pending.remove( k );
+					killShell( shell );
+				}
+				else
+					k++;
+			}
+		}
+		
+		// kill old primary 
+		synchronized( this ) {
+			for( ShellExecutor shell : pool.values().toArray( new ShellExecutor[0] ) ) {
+				if( checkOldShell( shell ) ) {
+					pool.remove( shell.name );
+					killShell( shell );
+				}
+			}
+		}
+	}
+
+	private boolean checkOldShell( ShellExecutor shell ) {
+		long finished = shell.tsLastFinished;
+		if( finished > 0 && finished + SHELL_SILENT_MAX < tsHouseKeepTime )
+			return( true );
+		return( false );
 	}
 	
 	public void start( ActionBase action ) throws Exception {
@@ -81,27 +119,27 @@ public class ShellExecutorPool implements Runnable {
 		}
 	}
 	
-	public void killAll( ActionBase action ) {
-		for( ShellExecutor session : listRemote ) {
-			try {
-				session.kill( action );
-			}
-			catch( Throwable e ) {
-				if( action.context.CTX_TRACEINTERNAL )
-					action.trace( "exception when killing shell=" + session.name + " (" + e.getMessage() + ")" );
-			}
-		}
-		
-		for( ActionBase actionAffected : mapDedicated.keySet() )
-			killDedicated( actionAffected );
-
+	private void killShell( ShellExecutor shell ) {
 		try {
-			master.kill( action );
+			shell.kill( engine.serverAction );
 		}
 		catch( Throwable e ) {
-			if( action.context.CTX_TRACEINTERNAL )
-				action.trace( "exception when killing shell=" + master.name + " (" + e.getMessage() + ")" );
+			if( engine.serverAction.context.CTX_TRACEINTERNAL )
+				engine.serverAction.trace( "exception when killing shell=" + shell.name + " (" + e.getMessage() + ")" );
 		}
+	}
+	
+	public void killAll( ActionBase serverAction ) {
+		for( ActionBase actionAffected : actionSessions.keySet() )
+			releaseActionPool( actionAffected );
+
+		for( ShellExecutor shell : pending )
+			killShell( shell );
+		
+		for( ShellExecutor shell : pool.values().toArray( new ShellExecutor[0] ) )
+			killShell( shell );
+		
+		killShell( master );
 		
 		synchronized( thread ) {
 			thread.notifyAll();
@@ -112,10 +150,9 @@ public class ShellExecutorPool implements Runnable {
 		if( stop )
 			action.exit( "server is in progress of shutdown" );
 		
-		Account execAccount = account;
-
 		String name = ( account.local )? "local::" + scope : "remote::" + scope + "::" + account.HOSTLOGIN; 
 
+		// get sync object
 		Object sync = null;
 		synchronized( this ) {
 			sync = staged.get( name );
@@ -127,23 +164,37 @@ public class ShellExecutorPool implements Runnable {
 		
 		ShellExecutor shell = null;
 		synchronized( sync ) {
+			// from free pool
 			shell = pool.get( name );
 			if( shell != null )
 				return( shell );
 
+			// owned by action
+			Map<String,ShellExecutor> map;
+			synchronized( this ) {
+				map = getActionMap( action );
+				shell = map.get( name );
+				if( shell != null )
+					return( shell );
+			}
+
+			// create new shell
 			if( account.local ) {
 				shell = ShellExecutor.getLocalShellExecutor( action , name , this , rootPath , tmpFolder );
 				shell.start( action );
 			}
 			else {
 				String REDISTPATH = action.context.CTX_REDISTPATH;
-				shell = ShellExecutor.getRemoteShellExecutor( action , name , this , execAccount , REDISTPATH );
+				shell = ShellExecutor.getRemoteShellExecutor( action , name , this , account , REDISTPATH );
 				shell.start( action );
 			}
-			
-			pool.put( name , shell );
-			listRemote.add( shell );
-			
+
+			// add to action sessions (return to pool after release)
+			synchronized( this ) {
+				map.put( name , shell );
+			}
+
+			// force create temporary folder on remote location
 			if( !account.local )
 				shell.tmpFolder.ensureExists( action );
 		}
@@ -161,6 +212,15 @@ public class ShellExecutorPool implements Runnable {
 		return( shell );
 	}
 	
+	private Map<String,ShellExecutor> getActionMap( ActionBase action ) {
+		Map<String,ShellExecutor> map = actionSessions.get( action );
+		if( map == null ) {
+			map = new HashMap<String,ShellExecutor>();
+			actionSessions.put( action , map );
+		}
+		return( map );
+	}
+	
 	public ShellExecutor createDedicatedLocalShell( ActionBase action , String name ) throws Exception {
 		if( stop )
 			action.exit( "server is in progress of shutdown" );
@@ -170,45 +230,64 @@ public class ShellExecutorPool implements Runnable {
 		
 		ShellExecutor shell = null;
 		synchronized( this ) {
-			Map<String,ShellExecutor> list = mapDedicated.get( action );
-			if( list == null ) {
-				list = new HashMap<String,ShellExecutor>();
-				mapDedicated.put( action , list );
-			}
-			
-			shell = list.get( name );
+			Map<String,ShellExecutor> map = getActionMap( action );
+			shell = map.get( name );
 			if( shell != null ) {
 				action.setShell( shell );
 				return( shell );
 			}
 			
 			shell = createLocalShell( action , name );
-			list.put( name , shell );
+			map.put( name , shell );
 		}
 		
 		return( shell );
 	}
 
-	public void killDedicated( ActionBase action ) {
-		Map<String,ShellExecutor> list = mapDedicated.get( action );
-		if( list == null )
-			return;
-		
+	public void releaseShell( ActionBase action , ShellExecutor shell ) {
+		Map<String,ShellExecutor> map;
 		synchronized( this ) {
-			ShellExecutor[] sessions = list.values().toArray( new ShellExecutor[0] );  
-			for( int k = sessions.length - 1; k >= 0; k-- ) {
-				ShellExecutor session = sessions[ k ]; 
-				try {
-					session.kill( action );
-				}
-				catch( Throwable e ) {
-					if( action.context.CTX_TRACEINTERNAL )
-						action.trace( "exception when killing shell=" + session.name + " (" + e.getMessage() + ")" );
-				}
+			map = actionSessions.get( action );
+			if( map == null )
+				return;
+		}
+		
+		releaseShell( action , shell , map );
+	}
+	
+	public void releaseShell( ActionBase action , ShellExecutor shell , Map<String,ShellExecutor> map ) {
+		// put remote sessions to pool or to pending list, kill locals
+		if( !shell.account.local ) {
+			synchronized( this ) {
+				if( pool.get( shell.name ) == null )
+					pool.put( shell.name , shell );
+				else
+					pending.add( shell );
 			}
+		}
+		else {
+			synchronized( this ) {
+				killShell( shell );
+				map.remove( shell.name );
+			}
+		}
+	}
+
+	public void releaseActionPool( ActionBase action ) {
+		Map<String,ShellExecutor> map;
+		ShellExecutor[] sessions;
+		synchronized( this ) {
+			map = actionSessions.get( action );
+			if( map == null )
+				return;
 			
-			list.clear();
-			mapDedicated.remove( action );
+			actionSessions.remove( action );
+			sessions = map.values().toArray( new ShellExecutor[0] );
+		}
+			
+		for( int k = sessions.length - 1; k >= 0; k-- ) {
+			ShellExecutor shell = sessions[ k ]; 
+			releaseShell( action , shell , map );
 		}
 	}
 
