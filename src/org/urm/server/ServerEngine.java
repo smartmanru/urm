@@ -3,10 +3,8 @@ package org.urm.server;
 import org.urm.common.Common;
 import org.urm.common.ExitException;
 import org.urm.common.RunContext;
-import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
-import org.urm.common.action.CommandMethod;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.jmx.ServerCommandCall;
 import org.urm.common.meta.BuildCommandMeta;
@@ -38,6 +36,7 @@ public class ServerEngine {
 	public SessionContext serverSession;
 	public ActionInit serverAction;
 	public ShellExecutorPool pool;
+	public boolean running;
 	
 	public ServerEngine() {
 	}
@@ -65,6 +64,7 @@ public class ServerEngine {
 			return( false );
 
 		// run server action
+		running = true;
 		createPool();
 		startAction( serverAction );
 		return( runServerAction( serverSession , executor ) );
@@ -89,66 +89,6 @@ public class ServerEngine {
 		return( runServerAction( serverSession , executor ) );
 	}
 		
-	public boolean runClientRemote( ServerCommandCall call , CommandMethod method , ActionData data ) throws Exception {
-		CommandBuilder builder = new CommandBuilder( data.clientrc , execrc );
-		
-		CommandOptions options = new CommandOptions( serverAction.context.options.meta );
-		options.setAction( call.command.meta.name , method , data );
-		
-		CommandMeta commandInfo = builder.createMeta( options.command );
-		if( commandInfo == null )
-			return( false );
-		
-		CommandExecutor executor = createExecutor( commandInfo );
-		SessionContext session = new SessionContext( this , data.clientrc , call.sessionId );
-		session.setServerClientLayout( serverSession );
-		
-		ActionInit action = createAction( options , executor , session , "remote-" + data.clientrc.productDir , call );
-		if( action == null )
-			return( false );
-
-		return( runClientAction( session , executor , action ) );
-	}
-
-	public boolean runClientJmx( int sessionId , String productDir , CommandMeta meta , CommandOptions options ) throws Exception {
-		CommandExecutor executor = createExecutor( meta );
-		SessionContext session = new SessionContext( this , execrc , sessionId );
-		session.setServerProductLayout( productDir );
-		
-		ActionInit action = createAction( options , executor , session , "jmx-" + execrc.productDir , null );
-		if( action == null )
-			return( false );
-
-		return( runClientAction( session , executor , action ) );
-	}
-	
-	private boolean runClientAction( SessionContext session , CommandExecutor executor , ActionInit clientAction ) throws Exception {
-		serverAction.debug( "run client action workFolder=" + clientAction.artefactory.workFolder.folderPath + " ..." );
-		
-		startAction( clientAction );
-		clientAction.meta.loadProduct( clientAction );
-		
-		// execute
-		try {
-			executor.runAction( clientAction );
-		}
-		catch( Throwable e ) {
-			clientAction.log( e );
-		}
-
-		boolean res = ( session.isFailed() )? false : true;
-		serverAction.debug( "client action workFolder=" + clientAction.artefactory.workFolder.folderPath + ", status=" + res );
-		
-		if( res )
-			clientAction.commentExecutor( "COMMAND SUCCESSFUL" );
-		else
-			clientAction.commentExecutor( "COMMAND FAILED" );
-			
-		finishAction( clientAction );
-
-		return( res );
-	}
-
 	private boolean runServerAction( SessionContext session , CommandExecutor executor ) throws Exception {
 		// execute
 		try {
@@ -164,14 +104,14 @@ public class ServerEngine {
 			serverAction.commentExecutor( "COMMAND SUCCESSFUL" );
 		else
 			serverAction.commentExecutor( "COMMAND FAILED" );
-			
+
 		finishAction( serverAction );
 		killPool();
 
 		return( res );
 	}
 
-	private CommandExecutor createExecutor( CommandMeta commandInfo ) throws Exception {
+	public CommandExecutor createExecutor( CommandMeta commandInfo ) throws Exception {
 		CommandExecutor executor = null;
 		String cmd = commandInfo.name;
 		if( cmd.equals( BuildCommandMeta.NAME ) )
@@ -227,7 +167,7 @@ public class ServerEngine {
 		pool.master.removeDir( action , workFolder.folderPath );
 	}
 	
-	public void stopPool() throws Exception {
+	private void stopPool() throws Exception {
 		pool.stop( serverAction );
 	}
 	
@@ -306,4 +246,11 @@ public class ServerEngine {
 		return( artefactory );
 	}
 
+	public void stop() throws Exception {
+		if( !running )
+			return;
+		
+		stopPool();
+	}
+	
 }

@@ -34,7 +34,7 @@ public class ServerCommandCall implements Runnable {
     public void run() {
     	try {
     		CommandMethod method = command.meta.getAction( action );
-    		command.engine.runClientRemote( this , method , data );
+    		server.runClientRemote( this , method , data );
     	}
     	catch( Throwable e ) {
         	command.notifyLog( sessionId , e );
