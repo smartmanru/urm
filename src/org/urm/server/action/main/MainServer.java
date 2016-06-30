@@ -51,6 +51,8 @@ public class MainServer {
 	
 	public void stop() throws Exception {
 		action.info( "stopping server ..." );
+		engine.stopPool();
+		
 		synchronized( this ) {
 			notifyAll();
 		}

@@ -5,11 +5,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.urm.common.Common;
 import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionBase;
 import org.urm.server.storage.Folder;
 
-public class ShellExecutorPool {
+public class ShellExecutorPool implements Runnable {
 
 	public ServerEngine engine;
 	public String rootPath;
@@ -23,19 +24,94 @@ public class ShellExecutorPool {
 	public Account account;
 	public Folder tmpFolder;
 	
+	private Thread thread;
+	private boolean started = false;
+	private boolean stop = false;
+	
 	public ShellExecutorPool( ServerEngine engine ) {
 		this.engine = engine;
 		rootPath = engine.execrc.userHome;
 		account = new Account( engine.execrc );
 	}
 	
+	@Override
+	public void run() {
+		while( !stop ) {
+			try {
+				Common.sleep( this , 30000 );
+				runHouseKeeping();
+			}
+			catch( InterruptedException e ) {
+			}
+			catch( Throwable e ) {
+				engine.serverAction.log( "thread pool house keeping error" , e );
+			}
+		}
+	}
+
+	private void runHouseKeeping() throws Exception {
+		engine.serverAction.trace( "run thread pool house keeping ..." );
+	}
+	
 	public void start( ActionBase action ) throws Exception {
 		tmpFolder = action.artefactory.getTmpFolder( action );
 		master = createDedicatedLocalShell( action , "master" );
 		tmpFolder.ensureExists( action );
+		
+		// start managing thread
+		started = true;
+        thread = new Thread( null , this , "Thread Pool" );
+        thread.start();
 	}
 	
+	public void stop( ActionBase action ) {
+		try {
+			if( started ) {
+				stop = true;
+				thread.interrupt();
+				
+				synchronized( thread ) {
+					thread.wait();
+				}
+			}
+		}
+		catch( Throwable e ) {
+			if( action.context.CTX_TRACEINTERNAL )
+				action.trace( "exception when killing shell=" + master.name + " (" + e.getMessage() + ")" );
+		}
+	}
+	
+	public void killAll( ActionBase action ) {
+		for( ShellExecutor session : listRemote ) {
+			try {
+				session.kill( action );
+			}
+			catch( Throwable e ) {
+				if( action.context.CTX_TRACEINTERNAL )
+					action.trace( "exception when killing shell=" + session.name + " (" + e.getMessage() + ")" );
+			}
+		}
+		
+		for( ActionBase actionAffected : mapDedicated.keySet() )
+			killDedicated( actionAffected );
+
+		try {
+			master.kill( action );
+		}
+		catch( Throwable e ) {
+			if( action.context.CTX_TRACEINTERNAL )
+				action.trace( "exception when killing shell=" + master.name + " (" + e.getMessage() + ")" );
+		}
+		
+		synchronized( thread ) {
+			thread.notifyAll();
+		}
+	}
+
 	public ShellExecutor getExecutor( ActionBase action , Account account , String scope ) throws Exception {
+		if( stop )
+			action.exit( "server is in progress of shutdown" );
+		
 		Account execAccount = account;
 
 		String name = ( account.local )? "local::" + scope : "remote::" + scope + "::" + account.HOSTLOGIN; 
@@ -76,6 +152,9 @@ public class ShellExecutorPool {
 	}
 
 	private ShellExecutor createLocalShell( ActionBase action , String name ) throws Exception {
+		if( stop )
+			action.exit( "server is in progress of shutdown" );
+		
 		ShellExecutor shell = ShellExecutor.getLocalShellExecutor( action , "local::" + name , this , rootPath , tmpFolder );
 		action.setShell( shell );
 		shell.start( action );
@@ -83,6 +162,9 @@ public class ShellExecutorPool {
 	}
 	
 	public ShellExecutor createDedicatedLocalShell( ActionBase action , String name ) throws Exception {
+		if( stop )
+			action.exit( "server is in progress of shutdown" );
+		
 		if( name.equals( "master" ) )
 			return( createLocalShell( action , name ) );
 		
@@ -105,31 +187,6 @@ public class ShellExecutorPool {
 		}
 		
 		return( shell );
-	}
-
-	public void stop( ActionBase action ) {
-		try {
-			master.kill( action );
-		}
-		catch( Throwable e ) {
-			if( action.context.CTX_TRACEINTERNAL )
-				action.trace( "exception when killing shell=" + master.name + " (" + e.getMessage() + ")" );
-		}
-	}
-	
-	public void killAll( ActionBase action ) {
-		for( ShellExecutor session : listRemote ) {
-			try {
-				session.kill( action );
-			}
-			catch( Throwable e ) {
-				if( action.context.CTX_TRACEINTERNAL )
-					action.trace( "exception when killing shell=" + session.name + " (" + e.getMessage() + ")" );
-			}
-		}
-		
-		for( ActionBase actionAffected : mapDedicated.keySet() )
-			killDedicated( actionAffected );
 	}
 
 	public void killDedicated( ActionBase action ) {

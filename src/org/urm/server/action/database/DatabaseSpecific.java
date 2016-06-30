@@ -447,15 +447,8 @@ public class DatabaseSpecific {
 		else
 			action.exitUnexpectedState();
 		
-		int status = action.shell.customGetStatus( action , scripts.folderPath , ctxCmd );
-		if( status != 0 )
-			return( status );
-		
-		String errors = action.shell.getErrors( action );
-		if( !errors.isEmpty() )
-			return( -1 );
-		
-		return( 0 );
+		int status = action.shell.customGetStatusCheckErrors( action , scripts.folderPath , ctxCmd );
+		return( status );
 	}
 
 	public boolean validateScriptContent( ActionBase action , LocalFolder dir , String script ) throws Exception {

@@ -167,7 +167,7 @@ public class ServerEngine {
 			serverAction.commentExecutor( "COMMAND FAILED" );
 			
 		finishAction( serverAction );
-		stopPool();
+		killPool();
 
 		return( res );
 	}
