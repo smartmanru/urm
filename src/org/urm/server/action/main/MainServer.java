@@ -100,7 +100,7 @@ public class MainServer {
 	}
 	
 	public boolean runClientAction( SessionContext session , CommandExecutor executor , ActionInit clientAction ) {
-		serverAction.debug( "run client action workFolder=" + clientAction.artefactory.workFolder.folderPath + " ..." );
+		serverAction.debug( "run client action sessionId=" + session.sessionId + ", workFolder=" + clientAction.artefactory.workFolder.folderPath + " ..." );
 		
 		synchronized( this ) {
 			actions.put( session.sessionId , clientAction );
@@ -117,7 +117,6 @@ public class MainServer {
 		}
 
 		boolean res = ( session.isFailed() )? false : true;
-		serverAction.debug( "client action workFolder=" + clientAction.artefactory.workFolder.folderPath + ", status=" + res );
 		
 		if( res )
 			clientAction.commentExecutor( "COMMAND SUCCESSFUL" );
@@ -133,6 +132,7 @@ public class MainServer {
 		
 		synchronized( this ) {
 			actions.remove( session.sessionId );
+			serverAction.debug( "finished client action sessionId=" + session.sessionId + ", status=" + res );
 		}
 
 		return( res );
