@@ -18,7 +18,7 @@ import org.urm.server.action.ActionInit;
 
 public class MainServer {
 
-	ActionBase action;
+	ActionBase serverAction;
 	ServerEngine engine;
 	ServerMBean controller; 
 	boolean running = false;
@@ -31,21 +31,21 @@ public class MainServer {
 	
 	int sessionSequence = 0;
 	
-	public MainServer( ActionBase action , ServerEngine engine ) {
-		this.action = action;
+	public MainServer( ActionBase serverAction , ServerEngine engine ) {
+		this.serverAction = serverAction;
 		this.engine = engine;
 		
-		controller = new ServerMBean( action , this ); 
+		controller = new ServerMBean( serverAction , this ); 
 		calls = new HashMap<String,ServerCommandCall>();
 		actions = new HashMap<Integer,ActionInit>(); 
 	}
 	
 	public void start() throws Exception {
-		CommandBuilder builder = new CommandBuilder( action.context.session.clientrc , action.context.session.execrc );
+		CommandBuilder builder = new CommandBuilder( serverAction.context.session.clientrc , serverAction.context.session.execrc );
 		executors = builder.getExecutors( true , true );
 		controller.start();
 		
-		action.info( "server successfully started, accepting connections." );
+		serverAction.info( "server successfully started, accepting connections." );
 		synchronized( this ) {
 			running = true;
 			while( !stop )
@@ -64,7 +64,7 @@ public class MainServer {
 		
 		CommandBuilder builder = new CommandBuilder( data.clientrc , engine.execrc );
 		
-		CommandOptions options = new CommandOptions( engine.serverAction.context.options.meta );
+		CommandOptions options = new CommandOptions( serverAction.context.options.meta );
 		options.setAction( call.command.meta.name , method , data );
 		
 		CommandMeta commandInfo = builder.createMeta( options.command );
@@ -84,7 +84,7 @@ public class MainServer {
 
 	public boolean runClientJmx( int sessionId , String productDir , CommandMeta meta , CommandOptions options ) throws Exception {
 		if( !running ) {
-			engine.serverAction.error( "server is in progress of shutdown" );
+			serverAction.error( "server is in progress of shutdown" );
 			return( false );
 		}
 		
@@ -100,7 +100,7 @@ public class MainServer {
 	}
 	
 	public boolean runClientAction( SessionContext session , CommandExecutor executor , ActionInit clientAction ) {
-		engine.serverAction.debug( "run client action workFolder=" + clientAction.artefactory.workFolder.folderPath + " ..." );
+		serverAction.debug( "run client action workFolder=" + clientAction.artefactory.workFolder.folderPath + " ..." );
 		
 		synchronized( this ) {
 			actions.put( session.sessionId , clientAction );
@@ -117,7 +117,7 @@ public class MainServer {
 		}
 
 		boolean res = ( session.isFailed() )? false : true;
-		engine.serverAction.debug( "client action workFolder=" + clientAction.artefactory.workFolder.folderPath + ", status=" + res );
+		serverAction.debug( "client action workFolder=" + clientAction.artefactory.workFolder.folderPath + ", status=" + res );
 		
 		if( res )
 			clientAction.commentExecutor( "COMMAND SUCCESSFUL" );
@@ -144,7 +144,7 @@ public class MainServer {
 	}
 	
 	public void stop() throws Exception {
-		action.info( "stopping server ..." );
+		serverAction.info( "stopping server ..." );
 		stop = true;
 		engine.stop();
 		
@@ -164,15 +164,22 @@ public class MainServer {
 	
 	public synchronized void threadStarted( ServerCommandCall thread ) {
 		calls.put( "" + thread.sessionId , thread );
-		action.debug( "thread started: sessionId=" + thread.sessionId );
+		serverAction.debug( "thread started: sessionId=" + thread.sessionId );
 	}
 
 	public synchronized void threadStopped( ServerCommandCall thread ) {
 		calls.remove( "" + thread.sessionId );
-		action.debug( "thread stopped: sessionId=" + thread.sessionId );
+		serverAction.debug( "thread stopped: sessionId=" + thread.sessionId );
 	}
 
 	private void waitAllActions() throws Exception {
+		synchronized( this ) {
+			if( actions.size() == 0 )
+				return;
+			
+			serverAction.info( "waiting for " + actions.size() + " to complete ..." );
+		}
+		
 		while( true ) {
 			synchronized( this ) {
 				if( actions.size() == 0 )
