@@ -15,6 +15,9 @@ if "%1" == "" (
 set P_DSTDIR=%1
 
 set URM_TYPE=
+if "%2" == "" (
+	set URM_TYPE=standalone
+)
 if "%2" == "server" (
 	set URM_TYPE=server
 )

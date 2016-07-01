@@ -19,6 +19,9 @@ if [ "$P_DSTDIR" = "" ]; then
 fi
 
 URM_TYPE=
+if [ "$2" = "" ]; then
+	URM_TYPE=standalone
+fi
 if [ "$2" = "server" ]; then
 	URM_TYPE=server
 fi
