@@ -32,13 +32,13 @@ if "%P_DSTDIR%" == "" (
 )
 
 IF EXIST %P_DSTDIR% (
-	echo install.cmd: URM directory %P_DSTDIR% should not exist. Exiting"
+	echo install.cmd: URM directory %P_DSTDIR% should not exist. Exiting
 	exit 1
 )
 
 md %P_DSTDIR%\master
 IF NOT EXIST %P_DSTDIR%\master (
-	echo install.cmd: Unable to create %P_DSTDIR%\master. Exiting"
+	echo install.cmd: Unable to create %P_DSTDIR%\master. Exiting
 	exit 1
 )
 

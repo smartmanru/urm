@@ -24,8 +24,10 @@ fi
 
 function f_execute_all() {
 	# copy master files
-	cd ..
-	cp -R * $P_DSTDIR/master
+	cp -R bin $P_DSTDIR/master/bin
+	cp -R database $P_DSTDIR/master/database
+	cp -R lib $P_DSTDIR/master/lib
+
 	local F_STATUS=$?
 	if [ "$F_STATUS" != "0" ]; then
 		echo "upgrade.sh: cannot copy master to $P_DSTDIR/master . Exiting"
@@ -34,16 +36,15 @@ function f_execute_all() {
 
 	# execute configuration script
 	local F_SAVEDIR=`pwd`
-	cd $P_DSTDIR/master
-	if [ -f bin/configure.sh ]; then
-		echo "run: configure.sh $URM_TRACE default ..."
-		bin/configure.sh $URM_TRACE default
+	cd $P_DSTDIR/master/bin
 
-		F_STATUS=$?
-		if [ "$F_STATUS" != "0" ]; then
-			echo "upgrade.sh: confugure.sh failed. Exiting"
-			exit 1
-		fi
+	echo "run: configure.sh $URM_TRACE default ..."
+	configure.sh $URM_TRACE default
+
+	F_STATUS=$?
+	if [ "$F_STATUS" != "0" ]; then
+		echo "upgrade.sh: confugure.sh failed. Exiting"
+		exit 1
 	fi
 }
 

@@ -20,9 +20,15 @@
   
 ## Installation
 
-  - create home directory
-  - export urm/master to home/master
-  - create home/etc
+  - download all files
+  - choose local home directory for your instance
+  - run one of
+	install.cmd standalone <home directory>
+	install.sh standalone <home directory>
+	install.cmd server <home directory>
+	install.sh server <home directory>
+  - it will create initial strucutre where you can define your products
+  - 
   - create in home/etc configuration files product.conf, distr.xml, source.xml using sample files in urm/master/samples
   - make sure all .sh files are executable and have Linix linefeeds:
   
