@@ -46,7 +46,7 @@ function f_execute_product() {
 	fi
 
 	# execute upgrade script
-	cd $P_DIR_TMP/bin
+	cd $P_DIR_TMP
 	./upgrade.sh $URM_TRACE $F_DIR_RUNCOPY
 	F_STAT=$?
 	if [ "$F_STAT" != "0" ]; then
