@@ -67,5 +67,5 @@ if [ "$URM_TYPE" = "standalone" ]; then
 	echo Define products configuration in $P_DSTDIR/etc
 fi
 
-echo After any changes run %P_DSTDIR%\master\bin\configure.cmd to create console helper scripts
-echo Optionally add all files to svn and run svnsave.cmd to update instance
+echo After any changes run $P_DSTDIR/master/bin/configure.sh to create console helper scripts
+echo Optionally add all files to svn and run svnsave.sh to update instance
