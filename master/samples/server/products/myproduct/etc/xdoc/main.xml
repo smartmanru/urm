@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<design
+	>
+	
+	<element type="external" name="nsi" function="some1" active="no"/>
+	<element type="external" name="esiaia" function="some2"/>
+
+	<element type="group" name="core" function="Services" color="gray" fillcolor="gray90">
+		<element type="server" name="dns" function="DHCP Hosts"/>
+
+		<element type="server" name="exim" function="Mail server"/>
+
+		<element type="server" name="proxy" function="Main router">
+			<link target="adams" type="generic" text="dns1"/>
+			<link target="landau" type="generic" text="dns2"/>
+			<link target="kapitsa" type="generic" text="dns3"/>
+			<link target="biapp" type="generic" text="dns4"/>
+		</element>
+
+		<element type="server" name="apinlb" function="API">
+			<link target="apix" type="generic" text="dns5"/>
+		</element>
+
+		<element type="server" name="sign" function="CryptoPro"/>
+	</element>
+
+	<element type="group" name="api" function="API services" color="gray" fillcolor="gray90">
+		<element type="server" name="apis" function="sign API requests"/>
+
+		<element type="server" name="apix" function="executes API requests">
+			<link target="apis" type="generic" text="sign requests"/>
+			<link target="nsi" type="generic"/>
+		</element>
+	</element>
+
+	<element type="group" name="main" function="Ruby and BI" color="gray" fillcolor="gray90">
+
+		<element type="server" name="adams" function="administrative web">
+			<link target="esiaia" type="generic" text="SSO authorization"/>
+		</element>
+
+		<element type="server" name="bec" function="message queues"/>
+
+		<element type="server" name="kapitsa" function="api queries">
+			<link target="sign" type="generic" text="sign requests"/>
+			<link target="ferdb" type="generic"/>
+			<link target="nsi" type="generic"/>
+		</element>
+
+		<element type="server" name="landau">
+			<link target="esiaia" type="generic" text="SSO authorization"/>
+			<link target="bec" type="msg" text="queue messages"/>
+			<link target="exim" type="generic" text="api access"/>
+			<link target="redis" type="generic"/>
+		</element>
+
+		<element type="database" name="redis" function="work database"/>
+
+		<element type="database" name="ferdb" function="main data"/>
+
+		<element type="server" name="biapp" function="analytical reports and cubes">
+			<link target="bidb" type="generic"/>
+		</element>
+
+		<element type="server" name="bietl" function="create analytical data from main data">
+			<link target="ferdb" type="generic" text="copy data from"/>
+			<link target="bidb" type="generic" text="copy data to using staging"/>
+		</element>
+
+		<element type="database" name="bidb" function="analytical data"/>
+
+	</element>
+
+</design>

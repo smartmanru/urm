@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<env
+	id="uat"
+
+	distr-use-local="yes"
+	obsolete="yes"
+	showonly="no"
+	backup="no"
+	configuration-deploy="yes"
+	configuration-keepalive="yes"
+	prod="no"
+	>
+
+	<datacenter 
+		name="dc.fed" configuration-baseline="default"
+		>
+		<startorder>
+			<startgroup name="inf" servers="exim proxy"/>
+		</startorder>
+		<server name="exim" type="service" servicename="exim4" configuration-baseline="default" ostype="linux"
+			rootpath="/etc/exim4"
+			>
+			<node hostlogin="root@192.168.6.6"/>
+			<property name="eximnets" value="192.168.6.0/24"/>
+			<deploy confitem="exim.base" deploypath="."/>
+		</server>
+
+		<server name="proxy" type="service" servicename="nginx" configuration-baseline="default" ostype="linux"
+			rootpath="/etc/nginx"
+			>
+			<node hostlogin="root@192.168.6.2"/>
+			<node hostlogin="root@192.168.6.3"/>
+			<deploy confitem="proxy.conf" deploypath="."/>
+			<deploy distitem="static" deploypath="static"/>
+		</server>
+
+		<server name="sign" type="generic.server" configuration-baseline="default" ostype="linux"
+			port="8080"
+			starttime="120"
+			rootpath="/home/user/sign"
+			binpath="tomcat/bin"
+			deploypath="tomcat/webapps"
+			>
+			<node hostlogin="user@192.168.6.76"/>
+			<node hostlogin="user@192.168.6.77" offline="yes"/>
+			<deploy component="sign.lib" deploypath="tomcat/lib"/>
+			<deploy distitem="signatureTool" deploypath="tomcat/webapps"/>
+		</server>
+
+	</datacenter>
+
+</env>
