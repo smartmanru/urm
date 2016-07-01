@@ -52,7 +52,7 @@ if "%URM_TYPE%" == "server" (
 
 	echo Installation successfully completed.
 	echo.
-	echo Define products configuration in %P_DSTDIR%\products
+	echo Define product configuration in %P_DSTDIR%\products
 )
 
 if "%URM_TYPE%" == "standalone" (
