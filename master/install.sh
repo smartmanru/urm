@@ -45,20 +45,20 @@ if [ ! -d $P_DSTDIR/master ]; then
 	exit 1
 fi
 
-cp -R bin $P_DSTDIR/master /s /e
-cp -R database $P_DSTDIR/master /s /e
-cp -R lib $P_DSTDIR/master /s /e
+cp -R bin $P_DSTDIR/master
+cp -R database $P_DSTDIR/master
+cp -R lib $P_DSTDIR/master
 
 if [ "$URM_TYPE" = "server" ]; then
-	cp -R samples/server/etc $P_DSTDIR /s /e
-	cp -R samples/server/products $P_DSTDIR /s /e
+	cp -R samples/server/etc $P_DSTDIR
+	cp -R samples/server/products $P_DSTDIR
 
 	echo.
 	echo Define products configuration in $P_DSTDIR/products
 fi
 
 if [ "$URM_TYPE" = "standalone" ]; then
-	cp -R samples/standalone/etc $P_DSTDIR/etc /s /e
+	cp -R samples/standalone/etc $P_DSTDIR/etc
 	echo.
 	echo Define products configuration in $P_DSTDIR/etc
 fi
