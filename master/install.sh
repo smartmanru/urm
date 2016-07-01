@@ -6,8 +6,8 @@ if [ "$1" = "" ]; then
 	echo Steps to install URM:
 	echo install.sh path server - to install multi-product server instance
 	echo install.sh path or install.sh path standalone - to install standalone single-product instance
-	echo.
-	echo Path must not exist.
+	echo ""
+	echo Path must not exist
 	echo Script will create initial URM structure under the path.
 	exit 0
 fi
@@ -53,17 +53,17 @@ if [ "$URM_TYPE" = "server" ]; then
 	cp -R samples/server/etc $P_DSTDIR
 	cp -R samples/server/products $P_DSTDIR
 
-	echo.
+	echo ""
 	echo Define products configuration in $P_DSTDIR/products
 fi
 
 if [ "$URM_TYPE" = "standalone" ]; then
 	cp -R samples/standalone/etc $P_DSTDIR/etc
-	echo.
+	echo ""
 	echo Define products configuration in $P_DSTDIR/etc
 fi
 
 echo After any changes run %P_DSTDIR%\master\bin\configure.cmd to create console helper scripts
-echo Optionally add all files to svn and run svnsave.cmd to update instance.
-echo.
+echo Optionally add all files to svn and run svnsave.cmd to update instance
+echo ""
 echo Installation successfully completed.
