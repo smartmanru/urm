@@ -137,6 +137,9 @@ public class CommandBuilder {
 		if( ( options.command.equals( MainCommandMeta.NAME ) && 
 				options.action.equals( "help" ) && 
 				options.getArgCount() >= 2 ) ||
+			( options.command.equals( MainCommandMeta.NAME ) && 
+				options.action.equals( "help" ) == false && 
+				options.getArgCount() >= 1 ) ||
 			( options.command.equals( MainCommandMeta.NAME ) == false &&
 				options.action.equals( "help" ) && 
 				options.getArgCount() > 0 ) ||
@@ -144,11 +147,11 @@ public class CommandBuilder {
 				options.action.equals( "help" ) == false && 
 				options.getArgCount() > 0 ) &&
 				options.getArg( 0 ).equals( "help" ) ) {
-			String command = ( options.command.equals( MainCommandMeta.NAME ) )? options.getArg( 0 ) : options.command;
+			String command = ( options.command.equals( MainCommandMeta.NAME ) && options.action.equals( "help" ) )? options.getArg( 0 ) : options.command;
 			CommandMeta meta = ( command.equals( "bin" ) )? new MainCommandMeta( this ) : createMeta( command );
 			CommandOptions ho = new CommandOptions();
 			
-			String action = ( options.command.equals( MainCommandMeta.NAME ) )? options.getArg( 1 ) :
+			String action = ( options.command.equals( MainCommandMeta.NAME ) && options.action.equals( "help" ) )? options.getArg( 1 ) :
 				( ( options.action.equals( "help" ) )? options.getArg( 0 ) : options.action );
 			CommandMethod method = meta.getAction( action );
 			ho.showActionHelp( this , method );
