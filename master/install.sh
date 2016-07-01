@@ -64,7 +64,7 @@ if [ "$URM_TYPE" = "standalone" ]; then
 
 	echo Installation successfully completed.
 	echo ""
-	echo Define products configuration in $P_DSTDIR/etc
+	echo Define product configuration in $P_DSTDIR/etc
 fi
 
 echo After any changes run $P_DSTDIR/master/bin/configure.sh to create console helper scripts
