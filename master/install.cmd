@@ -35,6 +35,7 @@ IF EXIST %P_DSTDIR% (
 	exit 1
 )
 
+echo install URM instance to %P_DSTDIR% (%URM_TYPE%) ...
 md %P_DSTDIR%\master
 IF NOT EXIST %P_DSTDIR%\master (
 	echo install.cmd: Unable to create %P_DSTDIR%\master. Exiting
@@ -49,17 +50,18 @@ if "%URM_TYPE%" == "server" (
 	robocopy samples\server\etc %P_DSTDIR%\etc /s /e
 	robocopy samples\server\products %P_DSTDIR%\products /s /e
 
+	echo Installation successfully completed.
 	echo.
 	echo Define products configuration in %P_DSTDIR%\products
 )
 
 if "%URM_TYPE%" == "standalone" (
 	robocopy samples\standalone\etc %P_DSTDIR%\etc /s /e
+
+	echo Installation successfully completed.
 	echo.
 	echo Define products configuration in %P_DSTDIR%\etc
 )
 
 echo After any changes run %P_DSTDIR%\master\bin\configure.cmd to create console helper scripts
 echo Optionally add all files to svn and run svnsave.cmd to update instance.
-echo.
-echo Installation successfully completed.
