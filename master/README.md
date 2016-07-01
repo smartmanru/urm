@@ -6,6 +6,7 @@
   - build/deployment/administration command center
   - enterprise version with multiple products managed, JMX access, Web-access
   - standalone version with powerful command-line interface
+  - operating model without need to maintain complex play books
   - Linux/Windows builds and deployments, maven/gradle/dotnet
   - distributive management, populating from builds, version control repositories and manual files
   - full/incremental releases for generic multi-datacenter application sets
@@ -25,10 +26,10 @@
   - download all files to temporary folder
   - choose local home directory for your instance
   - run one of
-	install.cmd standalone <home directory>
-	install.sh standalone <home directory>
-	install.cmd server <home directory>
-	install.sh server <home directory>
+	install.cmd <home directory> [standalone] - standalone version (by default)
+	install.sh <home directory> [standalone] - standalone version (by default)
+	install.cmd <home directory> server - enterprise version
+	install.sh <home directory> server - enterprise version
   - it will create initial strucutre where you can define your products
   - define your products
   - to run in console mode go to bin folder and execute configure (run configure help)
@@ -37,6 +38,7 @@
   - see "Using svn..." below to bring URM under version control
 
 ## Upgrade
+
   - download all files to temporary folder on host where home directory for your URM instance resides
   - run one of
 	upgrade.cmd <home directory>
