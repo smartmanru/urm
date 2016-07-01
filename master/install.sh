@@ -53,17 +53,18 @@ if [ "$URM_TYPE" = "server" ]; then
 	cp -R samples/server/etc $P_DSTDIR
 	cp -R samples/server/products $P_DSTDIR
 
+	echo Installation successfully completed.
 	echo ""
 	echo Define products configuration in $P_DSTDIR/products
 fi
 
 if [ "$URM_TYPE" = "standalone" ]; then
 	cp -R samples/standalone/etc $P_DSTDIR/etc
+
+	echo Installation successfully completed.
 	echo ""
 	echo Define products configuration in $P_DSTDIR/etc
 fi
 
 echo After any changes run %P_DSTDIR%\master\bin\configure.cmd to create console helper scripts
 echo Optionally add all files to svn and run svnsave.cmd to update instance
-echo ""
-echo Installation successfully completed.
