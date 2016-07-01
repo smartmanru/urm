@@ -40,10 +40,10 @@ if [ -d $P_DSTDIR ]; then
 fi
 
 mkdir $P_DSTDIR/master
-IF [ ! -d $P_DSTDIR/master ]; then
+if [ ! -d $P_DSTDIR/master ]; then
 	echo install.sh: Unable to create $P_DSTDIR/master. Exiting
 	exit 1
-)
+fi
 
 cp -R bin $P_DSTDIR/master /s /e
 cp -R database $P_DSTDIR/master /s /e
