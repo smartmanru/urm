@@ -39,7 +39,7 @@ if [ -d $P_DSTDIR ]; then
 	exit 1
 fi
 
-mkdir $P_DSTDIR/master
+mkdir -p $P_DSTDIR/master
 if [ ! -d $P_DSTDIR/master ]; then
 	echo install.sh: Unable to create $P_DSTDIR/master. Exiting
 	exit 1
