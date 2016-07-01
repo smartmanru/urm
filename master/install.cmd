@@ -52,7 +52,7 @@ if "%URM_TYPE%" == "server" (
 
 	echo Installation successfully completed.
 	echo.
-	echo Define product configuration in %P_DSTDIR%\products
+	echo Define products configuration in %P_DSTDIR%\products
 )
 
 if "%URM_TYPE%" == "standalone" (
@@ -60,7 +60,7 @@ if "%URM_TYPE%" == "standalone" (
 
 	echo Installation successfully completed.
 	echo.
-	echo Define products configuration in %P_DSTDIR%\etc
+	echo Define product configuration in %P_DSTDIR%\etc
 )
 
 echo After any changes run %P_DSTDIR%\master\bin\configure.cmd to create console helper scripts
