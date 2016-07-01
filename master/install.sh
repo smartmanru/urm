@@ -4,30 +4,30 @@ cd `dirname $0`
 
 if [ "$1" = "" ]; then
 	echo Steps to install URM:
-	echo install.sh server path - to install multi-product server instance
-	echo install.sh standalone path - to install standalone single-product instance
+	echo install.sh path server - to install multi-product server instance
+	echo install.sh path or install.sh path standalone - to install standalone single-product instance
 	echo.
 	echo Path must not exist.
 	echo Script will create initial URM structure under the path.
 	exit 0
 fi
 
+P_DSTDIR=$1
+if [ "$P_DSTDIR" = "" ]; then
+	echo install.sh: DSTDIR is empty. Exiting
+	exit 1
+fi
+
 URM_TYPE=
-if [ "$1" = "server" ]; then
+if [ "$2" = "server" ]; then
 	URM_TYPE=server
 fi
-if [ "$1" = "standalone" ]; then
+if [ "$2" = "standalone" ]; then
 	URM_TYPE=standalone
 fi
 
 if [ "$URM_TYPE" == "" ]; then
-	echo install.sh: unknown install type - "$1". Exiting
-	exit 1
-fi
-
-P_DSTDIR=$2
-if [ "$P_DSTDIR" = "" ]; then
-	echo install.sh: DSTDIR is empty. Exiting
+	echo install.sh: unknown install type - "$2". Exiting
 	exit 1
 fi
 

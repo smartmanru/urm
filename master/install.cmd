@@ -4,30 +4,26 @@ cd %~dp0
 
 if "%1" == "" (
 	echo Steps to install URM:
-	echo install.cmd server path - to install multi-product server instance
-	echo install.cmd standalone path - to install standalone single-product instance
+	echo install.cmd path or install.cmd path standalone - to install standalone single-product instance
+	echo install.cmd path server - to install multi-product server instance
 	echo.
 	echo Path must not exist.
 	echo Script will create initial URM structure under the path.
 	exit 0
 )
 
+set P_DSTDIR=%1
+
 set URM_TYPE=
-if "%1" == "server" (
+if "%2" == "server" (
 	set URM_TYPE=server
 )
-if "%1" == "standalone" (
+if "%2" == "standalone" (
 	set URM_TYPE=standalone
 )
 
 if "%URM_TYPE%" == "" (
-	echo install.cmd: unknown install type - "%1". Exiting
-	exit 1
-)
-
-set P_DSTDIR=%2
-if "%P_DSTDIR%" == "" (
-	echo install.cmd: DSTDIR is empty. Exiting
+	echo install.cmd: unknown install type - "%2". Exiting
 	exit 1
 )
 
