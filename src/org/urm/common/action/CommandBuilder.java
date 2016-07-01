@@ -139,7 +139,8 @@ public class CommandBuilder {
 				options.getArgCount() >= 2 ) ||
 			( options.command.equals( MainCommandMeta.NAME ) && 
 				options.action.equals( "help" ) == false && 
-				options.getArgCount() >= 1 ) ||
+				options.getArgCount() >= 1 &&
+				options.getArg( 0 ).equals( "help" ) ) ||
 			( options.command.equals( MainCommandMeta.NAME ) == false &&
 				options.action.equals( "help" ) && 
 				options.getArgCount() > 0 ) ||
