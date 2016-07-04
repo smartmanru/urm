@@ -320,7 +320,7 @@ public class ShellExecutorPool implements Runnable {
 	}
 	
 	public void runRemoteInteractiveSsh( ActionBase action , Account account , String KEY ) throws Exception {
-		String cmd = "ssh " + account.HOSTLOGIN;
+		String cmd = "ssh -T " + account.HOSTLOGIN;
 		if( !KEY.isEmpty() )
 			cmd += " -i " + KEY;
 		
