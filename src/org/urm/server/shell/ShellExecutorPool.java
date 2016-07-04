@@ -9,6 +9,7 @@ import org.urm.common.Common;
 import org.urm.common.jmx.ServerCommandCall;
 import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionBase;
+import org.urm.server.action.CommandOutput;
 import org.urm.server.storage.Folder;
 
 public class ShellExecutorPool implements Runnable {
@@ -327,7 +328,7 @@ public class ShellExecutorPool implements Runnable {
 		action.trace( account.HOSTLOGIN + " execute: " + cmd );
 		ShellExecutor executor = createDedicatedLocalShell( action , "" + action.session.sessionId );
 		
-		executor.custom( action , cmd );
+		executor.custom( action , cmd , CommandOutput.LOGLEVEL_DEBUG );
 		
 		ServerCommandCall call = action.context.call;
 		call.createCommunication( executor );
