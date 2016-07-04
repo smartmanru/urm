@@ -63,9 +63,13 @@ public class ActionSave extends ActionBase {
 		FileSet set = pfMaster.getFileSet( this );
 		
 		vcs = artefactory.getSvnDirect( this );
-		List<String> filesNotInSvn = vcs.getFilesNotInSvn( this , pfMaster );
-		
-		executeDir( set , lines , filesNotInSvn );
+		if( vcs.checkVersioned( this , pfMaster.folderPath ) ) {
+			List<String> filesNotInSvn = vcs.getFilesNotInSvn( this , pfMaster );
+			executeDir( set , lines , filesNotInSvn );
+		}
+		else
+			vcs.addDirToSvn( this , pf , "master" );
+			
 		if( !vcs.commitMasterFolder( pfMaster , "" , "" , "svnsave" ) )
 			exit( "unable to save in svn folder=" + pfMaster.folderPath );
 	}
