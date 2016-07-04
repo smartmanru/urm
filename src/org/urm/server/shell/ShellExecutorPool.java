@@ -328,7 +328,7 @@ public class ShellExecutorPool implements Runnable {
 		action.trace( account.HOSTLOGIN + " execute: " + cmd );
 		ShellExecutor executor = createDedicatedLocalShell( action , "" + action.session.sessionId );
 		
-		executor.custom( action , cmd , CommandOutput.LOGLEVEL_DEBUG );
+		executor.custom( action , cmd , CommandOutput.LOGLEVEL_TRACE );
 		
 		ServerCommandCall call = action.context.call;
 		call.createCommunication( executor );
