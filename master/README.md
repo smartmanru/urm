@@ -9,6 +9,8 @@
   - deploy distributive to environment
   - maintain environment
 
+## Features
+
   URM enables to set up continuous delivery framework, aligned with complex release policies:
   - build/deployment/administration command center
   - enterprise version with multiple products managed, JMX access, Web-access
