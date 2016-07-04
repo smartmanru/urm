@@ -225,8 +225,8 @@ public class ServerEngine {
 				}
 			}
 			else {
-				if( !serverAction.context.CTX_WORKPATH.isEmpty() )
-					dirname = serverAction.context.CTX_WORKPATH;
+				if( !context.CTX_WORKPATH.isEmpty() )
+					dirname = context.CTX_WORKPATH;
 				else {
 					if( context.meta.product != null && context.meta.product.CONFIG_WORKPATH.isEmpty() == false ) {
 						dirname = Common.getPath( "urm.work" , context.meta.product.CONFIG_WORKPATH );
