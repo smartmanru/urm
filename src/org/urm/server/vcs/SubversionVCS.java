@@ -433,8 +433,8 @@ public class SubversionVCS extends GenericVCS {
 	}
 
 	public boolean checkVersioned( ActionBase action , String path ) throws Exception {
-		int status = action.shell.customGetStatus( action , "svn status " + path );
-		if( status != 0 )
+		String value = action.shell.customGetValue( action , "svn status " + path + " --depth empty" );
+		if( value.startsWith( "?" ) )
 			return( false );
 		return( true );
 	}
