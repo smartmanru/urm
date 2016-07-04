@@ -39,7 +39,7 @@ function f_execute_all() {
 	cd $P_DSTDIR/master/bin
 
 	echo "run: configure.sh $URM_TRACE default ..."
-	configure.sh $URM_TRACE default
+	./configure.sh $URM_TRACE default
 
 	F_STATUS=$?
 	if [ "$F_STATUS" != "0" ]; then
