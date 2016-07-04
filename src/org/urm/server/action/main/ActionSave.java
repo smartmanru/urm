@@ -66,7 +66,8 @@ public class ActionSave extends ActionBase {
 		List<String> filesNotInSvn = vcs.getFilesNotInSvn( this , pfMaster );
 		
 		executeDir( set , lines , filesNotInSvn );
-		vcs.commitMasterFolder( pfMaster , "" , "" , "svnsave" );
+		if( !vcs.commitMasterFolder( pfMaster , "" , "" , "svnsave" ) )
+			exit( "unable to save in svn folder=" + pfMaster.folderPath );
 	}
 	
 	private void executeDir( FileSet set , List<String> lines , List<String> filesNotInSvn ) throws Exception {

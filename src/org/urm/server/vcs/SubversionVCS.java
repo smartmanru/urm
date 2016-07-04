@@ -431,8 +431,18 @@ public class SubversionVCS extends GenericVCS {
 
 		session.customCheckStatus( action , "svn copy " + SVNAUTH + " " + fullPathSrc + " " + fullPathTag + " -m " + Common.getQuoted( commitMessage ) );
 	}
+
+	public boolean checkVersioned( ActionBase action , String path ) throws Exception {
+		int status = action.shell.customGetStatus( action , "svn status " + path );
+		if( status != 0 )
+			return( false );
+		return( true );
+	}
 	
 	public List<String> getFilesNotInSvn( ActionBase action , LocalFolder pfMaster ) throws Exception {
+		if( !checkVersioned( action , pfMaster.folderPath ) )
+			action.exit( "folder=" + pfMaster.folderPath + " is not under verson control" );
+		
 		String[] lines = action.shell.customGetLines( action , pfMaster.folderPath , "svn status" );
 		List<String> values = new LinkedList<String>();
 		for( String s : lines ) {
