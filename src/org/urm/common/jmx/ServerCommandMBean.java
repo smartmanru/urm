@@ -331,7 +331,8 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 	private int notifyExecute( String name , Object[] args ) throws Exception {
 		if( name.equals( "execute" ) )
 			return( notifyExecuteGeneric( args ) );
-		
+		if( name.equals( "input" ) )
+			return( notifyExecuteInput( args ) );
 		return( notifyExecuteSpecific( name , args ) );
 	}
 	
@@ -404,6 +405,32 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 	@Override
 	public void removeNotificationListener( NotificationListener listener ) throws ListenerNotFoundException {
 		broadcaster.removeNotificationListener( listener );     
+	}
+	
+	private int notifyExecuteInput( Object[] args ) throws Exception {
+		if( args.length != 2 ) {
+			action.error( "missing args calling command=" + meta.name );
+			return( -1 );
+		}
+		
+		if( args[0].getClass() != String.class ||
+			args[1].getClass() != String.class ) {
+			action.error( "invalid args calling input for command=" + meta.name );
+			return( -1 );
+		}
+		
+		String sessionId = ( String )args[0];
+		String input = ( String )args[1];
+		
+		try {
+			server.addCallInput( sessionId , input );
+		}
+		catch( Throwable e ) {
+			engine.serverAction.log( e );
+			return( 1 );
+		}
+		
+		return( 0 );
 	}
 	
 }

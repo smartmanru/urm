@@ -14,6 +14,8 @@ public class ServerCommandCall implements Runnable {
 	public ActionData data;
 
 	public MainServer server;
+	
+	public ShellExecutor interactiveExecutor;
 
 	public ServerCommandCall( int sessionId , String clientId , ServerCommandMBean command , String action , ActionData data ) {
 		this.sessionId = sessionId;
@@ -50,10 +52,15 @@ public class ServerCommandCall implements Runnable {
     }
 
 	public void createCommunication( ShellExecutor executor ) throws Exception {
+		interactiveExecutor = executor;
 	}
 
 	public void closeCommunication() throws Exception {
+		interactiveExecutor = null;
 	}
 
+	public void addInput( String input ) throws Exception {
+		interactiveExecutor.addInput( input );
+	}
 	
 }

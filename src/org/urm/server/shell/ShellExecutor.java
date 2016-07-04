@@ -95,6 +95,10 @@ public abstract class ShellExecutor {
 		pool.releaseShell( action , this );
 	}
 	
+	public void addInput( String input ) throws Exception {
+		core.addInput( input , false );
+	}
+	
 	// information
 	public String getProcessId() {
 		return( core.processId );
@@ -130,7 +134,7 @@ public abstract class ShellExecutor {
 	public synchronized int waitFor( ActionBase action ) throws Exception {
 		return( core.process.waitFor() );
 	}
-	
+
 	public synchronized String createDir( ActionBase action , String home , String dir ) throws Exception {
 		try {
 			opstart();

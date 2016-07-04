@@ -19,6 +19,7 @@ import org.urm.common.action.CommandMeta;
 public class RemoteCall implements NotificationListener {
 
 	public static String GENERIC_ACTION_NAME = "execute";
+	public static String INPUT_ACTION_NAME = "input";
 	public static int DEFAULT_SERVER_PORT = 8800;
 	
 	public String URL;
@@ -148,6 +149,10 @@ public class RemoteCall implements NotificationListener {
 				System.out.println( "exiting ..." );
 				return;
 			}
+			
+			mbsc.invoke( mbeanName , INPUT_ACTION_NAME , 
+					new Object[] { sessionId , input } , 
+					new String[] { String.class.getName() , String.class.getName() } );
 		}
 	}
 	

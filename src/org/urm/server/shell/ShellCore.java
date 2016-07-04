@@ -216,6 +216,15 @@ abstract class ShellCore {
 		 executor.exitError( action , error );
 	}
 	
+	public void addInput( String input , boolean windowsHelper ) throws Exception {
+		if( windowsHelper )
+			stdin.write( input.getBytes( "Cp1251" ) );
+		else {
+			writer.write( input );
+			writer.flush();
+		}
+	}
+	
 	public String getOut() {
 		return( getListValue( cmdout ) );
 	}
