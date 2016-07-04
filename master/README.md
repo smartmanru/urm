@@ -2,7 +2,14 @@
 
 ## Overview
 
-  URM is a tool set enabling to set up continuous delivery framework, aligned with complex release policies:
+  URM is a system to perform following primary operations:
+  - take control over codebase
+  - build binaries from source code
+  - create distributive from binaries and ready artefacts
+  - deploy distributive to environment
+  - maintain environment
+
+  URM enables to set up continuous delivery framework, aligned with complex release policies:
   - build/deployment/administration command center
   - enterprise version with multiple products managed, JMX access, Web-access
   - standalone version with powerful command-line interface
@@ -45,8 +52,9 @@
 	upgrade.sh <home directory>
   - see "Using svn..." below to bring URM under version control
 
-## Using svn to redistribute URM instance to other adminstration hosts and to setup version control of product specifications
-
+## Using svn
+  - when need to redistribute URM instance to other adminstration hosts
+  - when need to setup version control of product specifications
   - after installation:
 	import everything from URM home directory into svn using svn import
 	delete home and checkout from svn
