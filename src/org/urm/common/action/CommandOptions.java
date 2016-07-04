@@ -91,7 +91,11 @@ public class CommandOptions {
 				return( false );
 		}
 
-		// check scripts
+		if( data.getFlagValue( meta.getTraceVar() ) == FLAG.YES ) {
+			String ro = data.getRunningOptions();
+			print( "current options=" + ro );
+		}
+		
 		return( true );
 	}
 

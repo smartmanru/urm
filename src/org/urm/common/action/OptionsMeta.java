@@ -101,6 +101,10 @@ public class OptionsMeta {
 		defineOption( CommandVar.newParam( "host" , "OPT_HOST" , false , "server host" ) );
 	}
 	
+	public String getTraceVar() {
+		return( "OPT_TRACE" );
+	}
+	
 	public CommandVar getVar( String varName ) {
 		return( varByName.get( varName ) );
 	}
