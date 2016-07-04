@@ -68,6 +68,11 @@ public class ActionConfigure extends ActionBase {
 			UrmStorage urm = artefactory.getUrmStorage();
 			if( urm.isServerMode( this ) )
 				serverMode = true;
+			else
+			if( urm.isStandaloneMode( this ) )
+				serverMode = false;
+			else
+				exit( "Installation was not configured, default is not applicable" );
 		}
 		
 		if( serverMode ) {

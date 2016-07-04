@@ -21,7 +21,15 @@ public class UrmStorage {
 
 	public boolean isServerMode( ActionBase action ) throws Exception {
 		LocalFolder folder = getInstallFolder( action );
-		if( folder.checkFolderExists( action , PRODUCTS_FOLDER ) )
+		if( folder.checkFileExists( action , Common.getPath( "etc" , "server.conf" ) ) )
+			return( true );
+		
+		return( false );
+	}
+	
+	public boolean isStandaloneMode( ActionBase action ) throws Exception {
+		LocalFolder folder = getInstallFolder( action );
+		if( folder.checkFileExists( action , Common.getPath( "etc" , "product.conf" ) ) )
 			return( true );
 		
 		return( false );
