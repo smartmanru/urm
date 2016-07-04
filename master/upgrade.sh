@@ -24,6 +24,7 @@ fi
 
 function f_execute_all() {
 	# copy master files
+	cp master.*.info $P_DSTDIR/master
 	cp -R bin $P_DSTDIR/master
 	cp -R database $P_DSTDIR/master
 	cp -R lib $P_DSTDIR/master

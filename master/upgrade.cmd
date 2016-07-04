@@ -21,6 +21,7 @@ IF NOT EXIST %P_DSTDIR%\master (
 	exit 1
 )
 
+robocopy master.*.info %P_DSTDIR%\master\ /s /e
 robocopy bin %P_DSTDIR%\master\bin /s /e
 robocopy database %P_DSTDIR%\master\database /s /e
 robocopy lib %P_DSTDIR%\master\lib /s /e
