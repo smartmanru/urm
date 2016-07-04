@@ -146,8 +146,8 @@ public class CommandBuilder {
 				options.getArgCount() > 0 ) ||
 			( options.command.equals( MainCommandMeta.NAME ) == false &&
 				options.action.equals( "help" ) == false && 
-				options.getArgCount() > 0 ) &&
-				options.getArg( 0 ).equals( "help" ) ) {
+				options.getArgCount() > 0 &&
+				options.getArg( 0 ).equals( "help" ) ) ) {
 			String command = ( options.command.equals( MainCommandMeta.NAME ) && options.action.equals( "help" ) )? options.getArg( 0 ) : options.command;
 			CommandMeta meta = ( command.equals( "bin" ) )? new MainCommandMeta( this ) : createMeta( command );
 			CommandOptions ho = new CommandOptions();
