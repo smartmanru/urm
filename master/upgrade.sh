@@ -24,9 +24,9 @@ fi
 
 function f_execute_all() {
 	# copy master files
-	cp -R bin $P_DSTDIR/master/bin
-	cp -R database $P_DSTDIR/master/database
-	cp -R lib $P_DSTDIR/master/lib
+	cp -R bin $P_DSTDIR/master
+	cp -R database $P_DSTDIR/master
+	cp -R lib $P_DSTDIR/master
 
 	local F_STATUS=$?
 	if [ "$F_STATUS" != "0" ]; then
