@@ -115,9 +115,13 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		int type = 0;
 		if( method.type == ACTION_TYPE.INFO )
 			type = MBeanOperationInfo.INFO;
-		else if( method.type == ACTION_TYPE.NORMAL || method.type == ACTION_TYPE.CRITICAL )
+		else 
+		if( method.type == ACTION_TYPE.NORMAL || 
+			method.type == ACTION_TYPE.INTERACTIVE || 
+			method.type == ACTION_TYPE.CRITICAL )
 			type = MBeanOperationInfo.ACTION;
-		else if( method.type == ACTION_TYPE.STATUS )
+		else 
+		if( method.type == ACTION_TYPE.STATUS )
 			type = MBeanOperationInfo.ACTION_INFO;
 		else
 			action.exitUnexpectedState();

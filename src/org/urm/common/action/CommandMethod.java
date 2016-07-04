@@ -8,7 +8,8 @@ public class CommandMethod {
 		INFO ,
 		NORMAL ,
 		CRITICAL ,
-		STATUS
+		STATUS ,
+		INTERACTIVE
 	};
 	
 	public String name;
@@ -35,6 +36,10 @@ public class CommandMethod {
 		return( newAction( name , ACTION_TYPE.STATUS , top , help , varList , syntax ) );
 	}
 	
+	public static CommandMethod newInteractive( String name , boolean top , String help , String varList , String syntax ) {
+		return( newAction( name , ACTION_TYPE.INTERACTIVE , top , help , varList , syntax ) );
+	}
+	
 	private static CommandMethod newAction( String name , ACTION_TYPE type , boolean top , String help , String varList , String syntax ) {
 		CommandMethod method = new CommandMethod();
 		method.name = name;
@@ -55,6 +60,10 @@ public class CommandMethod {
 			if( option.equals( var.varName ) )
 				return( true );
 		return( false );
+	}
+	
+	public boolean isInteractive() {
+		return( type == ACTION_TYPE.INTERACTIVE );
 	}
 	
 }

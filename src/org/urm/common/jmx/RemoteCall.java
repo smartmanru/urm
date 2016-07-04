@@ -1,5 +1,8 @@
 package org.urm.common.jmx;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 import javax.management.MBeanServerConnection;
 import javax.management.Notification;
 import javax.management.NotificationListener;
@@ -23,6 +26,8 @@ public class RemoteCall implements NotificationListener {
 	JMXConnector jmxc = null;
 	MBeanServerConnection mbsc = null;
 
+	public static final String EXIT_COMMAND = "exit";
+	
 	public static String getCommandMBeanName( String productDir , String command ) {
 		return( "urm-" + productDir + ":" + "name=" + command );
 	}
@@ -91,14 +96,14 @@ public class RemoteCall implements NotificationListener {
 	}
 	
 	private boolean serverCommandCall( CommandBuilder builder , String name ) {
-		Object sessionId;
+		String sessionId;
 		try {
 			String clientId = builder.options.action + "-" + System.currentTimeMillis();
 			mbeanName = new ObjectName( name );
 			RemoteCallFilter filter = new RemoteCallFilter( clientId );
 			
 			mbsc.addNotificationListener( mbeanName , this , filter , clientId );
-			sessionId = mbsc.invoke( mbeanName , GENERIC_ACTION_NAME , 
+			sessionId = ( String )mbsc.invoke( mbeanName , GENERIC_ACTION_NAME , 
 					new Object[] { builder.options.action , builder.options.data , clientId } , 
 					new String[] { String.class.getName() , ActionData.class.getName() , String.class.getName() } );
 		}
@@ -108,14 +113,19 @@ public class RemoteCall implements NotificationListener {
 			return( false );
 		}
 
+		// silent wait for completion or allow to send input strings
 		if( sessionId == null ) {
 			System.out.println( "server rejected to call operation: " + name );
 			return( false );
 		}
 		
 		try {
-			synchronized( this ) {
-				wait();
+			if( builder.isInteractive() )
+				waitInteractive( sessionId );
+			else {
+				synchronized( this ) {
+					wait();
+				}
 			}
 		}
 		catch( Throwable e ) {
@@ -123,6 +133,22 @@ public class RemoteCall implements NotificationListener {
 		}
 		
 		return( true );
+	}
+
+	private void waitInteractive( String sessionId ) throws Exception {
+		BufferedReader br = new BufferedReader( new InputStreamReader( System.in ) );
+		System.out.println( "enter commands, or '" + EXIT_COMMAND + "' to quit:" );
+		
+		while( true ) {
+			System.out.print( "> " );
+			String input = br.readLine();
+			System.out.println( input );
+
+			if( input.length() == EXIT_COMMAND.length() && input.toLowerCase().equals( EXIT_COMMAND ) ) {
+				System.out.println( "exiting ..." );
+				return;
+			}
+		}
 	}
 	
 	public void handleNotification( Notification notif , Object handback ) {

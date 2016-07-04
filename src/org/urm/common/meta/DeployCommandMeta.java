@@ -62,7 +62,7 @@ public class DeployCommandMeta extends CommandMeta {
 		super.defineAction( CommandMethod.newNormal( "waitenv" , false , "wait until specified servers have been successfully started" , cmdOpts , "./waitenv.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		super.defineAction( CommandMethod.newNormal( "waitweb" , false , "track specified server startup progress" , cmdOpts , "./waitweb.sh [OPTIONS] <server> [<node>]" ) );
 		cmdOpts = "OPT_ROOTUSER, OPT_HOSTUSER, OPT_KEY";
-		super.defineAction( CommandMethod.newNormal( "login" , false , "open ssh session to specified server node" , cmdOpts , "./login.sh [OPTIONS] <server> [node]" ) );
+		super.defineAction( CommandMethod.newInteractive( "login" , false , "open ssh session to specified server node" , cmdOpts , "./login.sh [OPTIONS] <server> [node]" ) );
 	}
 	
 }

@@ -16,6 +16,7 @@ public class CommandBuilder {
 
 	public RunContext clientrc;
 	public RunContext execrc;
+	public CommandMeta commandInfo;
 	public CommandOptions options = null;
 	
 	void out( String s ) {
@@ -68,6 +69,8 @@ public class CommandBuilder {
 	}
 	
 	public boolean setOptions( CommandMeta commandInfo , String[] args ) throws Exception {
+		this.commandInfo = commandInfo;
+		
 		// process options
 		options = new CommandOptions();
 		if( !options.parseArgs( clientrc , args ) ) {
@@ -102,6 +105,11 @@ public class CommandBuilder {
 		return( options.getFlagValue( "OPT_LOCAL" , false ) );
 	}
 
+	public boolean isInteractive() throws Exception {
+		CommandMethod method = commandInfo.getAction( options.action );
+		return( method.isInteractive() );
+	}
+	
 	public void showTopHelp() {
 		CommandMeta main = new MainCommandMeta( this );
 		options = new CommandOptions();
