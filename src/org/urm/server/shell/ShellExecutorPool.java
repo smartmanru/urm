@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.common.jmx.ServerCommandCall;
 import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionBase;
 import org.urm.server.storage.Folder;
@@ -302,6 +303,11 @@ public class ShellExecutorPool implements Runnable {
 	}
 
 	public void runInteractiveSsh( ActionBase action , Account account , String KEY ) throws Exception {
+		if( action.context.call != null ) {
+			runRemoteInteractiveSsh( action , account , KEY );
+			return;
+		}
+		
 		String cmd = "ssh " + account.HOSTLOGIN;
 		if( !KEY.isEmpty() )
 			cmd += " -i " + KEY;
@@ -313,4 +319,20 @@ public class ShellExecutorPool implements Runnable {
 		p.waitFor();
 	}
 	
+	public void runRemoteInteractiveSsh( ActionBase action , Account account , String KEY ) throws Exception {
+		String cmd = "ssh " + account.HOSTLOGIN;
+		if( !KEY.isEmpty() )
+			cmd += " -i " + KEY;
+		
+		action.trace( account.HOSTLOGIN + " execute: " + cmd );
+		ShellExecutor executor = createDedicatedLocalShell( action , "" + action.session.sessionId );
+		
+		executor.custom( action , cmd );
+		
+		ServerCommandCall call = action.context.call;
+		call.createCommunication( executor );
+		
+		executor.waitFor( action );
+	}
+
 }

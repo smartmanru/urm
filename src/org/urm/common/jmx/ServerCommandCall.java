@@ -3,6 +3,7 @@ package org.urm.common.jmx;
 import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandMethod;
 import org.urm.server.MainServer;
+import org.urm.server.shell.ShellExecutor;
 
 public class ServerCommandCall implements Runnable {
 
@@ -13,7 +14,7 @@ public class ServerCommandCall implements Runnable {
 	public ActionData data;
 
 	public MainServer server;
-	
+
 	public ServerCommandCall( int sessionId , String clientId , ServerCommandMBean command , String action , ActionData data ) {
 		this.sessionId = sessionId;
 		this.clientId = clientId;
@@ -47,5 +48,12 @@ public class ServerCommandCall implements Runnable {
     public void addLog( String message ) {
     	command.notifyLog( sessionId , message );
     }
-    
+
+	public void createCommunication( ShellExecutor executor ) throws Exception {
+	}
+
+	public void closeCommunication() throws Exception {
+	}
+
+	
 }
