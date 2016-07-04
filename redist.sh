@@ -37,12 +37,11 @@ function f_execute_product() {
 	local F_STAT
 	rm -rf $F_DIR_RUNCOPY/master/*
 	~/svnget $F_DIR_RUNCOPY/master > /dev/null
+	~/svnget $F_DIR_RUNCOPY/etc > /dev/null
 
 	# update etc directory if any
 	if [ -d $F_DIR_RUNCOPY/products ]; then
 		~/svnget $F_DIR_RUNCOPY/products > /dev/null
-	else
-		~/svnget $F_DIR_RUNCOPY/etc > /dev/null
 	fi
 
 	# execute upgrade script
