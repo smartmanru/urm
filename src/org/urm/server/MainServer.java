@@ -195,4 +195,13 @@ public class MainServer {
 		
 		call.addInput( input );
 	}
+
+	public boolean waitConnect( String sessionId ) throws Exception {
+		ServerCommandCall call = calls.get( "" + sessionId );
+		if( call == null )
+			serverAction.exit( "unknown call session=" + sessionId );
+		
+		return( call.waitConnect() );
+	}
+	
 }

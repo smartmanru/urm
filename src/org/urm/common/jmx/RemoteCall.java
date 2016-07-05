@@ -21,6 +21,9 @@ public class RemoteCall implements NotificationListener {
 
 	public static String GENERIC_ACTION_NAME = "execute";
 	public static String INPUT_ACTION_NAME = "input";
+	public static String INPUT_ACTION_WAITCONNECT = "waitconnect";
+	public static String INPUT_ACTION_CONNECTED = "connected";
+	
 	public static int DEFAULT_SERVER_PORT = 8800;
 	
 	public String URL;
@@ -145,6 +148,15 @@ public class RemoteCall implements NotificationListener {
 	}
 
 	private void waitInteractive( String sessionId ) throws Exception {
+		// wait for connect to succeed
+		String ready = ( String )mbsc.invoke( mbeanName , INPUT_ACTION_WAITCONNECT , 
+				new Object[] { sessionId } , 
+				new String[] { String.class.getName() } );
+		if( ready == null || !ready.equals( INPUT_ACTION_CONNECTED ) ) {
+			println( "unable to connect, exiting ..." );
+			return;
+		}
+		
 		isr = new InputStreamReader( System.in );
 		br = new BufferedReader( isr );
 		println( "enter commands, or '" + EXIT_COMMAND + "' to quit:" );

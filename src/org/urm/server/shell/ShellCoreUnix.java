@@ -1,6 +1,5 @@
 package org.urm.server.shell;
 
-import java.io.BufferedReader;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,7 +58,7 @@ public class ShellCoreUnix extends ShellCore {
 		cmdout.clear();
 		cmderr.clear();
 		
-		String execLine = cmd + "; echo " + finishMarker + " >&2; echo " + finishMarker + "\n";
+		String execLine = cmd + "; echo " + WaiterCommand.FINISH_MARKER + " >&2; echo " + WaiterCommand.FINISH_MARKER + "\n";
 		action.trace( executor.name + " execute: " + cmd );
 		if( action.context.CTX_TRACEINTERNAL )
 			action.trace( "write cmd line=" + execLine );
@@ -72,13 +71,8 @@ public class ShellCoreUnix extends ShellCore {
 				e.printStackTrace();
 		}
 		
-		ShellWaiter waiter = new ShellWaiter( executor , new CommandReaderUnix( logLevel ) );
-		if( windowsHelper )
-			waiter.setWindowsHelper();
-		boolean res = waiter.wait( action , action.commandTimeout );
-		
-		if( !res )
-			exitError( action , "command has been killed" );
+		WaiterCommand wc = new WaiterCommand( logLevel , reader , cmdout , errreader , cmderr );
+		wc.waitForCommandFinished( action , executor , windowsHelper );
 	}
 
 	@Override public int runCommandGetStatus( ActionBase action , String cmd , int logLevel ) throws Exception {
@@ -680,80 +674,6 @@ public class ShellCoreUnix extends ShellCore {
 			action.exit( "error reading files in dir=" + dir );
 		
 		return( map );
-	}
-	
-	/*##################################################*/
-	/*##################################################*/
-	
-	class CommandReaderUnix extends WaiterCommand {
-		int logLevel;
-		
-		public CommandReaderUnix( int logLevel ) {
-			this.logLevel = logLevel;
-		}
-		
-		public void run( ActionBase action ) throws Exception {
-			readStreamToMarker( action , reader , cmdout , "" );
-			readStreamToMarker( action , errreader , cmderr , "stderr:" );
-		}
-		
-		private void outStreamLine( ActionBase action , String line , List<String> text ) throws Exception {
-			if( windowsHelper && line.equals( "Active code page: 65001" ) ) {
-				if( action.context.CTX_TRACE ) 
-					action.logExact( line , CommandOutput.LOGLEVEL_TRACE );
-				return;
-			}
-			
-			text.add( line );
-			action.logExact( line , logLevel );
-		}
-
-		private void readStreamToMarker( ActionBase action , BufferedReader textreader , List<String> text , String prompt ) throws Exception {
-			String line;
-			boolean first = true;
-			
-			String buffer = "";
-			if( action.context.CTX_TRACEINTERNAL )
-				action.trace( "readStreamToMarker - start reading ..." );
-			
-			while ( true ) {
-				int index = buffer.indexOf( '\n' );
-				if( index < 0 ) {
-					String newBuffer = readBuffer( action , textreader , buffer , '\n' );
-					if( newBuffer != null )
-						buffer = newBuffer;
-					continue;
-				}
-				
-				line = buffer.substring( 0 , index );
-				buffer = buffer.substring( index + 1 );
-				
-				if( action.context.CTX_TRACEINTERNAL )
-					action.trace( "readStreamToMarker - line=" + line.replaceAll("\\p{C}", "?") );
-				
-				index = line.indexOf( finishMarker );
-				if( index >= 0 ) {
-					line = line.substring( 0 , index );
-					if( index > 0 ) {
-						if( first && !prompt.isEmpty() ) {
-							outStreamLine( action , prompt , text );
-							first = false;
-						}
-						outStreamLine( action , line , text );
-					}
-				}
-				else {
-					if( first && !prompt.isEmpty() ) {
-						outStreamLine( action , prompt , text );
-						first = false;
-					}
-					outStreamLine( action , line , text );
-				}
-				
-				if( index >= 0 )
-					break;
-			}
-		}
 	}
 	
 }

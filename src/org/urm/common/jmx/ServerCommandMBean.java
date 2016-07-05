@@ -145,6 +145,26 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		return( param );
 	}
 	
+	@Override
+	public synchronized MBeanInfo getMBeanInfo() {
+		return( mbean );
+	}
+
+	@Override
+	public MBeanNotificationInfo[] getNotificationInfo() {
+		return( notifyInfo );
+	}
+
+	@Override
+	public void addNotificationListener( NotificationListener listener , NotificationFilter filter , Object handback ) {
+		broadcaster.addNotificationListener( listener , filter , handback );  
+	}
+		                  
+	@Override
+	public void removeNotificationListener( NotificationListener listener ) throws ListenerNotFoundException {
+		broadcaster.removeNotificationListener( listener );     
+	}
+	
 	private String getType( CommandVar var ) {
 		String type = "";
 		
@@ -316,24 +336,34 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 	
 	@Override
 	public Object invoke( String name , Object[] args , String[] sig ) throws MBeanException, ReflectionException {
-		int sessionId = -1;
+		String value = null;
 		try {
-			sessionId = notifyExecute( name , args );
+			value = notifyExecute( name , args );
 		}
 		catch( Throwable e ) {
 			action.error( e.getMessage() );
 		}
 
-		String value = "" + sessionId;
 		return( value );
 	}
 
-	private int notifyExecute( String name , Object[] args ) throws Exception {
-		if( name.equals( "execute" ) )
-			return( notifyExecuteGeneric( args ) );
-		if( name.equals( "input" ) )
-			return( notifyExecuteInput( args ) );
-		return( notifyExecuteSpecific( name , args ) );
+	private String notifyExecute( String name , Object[] args ) throws Exception {
+		if( name.equals( RemoteCall.GENERIC_ACTION_NAME ) ) {
+			int sessionId = notifyExecuteGeneric( args );
+			return( "" + sessionId );
+		}
+		
+		if( name.equals( RemoteCall.INPUT_ACTION_NAME ) ) {
+			notifyExecuteInput( args );
+			return( "OK" );
+		}
+		
+		if( name.equals( RemoteCall.INPUT_ACTION_WAITCONNECT ) ) {
+			return( notifyExecuteWaitConnect( args ) );
+		}
+		
+		int sessionId = notifyExecuteSpecific( name , args );
+		return( "" + sessionId );
 	}
 	
 	private int notifyExecuteSpecific( String name , Object[] args ) throws Exception {
@@ -387,26 +417,6 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		return( sessionId );
 	}
 	
-	@Override
-	public synchronized MBeanInfo getMBeanInfo() {
-		return( mbean );
-	}
-
-	@Override
-	public MBeanNotificationInfo[] getNotificationInfo() {
-		return( notifyInfo );
-	}
-
-	@Override
-	public void addNotificationListener( NotificationListener listener , NotificationFilter filter , Object handback ) {
-		broadcaster.addNotificationListener( listener , filter , handback );  
-	}
-		                  
-	@Override
-	public void removeNotificationListener( NotificationListener listener ) throws ListenerNotFoundException {
-		broadcaster.removeNotificationListener( listener );     
-	}
-	
 	private int notifyExecuteInput( Object[] args ) throws Exception {
 		if( args.length != 2 ) {
 			action.error( "missing args calling command=" + meta.name );
@@ -433,4 +443,29 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		return( 0 );
 	}
 	
+	private String notifyExecuteWaitConnect( Object[] args ) throws Exception {
+		if( args.length != 1 ) {
+			action.error( "missing args calling command=" + meta.name );
+			return( "failed" );
+		}
+		
+		if( args[0].getClass() != String.class ) {
+			action.error( "invalid args calling input for command=" + meta.name );
+			return( "failed" );
+		}
+		
+		String sessionId = ( String )args[0];
+		
+		try {
+			if( !server.waitConnect( sessionId ) )
+				return( "failed" );
+		}
+		catch( Throwable e ) {
+			engine.serverAction.log( e );
+			return( "failed" );
+		}
+		
+		return( RemoteCall.INPUT_ACTION_CONNECTED );
+	}
+
 }

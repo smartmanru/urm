@@ -1,6 +1,5 @@
 package org.urm.server.shell;
 
-import java.io.BufferedReader;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -121,12 +120,12 @@ public class ShellCoreWindows extends ShellCore {
 				writer.write( execLine + "\r\n" );
 			}
 			
-			execLine = "echo " + finishMarker + " >&2\r\n";
+			execLine = "echo " + WaiterCommand.FINISH_MARKER + " >&2\r\n";
 			if( action.context.CTX_TRACEINTERNAL )
 				action.trace( execLine );
 			writer.write( execLine );
 			
-			execLine = "echo " + finishMarker + "\r\n";
+			execLine = "echo " + WaiterCommand.FINISH_MARKER + "\r\n";
 			if( action.context.CTX_TRACEINTERNAL )
 				action.trace( execLine );
 			writer.write( execLine );
@@ -139,11 +138,8 @@ public class ShellCoreWindows extends ShellCore {
 					e.printStackTrace();
 			}
 			
-			ShellWaiter waiter = new ShellWaiter( executor , new CommandReaderWindows( logLevel ) );
-			boolean res = waiter.wait( action , action.commandTimeout );
-			
-			if( !res )
-				exitError( action , "command has been killed (" + cmd + ")" );
+			WaiterCommand wc = new WaiterCommand( logLevel , reader , cmdout , errreader , cmderr );
+			wc.waitForCommandFinished( action , executor , false );
 		}
 	}
 
@@ -745,74 +741,6 @@ public class ShellCoreWindows extends ShellCore {
 			action.exit( "error reading files in dir=" + dir );
 		
 		return( map );
-	}
-	
-	/*##################################################*/
-	/*##################################################*/
-	
-	class CommandReaderWindows extends WaiterCommand {
-		int logLevel;
-		
-		public CommandReaderWindows( int logLevel ) {
-			this.logLevel = logLevel;
-		}
-		
-		public void run( ActionBase action ) throws Exception {
-			readStreamToMarker( action , reader , cmdout , "" );
-			readStreamToMarker( action , errreader , cmderr , "stderr:" );
-		}
-		
-		private void outStreamLine( ActionBase action , String line , List<String> text ) throws Exception {
-			text.add( line );
-			action.logExact( line , logLevel );
-		}
-
-		private void readStreamToMarker( ActionBase action , BufferedReader textreader , List<String> text , String prompt ) throws Exception {
-			String line;
-			boolean first = true;
-			
-			String buffer = "";
-			if( action.context.CTX_TRACEINTERNAL )
-				action.trace( "readStreamToMarker - start reading ..." );
-			
-			while ( true ) {
-				int index = buffer.indexOf( '\n' );
-				if( index < 0 ) {
-					String newBuffer = readBuffer( action , textreader , buffer , '\n' );
-					if( newBuffer != null )
-						buffer = newBuffer;
-					continue;
-				}
-				
-				line = buffer.substring( 0 , index );
-				buffer = buffer.substring( index + 1 );
-				
-				if( action.context.CTX_TRACEINTERNAL )
-					action.trace( "readStreamToMarker - line=" + line.replaceAll("\\p{C}", "?") );
-				
-				index = line.indexOf( finishMarker );
-				if( index >= 0 ) {
-					line = line.substring( 0 , index );
-					if( index > 0 ) {
-						if( first && !prompt.isEmpty() ) {
-							outStreamLine( action , prompt , text );
-							first = false;
-						}
-						outStreamLine( action , line , text );
-					}
-				}
-				else {
-					if( first && !prompt.isEmpty() ) {
-						outStreamLine( action , prompt , text );
-						first = false;
-					}
-					outStreamLine( action , line , text );
-				}
-				
-				if( index >= 0 )
-					break;
-			}
-		}
 	}
 	
 }

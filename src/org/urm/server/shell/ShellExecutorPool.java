@@ -355,12 +355,11 @@ public class ShellExecutorPool implements Runnable {
 			cmd += " -i " + KEY;
 		
 		action.trace( account.HOSTLOGIN + " execute: " + cmd );
-		ShellExecutor executor = createDedicatedLocalShell( action , "" + action.session.sessionId );
 		
 		ServerCommandCall call = action.context.call;
-		call.createCommunication( executor );
-		
-		executor.custom( action , cmd , action.context.logLevelLimit );
+		action.trace( account.HOSTLOGIN + " execute: " + cmd );
+		ProcessBuilder pb = new ProcessBuilder( "sh" , "-c" , cmd , "2>&1" );
+		call.executeInteractive( call , pb );
 	}
 
 	public void runRemoteInteractiveSshWindows( ActionBase action , Account account , String KEY ) throws Exception {
@@ -372,12 +371,11 @@ public class ShellExecutorPool implements Runnable {
 		cmd += account.USER + "@" + account.HOST;
 		
 		action.trace( account.HOSTLOGIN + " execute: " + cmd );
-		ShellExecutor executor = createDedicatedLocalShell( action , "" + action.session.sessionId );
 		
 		ServerCommandCall call = action.context.call;
-		call.createCommunication( executor );
-		
-		executor.custom( action , cmd , action.context.logLevelLimit );
+		action.trace( account.HOSTLOGIN + " execute: " + cmd );
+		ProcessBuilder pb = new ProcessBuilder( "cmd" , "/C" , cmd , "2>&1" );
+		call.executeInteractive( call , pb );
 	}
-
+	
 }

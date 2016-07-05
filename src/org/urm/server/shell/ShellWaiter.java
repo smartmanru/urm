@@ -4,12 +4,10 @@ import org.urm.server.action.ActionBase;
 
 public class ShellWaiter {
 
-	ShellExecutor shell;
 	WaiterCommand command;
 	protected boolean windowsHelper = false;
 	
-	public ShellWaiter( ShellExecutor shell , WaiterCommand command ) {
-		this.shell = shell;
+	public ShellWaiter( WaiterCommand command ) {
 		this.command = command;
 	}
 
@@ -65,7 +63,6 @@ public class ShellWaiter {
     private void cleanup( ActionBase action ) throws Exception {
     	command.thread.interrupt();
     	Thread.yield();
-    	shell.restart( action );
     }
 	
 }

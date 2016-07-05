@@ -43,7 +43,6 @@ abstract class ShellCore {
 	public boolean running = false;
 	public boolean initialized = false;
 	
-	static String finishMarker = "URM.MARKER";
 	static String EXECUTE_LOG = "execute.log";
 	static String UPLOAD_LOG = "upload.log";
 
@@ -418,71 +417,6 @@ abstract class ShellCore {
 		return( cmdout );
 	}
 	
-	protected String readBuffer( ActionBase action , BufferedReader textreader , String buffer , char lineTerm ) throws Exception {
-		if( action.context.CTX_TRACEINTERNAL )
-			action.trace( "readBuffer start reading ... " );
-		
-		String s = "";
-		if( !textreader.ready() ) {
-			char[] c = new char[1];
-			if( textreader.read( c , 0 , 1 ) != 1 )
-				return( null );
-				
-			s += c[0];
-			buffer += c[0];
-		}
-
-		char buf[] = new char[ 100 ];
-		String nextBuffer = buffer;
-		while( textreader.ready() ) {
-			int len = textreader.read( buf , 0 , 100 );
-			
-			if( len > 0 ) {
-				boolean lineFound = false;
-				for( int k = 0; k < len; k++ ) {
-					s += buf[ k ];
-					
-					if( buf[ k ] == '\r' )
-						continue;
-					if( buf[ k ] == lineTerm )
-						lineFound = true; 
-
-					nextBuffer += buf[ k ];
-				}
-				
-				if( lineFound )
-					break;
-			}
-		}
-		
-		if( action.context.CTX_TRACEINTERNAL )
-			action.trace( "readBuffer part=" + s.replaceAll("\\p{C}", "?") );
-		
-		return( nextBuffer );
-	}
-
-	protected void skipUpTo( ActionBase action , BufferedReader textreader , char endChar ) throws Exception {
-		if( action.context.CTX_TRACEINTERNAL )
-			System.out.print( "TRACEINTERNAL: skipUpTo part=" );
-
-		char[] c = new char[1];
-		while( true ) {
-			if( textreader.read( c , 0 , 1 ) != 1 )
-				action.exit( "unable to read" );
-			
-			if( action.context.CTX_TRACEINTERNAL ) {
-				String s = "" + c[0];
-				System.out.print( s.replaceAll("\\p{C}", "?") );
-			}
-			
-			if( c[0] == endChar )
-				break;
-		}
-		
-		if( action.context.CTX_TRACEINTERNAL )
-			System.out.print( "\n" );
-	}		
-
 	protected synchronized ShellCoreJNI getOSAPI() {
 		if( osapi == null )
 			osapi = new ShellCoreJNI();
