@@ -10,7 +10,7 @@ if [ "$C_URM_MODE" = "main" ]; then
 	C_UMR_CLASS=org.urm.server.Main
 else
 	C_UMR_CLASS=org.urm.client.Main
-	if [ "$1" = "-standalone" ] || [ "$2" = "-standalone" ] || [ "$3" = "-standalone" ] || [ "$4" = "-standalone" ]; then
+	if [ "$1" = "-offline" ] || [ "$2" = "-offline" ] || [ "$3" = "-offline" ] || [ "$4" = "-offline" ]; then
 		C_URM_SERVER=
 	fi
 fi

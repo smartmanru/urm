@@ -28,6 +28,7 @@ public class OptionsMeta {
 		defineGenericOption( CommandVar.newFlagNoOption( "strict" , "OPT_SKIPERRORS" , true , "stop execution after error" ) );
 		defineGenericOption( CommandVar.newFlagYesOption( "all" , "OPT_ALL" , true , "use all possible items in scope, ignore reduce defaults" ) );
 		defineGenericOption( CommandVar.newFlagYesOption( "local" , "OPT_LOCAL" , false , "any session is opened as local under current user" ) );
+		defineGenericOption( CommandVar.newFlagYesOption( "offline" , "OPT_OFFLINE" , false , "do not use server even if configured" ) );
 		defineGenericOption( CommandVar.newIntParam( "timeout" , "OPT_COMMANDTIMEOUT" , true , "use specific default timeout" ) );
 		defineGenericOption( CommandVar.newParam( "key" , "OPT_KEY" , false , "use given key to connect to host" ) );
 		defineGenericOption( CommandVar.newParam( "distpath" , "OPT_DISTPATH" , false , "use given path to find distributive files" ) );
