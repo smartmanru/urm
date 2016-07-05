@@ -338,9 +338,9 @@ public class ShellExecutorPool implements Runnable {
 	public void runLocalInteractiveSshWindows( ActionBase action , Account account , String KEY ) throws Exception {
 		String cmd = "plink ";
 		if( !KEY.isEmpty() )
-			cmd += " -i " + KEY;
+			cmd += "-i " + KEY + " ";
 		if( account.PORT != 22 )
-			cmd += " -P " + account.PORT;
+			cmd += "-P " + account.PORT + " ";
 		cmd += account.USER + "@" + account.HOST;
 		
 		action.trace( account.HOSTLOGIN + " execute: " + cmd );
@@ -366,9 +366,9 @@ public class ShellExecutorPool implements Runnable {
 	public void runRemoteInteractiveSshWindows( ActionBase action , Account account , String KEY ) throws Exception {
 		String cmd = "plink ";
 		if( !KEY.isEmpty() )
-			cmd += " -i " + KEY;
+			cmd += "-i " + KEY + " ";
 		if( account.PORT != 22 )
-			cmd += " -P " + account.PORT;
+			cmd += "-P " + account.PORT + " ";
 		cmd += account.USER + "@" + account.HOST;
 		
 		action.trace( account.HOSTLOGIN + " execute: " + cmd );

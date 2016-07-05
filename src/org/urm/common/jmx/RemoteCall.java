@@ -1,6 +1,7 @@
 package org.urm.common.jmx;
 
 import java.io.BufferedReader;
+import java.io.Console;
 import java.io.InputStreamReader;
 
 import javax.management.MBeanServerConnection;
@@ -150,14 +151,11 @@ public class RemoteCall implements NotificationListener {
 		
 		String input;
 		mainThread = Thread.currentThread();
+		Console console = System.console();
 		while( true ) {
 			System.out.print( "> " );
 			try {
-				while( System.in.available() == 0 )
-					Thread.sleep( 200 );
-				
-				input = br.readLine();
-				println( input );
+				input = console.readLine( "> " );
 			}
 			catch( Throwable e ) {
 				println( "exiting ..." );
@@ -185,9 +183,7 @@ public class RemoteCall implements NotificationListener {
 		else
 		if( n.stopEvent ) {
 			try {
-				if( br != null ) {
-					mainThread.interrupt();
-				}
+				mainThread.interrupt();
 			}
 			catch( Throwable e ) {
 			}
