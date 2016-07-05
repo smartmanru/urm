@@ -190,6 +190,6 @@ public class MainServer {
 		if( call == null )
 			serverAction.exit( "unknown call session=" + sessionId );
 		
-		call.addInput( input );
+		call.addInput( input + "\n" );
 	}
 }
