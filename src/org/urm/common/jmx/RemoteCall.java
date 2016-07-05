@@ -28,6 +28,7 @@ public class RemoteCall implements NotificationListener {
 	MBeanServerConnection mbsc = null;
 	BufferedReader br = null;
 	Thread mainThread;
+	InputStreamReader isr;
 
 	public static final String EXIT_COMMAND = "exit";
 	
@@ -143,7 +144,8 @@ public class RemoteCall implements NotificationListener {
 	}
 
 	private void waitInteractive( String sessionId ) throws Exception {
-		br = new BufferedReader( new InputStreamReader( System.in ) );
+		isr = new InputStreamReader( System.in );
+		br = new BufferedReader( isr );
 		println( "enter commands, or '" + EXIT_COMMAND + "' to quit:" );
 		
 		String input;
@@ -151,7 +153,7 @@ public class RemoteCall implements NotificationListener {
 		while( true ) {
 			System.out.print( "> " );
 			try {
-				while( !br.ready() )
+				while( !isr.ready() )
 					Thread.sleep( 200 );
 				
 				input = br.readLine();
@@ -183,8 +185,9 @@ public class RemoteCall implements NotificationListener {
 		else
 		if( n.stopEvent ) {
 			try {
-				if( mainThread != null )
+				if( br != null ) {
 					mainThread.interrupt();
+				}
 			}
 			catch( Throwable e ) {
 			}
