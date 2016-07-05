@@ -40,7 +40,8 @@ public class ServerCommandCall implements Runnable {
     	try {
     		CommandMethod method = command.meta.getAction( actionName );
     		action = server.createRemoteAction( this , method , data );
-    		server.runClientAction( action );
+    		if( action != null )
+    			server.runClientAction( action );
     	}
     	catch( Throwable e ) {
         	command.notifyLog( sessionId , e );

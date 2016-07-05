@@ -26,6 +26,8 @@ public class RemoteCall implements NotificationListener {
 	ObjectName mbeanName;
 	JMXConnector jmxc = null;
 	MBeanServerConnection mbsc = null;
+	BufferedReader br = null;
+	Thread mainThread;
 
 	public static final String EXIT_COMMAND = "exit";
 	
@@ -37,9 +39,13 @@ public class RemoteCall implements NotificationListener {
 		return( "urm:name=server" );
 	}
 	
+	private void println( String s ) {
+		System.out.println( s );
+	}
+	
 	public boolean runClient( CommandBuilder builder , CommandMeta commandInfo ) throws Exception {
 		if( !serverConnect( builder.execrc ) ) {
-			System.out.println( "unable to connect to: " + URL );
+			println( "unable to connect to: " + URL );
 			return( false );
 		}
 		
@@ -116,7 +122,7 @@ public class RemoteCall implements NotificationListener {
 
 		// silent wait for completion or allow to send input strings
 		if( sessionId == null ) {
-			System.out.println( "server rejected to call operation: " + name );
+			println( "server rejected to call operation: " + name );
 			return( false );
 		}
 		
@@ -137,16 +143,27 @@ public class RemoteCall implements NotificationListener {
 	}
 
 	private void waitInteractive( String sessionId ) throws Exception {
-		BufferedReader br = new BufferedReader( new InputStreamReader( System.in ) );
-		System.out.println( "enter commands, or '" + EXIT_COMMAND + "' to quit:" );
+		br = new BufferedReader( new InputStreamReader( System.in ) );
+		println( "enter commands, or '" + EXIT_COMMAND + "' to quit:" );
 		
+		String input;
+		mainThread = Thread.currentThread();
 		while( true ) {
 			System.out.print( "> " );
-			String input = br.readLine();
-			System.out.println( input );
-
+			try {
+				while( !br.ready() )
+					Thread.sleep( 200 );
+				
+				input = br.readLine();
+				println( input );
+			}
+			catch( Throwable e ) {
+				println( "exiting ..." );
+				return;
+			}
+			
 			if( input.length() == EXIT_COMMAND.length() && input.toLowerCase().equals( EXIT_COMMAND ) ) {
-				System.out.println( "exiting ..." );
+				println( "exiting ..." );
 				return;
 			}
 			
@@ -162,9 +179,16 @@ public class RemoteCall implements NotificationListener {
 		
 		ActionNotification n = ( ActionNotification )notif;
 		if( n.logEvent )
-			System.out.println( n.getMessage() );
+			println( n.getMessage() );
 		else
 		if( n.stopEvent ) {
+			try {
+				if( mainThread != null )
+					mainThread.interrupt();
+			}
+			catch( Throwable e ) {
+			}
+			
 			synchronized( this ) {
 				notifyAll();
 			}

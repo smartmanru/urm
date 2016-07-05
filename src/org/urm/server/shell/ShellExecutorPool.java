@@ -9,7 +9,6 @@ import org.urm.common.Common;
 import org.urm.common.jmx.ServerCommandCall;
 import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionBase;
-import org.urm.server.action.CommandOutput;
 import org.urm.server.storage.Folder;
 
 public class ShellExecutorPool implements Runnable {
@@ -331,7 +330,7 @@ public class ShellExecutorPool implements Runnable {
 		ServerCommandCall call = action.context.call;
 		call.createCommunication( executor );
 		
-		executor.custom( action , cmd , CommandOutput.LOGLEVEL_TRACE );
+		executor.custom( action , cmd , action.context.logLevelLimit );
 	}
 
 }
