@@ -64,7 +64,8 @@ public class ServerCommandCall implements Runnable {
 	}
 
 	public void addInput( String input ) throws Exception {
-		interactiveExecutor.addInput( action , input );
+		if( interactiveExecutor != null )
+			interactiveExecutor.addInput( action , input );
 	}
 	
 }

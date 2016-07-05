@@ -153,7 +153,7 @@ public class RemoteCall implements NotificationListener {
 		while( true ) {
 			System.out.print( "> " );
 			try {
-				while( !isr.ready() )
+				while( System.in.available() == 0 )
 					Thread.sleep( 200 );
 				
 				input = br.readLine();

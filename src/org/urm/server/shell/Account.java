@@ -13,6 +13,7 @@ public class Account {
 	public String HOSTLOGIN;
 	public String USER;
 	public String HOST;
+	public int PORT;
 	public VarOSTYPE osType;
 
 	public Account( RunContext execrc ) {
@@ -22,6 +23,7 @@ public class Account {
 		HOSTLOGIN = "local";
 		USER = "current";
 		HOST = "localhost";
+		PORT = 0;
 		
 		osType = execrc.osType;
 	}
@@ -29,7 +31,8 @@ public class Account {
 	private Account( String user , String host , boolean local , VarOSTYPE osType ) {
 		this.USER = user;
 		this.HOST = host;
-		this.HOSTLOGIN = user + "@" + host;
+		this.PORT = 22;
+		this.HOSTLOGIN = user + "@" + host + ":" + PORT;
 		this.local = local;
 		this.osType = osType;
 	}
@@ -38,10 +41,11 @@ public class Account {
 		return( new Account( user , host , true , osType ) );
 	}
 	
-	private Account( String user , String host , VarOSTYPE osType ) {
+	private Account( String user , String host , int port , VarOSTYPE osType ) {
 		this.USER = user;
 		this.HOST = host;
-		this.HOSTLOGIN = user + "@" + host;
+		this.PORT = port;
+		this.HOSTLOGIN = user + "@" + host + ":" + port;
 		this.osType = osType;
 	}
 	
@@ -53,11 +57,11 @@ public class Account {
 		return( osType == VarOSTYPE.LINUX );
 	}
 	
-	public static Account getAccount( ActionBase action , String user , String host , VarOSTYPE osType ) throws Exception {
+	public static Account getAccount( ActionBase action , String user , String host , int port , VarOSTYPE osType ) throws Exception {
 		if( host.isEmpty() || user.isEmpty() )
 			action.exit( "account details are not provided" );
 		
-		Account account = new Account( user , host , osType ); 
+		Account account = new Account( user , host , port , osType ); 
 		if( action.isLocalRun() ||
 			host.equals( "local" ) || host.equals( "localhost" ) ||
 			account.HOSTLOGIN.equals( action.context.account.HOSTLOGIN ) )
@@ -77,15 +81,21 @@ public class Account {
 			
 		String user = Common.getPartBeforeFirst( hostLogin , "@" );
 		String host = Common.getPartAfterLast( hostLogin , "@" );
-		return( getAccount( action , user , host , osType ) );
+		int port = 22;
+		if( host.indexOf( ':' ) > 0 ) {
+			port = Integer.parseInt( Common.getPartAfterFirst( host , ":" ) );
+			host = Common.getPartBeforeFirst( host , ":" );
+		}
+			
+		return( getAccount( action , user , host , port , osType ) );
 	}
 	
 	public Account getRootAccount( ActionBase action ) throws Exception {
-		return( getAccount( action , "root" , HOST , osType ) );
+		return( getAccount( action , "root" , HOST , PORT , osType ) );
 	}
 	
 	public Account getUserAccount( ActionBase action , String user ) throws Exception {
-		return( getAccount( action , user , HOST , osType ) );
+		return( getAccount( action , user , HOST , PORT , osType ) );
 	}
 	
 }

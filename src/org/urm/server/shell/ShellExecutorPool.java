@@ -304,10 +304,26 @@ public class ShellExecutorPool implements Runnable {
 
 	public void runInteractiveSsh( ActionBase action , Account account , String KEY ) throws Exception {
 		if( action.context.call != null ) {
-			runRemoteInteractiveSsh( action , account , KEY );
+			if( master.isLinux() )
+				runRemoteInteractiveSshLinux( action , account , KEY );
+			else
+			if( master.isWindows() )
+				runRemoteInteractiveSshWindows( action , account , KEY );
+			else
+				action.exitUnexpectedState();
 			return;
 		}
+
+		if( master.isLinux() )
+			runLocalInteractiveSshLinux( action , account , KEY );
+		else
+		if( master.isWindows() )
+			runLocalInteractiveSshWindows( action , account , KEY );
+		else
+			action.exitUnexpectedState();
+	}
 		
+	public void runLocalInteractiveSshLinux( ActionBase action , Account account , String KEY ) throws Exception {
 		String cmd = "ssh " + account.HOSTLOGIN;
 		if( !KEY.isEmpty() )
 			cmd += " -i " + KEY;
@@ -319,10 +335,41 @@ public class ShellExecutorPool implements Runnable {
 		p.waitFor();
 	}
 	
-	public void runRemoteInteractiveSsh( ActionBase action , Account account , String KEY ) throws Exception {
+	public void runLocalInteractiveSshWindows( ActionBase action , Account account , String KEY ) throws Exception {
+		String cmd = "plink ";
+		if( !KEY.isEmpty() )
+			cmd += " -i " + KEY;
+		if( account.PORT != 22 )
+			cmd += " -P " + account.PORT;
+		cmd += account.USER + "@" + account.HOST;
+		
+		action.trace( account.HOSTLOGIN + " execute: " + cmd );
+		ProcessBuilder pb = new ProcessBuilder( "cmd" , "/C" , cmd );
+		Process p = pb.start();
+		p.waitFor();
+	}
+	
+	public void runRemoteInteractiveSshLinux( ActionBase action , Account account , String KEY ) throws Exception {
 		String cmd = "ssh -T " + account.HOSTLOGIN;
 		if( !KEY.isEmpty() )
 			cmd += " -i " + KEY;
+		
+		action.trace( account.HOSTLOGIN + " execute: " + cmd );
+		ShellExecutor executor = createDedicatedLocalShell( action , "" + action.session.sessionId );
+		
+		ServerCommandCall call = action.context.call;
+		call.createCommunication( executor );
+		
+		executor.custom( action , cmd , action.context.logLevelLimit );
+	}
+
+	public void runRemoteInteractiveSshWindows( ActionBase action , Account account , String KEY ) throws Exception {
+		String cmd = "plink ";
+		if( !KEY.isEmpty() )
+			cmd += " -i " + KEY;
+		if( account.PORT != 22 )
+			cmd += " -P " + account.PORT;
+		cmd += account.USER + "@" + account.HOST;
 		
 		action.trace( account.HOSTLOGIN + " execute: " + cmd );
 		ShellExecutor executor = createDedicatedLocalShell( action , "" + action.session.sessionId );

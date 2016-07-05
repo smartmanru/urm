@@ -312,12 +312,12 @@ abstract public class ActionBase {
 		return( Account.getAccount( this , node.HOSTLOGIN , node.server.osType ) );
 	}
 	
-	public Account getSingleHostAccount( String host , VarOSTYPE OSTYPE ) throws Exception {
+	public Account getSingleHostAccount( String host , int port , VarOSTYPE OSTYPE ) throws Exception {
 		String user = context.CTX_HOSTUSER;
 		if( user.isEmpty() )
 			user = "root";
 		
-		Account account = Account.getAccount( this , user , host , OSTYPE );
+		Account account = Account.getAccount( this , user , host , port , OSTYPE );
 		return( account );
 	}
 

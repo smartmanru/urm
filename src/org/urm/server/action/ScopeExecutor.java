@@ -372,10 +372,10 @@ public class ScopeExecutor {
 		return( runDone );
 	}
 
-	private boolean runSingleHostInternal( ActionScopeSet set , String host , VarOSTYPE OSTYPE ) {
+	private boolean runSingleHostInternal( ActionScopeSet set , String host , int port , VarOSTYPE OSTYPE ) {
 		boolean runDone = false;
 		try {
-			Account account = action.getSingleHostAccount( host , OSTYPE );
+			Account account = action.getSingleHostAccount( host , port , OSTYPE );
 			String serverNodes = set.dc.getServerNodesByHost( action , host );
 			action.info( account.HOSTLOGIN + ": serverNodes={" + serverNodes + "}" );
 			
@@ -416,7 +416,7 @@ public class ScopeExecutor {
 		boolean runDone = false;
 		try {
 			for( Account host : hosts ) {
-				if( runSingleHostInternal( set , host.HOST , host.osType ) ) {
+				if( runSingleHostInternal( set , host.HOST , host.PORT , host.osType ) ) {
 					runDone = true;
 					if( !action.continueRun() )
 						break;
