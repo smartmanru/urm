@@ -331,7 +331,7 @@ public class ShellExecutorPool implements Runnable {
 		ServerCommandCall call = action.context.call;
 		call.createCommunication( executor );
 		
-		executor.custom( action , cmd , CommandOutput.LOGLEVEL_TRACE );
+		executor.custom( action , cmd + "\n" , CommandOutput.LOGLEVEL_TRACE );
 	}
 
 }
