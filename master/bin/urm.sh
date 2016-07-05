@@ -12,7 +12,7 @@ else
 	C_UMR_CLASS=org.urm.client.Main
 fi
 
-if [ "$1" = "-local" ] || [ "$2" = "-local" ] || [ "$3" = "-local" ] || [ "$4" = "-local" ] || [ "$C_URM_SERVER" = "" ]; then
+if [ "$1" = "-local" ] || [ "$2" = "-local" ] || [ "$3" = "-local" ] || [ "$4" = "-local" ] || [ "$1" = "-standalone" ] || [ "$2" = "-standalone" ] || [ "$3" = "-standalone" ] || [ "$4" = "-standalone" ] || [ "$C_URM_SERVER" = "" ]; then
 	JAVACP=master/bin/urms.jar:master/lib/jmxtools-1.2.1.jar:master/lib/jna-4.1.0.jar:master/lib/jmxremote_optional-repackaged-4.0.jar
 else
 	JAVACP=master/bin/urmc.jar:master/lib/jmxtools-1.2.1.jar:master/lib/jmxremote_optional-repackaged-4.0.jar

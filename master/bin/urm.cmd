@@ -17,6 +17,10 @@ if "%1" == "-local" set x=1
 if "%2" == "-local" set x=1
 if "%3" == "-local" set x=1
 if "%4" == "-local" set x=1
+if "%1" == "-standalone" set x=1
+if "%2" == "-standalone" set x=1
+if "%3" == "-standalone" set x=1
+if "%4" == "-standalone" set x=1
 if "%C_URM_SERVER%" == "" set x=1
 if "%x%" == "1" (
 	set JAVACP=master/bin/urms.jar;master/lib/jmxtools-1.2.1.jar;master/lib/jna-4.1.0.jar;master/lib/jmxremote_optional-repackaged-4.0.jar
