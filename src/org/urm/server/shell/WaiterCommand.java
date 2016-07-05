@@ -65,6 +65,7 @@ public class WaiterCommand implements Runnable {
         }
         catch (Exception e) {
             exception = true;
+            action.log( e );
         }
         
         finished = true;
@@ -193,6 +194,7 @@ public class WaiterCommand implements Runnable {
 
 	public void waitForCommandFinished( ActionBase action , ShellExecutor shell , boolean windowsHelper ) throws Exception {
 		waitForCommandFinished = true;
+		waitMarker = FINISH_MARKER;
 		ShellWaiter waiter = new ShellWaiter( this );
 		
 		if( windowsHelper )
