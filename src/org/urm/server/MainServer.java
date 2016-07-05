@@ -53,10 +53,10 @@ public class MainServer {
 		waitAllActions();
 	}
 
-	public boolean runClientRemote( ServerCommandCall call , CommandMethod method , ActionData data ) throws Exception {
+	public ActionInit createRemoteAction( ServerCommandCall call , CommandMethod method , ActionData data ) throws Exception {
 		if( !running ) {
 			engine.serverAction.error( "server is in progress of shutdown" );
-			return( false );
+			return( null );
 		}
 		
 		CommandBuilder builder = new CommandBuilder( data.clientrc , engine.execrc );
@@ -66,7 +66,7 @@ public class MainServer {
 		
 		CommandMeta commandInfo = builder.createMeta( options.command );
 		if( commandInfo == null )
-			return( false );
+			return( null );
 		
 		CommandExecutor executor = engine.createExecutor( commandInfo );
 		SessionContext session = new SessionContext( engine , data.clientrc , call.sessionId );
@@ -74,9 +74,9 @@ public class MainServer {
 		
 		ActionInit action = engine.createAction( options , executor , session , "remote-" + data.clientrc.productDir , call );
 		if( action == null )
-			return( false );
+			return( null );
 
-		return( runClientAction( session , executor , action ) );
+		return( action );
 	}
 
 	public boolean runClientJmx( int sessionId , String productDir , CommandMeta meta , CommandOptions options ) throws Exception {
@@ -93,10 +93,13 @@ public class MainServer {
 		if( action == null )
 			return( false );
 
-		return( runClientAction( session , executor , action ) );
+		return( runClientAction( action ) );
 	}
 	
-	public boolean runClientAction( SessionContext session , CommandExecutor executor , ActionInit clientAction ) {
+	public boolean runClientAction( ActionInit clientAction ) {
+		SessionContext session = clientAction.session;
+		CommandExecutor executor = clientAction.executor;
+		
 		serverAction.debug( "run client action sessionId=" + session.sessionId + ", workFolder=" + clientAction.artefactory.workFolder.folderPath + " ..." );
 		
 		synchronized( this ) {
@@ -190,6 +193,6 @@ public class MainServer {
 		if( call == null )
 			serverAction.exit( "unknown call session=" + sessionId );
 		
-		call.addInput( input + "\n" );
+		call.addInput( input );
 	}
 }

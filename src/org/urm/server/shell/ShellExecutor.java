@@ -95,8 +95,9 @@ public abstract class ShellExecutor {
 		pool.releaseShell( action , this );
 	}
 	
-	public void addInput( String input ) throws Exception {
-		core.addInput( input , false );
+	public void addInput( ActionBase action , String input ) throws Exception {
+		action.trace( name + " execute: " + input );
+		core.addInput( action , input + "\n" , false );
 	}
 	
 	// information

@@ -216,7 +216,7 @@ abstract class ShellCore {
 		 executor.exitError( action , error );
 	}
 	
-	public void addInput( String input , boolean windowsHelper ) throws Exception {
+	public void addInput( ActionBase action , String input , boolean windowsHelper ) throws Exception {
 		if( windowsHelper )
 			stdin.write( input.getBytes( "Cp1251" ) );
 		else {
