@@ -111,22 +111,22 @@ public class ActionChangeKeys extends ActionBase {
 			F_SETUPAUTH = getCreateSshOwn(); 
 
 		if( cmd.equals( "change" ) || cmd.equals( "add" ) ) {
-			info( F_BEHALFACCOUNT.HOSTLOGIN + ": change key to " + P_KEYFILENEXTPUB + " (" + F_KEYOWNER + 
-				") on " + account.HOSTLOGIN + F_ACCESSMSG + " ..." );
+			info( F_BEHALFACCOUNT.getPrintName() + ": change key to " + P_KEYFILENEXTPUB + " (" + F_KEYOWNER + 
+				") on " + account.getPrintName() + F_ACCESSMSG + " ..." );
 			if( !replaceKey( F_BEHALFACCOUNT , F_ACCESSOPTION , F_SETUPAUTH , F_KEYOWNER , F_KEYDATA ) )
 				exitAction( "error executing key replacement" );
 		}
 		else
 		if( cmd.equals( "set" ) ) {
-			info( F_BEHALFACCOUNT.HOSTLOGIN + ": set the only key to " + P_KEYFILENEXTPUB + " (" + F_KEYOWNER + 
-					") on " + account.HOSTLOGIN + F_ACCESSMSG + " ..." );
+			info( F_BEHALFACCOUNT.getPrintName() + ": set the only key to " + P_KEYFILENEXTPUB + " (" + F_KEYOWNER + 
+					") on " + account.getPrintName() + F_ACCESSMSG + " ..." );
 			if( !setOnlyKey( F_BEHALFACCOUNT , F_ACCESSOPTION , F_SETUPAUTH , F_KEYDATA ) )
 				exitAction( "error executing key set. Exiting" );
 		}
 		else
 		if( cmd.equals( "delete" ) ) {
-			info( F_BEHALFACCOUNT.HOSTLOGIN + ": delete key " + P_KEYFILENEXTPUB + " (" + F_KEYOWNER + ") on " + 
-					account.HOSTLOGIN + F_ACCESSMSG + " ..." );
+			info( F_BEHALFACCOUNT.getPrintName() + ": delete key " + P_KEYFILENEXTPUB + " (" + F_KEYOWNER + ") on " + 
+					account.getPrintName() + F_ACCESSMSG + " ..." );
 			if( !deleteKey( F_BEHALFACCOUNT , F_ACCESSOPTION , F_SETUPAUTH , F_KEYOWNER ) )
 				exitAction( "error executing key delete" );
 		}
@@ -142,7 +142,7 @@ public class ActionChangeKeys extends ActionBase {
 				if( !tryConnect( F_TARGETACCOUNT , "-i " + P_KEYFILENEXTPRV ) )
 					exitAction( "error executing new key check. Exiting" );
 				
-				info( account.HOSTLOGIN + ": new key successfully verified." );
+				info( account.getPrintName() + ": new key successfully verified." );
 			}
 		}
 		
@@ -151,15 +151,15 @@ public class ActionChangeKeys extends ActionBase {
 
 	private boolean tryConnect( Account account , String ACCESSOPTION ) throws Exception {
 		String F_CHECK = shell.customGetValueNoCheck( this , "ssh -n " + ACCESSOPTION + 
-				" -o PasswordAuthentication=no " + account.HOSTLOGIN + " " + Common.getQuoted( "echo ok" ) );
+				" -o PasswordAuthentication=no " + account.getSshAddr() + " " + Common.getQuoted( "echo ok" ) );
 		if( F_CHECK.equals( "ok" ) )
 			return( true );
 		return( false );
 	}
 
 	private boolean checkHostUser( Account account , String ACCESSOPTION , String user ) throws Exception {
-		int status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " +
-				Common.getQuoted( "cd ~" + user ) );
+		int status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.getSshAddr() + " " +
+			Common.getQuoted( "cd ~" + user ) );
 		if( status != 0 )
 			return( false );
 		return( true );
@@ -202,7 +202,7 @@ public class ActionChangeKeys extends ActionBase {
 			exit( "unsupported with sudo" );
 		
 		int timeout = setTimeoutUnlimited();
-		int status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " + 
+		int status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.getSshAddr() + " " + 
 			Common.getQuoted( SETUPAUTH + "; cat " + S_AUTHFILE + 
 				" | grep -v " + KEYOWNER + "\\$ > " + S_AUTHFILE + ".2; echo " + Common.getQuoted( KEYDATA ) + 
 				" >> " + S_AUTHFILE + ".2; cp " + S_AUTHFILE + ".2 " + S_AUTHFILE + 
@@ -219,11 +219,11 @@ public class ActionChangeKeys extends ActionBase {
 		
 		int timeout = setTimeoutUnlimited();
 		if( context.CTX_SUDO ) {
-			status = shell.customGetStatus( this , "ssh -n -t -t " + ACCESSOPTION + " " + account.HOSTLOGIN + " " + 
+			status = shell.customGetStatus( this , "ssh -n -t -t " + ACCESSOPTION + " " + account.getSshAddr() + " " + 
 				Common.getQuoted( SETUPAUTH + "; echo " + Common.getQuoted( KEYDATA ) + " | sudo tee ~root/" + S_AUTHFILE ) );
 		}
 		else {
-			status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " + 
+			status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.getSshAddr() + " " + 
 					Common.getQuoted( SETUPAUTH + "; echo " + Common.getQuoted( KEYDATA ) + " > " + S_AUTHFILE ) );
 		}
 		setTimeout( timeout );
@@ -237,7 +237,7 @@ public class ActionChangeKeys extends ActionBase {
 		if( context.CTX_SUDO )
 			exit( "unsupported with sudo" );
 		
-		int status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " +
+		int status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.getSshAddr() + " " +
 		Common.getQuoted( SETUPAUTH + "; cat " + S_AUTHFILE + " | grep -v " + KEYOWNER + "\\$ > " +
 			S_AUTHFILE + ".2; cp " + S_AUTHFILE + ".2 " + S_AUTHFILE + "; rm -rf " + S_AUTHFILE + ".2;" ) );
 		if( status != 0 )
@@ -250,7 +250,7 @@ public class ActionChangeKeys extends ActionBase {
 			exit( "unsupported with sudo" );
 		
 		int timeout = setTimeoutUnlimited();
-		String[] list = shell.customGetLines( this , "ssh -n " + ACCESSOPTION + " " + account.HOSTLOGIN + " " +
+		String[] list = shell.customGetLines( this , "ssh -n " + ACCESSOPTION + " " + account.getSshAddr() + " " +
 				Common.getQuoted( SETUPAUTH ) );
 		setTimeout( timeout );
 		if( list.length > 0 && list[0].equals( "NOAUTHFILE" ) )

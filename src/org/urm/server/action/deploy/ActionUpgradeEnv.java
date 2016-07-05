@@ -34,7 +34,7 @@ public class ActionUpgradeEnv extends ActionBase {
 		// execute
 		int timeout = setTimeoutUnlimited();
 		int status = shell.customGetStatus( this , "sh " + Common.getPath( context.env.UPGRADE_PATH , PATCHFILE ) +
-				" " + account.HOSTLOGIN + " " + context.CTX_EXTRAARGS );
+				" " + account.getFullName() + " " + context.CTX_EXTRAARGS );
 		setTimeout( timeout );
 		if( status < 0 )
 			exit( "fatal error" );
@@ -48,11 +48,11 @@ public class ActionUpgradeEnv extends ActionBase {
 	private boolean checkNeed( Account account , VersionInfoStorage vis ) throws Exception {
 		if( context.CTX_FORCE ) {
 			if( !isExecute() ) {
-				info( account.HOSTLOGIN + ": forced upgrade " + PATCHFILE + " (showonly)" );
+				info( account.getPrintName() + ": forced upgrade " + PATCHFILE + " (showonly)" );
 				return( false );
 			}
 			
-			info( account.HOSTLOGIN + ": force upgrade " + PATCHFILE + " (execute)" );
+			info( account.getPrintName() + ": force upgrade " + PATCHFILE + " (execute)" );
 			return( true );
 		}
 		
@@ -63,7 +63,7 @@ public class ActionUpgradeEnv extends ActionBase {
 
 		if( !F_STATUS.isEmpty() ) {
 			if( F_STATUS.indexOf( PATCHID + ":ok" ) >= 0 ) {
-				info( account.HOSTLOGIN + ": upgrade " + PATCHFILE + " is already done. Skipped" );
+				info( account.getPrintName() + ": upgrade " + PATCHFILE + " is already done. Skipped" );
 				return( false );
 			}
 
@@ -71,7 +71,7 @@ public class ActionUpgradeEnv extends ActionBase {
 		}	
 
 		if( context.CTX_SHOWONLY ) {
-			info( account.HOSTLOGIN + ": upgrade " + F_ACTION + " " + PATCHFILE + " (showonly)" );
+			info( account.getPrintName() + ": upgrade " + F_ACTION + " " + PATCHFILE + " (showonly)" );
 			return( false );
 		}
 
@@ -82,7 +82,7 @@ public class ActionUpgradeEnv extends ActionBase {
 		// add before record to data
 		vis.setBaseStatus( this , PATCHID , "upgrading" );
 
-		info( account.HOSTLOGIN + ": upgrade " + F_ACTION + " " + PATCHFILE + " (execute) ..." );
+		info( account.getPrintName() + ": upgrade " + F_ACTION + " " + PATCHFILE + " (execute) ..." );
 		return( true );
 	}
 

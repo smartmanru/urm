@@ -15,20 +15,26 @@ public class RemoteShellExecutor extends ShellExecutor {
 		
 		if( core.sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX ) {
 			if( action.context.CTX_TRACEINTERNAL )
-				action.trace( "create local sh process on behalf of " + account.HOSTLOGIN );
+				action.trace( "create local sh process on behalf of " + account.getPrintName() );
 			builder = new ProcessBuilder( "sh" );
 		}
 		else if( core.sessionType == VarSESSIONTYPE.UNIXREMOTE ) {
 			String keyFile = action.context.CTX_KEYNAME;
 			if( !keyFile.isEmpty() ) {
 				if( action.context.CTX_TRACEINTERNAL )
-					action.trace( "create process - ssh -T " + account.HOSTLOGIN + " -i " + keyFile );
-				builder = new ProcessBuilder( "ssh" , "-T" , account.HOSTLOGIN , "-i " , keyFile );
+					action.trace( "create process - ssh -T " + account.getSshAddr() + " -i " + keyFile );
+				if( account.PORT == 22 )
+					builder = new ProcessBuilder( "ssh" , "-T" , account.getHostLogin() , "-i " , keyFile );
+				else
+					builder = new ProcessBuilder( "ssh" , "-T" , "-p" , "" + account.PORT , account.getHostLogin() , "-i " , keyFile );
 			}
 			else {
 				if( action.context.CTX_TRACEINTERNAL )
-					action.trace( "create process - ssh -T " + account.HOSTLOGIN );
-				builder = new ProcessBuilder( "ssh" , "-T" , account.HOSTLOGIN );
+					action.trace( "create process - ssh -T " + account.getSshAddr() );
+				if( account.PORT == 22 )
+					builder = new ProcessBuilder( "ssh" , "-T" , account.getSshAddr() );
+				else
+					builder = new ProcessBuilder( "ssh" , "-T" , "-p" , "" + account.PORT , account.getSshAddr() );
 			}
 		}
 		else

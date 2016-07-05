@@ -129,14 +129,14 @@ public class RedistStorage extends ServerStorage {
 	
 	public void dropReleaseAll( ActionBase action ) throws Exception {
 		RemoteFolder folder = getReleasesFolder( action );
-		action.info( folder.account.HOSTLOGIN + ": drop all release data at " + folder.folderPath + " ..." );
+		action.info( folder.account.getPrintName() + ": drop all release data at " + folder.folderPath + " ..." );
 		folder.ensureExists( action );
 		folder.removeContent( action );
 	}
 
 	public void dropAll( ActionBase action ) throws Exception {
 		RemoteFolder folder = getRedistHostRootFolder( action );
-		action.info( folder.account.HOSTLOGIN + ": drop redist completely at " + folder.folderPath + " ..." );
+		action.info( folder.account.getPrintName() + ": drop redist completely at " + folder.folderPath + " ..." );
 		folder.ensureExists( action );
 		folder.removeContent( action );
 	}
@@ -150,14 +150,14 @@ public class RedistStorage extends ServerStorage {
 	
 	public void dropStateData( ActionBase action ) throws Exception {
 		RemoteFolder folder = getStateFolder( action );
-		action.info( folder.account.HOSTLOGIN + ": drop state data at " + folder.folderPath + " ..." );
+		action.info( folder.account.getPrintName() + ": drop state data at " + folder.folderPath + " ..." );
 		folder.ensureExists( action );
 		folder.removeContent( action );
 	}
 
 	public void dropReleaseData( ActionBase action , String RELEASEDIR ) throws Exception {
 		RemoteFolder folder = getReleaseFolder( action , RELEASEDIR );
-		action.info( folder.account.HOSTLOGIN + ": drop release=" + RELEASEDIR + " at " + folder.folderPath + " ..." );
+		action.info( folder.account.getPrintName() + ": drop release=" + RELEASEDIR + " at " + folder.folderPath + " ..." );
 		folder.recreateThis( action );
 	}
 

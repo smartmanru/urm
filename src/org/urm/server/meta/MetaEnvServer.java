@@ -330,7 +330,7 @@ public class MetaEnvServer {
 		String s = "";
 		for( MetaEnvServerNode node : nodes ) {
 			Account nodeAccount = action.getNodeAccount( node );
-			if( nodeAccount.HOSTLOGIN.equals( account.HOSTLOGIN ) ) {
+			if( nodeAccount.getFullName().equals( account.getFullName() ) ) {
 				if( !s.isEmpty() )
 					s += " ";
 				s += node.POS;

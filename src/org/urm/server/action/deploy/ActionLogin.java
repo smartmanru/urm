@@ -28,7 +28,7 @@ public class ActionLogin extends ActionBase {
 			F_KEY = context.CTX_KEYNAME;
 
 		info( "login dc=" + node.server.dc.NAME + ", server=" + node.server.NAME + 
-				", node=" + node.POS + ", hostlogin=" + account.HOSTLOGIN + " ..." );
+				", node=" + node.POS + ", hostlogin=" + account.getPrintName() + " ..." );
 		
 		int timeout = setTimeoutUnlimited();
 		engine.pool.runInteractiveSsh( this , account , F_KEY );

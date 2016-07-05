@@ -392,9 +392,7 @@ abstract public class ActionBase {
 	}
 	
 	public void executeLogLive( Account account , String msg ) throws Exception {
-		String loc = account.HOSTLOGIN;
-		if( context.CTX_LOCAL )
-			loc = "local";
+		String loc = account.getPrintName();
 		
 		ShellExecutor shell = getShell( account );
 		if( !isExecute() ) {
@@ -408,11 +406,11 @@ abstract public class ActionBase {
 	
 	public void executeCmdLive( Account account , String cmdRun ) throws Exception {
 		if( !isExecute() ) {
-			info( account.HOSTLOGIN + ": " + cmdRun + " (showonly)" );
+			info( account.getPrintName() + ": " + cmdRun + " (showonly)" );
 			return;
 		}
 
-		info( account.HOSTLOGIN + ": " + cmdRun + " (execute)" );
+		info( account.getPrintName() + ": " + cmdRun + " (execute)" );
 		ShellExecutor shell = getShell( account );
 		shell.appendExecuteLog( this , cmdRun );
 

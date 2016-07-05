@@ -157,7 +157,7 @@ public class ShellExecutorPool implements Runnable {
 		if( stop )
 			action.exit( "server is in progress of shutdown" );
 		
-		String name = ( account.local )? "local::" + scope : "remote::" + scope + "::" + account.HOSTLOGIN; 
+		String name = ( account.local )? "local::" + scope : "remote::" + scope + "::" + account.getPrintName(); 
 
 		// get sync object
 		Object sync = null;
@@ -324,12 +324,12 @@ public class ShellExecutorPool implements Runnable {
 	}
 		
 	public void runLocalInteractiveSshLinux( ActionBase action , Account account , String KEY ) throws Exception {
-		String cmd = "ssh " + account.HOSTLOGIN;
+		String cmd = "ssh " + account.getSshAddr();
 		if( !KEY.isEmpty() )
 			cmd += " -i " + KEY;
 		cmd += " < /dev/tty > /dev/tty 2>&1";
 		
-		action.trace( account.HOSTLOGIN + " execute: " + cmd );
+		action.trace( account.getPrintName() + " execute: " + cmd );
 		ProcessBuilder pb = new ProcessBuilder( "sh" , "-c" , cmd );
 		Process p = pb.start();
 		p.waitFor();
@@ -343,21 +343,21 @@ public class ShellExecutorPool implements Runnable {
 			cmd += "-P " + account.PORT + " ";
 		cmd += account.USER + "@" + account.HOST;
 		
-		action.trace( account.HOSTLOGIN + " execute: " + cmd );
+		action.trace( account.getPrintName() + " execute: " + cmd );
 		ProcessBuilder pb = new ProcessBuilder( "cmd" , "/C" , cmd );
 		Process p = pb.start();
 		p.waitFor();
 	}
 	
 	public void runRemoteInteractiveSshLinux( ActionBase action , Account account , String KEY ) throws Exception {
-		String cmd = "ssh -T " + account.HOSTLOGIN;
+		String cmd = "ssh -T " + account.getSshAddr();
 		if( !KEY.isEmpty() )
 			cmd += " -i " + KEY;
 		
-		action.trace( account.HOSTLOGIN + " execute: " + cmd );
+		action.trace( account.getPrintName() + " execute: " + cmd );
 		
 		ServerCommandCall call = action.context.call;
-		action.trace( account.HOSTLOGIN + " execute: " + cmd );
+		action.trace( account.getPrintName() + " execute: " + cmd );
 		ProcessBuilder pb = new ProcessBuilder( "sh" , "-c" , cmd , "2>&1" );
 		call.executeInteractive( call , pb );
 	}
@@ -370,10 +370,10 @@ public class ShellExecutorPool implements Runnable {
 			cmd += "-P " + account.PORT + " ";
 		cmd += account.USER + "@" + account.HOST;
 		
-		action.trace( account.HOSTLOGIN + " execute: " + cmd );
+		action.trace( account.getPrintName() + " execute: " + cmd );
 		
 		ServerCommandCall call = action.context.call;
-		action.trace( account.HOSTLOGIN + " execute: " + cmd );
+		action.trace( account.getPrintName() + " execute: " + cmd );
 		ProcessBuilder pb = new ProcessBuilder( "cmd" , "/C" , cmd , "2>&1" );
 		call.executeInteractive( call , pb );
 	}

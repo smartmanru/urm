@@ -76,10 +76,12 @@ public class ShellCoreWindows extends ShellCore {
 		String keyFile = action.context.CTX_KEYNAME;
 		if( !keyFile.isEmpty() )
 			execLine += " -i " + keyFile;
+		if( executor.account.PORT != 22 )
+			execLine += " -P " + executor.account.PORT;
 
 		String cmdWin = Common.replace( cmd , "\\" , "\\\\" );
 		cmdWin = Common.replace( cmdWin , "\\\\$" , "\\$" );
-		execLine += " " + executor.account.HOSTLOGIN + " " + Common.getQuoted( "cmd /c chcp 65001 & cmd /c \"echo off & " + cmdWin + "\"" );
+		execLine += " " + executor.account.getHostLogin() + " " + Common.getQuoted( "cmd /c chcp 65001 & cmd /c \"echo off & " + cmdWin + "\"" );
 		action.trace( executor.name + " execute: " + cmd );
 		return( execLine );
 	}

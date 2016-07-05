@@ -10,7 +10,6 @@ public class Account {
 	public boolean local = false;
 	public boolean current = false;
 	
-	public String HOSTLOGIN;
 	public String USER;
 	public String HOST;
 	public int PORT;
@@ -20,7 +19,6 @@ public class Account {
 		local = true;
 		current = true;
 		
-		HOSTLOGIN = "local";
 		USER = "current";
 		HOST = "localhost";
 		PORT = 0;
@@ -32,7 +30,6 @@ public class Account {
 		this.USER = user;
 		this.HOST = host;
 		this.PORT = 22;
-		this.HOSTLOGIN = user + "@" + host + ":" + PORT;
 		this.local = local;
 		this.osType = osType;
 	}
@@ -45,7 +42,6 @@ public class Account {
 		this.USER = user;
 		this.HOST = host;
 		this.PORT = port;
-		this.HOSTLOGIN = user + "@" + host + ":" + port;
 		this.osType = osType;
 	}
 	
@@ -64,7 +60,7 @@ public class Account {
 		Account account = new Account( user , host , port , osType ); 
 		if( action.isLocalRun() ||
 			host.equals( "local" ) || host.equals( "localhost" ) ||
-			account.HOSTLOGIN.equals( action.context.account.HOSTLOGIN ) )
+			( account.HOST.equals( action.context.account.HOST ) && account.USER.equals( action.context.account.USER ) ) )
 			account.local = true;
 		else
 			account.local = false;
@@ -89,7 +85,29 @@ public class Account {
 			
 		return( getAccount( action , user , host , port , osType ) );
 	}
+
+	public String getFullName() {
+		String name = USER + "@" + HOST; 
+		if( PORT != 22 )
+			name += ":" + 22;
+		return( name );
+	}
 	
+	public String getPrintName() {
+		return( getFullName() );
+	}
+
+	public String getHostLogin() {
+		return( USER + "@" + HOST );
+	}
+	
+	public String getSshAddr() {
+		String addr = getHostLogin();
+		if( PORT != 22 )
+			addr = "-p " + PORT + " " + addr;
+		return( addr );
+	}
+
 	public Account getRootAccount( ActionBase action ) throws Exception {
 		return( getAccount( action , "root" , HOST , PORT , osType ) );
 	}

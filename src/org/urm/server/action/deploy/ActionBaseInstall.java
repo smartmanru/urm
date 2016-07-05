@@ -157,7 +157,7 @@ public class ActionBaseInstall extends ActionBase {
 		}
 
 		String dowhat = ( STATUS.isEmpty() )? "install" : "reinstall";
-		info( runtime.account.HOSTLOGIN + ": " + dowhat + " base=" + info.ID + ", type=" + Common.getEnumLower( info.type ) + " ..." );
+		info( runtime.account.getPrintName() + ": " + dowhat + " base=" + info.ID + ", type=" + Common.getEnumLower( info.type ) + " ..." );
 		vis.setBaseStatus( this , info.ID , "upgrading" );
 		runtime.createRootPath( this );
 		return( true );

@@ -51,27 +51,27 @@ public class ActionChangeHosts extends ActionBase {
 		if( opAddress.isEmpty() ) {
 			String res = super.executeCmdGetValue( account , "cat /etc/hosts | grep " + opHost );
 			if( res.isEmpty() ) {
-				error( account.HOSTLOGIN + ": missing " + opHost );
+				error( account.getPrintName() + ": missing " + opHost );
 				return;
 			}
 	
 			if( res.indexOf( "\n" ) >= 0 ) {
-				error( account.HOSTLOGIN + ": duplicate " + opHost + " (" + res + ")" );
+				error( account.getPrintName() + ": duplicate " + opHost + " (" + res + ")" );
 				return;
 			}
 			
-			info( account.HOSTLOGIN + ": " + res );
+			info( account.getPrintName() + ": " + res );
 		}	
 		else {
 			String res = super.executeCmdGetValue( account , "cat /etc/hosts | egrep " + 
 				Common.getQuoted( opHost + "|" + opAddress ) );
 			if( res.isEmpty() ) {
-				info( account.HOSTLOGIN + ": missing " + opHost );
+				info( account.getPrintName() + ": missing " + opHost );
 				return;
 			}
 	
 			if( res.indexOf( "\n" ) >= 0 ) {
-				error( account.HOSTLOGIN + ": duplicate " + opHost + " (" + res + ")" );
+				error( account.getPrintName() + ": duplicate " + opHost + " (" + res + ")" );
 				return;
 			}
 	
@@ -79,11 +79,11 @@ public class ActionChangeHosts extends ActionBase {
 			String F_HOSTNAME = Common.getPartBeforeFirst( res ,  " " );
 	
 			if( F_HOSTNAME.equals( opHost ) == false || F_HOSTADDR.equals( opAddress ) == false ) {
-				error( account.HOSTLOGIN + ": " + res + " - not matched (" + opHost + " " + opAddress + ")" );
+				error( account.getPrintName() + ": " + res + " - not matched (" + opHost + " " + opAddress + ")" );
 				return;
 			}
 	
-			info( account.HOSTLOGIN + ": " + res + " - ok" );
+			info( account.getPrintName() + ": " + res + " - ok" );
 		}
 	}
 

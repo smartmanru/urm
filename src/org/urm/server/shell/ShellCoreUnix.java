@@ -383,45 +383,54 @@ public class ShellCoreUnix extends ShellCore {
 	}
 	
 	@Override public void cmdScpFilesRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
-		String keyOption = "";
+		String options = "";
 		String keyFile = action.context.CTX_KEYNAME;
 		if( !keyFile.isEmpty() )
-			keyOption = "-i " + keyFile + " ";
+			options = "-i " + keyFile + " ";
+		if( account.PORT != 22 )
+			options += "-P " + account.PORT + " ";
 		
-		runCommandCheckDebug( action , "scp -q -B " + keyOption + account.HOSTLOGIN + ":" + srcPath + " " + dstPath );
+		runCommandCheckDebug( action , "scp -q -B " + options + account.getHostLogin() + ":" + srcPath + " " + dstPath );
 	}
 
 	@Override public void cmdScpDirContentRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
-		String keyOption = "";
+		String options = "";
 		String keyFile = action.context.CTX_KEYNAME;
 		if( !keyFile.isEmpty() )
-			keyOption = "-i " + keyFile + " ";
+			options = "-i " + keyFile + " ";
+		if( account.PORT != 22 )
+			options += "-P " + account.PORT + " ";
 		
 		int timeout = action.setTimeoutUnlimited();
-		runCommandCheckDebug( action , "scp -q -B " + keyOption + account.HOSTLOGIN + ":" + srcPath + "/* " + dstPath );
+		
+		runCommandCheckDebug( action , "scp -q -B " + options + account.getHostLogin() + ":" + srcPath + "/* " + dstPath );
 		action.setTimeout( timeout );
 	}
 
 	@Override public void cmdScpFilesLocalToRemote( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
-		String keyOption = "";
+		String options = "";
 		String keyFile = action.context.CTX_KEYNAME;
 		if( !keyFile.isEmpty() )
-			keyOption = "-i " + keyFile + " ";
+			options = "-i " + keyFile + " ";
+		if( account.PORT != 22 )
+			options += "-P " + account.PORT + " ";
 		
 		int timeout = action.setTimeoutUnlimited();
 		String preserveOption = "-p ";
 		if( account.isWindows() )
 			preserveOption = "";
 		
-		runCommandCheckDebug( action , "scp -q -B " + preserveOption + keyOption + srcPath + " " + account.HOSTLOGIN + ":" + dstPath );
+		runCommandCheckDebug( action , "scp -q -B " + preserveOption + options + srcPath + " " + account.getHostLogin() + ":" + dstPath );
 		action.setTimeout( timeout );
 	}
 
 	@Override public void cmdScpDirLocalToRemote( ActionBase action , String srcDirPath , Account account , String baseDstDir ) throws Exception {
-		String keyOption = "";
+		String options = "";
 		String keyFile = action.context.CTX_KEYNAME;
 		if( !keyFile.isEmpty() )
-			keyOption = "-i " + keyFile + " ";
+			options = "-i " + keyFile + " ";
+		if( account.PORT != 22 )
+			options += "-P " + account.PORT + " ";
 		
 		String baseName = Common.getBaseName( srcDirPath );
 		ShellExecutor session = action.getShell( account );
@@ -433,15 +442,17 @@ public class ShellCoreUnix extends ShellCore {
 		if( account.isWindows() )
 			preserveOption = "";
 		
-		runCommandCheckDebug( action , "scp -r -q -B " + preserveOption + keyOption + srcDirPath + " " + account.HOSTLOGIN + ":" + baseDstDir );
+		runCommandCheckDebug( action , "scp -r -q -B " + preserveOption + options + srcDirPath + " " + account.getHostLogin() + ":" + baseDstDir );
 		action.setTimeout( timeout );
 	}
 
 	@Override public void cmdScpDirContentLocalToRemote( ActionBase action , String srcDirPath , Account account , String dstDir ) throws Exception {
-		String keyOption = "";
+		String options = "";
 		String keyFile = action.context.CTX_KEYNAME;
 		if( !keyFile.isEmpty() )
-			keyOption = "-i " + keyFile + " ";
+			options = "-i " + keyFile + " ";
+		if( account.PORT != 22 )
+			options += "-P " + account.PORT + " ";
 		
 		ShellExecutor session = action.getShell( account );
 		session.ensureDirExists( action , dstDir );
@@ -451,18 +462,20 @@ public class ShellCoreUnix extends ShellCore {
 		if( account.isWindows() )
 			preserveOption = "";
 		
-		runCommandCheckDebug( action , "scp -r -q -B " + preserveOption + keyOption + srcDirPath + "/* " + account.HOSTLOGIN + ":" + dstDir );
+		runCommandCheckDebug( action , "scp -r -q -B " + preserveOption + options + srcDirPath + "/* " + account.getHostLogin() + ":" + dstDir );
 		action.setTimeout( timeout );
 	}
 
 	@Override public void cmdScpDirRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
-		String keyOption = "";
+		String options = "";
 		String keyFile = action.context.CTX_KEYNAME;
 		if( !keyFile.isEmpty() )
-			keyOption = "-i " + keyFile + " ";
+			options = "-i " + keyFile + " ";
+		if( account.PORT != 22 )
+			options += "-P " + account.PORT + " ";
 		
 		int timeout = action.setTimeoutUnlimited();
-		runCommandCheckDebug( action , "scp -r -q -B " + keyOption + account.HOSTLOGIN + ":" + srcPath + " " + dstPath );
+		runCommandCheckDebug( action , "scp -r -q -B " + options + account.getHostLogin() + ":" + srcPath + " " + dstPath );
 		action.setTimeout( timeout );
 	}
 

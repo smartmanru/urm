@@ -24,9 +24,12 @@ public class ActionScp extends ActionBase {
 
 		if( !context.env.KEYNAME.isEmpty() )
 			F_CMD += " -i " + context.env.KEYNAME;
+		if( account.PORT != 22 )
+			F_CMD += " -P " + account.PORT;
 		
 		String F_SRC = Common.replace( srcInfo ,  "\\" , "" );
-		F_CMD += " " + F_SRC + " " + account.HOSTLOGIN + ":" + dstPath;
+		
+		F_CMD += " " + F_SRC + " " + account.getHostLogin() + ":" + dstPath;
 		
 		super.executeLogLive( account , "scp from " + Common.getQuoted( srcInfo ) + " to " + Common.getQuoted( dstPath ) );
 		if( !isExecute() )
