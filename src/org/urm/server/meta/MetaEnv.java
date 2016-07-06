@@ -85,6 +85,8 @@ public class MetaEnv {
 		if( node == null || !node.getNodeName().equals( "env" ) )
 			action.exit( "unable to find environment root node=env" );
 		
+		CONF_SECRETFILESPATH = meta.product.props.getSystemPathProperty( action , "configuration-secretfilespath" , "" );
+		
 		HiddenFiles hidden = action.artefactory.getHiddenFiles();
 		String propFile = hidden.getSecretPropertyFile( action , CONF_SECRETFILESPATH );
 		
@@ -130,7 +132,6 @@ public class MetaEnv {
 		ID = properties.getSystemRequiredStringProperty( action , "id" );
 		action.trace( "load properties of env=" + ID );
 		
-		CONF_SECRETFILESPATH = properties.getSystemPathProperty( action , "configuration-secretfilespath" , "" );
 		BASELINE = properties.getSystemStringProperty( action , "configuration-baseline" , "" );
 		REDISTPATH = properties.getSystemPathProperty( action , "redist-path" , meta.product.CONFIG_REDISTPATH );
 		DISTR_USELOCAL = properties.getSystemBooleanProperty( action , "distr-use-local" , true );

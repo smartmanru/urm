@@ -23,7 +23,7 @@ public class HiddenFiles {
 		if( secretPath.isEmpty() )
 			secretPath = envPath;
 			
-		if( secretPath.isEmpty() )
+		if( secretPath == null || secretPath.isEmpty() )
 			return( "" );
 		
 		return( Common.getPath( secretPath , SECRETPROPERTYFILE ) );
