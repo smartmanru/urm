@@ -44,7 +44,6 @@ public class ServerCommandCall implements Runnable {
 		this.data = data;
 		
 		server = command.controller.server; 
-		waitConnectMode = true;
 	}
 	
     public void start() {
@@ -85,7 +84,7 @@ public class ServerCommandCall implements Runnable {
     }
 
 	public void addInput( String input ) throws Exception {
-		if( action.isLinux() )
+		if( action.isShellLinux() )
 			writer.write( input + "\n" );
 		else
 			writer.write( input + "\r\n" );
@@ -102,6 +101,8 @@ public class ServerCommandCall implements Runnable {
 	}
 	
 	public void executeInteractive( ServerCommandCall call , ProcessBuilder pb ) throws Exception {
+		waitConnectMode = true;
+		
 		Process process = pb.start();
 		
 		stdin = process.getOutputStream();

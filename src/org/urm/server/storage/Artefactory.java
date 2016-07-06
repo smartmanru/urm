@@ -29,7 +29,7 @@ public class Artefactory {
 		if( dirname.equals( "/" ) )
 			action.exit( "/ is not permitted for operations" );
 		
-		return( new LocalFolder( dirname , action.isWindows() ) );
+		return( new LocalFolder( dirname , action.isLocalWindows() ) );
 	}
 
 	public LocalFolder getTmpFolder( ActionBase action ) throws Exception {

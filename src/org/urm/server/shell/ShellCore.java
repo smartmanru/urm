@@ -119,14 +119,21 @@ abstract class ShellCore {
 	public static ShellCore createShellCore( ActionBase action , ShellExecutor executor , VarOSTYPE osType , boolean local ) throws Exception {
 		ShellCore core = null;
 		
+		VarSESSIONTYPE sessionType = null;
 		if( osType == VarOSTYPE.LINUX ) {
-			VarSESSIONTYPE sessionType = ( local )? VarSESSIONTYPE.UNIXLOCAL : VarSESSIONTYPE.UNIXREMOTE;
+			if( action.isLocalWindows() ) {
+				if( local )
+					action.exitUnexpectedState();
+				sessionType = VarSESSIONTYPE.UNIXFROMWINDOWS;
+			}
+			else
+				sessionType = ( local )? VarSESSIONTYPE.UNIXLOCAL : VarSESSIONTYPE.UNIXREMOTE;
+			
 			core = new ShellCoreUnix( executor , sessionType , executor.tmpFolder , local );
 		}
 		else
 		if( osType == VarOSTYPE.WINDOWS ) {
-			VarSESSIONTYPE sessionType = null;
-			if( action.context.account.isWindows() ) {
+			if( action.isLocalWindows() ) {
 				if( !local )
 					action.exitUnexpectedState();
 				sessionType = VarSESSIONTYPE.WINDOWSLOCAL;

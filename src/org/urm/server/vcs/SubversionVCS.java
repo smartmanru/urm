@@ -33,7 +33,7 @@ public class SubversionVCS extends GenericVCS {
 		CO_PATH = SVNPATH + "/" + project.PATH + "/" + project.REPOSITORY + "/" + XBRANCH;
 
 		String REVISION;
-		if( action.isLinux() ) {
+		if( action.isLocalLinux() ) {
 			REVISION = session.customGetValue( action , "svn info --non-interactive " + SVNAUTH + " " + CO_PATH + " | grep Revision | tr -d " + Common.getQuoted( " " ) + 
 					" | cut -d " + Common.getQuoted( ":" ) + " -f2" );
 		}

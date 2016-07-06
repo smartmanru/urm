@@ -1,5 +1,6 @@
 package org.urm.server.shell;
 
+import org.urm.common.Common;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.Metadata.VarSESSIONTYPE;
 import org.urm.server.storage.Folder;
@@ -18,15 +19,28 @@ public class RemoteShellExecutor extends ShellExecutor {
 				action.trace( "create local sh process on behalf of " + account.getPrintName() );
 			builder = new ProcessBuilder( "sh" );
 		}
+		else if( core.sessionType == VarSESSIONTYPE.UNIXFROMWINDOWS ) {
+			if( action.context.CTX_TRACEINTERNAL )
+				action.trace( "create process - plink " + account.getPrintName() );
+			
+			String keyFile = action.context.CTX_KEYNAME;
+			String cmd = "C:\\bin\\putty\\plink -P " + account.PORT;
+			if( !keyFile.isEmpty() )
+				cmd += " -i " + keyFile;
+			
+			cmd += " " + account.getHostLogin();
+			Common.createList( Common.splitSpaced( cmd ) );
+			builder = new ProcessBuilder( Common.createList( Common.splitSpaced( cmd ) ) );
+		}
 		else if( core.sessionType == VarSESSIONTYPE.UNIXREMOTE ) {
 			String keyFile = action.context.CTX_KEYNAME;
 			if( !keyFile.isEmpty() ) {
 				if( action.context.CTX_TRACEINTERNAL )
 					action.trace( "create process - ssh -T " + account.getSshAddr() + " -i " + keyFile );
 				if( account.PORT == 22 )
-					builder = new ProcessBuilder( "ssh" , "-T" , account.getHostLogin() , "-i " , keyFile );
+					builder = new ProcessBuilder( "ssh" , "-T" , account.getHostLogin() , "-i" , keyFile );
 				else
-					builder = new ProcessBuilder( "ssh" , "-T" , "-p" , "" + account.PORT , account.getHostLogin() , "-i " , keyFile );
+					builder = new ProcessBuilder( "ssh" , "-T" , "-p" , "" + account.PORT , account.getHostLogin() , "-i" , keyFile );
 			}
 			else {
 				if( action.context.CTX_TRACEINTERNAL )

@@ -49,7 +49,7 @@ public class MainExecutor extends CommandExecutor {
 		}
 		
 		public void run( ActionInit action ) throws Exception {
-			linux = action.isLinux();
+			linux = action.isLocalLinux();
 			
 			String ACTION = getRequiredArg( action , 0 , "ACTION" );
 			String USEENV = "";

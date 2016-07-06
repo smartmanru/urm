@@ -69,6 +69,7 @@ public class ShellCoreUnix extends ShellCore {
 		catch( Throwable e ) {
 			if( action.context.CTX_TRACEINTERNAL )
 				e.printStackTrace();
+			action.exit( "shell input stream error" );
 		}
 		
 		WaiterCommand wc = new WaiterCommand( logLevel , reader , cmdout , errreader , cmderr );

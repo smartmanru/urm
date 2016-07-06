@@ -110,7 +110,7 @@ public class DatabaseSpecific {
 		
 		String file = scriptFile;
 		String fileLog = outFile;
-		if( action.isWindows() ) {
+		if( action.isLocalWindows() ) {
 			file = Common.getWinPath( file );
 			fileLog = Common.getWinPath( fileLog );
 		}
@@ -137,7 +137,7 @@ public class DatabaseSpecific {
 		
 		String file = work.getFilePath( action , "query.sql" );
 		String fileLog = file + ".out";
-		if( action.isWindows() ) {
+		if( action.isLocalWindows() ) {
 			file = Common.getWinPath( file );
 			fileLog = Common.getWinPath( fileLog );
 		}
@@ -409,7 +409,7 @@ public class DatabaseSpecific {
 		List<String> lines = new LinkedList<String>();
 		String name = null;
 		String DBHOST = ( action.isLocalAccount() )? "localhost" : server.DBMSADDR;
-		if( action.isLinux() ) {
+		if( action.isLocalLinux() ) {
 			lines.add( "export URMDB_USER=" + user );
 			lines.add( "export URMDB_PWD=" + password );
 			lines.add( "export URMDB_DBHOST=" + DBHOST );
@@ -418,7 +418,7 @@ public class DatabaseSpecific {
 			name = "urmdb." + key + ".sh"; 
 		}
 		else
-		if( action.isWindows() ) {
+		if( action.isLocalWindows() ) {
 			lines.add( "set URMDB_USER=" + user );
 			lines.add( "set URMDB_PWD=" + password );
 			lines.add( "set URMDB_DBHOST=" + DBHOST );
@@ -439,10 +439,10 @@ public class DatabaseSpecific {
 		LocalFolder scripts = urm.getSqlScripts( action , server );
 		
 		String ctxCmd = null;
-		if( action.isLinux() )
+		if( action.isLocalLinux() )
 			ctxCmd = "( . " + ctxFile + "; ./" + cmd + ".sh " + params + " )";
 		else
-		if( action.isWindows() )
+		if( action.isLocalWindows() )
 			ctxCmd = "call " + Common.getWinPath( ctxFile ) + " && call " + cmd + ".cmd " + params;
 		else
 			action.exitUnexpectedState();

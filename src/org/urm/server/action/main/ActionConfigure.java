@@ -181,10 +181,10 @@ public class ActionConfigure extends ActionBase {
 				process = false;
 			else
 			if( !ACTION.equals( "default" ) ) {
-				if( isLinux() && !s.endsWith( ".sh" ) )
+				if( isLocalLinux() && !s.endsWith( ".sh" ) )
 					process = false;
 				else
-				if( isWindows() && !s.endsWith( ".cmd" ) )
+				if( isLocalWindows() && !s.endsWith( ".cmd" ) )
 					process = false;
 			}
 

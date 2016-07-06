@@ -409,7 +409,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			String diffFile = asisServerFolder.getFilePath( this , name );
 			
 			boolean isdiff = false;
-			if( isWindows() ) {
+			if( isLocalWindows() ) {
 				FileSet releaseSet = distFolder.getFileSet( this );
 				FileSet prodSet = liveFolder.getFileSet( this );
 				

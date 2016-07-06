@@ -115,7 +115,7 @@ public class SourceStorage {
 		if( !vcs.exportRepositoryMasterPath( dstFolder , REPOSITORY , ITEMPATH , DATABASE_FOLDER ) )
 			action.exit( "unable to export from REPOSITORY=" + REPOSITORY + ", ITEMPATH=" + ITEMPATH );
 		
-		if( action.isLinux() )
+		if( action.isLocalLinux() )
 			dstFolder.prepareFolderForLinux( action , DATABASE_FOLDER );
 		return( true );
 	}
@@ -418,7 +418,7 @@ public class SourceStorage {
 			action.exit( "exportTemplateConfigItem: unable to export " + name + " from " + PATH );
 		
 		// remove windows newlines and add permissions to shell files
-		if( action.isLinux() )
+		if( action.isLocalLinux() )
 			folder.prepareFolderForLinux( action , name );
 	}
 	

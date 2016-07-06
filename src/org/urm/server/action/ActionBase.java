@@ -459,11 +459,19 @@ abstract public class ActionBase {
 		return( shell.getOSPath( this , dirPath ) );	
 	}
 
-	public boolean isWindows() {
+	public boolean isLocalWindows() {
 		return( context.account.isWindows() );
 	}
 
-	public boolean isLinux() {
+	public boolean isLocalLinux() {
+		return( context.account.isLinux() );
+	}
+
+	public boolean isShellWindows() {
+		return( shell.isWindows() );
+	}
+
+	public boolean isShellLinux() {
 		return( shell.isLinux() );
 	}
 
@@ -492,7 +500,7 @@ abstract public class ActionBase {
 
 	public Folder getTmpFolder( String folder ) throws Exception {
 		if( shell.account.local )
-			return( new LocalFolder( getWorkFilePath( folder ) , isWindows() ) );
+			return( new LocalFolder( getWorkFilePath( folder ) , isLocalWindows() ) );
 		RedistStorage redist = artefactory.getRedistStorage( this , shell.account );
 		RemoteFolder rf = redist.getRedistTmpFolder( this );
 		return( rf.getSubFolder( this , folder ) );

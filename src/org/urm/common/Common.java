@@ -707,4 +707,12 @@ public class Common {
 	public static String nonull( String v ) {
 		return( ( v == null )? "" : v );
 	}
+	
+	public static List<String> createList( String[] items ) {
+		List<String> list = new LinkedList<String>();
+		for( String s : items )
+			list.add( s );
+		return( list );
+	}
+	
 }

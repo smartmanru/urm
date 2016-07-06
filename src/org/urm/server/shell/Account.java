@@ -89,7 +89,7 @@ public class Account {
 	public String getFullName() {
 		String name = USER + "@" + HOST; 
 		if( PORT != 22 )
-			name += ":" + 22;
+			name += ":" + PORT;
 		return( name );
 	}
 	

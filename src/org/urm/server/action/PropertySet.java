@@ -292,9 +292,9 @@ public class PropertySet {
 		if( pv.type != PropertyValueType.PROPERTY_PATH )
 			return( pv.data );
 		
-		if( action.isLinux() )
+		if( action.isLocalLinux() )
 			return( Common.getLinuxPath( pv.data ) );
-		if( action.isWindows() )
+		if( action.isLocalWindows() )
 			return( Common.getWinPath( pv.data ) );
 		
 		action.exitUnexpectedState();
