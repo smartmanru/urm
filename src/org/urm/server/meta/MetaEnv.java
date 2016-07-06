@@ -85,7 +85,11 @@ public class MetaEnv {
 		if( node == null || !node.getNodeName().equals( "env" ) )
 			action.exit( "unable to find environment root node=env" );
 		
-		CONF_SECRETFILESPATH = meta.product.props.getSystemPathProperty( action , "configuration-secretfilespath" , "" );
+		secretProperties = new PropertySet( "secret" , meta.product.props );
+		properties = new PropertySet( "env" , secretProperties );
+		properties.loadRawFromAttributes( action , node );
+		
+		CONF_SECRETFILESPATH = properties.getSystemPathProperty( action , "configuration-secretfilespath" , "" );
 		
 		HiddenFiles hidden = action.artefactory.getHiddenFiles();
 		String propFile = hidden.getSecretPropertyFile( action , CONF_SECRETFILESPATH );
@@ -93,14 +97,10 @@ public class MetaEnv {
 		boolean loadProps = false;
 		if( !propFile.isEmpty() ) {
 			loadProps = ( action.shell.checkFileExists( action , propFile ) )? true : false;
-			if( loadProps )
-				secretProperties = new PropertySet( "secret" , meta.product.props );
-			else
+			if( !loadProps )
 				missingSecretProperties = true;
 		}
 			
-		properties = new PropertySet( "env" , secretProperties );
-		properties.loadRawFromAttributes( action , node );
 		scatterSystemProperties( action );
 		
 		if( loadProps ) {
