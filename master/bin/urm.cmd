@@ -19,6 +19,7 @@ if "%3" == "-offline" set x=1
 if "%4" == "-offline" set x=1
 if "%x%" == "1" (
 	set C_URM_SERVER=
+	set C_URM_MODE=server
 )
 
 set x=0

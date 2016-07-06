@@ -12,6 +12,7 @@ else
 	C_UMR_CLASS=org.urm.client.Main
 	if [ "$1" = "-offline" ] || [ "$2" = "-offline" ] || [ "$3" = "-offline" ] || [ "$4" = "-offline" ]; then
 		C_URM_SERVER=
+		C_URM_MODE=server
 	fi
 fi
 
