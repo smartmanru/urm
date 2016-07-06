@@ -125,7 +125,10 @@ public class FinalMetaStorage {
 		loadProduct( action , storageMeta );
 		loadDistr( action , storageMeta );
 		loadSources( action , storageMeta );
-		loadMonitoring( action , storageMeta );
+		
+		String file = storageMeta.getMonitoringFile( action );
+		if( action.shell.checkFileExists( action , file ) )
+			loadMonitoring( action , storageMeta );
 		
 		for( String envFile : storageMeta.getEnvFiles( action ) )
 			loadEnvData( action , storageMeta , envFile , true );
