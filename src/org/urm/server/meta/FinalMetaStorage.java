@@ -94,7 +94,7 @@ public class FinalMetaStorage {
 		return( mon );
 	}
 	
-	public synchronized MetaEnv loadEnvData( ActionBase action , MetadataStorage storageMeta , String envFile , boolean loadProps ) throws Exception {
+	public synchronized MetaEnv loadEnvData( ActionBase action , MetadataStorage storageMeta , String envFile ) throws Exception {
 		MetaEnv env = envs.get( envFile );
 		if( env != null )
 			return( env );
@@ -103,7 +103,7 @@ public class FinalMetaStorage {
 			action.exit( "environment file name is empty" );
 		
 		MetaEnv envData = new MetaEnv( meta );
-		envData.load( action , storageMeta , envFile , loadProps );
+		envData.load( action , storageMeta , envFile );
 		envs.put( envFile , env );
 		
 		return( envData );
@@ -131,7 +131,7 @@ public class FinalMetaStorage {
 			loadMonitoring( action , storageMeta );
 		
 		for( String envFile : storageMeta.getEnvFiles( action ) )
-			loadEnvData( action , storageMeta , envFile , true );
+			loadEnvData( action , storageMeta , envFile );
 		for( String designFile : storageMeta.getDesignFiles( action ) )
 			loadDesignData( action , storageMeta , designFile );
 	}

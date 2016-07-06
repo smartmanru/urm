@@ -71,7 +71,10 @@ public class FinalMetaLoader {
 
 	public MetaEnv loadEnvData( ActionBase action , FinalMetaStorage storageFinal , String envFile , boolean loadProps ) throws Exception {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
-		return( storageFinal.loadEnvData( action , storageMeta , envFile , loadProps ) );
+		MetaEnv env = storageFinal.loadEnvData( action , storageMeta , envFile );
+		if( loadProps && env.missingSecretProperties )
+			action.exit( "operation is unavailable - secret properties are missing" );
+		return( env );
 	}
 	
 	public MetaDesign loadDesignData( ActionBase action , FinalMetaStorage storageFinal , String fileName ) throws Exception {

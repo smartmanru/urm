@@ -24,6 +24,8 @@ public class MetaEnv {
 	PropertySet properties;
 	PropertySet secretProperties;
 	
+	public boolean missingSecretProperties = false; 
+	
 	public String ID;
 	private String BASELINE;
 	public String REDISTPATH;
@@ -63,7 +65,7 @@ public class MetaEnv {
 		return( BASELINE + ".xml" );
 	}
 	
-	public void load( ActionBase action , MetadataStorage storage , String envFile , boolean loadProps ) throws Exception {
+	public void load( ActionBase action , MetadataStorage storage , String envFile ) throws Exception {
 		if( loaded )
 			return;
 
@@ -74,24 +76,33 @@ public class MetaEnv {
 		
 		action.debug( "read environment definition file " + file + "..." );
 		Document doc = action.readXmlFile( file );
-		loadProperties( action , doc.getDocumentElement() , loadProps );
-		loadDatacenters( action , doc.getDocumentElement() , loadProps );
+		loadProperties( action , doc.getDocumentElement() );
+		loadDatacenters( action , doc.getDocumentElement() );
 		resolveLinks( action );
 	}
 	
-	private void loadProperties( ActionBase action , Node node , boolean loadProps ) throws Exception {
+	private void loadProperties( ActionBase action , Node node ) throws Exception {
 		if( node == null || !node.getNodeName().equals( "env" ) )
 			action.exit( "unable to find environment root node=env" );
 		
-		secretProperties = new PropertySet( "secret" , meta.product.props );
+		HiddenFiles hidden = action.artefactory.getHiddenFiles();
+		String propFile = hidden.getSecretPropertyFile( action , CONF_SECRETFILESPATH );
+		
+		boolean loadProps = false;
+		if( !propFile.isEmpty() ) {
+			loadProps = ( action.shell.checkFileExists( action , propFile ) )? true : false;
+			if( loadProps )
+				secretProperties = new PropertySet( "secret" , meta.product.props );
+			else
+				missingSecretProperties = true;
+		}
+			
 		properties = new PropertySet( "env" , secretProperties );
 		properties.loadRawFromAttributes( action , node );
 		scatterSystemProperties( action );
 		
-		if( loadProps )
-			loadSecretProperties( action );
-		
 		if( loadProps ) {
+			loadSecretProperties( action );
 			properties.loadRawFromElements( action , node );
 			properties.moveRawAsStrings( action );
 		}
@@ -162,14 +173,15 @@ public class MetaEnv {
 		return( retval );
 	}
 	
-	private void loadDatacenters( ActionBase action , Node node , boolean loadProps ) throws Exception {
+	private void loadDatacenters( ActionBase action , Node node ) throws Exception {
 		originalList = new LinkedList<MetaEnvDC>();
 		dcMap = new HashMap<String,MetaEnvDC>();
 		
 		Node[] items = ConfReader.xmlGetChildren( node , "datacenter" );
 		if( items == null )
 			return;
-		
+
+		boolean loadProps = ( secretProperties == null )? false : true;
 		for( Node dcnode : items ) {
 			MetaEnvDC dc = new MetaEnvDC( meta , this );
 			dc.load( action , dcnode , loadProps );
