@@ -4,12 +4,15 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.ExitException;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.server.SessionContext;
 import org.urm.server.action.ActionBase;
-import org.urm.server.storage.MetadataStorage;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 public class Metadata {
+	
+	public FinalMetaLoader loader;
+	public SessionContext session;
+	public FinalMetaStorage storage;
 	
 	public MetaProduct product;
 	public MetaDatabase database;
@@ -166,7 +169,16 @@ public class Metadata {
 		ZIP
 	};
 	
-	public Metadata() {
+	public Metadata( FinalMetaStorage storage , SessionContext session ) {
+		this.storage = storage;
+		this.loader = storage.loader;
+		this.session = session;
+	}
+	
+	public Metadata( FinalMetaLoader loader , SessionContext session ) {
+		this.loader = loader;
+		this.session = session;
+		
 		configurableExtensionsFindOptions = "";
 		for( int k = 0; k < configurableExtensions.length; k++ ) {
 			if( k > 0 )
@@ -178,63 +190,41 @@ public class Metadata {
 	public String getConfigurableExtensionsFindOptions( ActionBase action ) throws Exception {
 		return( configurableExtensionsFindOptions );
 	}
+
+	private synchronized void getStorage( ActionBase action ) throws Exception {
+		if( storage == null )
+			storage = loader.getMetaStorage( action );
+	}
 	
 	public void loadProduct( ActionBase action ) throws Exception {
-		product = new MetaProduct( this );
-		MetadataStorage storage = action.artefactory.getMetadataStorage( action ); 
-		product.load( action , storage );
+		getStorage( action );
+		product = loader.loadProduct( action , storage );
 	}
 	
 	public void loadDistr( ActionBase action ) throws Exception {
-		distr = new MetaDistr( this );
-		MetadataStorage storage = action.artefactory.getMetadataStorage( action );
-		
-		// read xml
-		String file = storage.getDistrFile( action );
-		
-		action.debug( "read distributive definition file " + file + "..." );
-		Document doc = action.readXmlFile( file );
-		Node root = doc.getDocumentElement();
-		
-		loadDatabase( action , ConfReader.xmlGetPathNode( root , "distributive/database" ) );
-		
-		distr.load( action , root );
+		getStorage( action );
+		distr = loader.loadDistr( action , storage );
+		database = loader.loadDatabase( action , storage );
 	}
 
-	public void loadDatabase( ActionBase action , Node node ) throws Exception {
-		database = new MetaDatabase( this );
-		if( node != null )
-			database.load( action , node );
-	}
-	
-	public MetaEnv loadEnvData( ActionBase action , String envFile , boolean loadProps ) throws Exception {
-		if( envFile.isEmpty() )
-			action.exit( "environment file name is empty" );
-		
-		MetaEnv envData = new MetaEnv( this );
-		MetadataStorage storage = action.artefactory.getMetadataStorage( action ); 
-		envData.load( action , storage , envFile , loadProps );
-		return( envData );
-	}
-	
-	public MetaDesign loadDesignData( ActionBase action , String fileName ) throws Exception {
-		MetaDesign design = new MetaDesign( this );
-		MetadataStorage storage = action.artefactory.getMetadataStorage( action ); 
-		design.load( action , storage , fileName );
-		return( design );
-	}
-	
 	public void loadSources( ActionBase action ) throws Exception {
-		sources = new MetaSource( this );
-		MetadataStorage storage = action.artefactory.getMetadataStorage( action ); 
-		sources.load( action , storage );
+		getStorage( action );
+		sources = loader.loadSources( action , storage );
 	}
 
 	public MetaMonitoring loadMonitoring( ActionBase action ) throws Exception {
-		MetaMonitoring mon = new MetaMonitoring( this );
-		MetadataStorage storage = action.artefactory.getMetadataStorage( action ); 
-		mon.load( action , storage );
-		return( mon );
+		getStorage( action );
+		return( loader.loadMonitoring( action , storage ) );
+	}
+	
+	public MetaDesign loadDesignData( ActionBase action , String fileName ) throws Exception {
+		getStorage( action );
+		return( loader.loadDesignData( action , storage , fileName ) );
+	}
+	
+	public MetaEnv loadEnvData( ActionBase action , String envFile , boolean loadProps ) throws Exception {
+		getStorage( action );
+		return( loader.loadEnvData( action , storage , envFile , loadProps ) );
 	}
 	
 	public boolean isConfigurableFile( ActionBase action , String filePath ) throws Exception {

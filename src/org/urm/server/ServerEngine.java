@@ -24,6 +24,7 @@ import org.urm.server.executor.MainExecutor;
 import org.urm.server.executor.MonitorCommandExecutor;
 import org.urm.server.executor.ReleaseCommandExecutor;
 import org.urm.server.executor.XDocCommandExecutor;
+import org.urm.server.meta.FinalMetaLoader;
 import org.urm.server.meta.Metadata;
 import org.urm.server.shell.ShellCoreJNI;
 import org.urm.server.shell.ShellExecutorPool;
@@ -36,9 +37,11 @@ public class ServerEngine {
 	public SessionContext serverSession;
 	public ActionInit serverAction;
 	public ShellExecutorPool pool;
+	public FinalMetaLoader metaLoader;
 	public boolean running;
 	
 	public ServerEngine() {
+		metaLoader = new FinalMetaLoader( this );
 	}
 	
 	public boolean runArgs( String[] args ) throws Exception {
@@ -141,7 +144,7 @@ public class ServerEngine {
 			return( null );
 		
 		// create context
-		Metadata meta = new Metadata();
+		Metadata meta = metaLoader.createMetadata( session );
 		CommandContext context = new CommandContext( this , session , meta , options , stream , call );
 		if( !context.setRunContext() )
 			return( null );
