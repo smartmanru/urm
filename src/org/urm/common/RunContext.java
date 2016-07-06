@@ -16,7 +16,9 @@ public class RunContext implements Serializable {
 	};
 	
 	public boolean mainMode;
-	public boolean serverMode;
+	public boolean standaloneMode;
+	public boolean offlineMode;
+	
 	public String OSTYPE;
 	public VarOSTYPE osType;
 	public String serverHostPort;
@@ -35,29 +37,34 @@ public class RunContext implements Serializable {
 	}
 	
 	public void load() throws Exception {
-		String mode = getProperty( "urm.mode" );
-		if( mode.isEmpty() || mode.equals( "standalone" ) ) {
-			mainMode = false;
-			serverMode = false;
-		}
-		else if( mode.equals( "server" ) ) {
-			mainMode = false;
-			serverMode = true;
-		}
-		else
-		if( mode.equals( "main" ) ) {
-			mainMode = true;
-			serverMode = false;
-		}
-			
 		OSTYPE = getProperty( "urm.os" ).toUpperCase();
 		osType = VarOSTYPE.valueOf( Common.xmlToEnumValue( OSTYPE ) );
 		buildMode = getProperty( "urm.build" ).toUpperCase();
 		envName = getProperty( "urm.env" );
 		dcName = getProperty( "urm.dc" );
 		productDir = getProperty( "urm.product" );
-		serverHostPort = getProperty( "urm.server" );
 		
+		serverHostPort = getProperty( "urm.server" );
+		String mode = getProperty( "urm.mode" );
+		if( mode.isEmpty() || mode.equals( "standalone" ) ) {
+			mainMode = false;
+			standaloneMode = true;
+			offlineMode = true;
+		}
+		else if( mode.equals( "server" ) ) {
+			mainMode = false;
+			standaloneMode = false;
+			offlineMode = ( serverHostPort.isEmpty() )? true : false;
+		}
+		else
+		if( mode.equals( "main" ) ) {
+			mainMode = true;
+			standaloneMode = false;
+			offlineMode = true;
+		}
+		else
+			throw new ExitException( "unexpected mode=" + mode );
+			
 		if( osType == VarOSTYPE.LINUX ) {
 			installPath = getProperty( "urm.installpath" );
 			
