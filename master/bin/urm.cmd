@@ -6,7 +6,7 @@ cd ..\..
 set C_URM_INSTALLPATH=%CD%
 
 if "%C_URM_MODE%" == "main" (
-	set C_URM_URMSERVER=
+	set C_URM_SERVER=
 	set C_UMR_CLASS=org.urm.server.Main
 ) else (
 	set C_UMR_CLASS=org.urm.client.Main
@@ -16,7 +16,7 @@ if "%C_URM_MODE%" == "main" (
 	if "%3" == "-offline" set x=1
 	if "%4" == "-offline" set x=1
 	if "%x%" == "1" (
-		set C_URM_URMSERVER=
+		set C_URM_SERVER=
 	)
 )
 
