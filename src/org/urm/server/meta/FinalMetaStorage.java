@@ -38,8 +38,9 @@ public class FinalMetaStorage {
 			return( product );
 		
 		product = new MetaProduct( meta );
-		product.load( action , storageMeta );
 		meta.product = product;
+		
+		product.load( action , storageMeta );
 		
 		return( product );
 	}
@@ -49,10 +50,10 @@ public class FinalMetaStorage {
 			return( distr );
 		
 		distr = new MetaDistr( meta );
-		MetadataStorage storage = action.artefactory.getMetadataStorage( action );
+		meta.distr = distr;
 		
 		// read xml
-		String file = storage.getDistrFile( action );
+		String file = storageMeta.getDistrFile( action );
 		
 		action.debug( "read distributive definition file " + file + "..." );
 		Document doc = action.readXmlFile( file );
@@ -61,7 +62,6 @@ public class FinalMetaStorage {
 		loadDatabase( action , ConfReader.xmlGetPathNode( root , "distributive/database" ) );
 		
 		distr.load( action , root );
-		meta.distr = distr;
 		
 		return( distr );
 	}
@@ -78,6 +78,7 @@ public class FinalMetaStorage {
 			return( sources );
 		
 		sources = new MetaSource( meta );
+		meta.sources = sources;
 		sources.load( action , storageMeta );
 		
 		return( sources );
@@ -134,10 +135,10 @@ public class FinalMetaStorage {
 	
 	private void loadDatabase( ActionBase action , Node node ) throws Exception {
 		database = new MetaDatabase( meta );
+		meta.database = database;
+		
 		if( node != null )
 			database.load( action , node );
-		
-		meta.database = database;
 	}
 	
 }
