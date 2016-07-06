@@ -10,14 +10,15 @@ if "%C_URM_MODE%" == "main" (
 	set C_UMR_CLASS=org.urm.server.Main
 ) else (
 	set C_UMR_CLASS=org.urm.client.Main
-	set x=0
-	if "%1" == "-offline" set x=1
-	if "%2" == "-offline" set x=1
-	if "%3" == "-offline" set x=1
-	if "%4" == "-offline" set x=1
-	if "%x%" == "1" (
-		set C_URM_SERVER=
-	)
+)
+
+set x=0
+if "%1" == "-offline" set x=1
+if "%2" == "-offline" set x=1
+if "%3" == "-offline" set x=1
+if "%4" == "-offline" set x=1
+if "%x%" == "1" (
+	set C_URM_SERVER=
 )
 
 set x=0
