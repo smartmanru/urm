@@ -119,6 +119,18 @@ public class FinalMetaStorage {
 		
 		return( design );
 	}
+
+	public synchronized void loadAll( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+		loadProduct( action , storageMeta );
+		loadDistr( action , storageMeta );
+		loadSources( action , storageMeta );
+		loadMonitoring( action , storageMeta );
+		
+		for( String envFile : storageMeta.getEnvFiles( action ) )
+			loadEnvData( action , storageMeta , envFile , true );
+		for( String designFile : storageMeta.getDesignFiles( action ) )
+			loadDesignData( action , storageMeta , designFile );
+	}
 	
 	private void loadDatabase( ActionBase action , Node node ) throws Exception {
 		database = new MetaDatabase( meta );

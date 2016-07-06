@@ -70,6 +70,8 @@ public class ServerEngine {
 		running = true;
 		createPool();
 		startAction( serverAction );
+		metaLoader.loadServerProducts( serverAction );
+		
 		return( runServerAction( serverSession , executor ) );
 	}
 	
@@ -92,6 +94,7 @@ public class ServerEngine {
 		createPool();
 		startAction( serverAction );
 		serverAction.meta.loadProduct( serverAction );
+		
 		return( runServerAction( serverSession , executor ) );
 	}
 		
@@ -256,5 +259,5 @@ public class ServerEngine {
 		
 		stopPool();
 	}
-	
+
 }

@@ -6,7 +6,9 @@ import java.util.Map;
 import org.urm.server.ServerEngine;
 import org.urm.server.SessionContext;
 import org.urm.server.action.ActionBase;
+import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.MetadataStorage;
+import org.urm.server.storage.UrmStorage;
 
 public class FinalMetaLoader {
 
@@ -75,6 +77,26 @@ public class FinalMetaLoader {
 	public MetaDesign loadDesignData( ActionBase action , FinalMetaStorage storageFinal , String fileName ) throws Exception {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 		return( storageFinal.loadDesignData( action , storageMeta , fileName ) );
+	}
+
+	public void loadServerProducts( ActionBase action ) throws Exception {
+		UrmStorage urm = action.artefactory.getUrmStorage();
+		LocalFolder pfProducts = urm.getServerProductsFolder( action );
+		
+		if( !pfProducts.checkExists( action ) )
+			action.exit( "before configure, please create directory: " + pfProducts.folderPath );
+
+		for( String productDir : pfProducts.getTopDirs( action ) ) {
+			action.session.setServerProductLayout( productDir );
+			MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
+			
+			FinalMetaStorage storage = new FinalMetaStorage( this , action.session );
+			storage.loadAll( action , storageMeta );
+			
+			productMeta.put( productDir , storage );
+		}
+		
+		action.session.clearServerProductLayout();
 	}
 	
 }

@@ -56,9 +56,9 @@ public class SessionContext {
 		productDir = "";
 		masterPath = Common.getPath( installPath , "master" );
 		binPath = Common.getPath( masterPath , "bin" );
+		etcPath = Common.getPath( installPath , "etc" );
 		
 		productPath = "";
-		etcPath = "";
 		proxyPath = "";
 	}
 	
@@ -73,6 +73,17 @@ public class SessionContext {
 		productPath = Common.getPath( installPath , "products" , productDir );
 		etcPath = Common.getPath( productPath , "etc" );
 		proxyPath = Common.getPath( productPath , "master" );
+	}
+	
+	public void clearServerProductLayout() throws Exception {
+		standalone = false;
+		product = false;
+		
+		etcPath = Common.getPath( installPath , "etc" );
+		
+		productDir = "";
+		productPath = "";
+		proxyPath = "";
 	}
 	
 	public void setServerClientLayout( SessionContext serverSession ) throws Exception {
