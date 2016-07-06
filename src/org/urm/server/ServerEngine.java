@@ -75,10 +75,12 @@ public class ServerEngine {
 		CommandExecutor executor = createExecutor( commandInfo );
 		serverSession = new SessionContext( this , clientrc , 0 );
 		
-		if( clientrc.productDir.isEmpty() )
+		if( execrc.standaloneMode )
 			serverSession.setStandaloneLayout( options );
-		else
+		else {
+			serverSession.setServerLayout( options );
 			serverSession.setServerProductLayout( clientrc.productDir );
+		}
 		
 		serverAction = createAction( options , executor , serverSession , "client" , null );
 		if( serverAction == null )
