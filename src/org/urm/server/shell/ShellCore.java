@@ -255,12 +255,12 @@ abstract class ShellCore {
 
 	public void runCommandCritical( ActionBase action , String cmd ) throws Exception {
 		if( action.isExecute() ) {
-			action.debug( executor.name + ": execute " + cmd );
+			action.debug( executor.name + ": critical execute " + cmd );
 			cmdAppendExecuteLog( action , "run: " + cmd );
 			runCommand( action , cmd , CommandOutput.LOGLEVEL_INFO );
 		}
 		else {
-			action.debug( executor.name + ": showonly " + cmd );
+			action.debug( executor.name + ": critical showonly " + cmd );
 		}
 	}
 	

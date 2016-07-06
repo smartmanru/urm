@@ -36,6 +36,8 @@ public class ServerProcess {
 	}
 
 	public void gatherStatus( ActionBase action ) throws Exception {
+		action.debug( node.HOSTLOGIN + ": check status srv=" + srv.NAME + " ..." );
+		
 		mode = VarPROCESSMODE.UNKNOWN;
 		if( isService( action ) )
 			gatherServiceStatus( action );
@@ -199,6 +201,8 @@ public class ServerProcess {
 	}
 
 	public boolean stop( ActionBase action ) throws Exception {
+		action.debug( node.HOSTLOGIN + ": stop srv=" + srv.NAME + " ..." );
+		
 		boolean res = false;
 		if( isService( action ) )
 			res = stopService( action );
@@ -287,6 +291,8 @@ public class ServerProcess {
 	}
 
 	public boolean waitStopped( ActionBase action , long startMillis ) throws Exception {
+		action.debug( node.HOSTLOGIN + ": wait stopped srv=" + srv.NAME + " ..." );
+		
 		boolean res = false;
 		if( isService( action ) )
 			res = waitStoppedService( action , startMillis );
@@ -409,6 +415,8 @@ public class ServerProcess {
 	}
 	
 	public boolean start( ActionBase action ) throws Exception {
+		action.debug( node.HOSTLOGIN + ": start srv=" + srv.NAME + " ..." );
+		
 		boolean res = false;
 		if( isService( action ) )
 			res = startService( action );
@@ -499,6 +507,8 @@ public class ServerProcess {
 	}
 
 	public boolean waitStarted( ActionBase action , long startMillis ) throws Exception {
+		action.debug( node.HOSTLOGIN + ": wait started srv=" + srv.NAME + " ..." );
+		
 		boolean res = false;
 		if( isService( action ) )
 			res = waitStartedService( action , startMillis );

@@ -91,7 +91,7 @@ public abstract class ShellExecutor {
 	}
 
 	public void release( ActionBase action ) {
-		action.debug( "release shell=" + name );
+		action.trace( "release shell=" + name );
 		pool.releaseShell( action , this );
 	}
 	
