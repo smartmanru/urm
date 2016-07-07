@@ -341,6 +341,7 @@ public class ShellExecutorPool implements Runnable {
 		cmd += " < /dev/tty > /dev/tty 2>&1";
 		
 		action.trace( account.getPrintName() + " execute: " + cmd );
+
 		ProcessBuilder pb = new ProcessBuilder( "sh" , "-c" , cmd );
 		Process p = pb.start();
 		p.waitFor();
@@ -355,6 +356,7 @@ public class ShellExecutorPool implements Runnable {
 		cmd += account.USER + "@" + account.HOST;
 		
 		action.trace( account.getPrintName() + " execute: " + cmd );
+		
 		ProcessBuilder pb = new ProcessBuilder( "cmd" , "/C" , cmd );
 		Process p = pb.start();
 		p.waitFor();
@@ -368,7 +370,6 @@ public class ShellExecutorPool implements Runnable {
 		action.trace( account.getPrintName() + " execute: " + cmd );
 		
 		ServerCommandCall call = action.context.call;
-		action.trace( account.getPrintName() + " execute: " + cmd );
 		ProcessBuilder pb = new ProcessBuilder( "sh" , "-c" , cmd , "2>&1" );
 		call.executeInteractive( call , pb );
 	}
@@ -384,7 +385,6 @@ public class ShellExecutorPool implements Runnable {
 		action.trace( account.getPrintName() + " execute: " + cmd );
 		
 		ServerCommandCall call = action.context.call;
-		action.trace( account.getPrintName() + " execute: " + cmd );
 		ProcessBuilder pb = new ProcessBuilder( "cmd" , "/C" , cmd , "2>&1" );
 		call.executeInteractive( call , pb );
 	}
