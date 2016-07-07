@@ -87,7 +87,6 @@ public class ServerCommandCall implements Runnable {
 		synchronized( this ) {
 			if( !waitConnectFinished )
 				wait();
-			waitConnectMode = false;
 		}
 		
 		if( waitConnectSucceeded )
@@ -95,6 +94,7 @@ public class ServerCommandCall implements Runnable {
 		else
 			action.info( "failed to connect to " + shellInteractive.account.getPrintName() );
 		
+		waitConnectMode = false;
 		return( waitConnectSucceeded );
 	}
 
