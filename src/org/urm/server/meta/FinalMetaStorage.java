@@ -124,6 +124,7 @@ public class FinalMetaStorage {
 	public synchronized void loadAll( ActionBase action , MetadataStorage storageMeta ) throws Exception {
 		action.meta.product = loadProduct( action , storageMeta );
 		action.meta.distr = loadDistr( action , storageMeta );
+		action.meta.database = meta.database;
 		action.meta.sources = loadSources( action , storageMeta );
 		
 		String file = storageMeta.getMonitoringFile( action );
