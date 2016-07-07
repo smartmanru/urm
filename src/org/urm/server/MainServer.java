@@ -72,7 +72,7 @@ public class MainServer {
 		SessionContext session = new SessionContext( engine , data.clientrc , call.sessionId );
 		session.setServerClientLayout( engine.serverSession );
 		
-		ActionInit action = engine.createAction( options , executor , session , "remote-" + data.clientrc.productDir , call );
+		ActionInit action = engine.createAction( options , executor , session , "rjmx-" + data.clientrc.productDir , call );
 		if( action == null )
 			return( null );
 
@@ -89,7 +89,7 @@ public class MainServer {
 		SessionContext session = new SessionContext( engine , engine.execrc , sessionId );
 		session.setServerProductLayout( productDir );
 		
-		ActionInit action = engine.createAction( options , executor , session , "jmx-" + engine.execrc.productDir , null );
+		ActionInit action = engine.createAction( options , executor , session , "cjmx-" + engine.execrc.productDir , null );
 		if( action == null )
 			return( false );
 
