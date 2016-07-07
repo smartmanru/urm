@@ -363,6 +363,9 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		}
 		
 		int sessionId = notifyExecuteSpecific( name , args );
+		if( sessionId < 0 )
+			return( null );
+		
 		return( "" + sessionId );
 	}
 	
@@ -413,7 +416,9 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		action.debug( "operation invoked, sessionId=" + sessionId );
 		
 		ServerCommandCall thread = new ServerCommandCall( sessionId , clientId , this , actionName , data );
-		thread.start();
+		if( !thread.start() )
+			return( -1 );
+		
 		return( sessionId );
 	}
 	

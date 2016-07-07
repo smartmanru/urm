@@ -46,24 +46,29 @@ public class ServerCommandCall implements Runnable {
 		server = command.controller.server; 
 	}
 	
-    public void start() {
+	public boolean start() {
+    	try {
+    		CommandMethod method = command.meta.getAction( actionName );
+    		action = server.createRemoteAction( this , method , data );
+    	}
+    	catch( Throwable e ) {
+    		command.notifyLog( sessionId , e );
+        	return( false );
+    	}
+    	
+    	if( action == null )
+    		return( false );
+    	
         Thread thread = new Thread( null , this , getClass().getSimpleName() );
         server.threadStarted( this );
         thread.start();
+        
+        return( true );
     }
 
     @Override
     public void run() {
-    	try {
-    		CommandMethod method = command.meta.getAction( actionName );
-    		action = server.createRemoteAction( this , method , data );
-    		if( action != null )
-    			server.runClientAction( action );
-    	}
-    	catch( Throwable e ) {
-        	command.notifyLog( sessionId , e );
-    	}
-    	
+		server.runClientAction( action );
     	command.notifyStop( sessionId );
     	server.threadStopped( this );
     }
