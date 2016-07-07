@@ -41,6 +41,9 @@ abstract public class ActionBase {
 	protected CommandOutput output;
 	boolean actionFailed;
 
+	private static int instanceSequence = 0;
+	
+	public int ID;
 	public String NAME;
 	public int commandTimeout;
 	
@@ -62,6 +65,8 @@ abstract public class ActionBase {
 	protected void runAfter( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
 	
 	public ActionBase( SessionContext session , Artefactory artefactory , CommandExecutor executor , CommandContext context , CommandOutput output ) {
+		ID = instanceSequence++;
+		
 		this.session = session;
 		this.executor = executor;
 		this.output = output;
@@ -79,6 +84,8 @@ abstract public class ActionBase {
 	}
 
 	public ActionBase( ActionBase base , String stream ) {
+		ID = instanceSequence++;
+		
 		this.session = base.session;
 		this.executor = base.executor;
 		this.output = base.output;

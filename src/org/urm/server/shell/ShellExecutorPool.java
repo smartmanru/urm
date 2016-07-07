@@ -224,6 +224,7 @@ public class ShellExecutorPool implements Runnable {
 		if( map == null ) {
 			map = new HashMap<String,ShellExecutor>();
 			actionSessions.put( action , map );
+			engine.serverAction.trace( "register in session pool action ID=" + action.ID );
 		}
 		return( map );
 	}
@@ -268,11 +269,11 @@ public class ShellExecutorPool implements Runnable {
 			synchronized( this ) {
 				if( pool.get( shell.name ) == null ) {
 					pool.put( shell.name , shell );
-					engine.serverAction.trace( "return action session to pool name=" + shell.name );
+					engine.serverAction.trace( "return session to pool name=" + shell.name );
 				}
 				else {
 					pending.add( shell );
-					engine.serverAction.trace( "put action session to pending name=" + shell.name );
+					engine.serverAction.trace( "put session to pending name=" + shell.name );
 				}
 			}
 		}
@@ -293,6 +294,7 @@ public class ShellExecutorPool implements Runnable {
 				return;
 			
 			actionSessions.remove( action );
+			engine.serverAction.trace( "unregister in session pool action ID=" + action.ID );
 			sessions = map.values().toArray( new ShellExecutor[0] );
 		}
 			
