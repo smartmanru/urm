@@ -125,7 +125,7 @@ public class ShellInteractive extends Shell {
 		reader = new BufferedReader( new InputStreamReader( stdout ) );
 		errreader = new BufferedReader( new InputStreamReader( stderr ) );
 		
-		addInput( "echo " + CONNECT_MARKER );
+		addInput( action , "echo " + CONNECT_MARKER );
 		
 		WaiterCommand waiter = new WaiterCommand( action.context.logLevelLimit , reader , errreader );
 		if( !waiter.waitForMarker( action , CONNECT_MARKER ) )
@@ -134,15 +134,18 @@ public class ShellInteractive extends Shell {
 
 	public void runInteractive( ActionBase action ) throws Exception {
 		start( action );
-		process.waitFor();
+		waitFinished( action );
 	}
 	
 	public void waitFinished( ActionBase action ) throws Exception {
 		WaiterCommand waiter = new WaiterCommand( action.context.logLevelLimit , reader , errreader );
+		
+		action.trace( name + " wait process to finish ..." );
 		waiter.waitForProcess( action , process );
 	}
 	
-	public void addInput( String input ) throws Exception {
+	public void addInput( ActionBase action , String input ) throws Exception {
+		action.trace( name + " add to input: " + input );
 		if( account.isLinux() )
 			writer.write( input + "\n" );
 		else

@@ -86,7 +86,7 @@ public class ServerCommandCall implements Runnable {
 			return;
 		
 		action.trace( shellInteractive.name + " execute: " + input );
-		shellInteractive.addInput( input );
+		shellInteractive.addInput( action , input );
 	}
 	
 	public boolean waitConnect() throws Exception {
