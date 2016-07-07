@@ -95,11 +95,21 @@ abstract public class ActionBase {
 		NAME = this.getClass().getSimpleName();
 		actionFailed = false;
 	}
+
+	public void setServerProductLayout( String productDir ) throws Exception {
+		session.setServerProductLayout( productDir );
+		meta.clearAll();
+	}
+	
+	public void clearServerProductLayout() throws Exception {
+		session.clearServerProductLayout();
+		meta.clearAll();
+	}
 	
 	public void setShell( ShellExecutor session ) throws Exception {
 		this.shell = session;
 	}
-	
+
 	public boolean isFailed() {
 		return( actionFailed );
 	}

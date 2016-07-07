@@ -13,6 +13,7 @@ import org.w3c.dom.Node;
 public class FinalMetaStorage {
 
 	public FinalMetaLoader loader;
+	public SessionContext session;
 	
 	private Metadata meta;
 	
@@ -27,6 +28,7 @@ public class FinalMetaStorage {
 	
 	public FinalMetaStorage( FinalMetaLoader loader , SessionContext session ) {
 		this.loader = loader;
+		this.session = session;
 		
 		meta = new Metadata( this , session );
 		designFiles = new HashMap<String,MetaDesign>();
@@ -38,9 +40,8 @@ public class FinalMetaStorage {
 			return( product );
 		
 		product = new MetaProduct( meta );
-		meta.product = product;
-		
 		product.load( action , storageMeta );
+		meta.setProduct( product );
 		
 		return( product );
 	}
@@ -50,7 +51,6 @@ public class FinalMetaStorage {
 			return( distr );
 		
 		distr = new MetaDistr( meta );
-		meta.distr = distr;
 		
 		// read xml
 		String file = storageMeta.getDistrFile( action );
@@ -62,6 +62,7 @@ public class FinalMetaStorage {
 		loadDatabase( action , ConfReader.xmlGetPathNode( root , "distributive/database" ) );
 		
 		distr.load( action , root );
+		meta.setDistr( distr );
 		
 		return( distr );
 	}
@@ -78,8 +79,8 @@ public class FinalMetaStorage {
 			return( sources );
 		
 		sources = new MetaSource( meta );
-		meta.sources = sources;
 		sources.load( action , storageMeta );
+		meta.setSources( sources );
 		
 		return( sources );
 	}
@@ -139,7 +140,7 @@ public class FinalMetaStorage {
 	
 	private void loadDatabase( ActionBase action , Node node ) throws Exception {
 		database = new MetaDatabase( meta );
-		meta.database = database;
+		meta.setDatabase( database );
 		
 		if( node != null )
 			database.load( action , node );

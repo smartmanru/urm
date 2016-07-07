@@ -187,6 +187,29 @@ public class Metadata {
 		}
 	}
 	
+	public void setProduct( MetaProduct product ) {
+		this.product = product;
+	}
+	
+	public void setDistr( MetaDistr distr ) {
+		this.distr = distr;
+	}
+	
+	public void setDatabase( MetaDatabase database ) {
+		this.database = database;
+	}
+	
+	public void setSources( MetaSource sources ) {
+		this.sources = sources;
+	}
+	
+	public void clearAll() {
+		this.product = null;
+		this.distr = null;
+		this.database = null;
+		this.sources = null;
+	}
+	
 	public String getConfigurableExtensionsFindOptions( ActionBase action ) throws Exception {
 		return( configurableExtensionsFindOptions );
 	}
@@ -195,7 +218,7 @@ public class Metadata {
 		if( storage == null )
 			storage = loader.getMetaStorage( action );
 	}
-	
+
 	public void loadProduct( ActionBase action ) throws Exception {
 		getStorage( action );
 		product = loader.loadProduct( action , storage );

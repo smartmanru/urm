@@ -90,16 +90,15 @@ public class FinalMetaLoader {
 			action.exit( "before configure, please create directory: " + pfProducts.folderPath );
 
 		for( String productDir : pfProducts.getTopDirs( action ) ) {
-			action.session.setServerProductLayout( productDir );
-			MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
+			action.setServerProductLayout( productDir );
 			
+			MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 			FinalMetaStorage storage = new FinalMetaStorage( this , action.session );
 			storage.loadAll( action , storageMeta );
-			
 			productMeta.put( productDir , storage );
+			
+			action.clearServerProductLayout();
 		}
-		
-		action.session.clearServerProductLayout();
 	}
 	
 }

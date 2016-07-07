@@ -45,9 +45,10 @@ public class ActionSave extends ActionBase {
 		for( String product : pfProducts.getTopDirs( this ) ) {
 			info( "save product=" + product + " ..." );
 			found = true;
-			context.session.setServerProductLayout( product );
+			setServerProductLayout( product );
 			LocalFolder productFolder = pfProducts.getSubFolder( this , product );
 			saveProduct( productFolder , false );
+			clearServerProductLayout();
 		}
 		
 		if( !found )

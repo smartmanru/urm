@@ -112,8 +112,9 @@ public class ActionConfigure extends ActionBase {
 		for( String productDir : pfProducts.getTopDirs( this ) ) {
 			info( "configure product folder=" + productDir + " ..." );
 			found = true;
-			context.session.setServerProductLayout( productDir );
+			setServerProductLayout( productDir );
 			configureProduct( initial , false );
+			clearServerProductLayout();
 		}
 		
 		if( !found )
