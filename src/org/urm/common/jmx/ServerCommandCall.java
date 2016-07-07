@@ -71,7 +71,6 @@ public class ServerCommandCall implements Runnable {
 		shellInteractive = shell;
 		waitConnectMode = true;
 		shell.start( action );
-		waitConnect();
 	}
     
 	public void addInput( String input ) throws Exception {
@@ -88,6 +87,7 @@ public class ServerCommandCall implements Runnable {
 		synchronized( this ) {
 			if( !waitConnectFinished )
 				wait();
+			waitConnectMode = false;
 		}
 		
 		if( waitConnectSucceeded )
