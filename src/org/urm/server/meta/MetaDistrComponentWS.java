@@ -6,7 +6,7 @@ import org.w3c.dom.Node;
 
 public class MetaDistrComponentWS {
 
-	Metadata meta;
+	protected Metadata meta;
 	MetaDistrComponent comp;
 	
 	public String URL;

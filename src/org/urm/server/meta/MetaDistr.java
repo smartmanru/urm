@@ -13,7 +13,7 @@ public class MetaDistr {
 
 	boolean loaded = false;
 
-	Metadata meta;
+	protected Metadata meta;
 	private Map<String,MetaDistrDelivery> mapDeliveries;
 	private Map<String,MetaDistrBinaryItem> mapBinaryItems;
 	private Map<String,MetaDistrConfItem> mapConfItems;

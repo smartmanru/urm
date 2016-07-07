@@ -8,7 +8,7 @@ import org.w3c.dom.Node;
 
 public class MetaEnvServerNode {
 
-	Metadata meta;
+	protected Metadata meta;
 	public MetaEnvServer server;
 	
 	public int POS;
@@ -47,7 +47,7 @@ public class MetaEnvServerNode {
 			INSTANCE = properties.getSystemRequiredStringProperty( action , "instance" );
 		
 		NODETYPE = properties.getSystemStringProperty( action , "type" , "self" );
-		nodeType = action.meta.getNodeType( NODETYPE , VarNODETYPE.SELF );
+		nodeType = meta.getNodeType( NODETYPE , VarNODETYPE.SELF );
 		
 		OFFLINE = properties.getSystemBooleanProperty( action , "offline" , false );
 		STANDBY = properties.getSystemBooleanProperty( action , "standby" , false );

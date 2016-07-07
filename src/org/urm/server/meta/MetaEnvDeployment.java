@@ -5,7 +5,7 @@ import org.w3c.dom.Node;
 
 public class MetaEnvDeployment {
 
-	Metadata meta;
+	protected Metadata meta;
 	public MetaEnvDC dc;
 	
 	public MetaEnvDeployment( Metadata meta , MetaEnvDC dc ) {

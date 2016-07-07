@@ -9,7 +9,7 @@ import org.w3c.dom.Node;
 
 public class MetaDatabase {
 
-	Metadata meta;
+	protected Metadata meta;
 
 	public Map<String,MetaDatabaseSchema> mapSchema = new HashMap<String,MetaDatabaseSchema>();
 	public Map<String,MetaDatabaseDatagroup> mapDatagroup = new HashMap<String,MetaDatabaseDatagroup>();

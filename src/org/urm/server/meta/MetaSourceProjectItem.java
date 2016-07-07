@@ -24,7 +24,7 @@ public class MetaSourceProjectItem {
 	public String NUGET_PLATFORM;
 	public String NUGET_LIBNAME;
 
-	Metadata meta;
+	protected Metadata meta;
 	public MetaDistrBinaryItem distItem;
 	public MetaSourceProject project;
 	

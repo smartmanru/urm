@@ -32,7 +32,7 @@ public class MetaFapBase {
 		SINGLEFILE
 	};
 	
-	public Metadata meta;
+	protected Metadata meta;
 	public BaseRepository repo;
 	public boolean primary;
 	
@@ -186,7 +186,7 @@ public class MetaFapBase {
 		adm = props.getSystemBooleanProperty( action , "adminstall" , false );
 		
 		String OSTYPE = props.getSystemStringProperty( action , "ostype" , null );
-		osType = action.meta.getOSType( OSTYPE );
+		osType = meta.getOSType( OSTYPE );
 
 		String CHARSET = props.getSystemStringProperty( action , "charset" , "" );
 		if( !CHARSET.isEmpty() ) {
@@ -202,7 +202,7 @@ public class MetaFapBase {
 			SERVERTYPE = props.getSystemStringProperty( action , "servertype" , null );
 		
 		if( SERVERTYPE != null )
-			serverType = action.meta.getServerType( SERVERTYPE );
+			serverType = meta.getServerType( SERVERTYPE );
 		
 		// type properties
 		if( isLinuxArchiveLink() )

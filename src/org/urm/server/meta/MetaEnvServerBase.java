@@ -10,7 +10,7 @@ import org.w3c.dom.Node;
 
 public class MetaEnvServerBase {
 
-	Metadata meta;
+	protected Metadata meta;
 	public MetaEnvServer server;
 
 	public String ID;

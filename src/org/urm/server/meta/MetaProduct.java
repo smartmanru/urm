@@ -16,7 +16,7 @@ public class MetaProduct {
 	public PropertySet props;
 	boolean loaded = false;
 	
-	Metadata meta;
+	protected Metadata meta;
 	String lastProdTagFile;
 	public Charset charset;
 	

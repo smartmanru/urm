@@ -11,7 +11,7 @@ import org.w3c.dom.Node;
 
 public class MetaMonitoring {
 	
-	Metadata meta;
+	protected Metadata meta;
 	boolean loaded = false;
 
 	Map<String,MetaMonitoringTarget> mapEnvs;

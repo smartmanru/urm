@@ -6,7 +6,7 @@ import org.w3c.dom.Node;
 
 public class MetaMonitoringItem {
 
-	Metadata meta;
+	protected Metadata meta;
 	MetaMonitoringTarget target;
 	
 	public String NAME;

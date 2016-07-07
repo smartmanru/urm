@@ -13,7 +13,7 @@ import org.w3c.dom.Node;
 
 public class MetaEnvStartGroup {
 
-	Metadata meta;
+	protected Metadata meta;
 	public MetaEnvStartInfo startInfo;
 	
 	public String NAME;

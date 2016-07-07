@@ -11,7 +11,7 @@ import org.w3c.dom.Node;
 
 public class MetaEnvStartInfo {
 
-	Metadata meta;
+	protected Metadata meta;
 	public MetaEnvDC dc;
 	
 	Map<String,MetaEnvStartGroup> groupMap;

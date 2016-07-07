@@ -30,7 +30,7 @@ public class MetaDesign {
 	
 	boolean loaded = false;
 
-	Metadata meta;
+	protected Metadata meta;
 	public Map<String,MetaDesignElement> childs;
 	public Map<String,MetaDesignElement> groups;
 	public Map<String,MetaDesignElement> elements;

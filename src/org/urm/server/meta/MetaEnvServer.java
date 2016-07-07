@@ -18,7 +18,7 @@ import org.w3c.dom.Node;
 
 public class MetaEnvServer {
 
-	Metadata meta;
+	protected Metadata meta;
 	public MetaEnvDC dc;
 	
 	public String NAME;
@@ -97,7 +97,7 @@ public class MetaEnvServer {
 	}
 	
 	public void load( ActionBase action , Node node , boolean loadProps ) throws Exception {
-		if( action.meta.distr != null )
+		if( meta.distr != null )
 			loadDeployments( action , node );
 		
 		properties = new PropertySet( "server" , dc.properties );
@@ -145,7 +145,7 @@ public class MetaEnvServer {
 		// verify aligned
 		if( isDatabase( action ) ) {
 			for( String id : Common.splitSpaced( ALIGNED ) )
-				action.meta.database.checkAligned( action , id );
+				meta.database.checkAligned( action , id );
 		}
 	}
 	
@@ -180,8 +180,8 @@ public class MetaEnvServer {
 			BASELINE = NAME;
 		
 		SERVERTYPE = properties.getSystemRequiredStringProperty( action , "type" );
-		serverType = action.meta.getServerType( SERVERTYPE );
-		osType = action.meta.getOSType( properties.getSystemStringProperty( action , "ostype" , "unix" ) );
+		serverType = meta.getServerType( SERVERTYPE );
+		osType = meta.getOSType( properties.getSystemStringProperty( action , "ostype" , "unix" ) );
 		OFFLINE = properties.getSystemBooleanProperty( action , "offline" , false );
 		XDOC = properties.getSystemPathProperty( action , "xdoc" , NAME );
 		
@@ -217,14 +217,14 @@ public class MetaEnvServer {
 		}
 		
 		if( isDatabase( action ) ) {
-			dbType = action.meta.getDbmsType( properties.getSystemRequiredStringProperty( action , "dbmstype" ) );
+			dbType = meta.getDbmsType( properties.getSystemRequiredStringProperty( action , "dbmstype" ) );
 			DBMSADDR = properties.getSystemRequiredStringProperty( action , "dbmsaddr" );
 			DATAGROUPS = properties.getSystemRequiredStringProperty( action , "datagroups" );
 			ALIGNED = properties.getSystemStringProperty( action , "aligned" , "" );
 			REGIONS = properties.getSystemStringProperty( action , "regions" , "" );
 			ADMSCHEMA = properties.getSystemStringProperty( action , "admschema" , "" );
 			
-			if( action.meta.distr != null ) {
+			if( meta.distr != null ) {
 				MetaDatabase database = action.meta.database;
 				for( String dg : Common.splitSpaced( DATAGROUPS ) ) {
 					MetaDatabaseDatagroup datagroup = database.getDatagroup( action , dg );

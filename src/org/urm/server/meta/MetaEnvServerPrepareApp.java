@@ -7,7 +7,7 @@ import org.w3c.dom.Node;
 
 public class MetaEnvServerPrepareApp {
 
-	Metadata meta;
+	protected Metadata meta;
 	public MetaEnvServerBase base;
 
 	public String APP;

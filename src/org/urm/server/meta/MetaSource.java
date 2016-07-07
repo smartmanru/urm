@@ -20,7 +20,7 @@ public class MetaSource {
 	Map<String,MetaSourceProject> projectMap;
 	boolean loaded = false;
 	
-	Metadata meta;
+	protected Metadata meta;
 	
 	public MetaSource( Metadata meta ) {
 		this.meta = meta;

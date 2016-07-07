@@ -40,8 +40,8 @@ public class FinalMetaStorage {
 			return( product );
 		
 		product = new MetaProduct( meta );
-		product.load( action , storageMeta );
 		meta.setProduct( product );
+		product.load( action , storageMeta );
 		
 		return( product );
 	}
@@ -51,6 +51,7 @@ public class FinalMetaStorage {
 			return( distr );
 		
 		distr = new MetaDistr( meta );
+		meta.setDistr( distr );
 		
 		// read xml
 		String file = storageMeta.getDistrFile( action );
@@ -62,7 +63,6 @@ public class FinalMetaStorage {
 		loadDatabase( action , ConfReader.xmlGetPathNode( root , "distributive/database" ) );
 		
 		distr.load( action , root );
-		meta.setDistr( distr );
 		
 		return( distr );
 	}
@@ -79,8 +79,8 @@ public class FinalMetaStorage {
 			return( sources );
 		
 		sources = new MetaSource( meta );
-		sources.load( action , storageMeta );
 		meta.setSources( sources );
+		sources.load( action , storageMeta );
 		
 		return( sources );
 	}
@@ -123,10 +123,14 @@ public class FinalMetaStorage {
 	}
 
 	public synchronized void loadAll( ActionBase action , MetadataStorage storageMeta ) throws Exception {
-		action.meta.product = loadProduct( action , storageMeta );
-		action.meta.distr = loadDistr( action , storageMeta );
-		action.meta.database = meta.database;
-		action.meta.sources = loadSources( action , storageMeta );
+		loadProduct( action , storageMeta );
+		loadDistr( action , storageMeta );
+		loadSources( action , storageMeta );
+		
+		action.meta.setProduct( product );
+		action.meta.setDistr( distr );
+		action.meta.setDatabase( database );
+		action.meta.setSources( sources );
 		
 		String file = storageMeta.getMonitoringFile( action );
 		if( action.shell.checkFileExists( action , file ) )

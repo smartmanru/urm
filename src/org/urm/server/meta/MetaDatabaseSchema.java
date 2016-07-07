@@ -9,7 +9,7 @@ import org.w3c.dom.Node;
 
 public class MetaDatabaseSchema {
 
-	Metadata meta;
+	protected Metadata meta;
 	public MetaDatabase database;
 
 	public String SCHEMA;

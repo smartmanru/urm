@@ -7,7 +7,7 @@ import org.w3c.dom.Node;
 
 public class MetaDistrComponentItem {
 
-	Metadata meta;
+	protected Metadata meta;
 	MetaDistrComponent comp;
 	
 	public MetaDistrBinaryItem binaryItem;

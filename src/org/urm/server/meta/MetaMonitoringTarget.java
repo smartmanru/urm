@@ -10,7 +10,7 @@ import org.w3c.dom.Node;
 
 public class MetaMonitoringTarget {
 
-	Metadata meta;
+	protected Metadata meta;
 	MetaMonitoring monitoring;
 	
 	public String NAME;

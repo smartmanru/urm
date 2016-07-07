@@ -11,7 +11,7 @@ import org.w3c.dom.Node;
 
 public class MetaDatabaseDatagroup {
 
-	Metadata meta;
+	protected Metadata meta;
 	public MetaDatabase database;
 
 	String NAME;

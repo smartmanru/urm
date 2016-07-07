@@ -13,7 +13,7 @@ import org.w3c.dom.Node;
 
 public class MetaDistrBinaryItem {
 
-	Metadata meta;
+	protected Metadata meta;
 	public MetaDistrDelivery delivery;
 	public MetaSourceProjectItem sourceItem;
 

@@ -16,7 +16,7 @@ public class MetaSourceProjectSet {
 
 	boolean loaded = false;
 	
-	Metadata meta;
+	protected Metadata meta;
 	MetaSource source;
 
 	public VarCATEGORY CATEGORY;
