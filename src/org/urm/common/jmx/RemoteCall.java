@@ -165,9 +165,8 @@ public class RemoteCall implements NotificationListener {
 		mainThread = Thread.currentThread();
 		Console console = System.console();
 		while( true ) {
-			System.out.print( "> " );
 			try {
-				input = console.readLine( "> " );
+				input = console.readLine( "$ " );
 			}
 			catch( Throwable e ) {
 				println( "exiting ..." );

@@ -90,6 +90,11 @@ public class ServerCommandCall implements Runnable {
 				wait();
 		}
 		
+		if( waitConnectSucceeded )
+			action.info( "successfully connected to " + shellInteractive.account.getPrintName() );
+		else
+			action.info( "failed to connect to " + shellInteractive.account.getPrintName() );
+		
 		return( waitConnectSucceeded );
 	}
 
