@@ -171,11 +171,6 @@ public class ShellExecutorPool implements Runnable {
 		
 		ShellExecutor shell = null;
 		synchronized( sync ) {
-			// from free pool
-			shell = pool.get( name );
-			if( shell != null )
-				return( shell );
-
 			// owned by action
 			Map<String,ShellExecutor> map;
 			synchronized( this ) {
@@ -183,6 +178,17 @@ public class ShellExecutorPool implements Runnable {
 				shell = map.get( name );
 				if( shell != null )
 					return( shell );
+			}
+
+			// from free pool
+			synchronized( this ) {
+				shell = pool.get( name );
+				if( shell != null ) {
+					pool.remove( name );
+					map.put( name , shell );
+					engine.serverAction.trace( "assign action ID=" + action.ID + " to existing session name=" + name );
+					return( shell );
+				}
 			}
 
 			// create new shell
@@ -199,6 +205,7 @@ public class ShellExecutorPool implements Runnable {
 			// add to action sessions (return to pool after release)
 			synchronized( this ) {
 				map.put( name , shell );
+				engine.serverAction.trace( "assign action ID=" + action.ID + " to new session name=" + name );
 			}
 
 			// force create temporary folder on remote location
@@ -293,7 +300,6 @@ public class ShellExecutorPool implements Runnable {
 			if( map == null )
 				return;
 			
-			actionSessions.remove( action );
 			engine.serverAction.trace( "unregister in session pool action ID=" + action.ID );
 			sessions = map.values().toArray( new ShellExecutor[0] );
 		}
@@ -301,6 +307,10 @@ public class ShellExecutorPool implements Runnable {
 		for( int k = sessions.length - 1; k >= 0; k-- ) {
 			ShellExecutor shell = sessions[ k ]; 
 			releaseShell( action , shell , map );
+		}
+		
+		synchronized( this ) {
+			actionSessions.remove( action );
 		}
 	}
 
