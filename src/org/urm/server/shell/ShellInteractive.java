@@ -114,7 +114,7 @@ public class ShellInteractive extends Shell {
 	}
 	
 	public void executeInteractive( ActionBase action , ServerCommandCall call , ProcessBuilder pb ) throws Exception {
-		Process process = pb.start();
+		process = pb.start();
 		
 		stdin = process.getOutputStream();
 		writer = new OutputStreamWriter( stdin );
@@ -128,8 +128,12 @@ public class ShellInteractive extends Shell {
 		addInput( action , "echo " + CONNECT_MARKER );
 		
 		WaiterCommand waiter = new WaiterCommand( action.context.logLevelLimit , reader , errreader );
-		if( !waiter.waitForMarker( action , CONNECT_MARKER ) )
+		if( !waiter.waitForMarker( action , CONNECT_MARKER ) ) {
+			call.connectFinished( false );
 			action.exit( "unable to connect to " + name );
+		}
+		
+		call.connectFinished( true );
 	}
 
 	public void runInteractive( ActionBase action ) throws Exception {

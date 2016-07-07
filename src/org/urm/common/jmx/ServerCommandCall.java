@@ -65,14 +65,6 @@ public class ServerCommandCall implements Runnable {
     		command.notifyLog( sessionId , message );
     		return;
     	}
-    	
-    	if( message.equals( ShellInteractive.CONNECT_MARKER ) ) {
-    		waitConnectFinished = true;
-    		waitConnectSucceeded = true;
-    		synchronized( this ) {
-    			notifyAll();
-    		}
-    	}
     }
 
 	public void runInteractive( ActionBase action , ShellInteractive shell ) throws Exception {
@@ -94,9 +86,19 @@ public class ServerCommandCall implements Runnable {
 		action.trace( "wait to connect ..." );
 		
 		synchronized( this ) {
-			wait();
+			if( !waitConnectFinished )
+				wait();
 		}
-		return( false );
+		
+		return( waitConnectSucceeded );
+	}
+
+	public void connectFinished( boolean connected ) throws Exception {
+		synchronized( this ) {
+			waitConnectFinished = true;
+			waitConnectSucceeded = connected;
+			notifyAll();
+		}
 	}
 	
 }
