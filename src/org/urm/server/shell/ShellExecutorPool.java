@@ -272,8 +272,8 @@ public class ShellExecutorPool implements Runnable {
 	
 	public void releaseShell( ActionBase action , ShellExecutor shell , Map<String,ShellExecutor> map ) {
 		// put remote sessions to pool or to pending list, kill locals
-		if( !shell.account.local ) {
-			synchronized( this ) {
+		synchronized( this ) {
+			if( !shell.account.local ) {
 				if( pool.get( shell.name ) == null ) {
 					pool.put( shell.name , shell );
 					engine.serverAction.trace( "return session to pool name=" + shell.name );
@@ -282,10 +282,9 @@ public class ShellExecutorPool implements Runnable {
 					pending.add( shell );
 					engine.serverAction.trace( "put session to pending name=" + shell.name );
 				}
+				map.remove( shell.name );
 			}
-		}
-		else {
-			synchronized( this ) {
+			else {
 				killShell( shell );
 				map.remove( shell.name );
 			}
