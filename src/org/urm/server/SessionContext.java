@@ -16,6 +16,7 @@ public class SessionContext {
 	public String DC;
 	public boolean executorFailed;
 
+	public boolean offline = false;
 	public boolean product = false;
 	public boolean standalone = false;
 	public String timestamp;
@@ -46,9 +47,6 @@ public class SessionContext {
 	}
 	
 	public void setServerLayout( CommandOptions options ) throws Exception {
-		standalone = false;
-		product = false;
-		
 		installPath = clientrc.installPath;
 		if( installPath.isEmpty() )
 			exit( "masterpath is empty" );
@@ -63,7 +61,6 @@ public class SessionContext {
 	}
 	
 	public void setServerProductLayout( String productDir ) throws Exception {
-		standalone = false;
 		product = true;
 		
 		if( productDir.isEmpty() )
@@ -76,7 +73,6 @@ public class SessionContext {
 	}
 	
 	public void clearServerProductLayout() throws Exception {
-		standalone = false;
 		product = false;
 		
 		etcPath = Common.getPath( installPath , "etc" );
@@ -86,8 +82,14 @@ public class SessionContext {
 		proxyPath = "";
 	}
 	
-	public void setServerClientLayout( SessionContext serverSession ) throws Exception {
-		productDir = clientrc.productDir;
+	public void setServerOfflineLayout( CommandOptions options , String productDir ) throws Exception {
+		offline = true;
+		
+		setServerLayout( options );
+		setServerProductLayout( clientrc.productDir );
+	}
+	
+	public void setServerRemoteLayout( SessionContext serverSession ) throws Exception {
 		installPath = serverSession.installPath;
 		masterPath = serverSession.masterPath;
 		binPath = serverSession.binPath;
@@ -96,6 +98,7 @@ public class SessionContext {
 	}
 	
 	public void setStandaloneLayout( CommandOptions options ) throws Exception {
+		offline = true;
 		standalone = true;
 		product = true;
 		

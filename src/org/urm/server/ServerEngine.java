@@ -82,10 +82,8 @@ public class ServerEngine {
 		
 		if( execrc.standaloneMode )
 			serverSession.setStandaloneLayout( options );
-		else {
-			serverSession.setServerLayout( options );
-			serverSession.setServerProductLayout( clientrc.productDir );
-		}
+		else
+			serverSession.setServerOfflineLayout( options , clientrc.productDir );
 		
 		serverAction = createAction( options , executor , serverSession , "client" , null );
 		if( serverAction == null )

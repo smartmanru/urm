@@ -389,7 +389,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		}
 		
 		int sessionId = server.createSessionId();
-		if( !server.runClientJmx( sessionId , productDir , meta , cmdopts ) )
+		if( !server.runWebJmx( sessionId , productDir , meta , cmdopts ) )
 			return( -1 );
 		
 		return( 0 );

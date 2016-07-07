@@ -70,7 +70,7 @@ public class MainServer {
 		
 		CommandExecutor executor = engine.createExecutor( commandInfo );
 		SessionContext session = new SessionContext( engine , data.clientrc , call.sessionId );
-		session.setServerClientLayout( engine.serverSession );
+		session.setServerRemoteLayout( engine.serverSession );
 		
 		ActionInit action = engine.createAction( options , executor , session , "rjmx-" + data.clientrc.productDir , call );
 		if( action == null )
@@ -79,7 +79,7 @@ public class MainServer {
 		return( action );
 	}
 
-	public boolean runClientJmx( int sessionId , String productDir , CommandMeta meta , CommandOptions options ) throws Exception {
+	public boolean runWebJmx( int sessionId , String productDir , CommandMeta meta , CommandOptions options ) throws Exception {
 		if( !running ) {
 			serverAction.error( "server is in progress of shutdown" );
 			return( false );

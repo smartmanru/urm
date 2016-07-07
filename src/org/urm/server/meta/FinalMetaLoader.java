@@ -15,7 +15,7 @@ public class FinalMetaLoader {
 	public ServerEngine engine;
 	
 	private Map<String,FinalMetaStorage> productMeta;
-	private FinalMetaStorage standalone;
+	private FinalMetaStorage offline;
 	
 	public FinalMetaLoader( ServerEngine engine ) {
 		this.engine = engine;
@@ -28,10 +28,10 @@ public class FinalMetaLoader {
 	}
 	
 	public synchronized FinalMetaStorage getMetaStorage( ActionBase action ) throws Exception {
-		if( action.session.standalone ) {
-			if( standalone == null )
-				standalone = new FinalMetaStorage( this , action.session );
-			return( standalone );
+		if( action.session.offline ) {
+			if( offline == null )
+				offline = new FinalMetaStorage( this , action.session );
+			return( offline );
 		}
 		
 		if( !action.session.product )
