@@ -6,12 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.common.jmx.ServerCommandCall;
 import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionBase;
 import org.urm.server.storage.Folder;
 
-public class ShellExecutorPool implements Runnable {
+public class ShellPool implements Runnable {
 
 	public ServerEngine engine;
 	public String rootPath;
@@ -32,7 +31,7 @@ public class ShellExecutorPool implements Runnable {
 	private long tsHouseKeepTime = 0;
 	private static long SHELL_SILENT_MAX = 60000;
 	
-	public ShellExecutorPool( ServerEngine engine ) {
+	public ShellPool( ServerEngine engine ) {
 		this.engine = engine;
 		rootPath = engine.execrc.userHome;
 		account = new Account( engine.execrc );
@@ -313,80 +312,10 @@ public class ShellExecutorPool implements Runnable {
 		}
 	}
 
-	public void runInteractiveSsh( ActionBase action , Account account , String KEY ) throws Exception {
-		if( action.context.call != null ) {
-			if( master.isLinux() )
-				runRemoteInteractiveSshLinux( action , account , KEY );
-			else
-			if( master.isWindows() )
-				runRemoteInteractiveSshWindows( action , account , KEY );
-			else
-				action.exitUnexpectedState();
-			return;
-		}
-
-		if( master.isLinux() )
-			runLocalInteractiveSshLinux( action , account , KEY );
-		else
-		if( master.isWindows() )
-			runLocalInteractiveSshWindows( action , account , KEY );
-		else
-			action.exitUnexpectedState();
-	}
-		
-	public void runLocalInteractiveSshLinux( ActionBase action , Account account , String KEY ) throws Exception {
-		String cmd = "ssh " + account.getSshAddr();
-		if( !KEY.isEmpty() )
-			cmd += " -i " + KEY;
-		cmd += " < /dev/tty > /dev/tty 2>&1";
-		
-		action.trace( account.getPrintName() + " execute: " + cmd );
-
-		ProcessBuilder pb = new ProcessBuilder( "sh" , "-c" , cmd );
-		Process p = pb.start();
-		p.waitFor();
-	}
-	
-	public void runLocalInteractiveSshWindows( ActionBase action , Account account , String KEY ) throws Exception {
-		String cmd = "plink ";
-		if( !KEY.isEmpty() )
-			cmd += "-i " + KEY + " ";
-		if( account.PORT != 22 )
-			cmd += "-P " + account.PORT + " ";
-		cmd += account.USER + "@" + account.HOST;
-		
-		action.trace( account.getPrintName() + " execute: " + cmd );
-		
-		ProcessBuilder pb = new ProcessBuilder( "cmd" , "/C" , cmd );
-		Process p = pb.start();
-		p.waitFor();
-	}
-	
-	public void runRemoteInteractiveSshLinux( ActionBase action , Account account , String KEY ) throws Exception {
-		String cmd = "ssh -T " + account.getSshAddr();
-		if( !KEY.isEmpty() )
-			cmd += " -i " + KEY;
-		
-		action.trace( account.getPrintName() + " execute: " + cmd );
-		
-		ServerCommandCall call = action.context.call;
-		ProcessBuilder pb = new ProcessBuilder( "sh" , "-c" , cmd , "2>&1" );
-		call.executeInteractive( call , pb );
-	}
-
-	public void runRemoteInteractiveSshWindows( ActionBase action , Account account , String KEY ) throws Exception {
-		String cmd = "plink ";
-		if( !KEY.isEmpty() )
-			cmd += "-i " + KEY + " ";
-		if( account.PORT != 22 )
-			cmd += "-P " + account.PORT + " ";
-		cmd += account.USER + "@" + account.HOST;
-		
-		action.trace( account.getPrintName() + " execute: " + cmd );
-		
-		ServerCommandCall call = action.context.call;
-		ProcessBuilder pb = new ProcessBuilder( "cmd" , "/C" , cmd , "2>&1" );
-		call.executeInteractive( call , pb );
+	public ShellInteractive createInteractiveShell( ActionBase action , Account account ) throws Exception {
+		String name = "direct-" + action.ID;
+		ShellInteractive shell = ShellInteractive.getShell( action , name , this , account );
+		return( shell );
 	}
 	
 }

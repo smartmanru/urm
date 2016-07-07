@@ -27,7 +27,7 @@ import org.urm.server.executor.XDocCommandExecutor;
 import org.urm.server.meta.FinalMetaLoader;
 import org.urm.server.meta.Metadata;
 import org.urm.server.shell.ShellCoreJNI;
-import org.urm.server.shell.ShellExecutorPool;
+import org.urm.server.shell.ShellPool;
 import org.urm.server.storage.Artefactory;
 import org.urm.server.storage.LocalFolder;
 
@@ -36,7 +36,7 @@ public class ServerEngine {
 	public RunContext execrc;
 	public SessionContext serverSession;
 	public ActionInit serverAction;
-	public ShellExecutorPool pool;
+	public ShellPool pool;
 	public FinalMetaLoader metaLoader;
 	public boolean running;
 	
@@ -164,7 +164,7 @@ public class ServerEngine {
 	}
 	
 	public void createPool() throws Exception {
-		pool = new ShellExecutorPool( this );
+		pool = new ShellPool( this );
 		pool.start( serverAction );
 	}
 

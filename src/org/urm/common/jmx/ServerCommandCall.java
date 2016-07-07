@@ -1,17 +1,11 @@
 package org.urm.common.jmx;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-
 import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandMethod;
 import org.urm.server.MainServer;
+import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionInit;
-import org.urm.server.shell.WaiterCommand;
+import org.urm.server.shell.ShellInteractive;
 
 public class ServerCommandCall implements Runnable {
 
@@ -24,17 +18,10 @@ public class ServerCommandCall implements Runnable {
 
 	public MainServer server;
 	
+	public ShellInteractive shellInteractive;
 	public boolean waitConnectMode = false;
 	public boolean waitConnectFinished = false;
 	public boolean waitConnectSucceeded = false;
-	public OutputStream stdin;
-	public InputStream stderr;
-	public InputStream stdout;
-	public BufferedReader reader;
-	public Writer writer;
-	public BufferedReader errreader;
-
-	public final static String CONNECT_MARKER = "URM.CONNECTED";  
 	
 	public ServerCommandCall( int sessionId , String clientId , ServerCommandMBean command , String actionName , ActionData data ) {
 		this.sessionId = sessionId;
@@ -79,7 +66,7 @@ public class ServerCommandCall implements Runnable {
     		return;
     	}
     	
-    	if( message.equals( CONNECT_MARKER ) ) {
+    	if( message.equals( ShellInteractive.CONNECT_MARKER ) ) {
     		waitConnectFinished = true;
     		waitConnectSucceeded = true;
     		synchronized( this ) {
@@ -88,46 +75,28 @@ public class ServerCommandCall implements Runnable {
     	}
     }
 
+	public void runInteractive( ActionBase action , ShellInteractive shell ) throws Exception {
+		shellInteractive = shell;
+		shell.start( action );
+		waitConnect();
+	}
+    
 	public void addInput( String input ) throws Exception {
-		if( action.isShellLinux() )
-			writer.write( input + "\n" );
-		else
-			writer.write( input + "\r\n" );
-		writer.flush();
+		if( shellInteractive == null )
+			return;
+		
+		action.trace( shellInteractive.name + " execute: " + input );
+		shellInteractive.addInput( input );
 	}
 	
 	public boolean waitConnect() throws Exception {
 		action.trace( "wait to connect ..." );
 		
+		waitConnectMode = true;
 		synchronized( this ) {
 			wait();
 		}
 		return( false );
 	}
 	
-	public void executeInteractive( ServerCommandCall call , ProcessBuilder pb ) throws Exception {
-		waitConnectMode = true;
-		
-		Process process = pb.start();
-		
-		stdin = process.getOutputStream();
-		writer = new OutputStreamWriter( stdin );
-		
-		stderr = process.getErrorStream();
-		stdout = process.getInputStream();
-		
-		reader = new BufferedReader( new InputStreamReader( stdout ) );
-		errreader = new BufferedReader( new InputStreamReader( stderr ) );
-		
-		addInput( "echo " + CONNECT_MARKER );
-		
-		WaiterCommand waiter = new WaiterCommand( action.context.logLevelLimit , reader , errreader );
-		if( waiter.waitForMarker( action , CONNECT_MARKER ) )
-			waiter.waitForProcess( action , process );
-		
-		synchronized( this ) {
-			notifyAll();
-		}
-	}
-
 }

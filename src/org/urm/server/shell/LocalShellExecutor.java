@@ -5,7 +5,7 @@ import org.urm.server.storage.Folder;
 
 public class LocalShellExecutor extends ShellExecutor {
 
-	public LocalShellExecutor( String name , ShellExecutorPool pool , String rootPath , Folder tmpFolder ) {
+	public LocalShellExecutor( String name , ShellPool pool , String rootPath , Folder tmpFolder ) {
 		super( name , pool , pool.account , rootPath , tmpFolder );
 	}
 	

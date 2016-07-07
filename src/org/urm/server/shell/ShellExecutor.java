@@ -14,11 +14,8 @@ import org.urm.server.action.CommandOutput;
 import org.urm.server.storage.Folder;
 import org.urm.server.storage.RedistStorage;
 
-public abstract class ShellExecutor {
+public abstract class ShellExecutor extends Shell {
 
-	public String name;
-	public ShellExecutorPool pool;
-	public Account account;
 	public String rootPath;
 	public Folder tmpFolder;
 	
@@ -28,26 +25,25 @@ public abstract class ShellExecutor {
 	
 	protected ShellCore core;
 	
+	@Override
 	abstract public void start( ActionBase action ) throws Exception;
 
 	// construction and administration
-	protected ShellExecutor( String name , ShellExecutorPool pool , Account account , String rootPath , Folder tmpFolder ) {
-		this.name = name;
-		this.pool = pool;
-		this.account = account;
+	protected ShellExecutor( String name , ShellPool pool , Account account , String rootPath , Folder tmpFolder ) {
+		super( name , pool , account );
 		this.rootPath = rootPath;
 		this.tmpFolder = tmpFolder;
 		
 		tsCreated = System.currentTimeMillis();
 	}
 	
-	public static ShellExecutor getLocalShellExecutor( ActionBase action , String name , ShellExecutorPool pool , String rootPath , Folder tmpFolder ) throws Exception {
+	public static ShellExecutor getLocalShellExecutor( ActionBase action , String name , ShellPool pool , String rootPath , Folder tmpFolder ) throws Exception {
 		ShellExecutor executor = new LocalShellExecutor( name , pool , rootPath , tmpFolder );
 		executor.core = ShellCore.createShellCore( action, executor , action.context.account.osType , true );
 		return( executor );
 	}
 
-	public static ShellExecutor getRemoteShellExecutor( ActionBase action , String name , ShellExecutorPool pool , Account account , String rootPath ) throws Exception {
+	public static ShellExecutor getRemoteShellExecutor( ActionBase action , String name , ShellPool pool , Account account , String rootPath ) throws Exception {
 		RedistStorage storage = action.artefactory.getRedistStorage( action , account );
 		Folder tmpFolder = storage.getRedistTmpFolder( action );
 
@@ -84,7 +80,8 @@ public abstract class ShellExecutor {
 		action.debug( "start shell=" + name + " at rootPath=" + rootPath );
 		core.createProcess( action , builder , rootPath );
 	}
-	
+
+	@Override
 	public void kill( ActionBase action ) throws Exception {
 		action.debug( "kill shell=" + name + " at rootPath=" + rootPath );
 		core.kill( action );
@@ -93,11 +90,6 @@ public abstract class ShellExecutor {
 	public void release( ActionBase action ) {
 		action.trace( "release shell=" + name );
 		pool.releaseShell( action , this );
-	}
-	
-	public void addInput( ActionBase action , String input ) throws Exception {
-		action.trace( name + " execute: " + input );
-		core.addInput( action , input + "\n" , false );
 	}
 	
 	// information
@@ -109,28 +101,6 @@ public abstract class ShellExecutor {
 		return( core.homePath );
 	}
 
-	public synchronized String getOSPath( ActionBase action , String path ) throws Exception {
-		if( account.isWindows() )
-			return( Common.getWinPath( path ) );
-		return( path );
-	}
-	
-	public boolean isWindows() {
-		return( account.isWindows() );
-	}
-
-	public boolean isLinux() {
-		return( account.isLinux() );
-	}
-
-	public String getOSDevNull() {
-		if( isLinux() )
-			return( "/dev/null" );
-		if( isWindows() )
-			return( "nul" );
-		return( null );
-	}
-	
 	// operations
 	public synchronized int waitFor( ActionBase action ) throws Exception {
 		return( core.process.waitFor() );

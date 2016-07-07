@@ -7,7 +7,7 @@ import org.urm.server.storage.Folder;
 
 public class RemoteShellExecutor extends ShellExecutor {
 	
-	public RemoteShellExecutor( String name , ShellExecutorPool pool , Account account , String rootPath , Folder tmpFolder ) {
+	public RemoteShellExecutor( String name , ShellPool pool , Account account , String rootPath , Folder tmpFolder ) {
 		super( name , pool , account , rootPath , tmpFolder );
 	}
 
