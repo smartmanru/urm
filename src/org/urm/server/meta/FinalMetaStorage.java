@@ -103,11 +103,11 @@ public class FinalMetaStorage {
 		if( envFile.isEmpty() )
 			action.exit( "environment file name is empty" );
 		
-		MetaEnv envData = new MetaEnv( meta );
-		envData.load( action , storageMeta , envFile );
+		env = new MetaEnv( meta );
+		env.load( action , storageMeta , envFile );
 		envs.put( envFile , env );
 		
-		return( envData );
+		return( env );
 	}
 	
 	public synchronized MetaDesign loadDesignData( ActionBase action , MetadataStorage storageMeta , String fileName ) throws Exception {
