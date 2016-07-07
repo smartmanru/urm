@@ -18,7 +18,7 @@ public class ShellWaiter {
 	
 	public boolean wait( ActionBase action , int timeoutMillis ) {
 		try {
-			action.trace( "wait for command=" + command.getClass().getSimpleName() + "(timeout " + timeoutMillis + "ms) ..." );
+			action.trace( "wait for command=" + command.getClass().getSimpleName() + " (timeout " + timeoutMillis + "ms) ..." );
             Thread thread = new Thread( null , command , command.getClass().getSimpleName() );
             command.action = action;
             command.thread = thread; 

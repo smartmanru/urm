@@ -77,6 +77,7 @@ public class ServerCommandCall implements Runnable {
 
 	public void runInteractive( ActionBase action , ShellInteractive shell ) throws Exception {
 		shellInteractive = shell;
+		waitConnectMode = true;
 		shell.start( action );
 		waitConnect();
 	}
@@ -92,7 +93,6 @@ public class ServerCommandCall implements Runnable {
 	public boolean waitConnect() throws Exception {
 		action.trace( "wait to connect ..." );
 		
-		waitConnectMode = true;
 		synchronized( this ) {
 			wait();
 		}

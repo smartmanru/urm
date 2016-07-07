@@ -313,7 +313,7 @@ public class ShellPool implements Runnable {
 	}
 
 	public ShellInteractive createInteractiveShell( ActionBase action , Account account ) throws Exception {
-		String name = "direct-" + action.ID;
+		String name = "remote::" + account.getPrintName() + "::" + action.ID;
 		ShellInteractive shell = ShellInteractive.getShell( action , name , this , account );
 		return( shell );
 	}
