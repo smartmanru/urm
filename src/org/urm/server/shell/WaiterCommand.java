@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.util.List;
 
 import org.urm.server.action.ActionBase;
+import org.urm.server.action.CommandOutput;
 
 public class WaiterCommand implements Runnable {
 
@@ -203,7 +204,10 @@ public class WaiterCommand implements Runnable {
 		if( text != null )
 			text.add( line );
 		
-		action.logExact( line , logLevel );
+		if( waitInteractive )
+			action.logExactInteractive( line , CommandOutput.LOGLEVEL_TRACE );
+		else
+			action.logExact( line , logLevel );
 	}
 
 	public void waitForCommandFinished( ActionBase action , boolean windowsHelper ) throws Exception {
