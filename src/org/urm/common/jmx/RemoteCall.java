@@ -34,6 +34,9 @@ public class RemoteCall implements NotificationListener {
 	Thread mainThread;
 	InputStreamReader isr;
 
+	boolean finished = false;
+	boolean connected = false;
+	
 	public static final String EXIT_COMMAND = "exit";
 	
 	public static String getCommandMBeanName( String productDir , String command ) {
@@ -44,12 +47,13 @@ public class RemoteCall implements NotificationListener {
 		return( "urm:name=server" );
 	}
 	
-	private void println( String s ) {
+	private synchronized void println( String s ) {
 		System.out.println( s );
 	}
 	
 	public boolean runClient( CommandBuilder builder , CommandMeta commandInfo ) throws Exception {
 		if( !serverConnect( builder.execrc ) ) {
+			serverDisconnect();
 			println( "unable to connect to: " + URL );
 			return( false );
 		}
@@ -88,11 +92,9 @@ public class RemoteCall implements NotificationListener {
 			mbsc = jmxc.getMBeanServerConnection();
 		}
 		catch( Throwable e ) {
-			serverDisconnect();
-			return( false );
 		}
-		
-		return( true );
+
+		return( connected );
 	}
 
 	public String serverCall( String method ) throws Exception {
@@ -149,13 +151,8 @@ public class RemoteCall implements NotificationListener {
 
 	private void waitInteractive( String sessionId ) throws Exception {
 		// wait for connect to succeed
-		String ready = ( String )mbsc.invoke( mbeanName , INPUT_ACTION_WAITCONNECT , 
-				new Object[] { sessionId } , 
-				new String[] { String.class.getName() } );
-		if( ready == null || !ready.equals( INPUT_ACTION_CONNECTED ) ) {
-			println( "unable to connect, exiting ..." );
+		if( !connectInteractive( sessionId ) )
 			return;
-		}
 		
 		isr = new InputStreamReader( System.in );
 		br = new BufferedReader( isr );
@@ -178,10 +175,35 @@ public class RemoteCall implements NotificationListener {
 				return;
 			}
 			
-			mbsc.invoke( mbeanName , INPUT_ACTION_NAME , 
-					new Object[] { sessionId , input } , 
-					new String[] { String.class.getName() , String.class.getName() } );
+			sendInput( sessionId , input );
 		}
+		
+	}
+
+	private boolean connectInteractive( String sessionId ) throws Exception {
+		String ready = ( String )mbsc.invoke( mbeanName , INPUT_ACTION_WAITCONNECT , 
+				new Object[] { sessionId } , 
+				new String[] { String.class.getName() } );
+		
+		synchronized( this ) {
+			try {
+				if( finished == false && connected == false )
+					wait( 30000 );
+			}
+			catch( Throwable e ) {
+			}
+		}
+
+		if( !ready.equals( INPUT_ACTION_CONNECTED ) )
+			connected = false;
+		
+		return( connected );
+	}
+
+	private void sendInput( String sessionId , String input ) throws Exception {
+		mbsc.invoke( mbeanName , INPUT_ACTION_NAME , 
+				new Object[] { sessionId , input } , 
+				new String[] { String.class.getName() , String.class.getName() } );
 	}
 	
 	public void handleNotification( Notification notif , Object handback ) {
@@ -189,17 +211,28 @@ public class RemoteCall implements NotificationListener {
 			return;
 		
 		ActionNotification n = ( ActionNotification )notif;
-		if( n.logEvent )
+		if( n.isLog() )
 			println( n.getMessage() );
 		else
-		if( n.stopEvent ) {
+		if( n.isConnected() ) {
+			println( n.getMessage() );
+			synchronized( this ) {
+				connected = true;
+				notifyAll();
+			}
+		}
+		else
+		if( n.isStop() ) {
 			try {
 				mainThread.interrupt();
+				println( "" );
+				println( n.getMessage() );
 			}
 			catch( Throwable e ) {
 			}
 			
 			synchronized( this ) {
+				finished = true;
 				notifyAll();
 			}
 		}

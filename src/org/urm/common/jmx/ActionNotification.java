@@ -12,10 +12,15 @@ public class ActionNotification extends Notification {
 	 */
 	private static final long serialVersionUID = -842716279929681284L;
 
+	public enum EVENT_TYPE {
+		LOG ,
+		STOP ,
+		CONNECTED
+	};
+	
 	public int sessionId;
 	public String clientId;
-	public boolean logEvent = false;
-	public boolean stopEvent = false;
+	public EVENT_TYPE eventType;
 	
 	public ActionNotification( DynamicMBean mbean , int sequence , int sessionId , String clientId , String log ) {
 		super( EVENT , mbean , sequence , log );
@@ -24,11 +29,28 @@ public class ActionNotification extends Notification {
 	}
 	
 	public void setLogEvent() {
-		logEvent = true;
+		eventType = EVENT_TYPE.LOG;
+	}
+
+	public boolean isLog() {
+		return( eventType == EVENT_TYPE.LOG );
 	}
 	
 	public void setStopEvent() {
-		stopEvent = true;
+		eventType = EVENT_TYPE.STOP;
 	}
+	
+	public boolean isStop() {
+		return( eventType == EVENT_TYPE.STOP );
+	}
+	
+	public void setConnectedEvent() {
+		eventType = EVENT_TYPE.CONNECTED;
+	}
+
+	public boolean isConnected() {
+		return( eventType == EVENT_TYPE.CONNECTED );
+	}
+	
 	
 }

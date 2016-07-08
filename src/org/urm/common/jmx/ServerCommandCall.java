@@ -56,7 +56,7 @@ public class ServerCommandCall implements Runnable {
     @Override
     public void run() {
 		server.runClientAction( action );
-    	command.notifyStop( sessionId );
+    	notifyStop( "disconnected" );
     	server.threadStopped( this );
     }
 
@@ -87,14 +87,14 @@ public class ServerCommandCall implements Runnable {
 		synchronized( this ) {
 			if( !waitConnectFinished )
 				wait();
+			waitConnectMode = false;
 		}
 		
 		if( waitConnectSucceeded )
-			action.info( "successfully connected to " + shellInteractive.account.getPrintName() );
+    		notifyConnected( "successfully connected to " + shellInteractive.account.getPrintName() );
 		else
-			action.info( "failed to connect to " + shellInteractive.account.getPrintName() );
+			notifyStop( "unable to connect to " + shellInteractive.account.getPrintName() );
 		
-		waitConnectMode = false;
 		return( waitConnectSucceeded );
 	}
 
@@ -103,6 +103,30 @@ public class ServerCommandCall implements Runnable {
 			waitConnectFinished = true;
 			waitConnectSucceeded = connected;
 			notifyAll();
+		}
+	}
+	
+	public void notifyStop( String msg ) {
+		try {
+			int notificationSequence = command.getNextSequence();
+			ActionNotification n = new ActionNotification( command , notificationSequence , sessionId , clientId , msg ); 
+			n.setStopEvent();
+			command.sendNotification( n );
+		}
+		catch( Throwable e ) {
+			
+		}
+	}
+	
+	public void notifyConnected( String msg ) {
+		try {
+			int notificationSequence = command.getNextSequence();
+			ActionNotification n = new ActionNotification( command , notificationSequence , sessionId , clientId , msg ); 
+			n.setConnectedEvent();
+			command.sendNotification( n );
+		}
+		catch( Throwable e ) {
+			
 		}
 	}
 	

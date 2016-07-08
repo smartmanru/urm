@@ -320,20 +320,6 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		}
 	}
 	
-	public void notifyStop( int sessionId ) {
-		try {
-			ServerCommandCall call = controller.server.getCall( sessionId );
-			if( call == null )
-				return;
-			
-			ActionNotification n = new ActionNotification( this , ++notificationSequence , sessionId , call.clientId , "stop" ); 
-			n.setStopEvent();
-			broadcaster.sendNotification( n );
-		}
-		catch( Throwable e ) {
-		}
-	}
-	
 	@Override
 	public Object invoke( String name , Object[] args , String[] sig ) throws MBeanException, ReflectionException {
 		String value = null;
@@ -347,6 +333,14 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		return( value );
 	}
 
+	public synchronized int getNextSequence() {
+		return( ++notificationSequence );
+	}
+	
+	public void sendNotification( ActionNotification n ) throws Exception {
+		broadcaster.sendNotification( n );
+	}
+	
 	private String notifyExecute( String name , Object[] args ) throws Exception {
 		if( name.equals( RemoteCall.GENERIC_ACTION_NAME ) ) {
 			int sessionId = notifyExecuteGeneric( args );
