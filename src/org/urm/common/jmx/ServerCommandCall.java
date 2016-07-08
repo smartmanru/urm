@@ -70,7 +70,9 @@ public class ServerCommandCall implements Runnable {
 	public void runInteractive( ActionBase action , ShellInteractive shell ) throws Exception {
 		shellInteractive = shell;
 		waitConnectMode = true;
+		action.setTimeoutUnlimited();
 		shell.start( action );
+		shell.waitFinished( action );
 	}
     
 	public void addInput( String input ) throws Exception {
@@ -114,7 +116,6 @@ public class ServerCommandCall implements Runnable {
 			command.sendNotification( n );
 		}
 		catch( Throwable e ) {
-			
 		}
 	}
 	
@@ -126,7 +127,6 @@ public class ServerCommandCall implements Runnable {
 			command.sendNotification( n );
 		}
 		catch( Throwable e ) {
-			
 		}
 	}
 	

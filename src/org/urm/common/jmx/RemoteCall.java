@@ -90,11 +90,15 @@ public class RemoteCall implements NotificationListener {
 			JMXServiceURL url = new JMXServiceURL( URL );
 			jmxc = JMXConnectorFactory.connect( url , null );
 			mbsc = jmxc.getMBeanServerConnection();
+			if( mbsc == null )
+				return( false );
 		}
 		catch( Throwable e ) {
+			println( e.getMessage() );
+			return( false );
 		}
 
-		return( connected );
+		return( true );
 	}
 
 	public String serverCall( String method ) throws Exception {
