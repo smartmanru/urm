@@ -21,7 +21,7 @@ public class ShellInteractive extends Shell {
 	BufferedReader errreader;
 
 	public final static String CONNECT_MARKER = "URM.CONNECTED";  
-	
+
 	public static ShellInteractive getShell( ActionBase action , String name , ShellPool pool , Account account ) throws Exception {
 		ShellInteractive shell = new ShellInteractive( name , pool , account );
 		return( shell );
@@ -53,6 +53,8 @@ public class ShellInteractive extends Shell {
 			runLocalInteractiveSshWindows( action , account , KEY );
 		else
 			action.exitUnexpectedState();
+		
+		tsLastInput = tsLastOutput = System.currentTimeMillis();
 	}
 	
 	@Override
@@ -127,7 +129,7 @@ public class ShellInteractive extends Shell {
 		
 		addInput( action , "echo " + CONNECT_MARKER );
 		
-		WaiterCommand waiter = new WaiterCommand( action.context.logLevelLimit , reader , errreader );
+		WaiterCommand waiter = new WaiterCommand( this , action.context.logLevelLimit , reader , errreader );
 		if( !waiter.waitForMarker( action , CONNECT_MARKER ) ) {
 			call.connectFinished( false );
 			action.exit( "unable to connect to " + name );
@@ -138,18 +140,16 @@ public class ShellInteractive extends Shell {
 
 	public void runLocalInteractive( ActionBase action ) throws Exception {
 		start( action );
-		waitFinished( action );
+		action.trace( name + " wait process to finish ..." );
+		process.waitFor();
+		pool.removeInteractive( action , this );
 	}
 
 	public void runRemoteInteractive( ActionBase action ) throws Exception {
 		start( action );
-		WaiterCommand waiter = new WaiterCommand( action.context.logLevelLimit , reader , errreader );
+		WaiterCommand waiter = new WaiterCommand( this , action.context.logLevelLimit , reader , errreader );
 		waiter.waitForProcess( action , process );
-	}
-	
-	public void waitFinished( ActionBase action ) throws Exception {
-		action.trace( name + " wait process to finish ..." );
-		process.waitFor();
+		pool.removeInteractive( action , this );
 	}
 	
 	public void addInput( ActionBase action , String input ) throws Exception {
@@ -159,6 +159,7 @@ public class ShellInteractive extends Shell {
 		else
 			writer.write( input + "\r\n" );
 		writer.flush();
+		tsLastInput = System.currentTimeMillis();
 	}
 	
 }

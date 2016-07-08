@@ -19,7 +19,6 @@ public abstract class ShellExecutor extends Shell {
 	public String rootPath;
 	public Folder tmpFolder;
 	
-	public long tsCreated;
 	public long tsLastStarted;
 	public long tsLastFinished;
 	
@@ -33,8 +32,6 @@ public abstract class ShellExecutor extends Shell {
 		super( name , pool , account );
 		this.rootPath = rootPath;
 		this.tmpFolder = tmpFolder;
-		
-		tsCreated = System.currentTimeMillis();
 	}
 	
 	public static ShellExecutor getLocalShellExecutor( ActionBase action , String name , ShellPool pool , String rootPath , Folder tmpFolder ) throws Exception {
@@ -89,7 +86,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public void release( ActionBase action ) {
 		action.trace( "release shell=" + name );
-		pool.releaseShell( action , this );
+		pool.releaseExecutorShell( action , this );
 	}
 	
 	// information

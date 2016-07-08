@@ -17,7 +17,7 @@ public class ShellPool implements Runnable {
 	
 	Map<String,Object> staged = new HashMap<String,Object>();
 	Map<String,ShellExecutor> pool = new HashMap<String,ShellExecutor>();
-	Map<ActionBase,Map<String,ShellExecutor>> actionSessions = new HashMap<ActionBase,Map<String,ShellExecutor>>();
+	Map<ActionBase,ActionShells> actionSessions = new HashMap<ActionBase,ActionShells>();
 	List<ShellExecutor> pending = new LinkedList<ShellExecutor>();
 
 	public ShellExecutor master;
@@ -66,7 +66,7 @@ public class ShellPool implements Runnable {
 					engine.serverAction.trace( "return action session to pool name=" + shell.name );
 				}
 				else
-				if( checkOldShell( shell ) ) {
+				if( checkOldExecutorShell( shell ) ) {
 					pending.remove( k );
 					killShell( shell );
 				}
@@ -80,7 +80,7 @@ public class ShellPool implements Runnable {
 		// kill old primary 
 		synchronized( this ) {
 			for( ShellExecutor shell : pool.values().toArray( new ShellExecutor[0] ) ) {
-				if( checkOldShell( shell ) ) {
+				if( checkOldExecutorShell( shell ) ) {
 					pool.remove( shell.name );
 					killShell( shell );
 				}
@@ -88,11 +88,33 @@ public class ShellPool implements Runnable {
 					engine.serverAction.trace( "stay in pool name=" + shell.name );
 			}
 		}
+		
+		// kill silent action interactive shells 
+		synchronized( this ) {
+			for( ActionShells map : actionSessions.values() ) {
+				for( ShellInteractive shell : map.getInteractiveList() ) {
+					if( checkOldInteractiveShell( shell ) )
+						killShell( shell );
+					else
+						engine.serverAction.trace( "stay in pool name=" + shell.name );
+				}
+			}
+		}
 	}
 
-	private boolean checkOldShell( ShellExecutor shell ) {
+	private boolean checkOldExecutorShell( ShellExecutor shell ) {
 		long finished = shell.tsLastFinished;
 		if( finished > 0 && finished + SHELL_SILENT_MAX < tsHouseKeepTime )
+			return( true );
+		return( false );
+	}
+	
+	private boolean checkOldInteractiveShell( ShellInteractive shell ) {
+		long last = shell.tsLastInput;
+		if( last == 0 || shell.tsLastOutput > last )
+			last = shell.tsLastOutput;
+		
+		if( last > 0 && last + SHELL_SILENT_MAX < tsHouseKeepTime )
 			return( true );
 		return( false );
 	}
@@ -125,7 +147,7 @@ public class ShellPool implements Runnable {
 		}
 	}
 	
-	private void killShell( ShellExecutor shell ) {
+	private void killShell( Shell shell ) {
 		try {
 			shell.kill( engine.serverAction );
 		}
@@ -171,10 +193,10 @@ public class ShellPool implements Runnable {
 		ShellExecutor shell = null;
 		synchronized( sync ) {
 			// owned by action
-			Map<String,ShellExecutor> map;
+			ActionShells map;
 			synchronized( this ) {
-				map = getActionMap( action );
-				shell = map.get( name );
+				map = getActionShells( action );
+				shell = map.getExecutor( name );
 				if( shell != null )
 					return( shell );
 			}
@@ -184,7 +206,7 @@ public class ShellPool implements Runnable {
 				shell = pool.get( name );
 				if( shell != null ) {
 					pool.remove( name );
-					map.put( name , shell );
+					map.addExecutor( shell );
 					engine.serverAction.trace( "assign action ID=" + action.ID + " to existing session name=" + name );
 					return( shell );
 				}
@@ -203,7 +225,7 @@ public class ShellPool implements Runnable {
 
 			// add to action sessions (return to pool after release)
 			synchronized( this ) {
-				map.put( name , shell );
+				map.addExecutor( shell );
 				engine.serverAction.trace( "assign action ID=" + action.ID + " to new session name=" + name );
 			}
 
@@ -225,10 +247,10 @@ public class ShellPool implements Runnable {
 		return( shell );
 	}
 	
-	private Map<String,ShellExecutor> getActionMap( ActionBase action ) {
-		Map<String,ShellExecutor> map = actionSessions.get( action );
+	private ActionShells getActionShells( ActionBase action ) {
+		ActionShells map = actionSessions.get( action );
 		if( map == null ) {
-			map = new HashMap<String,ShellExecutor>();
+			map = new ActionShells( action );
 			actionSessions.put( action , map );
 			engine.serverAction.trace( "register in session pool action ID=" + action.ID );
 		}
@@ -244,32 +266,32 @@ public class ShellPool implements Runnable {
 		
 		ShellExecutor shell = null;
 		synchronized( this ) {
-			Map<String,ShellExecutor> map = getActionMap( action );
-			shell = map.get( name );
+			ActionShells map = getActionShells( action );
+			shell = map.getExecutor( name );
 			if( shell != null ) {
 				action.setShell( shell );
 				return( shell );
 			}
 			
 			shell = createLocalShell( action , name );
-			map.put( name , shell );
+			map.addExecutor( shell );
 		}
 		
 		return( shell );
 	}
 
-	public void releaseShell( ActionBase action , ShellExecutor shell ) {
-		Map<String,ShellExecutor> map;
+	public void releaseExecutorShell( ActionBase action , ShellExecutor shell ) {
+		ActionShells map;
 		synchronized( this ) {
 			map = actionSessions.get( action );
 			if( map == null )
 				return;
 		}
 		
-		releaseShell( action , shell , map );
+		releaseExecutorShell( action , shell , map );
 	}
 	
-	public void releaseShell( ActionBase action , ShellExecutor shell , Map<String,ShellExecutor> map ) {
+	private void releaseExecutorShell( ActionBase action , ShellExecutor shell , ActionShells map ) {
 		// put remote sessions to pool or to pending list, kill locals
 		synchronized( this ) {
 			if( !shell.account.local ) {
@@ -281,30 +303,56 @@ public class ShellPool implements Runnable {
 					pending.add( shell );
 					engine.serverAction.trace( "put session to pending name=" + shell.name );
 				}
-				map.remove( shell.name );
+				map.removeExecutor( shell.name );
 			}
 			else {
 				killShell( shell );
-				map.remove( shell.name );
+				map.removeExecutor( shell.name );
 			}
 		}
 	}
 
+	private void releaseInteractiveShell( ActionBase action , ShellInteractive shell , ActionShells map ) {
+		// put remote sessions to pool or to pending list, kill locals
+		synchronized( this ) {
+			killShell( shell );
+			map.removeInteractive( shell.name );
+		}
+	}
+
+	public void removeInteractive( ActionBase action , ShellInteractive shell ) {
+		synchronized( this ) {
+			ActionShells map = actionSessions.get( action );
+			if( map == null )
+				return;
+			
+			engine.serverAction.trace( "unregister in session pool action ID=" + action.ID );
+			map.removeInteractive( shell.name );
+		}
+	}
+		
 	public void releaseActionPool( ActionBase action ) {
-		Map<String,ShellExecutor> map;
-		ShellExecutor[] sessions;
+		ActionShells map;
+		ShellExecutor[] executors;
+		ShellInteractive[] interactive;
 		synchronized( this ) {
 			map = actionSessions.get( action );
 			if( map == null )
 				return;
 			
 			engine.serverAction.trace( "unregister in session pool action ID=" + action.ID );
-			sessions = map.values().toArray( new ShellExecutor[0] );
+			executors = map.getExecutorList();
+			interactive = map.getInteractiveList();
 		}
 			
-		for( int k = sessions.length - 1; k >= 0; k-- ) {
-			ShellExecutor shell = sessions[ k ]; 
-			releaseShell( action , shell , map );
+		for( int k = executors.length - 1; k >= 0; k-- ) {
+			ShellExecutor shell = executors[ k ]; 
+			releaseExecutorShell( action , shell , map );
+		}
+		
+		for( int k = interactive.length - 1; k >= 0; k-- ) {
+			ShellInteractive shell = interactive[ k ]; 
+			releaseInteractiveShell( action , shell , map );
 		}
 		
 		synchronized( this ) {
@@ -315,6 +363,13 @@ public class ShellPool implements Runnable {
 	public ShellInteractive createInteractiveShell( ActionBase action , Account account ) throws Exception {
 		String name = "remote::" + account.getPrintName() + "::" + action.ID;
 		ShellInteractive shell = ShellInteractive.getShell( action , name , this , account );
+		
+		// add to action map
+		synchronized( this ) {
+			ActionShells map = getActionShells( action );
+			map.addInteractive( shell );
+		}
+		
 		return( shell );
 	}
 	

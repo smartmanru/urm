@@ -65,6 +65,7 @@ public class ShellCoreUnix extends ShellCore {
 
 		try {
 			addInput( action , execLine , windowsHelper );
+			executor.tsLastInput = System.currentTimeMillis();
 		}
 		catch( Throwable e ) {
 			if( action.context.CTX_TRACEINTERNAL )
@@ -72,8 +73,8 @@ public class ShellCoreUnix extends ShellCore {
 			action.exit( "shell input stream error" );
 		}
 		
-		WaiterCommand wc = new WaiterCommand( logLevel , reader , cmdout , errreader , cmderr );
-		wc.waitForCommandFinished( action , executor , windowsHelper );
+		WaiterCommand wc = new WaiterCommand( executor , logLevel , reader , cmdout , errreader , cmderr );
+		wc.waitForCommandFinished( action , windowsHelper );
 	}
 
 	@Override public int runCommandGetStatus( ActionBase action , String cmd , int logLevel ) throws Exception {

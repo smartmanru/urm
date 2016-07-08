@@ -12,10 +12,16 @@ abstract public class Shell {
 	public ShellPool pool;
 	public Account account;
 
+	public long tsCreated;
+	public long tsLastInput = 0;
+	public long tsLastOutput = 0;
+	
 	public Shell( String name , ShellPool pool , Account account ) {
 		this.name = name;
 		this.pool = pool;
 		this.account = account;
+		
+		tsCreated = System.currentTimeMillis();
 	}
 	
 	public synchronized String getOSPath( ActionBase action , String path ) throws Exception {

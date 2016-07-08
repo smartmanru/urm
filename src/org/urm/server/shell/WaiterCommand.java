@@ -7,6 +7,7 @@ import org.urm.server.action.ActionBase;
 
 public class WaiterCommand implements Runnable {
 
+	public Shell shell;
 	public ActionBase action;
 	public Thread thread;
 	
@@ -29,7 +30,8 @@ public class WaiterCommand implements Runnable {
 	public String waitMarker;
 	public Process waitProcess;
 	
-	public WaiterCommand( int logLevel , BufferedReader reader , List<String> cmdout , BufferedReader errreader , List<String> cmderr ) {
+	public WaiterCommand( Shell shell , int logLevel , BufferedReader reader , List<String> cmdout , BufferedReader errreader , List<String> cmderr ) {
+		this.shell = shell;
 		this.logLevel = logLevel;
 		this.reader = reader;
 		this.cmdout = cmdout;
@@ -37,7 +39,8 @@ public class WaiterCommand implements Runnable {
 		this.cmderr = cmderr;
 	}
 	
-	public WaiterCommand( int logLevel , BufferedReader reader , BufferedReader errreader ) {
+	public WaiterCommand( Shell shell , int logLevel , BufferedReader reader , BufferedReader errreader ) {
+		this.shell = shell;
 		this.logLevel = logLevel;
 		this.reader = reader;
 		this.errreader = errreader;
@@ -202,7 +205,7 @@ public class WaiterCommand implements Runnable {
 		action.logExact( line , logLevel );
 	}
 
-	public void waitForCommandFinished( ActionBase action , ShellExecutor shell , boolean windowsHelper ) throws Exception {
+	public void waitForCommandFinished( ActionBase action , boolean windowsHelper ) throws Exception {
 		waitForCommandFinished = true;
 		waitMarker = FINISH_MARKER;
 		ShellWaiter waiter = new ShellWaiter( this );
@@ -211,7 +214,7 @@ public class WaiterCommand implements Runnable {
 			waiter.setWindowsHelper();
 		
 		if( !waiter.wait( action , action.commandTimeout ) )
-			shell.exitError( action , "command has been killed" );
+			action.exit( "command has been killed" );
 	}
 	
 	public boolean waitForMarker( ActionBase action , String marker ) throws Exception {

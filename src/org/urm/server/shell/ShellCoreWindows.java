@@ -134,14 +134,15 @@ public class ShellCoreWindows extends ShellCore {
 			
 			try {
 				writer.flush();
+				executor.tsLastInput = System.currentTimeMillis();
 			}
 			catch( Throwable e ) {
 				if( action.context.CTX_TRACEINTERNAL )
 					e.printStackTrace();
 			}
 			
-			WaiterCommand wc = new WaiterCommand( logLevel , reader , cmdout , errreader , cmderr );
-			wc.waitForCommandFinished( action , executor , false );
+			WaiterCommand wc = new WaiterCommand( executor , logLevel , reader , cmdout , errreader , cmderr );
+			wc.waitForCommandFinished( action , false );
 		}
 	}
 
