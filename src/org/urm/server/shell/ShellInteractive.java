@@ -61,7 +61,20 @@ public class ShellInteractive extends Shell {
 	
 	@Override
 	public void kill( ActionBase action ) throws Exception {
+		if( processId > 0 )
+			pool.killProcess( action , processId );
+			
 		process.destroy();
+		
+		process = null;
+		stdin = null;
+		writer = null;
+		
+		stderr = null;
+		stdout = null;
+		
+		reader = null;
+		errreader = null;
 	}
 	
 	public void stop( ActionBase action ) throws Exception {
@@ -71,8 +84,10 @@ public class ShellInteractive extends Shell {
 	private void startProcess( ActionBase action , ProcessBuilder pb ) throws Exception {
 		process = pb.start();
 		ShellCoreJNI osapi = pool.getOSAPI();
-		if( account.isLinux() )
+		if( action.isLocalLinux() )
 			processId = osapi.getLinuxProcessId( action , process );
+		else
+			processId = osapi.getWindowsProcessId( action , process );
 	}
 	
 	private void runLocalInteractiveSshLinux( ActionBase action , Account account , String KEY ) throws Exception {

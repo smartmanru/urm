@@ -155,8 +155,10 @@ public class WaiterCommand implements Runnable {
 			int index = buffer.indexOf( '\n' );
 			if( index < 0 ) {
 				String newBuffer = readBuffer( action , textreader , buffer , '\n' );
-				if( newBuffer != null )
-					buffer = newBuffer;
+				if( newBuffer == null )
+					action.exit( "stream is closed" );
+				
+				buffer = newBuffer;
 				continue;
 			}
 			

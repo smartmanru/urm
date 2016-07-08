@@ -386,7 +386,7 @@ public class ShellPool implements Runnable {
 		if( action.isLocalLinux() )
 			master.custom( action , "pkill -9 -P " + processId , CommandOutput.LOGLEVEL_TRACE );
 		else
-			master.custom( action , "taskkill /pid " + processId + " /f" , CommandOutput.LOGLEVEL_TRACE );	
+			master.custom( action , "taskkill /T /pid " + processId + " /f" , CommandOutput.LOGLEVEL_TRACE );	
 	}
 	
 }
