@@ -352,7 +352,12 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 			return( "OK" );
 		}
 		
-		if( name.equals( RemoteCall.INPUT_ACTION_WAITCONNECT ) ) {
+		if( name.equals( RemoteCall.STOP_ACTION_NAME ) ) {
+			notifyExecuteStop( args );
+			return( "OK" );
+		}
+		
+		if( name.equals( RemoteCall.WAITCONNECT_ACTION_NAME ) ) {
 			return( notifyExecuteWaitConnect( args ) );
 		}
 		
@@ -442,29 +447,50 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		return( 0 );
 	}
 	
-	private String notifyExecuteWaitConnect( Object[] args ) throws Exception {
+	private void notifyExecuteStop( Object[] args ) throws Exception {
 		if( args.length != 1 ) {
 			action.error( "missing args calling command=" + meta.name );
-			return( "failed" );
+			return;
 		}
 		
 		if( args[0].getClass() != String.class ) {
 			action.error( "invalid args calling input for command=" + meta.name );
-			return( "failed" );
+			return;
+		}
+		
+		String sessionId = ( String )args[0];
+		
+		try {
+			server.stopSession( sessionId );
+		}
+		catch( Throwable e ) {
+			engine.serverAction.log( e );
+		}
+	}
+	
+	private String notifyExecuteWaitConnect( Object[] args ) throws Exception {
+		if( args.length != 1 ) {
+			action.error( "missing args calling command=" + meta.name );
+			return( RemoteCall.STATUS_ACTION_FAILED );
+		}
+		
+		if( args[0].getClass() != String.class ) {
+			action.error( "invalid args calling input for command=" + meta.name );
+			return( RemoteCall.STATUS_ACTION_FAILED );
 		}
 		
 		String sessionId = ( String )args[0];
 		
 		try {
 			if( !server.waitConnect( sessionId ) )
-				return( "failed" );
+				return( RemoteCall.STATUS_ACTION_FAILED );
 		}
 		catch( Throwable e ) {
 			engine.serverAction.log( e );
-			return( "failed" );
+			return( RemoteCall.STATUS_ACTION_FAILED );
 		}
 		
-		return( RemoteCall.INPUT_ACTION_CONNECTED );
+		return( RemoteCall.STATUS_ACTION_CONNECTED );
 	}
 
 }

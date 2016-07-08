@@ -62,6 +62,10 @@ public class ShellInteractive extends Shell {
 		process.destroy();
 	}
 	
+	public void stop( ActionBase action ) throws Exception {
+		kill( action );
+	}
+	
 	private void runLocalInteractiveSshLinux( ActionBase action , Account account , String KEY ) throws Exception {
 		String cmd = "ssh " + account.getSshAddr();
 		if( !KEY.isEmpty() )

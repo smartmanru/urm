@@ -21,8 +21,11 @@ public class RemoteCall implements NotificationListener {
 
 	public static String GENERIC_ACTION_NAME = "execute";
 	public static String INPUT_ACTION_NAME = "input";
-	public static String INPUT_ACTION_WAITCONNECT = "waitconnect";
-	public static String INPUT_ACTION_CONNECTED = "connected";
+	public static String STOP_ACTION_NAME = "stop";
+	public static String WAITCONNECT_ACTION_NAME = "waitconnect";
+	
+	public static String STATUS_ACTION_FAILED = "failed";
+	public static String STATUS_ACTION_CONNECTED = "connected";
 	
 	public static int DEFAULT_SERVER_PORT = 8800;
 	
@@ -170,22 +173,23 @@ public class RemoteCall implements NotificationListener {
 				input = console.readLine( "$ " );
 			}
 			catch( Throwable e ) {
-				println( "exiting ..." );
-				return;
+				break;
 			}
 			
-			if( input.length() == EXIT_COMMAND.length() && input.toLowerCase().equals( EXIT_COMMAND ) ) {
-				println( "exiting ..." );
-				return;
-			}
+			if( input.length() == EXIT_COMMAND.length() && input.toLowerCase().equals( EXIT_COMMAND ) )
+				break;
 			
 			sendInput( sessionId , input );
 		}
-		
+
+		println( "exiting ..." );
+		mbsc.invoke( mbeanName , STOP_ACTION_NAME , 
+				new Object[] { sessionId } , 
+				new String[] { String.class.getName() } );
 	}
 
 	private boolean connectInteractive( String sessionId ) throws Exception {
-		String ready = ( String )mbsc.invoke( mbeanName , INPUT_ACTION_WAITCONNECT , 
+		String ready = ( String )mbsc.invoke( mbeanName , WAITCONNECT_ACTION_NAME , 
 				new Object[] { sessionId } , 
 				new String[] { String.class.getName() } );
 		
@@ -198,7 +202,7 @@ public class RemoteCall implements NotificationListener {
 			}
 		}
 
-		if( !ready.equals( INPUT_ACTION_CONNECTED ) )
+		if( !ready.equals( STATUS_ACTION_CONNECTED ) )
 			connected = false;
 		
 		return( connected );

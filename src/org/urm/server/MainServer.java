@@ -196,6 +196,14 @@ public class MainServer {
 		call.addInput( input );
 	}
 
+	public void stopSession( String sessionId ) throws Exception {
+		ServerCommandCall call = calls.get( "" + sessionId );
+		if( call == null )
+			serverAction.exit( "unknown call session=" + sessionId );
+		
+		call.stop();
+	}
+
 	public boolean waitConnect( String sessionId ) throws Exception {
 		ServerCommandCall call = calls.get( "" + sessionId );
 		if( call == null )
