@@ -175,9 +175,6 @@ abstract class ShellCore {
 		else
 			processId = osapi.getWindowsProcessId( action , process );
 
-		// additional process setup
-		getProcessAttributes( action );
-		
 		stdin = process.getOutputStream();
 		writer = new OutputStreamWriter( stdin );
 		
@@ -188,6 +185,9 @@ abstract class ShellCore {
 		errreader = new BufferedReader( new InputStreamReader( stderr ) );
 
 		running = true;
+		
+		// additional process setup
+		getProcessAttributes( action );
 		
 		// run predefined exports
 		String cmd = getExportCmd( action );
