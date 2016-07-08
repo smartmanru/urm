@@ -53,15 +53,9 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override protected void getProcessAttributes( ActionBase action ) throws Exception {
 		super.homePath = action.context.session.installPath;
-		super.processId = getProcessId( action );
 		
 		action.debug( "process started: name=" + super.executor.name + ", id=" + super.processId );
 		runCommand( action , "echo off" , CommandOutput.LOGLEVEL_TRACE );
-	}
-	
-	private synchronized String getProcessId( ActionBase action ) throws Exception {
-		ShellCoreJNI osapi = getOSAPI();
-		return( "" + osapi.getWindowsProcessId( action , super.process ) );
 	}
 	
 	private String prepareExecute( ActionBase action , String cmd , int logLevel ) throws Exception {
@@ -181,7 +175,7 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override protected void killProcess( ActionBase action ) throws Exception {
-		executor.pool.master.custom( action , "taskkill /pid " + processId + " /f" , CommandOutput.LOGLEVEL_TRACE );	
+		executor.pool.killProcess( action , processId );
 	}
 
 	@Override public void cmdEnsureDirExists( ActionBase action , String dir ) throws Exception {

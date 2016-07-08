@@ -90,10 +90,6 @@ public abstract class ShellExecutor extends Shell {
 	}
 	
 	// information
-	public String getProcessId() {
-		return( core.processId );
-	}
-
 	public String getHomePath() {
 		return( core.homePath );
 	}

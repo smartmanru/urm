@@ -24,11 +24,6 @@ public class ShellCoreUnix extends ShellCore {
 		windowsHelper = true;
 	}
 
-	public void setProcessName( String name ) {
-		ShellCoreJNI osapi = getOSAPI();
-		osapi.setProcessName( name );
-	}
-	
 	@Override protected String getExportCmd( ActionBase action ) throws Exception {
 		if( action.meta == null || action.meta.product == null )
 			return( "" );
@@ -45,7 +40,6 @@ public class ShellCoreUnix extends ShellCore {
 
 	@Override protected void getProcessAttributes( ActionBase action ) throws Exception {
 		this.runCommand( action , "echo check and skip banner ... " , CommandOutput.LOGLEVEL_TRACE );
-		processId = runCommandGetValueCheckDebug( action , "echo $$" );
 		homePath = runCommandGetValueCheckDebug( action , "echo $HOME" );
 	}
 	
@@ -103,7 +97,7 @@ public class ShellCoreUnix extends ShellCore {
 	}
 
 	@Override protected void killProcess( ActionBase action ) throws Exception {
-		executor.pool.master.custom( action , "pkill -9 -P " + processId , CommandOutput.LOGLEVEL_TRACE );
+		executor.pool.killProcess( action , processId );
 	}
 
 	@Override public void cmdEnsureDirExists( ActionBase action , String dir ) throws Exception {

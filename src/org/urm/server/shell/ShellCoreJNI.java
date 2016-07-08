@@ -91,6 +91,13 @@ public class ShellCoreJNI {
 		String id = Common.getPartBeforeFirst( name , "@" );
 		return( Integer.parseInt( id ) );
 	}
+
+	public int getLinuxProcessId( ActionBase action , Process process ) throws Exception {
+	    Field f = process.getClass().getDeclaredField( "pid" );
+	    f.setAccessible( true );
+	    int pid = ( Integer )f.get( process );
+	    return( pid );
+	}
 	
 	public int getWindowsProcessId( ActionBase action , Process process ) throws Exception {
 		try {

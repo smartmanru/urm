@@ -8,6 +8,7 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionBase;
+import org.urm.server.action.CommandOutput;
 import org.urm.server.storage.Folder;
 
 public class ShellPool implements Runnable {
@@ -20,6 +21,8 @@ public class ShellPool implements Runnable {
 	Map<ActionBase,ActionShells> actionSessions = new HashMap<ActionBase,ActionShells>();
 	List<ShellExecutor> pending = new LinkedList<ShellExecutor>();
 
+	private ShellCoreJNI osapi = null;
+	
 	public ShellExecutor master;
 	public Account account;
 	public Folder tmpFolder;
@@ -371,6 +374,19 @@ public class ShellPool implements Runnable {
 		}
 		
 		return( shell );
+	}
+	
+	public synchronized ShellCoreJNI getOSAPI() throws Exception {
+		if( osapi == null )
+			osapi = new ShellCoreJNI();
+		return( osapi );
+	}
+
+	public void killProcess( ActionBase action , int processId ) throws Exception {
+		if( action.isLocalLinux() )
+			master.custom( action , "pkill -9 -P " + processId , CommandOutput.LOGLEVEL_TRACE );
+		else
+			master.custom( action , "taskkill /pid " + processId + " /f" , CommandOutput.LOGLEVEL_TRACE );	
 	}
 	
 }

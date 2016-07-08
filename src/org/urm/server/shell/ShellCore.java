@@ -29,7 +29,7 @@ abstract class ShellCore {
 	List<String> cmderr;
 	public String rootPath;
 	public String homePath;
-	public String processId;
+	public int processId = -1;
 	
 	Process process = null;
 	OutputStream stdin;
@@ -46,8 +46,6 @@ abstract class ShellCore {
 	static String EXECUTE_LOG = "execute.log";
 	static String UPLOAD_LOG = "upload.log";
 
-	private static ShellCoreJNI osapi = null;
-	
 	abstract protected String getExportCmd( ActionBase action ) throws Exception;
 	abstract protected void getProcessAttributes( ActionBase action ) throws Exception;
 	abstract public void runCommand( ActionBase action , String cmd , int logLevel ) throws Exception;
@@ -170,6 +168,16 @@ abstract class ShellCore {
 		builder.directory( new File( rootPath ) );
 		process = builder.start();
 		
+		// get process ID
+		ShellCoreJNI osapi = executor.pool.getOSAPI();
+		if( osType == VarOSTYPE.LINUX )
+			processId = osapi.getLinuxProcessId( action , process );
+		else
+			processId = osapi.getWindowsProcessId( action , process );
+
+		// additional process setup
+		getProcessAttributes( action );
+		
 		stdin = process.getOutputStream();
 		writer = new OutputStreamWriter( stdin );
 		
@@ -180,9 +188,6 @@ abstract class ShellCore {
 		errreader = new BufferedReader( new InputStreamReader( stderr ) );
 
 		running = true;
-		
-		// get process ID
-		getProcessAttributes( action );
 		
 		// run predefined exports
 		String cmd = getExportCmd( action );
@@ -198,7 +203,7 @@ abstract class ShellCore {
 	
 	public void kill( ActionBase action ) throws Exception {
 		if( process != null ) {
-			if( executor != executor.pool.master && processId != null && !processId.isEmpty() )
+			if( executor != executor.pool.master && processId > 0 )
 				killProcess( action );
 				
 			process.destroy();
@@ -422,12 +427,6 @@ abstract class ShellCore {
 			exitError( action , "error running command (" + cmd + ")" + " - " + err );
 
 		return( cmdout );
-	}
-	
-	protected synchronized ShellCoreJNI getOSAPI() {
-		if( osapi == null )
-			osapi = new ShellCoreJNI();
-		return( osapi );
 	}
 	
 }

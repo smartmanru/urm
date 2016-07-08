@@ -13,6 +13,8 @@ import org.urm.server.action.ActionBase;
 public class ShellInteractive extends Shell {
 
 	Process process = null;
+	int processId;
+	
 	OutputStream stdin;
 	InputStream stderr;
 	InputStream stdout;
@@ -65,6 +67,13 @@ public class ShellInteractive extends Shell {
 	public void stop( ActionBase action ) throws Exception {
 		kill( action );
 	}
+
+	private void startProcess( ActionBase action , ProcessBuilder pb ) throws Exception {
+		process = pb.start();
+		ShellCoreJNI osapi = pool.getOSAPI();
+		if( account.isLinux() )
+			processId = osapi.getLinuxProcessId( action , process );
+	}
 	
 	private void runLocalInteractiveSshLinux( ActionBase action , Account account , String KEY ) throws Exception {
 		String cmd = "ssh " + account.getSshAddr();
@@ -75,7 +84,7 @@ public class ShellInteractive extends Shell {
 		action.trace( account.getPrintName() + " execute: " + cmd );
 
 		ProcessBuilder pb = new ProcessBuilder( "sh" , "-c" , cmd );
-		process = pb.start();
+		startProcess( action , pb );
 	}
 	
 	private void runLocalInteractiveSshWindows( ActionBase action , Account account , String KEY ) throws Exception {
@@ -89,7 +98,7 @@ public class ShellInteractive extends Shell {
 		action.trace( account.getPrintName() + " execute: " + cmd );
 		
 		ProcessBuilder pb = new ProcessBuilder( "cmd" , "/C" , cmd );
-		process = pb.start();
+		startProcess( action , pb );
 	}
 	
 	private void runRemoteInteractiveSshLinux( ActionBase action , Account account , String KEY ) throws Exception {
@@ -101,7 +110,6 @@ public class ShellInteractive extends Shell {
 		
 		ServerCommandCall call = action.context.call;
 		ProcessBuilder pb = new ProcessBuilder( "sh" , "-c" , cmd );
-		pb.redirectErrorStream( true );
 		
 		executeInteractive( action , call , pb );
 	}
@@ -118,13 +126,13 @@ public class ShellInteractive extends Shell {
 		
 		ServerCommandCall call = action.context.call;
 		ProcessBuilder pb = new ProcessBuilder( "cmd" , "/C" , cmd );
-		pb.redirectErrorStream( true );
 		
 		executeInteractive( action , call , pb );
 	}
 	
 	private void executeInteractive( ActionBase action , ServerCommandCall call , ProcessBuilder pb ) throws Exception {
-		process = pb.start();
+		pb.redirectErrorStream( true );
+		startProcess( action , pb );
 		
 		stdin = process.getOutputStream();
 		writer = new OutputStreamWriter( stdin );
