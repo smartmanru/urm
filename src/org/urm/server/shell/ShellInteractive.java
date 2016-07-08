@@ -100,7 +100,9 @@ public class ShellInteractive extends Shell {
 		action.trace( account.getPrintName() + " execute: " + cmd );
 		
 		ServerCommandCall call = action.context.call;
-		ProcessBuilder pb = new ProcessBuilder( "sh" , "-c" , cmd , "2>&1" );
+		ProcessBuilder pb = new ProcessBuilder( "sh" , "-c" , cmd );
+		pb.redirectErrorStream( true );
+		
 		executeInteractive( action , call , pb );
 	}
 
@@ -115,7 +117,9 @@ public class ShellInteractive extends Shell {
 		action.trace( account.getPrintName() + " execute: " + cmd );
 		
 		ServerCommandCall call = action.context.call;
-		ProcessBuilder pb = new ProcessBuilder( "cmd" , "/C" , cmd , "2>&1" );
+		ProcessBuilder pb = new ProcessBuilder( "cmd" , "/C" , cmd );
+		pb.redirectErrorStream( true );
+		
 		executeInteractive( action , call , pb );
 	}
 	
