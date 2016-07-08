@@ -60,7 +60,7 @@ public class ShellInteractive extends Shell {
 		process.destroy();
 	}
 	
-	public void runLocalInteractiveSshLinux( ActionBase action , Account account , String KEY ) throws Exception {
+	private void runLocalInteractiveSshLinux( ActionBase action , Account account , String KEY ) throws Exception {
 		String cmd = "ssh " + account.getSshAddr();
 		if( !KEY.isEmpty() )
 			cmd += " -i " + KEY;
@@ -72,7 +72,7 @@ public class ShellInteractive extends Shell {
 		process = pb.start();
 	}
 	
-	public void runLocalInteractiveSshWindows( ActionBase action , Account account , String KEY ) throws Exception {
+	private void runLocalInteractiveSshWindows( ActionBase action , Account account , String KEY ) throws Exception {
 		String cmd = "plink ";
 		if( !KEY.isEmpty() )
 			cmd += "-i " + KEY + " ";
@@ -86,7 +86,7 @@ public class ShellInteractive extends Shell {
 		process = pb.start();
 	}
 	
-	public void runRemoteInteractiveSshLinux( ActionBase action , Account account , String KEY ) throws Exception {
+	private void runRemoteInteractiveSshLinux( ActionBase action , Account account , String KEY ) throws Exception {
 		String cmd = "ssh -T " + account.getSshAddr();
 		if( !KEY.isEmpty() )
 			cmd += " -i " + KEY;
@@ -98,7 +98,7 @@ public class ShellInteractive extends Shell {
 		executeInteractive( action , call , pb );
 	}
 
-	public void runRemoteInteractiveSshWindows( ActionBase action , Account account , String KEY ) throws Exception {
+	private void runRemoteInteractiveSshWindows( ActionBase action , Account account , String KEY ) throws Exception {
 		String cmd = "plink ";
 		if( !KEY.isEmpty() )
 			cmd += "-i " + KEY + " ";
@@ -113,7 +113,7 @@ public class ShellInteractive extends Shell {
 		executeInteractive( action , call , pb );
 	}
 	
-	public void executeInteractive( ActionBase action , ServerCommandCall call , ProcessBuilder pb ) throws Exception {
+	private void executeInteractive( ActionBase action , ServerCommandCall call , ProcessBuilder pb ) throws Exception {
 		process = pb.start();
 		
 		stdin = process.getOutputStream();
@@ -136,16 +136,20 @@ public class ShellInteractive extends Shell {
 		call.connectFinished( true );
 	}
 
-	public void runInteractive( ActionBase action ) throws Exception {
+	public void runLocalInteractive( ActionBase action ) throws Exception {
 		start( action );
 		waitFinished( action );
 	}
+
+	public void runRemoteInteractive( ActionBase action ) throws Exception {
+		start( action );
+		WaiterCommand waiter = new WaiterCommand( action.context.logLevelLimit , reader , errreader );
+		waiter.waitForProcess( action , process );
+	}
 	
 	public void waitFinished( ActionBase action ) throws Exception {
-		WaiterCommand waiter = new WaiterCommand( action.context.logLevelLimit , reader , errreader );
-		
 		action.trace( name + " wait process to finish ..." );
-		waiter.waitForProcess( action , process );
+		process.waitFor();
 	}
 	
 	public void addInput( ActionBase action , String input ) throws Exception {

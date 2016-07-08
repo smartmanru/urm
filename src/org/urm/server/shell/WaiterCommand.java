@@ -139,13 +139,13 @@ public class WaiterCommand implements Runnable {
 			System.out.print( "\n" );
 	}		
 
-	protected void readStreamToMarker( ActionBase action , BufferedReader textreader , List<String> text , String prompt ) throws Exception {
+	protected void readStream( ActionBase action , BufferedReader textreader , List<String> text , String prompt ) throws Exception {
 		String line;
 		boolean first = true;
 		
 		String buffer = "";
 		if( action.context.CTX_TRACEINTERNAL )
-			action.trace( "readStreamToMarker - start reading ..." );
+			action.trace( "readStream - start reading ..." );
 		
 		while ( true ) {
 			int index = buffer.indexOf( '\n' );
@@ -160,7 +160,17 @@ public class WaiterCommand implements Runnable {
 			buffer = buffer.substring( index + 1 );
 			
 			if( action.context.CTX_TRACEINTERNAL )
-				action.trace( "readStreamToMarker - line=" + line.replaceAll("\\p{C}", "?") );
+				action.trace( "readStream - line=" + line.replaceAll("\\p{C}", "?") );
+			
+			if( waitForProcess ) {
+				if( first && !prompt.isEmpty() ) {
+					outStreamLine( action , prompt , text );
+					first = false;
+				}
+				
+				outStreamLine( action , line , text );
+				continue;
+			}
 			
 			index = line.indexOf( waitMarker );
 			if( index >= 0 ) {
@@ -227,16 +237,16 @@ public class WaiterCommand implements Runnable {
 	}
 	
 	private void runWaitForCommandFinished() throws Exception {
-		readStreamToMarker( action , reader , cmdout , "" );
-		readStreamToMarker( action , errreader , cmderr , "stderr:" );
+		readStream( action , reader , cmdout , "" );
+		readStream( action , errreader , cmderr , "stderr:" );
 	}
 
 	private void runWaitForMarker() throws Exception {
-		readStreamToMarker( action , reader , null , "" );
+		readStream( action , reader , null , "" );
 	}
 	
 	private void runWaitForProcess() throws Exception {
-		waitProcess.waitFor();
+		readStream( action , reader , null , "" );
 	}
 	
 }

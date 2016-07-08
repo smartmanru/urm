@@ -71,8 +71,7 @@ public class ServerCommandCall implements Runnable {
 		shellInteractive = shell;
 		waitConnectMode = true;
 		action.setTimeoutUnlimited();
-		shell.start( action );
-		shell.waitFinished( action );
+		shell.runRemoteInteractive( action );
 	}
     
 	public void addInput( String input ) throws Exception {
