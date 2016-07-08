@@ -96,7 +96,7 @@ public class ShellPool implements Runnable {
 					if( checkOldInteractiveShell( shell ) )
 						killShell( shell );
 					else
-						engine.serverAction.trace( "stay in pool name=" + shell.name );
+						engine.serverAction.trace( "keep interactive name=" + shell.name );
 				}
 			}
 		}

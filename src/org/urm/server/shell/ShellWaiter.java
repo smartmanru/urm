@@ -18,18 +18,18 @@ public class ShellWaiter {
 	
 	public boolean wait( ActionBase action , int timeoutMillis ) {
 		try {
-			action.trace( "wait for command=" + command.getClass().getSimpleName() + " (timeout " + timeoutMillis + "ms) ..." );
-            Thread thread = new Thread( null , command , command.getClass().getSimpleName() );
-            command.action = action;
-            command.thread = thread; 
+			action.trace( "wait for command=" + command.getClass().getSimpleName() + ", shell=" + command.shell.name + " (timeout " + timeoutMillis + "ms) ..." );
+			Thread thread = new Thread( null , command , command.getClass().getSimpleName() );
+			command.action = action;
+			command.thread = thread; 
             
-            thread.start();
-            waitTimeout( action , timeoutMillis );
-            if( command.finished )
-            	return( true );
+			thread.start();
+			waitTimeout( action , timeoutMillis );
+			if( command.finished )
+				return( true );
             
 			action.trace( "wait failed for command=" + command.getClass().getSimpleName() );
-            cleanup( action );
+			cleanup( action );
 		}
 		catch( Throwable e ) {
 			action.log( "timeout command=" + command.getClass().getSimpleName() , e );
