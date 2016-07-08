@@ -148,7 +148,7 @@ public class ShellInteractive extends Shell {
 	public void runRemoteInteractive( ActionBase action ) throws Exception {
 		start( action );
 		WaiterCommand waiter = new WaiterCommand( this , action.context.logLevelLimit , reader , errreader );
-		waiter.waitForProcess( action , process );
+		waiter.waitInteractive( action , process );
 		pool.removeInteractive( action , this );
 	}
 	

@@ -92,6 +92,17 @@ public class CommandOutput {
 		}
 	}
 	
+	public void logExactInteractive( CommandContext context , String s , int logLevel ) {
+		if( context.call != null )
+			context.call.addLog( s );
+		
+		if( logActionLevelLimit >= 0 && logServerLevelLimit >= 0 && 
+			logLevel > logActionLevelLimit && logLevel > logServerLevelLimit )
+			return;
+		
+		outExact( context , s );
+	}
+	
 	public void log( CommandContext context , String prompt , Throwable e ) {
 		if( logActionLevelLimit < 0 || logServerLevelLimit < 0 ) {
 			synchronized( syncStatic ) {

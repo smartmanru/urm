@@ -180,6 +180,10 @@ abstract public class ActionBase {
 		output.logExact( context , s , logLevel );
 	}
 	
+	public void logExactInteractive( String s , int logLevel ) {
+		output.logExactInteractive( context , s , logLevel );
+	}
+	
 	public void error( String s ) {
 		output.error( context , s );
 	}
