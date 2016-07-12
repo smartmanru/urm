@@ -70,6 +70,7 @@ public class ShellPool implements Runnable {
 				}
 				else
 				if( checkOldExecutorShell( shell ) ) {
+					engine.serverAction.trace( "kill old pending executor shell name=" + shell.name + " ..." );
 					pending.remove( k );
 					killShell( shell );
 				}
@@ -84,6 +85,7 @@ public class ShellPool implements Runnable {
 		synchronized( this ) {
 			for( ShellExecutor shell : pool.values().toArray( new ShellExecutor[0] ) ) {
 				if( checkOldExecutorShell( shell ) ) {
+					engine.serverAction.trace( "kill old pool executor shell name=" + shell.name + " ..." );
 					pool.remove( shell.name );
 					killShell( shell );
 				}
@@ -97,6 +99,7 @@ public class ShellPool implements Runnable {
 			for( ActionShells map : actionSessions.values() ) {
 				for( ShellInteractive shell : map.getInteractiveList() ) {
 					if( checkOldInteractiveShell( shell ) ) {
+						engine.serverAction.trace( "kill old interactive shell name=" + shell.name + " ..." );
 						map.removeInteractive( shell.name );
 						killShell( shell );
 					}
