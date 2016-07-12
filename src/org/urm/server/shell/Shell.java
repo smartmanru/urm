@@ -46,8 +46,10 @@ abstract public class Shell {
 
 	protected void startProcess( ActionBase action , ProcessBuilder builder , String rootPath , boolean redirect ) throws Exception {
 		this.rootPath = rootPath;
+		if( rootPath != null )
+			builder.directory( new File( rootPath ) );
 		
-		builder.directory( new File( rootPath ) );
+		// start OS process
 		process = builder.start();
 		
 		// get process ID
@@ -60,7 +62,8 @@ abstract public class Shell {
 
 		if( !redirect )
 			return;
-		
+
+		// redirect streams
 		stdin = process.getOutputStream();
 		writer = new OutputStreamWriter( stdin );
 		
