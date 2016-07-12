@@ -23,6 +23,7 @@ public class ShellInteractive extends Shell {
 	BufferedReader errreader;
 
 	public final static String CONNECT_MARKER = "URM.CONNECTED";  
+	public final static String COMMAND_MARKER = "URM.COMMAND";  
 
 	public static ShellInteractive getShell( ActionBase action , String name , ShellPool pool , Account account ) throws Exception {
 		ShellInteractive shell = new ShellInteractive( name , pool , account );
@@ -160,7 +161,6 @@ public class ShellInteractive extends Shell {
 		errreader = new BufferedReader( new InputStreamReader( stderr ) );
 		
 		addInput( action , "echo " + CONNECT_MARKER );
-		
 		WaiterCommand waiter = new WaiterCommand( this , action.context.logLevelLimit , reader , errreader );
 		if( !waiter.waitForMarker( action , CONNECT_MARKER ) ) {
 			call.connectFinished( false );
@@ -170,26 +170,28 @@ public class ShellInteractive extends Shell {
 		call.connectFinished( true );
 	}
 
-	public void runLocalInteractive( ActionBase action ) throws Exception {
+	public void runInteractive( ActionBase action ) throws Exception {
 		start( action );
 		action.trace( name + " wait process to finish ..." );
 		process.waitFor();
 		pool.removeInteractive( action , this );
 	}
 
-	public void runRemoteInteractive( ActionBase action ) throws Exception {
-		start( action );
-		WaiterCommand waiter = new WaiterCommand( this , action.context.logLevelLimit , reader , errreader );
-		waiter.waitInteractive( action , process );
-		pool.removeInteractive( action , this );
+	public boolean executeCommand( ActionBase action , String input ) throws Exception {
+		addInput( action , input );
+		
+		// wait for finish
+		WaiterCommand waiter = new WaiterCommand( this , action.context.logLevelLimit , reader , null );
+		boolean res = waiter.waitForMarker( action , COMMAND_MARKER );
+		return( res );
 	}
-	
-	public void addInput( ActionBase action , String input ) throws Exception {
+
+	private void addInput( ActionBase action , String input ) throws Exception {
 		action.trace( name + " add to input: " + input );
 		if( account.isLinux() )
-			writer.write( input + "\n" );
+			writer.write( input + "\necho " + COMMAND_MARKER + "\n" );
 		else
-			writer.write( input + "\r\n" );
+			writer.write( input + "\r\necho " + COMMAND_MARKER + "\r\n" );
 		writer.flush();
 		tsLastInput = System.currentTimeMillis();
 	}

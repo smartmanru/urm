@@ -26,7 +26,7 @@ public class WaiterCommand implements Runnable {
 
 	boolean waitForCommandFinished = false;
 	boolean waitForMarker = false;
-	boolean waitInteractive = false;
+	boolean waitInifinite = false;
 	
 	public String waitMarker;
 	public Process waitProcess;
@@ -62,8 +62,8 @@ public class WaiterCommand implements Runnable {
             if( waitForMarker )
             	runWaitForMarker();
             else
-            if( waitInteractive )
-            	runWaitInteractive();
+            if( waitInifinite )
+            	runWaitInfinite();
             else
             	action.exitUnexpectedState();
         }
@@ -173,7 +173,7 @@ public class WaiterCommand implements Runnable {
 			if( action.context.CTX_TRACEINTERNAL )
 				action.trace( "readStream - line=" + line.replaceAll("\\p{C}", "?") );
 			
-			if( waitInteractive ) {
+			if( waitInifinite ) {
 				if( first && !prompt.isEmpty() ) {
 					outStreamLine( action , prompt , text );
 					first = false;
@@ -213,7 +213,7 @@ public class WaiterCommand implements Runnable {
 		if( text != null )
 			text.add( line );
 		
-		if( waitInteractive )
+		if( waitInifinite )
 			action.logExactInteractive( line , CommandOutput.LOGLEVEL_TRACE );
 		else
 			action.logExact( line , logLevel );
@@ -242,8 +242,8 @@ public class WaiterCommand implements Runnable {
 		return( waiter.wait( action , action.commandTimeout ) );
 	}
 
-	public boolean waitInteractive( ActionBase action , Process process ) throws Exception {
-		waitInteractive = true;
+	public boolean waitInfinite( ActionBase action , Process process ) throws Exception {
+		waitInifinite = true;
 		waitProcess = process;
 		ShellWaiter waiter = new ShellWaiter( this );
 		
@@ -265,7 +265,7 @@ public class WaiterCommand implements Runnable {
 			action.exit( "operation is canceled, stream is closed" );
 	}
 	
-	private void runWaitInteractive() throws Exception {
+	private void runWaitInfinite() throws Exception {
 		readStream( action , reader , null , "" );
 	}
 	

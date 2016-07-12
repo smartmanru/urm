@@ -437,7 +437,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		String input = ( String )args[1];
 		
 		try {
-			server.addCallInput( sessionId , input );
+			server.executeInteractiveCommand( sessionId , input );
 		}
 		catch( Throwable e ) {
 			engine.serverAction.log( e );

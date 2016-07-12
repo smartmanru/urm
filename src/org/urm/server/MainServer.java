@@ -188,12 +188,12 @@ public class MainServer {
 		}
 	}
 
-	public void addCallInput( String sessionId , String input ) throws Exception {
+	public void executeInteractiveCommand( String sessionId , String input ) throws Exception {
 		ServerCommandCall call = calls.get( "" + sessionId );
 		if( call == null )
 			serverAction.exit( "unknown call session=" + sessionId );
 		
-		call.addInput( input );
+		call.executeInteractiveCommand( input );
 	}
 
 	public void stopSession( String sessionId ) throws Exception {

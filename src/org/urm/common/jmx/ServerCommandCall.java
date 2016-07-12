@@ -71,15 +71,15 @@ public class ServerCommandCall implements Runnable {
 		shellInteractive = shell;
 		waitConnectMode = true;
 		action.setTimeoutUnlimited();
-		shell.runRemoteInteractive( action );
+		shell.runInteractive( action );
 	}
     
-	public void addInput( String input ) throws Exception {
+	public void executeInteractiveCommand( String input ) throws Exception {
 		if( shellInteractive == null )
 			return;
 		
 		action.trace( shellInteractive.name + " execute: " + input );
-		shellInteractive.addInput( action , input );
+		shellInteractive.executeCommand( action , input );
 	}
 	
 	public void stop() throws Exception {

@@ -32,7 +32,7 @@ public class ActionLogin extends ActionBase {
 			context.call.runInteractive( this , shell );
 		else {
 			int timeout = setTimeoutUnlimited();
-			shell.runLocalInteractive( this );
+			shell.runInteractive( this );
 			setTimeout( timeout );
 		}
 		
