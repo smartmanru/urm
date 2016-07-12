@@ -331,7 +331,7 @@ public class ShellPool implements Runnable {
 			if( map == null )
 				return;
 			
-			engine.serverAction.trace( "unregister in session pool action ID=" + action.ID );
+			engine.serverAction.trace( "unregister in session pool action ID=" + action.ID + ", shell=" + shell.name );
 			map.removeInteractive( shell.name );
 		}
 	}
@@ -345,7 +345,6 @@ public class ShellPool implements Runnable {
 			if( map == null )
 				return;
 			
-			engine.serverAction.trace( "unregister in session pool action ID=" + action.ID );
 			executors = map.getExecutorList();
 			interactive = map.getInteractiveList();
 		}
@@ -361,6 +360,7 @@ public class ShellPool implements Runnable {
 		}
 		
 		synchronized( this ) {
+			engine.serverAction.trace( "unregister in session pool action ID=" + action.ID );
 			actionSessions.remove( action );
 		}
 	}
