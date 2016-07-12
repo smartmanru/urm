@@ -156,7 +156,7 @@ public class ServerEngine {
 		
 		// create action
 		ActionInit action = executor.createAction( session , artefactory , context , options.action );
-		action.debug( "action created: name=" + action.actionName + ", workfolder=" + artefactory.workFolder.folderPath );
+		action.debug( "action created: actionId=" + action.ID + ", name=" + action.actionName + ", workfolder=" + artefactory.workFolder.folderPath );
 		
 		return( action );
 	}
