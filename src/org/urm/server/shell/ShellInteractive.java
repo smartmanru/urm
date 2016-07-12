@@ -61,10 +61,11 @@ public class ShellInteractive extends Shell {
 	
 	@Override
 	public void kill( ActionBase action ) throws Exception {
+		if( process == null )
+			return;
+		
 		if( processId > 0 )
 			pool.killProcess( action , processId );
-			
-		process.destroy();
 		
 		process = null;
 		stdin = null;
@@ -103,7 +104,7 @@ public class ShellInteractive extends Shell {
 	}
 	
 	private void runLocalInteractiveSshWindows( ActionBase action , Account account , String KEY ) throws Exception {
-		String cmd = "plink ";
+		String cmd = "plink -ssh ";
 		if( !KEY.isEmpty() )
 			cmd += "-i " + KEY + " ";
 		if( account.PORT != 22 )

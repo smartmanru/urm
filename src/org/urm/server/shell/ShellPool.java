@@ -96,8 +96,10 @@ public class ShellPool implements Runnable {
 		synchronized( this ) {
 			for( ActionShells map : actionSessions.values() ) {
 				for( ShellInteractive shell : map.getInteractiveList() ) {
-					if( checkOldInteractiveShell( shell ) )
+					if( checkOldInteractiveShell( shell ) ) {
+						map.removeInteractive( shell.name );
 						killShell( shell );
+					}
 					else
 						engine.serverAction.trace( "keep interactive name=" + shell.name );
 				}

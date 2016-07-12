@@ -143,7 +143,10 @@ public class WaiterCommand implements Runnable {
 			System.out.print( "\n" );
 	}		
 
-	protected void readStream( ActionBase action , BufferedReader textreader , List<String> text , String prompt ) throws Exception {
+	protected boolean readStream( ActionBase action , BufferedReader textreader , List<String> text , String prompt ) throws Exception {
+		if( textreader == null )
+			action.exit( "missing reader" );
+		
 		String line;
 		boolean first = true;
 		
@@ -155,8 +158,10 @@ public class WaiterCommand implements Runnable {
 			int index = buffer.indexOf( '\n' );
 			if( index < 0 ) {
 				String newBuffer = readBuffer( action , textreader , buffer , '\n' );
-				if( newBuffer == null )
-					action.exit( "stream is closed" );
+				if( newBuffer == null ) {
+					action.debug( "stream is closed" );
+					return( false );
+				}
 				
 				buffer = newBuffer;
 				continue;
@@ -200,6 +205,8 @@ public class WaiterCommand implements Runnable {
 			if( index >= 0 )
 				break;
 		}
+		
+		return( true );
 	}
 		
 	protected void outStreamLine( ActionBase action , String line , List<String> text ) throws Exception {
@@ -247,12 +254,15 @@ public class WaiterCommand implements Runnable {
 	}
 	
 	private void runWaitForCommandFinished() throws Exception {
-		readStream( action , reader , cmdout , "" );
-		readStream( action , errreader , cmderr , "stderr:" );
+		boolean reso = readStream( action , reader , cmdout , "" );
+		boolean rese = readStream( action , errreader , cmderr , "stderr:" );
+		if( reso == false || rese == false )
+			action.exit( "operation is canceled, stream is closed" );
 	}
 
 	private void runWaitForMarker() throws Exception {
-		readStream( action , reader , null , "" );
+		if( !readStream( action , reader , null , "" ) )
+			action.exit( "operation is canceled, stream is closed" );
 	}
 	
 	private void runWaitInteractive() throws Exception {
