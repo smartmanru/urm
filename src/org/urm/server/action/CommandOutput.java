@@ -44,7 +44,7 @@ public class CommandOutput {
 		}
 	}
 
-	private void log( CommandContext context , String s , int logLevel ) {
+	private synchronized void log( CommandContext context , String s , int logLevel ) {
 		if( logActionLevelLimit >= 0 && logServerLevelLimit >= 0 && 
 			logLevel > logActionLevelLimit && logLevel > logServerLevelLimit )
 			return;
@@ -76,7 +76,7 @@ public class CommandOutput {
 		}
 	}
 	
-	public void logExact( CommandContext context , String s , int logLevel ) {
+	public synchronized void logExact( CommandContext context , String s , int logLevel ) {
 		if( logActionLevelLimit >= 0 && logServerLevelLimit >= 0 && 
 			logLevel > logActionLevelLimit && logLevel > logServerLevelLimit )
 			return;
@@ -92,7 +92,7 @@ public class CommandOutput {
 		}
 	}
 	
-	public void logExactInteractive( CommandContext context , String s , int logLevel ) {
+	public synchronized void logExactInteractive( CommandContext context , String s , int logLevel ) {
 		if( context.call != null )
 			context.call.addLog( s );
 		
@@ -221,7 +221,7 @@ public class CommandOutput {
 		}
 	}
 	
-	public void stopAllOutputs() throws Exception {
+	public synchronized void stopAllOutputs() throws Exception {
 		while( outchild != null )
 			stopOutputFile();
 		
