@@ -235,7 +235,6 @@ public class RemoteCall implements NotificationListener {
 		}
 		else
 		if( n.isCommandFinished() ) {
-			println( n.getMessage() );
 			synchronized( this ) {
 				notifyAll();
 			}
