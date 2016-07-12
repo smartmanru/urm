@@ -24,7 +24,7 @@ public class ShellPool implements Runnable {
 	private ShellCoreJNI osapi = null;
 	
 	public ShellExecutor master;
-	public Account account;
+	public Account masterAccount;
 	public Folder tmpFolder;
 	
 	private Thread thread;
@@ -37,7 +37,7 @@ public class ShellPool implements Runnable {
 	public ShellPool( ServerEngine engine ) {
 		this.engine = engine;
 		rootPath = engine.execrc.userHome;
-		account = new Account( engine.execrc );
+		masterAccount = new Account( engine.execrc );
 	}
 	
 	@Override
@@ -224,7 +224,7 @@ public class ShellPool implements Runnable {
 			if( account.local )
 				shell = createLocalShell( action , name );
 			else
-				shell = createRemoteShell( action , name );
+				shell = createRemoteShell( action , account , name );
 
 			// start shell
 			if( !shell.start( action ) )
@@ -262,7 +262,7 @@ public class ShellPool implements Runnable {
 		return( shell );
 	}
 	
-	private ShellExecutor createRemoteShell( ActionBase action , String name ) throws Exception {
+	private ShellExecutor createRemoteShell( ActionBase action , Account account , String name ) throws Exception {
 		if( stop )
 			action.exit( "server is in progress of shutdown" );
 		
