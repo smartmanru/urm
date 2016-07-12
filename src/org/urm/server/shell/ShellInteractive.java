@@ -179,6 +179,7 @@ public class ShellInteractive extends Shell {
 
 	public boolean executeCommand( ActionBase action , String input ) throws Exception {
 		addInput( action , input );
+		addInput( action , "echo " + COMMAND_MARKER );
 		
 		// wait for finish
 		WaiterCommand waiter = new WaiterCommand( this , action.context.logLevelLimit , reader , null );
@@ -189,9 +190,9 @@ public class ShellInteractive extends Shell {
 	private void addInput( ActionBase action , String input ) throws Exception {
 		action.trace( name + " add to input: " + input );
 		if( account.isLinux() )
-			writer.write( input + "\necho " + COMMAND_MARKER + "\n" );
+			writer.write( input + "\n" );
 		else
-			writer.write( input + "\r\necho " + COMMAND_MARKER + "\r\n" );
+			writer.write( input + "\r" );
 		writer.flush();
 		tsLastInput = System.currentTimeMillis();
 	}
