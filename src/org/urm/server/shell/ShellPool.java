@@ -215,7 +215,7 @@ public class ShellPool implements Runnable {
 				if( shell != null ) {
 					pool.remove( name );
 					map.addExecutor( shell );
-					engine.serverAction.trace( "assign action ID=" + action.ID + " to existing session name=" + name );
+					engine.serverAction.trace( "assign actionId=" + action.ID + " to existing session name=" + name );
 					return( shell );
 				}
 			}
@@ -234,7 +234,7 @@ public class ShellPool implements Runnable {
 			// add to action sessions (return to pool after release)
 			synchronized( this ) {
 				map.addExecutor( shell );
-				engine.serverAction.trace( "assign action ID=" + action.ID + " to new session name=" + name );
+				engine.serverAction.trace( "assign actionId=" + action.ID + " to new session name=" + name );
 			}
 
 			// force create temporary folder on remote location
@@ -260,7 +260,7 @@ public class ShellPool implements Runnable {
 		if( map == null ) {
 			map = new ActionShells( action );
 			actionSessions.put( action , map );
-			engine.serverAction.trace( "register in session pool action ID=" + action.ID );
+			engine.serverAction.trace( "register in session pool actionId=" + action.ID );
 		}
 		return( map );
 	}
