@@ -95,10 +95,6 @@ public abstract class ShellExecutor extends Shell {
 	}
 
 	// operations
-	public synchronized int waitFor( ActionBase action ) throws Exception {
-		return( core.process.waitFor() );
-	}
-
 	public synchronized String createDir( ActionBase action , String home , String dir ) throws Exception {
 		try {
 			opstart();

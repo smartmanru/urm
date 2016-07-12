@@ -387,7 +387,7 @@ public class ShellPool implements Runnable {
 		return( osapi );
 	}
 
-	public void killProcess( ActionBase action , int processId ) throws Exception {
+	public void killShellProcess( ActionBase action , int processId ) throws Exception {
 		if( action.isLocalLinux() )
 			master.custom( action , "kill -9 " + processId , CommandOutput.LOGLEVEL_TRACE );
 		else

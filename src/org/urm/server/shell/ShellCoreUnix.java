@@ -38,9 +38,11 @@ public class ShellCoreUnix extends ShellCore {
 		return( cmd );
 	}
 
-	@Override protected void getProcessAttributes( ActionBase action ) throws Exception {
-		this.runCommand( action , "echo check and skip banner ... " , CommandOutput.LOGLEVEL_TRACE );
+	@Override protected boolean getProcessAttributes( ActionBase action ) throws Exception {
+		// check connected
+		
 		homePath = runCommandGetValueCheckDebug( action , "echo $HOME" );
+		return( true );
 	}
 	
 	@Override public void runCommand( ActionBase action , String cmd , int logLevel ) throws Exception {
@@ -67,8 +69,7 @@ public class ShellCoreUnix extends ShellCore {
 			action.exit( "shell input stream error" );
 		}
 		
-		WaiterCommand wc = new WaiterCommand( executor , logLevel , reader , cmdout , errreader , cmderr );
-		wc.waitForCommandFinished( action , windowsHelper );
+		executor.waitCommandFinished( action , logLevel , cmdout , cmderr , windowsHelper );
 	}
 
 	@Override public int runCommandGetStatus( ActionBase action , String cmd , int logLevel ) throws Exception {
@@ -94,10 +95,6 @@ public class ShellCoreUnix extends ShellCore {
 	
 	@Override public String getDirCmdIfDir( ActionBase action , String dir , String cmd ) throws Exception {
 		return( "( if [ -d " + Common.getQuoted( dir ) + " ]; then cd " + dir + "; " + cmd + "; fi )" );
-	}
-
-	@Override protected void killProcess( ActionBase action ) throws Exception {
-		executor.pool.killProcess( action , processId );
 	}
 
 	@Override public void cmdEnsureDirExists( ActionBase action , String dir ) throws Exception {

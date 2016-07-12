@@ -1,26 +1,9 @@
 package org.urm.server.shell;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-
 import org.urm.common.jmx.ServerCommandCall;
 import org.urm.server.action.ActionBase;
 
 public class ShellInteractive extends Shell {
-
-	Process process = null;
-	int processId;
-	
-	OutputStream stdin;
-	InputStream stderr;
-	InputStream stdout;
-	BufferedReader reader;
-	Writer writer;
-	BufferedReader errreader;
 
 	public final static String CONNECT_MARKER = "URM.CONNECTED";  
 	public final static String COMMAND_MARKER = "URM.COMMAND";  
@@ -62,36 +45,14 @@ public class ShellInteractive extends Shell {
 	
 	@Override
 	public void kill( ActionBase action ) throws Exception {
-		if( process == null )
-			return;
-		
-		if( processId > 0 )
-			pool.killProcess( action , processId );
-		
-		process = null;
-		stdin = null;
-		writer = null;
-		
-		stderr = null;
-		stdout = null;
-		
-		reader = null;
-		errreader = null;
+		killShellProcess( action );
+		killOSProcess( action );
 	}
 	
 	public void stop( ActionBase action ) throws Exception {
 		kill( action );
 	}
 
-	private void startProcess( ActionBase action , ProcessBuilder pb ) throws Exception {
-		process = pb.start();
-		ShellCoreJNI osapi = pool.getOSAPI();
-		if( action.isLocalLinux() )
-			processId = osapi.getLinuxProcessId( action , process );
-		else
-			processId = osapi.getWindowsProcessId( action , process );
-	}
-	
 	private void runLocalInteractiveSshLinux( ActionBase action , Account account , String KEY ) throws Exception {
 		String cmd = "ssh " + account.getSshAddr();
 		if( !KEY.isEmpty() )
@@ -101,7 +62,7 @@ public class ShellInteractive extends Shell {
 		action.trace( account.getPrintName() + " execute: " + cmd );
 
 		ProcessBuilder pb = new ProcessBuilder( "sh" , "-c" , cmd );
-		startProcess( action , pb );
+		startProcess( action , pb , null , false );
 	}
 	
 	private void runLocalInteractiveSshWindows( ActionBase action , Account account , String KEY ) throws Exception {
@@ -115,7 +76,7 @@ public class ShellInteractive extends Shell {
 		action.trace( account.getPrintName() + " execute: " + cmd );
 		
 		ProcessBuilder pb = new ProcessBuilder( "cmd" , "/C" , cmd );
-		startProcess( action , pb );
+		startProcess( action , pb , null , false );
 	}
 	
 	private void runRemoteInteractiveSshLinux( ActionBase action , Account account , String KEY ) throws Exception {
@@ -149,20 +110,10 @@ public class ShellInteractive extends Shell {
 	
 	private void executeInteractive( ActionBase action , ServerCommandCall call , ProcessBuilder pb ) throws Exception {
 		pb.redirectErrorStream( true );
-		startProcess( action , pb );
+		startProcess( action , pb , null , true );
 		
-		stdin = process.getOutputStream();
-		writer = new OutputStreamWriter( stdin );
-		
-		stderr = process.getErrorStream();
-		stdout = process.getInputStream();
-		
-		reader = new BufferedReader( new InputStreamReader( stdout ) );
-		errreader = new BufferedReader( new InputStreamReader( stderr ) );
-		
-		addInput( action , "echo " + CONNECT_MARKER );
-		WaiterCommand waiter = new WaiterCommand( this , action.context.logLevelLimit , reader , errreader );
-		if( !waiter.waitForMarker( action , CONNECT_MARKER ) ) {
+		addInput( action , "echo " + CONNECT_MARKER , true );
+		if( !waitForMarker( action , CONNECT_MARKER ) ) {
 			call.connectFinished( false );
 			action.exit( "unable to connect to " + name );
 		}
@@ -173,30 +124,16 @@ public class ShellInteractive extends Shell {
 	public void runInteractive( ActionBase action ) throws Exception {
 		start( action );
 		action.trace( name + " wait process to finish ..." );
-		process.waitFor();
+		waitFor( action );
 		pool.removeInteractive( action , this );
 	}
 
 	public boolean executeCommand( ActionBase action , String input ) throws Exception {
-		addInput( action , input );
-		addInput( action , "echo " + COMMAND_MARKER );
+		addInput( action , input , false );
+		addInput( action , "echo " + COMMAND_MARKER , true );
 		
 		// wait for finish
-		WaiterCommand waiter = new WaiterCommand( this , action.context.logLevelLimit , reader , null );
-		boolean res = waiter.waitForMarker( action , COMMAND_MARKER );
-		
-		// notify command finished
-		return( res );
-	}
-
-	private void addInput( ActionBase action , String input ) throws Exception {
-		action.trace( name + " add to input: " + input );
-		if( account.isLinux() )
-			writer.write( input + "\n" );
-		else
-			writer.write( input + "\r" );
-		writer.flush();
-		tsLastInput = System.currentTimeMillis();
+		return( waitForMarker( action , CONNECT_MARKER ) );
 	}
 	
 }

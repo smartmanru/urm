@@ -28,7 +28,6 @@ public class ShellCoreWindows extends ShellCore {
 			action.exitUnexpectedState();
 		
 		if( sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX ) {
-			super.setRootPath( rootPath );
 			localSession = new ShellCoreUnix( executor , VarSESSIONTYPE.UNIXLOCAL , tmpFolder , true );
 			localSession.setWindowsHelper();
 			running = true;
@@ -51,11 +50,11 @@ public class ShellCoreWindows extends ShellCore {
 		return( "" );
 	}
 
-	@Override protected void getProcessAttributes( ActionBase action ) throws Exception {
+	@Override protected boolean getProcessAttributes( ActionBase action ) throws Exception {
 		super.homePath = action.context.session.installPath;
 		
-		action.debug( "process started: name=" + super.executor.name + ", id=" + super.processId );
 		runCommand( action , "echo off" , CommandOutput.LOGLEVEL_TRACE );
+		return( true );
 	}
 	
 	private String prepareExecute( ActionBase action , String cmd , int logLevel ) throws Exception {
@@ -104,39 +103,21 @@ public class ShellCoreWindows extends ShellCore {
 			cmdout.clear();
 			cmderr.clear();
 			
-			action.trace( executor.name + " execute: " + cmd );
-			String execLine = cmd + "\r\n";
-			if( action.context.CTX_TRACEINTERNAL )
-				action.trace( execLine );
-			writer.write( execLine );
-			
-			if( addErrorLevel ) {
-				execLine = "echo status=%errorlevel%";
-				action.trace( execLine );
-				writer.write( execLine + "\r\n" );
-			}
-			
-			execLine = "echo " + WaiterCommand.FINISH_MARKER + " >&2\r\n";
-			if( action.context.CTX_TRACEINTERNAL )
-				action.trace( execLine );
-			writer.write( execLine );
-			
-			execLine = "echo " + WaiterCommand.FINISH_MARKER + "\r\n";
-			if( action.context.CTX_TRACEINTERNAL )
-				action.trace( execLine );
-			writer.write( execLine );
-			
 			try {
-				writer.flush();
-				executor.tsLastInput = System.currentTimeMillis();
+				executor.addInput( action , cmd , false );
+				
+				if( addErrorLevel )
+					executor.addInput( action , "echo status=%errorlevel%" , true );
+				
+				executor.addInput( action , "echo " + WaiterCommand.FINISH_MARKER + " >&2" , true );
+				executor.addInput( action , "echo " + WaiterCommand.FINISH_MARKER , true );
 			}
 			catch( Throwable e ) {
 				if( action.context.CTX_TRACEINTERNAL )
 					e.printStackTrace();
 			}
 			
-			WaiterCommand wc = new WaiterCommand( executor , logLevel , reader , cmdout , errreader , cmderr );
-			wc.waitForCommandFinished( action , false );
+			executor.waitCommandFinished( action , logLevel , cmdout , cmderr , false );
 		}
 	}
 
@@ -164,18 +145,14 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public String getDirCmd( ActionBase action , String dir , String cmd ) throws Exception {
 		String dirWin = Common.getWinPath( dir );
-		String rootPathWin = Common.getWinPath( rootPath );
+		String rootPathWin = Common.getWinPath( executor.rootPath );
 		return( "if exist " + dirWin + " ( cd " + dirWin + " " + cmdAnd + " ( " + cmd + " ) " + cmdAnd + " " + "cd " + rootPathWin + " ) else echo invalid directory: " + dirWin );
 	}
 	
 	@Override public String getDirCmdIfDir( ActionBase action , String dir , String cmd ) throws Exception {
 		String dirWin = Common.getWinPath( dir );
-		String rootPathWin = Common.getWinPath( rootPath );
+		String rootPathWin = Common.getWinPath( executor.rootPath );
 		return( "if exist " + dirWin + " ( cd " + dirWin + " " + cmdAnd + " ( " + cmd + " ) " + cmdAnd + " " + "cd " + rootPathWin + " )" );
-	}
-
-	@Override protected void killProcess( ActionBase action ) throws Exception {
-		executor.pool.killProcess( action , processId );
 	}
 
 	@Override public void cmdEnsureDirExists( ActionBase action , String dir ) throws Exception {

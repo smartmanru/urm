@@ -1,12 +1,5 @@
 package org.urm.server.shell;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -27,18 +20,8 @@ abstract class ShellCore {
 	
 	List<String> cmdout; 
 	List<String> cmderr;
-	public String rootPath;
 	public String homePath;
-	public int processId = -1;
 	
-	Process process = null;
-	OutputStream stdin;
-	InputStream stderr;
-	InputStream stdout;
-	BufferedReader reader;
-	Writer writer;
-	BufferedReader errreader;
-
 	public String cmdCurrent;
 	public boolean running = false;
 	public boolean initialized = false;
@@ -47,12 +30,11 @@ abstract class ShellCore {
 	static String UPLOAD_LOG = "upload.log";
 
 	abstract protected String getExportCmd( ActionBase action ) throws Exception;
-	abstract protected void getProcessAttributes( ActionBase action ) throws Exception;
+	abstract protected boolean getProcessAttributes( ActionBase action ) throws Exception;
 	abstract public void runCommand( ActionBase action , String cmd , int logLevel ) throws Exception;
 	abstract public int runCommandGetStatus( ActionBase action , String cmd , int logLevel ) throws Exception;
 	abstract public String getDirCmd( ActionBase action , String dir , String cmd ) throws Exception;
 	abstract public String getDirCmdIfDir( ActionBase action , String dir , String cmd ) throws Exception;
-	abstract protected void killProcess( ActionBase action ) throws Exception;
 
 	abstract public void cmdEnsureDirExists( ActionBase action , String dir ) throws Exception;
 	abstract public void cmdCreateFileFromString( ActionBase action , String path , String value ) throws Exception;
@@ -163,27 +145,7 @@ abstract class ShellCore {
 	}
 
 	public void createProcess( ActionBase action , ProcessBuilder builder , String rootPath ) throws Exception {
-		this.rootPath = rootPath;
-		
-		builder.directory( new File( rootPath ) );
-		process = builder.start();
-		
-		// get process ID
-		ShellCoreJNI osapi = executor.pool.getOSAPI();
-		if( osType == VarOSTYPE.LINUX )
-			processId = osapi.getLinuxProcessId( action , process );
-		else
-			processId = osapi.getWindowsProcessId( action , process );
-
-		stdin = process.getOutputStream();
-		writer = new OutputStreamWriter( stdin );
-		
-		stderr = process.getErrorStream();
-		stdout = process.getInputStream();
-		
-		reader = new BufferedReader( new InputStreamReader( stdout ) );
-		errreader = new BufferedReader( new InputStreamReader( stderr ) );
-
+		executor.startProcess( action , builder , rootPath , true );
 		running = true;
 		
 		// additional process setup
@@ -197,27 +159,9 @@ abstract class ShellCore {
 		initialized = true;
 	}
 
-	public void setRootPath( String rootPath ) {
-		this.rootPath = rootPath;
-	}
-	
 	public void kill( ActionBase action ) throws Exception {
-		if( process != null ) {
-			if( executor != executor.pool.master && processId > 0 )
-				killProcess( action );
-				
-			process.destroy();
-			
-			process = null;
-			stdin = null;
-			writer = null;
-			
-			stderr = null;
-			stdout = null;
-			
-			reader = null;
-			errreader = null;
-		}
+		executor.killShellProcess( action );
+		executor.killOSProcess( action );
 		
 		running = false;
 		initialized = false;
@@ -229,11 +173,9 @@ abstract class ShellCore {
 	
 	public void addInput( ActionBase action , String input , boolean windowsHelper ) throws Exception {
 		if( windowsHelper )
-			stdin.write( input.getBytes( "Cp1251" ) );
-		else {
-			writer.write( input );
-			writer.flush();
-		}
+			executor.addInput( action , input.getBytes( "Cp1251" ) , false );
+		else
+			executor.addInput( action , input , false );
 	}
 	
 	public String getOut() {
