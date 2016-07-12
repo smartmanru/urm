@@ -168,7 +168,7 @@ public class RemoteCall implements NotificationListener {
 		String input;
 		mainThread = Thread.currentThread();
 		Console console = System.console();
-		while( true ) {
+		while( !finished ) {
 			try {
 				input = console.readLine( "$ " );
 			}
@@ -212,6 +212,10 @@ public class RemoteCall implements NotificationListener {
 		mbsc.invoke( mbeanName , INPUT_ACTION_NAME , 
 				new Object[] { sessionId , input } , 
 				new String[] { String.class.getName() , String.class.getName() } );
+		
+		synchronized( this ) {
+			wait();
+		}
 	}
 	
 	public void handleNotification( Notification notif , Object handback ) {
@@ -226,6 +230,13 @@ public class RemoteCall implements NotificationListener {
 			println( n.getMessage() );
 			synchronized( this ) {
 				connected = true;
+				notifyAll();
+			}
+		}
+		else
+		if( n.isCommandFinished() ) {
+			println( n.getMessage() );
+			synchronized( this ) {
 				notifyAll();
 			}
 		}

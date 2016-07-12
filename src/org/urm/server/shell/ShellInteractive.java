@@ -184,6 +184,8 @@ public class ShellInteractive extends Shell {
 		// wait for finish
 		WaiterCommand waiter = new WaiterCommand( this , action.context.logLevelLimit , reader , null );
 		boolean res = waiter.waitForMarker( action , COMMAND_MARKER );
+		
+		// notify command finished
 		return( res );
 	}
 

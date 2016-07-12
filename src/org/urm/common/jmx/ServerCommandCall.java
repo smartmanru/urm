@@ -79,7 +79,10 @@ public class ServerCommandCall implements Runnable {
 			return;
 		
 		action.trace( shellInteractive.name + " execute: " + input );
-		shellInteractive.executeCommand( action , input );
+		if( shellInteractive.executeCommand( action , input ) )
+			notifyCommandFinished( "OK" );
+		else
+			notifyCommandFinished( "FAILED" );
 	}
 	
 	public void stop() throws Exception {
@@ -131,6 +134,17 @@ public class ServerCommandCall implements Runnable {
 			int notificationSequence = command.getNextSequence();
 			ActionNotification n = new ActionNotification( command , notificationSequence , sessionId , clientId , msg ); 
 			n.setConnectedEvent();
+			command.sendNotification( n );
+		}
+		catch( Throwable e ) {
+		}
+	}
+	
+	public void notifyCommandFinished( String msg ) {
+		try {
+			int notificationSequence = command.getNextSequence();
+			ActionNotification n = new ActionNotification( command , notificationSequence , sessionId , clientId , msg ); 
+			n.setCommandFinishedEvent();
 			command.sendNotification( n );
 		}
 		catch( Throwable e ) {

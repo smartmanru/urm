@@ -15,7 +15,8 @@ public class ActionNotification extends Notification {
 	public enum EVENT_TYPE {
 		LOG ,
 		STOP ,
-		CONNECTED
+		CONNECTED ,
+		COMMANDFINISHED
 	};
 	
 	public int sessionId;
@@ -50,6 +51,14 @@ public class ActionNotification extends Notification {
 
 	public boolean isConnected() {
 		return( eventType == EVENT_TYPE.CONNECTED );
+	}
+	
+	public void setCommandFinishedEvent() {
+		eventType = EVENT_TYPE.COMMANDFINISHED;
+	}
+
+	public boolean isCommandFinished() {
+		return( eventType == EVENT_TYPE.COMMANDFINISHED );
 	}
 	
 	
