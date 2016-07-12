@@ -23,7 +23,7 @@ public class ShellCoreWindows extends ShellCore {
 		cmdAnd = "&&";
 	}
 
-	@Override public void createProcess( ActionBase action , ProcessBuilder builder , String rootPath ) throws Exception {
+	@Override public boolean createProcess( ActionBase action , ProcessBuilder builder , String rootPath ) throws Exception {
 		if( rootPath == null )
 			action.exitUnexpectedState();
 		
@@ -31,12 +31,14 @@ public class ShellCoreWindows extends ShellCore {
 			localSession = new ShellCoreUnix( executor , VarSESSIONTYPE.UNIXLOCAL , tmpFolder , true );
 			localSession.setWindowsHelper();
 			running = true;
-			localSession.createProcess( action , builder , action.context.CTX_REDISTPATH );
+			if( !localSession.createProcess( action , builder , action.context.CTX_REDISTPATH ) )
+				return( false );
+			
 			initialized = true;
-			return;
+			return( true );
 		}
 		
-		super.createProcess( action , builder , rootPath );
+		return( super.createProcess( action , builder , rootPath ) );
 	}
 	
 	@Override public void kill( ActionBase action ) throws Exception {

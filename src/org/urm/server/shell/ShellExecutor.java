@@ -25,7 +25,7 @@ public abstract class ShellExecutor extends Shell {
 	protected ShellCore core;
 	
 	@Override
-	abstract public void start( ActionBase action ) throws Exception;
+	abstract public boolean start( ActionBase action ) throws Exception;
 
 	// construction and administration
 	protected ShellExecutor( String name , ShellPool pool , Account account , String rootPath , Folder tmpFolder ) {
@@ -73,9 +73,9 @@ public abstract class ShellExecutor extends Shell {
 		start( action );
 	}
 	
-	protected void createProcess( ActionBase action , ProcessBuilder builder , String rootPath ) throws Exception {
+	protected boolean createProcess( ActionBase action , ProcessBuilder builder , String rootPath ) throws Exception {
 		action.debug( "start shell=" + name + " at rootPath=" + rootPath );
-		core.createProcess( action , builder , rootPath );
+		return( core.createProcess( action , builder , rootPath ) );
 	}
 
 	@Override

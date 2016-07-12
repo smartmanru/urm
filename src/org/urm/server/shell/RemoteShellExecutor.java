@@ -11,7 +11,8 @@ public class RemoteShellExecutor extends ShellExecutor {
 		super( name , pool , account , rootPath , tmpFolder );
 	}
 
-	public void start( ActionBase action ) throws Exception {
+	@Override
+	public boolean start( ActionBase action ) throws Exception {
 		ProcessBuilder builder = null;
 		
 		if( core.sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX ) {
@@ -54,7 +55,7 @@ public class RemoteShellExecutor extends ShellExecutor {
 		else
 			action.exitUnexpectedState();
 			
-		super.createProcess( action , builder , rootPath );
+		return( super.createProcess( action , builder , rootPath ) );
 	}
 	
 }

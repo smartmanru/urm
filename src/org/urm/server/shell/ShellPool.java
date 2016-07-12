@@ -221,16 +221,15 @@ public class ShellPool implements Runnable {
 			}
 
 			// create new shell
-			if( account.local ) {
-				shell = ShellExecutor.getLocalShellExecutor( action , name , this , rootPath , tmpFolder );
-				shell.start( action );
-			}
-			else {
-				String REDISTPATH = action.context.CTX_REDISTPATH;
-				shell = ShellExecutor.getRemoteShellExecutor( action , name , this , account , REDISTPATH );
-				shell.start( action );
-			}
+			if( account.local )
+				shell = createLocalShell( action , name );
+			else
+				shell = createRemoteShell( action , name );
 
+			// start shell
+			if( !shell.start( action ) )
+				action.exit( "unable to connect to " + account.getPrintName() );
+			
 			// add to action sessions (return to pool after release)
 			synchronized( this ) {
 				map.addExecutor( shell );
@@ -245,13 +244,30 @@ public class ShellPool implements Runnable {
 		return( shell );
 	}
 
+	private ShellExecutor startDedicatedLocalShell( ActionBase action , String name ) throws Exception {
+		ShellExecutor shell = createLocalShell( action , name );
+		
+		action.setShell( shell );
+		if( !shell.start( action ) )
+			action.exit( "unable to create local shell" );
+		
+		return( shell );
+	}
+
 	private ShellExecutor createLocalShell( ActionBase action , String name ) throws Exception {
 		if( stop )
 			action.exit( "server is in progress of shutdown" );
 		
 		ShellExecutor shell = ShellExecutor.getLocalShellExecutor( action , "local::" + name , this , rootPath , tmpFolder );
-		action.setShell( shell );
-		shell.start( action );
+		return( shell );
+	}
+	
+	private ShellExecutor createRemoteShell( ActionBase action , String name ) throws Exception {
+		if( stop )
+			action.exit( "server is in progress of shutdown" );
+		
+		String REDISTPATH = action.context.CTX_REDISTPATH;
+		ShellExecutor shell = ShellExecutor.getRemoteShellExecutor( action , name , this , account , REDISTPATH );
 		return( shell );
 	}
 	
@@ -270,7 +286,7 @@ public class ShellPool implements Runnable {
 			action.exit( "server is in progress of shutdown" );
 		
 		if( name.equals( "master" ) )
-			return( createLocalShell( action , name ) );
+			return( startDedicatedLocalShell( action , name ) );
 		
 		ShellExecutor shell = null;
 		synchronized( this ) {
@@ -281,7 +297,7 @@ public class ShellPool implements Runnable {
 				return( shell );
 			}
 			
-			shell = createLocalShell( action , name );
+			shell = startDedicatedLocalShell( action , name );
 			map.addExecutor( shell );
 		}
 		

@@ -14,7 +14,7 @@ import org.urm.server.action.ActionBase;
 
 abstract public class Shell {
 
-	abstract public void start( ActionBase action ) throws Exception;
+	abstract public boolean start( ActionBase action ) throws Exception;
 	abstract public void kill( ActionBase action ) throws Exception;
 	
 	public String name;
@@ -58,6 +58,9 @@ abstract public class Shell {
 			processId = osapi.getWindowsProcessId( action , process );
 		action.debug( "process started: name=" + name + ", id=" + processId );
 
+		if( !redirect )
+			return;
+		
 		stdin = process.getOutputStream();
 		writer = new OutputStreamWriter( stdin );
 		

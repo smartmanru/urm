@@ -18,29 +18,27 @@ public class ShellInteractive extends Shell {
 	}
 	
 	@Override
-	public void start( ActionBase action ) throws Exception {
+	public boolean start( ActionBase action ) throws Exception {
 		String KEY = action.context.CTX_KEYNAME;
 		
-		if( action.context.call != null ) {
-			if( action.isLocalLinux() )
+		if( action.isLocalLinux() ) {
+			if( action.context.call != null )
 				runRemoteInteractiveSshLinux( action , account , KEY );
 			else
-			if( action.isLocalWindows() )
+				runLocalInteractiveSshLinux( action , account , KEY );
+		}
+		else
+		if( action.isLocalWindows() ) {
+			if( action.context.call != null )
 				runRemoteInteractiveSshWindows( action , account , KEY );
 			else
-				action.exitUnexpectedState();
-			return;
+				runLocalInteractiveSshWindows( action , account , KEY );
 		}
-
-		if( action.isLocalLinux() )
-			runLocalInteractiveSshLinux( action , account , KEY );
-		else
-		if( action.isLocalWindows() )
-			runLocalInteractiveSshWindows( action , account , KEY );
 		else
 			action.exitUnexpectedState();
 		
 		tsLastInput = tsLastOutput = System.currentTimeMillis();
+		return( true );
 	}
 	
 	@Override

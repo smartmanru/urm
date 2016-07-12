@@ -9,12 +9,14 @@ public class LocalShellExecutor extends ShellExecutor {
 		super( name , pool , pool.account , rootPath , tmpFolder );
 	}
 	
-	public void start( ActionBase action ) throws Exception {
+	@Override
+	public boolean start( ActionBase action ) throws Exception {
 		ProcessBuilder builder;
 		if( account.isWindows() )
 			builder = new ProcessBuilder( "cmd" , "/Q" , "/D" , "/A" , "/V:OFF" );
 		else
 			builder = new ProcessBuilder( "sh" );
-		super.createProcess( action , builder , rootPath );
+		
+		return( super.createProcess( action , builder , rootPath ) );
 	}
 }

@@ -144,12 +144,13 @@ abstract class ShellCore {
 		running = false;
 	}
 
-	public void createProcess( ActionBase action , ProcessBuilder builder , String rootPath ) throws Exception {
+	public boolean createProcess( ActionBase action , ProcessBuilder builder , String rootPath ) throws Exception {
 		executor.startProcess( action , builder , rootPath , true );
 		running = true;
 		
 		// additional process setup
-		getProcessAttributes( action );
+		if( !getProcessAttributes( action ) )
+			return( false );
 		
 		// run predefined exports
 		String cmd = getExportCmd( action );
@@ -157,6 +158,7 @@ abstract class ShellCore {
 			runCommandCheckDebug( action , cmd );
 		
 		initialized = true;
+		return( true );
 	}
 
 	public void kill( ActionBase action ) throws Exception {

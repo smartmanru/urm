@@ -40,6 +40,9 @@ public class ShellCoreUnix extends ShellCore {
 
 	@Override protected boolean getProcessAttributes( ActionBase action ) throws Exception {
 		// check connected
+		executor.addInput( action , "echo " + WaiterCommand.FINISH_MARKER , true );
+		if( !executor.waitForMarker( action , WaiterCommand.FINISH_MARKER ) )
+			return( false );
 		
 		homePath = runCommandGetValueCheckDebug( action , "echo $HOME" );
 		return( true );
