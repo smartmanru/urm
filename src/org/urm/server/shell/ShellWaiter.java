@@ -25,7 +25,7 @@ public class ShellWaiter {
             
 			thread.start();
 			waitTimeout( action , timeoutMillis );
-			if( command.finished ) {
+			if( command.succeeded ) {
 				action.trace( "wait successfully finished for command=" + command.getClass().getSimpleName() );
 				return( true );
 			}

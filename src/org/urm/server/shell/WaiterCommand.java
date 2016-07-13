@@ -14,7 +14,7 @@ public class WaiterCommand implements Runnable {
 	
 	protected boolean windowsHelper;
 	public boolean finished;
-	public boolean exception;
+	public boolean succeeded;
 
 	static final String FINISH_MARKER = "URM.MARKER";
 	
@@ -54,7 +54,7 @@ public class WaiterCommand implements Runnable {
     public void run() {
         try {
             finished = false;
-            exception = false;
+            succeeded = false;
 
             if( waitForCommandFinished )
             	runWaitForCommandFinished();
@@ -66,9 +66,11 @@ public class WaiterCommand implements Runnable {
             	runWaitInfinite();
             else
             	action.exitUnexpectedState();
+            
+            succeeded = true;
         }
         catch (Exception e) {
-            exception = true;
+        	succeeded = false;
             action.log( e );
         }
         

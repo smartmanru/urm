@@ -110,12 +110,14 @@ public class ShellInteractive extends Shell {
 		pb.redirectErrorStream( true );
 		startProcess( action , pb , null , true );
 		
+		int timeout = action.setTimeoutDefault();
 		addInput( action , "echo " + CONNECT_MARKER , true );
 		if( !waitForMarker( action , CONNECT_MARKER ) ) {
 			call.connectFinished( false );
 			action.exit( "unable to connect to " + name );
 		}
 		
+		action.setTimeout( timeout );
 		call.connectFinished( true );
 	}
 
