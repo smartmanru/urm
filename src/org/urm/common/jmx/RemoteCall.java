@@ -46,6 +46,7 @@ public class RemoteCall implements NotificationListener {
 
 	private boolean trace;
 	private int timeout;
+	private long tsEvent = 0;
 	
 	public RemoteCall( CommandOptions options ) {
 		this.options = options;
@@ -238,6 +239,8 @@ public class RemoteCall implements NotificationListener {
 			return;
 		
 		ActionNotification n = ( ActionNotification )notif;
+		tsEvent = System.currentTimeMillis();
+		
 		if( n.isLog() )
 			println( n.getMessage() );
 		else
@@ -276,7 +279,17 @@ public class RemoteCall implements NotificationListener {
 		int tm = timeout;
 		if( tm > 0 )
 			tm += 5;
-		wait( tm * 1000 );
+		
+		while( true ) {
+			try {
+				wait( tm * 1000 );
+			}
+			catch( Throwable e ) {
+				long tsCurrent = System.currentTimeMillis();
+				if( tsCurrent - tsEvent > tm * 1000 )
+					throw e;
+			}
+		}
 	}
 	
 }
