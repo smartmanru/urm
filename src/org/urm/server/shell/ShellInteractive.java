@@ -133,7 +133,7 @@ public class ShellInteractive extends Shell {
 		addInput( action , "echo " + COMMAND_MARKER , true );
 		
 		// wait for finish
-		return( waitForMarker( action , CONNECT_MARKER ) );
+		return( waitForMarker( action , COMMAND_MARKER ) );
 	}
 	
 }
