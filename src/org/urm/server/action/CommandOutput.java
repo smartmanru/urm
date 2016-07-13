@@ -44,7 +44,7 @@ public class CommandOutput {
 		}
 	}
 
-	private synchronized void log( CommandContext context , String s , int logLevel ) {
+	private void log( CommandContext context , String s , int logLevel ) {
 		if( logActionLevelLimit >= 0 && logServerLevelLimit >= 0 && 
 			logLevel > logActionLevelLimit && logLevel > logServerLevelLimit )
 			return;
@@ -130,7 +130,7 @@ public class CommandOutput {
 		}
 		
 		synchronized( syncStatic ) {
-			error( context , s );
+			log( context , s , LOGLEVEL_ERROR );
 			if( logActionLevelLimit >= LOGLEVEL_DEBUG || logServerLevelLimit >= LOGLEVEL_DEBUG ) {
 				if( outchild != null ) {
 					e.printStackTrace( outchild );
@@ -144,23 +144,24 @@ public class CommandOutput {
 					
 					e.printStackTrace();
 				}
+				System.out.flush();
 			}
 		}
 	}
 	
-	public void error( CommandContext context , String s ) {
+	public synchronized void error( CommandContext context , String s ) {
 		log( context , s , LOGLEVEL_ERROR );
 	}
 	
-	public void info( CommandContext context , String s ) {
+	public synchronized void info( CommandContext context , String s ) {
 		log( context , s , LOGLEVEL_INFO );
 	}
 	
-	public void debug( CommandContext context , String s ) {
+	public synchronized void debug( CommandContext context , String s ) {
 		log( context , s , LOGLEVEL_DEBUG );
 	}
 	
-	public void trace( CommandContext context , String s ) {
+	public synchronized void trace( CommandContext context , String s ) {
 		log( context , s , LOGLEVEL_TRACE );
 	}
 
@@ -206,7 +207,7 @@ public class CommandOutput {
 			parentOutputs.add( outchild );
 		
 		outchild = Common.createOutfileFile( file );
-		info( context , title );
+		log( context , title , LOGLEVEL_INFO );
 	}
 	
 	public void stopOutputFile() throws Exception {
