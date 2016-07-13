@@ -29,7 +29,7 @@ public class CommandOutput {
 		logServerLevelLimit = LOGLEVEL_ERROR;
 	}
 
-	public void setLogLevel( ActionBase action , int logActionLevelLimit ) {
+	public synchronized void setLogLevel( ActionBase action , int logActionLevelLimit ) {
 		this.logActionLevelLimit = logActionLevelLimit;
 		
 		if( action.context.call != null )
@@ -103,11 +103,12 @@ public class CommandOutput {
 		outExact( context , s );
 	}
 	
-	public void log( CommandContext context , String prompt , Throwable e ) {
+	public synchronized void log( CommandContext context , String prompt , Throwable e ) {
 		if( logActionLevelLimit < 0 || logServerLevelLimit < 0 ) {
 			synchronized( syncStatic ) {
 				System.out.println( "TRACEINTERNAL: " + prompt );
 				e.printStackTrace();
+				System.out.flush();
 			}
 			return;
 		}
@@ -195,13 +196,13 @@ public class CommandOutput {
 		return( fname );
 	}
 	
-	public void tee( String title , String file ) throws Exception {
+	public synchronized void tee( String title , String file ) throws Exception {
 		outtee = Common.createOutfileFile( file );
 		outtee.println( "############# start logging on " + Common.getNameTimeStamp() );
 		outtee.flush();
 	}
 	
-	public void createOutputFile( CommandContext context , String title , String file ) throws Exception {
+	public synchronized void createOutputFile( CommandContext context , String title , String file ) throws Exception {
 		// add current to stack
 		if( outchild != null )
 			parentOutputs.add( outchild );
@@ -210,7 +211,7 @@ public class CommandOutput {
 		log( context , title , LOGLEVEL_INFO );
 	}
 	
-	public void stopOutputFile() throws Exception {
+	public synchronized void stopOutputFile() throws Exception {
 		outchild.flush();
 		outchild.close();
 		
