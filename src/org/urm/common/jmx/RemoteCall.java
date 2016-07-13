@@ -41,6 +41,7 @@ public class RemoteCall implements NotificationListener {
 
 	boolean finished = false;
 	boolean connected = false;
+	boolean stopwait = false;
 	
 	public static final String EXIT_COMMAND = "exit";
 
@@ -138,6 +139,7 @@ public class RemoteCall implements NotificationListener {
 			mbeanName = new ObjectName( name );
 			RemoteCallFilter filter = new RemoteCallFilter( clientId );
 			
+			stopwait = false;
 			mbsc.addNotificationListener( mbeanName , this , filter , clientId );
 			sessionId = ( String )mbsc.invoke( mbeanName , GENERIC_ACTION_NAME , 
 					new Object[] { builder.options.action , builder.options.data , clientId } , 
@@ -225,6 +227,7 @@ public class RemoteCall implements NotificationListener {
 	}
 
 	private void sendInput( String sessionId , String input ) throws Exception {
+		stopwait = false;
 		mbsc.invoke( mbeanName , INPUT_ACTION_NAME , 
 				new Object[] { sessionId , input } , 
 				new String[] { String.class.getName() , String.class.getName() } );
@@ -247,6 +250,7 @@ public class RemoteCall implements NotificationListener {
 		if( n.isConnected() ) {
 			println( n.getMessage() );
 			synchronized( this ) {
+				stopwait = true;
 				connected = true;
 				notifyAll();
 			}
@@ -254,6 +258,7 @@ public class RemoteCall implements NotificationListener {
 		else
 		if( n.isCommandFinished() ) {
 			synchronized( this ) {
+				stopwait = true;
 				notifyAll();
 			}
 		}
@@ -269,6 +274,7 @@ public class RemoteCall implements NotificationListener {
 			}
 			
 			synchronized( this ) {
+				stopwait = true;
 				finished = true;
 				notifyAll();
 			}
@@ -279,12 +285,17 @@ public class RemoteCall implements NotificationListener {
 		int tm = timeout;
 		if( tm > 0 )
 			tm += 5;
-		
+
 		while( true ) {
 			try {
 				wait( tm * 1000 );
+				if( stopwait )
+					return;
 			}
 			catch( Throwable e ) {
+				if( stopwait )
+					return;
+				
 				long tsCurrent = System.currentTimeMillis();
 				if( tsCurrent - tsEvent > tm * 1000 )
 					throw e;
