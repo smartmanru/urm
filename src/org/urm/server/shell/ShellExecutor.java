@@ -19,6 +19,7 @@ public abstract class ShellExecutor extends Shell {
 	public String rootPath;
 	public Folder tmpFolder;
 	
+	public boolean available;
 	public long tsLastStarted;
 	public long tsLastFinished;
 	
@@ -75,7 +76,8 @@ public abstract class ShellExecutor extends Shell {
 	
 	protected boolean createProcess( ActionBase action , ProcessBuilder builder , String rootPath ) throws Exception {
 		action.debug( "start shell=" + name + " at rootPath=" + rootPath );
-		return( core.createProcess( action , builder , rootPath ) );
+		available = core.createProcess( action , builder , rootPath );
+		return( available );
 	}
 
 	@Override

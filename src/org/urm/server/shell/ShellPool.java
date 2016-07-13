@@ -33,6 +33,7 @@ public class ShellPool implements Runnable {
 	
 	private long tsHouseKeepTime = 0;
 	private static long SHELL_SILENT_MAX = 60000;
+	private static long SHELL_UNAVAILABLE_SKIPTIME = 30000;
 	
 	public ShellPool( ServerEngine engine ) {
 		this.engine = engine;
@@ -111,6 +112,14 @@ public class ShellPool implements Runnable {
 	}
 
 	private boolean checkOldExecutorShell( ShellExecutor shell ) {
+		// check unavailable shell
+		if( !shell.available ) {
+			if( tsHouseKeepTime - shell.tsCreated > SHELL_UNAVAILABLE_SKIPTIME )
+				return( true );
+			return( false );
+		}
+		
+		// check silent shell
 		long finished = shell.tsLastFinished;
 		if( finished > 0 && finished + SHELL_SILENT_MAX < tsHouseKeepTime )
 			return( true );
@@ -213,6 +222,9 @@ public class ShellPool implements Runnable {
 			synchronized( this ) {
 				shell = pool.get( name );
 				if( shell != null ) {
+					if( !shell.available )
+						action.exit( "do not connect to unavailable shell name=" + name );
+						
 					pool.remove( name );
 					map.addExecutor( shell );
 					engine.serverAction.trace( "assign actionId=" + action.ID + " to existing session name=" + name );
@@ -227,8 +239,11 @@ public class ShellPool implements Runnable {
 				shell = createRemoteShell( action , account , name );
 
 			// start shell
-			if( !shell.start( action ) )
+			if( !shell.start( action ) ) {
+				// add shell to pool to avoid many connects to unavailable resource
+				pool.put( shell.name , shell );
 				action.exit( "unable to connect to " + account.getPrintName() );
+			}
 			
 			// add to action sessions (return to pool after release)
 			synchronized( this ) {
