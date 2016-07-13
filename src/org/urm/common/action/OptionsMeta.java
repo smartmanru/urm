@@ -29,7 +29,7 @@ public class OptionsMeta {
 		defineGenericOption( CommandVar.newFlagYesOption( "all" , "OPT_ALL" , true , "use all possible items in scope, ignore reduce defaults" ) );
 		defineGenericOption( CommandVar.newFlagYesOption( "local" , "OPT_LOCAL" , false , "any session is opened as local under current user" ) );
 		defineGenericOption( CommandVar.newFlagYesOption( "offline" , "OPT_OFFLINE" , false , "do not use server even if configured" ) );
-		defineGenericOption( CommandVar.newIntParam( "timeout" , "OPT_COMMANDTIMEOUT" , true , "use specific default timeout" ) );
+		defineGenericOption( CommandVar.newIntParam( "timeout" , "OPT_TIMEOUT" , true , "use specific default timeout" ) );
 		defineGenericOption( CommandVar.newParam( "key" , "OPT_KEY" , false , "use given key to connect to host" ) );
 		defineGenericOption( CommandVar.newParam( "distpath" , "OPT_DISTPATH" , false , "use given path to find distributive files" ) );
 		defineGenericOption( CommandVar.newParam( "hiddenpath" , "OPT_HIDDENPATH" , false , "use given path to find hidden files and properties" ) );
@@ -104,6 +104,10 @@ public class OptionsMeta {
 	
 	public String getTraceVar() {
 		return( "OPT_TRACE" );
+	}
+	
+	public String getTimeoutVar() {
+		return( "OPT_TIMEOUT" );
 	}
 	
 	public CommandVar getVar( String varName ) {

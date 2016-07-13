@@ -1,7 +1,6 @@
 package org.urm.common.jmx;
 
 import java.io.BufferedReader;
-import java.io.Console;
 import java.io.InputStreamReader;
 
 import javax.management.MBeanServerConnection;
@@ -16,6 +15,7 @@ import org.urm.common.RunContext;
 import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
+import org.urm.common.action.CommandOptions;
 
 public class RemoteCall implements NotificationListener {
 
@@ -28,6 +28,8 @@ public class RemoteCall implements NotificationListener {
 	public static String STATUS_ACTION_CONNECTED = "connected";
 	
 	public static int DEFAULT_SERVER_PORT = 8800;
+
+	CommandOptions options;
 	
 	public String URL;
 	ObjectName mbeanName;
@@ -41,6 +43,10 @@ public class RemoteCall implements NotificationListener {
 	boolean connected = false;
 	
 	public static final String EXIT_COMMAND = "exit";
+
+	public RemoteCall( CommandOptions options ) {
+		this.options = options;
+	}
 	
 	public static String getCommandMBeanName( String productDir , String command ) {
 		return( "urm-" + productDir + ":" + "name=" + command );
@@ -82,7 +88,7 @@ public class RemoteCall implements NotificationListener {
 		}
 	}
 	
-	public boolean serverConnect( RunContext execrc ) {
+	private boolean serverConnect( RunContext execrc ) {
 		return( serverConnect( execrc.serverHostPort ) );
 	}
 	
@@ -145,7 +151,7 @@ public class RemoteCall implements NotificationListener {
 				waitInteractive( sessionId );
 			else {
 				synchronized( this ) {
-					wait();
+					executeWait();
 				}
 			}
 		}
@@ -167,10 +173,10 @@ public class RemoteCall implements NotificationListener {
 		
 		String input;
 		mainThread = Thread.currentThread();
-		Console console = System.console();
 		while( !finished ) {
 			try {
-				input = console.readLine( "$ " );
+				System.out.println( "$ " );
+				input = br.readLine();
 			}
 			catch( Throwable e ) {
 				break;
@@ -196,7 +202,7 @@ public class RemoteCall implements NotificationListener {
 		synchronized( this ) {
 			try {
 				if( finished == false && connected == false )
-					wait( 30000 );
+					executeWait();
 			}
 			catch( Throwable e ) {
 			}
@@ -214,7 +220,7 @@ public class RemoteCall implements NotificationListener {
 				new String[] { String.class.getName() , String.class.getName() } );
 		
 		synchronized( this ) {
-			wait();
+			executeWait();
 		}
 	}
 	
@@ -254,6 +260,12 @@ public class RemoteCall implements NotificationListener {
 				notifyAll();
 			}
 		}
+	}
+	
+	private void executeWait() throws Exception {
+		String var = options.meta.getTimeoutVar();
+		int timeout = options.getIntParamValue( var , options.optDefaultCommandTimeout );
+		wait( timeout );
 	}
 	
 }

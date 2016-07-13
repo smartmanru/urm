@@ -42,7 +42,7 @@ public class ActionServer extends ActionBase {
 	
 	private void executeServerStop() throws Exception {
 		info( "stopping server ..." );
-		RemoteCall call = new RemoteCall();
+		RemoteCall call = new RemoteCall( context.options );
 		if( !serverConnect( call ) )
 			info( "server is not running on url=" + call.URL );
 		else {
@@ -64,7 +64,7 @@ public class ActionServer extends ActionBase {
 	
 	private void executeServerStatus() throws Exception {
 		info( "check server status ..." );
-		RemoteCall call = new RemoteCall();
+		RemoteCall call = new RemoteCall( context.options );
 		if( !serverConnect( call ) )
 			info( "server not running on url=" + call.URL );
 		else {

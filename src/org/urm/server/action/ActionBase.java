@@ -468,7 +468,7 @@ abstract public class ActionBase {
 	}
 	
 	public int setTimeoutDefault() {
-		return( setTimeout( context.CTX_COMMANDTIMEOUT ) );
+		return( setTimeout( context.CTX_TIMEOUT ) );
 	}
 
 	public Account getWinBuildAccount() throws Exception {

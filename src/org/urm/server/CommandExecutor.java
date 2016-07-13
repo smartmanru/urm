@@ -90,7 +90,7 @@ public abstract class CommandExecutor {
 		action.setLogLevel( context.logLevelLimit );
 		
 		// create shell pool
-		action.setTimeout( context.CTX_COMMANDTIMEOUT );
+		action.setTimeout( context.CTX_TIMEOUT );
 		return( action );
 	}
 		

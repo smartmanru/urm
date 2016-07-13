@@ -30,7 +30,6 @@ public class RemoteShellExecutor extends ShellExecutor {
 				cmd += " -i " + keyFile;
 			
 			cmd += " " + account.getHostLogin();
-			Common.createList( Common.splitSpaced( cmd ) );
 			builder = new ProcessBuilder( Common.createList( Common.splitSpaced( cmd ) ) );
 		}
 		else if( core.sessionType == VarSESSIONTYPE.UNIXREMOTE ) {

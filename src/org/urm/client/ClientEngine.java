@@ -40,7 +40,7 @@ public class ClientEngine {
 	}
 	
 	private boolean runServerMode( CommandBuilder builder , CommandMeta commandInfo ) throws Exception {
-		RemoteCall call = new RemoteCall();
+		RemoteCall call = new RemoteCall( builder.options );
 		return( call.runClient( builder , commandInfo ) );
 	}
 

@@ -48,7 +48,7 @@ public class CommandContext {
 	public boolean CTX_ALL;
 	public boolean CTX_LOCAL;
 	public boolean CTX_OFFLINE;
-	public int CTX_COMMANDTIMEOUT;
+	public int CTX_TIMEOUT;
 	public String CTX_KEYNAME = "";
 	public String CTX_DISTPATH = "";
 	public String CTX_REDISTPATH = "";
@@ -171,7 +171,7 @@ public class CommandContext {
 		this.CTX_ALL = context.CTX_ALL;
 		this.CTX_LOCAL = context.CTX_LOCAL;
 		this.CTX_OFFLINE = context.CTX_OFFLINE;
-		this.CTX_COMMANDTIMEOUT = context.CTX_COMMANDTIMEOUT;
+		this.CTX_TIMEOUT = context.CTX_TIMEOUT;
 		this.CTX_KEYNAME = context.CTX_KEYNAME;
 		this.CTX_DISTPATH = context.CTX_DISTPATH;
 		this.CTX_REDISTPATH = context.CTX_REDISTPATH;
@@ -252,7 +252,7 @@ public class CommandContext {
 		CTX_ALL = getFlagValue( "OPT_ALL" );
 		CTX_LOCAL = getFlagValue( "OPT_LOCAL" );
 		CTX_OFFLINE = getFlagValue( "OPT_OFFLINE" );
-		CTX_COMMANDTIMEOUT = getIntParamValue( "OPT_COMMANDTIMEOUT" , options.optDefaultCommandTimeout ) * 1000;
+		CTX_TIMEOUT = getIntParamValue( "OPT_TIMEOUT" , options.optDefaultCommandTimeout ) * 1000;
 		value = getParamValue( "OPT_KEY" ); 
 		CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? env.KEYNAME : "" ) : value;
 		String productValue = ( isproduct )? meta.product.CONFIG_DISTR_PATH : "";

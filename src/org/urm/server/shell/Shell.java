@@ -126,7 +126,7 @@ abstract public class Shell {
 		tsLastInput = System.currentTimeMillis();
 		
 		if( system == false || action.context.CTX_TRACEINTERNAL )
-			action.trace( name + " execute: " + input );
+			action.trace( name + " place to input stream: " + input );
 		
 		if( account.isLinux() )
 			writer.write( input + "\n" );
