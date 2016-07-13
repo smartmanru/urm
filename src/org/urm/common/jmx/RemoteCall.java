@@ -265,7 +265,7 @@ public class RemoteCall implements NotificationListener {
 	private void executeWait() throws Exception {
 		String var = options.meta.getTimeoutVar();
 		int timeout = options.getIntParamValue( var , options.optDefaultCommandTimeout );
-		wait( timeout );
+		wait( timeout * 1000 );
 	}
 	
 }
