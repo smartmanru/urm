@@ -184,7 +184,7 @@ public class RemoteCall implements NotificationListener {
 		String input;
 		while( !finished ) {
 			try {
-				System.out.println( "$ " );
+				System.out.print( "$ " );
 				input = br.readLine();
 			}
 			catch( Throwable e ) {
