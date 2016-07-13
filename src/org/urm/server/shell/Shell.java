@@ -153,7 +153,7 @@ abstract public class Shell {
 	}
 
 	public void waitCommandFinished( ActionBase action , int logLevel , List<String> cmdout , List<String> cmderr , boolean windowsHelper ) throws Exception {
-		WaiterCommand wc = new WaiterCommand( this , logLevel , reader , cmdout , errreader , cmderr );
+		WaiterCommand wc = new WaiterCommand( this , logLevel , reader , cmdout , errreader , cmderr , false );
 		wc.waitForCommandFinished( action , false );
 	}
 
@@ -161,8 +161,8 @@ abstract public class Shell {
 		return( process.waitFor() );
 	}
 
-	public boolean waitForMarker( ActionBase action , String marker ) throws Exception {
-		WaiterCommand waiter = new WaiterCommand( this , action.context.logLevelLimit , reader , errreader );
+	public boolean waitForMarker( ActionBase action , String marker , boolean system ) throws Exception {
+		WaiterCommand waiter = new WaiterCommand( this , action.context.logLevelLimit , reader , errreader , system );
 		return( waiter.waitForMarker( action , marker ) );
 	}
 	

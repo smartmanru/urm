@@ -23,6 +23,7 @@ public class WaiterCommand implements Runnable {
 	private List<String> cmdout;
 	private BufferedReader errreader;
 	private List<String> cmderr;
+	private boolean system;
 
 	boolean waitForCommandFinished = false;
 	boolean waitForMarker = false;
@@ -31,20 +32,22 @@ public class WaiterCommand implements Runnable {
 	public String waitMarker;
 	public Process waitProcess;
 	
-	public WaiterCommand( Shell shell , int logLevel , BufferedReader reader , List<String> cmdout , BufferedReader errreader , List<String> cmderr ) {
+	public WaiterCommand( Shell shell , int logLevel , BufferedReader reader , List<String> cmdout , BufferedReader errreader , List<String> cmderr , boolean system ) {
 		this.shell = shell;
 		this.logLevel = logLevel;
 		this.reader = reader;
 		this.cmdout = cmdout;
 		this.errreader = errreader;
 		this.cmderr = cmderr;
+		this.system = system;
 	}
 	
-	public WaiterCommand( Shell shell , int logLevel , BufferedReader reader , BufferedReader errreader ) {
+	public WaiterCommand( Shell shell , int logLevel , BufferedReader reader , BufferedReader errreader , boolean system ) {
 		this.shell = shell;
 		this.logLevel = logLevel;
 		this.reader = reader;
 		this.errreader = errreader;
+		this.system = system;
 	}
 	
 	public void setWindowsHelper() {
@@ -56,22 +59,25 @@ public class WaiterCommand implements Runnable {
             finished = false;
             succeeded = false;
 
+            boolean res = true;
             if( waitForCommandFinished )
-            	runWaitForCommandFinished();
+            	res = runWaitForCommandFinished();
             else
             if( waitForMarker )
-            	runWaitForMarker();
+            	res = runWaitForMarker();
             else
             if( waitInifinite )
             	runWaitInfinite();
             else
             	action.exitUnexpectedState();
             
-            succeeded = true;
+            if( res )
+            	succeeded = true;
         }
         catch (Exception e) {
         	succeeded = false;
-            action.log( e );
+        	if( !system )
+        		action.log( e );
         }
         
         finished = true;
@@ -222,7 +228,7 @@ public class WaiterCommand implements Runnable {
 	public void waitForCommandFinished( ActionBase action , boolean windowsHelper ) throws Exception {
 		waitForCommandFinished = true;
 		waitMarker = FINISH_MARKER;
-		ShellWaiter waiter = new ShellWaiter( this );
+		ShellWaiter waiter = new ShellWaiter( this , system );
 		
 		if( windowsHelper )
 			waiter.setWindowsHelper();
@@ -234,7 +240,7 @@ public class WaiterCommand implements Runnable {
 	public boolean waitForMarker( ActionBase action , String marker ) throws Exception {
 		waitForMarker = true;
 		waitMarker = marker;
-		ShellWaiter waiter = new ShellWaiter( this );
+		ShellWaiter waiter = new ShellWaiter( this , system );
 		
 		if( windowsHelper )
 			waiter.setWindowsHelper();
@@ -245,7 +251,7 @@ public class WaiterCommand implements Runnable {
 	public boolean waitInfinite( ActionBase action , Process process ) throws Exception {
 		waitInifinite = true;
 		waitProcess = process;
-		ShellWaiter waiter = new ShellWaiter( this );
+		ShellWaiter waiter = new ShellWaiter( this , system );
 		
 		if( windowsHelper )
 			waiter.setWindowsHelper();
@@ -253,20 +259,27 @@ public class WaiterCommand implements Runnable {
 		return( waiter.wait( action , action.commandTimeout ) );
 	}
 	
-	private void runWaitForCommandFinished() throws Exception {
+	private boolean runWaitForCommandFinished() throws Exception {
 		boolean reso = readStream( action , reader , cmdout , "" );
 		boolean rese = readStream( action , errreader , cmderr , "stderr:" );
 		if( reso == false || rese == false )
-			action.exit( "operation is canceled, stream is closed" );
+			return( false );
+		
+		return( true );
 	}
 
-	private void runWaitForMarker() throws Exception {
+	private boolean runWaitForMarker() throws Exception {
 		if( !readStream( action , reader , null , "" ) )
-			action.exit( "operation is canceled, stream is closed" );
+			return( false );
+		
+		return( true );
 	}
 	
-	private void runWaitInfinite() throws Exception {
-		readStream( action , reader , null , "" );
+	private boolean runWaitInfinite() throws Exception {
+		if( !readStream( action , reader , null , "" ) )
+			return( false );
+		
+		return( true );
 	}
 	
 }

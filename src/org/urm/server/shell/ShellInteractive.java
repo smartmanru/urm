@@ -112,7 +112,7 @@ public class ShellInteractive extends Shell {
 		
 		int timeout = action.setTimeoutDefault();
 		addInput( action , "echo " + CONNECT_MARKER , true );
-		if( !waitForMarker( action , CONNECT_MARKER ) ) {
+		if( !waitForMarker( action , CONNECT_MARKER , true ) ) {
 			call.connectFinished( false );
 			action.exit( "unable to connect to " + name );
 		}
@@ -133,7 +133,7 @@ public class ShellInteractive extends Shell {
 		addInput( action , "echo " + COMMAND_MARKER , true );
 		
 		// wait for finish
-		return( waitForMarker( action , COMMAND_MARKER ) );
+		return( waitForMarker( action , COMMAND_MARKER , false ) );
 	}
 	
 }

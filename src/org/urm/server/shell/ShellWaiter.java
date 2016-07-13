@@ -4,11 +4,13 @@ import org.urm.server.action.ActionBase;
 
 public class ShellWaiter {
 
-	WaiterCommand command;
+	public WaiterCommand command;
+	public boolean system;
 	protected boolean windowsHelper = false;
 	
-	public ShellWaiter( WaiterCommand command ) {
+	public ShellWaiter( WaiterCommand command , boolean system ) {
 		this.command = command;
+		this.system = system;
 	}
 
 	public void setWindowsHelper() {
@@ -26,15 +28,18 @@ public class ShellWaiter {
 			thread.start();
 			waitTimeout( action , timeoutMillis );
 			if( command.succeeded ) {
-				action.trace( "wait successfully finished for command=" + command.getClass().getSimpleName() );
+				if( !system )
+					action.trace( "wait successfully finished for command=" + command.getClass().getSimpleName() );
 				return( true );
 			}
             
-			action.trace( "wait failed for command=" + command.getClass().getSimpleName() );
+			if( !system )
+				action.trace( "wait failed for command=" + command.getClass().getSimpleName() );
 			cleanup( action );
 		}
 		catch( Throwable e ) {
-			action.log( "timeout command=" + command.getClass().getSimpleName() , e );
+			if( !system )
+				action.log( "timeout command=" + command.getClass().getSimpleName() , e );
 		}
 
 		return( false );

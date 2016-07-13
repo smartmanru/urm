@@ -42,7 +42,7 @@ public class ShellCoreUnix extends ShellCore {
 		// check connected
 		executor.addInput( action , "echo " + WaiterCommand.FINISH_MARKER , true );
 		int timeout = action.setTimeoutDefault();
-		if( !executor.waitForMarker( action , WaiterCommand.FINISH_MARKER ) )
+		if( !executor.waitForMarker( action , WaiterCommand.FINISH_MARKER , true ) )
 			return( false );
 		
 		action.setTimeout( timeout );
