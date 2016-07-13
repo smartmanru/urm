@@ -11,6 +11,7 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
+import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandBuilder;
@@ -44,8 +45,16 @@ public class RemoteCall implements NotificationListener {
 	
 	public static final String EXIT_COMMAND = "exit";
 
+	private boolean trace;
+	private int timeout;
+	
 	public RemoteCall( CommandOptions options ) {
 		this.options = options;
+		
+		String var = options.meta.getTraceVar();
+		trace = options.getFlagValue( var , false );
+		var = options.meta.getTimeoutVar();
+		timeout = options.getIntParamValue( var , options.optDefaultCommandTimeout );
 	}
 	
 	public static String getCommandMBeanName( String productDir , String command ) {
@@ -163,6 +172,8 @@ public class RemoteCall implements NotificationListener {
 	}
 
 	private void waitInteractive( String sessionId ) throws Exception {
+		mainThread = Thread.currentThread();
+		
 		// wait for connect to succeed
 		if( !connectInteractive( sessionId ) )
 			return;
@@ -172,7 +183,6 @@ public class RemoteCall implements NotificationListener {
 		println( "enter commands, or '" + EXIT_COMMAND + "' to quit:" );
 		
 		String input;
-		mainThread = Thread.currentThread();
 		while( !finished ) {
 			try {
 				System.out.println( "$ " );
@@ -249,7 +259,6 @@ public class RemoteCall implements NotificationListener {
 		if( n.isStop() ) {
 			try {
 				mainThread.interrupt();
-				println( "" );
 				println( n.getMessage() );
 			}
 			catch( Throwable e ) {
@@ -263,9 +272,10 @@ public class RemoteCall implements NotificationListener {
 	}
 	
 	private void executeWait() throws Exception {
-		String var = options.meta.getTimeoutVar();
-		int timeout = options.getIntParamValue( var , options.optDefaultCommandTimeout );
-		wait( timeout * 1000 );
+		int tm = timeout;
+		if( tm > 0 )
+			tm += 5;
+		wait( tm * 1000 );
 	}
 	
 }
