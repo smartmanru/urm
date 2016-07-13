@@ -11,7 +11,6 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
-import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandBuilder;
@@ -262,6 +261,8 @@ public class RemoteCall implements NotificationListener {
 				println( n.getMessage() );
 			}
 			catch( Throwable e ) {
+				if( trace )
+					e.printStackTrace();
 			}
 			
 			synchronized( this ) {
