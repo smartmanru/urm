@@ -24,6 +24,7 @@ abstract public class Shell {
 
 	private Process process = null;
 	public int processId = -1;
+	public boolean available;
 	
 	private OutputStream stdin;
 	private InputStream stderr;
@@ -59,6 +60,7 @@ abstract public class Shell {
 		else
 			processId = osapi.getWindowsProcessId( action , process );
 		action.debug( "process started: name=" + name + ", id=" + processId );
+		available = true;
 
 		if( !redirect )
 			return;
@@ -72,6 +74,11 @@ abstract public class Shell {
 		
 		reader = new BufferedReader( new InputStreamReader( stdout ) );
 		errreader = new BufferedReader( new InputStreamReader( stderr ) );
+	}
+
+	public void setUnavailable() {
+		processId = -1;
+		available = false;
 	}
 	
 	public void killShellProcess( ActionBase action ) throws Exception {

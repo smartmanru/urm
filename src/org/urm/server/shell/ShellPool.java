@@ -241,6 +241,7 @@ public class ShellPool implements Runnable {
 			// start shell
 			if( !shell.start( action ) ) {
 				// add shell to pool to avoid many connects to unavailable resource
+				shell.setUnavailable();
 				pool.put( shell.name , shell );
 				action.exit( "unable to connect to " + account.getPrintName() );
 			}
