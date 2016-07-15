@@ -54,6 +54,7 @@ public class WaiterCommand implements Runnable {
 		windowsHelper = true;
 	}
 	
+	@Override
     public void run() {
         try {
             finished = false;
