@@ -6,7 +6,7 @@ import java.util.Map;
 import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
-import org.urm.common.action.CommandMethod;
+import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.jmx.ServerCommandCall;
 import org.urm.common.jmx.ServerMBean;
@@ -53,7 +53,7 @@ public class MainServer {
 		waitAllActions();
 	}
 
-	public ActionInit createRemoteAction( ServerCommandCall call , CommandMethod method , ActionData data ) throws Exception {
+	public ActionInit createRemoteAction( ServerCommandCall call , CommandMethodMeta method , ActionData data ) throws Exception {
 		if( !running ) {
 			engine.serverAction.error( "server is in progress of shutdown" );
 			return( null );
@@ -62,7 +62,7 @@ public class MainServer {
 		CommandBuilder builder = new CommandBuilder( data.clientrc , engine.execrc );
 		
 		CommandOptions options = new CommandOptions( serverAction.context.options.meta );
-		options.setAction( call.command.meta.name , method , data );
+		options.setAction( method , data );
 		
 		CommandMeta commandInfo = builder.createMeta( options.command );
 		if( commandInfo == null )

@@ -3,7 +3,7 @@ package org.urm.server.action;
 import org.urm.common.Common;
 import org.urm.common.ExitException;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.common.action.CommandMethod;
+import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.common.action.CommandOptions.SQLTYPE;
@@ -22,7 +22,7 @@ public class CommandContext {
 	public ServerEngine engine;
 	public CommandOptions options;
 	public SessionContext session;
-	public CommandMethod commandMethod;
+	public CommandMethodMeta commandMethod;
 	public CommandAction commandAction;
 
 	public Metadata meta;

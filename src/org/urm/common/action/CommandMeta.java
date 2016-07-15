@@ -12,15 +12,15 @@ public class CommandMeta {
 	public String name;
 	public String desc;
 
-	public Map<String,CommandMethod> actionsMap = new HashMap<String,CommandMethod>();
-	public List<CommandMethod> actionsList = new LinkedList<CommandMethod>();
+	public Map<String,CommandMethodMeta> actionsMap = new HashMap<String,CommandMethodMeta>();
+	public List<CommandMethodMeta> actionsList = new LinkedList<CommandMethodMeta>();
 	
 	public CommandMeta( String name , String desc ) {
 		this.name = name;
 		this.desc = desc;
 	}
 	
-	public void defineAction( CommandMethod action ) {
+	public void defineAction( CommandMethodMeta action ) {
 		actionsMap.put( action.name , action );
 		actionsList.add( action );
 	}
@@ -34,14 +34,14 @@ public class CommandMeta {
 	}
 	
 	public boolean isOptionApplicaple( CommandVar var ) {
-		for( CommandMethod action : actionsMap.values() )
+		for( CommandMethodMeta action : actionsMap.values() )
 			if( action.isOptionApplicable( var ) )
 				return( true );
 		return( false );
 	}
 
-	public CommandMethod getAction( String name ) throws Exception {
-		CommandMethod method = actionsMap.get( name );
+	public CommandMethodMeta getAction( String name ) throws Exception {
+		CommandMethodMeta method = actionsMap.get( name );
 		if( method == null )
 			throw new ExitException( "executor action is not present in meta, name=" + name );
 		return( method );

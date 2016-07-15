@@ -32,9 +32,9 @@ public class CommandOptions {
 		this.command = command;
 		this.data = data;
 	}
-	
-	public void setAction( String command , CommandMethod method , ActionData data ) {
-		this.command = command;
+
+	public void setAction( CommandMethodMeta method , ActionData data ) {
+		this.command = method.command.name;
 		this.action = method.name;
 		this.data = data;
 	}
@@ -235,7 +235,7 @@ public class CommandOptions {
 		return( data.combineValue( optVar , confValue , defValue ) );
 	}
 	
-	public boolean checkValidOptions( CommandMethod commandAction ) {
+	public boolean checkValidOptions( CommandMethodMeta commandAction ) {
 		for( CommandVar var : data.getOptionsSet() ) {
 			if( !commandAction.isOptionApplicable( var ) ) {
 				print( "option " + var.varName + " is not applicable for action " + commandAction.name );
@@ -266,7 +266,7 @@ public class CommandOptions {
 		meta.showCommandHelp( builder , commandInfo , main );
 	}
 
-	public void showActionHelp( CommandBuilder builder , CommandMethod action ) {
+	public void showActionHelp( CommandBuilder builder , CommandMethodMeta action ) {
 		meta.showActionHelp( builder , action );
 	}
 

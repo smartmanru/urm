@@ -100,7 +100,7 @@ public class CommandBuilder {
 	}
 
 	public boolean isInteractive( CommandOptions options ) throws Exception {
-		CommandMethod method = commandInfo.getAction( options.action );
+		CommandMethodMeta method = commandInfo.getAction( options.action );
 		return( method.isInteractive() );
 	}
 	
@@ -156,7 +156,7 @@ public class CommandBuilder {
 			
 			String action = ( options.command.equals( MainCommandMeta.NAME ) && options.action.equals( "help" ) )? options.getArg( 1 ) :
 				( ( options.action.equals( "help" ) )? options.getArg( 0 ) : options.action );
-			CommandMethod method = meta.getAction( action );
+			CommandMethodMeta method = meta.getAction( action );
 			ho.showActionHelp( this , method );
 			return( true );
 		}

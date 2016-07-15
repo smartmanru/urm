@@ -8,7 +8,7 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.common.ExitException;
 import org.urm.common.action.CommandMeta;
-import org.urm.common.action.CommandMethod;
+import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.action.CommandOptions;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionInit;
@@ -40,7 +40,7 @@ public abstract class CommandExecutor {
 		actionsMap.put( name , action );
 		actionsList.add( action );
 		
-		CommandMethod method = commandInfo.getAction( name );
+		CommandMethodMeta method = commandInfo.getAction( name );
 		action.setMethod( method );
 	}
 	

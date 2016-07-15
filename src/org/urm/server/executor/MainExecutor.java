@@ -1,6 +1,7 @@
 package org.urm.server.executor;
 
 import org.urm.common.RunContext;
+import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.meta.MainCommandMeta;
@@ -33,6 +34,10 @@ public class MainExecutor extends CommandExecutor {
 		MainCommandMeta commandInfo = new MainCommandMeta();
 		
 		CommandOptions options = new CommandOptions();
+		ActionData data = new ActionData( engine.execrc );
+		data.addArg( "start" );
+		options.setAction( commandInfo.getAction( "server" ) , data );
+		
 		return( new MainExecutor( engine , engine.execrc , commandInfo , options ) );
 	}
 

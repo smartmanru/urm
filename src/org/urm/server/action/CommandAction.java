@@ -1,14 +1,14 @@
 package org.urm.server.action;
 
-import org.urm.common.action.CommandMethod;
+import org.urm.common.action.CommandMethodMeta;
 
 abstract public class CommandAction {
 
-	public CommandMethod method;
+	public CommandMethodMeta method;
 	
 	public abstract void run( ActionInit action ) throws Exception;
 
-	public void setMethod( CommandMethod method ) {
+	public void setMethod( CommandMethodMeta method ) {
 		this.method = method;
 	}
 

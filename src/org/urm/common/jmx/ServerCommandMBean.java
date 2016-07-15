@@ -25,8 +25,8 @@ import javax.management.ReflectionException;
 import org.urm.common.Common;
 import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandMeta;
-import org.urm.common.action.CommandMethod;
-import org.urm.common.action.CommandMethod.ACTION_TYPE;
+import org.urm.common.action.CommandMethodMeta;
+import org.urm.common.action.CommandMethodMeta.ACTION_TYPE;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.action.CommandVar;
 import org.urm.common.action.CommandVar.FLAG;
@@ -77,7 +77,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		// operations
 		List<MBeanOperationInfo> opers = new LinkedList<MBeanOperationInfo>();
 		for( String methodName : Common.getSortedKeys( meta.actionsMap ) ) {
-			CommandMethod method = meta.actionsMap.get( methodName ); 
+			CommandMethodMeta method = meta.actionsMap.get( methodName ); 
 			MBeanOperationInfo op = addOperation( action , method );
 			opers.add( op );
 		}
@@ -98,7 +98,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
             notifyInfo );
 	}
 
-	private MBeanOperationInfo addOperation( ActionBase action , CommandMethod method ) throws Exception {
+	private MBeanOperationInfo addOperation( ActionBase action , CommandMethodMeta method ) throws Exception {
 		List<MBeanParameterInfo> params = new LinkedList<MBeanParameterInfo>();
 		
 		MBeanParameterInfo args = new MBeanParameterInfo( "args" , "String" , "Command arguments" );
@@ -372,14 +372,14 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		action.debug( "operation invoked, name=" + name );
 		
 		// find action
-		CommandMethod method = meta.getAction( name );
+		CommandMethodMeta method = meta.getAction( name );
 		if( args.length != ( 1 + method.vars.length ) )
 			return( -1 );
 		
 		CommandOptions cmdopts = new CommandOptions( options.meta );
 		ActionData data = new ActionData( engine.execrc );
 		data.set( options.data );
-		cmdopts.setAction( meta.name , method , data );
+		cmdopts.setAction( method , data );
 		
 		data.setArgs( Common.splitSpaced( ( String )args[0] ) ); 
 		for( int k = 0; k < method.vars.length; k++ ) {

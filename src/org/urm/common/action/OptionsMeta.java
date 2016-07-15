@@ -245,7 +245,7 @@ public class OptionsMeta {
 		printhelp( "Functions: " + commandInfo.desc );
 		printhelp( "" );
 		printhelp( "Available actions are:" );
-		for( CommandMethod action : commandInfo.actionsList ) {
+		for( CommandMethodMeta action : commandInfo.actionsList ) {
 			String spacing = Common.replicate( " " , 50 - action.name.length() ); 
 			printhelp( "\t" + action.name + spacing + action.help );
 		}
@@ -288,7 +288,7 @@ public class OptionsMeta {
 		}
 	}
 	
-	public void showActionHelp( CommandBuilder builder , CommandMethod action ) {
+	public void showActionHelp( CommandBuilder builder , CommandMethodMeta action ) {
 		printhelp( "URM HELP (action)" );
 		printhelp( "" );
 		

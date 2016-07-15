@@ -10,7 +10,7 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
-import org.urm.common.action.CommandMethod;
+import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.jmx.RemoteCall;
 import org.urm.common.meta.BuildCommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
@@ -281,7 +281,7 @@ public class ActionConfigure extends ActionBase {
 		configureExecutorWrapper( exeFolder , executor , "help" , linux , executorMasterFolderRel , null );
 		
 		// top items
-		for( CommandMethod cmdAction : executor.actionsList ) {
+		for( CommandMethodMeta cmdAction : executor.actionsList ) {
 			if( cmdAction.top )
 				configureExecutorWrapper( exeFolder , executor , cmdAction.name , linux , executorMasterFolderRel , null );
 		}
@@ -396,7 +396,7 @@ public class ActionConfigure extends ActionBase {
 		String xpdb = ( DC == null )? envDbMasterFolderRel : dcDbMasterFolderRel;
 		
 		// env-level wrappers
-		for( CommandMethod cmdAction : executor.actionsList ) {
+		for( CommandMethodMeta cmdAction : executor.actionsList ) {
 			if( !cmdAction.top )
 				configureExecutorWrapper( ef , executor , cmdAction.name , linux , xp , null );
 		}
@@ -404,7 +404,7 @@ public class ActionConfigure extends ActionBase {
 		// database wrappers
 		LocalFolder efDB = ef.getSubFolder( this , DatabaseCommandMeta.NAME );
 		efDB.ensureExists( this );
-		for( CommandMethod cmdAction : dbe.actionsList ) {
+		for( CommandMethodMeta cmdAction : dbe.actionsList ) {
 			if( !cmdAction.top )
 				configureExecutorWrapper( efDB , dbe , cmdAction.name , linux , xpdb , ".." );
 		}
@@ -416,7 +416,7 @@ public class ActionConfigure extends ActionBase {
 		configureExecutorContextBuildMode( efBuild , mode , linux );
 		
 		// env-level wrappers
-		for( CommandMethod cmdAction : executor.actionsList ) {
+		for( CommandMethodMeta cmdAction : executor.actionsList ) {
 			if( !cmdAction.top )
 				configureExecutorWrapper( efBuild , executor , cmdAction.name , linux , buildMasterFolderRel , null );
 		}

@@ -1,7 +1,7 @@
 package org.urm.common.meta;
 
 import org.urm.common.action.CommandMeta;
-import org.urm.common.action.CommandMethod;
+import org.urm.common.action.CommandMethodMeta;
 
 public class MainCommandMeta extends CommandMeta {
 
@@ -18,10 +18,10 @@ public class MainCommandMeta extends CommandMeta {
 		super( NAME , DESC );
 		
 		String cmdOpts = "OPT_HOST,OPT_PORT";
-		super.defineAction( CommandMethod.newCritical( "configure" , true , "configure proxy files" , cmdOpts , "configure [OPTIONS] {default|server|standalone} [envname [dcname]]" ) );
-		super.defineAction( CommandMethod.newCritical( "svnsave" , true , "save master file set in svn" , cmdOpts , "svnsave [OPTIONS]" ) );
+		super.defineAction( CommandMethodMeta.newCritical( this , "configure" , true , "configure proxy files" , cmdOpts , "configure [OPTIONS] {default|server|standalone} [envname [dcname]]" ) );
+		super.defineAction( CommandMethodMeta.newCritical( this , "svnsave" , true , "save master file set in svn" , cmdOpts , "svnsave [OPTIONS]" ) );
 		cmdOpts = "OPT_PORT";
-		super.defineAction( CommandMethod.newNormal( "server" , true , "server control" , cmdOpts , "srver [OPTIONS] {start|stop|status}" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , "server" , true , "server control" , cmdOpts , "srver [OPTIONS] {start|stop|status}" ) );
 	}
 	
 }
