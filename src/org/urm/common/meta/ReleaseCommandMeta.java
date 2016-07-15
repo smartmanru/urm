@@ -1,7 +1,6 @@
 package org.urm.common.meta;
 
 import org.urm.common.action.CommandMethod;
-import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 
 public class ReleaseCommandMeta extends CommandMeta {
@@ -9,8 +8,8 @@ public class ReleaseCommandMeta extends CommandMeta {
 	public static String NAME = "release";
 	public static String DESC = "create, populate and manage lifecycle of releases";
 	
-	public ReleaseCommandMeta( CommandBuilder builder ) {
-		super( builder , NAME , DESC );
+	public ReleaseCommandMeta() {
+		super( NAME , DESC );
 		
 		String releaseOpts = "OPT_BUILDMODE,OPT_OBSOLETE,OPT_COMPATIBILITY,OPT_CUMULATIVE";
 		defineAction( CommandMethod.newNormal( "create" , true , "create release" , releaseOpts , "./create.sh [OPTIONS] <RELEASELABEL>" ) );

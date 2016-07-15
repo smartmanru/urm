@@ -17,7 +17,6 @@ public class CommandBuilder {
 	public RunContext clientrc;
 	public RunContext execrc;
 	public CommandMeta commandInfo;
-	public CommandOptions options = null;
 	
 	void out( String s ) {
 		System.out.println( "# " + s );
@@ -28,9 +27,9 @@ public class CommandBuilder {
 		this.execrc = execrc;
 	}
 
-	public CommandMeta buildCommand( String[] args ) throws Exception {
+	public CommandMeta buildCommand( String[] args , CommandOptions options ) throws Exception {
 		if( args.length == 0 ) {
-			showTopHelp();
+			showTopHelp( options );
 			return( null );
 		}
 		
@@ -41,7 +40,7 @@ public class CommandBuilder {
 		if( commandInfo == null )
 			return( null );
 	
-		if( !setOptions( commandInfo , args ) )
+		if( !setOptions( commandInfo , args , options ) )
 			return( null );
 		
 		return( commandInfo );
@@ -51,34 +50,33 @@ public class CommandBuilder {
 		// discriminate
 		CommandMeta commandInfo = null;
 		if( cmd.equals( BuildCommandMeta.NAME ) )
-			commandInfo = new BuildCommandMeta( this );
+			commandInfo = new BuildCommandMeta();
 		else if( cmd.equals( DeployCommandMeta.NAME ) )
-			commandInfo = new DeployCommandMeta( this );
+			commandInfo = new DeployCommandMeta();
 		else if( cmd.equals( DatabaseCommandMeta.NAME ) )
-			commandInfo = new DatabaseCommandMeta( this );
+			commandInfo = new DatabaseCommandMeta();
 		else if( cmd.equals( MonitorCommandMeta.NAME ) )
-			commandInfo = new MonitorCommandMeta( this );
+			commandInfo = new MonitorCommandMeta();
 		else if( cmd.equals( ReleaseCommandMeta.NAME ) )
-			commandInfo = new ReleaseCommandMeta( this );
+			commandInfo = new ReleaseCommandMeta();
 		else if( cmd.equals( XDocCommandMeta.NAME ) )
-			commandInfo = new XDocCommandMeta( this );
+			commandInfo = new XDocCommandMeta();
 		else
 			out( "Unexpected URM args - unknown command executor=" + cmd + " (expected one of build/deploy/database/monitor)" );
 			
 		return( commandInfo );
 	}
 	
-	public boolean setOptions( CommandMeta commandInfo , String[] args ) throws Exception {
+	public boolean setOptions( CommandMeta commandInfo , String[] args , CommandOptions options ) throws Exception {
 		this.commandInfo = commandInfo;
 		
 		// process options
-		options = new CommandOptions();
 		if( !options.parseArgs( clientrc , args ) ) {
-			showTopHelp();
+			showTopHelp( options );
 			return( false );
 		}
 
-		if( checkHelp() )
+		if( checkHelp( options ) )
 			return( false );
 		
 		return( true );
@@ -87,41 +85,37 @@ public class CommandBuilder {
 	public CommandMeta[] getExecutors( boolean build , boolean deploy ) {
 		List<CommandMeta> list = new LinkedList<CommandMeta>();
 		if( build )
-			list.add( new BuildCommandMeta( this ) );
+			list.add( new BuildCommandMeta() );
 		if( deploy ) {
-			list.add( new DeployCommandMeta( this ) );
-			list.add( new MonitorCommandMeta( this ) );
+			list.add( new DeployCommandMeta() );
+			list.add( new MonitorCommandMeta() );
 		}
 		if( build || deploy ) {
-			list.add( new DatabaseCommandMeta( this ) );
-			list.add( new ReleaseCommandMeta( this ) );
-			list.add( new XDocCommandMeta( this ) );
+			list.add( new DatabaseCommandMeta() );
+			list.add( new ReleaseCommandMeta() );
+			list.add( new XDocCommandMeta() );
 		}
 		
 		return( list.toArray( new CommandMeta[0] ) );
 	}
 
-	public boolean isLocalRun() {
-		return( options.getFlagValue( "OPT_LOCAL" , false ) );
-	}
-
-	public boolean isInteractive() throws Exception {
+	public boolean isInteractive( CommandOptions options ) throws Exception {
 		CommandMethod method = commandInfo.getAction( options.action );
 		return( method.isInteractive() );
 	}
 	
-	public void showTopHelp() {
-		CommandMeta main = new MainCommandMeta( this );
+	public void showTopHelp( CommandOptions options ) {
+		CommandMeta main = new MainCommandMeta();
 		options = new CommandOptions();
 		options.showTopHelp( this , main , getExecutors( true , true ) );
 	}
 
-	public boolean checkHelp() throws Exception {
+	public boolean checkHelp( CommandOptions options ) throws Exception {
 		// top help
 		if( options.command.equals( MainCommandMeta.NAME ) && 
 			options.action.equals( "help" ) && 
 			options.getArgCount() == 0 ) {
-			showTopHelp();
+			showTopHelp( options );
 			return( true );
 		}
 
@@ -133,7 +127,7 @@ public class CommandBuilder {
 				options.action.equals( "help" ) && 
 				options.getArgCount() == 0 ) ) {
 			String command = ( options.command.equals( MainCommandMeta.NAME ) )? options.getArg( 0 ) : options.command;
-			CommandMeta meta = ( command.equals( MainCommandMeta.NAME ) )? new MainCommandMeta( this ) : createMeta( command );
+			CommandMeta meta = ( command.equals( MainCommandMeta.NAME ) )? new MainCommandMeta() : createMeta( command );
 			boolean main = options.command.equals( MainCommandMeta.NAME );
 			
 			CommandOptions ho = new CommandOptions();
@@ -157,7 +151,7 @@ public class CommandBuilder {
 				options.getArgCount() > 0 &&
 				options.getArg( 0 ).equals( "help" ) ) ) {
 			String command = ( options.command.equals( MainCommandMeta.NAME ) && options.action.equals( "help" ) )? options.getArg( 0 ) : options.command;
-			CommandMeta meta = ( command.equals( "bin" ) )? new MainCommandMeta( this ) : createMeta( command );
+			CommandMeta meta = ( command.equals( "bin" ) )? new MainCommandMeta() : createMeta( command );
 			CommandOptions ho = new CommandOptions();
 			
 			String action = ( options.command.equals( MainCommandMeta.NAME ) && options.action.equals( "help" ) )? options.getArg( 1 ) :

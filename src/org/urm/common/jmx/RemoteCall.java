@@ -135,14 +135,14 @@ public class RemoteCall implements NotificationListener {
 	private boolean serverCommandCall( CommandBuilder builder , String name ) {
 		String sessionId;
 		try {
-			String clientId = builder.options.action + "-" + System.currentTimeMillis();
+			String clientId = options.action + "-" + System.currentTimeMillis();
 			mbeanName = new ObjectName( name );
 			RemoteCallFilter filter = new RemoteCallFilter( clientId );
 			
 			stopwait = false;
 			mbsc.addNotificationListener( mbeanName , this , filter , clientId );
 			sessionId = ( String )mbsc.invoke( mbeanName , GENERIC_ACTION_NAME , 
-					new Object[] { builder.options.action , builder.options.data , clientId } , 
+					new Object[] { options.action , options.data , clientId } , 
 					new String[] { String.class.getName() , ActionData.class.getName() , String.class.getName() } );
 		}
 		catch( Throwable e ) {
@@ -158,7 +158,7 @@ public class RemoteCall implements NotificationListener {
 		}
 		
 		try {
-			if( builder.isInteractive() )
+			if( builder.isInteractive( options ) )
 				waitInteractive( sessionId );
 			else {
 				synchronized( this ) {

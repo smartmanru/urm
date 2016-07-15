@@ -1,7 +1,6 @@
 package org.urm.common.meta;
 
 import org.urm.common.action.CommandMethod;
-import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 
 public class DeployCommandMeta extends CommandMeta {
@@ -9,8 +8,8 @@ public class DeployCommandMeta extends CommandMeta {
 	public static String NAME = "deploy";
 	public static String DESC = "manage environments and deploy releases";
 	
-	public DeployCommandMeta( CommandBuilder builder ) {
-		super( builder , NAME , DESC );
+	public DeployCommandMeta() {
+		super( NAME , DESC );
 		
 		String cmdOpts = "OPT_ALL, OPT_DEPLOYGROUP, OPT_STARTGROUP, OPT_DC, OPT_EXTRAARGS, OPT_UNIT, OPT_BUILDINFO, OPT_TAG, OPT_HOSTUSER, OPT_KEY, OPT_NEWKEY, OPT_BACKUP, OPT_OBSOLETE, OPT_DEPLOYCONF, OPT_PARTIALCONF, OPT_DEPLOYBINARY, OPT_DEPLOYHOT, OPT_DEPLOYCOLD, OPT_KEEPALIVE, OPT_SKIPERRORS, OPT_ZERODOWNTIME, OPT_NONODES, OPT_NOCHATMSG, OPT_ROOTUSER, OPT_IGNOREVERSION";
 		cmdOpts = "OPT_ALL, OPT_DEPLOYGROUP, OPT_STARTGROUP, OPT_DC";

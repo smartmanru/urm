@@ -1,7 +1,6 @@
 package org.urm.common.meta;
 
 import org.urm.common.action.CommandMethod;
-import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 
 public class BuildCommandMeta extends CommandMeta {
@@ -9,8 +8,8 @@ public class BuildCommandMeta extends CommandMeta {
 	public static String NAME = "build";
 	public static String DESC = "operations to manage source code, build binaries and copy files to distributives";
 
-	public BuildCommandMeta( CommandBuilder builder ) {
-		super( builder , NAME , DESC );
+	public BuildCommandMeta() {
+		super( NAME , DESC );
 		
 		String cmdOpts;
 		cmdOpts = "OPT_GET,OPT_CHECK,OPT_RELEASE,OPT_BRANCH,OPT_TAG,OPT_DATE,OPT_GROUP,OPT_VERSION";

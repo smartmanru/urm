@@ -2,6 +2,7 @@ package org.urm.server.executor;
 
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandBuilder;
+import org.urm.common.action.CommandOptions;
 import org.urm.common.meta.MainCommandMeta;
 import org.urm.server.CommandExecutor;
 import org.urm.server.ServerEngine;
@@ -13,23 +14,32 @@ import org.urm.server.action.main.ActionServer;
 
 public class MainExecutor extends CommandExecutor {
 
-	RunContext rc;
+	RunContext execrc;
 	
-	public static MainExecutor create( ServerEngine engine , CommandBuilder builder , String[] args ) throws Exception {
-		MainCommandMeta commandInfo = new MainCommandMeta( builder );
-		if( !builder.setOptions( commandInfo , args ) )
+	public static MainExecutor createByArgs( ServerEngine engine , CommandBuilder builder , String[] args ) throws Exception {
+		MainCommandMeta commandInfo = new MainCommandMeta();
+		
+		CommandOptions options = new CommandOptions();
+		if( !builder.setOptions( commandInfo , args , options ) )
 			return( null );
 		
-		if( builder.checkHelp() )
+		if( builder.checkHelp( options ) )
 			return( null );
 
-		return( new MainExecutor( engine , builder.execrc , commandInfo ) );
+		return( new MainExecutor( engine , engine.execrc , commandInfo , options ) );
 	}
 
-	private MainExecutor( ServerEngine engine , RunContext rc , MainCommandMeta commandInfo ) throws Exception {
-		super( engine , commandInfo );
+	public static MainExecutor createByWeb( ServerEngine engine ) throws Exception {
+		MainCommandMeta commandInfo = new MainCommandMeta();
 		
-		this.rc = rc;
+		CommandOptions options = new CommandOptions();
+		return( new MainExecutor( engine , engine.execrc , commandInfo , options ) );
+	}
+
+	private MainExecutor( ServerEngine engine , RunContext execrc , MainCommandMeta commandInfo , CommandOptions options ) throws Exception {
+		super( engine , commandInfo , options );
+		
+		this.execrc = execrc;
 		super.defineAction( new Configure() , "configure" );
 		super.defineAction( new SvnSave() , "svnsave" );
 		super.defineAction( new ServerOp() , "server" );

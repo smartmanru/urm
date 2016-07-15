@@ -53,16 +53,33 @@ public class ServerEngine {
 
 		// server run options
 		CommandBuilder builder = new CommandBuilder( execrc , execrc );
-		CommandExecutor executor = MainExecutor.create( this , builder , args );
+		CommandExecutor executor = MainExecutor.createByArgs( this , builder , args );
+		if( executor == null )
+			return( false );
+
+		return( runServerExecutor( executor ) );
+	}
+	
+	public boolean runWeb() throws Exception {
+		// server environment
+		execrc = new RunContext();
+		execrc.load();
+
+		// server run options
+		CommandExecutor executor = MainExecutor.createByWeb( this );
 		if( executor == null )
 			return( false );
 		
+		return( runServerExecutor( executor ) );
+	}
+	
+	public boolean runServerExecutor( CommandExecutor executor ) throws Exception {
 		// server action environment
 		serverSession = new SessionContext( this , execrc , 0 );
-		serverSession.setServerLayout( builder.options );
+		serverSession.setServerLayout( executor.options );
 
 		// create server action
-		serverAction = createAction( builder.options , executor , serverSession , "server" , null );
+		serverAction = createAction( executor , serverSession , "server" , null );
 		if( serverAction == null )
 			return( false );
 
@@ -74,10 +91,11 @@ public class ServerEngine {
 		
 		return( runServerAction( serverSession , executor ) );
 	}
-	
+
 	public boolean runClientMode( CommandBuilder builder , CommandOptions options , RunContext clientrc , CommandMeta commandInfo ) throws Exception {
 		execrc = clientrc;
-		CommandExecutor executor = createExecutor( commandInfo );
+		
+		CommandExecutor executor = createExecutor( commandInfo , options );
 		serverSession = new SessionContext( this , clientrc , 0 );
 		
 		if( execrc.standaloneMode )
@@ -85,7 +103,7 @@ public class ServerEngine {
 		else
 			serverSession.setServerOfflineLayout( options , clientrc.productDir );
 		
-		serverAction = createAction( options , executor , serverSession , "client" , null );
+		serverAction = createAction( executor , serverSession , "client" , null );
 		if( serverAction == null )
 			return( false );
 		
@@ -118,28 +136,29 @@ public class ServerEngine {
 		return( res );
 	}
 
-	public CommandExecutor createExecutor( CommandMeta commandInfo ) throws Exception {
+	public CommandExecutor createExecutor( CommandMeta commandInfo , CommandOptions options ) throws Exception {
 		CommandExecutor executor = null;
 		String cmd = commandInfo.name;
 		if( cmd.equals( BuildCommandMeta.NAME ) )
-			executor = new BuildCommandExecutor( this , commandInfo );
+			executor = new BuildCommandExecutor( this , commandInfo , options );
 		else if( cmd.equals( DeployCommandMeta.NAME ) )
-			executor = new DeployCommandExecutor( this , commandInfo );
+			executor = new DeployCommandExecutor( this , commandInfo , options );
 		else if( cmd.equals( DatabaseCommandMeta.NAME ) )
-			executor = new DatabaseCommandExecutor( this , commandInfo );
+			executor = new DatabaseCommandExecutor( this , commandInfo , options );
 		else if( cmd.equals( MonitorCommandMeta.NAME ) )
-			executor = new MonitorCommandExecutor( this , commandInfo );
+			executor = new MonitorCommandExecutor( this , commandInfo , options );
 		else if( cmd.equals( ReleaseCommandMeta.NAME ) )
-			executor = new ReleaseCommandExecutor( this , commandInfo );
+			executor = new ReleaseCommandExecutor( this , commandInfo , options );
 		else if( cmd.equals( XDocCommandMeta.NAME ) )
-			executor = new XDocCommandExecutor( this , commandInfo );
+			executor = new XDocCommandExecutor( this , commandInfo , options );
 		else
 			throw new ExitException( "Unexpected URM args - unknown command executor=" + cmd + " (expected one of build/deploy/database/monitor)" );
 		
 		return( executor );
 	}
 
-	public ActionInit createAction( CommandOptions options , CommandExecutor executor , SessionContext session , String stream , ServerCommandCall call ) throws Exception {
+	public ActionInit createAction( CommandExecutor executor , SessionContext session , String stream , ServerCommandCall call ) throws Exception {
+		CommandOptions options = executor.options;
 		CommandAction commandAction = executor.getAction( options.action );
 		if( !options.checkValidOptions( commandAction.method ) )
 			return( null );

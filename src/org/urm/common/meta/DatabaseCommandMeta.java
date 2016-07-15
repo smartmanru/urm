@@ -1,7 +1,6 @@
 package org.urm.common.meta;
 
 import org.urm.common.action.CommandMethod;
-import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 
 public class DatabaseCommandMeta extends CommandMeta {
@@ -9,8 +8,8 @@ public class DatabaseCommandMeta extends CommandMeta {
 	public static String NAME = "database";
 	public static String DESC = "manage databases, export/import operations, apply changes";
 	
-	public DatabaseCommandMeta( CommandBuilder builder ) {
-		super( builder , NAME , DESC );
+	public DatabaseCommandMeta() {
+		super( NAME , DESC );
 		
 		String cmdOpts = "";
 		cmdOpts = "OPT_DC, OPT_DBPASSWORD";

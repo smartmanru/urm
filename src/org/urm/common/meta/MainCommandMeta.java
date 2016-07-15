@@ -1,6 +1,5 @@
 package org.urm.common.meta;
 
-import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethod;
 
@@ -15,12 +14,13 @@ public class MainCommandMeta extends CommandMeta {
 	public static String CONTEXT_FILENAME_LIXUX = "_context.sh";
 	public static String CONTEXT_FILENAME_WIN = "_context.cmd";
 	
-	public MainCommandMeta( CommandBuilder builder ) {
-		super( builder , NAME , DESC );
+	public MainCommandMeta() {
+		super( NAME , DESC );
 		
 		String cmdOpts = "OPT_HOST,OPT_PORT";
 		super.defineAction( CommandMethod.newCritical( "configure" , true , "configure proxy files" , cmdOpts , "configure [OPTIONS] {default|server|standalone} [envname [dcname]]" ) );
 		super.defineAction( CommandMethod.newCritical( "svnsave" , true , "save master file set in svn" , cmdOpts , "svnsave [OPTIONS]" ) );
+		cmdOpts = "OPT_PORT";
 		super.defineAction( CommandMethod.newNormal( "server" , true , "server control" , cmdOpts , "srver [OPTIONS] {start|stop|status}" ) );
 	}
 	

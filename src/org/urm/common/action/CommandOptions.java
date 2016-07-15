@@ -17,6 +17,7 @@ public class CommandOptions {
 	public OptionsMeta meta;
 	public String command;
 	public String action;
+	
 	public ActionData data;
 
 	public CommandOptions() {
@@ -297,4 +298,8 @@ public class CommandOptions {
 		data.clear();
 	}
 	
+	public boolean isLocalRun() {
+		return( getFlagValue( "OPT_LOCAL" , false ) );
+	}
+
 }
