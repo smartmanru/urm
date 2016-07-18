@@ -35,6 +35,7 @@ public class ServerEngine {
 
 	public RunContext execrc;
 	public SessionContext serverSession;
+	public CommandExecutor serverExecutor;
 	public ActionInit serverAction;
 	public ShellPool pool;
 	public FinalMetaLoader metaLoader;
@@ -53,34 +54,45 @@ public class ServerEngine {
 
 		// server run options
 		CommandBuilder builder = new CommandBuilder( execrc , execrc );
-		CommandExecutor executor = MainExecutor.createByArgs( this , builder , args );
-		if( executor == null )
+		serverExecutor = MainExecutor.createByArgs( this , builder , args );
+		if( serverExecutor == null )
 			return( false );
 
-		return( runServerExecutor( executor ) );
+		return( runServerExecutor() );
 	}
 	
-	public boolean runWeb() throws Exception {
+	public boolean prepareWeb() throws Exception {
 		// server environment
 		execrc = new RunContext();
 		execrc.load();
 
 		// server run options
-		CommandExecutor executor = MainExecutor.createByWeb( this );
-		if( executor == null )
+		serverExecutor = MainExecutor.createByWeb( this );
+		if( serverExecutor == null )
 			return( false );
 		
-		return( runServerExecutor( executor ) );
+		return( prepareServerExecutor() );
+	}
+
+	public boolean runWeb() throws Exception {
+		return( runServerAction() );
 	}
 	
-	public boolean runServerExecutor( CommandExecutor executor ) throws Exception {
+	public boolean runServerExecutor() throws Exception {
+		if( !prepareServerExecutor() )
+			return( false );
+		
+		return( runServerAction() );
+	}
+	
+	public boolean prepareServerExecutor() throws Exception {
 		// server action environment
 		serverSession = new SessionContext( this , execrc , 0 );
-		serverSession.setServerLayout( executor.options );
+		serverSession.setServerLayout( serverExecutor.options );
 		metaLoader.loadServerSettings();
 
 		// create server action
-		serverAction = createAction( executor , serverSession , "server" , null );
+		serverAction = createAction( serverExecutor , serverSession , "server" , null );
 		if( serverAction == null )
 			return( false );
 
@@ -90,13 +102,13 @@ public class ServerEngine {
 		startAction( serverAction );
 		metaLoader.loadServerProducts( serverAction );
 		
-		return( runServerAction( serverSession , executor ) );
+		return( true );
 	}
 
 	public boolean runClientMode( CommandBuilder builder , CommandOptions options , RunContext clientrc , CommandMeta commandInfo ) throws Exception {
 		execrc = clientrc;
 		
-		CommandExecutor executor = createExecutor( commandInfo , options );
+		CommandExecutor commandExecutor = createExecutor( commandInfo , options );
 		serverSession = new SessionContext( this , clientrc , 0 );
 		
 		if( execrc.standaloneMode )
@@ -104,7 +116,7 @@ public class ServerEngine {
 		else
 			serverSession.setServerOfflineLayout( options , clientrc.productDir );
 		
-		serverAction = createAction( executor , serverSession , "client" , null );
+		serverAction = createAction( commandExecutor , serverSession , "client" , null );
 		if( serverAction == null )
 			return( false );
 		
@@ -112,19 +124,19 @@ public class ServerEngine {
 		startAction( serverAction );
 		serverAction.meta.loadProduct( serverAction );
 		
-		return( runServerAction( serverSession , executor ) );
+		return( runServerAction() );
 	}
 		
-	private boolean runServerAction( SessionContext session , CommandExecutor executor ) throws Exception {
+	private boolean runServerAction() throws Exception {
 		// execute
 		try {
-			executor.runAction( serverAction );
+			serverExecutor.runAction( serverAction );
 		}
 		catch( Throwable e ) {
 			serverAction.log( e );
 		}
 
-		boolean res = ( session.isFailed() )? false : true;
+		boolean res = ( serverSession.isFailed() )? false : true;
 		
 		if( res )
 			serverAction.commentExecutor( "COMMAND SUCCESSFUL" );
@@ -138,8 +150,8 @@ public class ServerEngine {
 	}
 
 	public CommandExecutor createExecutor( CommandMeta commandInfo , CommandOptions options ) throws Exception {
-		CommandExecutor executor = null;
 		String cmd = commandInfo.name;
+		CommandExecutor executor = null;
 		if( cmd.equals( BuildCommandMeta.NAME ) )
 			executor = new BuildCommandExecutor( this , commandInfo , options );
 		else if( cmd.equals( DeployCommandMeta.NAME ) )
@@ -154,13 +166,12 @@ public class ServerEngine {
 			executor = new XDocCommandExecutor( this , commandInfo , options );
 		else
 			throw new ExitException( "Unexpected URM args - unknown command executor=" + cmd + " (expected one of build/deploy/database/monitor)" );
-		
 		return( executor );
 	}
 
-	public ActionInit createAction( CommandExecutor executor , SessionContext session , String stream , ServerCommandCall call ) throws Exception {
-		CommandOptions options = executor.options;
-		CommandAction commandAction = executor.getAction( options.action );
+	public ActionInit createAction( CommandExecutor actionExecutor , SessionContext session , String stream , ServerCommandCall call ) throws Exception {
+		CommandOptions options = actionExecutor.options;
+		CommandAction commandAction = actionExecutor.getAction( options.action );
 		if( !options.checkValidOptions( commandAction.method ) )
 			return( null );
 		
@@ -175,7 +186,7 @@ public class ServerEngine {
 		Artefactory artefactory = createArtefactory( session , context );
 		
 		// create action
-		ActionInit action = executor.createAction( session , artefactory , context , options.action );
+		ActionInit action = actionExecutor.createAction( session , artefactory , context , options.action );
 		action.debug( "action created: actionId=" + action.ID + ", name=" + action.actionName + ", workfolder=" + artefactory.workFolder.folderPath );
 		
 		return( action );

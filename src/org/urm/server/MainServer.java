@@ -68,11 +68,11 @@ public class MainServer {
 		if( commandInfo == null )
 			return( null );
 		
-		CommandExecutor executor = engine.createExecutor( commandInfo , options );
+		CommandExecutor actionExecutor = engine.createExecutor( commandInfo , options );
 		SessionContext session = new SessionContext( engine , data.clientrc , call.sessionId );
 		session.setServerRemoteLayout( engine.serverSession );
 		
-		ActionInit action = engine.createAction( executor , session , "rjmx-" + data.clientrc.productDir , call );
+		ActionInit action = engine.createAction( actionExecutor , session , "rjmx-" + data.clientrc.productDir , call );
 		if( action == null )
 			return( null );
 
@@ -85,11 +85,11 @@ public class MainServer {
 			return( false );
 		}
 		
-		CommandExecutor executor = engine.createExecutor( meta , options );
+		CommandExecutor actionExecutor = engine.createExecutor( meta , options );
 		SessionContext session = new SessionContext( engine , engine.execrc , sessionId );
 		session.setServerProductLayout( productDir );
 		
-		ActionInit action = engine.createAction( executor , session , "cjmx-" + engine.execrc.productDir , null );
+		ActionInit action = engine.createAction( actionExecutor , session , "cjmx-" + engine.execrc.productDir , null );
 		if( action == null )
 			return( false );
 
