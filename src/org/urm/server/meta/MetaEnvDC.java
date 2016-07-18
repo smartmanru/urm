@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.ConfReader;
+import org.urm.common.PropertySet;
 import org.urm.server.action.ActionBase;
-import org.urm.server.action.PropertySet;
 import org.urm.server.shell.Account;
 import org.w3c.dom.Node;
 
@@ -46,11 +46,11 @@ public class MetaEnvDC {
 	
 	public void load( ActionBase action , Node node , boolean loadProps ) throws Exception {
 		properties = new PropertySet( "dc" , env.properties );
-		properties.loadRawFromAttributes( action , node );
+		properties.loadRawFromAttributes( node );
 		scatterSystemProperties( action );
 		if( loadProps ) {
-			properties.loadRawFromElements( action , node );
-			properties.moveRawAsStrings( action );
+			properties.loadRawFromElements( node );
+			properties.moveRawAsStrings();
 		}
 		
 		loadServers( action , node , loadProps );
@@ -59,22 +59,22 @@ public class MetaEnvDC {
 	}
 
 	public String[] getPropertyList( ActionBase action ) throws Exception {
-		return( properties.getOwnProperties( action ) );
+		return( properties.getOwnProperties() );
 	}
 
 	public String getPropertyValue( ActionBase action , String var ) throws Exception {
-		return( properties.getPropertyAny( action , var ) );
+		return( properties.getPropertyAny( var ) );
 	}
 	
 	private void scatterSystemProperties( ActionBase action ) throws Exception {
-		NAME = properties.getSystemRequiredStringProperty( action , "name" );
+		NAME = properties.getSystemRequiredStringProperty( "name" );
 		action.trace( "load properties of dc=" + NAME );
 		
-		BASELINE = properties.getSystemStringProperty( action , "configuration-baseline" , "" );
+		BASELINE = properties.getSystemStringProperty( "configuration-baseline" , "" );
 		if( BASELINE.equals( "default" ) )
 			BASELINE = NAME;
 		
-		properties.finishRawProperties( action );
+		properties.finishRawProperties();
 	}
 	
 	public void loadDeployment( ActionBase action , Node node ) throws Exception {

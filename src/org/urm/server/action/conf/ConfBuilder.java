@@ -6,8 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.common.Common;
+import org.urm.common.PropertySet;
 import org.urm.server.action.ActionBase;
-import org.urm.server.action.PropertySet;
 import org.urm.server.dist.Dist;
 import org.urm.server.dist.ReleaseDelivery;
 import org.urm.server.dist.ReleaseTarget;
@@ -185,7 +185,7 @@ public class ConfBuilder {
 		boolean changed = false;
 		for( int k = 0; k < fileLines.size(); k++ ) {
 			String s = fileLines.get( k );
-			String res = props.processFinalValue( action , s , server.osType );
+			String res = props.processFinalValue( s , server.isWindows( action ) );
 			if( res != null ) {
 				fileLines.set( k , res );
 				changed = true;
@@ -207,7 +207,7 @@ public class ConfBuilder {
 		boolean changed = false;
 		for( int k = 0; k < fileLines.size(); k++ ) {
 			String s = fileLines.get( k );
-			String res = props.processFinalValue( action , s , node.server.osType );
+			String res = props.processFinalValue( s , node.server.isWindows( action ) );
 			if( res != null ) {
 				fileLines.set( k , res );
 				changed = true;

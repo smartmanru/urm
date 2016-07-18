@@ -3,6 +3,7 @@ package org.urm.server.meta;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.common.Common;
 import org.urm.server.ServerEngine;
 import org.urm.server.SessionContext;
 import org.urm.server.action.ActionBase;
@@ -16,9 +17,11 @@ public class FinalMetaLoader {
 	
 	private Map<String,FinalMetaStorage> productMeta;
 	private FinalMetaStorage offline;
+	private MetaEngine metaEngine;
 	
 	public FinalMetaLoader( ServerEngine engine ) {
 		this.engine = engine;
+		metaEngine = new MetaEngine( this ); 
 		productMeta = new HashMap<String,FinalMetaStorage>();
 	}
 	
@@ -99,6 +102,12 @@ public class FinalMetaLoader {
 			
 			action.clearServerProductLayout();
 		}
+	}
+
+	public void loadServerSettings() throws Exception {
+		String path = Common.getPath( engine.execrc.installPath , "etc" );
+		String propertyFile = Common.getPath( path , "server.xml" );
+		metaEngine.load( propertyFile , engine.execrc );
 	}
 	
 }

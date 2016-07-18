@@ -8,9 +8,9 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.action.ActionBase;
-import org.urm.server.action.PropertySet;
 import org.urm.server.meta.Metadata.VarSERVERTYPE;
 import org.urm.server.storage.BaseRepository;
 import org.urm.server.storage.RemoteFolder;
@@ -93,18 +93,18 @@ public class MetaFapBase {
 
 	public void load( ActionBase action , Node node , MetaEnvServerNode serverNode ) throws Exception {
 		PropertySet meta = new PropertySet( "meta" , serverNode.server.base.properties );
-		meta.loadRawFromAttributes( action , node );
+		meta.loadRawFromAttributes( node );
 		scatterVariables( action , meta );
 		
-		meta.loadRawFromElements( action , node );
-		meta.moveRawAsStrings( action );
-		meta.copyProperties( action , serverNode.properties );
+		meta.loadRawFromElements( node );
+		meta.moveRawAsStrings();
+		meta.copyProperties( serverNode.properties );
 
 		properties = new PropertySet( "final" , null );
-		properties.copyProperties( action , meta );
+		properties.copyProperties( meta );
 
 		if( action.isDebug() )
-			properties.printValues( action );
+			action.printValues( properties );
 		
 		loadCompatibility( action , node );
 		loadDependencies( action , node );
@@ -180,15 +180,15 @@ public class MetaFapBase {
 	
 	private void scatterVariables( ActionBase action , PropertySet props ) throws Exception {
 		// unified properties
-		ID = props.getSystemRequiredStringProperty( action , "id" );
-		String TYPE = props.getSystemRequiredStringProperty( action , "type" );
+		ID = props.getSystemRequiredStringProperty( "id" );
+		String TYPE = props.getSystemRequiredStringProperty( "type" );
 		type = getType( action , TYPE );
-		adm = props.getSystemBooleanProperty( action , "adminstall" , false );
+		adm = props.getSystemBooleanProperty( "adminstall" , false );
 		
-		String OSTYPE = props.getSystemStringProperty( action , "ostype" , null );
+		String OSTYPE = props.getSystemStringProperty( "ostype" , null );
 		osType = meta.getOSType( OSTYPE );
 
-		String CHARSET = props.getSystemStringProperty( action , "charset" , "" );
+		String CHARSET = props.getSystemStringProperty( "charset" , "" );
 		if( !CHARSET.isEmpty() ) {
 			charset = Charset.forName( CHARSET );
 			if( charset == null )
@@ -197,9 +197,9 @@ public class MetaFapBase {
 		
 		String SERVERTYPE = null;
 		if( primary )
-			SERVERTYPE = props.getSystemRequiredStringProperty( action , "servertype" );
+			SERVERTYPE = props.getSystemRequiredStringProperty( "servertype" );
 		else
-			SERVERTYPE = props.getSystemStringProperty( action , "servertype" , null );
+			SERVERTYPE = props.getSystemStringProperty( "servertype" , null );
 		
 		if( SERVERTYPE != null )
 			serverType = meta.getServerType( SERVERTYPE );
@@ -219,30 +219,30 @@ public class MetaFapBase {
 		else
 			action.exitUnexpectedState();
 		
-		props.finishRawProperties( action );
+		props.finishRawProperties();
 	}
 
 	private void scatterLinuxArchiveLink( ActionBase action , PropertySet props ) throws Exception {
-		srcFormat = getSrcFormat( action , props.getSystemRequiredStringProperty( action , "srcformat" ) );
-		SRCFILE = props.getSystemRequiredPathProperty( action , "srcfile" );
-		SRCSTOREDIR = props.getSystemRequiredPathProperty( action , "srcstoreddir" );
-		INSTALLPATH = props.getSystemRequiredPathProperty( action , "installpath" );
-		INSTALLLINK = props.getSystemRequiredPathProperty( action , "installlink" );
+		srcFormat = getSrcFormat( action , props.getSystemRequiredStringProperty( "srcformat" ) );
+		SRCFILE = props.getSystemRequiredPathProperty( "srcfile" , action.session.execrc );
+		SRCSTOREDIR = props.getSystemRequiredPathProperty( "srcstoreddir" , action.session.execrc );
+		INSTALLPATH = props.getSystemRequiredPathProperty( "installpath" , action.session.execrc );
+		INSTALLLINK = props.getSystemRequiredPathProperty( "installlink" , action.session.execrc );
 	}
 	
 	private void scatterLinuxArchiveDirect( ActionBase action , PropertySet props ) throws Exception {
-		srcFormat = getSrcFormat( action , props.getSystemRequiredStringProperty( action , "srcformat" ) );
-		SRCFILE = props.getSystemRequiredPathProperty( action , "srcfile" );
-		SRCSTOREDIR = props.getSystemRequiredPathProperty( action , "srcstoreddir" );
-		INSTALLPATH = props.getSystemRequiredPathProperty( action , "installpath" );
+		srcFormat = getSrcFormat( action , props.getSystemRequiredStringProperty( "srcformat" ) );
+		SRCFILE = props.getSystemRequiredPathProperty( "srcfile" , action.session.execrc );
+		SRCSTOREDIR = props.getSystemRequiredPathProperty( "srcstoreddir" , action.session.execrc );
+		INSTALLPATH = props.getSystemRequiredPathProperty( "installpath" , action.session.execrc );
 	}
 
 	private void scatterNoDist( ActionBase action , PropertySet props ) throws Exception {
 	}
 
 	private void scatterInstaller( ActionBase action , PropertySet props ) throws Exception {
-		srcFormat = getSrcFormat( action , props.getSystemRequiredStringProperty( action , "srcformat" ) );
-		SRCFILE = props.getSystemRequiredPathProperty( action , "srcfile" );
+		srcFormat = getSrcFormat( action , props.getSystemRequiredStringProperty( "srcformat" ) );
+		SRCFILE = props.getSystemRequiredPathProperty( "srcfile" , action.session.execrc );
 	}
 
 	public String getItemPath( ActionBase action , String SRCFILE ) throws Exception {

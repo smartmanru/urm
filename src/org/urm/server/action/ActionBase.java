@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.CommandExecutor;
 import org.urm.server.ServerEngine;
@@ -577,4 +578,11 @@ abstract public class ActionBase {
     	return( ConfReader.readStringFile( context.session.execrc , path ) );
     }
     
+	public void printValues( PropertySet props ) throws Exception {
+		for( String prop : props.getKeySet() ) {
+			String value = props.getPropertyAny( prop );
+			info( "property " + prop + "=" + value );
+		}
+	}
+
 }

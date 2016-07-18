@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.common.PropertySet;
 import org.urm.server.action.ActionBase;
-import org.urm.server.action.PropertySet;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
 import org.urm.server.storage.MetadataStorage;
 
@@ -171,12 +171,12 @@ public class MetaProduct {
 		addPredefined( action );
 
 		// add from file
-		props.loadRawFromFile( action , file );
+		props.loadRawFromFile( file , action.session.execrc );
 		
 		// resolve properties
 		initial = true;
 		scatterVariables( action );
-		props.finishRawProperties( action );
+		props.finishRawProperties();
 	}
 
 	public void updateProperties( ActionBase action ) throws Exception {
@@ -199,9 +199,9 @@ public class MetaProduct {
 		CONFIG_LASTPRODTAG = "" + lastProdTag;
 		CONFIG_NEXTPRODTAG = "" + nextProdTag;
 		
-		props.setPathProperty( action , "CONFIG_PRODUCTHOME" , CONFIG_PRODUCTHOME );
-		props.setStringProperty( action , "CONFIG_LASTPRODTAG" , CONFIG_LASTPRODTAG );
-		props.setStringProperty( action , "CONFIG_NEXTPRODTAG" , CONFIG_NEXTPRODTAG );
+		props.setPathProperty( "CONFIG_PRODUCTHOME" , CONFIG_PRODUCTHOME , action.session.execrc );
+		props.setStringProperty( "CONFIG_LASTPRODTAG" , CONFIG_LASTPRODTAG );
+		props.setStringProperty( "CONFIG_NEXTPRODTAG" , CONFIG_NEXTPRODTAG );
 	}
 
 	private String getStringProperty( ActionBase action , String name ) throws Exception {
@@ -268,34 +268,34 @@ public class MetaProduct {
 
 	private void getPropertyInitial( ActionBase action , String name , String type ) throws Exception {
 		if( type.equals( "S" ) )
-			props.getSystemStringProperty( action , name , null );
+			props.getSystemStringProperty( name , null );
 		else
 		if( type.equals( "P" ) )
-			props.getSystemPathProperty( action , name , null );
+			props.getSystemPathProperty( name , null , action.session.execrc );
 		else
 		if( type.equals( "B" ) )
-			props.getSystemBooleanProperty( action , name , false );
+			props.getSystemBooleanProperty( name , false );
 		else
 		if( type.equals( "N" ) )
-			props.getSystemIntProperty( action , name , 0 );
+			props.getSystemIntProperty( name , 0 );
 		else
 			action.exitUnexpectedState();
 	}
 	
 	private String getPropertyBase( ActionBase action , String name , String type ) throws Exception {
 		if( type.equals( "S" ) )
-			return( props.getStringProperty( action , name , null ) );
+			return( props.getStringProperty( name , null ) );
 		else
 		if( type.equals( "P" ) )
-			return( props.getPathProperty( action , name , null ) );
+			return( props.getPathProperty( name , null ) );
 		else
 		if( type.equals( "B" ) ) {
-			boolean value = props.getBooleanProperty( action , name , false );
+			boolean value = props.getBooleanProperty( name , false );
 			return( Common.getBooleanValue( value ) );
 		}
 		else
 		if( type.equals( "N" ) )
-			props.getIntProperty( action , name , 0 );
+			props.getIntProperty( name , 0 );
 		else
 			action.exitUnexpectedState();
 		
@@ -303,7 +303,7 @@ public class MetaProduct {
 	}
 	
 	public String getPropertyAny( ActionBase action , String name ) throws Exception {
-		String value = props.findPropertyAny( action , name );
+		String value = props.findPropertyAny( name );
 		return( value );
 	}
 	
@@ -312,10 +312,10 @@ public class MetaProduct {
 		Map<String,String> map = new HashMap<String,String>();
 		String prefix = "export.";
 		
-		for( String var : props.getOwnProperties( action ) ) {
+		for( String var : props.getOwnProperties() ) {
 			String name = ( String )var;
 			if( name.startsWith( prefix ) )
-				map.put( name.substring( prefix.length() ) , props.getFinalProperty( action , name , false ) ); 
+				map.put( name.substring( prefix.length() ) , props.getFinalProperty( name , false , action.session.execrc ) ); 
 		}
 		
 		return( map );

@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.ConfReader;
+import org.urm.common.PropertySet;
 import org.urm.server.action.ActionBase;
-import org.urm.server.action.PropertySet;
 import org.w3c.dom.Node;
 
 public class MetaEnvServerBase {
@@ -24,11 +24,11 @@ public class MetaEnvServerBase {
 
 	public void load( ActionBase action , Node node ) throws Exception {
 		properties = new PropertySet( "base" , server.properties );
-		properties.loadRawFromAttributes( action , node );
-		ID = properties.getSystemRequiredStringProperty( action , "id" );
-		properties.finishRawProperties( action );
-		properties.loadRawFromElements( action , node );
-		properties.moveRawAsStrings( action );
+		properties.loadRawFromAttributes( node );
+		ID = properties.getSystemRequiredStringProperty( "id" );
+		properties.finishRawProperties();
+		properties.loadRawFromElements( node );
+		properties.moveRawAsStrings();
 		
 		loadPrepare( action , node );
 	}

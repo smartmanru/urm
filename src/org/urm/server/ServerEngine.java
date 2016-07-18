@@ -77,6 +77,7 @@ public class ServerEngine {
 		// server action environment
 		serverSession = new SessionContext( this , execrc , 0 );
 		serverSession.setServerLayout( executor.options );
+		metaLoader.loadServerSettings();
 
 		// create server action
 		serverAction = createAction( executor , serverSession , "server" , null );
