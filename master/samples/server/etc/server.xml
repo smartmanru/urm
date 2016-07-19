@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server>
+
+	<!-- connectivity properties -->
+	<property name="connection.http.port" value="8800"/>
+	<property name="connection.jmx.port" value="8801"/>
+
+	<!-- Jabber notificatin properties -->
+	<property name="jabber.account" value="release-mgn@mydomain"/>
+	<property name="jabber.password" value="mypassword"/>
+	<property name="jabber.server" value="jabber.mydomain"/>
+	<property name="jabber.conferenceserver" value="conference.mydomain"/>
+	<property name="jabber.include" value="release.*"/>
+	<property name="jabber.exclude" value="release.some.*"/>
+
+	<directory>
+		<system name="mysystem">
+			<product name="myproduct"/>
+		</system>
+	</directory>
+
+</server>
