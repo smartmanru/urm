@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.ExitException;
+import org.urm.common.PropertySet;
 import org.urm.server.ServerEngine;
 import org.urm.server.SessionContext;
 import org.urm.server.action.ActionBase;
@@ -41,9 +42,9 @@ public class FinalMetaLoader {
 		if( !action.session.product )
 			action.exitUnexpectedState();
 			
-		FinalMetaStorage storage = productMeta.get( action.session.productDir );
+		FinalMetaStorage storage = productMeta.get( action.session.productName );
 		if( storage == null )
-			action.exit( "unknown product=" + action.session.productDir );
+			action.exit( "unknown product=" + action.session.productName );
 		
 		return( storage );
 	}
@@ -120,6 +121,12 @@ public class FinalMetaLoader {
 		if( product == null )
 			new ExitException( "unknown product=" + name );
 		return( product );
+	}
+
+	public void addProductProps( PropertySet props ) throws Exception {
+		props.copyRawProperties( engineMeta.defaultProductProperties , "" );
+		for( PropertySet set : engineMeta.mapBuildModeDefaults.values() )
+			props.copyRawProperties( set , set.set + "." );
 	}
 	
 }

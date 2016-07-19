@@ -66,13 +66,13 @@ public class SessionContext {
 	public void setServerProductLayout( String name , String path ) throws Exception {
 		product = true;
 		
-		if( productDir.isEmpty() )
+		if( path.isEmpty() )
 			exit( "missing product folder" );
 		
 		this.productName = name;
 		this.productDir = path;
 		
-		productPath = Common.getPath( installPath , productDir );
+		productPath = Common.getPath( installPath , path );
 		etcPath = Common.getPath( productPath , "etc" );
 		proxyPath = Common.getPath( productPath , "master" );
 	}
@@ -82,6 +82,7 @@ public class SessionContext {
 		
 		etcPath = Common.getPath( installPath , "etc" );
 		
+		productName = "";
 		productDir = "";
 		productPath = "";
 		proxyPath = "";
@@ -113,6 +114,7 @@ public class SessionContext {
 		if( productPath.isEmpty() )
 			exit( "productpath is empty" );
 		
+		productName = "";
 		productDir = "";
 		masterPath = Common.getPath( productPath , "master" );
 		binPath = Common.getPath( masterPath , "bin" );

@@ -110,6 +110,15 @@ public class PropertySet {
 		resolveProperties();
 	}
 
+	public void copyRawProperties( PropertySet set , String prefix ) throws Exception {
+		for( String key : set.properties.keySet() ) {
+			String primaryKey = prefix + Common.getPartAfterFirst( key , set.set + "." );
+			setRawProperty( primaryKey , set.findPropertyAny( key ) );
+		}
+		
+		resolveProperties();
+	}
+
 	public void moveRawAsStrings() throws Exception {
 		moveRawAsIs();
 		resolveProperties();
@@ -143,6 +152,18 @@ public class PropertySet {
 		}
 	}
 
+	public void loadRawFromElements( Node node , String prefix ) throws Exception {
+		Node[] items = ConfReader.xmlGetChildren( node , "property" );
+		if( items == null )
+			return;
+		
+		for( Node property : items ) {
+			String name = prefix + ConfReader.getAttrValue( property , "name" );
+			String value = ConfReader.getAttrValue( property , "value" );
+			setRawProperty( name , value );
+		}
+	}
+
 	public void loadRawFromFile( String path , RunContext execrc ) throws Exception {
 		Properties props = ConfReader.readPropertyFile( execrc , path );
 		for( Object xkey : props.keySet() ) {
@@ -171,6 +192,8 @@ public class PropertySet {
 
 	private String getRawProperty( String key ) throws Exception {
 		String rawValue = raw.get( set + "." + key );
+		if( rawValue == null )
+			return( null );
 		return( processValue( rawValue , false , false ) );
 	}
 

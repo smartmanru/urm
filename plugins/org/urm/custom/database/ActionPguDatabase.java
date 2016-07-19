@@ -6,7 +6,6 @@ import org.urm.server.custom.CommandCustom;
 import org.urm.server.custom.ICustomDatabase;
 import org.urm.server.storage.FileSet;
 import org.urm.server.storage.LocalFolder;
-import org.urm.server.storage.MetadataStorage;
 
 public class ActionPguDatabase implements ICustomDatabase {
 
@@ -439,8 +438,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 
 	public String getOrgInfo( ActionBase action , String S_ORG_EXTID ) throws Exception {
 		// read org item mapping
-		MetadataStorage storage = action.artefactory.getMetadataStorage( action );
-		String path = storage.getOrgInfoFile( action );
+		String path = "orginfo.txt";
 		if( !action.shell.checkFileExists( action , path ) )
 			action.exit( "organizational mapping file " + path + " not found" );
 			

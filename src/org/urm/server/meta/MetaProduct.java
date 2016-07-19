@@ -6,10 +6,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
 import org.urm.server.storage.MetadataStorage;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 public class MetaProduct {
 
@@ -93,8 +96,6 @@ public class MetaProduct {
 	}
 	
 	private void scatterVariables( ActionBase action ) throws Exception {
-		CONFIG_PRODUCT = getStringPropertyRequired( action , "CONFIG_PRODUCT" );
-		
 		CONFIG_REDISTPATH = getPathPropertyRequired( action , "CONFIG_REDISTPATH" );
 		CONFIG_BUILDBASE = getPathPropertyBuildRequired( action , "CONFIG_BUILDBASE" );
 		CONFIG_NEXUS_BASE = getStringPropertyRequired( action , "CONFIG_NEXUS_BASE" );
@@ -165,18 +166,30 @@ public class MetaProduct {
 
 		loaded = true;
 		lastProdTagFile = storage.getLastProdTagFile( action );
-		String file = storage.getProductConfFile( action );
 		
 		// add predefined properties
 		addPredefined( action );
 
 		// add from file
-		props.loadRawFromFile( file , action.session.execrc );
+		String file = storage.getProductConfFile( action );
+		Document doc = ConfReader.readXmlFile( action.session.execrc , file );
+		Node root = doc.getDocumentElement();
+		props.loadRawFromElements( root );
+		
+		Node[] items = ConfReader.xmlGetChildren( root , "mode" );
+		if( items != null ) {
+			for( Node node : items ) {
+				String name = ConfReader.getAttrValue( node , "name" );
+				props.loadRawFromElements( node , name + "." );
+			}
+		}
 		
 		// resolve properties
 		initial = true;
 		scatterVariables( action );
 		props.finishRawProperties();
+		
+		action.printValues( props );
 	}
 
 	public void updateProperties( ActionBase action ) throws Exception {
@@ -195,13 +208,21 @@ public class MetaProduct {
 			nextProdTag = lastProdTag + 1;
 		}
 		
+		CONFIG_PRODUCT = action.session.clientrc.product;
 		CONFIG_PRODUCTHOME = action.context.session.productPath;
 		CONFIG_LASTPRODTAG = "" + lastProdTag;
 		CONFIG_NEXTPRODTAG = "" + nextProdTag;
 		
+		props.setStringProperty( "CONFIG_PRODUCT" , CONFIG_PRODUCT );
 		props.setPathProperty( "CONFIG_PRODUCTHOME" , CONFIG_PRODUCTHOME , action.session.execrc );
 		props.setStringProperty( "CONFIG_LASTPRODTAG" , CONFIG_LASTPRODTAG );
 		props.setStringProperty( "CONFIG_NEXTPRODTAG" , CONFIG_NEXTPRODTAG );
+		
+		// copy raw from engine properties if any
+		if( action.session.standalone )
+			return;
+		
+		action.engine.metaLoader.addProductProps( props );
 	}
 
 	private String getStringProperty( ActionBase action , String name ) throws Exception {

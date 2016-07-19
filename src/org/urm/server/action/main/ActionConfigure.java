@@ -93,6 +93,8 @@ public class ActionConfigure extends ActionBase {
 		FinalMetaLoader meta = engine.metaLoader;
 		
 		meta.loadServerSettings();
+		engine.loadProducts();
+		
 		for( String name : meta.getProducts() ) {
 			info( "configure product name=" + name + " ..." );
 			
@@ -405,10 +407,10 @@ public class ActionConfigure extends ActionBase {
 	}
 	
 	private void addExecutorContextBase( LocalFolder ef , boolean linux , List<String> lines ) throws Exception {
-		String productDir = context.session.productDir;
+		String productName = context.session.productName;
 		
-		if( !productDir.isEmpty() ) {
-			addExecutorContextItem( ef , linux , lines , "C_URM_PRODUCT" , productDir );
+		if( !productName.isEmpty() ) {
+			addExecutorContextItem( ef , linux , lines , "C_URM_PRODUCT" , productName );
 			if( !context.CTX_HOST.isEmpty() ) {
 				String value = context.CTX_HOST + ":";
 				if( context.CTX_PORT > 0 )

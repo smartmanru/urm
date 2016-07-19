@@ -276,7 +276,7 @@ public class ServerEngine {
 					}
 					else {
 						dirname = Common.getPath( session.execrc.userHome , "urm.work" , "client" );
-						dirname = Common.getPath( dirname , session.productDir + "-" + session.timestamp + "-" + session.sessionId );
+						dirname = Common.getPath( dirname , session.productName + "-" + session.timestamp + "-" + session.sessionId );
 					}
 				}
 			}

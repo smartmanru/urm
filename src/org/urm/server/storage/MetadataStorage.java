@@ -27,7 +27,7 @@ public class MetadataStorage {
 	
 	public String getDistrFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		return( urm.getMetadataPath( action , "distr.xml" ) );
+		return( urm.getMetadataPath( action , UrmStorage.DISTR_SETTINGS_FILE ) );
 	}
 
 	public String[] getDesignFiles( ActionBase action ) throws Exception {
@@ -53,24 +53,19 @@ public class MetadataStorage {
 	
 	public String getProductConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		return( urm.getMetadataPath( action , "product.conf" ) );
+		return( urm.getMetadataPath( action , UrmStorage.PRODUCT_SETTINGS_FILE ) );
 	}
 	
 	public String getSourceConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		return( urm.getMetadataPath( action , "source.xml" ) );
+		return( urm.getMetadataPath( action , UrmStorage.SOURCE_SETTINGS_FILE ) );
 	}
 
 	public String getMonitoringFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		return( urm.getMetadataPath( action , "monitoring.xml" ) );
+		return( urm.getMetadataPath( action , UrmStorage.MONITORING_SETTINGS_FILE ) );
 	}
 	
-	public String getOrgInfoFile( ActionBase action ) throws Exception {
-		UrmStorage urm = artefactory.getUrmStorage();
-		return( urm.getMetadataPath( action , "orginfo.txt" ) );
-	}
-
 	public String getEnvFile( ActionBase action , String envFile ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
 		String dir = urm.getMetadataPath( action , "env" );

@@ -95,14 +95,14 @@ public class MetaEngine {
 		defaultProductProperties.moveRawAsIs();
 		
 		// for build modes
-		Node[] items = ConfReader.xmlGetChildren( node , "build" );
+		Node[] items = ConfReader.xmlGetChildren( node , "mode" );
 		if( items == null )
 			return;
 		
 		for( Node itemNode : items ) {
-			String MODE = ConfReader.getRequiredAttrValue( itemNode , "mode" );
+			String MODE = ConfReader.getRequiredAttrValue( itemNode , "name" );
 			VarBUILDMODE mode = VarBUILDMODE.valueOf( MODE.toUpperCase() );
-			PropertySet set = new PropertySet( "build" , defaultProductProperties );
+			PropertySet set = new PropertySet( MODE.toLowerCase() , defaultProductProperties );
 			
 			set.loadRawFromElements( itemNode );
 			set.moveRawAsIs();
