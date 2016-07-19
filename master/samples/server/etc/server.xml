@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <server>
 
-	<!-- connectivity properties -->
+	<!-- server connectivity properties -->
 	<property name="connection.http.port" value="8800"/>
 	<property name="connection.jmx.port" value="8801"/>
 
-	<!-- Jabber notificatin properties -->
+	<!-- server Jabber notification properties -->
 	<property name="jabber.account" value="release-mgn@mydomain"/>
 	<property name="jabber.password" value="mypassword"/>
 	<property name="jabber.server" value="jabber.mydomain"/>
@@ -13,10 +13,112 @@
 	<property name="jabber.include" value="release.*"/>
 	<property name="jabber.exclude" value="release.some.*"/>
 
+	<!-- product set grouped by system -->
 	<directory>
 		<system name="mysystem">
-			<product name="myproduct" path="myproducts/myproduct"/>
+			<product name="myproduct" path="products/myproduct"/>
 		</system>
 	</directory>
+
+	<!-- product defaults - automatically added to product properties -->
+	<defaults>
+		<!-- repositories -->
+		<property name="CONFIG_NEXUS_BASE" value="https://mynexus.com"/>
+		<property name="CONFIG_SVNOLD_PATH" value="https://mysvn.com/repos"/>
+		<property name="CONFIG_SVNNEW_PATH" value="https://mysvn.com/repos"/>
+		<property name="CONFIG_NEXUS_REPO_THIRDPARTY" value="thirdparty"/>
+		<property name="CONFIG_SOURCE_VCS" value="svnold"/>
+		<property name="CONFIG_SOURCE_REPOSITORY" value="releases"/>
+
+		<!-- hosts, dirs and files -->
+		<property name="CONFIG_BUILDBASE" value="/release/base"/>
+		<property name="CONFIG_DISTR_HOSTLOGIN" value="local"/>
+		<property name="CONFIG_DISTR_PATH" value="/myroot/fap/systems/egisz/products/@CONFIG_PRODUCT@"/>
+		<property name="CONFIG_UPGRADE_PATH" value="/myroot/fap/upgrades"/>
+		<property name="CONFIG_BASE_PATH" value="/myroot/fap/meta"/>
+		<property name="CONFIG_WORKPATH" value="~/work/@CONFIG_PRODUCT@"/>
+		<property name="CONFIG_REDISTPATH" value="/myroot/redist"/>
+		<property name="CONFIG_SQL_LOGDIR" value="@CONFIG_PRODUCTHOME@/database/patches.log"/>
+		<property name="CONFIG_SVNOLD_AUTH" value="~/.auth/svnold.auth.txt"/>
+		<property name="CONFIG_SVNNEW_AUTH" value="~/.auth/svnnew.auth.txt"/>
+		<property name="CONFIG_GITMIRRORPATH" value="~/mirror"/>
+		<property name="CONFIG_ARTEFACTDIR" value="~/build/@CONFIG_PRODUCT@/artefacts"/>
+
+		<!-- product params -->
+		<property name="CONFIG_ADM_TRACKER" value="IGNORE"/>
+		<property name="CONFIG_COMMIT_TRACKERLIST" value="@CONFIG_ADM_TRACKER@ DEV"/>
+		<property name="CONFIG_JAVA_VERSION" value="jdk1.8.0_25"/>
+		<property name="CONFIG_MAVEN_VERSION" value="apache-maven-3.2.5"/>
+		<property name="CONFIG_MAVEN_ADDITIONAL_OPTIONS" value="-e"/>
+		<property name="CONFIG_MAVEN_PROFILES" value="all-components,all-modules"/>
+		<property name="CONFIG_MODULE_BUILD_OPTIONS_CORE" value="-Mcs"/>
+
+		<property name="CONFIG_SOURCE_RELEASEROOTDIR" value="products/@CONFIG_PRODUCT@/changes"/>
+		<property name="CONFIG_SOURCE_CFG_ROOTDIR" value="products/@CONFIG_PRODUCT@/configuration/templates/prod"/>
+		<property name="CONFIG_SOURCE_CFG_LIVEROOTDIR" value="products/@CONFIG_PRODUCT@/configuration/live"/>
+		<property name="CONFIG_SOURCE_SQL_POSTREFRESH" value="products/@CONFIG_PRODUCT@/database/refresh"/>
+		<property name="CONFIG_SOURCE_SQL_CHARSET" value="UTF-8"/>
+
+		<!-- release numbering and release folders -->
+		<property name="CONFIG_VERSIONBRANCH" value="@CONFIG_VERSION_BRANCH_MAJOR@.@CONFIG_VERSION_BRANCH_MINOR@"/>
+		<property name="CONFIG_RELEASE_GROUPFOLDER" value="R_@CONFIG_VERSION_BRANCH_MAJOR@_@CONFIG_VERSION_BRANCH_NEXTMINOR@"/>
+		<property name="CONFIG_NEXT_MAJORRELEASE" value="@CONFIG_VERSION_BRANCH_MAJOR@.@CONFIG_VERSION_BRANCH_NEXTMINOR@"/>
+		<property name="CONFIG_LAST_VERSION_BUILD" value="@CONFIG_LASTPRODTAG@"/>
+		<property name="CONFIG_NEXT_VERSION_BUILD" value="@CONFIG_NEXTPRODTAG@"/>
+		<property name="CONFIG_VERSION_LAST_FULL" value="@CONFIG_VERSIONBRANCH@.@CONFIG_LAST_VERSION_BUILD@"/>
+		<property name="CONFIG_VERSION_NEXT_FULL" value="@CONFIG_VERSIONBRANCH@.@CONFIG_NEXT_VERSION_BUILD@"/>
+
+		<!-- defined by version mode -->
+		<build mode="devtrunk">
+			<property name="CONFIG_APPVERSION" value="@CONFIG_VERSIONBRANCH@-SNAPSHOT"/>
+			<property name="CONFIG_APPVERSION_TAG" value="prod-major"/>
+			<property name="CONFIG_BRANCHNAME" value="trunk"/>
+			<property name="CONFIG_MAVEN_CFGFILE" value="~/.m2/settings.dev.xml"/>
+			<property name="CONFIG_NEXUS_REPO" value="snapshots"/>
+			<property name="CONFIG_PROD_TAG" value=""/>
+			<property name="CONFIG_RELEASEVER" value="@CONFIG_NEXT_MAJORRELEASE@"/>
+		</build>
+
+		<build mode="trunk">
+			<property name="CONFIG_APPVERSION" value="@CONFIG_NEXT_MAJORRELEASE@-SNAPSHOT"/>
+			<property name="CONFIG_APPVERSION_TAG" value="prod-major"/>
+			<property name="CONFIG_BRANCHNAME" value="trunk"/>
+			<property name="CONFIG_MAVEN_CFGFILE" value="~/.m2/settings.trunk.xml"/>
+			<property name="CONFIG_NEXUS_REPO" value="builder-trunk"/>
+			<property name="CONFIG_PROD_TAG" value=""/>
+			<property name="CONFIG_RELEASEVER" value="@CONFIG_NEXT_MAJORRELEASE@"/>
+		</build>
+
+		<build mode="majorbranch">
+			<property name="CONFIG_APPVERSION" value="@CONFIG_VERSIONBRANCH@"/>
+			<property name="CONFIG_APPVERSION_TAG" value="prod-major"/>
+			<property name="CONFIG_BRANCHNAME" value=""/>
+			<property name="CONFIG_MAVEN_CFGFILE" value="~/.m2/settings.major.xml"/>
+			<property name="CONFIG_NEXUS_REPO" value="builder-majorbranch"/>
+			<property name="CONFIG_PROD_TAG" value=""/>
+			<property name="CONFIG_RELEASEVER" value="@CONFIG_VERSIONBRANCH@"/>
+		</build>
+
+		<build mode="devbranch">
+			<property name="CONFIG_APPVERSION" value="@CONFIG_VERSIONBRANCH@"/>
+			<property name="CONFIG_APPVERSION_TAG" value="dev-@CONFIG_VERSION_NEXT_FULL@-candidate"/>
+			<property name="CONFIG_BRANCHNAME" value=""/>
+			<property name="CONFIG_MAVEN_CFGFILE" value="~/.m2/settings.dev.xml"/>
+			<property name="CONFIG_NEXUS_REPO" value="releases"/>
+			<property name="CONFIG_PROD_TAG" value="prod-@CONFIG_VERSION_LAST_FULL@"/>
+			<property name="CONFIG_RELEASEVER" value="@CONFIG_VERSION_NEXT_FULL@"/>
+		</build>
+
+		<build mode="branch">
+			<property name="CONFIG_APPVERSION" value="@CONFIG_VERSIONBRANCH@"/>
+			<property name="CONFIG_APPVERSION_TAG" value="prod-@CONFIG_VERSIONBRANCH@.@CONFIG_NEXT_VERSION_BUILD@-candidate"/>
+			<property name="CONFIG_BRANCHNAME" value=""/>
+			<property name="CONFIG_MAVEN_CFGFILE" value="~/.m2/settings.branch.xml"/>
+			<property name="CONFIG_NEXUS_REPO" value="builder-branch"/>
+			<property name="CONFIG_PROD_TAG" value="prod-@CONFIG_VERSIONBRANCH@.@CONFIG_LAST_VERSION_BUILD@"/>
+			<property name="CONFIG_RELEASEVER" value="@CONFIG_VERSIONBRANCH@.@CONFIG_NEXT_VERSION_BUILD@"/>
+		</build>
+
+	</defaults>
 
 </server>
