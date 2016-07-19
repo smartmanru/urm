@@ -15,7 +15,7 @@
 
 	<directory>
 		<system name="mysystem">
-			<product name="myproduct"/>
+			<product name="myproduct" path="myproducts/myproduct"/>
 		</system>
 	</directory>
 
