@@ -13,8 +13,10 @@
 		</database>
 
 		<delivery name="build">
-			<distitem name="signatureTool" source="manual" type="binary" deployversion="none" extension=".war"/>
+			<distitem name="signer" source="manual" type="binary" deployversion="none" extension=".war"/>
 			<distitem name="static" source="manual" type="archive.direct" extension=".tar.gz"/>
+			<distitem name="app.web" source="build" distname="app-web" deployname="app_web" type="binary" deployversion="none" extension=".war"/>
+			<distitem name="app.ws" source="build" distname="app-ws" deployname="app_ws" type="binary" deployversion="none" extension=".war"/>
 		</delivery>
 
 		<delivery name="thirdparty" folder="thirdparty">
