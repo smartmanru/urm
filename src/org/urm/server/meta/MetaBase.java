@@ -16,7 +16,7 @@ import org.urm.server.storage.BaseRepository;
 import org.urm.server.storage.RemoteFolder;
 import org.w3c.dom.Node;
 
-public class MetaFapBase {
+public class MetaBase {
 
 	public enum VarBASESRCTYPE {
 		LINUX_ARCHIVE_LINK ,
@@ -53,7 +53,7 @@ public class MetaFapBase {
 	public List<String> dependencies;
 	public Map<String,String> compatibilityMap;
 	
-	public MetaFapBase( Metadata meta , BaseRepository repo , boolean primary ) {
+	public MetaBase( Metadata meta , BaseRepository repo , boolean primary ) {
 		this.meta = meta;
 		this.repo = repo;
 		this.primary = primary;
