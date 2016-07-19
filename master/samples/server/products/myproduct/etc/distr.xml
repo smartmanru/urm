@@ -47,7 +47,6 @@
        	<!-- deployment components -->
 	<deployment>
 		<component name="biapp.war">
-			<distitem name="client"/>
 			<distitem name="jasperserver"/>
 			<distitem name="saiku"/>
 		</component>
