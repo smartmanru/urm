@@ -27,4 +27,4 @@ robocopy database %P_DSTDIR%\master\database /s /e
 robocopy lib %P_DSTDIR%\master\lib /s /e
 
 cd %P_DSTDIR%\master\bin
-configure.cmd %URM_TRACE% default
+configure.cmd %URM_TRACE%
