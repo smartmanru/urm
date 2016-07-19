@@ -28,7 +28,6 @@ import org.urm.server.storage.UrmStorage;
 public class ActionConfigure extends ActionBase {
 
 	boolean configureLinux;
-	String ACTION;
 	String USEENV;
 	String USEDC;
 
@@ -43,16 +42,15 @@ public class ActionConfigure extends ActionBase {
 	String dcDbMasterFolderRel;
 	String buildMasterFolderRel;
 
-	public ActionConfigure( ActionBase action , String stream , boolean configureLinux , String ACTION , String USEENV , String USEDC ) {
+	public ActionConfigure( ActionBase action , String stream , boolean configureLinux , String USEENV , String USEDC ) {
 		super( action , stream );
 		this.configureLinux = configureLinux;
-		this.ACTION = ACTION;
 		this.USEENV = USEENV;
 		this.USEDC = USEDC;
 	}
 
 	@Override protected boolean executeSimple() throws Exception {
-		commentExecutor( "configure " + ACTION + " ..." );
+		commentExecutor( "configure ..." );
 		
 		executorMasterFolderRel = "..";
 		envMasterFolderRel = "../..";
@@ -62,18 +60,14 @@ public class ActionConfigure extends ActionBase {
 		buildMasterFolderRel = "../..";
 
 		boolean serverMode = false;
-		if( ACTION.equals( "default" ) ) {
-			UrmStorage urm = artefactory.getUrmStorage();
-			if( urm.isServerMode( this ) )
-				serverMode = true;
-			else
-			if( urm.isStandaloneMode( this ) )
-				serverMode = false;
-			else
-				exit( "Installation is not configured, default is not applicable" );
-		}
+		UrmStorage urm = artefactory.getUrmStorage();
+		if( urm.isServerMode( this ) )
+			serverMode = true;
 		else
-			exit( "Unknown configuration mode" );
+		if( urm.isStandaloneMode( this ) )
+			serverMode = false;
+		else
+			exit( "Installation is not configured, default is not applicable" );
 		
 		if( serverMode ) {
 			executorMasterFolderRel += "/../../../master";
@@ -224,6 +218,11 @@ public class ActionConfigure extends ActionBase {
 			if( pfDeploy.findFiles( this , "*.cmd" ).length > 0 )
 				deployWindows = true;
 		}
+		
+		if( isLocalLinux() )
+			buildUnix = deployUnix = true;
+		else
+			buildWindows = deployWindows = true;
 		
 		if( buildUnix || deployUnix )
 			configureProductAll( buildUnix , deployUnix , true );
@@ -424,7 +423,7 @@ public class ActionConfigure extends ActionBase {
 
 	private void saveExecutorContext( LocalFolder ef , boolean linux , List<String> lines ) throws Exception {
 		String fileName = ( linux )? MainCommandMeta.CONTEXT_FILENAME_LIXUX : MainCommandMeta.CONTEXT_FILENAME_WIN;
-		if( !ACTION.equals( "default" ) )
+		if( context.CTX_FORCE == true || !ef.checkFileExists( this , fileName ) )
 			Common.createFileFromStringList( ef.getFilePath( this , fileName ) , lines );
 		addProxyLine( ef , fileName );
 	}

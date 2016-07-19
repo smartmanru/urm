@@ -66,19 +66,14 @@ public class MainExecutor extends CommandExecutor {
 		public void run( ActionInit action ) throws Exception {
 			linux = action.isLocalLinux();
 			
-			String ACTION = getRequiredArg( action , 0 , "ACTION" );
-			String USEENV = "";
-			String USEDC = "";
-			if( ACTION.equals( "deploy" ) ) {
-				USEENV = getArg( action , 1 );
-				USEDC = getArg( action , 2 );
-				if( USEENV == null )
-					USEENV = "";
-				if( USEDC == null )
-					USEDC = "";
-			}
+			String USEENV = getArg( action , 0 );
+			String USEDC = getArg( action , 1 );
+			if( USEENV == null )
+				USEENV = "";
+			if( USEDC == null )
+				USEDC = "";
 	
-			ActionConfigure ca = new ActionConfigure( action , null , linux , ACTION , USEENV , USEDC );
+			ActionConfigure ca = new ActionConfigure( action , null , linux , USEENV , USEDC );
 			ca.runSimple();
 		}
 	}
