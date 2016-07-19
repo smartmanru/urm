@@ -188,8 +188,6 @@ public class MetaProduct {
 		initial = true;
 		scatterVariables( action );
 		props.finishRawProperties();
-		
-		action.printValues( props );
 	}
 
 	public void updateProperties( ActionBase action ) throws Exception {
