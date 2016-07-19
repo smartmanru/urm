@@ -111,14 +111,17 @@ public class PropertySet {
 	}
 
 	public void moveRawAsStrings() throws Exception {
+		moveRawAsIs();
+		resolveProperties();
+	}
+	
+	public void moveRawAsIs() throws Exception {
 		for( String key : raw.keySet() ) {
 			PropertyValue pv = new PropertyValue();
 			pv.setString( raw.get( key ) );
 			properties.put( key , pv );
 		}
-		
 		raw.clear();
-		resolveProperties();
 	}
 	
 	public void loadRawFromAttributes( Node node ) throws Exception {

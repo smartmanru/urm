@@ -52,7 +52,6 @@ public class MetaDistr {
 			mapConfItems.putAll( item.getConfigurationItems( action ) );
 		}
 		
-		
 		for( MetaDistrBinaryItem item : mapBinaryItems.values() )
 			item.resolveReferences( action );
 	}

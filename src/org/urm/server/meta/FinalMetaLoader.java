@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.common.ExitException;
 import org.urm.server.ServerEngine;
 import org.urm.server.SessionContext;
 import org.urm.server.action.ActionBase;
@@ -17,11 +18,11 @@ public class FinalMetaLoader {
 	
 	private Map<String,FinalMetaStorage> productMeta;
 	private FinalMetaStorage offline;
-	private MetaEngine metaEngine;
+	private MetaEngine engineMeta;
 	
 	public FinalMetaLoader( ServerEngine engine ) {
 		this.engine = engine;
-		metaEngine = new MetaEngine( this ); 
+		engineMeta = new MetaEngine( this ); 
 		productMeta = new HashMap<String,FinalMetaStorage>();
 	}
 	
@@ -107,7 +108,18 @@ public class FinalMetaLoader {
 	public void loadServerSettings() throws Exception {
 		String path = Common.getPath( engine.execrc.installPath , "etc" );
 		String propertyFile = Common.getPath( path , "server.xml" );
-		metaEngine.load( propertyFile , engine.execrc );
+		engineMeta.load( propertyFile , engine.execrc );
+	}
+
+	public String[] getProducts() {
+		return( Common.getSortedKeys( engineMeta.mapProducts ) );
+	}
+
+	public MetaEngineProduct getProductMeta( String name ) throws Exception {
+		MetaEngineProduct product = engineMeta.mapProducts.get( name );
+		if( product == null )
+			new ExitException( "unknown product=" + name );
+		return( product );
 	}
 	
 }

@@ -13,6 +13,9 @@ public class UrmStorage {
 	public Metadata meta;
 
 	public static String PRODUCTS_FOLDER = "products";
+	public static String SERVER_SETTINGS_FILE = "server.xml";
+	public static String PRODUCT_SETTINGS_FILE = "product.xml";
+	public static String ETC_PATH = "etc";
 	
 	public UrmStorage( Artefactory artefactory ) {
 		this.artefactory = artefactory;
@@ -21,7 +24,7 @@ public class UrmStorage {
 
 	public boolean isServerMode( ActionBase action ) throws Exception {
 		LocalFolder folder = getInstallFolder( action );
-		if( folder.checkFileExists( action , Common.getPath( "etc" , "server.conf" ) ) )
+		if( folder.checkFileExists( action , Common.getPath( ETC_PATH , SERVER_SETTINGS_FILE ) ) )
 			return( true );
 		
 		return( false );
@@ -29,7 +32,7 @@ public class UrmStorage {
 	
 	public boolean isStandaloneMode( ActionBase action ) throws Exception {
 		LocalFolder folder = getInstallFolder( action );
-		if( folder.checkFileExists( action , Common.getPath( "etc" , "product.conf" ) ) )
+		if( folder.checkFileExists( action , Common.getPath( ETC_PATH , PRODUCT_SETTINGS_FILE ) ) )
 			return( true );
 		
 		return( false );
@@ -97,6 +100,11 @@ public class UrmStorage {
 		return( dir );
 	}
 
+	public LocalFolder getServerSettingsFolder( ActionBase action ) throws Exception {
+		String dir = action.context.session.etcPath;
+		return( artefactory.getAnyFolder( action , dir ) );
+	}
+	
 	public LocalFolder getMetadataFolder( ActionBase action , String dirname ) throws Exception {
 		String dir = getMetadataPath( action , dirname );
 		return( artefactory.getAnyFolder( action , dir ) );

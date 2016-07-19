@@ -26,7 +26,7 @@ public class RunContext implements Serializable {
 	public String userHome;
 	public String installPath;
 	
-	public String productDir;
+	public String product;
 	public String buildMode;
 	public String envName;
 	public String dcName;
@@ -42,7 +42,7 @@ public class RunContext implements Serializable {
 		buildMode = getProperty( "urm.build" ).toUpperCase();
 		envName = getProperty( "urm.env" );
 		dcName = getProperty( "urm.dc" );
-		productDir = getProperty( "urm.product" );
+		product = getProperty( "urm.product" );
 		
 		serverHostPort = getProperty( "urm.server" );
 		String mode = getProperty( "urm.mode" );

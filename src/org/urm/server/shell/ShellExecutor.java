@@ -199,6 +199,11 @@ public abstract class ShellExecutor extends Shell {
 			if( path.isEmpty() )
 				return( false );
 	
+			if( action.isLocalAccount() ) {
+				if( isWindows() )
+					path = Common.getWinPath( path );
+				return( Files.isRegularFile( Paths.get( path ) , LinkOption.NOFOLLOW_LINKS ) );
+			}
 			return( core.cmdCheckFileExists( action , path ) );
 		}
 		finally {
@@ -212,6 +217,11 @@ public abstract class ShellExecutor extends Shell {
 			if( path.isEmpty() )
 				return( false );
 	
+			if( action.isLocalAccount() ) {
+				if( isWindows() )
+					path = Common.getWinPath( path );
+				return( Files.exists( Paths.get( path ) , LinkOption.NOFOLLOW_LINKS ) );
+			}
 			return( core.cmdCheckPathExists( action , path ) );
 		}
 		finally {

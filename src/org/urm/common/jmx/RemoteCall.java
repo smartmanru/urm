@@ -77,7 +77,7 @@ public class RemoteCall implements NotificationListener {
 			return( false );
 		}
 		
-		String name = getCommandMBeanName( builder.execrc.productDir , commandInfo.name );
+		String name = getCommandMBeanName( builder.execrc.product , commandInfo.name );
 		boolean res = serverCommandCall( builder , name );
 
 		serverDisconnect();

@@ -4,6 +4,7 @@ import org.urm.common.Common;
 import org.urm.common.ExitException;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandOptions;
+import org.urm.server.meta.MetaEngineProduct;
 
 public class SessionContext {
 
@@ -23,6 +24,7 @@ public class SessionContext {
 	
 	public String installPath = "";
 	public String masterPath = "";
+	public String productName = "";
 	public String productDir = "";
 	public String productPath = "";
 	public String binPath = "";
@@ -51,6 +53,7 @@ public class SessionContext {
 		if( installPath.isEmpty() )
 			exit( "masterpath is empty" );
 		
+		productName = "";
 		productDir = "";
 		masterPath = Common.getPath( installPath , "master" );
 		binPath = Common.getPath( masterPath , "bin" );
@@ -60,14 +63,16 @@ public class SessionContext {
 		proxyPath = "";
 	}
 	
-	public void setServerProductLayout( String productDir ) throws Exception {
+	public void setServerProductLayout( String name , String path ) throws Exception {
 		product = true;
 		
 		if( productDir.isEmpty() )
 			exit( "missing product folder" );
 		
-		this.productDir = productDir;
-		productPath = Common.getPath( installPath , "products" , productDir );
+		this.productName = name;
+		this.productDir = path;
+		
+		productPath = Common.getPath( installPath , productDir );
 		etcPath = Common.getPath( productPath , "etc" );
 		proxyPath = Common.getPath( productPath , "master" );
 	}
@@ -82,11 +87,12 @@ public class SessionContext {
 		proxyPath = "";
 	}
 	
-	public void setServerOfflineLayout( CommandOptions options , String productDir ) throws Exception {
+	public void setServerOfflineLayout( CommandOptions options , String name ) throws Exception {
 		offline = true;
 		
 		setServerLayout( options );
-		setServerProductLayout( clientrc.productDir );
+		MetaEngineProduct product = engine.metaLoader.getProductMeta( name ); 
+		setServerProductLayout( product.NAME , product.PATH );
 	}
 	
 	public void setServerRemoteLayout( SessionContext serverSession ) throws Exception {
@@ -94,7 +100,8 @@ public class SessionContext {
 		masterPath = serverSession.masterPath;
 		binPath = serverSession.binPath;
 		
-		setServerProductLayout( clientrc.productDir );
+		MetaEngineProduct product = engine.metaLoader.getProductMeta( clientrc.product ); 
+		setServerProductLayout( product.NAME , product.PATH );
 	}
 	
 	public void setStandaloneLayout( CommandOptions options ) throws Exception {

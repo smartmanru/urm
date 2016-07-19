@@ -89,7 +89,9 @@ public class ServerEngine {
 		// server action environment
 		serverSession = new SessionContext( this , execrc , 0 );
 		serverSession.setServerLayout( serverExecutor.options );
-		metaLoader.loadServerSettings();
+		
+		if( !serverExecutor.options.action.equals( "configure" ) )
+			metaLoader.loadServerSettings();
 
 		// create server action
 		serverAction = createAction( serverExecutor , serverSession , "server" , null );
@@ -100,11 +102,14 @@ public class ServerEngine {
 		running = true;
 		createPool();
 		startAction( serverAction );
-		metaLoader.loadServerProducts( serverAction );
 		
 		return( true );
 	}
 
+	public void loadProducts() throws Exception {
+		metaLoader.loadServerProducts( serverAction );
+	}
+	
 	public boolean runClientMode( CommandBuilder builder , CommandOptions options , RunContext clientrc , CommandMeta commandInfo ) throws Exception {
 		execrc = clientrc;
 		
@@ -114,7 +119,7 @@ public class ServerEngine {
 		if( execrc.standaloneMode )
 			serverSession.setStandaloneLayout( options );
 		else
-			serverSession.setServerOfflineLayout( options , clientrc.productDir );
+			serverSession.setServerOfflineLayout( options , clientrc.product );
 		
 		serverAction = createAction( commandExecutor , serverSession , "client" , null );
 		if( serverAction == null )

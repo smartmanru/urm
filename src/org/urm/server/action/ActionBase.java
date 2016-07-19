@@ -12,6 +12,7 @@ import org.urm.server.CommandExecutor;
 import org.urm.server.ServerEngine;
 import org.urm.server.SessionContext;
 import org.urm.server.custom.CommandCustom;
+import org.urm.server.meta.MetaEngineProduct;
 import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.meta.Metadata;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
@@ -104,8 +105,9 @@ abstract public class ActionBase {
 		actionFailed = false;
 	}
 
-	public void setServerProductLayout( String productDir ) throws Exception {
-		session.setServerProductLayout( productDir );
+	public void setServerProductLayout( String name ) throws Exception {
+		MetaEngineProduct product = engine.metaLoader.getProductMeta( name ); 
+		session.setServerProductLayout( product.NAME , product.PATH );
 		meta.clearAll();
 	}
 	

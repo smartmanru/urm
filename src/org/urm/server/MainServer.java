@@ -12,6 +12,7 @@ import org.urm.common.jmx.ServerCommandCall;
 import org.urm.common.jmx.ServerMBean;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionInit;
+import org.urm.server.meta.MetaEngineProduct;
 
 public class MainServer {
 
@@ -38,6 +39,8 @@ public class MainServer {
 	}
 	
 	public void start() throws Exception {
+		engine.loadProducts();
+		
 		CommandBuilder builder = new CommandBuilder( serverAction.context.session.clientrc , serverAction.context.session.execrc );
 		executors = builder.getExecutors( true , true );
 		controller.start();
@@ -72,14 +75,14 @@ public class MainServer {
 		SessionContext session = new SessionContext( engine , data.clientrc , call.sessionId );
 		session.setServerRemoteLayout( engine.serverSession );
 		
-		ActionInit action = engine.createAction( actionExecutor , session , "rjmx-" + data.clientrc.productDir , call );
+		ActionInit action = engine.createAction( actionExecutor , session , "rjmx-" + data.clientrc.product , call );
 		if( action == null )
 			return( null );
 
 		return( action );
 	}
 
-	public boolean runWebJmx( int sessionId , String productDir , CommandMeta meta , CommandOptions options ) throws Exception {
+	public boolean runWebJmx( int sessionId , String productName , CommandMeta meta , CommandOptions options ) throws Exception {
 		if( !running ) {
 			serverAction.error( "server is in progress of shutdown" );
 			return( false );
@@ -87,9 +90,10 @@ public class MainServer {
 		
 		CommandExecutor actionExecutor = engine.createExecutor( meta , options );
 		SessionContext session = new SessionContext( engine , engine.execrc , sessionId );
-		session.setServerProductLayout( productDir );
+		MetaEngineProduct product = engine.metaLoader.getProductMeta( productName ); 
+		session.setServerProductLayout( product.NAME , product.PATH );
 		
-		ActionInit action = engine.createAction( actionExecutor , session , "cjmx-" + engine.execrc.productDir , null );
+		ActionInit action = engine.createAction( actionExecutor , session , "cjmx-" + engine.execrc.product , null );
 		if( action == null )
 			return( false );
 

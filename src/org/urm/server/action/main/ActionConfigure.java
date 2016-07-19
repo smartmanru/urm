@@ -17,6 +17,7 @@ import org.urm.common.meta.DatabaseCommandMeta;
 import org.urm.common.meta.DeployCommandMeta;
 import org.urm.common.meta.MainCommandMeta;
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.FinalMetaLoader;
 import org.urm.server.meta.MetaEnv;
 import org.urm.server.meta.MetaEnvDC;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
@@ -61,9 +62,6 @@ public class ActionConfigure extends ActionBase {
 		buildMasterFolderRel = "../..";
 
 		boolean serverMode = false;
-		if( ACTION.equals( "server" ) )
-			serverMode = true;
-		else
 		if( ACTION.equals( "default" ) ) {
 			UrmStorage urm = artefactory.getUrmStorage();
 			if( urm.isServerMode( this ) )
@@ -72,8 +70,10 @@ public class ActionConfigure extends ActionBase {
 			if( urm.isStandaloneMode( this ) )
 				serverMode = false;
 			else
-				exit( "Installation was not configured, default is not applicable" );
+				exit( "Installation is not configured, default is not applicable" );
 		}
+		else
+			exit( "Unknown configuration mode" );
 		
 		if( serverMode ) {
 			executorMasterFolderRel += "/../../../master";
@@ -85,43 +85,24 @@ public class ActionConfigure extends ActionBase {
 		}
 
 		// set execution context
-		if( ACTION.equals( "server" ) ) {
-			context.session.setServerLayout( context.options );
-			configureServer( true );
-		}
-		else
-		if( ACTION.equals( "standalone" ) ) {
-			context.session.setStandaloneLayout( context.options );
-			configureProduct( true , true );
-		}
-		else
-		if( ACTION.equals( "default" ) )
-			configureDefault();
-		else
-			exit( "action is not set, see help" );
+		configureDefault( serverMode );
 		return( true );
 	}
 
-	private void configureServer( boolean initial ) throws Exception {
-		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder pfProducts = urm.getServerProductsFolder( this );
-		if( !pfProducts.checkExists( this ) )
-			exit( "before configure, please create directory: " + pfProducts.folderPath );
-
-		boolean found = false;
-		for( String productDir : pfProducts.getTopDirs( this ) ) {
-			info( "configure product folder=" + productDir + " ..." );
-			found = true;
-			setServerProductLayout( productDir );
-			configureProduct( initial , false );
+	private void configureServer() throws Exception {
+		FinalMetaLoader meta = engine.metaLoader;
+		
+		meta.loadServerSettings();
+		for( String name : meta.getProducts() ) {
+			info( "configure product name=" + name + " ..." );
+			
+			setServerProductLayout( name );
+			configureProduct( false );
 			clearServerProductLayout();
 		}
-		
-		if( !found )
-			info( "no products found in " + pfProducts.folderPath + ", nothing to configure" );
 	}
-	
-	private void configureProduct( boolean initial , boolean standalone ) throws Exception {
+
+	private void configureProduct( boolean standalone ) throws Exception {
 		meta.loadProduct( this );
 		meta.loadDistr( this );
 		
@@ -143,34 +124,29 @@ public class ActionConfigure extends ActionBase {
 			}
 		}
 		
-		configureProduct( initial );
+		configureProduct();
 		createMasterFile( masterPath , lines );
 	}
 
-	private void configureDefault() throws Exception {
-		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder pfProducts = urm.getServerProductsFolder( this );
-		if( pfProducts.checkExists( this ) ) {
+	private void configureDefault( boolean serverMode ) throws Exception {
+		if( serverMode ) {
 			context.session.setServerLayout( context.options );
-			configureServer( false );
+			configureServer();
 		}
 		else {
 			context.session.setStandaloneLayout( context.options );
-			configureProduct( false , true );
+			configureProduct( true );
 		}
 	}
 	
-	private void configureProduct( boolean initial ) throws Exception {
+	private void configureProduct() throws Exception {
 		linesProxy = new LinkedList<String>();
 		linesAffected = new LinkedList<String>();
 		
 		USEENV = "";
 		USEDC = "";
 		
-		if( initial )
-			configureProductAll( true , true , configureLinux );
-		else
-			configureProductDefault();
+		configureProductDefault();
 	}
 
 	private void createMasterFile( String masterPath , List<String> lines ) throws Exception {
@@ -180,8 +156,7 @@ public class ActionConfigure extends ActionBase {
 			boolean process = true;
 			if( !s.startsWith( MainCommandMeta.PROXYPREFIX ) )
 				process = false;
-			else
-			if( !ACTION.equals( "default" ) ) {
+			else {
 				if( isLocalLinux() && !s.endsWith( ".sh" ) )
 					process = false;
 				else
