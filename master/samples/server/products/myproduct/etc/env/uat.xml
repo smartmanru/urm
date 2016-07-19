@@ -44,7 +44,7 @@
 			<node hostlogin="user@192.168.6.76"/>
 			<node hostlogin="user@192.168.6.77" offline="yes"/>
 			<deploy component="sign.lib" deploypath="tomcat/lib"/>
-			<deploy distitem="signatureTool" deploypath="tomcat/webapps"/>
+			<deploy distitem="signer" deploypath="tomcat/webapps"/>
 		</server>
 
 	</datacenter>
