@@ -19,6 +19,7 @@ import javax.management.remote.JMXServiceURL;
 import org.urm.common.action.CommandMeta;
 import org.urm.server.MainServer;
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.FinalMetaLoader;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.UrmStorage;
 
@@ -121,16 +122,17 @@ public class ServerMBean implements DynamicMBean {
 		if( !products.checkExists( action ) )
 			action.exit( "cannot find directory: " + products.folderPath );
 		
-		for( String productDir : products.getTopDirs( action ) )
-			addProduct( productDir );
+		FinalMetaLoader meta = action.engine.metaLoader;
+		for( String name : meta.getProducts() )
+			addProduct( name );
 	}		
 	
-	private void addProduct( String productDir ) throws Exception {
+	private void addProduct( String product ) throws Exception {
 		for( CommandMeta meta : server.executors  ) {
-			ServerCommandMBean bean = new ServerCommandMBean( action , this , action.executor.engine , productDir , meta );
+			ServerCommandMBean bean = new ServerCommandMBean( action , this , action.executor.engine , product , meta );
 			bean.createInfo();
 			
-			String name = RemoteCall.getCommandMBeanName( productDir , meta.name );
+			String name = RemoteCall.getCommandMBeanName( product , meta.name );
 			ObjectName object = new ObjectName( name );
 			mbs.registerMBean( bean , object );
 		}

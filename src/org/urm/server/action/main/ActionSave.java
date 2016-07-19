@@ -5,6 +5,7 @@ import java.util.List;
 import org.urm.common.Common;
 import org.urm.common.meta.MainCommandMeta;
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.FinalMetaLoader;
 import org.urm.server.storage.FileSet;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.UrmStorage;
@@ -38,21 +39,16 @@ public class ActionSave extends ActionBase {
 		info( "save master ..." );
 		saveProduct( pf , false );
 		
+		FinalMetaLoader meta = engine.metaLoader;
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder pfProducts = urm.getServerProductsFolder( this );
-
-		boolean found = false;
-		for( String product : pfProducts.getTopDirs( this ) ) {
-			info( "save product=" + product + " ..." );
-			found = true;
-			setServerProductLayout( product );
-			LocalFolder productFolder = pfProducts.getSubFolder( this , product );
-			saveProduct( productFolder , false );
+		for( String name : meta.getProducts() ) {
+			info( "save product=" + name + " ..." );
+			setServerProductLayout( name );
+			
+			LocalFolder folder = urm.getProductFolder( this );
+			saveProduct( folder , false );
 			clearServerProductLayout();
 		}
-		
-		if( !found )
-			info( "no products found in " + pfProducts.folderPath + ", nothing to save" );
 	}
 	
 	private void saveProduct( LocalFolder pf , boolean standalone ) throws Exception {

@@ -9,9 +9,7 @@ import org.urm.common.PropertySet;
 import org.urm.server.ServerEngine;
 import org.urm.server.SessionContext;
 import org.urm.server.action.ActionBase;
-import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.MetadataStorage;
-import org.urm.server.storage.UrmStorage;
 
 public class FinalMetaLoader {
 
@@ -88,19 +86,15 @@ public class FinalMetaLoader {
 	}
 
 	public void loadServerProducts( ActionBase action ) throws Exception {
-		UrmStorage urm = action.artefactory.getUrmStorage();
-		LocalFolder pfProducts = urm.getServerProductsFolder( action );
+		FinalMetaLoader meta = engine.metaLoader;
 		
-		if( !pfProducts.checkExists( action ) )
-			action.exit( "before configure, please create directory: " + pfProducts.folderPath );
-
-		for( String productDir : pfProducts.getTopDirs( action ) ) {
-			action.setServerProductLayout( productDir );
+		for( String name : meta.getProducts() ) {
+			action.setServerProductLayout( name );
 			
 			MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 			FinalMetaStorage storage = new FinalMetaStorage( this , action.session );
 			storage.loadAll( action , storageMeta );
-			productMeta.put( productDir , storage );
+			productMeta.put( name , storage );
 			
 			action.clearServerProductLayout();
 		}
