@@ -3,6 +3,7 @@ package org.urm.server.meta;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.w3c.dom.Node;
 
@@ -30,6 +31,14 @@ public class MetaEngineSystem {
 			item.load( itemNode );
 			mapProducts.put( item.NAME , item );
 		}
+	}
+	
+	public String[] getProducts() throws Exception {
+		return( Common.getSortedKeys( mapProducts ) );
+	}
+
+	public MetaEngineProduct getProduct( String key ) {
+		return( mapProducts.get( key ) );
 	}
 	
 }
