@@ -13,6 +13,7 @@ import org.w3c.dom.Node;
 
 public class MetaEngine {
 
+	public FinalMetaLoader loader;
 	PropertySet properties;
 
 	public String CONNECTION_HTTP_PORT;
@@ -31,6 +32,8 @@ public class MetaEngine {
 	Map<VarBUILDMODE,PropertySet> mapBuildModeDefaults;
 	
 	public MetaEngine( FinalMetaLoader loader ) {
+		this.loader = loader;
+		
 		mapSystems = new HashMap<String,MetaEngineSystem>();
 		mapProducts = new HashMap<String,MetaEngineProduct>();
 		mapBuildModeDefaults = new HashMap<VarBUILDMODE,PropertySet>();

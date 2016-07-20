@@ -19,4 +19,16 @@ public class MetaEngineProduct {
 		PATH = ConfReader.getAttrValue( node , "path" );
 	}
 	
+	public String[] getEnvironments() throws Exception {
+		FinalMetaLoader loader = system.engine.loader;
+		FinalMetaStorage storage = loader.getMetaStorage( NAME );
+		return( storage.getEnvironments() );
+	}
+	
+	public MetaEnv getEnvironment( String envId ) throws Exception {
+		FinalMetaLoader loader = system.engine.loader;
+		FinalMetaStorage storage = loader.getMetaStorage( NAME );
+		return( storage.getEnvironment( envId ) );
+	}
+	
 }

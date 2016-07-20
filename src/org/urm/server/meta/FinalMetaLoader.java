@@ -29,6 +29,10 @@ public class FinalMetaLoader {
 		Metadata meta = new Metadata( this , session );
 		return( meta );
 	}
+
+	public synchronized FinalMetaStorage getMetaStorage( String productName ) throws Exception {
+		return( productMeta.get( productName ) );
+	}
 	
 	public synchronized FinalMetaStorage getMetaStorage( ActionBase action ) throws Exception {
 		if( action.session.offline ) {
@@ -46,7 +50,7 @@ public class FinalMetaLoader {
 		
 		return( storage );
 	}
-	
+
 	public MetaProduct loadProduct( ActionBase action , FinalMetaStorage storageFinal ) throws Exception {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 		return( storageFinal.loadProduct( action , storageMeta ) );

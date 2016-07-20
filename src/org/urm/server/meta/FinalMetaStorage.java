@@ -1,6 +1,9 @@
 package org.urm.server.meta;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.urm.common.ConfReader;
@@ -148,6 +151,22 @@ public class FinalMetaStorage {
 		
 		if( node != null )
 			database.load( action , node );
+	}
+
+	public synchronized String[] getEnvironments() throws Exception {
+		List<String> names = new LinkedList<String>();
+		for( MetaEnv env : envs.values() )
+			names.add( env.ID );
+		Collections.sort( names );
+		return( names.toArray( new String[0] ) );
+	}
+
+	public synchronized MetaEnv getEnvironment( String envId ) throws Exception {
+		for( MetaEnv env : envs.values() ) {
+			if( env.ID.equals( envId ) )
+				return( env );
+		}
+		return( null );
 	}
 	
 }
