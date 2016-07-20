@@ -4,7 +4,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaEnvServerNode;
-import org.urm.server.meta.MetaFapBase;
+import org.urm.server.meta.MetaBase;
 import org.urm.server.meta.Metadata;
 import org.urm.server.shell.Account;
 import org.w3c.dom.Document;
@@ -40,13 +40,13 @@ public class BaseRepository {
 		return( repoFolder.getSubFolder( action , BASEID ) );
 	}
 
-	public MetaFapBase getBaseInfo( ActionBase action , String ID , MetaEnvServerNode node , boolean primary ) throws Exception {
+	public MetaBase getBaseInfo( ActionBase action , String ID , MetaEnvServerNode node , boolean primary ) throws Exception {
 		String basePath = getBasePath( action , ID );
 		String text = repoFolder.readFile( action , basePath );
 		Document xml = ConfReader.readXmlString( text );
 		
 		action.debug( "load base info id=" + ID + " ..." );
-		MetaFapBase base = new MetaFapBase( meta , this , primary );
+		MetaBase base = new MetaBase( meta , this , primary );
 		base.load( action , xml.getDocumentElement() , node );
 		return( base );
 	}

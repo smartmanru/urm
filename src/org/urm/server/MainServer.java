@@ -90,7 +90,7 @@ public class MainServer {
 		
 		CommandExecutor actionExecutor = engine.createExecutor( meta , options );
 		SessionContext session = new SessionContext( engine , engine.execrc , sessionId );
-		MetaEngineProduct product = engine.metaLoader.getProductMeta( productName ); 
+		MetaEngineProduct product = engine.getProductMeta( productName ); 
 		session.setServerProductLayout( product.NAME , product.PATH );
 		
 		ActionInit action = engine.createAction( actionExecutor , session , "cjmx-" + engine.execrc.product , null );

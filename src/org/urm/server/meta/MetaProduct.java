@@ -220,7 +220,7 @@ public class MetaProduct {
 		if( action.session.standalone )
 			return;
 		
-		action.engine.metaLoader.addProductProps( props );
+		action.engine.addProductProps( props );
 	}
 
 	private String getStringProperty( ActionBase action , String name ) throws Exception {

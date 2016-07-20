@@ -106,7 +106,7 @@ abstract public class ActionBase {
 	}
 
 	public void setServerProductLayout( String name ) throws Exception {
-		MetaEngineProduct product = engine.metaLoader.getProductMeta( name ); 
+		MetaEngineProduct product = engine.getProductMeta( name ); 
 		session.setServerProductLayout( product.NAME , product.PATH );
 		meta.clearAll();
 	}

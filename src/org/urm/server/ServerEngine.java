@@ -2,6 +2,7 @@ package org.urm.server;
 
 import org.urm.common.Common;
 import org.urm.common.ExitException;
+import org.urm.common.PropertySet;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
@@ -25,6 +26,8 @@ import org.urm.server.executor.MonitorCommandExecutor;
 import org.urm.server.executor.ReleaseCommandExecutor;
 import org.urm.server.executor.XDocCommandExecutor;
 import org.urm.server.meta.FinalMetaLoader;
+import org.urm.server.meta.MetaEngineProduct;
+import org.urm.server.meta.MetaEngineSystem;
 import org.urm.server.meta.Metadata;
 import org.urm.server.shell.ShellCoreJNI;
 import org.urm.server.shell.ShellPool;
@@ -38,7 +41,7 @@ public class ServerEngine {
 	public CommandExecutor serverExecutor;
 	public ActionInit serverAction;
 	public ShellPool pool;
-	public FinalMetaLoader metaLoader;
+	private FinalMetaLoader metaLoader;
 	public boolean running;
 	
 	public ServerEngine() {
@@ -294,4 +297,28 @@ public class ServerEngine {
 		stopPool();
 	}
 
+	public String[] getSystems() {
+		return( metaLoader.getSystems() );
+	}
+
+	public String[] getProducts() {
+		return( metaLoader.getProducts() );
+	}
+
+	public MetaEngineSystem getSystemMeta( String name ) throws Exception {
+		return( metaLoader.getSystemMeta( name ) );
+	}
+
+	public MetaEngineProduct getProductMeta( String name ) throws Exception {
+		return( metaLoader.getProductMeta( name ) );
+	}
+
+	public void addProductProps( PropertySet props ) throws Exception {
+		metaLoader.addProductProps( props );
+	}
+
+	public void loadServerSettings() throws Exception {
+		metaLoader.loadServerSettings();
+	}
+	
 }

@@ -8,8 +8,8 @@ import org.urm.server.action.conf.ConfBuilder;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.MetaEnvServerBase;
 import org.urm.server.meta.MetaEnvServerNode;
-import org.urm.server.meta.MetaFapBase;
-import org.urm.server.meta.MetaFapBase.VarBASESRCFORMAT;
+import org.urm.server.meta.MetaBase;
+import org.urm.server.meta.MetaBase.VarBASESRCFORMAT;
 import org.urm.server.meta.Metadata.VarARCHIVETYPE;
 import org.urm.server.meta.Metadata.VarSERVERTYPE;
 import org.urm.server.shell.ShellExecutor;
@@ -52,13 +52,13 @@ public class ActionBaseInstall extends ActionBase {
 
 	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerBase base ) throws Exception {
 		BaseRepository repo = artefactory.getBaseRepository( this );
-		MetaFapBase info = repo.getBaseInfo( this , base.ID , node , true );
+		MetaBase info = repo.getBaseInfo( this , base.ID , node , true );
 		if( info.serverType != server.serverType )
 			exit( "base server type mismatched: " + Common.getEnumLower( info.serverType ) + " <> " + Common.getEnumLower( server.serverType ) );
 		
 		// install dependencies
 		for( String depBase : info.dependencies ) {
-			MetaFapBase depInfo = repo.getBaseInfo( this , depBase , node , false );
+			MetaBase depInfo = repo.getBaseInfo( this , depBase , node , false );
 			executeNodeInstall( server , node , depInfo );
 		}
 
@@ -66,7 +66,7 @@ public class ActionBaseInstall extends ActionBase {
 		executeNodeInstall( server , node , info );
 	}
 
-	private void executeNodeInstall( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info ) throws Exception {
+	private void executeNodeInstall( MetaEnvServer server , MetaEnvServerNode node , MetaBase info ) throws Exception {
 		if( !isExecute() )
 			return;
 
@@ -101,7 +101,7 @@ public class ActionBaseInstall extends ActionBase {
 		finishUpdate( info , redist , vis );
 	}
 	
-	private void executeNodeLinuxArchiveLink( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
+	private void executeNodeLinuxArchiveLink( MetaEnvServer server , MetaEnvServerNode node , MetaBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
 		String localPath = copySourceToLocal( info );
 		String redistPath = copyLocalToRedist( info , localPath , redist );
 		String runtimePath = info.INSTALLPATH;
@@ -111,7 +111,7 @@ public class ActionBaseInstall extends ActionBase {
 		copySystemFiles( info , redist , runtime );
 	}
 	
-	private void executeNodeLinuxArchiveDirect( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
+	private void executeNodeLinuxArchiveDirect( MetaEnvServer server , MetaEnvServerNode node , MetaBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
 		String localPath = copySourceToLocal( info );
 		String redistPath = copyLocalToRedist( info , localPath , redist );
 		String runtimePath = info.INSTALLPATH;
@@ -120,11 +120,11 @@ public class ActionBaseInstall extends ActionBase {
 		copySystemFiles( info , redist , runtime );
 	}
 
-	private void executeNodeNoDist( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
+	private void executeNodeNoDist( MetaEnvServer server , MetaEnvServerNode node , MetaBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
 		copySystemFiles( info , redist , runtime );
 	}
 	
-	private void executeNodeInstaller( MetaEnvServer server , MetaEnvServerNode node , MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
+	private void executeNodeInstaller( MetaEnvServer server , MetaEnvServerNode node , MetaBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
 		LocalFolder workBase = getSystemFiles( info , redist.server , redist.node );
 		String installerFile = copySourceToLocal( info );
 		RemoteFolder redistFolder = redist.getRedistTmpFolder( this );
@@ -147,7 +147,7 @@ public class ActionBaseInstall extends ActionBase {
 		setTimeout( timeout );
 	}
 	
-	private boolean startUpdate( MetaFapBase info , RuntimeStorage runtime , VersionInfoStorage vis ) throws Exception {
+	private boolean startUpdate( MetaBase info , RuntimeStorage runtime , VersionInfoStorage vis ) throws Exception {
 		String STATUS = vis.getBaseStatus( this , info.ID );
 		if( STATUS.equals( "ok" ) ) {
 			if( !context.CTX_FORCE ) {
@@ -163,11 +163,11 @@ public class ActionBaseInstall extends ActionBase {
 		return( true );
 	}
 
-	private void finishUpdate( MetaFapBase info , RedistStorage redist , VersionInfoStorage vis ) throws Exception {
+	private void finishUpdate( MetaBase info , RedistStorage redist , VersionInfoStorage vis ) throws Exception {
 		vis.setBaseStatus( this , info.ID , "ok" );
 	}
 
-	private String copySourceToLocal( MetaFapBase info ) throws Exception {
+	private String copySourceToLocal( MetaBase info ) throws Exception {
 		int timeout = setTimeoutUnlimited();
 		
 		String localPath = null;
@@ -194,7 +194,7 @@ public class ActionBaseInstall extends ActionBase {
 		return( localPath );
 	}
 
-	private String copyLocalToRedist( MetaFapBase info , String localPath , RedistStorage redist ) throws Exception {
+	private String copyLocalToRedist( MetaBase info , String localPath , RedistStorage redist ) throws Exception {
 		RemoteFolder folder = redist.getRedistTmpFolder( this );
 		folder.copyFileFromLocal( this , localPath );
 		
@@ -204,7 +204,7 @@ public class ActionBaseInstall extends ActionBase {
 		return( redistPath );
 	}
 	
-	private void extractArchiveFromRedist( MetaFapBase info , String redistPath , String installPath , RuntimeStorage runtime ) throws Exception {
+	private void extractArchiveFromRedist( MetaBase info , String redistPath , String installPath , RuntimeStorage runtime ) throws Exception {
 		int timeout = setTimeoutUnlimited();
 
 		if( info.srcFormat == VarBASESRCFORMAT.TARGZ_SINGLEDIR ) {
@@ -221,12 +221,12 @@ public class ActionBaseInstall extends ActionBase {
 		exitUnexpectedState();
 	}
 
-	private void linkNewBase( MetaFapBase info , RuntimeStorage runtime , String runtimePath ) throws Exception {
+	private void linkNewBase( MetaBase info , RuntimeStorage runtime , String runtimePath ) throws Exception {
 		runtime.createDirLink( this , info.INSTALLLINK , runtimePath );
 		debug( "link path: " + info.INSTALLLINK );
 	}
 
-	private void copySystemFiles( MetaFapBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
+	private void copySystemFiles( MetaBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
 		if( info.serverType == null )
 			return;
 		
@@ -238,7 +238,7 @@ public class ActionBaseInstall extends ActionBase {
 		runtime.restoreSysConfigs( this , redist , workBase );
 	}
 
-	private LocalFolder getSystemFiles( MetaFapBase info , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
+	private LocalFolder getSystemFiles( MetaBase info , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
 		LocalFolder workBase = artefactory.getWorkFolder( this , "sysbase" );
 		workBase.recreateThis( this );
 		

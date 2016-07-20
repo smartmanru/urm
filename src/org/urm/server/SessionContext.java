@@ -92,7 +92,7 @@ public class SessionContext {
 		offline = true;
 		
 		setServerLayout( options );
-		MetaEngineProduct product = engine.metaLoader.getProductMeta( name ); 
+		MetaEngineProduct product = engine.getProductMeta( name ); 
 		setServerProductLayout( product.NAME , product.PATH );
 	}
 	
@@ -101,7 +101,7 @@ public class SessionContext {
 		masterPath = serverSession.masterPath;
 		binPath = serverSession.binPath;
 		
-		MetaEngineProduct product = engine.metaLoader.getProductMeta( clientrc.product ); 
+		MetaEngineProduct product = engine.getProductMeta( clientrc.product ); 
 		setServerProductLayout( product.NAME , product.PATH );
 	}
 	

@@ -86,9 +86,7 @@ public class FinalMetaLoader {
 	}
 
 	public void loadServerProducts( ActionBase action ) throws Exception {
-		FinalMetaLoader meta = engine.metaLoader;
-		
-		for( String name : meta.getProducts() ) {
+		for( String name : getProducts() ) {
 			action.setServerProductLayout( name );
 			
 			MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
@@ -106,8 +104,19 @@ public class FinalMetaLoader {
 		engineMeta.load( propertyFile , engine.execrc );
 	}
 
+	public String[] getSystems() {
+		return( Common.getSortedKeys( engineMeta.mapSystems ) );
+	}
+
 	public String[] getProducts() {
 		return( Common.getSortedKeys( engineMeta.mapProducts ) );
+	}
+
+	public MetaEngineSystem getSystemMeta( String name ) throws Exception {
+		MetaEngineSystem system = engineMeta.mapSystems.get( name );
+		if( system == null )
+			new ExitException( "unknown system=" + system );
+		return( system );
 	}
 
 	public MetaEngineProduct getProductMeta( String name ) throws Exception {
