@@ -18,6 +18,7 @@ import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionInit;
 import org.urm.server.action.CommandAction;
 import org.urm.server.action.CommandContext;
+import org.urm.server.action.CommandExecutor;
 import org.urm.server.executor.BuildCommandExecutor;
 import org.urm.server.executor.DatabaseCommandExecutor;
 import org.urm.server.executor.DeployCommandExecutor;

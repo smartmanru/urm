@@ -1,6 +1,5 @@
 package org.urm.server.action;
 
-import org.urm.server.CommandExecutor;
 import org.urm.server.SessionContext;
 import org.urm.server.storage.Artefactory;
 

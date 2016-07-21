@@ -282,8 +282,7 @@ public class ShellPool implements Runnable {
 		if( stop )
 			action.exit( "server is in progress of shutdown" );
 		
-		String REDISTPATH = action.context.CTX_REDISTPATH;
-		ShellExecutor shell = ShellExecutor.getRemoteShellExecutor( action , name , this , account , REDISTPATH );
+		ShellExecutor shell = ShellExecutor.getRemoteShellExecutor( action , name , this , account , rootPath );
 		return( shell );
 	}
 	

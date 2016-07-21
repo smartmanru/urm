@@ -1,4 +1,4 @@
-package org.urm.server;
+package org.urm.server.action;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -10,11 +10,8 @@ import org.urm.common.ExitException;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.action.CommandOptions;
-import org.urm.server.action.ActionBase;
-import org.urm.server.action.ActionInit;
-import org.urm.server.action.CommandAction;
-import org.urm.server.action.CommandContext;
-import org.urm.server.action.CommandOutput;
+import org.urm.server.ServerEngine;
+import org.urm.server.SessionContext;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
 import org.urm.server.meta.Metadata.VarCATEGORY;
 import org.urm.server.storage.Artefactory;

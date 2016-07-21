@@ -8,7 +8,6 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.server.CommandExecutor;
 import org.urm.server.ServerEngine;
 import org.urm.server.SessionContext;
 import org.urm.server.custom.CommandCustom;

@@ -11,6 +11,7 @@ import org.urm.common.action.CommandOptions;
 import org.urm.common.jmx.ServerCommandCall;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionInit;
+import org.urm.server.action.CommandExecutor;
 import org.urm.server.meta.MetaEngineProduct;
 
 public class SessionController {
