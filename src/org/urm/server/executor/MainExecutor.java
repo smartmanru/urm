@@ -42,7 +42,7 @@ public class MainExecutor extends CommandExecutor {
 		return( options );
 	}
 
-	public ActionInit createWebSessionAction( ServerEngine engine ) throws Exception {
+	public CommandOptions createOptionsWebSession( ServerEngine engine ) throws Exception {
 		CommandOptions options = new CommandOptions();
 		ActionData data = new ActionData( engine.execrc );
 		options.setAction( commandInfo.getAction( "websession" ) , data );
@@ -50,8 +50,7 @@ public class MainExecutor extends CommandExecutor {
 		SessionContext sessionContext = engine.createSession( engine.execrc );
 		sessionContext.setServerLayout( options );
 		
-		ActionInit action = engine.createAction( engine.serverExecutor , options , sessionContext , "web" , null );
-		return( action );
+		return( options );
 	}
 
 	private MainExecutor( ServerEngine engine , MainCommandMeta commandInfo ) throws Exception {

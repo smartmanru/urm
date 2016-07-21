@@ -81,7 +81,10 @@ public class ServerEngine {
 		return( runServerAction() );
 	}
 	
-	public ActionInit createWebAction( CommandOptions options , SessionContext sessionContext ) throws Exception {
+	public ActionInit createWebSessionAction() throws Exception {
+		CommandOptions options = serverExecutor.createOptionsWebSession( this );
+		SessionContext sessionContext = createSession( execrc );
+		
 		return( createAction( serverExecutor , options , sessionContext , "web" , null ) );
 	}
 	
