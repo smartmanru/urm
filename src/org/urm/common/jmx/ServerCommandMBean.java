@@ -30,7 +30,7 @@ import org.urm.common.action.CommandMethodMeta.ACTION_TYPE;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.action.CommandVar;
 import org.urm.common.action.CommandVar.FLAG;
-import org.urm.server.MainServer;
+import org.urm.server.SessionController;
 import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionBase;
 
@@ -43,7 +43,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 	public ActionBase action;
 	public ServerMBean controller;
 	public ServerEngine engine;
-	public MainServer server;
+	public SessionController server;
 	public String productDir;
 	
 	public CommandMeta meta;

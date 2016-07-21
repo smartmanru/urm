@@ -316,15 +316,15 @@ abstract public class ActionBase {
 	}
 	
 	public ShellExecutor getShell( Account account ) throws Exception {
-		return( engine.pool.getExecutor( this , account , context.stream ) );
+		return( engine.shellPool.getExecutor( this , account , context.stream ) );
 	}
 
 	public ShellExecutor createDedicatedShell( String name ) throws Exception {
-		return( engine.pool.createDedicatedLocalShell( this , name ) );
+		return( engine.shellPool.createDedicatedLocalShell( this , name ) );
 	}
 	
 	public void killAllDedicated() {
-		engine.pool.releaseActionPool( this );
+		engine.shellPool.releaseActionPool( this );
 	}
 	
 	public ShellExecutor getShell( MetaEnvServerNode node ) throws Exception {

@@ -9,18 +9,18 @@ import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.jmx.ServerCommandCall;
-import org.urm.common.jmx.ServerMBean;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionInit;
 import org.urm.server.meta.MetaEngineProduct;
 
-public class MainServer {
+public class SessionController {
 
 	ActionBase serverAction;
 	ServerEngine engine;
-	ServerMBean controller; 
+	
 	boolean running = false;
 	boolean stop = false;
+	boolean started = false;
 
 	public CommandMeta[] executors = null;
 	
@@ -29,24 +29,24 @@ public class MainServer {
 	
 	int sessionSequence = 0;
 	
-	public MainServer( ActionBase serverAction , ServerEngine engine ) {
+	public SessionController( ActionBase serverAction , ServerEngine engine ) {
 		this.serverAction = serverAction;
 		this.engine = engine;
 		
-		controller = new ServerMBean( serverAction , this ); 
 		calls = new HashMap<String,ServerCommandCall>();
 		actions = new HashMap<Integer,ActionInit>(); 
 	}
 	
 	public void start() throws Exception {
-		engine.loadProducts();
-		
 		CommandBuilder builder = new CommandBuilder( serverAction.context.session.clientrc , serverAction.context.session.execrc );
 		executors = builder.getExecutors( true , true );
-		controller.start();
-		
-		serverAction.info( "server successfully started, accepting connections." );
+	}
+	
+	public void waitFinished() throws Exception {
 		synchronized( this ) {
+			started = true;
+			notifyAll();
+			
 			running = true;
 			while( !stop )
 				wait();
@@ -214,6 +214,22 @@ public class MainServer {
 			serverAction.exit( "unknown call session=" + sessionId );
 		
 		return( call.waitConnect() );
+	}
+
+	public boolean waitStart() {
+		synchronized( this ) {
+			if( started )
+				return( true );
+			
+			try {
+				wait( 30000 );
+				return( true );
+			}
+			catch( Throwable e ) {
+				serverAction.log( e );
+			}
+			return( false );
+		}
 	}
 	
 }

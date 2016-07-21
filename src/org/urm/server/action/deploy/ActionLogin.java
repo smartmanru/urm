@@ -27,7 +27,7 @@ public class ActionLogin extends ActionBase {
 		info( "login dc=" + node.server.dc.NAME + ", server=" + node.server.NAME + 
 				", node=" + node.POS + ", hostlogin=" + account.getPrintName() + " ..." );
 		
-		ShellInteractive shell = engine.pool.createInteractiveShell( this , account );
+		ShellInteractive shell = engine.shellPool.createInteractiveShell( this , account );
 		if( context.call != null )
 			context.call.runInteractive( this , shell );
 		else {

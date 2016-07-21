@@ -17,7 +17,7 @@ import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
 import org.urm.common.action.CommandMeta;
-import org.urm.server.MainServer;
+import org.urm.server.SessionController;
 import org.urm.server.action.ActionBase;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.UrmStorage;
@@ -27,13 +27,13 @@ import com.sun.jdmk.comm.HtmlAdaptorServer;
 public class ServerMBean implements DynamicMBean {
 
 	ActionBase action;
-	MainServer server;
+	SessionController server;
 	
 	private MBeanServer mbs = null;
 	private MBeanInfo mbean = null;
 	JMXConnectorServer jmxConnector;
 	
-	public ServerMBean( ActionBase action , MainServer server ) {
+	public ServerMBean( ActionBase action , SessionController server ) {
 		this.action = action;
 		this.server = server;
 	}

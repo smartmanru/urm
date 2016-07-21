@@ -4,10 +4,10 @@ import org.urm.common.Common;
 import org.urm.common.ExitException;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext;
-import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.jmx.ServerCommandCall;
+import org.urm.common.jmx.ServerMBean;
 import org.urm.common.meta.BuildCommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
 import org.urm.common.meta.DeployCommandMeta;
@@ -38,9 +38,12 @@ public class ServerEngine {
 
 	public RunContext execrc;
 	public SessionContext serverSession;
+	public SessionController sessionController;
+	public ServerMBean jmxController;
+	
 	public CommandExecutor serverExecutor;
 	public ActionInit serverAction;
-	public ShellPool pool;
+	public ShellPool shellPool;
 	private FinalMetaLoader metaLoader;
 	public boolean running;
 	
@@ -48,20 +51,16 @@ public class ServerEngine {
 		metaLoader = new FinalMetaLoader( this );
 	}
 	
-	public boolean runArgs( String[] args ) throws Exception {
-		// server environment
-		execrc = new RunContext();
-		execrc.load();
-		if( !execrc.isMain() )
-			throw new ExitException( "only main executor id expected" );
-
-		// server run options
-		CommandBuilder builder = new CommandBuilder( execrc , execrc );
-		serverExecutor = MainExecutor.createByArgs( this , builder , args );
-		if( serverExecutor == null )
-			return( false );
-
-		return( runServerExecutor() );
+	public void runServer( ActionBase action ) throws Exception {
+		loadProducts();
+		
+		sessionController = new SessionController( action , this );
+		jmxController = new ServerMBean( action , sessionController );
+		sessionController.start();
+		jmxController.start();
+		
+		serverAction.info( "server successfully started, accepting connections." );
+		sessionController.waitFinished();
 	}
 	
 	public boolean prepareWeb() throws Exception {
@@ -81,7 +80,10 @@ public class ServerEngine {
 		return( runServerAction() );
 	}
 	
-	public boolean runServerExecutor() throws Exception {
+	public boolean runServerExecutor( RunContext execrc , CommandExecutor serverExecutor ) throws Exception {
+		this.execrc = execrc;
+		this.serverExecutor = serverExecutor;
+		
 		if( !prepareServerExecutor() )
 			return( false );
 		
@@ -113,16 +115,16 @@ public class ServerEngine {
 		metaLoader.loadServerProducts( serverAction );
 	}
 	
-	public boolean runClientMode( CommandBuilder builder , CommandOptions options , RunContext clientrc , CommandMeta commandInfo ) throws Exception {
-		execrc = clientrc;
+	public boolean runClientMode( RunContext execrc , CommandOptions options , CommandMeta commandInfo ) throws Exception {
+		this.execrc = execrc;
 		
 		CommandExecutor commandExecutor = createExecutor( commandInfo , options );
-		serverSession = new SessionContext( this , clientrc , 0 );
+		serverSession = new SessionContext( this , execrc , 0 );
 		
 		if( execrc.standaloneMode )
 			serverSession.setStandaloneLayout( options );
 		else
-			serverSession.setServerOfflineLayout( options , clientrc.product );
+			serverSession.setServerOfflineLayout( options , execrc.product );
 		
 		serverAction = createAction( commandExecutor , serverSession , "client" , null );
 		if( serverAction == null )
@@ -201,26 +203,26 @@ public class ServerEngine {
 	}
 	
 	public void createPool() throws Exception {
-		pool = new ShellPool( this );
-		pool.start( serverAction );
+		shellPool = new ShellPool( this );
+		shellPool.start( serverAction );
 	}
 
 	public void killPool() throws Exception {
-		pool.killAll( serverAction );
+		shellPool.killAll( serverAction );
 	}
 	
 	public void deleteWorkFolder( ActionBase action , LocalFolder workFolder ) throws Exception {
-		pool.master.removeDir( action , workFolder.folderPath );
+		shellPool.master.removeDir( action , workFolder.folderPath );
 	}
 	
 	private void stopPool() throws Exception {
-		pool.stop( serverAction );
+		shellPool.stop( serverAction );
 	}
 	
 	public void startAction( ActionBase action ) throws Exception {
 		// create action shell
 		if( action.shell == null )
-			pool.createDedicatedLocalShell( action , action.context.stream + "::" + action.session.sessionId );
+			shellPool.createDedicatedLocalShell( action , action.context.stream + "::" + action.session.sessionId );
 		
 		// create work folder
 		LocalFolder folder = action.artefactory.getWorkFolder( action );
@@ -244,7 +246,7 @@ public class ServerEngine {
 		else
 			action.artefactory.workFolder.removeThis( action );
 		
-		pool.releaseActionPool( action );
+		shellPool.releaseActionPool( action );
 	}
 
 	private Artefactory createArtefactory( SessionContext session , CommandContext context ) throws Exception {

@@ -9,7 +9,7 @@ public class ClientCallLocal {
 
 	public boolean runClient( CommandBuilder builder , CommandMeta commandInfo , CommandOptions options ) throws Exception {
 		ServerEngine server = new ServerEngine();
-		return( server.runClientMode( builder , options , builder.execrc , commandInfo ) );
+		return( server.runClientMode( builder.execrc , options , commandInfo ) );
 	}
 	
 }

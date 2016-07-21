@@ -2,7 +2,7 @@ package org.urm.common.jmx;
 
 import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandMethodMeta;
-import org.urm.server.MainServer;
+import org.urm.server.SessionController;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionInit;
 import org.urm.server.shell.ShellInteractive;
@@ -16,7 +16,7 @@ public class ServerCommandCall implements Runnable {
 	public ActionData data;
 	public ActionInit action;
 
-	public MainServer server;
+	public SessionController server;
 	
 	public ShellInteractive shellInteractive;
 	public boolean waitConnectMode = false;

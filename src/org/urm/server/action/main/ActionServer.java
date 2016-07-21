@@ -1,7 +1,6 @@
 package org.urm.server.action.main;
 
 import org.urm.common.jmx.RemoteCall;
-import org.urm.server.MainServer;
 import org.urm.server.action.ActionBase;
 
 public class ActionServer extends ActionBase {
@@ -28,9 +27,7 @@ public class ActionServer extends ActionBase {
 
 	private void executeServerStart() throws Exception {
 		info( "start server ..." );
-		
-		MainServer server = new MainServer( this , executor.engine );
-		server.start();
+		executor.engine.runServer( this );
 	}
 	
 	private boolean serverConnect( RemoteCall call ) {
