@@ -2,7 +2,6 @@ package org.urm.server;
 
 import org.urm.common.Common;
 import org.urm.common.ExitException;
-import org.urm.common.PropertySet;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandOptions;
@@ -26,8 +25,6 @@ import org.urm.server.executor.MonitorCommandExecutor;
 import org.urm.server.executor.ReleaseCommandExecutor;
 import org.urm.server.executor.XDocCommandExecutor;
 import org.urm.server.meta.FinalMetaLoader;
-import org.urm.server.meta.MetaEngineProduct;
-import org.urm.server.meta.MetaEngineSystem;
 import org.urm.server.meta.Metadata;
 import org.urm.server.shell.ShellCoreJNI;
 import org.urm.server.shell.ShellPool;
@@ -44,7 +41,7 @@ public class ServerEngine {
 	public MainExecutor serverExecutor;
 	public ActionInit serverAction;
 	public ShellPool shellPool;
-	private FinalMetaLoader metaLoader;
+	public FinalMetaLoader metaLoader;
 	public boolean running;
 	
 	public ServerEngine() {
@@ -52,7 +49,7 @@ public class ServerEngine {
 	}
 	
 	public void runServer( ActionBase action ) throws Exception {
-		loadProducts();
+		metaLoader.loadServerProducts( action );
 		
 		sessionController = new SessionController( action , this );
 		jmxController = new ServerMBean( action , sessionController );
@@ -119,10 +116,6 @@ public class ServerEngine {
 		return( true );
 	}
 
-	public void loadProducts() throws Exception {
-		metaLoader.loadServerProducts( serverAction );
-	}
-	
 	public boolean runClientMode( RunContext execrc , CommandOptions options , CommandMeta commandInfo ) throws Exception {
 		this.execrc = execrc;
 		
@@ -132,11 +125,14 @@ public class ServerEngine {
 		if( execrc.standaloneMode )
 			serverSession.setStandaloneLayout( options );
 		else
-			serverSession.setServerOfflineLayout( options , execrc.product );
+			serverSession.setServerLayout( options );
 		
 		serverAction = createAction( commandExecutor , options , serverSession , "client" , null );
 		if( serverAction == null )
 			return( false );
+
+		if( !execrc.standaloneMode )
+			serverSession.setServerOfflineProductLayout( serverAction , options , execrc.product );
 		
 		createPool();
 		startAction( serverAction );
@@ -312,30 +308,6 @@ public class ServerEngine {
 			sessionId = sessionController.createSessionId();
 		SessionContext session = new SessionContext( this , clientrc , sessionId );
 		return( session );
-	}
-	
-	public String[] getSystems() {
-		return( metaLoader.getSystems() );
-	}
-
-	public String[] getProducts() {
-		return( metaLoader.getProducts() );
-	}
-
-	public MetaEngineSystem getSystemMeta( String name ) throws Exception {
-		return( metaLoader.getSystemMeta( name ) );
-	}
-
-	public MetaEngineProduct getProductMeta( String name ) throws Exception {
-		return( metaLoader.getProductMeta( name ) );
-	}
-
-	public void addProductProps( PropertySet props ) throws Exception {
-		metaLoader.addProductProps( props );
-	}
-
-	public void loadServerSettings() throws Exception {
-		metaLoader.loadServerSettings();
 	}
 	
 }

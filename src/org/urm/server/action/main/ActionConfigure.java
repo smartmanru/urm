@@ -17,6 +17,7 @@ import org.urm.common.meta.DatabaseCommandMeta;
 import org.urm.common.meta.DeployCommandMeta;
 import org.urm.common.meta.MainCommandMeta;
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.FinalMetaLoader;
 import org.urm.server.meta.MetaEnv;
 import org.urm.server.meta.MetaEnvDC;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
@@ -83,10 +84,11 @@ public class ActionConfigure extends ActionBase {
 	}
 
 	private void configureServer( boolean serverMode ) throws Exception {
-		engine.loadServerSettings();
-		engine.loadProducts();
+		FinalMetaLoader loader = engine.metaLoader;
+		loader.loadServerSettings();
+		loader.loadServerProducts( this );
 		
-		for( String name : engine.getProducts() ) {
+		for( String name : loader.getProducts( this ) ) {
 			info( "configure product name=" + name + " ..." );
 			
 			setServerProductLayout( name );

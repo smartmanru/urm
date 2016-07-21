@@ -11,6 +11,7 @@ import org.urm.common.action.CommandOptions;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionInit;
 import org.urm.server.action.CommandExecutor;
+import org.urm.server.meta.FinalMetaLoader;
 import org.urm.server.meta.MetaEngineProduct;
 
 public class SessionController {
@@ -72,7 +73,7 @@ public class SessionController {
 		
 		CommandExecutor actionExecutor = engine.createExecutor( commandInfo );
 		SessionContext session = call.sessionContext;
-		session.setServerRemoteLayout( engine.serverSession );
+		session.setServerRemoteProductLayout( engine.serverAction );
 		
 		ActionInit action = engine.createAction( actionExecutor , options , session , "call-" + data.clientrc.product , call );
 		if( action == null )
@@ -88,7 +89,8 @@ public class SessionController {
 		}
 		
 		CommandExecutor actionExecutor = engine.createExecutor( meta );
-		MetaEngineProduct product = engine.getProductMeta( productName ); 
+		FinalMetaLoader loader = engine.metaLoader;
+		MetaEngineProduct product = loader.getProductMeta( engine.serverAction , productName ); 
 		session.setServerProductLayout( product.NAME , product.PATH );
 		
 		ActionInit action = engine.createAction( actionExecutor , options , session , "webjmx-" + engine.execrc.product , null );

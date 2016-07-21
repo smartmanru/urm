@@ -4,6 +4,8 @@ import org.urm.common.Common;
 import org.urm.common.ExitException;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandOptions;
+import org.urm.server.action.ActionBase;
+import org.urm.server.meta.FinalMetaLoader;
 import org.urm.server.meta.MetaEngineProduct;
 
 public class SessionContext {
@@ -88,20 +90,24 @@ public class SessionContext {
 		proxyPath = "";
 	}
 	
-	public void setServerOfflineLayout( CommandOptions options , String name ) throws Exception {
+	public void setServerOfflineProductLayout( ActionBase serverAction , CommandOptions options , String name ) throws Exception {
 		offline = true;
 		
 		setServerLayout( options );
-		MetaEngineProduct product = engine.getProductMeta( name ); 
+		
+		FinalMetaLoader loader = engine.metaLoader;
+		MetaEngineProduct product = loader.getProductMeta( serverAction , name ); 
 		setServerProductLayout( product.NAME , product.PATH );
 	}
 	
-	public void setServerRemoteLayout( SessionContext serverSession ) throws Exception {
+	public void setServerRemoteProductLayout( ActionBase serverAction ) throws Exception {
+		SessionContext serverSession = serverAction.session;
 		installPath = serverSession.installPath;
 		masterPath = serverSession.masterPath;
 		binPath = serverSession.binPath;
 		
-		MetaEngineProduct product = engine.getProductMeta( clientrc.product ); 
+		FinalMetaLoader loader = engine.metaLoader;
+		MetaEngineProduct product = loader.getProductMeta( serverAction , clientrc.product ); 
 		setServerProductLayout( product.NAME , product.PATH );
 	}
 	

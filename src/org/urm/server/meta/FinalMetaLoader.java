@@ -90,7 +90,7 @@ public class FinalMetaLoader {
 	}
 
 	public void loadServerProducts( ActionBase action ) throws Exception {
-		for( String name : getProducts() ) {
+		for( String name : getProducts( action ) ) {
 			action.setServerProductLayout( name );
 			
 			MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
@@ -108,29 +108,29 @@ public class FinalMetaLoader {
 		engineMeta.load( propertyFile , engine.execrc );
 	}
 
-	public String[] getSystems() {
+	public String[] getSystems( ActionBase action ) throws Exception {
 		return( Common.getSortedKeys( engineMeta.mapSystems ) );
 	}
 
-	public String[] getProducts() {
+	public String[] getProducts( ActionBase action ) throws Exception {
 		return( Common.getSortedKeys( engineMeta.mapProducts ) );
 	}
 
-	public MetaEngineSystem getSystemMeta( String name ) throws Exception {
+	public MetaEngineSystem getSystemMeta( ActionBase action , String name ) throws Exception {
 		MetaEngineSystem system = engineMeta.mapSystems.get( name );
 		if( system == null )
 			new ExitException( "unknown system=" + system );
 		return( system );
 	}
 
-	public MetaEngineProduct getProductMeta( String name ) throws Exception {
+	public MetaEngineProduct getProductMeta( ActionBase action , String name ) throws Exception {
 		MetaEngineProduct product = engineMeta.mapProducts.get( name );
 		if( product == null )
 			new ExitException( "unknown product=" + name );
 		return( product );
 	}
 
-	public void addProductProps( PropertySet props ) throws Exception {
+	public void addProductProps( ActionBase action , PropertySet props ) throws Exception {
 		props.copyRawProperties( engineMeta.defaultProductProperties , "" );
 		for( PropertySet set : engineMeta.mapBuildModeDefaults.values() )
 			props.copyRawProperties( set , set.set + "." );
