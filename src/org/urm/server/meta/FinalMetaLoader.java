@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.common.ExitException;
 import org.urm.common.PropertySet;
 import org.urm.server.ServerEngine;
 import org.urm.server.SessionContext;
@@ -119,14 +118,14 @@ public class FinalMetaLoader {
 	public MetaEngineSystem getSystemMeta( ActionBase action , String name ) throws Exception {
 		MetaEngineSystem system = engineMeta.mapSystems.get( name );
 		if( system == null )
-			new ExitException( "unknown system=" + system );
+			action.exit( "unknown system=" + system );
 		return( system );
 	}
 
 	public MetaEngineProduct getProductMeta( ActionBase action , String name ) throws Exception {
 		MetaEngineProduct product = engineMeta.mapProducts.get( name );
 		if( product == null )
-			new ExitException( "unknown product=" + name );
+			action.exit( "unknown product=" + name );
 		return( product );
 	}
 
