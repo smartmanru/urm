@@ -13,6 +13,7 @@ public class RemoteServerCall extends ServerCall {
 	public RemoteServerCall( ServerEngine engine , SessionContext sessionContext , String clientId , ServerCommandMBean command , String actionName , ActionData data ) {
 		super( engine , sessionContext , command.meta , actionName , data );
 		this.command = command;
+		this.clientId = clientId;
 	}
 
 	@Override
