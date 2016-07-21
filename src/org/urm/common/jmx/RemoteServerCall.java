@@ -4,11 +4,11 @@ import org.urm.common.action.ActionData;
 import org.urm.server.ServerCall;
 import org.urm.server.ServerEngine;
 
-public class ServerCommandCall extends ServerCall {
+public class RemoteServerCall extends ServerCall {
 
 	public ServerCommandMBean command;
 	
-	public ServerCommandCall( ServerEngine engine , int sessionId , String clientId , ServerCommandMBean command , String actionName , ActionData data ) {
+	public RemoteServerCall( ServerEngine engine , int sessionId , String clientId , ServerCommandMBean command , String actionName , ActionData data ) {
 		super( engine , sessionId , clientId , command.meta , actionName , data );
 		this.command = command;
 	}

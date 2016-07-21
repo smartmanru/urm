@@ -297,7 +297,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
     	return retlist;
 	}
 
-	public void notifyLog( ServerCommandCall call , Throwable e ) {
+	public void notifyLog( RemoteServerCall call , Throwable e ) {
 		String msg = "exception: " + e.getClass().getName();
 		String em = e.getMessage();
 		if( em != null && !em.isEmpty() )
@@ -306,7 +306,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		notifyLog( call , msg );
 	}
 	
-	public void notifyLog( ServerCommandCall call , String msg ) {
+	public void notifyLog( RemoteServerCall call , String msg ) {
 		try {
 			ActionNotification n = new ActionNotification( this , ++notificationSequence , call.sessionId , call.clientId , msg );
 			n.setLogEvent();
@@ -410,7 +410,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		int sessionId = server.createSessionId();
 		action.debug( "operation invoked, sessionId=" + sessionId );
 		
-		ServerCommandCall thread = new ServerCommandCall( engine , sessionId , clientId , this , actionName , data );
+		RemoteServerCall thread = new RemoteServerCall( engine , sessionId , clientId , this , actionName , data );
 		if( !thread.start() )
 			return( -1 );
 		
