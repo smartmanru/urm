@@ -57,7 +57,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		this.productDir = productDir;
 		this.meta = meta;
 		
-		server = controller.server;
+		server = controller.sessionController;
 	}
 
 	public void createInfo() throws Exception {
@@ -297,22 +297,18 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
     	return retlist;
 	}
 
-	public void notifyLog( int sessionId , Throwable e ) {
+	public void notifyLog( ServerCommandCall call , Throwable e ) {
 		String msg = "exception: " + e.getClass().getName();
 		String em = e.getMessage();
 		if( em != null && !em.isEmpty() )
 			msg += ", " + em;
 		
-		notifyLog( sessionId , msg );
+		notifyLog( call , msg );
 	}
 	
-	public void notifyLog( int sessionId , String msg ) {
+	public void notifyLog( ServerCommandCall call , String msg ) {
 		try {
-			ServerCommandCall call = controller.server.getCall( sessionId );
-			if( call == null )
-				return;
-			
-			ActionNotification n = new ActionNotification( this , ++notificationSequence , sessionId , call.clientId , msg );
+			ActionNotification n = new ActionNotification( this , ++notificationSequence , call.sessionId , call.clientId , msg );
 			n.setLogEvent();
 			broadcaster.sendNotification( n );
 		}
@@ -414,7 +410,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		int sessionId = server.createSessionId();
 		action.debug( "operation invoked, sessionId=" + sessionId );
 		
-		ServerCommandCall thread = new ServerCommandCall( sessionId , clientId , this , actionName , data );
+		ServerCommandCall thread = new ServerCommandCall( engine , sessionId , clientId , this , actionName , data );
 		if( !thread.start() )
 			return( -1 );
 		

@@ -8,7 +8,6 @@ import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.action.CommandOptions;
-import org.urm.common.jmx.ServerCommandCall;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionInit;
 import org.urm.server.action.CommandExecutor;
@@ -25,7 +24,7 @@ public class SessionController {
 
 	public CommandMeta[] executors = null;
 	
-	Map<String,ServerCommandCall> calls;
+	Map<String,ServerCall> calls;
 	Map<Integer,ActionInit> actions;
 	
 	int sessionSequence = 0;
@@ -34,7 +33,7 @@ public class SessionController {
 		this.serverAction = serverAction;
 		this.engine = engine;
 		
-		calls = new HashMap<String,ServerCommandCall>();
+		calls = new HashMap<String,ServerCall>();
 		actions = new HashMap<Integer,ActionInit>(); 
 	}
 	
@@ -57,7 +56,7 @@ public class SessionController {
 		waitAllActions();
 	}
 
-	public ActionInit createRemoteAction( ServerCommandCall call , CommandMethodMeta method , ActionData data ) throws Exception {
+	public ActionInit createRemoteAction( ServerCall call , CommandMethodMeta method , ActionData data ) throws Exception {
 		if( !running ) {
 			engine.serverAction.error( "server is in progress of shutdown" );
 			return( null );
@@ -76,7 +75,7 @@ public class SessionController {
 		SessionContext session = new SessionContext( engine , data.clientrc , call.sessionId );
 		session.setServerRemoteLayout( engine.serverSession );
 		
-		ActionInit action = engine.createAction( actionExecutor , session , "rjmx-" + data.clientrc.product , call );
+		ActionInit action = engine.createAction( actionExecutor , session , "call-" + data.clientrc.product , call );
 		if( action == null )
 			return( null );
 
@@ -162,17 +161,17 @@ public class SessionController {
 		return( running );
 	}
 	
-	public ServerCommandCall getCall( int sessionId ) {
-		ServerCommandCall call = calls.get( "" + sessionId );
+	public ServerCall getCall( int sessionId ) {
+		ServerCall call = calls.get( "" + sessionId );
 		return( call );
 	}
 	
-	public synchronized void threadStarted( ServerCommandCall thread ) {
+	public synchronized void threadStarted( ServerCall thread ) {
 		calls.put( "" + thread.sessionId , thread );
 		serverAction.debug( "thread started: sessionId=" + thread.sessionId );
 	}
 
-	public synchronized void threadStopped( ServerCommandCall thread ) {
+	public synchronized void threadStopped( ServerCall thread ) {
 		calls.remove( "" + thread.sessionId );
 		serverAction.debug( "thread stopped: sessionId=" + thread.sessionId );
 	}
@@ -194,7 +193,7 @@ public class SessionController {
 	}
 
 	public void executeInteractiveCommand( String sessionId , String input ) throws Exception {
-		ServerCommandCall call = calls.get( "" + sessionId );
+		ServerCall call = calls.get( "" + sessionId );
 		if( call == null )
 			serverAction.exit( "unknown call session=" + sessionId );
 		
@@ -202,7 +201,7 @@ public class SessionController {
 	}
 
 	public void stopSession( String sessionId ) throws Exception {
-		ServerCommandCall call = calls.get( "" + sessionId );
+		ServerCall call = calls.get( "" + sessionId );
 		if( call == null )
 			serverAction.exit( "unknown call session=" + sessionId );
 		
@@ -210,7 +209,7 @@ public class SessionController {
 	}
 
 	public boolean waitConnect( String sessionId ) throws Exception {
-		ServerCommandCall call = calls.get( "" + sessionId );
+		ServerCall call = calls.get( "" + sessionId );
 		if( call == null )
 			serverAction.exit( "unknown call session=" + sessionId );
 		

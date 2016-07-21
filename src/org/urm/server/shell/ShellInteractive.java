@@ -1,6 +1,6 @@
 package org.urm.server.shell;
 
-import org.urm.common.jmx.ServerCommandCall;
+import org.urm.server.ServerCall;
 import org.urm.server.action.ActionBase;
 
 public class ShellInteractive extends Shell {
@@ -84,7 +84,7 @@ public class ShellInteractive extends Shell {
 		
 		action.trace( account.getPrintName() + " execute: " + cmd );
 		
-		ServerCommandCall call = action.context.call;
+		ServerCall call = action.context.call;
 		ProcessBuilder pb = new ProcessBuilder( "sh" , "-c" , cmd );
 		
 		executeInteractive( action , call , pb );
@@ -100,13 +100,13 @@ public class ShellInteractive extends Shell {
 		
 		action.trace( account.getPrintName() + " execute: " + cmd );
 		
-		ServerCommandCall call = action.context.call;
+		ServerCall call = action.context.call;
 		ProcessBuilder pb = new ProcessBuilder( "cmd" , "/C" , cmd );
 		
 		executeInteractive( action , call , pb );
 	}
 	
-	private void executeInteractive( ActionBase action , ServerCommandCall call , ProcessBuilder pb ) throws Exception {
+	private void executeInteractive( ActionBase action , ServerCall call , ProcessBuilder pb ) throws Exception {
 		pb.redirectErrorStream( true );
 		startProcess( action , pb , null , true );
 		

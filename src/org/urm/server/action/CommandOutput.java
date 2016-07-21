@@ -33,7 +33,7 @@ public class CommandOutput {
 		this.logActionLevelLimit = logActionLevelLimit;
 		
 		if( action.context.call != null )
-			this.logServerLevelLimit = action.context.call.command.engine.serverAction.context.logLevelLimit;
+			this.logServerLevelLimit = action.engine.serverAction.context.logLevelLimit;
 		else
 			this.logServerLevelLimit = this.logActionLevelLimit;
 	}

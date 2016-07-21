@@ -6,7 +6,6 @@ import org.urm.common.PropertySet;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandOptions;
-import org.urm.common.jmx.ServerCommandCall;
 import org.urm.common.jmx.ServerMBean;
 import org.urm.common.meta.BuildCommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
@@ -180,7 +179,7 @@ public class ServerEngine {
 		return( executor );
 	}
 
-	public ActionInit createAction( CommandExecutor actionExecutor , SessionContext session , String stream , ServerCommandCall call ) throws Exception {
+	public ActionInit createAction( CommandExecutor actionExecutor , SessionContext session , String stream , ServerCall call ) throws Exception {
 		CommandOptions options = actionExecutor.options;
 		CommandAction commandAction = actionExecutor.getAction( options.action );
 		if( !options.checkValidOptions( commandAction.method ) )

@@ -27,7 +27,7 @@ import com.sun.jdmk.comm.HtmlAdaptorServer;
 public class ServerMBean implements DynamicMBean {
 
 	ActionBase action;
-	SessionController server;
+	SessionController sessionController;
 	
 	private MBeanServer mbs = null;
 	private MBeanInfo mbean = null;
@@ -35,7 +35,7 @@ public class ServerMBean implements DynamicMBean {
 	
 	public ServerMBean( ActionBase action , SessionController server ) {
 		this.action = action;
-		this.server = server;
+		this.sessionController = server;
 	}
 	
 	public void start() throws Exception {
@@ -64,7 +64,7 @@ public class ServerMBean implements DynamicMBean {
 
 	private String stop() {
 		try {
-			server.stop();
+			sessionController.stop();
 		}
 		catch( Throwable e ) {
 			return( "failed: " + e.getMessage() );
@@ -73,7 +73,7 @@ public class ServerMBean implements DynamicMBean {
 	}
 	
 	private String status() {
-		if( server.isRunning() )
+		if( sessionController.isRunning() )
 			return( "running" );
 		return( "stopped" );
 	}
@@ -126,7 +126,7 @@ public class ServerMBean implements DynamicMBean {
 	}		
 	
 	private void addProduct( String product ) throws Exception {
-		for( CommandMeta meta : server.executors  ) {
+		for( CommandMeta meta : sessionController.executors  ) {
 			ServerCommandMBean bean = new ServerCommandMBean( action , this , action.executor.engine , product , meta );
 			bean.createInfo();
 			

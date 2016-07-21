@@ -8,7 +8,7 @@ import org.urm.common.action.CommandOptions;
 import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.common.action.CommandOptions.SQLTYPE;
 import org.urm.common.action.CommandVar.FLAG;
-import org.urm.common.jmx.ServerCommandCall;
+import org.urm.server.ServerCall;
 import org.urm.server.ServerEngine;
 import org.urm.server.SessionContext;
 import org.urm.server.meta.MetaEnv;
@@ -29,7 +29,7 @@ public class CommandContext {
 	public MetaEnv env; 
 	public MetaEnvDC dc;
 	
-	public ServerCommandCall call;
+	public ServerCall call;
 	public String stream;
 	public String streamLog;
 	public int logLevelLimit;
@@ -108,7 +108,7 @@ public class CommandContext {
 	public String CTX_HOST = "";
 	public int CTX_PORT = -1;
 
-	public CommandContext( ServerEngine engine , SessionContext session , Metadata meta , CommandOptions options , String stream , ServerCommandCall call ) {
+	public CommandContext( ServerEngine engine , SessionContext session , Metadata meta , CommandOptions options , String stream , ServerCall call ) {
 		this.engine = engine;
 		this.session = session;
 		this.meta = meta;
