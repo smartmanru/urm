@@ -265,7 +265,8 @@ public class RemoteCall implements NotificationListener {
 		else
 		if( n.isStop() ) {
 			try {
-				mainThread.interrupt();
+				if( mainThread != null )
+					mainThread.interrupt();
 				println( n.getMessage() );
 			}
 			catch( Throwable e ) {
