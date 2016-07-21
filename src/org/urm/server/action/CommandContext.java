@@ -124,7 +124,7 @@ public class CommandContext {
 	}
 
 	private void setLogStream() {
-		streamLog = ( call != null )? "[" + stream + "," + call.sessionId + "]" : "[" + stream + "]";
+		streamLog = ( call != null )? "[" + stream + "," + call.sessionContext.sessionId + "]" : "[" + stream + "]";
 	}
 	
 	private void setLogLevel() {

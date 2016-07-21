@@ -9,7 +9,6 @@ import org.urm.common.Common;
 import org.urm.common.ExitException;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
-import org.urm.common.action.CommandOptions;
 import org.urm.server.ServerEngine;
 import org.urm.server.SessionContext;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
@@ -20,17 +19,15 @@ public abstract class CommandExecutor {
 
 	public ServerEngine engine;
 	public CommandMeta commandInfo;
-	public CommandOptions options;
 		
 	public Map<String,CommandAction> actionsMap = new HashMap<String,CommandAction>();
 	public List<CommandAction> actionsList = new LinkedList<CommandAction>();
 	
 	protected abstract boolean run( ActionInit action );
 
-	public CommandExecutor( ServerEngine engine , CommandMeta commandInfo , CommandOptions options ) {
+	public CommandExecutor( ServerEngine engine , CommandMeta commandInfo ) {
 		this.engine = engine;
 		this.commandInfo = commandInfo;
-		this.options = options;
 	}
 	
 	public void defineAction( CommandAction action , String name ) throws Exception {

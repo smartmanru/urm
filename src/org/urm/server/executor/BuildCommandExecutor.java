@@ -1,7 +1,6 @@
 package org.urm.server.executor;
 
 import org.urm.common.action.CommandMeta;
-import org.urm.common.action.CommandOptions;
 import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionInit;
@@ -17,8 +16,8 @@ public class BuildCommandExecutor extends CommandExecutor {
 
 	BuildCommand impl;
 
-	public BuildCommandExecutor( ServerEngine engine , CommandMeta commandInfo , CommandOptions options ) throws Exception {
-		super( engine , commandInfo , options );
+	public BuildCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
+		super( engine , commandInfo );
 		
 		super.defineAction( new BuildAllTags() , "buildall-tags" );
 		super.defineAction( new BuildAllRelease() , "buildall-release" );

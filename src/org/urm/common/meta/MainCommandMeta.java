@@ -22,6 +22,8 @@ public class MainCommandMeta extends CommandMeta {
 		super.defineAction( CommandMethodMeta.newCritical( this , "svnsave" , true , "save master file set in svn" , cmdOpts , "svnsave [OPTIONS]" ) );
 		cmdOpts = "OPT_PORT";
 		super.defineAction( CommandMethodMeta.newNormal( this , "server" , true , "server control" , cmdOpts , "server [OPTIONS] {start|stop|status}" ) );
+		cmdOpts = "";
+		super.defineAction( CommandMethodMeta.newNormal( this , "websession" , true , "web session" , cmdOpts , "(internal action)" ) );
 	}
 	
 }

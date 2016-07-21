@@ -63,7 +63,6 @@ public class SessionController {
 		}
 		
 		CommandBuilder builder = new CommandBuilder( data.clientrc , engine.execrc );
-		
 		CommandOptions options = new CommandOptions( serverAction.context.options.meta );
 		options.setAction( method , data );
 		
@@ -71,29 +70,28 @@ public class SessionController {
 		if( commandInfo == null )
 			return( null );
 		
-		CommandExecutor actionExecutor = engine.createExecutor( commandInfo , options );
-		SessionContext session = new SessionContext( engine , data.clientrc , call.sessionId );
+		CommandExecutor actionExecutor = engine.createExecutor( commandInfo );
+		SessionContext session = call.sessionContext;
 		session.setServerRemoteLayout( engine.serverSession );
 		
-		ActionInit action = engine.createAction( actionExecutor , session , "call-" + data.clientrc.product , call );
+		ActionInit action = engine.createAction( actionExecutor , options , session , "call-" + data.clientrc.product , call );
 		if( action == null )
 			return( null );
 
 		return( action );
 	}
 
-	public boolean runWebJmx( int sessionId , String productName , CommandMeta meta , CommandOptions options ) throws Exception {
+	public boolean runWebJmx( SessionContext session , String productName , CommandMeta meta , CommandOptions options ) throws Exception {
 		if( !running ) {
 			serverAction.error( "server is in progress of shutdown" );
 			return( false );
 		}
 		
-		CommandExecutor actionExecutor = engine.createExecutor( meta , options );
-		SessionContext session = new SessionContext( engine , engine.execrc , sessionId );
+		CommandExecutor actionExecutor = engine.createExecutor( meta );
 		MetaEngineProduct product = engine.getProductMeta( productName ); 
 		session.setServerProductLayout( product.NAME , product.PATH );
 		
-		ActionInit action = engine.createAction( actionExecutor , session , "cjmx-" + engine.execrc.product , null );
+		ActionInit action = engine.createAction( actionExecutor , options , session , "webjmx-" + engine.execrc.product , null );
 		if( action == null )
 			return( false );
 
@@ -167,13 +165,13 @@ public class SessionController {
 	}
 	
 	public synchronized void threadStarted( ServerCall thread ) {
-		calls.put( "" + thread.sessionId , thread );
-		serverAction.debug( "thread started: sessionId=" + thread.sessionId );
+		calls.put( "" + thread.sessionContext.sessionId , thread );
+		serverAction.debug( "thread started: sessionId=" + thread.sessionContext.sessionId );
 	}
 
 	public synchronized void threadStopped( ServerCall thread ) {
-		calls.remove( "" + thread.sessionId );
-		serverAction.debug( "thread stopped: sessionId=" + thread.sessionId );
+		calls.remove( "" + thread.sessionContext.sessionId );
+		serverAction.debug( "thread stopped: sessionId=" + thread.sessionContext.sessionId );
 	}
 
 	private void waitAllActions() throws Exception {

@@ -3,13 +3,15 @@ package org.urm.common.jmx;
 import org.urm.common.action.ActionData;
 import org.urm.server.ServerCall;
 import org.urm.server.ServerEngine;
+import org.urm.server.SessionContext;
 
 public class RemoteServerCall extends ServerCall {
 
 	public ServerCommandMBean command;
+	public String clientId;
 	
-	public RemoteServerCall( ServerEngine engine , int sessionId , String clientId , ServerCommandMBean command , String actionName , ActionData data ) {
-		super( engine , sessionId , clientId , command.meta , actionName , data );
+	public RemoteServerCall( ServerEngine engine , SessionContext sessionContext , String clientId , ServerCommandMBean command , String actionName , ActionData data ) {
+		super( engine , sessionContext , command.meta , actionName , data );
 		this.command = command;
 	}
 
@@ -27,7 +29,7 @@ public class RemoteServerCall extends ServerCall {
 	protected void notifyStop( String msg ) {
 		try {
 			int notificationSequence = command.getNextSequence();
-			ActionNotification n = new ActionNotification( command , notificationSequence , sessionId , clientId , msg ); 
+			ActionNotification n = new ActionNotification( command , notificationSequence , sessionContext.sessionId , clientId , msg ); 
 			n.setStopEvent();
 			command.sendNotification( n );
 		}
@@ -39,7 +41,7 @@ public class RemoteServerCall extends ServerCall {
 	protected void notifyConnected( String msg ) {
 		try {
 			int notificationSequence = command.getNextSequence();
-			ActionNotification n = new ActionNotification( command , notificationSequence , sessionId , clientId , msg ); 
+			ActionNotification n = new ActionNotification( command , notificationSequence , sessionContext.sessionId , clientId , msg ); 
 			n.setConnectedEvent();
 			command.sendNotification( n );
 		}
@@ -51,7 +53,7 @@ public class RemoteServerCall extends ServerCall {
 	protected void notifyCommandFinished( String msg ) {
 		try {
 			int notificationSequence = command.getNextSequence();
-			ActionNotification n = new ActionNotification( command , notificationSequence , sessionId , clientId , msg ); 
+			ActionNotification n = new ActionNotification( command , notificationSequence , sessionContext.sessionId , clientId , msg ); 
 			n.setCommandFinishedEvent();
 			command.sendNotification( n );
 		}

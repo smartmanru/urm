@@ -2,7 +2,6 @@ package org.urm.server.executor;
 
 import org.urm.common.Common;
 import org.urm.common.action.CommandMeta;
-import org.urm.common.action.CommandOptions;
 import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionInit;
 import org.urm.server.action.CommandAction;
@@ -15,8 +14,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 
 	ReleaseCommand impl;
 	
-	public ReleaseCommandExecutor( ServerEngine engine , CommandMeta commandInfo , CommandOptions options ) throws Exception {
-		super( engine , commandInfo , options );
+	public ReleaseCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
+		super( engine , commandInfo );
 		
 		defineAction( new CreateRelease() , "create" );
 		defineAction( new ModifyRelease() , "modify" );

@@ -2,7 +2,6 @@ package org.urm.server.executor;
 
 import org.urm.common.Common;
 import org.urm.common.action.CommandMeta;
-import org.urm.common.action.CommandOptions;
 import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionInit;
 import org.urm.server.action.ActionScope;
@@ -21,8 +20,8 @@ public class DeployCommandExecutor extends CommandExecutor {
 	
 	String propertyBasedMethods;
 	
-	public DeployCommandExecutor( ServerEngine engine , CommandMeta commandInfo  , CommandOptions options) throws Exception {
-		super( engine , commandInfo , options );
+	public DeployCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
+		super( engine , commandInfo );
 		
 		super.defineAction( new BaseOps() , "base" );
 		super.defineAction( new CheckEnv() , "checkenv" );

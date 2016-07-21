@@ -4,7 +4,7 @@ import org.urm.common.Common;
 import org.urm.common.ExitException;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandBuilder;
-import org.urm.server.action.CommandExecutor;
+import org.urm.common.action.CommandOptions;
 import org.urm.server.executor.MainExecutor;
 
 public class Main {
@@ -36,14 +36,16 @@ public class Main {
 		if( !execrc.isMain() )
 			throw new ExitException( "only main executor id expected" );
 
-		// server run options
 		ServerEngine engine = new ServerEngine();
+		MainExecutor serverExecutor = MainExecutor.createExecutor( engine );
+		
+		// server run options
 		CommandBuilder builder = new CommandBuilder( execrc , execrc );
-		CommandExecutor serverExecutor = MainExecutor.createByArgs( engine , builder , args );
-		if( serverExecutor == null )
+		CommandOptions options = serverExecutor.createOptionsByArgs( builder , args );
+		if( options == null )
 			return( false );
 
-		return( engine.runServerExecutor( execrc , serverExecutor ) );
+		return( engine.runServerExecutor( serverExecutor , execrc , options ) );
 	}
 	
 }

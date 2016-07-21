@@ -32,6 +32,7 @@ import org.urm.common.action.CommandVar;
 import org.urm.common.action.CommandVar.FLAG;
 import org.urm.server.SessionController;
 import org.urm.server.ServerEngine;
+import org.urm.server.SessionContext;
 import org.urm.server.action.ActionBase;
 
 public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster {
@@ -308,7 +309,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 	
 	public void notifyLog( RemoteServerCall call , String msg ) {
 		try {
-			ActionNotification n = new ActionNotification( this , ++notificationSequence , call.sessionId , call.clientId , msg );
+			ActionNotification n = new ActionNotification( this , ++notificationSequence , call.sessionContext.sessionId , call.clientId , msg );
 			n.setLogEvent();
 			broadcaster.sendNotification( n );
 		}
@@ -383,8 +384,8 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 			setOption( cmdopts , varName , args[ k + 1 ] );
 		}
 		
-		int sessionId = server.createSessionId();
-		if( !server.runWebJmx( sessionId , productDir , meta , cmdopts ) )
+		SessionContext session = engine.createSession( engine.execrc );
+		if( !server.runWebJmx( session , productDir , meta , cmdopts ) )
 			return( -1 );
 		
 		return( 0 );
@@ -407,14 +408,15 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		ActionData data = ( ActionData )args[1];
 		String clientId = ( String )args[2];
 		
-		int sessionId = server.createSessionId();
-		action.debug( "operation invoked, sessionId=" + sessionId );
+		SessionContext sessionContext = engine.createSession( data.clientrc );
+		action.debug( "operation invoked, sessionId=" + sessionContext.sessionId );
+
 		
-		RemoteServerCall thread = new RemoteServerCall( engine , sessionId , clientId , this , actionName , data );
+		RemoteServerCall thread = new RemoteServerCall( engine , sessionContext , clientId , this , actionName , data );
 		if( !thread.start() )
 			return( -1 );
 		
-		return( sessionId );
+		return( sessionContext.sessionId );
 	}
 	
 	private int notifyExecuteInput( Object[] args ) throws Exception {
