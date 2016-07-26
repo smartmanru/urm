@@ -84,7 +84,10 @@ public class ServerEngine {
 			return( null );
 		
 		SessionContext sessionContext = createSession( execrc );
-		return( createAction( serverExecutor , options , sessionContext , "web" , null ) );
+		ActionInit action = createAction( serverExecutor , options , sessionContext , "web" , null );
+		startAction( action );
+		
+		return( action );
 	}
 	
 	public boolean runServerExecutor( MainExecutor serverExecutor , RunContext execrc , CommandOptions options ) throws Exception {
