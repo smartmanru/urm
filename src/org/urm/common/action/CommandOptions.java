@@ -39,6 +39,17 @@ public class CommandOptions {
 		this.data = data;
 	}
 	
+	public boolean setFromSystemProperties() {
+		for( CommandVar var : meta.optionsDefined ) {
+			String value = System.getProperty( var.varName );
+			if( value != null && !value.isEmpty() )
+				if( !setVarValue( var , value ) )
+					return( false );
+		}
+		
+		return( true );
+	}
+	
 	public boolean parseArgs( RunContext clientrc , String[] cmdParams ) {
 		if( cmdParams.length < 2 ) {
 			command = "help";
@@ -100,6 +111,16 @@ public class CommandOptions {
 		return( true );
 	}
 
+	private boolean setVarValue( CommandVar var , String value ) {
+		if( var.isFlag )
+			return( addFlagOption( var.optName ) );
+		if( var.isEnum )
+			return( addEnumOption( var.optName ) );
+		if( var.isParam )
+			return( addParamOption( var.optName , value ) );
+		return( false );
+	}
+	
 	public CommandVar getVar( String varName ) {
 		return( meta.getVar( varName ) );
 	}

@@ -35,6 +35,8 @@ public class MainExecutor extends CommandExecutor {
 	public CommandOptions createOptionsStartServerByWeb( ServerEngine engine ) throws Exception {
 		CommandOptions options = new CommandOptions();
 		ActionData data = new ActionData( engine.execrc );
+		if( !options.setFromSystemProperties() )
+			return( null );
 		
 		data.addArg( "start" );
 		options.setAction( commandInfo.getAction( "server" ) , data );
