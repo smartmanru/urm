@@ -19,7 +19,6 @@ public class RunContext implements Serializable {
 	public boolean standaloneMode;
 	public boolean offlineMode;
 	
-	public String OSTYPE;
 	public VarOSTYPE osType;
 	public String serverHostPort;
 
@@ -37,11 +36,33 @@ public class RunContext implements Serializable {
 	}
 
 	public static RunContext clone( RunContext parent ) throws Exception {
-		return( ( RunContext )parent.clone() );
+		return( parent.copy() );
+	}
+
+	public RunContext copy() throws Exception {
+		RunContext rc = new RunContext();
+		rc.mainMode = mainMode;
+		rc.standaloneMode = standaloneMode;
+		rc.offlineMode = offlineMode;
+		
+		rc.osType = osType;
+		rc.serverHostPort = serverHostPort;
+
+		rc.userHome = userHome;
+		rc.installPath = installPath;
+		
+		rc.product = product;
+		rc.buildMode = buildMode;
+		rc.envName = envName;
+		rc.dcName = dcName;
+		rc.hostName = hostName;
+		rc.userName = userName;
+		
+		return( rc );
 	}
 	
 	public void load() throws Exception {
-		OSTYPE = getProperty( "urm.os" ).toUpperCase();
+		String OSTYPE = getProperty( "urm.os" ).toUpperCase();
 		osType = VarOSTYPE.valueOf( Common.xmlToEnumValue( OSTYPE ) );
 		buildMode = getProperty( "urm.build" ).toUpperCase();
 		envName = getProperty( "urm.env" );
@@ -106,11 +127,11 @@ public class RunContext implements Serializable {
 	}
 	
 	public boolean isWindows() {
-		return( OSTYPE.equals( "WINDOWS" ) );		
+		return( osType == VarOSTYPE.WINDOWS );		
 	}
 	
 	public boolean isLinux() {
-		return( OSTYPE.equals( "LINUX" ) );		
+		return( osType == VarOSTYPE.LINUX );		
 	}
 	
 }
