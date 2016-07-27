@@ -290,7 +290,11 @@ public class ServerEngine {
 					}
 					else {
 						dirname = Common.getPath( session.execrc.userHome , "urm.work" , "client" );
-						dirname = Common.getPath( dirname , session.productName + "-" + session.timestamp + "-" + session.sessionId );
+						String name = "session-" + session.timestamp;
+						if( !session.productName.isEmpty() )
+							name += "-" + session.productName;
+						name += "-" + session.sessionId; 
+						dirname = Common.getPath( dirname , name );
 					}
 				}
 			}
