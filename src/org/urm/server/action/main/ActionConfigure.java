@@ -91,7 +91,7 @@ public class ActionConfigure extends ActionBase {
 		for( String name : loader.getProducts( this ) ) {
 			info( "configure product name=" + name + " ..." );
 			
-			setServerProductLayout( name );
+			setServerSystemProductLayout( name );
 			configureProduct( serverMode , false );
 			clearServerProductLayout();
 		}

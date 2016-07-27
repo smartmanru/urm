@@ -83,7 +83,8 @@ public class ServerEngine {
 		if( options == null )
 			return( null );
 		
-		SessionContext sessionContext = createSession( execrc );
+		RunContext clientrc = RunContext.clone( execrc );
+		SessionContext sessionContext = createSession( clientrc , true );
 		ActionInit action = createAction( serverExecutor , options , sessionContext , "web" , null );
 		startAction( action );
 		
@@ -102,7 +103,7 @@ public class ServerEngine {
 	
 	public boolean prepareServerExecutor( CommandOptions options ) throws Exception {
 		// server action environment
-		serverSession = createSession( execrc );
+		serverSession = createSession( execrc , false );
 		serverSession.setServerLayout( options );
 		
 		if( !options.action.equals( "configure" ) )
@@ -125,7 +126,7 @@ public class ServerEngine {
 		this.execrc = execrc;
 		
 		CommandExecutor commandExecutor = createExecutor( commandInfo );
-		serverSession = createSession( execrc );
+		serverSession = createSession( execrc , false );
 		
 		if( execrc.standaloneMode )
 			serverSession.setStandaloneLayout( options );
@@ -271,7 +272,7 @@ public class ServerEngine {
 			}
 		}
 		else {
-			if( !session.product ) {
+			if( !session.client ) {
 				if( !context.CTX_WORKPATH.isEmpty() )
 					dirname = context.CTX_WORKPATH;
 				else {
@@ -284,8 +285,8 @@ public class ServerEngine {
 					dirname = context.CTX_WORKPATH;
 				else {
 					if( context.meta.product != null && context.meta.product.CONFIG_WORKPATH.isEmpty() == false ) {
-						dirname = Common.getPath( "urm.work" , context.meta.product.CONFIG_WORKPATH );
-						dirname = Common.getPath( dirname , "session-" + ShellCoreJNI.getCurrentProcessId() );
+						dirname = context.meta.product.CONFIG_WORKPATH;
+						dirname = Common.getPath( dirname , "session-" + session.sessionId );
 					}
 					else {
 						dirname = Common.getPath( session.execrc.userHome , "urm.work" , "client" );
@@ -307,11 +308,11 @@ public class ServerEngine {
 		stopPool();
 	}
 
-	public SessionContext createSession( RunContext clientrc ) {
+	public SessionContext createSession( RunContext clientrc , boolean client ) {
 		int sessionId = 0;
 		if( sessionController != null )
 			sessionId = sessionController.createSessionId();
-		SessionContext session = new SessionContext( this , clientrc , sessionId );
+		SessionContext session = new SessionContext( this , clientrc , sessionId , client );
 		return( session );
 	}
 	

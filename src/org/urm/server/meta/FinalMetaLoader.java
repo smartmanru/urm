@@ -90,7 +90,7 @@ public class FinalMetaLoader {
 
 	public void loadServerProducts( ActionBase action ) throws Exception {
 		for( String name : getProducts( action ) ) {
-			action.setServerProductLayout( name );
+			action.setServerSystemProductLayout( name );
 			
 			MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 			FinalMetaStorage storage = new FinalMetaStorage( this , action.session );

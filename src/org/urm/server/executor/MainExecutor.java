@@ -49,7 +49,7 @@ public class MainExecutor extends CommandExecutor {
 		ActionData data = new ActionData( engine.execrc );
 		options.setAction( commandInfo.getAction( "websession" ) , data );
 		
-		SessionContext sessionContext = engine.createSession( engine.execrc );
+		SessionContext sessionContext = engine.createSession( engine.execrc , true );
 		sessionContext.setServerLayout( options );
 		
 		return( options );

@@ -35,6 +35,10 @@ public class RunContext implements Serializable {
 	
 	public RunContext() {
 	}
+
+	public static RunContext clone( RunContext parent ) throws Exception {
+		return( ( RunContext )parent.clone() );
+	}
 	
 	public void load() throws Exception {
 		OSTYPE = getProperty( "urm.os" ).toUpperCase();

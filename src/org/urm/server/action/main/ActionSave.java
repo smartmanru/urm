@@ -43,7 +43,7 @@ public class ActionSave extends ActionBase {
 		FinalMetaLoader loader = engine.metaLoader;
 		for( String name : loader.getProducts( this ) ) {
 			info( "save product=" + name + " ..." );
-			setServerProductLayout( name );
+			setServerSystemProductLayout( name );
 			
 			LocalFolder folder = urm.getProductFolder( this );
 			saveProduct( folder , false );

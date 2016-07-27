@@ -104,9 +104,9 @@ abstract public class ActionBase {
 		actionFailed = false;
 	}
 
-	public void setServerProductLayout( String name ) throws Exception {
+	public void setServerSystemProductLayout( String name ) throws Exception {
 		MetaEngineProduct product = engine.metaLoader.getProductMeta( this , name ); 
-		session.setServerProductLayout( product.NAME , product.PATH );
+		session.setServerSystemProductLayout( product.NAME , product.PATH );
 		meta.clearAll();
 	}
 	

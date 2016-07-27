@@ -23,6 +23,7 @@ import javax.management.NotificationListener;
 import javax.management.ReflectionException;
 
 import org.urm.common.Common;
+import org.urm.common.RunContext;
 import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
@@ -45,17 +46,17 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 	public ServerMBean controller;
 	public ServerEngine engine;
 	public SessionController server;
-	public String productDir;
+	public String product;
 	
 	public CommandMeta meta;
 	public MBeanInfo mbean;
 	public CommandOptions options;
 	
-	public ServerCommandMBean( ActionBase action , ServerMBean controller , ServerEngine engine , String productDir , CommandMeta meta ) {
+	public ServerCommandMBean( ActionBase action , ServerMBean controller , ServerEngine engine , String product , CommandMeta meta ) {
 		this.action = action;
 		this.controller = controller;
 		this.engine = engine;
-		this.productDir = productDir;
+		this.product = product;
 		this.meta = meta;
 		
 		server = controller.sessionController;
@@ -92,7 +93,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		Collections.reverse( opers );
 		mbean = new MBeanInfo(
 			this.getClass().getName() ,
-			"PRODUCT=" + productDir + ": actions for COMMAND TYPE=" + meta.name ,
+			"PRODUCT=" + product + ": actions for COMMAND TYPE=" + meta.name ,
             attrs.toArray( new MBeanAttributeInfo[0] ) ,
             null , 
             opers.toArray( new MBeanOperationInfo[0] ) ,
@@ -384,8 +385,10 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 			setOption( cmdopts , varName , args[ k + 1 ] );
 		}
 		
-		SessionContext session = engine.createSession( engine.execrc );
-		if( !server.runWebJmx( session , productDir , meta , cmdopts ) )
+		RunContext clientrc = RunContext.clone( engine.execrc );
+		clientrc.product = product;
+		SessionContext session = engine.createSession( clientrc , true );
+		if( !server.runWebJmx( session , meta , cmdopts ) )
 			return( -1 );
 		
 		return( 0 );
@@ -408,7 +411,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		ActionData data = ( ActionData )args[1];
 		String clientId = ( String )args[2];
 		
-		SessionContext sessionContext = engine.createSession( data.clientrc );
+		SessionContext sessionContext = engine.createSession( data.clientrc , true );
 		action.debug( "operation invoked, sessionId=" + sessionContext.sessionId );
 
 		

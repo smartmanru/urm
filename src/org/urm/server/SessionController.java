@@ -11,8 +11,6 @@ import org.urm.common.action.CommandOptions;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionInit;
 import org.urm.server.action.CommandExecutor;
-import org.urm.server.meta.FinalMetaLoader;
-import org.urm.server.meta.MetaEngineProduct;
 
 public class SessionController {
 
@@ -82,16 +80,14 @@ public class SessionController {
 		return( action );
 	}
 
-	public boolean runWebJmx( SessionContext session , String productName , CommandMeta meta , CommandOptions options ) throws Exception {
+	public boolean runWebJmx( SessionContext session , CommandMeta meta , CommandOptions options ) throws Exception {
 		if( !running ) {
 			serverAction.error( "server is in progress of shutdown" );
 			return( false );
 		}
 		
 		CommandExecutor actionExecutor = engine.createExecutor( meta );
-		FinalMetaLoader loader = engine.metaLoader;
-		MetaEngineProduct product = loader.getProductMeta( engine.serverAction , productName ); 
-		session.setServerProductLayout( product.NAME , product.PATH );
+		session.setServerRemoteProductLayout( serverAction );
 		
 		ActionInit action = engine.createAction( actionExecutor , options , session , "webjmx-" + engine.execrc.product , null );
 		if( action == null )

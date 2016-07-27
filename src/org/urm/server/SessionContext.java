@@ -22,6 +22,7 @@ public class SessionContext {
 	public boolean offline = false;
 	public boolean product = false;
 	public boolean standalone = false;
+	public boolean client = false;
 	public String timestamp;
 	
 	public String installPath = "";
@@ -33,12 +34,13 @@ public class SessionContext {
 	public String etcPath = "";
 	public String proxyPath = "";
 	
-	public SessionContext( ServerEngine engine , RunContext clientrc , int sessionId ) {
+	public SessionContext( ServerEngine engine , RunContext clientrc , int sessionId , boolean client ) {
 		this.engine = engine;
 		this.clientrc = clientrc;
 		this.sessionId = sessionId;
-		this.execrc = engine.execrc;
+		this.client = client;
 		
+		this.execrc = engine.execrc;
 		this.ENV = clientrc.envName;
 		this.DC = clientrc.dcName;
 		
@@ -64,8 +66,12 @@ public class SessionContext {
 		productPath = "";
 		proxyPath = "";
 	}
+
+	public void setServerSystemProductLayout( String name , String path ) throws Exception {
+		setServerInternalProductLayout( name , path );
+	}
 	
-	public void setServerProductLayout( String name , String path ) throws Exception {
+	private void setServerInternalProductLayout( String name , String path ) throws Exception {
 		product = true;
 		
 		if( path.isEmpty() )
@@ -97,18 +103,19 @@ public class SessionContext {
 		
 		FinalMetaLoader loader = engine.metaLoader;
 		MetaEngineProduct product = loader.getProductMeta( serverAction , name ); 
-		setServerProductLayout( product.NAME , product.PATH );
+		setServerInternalProductLayout( product.NAME , product.PATH );
 	}
 	
 	public void setServerRemoteProductLayout( ActionBase serverAction ) throws Exception {
 		SessionContext serverSession = serverAction.session;
+		
 		installPath = serverSession.installPath;
 		masterPath = serverSession.masterPath;
 		binPath = serverSession.binPath;
 		
 		FinalMetaLoader loader = engine.metaLoader;
 		MetaEngineProduct product = loader.getProductMeta( serverAction , clientrc.product ); 
-		setServerProductLayout( product.NAME , product.PATH );
+		setServerInternalProductLayout( product.NAME , product.PATH );
 	}
 	
 	public void setStandaloneLayout( CommandOptions options ) throws Exception {
