@@ -17,7 +17,6 @@ public class RunContext implements Serializable {
 	
 	public boolean mainMode;
 	public boolean standaloneMode;
-	public boolean offlineMode;
 	
 	public VarOSTYPE osType;
 	public String serverHostPort;
@@ -43,7 +42,6 @@ public class RunContext implements Serializable {
 		RunContext rc = new RunContext();
 		rc.mainMode = mainMode;
 		rc.standaloneMode = standaloneMode;
-		rc.offlineMode = offlineMode;
 		
 		rc.osType = osType;
 		rc.serverHostPort = serverHostPort;
@@ -74,18 +72,15 @@ public class RunContext implements Serializable {
 		if( mode.isEmpty() || mode.equals( "standalone" ) ) {
 			mainMode = false;
 			standaloneMode = true;
-			offlineMode = true;
 		}
 		else if( mode.equals( "server" ) ) {
 			mainMode = false;
 			standaloneMode = false;
-			offlineMode = ( serverHostPort.isEmpty() )? true : false;
 		}
 		else
 		if( mode.equals( "main" ) ) {
 			mainMode = true;
 			standaloneMode = false;
-			offlineMode = true;
 		}
 		else
 			throw new ExitException( "unexpected mode=" + mode );
