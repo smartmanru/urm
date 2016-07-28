@@ -88,20 +88,29 @@ public class RunContext implements Serializable {
 		if( osType == VarOSTYPE.LINUX ) {
 			installPath = getProperty( "urm.installpath" );
 			
-			hostName = System.getenv( "HOSTNAME" );
-			userName = System.getenv( "USER" );
-	    	userHome = System.getenv( "HOME" );
+			hostName = getEnvRequired( "HOSTNAME" );
+			userName = getEnvRequired( "USER" );
+	    	userHome = getEnvRequired( "HOME" );
 		}
 		else {
 			installPath = Common.getLinuxPath( getProperty( "urm.installpath" ) );
 			
-			hostName = "windows";
-			userName = "user";
-	    	userHome = Common.getLinuxPath( System.getenv( "HOMEPATH" ) );
+			hostName = getEnvRequired( "COMPUTERNAME" );
+			userName = getEnvRequired( "USERNAME" );
+	    	userHome = Common.getLinuxPath( getEnvRequired( "HOMEDRIVE" ) + getEnvRequired( "HOMEPATH" ) );
 		}
 		
 		if( installPath.isEmpty() )
 			throw new ExitException( "install path is not set" );
+	}
+	
+	private String getEnvRequired( String key ) throws Exception { 
+		String value = System.getenv( key );
+		if( value == null )
+			throw new ExitException( "environment variable " + key + " is not set" );
+		if( value.isEmpty() )
+			throw new ExitException( "environment variable " + key + " is empty" );
+		return( value );
 	}
 	
 	private String getProperty( String name ) {
