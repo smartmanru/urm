@@ -64,7 +64,6 @@ abstract class ShellCore {
 	abstract public void cmdCreateJarFromFolder( ActionBase action , String runDir , String jarFile , String folder ) throws Exception;
 	abstract public void cmdSetShellVariable( ActionBase action , String var , String value ) throws Exception;
 	abstract public void cmdGitAddPomFiles( ActionBase action , String runDir ) throws Exception;
-	abstract public void cmdCd( ActionBase action , String dir ) throws Exception;
 	abstract public void cmdCopyFiles( ActionBase action , String dirFrom , String files , String dirTo ) throws Exception;
 	abstract public void cmdCopyFile( ActionBase action , String fileFrom , String fileTo ) throws Exception;
 	abstract public void cmdCopyFile( ActionBase action , String fileFrom , String targetDir , String finalName , String FOLDER ) throws Exception;

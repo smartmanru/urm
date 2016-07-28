@@ -716,16 +716,6 @@ public abstract class ShellExecutor extends Shell {
 		}
 	}
 
-	public synchronized void cd( ActionBase action , String dir ) throws Exception {
-		try {
-			opstart();
-			core.cmdCd( action , dir );
-		}
-		finally {
-			opstop();
-		}
-	}
-
 	public synchronized void copyFiles( ActionBase action , String dirFrom , String files , String dirTo ) throws Exception {
 		try {
 			opstart();

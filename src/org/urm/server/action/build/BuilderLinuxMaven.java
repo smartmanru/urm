@@ -79,7 +79,7 @@ public class BuilderLinuxMaven extends Builder {
 		}
 
 		if( MODULEOPTIONS_SETVERSION == true )
-			action.shell.customCheckErrorsDebug( action , "( cd " + CODEPATH + "; mvn versions:set -DnewVersion=" + APPVERSION + " )" );
+			action.shell.customCheckErrorsDebug( action , CODEPATH.folderPath , "mvn versions:set -DnewVersion=" + APPVERSION );
 
 		if( MODULEOPTIONS_REPLACESNAPSHOTS == true ) {
 			action.info( "patchPrepareSource: replace snapshots..." );
@@ -159,14 +159,13 @@ public class BuilderLinuxMaven extends Builder {
 		session.export( action , "MAVEN_OPTS" , Common.getQuoted( "-XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );
 
 		// execute maven
-		session.cd( action , CODEPATH.folderPath );
 		action.info( "using maven:" );
 		session.customCheckErrorsNormal( action , "which mvn" );
 		session.customCheckErrorsNormal( action , "mvn --version" );
 		
 		action.info( "execute: " + MAVEN_CMD );
 		int timeout = action.setTimeoutUnlimited();
-		int status = session.customGetStatusNormal( action , MAVEN_CMD );
+		int status = session.customGetStatusNormal( action , CODEPATH.folderPath , MAVEN_CMD );
 		action.setTimeout( timeout );
 
 		if( status != 0 ) {

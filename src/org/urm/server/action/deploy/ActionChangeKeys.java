@@ -158,6 +158,9 @@ public class ActionChangeKeys extends ActionBase {
 	}
 
 	private boolean checkHostUser( Account account , String ACCESSOPTION , String user ) throws Exception {
+		if( !isLocalLinux() )
+			exitNotImplemented();
+		
 		int status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.getSshAddr() + " " +
 			Common.getQuoted( "cd ~" + user ) );
 		if( status != 0 )
@@ -166,6 +169,9 @@ public class ActionChangeKeys extends ActionBase {
 	}
 
 	private String getCreateSshOnBehalf( String HOSTUSER ) throws Exception {
+		if( !isLocalLinux() )
+			exitNotImplemented();
+		
 		if( cmd.equals( "list" ) ) {
 			return( "cd ~" + HOSTUSER + "; if [ ! -f " + S_AUTHFILE + 
 					" ]; then echo NOAUTHFILE; else cat " + S_AUTHFILE + " | cut -d \" \" -f3 | grep -v ^$; fi" );
@@ -177,6 +183,9 @@ public class ActionChangeKeys extends ActionBase {
 	}
 	
 	private String getCreateSshOnSudo( String HOSTUSER ) throws Exception {
+		if( !isLocalLinux() )
+			exitNotImplemented();
+		
 		if( cmd.equals( "list" ) ) {
 			return( "if sudo bash -c '[[ ! -f ~root/" + S_AUTHFILE + 
 					" ]]'; then echo NOAUTHFILE; else sudo cat ~root/" + S_AUTHFILE + " | cut -d \" \" -f3 | grep -v ^$; fi" );
@@ -188,6 +197,9 @@ public class ActionChangeKeys extends ActionBase {
 	}
 	
 	private String getCreateSshOwn() throws Exception {
+		if( !isLocalLinux() )
+			exitNotImplemented();
+		
 		if( cmd.equals( "list" ) ) {
 			return( "if [ ! -f " + S_AUTHFILE +   
 					" ]; then echo NOAUTHFILE; else cat " + S_AUTHFILE + " | cut -d \" \" -f3 | grep -v ^$; fi" );
@@ -198,6 +210,9 @@ public class ActionChangeKeys extends ActionBase {
 	}
 
 	private boolean replaceKey( Account account , String ACCESSOPTION , String SETUPAUTH , String KEYOWNER , String KEYDATA ) throws Exception {
+		if( !isLocalLinux() )
+			exitNotImplemented();
+		
 		if( context.CTX_SUDO )
 			exit( "unsupported with sudo" );
 		
@@ -215,6 +230,9 @@ public class ActionChangeKeys extends ActionBase {
 	}
 
 	private boolean setOnlyKey( Account account , String ACCESSOPTION , String SETUPAUTH , String KEYDATA ) throws Exception {
+		if( !isLocalLinux() )
+			exitNotImplemented();
+		
 		int status;
 		
 		int timeout = setTimeoutUnlimited();
@@ -234,8 +252,11 @@ public class ActionChangeKeys extends ActionBase {
 	}
 
 	private boolean deleteKey( Account account , String ACCESSOPTION , String SETUPAUTH , String KEYOWNER ) throws Exception {
+		if( !isLocalLinux() )
+			exitNotImplemented();
+		
 		if( context.CTX_SUDO )
-			exit( "unsupported with sudo" );
+			exit( "not supported with sudo" );
 		
 		int status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.getSshAddr() + " " +
 		Common.getQuoted( SETUPAUTH + "; cat " + S_AUTHFILE + " | grep -v " + KEYOWNER + "\\$ > " +
@@ -246,8 +267,11 @@ public class ActionChangeKeys extends ActionBase {
 	}
 	
 	private boolean listKeys( Account account , String ACCESSOPTION , String SETUPAUTH ) throws Exception {
+		if( !isLocalLinux() )
+			exitNotImplemented();
+		
 		if( context.CTX_SUDO )
-			exit( "unsupported with sudo" );
+			exit( "not supported with sudo" );
 		
 		int timeout = setTimeoutUnlimited();
 		String[] list = shell.customGetLines( this , "ssh -n " + ACCESSOPTION + " " + account.getSshAddr() + " " +

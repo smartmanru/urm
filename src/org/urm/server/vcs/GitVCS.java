@@ -339,7 +339,7 @@ public class GitVCS extends GenericVCS {
 					String WINPATHPROJECT = Common.getWinPath( PATCHFOLDER.folderPath );
 					ShellExecutor shell = action.getShell( repo.storage.account );
 					shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + BRANCHTAG + " " + 
-							" . | ( cd " + WINPATHPROJECT + " & tar x --exclude pax_global_header)" );
+							" . | ( cd /D " + WINPATHPROJECT + " & tar x --exclude pax_global_header)" );
 				}
 				else {
 					session.customCheckStatus( action , "git -C " + repo.MIRRORPATH + " archive " + BRANCHTAG + " " + 
@@ -356,7 +356,7 @@ public class GitVCS extends GenericVCS {
 					String WINPATHSUB = Common.getWinPath( SUBPATH );
 					ShellExecutor shell = action.getShell( repo.storage.account );
 					shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + BRANCHTAG + " " + 
-							WINPATHSUB + " | ( cd " + WINPATHPROJECT + " & tar x " + WINPATHSUB + " " + STRIPOPTION + " )" );
+							WINPATHSUB + " | ( cd /D " + WINPATHPROJECT + " & tar x " + WINPATHSUB + " " + STRIPOPTION + " )" );
 				}
 				else {
 					session.customCheckStatus( action , "git -C " + repo.MIRRORPATH + " archive " + BRANCHTAG + " " + 
@@ -384,7 +384,7 @@ public class GitVCS extends GenericVCS {
 				String WINPATHFILE = Common.getWinPath( FILEPATH );
 				ShellExecutor shell = action.getShell( repo.storage.account );
 				shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + BRANCHTAG + " " + 
-						WINPATHFILE + " | ( cd " + WINPATHBASE + " & tar x --exclude pax_global_header " + WINPATHFILE + " " + STRIPOPTION + " )" );
+						WINPATHFILE + " | ( cd /D " + WINPATHBASE + " & tar x --exclude pax_global_header " + WINPATHFILE + " " + STRIPOPTION + " )" );
 			}
 			else {
 				session.customCheckStatus( action , "git -C " + repo.MIRRORPATH + " archive " + BRANCHTAG + " " + 
@@ -582,11 +582,11 @@ public class GitVCS extends GenericVCS {
 		if( repo.storage.winBuild )
 			action.exitNotImplemented();
 			
-		session.customCheckErrorsDebug( action , "( cd " + repo.PATCHFOLDER.folderPath + "; " +
+		session.customCheckErrorsDebug( action , repo.PATCHFOLDER.folderPath , 
 			"F_LIST=`git diff --name-only`; " +
 			"if [ " + Common.getQuoted( "$F_LIST" ) + " != " + Common.getQuoted( "" ) + " ]; then git add $F_LIST; fi; " +
 			"git commit -m " + Common.getQuoted( meta.product.CONFIG_ADM_TRACKER + "-0000: set version" ) + "; " +
-			"git push origin 2>&1; if [ $? != 0 ]; then echo error on push origin >&2; fi )" );
+			"git push origin 2>&1; if [ $? != 0 ]; then echo error on push origin >&2; fi" );
 	}
 
 	@Override public boolean isValidRepositoryTagPath( String repository , String TAG , String path ) throws Exception {
@@ -644,7 +644,7 @@ public class GitVCS extends GenericVCS {
 			String WINPATHDIR = Common.getWinPath( ITEMPATH );
 			String WINPATHPATCH = Common.getWinPath( PATCHFOLDER.folderPath );
 			ShellExecutor shell = action.getShell( repo.storage.account );
-			shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + WINPATHDIR + " . | ( cd " + WINPATHPATCH + " & tar x --exclude pax_global_header)" );
+			shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + WINPATHDIR + " . | ( cd /D " + WINPATHPATCH + " & tar x --exclude pax_global_header)" );
 		}
 		else {
 			session.customCheckStatus( action , "git -C " + repo.MIRRORPATH + " archive " + ITEMPATH + " . | ( cd " + PATCHFOLDER.folderPath + "; tar x )" );

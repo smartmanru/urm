@@ -54,14 +54,13 @@ public class BuilderLinuxGradle extends Builder {
 		String GRADLE_CMD = "gradle clean war publish -Dmaven.settings=" + action.meta.product.CONFIG_MAVEN_CFGFILE;
 
 		// execute gradle
-		session.cd( action , storage.buildFolder.folderPath );
 		action.info( "using gradle:" );
 		session.customCheckErrorsNormal( action , "which gradle" );
 		session.customCheckErrorsNormal( action , "gradle --version" );
 		
 		action.info( "execute: " + GRADLE_CMD );
 		int timeout = action.setTimeoutUnlimited();
-		int status = session.customGetStatusNormal( action , GRADLE_CMD );
+		int status = session.customGetStatusNormal( action , storage.buildFolder.folderPath , GRADLE_CMD );
 		action.setTimeout( timeout );
 
 		if( status != 0 ) {

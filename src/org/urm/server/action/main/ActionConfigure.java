@@ -474,7 +474,7 @@ public class ActionConfigure extends ActionBase {
 		}
 		else {
 			relativePath = Common.getWinPath( relativePath );
-			lines.add( "@cd %~dp0" );
+			lines.add( "@cd /D %~dp0" );
 			
 			if( relativeContext == null )
 				lines.add( "@call " + MainCommandMeta.CONTEXT_FILENAME_WIN );

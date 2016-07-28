@@ -148,13 +148,13 @@ public class ShellCoreWindows extends ShellCore {
 	@Override public String getDirCmd( ActionBase action , String dir , String cmd ) throws Exception {
 		String dirWin = Common.getWinPath( dir );
 		String rootPathWin = Common.getWinPath( executor.rootPath );
-		return( "if exist " + dirWin + " ( cd " + dirWin + " " + cmdAnd + " ( " + cmd + " ) " + cmdAnd + " " + "cd " + rootPathWin + " ) else echo invalid directory: " + dirWin );
+		return( "if exist " + dirWin + " ( cd /D " + dirWin + " " + cmdAnd + " ( " + cmd + " ) " + cmdAnd + " " + "cd /D " + rootPathWin + " ) else echo invalid directory: " + dirWin );
 	}
 	
 	@Override public String getDirCmdIfDir( ActionBase action , String dir , String cmd ) throws Exception {
 		String dirWin = Common.getWinPath( dir );
 		String rootPathWin = Common.getWinPath( executor.rootPath );
-		return( "if exist " + dirWin + " ( cd " + dirWin + " " + cmdAnd + " ( " + cmd + " ) " + cmdAnd + " " + "cd " + rootPathWin + " )" );
+		return( "if exist " + dirWin + " ( cd /D " + dirWin + " " + cmdAnd + " ( " + cmd + " ) " + cmdAnd + " " + "cd /D " + rootPathWin + " )" );
 	}
 
 	@Override public void cmdEnsureDirExists( ActionBase action , String dir ) throws Exception {
@@ -447,10 +447,6 @@ public class ShellCoreWindows extends ShellCore {
 		action.exitNotImplemented();
 	}
 
-	@Override public void cmdCd( ActionBase action , String dir ) throws Exception {
-		action.exitNotImplemented();
-	}
-	
 	@Override public void cmdCopyFiles( ActionBase action , String dirFrom , String files , String dirTo ) throws Exception {
 		action.debug( "copy " + files + " from " + dirFrom + " to " + dirTo + " ..." );
 		String wfilesFrom = Common.getWinPath( files );
