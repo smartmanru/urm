@@ -26,16 +26,16 @@ public class MetaEngine {
 	public String JABBER_INCLUDE;
 	public String JABBER_EXCLUDE;
 
-	Map<String,MetaEngineSystem> mapSystems;
-	Map<String,MetaEngineProduct> mapProducts;
+	Map<String,FinalMetaSystem> mapSystems;
+	Map<String,FinalMetaProduct> mapProducts;
 	PropertySet defaultProductProperties;
 	Map<VarBUILDMODE,PropertySet> mapBuildModeDefaults;
 	
 	public MetaEngine( FinalMetaLoader loader ) {
 		this.loader = loader;
 		
-		mapSystems = new HashMap<String,MetaEngineSystem>();
-		mapProducts = new HashMap<String,MetaEngineProduct>();
+		mapSystems = new HashMap<String,FinalMetaSystem>();
+		mapProducts = new HashMap<String,FinalMetaProduct>();
 		mapBuildModeDefaults = new HashMap<VarBUILDMODE,PropertySet>();
 	}
 
@@ -77,11 +77,11 @@ public class MetaEngine {
 			return;
 		
 		for( Node itemNode : items ) {
-			MetaEngineSystem item = new MetaEngineSystem( this );
+			FinalMetaSystem item = new FinalMetaSystem( this );
 			item.load( itemNode );
 			mapSystems.put( item.NAME , item );
 			
-			for( MetaEngineProduct product : item.mapProducts.values() )
+			for( FinalMetaProduct product : item.mapProducts.values() )
 				mapProducts.put( product.NAME , product );
 		}
 	}

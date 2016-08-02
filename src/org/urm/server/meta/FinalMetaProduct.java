@@ -3,14 +3,14 @@ package org.urm.server.meta;
 import org.urm.common.ConfReader;
 import org.w3c.dom.Node;
 
-public class MetaEngineProduct {
+public class FinalMetaProduct {
 
-	public MetaEngineSystem system;
+	public FinalMetaSystem system;
 	
 	public String NAME;
 	public String PATH;
 
-	public MetaEngineProduct( MetaEngineSystem system ) {
+	public FinalMetaProduct( FinalMetaSystem system ) {
 		this.system = system;
 	}
 

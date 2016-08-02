@@ -7,16 +7,16 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.w3c.dom.Node;
 
-public class MetaEngineSystem {
+public class FinalMetaSystem {
 
 	public MetaEngine engine;
-	public Map<String,MetaEngineProduct> mapProducts;
+	public Map<String,FinalMetaProduct> mapProducts;
 	
 	public String NAME;
 	
-	public MetaEngineSystem( MetaEngine engine ) {
+	public FinalMetaSystem( MetaEngine engine ) {
 		this.engine = engine;
-		mapProducts = new HashMap<String,MetaEngineProduct>();
+		mapProducts = new HashMap<String,FinalMetaProduct>();
 	}
 	
 	public void load( Node node ) throws Exception {
@@ -27,7 +27,7 @@ public class MetaEngineSystem {
 			return;
 		
 		for( Node itemNode : items ) {
-			MetaEngineProduct item = new MetaEngineProduct( this );
+			FinalMetaProduct item = new FinalMetaProduct( this );
 			item.load( itemNode );
 			mapProducts.put( item.NAME , item );
 		}
@@ -37,7 +37,7 @@ public class MetaEngineSystem {
 		return( Common.getSortedKeys( mapProducts ) );
 	}
 
-	public MetaEngineProduct getProduct( String key ) {
+	public FinalMetaProduct getProduct( String key ) {
 		return( mapProducts.get( key ) );
 	}
 	

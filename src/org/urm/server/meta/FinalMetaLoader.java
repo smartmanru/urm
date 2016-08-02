@@ -115,15 +115,15 @@ public class FinalMetaLoader {
 		return( Common.getSortedKeys( engineMeta.mapProducts ) );
 	}
 
-	public MetaEngineSystem getSystemMeta( ActionBase action , String name ) throws Exception {
-		MetaEngineSystem system = engineMeta.mapSystems.get( name );
+	public FinalMetaSystem getSystemMeta( ActionBase action , String name ) throws Exception {
+		FinalMetaSystem system = engineMeta.mapSystems.get( name );
 		if( system == null )
 			action.exit( "unknown system=" + system );
 		return( system );
 	}
 
-	public MetaEngineProduct getProductMeta( ActionBase action , String name ) throws Exception {
-		MetaEngineProduct product = engineMeta.mapProducts.get( name );
+	public FinalMetaProduct getProductMeta( ActionBase action , String name ) throws Exception {
+		FinalMetaProduct product = engineMeta.mapProducts.get( name );
 		if( product == null )
 			action.exit( "unknown product=" + name );
 		return( product );
