@@ -5,7 +5,7 @@ import org.w3c.dom.Node;
 
 public class MetaEngineProduct {
 
-	MetaEngineSystem system;
+	public MetaEngineSystem system;
 	
 	public String NAME;
 	public String PATH;
