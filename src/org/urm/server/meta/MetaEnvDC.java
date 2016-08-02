@@ -13,7 +13,7 @@ import org.w3c.dom.Node;
 
 public class MetaEnvDC {
 
-	protected Metadata meta;
+	public Metadata meta;
 	public MetaEnv env;
 	
 	public String NAME;

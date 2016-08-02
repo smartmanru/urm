@@ -19,7 +19,7 @@ public class MetaEnv {
 
 	boolean loaded = false;
 
-	protected Metadata meta;
+	public Metadata meta;
 
 	PropertySet properties;
 	PropertySet secretProperties;

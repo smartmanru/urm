@@ -18,7 +18,7 @@ import org.w3c.dom.Node;
 
 public class MetaEnvServer {
 
-	protected Metadata meta;
+	public Metadata meta;
 	public MetaEnvDC dc;
 	
 	public String NAME;
