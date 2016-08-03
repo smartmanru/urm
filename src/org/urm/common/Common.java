@@ -715,7 +715,7 @@ public class Common {
 		return( list );
 	}
 
-	public String trim( String s , char trimChar ) {
+	public static String trim( String s , char trimChar ) {
 		if( s == null || s.isEmpty() )
 			return( "" );
 		
