@@ -38,13 +38,13 @@ public class FinalMetaStorage {
 		envs = new HashMap<String,MetaEnv>();
 	}
 
-	public synchronized MetaProduct loadProduct( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+	public synchronized MetaProduct loadProduct( ActionBase action , MetadataStorage storageMeta , String productId ) throws Exception {
 		if( product != null )
 			return( product );
 		
 		product = new MetaProduct( meta );
 		meta.setProduct( product );
-		product.load( action , storageMeta );
+		product.load( action , storageMeta , productId );
 		
 		return( product );
 	}
@@ -125,8 +125,8 @@ public class FinalMetaStorage {
 		return( design );
 	}
 
-	public synchronized void loadAll( ActionBase action , MetadataStorage storageMeta ) throws Exception {
-		loadProduct( action , storageMeta );
+	public synchronized void loadAll( ActionBase action , MetadataStorage storageMeta , String productId ) throws Exception {
+		loadProduct( action , storageMeta , productId );
 		loadDistr( action , storageMeta );
 		loadSources( action , storageMeta );
 		

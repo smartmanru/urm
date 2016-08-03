@@ -190,7 +190,7 @@ public class PropertySet {
 		raw.put( set + "." + key , value );
 	}
 
-	private String getRawProperty( String key ) throws Exception {
+	public String getRawProperty( String key ) throws Exception {
 		String rawValue = raw.get( set + "." + key );
 		if( rawValue == null )
 			return( null );

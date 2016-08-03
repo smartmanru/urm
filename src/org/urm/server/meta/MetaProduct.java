@@ -160,22 +160,22 @@ public class MetaProduct {
 			action.exit( "unknown database files charset=" + CONFIG_SOURCE_SQL_CHARSET );
 	}
 
-	public void load( ActionBase action , MetadataStorage storage ) throws Exception {
+	public void load( ActionBase action , MetadataStorage storage , String productId ) throws Exception {
 		if( loaded )
 			return;
 
 		loaded = true;
 		lastProdTagFile = storage.getLastProdTagFile( action );
 		
-		// add predefined properties
-		addPredefined( action );
-
 		// add from file
 		String file = storage.getProductConfFile( action );
 		Document doc = ConfReader.readXmlFile( action.session.execrc , file );
 		Node root = doc.getDocumentElement();
 		props.loadRawFromElements( root );
 		
+		// add predefined properties
+		addPredefined( action , productId );
+
 		Node[] items = ConfReader.xmlGetChildren( root , "mode" );
 		if( items != null ) {
 			for( Node node : items ) {
@@ -196,7 +196,7 @@ public class MetaProduct {
 		scatterVariables( action );
 	}
 	
-	private void addPredefined( ActionBase action ) throws Exception {
+	private void addPredefined( ActionBase action , String productId ) throws Exception {
 		// get last prod tag
 		int lastProdTag = 0;
 		int nextProdTag = 1;
@@ -206,7 +206,19 @@ public class MetaProduct {
 			nextProdTag = lastProdTag + 1;
 		}
 		
-		CONFIG_PRODUCT = action.session.clientrc.product;
+		// handle product name
+		if( action.session.standalone ) {
+			// read from properties
+			CONFIG_PRODUCT = props.getRawProperty( "CONFIG_PRODUCT" );
+			if( CONFIG_PRODUCT.isEmpty() )
+				action.exit( "Product Configuration has no Product ID set (CONFIG_PRODUCT)" );
+		}
+		else {
+			if( productId.isEmpty() )
+				action.exitUnexpectedState();
+			CONFIG_PRODUCT = productId;
+		}
+		
 		CONFIG_PRODUCTHOME = action.context.session.productPath;
 		CONFIG_LASTPRODTAG = "" + lastProdTag;
 		CONFIG_NEXTPRODTAG = "" + nextProdTag;

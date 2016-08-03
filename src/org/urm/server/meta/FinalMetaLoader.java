@@ -52,7 +52,7 @@ public class FinalMetaLoader {
 
 	public MetaProduct loadProduct( ActionBase action , FinalMetaStorage storageFinal ) throws Exception {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
-		return( storageFinal.loadProduct( action , storageMeta ) );
+		return( storageFinal.loadProduct( action , storageMeta , "" ) );
 	}
 
 	public MetaDistr loadDistr( ActionBase action , FinalMetaStorage storageFinal ) throws Exception {
@@ -94,7 +94,7 @@ public class FinalMetaLoader {
 			
 			MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 			FinalMetaStorage storage = new FinalMetaStorage( this , action.session );
-			storage.loadAll( action , storageMeta );
+			storage.loadAll( action , storageMeta , name );
 			productMeta.put( name , storage );
 			
 			action.clearServerProductLayout();
