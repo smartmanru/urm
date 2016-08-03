@@ -714,5 +714,31 @@ public class Common {
 			list.add( s );
 		return( list );
 	}
+
+	public String trim( String s , char trimChar ) {
+		if( s == null || s.isEmpty() )
+			return( "" );
+		
+		int length = s.length();
+		int indexFrom = 0;
+		for( ; indexFrom < length; indexFrom++ ) {
+			if( s.charAt( indexFrom ) != trimChar )
+				break;
+		}
+		
+		if( indexFrom == length )
+			return( "" );
+		
+		int indexTo = length - 1;
+		for( ; indexTo > 0; indexTo-- ) {
+			if( s.charAt( indexFrom ) != trimChar )
+				break;
+		}
+		
+		if( indexFrom == 0 && indexTo == (length - 1) )
+			return( s );
+		
+		return( s.substring( indexFrom , indexTo + 1 ) );
+	}
 	
 }

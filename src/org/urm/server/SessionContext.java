@@ -6,7 +6,7 @@ import org.urm.common.RunContext;
 import org.urm.common.action.CommandOptions;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.FinalMetaLoader;
-import org.urm.server.meta.MetaEngineProduct;
+import org.urm.server.meta.FinalMetaProduct;
 
 public class SessionContext {
 
@@ -102,7 +102,7 @@ public class SessionContext {
 		setServerLayout( options );
 		
 		FinalMetaLoader loader = engine.metaLoader;
-		MetaEngineProduct product = loader.getProductMeta( serverAction , name ); 
+		FinalMetaProduct product = loader.getProductMeta( serverAction , name ); 
 		setServerInternalProductLayout( product.NAME , product.PATH );
 	}
 	
@@ -114,7 +114,7 @@ public class SessionContext {
 		binPath = serverSession.binPath;
 		
 		FinalMetaLoader loader = engine.metaLoader;
-		MetaEngineProduct product = loader.getProductMeta( serverAction , clientrc.product ); 
+		FinalMetaProduct product = loader.getProductMeta( serverAction , clientrc.product ); 
 		setServerInternalProductLayout( product.NAME , product.PATH );
 	}
 	

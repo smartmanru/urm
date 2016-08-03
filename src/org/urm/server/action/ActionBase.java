@@ -11,7 +11,7 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.ServerEngine;
 import org.urm.server.SessionContext;
 import org.urm.server.custom.CommandCustom;
-import org.urm.server.meta.MetaEngineProduct;
+import org.urm.server.meta.FinalMetaProduct;
 import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.meta.Metadata;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
@@ -105,7 +105,7 @@ abstract public class ActionBase {
 	}
 
 	public void setServerSystemProductLayout( String name ) throws Exception {
-		MetaEngineProduct product = engine.metaLoader.getProductMeta( this , name ); 
+		FinalMetaProduct product = engine.metaLoader.getProductMeta( this , name ); 
 		session.setServerSystemProductLayout( product.NAME , product.PATH );
 		meta.clearAll();
 	}
