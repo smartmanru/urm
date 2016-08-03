@@ -740,5 +740,22 @@ public class Common {
 		
 		return( s.substring( indexFrom , indexTo + 1 ) );
 	}
+
+	public static String[] listPart( String[] list , int from , int to ) {
+		if( list == null || list.length == 0 || from >= list.length )
+			return( new String[0] );
+
+		if( to < 0 )
+			to = list.length;
+		
+		if( from >= to )
+			return( new String[0] );
+		
+		String[] part = new String[ to - from ];
+		for( int k = from; k < to; k++ )
+			part[ k - from ] = list[ k ];
+		
+		return( part );
+	}
 	
 }
