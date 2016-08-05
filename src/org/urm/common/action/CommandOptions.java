@@ -40,7 +40,7 @@ public class CommandOptions {
 	}
 	
 	public boolean setFromSystemProperties() {
-		for( CommandVar var : meta.optionsDefined ) {
+		for( CommandVar var : meta.varByName.values() ) {
 			String value = System.getProperty( var.varName );
 			if( value != null )
 				if( !setVarValue( var , value ) )
