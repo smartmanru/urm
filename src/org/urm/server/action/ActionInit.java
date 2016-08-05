@@ -1,6 +1,7 @@
 package org.urm.server.action;
 
 import org.urm.server.SessionContext;
+import org.urm.server.meta.FinalMetaLoader;
 import org.urm.server.storage.Artefactory;
 
 public class ActionInit extends ActionBase {
@@ -14,9 +15,18 @@ public class ActionInit extends ActionBase {
 		this.actionName = actionName;
 	}
 
-	protected boolean executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
+	@Override
+	protected void runBefore() throws Exception {
 		exit( "unexpected operation" );
-		return( false );
+	}
+	
+	@Override
+	protected void runBefore( ActionScope scope ) throws Exception {
+		exit( "unexpected operation" );
+	}
+	
+	public FinalMetaLoader getMetaLoader() {
+		return( engine.metaLoader );
 	}
 	
 }
