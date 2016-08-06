@@ -30,6 +30,7 @@ public class RunContext implements Serializable {
 	public String dcName;
 	public String hostName;
 	public String userName;
+	public String encoding;
 	
 	public RunContext() {
 	}
@@ -55,6 +56,7 @@ public class RunContext implements Serializable {
 		rc.dcName = dcName;
 		rc.hostName = hostName;
 		rc.userName = userName;
+		rc.encoding = encoding;
 		
 		return( rc );
 	}
@@ -99,6 +101,8 @@ public class RunContext implements Serializable {
 			userName = getEnvRequired( "USERNAME" );
 	    	userHome = Common.getLinuxPath( getEnvRequired( "HOMEDRIVE" ) + getEnvRequired( "HOMEPATH" ) );
 		}
+	
+		installPath = getProperty( "urm.installpath" );
 		
 		if( installPath.isEmpty() )
 			throw new ExitException( "install path is not set" );

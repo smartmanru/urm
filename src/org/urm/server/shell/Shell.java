@@ -72,10 +72,17 @@ abstract public class Shell {
 		stderr = process.getErrorStream();
 		stdout = process.getInputStream();
 		
-		reader = new BufferedReader( new InputStreamReader( stdout ) );
-		errreader = new BufferedReader( new InputStreamReader( stderr ) );
+		reader = getStreamReader( stdout );
+		errreader = getStreamReader( stderr );
 	}
 
+	private BufferedReader getStreamReader( InputStream stream ) throws Exception {
+		String encoding = pool.engine.execrc.encoding;
+		if( !encoding.isEmpty() )
+			return( new BufferedReader( new InputStreamReader( stream , encoding ) ) );
+		return( new BufferedReader( new InputStreamReader( stream ) ) );
+	}
+	
 	public void setUnavailable() {
 		processId = -1;
 		available = false;
