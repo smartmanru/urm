@@ -66,8 +66,12 @@ abstract public class Shell {
 			return;
 
 		// redirect streams
+		String encoding = pool.engine.execrc.encoding;
 		stdin = process.getOutputStream();
-		writer = new OutputStreamWriter( stdin );
+		if( !encoding.isEmpty() )
+			writer = new OutputStreamWriter( stdin , encoding );
+		else
+			writer = new OutputStreamWriter( stdin );
 		
 		stderr = process.getErrorStream();
 		stdout = process.getInputStream();
