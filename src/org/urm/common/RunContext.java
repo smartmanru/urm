@@ -102,7 +102,7 @@ public class RunContext implements Serializable {
 	    	userHome = Common.getLinuxPath( getEnvRequired( "HOMEDRIVE" ) + getEnvRequired( "HOMEPATH" ) );
 		}
 	
-		installPath = getProperty( "urm.installpath" );
+		encoding = getProperty( "urm.installpath" );
 		
 		if( installPath.isEmpty() )
 			throw new ExitException( "install path is not set" );
