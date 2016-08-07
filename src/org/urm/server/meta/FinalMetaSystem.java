@@ -13,6 +13,7 @@ public class FinalMetaSystem {
 	public Map<String,FinalMetaProduct> mapProducts;
 	
 	public String NAME;
+	public String DESC;
 	
 	public FinalMetaSystem( MetaEngine engine ) {
 		this.engine = engine;
@@ -21,6 +22,7 @@ public class FinalMetaSystem {
 	
 	public void load( Node node ) throws Exception {
 		NAME = ConfReader.getAttrValue( node , "name" );
+		DESC = ConfReader.getAttrValue( node , "desc" );
 		
 		Node[] items = ConfReader.xmlGetChildren( node , "product" );
 		if( items == null )

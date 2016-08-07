@@ -8,6 +8,7 @@ public class FinalMetaProduct {
 	public FinalMetaSystem system;
 	
 	public String NAME;
+	public String DESC;
 	public String PATH;
 
 	public FinalMetaProduct( FinalMetaSystem system ) {
@@ -16,6 +17,7 @@ public class FinalMetaProduct {
 
 	public void load( Node node ) throws Exception {
 		NAME = ConfReader.getAttrValue( node , "name" );
+		DESC = ConfReader.getAttrValue( node , "desc" );
 		PATH = ConfReader.getAttrValue( node , "path" );
 	}
 	
