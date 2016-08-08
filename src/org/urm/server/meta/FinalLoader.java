@@ -101,9 +101,14 @@ public class FinalLoader {
 		}
 	}
 
-	public void loadServerSettings() throws Exception {
+	private String getServerSettingsFile() {
 		String path = Common.getPath( engine.execrc.installPath , "etc" );
 		String propertyFile = Common.getPath( path , "server.xml" );
+		return( propertyFile );
+	}
+	
+	public void loadServerSettings() throws Exception {
+		String propertyFile = getServerSettingsFile();
 		registry.load( propertyFile , engine.execrc );
 	}
 
@@ -135,8 +140,18 @@ public class FinalLoader {
 			props.copyRawProperties( set , set.set + "." );
 	}
 
-	public FinalRegistry getRegistry( ActionBase action ) throws Exception {
-		return( registry );
+	public FinalRegistry getRegistry( ActionBase action ) {
+		synchronized( engine ) {
+			return( registry );
+		}
+	}
+	
+	public void setRegistry( FinalRegistry newRegistry ) throws Exception {
+		String propertyFile = getServerSettingsFile();
+		newRegistry.save( propertyFile , engine.execrc );
+		
+		registry = new FinalRegistry( this ); 
+		registry.load( propertyFile , engine.execrc );
 	}
 	
 }

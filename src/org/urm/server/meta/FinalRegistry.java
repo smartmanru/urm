@@ -11,6 +11,7 @@ import org.urm.common.RunContext;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class FinalRegistry {
@@ -144,4 +145,41 @@ public class FinalRegistry {
 		return( null );
 	}
 	
+	public void save( String path , RunContext execrc ) throws Exception {
+		Document doc = Common.xmlCreateDoc( "release" );
+		Element root = doc.getDocumentElement();
+
+		// properties
+		for( String key : properties.getKeySet() )
+			Common.xmlCreatePropertyElement( doc , root , key , properties.getPropertyAny( key ) );
+
+		// product defaults
+		for( VarBUILDMODE mode : mapBuildModeDefaults.keySet() ) {
+			PropertySet set = mapBuildModeDefaults.get( mode );
+			Element modeElement = Common.xmlCreateElement( doc , root , "mode" );
+			Common.xmlSetElementAttr( doc , modeElement , "name" , mode.toString().toLowerCase() );
+			
+			for( String key : set.getKeySet() )
+				Common.xmlCreatePropertyElement( doc , modeElement , key , set.getPropertyAny( key ) );
+		}
+		
+		// directory 
+		Element elementDir = Common.xmlCreateElement( doc , root , "directory" );
+		for( FinalMetaSystem system : mapSystems.values() ) {
+			Element elementSystem = Common.xmlCreateElement( doc , elementDir , "system" );
+			Common.xmlSetElementAttr( doc , elementSystem , "name" , system.NAME );
+			Common.xmlSetElementAttr( doc , elementSystem , "name" , system.DESC );
+			
+			for( String productName : system.getProducts() ) {
+				FinalMetaProduct product = system.getProduct( productName );
+				Element elementProduct = Common.xmlCreateElement( doc , elementSystem , "product" );
+				Common.xmlSetElementAttr( doc , elementProduct , "name" , product.NAME );
+				Common.xmlSetElementAttr( doc , elementProduct , "desc" , product.DESC );
+				Common.xmlSetElementAttr( doc , elementProduct , "path" , product.PATH );
+			}
+		}
+		
+		Common.xmlSaveDoc( doc , path );
+	}
+
 }

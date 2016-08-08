@@ -43,6 +43,10 @@ public class ServerEngine {
 	public ShellPool shellPool;
 	public FinalLoader metaLoader;
 	public boolean running;
+
+	private ServerTransaction currentTransaction = null;
+
+	public static int META_CHANGE_TIMEOUT = 5000;
 	
 	public ServerEngine() {
 		metaLoader = new FinalLoader( this );
@@ -318,6 +322,43 @@ public class ServerEngine {
 			sessionId = sessionController.createSessionId();
 		SessionContext session = new SessionContext( this , clientrc , sessionId , client );
 		return( session );
+	}
+
+	public ServerTransaction startTransaction( ActionBase action ) {
+		if( !running )
+			return( null );
+		
+		if( currentTransaction != null ) {
+			try {
+				currentTransaction.wait( META_CHANGE_TIMEOUT );
+			}
+			catch( Throwable e ) {
+				action.log( e );
+			}
+		}
+		
+		currentTransaction = new ServerTransaction( action );
+		return( currentTransaction );
+	}
+	
+	public void abortTransaction( ServerTransaction transaction ) {
+		if( currentTransaction == transaction ) {
+			currentTransaction.notifyAll();
+			currentTransaction = null;
+		}
+	}
+	
+	public boolean commitTransaction( ServerTransaction transaction ) {
+		if( currentTransaction != transaction )
+			return( false );
+		
+		currentTransaction.notifyAll();
+		currentTransaction = null;
+		return( true );
+	}
+	
+	public ServerTransaction getTransaction( ActionInit action ) {
+		return( currentTransaction );
 	}
 	
 }
