@@ -16,11 +16,11 @@ public class FinalMetaLoader {
 	
 	private Map<String,FinalMetaStorage> productMeta;
 	private FinalMetaStorage offline;
-	private MetaEngine engineMeta;
+	private MetaRegistry engineMeta;
 	
 	public FinalMetaLoader( ServerEngine engine ) {
 		this.engine = engine;
-		engineMeta = new MetaEngine( this ); 
+		engineMeta = new MetaRegistry( this ); 
 		productMeta = new HashMap<String,FinalMetaStorage>();
 	}
 	
