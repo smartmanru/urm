@@ -9,14 +9,14 @@ import org.w3c.dom.Node;
 
 public class FinalMetaSystem {
 
-	public FinalRegistry engine;
+	public FinalRegistry registry;
 	public Map<String,FinalMetaProduct> mapProducts;
 	
 	public String NAME;
 	public String DESC;
 	
 	public FinalMetaSystem( FinalRegistry engine ) {
-		this.engine = engine;
+		this.registry = engine;
 		mapProducts = new HashMap<String,FinalMetaProduct>();
 	}
 	
@@ -29,7 +29,7 @@ public class FinalMetaSystem {
 			return;
 		
 		for( Node itemNode : items ) {
-			FinalMetaProduct item = new FinalMetaProduct( this );
+			FinalMetaProduct item = new FinalMetaProduct( registry , this );
 			item.load( itemNode );
 			mapProducts.put( item.NAME , item );
 		}
