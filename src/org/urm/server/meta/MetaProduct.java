@@ -232,7 +232,7 @@ public class MetaProduct {
 		if( action.session.standalone )
 			return;
 		
-		FinalMetaLoader loader = action.engine.metaLoader;
+		FinalLoader loader = action.engine.metaLoader;
 		loader.addProductProps( action , props );
 	}
 

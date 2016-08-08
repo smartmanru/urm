@@ -5,7 +5,7 @@ import org.urm.common.ExitException;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandOptions;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.FinalMetaLoader;
+import org.urm.server.meta.FinalLoader;
 import org.urm.server.meta.FinalMetaProduct;
 
 public class SessionContext {
@@ -101,7 +101,7 @@ public class SessionContext {
 		
 		setServerLayout( options );
 		
-		FinalMetaLoader loader = engine.metaLoader;
+		FinalLoader loader = engine.metaLoader;
 		FinalMetaProduct product = loader.getProductMeta( serverAction , name ); 
 		setServerInternalProductLayout( product.NAME , product.PATH );
 	}
@@ -113,7 +113,7 @@ public class SessionContext {
 		masterPath = serverSession.masterPath;
 		binPath = serverSession.binPath;
 		
-		FinalMetaLoader loader = engine.metaLoader;
+		FinalLoader loader = engine.metaLoader;
 		FinalMetaProduct product = loader.getProductMeta( serverAction , clientrc.product ); 
 		setServerInternalProductLayout( product.NAME , product.PATH );
 	}

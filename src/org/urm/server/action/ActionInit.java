@@ -1,7 +1,8 @@
 package org.urm.server.action;
 
 import org.urm.server.SessionContext;
-import org.urm.server.meta.FinalMetaLoader;
+import org.urm.server.meta.FinalLoader;
+import org.urm.server.meta.FinalRegistry;
 import org.urm.server.storage.Artefactory;
 
 public class ActionInit extends ActionBase {
@@ -25,8 +26,23 @@ public class ActionInit extends ActionBase {
 		exit( "unexpected operation" );
 	}
 	
-	public FinalMetaLoader getMetaLoader() {
+	public FinalLoader getMetaLoader() {
 		return( engine.metaLoader );
+	}
+	
+	public FinalRegistry changeRegistry( FinalRegistry sourceRegistry ) throws Exception {
+		startTransaction();
+		if( sourceRegistry == engine.metaLoader.getRegistry( this ) )
+			return( sourceRegistry.copy( this ) );
+		
+		cancelTransaction();
+		return( null );
+	}
+
+	private void startTransaction() throws Exception {
+	}
+	
+	private void cancelTransaction() throws Exception {
 	}
 	
 }

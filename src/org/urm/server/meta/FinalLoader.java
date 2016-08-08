@@ -10,17 +10,17 @@ import org.urm.server.SessionContext;
 import org.urm.server.action.ActionBase;
 import org.urm.server.storage.MetadataStorage;
 
-public class FinalMetaLoader {
+public class FinalLoader {
 
 	public ServerEngine engine;
 	
 	private Map<String,FinalMetaStorage> productMeta;
 	private FinalMetaStorage offline;
-	private MetaRegistry engineMeta;
+	private FinalRegistry registry;
 	
-	public FinalMetaLoader( ServerEngine engine ) {
+	public FinalLoader( ServerEngine engine ) {
 		this.engine = engine;
-		engineMeta = new MetaRegistry( this ); 
+		registry = new FinalRegistry( this ); 
 		productMeta = new HashMap<String,FinalMetaStorage>();
 	}
 	
@@ -104,35 +104,39 @@ public class FinalMetaLoader {
 	public void loadServerSettings() throws Exception {
 		String path = Common.getPath( engine.execrc.installPath , "etc" );
 		String propertyFile = Common.getPath( path , "server.xml" );
-		engineMeta.load( propertyFile , engine.execrc );
+		registry.load( propertyFile , engine.execrc );
 	}
 
 	public String[] getSystems( ActionBase action ) throws Exception {
-		return( Common.getSortedKeys( engineMeta.mapSystems ) );
+		return( registry.getSystems( action ) );
 	}
 
 	public String[] getProducts( ActionBase action ) throws Exception {
-		return( Common.getSortedKeys( engineMeta.mapProducts ) );
+		return( registry.getProducts( action ) );
 	}
 
 	public FinalMetaSystem getSystemMeta( ActionBase action , String name ) throws Exception {
-		FinalMetaSystem system = engineMeta.mapSystems.get( name );
+		FinalMetaSystem system = registry.findSystem( action , name );
 		if( system == null )
 			action.exit( "unknown system=" + system );
 		return( system );
 	}
 
 	public FinalMetaProduct getProductMeta( ActionBase action , String name ) throws Exception {
-		FinalMetaProduct product = engineMeta.mapProducts.get( name );
+		FinalMetaProduct product = registry.findProduct( action , name );
 		if( product == null )
 			action.exit( "unknown product=" + name );
 		return( product );
 	}
 
 	public void addProductProps( ActionBase action , PropertySet props ) throws Exception {
-		props.copyRawProperties( engineMeta.defaultProductProperties , "" );
-		for( PropertySet set : engineMeta.mapBuildModeDefaults.values() )
+		props.copyRawProperties( registry.getDefaultProductProperties( action ) , "" );
+		for( PropertySet set : registry.getBuildModeDefaults( action ) )
 			props.copyRawProperties( set , set.set + "." );
+	}
+
+	public FinalRegistry getRegistry( ActionBase action ) throws Exception {
+		return( registry );
 	}
 	
 }

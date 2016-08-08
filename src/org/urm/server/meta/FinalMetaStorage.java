@@ -15,7 +15,7 @@ import org.w3c.dom.Node;
 
 public class FinalMetaStorage {
 
-	public FinalMetaLoader loader;
+	public FinalLoader loader;
 	public SessionContext session;
 	
 	private Metadata meta;
@@ -29,7 +29,7 @@ public class FinalMetaStorage {
 	private Map<String,MetaDesign> designFiles;
 	private Map<String,MetaEnv> envs;
 	
-	public FinalMetaStorage( FinalMetaLoader loader , SessionContext session ) {
+	public FinalMetaStorage( FinalLoader loader , SessionContext session ) {
 		this.loader = loader;
 		this.session = session;
 		

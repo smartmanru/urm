@@ -10,7 +10,7 @@ import org.w3c.dom.Node;
 
 public class Metadata {
 	
-	public FinalMetaLoader loader;
+	public FinalLoader loader;
 	public SessionContext session;
 	public FinalMetaStorage storage;
 	
@@ -175,7 +175,7 @@ public class Metadata {
 		this.session = session;
 	}
 	
-	public Metadata( FinalMetaLoader loader , SessionContext session ) {
+	public Metadata( FinalLoader loader , SessionContext session ) {
 		this.loader = loader;
 		this.session = session;
 		

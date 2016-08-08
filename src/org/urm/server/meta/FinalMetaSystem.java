@@ -9,13 +9,13 @@ import org.w3c.dom.Node;
 
 public class FinalMetaSystem {
 
-	public MetaRegistry engine;
+	public FinalRegistry engine;
 	public Map<String,FinalMetaProduct> mapProducts;
 	
 	public String NAME;
 	public String DESC;
 	
-	public FinalMetaSystem( MetaRegistry engine ) {
+	public FinalMetaSystem( FinalRegistry engine ) {
 		this.engine = engine;
 		mapProducts = new HashMap<String,FinalMetaProduct>();
 	}

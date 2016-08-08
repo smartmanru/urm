@@ -19,7 +19,7 @@ import javax.management.remote.JMXServiceURL;
 import org.urm.common.action.CommandMeta;
 import org.urm.server.SessionController;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.FinalMetaLoader;
+import org.urm.server.meta.FinalLoader;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.UrmStorage;
 
@@ -122,7 +122,7 @@ public class ServerMBean implements DynamicMBean {
 		if( !products.checkExists( action ) )
 			action.exit( "cannot find directory: " + products.folderPath );
 		
-		FinalMetaLoader loader = action.engine.metaLoader;
+		FinalLoader loader = action.engine.metaLoader;
 		for( String name : loader.getProducts( action ) )
 			addProduct( name );
 	}		

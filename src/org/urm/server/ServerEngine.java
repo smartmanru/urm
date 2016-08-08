@@ -24,7 +24,7 @@ import org.urm.server.executor.MainExecutor;
 import org.urm.server.executor.MonitorCommandExecutor;
 import org.urm.server.executor.ReleaseCommandExecutor;
 import org.urm.server.executor.XDocCommandExecutor;
-import org.urm.server.meta.FinalMetaLoader;
+import org.urm.server.meta.FinalLoader;
 import org.urm.server.meta.Metadata;
 import org.urm.server.shell.ShellCoreJNI;
 import org.urm.server.shell.ShellPool;
@@ -41,11 +41,11 @@ public class ServerEngine {
 	public MainExecutor serverExecutor;
 	public ActionInit serverAction;
 	public ShellPool shellPool;
-	public FinalMetaLoader metaLoader;
+	public FinalLoader metaLoader;
 	public boolean running;
 	
 	public ServerEngine() {
-		metaLoader = new FinalMetaLoader( this );
+		metaLoader = new FinalLoader( this );
 	}
 	
 	public void runServer( ActionBase action ) throws Exception {
