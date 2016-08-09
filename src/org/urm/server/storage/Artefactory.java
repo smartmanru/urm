@@ -1,9 +1,11 @@
 package org.urm.server.storage;
 
 import org.urm.common.Common;
+import org.urm.server.ServerTransaction;
 import org.urm.server.action.ActionBase;
 import org.urm.server.dist.Dist;
 import org.urm.server.dist.DistRepository;
+import org.urm.server.meta.FinalMetaSystem;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.meta.MetaMonitoring;
@@ -266,6 +268,9 @@ public class Artefactory {
 	public VersionInfoStorage getVersionInfoStorage( ActionBase action , Account account ) throws Exception {
 		RedistStorage redist = getRedistStorage( action , account ); 
 		return( new VersionInfoStorage( redist ) );
+	}
+
+	public void deleteSystemResources( ServerTransaction transaction , FinalMetaSystem system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 	}
 	
 }

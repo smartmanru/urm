@@ -18,5 +18,10 @@ public class ServerTransaction {
 	public void modifySystem( FinalMetaSystem system , FinalMetaSystem systemNew ) throws Exception {
 		system.modifySystem( this , systemNew );
 	}
+
+	public void deleteSystem( FinalMetaSystem system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
+		action.artefactory.deleteSystemResources( this , system , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
+		system.registry.deleteSystem( this , system );
+	}
 	
 }

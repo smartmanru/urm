@@ -210,6 +210,16 @@ public class FinalRegistry {
 		mapSystems.put( system.NAME , system );
 	}
 
+	public void deleteSystem( ServerTransaction transaction , FinalMetaSystem system ) throws Exception {
+		if( mapSystems.get( system.NAME ) == null )
+			transaction.action.exitUnexpectedState();
+		
+		for( String productName : system.getProducts() )
+			mapProducts.remove( productName );
+		
+		mapSystems.remove( system.NAME );
+	}
+
 	public FinalMetaSystem getSystem( ActionBase action , String name ) throws Exception {
 		FinalMetaSystem system = findSystem( action , name );
 		if( system == null )
