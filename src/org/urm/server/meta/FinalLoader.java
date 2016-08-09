@@ -145,6 +145,12 @@ public class FinalLoader {
 			return( registry );
 		}
 	}
+
+	public void restoreRegistry( FinalRegistry oldRegistry ) throws Exception {
+		String propertyFile = getServerSettingsFile();
+		oldRegistry.save( propertyFile , engine.execrc );
+		registry = oldRegistry;
+	}
 	
 	public void setRegistry( FinalRegistry newRegistry ) throws Exception {
 		String propertyFile = getServerSettingsFile();
