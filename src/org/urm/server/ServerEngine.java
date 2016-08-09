@@ -330,7 +330,9 @@ public class ServerEngine {
 		
 		if( currentTransaction != null ) {
 			try {
-				currentTransaction.wait( META_CHANGE_TIMEOUT );
+				synchronized( currentTransaction ) {
+					currentTransaction.wait( META_CHANGE_TIMEOUT );
+				}
 			}
 			catch( Throwable e ) {
 				action.log( e );
@@ -343,7 +345,9 @@ public class ServerEngine {
 	
 	public void abortTransaction( ServerTransaction transaction ) {
 		if( currentTransaction == transaction ) {
-			currentTransaction.notifyAll();
+			synchronized( currentTransaction ) {
+				currentTransaction.notifyAll();
+			}
 			currentTransaction = null;
 		}
 	}
@@ -352,7 +356,9 @@ public class ServerEngine {
 		if( currentTransaction != transaction )
 			return( false );
 		
-		currentTransaction.notifyAll();
+		synchronized( currentTransaction ) {
+			currentTransaction.notifyAll();
+		}
 		currentTransaction = null;
 		return( true );
 	}
