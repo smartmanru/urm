@@ -105,6 +105,7 @@ public class PropertySet {
 		PropertySet r = new PropertySet( set , parent );
 		r.properties.putAll( properties );
 		r.raw.putAll( raw );
+		r.original.putAll( original );
 		r.systemProps.addAll( systemProps );
 		return( r );
 	}
