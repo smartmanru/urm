@@ -143,7 +143,27 @@ public class FinalRegistry {
 	}
 
 	public FinalRegistry copy( ActionBase action ) throws Exception {
-		return( null );
+		FinalRegistry r = new FinalRegistry( loader );
+		r.properties = properties.copy( null );
+		r.scatterSystemProperties();
+		
+		for( FinalMetaSystem system : mapSystems.values() ) {
+			FinalMetaSystem rs = system.copy( r );
+			r.mapSystems.put( rs.NAME , rs );
+			
+			for( FinalMetaProduct rp : rs.mapProducts.values() )
+				r.mapProducts.put( rp.NAME , rp );
+		}
+
+		r.defaultProductProperties = defaultProductProperties.copy( null );
+		
+		for( VarBUILDMODE mode : mapBuildModeDefaults.keySet() ) {
+			PropertySet set = mapBuildModeDefaults.get( mode );
+			PropertySet rs = set.copy( r.defaultProductProperties );
+			r.mapBuildModeDefaults.put( mode , rs );
+		}
+		
+		return( r );
 	}
 	
 	public void save( String path , RunContext execrc ) throws Exception {

@@ -17,6 +17,14 @@ public class FinalMetaProduct {
 		this.system = system;
 	}
 
+	public FinalMetaProduct copy( FinalRegistry nr , FinalMetaSystem rs ) {
+		FinalMetaProduct rp = new FinalMetaProduct( nr , rs );
+		rp.NAME = NAME;
+		rp.DESC = DESC;
+		rp.PATH = PATH;
+		return( rp );
+	}
+	
 	public void load( Node node ) throws Exception {
 		NAME = ConfReader.getAttrValue( node , "name" );
 		DESC = ConfReader.getAttrValue( node , "desc" );

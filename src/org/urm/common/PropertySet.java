@@ -97,6 +97,14 @@ public class PropertySet {
 		this.parent = parent;
 	}
 	
+	public PropertySet copy( PropertySet parent ) {
+		PropertySet r = new PropertySet( set , parent );
+		r.properties.putAll( properties );
+		r.raw.putAll( raw );
+		r.systemProps.addAll( systemProps );
+		return( r );
+	}
+	
 	public String[] getOwnProperties() throws Exception {
 		return( Common.getSortedKeys( properties ) );
 	}

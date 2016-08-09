@@ -21,6 +21,18 @@ public class FinalMetaSystem {
 		mapProducts = new HashMap<String,FinalMetaProduct>();
 	}
 	
+	public FinalMetaSystem copy( FinalRegistry nr ) {
+		FinalMetaSystem r = new FinalMetaSystem( nr );
+		r.NAME = NAME;
+		r.DESC = DESC;
+		
+		for( FinalMetaProduct product : mapProducts.values() ) {
+			FinalMetaProduct rp = product.copy( nr , r );
+			r.mapProducts.put( rp.NAME , rp );
+		}
+		return( r );
+	}
+	
 	public void load( Node node ) throws Exception {
 		NAME = ConfReader.getAttrValue( node , "name" );
 		DESC = ConfReader.getAttrValue( node , "desc" );
