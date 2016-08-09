@@ -190,7 +190,7 @@ public class FinalRegistry {
 		for( FinalMetaSystem system : mapSystems.values() ) {
 			Element elementSystem = Common.xmlCreateElement( doc , elementDir , "system" );
 			Common.xmlSetElementAttr( doc , elementSystem , "name" , system.NAME );
-			Common.xmlSetElementAttr( doc , elementSystem , "value" , system.DESC );
+			Common.xmlSetElementAttr( doc , elementSystem , "desc" , system.DESC );
 			
 			for( String productName : system.getProducts() ) {
 				FinalMetaProduct product = system.getProduct( productName );
