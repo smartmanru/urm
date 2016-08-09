@@ -98,8 +98,10 @@ public class ActionInit extends ActionBase {
 	}
 
 	private void abortTransaction() {
-		engine.abortTransaction( transaction );
-		transaction = null;
+		if( transaction != null ) {
+			engine.abortTransaction( transaction );
+			transaction = null;
+		}
 	}
 	
 	private boolean commitTransaction() {
