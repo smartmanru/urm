@@ -32,10 +32,10 @@ public class CommandOutput {
 	public synchronized void setLogLevel( ActionBase action , int logActionLevelLimit ) {
 		this.logActionLevelLimit = logActionLevelLimit;
 		
-		if( action.context.call != null )
-			this.logServerLevelLimit = action.engine.serverAction.context.logLevelLimit;
-		else
+		if( action.engine.serverAction == null )
 			this.logServerLevelLimit = this.logActionLevelLimit;
+		else
+			this.logServerLevelLimit = action.engine.serverAction.context.logLevelLimit;
 	}
 	
 	private void outExactStatic( String s ) {
