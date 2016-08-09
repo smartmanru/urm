@@ -8,6 +8,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.ExitException;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext;
+import org.urm.server.ServerTransaction;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
 import org.w3c.dom.Document;
@@ -182,4 +183,10 @@ public class FinalRegistry {
 		Common.xmlSaveDoc( doc , path );
 	}
 
+	public void addSystem( ServerTransaction transaction , FinalMetaSystem system ) throws Exception {
+		if( mapSystems.get( system.NAME ) != null )
+			transaction.action.exitUnexpectedState();
+		mapSystems.put( system.NAME , system );
+	}
+	
 }

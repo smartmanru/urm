@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.server.ServerTransaction;
 import org.w3c.dom.Node;
 
 public class FinalMetaSystem {
@@ -41,6 +42,10 @@ public class FinalMetaSystem {
 
 	public FinalMetaProduct getProduct( String key ) {
 		return( mapProducts.get( key ) );
+	}
+
+	public void modifySystem( ServerTransaction transaction , FinalMetaSystem systemNew ) throws Exception {
+		DESC = systemNew.DESC;
 	}
 	
 }

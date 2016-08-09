@@ -85,6 +85,10 @@ public class ActionInit extends ActionBase {
 		}
 	}
 
+	public ServerTransaction getTransaction() {
+		return( transaction );
+	}
+	
 	private boolean startTransaction() {
 		if( transaction != null )
 			return( false );
