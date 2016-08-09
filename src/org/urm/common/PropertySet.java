@@ -8,6 +8,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class PropertySet {
@@ -87,11 +89,13 @@ public class PropertySet {
 	
 	private Map<String,PropertyValue> properties;
 	private Map<String,String> raw;
+	private Map<String,String> original;
 	List<String> systemProps = new LinkedList<String>();
 
 	public PropertySet( String set , PropertySet parent ) {
 		properties = new HashMap<String,PropertyValue>();
 		raw = new HashMap<String,String>();
+		original = new HashMap<String,String>();
 		
 		this.set = set;
 		this.parent = parent;
@@ -142,10 +146,9 @@ public class PropertySet {
 	}
 	
 	public void loadRawFromAttributes( Node node ) throws Exception {
-		Map<String,String> attrs = new HashMap<String,String>();
-		ConfReader.addAttributes( node , attrs );
-		for( String attr : attrs.keySet() )
-			setRawProperty( attr , attrs.get( attr ) );
+		ConfReader.addAttributes( node , original );
+		for( String attr : original.keySet() )
+			setRawProperty( attr , original.get( attr ) );
 	}
 	
 	public void loadRawFromElements( Node node ) throws Exception {
@@ -156,6 +159,7 @@ public class PropertySet {
 		for( Node property : items ) {
 			String name = ConfReader.getAttrValue( property , "name" );
 			String value = ConfReader.getAttrValue( property , "value" );
+			original.put( name , value );
 			setRawProperty( name , value );
 		}
 	}
@@ -168,6 +172,7 @@ public class PropertySet {
 		for( Node property : items ) {
 			String name = prefix + ConfReader.getAttrValue( property , "name" );
 			String value = ConfReader.getAttrValue( property , "value" );
+			original.put( name , value );
 			setRawProperty( name , value );
 		}
 	}
@@ -180,6 +185,7 @@ public class PropertySet {
 			
 			if( value.startsWith( "\"" ) && value.endsWith( "\"" ) )
 				value = value.substring( 1 , value.length() - 1 );
+			original.put( key , value );
 			setRawProperty( key , value );
 		}
 	}
@@ -531,5 +537,12 @@ public class PropertySet {
 	public String[] getKeySet() {
 		return( Common.getSortedKeys( properties ) );		
 	}
-		
+
+	public void saveAsElements( Document doc , Element parent ) throws Exception {
+		for( String key : original.keySet() ) {
+			String value = original.get( key );
+			Common.xmlCreatePropertyElement( doc , parent , key , value );
+		}
+	}
+	
 }

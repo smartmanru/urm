@@ -171,17 +171,18 @@ public class FinalRegistry {
 		Element root = doc.getDocumentElement();
 
 		// properties
-		for( String key : properties.getKeySet() )
-			Common.xmlCreatePropertyElement( doc , root , key , properties.getPropertyAny( key ) );
+		properties.saveAsElements( doc , root );
 
+		// defaults
+		Element modeDefaults = Common.xmlCreateElement( doc , root , "defaults" );
+		defaultProductProperties.saveAsElements( doc , modeDefaults );
+		
 		// product defaults
 		for( VarBUILDMODE mode : mapBuildModeDefaults.keySet() ) {
 			PropertySet set = mapBuildModeDefaults.get( mode );
-			Element modeElement = Common.xmlCreateElement( doc , root , "mode" );
+			Element modeElement = Common.xmlCreateElement( doc , modeDefaults , "mode" );
 			Common.xmlSetElementAttr( doc , modeElement , "name" , mode.toString().toLowerCase() );
-			
-			for( String key : set.getKeySet() )
-				Common.xmlCreatePropertyElement( doc , modeElement , key , set.getPropertyAny( key ) );
+			set.saveAsElements( doc , modeElement );
 		}
 		
 		// directory 
@@ -189,7 +190,7 @@ public class FinalRegistry {
 		for( FinalMetaSystem system : mapSystems.values() ) {
 			Element elementSystem = Common.xmlCreateElement( doc , elementDir , "system" );
 			Common.xmlSetElementAttr( doc , elementSystem , "name" , system.NAME );
-			Common.xmlSetElementAttr( doc , elementSystem , "name" , system.DESC );
+			Common.xmlSetElementAttr( doc , elementSystem , "value" , system.DESC );
 			
 			for( String productName : system.getProducts() ) {
 				FinalMetaProduct product = system.getProduct( productName );
