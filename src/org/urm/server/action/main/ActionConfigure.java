@@ -18,6 +18,7 @@ import org.urm.common.meta.DeployCommandMeta;
 import org.urm.common.meta.MainCommandMeta;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.FinalLoader;
+import org.urm.server.meta.FinalRegistry;
 import org.urm.server.meta.MetaEnv;
 import org.urm.server.meta.MetaEnvDC;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
@@ -86,14 +87,15 @@ public class ActionConfigure extends ActionBase {
 	private void configureServer( boolean serverMode ) throws Exception {
 		FinalLoader loader = engine.metaLoader;
 		loader.loadServerSettings();
-		loader.loadServerProducts( this );
+		loader.loadServerProducts( actionInit );
 		
-		for( String name : loader.getProducts( this ) ) {
+		FinalRegistry registry = actionInit.getRegistry();
+		for( String name : registry.getProducts( actionInit ) ) {
 			info( "configure product name=" + name + " ..." );
 			
-			setServerSystemProductLayout( name );
+			actionInit.setServerSystemProductLayout( name );
 			configureProduct( serverMode , false );
-			clearServerProductLayout();
+			actionInit.clearServerProductLayout();
 		}
 	}
 

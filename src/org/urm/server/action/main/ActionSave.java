@@ -5,7 +5,7 @@ import java.util.List;
 import org.urm.common.Common;
 import org.urm.common.meta.MainCommandMeta;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.FinalLoader;
+import org.urm.server.meta.FinalRegistry;
 import org.urm.server.storage.FileSet;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.UrmStorage;
@@ -40,14 +40,14 @@ public class ActionSave extends ActionBase {
 		saveProduct( pf , false );
 		
 		UrmStorage urm = artefactory.getUrmStorage();
-		FinalLoader loader = engine.metaLoader;
-		for( String name : loader.getProducts( this ) ) {
+		FinalRegistry registry = actionInit.getRegistry();
+		for( String name : registry.getProducts( this ) ) {
 			info( "save product=" + name + " ..." );
-			setServerSystemProductLayout( name );
+			actionInit.setServerSystemProductLayout( name );
 			
 			LocalFolder folder = urm.getProductFolder( this );
 			saveProduct( folder , false );
-			clearServerProductLayout();
+			actionInit.clearServerProductLayout();
 		}
 	}
 	

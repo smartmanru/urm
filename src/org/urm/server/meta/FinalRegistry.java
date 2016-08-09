@@ -209,5 +209,19 @@ public class FinalRegistry {
 			transaction.action.exitUnexpectedState();
 		mapSystems.put( system.NAME , system );
 	}
+
+	public FinalMetaSystem getSystem( ActionBase action , String name ) throws Exception {
+		FinalMetaSystem system = findSystem( action , name );
+		if( system == null )
+			action.exit( "unknown system=" + system );
+		return( system );
+	}
+
+	public FinalMetaProduct getProduct( ActionBase action , String name ) throws Exception {
+		FinalMetaProduct product = findProduct( action , name );
+		if( product == null )
+			action.exit( "unknown product=" + name );
+		return( product );
+	}
 	
 }

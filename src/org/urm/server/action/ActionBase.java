@@ -11,7 +11,6 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.ServerEngine;
 import org.urm.server.SessionContext;
 import org.urm.server.custom.CommandCustom;
-import org.urm.server.meta.FinalMetaProduct;
 import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.meta.Metadata;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
@@ -30,6 +29,8 @@ import org.w3c.dom.Node;
 
 abstract public class ActionBase {
 
+	public ActionInit actionInit;
+	
 	public SessionContext session;
 	public ServerEngine engine;
 	public CommandExecutor executor;
@@ -87,6 +88,8 @@ abstract public class ActionBase {
 	public ActionBase( ActionBase base , String stream ) {
 		ID = instanceSequence++;
 		
+		this.actionInit = base.actionInit;
+		
 		this.session = base.session;
 		this.executor = base.executor;
 		this.output = base.output;
@@ -104,17 +107,6 @@ abstract public class ActionBase {
 		actionFailed = false;
 	}
 
-	public void setServerSystemProductLayout( String name ) throws Exception {
-		FinalMetaProduct product = engine.metaLoader.getProductMeta( this , name ); 
-		session.setServerSystemProductLayout( product.NAME , product.PATH );
-		meta.clearAll();
-	}
-	
-	public void clearServerProductLayout() throws Exception {
-		session.clearServerProductLayout();
-		meta.clearAll();
-	}
-	
 	public void setShell( ShellExecutor session ) throws Exception {
 		this.shell = session;
 	}

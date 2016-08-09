@@ -233,7 +233,7 @@ public class MetaProduct {
 			return;
 		
 		FinalLoader loader = action.engine.metaLoader;
-		loader.addProductProps( action , props );
+		loader.addProductProps( action.actionInit , props );
 	}
 
 	private String getStringProperty( ActionBase action , String name ) throws Exception {

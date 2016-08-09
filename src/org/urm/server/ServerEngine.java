@@ -53,7 +53,7 @@ public class ServerEngine {
 	}
 	
 	public void runServer( ActionBase action ) throws Exception {
-		metaLoader.loadServerProducts( action );
+		metaLoader.loadServerProducts( action.actionInit );
 		
 		sessionController = new SessionController( action , this );
 		jmxController = new ServerMBean( action , sessionController );

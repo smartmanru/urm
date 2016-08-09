@@ -216,38 +216,38 @@ public class Metadata {
 
 	private synchronized void getStorage( ActionBase action ) throws Exception {
 		if( storage == null )
-			storage = loader.getMetaStorage( action );
+			storage = loader.getMetaStorage( action.actionInit );
 	}
 
 	public void loadProduct( ActionBase action ) throws Exception {
 		getStorage( action );
-		product = loader.loadProduct( action , storage );
+		product = loader.loadProduct( action.actionInit , storage );
 	}
 	
 	public void loadDistr( ActionBase action ) throws Exception {
 		getStorage( action );
-		distr = loader.loadDistr( action , storage );
-		database = loader.loadDatabase( action , storage );
+		distr = loader.loadDistr( action.actionInit , storage );
+		database = loader.loadDatabase( action.actionInit , storage );
 	}
 
 	public void loadSources( ActionBase action ) throws Exception {
 		getStorage( action );
-		sources = loader.loadSources( action , storage );
+		sources = loader.loadSources( action.actionInit , storage );
 	}
 
 	public MetaMonitoring loadMonitoring( ActionBase action ) throws Exception {
 		getStorage( action );
-		return( loader.loadMonitoring( action , storage ) );
+		return( loader.loadMonitoring( action.actionInit , storage ) );
 	}
 	
 	public MetaDesign loadDesignData( ActionBase action , String fileName ) throws Exception {
 		getStorage( action );
-		return( loader.loadDesignData( action , storage , fileName ) );
+		return( loader.loadDesignData( action.actionInit , storage , fileName ) );
 	}
 	
 	public MetaEnv loadEnvData( ActionBase action , String envFile , boolean loadProps ) throws Exception {
 		getStorage( action );
-		return( loader.loadEnvData( action , storage , envFile , loadProps ) );
+		return( loader.loadEnvData( action.actionInit , storage , envFile , loadProps ) );
 	}
 	
 	public boolean isConfigurableFile( ActionBase action , String filePath ) throws Exception {
