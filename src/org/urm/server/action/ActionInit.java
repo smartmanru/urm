@@ -67,7 +67,7 @@ public class ActionInit extends ActionBase {
 			}
 
 			try {
-				engine.metaLoader.restoreRegistry( registryOld );
+				engine.metaLoader.setRegistry( registryOld );
 			}
 			catch( Throwable e ) {
 				log( "unable to restore registry" , e );
