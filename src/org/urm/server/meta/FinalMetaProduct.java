@@ -35,12 +35,16 @@ public class FinalMetaProduct {
 	public String[] getEnvironments() throws Exception {
 		FinalLoader loader = system.registry.loader;
 		FinalMetaStorage storage = loader.getMetaStorage( NAME );
+		if( storage == null )
+			return( new String[0] );
 		return( storage.getEnvironments() );
 	}
 	
 	public MetaEnv getEnvironment( String envId ) throws Exception {
 		FinalLoader loader = system.registry.loader;
 		FinalMetaStorage storage = loader.getMetaStorage( NAME );
+		if( storage == null )
+			return( null );
 		return( storage.getEnvironment( envId ) );
 	}
 
@@ -48,6 +52,5 @@ public class FinalMetaProduct {
 		DESC = productNew.DESC;
 		PATH = productNew.PATH;
 	}
-	
 	
 }
