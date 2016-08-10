@@ -124,10 +124,17 @@ public class FinalLoader {
 		}
 	}
 
-	public void setRegistry( FinalRegistry oldRegistry ) throws Exception {
+	public void setRegistry( FinalRegistry registryNew ) throws Exception {
 		String propertyFile = getServerSettingsFile();
-		oldRegistry.save( propertyFile , engine.execrc );
-		registry = oldRegistry;
+		registryNew.save( propertyFile , engine.execrc );
+		registry = registryNew;
+	}
+
+	public FinalMetaStorage createMetadata( FinalRegistry registryNew , FinalMetaProduct product ) throws Exception {
+		return( null );
+	}
+	
+	public void setMetadata( FinalMetaStorage storageNew ) throws Exception {
 	}
 	
 }

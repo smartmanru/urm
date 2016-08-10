@@ -233,5 +233,8 @@ public class FinalRegistry {
 			action.exit( "unknown product=" + name );
 		return( product );
 	}
+
+	public void createProduct( ServerTransaction transaction , FinalMetaProduct product , String systemName ) throws Exception {
+	}
 	
 }

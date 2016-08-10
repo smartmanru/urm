@@ -324,9 +324,9 @@ public class ServerEngine {
 		return( session );
 	}
 
-	public ServerTransaction startTransaction( ActionBase action ) {
+	public boolean startTransaction( ActionBase action , ServerTransaction transaction ) {
 		if( !running )
-			return( null );
+			return( false );
 		
 		if( currentTransaction != null ) {
 			try {
@@ -339,8 +339,8 @@ public class ServerEngine {
 			}
 		}
 		
-		currentTransaction = new ServerTransaction( action );
-		return( currentTransaction );
+		currentTransaction = transaction;
+		return( true );
 	}
 	
 	public void abortTransaction( ServerTransaction transaction ) {

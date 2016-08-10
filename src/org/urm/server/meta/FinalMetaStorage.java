@@ -18,7 +18,7 @@ public class FinalMetaStorage {
 	public FinalLoader loader;
 	public SessionContext session;
 	
-	private Metadata meta;
+	public Metadata meta;
 	
 	private MetaProduct product;
 	private MetaDistr distr;
@@ -166,6 +166,10 @@ public class FinalMetaStorage {
 			if( env.ID.equals( envId ) )
 				return( env );
 		}
+		return( null );
+	}
+
+	public FinalMetaStorage copy( ActionBase action ) {
 		return( null );
 	}
 	

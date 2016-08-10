@@ -1,6 +1,7 @@
 package org.urm.server.meta;
 
 import org.urm.common.ConfReader;
+import org.urm.server.ServerTransaction;
 import org.w3c.dom.Node;
 
 public class FinalMetaProduct {
@@ -42,5 +43,11 @@ public class FinalMetaProduct {
 		FinalMetaStorage storage = loader.getMetaStorage( NAME );
 		return( storage.getEnvironment( envId ) );
 	}
+
+	public void modifyProduct( ServerTransaction transaction , FinalMetaProduct productNew ) throws Exception {
+		DESC = productNew.DESC;
+		PATH = productNew.PATH;
+	}
+	
 	
 }
