@@ -228,4 +228,10 @@ public class ServerTransaction {
 		product.modifyProduct( this , productNew );
 	}
 
+	public void deleteProduct( FinalMetaProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
+		checkTransaction();
+		action.artefactory.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
+		registry.deleteProduct( this , product );
+	}
+	
 }

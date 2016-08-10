@@ -211,7 +211,7 @@ public class FinalRegistry {
 	}
 
 	public void deleteSystem( ServerTransaction transaction , FinalMetaSystem system ) throws Exception {
-		if( mapSystems.get( system.NAME ) == null )
+		if( mapSystems.get( system.NAME ) != system )
 			transaction.action.exitUnexpectedState();
 		
 		for( String productName : system.getProducts() )
@@ -241,4 +241,12 @@ public class FinalRegistry {
 		product.system.addProduct( transaction , product );
 	}
 	
+	public void deleteProduct( ServerTransaction transaction , FinalMetaProduct product ) throws Exception {
+		if( mapProducts.get( product.NAME ) != product )
+			transaction.action.exitUnexpectedState();
+		
+		mapProducts.remove( product.NAME );
+		product.system.removeProduct( transaction , product );
+	}
+
 }

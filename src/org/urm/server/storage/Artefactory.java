@@ -5,6 +5,7 @@ import org.urm.server.ServerTransaction;
 import org.urm.server.action.ActionBase;
 import org.urm.server.dist.Dist;
 import org.urm.server.dist.DistRepository;
+import org.urm.server.meta.FinalMetaProduct;
 import org.urm.server.meta.FinalMetaSystem;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.MetaEnvServerNode;
@@ -271,6 +272,9 @@ public class Artefactory {
 	}
 
 	public void deleteSystemResources( ServerTransaction transaction , FinalMetaSystem system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
+	}
+	
+	public void deleteProductResources( ServerTransaction transaction , FinalMetaProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 	}
 	
 }

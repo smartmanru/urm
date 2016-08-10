@@ -64,4 +64,8 @@ public class FinalMetaSystem {
 		mapProducts.put( product.NAME , product );
 	}
 	
+	public void removeProduct( ServerTransaction transaction , FinalMetaProduct product ) throws Exception {
+		mapProducts.remove( product.NAME );
+	}
+	
 }
