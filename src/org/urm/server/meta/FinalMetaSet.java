@@ -13,7 +13,7 @@ import org.urm.server.storage.MetadataStorage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-public class FinalMetaStorage {
+public class FinalMetaSet {
 
 	public FinalLoader loader;
 	public SessionContext session;
@@ -29,7 +29,7 @@ public class FinalMetaStorage {
 	private Map<String,MetaDesign> designFiles;
 	private Map<String,MetaEnv> envs;
 	
-	public FinalMetaStorage( FinalLoader loader , SessionContext session ) {
+	public FinalMetaSet( FinalLoader loader , SessionContext session ) {
 		this.loader = loader;
 		this.session = session;
 		
@@ -169,7 +169,7 @@ public class FinalMetaStorage {
 		return( null );
 	}
 
-	public FinalMetaStorage copy( ActionBase action ) throws Exception {
+	public FinalMetaSet copy( ActionBase action ) throws Exception {
 		return( null );
 	}
 

@@ -12,7 +12,7 @@ public class Metadata {
 	
 	public FinalLoader loader;
 	public SessionContext session;
-	public FinalMetaStorage storage;
+	public FinalMetaSet storage;
 	
 	public MetaProduct product;
 	public MetaDatabase database;
@@ -169,7 +169,7 @@ public class Metadata {
 		ZIP
 	};
 	
-	public Metadata( FinalMetaStorage storage , SessionContext session ) {
+	public Metadata( FinalMetaSet storage , SessionContext session ) {
 		this.storage = storage;
 		this.loader = storage.loader;
 		this.session = session;

@@ -16,14 +16,14 @@ public class FinalLoader {
 
 	public ServerEngine engine;
 	
-	private Map<String,FinalMetaStorage> productMeta;
-	private FinalMetaStorage offline;
+	private Map<String,FinalMetaSet> productMeta;
+	private FinalMetaSet offline;
 	private FinalRegistry registry;
 	
 	public FinalLoader( ServerEngine engine ) {
 		this.engine = engine;
 		registry = new FinalRegistry( this ); 
-		productMeta = new HashMap<String,FinalMetaStorage>();
+		productMeta = new HashMap<String,FinalMetaSet>();
 	}
 	
 	public Metadata createMetadata( SessionContext session ) throws Exception {
@@ -31,53 +31,53 @@ public class FinalLoader {
 		return( meta );
 	}
 
-	public synchronized FinalMetaStorage getMetaStorage( String productName ) throws Exception {
+	public synchronized FinalMetaSet getMetaStorage( String productName ) throws Exception {
 		return( productMeta.get( productName ) );
 	}
 	
-	public synchronized FinalMetaStorage getMetaStorage( ActionInit action ) throws Exception {
+	public synchronized FinalMetaSet getMetaStorage( ActionInit action ) throws Exception {
 		if( action.session.offline ) {
 			if( offline == null )
-				offline = new FinalMetaStorage( this , action.session );
+				offline = new FinalMetaSet( this , action.session );
 			return( offline );
 		}
 		
 		if( !action.session.product )
 			action.exitUnexpectedState();
 			
-		FinalMetaStorage storage = productMeta.get( action.session.productName );
+		FinalMetaSet storage = productMeta.get( action.session.productName );
 		if( storage == null )
 			action.exit( "unknown product=" + action.session.productName );
 		
 		return( storage );
 	}
 
-	public MetaProduct loadProduct( ActionInit action , FinalMetaStorage storageFinal ) throws Exception {
+	public MetaProduct loadProduct( ActionInit action , FinalMetaSet storageFinal ) throws Exception {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 		return( storageFinal.loadProduct( action , storageMeta , "" ) );
 	}
 
-	public MetaDistr loadDistr( ActionInit action , FinalMetaStorage storageFinal ) throws Exception {
+	public MetaDistr loadDistr( ActionInit action , FinalMetaSet storageFinal ) throws Exception {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 		return( storageFinal.loadDistr( action , storageMeta ) );
 	}
 	
-	public MetaDatabase loadDatabase( ActionInit action , FinalMetaStorage storageFinal ) throws Exception {
+	public MetaDatabase loadDatabase( ActionInit action , FinalMetaSet storageFinal ) throws Exception {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 		return( storageFinal.loadDatabase( action , storageMeta ) );
 	}
 	
-	public MetaSource loadSources( ActionInit action , FinalMetaStorage storageFinal ) throws Exception {
+	public MetaSource loadSources( ActionInit action , FinalMetaSet storageFinal ) throws Exception {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 		return( storageFinal.loadSources( action , storageMeta ) );
 	}
 	
-	public MetaMonitoring loadMonitoring( ActionInit action , FinalMetaStorage storageFinal ) throws Exception {
+	public MetaMonitoring loadMonitoring( ActionInit action , FinalMetaSet storageFinal ) throws Exception {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 		return( storageFinal.loadMonitoring( action , storageMeta ) );
 	}
 
-	public MetaEnv loadEnvData( ActionInit action , FinalMetaStorage storageFinal , String envFile , boolean loadProps ) throws Exception {
+	public MetaEnv loadEnvData( ActionInit action , FinalMetaSet storageFinal , String envFile , boolean loadProps ) throws Exception {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 		MetaEnv env = storageFinal.loadEnvData( action , storageMeta , envFile );
 		if( loadProps && env.missingSecretProperties )
@@ -85,7 +85,7 @@ public class FinalLoader {
 		return( env );
 	}
 	
-	public MetaDesign loadDesignData( ActionInit action , FinalMetaStorage storageFinal , String fileName ) throws Exception {
+	public MetaDesign loadDesignData( ActionInit action , FinalMetaSet storageFinal , String fileName ) throws Exception {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 		return( storageFinal.loadDesignData( action , storageMeta , fileName ) );
 	}
@@ -96,7 +96,7 @@ public class FinalLoader {
 			
 			try {
 				MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
-				FinalMetaStorage storage = new FinalMetaStorage( this , action.session );
+				FinalMetaSet storage = new FinalMetaSet( this , action.session );
 				storage.loadAll( action , storageMeta , name );
 				productMeta.put( name , storage );
 			}
@@ -138,11 +138,11 @@ public class FinalLoader {
 		registry = registryNew;
 	}
 
-	public FinalMetaStorage createMetadata( ServerTransaction transaction , FinalRegistry registryNew , FinalMetaProduct product ) throws Exception {
+	public FinalMetaSet createMetadata( ServerTransaction transaction , FinalRegistry registryNew , FinalMetaProduct product ) throws Exception {
 		ActionBase action = transaction.action;
 		action.actionInit.setServerSystemProductLayout( product );
 		
-		FinalMetaStorage storage = new FinalMetaStorage( this , action.session );
+		FinalMetaSet storage = new FinalMetaSet( this , action.session );
 		storage.createInitial( registryNew );
 		
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
@@ -152,7 +152,7 @@ public class FinalLoader {
 		return( storage );
 	}
 	
-	public void setMetadata( ServerTransaction transaction , FinalMetaStorage storageNew ) throws Exception {
+	public void setMetadata( ServerTransaction transaction , FinalMetaSet storageNew ) throws Exception {
 	}
 	
 }
