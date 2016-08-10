@@ -329,12 +329,7 @@ public class PropertySet {
 		if( pv.type != PropertyValueType.PROPERTY_PATH )
 			return( pv.data );
 		
-		if( execrc.isLinux() )
-			return( Common.getLinuxPath( pv.data ) );
-		if( execrc.isWindows() )
-			return( Common.getWinPath( pv.data ) );
-		
-		throw new ExitException( "UnexpectedState" );
+		return( execrc.getLocalPath( pv.data ) );
 	}
 	
 	private PropertyValue getPropertyInternal( String name , boolean system ) throws Exception {

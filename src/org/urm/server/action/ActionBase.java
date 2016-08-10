@@ -111,6 +111,18 @@ abstract public class ActionBase {
 		this.shell = session;
 	}
 
+	public String getLocalPath( String path ) throws Exception {
+		return( engine.execrc.getLocalPath( path ) );
+	}
+	
+	public String getInternalPath( String path ) throws Exception {
+		return( Common.getLinuxPath( path ) );
+	}
+	
+	public LocalFolder getLocalFolder( String path ) throws Exception {
+		return( new LocalFolder( Common.getLinuxPath( path ) , isLocalWindows() ) );
+	}
+	
 	public boolean isFailed() {
 		return( actionFailed );
 	}

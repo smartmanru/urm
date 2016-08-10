@@ -141,5 +141,13 @@ public class RunContext implements Serializable {
 	public boolean isLinux() {
 		return( osType == VarOSTYPE.LINUX );		
 	}
+
+	public String getLocalPath( String path ) throws Exception {
+		if( isLinux() )
+			return( Common.getLinuxPath( path ) );
+		if( isWindows() )
+			return( Common.getWinPath( path ) );
+		throw new ExitException( "UnexpectedState" );
+	}
 	
 }

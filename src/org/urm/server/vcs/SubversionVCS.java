@@ -450,7 +450,7 @@ public class SubversionVCS extends GenericVCS {
 				s = s.substring( 1 );
 				s = s.trim();
 				
-				if( action.shell.account.isWindows() )
+				if( action.isLocalWindows() )
 					values.add( Common.getLinuxPath( s ) );
 				else
 					values.add( s );
