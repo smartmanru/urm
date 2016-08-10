@@ -191,6 +191,14 @@ public class PropertySet {
 		}
 	}
 	
+	
+	public String getOriginalProperty( String key ) {
+		String value = original.get( key );
+		if( value == null )
+			return( "" );
+		return( value );
+	}
+	
 	private void resolveProperties() throws Exception {
 		// resolve properties
 		for( Entry<String,PropertyValue> entry : properties.entrySet() )
