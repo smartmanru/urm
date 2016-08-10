@@ -3,7 +3,7 @@ package org.urm.server;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.FinalLoader;
 import org.urm.server.meta.FinalMetaProduct;
-import org.urm.server.meta.FinalMetaStorage;
+import org.urm.server.meta.FinalMetaSet;
 import org.urm.server.meta.FinalMetaSystem;
 import org.urm.server.meta.FinalRegistry;
 import org.urm.server.meta.Metadata;
@@ -15,10 +15,10 @@ public class ServerTransaction {
 	public FinalLoader loader;
 	
 	public FinalRegistry registry;
-	public FinalMetaStorage metadata;
+	public FinalMetaSet metadata;
 
 	private FinalRegistry registryOld;
-	private FinalMetaStorage metadataOld;
+	private FinalMetaSet metadataOld;
 	
 	public ServerTransaction( ActionBase action ) {
 		this.action = action;
