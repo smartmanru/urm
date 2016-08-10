@@ -142,14 +142,14 @@ public class FinalLoader {
 		ActionBase action = transaction.action;
 		action.actionInit.setServerSystemProductLayout( product );
 		
-		FinalMetaSet storage = new FinalMetaSet( this , action.session );
-		storage.createInitial( registryNew );
+		FinalMetaSet set = new FinalMetaSet( this , action.session );
+		set.createInitial( registryNew );
 		
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
-		storage.saveAll( action , storageMeta , product );
+		set.saveAll( action , storageMeta , product );
 		
 		action.actionInit.clearServerProductLayout();
-		return( storage );
+		return( set );
 	}
 	
 	public void setMetadata( ServerTransaction transaction , FinalMetaSet storageNew ) throws Exception {
