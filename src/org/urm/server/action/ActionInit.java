@@ -28,11 +28,15 @@ public class ActionInit extends ActionBase {
 		exit( "unexpected operation" );
 	}
 
+	public void setServerSystemProductLayout( FinalMetaProduct product ) throws Exception {
+		session.setServerSystemProductLayout( product.NAME , product.PATH );
+		meta.clearAll();
+	}
+	
 	public void setServerSystemProductLayout( String name ) throws Exception {
 		FinalRegistry registry = getRegistry();
 		FinalMetaProduct product = registry.getProduct( this , name ); 
-		session.setServerSystemProductLayout( product.NAME , product.PATH );
-		meta.clearAll();
+		setServerSystemProductLayout( product );
 	}
 	
 	public void clearServerProductLayout() throws Exception {

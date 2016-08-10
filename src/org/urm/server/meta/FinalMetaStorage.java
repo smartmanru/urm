@@ -169,8 +169,14 @@ public class FinalMetaStorage {
 		return( null );
 	}
 
-	public FinalMetaStorage copy( ActionBase action ) {
+	public FinalMetaStorage copy( ActionBase action ) throws Exception {
 		return( null );
+	}
+
+	public void createInitial( FinalRegistry registry ) throws Exception {
+	}
+
+	public void saveAll( ActionBase action , MetadataStorage storageMeta , FinalMetaProduct product ) throws Exception {
 	}
 	
 }

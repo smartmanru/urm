@@ -8,6 +8,7 @@ import org.urm.common.PropertySet;
 import org.urm.server.ServerEngine;
 import org.urm.server.ServerTransaction;
 import org.urm.server.SessionContext;
+import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionInit;
 import org.urm.server.storage.MetadataStorage;
 
@@ -137,8 +138,18 @@ public class FinalLoader {
 		registry = registryNew;
 	}
 
-	public FinalMetaStorage createMetadata( ServerTransaction transacction , FinalRegistry registryNew , FinalMetaProduct product ) throws Exception {
-		return( null );
+	public FinalMetaStorage createMetadata( ServerTransaction transaction , FinalRegistry registryNew , FinalMetaProduct product ) throws Exception {
+		ActionBase action = transaction.action;
+		action.actionInit.setServerSystemProductLayout( product );
+		
+		FinalMetaStorage storage = new FinalMetaStorage( this , action.session );
+		storage.createInitial( registryNew );
+		
+		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
+		storage.saveAll( action , storageMeta , product );
+		
+		action.actionInit.clearServerProductLayout();
+		return( storage );
 	}
 	
 	public void setMetadata( ServerTransaction transaction , FinalMetaStorage storageNew ) throws Exception {
