@@ -59,5 +59,9 @@ public class FinalMetaSystem {
 	public void modifySystem( ServerTransaction transaction , FinalMetaSystem systemNew ) throws Exception {
 		DESC = systemNew.DESC;
 	}
+
+	public void addProduct( ServerTransaction transaction , FinalMetaProduct product ) throws Exception {
+		mapProducts.put( product.NAME , product );
+	}
 	
 }

@@ -234,7 +234,11 @@ public class FinalRegistry {
 		return( product );
 	}
 
-	public void createProduct( ServerTransaction transaction , FinalMetaProduct product , String systemName ) throws Exception {
+	public void createProduct( ServerTransaction transaction , FinalMetaProduct product ) throws Exception {
+		if( mapProducts.containsKey( product.NAME ) )
+			transaction.action.exitUnexpectedState();
+		mapProducts.put( product.NAME , product );
+		product.system.addProduct( transaction , product );
 	}
 	
 }

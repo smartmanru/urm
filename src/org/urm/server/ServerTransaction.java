@@ -217,9 +217,9 @@ public class ServerTransaction {
 		registry.deleteSystem( this , system );
 	}
 	
-	public void addProduct( FinalMetaProduct product , String systemName ) throws Exception {
+	public void addProduct( FinalMetaProduct product ) throws Exception {
 		checkTransaction();
-		registry.createProduct( this , product , systemName );
+		registry.createProduct( this , product );
 		metadata = loader.createMetadata( this , registry , product );
 	}
 	
