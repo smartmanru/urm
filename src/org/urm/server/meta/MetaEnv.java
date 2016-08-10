@@ -61,6 +61,10 @@ public class MetaEnv {
 		return( true );
 	}
 	
+	public String getBaselineEnv( ActionBase action ) throws Exception {
+		return( BASELINE );
+	}
+	
 	public String getBaselineFile( ActionBase action ) throws Exception {
 		return( BASELINE + ".xml" );
 	}
