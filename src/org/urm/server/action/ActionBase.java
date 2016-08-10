@@ -9,6 +9,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.ServerEngine;
+import org.urm.server.ServerTransaction;
 import org.urm.server.SessionContext;
 import org.urm.server.custom.CommandCustom;
 import org.urm.server.meta.MetaEnvServerNode;
@@ -590,4 +591,9 @@ abstract public class ActionBase {
 		}
 	}
 
+	public ServerTransaction createTransaction() {
+		ServerTransaction transaction = new ServerTransaction( this );
+		return( transaction );
+	}
+	
 }
