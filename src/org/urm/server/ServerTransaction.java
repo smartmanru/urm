@@ -200,6 +200,15 @@ public class ServerTransaction {
 			action.exitUnexpectedState();
 	}
 	
+	// helpers
+	public FinalMetaSystem getNewSystem( FinalMetaSystem system ) throws Exception {
+		return( registry.getSystem( action , system.NAME ) );
+	}
+	
+	public FinalMetaProduct getNewProduct( FinalMetaProduct product ) throws Exception {
+		return( registry.getProduct( action , product.NAME ) );
+	}
+	
 	// transactional operations
 	public void addSystem( FinalMetaSystem system ) throws Exception {
 		checkTransaction();
