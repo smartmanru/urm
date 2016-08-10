@@ -93,10 +93,16 @@ public class FinalLoader {
 		for( String name : registry.getProducts( action ) ) {
 			action.setServerSystemProductLayout( name );
 			
-			MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
-			FinalMetaStorage storage = new FinalMetaStorage( this , action.session );
-			storage.loadAll( action , storageMeta , name );
-			productMeta.put( name , storage );
+			try {
+				MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
+				FinalMetaStorage storage = new FinalMetaStorage( this , action.session );
+				storage.loadAll( action , storageMeta , name );
+				productMeta.put( name , storage );
+			}
+			catch( Throwable e ) {
+				action.log( e );
+				action.error( "unable to load metadata, product=" + name );
+			}
 			
 			action.clearServerProductLayout();
 		}
