@@ -757,5 +757,13 @@ public class Common {
 		
 		return( part );
 	}
+
+	public static boolean isAbsolutePath( String path ) {
+		if( path.startsWith( "/" ) ||
+			path.startsWith( "\\" ) ||
+			path.substring( 1 ).startsWith( ":" ) )
+			return( true );
+		return( false );
+	}
 	
 }
