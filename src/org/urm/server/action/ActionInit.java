@@ -42,7 +42,7 @@ public class ActionInit extends ActionBase {
 	
 	public FinalRegistry getRegistry() {
 		FinalLoader loader = engine.metaLoader;
-		return( loader.getRegistry( this ) );
+		return( loader.getRegistry() );
 	}
 	
 	public FinalLoader getMetaLoader() {

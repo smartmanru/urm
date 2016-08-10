@@ -363,7 +363,7 @@ public class ServerEngine {
 		return( true );
 	}
 	
-	public ServerTransaction getTransaction( ActionInit action ) {
+	public ServerTransaction getTransaction() {
 		return( currentTransaction );
 	}
 	

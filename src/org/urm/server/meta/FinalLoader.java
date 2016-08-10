@@ -6,6 +6,7 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.common.PropertySet;
 import org.urm.server.ServerEngine;
+import org.urm.server.ServerTransaction;
 import org.urm.server.SessionContext;
 import org.urm.server.action.ActionInit;
 import org.urm.server.storage.MetadataStorage;
@@ -118,23 +119,23 @@ public class FinalLoader {
 			props.copyRawProperties( set , set.set + "." );
 	}
 
-	public FinalRegistry getRegistry( ActionInit action ) {
+	public FinalRegistry getRegistry() {
 		synchronized( engine ) {
 			return( registry );
 		}
 	}
 
-	public void setRegistry( FinalRegistry registryNew ) throws Exception {
+	public void setRegistry( ServerTransaction transacction , FinalRegistry registryNew ) throws Exception {
 		String propertyFile = getServerSettingsFile();
 		registryNew.save( propertyFile , engine.execrc );
 		registry = registryNew;
 	}
 
-	public FinalMetaStorage createMetadata( FinalRegistry registryNew , FinalMetaProduct product ) throws Exception {
+	public FinalMetaStorage createMetadata( ServerTransaction transacction , FinalRegistry registryNew , FinalMetaProduct product ) throws Exception {
 		return( null );
 	}
 	
-	public void setMetadata( FinalMetaStorage storageNew ) throws Exception {
+	public void setMetadata( ServerTransaction transaction , FinalMetaStorage storageNew ) throws Exception {
 	}
 	
 }

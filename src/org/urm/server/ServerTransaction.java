@@ -1,6 +1,6 @@
 package org.urm.server;
 
-import org.urm.server.action.ActionInit;
+import org.urm.server.action.ActionBase;
 import org.urm.server.meta.FinalLoader;
 import org.urm.server.meta.FinalMetaProduct;
 import org.urm.server.meta.FinalMetaStorage;
@@ -10,7 +10,7 @@ import org.urm.server.meta.Metadata;
 
 public class ServerTransaction {
 
-	public ActionInit action;
+	public ActionBase action;
 	public ServerEngine engine;
 	public FinalLoader loader;
 	
@@ -20,10 +20,10 @@ public class ServerTransaction {
 	private FinalRegistry registryOld;
 	private FinalMetaStorage metadataOld;
 	
-	public ServerTransaction( ActionInit action ) {
+	public ServerTransaction( ActionBase action ) {
 		this.action = action;
 		this.engine = action.engine;
-		this.loader = action.getMetaLoader();
+		this.loader = action.actionInit.getMetaLoader();
 		
 		registry = null;
 		metadata = null;
@@ -49,7 +49,7 @@ public class ServerTransaction {
 					return;
 				
 				if( registryOld != null ) {
-					loader.setRegistry( registryOld );
+					loader.setRegistry( this , registryOld );
 					registryOld = null;
 				}
 			}
@@ -59,7 +59,7 @@ public class ServerTransaction {
 			
 			try {
 				if( metadataOld != null ) {
-					loader.setMetadata( metadataOld );
+					loader.setMetadata( this , metadataOld );
 					metadataOld = null;
 				}
 			}
@@ -94,7 +94,7 @@ public class ServerTransaction {
 	}
 	
 	public boolean continueTransaction() {
-		if( engine.getTransaction( action ) != this )
+		if( engine.getTransaction() != this )
 			return( false );
 		
 		return( true );
@@ -109,7 +109,7 @@ public class ServerTransaction {
 				if( registry != null )
 					return( true );
 				
-				if( sourceRegistry == loader.getRegistry( action ) ) {
+				if( sourceRegistry == loader.getRegistry() ) {
 					registry = sourceRegistry.copy( action );
 					if( registry != null )
 						return( true );
@@ -132,8 +132,8 @@ public class ServerTransaction {
 			return( true );
 		
 		try {
-			registryOld = loader.getRegistry( action );
-			loader.setRegistry( registry );
+			registryOld = loader.getRegistry();
+			loader.setRegistry( this , registry );
 			return( true );
 		}
 		catch( Throwable e ) {
@@ -177,7 +177,7 @@ public class ServerTransaction {
 			
 		try {
 			metadataOld = loader.getMetaStorage( metadata.meta.product.CONFIG_PRODUCT );
-			loader.setMetadata( metadata );
+			loader.setMetadata( this , metadata );
 			return( true );
 		}
 		catch( Throwable e ) {
@@ -185,7 +185,7 @@ public class ServerTransaction {
 		}
 
 		try {
-			loader.setMetadata( metadataOld );
+			loader.setMetadata( this , metadataOld );
 		}
 		catch( Throwable e ) {
 			action.log( "unable to restore metadata" , e );
@@ -220,7 +220,7 @@ public class ServerTransaction {
 	public void addProduct( FinalMetaProduct product , String systemName ) throws Exception {
 		checkTransaction();
 		registry.createProduct( this , product , systemName );
-		metadata = loader.createMetadata( registry , product );
+		metadata = loader.createMetadata( this , registry , product );
 	}
 	
 	public void modifyProduct( FinalMetaProduct product , FinalMetaProduct productNew ) throws Exception {
