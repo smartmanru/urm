@@ -423,6 +423,7 @@ public class Common {
 		bos.writeTo( outputStream );
 		StreamResult result = new StreamResult( new OutputStreamWriter( bos , "UTF-8" ) );
 		transformer.transform( source , result );
+		outputStream.close();
 	}
 	
 	public static String addToList( String s , String value , String delimiter ) {
