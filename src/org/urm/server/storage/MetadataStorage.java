@@ -30,6 +30,11 @@ public class MetadataStorage {
 		return( urm.getMetadataPath( action , UrmStorage.DISTR_SETTINGS_FILE ) );
 	}
 
+	public String getDatabaseFile( ActionBase action ) throws Exception {
+		UrmStorage urm = artefactory.getUrmStorage();
+		return( urm.getMetadataPath( action , UrmStorage.DATABASE_SETTINGS_FILE ) );
+	}
+
 	public String[] getDesignFiles( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
 		LocalFolder folder = urm.getMetadataFolder( action , xdocDir );

@@ -9,8 +9,6 @@ import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
 import org.urm.server.meta.Metadata.VarCATEGORY;
-import org.urm.server.storage.MetadataStorage;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 public class MetaSource {
@@ -26,7 +24,7 @@ public class MetaSource {
 		this.meta = meta;
 	}
 	
-	public void load( ActionBase action , MetadataStorage storage ) throws Exception {
+	public void load( ActionBase action , Node root ) throws Exception {
 		if( loaded )
 			return;
 
@@ -35,12 +33,7 @@ public class MetaSource {
 		setMap = new HashMap<String,MetaSourceProjectSet>();
 		projectMap = new HashMap<String,MetaSourceProject>();
 		
-		// read xml
-		String file = storage.getSourceConfFile( action );
-		
-		action.debug( "read source definition file " + file + "..." );
-		Document doc = action.readXmlFile( file );
-		Node[] sets = ConfReader.xmlGetChildren( doc.getDocumentElement() , "projectset" );
+		Node[] sets = ConfReader.xmlGetChildren( root , "projectset" );
 		if( sets == null )
 			return;
 		

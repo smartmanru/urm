@@ -11,8 +11,6 @@ import org.urm.common.PropertySet;
 import org.urm.common.action.CommandVar.FLAG;
 import org.urm.server.action.ActionBase;
 import org.urm.server.storage.HiddenFiles;
-import org.urm.server.storage.MetadataStorage;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 public class MetaEnv {
@@ -69,19 +67,14 @@ public class MetaEnv {
 		return( BASELINE + ".xml" );
 	}
 	
-	public void load( ActionBase action , MetadataStorage storage , String envFile ) throws Exception {
+	public void load( ActionBase action , Node root ) throws Exception {
 		if( loaded )
 			return;
 
 		loaded = true;
 
-		// read xml
-		String file = storage.getEnvFile( action , envFile );
-		
-		action.debug( "read environment definition file " + file + "..." );
-		Document doc = action.readXmlFile( file );
-		loadProperties( action , doc.getDocumentElement() );
-		loadDatacenters( action , doc.getDocumentElement() );
+		loadProperties( action , root );
+		loadDatacenters( action , root );
 		resolveLinks( action );
 	}
 	

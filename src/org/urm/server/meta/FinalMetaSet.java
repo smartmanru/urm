@@ -44,7 +44,13 @@ public class FinalMetaSet {
 		
 		product = new MetaProduct( meta );
 		meta.setProduct( product );
-		product.load( action , storageMeta , productId );
+
+		// read
+		String file = storageMeta.getProductConfFile( action );
+		action.debug( "read product definition file " + file + "..." );
+		Document doc = ConfReader.readXmlFile( action.session.execrc , file );
+		Node root = doc.getDocumentElement();
+		product.load( action , productId , root );
 		
 		return( product );
 	}
@@ -56,23 +62,29 @@ public class FinalMetaSet {
 		distr = new MetaDistr( meta );
 		meta.setDistr( distr );
 		
-		// read xml
+		// read
 		String file = storageMeta.getDistrFile( action );
-		
 		action.debug( "read distributive definition file " + file + "..." );
 		Document doc = action.readXmlFile( file );
 		Node root = doc.getDocumentElement();
-		
-		loadDatabase( action , ConfReader.xmlGetPathNode( root , "distributive/database" ) );
-		
 		distr.load( action , root );
 		
 		return( distr );
 	}
 
 	public synchronized MetaDatabase loadDatabase( ActionBase action , MetadataStorage storageMeta ) throws Exception {
-		if( database == null )
-			loadDistr( action , storageMeta );
+		if( database != null )
+			return( database );
+		
+		database = new MetaDatabase( meta );
+		meta.setDatabase( database );
+		
+		// read
+		String file = storageMeta.getDatabaseFile( action );
+		action.debug( "read database definition file " + file + "..." );
+		Document doc = action.readXmlFile( file );
+		Node root = doc.getDocumentElement();
+		database.load( action , root );
 		
 		return( database );
 	}
@@ -83,7 +95,13 @@ public class FinalMetaSet {
 		
 		sources = new MetaSource( meta );
 		meta.setSources( sources );
-		sources.load( action , storageMeta );
+		
+		// read
+		String file = storageMeta.getSourceConfFile( action );
+		action.debug( "read source definition file " + file + "..." );
+		Document doc = action.readXmlFile( file );
+		Node root = doc.getDocumentElement();
+		sources.load( action , root );
 		
 		return( sources );
 	}
@@ -93,7 +111,13 @@ public class FinalMetaSet {
 			return( mon );
 		
 		mon = new MetaMonitoring( meta );
-		mon.load( action , storageMeta );
+		
+		// read
+		String file = storageMeta.getMonitoringFile( action );
+		action.debug( "read monitoring definition file " + file + "..." );
+		Document doc = action.readXmlFile( file );
+		Node root = doc.getDocumentElement();
+		mon.load( action , root );
 		
 		return( mon );
 	}
@@ -107,7 +131,13 @@ public class FinalMetaSet {
 			action.exit( "environment file name is empty" );
 		
 		env = new MetaEnv( meta );
-		env.load( action , storageMeta , envFile );
+
+		// read
+		String file = storageMeta.getEnvFile( action , envFile );
+		action.debug( "read environment definition file " + file + "..." );
+		Document doc = action.readXmlFile( file );
+		Node root = doc.getDocumentElement();
+		env.load( action , root );
 		envs.put( envFile , env );
 		
 		return( env );
@@ -119,7 +149,13 @@ public class FinalMetaSet {
 			return( design );
 		
 		design = new MetaDesign( meta );
-		design.load( action , storageMeta , fileName );
+		
+		// read
+		String filePath = storageMeta.getDesignFile( action , fileName );
+		action.debug( "read design definition file " + filePath + "..." );
+		Document doc = action.readXmlFile( filePath );
+		Node root = doc.getDocumentElement();
+		design.load( action , root );
 		designFiles.put( fileName , design );
 		
 		return( design );
@@ -127,17 +163,15 @@ public class FinalMetaSet {
 
 	public synchronized void loadAll( ActionBase action , MetadataStorage storageMeta , String productId ) throws Exception {
 		loadProduct( action , storageMeta , productId );
+		loadDatabase( action , storageMeta );
 		loadDistr( action , storageMeta );
 		loadSources( action , storageMeta );
+		loadMonitoring( action , storageMeta );
 		
 		action.meta.setProduct( product );
-		action.meta.setDistr( distr );
 		action.meta.setDatabase( database );
+		action.meta.setDistr( distr );
 		action.meta.setSources( sources );
-		
-		String file = storageMeta.getMonitoringFile( action );
-		if( action.shell.checkFileExists( action , file ) )
-			loadMonitoring( action , storageMeta );
 		
 		for( String envFile : storageMeta.getEnvFiles( action ) )
 			loadEnvData( action , storageMeta , envFile );
@@ -145,14 +179,6 @@ public class FinalMetaSet {
 			loadDesignData( action , storageMeta , designFile );
 	}
 	
-	private void loadDatabase( ActionBase action , Node node ) throws Exception {
-		database = new MetaDatabase( meta );
-		meta.setDatabase( database );
-		
-		if( node != null )
-			database.load( action , node );
-	}
-
 	public synchronized String[] getEnvironments() throws Exception {
 		List<String> names = new LinkedList<String>();
 		for( MetaEnv env : envs.values() )

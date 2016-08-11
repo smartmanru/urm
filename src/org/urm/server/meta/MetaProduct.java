@@ -1,6 +1,5 @@
 package org.urm.server.meta;
 
-import java.io.File;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,9 +8,9 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.server.action.ActionBase;
+import org.urm.server.dist.DistRepository;
+import org.urm.server.dist.ProductVersion;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
-import org.urm.server.storage.MetadataStorage;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 public class MetaProduct {
@@ -20,7 +19,6 @@ public class MetaProduct {
 	boolean loaded = false;
 	
 	protected Metadata meta;
-	String lastProdTagFile;
 	public Charset charset;
 	
 	public String CONFIG_PRODUCTHOME;
@@ -160,17 +158,13 @@ public class MetaProduct {
 			action.exit( "unknown database files charset=" + CONFIG_SOURCE_SQL_CHARSET );
 	}
 
-	public void load( ActionBase action , MetadataStorage storage , String productId ) throws Exception {
+	public void load( ActionBase action , String productId , Node root ) throws Exception {
 		if( loaded )
 			return;
 
 		loaded = true;
-		lastProdTagFile = storage.getLastProdTagFile( action );
 		
 		// add from file
-		String file = storage.getProductConfFile( action );
-		Document doc = ConfReader.readXmlFile( action.session.execrc , file );
-		Node root = doc.getDocumentElement();
 		props.loadRawFromElements( root );
 		
 		// add predefined properties
@@ -198,13 +192,10 @@ public class MetaProduct {
 	
 	private void addPredefined( ActionBase action , String productId ) throws Exception {
 		// get last prod tag
-		int lastProdTag = 0;
-		int nextProdTag = 1;
-		File file = new File( lastProdTagFile );
-		if( file.exists() ) {
-			lastProdTag = Integer.parseInt( action.readStringFile( lastProdTagFile ) );
-			nextProdTag = lastProdTag + 1;
-		}
+		DistRepository repo = action.artefactory.getDistRepository( action );
+		ProductVersion version = repo.getVersion( action );
+		int lastProdTag = version.lastProdTag;
+		int nextProdTag = version.nextProdTag;
 		
 		// handle product name
 		if( action.session.standalone ) {

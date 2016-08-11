@@ -17,6 +17,7 @@ public class UrmStorage {
 	public static String PRODUCT_SETTINGS_FILE = "product.xml";
 	public static String SOURCE_SETTINGS_FILE = "source.xml";
 	public static String DISTR_SETTINGS_FILE = "distr.xml";
+	public static String DATABASE_SETTINGS_FILE = "database.xml";
 	public static String MONITORING_SETTINGS_FILE = "monitoring.xml";
 	public static String ETC_PATH = "etc";
 	

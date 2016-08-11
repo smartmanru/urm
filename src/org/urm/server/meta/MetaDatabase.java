@@ -13,6 +13,7 @@ public class MetaDatabase {
 
 	public Map<String,MetaDatabaseSchema> mapSchema = new HashMap<String,MetaDatabaseSchema>();
 	public Map<String,MetaDatabaseDatagroup> mapDatagroup = new HashMap<String,MetaDatabaseDatagroup>();
+	boolean loaded = false;
 	
 	public String ALIGNEDMAPPING;
 	
@@ -20,11 +21,15 @@ public class MetaDatabase {
 		this.meta = meta;
 	}
 
-	public void load( ActionBase action , Node node ) throws Exception {
-		if( !loadAdministration( action , node ) )
+	public void load( ActionBase action , Node root ) throws Exception {
+		if( loaded )
+			return;
+
+		loaded = true;
+		if( !loadAdministration( action , root ) )
 			return;
 		
-		loadSchemaSet( action , node );
+		loadSchemaSet( action , root );
 	}
 
 	public boolean loadAdministration( ActionBase action , Node node ) throws Exception {

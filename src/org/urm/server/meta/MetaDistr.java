@@ -28,7 +28,6 @@ public class MetaDistr {
 			return;
 
 		loaded = true;
-		
 		loadDeliveries( action , ConfReader.xmlGetPathNode( root , "distributive" ) );
 		loadComponents( action , ConfReader.xmlGetPathNode( root , "deployment" ) );
 	}

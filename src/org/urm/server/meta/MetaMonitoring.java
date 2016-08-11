@@ -5,8 +5,6 @@ import java.util.Map;
 
 import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
-import org.urm.server.storage.MetadataStorage;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 public class MetaMonitoring {
@@ -33,20 +31,14 @@ public class MetaMonitoring {
 		return( mapEnvs );
 	}
 	
-	public void load( ActionBase action , MetadataStorage storage ) throws Exception {
+	public void load( ActionBase action , Node root ) throws Exception {
 		if( loaded )
 			return;
 
 		loaded = true;
 		
-		// read xml
-		String file = storage.getMonitoringFile( action );
-		
-		action.debug( "read monitoring definition file " + file + "..." );
-		Document doc = action.readXmlFile( file );
-
-		loadProperties( action , doc.getDocumentElement() );
-		loadEnvironments( action , ConfReader.xmlGetPathNode( doc.getDocumentElement() , "scope" ) );
+		loadProperties( action , root );
+		loadEnvironments( action , ConfReader.xmlGetPathNode( root , "scope" ) );
 	}
 
 	private void loadProperties( ActionBase action , Node node ) throws Exception {

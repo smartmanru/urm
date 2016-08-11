@@ -6,8 +6,6 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
-import org.urm.server.storage.MetadataStorage;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 public class MetaDesign {
@@ -40,19 +38,14 @@ public class MetaDesign {
 		this.meta = meta;
 	}
 	
-	public void load( ActionBase action , MetadataStorage storage , String fileName ) throws Exception {
+	public void load( ActionBase action , Node root ) throws Exception {
 		if( loaded )
 			return;
 
 		loaded = true;
 		
-		// read xml
-		String filePath = storage.getDesignFile( action , fileName );
-		
-		action.debug( "read design definition file " + filePath + "..." );
-		Document doc = action.readXmlFile( filePath );
-		loadAttributes( action , doc.getDocumentElement() );
-		loadElements( action , doc.getDocumentElement() );
+		loadAttributes( action , root );
+		loadElements( action , root );
 	}
 
 	public void loadAttributes( ActionBase action , Node node ) throws Exception {

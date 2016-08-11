@@ -269,5 +269,10 @@ public class DistRepository {
 		String s = Common.getNameTimeStamp() + ":" + operation + ":" + RELEASEVER;
 		return( s );
 	}
+
+	public ProductVersion getVersion( ActionBase action ) {
+		ProductVersion version = new ProductVersion( action.meta );
+		return( version );
+	}
 	
 }
