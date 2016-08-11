@@ -167,7 +167,7 @@ public class FinalRegistry {
 	}
 	
 	public void save( String path , RunContext execrc ) throws Exception {
-		Document doc = Common.xmlCreateDoc( "release" );
+		Document doc = Common.xmlCreateDoc( "registry" );
 		Element root = doc.getDocumentElement();
 
 		// properties

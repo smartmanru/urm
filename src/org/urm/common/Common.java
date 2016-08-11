@@ -409,6 +409,8 @@ public class Common {
 	public static void xmlSaveDoc( Document doc , String filePath ) throws Exception {
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();
+		transformer.setOutputProperty( OutputKeys.METHOD , "xml" );
+		transformer.setOutputProperty( OutputKeys.ENCODING , "UTF-8" );
 		transformer.setOutputProperty( OutputKeys.INDENT , "yes" );
 		transformer.setOutputProperty( "{http://xml.apache.org/xslt}indent-amount" , "4" );
 		
