@@ -420,9 +420,11 @@ public class Common {
 		DOMSource source = new DOMSource( doc );
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		OutputStream outputStream = new FileOutputStream( filePath );
-		bos.writeTo( outputStream );
 		StreamResult result = new StreamResult( new OutputStreamWriter( bos , "UTF-8" ) );
 		transformer.transform( source , result );
+		
+		bos.writeTo( outputStream );
+		outputStream.flush();
 		outputStream.close();
 	}
 	
