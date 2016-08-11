@@ -1,9 +1,12 @@
 package org.urm.common;
 
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -415,7 +418,10 @@ public class Common {
 		transformer.setOutputProperty( "{http://xml.apache.org/xslt}indent-amount" , "4" );
 		
 		DOMSource source = new DOMSource( doc );
-		StreamResult result = new StreamResult( new File( filePath ) );
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		OutputStream outputStream = new FileOutputStream( filePath );
+		bos.writeTo( outputStream );
+		StreamResult result = new StreamResult( new OutputStreamWriter( bos , "UTF-8" ) );
 		transformer.transform( source , result );
 	}
 	
