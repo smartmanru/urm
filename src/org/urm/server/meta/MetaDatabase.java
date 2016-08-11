@@ -21,6 +21,9 @@ public class MetaDatabase {
 		this.meta = meta;
 	}
 
+	public void createInitial( ActionBase action , FinalRegistry registry ) throws Exception {
+	}
+	
 	public void load( ActionBase action , Node root ) throws Exception {
 		if( loaded )
 			return;

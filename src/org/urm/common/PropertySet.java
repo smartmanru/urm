@@ -114,6 +114,15 @@ public class PropertySet {
 		return( Common.getSortedKeys( properties ) );
 	}
 
+	public void copyOriginalProperties( PropertySet set , String prefix ) throws Exception {
+		for( String key : set.properties.keySet() ) {
+			String primaryKey = prefix + Common.getPartAfterFirst( key , set.set + "." );
+			setProperty( primaryKey , set.properties.get( key ) );
+		}
+		
+		resolveProperties();
+	}
+
 	public void copyProperties( PropertySet set ) throws Exception {
 		for( String key : set.properties.keySet() ) {
 			String primaryKey = Common.getPartAfterFirst( key , set.set + "." );
@@ -128,8 +137,6 @@ public class PropertySet {
 			String primaryKey = prefix + Common.getPartAfterFirst( key , set.set + "." );
 			setRawProperty( primaryKey , set.findPropertyAny( key ) );
 		}
-		
-		resolveProperties();
 	}
 
 	public void moveRawAsStrings() throws Exception {

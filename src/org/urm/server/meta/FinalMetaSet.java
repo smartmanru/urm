@@ -29,6 +29,13 @@ public class FinalMetaSet {
 	private Map<String,MetaDesign> designFiles;
 	private Map<String,MetaEnv> envs;
 	
+	public static String XML_ROOT_PRODUCT = "product";
+	public static String XML_ROOT_DISTR = "distributive";
+	public static String XML_ROOT_DB = "database";
+	public static String XML_ROOT_SRC = "sources";
+	public static String XML_ROOT_MONITORING = "monitoring";
+	public static String XML_ROOT_ENV = "environment";
+	
 	public FinalMetaSet( FinalLoader loader , SessionContext session ) {
 		this.loader = loader;
 		this.session = session;
@@ -38,21 +45,34 @@ public class FinalMetaSet {
 		envs = new HashMap<String,MetaEnv>();
 	}
 
-	public synchronized MetaProduct loadProduct( ActionBase action , MetadataStorage storageMeta , String productId ) throws Exception {
+	public synchronized MetaProduct loadProduct( ActionBase action , MetadataStorage storageMeta ) throws Exception {
 		if( product != null )
 			return( product );
 		
 		product = new MetaProduct( meta );
 		meta.setProduct( product );
 
+		MetaProductContext productContext = new MetaProductContext( meta );
+		productContext.load( action );
+		
 		// read
 		String file = storageMeta.getProductConfFile( action );
 		action.debug( "read product definition file " + file + "..." );
 		Document doc = ConfReader.readXmlFile( action.session.execrc , file );
 		Node root = doc.getDocumentElement();
-		product.load( action , productId , root );
+		product.load( action , productContext , root );
 		
 		return( product );
+	}
+	
+	private void createInitialProduct( ActionBase action , FinalRegistry registry ) throws Exception {
+		product = new MetaProduct( meta );
+		meta.setProduct( product );
+		
+		MetaProductContext productContext = new MetaProductContext( meta );
+		productContext.load( action );
+		
+		product.create( action , registry , productContext );
 	}
 	
 	public synchronized MetaDistr loadDistr( ActionBase action , MetadataStorage storageMeta ) throws Exception {
@@ -72,6 +92,12 @@ public class FinalMetaSet {
 		return( distr );
 	}
 
+	private void createInitialDistr( ActionBase action , FinalRegistry registry ) throws Exception {
+		distr = new MetaDistr( meta );
+		meta.setDistr( distr );
+		distr.createInitial( action , registry );
+	}
+	
 	public synchronized MetaDatabase loadDatabase( ActionBase action , MetadataStorage storageMeta ) throws Exception {
 		if( database != null )
 			return( database );
@@ -87,6 +113,12 @@ public class FinalMetaSet {
 		database.load( action , root );
 		
 		return( database );
+	}
+	
+	private void createInitialDatabase( ActionBase action , FinalRegistry registry ) throws Exception {
+		database = new MetaDatabase( meta );
+		meta.setDatabase( database );
+		database.createInitial( action , registry );
 	}
 	
 	public synchronized MetaSource loadSources( ActionBase action , MetadataStorage storageMeta ) throws Exception {
@@ -106,6 +138,12 @@ public class FinalMetaSet {
 		return( sources );
 	}
 	
+	private void createInitialSources( ActionBase action , FinalRegistry registry ) throws Exception {
+		sources = new MetaSource( meta );
+		meta.setSources( sources );
+		sources.createInitial( action , registry );
+	}
+	
 	public synchronized MetaMonitoring loadMonitoring( ActionBase action , MetadataStorage storageMeta ) throws Exception {
 		if( mon != null )
 			return( mon );
@@ -120,6 +158,11 @@ public class FinalMetaSet {
 		mon.load( action , root );
 		
 		return( mon );
+	}
+	
+	private void createInitialMonitoring( ActionBase action , FinalRegistry registry ) throws Exception {
+		mon = new MetaMonitoring( meta );
+		mon.createInitial( action , registry );
 	}
 	
 	public synchronized MetaEnv loadEnvData( ActionBase action , MetadataStorage storageMeta , String envFile ) throws Exception {
@@ -161,8 +204,8 @@ public class FinalMetaSet {
 		return( design );
 	}
 
-	public synchronized void loadAll( ActionBase action , MetadataStorage storageMeta , String productId ) throws Exception {
-		loadProduct( action , storageMeta , productId );
+	public synchronized void loadAll( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+		loadProduct( action , storageMeta );
 		loadDatabase( action , storageMeta );
 		loadDistr( action , storageMeta );
 		loadSources( action , storageMeta );
@@ -195,11 +238,21 @@ public class FinalMetaSet {
 		return( null );
 	}
 
-	public FinalMetaSet copy( ActionBase action ) throws Exception {
+	public synchronized FinalMetaSet copy( ActionBase action ) throws Exception {
 		return( null );
 	}
 
-	public void createInitial( FinalRegistry registry ) throws Exception {
+	public synchronized void createInitial( ActionBase action , FinalRegistry registry ) throws Exception {
+		createInitialProduct( action , registry );
+		createInitialDatabase( action , registry );
+		createInitialDistr( action , registry );
+		createInitialSources( action , registry );
+		createInitialMonitoring( action , registry );
+		
+		action.meta.setProduct( product );
+		action.meta.setDatabase( database );
+		action.meta.setDistr( distr );
+		action.meta.setSources( sources );
 	}
 
 	public void saveAll( ActionBase action , MetadataStorage storageMeta , FinalMetaProduct product ) throws Exception {

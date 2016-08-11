@@ -8,24 +8,24 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.server.action.ActionBase;
-import org.urm.server.dist.DistRepository;
-import org.urm.server.dist.ProductVersion;
 import org.urm.server.meta.Metadata.VarBUILDMODE;
 import org.w3c.dom.Node;
 
 public class MetaProduct {
 
 	public PropertySet props;
-	boolean loaded = false;
-	
+	private boolean loaded = false;
 	protected Metadata meta;
 	public Charset charset;
 	
+	public String CONFIG_PRODUCT;
 	public String CONFIG_PRODUCTHOME;
 	public String CONFIG_LASTPRODTAG;
 	public String CONFIG_NEXTPRODTAG;
+	public String CONFIG_VERSION_BRANCH_MAJOR;
+	public String CONFIG_VERSION_BRANCH_MINOR;
+	public String CONFIG_VERSION_BRANCH_NEXTMINOR;
 
-	public String CONFIG_PRODUCT;
 	public String CONFIG_REDISTPATH;
 	public String CONFIG_BUILDBASE;
 	public String CONFIG_PROD_TAG;
@@ -65,9 +65,6 @@ public class MetaProduct {
 	public String CONFIG_VERSION_NEXT_FULL;
 	public String CONFIG_BRANCHNAME;
 	public String CONFIG_APPVERSION_TAG;
-	public String CONFIG_VERSION_BRANCH_MAJOR;
-	public String CONFIG_VERSION_BRANCH_MINOR;
-	public String CONFIG_VERSION_BRANCH_NEXTMINOR;
 	public String CONFIG_VERSIONBRANCH;
 	
 	public String CONFIG_SOURCE_VCS;
@@ -90,7 +87,6 @@ public class MetaProduct {
 	
 	public MetaProduct( Metadata meta ) {
 		this.meta = meta;
-		props = new PropertySet( "product" , null );
 	}
 	
 	private void scatterVariables( ActionBase action ) throws Exception {
@@ -122,9 +118,6 @@ public class MetaProduct {
 		CONFIG_COMMIT_TRACKERLIST = getStringPropertyRequired( action , "CONFIG_COMMIT_TRACKERLIST" );
 		CONFIG_LAST_VERSION_BUILD = getStringProperty( action , "CONFIG_LAST_VERSION_BUILD" );
 		CONFIG_NEXT_VERSION_BUILD = getStringProperty( action , "CONFIG_NEXT_VERSION_BUILD" );
-		CONFIG_VERSION_BRANCH_MAJOR = getStringProperty( action , "CONFIG_VERSION_BRANCH_MAJOR" );
-		CONFIG_VERSION_BRANCH_MINOR = getStringProperty( action , "CONFIG_VERSION_BRANCH_MINOR" );
-		CONFIG_VERSION_BRANCH_NEXTMINOR = getStringProperty( action , "CONFIG_VERSION_BRANCH_NEXTMINOR" );
 		CONFIG_VERSIONBRANCH = getStringProperty( action , "CONFIG_VERSIONBRANCH" );
 		CONFIG_NEXT_MAJORRELEASE = getStringPropertyRequired( action , "CONFIG_NEXT_MAJORRELEASE" );
 		CONFIG_VERSION_LAST_FULL = getStringProperty( action , "CONFIG_VERSION_LAST_FULL" );
@@ -158,18 +151,29 @@ public class MetaProduct {
 			action.exit( "unknown database files charset=" + CONFIG_SOURCE_SQL_CHARSET );
 	}
 
-	public void load( ActionBase action , String productId , Node root ) throws Exception {
+	public void create( ActionBase action , FinalRegistry registry , MetaProductContext productContext ) throws Exception {
 		if( loaded )
 			return;
 
 		loaded = true;
+		setContextProperties( action , productContext );
 		
-		// add from file
+		// create initial
+		props = new PropertySet( "product" , null );
+		registry.setProductDefaults( action , props );
+	}
+	
+	public void load( ActionBase action , MetaProductContext productContext , Node root ) throws Exception {
+		if( loaded )
+			return;
+
+		loaded = true;
+		setContextProperties( action , productContext );
+		
+		// load from file
+		props = new PropertySet( "product" , null );
 		props.loadRawFromElements( root );
 		
-		// add predefined properties
-		addPredefined( action , productId );
-
 		Node[] items = ConfReader.xmlGetChildren( root , "mode" );
 		if( items != null ) {
 			for( Node node : items ) {
@@ -190,43 +194,6 @@ public class MetaProduct {
 		scatterVariables( action );
 	}
 	
-	private void addPredefined( ActionBase action , String productId ) throws Exception {
-		// get last prod tag
-		DistRepository repo = action.artefactory.getDistRepository( action );
-		ProductVersion version = repo.getVersion( action );
-		int lastProdTag = version.lastProdTag;
-		int nextProdTag = version.nextProdTag;
-		
-		// handle product name
-		if( action.session.standalone ) {
-			// read from properties
-			CONFIG_PRODUCT = props.getRawProperty( "CONFIG_PRODUCT" );
-			if( CONFIG_PRODUCT.isEmpty() )
-				action.exit( "Product Configuration has no Product ID set (CONFIG_PRODUCT)" );
-		}
-		else {
-			if( productId.isEmpty() )
-				action.exitUnexpectedState();
-			CONFIG_PRODUCT = productId;
-		}
-		
-		CONFIG_PRODUCTHOME = action.context.session.productPath;
-		CONFIG_LASTPRODTAG = "" + lastProdTag;
-		CONFIG_NEXTPRODTAG = "" + nextProdTag;
-		
-		props.setStringProperty( "CONFIG_PRODUCT" , CONFIG_PRODUCT );
-		props.setPathProperty( "CONFIG_PRODUCTHOME" , CONFIG_PRODUCTHOME , action.session.execrc );
-		props.setStringProperty( "CONFIG_LASTPRODTAG" , CONFIG_LASTPRODTAG );
-		props.setStringProperty( "CONFIG_NEXTPRODTAG" , CONFIG_NEXTPRODTAG );
-		
-		// copy raw from engine properties if any
-		if( action.session.standalone )
-			return;
-		
-		FinalLoader loader = action.engine.metaLoader;
-		loader.addProductProps( action.actionInit , props );
-	}
-
 	private String getStringProperty( ActionBase action , String name ) throws Exception {
 		return( getPropertyType( action , name , "S" ) );
 	}
@@ -344,4 +311,16 @@ public class MetaProduct {
 		return( map );
 	}
 
+	public void setContextProperties( ActionBase action , MetaProductContext productContext ) throws Exception {
+		CONFIG_PRODUCT = productContext.CONFIG_PRODUCT;
+		CONFIG_PRODUCTHOME = productContext.CONFIG_PRODUCTHOME;
+		CONFIG_LASTPRODTAG = productContext.CONFIG_LASTPRODTAG;
+		CONFIG_NEXTPRODTAG = productContext.CONFIG_NEXTPRODTAG;
+		
+		props.setStringProperty( "CONFIG_PRODUCT" , CONFIG_PRODUCT );
+		props.setPathProperty( "CONFIG_PRODUCTHOME" , CONFIG_PRODUCTHOME , action.session.execrc );
+		props.setStringProperty( "CONFIG_LASTPRODTAG" , CONFIG_LASTPRODTAG );
+		props.setStringProperty( "CONFIG_NEXTPRODTAG" , CONFIG_NEXTPRODTAG );
+	}
+	
 }

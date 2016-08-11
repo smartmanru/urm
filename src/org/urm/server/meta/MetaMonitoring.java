@@ -27,8 +27,7 @@ public class MetaMonitoring {
 		this.meta = meta;
 	}
 	
-	public Map<String,MetaMonitoringTarget> getTargets( ActionBase action ) throws Exception { 
-		return( mapEnvs );
+	public void createInitial( ActionBase action , FinalRegistry registry ) throws Exception {
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
@@ -41,6 +40,10 @@ public class MetaMonitoring {
 		loadEnvironments( action , ConfReader.xmlGetPathNode( root , "scope" ) );
 	}
 
+	public Map<String,MetaMonitoringTarget> getTargets( ActionBase action ) throws Exception { 
+		return( mapEnvs );
+	}
+	
 	private void loadProperties( ActionBase action , Node node ) throws Exception {
 		DIR_DATA = ConfReader.getRequiredPropertyValue( node , "dataPath" );
 		DIR_REPORTS = ConfReader.getRequiredPropertyValue( node , "reportPath" );

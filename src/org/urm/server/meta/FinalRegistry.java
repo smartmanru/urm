@@ -142,6 +142,14 @@ public class FinalRegistry {
 		return( mapBuildModeDefaults.values().toArray( new PropertySet[0] ) );
 	}
 
+	public void setProductDefaults( ActionBase action , PropertySet props ) throws Exception {
+		props.copyOriginalProperties( defaultProductProperties , "" );
+		for( VarBUILDMODE mode : mapBuildModeDefaults.keySet() ) {
+			PropertySet set = mapBuildModeDefaults.get( mode );
+			props.copyOriginalProperties( set , mode.toString().toLowerCase() );
+		}
+	}
+	
 	public FinalRegistry copy( ActionBase action ) throws Exception {
 		FinalRegistry r = new FinalRegistry( loader );
 		r.properties = properties.copy( null );

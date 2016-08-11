@@ -54,7 +54,7 @@ public class FinalLoader {
 
 	public MetaProduct loadProduct( ActionInit action , FinalMetaSet storageFinal ) throws Exception {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
-		return( storageFinal.loadProduct( action , storageMeta , "" ) );
+		return( storageFinal.loadProduct( action , storageMeta ) );
 	}
 
 	public MetaDistr loadDistr( ActionInit action , FinalMetaSet storageFinal ) throws Exception {
@@ -96,9 +96,9 @@ public class FinalLoader {
 			
 			try {
 				MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
-				FinalMetaSet storage = new FinalMetaSet( this , action.session );
-				storage.loadAll( action , storageMeta , name );
-				productMeta.put( name , storage );
+				FinalMetaSet set = new FinalMetaSet( this , action.session );
+				set.loadAll( action , storageMeta );
+				productMeta.put( name , set );
 			}
 			catch( Throwable e ) {
 				action.log( e );
@@ -142,10 +142,9 @@ public class FinalLoader {
 		ActionBase action = transaction.action;
 		action.actionInit.setServerSystemProductLayout( product );
 		
-		FinalMetaSet set = new FinalMetaSet( this , action.session );
-		set.createInitial( registryNew );
-		
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
+		FinalMetaSet set = new FinalMetaSet( this , action.session );
+		set.createInitial( action , registryNew );
 		set.saveAll( action , storageMeta , product );
 		
 		action.actionInit.clearServerProductLayout();
