@@ -19,6 +19,7 @@ public class ServerTransaction {
 
 	private FinalRegistry registryOld;
 	private FinalMetaSet metadataOld;
+	public boolean createMetadata;
 	
 	public ServerTransaction( ActionBase action ) {
 		this.action = action;
@@ -27,6 +28,7 @@ public class ServerTransaction {
 		
 		registry = null;
 		metadata = null;
+		createMetadata = false;
 	}
 
 	public boolean startTransaction() {
@@ -38,6 +40,7 @@ public class ServerTransaction {
 			metadata = null;
 			registryOld = null;
 			metadataOld = null;
+			createMetadata = false;
 			return( true );
 		}
 	}
@@ -61,6 +64,7 @@ public class ServerTransaction {
 				if( metadataOld != null ) {
 					loader.setMetadata( this , metadataOld );
 					metadataOld = null;
+					createMetadata = false;
 				}
 			}
 			catch( Throwable e ) {
@@ -143,7 +147,7 @@ public class ServerTransaction {
 		abortTransaction();
 		return( false );
 	}
-	
+
 	public boolean changeMetadata( Metadata sourceMetadata ) {
 		synchronized( engine ) {
 			try {
@@ -160,7 +164,7 @@ public class ServerTransaction {
 				}
 			}
 			catch( Throwable e ) {
-				action.log( e );
+				action.log( "unable to save registry" , e );
 			}
 			
 			abortTransaction();
@@ -176,7 +180,8 @@ public class ServerTransaction {
 			return( true );
 			
 		try {
-			metadataOld = loader.getMetaStorage( metadata.meta.product.CONFIG_PRODUCT );
+			if( !createMetadata )
+				metadataOld = loader.getMetaStorage( metadata.meta.product.CONFIG_PRODUCT );
 			loader.setMetadata( this , metadata );
 			return( true );
 		}
@@ -184,13 +189,6 @@ public class ServerTransaction {
 			action.log( "unable to save metadata" , e );
 		}
 
-		try {
-			loader.setMetadata( this , metadataOld );
-		}
-		catch( Throwable e ) {
-			action.log( "unable to restore metadata" , e );
-		}
-		
 		abortTransaction();
 		return( false );
 	}
