@@ -226,6 +226,7 @@ public class ServerTransaction {
 	
 	public void addProduct( FinalMetaProduct product ) throws Exception {
 		checkTransaction();
+		createMetadata = true;
 		registry.createProduct( this , product );
 		metadata = loader.createMetadata( this , registry , product );
 	}
