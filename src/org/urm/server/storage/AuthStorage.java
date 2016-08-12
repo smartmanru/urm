@@ -1,12 +1,12 @@
 package org.urm.server.storage;
 
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Meta;
 
 public class AuthStorage {
 
 	Artefactory artefactory;
-	Metadata meta;
+	Meta meta;
 	
 	public AuthStorage( Artefactory artefactory ) {
 		this.artefactory = artefactory;

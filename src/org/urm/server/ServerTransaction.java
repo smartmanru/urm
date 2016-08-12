@@ -1,24 +1,19 @@
 package org.urm.server;
 
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.FinalLoader;
-import org.urm.server.meta.FinalMetaProduct;
-import org.urm.server.meta.FinalMetaSet;
-import org.urm.server.meta.FinalMetaSystem;
-import org.urm.server.meta.FinalRegistry;
-import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Meta;
 
 public class ServerTransaction {
 
 	public ActionBase action;
 	public ServerEngine engine;
-	public FinalLoader loader;
+	public ServerLoader loader;
 	
-	public FinalRegistry registry;
-	public FinalMetaSet metadata;
+	public ServerRegistry registry;
+	public ServerMetaSet metadata;
 
-	private FinalRegistry registryOld;
-	private FinalMetaSet metadataOld;
+	private ServerRegistry registryOld;
+	private ServerMetaSet metadataOld;
 	public boolean createMetadata;
 	
 	public ServerTransaction( ActionBase action ) {
@@ -104,7 +99,7 @@ public class ServerTransaction {
 		return( true );
 	}
 
-	public boolean changeRegistry( FinalRegistry sourceRegistry ) {
+	public boolean changeRegistry( ServerRegistry sourceRegistry ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -148,7 +143,7 @@ public class ServerTransaction {
 		return( false );
 	}
 
-	public boolean changeMetadata( Metadata sourceMetadata ) {
+	public boolean changeMetadata( Meta sourceMetadata ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -199,44 +194,44 @@ public class ServerTransaction {
 	}
 	
 	// helpers
-	public FinalMetaSystem getNewSystem( FinalMetaSystem system ) throws Exception {
+	public ServerSystem getNewSystem( ServerSystem system ) throws Exception {
 		return( registry.getSystem( action , system.NAME ) );
 	}
 	
-	public FinalMetaProduct getNewProduct( FinalMetaProduct product ) throws Exception {
+	public ServerProduct getNewProduct( ServerProduct product ) throws Exception {
 		return( registry.getProduct( action , product.NAME ) );
 	}
 	
 	// transactional operations
-	public void addSystem( FinalMetaSystem system ) throws Exception {
+	public void addSystem( ServerSystem system ) throws Exception {
 		checkTransaction();
 		registry.addSystem( this , system );
 	}
 	
-	public void modifySystem( FinalMetaSystem system , FinalMetaSystem systemNew ) throws Exception {
+	public void modifySystem( ServerSystem system , ServerSystem systemNew ) throws Exception {
 		checkTransaction();
 		system.modifySystem( this , systemNew );
 	}
 
-	public void deleteSystem( FinalMetaSystem system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
+	public void deleteSystem( ServerSystem system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		checkTransaction();
 		action.artefactory.deleteSystemResources( this , system , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		registry.deleteSystem( this , system );
 	}
 	
-	public void addProduct( FinalMetaProduct product ) throws Exception {
+	public void addProduct( ServerProduct product ) throws Exception {
 		checkTransaction();
 		createMetadata = true;
 		registry.createProduct( this , product );
 		metadata = loader.createMetadata( this , registry , product );
 	}
 	
-	public void modifyProduct( FinalMetaProduct product , FinalMetaProduct productNew ) throws Exception {
+	public void modifyProduct( ServerProduct product , ServerProduct productNew ) throws Exception {
 		checkTransaction();
 		product.modifyProduct( this , productNew );
 	}
 
-	public void deleteProduct( FinalMetaProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
+	public void deleteProduct( ServerProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		checkTransaction();
 		action.artefactory.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		registry.deleteProduct( this , product );

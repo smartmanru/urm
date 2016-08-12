@@ -7,12 +7,12 @@ import java.util.Map;
 
 import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.Metadata.VarNAMETYPE;
+import org.urm.server.meta.Meta.VarNAMETYPE;
 import org.w3c.dom.Node;
 
 public class MetaDistrComponent {
 
-	protected Metadata meta;
+	protected Meta meta;
 	MetaDistr dist;
 
 	public String NAME;
@@ -23,7 +23,7 @@ public class MetaDistrComponent {
 	Map<String,MetaDistrComponentItem> mapConfItems;
 	List<MetaDistrComponentWS> listWS;
 	
-	public MetaDistrComponent( Metadata meta , MetaDistr dist ) {
+	public MetaDistrComponent( Meta meta , MetaDistr dist ) {
 		this.meta = meta;
 		this.dist = dist;
 	}

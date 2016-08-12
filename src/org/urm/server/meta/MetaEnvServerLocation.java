@@ -7,8 +7,8 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.Metadata.VarCONTENTTYPE;
-import org.urm.server.meta.Metadata.VarDEPLOYTYPE;
+import org.urm.server.meta.Meta.VarCONTENTTYPE;
+import org.urm.server.meta.Meta.VarDEPLOYTYPE;
 
 public class MetaEnvServerLocation {
 
@@ -32,7 +32,7 @@ public class MetaEnvServerLocation {
 		}
 	}
 	
-	Metadata meta;
+	Meta meta;
 	MetaEnvServer server;
 	
 	public VarDEPLOYTYPE DEPLOYTYPE;
@@ -43,7 +43,7 @@ public class MetaEnvServerLocation {
 	private List<ConfDeploymentPair> confItems;
 	private List<MetaEnvServerDeployment> deployments;
 	
-	public MetaEnvServerLocation( Metadata meta , MetaEnvServer server , VarDEPLOYTYPE DEPLOYTYPE , String DEPLOYPATH ) {
+	public MetaEnvServerLocation( Meta meta , MetaEnvServer server , VarDEPLOYTYPE DEPLOYTYPE , String DEPLOYPATH ) {
 		this.meta = meta;
 		this.server = server;
 		this.DEPLOYTYPE = DEPLOYTYPE;

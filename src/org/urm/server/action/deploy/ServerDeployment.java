@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.Metadata.VarCONTENTTYPE;
+import org.urm.server.meta.Meta.VarCONTENTTYPE;
 import org.urm.server.storage.FileSet;
 import org.urm.server.storage.RedistStorage;
 import org.urm.server.storage.RemoteFolder;

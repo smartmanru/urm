@@ -11,7 +11,7 @@ import org.urm.server.action.conf.ConfBuilder;
 import org.urm.server.action.database.ActionGetDB;
 import org.urm.server.dist.Dist;
 import org.urm.server.dist.ReleaseDelivery;
-import org.urm.server.meta.Metadata.VarCATEGORY;
+import org.urm.server.meta.Meta.VarCATEGORY;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.LogStorage;
 

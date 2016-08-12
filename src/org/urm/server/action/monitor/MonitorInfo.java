@@ -6,14 +6,14 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaMonitoringTarget;
-import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Meta;
 import org.urm.server.storage.MonitoringStorage;
 
 public class MonitorInfo {
 
 	ActionBase action;
 	MonitoringStorage storage;
-	Metadata meta;
+	Meta meta;
 	Map<String,MonitorTargetInfo> targets;
 
 	public MonitorInfo( ActionBase action , MonitoringStorage storage ) {

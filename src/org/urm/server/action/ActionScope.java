@@ -16,13 +16,13 @@ import org.urm.server.meta.MetaEnvDC;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.meta.MetaSourceProjectSet;
-import org.urm.server.meta.Metadata;
-import org.urm.server.meta.Metadata.VarCATEGORY;
-import org.urm.server.meta.Metadata.VarDISTITEMSOURCE;
+import org.urm.server.meta.Meta;
+import org.urm.server.meta.Meta.VarCATEGORY;
+import org.urm.server.meta.Meta.VarDISTITEMSOURCE;
 
 public class ActionScope {
 
-	public Metadata meta;
+	public Meta meta;
 	public CommandContext context;
 	public boolean releaseBound;
 

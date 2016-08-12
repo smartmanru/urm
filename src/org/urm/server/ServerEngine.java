@@ -24,8 +24,7 @@ import org.urm.server.executor.MainExecutor;
 import org.urm.server.executor.MonitorCommandExecutor;
 import org.urm.server.executor.ReleaseCommandExecutor;
 import org.urm.server.executor.XDocCommandExecutor;
-import org.urm.server.meta.FinalLoader;
-import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Meta;
 import org.urm.server.shell.ShellCoreJNI;
 import org.urm.server.shell.ShellPool;
 import org.urm.server.storage.Artefactory;
@@ -41,7 +40,7 @@ public class ServerEngine {
 	public MainExecutor serverExecutor;
 	public ActionInit serverAction;
 	public ShellPool shellPool;
-	public FinalLoader metaLoader;
+	public ServerLoader metaLoader;
 	public boolean running;
 
 	private ServerTransaction currentTransaction = null;
@@ -49,7 +48,7 @@ public class ServerEngine {
 	public static int META_CHANGE_TIMEOUT = 5000;
 	
 	public ServerEngine() {
-		metaLoader = new FinalLoader( this );
+		metaLoader = new ServerLoader( this );
 	}
 	
 	public void runServer( ActionBase action ) throws Exception {
@@ -199,7 +198,7 @@ public class ServerEngine {
 			return( null );
 		
 		// create context
-		Metadata meta = metaLoader.createMetadata( session );
+		Meta meta = metaLoader.createMetadata( session );
 		CommandContext context = new CommandContext( this , session , meta , options , stream , call );
 		if( !context.setRunContext() )
 			return( null );

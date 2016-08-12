@@ -11,13 +11,13 @@ import org.w3c.dom.Node;
 
 public class MetaEnvStartInfo {
 
-	protected Metadata meta;
+	protected Meta meta;
 	public MetaEnvDC dc;
 	
 	Map<String,MetaEnvStartGroup> groupMap;
 	List<MetaEnvStartGroup> groups;
 	
-	public MetaEnvStartInfo( Metadata meta , MetaEnvDC dc ) {
+	public MetaEnvStartInfo( Meta meta , MetaEnvDC dc ) {
 		this.meta = meta;
 		this.dc = dc;
 	}

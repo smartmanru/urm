@@ -12,7 +12,7 @@ import org.urm.server.meta.MetaDistrComponentWS;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.MetaEnvServerDeployment;
 import org.urm.server.meta.MetaEnvServerNode;
-import org.urm.server.meta.Metadata.VarPROCESSMODE;
+import org.urm.server.meta.Meta.VarPROCESSMODE;
 
 public class ActionCheckEnv extends ActionBase {
 

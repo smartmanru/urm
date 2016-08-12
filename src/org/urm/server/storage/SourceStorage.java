@@ -12,14 +12,14 @@ import org.urm.server.meta.MetaEnvDC;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.MetaEnvServerDeployment;
 import org.urm.server.meta.MetaEnvServerNode;
-import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Meta;
 import org.urm.server.vcs.GenericVCS;
 
 public class SourceStorage {
 
 	Artefactory artefactory;
 	LocalFolder downloadFolder;
-	Metadata meta;
+	Meta meta;
 
 	public static String CONFIG_FOLDER = "config";
 	public static String DATABASE_FOLDER = "db";

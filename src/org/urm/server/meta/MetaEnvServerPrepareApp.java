@@ -7,13 +7,13 @@ import org.w3c.dom.Node;
 
 public class MetaEnvServerPrepareApp {
 
-	protected Metadata meta;
+	protected Meta meta;
 	public MetaEnvServerBase base;
 
 	public String APP;
 	public PropertySet properties;
 	
-	public MetaEnvServerPrepareApp( Metadata meta , MetaEnvServerBase base ) {
+	public MetaEnvServerPrepareApp( Meta meta , MetaEnvServerBase base ) {
 		this.meta = meta;
 		this.base = base;
 	}

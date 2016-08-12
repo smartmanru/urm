@@ -9,7 +9,7 @@ import org.urm.common.Common;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.MetaEnvServerNode;
-import org.urm.server.meta.Metadata.VarDBMSTYPE;
+import org.urm.server.meta.Meta.VarDBMSTYPE;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.Folder;
 import org.urm.server.storage.LocalFolder;

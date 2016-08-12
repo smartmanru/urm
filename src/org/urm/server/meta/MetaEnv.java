@@ -17,7 +17,7 @@ public class MetaEnv {
 
 	boolean loaded = false;
 
-	public Metadata meta;
+	public Meta meta;
 
 	PropertySet properties;
 	PropertySet secretProperties;
@@ -49,7 +49,7 @@ public class MetaEnv {
 	List<MetaEnvDC> originalList;
 	Map<String,MetaEnvDC> dcMap;
 	
-	public MetaEnv( Metadata meta ) {
+	public MetaEnv( Meta meta ) {
 		this.meta = meta;
 	}
 	

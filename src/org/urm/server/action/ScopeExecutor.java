@@ -11,7 +11,7 @@ import org.urm.server.meta.MetaEnvDC;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.meta.MetaSourceProjectSet;
-import org.urm.server.meta.Metadata.VarCATEGORY;
+import org.urm.server.meta.Meta.VarCATEGORY;
 import org.urm.server.shell.Account;
 
 public class ScopeExecutor {

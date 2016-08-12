@@ -3,17 +3,17 @@ package org.urm.server.meta;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.Metadata.VarARCHIVETYPE;
-import org.urm.server.meta.Metadata.VarDISTITEMSOURCE;
-import org.urm.server.meta.Metadata.VarDISTITEMTYPE;
-import org.urm.server.meta.Metadata.VarITEMVERSION;
-import org.urm.server.meta.Metadata.VarNAMETYPE;
+import org.urm.server.meta.Meta.VarARCHIVETYPE;
+import org.urm.server.meta.Meta.VarDISTITEMSOURCE;
+import org.urm.server.meta.Meta.VarDISTITEMTYPE;
+import org.urm.server.meta.Meta.VarITEMVERSION;
+import org.urm.server.meta.Meta.VarNAMETYPE;
 import org.urm.server.storage.FileInfo;
 import org.w3c.dom.Node;
 
 public class MetaDistrBinaryItem {
 
-	protected Metadata meta;
+	protected Meta meta;
 	public MetaDistrDelivery delivery;
 	public MetaSourceProjectItem sourceItem;
 
@@ -37,7 +37,7 @@ public class MetaDistrBinaryItem {
 	public boolean CUSTOMDEPLOY;
 	Node node;
 	
-	public MetaDistrBinaryItem( Metadata meta , MetaDistrDelivery delivery ) {
+	public MetaDistrBinaryItem( Meta meta , MetaDistrDelivery delivery ) {
 		this.meta = meta;
 		this.delivery = delivery; 
 	}

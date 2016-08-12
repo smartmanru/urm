@@ -6,7 +6,7 @@ import org.urm.server.action.ActionScope;
 import org.urm.server.action.ActionScopeSet;
 import org.urm.server.action.ActionScopeTarget;
 import org.urm.server.meta.MetaSourceProject;
-import org.urm.server.meta.Metadata.VarCATEGORY;
+import org.urm.server.meta.Meta.VarCATEGORY;
 import org.urm.server.storage.BuildStorage;
 import org.urm.server.storage.LocalFolder;
 

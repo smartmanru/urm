@@ -2,9 +2,10 @@ package org.urm.server.dist;
 
 import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.server.ServerRegistry;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaEnvServer;
-import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Meta;
 import org.urm.server.shell.Account;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.Artefactory;
@@ -14,7 +15,7 @@ public class DistRepository {
 
 	Artefactory artefactory;
 	private RemoteFolder repoFolder;
-	Metadata meta;
+	Meta meta;
 
 	static String RELEASEHISTORYFILE = "history.txt";
 	
@@ -27,20 +28,34 @@ public class DistRepository {
 		DistRepository repo = new DistRepository( artefactory ); 
 		
 		String distPath = action.context.CTX_DISTPATH;
-		if( distPath.isEmpty() ) {
-			if( action.context.env == null )
-				action.exit( "DISTPATH is not defined in product configuration" );
-			distPath = action.context.env.DISTR_PATH;
-		}
 		
-		Account account = action.shell.account;
-		if( action.context.env != null ) {
-			if( !action.isLocalRun() )
-				account = Account.getAccount( action , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
+		Account account = action.getLocalAccount();
+		if( action.session.standalone ) {
+			if( distPath.isEmpty() ) {
+				if( action.context.env != null )
+					distPath = action.context.env.DISTR_PATH;
+			}
+			
+			if( distPath.isEmpty() )
+				action.exit( "DISTPATH is not defined in product configuration" );
+				
+			if( action.context.env != null ) {
+				if( !action.isLocalRun() )
+					account = Account.getAccount( action , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
+			}
+			else {
+				if( !action.isLocalRun() )
+					account = Account.getAccount( action , action.meta.product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
+			}
 		}
 		else {
-			if( !action.isLocalRun() )
-				account = Account.getAccount( action , action.meta.product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
+			if( distPath.isEmpty() ) {
+				ServerRegistry registry = action.actionInit.getRegistry();
+				distPath = registry.DISTR_PATH;
+			}
+			
+			if( distPath.isEmpty() )
+				action.exit( "DISTPATH is not defined in server configuration" );
 		}
 		
 		repo.repoFolder = new RemoteFolder( account , distPath );

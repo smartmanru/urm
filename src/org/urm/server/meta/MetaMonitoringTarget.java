@@ -10,7 +10,7 @@ import org.w3c.dom.Node;
 
 public class MetaMonitoringTarget {
 
-	protected Metadata meta;
+	protected Meta meta;
 	MetaMonitoring monitoring;
 	
 	public String NAME;
@@ -25,7 +25,7 @@ public class MetaMonitoringTarget {
 	private List<MetaMonitoringItem> listUrls;
 	private List<MetaMonitoringItem> listWS;
 
-	public MetaMonitoringTarget( Metadata meta , MetaMonitoring monitoring ) {
+	public MetaMonitoringTarget( Meta meta , MetaMonitoring monitoring ) {
 		this.meta = meta;
 		this.monitoring = monitoring;
 	}

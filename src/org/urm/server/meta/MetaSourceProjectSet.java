@@ -8,15 +8,15 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.Metadata.VarCATEGORY;
-import org.urm.server.meta.Metadata.VarNAMETYPE;
+import org.urm.server.meta.Meta.VarCATEGORY;
+import org.urm.server.meta.Meta.VarNAMETYPE;
 import org.w3c.dom.Node;
 
 public class MetaSourceProjectSet {
 
 	boolean loaded = false;
 	
-	protected Metadata meta;
+	protected Meta meta;
 	MetaSource source;
 
 	public VarCATEGORY CATEGORY;
@@ -25,7 +25,7 @@ public class MetaSourceProjectSet {
 	public List<MetaSourceProject> originalList;
 	public Map<String,MetaSourceProject> map;
 	
-	public MetaSourceProjectSet( Metadata meta , MetaSource source ) {
+	public MetaSourceProjectSet( Meta meta , MetaSource source ) {
 		this.meta = meta;
 		this.source = source;
 	}

@@ -1,17 +1,17 @@
 package org.urm.server.storage;
 
 import org.urm.common.Common;
+import org.urm.server.ServerProduct;
+import org.urm.server.ServerSystem;
 import org.urm.server.ServerTransaction;
 import org.urm.server.action.ActionBase;
 import org.urm.server.dist.Dist;
 import org.urm.server.dist.DistRepository;
-import org.urm.server.meta.FinalMetaProduct;
-import org.urm.server.meta.FinalMetaSystem;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.meta.MetaMonitoring;
 import org.urm.server.meta.MetaSourceProject;
-import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Meta;
 import org.urm.server.shell.Account;
 import org.urm.server.vcs.GenericVCS;
 import org.urm.server.vcs.GitVCS;
@@ -19,10 +19,10 @@ import org.urm.server.vcs.SubversionVCS;
 
 public class Artefactory {
 
-	public Metadata meta;
+	public Meta meta;
 	public LocalFolder workFolder;
 	
-	public Artefactory( Metadata meta , LocalFolder workFolder ) {
+	public Artefactory( Meta meta , LocalFolder workFolder ) {
 		this.meta = meta;
 		this.workFolder = workFolder;
 	}
@@ -271,10 +271,10 @@ public class Artefactory {
 		return( new VersionInfoStorage( redist ) );
 	}
 
-	public void deleteSystemResources( ServerTransaction transaction , FinalMetaSystem system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
+	public void deleteSystemResources( ServerTransaction transaction , ServerSystem system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 	}
 	
-	public void deleteProductResources( ServerTransaction transaction , FinalMetaProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
+	public void deleteProductResources( ServerTransaction transaction , ServerProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 	}
 	
 }

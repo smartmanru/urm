@@ -6,11 +6,11 @@ import java.util.Map.Entry;
 
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaDistrDelivery;
-import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Meta;
 
 public class ReleaseDelivery {
 
-	Metadata meta;
+	Meta meta;
 	public Release release;
 	public MetaDistrDelivery distDelivery;
 	
@@ -19,7 +19,7 @@ public class ReleaseDelivery {
 	private Map<String,ReleaseTarget> manualItems;
 	private ReleaseTarget dbItem;
 	
-	public ReleaseDelivery( Metadata meta , Release release , MetaDistrDelivery distDelivery ) {
+	public ReleaseDelivery( Meta meta , Release release , MetaDistrDelivery distDelivery ) {
 		this.meta = meta; 
 		this.release = release;
 		this.distDelivery = distDelivery;

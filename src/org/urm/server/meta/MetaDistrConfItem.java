@@ -3,13 +3,13 @@ package org.urm.server.meta;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.Metadata.VarCONFITEMTYPE;
-import org.urm.server.meta.Metadata.VarNAMETYPE;
+import org.urm.server.meta.Meta.VarCONFITEMTYPE;
+import org.urm.server.meta.Meta.VarNAMETYPE;
 import org.w3c.dom.Node;
 
 public class MetaDistrConfItem {
 
-	protected Metadata meta;
+	protected Meta meta;
 	public MetaDistrDelivery delivery;
 
 	public String KEY;
@@ -22,7 +22,7 @@ public class MetaDistrConfItem {
 	public boolean OBSOLETE;
 	public boolean CREATEDIR;
 	
-	public MetaDistrConfItem( Metadata meta , MetaDistrDelivery delivery ) {
+	public MetaDistrConfItem( Meta meta , MetaDistrDelivery delivery ) {
 		this.meta = meta;
 		this.delivery = delivery;
 	}

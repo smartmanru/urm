@@ -6,7 +6,7 @@ import org.urm.server.action.ActionScopeSet;
 import org.urm.server.action.ActionScopeTarget;
 import org.urm.server.action.ActionScopeTargetItem;
 import org.urm.server.dist.Dist;
-import org.urm.server.meta.Metadata.VarCATEGORY;
+import org.urm.server.meta.Meta.VarCATEGORY;
 
 public class ActionAddScope extends ActionBase {
 

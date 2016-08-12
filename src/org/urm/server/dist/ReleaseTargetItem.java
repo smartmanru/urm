@@ -6,15 +6,15 @@ import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaDistrBinaryItem;
 import org.urm.server.meta.MetaDistrDelivery;
 import org.urm.server.meta.MetaSourceProjectItem;
-import org.urm.server.meta.Metadata;
-import org.urm.server.meta.Metadata.VarNAMETYPE;
+import org.urm.server.meta.Meta;
+import org.urm.server.meta.Meta.VarNAMETYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class ReleaseTargetItem {
 
-	Metadata meta;
+	Meta meta;
 	public ReleaseTarget target;
 	
 	public MetaSourceProjectItem sourceItem;
@@ -24,7 +24,7 @@ public class ReleaseTargetItem {
 	
 	public String DISTFILE;
 
-	public ReleaseTargetItem( Metadata meta , ReleaseTarget target ) {
+	public ReleaseTargetItem( Meta meta , ReleaseTarget target ) {
 		this.meta = meta;
 		this.target = target;
 	}

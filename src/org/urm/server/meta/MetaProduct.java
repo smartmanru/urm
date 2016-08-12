@@ -7,15 +7,17 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
+import org.urm.server.ServerProductContext;
+import org.urm.server.ServerRegistry;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.Metadata.VarBUILDMODE;
+import org.urm.server.meta.Meta.VarBUILDMODE;
 import org.w3c.dom.Node;
 
 public class MetaProduct {
 
 	public PropertySet props;
 	private boolean loaded = false;
-	protected Metadata meta;
+	protected Meta meta;
 	public Charset charset;
 	
 	public String CONFIG_PRODUCT;
@@ -85,7 +87,7 @@ public class MetaProduct {
 	public boolean initial;
 	public String[] modes = { "devtrunk" , "trunk" , "majorbranch" , "devbranch" , "branch" };
 	
-	public MetaProduct( Metadata meta ) {
+	public MetaProduct( Meta meta ) {
 		this.meta = meta;
 	}
 	
@@ -151,7 +153,7 @@ public class MetaProduct {
 			action.exit( "unknown database files charset=" + CONFIG_SOURCE_SQL_CHARSET );
 	}
 
-	public void create( ActionBase action , FinalRegistry registry , MetaProductContext productContext ) throws Exception {
+	public void create( ActionBase action , ServerRegistry registry , ServerProductContext productContext ) throws Exception {
 		if( loaded )
 			return;
 
@@ -163,7 +165,7 @@ public class MetaProduct {
 		registry.setProductDefaults( action , props );
 	}
 	
-	public void load( ActionBase action , MetaProductContext productContext , Node root ) throws Exception {
+	public void load( ActionBase action , ServerProductContext productContext , Node root ) throws Exception {
 		if( loaded )
 			return;
 
@@ -311,7 +313,7 @@ public class MetaProduct {
 		return( map );
 	}
 
-	public void setContextProperties( ActionBase action , MetaProductContext productContext ) throws Exception {
+	public void setContextProperties( ActionBase action , ServerProductContext productContext ) throws Exception {
 		CONFIG_PRODUCT = productContext.CONFIG_PRODUCT;
 		CONFIG_PRODUCTHOME = productContext.CONFIG_PRODUCTHOME;
 		CONFIG_LASTPRODTAG = productContext.CONFIG_LASTPRODTAG;

@@ -6,9 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.ConfReader;
+import org.urm.server.ServerRegistry;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.Metadata.VarBUILDMODE;
-import org.urm.server.meta.Metadata.VarCATEGORY;
+import org.urm.server.meta.Meta.VarBUILDMODE;
+import org.urm.server.meta.Meta.VarCATEGORY;
 import org.w3c.dom.Node;
 
 public class MetaSource {
@@ -18,13 +19,13 @@ public class MetaSource {
 	Map<String,MetaSourceProject> projectMap;
 	boolean loaded = false;
 	
-	protected Metadata meta;
+	protected Meta meta;
 	
-	public MetaSource( Metadata meta ) {
+	public MetaSource( Meta meta ) {
 		this.meta = meta;
 	}
 	
-	public void createInitial( ActionBase action , FinalRegistry registry ) throws Exception {
+	public void createInitial( ActionBase action , ServerRegistry registry ) throws Exception {
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {

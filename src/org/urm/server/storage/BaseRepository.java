@@ -5,7 +5,7 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.meta.MetaBase;
-import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Meta;
 import org.urm.server.shell.Account;
 import org.w3c.dom.Document;
 
@@ -13,7 +13,7 @@ public class BaseRepository {
 
 	Artefactory artefactory;
 	private RemoteFolder repoFolder;
-	Metadata meta;
+	Meta meta;
 
 	static String RELEASEHISTORYFILE = "history.txt";
 	

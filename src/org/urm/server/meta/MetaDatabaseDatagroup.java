@@ -6,18 +6,18 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.Metadata.VarNAMETYPE;
+import org.urm.server.meta.Meta.VarNAMETYPE;
 import org.w3c.dom.Node;
 
 public class MetaDatabaseDatagroup {
 
-	protected Metadata meta;
+	protected Meta meta;
 	public MetaDatabase database;
 
 	String NAME;
 	Map<String,MetaDatabaseSchema> schemaSet;
 	
-	public MetaDatabaseDatagroup( Metadata meta , MetaDatabase database ) {
+	public MetaDatabaseDatagroup( Meta meta , MetaDatabase database ) {
 		this.meta = meta;
 		this.database = database;
 	}

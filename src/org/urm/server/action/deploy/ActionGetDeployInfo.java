@@ -10,7 +10,7 @@ import org.urm.server.action.database.DatabaseRegistryRelease;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.MetaEnvServerLocation;
 import org.urm.server.meta.MetaEnvServerNode;
-import org.urm.server.meta.Metadata.VarCONTENTTYPE;
+import org.urm.server.meta.Meta.VarCONTENTTYPE;
 import org.urm.server.storage.FileInfo;
 import org.urm.server.storage.RedistStateInfo;
 import org.urm.server.storage.RedistStorage;

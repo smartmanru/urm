@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.ConfReader;
+import org.urm.server.ServerRegistry;
 import org.urm.server.action.ActionBase;
 import org.w3c.dom.Node;
 
@@ -13,17 +14,17 @@ public class MetaDistr {
 
 	boolean loaded = false;
 
-	protected Metadata meta;
+	protected Meta meta;
 	private Map<String,MetaDistrDelivery> mapDeliveries;
 	private Map<String,MetaDistrBinaryItem> mapBinaryItems;
 	private Map<String,MetaDistrConfItem> mapConfItems;
 	private Map<String,MetaDistrComponent> mapComps;
 	
-	public MetaDistr( Metadata meta ) {
+	public MetaDistr( Meta meta ) {
 		this.meta = meta;
 	}
 	
-	public void createInitial( ActionBase action , FinalRegistry registry ) throws Exception {
+	public void createInitial( ActionBase action , ServerRegistry registry ) throws Exception {
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {

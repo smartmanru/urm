@@ -2,13 +2,13 @@ package org.urm.server.meta;
 
 import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.Metadata.VarDEPLOYTYPE;
-import org.urm.server.meta.Metadata.VarNODETYPE;
+import org.urm.server.meta.Meta.VarDEPLOYTYPE;
+import org.urm.server.meta.Meta.VarNODETYPE;
 import org.w3c.dom.Node;
 
 public class MetaEnvServerDeployment {
 	
-	protected Metadata meta;
+	protected Meta meta;
 	MetaEnvServer server;
 	
 	public MetaDistrComponent comp;
@@ -20,7 +20,7 @@ public class MetaEnvServerDeployment {
 	public String NODETYPE;
 	private VarNODETYPE nodeType;
 	
-	public MetaEnvServerDeployment( Metadata meta , MetaEnvServer server ) {
+	public MetaEnvServerDeployment( Meta meta , MetaEnvServer server ) {
 		this.meta = meta;
 		this.server = server;
 	}

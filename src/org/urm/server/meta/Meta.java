@@ -4,15 +4,17 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.ExitException;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.server.ServerLoader;
+import org.urm.server.ServerMetaSet;
 import org.urm.server.SessionContext;
 import org.urm.server.action.ActionBase;
 import org.w3c.dom.Node;
 
-public class Metadata {
+public class Meta {
 	
-	public FinalLoader loader;
+	public ServerLoader loader;
 	public SessionContext session;
-	public FinalMetaSet storage;
+	public ServerMetaSet storage;
 	
 	public MetaProduct product;
 	public MetaDatabase database;
@@ -169,13 +171,13 @@ public class Metadata {
 		ZIP
 	};
 	
-	public Metadata( FinalMetaSet storage , SessionContext session ) {
+	public Meta( ServerMetaSet storage , SessionContext session ) {
 		this.storage = storage;
 		this.loader = storage.loader;
 		this.session = session;
 	}
 	
-	public Metadata( FinalLoader loader , SessionContext session ) {
+	public Meta( ServerLoader loader , SessionContext session ) {
 		this.loader = loader;
 		this.session = session;
 		

@@ -10,14 +10,14 @@ import org.w3c.dom.Node;
 
 public class MetaEnvServerBase {
 
-	protected Metadata meta;
+	protected Meta meta;
 	public MetaEnvServer server;
 
 	public String ID;
 	public Map<String,MetaEnvServerPrepareApp> prepareMap;
 	public PropertySet properties;
 	
-	public MetaEnvServerBase( Metadata meta , MetaEnvServer server ) {
+	public MetaEnvServerBase( Meta meta , MetaEnvServer server ) {
 		this.meta = meta;
 		this.server = server;
 	}

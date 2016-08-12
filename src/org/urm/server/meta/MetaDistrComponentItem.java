@@ -2,12 +2,12 @@ package org.urm.server.meta;
 
 import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.Metadata.VarNAMETYPE;
+import org.urm.server.meta.Meta.VarNAMETYPE;
 import org.w3c.dom.Node;
 
 public class MetaDistrComponentItem {
 
-	protected Metadata meta;
+	protected Meta meta;
 	MetaDistrComponent comp;
 	
 	public MetaDistrBinaryItem binaryItem;
@@ -15,7 +15,7 @@ public class MetaDistrComponentItem {
 	public boolean OBSOLETE;
 	public String DEPLOYNAME;
 
-	public MetaDistrComponentItem( Metadata meta , MetaDistrComponent comp ) {
+	public MetaDistrComponentItem( Meta meta , MetaDistrComponent comp ) {
 		this.meta = meta;
 		this.comp = comp;
 	}

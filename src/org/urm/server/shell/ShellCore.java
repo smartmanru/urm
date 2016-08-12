@@ -7,7 +7,7 @@ import java.util.Map;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.CommandOutput;
-import org.urm.server.meta.Metadata.VarSESSIONTYPE;
+import org.urm.server.meta.Meta.VarSESSIONTYPE;
 import org.urm.server.storage.Folder;
 
 abstract class ShellCore {

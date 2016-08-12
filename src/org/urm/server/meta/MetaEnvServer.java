@@ -10,15 +10,15 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.Metadata.VarDBMSTYPE;
-import org.urm.server.meta.Metadata.VarDEPLOYTYPE;
-import org.urm.server.meta.Metadata.VarSERVERTYPE;
+import org.urm.server.meta.Meta.VarDBMSTYPE;
+import org.urm.server.meta.Meta.VarDEPLOYTYPE;
+import org.urm.server.meta.Meta.VarSERVERTYPE;
 import org.urm.server.shell.Account;
 import org.w3c.dom.Node;
 
 public class MetaEnvServer {
 
-	public Metadata meta;
+	public Meta meta;
 	public MetaEnvDC dc;
 	
 	public String NAME;
@@ -76,7 +76,7 @@ public class MetaEnvServer {
 	public boolean primary;
 	public MetaEnvStartGroup startGroup;
 	
-	public MetaEnvServer( Metadata meta , MetaEnvDC dc ) {
+	public MetaEnvServer( Meta meta , MetaEnvDC dc ) {
 		this.meta = meta;
 		this.dc = dc;
 		this.primary = false;

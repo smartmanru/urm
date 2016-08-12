@@ -2,13 +2,13 @@ package org.urm.server.meta;
 
 import org.urm.common.PropertySet;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.Metadata.VarNODETYPE;
+import org.urm.server.meta.Meta.VarNODETYPE;
 import org.urm.server.shell.Account;
 import org.w3c.dom.Node;
 
 public class MetaEnvServerNode {
 
-	protected Metadata meta;
+	protected Meta meta;
 	public MetaEnvServer server;
 	
 	public int POS;
@@ -22,7 +22,7 @@ public class MetaEnvServerNode {
 	
 	public PropertySet properties;
 	
-	public MetaEnvServerNode( Metadata meta , MetaEnvServer server , int POS ) {
+	public MetaEnvServerNode( Meta meta , MetaEnvServer server , int POS ) {
 		this.meta = meta;
 		this.server = server;
 		this.POS = POS;

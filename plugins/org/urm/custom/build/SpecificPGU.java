@@ -11,8 +11,8 @@ import org.urm.server.dist.Dist;
 import org.urm.server.meta.MetaDistrBinaryItem;
 import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.meta.MetaSourceProjectItem;
-import org.urm.server.meta.Metadata;
-import org.urm.server.meta.Metadata.VarCATEGORY;
+import org.urm.server.meta.Meta;
+import org.urm.server.meta.Meta.VarCATEGORY;
 import org.urm.server.storage.Artefactory;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.NexusDownloadInfo;
@@ -20,7 +20,7 @@ import org.urm.server.storage.NexusStorage;
 
 public class SpecificPGU {
 
-	Metadata meta;
+	Meta meta;
 	LocalFolder downloadFolder;
 	ActionBase action;
 	Artefactory artefactory;

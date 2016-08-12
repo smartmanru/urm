@@ -3,20 +3,20 @@ package org.urm.server.custom;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaDistrBinaryItem;
 import org.urm.server.meta.MetaSourceProject;
-import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Meta;
 import org.urm.server.storage.FileSet;
 import org.urm.server.storage.LocalFolder;
 import org.w3c.dom.Node;
 
 public class CommandCustom {
 
-	Metadata meta;
+	Meta meta;
 	
 	private ICustomBuild customBuild = null;
 	private ICustomDeploy customDeploy = null;
 	private ICustomDatabase customDatabase = null;
 	
-	public CommandCustom( Metadata meta ) {
+	public CommandCustom( Meta meta ) {
 		this.meta = meta;
 	}
 

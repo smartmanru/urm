@@ -4,7 +4,7 @@ import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScope;
 import org.urm.server.action.build.BuildCommand;
 import org.urm.server.dist.Dist;
-import org.urm.server.meta.Metadata.VarCATEGORY;
+import org.urm.server.meta.Meta.VarCATEGORY;
 
 public class ReleaseCommand {
 

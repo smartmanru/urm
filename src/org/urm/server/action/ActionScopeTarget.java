@@ -14,7 +14,7 @@ import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.meta.MetaSourceProjectItem;
-import org.urm.server.meta.Metadata.VarCATEGORY;
+import org.urm.server.meta.Meta.VarCATEGORY;
 
 public class ActionScopeTarget {
 

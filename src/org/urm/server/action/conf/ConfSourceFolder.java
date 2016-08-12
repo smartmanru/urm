@@ -3,11 +3,11 @@ package org.urm.server.action.conf;
 import org.urm.server.action.ActionBase;
 import org.urm.server.dist.ReleaseTarget;
 import org.urm.server.meta.MetaDistrConfItem;
-import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Meta;
 
 public class ConfSourceFolder {
 	
-	Metadata meta;
+	Meta meta;
 	
 	public MetaDistrConfItem distrComp;
 	public ReleaseTarget releaseComp;
@@ -15,7 +15,7 @@ public class ConfSourceFolder {
 	public boolean productFolder = false;
 	public boolean releaseFolder = false;
 	
-	public ConfSourceFolder( Metadata meta ) {
+	public ConfSourceFolder( Meta meta ) {
 		this.meta = meta;
 	}
 

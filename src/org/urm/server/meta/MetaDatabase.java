@@ -4,12 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.ConfReader;
+import org.urm.server.ServerRegistry;
 import org.urm.server.action.ActionBase;
 import org.w3c.dom.Node;
 
 public class MetaDatabase {
 
-	protected Metadata meta;
+	protected Meta meta;
 
 	public Map<String,MetaDatabaseSchema> mapSchema = new HashMap<String,MetaDatabaseSchema>();
 	public Map<String,MetaDatabaseDatagroup> mapDatagroup = new HashMap<String,MetaDatabaseDatagroup>();
@@ -17,11 +18,11 @@ public class MetaDatabase {
 	
 	public String ALIGNEDMAPPING;
 	
-	public MetaDatabase( Metadata meta ) {
+	public MetaDatabase( Meta meta ) {
 		this.meta = meta;
 	}
 
-	public void createInitial( ActionBase action , FinalRegistry registry ) throws Exception {
+	public void createInitial( ActionBase action , ServerRegistry registry ) throws Exception {
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {

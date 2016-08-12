@@ -10,7 +10,7 @@ import org.urm.server.action.ActionBase;
 import org.urm.server.action.database.DatabaseClient;
 import org.urm.server.meta.MetaDatabaseSchema;
 import org.urm.server.meta.MetaEnvServer;
-import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Meta;
 
 public class MetadataStorage {
 
@@ -18,7 +18,7 @@ public class MetadataStorage {
 	public static String xdocDir = "xdoc";
 	
 	public Artefactory artefactory;
-	public Metadata meta;
+	public Meta meta;
 	
 	public MetadataStorage( Artefactory artefactory ) {
 		this.artefactory = artefactory;

@@ -13,7 +13,7 @@ import org.w3c.dom.Node;
 
 public class MetaEnvDC {
 
-	public Metadata meta;
+	public Meta meta;
 	public MetaEnv env;
 	
 	public String NAME;
@@ -25,7 +25,7 @@ public class MetaEnvDC {
 	public List<MetaEnvServer> originalList;
 	public Map<String,MetaEnvServer> serverMap;
 	
-	public MetaEnvDC( Metadata meta , MetaEnv env ) {
+	public MetaEnvDC( Meta meta , MetaEnv env ) {
 		this.meta = meta;
 		this.env = env;
 	}

@@ -2,7 +2,7 @@ package org.urm.server.vcs;
 
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaSourceProject;
-import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Meta;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.Folder;
 import org.urm.server.storage.LocalFolder;
@@ -11,7 +11,7 @@ public abstract class GenericVCS {
 
 	ActionBase action;
 	ShellExecutor session;
-	Metadata meta;
+	Meta meta;
 	
 	protected GenericVCS( ActionBase action ) {
 		this.action = action;

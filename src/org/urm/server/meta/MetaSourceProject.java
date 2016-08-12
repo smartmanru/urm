@@ -7,13 +7,13 @@ import java.util.Map;
 
 import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.Metadata.VarCATEGORY;
-import org.urm.server.meta.Metadata.VarNAMETYPE;
+import org.urm.server.meta.Meta.VarCATEGORY;
+import org.urm.server.meta.Meta.VarNAMETYPE;
 import org.w3c.dom.Node;
 
 public class MetaSourceProject {
 
-	protected Metadata meta;
+	protected Meta meta;
 	public MetaSourceProjectSet set;
 	public VarCATEGORY CATEGORY;
 	
@@ -40,7 +40,7 @@ public class MetaSourceProject {
 	public boolean CUSTOMBUILD;
 	public boolean CUSTOMGET;
 	
-	public MetaSourceProject( Metadata meta , MetaSourceProjectSet set ) {
+	public MetaSourceProject( Meta meta , MetaSourceProjectSet set ) {
 		this.meta = meta;
 		this.set = set;
 		this.CATEGORY = set.CATEGORY;

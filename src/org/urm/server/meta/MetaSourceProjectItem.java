@@ -2,8 +2,8 @@ package org.urm.server.meta;
 
 import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.Metadata.VarITEMSRCTYPE;
-import org.urm.server.meta.Metadata.VarNAMETYPE;
+import org.urm.server.meta.Meta.VarITEMSRCTYPE;
+import org.urm.server.meta.Meta.VarNAMETYPE;
 import org.w3c.dom.Node;
 
 public class MetaSourceProjectItem {
@@ -24,11 +24,11 @@ public class MetaSourceProjectItem {
 	public String NUGET_PLATFORM;
 	public String NUGET_LIBNAME;
 
-	protected Metadata meta;
+	protected Meta meta;
 	public MetaDistrBinaryItem distItem;
 	public MetaSourceProject project;
 	
-	public MetaSourceProjectItem( Metadata meta , MetaSourceProject project ) {
+	public MetaSourceProjectItem( Meta meta , MetaSourceProject project ) {
 		this.meta = meta;
 		this.project = project;
 	}

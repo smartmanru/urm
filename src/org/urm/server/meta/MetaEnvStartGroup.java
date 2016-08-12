@@ -8,12 +8,12 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.Metadata.VarNAMETYPE;
+import org.urm.server.meta.Meta.VarNAMETYPE;
 import org.w3c.dom.Node;
 
 public class MetaEnvStartGroup {
 
-	protected Metadata meta;
+	protected Meta meta;
 	public MetaEnvStartInfo startInfo;
 	
 	public String NAME;
@@ -21,7 +21,7 @@ public class MetaEnvStartGroup {
 	public List<MetaEnvServer> servers;
 	public Map<String,MetaEnvServer> serverMap;
 	
-	public MetaEnvStartGroup( Metadata meta , MetaEnvStartInfo startInfo ) {
+	public MetaEnvStartGroup( Meta meta , MetaEnvStartInfo startInfo ) {
 		this.meta = meta;
 		this.startInfo = startInfo;
 	}

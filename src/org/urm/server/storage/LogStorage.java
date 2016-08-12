@@ -4,12 +4,12 @@ import org.urm.common.Common;
 import org.urm.server.action.ActionBase;
 import org.urm.server.dist.ReleaseDelivery;
 import org.urm.server.meta.MetaEnvServer;
-import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Meta;
 
 public class LogStorage {
 
 	Artefactory artefactory;
-	Metadata meta;
+	Meta meta;
 	public LocalFolder logFolder;
 	
 	public LogStorage( Artefactory artefactory ) {

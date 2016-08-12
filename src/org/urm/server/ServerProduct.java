@@ -1,25 +1,25 @@
-package org.urm.server.meta;
+package org.urm.server;
 
 import org.urm.common.ConfReader;
-import org.urm.server.ServerTransaction;
+import org.urm.server.meta.MetaEnv;
 import org.w3c.dom.Node;
 
-public class FinalMetaProduct {
+public class ServerProduct {
 
-	public FinalRegistry registry;
-	public FinalMetaSystem system;
+	public ServerRegistry registry;
+	public ServerSystem system;
 	
 	public String NAME;
 	public String DESC;
 	public String PATH;
 
-	public FinalMetaProduct( FinalRegistry registry , FinalMetaSystem system ) {
+	public ServerProduct( ServerRegistry registry , ServerSystem system ) {
 		this.registry = registry;
 		this.system = system;
 	}
 
-	public FinalMetaProduct copy( FinalRegistry nr , FinalMetaSystem rs ) {
-		FinalMetaProduct rp = new FinalMetaProduct( nr , rs );
+	public ServerProduct copy( ServerRegistry nr , ServerSystem rs ) {
+		ServerProduct rp = new ServerProduct( nr , rs );
 		rp.NAME = NAME;
 		rp.DESC = DESC;
 		rp.PATH = PATH;
@@ -33,22 +33,22 @@ public class FinalMetaProduct {
 	}
 	
 	public String[] getEnvironments() throws Exception {
-		FinalLoader loader = system.registry.loader;
-		FinalMetaSet storage = loader.getMetaStorage( NAME );
+		ServerLoader loader = system.registry.loader;
+		ServerMetaSet storage = loader.getMetaStorage( NAME );
 		if( storage == null )
 			return( new String[0] );
 		return( storage.getEnvironments() );
 	}
 	
 	public MetaEnv getEnvironment( String envId ) throws Exception {
-		FinalLoader loader = system.registry.loader;
-		FinalMetaSet storage = loader.getMetaStorage( NAME );
+		ServerLoader loader = system.registry.loader;
+		ServerMetaSet storage = loader.getMetaStorage( NAME );
 		if( storage == null )
 			return( null );
 		return( storage.getEnvironment( envId ) );
 	}
 
-	public void modifyProduct( ServerTransaction transaction , FinalMetaProduct productNew ) throws Exception {
+	public void modifyProduct( ServerTransaction transaction , ServerProduct productNew ) throws Exception {
 		DESC = productNew.DESC;
 		PATH = productNew.PATH;
 	}

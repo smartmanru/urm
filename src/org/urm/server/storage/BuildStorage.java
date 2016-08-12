@@ -1,11 +1,11 @@
 package org.urm.server.storage;
 
-import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Meta;
 
 public class BuildStorage {
 
 	Artefactory artefactory;
-	Metadata meta;
+	Meta meta;
 	public LocalFolder buildFolder;
 	
 	public BuildStorage( Artefactory artefactory , LocalFolder buildFolder ) {

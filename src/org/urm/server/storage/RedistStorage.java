@@ -11,11 +11,11 @@ import org.urm.server.meta.MetaDistrConfItem;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.MetaEnvServerLocation;
 import org.urm.server.meta.MetaEnvServerNode;
-import org.urm.server.meta.Metadata.VarARCHIVETYPE;
-import org.urm.server.meta.Metadata.VarCONTENTTYPE;
-import org.urm.server.meta.Metadata.VarDEPLOYTYPE;
-import org.urm.server.meta.Metadata.VarDISTITEMTYPE;
-import org.urm.server.meta.Metadata.VarITEMVERSION;
+import org.urm.server.meta.Meta.VarARCHIVETYPE;
+import org.urm.server.meta.Meta.VarCONTENTTYPE;
+import org.urm.server.meta.Meta.VarDEPLOYTYPE;
+import org.urm.server.meta.Meta.VarDISTITEMTYPE;
+import org.urm.server.meta.Meta.VarITEMVERSION;
 import org.urm.server.shell.Account;
 import org.urm.server.shell.ShellExecutor;
 

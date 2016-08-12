@@ -1,4 +1,4 @@
-package org.urm.server.meta;
+package org.urm.server;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -7,18 +7,25 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.ConfReader;
-import org.urm.server.SessionContext;
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.MetaDatabase;
+import org.urm.server.meta.MetaDesign;
+import org.urm.server.meta.MetaDistr;
+import org.urm.server.meta.MetaEnv;
+import org.urm.server.meta.MetaMonitoring;
+import org.urm.server.meta.MetaProduct;
+import org.urm.server.meta.MetaSource;
+import org.urm.server.meta.Meta;
 import org.urm.server.storage.MetadataStorage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-public class FinalMetaSet {
+public class ServerMetaSet {
 
-	public FinalLoader loader;
+	public ServerLoader loader;
 	public SessionContext session;
 	
-	public Metadata meta;
+	public Meta meta;
 	
 	private MetaProduct product;
 	private MetaDistr distr;
@@ -36,11 +43,11 @@ public class FinalMetaSet {
 	public static String XML_ROOT_MONITORING = "monitoring";
 	public static String XML_ROOT_ENV = "environment";
 	
-	public FinalMetaSet( FinalLoader loader , SessionContext session ) {
+	public ServerMetaSet( ServerLoader loader , SessionContext session ) {
 		this.loader = loader;
 		this.session = session;
 		
-		meta = new Metadata( this , session );
+		meta = new Meta( this , session );
 		designFiles = new HashMap<String,MetaDesign>();
 		envs = new HashMap<String,MetaEnv>();
 	}
@@ -52,7 +59,7 @@ public class FinalMetaSet {
 		product = new MetaProduct( meta );
 		meta.setProduct( product );
 
-		MetaProductContext productContext = new MetaProductContext( meta );
+		ServerProductContext productContext = new ServerProductContext( meta );
 		productContext.load( action );
 		
 		// read
@@ -65,11 +72,11 @@ public class FinalMetaSet {
 		return( product );
 	}
 	
-	private void createInitialProduct( ActionBase action , FinalRegistry registry ) throws Exception {
+	private void createInitialProduct( ActionBase action , ServerRegistry registry ) throws Exception {
 		product = new MetaProduct( meta );
 		meta.setProduct( product );
 		
-		MetaProductContext productContext = new MetaProductContext( meta );
+		ServerProductContext productContext = new ServerProductContext( meta );
 		productContext.load( action );
 		
 		product.create( action , registry , productContext );
@@ -92,7 +99,7 @@ public class FinalMetaSet {
 		return( distr );
 	}
 
-	private void createInitialDistr( ActionBase action , FinalRegistry registry ) throws Exception {
+	private void createInitialDistr( ActionBase action , ServerRegistry registry ) throws Exception {
 		distr = new MetaDistr( meta );
 		meta.setDistr( distr );
 		distr.createInitial( action , registry );
@@ -115,7 +122,7 @@ public class FinalMetaSet {
 		return( database );
 	}
 	
-	private void createInitialDatabase( ActionBase action , FinalRegistry registry ) throws Exception {
+	private void createInitialDatabase( ActionBase action , ServerRegistry registry ) throws Exception {
 		database = new MetaDatabase( meta );
 		meta.setDatabase( database );
 		database.createInitial( action , registry );
@@ -138,7 +145,7 @@ public class FinalMetaSet {
 		return( sources );
 	}
 	
-	private void createInitialSources( ActionBase action , FinalRegistry registry ) throws Exception {
+	private void createInitialSources( ActionBase action , ServerRegistry registry ) throws Exception {
 		sources = new MetaSource( meta );
 		meta.setSources( sources );
 		sources.createInitial( action , registry );
@@ -160,7 +167,7 @@ public class FinalMetaSet {
 		return( mon );
 	}
 	
-	private void createInitialMonitoring( ActionBase action , FinalRegistry registry ) throws Exception {
+	private void createInitialMonitoring( ActionBase action , ServerRegistry registry ) throws Exception {
 		mon = new MetaMonitoring( meta );
 		mon.createInitial( action , registry );
 	}
@@ -238,11 +245,11 @@ public class FinalMetaSet {
 		return( null );
 	}
 
-	public synchronized FinalMetaSet copy( ActionBase action ) throws Exception {
+	public synchronized ServerMetaSet copy( ActionBase action ) throws Exception {
 		return( null );
 	}
 
-	public synchronized void createInitial( ActionBase action , FinalRegistry registry ) throws Exception {
+	public synchronized void createInitial( ActionBase action , ServerRegistry registry ) throws Exception {
 		createInitialProduct( action , registry );
 		createInitialDatabase( action , registry );
 		createInitialDistr( action , registry );
@@ -255,7 +262,7 @@ public class FinalMetaSet {
 		action.meta.setSources( sources );
 	}
 
-	public void saveAll( ActionBase action , MetadataStorage storageMeta , FinalMetaProduct product ) throws Exception {
+	public void saveAll( ActionBase action , MetadataStorage storageMeta , ServerProduct product ) throws Exception {
 	}
 	
 }

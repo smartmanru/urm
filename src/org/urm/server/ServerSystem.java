@@ -1,33 +1,32 @@
-package org.urm.server.meta;
+package org.urm.server;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.server.ServerTransaction;
 import org.w3c.dom.Node;
 
-public class FinalMetaSystem {
+public class ServerSystem {
 
-	public FinalRegistry registry;
-	public Map<String,FinalMetaProduct> mapProducts;
+	public ServerRegistry registry;
+	public Map<String,ServerProduct> mapProducts;
 	
 	public String NAME;
 	public String DESC;
 	
-	public FinalMetaSystem( FinalRegistry engine ) {
+	public ServerSystem( ServerRegistry engine ) {
 		this.registry = engine;
-		mapProducts = new HashMap<String,FinalMetaProduct>();
+		mapProducts = new HashMap<String,ServerProduct>();
 	}
 	
-	public FinalMetaSystem copy( FinalRegistry nr ) {
-		FinalMetaSystem r = new FinalMetaSystem( nr );
+	public ServerSystem copy( ServerRegistry nr ) {
+		ServerSystem r = new ServerSystem( nr );
 		r.NAME = NAME;
 		r.DESC = DESC;
 		
-		for( FinalMetaProduct product : mapProducts.values() ) {
-			FinalMetaProduct rp = product.copy( nr , r );
+		for( ServerProduct product : mapProducts.values() ) {
+			ServerProduct rp = product.copy( nr , r );
 			r.mapProducts.put( rp.NAME , rp );
 		}
 		return( r );
@@ -42,7 +41,7 @@ public class FinalMetaSystem {
 			return;
 		
 		for( Node itemNode : items ) {
-			FinalMetaProduct item = new FinalMetaProduct( registry , this );
+			ServerProduct item = new ServerProduct( registry , this );
 			item.load( itemNode );
 			mapProducts.put( item.NAME , item );
 		}
@@ -52,19 +51,19 @@ public class FinalMetaSystem {
 		return( Common.getSortedKeys( mapProducts ) );
 	}
 
-	public FinalMetaProduct getProduct( String key ) {
+	public ServerProduct getProduct( String key ) {
 		return( mapProducts.get( key ) );
 	}
 
-	public void modifySystem( ServerTransaction transaction , FinalMetaSystem systemNew ) throws Exception {
+	public void modifySystem( ServerTransaction transaction , ServerSystem systemNew ) throws Exception {
 		DESC = systemNew.DESC;
 	}
 
-	public void addProduct( ServerTransaction transaction , FinalMetaProduct product ) throws Exception {
+	public void addProduct( ServerTransaction transaction , ServerProduct product ) throws Exception {
 		mapProducts.put( product.NAME , product );
 	}
 	
-	public void removeProduct( ServerTransaction transaction , FinalMetaProduct product ) throws Exception {
+	public void removeProduct( ServerTransaction transaction , ServerProduct product ) throws Exception {
 		mapProducts.remove( product.NAME );
 	}
 	

@@ -1,9 +1,9 @@
 package org.urm.server.action;
 
+import org.urm.server.ServerLoader;
+import org.urm.server.ServerProduct;
+import org.urm.server.ServerRegistry;
 import org.urm.server.SessionContext;
-import org.urm.server.meta.FinalLoader;
-import org.urm.server.meta.FinalMetaProduct;
-import org.urm.server.meta.FinalRegistry;
 import org.urm.server.storage.Artefactory;
 
 public class ActionInit extends ActionBase {
@@ -28,14 +28,14 @@ public class ActionInit extends ActionBase {
 		exit( "unexpected operation" );
 	}
 
-	public void setServerSystemProductLayout( FinalMetaProduct product ) throws Exception {
+	public void setServerSystemProductLayout( ServerProduct product ) throws Exception {
 		session.setServerSystemProductLayout( product.NAME , product.PATH );
 		meta.clearAll();
 	}
 	
 	public void setServerSystemProductLayout( String name ) throws Exception {
-		FinalRegistry registry = getRegistry();
-		FinalMetaProduct product = registry.getProduct( this , name ); 
+		ServerRegistry registry = getRegistry();
+		ServerProduct product = registry.getProduct( this , name ); 
 		setServerSystemProductLayout( product );
 	}
 	
@@ -44,12 +44,12 @@ public class ActionInit extends ActionBase {
 		meta.clearAll();
 	}
 	
-	public FinalRegistry getRegistry() {
-		FinalLoader loader = engine.metaLoader;
+	public ServerRegistry getRegistry() {
+		ServerLoader loader = engine.metaLoader;
 		return( loader.getRegistry() );
 	}
 	
-	public FinalLoader getMetaLoader() {
+	public ServerLoader getMetaLoader() {
 		return( engine.metaLoader );
 	}
 

@@ -4,13 +4,13 @@ import org.urm.common.Common;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaDistrBinaryItem;
 import org.urm.server.meta.MetaSourceProjectItem;
-import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Meta;
 
 public class NexusStorage {
 
 	Artefactory artefactory;
 	public LocalFolder artefactoryFolder;
-	Metadata meta;
+	Meta meta;
 	String repository;
 	
 	String authFile = "~/.auth/nexus.http.txt"; 

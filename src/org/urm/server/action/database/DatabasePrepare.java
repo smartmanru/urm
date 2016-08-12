@@ -7,7 +7,7 @@ import org.urm.server.meta.MetaDatabase;
 import org.urm.server.meta.MetaDatabaseSchema;
 import org.urm.server.meta.MetaDistr;
 import org.urm.server.meta.MetaDistrDelivery;
-import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Meta;
 import org.urm.server.storage.FileSet;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.SourceStorage;
@@ -27,7 +27,7 @@ public class DatabasePrepare {
 	private String S_ERROR_MSG;
 	private String ALL_SCHEMA_LIST; 
 
-	Metadata meta;
+	Meta meta;
 	MetaDistr distr;
 	MetaDatabase database;
 	

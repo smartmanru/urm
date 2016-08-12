@@ -28,13 +28,13 @@ public class MetaDesign {
 	
 	boolean loaded = false;
 
-	protected Metadata meta;
+	protected Meta meta;
 	public Map<String,MetaDesignElement> childs;
 	public Map<String,MetaDesignElement> groups;
 	public Map<String,MetaDesignElement> elements;
 	public boolean fullProd;
 	
-	public MetaDesign( Metadata meta ) {
+	public MetaDesign( Meta meta ) {
 		this.meta = meta;
 	}
 	

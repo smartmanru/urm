@@ -10,7 +10,7 @@ import org.urm.server.dist.Dist;
 import org.urm.server.meta.MetaDistrBinaryItem;
 import org.urm.server.meta.MetaDistrConfItem;
 import org.urm.server.meta.MetaEnvServerNode;
-import org.urm.server.meta.Metadata.VarCONTENTTYPE;
+import org.urm.server.meta.Meta.VarCONTENTTYPE;
 import org.urm.server.shell.ShellExecutor;
 
 public class RedistStateInfo {

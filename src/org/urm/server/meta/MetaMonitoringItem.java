@@ -6,7 +6,7 @@ import org.w3c.dom.Node;
 
 public class MetaMonitoringItem {
 
-	protected Metadata meta;
+	protected Meta meta;
 	MetaMonitoringTarget target;
 	
 	public String NAME;
@@ -18,7 +18,7 @@ public class MetaMonitoringItem {
 	public String WSDATA;
 	public String WSCHECK;
 	
-	public MetaMonitoringItem( Metadata meta , MetaMonitoringTarget target ) {
+	public MetaMonitoringItem( Meta meta , MetaMonitoringTarget target ) {
 		this.meta = meta; 
 		this.target = target;
 	}

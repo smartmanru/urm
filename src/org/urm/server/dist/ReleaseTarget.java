@@ -13,17 +13,17 @@ import org.urm.server.meta.MetaDistrConfItem;
 import org.urm.server.meta.MetaDistrDelivery;
 import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.meta.MetaSourceProjectItem;
-import org.urm.server.meta.Metadata;
-import org.urm.server.meta.Metadata.VarCATEGORY;
-import org.urm.server.meta.Metadata.VarDISTITEMSOURCE;
-import org.urm.server.meta.Metadata.VarNAMETYPE;
+import org.urm.server.meta.Meta;
+import org.urm.server.meta.Meta.VarCATEGORY;
+import org.urm.server.meta.Meta.VarDISTITEMSOURCE;
+import org.urm.server.meta.Meta.VarNAMETYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class ReleaseTarget {
 
-	Metadata meta;
+	Meta meta;
 	public ReleaseSet set;
 	public VarCATEGORY CATEGORY;
 
@@ -43,7 +43,7 @@ public class ReleaseTarget {
 	
 	public String DISTFILE;
 
-	public ReleaseTarget( Metadata meta , ReleaseSet set , VarCATEGORY CATEGORY ) {
+	public ReleaseTarget( Meta meta , ReleaseSet set , VarCATEGORY CATEGORY ) {
 		this.meta = meta;
 		this.set = set;
 		this.CATEGORY = CATEGORY;

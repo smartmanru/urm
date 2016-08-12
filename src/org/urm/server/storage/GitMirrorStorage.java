@@ -1,12 +1,12 @@
 package org.urm.server.storage;
 
-import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Meta;
 import org.urm.server.shell.Account;
 
 public class GitMirrorStorage {
 
 	Artefactory artefactory;
-	Metadata meta;
+	Meta meta;
 	public Account account;
 	public Folder mirrorFolder;
 	public boolean winBuild;

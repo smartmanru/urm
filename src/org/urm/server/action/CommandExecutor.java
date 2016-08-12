@@ -11,8 +11,8 @@ import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.server.ServerEngine;
 import org.urm.server.SessionContext;
-import org.urm.server.meta.Metadata.VarBUILDMODE;
-import org.urm.server.meta.Metadata.VarCATEGORY;
+import org.urm.server.meta.Meta.VarBUILDMODE;
+import org.urm.server.meta.Meta.VarCATEGORY;
 import org.urm.server.storage.Artefactory;
 
 public abstract class CommandExecutor {

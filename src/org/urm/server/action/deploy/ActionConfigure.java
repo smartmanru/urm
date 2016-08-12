@@ -16,7 +16,7 @@ import org.urm.server.meta.MetaDistrConfItem;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.MetaEnvServerDeployment;
 import org.urm.server.meta.MetaEnvServerNode;
-import org.urm.server.meta.Metadata.VarCATEGORY;
+import org.urm.server.meta.Meta.VarCATEGORY;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.SourceStorage;
 

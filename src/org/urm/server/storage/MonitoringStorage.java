@@ -3,12 +3,12 @@ package org.urm.server.storage;
 import org.urm.common.Common;
 import org.urm.server.meta.MetaMonitoring;
 import org.urm.server.meta.MetaMonitoringTarget;
-import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Meta;
 
 public class MonitoringStorage {
 
 	public Artefactory artefactory;
-	public Metadata meta;
+	public Meta meta;
 	LocalFolder workFolder;
 	MetaMonitoring mon;
 	

@@ -1,6 +1,6 @@
 package org.urm.server.dist;
 
-import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Meta;
 
 public class ProductVersion {
 
@@ -11,7 +11,7 @@ public class ProductVersion {
 	public int lastProdTag;
 	public int nextProdTag;
 	
-	public ProductVersion( Metadata meta ) {
+	public ProductVersion( Meta meta ) {
 		majorFirstNumber = 0;
 		majorSecondNumber = 0;
 		majorNextFirstNumber = 0;

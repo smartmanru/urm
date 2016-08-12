@@ -6,13 +6,13 @@ import org.w3c.dom.Node;
 
 public class MetaDistrComponentWS {
 
-	protected Metadata meta;
+	protected Meta meta;
 	MetaDistrComponent comp;
 	
 	public String URL;
 	boolean OBSOLETE;
 	
-	public MetaDistrComponentWS( Metadata meta , MetaDistrComponent comp ) {
+	public MetaDistrComponentWS( Meta meta , MetaDistrComponent comp ) {
 		this.meta = meta;
 		this.comp = comp;
 	}

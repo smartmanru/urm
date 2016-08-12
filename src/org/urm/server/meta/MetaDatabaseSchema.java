@@ -3,13 +3,13 @@ package org.urm.server.meta;
 import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.database.DatabaseSpecific;
-import org.urm.server.meta.Metadata.VarDBMSTYPE;
-import org.urm.server.meta.Metadata.VarNAMETYPE;
+import org.urm.server.meta.Meta.VarDBMSTYPE;
+import org.urm.server.meta.Meta.VarNAMETYPE;
 import org.w3c.dom.Node;
 
 public class MetaDatabaseSchema {
 
-	protected Metadata meta;
+	protected Meta meta;
 	public MetaDatabase database;
 
 	public String SCHEMA;
@@ -19,7 +19,7 @@ public class MetaDatabaseSchema {
 	
 	public DatabaseSpecific specific;
 	
-	public MetaDatabaseSchema( Metadata meta , MetaDatabase database ) {
+	public MetaDatabaseSchema( Meta meta , MetaDatabase database ) {
 		this.meta = meta;
 		this.database = database;
 	}

@@ -14,7 +14,7 @@ import org.urm.server.dist.ReleaseTarget;
 import org.urm.server.meta.MetaDistrConfItem;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.MetaEnvServerNode;
-import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Meta;
 import org.urm.server.storage.Artefactory;
 import org.urm.server.storage.FileSet;
 import org.urm.server.storage.HiddenFiles;
@@ -23,7 +23,7 @@ import org.urm.server.storage.SourceStorage;
 
 public class ConfBuilder {
 
-	Metadata meta;
+	Meta meta;
 	ActionBase action;
 	Artefactory artefactory;
 

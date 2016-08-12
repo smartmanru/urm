@@ -16,12 +16,12 @@ import org.urm.common.meta.BuildCommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
 import org.urm.common.meta.DeployCommandMeta;
 import org.urm.common.meta.MainCommandMeta;
+import org.urm.server.ServerLoader;
+import org.urm.server.ServerRegistry;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.FinalLoader;
-import org.urm.server.meta.FinalRegistry;
 import org.urm.server.meta.MetaEnv;
 import org.urm.server.meta.MetaEnvDC;
-import org.urm.server.meta.Metadata.VarBUILDMODE;
+import org.urm.server.meta.Meta.VarBUILDMODE;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.MetadataStorage;
 import org.urm.server.storage.UrmStorage;
@@ -85,11 +85,11 @@ public class ActionConfigure extends ActionBase {
 	}
 
 	private void configureServer( boolean serverMode ) throws Exception {
-		FinalLoader loader = engine.metaLoader;
+		ServerLoader loader = engine.metaLoader;
 		loader.loadServerSettings();
 		loader.loadServerProducts( actionInit );
 		
-		FinalRegistry registry = actionInit.getRegistry();
+		ServerRegistry registry = actionInit.getRegistry();
 		for( String name : registry.getProducts( actionInit ) ) {
 			info( "configure product name=" + name + " ..." );
 			

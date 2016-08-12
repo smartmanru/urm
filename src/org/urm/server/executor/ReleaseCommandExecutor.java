@@ -8,7 +8,7 @@ import org.urm.server.action.CommandAction;
 import org.urm.server.action.CommandExecutor;
 import org.urm.server.action.release.ReleaseCommand;
 import org.urm.server.dist.Dist;
-import org.urm.server.meta.Metadata.VarCATEGORY;
+import org.urm.server.meta.Meta.VarCATEGORY;
 
 public class ReleaseCommandExecutor extends CommandExecutor {
 

@@ -15,7 +15,7 @@ import org.urm.server.meta.MetaDistrDelivery;
 import org.urm.server.meta.MetaEnv;
 import org.urm.server.meta.MetaEnvDC;
 import org.urm.server.meta.MetaEnvServer;
-import org.urm.server.meta.Metadata.VarCATEGORY;
+import org.urm.server.meta.Meta.VarCATEGORY;
 
 public class DatabaseCommandExecutor extends CommandExecutor {
 

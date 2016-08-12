@@ -11,7 +11,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.Metadata.VarSERVERTYPE;
+import org.urm.server.meta.Meta.VarSERVERTYPE;
 import org.urm.server.storage.BaseRepository;
 import org.urm.server.storage.RemoteFolder;
 import org.w3c.dom.Node;
@@ -32,7 +32,7 @@ public class MetaBase {
 		SINGLEFILE
 	};
 	
-	protected Metadata meta;
+	protected Meta meta;
 	public BaseRepository repo;
 	public boolean primary;
 	
@@ -53,7 +53,7 @@ public class MetaBase {
 	public List<String> dependencies;
 	public Map<String,String> compatibilityMap;
 	
-	public MetaBase( Metadata meta , BaseRepository repo , boolean primary ) {
+	public MetaBase( Meta meta , BaseRepository repo , boolean primary ) {
 		this.meta = meta;
 		this.repo = repo;
 		this.primary = primary;

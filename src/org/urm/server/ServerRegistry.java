@@ -1,4 +1,4 @@
-package org.urm.server.meta;
+package org.urm.server;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,16 +8,15 @@ import org.urm.common.ConfReader;
 import org.urm.common.ExitException;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext;
-import org.urm.server.ServerTransaction;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.Metadata.VarBUILDMODE;
+import org.urm.server.meta.Meta.VarBUILDMODE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class FinalRegistry {
+public class ServerRegistry {
 
-	public FinalLoader loader;
+	public ServerLoader loader;
 	PropertySet properties;
 
 	public String CONNECTION_HTTP_PORT;
@@ -30,16 +29,18 @@ public class FinalRegistry {
 	public String JABBER_INCLUDE;
 	public String JABBER_EXCLUDE;
 
-	private Map<String,FinalMetaSystem> mapSystems;
-	private Map<String,FinalMetaProduct> mapProducts;
+	public String DISTR_PATH;
+	
+	private Map<String,ServerSystem> mapSystems;
+	private Map<String,ServerProduct> mapProducts;
 	private PropertySet defaultProductProperties;
 	private Map<VarBUILDMODE,PropertySet> mapBuildModeDefaults;
 	
-	public FinalRegistry( FinalLoader loader ) {
+	public ServerRegistry( ServerLoader loader ) {
 		this.loader = loader;
 		
-		mapSystems = new HashMap<String,FinalMetaSystem>();
-		mapProducts = new HashMap<String,FinalMetaProduct>();
+		mapSystems = new HashMap<String,ServerSystem>();
+		mapProducts = new HashMap<String,ServerProduct>();
 		mapBuildModeDefaults = new HashMap<VarBUILDMODE,PropertySet>();
 	}
 
@@ -81,11 +82,11 @@ public class FinalRegistry {
 			return;
 		
 		for( Node itemNode : items ) {
-			FinalMetaSystem item = new FinalMetaSystem( this );
+			ServerSystem item = new ServerSystem( this );
 			item.load( itemNode );
 			mapSystems.put( item.NAME , item );
 			
-			for( FinalMetaProduct product : item.mapProducts.values() )
+			for( ServerProduct product : item.mapProducts.values() )
 				mapProducts.put( product.NAME , product );
 		}
 	}
@@ -126,11 +127,11 @@ public class FinalRegistry {
 		return( Common.getSortedKeys( mapProducts ) );
 	}
 	
-	public FinalMetaSystem findSystem( ActionBase action , String name ) {
+	public ServerSystem findSystem( ActionBase action , String name ) {
 		return( mapSystems.get( name ) );
 	}
 	
-	public FinalMetaProduct findProduct( ActionBase action , String name ) {
+	public ServerProduct findProduct( ActionBase action , String name ) {
 		return( mapProducts.get( name ) );
 	}
 	
@@ -150,16 +151,16 @@ public class FinalRegistry {
 		}
 	}
 	
-	public FinalRegistry copy( ActionBase action ) throws Exception {
-		FinalRegistry r = new FinalRegistry( loader );
+	public ServerRegistry copy( ActionBase action ) throws Exception {
+		ServerRegistry r = new ServerRegistry( loader );
 		r.properties = properties.copy( null );
 		r.scatterSystemProperties();
 		
-		for( FinalMetaSystem system : mapSystems.values() ) {
-			FinalMetaSystem rs = system.copy( r );
+		for( ServerSystem system : mapSystems.values() ) {
+			ServerSystem rs = system.copy( r );
 			r.mapSystems.put( rs.NAME , rs );
 			
-			for( FinalMetaProduct rp : rs.mapProducts.values() )
+			for( ServerProduct rp : rs.mapProducts.values() )
 				r.mapProducts.put( rp.NAME , rp );
 		}
 
@@ -195,13 +196,13 @@ public class FinalRegistry {
 		
 		// directory 
 		Element elementDir = Common.xmlCreateElement( doc , root , "directory" );
-		for( FinalMetaSystem system : mapSystems.values() ) {
+		for( ServerSystem system : mapSystems.values() ) {
 			Element elementSystem = Common.xmlCreateElement( doc , elementDir , "system" );
 			Common.xmlSetElementAttr( doc , elementSystem , "name" , system.NAME );
 			Common.xmlSetElementAttr( doc , elementSystem , "desc" , system.DESC );
 			
 			for( String productName : system.getProducts() ) {
-				FinalMetaProduct product = system.getProduct( productName );
+				ServerProduct product = system.getProduct( productName );
 				Element elementProduct = Common.xmlCreateElement( doc , elementSystem , "product" );
 				Common.xmlSetElementAttr( doc , elementProduct , "name" , product.NAME );
 				Common.xmlSetElementAttr( doc , elementProduct , "desc" , product.DESC );
@@ -212,13 +213,13 @@ public class FinalRegistry {
 		Common.xmlSaveDoc( doc , path );
 	}
 
-	public void addSystem( ServerTransaction transaction , FinalMetaSystem system ) throws Exception {
+	public void addSystem( ServerTransaction transaction , ServerSystem system ) throws Exception {
 		if( mapSystems.get( system.NAME ) != null )
 			transaction.action.exitUnexpectedState();
 		mapSystems.put( system.NAME , system );
 	}
 
-	public void deleteSystem( ServerTransaction transaction , FinalMetaSystem system ) throws Exception {
+	public void deleteSystem( ServerTransaction transaction , ServerSystem system ) throws Exception {
 		if( mapSystems.get( system.NAME ) != system )
 			transaction.action.exitUnexpectedState();
 		
@@ -228,28 +229,28 @@ public class FinalRegistry {
 		mapSystems.remove( system.NAME );
 	}
 
-	public FinalMetaSystem getSystem( ActionBase action , String name ) throws Exception {
-		FinalMetaSystem system = findSystem( action , name );
+	public ServerSystem getSystem( ActionBase action , String name ) throws Exception {
+		ServerSystem system = findSystem( action , name );
 		if( system == null )
 			action.exit( "unknown system=" + system );
 		return( system );
 	}
 
-	public FinalMetaProduct getProduct( ActionBase action , String name ) throws Exception {
-		FinalMetaProduct product = findProduct( action , name );
+	public ServerProduct getProduct( ActionBase action , String name ) throws Exception {
+		ServerProduct product = findProduct( action , name );
 		if( product == null )
 			action.exit( "unknown product=" + name );
 		return( product );
 	}
 
-	public void createProduct( ServerTransaction transaction , FinalMetaProduct product ) throws Exception {
+	public void createProduct( ServerTransaction transaction , ServerProduct product ) throws Exception {
 		if( mapProducts.containsKey( product.NAME ) )
 			transaction.action.exitUnexpectedState();
 		mapProducts.put( product.NAME , product );
 		product.system.addProduct( transaction , product );
 	}
 	
-	public void deleteProduct( ServerTransaction transaction , FinalMetaProduct product ) throws Exception {
+	public void deleteProduct( ServerTransaction transaction , ServerProduct product ) throws Exception {
 		if( mapProducts.get( product.NAME ) != product )
 			transaction.action.exitUnexpectedState();
 		

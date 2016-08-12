@@ -10,7 +10,7 @@ import org.urm.server.dist.ReleaseTarget;
 import org.urm.server.dist.ReleaseTargetItem;
 import org.urm.server.meta.MetaDistrBinaryItem;
 import org.urm.server.meta.MetaDistrDelivery;
-import org.urm.server.meta.Metadata.VarCATEGORY;
+import org.urm.server.meta.Meta.VarCATEGORY;
 import org.urm.server.storage.FileSet;
 
 public class ActionPrintReleaseStatus extends ActionBase {

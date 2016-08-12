@@ -13,8 +13,8 @@ import org.urm.server.ServerEngine;
 import org.urm.server.SessionContext;
 import org.urm.server.meta.MetaEnv;
 import org.urm.server.meta.MetaEnvDC;
-import org.urm.server.meta.Metadata;
-import org.urm.server.meta.Metadata.VarBUILDMODE;
+import org.urm.server.meta.Meta;
+import org.urm.server.meta.Meta.VarBUILDMODE;
 import org.urm.server.shell.Account;
 
 public class CommandContext {
@@ -25,7 +25,7 @@ public class CommandContext {
 	public CommandMethodMeta commandMethod;
 	public CommandAction commandAction;
 
-	public Metadata meta;
+	public Meta meta;
 	public MetaEnv env; 
 	public MetaEnvDC dc;
 	
@@ -108,7 +108,7 @@ public class CommandContext {
 	public String CTX_HOST = "";
 	public int CTX_PORT = -1;
 
-	public CommandContext( ServerEngine engine , SessionContext session , Metadata meta , CommandOptions options , String stream , ServerCall call ) {
+	public CommandContext( ServerEngine engine , SessionContext session , Meta meta , CommandOptions options , String stream , ServerCall call ) {
 		this.engine = engine;
 		this.session = session;
 		this.meta = meta;

@@ -15,17 +15,17 @@ import org.urm.server.meta.MetaDistrDelivery;
 import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.meta.MetaSourceProjectItem;
 import org.urm.server.meta.MetaSourceProjectSet;
-import org.urm.server.meta.Metadata;
-import org.urm.server.meta.Metadata.VarBUILDMODE;
-import org.urm.server.meta.Metadata.VarCATEGORY;
-import org.urm.server.meta.Metadata.VarDISTITEMSOURCE;
+import org.urm.server.meta.Meta;
+import org.urm.server.meta.Meta.VarBUILDMODE;
+import org.urm.server.meta.Meta.VarCATEGORY;
+import org.urm.server.meta.Meta.VarDISTITEMSOURCE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class Release {
 
-	public Metadata meta;
+	public Meta meta;
 	public Dist dist;
 	
 	public String RELEASEVER;
@@ -38,7 +38,7 @@ public class Release {
 	Map<VarCATEGORY,ReleaseSet> categorySetMap = new HashMap<VarCATEGORY,ReleaseSet>();
 	Map<String,ReleaseDelivery> deliveryMap = new HashMap<String,ReleaseDelivery>();
 	
-	public Release( Metadata meta , Dist dist ) {
+	public Release( Meta meta , Dist dist ) {
 		this.meta = meta;
 		this.dist = dist;
 	}

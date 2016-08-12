@@ -22,15 +22,15 @@ import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.meta.MetaEnvStartGroup;
 import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.meta.MetaSourceProjectSet;
-import org.urm.server.meta.Metadata;
-import org.urm.server.meta.Metadata.VarCATEGORY;
-import org.urm.server.meta.Metadata.VarDISTITEMSOURCE;
+import org.urm.server.meta.Meta;
+import org.urm.server.meta.Meta.VarCATEGORY;
+import org.urm.server.meta.Meta.VarDISTITEMSOURCE;
 import org.urm.server.shell.Account;
 
 public class ActionScopeSet {
 
 	ActionScope scope;
-	Metadata meta;
+	Meta meta;
 	public String NAME;
 	public VarCATEGORY CATEGORY;
 	public boolean setFull;

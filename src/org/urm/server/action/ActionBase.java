@@ -13,11 +13,11 @@ import org.urm.server.ServerTransaction;
 import org.urm.server.SessionContext;
 import org.urm.server.custom.CommandCustom;
 import org.urm.server.meta.MetaEnvServerNode;
-import org.urm.server.meta.Metadata;
-import org.urm.server.meta.Metadata.VarBUILDMODE;
-import org.urm.server.meta.Metadata.VarCATEGORY;
-import org.urm.server.meta.Metadata.VarNAMETYPE;
-import org.urm.server.meta.Metadata.VarSERVERTYPE;
+import org.urm.server.meta.Meta;
+import org.urm.server.meta.Meta.VarBUILDMODE;
+import org.urm.server.meta.Meta.VarCATEGORY;
+import org.urm.server.meta.Meta.VarNAMETYPE;
+import org.urm.server.meta.Meta.VarSERVERTYPE;
 import org.urm.server.shell.Account;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.Artefactory;
@@ -40,7 +40,7 @@ abstract public class ActionBase {
 	public CommandCustom custom;
 	
 	public ShellExecutor shell;
-	public Metadata meta;
+	public Meta meta;
 	protected CommandOutput output;
 	boolean actionFailed;
 
@@ -118,6 +118,10 @@ abstract public class ActionBase {
 	
 	public String getInternalPath( String path ) throws Exception {
 		return( Common.getLinuxPath( path ) );
+	}
+	
+	public Account getLocalAccount() {
+		return( shell.account );
 	}
 	
 	public LocalFolder getLocalFolder( String path ) throws Exception {

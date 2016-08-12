@@ -4,13 +4,13 @@ import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaEnvServer;
-import org.urm.server.meta.Metadata;
-import org.urm.server.meta.Metadata.VarDBMSTYPE;
+import org.urm.server.meta.Meta;
+import org.urm.server.meta.Meta.VarDBMSTYPE;
 
 public class UrmStorage {
 
 	public Artefactory artefactory;
-	public Metadata meta;
+	public Meta meta;
 
 	public static String PRODUCTS_FOLDER = "products";
 	public static String SERVER_SETTINGS_FILE = "server.xml";

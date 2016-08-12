@@ -4,14 +4,14 @@ import org.urm.common.Common;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaDistrConfItem;
 import org.urm.server.meta.MetaEnvServer;
-import org.urm.server.meta.Metadata;
+import org.urm.server.meta.Meta;
 
 public class HiddenFiles {
 
 	public static String SECRETPROPERTYFILE = "secret.properties";
 	
 	Artefactory artefactory;
-	Metadata meta;
+	Meta meta;
 	
 	public HiddenFiles( Artefactory artefactory ) {
 		this.artefactory = artefactory;

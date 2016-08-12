@@ -12,9 +12,9 @@ import org.urm.server.meta.MetaEnvServerLocation;
 import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.meta.MetaSourceProjectItem;
 import org.urm.server.meta.MetaSourceProjectSet;
-import org.urm.server.meta.Metadata;
-import org.urm.server.meta.Metadata.VarCATEGORY;
-import org.urm.server.meta.Metadata.VarDISTITEMSOURCE;
+import org.urm.server.meta.Meta;
+import org.urm.server.meta.Meta.VarCATEGORY;
+import org.urm.server.meta.Meta.VarDISTITEMSOURCE;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.FileSet;
 import org.urm.server.storage.LocalFolder;
@@ -37,7 +37,7 @@ public class Dist {
 	public static String ROLLBACK_FOLDER = "rollback";
 	public static String DBMANUAL_FOLDER = "manual/db";
 	
-	public Metadata meta;
+	public Meta meta;
 	public DistRepository repo;
 	
 	private RemoteFolder distFolder;
@@ -53,7 +53,7 @@ public class Dist {
 	boolean openedForUse;
 	boolean openedForChange;
 	
-	public Dist( Metadata meta , DistRepository repo ) {
+	public Dist( Meta meta , DistRepository repo ) {
 		this.meta = meta;
 		this.repo = repo;
 	}

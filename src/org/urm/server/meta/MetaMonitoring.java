@@ -4,12 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.ConfReader;
+import org.urm.server.ServerRegistry;
 import org.urm.server.action.ActionBase;
 import org.w3c.dom.Node;
 
 public class MetaMonitoring {
 	
-	protected Metadata meta;
+	protected Meta meta;
 	boolean loaded = false;
 
 	Map<String,MetaMonitoringTarget> mapEnvs;
@@ -23,11 +24,11 @@ public class MetaMonitoring {
 	public int MINORINTERVAL;
 	public int MINSILENT;
 	
-	public MetaMonitoring( Metadata meta ) {
+	public MetaMonitoring( Meta meta ) {
 		this.meta = meta;
 	}
 	
-	public void createInitial( ActionBase action , FinalRegistry registry ) throws Exception {
+	public void createInitial( ActionBase action , ServerRegistry registry ) throws Exception {
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {

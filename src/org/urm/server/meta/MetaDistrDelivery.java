@@ -6,12 +6,12 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
-import org.urm.server.meta.Metadata.VarNAMETYPE;
+import org.urm.server.meta.Meta.VarNAMETYPE;
 import org.w3c.dom.Node;
 
 public class MetaDistrDelivery {
 
-	protected Metadata meta;
+	protected Meta meta;
 	MetaDistr dist;
 	
 	public String NAME;
@@ -23,7 +23,7 @@ public class MetaDistrDelivery {
 	Map<String,MetaDatabaseSchema> mapDatabaseSchema;
 	Map<String,MetaDatabaseDatagroup> mapDatabaseDatagroup;
 	
-	public MetaDistrDelivery( Metadata meta , MetaDistr dist ) {
+	public MetaDistrDelivery( Meta meta , MetaDistr dist ) {
 		this.meta = meta;
 		this.dist = dist;
 	}
