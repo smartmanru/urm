@@ -59,15 +59,17 @@ public class ServerRegistry {
 	}
 
 	private void scatterSystemProperties() throws Exception {
-		CONNECTION_HTTP_PORT = properties.getSystemRequiredStringProperty( "connection.http.port" );
-		CONNECTION_JMX_PORT = properties.getSystemRequiredStringProperty( "connection.jmx.port" );
+		CONNECTION_HTTP_PORT = properties.getSystemStringProperty( "connection.http.port" , "8080" );
+		CONNECTION_JMX_PORT = properties.getSystemStringProperty( "connection.jmx.port" , "8081" );
 
-		JABBER_ACCOUNT = properties.getSystemRequiredStringProperty( "jabber.account" );
-		JABBER_PASSWORD = properties.getSystemRequiredStringProperty( "jabber.password" );
-		JABBER_SERVER = properties.getSystemRequiredStringProperty( "jabber.server" );
-		JABBER_CONFERENCESERVER = properties.getSystemRequiredStringProperty( "jabber.conferenceserver" );
-		JABBER_INCLUDE = properties.getSystemRequiredStringProperty( "jabber.include" );
-		JABBER_EXCLUDE = properties.getSystemRequiredStringProperty( "jabber.exclude" );
+		JABBER_ACCOUNT = properties.getSystemStringProperty( "jabber.account" , "" );
+		JABBER_PASSWORD = properties.getSystemStringProperty( "jabber.password" , "" );
+		JABBER_SERVER = properties.getSystemStringProperty( "jabber.server" , "" );
+		JABBER_CONFERENCESERVER = properties.getSystemStringProperty( "jabber.conferenceserver" , "" );
+		JABBER_INCLUDE = properties.getSystemStringProperty( "jabber.include" , "" );
+		JABBER_EXCLUDE = properties.getSystemStringProperty( "jabber.exclude" , "" );
+
+		DISTR_PATH = properties.getSystemStringProperty( "distr.path" , "" );
 		
 		properties.finishRawProperties();
 	}

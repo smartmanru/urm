@@ -81,6 +81,10 @@ public class ServerEngine {
 		return( runServerAction() );
 	}
 	
+	public void stopWeb() throws Exception {
+		sessionController.stop();
+	}
+	
 	public ActionInit createWebSessionAction() throws Exception {
 		CommandOptions options = serverExecutor.createOptionsWebSession( this );
 		if( options == null )
