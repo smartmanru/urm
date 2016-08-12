@@ -20,7 +20,7 @@ import org.urm.server.storage.MetadataStorage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-public class ServerMetaSet {
+public class ServerProductMeta {
 
 	public ServerLoader loader;
 	public SessionContext session;
@@ -43,7 +43,7 @@ public class ServerMetaSet {
 	public static String XML_ROOT_MONITORING = "monitoring";
 	public static String XML_ROOT_ENV = "environment";
 	
-	public ServerMetaSet( ServerLoader loader , SessionContext session ) {
+	public ServerProductMeta( ServerLoader loader , SessionContext session ) {
 		this.loader = loader;
 		this.session = session;
 		
@@ -245,7 +245,7 @@ public class ServerMetaSet {
 		return( null );
 	}
 
-	public synchronized ServerMetaSet copy( ActionBase action ) throws Exception {
+	public synchronized ServerProductMeta copy( ActionBase action ) throws Exception {
 		return( null );
 	}
 

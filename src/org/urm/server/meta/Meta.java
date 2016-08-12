@@ -5,7 +5,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.ExitException;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.ServerLoader;
-import org.urm.server.ServerMetaSet;
+import org.urm.server.ServerProductMeta;
 import org.urm.server.SessionContext;
 import org.urm.server.action.ActionBase;
 import org.w3c.dom.Node;
@@ -14,7 +14,7 @@ public class Meta {
 	
 	public ServerLoader loader;
 	public SessionContext session;
-	public ServerMetaSet storage;
+	public ServerProductMeta storage;
 	
 	public MetaProduct product;
 	public MetaDatabase database;
@@ -171,7 +171,7 @@ public class Meta {
 		ZIP
 	};
 	
-	public Meta( ServerMetaSet storage , SessionContext session ) {
+	public Meta( ServerProductMeta storage , SessionContext session ) {
 		this.storage = storage;
 		this.loader = storage.loader;
 		this.session = session;

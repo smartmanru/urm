@@ -10,10 +10,10 @@ public class ServerTransaction {
 	public ServerLoader loader;
 	
 	public ServerRegistry registry;
-	public ServerMetaSet metadata;
+	public ServerProductMeta metadata;
 
 	private ServerRegistry registryOld;
-	private ServerMetaSet metadataOld;
+	private ServerProductMeta metadataOld;
 	public boolean createMetadata;
 	
 	public ServerTransaction( ActionBase action ) {

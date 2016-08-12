@@ -21,14 +21,14 @@ public class ServerLoader {
 
 	public ServerEngine engine;
 	
-	private Map<String,ServerMetaSet> productMeta;
-	private ServerMetaSet offline;
+	private Map<String,ServerProductMeta> productMeta;
+	private ServerProductMeta offline;
 	private ServerRegistry registry;
 	
 	public ServerLoader( ServerEngine engine ) {
 		this.engine = engine;
 		registry = new ServerRegistry( this ); 
-		productMeta = new HashMap<String,ServerMetaSet>();
+		productMeta = new HashMap<String,ServerProductMeta>();
 	}
 	
 	public Meta createMetadata( SessionContext session ) throws Exception {
@@ -36,53 +36,53 @@ public class ServerLoader {
 		return( meta );
 	}
 
-	public synchronized ServerMetaSet getMetaStorage( String productName ) throws Exception {
+	public synchronized ServerProductMeta getMetaStorage( String productName ) throws Exception {
 		return( productMeta.get( productName ) );
 	}
 	
-	public synchronized ServerMetaSet getMetaStorage( ActionInit action ) throws Exception {
+	public synchronized ServerProductMeta getMetaStorage( ActionInit action ) throws Exception {
 		if( action.session.offline ) {
 			if( offline == null )
-				offline = new ServerMetaSet( this , action.session );
+				offline = new ServerProductMeta( this , action.session );
 			return( offline );
 		}
 		
 		if( !action.session.product )
 			action.exitUnexpectedState();
 			
-		ServerMetaSet storage = productMeta.get( action.session.productName );
+		ServerProductMeta storage = productMeta.get( action.session.productName );
 		if( storage == null )
 			action.exit( "unknown product=" + action.session.productName );
 		
 		return( storage );
 	}
 
-	public MetaProduct loadProduct( ActionInit action , ServerMetaSet storageFinal ) throws Exception {
+	public MetaProduct loadProduct( ActionInit action , ServerProductMeta storageFinal ) throws Exception {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 		return( storageFinal.loadProduct( action , storageMeta ) );
 	}
 
-	public MetaDistr loadDistr( ActionInit action , ServerMetaSet storageFinal ) throws Exception {
+	public MetaDistr loadDistr( ActionInit action , ServerProductMeta storageFinal ) throws Exception {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 		return( storageFinal.loadDistr( action , storageMeta ) );
 	}
 	
-	public MetaDatabase loadDatabase( ActionInit action , ServerMetaSet storageFinal ) throws Exception {
+	public MetaDatabase loadDatabase( ActionInit action , ServerProductMeta storageFinal ) throws Exception {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 		return( storageFinal.loadDatabase( action , storageMeta ) );
 	}
 	
-	public MetaSource loadSources( ActionInit action , ServerMetaSet storageFinal ) throws Exception {
+	public MetaSource loadSources( ActionInit action , ServerProductMeta storageFinal ) throws Exception {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 		return( storageFinal.loadSources( action , storageMeta ) );
 	}
 	
-	public MetaMonitoring loadMonitoring( ActionInit action , ServerMetaSet storageFinal ) throws Exception {
+	public MetaMonitoring loadMonitoring( ActionInit action , ServerProductMeta storageFinal ) throws Exception {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 		return( storageFinal.loadMonitoring( action , storageMeta ) );
 	}
 
-	public MetaEnv loadEnvData( ActionInit action , ServerMetaSet storageFinal , String envFile , boolean loadProps ) throws Exception {
+	public MetaEnv loadEnvData( ActionInit action , ServerProductMeta storageFinal , String envFile , boolean loadProps ) throws Exception {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 		MetaEnv env = storageFinal.loadEnvData( action , storageMeta , envFile );
 		if( loadProps && env.missingSecretProperties )
@@ -90,7 +90,7 @@ public class ServerLoader {
 		return( env );
 	}
 	
-	public MetaDesign loadDesignData( ActionInit action , ServerMetaSet storageFinal , String fileName ) throws Exception {
+	public MetaDesign loadDesignData( ActionInit action , ServerProductMeta storageFinal , String fileName ) throws Exception {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 		return( storageFinal.loadDesignData( action , storageMeta , fileName ) );
 	}
@@ -101,7 +101,7 @@ public class ServerLoader {
 			
 			try {
 				MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
-				ServerMetaSet set = new ServerMetaSet( this , action.session );
+				ServerProductMeta set = new ServerProductMeta( this , action.session );
 				set.loadAll( action , storageMeta );
 				productMeta.put( name , set );
 			}
@@ -143,12 +143,12 @@ public class ServerLoader {
 		registry = registryNew;
 	}
 
-	public ServerMetaSet createMetadata( ServerTransaction transaction , ServerRegistry registryNew , ServerProduct product ) throws Exception {
+	public ServerProductMeta createMetadata( ServerTransaction transaction , ServerRegistry registryNew , ServerProduct product ) throws Exception {
 		ActionBase action = transaction.action;
 		action.actionInit.setServerSystemProductLayout( product );
 		
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
-		ServerMetaSet set = new ServerMetaSet( this , action.session );
+		ServerProductMeta set = new ServerProductMeta( this , action.session );
 		set.createInitial( action , registryNew );
 		set.saveAll( action , storageMeta , product );
 		
@@ -156,7 +156,7 @@ public class ServerLoader {
 		return( set );
 	}
 	
-	public void setMetadata( ServerTransaction transaction , ServerMetaSet storageNew ) throws Exception {
+	public void setMetadata( ServerTransaction transaction , ServerProductMeta storageNew ) throws Exception {
 	}
 	
 }
