@@ -271,9 +271,6 @@ public class Artefactory {
 		return( new VersionInfoStorage( redist ) );
 	}
 
-	public void deleteSystemResources( ServerTransaction transaction , ServerSystem system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
-	}
-	
 	public void deleteProductResources( ServerTransaction transaction , ServerProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 	}
 	

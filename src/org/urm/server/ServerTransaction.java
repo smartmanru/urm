@@ -241,8 +241,11 @@ public class ServerTransaction {
 	}
 
 	public void deleteSystem( ServerSystem system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
-		checkTransactionAll();
-		metadataAction.artefactory.deleteSystemResources( this , system , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
+		checkTransactionRegistry();
+		for( String productName : system.getProducts() ) {
+			ServerProduct product = system.getProduct( productName );
+			metadataAction.artefactory.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
+		}
 		registry.deleteSystem( this , system );
 	}
 	
