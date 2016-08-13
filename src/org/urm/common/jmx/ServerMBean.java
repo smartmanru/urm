@@ -17,6 +17,7 @@ import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
 import org.urm.common.action.CommandMeta;
+import org.urm.server.ServerEngine;
 import org.urm.server.ServerRegistry;
 import org.urm.server.SessionController;
 import org.urm.server.action.ActionBase;
@@ -27,16 +28,16 @@ import com.sun.jdmk.comm.HtmlAdaptorServer;
 
 public class ServerMBean implements DynamicMBean {
 
+	ServerEngine engine;
 	ActionBase action;
-	SessionController sessionController;
 	
 	private MBeanServer mbs = null;
 	private MBeanInfo mbean = null;
 	JMXConnectorServer jmxConnector;
 	
-	public ServerMBean( ActionBase action , SessionController server ) {
+	public ServerMBean( ActionBase action , ServerEngine engine ) {
 		this.action = action;
-		this.sessionController = server;
+		this.engine = engine;
 	}
 	
 	public void start() throws Exception {
@@ -63,18 +64,26 @@ public class ServerMBean implements DynamicMBean {
         jmxConnector.start();
 	}
 
-	private String stop() {
+	public void stop() throws Exception {
+		jmxConnector.stop();
+		jmxConnector = null;
+		mbean = null;
+		mbs = null;
+	}
+	
+	private String stopServer() {
 		try {
-			sessionController.stop();
+			engine.stopServer();
 		}
 		catch( Throwable e ) {
 			return( "failed: " + e.getMessage() );
 		}
+		
 		return( "ok" );
 	}
 	
 	private String status() {
-		if( sessionController.isRunning() )
+		if( engine.isRunning() )
 			return( "running" );
 		return( "stopped" );
 	}
@@ -128,8 +137,9 @@ public class ServerMBean implements DynamicMBean {
 	}		
 	
 	private void addProduct( String product ) throws Exception {
+		SessionController sessionController = engine.sessionController;
 		for( CommandMeta meta : sessionController.executors  ) {
-			ServerCommandMBean bean = new ServerCommandMBean( action , this , action.executor.engine , product , meta );
+			ServerCommandMBean bean = new ServerCommandMBean( action , action.executor.engine , this , product , meta );
 			bean.createInfo();
 			
 			String name = RemoteCall.getCommandMBeanName( product , meta.name );
@@ -171,7 +181,7 @@ public class ServerMBean implements DynamicMBean {
 		int sessionId = -1;
 		try {
 			if( name.equals( "stop" ) )
-				return( stop() );
+				return( stopServer() );
 			if( name.equals( "status" ) )
 				return( status() );
 			return( null );

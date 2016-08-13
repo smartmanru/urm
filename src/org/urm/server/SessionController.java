@@ -144,10 +144,7 @@ public class SessionController {
 	}
 	
 	public void stop() throws Exception {
-		serverAction.info( "stopping server ..." );
 		stop = true;
-		engine.stop();
-		
 		synchronized( this ) {
 			notifyAll();
 		}

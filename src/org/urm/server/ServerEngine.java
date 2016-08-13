@@ -55,12 +55,28 @@ public class ServerEngine {
 		metaLoader.loadServerProducts( action.actionInit );
 		
 		sessionController = new SessionController( action , this );
-		jmxController = new ServerMBean( action , sessionController );
+		jmxController = new ServerMBean( action , this );
 		sessionController.start();
 		jmxController.start();
 		
 		serverAction.info( "server successfully started, accepting connections." );
 		sessionController.waitFinished();
+	}
+	
+	public void stopServer() throws Exception {
+		if( !running )
+			return;
+		
+		serverAction.info( "stopping server ..." );
+		stopPool();
+		jmxController.stop();
+		sessionController.stop();
+		jmxController = null;
+		sessionController = null;
+	}
+
+	public boolean isRunning() {
+		return( running );
 	}
 	
 	public boolean prepareWeb() throws Exception {
@@ -310,13 +326,6 @@ public class ServerEngine {
 		LocalFolder folder = new LocalFolder( dirname , execrc.isWindows() );
 		Artefactory artefactory = new Artefactory( context.meta , folder );
 		return( artefactory );
-	}
-
-	public void stop() throws Exception {
-		if( !running )
-			return;
-		
-		stopPool();
 	}
 
 	public SessionContext createSession( RunContext clientrc , boolean client ) {

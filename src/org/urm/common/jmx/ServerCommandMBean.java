@@ -38,28 +38,32 @@ import org.urm.server.action.ActionBase;
 
 public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster {
 
-	int notificationSequence = 0;
-	NotificationBroadcasterSupport broadcaster = new NotificationBroadcasterSupport(); 
+	public ActionBase action;
+	public ServerEngine engine;
+	public String product;
+	public CommandMeta meta;
+	
+	int notificationSequence;
+	NotificationBroadcasterSupport broadcaster; 
 	MBeanNotificationInfo[] notifyInfo;
 	
-	public ActionBase action;
-	public ServerMBean controller;
-	public ServerEngine engine;
+	public ServerMBean jmxServer;
 	public SessionController server;
-	public String product;
 	
-	public CommandMeta meta;
 	public MBeanInfo mbean;
 	public CommandOptions options;
 	
-	public ServerCommandMBean( ActionBase action , ServerMBean controller , ServerEngine engine , String product , CommandMeta meta ) {
+	public ServerCommandMBean( ActionBase action , ServerEngine engine , ServerMBean jmxServer , String product , CommandMeta meta ) {
 		this.action = action;
-		this.controller = controller;
 		this.engine = engine;
 		this.product = product;
 		this.meta = meta;
 		
-		server = controller.sessionController;
+		notificationSequence = 0;
+		broadcaster = new NotificationBroadcasterSupport();
+		
+		this.server = engine.sessionController;
+		this.jmxServer = jmxServer;
 	}
 
 	public void createInfo() throws Exception {
