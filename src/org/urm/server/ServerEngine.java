@@ -52,6 +52,7 @@ public class ServerEngine {
 	}
 	
 	public void runServer( ActionBase action ) throws Exception {
+		serverAction.debug( "load registry ..." );
 		metaLoader.loadServerProducts( action.actionInit );
 		
 		sessionController = new SessionController( action , this );
@@ -68,7 +69,7 @@ public class ServerEngine {
 			return;
 		
 		serverAction.info( "stopping server ..." );
-		stopPool();
+		shellPool.stop( serverAction );
 		jmxController.stop();
 		sessionController.stop();
 		jmxController = null;
@@ -98,7 +99,7 @@ public class ServerEngine {
 	}
 	
 	public void stopWeb() throws Exception {
-		sessionController.stop();
+		stopServer();
 	}
 	
 	public ActionInit createWebSessionAction() throws Exception {
@@ -245,10 +246,6 @@ public class ServerEngine {
 	
 	public void deleteWorkFolder( ActionBase action , LocalFolder workFolder ) throws Exception {
 		shellPool.master.removeDir( action , workFolder.folderPath );
-	}
-	
-	private void stopPool() throws Exception {
-		shellPool.stop( serverAction );
 	}
 	
 	public void startAction( ActionBase action ) throws Exception {

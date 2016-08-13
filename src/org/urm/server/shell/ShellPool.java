@@ -137,6 +137,8 @@ public class ShellPool implements Runnable {
 	}
 	
 	public void start( ActionBase action ) throws Exception {
+		action.debug( "start shell pool ..." );
+		
 		tmpFolder = action.artefactory.getTmpFolder( action );
 		master = createDedicatedLocalShell( action , "master" );
 		tmpFolder.ensureExists( action );
@@ -145,9 +147,12 @@ public class ShellPool implements Runnable {
 		started = true;
         thread = new Thread( null , this , "Thread Pool" );
         thread.start();
+        
+		action.debug( "shell pool has been started" );
 	}
 	
 	public void stop( ActionBase action ) {
+		action.debug( "stop shell pool ..." );
 		try {
 			if( started ) {
 				stop = true;
@@ -162,6 +167,7 @@ public class ShellPool implements Runnable {
 			if( action.context.CTX_TRACEINTERNAL )
 				action.trace( "exception when killing shell=" + master.name + " (" + e.getMessage() + ")" );
 		}
+		action.debug( "shell pool has been stopped" );
 	}
 	
 	private void killShell( Shell shell ) {

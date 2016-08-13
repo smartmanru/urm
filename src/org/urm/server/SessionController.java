@@ -37,8 +37,24 @@ public class SessionController {
 	}
 	
 	public void start() throws Exception {
+		serverAction.debug( "start session controller ..." );
 		CommandBuilder builder = new CommandBuilder( serverAction.context.session.clientrc , serverAction.context.session.execrc );
 		executors = builder.getExecutors( true , true );
+		serverAction.debug( "session controller has been started" );
+	}
+	
+	public void stop() throws Exception {
+		serverAction.debug( "stop session controller ..." );
+		
+		stop = true;
+		synchronized( this ) {
+			notifyAll();
+		}
+		serverAction.debug( "session controller has been stopped" );
+	}
+	
+	public boolean isRunning() {
+		return( running );
 	}
 	
 	public void waitFinished() throws Exception {
@@ -141,17 +157,6 @@ public class SessionController {
 	public synchronized int createSessionId() {
 		sessionSequence++;
 		return( sessionSequence );
-	}
-	
-	public void stop() throws Exception {
-		stop = true;
-		synchronized( this ) {
-			notifyAll();
-		}
-	}
-	
-	public boolean isRunning() {
-		return( running );
 	}
 	
 	public ServerCall getCall( int sessionId ) {

@@ -41,6 +41,7 @@ public class ServerMBean implements DynamicMBean {
 	}
 	
 	public void start() throws Exception {
+		action.debug( "start JMX server ..." );
 		int port = action.context.CTX_PORT;
 		if( port <= 0 )
 			port = RemoteCall.DEFAULT_SERVER_PORT;
@@ -62,13 +63,22 @@ public class ServerMBean implements DynamicMBean {
         JMXServiceURL url = new JMXServiceURL( URL );
         jmxConnector = JMXConnectorServerFactory.newJMXConnectorServer( url , null , mbs );
         jmxConnector.start();
+		action.debug( "JMX server has been started" );
 	}
 
 	public void stop() throws Exception {
+		action.debug( "stop JMX server ..." );
 		jmxConnector.stop();
 		jmxConnector = null;
 		mbean = null;
 		mbs = null;
+		action.debug( "JMX server has been stopped" );
+	}
+	
+	private String status() {
+		if( engine.isRunning() )
+			return( "running" );
+		return( "stopped" );
 	}
 	
 	private String stopServer() {
@@ -80,12 +90,6 @@ public class ServerMBean implements DynamicMBean {
 		}
 		
 		return( "ok" );
-	}
-	
-	private String status() {
-		if( engine.isRunning() )
-			return( "running" );
-		return( "stopped" );
 	}
 	
 	private void addServer() throws Exception {
