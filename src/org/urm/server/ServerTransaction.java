@@ -19,7 +19,7 @@ public class ServerTransaction {
 	public ServerTransaction( ActionBase action ) {
 		this.action = action;
 		this.engine = action.engine;
-		this.loader = action.actionInit.getMetaLoader();
+		this.loader = action.engine.getLoader();
 		
 		registry = null;
 		metadata = null;

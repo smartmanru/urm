@@ -40,7 +40,8 @@ public class ServerEngine {
 	public MainExecutor serverExecutor;
 	public ActionInit serverAction;
 	public ShellPool shellPool;
-	public ServerLoader metaLoader;
+	
+	private ServerLoader metaLoader;
 	public boolean running;
 
 	private ServerTransaction currentTransaction = null;
@@ -375,6 +376,14 @@ public class ServerEngine {
 	
 	public ServerTransaction getTransaction() {
 		return( currentTransaction );
+	}
+
+	public ServerRegistry getRegistry() {
+		return( metaLoader.getRegistry() );
+	}
+
+	public ServerLoader getLoader() {
+		return( metaLoader );
 	}
 	
 }

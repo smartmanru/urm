@@ -85,7 +85,7 @@ public class ActionConfigure extends ActionBase {
 	}
 
 	private void configureServer( boolean serverMode ) throws Exception {
-		ServerLoader loader = engine.metaLoader;
+		ServerLoader loader = engine.getLoader();
 		loader.loadServerSettings();
 		loader.loadServerProducts( actionInit );
 		

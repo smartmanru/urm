@@ -1,6 +1,5 @@
 package org.urm.server.action;
 
-import org.urm.server.ServerLoader;
 import org.urm.server.ServerProduct;
 import org.urm.server.ServerRegistry;
 import org.urm.server.SessionContext;
@@ -45,12 +44,7 @@ public class ActionInit extends ActionBase {
 	}
 	
 	public ServerRegistry getRegistry() {
-		ServerLoader loader = engine.metaLoader;
-		return( loader.getRegistry() );
+		return( engine.getRegistry() );
 	}
 	
-	public ServerLoader getMetaLoader() {
-		return( engine.metaLoader );
-	}
-
 }
