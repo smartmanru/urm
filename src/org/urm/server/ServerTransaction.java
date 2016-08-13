@@ -1,13 +1,14 @@
 package org.urm.server;
 
-import org.urm.server.action.ActionBase;
+import org.urm.common.ExitException;
+import org.urm.server.action.ActionInit;
 import org.urm.server.meta.Meta;
 
 public class ServerTransaction {
 
-	public ActionBase action;
 	public ServerEngine engine;
 	public ServerLoader loader;
+	public ActionInit metadataAction;
 	
 	public ServerRegistry registry;
 	public ServerProductMeta metadata;
@@ -16,10 +17,9 @@ public class ServerTransaction {
 	private ServerProductMeta metadataOld;
 	public boolean createMetadata;
 	
-	public ServerTransaction( ActionBase action ) {
-		this.action = action;
-		this.engine = action.engine;
-		this.loader = action.engine.getLoader();
+	public ServerTransaction( ServerEngine engine ) {
+		this.engine = engine;
+		this.loader = engine.getLoader();
 		
 		registry = null;
 		metadata = null;
@@ -28,7 +28,7 @@ public class ServerTransaction {
 
 	public boolean startTransaction() {
 		synchronized( engine ) {
-			if( !engine.startTransaction( action , this ) )
+			if( !engine.startTransaction( this ) )
 				return( false );
 		
 			registry = null;
@@ -52,7 +52,7 @@ public class ServerTransaction {
 				}
 			}
 			catch( Throwable e ) {
-				action.log( "unable to restore registry" , e );
+				log( "unable to restore registry" , e );
 			}
 			
 			try {
@@ -63,7 +63,7 @@ public class ServerTransaction {
 				}
 			}
 			catch( Throwable e ) {
-				action.log( "unable to restore metadata" , e );
+				log( "unable to restore metadata" , e );
 			}
 			
 			engine.abortTransaction( this );
@@ -99,6 +99,11 @@ public class ServerTransaction {
 		return( true );
 	}
 
+	public void log( String s , Throwable e ) {
+		System.out.println( s );
+		e.printStackTrace();
+	}
+	
 	public boolean changeRegistry( ServerRegistry sourceRegistry ) {
 		synchronized( engine ) {
 			try {
@@ -109,13 +114,13 @@ public class ServerTransaction {
 					return( true );
 				
 				if( sourceRegistry == loader.getRegistry() ) {
-					registry = sourceRegistry.copy( action );
+					registry = sourceRegistry.copy();
 					if( registry != null )
 						return( true );
 				}
 			}
 			catch( Throwable e ) {
-				action.log( e );
+				log( "unable to change registry" , e );
 			}
 			
 			abortTransaction();
@@ -136,7 +141,7 @@ public class ServerTransaction {
 			return( true );
 		}
 		catch( Throwable e ) {
-			action.log( "unable to save registry" , e );
+			log( "unable to save registry" , e );
 		}
 
 		abortTransaction();
@@ -153,13 +158,14 @@ public class ServerTransaction {
 					return( true );
 				
 				if( sourceMetadata.storage == loader.getMetaStorage( sourceMetadata.product.CONFIG_PRODUCT ) ) {
-					metadata = sourceMetadata.storage.copy( action );
+					metadataAction = engine.createTemporaryAction( "meta" );
+					metadata = sourceMetadata.storage.copy( metadataAction );
 					if( metadata != null )
 						return( true );
 				}
 			}
 			catch( Throwable e ) {
-				action.log( "unable to save registry" , e );
+				log( "unable to save registry" , e );
 			}
 			
 			abortTransaction();
@@ -181,7 +187,7 @@ public class ServerTransaction {
 			return( true );
 		}
 		catch( Throwable e ) {
-			action.log( "unable to save metadata" , e );
+			log( "unable to save metadata" , e );
 		}
 
 		abortTransaction();
@@ -190,50 +196,71 @@ public class ServerTransaction {
 	
 	private void checkTransaction() throws Exception {
 		if( !continueTransaction() )
-			action.exitUnexpectedState();
+			exit( "transaction is aborted" );
+	}
+
+	private void checkTransactionRegistry() throws Exception {
+		checkTransaction();
+		if( registry == null )
+			exit( "missing registry changes" );
+	}
+
+	private void checkTransactionMetadata() throws Exception {
+		checkTransaction();
+		if( metadata == null )
+			exit( "missing metadata changes" );
+	}
+
+	private void checkTransactionAll() throws Exception {
+		checkTransactionRegistry();
+		checkTransactionMetadata();
+	}
+
+	public void exit( String msg ) throws Exception {
+		throw new ExitException( msg );
 	}
 	
 	// helpers
 	public ServerSystem getNewSystem( ServerSystem system ) throws Exception {
-		return( registry.getSystem( action , system.NAME ) );
+		return( registry.getSystem( system.NAME ) );
 	}
 	
 	public ServerProduct getNewProduct( ServerProduct product ) throws Exception {
-		return( registry.getProduct( action , product.NAME ) );
+		return( registry.getProduct( product.NAME ) );
 	}
 	
 	// transactional operations
 	public void addSystem( ServerSystem system ) throws Exception {
-		checkTransaction();
+		checkTransactionRegistry();
 		registry.addSystem( this , system );
 	}
 	
 	public void modifySystem( ServerSystem system , ServerSystem systemNew ) throws Exception {
-		checkTransaction();
+		checkTransactionRegistry();
 		system.modifySystem( this , systemNew );
 	}
 
 	public void deleteSystem( ServerSystem system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
-		checkTransaction();
-		action.artefactory.deleteSystemResources( this , system , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
+		checkTransactionAll();
+		metadataAction.artefactory.deleteSystemResources( this , system , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		registry.deleteSystem( this , system );
 	}
 	
 	public void addProduct( ServerProduct product ) throws Exception {
-		checkTransaction();
+		checkTransactionAll();
 		createMetadata = true;
 		registry.createProduct( this , product );
 		metadata = loader.createMetadata( this , registry , product );
 	}
 	
 	public void modifyProduct( ServerProduct product , ServerProduct productNew ) throws Exception {
-		checkTransaction();
+		checkTransactionAll();
 		product.modifyProduct( this , productNew );
 	}
 
 	public void deleteProduct( ServerProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
-		checkTransaction();
-		action.artefactory.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
+		checkTransactionAll();
+		metadataAction.artefactory.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		registry.deleteProduct( this , product );
 	}
 	

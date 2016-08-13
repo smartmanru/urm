@@ -90,7 +90,7 @@ public class ActionConfigure extends ActionBase {
 		loader.loadServerProducts( actionInit );
 		
 		ServerRegistry registry = actionInit.getRegistry();
-		for( String name : registry.getProducts( actionInit ) ) {
+		for( String name : registry.getProducts() ) {
 			info( "configure product name=" + name + " ..." );
 			
 			actionInit.setServerSystemProductLayout( name );

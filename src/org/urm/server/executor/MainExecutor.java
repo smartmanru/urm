@@ -44,6 +44,14 @@ public class MainExecutor extends CommandExecutor {
 		return( options );
 	}
 
+	public CommandOptions createOptionsTemporary( ServerEngine engine ) throws Exception {
+		CommandOptions options = new CommandOptions();
+		SessionContext sessionContext = engine.createSession( engine.execrc , true );
+		sessionContext.setServerLayout( options );
+		
+		return( options );
+	}
+
 	public CommandOptions createOptionsWebSession( ServerEngine engine ) throws Exception {
 		CommandOptions options = new CommandOptions();
 		ActionData data = new ActionData( engine.execrc );

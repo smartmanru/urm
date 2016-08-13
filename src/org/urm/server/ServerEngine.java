@@ -117,6 +117,19 @@ public class ServerEngine {
 		return( action );
 	}
 	
+	public ActionInit createTemporaryAction( String name ) throws Exception {
+		CommandOptions options = serverExecutor.createOptionsTemporary( this );
+		if( options == null )
+			return( null );
+		
+		RunContext clientrc = RunContext.clone( execrc );
+		SessionContext sessionContext = createSession( clientrc , true );
+		ActionInit action = createAction( serverExecutor , options , sessionContext , name , null );
+		startAction( action );
+		
+		return( action );
+	}
+	
 	public boolean runServerExecutor( MainExecutor serverExecutor , RunContext execrc , CommandOptions options ) throws Exception {
 		this.execrc = execrc;
 		this.serverExecutor = serverExecutor;
@@ -327,6 +340,11 @@ public class ServerEngine {
 		return( artefactory );
 	}
 
+	public ServerTransaction createTransaction() {
+		ServerTransaction transaction = new ServerTransaction( this );
+		return( transaction );
+	}
+	
 	public SessionContext createSession( RunContext clientrc , boolean client ) {
 		int sessionId = 0;
 		if( sessionController != null )
@@ -335,7 +353,7 @@ public class ServerEngine {
 		return( session );
 	}
 
-	public boolean startTransaction( ActionBase action , ServerTransaction transaction ) {
+	public boolean startTransaction( ServerTransaction transaction ) {
 		if( !running )
 			return( false );
 		
@@ -346,7 +364,10 @@ public class ServerEngine {
 				}
 			}
 			catch( Throwable e ) {
-				action.log( e );
+				if( serverAction != null )
+					serverAction.log( e );
+				else
+					System.out.println( e.getMessage() );
 			}
 		}
 		

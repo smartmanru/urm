@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.PropertySet;
-import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionInit;
 import org.urm.server.meta.MetaDatabase;
 import org.urm.server.meta.MetaDesign;
@@ -96,7 +95,7 @@ public class ServerLoader {
 	}
 
 	public void loadServerProducts( ActionInit action ) throws Exception {
-		for( String name : registry.getProducts( action ) ) {
+		for( String name : registry.getProducts() ) {
 			action.setServerSystemProductLayout( name );
 			
 			try {
@@ -126,8 +125,8 @@ public class ServerLoader {
 	}
 
 	public void addProductProps( ActionInit action , PropertySet props ) throws Exception {
-		props.copyRawProperties( registry.getDefaultProductProperties( action ) , "" );
-		for( PropertySet set : registry.getBuildModeDefaults( action ) )
+		props.copyRawProperties( registry.getDefaultProductProperties() , "" );
+		for( PropertySet set : registry.getBuildModeDefaults() )
 			props.copyRawProperties( set , set.set + "." );
 	}
 
@@ -144,15 +143,17 @@ public class ServerLoader {
 	}
 
 	public ServerProductMeta createMetadata( ServerTransaction transaction , ServerRegistry registryNew , ServerProduct product ) throws Exception {
-		ActionBase action = transaction.action;
-		action.actionInit.setServerSystemProductLayout( product );
+		ActionInit action = engine.createTemporaryAction( "loader" );
+		action.setServerSystemProductLayout( product );
 		
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 		ServerProductMeta set = new ServerProductMeta( this , action.session );
 		set.createInitial( action , registryNew );
 		set.saveAll( action , storageMeta , product );
 		
-		action.actionInit.clearServerProductLayout();
+		action.clearServerProductLayout();
+		engine.finishAction( action );
+		
 		return( set );
 	}
 	

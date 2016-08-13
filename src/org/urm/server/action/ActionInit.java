@@ -34,7 +34,7 @@ public class ActionInit extends ActionBase {
 	
 	public void setServerSystemProductLayout( String name ) throws Exception {
 		ServerRegistry registry = getRegistry();
-		ServerProduct product = registry.getProduct( this , name ); 
+		ServerProduct product = registry.getProduct( name ); 
 		setServerSystemProductLayout( product );
 	}
 	

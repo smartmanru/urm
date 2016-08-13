@@ -136,7 +136,7 @@ public class ServerMBean implements DynamicMBean {
 			action.exit( "cannot find directory: " + products.folderPath );
 		
 		ServerRegistry registry = action.actionInit.getRegistry();
-		for( String name : registry.getProducts( action ) )
+		for( String name : registry.getProducts() )
 			addProduct( name );
 	}		
 	

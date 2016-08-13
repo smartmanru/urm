@@ -162,7 +162,7 @@ public class MetaProduct {
 		
 		// create initial
 		props = new PropertySet( "product" , null );
-		registry.setProductDefaults( action , props );
+		registry.setProductDefaults( props );
 	}
 	
 	public void load( ActionBase action , ServerProductContext productContext , Node root ) throws Exception {

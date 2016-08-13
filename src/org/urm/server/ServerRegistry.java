@@ -8,7 +8,6 @@ import org.urm.common.ConfReader;
 import org.urm.common.ExitException;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext;
-import org.urm.server.action.ActionBase;
 import org.urm.server.meta.Meta.VarBUILDMODE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -121,35 +120,35 @@ public class ServerRegistry {
 		}
 	}
 	
-	public String[] getSystems( ActionBase action ) {
+	public String[] getSystems() {
 		return( Common.getSortedKeys( mapSystems ) );
 	}
 
-	public String[] getProducts( ActionBase action ) {
+	public String[] getProducts() {
 		return( Common.getSortedKeys( mapProducts ) );
 	}
 	
-	public ServerSystem findSystem( ActionBase action , String name ) {
+	public ServerSystem findSystem( String name ) {
 		return( mapSystems.get( name ) );
 	}
 	
-	public ServerProduct findProduct( ActionBase action , String name ) {
+	public ServerProduct findProduct( String name ) {
 		return( mapProducts.get( name ) );
 	}
 	
-	public PropertySet getServerProperties( ActionBase action ) {
+	public PropertySet getServerProperties() {
 		return( properties );
 	}
 
-	public PropertySet getDefaultProductProperties( ActionBase action ) {
+	public PropertySet getDefaultProductProperties() {
 		return( defaultProductProperties );
 	}
 
-	public PropertySet[] getBuildModeDefaults( ActionBase action ) {
+	public PropertySet[] getBuildModeDefaults() {
 		return( mapBuildModeDefaults.values().toArray( new PropertySet[0] ) );
 	}
 
-	public void setProductDefaults( ActionBase action , PropertySet props ) throws Exception {
+	public void setProductDefaults( PropertySet props ) throws Exception {
 		props.copyOriginalProperties( defaultProductProperties , "" );
 		for( VarBUILDMODE mode : mapBuildModeDefaults.keySet() ) {
 			PropertySet set = mapBuildModeDefaults.get( mode );
@@ -157,7 +156,7 @@ public class ServerRegistry {
 		}
 	}
 	
-	public ServerRegistry copy( ActionBase action ) throws Exception {
+	public ServerRegistry copy() throws Exception {
 		ServerRegistry r = new ServerRegistry( loader );
 		r.properties = properties.copy( null );
 		r.scatterSystemProperties();
@@ -221,13 +220,13 @@ public class ServerRegistry {
 
 	public void addSystem( ServerTransaction transaction , ServerSystem system ) throws Exception {
 		if( mapSystems.get( system.NAME ) != null )
-			transaction.action.exitUnexpectedState();
+			transaction.exit( "system=" + system.NAME + " is not unique" );
 		mapSystems.put( system.NAME , system );
 	}
 
 	public void deleteSystem( ServerTransaction transaction , ServerSystem system ) throws Exception {
 		if( mapSystems.get( system.NAME ) != system )
-			transaction.action.exitUnexpectedState();
+			transaction.exit( "system=" + system.NAME + " is unknown or mismatched" );
 		
 		for( String productName : system.getProducts() )
 			mapProducts.remove( productName );
@@ -235,30 +234,30 @@ public class ServerRegistry {
 		mapSystems.remove( system.NAME );
 	}
 
-	public ServerSystem getSystem( ActionBase action , String name ) throws Exception {
-		ServerSystem system = findSystem( action , name );
+	public ServerSystem getSystem( String name ) throws Exception {
+		ServerSystem system = findSystem( name );
 		if( system == null )
-			action.exit( "unknown system=" + system );
+			throw new ExitException( "unknown system=" + system );
 		return( system );
 	}
 
-	public ServerProduct getProduct( ActionBase action , String name ) throws Exception {
-		ServerProduct product = findProduct( action , name );
+	public ServerProduct getProduct( String name ) throws Exception {
+		ServerProduct product = findProduct( name );
 		if( product == null )
-			action.exit( "unknown product=" + name );
+			throw new ExitException( "unknown product=" + name );
 		return( product );
 	}
 
 	public void createProduct( ServerTransaction transaction , ServerProduct product ) throws Exception {
 		if( mapProducts.containsKey( product.NAME ) )
-			transaction.action.exitUnexpectedState();
+			transaction.exit( "product=" + product.NAME + " is not unique" );
 		mapProducts.put( product.NAME , product );
 		product.system.addProduct( transaction , product );
 	}
 	
 	public void deleteProduct( ServerTransaction transaction , ServerProduct product ) throws Exception {
 		if( mapProducts.get( product.NAME ) != product )
-			transaction.action.exitUnexpectedState();
+			transaction.exit( "product=" + product.NAME + " is unknown or mismatched" );
 		
 		mapProducts.remove( product.NAME );
 		product.system.removeProduct( transaction , product );

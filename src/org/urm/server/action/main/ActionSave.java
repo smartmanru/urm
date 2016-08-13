@@ -41,7 +41,7 @@ public class ActionSave extends ActionBase {
 		
 		UrmStorage urm = artefactory.getUrmStorage();
 		ServerRegistry registry = actionInit.getRegistry();
-		for( String name : registry.getProducts( this ) ) {
+		for( String name : registry.getProducts() ) {
 			info( "save product=" + name + " ..." );
 			actionInit.setServerSystemProductLayout( name );
 			
