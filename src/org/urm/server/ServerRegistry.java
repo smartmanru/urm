@@ -137,6 +137,10 @@ public class ServerRegistry {
 		return( mapProducts.get( name ) );
 	}
 	
+	public PropertySet getServerProperties( ActionBase action ) {
+		return( properties );
+	}
+
 	public PropertySet getDefaultProductProperties( ActionBase action ) {
 		return( defaultProductProperties );
 	}
