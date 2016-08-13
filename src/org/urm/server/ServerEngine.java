@@ -74,6 +74,7 @@ public class ServerEngine {
 		sessionController.stop();
 		jmxController = null;
 		sessionController = null;
+		running = false;
 	}
 
 	public boolean isRunning() {
