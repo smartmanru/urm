@@ -250,7 +250,7 @@ public class ServerTransaction {
 	}
 	
 	public void addProduct( ServerProduct product ) throws Exception {
-		checkTransactionAll();
+		checkTransactionRegistry();
 		createMetadata = true;
 		registry.createProduct( this , product );
 		metadata = loader.createMetadata( this , registry , product );
