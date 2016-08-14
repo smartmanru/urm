@@ -53,18 +53,18 @@ public class PropertySet {
 		return( Common.getSortedKeys( running ) );		
 	}
 
-	public String[] getOwnProperties() throws Exception {
+	public String[] getOwnProperties() {
 		String[] keys = Common.getSortedKeys( running );
 		for( int k = 0; k < keys.length; k++ )
 			keys[k] = getPropertyByKey( keys[k] );
 		return( keys );
 	}
 
-	public String[] getOriginalProperties() throws Exception {
+	public String[] getOriginalProperties() {
 		return( Common.getSortedKeys( original ) );
 	}
 
-	public String[] getManualProperties() throws Exception {
+	public String[] getManualProperties() {
 		String[] own = getOwnProperties();
 		int count = 0;
 		for( String prop : own ) {
@@ -81,7 +81,7 @@ public class PropertySet {
 		return( manual );
 	}
 
-	public String[] getAllProperties() throws Exception {
+	public String[] getAllProperties() {
 		if( parent == null )
 			return( getOwnProperties() );
 		
@@ -93,7 +93,7 @@ public class PropertySet {
 		return( Common.getSortedKeys( props ) );
 	}
 	
-	public String[] getAllKeys() throws Exception {
+	public String[] getAllKeys() {
 		if( parent == null )
 			return( getOwnKeys() );
 		
