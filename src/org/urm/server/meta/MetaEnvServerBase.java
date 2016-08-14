@@ -24,11 +24,12 @@ public class MetaEnvServerBase {
 
 	public void load( ActionBase action , Node node ) throws Exception {
 		properties = new PropertySet( "base" , server.properties );
-		properties.loadRawFromAttributes( node );
+		properties.loadRawFromNodeAttributes( node );
 		ID = properties.getSystemRequiredStringProperty( "id" );
 		properties.finishRawProperties();
-		properties.loadRawFromElements( node );
-		properties.moveRawAsStrings();
+		
+		properties.loadRawFromNodeElements( node );
+		properties.resolveRawProperties();
 		
 		loadPrepare( action , node );
 	}

@@ -569,10 +569,6 @@ public class Common {
 		return( "{" + getList( set ) + "}" );
 	}
 
-	public static String getSortedKeySet( Map<String,?> map ) {
-		return( getListSet( getSortedKeys( map ) ) );
-	}
-
 	public static String addListToUniqueSpacedList( String list , String addList ) {
 		if( list == null || list.isEmpty() )
 			return( addList );
@@ -652,6 +648,15 @@ public class Common {
 		}
 		
 		return( index );
+	}
+
+	public static int getIndexOf( String[] list , String item ) {
+		for( int k = 0; k <= list.length; k++ ) {
+			if( list[k].equals( item ) )
+				return( k );
+		}
+		
+		return( -1 );
 	}
 
 	public static String cutItem( String s , String delimiter , int pos ) {

@@ -16,7 +16,8 @@ import org.w3c.dom.Node;
 public class MetaProduct {
 
 	public PropertySet props;
-	private boolean loaded = false;
+	public Map<String,PropertySet> modeProps;
+	private boolean loaded;
 	protected Meta meta;
 	public Charset charset;
 	
@@ -85,10 +86,13 @@ public class MetaProduct {
 	public String CONFIG_CUSTOM_DATABASE;
 
 	public boolean initial;
-	public String[] modes = { "devtrunk" , "trunk" , "majorbranch" , "devbranch" , "branch" };
+	
+	public static String[] modes = { "devtrunk" , "trunk" , "majorbranch" , "devbranch" , "branch" };
 	
 	public MetaProduct( Meta meta ) {
 		this.meta = meta;
+		loaded = false;
+		modeProps = new HashMap<String,PropertySet>();
 	}
 	
 	private void scatterVariables( ActionBase action ) throws Exception {
@@ -174,13 +178,21 @@ public class MetaProduct {
 		
 		// load from file
 		props = new PropertySet( "product" , null );
-		props.loadRawFromElements( root );
+		props.loadRawFromNodeElements( root );
 		
 		Node[] items = ConfReader.xmlGetChildren( root , "mode" );
 		if( items != null ) {
 			for( Node node : items ) {
-				String name = ConfReader.getAttrValue( node , "name" );
-				props.loadRawFromElements( node , name + "." );
+				String modeName = ConfReader.getAttrValue( node , "name" );
+				if( Common.getIndexOf( modes , modeName ) < 0 )
+					continue;
+				
+				PropertySet modeSet = new PropertySet( "build." + modeName , props );
+				modeSet.loadRawFromNodeElements( node );
+				modeSet.resolveRawProperties();
+				
+				props.copyRunningPropertiesToRunning( modeSet );
+				modeProps.put( modeName , modeSet );
 			}
 		}
 		

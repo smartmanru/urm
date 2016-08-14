@@ -50,7 +50,7 @@ public class ServerRegistry {
 			throw new ExitException( "unable to reader engine property file " + path );
 
 		Node root = doc.getDocumentElement();
-		properties.loadRawFromElements( root );
+		properties.loadRawFromNodeElements( root );
 		scatterSystemProperties();
 		
 		loadDirectory( root );
@@ -100,8 +100,8 @@ public class ServerRegistry {
 			return;
 
 		// top-level
-		defaultProductProperties.loadRawFromElements( node );
-		defaultProductProperties.moveRawAsIs();
+		defaultProductProperties.loadRawFromNodeElements( node );
+		defaultProductProperties.resolveRawProperties();
 		
 		// for build modes
 		Node[] items = ConfReader.xmlGetChildren( node , "mode" );
@@ -113,8 +113,8 @@ public class ServerRegistry {
 			VarBUILDMODE mode = VarBUILDMODE.valueOf( MODE.toUpperCase() );
 			PropertySet set = new PropertySet( MODE.toLowerCase() , defaultProductProperties );
 			
-			set.loadRawFromElements( itemNode );
-			set.moveRawAsIs();
+			set.loadRawFromNodeElements( itemNode );
+			set.resolveRawProperties();
 			
 			mapBuildModeDefaults.put( mode , set );
 		}
@@ -149,10 +149,10 @@ public class ServerRegistry {
 	}
 
 	public void setProductDefaults( PropertySet props ) throws Exception {
-		props.copyOriginalProperties( defaultProductProperties , "" );
+		props.copyOriginalPropertiesToRaw( defaultProductProperties );
 		for( VarBUILDMODE mode : mapBuildModeDefaults.keySet() ) {
 			PropertySet set = mapBuildModeDefaults.get( mode );
-			props.copyOriginalProperties( set , mode.toString().toLowerCase() );
+			props.copyOriginalPropertiesToRaw( set );
 		}
 	}
 	

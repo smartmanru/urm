@@ -93,15 +93,15 @@ public class MetaBase {
 
 	public void load( ActionBase action , Node node , MetaEnvServerNode serverNode ) throws Exception {
 		PropertySet meta = new PropertySet( "meta" , serverNode.server.base.properties );
-		meta.loadRawFromAttributes( node );
+		meta.loadRawFromNodeAttributes( node );
 		scatterVariables( action , meta );
 		
-		meta.loadRawFromElements( node );
-		meta.moveRawAsStrings();
-		meta.copyProperties( serverNode.properties );
+		meta.loadRawFromNodeElements( node );
+		meta.resolveRawProperties();
+		meta.copyRunningPropertiesToRunning( serverNode.properties );
 
 		properties = new PropertySet( "final" , null );
-		properties.copyProperties( meta );
+		properties.copyRunningPropertiesToRunning( meta );
 
 		if( action.isDebug() )
 			action.printValues( properties );

@@ -101,11 +101,12 @@ public class MetaEnvServer {
 			loadDeployments( action , node );
 		
 		properties = new PropertySet( "server" , dc.properties );
-		properties.loadRawFromAttributes( node );
+		properties.loadRawFromNodeAttributes( node );
 		scatterSystemProperties( action );
+		
 		if( loadProps ) {
-			properties.loadRawFromElements( node );
-			properties.moveRawAsStrings();
+			properties.loadRawFromNodeElements( node );
+			properties.resolveRawProperties();
 		}
 
 		loadNodes( action , node , loadProps );

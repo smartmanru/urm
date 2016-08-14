@@ -84,7 +84,7 @@ public class MetaEnv {
 		
 		secretProperties = new PropertySet( "secret" , meta.product.props );
 		properties = new PropertySet( "env" , secretProperties );
-		properties.loadRawFromAttributes( node );
+		properties.loadRawFromNodeAttributes( node );
 		
 		CONF_SECRETFILESPATH = properties.getSystemPathProperty( "configuration-secretfilespath" , "" , action.session.execrc );
 		
@@ -102,8 +102,8 @@ public class MetaEnv {
 		
 		if( loadProps ) {
 			loadSecretProperties( action );
-			properties.loadRawFromElements( node );
-			properties.moveRawAsStrings();
+			properties.loadRawFromNodeElements( node );
+			properties.resolveRawProperties();
 		}
 	}
 
@@ -113,8 +113,8 @@ public class MetaEnv {
 		if( propFile.isEmpty() )
 			return;
 		
-		secretProperties.loadRawFromFile( propFile , action.session.execrc );
-		secretProperties.moveRawAsStrings();
+		secretProperties.loadRawFromPropertyFile( propFile , action.session.execrc );
+		secretProperties.resolveRawProperties();
 	}
 	
 	public String[] getPropertyList( ActionBase action ) throws Exception {

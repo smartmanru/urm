@@ -124,10 +124,11 @@ public class ServerLoader {
 		registry.load( propertyFile , engine.execrc );
 	}
 
-	public void addProductProps( ActionInit action , PropertySet props ) throws Exception {
-		props.copyRawProperties( registry.getDefaultProductProperties() , "" );
+	public void setProductProps( ActionInit action , PropertySet props ) throws Exception {
+		props.copyOriginalPropertiesToRaw( registry.getDefaultProductProperties() );
 		for( PropertySet set : registry.getBuildModeDefaults() )
-			props.copyRawProperties( set , set.set + "." );
+			props.copyOriginalPropertiesToRaw( set );
+		props.resolveRawProperties();
 	}
 
 	public ServerRegistry getRegistry() {
