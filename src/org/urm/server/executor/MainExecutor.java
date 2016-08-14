@@ -73,6 +73,7 @@ public class MainExecutor extends CommandExecutor {
 		super.defineAction( new SvnSave() , "svnsave" );
 		super.defineAction( new ServerOp() , "server" );
 		super.defineAction( new WebSession() , "websession" );
+		super.defineAction( new Temporary() , "temporary" );
 	}
 
 	public boolean run( ActionInit action ) {
@@ -125,6 +126,12 @@ public class MainExecutor extends CommandExecutor {
 		public void run( ActionInit action ) throws Exception {
 			ActionWebSession ca = new ActionWebSession( action , null );
 			ca.runSimple();
+		}
+	}
+
+	// server operation
+	private class Temporary extends CommandAction {
+		public void run( ActionInit action ) throws Exception {
 		}
 	}
 
