@@ -226,6 +226,9 @@ public class PropertySet {
 				throw new ExitException( "set=" + set + ": missing or empty property=" + prop );
 		}
 		
+		if( pv == null )
+			return( null );
+			
 		processValue( pv , false , false , true );
 		removeRawProperty( pv );
 		setRunningProperty( pv );
