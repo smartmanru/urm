@@ -100,8 +100,7 @@ public class ServerRegistry {
 			return;
 
 		// top-level
-		defaultProductProperties.loadRawFromNodeElements( node );
-		defaultProductProperties.resolveRawProperties();
+		defaultProductProperties.loadOriginalFromNodeElements( node );
 		
 		// for build modes
 		Node[] items = ConfReader.xmlGetChildren( node , "mode" );
@@ -112,10 +111,8 @@ public class ServerRegistry {
 			String MODE = ConfReader.getRequiredAttrValue( itemNode , "name" );
 			VarBUILDMODE mode = VarBUILDMODE.valueOf( MODE.toUpperCase() );
 			PropertySet set = new PropertySet( MODE.toLowerCase() , defaultProductProperties );
-			
-			set.loadRawFromNodeElements( itemNode );
-			set.resolveRawProperties();
-			
+
+			set.loadOriginalFromNodeElements( itemNode );
 			mapBuildModeDefaults.put( mode , set );
 		}
 	}

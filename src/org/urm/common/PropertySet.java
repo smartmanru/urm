@@ -148,23 +148,41 @@ public class PropertySet {
 		return( running.get( getKeyByProperty( prop ) ) );
 	}
 
-	private void createOriginalAndRawProperty( String prop , String value ) throws Exception {
+	private void createOriginalAndRawProperty( String prop , String value , boolean addToRaw ) throws Exception {
 		setOriginalProperty( prop , value );
-		PropertyValue pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_ORIGINAL , this );
-		pv.setString( getOriginalByProperty( prop ) );
-		setRawProperty( pv );
+		if( addToRaw ) {
+			PropertyValue pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_ORIGINAL , this );
+			pv.setString( getOriginalByProperty( prop ) );
+			setRawProperty( pv );
+		}
 	}
-	
+
+	public void loadOriginalFromNodeAttributes( Node node ) throws Exception {
+		loadFromNodeAttributes( node , false );
+	}
+
 	public void loadRawFromNodeAttributes( Node node ) throws Exception {
+		loadFromNodeAttributes( node , true );
+	}
+		
+	private void loadFromNodeAttributes( Node node , boolean addToRaw ) throws Exception {
 		Map<String,String> attrs = new HashMap<String,String>();
 		ConfReader.addAttributes( node , attrs );
 		for( String prop : attrs.keySet() ) {
 			String value = attrs.get( prop );
-			createOriginalAndRawProperty( prop , value );
+			createOriginalAndRawProperty( prop , value , addToRaw );
 		}
 	}
 	
+	public void loadOriginalFromNodeElements( Node node ) throws Exception {
+		loadFromNodeElements( node , false );
+	}
+
 	public void loadRawFromNodeElements( Node node ) throws Exception {
+		loadFromNodeElements( node , true );
+	}
+	
+	private void loadFromNodeElements( Node node , boolean addToRaw ) throws Exception {
 		Node[] items = ConfReader.xmlGetChildren( node , "property" );
 		if( items == null )
 			return;
@@ -172,11 +190,19 @@ public class PropertySet {
 		for( Node property : items ) {
 			String prop = ConfReader.getAttrValue( property , "name" );
 			String value = ConfReader.getAttrValue( property , "value" );
-			createOriginalAndRawProperty( prop , value );
+			createOriginalAndRawProperty( prop , value , addToRaw );
 		}
 	}
 
+	public void loadOriginalFromPropertyFile( String path , RunContext execrc ) throws Exception {
+		loadFromPropertyFile( path , execrc , false );
+	}
+	
 	public void loadRawFromPropertyFile( String path , RunContext execrc ) throws Exception {
+		loadFromPropertyFile( path , execrc , true );
+	}
+	
+	private void loadFromPropertyFile( String path , RunContext execrc , boolean addToRaw ) throws Exception {
 		Properties props = ConfReader.readPropertyFile( execrc , path );
 		for( Object key : props.keySet() ) {
 			String prop = ( String )key;
@@ -184,7 +210,7 @@ public class PropertySet {
 			
 			if( value.startsWith( "\"" ) && value.endsWith( "\"" ) )
 				value = value.substring( 1 , value.length() - 2 );
-			createOriginalAndRawProperty( prop , value );
+			createOriginalAndRawProperty( prop , value , addToRaw );
 		}
 	}
 	
