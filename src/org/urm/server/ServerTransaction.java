@@ -1,6 +1,7 @@
 package org.urm.server;
 
 import org.urm.common.ExitException;
+import org.urm.common.PropertySet;
 import org.urm.server.action.ActionInit;
 import org.urm.server.meta.Meta;
 
@@ -265,6 +266,11 @@ public class ServerTransaction {
 		checkTransactionAll();
 		metadataAction.artefactory.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		registry.deleteProduct( this , product );
+	}
+
+	public void setRegistryServerProperties( PropertySet props ) throws Exception {
+		checkTransactionRegistry();
+		registry.setRegistryServerProperties( this , props );
 	}
 	
 }

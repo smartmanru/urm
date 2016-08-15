@@ -265,7 +265,7 @@ public class PropertySet {
 		}
 		
 		if( pv == null )
-			return( null );
+			pv = setOriginalProperty( prop , PropertyValueType.PROPERTY_STRING , "" );
 			
 		processValue( pv , false , false , true );
 		removeRawProperty( pv );
@@ -598,10 +598,11 @@ public class PropertySet {
 		return( Common.getBooleanValue( pv.data ) );
 	}
 
-	public void setOriginalProperty( String prop , PropertyValueType type , String value ) throws Exception {
+	public PropertyValue setOriginalProperty( String prop , PropertyValueType type , String value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_ORIGINAL , this );
 		setOriginalProperty( prop , value );
 		setRawProperty( pv );
+		return( pv );
 	}
 	
 	public void finishRawProperties() throws Exception {

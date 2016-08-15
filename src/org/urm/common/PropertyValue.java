@@ -15,12 +15,12 @@ public class PropertyValue {
 		PROPERTY_EXTRA ,
 	};
 	
-	String property;
-	PropertyValueOrigin origin;
-	PropertySet originSet;
+	public String property;
+	public PropertyValueOrigin origin;
+	public PropertySet originSet;
 	
-	PropertyValueType type;
-	String data;
+	public PropertyValueType type;
+	public String data;
 	
 	public PropertyValue( PropertyValue src ) {
 		this.property = src.property;

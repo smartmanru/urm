@@ -229,4 +229,9 @@ public class ServerRegistry {
 		product.system.removeProduct( transaction , product );
 	}
 
+	public void setRegistryServerProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
+		serverContext.setRegistryServerProperties( transaction , props );
+		serverContext.resolveRegistryServerProperties( transaction );
+	}
+
 }

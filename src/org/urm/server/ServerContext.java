@@ -1,6 +1,7 @@
 package org.urm.server;
 
 import org.urm.common.PropertySet;
+import org.urm.common.PropertyValue;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -59,4 +60,20 @@ public class ServerContext {
 		DISTR_PATH = properties.getSystemStringProperty( "distr.path" , "" );
 	}
 
+	public void setRegistryServerProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
+		for( String prop : props.getOriginalProperties() ) {
+			PropertyValue pv = properties.getOwnByProperty( prop );
+			if( pv == null )
+				transaction.exit( "unknown property: " + prop );
+			
+			String value = props.getOriginalByProperty( prop );
+			properties.setOriginalProperty( prop , pv.type , value );
+		}
+	}
+
+	public void resolveRegistryServerProperties( ServerTransaction transaction ) throws Exception {
+		properties.resolveRawProperties();
+		scatterSystemProperties();
+	}
+	
 }
