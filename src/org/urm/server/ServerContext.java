@@ -39,6 +39,7 @@ public class ServerContext {
 	public void load( Node root ) throws Exception {
 		properties.loadRawFromNodeElements( root );
 		scatterSystemProperties();
+		properties.resolveRawProperties();
 		properties.finishRawProperties();
 	}
 

@@ -606,6 +606,7 @@ public class PropertySet {
 	}
 	
 	public void finishRawProperties() throws Exception {
+		resolveRawProperties();
 		for( String prop : raw.keySet() )
 			throw new ExitException( "set=" + set + ": unexpected property=" + prop );
 		resolved = true;
