@@ -21,15 +21,17 @@ public class PropertySet {
 	private Map<String,PropertyValue> raw;		// construction - key2object, with variables
 	private Map<String,String> original;		// source - property2value
 	private List<String> system;				// predefined
-
+	private boolean resolved;
+	
 	public PropertySet( String set , PropertySet parent ) {
+		this.set = set;
+		this.parent = parent;
+		
 		running = new HashMap<String,PropertyValue>();
 		raw = new HashMap<String,PropertyValue>();
 		original = new HashMap<String,String>();
 		system = new LinkedList<String>();
-		
-		this.set = set;
-		this.parent = parent;
+		resolved = false;
 	}
 	
 	public PropertySet copy( PropertySet parentNew ) {
@@ -242,9 +244,19 @@ public class PropertySet {
 			setRunningProperty( pv );
 		}
 		raw.clear();
+		resolved = true;
 	}
 
 	private PropertyValue resolveSystemProperty( String prop , boolean required ) throws Exception {
+		if( resolved ) {
+			PropertyValue pv = getOwnByProperty( prop );
+			if( required ) {
+				if( pv == null || pv.data.isEmpty() )
+					throw new ExitException( "set=" + set + ": missing or empty property=" + prop );
+			}
+			return( pv );
+		}
+		
 		system.add( getKeyByProperty( prop ) );
 		PropertyValue pv = getRawByProperty( prop );
 		if( required ) {
@@ -573,6 +585,7 @@ public class PropertySet {
 	public void finishRawProperties() throws Exception {
 		for( String prop : raw.keySet() )
 			throw new ExitException( "set=" + set + ": unexpected property=" + prop );
+		resolved = true;
 	}
 
 	public void saveAsElements( Document doc , Element parent ) throws Exception {

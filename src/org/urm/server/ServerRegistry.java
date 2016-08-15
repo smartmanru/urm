@@ -16,61 +16,34 @@ import org.w3c.dom.Node;
 public class ServerRegistry {
 
 	public ServerLoader loader;
-	PropertySet properties;
+	public ServerContext serverContext;
 
-	public String CONNECTION_HTTP_PORT;
-	public String CONNECTION_JMX_PORT;
-	
-	public String JABBER_ACCOUNT;
-	public String JABBER_PASSWORD;
-	public String JABBER_SERVER;
-	public String JABBER_CONFERENCESERVER;
-	public String JABBER_INCLUDE;
-	public String JABBER_EXCLUDE;
-
-	public String DISTR_PATH;
-	
 	private Map<String,ServerSystem> mapSystems;
 	private Map<String,ServerProduct> mapProducts;
 	private PropertySet defaultProductProperties;
 	private Map<VarBUILDMODE,PropertySet> mapBuildModeDefaults;
 	
+	public static String PROPERTY_CONNECTION_JMX_PORT = "connection.jmx.port";
+	public static String PROPERTY_CONNECTION_JMXWEB_PORT = "connection.jmxweb.port";
+	
 	public ServerRegistry( ServerLoader loader ) {
 		this.loader = loader;
 		
+		serverContext = new ServerContext();
 		mapSystems = new HashMap<String,ServerSystem>();
 		mapProducts = new HashMap<String,ServerProduct>();
 		mapBuildModeDefaults = new HashMap<VarBUILDMODE,PropertySet>();
 	}
 
 	public void load( String path , RunContext execrc ) throws Exception {
-		properties = new PropertySet( "engine" , null );
 		Document doc = ConfReader.readXmlFile( execrc , path );
 		if( doc == null )
 			throw new ExitException( "unable to reader engine property file " + path );
 
 		Node root = doc.getDocumentElement();
-		properties.loadRawFromNodeElements( root );
-		scatterSystemProperties();
-		
+		serverContext.load( root );
 		loadDirectory( root );
 		loadProductDefaults( root );
-	}
-
-	private void scatterSystemProperties() throws Exception {
-		CONNECTION_HTTP_PORT = properties.getSystemStringProperty( "connection.http.port" , "8080" );
-		CONNECTION_JMX_PORT = properties.getSystemStringProperty( "connection.jmx.port" , "8081" );
-
-		JABBER_ACCOUNT = properties.getSystemStringProperty( "jabber.account" , "" );
-		JABBER_PASSWORD = properties.getSystemStringProperty( "jabber.password" , "" );
-		JABBER_SERVER = properties.getSystemStringProperty( "jabber.server" , "" );
-		JABBER_CONFERENCESERVER = properties.getSystemStringProperty( "jabber.conferenceserver" , "" );
-		JABBER_INCLUDE = properties.getSystemStringProperty( "jabber.include" , "" );
-		JABBER_EXCLUDE = properties.getSystemStringProperty( "jabber.exclude" , "" );
-
-		DISTR_PATH = properties.getSystemStringProperty( "distr.path" , "" );
-		
-		properties.finishRawProperties();
 	}
 
 	private void loadDirectory( Node root ) throws Exception {
@@ -93,7 +66,7 @@ public class ServerRegistry {
 	}
 	
 	private void loadProductDefaults( Node root ) throws Exception {
-		defaultProductProperties = new PropertySet( "default" , properties );
+		defaultProductProperties = new PropertySet( "default" , serverContext.properties );
 		
 		Node node = ConfReader.xmlGetFirstChild( root , "defaults" );
 		if( node == null )
@@ -133,8 +106,8 @@ public class ServerRegistry {
 		return( mapProducts.get( name ) );
 	}
 	
-	public PropertySet getServerProperties() {
-		return( properties );
+	public ServerContext getServerContext() {
+		return( serverContext );
 	}
 
 	public PropertySet getDefaultProductProperties() {
@@ -155,8 +128,7 @@ public class ServerRegistry {
 	
 	public ServerRegistry copy() throws Exception {
 		ServerRegistry r = new ServerRegistry( loader );
-		r.properties = properties.copy( null );
-		r.scatterSystemProperties();
+		r.serverContext = serverContext.copy();
 		
 		for( ServerSystem system : mapSystems.values() ) {
 			ServerSystem rs = system.copy( r );
@@ -182,7 +154,7 @@ public class ServerRegistry {
 		Element root = doc.getDocumentElement();
 
 		// properties
-		properties.saveAsElements( doc , root );
+		serverContext.save( doc , root );
 
 		// defaults
 		Element modeDefaults = Common.xmlCreateElement( doc , root , "defaults" );

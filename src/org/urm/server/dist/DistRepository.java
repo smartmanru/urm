@@ -2,7 +2,7 @@ package org.urm.server.dist;
 
 import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.server.ServerRegistry;
+import org.urm.server.ServerContext;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.Meta;
@@ -50,8 +50,8 @@ public class DistRepository {
 		}
 		else {
 			if( distPath.isEmpty() ) {
-				ServerRegistry registry = action.actionInit.getRegistry();
-				distPath = registry.DISTR_PATH;
+				ServerContext sc = action.actionInit.getServerContext();
+				distPath = sc.DISTR_PATH;
 			}
 			
 			if( distPath.isEmpty() )

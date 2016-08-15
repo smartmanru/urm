@@ -1,5 +1,6 @@
 package org.urm.server.action;
 
+import org.urm.server.ServerContext;
 import org.urm.server.ServerProduct;
 import org.urm.server.ServerRegistry;
 import org.urm.server.SessionContext;
@@ -45,6 +46,11 @@ public class ActionInit extends ActionBase {
 	
 	public ServerRegistry getRegistry() {
 		return( engine.getRegistry() );
+	}
+	
+	public ServerContext getServerContext() {
+		ServerRegistry registry = engine.getRegistry();
+		return( registry.getServerContext() );
 	}
 	
 }

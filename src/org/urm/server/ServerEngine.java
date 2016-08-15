@@ -33,6 +33,7 @@ import org.urm.server.storage.LocalFolder;
 public class ServerEngine {
 
 	public RunContext execrc;
+	public ServerContext serverContext;
 	public SessionContext serverSession;
 	public SessionController sessionController;
 	public ServerMBean jmxController;
@@ -41,7 +42,7 @@ public class ServerEngine {
 	public ActionInit serverAction;
 	public ShellPool shellPool;
 	
-	private ServerLoader metaLoader;
+	private ServerLoader loader;
 	public boolean running;
 
 	private ServerTransaction currentTransaction = null;
@@ -49,12 +50,13 @@ public class ServerEngine {
 	public static int META_CHANGE_TIMEOUT = 5000;
 	
 	public ServerEngine() {
-		metaLoader = new ServerLoader( this );
+		loader = new ServerLoader( this );
+		serverContext = new ServerContext();
 	}
 	
 	public void runServer( ActionBase action ) throws Exception {
 		serverAction.debug( "load registry ..." );
-		metaLoader.loadServerProducts( action.actionInit );
+		loader.loadServerProducts( action.actionInit );
 		
 		sessionController = new SessionController( action , this );
 		jmxController = new ServerMBean( action , this );
@@ -146,7 +148,7 @@ public class ServerEngine {
 		serverSession.setServerLayout( options );
 		
 		if( !options.action.equals( "configure" ) )
-			metaLoader.loadServerSettings();
+			loader.loadServerSettings();
 
 		// create server action
 		serverAction = createAction( serverExecutor , options , serverSession , "server" , null );
@@ -234,7 +236,7 @@ public class ServerEngine {
 			return( null );
 		
 		// create context
-		Meta meta = metaLoader.createMetadata( session );
+		Meta meta = loader.createMetadata( session );
 		CommandContext context = new CommandContext( this , session , meta , options , stream , call );
 		if( !context.setRunContext() )
 			return( null );
@@ -400,11 +402,11 @@ public class ServerEngine {
 	}
 
 	public ServerRegistry getRegistry() {
-		return( metaLoader.getRegistry() );
+		return( loader.getRegistry() );
 	}
 
 	public ServerLoader getLoader() {
-		return( metaLoader );
+		return( loader );
 	}
 	
 }
