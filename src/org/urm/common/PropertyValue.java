@@ -36,6 +36,10 @@ public class PropertyValue {
 		this.originSet = originSet;
 	}
 
+	public void setType( PropertyValueType type ) {
+		this.type = type;
+	}
+	
 	public void setData( PropertyValue value ) throws Exception {
 		type = value.type;
 		data = value.data;

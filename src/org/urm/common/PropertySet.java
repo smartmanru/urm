@@ -541,8 +541,12 @@ public class PropertySet {
 
 	public String getSystemRequiredPathProperty( String prop , RunContext execrc ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , true );
-		if( pv.type != PropertyValueType.PROPERTY_PATH )
-			throw new ExitException( "property is not path name=" + prop );
+		if( pv.type != PropertyValueType.PROPERTY_PATH ) {
+			if( pv.type != PropertyValueType.PROPERTY_STRING )
+				throw new ExitException( "property is not path name=" + prop );
+			else
+				pv.setType( PropertyValueType.PROPERTY_PATH );
+		}
 		return( getPathValue( pv , false , execrc.isWindows() ) );
 	}
 	
@@ -550,8 +554,12 @@ public class PropertySet {
 		PropertyValue pv = resolveSystemProperty( prop , false );
 		if( pv == null || pv.data.isEmpty() )
 			return( defaultValue );
-		if( pv.type != PropertyValueType.PROPERTY_PATH )
-			throw new ExitException( "property is not path name=" + prop );
+		if( pv.type != PropertyValueType.PROPERTY_PATH ) {
+			if( pv.type != PropertyValueType.PROPERTY_STRING )
+				throw new ExitException( "property is not path name=" + prop );
+			else
+				pv.setType( PropertyValueType.PROPERTY_PATH );
+		}
 		return( getPathValue( pv , false , execrc.isWindows() ) );
 	}
 	
@@ -568,8 +576,12 @@ public class PropertySet {
 		PropertyValue pv = resolveSystemProperty( prop , false );
 		if( pv == null || pv.data.isEmpty() )
 			return( defaultValue );
-		if( pv.type != PropertyValueType.PROPERTY_NUMBER )
-			throw new ExitException( "property is not integer name=" + prop );
+		if( pv.type != PropertyValueType.PROPERTY_NUMBER ) {
+			if( pv.type != PropertyValueType.PROPERTY_STRING )
+				throw new ExitException( "property is not integer name=" + prop );
+			else
+				pv.setType( PropertyValueType.PROPERTY_NUMBER );
+		}
 		return( Integer.parseInt( pv.data ) );
 	}
 
@@ -577,11 +589,21 @@ public class PropertySet {
 		PropertyValue pv = resolveSystemProperty( prop , false );
 		if( pv == null || pv.data.isEmpty() )
 			return( defaultValue );
-		if( pv.type != PropertyValueType.PROPERTY_BOOL )
-			throw new ExitException( "property is not boolean name=" + prop );
+		if( pv.type != PropertyValueType.PROPERTY_BOOL ) {
+			if( pv.type != PropertyValueType.PROPERTY_STRING )
+				throw new ExitException( "property is not boolean name=" + prop );
+			else
+				pv.setType( PropertyValueType.PROPERTY_BOOL );
+		}
 		return( Common.getBooleanValue( pv.data ) );
 	}
 
+	public void setOriginalProperty( String prop , PropertyValueType type , String value ) throws Exception {
+		PropertyValue pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_ORIGINAL , this );
+		setOriginalProperty( prop , value );
+		setRawProperty( pv );
+	}
+	
 	public void finishRawProperties() throws Exception {
 		for( String prop : raw.keySet() )
 			throw new ExitException( "set=" + set + ": unexpected property=" + prop );
