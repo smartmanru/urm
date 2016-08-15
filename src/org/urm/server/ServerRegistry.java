@@ -23,9 +23,6 @@ public class ServerRegistry {
 	private PropertySet defaultProductProperties;
 	private Map<VarBUILDMODE,PropertySet> mapBuildModeDefaults;
 	
-	public static String PROPERTY_CONNECTION_JMX_PORT = "connection.jmx.port";
-	public static String PROPERTY_CONNECTION_JMXWEB_PORT = "connection.jmxweb.port";
-	
 	public ServerRegistry( ServerLoader loader ) {
 		this.loader = loader;
 		

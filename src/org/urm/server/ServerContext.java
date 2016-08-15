@@ -21,6 +21,9 @@ public class ServerContext {
 
 	public String DISTR_PATH;
 
+	public static String PROPERTY_CONNECTION_JMX_PORT = "connection.jmx.port";
+	public static String PROPERTY_CONNECTION_JMXWEB_PORT = "connection.jmxweb.port";
+	
 	public ServerContext() {
 		properties = new PropertySet( "engine" , null );
 	}
@@ -43,8 +46,8 @@ public class ServerContext {
 	}
 	
 	private void scatterSystemProperties() throws Exception {
-		CONNECTION_JMX_PORT = properties.getSystemStringProperty( CONNECTION_JMX_PORT , "6000" );
-		CONNECTION_JMXWEB_PORT = properties.getSystemStringProperty( CONNECTION_JMXWEB_PORT , "6001" );
+		CONNECTION_JMX_PORT = properties.getSystemStringProperty( PROPERTY_CONNECTION_JMX_PORT , "6000" );
+		CONNECTION_JMXWEB_PORT = properties.getSystemStringProperty( PROPERTY_CONNECTION_JMXWEB_PORT , "6001" );
 
 		JABBER_ACCOUNT = properties.getSystemStringProperty( "jabber.account" , "" );
 		JABBER_PASSWORD = properties.getSystemStringProperty( "jabber.password" , "" );
