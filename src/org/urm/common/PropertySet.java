@@ -14,8 +14,8 @@ import org.w3c.dom.Node;
 
 public class PropertySet {
 
-	private String set;
-	private PropertySet parent;
+	public String set;
+	public PropertySet parent;
 	
 	private Map<String,PropertyValue> running;	// final use - key2object, final, no variables allowed
 	private Map<String,PropertyValue> raw;		// construction - key2object, with variables
