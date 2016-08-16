@@ -32,11 +32,10 @@ public class RunContext implements Serializable {
 	public String userName;
 	public String encoding;
 
-	public static String PROPERTY_OS_TYPE = "urm.os";
-	public static String PROPERTY_HOSTPORT = "urm.server";
-	public static String PROPERTY_INSTALL_PATH = "urm.installpath";
 	public static String PROPERTY_HOSTNAME = "hostname";
 	public static String PROPERTY_USER_HOME = "userhome";
+	public static String PROPERTY_OS_TYPE = "urm.os";
+	public static String PROPERTY_INSTALL_PATH = "urm.installpath";
 	
 	public RunContext() {
 	}
@@ -75,7 +74,7 @@ public class RunContext implements Serializable {
 		dcName = getProperty( "urm.dc" );
 		product = getProperty( "urm.product" );
 		
-		serverHostPort = getProperty( PROPERTY_HOSTPORT );
+		serverHostPort = getProperty( "urm.server" );
 		String mode = getProperty( "urm.mode" );
 		if( mode.isEmpty() || mode.equals( "standalone" ) ) {
 			mainMode = false;
@@ -158,9 +157,8 @@ public class RunContext implements Serializable {
 
 	public void getProperties( PropertySet set ) throws Exception {
 		set.setStringProperty( PROPERTY_OS_TYPE , Common.getEnumLower( osType ) );
-		set.setStringProperty( PROPERTY_INSTALL_PATH , installPath );
-		set.setStringProperty( PROPERTY_HOSTPORT , serverHostPort );
-		set.setStringProperty( PROPERTY_USER_HOME , userHome );
+		set.setPathProperty( PROPERTY_INSTALL_PATH , installPath , this );
+		set.setPathProperty( PROPERTY_USER_HOME , userHome , this );
 		set.setStringProperty( PROPERTY_HOSTNAME , hostName );
 	}
 	
