@@ -26,7 +26,7 @@ public class ServerRegistry {
 	public ServerRegistry( ServerLoader loader ) {
 		this.loader = loader;
 		
-		serverContext = new ServerContext();
+		serverContext = new ServerContext( this );
 		mapSystems = new HashMap<String,ServerSystem>();
 		mapProducts = new HashMap<String,ServerProduct>();
 		mapBuildModeDefaults = new HashMap<VarBUILDMODE,PropertySet>();
@@ -38,7 +38,7 @@ public class ServerRegistry {
 			throw new ExitException( "unable to reader engine property file " + path );
 
 		Node root = doc.getDocumentElement();
-		serverContext.load( root );
+		serverContext.load( execrc , root );
 		loadDirectory( root );
 		loadProductDefaults( root );
 	}

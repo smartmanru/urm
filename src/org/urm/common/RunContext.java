@@ -31,6 +31,12 @@ public class RunContext implements Serializable {
 	public String hostName;
 	public String userName;
 	public String encoding;
+
+	public static String PROPERTY_OS_TYPE = "urm.os";
+	public static String PROPERTY_HOSTPORT = "urm.server";
+	public static String PROPERTY_INSTALL_PATH = "urm.installpath";
+	public static String PROPERTY_HOSTNAME = "hostname";
+	public static String PROPERTY_USER_HOME = "userhome";
 	
 	public RunContext() {
 	}
@@ -62,14 +68,14 @@ public class RunContext implements Serializable {
 	}
 	
 	public void load() throws Exception {
-		String OSTYPE = getProperty( "urm.os" ).toUpperCase();
+		String OSTYPE = getProperty( PROPERTY_OS_TYPE ).toUpperCase();
 		osType = VarOSTYPE.valueOf( Common.xmlToEnumValue( OSTYPE ) );
 		buildMode = getProperty( "urm.build" ).toUpperCase();
 		envName = getProperty( "urm.env" );
 		dcName = getProperty( "urm.dc" );
 		product = getProperty( "urm.product" );
 		
-		serverHostPort = getProperty( "urm.server" );
+		serverHostPort = getProperty( PROPERTY_HOSTPORT );
 		String mode = getProperty( "urm.mode" );
 		if( mode.isEmpty() || mode.equals( "standalone" ) ) {
 			mainMode = false;
@@ -88,7 +94,7 @@ public class RunContext implements Serializable {
 			throw new ExitException( "unexpected mode=" + mode );
 			
 		if( osType == VarOSTYPE.LINUX ) {
-			installPath = getProperty( "urm.installpath" );
+			installPath = getProperty( PROPERTY_INSTALL_PATH );
 			
 			hostName = getEnvRequired( "HOSTNAME" );
 			userName = getEnvRequired( "USER" );
@@ -148,6 +154,14 @@ public class RunContext implements Serializable {
 		if( isWindows() )
 			return( Common.getWinPath( path ) );
 		throw new ExitException( "UnexpectedState" );
+	}
+
+	public void getProperties( PropertySet set ) throws Exception {
+		set.setStringProperty( PROPERTY_OS_TYPE , Common.getEnumLower( osType ) );
+		set.setStringProperty( PROPERTY_INSTALL_PATH , installPath );
+		set.setStringProperty( PROPERTY_HOSTPORT , serverHostPort );
+		set.setStringProperty( PROPERTY_USER_HOME , userHome );
+		set.setStringProperty( PROPERTY_HOSTNAME , hostName );
 	}
 	
 }

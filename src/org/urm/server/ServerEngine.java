@@ -33,7 +33,6 @@ import org.urm.server.storage.LocalFolder;
 public class ServerEngine {
 
 	public RunContext execrc;
-	public ServerContext serverContext;
 	public SessionContext serverSession;
 	public SessionController sessionController;
 	public ServerMBean jmxController;
@@ -51,7 +50,6 @@ public class ServerEngine {
 	
 	public ServerEngine() {
 		loader = new ServerLoader( this );
-		serverContext = new ServerContext();
 	}
 	
 	public void runServer( ActionBase action ) throws Exception {
