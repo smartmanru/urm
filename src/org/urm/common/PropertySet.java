@@ -426,7 +426,7 @@ public class PropertySet {
 	
 	public String getFinalValue( String value , boolean isWindows ) throws Exception {
 		PropertyValue pv = new PropertyValue( value );
-		processValue( pv , true , isWindows , false );
+		processValue( pv , true , isWindows , true );
 		return( pv.data );
 	}
 	
