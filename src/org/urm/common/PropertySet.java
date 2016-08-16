@@ -407,13 +407,6 @@ public class PropertySet {
 		setRunningProperty( pv );
 	}
 
-	public String processFinalValue( String value , boolean isWindows ) throws Exception {
-		PropertyValue pv = new PropertyValue( "" , PropertyValueOrigin.PROPERTY_MANUAL , null );
-		pv.setString( value );
-		processValue( pv , true , isWindows , false );
-		return( pv.data );
-	}
-	
 	public String getPropertyAny( String name ) throws Exception {
 		PropertyValue pv = getPropertyInternal( name , false , false );
 		if( pv == null )
@@ -429,6 +422,12 @@ public class PropertySet {
 			return( pv.data );
 		
 		return( execrc.getLocalPath( pv.data ) );
+	}
+	
+	public String getFinalValue( String value , boolean isWindows ) throws Exception {
+		PropertyValue pv = new PropertyValue( value );
+		processValue( pv , true , isWindows , false );
+		return( pv.data );
 	}
 	
 	public String findPropertyAny( String name ) throws Exception {

@@ -30,6 +30,14 @@ public class PropertyValue {
 		this.data = src.data;
 	}
 
+	public PropertyValue( String value ) {
+		this.property = "";
+		this.origin = PropertyValueOrigin.PROPERTY_MANUAL;
+		this.originSet = null;
+		this.type = PropertyValueType.PROPERTY_STRING;
+		this.data = value;
+	}
+	
 	public PropertyValue( String property , PropertyValueOrigin origin , PropertySet originSet ) {
 		this.property = property;
 		this.origin = origin;
