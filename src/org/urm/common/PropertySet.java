@@ -252,18 +252,19 @@ public class PropertySet {
 
 	public void recalculateProperties() throws Exception {
 		// resolve properties
-		for( PropertyValue pv : raw.values() )
-			removeRunningProperty( pv );
-			
-		for( PropertyValue pv : raw.values() ) {
-			PropertyValue rv = new PropertyValue( pv );
-			processValue( rv , false , false , true , true , false );
-			setRunningProperty( rv );
-		}
-		raw.clear();
-		resolved = true;
+		for( String prop : getOriginalProperties() )
+			recalculateProperty( prop );
+		resolved = false;
+		resolveRawProperties();
 	}
 
+	public void recalculateProperty( String prop ) throws Exception {
+		PropertyValue pv = getPropertyValue( prop );
+		pv.setValue( getOriginalByProperty( prop ) );
+		removeRunningProperty( pv );
+		setRawProperty( pv );
+	}
+	
 	private PropertyValue resolveSystemProperty( String prop , boolean required ) throws Exception {
 		if( resolved ) {
 			PropertyValue pv = getOwnByProperty( prop );
