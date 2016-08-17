@@ -635,6 +635,12 @@ public class PropertySet {
 		return( pv );
 	}
 	
+	public void setRunningProperty( String prop , String originalValue , PropertyValue runningValue ) throws Exception {
+		setOriginalProperty( prop , originalValue );
+		removeRawProperty( runningValue );
+		setRunningProperty( runningValue );
+	}
+	
 	public void finishRawProperties() throws Exception {
 		resolveRawProperties();
 		for( String prop : raw.keySet() )
