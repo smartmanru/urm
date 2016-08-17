@@ -268,7 +268,7 @@ public class PropertySet {
 		}
 		
 		if( pv == null )
-			pv = setOriginalProperty( prop , PropertyValueType.PROPERTY_STRING , "" );
+			pv = setOriginalProperty( prop , PropertyValueType.PROPERTY_STRING , null );
 			
 		pv.setSystem();
 		PropertyValue fp = new PropertyValue( pv );
@@ -621,7 +621,7 @@ public class PropertySet {
 		PropertyValue pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_ORIGINAL , this );
 		pv.setType( type );
 		pv.setValue( value );
-		setOriginalProperty( prop , value );
+		setOriginalProperty( prop , pv.data );
 		setRawProperty( pv );
 		return( pv );
 	}
