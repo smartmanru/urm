@@ -59,16 +59,19 @@ public class PropertyValue {
 		this.type = type;
 	}
 	
+	public static boolean isFinal( String s ) {
+		int index = s.indexOf( '@' );
+		if( index >= 0 ) {
+			int index2 = s.indexOf( '@' , index + 1 );
+			if( index2 > 0 && index2 != index + 1 )
+				return( false );
+		}
+		return( true );
+	}
+	
 	public void setValue( String value ) {
 		this.data = value;
-		this.resolved = true;
-		
-		int index = data.indexOf( '@' );
-		if( index >= 0 ) {
-			int index2 = data.indexOf( '@' , index + 1 );
-			if( index2 > 0 && index2 != index + 1 )
-				this.resolved = false;
-		}
+		this.resolved = isFinal( data );
 	}
 	
 	public void setData( PropertyValue value ) throws Exception {
