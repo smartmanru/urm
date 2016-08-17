@@ -107,7 +107,9 @@ public class PropertySet {
 		return( Common.getSortedKeys( props ) );
 	}
 	
-	private void setRunningProperty( PropertyValue value ) {
+	private void setRunningProperty( PropertyValue value ) throws Exception {
+		if( !value.resolved )
+			throw new ExitException( "cannot set unresolved running property set=" + set + ", prop=" + value.property );
 		running.put( getKeyByProperty( value.property ) , value );
 	}
 
@@ -240,8 +242,9 @@ public class PropertySet {
 			removeRunningProperty( pv );
 			
 		for( PropertyValue pv : raw.values() ) {
-			processValue( pv , false , false , true , false );
-			setRunningProperty( pv );
+			PropertyValue rv = new PropertyValue( pv );
+			processValue( rv , false , false , true , false );
+			setRunningProperty( rv );
 		}
 		raw.clear();
 		resolved = true;
@@ -268,9 +271,11 @@ public class PropertySet {
 			pv = setOriginalProperty( prop , PropertyValueType.PROPERTY_STRING , "" );
 			
 		pv.setSystem();
-		processValue( pv , false , false , true , false );
+		PropertyValue fp = new PropertyValue( pv );
+		processValue( fp , false , false , true , false );
+		
 		removeRawProperty( pv );
-		setRunningProperty( pv );
+		setRunningProperty( fp );
 		return( pv );
 	}
 	
