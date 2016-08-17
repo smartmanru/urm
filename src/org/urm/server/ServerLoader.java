@@ -26,7 +26,8 @@ public class ServerLoader {
 	
 	public ServerLoader( ServerEngine engine ) {
 		this.engine = engine;
-		registry = new ServerRegistry( this ); 
+		
+		registry = new ServerRegistry( this , engine.execrc ); 
 		productMeta = new HashMap<String,ServerProductMeta>();
 	}
 	

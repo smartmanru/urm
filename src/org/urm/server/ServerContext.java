@@ -10,11 +10,17 @@ import org.w3c.dom.Node;
 public class ServerContext {
 
 	public ServerRegistry registry;
+	public RunContext execrc;
+	
 	public PropertySet execprops;
 	public PropertySet properties;
 	
-	public String CONNECTION_JMX_PORT;
-	public String CONNECTION_JMXWEB_PORT;
+	public int CONNECTION_JMX_PORT;
+	public int CONNECTION_JMXWEB_PORT;
+	
+	public String DIST_ROOT;
+	public String DIST_APPFOLDER;
+	public String DIST_BASEPATH;
 	
 	public String JABBER_ACCOUNT;
 	public String JABBER_PASSWORD;
@@ -28,11 +34,16 @@ public class ServerContext {
 	public static String PROPERTY_CONNECTION_JMX_PORT = "connection.jmx.port";
 	public static String PROPERTY_CONNECTION_JMXWEB_PORT = "connection.jmxweb.port";
 
+	public static String PROPERTY_DIST_ROOT = "dist.root";
+	public static String PROPERTY_DIST_APPFOLDER = "dist.appfolder";
+	public static String PROPERTY_DIST_BASEPATH = "dist.basepath";
+	
 	private ServerContext() {
 	}
 	
-	public ServerContext( ServerRegistry registry ) {
+	public ServerContext( ServerRegistry registry , RunContext execrc ) {
 		this.registry = registry;
+		this.execrc = execrc;
 		
 		execprops = new PropertySet( "execrc" , null );
 		properties = new PropertySet( "engine" , execprops );
@@ -47,7 +58,7 @@ public class ServerContext {
 		return( r );
 	}
 	
-	public void load( RunContext execrc , Node root ) throws Exception {
+	public void load( Node root ) throws Exception {
 		execrc.getProperties( execprops );
 		properties.loadRawFromNodeElements( root );
 		scatterSystemProperties();
@@ -59,9 +70,13 @@ public class ServerContext {
 	}
 	
 	private void scatterSystemProperties() throws Exception {
-		CONNECTION_JMX_PORT = properties.getSystemStringProperty( PROPERTY_CONNECTION_JMX_PORT , "6000" );
-		CONNECTION_JMXWEB_PORT = properties.getSystemStringProperty( PROPERTY_CONNECTION_JMXWEB_PORT , "6001" );
+		CONNECTION_JMX_PORT = properties.getSystemIntProperty( PROPERTY_CONNECTION_JMX_PORT , 6000 );
+		CONNECTION_JMXWEB_PORT = properties.getSystemIntProperty( PROPERTY_CONNECTION_JMXWEB_PORT , 6001 );
 
+		DIST_ROOT = properties.getSystemPathProperty( PROPERTY_DIST_ROOT , execrc.installPath + "/dist" , execrc );
+		DIST_APPFOLDER = properties.getSystemPathProperty( PROPERTY_DIST_APPFOLDER , "systems" , execrc );
+		DIST_BASEPATH = properties.getSystemPathProperty( PROPERTY_DIST_BASEPATH , "base" , execrc );
+		
 		JABBER_ACCOUNT = properties.getSystemStringProperty( "jabber.account" , "" );
 		JABBER_PASSWORD = properties.getSystemStringProperty( "jabber.password" , "" );
 		JABBER_SERVER = properties.getSystemStringProperty( "jabber.server" , "" );

@@ -16,6 +16,8 @@ import org.w3c.dom.Node;
 public class ServerRegistry {
 
 	public ServerLoader loader;
+	public RunContext execrc;
+	
 	public ServerContext serverContext;
 
 	private Map<String,ServerSystem> mapSystems;
@@ -23,10 +25,11 @@ public class ServerRegistry {
 	private PropertySet defaultProductProperties;
 	private Map<VarBUILDMODE,PropertySet> mapBuildModeDefaults;
 	
-	public ServerRegistry( ServerLoader loader ) {
+	public ServerRegistry( ServerLoader loader , RunContext execrc ) {
 		this.loader = loader;
+		this.execrc = execrc;
 		
-		serverContext = new ServerContext( this );
+		serverContext = new ServerContext( this , execrc );
 		mapSystems = new HashMap<String,ServerSystem>();
 		mapProducts = new HashMap<String,ServerProduct>();
 		mapBuildModeDefaults = new HashMap<VarBUILDMODE,PropertySet>();
@@ -38,7 +41,7 @@ public class ServerRegistry {
 			throw new ExitException( "unable to reader engine property file " + path );
 
 		Node root = doc.getDocumentElement();
-		serverContext.load( execrc , root );
+		serverContext.load( root );
 		loadDirectory( root );
 		loadProductDefaults( root );
 	}
@@ -124,7 +127,7 @@ public class ServerRegistry {
 	}
 	
 	public ServerRegistry copy() throws Exception {
-		ServerRegistry r = new ServerRegistry( loader );
+		ServerRegistry r = new ServerRegistry( loader , execrc );
 		r.serverContext = serverContext.copy();
 		
 		for( ServerSystem system : mapSystems.values() ) {
