@@ -320,7 +320,7 @@ public class MetaProduct {
 		for( String var : props.getOwnProperties() ) {
 			String name = ( String )var;
 			if( name.startsWith( prefix ) ) {
-				PropertyValue pv = props.getFinalProperty( name , false , action.session.execrc , false );
+				PropertyValue pv = props.getFinalProperty( name , action.session.execrc , false );
 				if( pv != null )
 					map.put( name.substring( prefix.length() ) , pv.data );
 			}
