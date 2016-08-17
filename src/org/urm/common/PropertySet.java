@@ -359,7 +359,7 @@ public class PropertySet {
 		pv.setString( res );
 	}
 	
-	public PropertyValue getPropertyValue( String prop ) throws Exception {
+	public PropertyValue getPropertyValue( String prop ) {
 		PropertyValue pv = getOwnByProperty( prop );
 		if( pv == null )
 			pv = getRawByProperty( prop );
