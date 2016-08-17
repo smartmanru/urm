@@ -359,6 +359,13 @@ public class PropertySet {
 		pv.setString( res );
 	}
 	
+	public PropertyValue getPropertyValue( String prop ) throws Exception {
+		PropertyValue pv = getOwnByProperty( prop );
+		if( pv == null )
+			pv = getRawByProperty( prop );
+		return( pv );
+	}
+	
 	private PropertyValue getPropertyInternal( String name , boolean useRaw , boolean allowParent , boolean allowUnresolved ) throws Exception {
 		PropertyValue pv = null;
 		if( useRaw ) {
@@ -426,8 +433,8 @@ public class PropertySet {
 		setRunningProperty( pv );
 	}
 
-	public String getPropertyAny( String name ) throws Exception {
-		PropertyValue pv = getPropertyInternal( name , false , true , false );
+	public String getPropertyAny( String prop ) throws Exception {
+		PropertyValue pv = getPropertyInternal( prop , true , true , true );
 		if( pv == null )
 			return( null );
 		return( pv.data );
