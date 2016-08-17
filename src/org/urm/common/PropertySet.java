@@ -571,8 +571,11 @@ public class PropertySet {
 	
 	public String getSystemPathProperty( String prop , String defaultValue , RunContext execrc ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false );
-		if( pv == null || pv.data.isEmpty() )
+		if( pv == null || pv.data.isEmpty() ) {
+			pv.setType( PropertyValueType.PROPERTY_PATH );
 			return( defaultValue );
+		}
+		
 		if( pv.type != PropertyValueType.PROPERTY_PATH ) {
 			if( pv.type != PropertyValueType.PROPERTY_STRING )
 				throw new ExitException( "property is not path name=" + prop );
@@ -584,8 +587,10 @@ public class PropertySet {
 	
 	public String getSystemStringProperty( String prop , String defaultValue ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false );
-		if( pv == null || pv.data.isEmpty() )
+		if( pv == null || pv.data.isEmpty() ) {
+			pv.setType( PropertyValueType.PROPERTY_STRING );
 			return( defaultValue );
+		}
 		if( pv.type != PropertyValueType.PROPERTY_STRING )
 			throw new ExitException( "property is not string name=" + prop );
 		return( pv.data );
@@ -593,8 +598,10 @@ public class PropertySet {
 
 	public int getSystemIntProperty( String prop , int defaultValue ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false );
-		if( pv == null || pv.data.isEmpty() )
+		if( pv == null || pv.data.isEmpty() ) {
+			pv.setType( PropertyValueType.PROPERTY_NUMBER );
 			return( defaultValue );
+		}
 		if( pv.type != PropertyValueType.PROPERTY_NUMBER ) {
 			if( pv.type != PropertyValueType.PROPERTY_STRING )
 				throw new ExitException( "property is not integer name=" + prop );
@@ -606,8 +613,10 @@ public class PropertySet {
 
 	public boolean getSystemBooleanProperty( String prop , boolean defaultValue ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false );
-		if( pv == null || pv.data.isEmpty() )
+		if( pv == null || pv.data.isEmpty() ) {
+			pv.setType( PropertyValueType.PROPERTY_BOOL );
 			return( defaultValue );
+		}
 		if( pv.type != PropertyValueType.PROPERTY_BOOL ) {
 			if( pv.type != PropertyValueType.PROPERTY_STRING )
 				throw new ExitException( "property is not boolean name=" + prop );
