@@ -25,23 +25,23 @@ public class ServerRegistry {
 	private PropertySet defaultProductProperties;
 	private Map<VarBUILDMODE,PropertySet> mapBuildModeDefaults;
 	
-	public ServerRegistry( ServerLoader loader , RunContext execrc ) {
+	public ServerRegistry( ServerLoader loader ) {
 		this.loader = loader;
-		this.execrc = execrc;
 		
-		serverContext = new ServerContext( this , execrc );
+		serverContext = new ServerContext( this );
 		mapSystems = new HashMap<String,ServerSystem>();
 		mapProducts = new HashMap<String,ServerProduct>();
 		mapBuildModeDefaults = new HashMap<VarBUILDMODE,PropertySet>();
 	}
 
 	public void load( String path , RunContext execrc ) throws Exception {
+		this.execrc = execrc;
 		Document doc = ConfReader.readXmlFile( execrc , path );
 		if( doc == null )
 			throw new ExitException( "unable to reader engine property file " + path );
 
 		Node root = doc.getDocumentElement();
-		serverContext.load( root );
+		serverContext.load( root , execrc );
 		loadDirectory( root );
 		loadProductDefaults( root );
 	}
@@ -127,7 +127,8 @@ public class ServerRegistry {
 	}
 	
 	public ServerRegistry copy() throws Exception {
-		ServerRegistry r = new ServerRegistry( loader , execrc );
+		ServerRegistry r = new ServerRegistry( loader );
+		r.execrc = execrc;
 		r.serverContext = serverContext.copy();
 		
 		for( ServerSystem system : mapSystems.values() ) {

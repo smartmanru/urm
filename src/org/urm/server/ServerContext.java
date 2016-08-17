@@ -41,9 +41,8 @@ public class ServerContext {
 	private ServerContext() {
 	}
 	
-	public ServerContext( ServerRegistry registry , RunContext execrc ) {
+	public ServerContext( ServerRegistry registry ) {
 		this.registry = registry;
-		this.execrc = execrc;
 		
 		execprops = new PropertySet( "execrc" , null );
 		properties = new PropertySet( "engine" , execprops );
@@ -58,7 +57,9 @@ public class ServerContext {
 		return( r );
 	}
 	
-	public void load( Node root ) throws Exception {
+	public void load( Node root , RunContext execrc ) throws Exception {
+		this.execrc = execrc;
+		
 		execrc.getProperties( execprops );
 		properties.loadRawFromNodeElements( root );
 		scatterSystemProperties();
