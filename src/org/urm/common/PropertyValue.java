@@ -22,6 +22,7 @@ public class PropertyValue {
 	public PropertyValueType type;
 	public String data;
 	public boolean resolved;
+	public boolean system;
 	
 	public PropertyValue( PropertyValue src ) {
 		this.property = src.property;
@@ -30,6 +31,7 @@ public class PropertyValue {
 		this.type = src.type;
 		this.data = src.data;
 		this.resolved = src.resolved;
+		this.system = src.system;
 	}
 
 	public PropertyValue( String value ) {
@@ -37,6 +39,7 @@ public class PropertyValue {
 		this.origin = PropertyValueOrigin.PROPERTY_MANUAL;
 		this.originSet = null;
 		this.type = PropertyValueType.PROPERTY_STRING;
+		this.system = false;
 		setValue( value );
 	}
 	
@@ -45,8 +48,13 @@ public class PropertyValue {
 		this.origin = origin;
 		this.originSet = originSet;
 		this.resolved = true;
+		this.system = false;
 	}
 
+	public void setSystem() {
+		this.system = true;
+	}
+	
 	public void setType( PropertyValueType type ) {
 		this.type = type;
 	}

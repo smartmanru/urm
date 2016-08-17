@@ -267,6 +267,7 @@ public class PropertySet {
 		if( pv == null )
 			pv = setOriginalProperty( prop , PropertyValueType.PROPERTY_STRING , "" );
 			
+		pv.setSystem();
 		processValue( pv , false , false , true , false );
 		removeRawProperty( pv );
 		setRunningProperty( pv );
