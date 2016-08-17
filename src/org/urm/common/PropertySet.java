@@ -19,7 +19,7 @@ public class PropertySet {
 	
 	private Map<String,PropertyValue> running;	// final use - key2object, final, no variables allowed
 	private Map<String,PropertyValue> raw;		// construction - key2object, with variables
-	private Map<String,String> original;		// source - property2value
+	private Map<String,String> original;		// source - property2value, exists always
 	private List<String> system;				// predefined
 	private boolean resolved;
 	
@@ -250,6 +250,20 @@ public class PropertySet {
 		resolved = true;
 	}
 
+	public void recalculateProperties() throws Exception {
+		// resolve properties
+		for( PropertyValue pv : raw.values() )
+			removeRunningProperty( pv );
+			
+		for( PropertyValue pv : raw.values() ) {
+			PropertyValue rv = new PropertyValue( pv );
+			processValue( rv , false , false , true , true , false );
+			setRunningProperty( rv );
+		}
+		raw.clear();
+		resolved = true;
+	}
+
 	private PropertyValue resolveSystemProperty( String prop , boolean required ) throws Exception {
 		if( resolved ) {
 			PropertyValue pv = getOwnByProperty( prop );
@@ -412,25 +426,25 @@ public class PropertySet {
 	public void setStringProperty( String prop , String value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null );
 		pv.setString( value );
-		setRunningProperty( pv );
+		setOriginalProperty( pv );
 	}
 
 	public void setBooleanProperty( String prop , String value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null );
 		pv.setBool( value );
-		setRunningProperty( pv );
+		setOriginalProperty( pv );
 	}
 
 	public void setNumberProperty( String prop , String value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null );
 		pv.setNumber( value );
-		setRunningProperty( pv );
+		setOriginalProperty( pv );
 	}
 
 	public void setPathProperty( String prop , String value , RunContext execrc ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null );
 		pv.setPath( value , execrc );
-		setRunningProperty( pv );
+		setOriginalProperty( pv );
 	}
 
 	public String getPropertyAny( String prop ) throws Exception {
@@ -641,6 +655,12 @@ public class PropertySet {
 		setRawProperty( pv );
 		removeRunningProperty( pv );
 		return( pv );
+	}
+
+	public void setOriginalProperty( PropertyValue pv ) throws Exception {
+		setOriginalProperty( pv.property , pv.data );
+		setRawProperty( pv );
+		removeRunningProperty( pv );
 	}
 	
 	public void setRunningProperty( String prop , String originalValue , PropertyValue runningValue ) throws Exception {
