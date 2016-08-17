@@ -619,6 +619,8 @@ public class PropertySet {
 
 	public PropertyValue setOriginalProperty( String prop , PropertyValueType type , String value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_ORIGINAL , this );
+		pv.setType( type );
+		pv.setValue( value );
 		setOriginalProperty( prop , value );
 		setRawProperty( pv );
 		return( pv );
