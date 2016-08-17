@@ -382,7 +382,12 @@ public class PropertySet {
 			if( parent == null )
 				throw new ExitException( "set=" + set + ": unresolved variable=" + name );
 		}
-			
+
+		if( parent == null ) {
+			pv = new PropertyValue( "@" + name + "@" );  
+			return( pv );
+		}
+		
 		return( parent.getPropertyInternal( name , false , allowVars ) );
 	}
 
