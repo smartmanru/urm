@@ -441,7 +441,7 @@ public class PropertySet {
 	}
 	
 	public PropertyValue getFinalProperty( String name , RunContext execrc , boolean allowParent , boolean allowUnresolved ) throws Exception {
-		PropertyValue pv = getPropertyInternal( name , false , allowParent , allowUnresolved );
+		PropertyValue pv = getPropertyInternal( name , true , allowParent , allowUnresolved );
 		if( pv == null )
 			return( null );
 		if( pv.type != PropertyValueType.PROPERTY_PATH )
