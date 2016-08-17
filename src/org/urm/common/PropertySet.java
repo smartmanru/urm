@@ -639,6 +639,7 @@ public class PropertySet {
 		pv.setValue( value );
 		setOriginalProperty( prop , pv.data );
 		setRawProperty( pv );
+		removeRunningProperty( pv );
 		return( pv );
 	}
 	
