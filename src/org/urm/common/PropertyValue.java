@@ -21,6 +21,7 @@ public class PropertyValue {
 	
 	public PropertyValueType type;
 	public String data;
+	public boolean resolved;
 	
 	public PropertyValue( PropertyValue src ) {
 		this.property = src.property;
@@ -28,6 +29,7 @@ public class PropertyValue {
 		this.originSet = src.originSet;
 		this.type = src.type;
 		this.data = src.data;
+		this.resolved = src.resolved;
 	}
 
 	public PropertyValue( String value ) {
@@ -35,36 +37,49 @@ public class PropertyValue {
 		this.origin = PropertyValueOrigin.PROPERTY_MANUAL;
 		this.originSet = null;
 		this.type = PropertyValueType.PROPERTY_STRING;
-		this.data = value;
+		setValue( value );
 	}
 	
 	public PropertyValue( String property , PropertyValueOrigin origin , PropertySet originSet ) {
 		this.property = property;
 		this.origin = origin;
 		this.originSet = originSet;
+		this.resolved = true;
 	}
 
 	public void setType( PropertyValueType type ) {
 		this.type = type;
 	}
 	
+	public void setValue( String value ) {
+		this.data = value;
+		this.resolved = true;
+		
+		int index = data.indexOf( '@' );
+		if( index >= 0 ) {
+			int index2 = data.indexOf( '@' , index + 1 );
+			if( index2 > 0 && index2 != index + 1 )
+				this.resolved = false;
+		}
+	}
+	
 	public void setData( PropertyValue value ) throws Exception {
 		type = value.type;
-		data = value.data;
+		setValue( value.data );
 	}
 	
 	public void setString( String value ) throws Exception {
 		type = PropertyValueType.PROPERTY_STRING;
 		if( value == null || value.isEmpty() )
-			data = "";
+			setValue( "" );
 		else
-			data = value;
+			setValue( value );
 	}
 	
 	public void setNumber( String value ) throws Exception {
 		if( value == null || value.isEmpty() ) {
 			type = PropertyValueType.PROPERTY_NUMBER;
-			data = "";
+			setValue( "" );
 			return;
 		}
 		
@@ -76,13 +91,13 @@ public class PropertyValue {
 		}
 		
 		type = PropertyValueType.PROPERTY_NUMBER;
-		data = value;
+		setValue( value );
 	}
 	
 	public void setBool( String value ) throws Exception {
 		if( value == null || value.isEmpty() ) {
 			type = PropertyValueType.PROPERTY_BOOL;
-			data = "";
+			setValue( "" );
 			return;
 		}
 		
@@ -94,18 +109,18 @@ public class PropertyValue {
 		}
 		
 		type = PropertyValueType.PROPERTY_BOOL;
-		data = value;
+		setValue( value );
 	}
 	
 	public void setPath( String value , RunContext execrc ) throws Exception {
 		type = PropertyValueType.PROPERTY_PATH;
 		if( value == null || value.isEmpty() )
-			data = "";
+			setValue( "" );
 		else
-			data = Common.getLinuxPath( value );
+			setValue( Common.getLinuxPath( value ) );
 		
 		if( data.startsWith( "~/") )
-			data = execrc.userHome + data.substring( 1 );
+			setValue( data = execrc.userHome + data.substring( 1 ) );
 	}
+	
 }
-

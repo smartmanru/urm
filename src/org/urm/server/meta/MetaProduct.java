@@ -7,6 +7,7 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
+import org.urm.common.PropertyValue;
 import org.urm.server.ServerProductContext;
 import org.urm.server.ServerRegistry;
 import org.urm.server.action.ActionBase;
@@ -318,8 +319,11 @@ public class MetaProduct {
 		
 		for( String var : props.getOwnProperties() ) {
 			String name = ( String )var;
-			if( name.startsWith( prefix ) )
-				map.put( name.substring( prefix.length() ) , props.getFinalProperty( name , false , action.session.execrc ) ); 
+			if( name.startsWith( prefix ) ) {
+				PropertyValue pv = props.getFinalProperty( name , false , action.session.execrc , false );
+				if( pv != null )
+					map.put( name.substring( prefix.length() ) , pv.data );
+			}
 		}
 		
 		return( map );
