@@ -276,7 +276,7 @@ public class PropertySet {
 		
 		removeRawProperty( pv );
 		setRunningProperty( fp );
-		return( pv );
+		return( fp );
 	}
 	
 	private String getPathValue( PropertyValue pv , boolean finalValue , boolean isWindows ) throws Exception {
@@ -337,7 +337,7 @@ public class PropertySet {
 					res += s;
 				}
 				else
-					res += pv.data; 
+					res += pvVar.data; 
 			}
 			
 			indexFrom = value.indexOf( '@' , indexTo + 1 );
