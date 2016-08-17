@@ -11,10 +11,10 @@ public class ServerContext {
 
 	public ServerRegistry registry;
 	public RunContext execrc;
-	
 	public PropertySet execprops;
 	public PropertySet properties;
-	
+
+	// properties
 	public int CONNECTION_JMX_PORT;
 	public int CONNECTION_JMXWEB_PORT;
 	
@@ -31,6 +31,7 @@ public class ServerContext {
 
 	public String DISTR_PATH;
 
+	// xml field names
 	public static String PROPERTY_CONNECTION_JMX_PORT = "connection.jmx.port";
 	public static String PROPERTY_CONNECTION_JMXWEB_PORT = "connection.jmxweb.port";
 
@@ -43,6 +44,7 @@ public class ServerContext {
 	
 	public ServerContext( ServerRegistry registry ) {
 		this.registry = registry;
+		this.execrc = null;
 		
 		execprops = new PropertySet( "execrc" , null );
 		properties = new PropertySet( "engine" , execprops );
@@ -51,6 +53,7 @@ public class ServerContext {
 	public ServerContext copy() throws Exception {
 		ServerContext r = new ServerContext();
 		r.registry = registry;
+		r.execrc = execrc;
 		r.execprops = execprops.copy( null );
 		r.properties = properties.copy( r.execprops );
 		r.scatterSystemProperties();
