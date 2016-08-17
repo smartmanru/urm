@@ -23,6 +23,7 @@ public class PropertyValue {
 	public String data;
 	public boolean resolved;
 	public boolean system;
+	public boolean missing;
 	
 	public PropertyValue( PropertyValue src ) {
 		this.property = src.property;
@@ -32,6 +33,7 @@ public class PropertyValue {
 		this.data = src.data;
 		this.resolved = src.resolved;
 		this.system = src.system;
+		this.missing = src.missing;
 	}
 
 	public PropertyValue( String value ) {
@@ -49,8 +51,13 @@ public class PropertyValue {
 		this.originSet = originSet;
 		this.resolved = true;
 		this.system = false;
+		this.missing = true;
 	}
 
+	public boolean isMissing() {
+		return( missing );
+	}
+	
 	public void setSystem() {
 		this.system = true;
 	}
@@ -70,8 +77,15 @@ public class PropertyValue {
 	}
 	
 	public void setValue( String value ) {
-		this.data = value;
-		this.resolved = isFinal( data );
+		if( value == null ) {
+			this.data = "";
+			this.missing = true;
+		}
+		else {
+			this.data = value;
+			this.resolved = isFinal( data );
+			this.missing = false;
+		}
 	}
 	
 	public void setData( PropertyValue value ) throws Exception {
@@ -81,16 +95,13 @@ public class PropertyValue {
 	
 	public void setString( String value ) throws Exception {
 		type = PropertyValueType.PROPERTY_STRING;
-		if( value == null || value.isEmpty() )
-			setValue( "" );
-		else
-			setValue( value );
+		setValue( value );
 	}
 	
 	public void setNumber( String value ) throws Exception {
 		if( value == null || value.isEmpty() ) {
 			type = PropertyValueType.PROPERTY_NUMBER;
-			setValue( "" );
+			setValue( value );
 			return;
 		}
 		
@@ -108,7 +119,7 @@ public class PropertyValue {
 	public void setBool( String value ) throws Exception {
 		if( value == null || value.isEmpty() ) {
 			type = PropertyValueType.PROPERTY_BOOL;
-			setValue( "" );
+			setValue( value );
 			return;
 		}
 		
@@ -126,7 +137,7 @@ public class PropertyValue {
 	public void setPath( String value , RunContext execrc ) throws Exception {
 		type = PropertyValueType.PROPERTY_PATH;
 		if( value == null || value.isEmpty() )
-			setValue( "" );
+			setValue( value );
 		else
 			setValue( Common.getLinuxPath( value ) );
 		

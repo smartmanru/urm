@@ -186,7 +186,7 @@ public class ConfBuilder {
 		boolean changed = false;
 		for( int k = 0; k < fileLines.size(); k++ ) {
 			String s = fileLines.get( k );
-			PropertyValue res = props.getFinalValue( s , server.isWindows( action ) , false );
+			PropertyValue res = props.getFinalValue( s , server.isWindows( action ) , true , false );
 			if( res != null ) {
 				fileLines.set( k , res.data );
 				changed = true;
@@ -208,7 +208,7 @@ public class ConfBuilder {
 		boolean changed = false;
 		for( int k = 0; k < fileLines.size(); k++ ) {
 			String s = fileLines.get( k );
-			PropertyValue res = props.getFinalValue( s , node.server.isWindows( action ) , false );
+			PropertyValue res = props.getFinalValue( s , node.server.isWindows( action ) , true , false );
 			if( res != null ) {
 				fileLines.set( k , res.data );
 				changed = true;

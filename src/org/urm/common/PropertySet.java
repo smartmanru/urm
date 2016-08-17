@@ -243,7 +243,7 @@ public class PropertySet {
 			
 		for( PropertyValue pv : raw.values() ) {
 			PropertyValue rv = new PropertyValue( pv );
-			processValue( rv , false , false , true , false );
+			processValue( rv , false , false , true , true , false );
 			setRunningProperty( rv );
 		}
 		raw.clear();
@@ -272,7 +272,7 @@ public class PropertySet {
 			
 		pv.setSystem();
 		PropertyValue fp = new PropertyValue( pv );
-		processValue( fp , false , false , true , false );
+		processValue( fp , false , false , true , true , false );
 		
 		removeRawProperty( pv );
 		setRunningProperty( fp );
@@ -294,7 +294,7 @@ public class PropertySet {
 		return( s );
 	}
 	
-	private void processValue( PropertyValue pv , boolean finalValue , boolean isWindows , boolean useRaw , boolean allowVars ) throws Exception {
+	private void processValue( PropertyValue pv , boolean finalValue , boolean isWindows , boolean useRaw , boolean allowParent , boolean allowUnresolved ) throws Exception {
 		String value = pv.data;
 		if( value == null ) {
 			pv.data = "";
@@ -317,7 +317,7 @@ public class PropertySet {
 				return;
 			}
 			
-			PropertyValue pvVar = getPropertyInternal( var , useRaw , allowVars );
+			PropertyValue pvVar = getPropertyInternal( var , useRaw , allowParent , allowUnresolved );
 			pv.setData( pvVar );
 			if( pv.type == PropertyValueType.PROPERTY_PATH )
 				pv.data = getPathValue( pv , finalValue , isWindows );
@@ -331,7 +331,7 @@ public class PropertySet {
 			if( var.isEmpty() )
 				res += "@";
 			else {
-				PropertyValue pvVar = getPropertyInternal( var , useRaw , allowVars );
+				PropertyValue pvVar = getPropertyInternal( var , useRaw , allowParent , allowUnresolved );
 				if( pvVar.type == PropertyValueType.PROPERTY_PATH ) {
 					String s = getPathValue( pvVar , finalValue , isWindows );
 					res += s;
@@ -359,41 +359,47 @@ public class PropertySet {
 		pv.setString( res );
 	}
 	
-	private PropertyValue getPropertyInternal( String name , boolean useRaw , boolean allowVars ) throws Exception {
+	private PropertyValue getPropertyInternal( String name , boolean useRaw , boolean allowParent , boolean allowUnresolved ) throws Exception {
+		PropertyValue pv = null;
 		if( useRaw ) {
-			// prefixed var
-			PropertyValue pv = getRawByKey( name );
-			if( pv != null )
-				return( pv );
+			// prefixed raw var
+			pv = getRawByKey( name );
+			// unprefixed raw var
+			if( pv == null )
+				pv = getRawByProperty( name );
+		}
+		
+		// prefixed own var
+		if( pv == null )
+			pv = getOwnByKey( name );
+		// unprefixed own var
+		if( pv == null )
+			pv = getOwnByProperty( name );
+		
+		if( pv == null || pv.isMissing() ) {
+			if( parent != null ) {
+				// parent var
+				if( !allowParent ) {
+					if( parent == null )
+						throw new ExitException( "set=" + set + ": unresolved variable=" + name );
+				}
+				
+				return( parent.getPropertyInternal( name , false , allowParent , allowUnresolved ) );
+			}
 			
-			// unprefixed var
-			pv = getRawByProperty( name );
-			if( pv != null )
-				return( pv );
-		}
-		
-		// prefixed var
-		PropertyValue pv = getOwnByKey( name );
-		if( pv != null )
-			return( pv );
-		
-		// unprefixed var
-		pv = getOwnByProperty( name );
-		if( pv != null )
-			return( pv );
-		
-		// parent var
-		if( !allowVars ) {
-			if( parent == null )
+			if( !allowUnresolved )
 				throw new ExitException( "set=" + set + ": unresolved variable=" + name );
-		}
-
-		if( parent == null ) {
+			
 			pv = new PropertyValue( "@" + name + "@" );  
-			return( pv );
+		}
+		else {
+			if( !allowUnresolved ) {
+				if( !pv.resolved )
+					throw new ExitException( "set=" + set + ": unresolved variable=" + name + ", value=" + pv.data );
+			}
 		}
 		
-		return( parent.getPropertyInternal( name , false , allowVars ) );
+		return( pv );
 	}
 
 	public void setStringProperty( String prop , String value ) throws Exception {
@@ -421,14 +427,14 @@ public class PropertySet {
 	}
 
 	public String getPropertyAny( String name ) throws Exception {
-		PropertyValue pv = getPropertyInternal( name , false , false );
+		PropertyValue pv = getPropertyInternal( name , false , true , false );
 		if( pv == null )
 			return( null );
 		return( pv.data );
 	}
 	
-	public PropertyValue getFinalProperty( String name , RunContext execrc , boolean allowVars ) throws Exception {
-		PropertyValue pv = getPropertyInternal( name , false , allowVars );
+	public PropertyValue getFinalProperty( String name , RunContext execrc , boolean allowParent , boolean allowUnresolved ) throws Exception {
+		PropertyValue pv = getPropertyInternal( name , false , allowParent , allowUnresolved );
 		if( pv == null )
 			return( null );
 		if( pv.type != PropertyValueType.PROPERTY_PATH )
@@ -438,9 +444,9 @@ public class PropertySet {
 		return( pv );
 	}
 	
-	public PropertyValue getFinalValue( String value , boolean isWindows , boolean allowVars ) throws Exception {
+	public PropertyValue getFinalValue( String value , boolean isWindows , boolean allowParent , boolean allowUnresolved ) throws Exception {
 		PropertyValue pv = new PropertyValue( value );
-		processValue( pv , true , isWindows , true , allowVars );
+		processValue( pv , true , isWindows , true , allowParent , allowUnresolved );
 		return( pv );
 	}
 	
@@ -479,7 +485,7 @@ public class PropertySet {
 	}
 	
 	private PropertyValue getRequiredPropertyInternal( String name ) throws Exception {
-		PropertyValue pv = getPropertyInternal( name , false , false );
+		PropertyValue pv = getPropertyInternal( name , false , true , false );
 		if( pv == null || pv.data.isEmpty() )
 			throw new ExitException( "set=" + set + ": empty property=" + name );
 		return( pv );
