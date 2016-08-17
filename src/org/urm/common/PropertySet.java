@@ -572,7 +572,7 @@ public class PropertySet {
 	public String getSystemPathProperty( String prop , String defaultValue , RunContext execrc ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false );
 		if( pv == null || pv.data.isEmpty() ) {
-			pv.setType( PropertyValueType.PROPERTY_PATH );
+			pv.setPath( defaultValue , execrc );
 			return( defaultValue );
 		}
 		
@@ -588,7 +588,7 @@ public class PropertySet {
 	public String getSystemStringProperty( String prop , String defaultValue ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false );
 		if( pv == null || pv.data.isEmpty() ) {
-			pv.setType( PropertyValueType.PROPERTY_STRING );
+			pv.setString( defaultValue );
 			return( defaultValue );
 		}
 		if( pv.type != PropertyValueType.PROPERTY_STRING )
@@ -599,7 +599,7 @@ public class PropertySet {
 	public int getSystemIntProperty( String prop , int defaultValue ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false );
 		if( pv == null || pv.data.isEmpty() ) {
-			pv.setType( PropertyValueType.PROPERTY_NUMBER );
+			pv.setNumber( defaultValue );
 			return( defaultValue );
 		}
 		if( pv.type != PropertyValueType.PROPERTY_NUMBER ) {

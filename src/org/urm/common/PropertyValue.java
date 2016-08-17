@@ -116,6 +116,11 @@ public class PropertyValue {
 		setValue( value );
 	}
 	
+	public void setNumber( int value ) throws Exception {
+		data = "" + value;
+		type = PropertyValueType.PROPERTY_NUMBER;
+	}
+	
 	public void setBool( String value ) throws Exception {
 		if( value == null || value.isEmpty() ) {
 			type = PropertyValueType.PROPERTY_BOOL;
