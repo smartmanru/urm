@@ -373,7 +373,7 @@ public class PropertySet {
 			indexTo = index;	
 		}
 		
-		pv.setString( res );
+		pv.setValue( res );
 	}
 	
 	public PropertyValue getPropertyValue( String prop ) {
