@@ -62,6 +62,8 @@ public class PropertyValue {
 	}
 
 	public String getData() {
+		if( data.isEmpty() )
+			return( defaultValue );
 		return( data );
 	}
 	
