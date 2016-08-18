@@ -459,15 +459,21 @@ public class PropertySet {
 		return( pv.getData() );
 	}
 	
-	public PropertyValue getFinalProperty( String name , RunContext execrc , boolean allowParent , boolean allowUnresolved ) throws Exception {
+	public PropertyValue getFinalProperty( String name , boolean allowParent , boolean allowUnresolved ) throws Exception {
 		PropertyValue pv = getPropertyInternal( name , true , allowParent , allowUnresolved );
 		if( pv == null )
 			return( null );
-		if( pv.type != PropertyValueType.PROPERTY_PATH )
-			return( pv );
-		
-		pv.setValue( execrc.getLocalPath( pv.getData() ) );
 		return( pv );
+	}
+
+	public String getFinalProperty( String name , RunContext execrc , boolean allowParent , boolean allowUnresolved ) throws Exception {
+		PropertyValue pv = getFinalProperty( name , allowParent , allowUnresolved );
+		if( pv == null )
+			return( null );
+		String data = pv.getData();
+		if( pv.type != PropertyValueType.PROPERTY_PATH )
+			return( data );
+		return( execrc.getLocalPath( data ) );
 	}
 	
 	public PropertyValue getFinalValue( String value , boolean isWindows , boolean allowParent , boolean allowUnresolved ) throws Exception {
