@@ -322,7 +322,7 @@ public class MetaProduct {
 			if( name.startsWith( prefix ) ) {
 				PropertyValue pv = props.getFinalProperty( name , action.session.execrc , true , false );
 				if( pv != null )
-					map.put( name.substring( prefix.length() ) , pv.data );
+					map.put( name.substring( prefix.length() ) , pv.getData() );
 			}
 		}
 		

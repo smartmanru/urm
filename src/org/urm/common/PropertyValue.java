@@ -20,7 +20,8 @@ public class PropertyValue {
 	public PropertySet originSet;
 	
 	public PropertyValueType type;
-	public String data;
+	private String data;
+	private String defaultValue;
 	public boolean resolved;
 	public boolean system;
 	public boolean missing;
@@ -31,6 +32,7 @@ public class PropertyValue {
 		this.originSet = src.originSet;
 		this.type = src.type;
 		this.data = src.data;
+		this.defaultValue = src.defaultValue;
 		this.resolved = src.resolved;
 		this.system = src.system;
 		this.missing = src.missing;
@@ -42,6 +44,8 @@ public class PropertyValue {
 		this.originSet = null;
 		this.type = PropertyValueType.PROPERTY_STRING;
 		this.system = false;
+		this.data = "";
+		this.defaultValue = "";
 		setValue( value );
 	}
 	
@@ -49,11 +53,24 @@ public class PropertyValue {
 		this.property = property;
 		this.origin = origin;
 		this.originSet = originSet;
+		this.type = PropertyValueType.PROPERTY_STRING;
 		this.resolved = true;
 		this.system = false;
 		this.missing = true;
+		this.data = "";
+		this.defaultValue = "";
 	}
 
+	public String getData() {
+		return( data );
+	}
+	
+	public boolean isEmpty() {
+		if( data.isEmpty() && defaultValue.isEmpty() )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isMissing() {
 		return( missing );
 	}
@@ -62,8 +79,12 @@ public class PropertyValue {
 		this.system = true;
 	}
 	
-	public void setType( PropertyValueType type ) {
-		this.type = type;
+	public void setType( PropertyValueType type ) throws Exception {
+		if( this.type != type ) {
+			if( this.type != PropertyValueType.PROPERTY_STRING )
+				throw new ExitException( "property is of mismatched type name=" + property );
+			this.type = type;
+		}
 	}
 	
 	public static boolean isFinal( String s ) {
@@ -74,6 +95,14 @@ public class PropertyValue {
 				return( false );
 		}
 		return( true );
+	}
+
+	public void setDefault( String value ) {
+		defaultValue = value;
+	}
+	
+	public void setDefault( PropertyValue value ) {
+		defaultValue = value.getData();
 	}
 	
 	public void setValue( String value ) {
@@ -149,5 +178,51 @@ public class PropertyValue {
 		if( data.startsWith( "~/") )
 			setValue( data = execrc.userHome + data.substring( 1 ) );
 	}
+
+	public boolean getBool() {
+		if( data.isEmpty() ) {
+			if( defaultValue.isEmpty() )
+				return( false );
+			return( Common.getBooleanValue( defaultValue ) );
+		}
+		return( Common.getBooleanValue( data ) );
+	}
+
+	public int getNumber() {
+		if( data.isEmpty() ) {
+			if( defaultValue.isEmpty() )
+				return( 0 );
+			return( Integer.parseInt( defaultValue ) );
+		}
+		return( Integer.parseInt( data ) );
+	}
+	
+	public String getString() {
+		if( data.isEmpty() )
+			return( defaultValue );
+		return( data );
+	}
+
+	public String getPath( boolean finalValue , boolean isWindows ) {
+		return( getPathValue( getData() , finalValue , isWindows ) );		
+	}
+	
+	public String getPath( boolean isWindows ) {
+		if( data.isEmpty() )
+			return( getPathValue( defaultValue , false , isWindows ) );
+		return( getPathValue( data , false , isWindows ) );
+	}
+
+	public static String getPathValue( String v , boolean finalValue , boolean isWindows ) {
+		if( finalValue ) {
+			if( isWindows == false )
+				return( Common.getLinuxPath( v ) );
+			if( isWindows == true )
+				return( Common.getWinPath( v ) );
+		}
+
+		return( v );
+	}
+	
 	
 }

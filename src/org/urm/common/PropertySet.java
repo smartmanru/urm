@@ -107,20 +107,20 @@ public class PropertySet {
 		return( Common.getSortedKeys( props ) );
 	}
 	
-	private void setRunningProperty( PropertyValue value ) throws Exception {
+	private void setRunningPropertyInternal( PropertyValue value ) throws Exception {
 		if( !value.resolved )
 			throw new ExitException( "cannot set unresolved running property set=" + set + ", prop=" + value.property );
 		running.put( getKeyByProperty( value.property ) , value );
 	}
 
-	private void setRawProperty( PropertyValue value ) {
+	private void setRawPropertyInternal( PropertyValue value ) {
 		raw.put( getKeyByProperty( value.property ) , value );
 	}
 
-	private void setOriginalProperty( String prop , String value ) {
-		original.put( prop , value );
+	private void setOriginalPropertyInternal( PropertyValue pv ) {
+		original.put( pv.property , pv.getData() );
 	}
-
+	
 	private void removeRawProperty( PropertyValue value ) {
 		raw.remove( getKeyByProperty( value.property ) );
 	}
@@ -153,11 +153,11 @@ public class PropertySet {
 	}
 
 	private void createOriginalAndRawProperty( String prop , String value , boolean addToRaw ) throws Exception {
-		setOriginalProperty( prop , value );
+		original.put( prop , value );
 		if( addToRaw ) {
 			PropertyValue pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_ORIGINAL , this );
 			pv.setString( getOriginalByProperty( prop ) );
-			setRawProperty( pv );
+			setRawPropertyInternal( pv );
 		}
 	}
 
@@ -223,7 +223,7 @@ public class PropertySet {
 			PropertyValue pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_EXTRA , set );
 			String value = set.getOriginalByProperty( prop );
 			pv.setString( value );
-			setRawProperty( pv );
+			setRawPropertyInternal( pv );
 		}
 	}
 
@@ -232,7 +232,7 @@ public class PropertySet {
 			PropertyValue pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_EXTRA , set );
 			PropertyValue value = set.getOwnByProperty( prop );
 			pv.setData( value );
-			setRunningProperty( pv );
+			setRunningPropertyInternal( pv );
 		}
 	}
 
@@ -244,7 +244,7 @@ public class PropertySet {
 		for( PropertyValue pv : raw.values() ) {
 			PropertyValue rv = new PropertyValue( pv );
 			processValue( rv , false , false , true , true , false );
-			setRunningProperty( rv );
+			setRunningPropertyInternal( rv );
 		}
 		raw.clear();
 		resolved = true;
@@ -262,15 +262,17 @@ public class PropertySet {
 		PropertyValue pv = getPropertyValue( prop );
 		pv.setValue( getOriginalByProperty( prop ) );
 		removeRunningProperty( pv );
-		setRawProperty( pv );
+		setRawPropertyInternal( pv );
 	}
 	
 	private PropertyValue resolveSystemProperty( String prop , boolean required ) throws Exception {
 		if( resolved ) {
 			PropertyValue pv = getOwnByProperty( prop );
 			if( required ) {
-				if( pv == null || pv.data.isEmpty() )
-					throw new ExitException( "set=" + set + ": missing or empty property=" + prop );
+				if( pv == null )
+					throw new ExitException( "set=" + set + ": missing required property=" + prop );
+				if( pv.isEmpty() )
+					throw new ExitException( "set=" + set + ": empty required property=" + prop );
 			}
 			return( pv );
 		}
@@ -278,8 +280,10 @@ public class PropertySet {
 		system.add( getKeyByProperty( prop ) );
 		PropertyValue pv = getRawByProperty( prop );
 		if( required ) {
-			if( pv == null || pv.data.isEmpty() )
-				throw new ExitException( "set=" + set + ": missing or empty property=" + prop );
+			if( pv == null )
+				throw new ExitException( "set=" + set + ": missing required property=" + prop );
+			if( pv.isEmpty() )
+				throw new ExitException( "set=" + set + ": empty required property=" + prop );
 		}
 		
 		if( pv == null )
@@ -290,32 +294,15 @@ public class PropertySet {
 		processValue( fp , false , false , true , true , false );
 		
 		removeRawProperty( pv );
-		setRunningProperty( fp );
+		setRunningPropertyInternal( fp );
 		return( fp );
 	}
 	
-	private String getPathValue( PropertyValue pv , boolean finalValue , boolean isWindows ) throws Exception {
-		String s = pv.data;
-		if( finalValue ) {
-			if( isWindows == false )
-				s = Common.getLinuxPath( s );
-			else
-			if( isWindows == true )
-				s = Common.getWinPath( s );
-			else
-				throw new ExitException( "UnexpectedState" );
-		}
-
-		return( s );
-	}
-	
 	private void processValue( PropertyValue pv , boolean finalValue , boolean isWindows , boolean useRaw , boolean allowParent , boolean allowUnresolved ) throws Exception {
-		String value = pv.data;
-		if( value == null ) {
-			pv.data = "";
+		if( pv.isEmpty() )
 			return;
-		}
 		
+		String value = pv.getData();
 		int indexFrom = value.indexOf( '@' );
 		if( indexFrom < 0 )
 			return;
@@ -335,7 +322,7 @@ public class PropertySet {
 			PropertyValue pvVar = getPropertyInternal( var , useRaw , allowParent , allowUnresolved );
 			pv.setData( pvVar );
 			if( pv.type == PropertyValueType.PROPERTY_PATH )
-				pv.data = getPathValue( pv , finalValue , isWindows );
+				pv.setValue( pv.getPath( finalValue , isWindows ) );
 			return;
 		}
 		
@@ -348,11 +335,11 @@ public class PropertySet {
 			else {
 				PropertyValue pvVar = getPropertyInternal( var , useRaw , allowParent , allowUnresolved );
 				if( pvVar.type == PropertyValueType.PROPERTY_PATH ) {
-					String s = getPathValue( pvVar , finalValue , isWindows );
+					String s = pvVar.getPath( finalValue , isWindows );
 					res += s;
 				}
 				else
-					res += pvVar.data; 
+					res += pvVar.getData(); 
 			}
 			
 			indexFrom = value.indexOf( '@' , indexTo + 1 );
@@ -417,7 +404,7 @@ public class PropertySet {
 		else {
 			if( !allowUnresolved ) {
 				if( !pv.resolved )
-					throw new ExitException( "set=" + set + ": unresolved variable=" + name + ", value=" + pv.data );
+					throw new ExitException( "set=" + set + ": unresolved variable=" + name + ", value=" + pv.getData() );
 			}
 		}
 		
@@ -452,7 +439,7 @@ public class PropertySet {
 		PropertyValue pv = getPropertyInternal( prop , true , true , true );
 		if( pv == null )
 			return( null );
-		return( pv.data );
+		return( pv.getData() );
 	}
 	
 	public PropertyValue getFinalProperty( String name , RunContext execrc , boolean allowParent , boolean allowUnresolved ) throws Exception {
@@ -462,7 +449,7 @@ public class PropertySet {
 		if( pv.type != PropertyValueType.PROPERTY_PATH )
 			return( pv );
 		
-		pv.setValue( execrc.getLocalPath( pv.data ) );
+		pv.setValue( execrc.getLocalPath( pv.getData() ) );
 		return( pv );
 	}
 	
@@ -480,14 +467,19 @@ public class PropertySet {
 		PropertyValue pv = findPropertyInternal( name , null , false );
 		if( pv == null )
 			return( defaultValue );
-		return( pv.data );
+		if( pv.isEmpty() )
+			return( defaultValue );
+		return( pv.getData() );
 	}
 	
 	private PropertyValue findPropertyInternal( String name , PropertyValue defaultValue , boolean system ) throws Exception {
 		// prefixed var
 		PropertyValue pv = getOwnByKey( name );
-		if( pv != null )
+		if( pv != null ) {
+			if( pv.isEmpty() )
+				return( defaultValue );
 			return( pv );
+		}
 		
 		// unprefixed var
 		pv = getOwnByProperty( name );
@@ -503,12 +495,14 @@ public class PropertySet {
 
 	public String getRequiredPropertyAny( String name ) throws Exception {
 		PropertyValue pv = getRequiredPropertyInternal( name );
-		return( pv.data );
+		return( pv.getData() );
 	}
 	
 	private PropertyValue getRequiredPropertyInternal( String name ) throws Exception {
 		PropertyValue pv = getPropertyInternal( name , false , true , false );
-		if( pv == null || pv.data.isEmpty() )
+		if( pv == null )
+			throw new ExitException( "set=" + set + ": missing property=" + name );
+		if( pv.isEmpty() )
 			throw new ExitException( "set=" + set + ": empty property=" + name );
 		return( pv );
 	}
@@ -520,9 +514,9 @@ public class PropertySet {
 				return( null );
 			return( Common.getLinuxPath( defaultValue ) );
 		}
-		if( pv.type != PropertyValueType.PROPERTY_PATH )
-			throw new ExitException( "property is not string name=" + name );
-		return( pv.data );
+		pv.setType( PropertyValueType.PROPERTY_PATH );
+		pv.setDefault( defaultValue );
+		return( pv.getPath( false ) );
 	}
 
 	public String getStringProperty( String name , String defaultValue ) throws Exception {
@@ -537,9 +531,9 @@ public class PropertySet {
 		PropertyValue pv = findPropertyInternal( name , null , system );
 		if( pv == null )
 			return( defaultValue );
-		if( pv.type != PropertyValueType.PROPERTY_STRING )
-			throw new ExitException( "property is not string name=" + name );
-		return( pv.data );
+		pv.setType( PropertyValueType.PROPERTY_STRING );
+		pv.setDefault( defaultValue );
+		return( pv.getString() );
 	}
 
 	public int getIntProperty( String name , int defaultValue ) throws Exception {
@@ -550,11 +544,9 @@ public class PropertySet {
 		PropertyValue pv = findPropertyInternal( name , null , system );
 		if( pv == null )
 			return( defaultValue );
-		if( pv.type != PropertyValueType.PROPERTY_NUMBER )
-			throw new ExitException( "property is not number name=" + name );
-		if( pv.data.isEmpty() )
-			return( defaultValue );
-		return( Integer.parseInt( pv.data ) );
+		pv.setType( PropertyValueType.PROPERTY_NUMBER );
+		pv.setDefault( "" + defaultValue );
+		return( pv.getNumber() );
 	}
 
 	public boolean getBooleanProperty( String name , boolean defaultValue ) throws Exception {
@@ -565,109 +557,85 @@ public class PropertySet {
 		PropertyValue pv = findPropertyInternal( name , null , system );
 		if( pv == null )
 			return( defaultValue );
-		if( pv.type != PropertyValueType.PROPERTY_BOOL )
-			throw new ExitException( "property is not boolean name=" + name );
-		if( pv.data.isEmpty() )
-			return( defaultValue );
-		return( Common.getBooleanValue( pv.data ) );
+		pv.setType( PropertyValueType.PROPERTY_BOOL );
+		pv.setDefault( Common.getBooleanValue( defaultValue ) );
+		return( pv.getBool() );
 	}
 
 	public String getSystemRequiredStringProperty( String prop ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , true );
 		if( pv.type != PropertyValueType.PROPERTY_STRING )
 			throw new ExitException( "property is not string name=" + prop );
-		
-		return( pv.data );
+		if( pv.isEmpty() )
+			throw new ExitException( "required property is empty, name=" + prop );
+		return( pv.getString() );
 	}
 
 	public String getSystemRequiredPathProperty( String prop , RunContext execrc ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , true );
-		if( pv.type != PropertyValueType.PROPERTY_PATH ) {
-			if( pv.type != PropertyValueType.PROPERTY_STRING )
-				throw new ExitException( "property is not path name=" + prop );
-			else
-				pv.setType( PropertyValueType.PROPERTY_PATH );
-		}
-		return( getPathValue( pv , false , execrc.isWindows() ) );
+		if( pv.type != PropertyValueType.PROPERTY_PATH )
+			throw new ExitException( "property is not path name=" + prop );
+		if( pv.isEmpty() )
+			throw new ExitException( "required property is empty, name=" + prop );
+		return( pv.getPath( execrc.isWindows() ) );
 	}
 	
 	public String getSystemPathProperty( String prop , String defaultValue , RunContext execrc ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false );
-		if( pv == null || pv.data.isEmpty() ) {
-			pv.setPath( defaultValue , execrc );
+		if( pv == null )
 			return( defaultValue );
-		}
-		
-		if( pv.type != PropertyValueType.PROPERTY_PATH ) {
-			if( pv.type != PropertyValueType.PROPERTY_STRING )
-				throw new ExitException( "property is not path name=" + prop );
-			else
-				pv.setType( PropertyValueType.PROPERTY_PATH );
-		}
-		return( getPathValue( pv , false , execrc.isWindows() ) );
+		pv.setType( PropertyValueType.PROPERTY_PATH );
+		pv.setDefault( defaultValue );
+		return( pv.getPath( execrc.isWindows() ) );
 	}
 	
 	public String getSystemStringProperty( String prop , String defaultValue ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false );
-		if( pv == null || pv.data.isEmpty() ) {
-			pv.setString( defaultValue );
+		if( pv == null )
 			return( defaultValue );
-		}
-		if( pv.type != PropertyValueType.PROPERTY_STRING )
-			throw new ExitException( "property is not string name=" + prop );
-		return( pv.data );
+		pv.setType( PropertyValueType.PROPERTY_STRING );
+		pv.setDefault( defaultValue );
+		return( pv.getString() );
 	}
 
 	public int getSystemIntProperty( String prop , int defaultValue ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false );
-		if( pv == null || pv.data.isEmpty() ) {
-			pv.setNumber( defaultValue );
+		if( pv == null )
 			return( defaultValue );
-		}
-		if( pv.type != PropertyValueType.PROPERTY_NUMBER ) {
-			if( pv.type != PropertyValueType.PROPERTY_STRING )
-				throw new ExitException( "property is not integer name=" + prop );
-			else
-				pv.setType( PropertyValueType.PROPERTY_NUMBER );
-		}
-		return( Integer.parseInt( pv.data ) );
+		pv.setType( PropertyValueType.PROPERTY_NUMBER );
+		pv.setDefault( "" + defaultValue );
+		return( pv.getNumber() );
 	}
 
 	public boolean getSystemBooleanProperty( String prop , boolean defaultValue ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false );
-		if( pv == null || pv.data.isEmpty() ) {
-			pv.setType( PropertyValueType.PROPERTY_BOOL );
+		if( pv == null )
 			return( defaultValue );
-		}
-		if( pv.type != PropertyValueType.PROPERTY_BOOL ) {
-			if( pv.type != PropertyValueType.PROPERTY_STRING )
-				throw new ExitException( "property is not boolean name=" + prop );
-			else
-				pv.setType( PropertyValueType.PROPERTY_BOOL );
-		}
-		return( Common.getBooleanValue( pv.data ) );
+		pv.setType( PropertyValueType.PROPERTY_BOOL );
+		pv.setDefault( Common.getBooleanValue( defaultValue ) );
+		return( pv.getBool() );
 	}
 
 	public PropertyValue setOriginalProperty( String prop , PropertyValueType type , String value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_ORIGINAL , this );
 		pv.setType( type );
 		pv.setValue( value );
-		setOriginalProperty( prop , pv.data );
-		setRawProperty( pv );
+		setOriginalPropertyInternal( pv );
+		setRawPropertyInternal( pv );
 		removeRunningProperty( pv );
 		return( pv );
 	}
 
 	public void setOriginalProperty( PropertyValue pv ) throws Exception {
-		setOriginalProperty( pv.property , pv.data );
-		setRawProperty( pv );
+		setOriginalPropertyInternal( pv );
+		setRawPropertyInternal( pv );
 		removeRunningProperty( pv );
 	}
 	
 	public void setRunningProperty( String prop , String originalValue , PropertyValue runningValue ) throws Exception {
-		setOriginalProperty( prop , originalValue );
+		original.put( prop , originalValue );
 		removeRawProperty( runningValue );
-		setRunningProperty( runningValue );
+		setRunningPropertyInternal( runningValue );
 	}
 	
 	public void finishRawProperties() throws Exception {
