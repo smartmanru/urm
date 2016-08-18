@@ -237,17 +237,25 @@ public class PropertySet {
 	}
 
 	public void resolveRawProperties() throws Exception {
+		resolveRawProperties( false );
+	}
+	
+	public void resolveRawProperties( boolean allowUnresolved ) throws Exception {
 		// resolve properties
-		for( PropertyValue pv : raw.values() )
-			removeRunningProperty( pv );
-			
+		List<PropertyValue> list = new LinkedList<PropertyValue>();
 		for( PropertyValue pv : raw.values() ) {
-			PropertyValue rv = new PropertyValue( pv );
-			processValue( rv , false , false , true , true , false );
-			setRunningPropertyInternal( rv );
+			processValue( pv , false , false , true , true , allowUnresolved );
+			if( pv.resolved )
+				list.add( pv );
 		}
-		raw.clear();
-		resolved = true;
+		
+		for( PropertyValue pv : list ) {
+			setRunningPropertyInternal( pv );
+			removeRawProperty( pv );;
+		}
+
+		if( raw.isEmpty() )
+			resolved = true;
 	}
 
 	public void recalculateProperties() throws Exception {
@@ -255,7 +263,7 @@ public class PropertySet {
 		for( String prop : getOriginalProperties() )
 			recalculateProperty( prop );
 		resolved = false;
-		resolveRawProperties();
+		resolveRawProperties( true );
 	}
 
 	public void recalculateProperty( String prop ) throws Exception {
