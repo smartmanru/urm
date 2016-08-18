@@ -417,8 +417,6 @@ public class Common {
 		transformer.setOutputProperty( OutputKeys.INDENT , "yes" );
 		transformer.setOutputProperty( "{http://xml.apache.org/xslt}indent-amount" , "4" );
 		
-		doc.getDocumentElement().setAttribute( "testattr" , "пример" );
-		
 		DOMSource source = new DOMSource( doc );
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		OutputStream outputStream = new FileOutputStream( filePath );
