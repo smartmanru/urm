@@ -307,7 +307,7 @@ public class PropertySet {
 	}
 	
 	private void processValue( PropertyValue pv , boolean finalValue , boolean isWindows , boolean useRaw , boolean allowParent , boolean allowUnresolved ) throws Exception {
-		if( pv.isEmpty() )
+		if( pv.resolved )
 			return;
 		
 		String value = pv.getData();
@@ -328,6 +328,9 @@ public class PropertySet {
 			}
 			
 			PropertyValue pvVar = getPropertyInternal( var , useRaw , allowParent , allowUnresolved );
+			if( pvVar == null )
+				return;
+			
 			pv.setData( pvVar );
 			if( pv.type == PropertyValueType.PROPERTY_PATH )
 				pv.setValue( pv.getPath( finalValue , isWindows ) );
@@ -342,12 +345,16 @@ public class PropertySet {
 				res += "@";
 			else {
 				PropertyValue pvVar = getPropertyInternal( var , useRaw , allowParent , allowUnresolved );
-				if( pvVar.type == PropertyValueType.PROPERTY_PATH ) {
-					String s = pvVar.getPath( finalValue , isWindows );
-					res += s;
+				if( pvVar == null )
+					res += "@" + var + "@";
+				else {
+					if( pvVar.type == PropertyValueType.PROPERTY_PATH ) {
+						String s = pvVar.getPath( finalValue , isWindows );
+						res += s;
+					}
+					else
+						res += pvVar.getData();
 				}
-				else
-					res += pvVar.getData(); 
 			}
 			
 			indexFrom = value.indexOf( '@' , indexTo + 1 );
@@ -393,7 +400,7 @@ public class PropertySet {
 		if( pv == null )
 			pv = getOwnByProperty( name );
 		
-		if( pv == null || pv.isMissing() ) {
+		if( pv == null || pv.isEmpty() ) {
 			if( parent != null ) {
 				// parent var
 				if( !allowParent ) {
@@ -401,13 +408,15 @@ public class PropertySet {
 						throw new ExitException( "set=" + set + ": unresolved variable=" + name );
 				}
 				
-				return( parent.getPropertyInternal( name , false , allowParent , allowUnresolved ) );
+				PropertyValue pvp = parent.getPropertyInternal( name , false , allowParent , allowUnresolved );
+				if( pvp != null )
+					return( pvp );
 			}
 			
 			if( !allowUnresolved )
 				throw new ExitException( "set=" + set + ": unresolved variable=" + name );
 			
-			pv = new PropertyValue( "@" + name + "@" );  
+			return( pv );  
 		}
 		else {
 			if( !allowUnresolved ) {
