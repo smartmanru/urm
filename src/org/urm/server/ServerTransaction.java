@@ -200,7 +200,7 @@ public class ServerTransaction {
 		return( false );
 	}
 
-	public boolean changeMetadata( Meta sourceMetadata ) {
+	public boolean changeMetadata( ServerProduct product , Meta sourceMetadata ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -209,7 +209,7 @@ public class ServerTransaction {
 				if( metadata != null )
 					return( true );
 				
-				if( sourceMetadata.storage == loader.getMetaStorage( sourceMetadata.product.CONFIG_PRODUCT ) ) {
+				if( sourceMetadata.storage == loader.getMetaStorage( product.NAME ) ) {
 					metadataAction = engine.createTemporaryAction( "meta" );
 					metadata = sourceMetadata.storage.copy( metadataAction );
 					if( metadata != null )
