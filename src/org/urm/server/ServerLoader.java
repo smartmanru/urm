@@ -95,22 +95,22 @@ public class ServerLoader {
 		return( storageFinal.loadDesignData( action , storageMeta , fileName ) );
 	}
 
-	public void loadServerProducts( ActionInit action ) throws Exception {
+	public void loadServerProducts( ActionInit action ) {
 		for( String name : registry.getProducts() ) {
-			action.setServerSystemProductLayout( name );
+			
+			ServerProductMeta set = new ServerProductMeta( this , action.session );
+			productMeta.put( name , set );
 			
 			try {
+				action.setServerSystemProductLayout( name );
 				MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
-				ServerProductMeta set = new ServerProductMeta( this , action.session );
 				set.loadAll( action , storageMeta );
-				productMeta.put( name , set );
+				action.clearServerProductLayout();
 			}
 			catch( Throwable e ) {
 				action.log( e );
 				action.error( "unable to load metadata, product=" + name );
 			}
-			
-			action.clearServerProductLayout();
 		}
 	}
 
