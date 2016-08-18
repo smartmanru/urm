@@ -66,6 +66,12 @@ public class PropertyValue {
 			return( defaultValue );
 		return( data );
 	}
+
+	public boolean isDefault() {
+		if( data.isEmpty() || data.equals( defaultValue ) )
+			return( true );
+		return( false );
+	}
 	
 	public boolean isEmpty() {
 		if( data.isEmpty() && defaultValue.isEmpty() )
@@ -225,6 +231,5 @@ public class PropertyValue {
 
 		return( v );
 	}
-	
 	
 }
