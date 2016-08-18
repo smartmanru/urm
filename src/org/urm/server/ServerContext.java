@@ -22,6 +22,9 @@ public class ServerContext {
 	public String DIST_APPFOLDER;
 	public String DIST_BASEPATH;
 	
+	public String SECURE_AUTHPATH;
+	public String SECURE_CONFPATH;
+	
 	public String JABBER_ACCOUNT;
 	public String JABBER_PASSWORD;
 	public String JABBER_SERVER;
@@ -38,6 +41,9 @@ public class ServerContext {
 	public static String PROPERTY_DIST_ROOT = "dist.root";
 	public static String PROPERTY_DIST_APPFOLDER = "dist.appfolder";
 	public static String PROPERTY_DIST_BASEPATH = "dist.basepath";
+
+	public static String PROPERTY_SECURE_AUTHPATH = "secure.authpath";
+	public static String PROPERTY_SECURE_CONFPATH = "secure.confpath";
 	
 	private ServerContext() {
 	}
@@ -80,6 +86,9 @@ public class ServerContext {
 		DIST_ROOT = properties.getSystemPathProperty( PROPERTY_DIST_ROOT , execrc.installPath + "/dist" , execrc );
 		DIST_APPFOLDER = properties.getSystemPathProperty( PROPERTY_DIST_APPFOLDER , "systems" , execrc );
 		DIST_BASEPATH = properties.getSystemPathProperty( PROPERTY_DIST_BASEPATH , "base" , execrc );
+
+		SECURE_AUTHPATH = properties.getSystemPathProperty( PROPERTY_SECURE_AUTHPATH , "~/.auth" , execrc );
+		SECURE_CONFPATH = properties.getSystemPathProperty( PROPERTY_SECURE_CONFPATH , execrc.installPath + "/secured" , execrc );
 		
 		JABBER_ACCOUNT = properties.getSystemStringProperty( "jabber.account" , "" );
 		JABBER_PASSWORD = properties.getSystemStringProperty( "jabber.password" , "" );
