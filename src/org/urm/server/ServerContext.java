@@ -98,7 +98,7 @@ public class ServerContext {
 				transaction.exit( "unknown property: " + prop );
 			
 			String value = props.getOriginalByProperty( prop );
-			properties.setOriginalProperty( prop , pv.type , value );
+			properties.updateOriginalProperty( prop , value );
 		}
 	}
 

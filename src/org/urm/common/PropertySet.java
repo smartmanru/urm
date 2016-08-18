@@ -294,8 +294,10 @@ public class PropertySet {
 				throw new ExitException( "set=" + set + ": empty required property=" + prop );
 		}
 		
-		if( pv == null )
-			pv = setOriginalProperty( prop , PropertyValueType.PROPERTY_STRING , null );
+		if( pv == null ) {
+			pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_ORIGINAL , this );
+			setOriginalPropertyInternal( pv );
+		}
 			
 		pv.setSystem();
 		PropertyValue fp = new PropertyValue( pv );
@@ -639,14 +641,10 @@ public class PropertySet {
 		return( pv.getBool() );
 	}
 
-	public PropertyValue setOriginalProperty( String prop , PropertyValueType type , String value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_ORIGINAL , this );
-		pv.setType( type );
+	public void updateOriginalProperty( String prop , String value ) throws Exception {
+		PropertyValue pv = getPropertyValue( prop );
 		pv.setValue( value );
-		setOriginalPropertyInternal( pv );
-		setRawPropertyInternal( pv );
-		removeRunningProperty( pv );
-		return( pv );
+		setOriginalProperty( pv );
 	}
 
 	public void setOriginalProperty( PropertyValue pv ) throws Exception {
