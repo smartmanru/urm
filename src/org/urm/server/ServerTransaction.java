@@ -309,7 +309,7 @@ public class ServerTransaction {
 	}
 	
 	public void modifyProduct( ServerProduct product , ServerProduct productNew ) throws Exception {
-		checkTransactionAll();
+		checkTransactionRegistry();
 		product.modifyProduct( this , productNew );
 	}
 
