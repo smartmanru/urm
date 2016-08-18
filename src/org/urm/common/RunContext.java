@@ -160,6 +160,7 @@ public class RunContext implements Serializable {
 		set.setPathProperty( PROPERTY_INSTALL_PATH , installPath , this );
 		set.setPathProperty( PROPERTY_USER_HOME , userHome , this );
 		set.setStringProperty( PROPERTY_HOSTNAME , hostName );
+		set.resolveRawProperties();
 	}
 	
 }
