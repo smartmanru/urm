@@ -188,7 +188,7 @@ public class ConfBuilder {
 			String s = fileLines.get( k );
 			PropertyValue res = props.getFinalValue( s , server.isWindows( action ) , true , false );
 			if( res != null ) {
-				fileLines.set( k , res.getData() );
+				fileLines.set( k , res.getValue() );
 				changed = true;
 			}
 		}
@@ -210,7 +210,7 @@ public class ConfBuilder {
 			String s = fileLines.get( k );
 			PropertyValue res = props.getFinalValue( s , node.server.isWindows( action ) , true , false );
 			if( res != null ) {
-				fileLines.set( k , res.getData() );
+				fileLines.set( k , res.getValue() );
 				changed = true;
 			}
 		}

@@ -118,7 +118,7 @@ public class PropertySet {
 	}
 
 	private void setOriginalPropertyInternal( PropertyValue pv ) {
-		original.put( pv.property , pv.getData() );
+		original.put( pv.property , pv.getValue() );
 	}
 	
 	private void removeRawProperty( PropertyValue value ) {
@@ -231,7 +231,7 @@ public class PropertySet {
 		for( String prop : set.getOwnProperties() ) {
 			PropertyValue pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_EXTRA , set );
 			PropertyValue value = set.getOwnByProperty( prop );
-			pv.setData( value );
+			pv.setValue( value );
 			setRunningPropertyInternal( pv );
 		}
 	}
@@ -312,7 +312,7 @@ public class PropertySet {
 		if( pv.resolved )
 			return;
 		
-		String value = pv.getData();
+		String value = pv.getValue();
 		int indexFrom = value.indexOf( '@' );
 		if( indexFrom < 0 )
 			return;
@@ -333,7 +333,7 @@ public class PropertySet {
 			if( pvVar == null )
 				return;
 			
-			pv.setData( pvVar );
+			pv.setValue( pvVar );
 			if( pv.type == PropertyValueType.PROPERTY_PATH )
 				pv.setValue( pv.getPath( finalValue , isWindows ) );
 			return;
@@ -355,7 +355,7 @@ public class PropertySet {
 						res += s;
 					}
 					else
-						res += pvVar.getData();
+						res += pvVar.getValue();
 				}
 			}
 			
@@ -423,7 +423,7 @@ public class PropertySet {
 		else {
 			if( !allowUnresolved ) {
 				if( !pv.resolved )
-					throw new ExitException( "set=" + set + ": unresolved variable=" + name + ", value=" + pv.getData() );
+					throw new ExitException( "set=" + set + ": unresolved variable=" + name + ", value=" + pv.getValue() );
 			}
 		}
 		
@@ -458,7 +458,7 @@ public class PropertySet {
 		PropertyValue pv = getPropertyInternal( prop , true , true , true );
 		if( pv == null )
 			return( null );
-		return( pv.getData() );
+		return( pv.getValue() );
 	}
 	
 	public PropertyValue getFinalProperty( String name , boolean allowParent , boolean allowUnresolved ) throws Exception {
@@ -472,7 +472,7 @@ public class PropertySet {
 		PropertyValue pv = getFinalProperty( name , allowParent , allowUnresolved );
 		if( pv == null )
 			return( null );
-		String data = pv.getData();
+		String data = pv.getValue();
 		if( pv.type != PropertyValueType.PROPERTY_PATH )
 			return( data );
 		return( execrc.getLocalPath( data ) );
@@ -494,7 +494,7 @@ public class PropertySet {
 			return( defaultValue );
 		if( pv.isEmpty() )
 			return( defaultValue );
-		return( pv.getData() );
+		return( pv.getValue() );
 	}
 	
 	private PropertyValue findPropertyInternal( String name , PropertyValue defaultValue , boolean system ) throws Exception {
@@ -520,7 +520,7 @@ public class PropertySet {
 
 	public String getRequiredPropertyAny( String name ) throws Exception {
 		PropertyValue pv = getRequiredPropertyInternal( name );
-		return( pv.getData() );
+		return( pv.getValue() );
 	}
 	
 	private PropertyValue getRequiredPropertyInternal( String name ) throws Exception {

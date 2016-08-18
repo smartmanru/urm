@@ -61,7 +61,7 @@ public class PropertyValue {
 		this.defaultValue = "";
 	}
 
-	public String getData() {
+	public String getValue() {
 		if( data.isEmpty() )
 			return( defaultValue );
 		return( data );
@@ -71,6 +71,10 @@ public class PropertyValue {
 		if( data.isEmpty() || data.equals( defaultValue ) )
 			return( true );
 		return( false );
+	}
+
+	public boolean isDataEmpty() {
+		return( data.isEmpty() );
 	}
 	
 	public boolean isEmpty() {
@@ -110,7 +114,7 @@ public class PropertyValue {
 	}
 	
 	public void setDefault( PropertyValue value ) {
-		defaultValue = value.getData();
+		defaultValue = value.getValue();
 	}
 	
 	public void setValue( String value ) {
@@ -125,7 +129,7 @@ public class PropertyValue {
 		}
 	}
 	
-	public void setData( PropertyValue value ) throws Exception {
+	public void setValue( PropertyValue value ) throws Exception {
 		type = value.type;
 		setValue( value.data );
 	}
@@ -212,7 +216,7 @@ public class PropertyValue {
 	}
 
 	public String getPath( boolean finalValue , boolean isWindows ) {
-		return( getPathValue( getData() , finalValue , isWindows ) );		
+		return( getPathValue( getValue() , finalValue , isWindows ) );		
 	}
 	
 	public String getPath( boolean isWindows ) {
