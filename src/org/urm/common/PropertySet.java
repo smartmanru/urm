@@ -118,7 +118,7 @@ public class PropertySet {
 	}
 
 	private void setOriginalPropertyInternal( PropertyValue pv ) {
-		original.put( pv.property , pv.getValue() );
+		original.put( pv.property , pv.getData() );
 	}
 	
 	private void removeRawProperty( PropertyValue value ) {
