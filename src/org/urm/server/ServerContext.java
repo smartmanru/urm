@@ -87,7 +87,7 @@ public class ServerContext {
 		DIST_APPFOLDER = properties.getSystemPathProperty( PROPERTY_DIST_APPFOLDER , "systems" , execrc );
 		DIST_BASEPATH = properties.getSystemPathProperty( PROPERTY_DIST_BASEPATH , "base" , execrc );
 
-		SECURE_AUTHPATH = properties.getSystemPathProperty( PROPERTY_SECURE_AUTHPATH , "~/.auth" , execrc );
+		SECURE_AUTHPATH = properties.getSystemPathProperty( PROPERTY_SECURE_AUTHPATH , execrc.userHome + "/.auth" , execrc );
 		SECURE_CONFPATH = properties.getSystemPathProperty( PROPERTY_SECURE_CONFPATH , execrc.installPath + "/secured" , execrc );
 		
 		JABBER_ACCOUNT = properties.getSystemStringProperty( "jabber.account" , "" );
