@@ -101,8 +101,59 @@ public class ServerTransaction {
 	}
 
 	public void log( String s , Throwable e ) {
-		System.out.println( s );
-		e.printStackTrace();
+		if( metadataAction != null )
+			metadataAction.log( s , e );
+		else
+		if( engine.serverAction != null )
+			engine.serverAction.log( s , e );
+		else {
+			System.out.println( "transaction: " + s );
+			e.printStackTrace();
+		}
+	}
+	
+	public void info( String s ) {
+		if( metadataAction != null )
+			metadataAction.info( s );
+		else
+		if( engine.serverAction != null )
+			engine.serverAction.info( s );
+		else {
+			System.out.println( "transaction (info): " + s );
+		}
+	}
+	
+	public void debug( String s ) {
+		if( metadataAction != null )
+			metadataAction.debug( s );
+		else
+		if( engine.serverAction != null )
+			engine.serverAction.debug( s );
+		else {
+			System.out.println( "transaction (debug): " + s );
+		}
+	}
+	
+	public void error( String s ) {
+		if( metadataAction != null )
+			metadataAction.error( s );
+		else
+		if( engine.serverAction != null )
+			engine.serverAction.error( s );
+		else {
+			System.out.println( "transaction (error): " + s );
+		}
+	}
+	
+	public void trace( String s ) {
+		if( metadataAction != null )
+			metadataAction.trace( s );
+		else
+		if( engine.serverAction != null )
+			engine.serverAction.trace( s );
+		else {
+			System.out.println( "transaction (trace): " + s );
+		}
 	}
 	
 	public boolean changeRegistry( ServerRegistry sourceRegistry ) {
