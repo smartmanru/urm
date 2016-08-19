@@ -118,7 +118,7 @@ public class ServerLoader {
 				if( folder.checkExists( action ) )
 					set.loadAll( action , storageMeta );
 				else
-					set.setLoadFailed( action , "product metadata folder is missing" );
+					set.setLoadFailed( action , "metadata folder is missing, product=" + name );
 			}
 			catch( Throwable e ) {
 				action.log( e );
