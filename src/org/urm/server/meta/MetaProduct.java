@@ -170,10 +170,10 @@ public class MetaProduct {
 			return;
 
 		loaded = true;
+		props = new PropertySet( "product" , null );
 		setContextProperties( action , productContext );
 		
 		// create initial
-		props = new PropertySet( "product" , null );
 		registry.setProductDefaults( props );
 	}
 	
@@ -182,10 +182,10 @@ public class MetaProduct {
 			return;
 
 		loaded = true;
+		props = new PropertySet( "product" , null );
 		setContextProperties( action , productContext );
 		
 		// load from file
-		props = new PropertySet( "product" , null );
 		props.loadRawFromNodeElements( root );
 		
 		Node[] items = ConfReader.xmlGetChildren( root , "mode" );
