@@ -181,6 +181,7 @@ public class ServerEngine {
 		
 		createPool();
 		startAction( serverAction );
+		serverAction.meta.loadVersion( serverAction );
 		serverAction.meta.loadProduct( serverAction );
 		
 		return( runServerAction() );

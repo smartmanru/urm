@@ -15,7 +15,8 @@ public class Meta {
 	public ServerLoader loader;
 	public SessionContext session;
 	public ServerProductMeta storage;
-	
+
+	public MetaVersion version;
 	public MetaProduct product;
 	public MetaDatabase database;
 	public MetaDistr distr;
@@ -189,6 +190,10 @@ public class Meta {
 		}
 	}
 	
+	public void setVersion( MetaVersion version ) {
+		this.version = version;
+	}
+	
 	public void setProduct( MetaProduct product ) {
 		this.product = product;
 	}
@@ -221,6 +226,11 @@ public class Meta {
 			storage = loader.getMetaStorage( action.actionInit );
 	}
 
+	public void loadVersion( ActionBase action ) throws Exception {
+		getStorage( action );
+		version = loader.loadVersion( action.actionInit , storage );
+	}
+	
 	public void loadProduct( ActionBase action ) throws Exception {
 		getStorage( action );
 		product = loader.loadProduct( action.actionInit , storage );

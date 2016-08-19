@@ -1,9 +1,8 @@
 package org.urm.server;
 
 import org.urm.server.action.ActionBase;
-import org.urm.server.dist.DistRepository;
-import org.urm.server.dist.ProductVersion;
 import org.urm.server.meta.Meta;
+import org.urm.server.meta.MetaVersion;
 
 public class ServerProductContext {
 
@@ -22,7 +21,7 @@ public class ServerProductContext {
 		this.meta = meta;
 	}
 
-	public void load( ActionBase action ) throws Exception {
+	public void load( ActionBase action , MetaVersion version ) throws Exception {
 		// handle product name
 		if( action.session.standalone ) {
 			// read from properties
@@ -35,10 +34,6 @@ public class ServerProductContext {
 				action.exitUnexpectedState();
 			CONFIG_PRODUCT = action.session.productName;
 		}
-		
-		// get version info
-		DistRepository repo = action.artefactory.getDistRepository( action );
-		ProductVersion version = repo.getVersion( action );
 		
 		CONFIG_PRODUCTHOME = action.context.session.productPath;
 		CONFIG_LASTPRODTAG = "" + version.lastProdTag;

@@ -587,21 +587,27 @@ public class PropertySet {
 		return( pv.getBool() );
 	}
 
-	public String getSystemRequiredStringProperty( String prop ) throws Exception {
+	public int getSystemRequiredIntProperty( String prop ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , true );
-		if( pv.type != PropertyValueType.PROPERTY_STRING )
-			throw new ExitException( "property is not string name=" + prop );
 		if( pv.isEmpty() )
 			throw new ExitException( "required property is empty, name=" + prop );
+		pv.setType( PropertyValueType.PROPERTY_NUMBER );
+		return( pv.getNumber() );
+	}
+
+	public String getSystemRequiredStringProperty( String prop ) throws Exception {
+		PropertyValue pv = resolveSystemProperty( prop , true );
+		if( pv.isEmpty() )
+			throw new ExitException( "required property is empty, name=" + prop );
+		pv.setType( PropertyValueType.PROPERTY_STRING );
 		return( pv.getString() );
 	}
 
 	public String getSystemRequiredPathProperty( String prop , RunContext execrc ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , true );
-		if( pv.type != PropertyValueType.PROPERTY_PATH )
-			throw new ExitException( "property is not path name=" + prop );
 		if( pv.isEmpty() )
 			throw new ExitException( "required property is empty, name=" + prop );
+		pv.setType( PropertyValueType.PROPERTY_PATH );
 		return( pv.getPath( execrc.isWindows() ) );
 	}
 	

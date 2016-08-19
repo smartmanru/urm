@@ -125,7 +125,6 @@ public class SessionController {
 		// execute
 		try {
 			engine.startAction( clientAction );
-			clientAction.meta.loadProduct( clientAction );
 			executor.runAction( clientAction );
 		}
 		catch( Throwable e ) {

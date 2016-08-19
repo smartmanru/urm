@@ -100,6 +100,7 @@ public class ActionConfigure extends ActionBase {
 	}
 
 	private void configureProduct( boolean serverMode , boolean standalone ) throws Exception {
+		meta.loadVersion( this );
 		meta.loadProduct( this );
 		meta.loadDistr( this );
 		

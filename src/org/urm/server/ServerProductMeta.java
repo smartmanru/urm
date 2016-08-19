@@ -16,6 +16,7 @@ import org.urm.server.meta.MetaMonitoring;
 import org.urm.server.meta.MetaProduct;
 import org.urm.server.meta.MetaSource;
 import org.urm.server.meta.Meta;
+import org.urm.server.meta.MetaVersion;
 import org.urm.server.storage.MetadataStorage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -27,6 +28,7 @@ public class ServerProductMeta {
 	
 	public Meta meta;
 	
+	private MetaVersion version;
 	private MetaProduct product;
 	private MetaDistr distr;
 	private MetaDatabase database;
@@ -36,6 +38,7 @@ public class ServerProductMeta {
 	private Map<String,MetaDesign> designFiles;
 	private Map<String,MetaEnv> envs;
 	
+	public static String XML_ROOT_VERSION = "version";
 	public static String XML_ROOT_PRODUCT = "product";
 	public static String XML_ROOT_DISTR = "distributive";
 	public static String XML_ROOT_DB = "database";
@@ -52,6 +55,23 @@ public class ServerProductMeta {
 		envs = new HashMap<String,MetaEnv>();
 	}
 
+	public synchronized MetaVersion loadVersion( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+		if( version != null )
+			return( version );
+		
+		version = new MetaVersion( meta );
+		meta.setVersion( version );
+
+		// read
+		String file = storageMeta.getVersionConfFile( action );
+		action.debug( "read product version file " + file + "..." );
+		Document doc = ConfReader.readXmlFile( action.session.execrc , file );
+		Node root = doc.getDocumentElement();
+		version.load( action , root );
+		
+		return( version );
+	}
+	
 	public synchronized MetaProduct loadProduct( ActionBase action , MetadataStorage storageMeta ) throws Exception {
 		if( product != null )
 			return( product );
@@ -60,7 +80,7 @@ public class ServerProductMeta {
 		meta.setProduct( product );
 
 		ServerProductContext productContext = new ServerProductContext( meta );
-		productContext.load( action );
+		productContext.load( action , version );
 		
 		// read
 		String file = storageMeta.getProductConfFile( action );
@@ -70,16 +90,6 @@ public class ServerProductMeta {
 		product.load( action , productContext , root );
 		
 		return( product );
-	}
-	
-	private void createInitialProduct( ActionBase action , ServerRegistry registry ) throws Exception {
-		product = new MetaProduct( meta );
-		meta.setProduct( product );
-		
-		ServerProductContext productContext = new ServerProductContext( meta );
-		productContext.load( action );
-		
-		product.create( action , registry , productContext );
 	}
 	
 	public synchronized MetaDistr loadDistr( ActionBase action , MetadataStorage storageMeta ) throws Exception {
@@ -212,6 +222,7 @@ public class ServerProductMeta {
 	}
 
 	public synchronized void loadAll( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+		loadVersion( action , storageMeta );
 		loadProduct( action , storageMeta );
 		loadDatabase( action , storageMeta );
 		loadDistr( action , storageMeta );
@@ -250,6 +261,7 @@ public class ServerProductMeta {
 	}
 
 	public synchronized void createInitial( ActionBase action , ServerRegistry registry ) throws Exception {
+		createInitialVersion( action , registry );
 		createInitialProduct( action , registry );
 		createInitialDatabase( action , registry );
 		createInitialDistr( action , registry );
@@ -262,6 +274,22 @@ public class ServerProductMeta {
 		action.meta.setSources( sources );
 	}
 
+	private void createInitialVersion( ActionBase action , ServerRegistry registry ) throws Exception {
+		version = new MetaVersion( meta );
+		meta.setVersion( version );
+		version.create( action , registry );
+	}
+	
+	private void createInitialProduct( ActionBase action , ServerRegistry registry ) throws Exception {
+		product = new MetaProduct( meta );
+		meta.setProduct( product );
+		
+		ServerProductContext productContext = new ServerProductContext( meta );
+		productContext.load( action , version );
+		
+		product.create( action , registry , productContext );
+	}
+	
 	public void saveAll( ActionBase action , MetadataStorage storageMeta , ServerProduct product ) throws Exception {
 	}
 	

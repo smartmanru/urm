@@ -24,6 +24,10 @@ public class MetadataStorage {
 		this.artefactory = artefactory;
 		this.meta = artefactory.meta;
 	}
+
+	public LocalFolder getFolder( ActionBase action ) throws Exception {
+		return( new LocalFolder( action.context.session.etcPath , action.isLocalWindows() ) );
+	}
 	
 	public String getDistrFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
@@ -51,9 +55,9 @@ public class MetadataStorage {
 		return( Common.getPath( dir , fileName ) );
 	}
 	
-	public String getLastProdTagFile( ActionBase action ) throws Exception {
+	public String getVersionConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		return( urm.getMetadataPath( action , "last-prod-tag.txt" ) );
+		return( urm.getMetadataPath( action , UrmStorage.VERSION_SETTINGS_FILE ) );
 	}
 	
 	public String getProductConfFile( ActionBase action ) throws Exception {

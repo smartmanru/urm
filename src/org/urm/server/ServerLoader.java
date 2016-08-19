@@ -14,6 +14,8 @@ import org.urm.server.meta.MetaMonitoring;
 import org.urm.server.meta.MetaProduct;
 import org.urm.server.meta.MetaSource;
 import org.urm.server.meta.Meta;
+import org.urm.server.meta.MetaVersion;
+import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.MetadataStorage;
 
 public class ServerLoader {
@@ -55,6 +57,11 @@ public class ServerLoader {
 			action.exit( "unknown product=" + action.session.productName );
 		
 		return( storage );
+	}
+
+	public MetaVersion loadVersion( ActionInit action , ServerProductMeta storageFinal ) throws Exception {
+		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
+		return( storageFinal.loadVersion( action , storageMeta ) );
 	}
 
 	public MetaProduct loadProduct( ActionInit action , ServerProductMeta storageFinal ) throws Exception {
@@ -104,13 +111,16 @@ public class ServerLoader {
 			try {
 				action.setServerSystemProductLayout( name );
 				MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
-				set.loadAll( action , storageMeta );
-				action.clearServerProductLayout();
+				LocalFolder folder = storageMeta.getFolder( action );
+				if( folder.checkExists( action ) )
+					set.loadAll( action , storageMeta );
 			}
 			catch( Throwable e ) {
 				action.log( e );
 				action.error( "unable to load metadata, product=" + name );
 			}
+			
+			action.clearServerProductLayout();
 		}
 	}
 

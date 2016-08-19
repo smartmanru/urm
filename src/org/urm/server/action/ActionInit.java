@@ -39,7 +39,7 @@ public class ActionInit extends ActionBase {
 		setServerSystemProductLayout( product );
 	}
 	
-	public void clearServerProductLayout() throws Exception {
+	public void clearServerProductLayout() {
 		session.clearServerProductLayout();
 		meta.clearAll();
 	}

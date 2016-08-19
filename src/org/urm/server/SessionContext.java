@@ -83,7 +83,7 @@ public class SessionContext {
 		proxyPath = Common.getPath( productPath , "master" );
 	}
 	
-	public void clearServerProductLayout() throws Exception {
+	public void clearServerProductLayout() {
 		product = false;
 		
 		etcPath = Common.getPath( installPath , "etc" );
