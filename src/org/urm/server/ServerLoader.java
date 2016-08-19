@@ -56,6 +56,9 @@ public class ServerLoader {
 		if( storage == null )
 			action.exit( "unknown product=" + action.session.productName );
 		
+		if( storage.loadFailed )
+			action.exit( "unusable metadata of product=" + action.session.productName );
+		
 		return( storage );
 	}
 
@@ -114,6 +117,8 @@ public class ServerLoader {
 				LocalFolder folder = storageMeta.getFolder( action );
 				if( folder.checkExists( action ) )
 					set.loadAll( action , storageMeta );
+				else
+					set.setLoadFailed( action , "product metadata folder is missing" );
 			}
 			catch( Throwable e ) {
 				action.log( e );

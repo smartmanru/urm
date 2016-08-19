@@ -60,6 +60,11 @@ public class ServerProductMeta {
 		loadFailed = false;
 	}
 
+	public void setLoadFailed( ActionBase action , String msg ) {
+		loadFailed = true;
+		action.error( msg );
+	}
+	
 	private void setLoadFailed( ActionBase action , Throwable e , String msg ) {
 		loadFailed = true;
 		action.log( e );
