@@ -15,9 +15,11 @@ import org.w3c.dom.Node;
 
 public class MetaProduct {
 
+	private boolean loaded;
+	public boolean loadFailed;
+
 	public PropertySet props;
 	public Map<String,PropertySet> modeProps;
-	private boolean loaded;
 	protected Meta meta;
 	public Charset charset;
 	
@@ -92,7 +94,13 @@ public class MetaProduct {
 	public MetaProduct( Meta meta ) {
 		this.meta = meta;
 		loaded = false;
+		loadFailed = false;
+		
 		modeProps = new HashMap<String,PropertySet>();
+	}
+
+	public void setLoadFailed() {
+		loadFailed = true;
 	}
 	
 	private void scatterVariables( ActionBase action ) throws Exception {

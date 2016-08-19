@@ -26,7 +26,8 @@ public class MetaDesign {
 		MSG
 	};
 	
-	boolean loaded = false;
+	private boolean loaded;
+	public boolean loadFailed;
 
 	protected Meta meta;
 	public Map<String,MetaDesignElement> childs;
@@ -36,6 +37,12 @@ public class MetaDesign {
 	
 	public MetaDesign( Meta meta ) {
 		this.meta = meta;
+		loaded = false;
+		loadFailed = false;
+	}
+	
+	public void setLoadFailed() {
+		loadFailed = true;
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {

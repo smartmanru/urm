@@ -10,8 +10,10 @@ import org.w3c.dom.Node;
 
 public class MetaMonitoring {
 	
+	private boolean loaded;
+	public boolean loadFailed;
+
 	protected Meta meta;
-	boolean loaded = false;
 
 	Map<String,MetaMonitoringTarget> mapEnvs;
 
@@ -26,6 +28,12 @@ public class MetaMonitoring {
 	
 	public MetaMonitoring( Meta meta ) {
 		this.meta = meta;
+		loaded = false;
+		loadFailed = false;
+	}
+	
+	public void setLoadFailed() {
+		loadFailed = true;
 	}
 	
 	public void createInitial( ActionBase action , ServerRegistry registry ) throws Exception {

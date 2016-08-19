@@ -14,15 +14,23 @@ import org.w3c.dom.Node;
 
 public class MetaSource {
 
+	private boolean loaded;
+	public boolean loadFailed;
+
 	List<MetaSourceProjectSet> originalList;
 	Map<String,MetaSourceProjectSet> setMap;
 	Map<String,MetaSourceProject> projectMap;
-	boolean loaded = false;
 	
 	protected Meta meta;
 	
 	public MetaSource( Meta meta ) {
 		this.meta = meta;
+		loaded = false;
+		loadFailed = false;
+	}
+	
+	public void setLoadFailed() {
+		loadFailed = true;
 	}
 	
 	public void createInitial( ActionBase action , ServerRegistry registry ) throws Exception {

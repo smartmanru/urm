@@ -10,18 +10,26 @@ import org.w3c.dom.Node;
 
 public class MetaDatabase {
 
+	private boolean loaded;
+	public boolean loadFailed;
+
 	protected Meta meta;
 
 	public Map<String,MetaDatabaseSchema> mapSchema = new HashMap<String,MetaDatabaseSchema>();
 	public Map<String,MetaDatabaseDatagroup> mapDatagroup = new HashMap<String,MetaDatabaseDatagroup>();
-	boolean loaded = false;
 	
 	public String ALIGNEDMAPPING;
 	
 	public MetaDatabase( Meta meta ) {
 		this.meta = meta;
+		loaded = false;
+		loadFailed = false;
 	}
 
+	public void setLoadFailed() {
+		loadFailed = true;
+	}
+	
 	public void createInitial( ActionBase action , ServerRegistry registry ) throws Exception {
 	}
 	

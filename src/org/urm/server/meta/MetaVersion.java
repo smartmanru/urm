@@ -7,14 +7,15 @@ import org.w3c.dom.Node;
 
 public class MetaVersion {
 
+	private boolean loaded;
+	public boolean loadFailed;
+
 	public int majorFirstNumber;
 	public int majorSecondNumber;
 	public int majorNextFirstNumber;
 	public int majorNextSecondNumber;
 	public int lastProdTag;
 	public int nextProdTag;
-
-	private boolean loaded = false;
 
 	PropertySet properties;
 
@@ -26,6 +27,9 @@ public class MetaVersion {
 	public static String PROPERTY_PROD_NEXTTAG = "major.prod.nexttag";
 	
 	public MetaVersion( Meta meta ) {
+		loaded = false;
+		loadFailed = false;
+		
 		majorFirstNumber = 0;
 		majorSecondNumber = 0;
 		majorNextFirstNumber = 0;
@@ -34,6 +38,10 @@ public class MetaVersion {
 		nextProdTag = 0;
 	}
 	
+	public void setLoadFailed() {
+		loadFailed = true;
+	}
+
 	public void create( ActionBase action , ServerRegistry registry ) {
 		majorFirstNumber = 1;
 		majorSecondNumber = 0;

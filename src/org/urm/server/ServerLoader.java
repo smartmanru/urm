@@ -43,15 +43,15 @@ public class ServerLoader {
 	}
 	
 	public synchronized ServerProductMeta getMetaStorage( ActionInit action ) throws Exception {
-		if( action.session.offline ) {
-			if( offline == null )
-				offline = new ServerProductMeta( this , action.session );
-			return( offline );
-		}
-		
 		if( !action.session.product )
 			action.exitUnexpectedState();
 			
+		if( action.session.offline ) {
+			if( offline == null )
+				offline = new ServerProductMeta( this , action.session.productName , action.session );
+			return( offline );
+		}
+		
 		ServerProductMeta storage = productMeta.get( action.session.productName );
 		if( storage == null )
 			action.exit( "unknown product=" + action.session.productName );
@@ -105,7 +105,7 @@ public class ServerLoader {
 	public void loadServerProducts( ActionInit action ) {
 		for( String name : registry.getProducts() ) {
 			
-			ServerProductMeta set = new ServerProductMeta( this , action.session );
+			ServerProductMeta set = new ServerProductMeta( this , name , action.session );
 			productMeta.put( name , set );
 			
 			try {
@@ -159,7 +159,7 @@ public class ServerLoader {
 		action.setServerSystemProductLayout( product );
 		
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
-		ServerProductMeta set = new ServerProductMeta( this , action.session );
+		ServerProductMeta set = new ServerProductMeta( this , product.NAME , action.session );
 		set.createInitial( action , registryNew );
 		set.saveAll( action , storageMeta , product );
 		

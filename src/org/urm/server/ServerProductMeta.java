@@ -24,6 +24,7 @@ import org.w3c.dom.Node;
 public class ServerProductMeta {
 
 	public ServerLoader loader;
+	public String name;
 	public SessionContext session;
 	
 	public Meta meta;
@@ -45,183 +46,231 @@ public class ServerProductMeta {
 	public static String XML_ROOT_SRC = "sources";
 	public static String XML_ROOT_MONITORING = "monitoring";
 	public static String XML_ROOT_ENV = "environment";
+
+	public boolean loadFailed;
 	
-	public ServerProductMeta( ServerLoader loader , SessionContext session ) {
+	public ServerProductMeta( ServerLoader loader , String name , SessionContext session ) {
 		this.loader = loader;
+		this.name = name;
 		this.session = session;
 		
 		meta = new Meta( this , session );
 		designFiles = new HashMap<String,MetaDesign>();
 		envs = new HashMap<String,MetaEnv>();
+		loadFailed = false;
 	}
 
-	public synchronized MetaVersion loadVersion( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+	private void setLoadFailed( ActionBase action , Throwable e , String msg ) {
+		loadFailed = true;
+		action.log( e );
+		action.error( msg );
+	}
+	
+	public synchronized MetaVersion loadVersion( ActionBase action , MetadataStorage storageMeta ) {
 		if( version != null )
 			return( version );
 		
 		version = new MetaVersion( meta );
 		meta.setVersion( version );
 
-		// read
-		String file = storageMeta.getVersionConfFile( action );
-		action.debug( "read product version file " + file + "..." );
-		Document doc = ConfReader.readXmlFile( action.session.execrc , file );
-		Node root = doc.getDocumentElement();
-		version.load( action , root );
+		if( !loadFailed ) {
+			try {
+				// read
+				String file = storageMeta.getVersionConfFile( action );
+				action.debug( "read product version file " + file + "..." );
+				Document doc = ConfReader.readXmlFile( action.session.execrc , file );
+				Node root = doc.getDocumentElement();
+				version.load( action , root );
+			}
+			catch( Throwable e ) {
+				setLoadFailed( action , e , "unable to load version metadata, product=" + name );
+				version.setLoadFailed();
+			}
+		}
 		
 		return( version );
 	}
 	
-	public synchronized MetaProduct loadProduct( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+	public synchronized MetaProduct loadProduct( ActionBase action , MetadataStorage storageMeta ) {
 		if( product != null )
 			return( product );
 		
 		product = new MetaProduct( meta );
 		meta.setProduct( product );
 
-		ServerProductContext productContext = new ServerProductContext( meta );
-		productContext.load( action , version );
-		
-		// read
-		String file = storageMeta.getProductConfFile( action );
-		action.debug( "read product definition file " + file + "..." );
-		Document doc = ConfReader.readXmlFile( action.session.execrc , file );
-		Node root = doc.getDocumentElement();
-		product.load( action , productContext , root );
+		if( !loadFailed ) {
+			try {
+				ServerProductContext productContext = new ServerProductContext( meta );
+				productContext.load( action , version );
+				
+				// read
+				String file = storageMeta.getProductConfFile( action );
+				action.debug( "read product definition file " + file + "..." );
+				Document doc = ConfReader.readXmlFile( action.session.execrc , file );
+				Node root = doc.getDocumentElement();
+				product.load( action , productContext , root );
+			}
+			catch( Throwable e ) {
+				setLoadFailed( action , e , "unable to load settings metadata, product=" + name );
+				product.setLoadFailed();
+			}
+		}
 		
 		return( product );
 	}
 	
-	public synchronized MetaDistr loadDistr( ActionBase action , MetadataStorage storageMeta ) throws Exception {
-		if( distr != null )
-			return( distr );
-		
-		distr = new MetaDistr( meta );
-		meta.setDistr( distr );
-		
-		// read
-		String file = storageMeta.getDistrFile( action );
-		action.debug( "read distributive definition file " + file + "..." );
-		Document doc = action.readXmlFile( file );
-		Node root = doc.getDocumentElement();
-		distr.load( action , root );
-		
-		return( distr );
-	}
-
-	private void createInitialDistr( ActionBase action , ServerRegistry registry ) throws Exception {
-		distr = new MetaDistr( meta );
-		meta.setDistr( distr );
-		distr.createInitial( action , registry );
-	}
-	
-	public synchronized MetaDatabase loadDatabase( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+	public synchronized MetaDatabase loadDatabase( ActionBase action , MetadataStorage storageMeta ) {
 		if( database != null )
 			return( database );
 		
 		database = new MetaDatabase( meta );
 		meta.setDatabase( database );
 		
-		// read
-		String file = storageMeta.getDatabaseFile( action );
-		action.debug( "read database definition file " + file + "..." );
-		Document doc = action.readXmlFile( file );
-		Node root = doc.getDocumentElement();
-		database.load( action , root );
+		if( !loadFailed ) {
+			try {
+				// read
+				String file = storageMeta.getDatabaseFile( action );
+				action.debug( "read database definition file " + file + "..." );
+				Document doc = action.readXmlFile( file );
+				Node root = doc.getDocumentElement();
+				database.load( action , root );
+			}
+			catch( Throwable e ) {
+				setLoadFailed( action , e , "unable to load database metadata, product=" + name );
+				database.setLoadFailed();
+			}
+		}
 		
 		return( database );
 	}
 	
-	private void createInitialDatabase( ActionBase action , ServerRegistry registry ) throws Exception {
-		database = new MetaDatabase( meta );
-		meta.setDatabase( database );
-		database.createInitial( action , registry );
+	public synchronized MetaDistr loadDistr( ActionBase action , MetadataStorage storageMeta ) {
+		if( distr != null )
+			return( distr );
+		
+		distr = new MetaDistr( meta );
+		meta.setDistr( distr );
+		
+		if( !loadFailed ) {
+			try {
+				// read
+				String file = storageMeta.getDistrFile( action );
+				action.debug( "read distributive definition file " + file + "..." );
+				Document doc = action.readXmlFile( file );
+				Node root = doc.getDocumentElement();
+				distr.load( action , root );
+			}
+			catch( Throwable e ) {
+				setLoadFailed( action , e , "unable to load distributive metadata, product=" + name );
+				distr.setLoadFailed();
+			}
+		}
+		
+		return( distr );
 	}
-	
-	public synchronized MetaSource loadSources( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+
+	public synchronized MetaSource loadSources( ActionBase action , MetadataStorage storageMeta ) {
 		if( sources != null )
 			return( sources );
 		
 		sources = new MetaSource( meta );
 		meta.setSources( sources );
 		
-		// read
-		String file = storageMeta.getSourceConfFile( action );
-		action.debug( "read source definition file " + file + "..." );
-		Document doc = action.readXmlFile( file );
-		Node root = doc.getDocumentElement();
-		sources.load( action , root );
+		if( !loadFailed ) {
+			try {
+				// read
+				String file = storageMeta.getSourceConfFile( action );
+				action.debug( "read source definition file " + file + "..." );
+				Document doc = action.readXmlFile( file );
+				Node root = doc.getDocumentElement();
+				sources.load( action , root );
+			}
+			catch( Throwable e ) {
+				setLoadFailed( action , e , "unable to load source metadata, product=" + name );
+				sources.setLoadFailed();
+			}
+		}
 		
 		return( sources );
 	}
 	
-	private void createInitialSources( ActionBase action , ServerRegistry registry ) throws Exception {
-		sources = new MetaSource( meta );
-		meta.setSources( sources );
-		sources.createInitial( action , registry );
-	}
-	
-	public synchronized MetaMonitoring loadMonitoring( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+	public synchronized MetaMonitoring loadMonitoring( ActionBase action , MetadataStorage storageMeta ) {
 		if( mon != null )
 			return( mon );
 		
 		mon = new MetaMonitoring( meta );
 		
-		// read
-		String file = storageMeta.getMonitoringFile( action );
-		action.debug( "read monitoring definition file " + file + "..." );
-		Document doc = action.readXmlFile( file );
-		Node root = doc.getDocumentElement();
-		mon.load( action , root );
+		if( !loadFailed ) {
+			try {
+				// read
+				String file = storageMeta.getMonitoringFile( action );
+				action.debug( "read monitoring definition file " + file + "..." );
+				Document doc = action.readXmlFile( file );
+				Node root = doc.getDocumentElement();
+				mon.load( action , root );
+			}
+			catch( Throwable e ) {
+				setLoadFailed( action , e , "unable to load monitoring metadata, product=" + name );
+				mon.setLoadFailed();
+			}
+		}
 		
 		return( mon );
 	}
 	
-	private void createInitialMonitoring( ActionBase action , ServerRegistry registry ) throws Exception {
-		mon = new MetaMonitoring( meta );
-		mon.createInitial( action , registry );
-	}
-	
-	public synchronized MetaEnv loadEnvData( ActionBase action , MetadataStorage storageMeta , String envFile ) throws Exception {
-		MetaEnv env = envs.get( envFile );
+	public synchronized MetaEnv loadEnvData( ActionBase action , MetadataStorage storageMeta , String envName ) {
+		MetaEnv env = envs.get( envName );
 		if( env != null )
 			return( env );
 		
-		if( envFile.isEmpty() )
-			action.exit( "environment file name is empty" );
-		
 		env = new MetaEnv( meta );
+		envs.put( envName , env );
 
-		// read
-		String file = storageMeta.getEnvFile( action , envFile );
-		action.debug( "read environment definition file " + file + "..." );
-		Document doc = action.readXmlFile( file );
-		Node root = doc.getDocumentElement();
-		env.load( action , root );
-		envs.put( envFile , env );
+		if( !loadFailed ) {
+			try {
+				// read
+				String file = storageMeta.getEnvFile( action , envName );
+				action.debug( "read environment definition file " + file + "..." );
+				Document doc = action.readXmlFile( file );
+				Node root = doc.getDocumentElement();
+				env.load( action , root );
+			}
+			catch( Throwable e ) {
+				setLoadFailed( action , e , "unable to load environment metadata, product=" + name + ", env=" + envName );
+				env.setLoadFailed();
+			}
+		}
 		
 		return( env );
 	}
 	
-	public synchronized MetaDesign loadDesignData( ActionBase action , MetadataStorage storageMeta , String fileName ) throws Exception {
+	public synchronized MetaDesign loadDesignData( ActionBase action , MetadataStorage storageMeta , String fileName ) {
 		MetaDesign design = designFiles.get( fileName );
 		if( design != null )
 			return( design );
 		
 		design = new MetaDesign( meta );
 		
-		// read
-		String filePath = storageMeta.getDesignFile( action , fileName );
-		action.debug( "read design definition file " + filePath + "..." );
-		Document doc = action.readXmlFile( filePath );
-		Node root = doc.getDocumentElement();
-		design.load( action , root );
-		designFiles.put( fileName , design );
+		if( !loadFailed ) {
+			try {
+				// read
+				String filePath = storageMeta.getDesignFile( action , fileName );
+				action.debug( "read design definition file " + filePath + "..." );
+				Document doc = action.readXmlFile( filePath );
+				Node root = doc.getDocumentElement();
+				design.load( action , root );
+				designFiles.put( fileName , design );
+			}
+			catch( Throwable e ) {
+				setLoadFailed( action , e , "unable to load design metadata, product=" + name + ", file=" + fileName );
+				design.setLoadFailed();
+			}
+		}
 		
 		return( design );
 	}
 
-	public synchronized void loadAll( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+	public synchronized void loadAll( ActionBase action , MetadataStorage storageMeta ) {
 		loadVersion( action , storageMeta );
 		loadProduct( action , storageMeta );
 		loadDatabase( action , storageMeta );
@@ -234,10 +283,15 @@ public class ServerProductMeta {
 		action.meta.setDistr( distr );
 		action.meta.setSources( sources );
 		
-		for( String envFile : storageMeta.getEnvFiles( action ) )
-			loadEnvData( action , storageMeta , envFile );
-		for( String designFile : storageMeta.getDesignFiles( action ) )
-			loadDesignData( action , storageMeta , designFile );
+		try {
+			for( String envFile : storageMeta.getEnvFiles( action ) )
+				loadEnvData( action , storageMeta , envFile );
+			for( String designFile : storageMeta.getDesignFiles( action ) )
+				loadDesignData( action , storageMeta , designFile );
+		}
+		catch( Throwable e ) {
+			setLoadFailed( action , e , "unable to load metadata, product=" + name );
+		}
 	}
 	
 	public synchronized String[] getEnvironments() throws Exception {
@@ -288,6 +342,29 @@ public class ServerProductMeta {
 		productContext.load( action , version );
 		
 		product.create( action , registry , productContext );
+	}
+	
+	private void createInitialDatabase( ActionBase action , ServerRegistry registry ) throws Exception {
+		database = new MetaDatabase( meta );
+		meta.setDatabase( database );
+		database.createInitial( action , registry );
+	}
+	
+	private void createInitialDistr( ActionBase action , ServerRegistry registry ) throws Exception {
+		distr = new MetaDistr( meta );
+		meta.setDistr( distr );
+		distr.createInitial( action , registry );
+	}
+	
+	private void createInitialSources( ActionBase action , ServerRegistry registry ) throws Exception {
+		sources = new MetaSource( meta );
+		meta.setSources( sources );
+		sources.createInitial( action , registry );
+	}
+	
+	private void createInitialMonitoring( ActionBase action , ServerRegistry registry ) throws Exception {
+		mon = new MetaMonitoring( meta );
+		mon.createInitial( action , registry );
 	}
 	
 	public void saveAll( ActionBase action , MetadataStorage storageMeta , ServerProduct product ) throws Exception {

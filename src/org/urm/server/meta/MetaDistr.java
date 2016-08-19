@@ -12,7 +12,8 @@ import org.w3c.dom.Node;
 
 public class MetaDistr {
 
-	boolean loaded = false;
+	private boolean loaded;
+	public boolean loadFailed;
 
 	protected Meta meta;
 	private Map<String,MetaDistrDelivery> mapDeliveries;
@@ -22,6 +23,12 @@ public class MetaDistr {
 	
 	public MetaDistr( Meta meta ) {
 		this.meta = meta;
+		loaded = false;
+		loadFailed = false;
+	}
+	
+	public void setLoadFailed() {
+		loadFailed = true;
 	}
 	
 	public void createInitial( ActionBase action , ServerRegistry registry ) throws Exception {

@@ -15,7 +15,8 @@ import org.w3c.dom.Node;
 
 public class MetaEnv {
 
-	boolean loaded = false;
+	private boolean loaded;
+	public boolean loadFailed;
 
 	public Meta meta;
 
@@ -51,6 +52,12 @@ public class MetaEnv {
 	
 	public MetaEnv( Meta meta ) {
 		this.meta = meta;
+		loaded = false;
+		loadFailed = false;
+	}
+	
+	public void setLoadFailed() {
+		loadFailed = true;
 	}
 	
 	public boolean hasBaseline( ActionBase action ) throws Exception {
