@@ -59,7 +59,7 @@ public class DatabaseSpecific {
 	
 	public boolean applySystemScript( ActionBase action , ShellExecutor shell , String file , String fileLog ) throws Exception {
 		UrmStorage urm = action.artefactory.getUrmStorage();
-		LocalFolder scripts = urm.getSqlScripts( action , server );
+		LocalFolder scripts = urm.getDatabaseSqlScripts( action , server );
 		
 		Folder execFolder = scripts;
 		String applyName = "applysystemscript";
@@ -436,7 +436,7 @@ public class DatabaseSpecific {
 
 	private int runScriptCmd( ActionBase action , String ctxFile , String cmd , String params ) throws Exception {
 		UrmStorage urm = action.artefactory.getUrmStorage();
-		LocalFolder scripts = urm.getSqlScripts( action , server );
+		LocalFolder scripts = urm.getDatabaseSqlScripts( action , server );
 		
 		String ctxCmd = null;
 		if( action.isLocalLinux() )

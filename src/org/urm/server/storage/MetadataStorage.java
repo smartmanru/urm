@@ -15,9 +15,6 @@ import org.w3c.dom.Document;
 
 public class MetadataStorage {
 
-	public static String tablesFileName = "tableset.txt";
-	public static String xdocDir = "xdoc";
-	
 	public Artefactory artefactory;
 	public Meta meta;
 	
@@ -32,17 +29,19 @@ public class MetadataStorage {
 	
 	public String getDistrFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		return( urm.getMetadataPath( action , UrmStorage.DISTR_SETTINGS_FILE ) );
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action );
+		return( folder.getFilePath( action , UrmStorage.DISTR_SETTINGS_FILE ) );
 	}
 
 	public String getDatabaseFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		return( urm.getMetadataPath( action , UrmStorage.DATABASE_SETTINGS_FILE ) );
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action );
+		return( folder.getFilePath( action , UrmStorage.DATABASE_SETTINGS_FILE ) );
 	}
 
 	public String[] getDesignFiles( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getMetadataFolder( action , xdocDir );
+		LocalFolder folder = urm.getProductXDocMetadataFolder( action );
 		if( !folder.checkExists( action ) )
 			return( new String[0] );
 		
@@ -52,47 +51,51 @@ public class MetadataStorage {
 	
 	public String getDesignFile( ActionBase action , String fileName ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		String dir = urm.getMetadataPath( action , xdocDir );
-		return( Common.getPath( dir , fileName ) );
+		LocalFolder folder = urm.getProductXDocMetadataFolder( action );
+		return( folder.getFilePath( action , fileName ) );
 	}
 	
 	public String getVersionConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		return( urm.getMetadataPath( action , UrmStorage.VERSION_SETTINGS_FILE ) );
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action );
+		return( folder.getFilePath( action , UrmStorage.VERSION_SETTINGS_FILE ) );
 	}
 	
 	public String getProductConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		return( urm.getMetadataPath( action , UrmStorage.PRODUCT_SETTINGS_FILE ) );
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action );
+		return( folder.getFilePath( action , UrmStorage.PRODUCT_SETTINGS_FILE ) );
 	}
 	
 	public String getSourceConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		return( urm.getMetadataPath( action , UrmStorage.SOURCE_SETTINGS_FILE ) );
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action );
+		return( folder.getFilePath( action , UrmStorage.SOURCE_SETTINGS_FILE ) );
 	}
 
 	public String getMonitoringFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		return( urm.getMetadataPath( action , UrmStorage.MONITORING_SETTINGS_FILE ) );
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action );
+		return( folder.getFilePath( action , UrmStorage.MONITORING_SETTINGS_FILE ) );
 	}
 	
 	public String getEnvFile( ActionBase action , String envFile ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		String dir = urm.getMetadataPath( action , "env" );
-		return( Common.getPath( dir , envFile ) );
+		LocalFolder folder = urm.getProductEnvMetadataFolder( action );
+		return( folder.getFilePath( action , envFile ) );
 	}
 	
 	public String[] getEnvFiles( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getMetadataFolder( action , "env" );
+		LocalFolder folder = urm.getProductEnvMetadataFolder( action );
 		String[] files = folder.findFiles( action , "*.xml" );
 		return( files );
 	}
 	
 	public String getDatapumpFile( ActionBase action , String specFile ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		String dir = urm.getMetadataPath( action , "datapump" );
-		return( Common.getPath( dir , specFile ) );
+		LocalFolder folder = urm.getProductDatapumpMetadataFolder( action );
+		return( folder.getFilePath( action , specFile ) );
 	}
 
 	public HashMap<String,Map<String,String>> readDatapumpFile( ActionBase action , String specFile , String schema ) throws Exception {

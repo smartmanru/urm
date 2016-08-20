@@ -131,7 +131,7 @@ public class ActionImportDatabase extends ActionBase {
 	private void makeTargetScripts() throws Exception {
 		// copy scripts
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder urmScripts = urm.getDatapumpScripts( this , server );
+		LocalFolder urmScripts = urm.getDatabaseDatapumpScripts( this , server );
 		RedistStorage storage = artefactory.getRedistStorage( this , client.getDatabaseAccount( this ) );
 		RemoteFolder redist = storage.getRedistTmpFolder( this , "database" );
 		
@@ -182,7 +182,7 @@ public class ActionImportDatabase extends ActionBase {
 		importScriptsFolder.copyFileFromLocal( this , confFile );
 		
 		MetadataStorage ms = artefactory.getMetadataStorage( this );
-		String tablesFilePath = workFolder.getFilePath( this , MetadataStorage.tablesFileName );
+		String tablesFilePath = workFolder.getFilePath( this , UrmStorage.TABLES_FILE_NAME );
 		ms.saveDatapumpSet( this , tableSet , server , tablesFilePath );
 		importScriptsFolder.copyFileFromLocal( this , tablesFilePath );
 	}

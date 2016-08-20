@@ -21,6 +21,10 @@ public class UrmStorage {
 	public static String DATABASE_SETTINGS_FILE = "database.xml";
 	public static String MONITORING_SETTINGS_FILE = "monitoring.xml";
 	public static String ETC_PATH = "etc";
+	public static String TABLES_FILE_NAME = "tableset.txt";
+	public static String XDOC_DIR = "xdoc";
+	public static String ENV_DIR = "env";
+	public static String DATAPUMP_DIR = "datapump";
 	
 	public UrmStorage( Artefactory artefactory ) {
 		this.artefactory = artefactory;
@@ -43,7 +47,7 @@ public class UrmStorage {
 		return( false );
 	}
 	
-	private String getSpecificFolder( ActionBase action , VarDBMSTYPE dbtype , VarOSTYPE ostype ) throws Exception {
+	private String getDatabaseSpecificFolder( ActionBase action , VarDBMSTYPE dbtype , VarOSTYPE ostype ) throws Exception {
 		String dbFolder = "";
 		if( dbtype == VarDBMSTYPE.ORACLE )
 			dbFolder = "oracle";
@@ -70,29 +74,34 @@ public class UrmStorage {
 	}
 
 	private LocalFolder getDatabaseFolder( ActionBase action , MetaEnvServer server , String parentPath ) throws Exception {
-		String folderPath = getSpecificFolder( action , server.dbType , server.osType );
+		String folderPath = getDatabaseSpecificFolder( action , server.dbType , server.osType );
 		
-		LocalFolder folder = getProductFolder( action , Common.getPath( parentPath , folderPath ) );
+		LocalFolder folder = getInstallFolder( action , Common.getPath( parentPath , folderPath ) );
 		if( !folder.checkExists( action ) )
 			action.exit( "database is not supported: dbtype=" + Common.getEnumLower( server.dbType ) + ", ostype=" + Common.getEnumLower( server.osType ) );
 		
 		return( folder );
 	}
 	
-	public LocalFolder getInitScripts( ActionBase action , MetaEnvServer server ) throws Exception {
-		return( getDatabaseFolder( action , server , "master/database/init" ) ); 
+	public LocalFolder getDatabaseInitScripts( ActionBase action , MetaEnvServer server ) throws Exception {
+		return( getDatabaseFolder( action , server , "init" ) ); 
 	}
 	
-	public LocalFolder getSqlScripts( ActionBase action , MetaEnvServer server ) throws Exception {
-		return( getDatabaseFolder( action , server , "master/database/sql" ) ); 
+	public LocalFolder getDatabaseSqlScripts( ActionBase action , MetaEnvServer server ) throws Exception {
+		return( getDatabaseFolder( action , server , "sql" ) ); 
 	}
 	
-	public LocalFolder getDatapumpScripts( ActionBase action , MetaEnvServer server ) throws Exception {
-		return( getDatabaseFolder( action , server , "master/database/datapump" ) ); 
+	public LocalFolder getDatabaseDatapumpScripts( ActionBase action , MetaEnvServer server ) throws Exception {
+		return( getDatabaseFolder( action , server , "datapump" ) ); 
 	}
 	
 	public LocalFolder getProductFolder( ActionBase action ) throws Exception {
 		return( getProductFolder( action , "" ) );
+	}
+
+	public LocalFolder getInstallFolder( ActionBase action , String dirname ) throws Exception {
+		String dir = Common.getPath( action.context.session.execrc.installPath , dirname );
+		return( artefactory.getAnyFolder( action , dir ) );
 	}
 
 	public LocalFolder getProductFolder( ActionBase action , String dirname ) throws Exception {
@@ -100,21 +109,26 @@ public class UrmStorage {
 		return( artefactory.getAnyFolder( action , dir ) );
 	}
 
-	public String getMetadataPath( ActionBase action , String dirname ) throws Exception {
-		String dir = Common.getPath( action.context.session.etcPath , dirname );
-		return( dir );
+	public LocalFolder getProductCoreMetadataFolder( ActionBase action ) throws Exception {
+		return( getProductFolder( action , ETC_PATH ) );
+	}
+
+	public LocalFolder getProductEnvMetadataFolder( ActionBase action ) throws Exception {
+		return( getProductFolder( action , Common.getPath( ETC_PATH , ENV_DIR ) ) );
+	}
+
+	public LocalFolder getProductDatapumpMetadataFolder( ActionBase action ) throws Exception {
+		return( getProductFolder( action , Common.getPath( ETC_PATH , DATAPUMP_DIR ) ) );
+	}
+
+	public LocalFolder getProductXDocMetadataFolder( ActionBase action ) throws Exception {
+		return( getProductFolder( action , Common.getPath( ETC_PATH , XDOC_DIR ) ) );
 	}
 
 	public LocalFolder getServerSettingsFolder( ActionBase action ) throws Exception {
-		String dir = action.context.session.etcPath;
-		return( artefactory.getAnyFolder( action , dir ) );
+		return( getInstallFolder( action , ETC_PATH ) );
 	}
 	
-	public LocalFolder getMetadataFolder( ActionBase action , String dirname ) throws Exception {
-		String dir = getMetadataPath( action , dirname );
-		return( artefactory.getAnyFolder( action , dir ) );
-	}
-
 	public LocalFolder getInstallFolder( ActionBase action ) throws Exception {
 		return( artefactory.getAnyFolder( action , action.context.session.execrc.installPath ) );
 	}
