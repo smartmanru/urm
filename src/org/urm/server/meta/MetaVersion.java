@@ -37,6 +37,8 @@ public class MetaVersion {
 		majorNextSecondNumber = 0;
 		lastProdTag = 0;
 		nextProdTag = 0;
+		
+		properties = new PropertySet( "version" , null );
 	}
 	
 	public void setLoadFailed() {
