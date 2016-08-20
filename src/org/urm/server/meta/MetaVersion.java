@@ -3,6 +3,7 @@ package org.urm.server.meta;
 import org.urm.common.PropertySet;
 import org.urm.server.ServerRegistry;
 import org.urm.server.action.ActionBase;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MetaVersion {
@@ -42,13 +43,14 @@ public class MetaVersion {
 		loadFailed = true;
 	}
 
-	public void create( ActionBase action , ServerRegistry registry ) {
+	public void create( ActionBase action , ServerRegistry registry ) throws Exception {
 		majorFirstNumber = 1;
 		majorSecondNumber = 0;
 		majorNextFirstNumber = 1;
 		majorNextSecondNumber = 1;
 		lastProdTag = 0;
 		nextProdTag = 1;
+		gatherSystemProperties( action );
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
@@ -60,6 +62,13 @@ public class MetaVersion {
 		properties.loadRawFromNodeElements( root );
 		scatterSystemProperties( action );
 		properties.finishRawProperties();
+	}
+
+	public void save( ActionBase action , Element root ) throws Exception {
+		if( loaded )
+			return;
+
+		properties.saveAsElements( root.getOwnerDocument() , root );
 	}
 
 	private void scatterSystemProperties( ActionBase action ) throws Exception {
@@ -76,4 +85,14 @@ public class MetaVersion {
 			action.exit( "inconsistent version attributes" );
 	}
 	
+	private void gatherSystemProperties( ActionBase action ) throws Exception {
+		properties.setNumberProperty( PROPERTY_MAJOR_FIRST , majorFirstNumber );
+		properties.setNumberProperty( PROPERTY_MAJOR_LAST , majorSecondNumber );
+		properties.setNumberProperty( PROPERTY_NEXT_MAJOR_FIRST , majorNextFirstNumber );
+		properties.setNumberProperty( PROPERTY_NEXT_MAJOR_LAST , majorNextSecondNumber );
+		properties.setNumberProperty( PROPERTY_PROD_LASTTAG , lastProdTag );
+		properties.setNumberProperty( PROPERTY_PROD_NEXTTAG , nextProdTag );
+		properties.finishRawProperties();
+	}
+
 }

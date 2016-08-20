@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaDatabase;
@@ -36,8 +37,8 @@ public class ServerProductMeta {
 	private MetaSource sources;
 	private MetaMonitoring mon;
 	
-	private Map<String,MetaDesign> designFiles;
 	private Map<String,MetaEnv> envs;
+	private Map<String,MetaDesign> designFiles;
 	
 	public static String XML_ROOT_VERSION = "version";
 	public static String XML_ROOT_PRODUCT = "product";
@@ -283,6 +284,7 @@ public class ServerProductMeta {
 		loadSources( action , storageMeta );
 		loadMonitoring( action , storageMeta );
 		
+		action.meta.setVersion( version );
 		action.meta.setProduct( product );
 		action.meta.setDatabase( database );
 		action.meta.setDistr( distr );
@@ -326,17 +328,13 @@ public class ServerProductMeta {
 		createInitialDistr( action , registry );
 		createInitialSources( action , registry );
 		createInitialMonitoring( action , registry );
-		
-		action.meta.setProduct( product );
-		action.meta.setDatabase( database );
-		action.meta.setDistr( distr );
-		action.meta.setSources( sources );
 	}
 
 	private void createInitialVersion( ActionBase action , ServerRegistry registry ) throws Exception {
 		version = new MetaVersion( meta );
 		meta.setVersion( version );
 		version.create( action , registry );
+		action.meta.setVersion( version );
 	}
 	
 	private void createInitialProduct( ActionBase action , ServerRegistry registry ) throws Exception {
@@ -347,24 +345,28 @@ public class ServerProductMeta {
 		productContext.load( action , version );
 		
 		product.create( action , registry , productContext );
+		action.meta.setProduct( product );
 	}
 	
 	private void createInitialDatabase( ActionBase action , ServerRegistry registry ) throws Exception {
 		database = new MetaDatabase( meta );
 		meta.setDatabase( database );
 		database.createInitial( action , registry );
+		action.meta.setDatabase( database );
 	}
 	
 	private void createInitialDistr( ActionBase action , ServerRegistry registry ) throws Exception {
 		distr = new MetaDistr( meta );
 		meta.setDistr( distr );
 		distr.createInitial( action , registry );
+		action.meta.setDistr( distr );
 	}
 	
 	private void createInitialSources( ActionBase action , ServerRegistry registry ) throws Exception {
 		sources = new MetaSource( meta );
 		meta.setSources( sources );
 		sources.createInitial( action , registry );
+		action.meta.setSources( sources );
 	}
 	
 	private void createInitialMonitoring( ActionBase action , ServerRegistry registry ) throws Exception {
@@ -372,7 +374,45 @@ public class ServerProductMeta {
 		mon.createInitial( action , registry );
 	}
 	
-	public void saveAll( ActionBase action , MetadataStorage storageMeta , ServerProduct product ) throws Exception {
+	public void saveAll( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+		saveVersion( action , storageMeta );
+		saveProduct( action , storageMeta );
+		saveDatabase( action , storageMeta );
+		saveDistr( action , storageMeta );
+		saveSources( action , storageMeta );
+		saveMonitoring( action , storageMeta );
+		
+		for( String envName : envs.keySet() )
+			saveEnvData( action , storageMeta , envName );
+		for( String designFile : designFiles.keySet() )
+			saveDesignData( action , storageMeta , designFile );
+	}
+	
+	public void saveVersion( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+		Document doc = Common.xmlCreateDoc( XML_ROOT_VERSION );
+		version.save( action , doc.getDocumentElement() );
+		storageMeta.saveVersionConfFile( action , doc );
+	}
+	
+	public void saveProduct( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+	}
+	
+	public void saveDatabase( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+	}
+	
+	public void saveDistr( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+	}
+	
+	public void saveSources( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+	}
+	
+	public void saveMonitoring( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+	}
+	
+	public void saveEnvData( ActionBase action , MetadataStorage storageMeta , String envName ) throws Exception {
+	}
+	
+	public void saveDesignData( ActionBase action , MetadataStorage storageMeta , String designFile ) throws Exception {
 	}
 	
 }

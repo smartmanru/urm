@@ -11,6 +11,7 @@ import org.urm.server.action.database.DatabaseClient;
 import org.urm.server.meta.MetaDatabaseSchema;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.Meta;
+import org.w3c.dom.Document;
 
 public class MetadataStorage {
 
@@ -178,6 +179,11 @@ public class MetadataStorage {
 		}
 		
 		Common.createFileFromStringList( filePath , conf );
+	}
+
+	public void saveVersionConfFile( ActionBase action , Document doc ) throws Exception {
+		String filePath = getVersionConfFile( action );
+		Common.xmlSaveDoc( doc , filePath );
 	}
 	
 }

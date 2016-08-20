@@ -166,7 +166,7 @@ public class ServerLoader {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 		ServerProductMeta set = new ServerProductMeta( this , product.NAME , action.session );
 		set.createInitial( action , registryNew );
-		set.saveAll( action , storageMeta , product );
+		set.saveAll( action , storageMeta );
 		
 		action.clearServerProductLayout();
 		engine.finishAction( action );

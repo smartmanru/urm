@@ -161,9 +161,14 @@ public class PropertyValue {
 		setValue( value );
 	}
 	
-	public void setNumber( int value ) throws Exception {
+	public void setNumber( int value ) {
 		data = "" + value;
 		type = PropertyValueType.PROPERTY_NUMBER;
+	}
+
+	public void setBool( boolean value ) {
+		data = Common.getBooleanValue( value );
+		type = PropertyValueType.PROPERTY_BOOL;
 	}
 	
 	public void setBool( String value ) throws Exception {

@@ -436,13 +436,13 @@ public class PropertySet {
 		setOriginalProperty( pv );
 	}
 
-	public void setBooleanProperty( String prop , String value ) throws Exception {
+	public void setBooleanProperty( String prop , boolean value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null );
 		pv.setBool( value );
 		setOriginalProperty( pv );
 	}
 
-	public void setNumberProperty( String prop , String value ) throws Exception {
+	public void setNumberProperty( String prop , int value ) {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null );
 		pv.setNumber( value );
 		setOriginalProperty( pv );
@@ -647,13 +647,13 @@ public class PropertySet {
 		return( pv.getBool() );
 	}
 
-	public void updateOriginalProperty( String prop , String value ) throws Exception {
+	public void updateOriginalProperty( String prop , String value ) {
 		PropertyValue pv = getPropertyValue( prop );
 		pv.setValue( value );
 		setOriginalProperty( pv );
 	}
 
-	public void setOriginalProperty( PropertyValue pv ) throws Exception {
+	public void setOriginalProperty( PropertyValue pv ) {
 		setOriginalPropertyInternal( pv );
 		setRawPropertyInternal( pv );
 		removeRunningProperty( pv );

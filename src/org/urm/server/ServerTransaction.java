@@ -180,6 +180,29 @@ public class ServerTransaction {
 		}
 	}
 
+	public boolean deleteRegistry( ServerRegistry sourceRegistry ) {
+		synchronized( engine ) {
+			try {
+				if( !continueTransaction() )
+					return( false );
+					
+				if( registry != null )
+					return( true );
+				
+				if( sourceRegistry == loader.getRegistry() ) {
+					registry = sourceRegistry;
+					return( true );
+				}
+			}
+			catch( Throwable e ) {
+				log( "unable to change registry" , e );
+			}
+			
+			abortTransaction();
+			return( false );
+		}
+	}
+
 	private boolean saveRegisty() {
 		if( !continueTransaction() )
 			return( false );
@@ -214,6 +237,30 @@ public class ServerTransaction {
 					metadata = sourceMetadata.storage.copy( metadataAction );
 					if( metadata != null )
 						return( true );
+				}
+			}
+			catch( Throwable e ) {
+				log( "unable to save registry" , e );
+			}
+			
+			abortTransaction();
+			return( false );
+		}
+	}
+	
+	public boolean deleteMetadata( ServerProduct product , Meta sourceMetadata ) {
+		synchronized( engine ) {
+			try {
+				if( !continueTransaction() )
+					return( false );
+					
+				if( metadata != null )
+					return( true );
+				
+				if( sourceMetadata.storage == loader.getMetaStorage( product.NAME ) ) {
+					metadata = sourceMetadata.storage;
+					metadataAction = engine.createTemporaryAction( "meta" );
+					return( true );
 				}
 			}
 			catch( Throwable e ) {
@@ -273,11 +320,11 @@ public class ServerTransaction {
 	}
 	
 	// helpers
-	public ServerSystem getNewSystem( ServerSystem system ) throws Exception {
+	public ServerSystem getSystem( ServerSystem system ) throws Exception {
 		return( registry.getSystem( system.NAME ) );
 	}
 	
-	public ServerProduct getNewProduct( ServerProduct product ) throws Exception {
+	public ServerProduct getProduct( ServerProduct product ) throws Exception {
 		return( registry.getProduct( product.NAME ) );
 	}
 	
@@ -319,6 +366,7 @@ public class ServerTransaction {
 		checkTransactionAll();
 		metadataAction.artefactory.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		registry.deleteProduct( this , product );
+		metadata = null;
 	}
 
 	public void setRegistryServerProperties( PropertySet props ) throws Exception {
