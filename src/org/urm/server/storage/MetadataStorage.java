@@ -181,9 +181,16 @@ public class MetadataStorage {
 		Common.createFileFromStringList( filePath , conf );
 	}
 
+	public void saveFile( ActionBase action , Document doc , String file ) throws Exception {
+		String dir = Common.getDirName( file );
+		LocalFolder folder = action.getLocalFolder( dir );
+		folder.ensureExists( action );
+		Common.xmlSaveDoc( doc , file );
+	}
+	
 	public void saveVersionConfFile( ActionBase action , Document doc ) throws Exception {
 		String filePath = getVersionConfFile( action );
-		Common.xmlSaveDoc( doc , filePath );
+		saveFile( action , doc , filePath );
 	}
 	
 }
