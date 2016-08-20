@@ -38,7 +38,7 @@ public class ServerLoader {
 		return( meta );
 	}
 
-	public synchronized ServerProductMeta getMetaStorage( String productName ) throws Exception {
+	public synchronized ServerProductMeta findMetaStorage( String productName ) {
 		return( productMeta.get( productName ) );
 	}
 	
@@ -153,7 +153,7 @@ public class ServerLoader {
 		}
 	}
 
-	public void setRegistry( ServerTransaction transacction , ServerRegistry registryNew ) throws Exception {
+	public void setRegistry( ServerTransaction transaction , ServerRegistry registryNew ) throws Exception {
 		String propertyFile = getServerSettingsFile();
 		registryNew.save( propertyFile , engine.execrc );
 		registry = registryNew;
@@ -175,6 +175,11 @@ public class ServerLoader {
 	}
 	
 	public void setMetadata( ServerTransaction transaction , ServerProductMeta storageNew ) throws Exception {
+		productMeta.put( storageNew.name , storageNew );
+	}
+	
+	public void deleteMetadata( ServerTransaction transaction , ServerProductMeta storage ) throws Exception {
+		productMeta.remove( storage.name );
 	}
 	
 }

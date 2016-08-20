@@ -98,8 +98,20 @@ public class ServerRegistry {
 		return( Common.getSortedKeys( mapProducts ) );
 	}
 	
+	public ServerSystem findSystem( ServerSystem system ) {
+		if( system == null )
+			return( null );
+		return( mapSystems.get( system.NAME ) );
+	}
+	
 	public ServerSystem findSystem( String name ) {
 		return( mapSystems.get( name ) );
+	}
+	
+	public ServerProduct findProduct( ServerProduct product ) {
+		if( product == null )
+			return( null );
+		return( mapProducts.get( product.NAME ) );
 	}
 	
 	public ServerProduct findProduct( String name ) {

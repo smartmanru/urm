@@ -124,6 +124,7 @@ public class ServerEngine {
 		
 		RunContext clientrc = RunContext.clone( execrc );
 		SessionContext sessionContext = createSession( clientrc , true );
+		sessionContext.setServerLayout( null );
 		ActionInit action = createAction( serverExecutor , options , sessionContext , name , null );
 		startAction( action );
 		

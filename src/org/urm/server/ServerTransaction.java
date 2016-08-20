@@ -17,6 +17,7 @@ public class ServerTransaction {
 	private ServerRegistry registryOld;
 	private ServerProductMeta metadataOld;
 	public boolean createMetadata;
+	public boolean deleteMetadata;
 	
 	public ServerTransaction( ServerEngine engine ) {
 		this.engine = engine;
@@ -25,6 +26,7 @@ public class ServerTransaction {
 		registry = null;
 		metadata = null;
 		createMetadata = false;
+		deleteMetadata = false;
 	}
 
 	public boolean startTransaction() {
@@ -37,6 +39,7 @@ public class ServerTransaction {
 			registryOld = null;
 			metadataOld = null;
 			createMetadata = false;
+			deleteMetadata = false;
 			return( true );
 		}
 	}
@@ -61,6 +64,7 @@ public class ServerTransaction {
 					loader.setMetadata( this , metadataOld );
 					metadataOld = null;
 					createMetadata = false;
+					deleteMetadata = false;
 				}
 			}
 			catch( Throwable e ) {
@@ -180,29 +184,6 @@ public class ServerTransaction {
 		}
 	}
 
-	public boolean deleteRegistry( ServerRegistry sourceRegistry ) {
-		synchronized( engine ) {
-			try {
-				if( !continueTransaction() )
-					return( false );
-					
-				if( registry != null )
-					return( true );
-				
-				if( sourceRegistry == loader.getRegistry() ) {
-					registry = sourceRegistry;
-					return( true );
-				}
-			}
-			catch( Throwable e ) {
-				log( "unable to change registry" , e );
-			}
-			
-			abortTransaction();
-			return( false );
-		}
-	}
-
 	private boolean saveRegisty() {
 		if( !continueTransaction() )
 			return( false );
@@ -232,7 +213,7 @@ public class ServerTransaction {
 				if( metadata != null )
 					return( true );
 				
-				if( sourceMetadata.storage == loader.getMetaStorage( product.NAME ) ) {
+				if( sourceMetadata.storage == loader.findMetaStorage( product.NAME ) ) {
 					metadataAction = engine.createTemporaryAction( "meta" );
 					metadata = sourceMetadata.storage.copy( metadataAction );
 					if( metadata != null )
@@ -257,7 +238,8 @@ public class ServerTransaction {
 				if( metadata != null )
 					return( true );
 				
-				if( sourceMetadata.storage == loader.getMetaStorage( product.NAME ) ) {
+				if( sourceMetadata.storage == loader.findMetaStorage( product.NAME ) ) {
+					deleteMetadata = true;
 					metadata = sourceMetadata.storage;
 					metadataAction = engine.createTemporaryAction( "meta" );
 					return( true );
@@ -281,8 +263,11 @@ public class ServerTransaction {
 			
 		try {
 			if( !createMetadata )
-				metadataOld = loader.getMetaStorage( metadata.meta.product.CONFIG_PRODUCT );
-			loader.setMetadata( this , metadata );
+				metadataOld = loader.findMetaStorage( metadata.meta.product.CONFIG_PRODUCT );
+			if( deleteMetadata )
+				loader.deleteMetadata( this , metadata );
+			else
+				loader.setMetadata( this , metadata );
 			return( true );
 		}
 		catch( Throwable e ) {

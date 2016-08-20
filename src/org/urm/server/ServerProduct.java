@@ -34,7 +34,7 @@ public class ServerProduct {
 	
 	public String[] getEnvironments() throws Exception {
 		ServerLoader loader = system.registry.loader;
-		ServerProductMeta storage = loader.getMetaStorage( NAME );
+		ServerProductMeta storage = loader.findMetaStorage( NAME );
 		if( storage == null )
 			return( new String[0] );
 		return( storage.getEnvironments() );
@@ -42,7 +42,7 @@ public class ServerProduct {
 	
 	public MetaEnv getEnvironment( String envId ) throws Exception {
 		ServerLoader loader = system.registry.loader;
-		ServerProductMeta storage = loader.getMetaStorage( NAME );
+		ServerProductMeta storage = loader.findMetaStorage( NAME );
 		if( storage == null )
 			return( null );
 		return( storage.getEnvironment( envId ) );
