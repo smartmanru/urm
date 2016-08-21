@@ -26,6 +26,10 @@ public class MetaDatabase {
 		loadFailed = false;
 	}
 
+	public MetaDatabase copy( ActionBase action , Meta meta ) throws Exception {
+		return( null );
+	}
+	
 	public void setLoadFailed() {
 		loadFailed = true;
 	}

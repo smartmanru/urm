@@ -15,12 +15,12 @@ import org.w3c.dom.Node;
 
 public class MetaProductSettings {
 
+	protected Meta meta;
 	private boolean loaded;
 	public boolean loadFailed;
 
 	public PropertySet props;
 	public Map<String,PropertySet> modeProps;
-	protected Meta meta;
 	public Charset charset;
 	
 	public String CONFIG_PRODUCT;
@@ -100,6 +100,21 @@ public class MetaProductSettings {
 		modeProps = new HashMap<String,PropertySet>();
 	}
 
+	public MetaProductSettings copy( ActionBase action , Meta meta ) throws Exception {
+		MetaProductSettings r = new MetaProductSettings( meta );
+		r.props = props.copy( props.parent );
+		r.scatterVariables( action );
+		
+		for( String modeKey : modeProps.keySet() ) {
+			PropertySet modeSet = modeProps.get( modeKey );
+			r.modeProps.put( modeKey , modeSet.copy( r.props ) );
+		}
+		r.initial = initial;
+		r.loaded = loaded;
+		r.loadFailed = loadFailed;
+		return( r );
+	}
+	
 	public void setLoadFailed() {
 		loadFailed = true;
 	}
@@ -174,11 +189,12 @@ public class MetaProductSettings {
 			return;
 
 		loaded = true;
-		props = new PropertySet( "product" , null );
+		props = new PropertySet( "product" , registry.serverContext.execprops );
 		setContextProperties( action , productContext );
 		
 		// create initial
 		registry.setProductDefaults( props );
+		loadFailed = false;
 	}
 	
 	public void load( ActionBase action , ServerProductContext productContext , Node root ) throws Exception {
@@ -212,6 +228,7 @@ public class MetaProductSettings {
 		initial = true;
 		scatterVariables( action );
 		props.finishRawProperties();
+		loadFailed = false;
 	}
 
 	public void updateProperties( ActionBase action ) throws Exception {

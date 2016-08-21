@@ -32,6 +32,10 @@ public class MetaMonitoring {
 		loadFailed = false;
 	}
 	
+	public MetaMonitoring copy( ActionBase action , Meta meta ) throws Exception {
+		return( null );
+	}
+	
 	public void setLoadFailed() {
 		loadFailed = true;
 	}

@@ -27,6 +27,10 @@ public class MetaDistr {
 		loadFailed = false;
 	}
 	
+	public MetaDistr copy( ActionBase action , Meta meta ) throws Exception {
+		return( null );
+	}
+	
 	public void setLoadFailed() {
 		loadFailed = true;
 	}

@@ -56,6 +56,10 @@ public class MetaEnv {
 		loadFailed = false;
 	}
 	
+	public MetaEnv copy( ActionBase action , Meta meta ) throws Exception {
+		return( null );
+	}
+	
 	public void setLoadFailed() {
 		loadFailed = true;
 	}

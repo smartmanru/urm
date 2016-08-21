@@ -41,6 +41,10 @@ public class MetaDesign {
 		loadFailed = false;
 	}
 	
+	public MetaDesign copy( ActionBase action , Meta meta ) throws Exception {
+		return( null );
+	}
+	
 	public void setLoadFailed() {
 		loadFailed = true;
 	}

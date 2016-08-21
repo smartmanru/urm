@@ -29,6 +29,10 @@ public class MetaSource {
 		loadFailed = false;
 	}
 	
+	public MetaSource copy( ActionBase action , Meta meta ) throws Exception {
+		return( null );
+	}
+	
 	public void setLoadFailed() {
 		loadFailed = true;
 	}

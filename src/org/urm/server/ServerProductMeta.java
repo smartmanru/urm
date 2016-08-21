@@ -32,8 +32,8 @@ public class ServerProductMeta {
 	
 	private MetaProductVersion version;
 	private MetaProductSettings product;
-	private MetaDistr distr;
 	private MetaDatabase database;
+	private MetaDistr distr;
 	private MetaSource sources;
 	private MetaMonitoring mon;
 	
@@ -58,7 +58,35 @@ public class ServerProductMeta {
 		meta = new Meta( this , session );
 		designFiles = new HashMap<String,MetaDesign>();
 		envs = new HashMap<String,MetaEnv>();
+		
 		loadFailed = false;
+	}
+
+	public synchronized ServerProductMeta copy( ActionBase action ) throws Exception {
+		ServerProductMeta r = new ServerProductMeta( loader , name , session );
+		r.meta = new Meta( this , session );
+		if( version != null )
+			r.version = version.copy( action , r.meta );
+		if( product != null )
+			r.product = product.copy( action , r.meta );
+		if( database != null )
+			r.database = database.copy( action , r.meta );
+		if( distr != null )
+			r.distr = distr.copy( action , r.meta );
+		if( sources != null )
+			r.sources = sources.copy( action , r.meta );
+		if( mon != null )
+			r.mon = mon.copy( action , r.meta );
+		for( MetaEnv env : envs.values() )
+			r.envs.put( env.ID ,  env.copy( action , r.meta ) );
+		for( String designFile : designFiles.keySet() ) {
+			MetaDesign design = designFiles.get( designFile );
+			r.designFiles.put( designFile ,  design.copy( action , r.meta ) );
+		}
+		
+		r.loadFailed = loadFailed;
+		
+		return( null );
 	}
 
 	public void setLoadFailed( ActionBase action , String msg ) {
@@ -314,10 +342,6 @@ public class ServerProductMeta {
 			if( env.ID.equals( envId ) )
 				return( env );
 		}
-		return( null );
-	}
-
-	public synchronized ServerProductMeta copy( ActionBase action ) throws Exception {
 		return( null );
 	}
 

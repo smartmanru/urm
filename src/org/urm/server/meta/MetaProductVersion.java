@@ -41,6 +41,16 @@ public class MetaProductVersion {
 		properties = new PropertySet( "version" , null );
 	}
 	
+	public MetaProductVersion copy( ActionBase action , Meta meta ) throws Exception {
+		MetaProductVersion r = new MetaProductVersion( meta );
+		r.properties = properties.copy( null );
+		r.scatterVariables( action );
+		
+		r.loaded = true;
+		r.loadFailed = false;
+		return( r );
+	}
+	
 	public void setLoadFailed() {
 		loadFailed = true;
 	}
@@ -53,6 +63,9 @@ public class MetaProductVersion {
 		lastProdTag = 0;
 		nextProdTag = 1;
 		gatherVariables( action );
+		
+		loaded = true;
+		loadFailed = false;
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
@@ -64,6 +77,7 @@ public class MetaProductVersion {
 		properties.loadRawFromNodeElements( root );
 		scatterVariables( action );
 		properties.finishRawProperties();
+		loadFailed = false;
 	}
 
 	public void save( ActionBase action , Element root ) throws Exception {
