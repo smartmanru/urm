@@ -333,7 +333,7 @@ public class ServerTransaction {
 		registry.deleteSystem( this , system );
 	}
 	
-	public void addProduct( ServerProduct product ) throws Exception {
+	public void createProduct( ServerProduct product ) throws Exception {
 		checkTransactionRegistry();
 		metadataAction = engine.createTemporaryAction( "meta" );
 		metadataAction.artefactory.createProductResources( this , product );

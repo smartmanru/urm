@@ -29,6 +29,7 @@ public class MetaProduct {
 	public String CONFIG_NEXTPRODTAG;
 	public String CONFIG_VERSION_BRANCH_MAJOR;
 	public String CONFIG_VERSION_BRANCH_MINOR;
+	public String CONFIG_VERSION_BRANCH_NEXTMAJOR;
 	public String CONFIG_VERSION_BRANCH_NEXTMINOR;
 
 	public String CONFIG_REDISTPATH;
@@ -165,6 +166,9 @@ public class MetaProduct {
 			action.exit( "unknown database files charset=" + CONFIG_SOURCE_SQL_CHARSET );
 	}
 
+	public void gatherVariables( ActionBase action ) throws Exception {
+	}
+	
 	public void create( ActionBase action , ServerRegistry registry , ServerProductContext productContext ) throws Exception {
 		if( loaded )
 			return;
@@ -341,6 +345,10 @@ public class MetaProduct {
 		CONFIG_PRODUCTHOME = productContext.CONFIG_PRODUCTHOME;
 		CONFIG_LASTPRODTAG = productContext.CONFIG_LASTPRODTAG;
 		CONFIG_NEXTPRODTAG = productContext.CONFIG_NEXTPRODTAG;
+		CONFIG_VERSION_BRANCH_MAJOR = productContext.CONFIG_VERSION_BRANCH_MAJOR;
+		CONFIG_VERSION_BRANCH_MINOR = productContext.CONFIG_VERSION_BRANCH_MINOR;
+		CONFIG_VERSION_BRANCH_NEXTMAJOR = productContext.CONFIG_VERSION_BRANCH_NEXTMAJOR;
+		CONFIG_VERSION_BRANCH_NEXTMINOR = productContext.CONFIG_VERSION_BRANCH_NEXTMINOR;
 		
 		props.setStringProperty( "CONFIG_PRODUCT" , CONFIG_PRODUCT );
 		props.setPathProperty( "CONFIG_PRODUCTHOME" , CONFIG_PRODUCTHOME , action.session.execrc );

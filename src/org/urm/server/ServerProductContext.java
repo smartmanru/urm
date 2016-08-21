@@ -21,7 +21,7 @@ public class ServerProductContext {
 		this.meta = meta;
 	}
 
-	public void load( ActionBase action , MetaVersion version ) throws Exception {
+	public void create( ActionBase action , MetaVersion version ) throws Exception {
 		// handle product name
 		if( action.session.standalone ) {
 			// read from properties

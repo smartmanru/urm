@@ -52,7 +52,7 @@ public class MetaVersion {
 		majorNextSecondNumber = 1;
 		lastProdTag = 0;
 		nextProdTag = 1;
-		gatherSystemProperties( action );
+		gatherVariables( action );
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
@@ -62,7 +62,7 @@ public class MetaVersion {
 		loaded = true;
 		
 		properties.loadRawFromNodeElements( root );
-		scatterSystemProperties( action );
+		scatterVariables( action );
 		properties.finishRawProperties();
 	}
 
@@ -73,7 +73,7 @@ public class MetaVersion {
 		properties.saveAsElements( root.getOwnerDocument() , root );
 	}
 
-	private void scatterSystemProperties( ActionBase action ) throws Exception {
+	private void scatterVariables( ActionBase action ) throws Exception {
 		majorFirstNumber = properties.getSystemRequiredIntProperty( PROPERTY_MAJOR_FIRST );
 		majorSecondNumber = properties.getSystemRequiredIntProperty( PROPERTY_MAJOR_LAST );
 		majorNextFirstNumber = properties.getSystemRequiredIntProperty( PROPERTY_NEXT_MAJOR_FIRST );
@@ -87,7 +87,7 @@ public class MetaVersion {
 			action.exit( "inconsistent version attributes" );
 	}
 	
-	private void gatherSystemProperties( ActionBase action ) throws Exception {
+	private void gatherVariables( ActionBase action ) throws Exception {
 		properties.setNumberProperty( PROPERTY_MAJOR_FIRST , majorFirstNumber );
 		properties.setNumberProperty( PROPERTY_MAJOR_LAST , majorSecondNumber );
 		properties.setNumberProperty( PROPERTY_NEXT_MAJOR_FIRST , majorNextFirstNumber );

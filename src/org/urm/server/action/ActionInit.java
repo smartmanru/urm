@@ -29,7 +29,7 @@ public class ActionInit extends ActionBase {
 	}
 
 	public void setServerSystemProductLayout( ServerProduct product ) throws Exception {
-		session.setServerSystemProductLayout( product.NAME , product.PATH );
+		session.setServerSystemProductLayout( this , product.NAME , product.PATH );
 		meta.clearAll();
 	}
 	

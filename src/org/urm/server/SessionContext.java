@@ -5,6 +5,8 @@ import org.urm.common.ExitException;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandOptions;
 import org.urm.server.action.ActionBase;
+import org.urm.server.storage.LocalFolder;
+import org.urm.server.storage.UrmStorage;
 
 public class SessionContext {
 
@@ -65,11 +67,11 @@ public class SessionContext {
 		proxyPath = "";
 	}
 
-	public void setServerSystemProductLayout( String name , String path ) throws Exception {
-		setServerInternalProductLayout( name , path );
+	public void setServerSystemProductLayout( ActionBase action , String name , String path ) throws Exception {
+		setServerInternalProductLayout( action , name , path );
 	}
 	
-	private void setServerInternalProductLayout( String name , String path ) throws Exception {
+	private void setServerInternalProductLayout( ActionBase action , String name , String path ) throws Exception {
 		product = true;
 		
 		if( path.isEmpty() )
@@ -78,9 +80,13 @@ public class SessionContext {
 		this.productName = name;
 		this.productDir = path;
 		
-		productPath = Common.getPath( installPath , path );
-		etcPath = Common.getPath( productPath , "etc" );
-		proxyPath = Common.getPath( productPath , "master" );
+		UrmStorage storage = action.artefactory.getUrmStorage();
+		LocalFolder products = storage.getServerProductsFolder( action );
+		LocalFolder product = products.getSubFolder( action , path );
+		
+		productPath = product.folderPath;
+		etcPath = product.getFolderPath( action , UrmStorage.ETC_PATH );
+		proxyPath = product.getFolderPath( action , UrmStorage.MASTER_PATH );
 	}
 	
 	public void clearServerProductLayout() {
@@ -101,7 +107,7 @@ public class SessionContext {
 		
 		ServerRegistry registry = serverAction.actionInit.getRegistry();
 		ServerProduct product = registry.getProduct( name ); 
-		setServerInternalProductLayout( product.NAME , product.PATH );
+		setServerInternalProductLayout( serverAction , product.NAME , product.PATH );
 	}
 	
 	public void setServerRemoteProductLayout( ActionBase serverAction ) throws Exception {
@@ -113,7 +119,7 @@ public class SessionContext {
 		
 		ServerRegistry registry = serverAction.actionInit.getRegistry();
 		ServerProduct product = registry.getProduct( clientrc.product ); 
-		setServerInternalProductLayout( product.NAME , product.PATH );
+		setServerInternalProductLayout( serverAction , product.NAME , product.PATH );
 	}
 	
 	public void setStandaloneLayout( CommandOptions options ) throws Exception {

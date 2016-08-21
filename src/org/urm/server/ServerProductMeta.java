@@ -107,7 +107,7 @@ public class ServerProductMeta {
 		if( !loadFailed ) {
 			try {
 				ServerProductContext productContext = new ServerProductContext( meta );
-				productContext.load( action , version );
+				productContext.create( action , version );
 				
 				// read
 				String file = storageMeta.getProductConfFile( action );
@@ -342,7 +342,7 @@ public class ServerProductMeta {
 		meta.setProduct( product );
 		
 		ServerProductContext productContext = new ServerProductContext( meta );
-		productContext.load( action , version );
+		productContext.create( action , version );
 		
 		product.create( action , registry , productContext );
 		action.meta.setProduct( product );

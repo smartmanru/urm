@@ -25,6 +25,7 @@ public class UrmStorage {
 	public static String XDOC_DIR = "xdoc";
 	public static String ENV_DIR = "env";
 	public static String DATAPUMP_DIR = "datapump";
+	public static String MASTER_PATH = "master";
 	
 	public UrmStorage( Artefactory artefactory ) {
 		this.artefactory = artefactory;
