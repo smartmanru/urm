@@ -102,8 +102,10 @@ public class MetaProductSettings {
 
 	public MetaProductSettings copy( ActionBase action , Meta meta ) throws Exception {
 		MetaProductSettings r = new MetaProductSettings( meta );
-		r.props = props.copy( props.parent );
-		r.scatterVariables( action );
+		if( props != null ) {
+			r.props = props.copy( props.parent );
+			r.scatterVariables( action );
+		}
 		
 		for( String modeKey : modeProps.keySet() ) {
 			PropertySet modeSet = modeProps.get( modeKey );
