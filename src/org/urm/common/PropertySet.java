@@ -40,6 +40,7 @@ public class PropertySet {
 		r.raw.putAll( raw );
 		r.original.putAll( original );
 		r.system.addAll( system );
+		r.resolved = resolved;
 		return( r );
 	}
 	
