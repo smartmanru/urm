@@ -81,7 +81,7 @@ public class MetaProductVersion {
 	}
 
 	public void save( ActionBase action , Element root ) throws Exception {
-		if( loaded )
+		if( !loaded )
 			return;
 
 		properties.saveAsElements( root.getOwnerDocument() , root );
