@@ -264,7 +264,7 @@ public class ServerTransaction {
 			
 		try {
 			if( !createMetadata )
-				metadataOld = loader.findMetaStorage( metadata.meta.product.CONFIG_PRODUCT );
+				metadataOld = loader.findMetaStorage( metadata.name );
 			if( deleteMetadata )
 				loader.deleteMetadata( this , metadata );
 			else
