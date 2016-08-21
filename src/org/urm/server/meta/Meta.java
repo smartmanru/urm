@@ -16,8 +16,8 @@ public class Meta {
 	public SessionContext session;
 	public ServerProductMeta storage;
 
-	public MetaVersion version;
-	public MetaProduct product;
+	public MetaProductVersion version;
+	public MetaProductSettings product;
 	public MetaDatabase database;
 	public MetaDistr distr;
 	public MetaSource sources;
@@ -190,11 +190,11 @@ public class Meta {
 		}
 	}
 	
-	public void setVersion( MetaVersion version ) {
+	public void setVersion( MetaProductVersion version ) {
 		this.version = version;
 	}
 	
-	public void setProduct( MetaProduct product ) {
+	public void setProduct( MetaProductSettings product ) {
 		this.product = product;
 	}
 	

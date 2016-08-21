@@ -6,7 +6,7 @@ import org.urm.server.ServerContext;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.Meta;
-import org.urm.server.meta.MetaVersion;
+import org.urm.server.meta.MetaProductVersion;
 import org.urm.server.shell.Account;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.Artefactory;
@@ -286,8 +286,8 @@ public class DistRepository {
 		return( s );
 	}
 
-	public MetaVersion getVersion( ActionBase action ) {
-		MetaVersion version = new MetaVersion( action.meta );
+	public MetaProductVersion getVersion( ActionBase action ) {
+		MetaProductVersion version = new MetaProductVersion( action.meta );
 		return( version );
 	}
 	

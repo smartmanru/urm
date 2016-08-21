@@ -2,7 +2,7 @@ package org.urm.server;
 
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.Meta;
-import org.urm.server.meta.MetaVersion;
+import org.urm.server.meta.MetaProductVersion;
 
 public class ServerProductContext {
 
@@ -21,7 +21,7 @@ public class ServerProductContext {
 		this.meta = meta;
 	}
 
-	public void create( ActionBase action , MetaVersion version ) throws Exception {
+	public void create( ActionBase action , MetaProductVersion version ) throws Exception {
 		// handle product name
 		if( action.session.standalone ) {
 			// read from properties

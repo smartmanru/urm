@@ -14,10 +14,10 @@ import org.urm.server.meta.MetaDesign;
 import org.urm.server.meta.MetaDistr;
 import org.urm.server.meta.MetaEnv;
 import org.urm.server.meta.MetaMonitoring;
-import org.urm.server.meta.MetaProduct;
+import org.urm.server.meta.MetaProductSettings;
 import org.urm.server.meta.MetaSource;
 import org.urm.server.meta.Meta;
-import org.urm.server.meta.MetaVersion;
+import org.urm.server.meta.MetaProductVersion;
 import org.urm.server.storage.MetadataStorage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -30,8 +30,8 @@ public class ServerProductMeta {
 	
 	public Meta meta;
 	
-	private MetaVersion version;
-	private MetaProduct product;
+	private MetaProductVersion version;
+	private MetaProductSettings product;
 	private MetaDistr distr;
 	private MetaDatabase database;
 	private MetaSource sources;
@@ -72,11 +72,11 @@ public class ServerProductMeta {
 		action.error( msg );
 	}
 	
-	public synchronized MetaVersion loadVersion( ActionBase action , MetadataStorage storageMeta ) {
+	public synchronized MetaProductVersion loadVersion( ActionBase action , MetadataStorage storageMeta ) {
 		if( version != null )
 			return( version );
 		
-		version = new MetaVersion( meta );
+		version = new MetaProductVersion( meta );
 		meta.setVersion( version );
 
 		if( !loadFailed ) {
@@ -97,11 +97,11 @@ public class ServerProductMeta {
 		return( version );
 	}
 	
-	public synchronized MetaProduct loadProduct( ActionBase action , MetadataStorage storageMeta ) {
+	public synchronized MetaProductSettings loadProduct( ActionBase action , MetadataStorage storageMeta ) {
 		if( product != null )
 			return( product );
 		
-		product = new MetaProduct( meta );
+		product = new MetaProductSettings( meta );
 		meta.setProduct( product );
 
 		if( !loadFailed ) {
@@ -331,14 +331,14 @@ public class ServerProductMeta {
 	}
 
 	private void createInitialVersion( ActionBase action , ServerRegistry registry ) throws Exception {
-		version = new MetaVersion( meta );
+		version = new MetaProductVersion( meta );
 		meta.setVersion( version );
 		version.create( action , registry );
 		action.meta.setVersion( version );
 	}
 	
 	private void createInitialProduct( ActionBase action , ServerRegistry registry ) throws Exception {
-		product = new MetaProduct( meta );
+		product = new MetaProductSettings( meta );
 		meta.setProduct( product );
 		
 		ServerProductContext productContext = new ServerProductContext( meta );
@@ -413,6 +413,10 @@ public class ServerProductMeta {
 	}
 	
 	public void saveDesignData( ActionBase action , MetadataStorage storageMeta , String designFile ) throws Exception {
+	}
+	
+	public void setVersion( ServerTransaction transaction , MetaProductVersion version ) throws Exception {
+		this.version = version;
 	}
 	
 }

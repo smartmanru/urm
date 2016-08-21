@@ -4,6 +4,7 @@ import org.urm.common.ExitException;
 import org.urm.common.PropertySet;
 import org.urm.server.action.ActionInit;
 import org.urm.server.meta.Meta;
+import org.urm.server.meta.MetaProductVersion;
 
 public class ServerTransaction {
 
@@ -357,6 +358,11 @@ public class ServerTransaction {
 	public void setRegistryServerProperties( PropertySet props ) throws Exception {
 		checkTransactionRegistry();
 		registry.setRegistryServerProperties( this , props );
+	}
+	
+	public void setProductVersion( MetaProductVersion version ) throws Exception {
+		checkTransactionMetadata();
+		metadata.setVersion( this , version );
 	}
 	
 }

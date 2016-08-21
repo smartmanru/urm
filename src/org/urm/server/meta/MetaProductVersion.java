@@ -6,7 +6,7 @@ import org.urm.server.action.ActionBase;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class MetaVersion {
+public class MetaProductVersion {
 
 	private boolean loaded;
 	public boolean loadFailed;
@@ -27,7 +27,7 @@ public class MetaVersion {
 	public static String PROPERTY_PROD_LASTTAG = "major.prod.lasttag";
 	public static String PROPERTY_PROD_NEXTTAG = "major.prod.nexttag";
 	
-	public MetaVersion( Meta meta ) {
+	public MetaProductVersion( Meta meta ) {
 		loaded = false;
 		loadFailed = false;
 		
@@ -73,6 +73,18 @@ public class MetaVersion {
 		properties.saveAsElements( root.getOwnerDocument() , root );
 	}
 
+	public boolean isValid() {
+		if( loadFailed )
+			return( false );
+		
+		if( ( majorFirstNumber > majorNextFirstNumber ) || 
+			( majorFirstNumber == majorNextFirstNumber && majorSecondNumber >= majorNextSecondNumber ) ||
+			( lastProdTag >= nextProdTag ) )
+			return( false );
+		
+		return( true );
+	}
+	
 	private void scatterVariables( ActionBase action ) throws Exception {
 		majorFirstNumber = properties.getSystemRequiredIntProperty( PROPERTY_MAJOR_FIRST );
 		majorSecondNumber = properties.getSystemRequiredIntProperty( PROPERTY_MAJOR_LAST );
@@ -81,9 +93,7 @@ public class MetaVersion {
 		lastProdTag = properties.getSystemRequiredIntProperty( PROPERTY_PROD_LASTTAG );
 		nextProdTag = properties.getSystemRequiredIntProperty( PROPERTY_PROD_NEXTTAG );
 		
-		if( ( majorFirstNumber > majorNextFirstNumber ) || 
-			( majorFirstNumber == majorNextFirstNumber && majorSecondNumber >= majorNextSecondNumber ) ||
-			( lastProdTag >= nextProdTag ) )
+		if( !isValid() )
 			action.exit( "inconsistent version attributes" );
 	}
 	

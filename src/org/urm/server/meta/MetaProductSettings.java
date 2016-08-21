@@ -13,7 +13,7 @@ import org.urm.server.action.ActionBase;
 import org.urm.server.meta.Meta.VarBUILDMODE;
 import org.w3c.dom.Node;
 
-public class MetaProduct {
+public class MetaProductSettings {
 
 	private boolean loaded;
 	public boolean loadFailed;
@@ -92,7 +92,7 @@ public class MetaProduct {
 	
 	public static String[] modes = { "devtrunk" , "trunk" , "majorbranch" , "devbranch" , "branch" };
 	
-	public MetaProduct( Meta meta ) {
+	public MetaProductSettings( Meta meta ) {
 		this.meta = meta;
 		loaded = false;
 		loadFailed = false;

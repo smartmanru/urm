@@ -11,10 +11,10 @@ import org.urm.server.meta.MetaDesign;
 import org.urm.server.meta.MetaDistr;
 import org.urm.server.meta.MetaEnv;
 import org.urm.server.meta.MetaMonitoring;
-import org.urm.server.meta.MetaProduct;
+import org.urm.server.meta.MetaProductSettings;
 import org.urm.server.meta.MetaSource;
 import org.urm.server.meta.Meta;
-import org.urm.server.meta.MetaVersion;
+import org.urm.server.meta.MetaProductVersion;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.MetadataStorage;
 
@@ -62,12 +62,12 @@ public class ServerLoader {
 		return( storage );
 	}
 
-	public MetaVersion loadVersion( ActionInit action , ServerProductMeta storageFinal ) throws Exception {
+	public MetaProductVersion loadVersion( ActionInit action , ServerProductMeta storageFinal ) throws Exception {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 		return( storageFinal.loadVersion( action , storageMeta ) );
 	}
 
-	public MetaProduct loadProduct( ActionInit action , ServerProductMeta storageFinal ) throws Exception {
+	public MetaProductSettings loadProduct( ActionInit action , ServerProductMeta storageFinal ) throws Exception {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 		return( storageFinal.loadProduct( action , storageMeta ) );
 	}
