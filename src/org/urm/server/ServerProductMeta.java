@@ -85,8 +85,7 @@ public class ServerProductMeta {
 		}
 		
 		r.loadFailed = loadFailed;
-		
-		return( null );
+		return( r );
 	}
 
 	public void setLoadFailed( ActionBase action , String msg ) {
