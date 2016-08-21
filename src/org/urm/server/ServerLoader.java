@@ -160,7 +160,7 @@ public class ServerLoader {
 	}
 
 	public ServerProductMeta createMetadata( ServerTransaction transaction , ServerRegistry registryNew , ServerProduct product ) throws Exception {
-		ActionInit action = engine.createTemporaryAction( "loader" );
+		ActionInit action = transaction.metadataAction;
 		action.setServerSystemProductLayout( product );
 		
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
@@ -175,6 +175,11 @@ public class ServerLoader {
 	}
 	
 	public void setMetadata( ServerTransaction transaction , ServerProductMeta storageNew ) throws Exception {
+		ActionInit action = transaction.metadataAction;
+		action.setServerSystemProductLayout( storageNew.name );
+		
+		MetadataStorage storage = action.artefactory.getMetadataStorage( action );
+		storageNew.saveAll( action , storage );
 		productMeta.put( storageNew.name , storageNew );
 	}
 	
