@@ -43,11 +43,16 @@ public class MetaProductVersion {
 	
 	public MetaProductVersion copy( ActionBase action , Meta meta ) throws Exception {
 		MetaProductVersion r = new MetaProductVersion( meta );
-		r.properties = properties.copy( null );
-		r.scatterVariables( action );
-		
 		r.loaded = true;
-		r.loadFailed = false;
+		r.properties = properties.copy( null );
+		try {
+			r.scatterVariables( action );
+			r.loadFailed = false;
+		}
+		catch( Throwable e ) {
+			r.loadFailed = true;
+		}
+		
 		return( r );
 	}
 	
@@ -56,6 +61,7 @@ public class MetaProductVersion {
 	}
 
 	public void create( ActionBase action , ServerRegistry registry ) throws Exception {
+		loaded = true;
 		majorFirstNumber = 1;
 		majorSecondNumber = 0;
 		majorNextFirstNumber = 1;
@@ -64,7 +70,6 @@ public class MetaProductVersion {
 		nextProdTag = 1;
 		gatherVariables( action );
 		
-		loaded = true;
 		loadFailed = false;
 	}
 	
@@ -111,7 +116,7 @@ public class MetaProductVersion {
 			action.exit( "inconsistent version attributes" );
 	}
 	
-	private void gatherVariables( ActionBase action ) throws Exception {
+	public void gatherVariables( ActionBase action ) throws Exception {
 		properties.setNumberProperty( PROPERTY_MAJOR_FIRST , majorFirstNumber );
 		properties.setNumberProperty( PROPERTY_MAJOR_LAST , majorSecondNumber );
 		properties.setNumberProperty( PROPERTY_NEXT_MAJOR_FIRST , majorNextFirstNumber );
@@ -119,6 +124,7 @@ public class MetaProductVersion {
 		properties.setNumberProperty( PROPERTY_PROD_LASTTAG , lastProdTag );
 		properties.setNumberProperty( PROPERTY_PROD_NEXTTAG , nextProdTag );
 		properties.finishRawProperties();
+		loaded = true;
 	}
 
 }

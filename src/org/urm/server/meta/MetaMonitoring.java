@@ -33,7 +33,8 @@ public class MetaMonitoring {
 	}
 	
 	public MetaMonitoring copy( ActionBase action , Meta meta ) throws Exception {
-		return( null );
+		MetaMonitoring r = new MetaMonitoring( meta );
+		return( r );
 	}
 	
 	public void setLoadFailed() {

@@ -102,6 +102,7 @@ public class MetaProductSettings {
 
 	public MetaProductSettings copy( ActionBase action , Meta meta ) throws Exception {
 		MetaProductSettings r = new MetaProductSettings( meta );
+		r.loaded = loaded;
 		if( props != null ) {
 			r.props = props.copy( props.parent );
 			r.scatterVariables( action );
@@ -112,7 +113,6 @@ public class MetaProductSettings {
 			r.modeProps.put( modeKey , modeSet.copy( r.props ) );
 		}
 		r.initial = initial;
-		r.loaded = loaded;
 		r.loadFailed = loadFailed;
 		return( r );
 	}

@@ -42,7 +42,8 @@ public class MetaDesign {
 	}
 	
 	public MetaDesign copy( ActionBase action , Meta meta ) throws Exception {
-		return( null );
+		MetaDesign r = new MetaDesign( meta );
+		return( r );
 	}
 	
 	public void setLoadFailed() {

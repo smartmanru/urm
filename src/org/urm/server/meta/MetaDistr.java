@@ -28,7 +28,8 @@ public class MetaDistr {
 	}
 	
 	public MetaDistr copy( ActionBase action , Meta meta ) throws Exception {
-		return( null );
+		MetaDistr r = new MetaDistr( meta );
+		return( r );
 	}
 	
 	public void setLoadFailed() {

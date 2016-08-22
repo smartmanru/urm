@@ -22,6 +22,7 @@ public class PropertySet {
 	private Map<String,String> original;		// source - property2value, exists always
 	private List<String> system;				// predefined
 	private boolean resolved;
+	private boolean failed;
 	
 	public PropertySet( String set , PropertySet parent ) {
 		this.set = set;
@@ -32,6 +33,7 @@ public class PropertySet {
 		original = new HashMap<String,String>();
 		system = new LinkedList<String>();
 		resolved = false;
+		failed = false;
 	}
 	
 	public PropertySet copy( PropertySet parentNew ) {
@@ -41,6 +43,7 @@ public class PropertySet {
 		r.original.putAll( original );
 		r.system.addAll( system );
 		r.resolved = resolved;
+		r.failed = failed;
 		return( r );
 	}
 	

@@ -27,7 +27,8 @@ public class MetaDatabase {
 	}
 
 	public MetaDatabase copy( ActionBase action , Meta meta ) throws Exception {
-		return( null );
+		MetaDatabase r = new MetaDatabase( meta );
+		return( r );
 	}
 	
 	public void setLoadFailed() {

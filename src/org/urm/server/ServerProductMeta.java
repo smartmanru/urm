@@ -65,26 +65,51 @@ public class ServerProductMeta {
 	public synchronized ServerProductMeta copy( ActionBase action ) throws Exception {
 		ServerProductMeta r = new ServerProductMeta( loader , name , session );
 		r.meta = new Meta( this , session );
-		if( version != null )
+		if( version != null ) {
 			r.version = version.copy( action , r.meta );
-		if( product != null )
+			if( r.version.loadFailed )
+				r.loadFailed = true;
+		}
+		if( product != null ) {
 			r.product = product.copy( action , r.meta );
-		if( database != null )
+			if( r.product.loadFailed )
+				r.loadFailed = true;
+		}
+		if( database != null ) {
 			r.database = database.copy( action , r.meta );
-		if( distr != null )
+			if( r.database.loadFailed )
+				r.loadFailed = true;
+		}
+		if( distr != null ) {
 			r.distr = distr.copy( action , r.meta );
-		if( sources != null )
+			if( r.distr.loadFailed )
+				r.loadFailed = true;
+		}
+		if( sources != null ) {
 			r.sources = sources.copy( action , r.meta );
-		if( mon != null )
+			if( r.sources.loadFailed )
+				r.loadFailed = true;
+		}
+		if( mon != null ) {
 			r.mon = mon.copy( action , r.meta );
-		for( MetaEnv env : envs.values() )
-			r.envs.put( env.ID ,  env.copy( action , r.meta ) );
+			if( r.mon.loadFailed )
+				r.loadFailed = true;
+		}
+		for( String envKey : envs.keySet() ) {
+			MetaEnv env = envs.get( envKey );
+			MetaEnv re = env.copy( action , r.meta );
+			r.envs.put( envKey , re );
+			if( re.loadFailed )
+				r.loadFailed = true;
+		}
 		for( String designFile : designFiles.keySet() ) {
 			MetaDesign design = designFiles.get( designFile );
-			r.designFiles.put( designFile ,  design.copy( action , r.meta ) );
+			MetaDesign rd = design.copy( action , r.meta );
+			r.designFiles.put( designFile , rd );
+			if( rd.loadFailed )
+				r.loadFailed = true;
 		}
 		
-		r.loadFailed = loadFailed;
 		return( r );
 	}
 

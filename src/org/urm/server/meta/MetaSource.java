@@ -30,7 +30,8 @@ public class MetaSource {
 	}
 	
 	public MetaSource copy( ActionBase action , Meta meta ) throws Exception {
-		return( null );
+		MetaSource r = new MetaSource( meta );
+		return( r );
 	}
 	
 	public void setLoadFailed() {
