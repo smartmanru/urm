@@ -10,12 +10,13 @@ public class ServerProductContext {
 	
 	public String CONFIG_PRODUCT;
 	public String CONFIG_PRODUCTHOME;
-	public String CONFIG_LASTPRODTAG;
-	public String CONFIG_NEXTPRODTAG;
-	public String CONFIG_VERSION_BRANCH_MAJOR;
-	public String CONFIG_VERSION_BRANCH_MINOR;
-	public String CONFIG_VERSION_BRANCH_NEXTMAJOR;
-	public String CONFIG_VERSION_BRANCH_NEXTMINOR;
+	
+	public int CONFIG_LASTPRODTAG;
+	public int CONFIG_NEXTPRODTAG;
+	public int CONFIG_VERSION_BRANCH_MAJOR;
+	public int CONFIG_VERSION_BRANCH_MINOR;
+	public int CONFIG_VERSION_BRANCH_NEXTMAJOR;
+	public int CONFIG_VERSION_BRANCH_NEXTMINOR;
 
 	public ServerProductContext( Meta meta ) {
 		this.meta = meta;
@@ -36,12 +37,12 @@ public class ServerProductContext {
 		}
 		
 		CONFIG_PRODUCTHOME = action.context.session.productPath;
-		CONFIG_LASTPRODTAG = "" + version.lastProdTag;
-		CONFIG_NEXTPRODTAG = "" + version.nextProdTag;
-		CONFIG_VERSION_BRANCH_MAJOR = "" + version.majorFirstNumber;
-		CONFIG_VERSION_BRANCH_MINOR = "" + version.majorSecondNumber;
-		CONFIG_VERSION_BRANCH_NEXTMAJOR = "" + version.majorNextFirstNumber;
-		CONFIG_VERSION_BRANCH_NEXTMINOR = "" + version.majorNextSecondNumber;
+		CONFIG_LASTPRODTAG = version.lastProdTag;
+		CONFIG_NEXTPRODTAG = version.nextProdTag;
+		CONFIG_VERSION_BRANCH_MAJOR = version.majorFirstNumber;
+		CONFIG_VERSION_BRANCH_MINOR = version.majorSecondNumber;
+		CONFIG_VERSION_BRANCH_NEXTMAJOR = version.majorNextFirstNumber;
+		CONFIG_VERSION_BRANCH_NEXTMINOR = version.majorNextSecondNumber;
 	}
 	
 }

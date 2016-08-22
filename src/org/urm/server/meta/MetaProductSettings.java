@@ -25,12 +25,12 @@ public class MetaProductSettings {
 	
 	public String CONFIG_PRODUCT;
 	public String CONFIG_PRODUCTHOME;
-	public String CONFIG_LASTPRODTAG;
-	public String CONFIG_NEXTPRODTAG;
-	public String CONFIG_VERSION_BRANCH_MAJOR;
-	public String CONFIG_VERSION_BRANCH_MINOR;
-	public String CONFIG_VERSION_BRANCH_NEXTMAJOR;
-	public String CONFIG_VERSION_BRANCH_NEXTMINOR;
+	public int CONFIG_LASTPRODTAG;
+	public int CONFIG_NEXTPRODTAG;
+	public int CONFIG_VERSION_BRANCH_MAJOR;
+	public int CONFIG_VERSION_BRANCH_MINOR;
+	public int CONFIG_VERSION_BRANCH_NEXTMAJOR;
+	public int CONFIG_VERSION_BRANCH_NEXTMINOR;
 
 	public String CONFIG_REDISTPATH;
 	public String CONFIG_BUILDBASE;
@@ -91,6 +91,9 @@ public class MetaProductSettings {
 	public boolean initial;
 	
 	public static String[] modes = { "devtrunk" , "trunk" , "majorbranch" , "devbranch" , "branch" };
+
+	public static String PROPERTY_PRODUCT_NAME = "product.name";
+	public static String PROPERTY_PRODUCT_HOME = "product.home";
 	
 	public MetaProductSettings( Meta meta ) {
 		this.meta = meta;
@@ -183,9 +186,6 @@ public class MetaProductSettings {
 			action.exit( "unknown database files charset=" + CONFIG_SOURCE_SQL_CHARSET );
 	}
 
-	public void gatherVariables( ActionBase action ) throws Exception {
-	}
-	
 	public void create( ActionBase action , ServerRegistry registry , ServerProductContext productContext ) throws Exception {
 		if( loaded )
 			return;
@@ -362,6 +362,7 @@ public class MetaProductSettings {
 	public void setContextProperties( ActionBase action , ServerProductContext productContext ) throws Exception {
 		CONFIG_PRODUCT = productContext.CONFIG_PRODUCT;
 		CONFIG_PRODUCTHOME = productContext.CONFIG_PRODUCTHOME;
+		
 		CONFIG_LASTPRODTAG = productContext.CONFIG_LASTPRODTAG;
 		CONFIG_NEXTPRODTAG = productContext.CONFIG_NEXTPRODTAG;
 		CONFIG_VERSION_BRANCH_MAJOR = productContext.CONFIG_VERSION_BRANCH_MAJOR;
@@ -369,10 +370,16 @@ public class MetaProductSettings {
 		CONFIG_VERSION_BRANCH_NEXTMAJOR = productContext.CONFIG_VERSION_BRANCH_NEXTMAJOR;
 		CONFIG_VERSION_BRANCH_NEXTMINOR = productContext.CONFIG_VERSION_BRANCH_NEXTMINOR;
 		
-		props.setStringProperty( "CONFIG_PRODUCT" , CONFIG_PRODUCT );
-		props.setPathProperty( "CONFIG_PRODUCTHOME" , CONFIG_PRODUCTHOME , action.session.execrc );
-		props.setStringProperty( "CONFIG_LASTPRODTAG" , CONFIG_LASTPRODTAG );
-		props.setStringProperty( "CONFIG_NEXTPRODTAG" , CONFIG_NEXTPRODTAG );
+		props.setStringProperty( PROPERTY_PRODUCT_NAME , CONFIG_PRODUCT );
+		props.setPathProperty( PROPERTY_PRODUCT_HOME , CONFIG_PRODUCTHOME , action.session.execrc );
+		
+		props.setNumberProperty( MetaProductVersion.PROPERTY_MAJOR_FIRST , CONFIG_VERSION_BRANCH_MAJOR );
+		props.setNumberProperty( MetaProductVersion.PROPERTY_MAJOR_LAST , CONFIG_VERSION_BRANCH_MINOR );
+		props.setNumberProperty( MetaProductVersion.PROPERTY_NEXT_MAJOR_FIRST , CONFIG_VERSION_BRANCH_NEXTMAJOR );
+		props.setNumberProperty( MetaProductVersion.PROPERTY_NEXT_MAJOR_LAST , CONFIG_VERSION_BRANCH_NEXTMINOR );
+		props.setNumberProperty( MetaProductVersion.PROPERTY_PROD_LASTTAG , CONFIG_LASTPRODTAG );
+		props.setNumberProperty( MetaProductVersion.PROPERTY_PROD_NEXTTAG , CONFIG_NEXTPRODTAG );
+		props.recalculateProperties();
 	}
 	
 }
