@@ -83,9 +83,9 @@ public class ServerTransaction {
 
 			boolean res = true;
 			if( res )
-				res = saveMetadata();
-			if( res )
 				res = saveRegisty();
+			if( res )
+				res = saveMetadata();
 			
 			if( res ) {
 				if( !engine.commitTransaction( this ) )
