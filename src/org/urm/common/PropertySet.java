@@ -227,16 +227,17 @@ public class PropertySet {
 			PropertyValue pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_EXTRA , set );
 			String value = set.getOriginalByProperty( prop );
 			pv.setString( value );
-			setRawPropertyInternal( pv );
+			createOriginalAndRawProperty( prop , value , true );
 		}
 	}
 
 	public void copyRunningPropertiesToRunning( PropertySet set ) throws Exception {
 		for( String prop : set.getOwnProperties() ) {
 			PropertyValue pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_EXTRA , set );
+			String valueOriginal = set.getOriginalByProperty( prop );
 			PropertyValue value = set.getOwnByProperty( prop );
 			pv.setValue( value );
-			setRunningPropertyInternal( pv );
+			setRunningProperty( prop , valueOriginal , pv );
 		}
 	}
 
