@@ -73,6 +73,18 @@ public class ServerTransaction {
 			}
 			
 			engine.abortTransaction( this );
+			stopAction();
+		}
+	}
+
+	private void stopAction() {
+		try {
+			if( metadataAction != null )
+				engine.finishAction( metadataAction );
+			metadataAction = null;
+		}
+		catch( Throwable e ) {
+			log( "unable to restore metadata" , e );
 		}
 	}
 	
@@ -90,6 +102,7 @@ public class ServerTransaction {
 			if( res ) {
 				if( !engine.commitTransaction( this ) )
 					return( false );
+				stopAction();
 				return( true );
 			}
 

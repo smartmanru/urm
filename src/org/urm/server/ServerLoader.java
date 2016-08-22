@@ -167,8 +167,6 @@ public class ServerLoader {
 		set.createInitial( action , registryNew );
 		
 		action.clearServerProductLayout();
-		engine.finishAction( action );
-		
 		return( set );
 	}
 	
