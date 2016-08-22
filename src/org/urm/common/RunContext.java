@@ -36,6 +36,10 @@ public class RunContext implements Serializable {
 	public static String PROPERTY_USER_HOME = "userhome";
 	public static String PROPERTY_OS_TYPE = "urm.os";
 	public static String PROPERTY_INSTALL_PATH = "urm.installpath";
+	public static String PROPERTY_SERVER_CONFPATH = "server.conf";
+	public static String PROPERTY_SERVER_MASTERPATH = "server.master";
+	public static String PROPERTY_SERVER_PRODUCTSPATH = "server.products";
+	
 	
 	public RunContext() {
 	}
@@ -160,6 +164,10 @@ public class RunContext implements Serializable {
 		set.setPathProperty( PROPERTY_INSTALL_PATH , installPath , this );
 		set.setPathProperty( PROPERTY_USER_HOME , userHome , this );
 		set.setStringProperty( PROPERTY_HOSTNAME , hostName );
+		set.setPathProperty( PROPERTY_SERVER_CONFPATH , installPath + "/etc" , this );
+		set.setPathProperty( PROPERTY_SERVER_MASTERPATH , installPath + "/master" , this );
+		set.setPathProperty( PROPERTY_SERVER_PRODUCTSPATH , installPath + "/products" , this );
+		
 		set.resolveRawProperties();
 	}
 	

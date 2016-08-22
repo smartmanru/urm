@@ -47,6 +47,16 @@ public class PropertySet {
 		return( r );
 	}
 	
+	public int getDepth() {
+		int depth = 0;
+		PropertySet ps = parent;
+		while( ps != null ) {
+			depth++;
+			ps = ps.parent;
+		}
+		return( depth );
+	}
+	
 	public String getPropertyByKey( String key ) {
 		return( key.substring( set.length() + 1 ) );
 	}
@@ -447,7 +457,7 @@ public class PropertySet {
 		setOriginalProperty( pv );
 	}
 
-	public void setNumberProperty( String prop , int value ) {
+	public void setNumberProperty( String prop , int value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null );
 		pv.setNumber( value );
 		setOriginalProperty( pv );
@@ -652,16 +662,22 @@ public class PropertySet {
 		return( pv.getBool() );
 	}
 
-	public void updateOriginalProperty( String prop , String value ) {
+	public void updateOriginalProperty( String prop , String value ) throws Exception {
 		PropertyValue pv = getPropertyValue( prop );
 		pv.setValue( value );
 		setOriginalProperty( pv );
 	}
 
-	public void setOriginalProperty( PropertyValue pv ) {
+	public void setOriginalProperty( PropertyValue pv ) throws Exception {
 		setOriginalPropertyInternal( pv );
-		setRawPropertyInternal( pv );
-		removeRunningProperty( pv );
+		if( pv.resolved ) {
+			removeRawProperty( pv );
+			setRunningPropertyInternal( pv );
+		}
+		else {
+			setRawPropertyInternal( pv );
+			removeRunningProperty( pv );
+		}
 	}
 	
 	public void setRunningProperty( String prop , String originalValue , PropertyValue runningValue ) throws Exception {

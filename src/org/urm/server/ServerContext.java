@@ -68,7 +68,7 @@ public class ServerContext {
 	
 	public void load( Node root , RunContext execrc ) throws Exception {
 		this.execrc = execrc;
-		
+
 		execrc.getProperties( execprops );
 		properties.loadRawFromNodeElements( root );
 		scatterSystemProperties();
