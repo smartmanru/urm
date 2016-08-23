@@ -66,7 +66,7 @@ public class ServerRegistry {
 	}
 	
 	private void loadProductDefaults( Node root ) throws Exception {
-		defaultProductProperties = new PropertySet( "default" , serverContext.properties );
+		defaultProductProperties = new PropertySet( "common" , serverContext.properties );
 		
 		Node node = ConfReader.xmlGetFirstChild( root , "defaults" );
 		if( node == null )
