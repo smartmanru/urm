@@ -60,7 +60,7 @@ public class MetaEnvDC {
 	}
 
 	public String[] getPropertyList( ActionBase action ) throws Exception {
-		return( properties.getOwnProperties() );
+		return( properties.getRunningProperties() );
 	}
 
 	public String getPropertyValue( ActionBase action , String var ) throws Exception {

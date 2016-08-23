@@ -588,7 +588,7 @@ abstract public class ActionBase {
     }
     
 	public void printValues( PropertySet props ) throws Exception {
-		for( String prop : props.getOwnKeys() ) {
+		for( String prop : props.getRunningKeys() ) {
 			String value = props.getPropertyAny( prop );
 			info( "property " + prop + "=" + value );
 		}

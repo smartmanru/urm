@@ -347,7 +347,7 @@ public class MetaProductSettings {
 		Map<String,String> map = new HashMap<String,String>();
 		String prefix = "export.";
 		
-		for( String var : props.getOwnProperties() ) {
+		for( String var : props.getRunningProperties() ) {
 			String name = ( String )var;
 			if( name.startsWith( prefix ) ) {
 				String value = props.getFinalProperty( name , action.session.execrc , true , false );

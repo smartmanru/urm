@@ -65,11 +65,11 @@ public class PropertySet {
 		return( set + "." + prop );
 	}
 	
-	public String[] getOwnKeys() {
+	public String[] getRunningKeys() {
 		return( Common.getSortedKeys( running ) );		
 	}
 
-	public String[] getOwnProperties() {
+	public String[] getRunningProperties() {
 		String[] keys = Common.getSortedKeys( running );
 		for( int k = 0; k < keys.length; k++ )
 			keys[k] = getPropertyByKey( keys[k] );
@@ -81,7 +81,7 @@ public class PropertySet {
 	}
 
 	public String[] getManualProperties() {
-		String[] own = getOwnProperties();
+		String[] own = getRunningProperties();
 		int count = 0;
 		for( String prop : own ) {
 			if( !original.containsKey( prop ) )
@@ -99,10 +99,10 @@ public class PropertySet {
 
 	public String[] getAllProperties() {
 		if( parent == null )
-			return( getOwnProperties() );
+			return( getRunningProperties() );
 		
 		Map<String,String> props = new HashMap<String,String>();
-		for( String prop : getOwnProperties() )
+		for( String prop : getRunningProperties() )
 			props.put( prop , prop );
 		for( String prop : parent.getAllProperties() )
 			props.put( prop , prop );
@@ -111,10 +111,10 @@ public class PropertySet {
 	
 	public String[] getAllKeys() {
 		if( parent == null )
-			return( getOwnKeys() );
+			return( getRunningKeys() );
 		
 		Map<String,String> props = new HashMap<String,String>();
-		for( String prop : getOwnKeys() )
+		for( String prop : getRunningKeys() )
 			props.put( prop , prop );
 		for( String prop : parent.getAllKeys() )
 			props.put( prop , prop );
@@ -158,11 +158,11 @@ public class PropertySet {
 		return( raw.get( key ) );
 	}
 	
-	public PropertyValue getOwnByKey( String key ) {
+	public PropertyValue getRunningByKey( String key ) {
 		return( running.get( key ) );
 	}
 
-	public PropertyValue getOwnByProperty( String prop ) {
+	public PropertyValue getRunningByProperty( String prop ) {
 		return( running.get( getKeyByProperty( prop ) ) );
 	}
 
@@ -242,10 +242,10 @@ public class PropertySet {
 	}
 
 	public void copyRunningPropertiesToRunning( PropertySet set ) throws Exception {
-		for( String prop : set.getOwnProperties() ) {
+		for( String prop : set.getRunningProperties() ) {
 			PropertyValue pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_EXTRA , set );
 			String valueOriginal = set.getOriginalByProperty( prop );
-			PropertyValue value = set.getOwnByProperty( prop );
+			PropertyValue value = set.getRunningByProperty( prop );
 			pv.setValue( value );
 			setRunningProperty( prop , valueOriginal , pv );
 		}
@@ -290,7 +290,7 @@ public class PropertySet {
 	
 	private PropertyValue resolveSystemProperty( String prop , boolean required ) throws Exception {
 		if( resolved ) {
-			PropertyValue pv = getOwnByProperty( prop );
+			PropertyValue pv = getRunningByProperty( prop );
 			if( required ) {
 				if( pv == null )
 					throw new ExitException( "set=" + set + ": missing required property=" + prop );
@@ -394,7 +394,7 @@ public class PropertySet {
 	}
 	
 	public PropertyValue getPropertyValue( String prop ) {
-		PropertyValue pv = getOwnByProperty( prop );
+		PropertyValue pv = getRunningByProperty( prop );
 		if( pv == null )
 			pv = getRawByProperty( prop );
 		return( pv );
@@ -412,10 +412,10 @@ public class PropertySet {
 		
 		// prefixed own var
 		if( pv == null )
-			pv = getOwnByKey( name );
+			pv = getRunningByKey( name );
 		// unprefixed own var
 		if( pv == null )
-			pv = getOwnByProperty( name );
+			pv = getRunningByProperty( name );
 		
 		if( pv == null || pv.isEmpty() ) {
 			if( parent != null ) {
@@ -514,7 +514,7 @@ public class PropertySet {
 	
 	private PropertyValue findPropertyInternal( String name , PropertyValue defaultValue , boolean system ) throws Exception {
 		// prefixed var
-		PropertyValue pv = getOwnByKey( name );
+		PropertyValue pv = getRunningByKey( name );
 		if( pv != null ) {
 			if( pv.isEmpty() )
 				return( defaultValue );
@@ -522,7 +522,7 @@ public class PropertySet {
 		}
 		
 		// unprefixed var
-		pv = getOwnByProperty( name );
+		pv = getRunningByProperty( name );
 		if( pv != null )
 			return( pv );
 		

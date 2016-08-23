@@ -102,7 +102,7 @@ public class ServerContext {
 
 	public void setRegistryServerProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
 		for( String prop : props.getOriginalProperties() ) {
-			PropertyValue pv = properties.getOwnByProperty( prop );
+			PropertyValue pv = properties.getRunningByProperty( prop );
 			if( pv == null )
 				transaction.exit( "unknown property: " + prop );
 			
