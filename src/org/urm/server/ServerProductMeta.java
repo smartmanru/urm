@@ -342,6 +342,9 @@ public class ServerProductMeta {
 		action.meta.setDistr( distr );
 		action.meta.setSources( sources );
 		
+		if( loadFailed )
+			return;
+		
 		try {
 			for( String envFile : storageMeta.getEnvFiles( action ) )
 				loadEnvData( action , storageMeta , envFile );
