@@ -64,6 +64,12 @@ public class MetaProductBuildSettings {
 		this.product = product;
 	}
 	
+	public void create( ActionBase action , PropertySet src , PropertySet parent ) throws Exception {
+		props = new PropertySet( name , parent );
+		props.copyOriginalPropertiesToRaw( src );
+		scatterVariables( action );
+	}
+	
 	public MetaProductBuildSettings copy( ActionBase action , Meta meta , MetaProductSettings product , PropertySet parent ) throws Exception {
 		MetaProductBuildSettings r = new MetaProductBuildSettings( name , meta , product );
 		r.props = props.copy( parent );

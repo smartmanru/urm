@@ -23,6 +23,7 @@ public class ServerRegistry {
 	private Map<String,ServerSystem> mapSystems;
 	private Map<String,ServerProduct> mapProducts;
 	private PropertySet defaultProductProperties;
+	private PropertySet defaultProductBuildProperties;
 	private Map<VarBUILDMODE,PropertySet> mapBuildModeDefaults;
 	
 	public ServerRegistry( ServerLoader loader ) {
@@ -66,7 +67,8 @@ public class ServerRegistry {
 	}
 	
 	private void loadProductDefaults( Node root ) throws Exception {
-		defaultProductProperties = new PropertySet( "common" , serverContext.properties );
+		defaultProductProperties = new PropertySet( "primary" , serverContext.properties );
+		defaultProductBuildProperties = new PropertySet( "build.common" , defaultProductProperties );
 		
 		Node node = ConfReader.xmlGetFirstChild( root , "defaults" );
 		if( node == null )
@@ -75,15 +77,21 @@ public class ServerRegistry {
 		// top-level
 		defaultProductProperties.loadOriginalFromNodeElements( node );
 		
+		Node build = ConfReader.xmlGetFirstChild( node , "build" );
+		if( build != null )
+			return;
+			
+		defaultProductBuildProperties.loadOriginalFromNodeElements( build );
+		
 		// for build modes
-		Node[] items = ConfReader.xmlGetChildren( node , "mode" );
+		Node[] items = ConfReader.xmlGetChildren( build , "mode" );
 		if( items == null )
 			return;
 		
 		for( Node itemNode : items ) {
 			String MODE = ConfReader.getRequiredAttrValue( itemNode , "name" );
 			VarBUILDMODE mode = VarBUILDMODE.valueOf( MODE.toUpperCase() );
-			PropertySet set = new PropertySet( MODE.toLowerCase() , defaultProductProperties );
+			PropertySet set = new PropertySet( "build." + MODE.toLowerCase() , defaultProductBuildProperties );
 
 			set.loadOriginalFromNodeElements( itemNode );
 			mapBuildModeDefaults.put( mode , set );
@@ -126,18 +134,18 @@ public class ServerRegistry {
 		return( defaultProductProperties );
 	}
 
+	public PropertySet getDefaultProductBuildProperties() {
+		return( defaultProductBuildProperties );
+	}
+
+	public PropertySet getDefaultProductBuildProperties( VarBUILDMODE mode ) {
+		return( mapBuildModeDefaults.get( mode ) );
+	}
+	
 	public PropertySet[] getBuildModeDefaults() {
 		return( mapBuildModeDefaults.values().toArray( new PropertySet[0] ) );
 	}
 
-	public void setProductDefaults( PropertySet props ) throws Exception {
-		props.copyOriginalPropertiesToRaw( defaultProductProperties );
-		for( VarBUILDMODE mode : mapBuildModeDefaults.keySet() ) {
-			PropertySet set = mapBuildModeDefaults.get( mode );
-			props.copyOriginalPropertiesToRaw( set );
-		}
-	}
-	
 	public ServerRegistry copy() throws Exception {
 		ServerRegistry r = new ServerRegistry( loader );
 		r.execrc = execrc;

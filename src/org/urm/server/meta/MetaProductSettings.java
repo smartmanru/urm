@@ -135,15 +135,24 @@ public class MetaProductSettings {
 		if( loaded )
 			return;
 
+		// create initial
 		loaded = true;
 		props = new PropertySet( "product" , execprops );
 		setContextProperties( action , productContext );
+		props.copyOriginalPropertiesToRaw( registry.getDefaultProductProperties() );
 		
-		// create initial
-		registry.setProductDefaults( props );
+		// build
+		buildCommon = new MetaProductBuildSettings( "build.common" , meta , this );
+		buildCommon.create( action , registry.getDefaultProductBuildProperties() , props );
+		for( VarBUILDMODE mode : VarBUILDMODE.values() ) {
+			MetaProductBuildSettings buildMode = new MetaProductBuildSettings( "build." + Common.getEnumLower( mode ) , meta , this );
+			PropertySet set = registry.getDefaultProductBuildProperties( mode );
+			buildMode.create( action , set , buildCommon.props );
+		}
+		
 		loadFailed = false;
 	}
-	
+
 	public void load( ActionBase action , ServerProductContext productContext , Node root ) throws Exception {
 		if( loaded )
 			return;
