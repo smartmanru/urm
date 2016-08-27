@@ -56,7 +56,8 @@ public class MetaProductVersion {
 		return( r );
 	}
 	
-	public void setLoadFailed() {
+	public void createFailed() {
+		loaded = true;
 		loadFailed = true;
 	}
 

@@ -234,7 +234,7 @@ public class DistRepository {
 
 		String RELEASEVER = "";
 		if( RELEASELABEL.equals( "last" ) ) {
-			RELEASEVER = meta.product.CONFIG_VERSION_LAST_FULL;
+			RELEASEVER = meta.product.CONFIG_RELEASE_LASTMINOR;
 			if( RELEASEVER.isEmpty() )
 				action.exit( "CONFIG_VERSION_LAST_FULL is not set in product.conf" );
 
@@ -242,7 +242,7 @@ public class DistRepository {
 		}
 		
 		if( RELEASELABEL.equals( "next" ) ) {
-			RELEASEVER = meta.product.CONFIG_VERSION_NEXT_FULL;
+			RELEASEVER = meta.product.CONFIG_RELEASE_NEXTMINOR;
 			if( RELEASEVER.isEmpty() )
 				action.exit( "CONFIG_VERSION_NEXT_FULL is not set in product.conf" );
 

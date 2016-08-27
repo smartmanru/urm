@@ -63,7 +63,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		String RELEASELABEL = action.context.CTX_RELEASELABEL;
 		
 		if( RELEASELABEL.isEmpty() )
-			RELEASELABEL = action.meta.product.CONFIG_RELEASEVER;
+			RELEASELABEL = action.meta.product.CONFIG_RELEASE_VERSION;
 		if( RELEASELABEL.isEmpty() )
 			RELEASELABEL = "next";
 		

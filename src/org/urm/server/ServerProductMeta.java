@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.common.PropertySet;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaDatabase;
 import org.urm.server.meta.MetaDesign;
@@ -64,7 +65,7 @@ public class ServerProductMeta {
 
 	public synchronized ServerProductMeta copy( ActionBase action ) throws Exception {
 		ServerProductMeta r = new ServerProductMeta( loader , name , session );
-		r.meta = new Meta( this , session );
+		r.meta = new Meta( r , session );
 		if( version != null ) {
 			r.version = version.copy( action , r.meta );
 			if( r.version.loadFailed )
@@ -142,7 +143,7 @@ public class ServerProductMeta {
 			}
 			catch( Throwable e ) {
 				setLoadFailed( action , e , "unable to load version metadata, product=" + name );
-				version.setLoadFailed();
+				version.createFailed();
 			}
 		}
 		
@@ -153,7 +154,22 @@ public class ServerProductMeta {
 		if( product != null )
 			return( product );
 		
-		product = new MetaProductSettings( meta );
+		PropertySet execprops = null;
+		if( action.engine.execrc.standaloneMode ) {
+			execprops = new PropertySet( "execrc" , null );
+			try {
+				action.engine.execrc.getProperties( execprops );
+			}
+			catch( Throwable e ) {
+				action.log( e );
+			}
+		}
+		else {
+			ServerRegistry registry = loader.getRegistry();
+			execprops = registry.serverContext.execprops;
+		}
+		
+		product = new MetaProductSettings( meta , execprops );
 		meta.setProduct( product );
 
 		if( !loadFailed ) {
@@ -374,7 +390,7 @@ public class ServerProductMeta {
 
 	public synchronized void createInitial( ActionBase action , ServerRegistry registry ) throws Exception {
 		createInitialVersion( action , registry );
-		createInitialProduct( action , registry );
+		createInitialProduct( action , registry , registry.serverContext.execprops );
 		createInitialDatabase( action , registry );
 		createInitialDistr( action , registry );
 		createInitialSources( action , registry );
@@ -388,8 +404,8 @@ public class ServerProductMeta {
 		action.meta.setVersion( version );
 	}
 	
-	private void createInitialProduct( ActionBase action , ServerRegistry registry ) throws Exception {
-		product = new MetaProductSettings( meta );
+	private void createInitialProduct( ActionBase action , ServerRegistry registry , PropertySet execprops ) throws Exception {
+		product = new MetaProductSettings( meta , execprops );
 		meta.setProduct( product );
 		
 		ServerProductContext productContext = new ServerProductContext( meta );

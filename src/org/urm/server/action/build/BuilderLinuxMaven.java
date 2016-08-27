@@ -83,7 +83,7 @@ public class BuilderLinuxMaven extends Builder {
 
 		if( MODULEOPTIONS_REPLACESNAPSHOTS == true ) {
 			action.info( "patchPrepareSource: replace snapshots..." );
-			String NEXT_MAJORRELEASE = action.meta.product.CONFIG_NEXT_MAJORRELEASE;
+			String NEXT_MAJORRELEASE = action.meta.product.CONFIG_RELEASE_NEXTMAJOR;
 
 			String cmd = "";
 			cmd += "for fname in $(find " + CODEPATH + " -name pom.xml); do\n";
