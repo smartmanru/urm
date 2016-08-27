@@ -3,6 +3,8 @@ package org.urm.server.action.build;
 import org.urm.common.Common;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScopeTarget;
+import org.urm.server.meta.MetaProductBuildSettings;
+import org.urm.server.meta.MetaWebResource;
 
 public class ActionUploadLibItem extends ActionBase {
 
@@ -23,12 +25,13 @@ public class ActionUploadLibItem extends ActionBase {
 	
 	@Override protected boolean executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
 		// set environment
-		String BUILD_JAVA_VERSION = meta.product.CONFIG_JAVA_VERSION;
-		String BUILD_MAVEN_VERSION = meta.product.CONFIG_MAVEN_VERSION;
+		MetaProductBuildSettings build = getBuildSettings();
+		String BUILD_JAVA_VERSION = build.CONFIG_JAVA_VERSION;
+		String BUILD_MAVEN_VERSION = build.CONFIG_MAVEN_VERSION;
 
-		shell.export( this , "JAVA_HOME" , meta.product.CONFIG_BUILDBASE + "/" + BUILD_JAVA_VERSION );
+		shell.export( this , "JAVA_HOME" , meta.product.CONFIG_BUILDBASE_PATH + "/" + BUILD_JAVA_VERSION );
 		shell.export( this , "PATH" , "$JAVA_HOME/bin:$PATH" );
-		shell.export( this , "M2_HOME" , meta.product.CONFIG_BUILDBASE + "/" + BUILD_MAVEN_VERSION );
+		shell.export( this , "M2_HOME" , meta.product.CONFIG_BUILDBASE_PATH + "/" + BUILD_MAVEN_VERSION );
 		shell.export( this , "M2" , "$M2_HOME/bin" );
 		shell.export( this , "PATH" , "$M2:$PATH" );
 		shell.export( this , "MAVEN_OPTS" , Common.getQuoted( "-XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );
@@ -70,17 +73,18 @@ public class ActionUploadLibItem extends ActionBase {
 			F_CLASSIFIER = "-Dclassifier=" + CLASSIFIER;
 
 		String CMD;
+		MetaWebResource res = getResource( build.CONFIG_NEXUS_RESOURCE );
 		if( F_EXTENSION.equals( "pom" ) ) {
 	        CMD = "mvn -e deploy:deploy-file --settings=$HOME/.m2/settings.branch.xml" + 
 	        	" -DupdateReleaseInfo=true -DuniqueVersion=false -DrepositoryId=nexus" + 
-	        	" -Durl=" + meta.product.CONFIG_NEXUS_BASE + "/" + F_TARGETREP + " -Dpackaging=" + F_EXTENSION + 
+	        	" -Durl=" + res.BASEURL + "/" + F_TARGETREP + " -Dpackaging=" + F_EXTENSION + 
 	        	" -DgeneratePom=false -DgroupId=" + GROUPID + " -Dversion=" + F_VERSION + 
 	        	" -DartifactId=" + F_ARTEFACTID + " " + F_CLASSIFIER + " -Dfile=" + FILE;
 		}
 		else {
 			CMD = "mvn -e deploy:deploy-file --settings=$HOME/.m2/settings.branch.xml" +
 				" -DupdateReleaseInfo=true -DuniqueVersion=false -DrepositoryId=nexus" +
-				" -Durl=" + meta.product.CONFIG_NEXUS_BASE + "/" + F_TARGETREP + " -Dpackaging=" + F_EXTENSION +
+				" -Durl=" + res.BASEURL + "/" + F_TARGETREP + " -Dpackaging=" + F_EXTENSION +
 				" -DgeneratePom=true -DgroupId=" + GROUPID + " -Dversion=" + F_VERSION + 
 				" -DartifactId=" + F_ARTEFACTID + " " + F_CLASSIFIER + " -Dfile=" + FILE;
 		}

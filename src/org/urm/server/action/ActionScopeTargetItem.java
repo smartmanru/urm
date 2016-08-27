@@ -3,6 +3,7 @@ package org.urm.server.action;
 import org.urm.server.dist.ReleaseTargetItem;
 import org.urm.server.meta.MetaDistrBinaryItem;
 import org.urm.server.meta.MetaEnvServerNode;
+import org.urm.server.meta.MetaProductBuildSettings;
 import org.urm.server.meta.MetaSourceProjectItem;
 
 public class ActionScopeTargetItem {
@@ -68,8 +69,10 @@ public class ActionScopeTargetItem {
 		if( BUILDVERSION.isEmpty() )
 			BUILDVERSION = sourceItem.ITEMVERSION;
 		
-		if( BUILDVERSION.isEmpty() )
-			BUILDVERSION = action.meta.product.CONFIG_APPVERSION;
+		if( BUILDVERSION.isEmpty() ) {
+			MetaProductBuildSettings build = action.getBuildSettings();
+			BUILDVERSION = build.CONFIG_APPVERSION;
+		}
 			
 		if( BUILDVERSION.isEmpty() )
 			action.exit( "buildByTag: BUILDVERSION not set" );

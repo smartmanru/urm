@@ -3,6 +3,7 @@ package org.urm.server.action.build;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.MetaProductBuildSettings;
 import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.BuildStorage;
@@ -83,7 +84,8 @@ public class BuilderLinuxMaven extends Builder {
 
 		if( MODULEOPTIONS_REPLACESNAPSHOTS == true ) {
 			action.info( "patchPrepareSource: replace snapshots..." );
-			String NEXT_MAJORRELEASE = action.meta.product.CONFIG_RELEASE_NEXTMAJOR;
+			MetaProductBuildSettings build = action.getBuildSettings();
+			String NEXT_MAJORRELEASE = build.CONFIG_RELEASE_NEXTMAJOR;
 
 			String cmd = "";
 			cmd += "for fname in $(find " + CODEPATH + " -name pom.xml); do\n";
@@ -125,7 +127,8 @@ public class BuilderLinuxMaven extends Builder {
 	@Override public boolean runBuild( ActionBase action ) throws Exception {
 		// maven params
 		LocalFolder CODEPATH = storage.buildFolder; 
-		String MODULE_MAVEN_PROFILES = action.meta.product.CONFIG_MAVEN_PROFILES;
+		MetaProductBuildSettings build = action.getBuildSettings();
+		String MODULE_MAVEN_PROFILES = build.CONFIG_MAVEN_PROFILES;
 		if( MODULEOPTIONS_COMPACT_STATIC == true ) {
 			if( !MODULE_MAVEN_PROFILES.isEmpty() )
 				MODULE_MAVEN_PROFILES += ",without-statics,without-jars";
@@ -135,9 +138,9 @@ public class BuilderLinuxMaven extends Builder {
 
 		String NEXUS_PATH = getNexusPath( action , project );
 		String MODULE_ALT_REPO = "-DaltDeploymentRepository=nexus2::default::" + NEXUS_PATH;
-		String MODULE_MSETTINGS = "--settings=" + action.meta.product.CONFIG_MAVEN_CFGFILE;
-		String MODULE_MAVEN_CMD = Common.getValueDefault( action.meta.product.CONFIG_MAVEN_CMD , "deploy" );
-		String MAVEN_ADDITIONAL_OPTIONS = action.meta.product.CONFIG_MAVEN_ADDITIONAL_OPTIONS;
+		String MODULE_MSETTINGS = "--settings=" + build.CONFIG_MAVEN_CFGFILE;
+		String MODULE_MAVEN_CMD = Common.getValueDefault( build.CONFIG_MAVEN_CMD , "deploy" );
+		String MAVEN_ADDITIONAL_OPTIONS = build.CONFIG_MAVEN_ADDITIONAL_OPTIONS;
 		if( action.context.CTX_SHOWALL )
 			MAVEN_ADDITIONAL_OPTIONS += " -X";
 
@@ -151,9 +154,9 @@ public class BuilderLinuxMaven extends Builder {
 				MODULE_MAVEN_CMD + " " + MODULE_ALT_REPO + " " + MODULE_MSETTINGS + " -Dmaven.test.skip=true";
 
 		ShellExecutor session = action.shell;
-		session.export( action , "JAVA_HOME" , action.meta.product.CONFIG_BUILDBASE + "/" + BUILD_JAVA_VERSION );
+		session.export( action , "JAVA_HOME" , action.meta.product.CONFIG_BUILDBASE_PATH + "/" + BUILD_JAVA_VERSION );
 		session.export( action , "PATH" , "$JAVA_HOME/bin:$PATH" );
-		session.export( action , "M2_HOME" , action.meta.product.CONFIG_BUILDBASE + "/" + BUILD_MAVEN_VERSION );
+		session.export( action , "M2_HOME" , action.meta.product.CONFIG_BUILDBASE_PATH + "/" + BUILD_MAVEN_VERSION );
 		session.export( action , "M2" , "$M2_HOME/bin" );
 		session.export( action , "PATH" , "$M2:$PATH" );
 		session.export( action , "MAVEN_OPTS" , Common.getQuoted( "-XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );

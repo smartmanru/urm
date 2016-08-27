@@ -137,11 +137,12 @@ public class MetaSourceProject {
 		return( itemMap );
 	}
 	
-	public String getBuilder( ActionBase action ) {
+	public String getBuilder( ActionBase action ) throws Exception {
 		if( !BUILDERTYPE.isEmpty() )
 			return( BUILDERTYPE );
 		
-		String builder = meta.product.CONFIG_BUILDER_TYPE;
+		MetaProductBuildSettings build = action.getBuildSettings();
+		String builder = build.CONFIG_BUILDER_TYPE;
 		if( builder.isEmpty() )
 			builder = "maven";
 
@@ -152,7 +153,8 @@ public class MetaSourceProject {
 		if( !JAVAVERSION.isEmpty() )
 			return( JAVAVERSION );
 		
-		String version = meta.product.CONFIG_JAVA_VERSION;
+		MetaProductBuildSettings build = action.getBuildSettings();
+		String version = build.CONFIG_JAVA_VERSION;
 		if( version.isEmpty() )
 			action.exit( "BUILD_JAVA_VERSION is not defined - java version is unknown" );
 		
@@ -164,10 +166,11 @@ public class MetaSourceProject {
 			return( BUILDERVERSION );
 		
 		String builder = getBuilder( action );
-		String version = meta.product.CONFIG_BUILDER_VERSION;
+		MetaProductBuildSettings build = action.getBuildSettings();
+		String version = build.CONFIG_BUILDER_VERSION;
 		if( version.isEmpty() ) {
 			if( builder.equals( "maven" ) ) {
-				version = meta.product.CONFIG_MAVEN_VERSION;
+				version = build.CONFIG_MAVEN_VERSION;
 				if( version.isEmpty() )
 					action.exit( "MAVEN_VERSION is not defined - maven version is unknown" );
 			}
@@ -183,8 +186,9 @@ public class MetaSourceProject {
 		if( !BRANCH.isEmpty() )
 			return( BRANCH );
 		
-		if( !meta.product.CONFIG_BRANCHNAME.isEmpty() )
-			return( meta.product.CONFIG_BRANCHNAME );
+		MetaProductBuildSettings build = action.getBuildSettings();
+		if( !build.CONFIG_BRANCHNAME.isEmpty() )
+			return( build.CONFIG_BRANCHNAME );
 		
 		String branch = PROJECT + "-prod";
 		return( branch );

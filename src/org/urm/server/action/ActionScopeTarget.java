@@ -12,6 +12,7 @@ import org.urm.server.meta.MetaDistrConfItem;
 import org.urm.server.meta.MetaDistrDelivery;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.MetaEnvServerNode;
+import org.urm.server.meta.MetaProductBuildSettings;
 import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.meta.MetaSourceProjectItem;
 import org.urm.server.meta.Meta.VarCATEGORY;
@@ -207,8 +208,10 @@ public class ActionScopeTarget {
 		if( BUILDVERSION.isEmpty() && releaseTarget != null )
 			BUILDVERSION = releaseTarget.BUILDVERSION;
 		
-		if( BUILDVERSION.isEmpty() )
-			BUILDVERSION = action.meta.product.CONFIG_APPVERSION;
+		if( BUILDVERSION.isEmpty() ) {
+			MetaProductBuildSettings build = action.getBuildSettings();
+			BUILDVERSION = build.CONFIG_APPVERSION;
+		}
 			
 		if( BUILDVERSION.isEmpty() )
 			action.exit( "buildByTag: BUILDVERSION not set" );
@@ -224,8 +227,10 @@ public class ActionScopeTarget {
 		if( BUILDBRANCH.isEmpty() && releaseTarget != null )
 			BUILDBRANCH = releaseTarget.BUILDBRANCH;
 		
-		if( BUILDBRANCH.isEmpty() )
-			BUILDBRANCH = action.meta.product.CONFIG_BRANCHNAME;
+		if( BUILDBRANCH.isEmpty() ) {
+			MetaProductBuildSettings build = action.getBuildSettings();
+			BUILDBRANCH = build.CONFIG_BRANCHNAME;
+		}
 			
 		if( BUILDBRANCH.isEmpty() )
 			BUILDBRANCH = sourceProject.PROJECT + "-prod";

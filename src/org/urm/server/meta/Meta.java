@@ -16,6 +16,7 @@ public class Meta {
 	public SessionContext session;
 	public ServerProductMeta storage;
 
+	public MetaResources resources;
 	public MetaProductVersion version;
 	public MetaProductSettings product;
 	public MetaDatabase database;
@@ -565,5 +566,5 @@ public class Meta {
     		action.exit( "name attribute should contain only alphanumeric or dot characters, value=" + name );
     	return( name );	
     }
-    
+
 }

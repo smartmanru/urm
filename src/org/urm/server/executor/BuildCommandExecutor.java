@@ -10,6 +10,7 @@ import org.urm.server.action.CommandAction;
 import org.urm.server.action.CommandExecutor;
 import org.urm.server.action.build.BuildCommand;
 import org.urm.server.dist.Dist;
+import org.urm.server.meta.MetaProductBuildSettings;
 import org.urm.server.storage.LocalFolder;
 
 public class BuildCommandExecutor extends CommandExecutor {
@@ -62,8 +63,10 @@ public class BuildCommandExecutor extends CommandExecutor {
 	private Dist loadCommandRelease( ActionBase action ) throws Exception {
 		String RELEASELABEL = action.context.CTX_RELEASELABEL;
 		
-		if( RELEASELABEL.isEmpty() )
-			RELEASELABEL = action.meta.product.CONFIG_RELEASE_VERSION;
+		if( RELEASELABEL.isEmpty() ) {
+			MetaProductBuildSettings build = action.getBuildSettings();
+			RELEASELABEL = build.CONFIG_RELEASE_VERSION;
+		}
 		if( RELEASELABEL.isEmpty() )
 			RELEASELABEL = "next";
 		

@@ -13,6 +13,8 @@ import org.urm.server.SessionContext;
 import org.urm.server.custom.CommandCustom;
 import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.meta.Meta;
+import org.urm.server.meta.MetaProductBuildSettings;
+import org.urm.server.meta.MetaWebResource;
 import org.urm.server.meta.Meta.VarBUILDMODE;
 import org.urm.server.meta.Meta.VarCATEGORY;
 import org.urm.server.meta.Meta.VarNAMETYPE;
@@ -594,4 +596,14 @@ abstract public class ActionBase {
 		}
 	}
 
+	public MetaProductBuildSettings getBuildSettings() throws Exception {
+		return( meta.product.getBuildSettings( this ) );
+	}
+
+	public MetaWebResource getResource( String name ) throws Exception {
+		MetaProductBuildSettings build = getBuildSettings();
+		MetaWebResource res = meta.resources.getResource( this , build.CONFIG_NEXUS_RESOURCE );
+		return( res );
+	}
+	
 }

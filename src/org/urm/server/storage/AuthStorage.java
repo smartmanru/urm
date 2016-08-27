@@ -1,7 +1,9 @@
 package org.urm.server.storage;
 
+import org.urm.common.Common;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.Meta;
+import org.urm.server.meta.MetaWebResource;
 
 public class AuthStorage {
 
@@ -13,15 +15,16 @@ public class AuthStorage {
 		this.meta = artefactory.meta;
 	}
 	
-	public String getOldSvnAuthParams( ActionBase action ) throws Exception {
-		String fileName = action.meta.product.CONFIG_SVNOLD_AUTH;
-		String content = action.readStringFile( fileName );
-		return( content );
+	public String getAuthData( ActionBase action , MetaWebResource res ) throws Exception {
+		String SVNAUTH = "";
+		if( !res.AUTHFILE.isEmpty() )
+			SVNAUTH = getAuthData( action , res.AUTHFILE );
+		return( SVNAUTH );
 	}
 	
-	public String getNewSvnAuthParams( ActionBase action ) throws Exception {
-		String fileName = action.meta.product.CONFIG_SVNNEW_AUTH;
-		String content = action.readStringFile( fileName );
+	public String getAuthData( ActionBase action , String fileName ) throws Exception {
+		String filePath = Common.getPath( action.session.execrc.userHome , ".auth" , fileName );
+		String content = action.readStringFile( filePath );
 		return( content );
 	}
 

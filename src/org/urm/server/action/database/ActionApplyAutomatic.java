@@ -12,6 +12,7 @@ import org.urm.server.dist.Dist;
 import org.urm.server.dist.ReleaseDelivery;
 import org.urm.server.meta.MetaDatabaseSchema;
 import org.urm.server.meta.MetaEnvServer;
+import org.urm.server.meta.MetaProductBuildSettings;
 import org.urm.server.storage.FileSet;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.LogStorage;
@@ -144,7 +145,8 @@ public class ActionApplyAutomatic extends ActionBase {
 		scriptFolder.copyFiles( this , file , logReleaseExecute );
 		
 		ConfBuilder builder = new ConfBuilder( this );
-		builder.configureFile( logReleaseExecute , file , server , null , meta.product.charset );
+		MetaProductBuildSettings build = getBuildSettings();
+		builder.configureFile( logReleaseExecute , file , server , null , build.charset );
 		
 		if( !dsf.REGIONALINDEX.equals( "RR" ) )
 			return;

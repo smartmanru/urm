@@ -9,8 +9,10 @@ import org.urm.server.dist.DistRepository;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.meta.MetaMonitoring;
+import org.urm.server.meta.MetaProductBuildSettings;
 import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.meta.Meta;
+import org.urm.server.meta.MetaWebResource;
 import org.urm.server.shell.Account;
 import org.urm.server.vcs.GenericVCS;
 import org.urm.server.vcs.GitVCS;
@@ -52,7 +54,8 @@ public class Artefactory {
 	}
 	
 	public LocalFolder getDownloadFolder( ActionBase action ) throws Exception {
-		LocalFolder folder = getAnyFolder( action , meta.product.CONFIG_ARTEFACTDIR );
+		MetaProductBuildSettings build = action.getBuildSettings();
+		LocalFolder folder = getAnyFolder( action , build.CONFIG_ARTEFACTDIR );
 		folder.ensureExists( action );
 		return( folder );
 	}
@@ -60,7 +63,8 @@ public class Artefactory {
 	public LocalFolder getArtefactFolder( ActionBase action , String FOLDER ) throws Exception {
 		action.checkRequired( FOLDER , "FOLDER" );
 		
-		String finalDir = meta.product.CONFIG_ARTEFACTDIR + "/" + FOLDER;
+		MetaProductBuildSettings build = action.getBuildSettings();
+		String finalDir = build.CONFIG_ARTEFACTDIR + "/" + FOLDER;
 		LocalFolder folder = getAnyFolder( action , finalDir );
 		folder.ensureExists( action );
 		return( folder );
@@ -110,23 +114,28 @@ public class Artefactory {
 	}
 
 	public NexusStorage getDefaultNexusStorage( ActionBase action ) throws Exception {
-		return( new NexusStorage( this , workFolder , meta.product.CONFIG_NEXUS_REPO ) );
+		MetaProductBuildSettings build = action.getBuildSettings();
+		return( new NexusStorage( this , workFolder , build.CONFIG_NEXUS_REPO ) );
 	}
 	
 	public NexusStorage getDefaultNexusStorage( ActionBase action , LocalFolder folder ) throws Exception {
-		return( new NexusStorage( this , folder , meta.product.CONFIG_NEXUS_REPO ) );
+		MetaProductBuildSettings build = action.getBuildSettings();
+		return( new NexusStorage( this , folder , build.CONFIG_NEXUS_REPO ) );
 	}
 	
 	public NexusStorage getDefaultNugetStorage( ActionBase action , LocalFolder folder ) throws Exception {
-		return( new NexusStorage( this , folder , meta.product.CONFIG_NEXUS_REPO + "-nuget" ) );
+		MetaProductBuildSettings build = action.getBuildSettings();
+		return( new NexusStorage( this , folder , build.CONFIG_NEXUS_REPO + "-nuget" ) );
 	}
 	
 	public NexusStorage getThirdpartyNexusStorage( ActionBase action ) throws Exception {
-		return( new NexusStorage( this , workFolder , meta.product.CONFIG_NEXUS_REPO_THIRDPARTY ) );
+		MetaProductBuildSettings build = action.getBuildSettings();
+		return( new NexusStorage( this , workFolder , build.CONFIG_NEXUS_REPO_THIRDPARTY ) );
 	}
 	
 	public NexusStorage getThirdpartyNexusStorage( ActionBase action , LocalFolder folder ) throws Exception {
-		return( new NexusStorage( this , folder , meta.product.CONFIG_NEXUS_REPO_THIRDPARTY ) );
+		MetaProductBuildSettings build = action.getBuildSettings();
+		return( new NexusStorage( this , folder , build.CONFIG_NEXUS_REPO_THIRDPARTY ) );
 	}
 	
 	public SourceStorage getSourceStorage( ActionBase action ) throws Exception {
@@ -206,32 +215,27 @@ public class Artefactory {
 		return( new AuthStorage( this ) );
 	}
 	
-	public GenericVCS getVCS( ActionBase action , String vcsType , boolean build ) throws Exception {
-		if( vcsType.equals( "svnold" ) || vcsType.equals( "svn" ) ) {
+	public GenericVCS getVCS( ActionBase action , String vcs , boolean build ) throws Exception {
+		MetaWebResource res = action.getResource( vcs );
+		if( res.isSvn() ) {
 			AuthStorage auth = getAuthStorage( action );
-			String SVNAUTH = auth.getOldSvnAuthParams( action );
-			return( new SubversionVCS( action , action.meta.product.CONFIG_SVNOLD_PATH , SVNAUTH ) );
+			String SVNAUTH = auth.getAuthData( action , res );
+			return( new SubversionVCS( action , res.BASEURL , SVNAUTH ) );
 		}
 		
-		if( vcsType.equals( "svnnew" ) ) {
-			AuthStorage auth = getAuthStorage( action );
-			String SVNAUTH = auth.getNewSvnAuthParams( action );
-			return( new SubversionVCS( action , action.meta.product.CONFIG_SVNOLD_PATH , SVNAUTH ) );
-		}
-		
-		if( vcsType.equals( "git" ) )
+		if( res.isGit() )
 			return( new GitVCS( action , build ) );
 		
-		action.exit( "unknown vcsType=" + vcsType );
+		action.exit( "unexected vcs=" + vcs + ", type=" + res.TYPE );
 		return( null );
 	}
 
 	public SubversionVCS getSvnDirect( ActionBase action ) throws Exception {
-		String svnUrl = "";
-		if( action.meta != null && action.meta.product != null )
-			svnUrl = action.meta.product.CONFIG_SVNOLD_PATH;
-		
-		return( new SubversionVCS( action , svnUrl , "" ) );
+		String vcs = action.meta.product.CONFIG_URM_VCS;
+		MetaWebResource res = action.getResource( vcs );
+		if( !res.isSvn() )
+			action.exit( "unexpected non-svn vcs=" + vcs );
+		return( ( SubversionVCS )getVCS( action , vcs , false ) );
 	}
 
 	public RedistStorage getRedistStorage( ActionBase action , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {

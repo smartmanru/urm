@@ -13,6 +13,7 @@ import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.MetaEnvServerDeployment;
 import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.meta.Meta;
+import org.urm.server.meta.MetaProductBuildSettings;
 import org.urm.server.vcs.GenericVCS;
 
 public class SourceStorage {
@@ -33,7 +34,8 @@ public class SourceStorage {
 	}
 	
 	public void downloadThirdpartyItemFromVCS( ActionBase action , String ITEMPATH , String FOLDER ) throws Exception {
-		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );
+		MetaProductBuildSettings build = action.getBuildSettings();
+		GenericVCS vcs = artefactory.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );
 		
 		String BASENAME = Common.getBaseName( ITEMPATH );
 		
@@ -44,13 +46,14 @@ public class SourceStorage {
 		if( !FOLDER.isEmpty() )
 			subFolder = subFolder.getSubFolder( action , FOLDER );
 		
-		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
+		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		if( !vcs.exportRepositoryMasterPath( subFolder , REPOSITORY , ITEMPATH , BASENAME ) )
 			action.exit( "unable to export from REPOSITORY=" + REPOSITORY + ", ITEMPATH=" + ITEMPATH );
 	}
 	
 	public boolean downloadReleaseManualFolder( ActionBase action , Dist distStorage , LocalFolder dstFolder ) throws Exception {
-		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );  
+		MetaProductBuildSettings build = action.getBuildSettings();
+		GenericVCS vcs = artefactory.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );  
 		String PATH = getReleaseManualPath( action , distStorage );
 
 		if( downloadManualFolder( action , vcs , PATH , dstFolder ) )
@@ -61,7 +64,8 @@ public class SourceStorage {
 	}
 	
 	public boolean downloadReleaseConfigItem( ActionBase action , Dist distStorage , ConfSourceFolder sourceFolder , LocalFolder dstFolder ) throws Exception {
-		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );  
+		MetaProductBuildSettings build = action.getBuildSettings();
+		GenericVCS vcs = artefactory.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );  
 		String PATH = getReleaseConfigSourcePath( action , distStorage , sourceFolder.releaseComp );
 		
 		if( downloadConfigItem( action , vcs , PATH , sourceFolder.distrComp , dstFolder ) )
@@ -72,7 +76,8 @@ public class SourceStorage {
 	}
 
 	public boolean downloadReleaseDatabaseFiles( ActionBase action , Dist distStorage , MetaDistrDelivery dbDelivery , LocalFolder dstFolder ) throws Exception {
-		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );  
+		MetaProductBuildSettings build = action.getBuildSettings();
+		GenericVCS vcs = artefactory.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );  
 		String PATH = getReleaseDBSourcePath( action , distStorage , dbDelivery );
 		
 		if( downloadDBFiles( action , vcs , PATH , dbDelivery , dstFolder ) )
@@ -83,13 +88,14 @@ public class SourceStorage {
 	}
 	
 	public boolean downloadProductConfigItem( ActionBase action , ConfSourceFolder sourceFolder , LocalFolder dstFolder ) throws Exception {
-		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );  
+		MetaProductBuildSettings build = action.getBuildSettings();
+		GenericVCS vcs = artefactory.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );  
 		String PATH = getProductConfigSourcePath( action , sourceFolder.distrComp );
 
 		if( downloadConfigItem( action , vcs , PATH , sourceFolder.distrComp , dstFolder ) )
 			return( true );
 		
-		action.ifexit( "unable to find configuration at " + vcs.getInfoMasterPath( meta.product.CONFIG_SOURCE_REPOSITORY , PATH ) );
+		action.ifexit( "unable to find configuration at " + vcs.getInfoMasterPath( build.CONFIG_SOURCE_REPOSITORY , PATH ) );
 		
 		action.info( "no configuration in " + PATH + ". Skipped." );
 		return( false );
@@ -99,7 +105,8 @@ public class SourceStorage {
 		if( !isValidPath( action , vcs , ITEMPATH ) )
 			return( false );
 	
-		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
+		MetaProductBuildSettings build = action.getBuildSettings();
+		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		if( !vcs.exportRepositoryMasterPath( dstFolder , REPOSITORY , ITEMPATH , distrComp.KEY ) )
 			action.exit( "unable to export from REPOSITORY=" + REPOSITORY + ", ITEMPATH=" + ITEMPATH );
 		
@@ -111,7 +118,8 @@ public class SourceStorage {
 		if( !isValidPath( action , vcs , ITEMPATH ) )
 			return( false );
 	
-		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
+		MetaProductBuildSettings build = action.getBuildSettings();
+		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		if( !vcs.exportRepositoryMasterPath( dstFolder , REPOSITORY , ITEMPATH , DATABASE_FOLDER ) )
 			action.exit( "unable to export from REPOSITORY=" + REPOSITORY + ", ITEMPATH=" + ITEMPATH );
 		
@@ -124,7 +132,8 @@ public class SourceStorage {
 		if( !isValidPath( action , vcs , PATH ) )
 			return( false );
 	
-		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
+		MetaProductBuildSettings build = action.getBuildSettings();
+		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		if( !vcs.exportRepositoryMasterPath( dstManualFolder.getParentFolder( action ) , REPOSITORY , PATH , dstManualFolder.folderName ) )
 			action.exit( "unable to export from REPOSITORY=" + REPOSITORY + ", PATH=" + PATH );
 		
@@ -134,22 +143,25 @@ public class SourceStorage {
 	}
 	
 	public void moveReleaseDatabaseFilesToErrors( ActionBase action , String errorFolder , Dist distStorage , MetaDistrDelivery dbDelivery , String movePath , String message ) throws Exception {
-		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );  
+		MetaProductBuildSettings build = action.getBuildSettings();
+		GenericVCS vcs = artefactory.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );  
 		String SRCPATH = getReleaseDBSourcePath( action , distStorage , dbDelivery );
 		String ERRORPATH = getReleaseErrorsPath( action , distStorage , dbDelivery , errorFolder );
-		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
+		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		
 		vcs.createMasterFolder( REPOSITORY , ERRORPATH , "create error folder" );
 		vcs.moveMasterFiles( REPOSITORY , SRCPATH , ERRORPATH , movePath , message );
 	}
 	
 	public boolean isValidPath( ActionBase action , GenericVCS vcs , String PATH ) throws Exception {
-		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
+		MetaProductBuildSettings build = action.getBuildSettings();
+		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		return( vcs.isValidRepositoryMasterPath( REPOSITORY , PATH ) );
 	}
 	
 	public String getReleaseGroupFolder( ActionBase action ) throws Exception {
-		return( meta.product.CONFIG_RELEASE_GROUPFOLDER );
+		MetaProductBuildSettings build = action.getBuildSettings();
+		return( build.CONFIG_RELEASE_GROUPFOLDER );
 	}
 	
 	public String getReleaseFolder( ActionBase action , Dist release ) throws Exception {
@@ -164,9 +176,10 @@ public class SourceStorage {
 	}
 
 	public String getReleasePath( ActionBase action , Dist distStorage ) throws Exception {
-		String PATH = Common.getPath( meta.product.CONFIG_SOURCE_RELEASEROOTDIR , 
-				getReleaseGroupFolder( action ) ,
-				getReleaseFolder( action , distStorage ) );
+		MetaProductBuildSettings build = action.getBuildSettings();
+		String PATH = Common.getPath( build.CONFIG_SOURCE_RELEASEROOTDIR , 
+			getReleaseGroupFolder( action ) ,
+			getReleaseFolder( action , distStorage ) );
 		return( PATH );
 	}
 	
@@ -194,7 +207,8 @@ public class SourceStorage {
 	}
 
 	public String getProductConfigSourcePath( ActionBase action , MetaDistrConfItem distrComp ) throws Exception {
-		String PATH = Common.getPath( meta.product.CONFIG_SOURCE_CFG_ROOTDIR , distrComp.KEY );
+		MetaProductBuildSettings build = action.getBuildSettings();
+		String PATH = Common.getPath( build.CONFIG_SOURCE_CFG_ROOTDIR , distrComp.KEY );
 		return( PATH );
 	}
 
@@ -219,12 +233,14 @@ public class SourceStorage {
 	}
 
 	public String getLiveConfigDCPath( ActionBase action , MetaEnvDC dc ) throws Exception {
-		String PATH = Common.getPath( meta.product.CONFIG_SOURCE_CFG_LIVEROOTDIR , dc.env.ID , dc.NAME );
+		MetaProductBuildSettings build = action.getBuildSettings();
+		String PATH = Common.getPath( build.CONFIG_SOURCE_CFG_LIVEROOTDIR , dc.env.ID , dc.NAME );
 		return( PATH );
 	}
 	
 	public String getLiveConfigPath( ActionBase action ) throws Exception {
-		String PATH = Common.getPath( meta.product.CONFIG_SOURCE_CFG_LIVEROOTDIR , action.context.env.ID );
+		MetaProductBuildSettings build = action.getBuildSettings();
+		String PATH = Common.getPath( build.CONFIG_SOURCE_CFG_LIVEROOTDIR , action.context.env.ID );
 		return( PATH );
 	}
 	
@@ -234,47 +250,53 @@ public class SourceStorage {
 	}
 	
 	public String getLiveConfigItems( ActionBase action , MetaEnvServer server ) throws Exception {
-		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );
-		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
+		MetaProductBuildSettings build = action.getBuildSettings();
+		GenericVCS vcs = artefactory.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );
+		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		String PATH = getLiveConfigServerPath( action , server.dc , server.NAME );
 		String list = vcs.listMasterItems( REPOSITORY , PATH );
 		return( list );
 	}
 
 	public String getLiveConfigServers( ActionBase action , MetaEnvDC dc ) throws Exception {
-		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );
-		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
+		MetaProductBuildSettings build = action.getBuildSettings();
+		GenericVCS vcs = artefactory.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );
+		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		String PATH = getLiveConfigDCPath( action , dc );
 		String list = vcs.listMasterItems( REPOSITORY , PATH );
 		return( list );
 	}
 
 	public void deleteLiveConfigItem( ActionBase action , MetaEnvServer server , String item , String commitMessage ) throws Exception {
-		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );
-		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
+		MetaProductBuildSettings build = action.getBuildSettings();
+		GenericVCS vcs = artefactory.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );
+		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		String PATH = getLiveConfigServerPath( action , server.dc , server.NAME );
 		PATH = Common.getPath( PATH , item );
 		vcs.deleteMasterFolder( REPOSITORY , PATH , commitMessage );
 	}
 
 	public void deleteLiveConfigServer( ActionBase action , MetaEnvDC dc , String server , String commitMessage ) throws Exception {
-		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );
-		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
+		MetaProductBuildSettings build = action.getBuildSettings();
+		GenericVCS vcs = artefactory.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );
+		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		String PATH = getLiveConfigServerPath( action , dc , server );
 		vcs.deleteMasterFolder( REPOSITORY , PATH , commitMessage );
 	}
 
 	public void tagLiveConfigs( ActionBase action , String TAG , String commitMessage ) throws Exception {
-		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );
-		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
+		MetaProductBuildSettings build = action.getBuildSettings();
+		GenericVCS vcs = artefactory.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );
+		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		String PATH = getLiveConfigPath( action );
 		String setTAG = meta.product.CONFIG_PRODUCT + "-" + action.context.env.ID + "-" + TAG;
 		vcs.createMasterTag( REPOSITORY , PATH , setTAG , commitMessage );
 	}
 
 	public void exportLiveConfigItem( ActionBase action , MetaEnvServer server , String confName , String TAG , LocalFolder folder ) throws Exception {
-		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );
-		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
+		MetaProductBuildSettings build = action.getBuildSettings();
+		GenericVCS vcs = artefactory.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );
+		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		
 		String SERVERPATH = getLiveConfigServerPath( action , server.dc , server.NAME );
 		String PATH = Common.getPath( SERVERPATH , confName );
@@ -293,10 +315,11 @@ public class SourceStorage {
 	}
 	
 	public void exportTemplateConfigItem( ActionBase action , MetaEnvDC dc , String confName , String TAG , LocalFolder folder ) throws Exception {
-		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );
-		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
+		MetaProductBuildSettings build = action.getBuildSettings();
+		GenericVCS vcs = artefactory.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );
+		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		
-		String CONFPATH = meta.product.CONFIG_SOURCE_CFG_ROOTDIR;
+		String CONFPATH = build.CONFIG_SOURCE_CFG_ROOTDIR;
 		String PATH = Common.getPath( CONFPATH , confName );
 		if( TAG.isEmpty() ) {
 			if( !vcs.exportRepositoryMasterPath( folder , REPOSITORY , PATH , confName ) )
@@ -313,8 +336,9 @@ public class SourceStorage {
 	}
 	
 	public void saveLiveConfigItem( ActionBase action , MetaEnvServer server , MetaEnvServerNode node , String item , LocalFolder folder , String commitMessage ) throws Exception {
-		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );
-		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
+		MetaProductBuildSettings build = action.getBuildSettings();
+		GenericVCS vcs = artefactory.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );
+		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		String SERVERPATH = getLiveConfigServerPath( action , server.dc , server.NAME );
 		String PATH = Common.getPath( SERVERPATH , item );
 		
@@ -409,10 +433,11 @@ public class SourceStorage {
 	}
 		
 	public void exportPostRefresh( ActionBase action , String name , LocalFolder folder ) throws Exception {
-		GenericVCS vcs = artefactory.getVCS( action , meta.product.CONFIG_SOURCE_VCS , false );
-		String REPOSITORY = meta.product.CONFIG_SOURCE_REPOSITORY;
+		MetaProductBuildSettings build = action.getBuildSettings();
+		GenericVCS vcs = artefactory.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );
+		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		
-		String CONFPATH = meta.product.CONFIG_SOURCE_SQL_POSTREFRESH;
+		String CONFPATH = build.CONFIG_SOURCE_SQL_POSTREFRESH;
 		String PATH = Common.getPath( CONFPATH , name );
 		if( !vcs.exportRepositoryMasterPath( folder , REPOSITORY , PATH , name ) )
 			action.exit( "exportTemplateConfigItem: unable to export " + name + " from " + PATH );

@@ -142,10 +142,10 @@ public class RedistStorage extends ServerStorage {
 	}
 
 	public Folder getMirrorFolder( ActionBase action , boolean winBuild ) throws Exception {
-		if( action.meta.product.CONFIG_GITMIRRORPATH.isEmpty() )
-			action.exit( "missing configuraion parameter: CONFIG_GITMIRRORPATH" );
+		if( action.meta.product.CONFIG_MIRRORPATH.isEmpty() )
+			action.exit( "missing configuraion parameter: CONFIG_MIRRORPATH" );
 		
-		return( artefactory.getAnyFolder( action , action.meta.product.CONFIG_GITMIRRORPATH ) );
+		return( artefactory.getAnyFolder( action , action.meta.product.CONFIG_MIRRORPATH ) );
 	}
 	
 	public void dropStateData( ActionBase action ) throws Exception {

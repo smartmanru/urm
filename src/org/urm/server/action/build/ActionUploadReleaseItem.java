@@ -7,6 +7,7 @@ import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScopeTarget;
 import org.urm.server.action.ActionScopeTargetItem;
 import org.urm.server.dist.Dist;
+import org.urm.server.meta.MetaProductBuildSettings;
 
 public class ActionUploadReleaseItem extends ActionBase {
 
@@ -22,9 +23,10 @@ public class ActionUploadReleaseItem extends ActionBase {
 		List<ActionScopeTargetItem> items = scopeProject.getItems( this );
 		
 		// set maven
-		shell.export( this , "M2_HOME" , "/usr/local/apache-maven-" + meta.product.CONFIG_MAVEN_VERSION );
+		MetaProductBuildSettings build = getBuildSettings();
+		shell.export( this , "M2_HOME" , "/usr/local/apache-maven-" + build.CONFIG_MAVEN_VERSION );
 		shell.export( this , "M2" , "$M2_HOME/bin; export PATH=" + Common.getQuoted( "$PATH:$M2" ) );
-		shell.export( this , "JAVA_HOME" , "/usr/java/" + meta.product.CONFIG_JAVA_VERSION );
+		shell.export( this , "JAVA_HOME" , "/usr/java/" + build.CONFIG_JAVA_VERSION );
 		shell.export( this , "PATH" , "$PATH:$JAVA_HOME/bin" );
 	
 		// get thirdparty information

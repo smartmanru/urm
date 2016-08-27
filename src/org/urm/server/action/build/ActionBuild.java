@@ -5,6 +5,7 @@ import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScope;
 import org.urm.server.action.ActionScopeSet;
 import org.urm.server.action.ActionScopeTarget;
+import org.urm.server.meta.MetaProductBuildSettings;
 import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.meta.Meta.VarCATEGORY;
 import org.urm.server.storage.BuildStorage;
@@ -59,8 +60,10 @@ public class ActionBuild extends ActionBase {
 	
 	private boolean executeTarget( ActionScopeTarget scopeProject ) throws Exception {
 		String BUILD_OPTIONS = null;
-		if( scopeProject.CATEGORY == VarCATEGORY.BUILD )
-			BUILD_OPTIONS = meta.product.CONFIG_MODULE_BUILD_OPTIONS_CORE;
+		if( scopeProject.CATEGORY == VarCATEGORY.BUILD ) {
+			MetaProductBuildSettings build = getBuildSettings();
+			BUILD_OPTIONS = build.CONFIG_BUILDER_OPTIONS;
+		}
 		else
 			exit( "ActionBuild: unexpected CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) );
 

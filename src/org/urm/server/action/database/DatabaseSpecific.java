@@ -9,6 +9,7 @@ import org.urm.common.Common;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.MetaEnvServerNode;
+import org.urm.server.meta.MetaProductBuildSettings;
 import org.urm.server.meta.Meta.VarDBMSTYPE;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.Folder;
@@ -121,7 +122,8 @@ public class DatabaseSpecific {
 			return( false );
 		}
 		
-		List<String> data = action.readFileLines( fileLog , action.meta.product.charset );
+		MetaProductBuildSettings build = action.getBuildSettings();
+		List<String> data = action.readFileLines( fileLog , build.charset );
 		String[] lines = data.toArray( new String[0] );
 		String[] errors = Common.grep( lines , "^ERROR" );
 		if( errors.length > 0 ) {
@@ -148,7 +150,8 @@ public class DatabaseSpecific {
 		if( status != 0 )
 			action.exit( "error: (see logs)" );
 
-		List<String> data = action.readFileLines( fileLog , action.meta.product.charset );
+		MetaProductBuildSettings build = action.getBuildSettings();
+		List<String> data = action.readFileLines( fileLog , build.charset );
 		String[] lines = data.toArray( new String[0] );
 		for( int k = 0; k < lines.length; k++ )
 			lines[ k ] = lines[ k ].trim();
@@ -409,12 +412,13 @@ public class DatabaseSpecific {
 		List<String> lines = new LinkedList<String>();
 		String name = null;
 		String DBHOST = ( action.isLocalAccount() )? "localhost" : server.DBMSADDR;
+		MetaProductBuildSettings build = action.getBuildSettings();
 		if( action.isLocalLinux() ) {
 			lines.add( "export URMDB_USER=" + user );
 			lines.add( "export URMDB_PWD=" + password );
 			lines.add( "export URMDB_DBHOST=" + DBHOST );
 			lines.add( "export URMDB_DBNAME=" + dbschema );
-			lines.add( "export URMDB_CHARSET=" + action.meta.product.charset.name() );
+			lines.add( "export URMDB_CHARSET=" + build.charset.name() );
 			name = "urmdb." + key + ".sh"; 
 		}
 		else
@@ -423,7 +427,7 @@ public class DatabaseSpecific {
 			lines.add( "set URMDB_PWD=" + password );
 			lines.add( "set URMDB_DBHOST=" + DBHOST );
 			lines.add( "set URMDB_DBNAME=" + dbschema );
-			lines.add( "set URMDB_CHARSET=" + action.meta.product.charset.name() );
+			lines.add( "set URMDB_CHARSET=" + build.charset.name() );
 			name = "urmdb." + key + ".cmd"; 
 		}
 		else

@@ -11,6 +11,7 @@ import org.urm.server.action.conf.ConfBuilder;
 import org.urm.server.dist.DistRepository;
 import org.urm.server.meta.MetaDatabaseSchema;
 import org.urm.server.meta.MetaEnvServer;
+import org.urm.server.meta.MetaProductBuildSettings;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.FileSet;
 import org.urm.server.storage.LocalFolder;
@@ -361,7 +362,8 @@ public class ActionImportDatabase extends ActionBase {
 		
 		// configure
 		ConfBuilder builder = new ConfBuilder( this );
-		builder.configureFolder( this , folder , server , null , meta.product.charset );
+		MetaProductBuildSettings build = getBuildSettings();
+		builder.configureFolder( this , folder , server , null , build.charset );
 		
 		// apply
 		if( !client.applyManualSet( this , folder ) )

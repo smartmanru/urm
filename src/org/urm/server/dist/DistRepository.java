@@ -6,6 +6,7 @@ import org.urm.server.ServerContext;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.Meta;
+import org.urm.server.meta.MetaProductBuildSettings;
 import org.urm.server.meta.MetaProductVersion;
 import org.urm.server.shell.Account;
 import org.urm.server.shell.ShellExecutor;
@@ -232,9 +233,11 @@ public class DistRepository {
 	public String getReleaseVerByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 
+		MetaProductBuildSettings build = action.getBuildSettings();
+		
 		String RELEASEVER = "";
 		if( RELEASELABEL.equals( "last" ) ) {
-			RELEASEVER = meta.product.CONFIG_RELEASE_LASTMINOR;
+			RELEASEVER = build.CONFIG_RELEASE_LASTMINOR;
 			if( RELEASEVER.isEmpty() )
 				action.exit( "CONFIG_VERSION_LAST_FULL is not set in product.conf" );
 
@@ -242,7 +245,7 @@ public class DistRepository {
 		}
 		
 		if( RELEASELABEL.equals( "next" ) ) {
-			RELEASEVER = meta.product.CONFIG_RELEASE_NEXTMINOR;
+			RELEASEVER = build.CONFIG_RELEASE_NEXTMINOR;
 			if( RELEASEVER.isEmpty() )
 				action.exit( "CONFIG_VERSION_NEXT_FULL is not set in product.conf" );
 

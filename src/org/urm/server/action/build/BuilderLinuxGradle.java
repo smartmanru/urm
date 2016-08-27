@@ -1,6 +1,7 @@
 package org.urm.server.action.build;
 
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.MetaProductBuildSettings;
 import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.BuildStorage;
@@ -46,12 +47,13 @@ public class BuilderLinuxGradle extends Builder {
 		String BUILD_GRADLE_VERSION = project.getBuilderVersion( action ); 
 
 		ShellExecutor session = action.shell;
-		session.export( action , "JAVA_HOME" , action.meta.product.CONFIG_BUILDBASE + "/" + BUILD_JAVA_VERSION );
-		session.export( action , "GR_HOME" , action.meta.product.CONFIG_BUILDBASE + "/" + BUILD_GRADLE_VERSION );
+		session.export( action , "JAVA_HOME" , action.meta.product.CONFIG_BUILDBASE_PATH + "/" + BUILD_JAVA_VERSION );
+		session.export( action , "GR_HOME" , action.meta.product.CONFIG_BUILDBASE_PATH + "/" + BUILD_GRADLE_VERSION );
 		session.export( action , "GR" , "$GR_HOME/bin" );
 		session.export( action , "PATH" , "$GR:$JAVA_HOME/bin:$PATH" );
 
-		String GRADLE_CMD = "gradle clean war publish -Dmaven.settings=" + action.meta.product.CONFIG_MAVEN_CFGFILE;
+		MetaProductBuildSettings build = action.getBuildSettings();
+		String GRADLE_CMD = "gradle clean war publish -Dmaven.settings=" + build.CONFIG_MAVEN_CFGFILE;
 
 		// execute gradle
 		action.info( "using gradle:" );

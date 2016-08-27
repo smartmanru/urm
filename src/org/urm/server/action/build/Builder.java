@@ -1,7 +1,9 @@
 package org.urm.server.action.build;
 
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.MetaProductBuildSettings;
 import org.urm.server.meta.MetaSourceProject;
+import org.urm.server.meta.MetaWebResource;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.BuildStorage;
 
@@ -29,7 +31,9 @@ public abstract class Builder {
 	}
 
 	public String getNexusPath( ActionBase action , MetaSourceProject project ) throws Exception {
-		return( action.meta.product.CONFIG_NEXUS_BASE + "/content/repositories/" + action.meta.product.CONFIG_NEXUS_REPO );
+		MetaProductBuildSettings build = action.getBuildSettings();
+		MetaWebResource res = action.getResource( build.CONFIG_NEXUS_RESOURCE );
+		return( res.BASEURL + "/content/repositories/" + build.CONFIG_NEXUS_REPO );
 	}
 
 }

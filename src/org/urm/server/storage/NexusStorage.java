@@ -3,8 +3,10 @@ package org.urm.server.storage;
 import org.urm.common.Common;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaDistrBinaryItem;
+import org.urm.server.meta.MetaProductBuildSettings;
 import org.urm.server.meta.MetaSourceProjectItem;
 import org.urm.server.meta.Meta;
+import org.urm.server.meta.MetaWebResource;
 
 public class NexusStorage {
 
@@ -23,7 +25,9 @@ public class NexusStorage {
 	}
 
 	public NexusDownloadInfo downloadNexus( ActionBase action , String GROUPID , String ARTEFACTID , String VERSION , String PACKAGING , String CLASSIFIER , MetaDistrBinaryItem item ) throws Exception {
-		String REPOPATH = meta.product.CONFIG_NEXUS_BASE + "/content/repositories/" + repository;
+		MetaProductBuildSettings build = action.getBuildSettings();
+		MetaWebResource res = action.getResource( build.CONFIG_NEXUS_RESOURCE );
+		String REPOPATH = res.BASEURL + "/content/repositories/" + repository;
 		String NAME = ARTEFACTID + "-" + VERSION;
 		if( !CLASSIFIER.isEmpty() )
 			NAME += "-" + CLASSIFIER;
@@ -36,7 +40,7 @@ public class NexusStorage {
 		
 		info.DOWNLOAD_FILENAME = Common.getPath( item.delivery.FOLDER , NAME );
 		info.DOWNLOAD_URL = REPOPATH + "/" + GROUPIDSLASHED + "/" + ARTEFACTID + "/" + VERSION + "/" + NAME;
-		info.DOWNLOAD_URL_REQUEST = meta.product.CONFIG_NEXUS_BASE + "/service/local/artifact/maven/redirect?g=" + GROUPID + "&a=" + ARTEFACTID + "&v=" + VERSION + "&r=" + repository + "&e=" + PACKAGING + "&";
+		info.DOWNLOAD_URL_REQUEST = res.BASEURL + "/service/local/artifact/maven/redirect?g=" + GROUPID + "&a=" + ARTEFACTID + "&v=" + VERSION + "&r=" + repository + "&e=" + PACKAGING + "&";
 
 		info.BASENAME = ARTEFACTID;
 		info.EXT = "." + PACKAGING;
@@ -51,7 +55,9 @@ public class NexusStorage {
 	}
 
 	public NexusDownloadInfo downloadNuget( ActionBase action , String ARTEFACTID , String VERSION , MetaDistrBinaryItem item ) throws Exception {
-		String REPOPATH = meta.product.CONFIG_NEXUS_BASE + "/content/repositories/" + repository;
+		MetaProductBuildSettings build = action.getBuildSettings();
+		MetaWebResource res = action.getResource( build.CONFIG_NEXUS_RESOURCE );
+		String REPOPATH = res.BASEURL + "/content/repositories/" + repository;
 		String NAME = ARTEFACTID + "-" + VERSION + ".nupkg";
 
 		NexusDownloadInfo info = new NexusDownloadInfo( artefactoryFolder ); 
@@ -135,7 +141,9 @@ public class NexusStorage {
 		artefactoryFolder.appendFileWithString( action , fname , "DATE=" + Common.getLogTimeStamp() );
 		artefactoryFolder.appendFileWithString( action , fname , "BUILDMACHINE=" + action.context.account.getFullName() );
 		artefactoryFolder.appendFileWithString( action , fname , "-------------" );
-		artefactoryFolder.appendFileWithString( action , fname , "BUILDINFO v." + meta.product.CONFIG_APPVERSION );
+		
+		MetaProductBuildSettings build = action.getBuildSettings();
+		artefactoryFolder.appendFileWithString( action , fname , "BUILDINFO v." + build.CONFIG_APPVERSION );
 	}
 	
 }

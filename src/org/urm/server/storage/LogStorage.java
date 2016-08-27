@@ -5,6 +5,7 @@ import org.urm.server.action.ActionBase;
 import org.urm.server.dist.ReleaseDelivery;
 import org.urm.server.meta.MetaEnvServer;
 import org.urm.server.meta.Meta;
+import org.urm.server.meta.MetaProductBuildSettings;
 
 public class LogStorage {
 
@@ -28,7 +29,8 @@ public class LogStorage {
 	}
 
 	public void prepareDatabaseLogFolder( ActionBase action , String release ) throws Exception {
-		String dir = action.meta.product.CONFIG_SQL_LOGDIR + "/" + action.context.env.ID + "/" + release + "-" + Common.getNameTimeStamp();  
+		MetaProductBuildSettings build = action.getBuildSettings();
+		String dir = build.CONFIG_SQL_LOGDIR + "/" + action.context.env.ID + "/" + release + "-" + Common.getNameTimeStamp();  
 		logFolder = artefactory.getAnyFolder( action , dir );
 		logFolder.ensureExists( action );
 	}
