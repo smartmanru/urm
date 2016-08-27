@@ -78,7 +78,7 @@ public class ServerRegistry {
 		defaultProductProperties.loadOriginalFromNodeElements( node );
 		
 		Node build = ConfReader.xmlGetFirstChild( node , "build" );
-		if( build != null )
+		if( build == null )
 			return;
 			
 		defaultProductBuildProperties.loadOriginalFromNodeElements( build );
