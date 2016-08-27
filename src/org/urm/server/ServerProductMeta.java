@@ -73,7 +73,7 @@ public class ServerProductMeta {
 		}
 		if( product != null ) {
 			r.product = product.copy( action , r.meta );
-			if( r.product.loadFailed )
+			if( r.product.isLoadFailed() )
 				r.loadFailed = true;
 		}
 		if( database != null ) {
@@ -186,7 +186,6 @@ public class ServerProductMeta {
 			}
 			catch( Throwable e ) {
 				setLoadFailed( action , e , "unable to load settings metadata, product=" + name );
-				product.setLoadFailed();
 			}
 		}
 		

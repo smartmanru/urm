@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
 import org.urm.server.ServerProductContext;
 import org.urm.server.ServerRegistry;
@@ -13,11 +14,9 @@ import org.urm.server.meta.Meta.VarBUILDMODE;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class MetaProductSettings {
+public class MetaProductSettings extends PropertyController {
 
 	protected Meta meta;
-	private boolean loaded;
-	public boolean loadFailed;
 
 	public PropertySet execprops;
 	public PropertySet props;
@@ -49,8 +48,6 @@ public class MetaProductSettings {
 	public String CONFIG_CUSTOM_DEPLOY;
 	public String CONFIG_CUSTOM_DATABASE;
 
-	public boolean initial;
-	
 	public static String[] modes = { "devtrunk" , "trunk" , "majorbranch" , "devbranch" , "branch" };
 
 	// context
@@ -80,15 +77,13 @@ public class MetaProductSettings {
 	
 	public MetaProductSettings( Meta meta , PropertySet execprops ) {
 		this.meta = meta;
-		loaded = false;
-		loadFailed = false;
-		
 		buildModes = new HashMap<String,MetaProductBuildSettings>();
 	}
 
 	public MetaProductSettings copy( ActionBase action , Meta meta ) throws Exception {
 		MetaProductSettings r = new MetaProductSettings( meta , execprops );
-		r.loaded = loaded;
+		r.loadStarted();
+		
 		if( props != null )
 			r.props = props.copy( execprops );
 		
@@ -98,45 +93,35 @@ public class MetaProductSettings {
 			MetaProductBuildSettings modeSet = buildModes.get( modeKey );
 			r.buildModes.put( modeKey , modeSet.copy( action , meta , r , r.buildCommon.props ) );
 		}
-		r.initial = initial;
-		try {
-			r.scatterVariables( action );
-			r.loadFailed = false;
-		}
-		catch( Throwable e ) {
-			r.loadFailed = true;
-		}
+
+		r.scatterVariables( action );
+		r.loadFinished();
 
 		return( r );
 	}
 	
-	public void setLoadFailed() {
-		loadFailed = true;
-	}
-	
 	private void scatterVariables( ActionBase action ) throws Exception {
-		CONFIG_REDISTPATH = getPathPropertyRequired( action , PROPERTY_REDIST_PATH );
-		CONFIG_WORKPATH = getPathPropertyRequired( action , PROPERTY_WORKPATH );
-		CONFIG_DISTR_PATH = getPathPropertyRequired( action , PROPERTY_DISTR_PATH );
-		CONFIG_DISTR_HOSTLOGIN = getStringProperty( action , PROPERTY_DISTR_HOSTLOGIN );
-		CONFIG_UPGRADE_PATH = getPathPropertyRequired( action , PROPERTY_UPGRADE_PATH );
-		CONFIG_BASE_PATH = getPathPropertyRequired( action , PROPERTY_BASE_PATH );
-		CONFIG_MIRRORPATH = getPathPropertyRequired( action , PROPERTY_MIRRORPATH );
-		CONFIG_BUILDBASE_PATH = getPathPropertyRequired( action , PROPERTY_BUILDBASE_PATH );
-		CONFIG_WINBUILD_HOSTLOGIN = getPathPropertyRequired( action , PROPERTY_WINBUILD_HOSTLOGIN );
-		CONFIG_ADM_TRACKER = getStringProperty( action , PROPERTY_ADM_TRACKER );
+		CONFIG_REDISTPATH = super.getPathPropertyRequired( action , props , PROPERTY_REDIST_PATH );
+		CONFIG_WORKPATH = getPathPropertyRequired( action , props , PROPERTY_WORKPATH );
+		CONFIG_DISTR_PATH = getPathPropertyRequired( action , props , PROPERTY_DISTR_PATH );
+		CONFIG_DISTR_HOSTLOGIN = getStringProperty( action , props , PROPERTY_DISTR_HOSTLOGIN );
+		CONFIG_UPGRADE_PATH = getPathPropertyRequired( action , props , PROPERTY_UPGRADE_PATH );
+		CONFIG_BASE_PATH = getPathPropertyRequired( action , props , PROPERTY_BASE_PATH );
+		CONFIG_MIRRORPATH = getPathPropertyRequired( action , props , PROPERTY_MIRRORPATH );
+		CONFIG_BUILDBASE_PATH = getPathPropertyRequired( action , props , PROPERTY_BUILDBASE_PATH );
+		CONFIG_WINBUILD_HOSTLOGIN = getPathPropertyRequired( action , props , PROPERTY_WINBUILD_HOSTLOGIN );
+		CONFIG_ADM_TRACKER = getStringProperty( action , props , PROPERTY_ADM_TRACKER );
 		
-		CONFIG_CUSTOM_BUILD = getStringProperty( action , PROPERTY_CUSTOM_BUILD );
-		CONFIG_CUSTOM_DEPLOY = getStringProperty( action , PROPERTY_CUSTOM_DEPLOY );
-		CONFIG_CUSTOM_DATABASE = getStringProperty( action , PROPERTY_CUSTOM_DATABASE );
+		CONFIG_CUSTOM_BUILD = getStringProperty( action , props , PROPERTY_CUSTOM_BUILD );
+		CONFIG_CUSTOM_DEPLOY = getStringProperty( action , props , PROPERTY_CUSTOM_DEPLOY );
+		CONFIG_CUSTOM_DATABASE = getStringProperty( action , props , PROPERTY_CUSTOM_DATABASE );
 	}
 
 	public void create( ActionBase action , ServerRegistry registry , ServerProductContext productContext ) throws Exception {
-		if( loaded )
+		if( !loadStarted() )
 			return;
 
 		// create initial
-		loaded = true;
 		props = new PropertySet( "product" , execprops );
 		setContextProperties( action , productContext );
 		props.copyOriginalPropertiesToRaw( registry.getDefaultProductProperties() );
@@ -150,14 +135,13 @@ public class MetaProductSettings {
 			buildMode.create( action , set , buildCommon.props );
 		}
 		
-		loadFailed = false;
+		loadFinished();
 	}
 
 	public void load( ActionBase action , ServerProductContext productContext , Node root ) throws Exception {
-		if( loaded )
+		if( !loadStarted() )
 			return;
 
-		loaded = true;
 		props = new PropertySet( "product" , null );
 		setContextProperties( action , productContext );
 		
@@ -165,7 +149,6 @@ public class MetaProductSettings {
 		props.loadRawFromNodeElements( root );
 		
 		// resolve properties
-		initial = true;
 		scatterVariables( action );
 		props.finishRawProperties();
 
@@ -187,11 +170,11 @@ public class MetaProductSettings {
 			}
 		}
 		
-		loadFailed = false;
+		loadFinished();
 	}
 
 	public void save( ActionBase action , Element root ) throws Exception {
-		if( !loaded )
+		if( !super.isLoaded() )
 			return;
 
 		props.saveAsElements( root.getOwnerDocument() , root );
@@ -199,111 +182,7 @@ public class MetaProductSettings {
 
 	public void updateProperties( ActionBase action ) throws Exception {
 		// get variables
-		initial = false;
 		scatterVariables( action );
-	}
-	
-	public String getStringProperty( ActionBase action , String name ) throws Exception {
-		return( getPropertyType( action , name , "S" , "" ) );
-	}
-	
-	public String getStringProperty( ActionBase action , String name , String defaultValue ) throws Exception {
-		String value = getPropertyType( action , name , "S" , defaultValue );
-		return( value );
-	}
-	
-	public String getStringPropertyRequired( ActionBase action , String name , String defaultValue ) throws Exception {
-		String value = getPropertyType( action , name , "S" , defaultValue );
-		if( value.isEmpty() ) {
-			action.error( "product property is not set: " + name );
-			loadFailed = true;
-		}
-		
-		return( value );
-	}
-
-	public String getPathProperty( ActionBase action , String name ) throws Exception {
-		return( getPropertyType( action , name , "P" , "" ) );
-	}
-	
-	private String getPathPropertyRequired( ActionBase action , String name ) throws Exception {
-		String value = getPropertyType( action , name , "P" , "" );
-		if( value.isEmpty() )
-			action.exit( "product property is not set: " + name );
-		
-		return( value );
-	}
-	
-	public String getPathPropertyBuildRequired( ActionBase action , String name ) throws Exception {
-		String value = getPropertyType( action , name , "P" , "" );
-		if( value.isEmpty() && action.context.buildMode != VarBUILDMODE.UNKNOWN )
-			action.exit( "product property is not set: " + name );
-		
-		return( value );
-	}
-	
-	private String getPropertyType( ActionBase action , String name , String type , String defaultValue ) throws Exception {
-		if( initial ) {
-			getPropertyInitial( action , name , type , defaultValue );
-			for( String mode : modes )
-				getPropertyInitial( action , mode + "." + name , type , defaultValue );
-		}
-		
-		String value;
-		if( action.context.buildMode == VarBUILDMODE.UNKNOWN ) {
-			value = getPropertyBase( action , name , type );
-		}
-		else {
-			String buildMode = Common.getEnumLower( action.context.buildMode );
-			value = getPropertyBase( action , buildMode + "." + name , type );
-			if( value == null || value.isEmpty() )
-				value = getPropertyBase( action , name , type );
-		}
-		if( value == null )
-			return( "" );
-		
-		return( value );
-	}
-
-	private void getPropertyInitial( ActionBase action , String name , String type , String defaultValue ) throws Exception {
-		if( type.equals( "S" ) )
-			props.getSystemStringProperty( name , defaultValue );
-		else
-		if( type.equals( "P" ) )
-			props.getSystemPathProperty( name , defaultValue , action.session.execrc );
-		else
-		if( type.equals( "B" ) )
-			props.getSystemBooleanProperty( name , Common.getBooleanValue( defaultValue ) );
-		else
-		if( type.equals( "N" ) )
-			props.getSystemIntProperty( name , Integer.parseInt( defaultValue ) );
-		else
-			action.exitUnexpectedState();
-	}
-	
-	private String getPropertyBase( ActionBase action , String name , String type ) throws Exception {
-		if( type.equals( "S" ) )
-			return( props.getStringProperty( name , null ) );
-		else
-		if( type.equals( "P" ) )
-			return( props.getPathProperty( name , null ) );
-		else
-		if( type.equals( "B" ) ) {
-			boolean value = props.getBooleanProperty( name , false );
-			return( Common.getBooleanValue( value ) );
-		}
-		else
-		if( type.equals( "N" ) )
-			props.getIntProperty( name , 0 );
-		else
-			action.exitUnexpectedState();
-		
-		return( null );
-	}
-	
-	public String getPropertyAny( ActionBase action , String name ) throws Exception {
-		String value = props.findPropertyAny( name );
-		return( value );
 	}
 	
 	public Map<String,String> getExportProperties( ActionBase action ) throws Exception {
@@ -358,4 +237,8 @@ public class MetaProductSettings {
 		return( settings );
 	}
     
+	public String getPropertyAny( ActionBase action , String name ) throws Exception {
+		return( props.getPropertyAny( name ) );
+	}
+	
 }
