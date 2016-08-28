@@ -196,4 +196,9 @@ public class MetadataStorage {
 		saveFile( action , doc , filePath );
 	}
 	
+	public void saveProductConfFile( ActionBase action , Document doc ) throws Exception {
+		String filePath = getProductConfFile( action );
+		saveFile( action , doc , filePath );
+	}
+	
 }

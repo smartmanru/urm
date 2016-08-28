@@ -370,7 +370,12 @@ public class ServerTransaction {
 
 	public void setRegistryServerProperties( PropertySet props ) throws Exception {
 		checkTransactionRegistry();
-		registry.setRegistryServerProperties( this , props );
+		registry.setServerProperties( this , props );
+	}
+	
+	public void setRegistryProductDefaultsProperties( PropertySet props ) throws Exception {
+		checkTransactionRegistry();
+		registry.setProductDefaultsProperties( this , props );
 	}
 	
 	public void setProductVersion( MetaProductVersion version ) throws Exception {

@@ -11,6 +11,7 @@ import org.urm.server.ServerProductContext;
 import org.urm.server.ServerRegistry;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.Meta.VarBUILDMODE;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -63,7 +64,7 @@ public class MetaProductSettings extends PropertyController {
 	public static String PROPERTY_WORKPATH = "work.path";
 	public static String PROPERTY_REDIST_PATH = "redist.path";
 	public static String PROPERTY_DISTR_PATH  = "distr.path";
-	public static String PROPERTY_DISTR_HOSTLOGIN = "distr.hostport";
+	public static String PROPERTY_DISTR_HOSTLOGIN = "distr.hostlogin";
 	public static String PROPERTY_UPGRADE_PATH = "upgrade.path";
 	public static String PROPERTY_BASE_PATH = "base.path";
 	public static String PROPERTY_MIRRORPATH = "mirror.path";
@@ -102,19 +103,19 @@ public class MetaProductSettings extends PropertyController {
 	
 	private void scatterVariables( ActionBase action ) throws Exception {
 		CONFIG_REDISTPATH = super.getPathPropertyRequired( action , props , PROPERTY_REDIST_PATH );
-		CONFIG_WORKPATH = getPathPropertyRequired( action , props , PROPERTY_WORKPATH );
-		CONFIG_DISTR_PATH = getPathPropertyRequired( action , props , PROPERTY_DISTR_PATH );
-		CONFIG_DISTR_HOSTLOGIN = getStringProperty( action , props , PROPERTY_DISTR_HOSTLOGIN );
-		CONFIG_UPGRADE_PATH = getPathPropertyRequired( action , props , PROPERTY_UPGRADE_PATH );
-		CONFIG_BASE_PATH = getPathPropertyRequired( action , props , PROPERTY_BASE_PATH );
-		CONFIG_MIRRORPATH = getPathPropertyRequired( action , props , PROPERTY_MIRRORPATH );
-		CONFIG_BUILDBASE_PATH = getPathPropertyRequired( action , props , PROPERTY_BUILDBASE_PATH );
-		CONFIG_WINBUILD_HOSTLOGIN = getPathPropertyRequired( action , props , PROPERTY_WINBUILD_HOSTLOGIN );
-		CONFIG_ADM_TRACKER = getStringProperty( action , props , PROPERTY_ADM_TRACKER );
+		CONFIG_WORKPATH = super.getPathPropertyRequired( action , props , PROPERTY_WORKPATH );
+		CONFIG_DISTR_PATH = super.getPathPropertyRequired( action , props , PROPERTY_DISTR_PATH );
+		CONFIG_DISTR_HOSTLOGIN = super.getStringProperty( action , props , PROPERTY_DISTR_HOSTLOGIN );
+		CONFIG_UPGRADE_PATH = super.getPathPropertyRequired( action , props , PROPERTY_UPGRADE_PATH );
+		CONFIG_BASE_PATH = super.getPathPropertyRequired( action , props , PROPERTY_BASE_PATH );
+		CONFIG_MIRRORPATH = super.getPathPropertyRequired( action , props , PROPERTY_MIRRORPATH );
+		CONFIG_BUILDBASE_PATH = super.getPathPropertyRequired( action , props , PROPERTY_BUILDBASE_PATH );
+		CONFIG_WINBUILD_HOSTLOGIN = super.getPathPropertyRequired( action , props , PROPERTY_WINBUILD_HOSTLOGIN );
+		CONFIG_ADM_TRACKER = super.getStringProperty( action , props , PROPERTY_ADM_TRACKER );
 		
-		CONFIG_CUSTOM_BUILD = getStringProperty( action , props , PROPERTY_CUSTOM_BUILD );
-		CONFIG_CUSTOM_DEPLOY = getStringProperty( action , props , PROPERTY_CUSTOM_DEPLOY );
-		CONFIG_CUSTOM_DATABASE = getStringProperty( action , props , PROPERTY_CUSTOM_DATABASE );
+		CONFIG_CUSTOM_BUILD = super.getStringProperty( action , props , PROPERTY_CUSTOM_BUILD );
+		CONFIG_CUSTOM_DEPLOY = super.getStringProperty( action , props , PROPERTY_CUSTOM_DEPLOY );
+		CONFIG_CUSTOM_DATABASE = super.getStringProperty( action , props , PROPERTY_CUSTOM_DATABASE );
 	}
 
 	public void create( ActionBase action , ServerRegistry registry , ServerProductContext productContext ) throws Exception {
@@ -130,9 +131,14 @@ public class MetaProductSettings extends PropertyController {
 		buildCommon = new MetaProductBuildSettings( "build.common" , meta , this );
 		buildCommon.create( action , registry.getDefaultProductBuildProperties() , props );
 		for( VarBUILDMODE mode : VarBUILDMODE.values() ) {
-			MetaProductBuildSettings buildMode = new MetaProductBuildSettings( "build." + Common.getEnumLower( mode ) , meta , this );
+			if( mode == VarBUILDMODE.UNKNOWN )
+				continue;
+			
+			String modeName = Common.getEnumLower( mode );
+			MetaProductBuildSettings buildMode = new MetaProductBuildSettings( "build." + modeName , meta , this );
 			PropertySet set = registry.getDefaultProductBuildProperties( mode );
 			buildMode.create( action , set , buildCommon.props );
+			buildModes.put( modeName , buildMode );
 		}
 		
 		loadFinished();
@@ -150,7 +156,7 @@ public class MetaProductSettings extends PropertyController {
 		
 		// resolve properties
 		scatterVariables( action );
-		props.finishRawProperties();
+		super.finishProperties( action , props );
 
 		buildCommon = new MetaProductBuildSettings( "build" , meta , this );
 		Node build = ConfReader.xmlGetFirstChild( root , "build" );
@@ -173,11 +179,21 @@ public class MetaProductSettings extends PropertyController {
 		loadFinished();
 	}
 
-	public void save( ActionBase action , Element root ) throws Exception {
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		if( !super.isLoaded() )
 			return;
 
-		props.saveAsElements( root.getOwnerDocument() , root );
+		props.saveAsElements( doc , root );
+		
+		Element buildElement = Common.xmlCreateElement( doc , root , "build" );
+		buildCommon.save( action , doc , buildElement );
+		
+		for( String mode : buildModes.keySet() ) {
+			MetaProductBuildSettings buildMode = buildModes.get( mode );
+			Element buildModeElement = Common.xmlCreateElement( doc , buildElement , "mode" );
+			buildModeElement.setAttribute( "name" , mode );
+			buildMode.save( action , doc , buildModeElement );
+		}
 	}
 
 	public void updateProperties( ActionBase action ) throws Exception {

@@ -456,11 +456,14 @@ public class ServerProductMeta {
 	
 	public void saveVersion( ActionBase action , MetadataStorage storageMeta ) throws Exception {
 		Document doc = Common.xmlCreateDoc( XML_ROOT_VERSION );
-		version.save( action , doc.getDocumentElement() );
+		version.save( action , doc , doc.getDocumentElement() );
 		storageMeta.saveVersionConfFile( action , doc );
 	}
 	
 	public void saveProduct( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+		Document doc = Common.xmlCreateDoc( XML_ROOT_PRODUCT );
+		product.save( action , doc , doc.getDocumentElement() );
+		storageMeta.saveProductConfFile( action , doc );
 	}
 	
 	public void saveDatabase( ActionBase action , MetadataStorage storageMeta ) throws Exception {

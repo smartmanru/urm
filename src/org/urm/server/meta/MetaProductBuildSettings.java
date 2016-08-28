@@ -5,6 +5,8 @@ import java.nio.charset.Charset;
 import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
 import org.urm.server.action.ActionBase;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MetaProductBuildSettings extends PropertyController {
@@ -68,9 +70,10 @@ public class MetaProductBuildSettings extends PropertyController {
 			return;
 
 		props = new PropertySet( name , parent );
-		props.copyOriginalPropertiesToRaw( src );
-		scatterVariables( action );
+		if( src != null )
+			props.copyOriginalPropertiesToRaw( src );
 		
+		scatterVariables( action );
 		loadFinished();
 	}
 	
@@ -84,16 +87,18 @@ public class MetaProductBuildSettings extends PropertyController {
 	}
 	
 	private void scatterVariables( ActionBase action ) throws Exception {
-		CONFIG_RELEASE_LASTMAJOR = getStringPropertyRequired( action , props , PROPERTY_RELEASE_LASTMAJOR , getVarExpr( MetaProductSettings.PROPERTY_VERSION_BRANCH_MAJOR ) + "." + getVarExpr( MetaProductSettings.PROPERTY_VERSION_BRANCH_MINOR ) );
-		CONFIG_RELEASE_NEXTMAJOR = getStringPropertyRequired( action , props , PROPERTY_RELEASE_NEXTMAJOR , getVarExpr( MetaProductSettings.PROPERTY_VERSION_BRANCH_NEXTMAJOR ) + "." + getVarExpr( MetaProductSettings.PROPERTY_VERSION_BRANCH_NEXTMINOR ) );
-		CONFIG_RELEASE_LASTMINOR = getStringProperty( action , props , PROPERTY_RELEASE_LASTMINOR );
-		CONFIG_RELEASE_NEXTMINOR = getStringProperty( action , props , PROPERTY_RELEASE_NEXTMINOR );
-		CONFIG_RELEASE_VERSION = getStringProperty( action , props , PROPERTY_RELEASE_VERSION );
-		CONFIG_APPVERSION = getStringProperty( action , props , PROPERTY_APPVERSION );
+		CONFIG_RELEASE_LASTMAJOR = super.getStringExprProperty( action , props , PROPERTY_RELEASE_LASTMAJOR , getVarExpr( MetaProductSettings.PROPERTY_VERSION_BRANCH_MAJOR ) + "." + getVarExpr( MetaProductSettings.PROPERTY_VERSION_BRANCH_MINOR ) );
+		CONFIG_RELEASE_NEXTMAJOR = super.getStringExprProperty( action , props , PROPERTY_RELEASE_NEXTMAJOR , getVarExpr( MetaProductSettings.PROPERTY_VERSION_BRANCH_NEXTMAJOR ) + "." + getVarExpr( MetaProductSettings.PROPERTY_VERSION_BRANCH_NEXTMINOR ) );
+		CONFIG_RELEASE_LASTMINOR = super.getStringProperty( action , props , PROPERTY_RELEASE_LASTMINOR );
+		CONFIG_RELEASE_NEXTMINOR = super.getStringProperty( action , props , PROPERTY_RELEASE_NEXTMINOR );
+		CONFIG_RELEASE_VERSION = super.getStringProperty( action , props , PROPERTY_RELEASE_VERSION );
+		CONFIG_APPVERSION = super.getStringProperty( action , props , PROPERTY_APPVERSION );
 		
-		charset = Charset.availableCharsets().get( CONFIG_SOURCE_CHARSET );
-		if( charset == null )
-			action.exit( "unknown database files charset=" + CONFIG_SOURCE_CHARSET );
+		if( CONFIG_SOURCE_CHARSET != null ) {
+			charset = Charset.availableCharsets().get( CONFIG_SOURCE_CHARSET );
+			if( charset == null )
+				action.exit( "unknown database files charset=" + CONFIG_SOURCE_CHARSET );
+		}
 	}
 	
 	public void load( ActionBase action , Node root , PropertySet parent ) throws Exception {
@@ -102,9 +107,17 @@ public class MetaProductBuildSettings extends PropertyController {
 
 		props = new PropertySet( name , parent );
 		props.loadRawFromNodeElements( root );
-		props.finishRawProperties();
+		scatterVariables( action );
+		super.finishProperties( action , props );
 		
 		loadFinished();
+	}
+
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		if( !super.isLoaded() )
+			return;
+
+		props.saveAsElements( doc , root );
 	}
 	
 }

@@ -67,7 +67,7 @@ public class ServerRegistry {
 	}
 	
 	private void loadProductDefaults( Node root ) throws Exception {
-		defaultProductProperties = new PropertySet( "primary" , serverContext.properties );
+		defaultProductProperties = new PropertySet( "product.primary" , serverContext.properties );
 		defaultProductBuildProperties = new PropertySet( "build.common" , defaultProductProperties );
 		
 		Node node = ConfReader.xmlGetFirstChild( root , "defaults" );
@@ -76,12 +76,16 @@ public class ServerRegistry {
 
 		// top-level
 		defaultProductProperties.loadOriginalFromNodeElements( node );
+		defaultProductProperties.copyOriginalPropertiesToRaw();
+		defaultProductProperties.resolveRawProperties( true );
 		
 		Node build = ConfReader.xmlGetFirstChild( node , "build" );
 		if( build == null )
 			return;
 			
 		defaultProductBuildProperties.loadOriginalFromNodeElements( build );
+		defaultProductBuildProperties.copyOriginalPropertiesToRaw();
+		defaultProductBuildProperties.resolveRawProperties( true );
 		
 		// for build modes
 		Node[] items = ConfReader.xmlGetChildren( build , "mode" );
@@ -94,6 +98,8 @@ public class ServerRegistry {
 			PropertySet set = new PropertySet( "build." + MODE.toLowerCase() , defaultProductBuildProperties );
 
 			set.loadOriginalFromNodeElements( itemNode );
+			set.copyOriginalPropertiesToRaw();
+			set.resolveRawProperties( true );
 			mapBuildModeDefaults.put( mode , set );
 		}
 	}
@@ -159,11 +165,12 @@ public class ServerRegistry {
 				r.mapProducts.put( rp.NAME , rp );
 		}
 
-		r.defaultProductProperties = defaultProductProperties.copy( null );
+		r.defaultProductProperties = defaultProductProperties.copy( serverContext.properties );
+		r.defaultProductBuildProperties = defaultProductBuildProperties.copy( r.defaultProductProperties );
 		
 		for( VarBUILDMODE mode : mapBuildModeDefaults.keySet() ) {
 			PropertySet set = mapBuildModeDefaults.get( mode );
-			PropertySet rs = set.copy( r.defaultProductProperties );
+			PropertySet rs = set.copy( r.defaultProductBuildProperties );
 			r.mapBuildModeDefaults.put( mode , rs );
 		}
 		
@@ -180,11 +187,13 @@ public class ServerRegistry {
 		// defaults
 		Element modeDefaults = Common.xmlCreateElement( doc , root , "defaults" );
 		defaultProductProperties.saveAsElements( doc , modeDefaults );
+		Element modeBuild = Common.xmlCreateElement( doc , modeDefaults , "build" );
+		defaultProductBuildProperties.saveAsElements( doc , modeBuild );
 		
 		// product defaults
 		for( VarBUILDMODE mode : mapBuildModeDefaults.keySet() ) {
 			PropertySet set = mapBuildModeDefaults.get( mode );
-			Element modeElement = Common.xmlCreateElement( doc , modeDefaults , "mode" );
+			Element modeElement = Common.xmlCreateElement( doc , modeBuild , "mode" );
 			Common.xmlSetElementAttr( doc , modeElement , "name" , mode.toString().toLowerCase() );
 			set.saveAsElements( doc , modeElement );
 		}
@@ -253,9 +262,14 @@ public class ServerRegistry {
 		product.system.removeProduct( transaction , product );
 	}
 
-	public void setRegistryServerProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
-		serverContext.setRegistryServerProperties( transaction , props );
+	public void setServerProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
+		serverContext.setServerProperties( transaction , props );
 		serverContext.resolveRegistryServerProperties( transaction );
+	}
+
+	public void setProductDefaultsProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
+		defaultProductProperties.updateProperties( props );
+		defaultProductProperties.resolveRawProperties( true );
 	}
 
 }

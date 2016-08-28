@@ -3,6 +3,7 @@ package org.urm.server.meta;
 import org.urm.common.PropertySet;
 import org.urm.server.ServerRegistry;
 import org.urm.server.action.ActionBase;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -86,11 +87,11 @@ public class MetaProductVersion {
 		loadFailed = false;
 	}
 
-	public void save( ActionBase action , Element root ) throws Exception {
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		if( !loaded )
 			return;
 
-		properties.saveAsElements( root.getOwnerDocument() , root );
+		properties.saveAsElements( doc , root );
 	}
 
 	public boolean isValid() {

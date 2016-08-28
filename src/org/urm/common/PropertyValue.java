@@ -115,10 +115,12 @@ public class PropertyValue {
 
 	public void setDefault( String value ) {
 		defaultValue = value;
+		resolved = isFinal( defaultValue );
 	}
 	
 	public void setDefault( PropertyValue value ) {
 		defaultValue = value.getValue();
+		resolved = isFinal( defaultValue );
 	}
 	
 	public void setValue( String value ) {

@@ -47,6 +47,10 @@ public class PropertySet {
 		return( r );
 	}
 	
+	public boolean isResolved() {
+		return( resolved );
+	}
+	
 	public int getDepth() {
 		int depth = 0;
 		PropertySet ps = parent;
@@ -62,7 +66,7 @@ public class PropertySet {
 	}
 	
 	public String getKeyByProperty( String prop ) {
-		return( set + "." + prop );
+		return( set + "#" + prop );
 	}
 	
 	public String[] getRunningKeys() {
@@ -120,6 +124,10 @@ public class PropertySet {
 			props.put( prop , prop );
 		return( Common.getSortedKeys( props ) );
 	}
+
+	public String[] getRawKeys() {
+		return( Common.getSortedKeys( raw ) );
+	}
 	
 	private void setRunningPropertyInternal( PropertyValue value ) throws Exception {
 		if( !value.resolved )
@@ -128,15 +136,26 @@ public class PropertySet {
 	}
 
 	private void setRawPropertyInternal( PropertyValue value ) {
+		resolved = false;
 		raw.put( getKeyByProperty( value.property ) , value );
 	}
 
 	private void setOriginalPropertyInternal( PropertyValue pv ) {
-		original.put( pv.property , pv.getData() );
+		setOriginalPropertyInternal( pv.property , pv.getData() );
+	}
+	
+	private void setOriginalPropertyInternal( String prop , String value ) {
+		original.put( prop , value );
 	}
 	
 	private void removeRawProperty( PropertyValue value ) {
 		raw.remove( getKeyByProperty( value.property ) );
+	}
+
+	public void removeProperty( String prop ) {
+		original.remove( prop );
+		raw.remove( getKeyByProperty( prop ) );
+		running.remove( getKeyByProperty( prop ) );
 	}
 
 	private void removeRunningProperty( PropertyValue value ) {
@@ -204,7 +223,7 @@ public class PropertySet {
 		Node[] items = ConfReader.xmlGetChildren( node , "property" );
 		if( items == null )
 			return;
-		
+
 		for( Node property : items ) {
 			String prop = ConfReader.getAttrValue( property , "name" );
 			String value = ConfReader.getAttrValue( property , "value" );
@@ -241,6 +260,15 @@ public class PropertySet {
 		}
 	}
 
+	public void copyOriginalPropertiesToRaw() throws Exception {
+		for( String prop : getOriginalProperties() ) {
+			PropertyValue pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_ORIGINAL , this );
+			String value = getOriginalByProperty( prop );
+			pv.setString( value );
+			setRawPropertyInternal( pv );
+		}
+	}
+
 	public void copyRunningPropertiesToRunning( PropertySet set ) throws Exception {
 		for( String prop : set.getRunningProperties() ) {
 			PropertyValue pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_EXTRA , set );
@@ -266,7 +294,7 @@ public class PropertySet {
 		
 		for( PropertyValue pv : list ) {
 			setRunningPropertyInternal( pv );
-			removeRawProperty( pv );;
+			removeRawProperty( pv );
 		}
 
 		if( raw.isEmpty() )
@@ -277,7 +305,6 @@ public class PropertySet {
 		// resolve properties
 		for( String prop : getOriginalProperties() )
 			recalculateProperty( prop );
-		resolved = false;
 		resolveRawProperties( true );
 	}
 
@@ -315,12 +342,21 @@ public class PropertySet {
 		}
 			
 		pv.setSystem();
-		PropertyValue fp = new PropertyValue( pv );
-		processValue( fp , false , false , true , true , false );
+		recalculateProperty( pv );
+		return( pv );
+	}
+	
+	private void recalculateProperty( PropertyValue pv ) throws Exception {
+		processValue( pv , false , false , true , true , true );
 		
-		removeRawProperty( pv );
-		setRunningPropertyInternal( fp );
-		return( fp );
+		if( pv.resolved ) {
+			removeRawProperty( pv );
+			setRunningPropertyInternal( pv );
+		}
+		else {
+			removeRunningProperty( pv );
+			setRawPropertyInternal( pv );
+		}
 	}
 	
 	private void processValue( PropertyValue pv , boolean finalValue , boolean isWindows , boolean useRaw , boolean allowParent , boolean allowUnresolved ) throws Exception {
@@ -604,59 +640,85 @@ public class PropertySet {
 
 	public int getSystemRequiredIntProperty( String prop ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , true );
-		if( pv.isEmpty() )
-			throw new ExitException( "required property is empty, name=" + prop );
 		pv.setType( PropertyValueType.PROPERTY_NUMBER );
 		return( pv.getNumber() );
 	}
 
 	public String getSystemRequiredStringProperty( String prop ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , true );
-		if( pv.isEmpty() )
-			throw new ExitException( "required property is empty, name=" + prop );
 		pv.setType( PropertyValueType.PROPERTY_STRING );
 		return( pv.getString() );
 	}
 
 	public String getSystemRequiredPathProperty( String prop , RunContext execrc ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , true );
-		if( pv.isEmpty() )
-			throw new ExitException( "required property is empty, name=" + prop );
 		pv.setType( PropertyValueType.PROPERTY_PATH );
+		return( pv.getPath( execrc.isWindows() ) );
+	}
+	
+	public String getSystemPathExprProperty( String prop , RunContext execrc , String defaultExpr ) throws Exception {
+		PropertyValue pv = resolveSystemProperty( prop , false );
+		pv.setType( PropertyValueType.PROPERTY_PATH );
+		if( pv.isEmpty() ) {
+			pv.setDefault( defaultExpr );
+			recalculateProperty( pv );
+		}
 		return( pv.getPath( execrc.isWindows() ) );
 	}
 	
 	public String getSystemPathProperty( String prop , String defaultValue , RunContext execrc ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false );
-		if( pv == null )
-			return( defaultValue );
 		pv.setType( PropertyValueType.PROPERTY_PATH );
 		pv.setDefault( defaultValue );
 		return( pv.getPath( execrc.isWindows() ) );
 	}
 	
+	public String getSystemStringExprProperty( String prop , String defaultExpr ) throws Exception {
+		PropertyValue pv = resolveSystemProperty( prop , false );
+		pv.setType( PropertyValueType.PROPERTY_STRING );
+		if( pv.isEmpty() ) {
+			pv.setDefault( defaultExpr );
+			recalculateProperty( pv );
+		}
+		return( pv.getString() );
+	}
+
 	public String getSystemStringProperty( String prop , String defaultValue ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false );
-		if( pv == null )
-			return( defaultValue );
 		pv.setType( PropertyValueType.PROPERTY_STRING );
 		pv.setDefault( defaultValue );
 		return( pv.getString() );
 	}
 
+	public int getSystemIntExprProperty( String prop , String defaultExpr ) throws Exception {
+		PropertyValue pv = resolveSystemProperty( prop , false );
+		pv.setType( PropertyValueType.PROPERTY_NUMBER );
+		if( pv.isEmpty() ) {
+			pv.setDefault( defaultExpr );
+			recalculateProperty( pv );
+		}
+		return( pv.getNumber() );
+	}
+
 	public int getSystemIntProperty( String prop , int defaultValue ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false );
-		if( pv == null )
-			return( defaultValue );
 		pv.setType( PropertyValueType.PROPERTY_NUMBER );
 		pv.setDefault( "" + defaultValue );
 		return( pv.getNumber() );
 	}
 
+	public boolean getSystemBooleanExprProperty( String prop , String defaultExpr ) throws Exception {
+		PropertyValue pv = resolveSystemProperty( prop , false );
+		pv.setType( PropertyValueType.PROPERTY_BOOL );
+		if( pv.isEmpty() ) {
+			pv.setDefault( defaultExpr );
+			recalculateProperty( pv );
+		}
+		return( pv.getBool() );
+	}
+
 	public boolean getSystemBooleanProperty( String prop , boolean defaultValue ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false );
-		if( pv == null )
-			return( defaultValue );
 		pv.setType( PropertyValueType.PROPERTY_BOOL );
 		pv.setDefault( Common.getBooleanValue( defaultValue ) );
 		return( pv.getBool() );
@@ -664,8 +726,17 @@ public class PropertySet {
 
 	public void updateOriginalProperty( String prop , String value ) throws Exception {
 		PropertyValue pv = getPropertyValue( prop );
+		if( pv == null )
+			pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , this );
 		pv.setValue( value );
 		setOriginalProperty( pv );
+	}
+
+	public void updateProperties( PropertySet src ) throws Exception {
+		for( String prop : src.getOriginalProperties() ) {
+			String value = src.getOriginalByProperty( prop );
+			updateOriginalProperty( prop , value );
+		}
 	}
 
 	public void setOriginalProperty( PropertyValue pv ) throws Exception {
@@ -696,7 +767,8 @@ public class PropertySet {
 	public void saveAsElements( Document doc , Element parent ) throws Exception {
 		for( String key : original.keySet() ) {
 			String value = original.get( key );
-			Common.xmlCreatePropertyElement( doc , parent , key , value );
+			if( !value.isEmpty() )
+				Common.xmlCreatePropertyElement( doc , parent , key , value );
 		}
 	}
 	
