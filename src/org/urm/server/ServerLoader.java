@@ -22,17 +22,45 @@ public class ServerLoader {
 
 	public ServerEngine engine;
 	
-	private Map<String,ServerProductMeta> productMeta;
-	private ServerProductMeta offline;
+	private ServerResources resources;
 	private ServerRegistry registry;
+	private ServerProductMeta offline;
+	private Map<String,ServerProductMeta> productMeta;
 	
 	public ServerLoader( ServerEngine engine ) {
 		this.engine = engine;
 		
+		resources = new ServerResources( this );
 		registry = new ServerRegistry( this ); 
 		productMeta = new HashMap<String,ServerProductMeta>();
 	}
 	
+	public void init() throws Exception {
+		loadResources();
+	}
+	
+	private String getServerResourcesFile() throws Exception {
+		String path = Common.getPath( engine.execrc.installPath , "etc" );
+		String propertyFile = Common.getPath( path , "resources.xml" );
+		return( propertyFile );
+	}
+
+	private void loadResources() throws Exception {
+		String propertyFile = getServerResourcesFile();
+		resources.load( propertyFile , engine.execrc );
+	}
+
+	private String getServerSettingsFile() {
+		String path = Common.getPath( engine.execrc.installPath , "etc" );
+		String propertyFile = Common.getPath( path , "server.xml" );
+		return( propertyFile );
+	}
+	
+	public void loadServerSettings() throws Exception {
+		String propertyFile = getServerSettingsFile();
+		registry.load( propertyFile , engine.execrc );
+	}
+
 	public Meta createMetadata( SessionContext session ) throws Exception {
 		Meta meta = new Meta( this , session );
 		return( meta );
@@ -129,22 +157,23 @@ public class ServerLoader {
 		}
 	}
 
-	private String getServerSettingsFile() {
-		String path = Common.getPath( engine.execrc.installPath , "etc" );
-		String propertyFile = Common.getPath( path , "server.xml" );
-		return( propertyFile );
-	}
-	
-	public void loadServerSettings() throws Exception {
-		String propertyFile = getServerSettingsFile();
-		registry.load( propertyFile , engine.execrc );
-	}
-
 	public void setProductProps( ActionInit action , PropertySet props ) throws Exception {
 		props.copyOriginalPropertiesToRaw( registry.getDefaultProductProperties() );
 		for( PropertySet set : registry.getBuildModeDefaults() )
 			props.copyOriginalPropertiesToRaw( set );
 		props.resolveRawProperties();
+	}
+
+	public ServerResources getResources() {
+		synchronized( engine ) {
+			return( resources );
+		}
+	}
+
+	public void setResources( ServerTransaction transaction , ServerResources resourcesNew ) throws Exception {
+		String propertyFile = getServerResourcesFile();
+		resourcesNew.save( propertyFile , engine.execrc );
+		resources = resourcesNew;
 	}
 
 	public ServerRegistry getRegistry() {

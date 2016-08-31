@@ -16,7 +16,6 @@ public class Meta {
 	public SessionContext session;
 	public ServerProductMeta storage;
 
-	public MetaResources resources;
 	public MetaProductVersion version;
 	public MetaProductSettings product;
 	public MetaDatabase database;
@@ -239,8 +238,8 @@ public class Meta {
 	
 	public void loadDistr( ActionBase action ) throws Exception {
 		getStorage( action );
-		distr = loader.loadDistr( action.actionInit , storage );
 		database = loader.loadDatabase( action.actionInit , storage );
+		distr = loader.loadDistr( action.actionInit , storage );
 	}
 
 	public void loadSources( ActionBase action ) throws Exception {

@@ -25,8 +25,8 @@ public class MetaProductVersion {
 	public static String PROPERTY_MAJOR_LAST = "major.last";
 	public static String PROPERTY_NEXT_MAJOR_FIRST = "next.major.first";
 	public static String PROPERTY_NEXT_MAJOR_LAST = "next.major.last";
-	public static String PROPERTY_PROD_LASTTAG = "major.prod.lasttag";
-	public static String PROPERTY_PROD_NEXTTAG = "major.prod.nexttag";
+	public static String PROPERTY_PROD_LASTTAG = "prod.lasttag";
+	public static String PROPERTY_PROD_NEXTTAG = "prod.nexttag";
 	
 	public MetaProductVersion( Meta meta ) {
 		loaded = false;

@@ -26,7 +26,7 @@ public class ActionUploadReleaseItem extends ActionBase {
 		MetaProductBuildSettings build = getBuildSettings();
 		shell.export( this , "M2_HOME" , "/usr/local/apache-maven-" + build.CONFIG_MAVEN_VERSION );
 		shell.export( this , "M2" , "$M2_HOME/bin; export PATH=" + Common.getQuoted( "$PATH:$M2" ) );
-		shell.export( this , "JAVA_HOME" , "/usr/java/" + build.CONFIG_JAVA_VERSION );
+		shell.export( this , "JAVA_HOME" , "/usr/java/" + build.CONFIG_MAVEN_JAVA_VERSION );
 		shell.export( this , "PATH" , "$PATH:$JAVA_HOME/bin" );
 	
 		// get thirdparty information

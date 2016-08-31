@@ -8,8 +8,9 @@ import org.urm.server.ServerEngine;
 public class ClientCallLocal {
 
 	public boolean runClient( CommandBuilder builder , CommandMeta commandInfo , CommandOptions options ) throws Exception {
-		ServerEngine server = new ServerEngine();
-		return( server.runClientMode( builder.execrc , options , commandInfo ) );
+		ServerEngine server = new ServerEngine( builder.execrc );
+		server.init();
+		return( server.runClientMode( options , commandInfo ) );
 	}
 	
 }

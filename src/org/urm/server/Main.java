@@ -36,7 +36,8 @@ public class Main {
 		if( !execrc.isMain() )
 			throw new ExitException( "only main executor id expected" );
 
-		ServerEngine engine = new ServerEngine();
+		ServerEngine engine = new ServerEngine( execrc );
+		engine.init();
 		MainExecutor serverExecutor = MainExecutor.createExecutor( engine );
 		
 		// server run options
@@ -45,7 +46,7 @@ public class Main {
 		if( options == null )
 			return( false );
 
-		return( engine.runServerExecutor( serverExecutor , execrc , options ) );
+		return( engine.runServerExecutor( serverExecutor , options ) );
 	}
 	
 }

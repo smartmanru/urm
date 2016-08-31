@@ -149,13 +149,13 @@ public class ServerProductMeta {
 		
 		return( version );
 	}
-	
+
 	public synchronized MetaProductSettings loadProduct( ActionBase action , MetadataStorage storageMeta ) {
 		if( product != null )
 			return( product );
 		
 		PropertySet execprops = null;
-		if( action.engine.execrc.standaloneMode ) {
+		if( action.isStandalone() ) {
 			execprops = new PropertySet( "execrc" , null );
 			try {
 				action.engine.execrc.getProperties( execprops );

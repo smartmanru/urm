@@ -1,10 +1,10 @@
 package org.urm.server.action.build;
 
 import org.urm.common.Common;
+import org.urm.server.ServerAuthResource;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaProductBuildSettings;
 import org.urm.server.meta.MetaSourceProject;
-import org.urm.server.meta.MetaWebResource;
 import org.urm.server.shell.Account;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.BuildStorage;
@@ -118,7 +118,7 @@ public class BuilderWindowsDotnet extends Builder {
 
 	private String getNugetSourcePath( ActionBase action ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings();
-		MetaWebResource res = action.getResource( build.CONFIG_NEXUS_RESOURCE );
+		ServerAuthResource res = action.getResource( build.CONFIG_NEXUS_RESOURCE );
 		return( res.BASEURL + "/service/local/nuget/" + build.CONFIG_NEXUS_REPO + "-nuget/" );
 	}
 	

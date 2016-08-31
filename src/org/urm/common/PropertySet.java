@@ -326,9 +326,13 @@ public class PropertySet {
 			}
 			return( pv );
 		}
+
+		PropertyValue pv = getRunningByProperty( prop );
+		if( pv != null )
+			return( pv );
 		
 		system.add( getKeyByProperty( prop ) );
-		PropertyValue pv = getRawByProperty( prop );
+		pv = getRawByProperty( prop );
 		if( required ) {
 			if( pv == null )
 				throw new ExitException( "set=" + set + ": missing required property=" + prop );
@@ -461,7 +465,7 @@ public class PropertySet {
 						throw new ExitException( "set=" + set + ": unresolved variable=" + name );
 				}
 				
-				PropertyValue pvp = parent.getPropertyInternal( name , false , allowParent , allowUnresolved );
+				PropertyValue pvp = parent.getPropertyInternal( name , useRaw , allowParent , allowUnresolved );
 				if( pvp != null )
 					return( pvp );
 			}
@@ -757,6 +761,18 @@ public class PropertySet {
 		setRunningPropertyInternal( runningValue );
 	}
 	
+	public void setProperty( String prop , String originalValue , PropertyValue pv ) throws Exception {
+		original.put( prop , originalValue );
+		if( pv.resolved ) {
+			removeRawProperty( pv );
+			setRunningPropertyInternal( pv );
+		}
+		else {
+			setRawPropertyInternal( pv );
+			removeRunningProperty( pv );
+		}
+	}
+	
 	public void finishRawProperties() throws Exception {
 		resolveRawProperties();
 		for( String prop : raw.keySet() )
@@ -765,7 +781,7 @@ public class PropertySet {
 	}
 
 	public void saveAsElements( Document doc , Element parent ) throws Exception {
-		for( String key : original.keySet() ) {
+		for( String key : Common.getSortedKeys( original ) ) {
 			String value = original.get( key );
 			if( !value.isEmpty() )
 				Common.xmlCreatePropertyElement( doc , parent , key , value );

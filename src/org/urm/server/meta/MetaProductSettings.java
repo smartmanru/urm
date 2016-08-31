@@ -43,6 +43,7 @@ public class MetaProductSettings extends PropertyController {
 	public String CONFIG_BUILDBASE_PATH;
 	public String CONFIG_WINBUILD_HOSTLOGIN;
 	public String CONFIG_ADM_TRACKER;
+	public String CONFIG_COMMIT_TRACKERLIST;
 	public String CONFIG_URM_VCS;
 	
 	public String CONFIG_CUSTOM_BUILD;
@@ -52,7 +53,7 @@ public class MetaProductSettings extends PropertyController {
 	public static String[] modes = { "devtrunk" , "trunk" , "majorbranch" , "devbranch" , "branch" };
 
 	// context
-	public static String PROPERTY_PRODUCT_NAME = "product.name";
+	public static String PROPERTY_PRODUCT_NAME = "product";
 	public static String PROPERTY_PRODUCT_HOME = "product.home";
 	public static String PROPERTY_LASTPRODTAG = MetaProductVersion.PROPERTY_PROD_LASTTAG;
 	public static String PROPERTY_NEXTPRODTAG = MetaProductVersion.PROPERTY_PROD_NEXTTAG;
@@ -71,6 +72,7 @@ public class MetaProductSettings extends PropertyController {
 	public static String PROPERTY_BUILDBASE_PATH = "buildbase.path";
 	public static String PROPERTY_WINBUILD_HOSTLOGIN = "winbuild.hostlogin";
 	public static String PROPERTY_ADM_TRACKER = "adm.tracker";
+	public static String PROPERTY_COMMIT_TRACKERLIST = "source.trackers";
 
 	public static String PROPERTY_CUSTOM_BUILD = "custom.build";
 	public static String PROPERTY_CUSTOM_DEPLOY = "custom.deploy";
@@ -112,6 +114,7 @@ public class MetaProductSettings extends PropertyController {
 		CONFIG_BUILDBASE_PATH = super.getPathPropertyRequired( action , props , PROPERTY_BUILDBASE_PATH );
 		CONFIG_WINBUILD_HOSTLOGIN = super.getPathPropertyRequired( action , props , PROPERTY_WINBUILD_HOSTLOGIN );
 		CONFIG_ADM_TRACKER = super.getStringProperty( action , props , PROPERTY_ADM_TRACKER );
+		CONFIG_COMMIT_TRACKERLIST = super.getStringProperty( action , props , PROPERTY_COMMIT_TRACKERLIST );
 		
 		CONFIG_CUSTOM_BUILD = super.getStringProperty( action , props , PROPERTY_CUSTOM_BUILD );
 		CONFIG_CUSTOM_DEPLOY = super.getStringProperty( action , props , PROPERTY_CUSTOM_DEPLOY );

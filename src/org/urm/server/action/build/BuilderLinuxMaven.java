@@ -139,8 +139,8 @@ public class BuilderLinuxMaven extends Builder {
 		String NEXUS_PATH = getNexusPath( action , project );
 		String MODULE_ALT_REPO = "-DaltDeploymentRepository=nexus2::default::" + NEXUS_PATH;
 		String MODULE_MSETTINGS = "--settings=" + build.CONFIG_MAVEN_CFGFILE;
-		String MODULE_MAVEN_CMD = Common.getValueDefault( build.CONFIG_MAVEN_CMD , "deploy" );
-		String MAVEN_ADDITIONAL_OPTIONS = build.CONFIG_MAVEN_ADDITIONAL_OPTIONS;
+		String MODULE_MAVEN_CMD = "deploy";
+		String MAVEN_ADDITIONAL_OPTIONS = build.CONFIG_MAVEN_OPTIONS;
 		if( action.context.CTX_SHOWALL )
 			MAVEN_ADDITIONAL_OPTIONS += " -X";
 

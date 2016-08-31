@@ -1,6 +1,7 @@
 package org.urm.server.storage;
 
 import org.urm.common.Common;
+import org.urm.server.ServerAuthResource;
 import org.urm.server.ServerProduct;
 import org.urm.server.ServerTransaction;
 import org.urm.server.action.ActionBase;
@@ -12,7 +13,6 @@ import org.urm.server.meta.MetaMonitoring;
 import org.urm.server.meta.MetaProductBuildSettings;
 import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.meta.Meta;
-import org.urm.server.meta.MetaWebResource;
 import org.urm.server.shell.Account;
 import org.urm.server.vcs.GenericVCS;
 import org.urm.server.vcs.GitVCS;
@@ -216,7 +216,7 @@ public class Artefactory {
 	}
 	
 	public GenericVCS getVCS( ActionBase action , String vcs , boolean build ) throws Exception {
-		MetaWebResource res = action.getResource( vcs );
+		ServerAuthResource res = action.getResource( vcs );
 		if( res.isSvn() ) {
 			AuthStorage auth = getAuthStorage( action );
 			String SVNAUTH = auth.getAuthData( action , res );
@@ -232,7 +232,7 @@ public class Artefactory {
 
 	public SubversionVCS getSvnDirect( ActionBase action ) throws Exception {
 		String vcs = action.meta.product.CONFIG_URM_VCS;
-		MetaWebResource res = action.getResource( vcs );
+		ServerAuthResource res = action.getResource( vcs );
 		if( !res.isSvn() )
 			action.exit( "unexpected non-svn vcs=" + vcs );
 		return( ( SubversionVCS )getVCS( action , vcs , false ) );

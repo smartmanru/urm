@@ -5,6 +5,7 @@ import org.urm.common.PropertySet;
 import org.urm.server.action.ActionInit;
 import org.urm.server.meta.Meta;
 import org.urm.server.meta.MetaProductVersion;
+import org.urm.server.meta.Meta.VarBUILDMODE;
 
 public class ServerTransaction {
 
@@ -12,9 +13,11 @@ public class ServerTransaction {
 	public ServerLoader loader;
 	public ActionInit metadataAction;
 	
+	public ServerResources resources;
 	public ServerRegistry registry;
 	public ServerProductMeta metadata;
 
+	private ServerResources resourcesOld;
 	private ServerRegistry registryOld;
 	private ServerProductMeta metadataOld;
 	public boolean createMetadata;
@@ -24,6 +27,7 @@ public class ServerTransaction {
 		this.engine = engine;
 		this.loader = engine.getLoader();
 		
+		resources = null;
 		registry = null;
 		metadata = null;
 		createMetadata = false;
@@ -35,8 +39,10 @@ public class ServerTransaction {
 			if( !engine.startTransaction( this ) )
 				return( false );
 		
+			resources = null;
 			registry = null;
 			metadata = null;
+			resourcesOld = null;
 			registryOld = null;
 			metadataOld = null;
 			createMetadata = false;
@@ -47,10 +53,20 @@ public class ServerTransaction {
 
 	public void abortTransaction() {
 		synchronized( engine ) {
+			if( !continueTransaction() )
+				return;
+			
 			try {
-				if( !continueTransaction() )
-					return;
-				
+				if( resourcesOld != null ) {
+					loader.setResources( this , resourcesOld );
+					resourcesOld = null;
+				}
+			}
+			catch( Throwable e ) {
+				log( "unable to restore resources" , e );
+			}
+			
+			try {
 				if( registryOld != null ) {
 					loader.setRegistry( this , registryOld );
 					registryOld = null;
@@ -94,6 +110,8 @@ public class ServerTransaction {
 				return( false );
 
 			boolean res = true;
+			if( res )
+				res = saveResources();
 			if( res )
 				res = saveRegisty();
 			if( res )
@@ -174,6 +192,50 @@ public class ServerTransaction {
 		}
 	}
 	
+	public boolean changeResources( ServerResources sourceResources ) {
+		synchronized( engine ) {
+			try {
+				if( !continueTransaction() )
+					return( false );
+					
+				if( resources != null )
+					return( true );
+				
+				if( sourceResources == loader.getResources() ) {
+					resources = sourceResources.copy();
+					if( resources != null )
+						return( true );
+				}
+			}
+			catch( Throwable e ) {
+				log( "unable to change resources" , e );
+			}
+			
+			abortTransaction();
+			return( false );
+		}
+	}
+
+	private boolean saveResources() {
+		if( !continueTransaction() )
+			return( false );
+		
+		if( resources == null )
+			return( true );
+		
+		try {
+			resourcesOld = loader.getResources();
+			loader.setResources( this , resources );
+			return( true );
+		}
+		catch( Throwable e ) {
+			log( "unable to save resources" , e );
+		}
+
+		abortTransaction();
+		return( false );
+	}
+
 	public boolean changeRegistry( ServerRegistry sourceRegistry ) {
 		synchronized( engine ) {
 			try {
@@ -297,6 +359,12 @@ public class ServerTransaction {
 			exit( "transaction is aborted" );
 	}
 
+	private void checkTransactionResources() throws Exception {
+		checkTransaction();
+		if( resources == null )
+			exit( "missing resources changes" );
+	}
+
 	private void checkTransactionRegistry() throws Exception {
 		checkTransaction();
 		if( registry == null )
@@ -309,16 +377,15 @@ public class ServerTransaction {
 			exit( "missing metadata changes" );
 	}
 
-	private void checkTransactionAll() throws Exception {
-		checkTransactionRegistry();
-		checkTransactionMetadata();
-	}
-
 	public void exit( String msg ) throws Exception {
 		throw new ExitException( msg );
 	}
 	
 	// helpers
+	public ServerAuthResource getResource( ServerAuthResource resource ) throws Exception {
+		return( resources.getResource( resource.NAME ) );
+	}
+	
 	public ServerSystem getSystem( ServerSystem system ) throws Exception {
 		return( registry.getSystem( system.NAME ) );
 	}
@@ -328,6 +395,21 @@ public class ServerTransaction {
 	}
 	
 	// transactional operations
+	public void createResource( ServerAuthResource res ) throws Exception {
+		checkTransactionResources();
+		resources.createResource( this , res );
+	}
+	
+	public void updateResource( ServerAuthResource res , ServerAuthResource resNew ) throws Exception {
+		checkTransactionResources();
+		res.updateResource( this , resNew );
+	}
+	
+	public void deleteRegistryResource( ServerAuthResource res ) throws Exception {
+		checkTransactionResources();
+		resources.deleteResource( this , res );
+	}
+	
 	public void addSystem( ServerSystem system ) throws Exception {
 		checkTransactionRegistry();
 		registry.addSystem( this , system );
@@ -362,7 +444,8 @@ public class ServerTransaction {
 	}
 
 	public void deleteProduct( ServerProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
-		checkTransactionAll();
+		checkTransactionRegistry();
+		checkTransactionMetadata();
 		metadataAction.artefactory.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		registry.deleteProduct( this , product );
 		metadata = null;
@@ -378,9 +461,19 @@ public class ServerTransaction {
 		registry.setProductDefaultsProperties( this , props );
 	}
 	
+	public void setRegistryProductBuildCommonDefaultsProperties( PropertySet props ) throws Exception {
+		checkTransactionRegistry();
+		registry.setProductBuildCommonDefaultsProperties( this , props );
+	}
+	
+	public void setRegistryProductBuildModeDefaultsProperties( VarBUILDMODE mode , PropertySet props ) throws Exception {
+		checkTransactionRegistry();
+		registry.setProductBuildModeDefaultsProperties( this , mode , props );
+	}
+	
 	public void setProductVersion( MetaProductVersion version ) throws Exception {
 		checkTransactionMetadata();
 		metadata.setVersion( this , version );
 	}
-	
+
 }

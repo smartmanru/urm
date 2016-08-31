@@ -16,7 +16,6 @@ import org.w3c.dom.Node;
 public class ServerRegistry {
 
 	public ServerLoader loader;
-	public RunContext execrc;
 	
 	public ServerContext serverContext;
 
@@ -36,7 +35,6 @@ public class ServerRegistry {
 	}
 
 	public void load( String path , RunContext execrc ) throws Exception {
-		this.execrc = execrc;
 		Document doc = ConfReader.readXmlFile( execrc , path );
 		if( doc == null )
 			throw new ExitException( "unable to reader engine property file " + path );
@@ -154,7 +152,6 @@ public class ServerRegistry {
 
 	public ServerRegistry copy() throws Exception {
 		ServerRegistry r = new ServerRegistry( loader );
-		r.execrc = execrc;
 		r.serverContext = serverContext.copy();
 		
 		for( ServerSystem system : mapSystems.values() ) {
@@ -270,6 +267,22 @@ public class ServerRegistry {
 	public void setProductDefaultsProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
 		defaultProductProperties.updateProperties( props );
 		defaultProductProperties.resolveRawProperties( true );
+	}
+
+	public void setProductBuildCommonDefaultsProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
+		defaultProductBuildProperties.updateProperties( props );
+		defaultProductBuildProperties.resolveRawProperties( true );
+	}
+	
+	public void setProductBuildModeDefaultsProperties( ServerTransaction transaction , VarBUILDMODE mode , PropertySet props ) throws Exception {
+		PropertySet set = mapBuildModeDefaults.get( mode );
+		if( set == null ) {
+			set = new PropertySet( "build." + Common.getEnumLower( mode ) , defaultProductBuildProperties );
+			mapBuildModeDefaults.put( mode , set );
+		}
+		
+		set.updateProperties( props );
+		set.resolveRawProperties( true );
 	}
 
 }

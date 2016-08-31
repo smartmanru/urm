@@ -1,9 +1,9 @@
 package org.urm.server.storage;
 
 import org.urm.common.Common;
+import org.urm.server.ServerAuthResource;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.Meta;
-import org.urm.server.meta.MetaWebResource;
 
 public class AuthStorage {
 
@@ -15,10 +15,10 @@ public class AuthStorage {
 		this.meta = artefactory.meta;
 	}
 	
-	public String getAuthData( ActionBase action , MetaWebResource res ) throws Exception {
+	public String getAuthData( ActionBase action , ServerAuthResource res ) throws Exception {
 		String SVNAUTH = "";
-		if( !res.AUTHFILE.isEmpty() )
-			SVNAUTH = getAuthData( action , res.AUTHFILE );
+		if( !res.AUTHKEY.isEmpty() )
+			SVNAUTH = getAuthData( action , res.AUTHKEY );
 		return( SVNAUTH );
 	}
 	

@@ -48,8 +48,13 @@ public class ServerEngine {
 
 	public static int META_CHANGE_TIMEOUT = 5000;
 	
-	public ServerEngine() {
+	public ServerEngine( RunContext execrc ) {
+		this.execrc = execrc;
 		loader = new ServerLoader( this );
+	}
+	
+	public void init() throws Exception {
+		loader.init();
 	}
 	
 	public void runServer( ActionBase action ) throws Exception {
@@ -83,10 +88,6 @@ public class ServerEngine {
 	}
 	
 	public boolean prepareWeb() throws Exception {
-		// server environment
-		execrc = new RunContext();
-		execrc.load();
-
 		// server run options
 		serverExecutor = MainExecutor.createExecutor( this );
 		CommandOptions options = serverExecutor.createOptionsStartServerByWeb( this );
@@ -131,8 +132,7 @@ public class ServerEngine {
 		return( action );
 	}
 	
-	public boolean runServerExecutor( MainExecutor serverExecutor , RunContext execrc , CommandOptions options ) throws Exception {
-		this.execrc = execrc;
+	public boolean runServerExecutor( MainExecutor serverExecutor , CommandOptions options ) throws Exception {
 		this.serverExecutor = serverExecutor;
 		
 		if( !prepareServerExecutor( options ) )
@@ -162,9 +162,7 @@ public class ServerEngine {
 		return( true );
 	}
 
-	public boolean runClientMode( RunContext execrc , CommandOptions options , CommandMeta commandInfo ) throws Exception {
-		this.execrc = execrc;
-		
+	public boolean runClientMode( CommandOptions options , CommandMeta commandInfo ) throws Exception {
 		CommandExecutor commandExecutor = createExecutor( commandInfo );
 		serverSession = createSession( execrc , false );
 		
@@ -399,6 +397,10 @@ public class ServerEngine {
 	
 	public ServerTransaction getTransaction() {
 		return( currentTransaction );
+	}
+
+	public ServerResources getResources() {
+		return( loader.getResources() );
 	}
 
 	public ServerRegistry getRegistry() {

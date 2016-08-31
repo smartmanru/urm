@@ -1,10 +1,10 @@
 package org.urm.server.action.build;
 
 import org.urm.common.Common;
+import org.urm.server.ServerAuthResource;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScopeTarget;
 import org.urm.server.meta.MetaProductBuildSettings;
-import org.urm.server.meta.MetaWebResource;
 
 public class ActionUploadLibItem extends ActionBase {
 
@@ -26,7 +26,7 @@ public class ActionUploadLibItem extends ActionBase {
 	@Override protected boolean executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
 		// set environment
 		MetaProductBuildSettings build = getBuildSettings();
-		String BUILD_JAVA_VERSION = build.CONFIG_JAVA_VERSION;
+		String BUILD_JAVA_VERSION = build.CONFIG_MAVEN_JAVA_VERSION;
 		String BUILD_MAVEN_VERSION = build.CONFIG_MAVEN_VERSION;
 
 		shell.export( this , "JAVA_HOME" , meta.product.CONFIG_BUILDBASE_PATH + "/" + BUILD_JAVA_VERSION );
@@ -73,7 +73,7 @@ public class ActionUploadLibItem extends ActionBase {
 			F_CLASSIFIER = "-Dclassifier=" + CLASSIFIER;
 
 		String CMD;
-		MetaWebResource res = getResource( build.CONFIG_NEXUS_RESOURCE );
+		ServerAuthResource res = getResource( build.CONFIG_NEXUS_RESOURCE );
 		if( F_EXTENSION.equals( "pom" ) ) {
 	        CMD = "mvn -e deploy:deploy-file --settings=$HOME/.m2/settings.branch.xml" + 
 	        	" -DupdateReleaseInfo=true -DuniqueVersion=false -DrepositoryId=nexus" + 

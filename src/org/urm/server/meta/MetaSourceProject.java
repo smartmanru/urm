@@ -154,7 +154,7 @@ public class MetaSourceProject {
 			return( JAVAVERSION );
 		
 		MetaProductBuildSettings build = action.getBuildSettings();
-		String version = build.CONFIG_JAVA_VERSION;
+		String version = build.CONFIG_MAVEN_JAVA_VERSION;
 		if( version.isEmpty() )
 			action.exit( "BUILD_JAVA_VERSION is not defined - java version is unknown" );
 		

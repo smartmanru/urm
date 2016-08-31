@@ -1,12 +1,12 @@
 package org.urm.server.storage;
 
 import org.urm.common.Common;
+import org.urm.server.ServerAuthResource;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaDistrBinaryItem;
 import org.urm.server.meta.MetaProductBuildSettings;
 import org.urm.server.meta.MetaSourceProjectItem;
 import org.urm.server.meta.Meta;
-import org.urm.server.meta.MetaWebResource;
 
 public class NexusStorage {
 
@@ -26,7 +26,7 @@ public class NexusStorage {
 
 	public NexusDownloadInfo downloadNexus( ActionBase action , String GROUPID , String ARTEFACTID , String VERSION , String PACKAGING , String CLASSIFIER , MetaDistrBinaryItem item ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings();
-		MetaWebResource res = action.getResource( build.CONFIG_NEXUS_RESOURCE );
+		ServerAuthResource res = action.getResource( build.CONFIG_NEXUS_RESOURCE );
 		String REPOPATH = res.BASEURL + "/content/repositories/" + repository;
 		String NAME = ARTEFACTID + "-" + VERSION;
 		if( !CLASSIFIER.isEmpty() )
@@ -56,7 +56,7 @@ public class NexusStorage {
 
 	public NexusDownloadInfo downloadNuget( ActionBase action , String ARTEFACTID , String VERSION , MetaDistrBinaryItem item ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings();
-		MetaWebResource res = action.getResource( build.CONFIG_NEXUS_RESOURCE );
+		ServerAuthResource res = action.getResource( build.CONFIG_NEXUS_RESOURCE );
 		String REPOPATH = res.BASEURL + "/content/repositories/" + repository;
 		String NAME = ARTEFACTID + "-" + VERSION + ".nupkg";
 

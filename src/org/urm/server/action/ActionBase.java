@@ -8,13 +8,14 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.server.ServerAuthResource;
 import org.urm.server.ServerEngine;
+import org.urm.server.ServerResources;
 import org.urm.server.SessionContext;
 import org.urm.server.custom.CommandCustom;
 import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.meta.Meta;
 import org.urm.server.meta.MetaProductBuildSettings;
-import org.urm.server.meta.MetaWebResource;
 import org.urm.server.meta.Meta.VarBUILDMODE;
 import org.urm.server.meta.Meta.VarCATEGORY;
 import org.urm.server.meta.Meta.VarNAMETYPE;
@@ -109,6 +110,10 @@ abstract public class ActionBase {
 		actionFailed = false;
 	}
 
+	public boolean isStandalone() {
+		return( engine.execrc.standaloneMode );
+	}
+	
 	public void setShell( ShellExecutor session ) throws Exception {
 		this.shell = session;
 	}
@@ -600,9 +605,9 @@ abstract public class ActionBase {
 		return( meta.product.getBuildSettings( this ) );
 	}
 
-	public MetaWebResource getResource( String name ) throws Exception {
-		MetaProductBuildSettings build = getBuildSettings();
-		MetaWebResource res = meta.resources.getResource( this , build.CONFIG_NEXUS_RESOURCE );
+	public ServerAuthResource getResource( String name ) throws Exception {
+		ServerResources resources = engine.getResources();
+		ServerAuthResource res = resources.getResource( name );
 		return( res );
 	}
 	

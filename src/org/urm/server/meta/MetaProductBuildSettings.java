@@ -22,6 +22,7 @@ public class MetaProductBuildSettings extends PropertyController {
 	public String CONFIG_RELEASE_NEXTMINOR;
 	public String CONFIG_RELEASE_VERSION;
 	public String CONFIG_APPVERSION;
+	public String CONFIG_LOGPATH;
 	
 	public String CONFIG_NEXUS_RESOURCE;
 	public String CONFIG_NEXUS_REPO;
@@ -32,13 +33,12 @@ public class MetaProductBuildSettings extends PropertyController {
 	public String CONFIG_MAVEN_VERSION;
 	public String CONFIG_MAVEN_PROFILES;
 	public String CONFIG_MAVEN_CFGFILE;
-	public String CONFIG_MAVEN_CMD;
-	public String CONFIG_MAVEN_ADDITIONAL_OPTIONS;
-	public String CONFIG_JAVA_VERSION;
-	public String CONFIG_BRANCHNAME;
+	public String CONFIG_MAVEN_OPTIONS;
+	public String CONFIG_MAVEN_JAVA_VERSION;
 	public String CONFIG_ARTEFACTDIR;
 
 	public String CONFIG_COMMIT_TRACKERLIST;
+	public String CONFIG_BRANCHNAME;
 	public String CONFIG_SOURCE_RESOURCE;
 	public String CONFIG_SOURCE_CHARSET;
 	public String CONFIG_SOURCE_REPOSITORY;
@@ -47,16 +47,41 @@ public class MetaProductBuildSettings extends PropertyController {
 	public String CONFIG_SOURCE_CFG_ROOTDIR;
 	public String CONFIG_SOURCE_CFG_LIVEROOTDIR;
 	public String CONFIG_SOURCE_SQL_POSTREFRESH;
-	public String CONFIG_SQL_LOGDIR;
 
 	// version
 	public static String PROPERTY_RELEASE_LASTMAJOR = "release.lastmajor";
 	public static String PROPERTY_RELEASE_NEXTMAJOR = "release.nextmajor";
 	public static String PROPERTY_RELEASE_LASTMINOR = "release.lastminor";
-	public static String PROPERTY_RELEASE_NEXTMINOR = "release.lastminor";
+	public static String PROPERTY_RELEASE_NEXTMINOR = "release.nextminor";
 	public static String PROPERTY_RELEASE_VERSION = "release.version";
 	public static String PROPERTY_APPVERSION = "app.version";
+	public static String PROPERTY_LOGPATH = "app.logpath";
 
+	// build operation
+	public static String PROPERTY_ARTEFACTDIR = "build.artefacts";
+	public static String PROPERTY_NEXUS_RESOURCE = "nexus.resource";
+	public static String PROPERTY_NEXUS_REPO = "nexus.repo";
+	public static String PROPERTY_NEXUS_REPO_THIRDPARTY = "nexus.thirdparty";
+	public static String PROPERTY_BUILDER_TYPE = "builder.type";
+	public static String PROPERTY_BUILDER_VERSION = "builder.version";
+	public static String PROPERTY_BUILDER_OPTIONS = "builder.options";
+	public static String PROPERTY_MAVEN_VERSION = "maven.version";
+	public static String PROPERTY_MAVEN_PROFILES = "maven.profiles";
+	public static String PROPERTY_MAVEN_CFGFILE = "maven.conf";
+	public static String PROPERTY_MAVEN_OPTIONS = "maven.options";
+	public static String PROPERTY_MAVEN_JAVA_VERSION = "maven.java";
+
+	// build source code
+	public static String PROPERTY_BRANCHNAME = "source.branch";
+	public static String PROPERTY_SOURCE_RESOURCE = "release.resource";
+	public static String PROPERTY_SOURCE_CHARSET = "release.charset";
+	public static String PROPERTY_SOURCE_REPOSITORY = "release.repo";
+	public static String PROPERTY_SOURCE_RELEASEROOTDIR = "release.root";
+	public static String PROPERTY_RELEASE_GROUPFOLDER = "release.group";
+	public static String PROPERTY_SOURCE_CFG_ROOTDIR = "config.root";
+	public static String PROPERTY_SOURCE_CFG_LIVEROOTDIR = "config.live";
+	public static String PROPERTY_SOURCE_SQL_POSTREFRESH = "conig.postrefresh";
+	
 	public Charset charset;
 	
 	public MetaProductBuildSettings( String name , Meta meta , MetaProductSettings product ) {
@@ -87,18 +112,42 @@ public class MetaProductBuildSettings extends PropertyController {
 	}
 	
 	private void scatterVariables( ActionBase action ) throws Exception {
-		CONFIG_RELEASE_LASTMAJOR = super.getStringExprProperty( action , props , PROPERTY_RELEASE_LASTMAJOR , getVarExpr( MetaProductSettings.PROPERTY_VERSION_BRANCH_MAJOR ) + "." + getVarExpr( MetaProductSettings.PROPERTY_VERSION_BRANCH_MINOR ) );
-		CONFIG_RELEASE_NEXTMAJOR = super.getStringExprProperty( action , props , PROPERTY_RELEASE_NEXTMAJOR , getVarExpr( MetaProductSettings.PROPERTY_VERSION_BRANCH_NEXTMAJOR ) + "." + getVarExpr( MetaProductSettings.PROPERTY_VERSION_BRANCH_NEXTMINOR ) );
+		CONFIG_RELEASE_LASTMAJOR = super.getStringProperty( action , props , PROPERTY_RELEASE_LASTMAJOR );
+		CONFIG_RELEASE_NEXTMAJOR = super.getStringProperty( action , props , PROPERTY_RELEASE_NEXTMAJOR );
 		CONFIG_RELEASE_LASTMINOR = super.getStringProperty( action , props , PROPERTY_RELEASE_LASTMINOR );
 		CONFIG_RELEASE_NEXTMINOR = super.getStringProperty( action , props , PROPERTY_RELEASE_NEXTMINOR );
 		CONFIG_RELEASE_VERSION = super.getStringProperty( action , props , PROPERTY_RELEASE_VERSION );
 		CONFIG_APPVERSION = super.getStringProperty( action , props , PROPERTY_APPVERSION );
+		CONFIG_LOGPATH = super.getPathProperty( action , props , PROPERTY_LOGPATH );
 		
 		if( CONFIG_SOURCE_CHARSET != null ) {
 			charset = Charset.availableCharsets().get( CONFIG_SOURCE_CHARSET );
 			if( charset == null )
 				action.exit( "unknown database files charset=" + CONFIG_SOURCE_CHARSET );
 		}
+		
+		CONFIG_NEXUS_RESOURCE = super.getStringProperty( action , props , PROPERTY_NEXUS_RESOURCE );
+		CONFIG_NEXUS_REPO = super.getStringProperty( action , props , PROPERTY_NEXUS_REPO );
+		CONFIG_NEXUS_REPO_THIRDPARTY = super.getStringProperty( action , props , PROPERTY_NEXUS_REPO_THIRDPARTY );
+		CONFIG_BUILDER_TYPE = super.getStringProperty( action , props , PROPERTY_BUILDER_TYPE );
+		CONFIG_BUILDER_VERSION = super.getStringProperty( action , props , PROPERTY_BUILDER_VERSION );
+		CONFIG_BUILDER_OPTIONS = super.getStringProperty( action , props , PROPERTY_BUILDER_OPTIONS );
+		CONFIG_MAVEN_VERSION = super.getStringProperty( action , props , PROPERTY_MAVEN_VERSION );
+		CONFIG_MAVEN_PROFILES = super.getStringProperty( action , props , PROPERTY_MAVEN_PROFILES );
+		CONFIG_MAVEN_CFGFILE = super.getStringProperty( action , props , PROPERTY_MAVEN_CFGFILE );
+		CONFIG_MAVEN_OPTIONS = super.getStringProperty( action , props , PROPERTY_MAVEN_OPTIONS );
+		CONFIG_MAVEN_JAVA_VERSION = super.getStringProperty( action , props , PROPERTY_MAVEN_JAVA_VERSION );
+		CONFIG_ARTEFACTDIR = super.getStringProperty( action , props , PROPERTY_ARTEFACTDIR );
+
+		CONFIG_BRANCHNAME = super.getStringProperty( action , props , PROPERTY_BRANCHNAME );
+		CONFIG_SOURCE_RESOURCE = super.getStringProperty( action , props , PROPERTY_SOURCE_RESOURCE );
+		CONFIG_SOURCE_CHARSET = super.getStringProperty( action , props , PROPERTY_SOURCE_CHARSET );
+		CONFIG_SOURCE_REPOSITORY = super.getStringProperty( action , props , PROPERTY_SOURCE_REPOSITORY );
+		CONFIG_SOURCE_RELEASEROOTDIR = super.getStringProperty( action , props , PROPERTY_SOURCE_RELEASEROOTDIR );
+		CONFIG_RELEASE_GROUPFOLDER = super.getStringProperty( action , props , PROPERTY_RELEASE_GROUPFOLDER );
+		CONFIG_SOURCE_CFG_ROOTDIR = super.getStringProperty( action , props , PROPERTY_SOURCE_CFG_ROOTDIR );
+		CONFIG_SOURCE_CFG_LIVEROOTDIR = super.getStringProperty( action , props , PROPERTY_SOURCE_CFG_LIVEROOTDIR );
+		CONFIG_SOURCE_SQL_POSTREFRESH = super.getStringProperty( action , props , PROPERTY_SOURCE_SQL_POSTREFRESH );
 	}
 	
 	public void load( ActionBase action , Node root , PropertySet parent ) throws Exception {
