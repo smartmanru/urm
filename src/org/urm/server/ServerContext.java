@@ -16,13 +16,29 @@ public class ServerContext {
 	// properties
 	public int CONNECTION_JMX_PORT;
 	public int CONNECTION_JMXWEB_PORT;
-	
+
+	// storage
 	public String DIST_ROOT;
 	public String DIST_APPFOLDER;
 	public String DIST_BASEPATH;
 	
-	public String SECURE_AUTHPATH;
 	public String SECURE_CONFPATH;
+	
+	public String WORK_ARTEFACTS;
+	public String WORK_MIRRORPATH;
+	public String WORK_BUILDLOGS;
+	public String WORK_DEPLOYLOGS;
+
+	public String STAGING_LINUXPATH;
+	public String STAGING_WINPATH;
+	
+	public String MON_RESOURCES;
+	public String MON_DATAPATH;
+	public String MON_LOGPATH;
+
+	public int SHELL_SILENTMAX;
+	public int SHELL_UNAVAILABLE_SKIPTIME;
+	public int SHELL_HOUSEKEEP_TIME;
 	
 	public String JABBER_ACCOUNT;
 	public String JABBER_PASSWORD;
@@ -30,8 +46,6 @@ public class ServerContext {
 	public String JABBER_CONFERENCESERVER;
 	public String JABBER_INCLUDE;
 	public String JABBER_EXCLUDE;
-
-	public String DISTR_PATH;
 
 	// xml field names
 	public static String PROPERTY_CONNECTION_JMX_PORT = "connection.jmx.port";
@@ -41,8 +55,23 @@ public class ServerContext {
 	public static String PROPERTY_DIST_APPFOLDER = "dist.appfolder";
 	public static String PROPERTY_DIST_BASEPATH = "dist.basepath";
 
-	public static String PROPERTY_SECURE_AUTHPATH = "secure.authpath";
 	public static String PROPERTY_SECURE_CONFPATH = "secure.confpath";
+
+	public static String PROPERTY_WORK_ARTEFACTS = "work.artefacts";
+	public static String PROPERTY_WORK_MIRRORPATH = "work.mirrorpath";
+	public static String PROPERTY_WORK_BUILDLOGS = "work.buildlogs";
+	public static String PROPERTY_WORK_DEPLOYLOGS = "work.deploylogs";
+
+	public static String PROPERTY_STAGING_LINUXPATH = "staging.linuxpath";
+	public static String PROPERTY_STAGING_WINPATH = "staging.winpath";
+	
+	public static String PROPERTY_MON_RESOURCES = "mon.respath";
+	public static String PROPERTY_MON_DATAPATH = "mon.datapath";
+	public static String PROPERTY_MON_LOGPATH = "mon.logpath";
+
+	public static String PROPERTY_SHELL_SILENTMAX = "shell.silentmax";
+	public static String PROPERTY_SHELL_UNAVAILABLE_SKIPTIME = "shell.unavailable";
+	public static String PROPERTY_SHELL_HOUSEKEEP_TIME = "shell.housekeep";
 	
 	private ServerContext() {
 	}
@@ -86,8 +115,23 @@ public class ServerContext {
 		DIST_APPFOLDER = properties.getSystemPathProperty( PROPERTY_DIST_APPFOLDER , "systems" , execrc );
 		DIST_BASEPATH = properties.getSystemPathProperty( PROPERTY_DIST_BASEPATH , "base" , execrc );
 
-		SECURE_AUTHPATH = properties.getSystemPathProperty( PROPERTY_SECURE_AUTHPATH , execrc.userHome + "/.auth" , execrc );
 		SECURE_CONFPATH = properties.getSystemPathProperty( PROPERTY_SECURE_CONFPATH , execrc.installPath + "/secured" , execrc );
+		
+		WORK_ARTEFACTS = properties.getSystemPathProperty( PROPERTY_WORK_ARTEFACTS , execrc.installPath + "/artefacts" , execrc );
+		WORK_MIRRORPATH = properties.getSystemPathProperty( PROPERTY_WORK_MIRRORPATH , execrc.installPath + "/mirror" , execrc );
+		WORK_BUILDLOGS = properties.getSystemPathProperty( PROPERTY_WORK_BUILDLOGS , execrc.installPath + "/logs/build" , execrc );
+		WORK_DEPLOYLOGS = properties.getSystemPathProperty( PROPERTY_WORK_DEPLOYLOGS , execrc.installPath + "/logs/deploy" , execrc );
+
+		STAGING_LINUXPATH = properties.getSystemPathProperty( PROPERTY_STAGING_LINUXPATH , "/redist" , execrc );
+		STAGING_WINPATH = properties.getSystemPathProperty( PROPERTY_STAGING_WINPATH , "C:/redist" , execrc );
+		
+		MON_RESOURCES = properties.getSystemPathProperty( PROPERTY_MON_RESOURCES , execrc.installPath + "/monitoring/resources" , execrc );
+		MON_DATAPATH = properties.getSystemPathProperty( PROPERTY_MON_DATAPATH , execrc.installPath + "/monitoring/data" , execrc );
+		MON_LOGPATH = properties.getSystemPathProperty( PROPERTY_MON_LOGPATH , execrc.installPath + "/logs/monitoring" , execrc );
+
+		SHELL_SILENTMAX = properties.getSystemIntProperty( PROPERTY_SHELL_SILENTMAX , 60000 );
+		SHELL_UNAVAILABLE_SKIPTIME = properties.getSystemIntProperty( PROPERTY_SHELL_UNAVAILABLE_SKIPTIME , 30000 );
+		SHELL_HOUSEKEEP_TIME = properties.getSystemIntProperty( PROPERTY_SHELL_HOUSEKEEP_TIME , 30000 );
 		
 		JABBER_ACCOUNT = properties.getSystemStringProperty( "jabber.account" , "" );
 		JABBER_PASSWORD = properties.getSystemStringProperty( "jabber.password" , "" );
@@ -95,8 +139,6 @@ public class ServerContext {
 		JABBER_CONFERENCESERVER = properties.getSystemStringProperty( "jabber.conferenceserver" , "" );
 		JABBER_INCLUDE = properties.getSystemStringProperty( "jabber.include" , "" );
 		JABBER_EXCLUDE = properties.getSystemStringProperty( "jabber.exclude" , "" );
-
-		DISTR_PATH = properties.getSystemStringProperty( "distr.path" , "" );
 	}
 
 	public void setServerProperties( ServerTransaction transaction , PropertySet props ) throws Exception {

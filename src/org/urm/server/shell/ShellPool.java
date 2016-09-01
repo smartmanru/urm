@@ -34,6 +34,7 @@ public class ShellPool implements Runnable {
 	private long tsHouseKeepTime = 0;
 	private static long SHELL_SILENT_MAX = 60000;
 	private static long SHELL_UNAVAILABLE_SKIPTIME = 30000;
+	private static long SHELL_HOUSEKEEP_TIME = 30000;
 	
 	public ShellPool( ServerEngine engine ) {
 		this.engine = engine;
@@ -45,7 +46,7 @@ public class ShellPool implements Runnable {
 	public void run() {
 		while( !stop ) {
 			try {
-				Common.sleep( this , 30000 );
+				Common.sleep( this , SHELL_HOUSEKEEP_TIME );
 				runHouseKeeping();
 			}
 			catch( InterruptedException e ) {
