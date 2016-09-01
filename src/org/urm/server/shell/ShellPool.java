@@ -36,6 +36,14 @@ public class ShellPool implements Runnable {
 	private static long SHELL_UNAVAILABLE_SKIPTIME = 30000;
 	private static long SHELL_HOUSEKEEP_TIME = 30000;
 	
+	public class PoolCounts {
+		public int poolSize;
+		public int pendingSize;
+		public int activeExecuteLocalCount;
+		public int activeExecuteRemoteCount;
+		public int activeInteractiveCount;
+	}
+	
 	public ShellPool( ServerEngine engine ) {
 		this.engine = engine;
 		rootPath = engine.execrc.userHome;
@@ -57,6 +65,33 @@ public class ShellPool implements Runnable {
 		}
 	}
 
+	public PoolCounts getPoolInfo() {
+		PoolCounts c = new PoolCounts();
+		synchronized( this ) {
+			c.poolSize = pool.size(); 
+			c.pendingSize = pending.size();
+			c.activeExecuteLocalCount = 0;
+			c.activeExecuteRemoteCount = 0;
+			c.activeInteractiveCount = 0;
+			for( ActionShells set : actionSessions.values() ) {
+				for( ShellExecutor executor : set.executors.values() ) {
+					if( executor.account.local )
+						c.activeExecuteLocalCount++;
+					else
+						c.activeExecuteRemoteCount++;
+				}
+				c.activeInteractiveCount += set.interactive.size();
+			}
+		}
+		return( c );
+	}
+	
+	public int getActiveShells() {
+		synchronized( this ) {
+			return( pool.size() );
+		}
+	}
+	
 	private void runHouseKeeping() throws Exception {
 		engine.serverAction.trace( "run thread pool house keeping ..." );
 		
