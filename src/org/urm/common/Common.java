@@ -14,6 +14,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
@@ -22,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -428,6 +430,14 @@ public class Common {
 		outputStream.close();
 	}
 	
+    public static void createPropertyFile( RunContext rc , String path , Properties props ) throws Exception {
+        OutputStream outputStream = new FileOutputStream( path );
+        OutputStreamWriter writer = new OutputStreamWriter( outputStream , "UTF8" );
+        props.store( writer , "auth file" );
+        writer.close();
+        outputStream.close();
+    }
+	
 	public static String addToList( String s , String value , String delimiter ) {
 		if( s.isEmpty() )
 			return( value );
@@ -780,6 +790,11 @@ public class Common {
 			path.substring( 1 ).startsWith( ":" ) )
 			return( true );
 		return( false );
+	}
+
+	public static String getMD5( String value ) throws Exception {
+		MessageDigest md = MessageDigest.getInstance( "MD5" );
+		return( md.digest( value.getBytes() ).toString() );
 	}
 	
 }

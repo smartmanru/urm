@@ -231,6 +231,15 @@ public class PropertySet {
 		}
 	}
 
+	public void saveOriginalToPropertyFile( String path , RunContext execrc ) throws Exception {
+		Properties props = new Properties();
+		for( String prop : getOriginalProperties() ) {
+			String value = getOriginalByProperty( prop );
+			props.setProperty( prop , value );
+		}
+		Common.createPropertyFile( execrc , path , props );
+	}
+	
 	public void loadOriginalFromPropertyFile( String path , RunContext execrc ) throws Exception {
 		loadFromPropertyFile( path , execrc , false );
 	}
@@ -384,7 +393,12 @@ public class PropertySet {
 				return;
 			}
 			
-			PropertyValue pvVar = getPropertyInternal( var , useRaw , allowParent , allowUnresolved );
+			PropertyValue pvVar;
+			if( var.equals( "super" ) && allowParent && parent != null && pv.property.isEmpty() == false )
+				pvVar = parent.getPropertyInternal( pv.property , useRaw , allowParent , allowUnresolved );
+			else
+				pvVar = getPropertyInternal( var , useRaw , allowParent , allowUnresolved );
+			
 			if( pvVar == null )
 				return;
 			
@@ -401,7 +415,12 @@ public class PropertySet {
 			if( var.isEmpty() )
 				res += "@";
 			else {
-				PropertyValue pvVar = getPropertyInternal( var , useRaw , allowParent , allowUnresolved );
+				PropertyValue pvVar;
+				if( var.equals( "super" ) && allowParent && parent != null && pv.property.isEmpty() == false )
+					pvVar = parent.getPropertyInternal( pv.property , useRaw , allowParent , allowUnresolved );
+				else
+					pvVar = getPropertyInternal( var , useRaw , allowParent , allowUnresolved );
+				
 				if( pvVar == null )
 					res += "@" + var + "@";
 				else {

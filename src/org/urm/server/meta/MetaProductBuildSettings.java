@@ -59,16 +59,14 @@ public class MetaProductBuildSettings extends PropertyController {
 
 	// build operation
 	public static String PROPERTY_ARTEFACTDIR = "build.artefacts";
-	public static String PROPERTY_NEXUS_RESOURCE = "nexus.resource";
-	public static String PROPERTY_NEXUS_REPO = "nexus.repo";
-	public static String PROPERTY_NEXUS_REPO_THIRDPARTY = "nexus.thirdparty";
 	public static String PROPERTY_BUILDER_TYPE = "builder.type";
 	public static String PROPERTY_BUILDER_VERSION = "builder.version";
 	public static String PROPERTY_BUILDER_OPTIONS = "builder.options";
+	public static String PROPERTY_NEXUS_RESOURCE = "nexus.resource";
+	public static String PROPERTY_NEXUS_REPO = "nexus.repo";
+	public static String PROPERTY_NEXUS_REPO_THIRDPARTY = "nexus.thirdparty";
 	public static String PROPERTY_MAVEN_VERSION = "maven.version";
-	public static String PROPERTY_MAVEN_PROFILES = "maven.profiles";
 	public static String PROPERTY_MAVEN_CFGFILE = "maven.conf";
-	public static String PROPERTY_MAVEN_OPTIONS = "maven.options";
 	public static String PROPERTY_MAVEN_JAVA_VERSION = "maven.java";
 
 	// build source code
@@ -133,9 +131,7 @@ public class MetaProductBuildSettings extends PropertyController {
 		CONFIG_BUILDER_VERSION = super.getStringProperty( action , props , PROPERTY_BUILDER_VERSION );
 		CONFIG_BUILDER_OPTIONS = super.getStringProperty( action , props , PROPERTY_BUILDER_OPTIONS );
 		CONFIG_MAVEN_VERSION = super.getStringProperty( action , props , PROPERTY_MAVEN_VERSION );
-		CONFIG_MAVEN_PROFILES = super.getStringProperty( action , props , PROPERTY_MAVEN_PROFILES );
 		CONFIG_MAVEN_CFGFILE = super.getStringProperty( action , props , PROPERTY_MAVEN_CFGFILE );
-		CONFIG_MAVEN_OPTIONS = super.getStringProperty( action , props , PROPERTY_MAVEN_OPTIONS );
 		CONFIG_MAVEN_JAVA_VERSION = super.getStringProperty( action , props , PROPERTY_MAVEN_JAVA_VERSION );
 		CONFIG_ARTEFACTDIR = super.getStringProperty( action , props , PROPERTY_ARTEFACTDIR );
 

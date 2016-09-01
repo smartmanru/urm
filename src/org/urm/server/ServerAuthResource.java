@@ -1,7 +1,6 @@
 package org.urm.server;
 
 import org.urm.common.PropertySet;
-import org.urm.server.action.ActionBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -20,14 +19,7 @@ public class ServerAuthResource {
 	public String BASEURL;
 	public String DESC;
 	public String AUTHKEY;
-	
-	public String METHOD;
-	public String USER;
-	public String PASSWORD;
-
-	public static String METHOD_ANONYMOUS = "anonymous"; 
-	public static String METHOD_COMMON = "common"; 
-	public static String METHOD_USER = "user"; 
+	public ServerAuthContext ac;
 	
 	public static String TYPE_SVN = "svn";
 	public static String TYPE_GIT = "git";
@@ -43,9 +35,8 @@ public class ServerAuthResource {
 		ServerAuthResource r = new ServerAuthResource( resources );
 		r.properties = properties.copy( null );
 		r.scatterSystemProperties();
-		r.METHOD = METHOD;
-		r.USER = USER;
-		r.PASSWORD = PASSWORD;
+		if( ac != null )
+			r.ac = ac.copy();
 		return( r );
 	}
 	
@@ -61,8 +52,9 @@ public class ServerAuthResource {
 		properties.finishRawProperties();
 	}
 	
-	public void save( Document doc , Element root ) throws Exception {
+	public void save( Document doc , Element root , String authGroup ) throws Exception {
 		properties.saveAsElements( doc , root );
+		saveAuthData( authGroup );
 	}
 	
 	private void scatterSystemProperties() throws Exception {
@@ -79,19 +71,9 @@ public class ServerAuthResource {
 		properties.setStringProperty( "type" , TYPE );
 		properties.setStringProperty( "baseurl" , BASEURL );
 		properties.setStringProperty( "desc" , DESC );
-		
-		AUTHKEY = "resource." + NAME;
 		properties.setStringProperty( "authkey" , AUTHKEY );
 	}
 
-	public PropertySet getAuthProps() throws Exception {
-		PropertySet authProps = new PropertySet( "authkey" , null );
-		authProps.setStringProperty( "method" , METHOD );
-		authProps.setStringProperty( "user" , USER );
-		authProps.setStringProperty( "password" , PASSWORD );
-		return( authProps );
-	}
-	
 	public boolean isSvn() {
 		if( TYPE.equals( TYPE_SVN ) )
 			return( true );
@@ -117,14 +99,25 @@ public class ServerAuthResource {
 		TYPE = src.TYPE;
 		BASEURL = src.BASEURL;
 		DESC = src.DESC;
-		AUTHKEY = src.AUTHKEY;
-		METHOD = src.METHOD;
-		USER = src.USER;
-		PASSWORD = src.PASSWORD;
+		
+		ServerAuth auth = resources.loader.engine.getAuth();
+		ac = new ServerAuthContext( auth );
+		ac.load( src.ac.properties );
 		createProperties();
 	}
 	
-	public void loadAuth( ActionBase action ) throws Exception {
+	public void saveAuthData( String authGroup ) throws Exception {
+		ServerAuth auth = resources.loader.engine.getAuth();
+		AUTHKEY = auth.getAuthKey( authGroup , NAME );
+		properties.setStringProperty( "authkey" , AUTHKEY );
+		auth.saveAuthData( AUTHKEY , ac ); 
+	}
+	
+	public void loadAuthData() throws Exception {
+		if( ac != null )
+			return;
+		ServerAuth auth = resources.loader.engine.getAuth();
+		ac = auth.loadAuthData( AUTHKEY );
 	}
 	
 }

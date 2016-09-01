@@ -15,7 +15,7 @@ public class ServerResources {
 
 	public ServerLoader loader;
 	Map<String,ServerAuthResource> resourceMap;
-	
+
 	public ServerResources( ServerLoader loader ) {
 		this.loader = loader;
 		
@@ -52,15 +52,18 @@ public class ServerResources {
 		Document doc = Common.xmlCreateDoc( "resources" );
 		Element root = doc.getDocumentElement();
 
+		ServerAuth auth = loader.engine.getAuth();
+		auth.deleteGroupData( ServerAuth.AUTH_GROUP_RESOURCE );
+		
 		for( ServerAuthResource res : resourceMap.values() ) {
 			Element resElement = Common.xmlCreateElement( doc , root , "resource" );
-			res.save( doc , resElement );
+			res.save( doc , resElement , ServerAuth.AUTH_GROUP_RESOURCE );
 		}
 		
 		Common.xmlSaveDoc( doc , path );
 	}
 
-	public ServerAuthResource findResource( String name ) throws Exception {
+	public ServerAuthResource findResource( String name ) {
 		ServerAuthResource res = resourceMap.get( name );
 		return( res );
 	}

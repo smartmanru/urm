@@ -1,6 +1,8 @@
 package org.urm.server.storage;
 
 import org.urm.common.Common;
+import org.urm.server.ServerAuth;
+import org.urm.server.ServerAuthContext;
 import org.urm.server.ServerAuthResource;
 import org.urm.server.ServerProduct;
 import org.urm.server.ServerTransaction;
@@ -211,15 +213,12 @@ public class Artefactory {
 		return( new BuildStorage( this , folder ) );
 	}
 
-	public AuthStorage getAuthStorage( ActionBase action ) throws Exception {
-		return( new AuthStorage( this ) );
-	}
-	
 	public GenericVCS getVCS( ActionBase action , String vcs , boolean build ) throws Exception {
 		ServerAuthResource res = action.getResource( vcs );
 		if( res.isSvn() ) {
-			AuthStorage auth = getAuthStorage( action );
-			String SVNAUTH = auth.getAuthData( action , res );
+			ServerAuth auth = action.engine.getAuth();
+			ServerAuthContext context = auth.loadAuthData( res.AUTHKEY );
+			String SVNAUTH = context.getSvnAuth();
 			return( new SubversionVCS( action , res.BASEURL , SVNAUTH ) );
 		}
 		

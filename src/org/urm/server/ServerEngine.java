@@ -41,6 +41,7 @@ public class ServerEngine {
 	public ActionInit serverAction;
 	public ShellPool shellPool;
 	
+	private ServerAuth auth;
 	private ServerLoader loader;
 	public boolean running;
 
@@ -50,10 +51,13 @@ public class ServerEngine {
 	
 	public ServerEngine( RunContext execrc ) {
 		this.execrc = execrc;
+		
+		auth = new ServerAuth( this ); 
 		loader = new ServerLoader( this );
 	}
 	
 	public void init() throws Exception {
+		auth.init();
 		loader.init();
 	}
 	
@@ -409,6 +413,10 @@ public class ServerEngine {
 
 	public ServerLoader getLoader() {
 		return( loader );
+	}
+	
+	public ServerAuth getAuth() {
+		return( auth );
 	}
 	
 }
