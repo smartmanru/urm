@@ -11,7 +11,8 @@ public class ServerAuthContext {
 	
 	public String METHOD;
 	public String USER;
-	public String PASSWORD;
+	public String PASSWORDONLINE;
+	public String PASSWORDSAVE;
 	
 	public static String METHOD_ANONYMOUS = "anonymous"; 
 	public static String METHOD_COMMON = "common"; 
@@ -43,7 +44,7 @@ public class ServerAuthContext {
 		properties = new PropertySet( "authctx" , null );
 		properties.setStringProperty( "method" , METHOD );
 		properties.setStringProperty( "user" , USER );
-		properties.setStringProperty( "password" , PASSWORD );
+		properties.setStringProperty( "password" , PASSWORDSAVE );
 		properties.setBooleanProperty( "admin" , adminContext );
 		properties.finishRawProperties();
 	}
@@ -51,12 +52,12 @@ public class ServerAuthContext {
 	private void scatterSystemProperties() throws Exception {
 		METHOD = properties.getRequiredPropertyAny( "method" );
 		USER = properties.getPropertyAny( "user" );
-		PASSWORD = properties.getPropertyAny( "password" );
+		PASSWORDSAVE = properties.getPropertyAny( "password" );
 		adminContext = properties.getBooleanProperty( "admin" , false );
 	}
 	
 	public String getSvnAuth() {
-		return( "--username " + USER + " --password " + PASSWORD );
+		return( "--username " + USER + " --password " + PASSWORDONLINE );
 	}
 	
 }

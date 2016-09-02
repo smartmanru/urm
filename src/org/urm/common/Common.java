@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
@@ -794,7 +795,10 @@ public class Common {
 
 	public static String getMD5( String value ) throws Exception {
 		MessageDigest md = MessageDigest.getInstance( "MD5" );
-		return( md.digest( value.getBytes() ).toString() );
+		md.reset();
+		byte digest[] = md.digest( value.getBytes() );
+		String md5 = new BigInteger( 1 , digest ).toString( 16 );
+		return( md5 );
 	}
 	
 }

@@ -30,7 +30,7 @@ public class ServerAuth {
 			ServerAuthContext ac = new ServerAuthContext( this );
 			ac.adminContext = true;
 			ac.USER = "admin";
-			ac.PASSWORD = "123";
+			ac.PASSWORDSAVE = Common.getMD5( "123" );
 			ac.METHOD = ServerAuthContext.METHOD_USER;
 			ac.createProperties();
 			saveAuthData( authKey , ac );
@@ -68,9 +68,12 @@ public class ServerAuth {
 	public ServerAuthContext connect( String user , String password ) throws Exception {
 		String authKey = getAuthKey( AUTH_GROUP_USER , user );
 		ServerAuthContext ac = loadAuthData( authKey );
-		if( password == null || !password.equals( ac.PASSWORD ) )
-			return( null );
 		
+		String passwordMD5 = Common.getMD5( password );
+		if( password == null || !passwordMD5.equals( ac.PASSWORDSAVE ) )
+			return( null );
+
+		ac.PASSWORDONLINE = password;
 		return( ac );
 	}
 	
