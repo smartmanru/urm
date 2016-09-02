@@ -39,14 +39,15 @@ public class ServerContext {
 	public int SHELL_SILENTMAX;
 	public int SHELL_UNAVAILABLE_SKIPTIME;
 	public int SHELL_HOUSEKEEP_TIME;
-	
-	public String JABBER_ACCOUNT;
-	public String JABBER_PASSWORD;
-	public String JABBER_SERVER;
-	public String JABBER_CONFERENCESERVER;
-	public String JABBER_INCLUDE;
-	public String JABBER_EXCLUDE;
 
+	public boolean CHAT_USING;
+	public String CHAT_TYPE;
+	public static String CHAT_TYPE_JABBER = "jabber";
+	public static String CHAT_TYPE_ROCKET = "rocket";
+	public String CHAT_JABBER_RESOURCE;
+	public String CHAT_JABBER_CONFERENCESERVER;
+	public String CHAT_ROCKET_RESOURCE;
+	
 	// xml field names
 	public static String PROPERTY_CONNECTION_JMX_PORT = "connection.jmx.port";
 	public static String PROPERTY_CONNECTION_JMXWEB_PORT = "connection.jmxweb.port";
@@ -72,6 +73,12 @@ public class ServerContext {
 	public static String PROPERTY_SHELL_SILENTMAX = "shell.silentmax";
 	public static String PROPERTY_SHELL_UNAVAILABLE_SKIPTIME = "shell.unavailable";
 	public static String PROPERTY_SHELL_HOUSEKEEP_TIME = "shell.housekeep";
+
+	public static String PROPERTY_CHAT_USING = "chat.using";
+	public static String PROPERTY_CHAT_TYPE = "chat.type";
+	public static String PROPERTY_CHAT_JABBER_RESOURCE = "chat.jabber.resource";
+	public static String PROPERTY_CHAT_JABBER_CONFERENCESERVER = "chat.jabber.conferenceserver";
+	public static String PROPERTY_CHAT_ROCKET_RESOURCE = "chat.rocket.resource";
 	
 	private ServerContext() {
 	}
@@ -133,12 +140,11 @@ public class ServerContext {
 		SHELL_UNAVAILABLE_SKIPTIME = properties.getSystemIntProperty( PROPERTY_SHELL_UNAVAILABLE_SKIPTIME , 30000 );
 		SHELL_HOUSEKEEP_TIME = properties.getSystemIntProperty( PROPERTY_SHELL_HOUSEKEEP_TIME , 30000 );
 		
-		JABBER_ACCOUNT = properties.getSystemStringProperty( "jabber.account" , "" );
-		JABBER_PASSWORD = properties.getSystemStringProperty( "jabber.password" , "" );
-		JABBER_SERVER = properties.getSystemStringProperty( "jabber.server" , "" );
-		JABBER_CONFERENCESERVER = properties.getSystemStringProperty( "jabber.conferenceserver" , "" );
-		JABBER_INCLUDE = properties.getSystemStringProperty( "jabber.include" , "" );
-		JABBER_EXCLUDE = properties.getSystemStringProperty( "jabber.exclude" , "" );
+		CHAT_USING = properties.getSystemBooleanProperty( PROPERTY_CHAT_USING , false );
+		CHAT_TYPE = properties.getSystemStringProperty( PROPERTY_CHAT_TYPE , "" );
+		CHAT_JABBER_RESOURCE = properties.getSystemStringProperty( PROPERTY_CHAT_JABBER_RESOURCE , "" );
+		CHAT_JABBER_CONFERENCESERVER = properties.getSystemStringProperty( PROPERTY_CHAT_JABBER_CONFERENCESERVER , "" );
+		CHAT_ROCKET_RESOURCE = properties.getSystemStringProperty( PROPERTY_CHAT_ROCKET_RESOURCE , "" );
 	}
 
 	public void setServerProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
