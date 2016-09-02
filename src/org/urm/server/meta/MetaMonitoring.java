@@ -4,32 +4,41 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.ConfReader;
+import org.urm.common.PropertyController;
+import org.urm.common.PropertySet;
 import org.urm.server.ServerRegistry;
 import org.urm.server.action.ActionBase;
 import org.w3c.dom.Node;
 
-public class MetaMonitoring {
+public class MetaMonitoring extends PropertyController {
 	
-	private boolean loaded;
-	public boolean loadFailed;
-
 	protected Meta meta;
 
+	public PropertySet props;
 	Map<String,MetaMonitoringTarget> mapEnvs;
 
 	public String DIR_DATA;
 	public String DIR_REPORTS;
 	public String DIR_RES;
-	public String RESOURCE_CONTEXT;
+	public String RESOURCE_URL;
 	
 	public int MAJORINTERVAL;
 	public int MINORINTERVAL;
 	public int MINSILENT;
+
+	// properties
+	public static String PROPERTY_DIR_DATA = "data.path";
+	public static String PROPERTY_DIR_REPORTS = "reports.path";
+	public static String PROPERTY_DIR_RES = "resources.path";
+	public static String PROPERTY_RESOURCE_URL = "resources.url";
+	
+	public static String PROPERTY_MAJORINTERVAL;
+	public static String PROPERTY_MINORINTERVAL;
+	public static String PROPERTY_MINSILENT;
 	
 	public MetaMonitoring( Meta meta ) {
 		this.meta = meta;
-		loaded = false;
-		loadFailed = false;
+		mapEnvs = new HashMap<String,MetaMonitoringTarget>();
 	}
 	
 	public MetaMonitoring copy( ActionBase action , Meta meta ) throws Exception {
@@ -37,43 +46,45 @@ public class MetaMonitoring {
 		return( r );
 	}
 	
-	public void setLoadFailed() {
-		loadFailed = true;
-	}
-	
 	public void createInitial( ActionBase action , ServerRegistry registry ) throws Exception {
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
-		if( loaded )
+		if( !loadStarted() )
 			return;
 
-		loaded = true;
+		props = new PropertySet( "product" , meta.product.props );
+		props.loadRawFromNodeElements( root );
 		
-		loadProperties( action , root );
+		scatterVariables( action );
+		super.finishProperties( action , props );
+		
 		loadEnvironments( action , ConfReader.xmlGetPathNode( root , "scope" ) );
+		
+		loadFinished();
 	}
 
 	public Map<String,MetaMonitoringTarget> getTargets( ActionBase action ) throws Exception { 
 		return( mapEnvs );
 	}
 	
-	private void loadProperties( ActionBase action , Node node ) throws Exception {
-		DIR_DATA = ConfReader.getRequiredPropertyValue( node , "dataPath" );
-		DIR_REPORTS = ConfReader.getRequiredPropertyValue( node , "reportPath" );
-		DIR_RES = ConfReader.getRequiredPropertyValue( node , "resourcePath" );
-		RESOURCE_CONTEXT = ConfReader.getRequiredPropertyValue( node , "resourceContext" );
+	private void scatterVariables( ActionBase action ) throws Exception {
+		DIR_DATA = super.getPathProperty( action , props , PROPERTY_DIR_DATA );
+		DIR_REPORTS = super.getPathProperty( action , props , PROPERTY_DIR_REPORTS );
+		DIR_RES = super.getPathProperty( action , props , PROPERTY_DIR_RES );
+		RESOURCE_URL = super.getStringProperty( action , props , PROPERTY_RESOURCE_URL );
 		
-		MAJORINTERVAL = ConfReader.getIntegerPropertyValue( node , "majorInterval" , 300 );
-		MINORINTERVAL = ConfReader.getIntegerPropertyValue( node , "minorInterval" , 60 );
-		MINSILENT = ConfReader.getIntegerPropertyValue( node , "minSilent" , 30 );
+		MAJORINTERVAL = super.getIntProperty( action , props , PROPERTY_MAJORINTERVAL , 300 );
+		MINORINTERVAL = super.getIntProperty( action , props , PROPERTY_MINORINTERVAL , 60 );
+		MINSILENT = super.getIntProperty( action , props , PROPERTY_MINSILENT , 30 );
 	}
 	
 	private void loadEnvironments( ActionBase action , Node node ) throws Exception {
-		if( node == null )
-			action.exit( "no environments defined for monitoring" );
+		if( node == null ) {
+			action.info( "no environments defined for monitoring" );
+			return;
+		}
 
-		mapEnvs = new HashMap<String,MetaMonitoringTarget>();
 		Node[] items = ConfReader.xmlGetChildren( node , "environment" );
 		if( items == null )
 			return;

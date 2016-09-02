@@ -60,6 +60,6 @@ public class MonitoringStorage {
 	}
 
 	public String getMonitoringUrl() {
-		return( mon.RESOURCE_CONTEXT );
+		return( mon.RESOURCE_URL );
 	}
 }

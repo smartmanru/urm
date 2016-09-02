@@ -54,6 +54,10 @@ public class PropertyController {
 		return( value );
 	}
 	
+	protected int getIntProperty( ActionBase action , PropertySet set , String name , int defaultValue ) throws Exception {
+		return( set.getSystemIntProperty( name , defaultValue ) );
+	}
+	
 	protected String getStringProperty( ActionBase action , PropertySet set , String name ) throws Exception {
 		return( set.getSystemStringProperty( name , "" ) );
 	}

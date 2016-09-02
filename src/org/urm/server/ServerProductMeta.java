@@ -93,7 +93,7 @@ public class ServerProductMeta {
 		}
 		if( mon != null ) {
 			r.mon = mon.copy( action , r.meta );
-			if( r.mon.loadFailed )
+			if( r.mon.isLoadFailed() )
 				r.loadFailed = true;
 		}
 		for( String envKey : envs.keySet() ) {
@@ -284,7 +284,6 @@ public class ServerProductMeta {
 			}
 			catch( Throwable e ) {
 				setLoadFailed( action , e , "unable to load monitoring metadata, product=" + name );
-				mon.setLoadFailed();
 			}
 		}
 		
