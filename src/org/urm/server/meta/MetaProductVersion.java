@@ -1,16 +1,13 @@
 package org.urm.server.meta;
 
-import org.urm.common.PropertySet;
+import org.urm.common.PropertyController;
 import org.urm.server.ServerRegistry;
 import org.urm.server.action.ActionBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class MetaProductVersion {
-
-	private boolean loaded;
-	public boolean loadFailed;
+public class MetaProductVersion extends PropertyController {
 
 	public int majorFirstNumber;
 	public int majorSecondNumber;
@@ -18,8 +15,6 @@ public class MetaProductVersion {
 	public int majorNextSecondNumber;
 	public int lastProdTag;
 	public int nextProdTag;
-
-	PropertySet properties;
 
 	public static String PROPERTY_MAJOR_FIRST = "major.first";
 	public static String PROPERTY_MAJOR_LAST = "major.last";
@@ -29,8 +24,7 @@ public class MetaProductVersion {
 	public static String PROPERTY_PROD_NEXTTAG = "prod.nexttag";
 	
 	public MetaProductVersion( Meta meta ) {
-		loaded = false;
-		loadFailed = false;
+		super( "version" );
 		
 		majorFirstNumber = 0;
 		majorSecondNumber = 0;
@@ -38,64 +32,11 @@ public class MetaProductVersion {
 		majorNextSecondNumber = 0;
 		lastProdTag = 0;
 		nextProdTag = 0;
-		
-		properties = new PropertySet( "version" , null );
 	}
 	
-	public MetaProductVersion copy( ActionBase action , Meta meta ) throws Exception {
-		MetaProductVersion r = new MetaProductVersion( meta );
-		r.loaded = true;
-		r.properties = properties.copy( null );
-		try {
-			r.scatterVariables( action );
-			r.loadFailed = false;
-		}
-		catch( Throwable e ) {
-			r.loadFailed = true;
-		}
-		
-		return( r );
-	}
-	
-	public void createFailed() {
-		loaded = true;
-		loadFailed = true;
-	}
-
-	public void create( ActionBase action , ServerRegistry registry ) throws Exception {
-		loaded = true;
-		majorFirstNumber = 1;
-		majorSecondNumber = 0;
-		majorNextFirstNumber = 1;
-		majorNextSecondNumber = 1;
-		lastProdTag = 0;
-		nextProdTag = 1;
-		gatherVariables( action );
-		
-		loadFailed = false;
-	}
-	
-	public void load( ActionBase action , Node root ) throws Exception {
-		if( loaded )
-			return;
-
-		loaded = true;
-		
-		properties.loadRawFromNodeElements( root );
-		scatterVariables( action );
-		properties.finishRawProperties();
-		loadFailed = false;
-	}
-
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		if( !loaded )
-			return;
-
-		properties.saveAsElements( doc , root );
-	}
-
+	@Override
 	public boolean isValid() {
-		if( loadFailed )
+		if( super.isLoadFailed() )
 			return( false );
 		
 		if( ( majorFirstNumber > majorNextFirstNumber ) || 
@@ -106,19 +47,65 @@ public class MetaProductVersion {
 		return( true );
 	}
 	
+	public MetaProductVersion copy( ActionBase action , Meta meta ) throws Exception {
+		MetaProductVersion r = new MetaProductVersion( meta );
+		r.initCopyStarted( properties , null );
+		r.scatterVariables( action );
+		r.initFinished();
+		
+		return( r );
+	}
+	
+	public void create( ActionBase action , ServerRegistry registry ) throws Exception {
+		if( !super.initCreateStarted( null ) )
+			return;
+
+		majorFirstNumber = 1;
+		majorSecondNumber = 0;
+		majorNextFirstNumber = 1;
+		majorNextSecondNumber = 1;
+		lastProdTag = 0;
+		nextProdTag = 1;
+		
+		gatherVariables( action );
+		super.finishProperties( action );
+		
+		super.initFinished();
+	}
+	
+	public void load( ActionBase action , Node root ) throws Exception {
+		if( !super.initCreateStarted( null ) )
+			return;
+
+		properties.loadRawFromNodeElements( root );
+		scatterVariables( action );
+		
+		super.initFinished();
+	}
+
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		if( !super.isLoaded() )
+			return;
+
+		properties.saveAsElements( doc , root );
+	}
+
 	private void scatterVariables( ActionBase action ) throws Exception {
-		majorFirstNumber = properties.getSystemRequiredIntProperty( PROPERTY_MAJOR_FIRST );
-		majorSecondNumber = properties.getSystemRequiredIntProperty( PROPERTY_MAJOR_LAST );
-		majorNextFirstNumber = properties.getSystemRequiredIntProperty( PROPERTY_NEXT_MAJOR_FIRST );
-		majorNextSecondNumber = properties.getSystemRequiredIntProperty( PROPERTY_NEXT_MAJOR_LAST );
-		lastProdTag = properties.getSystemRequiredIntProperty( PROPERTY_PROD_LASTTAG );
-		nextProdTag = properties.getSystemRequiredIntProperty( PROPERTY_PROD_NEXTTAG );
+		majorFirstNumber = super.getIntPropertyRequired( action , PROPERTY_MAJOR_FIRST );
+		majorSecondNumber = super.getIntPropertyRequired( action , PROPERTY_MAJOR_LAST );
+		majorNextFirstNumber = super.getIntPropertyRequired( action , PROPERTY_NEXT_MAJOR_FIRST );
+		majorNextSecondNumber = super.getIntPropertyRequired( action , PROPERTY_NEXT_MAJOR_LAST );
+		lastProdTag = super.getIntPropertyRequired( action , PROPERTY_PROD_LASTTAG );
+		nextProdTag = super.getIntPropertyRequired( action , PROPERTY_PROD_NEXTTAG );
 		
 		if( !isValid() )
 			action.exit( "inconsistent version attributes" );
 	}
 	
 	public void gatherVariables( ActionBase action ) throws Exception {
+		if( !isValid() )
+			action.exit( "inconsistent version attributes" );
+	
 		properties.setNumberProperty( PROPERTY_MAJOR_FIRST , majorFirstNumber );
 		properties.setNumberProperty( PROPERTY_MAJOR_LAST , majorSecondNumber );
 		properties.setNumberProperty( PROPERTY_NEXT_MAJOR_FIRST , majorNextFirstNumber );
@@ -126,7 +113,6 @@ public class MetaProductVersion {
 		properties.setNumberProperty( PROPERTY_PROD_LASTTAG , lastProdTag );
 		properties.setNumberProperty( PROPERTY_PROD_NEXTTAG , nextProdTag );
 		properties.finishRawProperties();
-		loaded = true;
 	}
-
+	
 }

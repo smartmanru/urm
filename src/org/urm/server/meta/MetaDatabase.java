@@ -3,46 +3,59 @@ package org.urm.server.meta;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.common.PropertyController;
 import org.urm.server.ServerRegistry;
 import org.urm.server.action.ActionBase;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class MetaDatabase {
-
-	private boolean loaded;
-	public boolean loadFailed;
+public class MetaDatabase extends PropertyController {
 
 	protected Meta meta;
 
-	public Map<String,MetaDatabaseSchema> mapSchema = new HashMap<String,MetaDatabaseSchema>();
-	public Map<String,MetaDatabaseDatagroup> mapDatagroup = new HashMap<String,MetaDatabaseDatagroup>();
+	public MetaDatabaseAdministration admin;
+	public Map<String,MetaDatabaseSchema> mapSchema;
+	public Map<String,MetaDatabaseDatagroup> mapDatagroup;
 	
 	public String ALIGNEDMAPPING;
 	
 	public MetaDatabase( Meta meta ) {
+		super( "database" );
+		
 		this.meta = meta;
-		loaded = false;
-		loadFailed = false;
+		admin = new MetaDatabaseAdministration( meta , this );
+		mapSchema = new HashMap<String,MetaDatabaseSchema>();
+		mapDatagroup = new HashMap<String,MetaDatabaseDatagroup>();
 	}
 
+	@Override
+	public boolean isValid() {
+		if( super.isLoadFailed() )
+			return( false );
+		return( true );
+	}
+	
 	public MetaDatabase copy( ActionBase action , Meta meta ) throws Exception {
 		MetaDatabase r = new MetaDatabase( meta );
+		r.initCopyStarted( properties , meta.product.getProperties() );
+		
 		return( r );
 	}
 	
-	public void setLoadFailed() {
-		loadFailed = true;
-	}
-	
-	public void createInitial( ActionBase action , ServerRegistry registry ) throws Exception {
+	public void create( ActionBase action , ServerRegistry registry ) throws Exception {
+		if( !initCreateStarted( meta.product.getProperties() ) )
+			return;
+
+		initFinished();
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
-		if( loaded )
+		if( !initCreateStarted( meta.product.getProperties() ) )
 			return;
 
-		loaded = true;
 		if( !loadAdministration( action , root ) )
 			return;
 		
@@ -59,6 +72,10 @@ public class MetaDatabase {
 		return( true );
 	}
 
+	public void saveAdministration( ActionBase action , Document doc , Element root ) throws Exception {
+		Common.xmlCreateElement( doc , root , "administration" );
+	}
+	
 	public void loadSchemaSet( ActionBase action , Node node ) throws Exception {
 		Node[] items = ConfReader.xmlGetChildren( node , "schema" );
 		if( items == null )
@@ -80,6 +97,9 @@ public class MetaDatabase {
 			mapDatagroup.put( item.NAME , item );
 		}
 	}
+
+	public void saveSchemaSet( ActionBase action , Document doc , Element root ) throws Exception {
+	}
 	
 	public MetaDatabaseSchema getSchema( ActionBase action , String name ) throws Exception {
 		MetaDatabaseSchema schema = mapSchema.get( name );
@@ -97,6 +117,15 @@ public class MetaDatabase {
 	
 	public boolean checkAligned( ActionBase action , String id ) throws Exception {
 		return( true );
+	}
+
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		if( !super.isLoaded() )
+			return;
+
+		properties.saveAsElements( doc , root );
+		saveAdministration( action , doc , root );
+		saveSchemaSet( action , doc , root );
 	}
 	
 }

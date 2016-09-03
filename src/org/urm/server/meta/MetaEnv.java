@@ -94,7 +94,7 @@ public class MetaEnv {
 		if( node == null || !node.getNodeName().equals( "env" ) )
 			action.exit( "unable to find environment root node=env" );
 		
-		secretProperties = new PropertySet( "secret" , meta.product.props );
+		secretProperties = new PropertySet( "secret" , meta.product.getProperties() );
 		properties = new PropertySet( "env" , secretProperties );
 		properties.loadRawFromNodeAttributes( node );
 		

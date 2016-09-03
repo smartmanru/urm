@@ -2,25 +2,53 @@ package org.urm.common;
 
 import org.urm.server.action.ActionBase;
 
-public class PropertyController {
+public abstract class PropertyController {
 
+	public String name;
+	
 	private boolean loaded;
 	private boolean loadFailed;
 	private boolean loadFinished;
+	protected PropertySet properties;
 
-	public PropertyController() {
+	abstract public boolean isValid();
+	
+	public PropertyController( String name ) {
+		this.name = name;
+		
 		loaded = false;
 		loadFailed = false;
 		loadFinished = false;
 	}
+
+	public PropertySet getProperties() {
+		return( properties );
+	}
 	
-	protected boolean loadStarted() {
+	protected boolean initCopyStarted( PropertySet src , PropertySet parent ) {
 		if( loaded )
 			return( false );
 		
 		loaded = true;
 		loadFailed = false;
 		loadFinished = false;
+		
+		if( src != null )
+			properties = src.copy( parent );
+		
+		return( true );
+	}
+	
+	protected boolean initCreateStarted( PropertySet parent ) {
+		if( loaded )
+			return( false );
+		
+		loaded = true;
+		loadFailed = false;
+		loadFinished = false;
+		
+		properties = new PropertySet( name , parent );
+		
 		return( true );
 	}
 	
@@ -30,7 +58,7 @@ public class PropertyController {
 		return( loadFailed );
 	}
 	
-	protected void loadFinished() {
+	protected void initFinished() {
 		loadFinished = true;
 	}
 
@@ -43,36 +71,44 @@ public class PropertyController {
 		action.error( msg );
 	}
 	
-	protected String getPathProperty( ActionBase action , PropertySet set , String name ) throws Exception {
-		return( set.getSystemPathProperty( name , "" , action.session.execrc ) );
+	protected String getPathProperty( ActionBase action , String prop ) throws Exception {
+		return( properties.getSystemPathProperty( prop , "" , action.session.execrc ) );
 	}
 	
-	protected String getPathPropertyRequired( ActionBase action , PropertySet set , String name ) throws Exception {
-		String value = set.getSystemPathProperty( name , "" , action.session.execrc );
+	protected String getPathPropertyRequired( ActionBase action , String prop ) throws Exception {
+		String value = properties.getSystemPathProperty( prop , "" , action.session.execrc );
 		if( value.isEmpty() )
-			setLoadFailed( action , "set=" + set.set + ", property is not set: " + name );
+			setLoadFailed( action , "set=" + properties.set + ", property is not set: " + prop );
 		return( value );
 	}
 	
-	protected int getIntProperty( ActionBase action , PropertySet set , String name , int defaultValue ) throws Exception {
-		return( set.getSystemIntProperty( name , defaultValue ) );
+	protected int getIntProperty( ActionBase action , String prop , int defaultValue ) throws Exception {
+		return( properties.getSystemIntProperty( prop , defaultValue ) );
 	}
 	
-	protected String getStringProperty( ActionBase action , PropertySet set , String name ) throws Exception {
-		return( set.getSystemStringProperty( name , "" ) );
-	}
-	
-	public String getStringProperty( ActionBase action , PropertySet set , String name , String defaultValue ) throws Exception {
-		String value = set.getSystemStringProperty( name , defaultValue );
-		if( value.isEmpty() )
-			setLoadFailed( action , "set=" + set.set + ", property is not set: " + name );
+	protected int getIntPropertyRequired( ActionBase action , String prop ) throws Exception {
+		int value = properties.getSystemIntProperty( prop , 0 );
+		String sv = properties.getPropertyAny( prop );
+		if( sv == null || sv.isEmpty() )
+			setLoadFailed( action , "set=" + properties.set + ", property is not set: " + prop );
 		return( value );
 	}
 	
-	protected String getStringExprProperty( ActionBase action , PropertySet set , String name , String defaultExpr ) throws Exception {
-		String value = set.getSystemStringExprProperty( name , defaultExpr );
+	protected String getStringProperty( ActionBase action , String prop ) throws Exception {
+		return( properties.getSystemStringProperty( prop , "" ) );
+	}
+	
+	public String getStringProperty( ActionBase action , String prop , String defaultValue ) throws Exception {
+		String value = properties.getSystemStringProperty( prop , defaultValue );
 		if( value.isEmpty() )
-			setLoadFailed( action , "set=" + set.set + ", property is not set: " + name );
+			setLoadFailed( action , "set=" + properties.set + ", property is not set: " + prop );
+		return( value );
+	}
+	
+	protected String getStringExprProperty( ActionBase action , String prop , String defaultExpr ) throws Exception {
+		String value = properties.getSystemStringExprProperty( prop , defaultExpr );
+		if( value.isEmpty() )
+			setLoadFailed( action , "set=" + properties.set + ", property is not set: " + prop );
 		return( value );
 	}
 
@@ -80,15 +116,15 @@ public class PropertyController {
 		return( "@" + var + "@" );
 	}
 	
-	protected void finishProperties( ActionBase action , PropertySet set ) throws Exception {
-		set.resolveRawProperties( true );
-		if( set.isResolved() ) {
-			set.finishRawProperties();
+	protected void finishProperties( ActionBase action ) throws Exception {
+		properties.resolveRawProperties( true );
+		if( properties.isResolved() ) {
+			properties.finishRawProperties();
 			loadFailed = false;
 		}
 		else {
-			for( String key : set.getRawKeys() )
-				setLoadFailed( action , "set=" + set.set + ", property is not resolved: " + key );
+			for( String key : properties.getRawKeys() )
+				setLoadFailed( action , "set=" + properties.set + ", property is not resolved: " + key );
 		}
 	}
 	

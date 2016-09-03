@@ -44,7 +44,7 @@ public class ServerProductMeta {
 	public static String XML_ROOT_VERSION = "version";
 	public static String XML_ROOT_PRODUCT = "product";
 	public static String XML_ROOT_DISTR = "distributive";
-	public static String XML_ROOT_DB = "database";
+	public static String XML_ROOT_DATABASE = "database";
 	public static String XML_ROOT_SRC = "sources";
 	public static String XML_ROOT_MONITORING = "monitoring";
 	public static String XML_ROOT_ENV = "environment";
@@ -68,7 +68,7 @@ public class ServerProductMeta {
 		r.meta = new Meta( r , session );
 		if( version != null ) {
 			r.version = version.copy( action , r.meta );
-			if( r.version.loadFailed )
+			if( r.version.isLoadFailed() )
 				r.loadFailed = true;
 		}
 		if( product != null ) {
@@ -78,7 +78,7 @@ public class ServerProductMeta {
 		}
 		if( database != null ) {
 			r.database = database.copy( action , r.meta );
-			if( r.database.loadFailed )
+			if( r.database.isLoadFailed() )
 				r.loadFailed = true;
 		}
 		if( distr != null ) {
@@ -143,7 +143,6 @@ public class ServerProductMeta {
 			}
 			catch( Throwable e ) {
 				setLoadFailed( action , e , "unable to load version metadata, product=" + name );
-				version.createFailed();
 			}
 		}
 		
@@ -210,7 +209,6 @@ public class ServerProductMeta {
 			}
 			catch( Throwable e ) {
 				setLoadFailed( action , e , "unable to load database metadata, product=" + name );
-				database.setLoadFailed();
 			}
 		}
 		
@@ -416,7 +414,7 @@ public class ServerProductMeta {
 	private void createInitialDatabase( ActionBase action , ServerRegistry registry ) throws Exception {
 		database = new MetaDatabase( meta );
 		meta.setDatabase( database );
-		database.createInitial( action , registry );
+		database.create( action , registry );
 		action.meta.setDatabase( database );
 	}
 	
@@ -436,7 +434,7 @@ public class ServerProductMeta {
 	
 	private void createInitialMonitoring( ActionBase action , ServerRegistry registry ) throws Exception {
 		mon = new MetaMonitoring( meta );
-		mon.createInitial( action , registry );
+		mon.create( action , registry );
 	}
 	
 	public void saveAll( ActionBase action , MetadataStorage storageMeta ) throws Exception {
@@ -466,6 +464,9 @@ public class ServerProductMeta {
 	}
 	
 	public void saveDatabase( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+		Document doc = Common.xmlCreateDoc( XML_ROOT_DATABASE );
+		database.save( action , doc , doc.getDocumentElement() );
+		storageMeta.saveProductConfFile( action , doc );
 	}
 	
 	public void saveDistr( ActionBase action , MetadataStorage storageMeta ) throws Exception {

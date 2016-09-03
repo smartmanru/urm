@@ -122,7 +122,7 @@ public class BuildCommand {
 		action.info( "-------------------");
 		action.info( "product properties:");
 		action.info( "-------------------");
-		action.printValues( action.meta.product.props );
+		action.printValues( action.meta.product.getProperties() );
 	}
 
 	public void checkout( ActionBase action , ActionScope scope , LocalFolder CODIR ) throws Exception {
