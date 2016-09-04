@@ -1,5 +1,7 @@
 package org.urm.common;
 
+import org.urm.server.shell.ShellExecutor;
+
 public class PropertyValue {
 	public enum PropertyValueType {
 		PROPERTY_STRING ,
@@ -46,7 +48,7 @@ public class PropertyValue {
 		this.system = false;
 		this.data = "";
 		this.defaultValue = "";
-		setValue( value );
+		setValueInternal( value );
 	}
 	
 	public PropertyValue( String property , PropertyValueOrigin origin , PropertySet originSet ) {
@@ -123,7 +125,7 @@ public class PropertyValue {
 		resolved = isFinal( defaultValue );
 	}
 	
-	public void setValue( String value ) {
+	public void setValueInternal( String value ) {
 		if( value == null ) {
 			this.data = "";
 			this.missing = true;
@@ -137,18 +139,18 @@ public class PropertyValue {
 	
 	public void setValue( PropertyValue value ) throws Exception {
 		type = value.type;
-		setValue( value.data );
+		setValueInternal( value.data );
 	}
 	
 	public void setString( String value ) throws Exception {
 		type = PropertyValueType.PROPERTY_STRING;
-		setValue( value );
+		setValueInternal( value );
 	}
 	
 	public void setNumber( String value ) throws Exception {
 		if( value == null || value.isEmpty() ) {
 			type = PropertyValueType.PROPERTY_NUMBER;
-			setValue( value );
+			setValueInternal( value );
 			return;
 		}
 		
@@ -160,7 +162,7 @@ public class PropertyValue {
 		}
 		
 		type = PropertyValueType.PROPERTY_NUMBER;
-		setValue( value );
+		setValueInternal( value );
 	}
 	
 	public void setNumber( int value ) {
@@ -176,7 +178,7 @@ public class PropertyValue {
 	public void setBool( String value ) throws Exception {
 		if( value == null || value.isEmpty() ) {
 			type = PropertyValueType.PROPERTY_BOOL;
-			setValue( value );
+			setValueInternal( value );
 			return;
 		}
 		
@@ -188,18 +190,21 @@ public class PropertyValue {
 		}
 		
 		type = PropertyValueType.PROPERTY_BOOL;
-		setValue( value );
+		setValueInternal( value );
 	}
 	
-	public void setPath( String value , RunContext execrc ) throws Exception {
+	public void setPath( String value , ShellExecutor shell ) throws Exception {
 		type = PropertyValueType.PROPERTY_PATH;
 		if( value == null || value.isEmpty() )
-			setValue( value );
+			setValueInternal( value );
 		else
-			setValue( Common.getLinuxPath( value ) );
+			setValueInternal( Common.getLinuxPath( value ) );
 		
-		if( data.startsWith( "~/") )
-			setValue( data = execrc.userHome + data.substring( 1 ) );
+		if( data.startsWith( "~/") ) {
+			if( shell == null )
+				throw new ExitException( "unable to resolve user home path: " + value );
+			setValueInternal( data = shell.getHomePath() + data.substring( 1 ) );
+		}
 	}
 
 	public boolean getBool() {

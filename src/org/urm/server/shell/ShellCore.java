@@ -10,7 +10,7 @@ import org.urm.server.action.CommandOutput;
 import org.urm.server.meta.Meta.VarSESSIONTYPE;
 import org.urm.server.storage.Folder;
 
-abstract class ShellCore {
+abstract public class ShellCore {
 
 	public boolean local;
 	public VarOSTYPE osType;

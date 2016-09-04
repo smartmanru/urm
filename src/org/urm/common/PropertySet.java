@@ -8,6 +8,7 @@ import java.util.Properties;
 
 import org.urm.common.PropertyValue.PropertyValueOrigin;
 import org.urm.common.PropertyValue.PropertyValueType;
+import org.urm.server.shell.ShellExecutor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -319,7 +320,7 @@ public class PropertySet {
 
 	public void recalculateProperty( String prop ) throws Exception {
 		PropertyValue pv = getPropertyValue( prop );
-		pv.setValue( getOriginalByProperty( prop ) );
+		pv.setValueInternal( getOriginalByProperty( prop ) );
 		removeRunningProperty( pv );
 		setRawPropertyInternal( pv );
 	}
@@ -404,7 +405,7 @@ public class PropertySet {
 			
 			pv.setValue( pvVar );
 			if( pv.type == PropertyValueType.PROPERTY_PATH )
-				pv.setValue( pv.getPath( finalValue , isWindows ) );
+				pv.setValueInternal( pv.getPath( finalValue , isWindows ) );
 			return;
 		}
 		
@@ -449,7 +450,7 @@ public class PropertySet {
 			indexTo = index;	
 		}
 		
-		pv.setValue( res );
+		pv.setValueInternal( res );
 	}
 	
 	public PropertyValue getPropertyValue( String prop ) {
@@ -522,9 +523,9 @@ public class PropertySet {
 		setOriginalProperty( pv );
 	}
 
-	public void setPathProperty( String prop , String value , RunContext execrc ) throws Exception {
+	public void setPathProperty( String prop , String value , ShellExecutor target ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null );
-		pv.setPath( value , execrc );
+		pv.setPath( value , target );
 		setOriginalProperty( pv );
 	}
 
@@ -751,7 +752,7 @@ public class PropertySet {
 		PropertyValue pv = getPropertyValue( prop );
 		if( pv == null )
 			pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , this );
-		pv.setValue( value );
+		pv.setValueInternal( value );
 		setOriginalProperty( pv );
 	}
 

@@ -9,6 +9,8 @@ import org.w3c.dom.Node;
 
 public class MetaProductVersion extends PropertyController {
 
+	Meta meta;
+	
 	public int majorFirstNumber;
 	public int majorSecondNumber;
 	public int majorNextFirstNumber;
@@ -25,6 +27,8 @@ public class MetaProductVersion extends PropertyController {
 	
 	public MetaProductVersion( Meta meta ) {
 		super( "version" );
+		
+		this.meta = meta;
 		
 		majorFirstNumber = 0;
 		majorSecondNumber = 0;

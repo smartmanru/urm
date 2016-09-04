@@ -466,7 +466,7 @@ public class ServerProductMeta {
 	public void saveDatabase( ActionBase action , MetadataStorage storageMeta ) throws Exception {
 		Document doc = Common.xmlCreateDoc( XML_ROOT_DATABASE );
 		database.save( action , doc , doc.getDocumentElement() );
-		storageMeta.saveProductConfFile( action , doc );
+		storageMeta.saveDatabaseConfFile( action , doc );
 	}
 	
 	public void saveDistr( ActionBase action , MetadataStorage storageMeta ) throws Exception {

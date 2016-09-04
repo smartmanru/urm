@@ -67,6 +67,12 @@ public class MetadataStorage {
 		return( folder.getFilePath( action , UrmStorage.PRODUCT_SETTINGS_FILE ) );
 	}
 	
+	public String getDatabaseConfFile( ActionBase action ) throws Exception {
+		UrmStorage urm = artefactory.getUrmStorage();
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action );
+		return( folder.getFilePath( action , UrmStorage.DATABASE_SETTINGS_FILE ) );
+	}
+	
 	public String getSourceConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
 		LocalFolder folder = urm.getProductCoreMetadataFolder( action );
@@ -198,6 +204,11 @@ public class MetadataStorage {
 	
 	public void saveProductConfFile( ActionBase action , Document doc ) throws Exception {
 		String filePath = getProductConfFile( action );
+		saveFile( action , doc , filePath );
+	}
+	
+	public void saveDatabaseConfFile( ActionBase action , Document doc ) throws Exception {
+		String filePath = getDatabaseConfFile( action );
 		saveFile( action , doc , filePath );
 	}
 	

@@ -161,12 +161,12 @@ public class RunContext implements Serializable {
 
 	public void getProperties( PropertySet set ) throws Exception {
 		set.setStringProperty( PROPERTY_OS_TYPE , Common.getEnumLower( osType ) );
-		set.setPathProperty( PROPERTY_INSTALL_PATH , installPath , this );
-		set.setPathProperty( PROPERTY_USER_HOME , userHome , this );
+		set.setPathProperty( PROPERTY_INSTALL_PATH , installPath , null );
+		set.setPathProperty( PROPERTY_USER_HOME , userHome , null );
 		set.setStringProperty( PROPERTY_HOSTNAME , hostName );
-		set.setPathProperty( PROPERTY_SERVER_CONFPATH , installPath + "/etc" , this );
-		set.setPathProperty( PROPERTY_SERVER_MASTERPATH , installPath + "/master" , this );
-		set.setPathProperty( PROPERTY_SERVER_PRODUCTSPATH , installPath + "/products" , this );
+		set.setPathProperty( PROPERTY_SERVER_CONFPATH , installPath + "/etc" , null );
+		set.setPathProperty( PROPERTY_SERVER_MASTERPATH , installPath + "/master" , null );
+		set.setPathProperty( PROPERTY_SERVER_PRODUCTSPATH , installPath + "/products" , null );
 		
 		set.resolveRawProperties();
 	}

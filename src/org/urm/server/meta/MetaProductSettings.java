@@ -234,7 +234,7 @@ public class MetaProductSettings extends PropertyController {
 		CONFIG_VERSION_BRANCH_NEXTMINOR = productContext.CONFIG_VERSION_BRANCH_NEXTMINOR;
 		
 		properties.setStringProperty( PROPERTY_PRODUCT_NAME , CONFIG_PRODUCT );
-		properties.setPathProperty( PROPERTY_PRODUCT_HOME , CONFIG_PRODUCTHOME , action.session.execrc );
+		properties.setPathProperty( PROPERTY_PRODUCT_HOME , CONFIG_PRODUCTHOME , action.shell );
 		
 		properties.setNumberProperty( MetaProductVersion.PROPERTY_MAJOR_FIRST , CONFIG_VERSION_BRANCH_MAJOR );
 		properties.setNumberProperty( MetaProductVersion.PROPERTY_MAJOR_LAST , CONFIG_VERSION_BRANCH_MINOR );
