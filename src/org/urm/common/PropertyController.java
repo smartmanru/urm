@@ -53,9 +53,11 @@ public abstract class PropertyController {
 	}
 	
 	public boolean isLoadFailed() {
-		if( !loadFinished )
-			return( true );
 		return( loadFailed );
+	}
+	
+	public boolean isLoadFinished() {
+		return( loadFinished );
 	}
 	
 	protected void initFinished() {
