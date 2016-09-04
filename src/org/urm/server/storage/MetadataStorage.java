@@ -27,34 +27,6 @@ public class MetadataStorage {
 		return( new LocalFolder( action.context.session.etcPath , action.isLocalWindows() ) );
 	}
 	
-	public String getDistrFile( ActionBase action ) throws Exception {
-		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductCoreMetadataFolder( action );
-		return( folder.getFilePath( action , UrmStorage.DISTR_SETTINGS_FILE ) );
-	}
-
-	public String getDatabaseFile( ActionBase action ) throws Exception {
-		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductCoreMetadataFolder( action );
-		return( folder.getFilePath( action , UrmStorage.DATABASE_SETTINGS_FILE ) );
-	}
-
-	public String[] getDesignFiles( ActionBase action ) throws Exception {
-		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductXDocMetadataFolder( action );
-		if( !folder.checkExists( action ) )
-			return( new String[0] );
-		
-		FileSet files = folder.getFileSet( action );
-		return( files.fileList.toArray( new String[0] ) );
-	}
-	
-	public String getDesignFile( ActionBase action , String fileName ) throws Exception {
-		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductXDocMetadataFolder( action );
-		return( folder.getFilePath( action , fileName ) );
-	}
-	
 	public String getVersionConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
 		LocalFolder folder = urm.getProductCoreMetadataFolder( action );
@@ -73,13 +45,19 @@ public class MetadataStorage {
 		return( folder.getFilePath( action , UrmStorage.DATABASE_SETTINGS_FILE ) );
 	}
 	
-	public String getSourceConfFile( ActionBase action ) throws Exception {
+	public String getDistrConfFile( ActionBase action ) throws Exception {
+		UrmStorage urm = artefactory.getUrmStorage();
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action );
+		return( folder.getFilePath( action , UrmStorage.DISTR_SETTINGS_FILE ) );
+	}
+
+	public String getSourcesConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
 		LocalFolder folder = urm.getProductCoreMetadataFolder( action );
 		return( folder.getFilePath( action , UrmStorage.SOURCE_SETTINGS_FILE ) );
 	}
 
-	public String getMonitoringFile( ActionBase action ) throws Exception {
+	public String getMonitoringConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
 		LocalFolder folder = urm.getProductCoreMetadataFolder( action );
 		return( folder.getFilePath( action , UrmStorage.MONITORING_SETTINGS_FILE ) );
@@ -91,11 +69,27 @@ public class MetadataStorage {
 		return( folder.getFilePath( action , envFile ) );
 	}
 	
+	public String getDesignFile( ActionBase action , String fileName ) throws Exception {
+		UrmStorage urm = artefactory.getUrmStorage();
+		LocalFolder folder = urm.getProductXDocMetadataFolder( action );
+		return( folder.getFilePath( action , fileName ) );
+	}
+	
 	public String[] getEnvFiles( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
 		LocalFolder folder = urm.getProductEnvMetadataFolder( action );
 		String[] files = folder.findFiles( action , "*.xml" );
 		return( files );
+	}
+	
+	public String[] getDesignFiles( ActionBase action ) throws Exception {
+		UrmStorage urm = artefactory.getUrmStorage();
+		LocalFolder folder = urm.getProductXDocMetadataFolder( action );
+		if( !folder.checkExists( action ) )
+			return( new String[0] );
+		
+		FileSet files = folder.getFileSet( action );
+		return( files.fileList.toArray( new String[0] ) );
 	}
 	
 	public String getDatapumpFile( ActionBase action , String specFile ) throws Exception {
@@ -209,6 +203,21 @@ public class MetadataStorage {
 	
 	public void saveDatabaseConfFile( ActionBase action , Document doc ) throws Exception {
 		String filePath = getDatabaseConfFile( action );
+		saveFile( action , doc , filePath );
+	}
+	
+	public void saveDistrConfFile( ActionBase action , Document doc ) throws Exception {
+		String filePath = getDistrConfFile( action );
+		saveFile( action , doc , filePath );
+	}
+	
+	public void saveSourcesConfFile( ActionBase action , Document doc ) throws Exception {
+		String filePath = getSourcesConfFile( action );
+		saveFile( action , doc , filePath );
+	}
+	
+	public void saveMonitoringConfFile( ActionBase action , Document doc ) throws Exception {
+		String filePath = getMonitoringConfFile( action );
 		saveFile( action , doc , filePath );
 	}
 	

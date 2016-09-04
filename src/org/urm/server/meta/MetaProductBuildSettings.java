@@ -30,7 +30,6 @@ public class MetaProductBuildSettings extends PropertyController {
 	public String CONFIG_BUILDER_VERSION;
 	public String CONFIG_BUILDER_OPTIONS;
 	public String CONFIG_MAVEN_VERSION;
-	public String CONFIG_MAVEN_PROFILES;
 	public String CONFIG_MAVEN_CFGFILE;
 	public String CONFIG_MAVEN_OPTIONS;
 	public String CONFIG_MAVEN_JAVA_VERSION;
@@ -110,7 +109,7 @@ public class MetaProductBuildSettings extends PropertyController {
 	
 	public MetaProductBuildSettings copy( ActionBase action , Meta meta , MetaProductSettings product , PropertySet parent ) throws Exception {
 		MetaProductBuildSettings r = new MetaProductBuildSettings( name , meta , product );
-		r.initCopyStarted( properties , parent );
+		r.initCopyStarted( this , parent );
 		r.scatterVariables( action );
 		r.initFinished();
 		

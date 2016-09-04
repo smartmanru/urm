@@ -6,14 +6,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.ConfReader;
-import org.urm.server.ServerRegistry;
+import org.urm.common.PropertyController;
 import org.urm.server.action.ActionBase;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class MetaDistr {
-
-	private boolean loaded;
-	public boolean loadFailed;
+public class MetaDistr extends PropertyController {
 
 	protected Meta meta;
 	private Map<String,MetaDistrDelivery> mapDeliveries;
@@ -22,36 +21,70 @@ public class MetaDistr {
 	private Map<String,MetaDistrComponent> mapComps;
 	
 	public MetaDistr( Meta meta ) {
+		super( "distr" );
 		this.meta = meta;
-		loaded = false;
-		loadFailed = false;
+		meta.setDistr( this );
+		
+		mapDeliveries = new HashMap<String,MetaDistrDelivery>();
+		mapBinaryItems = new HashMap<String,MetaDistrBinaryItem>();
+		mapConfItems = new HashMap<String,MetaDistrConfItem>();
+		mapComps = new HashMap<String,MetaDistrComponent>();
+	}
+	
+	@Override
+	public boolean isValid() {
+		if( super.isLoadFailed() )
+			return( false );
+		return( true );
 	}
 	
 	public MetaDistr copy( ActionBase action , Meta meta ) throws Exception {
 		MetaDistr r = new MetaDistr( meta );
+		super.initCopyStarted( this , meta.product.getProperties() );
+		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
+			MetaDistrDelivery rd = delivery.copy( action , meta , r );
+			r.mapDeliveries.put( rd.NAME , rd );
+		}
+		
+		for( MetaDistrBinaryItem item : mapBinaryItems.values() ) {
+			MetaDistrDelivery rd = r.getDelivery( action , item.delivery.NAME );
+			MetaDistrBinaryItem ritem = rd.getBinaryItem( action , item.KEY );
+			r.mapBinaryItems.put( ritem.KEY , ritem );
+		}
+		
+		for( MetaDistrConfItem item : mapConfItems.values() ) {
+			MetaDistrDelivery rd = r.getDelivery( action , item.delivery.NAME );
+			MetaDistrConfItem ritem = rd.getConfItem( action , item.KEY );
+			r.mapConfItems.put( ritem.KEY , ritem );
+		}
+		
+		for( MetaDistrComponent item : mapComps.values() ) {
+			MetaDistrComponent ritem = item.copy( action , meta , r );
+			r.mapComps.put( ritem.NAME , ritem );
+		}
+		
+		super.initFinished();
 		return( r );
 	}
 	
-	public void setLoadFailed() {
-		loadFailed = true;
-	}
-	
-	public void createInitial( ActionBase action , ServerRegistry registry ) throws Exception {
+	public void create( ActionBase action ) throws Exception {
+		if( !super.initCreateStarted( null ) )
+			return;
+		
+		super.initFinished();
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
-		if( loaded )
+		if( super.initCreateStarted( meta.product.getProperties() ) )
 			return;
 
-		loaded = true;
 		loadDeliveries( action , ConfReader.xmlGetPathNode( root , "distributive" ) );
 		loadComponents( action , ConfReader.xmlGetPathNode( root , "deployment" ) );
+		
+		super.initFinished();
 	}
 	
 	public void loadDeliveries( ActionBase action , Node node ) throws Exception {
-		mapDeliveries = new HashMap<String,MetaDistrDelivery>();
-		mapBinaryItems = new HashMap<String,MetaDistrBinaryItem>();
-		mapConfItems = new HashMap<String,MetaDistrConfItem>();
 		if( node == null )
 			return;
 		
@@ -85,6 +118,21 @@ public class MetaDistr {
 			item.load( action , compNode );
 			mapComps.put( item.NAME , item );
 		}
+	}
+	
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		if( !super.isLoaded() )
+			return;
+
+		properties.saveAsElements( doc , root );
+		saveDeliveries( action , doc , root );
+		saveComponents( action , doc , root );
+	}
+
+	private void saveDeliveries( ActionBase action , Document doc , Element root ) throws Exception {
+	}
+	
+	private void saveComponents( ActionBase action , Document doc , Element root ) throws Exception {
 	}
 	
 	public MetaDistrComponent getComponent( ActionBase action , String KEY ) throws Exception {

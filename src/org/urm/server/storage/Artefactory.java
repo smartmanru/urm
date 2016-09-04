@@ -230,7 +230,7 @@ public class Artefactory {
 	}
 
 	public SubversionVCS getSvnDirect( ActionBase action ) throws Exception {
-		String vcs = action.meta.product.CONFIG_URM_VCS;
+		String vcs = action.meta.product.CONFIG_URM_VCS_RESOURCE;
 		ServerAuthResource res = action.getResource( vcs );
 		if( !res.isSvn() )
 			action.exit( "unexpected non-svn vcs=" + vcs );

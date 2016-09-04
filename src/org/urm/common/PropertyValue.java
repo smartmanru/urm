@@ -201,9 +201,10 @@ public class PropertyValue {
 			setValueInternal( Common.getLinuxPath( value ) );
 		
 		if( data.startsWith( "~/") ) {
-			if( shell == null )
-				throw new ExitException( "unable to resolve user home path: " + value );
-			setValueInternal( data = shell.getHomePath() + data.substring( 1 ) );
+			if( shell != null )
+				setValueInternal( data = shell.getHomePath() + data.substring( 1 ) );
+			else
+				setValueInternal( data = "@" + RunContext.PROPERTY_USER_HOME + "@" + data.substring( 1 ) );
 		}
 	}
 

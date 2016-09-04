@@ -7,6 +7,8 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.server.ServerRegistry;
 import org.urm.server.action.ActionBase;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MetaMonitoring extends PropertyController {
@@ -50,7 +52,7 @@ public class MetaMonitoring extends PropertyController {
 	
 	public MetaMonitoring copy( ActionBase action , Meta meta ) throws Exception {
 		MetaMonitoring r = new MetaMonitoring( meta );
-		super.initCopyStarted( properties , meta.product.getProperties() );
+		super.initCopyStarted( this , meta.product.getProperties() );
 		return( r );
 	}
 	
@@ -61,7 +63,7 @@ public class MetaMonitoring extends PropertyController {
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
-		if( !initCreateStarted( meta.product.getProperties() ) )
+		if( !super.initCreateStarted( meta.product.getProperties() ) )
 			return;
 
 		properties.loadRawFromNodeElements( root );
@@ -71,7 +73,7 @@ public class MetaMonitoring extends PropertyController {
 		
 		loadEnvironments( action , ConfReader.xmlGetPathNode( root , "scope" ) );
 		
-		initFinished();
+		super.initFinished();
 	}
 
 	public Map<String,MetaMonitoringTarget> getTargets( ActionBase action ) throws Exception { 
@@ -104,6 +106,13 @@ public class MetaMonitoring extends PropertyController {
 			item.loadEnv( action , deliveryNode );
 			mapEnvs.put( item.NAME , item );
 		}
+	}
+	
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		if( !super.isLoaded() )
+			return;
+
+		properties.saveAsElements( doc , root );
 	}
 	
 }

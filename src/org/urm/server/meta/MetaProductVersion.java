@@ -1,7 +1,6 @@
 package org.urm.server.meta;
 
 import org.urm.common.PropertyController;
-import org.urm.server.ServerRegistry;
 import org.urm.server.action.ActionBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -29,6 +28,7 @@ public class MetaProductVersion extends PropertyController {
 		super( "version" );
 		
 		this.meta = meta;
+		meta.setVersion( this );
 		
 		majorFirstNumber = 0;
 		majorSecondNumber = 0;
@@ -53,14 +53,14 @@ public class MetaProductVersion extends PropertyController {
 	
 	public MetaProductVersion copy( ActionBase action , Meta meta ) throws Exception {
 		MetaProductVersion r = new MetaProductVersion( meta );
-		r.initCopyStarted( properties , null );
+		r.initCopyStarted( this , null );
 		r.scatterVariables( action );
 		r.initFinished();
 		
 		return( r );
 	}
 	
-	public void create( ActionBase action , ServerRegistry registry ) throws Exception {
+	public void create( ActionBase action ) throws Exception {
 		if( !super.initCreateStarted( null ) )
 			return;
 

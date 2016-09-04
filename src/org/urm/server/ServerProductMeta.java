@@ -45,7 +45,7 @@ public class ServerProductMeta {
 	public static String XML_ROOT_PRODUCT = "product";
 	public static String XML_ROOT_DISTR = "distributive";
 	public static String XML_ROOT_DATABASE = "database";
-	public static String XML_ROOT_SRC = "sources";
+	public static String XML_ROOT_SOURCES = "sources";
 	public static String XML_ROOT_MONITORING = "monitoring";
 	public static String XML_ROOT_ENV = "environment";
 
@@ -83,12 +83,12 @@ public class ServerProductMeta {
 		}
 		if( distr != null ) {
 			r.distr = distr.copy( action , r.meta );
-			if( r.distr.loadFailed )
+			if( r.distr.isLoadFailed() )
 				r.loadFailed = true;
 		}
 		if( sources != null ) {
 			r.sources = sources.copy( action , r.meta );
-			if( r.sources.loadFailed )
+			if( r.sources.isLoadFailed() )
 				r.loadFailed = true;
 		}
 		if( mon != null ) {
@@ -130,7 +130,6 @@ public class ServerProductMeta {
 			return( version );
 		
 		version = new MetaProductVersion( meta );
-		meta.setVersion( version );
 
 		if( !loadFailed ) {
 			try {
@@ -169,7 +168,6 @@ public class ServerProductMeta {
 		}
 		
 		product = new MetaProductSettings( meta , execprops );
-		meta.setProduct( product );
 
 		if( !loadFailed ) {
 			try {
@@ -196,12 +194,11 @@ public class ServerProductMeta {
 			return( database );
 		
 		database = new MetaDatabase( meta );
-		meta.setDatabase( database );
 		
 		if( !loadFailed ) {
 			try {
 				// read
-				String file = storageMeta.getDatabaseFile( action );
+				String file = storageMeta.getDatabaseConfFile( action );
 				action.debug( "read database definition file " + file + "..." );
 				Document doc = action.readXmlFile( file );
 				Node root = doc.getDocumentElement();
@@ -225,7 +222,7 @@ public class ServerProductMeta {
 		if( !loadFailed ) {
 			try {
 				// read
-				String file = storageMeta.getDistrFile( action );
+				String file = storageMeta.getDistrConfFile( action );
 				action.debug( "read distributive definition file " + file + "..." );
 				Document doc = action.readXmlFile( file );
 				Node root = doc.getDocumentElement();
@@ -233,7 +230,6 @@ public class ServerProductMeta {
 			}
 			catch( Throwable e ) {
 				setLoadFailed( action , e , "unable to load distributive metadata, product=" + name );
-				distr.setLoadFailed();
 			}
 		}
 		
@@ -250,7 +246,7 @@ public class ServerProductMeta {
 		if( !loadFailed ) {
 			try {
 				// read
-				String file = storageMeta.getSourceConfFile( action );
+				String file = storageMeta.getSourcesConfFile( action );
 				action.debug( "read source definition file " + file + "..." );
 				Document doc = action.readXmlFile( file );
 				Node root = doc.getDocumentElement();
@@ -258,7 +254,6 @@ public class ServerProductMeta {
 			}
 			catch( Throwable e ) {
 				setLoadFailed( action , e , "unable to load source metadata, product=" + name );
-				sources.setLoadFailed();
 			}
 		}
 		
@@ -274,7 +269,7 @@ public class ServerProductMeta {
 		if( !loadFailed ) {
 			try {
 				// read
-				String file = storageMeta.getMonitoringFile( action );
+				String file = storageMeta.getMonitoringConfFile( action );
 				action.debug( "read monitoring definition file " + file + "..." );
 				Document doc = action.readXmlFile( file );
 				Node root = doc.getDocumentElement();
@@ -385,7 +380,7 @@ public class ServerProductMeta {
 	}
 
 	public synchronized void createInitial( ActionBase action , ServerRegistry registry ) throws Exception {
-		createInitialVersion( action , registry );
+		createInitialVersion( action );
 		createInitialProduct( action , registry , registry.serverContext.execprops );
 		createInitialDatabase( action , registry );
 		createInitialDistr( action , registry );
@@ -393,16 +388,14 @@ public class ServerProductMeta {
 		createInitialMonitoring( action , registry );
 	}
 
-	private void createInitialVersion( ActionBase action , ServerRegistry registry ) throws Exception {
+	private void createInitialVersion( ActionBase action ) throws Exception {
 		version = new MetaProductVersion( meta );
-		meta.setVersion( version );
-		version.create( action , registry );
+		version.create( action );
 		action.meta.setVersion( version );
 	}
 	
 	private void createInitialProduct( ActionBase action , ServerRegistry registry , PropertySet execprops ) throws Exception {
 		product = new MetaProductSettings( meta , execprops );
-		meta.setProduct( product );
 		
 		ServerProductContext productContext = new ServerProductContext( meta );
 		productContext.create( action , version );
@@ -413,22 +406,19 @@ public class ServerProductMeta {
 	
 	private void createInitialDatabase( ActionBase action , ServerRegistry registry ) throws Exception {
 		database = new MetaDatabase( meta );
-		meta.setDatabase( database );
 		database.create( action , registry );
 		action.meta.setDatabase( database );
 	}
 	
 	private void createInitialDistr( ActionBase action , ServerRegistry registry ) throws Exception {
 		distr = new MetaDistr( meta );
-		meta.setDistr( distr );
-		distr.createInitial( action , registry );
+		distr.create( action );
 		action.meta.setDistr( distr );
 	}
 	
 	private void createInitialSources( ActionBase action , ServerRegistry registry ) throws Exception {
 		sources = new MetaSource( meta );
-		meta.setSources( sources );
-		sources.createInitial( action , registry );
+		sources.create( action );
 		action.meta.setSources( sources );
 	}
 	
@@ -470,12 +460,21 @@ public class ServerProductMeta {
 	}
 	
 	public void saveDistr( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+		Document doc = Common.xmlCreateDoc( XML_ROOT_DISTR );
+		distr.save( action , doc , doc.getDocumentElement() );
+		storageMeta.saveDistrConfFile( action , doc );
 	}
 	
 	public void saveSources( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+		Document doc = Common.xmlCreateDoc( XML_ROOT_SOURCES );
+		sources.save( action , doc , doc.getDocumentElement() );
+		storageMeta.saveSourcesConfFile( action , doc );
 	}
 	
 	public void saveMonitoring( ActionBase action , MetadataStorage storageMeta ) throws Exception {
+		Document doc = Common.xmlCreateDoc( XML_ROOT_MONITORING );
+		sources.save( action , doc , doc.getDocumentElement() );
+		storageMeta.saveMonitoringConfFile( action , doc );
 	}
 	
 	public void saveEnvData( ActionBase action , MetadataStorage storageMeta , String envName ) throws Exception {

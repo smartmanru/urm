@@ -25,7 +25,7 @@ public abstract class PropertyController {
 		return( properties );
 	}
 	
-	protected boolean initCopyStarted( PropertySet src , PropertySet parent ) {
+	protected boolean initCopyStarted( PropertyController src , PropertySet parent ) {
 		if( loaded )
 			return( false );
 		
@@ -33,8 +33,8 @@ public abstract class PropertyController {
 		loadFailed = false;
 		loadFinished = false;
 		
-		if( src != null )
-			properties = src.copy( parent );
+		if( src.properties != null )
+			properties = src.properties.copy( parent );
 		
 		return( true );
 	}

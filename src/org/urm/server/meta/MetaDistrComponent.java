@@ -28,6 +28,11 @@ public class MetaDistrComponent {
 		this.dist = dist;
 	}
 
+	public MetaDistrComponent copy( ActionBase action , Meta meta , MetaDistr distr ) throws Exception {
+		MetaDistrComponent r = new MetaDistrComponent( meta , distr );
+		return( r );
+	}
+	
 	public void load( ActionBase action , Node node ) throws Exception {
 		mapBinaryItems = new HashMap<String,MetaDistrComponentItem>();
 		mapConfItems = new HashMap<String,MetaDistrComponentItem>();

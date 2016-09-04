@@ -37,6 +37,39 @@ public class MetaDistrDelivery {
 		loadDatabaseItems( action , node );
 	}
 
+	public MetaDistrDelivery copy( ActionBase action , Meta meta , MetaDistr distr ) throws Exception {
+		MetaDistrDelivery r = new MetaDistrDelivery( meta , distr );
+		return( r );
+	}
+	
+	public MetaDistrBinaryItem getBinaryItem( ActionBase action , String NAME ) throws Exception {
+		MetaDistrBinaryItem item = mapBinaryItems.get( NAME );
+		if( item == null )
+			action.exit( "unknown delivery binary item=" + NAME );
+		return( item );
+	}
+	
+	public MetaDistrConfItem getConfItem( ActionBase action , String NAME ) throws Exception {
+		MetaDistrConfItem item = mapConfComps.get( NAME );
+		if( item == null )
+			action.exit( "unknown delivery configuration item=" + NAME );
+		return( item );
+	}
+	
+	public MetaDatabaseSchema getSchema( ActionBase action , String NAME ) throws Exception {
+		MetaDatabaseSchema item = mapDatabaseSchema.get( NAME );
+		if( item == null )
+			action.exit( "unknown delivery schema=" + NAME );
+		return( item );
+	}
+	
+	public MetaDatabaseDatagroup getDatagroup( ActionBase action , String NAME ) throws Exception {
+		MetaDatabaseDatagroup item = mapDatabaseDatagroup.get( NAME );
+		if( item == null )
+			action.exit( "unknown delivery datagroup=" + NAME );
+		return( item );
+	}
+	
 	public Map<String,MetaDistrBinaryItem> getBinaryItems( ActionBase action ) throws Exception {
 		return( mapBinaryItems );
 	}

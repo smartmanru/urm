@@ -17,7 +17,7 @@ public class MetaSourceProjectSet {
 	boolean loaded = false;
 	
 	protected Meta meta;
-	MetaSource source;
+	MetaSource sources;
 
 	public VarCATEGORY CATEGORY;
 	public String NAME;
@@ -25,9 +25,14 @@ public class MetaSourceProjectSet {
 	public List<MetaSourceProject> originalList;
 	public Map<String,MetaSourceProject> map;
 	
-	public MetaSourceProjectSet( Meta meta , MetaSource source ) {
+	public MetaSourceProjectSet( Meta meta , MetaSource sources ) {
 		this.meta = meta;
-		this.source = source;
+		this.sources = sources;
+	}
+	
+	public MetaSourceProjectSet copy( ActionBase action , Meta meta , MetaSource sources ) throws Exception {
+		MetaSourceProjectSet r = new MetaSourceProjectSet( meta , sources );
+		return( r );
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
@@ -47,6 +52,13 @@ public class MetaSourceProjectSet {
 		loadProjects( action , CATEGORY , node );
 	}
 
+	public MetaSourceProject getProject( ActionBase action , String name ) throws Exception {
+		MetaSourceProject project = map.get( name );
+		if( project == null )
+			action.exit( "unknown project=" + name );
+		return( project );
+	}
+	
 	public List<MetaSourceProject> getOriginalList( ActionBase action ) throws Exception {
 		return( originalList );
 	}

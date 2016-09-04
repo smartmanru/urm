@@ -26,6 +26,7 @@ public class MetaDatabase extends PropertyController {
 		super( "database" );
 		
 		this.meta = meta;
+		meta.setDatabase( this );
 		admin = new MetaDatabaseAdministration( meta , this );
 		mapSchema = new HashMap<String,MetaDatabaseSchema>();
 		mapDatagroup = new HashMap<String,MetaDatabaseDatagroup>();
@@ -40,7 +41,7 @@ public class MetaDatabase extends PropertyController {
 	
 	public MetaDatabase copy( ActionBase action , Meta meta ) throws Exception {
 		MetaDatabase r = new MetaDatabase( meta );
-		r.initCopyStarted( properties , meta.product.getProperties() );
+		r.initCopyStarted( this , meta.product.getProperties() );
 		
 		return( r );
 	}

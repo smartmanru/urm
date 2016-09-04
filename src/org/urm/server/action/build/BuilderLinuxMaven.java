@@ -128,13 +128,6 @@ public class BuilderLinuxMaven extends Builder {
 		// maven params
 		LocalFolder CODEPATH = storage.buildFolder; 
 		MetaProductBuildSettings build = action.getBuildSettings();
-		String MODULE_MAVEN_PROFILES = build.CONFIG_MAVEN_PROFILES;
-		if( MODULEOPTIONS_COMPACT_STATIC == true ) {
-			if( !MODULE_MAVEN_PROFILES.isEmpty() )
-				MODULE_MAVEN_PROFILES += ",without-statics,without-jars";
-			else
-				MODULE_MAVEN_PROFILES = "without-statics,without-jars";
-		}
 
 		String NEXUS_PATH = getNexusPath( action , project );
 		String MODULE_ALT_REPO = "-DaltDeploymentRepository=nexus2::default::" + NEXUS_PATH;
@@ -144,13 +137,13 @@ public class BuilderLinuxMaven extends Builder {
 		if( action.context.CTX_SHOWALL )
 			MAVEN_ADDITIONAL_OPTIONS += " -X";
 
-		action.info( "build PATCHPATH=" + CODEPATH.folderPath + ", profile=" + MODULE_MAVEN_PROFILES + ", options=" + MAVEN_ADDITIONAL_OPTIONS + ", cmd=" + MODULE_MAVEN_CMD + 
+		action.info( "build PATCHPATH=" + CODEPATH.folderPath + ", options=" + MAVEN_ADDITIONAL_OPTIONS + ", cmd=" + MODULE_MAVEN_CMD + 
 				" using maven to nexus path " + NEXUS_PATH + "..." );
 
 		// set environment
 		String BUILD_JAVA_VERSION = project.getJavaVersion( action );
 		String BUILD_MAVEN_VERSION = project.getBuilderVersion( action ); 
-		String MAVEN_CMD = "mvn -B -P " + MODULE_MAVEN_PROFILES + " " + MAVEN_ADDITIONAL_OPTIONS + " clean " + 
+		String MAVEN_CMD = "mvn -B -P " + MAVEN_ADDITIONAL_OPTIONS + " clean " + 
 				MODULE_MAVEN_CMD + " " + MODULE_ALT_REPO + " " + MODULE_MSETTINGS + " -Dmaven.test.skip=true";
 
 		ShellExecutor session = action.shell;

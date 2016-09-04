@@ -43,7 +43,7 @@ public class MetaProductSettings extends PropertyController {
 	public String CONFIG_WINBUILD_HOSTLOGIN;
 	public String CONFIG_ADM_TRACKER;
 	public String CONFIG_COMMIT_TRACKERLIST;
-	public String CONFIG_URM_VCS;
+	public String CONFIG_URM_VCS_RESOURCE;
 	
 	public String CONFIG_CUSTOM_BUILD;
 	public String CONFIG_CUSTOM_DEPLOY;
@@ -72,6 +72,7 @@ public class MetaProductSettings extends PropertyController {
 	public static String PROPERTY_WINBUILD_HOSTLOGIN = "winbuild.hostlogin";
 	public static String PROPERTY_ADM_TRACKER = "adm.tracker";
 	public static String PROPERTY_COMMIT_TRACKERLIST = "source.trackers";
+	public static String PROPERTY_URM_VCS_RESOURCE = "urm.vcs.resource";
 
 	public static String PROPERTY_CUSTOM_BUILD = "custom.build";
 	public static String PROPERTY_CUSTOM_DEPLOY = "custom.deploy";
@@ -82,6 +83,7 @@ public class MetaProductSettings extends PropertyController {
 		
 		this.meta = meta;
 		this.execprops = execprops;
+		meta.setProduct( this );
 		buildModes = new HashMap<String,MetaProductBuildSettings>();
 	}
 
@@ -94,7 +96,17 @@ public class MetaProductSettings extends PropertyController {
 	
 	public MetaProductSettings copy( ActionBase action , Meta meta ) throws Exception {
 		MetaProductSettings r = new MetaProductSettings( meta , execprops );
-		r.initCopyStarted( properties , execprops );
+		r.initCopyStarted( this , execprops );
+		
+		r.CONFIG_PRODUCT = CONFIG_PRODUCT;
+		r.CONFIG_PRODUCTHOME = CONFIG_PRODUCTHOME;
+		
+		r.CONFIG_LASTPRODTAG = CONFIG_LASTPRODTAG;
+		r.CONFIG_NEXTPRODTAG = CONFIG_NEXTPRODTAG;
+		r.CONFIG_VERSION_BRANCH_MAJOR = CONFIG_VERSION_BRANCH_MAJOR;
+		r.CONFIG_VERSION_BRANCH_MINOR = CONFIG_VERSION_BRANCH_MINOR;
+		r.CONFIG_VERSION_BRANCH_NEXTMAJOR = CONFIG_VERSION_BRANCH_NEXTMAJOR;
+		r.CONFIG_VERSION_BRANCH_NEXTMINOR = CONFIG_VERSION_BRANCH_NEXTMINOR;
 		
 		if( buildCommon != null )
 			r.buildCommon = buildCommon.copy( action , meta , r , r.properties ); 
@@ -121,6 +133,7 @@ public class MetaProductSettings extends PropertyController {
 		CONFIG_WINBUILD_HOSTLOGIN = super.getPathPropertyRequired( action , PROPERTY_WINBUILD_HOSTLOGIN );
 		CONFIG_ADM_TRACKER = super.getStringProperty( action , PROPERTY_ADM_TRACKER );
 		CONFIG_COMMIT_TRACKERLIST = super.getStringProperty( action , PROPERTY_COMMIT_TRACKERLIST );
+		CONFIG_URM_VCS_RESOURCE = super.getStringProperty( action , PROPERTY_URM_VCS_RESOURCE );
 		
 		CONFIG_CUSTOM_BUILD = super.getStringProperty( action , PROPERTY_CUSTOM_BUILD );
 		CONFIG_CUSTOM_DEPLOY = super.getStringProperty( action , PROPERTY_CUSTOM_DEPLOY );
@@ -128,7 +141,7 @@ public class MetaProductSettings extends PropertyController {
 	}
 
 	public void create( ActionBase action , ServerRegistry registry , ServerProductContext productContext ) throws Exception {
-		if( !initCreateStarted( execprops ) )
+		if( !super.initCreateStarted( execprops ) )
 			return;
 
 		// create initial
@@ -149,7 +162,7 @@ public class MetaProductSettings extends PropertyController {
 			buildModes.put( modeName , buildMode );
 		}
 		
-		initFinished();
+		super.initFinished();
 	}
 
 	public void load( ActionBase action , ServerProductContext productContext , Node root ) throws Exception {
