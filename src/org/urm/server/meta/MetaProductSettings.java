@@ -257,17 +257,24 @@ public class MetaProductSettings extends PropertyController {
 		properties.setNumberProperty( MetaProductVersion.PROPERTY_PROD_NEXTTAG , CONFIG_NEXTPRODTAG );
 		properties.recalculateProperties();
 	}
+
+	public MetaProductBuildSettings getBuildCommonSettings( ActionBase action ) throws Exception {
+		return( buildCommon );
+	}
+	
+	public MetaProductBuildSettings getBuildModeSettings( ActionBase action , VarBUILDMODE buildMode ) throws Exception {
+		String mode = Common.getEnumLower( buildMode );
+		MetaProductBuildSettings settings = buildModes.get( mode );
+		if( settings == null )
+			action.exit( "unable to get build settings for mode=" + mode );
+		return( settings );
+	}
 	
 	public MetaProductBuildSettings getBuildSettings( ActionBase action ) throws Exception {
 		if( action.context.buildMode == VarBUILDMODE.UNKNOWN )
 			return( buildCommon );
-		
-		String mode = Common.getEnumLower( action.context.buildMode );
-		MetaProductBuildSettings settings = buildModes.get( mode );
-		if( settings == null )
-			action.exit( "unable to get build settings for mode=" + mode );
-		
-		return( settings );
+
+		return( getBuildModeSettings( action , action.context.buildMode ) );
 	}
     
 	public String getPropertyAny( ActionBase action , String name ) throws Exception {
