@@ -74,16 +74,7 @@ public class ServerMirrorRepository {
 		properties.setStringProperty( "branch" , BRANCH );
 	}
 
-	public void update( ServerTransaction transaction , ServerMirrorRepository src ) throws Exception {
-		if( !NAME.equals( src.NAME ) )
-			transaction.exit( "mismatched repository name on change new name=" + src.NAME );
-		
-		TYPE = src.TYPE;
-		RESOURCE = src.RESOURCE;
-		RESOURCE_ROOT = src.RESOURCE_ROOT;
-		RESOURCE_REPO = src.RESOURCE_REPO;
-		BRANCH = src.BRANCH;
-		createProperties();
+	public void publish( ServerTransaction transaction , String resource , String reponame , String reporoot ) throws Exception {
 	}
 	
 }
