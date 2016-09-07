@@ -255,10 +255,16 @@ public class ServerTransaction {
 				if( resources != null )
 					return( true );
 				
-				if( sourceResources == loader.getResources() ) {
-					resources = sourceResources.copy();
-					if( resources != null )
-						return( true );
+				if( !engine.isRunning() )
+					error( "unable to change resources, server is stopped" );
+				else {
+					if( sourceResources == loader.getResources() ) {
+						resources = sourceResources.copy();
+						if( resources != null )
+							return( true );
+					}
+					else
+						error( "unable to change old resources" );
 				}
 			}
 			catch( Throwable e ) {
@@ -299,10 +305,16 @@ public class ServerTransaction {
 				if( directory != null )
 					return( true );
 				
-				if( sourceDirectory == loader.getDirectory() ) {
-					directory = sourceDirectory.copy();
-					if( directory != null )
-						return( true );
+				if( !engine.isRunning() )
+					error( "unable to change directory, server is stopped" );
+				else {
+					if( sourceDirectory == loader.getDirectory() ) {
+						directory = sourceDirectory.copy();
+						if( directory != null )
+							return( true );
+					}
+					else
+						error( "unable to change old directory" );
 				}
 			}
 			catch( Throwable e ) {
@@ -348,6 +360,8 @@ public class ServerTransaction {
 					if( settings != null )
 						return( true );
 				}
+				else
+					error( "unable to change old settings" );
 			}
 			catch( Throwable e ) {
 				log( "unable to change settings" , e );
@@ -393,6 +407,8 @@ public class ServerTransaction {
 					if( metadata != null )
 						return( true );
 				}
+				else
+					error( "unable to change old metadata" );
 			}
 			catch( Throwable e ) {
 				log( "unable to save metadata" , e );

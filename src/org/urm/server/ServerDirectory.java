@@ -6,28 +6,27 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.ExitException;
-import org.urm.common.RunContext;
+import org.urm.server.action.ActionBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class ServerDirectory {
 
-	public ServerLoader loader;
+	public ServerRegistry registry;
+	public ServerEngine engine;
 
 	private Map<String,ServerSystem> mapSystems;
 	private Map<String,ServerProduct> mapProducts;
 	
-	public ServerDirectory( ServerLoader loader ) {
+	public ServerDirectory( ServerRegistry registry ) {
+		this.registry = registry;
+		this.engine = registry.loader.engine;
 		mapSystems = new HashMap<String,ServerSystem>();
 		mapProducts = new HashMap<String,ServerProduct>();
-		this.loader = loader;
 	}
 
-	public void load( String propertyFile , RunContext execrc ) throws Exception {
-		Document doc = ConfReader.readXmlFile( execrc , propertyFile );
-		Node root = doc.getDocumentElement();
-		
+	public void load( Node root ) throws Exception {
 		Node[] items = ConfReader.xmlGetChildren( root , "system" );
 		if( items == null )
 			return;
@@ -43,7 +42,7 @@ public class ServerDirectory {
 	}
 	
 	public ServerDirectory copy() throws Exception {
-		ServerDirectory r = new ServerDirectory( loader );
+		ServerDirectory r = new ServerDirectory( registry );
 		
 		for( ServerSystem system : mapSystems.values() ) {
 			ServerSystem rs = system.copy( r );
@@ -84,10 +83,7 @@ public class ServerDirectory {
 		return( mapProducts.get( name ) );
 	}
 	
-	public void save( String path , RunContext execrc ) throws Exception {
-		Document doc = Common.xmlCreateDoc( "directory" );
-		Element root = doc.getDocumentElement();
-		
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		// directory 
 		for( ServerSystem system : mapSystems.values() ) {
 			Element elementSystem = Common.xmlCreateElement( doc , root , "system" );
@@ -102,8 +98,6 @@ public class ServerDirectory {
 				Common.xmlSetElementAttr( doc , elementProduct , "path" , product.PATH );
 			}
 		}
-		
-		Common.xmlSaveDoc( doc , path );
 	}
 
 	public void addSystem( ServerTransaction transaction , ServerSystem system ) throws Exception {

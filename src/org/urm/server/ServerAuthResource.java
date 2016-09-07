@@ -100,23 +100,25 @@ public class ServerAuthResource {
 		BASEURL = src.BASEURL;
 		DESC = src.DESC;
 		
-		ServerAuth auth = resources.loader.engine.getAuth();
+		ServerAuth auth = resources.engine.getAuth();
 		ac = new ServerAuthContext( auth );
 		ac.load( src.ac.properties );
 		createProperties();
 	}
 	
 	public void saveAuthData( String authGroup ) throws Exception {
-		ServerAuth auth = resources.loader.engine.getAuth();
+		ServerAuth auth = resources.engine.getAuth();
 		AUTHKEY = auth.getAuthKey( authGroup , NAME );
 		properties.setStringProperty( "authkey" , AUTHKEY );
-		auth.saveAuthData( AUTHKEY , ac ); 
+		
+		if( ac != null )
+			auth.saveAuthData( AUTHKEY , ac ); 
 	}
 	
 	public void loadAuthData() throws Exception {
 		if( ac != null )
 			return;
-		ServerAuth auth = resources.loader.engine.getAuth();
+		ServerAuth auth = resources.engine.getAuth();
 		ac = auth.loadAuthData( AUTHKEY );
 	}
 	

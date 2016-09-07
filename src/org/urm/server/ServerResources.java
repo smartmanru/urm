@@ -6,24 +6,27 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.ExitException;
-import org.urm.common.RunContext;
+import org.urm.server.action.ActionBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class ServerResources {
 
-	public ServerLoader loader;
+	public ServerRegistry registry;
+	public ServerEngine engine;
+
 	Map<String,ServerAuthResource> resourceMap;
 
-	public ServerResources( ServerLoader loader ) {
-		this.loader = loader;
+	public ServerResources( ServerRegistry registry ) {
+		this.registry = registry;
+		this.engine = registry.loader.engine;
 		
 		resourceMap = new HashMap<String,ServerAuthResource>();
 	}
 
 	public ServerResources copy() throws Exception {
-		ServerResources r = new ServerResources( loader );
+		ServerResources r = new ServerResources( registry );
 		
 		for( ServerAuthResource res : resourceMap.values() ) {
 			ServerAuthResource rc = res.copy( r );
@@ -32,10 +35,7 @@ public class ServerResources {
 		return( r );
 	}
 	
-	public void load( String propertyFile , RunContext execrc ) throws Exception {
-		Document doc = ConfReader.readXmlFile( execrc , propertyFile );
-		Node root = doc.getDocumentElement();
-		
+	public void load( Node root ) throws Exception {
 		Node[] list = ConfReader.xmlGetChildren( root , "resource" );
 		if( list == null )
 			return;
@@ -48,19 +48,11 @@ public class ServerResources {
 		}
 	}
 
-	public void save( String path , RunContext execrc ) throws Exception {
-		Document doc = Common.xmlCreateDoc( "resources" );
-		Element root = doc.getDocumentElement();
-
-		ServerAuth auth = loader.engine.getAuth();
-		auth.deleteGroupData( ServerAuth.AUTH_GROUP_RESOURCE );
-		
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		for( ServerAuthResource res : resourceMap.values() ) {
 			Element resElement = Common.xmlCreateElement( doc , root , "resource" );
 			res.save( doc , resElement , ServerAuth.AUTH_GROUP_RESOURCE );
 		}
-		
-		Common.xmlSaveDoc( doc , path );
 	}
 
 	public ServerAuthResource findResource( String name ) {
@@ -93,5 +85,5 @@ public class ServerResources {
 			
 		resourceMap.remove( res.NAME );
 	}
-	
+
 }

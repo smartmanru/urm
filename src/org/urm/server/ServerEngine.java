@@ -358,9 +358,6 @@ public class ServerEngine {
 	}
 
 	public boolean startTransaction( ServerTransaction transaction ) {
-		if( !running )
-			return( false );
-		
 		if( currentTransaction != null ) {
 			try {
 				synchronized( currentTransaction ) {
@@ -405,6 +402,10 @@ public class ServerEngine {
 
 	public ServerResources getResources() {
 		return( loader.getResources() );
+	}
+
+	public ServerMirror getMirror() {
+		return( loader.getMirror() );
 	}
 
 	public ServerSettings getSettings() {

@@ -22,46 +22,32 @@ public class ServerLoader {
 
 	public ServerEngine engine;
 	
-	private ServerResources resources;
+	private ServerRegistry registry;
 	private ServerSettings settings;
-	private ServerDirectory directory;
 	private ServerProductMeta offline;
 	private Map<String,ServerProductMeta> productMeta;
 	
 	public ServerLoader( ServerEngine engine ) {
 		this.engine = engine;
 		
-		resources = new ServerResources( this );
+		registry = new ServerRegistry( this ); 
 		settings = new ServerSettings( this ); 
-		directory = new ServerDirectory( this );
 		productMeta = new HashMap<String,ServerProductMeta>();
 	}
 	
 	public void init() throws Exception {
-		loadResources();
-		loadDirectory();
+		loadRegistry();
 	}
 	
-	private String getServerResourcesFile() throws Exception {
+	private String getServerRegistryFile() throws Exception {
 		String path = Common.getPath( engine.execrc.installPath , "etc" );
-		String propertyFile = Common.getPath( path , "resources.xml" );
+		String propertyFile = Common.getPath( path , "registry.xml" );
 		return( propertyFile );
 	}
 
-	private void loadResources() throws Exception {
-		String propertyFile = getServerResourcesFile();
-		resources.load( propertyFile , engine.execrc );
-	}
-
-	private String getServerDirectoryFile() throws Exception {
-		String path = Common.getPath( engine.execrc.installPath , "etc" );
-		String propertyFile = Common.getPath( path , "directory.xml" );
-		return( propertyFile );
-	}
-
-	private void loadDirectory() throws Exception {
-		String propertyFile = getServerDirectoryFile();
-		directory.load( propertyFile , engine.execrc );
+	private void loadRegistry() throws Exception {
+		String propertyFile = getServerRegistryFile();
+		registry.load( propertyFile , engine.execrc );
 	}
 
 	private String getServerSettingsFile() {
@@ -148,7 +134,7 @@ public class ServerLoader {
 	}
 
 	public void loadServerProducts( ActionInit action ) {
-		for( String name : directory.getProducts() ) {
+		for( String name : registry.directory.getProducts() ) {
 			
 			ServerProductMeta set = new ServerProductMeta( this , name , action.session );
 			productMeta.put( name , set );
@@ -178,28 +164,34 @@ public class ServerLoader {
 		props.resolveRawProperties();
 	}
 
+	public ServerMirror getMirror() {
+		synchronized( engine ) {
+			return( registry.mirror );
+		}
+	}
+
 	public ServerResources getResources() {
 		synchronized( engine ) {
-			return( resources );
+			return( registry.resources );
 		}
 	}
 
 	public ServerDirectory getDirectory() {
 		synchronized( engine ) {
-			return( directory );
+			return( registry.directory );
 		}
 	}
 
 	public void setResources( ServerTransaction transaction , ServerResources resourcesNew ) throws Exception {
-		String propertyFile = getServerResourcesFile();
-		resourcesNew.save( propertyFile , engine.execrc );
-		resources = resourcesNew;
+		registry.setResources( transaction , resourcesNew );
+		String propertyFile = getServerRegistryFile();
+		registry.save( transaction.getAction() , propertyFile , engine.execrc );
 	}
 
 	public void setDirectory( ServerTransaction transaction , ServerDirectory directoryNew ) throws Exception {
-		String propertyFile = getServerDirectoryFile();
-		directoryNew.save( propertyFile , engine.execrc );
-		directory = directoryNew;
+		registry.setDirectory( transaction , directoryNew );
+		String propertyFile = getServerRegistryFile();
+		registry.save( transaction.getAction() , propertyFile , engine.execrc );
 	}
 
 	public ServerSettings getSettings() {

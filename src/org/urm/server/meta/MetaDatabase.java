@@ -60,6 +60,7 @@ public class MetaDatabase extends PropertyController {
 			return;
 		
 		loadSchemaSet( action , root );
+		initFinished();
 	}
 
 	public boolean loadAdministration( ActionBase action , Node node ) throws Exception {

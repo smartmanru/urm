@@ -33,7 +33,7 @@ public class ServerProduct {
 	}
 	
 	public ServerProductMeta getMeta( ActionBase action ) throws Exception {
-		ServerLoader loader = system.directory.loader;
+		ServerLoader loader = action.engine.getLoader();
 		ServerProductMeta storage = loader.findMetaStorage( NAME );
 		if( storage == null )
 			action.exitUnexpectedState();
