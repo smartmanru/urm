@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
-import org.urm.server.ServerRegistry;
 import org.urm.server.action.ActionBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -56,7 +55,7 @@ public class MetaMonitoring extends PropertyController {
 		return( r );
 	}
 	
-	public void create( ActionBase action , ServerRegistry registry ) throws Exception {
+	public void create( ActionBase action ) throws Exception {
 		if( !super.initCreateStarted( meta.product.getProperties() ) )
 			return;
 		super.initFinished();

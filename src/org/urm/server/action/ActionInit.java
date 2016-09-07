@@ -1,8 +1,9 @@
 package org.urm.server.action;
 
 import org.urm.server.ServerContext;
+import org.urm.server.ServerDirectory;
 import org.urm.server.ServerProduct;
-import org.urm.server.ServerRegistry;
+import org.urm.server.ServerSettings;
 import org.urm.server.SessionContext;
 import org.urm.server.storage.Artefactory;
 
@@ -34,8 +35,8 @@ public class ActionInit extends ActionBase {
 	}
 	
 	public void setServerSystemProductLayout( String name ) throws Exception {
-		ServerRegistry registry = getRegistry();
-		ServerProduct product = registry.getProduct( name ); 
+		ServerDirectory directory = getDirectory();
+		ServerProduct product = directory.getProduct( name ); 
 		setServerSystemProductLayout( product );
 	}
 	
@@ -44,13 +45,17 @@ public class ActionInit extends ActionBase {
 		meta.clearAll();
 	}
 	
-	public ServerRegistry getRegistry() {
-		return( engine.getRegistry() );
+	public ServerSettings getSettings() {
+		return( engine.getSettings() );
+	}
+	
+	public ServerDirectory getDirectory() {
+		return( engine.getDirectory() );
 	}
 	
 	public ServerContext getServerContext() {
-		ServerRegistry registry = engine.getRegistry();
-		return( registry.getServerContext() );
+		ServerSettings settings = engine.getSettings();
+		return( settings.getServerContext() );
 	}
 	
 }

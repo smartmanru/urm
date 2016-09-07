@@ -275,16 +275,18 @@ public class Artefactory {
 
 	public void createProductResources( ServerTransaction transaction , ServerProduct product ) throws Exception {
 		UrmStorage storage = getUrmStorage();
-		LocalFolder products = storage.getServerProductsFolder( transaction.metadataAction );
-		LocalFolder productfolder = products.getSubFolder( transaction.metadataAction , product.PATH );
-		productfolder.ensureExists( transaction.metadataAction );
+		ActionBase action = transaction.getAction();
+		LocalFolder products = storage.getServerProductsFolder( action );
+		LocalFolder productfolder = products.getSubFolder( action , product.PATH );
+		productfolder.ensureExists( action );
 	}
 	
 	public void deleteProductResources( ServerTransaction transaction , ServerProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		UrmStorage storage = getUrmStorage();
-		LocalFolder products = storage.getServerProductsFolder( transaction.metadataAction );
-		LocalFolder productfolder = products.getSubFolder( transaction.metadataAction , product.PATH );
-		productfolder.removeThis( transaction.metadataAction );
+		ActionBase action = transaction.getAction();
+		LocalFolder products = storage.getServerProductsFolder( action );
+		LocalFolder productfolder = products.getSubFolder( action , product.PATH );
+		productfolder.removeThis( action );
 	}
 	
 }

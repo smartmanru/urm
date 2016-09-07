@@ -9,24 +9,24 @@ import org.w3c.dom.Node;
 
 public class ServerSystem {
 
-	public ServerRegistry registry;
+	public ServerDirectory directory;
 	public Map<String,ServerProduct> mapProducts;
 	
 	public String NAME;
 	public String DESC;
 	
-	public ServerSystem( ServerRegistry engine ) {
-		this.registry = engine;
+	public ServerSystem( ServerDirectory directory ) {
+		this.directory = directory;
 		mapProducts = new HashMap<String,ServerProduct>();
 	}
 	
-	public ServerSystem copy( ServerRegistry nr ) {
-		ServerSystem r = new ServerSystem( nr );
+	public ServerSystem copy( ServerDirectory nd ) {
+		ServerSystem r = new ServerSystem( nd );
 		r.NAME = NAME;
 		r.DESC = DESC;
 		
 		for( ServerProduct product : mapProducts.values() ) {
-			ServerProduct rp = product.copy( nr , r );
+			ServerProduct rp = product.copy( nd , r );
 			r.mapProducts.put( rp.NAME , rp );
 		}
 		return( r );
@@ -41,7 +41,7 @@ public class ServerSystem {
 			return;
 		
 		for( Node itemNode : items ) {
-			ServerProduct item = new ServerProduct( registry , this );
+			ServerProduct item = new ServerProduct( directory , this );
 			item.load( itemNode );
 			mapProducts.put( item.NAME , item );
 		}

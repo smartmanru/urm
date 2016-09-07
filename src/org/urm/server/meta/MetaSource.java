@@ -108,7 +108,7 @@ public class MetaSource extends PropertyController {
 	public List<MetaSourceProject> getAllProjectList( ActionBase action , VarCATEGORY CATEGORY ) {
 		List<MetaSourceProject> plist = new LinkedList<MetaSourceProject>();
 		for( MetaSourceProjectSet pset : setMap.values() ) {
-			if( pset.CATEGORY == CATEGORY )
+			if( CATEGORY == null || pset.CATEGORY == CATEGORY )
 				plist.addAll( pset.originalList );
 		}
 		return( plist );

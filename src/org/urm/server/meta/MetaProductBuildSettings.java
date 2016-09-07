@@ -58,6 +58,9 @@ public class MetaProductBuildSettings extends PropertyController {
 	// build operation
 	public static String PROPERTY_ARTEFACTDIR = "build.artefacts";
 	public static String PROPERTY_BUILDER_TYPE = "builder.type";
+	public static String BUILDER_TYPE_MAVEN = "Maven";
+	public static String BUILDER_TYPE_GRADLE = "Gradle";
+	public static String BUILDER_TYPE_DOTNET = ".NET";
 	public static String PROPERTY_BUILDER_VERSION = "builder.version";
 	public static String PROPERTY_BUILDER_OPTIONS = "builder.options";
 	public static String PROPERTY_NEXUS_RESOURCE = "nexus.resource";

@@ -6,7 +6,6 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
-import org.urm.server.ServerRegistry;
 import org.urm.server.action.ActionBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -46,7 +45,7 @@ public class MetaDatabase extends PropertyController {
 		return( r );
 	}
 	
-	public void create( ActionBase action , ServerRegistry registry ) throws Exception {
+	public void create( ActionBase action ) throws Exception {
 		if( !initCreateStarted( meta.product.getProperties() ) )
 			return;
 

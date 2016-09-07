@@ -96,13 +96,13 @@ public class ActionBuild extends ActionBase {
 		
 		String BUILDER = project.getBuilder( this );
 		BuildStorage storage = artefactory.getEmptyBuildStorage( this , project );
-		if( BUILDER.equals( "maven" ) ) {
+		if( BUILDER.equals( MetaProductBuildSettings.BUILDER_TYPE_MAVEN ) ) {
 			builder = new BuilderLinuxMaven( BUILDER , project , storage , TAG , BUILD_OPTIONS , VERSION );
 		}
-		else if( BUILDER.equals( "gradle" ) ) {
+		else if( BUILDER.equals( MetaProductBuildSettings.BUILDER_TYPE_GRADLE ) ) {
 			builder = new BuilderLinuxGradle( BUILDER , project , storage , TAG , BUILD_OPTIONS , VERSION );
 		}
-		else if( BUILDER.equals( "dotnet" ) ) {
+		else if( BUILDER.equals( MetaProductBuildSettings.BUILDER_TYPE_DOTNET ) ) {
 			builder = new BuilderWindowsDotnet( BUILDER , project , storage , TAG , BUILD_OPTIONS , VERSION );
 		}
 		else

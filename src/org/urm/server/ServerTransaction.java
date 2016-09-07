@@ -2,6 +2,7 @@ package org.urm.server;
 
 import org.urm.common.ExitException;
 import org.urm.common.PropertySet;
+import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionInit;
 import org.urm.server.meta.Meta;
 import org.urm.server.meta.MetaProductVersion;
@@ -11,14 +12,16 @@ public class ServerTransaction {
 
 	public ServerEngine engine;
 	public ServerLoader loader;
-	public ActionInit metadataAction;
+	public ActionInit action;
 	
-	public ServerResources resources;
-	public ServerRegistry registry;
-	public ServerProductMeta metadata;
+	private ServerResources resources;
+	private ServerDirectory directory;
+	private ServerSettings settings;
+	private ServerProductMeta metadata;
 
 	private ServerResources resourcesOld;
-	private ServerRegistry registryOld;
+	private ServerDirectory directoryOld;
+	private ServerSettings settingsOld;
 	private ServerProductMeta metadataOld;
 	public boolean createMetadata;
 	public boolean deleteMetadata;
@@ -28,7 +31,8 @@ public class ServerTransaction {
 		this.loader = engine.getLoader();
 		
 		resources = null;
-		registry = null;
+		directory = null;
+		settings = null;
 		metadata = null;
 		createMetadata = false;
 		deleteMetadata = false;
@@ -40,10 +44,12 @@ public class ServerTransaction {
 				return( false );
 		
 			resources = null;
-			registry = null;
+			directory = null;
+			settings = null;
 			metadata = null;
 			resourcesOld = null;
-			registryOld = null;
+			directoryOld = null;
+			settingsOld = null;
 			metadataOld = null;
 			createMetadata = false;
 			deleteMetadata = false;
@@ -67,13 +73,23 @@ public class ServerTransaction {
 			}
 			
 			try {
-				if( registryOld != null ) {
-					loader.setRegistry( this , registryOld );
-					registryOld = null;
+				if( directoryOld != null ) {
+					loader.setDirectory( this , directoryOld );
+					directoryOld = null;
 				}
 			}
 			catch( Throwable e ) {
-				log( "unable to restore registry" , e );
+				log( "unable to restore directory" , e );
+			}
+			
+			try {
+				if( settingsOld != null ) {
+					loader.setSettings( this , settingsOld );
+					settingsOld = null;
+				}
+			}
+			catch( Throwable e ) {
+				log( "unable to restore settings" , e );
 			}
 			
 			try {
@@ -93,11 +109,17 @@ public class ServerTransaction {
 		}
 	}
 
+	public ActionInit getAction() throws Exception {
+		if( action == null )
+			action = engine.createTemporaryAction( "transaction" );
+		return( action );
+	}
+	
 	private void stopAction() {
 		try {
-			if( metadataAction != null )
-				engine.finishAction( metadataAction );
-			metadataAction = null;
+			if( action != null )
+				engine.finishAction( action );
+			action = null;
 		}
 		catch( Throwable e ) {
 			log( "unable to restore metadata" , e );
@@ -113,7 +135,9 @@ public class ServerTransaction {
 			if( res )
 				res = saveResources();
 			if( res )
-				res = saveRegisty();
+				res = saveDirectory();
+			if( res )
+				res = saveSettings();
 			if( res )
 				res = saveMetadata();
 			
@@ -137,8 +161,8 @@ public class ServerTransaction {
 	}
 
 	public void log( String s , Throwable e ) {
-		if( metadataAction != null )
-			metadataAction.log( s , e );
+		if( action != null )
+			action.log( s , e );
 		else
 		if( engine.serverAction != null )
 			engine.serverAction.log( s , e );
@@ -149,8 +173,8 @@ public class ServerTransaction {
 	}
 	
 	public void info( String s ) {
-		if( metadataAction != null )
-			metadataAction.info( s );
+		if( action != null )
+			action.info( s );
 		else
 		if( engine.serverAction != null )
 			engine.serverAction.info( s );
@@ -160,8 +184,8 @@ public class ServerTransaction {
 	}
 	
 	public void debug( String s ) {
-		if( metadataAction != null )
-			metadataAction.debug( s );
+		if( action != null )
+			action.debug( s );
 		else
 		if( engine.serverAction != null )
 			engine.serverAction.debug( s );
@@ -171,8 +195,8 @@ public class ServerTransaction {
 	}
 	
 	public void error( String s ) {
-		if( metadataAction != null )
-			metadataAction.error( s );
+		if( action != null )
+			action.error( s );
 		else
 		if( engine.serverAction != null )
 			engine.serverAction.error( s );
@@ -182,14 +206,44 @@ public class ServerTransaction {
 	}
 	
 	public void trace( String s ) {
-		if( metadataAction != null )
-			metadataAction.trace( s );
+		if( action != null )
+			action.trace( s );
 		else
 		if( engine.serverAction != null )
 			engine.serverAction.trace( s );
 		else {
 			System.out.println( "transaction (trace): " + s );
 		}
+	}
+	
+	public ServerResources getTransactionResources() {
+		return( resources );
+	}
+	
+	public ServerDirectory getTransactionDirectory() {
+		return( directory );
+	}
+	
+	public ServerSettings getTransactionSettings() {
+		return( settings );
+	}
+	
+	public ServerResources getResources() {
+		if( resources != null )
+			return( resources );
+		return( engine.getResources() );
+	}
+	
+	public ServerDirectory getDirectory() {
+		if( directory != null )
+			return( directory );
+		return( engine.getDirectory() );
+	}
+	
+	public ServerSettings getSettings() {
+		if( settings != null )
+			return( settings );
+		return( engine.getSettings() );
 	}
 	
 	public boolean changeResources( ServerResources sourceResources ) {
@@ -236,23 +290,23 @@ public class ServerTransaction {
 		return( false );
 	}
 
-	public boolean changeRegistry( ServerRegistry sourceRegistry ) {
+	public boolean changeDirectory( ServerDirectory sourceDirectory ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
 					return( false );
 					
-				if( registry != null )
+				if( directory != null )
 					return( true );
 				
-				if( sourceRegistry == loader.getRegistry() ) {
-					registry = sourceRegistry.copy();
-					if( registry != null )
+				if( sourceDirectory == loader.getDirectory() ) {
+					directory = sourceDirectory.copy();
+					if( directory != null )
 						return( true );
 				}
 			}
 			catch( Throwable e ) {
-				log( "unable to change registry" , e );
+				log( "unable to change directory" , e );
 			}
 			
 			abortTransaction();
@@ -260,20 +314,64 @@ public class ServerTransaction {
 		}
 	}
 
-	private boolean saveRegisty() {
+	private boolean saveDirectory() {
 		if( !continueTransaction() )
 			return( false );
 		
-		if( registry == null )
+		if( directory == null )
 			return( true );
 		
 		try {
-			registryOld = loader.getRegistry();
-			loader.setRegistry( this , registry );
+			directoryOld = loader.getDirectory();
+			loader.setDirectory( this , directory );
 			return( true );
 		}
 		catch( Throwable e ) {
-			log( "unable to save registry" , e );
+			log( "unable to save directory" , e );
+		}
+
+		abortTransaction();
+		return( false );
+	}
+
+	public boolean changeSettings( ServerSettings sourceSettings ) {
+		synchronized( engine ) {
+			try {
+				if( !continueTransaction() )
+					return( false );
+					
+				if( settings != null )
+					return( true );
+				
+				if( sourceSettings == loader.getSettings() ) {
+					settings = sourceSettings.copy();
+					if( settings != null )
+						return( true );
+				}
+			}
+			catch( Throwable e ) {
+				log( "unable to change settings" , e );
+			}
+			
+			abortTransaction();
+			return( false );
+		}
+	}
+
+	private boolean saveSettings() {
+		if( !continueTransaction() )
+			return( false );
+		
+		if( settings == null )
+			return( true );
+		
+		try {
+			settingsOld = loader.getSettings();
+			loader.setSettings( this , settings );
+			return( true );
+		}
+		catch( Throwable e ) {
+			log( "unable to save settings" , e );
 		}
 
 		abortTransaction();
@@ -290,14 +388,14 @@ public class ServerTransaction {
 					return( true );
 				
 				if( sourceMetadata.storage == loader.findMetaStorage( product.NAME ) ) {
-					metadataAction = engine.createTemporaryAction( "meta" );
-					metadata = sourceMetadata.storage.copy( metadataAction );
+					ActionBase za = getAction();
+					metadata = sourceMetadata.storage.copy( za );
 					if( metadata != null )
 						return( true );
 				}
 			}
 			catch( Throwable e ) {
-				log( "unable to save registry" , e );
+				log( "unable to save metadata" , e );
 			}
 			
 			abortTransaction();
@@ -317,12 +415,11 @@ public class ServerTransaction {
 				if( sourceMetadata.storage == loader.findMetaStorage( product.NAME ) ) {
 					deleteMetadata = true;
 					metadata = sourceMetadata.storage;
-					metadataAction = engine.createTemporaryAction( "meta" );
 					return( true );
 				}
 			}
 			catch( Throwable e ) {
-				log( "unable to save registry" , e );
+				log( "unable to save metadata" , e );
 			}
 			
 			abortTransaction();
@@ -365,10 +462,16 @@ public class ServerTransaction {
 			exit( "missing resources changes" );
 	}
 
-	private void checkTransactionRegistry() throws Exception {
+	private void checkTransactionDirectory() throws Exception {
 		checkTransaction();
-		if( registry == null )
-			exit( "missing registry changes" );
+		if( directory == null )
+			exit( "missing directory changes" );
+	}
+
+	private void checkTransactionSettings() throws Exception {
+		checkTransaction();
+		if( settings == null )
+			exit( "missing settings changes" );
 	}
 
 	private void checkTransactionMetadata() throws Exception {
@@ -380,18 +483,18 @@ public class ServerTransaction {
 	public void exit( String msg ) throws Exception {
 		throw new ExitException( msg );
 	}
-	
+
 	// helpers
 	public ServerAuthResource getResource( ServerAuthResource resource ) throws Exception {
 		return( resources.getResource( resource.NAME ) );
 	}
 	
 	public ServerSystem getSystem( ServerSystem system ) throws Exception {
-		return( registry.getSystem( system.NAME ) );
+		return( directory.getSystem( system.NAME ) );
 	}
 	
 	public ServerProduct getProduct( ServerProduct product ) throws Exception {
-		return( registry.getProduct( product.NAME ) );
+		return( directory.getProduct( product.NAME ) );
 	}
 	
 	// transactional operations
@@ -405,70 +508,72 @@ public class ServerTransaction {
 		res.updateResource( this , resNew );
 	}
 	
-	public void deleteRegistryResource( ServerAuthResource res ) throws Exception {
+	public void deleteResource( ServerAuthResource res ) throws Exception {
 		checkTransactionResources();
 		resources.deleteResource( this , res );
 	}
 	
 	public void addSystem( ServerSystem system ) throws Exception {
-		checkTransactionRegistry();
-		registry.addSystem( this , system );
+		checkTransactionDirectory();
+		directory.addSystem( this , system );
 	}
 	
 	public void modifySystem( ServerSystem system , ServerSystem systemNew ) throws Exception {
-		checkTransactionRegistry();
+		checkTransactionDirectory();
 		system.modifySystem( this , systemNew );
 	}
 
 	public void deleteSystem( ServerSystem system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
-		checkTransactionRegistry();
+		checkTransactionDirectory();
 		for( String productName : system.getProducts() ) {
 			ServerProduct product = system.getProduct( productName );
-			metadataAction.artefactory.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
+			ActionBase za = getAction();
+			za.artefactory.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		}
-		registry.deleteSystem( this , system );
+		directory.deleteSystem( this , system );
 	}
 	
 	public void createProduct( ServerProduct product ) throws Exception {
-		checkTransactionRegistry();
-		metadataAction = engine.createTemporaryAction( "meta" );
-		metadataAction.artefactory.createProductResources( this , product );
+		checkTransactionDirectory();
+		ActionBase za = getAction();
+		za.artefactory.createProductResources( this , product );
 		createMetadata = true;
-		registry.createProduct( this , product );
-		metadata = loader.createMetadata( this , registry , product );
+		directory.createProduct( this , product );
+		metadata = loader.createMetadata( this , directory , product );
 	}
 	
 	public void modifyProduct( ServerProduct product , ServerProduct productNew ) throws Exception {
-		checkTransactionRegistry();
+		checkTransactionDirectory();
 		product.modifyProduct( this , productNew );
 	}
 
 	public void deleteProduct( ServerProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
-		checkTransactionRegistry();
+		checkTransactionDirectory();
 		checkTransactionMetadata();
-		metadataAction.artefactory.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
-		registry.deleteProduct( this , product );
+		ActionBase za = getAction();
+		za.artefactory.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
+		directory.deleteProduct( this , product );
 		metadata = null;
 	}
 
-	public void setRegistryServerProperties( PropertySet props ) throws Exception {
-		checkTransactionRegistry();
-		registry.setServerProperties( this , props );
+	public void setServerProperties( PropertySet props ) throws Exception {
+		checkTransactionSettings();
+		settings.setServerProperties( this , props );
 	}
 	
-	public void setRegistryProductDefaultsProperties( PropertySet props ) throws Exception {
-		checkTransactionRegistry();
-		registry.setProductDefaultsProperties( this , props );
+	public void setProductDefaultsProperties( PropertySet props ) throws Exception {
+		checkTransactionSettings();
+		settings.setProductDefaultsProperties( this , props );
 	}
 	
-	public void setRegistryProductBuildCommonDefaultsProperties( PropertySet props ) throws Exception {
-		checkTransactionRegistry();
-		registry.setProductBuildCommonDefaultsProperties( this , props );
+	public void setProductBuildCommonDefaultsProperties( PropertySet props ) throws Exception {
+		checkTransactionSettings();
+		settings.setProductBuildCommonDefaultsProperties( this , props );
 	}
 	
-	public void setRegistryProductBuildModeDefaultsProperties( VarBUILDMODE mode , PropertySet props ) throws Exception {
-		checkTransactionRegistry();
-		registry.setProductBuildModeDefaultsProperties( this , mode , props );
+	public void setProductBuildModeDefaultsProperties( VarBUILDMODE mode , PropertySet props ) throws Exception {
+		checkTransactionSettings();
+		settings.setProductBuildModeDefaultsProperties( this , mode , props );
 	}
 	
 	public void setProductVersion( MetaProductVersion version ) throws Exception {

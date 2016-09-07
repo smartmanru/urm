@@ -62,7 +62,7 @@ public class ServerEngine {
 	}
 	
 	public void runServer( ActionBase action ) throws Exception {
-		serverAction.debug( "load registry ..." );
+		serverAction.debug( "load server configuration ..." );
 		loader.loadServerProducts( action.actionInit );
 		
 		sessionController = new SessionController( action , this );
@@ -407,8 +407,12 @@ public class ServerEngine {
 		return( loader.getResources() );
 	}
 
-	public ServerRegistry getRegistry() {
-		return( loader.getRegistry() );
+	public ServerSettings getSettings() {
+		return( loader.getSettings() );
+	}
+
+	public ServerDirectory getDirectory() {
+		return( loader.getDirectory() );
 	}
 
 	public ServerLoader getLoader() {

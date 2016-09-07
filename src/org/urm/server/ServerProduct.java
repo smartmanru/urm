@@ -1,24 +1,24 @@
 package org.urm.server;
 
 import org.urm.common.ConfReader;
-import org.urm.server.meta.MetaEnv;
+import org.urm.server.action.ActionBase;
 import org.w3c.dom.Node;
 
 public class ServerProduct {
 
-	public ServerRegistry registry;
+	public ServerDirectory directory;
 	public ServerSystem system;
 	
 	public String NAME;
 	public String DESC;
 	public String PATH;
 
-	public ServerProduct( ServerRegistry registry , ServerSystem system ) {
-		this.registry = registry;
+	public ServerProduct( ServerDirectory directory , ServerSystem system ) {
+		this.directory = directory;
 		this.system = system;
 	}
 
-	public ServerProduct copy( ServerRegistry nr , ServerSystem rs ) {
+	public ServerProduct copy( ServerDirectory nr , ServerSystem rs ) {
 		ServerProduct rp = new ServerProduct( nr , rs );
 		rp.NAME = NAME;
 		rp.DESC = DESC;
@@ -32,22 +32,14 @@ public class ServerProduct {
 		PATH = ConfReader.getAttrValue( node , "path" );
 	}
 	
-	public String[] getEnvironments() throws Exception {
-		ServerLoader loader = system.registry.loader;
+	public ServerProductMeta getMeta( ActionBase action ) throws Exception {
+		ServerLoader loader = system.directory.loader;
 		ServerProductMeta storage = loader.findMetaStorage( NAME );
 		if( storage == null )
-			return( new String[0] );
-		return( storage.getEnvironments() );
+			action.exitUnexpectedState();
+		return( storage );
 	}
 	
-	public MetaEnv getEnvironment( String envId ) throws Exception {
-		ServerLoader loader = system.registry.loader;
-		ServerProductMeta storage = loader.findMetaStorage( NAME );
-		if( storage == null )
-			return( null );
-		return( storage.getEnvironment( envId ) );
-	}
-
 	public void modifyProduct( ServerTransaction transaction , ServerProduct productNew ) throws Exception {
 		DESC = productNew.DESC;
 		PATH = productNew.PATH;

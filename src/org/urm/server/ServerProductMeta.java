@@ -163,8 +163,8 @@ public class ServerProductMeta {
 			}
 		}
 		else {
-			ServerRegistry registry = loader.getRegistry();
-			execprops = registry.serverContext.execprops;
+			ServerSettings settings = loader.getSettings();
+			execprops = settings.serverContext.execprops;
 		}
 		
 		product = new MetaProductSettings( meta , execprops );
@@ -363,29 +363,13 @@ public class ServerProductMeta {
 		}
 	}
 	
-	public synchronized String[] getEnvironments() throws Exception {
-		List<String> names = new LinkedList<String>();
-		for( MetaEnv env : envs.values() )
-			names.add( env.ID );
-		Collections.sort( names );
-		return( names.toArray( new String[0] ) );
-	}
-
-	public synchronized MetaEnv getEnvironment( String envId ) throws Exception {
-		for( MetaEnv env : envs.values() ) {
-			if( env.ID.equals( envId ) )
-				return( env );
-		}
-		return( null );
-	}
-
-	public synchronized void createInitial( ActionBase action , ServerRegistry registry ) throws Exception {
+	public synchronized void createInitial( ActionBase action , ServerSettings settings , ServerDirectory directory ) throws Exception {
 		createInitialVersion( action );
-		createInitialProduct( action , registry , registry.serverContext.execprops );
-		createInitialDatabase( action , registry );
-		createInitialDistr( action , registry );
-		createInitialSources( action , registry );
-		createInitialMonitoring( action , registry );
+		createInitialProduct( action , settings );
+		createInitialDatabase( action );
+		createInitialDistr( action );
+		createInitialSources( action );
+		createInitialMonitoring( action );
 	}
 
 	private void createInitialVersion( ActionBase action ) throws Exception {
@@ -394,37 +378,37 @@ public class ServerProductMeta {
 		action.meta.setVersion( version );
 	}
 	
-	private void createInitialProduct( ActionBase action , ServerRegistry registry , PropertySet execprops ) throws Exception {
-		product = new MetaProductSettings( meta , execprops );
+	private void createInitialProduct( ActionBase action , ServerSettings settings ) throws Exception {
+		product = new MetaProductSettings( meta , settings.serverContext.execprops );
 		
 		ServerProductContext productContext = new ServerProductContext( meta );
 		productContext.create( action , version );
 		
-		product.create( action , registry , productContext );
+		product.create( action , settings , productContext );
 		action.meta.setProduct( product );
 	}
 	
-	private void createInitialDatabase( ActionBase action , ServerRegistry registry ) throws Exception {
+	private void createInitialDatabase( ActionBase action ) throws Exception {
 		database = new MetaDatabase( meta );
-		database.create( action , registry );
+		database.create( action );
 		action.meta.setDatabase( database );
 	}
 	
-	private void createInitialDistr( ActionBase action , ServerRegistry registry ) throws Exception {
+	private void createInitialDistr( ActionBase action ) throws Exception {
 		distr = new MetaDistr( meta );
 		distr.create( action );
 		action.meta.setDistr( distr );
 	}
 	
-	private void createInitialSources( ActionBase action , ServerRegistry registry ) throws Exception {
+	private void createInitialSources( ActionBase action ) throws Exception {
 		sources = new MetaSource( meta );
 		sources.create( action );
 		action.meta.setSources( sources );
 	}
 	
-	private void createInitialMonitoring( ActionBase action , ServerRegistry registry ) throws Exception {
+	private void createInitialMonitoring( ActionBase action ) throws Exception {
 		mon = new MetaMonitoring( meta );
-		mon.create( action , registry );
+		mon.create( action );
 	}
 	
 	public void saveAll( ActionBase action , MetadataStorage storageMeta ) throws Exception {
@@ -486,5 +470,45 @@ public class ServerProductMeta {
 	public void setVersion( ServerTransaction transaction , MetaProductVersion version ) throws Exception {
 		this.version = version;
 	}
+
+	public MetaProductVersion getVersion() {
+		return( version );
+	}
 	
+	public MetaProductSettings getProduct() {
+		return( product );
+	}
+	
+	public MetaDatabase getDatabase() {
+		return( database );
+	}
+	
+	public MetaDistr getDistr() {
+		return( distr );
+	}
+	
+	public MetaSource getSources() {
+		return( sources );
+	}
+	
+	public MetaMonitoring getMonitoring() {
+		return( mon );
+	}
+	
+	public synchronized String[] getEnvironments() throws Exception {
+		List<String> names = new LinkedList<String>();
+		for( MetaEnv env : envs.values() )
+			names.add( env.ID );
+		Collections.sort( names );
+		return( names.toArray( new String[0] ) );
+	}
+
+	public synchronized MetaEnv getEnvironment( String envId ) throws Exception {
+		for( MetaEnv env : envs.values() ) {
+			if( env.ID.equals( envId ) )
+				return( env );
+		}
+		return( null );
+	}
+
 }

@@ -13,24 +13,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerRegistry {
+public class ServerSettings {
 
 	public ServerLoader loader;
 	
 	public ServerContext serverContext;
 
-	private Map<String,ServerSystem> mapSystems;
-	private Map<String,ServerProduct> mapProducts;
 	private PropertySet defaultProductProperties;
 	private PropertySet defaultProductBuildProperties;
 	private Map<VarBUILDMODE,PropertySet> mapBuildModeDefaults;
 	
-	public ServerRegistry( ServerLoader loader ) {
+	public ServerSettings( ServerLoader loader ) {
 		this.loader = loader;
 		
 		serverContext = new ServerContext( this );
-		mapSystems = new HashMap<String,ServerSystem>();
-		mapProducts = new HashMap<String,ServerProduct>();
 		mapBuildModeDefaults = new HashMap<VarBUILDMODE,PropertySet>();
 	}
 
@@ -41,29 +37,9 @@ public class ServerRegistry {
 
 		Node root = doc.getDocumentElement();
 		serverContext.load( root , execrc );
-		loadDirectory( root );
 		loadProductDefaults( root );
 	}
 
-	private void loadDirectory( Node root ) throws Exception {
-		Node node = ConfReader.xmlGetFirstChild( root , "directory" );
-		if( node == null )
-			return;
-		
-		Node[] items = ConfReader.xmlGetChildren( node , "system" );
-		if( items == null )
-			return;
-		
-		for( Node itemNode : items ) {
-			ServerSystem item = new ServerSystem( this );
-			item.load( itemNode );
-			mapSystems.put( item.NAME , item );
-			
-			for( ServerProduct product : item.mapProducts.values() )
-				mapProducts.put( product.NAME , product );
-		}
-	}
-	
 	private void loadProductDefaults( Node root ) throws Exception {
 		defaultProductProperties = new PropertySet( "product.primary" , serverContext.properties );
 		defaultProductBuildProperties = new PropertySet( "build.common" , defaultProductProperties );
@@ -102,34 +78,6 @@ public class ServerRegistry {
 		}
 	}
 	
-	public String[] getSystems() {
-		return( Common.getSortedKeys( mapSystems ) );
-	}
-
-	public String[] getProducts() {
-		return( Common.getSortedKeys( mapProducts ) );
-	}
-	
-	public ServerSystem findSystem( ServerSystem system ) {
-		if( system == null )
-			return( null );
-		return( mapSystems.get( system.NAME ) );
-	}
-	
-	public ServerSystem findSystem( String name ) {
-		return( mapSystems.get( name ) );
-	}
-	
-	public ServerProduct findProduct( ServerProduct product ) {
-		if( product == null )
-			return( null );
-		return( mapProducts.get( product.NAME ) );
-	}
-	
-	public ServerProduct findProduct( String name ) {
-		return( mapProducts.get( name ) );
-	}
-	
 	public ServerContext getServerContext() {
 		return( serverContext );
 	}
@@ -150,18 +98,10 @@ public class ServerRegistry {
 		return( mapBuildModeDefaults.values().toArray( new PropertySet[0] ) );
 	}
 
-	public ServerRegistry copy() throws Exception {
-		ServerRegistry r = new ServerRegistry( loader );
+	public ServerSettings copy() throws Exception {
+		ServerSettings r = new ServerSettings( loader );
 		r.serverContext = serverContext.copy();
 		
-		for( ServerSystem system : mapSystems.values() ) {
-			ServerSystem rs = system.copy( r );
-			r.mapSystems.put( rs.NAME , rs );
-			
-			for( ServerProduct rp : rs.mapProducts.values() )
-				r.mapProducts.put( rp.NAME , rp );
-		}
-
 		r.defaultProductProperties = defaultProductProperties.copy( serverContext.properties );
 		r.defaultProductBuildProperties = defaultProductBuildProperties.copy( r.defaultProductProperties );
 		
@@ -175,7 +115,7 @@ public class ServerRegistry {
 	}
 	
 	public void save( String path , RunContext execrc ) throws Exception {
-		Document doc = Common.xmlCreateDoc( "registry" );
+		Document doc = Common.xmlCreateDoc( "server" );
 		Element root = doc.getDocumentElement();
 
 		// properties
@@ -195,73 +135,12 @@ public class ServerRegistry {
 			set.saveAsElements( doc , modeElement );
 		}
 		
-		// directory 
-		Element elementDir = Common.xmlCreateElement( doc , root , "directory" );
-		for( ServerSystem system : mapSystems.values() ) {
-			Element elementSystem = Common.xmlCreateElement( doc , elementDir , "system" );
-			Common.xmlSetElementAttr( doc , elementSystem , "name" , system.NAME );
-			Common.xmlSetElementAttr( doc , elementSystem , "desc" , system.DESC );
-			
-			for( String productName : system.getProducts() ) {
-				ServerProduct product = system.getProduct( productName );
-				Element elementProduct = Common.xmlCreateElement( doc , elementSystem , "product" );
-				Common.xmlSetElementAttr( doc , elementProduct , "name" , product.NAME );
-				Common.xmlSetElementAttr( doc , elementProduct , "desc" , product.DESC );
-				Common.xmlSetElementAttr( doc , elementProduct , "path" , product.PATH );
-			}
-		}
-		
 		Common.xmlSaveDoc( doc , path );
-	}
-
-	public void addSystem( ServerTransaction transaction , ServerSystem system ) throws Exception {
-		if( mapSystems.get( system.NAME ) != null )
-			transaction.exit( "system=" + system.NAME + " is not unique" );
-		mapSystems.put( system.NAME , system );
-	}
-
-	public void deleteSystem( ServerTransaction transaction , ServerSystem system ) throws Exception {
-		if( mapSystems.get( system.NAME ) != system )
-			transaction.exit( "system=" + system.NAME + " is unknown or mismatched" );
-		
-		for( String productName : system.getProducts() )
-			mapProducts.remove( productName );
-		
-		mapSystems.remove( system.NAME );
-	}
-
-	public ServerSystem getSystem( String name ) throws Exception {
-		ServerSystem system = findSystem( name );
-		if( system == null )
-			throw new ExitException( "unknown system=" + system );
-		return( system );
-	}
-
-	public ServerProduct getProduct( String name ) throws Exception {
-		ServerProduct product = findProduct( name );
-		if( product == null )
-			throw new ExitException( "unknown product=" + name );
-		return( product );
-	}
-
-	public void createProduct( ServerTransaction transaction , ServerProduct product ) throws Exception {
-		if( mapProducts.containsKey( product.NAME ) )
-			transaction.exit( "product=" + product.NAME + " is not unique" );
-		mapProducts.put( product.NAME , product );
-		product.system.addProduct( transaction , product );
-	}
-	
-	public void deleteProduct( ServerTransaction transaction , ServerProduct product ) throws Exception {
-		if( mapProducts.get( product.NAME ) != product )
-			transaction.exit( "product=" + product.NAME + " is unknown or mismatched" );
-		
-		mapProducts.remove( product.NAME );
-		product.system.removeProduct( transaction , product );
 	}
 
 	public void setServerProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
 		serverContext.setServerProperties( transaction , props );
-		serverContext.resolveRegistryServerProperties( transaction );
+		serverContext.resolveServerProperties( transaction );
 	}
 
 	public void setProductDefaultsProperties( ServerTransaction transaction , PropertySet props ) throws Exception {

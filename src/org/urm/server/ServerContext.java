@@ -8,7 +8,7 @@ import org.w3c.dom.Node;
 
 public class ServerContext {
 
-	public ServerRegistry registry;
+	public ServerSettings settings;
 	public RunContext execrc;
 	public PropertySet execprops;
 	public PropertySet properties;
@@ -83,8 +83,8 @@ public class ServerContext {
 	private ServerContext() {
 	}
 	
-	public ServerContext( ServerRegistry registry ) {
-		this.registry = registry;
+	public ServerContext( ServerSettings settings ) {
+		this.settings = settings;
 		this.execrc = null;
 		
 		execprops = new PropertySet( "execrc" , null );
@@ -93,7 +93,7 @@ public class ServerContext {
 
 	public ServerContext copy() throws Exception {
 		ServerContext r = new ServerContext();
-		r.registry = registry;
+		r.settings = settings;
 		r.execrc = execrc;
 		r.execprops = execprops.copy( null );
 		r.properties = properties.copy( r.execprops );
@@ -151,7 +151,7 @@ public class ServerContext {
 		properties.updateProperties( props );
 	}
 
-	public void resolveRegistryServerProperties( ServerTransaction transaction ) throws Exception {
+	public void resolveServerProperties( ServerTransaction transaction ) throws Exception {
 		properties.resolveRawProperties();
 		scatterSystemProperties();
 	}

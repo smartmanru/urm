@@ -8,7 +8,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
 import org.urm.server.ServerProductContext;
-import org.urm.server.ServerRegistry;
+import org.urm.server.ServerSettings;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.Meta.VarBUILDMODE;
 import org.w3c.dom.Document;
@@ -140,24 +140,24 @@ public class MetaProductSettings extends PropertyController {
 		CONFIG_CUSTOM_DATABASE = super.getStringProperty( action , PROPERTY_CUSTOM_DATABASE );
 	}
 
-	public void create( ActionBase action , ServerRegistry registry , ServerProductContext productContext ) throws Exception {
+	public void create( ActionBase action , ServerSettings settings , ServerProductContext productContext ) throws Exception {
 		if( !super.initCreateStarted( execprops ) )
 			return;
 
 		// create initial
 		setContextProperties( action , productContext );
-		properties.copyOriginalPropertiesToRaw( registry.getDefaultProductProperties() );
+		properties.copyOriginalPropertiesToRaw( settings.getDefaultProductProperties() );
 		
 		// build
 		buildCommon = new MetaProductBuildSettings( "build.common" , meta , this );
-		buildCommon.create( action , registry.getDefaultProductBuildProperties() , properties );
+		buildCommon.create( action , settings.getDefaultProductBuildProperties() , properties );
 		for( VarBUILDMODE mode : VarBUILDMODE.values() ) {
 			if( mode == VarBUILDMODE.UNKNOWN )
 				continue;
 			
 			String modeName = Common.getEnumLower( mode );
 			MetaProductBuildSettings buildMode = new MetaProductBuildSettings( "build." + modeName , meta , this );
-			PropertySet set = registry.getDefaultProductBuildProperties( mode );
+			PropertySet set = settings.getDefaultProductBuildProperties( mode );
 			buildMode.create( action , set , buildCommon.getProperties() );
 			buildModes.put( modeName , buildMode );
 		}

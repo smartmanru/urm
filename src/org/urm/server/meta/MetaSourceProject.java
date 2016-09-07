@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.ConfReader;
+import org.urm.server.ServerAuthResource;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.Meta.VarCATEGORY;
 import org.urm.server.meta.Meta.VarNAMETYPE;
@@ -101,17 +102,19 @@ public class MetaSourceProject {
 	public String getVCS( ActionBase action ) {
 		return( VCS );
 	}
-	public boolean isSvnOldVCS( ActionBase action ) {
-		return( VCS.equals( "svnold" ) );
+	public boolean isGitVCS( ActionBase action ) throws Exception {
+		ServerAuthResource res = action.getResource( VCS );
+		return( res.TYPE.equals( ServerAuthResource.TYPE_GIT ) );
 	}
-	public boolean isSvnNewVCS( ActionBase action ) {
-		return( VCS.equals( "svn" ) || VCS.equals( "svnnew" ) );
+	public boolean isSvnVCS( ActionBase action ) throws Exception {
+		ServerAuthResource res = action.getResource( VCS );
+		return( res.TYPE.equals( ServerAuthResource.TYPE_SVN ) );
 	}
-	public boolean isGitVCS( ActionBase action ) {
-		return( VCS.equals( "git" ) );
-	}
-	public boolean isSvn( ActionBase action ) {
-		return( isSvnOldVCS( action ) || isSvnNewVCS( action ) );
+
+	public boolean isBuildable() {
+		if( CATEGORY == VarCATEGORY.BUILD )
+			return( true );
+		return( false );
 	}
 	
 	public MetaSourceProjectItem getItem( ActionBase action , String name ) throws Exception {

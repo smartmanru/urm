@@ -16,8 +16,8 @@ import org.urm.common.meta.BuildCommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
 import org.urm.common.meta.DeployCommandMeta;
 import org.urm.common.meta.MainCommandMeta;
+import org.urm.server.ServerDirectory;
 import org.urm.server.ServerLoader;
-import org.urm.server.ServerRegistry;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaEnv;
 import org.urm.server.meta.MetaEnvDC;
@@ -89,8 +89,8 @@ public class ActionConfigure extends ActionBase {
 		loader.loadServerSettings();
 		loader.loadServerProducts( actionInit );
 		
-		ServerRegistry registry = actionInit.getRegistry();
-		for( String name : registry.getProducts() ) {
+		ServerDirectory directory = actionInit.getDirectory();
+		for( String name : directory.getProducts() ) {
 			info( "configure product name=" + name + " ..." );
 			
 			actionInit.setServerSystemProductLayout( name );

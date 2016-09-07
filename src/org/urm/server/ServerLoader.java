@@ -23,7 +23,8 @@ public class ServerLoader {
 	public ServerEngine engine;
 	
 	private ServerResources resources;
-	private ServerRegistry registry;
+	private ServerSettings settings;
+	private ServerDirectory directory;
 	private ServerProductMeta offline;
 	private Map<String,ServerProductMeta> productMeta;
 	
@@ -31,12 +32,14 @@ public class ServerLoader {
 		this.engine = engine;
 		
 		resources = new ServerResources( this );
-		registry = new ServerRegistry( this ); 
+		settings = new ServerSettings( this ); 
+		directory = new ServerDirectory( this );
 		productMeta = new HashMap<String,ServerProductMeta>();
 	}
 	
 	public void init() throws Exception {
 		loadResources();
+		loadDirectory();
 	}
 	
 	private String getServerResourcesFile() throws Exception {
@@ -50,6 +53,17 @@ public class ServerLoader {
 		resources.load( propertyFile , engine.execrc );
 	}
 
+	private String getServerDirectoryFile() throws Exception {
+		String path = Common.getPath( engine.execrc.installPath , "etc" );
+		String propertyFile = Common.getPath( path , "directory.xml" );
+		return( propertyFile );
+	}
+
+	private void loadDirectory() throws Exception {
+		String propertyFile = getServerDirectoryFile();
+		directory.load( propertyFile , engine.execrc );
+	}
+
 	private String getServerSettingsFile() {
 		String path = Common.getPath( engine.execrc.installPath , "etc" );
 		String propertyFile = Common.getPath( path , "server.xml" );
@@ -58,7 +72,7 @@ public class ServerLoader {
 	
 	public void loadServerSettings() throws Exception {
 		String propertyFile = getServerSettingsFile();
-		registry.load( propertyFile , engine.execrc );
+		settings.load( propertyFile , engine.execrc );
 	}
 
 	public Meta createMetadata( SessionContext session ) throws Exception {
@@ -134,7 +148,7 @@ public class ServerLoader {
 	}
 
 	public void loadServerProducts( ActionInit action ) {
-		for( String name : registry.getProducts() ) {
+		for( String name : directory.getProducts() ) {
 			
 			ServerProductMeta set = new ServerProductMeta( this , name , action.session );
 			productMeta.put( name , set );
@@ -158,8 +172,8 @@ public class ServerLoader {
 	}
 
 	public void setProductProps( ActionInit action , PropertySet props ) throws Exception {
-		props.copyOriginalPropertiesToRaw( registry.getDefaultProductProperties() );
-		for( PropertySet set : registry.getBuildModeDefaults() )
+		props.copyOriginalPropertiesToRaw( settings.getDefaultProductProperties() );
+		for( PropertySet set : settings.getBuildModeDefaults() )
 			props.copyOriginalPropertiesToRaw( set );
 		props.resolveRawProperties();
 	}
@@ -170,37 +184,50 @@ public class ServerLoader {
 		}
 	}
 
+	public ServerDirectory getDirectory() {
+		synchronized( engine ) {
+			return( directory );
+		}
+	}
+
 	public void setResources( ServerTransaction transaction , ServerResources resourcesNew ) throws Exception {
 		String propertyFile = getServerResourcesFile();
 		resourcesNew.save( propertyFile , engine.execrc );
 		resources = resourcesNew;
 	}
 
-	public ServerRegistry getRegistry() {
+	public void setDirectory( ServerTransaction transaction , ServerDirectory directoryNew ) throws Exception {
+		String propertyFile = getServerDirectoryFile();
+		directoryNew.save( propertyFile , engine.execrc );
+		directory = directoryNew;
+	}
+
+	public ServerSettings getSettings() {
 		synchronized( engine ) {
-			return( registry );
+			return( settings );
 		}
 	}
 
-	public void setRegistry( ServerTransaction transaction , ServerRegistry registryNew ) throws Exception {
+	public void setSettings( ServerTransaction transaction , ServerSettings settingsNew ) throws Exception {
 		String propertyFile = getServerSettingsFile();
-		registryNew.save( propertyFile , engine.execrc );
-		registry = registryNew;
+		settingsNew.save( propertyFile , engine.execrc );
+		settings = settingsNew;
 	}
 
-	public ServerProductMeta createMetadata( ServerTransaction transaction , ServerRegistry registryNew , ServerProduct product ) throws Exception {
-		ActionInit action = transaction.metadataAction;
+	public ServerProductMeta createMetadata( ServerTransaction transaction , ServerDirectory directoryNew , ServerProduct product ) throws Exception {
+		ActionInit action = transaction.getAction();
 		action.setServerSystemProductLayout( product );
 		
 		ServerProductMeta set = new ServerProductMeta( this , product.NAME , action.session );
-		set.createInitial( action , registryNew );
+		ServerSettings settings = transaction.getSettings();
+		set.createInitial( action , settings , directoryNew );
 		
 		action.clearServerProductLayout();
 		return( set );
 	}
 	
 	public void setMetadata( ServerTransaction transaction , ServerProductMeta storageNew ) throws Exception {
-		ActionInit action = transaction.metadataAction;
+		ActionInit action = transaction.getAction();
 		action.setServerSystemProductLayout( storageNew.name );
 		
 		MetadataStorage storage = action.artefactory.getMetadataStorage( action );

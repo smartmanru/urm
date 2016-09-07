@@ -105,8 +105,8 @@ public class SessionContext {
 		
 		setServerLayout( options );
 		
-		ServerRegistry registry = serverAction.actionInit.getRegistry();
-		ServerProduct product = registry.getProduct( name ); 
+		ServerDirectory directory = serverAction.actionInit.getDirectory();
+		ServerProduct product = directory.getProduct( name ); 
 		setServerInternalProductLayout( serverAction , product.NAME , product.PATH );
 	}
 	
@@ -117,8 +117,8 @@ public class SessionContext {
 		masterPath = serverSession.masterPath;
 		binPath = serverSession.binPath;
 		
-		ServerRegistry registry = serverAction.actionInit.getRegistry();
-		ServerProduct product = registry.getProduct( clientrc.product ); 
+		ServerDirectory directory = serverAction.actionInit.getDirectory();
+		ServerProduct product = directory.getProduct( clientrc.product ); 
 		setServerInternalProductLayout( serverAction , product.NAME , product.PATH );
 	}
 	
