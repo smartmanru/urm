@@ -1,0 +1,92 @@
+package org.urm.server;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.urm.common.Common;
+import org.urm.common.ConfReader;
+import org.urm.common.ExitException;
+import org.urm.server.action.ActionBase;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+public class ServerBuilders {
+
+	public ServerRegistry registry;
+	public ServerEngine engine;
+
+	Map<String,ServerProjectBuilder> builderMap;
+
+	public ServerBuilders( ServerRegistry registry ) {
+		this.registry = registry;
+		this.engine = registry.loader.engine;
+		
+		builderMap = new HashMap<String,ServerProjectBuilder>();
+	}
+
+	public ServerBuilders copy() throws Exception {
+		ServerBuilders r = new ServerBuilders( registry );
+		
+		for( ServerProjectBuilder res : builderMap.values() ) {
+			ServerProjectBuilder rc = res.copy( r );
+			r.builderMap.put( rc.NAME , rc );
+		}
+		return( r );
+	}
+	
+	public void load( Node root ) throws Exception {
+		if( root == null )
+			return;
+		
+		Node[] list = ConfReader.xmlGetChildren( root , "builder" );
+		if( list == null )
+			return;
+		
+		for( Node node : list ) {
+			ServerProjectBuilder builder = new ServerProjectBuilder( this );
+			builder.load( node );
+
+			builderMap.put( builder.NAME , builder );
+		}
+	}
+
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		for( ServerProjectBuilder res : builderMap.values() ) {
+			Element resElement = Common.xmlCreateElement( doc , root , "resource" );
+			res.save( doc , resElement );
+		}
+	}
+
+	public ServerProjectBuilder findBuilder( String name ) {
+		ServerProjectBuilder builder = builderMap.get( name );
+		return( builder );
+	}
+
+	public ServerProjectBuilder getBuilder( String name ) throws Exception {
+		ServerProjectBuilder builder = builderMap.get( name );
+		if( builder == null )
+			throw new ExitException( "unknown resource=" + name );
+		return( builder );
+	}
+
+	public String[] getList() {
+		return( Common.getSortedKeys( builderMap ) );
+	}
+	
+	public void createBuilder( ServerTransaction transaction , ServerProjectBuilder builder ) throws Exception {
+		if( builderMap.get( builder.NAME ) != null )
+			transaction.exit( "resource already exists name=" + builder.NAME );
+			
+		builder.createBuilder();
+		builderMap.put( builder.NAME , builder );
+	}
+	
+	public void deleteBuilder( ServerTransaction transaction , ServerProjectBuilder builder ) throws Exception {
+		if( builderMap.get( builder.NAME ) == null )
+			transaction.exit( "unknown resource name=" + builder.NAME );
+			
+		builderMap.remove( builder.NAME );
+	}
+
+}
