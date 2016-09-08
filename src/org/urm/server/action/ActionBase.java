@@ -9,7 +9,9 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.ServerAuthResource;
+import org.urm.server.ServerBuilders;
 import org.urm.server.ServerEngine;
+import org.urm.server.ServerProjectBuilder;
 import org.urm.server.ServerResources;
 import org.urm.server.SessionContext;
 import org.urm.server.custom.CommandCustom;
@@ -609,6 +611,12 @@ abstract public class ActionBase {
 		ServerResources resources = engine.getResources();
 		ServerAuthResource res = resources.getResource( name );
 		return( res );
+	}
+	
+	public ServerProjectBuilder getBuilder( String name ) throws Exception {
+		ServerBuilders builders = engine.getBuilders();
+		ServerProjectBuilder builder = builders.getBuilder( name );
+		return( builder );
 	}
 	
 }

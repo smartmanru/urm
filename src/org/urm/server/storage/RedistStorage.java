@@ -141,13 +141,6 @@ public class RedistStorage extends ServerStorage {
 		folder.removeContent( action );
 	}
 
-	public Folder getMirrorFolder( ActionBase action , boolean winBuild ) throws Exception {
-		if( action.meta.product.CONFIG_MIRRORPATH.isEmpty() )
-			action.exit( "missing configuraion parameter: CONFIG_MIRRORPATH" );
-		
-		return( artefactory.getAnyFolder( action , action.meta.product.CONFIG_MIRRORPATH ) );
-	}
-	
 	public void dropStateData( ActionBase action ) throws Exception {
 		RemoteFolder folder = getStateFolder( action );
 		action.info( folder.account.getPrintName() + ": drop state data at " + folder.folderPath + " ..." );

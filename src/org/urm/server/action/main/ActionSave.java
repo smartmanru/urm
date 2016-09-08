@@ -9,6 +9,7 @@ import org.urm.server.action.ActionBase;
 import org.urm.server.storage.FileSet;
 import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.UrmStorage;
+import org.urm.server.vcs.GenericVCS;
 import org.urm.server.vcs.SubversionVCS;
 
 public class ActionSave extends ActionBase {
@@ -59,7 +60,7 @@ public class ActionSave extends ActionBase {
 		List<String> lines = readFileLines( masterPath );
 		FileSet set = pfMaster.getFileSet( this );
 		
-		vcs = artefactory.getSvnDirect( this );
+		vcs = GenericVCS.getSvnDirect( this , meta.product.CONFIG_URM_VCS_RESOURCE );
 		if( vcs.checkVersioned( this , pfMaster.folderPath ) ) {
 			List<String> filesNotInSvn = vcs.getFilesNotInSvn( this , pfMaster );
 			executeDir( set , lines , filesNotInSvn );

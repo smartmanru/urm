@@ -43,6 +43,9 @@ public class ServerMirror {
 	}
 	
 	public void load( Node root ) throws Exception {
+		if( root == null )
+			return;
+		
 		Node[] list = ConfReader.xmlGetChildren( root , "repository" );
 		if( list == null )
 			return;
@@ -57,7 +60,7 @@ public class ServerMirror {
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		for( ServerMirrorRepository repo : repoMap.values() ) {
-			Element resElement = Common.xmlCreateElement( doc , root , "resource" );
+			Element resElement = Common.xmlCreateElement( doc , root , "repository" );
 			repo.save( doc , resElement );
 		}
 	}

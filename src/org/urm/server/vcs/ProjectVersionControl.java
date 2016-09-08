@@ -19,7 +19,7 @@ public class ProjectVersionControl {
 	}
 	
 	private GenericVCS getVCS( MetaSourceProject project ) throws Exception {
-		return( artefactory.getVCS( action , project.getVCS( action ) , build ) );
+		return( GenericVCS.getVCS( action , project.getVCS( action ) , build ) );
 	}
 
 	public String checkDefaultBranch( GenericVCS vcs , String BRANCH ) {

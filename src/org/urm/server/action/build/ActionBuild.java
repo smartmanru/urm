@@ -1,6 +1,7 @@
 package org.urm.server.action.build;
 
 import org.urm.common.Common;
+import org.urm.server.ServerProjectBuilder;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionScope;
 import org.urm.server.action.ActionScopeSet;
@@ -96,13 +97,13 @@ public class ActionBuild extends ActionBase {
 		
 		String BUILDER = project.getBuilder( this );
 		BuildStorage storage = artefactory.getEmptyBuildStorage( this , project );
-		if( BUILDER.equals( MetaProductBuildSettings.BUILDER_TYPE_MAVEN ) ) {
+		if( BUILDER.equals( ServerProjectBuilder.BUILDER_TYPE_MAVEN ) ) {
 			builder = new BuilderLinuxMaven( BUILDER , project , storage , TAG , BUILD_OPTIONS , VERSION );
 		}
-		else if( BUILDER.equals( MetaProductBuildSettings.BUILDER_TYPE_GRADLE ) ) {
+		else if( BUILDER.equals( ServerProjectBuilder.BUILDER_TYPE_GRADLE ) ) {
 			builder = new BuilderLinuxGradle( BUILDER , project , storage , TAG , BUILD_OPTIONS , VERSION );
 		}
-		else if( BUILDER.equals( MetaProductBuildSettings.BUILDER_TYPE_DOTNET ) ) {
+		else if( BUILDER.equals( ServerProjectBuilder.BUILDER_TYPE_DOTNET ) ) {
 			builder = new BuilderWindowsDotnet( BUILDER , project , storage , TAG , BUILD_OPTIONS , VERSION );
 		}
 		else

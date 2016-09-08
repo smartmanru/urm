@@ -15,11 +15,13 @@ public class ServerTransaction {
 	public ActionInit action;
 	
 	private ServerResources resources;
+	private ServerBuilders builders;
 	private ServerDirectory directory;
 	private ServerSettings settings;
 	private ServerProductMeta metadata;
 
 	private ServerResources resourcesOld;
+	private ServerBuilders buildersOld;
 	private ServerDirectory directoryOld;
 	private ServerSettings settingsOld;
 	private ServerProductMeta metadataOld;
@@ -31,6 +33,7 @@ public class ServerTransaction {
 		this.loader = engine.getLoader();
 		
 		resources = null;
+		builders = null;
 		directory = null;
 		settings = null;
 		metadata = null;
@@ -44,10 +47,12 @@ public class ServerTransaction {
 				return( false );
 		
 			resources = null;
+			builders = null;
 			directory = null;
 			settings = null;
 			metadata = null;
 			resourcesOld = null;
+			buildersOld = null;
 			directoryOld = null;
 			settingsOld = null;
 			metadataOld = null;
@@ -66,6 +71,16 @@ public class ServerTransaction {
 				if( resourcesOld != null ) {
 					loader.setResources( this , resourcesOld );
 					resourcesOld = null;
+				}
+			}
+			catch( Throwable e ) {
+				log( "unable to restore resources" , e );
+			}
+			
+			try {
+				if( buildersOld != null ) {
+					loader.setBuilders( this , buildersOld );
+					buildersOld = null;
 				}
 			}
 			catch( Throwable e ) {
@@ -134,6 +149,8 @@ public class ServerTransaction {
 			boolean res = true;
 			if( res )
 				res = saveResources();
+			if( res )
+				res = saveBuilders();
 			if( res )
 				res = saveDirectory();
 			if( res )
@@ -220,6 +237,10 @@ public class ServerTransaction {
 		return( resources );
 	}
 	
+	public ServerBuilders getTransactionBuilders() {
+		return( builders );
+	}
+	
 	public ServerDirectory getTransactionDirectory() {
 		return( directory );
 	}
@@ -232,6 +253,12 @@ public class ServerTransaction {
 		if( resources != null )
 			return( resources );
 		return( engine.getResources() );
+	}
+	
+	public ServerBuilders getBuilders() {
+		if( builders != null )
+			return( builders );
+		return( engine.getBuilders() );
 	}
 	
 	public ServerDirectory getDirectory() {
@@ -290,6 +317,56 @@ public class ServerTransaction {
 		}
 		catch( Throwable e ) {
 			log( "unable to save resources" , e );
+		}
+
+		abortTransaction();
+		return( false );
+	}
+
+	public boolean changeBuilders( ServerBuilders sourceBuilders ) {
+		synchronized( engine ) {
+			try {
+				if( !continueTransaction() )
+					return( false );
+					
+				if( builders != null )
+					return( true );
+				
+				if( !engine.isRunning() )
+					error( "unable to change builders, server is stopped" );
+				else {
+					if( sourceBuilders == loader.getBuilders() ) {
+						builders = sourceBuilders.copy();
+						if( builders != null )
+							return( true );
+					}
+					else
+						error( "unable to change old builders" );
+				}
+			}
+			catch( Throwable e ) {
+				log( "unable to change builders" , e );
+			}
+			
+			abortTransaction();
+			return( false );
+		}
+	}
+
+	private boolean saveBuilders() {
+		if( !continueTransaction() )
+			return( false );
+		
+		if( builders == null )
+			return( true );
+		
+		try {
+			buildersOld = loader.getBuilders();
+			loader.setBuilders( this , builders );
+			return( true );
+		}
+		catch( Throwable e ) {
+			log( "unable to save builders" , e );
 		}
 
 		abortTransaction();
@@ -478,6 +555,12 @@ public class ServerTransaction {
 			exit( "missing resources changes" );
 	}
 
+	private void checkTransactionBuilders() throws Exception {
+		checkTransaction();
+		if( builders == null )
+			exit( "missing builders changes" );
+	}
+
 	private void checkTransactionDirectory() throws Exception {
 		checkTransaction();
 		if( directory == null )
@@ -505,6 +588,10 @@ public class ServerTransaction {
 		return( resources.getResource( resource.NAME ) );
 	}
 	
+	public ServerProjectBuilder getBuilder( ServerProjectBuilder builder ) throws Exception {
+		return( builders.getBuilder( builder.NAME ) );
+	}
+	
 	public ServerSystem getSystem( ServerSystem system ) throws Exception {
 		return( directory.getSystem( system.NAME ) );
 	}
@@ -527,6 +614,21 @@ public class ServerTransaction {
 	public void deleteResource( ServerAuthResource res ) throws Exception {
 		checkTransactionResources();
 		resources.deleteResource( this , res );
+	}
+	
+	public void createBuilder( ServerProjectBuilder builder ) throws Exception {
+		checkTransactionBuilders();
+		builders.createBuilder( this , builder );
+	}
+	
+	public void updateBuilder( ServerProjectBuilder builder , ServerProjectBuilder builderNew ) throws Exception {
+		checkTransactionBuilders();
+		builder.updateBuilder( this , builderNew );
+	}
+	
+	public void deleteBuilder( ServerProjectBuilder builder ) throws Exception {
+		checkTransactionBuilders();
+		builders.deleteBuilder( this , builder );
 	}
 	
 	public void addSystem( ServerSystem system ) throws Exception {

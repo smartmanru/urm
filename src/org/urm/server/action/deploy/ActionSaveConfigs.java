@@ -94,9 +94,9 @@ public class ActionSaveConfigs extends ActionBase {
 	
 	private void deleteOldConfItems( MetaEnvServer server , String saveItems ) throws Exception {
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
-		String existingItems = sourceStorage.getLiveConfigItems( this , server );
+		String[] existingItems = sourceStorage.getLiveConfigItems( this , server );
 
-		for( String item : Common.splitSpaced( existingItems ) ) {
+		for( String item : existingItems ) {
 			if( Common.checkPartOfSpacedList( item , saveItems ) )
 				continue;
 			
@@ -109,9 +109,9 @@ public class ActionSaveConfigs extends ActionBase {
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
 		
 		for( ActionScopeSet set : scope.getEnvSets( this ) ) {
-			String existingItems = sourceStorage.getLiveConfigServers( this , set.dc );
+			String[] existingItems = sourceStorage.getLiveConfigServers( this , set.dc );
 
-			for( String item : Common.splitSpaced( existingItems ) ) {
+			for( String item : existingItems ) {
 				if( set.dc.findServer( this , item ) != null )
 					continue;
 				

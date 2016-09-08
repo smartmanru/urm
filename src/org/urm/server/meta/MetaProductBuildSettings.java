@@ -29,6 +29,7 @@ public class MetaProductBuildSettings extends PropertyController {
 	public String CONFIG_BUILDER_TYPE;
 	public String CONFIG_BUILDER_VERSION;
 	public String CONFIG_BUILDER_OPTIONS;
+	public String CONFIG_BUILDER_REMOTE;
 	public String CONFIG_MAVEN_VERSION;
 	public String CONFIG_MAVEN_CFGFILE;
 	public String CONFIG_MAVEN_OPTIONS;
@@ -58,11 +59,9 @@ public class MetaProductBuildSettings extends PropertyController {
 	// build operation
 	public static String PROPERTY_ARTEFACTDIR = "build.artefacts";
 	public static String PROPERTY_BUILDER_TYPE = "builder.type";
-	public static String BUILDER_TYPE_MAVEN = "Maven";
-	public static String BUILDER_TYPE_GRADLE = "Gradle";
-	public static String BUILDER_TYPE_DOTNET = ".NET";
 	public static String PROPERTY_BUILDER_VERSION = "builder.version";
 	public static String PROPERTY_BUILDER_OPTIONS = "builder.options";
+	public static String PROPERTY_BUILDER_REMOTE = "builder.hostlogin";
 	public static String PROPERTY_NEXUS_RESOURCE = "nexus.resource";
 	public static String PROPERTY_NEXUS_REPO = "nexus.repo";
 	public static String PROPERTY_NEXUS_REPO_THIRDPARTY = "nexus.thirdparty";
@@ -140,6 +139,7 @@ public class MetaProductBuildSettings extends PropertyController {
 		CONFIG_BUILDER_TYPE = super.getStringProperty( action , PROPERTY_BUILDER_TYPE );
 		CONFIG_BUILDER_VERSION = super.getStringProperty( action , PROPERTY_BUILDER_VERSION );
 		CONFIG_BUILDER_OPTIONS = super.getStringProperty( action , PROPERTY_BUILDER_OPTIONS );
+		CONFIG_BUILDER_REMOTE = super.getStringProperty( action , PROPERTY_BUILDER_REMOTE );
 		CONFIG_MAVEN_VERSION = super.getStringProperty( action , PROPERTY_MAVEN_VERSION );
 		CONFIG_MAVEN_CFGFILE = super.getStringProperty( action , PROPERTY_MAVEN_CFGFILE );
 		CONFIG_MAVEN_JAVA_VERSION = super.getStringProperty( action , PROPERTY_MAVEN_JAVA_VERSION );

@@ -15,12 +15,14 @@ public class ServerRegistry {
 	public ServerResources resources;
 	public ServerDirectory directory;
 	public ServerMirror mirror;
+	public ServerBuilders builders;
 
 	public ServerRegistry( ServerLoader loader ) {
 		this.loader = loader;
 		resources = new ServerResources( this );
 		directory = new ServerDirectory( this );
 		mirror = new ServerMirror( this ); 
+		builders = new ServerBuilders( this ); 
 	}
 	
 	public void load( String propertyFile , RunContext execrc ) throws Exception {
@@ -34,6 +36,8 @@ public class ServerRegistry {
 		directory.load( node );
 		node = ConfReader.xmlGetFirstChild( root , "mirror" );
 		mirror.load( node );
+		node = ConfReader.xmlGetFirstChild( root , "build" );
+		builders.load( node );
 	}
 	
 	public void save( ActionBase action , String path , RunContext execrc ) throws Exception {
@@ -47,6 +51,8 @@ public class ServerRegistry {
 		directory.save( action , doc , node );
 		node = Common.xmlCreateElement( doc , root , "mirror" );
 		mirror.save( action , doc , node );
+		node = Common.xmlCreateElement( doc , root , "build" );
+		builders.save( action , doc , node );
 		
 		Common.xmlSaveDoc( doc , path );
 	}
@@ -59,8 +65,8 @@ public class ServerRegistry {
 		directory = directoryNew;
 	}
 	
-	public void setMirror( ServerTransaction transaction , ServerMirror mirrorNew ) throws Exception {
-		mirror = mirrorNew;
+	public void setBuilders( ServerTransaction transaction , ServerBuilders buildersNew ) throws Exception {
+		builders = buildersNew;
 	}
 	
 }

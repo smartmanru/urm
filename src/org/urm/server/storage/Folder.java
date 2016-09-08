@@ -114,6 +114,12 @@ public abstract class Folder {
 	public String getFilePath( ActionBase action , String file ) {
 		return( folderPath + "/" + file ); 
 	}
+
+	public String getOSPath() {
+		if( windows )
+			return( Common.getWinPath( folderPath ) );
+		return( folderPath );
+	}
 	
 	public String getFolderPath( ActionBase action , String FOLDER ) {
 		if( !FOLDER.isEmpty() )

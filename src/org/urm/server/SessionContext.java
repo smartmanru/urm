@@ -34,6 +34,8 @@ public class SessionContext {
 	public String etcPath = "";
 	public String proxyPath = "";
 	
+	private ServerAuthContext login;
+	
 	public SessionContext( ServerEngine engine , RunContext clientrc , int sessionId , boolean client ) {
 		this.engine = engine;
 		this.clientrc = clientrc;
@@ -50,6 +52,14 @@ public class SessionContext {
 	
 	public void exit( String msg ) throws Exception {
 		throw new ExitException( msg );
+	}
+
+	public void setLoginAuth( ServerAuthContext login ) {
+		this.login = login;
+	}
+	
+	public ServerAuthContext getLoginAuth() {
+		return( login );
 	}
 	
 	public void setServerLayout( CommandOptions options ) throws Exception {

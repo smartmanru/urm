@@ -27,6 +27,9 @@ public class ServerDirectory {
 	}
 
 	public void load( Node root ) throws Exception {
+		if( root == null )
+			return;
+		
 		Node[] items = ConfReader.xmlGetChildren( root , "system" );
 		if( items == null )
 			return;

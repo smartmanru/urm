@@ -52,16 +52,16 @@ public class ServerAuthResource {
 		properties.finishRawProperties();
 	}
 	
-	public void save( Document doc , Element root , String authGroup ) throws Exception {
+	public void save( Document doc , Element root ) throws Exception {
 		properties.saveAsElements( doc , root );
-		saveAuthData( authGroup );
+		saveAuthData();
 	}
 	
 	private void scatterSystemProperties() throws Exception {
 		NAME = properties.getSystemRequiredStringProperty( "name" );
 		TYPE = properties.getSystemRequiredStringProperty( "type" );
 		BASEURL = properties.getSystemRequiredStringProperty( "baseurl" );
-		DESC = properties.getSystemRequiredStringProperty( "desc" );
+		DESC = properties.getSystemStringProperty( "desc" , "" );
 		AUTHKEY = properties.getSystemStringProperty( "authkey" , "" );
 	}
 
@@ -106,9 +106,9 @@ public class ServerAuthResource {
 		createProperties();
 	}
 	
-	public void saveAuthData( String authGroup ) throws Exception {
+	public void saveAuthData() throws Exception {
 		ServerAuth auth = resources.engine.getAuth();
-		AUTHKEY = auth.getAuthKey( authGroup , NAME );
+		AUTHKEY = auth.getAuthKey( ServerAuth.AUTH_GROUP_RESOURCE , NAME );
 		properties.setStringProperty( "authkey" , AUTHKEY );
 		
 		if( ac != null )
@@ -121,5 +121,11 @@ public class ServerAuthResource {
 		ServerAuth auth = resources.engine.getAuth();
 		ac = auth.loadAuthData( AUTHKEY );
 	}
-	
+
+	public void createResource() throws Exception {
+		ServerAuth auth = resources.engine.getAuth();
+		AUTHKEY = auth.getAuthKey( ServerAuth.AUTH_GROUP_RESOURCE , NAME );
+		createProperties();
+	}
+
 }

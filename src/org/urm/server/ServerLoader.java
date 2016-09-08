@@ -176,22 +176,40 @@ public class ServerLoader {
 		}
 	}
 
+	public ServerBuilders getBuilders() {
+		synchronized( engine ) {
+			return( registry.builders );
+		}
+	}
+
 	public ServerDirectory getDirectory() {
 		synchronized( engine ) {
 			return( registry.directory );
 		}
 	}
 
-	public void setResources( ServerTransaction transaction , ServerResources resourcesNew ) throws Exception {
-		registry.setResources( transaction , resourcesNew );
+	public void saveRegistry( ServerTransaction transaction ) throws Exception {
 		String propertyFile = getServerRegistryFile();
 		registry.save( transaction.getAction() , propertyFile , engine.execrc );
+	}
+	
+	public void setResources( ServerTransaction transaction , ServerResources resourcesNew ) throws Exception {
+		registry.setResources( transaction , resourcesNew );
+		saveRegistry( transaction );
+	}
+
+	public void setBuilders( ServerTransaction transaction , ServerBuilders buildersNew ) throws Exception {
+		registry.setBuilders( transaction , buildersNew );
+		saveRegistry( transaction );
 	}
 
 	public void setDirectory( ServerTransaction transaction , ServerDirectory directoryNew ) throws Exception {
 		registry.setDirectory( transaction , directoryNew );
-		String propertyFile = getServerRegistryFile();
-		registry.save( transaction.getAction() , propertyFile , engine.execrc );
+		saveRegistry( transaction );
+	}
+
+	public void saveMirrors( ServerTransaction transaction ) throws Exception {
+		saveRegistry( transaction );
 	}
 
 	public ServerSettings getSettings() {

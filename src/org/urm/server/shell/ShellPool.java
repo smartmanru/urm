@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.server.ServerContext;
 import org.urm.server.ServerEngine;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.CommandOutput;
@@ -32,9 +33,13 @@ public class ShellPool implements Runnable {
 	private boolean stop = false;
 	
 	private long tsHouseKeepTime = 0;
-	private static long SHELL_SILENT_MAX = 60000;
-	private static long SHELL_UNAVAILABLE_SKIPTIME = 30000;
-	private static long SHELL_HOUSEKEEP_TIME = 30000;
+	private static long DEFAULT_SHELL_SILENT_MAX = 60000;
+	private static long DEFAULT_SHELL_UNAVAILABLE_SKIPTIME = 30000;
+	private static long DEFAULT_SHELL_HOUSEKEEP_TIME = 30000;
+	
+	private long SHELL_SILENT_MAX;
+	private long SHELL_UNAVAILABLE_SKIPTIME;
+	private long SHELL_HOUSEKEEP_TIME;
 	
 	public class PoolCounts {
 		public int poolSize;
@@ -178,6 +183,17 @@ public class ShellPool implements Runnable {
 		tmpFolder = action.artefactory.getTmpFolder( action );
 		master = createDedicatedLocalShell( action , "master" );
 		tmpFolder.ensureExists( action );
+
+		// set parameters
+		SHELL_SILENT_MAX = DEFAULT_SHELL_SILENT_MAX;
+		SHELL_UNAVAILABLE_SKIPTIME = DEFAULT_SHELL_UNAVAILABLE_SKIPTIME;
+		SHELL_HOUSEKEEP_TIME = DEFAULT_SHELL_HOUSEKEEP_TIME;
+		if( !action.isStandalone() ) {
+			ServerContext context = engine.getSettings().serverContext;
+			SHELL_SILENT_MAX = context.SHELL_SILENTMAX;
+			SHELL_UNAVAILABLE_SKIPTIME = context.SHELL_UNAVAILABLE_SKIPTIME;
+			SHELL_HOUSEKEEP_TIME = context.SHELL_HOUSEKEEP_TIME;
+		}
 		
 		// start managing thread
 		started = true;

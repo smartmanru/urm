@@ -74,4 +74,10 @@ public class LocalFolder extends Folder {
 		session.customCheckStatus( action , folderPath , "rm -rf `find . -name \".svn\" -o -name \".git\"`" );
 	}
 
+	public boolean equals( LocalFolder folder ) {
+		if( folderPath.equals( folder.folderPath ) )
+			return( true );
+		return( false );
+	}
+	
 }

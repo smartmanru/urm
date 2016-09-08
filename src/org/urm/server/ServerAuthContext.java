@@ -1,6 +1,7 @@
 package org.urm.server;
 
 import org.urm.common.PropertySet;
+import org.urm.server.action.ActionBase;
 
 public class ServerAuthContext {
 
@@ -24,6 +25,18 @@ public class ServerAuthContext {
 	
 	public boolean isAdminContext() {
 		return( adminContext );
+	}
+	
+	public boolean isAnonymous() {
+		if( METHOD.equals( METHOD_ANONYMOUS ) )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isCommon() {
+		if( METHOD.equals( METHOD_COMMON ) )
+			return( true );
+		return( false );
 	}
 	
 	public ServerAuthContext copy() throws Exception {
@@ -56,8 +69,37 @@ public class ServerAuthContext {
 		adminContext = properties.getBooleanProperty( "admin" , false );
 	}
 	
-	public String getSvnAuth() {
-		return( "--username " + USER + " --password " + PASSWORDONLINE );
+	public String getSvnAuth( ActionBase action ) {
+		if( isAnonymous() )
+			return( "" );
+		
+		return( "--username " + getUser( action ) + " --password " + getPassword( action ) );
+	}
+	
+	public String getUser( ActionBase action ) {
+		if( isAnonymous() )
+			return( "" );
+		
+		if( isCommon() )
+			return( USER );
+		
+		ServerAuthContext login = action.session.getLoginAuth();
+		return( login.USER );
+	}
+	
+	public String getPassword( ActionBase action ) {
+		if( isAnonymous() )
+			return( "" );
+		
+		if( isCommon() )
+			return( PASSWORDSAVE );
+		
+		ServerAuthContext login = action.session.getLoginAuth();
+		return( login.PASSWORDONLINE );
+	}
+
+	public void setResourcePassword( String password ) {
+		PASSWORDSAVE = password;
 	}
 	
 }

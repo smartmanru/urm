@@ -36,6 +36,9 @@ public class ServerResources {
 	}
 	
 	public void load( Node root ) throws Exception {
+		if( root == null )
+			return;
+		
 		Node[] list = ConfReader.xmlGetChildren( root , "resource" );
 		if( list == null )
 			return;
@@ -51,7 +54,7 @@ public class ServerResources {
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		for( ServerAuthResource res : resourceMap.values() ) {
 			Element resElement = Common.xmlCreateElement( doc , root , "resource" );
-			res.save( doc , resElement , ServerAuth.AUTH_GROUP_RESOURCE );
+			res.save( doc , resElement );
 		}
 	}
 
@@ -75,7 +78,7 @@ public class ServerResources {
 		if( resourceMap.get( res.NAME ) != null )
 			transaction.exit( "resource already exists name=" + res.NAME );
 			
-		res.createProperties();
+		res.createResource();
 		resourceMap.put( res.NAME , res );
 	}
 	

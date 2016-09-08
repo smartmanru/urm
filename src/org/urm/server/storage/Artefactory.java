@@ -1,9 +1,6 @@
 package org.urm.server.storage;
 
 import org.urm.common.Common;
-import org.urm.server.ServerAuth;
-import org.urm.server.ServerAuthContext;
-import org.urm.server.ServerAuthResource;
 import org.urm.server.ServerProduct;
 import org.urm.server.ServerTransaction;
 import org.urm.server.action.ActionBase;
@@ -16,9 +13,6 @@ import org.urm.server.meta.MetaProductBuildSettings;
 import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.meta.Meta;
 import org.urm.server.shell.Account;
-import org.urm.server.vcs.GenericVCS;
-import org.urm.server.vcs.GitVCS;
-import org.urm.server.vcs.SubversionVCS;
 
 public class Artefactory {
 
@@ -172,32 +166,6 @@ public class Artefactory {
 		return( storage );
 	}
 
-	public GitMirrorStorage getGitMirrorStorage( ActionBase action , String REPOSITORY ) throws Exception {
-		return( getGitMirrorStorage( action , REPOSITORY + ".git" , false ) );
-	}
-
-	private GitMirrorStorage getGitMirrorStorage( ActionBase action , String NAME , boolean winBuild ) throws Exception {
-		RedistStorage storage;
-		Account account = ( winBuild )? action.getWinBuildAccount() : action.shell.account; 
-		storage = getRedistStorage( action , account ); 
-		
-		Folder mirrorFolder = storage.getMirrorFolder( action , winBuild );
-		Folder projectFolder = mirrorFolder.getSubFolder( action , NAME );
-		if( !projectFolder.checkExists( action ) )
-			action.exit( "getGitMirrorStorage: mirror path " + projectFolder.folderPath + " should be created using " + projectFolder.folderPath + "/mirror.sh" );
-	
-		return( new GitMirrorStorage( this , account , projectFolder , winBuild ) );
-	}
-	
-	public GitMirrorStorage getGitMirrorStorage( ActionBase action , MetaSourceProject sourceProject , boolean build ) throws Exception {
-		String REPONAME;
-		String path = sourceProject.PATH.replaceAll( "/" , "" );
-		REPONAME = path + "-" + sourceProject.PROJECT + ".git";
-		boolean winBuild = ( build && sourceProject.getBuilder( action ).equals( "dotnet" ) )? true : false;
-		
-		return( getGitMirrorStorage( action , REPONAME , winBuild ) );
-	}
-	
 	public BuildStorage getEmptyBuildStorage( ActionBase action , MetaSourceProject sourceProject ) throws Exception {
 		String MODE = action.context.getBuildModeName();
 		if( MODE.isEmpty() ) 
@@ -211,30 +179,6 @@ public class Artefactory {
 		folder.removeThis( action );
 		
 		return( new BuildStorage( this , folder ) );
-	}
-
-	public GenericVCS getVCS( ActionBase action , String vcs , boolean build ) throws Exception {
-		ServerAuthResource res = action.getResource( vcs );
-		if( res.isSvn() ) {
-			ServerAuth auth = action.engine.getAuth();
-			ServerAuthContext context = auth.loadAuthData( res.AUTHKEY );
-			String SVNAUTH = context.getSvnAuth();
-			return( new SubversionVCS( action , res.BASEURL , SVNAUTH ) );
-		}
-		
-		if( res.isGit() )
-			return( new GitVCS( action , build ) );
-		
-		action.exit( "unexected vcs=" + vcs + ", type=" + res.TYPE );
-		return( null );
-	}
-
-	public SubversionVCS getSvnDirect( ActionBase action ) throws Exception {
-		String vcs = action.meta.product.CONFIG_URM_VCS_RESOURCE;
-		ServerAuthResource res = action.getResource( vcs );
-		if( !res.isSvn() )
-			action.exit( "unexpected non-svn vcs=" + vcs );
-		return( ( SubversionVCS )getVCS( action , vcs , false ) );
 	}
 
 	public RedistStorage getRedistStorage( ActionBase action , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
