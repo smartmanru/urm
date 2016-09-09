@@ -3,7 +3,6 @@ package org.urm.server.vcs;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.storage.Artefactory;
-import org.urm.server.storage.Folder;
 import org.urm.server.storage.LocalFolder;
 
 public class ProjectVersionControl {
@@ -35,7 +34,7 @@ public class ProjectVersionControl {
 			action.info( "checkout PATCHPATH=" + PATCHFOLDER.folderPath + ", PROJECT=" + project.PROJECT + ", BRANCH=" + BRANCH + " ..." );
 			GenericVCS vcs = getVCS( project );
 			BRANCH = checkDefaultBranch( vcs , BRANCH );
-			res = vcs.checkout( PATCHFOLDER , project , BRANCH );
+			res = vcs.checkout( project , PATCHFOLDER , BRANCH );
 		}
 		catch( Throwable e ) {
 			action.log( e );
@@ -48,7 +47,7 @@ public class ProjectVersionControl {
 		try {
 			action.info( "commit PATCHPATH=" + PATCHFOLDER.folderPath + ", PROJECT=" + project.PROJECT + ", MESSAGE=" + MESSAGE + " ..." );
 			GenericVCS vcs = getVCS( project );
-			return( vcs.commit( PATCHFOLDER , project , MESSAGE ) );
+			return( vcs.commit( project , PATCHFOLDER , MESSAGE ) );
 		}
 		catch( Throwable e ) {
 			action.log( e );
@@ -158,14 +157,14 @@ public class ProjectVersionControl {
 		return( false );
 	}
 
-	public boolean export( Folder PATCHFOLDER , MetaSourceProject project , String BRANCH , String TAG , String SINGLEFILE ) {
+	public boolean export( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH , String TAG , String SINGLEFILE ) {
 		int timeout = action.setTimeoutUnlimited();
 		boolean res = false;
 		try {
 			action.info( "export PROJECT=" + project.PROJECT + ", BRANCH=" + BRANCH + ", TAG=" + TAG + ", singlefile=" + SINGLEFILE + " ..." );
 			GenericVCS vcs = getVCS( project );
 			BRANCH = checkDefaultBranch( vcs , BRANCH );
-			res = vcs.export( PATCHFOLDER , project , BRANCH , TAG , SINGLEFILE );
+			res = vcs.export( project , PATCHFOLDER , BRANCH , TAG , SINGLEFILE );
 		}
 		catch( Throwable e ) {
 			action.log( e );

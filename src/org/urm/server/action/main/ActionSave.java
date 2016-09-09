@@ -5,6 +5,7 @@ import java.util.List;
 import org.urm.common.Common;
 import org.urm.common.meta.MainCommandMeta;
 import org.urm.server.ServerDirectory;
+import org.urm.server.ServerMirrorRepository;
 import org.urm.server.action.ActionBase;
 import org.urm.server.storage.FileSet;
 import org.urm.server.storage.LocalFolder;
@@ -61,18 +62,20 @@ public class ActionSave extends ActionBase {
 		FileSet set = pfMaster.getFileSet( this );
 		
 		vcs = GenericVCS.getSvnDirect( this , meta.product.CONFIG_URM_VCS_RESOURCE );
-		if( vcs.checkVersioned( this , pfMaster.folderPath ) ) {
-			List<String> filesNotInSvn = vcs.getFilesNotInSvn( this , pfMaster );
+		ServerMirrorRepository mirror = super.getServerMirror();
+		if( vcs.checkVersioned( mirror , pfMaster.folderPath ) ) {
+			List<String> filesNotInSvn = vcs.getFilesNotInSvn( mirror , pfMaster );
 			executeDir( set , lines , filesNotInSvn );
 		}
 		else
-			vcs.addDirToSvn( this , pf , "master" );
+			vcs.addDirToSvn( mirror , pf , "master" );
 			
-		if( !vcs.commitMasterFolder( pfMaster , "" , "" , "svnsave" ) )
+		if( !vcs.commitMasterFolder( mirror , pfMaster , "" , "svnsave" ) )
 			exit( "unable to save in svn folder=" + pfMaster.folderPath );
 	}
 	
 	private void executeDir( FileSet set , List<String> lines , List<String> filesNotInSvn ) throws Exception {
+		ServerMirrorRepository mirror = super.getServerMirror();
 		for( FileSet dir : set.dirs.values() ) {
 			// check dir in lines
 			boolean dirInLines = false;
@@ -90,9 +93,9 @@ public class ActionSave extends ActionBase {
 				executeDir( dir , lines , filesNotInSvn );
 			else {
 				if( dirInLines )
-					vcs.addDirToSvn( this , pfMaster , dir.dirPath );
+					vcs.addDirToSvn( mirror , pfMaster , dir.dirPath );
 				else
-					vcs.deleteDirFromSvn( this , pfMaster , dir.dirPath );
+					vcs.deleteDirFromSvn( mirror , pfMaster , dir.dirPath );
 			}
 		}
 		
@@ -113,9 +116,9 @@ public class ActionSave extends ActionBase {
 				continue;
 			
 			if( fileInLines )
-				vcs.addFileToSvn( this , pfMaster , fileActual );
+				vcs.addFileToSvn( mirror , pfMaster , fileActual );
 			else
-				vcs.deleteFileFromSvn( this , pfMaster , fileActual );
+				vcs.deleteFileFromSvn( mirror , pfMaster , fileActual );
 		}
 	}
 

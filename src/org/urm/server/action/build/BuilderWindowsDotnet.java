@@ -8,6 +8,7 @@ import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.shell.Account;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.BuildStorage;
+import org.urm.server.storage.LocalFolder;
 import org.urm.server.storage.RedistStorage;
 import org.urm.server.storage.RemoteFolder;
 import org.urm.server.vcs.ProjectVersionControl;
@@ -35,8 +36,9 @@ public class BuilderWindowsDotnet extends Builder {
 		CODEPATH.removeThis( action );
 	
 		// checkout
-		ProjectVersionControl vcs = new ProjectVersionControl( action , true ); 
-		if( !vcs.export( CODEPATH , project , "" , TAG , "" ) ) {
+		ProjectVersionControl vcs = new ProjectVersionControl( action , true );
+		LocalFolder path = action.getLocalFolder( CODEPATH.folderPath );
+		if( !vcs.export( path , project , "" , TAG , "" ) ) {
 			action.error( "patchCheckout: having problem to export code" );
 			return( false );
 		}

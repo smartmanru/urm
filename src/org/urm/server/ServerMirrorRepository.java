@@ -3,8 +3,6 @@ package org.urm.server;
 import org.urm.common.PropertySet;
 import org.urm.server.action.ActionBase;
 import org.urm.server.vcs.GenericVCS;
-import org.urm.server.vcs.GitMirrorStorage;
-import org.urm.server.vcs.GitVCS;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -36,6 +34,10 @@ public class ServerMirrorRepository {
 		loadFailed = false;
 	}
 
+	public String getFolderName() {
+		return( NAME );
+	}
+	
 	public boolean isServer() {
 		return( TYPE.equals( TYPE_SERVER ) );
 	}
@@ -90,47 +92,24 @@ public class ServerMirrorRepository {
 		properties.setStringProperty( "branch" , BRANCH );
 	}
 
-	public boolean createServerMirror( ActionBase action , String resource , String reponame , String reporoot ) throws Exception {
-		GenericVCS vcs = GenericVCS.getVCS( action , resource , false );
-		if( vcs.res.isSvn() ) {
-			if( !checkTargetEmpty( action , vcs , reponame , reporoot ) )
-				return( false );
-			if( !vcs.isValidRepositoryMasterPath( reponame , "/" ) )
-				return( false );
-		}
-		else
-		if( vcs.res.isGit() ) {
-			createNewLocalGitMirror( action , resource , reponame , reporoot , false );
-		}
-		
-		return( true );
-	}
-	
-	private boolean createNewLocalGitMirror( ActionBase action , String resource , String reponame , String reporoot , boolean bare ) throws Exception {
-		GitVCS vcs = GenericVCS.getGitDirect( action , resource );
-		GitMirrorStorage storage = vcs.createStorage( NAME , reponame , reporoot , bare );
-		if( !storage.isEmpty( action ) )
-			return( false );
-
-		storage.createReadMe( action , NAME );
-		return( true );
-	}
-	
-	public boolean checkTargetEmpty( ActionBase action , GenericVCS vcs , String reponame , String reporoot ) throws Exception {
-		String[] items = vcs.listMasterItems( reponame , reporoot );
-		if( items.length == 0 )
-			return( true );
-		return( false );
-	}
-
 	public void publishRepository( ServerTransaction transaction , String resource , String reponame , String reporoot , String repobranch ) throws Exception {
-		if( isServer() )
-			publishServer( transaction , resource , reponame , reporoot );
-		
 		RESOURCE = resource;
 		RESOURCE_REPO = reponame;
 		RESOURCE_ROOT = reporoot;
 		BRANCH = "";
+		
+		try {
+			if( isServer() )
+				publishServer( transaction , resource , reponame , reporoot );
+		}
+		catch( Throwable e ) {
+			RESOURCE = "";
+			RESOURCE_REPO = "";
+			RESOURCE_ROOT = "";
+			BRANCH = "";
+			transaction.exit( "unable to publish repository" );
+		}
+		
 		createProperties();
 		mirror.registry.loader.saveMirrors( transaction );
 	}
@@ -138,8 +117,12 @@ public class ServerMirrorRepository {
 	public void publishServer( ServerTransaction transaction , String resource , String reponame , String reporoot ) throws Exception {
 		// reject already published
 		// server: test target, remove mirror work/repo, create mirror work/repo, publish target
-		if( !createServerMirror( transaction.getAction() , resource , reponame , reporoot ) )
-			transaction.exit( "unable to publish repository" );
+		ActionBase action = transaction.getAction();
+		GenericVCS vcs = GenericVCS.getVCS( action , resource , false );
+		if( !vcs.checkTargetEmpty( this ) )
+			action.exit( "unable to publish to non-empty repository" );
+		
+		vcs.createRemoteBranchMirror( this );
 	}
 	
 	public void dropMirror( ServerTransaction transaction ) throws Exception {
@@ -156,10 +139,7 @@ public class ServerMirrorRepository {
 	
 	public void dropServerMirror( ServerTransaction transaction ) throws Exception {
 		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , RESOURCE , false );
-		if( vcs.res.isGit() ) {
-			GitVCS git = ( GitVCS )vcs;
-			git.removeStorage( NAME , false );
-		}
+		vcs.dropRemoteBranchMirror( this );
 	}
 
 	public void pushMirror( ServerTransaction transaction ) throws Exception {
@@ -169,10 +149,7 @@ public class ServerMirrorRepository {
 
 	public void pushServerMirror( ServerTransaction transaction ) throws Exception {
 		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , RESOURCE , false );
-		if( vcs.res.isGit() ) {
-			GitVCS git = ( GitVCS )vcs;
-			git.pushStorage( NAME , false );
-		}
+		vcs.pushRemoteBranchMirror( this );
 	}
 	
 	public void refreshMirror( ServerTransaction transaction ) throws Exception {
@@ -182,10 +159,7 @@ public class ServerMirrorRepository {
 
 	public void refreshServerMirror( ServerTransaction transaction ) throws Exception {
 		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , RESOURCE , false );
-		if( vcs.res.isGit() ) {
-			GitVCS git = ( GitVCS )vcs;
-			git.refreshStorage( NAME , false );
-		}
+		vcs.refreshRemoteBranchMirror( this );
 	}
 	
 }

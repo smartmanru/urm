@@ -1,13 +1,11 @@
 package org.urm.server.vcs;
 
-import java.net.URLEncoder;
-
 import org.urm.common.Common;
 import org.urm.server.ServerAuthResource;
+import org.urm.server.ServerMirrorRepository;
 import org.urm.server.action.ActionBase;
 import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.shell.ShellExecutor;
-import org.urm.server.storage.Folder;
 import org.urm.server.storage.LocalFolder;
 
 public class GitVCS extends GenericVCS {
@@ -18,40 +16,24 @@ public class GitVCS extends GenericVCS {
 		super( action , res , shell );
 	}
 
-	private String getBranchName( String BRANCH ) {
-		if( BRANCH.isEmpty() )
-			return( "" );
-		
-		if( BRANCH.equals( MASTERBRANCH ) )
-			return( MASTERBRANCH );
-		return( "branch-" + BRANCH );
-	}
-	
-	private String getTagName( String TAG ) {
-		if( TAG.isEmpty() )
-			return( "" );
-		
-		return( "tag-" + TAG );
-	}
-	
 	@Override public String getMainBranch() {
 		return( MASTERBRANCH );
 	}
 	
-	@Override public boolean checkout( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH ) throws Exception {
+	@Override public boolean checkout( MetaSourceProject project , LocalFolder PATCHFOLDER , String BRANCH ) throws Exception {
 		BRANCH = getBranchName( BRANCH );
 		GitProjectRepo repo = getRepo( project , PATCHFOLDER );
 		repo.refreshMirror();
 
 		String REPOVERSION = "(branch head)";
 
-		action.info( "git: checkout sources from " + repo.MIRRORPATH + " (branch=" + BRANCH + ", revision=" + REPOVERSION + ") to " + PATCHFOLDER.folderPath + " ..." );
+		action.info( "git: checkout sources from " + repo.getMirrorOSPath() + " (branch=" + BRANCH + ", revision=" + REPOVERSION + ") to " + PATCHFOLDER.folderPath + " ..." );
 		repo.createLocalFromBranch( BRANCH );
 		
 		return( true );
 	}
 
-	@Override public boolean commit( LocalFolder PATCHFOLDER , MetaSourceProject project , String MESSAGE ) throws Exception {
+	@Override public boolean commit( MetaSourceProject project , LocalFolder PATCHFOLDER , String MESSAGE ) throws Exception {
 		if( !PATCHFOLDER.checkExists( action ) ) {
 			action.error( "directory " + PATCHFOLDER.folderPath + " does not exist " );
 			return( false );
@@ -74,12 +56,12 @@ public class GitVCS extends GenericVCS {
 		repo.refreshMirror();
 		
 		if( !repo.checkBranchExists( BRANCH1 ) ) {
-			action.error( repo.MIRRORPATH + ": branch " + BRANCH1 + " does not exist" );
+			action.error( project.PROJECT + ": branch " + BRANCH1 + " does not exist" );
 			return( false );
 		}
 
 		if( repo.checkBranchExists( BRANCH2 ) ) {
-			action.error( "skip copy branch to branch - target branch already exists" );
+			action.error( project.PROJECT + ": skip copy branch to branch - target branch already exists" );
 			return( false );
 		}
 
@@ -95,12 +77,12 @@ public class GitVCS extends GenericVCS {
 		repo.refreshMirror();
 		
 		if( !repo.checkBranchExists( BRANCH1 ) ) {
-			action.error( repo.MIRRORPATH + ": branch " + BRANCH1 + " does not exist" );
+			action.error( project.PROJECT + ": branch " + BRANCH1 + " does not exist" );
 			return( false );
 		}
 
 		if( repo.checkBranchExists( BRANCH2 ) ) {
-			action.error( "cannot rename branch to branch - target branch already exists" );
+			action.error( project.PROJECT + ": cannot rename branch to branch - target branch already exists" );
 			return( false );
 		}
 
@@ -117,12 +99,12 @@ public class GitVCS extends GenericVCS {
 		repo.refreshMirror();
 		
 		if( !repo.checkTagExists( TAG1 ) ) {
-			action.error( repo.MIRRORPATH + ": tag " + TAG1 + " does not exist" );
+			action.error( project.PROJECT + ": tag " + TAG1 + " does not exist" );
 			return( false );
 		}
 
 		if( repo.checkTagExists( TAG2 ) ) {
-			action.error( repo.MIRRORPATH + ": tag " + TAG2 + " already exists" );
+			action.error( project.PROJECT + ": tag " + TAG2 + " already exists" );
 			return( false );
 		}
 
@@ -138,7 +120,7 @@ public class GitVCS extends GenericVCS {
 		repo.refreshMirror();
 		
 		if( !repo.checkTagExists( TAG1 ) ) {
-			action.error( repo.MIRRORPATH + ": tag " + TAG1 + " does not exist" );
+			action.error( project.PROJECT + ": tag " + TAG1 + " does not exist" );
 			return( false );
 		}
 
@@ -160,7 +142,7 @@ public class GitVCS extends GenericVCS {
 		repo.refreshMirror();
 		
 		if( !repo.checkTagExists( TAG1 ) ) {
-			action.error( repo + ": tag " + TAG1 + " does not exist" );
+			action.error( project.PROJECT + ": tag " + TAG1 + " does not exist" );
 			return( false );
 		}
 
@@ -188,7 +170,7 @@ public class GitVCS extends GenericVCS {
 		}
 
 		if( repo.checkBranchExists( BRANCH2 ) ) {
-			action.error( "cannot copy branch to branch - target branch already exists" );
+			action.error( project.PROJECT + ": cannot copy branch to branch - target branch already exists" );
 			return( false );
 		}
 
@@ -203,7 +185,7 @@ public class GitVCS extends GenericVCS {
 		repo.refreshMirror();
 		
 		if( !repo.checkTagExists( TAG ) ) {
-			action.error( repo.MIRRORPATH + ": tag " + TAG + " does not exist" );
+			action.error( project.PROJECT + ": tag " + TAG + " does not exist" );
 			return( false );
 		}
 		
@@ -219,7 +201,7 @@ public class GitVCS extends GenericVCS {
 		repo.refreshMirror();
 		
 		if( !repo.checkBranchExists( BRANCH ) ) {
-			action.error( repo.MIRRORPATH + ": branch " + BRANCH + " does not exist" );
+			action.error( project.PROJECT + ": branch " + BRANCH + " does not exist" );
 			return( false );
 		}
 		
@@ -229,7 +211,7 @@ public class GitVCS extends GenericVCS {
 		return( true );
 	}
 
-	@Override public boolean export( Folder PATCHFOLDER , MetaSourceProject project , String BRANCH , String TAG , String FILENAME ) throws Exception {
+	@Override public boolean export( MetaSourceProject project , LocalFolder PATCHFOLDER , String BRANCH , String TAG , String FILENAME ) throws Exception {
 		TAG = getTagName( TAG );
 		BRANCH = getBranchName( BRANCH );
 		GitProjectRepo repo = getRepo( project , null );
@@ -243,9 +225,9 @@ public class GitVCS extends GenericVCS {
 			FILEBASE = Common.getBaseName( FILENAME );
 		}
 		if( !TAG.isEmpty() )
-			res = repo.exportFromTag( PATCHFOLDER , TAG , FILEPATH , FILEBASE );
+			res = repo.exportFromTag( TAG , FILEPATH , FILEBASE );
 		else
-			res = repo.exportFromBranch( PATCHFOLDER , BRANCH , FILEPATH , FILEBASE );
+			res = repo.exportFromBranch( BRANCH , FILEPATH , FILEBASE );
 		
 		return( res );
 	}
@@ -261,7 +243,7 @@ public class GitVCS extends GenericVCS {
 			CO_BRANCH = CO_BRANCH.substring( "branches/".length() );
 
 		if( !repo.checkBranchExists( BRANCH ) ) {
-			action.error( repo.MIRRORPATH + ": branch " + BRANCH + " does not exist" );
+			action.error( project.PROJECT + ": branch " + BRANCH + " does not exist" );
 			return( false );
 		}
 		
@@ -270,67 +252,18 @@ public class GitVCS extends GenericVCS {
 		return( true );
 	}
 
-	public GitMirrorStorage getStorage( String REPOSITORY , boolean bare , boolean newStorage ) throws Exception {
-		String REPOFOLDER = getStorageFolder( REPOSITORY , bare );
-		GitMirrorStorage storage = new GitMirrorStorage( this , REPOFOLDER , bare );
-		storage.create( action , newStorage );
-		return( storage );
-	}
-	
-	public GitMirrorStorage createStorage( String REPOSITORY , String reponame , String reporoot , boolean bare ) throws Exception {
-		GitMirrorStorage storage = getStorage( REPOSITORY , bare , true );
-		storage.createLocalMirror( action , REPOSITORY , reponame , reporoot , bare );
-		return( storage );
-	}
-	
-	public void removeStorage( String REPOSITORY , boolean bare ) throws Exception {
-		String REPOFOLDER = getStorageFolder( REPOSITORY , bare );
-		GitMirrorStorage storage = new GitMirrorStorage( this , REPOFOLDER , bare );
-		storage.remove( action );
-	}
-	
-	public void pushStorage( String REPOSITORY , boolean bare ) throws Exception {
-		GitMirrorStorage storage = getStorage( REPOSITORY , bare , false );
-		pushOrigin( storage.getStorageFolder( action ).folderPath );
-	}
-	
-	public void refreshStorage( String REPOSITORY , boolean bare ) throws Exception {
-		GitMirrorStorage storage = getStorage( REPOSITORY , bare , false );
-		fetchOrigin( storage.getStorageFolder( action ).folderPath );
-	}
-	
-	// implementation
-	private String getStorageFolder( String REPOSITORY , boolean bare ) {
-		String REPOFOLDER = res.NAME + "-" + REPOSITORY + ".git";
-		if( bare )
-			REPOFOLDER += ".mirror";
-		return( REPOFOLDER );
-	}
-	
-	private GitProjectRepo getRepo( MetaSourceProject project , Folder PATCHFOLDER ) throws Exception {
-		GitMirrorStorage storage = getStorage( project.REPOSITORY , true , false );
-		GitProjectRepo repo = new GitProjectRepo( action , shell , project , storage , PATCHFOLDER );
-		return( repo );
-	}
-
-	private GitProjectRepo getRepo( String REPOSITORY ) throws Exception {
-		GitMirrorStorage storage = getStorage( REPOSITORY , true , false );
-		GitProjectRepo repo = new GitProjectRepo( action , shell , null , storage , null );
-		return( repo );
-	}
-
-	@Override public boolean isValidRepositoryTagPath( String repository , String TAG , String path ) throws Exception {
+	@Override public boolean isValidRepositoryTagPath( ServerMirrorRepository mirror , String TAG , String path ) throws Exception {
 		TAG = getTagName( TAG );
 		action.exitNotImplemented();
 		return( false );
 	}
 	
-	@Override public boolean isValidRepositoryMasterPath( String repository , String path ) throws Exception {
-		GitProjectRepo repo = getRepo( repository );
-		repo.refreshMirror();
+	@Override public boolean isValidRepositoryMasterPath( ServerMirrorRepository mirror , String path ) throws Exception {
+		GitMirrorStorage storage = getMasterMirrorStorage( mirror , null );
+		storage.refreshMirror();
 		
 		int status;
-		String OSPATH = shell.getOSPath( action , repo.MIRRORPATH );
+		String OSPATH = storage.getMirrorOSPath();
 		String OSPATHDIR = shell.getOSPath( action , path );
 		status = shell.customGetStatus( action , "git -C " + OSPATH + " cat-file -e master:" + OSPATHDIR );
 		
@@ -340,17 +273,17 @@ public class GitVCS extends GenericVCS {
 		return( false );
 	}
 
-	@Override public boolean exportRepositoryTagPath( LocalFolder PATCHFOLDER , String repository , String TAG , String ITEMPATH , String name ) throws Exception {
-		GitProjectRepo repo = getRepo( repository );
-		repo.refreshMirror();
+	@Override public boolean exportRepositoryTagPath( ServerMirrorRepository mirror , LocalFolder PATCHFOLDER , String TAG , String ITEMPATH , String name ) throws Exception {
+		GitMirrorStorage storage = getMasterMirrorStorage( mirror , PATCHFOLDER );
+		storage.refreshMirror();
 		
 		TAG = getTagName( TAG );
-		boolean res = repo.exportFromPath( PATCHFOLDER.getSubFolder( action , name ) , TAG , ITEMPATH , "" );
+		boolean res = storage.exportFromPath( TAG , name , ITEMPATH );
 		return( res );
 	}
 	
-	@Override public boolean exportRepositoryMasterPath( LocalFolder PATCHFOLDER , String repository , String ITEMPATH , String name ) throws Exception {
-		if( !isValidRepositoryMasterPath( repository , ITEMPATH ) )
+	@Override public boolean exportRepositoryMasterPath( ServerMirrorRepository mirror , LocalFolder PATCHFOLDER , String ITEMPATH , String name ) throws Exception {
+		if( !isValidRepositoryMasterPath( mirror , ITEMPATH ) )
 			return( false );
 			
 		if( !PATCHFOLDER.checkExists( action ) )
@@ -360,17 +293,17 @@ public class GitVCS extends GenericVCS {
 		if( PATCHFOLDER.checkPathExists( action , baseName ) )
 			action.exit( "exportRepositoryMasterPath: local directory " + PATCHFOLDER.getFilePath( action , baseName ) + " should not exist" );
 		
-		GitProjectRepo repo = getRepo( repository );
-		repo.refreshMirror();
+		GitMirrorStorage storage = getMasterMirrorStorage( mirror , PATCHFOLDER );
+		storage.refreshMirror();
 		
+		String OSPATH = storage.getMirrorOSPath();
 		if( shell.isWindows() ) {
-			String WINPATH = Common.getWinPath( repo.MIRRORPATH );
 			String WINPATHDIR = Common.getWinPath( ITEMPATH );
 			String WINPATHPATCH = Common.getWinPath( PATCHFOLDER.folderPath );
-			shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + WINPATHDIR + " . | ( cd /D " + WINPATHPATCH + " & tar x --exclude pax_global_header)" );
+			shell.customCheckStatus( action , "git -C " + OSPATH + " archive " + WINPATHDIR + " . | ( cd /D " + WINPATHPATCH + " & tar x --exclude pax_global_header)" );
 		}
 		else {
-			shell.customCheckStatus( action , "git -C " + repo.MIRRORPATH + " archive " + ITEMPATH + " . | ( cd " + PATCHFOLDER.folderPath + "; tar x )" );
+			shell.customCheckStatus( action , "git -C " + OSPATH + " archive " + ITEMPATH + " . | ( cd " + PATCHFOLDER.folderPath + "; tar x )" );
 		}
 		
 		if( name.isEmpty() == false && name.equals( baseName ) == false )
@@ -379,71 +312,77 @@ public class GitVCS extends GenericVCS {
 		return( false );
 	}
 
-	@Override public String getInfoMasterPath( String repository , String ITEMPATH ) throws Exception {
-		String CO_PATH = "git:" + repository + ":" + ITEMPATH;
+	@Override public String getInfoMasterPath( ServerMirrorRepository mirror , String ITEMPATH ) throws Exception {
+		String CO_PATH = "git:" + mirror.NAME + ":" + ITEMPATH;
 		return( CO_PATH );
 	}
 	
-	@Override public boolean createMasterFolder( String repository , String ITEMPATH , String commitMessage ) throws Exception {
+	@Override public boolean createMasterFolder( ServerMirrorRepository mirror , String ITEMPATH , String commitMessage ) throws Exception {
 		action.exit( "not implemented" );
 		return( false );
 	}
 	
-	@Override public boolean moveMasterFiles( String repository , String srcFolder , String dstFolder , String itemPath , String commitMessage ) throws Exception {
+	@Override public boolean moveMasterFiles( ServerMirrorRepository mirror , String srcFolder , String dstFolder , String itemPath , String commitMessage ) throws Exception {
 		action.exit( "not implemented" );
 		return( false );
 	}
 	
-	@Override public String[] listMasterItems( String repository , String masterFolder ) throws Exception {
-		GitProjectRepo repo = getRepo( repository );
-		repo.refreshMirror();
+	@Override public String[] listMasterItems( ServerMirrorRepository mirror , String masterFolder ) throws Exception {
+		GitMirrorStorage storage = getMasterMirrorStorage( mirror , null );
+		storage.refreshMirror();
 		
 		String s;
+		String OSPATH = storage.getMirrorOSPath();
 		if( shell.isWindows() ) {
-			String WINPATH = Common.getWinPath( repo.MIRRORPATH );
-			s = shell.customGetValue( action , "git -C " + WINPATH + " ls-tree master --name-only" );
+			s = shell.customGetValue( action , "git -C " + OSPATH + " ls-tree master --name-only" );
 			s = Common.replace( s , "\\n" , " \"" );
 		}
 		else {
-			s = shell.customGetValue( action , "git -C " + repo.MIRRORPATH + " ls-tree master --name-only | tr \"\\n\" \" \"" );
+			s = shell.customGetValue( action , "git -C " + OSPATH + " ls-tree master --name-only | tr \"\\n\" \" \"" );
 		}
 		return( Common.splitSpaced( s ) );
 	}
 
-	@Override public void deleteMasterFolder( String repository , String masterFolder , String commitMessage ) throws Exception {
-		GitProjectRepo repo = getRepo( repository );
-		repo.refreshMirror();
+	@Override public void deleteMasterFolder( ServerMirrorRepository mirror , String masterFolder , String commitMessage ) throws Exception {
+		GitMirrorStorage storage = getMasterMirrorStorage( mirror , null );
+		storage.refreshMirror();
 		action.exitNotImplemented();
 	}
 
-	@Override public void checkoutMasterFolder( LocalFolder PATCHPATH , String repository , String masterFolder ) throws Exception {
+	@Override public void checkoutMasterFolder( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder ) throws Exception {
+		GitMirrorStorage storage = getMasterMirrorStorage( mirror , PATCHPATH );
+		storage.refreshMirror();
 		action.exitNotImplemented();
 	}
 	
-	@Override public void importMasterFolder( LocalFolder PATCHPATH , String repository , String masterFolder , String commitMessage ) throws Exception {
+	@Override public void importMasterFolder( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder , String commitMessage ) throws Exception {
+		GitMirrorStorage storage = getMasterMirrorStorage( mirror , PATCHPATH );
+		storage.refreshMirror();
 		action.exitNotImplemented();
 	}
 	
-	@Override public void ensureMasterFolderExists( String repository , String masterFolder , String commitMessage ) throws Exception {
+	@Override public void ensureMasterFolderExists( ServerMirrorRepository mirror , String masterFolder , String commitMessage ) throws Exception {
+		GitMirrorStorage storage = getMasterMirrorStorage( mirror , null );
+		storage.refreshMirror();
 		action.exitNotImplemented();
 	}
 	
-	@Override public boolean commitMasterFolder( LocalFolder PATCHPATH , String repository , String masterFolder , String commitMessage ) throws Exception {
+	@Override public boolean commitMasterFolder( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder , String commitMessage ) throws Exception {
 		String folder = PATCHPATH.getFilePath( action , masterFolder );
 		int status = shell.customGetStatus( action , folder , "git commit -m " + Common.getQuoted( commitMessage ) );
 		if( status != 0 )
 			return( false );
 		
-		GitMirrorStorage storage = getStorage( repository , false , false );
+		GitMirrorStorage storage = getMasterMirrorStorage( mirror , PATCHPATH );
 		LocalFolder storageFolder = storage.getStorageFolder( action );
 		if( !PATCHPATH.equals( storageFolder ) )
-			pushOrigin( PATCHPATH.folderPath );
+			storage.pushOrigin( PATCHPATH.folderPath );
 		
-		pushOrigin( storageFolder.folderPath );
+		storage.pushOrigin( storageFolder.folderPath );
 		return( true );
 	}
 	
-	@Override public void addFileToCommit( LocalFolder PATCHPATH , String folder , String file ) throws Exception {
+	@Override public void addFileToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder , String file ) throws Exception {
 		String path = PATCHPATH.getFilePath( action , folder );
 		String filePath = file;
 		if( PATCHPATH.windows )
@@ -451,65 +390,78 @@ public class GitVCS extends GenericVCS {
 		shell.customCheckStatus( action , path , "git add " + filePath );
 	}
 	
-	@Override public void deleteFileToCommit( LocalFolder PATCHPATH , String folder , String file ) throws Exception {
+	@Override public void deleteFileToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder , String file ) throws Exception {
 		action.exitNotImplemented();
 	}
 	
-	@Override public void addDirToCommit( LocalFolder PATCHPATH , String folder ) throws Exception {
+	@Override public void addDirToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception {
 		action.exitNotImplemented();
 	}
 	
-	@Override public void deleteDirToCommit( LocalFolder PATCHPATH , String folder ) throws Exception {
+	@Override public void deleteDirToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception {
 		action.exitNotImplemented();
 	}
 
-	@Override public void createMasterTag( String repository , String masterFolder , String TAG , String commitMessage ) throws Exception {
+	@Override public void createMasterTag( ServerMirrorRepository mirror , String masterFolder , String TAG , String commitMessage ) throws Exception {
 		TAG = getTagName( TAG );
 		action.exitNotImplemented();
 	}
 
-	public void cloneRemoteToLocal( String remotePath , String repository , Folder projectFolder , boolean bare ) throws Exception {
-		String url = res.BASEURL;
-		
-		String urlAuth = url;
-		String user = "";
-		if( !res.ac.isAnonymous() ) {
-			user = res.ac.getUser( action );
-			String userEncoded = URLEncoder.encode( user , "UTF-8" );
-			String password = URLEncoder.encode( res.ac.getPassword( action ) , "UTF-8" );
-			urlAuth = Common.getPartBeforeFirst( url , "//" ) + "//" + userEncoded + ":" + password + "@" + Common.getPartAfterFirst( url , "//" );
-		}
-		
-		projectFolder.ensureExists( action );
-		
-		String cmd = "git clone " + urlAuth + "/" + remotePath;
-		if( bare )
-			cmd += " --mirror";
-		cmd += " " + projectFolder.getOSPath();
-		
-		int status = shell.customGetStatus( action , cmd );
-		if( status != 0 )
-			action.exit( "unable to clone repository " + url + " to " + projectFolder.getOSPath() );
+	@Override
+	public void createRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception {
+		GitMirrorStorage storage = getMasterMirrorStorage( mirror , null );
+		storage.createLocalMirror();
+		if( storage.isEmpty() )
+			storage.createReadMe();
+	}
 
-		GitMirrorStorage storage = getStorage( repository , bare , false );
-		LocalFolder storageFolder = storage.getStorageFolder( action );
-		String OSPATH = shell.getOSPath( action , storageFolder.folderPath );
-		shell.customCheckStatus( action , "git -C " + OSPATH + " config user.name " + Common.getQuoted( user ) );
-		shell.customCheckStatus( action , "git -C " + OSPATH + " config user.email " + Common.getQuoted( "ignore@mail.com" ) );
+	@Override
+	public void dropRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception {
+		GitMirrorStorage storage = getMasterMirrorStorage( mirror , null );
+		storage.remove( action );
 	}
 	
-	public void pushOrigin( String path ) throws Exception {
-		String OSPATH = shell.getOSPath( action , path );
-		int status = shell.customGetStatus( action , "git -C " + OSPATH + " push origin" );
-		if( status != 0 )
-			action.exit( "unable to push origin, path=" + OSPATH );
+	@Override
+	public void pushRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception {
+		GitMirrorStorage storage = getMasterMirrorStorage( mirror , null );
+		storage.pushMirror();
+	}
+	
+	@Override
+	public void refreshRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception {
+		GitMirrorStorage storage = getMasterMirrorStorage( mirror , null );
+		storage.refreshMirror();
+	}
+	
+	// implementation
+	private GitProjectRepo getRepo( MetaSourceProject project , LocalFolder PATCHFOLDER ) throws Exception {
+		ServerMirrorRepository mirror = action.getMirror( project );
+		GitProjectRepo repo = new GitProjectRepo( this , mirror , project , PATCHFOLDER );
+		repo.create( false );
+		return( repo );
 	}
 
-	public void fetchOrigin( String path ) throws Exception {
-		String OSPATH = shell.getOSPath( action , path );
-		int status = shell.customGetStatus( action , "git -C " + OSPATH + " fetch origin" );
-		if( status != 0 )
-			action.exit( "unable to fetch origin, path=" + OSPATH );
+	private GitMirrorStorage getMasterMirrorStorage( ServerMirrorRepository mirror , LocalFolder PATCHFOLDER ) throws Exception {
+		boolean bare = ( mirror.isServer() )? false : true;
+		GitMirrorStorage storage = new GitMirrorStorage( this , mirror , bare , PATCHFOLDER );
+		storage.create( false );
+		return( storage );
 	}
-
+	
+	private String getBranchName( String BRANCH ) {
+		if( BRANCH.isEmpty() )
+			return( "" );
+		
+		if( BRANCH.equals( MASTERBRANCH ) )
+			return( MASTERBRANCH );
+		return( "branch-" + BRANCH );
+	}
+	
+	private String getTagName( String TAG ) {
+		if( TAG.isEmpty() )
+			return( "" );
+		
+		return( "tag-" + TAG );
+	}
+	
 }

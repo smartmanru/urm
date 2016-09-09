@@ -1,6 +1,7 @@
 package org.urm.server.storage;
 
 import org.urm.common.Common;
+import org.urm.server.ServerMirrorRepository;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.conf.ConfSourceFolder;
 import org.urm.server.dist.Dist;
@@ -46,9 +47,9 @@ public class SourceStorage {
 		if( !FOLDER.isEmpty() )
 			subFolder = subFolder.getSubFolder( action , FOLDER );
 		
-		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
-		if( !vcs.exportRepositoryMasterPath( subFolder , REPOSITORY , ITEMPATH , BASENAME ) )
-			action.exit( "unable to export from REPOSITORY=" + REPOSITORY + ", ITEMPATH=" + ITEMPATH );
+		ServerMirrorRepository mirror = action.getMirror( build );
+		if( !vcs.exportRepositoryMasterPath( mirror , subFolder , ITEMPATH , BASENAME ) )
+			action.exit( "unable to export from mirror=" + mirror.NAME + ", ITEMPATH=" + ITEMPATH );
 	}
 	
 	public boolean downloadReleaseManualFolder( ActionBase action , Dist distStorage , LocalFolder dstFolder ) throws Exception {
@@ -95,7 +96,8 @@ public class SourceStorage {
 		if( downloadConfigItem( action , vcs , PATH , sourceFolder.distrComp , dstFolder ) )
 			return( true );
 		
-		action.ifexit( "unable to find configuration at " + vcs.getInfoMasterPath( build.CONFIG_SOURCE_REPOSITORY , PATH ) );
+		ServerMirrorRepository mirror = action.getMirror( build );
+		action.ifexit( "unable to find configuration at " + vcs.getInfoMasterPath( mirror , PATH ) );
 		
 		action.info( "no configuration in " + PATH + ". Skipped." );
 		return( false );
@@ -106,9 +108,9 @@ public class SourceStorage {
 			return( false );
 	
 		MetaProductBuildSettings build = action.getBuildSettings();
-		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
-		if( !vcs.exportRepositoryMasterPath( dstFolder , REPOSITORY , ITEMPATH , distrComp.KEY ) )
-			action.exit( "unable to export from REPOSITORY=" + REPOSITORY + ", ITEMPATH=" + ITEMPATH );
+		ServerMirrorRepository mirror = action.getMirror( build );
+		if( !vcs.exportRepositoryMasterPath( mirror , dstFolder , ITEMPATH , distrComp.KEY ) )
+			action.exit( "unable to export from mirror=" + mirror.NAME + ", ITEMPATH=" + ITEMPATH );
 		
 		dstFolder.prepareFolderForLinux( action , distrComp.KEY );
 		return( true );
@@ -119,9 +121,9 @@ public class SourceStorage {
 			return( false );
 	
 		MetaProductBuildSettings build = action.getBuildSettings();
-		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
-		if( !vcs.exportRepositoryMasterPath( dstFolder , REPOSITORY , ITEMPATH , DATABASE_FOLDER ) )
-			action.exit( "unable to export from REPOSITORY=" + REPOSITORY + ", ITEMPATH=" + ITEMPATH );
+		ServerMirrorRepository mirror = action.getMirror( build );
+		if( !vcs.exportRepositoryMasterPath( mirror , dstFolder , ITEMPATH , DATABASE_FOLDER ) )
+			action.exit( "unable to export from mirror=" + mirror.NAME + ", ITEMPATH=" + ITEMPATH );
 		
 		if( action.isLocalLinux() )
 			dstFolder.prepareFolderForLinux( action , DATABASE_FOLDER );
@@ -133,9 +135,9 @@ public class SourceStorage {
 			return( false );
 	
 		MetaProductBuildSettings build = action.getBuildSettings();
-		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
-		if( !vcs.exportRepositoryMasterPath( dstManualFolder.getParentFolder( action ) , REPOSITORY , PATH , dstManualFolder.folderName ) )
-			action.exit( "unable to export from REPOSITORY=" + REPOSITORY + ", PATH=" + PATH );
+		ServerMirrorRepository mirror = action.getMirror( build );
+		if( !vcs.exportRepositoryMasterPath( mirror , dstManualFolder.getParentFolder( action ) , PATH , dstManualFolder.folderName ) )
+			action.exit( "unable to export from mirror=" + mirror.NAME + ", PATH=" + PATH );
 		
 		if( dstManualFolder.checkFolderExists( action , DATABASE_FOLDER ) )
 			dstManualFolder.prepareFolderForLinux( action , DATABASE_FOLDER );
@@ -147,16 +149,16 @@ public class SourceStorage {
 		GenericVCS vcs = GenericVCS.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );  
 		String SRCPATH = getReleaseDBSourcePath( action , distStorage , dbDelivery );
 		String ERRORPATH = getReleaseErrorsPath( action , distStorage , dbDelivery , errorFolder );
-		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		
-		vcs.createMasterFolder( REPOSITORY , ERRORPATH , "create error folder" );
-		vcs.moveMasterFiles( REPOSITORY , SRCPATH , ERRORPATH , movePath , message );
+		ServerMirrorRepository mirror = action.getMirror( build );
+		vcs.createMasterFolder( mirror , ERRORPATH , "create error folder" );
+		vcs.moveMasterFiles( mirror , SRCPATH , ERRORPATH , movePath , message );
 	}
 	
 	public boolean isValidPath( ActionBase action , GenericVCS vcs , String PATH ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings();
-		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
-		return( vcs.isValidRepositoryMasterPath( REPOSITORY , PATH ) );
+		ServerMirrorRepository mirror = action.getMirror( build );
+		return( vcs.isValidRepositoryMasterPath( mirror , PATH ) );
 	}
 	
 	public String getReleaseGroupFolder( ActionBase action ) throws Exception {
@@ -252,61 +254,66 @@ public class SourceStorage {
 	public String[] getLiveConfigItems( ActionBase action , MetaEnvServer server ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings();
 		GenericVCS vcs = GenericVCS.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );
-		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		String PATH = getLiveConfigServerPath( action , server.dc , server.NAME );
-		String[] list = vcs.listMasterItems( REPOSITORY , PATH );
+		
+		ServerMirrorRepository mirror = action.getMirror( build );
+		String[] list = vcs.listMasterItems( mirror , PATH );
 		return( list );
 	}
 
 	public String[] getLiveConfigServers( ActionBase action , MetaEnvDC dc ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings();
 		GenericVCS vcs = GenericVCS.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );
-		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		String PATH = getLiveConfigDCPath( action , dc );
-		String[] list = vcs.listMasterItems( REPOSITORY , PATH );
+		
+		ServerMirrorRepository mirror = action.getMirror( build );
+		String[] list = vcs.listMasterItems( mirror , PATH );
 		return( list );
 	}
 
 	public void deleteLiveConfigItem( ActionBase action , MetaEnvServer server , String item , String commitMessage ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings();
 		GenericVCS vcs = GenericVCS.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );
-		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		String PATH = getLiveConfigServerPath( action , server.dc , server.NAME );
 		PATH = Common.getPath( PATH , item );
-		vcs.deleteMasterFolder( REPOSITORY , PATH , commitMessage );
+		
+		ServerMirrorRepository mirror = action.getMirror( build );
+		vcs.deleteMasterFolder( mirror , PATH , commitMessage );
 	}
 
 	public void deleteLiveConfigServer( ActionBase action , MetaEnvDC dc , String server , String commitMessage ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings();
 		GenericVCS vcs = GenericVCS.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );
-		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		String PATH = getLiveConfigServerPath( action , dc , server );
-		vcs.deleteMasterFolder( REPOSITORY , PATH , commitMessage );
+		
+		ServerMirrorRepository mirror = action.getMirror( build );
+		vcs.deleteMasterFolder( mirror , PATH , commitMessage );
 	}
 
 	public void tagLiveConfigs( ActionBase action , String TAG , String commitMessage ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings();
 		GenericVCS vcs = GenericVCS.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );
-		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		String PATH = getLiveConfigPath( action );
 		String setTAG = meta.product.CONFIG_PRODUCT + "-" + action.context.env.ID + "-" + TAG;
-		vcs.createMasterTag( REPOSITORY , PATH , setTAG , commitMessage );
+		
+		ServerMirrorRepository mirror = action.getMirror( build );
+		vcs.createMasterTag( mirror , PATH , setTAG , commitMessage );
 	}
 
 	public void exportLiveConfigItem( ActionBase action , MetaEnvServer server , String confName , String TAG , LocalFolder folder ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings();
 		GenericVCS vcs = GenericVCS.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );
-		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		
 		String SERVERPATH = getLiveConfigServerPath( action , server.dc , server.NAME );
 		String PATH = Common.getPath( SERVERPATH , confName );
+		ServerMirrorRepository mirror = action.getMirror( build );
 		if( TAG.isEmpty() ) {
-			if( !vcs.exportRepositoryMasterPath( folder , REPOSITORY , PATH , confName ) )
+			if( !vcs.exportRepositoryMasterPath( mirror , folder , PATH , confName ) )
 				action.exit( "exportLiveConfigItem: unable to export " + confName + " from " + PATH );
 		}
 		else {
 			String useTAG = meta.product.CONFIG_PRODUCT + "-" + action.context.env.ID + "-" + TAG;
-			if( !vcs.exportRepositoryTagPath( folder , REPOSITORY , useTAG , PATH , confName ) )
+			if( !vcs.exportRepositoryTagPath( mirror , folder , useTAG , PATH , confName ) )
 				action.exit( "exportLiveConfigItem: unable to export " + confName + " from " + PATH + ", TAG=" + useTAG );
 		}
 		
@@ -317,17 +324,17 @@ public class SourceStorage {
 	public void exportTemplateConfigItem( ActionBase action , MetaEnvDC dc , String confName , String TAG , LocalFolder folder ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings();
 		GenericVCS vcs = GenericVCS.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );
-		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		
 		String CONFPATH = build.CONFIG_SOURCE_CFG_ROOTDIR;
 		String PATH = Common.getPath( CONFPATH , confName );
+		ServerMirrorRepository mirror = action.getMirror( build );
 		if( TAG.isEmpty() ) {
-			if( !vcs.exportRepositoryMasterPath( folder , REPOSITORY , PATH , confName ) )
+			if( !vcs.exportRepositoryMasterPath( mirror , folder , PATH , confName ) )
 				action.exit( "exportTemplateConfigItem: unable to export " + confName + " from " + PATH );
 		}
 		else {
 			String useTAG = meta.product.CONFIG_PRODUCT + "-" + action.context.env.ID + "-" + dc.NAME + "-" + TAG;
-			if( !vcs.exportRepositoryTagPath( folder , REPOSITORY , useTAG , PATH , confName ) )
+			if( !vcs.exportRepositoryTagPath( mirror , folder , useTAG , PATH , confName ) )
 				action.exit( "exportTemplateConfigItem: unable to export " + confName + " from " + PATH + ", TAG=" + useTAG );
 		}
 		
@@ -338,14 +345,14 @@ public class SourceStorage {
 	public void saveLiveConfigItem( ActionBase action , MetaEnvServer server , MetaEnvServerNode node , String item , LocalFolder folder , String commitMessage ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings();
 		GenericVCS vcs = GenericVCS.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );
-		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		String SERVERPATH = getLiveConfigServerPath( action , server.dc , server.NAME );
 		String PATH = Common.getPath( SERVERPATH , item );
 		
-		if( !vcs.isValidRepositoryMasterPath( REPOSITORY , PATH ) ) {
-			if( !vcs.isValidRepositoryMasterPath( REPOSITORY , SERVERPATH ) )
-				vcs.ensureMasterFolderExists( REPOSITORY , SERVERPATH , commitMessage );
-			vcs.importMasterFolder( folder , REPOSITORY , PATH , commitMessage );
+		ServerMirrorRepository mirror = action.getMirror( build );
+		if( !vcs.isValidRepositoryMasterPath( mirror , PATH ) ) {
+			if( !vcs.isValidRepositoryMasterPath( mirror , SERVERPATH ) )
+				vcs.ensureMasterFolderExists( mirror , SERVERPATH , commitMessage );
+			vcs.importMasterFolder( mirror , folder , PATH , commitMessage );
 			action.info( node.HOSTLOGIN + ": live created at " + PATH );
 			return;
 		}
@@ -354,7 +361,7 @@ public class SourceStorage {
 		LocalFolder coFolder = artefactory.getWorkFolder( action , "config.vcs" );
 		coFolder.removeThis( action );
 		
-		vcs.checkoutMasterFolder( coFolder , REPOSITORY , PATH );
+		vcs.checkoutMasterFolder( mirror , coFolder , PATH );
 		coFolder.prepareFolderForLinux( action , "" );
 
 		FileSet tobeFiles = folder.getFileSet( action );
@@ -362,34 +369,34 @@ public class SourceStorage {
 		
 		// copy tobe files over co files and prepare for changes
 		coFolder.copyDirContent( action , folder );
-		saveLiveConfigItemCopyFolder( action , vcs , tobeFiles , coFiles , folder , coFolder );
+		saveLiveConfigItemCopyFolder( action , vcs , mirror , tobeFiles , coFiles , folder , coFolder );
 
-		if( vcs.commitMasterFolder( coFolder , REPOSITORY , PATH , commitMessage ) )
+		if( vcs.commitMasterFolder( mirror , coFolder , PATH , commitMessage ) )
 			action.info( node.HOSTLOGIN + ": live updated at " + PATH );
 		else
 			action.debug( node.HOSTLOGIN + ": live not changed at " + PATH );
 	}
 
-	private void saveLiveConfigItemCopyFolder( ActionBase action , GenericVCS vcs , FileSet tobeFiles , FileSet coFiles , LocalFolder folder , LocalFolder coFolder ) throws Exception {
+	private void saveLiveConfigItemCopyFolder( ActionBase action , GenericVCS vcs , ServerMirrorRepository mirror , FileSet tobeFiles , FileSet coFiles , LocalFolder folder , LocalFolder coFolder ) throws Exception {
 		// add new files
 		for( String file : tobeFiles.files.keySet() ) {
 			if( !coFiles.files.containsKey( file ) )
-				vcs.addFileToCommit( coFolder , coFiles.dirPath , file );
+				vcs.addFileToCommit( mirror , coFolder , coFiles.dirPath , file );
 		}
 		
 		// delete old files
 		for( String file : coFiles.files.keySet() ) {
 			if( !tobeFiles.files.containsKey( file ) )
-				vcs.deleteFileToCommit( coFolder , coFiles.dirPath , file );
+				vcs.deleteFileToCommit( mirror , coFolder , coFiles.dirPath , file );
 		}
 		
 		// add new dirs and check subfolders
 		for( FileSet tobeDir : tobeFiles.dirs.values() ) {
 			FileSet coDir = coFiles.dirs.get( tobeDir.dirName );
 			if( coDir == null )
-				vcs.addDirToCommit( coFolder , Common.getPath( coFiles.dirPath , tobeDir.dirName ) );
+				vcs.addDirToCommit( mirror , coFolder , Common.getPath( coFiles.dirPath , tobeDir.dirName ) );
 			else
-				saveLiveConfigItemCopyFolder( action , vcs , tobeDir , coDir , folder , coFolder );
+				saveLiveConfigItemCopyFolder( action , vcs , mirror , tobeDir , coDir , folder , coFolder );
 		}
 		
 		// delete old dirs
@@ -397,7 +404,7 @@ public class SourceStorage {
 			if( coDir.equals( ".svn" ) || coDir.equals( ".git" ) )
 				continue;
 			if( !tobeFiles.dirs.containsKey( coDir ) )
-				vcs.deleteDirToCommit( coFolder , Common.getPath( coFiles.dirPath , coDir ) );
+				vcs.deleteDirToCommit( mirror , coFolder , Common.getPath( coFiles.dirPath , coDir ) );
 		}
 	}
 
@@ -435,11 +442,11 @@ public class SourceStorage {
 	public void exportPostRefresh( ActionBase action , String name , LocalFolder folder ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings();
 		GenericVCS vcs = GenericVCS.getVCS( action , build.CONFIG_SOURCE_RESOURCE , false );
-		String REPOSITORY = build.CONFIG_SOURCE_REPOSITORY;
 		
 		String CONFPATH = build.CONFIG_SOURCE_SQL_POSTREFRESH;
 		String PATH = Common.getPath( CONFPATH , name );
-		if( !vcs.exportRepositoryMasterPath( folder , REPOSITORY , PATH , name ) )
+		ServerMirrorRepository mirror = action.getMirror( build );
+		if( !vcs.exportRepositoryMasterPath( mirror , folder , PATH , name ) )
 			action.exit( "exportTemplateConfigItem: unable to export " + name + " from " + PATH );
 		
 		// remove windows newlines and add permissions to shell files

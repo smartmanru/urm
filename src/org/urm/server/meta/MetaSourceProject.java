@@ -14,7 +14,7 @@ import org.w3c.dom.Node;
 
 public class MetaSourceProject {
 
-	protected Meta meta;
+	public Meta meta;
 	public MetaSourceProjectSet set;
 	public VarCATEGORY CATEGORY;
 	

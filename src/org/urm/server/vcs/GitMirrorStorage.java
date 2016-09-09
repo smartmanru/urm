@@ -1,51 +1,47 @@
 package org.urm.server.vcs;
 
+import java.net.URLEncoder;
 import java.util.List;
 
-import org.urm.server.ServerSettings;
-import org.urm.server.action.ActionBase;
-import org.urm.server.shell.Account;
+import org.urm.common.Common;
+import org.urm.server.ServerAuthResource;
+import org.urm.server.ServerMirrorRepository;
+import org.urm.server.storage.Folder;
 import org.urm.server.storage.LocalFolder;
 
-public class GitMirrorStorage {
+public class GitMirrorStorage extends MirrorStorage {
 
+	boolean bare;
 	GitVCS vcs;
-	String REPOFOLDER;
 	
-	public Account account;
-	public LocalFolder mirrorFolder;
-	public boolean windows;
+	String REPONAME;
+	String REPOROOT;
+	LocalFolder commitFolder;
 	
-	public GitMirrorStorage( GitVCS vcs , String REPOFOLDER , boolean bare ) {
+	public GitMirrorStorage( GitVCS vcs , ServerMirrorRepository mirror , boolean bare , LocalFolder commitFolder ) {
+		super( vcs , mirror );
 		this.vcs = vcs;
-		this.REPOFOLDER = REPOFOLDER; 
+		this.bare = bare;
+		this.commitFolder = commitFolder;
 	}
 	
-	private void create( Account account , LocalFolder mirrorFolder ) {
-		this.account = account;
-		this.mirrorFolder = mirrorFolder;
+	public void createLocalMirror() throws Exception {
+		super.create( true );
+		REPONAME = mirror.RESOURCE_REPO;
+		REPOROOT = mirror.RESOURCE_ROOT;
+		
+		String repoPath = REPONAME;
+		if( REPOROOT != null && !REPOROOT.isEmpty() )
+			repoPath = REPOROOT + "/" + repoPath;
+		
+		cloneRemoteToLocal( repoPath );
 	}
 
-	public void createLocalMirror( ActionBase action , String REPOSITORY , String reponame , String reporoot , boolean bare ) throws Exception {
-		LocalFolder mirrorFolder = getBaseFolder( action );
-		if( !mirrorFolder.checkExists( action ) )
-			action.exit( "mirror path " + mirrorFolder.folderPath + " does not exist" );
-		
-		LocalFolder projectFolder = mirrorFolder.getSubFolder( action , REPOFOLDER );
-		if( projectFolder.checkExists( action ) )
-			action.exit( "mirror path " + projectFolder.folderPath + " already exists" );
+	public String getCommitOSPath() throws Exception {
+		return( shell.getOSPath( action , commitFolder.folderPath ) );
+	}
 	
-		projectFolder.getParentFolder( action ).ensureExists( action );
-		create( account , projectFolder );
-		
-		String repoPath = reponame;
-		if( reporoot != null && !reporoot.isEmpty() )
-			repoPath = reporoot + "/" + repoPath;
-		
-		vcs.cloneRemoteToLocal( repoPath , REPOSITORY , projectFolder , bare );
-	}
-
-	public boolean isEmpty( ActionBase action ) throws Exception {
+	public boolean isEmpty() throws Exception {
 		List<String> dirs = mirrorFolder.getTopDirs( action );
 		List<String> files = mirrorFolder.getTopFiles( action );
 		
@@ -57,56 +53,149 @@ public class GitMirrorStorage {
 		return( false );
 	}
 	
-	public void createReadMe( ActionBase action , String REPOSITORY ) throws Exception {
+	public void createReadMe() throws Exception {
 		if( mirrorFolder.checkFileExists( action , "README.md" ) )
 			return;
 				
 		mirrorFolder.createFileFromString( action , "README.md" , "# URM REPOSITORY" );
-		vcs.addFileToCommit( mirrorFolder , "" , "README.md" );
-		if( !vcs.commitMasterFolder( mirrorFolder , REPOSITORY , "" , "first commit" ) )
+		vcs.addFileToCommit( mirror , mirrorFolder , "" , "README.md" );
+		if( !vcs.commitMasterFolder( mirror , mirrorFolder , "" , "first commit" ) )
 			action.exit( "unable to commit" );
 	}
 	
-	public void create( ActionBase action , boolean newStorage ) throws Exception {
-		LocalFolder storageFolder = getStorageFolder( action );
-		
-		if( newStorage ) {
-			if( storageFolder.checkExists( action ) )
-				action.exit( "mirror path " + storageFolder.folderPath + " already exists" );
-		}
-		else {
-			if( !storageFolder.checkExists( action ) )
-				action.exit( "mirror path " + storageFolder.folderPath + " should be already created" );
-		}
-	
-		create( account , storageFolder );
-	}
-	
-	public LocalFolder getStorageFolder( ActionBase action ) throws Exception {
-		LocalFolder baseFolder = getBaseFolder( action );
-		LocalFolder storageFolder = baseFolder.getSubFolder( action , REPOFOLDER );
-		return( storageFolder );
-	}
-	
-	private LocalFolder getBaseFolder( ActionBase action ) throws Exception {
-		String mirrorPath; 
-		if( action.meta.product == null ) {
-			ServerSettings settings = action.engine.getSettings();
-			mirrorPath = settings.serverContext.WORK_MIRRORPATH;
-		}
-		else
-			mirrorPath = action.meta.product.CONFIG_MIRRORPATH;
-		
-		if( mirrorPath.isEmpty() )
-			action.exit( "missing configuraion parameter: mirror path" );
-		
-		return( action.getLocalFolder( mirrorPath ) );
+	public void refreshMirror() throws Exception {
+		fetchOrigin( mirrorFolder.folderPath );
 	}
 
-	public void remove( ActionBase action ) throws Exception {
-		LocalFolder storageFolder = getStorageFolder( action );
-		if( storageFolder.checkExists( action ) )
-			storageFolder.removeThis( action );
+	public void addModified() throws Exception {
+		if( shell.isWindows() )
+			action.exitNotImplemented();
+			
+		shell.customCheckErrorsDebug( action , commitFolder.folderPath , 
+			"F_LIST=`git diff --name-only`; " +
+			"if [ " + Common.getQuoted( "$F_LIST" ) + " != " + Common.getQuoted( "" ) + " ]; then git add $F_LIST; fi; " +
+			"git commit -m " + Common.getQuoted( action.meta.product.CONFIG_ADM_TRACKER + "-0000: set version" ) + "; " +
+			"git push origin 2>&1; if [ $? != 0 ]; then echo error on push origin >&2; fi" );
+	}
+
+	public void pushMirror() throws Exception {
+		pushOrigin( mirrorFolder.folderPath );
+	}
+
+	public void cloneRemoteToLocal( String remotePath ) throws Exception {
+		ServerAuthResource res = vcs.res;
+		String url = res.BASEURL;
+		
+		String urlAuth = url;
+		String user = "";
+		if( !res.ac.isAnonymous() ) {
+			user = res.ac.getUser( action );
+			String userEncoded = URLEncoder.encode( user , "UTF-8" );
+			String password = URLEncoder.encode( res.ac.getPassword( action ) , "UTF-8" );
+			urlAuth = Common.getPartBeforeFirst( url , "//" ) + "//" + userEncoded + ":" + password + "@" + Common.getPartAfterFirst( url , "//" );
+		}
+		
+		mirrorFolder.ensureExists( action );
+		
+		String OSPATH = getMirrorOSPath();
+		String cmd = "git clone " + urlAuth + "/" + remotePath;
+		if( bare )
+			cmd += " --mirror";
+		cmd += " " + OSPATH;
+		
+		int status = shell.customGetStatus( action , cmd );
+		if( status != 0 )
+			action.exit( "unable to clone repository " + url + " to " + OSPATH );
+
+		shell.customCheckStatus( action , "git -C " + OSPATH + " config user.name " + Common.getQuoted( user ) );
+		shell.customCheckStatus( action , "git -C " + OSPATH + " config user.email " + Common.getQuoted( "ignore@mail.com" ) );
 	}
 	
+	public boolean exportFromPath( String BRANCHTAG , String SUBPATH , String FILENAME ) throws Exception {
+		Folder BASEDIR = commitFolder.getParentFolder( action );
+		String BASENAME = commitFolder.getBaseName( action );
+		
+		if( FILENAME.isEmpty() ) {
+			if( !BASEDIR.checkExists( action ) )
+				action.exit( "exportFromPath: local directory " + BASEDIR + " does not exist" );
+			if( commitFolder.checkExists( action ) )
+				action.exit( "exportFromPath: local directory " + commitFolder.folderPath + " should not exist" );
+			
+			// export file or subdir
+			commitFolder.ensureExists( action );
+			if( SUBPATH.isEmpty() ) {
+				if( shell.isWindows() ) {
+					String WINPATH = getMirrorOSPath();
+					String WINPATHPROJECT = getCommitOSPath();
+					shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + BRANCHTAG + " " + 
+							" . | ( cd /D " + WINPATHPROJECT + " & tar x --exclude pax_global_header)" );
+				}
+				else {
+					shell.customCheckStatus( action , "git -C " + getMirrorOSPath() + " archive " + BRANCHTAG + " " + 
+						" . | ( cd " + getCommitOSPath() + "; tar x )" );
+				}
+			}
+			else {
+				int COMPS = Common.getDirCount( SUBPATH ) + 1;
+				String STRIPOPTION = "--strip-components=" + COMPS;
+				
+				if( shell.isWindows() ) {
+					String WINPATH = getMirrorOSPath();
+					String WINPATHPROJECT = getCommitOSPath();
+					String WINPATHSUB = Common.getWinPath( SUBPATH );
+					shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + BRANCHTAG + " " + 
+							WINPATHSUB + " | ( cd /D " + WINPATHPROJECT + " & tar x " + WINPATHSUB + " " + STRIPOPTION + " )" );
+				}
+				else {
+					shell.customCheckStatus( action , "git -C " + getMirrorOSPath() + " archive " + BRANCHTAG + " " + 
+							SUBPATH + " | ( cd " + getCommitOSPath() + "; tar x --exclude pax_global_header " + SUBPATH + " " + STRIPOPTION + " )" );
+				}
+			}
+		}
+		else {
+			if( !commitFolder.checkExists( action ) )
+				action.exit( "exportFromPath: local directory " + commitFolder.folderPath + " does not exist" );
+			
+			// export file or subdir
+			int COMPS = Common.getDirCount( SUBPATH );
+			String STRIPOPTION = "--strip-components=" + COMPS;
+
+			String srcFile = BASEDIR.getFilePath( action , FILENAME );
+			if( ( !FILENAME.equals( BASENAME ) ) && BASEDIR.checkFileExists( action , FILENAME ) )
+				action.exit( "exportFromPath: local file or directory " + srcFile + " already exists" );
+
+			String FILEPATH = Common.getPath( SUBPATH , FILENAME );
+			
+			if( shell.isWindows() ) {
+				String WINPATH = getMirrorOSPath();
+				String WINPATHBASE = Common.getWinPath( BASEDIR.folderPath );
+				String WINPATHFILE = Common.getWinPath( FILEPATH );
+				shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + BRANCHTAG + " " + 
+						WINPATHFILE + " | ( cd /D " + WINPATHBASE + " & tar x --exclude pax_global_header " + WINPATHFILE + " " + STRIPOPTION + " )" );
+			}
+			else {
+				shell.customCheckStatus( action , "git -C " + getMirrorOSPath() + " archive " + BRANCHTAG + " " + 
+						FILEPATH + " | ( cd " + BASEDIR.folderPath + "; tar x " + FILEPATH + " " + STRIPOPTION + " )" );
+			}
+			if( !FILENAME.equals( BASENAME ) )
+				BASEDIR.moveFileToFolder( action , FILENAME , BASENAME );
+		}
+
+		return( true );
+	}
+
+	public void pushOrigin( String path ) throws Exception {
+		String OSPATH = shell.getOSPath( action , path );
+		int status = shell.customGetStatus( action , "git -C " + OSPATH + " push origin" );
+		if( status != 0 )
+			action.exit( "unable to push origin, path=" + OSPATH );
+	}
+
+	public void fetchOrigin( String path ) throws Exception {
+		String OSPATH = shell.getOSPath( action , path );
+		int status = shell.customGetStatus( action , "git -C " + OSPATH + " fetch origin" );
+		if( status != 0 )
+			action.exit( "unable to fetch origin, path=" + OSPATH );
+	}
+
 }

@@ -11,6 +11,8 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.ServerAuthResource;
 import org.urm.server.ServerBuilders;
 import org.urm.server.ServerEngine;
+import org.urm.server.ServerMirror;
+import org.urm.server.ServerMirrorRepository;
 import org.urm.server.ServerProjectBuilder;
 import org.urm.server.ServerResources;
 import org.urm.server.SessionContext;
@@ -18,6 +20,7 @@ import org.urm.server.custom.CommandCustom;
 import org.urm.server.meta.MetaEnvServerNode;
 import org.urm.server.meta.Meta;
 import org.urm.server.meta.MetaProductBuildSettings;
+import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.meta.Meta.VarBUILDMODE;
 import org.urm.server.meta.Meta.VarCATEGORY;
 import org.urm.server.meta.Meta.VarNAMETYPE;
@@ -617,6 +620,28 @@ abstract public class ActionBase {
 		ServerBuilders builders = engine.getBuilders();
 		ServerProjectBuilder builder = builders.getBuilder( name );
 		return( builder );
+	}
+
+	public ServerMirrorRepository getMirror( String name ) throws Exception {
+		ServerMirror mirror = engine.getMirror();
+		ServerMirrorRepository repo = mirror.findRepository( name );
+		return( repo );
+	}
+	
+	public ServerMirrorRepository getMirror( MetaSourceProject project ) throws Exception {
+		ServerMirror mirror = engine.getMirror();
+		
+		String name = "project-" + project.meta.storage.name + "-" + project.PROJECT;
+		ServerMirrorRepository repo = mirror.findRepository( name );
+		return( repo );
+	}
+
+	public ServerMirrorRepository getMirror( MetaProductBuildSettings build ) throws Exception {
+		return( null );
+	}
+
+	public ServerMirrorRepository getServerMirror() throws Exception {
+		return( null );
 	}
 	
 }
