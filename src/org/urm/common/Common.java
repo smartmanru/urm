@@ -688,8 +688,12 @@ public class Common {
 		return( s.substring( index1 + delimiter.length() , index2 ) );
 	}
 
-	public static void sleep( Object object , long millis ) throws Exception {
-    	Thread.sleep( millis );
+	public static void sleep( long millis ) {
+		try {
+			Thread.sleep( millis );
+		}
+		catch( InterruptedException e ) {
+		}
 	}
 
 	public static Map<String,String> copyListToMap( List<String> list ) {

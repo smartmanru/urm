@@ -408,6 +408,14 @@ public class GitVCS extends GenericVCS {
 	}
 
 	@Override
+	public boolean checkTargetEmpty( ServerMirrorRepository mirror ) throws Exception {
+		String[] items = listMasterItems( mirror , "/" );
+		if( items.length == 0 || ( items.length == 1 && items[0].equals( "README.md" ) ) )
+			return( true );
+		return( false );
+	}
+
+	@Override
 	public void createRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception {
 		GitMirrorStorage storage = getMasterMirrorStorage( mirror , null );
 		storage.createLocalMirror();
@@ -437,14 +445,14 @@ public class GitVCS extends GenericVCS {
 	private GitProjectRepo getRepo( MetaSourceProject project , LocalFolder PATCHFOLDER ) throws Exception {
 		ServerMirrorRepository mirror = action.getMirror( project );
 		GitProjectRepo repo = new GitProjectRepo( this , mirror , project , PATCHFOLDER );
-		repo.create( false );
+		repo.create( false , true );
 		return( repo );
 	}
 
 	private GitMirrorStorage getMasterMirrorStorage( ServerMirrorRepository mirror , LocalFolder PATCHFOLDER ) throws Exception {
 		boolean bare = ( mirror.isServer() )? false : true;
 		GitMirrorStorage storage = new GitMirrorStorage( this , mirror , bare , PATCHFOLDER );
-		storage.create( false );
+		storage.create( false , false );
 		return( storage );
 	}
 	

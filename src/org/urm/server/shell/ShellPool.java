@@ -31,6 +31,7 @@ public class ShellPool implements Runnable {
 	private Thread thread;
 	private boolean started = false;
 	private boolean stop = false;
+	private boolean stopped = false;
 	
 	private long tsHouseKeepTime = 0;
 	private static long DEFAULT_SHELL_SILENT_MAX = 60000;
@@ -59,7 +60,7 @@ public class ShellPool implements Runnable {
 	public void run() {
 		while( !stop ) {
 			try {
-				Common.sleep( this , SHELL_HOUSEKEEP_TIME );
+				Common.sleep( SHELL_HOUSEKEEP_TIME );
 				runHouseKeeping();
 			}
 			catch( InterruptedException e ) {
@@ -68,11 +69,16 @@ public class ShellPool implements Runnable {
 				engine.serverAction.log( "thread pool house keeping error" , e );
 			}
 		}
+		
+		synchronized( thread ) {
+			stopped = true;
+			thread.notifyAll();
+		}
 	}
 
 	public PoolCounts getPoolInfo() {
 		PoolCounts c = new PoolCounts();
-		synchronized( this ) {
+		synchronized( engine ) {
 			c.poolSize = pool.size(); 
 			c.pendingSize = pending.size();
 			c.activeExecuteLocalCount = 0;
@@ -92,7 +98,7 @@ public class ShellPool implements Runnable {
 	}
 	
 	public int getActiveShells() {
-		synchronized( this ) {
+		synchronized( engine ) {
 			return( pool.size() );
 		}
 	}
@@ -102,7 +108,7 @@ public class ShellPool implements Runnable {
 		
 		// move pending to primary
 		tsHouseKeepTime = System.currentTimeMillis();
-		synchronized( this ) {
+		synchronized( engine ) {
 			for( int k = 0; k < pending.size(); ) {
 				ShellExecutor shell = pending.get( k );
 				if( !pool.containsKey( shell.name ) ) {
@@ -124,7 +130,7 @@ public class ShellPool implements Runnable {
 		}
 		
 		// kill old primary 
-		synchronized( this ) {
+		synchronized( engine ) {
 			for( ShellExecutor shell : pool.values().toArray( new ShellExecutor[0] ) ) {
 				if( checkOldExecutorShell( shell ) ) {
 					engine.serverAction.trace( "kill old pool executor shell name=" + shell.name + " ..." );
@@ -137,7 +143,7 @@ public class ShellPool implements Runnable {
 		}
 		
 		// kill silent action interactive shells 
-		synchronized( this ) {
+		synchronized( engine ) {
 			for( ActionShells map : actionSessions.values() ) {
 				for( ShellInteractive shell : map.getInteractiveList() ) {
 					if( checkOldInteractiveShell( shell ) ) {
@@ -209,9 +215,14 @@ public class ShellPool implements Runnable {
 			if( started ) {
 				stop = true;
 				thread.interrupt();
-				
-				synchronized( thread ) {
-					thread.wait();
+
+				while( true ) {
+					synchronized( thread ) {
+						if( !stopped )
+							thread.wait();
+						if( stopped )
+							break;
+					}
 				}
 			}
 		}
@@ -257,7 +268,7 @@ public class ShellPool implements Runnable {
 
 		// get sync object
 		Object sync = null;
-		synchronized( this ) {
+		synchronized( engine ) {
 			sync = staged.get( name );
 			if( sync == null ) {
 				sync = new Object();
@@ -277,7 +288,7 @@ public class ShellPool implements Runnable {
 			}
 
 			// from free pool
-			synchronized( this ) {
+			synchronized( engine ) {
 				shell = pool.get( name );
 				if( shell != null ) {
 					if( !shell.available )
@@ -305,7 +316,7 @@ public class ShellPool implements Runnable {
 			}
 			
 			// add to action sessions (return to pool after release)
-			synchronized( this ) {
+			synchronized( engine ) {
 				map.addExecutor( shell );
 				engine.serverAction.trace( "assign actionId=" + action.ID + " to new session name=" + name );
 			}
@@ -362,7 +373,7 @@ public class ShellPool implements Runnable {
 			return( startDedicatedLocalShell( action , name ) );
 		
 		ShellExecutor shell = null;
-		synchronized( this ) {
+		synchronized( engine ) {
 			ActionShells map = getActionShells( action );
 			shell = map.getExecutor( name );
 			if( shell != null ) {
@@ -390,7 +401,7 @@ public class ShellPool implements Runnable {
 	
 	private void releaseExecutorShell( ActionBase action , ShellExecutor shell , ActionShells map ) {
 		// put remote sessions to pool or to pending list, kill locals
-		synchronized( this ) {
+		synchronized( engine ) {
 			if( !shell.account.local ) {
 				if( pool.get( shell.name ) == null ) {
 					pool.put( shell.name , shell );
@@ -411,14 +422,14 @@ public class ShellPool implements Runnable {
 
 	private void releaseInteractiveShell( ActionBase action , ShellInteractive shell , ActionShells map ) {
 		// put remote sessions to pool or to pending list, kill locals
-		synchronized( this ) {
+		synchronized( engine ) {
 			killShell( shell );
 			map.removeInteractive( shell.name );
 		}
 	}
 
 	public void removeInteractive( ActionBase action , ShellInteractive shell ) {
-		synchronized( this ) {
+		synchronized( engine ) {
 			ActionShells map = actionSessions.get( action );
 			if( map == null )
 				return;
@@ -451,7 +462,7 @@ public class ShellPool implements Runnable {
 			releaseInteractiveShell( action , shell , map );
 		}
 		
-		synchronized( this ) {
+		synchronized( engine ) {
 			engine.serverAction.trace( "unregister in session pool actionId=" + action.ID );
 			actionSessions.remove( action );
 		}
@@ -462,7 +473,7 @@ public class ShellPool implements Runnable {
 		ShellInteractive shell = ShellInteractive.getShell( action , name , this , account );
 		
 		// add to action map
-		synchronized( this ) {
+		synchronized( engine ) {
 			ActionShells map = getActionShells( action );
 			map.addInteractive( shell );
 		}

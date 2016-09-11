@@ -207,7 +207,7 @@ public class ActionExportDatabase extends ActionBase {
 		shell.customCheckStatus( this , exportScriptsFolder.folderPath , "./run.sh export start " + cmd + " " + Common.getQuoted( SN ) );
 		
 		// check execution is started
-		Common.sleep( this , 1000 );
+		Common.sleep( 1000 );
 		String value = checkStatus( exportScriptsFolder );
 		if( value.equals( "RUNNING" ) == false && value.equals( "FINISHED" ) == false ) {
 			info( "export has not been started (status=" + value + "), save logs ..." );
@@ -223,7 +223,7 @@ public class ActionExportDatabase extends ActionBase {
 		if( value.equals( "RUNNING" ) )
 			info( "wait export to complete ..." );
 		while( value.equals( "RUNNING" ) ) {
-			Common.sleep( this , context.CTX_TIMEOUT );
+			Common.sleep( context.CTX_TIMEOUT );
 			value = checkStatus( exportScriptsFolder );
 		}
 		

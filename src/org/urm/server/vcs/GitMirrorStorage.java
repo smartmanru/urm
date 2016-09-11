@@ -26,7 +26,7 @@ public class GitMirrorStorage extends MirrorStorage {
 	}
 	
 	public void createLocalMirror() throws Exception {
-		super.create( true );
+		super.create( true , true );
 		REPONAME = mirror.RESOURCE_REPO;
 		REPOROOT = mirror.RESOURCE_ROOT;
 		

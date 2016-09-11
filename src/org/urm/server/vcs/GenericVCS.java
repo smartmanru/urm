@@ -60,6 +60,7 @@ public abstract class GenericVCS {
 	public abstract void addDirToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception;
 	public abstract void deleteDirToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception;
 	
+	public abstract boolean checkTargetEmpty( ServerMirrorRepository mirror ) throws Exception;
 	public abstract void createRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception;
 	public abstract void dropRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception;
 	public abstract void pushRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception;
@@ -101,13 +102,6 @@ public abstract class GenericVCS {
 		if( !res.isGit() )
 			action.exit( "unexpected non-git resource=" + resource );
 		return( ( GitVCS )getVCS( action , resource , false ) );
-	}
-
-	public boolean checkTargetEmpty( ServerMirrorRepository mirror ) throws Exception {
-		String[] items = listMasterItems( mirror , "/" );
-		if( items.length == 0 )
-			return( true );
-		return( false );
 	}
 
 }

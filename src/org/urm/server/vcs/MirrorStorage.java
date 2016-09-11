@@ -25,30 +25,29 @@ public class MirrorStorage {
 		action = vcs.action;
 	}
 	
-	protected void create( Account account , LocalFolder mirrorFolder ) {
-		this.account = account;
-		this.mirrorFolder = mirrorFolder;
-	}
-
-	public void create( boolean newStorage ) throws Exception {
+	public void create( boolean newStorage , boolean check ) throws Exception {
 		LocalFolder mirrorFolder = getBaseFolder( action );
 		LocalFolder storageFolder = mirrorFolder.getSubFolder( action , mirror.getFolderName() );
 
 		if( newStorage ) {
-			if( !mirrorFolder.checkExists( action ) )
-				action.exit( "mirror path " + mirrorFolder.folderPath + " does not exist" );
-			
-			if( storageFolder.checkExists( action ) )
-				action.exit( "mirror path " + storageFolder.folderPath + " already exists" );
+			if( check ) {
+				if( !mirrorFolder.checkExists( action ) )
+					action.exit( "mirror path " + mirrorFolder.folderPath + " does not exist" );
+				
+				if( storageFolder.checkExists( action ) )
+					action.exit( "mirror path " + storageFolder.folderPath + " already exists" );
+			}
 		
 			storageFolder.getParentFolder( action ).ensureExists( action );
 		}
 		else {
-			if( !storageFolder.checkExists( action ) )
-				action.exit( "mirror path " + storageFolder.folderPath + " should be already created" );
+			if( check ) {
+				if( !storageFolder.checkExists( action ) )
+					action.exit( "mirror path " + storageFolder.folderPath + " should be already created" );
+			}
 		}
 	
-		create( account , storageFolder );
+		this.mirrorFolder = storageFolder;
 	}
 	
 	public String getMirrorOSPath() throws Exception {

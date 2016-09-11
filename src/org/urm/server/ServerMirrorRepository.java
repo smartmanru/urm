@@ -103,6 +103,7 @@ public class ServerMirrorRepository {
 				publishServer( transaction , resource , reponame , reporoot );
 		}
 		catch( Throwable e ) {
+			transaction.log( "publishRepository" , e );
 			RESOURCE = "";
 			RESOURCE_REPO = "";
 			RESOURCE_ROOT = "";
@@ -119,10 +120,10 @@ public class ServerMirrorRepository {
 		// server: test target, remove mirror work/repo, create mirror work/repo, publish target
 		ActionBase action = transaction.getAction();
 		GenericVCS vcs = GenericVCS.getVCS( action , resource , false );
+		vcs.createRemoteBranchMirror( this );
+		
 		if( !vcs.checkTargetEmpty( this ) )
 			action.exit( "unable to publish to non-empty repository" );
-		
-		vcs.createRemoteBranchMirror( this );
 	}
 	
 	public void dropMirror( ServerTransaction transaction ) throws Exception {

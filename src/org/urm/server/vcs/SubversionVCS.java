@@ -428,6 +428,14 @@ public class SubversionVCS extends GenericVCS {
 	}
 
 	@Override
+	public boolean checkTargetEmpty( ServerMirrorRepository mirror ) throws Exception {
+		String[] items = listMasterItems( mirror , "/" );
+		if( items.length == 0 )
+			return( true );
+		return( false );
+	}
+
+	@Override
 	public void createRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception {
 		if( !isValidRepositoryMasterPath( mirror , "/" ) )
 			action.exit( "unable to check master repository path" );
@@ -456,7 +464,7 @@ public class SubversionVCS extends GenericVCS {
 	// implementation
 	private MirrorStorage getStorage( ServerMirrorRepository mirror ) throws Exception {
 		MirrorStorage storage = new MirrorStorage( this , mirror );
-		storage.create( false );
+		storage.create( false , false );
 		return( storage );
 	}
 	

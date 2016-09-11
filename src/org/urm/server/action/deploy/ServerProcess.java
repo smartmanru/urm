@@ -532,7 +532,7 @@ public class ServerProcess {
 				
 		gatherStatus( action );
 		while( mode != VarPROCESSMODE.STARTED ) {
-			Common.sleep( action , 1000 );
+			Common.sleep( 1000 );
 		    
 			if( System.currentTimeMillis() > stopMillis ) {
 				action.error( node.HOSTLOGIN + ": failed to start service=" + srv.SERVICENAME + " within " + starttime + " seconds" );
@@ -569,7 +569,7 @@ public class ServerProcess {
 				
 		gatherStatus( action );
 		while( mode != VarPROCESSMODE.STARTED ) {
-			Common.sleep( action , 1000 );
+			Common.sleep( 1000 );
 		    
 			if( System.currentTimeMillis() > stopMillis ) {
 				action.error( node.HOSTLOGIN + ": failed to start generic server=" + srv.NAME + " within " + starttime + " seconds" );
