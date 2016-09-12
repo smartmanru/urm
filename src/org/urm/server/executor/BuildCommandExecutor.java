@@ -26,8 +26,8 @@ public class BuildCommandExecutor extends CommandExecutor {
 		super.defineAction( new Custom() , "custom" );
 		super.defineAction( new GetAll() , "getall" );
 		super.defineAction( new GetAllRelease() , "getall-release" );
-		super.defineAction( new Codebase—heckout() , "codebase-checkout" );
-		super.defineAction( new Codebase—ommit() , "codebase-commit" );
+		super.defineAction( new CodebaseCheckout() , "codebase-checkout" );
+		super.defineAction( new CodebaseCommit() , "codebase-commit" );
 		super.defineAction( new CodebaseCopyBranches() , "codebase-copybranches" );
 		super.defineAction( new CodebaseCopyBranchToTag() , "codebase-copybranchtotag" );
 		super.defineAction( new CodebaseCopyNewTags() , "codebase-copynewtags" );
@@ -175,7 +175,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class Codebase—heckout extends CommandAction {
+	private class CodebaseCheckout extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String CODIRNAME = getCODIR( action , 0 );
 		LocalFolder CODIR = action.artefactory.getAnyFolder( action , CODIRNAME );
@@ -184,7 +184,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 	}
 	}
 	
-	private class Codebase—ommit extends CommandAction {
+	private class CodebaseCommit extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String CODIRNAME = getCODIR( action , 0 );
 		String MESSAGE = getRequiredArg( action , 1 , "MESSAGE" );
