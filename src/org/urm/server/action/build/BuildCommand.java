@@ -135,12 +135,12 @@ public class BuildCommand {
 		ca.runEachBuildableProject( scope );
 	}
 	
-	public void ñopyBranches( ActionBase action , ActionScope scope , String BRANCH1 , String BRANCH2 ) throws Exception {
+	public void copyBranches( ActionBase action , ActionScope scope , String BRANCH1 , String BRANCH2 ) throws Exception {
 		ActionCopyCodebase ca = new ActionCopyCodebase( action , null , true , BRANCH1 , true , BRANCH2 , false );
 		ca.runEachBuildableProject( scope );
 	}
 	
-	public void ñopyBranchToTag( ActionBase action , ActionScope scope , String BRANCH , String TAG ) throws Exception {
+	public void copyBranchToag( ActionBase action , ActionScope scope , String BRANCH , String TAG ) throws Exception {
 		ActionCopyCodebase ca = new ActionCopyCodebase( action , null , true , BRANCH , false , TAG , true );
 		ca.runEachBuildableProject( scope );
 	}

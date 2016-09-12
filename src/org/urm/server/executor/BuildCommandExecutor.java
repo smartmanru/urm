@@ -199,7 +199,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		String BRANCH1 = getRequiredArg( action , 0 , "BRANCH1" );
 		String BRANCH2 = getRequiredArg( action , 1 , "BRANCH2" );
 		ActionScope scope = getCodebaseScope( action , 2 ); 
-		impl.ñopyBranches( action , scope , BRANCH1 , BRANCH2 );
+		impl.copyBranches( action , scope , BRANCH1 , BRANCH2 );
 	}
 	}
 	
@@ -208,7 +208,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		String BRANCH = getRequiredArg( action , 0 , "BRANCH" );
 		String TAG = getRequiredArg( action , 1 , "TAG" );
 		ActionScope scope = getCodebaseScope( action , 2 ); 
-		impl.ñopyBranchToTag( action , scope , BRANCH , TAG );
+		impl.copyBranchToag( action , scope , BRANCH , TAG );
 	}
 	}
 	
