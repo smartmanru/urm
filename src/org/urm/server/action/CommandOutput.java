@@ -186,8 +186,8 @@ public class CommandOutput {
 		}
 	}
 	
-	public synchronized void exit( CommandContext context , String s ) throws Exception {
-		throw new ExitException( s );
+	public synchronized void exit( int errorCode , CommandContext context , String s , String[] params ) throws Exception {
+		throw new ExitException( errorCode , s , params );
 	}
 	
 	public String getTimeStampedName( String basename , String ext ) {

@@ -409,7 +409,7 @@ public class GitVCS extends GenericVCS {
 
 	@Override
 	public boolean checkTargetEmpty( ServerMirrorRepository mirror ) throws Exception {
-		String[] items = listMasterItems( mirror , "/" );
+		String[] items = listMasterItems( mirror , mirror.RESOURCE_DATA );
 		if( items.length == 0 || ( items.length == 1 && items[0].equals( "README.md" ) ) )
 			return( true );
 		return( false );

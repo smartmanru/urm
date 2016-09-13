@@ -21,6 +21,7 @@ public class ServerMirrorRepository {
 	public String RESOURCE;
 	public String RESOURCE_REPO;
 	public String RESOURCE_ROOT;
+	public String RESOURCE_DATA;
 	public String BRANCH;
 	
 	public static String TYPE_SERVER = "server";
@@ -79,6 +80,7 @@ public class ServerMirrorRepository {
 		RESOURCE = properties.getSystemStringProperty( "resource" , "" );
 		RESOURCE_REPO = properties.getSystemStringProperty( "repository" , "" );
 		RESOURCE_ROOT = properties.getSystemStringProperty( "rootpath" , "" );
+		RESOURCE_DATA = properties.getSystemStringProperty( "datapath" , "" );
 		BRANCH = properties.getSystemStringProperty( "branch" , "" );
 	}
 
@@ -89,24 +91,27 @@ public class ServerMirrorRepository {
 		properties.setStringProperty( "resource" , RESOURCE );
 		properties.setStringProperty( "repository" , RESOURCE_REPO );
 		properties.setStringProperty( "rootpath" , RESOURCE_ROOT );
+		properties.setStringProperty( "datapath" , RESOURCE_DATA );
 		properties.setStringProperty( "branch" , BRANCH );
 	}
 
-	public void publishRepository( ServerTransaction transaction , String resource , String reponame , String reporoot , String repobranch ) throws Exception {
+	public void publishRepository( ServerTransaction transaction , String resource , String reponame , String reporoot , String dataroot , String repobranch ) throws Exception {
 		RESOURCE = resource;
 		RESOURCE_REPO = reponame;
-		RESOURCE_ROOT = reporoot;
+		RESOURCE_ROOT = ( reporoot.isEmpty() )? "/" : reporoot;
+		RESOURCE_DATA = ( dataroot.isEmpty() )? "/" : dataroot;
 		BRANCH = "";
 		
 		try {
 			if( isServer() )
-				publishServer( transaction , resource , reponame , reporoot );
+				publishServer( transaction );
 		}
 		catch( Throwable e ) {
 			transaction.log( "publishRepository" , e );
 			RESOURCE = "";
 			RESOURCE_REPO = "";
 			RESOURCE_ROOT = "";
+			RESOURCE_DATA = "";
 			BRANCH = "";
 			transaction.exit( "unable to publish repository" );
 		}
@@ -115,11 +120,11 @@ public class ServerMirrorRepository {
 		mirror.registry.loader.saveMirrors( transaction );
 	}
 	
-	public void publishServer( ServerTransaction transaction , String resource , String reponame , String reporoot ) throws Exception {
+	public void publishServer( ServerTransaction transaction ) throws Exception {
 		// reject already published
 		// server: test target, remove mirror work/repo, create mirror work/repo, publish target
 		ActionBase action = transaction.getAction();
-		GenericVCS vcs = GenericVCS.getVCS( action , resource , false );
+		GenericVCS vcs = GenericVCS.getVCS( action , RESOURCE , false );
 		vcs.createRemoteBranchMirror( this );
 		
 		if( !vcs.checkTargetEmpty( this ) )
@@ -133,6 +138,7 @@ public class ServerMirrorRepository {
 		RESOURCE = "";
 		RESOURCE_REPO = "";
 		RESOURCE_ROOT = "";
+		RESOURCE_DATA = "";
 		BRANCH = "";
 		createProperties();
 		mirror.registry.loader.saveMirrors( transaction );

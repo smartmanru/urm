@@ -8,6 +8,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.common.RunError;
 import org.urm.server.ServerAuthResource;
 import org.urm.server.ServerBuilders;
 import org.urm.server.ServerEngine;
@@ -24,7 +25,6 @@ import org.urm.server.meta.MetaSourceProject;
 import org.urm.server.meta.Meta.VarBUILDMODE;
 import org.urm.server.meta.Meta.VarCATEGORY;
 import org.urm.server.meta.Meta.VarNAMETYPE;
-import org.urm.server.meta.Meta.VarSERVERTYPE;
 import org.urm.server.shell.Account;
 import org.urm.server.shell.ShellExecutor;
 import org.urm.server.storage.Artefactory;
@@ -222,35 +222,32 @@ abstract public class ActionBase {
 		output.debug( context , s );
 	}
 	
-	public void exit( String s ) throws Exception {
-		output.exit( context , s );
+	public void exit( int errorCode , String s , String[] params ) throws Exception {
+		output.exit( errorCode , context , s , params );
 	}
 
-	public void ifexit( String s ) throws Exception {
+	public void ifexit( int errorCode , String s , String[] params ) throws Exception {
 		if( context.CTX_FORCE )
 			error( s + ", ignored" );
 		else
-			output.exit( context , s + ", exiting (use -force to override)" );
+			output.exit( errorCode , context , s + ", exiting (use -force to override)" , params );
 	}
 
-	public void exitAction( String s ) throws Exception {
-		exit( this.getClass().getSimpleName() + ": " + s );
+	public void exitAction( int errorCode , String s , String[] params ) throws Exception {
+		exit( errorCode , this.getClass().getSimpleName() + ": " + s , params );
 	}
 	
 	public void exitNotImplemented() throws Exception {
-		exit( "sorry, code is not implemented yet" );
+		exit( RunError.NotImplemented , "sorry, code is not implemented yet" , null );
 	}
 	
 	public void exitUnexpectedCategory( VarCATEGORY CATEGORY ) throws Exception {
-		exit( "unexpected category=" + Common.getEnumLower( CATEGORY ) );
-	}
-
-	public void exitUnexpectedServerType( VarSERVERTYPE SERVERTYPE ) throws Exception {
-		exit( "unexpected servertype=" + Common.getEnumLower( SERVERTYPE ) );
+		String category = Common.getEnumLower( CATEGORY );
+		exit( RunError.UnexpectedCategory , "unexpected category=" + category , new String[] { category } );
 	}
 
 	public void exitUnexpectedState() throws Exception {
-		exit( "unexpected state" );
+		exit( RunError.InternalError , "unexpected state" , null );
 	}
 	
 	public boolean runSimple() {
@@ -390,17 +387,17 @@ abstract public class ActionBase {
 	
 	public void checkRequired( String value , String var ) throws Exception {
 		if( value == null || value.isEmpty() )
-			exit( var + " is empty" );
+			exit( RunError.RequiredVariable , var + " is empty" , new String[] { var } );
 	}
 	
 	public void checkRequired( boolean value , String var ) throws Exception {
 		if( value == false )
-			exit( var + " is empty" );
+			checkRequired( ( String )null , var );
 	}
 	
 	public void checkRequired( VarBUILDMODE value , String name ) throws Exception {
 		if( value == null || value == VarBUILDMODE.UNKNOWN )
-			exit( name + " is undefined. Exiting" );
+			checkRequired( ( String )null , name );
 	}
 	
 	public void logAction() throws Exception {
