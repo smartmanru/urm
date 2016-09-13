@@ -20,7 +20,7 @@ public class DatabaseScriptFile {
 	public void setDistFile( ActionBase action , String name ) throws Exception {
 		String[] parts = Common.splitDashed( name );
 		if( parts.length < 5 ) 
-			action.exit( "invalid script name=" + name );
+			action.exit1( _Error.InvalidScriptName1 , "invalid script name=" + name , name );
 		
 		PREFIX = parts[0];
 		REGIONALINDEX = parts[1];
@@ -44,7 +44,7 @@ public class DatabaseScriptFile {
 	public void setSrcFile( ActionBase action , String name ) throws Exception {
 		String[] parts = Common.splitDashed( name );
 		if( parts.length < 3 ) 
-			action.exit( "invalid script name=" + name );
+			action.exit1( _Error.InvalidScriptName1 , "invalid script name=" + name , name );
 		
 		SRCINDEX = parts[0];
 		SRCSCHEMA = parts[1];

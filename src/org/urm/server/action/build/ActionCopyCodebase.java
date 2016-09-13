@@ -38,7 +38,7 @@ public class ActionCopyCodebase extends ActionBase {
 		if( branchVAR1 == false && branchVAR2 == false && force == true )
 			vcs.copyTagToTag( scopeProject.sourceProject , VAR1 , VAR2 );
 		else
-			exit( "ActionCopyCodebase: combination is not implemented - branchVAR1=" + branchVAR1 + ", branchVAR2=" + branchVAR2 + ", force=" + force );
+			exitNotImplemented();
 		
 		return( true );
 	}

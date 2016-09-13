@@ -42,7 +42,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		MetaEnvServer server = target.envServer;
 		DatabaseClient client = new DatabaseClient();
 		if( !client.checkConnect( this , server ) )
-			exit( "unable to connect to server=" + server.NAME );
+			exit1( _Error.ConnectFailed1 , "unable to connect to server=" + server.NAME , server.NAME );
 
 		info( "apply changes to database=" + server.NAME + " ..." );
 		
@@ -155,7 +155,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		String[] lines = shell.grepFile( this , logReleaseExecute.getFilePath( this , file ) , "^-- REGIONS " );
 		String regions = ( lines.length == 1 )? lines[0] : "";
 		if( regions.isEmpty() )
-			exit( "region set not found in regional script=" + file );
+			exit1( _Error.NoRegionSet1 , "region set not found in regional script=" + file , file );
 
 		// replicate regional file
 		String schema = dsf.SRCSCHEMA; 
@@ -239,7 +239,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		String schemaName = dsf.SRCSCHEMA;
 		MetaDatabaseSchema schema = meta.database.getSchema( this , schemaName );
 		if( !client.applyScript( this , schema , logReleaseExecute , file , logReleaseExecute , log ) ) {
-			ifexit( "error applying script " + file + ", see logs" );
+			ifexit( _Error.ErrorApplyingScript1 , "error applying script " + file + ", see logs" , new String[] { file } );
 			return( false );
 		}
 

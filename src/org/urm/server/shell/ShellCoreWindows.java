@@ -61,7 +61,7 @@ public class ShellCoreWindows extends ShellCore {
 	
 	private String prepareExecute( ActionBase action , String cmd , int logLevel ) throws Exception {
 		if( !running )
-			exitError( action , "attempt to run command in closed session: " + cmd );
+			exitError( action , _Error.RunCommandClosedSession1 , "attempt to run command in closed session: " + cmd , new String[] { cmd } );
 			
 		cmdCurrent = cmd;
 		cmdout.clear();
@@ -92,7 +92,7 @@ public class ShellCoreWindows extends ShellCore {
 	
 	private void runCommand( ActionBase action , String cmd , int logLevel , boolean addErrorLevel ) throws Exception {
 		if( !running )
-			exitError( action , "attempt to run command in closed session: " + cmd );
+			exitError( action , _Error.RunCommandClosedSession1 , "attempt to run command in closed session: " + cmd , new String[] { cmd } );
 		
 		if( sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX ) {
 			String execLine = prepareExecute( action , cmd , logLevel );
@@ -141,7 +141,7 @@ public class ShellCoreWindows extends ShellCore {
 			}
 		}
 		
-		action.exit( "error executing cmd=(" + cmd + ")" );
+		action.exit1( _Error.ErrorExecutingCmd1 , "error executing cmd=(" + cmd + ")" , cmd );
 		return( 0 );
 	}
 
@@ -161,7 +161,7 @@ public class ShellCoreWindows extends ShellCore {
 		String wdir = Common.getWinPath( dir );
 		runCommand( action , "if not exist " + wdir + " md " + wdir , CommandOutput.LOGLEVEL_TRACE );
 		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
-			action.exit( "check/create directory error" );
+			action.exit1( _Error.CheckCreateDirectoryError1 , "check/create directory error" , wdir );
 	}
 
 	@Override public void cmdCreateFileFromString( ActionBase action , String path , String value ) throws Exception {
@@ -187,7 +187,7 @@ public class ShellCoreWindows extends ShellCore {
 			return( true );
 		
 		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
-			action.exit( "check directory error" );
+			action.exit1( _Error.CheckDirectoryError1 , "check directory error" , wdir );
 		return( false );
 	}
 
@@ -224,8 +224,10 @@ public class ShellCoreWindows extends ShellCore {
 		if( list.length == 0 )
 			return( "" );
 			
-		if( list.length > 1 )
-			action.exit( "too many files found in path=" + path + ", mask=" + Common.getQuoted( mask ) + " (" + Common.getList( list ) + ")" );
+		if( list.length > 1 ) {
+			String xlist = Common.getList( list );
+			action.exit3( _Error.TooManyFilesInPath3 , "too many files found in path=" + path + ", mask=" + Common.getQuoted( mask ) + " (" + xlist + ")" , path , mask , xlist );
+		}
 		
 		return( list[0] );
 	}
@@ -236,8 +238,10 @@ public class ShellCoreWindows extends ShellCore {
 		if( list.length == 0 || list[0].equals( "File Not Found" ) )
 			return( "" );
 		
-		if( list.length > 1 )
-			action.exit( "too many files found in path=" + path + ", mask=" + Common.getQuoted( mask ) + " (" + Common.getList( list ) + ")" );
+		if( list.length > 1 ) {
+			String xlist = Common.getList( list );
+			action.exit3( _Error.TooManyFilesInPath3 , "too many files found in path=" + path + ", mask=" + Common.getQuoted( mask ) + " (" + xlist + ")" , path , mask , xlist );
+		}
 		
 		return( list[0] );
 	}
@@ -250,14 +254,14 @@ public class ShellCoreWindows extends ShellCore {
 		String wdir = Common.getWinPath( dir );
 		runCommand( action , "if exist " + wdir + " ( rmdir /S /Q " + wdir + " " + cmdAnd + " md " + wdir + " )" , CommandOutput.LOGLEVEL_TRACE );
 		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
-			action.exit( "remove directory content error" );
+			action.exit1( _Error.RemoveDirectoryContentError1 , "remove directory content error" , wdir );
 	}
 	
 	@Override public void cmdRemoveDir( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( dir );
 		runCommand( action , "if exist " + wdir + " rmdir /S /Q " + wdir , CommandOutput.LOGLEVEL_TRACE );
 		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
-			action.exit( "remove directory error" );
+			action.exit1( _Error.RemoveDirectoryError1 , "remove directory error" , wdir );
 	}
 	
 	@Override public void cmdRecreateDir( ActionBase action , String dir ) throws Exception {
@@ -304,14 +308,14 @@ public class ShellCoreWindows extends ShellCore {
 		return( reg );
 	}
 
-	private void checkOut( ActionBase action , String s ) throws Exception {
+	private void checkOut( ActionBase action , int errorCode , String s , String[] params ) throws Exception {
 		if( cmdout.isEmpty() )
 			return;
 		
 		if( cmdout.size() == 1 && cmdout.get( 0 ).equals( "File Not Found" ) )
 			return;
 		
-		action.exit( "errors on delete dirs" );
+		action.exit( errorCode , s , params );
 	}
 	
 	@Override public void cmdRemoveFiles( ActionBase action , String dir , String files ) throws Exception {
@@ -320,13 +324,13 @@ public class ShellCoreWindows extends ShellCore {
 				"for /f %x in ('dir /b /ad ^| findstr /R " + 
 				Common.getQuoted( filesRegular ) + "') do @rmdir /Q /S %x" );
 		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
-		checkOut( action , "errors on delete dirs" );
+		checkOut( action , _Error.ErrorsDeleteDirs1 , "errors on delete dirs" , new String[] { filesRegular } );
 						
 		cmdDir = getDirCmdIfDir( action , dir , 
 				"for /f %x in ('dir /b /a-d ^| findstr /R " + 
 				Common.getQuoted( filesRegular ) + "') do @del /Q %x" );
 		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
-		checkOut( action , "errors on delete files" );
+		checkOut( action , _Error.ErrorsDeleteFiles1 , "errors on delete files" , new String[] { filesRegular } );
 	}
 
 	@Override public void cmdRemoveFilesWithExclude( ActionBase action , String dir , String files , String exclude ) throws Exception {
@@ -342,14 +346,14 @@ public class ShellCoreWindows extends ShellCore {
 				Common.getQuoted( filesRegular ) + " ^| findstr /V " +
 				Common.getQuoted( excludeRegular ) + "') do rmdir /Q /S %x" );
 		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
-		checkOut( action , "errors on delete dirs" );
+		checkOut( action , _Error.ErrorsDeleteDirs2 , "errors on delete dirs" , new String[] { filesRegular , excludeRegular } );
 		
 		cmdDir = getDirCmdIfDir( action , dir , 
 				"for /f %x in ('dir /b /a-d ^| findstr /R " + 
 				Common.getQuoted( filesRegular ) + " ^| findstr /V " +
 				Common.getQuoted( excludeRegular ) + "') do del /Q %x" );
 		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
-		checkOut( action , "errors on delete files" );
+		checkOut( action , _Error.ErrorsDeleteFiles2 , "errors on delete files" , new String[] { filesRegular , excludeRegular } );
 	}
 
 	@Override public void cmdUnzipPart( ActionBase action , String unzipDir , String zipFile , String targetFolder , String part ) throws Exception {
@@ -538,7 +542,7 @@ public class ShellCoreWindows extends ShellCore {
 				"chdir " + cmdAnd + " dir /ad /s /b " + cmdAnd + " echo " + delimiter + " " + cmdAnd + " dir /a-d /b /s 2>nul" );
 		
 		if( res.isEmpty() )
-			action.exit( "directory " + rootPath + " does not exist" );
+			action.exit1( _Error.MissingDirectory1 , "directory " + rootPath + " does not exist" , rootPath );
 		
 		String pwd = res.get( 0 );
 		int skipStart = pwd.length() + 1;
@@ -556,14 +560,14 @@ public class ShellCoreWindows extends ShellCore {
 			if( s.startsWith( pwd ) )
 				s = s.substring( skipStart );
 			else
-				action.exit( "unexpected line=" + s );
+				action.exit1( _Error.UnexpectedDirContentLine1 , "unexpected line=" + s , s );
 			
 			s = s.replace( "\\" , "/" );
 			copyTo.add( s );
 		}
 		
 		if( !ok )
-			action.exit( "unable to read directory " + rootPath );
+			action.exit1( _Error.UnableReadDirectory1 , "unable to read directory " + rootPath , rootPath );
 	}
 
 	@Override public void cmdGetTopDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
@@ -590,7 +594,7 @@ public class ShellCoreWindows extends ShellCore {
 		String fileWin = Common.getWinPath( filePath );
 		runCommand( action , "certutil -hashfile " + Common.getQuoted( fileWin ) + " MD5" , CommandOutput.LOGLEVEL_TRACE );
 		if( cmdout.size() != 3 )
-			action.exit( "unable to get md5sum of " + filePath );
+			action.exit1( _Error.UnableGetMd5Sum1 , "unable to get md5sum of " + filePath , filePath );
 		
 		return( Common.replace( cmdout.get( 1 ) , " " , "" ) );
 	}
@@ -710,7 +714,7 @@ public class ShellCoreWindows extends ShellCore {
 		}
 		
 		if( pos != 0 )
-			action.exit( "error reading files in dir=" + dir );
+			action.exit1( _Error.ErrorReadingFiles1 , "error reading files in dir=" + dir , dir );
 		
 		return( map );
 	}

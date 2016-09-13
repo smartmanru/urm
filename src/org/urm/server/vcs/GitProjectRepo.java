@@ -89,7 +89,7 @@ public class GitProjectRepo extends GitMirrorStorage {
 						BRANCH + " | tr -d " + Common.getQuoted( " " ) + " -f1" );
 			}
 			if( REVMARK.isEmpty() )
-				action.exit( "setMirrorTag: unable to find branch revision on given date" );
+				action.exit0( _Error.MissingBranchDateRevision0 , "setMirrorTag: unable to find branch revision on given date" );
 		}
 
 		shell.customCheckStatus( action , "git -C " + OSPATH + " tag " + TAG + " -a -f -m " + Common.getQuoted( "$P_MESSAGE" ) + " refs/heads/" + BRANCH + " " + REVMARK );

@@ -2,12 +2,15 @@ package org.urm.server.meta;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.common.ExitException;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.server.ServerLoader;
 import org.urm.server.ServerProductMeta;
 import org.urm.server.SessionContext;
 import org.urm.server.action.ActionBase;
+import org.urm.server.meta.MetaBase.VarBASESRCFORMAT;
+import org.urm.server.meta.MetaBase.VarBASESRCTYPE;
+import org.urm.server.meta.MetaDesign.VarELEMENTTYPE;
+import org.urm.server.meta.MetaDesign.VarLINKTYPE;
 import org.w3c.dom.Node;
 
 public class Meta {
@@ -275,36 +278,37 @@ public class Meta {
 	}
 
 	public VarOSTYPE getOSType( String ID ) throws Exception {
+		if( ID.isEmpty() )
+			Common.exit0( _Error.MissingOSType0 , "missing operating system type" );
+		
 		VarOSTYPE value = null;
 		try {
 			value = VarOSTYPE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			throw new ExitException( "invalid operation system type=" + ID );
+			Common.exit1( _Error.InvalidOSType1 , "invalid OS type=" + ID , ID );
 		}
-		
-		if( value == null )
-			throw new ExitException( "missing operating system type" );
 		
 		return( value );
 	}
 	
 	public VarCATEGORY getCategory( String ID ) throws Exception {
+		if( ID.isEmpty() )
+			Common.exit0( _Error.MissingCategory0 , "missing category" );
+
 		VarCATEGORY value = null;
 		try {
 			value = VarCATEGORY.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			throw new ExitException( "invalid category=" + ID );
+			Common.exit1( _Error.InvalidCategory1 , "invalid category=" + ID , ID );
 		}
-		if( value == null )
-			throw new ExitException( "missing category" );
 		
 		return( value );
 	}
 	
 	public VarSERVERTYPE getServerType( String ID ) throws Exception {
-		if( ID == null || ID.isEmpty() )
+		if( ID.isEmpty() )
 			return( VarSERVERTYPE.UNKNOWN );
 		
 		VarSERVERTYPE value = null;
@@ -312,14 +316,14 @@ public class Meta {
 			value = VarSERVERTYPE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			throw new ExitException( "invalid server type=" + ID );
+			Common.exit1( _Error.InvalidServerType1 , "invalid server type=" + ID , ID );
 		}
 		
 		return( value );
 	}
 	
 	public VarNODETYPE getNodeType( String ID , VarNODETYPE defValue ) throws Exception {
-		if( ID == null || ID.isEmpty() )
+		if( ID.isEmpty() )
 			return( defValue );
 		
 		VarNODETYPE value = null;
@@ -327,56 +331,53 @@ public class Meta {
 			value = VarNODETYPE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			throw new ExitException( "invalid node type=" + ID );
+			Common.exit1( _Error.InvalidNodeType1 , "invalid node type=" + ID , ID );
 		}
-		
-		if( value == null )
-			throw new ExitException( "missing server type" );
 		
 		return( value );
 	}
 	
 	public VarDEPLOYTYPE getDeployType( String ID ) throws Exception {
+		if( ID.isEmpty() )
+			Common.exit0( _Error.MissingDeployType0 , "missing deploy type" );
+		
 		VarDEPLOYTYPE value = null;
 		try {
 			value = VarDEPLOYTYPE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			throw new ExitException( "invalid deploytype=" + ID );
+			Common.exit1( _Error.InvalidDeployType1 , "invalid deploytype=" + ID , ID );
 		}
-		
-		if( value == null )
-			throw new ExitException( "unknown deploy type=" + ID );
 		
 		return( value );
 	}
 	
 	public VarITEMSRCTYPE getItemSrcType( String ID ) throws Exception {
+		if( ID.isEmpty() )
+			Common.exit0( _Error.MissingSourceItemType0 , "missing source item type" );
+		
 		VarITEMSRCTYPE value = null;
 		try {
 			value = VarITEMSRCTYPE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			throw new ExitException( "invalid source item type=" + ID );
+			Common.exit1( _Error.InvalidSourceItemType1 , "invalid source item type=" + ID , ID );
 		}
-		
-		if( value == null )
-			throw new ExitException( "unknown source item type=" + ID );
 		
 		return( value );
 	}
 	
 	public VarDISTITEMTYPE getItemDistType( String ID ) throws Exception {
+		if( ID.isEmpty() )
+			Common.exit0( _Error.MissingDistributiveItemType0 , "missing distributive item type" );
+		
 		VarDISTITEMTYPE value = null;
 		try {
 			value = VarDISTITEMTYPE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			throw new ExitException( "invalid distributive item type=" + ID );
+			Common.exit1( _Error.InvalidDistributiveItemType1 , "invalid distributive item type=" + ID , ID );
 		}
-		
-		if( value == null )
-			throw new ExitException( "unknown distributive item type=" + ID );
 		
 		return( value );
 	}
@@ -387,17 +388,17 @@ public class Meta {
 			value = VarDISTITEMSOURCE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			throw new ExitException( "invalid distributive item source=" + ID );
+			Common.exit1( _Error.InvalidDistributiveItemSource1 , "invalid distributive item source=" + ID , ID );
 		}
 		
 		if( value == null )
-			throw new ExitException( "unknown distributive item source=" + ID );
+			Common.exit0( _Error.MissingDistributiveItemSource0 , "missing distributive item source" );
 		
 		return( value );
 	}
 	
 	public VarBUILDMODE getBuildMode( String ID ) throws Exception {
-		if( ID == null || ID.isEmpty() )
+		if( ID.isEmpty() )
 			return( VarBUILDMODE.UNKNOWN );
 		
 		VarBUILDMODE value = null;
@@ -405,62 +406,121 @@ public class Meta {
 			value = VarBUILDMODE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			throw new ExitException( "invalid build mode=" + ID );
+			Common.exit1( _Error.InvalidBuildMode1 , "invalid build mode=" + ID , ID );
 		}
-		
-		if( value == null )
-			throw new ExitException( "unknown build mode=" + ID );
 		
 		return( value );
 	}
 	
 	public VarDBMSTYPE getDbmsType( String ID ) throws Exception {
-		VarDBMSTYPE value = null;		
+		if( ID.isEmpty() )
+			Common.exit0( _Error.MissingDbmsType0 , "missing DBMS type" );
 		
+		VarDBMSTYPE value = null;		
 		try {
 			value = VarDBMSTYPE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			throw new ExitException( "invalid dbmstype=" + ID );
+			Common.exit1( _Error.InvalidDbmsType1 , "invalid dbmstype=" + ID , ID );
 		}
-		
-		if( value == null )
-			throw new ExitException( "unknown DBMS type=" + ID );
 		
 		return( value );
 	}
 	
 	public VarCONFITEMTYPE getConfItemType( String ID ) throws Exception {
-		VarCONFITEMTYPE value = null;		
+		if( ID.isEmpty() )
+			Common.exit0( _Error.MissingConfItemType0 , "missing configuration item type" );
 		
+		VarCONFITEMTYPE value = null;		
 		try {
 			value = VarCONFITEMTYPE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			throw new ExitException( "invalid confitemtype=" + ID );
+			Common.exit1( _Error.InvalidConfItemType1 , "invalid confitemtype=" + ID , ID );
 		}
-		
-		if( value == null )
-			throw new ExitException( "unknown configuration item type=" + ID );
 		
 		return( value );
 	}
 	
-	public VarCATEGORY readCategoryAttr( Node node ) throws Exception {
-		String value = ConfReader.getRequiredAttrValue( node , "category" );
-		return( getCategory( value ) );
+	public VarBASESRCTYPE getBaseSrcType( ActionBase action , String TYPE ) throws Exception {
+		if( TYPE.isEmpty() )
+			Common.exit0( _Error.MissingBaseSrcType0 , "missing base srctype" );
+		
+		VarBASESRCTYPE value = null;		
+		try {
+			value = VarBASESRCTYPE.valueOf( Common.xmlToEnumValue( TYPE ) );
+		}
+		catch( IllegalArgumentException e ) {
+			action.exit1( _Error.InvalidBaseSrcType1 , "invalid base srctype=" + TYPE , TYPE );
+		}
+		
+		return( value );
 	}
-	
+
+	public VarBASESRCFORMAT getBaseSrcFormat( ActionBase action , String TYPE ) throws Exception {
+		if( TYPE.isEmpty() )
+			Common.exit0( _Error.MissingBaseSrcType0 , "missing base srcformat" );
+		
+		VarBASESRCFORMAT value = null;		
+		try {
+			value = VarBASESRCFORMAT.valueOf( Common.xmlToEnumValue( TYPE ) );
+		}
+		catch( IllegalArgumentException e ) {
+			action.exit1( _Error.InvalidBaseSrcFormat1 , "invalid base srcformat=" + TYPE , TYPE );
+		}
+		
+		return( value );
+	}
+
 	public VarITEMVERSION readItemVersionAttr( Node node , String attrName ) throws Exception {
 		String ID = ConfReader.getAttrValue( node , attrName , "default" );
 		if( ID.equals( "default" ) )
 			return( VarITEMVERSION.PREFIX );
 		
-		VarITEMVERSION value = VarITEMVERSION.valueOf( ID.toUpperCase() );
-		if( value == null )
-			throw new ExitException( "unknown version type=" + ID );
+		VarITEMVERSION value = null;
+		try {
+			value = VarITEMVERSION.valueOf( ID.toUpperCase() );
+		}
+		catch( IllegalArgumentException e ) {
+			Common.exit1( _Error.InvalidItemVersionType1 , "invalid item version type=" + ID , ID );
+		}
 		
 		return( value );
+	}
+	
+	public VarELEMENTTYPE getDesignElementType( ActionBase action , String ID ) throws Exception {
+		if( ID.isEmpty() )
+			Common.exit0( _Error.MissingDesignElementType0 , "missing design element type" );
+		
+		VarELEMENTTYPE value = null;		
+		try {
+			value = VarELEMENTTYPE.valueOf( Common.xmlToEnumValue( ID ) );
+		}
+		catch( IllegalArgumentException e ) {
+			action.exit1( _Error.InvalidDesignElementType1 , "invalid design element type=" + ID , ID );
+		}
+		
+		return( value );
+	}
+
+	public VarLINKTYPE getDesignLinkType( ActionBase action , String ID ) throws Exception {
+		if( ID.isEmpty() )
+			Common.exit0( _Error.MissingDesignLinkType0 , "missing design link type" );
+		
+		VarLINKTYPE value = null;		
+		try {
+			value = VarLINKTYPE.valueOf( Common.xmlToEnumValue( ID ) );
+		}
+		catch( IllegalArgumentException e ) {
+			action.exit1( _Error.InvalidDesignLinkType1 , "invalid design link type=" + ID , ID );
+		}
+		
+		return( value );
+	}
+
+	public VarCATEGORY readCategoryAttr( Node node ) throws Exception {
+		String value = ConfReader.getRequiredAttrValue( node , "category" );
+		return( getCategory( value ) );
 	}
 	
 	public boolean isSourceCategory( VarCATEGORY value ) {
@@ -506,7 +566,7 @@ public class Meta {
 		else if( version == VarITEMVERSION.PREFIX )
 			value = "[0-9.]+-" + Common.getLiteral( basename + ext );
 		else
-			action.exit( "unknown version type=" + Common.getEnumLower( version ) );
+			action.exitUnexpectedState();
 		
 		return( value );
 	}
@@ -559,10 +619,10 @@ public class Meta {
     	if( nameType == VarNAMETYPE.ALPHANUMDOTDASH )
     		mask = "[0-9a-zA-Z_.-]+";
     	else
-    		throw new ExitException( "unexpected state" );
+    		action.exitUnexpectedState();
     		
     	if( !name.matches( mask ) )
-    		action.exit( "name attribute should contain only alphanumeric or dot characters, value=" + name );
+    		action.exit1( _Error.WrongNameAttribute1 , "name attribute should contain only alphanumeric or dot characters, value=" + name , name );
     	return( name );	
     }
 

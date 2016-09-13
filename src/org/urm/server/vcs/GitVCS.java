@@ -287,11 +287,13 @@ public class GitVCS extends GenericVCS {
 			return( false );
 			
 		if( !PATCHFOLDER.checkExists( action ) )
-			action.exit( "exportRepositoryMasterPath: local directory " + PATCHFOLDER.folderPath + " does not exist" );
+			action.exit1( _Error.MissingLocalDirectory1 , "local directory " + PATCHFOLDER.folderPath + " does not exist" , PATCHFOLDER.folderPath );
 
 		String baseName = Common.getBaseName( ITEMPATH );
-		if( PATCHFOLDER.checkPathExists( action , baseName ) )
-			action.exit( "exportRepositoryMasterPath: local directory " + PATCHFOLDER.getFilePath( action , baseName ) + " should not exist" );
+		if( PATCHFOLDER.checkPathExists( action , baseName ) ) {
+			String path = PATCHFOLDER.getFilePath( action , baseName );
+			action.exit1( _Error.LocalDirectoryShouldNotExist1 , "local directory " + path + " should not exist" , path );
+		}
 		
 		GitMirrorStorage storage = getMasterMirrorStorage( mirror , PATCHFOLDER );
 		storage.refreshMirror();
@@ -318,12 +320,12 @@ public class GitVCS extends GenericVCS {
 	}
 	
 	@Override public boolean createMasterFolder( ServerMirrorRepository mirror , String ITEMPATH , String commitMessage ) throws Exception {
-		action.exit( "not implemented" );
+		action.exitNotImplemented();
 		return( false );
 	}
 	
 	@Override public boolean moveMasterFiles( ServerMirrorRepository mirror , String srcFolder , String dstFolder , String itemPath , String commitMessage ) throws Exception {
-		action.exit( "not implemented" );
+		action.exitNotImplemented();
 		return( false );
 	}
 	

@@ -59,7 +59,7 @@ public class DatabaseClient {
 		if( !specific.server.dc.env.DB_AUTHFILE.isEmpty() ) {
 			String F_FNAME = specific.server.dc.env.DB_AUTHFILE;
 			if( !action.shell.checkFileExists( action , F_FNAME ) )
-				action.exit( "getSchemaPassword: password file " + F_FNAME + " does not exist" );
+				action.exit1( _Error.PasswordFileNotExist1 , "getSchemaPassword: password file " + F_FNAME + " does not exist" , F_FNAME );
 
 			// get password
 			S_DB_USE_SCHEMA_PASSWORD = action.shell.customGetValue( action , 
@@ -67,18 +67,18 @@ public class DatabaseClient {
 					" | cut -d \"=\" -f2 | tr -d \"\n\r\"" );
 			
 			if( S_DB_USE_SCHEMA_PASSWORD.isEmpty() )
-				action.exit( "getSchemaPassword: unable to find password for dbms=" + serverId + ", schema=" + user + 
-						" in " + F_FNAME );
+				action.exit3( _Error.UnableFindPassword3 , "getSchemaPassword: unable to find password for dbms=" + serverId + ", schema=" + user + 
+						" in " + F_FNAME , serverId , user , F_FNAME );
 		}
 		else
-			action.exit( "getSchemaPassword: unable to derive auth type" );
+			action.exit0( _Error.UnableDeriveAuthType0 , "getSchemaPassword: unable to derive auth type" );
 		
 		return( S_DB_USE_SCHEMA_PASSWORD );
 	}
 
 	public boolean applyManualSet( ActionBase action , LocalFolder files ) throws Exception {
 		if( specific == null )
-			action.exit( "need to check connectivity first" );
+			action.exit0( _Error.NeedCheckConnectivity0 , "need to check connectivity first" );
 			
 		// copy folder to remote
 		Account account = action.getNodeAccount( specific.node );

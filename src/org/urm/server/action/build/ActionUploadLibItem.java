@@ -38,10 +38,10 @@ public class ActionUploadLibItem extends ActionBase {
 
 		// upload
 		if( GROUPID.isEmpty() || FILE.isEmpty() )
-			exit( "invalid parameters" );
+			exitUnexpectedState();
 		
 		if( !shell.checkFileExists( this , FILE ) )
-		     exit( "unknown file " + FILE );
+		     exit1( _Error.MissingUploadFile1 , "unknown file " + FILE , FILE );
 		
 		// extract extension
 		String F_BASENAME = Common.getBaseName( FILE );

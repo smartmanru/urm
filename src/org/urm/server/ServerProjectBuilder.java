@@ -93,7 +93,7 @@ public class ServerProjectBuilder {
 
 	public void updateBuilder( ServerTransaction transaction , ServerProjectBuilder src ) throws Exception {
 		if( !NAME.equals( src.NAME ) )
-			transaction.exit( "mismatched resource name on change new name=" + src.NAME );
+			transaction.exit( _Error.TransactionBuilderOld1 , "mismatched buider name on change new name=" + src.NAME , new String[] { src.NAME } );
 		
 		TYPE = src.TYPE;
 		HOSTLOGIN = src.HOSTLOGIN;

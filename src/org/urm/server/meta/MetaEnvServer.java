@@ -125,9 +125,9 @@ public class MetaEnvServer {
 		// check props
 		if( ROOTPATH == null || ROOTPATH.isEmpty() ) {
 			if( deployments != null && !deployments.isEmpty() )
-				action.exit( "rootpath is empty, required for deployments server=" + NAME );
+				action.exit1( _Error.RootpathEmptyRequiredForDeployments1 , "rootpath is empty, required for deployments server=" + NAME , NAME );
 			if( isGeneric( action ) )
-				action.exit( "rootpath is empty, required for generic server=" + NAME );
+				action.exit1( _Error.RootpathEmptyRequiredForGeneric1 , "rootpath is empty, required for generic server=" + NAME , NAME );
 		}
 		
 		if( NLBSERVER != null && !NLBSERVER.isEmpty() )
@@ -284,7 +284,7 @@ public class MetaEnvServer {
 
 	public MetaEnvServerNode getNode( ActionBase action , int node ) throws Exception {
 		if( node < 1 || node > nodes.size() )
-			action.exit( "invalid node=" + node + ", server=" + NAME );
+			action.exit2( _Error.InvalidServerNode2 , "invalid node=" + node + ", server=" + NAME , NAME , "" + node );
 		return( nodes.get( node - 1 ) );
 	}
 
@@ -425,7 +425,7 @@ public class MetaEnvServer {
 				return( node );
 		}
 		
-		action.exit( "unable to find primary node of server=" + NAME );
+		action.exit1( _Error.MissingServerPrimaryNode1 , "unable to find primary node of server=" + NAME , NAME );
 		return( null );
 	}
 
@@ -523,7 +523,7 @@ public class MetaEnvServer {
 				return( node );
 		}
 		
-		action.exit( "unable to find standby node" );
+		action.exit0( _Error.MissingStandbyNode0 , "unable to find standby node" );
 		return( null );
 	}
 
@@ -533,7 +533,7 @@ public class MetaEnvServer {
 				return( node );
 		}
 		
-		action.exit( "unable to find active node" );
+		action.exit0( _Error.MissingActiveNode0 , "unable to find active node" );
 		return( null );
 	}
 

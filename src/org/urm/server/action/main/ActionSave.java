@@ -71,7 +71,7 @@ public class ActionSave extends ActionBase {
 			vcs.addDirToSvn( mirror , pf , "master" );
 			
 		if( !vcs.commitMasterFolder( mirror , pfMaster , "" , "svnsave" ) )
-			exit( "unable to save in svn folder=" + pfMaster.folderPath );
+			exit1( _Error.UnableSaveProduct1 , "unable to save in svn folder=" + pfMaster.folderPath , pfMaster.folderPath );
 	}
 	
 	private void executeDir( FileSet set , List<String> lines , List<String> filesNotInSvn ) throws Exception {

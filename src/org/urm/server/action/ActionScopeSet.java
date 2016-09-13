@@ -258,7 +258,7 @@ public class ActionScopeSet {
 		for( String item : ITEMS ) {
 			MetaDistrBinaryItem distitem = meta.distr.getBinaryItem( action , item );
 			if( distitem.DISTSOURCE != VarDISTITEMSOURCE.MANUAL )
-				action.exit( "unexpected non-manual item=" + item );
+				action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-manual item=" + item , item );
 			
 			addProductManualItem( action , distitem , true );
 		}

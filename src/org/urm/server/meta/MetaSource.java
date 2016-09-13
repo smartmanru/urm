@@ -121,7 +121,7 @@ public class MetaSource extends PropertyController {
 	public MetaSourceProjectSet getProjectSet( ActionBase action , String name ) throws Exception {
 		MetaSourceProjectSet set = setMap.get( name );
 		if( set == null )
-			action.exit( "unknown set=" + name );
+			action.exit1( _Error.UnknownSourceSet1 , "unknown source set=" + name , name );
 		
 		return( set );
 	}
@@ -129,7 +129,7 @@ public class MetaSource extends PropertyController {
 	public MetaSourceProject getProject( ActionBase action , String name ) throws Exception {
 		MetaSourceProject project = projectMap.get( name );
 		if( project == null )
-			action.exit( "unknown project=" + name );
+			action.exit1( _Error.UnknownSourceProject1 , "unknown source project=" + name , name );
 		
 		return( project );
 	}

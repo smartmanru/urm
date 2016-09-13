@@ -58,8 +58,8 @@ public abstract class ShellExecutor extends Shell {
 		tsLastFinished = System.currentTimeMillis();
 	}
 	
-	public void exitError( ActionBase action , String error ) throws Exception {
-		action.exit( name + ": " + error );
+	public void exitError( ActionBase action , int errorCode , String error , String[] params ) throws Exception {
+		action.exit( errorCode , name + ": " + error , params );
 	}
 	
 	public void restart( ActionBase action ) throws Exception {
@@ -67,7 +67,7 @@ public abstract class ShellExecutor extends Shell {
 		
 		core.kill( action );
 		if( !initialized )
-			action.exit( "shell=" + name + " failed on init stage" );
+			action.exit1( _Error.ShellInitFailed1 , "shell=" + name + " failed on init stage" , name );
 		
 		core = ShellCore.createShellCore( action , this , core.osType , core.local );
 		start( action );
@@ -464,7 +464,7 @@ public abstract class ShellExecutor extends Shell {
 			opstart();
 			String err = core.getErr();
 			if( !err.isEmpty() )
-				action.exit( "error executing CMD=" + core.cmdCurrent + ": " + err );
+				action.exit2( _Error.ErrorExecutingCmd2 , "error executing CMD=" + core.cmdCurrent + ": " + err , core.cmdCurrent , err );
 		}
 		finally {
 			opstop();
@@ -477,7 +477,7 @@ public abstract class ShellExecutor extends Shell {
 			core.runCommand( action , dir , cmd , CommandOutput.LOGLEVEL_TRACE );
 			String err = core.getErr();
 			if( !err.isEmpty() )
-				action.exit( "error executing CMD=" + cmd + ": " + err );
+				action.exit2( _Error.ErrorExecutingCmd2 , "error executing CMD=" + cmd + ": " + err , core.cmdCurrent , err );
 		}
 		finally {
 			opstop();
@@ -1036,7 +1036,7 @@ public abstract class ShellExecutor extends Shell {
 				return;
 			
 			if( !folder.isDirectory() )
-				action.exit( "not a directory path=" + rootPath );
+				action.exit1( _Error.NotDirectoryPath1 , "not a directory path=" + rootPath , rootPath );
 			
 			for( final File fileEntry : folder.listFiles() ) {
 		        if( fileEntry.isDirectory() )
@@ -1199,7 +1199,7 @@ public abstract class ShellExecutor extends Shell {
 			if( status == 0 && checkFileExists( action , TARGETFINALNAME ) )
 				createMD5( action , TARGETFINALNAME );
 			else
-				action.exit( URL + ": unable to download" );
+				action.exit1( _Error.UnableDownload1 , URL + ": unable to download" , URL );
 		}
 		finally {
 			opstop();

@@ -21,7 +21,7 @@ public class ActionAddScope extends ActionBase {
 		// full set scope
 		if( set.setFull ) {
 			if( !addAllProductSetElements( set ) )
-				exit( "operation cancelled" );
+				exit0( _Error.OperationCancelled0 , "operation cancelled" );
 			return( true );
 		}
 		
@@ -32,13 +32,13 @@ public class ActionAddScope extends ActionBase {
 			
 			if( target.itemFull ) {
 				if( !addAllProductTargetElements( set , target ) )
-					exit( "operation cancelled" );
+					exit0( _Error.OperationCancelled0 , "operation cancelled" );
 				continue;
 			}
 			
 			for( ActionScopeTargetItem item : target.getItems( this ) ) { 
 				if( !addTargetItem( set , target , item ) )
-					exit( "operation cancelled" );
+					exit0( _Error.OperationCancelled0 , "operation cancelled" );
 			}
 		}
 		

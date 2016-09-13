@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.urm.common.ExitException;
+import org.urm.common.Common;
 
 public class CommandMeta {
 
@@ -40,10 +40,10 @@ public class CommandMeta {
 		return( false );
 	}
 
-	public CommandMethodMeta getAction( String name ) throws Exception {
-		CommandMethodMeta method = actionsMap.get( name );
+	public CommandMethodMeta getAction( String actionName ) throws Exception {
+		CommandMethodMeta method = actionsMap.get( actionName );
 		if( method == null )
-			throw new ExitException( "executor action is not present in meta, name=" + name );
+			Common.exit2( _Error.MetaNoAction2 , "executor action is not present in meta, name=" + actionName , name , actionName );
 		return( method );
 	}
 	

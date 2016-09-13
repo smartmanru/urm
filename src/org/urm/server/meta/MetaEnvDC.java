@@ -126,7 +126,7 @@ public class MetaEnvDC {
 	public MetaEnvServer getServer( ActionBase action , String name ) throws Exception {
 		MetaEnvServer server = serverMap.get( name );
 		if( server == null )
-			action.exit( "unknown server=" + name );
+			action.exit1( _Error.UnknownServer1 , "unknown server=" + name , name );
 		return( server );
 	}
 	

@@ -86,21 +86,21 @@ public abstract class GenericVCS {
 		if( res.isGit() )
 			return( new GitVCS( action , res , shell ) );
 		
-		action.exit( "unexected vcs=" + vcs + ", type=" + res.TYPE );
+		action.exit2( _Error.UnexectedVcsType2 , "unexected vcs=" + vcs + ", type=" + res.TYPE , vcs , res.TYPE );
 		return( null );
 	}
 
 	public static SubversionVCS getSvnDirect( ActionBase action , String resource ) throws Exception {
 		ServerAuthResource res = action.getResource( resource );
 		if( !res.isSvn() )
-			action.exit( "unexpected non-svn resource=" + resource );
+			action.exit1( _Error.NonSvnResource1 , "unexpected non-svn resource=" + resource , resource );
 		return( ( SubversionVCS )getVCS( action , resource , false ) );
 	}
 
 	public static GitVCS getGitDirect( ActionBase action , String resource ) throws Exception {
 		ServerAuthResource res = action.getResource( resource );
 		if( !res.isGit() )
-			action.exit( "unexpected non-git resource=" + resource );
+			action.exit1( _Error.NonGitResource1 , "unexpected non-git resource=" + resource , resource );
 		return( ( GitVCS )getVCS( action , resource , false ) );
 	}
 

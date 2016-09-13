@@ -192,7 +192,7 @@ public class SessionController {
 	public void executeInteractiveCommand( String sessionId , String input ) throws Exception {
 		ServerCall call = calls.get( "" + sessionId );
 		if( call == null )
-			serverAction.exit( "unknown call session=" + sessionId );
+			serverAction.exit1( _Error.UnknownCallSession1 , "unknown call session=" + sessionId , sessionId );
 		
 		call.executeInteractiveCommand( input );
 	}
@@ -200,7 +200,7 @@ public class SessionController {
 	public void stopSession( String sessionId ) throws Exception {
 		ServerCall call = calls.get( "" + sessionId );
 		if( call == null )
-			serverAction.exit( "unknown call session=" + sessionId );
+			serverAction.exit1( _Error.UnknownCallSession1 , "unknown call session=" + sessionId , sessionId );
 		
 		call.stop();
 	}
@@ -208,7 +208,7 @@ public class SessionController {
 	public boolean waitConnect( String sessionId ) throws Exception {
 		ServerCall call = calls.get( "" + sessionId );
 		if( call == null )
-			serverAction.exit( "unknown call session=" + sessionId );
+			serverAction.exit1( _Error.UnknownCallSession1 , "unknown call session=" + sessionId , sessionId );
 		
 		return( call.waitConnect() );
 	}

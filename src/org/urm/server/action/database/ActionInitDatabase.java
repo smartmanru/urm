@@ -23,7 +23,7 @@ public class ActionInitDatabase extends ActionBase {
 		DatabaseClient client = new DatabaseClient();
 		info( "initialize administrative database on database server " + server.NAME + ", node=" + node.POS + " ..." );
 		if( !client.checkConnect( this , server , node ) )
-			exit( "unable to connect to administrative db" );
+			exit0( _Error.UnableConnectAdmin0 , "unable to connect to administrative db" );
 
 		UrmStorage urm = artefactory.getUrmStorage();
 		LocalFolder urmScripts = urm.getDatabaseInitScripts( this , server );
@@ -42,7 +42,7 @@ public class ActionInitDatabase extends ActionBase {
 		info( "apply " + file + " ..." );
 		String logfile = file + ".out";
 		if( !client.applyAdmScript( this , scripts , file , logs , logfile ) )
-			exit( "unable to initialize database, see errors" );
+			exit0( _Error.UnableInitializeDatabase0 , "unable to initialize database, see errors" );
 	}
 
 }

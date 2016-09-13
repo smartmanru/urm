@@ -61,7 +61,7 @@ public class BuilderWindowsDotnet extends Builder {
 		if( BUILDEVERSION.equals( "VS-2013-EXPRESS" ) )
 			MSBUILD_PATH = Common.getQuoted( "C:\\Program Files (x86)\\MSBuild\\12.0\\Bin\\msbuild.exe" );
 		else
-			action.exit( "unexpected builder version=" + BUILDEVERSION );
+			action.exit1( _Error.UnexpectedBuilderVersion1 , "unexpected builder version=" + BUILDEVERSION , BUILDEVERSION );
 		
 		String NUGET_PATH = getNugetSourcePath( action );
 		String MSBUILD_OPTIONS = "/t:Clean,Build /p:Configuration=Release /p:preferreduilang=en-US";

@@ -53,7 +53,7 @@ public class DatabaseRegistry {
 		
 		String[] parts = Common.splitDotted( RELEASEVER );
 		if( parts.length != 4 )
-			action.exit( "invalid release version=" + RELEASEVER );
+			action.exit1( _Error.InvalidReleaseVersion1 , "invalid release version=" + RELEASEVER , RELEASEVER );
 
 		major1 = parts[0];
 		major2 = parts[1];
@@ -161,7 +161,7 @@ public class DatabaseRegistry {
 					true ); 
 		}
 		else
-			action.exit( "unexpected release status=" + releaseStatus );
+			action.exit1( _Error.UnexpectedReleaseStatus1 , "unexpected release status=" + releaseStatus , releaseStatus );
 		
 		return( true );
 	}
@@ -291,7 +291,7 @@ public class DatabaseRegistry {
 		}
 		
 		if( !res )
-			action.ifexit( "unable to register script execution: " + file );
+			action.ifexit( _Error.UnableRegisterExecution1 , "unable to register script execution: " + file , new String[] { file } );
 	}
 
 	public void correctScript( ActionBase action , String delivery , String key ) throws Exception {
@@ -325,7 +325,7 @@ public class DatabaseRegistry {
 			if( action.context.CTX_FORCE )
 				action.error( msg + ", ignored." );
 			else
-				action.exit( msg );
+				action.exit1( _Error.UnableRegisterExecution1 , msg , key );
 		}
 	}
 

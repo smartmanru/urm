@@ -26,9 +26,10 @@ public class ActionGetCodebase extends ActionBase {
 
 		LocalFolder COPATH = CODIR.getSubFolder( this , scopeProject.sourceProject.PROJECT );
 		
-		if( force == false )
+		if( force == false ) {
 			if( COPATH.checkExists( this ) )
-				exit( "downloadProject: target path=" + COPATH + " already exists" );
+				exit1( _Error.TargetPathAlreadyExists1 , "downloadProject: target path=" + COPATH.folderPath + " already exists" , COPATH.folderPath );
+		}
 			
 		COPATH.removeThis( this );
 		CODIR.ensureExists( this );
@@ -36,7 +37,7 @@ public class ActionGetCodebase extends ActionBase {
 		ProjectVersionControl vcs = new ProjectVersionControl( this , false );
 		if( checkout ) {
 			if( !SINGLEFILE.isEmpty() )
-				exit( "downloadProject: unable to checkout single file" );
+				exit1( _Error.UnableCheckoutFile1 , "downloadProject: unable to checkout single file" , SINGLEFILE );
 			vcs.checkout( COPATH , scopeProject.sourceProject , BRANCH );
 		}
 		else

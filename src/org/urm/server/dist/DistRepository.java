@@ -38,7 +38,7 @@ public class DistRepository {
 			}
 			
 			if( distPath.isEmpty() )
-				action.exit( "DISTPATH is not defined in product configuration" );
+				action.exit0( _Error.DistPathNotDefined0 , "DISTPATH is not defined in product configuration" );
 				
 			if( action.context.env != null ) {
 				if( !action.isLocalRun() )
@@ -56,7 +56,7 @@ public class DistRepository {
 			}
 			
 			if( distPath.isEmpty() )
-				action.exit( "DISTPATH is not defined in server configuration" );
+				action.exit0( _Error.DistPathNotDefined0 , "DISTPATH is not defined in server configuration" );
 		}
 		
 		repo.repoFolder = new RemoteFolder( account , distPath );
@@ -127,7 +127,7 @@ public class DistRepository {
 		
 		// check release directory exists
 		if( !distFolder.checkExists( action ) )
-			action.exit( "release does not exist at " + distFolder.folderPath );
+			action.exit1( _Error.MissingRelease1 , "release does not exist at " + distFolder.folderPath , distFolder.folderPath );
 		
 		storage.load( action );
 		return( storage );
@@ -145,7 +145,7 @@ public class DistRepository {
 		
 		// check release directory exists
 		if( distFolder.checkExists( action ) )
-			action.ifexit( "release already exists at " + RELEASEPATH );
+			action.ifexit( _Error.ReleaseAlreadyExists1 , "release already exists at " + RELEASEPATH , new String[] { RELEASEPATH } );
 
 		storage.create( action , RELEASEDIR );
 		return( storage );
@@ -158,7 +158,7 @@ public class DistRepository {
 	public String normalizeReleaseVer( ActionBase action , String RELEASEVER ) throws Exception {
 		String[] items = Common.splitDotted( RELEASEVER );
 		if( items.length < 2 && items.length > 4 )
-			action.exit( "invalid release version=" + RELEASEVER );
+			action.exit1( _Error.InvalidReleaseVersion1 , "invalid release version=" + RELEASEVER , RELEASEVER );
 		
 		String value = "";
 		for( int k = 0; k < 4; k++ ) {
@@ -168,9 +168,9 @@ public class DistRepository {
 				value += "0";
 			else {
 				if( !items[k].matches( "[0-9]+" ) )
-					action.exit( "invalid release version=" + RELEASEVER );
+					action.exit1( _Error.InvalidReleaseVersion1 , "invalid release version=" + RELEASEVER , RELEASEVER );
 				if( items[k].length() > 3 )
-					action.exit( "invalid release version=" + RELEASEVER );
+					action.exit1( _Error.InvalidReleaseVersion1 , "invalid release version=" + RELEASEVER , RELEASEVER );
 				value += items[k];
 			}
 		}
@@ -211,7 +211,7 @@ public class DistRepository {
 
 			// check content
 			if( !repoFolder.checkFolderExists( action , RELEASEPATH ) )
-				action.exit( "getReleaseVerByLabel: unable to find prod distributive" );
+				action.exit0( _Error.UnableFindProdDistributive0 , "getReleaseVerByLabel: unable to find prod distributive" );
 		}
 		else
 		if( RELEASELABEL.indexOf( "-" ) > 0 ) {
@@ -238,7 +238,7 @@ public class DistRepository {
 		if( RELEASELABEL.equals( "last" ) ) {
 			RELEASEVER = build.CONFIG_RELEASE_LASTMINOR;
 			if( RELEASEVER.isEmpty() )
-				action.exit( "CONFIG_VERSION_LAST_FULL is not set in product.conf" );
+				action.exit0( _Error.LastMinorVersionNotSet0 , "Last minor release version is not set in product settings" );
 
 			return( RELEASEVER );
 		}
@@ -246,7 +246,7 @@ public class DistRepository {
 		if( RELEASELABEL.equals( "next" ) ) {
 			RELEASEVER = build.CONFIG_RELEASE_NEXTMINOR;
 			if( RELEASEVER.isEmpty() )
-				action.exit( "CONFIG_VERSION_NEXT_FULL is not set in product.conf" );
+				action.exit0( _Error.NextMinorVersionNotSet0 , "Next minor release version is not set in product settings" );
 
 			return( RELEASEVER );
 		}
@@ -256,7 +256,7 @@ public class DistRepository {
 			return( RELEASEVER );
 		}
 
-		action.exit( "unexpected release label=" + RELEASELABEL );
+		action.exit1( _Error.UnexpectedReleaseLabel1 , "unexpected release label=" + RELEASELABEL , RELEASELABEL );
 		return( null );
 	}
 	
@@ -265,14 +265,14 @@ public class DistRepository {
 		
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , PRODPATH );
 		if( !distFolder.checkExists( action ) )
-			action.exit( "prod folder does not exists at " + distFolder.folderPath );
+			action.exit1( _Error.MissingProdFolder1 , "prod folder does not exists at " + distFolder.folderPath , distFolder.folderPath );
 		
 		if( action.context.CTX_FORCE ) {
 			distFolder.removeFiles( action , "history.txt state.txt" );
 		}
 		else {
 			if( distFolder.checkFileExists( action , RELEASEHISTORYFILE ) )
-				action.exit( "prod folder is probably already initialized, delete history.txt manually to recreate" );
+				action.exit1( _Error.ProdFolderAlreadyInitialized1 , "prod folder is probably already initialized, delete history.txt manually to recreate" , distFolder.folderPath );
 		}
 		
 		Dist storage = new Dist( meta , this );

@@ -65,7 +65,7 @@ public class ActionGetBinary extends ActionBase {
 		if( scopeItem.sourceItem.isStoredInNuget( this ) )
 			downloadNugetItem( scopeProject , scopeItem );
 		else
-			exit( "unexpected ITEMTYPE=" + Common.getEnumLower( scopeItem.sourceItem.ITEMSRCTYPE ) );
+			exitUnexpectedState();
 	}
 	
 	private void downloadNexusItem( String type , ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
@@ -89,7 +89,7 @@ public class ActionGetBinary extends ActionBase {
 		else if( EXT.startsWith( "." ) )
 			PACKAGING = EXT.substring( 1 );
 		else
-			exit( "unexpected extension=" + EXT );
+			exitUnexpectedState();
 
 		String BUILDVERSION = scopeItem.getProjectItemBuildVersion( this );
 		boolean copyDistr = context.CTX_DIST;
@@ -190,7 +190,7 @@ public class ActionGetBinary extends ActionBase {
 			downloadNexusItem( "thirdparty" , scopeProject , scopeItem );
 		}
 		else
-			exit( "downloadPrebuiltItem: unsupported prebuilt type=" + Common.getEnumLower( scopeItem.sourceItem.ITEMSRCTYPE ) );
+			exitUnexpectedState();
 	}
 
 }

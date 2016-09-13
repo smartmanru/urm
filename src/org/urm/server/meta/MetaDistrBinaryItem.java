@@ -84,8 +84,10 @@ public class MetaDistrBinaryItem {
 		if( DISTTYPE == VarDISTITEMTYPE.DOTNETPKG ) {
 			EXT = ConfReader.getRequiredAttrValue( node , "extension" );
 		}
-		else
-			action.exit( "distribution item " + KEY + " has unknown type=" + Common.getEnumLower( DISTTYPE ) );
+		else {
+			String distType = Common.getEnumLower( DISTTYPE );
+			action.exit2( _Error.UnknownDistributiveItemType2 , "distribution item " + KEY + " has unknown type=" + distType , KEY , distType );
+		}
 		
 		CUSTOMDEPLOY = ConfReader.getBooleanAttrValue( node , "customdeploy" , false );
 		if( CUSTOMDEPLOY )
@@ -145,7 +147,7 @@ public class MetaDistrBinaryItem {
 	public FileInfo getFileInfo( ActionBase action , String runtimeFile , String specificDeployName , String md5value ) throws Exception {
 		VarITEMVERSION vtype = getVersionType( action , specificDeployName , runtimeFile );
 		if( vtype == VarITEMVERSION.UNKNOWN )
-			action.exit( "unable to get version type of file=" + runtimeFile + ", deployName=" + specificDeployName );
+			action.exit2( _Error.UnableGetFileVersionType2 , "unable to get version type of file=" + runtimeFile + ", deployName=" + specificDeployName , runtimeFile , specificDeployName );
 		
 		String name = Common.getPartBeforeLast( runtimeFile , EXT );
 				
@@ -193,7 +195,7 @@ public class MetaDistrBinaryItem {
 		if( EXT.equals( ".zip" ) )
 			return( VarARCHIVETYPE.ZIP );
 		
-		action.exit( "not supported archive type=" + EXT );
+		action.exit1( _Error.ArchiveTypeNotSupported1 , "not supported archive type=" + EXT , EXT );
 		return( null );
 	}
 }

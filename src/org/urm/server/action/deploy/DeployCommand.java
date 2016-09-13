@@ -72,7 +72,7 @@ public class DeployCommand {
 	public void changeHosts( ActionBase action , ActionScope scope , String CMD , String host , String address ) throws Exception {
 		ActionChangeHosts ca = new ActionChangeHosts( action , null , CMD , host , address );
 		if( !Common.checkPartOfSpacedList( CMD , "set delete check" ) )
-			ca.exit( "invalid command=" + CMD );
+			ca.exit1( _Error.InvalidHostsCommand1 , "invalid command=" + CMD , CMD );
 			
 		ca.runEnvUniqueHosts( scope );
 	}
@@ -80,7 +80,7 @@ public class DeployCommand {
 	public void changeKeys( ActionBase action , ActionScope scope , String CMD ) throws Exception {
 		ActionChangeKeys ca = new ActionChangeKeys( action , null , CMD );
 		if( !Common.checkPartOfSpacedList( CMD , "list change add set delete" ) )
-			ca.exit( "invalid command=" + CMD );
+			ca.exit1( _Error.InvalidKeysCommand1 , "invalid command=" + CMD , CMD );
 			
 		ca.runEnvUniqueAccounts( scope );
 	}
@@ -109,13 +109,13 @@ public class DeployCommand {
 		if( action.context.CTX_CONFDEPLOY && !dist.release.isEmptyConfiguration( action ) ) {
 			ActionConfCheck check = new ActionConfCheck( action , null );
 			if( !check.runAll( scope ) )
-				action.exit( "configuration check failed: invalid environment data" );
+				action.exit0( _Error.InvalidEnvironmentData0 , "configuration check failed: invalid environment data" );
 			
 			action.info( "prepare configuration ..." );
 			folder = action.artefactory.getWorkFolder( action , "configuration" );
 			ActionConfigure ca = new ActionConfigure( action , null , dist , folder ); 
 			if( !ca.runAll( scope ) )
-				action.exit( "unable to prepare configuration" );
+				action.exit0( _Error.UnablePrepareConfiguration0 , "unable to prepare configuration" );
 			
 			live = ca.getLiveFolder();
 		}
@@ -123,7 +123,7 @@ public class DeployCommand {
 		action.info( "open sessions and create redist folders ..." );
 		ActionPrepareRedist pa = new ActionPrepareRedist( action , null , dist , true );
 		if( !pa.runAll( scope ) )
-			action.ifexit( "unable to create folders" );
+			action.ifexit( _Error.UnableCreateFolders0 , "unable to create folders" , null );
 		
 		action.info( "upload to redist ..." );
 		ActionRedist ma = new ActionRedist( action , null , dist , live );
@@ -142,13 +142,13 @@ public class DeployCommand {
 		stop.context.CTX_NOCHATMSG = true;
 		
 		if( !stop.runAll( scope ) )
-			action.ifexit( "restartEnv: stopenv failed" );
+			action.ifexit( _Error.StopenvFailed0 , "restartEnv: stopenv failed" , null );
 		
 		ActionStartEnv start = new ActionStartEnv( action , null );
 		start.context.CTX_NOCHATMSG = true;
 		
 		if( !start.runAll( scope ) )
-			action.ifexit( "restartEnv: startenv failed" );
+			action.ifexit( _Error.StartenvFailed0 , "restartEnv: startenv failed" , null );
 		
 		sendMsg( action , "[restartenv] done." );
 	}

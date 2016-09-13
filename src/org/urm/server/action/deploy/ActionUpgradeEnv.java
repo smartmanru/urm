@@ -24,7 +24,7 @@ public class ActionUpgradeEnv extends ActionBase {
 	@Override protected boolean executeAccount( ActionScopeSet set , Account account ) throws Exception {
 		PATCHFILE = shell.findOneTop( this , context.env.UPGRADE_PATH, PATCHID + "-*" );
 		if( PATCHFILE.isEmpty() )
-			exit( "unable to find patch file=" + PATCHID + "-* in " + context.env.UPGRADE_PATH );
+			exit2( _Error.UnableFindPatch2 , "unable to find patch file=" + PATCHID + "-* in " + context.env.UPGRADE_PATH , PATCHID , context.env.UPGRADE_PATH );
 		
 		// execute
 		VersionInfoStorage vis = artefactory.getVersionInfoStorage( this , account );
@@ -37,7 +37,7 @@ public class ActionUpgradeEnv extends ActionBase {
 				" " + account.getFullName() + " " + context.CTX_EXTRAARGS );
 		setTimeout( timeout );
 		if( status < 0 )
-			exit( "fatal error" );
+			exit0( _Error.UpgradeError0 , "error on upgrade" );
 
 		// register result
 		registerExecution( account , status , vis );

@@ -130,7 +130,7 @@ public class MetaProductBuildSettings extends PropertyController {
 		if( CONFIG_SOURCE_CHARSET != null ) {
 			charset = Charset.availableCharsets().get( CONFIG_SOURCE_CHARSET );
 			if( charset == null )
-				action.exit( "unknown database files charset=" + CONFIG_SOURCE_CHARSET );
+				action.exit1( _Error.UnknownDatabaseFilesCharset1 , "unknown database files charset=" + CONFIG_SOURCE_CHARSET , CONFIG_SOURCE_CHARSET );
 		}
 		
 		CONFIG_NEXUS_RESOURCE = super.getStringProperty( action , PROPERTY_NEXUS_RESOURCE );

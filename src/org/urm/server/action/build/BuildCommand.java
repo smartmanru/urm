@@ -84,7 +84,7 @@ public class BuildCommand {
 			dist.closeChange( action );
 		
 		if( !res )
-			action.exit( "there are errors in release, please check" );
+			action.exit0( _Error.BuildErrors0 , "there are build errors, please check" );
 			
 		if( copyDist )
 			action.info( "getAll: download has been finished, copied to distribution directory " + dist.RELEASEDIR );

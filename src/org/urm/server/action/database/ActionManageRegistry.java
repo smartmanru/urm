@@ -29,14 +29,14 @@ public class ActionManageRegistry extends ActionBase {
 		MetaEnvServer server = target.envServer;
 		DatabaseClient client = new DatabaseClient();
 		if( !client.checkConnect( this , server ) )
-			exit( "unable to connect to server=" + server.NAME );
+			exit1( _Error.ConnectFailed1 , "unable to connect to server=" + server.NAME , server.NAME );
 
 		info( "RELEASE " + RELEASEVER + ": " + CMD + " database registry ..." );
 		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client );
 		registry.setActiveRelease( this , RELEASEVER );
 		
 		if( registry.isReleaseUnknown( this ) )
-			exit( "unknown release version=" + RELEASEVER );
+			exit1( _Error.UnknownReleaseVersion1 , "unknown release version=" + RELEASEVER , RELEASEVER );
 		
 		if( CMD.equals( "status" ) )
 			executePrintRegistry( registry );
@@ -50,7 +50,7 @@ public class ActionManageRegistry extends ActionBase {
 		if( CMD.equals( "drop" ) )
 			executeDropRegistry( registry );
 		else
-			exit( "unexpected manage command=" + CMD );
+			exit1( _Error.UnexpectedManageCommand1 , "unexpected manage command=" + CMD , CMD );
 		
 		return( true );
 	}
@@ -107,7 +107,7 @@ public class ActionManageRegistry extends ActionBase {
 	
 	private void executeDropRegistry( DatabaseRegistry registry ) throws Exception {
 		if( registry.isReleaseFinished( this ) )
-			ifexit( "release is finished" );
+			ifexit( _Error.ReleaseFinished0 , "release is finished" , null );
 		
 		if( delivery == null )
 			registry.dropRelease( this );

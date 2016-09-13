@@ -59,7 +59,7 @@ public class MetaEnvServerNode {
 	public MetaEnvServerNode getProxyNode( ActionBase action ) throws Exception {
 		MetaEnvServer proxy = server.proxyServer;
 		if( proxy == null )
-			action.exit( "no proxy server to call" );
+			action.exit0( _Error.MissingProxyNode0 , "no proxy server to call" );
 		
 		MetaEnvServerNode node = proxy.getNode( action , POS );
 		return( node );

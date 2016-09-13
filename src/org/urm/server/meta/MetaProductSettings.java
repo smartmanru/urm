@@ -266,7 +266,7 @@ public class MetaProductSettings extends PropertyController {
 		String mode = Common.getEnumLower( buildMode );
 		MetaProductBuildSettings settings = buildModes.get( mode );
 		if( settings == null )
-			action.exit( "unable to get build settings for mode=" + mode );
+			action.exit1( _Error.UnableGetBuildModeSettings1 , "unable to get build settings for mode=" + mode , mode );
 		return( settings );
 	}
 	

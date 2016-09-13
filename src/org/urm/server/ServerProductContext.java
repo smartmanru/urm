@@ -28,7 +28,7 @@ public class ServerProductContext {
 			// read from properties
 			CONFIG_PRODUCT = action.session.execrc.product;
 			if( CONFIG_PRODUCT.isEmpty() )
-				action.exit( "Execution Context has no Product ID set (-Durm.product=value)" );
+				action.exit0( _Error.NoProductID , "Execution Context has no Product ID set (-Durm.product=value)" );
 		}
 		else {
 			if( !action.session.product )

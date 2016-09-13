@@ -148,7 +148,7 @@ public class DatabaseSpecific {
 		
 		int status = runScriptCmd( action , ctxScript , "queryscript" , file + " " + fileLog );
 		if( status != 0 )
-			action.exit( "error: (see logs)" );
+			action.exit1( _Error.ScriptApplyError1 , "error: (see logs)" , file );
 
 		MetaProductBuildSettings build = action.getBuildSettings();
 		List<String> data = action.readFileLines( fileLog , build.charset );
@@ -158,7 +158,7 @@ public class DatabaseSpecific {
 		
 		String[] errors = Common.grep( lines , "^ERROR" );
 		if( errors.length > 0 )
-			action.exit( "error: " + " (" + errors[0] + " ...)" );
+			action.exit1( _Error.ScriptApplyError1 , "error: " + " (" + errors[0] + " ...)" , errors[0] );
 		
 		return( lines );
 	}
@@ -181,8 +181,10 @@ public class DatabaseSpecific {
 		if( lines.length == 0 )
 			return( "" );
 		
-		if( lines.length != 1 )
-			action.exit( "unexpected output: " + Common.getList( lines ) );
+		if( lines.length != 1 ) {
+			String list = Common.getList( lines );
+			action.exit1( _Error.UnexpectedOutput1 , "unexpected output: " + list , list );
+		}
 		
 		return( Common.getPartAfterFirst( lines[0] , "value=" ) );
 	}
@@ -210,7 +212,7 @@ public class DatabaseSpecific {
 			
 			String[] values = Common.split( value , "\\|" );
 			if( values.length != columns.length )
-				action.exit( "unexpected table row output: " + value + " (" + values.length + ", " + columns.length + ")" );
+				action.exit3( _Error.UnexpectedTableRow3 , "unexpected table row output: " + value + " (" + values.length + ", " + columns.length + ")" , value , "" + values.length , "" + columns.length );
 			
 			String[] row = new String[ columns.length ];
 			int pos = 0;
@@ -266,7 +268,7 @@ public class DatabaseSpecific {
 		List<String> lines = new LinkedList<String>();
 		String ct = "create table " + getTableName( action , dbschema , table ) + " ( ";
 		if( columns.length != columntypes.length )
-			action.exit( "invalid column names and types" );
+			action.exit0( _Error.Invalid—olumnMeta0 , "invalid column names and types" );
 		
 		for( int k = 0; k < columns.length; k++ ) {
 			if( k > 0 )
@@ -306,7 +308,7 @@ public class DatabaseSpecific {
 	
 	private String getInsertRowString( ActionBase action , String dbschema , String table , String[] columns , String[] values ) throws Exception {
 		if( values.length != columns.length )
-			action.exit( "number of values should be equal to number of columns" );
+			action.exit0( _Error.Invalid—olumnMeta0 , "number of values should be equal to number of columns" );
 			
 		String query = "insert into " + getTableName( action , dbschema , table ) + " (";
 		boolean first = true;
@@ -351,7 +353,7 @@ public class DatabaseSpecific {
 	
 	public boolean updateRow( ActionBase action , String dbschema , String user , String password , String table , String[] columns , String[] values , String condition , boolean commit ) throws Exception {
 		if( values.length != columns.length )
-			action.exit( "number of values should be equal to number of columns" );
+			action.exit0( _Error.Invalid—olumnMeta0 , "number of values should be equal to number of columns" );
 			
 		// ANSI query
 		String query = "update " + getTableName( action , dbschema , table ) + " set ";

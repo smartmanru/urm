@@ -33,15 +33,15 @@ public class ActionDeployRedist extends ActionBase {
 		}
 		
 		if( !stopServers( set ) ) {
-			ifexit( "unable to stop servers" );
+			ifexit( _Error.UnableStopServers0 , "unable to stop servers" , null );
 		}
 		
 		if( !rolloutServers( set ) ) {
-			ifexit( "unable to rollout release" );
+			ifexit( _Error.UnableRolloutRelease0 , "unable to rollout release" , null );
 		}
 	
 		if( !startServers( set ) ) {
-			exit( "unable to start servers after deployment" );
+			exit0( _Error.UnableStartAfterSeployment0 , "unable to start servers after deployment" );
 		}
 
 		info( "RELEASE " + dist.RELEASEDIR + " SUCCESSFULLY DEPLOYED" );

@@ -32,10 +32,10 @@ public class MirrorStorage {
 		if( newStorage ) {
 			if( check ) {
 				if( !mirrorFolder.checkExists( action ) )
-					action.exit( "mirror path " + mirrorFolder.folderPath + " does not exist" );
+					action.exit1( _Error.MissingMirrorDirectory1 , "mirror path " + mirrorFolder.folderPath + " does not exist" , mirrorFolder.folderPath );
 				
 				if( storageFolder.checkExists( action ) )
-					action.exit( "mirror path " + storageFolder.folderPath + " already exists" );
+					action.exit1( _Error.MirrorDirectoryAlreadyExists1 , "mirror path " + storageFolder.folderPath + " already exists" , storageFolder.folderPath );
 			}
 		
 			storageFolder.getParentFolder( action ).ensureExists( action );
@@ -43,7 +43,7 @@ public class MirrorStorage {
 		else {
 			if( check ) {
 				if( !storageFolder.checkExists( action ) )
-					action.exit( "mirror path " + storageFolder.folderPath + " should be already created" );
+					action.exit1( _Error.MissingMirrorDirectory1 , "mirror path " + storageFolder.folderPath + " should be already created" , storageFolder.folderPath );
 			}
 		}
 	
@@ -70,7 +70,7 @@ public class MirrorStorage {
 			mirrorPath = action.meta.product.CONFIG_MIRRORPATH;
 		
 		if( mirrorPath.isEmpty() )
-			action.exit( "missing configuraion parameter: mirror path" );
+			action.exit0( _Error.MissingMirrorPathParameter0 , "missing configuraion parameter: mirror path" );
 		
 		return( action.getLocalFolder( mirrorPath ) );
 	}

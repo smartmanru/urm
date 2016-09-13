@@ -168,8 +168,8 @@ abstract public class ShellCore {
 		initialized = false;
 	}
 
-	protected void exitError( ActionBase action , String error ) throws Exception {
-		 executor.exitError( action , error );
+	protected void exitError( ActionBase action , int errorCode , String error , String[] params ) throws Exception {
+		 executor.exitError( action , errorCode , error , params );
 	}
 	
 	public void addInput( ActionBase action , String input , boolean windowsHelper ) throws Exception {
@@ -245,7 +245,7 @@ abstract public class ShellCore {
 		String err = getErr();
 		
 		if( !err.isEmpty() )
-			exitError( action , "error running command (" + cmd + ")" + " - " + err );
+			exitError( action , _Error.ErrorExecutingCmd2 , "error running command (" + cmd + ")" + " - " + err , new String[] { cmd , err } );
 		
 		return( cmdout.toArray( new String[0] ) );
 	}
@@ -255,7 +255,7 @@ abstract public class ShellCore {
 		String err = getErr();
 		
 		if( !err.isEmpty() )
-			exitError( action , "error running command (" + cmd + ")" + " - " + err );
+			exitError( action , _Error.ErrorExecutingCmd2 , "error running command (" + cmd + ")" + " - " + err , new String[] { cmd , err } );
 		
 		return( cmdout.toArray( new String[0] ) );
 	}
@@ -265,7 +265,7 @@ abstract public class ShellCore {
 		String err = getErr();
 		
 		if( !err.isEmpty() )
-			exitError( action , "error running command (" + cmd + ")" + " - " + err );
+			exitError( action , _Error.ErrorExecutingCmd2 , "error running command (" + cmd + ")" + " - " + err , new String[] { cmd , err } );
 
 		String out = getOut();
 		return( out );
@@ -296,8 +296,10 @@ abstract public class ShellCore {
 		String cmdDir = getDirCmd( action , dir , cmd );
 		runCommandCheckStatus( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
 		if( !cmdout.isEmpty() ) {
-			if( cmdout.get( 0 ).startsWith( "invalid directory:" ) )
-				exitError( action , "invalid directory, error executing command: " + cmd + ", " + cmdout.get( 0 ) );
+			if( cmdout.get( 0 ).startsWith( "invalid directory:" ) ) {
+				String err = cmdout.get( 0 );
+				exitError( action , _Error.ErrorExecutingCmd2 , "error running command (" + cmd + ")" + " - " + err , new String[] { cmd , err } );
+			}
 		}
 	}
 	
@@ -305,8 +307,10 @@ abstract public class ShellCore {
 		String cmdDir = getDirCmd( action , dir , cmd );
 		runCommandCheckStatus( action , cmdDir , logLevel );
 		if( !cmdout.isEmpty() ) {
-			if( cmdout.get( 0 ).startsWith( "invalid directory:" ) )
-				exitError( action , "invalid directory, error executing command: " + cmd + ", " + cmdout.get( 0 ) );
+			if( cmdout.get( 0 ).startsWith( "invalid directory:" ) ) {
+				String err = cmdout.get( 0 );
+				exitError( action , _Error.ErrorExecutingCmd2 , "error running command (" + cmd + ")" + " - " + err , new String[] { cmd , err } );
+			}
 		}
 	}
 	
@@ -314,7 +318,7 @@ abstract public class ShellCore {
 		int status = runCommandGetStatus( action , cmd , logLevel );
 		String err = getErr();
 		if( status != 0 || !err.isEmpty() )
-			exitError( action , "error executing command: " + cmd + ", status=" + status + ", stderr: " + err );
+			exitError( action , _Error.ErrorExecutingCmd3 , "error executing command: " + cmd + ", status=" + status + ", stderr: " + err , new String[] { cmd , "" + status , err } );
 	}
 
 	public String runCommandGetValueCheckNormal( ActionBase action , String cmd ) throws Exception {
@@ -325,7 +329,7 @@ abstract public class ShellCore {
 		String cmdDir = getDirCmd( action , dir , cmd );
 		String value = runCommandGetValueCheck( action , cmdDir , CommandOutput.LOGLEVEL_INFO );
 		if( value.startsWith( "invalid directory" ) )
-			action.exit( value );
+			action.exit1( _Error.InvalidDirectory1 , "invalid directory " + cmdDir , cmdDir );
 		return( value );
 	}
 	
@@ -337,7 +341,7 @@ abstract public class ShellCore {
 		String cmdDir = getDirCmd( action , dir , cmd );
 		String value = runCommandGetValueCheck( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
 		if( value.startsWith( "invalid directory" ) )
-			action.exit( value );
+			action.exit1( _Error.InvalidDirectory1 , "invalid directory " + cmdDir , cmdDir );
 		return( value );
 	}
 	
@@ -356,9 +360,10 @@ abstract public class ShellCore {
 	public List<String> runCommandCheckGetOutputDebug( ActionBase action , String dir , String cmd ) throws Exception {
 		String cmdDir = getDirCmd( action , dir , cmd );
 		List<String> out = runCommandCheckGetOutputDebug( action , cmdDir );
-		if( !out.isEmpty() )
+		if( !out.isEmpty() ) {
 			if( out.get( 0 ).startsWith( "invalid directory" ) )
-				action.exit( out.get( 0 ) );
+				action.exit1( _Error.InvalidDirectory1 , "invalid directory " + cmdDir , cmdDir );
+		}
 		return( out );
 	}
 	
@@ -367,7 +372,7 @@ abstract public class ShellCore {
 		String err = getErr();
 		
 		if( !err.isEmpty() )
-			exitError( action , "error running command (" + cmd + ")" + " - " + err );
+			exitError( action , _Error.ErrorExecutingCmd2 , "error running command (" + cmd + ")" + " - " + err , new String[] { cmd , err } );
 
 		return( cmdout );
 	}

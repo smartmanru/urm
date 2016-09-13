@@ -54,7 +54,7 @@ public class ActionSetVersion extends ActionBase {
 		ProjectVersionControl vcs = new ProjectVersionControl( this , false );
 		
 		if( !vcs.checkout( PATCHPATH.buildFolder , scopeProject.sourceProject , BRANCH ) )
-			exit( "setVersionProject: error calling checkout" );
+			exit1( _Error.UnableCheckout1 , "setVersionProject: error calling checkout" , scopeProject.sourceProject.PROJECT );
 
 		// set version
 		createDedicatedShell( "build"  );

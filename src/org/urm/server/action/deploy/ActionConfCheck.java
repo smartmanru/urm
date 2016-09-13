@@ -147,7 +147,7 @@ public class ActionConfCheck extends ActionBase {
 					S_CONFCHECK_STATUS = false;
 				}
 				else
-					ifexit( error );
+					ifexit( _Error.UnexpectedScopeVariable2 , error , new String[] { scope , var } );
 			}
 			else {
 				if( context.CTX_SHOWALL )
@@ -168,7 +168,7 @@ public class ActionConfCheck extends ActionBase {
 					S_CONFCHECK_STATUS = false;
 				}
 				else
-					ifexit( error );
+					ifexit( _Error.MissingScopeVariable2 , error , new String[] { scope , var } );
 			}
 			else {
 				if( context.CTX_SHOWALL )

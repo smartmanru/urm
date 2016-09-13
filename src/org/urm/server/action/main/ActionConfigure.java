@@ -68,7 +68,7 @@ public class ActionConfigure extends ActionBase {
 		if( urm.isStandaloneMode( this ) )
 			serverMode = false;
 		else
-			exit( "Installation is not configured, default is not applicable" );
+			exit0( _Error.InstallationNotConfigured0 , "Installation is not configured, default is not applicable" );
 		
 		if( serverMode ) {
 			executorMasterFolderRel += "/../../../master";
@@ -292,7 +292,7 @@ public class ActionConfigure extends ActionBase {
 				}
 				
 				if( env == null )
-					exit( "unknown environment ID=" + USEENV );
+					exit1( _Error.UnknownEnvironment1 , "unknown environment ID=" + USEENV , USEENV );
 				
 				addAffected( proxyPath , false );
 				

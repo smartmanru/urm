@@ -110,7 +110,7 @@ public class BuilderLinuxMaven extends Builder {
 		if( MAIN_POM_VER.startsWith( "${" ) ) {
 			Node node = ConfReader.xmlGetPathNode( file , "project/properties" );
 			if( node == null )
-				action.exit( "unable to find project/properties in pom.xml " );
+				action.exit0( _Error.NoPropertiesInPom0 , "unable to find project/properties in pom.xml" );
 			
 			String VAR = MAIN_POM_VER.substring( 2 , MAIN_POM_VER.length() - 1 );
 			MAIN_POM_VER = ConfReader.xmlGetPathNodeText( node , VAR );

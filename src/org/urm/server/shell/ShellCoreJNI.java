@@ -110,7 +110,7 @@ public class ShellCoreJNI {
 			  winHandle.setPointer( Pointer.createConstant( handle ) );
 			  return( kernel.GetProcessId( winHandle ) );
 		} catch (Throwable e) {
-			action.exit( "unable to get windows process id" );
+			action.exit0( _Error.UnableGetWindowsProcess0 , "unable to get windows process id" );
 		}
 
 		return( -1 );

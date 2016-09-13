@@ -57,7 +57,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			configure = new ActionConfigure( this , null , dist , tobeConfigFolder );
 		configure.context.CTX_HIDDEN = true;
 		if( !configure.runAll( scope ) )
-			exit( "unable to prepare configurarion files for comparison" );
+			exit0( _Error.UnablePrepareConfiguration0 , "unable to prepare configuration files for comparison" );
 		
 		asisFolder = artefactory.getWorkFolder( this , "asis" );
 		asisConfigFolder = asisFolder.getSubFolder( this , "config" );
@@ -109,7 +109,7 @@ public class ActionVerifyDeploy extends ActionBase {
 	private void executeServerDatabase( MetaEnvServer server ) throws Exception {
 		DatabaseClient client = new DatabaseClient();
 		if( !client.checkConnect( this , server ) )
-			exit( "unable to connect to server=" + server.NAME );
+			exit1( _Error.UnableConnectServer1 , "unable to connect to server=" + server.NAME , server.NAME );
 
 		boolean verifyServer = true; 
 		for( String version : dist.release.getApplyVersions( this ) ) {
@@ -319,12 +319,12 @@ public class ActionVerifyDeploy extends ActionBase {
 		
 		if( context.CTX_CHECK ) {
 			if( !redist.getConfigItem( this , asisConfFolder , confItem , location.DEPLOYPATH ) )
-				ifexit( "unable to get configuration item=" + confItem.KEY );
+				ifexit( _Error.UnableGetConfigurationItem1 , "unable to get configuration item=" + confItem.KEY , new String[] { confItem.KEY } );
 		}
 		else {
 			String asisMD5 = redist.getConfigItemMD5( this , confItem , location.DEPLOYPATH );
 			if( asisMD5 == null )
-				ifexit( "unable to get configuration item=" + confItem.KEY );
+				ifexit( _Error.UnableGetConfigurationItem1 , "unable to get configuration item=" + confItem.KEY , new String[] { confItem.KEY } );
 			asisConfFolder.createFileFromString( this , MD5FILE , asisMD5 );
 		}
 	}

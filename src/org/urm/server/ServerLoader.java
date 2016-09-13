@@ -82,10 +82,10 @@ public class ServerLoader {
 		
 		ServerProductMeta storage = productMeta.get( action.session.productName );
 		if( storage == null )
-			action.exit( "unknown product=" + action.session.productName );
+			action.exit1( _Error.UnknownSessionProduct1 , "unknown product=" + action.session.productName , action.session.productName );
 		
 		if( storage.loadFailed )
-			action.exit( "unusable metadata of product=" + action.session.productName );
+			action.exit1( _Error.UnusableProductMetadata1 , "unusable metadata of product=" + action.session.productName , action.session.productName );
 		
 		return( storage );
 	}
@@ -124,7 +124,7 @@ public class ServerLoader {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
 		MetaEnv env = storageFinal.loadEnvData( action , storageMeta , envFile );
 		if( loadProps && env.missingSecretProperties )
-			action.exit( "operation is unavailable - secret properties are missing" );
+			action.exit0( _Error.MissingSecretProperties0 , "operation is unavailable - secret properties are missing" );
 		return( env );
 	}
 	

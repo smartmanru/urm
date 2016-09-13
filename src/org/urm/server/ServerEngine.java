@@ -1,7 +1,6 @@
 package org.urm.server;
 
 import org.urm.common.Common;
-import org.urm.common.ExitException;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandOptions;
@@ -228,7 +227,7 @@ public class ServerEngine {
 		else if( cmd.equals( XDocCommandMeta.NAME ) )
 			executor = new XDocCommandExecutor( this , commandInfo );
 		else
-			throw new ExitException( "Unexpected URM args - unknown command executor=" + cmd + " (expected one of build/deploy/database/monitor)" );
+			Common.exit1( _Error.UnknownCommandExecutor1 , "Unexpected URM args - unknown command executor=" + cmd + " (expected one of build/deploy/database/monitor)" , cmd );
 		return( executor );
 	}
 

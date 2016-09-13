@@ -43,7 +43,7 @@ public class VersionInfoStorage {
 			return( "" );
 		
 		if( lines.length > 1 )
-			action.exit( "duplicate id=" + BASEID + " in " + filePath );
+			action.exit2( _Error.DuplicateBaseId2 , "duplicate id=" + BASEID + " in " + filePath , BASEID , filePath );
 		
 		String F_STATUS = Common.getPartAfterFirst( lines[0] , ":" );
 		return( F_STATUS );

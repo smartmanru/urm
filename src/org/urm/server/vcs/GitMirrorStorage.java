@@ -60,7 +60,7 @@ public class GitMirrorStorage extends MirrorStorage {
 		mirrorFolder.createFileFromString( action , "README.md" , "# URM REPOSITORY" );
 		vcs.addFileToCommit( mirror , mirrorFolder , "" , "README.md" );
 		if( !vcs.commitMasterFolder( mirror , mirrorFolder , "" , "first commit" ) )
-			action.exit( "unable to commit" );
+			action.exit0( _Error.Unable—ommit0 , "unable to commit" );
 	}
 	
 	public void refreshMirror() throws Exception {
@@ -105,7 +105,7 @@ public class GitMirrorStorage extends MirrorStorage {
 		
 		int status = shell.customGetStatus( action , cmd );
 		if( status != 0 )
-			action.exit( "unable to clone repository " + url + " to " + OSPATH );
+			action.exit2( _Error.UnableCloneRepository2 , "unable to clone repository " + url + " to " + OSPATH , url , OSPATH );
 
 		shell.customCheckStatus( action , "git -C " + OSPATH + " config user.name " + Common.getQuoted( user ) );
 		shell.customCheckStatus( action , "git -C " + OSPATH + " config user.email " + Common.getQuoted( "ignore@mail.com" ) );
@@ -117,9 +117,9 @@ public class GitMirrorStorage extends MirrorStorage {
 		
 		if( FILENAME.isEmpty() ) {
 			if( !BASEDIR.checkExists( action ) )
-				action.exit( "exportFromPath: local directory " + BASEDIR + " does not exist" );
+				action.exit1( _Error.MissingLocalDirectory1 , "exportFromPath: local directory " + BASEDIR.folderPath + " does not exist" , BASEDIR.folderPath );
 			if( commitFolder.checkExists( action ) )
-				action.exit( "exportFromPath: local directory " + commitFolder.folderPath + " should not exist" );
+				action.exit1( _Error.LocalDirectoryShouldNotExist1 , "exportFromPath: local directory " + commitFolder.folderPath + " should not exist" , commitFolder.folderPath );
 			
 			// export file or subdir
 			commitFolder.ensureExists( action );
@@ -154,7 +154,7 @@ public class GitMirrorStorage extends MirrorStorage {
 		}
 		else {
 			if( !commitFolder.checkExists( action ) )
-				action.exit( "exportFromPath: local directory " + commitFolder.folderPath + " does not exist" );
+				action.exit1( _Error.MissingLocalDirectory1 , "exportFromPath: local directory " + commitFolder.folderPath + " does not exist" , commitFolder.folderPath );
 			
 			// export file or subdir
 			int COMPS = Common.getDirCount( SUBPATH );
@@ -162,7 +162,7 @@ public class GitMirrorStorage extends MirrorStorage {
 
 			String srcFile = BASEDIR.getFilePath( action , FILENAME );
 			if( ( !FILENAME.equals( BASENAME ) ) && BASEDIR.checkFileExists( action , FILENAME ) )
-				action.exit( "exportFromPath: local file or directory " + srcFile + " already exists" );
+				action.exit1( _Error.LocalFileOrDirectoryShouldNotExist1 , "exportFromPath: local file or directory " + srcFile + " already exists" , srcFile );
 
 			String FILEPATH = Common.getPath( SUBPATH , FILENAME );
 			
@@ -188,14 +188,14 @@ public class GitMirrorStorage extends MirrorStorage {
 		String OSPATH = shell.getOSPath( action , path );
 		int status = shell.customGetStatus( action , "git -C " + OSPATH + " push origin" );
 		if( status != 0 )
-			action.exit( "unable to push origin, path=" + OSPATH );
+			action.exit1( _Error.UnablePushOrigin1 , "unable to push origin, path=" + OSPATH , OSPATH );
 	}
 
 	public void fetchOrigin( String path ) throws Exception {
 		String OSPATH = shell.getOSPath( action , path );
 		int status = shell.customGetStatus( action , "git -C " + OSPATH + " fetch origin" );
 		if( status != 0 )
-			action.exit( "unable to fetch origin, path=" + OSPATH );
+			action.exit1( _Error.UnableFetchOrigin1 , "unable to fetch origin, path=" + OSPATH , OSPATH );
 	}
 
 }

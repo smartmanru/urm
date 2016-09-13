@@ -62,7 +62,7 @@ public class ActionExportDatabase extends ActionBase {
 		else
 			node = server.getActiveNode( this );
 		if( !client.checkConnect( this , server , node ) )
-			exit( "unable to connect to administrative db" );
+			exit0( _Error.UnableConnectAdmin0 , "unable to connect to administrative db" );
 		
 		prepareDestination();
 		makeTargetScripts();
@@ -90,7 +90,7 @@ public class ActionExportDatabase extends ActionBase {
 		serverSchemas = server.getSchemaSet( this );
 		if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )
 			if( !serverSchemas.containsKey( SCHEMA ) )
-				exit( "schema " + SCHEMA + " is not part of server datasets" );
+				exit1( _Error.UnknownServerSchema1 , "schema " + SCHEMA + " is not part of server datasets" , SCHEMA );
 
 		// load tableset
 		tableSet = ms.readDatapumpFile( this , TABLESETFILE , SCHEMA );
@@ -118,7 +118,7 @@ public class ActionExportDatabase extends ActionBase {
 		if( exportScriptsFolder.checkFileExists( this , "run.sh" ) ) {
 			String value = checkStatus( exportScriptsFolder );
 			if( value.equals( "RUNNING" ) )
-				exit( "unable to start because export is already running" );
+				exit0( _Error.ExportAlreadyRunning0 , "unable to start because export is already running" );
 		}
 		
 		info( "copy execution part to " + redist.folderPath + " ..." );
@@ -216,7 +216,7 @@ public class ActionExportDatabase extends ActionBase {
 			exportScriptsFolder.copyFileToLocalRename( this , workFolder , "run.sh.log" , logFileName );
 			distLogFolder.copyFileFromLocal( this , workFolder.getFilePath( this , logFileName ) );
 			copyDataAndLogs( false , cmd , SN );
-			exit( "unable to start export process, see logs" );
+			exit0( _Error.UnableStartExport0 , "unable to start export process, see logs" );
 		}
 		
 		// wait for completion - unlimited
@@ -236,7 +236,7 @@ public class ActionExportDatabase extends ActionBase {
 		if( !value.equals( "FINISHED" ) ) {
 			info( "export finished with errors, save logs ..." );
 			copyDataAndLogs( false , cmd , SN );
-			exit( "export process completed with errors, see logs" );
+			exit0( _Error.ExportProcessErrors0 , "export process completed with errors, see logs" );
 		}
 		
 		info( "export successfully finished, copy data and logs ..." );
@@ -285,7 +285,7 @@ public class ActionExportDatabase extends ActionBase {
 		String[] copied = workDataFolder.findFiles( this , files );
 		
 		if( copied.length == 0 )
-			exit( "unable to find files: " + files );
+			exit1( _Error.UnableFindFiles1, "unable to find files: " + files , files );
 		
 		// copy to target
 		timeout = setTimeoutUnlimited();

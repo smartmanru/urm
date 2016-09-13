@@ -28,7 +28,7 @@ public class ActionRenameCodebase extends ActionBase {
 		if( branchVAR1 == false && branchVAR2 == false && force == true )
 			vcs.renameTagToTag( scopeProject.sourceProject , VAR1 , VAR2 );
 		else
-			exit( "ActionRenameCodebase: combination is not implemented - branchVAR1=" + branchVAR1 + ", branchVAR2=" + branchVAR2 + ", force=" + force );
+			exitNotImplemented();
 		return( true );
 	}
 }

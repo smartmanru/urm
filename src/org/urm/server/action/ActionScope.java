@@ -50,17 +50,17 @@ public class ActionScope {
 		ActionScope scope = new ActionScope( action );
 		
 		if( set == null || set.isEmpty() )
-			action.exit( "missing set name (use \"all\" to reference all sets)" );
+			action.exit0( _Error.MissingSetName0 , "missing set name (use \"all\" to reference all sets)" );
 			
 		if( set.equals( "all" ) ) {
 			if( TARGETS.length != 0 )
-				action.exit( "targets cannot be specified without set" );
+				action.exit0( _Error.TargetsWithoutSet0 , "targets cannot be specified without set" );
 			
 			scope.createFullProduct( action );
 		}
 		else {
 			if( TARGETS == null || TARGETS.length == 0 )
-				action.exit( "missing targets (use \"all\" to reference all targets)" );
+				action.exit0( _Error.MissingTargets0 , "missing targets (use \"all\" to reference all targets)" );
 
 			if( TARGETS.length == 1 && TARGETS[0].equals( "all" ) )
 				scope.createProductSet( action , set , null );
@@ -90,17 +90,17 @@ public class ActionScope {
 		ActionScope scope = new ActionScope( action );
 		
 		if( set == null || set.isEmpty() )
-			action.exit( "missing set name (use \"all\" to reference all sets)" );
+			action.exit0( _Error.MissingSetName0 , "missing set name (use \"all\" to reference all sets)" );
 			
 		if( set.equals( "all" ) ) {
 			if( TARGETS.length != 0 )
-				action.exit( "targets cannot be specified without set" );
+				action.exit0( _Error.TargetsWithoutSet0 , "targets cannot be specified without set" );
 			
 			scope.createFullRelease( action , dist );
 		}
 		else {
 			if( TARGETS == null || TARGETS.length == 0 )
-				action.exit( "missing targets (use \"all\" to reference all targets)" );
+				action.exit0( _Error.MissingTargets0 , "missing targets (use \"all\" to reference all targets)" );
 
 			if( TARGETS.length == 1 && TARGETS[0].equals( "all" ) )
 				scope.createReleaseSet( action , dist , set , null );
@@ -116,7 +116,7 @@ public class ActionScope {
 		ActionScope scope = new ActionScope( action );
 
 		if( ITEMS == null || ITEMS.length == 0 )
-			action.exit( "missing items (use \"all\" to reference all items)" );
+			action.exit0( _Error.MissingTargetItems0 , "missing items (use \"all\" to reference all items)" );
 		
 		if( ITEMS.length == 1 && ITEMS[0].equals( "all" ) )
 			scope.createProductDistItemsScope( action , null , false );
@@ -130,7 +130,7 @@ public class ActionScope {
 		ActionScope scope = new ActionScope( action );
 
 		if( ITEMS == null || ITEMS.length == 0 )
-			action.exit( "missing items (use \"all\" to reference all items)" );
+			action.exit0( _Error.MissingTargetItems0 , "missing items (use \"all\" to reference all items)" );
 		
 		if( ITEMS.length == 1 && ITEMS[0].equals( "all" ) )
 			scope.createReleaseDistItemsScope( action , dist , null , false );
@@ -149,10 +149,10 @@ public class ActionScope {
 		ActionScope scope = new ActionScope( action );
 
 		if( PROJECT == null || PROJECT.isEmpty() )
-			action.exit( "missing project" );
+			action.exit0( _Error.MissingProject0 , "missing project" );
 		
 		if( ITEMS == null || ITEMS.length == 0 )
-			action.exit( "missing items (use \"all\" to reference all items)" );
+			action.exit0( _Error.MissingProjectItems0 , "missing items (use \"all\" to reference all items)" );
 		
 		if( ITEMS.length == 1 && ITEMS[0].equals( "all" ) )
 			return( scope.createReleaseProjectItemsScope( action , dist , PROJECT , null ) );
@@ -169,10 +169,10 @@ public class ActionScope {
 		ActionScope scope = new ActionScope( action );
 
 		if( SERVER == null || SERVER.isEmpty() )
-			action.exit( "missing server" );
+			action.exit0( _Error.MissingServer0 , "missing server" );
 		
 		if( NODES == null || NODES.length == 0 )
-			action.exit( "missing items (use \"all\" to reference all items)" );
+			action.exit0( _Error.MissingServerNodes0 , "missing items (use \"all\" to reference all items)" );
 		
 		if( NODES.length == 1 && NODES[0].equals( "all" ) )
 			scope.createEnvServerNodesScope( action , dc , SERVER , null , dist );
@@ -218,7 +218,7 @@ public class ActionScope {
 		ActionScope scope = new ActionScope( action );
 
 		if( SERVERS == null || SERVERS.length == 0 )
-			action.exit( "missing items (use \"all\" to reference all items)" );
+			action.exit0( _Error.MissingServers0 , "missing items (use \"all\" to reference all items)" );
 		
 		if( SERVERS.length == 1 && SERVERS[0].equals( "all" ) ) {
 			if( dc == null )
@@ -229,7 +229,7 @@ public class ActionScope {
 		}
 			
 		if( dc == null )
-			action.exit( "datacenter is undefined" );
+			action.exit0( _Error.DatacenterUndefined0 , "datacenter is undefined" );
 		
 		scope.createEnvServersScope( action , dc , SERVERS , dist );
 		return( scope );
@@ -241,7 +241,7 @@ public class ActionScope {
 		VarCATEGORY CATEGORY;
 
 		if( INDEXES.length == 0 )
-			action.exit( "use \"all\" to reference all items" );
+			action.exit0( _Error.MissingDatabaseItems0 , "use \"all\" to reference all items" );
 		
 		boolean all = ( INDEXES.length == 1 && INDEXES[0].equals( "all" ) )? true : false;
 		
@@ -361,7 +361,7 @@ public class ActionScope {
 		for( String itemName : ITEMS ) {
 			MetaDistrBinaryItem item = meta.distr.getBinaryItem( action , itemName );
 			if( item == null )
-				action.exit( "unknown distributive item=" + itemName );
+				action.exit1( _Error.UnknownDistributiveItem1 , "unknown distributive item=" + itemName , itemName );
 			
 			ActionScopeSet sset = null;
 			if( item.DISTSOURCE == VarDISTITEMSOURCE.MANUAL ) {
@@ -382,7 +382,7 @@ public class ActionScope {
 		for( String itemName : ITEMS ) {
 			MetaDistrBinaryItem item = meta.distr.getBinaryItem( action , itemName );
 			if( item.sourceItem == null )
-				action.exit( "unknown distributive item=" + itemName );
+				action.exit1( _Error.UnknownDistributiveItem1 ,"unknown distributive item=" + itemName , itemName );
 			
 			ActionScopeSet sset = null;
 			if( item.DISTSOURCE == VarDISTITEMSOURCE.MANUAL )

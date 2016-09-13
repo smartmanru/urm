@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.common.ExitException;
 import org.urm.server.action.ActionBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -66,7 +65,7 @@ public class ServerBuilders {
 	public ServerProjectBuilder getBuilder( String name ) throws Exception {
 		ServerProjectBuilder builder = builderMap.get( name );
 		if( builder == null )
-			throw new ExitException( "unknown resource=" + name );
+			Common.exit1( _Error.UnknownBuilder1 , "unknown builder=" + name , name );
 		return( builder );
 	}
 
@@ -76,7 +75,7 @@ public class ServerBuilders {
 	
 	public void createBuilder( ServerTransaction transaction , ServerProjectBuilder builder ) throws Exception {
 		if( builderMap.get( builder.NAME ) != null )
-			transaction.exit( "resource already exists name=" + builder.NAME );
+			transaction.exit( _Error.BuilderAlreadyExists1 , "builder already exists name=" + builder.NAME , new String[] { builder.NAME } );
 			
 		builder.createBuilder();
 		builderMap.put( builder.NAME , builder );
@@ -84,7 +83,7 @@ public class ServerBuilders {
 	
 	public void deleteBuilder( ServerTransaction transaction , ServerProjectBuilder builder ) throws Exception {
 		if( builderMap.get( builder.NAME ) == null )
-			transaction.exit( "unknown resource name=" + builder.NAME );
+			transaction.exit( _Error.UnknownBuilder1 , "unknown builder name=" + builder.NAME , new String[] { builder.NAME } );
 			
 		builderMap.remove( builder.NAME );
 	}

@@ -79,7 +79,7 @@ public class ReleaseDelivery {
 		else 
 		if( target.distDatabaseItem != null ) {
 			if( dbItem != null )
-				action.exit( "database item is already added to release" );
+				action.exit0( _Error.DatabaseItemAlreadyAdded0 , "database item is already added to release" );
 			
 			action.debug( "add database delivery: " + distDelivery.NAME );
 			dbItem = target;
@@ -90,7 +90,7 @@ public class ReleaseDelivery {
 			manualItems.put( target.distManualItem.KEY , target );
 		}
 		else
-			action.exit( "unexpected type of release source =" + target.NAME );
+			action.exit1( _Error.UnexpectedReleaseSourceType1 , "unexpected type of release source =" + target.NAME , target.NAME );
 	}
 	
 	public void removeCategoryTarget( ActionBase action , ReleaseTarget target ) throws Exception {
@@ -109,7 +109,7 @@ public class ReleaseDelivery {
 			manualItems.remove( target.distManualItem.KEY );
 		}
 		else
-			action.exit( "unexpected type of release source =" + target.NAME );
+			action.exit1( _Error.UnexpectedReleaseSourceType1 , "unexpected type of release source =" + target.NAME , target.NAME );
 	}
 
 	public ReleaseTarget getDatabaseItem( ActionBase action ) throws Exception {

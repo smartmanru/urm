@@ -41,7 +41,7 @@ public abstract class CommandExecutor {
 	public CommandAction getAction( String action ) throws Exception {
 		CommandAction commandAction = actionsMap.get( action ); 
 		if( commandAction == null )
-			throw new ExitException( "unknown action=" + action );
+			Common.exit2( _Error.UnknownExecutorAction2 , "unknown action=" + action , commandInfo.name , action );
 		return( commandAction );
 	}
 
@@ -93,13 +93,9 @@ public abstract class CommandExecutor {
 		
 	public void checkRequired( ActionBase action , String value , String name ) throws Exception {
 		if( value == null || value.isEmpty() )
-			exit( action , name + " is undefined. Exiting" );
+			action.exit1( _Error.NameUndefined1 , name + " is undefined. Exiting" , name );
 	}
 	
-	public void exit( ActionBase action , String message ) throws Exception {
-		action.exit( message );
-	}
-
 	public String[] getArgList( ActionBase action , int pos ) throws Exception {
 		return( action.context.options.getArgList( pos ) );
 	}
@@ -109,13 +105,14 @@ public abstract class CommandExecutor {
 		if( pos >= args.length )
 			return;
 		
-		action.exit( "unexpected extra arguments: " + Common.getQuoted( Common.getList( args ) ) + "; see help to find syntax" );
+		String xargs = Common.getList( args );
+		action.exit1( _Error.UnexpectedExtraArguments1 , "unexpected extra arguments: " + Common.getQuoted( xargs ) + "; see help to find syntax" , xargs );
 	}
 	
 	public VarCATEGORY getRequiredCategoryArg( ActionBase action , int pos ) throws Exception {
 		VarCATEGORY CATEGORY = getCategoryArg( action , pos );
 		if( CATEGORY == null )
-			action.exit( "CATEGORY argument is required" );
+			action.exit1( _Error.ArgumentRequired1 , "CATEGORY argument is required" , "CATEGORY" );
 		return( CATEGORY );
 	}
 	
@@ -130,7 +127,7 @@ public abstract class CommandExecutor {
 		}
 				
 		if( BUILDMODE == null )
-			action.exit( "unknown buildMode=" + value );
+			action.exit1( _Error.UnknownBuildMode1 , "unknown buildMode=" + value , value );
 		return( BUILDMODE );
 	}
 	
@@ -144,7 +141,7 @@ public abstract class CommandExecutor {
 	public String getRequiredArg( ActionBase action , int pos , String argName ) throws Exception {
 		String value = getArg( action , pos );
 		if( value.isEmpty() )
-			action.exit( argName + " is empty" );
+			action.exit1( _Error.ArgumentRequired1 , argName + " is empty" , argName );
 		
 		return( value );
 	}

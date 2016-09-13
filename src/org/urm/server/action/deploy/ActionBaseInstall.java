@@ -53,8 +53,11 @@ public class ActionBaseInstall extends ActionBase {
 	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerBase base ) throws Exception {
 		BaseRepository repo = artefactory.getBaseRepository( this );
 		MetaBase info = repo.getBaseInfo( this , base.ID , node , true );
-		if( info.serverType != server.serverType )
-			exit( "base server type mismatched: " + Common.getEnumLower( info.serverType ) + " <> " + Common.getEnumLower( server.serverType ) );
+		if( info.serverType != server.serverType ) {
+			String baseType = Common.getEnumLower( info.serverType );
+			String serverType = Common.getEnumLower( server.serverType );
+			exit2( _Error.BaseServerTypeMismatched2 , "base server type mismatched: " + baseType + " <> " + serverType , baseType , serverType );
+		}
 		
 		// install dependencies
 		for( String depBase : info.dependencies ) {
@@ -188,7 +191,7 @@ public class ActionBaseInstall extends ActionBase {
 		setTimeout( timeout );
 		
 		if( !shell.checkFileExists( this , localPath ) )
-			exit( "unable to find file: " + localPath );
+			exit1( _Error.UnableFindFile1 , "unable to find file: " + localPath , localPath );
 		
 		debug( "source local path: " + localPath );
 		return( localPath );

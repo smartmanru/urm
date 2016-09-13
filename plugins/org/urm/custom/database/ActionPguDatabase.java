@@ -1,6 +1,7 @@
 package org.urm.custom.database;
 
 import org.urm.common.Common;
+import org.urm.common.ExitException;
 import org.urm.server.action.ActionBase;
 import org.urm.server.custom.CommandCustom;
 import org.urm.server.custom.ICustomDatabase;
@@ -15,6 +16,11 @@ public class ActionPguDatabase implements ICustomDatabase {
 	boolean S_CHECK_FAILED = false;
 	public String PUBLISHERS;
 
+	public static int ErrorBase = ExitException.BasePlugin;
+	public static final int ScriptSetErrors0 = ErrorBase + 1;
+	public static final int ReleaseDatabaseFileSetCheckFailed0 = ErrorBase + 2;
+	public static final int MissingOrganizationalMappingFile1 = ErrorBase + 3;
+	
 	public ActionPguDatabase() {
 		S_DIC_CONTENT = false;
 		S_SVC_CONTENT = false;
@@ -57,7 +63,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 			if( action.context.CTX_FORCE )
 				action.error( "prepare: errors in script set. Ignored." );
 			else
-				action.exit( "prepare: errors in script set" );
+				action.exit0( ScriptSetErrors0 , "prepare: errors in script set" );
 		}
 	}
 
@@ -227,7 +233,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 		}
 
 		if( S_CHECK_FAILED )
-			action.ifexit( "release database file set check failed" );
+			action.ifexit( ReleaseDatabaseFileSetCheckFailed0 , "release database file set check failed" , null );
 	}
 
 	private void checkOneForms( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , String P_ORGNAME ) throws Exception {
@@ -440,7 +446,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 		// read org item mapping
 		String path = "orginfo.txt";
 		if( !action.shell.checkFileExists( action , path ) )
-			action.exit( "organizational mapping file " + path + " not found" );
+			action.exit1( MissingOrganizationalMappingFile1 , "organizational mapping file " + path + " not found" , path );
 			
 		String S_ORG_FOLDERID = action.shell.customGetValue( action , "grep " + Common.getQuoted( "^" + S_ORG_EXTID + "=" ) + " " + path + " | cut -d " + Common.getQuoted( "=" ) + " -f2" );
 		return( S_ORG_FOLDERID );

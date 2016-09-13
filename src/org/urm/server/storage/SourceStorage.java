@@ -49,7 +49,7 @@ public class SourceStorage {
 		
 		ServerMirrorRepository mirror = action.getMirror( build );
 		if( !vcs.exportRepositoryMasterPath( mirror , subFolder , ITEMPATH , BASENAME ) )
-			action.exit( "unable to export from mirror=" + mirror.NAME + ", ITEMPATH=" + ITEMPATH );
+			action.exit2( _Error.UnableExportMirror2 , "unable to export from mirror=" + mirror.NAME + ", ITEMPATH=" + ITEMPATH , mirror.NAME , ITEMPATH );
 	}
 	
 	public boolean downloadReleaseManualFolder( ActionBase action , Dist distStorage , LocalFolder dstFolder ) throws Exception {
@@ -97,7 +97,8 @@ public class SourceStorage {
 			return( true );
 		
 		ServerMirrorRepository mirror = action.getMirror( build );
-		action.ifexit( "unable to find configuration at " + vcs.getInfoMasterPath( mirror , PATH ) );
+		String path = vcs.getInfoMasterPath( mirror , PATH );
+		action.ifexit( _Error.MissingConfItem1 , "unable to find configuration at " + path , new String[] { path } );
 		
 		action.info( "no configuration in " + PATH + ". Skipped." );
 		return( false );
@@ -110,7 +111,7 @@ public class SourceStorage {
 		MetaProductBuildSettings build = action.getBuildSettings();
 		ServerMirrorRepository mirror = action.getMirror( build );
 		if( !vcs.exportRepositoryMasterPath( mirror , dstFolder , ITEMPATH , distrComp.KEY ) )
-			action.exit( "unable to export from mirror=" + mirror.NAME + ", ITEMPATH=" + ITEMPATH );
+			action.exit2( _Error.UnableExportMirror2 , "unable to export from mirror=" + mirror.NAME + ", ITEMPATH=" + ITEMPATH , mirror.NAME , ITEMPATH );
 		
 		dstFolder.prepareFolderForLinux( action , distrComp.KEY );
 		return( true );
@@ -123,7 +124,7 @@ public class SourceStorage {
 		MetaProductBuildSettings build = action.getBuildSettings();
 		ServerMirrorRepository mirror = action.getMirror( build );
 		if( !vcs.exportRepositoryMasterPath( mirror , dstFolder , ITEMPATH , DATABASE_FOLDER ) )
-			action.exit( "unable to export from mirror=" + mirror.NAME + ", ITEMPATH=" + ITEMPATH );
+			action.exit2( _Error.UnableExportMirror2 , "unable to export from mirror=" + mirror.NAME + ", ITEMPATH=" + ITEMPATH , mirror.NAME , ITEMPATH );
 		
 		if( action.isLocalLinux() )
 			dstFolder.prepareFolderForLinux( action , DATABASE_FOLDER );
@@ -137,7 +138,7 @@ public class SourceStorage {
 		MetaProductBuildSettings build = action.getBuildSettings();
 		ServerMirrorRepository mirror = action.getMirror( build );
 		if( !vcs.exportRepositoryMasterPath( mirror , dstManualFolder.getParentFolder( action ) , PATH , dstManualFolder.folderName ) )
-			action.exit( "unable to export from mirror=" + mirror.NAME + ", PATH=" + PATH );
+			action.exit2( _Error.UnableExportMirror2 , "unable to export from mirror=" + mirror.NAME + ", PATH=" + PATH , mirror.NAME , PATH );
 		
 		if( dstManualFolder.checkFolderExists( action , DATABASE_FOLDER ) )
 			dstManualFolder.prepareFolderForLinux( action , DATABASE_FOLDER );
@@ -309,12 +310,12 @@ public class SourceStorage {
 		ServerMirrorRepository mirror = action.getMirror( build );
 		if( TAG.isEmpty() ) {
 			if( !vcs.exportRepositoryMasterPath( mirror , folder , PATH , confName ) )
-				action.exit( "exportLiveConfigItem: unable to export " + confName + " from " + PATH );
+				action.exit2( _Error.UnableExportConfig2 , "unable to export " + confName + " from " + PATH , confName , PATH );
 		}
 		else {
 			String useTAG = meta.product.CONFIG_PRODUCT + "-" + action.context.env.ID + "-" + TAG;
 			if( !vcs.exportRepositoryTagPath( mirror , folder , useTAG , PATH , confName ) )
-				action.exit( "exportLiveConfigItem: unable to export " + confName + " from " + PATH + ", TAG=" + useTAG );
+				action.exit3( _Error.UnableExportConfigTag3 , "unable to export " + confName + " from " + PATH + ", TAG=" + useTAG , confName , PATH , useTAG );
 		}
 		
 		// remove windows newlines and add permissions to shell files
@@ -330,12 +331,12 @@ public class SourceStorage {
 		ServerMirrorRepository mirror = action.getMirror( build );
 		if( TAG.isEmpty() ) {
 			if( !vcs.exportRepositoryMasterPath( mirror , folder , PATH , confName ) )
-				action.exit( "exportTemplateConfigItem: unable to export " + confName + " from " + PATH );
+				action.exit2( _Error.UnableExportConfig2 , "unable to export " + confName + " from " + PATH , confName , PATH );
 		}
 		else {
 			String useTAG = meta.product.CONFIG_PRODUCT + "-" + action.context.env.ID + "-" + dc.NAME + "-" + TAG;
 			if( !vcs.exportRepositoryTagPath( mirror , folder , useTAG , PATH , confName ) )
-				action.exit( "exportTemplateConfigItem: unable to export " + confName + " from " + PATH + ", TAG=" + useTAG );
+				action.exit3( _Error.UnableExportConfigTag3 , "unable to export " + confName + " from " + PATH + ", TAG=" + useTAG , confName , PATH , useTAG );
 		}
 		
 		// remove windows newlines and add permissions to shell files
@@ -447,7 +448,7 @@ public class SourceStorage {
 		String PATH = Common.getPath( CONFPATH , name );
 		ServerMirrorRepository mirror = action.getMirror( build );
 		if( !vcs.exportRepositoryMasterPath( mirror , folder , PATH , name ) )
-			action.exit( "exportTemplateConfigItem: unable to export " + name + " from " + PATH );
+			action.exit2( _Error.UnableExportConfig2 , "unable to export " + name + " from " + PATH , name , PATH );
 		
 		// remove windows newlines and add permissions to shell files
 		if( action.isLocalLinux() )

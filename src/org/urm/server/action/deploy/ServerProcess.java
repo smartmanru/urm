@@ -50,7 +50,7 @@ public class ServerProcess {
 
 	public boolean isStarted( ActionBase action ) throws Exception {
 		if( mode == VarPROCESSMODE.UNKNOWN )
-			action.exit( "state is unknown for node=" + node.HOSTLOGIN );
+			action.exit1( _Error.UnknownHostState1 , "state is unknown for node=" + node.HOSTLOGIN , node.HOSTLOGIN );
 		
 		if( mode == VarPROCESSMODE.STARTED )
 			return( true );

@@ -804,5 +804,25 @@ public class Common {
 		String md5 = new BigInteger( 1 , digest ).toString( 16 );
 		return( md5 );
 	}
+
+	public static void exitUnexpected() throws Exception {
+		throw new ExitException( _Error.UnexpectedState0 , "Unexpected State" , null );
+	}
+	
+	public static void exit0( int errorCode , String msg ) throws Exception {
+		throw new ExitException( errorCode , msg , null );
+	}
+	
+	public static void exit1( int errorCode , String msg , String param1 ) throws Exception {
+		throw new ExitException( errorCode , msg , new String[] { param1 } );
+	}
+	
+	public static void exit2( int errorCode , String msg , String param1 , String param2 ) throws Exception {
+		throw new ExitException( errorCode , msg , new String[] { param1 , param2 } );
+	}
+	
+	public static void exit3( int errorCode , String msg , String param1 , String param2 , String param3 ) throws Exception {
+		throw new ExitException( errorCode , msg , new String[] { param1 , param2 , param3 } );
+	}
 	
 }

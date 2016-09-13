@@ -61,7 +61,7 @@ public class ActionImportDatabase extends ActionBase {
 		
 		client = new DatabaseClient();
 		if( !client.checkConnect( this , server ) )
-			exit( "unable to connect to administrative db" );
+			exit0( _Error.UnableConnectAdmin0 , "unable to connect to administrative db" );
 		
 		checkSource();
 		makeTargetScripts();
@@ -91,7 +91,7 @@ public class ActionImportDatabase extends ActionBase {
 		serverSchemas = server.getSchemaSet( this );
 		if( !SCHEMA.isEmpty() )
 			if( !serverSchemas.containsKey( SCHEMA ) )
-				exit( "schema " + SCHEMA + " is not part of server datasets" );
+				exit1( _Error.UnknownServerSchema1 , "schema " + SCHEMA + " is not part of server datasets" , SCHEMA );
 
 		// load tableset
 		tableSet = ms.readDatapumpFile( this , TABLESETFILE , SCHEMA );
@@ -101,13 +101,13 @@ public class ActionImportDatabase extends ActionBase {
 		DistRepository repository = artefactory.getDistRepository( this );
 		distDataFolder = repository.getDataFolder( this , DATASET );
 		if( !distDataFolder.checkExists( this ) )
-			exit( "data folder does not exist: " + distDataFolder.folderPath );
+			exit1( _Error.MissingDataFolder1 , "data folder does not exist: " + distDataFolder.folderPath , distDataFolder.folderPath );
 		
 		// check required dump files are available
 		FileSet files = distDataFolder.getFileSet( this );
 		if( !CMD.equals( "data" ) )
 			if( files.getFilesMatched( this , "meta-.*\\.dump" ).length == 0 )
-				exit( "no metadata dump files to load, check dump directory: " + distDataFolder.folderPath );
+				exit1( _Error.NoMetadataDumpFiles1 , "no metadata dump files to load, check dump directory: " + distDataFolder.folderPath , distDataFolder.folderPath );
 			
 		if( !CMD.equals( "meta" ) ) {
 			for( String schema : serverSchemas.keySet() ) {
@@ -120,7 +120,7 @@ public class ActionImportDatabase extends ActionBase {
 				// check data files
 				if( SCHEMA.isEmpty() || SCHEMA.equals( schema ) ) {
 					if( files.getFilesMatched( this , "data-" + schema + ".*\\.dump" ).length == 0 )
-						exit( "no data dump files for schema=" + schema + " to load, check dump directory: " + distDataFolder.folderPath );
+						exit2( _Error.NoSchemaDataDumpFiles2 , "no data dump files for schema=" + schema + " to load, check dump directory: " + distDataFolder.folderPath , schema , distDataFolder.folderPath );
 				}
 			}
 		}
@@ -143,7 +143,7 @@ public class ActionImportDatabase extends ActionBase {
 		if( importScriptsFolder.checkFileExists( this , "run.sh" ) ) {
 			String value = checkStatus( importScriptsFolder );
 			if( value.equals( "RUNNING" ) )
-				exit( "unable to start because import is already running" );
+				exit0( _Error.ImportAlreadyRunning0 , "unable to start because import is already running" );
 		}
 		
 		info( "copy execution part to " + redist.folderPath + " ..." );
@@ -245,7 +245,7 @@ public class ActionImportDatabase extends ActionBase {
 			
 			importScriptsFolder.copyFileToLocalRename( this , workFolder , "run.sh.log" , cmd + "-" + SN + "run.sh.log" );
 			copyLogs( false , cmd , SN );
-			exit( "unable to start import process, see logs at " + workFolder.folderPath );
+			exit1( _Error.UnableStartImport1 , "unable to start import process, see logs at " + workFolder.folderPath , workFolder.folderPath );
 		}
 		
 		// wait for completion - unlimited
@@ -263,7 +263,7 @@ public class ActionImportDatabase extends ActionBase {
 		if( !value.equals( "FINISHED" ) ) {
 			info( "import finished with errors, save logs ..." );
 			copyLogs( false , cmd , SN );
-			exit( "import process completed with errors, see logs" );
+			exit0( _Error.ImportProcessErrors0 , "import process completed with errors, see logs" );
 		}
 		
 		info( "import successfully finished, copy logs ..." );
@@ -297,7 +297,7 @@ public class ActionImportDatabase extends ActionBase {
 		String[] copied = workFolder.findFiles( this , files );
 		
 		if( copied.length == 0 )
-			exit( "unable to find files: " + files );
+			exit1( _Error.UnableFindFiles1 , "unable to find files: " + files , files );
 		
 		distLogFolder.copyFilesFromLocal( this , workFolder , files );
 	}
@@ -312,7 +312,7 @@ public class ActionImportDatabase extends ActionBase {
 
 		String[] copied = distFolder.findFiles( this , files );
 		if( copied.length == 0 )
-			exit( "unable to find files: " + files );
+			exit1( _Error.UnableFindFiles1 , "unable to find files: " + files , files );
 		
 		LocalFolder workDataFolder;
 		int timeout = setTimeoutUnlimited();
@@ -338,7 +338,7 @@ public class ActionImportDatabase extends ActionBase {
 		
 		DatabaseClient client = new DatabaseClient();
 		if( !client.checkConnect( this , server ) )
-			exit( "unable to connect to server=" + server.NAME );
+			exit1( _Error.ConnectFailed1 , "unable to connect to server=" + server.NAME , server.NAME );
 		
 		LocalFolder post = workFolder.getSubFolder( this , "post-refresh" );
 		post.ensureExists( this );

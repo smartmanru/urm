@@ -183,20 +183,20 @@ public class DeployCommandExecutor extends CommandExecutor {
 		if( VALUE.indexOf( '=' ) >= 0 ) {
 			F_HOST_IP = Common.getPartAfterFirst( VALUE , "=" );
 			if( !F_HOST_IP.matches( "[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+" ) )
-				action.exit( "Hosts: invalid IP=" + F_HOST_IP );
+				action.exit1( _Error.InvalidHostIP , "Hosts: invalid IP=" + F_HOST_IP , F_HOST_IP );
 		}
 
 		if( CMD.equals( "set" ) ) {
 			if( F_HOST_NAME.isEmpty() || F_HOST_IP.isEmpty() )
-				action.exit( "Hosts: invalid value=" + VALUE + ", expected in form host=address" );
+				action.exit1( _Error.InvalidActionValue1 , "Hosts: invalid value=" + VALUE + ", expected in form host=address" , VALUE );
 		}
 		else 
 		if( CMD.equals( "delete" ) || CMD.equals( "check" ) ) {
 			if( F_HOST_NAME.isEmpty() )
-				action.exit( "Hosts: invalid value=" + VALUE );
+				action.exit1( _Error.InvalidActionValue1 , "Hosts: invalid value=" + VALUE , VALUE );
 		}
 		else
-			action.exit( "Hosts: invalid command=" + CMD );
+			action.exit1( _Error.InvalidHostsCommand1 , "Hosts: invalid command=" + CMD , CMD );
 		
 		ActionScope scope = getServerScope( action , 2 );
 		impl.changeHosts( action , scope , CMD , F_HOST_NAME , F_HOST_IP );

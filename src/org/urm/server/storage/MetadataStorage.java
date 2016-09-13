@@ -109,11 +109,11 @@ public class MetadataStorage {
 			
 			String[] opts = Common.split( line , "/" );
 			if( opts.length != 2 )
-				action.exit( "invalid table set line=" + line );
+				action.exit1( _Error.InvalidTableSetLine1 , "invalid table set line=" + line , line );
 			String SN = opts[0]; 
 			String table = opts[1]; 
 			if( SN.isEmpty() || table.isEmpty() )
-				action.exit( "invalid table set line=" + line );
+				action.exit1( _Error.InvalidTableSetLine1 , "invalid table set line=" + line , line );
 
 			if( !schema.isEmpty() )
 				if( !SN.equals( schema ) )
@@ -158,7 +158,7 @@ public class MetadataStorage {
 
 		DatabaseClient client = new DatabaseClient(); 
 		if( !client.checkConnect( action , server ) )
-			action.exit( "unable to connect to administrative db" );
+			action.exit0( _Error.UnableConnectAdminDatabase0 , "unable to connect to administrative db" );
 		
 		client.createTableData( action , server.admSchema , table , columns , columntypes , data );  
 	}

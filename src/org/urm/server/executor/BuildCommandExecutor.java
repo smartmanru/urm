@@ -90,7 +90,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 			scope = ActionScope.getProductSetScope( action , SET , PROJECTS );
 		
 		if( scope.isEmpty( action ) )
-			action.exit( "nothing to do, scope is empty" );
+			action.exit0( _Error.ScopeEmpty0 , "nothing to do, scope is empty" );
 		
 		return( scope );
 	}

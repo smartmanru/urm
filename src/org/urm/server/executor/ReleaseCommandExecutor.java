@@ -119,7 +119,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 			impl.createProd( action , RELEASEVER );
 		}
 		else
-			action.exit( "wrong args" );
+			action.exit0( _Error.WrongArgs0 , "wrong args" );
 	}
 	}
 
@@ -192,7 +192,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 			if( SET.isEmpty() || SET.equals( "all" ) )
 				impl.getCumulativeRelease( action , dist );
 			else
-				action.exit( "unexpected parameters to settle cumulative release" );
+				action.exit0( _Error.UnexpectedCumulativeParameters0 , "unexpected parameters to settle cumulative release" );
 		}
 		else
 			impl.getAllRelease( action , SET , PROJECTS , dist );

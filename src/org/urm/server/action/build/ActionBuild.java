@@ -66,7 +66,7 @@ public class ActionBuild extends ActionBase {
 			BUILD_OPTIONS = build.CONFIG_BUILDER_OPTIONS;
 		}
 		else
-			exit( "ActionBuild: unexpected CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) );
+			exitUnexpectedCategory( scopeProject.CATEGORY );
 
 		String version = scopeProject.getProjectBuildVersion( this );
 		
@@ -107,7 +107,7 @@ public class ActionBuild extends ActionBase {
 			builder = new BuilderWindowsDotnet( BUILDER , project , storage , TAG , BUILD_OPTIONS , VERSION );
 		}
 		else
-			exit( "unknown builder=" + BUILDER );
+			exit1( _Error.UnknownBuilderType1 , "unknown builder=" + BUILDER , BUILDER );
 		
 		return( builder );
 	}

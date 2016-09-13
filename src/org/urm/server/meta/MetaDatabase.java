@@ -105,14 +105,14 @@ public class MetaDatabase extends PropertyController {
 	public MetaDatabaseSchema getSchema( ActionBase action , String name ) throws Exception {
 		MetaDatabaseSchema schema = mapSchema.get( name );
 		if( schema == null )
-			action.exit( "unknown schema=" + name );
+			action.exit1( _Error.UnknownSchema1 , "unknown schema=" + name , name );
 		return( schema );
 	}
 
 	public MetaDatabaseDatagroup getDatagroup( ActionBase action , String name ) throws Exception {
 		MetaDatabaseDatagroup datagroup = mapDatagroup.get( name );
 		if( datagroup == null )
-			action.exit( "unknown datagroup=" + name );
+			action.exit1( _Error.UnknownDatagroup1 , "unknown datagroup=" + name , name );
 		return( datagroup );
 	}
 	

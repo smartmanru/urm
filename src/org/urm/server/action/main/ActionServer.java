@@ -20,7 +20,7 @@ public class ActionServer extends ActionBase {
 		else if( OP.equals( "status" ) )
 			executeServerStatus();
 		else
-			exit( "unexpected action=" + OP );
+			exit1( _Error.UnexpectedServerAction1 , "unexpected action=" + OP , OP );
 		
 		return( true );
 	}
@@ -46,14 +46,14 @@ public class ActionServer extends ActionBase {
 			String status = call.serverCall( "status" );
 			if( !status.equals( "running" ) ) {
 				call.serverDisconnect();
-				exit( "server is in unknown state (url=" + call.URL + ")" );
+				exit1( _Error.ServerUnknownState1 , "server is in unknown state (url=" + call.URL + ")" , call.URL );
 				return;
 			}
 			
 			status = call.serverCall( "stop" );
 			call.serverDisconnect();
 			if( !status.equals( "ok" ) )
-				exit( "unable to stop server: " + status + " (url=" + call.URL + ")" );
+				exit2( _Error.UnableStopServer2 , "unable to stop server: " + status + " (url=" + call.URL + ")" , call.URL , status );
 			
 			info( "server is successfully stopped" );
 		}

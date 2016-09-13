@@ -51,7 +51,7 @@ public class MetaEnvServerDeployment {
 			return;
 		}
 		
-		action.exit( "unexpected deployment type found, server=" + server.NAME );
+		action.exit1( _Error.UnexpectedDeploymentType1 , "unexpected deployment type found, server=" + server.NAME , server.NAME );
 	}
 
 	public boolean hasConfItemDeployment( ActionBase action , MetaDistrConfItem p_confItem ) throws Exception {
@@ -81,7 +81,7 @@ public class MetaEnvServerDeployment {
 	public String getDeployPath( ActionBase action ) throws Exception {
 		if( DEPLOYPATH.isEmpty() || DEPLOYPATH.equals( "default" ) ) {
 			if( server.DEPLOYPATH.isEmpty() )
-				action.exit( "deployment has unknown deployment path" );
+				action.exit0( _Error.UnknownDeploymentPath0 , "deployment has unknown deployment path" );
 			return( server.DEPLOYPATH );
 		}
 		

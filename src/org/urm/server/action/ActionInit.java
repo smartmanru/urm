@@ -1,5 +1,6 @@
 package org.urm.server.action;
 
+import org.urm.common.Common;
 import org.urm.server.ServerContext;
 import org.urm.server.ServerDirectory;
 import org.urm.server.ServerProduct;
@@ -21,12 +22,12 @@ public class ActionInit extends ActionBase {
 
 	@Override
 	protected void runBefore() throws Exception {
-		exit( "unexpected operation" );
+		Common.exitUnexpected();
 	}
 	
 	@Override
 	protected void runBefore( ActionScope scope ) throws Exception {
-		exit( "unexpected operation" );
+		Common.exitUnexpected();
 	}
 
 	public void setServerSystemProductLayout( ServerProduct product ) throws Exception {

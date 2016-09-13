@@ -3,7 +3,6 @@ package org.urm.server.meta;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.server.action.ActionBase;
 import org.w3c.dom.Node;
@@ -74,7 +73,7 @@ public class MetaDesign {
 			return;
 		
 		for( Node elementNode : items ) {
-			MetaDesignElement element = new MetaDesignElement( this , null );
+			MetaDesignElement element = new MetaDesignElement( meta , this , null );
 			element.load( action , elementNode );
 			elements.put( element.NAME , element );
 			if( element.isGroup() )
@@ -87,42 +86,10 @@ public class MetaDesign {
 			element.resolve( action );
 	}
 
-	public VarELEMENTTYPE getElementType( ActionBase action , String ID ) throws Exception {
-		VarELEMENTTYPE value = null;		
-		
-		try {
-			value = VarELEMENTTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			action.exit( "invalid element type=" + ID );
-		}
-		
-		if( value == null )
-			action.exit( "unknown element type=" + ID );
-		
-		return( value );
-	}
-
-	public VarLINKTYPE getLinkType( ActionBase action , String ID ) throws Exception {
-		VarLINKTYPE value = null;		
-		
-		try {
-			value = VarLINKTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			action.exit( "invalid link type=" + ID );
-		}
-		
-		if( value == null )
-			action.exit( "unknown link type=" + ID );
-		
-		return( value );
-	}
-
 	public MetaDesignElement getElement( ActionBase action , String ID ) throws Exception {
 		MetaDesignElement element = elements.get( ID );
 		if( element == null )
-			action.exit( "unknown element=" + ID );
+			action.exit1( _Error.UnknownDesignElement1 , "unknown design element=" + ID , ID );
 		return( element );
 	}
 

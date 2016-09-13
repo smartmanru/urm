@@ -109,7 +109,7 @@ public class ActionPatch extends ActionBase {
 		setTimeout( timeout );
 
 		if( status != 0 ) {
-			exit( "uploadBuildStatus: unable to register build status" );
+			exit0( _Error.UnableRegisterBuildStatus0 , "uploadBuildStatus: unable to register build status" );
 			return( false );
 		}
 		

@@ -133,7 +133,7 @@ public class ServerMBean implements DynamicMBean {
 		UrmStorage urm = action.artefactory.getUrmStorage();
 		LocalFolder products = urm.getServerProductsFolder( action );
 		if( !products.checkExists( action ) )
-			action.exit( "cannot find directory: " + products.folderPath );
+			action.exit1( _Error.CannotFindDirectory1 , "cannot find directory: " + products.folderPath , products.folderPath );
 		
 		ServerDirectory directory = action.actionInit.getDirectory();
 		for( String name : directory.getProducts() )

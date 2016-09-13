@@ -138,7 +138,7 @@ public class MetaDistr extends PropertyController {
 	public MetaDistrComponent getComponent( ActionBase action , String KEY ) throws Exception {
 		MetaDistrComponent comp = mapComps.get( KEY );
 		if( comp == null )
-			action.exit( "unknown component=" + KEY );
+			action.exit1( _Error.UnknownDistributiveComponent1 , "unknown distributive component=" + KEY , KEY );
 		return( comp );
 	}
 	
@@ -149,7 +149,7 @@ public class MetaDistr extends PropertyController {
 	public MetaDistrBinaryItem getBinaryItem( ActionBase action , String KEY ) throws Exception {
 		MetaDistrBinaryItem item = mapBinaryItems.get( KEY );
 		if( item == null )
-			action.exit( "unknown distributive item=" + KEY );
+			action.exit1( _Error.UnknownDistributiveItem1 , "unknown distributive item=" + KEY , KEY );
 		return( item );
 	}
 
@@ -168,7 +168,7 @@ public class MetaDistr extends PropertyController {
 	public MetaDistrConfItem getConfItem( ActionBase action , String KEY ) throws Exception {
 		MetaDistrConfItem item = mapConfItems.get( KEY );
 		if( item == null )
-			action.exit( "unknown configuration item=" + KEY );
+			action.exit1( _Error.UnknownConfigurationItem1 , "unknown configuration item=" + KEY , KEY );
 		return( item );
 	}
 	
@@ -187,7 +187,7 @@ public class MetaDistr extends PropertyController {
 	public MetaDistrDelivery getDelivery( ActionBase action , String DELIVERY ) throws Exception {
 		MetaDistrDelivery delivery = mapDeliveries.get( DELIVERY );
 		if( delivery == null )
-			action.exit( "unknown delivery=" + DELIVERY );
+			action.exit1( _Error.UnknownDelivery1 , "unknown delivery=" + DELIVERY , DELIVERY );
 		return( delivery );
 	}
 

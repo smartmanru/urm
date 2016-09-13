@@ -1,6 +1,5 @@
 package org.urm.server;
 
-import org.urm.common.ExitException;
 import org.urm.common.PropertySet;
 import org.urm.server.action.ActionBase;
 import org.urm.server.action.ActionInit;
@@ -546,41 +545,41 @@ public class ServerTransaction {
 	
 	private void checkTransaction() throws Exception {
 		if( !continueTransaction() )
-			exit( "transaction is aborted" );
+			exit( _Error.TransactionAborted0 , "transaction is aborted" , null );
 	}
 
 	private void checkTransactionResources() throws Exception {
 		checkTransaction();
 		if( resources == null )
-			exit( "missing resources changes" );
+			exit( _Error.TransactionMissingResourceChanges0 , "missing resources changes" , null );
 	}
 
 	private void checkTransactionBuilders() throws Exception {
 		checkTransaction();
 		if( builders == null )
-			exit( "missing builders changes" );
+			exit( _Error.TransactionMissingBuildersChanges0 , "missing builders changes" , null );
 	}
 
 	private void checkTransactionDirectory() throws Exception {
 		checkTransaction();
 		if( directory == null )
-			exit( "missing directory changes" );
+			exit( _Error.TransactionMissingDirectoryChanges0 , "missing directory changes" , null );
 	}
 
 	private void checkTransactionSettings() throws Exception {
 		checkTransaction();
 		if( settings == null )
-			exit( "missing settings changes" );
+			exit( _Error.TransactionMissingSettingsChanges0 , "missing settings changes" , null );
 	}
 
 	private void checkTransactionMetadata() throws Exception {
 		checkTransaction();
 		if( metadata == null )
-			exit( "missing metadata changes" );
+			exit( _Error.TransactionMissingMetadataChanges0 , "missing metadata changes" , null );
 	}
 
-	public void exit( String msg ) throws Exception {
-		throw new ExitException( msg );
+	public void exit( int errorCode , String msg , String params[] ) throws Exception {
+		action.exit( errorCode , msg , params );
 	}
 
 	// helpers

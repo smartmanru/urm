@@ -58,7 +58,7 @@ public abstract class Folder {
 	
 	public void moveAll( ActionBase action , String targetPath ) throws Exception {
 		if( folderPath.isEmpty() || folderPath.equals( "/" ) )
-			action.exit( "attempt to delete files at root" );
+			action.exit0( _Error.AttemptDeleteFiles0 , "attempt to delete files at root" );
 		
 		ShellExecutor session = getSession( action ); 
 		session.move( action , folderPath + "/*" , targetPath + "/" );
@@ -136,7 +136,7 @@ public abstract class Folder {
 		ShellExecutor session = getSession( action );
 		String path = Common.getPath( folderPath , folder );
 		if( path.isEmpty() || path.equals( "/" ) )
-			action.exit( "attempt to delete files at root" );
+			action.exit0( _Error.AttemptDeleteFiles0 , "attempt to delete files at root" );
 		
 		session.removeDirContent( action , path );
 	}

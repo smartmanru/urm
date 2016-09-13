@@ -102,7 +102,7 @@ public class NexusStorage {
 		LocalFolder folder = artefactoryFolder.getSubFolder( action , distItem.delivery.FOLDER );
 		
 		if( !folder.checkFileExists( action , STATICFILE ) )
-			action.exit( "repackageStatic: " + STATICFILE + " not found" );
+			action.exit1( _Error.StaticFileNotFound1 , "repackageStatic: " + STATICFILE + " not found" , STATICFILE );
 
 		String rePackageDir = "repackage";
 		folder.recreateFolder( action , rePackageDir );
@@ -111,10 +111,10 @@ public class NexusStorage {
 		String STATIC_CONTEXT = folder.getFolderContent( action , rePackageDir );  
 
 		if( STATIC_CONTEXT.isEmpty() )
-			action.exit( "repackageStatic: context not found in static file " + STATICFILE );
+			action.exit1( _Error.NoContextInStaticFile1 , "repackageStatic: context not found in static file " + STATICFILE , STATICFILE );
 
 		if( !folder.checkFolderExists( action , rePackageDir + "/" + STATIC_CONTEXT + "/htdocs" ) )
-			action.exit( "repackageStatic: invalid static file, context data not found: " + STATICFILE + "/" + STATIC_CONTEXT + "/htdocs" );
+			action.exit2( _Error.ContextDataNotFound2 , "repackageStatic: invalid static file, context data not found: " + STATICFILE + "/" + STATIC_CONTEXT + "/htdocs" , STATICFILE , STATIC_CONTEXT );
 
 		// add build info to static
 		addBuildInfo( action , rePackageDir + "/" + STATIC_CONTEXT + "/htdocs/buildinfo.txt" , PROJECT , VERSION , WARFILE , STATICFILE , TAGNAME );

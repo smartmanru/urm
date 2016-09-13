@@ -75,7 +75,7 @@ public class ActionScopeTargetItem {
 		}
 			
 		if( BUILDVERSION.isEmpty() )
-			action.exit( "buildByTag: BUILDVERSION not set" );
+			action.exit0( _Error.BuildVersionNotSet0 , "buildByTag: BUILDVERSION not set" );
 		
 		return( BUILDVERSION );
 	}

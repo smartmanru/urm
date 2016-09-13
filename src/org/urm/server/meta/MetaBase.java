@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
@@ -59,38 +58,6 @@ public class MetaBase {
 		this.primary = primary;
 	}
 	
-	public VarBASESRCTYPE getType( ActionBase action , String TYPE ) throws Exception {
-		VarBASESRCTYPE value = null;		
-		
-		try {
-			value = VarBASESRCTYPE.valueOf( Common.xmlToEnumValue( TYPE ) );
-		}
-		catch( IllegalArgumentException e ) {
-			action.exit( "invalid basesrctype=" + TYPE );
-		}
-		
-		if( value == null )
-			action.exit( "unknown basesrctype=" + TYPE );
-		
-		return( value );
-	}
-
-	public VarBASESRCFORMAT getSrcFormat( ActionBase action , String TYPE ) throws Exception {
-		VarBASESRCFORMAT value = null;		
-		
-		try {
-			value = VarBASESRCFORMAT.valueOf( Common.xmlToEnumValue( TYPE ) );
-		}
-		catch( IllegalArgumentException e ) {
-			action.exit( "invalid basesrcformat=" + TYPE );
-		}
-		
-		if( value == null )
-			action.exit( "unknown basesrcformat=" + TYPE );
-		
-		return( value );
-	}
-
 	public void load( ActionBase action , Node node , MetaEnvServerNode serverNode ) throws Exception {
 		PropertySet meta = new PropertySet( "meta" , serverNode.server.base.properties );
 		meta.loadRawFromNodeAttributes( node );
@@ -124,7 +91,7 @@ public class MetaBase {
 			String TYPE = ConfReader.getRequiredAttrValue( snnode , "type" );
 			String VERSION = ConfReader.getRequiredAttrValue( snnode , "version" );
 			if( compatibilityMap.get( TYPE ) != null )
-				action.exit( "unexpected duplicate type=" + TYPE );
+				action.exit1( _Error.DuplicateOSType1 , "unexpected duplicate OS type=" + TYPE , TYPE );
 			
 			compatibilityMap.put( TYPE , VERSION );
 		}
@@ -182,7 +149,7 @@ public class MetaBase {
 		// unified properties
 		ID = props.getSystemRequiredStringProperty( "id" );
 		String TYPE = props.getSystemRequiredStringProperty( "type" );
-		type = getType( action , TYPE );
+		type = meta.getBaseSrcType( action , TYPE );
 		adm = props.getSystemBooleanProperty( "adminstall" , false );
 		
 		String OSTYPE = props.getSystemStringProperty( "ostype" , null );
@@ -192,7 +159,7 @@ public class MetaBase {
 		if( !CHARSET.isEmpty() ) {
 			charset = Charset.forName( CHARSET );
 			if( charset == null )
-				action.exit( "unknown system files charset=" + CHARSET );
+				action.exit1( _Error.UnknownSystemFilesCharset1 , "unknown system files charset=" + CHARSET , CHARSET );
 		}
 		
 		String SERVERTYPE = null;
@@ -223,7 +190,7 @@ public class MetaBase {
 	}
 
 	private void scatterLinuxArchiveLink( ActionBase action , PropertySet props ) throws Exception {
-		srcFormat = getSrcFormat( action , props.getSystemRequiredStringProperty( "srcformat" ) );
+		srcFormat = meta.getBaseSrcFormat( action , props.getSystemRequiredStringProperty( "srcformat" ) );
 		SRCFILE = props.getSystemRequiredPathProperty( "srcfile" , action.session.execrc );
 		SRCSTOREDIR = props.getSystemRequiredPathProperty( "srcstoreddir" , action.session.execrc );
 		INSTALLPATH = props.getSystemRequiredPathProperty( "installpath" , action.session.execrc );
@@ -231,7 +198,7 @@ public class MetaBase {
 	}
 	
 	private void scatterLinuxArchiveDirect( ActionBase action , PropertySet props ) throws Exception {
-		srcFormat = getSrcFormat( action , props.getSystemRequiredStringProperty( "srcformat" ) );
+		srcFormat = meta.getBaseSrcFormat( action , props.getSystemRequiredStringProperty( "srcformat" ) );
 		SRCFILE = props.getSystemRequiredPathProperty( "srcfile" , action.session.execrc );
 		SRCSTOREDIR = props.getSystemRequiredPathProperty( "srcstoreddir" , action.session.execrc );
 		INSTALLPATH = props.getSystemRequiredPathProperty( "installpath" , action.session.execrc );
@@ -241,7 +208,7 @@ public class MetaBase {
 	}
 
 	private void scatterInstaller( ActionBase action , PropertySet props ) throws Exception {
-		srcFormat = getSrcFormat( action , props.getSystemRequiredStringProperty( "srcformat" ) );
+		srcFormat = meta.getBaseSrcFormat( action , props.getSystemRequiredStringProperty( "srcformat" ) );
 		SRCFILE = props.getSystemRequiredPathProperty( "srcfile" , action.session.execrc );
 	}
 

@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.common.ExitException;
 import org.urm.server.action.ActionBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -105,13 +104,13 @@ public class ServerDirectory {
 
 	public void addSystem( ServerTransaction transaction , ServerSystem system ) throws Exception {
 		if( mapSystems.get( system.NAME ) != null )
-			transaction.exit( "system=" + system.NAME + " is not unique" );
+			transaction.exit( _Error.DuplicateSystem1 , "system=" + system.NAME + " is not unique" , new String[] { system.NAME } );
 		mapSystems.put( system.NAME , system );
 	}
 
 	public void deleteSystem( ServerTransaction transaction , ServerSystem system ) throws Exception {
 		if( mapSystems.get( system.NAME ) != system )
-			transaction.exit( "system=" + system.NAME + " is unknown or mismatched" );
+			transaction.exit( _Error.TransactionSystemOld1 , "system=" + system.NAME + " is unknown or mismatched" , new String[] { system.NAME } );
 		
 		for( String productName : system.getProducts() )
 			mapProducts.remove( productName );
@@ -122,27 +121,27 @@ public class ServerDirectory {
 	public ServerSystem getSystem( String name ) throws Exception {
 		ServerSystem system = findSystem( name );
 		if( system == null )
-			throw new ExitException( "unknown system=" + system );
+			Common.exit1( _Error.UnknownSystem1 , "unknown system=" + name , name );
 		return( system );
 	}
 
 	public ServerProduct getProduct( String name ) throws Exception {
 		ServerProduct product = findProduct( name );
 		if( product == null )
-			throw new ExitException( "unknown product=" + name );
+			Common.exit1( _Error.UnknownProduct1 , "unknown product=" + name , name );
 		return( product );
 	}
 
 	public void createProduct( ServerTransaction transaction , ServerProduct product ) throws Exception {
 		if( mapProducts.containsKey( product.NAME ) )
-			transaction.exit( "product=" + product.NAME + " is not unique" );
+			transaction.exit( _Error.DuplicateProduct1 , "product=" + product.NAME + " is not unique" , new String[] { product.NAME } );
 		mapProducts.put( product.NAME , product );
 		product.system.addProduct( transaction , product );
 	}
 	
 	public void deleteProduct( ServerTransaction transaction , ServerProduct product ) throws Exception {
 		if( mapProducts.get( product.NAME ) != product )
-			transaction.exit( "product=" + product.NAME + " is unknown or mismatched" );
+			transaction.exit( _Error.UnknownProduct1 , "product=" + product.NAME + " is unknown or mismatched" , new String[] { product.NAME } );
 		
 		mapProducts.remove( product.NAME );
 		product.system.removeProduct( transaction , product );

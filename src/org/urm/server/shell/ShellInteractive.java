@@ -114,7 +114,7 @@ public class ShellInteractive extends Shell {
 		addInput( action , "echo " + CONNECT_MARKER , true );
 		if( !waitForMarker( action , CONNECT_MARKER , true ) ) {
 			call.connectFinished( false );
-			action.exit( "unable to connect to " + name );
+			action.exit1( _Error.UnableConnectHost1 , "unable to connect to " + name , name );
 		}
 		
 		action.setTimeout( timeout );

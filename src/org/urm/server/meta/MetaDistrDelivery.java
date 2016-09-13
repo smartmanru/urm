@@ -45,28 +45,28 @@ public class MetaDistrDelivery {
 	public MetaDistrBinaryItem getBinaryItem( ActionBase action , String NAME ) throws Exception {
 		MetaDistrBinaryItem item = mapBinaryItems.get( NAME );
 		if( item == null )
-			action.exit( "unknown delivery binary item=" + NAME );
+			action.exit1( _Error.UnknownDeliveryBinaryItem1 , "unknown delivery binary item=" + NAME , NAME );
 		return( item );
 	}
 	
 	public MetaDistrConfItem getConfItem( ActionBase action , String NAME ) throws Exception {
 		MetaDistrConfItem item = mapConfComps.get( NAME );
 		if( item == null )
-			action.exit( "unknown delivery configuration item=" + NAME );
+			action.exit1( _Error.UnknownDeliveryConfigurationItem1 , "unknown delivery configuration item=" + NAME , NAME );
 		return( item );
 	}
 	
 	public MetaDatabaseSchema getSchema( ActionBase action , String NAME ) throws Exception {
 		MetaDatabaseSchema item = mapDatabaseSchema.get( NAME );
 		if( item == null )
-			action.exit( "unknown delivery schema=" + NAME );
+			action.exit1( _Error.UnknownDeliverySchema1 , "unknown delivery schema=" + NAME , NAME );
 		return( item );
 	}
 	
 	public MetaDatabaseDatagroup getDatagroup( ActionBase action , String NAME ) throws Exception {
 		MetaDatabaseDatagroup item = mapDatabaseDatagroup.get( NAME );
 		if( item == null )
-			action.exit( "unknown delivery datagroup=" + NAME );
+			action.exit1( _Error.UnknownDeliveryDatagroup1 , "unknown delivery datagroup=" + NAME , NAME );
 		return( item );
 	}
 	

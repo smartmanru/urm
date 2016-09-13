@@ -260,13 +260,13 @@ public class SubversionVCS extends GenericVCS {
 		if( FILENAME.isEmpty() ) {
 			Folder BASEDIR = PATCHFOLDER.getParentFolder( action );
 			if( !BASEDIR.checkExists( action ) )
-				action.exit( "exportFromPath: local directory " + BASEDIR + " does not exist" );
+				action.exit1( _Error.MissingLocalDirectory1 , "exportFromPath: local directory " + BASEDIR.folderPath + " does not exist" , BASEDIR.folderPath );
 			if( PATCHFOLDER.checkExists( action ) )
-				action.exit( "exportFromPath: local directory " + PATCHFOLDER.folderPath + " should not exist" );
+				action.exit1( _Error.LocalDirectoryShouldNotExist1 , "exportFromPath: local directory " + PATCHFOLDER.folderPath + " should not exist" , PATCHFOLDER.folderPath );
 		}
 		else {
 			if( !PATCHFOLDER.checkExists( action ) )
-				action.exit( "exportFromPath: local directory " + PATCHFOLDER.folderPath + " does not exist" );
+				action.exit1( _Error.MissingLocalDirectory1 , "exportFromPath: local directory " + PATCHFOLDER.folderPath + " does not exist" , PATCHFOLDER.folderPath );
 		}
 
 		String ospath = action.getOSPath( PATCHFOLDER.folderPath );
@@ -318,7 +318,7 @@ public class SubversionVCS extends GenericVCS {
 			return( false );
 			
 		if( !PATCHFOLDER.checkExists( action ) )
-			action.exit( "exportRepositoryMasterPath: local directory " + PATCHFOLDER.folderPath + " does not exist" );
+			action.exit1( _Error.MissingLocalDirectory1 , "exportRepositoryMasterPath: local directory " + PATCHFOLDER.folderPath + " does not exist" , PATCHFOLDER.folderPath );
 
 		String CO_PATH = Common.getPath( getRepositoryPath( mirror ) , ITEMPATH );
 		if( name.isEmpty() )
@@ -334,7 +334,7 @@ public class SubversionVCS extends GenericVCS {
 		
 		String TAGPATH = Common.getPath( "tags" , TAG , ITEMPATH );
 		if( !PATCHFOLDER.checkExists( action ) )
-			action.exit( "exportRepositoryTagPath: local directory " + PATCHFOLDER.folderPath + " does not exist" );
+			action.exit1( _Error.MissingLocalDirectory1 , "exportRepositoryTagPath: local directory " + PATCHFOLDER.folderPath + " does not exist" , PATCHFOLDER.folderPath );
 
 		String CO_PATH = Common.getPath( getRepositoryPath( mirror ) , TAGPATH );
 		if( name.isEmpty() )
@@ -428,7 +428,7 @@ public class SubversionVCS extends GenericVCS {
 		
 		// check source status
 		if( !checkSvnPathExists( fullPathSrc ) )
-			action.exit( fullPathSrc + ": svn path does not exist" );
+			action.exit1( _Error.MissingSvnPath1 , fullPathSrc + ": svn path does not exist" , fullPathSrc );
 
 		// check destination status
 		if( checkSvnPathExists( fullPathTag ) ) {
@@ -450,7 +450,7 @@ public class SubversionVCS extends GenericVCS {
 	@Override
 	public void createRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception {
 		if( !isValidRepositoryMasterPath( mirror , "/" ) )
-			action.exit( "unable to check master repository path" );
+			action.exit0( _Error.UnableCheckRepositoryPath0 , "unable to check master repository path" );
 
 		MirrorStorage storage = getStorage( mirror );
 		String ospath = storage.getMirrorOSPath();
@@ -458,7 +458,7 @@ public class SubversionVCS extends GenericVCS {
 		int status = shell.customGetStatus( action , "svn co --non-interactive " + SVNAUTH + " " + repoPath + " " + ospath );
 
 		if( status != 0 )
-			action.exit( "svn: having problem to check out " + repoPath );
+			action.exit1( _Error.UnableCheckOut1 , "svn: having problem to check out " + repoPath , repoPath );
 	}
 
 	@Override
@@ -504,7 +504,7 @@ public class SubversionVCS extends GenericVCS {
 	
 	public List<String> getFilesNotInSvn( ServerMirrorRepository mirror , LocalFolder pfMaster ) throws Exception {
 		if( !checkVersioned( mirror , pfMaster.folderPath ) )
-			action.exit( "folder=" + pfMaster.folderPath + " is not under verson control" );
+			action.exit1( _Error.NotUnderVersionControl1 , "folder=" + pfMaster.folderPath + " is not under verson control" , pfMaster.folderPath );
 		
 		String[] lines = action.shell.customGetLines( action , pfMaster.folderPath , "svn status" );
 		List<String> values = new LinkedList<String>();

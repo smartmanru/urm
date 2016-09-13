@@ -31,7 +31,7 @@ public class ActionStartEnv extends ActionBase {
 		List<MetaEnvStartGroup> groups = set.dc.startInfo.getForwardGroupList( this );
 		for( MetaEnvStartGroup group : groups ) {
 			if( !startServerGroup( set , group , targets ) )
-				ifexit( "failed group operation" );
+				ifexit( _Error.FailedGroupOperation0 , "failed group operation" , null );
 		}
 		
 		return( true );

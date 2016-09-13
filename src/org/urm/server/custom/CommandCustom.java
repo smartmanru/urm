@@ -69,7 +69,7 @@ public class CommandCustom {
 		
 		String className = meta.product.CONFIG_CUSTOM_BUILD;
 		if( className.isEmpty() )
-			action.exit( "custom build class is not set (CONFIG_CUSTOM_BUILD" );
+			action.exit0( _Error.CustomBuildNotSet0 , "custom build class is not set (CONFIG_CUSTOM_BUILD" );
 		
 		className = getClass().getPackage().getName() + ".build." + className;
 		try {
@@ -81,7 +81,7 @@ public class CommandCustom {
 			action.log( "error loading build class=" + className , e );
 		}
 		
-		action.exit( "unable to load custom build class=" + className );
+		action.exit1( _Error.UnableLoadCustomBuild1 , "unable to load custom build class=" + className , className );
 	}
 	
 	private void startCustomDeploy( ActionBase action ) throws Exception {
@@ -90,7 +90,7 @@ public class CommandCustom {
 		
 		String className = meta.product.CONFIG_CUSTOM_DEPLOY;
 		if( className.isEmpty() )
-			action.exit( "custom deploy class is not set (CONFIG_CUSTOM_DEPLOY" );
+			action.exit0( _Error.CustomDeployNotSet0 , "custom deploy class is not set (CONFIG_CUSTOM_DEPLOY" );
 		
 		className = getClass().getPackage().getName() + ".deploy." + className;
 		try {
@@ -102,7 +102,7 @@ public class CommandCustom {
 			action.log( "error loading deploy class=" + className , e );
 		}
 		
-		action.exit( "unable to load custom deploy class=" + className );
+		action.exit1( _Error.UnableLoadCustomDeploy1 , "unable to load custom deploy class=" + className , className );
 	}
 
 	private void startCustomDatabase( ActionBase action ) throws Exception {
@@ -111,7 +111,7 @@ public class CommandCustom {
 		
 		String className = meta.product.CONFIG_CUSTOM_DATABASE;
 		if( className.isEmpty() )
-			action.exit( "custom deploy class is not set (CONFIG_CUSTOM_DATABASE" );
+			action.exit0( _Error.CustomDatabaseNotSet0 , "custom database class is not set (CONFIG_CUSTOM_DATABASE" );
 		
 		className = getClass().getPackage().getName() + ".database." + className;
 		try {
@@ -120,10 +120,10 @@ public class CommandCustom {
 			return;
 		}
 		catch( Throwable e ) {
-			action.log( "error loading build class=" + className , e );
+			action.log( "error loading database class=" + className , e );
 		}
 		
-		action.exit( "unable to load custom deploy class=" + className );
+		action.exit1( _Error.UnableLoadCustomDatabase1 , "unable to load custom database class=" + className , className );
 	}
 	
 }

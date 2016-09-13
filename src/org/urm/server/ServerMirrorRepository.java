@@ -113,7 +113,7 @@ public class ServerMirrorRepository {
 			RESOURCE_ROOT = "";
 			RESOURCE_DATA = "";
 			BRANCH = "";
-			transaction.exit( "unable to publish repository" );
+			transaction.exit( _Error.UnablePublishRepository0 , "unable to publish repository" , null );
 		}
 		
 		createProperties();
@@ -128,7 +128,7 @@ public class ServerMirrorRepository {
 		vcs.createRemoteBranchMirror( this );
 		
 		if( !vcs.checkTargetEmpty( this ) )
-			action.exit( "unable to publish to non-empty repository" );
+			transaction.exit( _Error.NonEmptyRepository1 , "unable to publish to non-empty repository" , new String[] { NAME } );
 	}
 	
 	public void dropMirror( ServerTransaction transaction ) throws Exception {

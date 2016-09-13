@@ -53,7 +53,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 			createDot( design , dotFile );
 		}
 		else
-			exit( "unknown command=" + CMD );
+			exit1( _Error.UnknownDesignCommand1 , "unknown command=" + CMD , CMD );
 	}
 
 	private void getProdServers() throws Exception {
@@ -90,7 +90,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 			
 			List<MetaEnvServer> servers = prodServers.get( element.NAME );
 			if( servers == null )
-				ifexit( "design server=" + element.NAME + " is not found in PROD (production environments)" );
+				ifexit( _Error.UnknownProdDesignServer1 , "design server=" + element.NAME + " is not found in PROD (production environments)" , new String[] { element.NAME } );
 			
 			designServers.put( element.NAME , servers );
 		}
@@ -99,7 +99,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		if( design.fullProd ) {
 			for( String server : prodServers.keySet() ) {
 				if( !designServers.containsKey( server ) )
-					ifexit( "design server=" + server + " is not part of any PROD environment" );
+					ifexit( _Error.ProdServerNotDesign1 , "production server=" + server + " is not part of design" , new String[] { server } );
 			}
 		}
 	}

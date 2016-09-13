@@ -262,7 +262,7 @@ public class ShellPool implements Runnable {
 
 	public ShellExecutor getExecutor( ActionBase action , Account account , String scope ) throws Exception {
 		if( stop )
-			action.exit( "server is in progress of shutdown" );
+			action.exit0( _Error.ServerShutdown0 , "server is in progress of shutdown" );
 		
 		String name = ( account.local )? "local::" + scope : "remote::" + scope + "::" + account.getPrintName(); 
 
@@ -292,7 +292,7 @@ public class ShellPool implements Runnable {
 				shell = pool.get( name );
 				if( shell != null ) {
 					if( !shell.available )
-						action.exit( "do not connect to unavailable shell name=" + name );
+						action.exit1( _Error.NotConnectUnavailableShell0 , "do not connect to unavailable shell name=" + name , name );
 						
 					pool.remove( name );
 					map.addExecutor( shell );
@@ -312,7 +312,8 @@ public class ShellPool implements Runnable {
 				// add shell to pool to avoid many connects to unavailable resource
 				shell.setUnavailable();
 				pool.put( shell.name , shell );
-				action.exit( "unable to connect to " + account.getPrintName() );
+				String accName = account.getPrintName();
+				action.exit1( _Error.NotConnectUnavailableShell0 , "do not connect to unavailable shell name=" + accName , accName );
 			}
 			
 			// add to action sessions (return to pool after release)
@@ -334,14 +335,14 @@ public class ShellPool implements Runnable {
 		
 		action.setShell( shell );
 		if( !shell.start( action ) )
-			action.exit( "unable to create local shell" );
+			action.exit0( _Error.UnableCreateLocalShell0 , "unable to create local shell" );
 		
 		return( shell );
 	}
 
 	private ShellExecutor createLocalShell( ActionBase action , String name ) throws Exception {
 		if( stop )
-			action.exit( "server is in progress of shutdown" );
+			action.exit0( _Error.ServerShutdown0 , "server is in progress of shutdown" );
 		
 		ShellExecutor shell = ShellExecutor.getLocalShellExecutor( action , "local::" + name , this , rootPath , tmpFolder );
 		return( shell );
@@ -349,7 +350,7 @@ public class ShellPool implements Runnable {
 	
 	private ShellExecutor createRemoteShell( ActionBase action , Account account , String name ) throws Exception {
 		if( stop )
-			action.exit( "server is in progress of shutdown" );
+			action.exit0( _Error.ServerShutdown0 , "server is in progress of shutdown" );
 		
 		ShellExecutor shell = ShellExecutor.getRemoteShellExecutor( action , name , this , account , rootPath );
 		return( shell );
@@ -367,7 +368,7 @@ public class ShellPool implements Runnable {
 	
 	public ShellExecutor createDedicatedLocalShell( ActionBase action , String name ) throws Exception {
 		if( stop )
-			action.exit( "server is in progress of shutdown" );
+			action.exit0( _Error.ServerShutdown0 , "server is in progress of shutdown" );
 		
 		if( name.equals( "master" ) )
 			return( startDedicatedLocalShell( action , name ) );

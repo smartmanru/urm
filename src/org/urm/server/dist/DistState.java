@@ -85,7 +85,7 @@ public class DistState {
 				ok = true;
 		}
 		if( !ok )
-			action.ifexit( "unable to change release state from " + state.name() + " to " + newState.name() );
+			action.ifexit( _Error.UnableChangeReleaseState2 , "unable to change release state from " + state.name() + " to " + newState.name() , new String[] { state.name() , newState.name() } );
 		
 		String timeStamp = Common.getNameTimeStamp();
 		String hash = getHashValue( action );
@@ -98,7 +98,7 @@ public class DistState {
 
 	public void checkDistChangeEnabled( ActionBase action ) throws Exception {
 		if( stateMem != DISTSTATE.CHANGING )
-			action.exit( "distributive is not open for changes" );
+			action.exit0( _Error.DistributiveNotOpened0 , "distributive is not opened for change" );
 	}
 	
 	public void ctlLoadReleaseState( ActionBase action ) throws Exception {
@@ -139,7 +139,7 @@ public class DistState {
 		ctlLoadReleaseState( action );
 		if( state != DISTSTATE.MISSINGDIST ) {
 			if( !action.context.CTX_FORCE )
-				action.exit( "unable to create existing distributive" );
+				action.exit0( _Error.CannotCreateExistingDistributive0 , "cannot create existing distributive" );
 		}
 			
 		// create directory
@@ -153,12 +153,12 @@ public class DistState {
 	public void ctlCreateProd( ActionBase action , String RELEASEVER ) throws Exception {
 		// create release.xml, create status file, set closed dirty state
 		if( !distFolder.checkExists( action ) )
-			action.exit( "prod distributive directory should exist" );
+			action.exit0( _Error.MissingProdDistributiveDirectory0 , "prod distributive directory should exist" );
 		
 		// check current status
 		ctlLoadReleaseState( action );
 		if( state != DISTSTATE.MISSINGSTATE )
-			action.exit( "state file should not exist" );
+			action.exit0( _Error.StateFileExists0 , "state file should not exist" );
 		
 		// create empty release.xml
 		String filePath = action.artefactory.workFolder.getFilePath( action , Dist.META_FILENAME );
@@ -178,7 +178,7 @@ public class DistState {
 		
 		// dirty state expected
 		if( state != DISTSTATE.DIRTY )
-			action.exit( "distributive is not ready for change, state=" + state.name() );
+			action.exit1( _Error.DistributiveNotReadyForChange1 , "distributive is not ready for change, state=" + state.name() , state.name() );
 		
 		ctlSetStatus( action , DISTSTATE.CHANGING );
 		action.debug( "distributive has been opened for change, ID=" + activeChangeID );
@@ -190,10 +190,10 @@ public class DistState {
 		
 		// dirty state expected
 		if( state != DISTSTATE.CHANGING )
-			action.exit( "distributive is not opened for change, state=" + state.name() );
+			action.exit1( _Error.DistributiveNotOpenedForChange1 , "distributive is not opened for change, state=" + state.name() , state.name() );
 		
 		if( !activeChangeID.equals( stateChangeID ) )
-			action.exit( "distributive is opened for concurrent change ID=" + stateChangeID );
+			action.exit1( _Error.DistributiveOpenedForConcurrentChange1 , "distributive is opened for concurrent change ID=" + stateChangeID , stateChangeID );
 	}
 	
 	public void ctlCloseChange( ActionBase action ) throws Exception {
@@ -208,7 +208,7 @@ public class DistState {
 		
 		// dirty state expected
 		if( state != DISTSTATE.CHANGING )
-			action.exit( "distributive is not opened for change, state=" + state.name() );
+			action.exit1( _Error.DistributiveNotOpenedForChange1 ,"distributive is not opened for change, state=" + state.name() , state.name() );
 		
 		ctlSetStatus( action , DISTSTATE.DIRTY );
 		action.info( "distributive has been closed after change, ID=" + stateChangeID );
@@ -227,7 +227,7 @@ public class DistState {
 		
 		// dirty state expected
 		if( state != DISTSTATE.RELEASED )
-			action.exit( "distributive is not released, state=" + state.name() );
+			action.exit1( _Error.DistributiveNotReleased1 , "distributive is not released, state=" + state.name() , state.name() );
 		
 		ctlSetStatus( action , DISTSTATE.CHANGING );
 		action.info( "distributive has been reopened" );
@@ -239,17 +239,17 @@ public class DistState {
 		
 		if( PROD == false ) {
 			if( state != DISTSTATE.PROD && state != DISTSTATE.RELEASED && state != DISTSTATE.DIRTY )
-				action.exit( "distributive is not ready for use, state=" + state.name() );
+				action.exit1( _Error.DistributiveNotReadyForUse1 , "distributive is not ready for use, state=" + state.name() , state.name() );
 		}
 		
 		if( PROD == true ) {
 			if( state != DISTSTATE.PROD && state != DISTSTATE.RELEASED )
-				action.exit( "distributive is not ready for use in prod environment, state=" + state.name() );
+				action.exit1( _Error.DistributiveNotReadyForProd1 , "distributive is not ready for use in prod environment, state=" + state.name() , state.name() );
 		}
 
 		String hash = getHashValue( action );
 		if( !hash.equals( stateHash ) )
-			action.exit( "distributive is not ready for use - actual hash=" + hash + ", declared hash=" + stateHash );
+			action.exit2( _Error.DistributiveHashDiffers2 , "distributive is not ready for use - actual hash=" + hash + ", declared hash=" + stateHash , hash , stateHash );
 	}
 	
 	public void ctlCancel( ActionBase action ) throws Exception {
@@ -259,7 +259,7 @@ public class DistState {
 		// check current status
 		ctlLoadReleaseState( action );
 		if( state != DISTSTATE.DIRTY )
-			action.exit( "distributive is not closed, state=" + state.name() );
+			action.exit1( _Error.DistributiveNotClosed1 , "distributive is not closed, state=" + state.name() , state.name() );
 	}
 
 	public void ctlClearRelease( ActionBase action ) throws Exception {
@@ -273,7 +273,7 @@ public class DistState {
 		if( state == DISTSTATE.DIRTY || state == DISTSTATE.BROKEN || state == DISTSTATE.CHANGING || state == DISTSTATE.CANCELLED )
 			return;
 		
-		action.exit( "distributive is protected, can be deleted only manually, state=" + state.name() );
+		action.exit1( _Error.DistributiveProtected1 , "distributive is protected, can be deleted only manually, state=" + state.name() , state.name() );
 	}
 
 	public void createStateFile( ActionBase action , String value ) throws Exception {

@@ -31,7 +31,7 @@ public class ActionStopEnv extends ActionBase {
 		List<MetaEnvStartGroup> groups = set.dc.startInfo.getReverseGroupList( this );
 		for( MetaEnvStartGroup group : groups ) {
 			if( !stopServerGroup( set , group , targets ) )
-				ifexit( "failed group operation" );
+				ifexit( _Error.FailedGroupOperation0 , "failed group operation" , null );
 		}
 		
 		return( true );

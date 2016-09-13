@@ -8,7 +8,6 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.common.RunError;
 import org.urm.server.ServerAuthResource;
 import org.urm.server.ServerBuilders;
 import org.urm.server.ServerEngine;
@@ -226,6 +225,26 @@ abstract public class ActionBase {
 		output.exit( errorCode , context , s , params );
 	}
 
+	public void exit0( int errorCode , String s ) throws Exception {
+		output.exit( errorCode , context , s , null );
+	}
+
+	public void exit1( int errorCode , String s , String param1 ) throws Exception {
+		output.exit( errorCode , context , s , new String[] { param1 } );
+	}
+
+	public void exit2( int errorCode , String s , String param1 , String param2 ) throws Exception {
+		output.exit( errorCode , context , s , new String[] { param1 , param2 } );
+	}
+
+	public void exit3( int errorCode , String s , String param1 , String param2 , String param3 ) throws Exception {
+		output.exit( errorCode , context , s , new String[] { param1 , param2 , param3 } );
+	}
+
+	public void exit4( int errorCode , String s , String param1 , String param2 , String param3 , String param4 ) throws Exception {
+		output.exit( errorCode , context , s , new String[] { param1 , param2 , param3 , param4 } );
+	}
+
 	public void ifexit( int errorCode , String s , String[] params ) throws Exception {
 		if( context.CTX_FORCE )
 			error( s + ", ignored" );
@@ -233,21 +252,17 @@ abstract public class ActionBase {
 			output.exit( errorCode , context , s + ", exiting (use -force to override)" , params );
 	}
 
-	public void exitAction( int errorCode , String s , String[] params ) throws Exception {
-		exit( errorCode , this.getClass().getSimpleName() + ": " + s , params );
-	}
-	
 	public void exitNotImplemented() throws Exception {
-		exit( RunError.NotImplemented , "sorry, code is not implemented yet" , null );
+		exit( _Error.NotImplemented0 , "sorry, code is not implemented yet" , null );
 	}
 	
 	public void exitUnexpectedCategory( VarCATEGORY CATEGORY ) throws Exception {
 		String category = Common.getEnumLower( CATEGORY );
-		exit( RunError.UnexpectedCategory , "unexpected category=" + category , new String[] { category } );
+		exit( _Error.UnexpectedCategory1 , "unexpected category=" + category , new String[] { category } );
 	}
 
 	public void exitUnexpectedState() throws Exception {
-		exit( RunError.InternalError , "unexpected state" , null );
+		exit( _Error.InternalError0 , "unexpected state" , null );
 	}
 	
 	public boolean runSimple() {
@@ -387,7 +402,7 @@ abstract public class ActionBase {
 	
 	public void checkRequired( String value , String var ) throws Exception {
 		if( value == null || value.isEmpty() )
-			exit( RunError.RequiredVariable , var + " is empty" , new String[] { var } );
+			exit1( _Error.RequiredVariable1 , var + " is empty" , var );
 	}
 	
 	public void checkRequired( boolean value , String var ) throws Exception {

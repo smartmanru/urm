@@ -94,7 +94,7 @@ public class RunContext implements Serializable {
 			standaloneMode = false;
 		}
 		else
-			throw new ExitException( "unexpected mode=" + mode );
+			Common.exit1( _Error.UnexpectedMode1 , "unexpected mode=" + mode , mode );
 			
 		if( osType == VarOSTYPE.LINUX ) {
 			installPath = getProperty( PROPERTY_INSTALL_PATH );
@@ -114,15 +114,15 @@ public class RunContext implements Serializable {
 		encoding = getProperty( "urm.encoding" );
 		
 		if( installPath.isEmpty() )
-			throw new ExitException( "install path is not set" );
+			Common.exit0( _Error.InstallPathNotSet0 , "install path is not set" );
 	}
 	
 	private String getEnvRequired( String key ) throws Exception { 
 		String value = System.getenv( key );
 		if( value == null )
-			throw new ExitException( "environment variable " + key + " is not set" );
+			Common.exit1( _Error.EnvironmentVariableNotSet1 , "environment variable " + key + " is not set" , key );
 		if( value.isEmpty() )
-			throw new ExitException( "environment variable " + key + " is empty" );
+			Common.exit1( _Error.EnvironmentVariableEmpty1 , "environment variable " + key + " is empty" , key );
 		return( value );
 	}
 	
@@ -156,7 +156,8 @@ public class RunContext implements Serializable {
 			return( Common.getLinuxPath( path ) );
 		if( isWindows() )
 			return( Common.getWinPath( path ) );
-		throw new ExitException( "UnexpectedState" );
+		Common.exitUnexpected();
+		return( null );
 	}
 
 	public void getProperties( PropertySet set ) throws Exception {

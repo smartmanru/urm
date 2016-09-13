@@ -109,7 +109,7 @@ public class Dist {
 	
 	public void copyConfToDistr( ActionBase action , LocalFolder sourceFolder , MetaDistrConfItem conf ) throws Exception {
 		if( !openedForChange )
-			action.exit( "distributive is not opened for change" );
+			action.exit0( _Error.DistributiveNotOpened0 , "distributive is not opened for change" );
 		
 		state.checkDistChangeEnabled( action );
 		String parentFolder = getReleaseConfCompParentFolder( action , conf );
@@ -118,7 +118,7 @@ public class Dist {
 	
 	public void copyVFileToDistr( ActionBase action , MetaDistrBinaryItem distItem , LocalFolder sourceFolder , String FNAME , String BASENAME , String EXT ) throws Exception {
 		if( !openedForChange )
-			action.exit( "distributive is not opened for change" );
+			action.exit0( _Error.DistributiveNotOpened0 , "distributive is not opened for change" );
 		
 		state.checkDistChangeEnabled( action );
 		String folder = getReleaseBinaryFolder( action , distItem );
@@ -127,7 +127,7 @@ public class Dist {
 
 	public void copyDatabaseFilesToDistr( ActionBase action , MetaDistrDelivery dbDelivery , LocalFolder srcPrepared ) throws Exception {
 		if( !openedForChange )
-			action.exit( "distributive is not opened for change" );
+			action.exit0( _Error.DistributiveNotOpened0 , "distributive is not opened for change" );
 		
 		state.checkDistChangeEnabled( action );
 		String folder = getDeliveryDatabaseFolder( action , dbDelivery , release.RELEASEVER );
@@ -140,7 +140,7 @@ public class Dist {
 
 	public void copyManualFilesToDistr( ActionBase action , LocalFolder src ) throws Exception {
 		if( !openedForChange )
-			action.exit( "distributive is not opened for change" );
+			action.exit0( _Error.DistributiveNotOpened0 , "distributive is not opened for change" );
 		
 		state.checkDistChangeEnabled( action );
 		String folder = getManualFolder( action  );
@@ -156,13 +156,13 @@ public class Dist {
 	
 	public String copyDistToFolder( ActionBase action , LocalFolder workFolder , String file ) throws Exception {
 		if( !openedForUse )
-			action.exit( "distributive is not opened for use" );
+			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		return( copyDistToFolder( action , workFolder , "" , file ) );
 	}
 
 	public String extractEmbeddedItemToFolder( ActionBase action , LocalFolder folder , MetaDistrBinaryItem item , String fileName ) throws Exception {
 		if( !openedForUse )
-			action.exit( "distributive is not opened for use" );
+			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 
 		MetaDistrBinaryItem srcItem = item.srcItem;
 		
@@ -181,7 +181,7 @@ public class Dist {
 
 	public String copyDistToFolder( ActionBase action , LocalFolder workFolder , String srcSubdir , String file ) throws Exception {
 		if( !openedForUse )
-			action.exit( "distributive is not opened for use" );
+			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
 		action.debug( "copy from distributive " + file + " to " + workFolder.folderPath + " ..." );
 		RemoteFolder srcFolder = distFolder.getSubFolder( action , srcSubdir ); 
@@ -190,7 +190,7 @@ public class Dist {
 
 	public String copyDistFileToFolderRename( ActionBase action , LocalFolder workFolder , String srcSubdir , String file , String newName ) throws Exception {
 		if( !openedForUse )
-			action.exit( "distributive is not opened for use" );
+			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
 		action.debug( "copy from distributive " + file + " to " + workFolder.folderPath + " ..." );
 		RemoteFolder srcFolder = distFolder.getSubFolder( action , srcSubdir ); 
@@ -199,7 +199,7 @@ public class Dist {
 	
 	public void unzipDistFileToFolder( ActionBase action , LocalFolder workFolder , String file , String FOLDER , String target , String part ) throws Exception {
 		if( !openedForUse )
-			action.exit( "distributive is not opened for use" );
+			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
 		String filePath = distFolder.copyFileToLocal( action , workFolder , file , FOLDER );
 		action.shell.unzipPart( action , workFolder.folderPath , filePath , target , part ); 
@@ -249,7 +249,7 @@ public class Dist {
 	
 	public void copyDistConfToFolder( ActionBase action , ReleaseDelivery delivery , LocalFolder localFolder ) throws Exception {
 		if( !openedForUse )
-			action.exit( "distributive is not opened for use" );
+			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
 		String confFolder = getDeliveryConfFolder( action , delivery.distDelivery );
 		distFolder.copyDirContentToLocal( action , localFolder , confFolder );
@@ -257,11 +257,11 @@ public class Dist {
 	
 	public void copyDistConfToFolder( ActionBase action , MetaDistrConfItem conf , LocalFolder localFolder ) throws Exception {
 		if( !openedForUse )
-			action.exit( "distributive is not opened for use" );
+			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
 		ReleaseDelivery delivery = release.findDelivery( action , conf.delivery.NAME );
 		if( delivery == null )
-			action.exit( "unknown release delivery=" + conf.delivery.NAME );
+			action.exit1( _Error.UnknownReleaseDelivery1 , "unknown release delivery=" + conf.delivery.NAME , conf.delivery.NAME );
 		
 		String confFolder = getDeliveryConfFolder( action , delivery.distDelivery );
 		confFolder = Common.getPath( confFolder , conf.KEY );
@@ -271,7 +271,7 @@ public class Dist {
 	
 	public boolean copyDistConfToFolder( ActionBase action , ReleaseTarget confTarget , LocalFolder parentFolder ) throws Exception {
 		if( !openedForUse )
-			action.exit( "distributive is not opened for use" );
+			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
 		String confFolder = getDeliveryConfFolder( action , confTarget.getDelivery( action ) );
 		String compFolder = Common.getPath( confFolder , confTarget.distConfItem.KEY );
@@ -580,7 +580,7 @@ public class Dist {
 
 	public boolean checkIfReleaseItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
 		if( !openedForUse )
-			action.exit( "distributive is not opened for use" );
+			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
 		if( item.DISTSOURCE == VarDISTITEMSOURCE.MANUAL ) {
 			ReleaseTarget target = release.findCategoryTarget( action , VarCATEGORY.MANUAL , item.KEY );
@@ -608,7 +608,7 @@ public class Dist {
 	
 	public String getBinaryDistItemFile( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
 		if( !openedForUse )
-			action.exit( "distributive is not opened for use" );
+			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
 		if( item.DISTSOURCE == VarDISTITEMSOURCE.MANUAL ) {
 			ReleaseTarget target = release.findCategoryTarget( action , VarCATEGORY.MANUAL , item.KEY );
@@ -697,7 +697,7 @@ public class Dist {
 
 	public String[] getManualDatabaseFiles( ActionBase action ) throws Exception {
 		if( !openedForUse )
-			action.exit( "distributive is not opened for use" );
+			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
 		FileSet set = files.getDirByPath( action , DBMANUAL_FOLDER );
 		if( set == null )
@@ -708,7 +708,7 @@ public class Dist {
 
 	public String findManualDatabaseItemFile( ActionBase action , String index ) throws Exception {
 		if( !openedForUse )
-			action.exit( "distributive is not opened for use" );
+			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
 		FileSet set = files.getDirByPath( action , "manual/db" );
 		if( set == null )
@@ -724,14 +724,14 @@ public class Dist {
 
 	public void copyDistDatabaseManualFileToFolder( ActionBase action , LocalFolder dstFolder , String file ) throws Exception {
 		if( !openedForUse )
-			action.exit( "distributive is not opened for use" );
+			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
 		copyDistToFolder( action , dstFolder , "manual/db" , file );
 	}
 
 	public void copyDistItemToTarget( ActionBase action , MetaDistrBinaryItem item , String fileName , RemoteFolder locationDir , String redistFileName ) throws Exception {
 		if( !openedForUse )
-			action.exit( "distributive is not opened for use" );
+			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
 		if( isRemote( action ) ) {
 			// copy via local
@@ -747,7 +747,7 @@ public class Dist {
 
 	public void descopeAll( ActionBase action ) throws Exception {
 		if( !openedForChange )
-			action.exit( "distributive is not opened for change" );
+			action.exit0( _Error.DistributiveNotOpened0 , "distributive is not opened for change" );
 		
 		action.info( "remove distributive content ..." );
 		for( String dir : distFolder.getTopDirs( action ) )

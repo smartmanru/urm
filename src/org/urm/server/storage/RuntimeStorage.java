@@ -109,7 +109,7 @@ public class RuntimeStorage extends ServerStorage {
 			deployDir.ensureExists( action );
 		else {
 			if( !deployDir.checkExists( action ) )
-				action.exit( "deploy directory " + deployDir.folderPath + " does not exist" );
+				action.exit1( _Error.MissingDeployDirectory1 , "deploy directory " + deployDir.folderPath + " does not exist" , deployDir.folderPath );
 		}
 			
 		// delete old only if full deploy
@@ -283,7 +283,7 @@ public class RuntimeStorage extends ServerStorage {
 			action.exitUnexpectedState();
 		
 		if( !rf.checkFolderExists( action , installName ) )
-			action.exit( "unable to extract " + archiveDir + " from archive" );
+			action.exit1( _Error.UnableExtractArchive1 , "unable to extract " + archiveDir + " from archive" , archiveDir );
 	}
 
 	public void createDirLink( ActionBase action , String link , String runtimePath ) throws Exception {
@@ -309,7 +309,7 @@ public class RuntimeStorage extends ServerStorage {
 		if( server.osType == VarOSTYPE.LINUX ) {
 			RemoteFolder runtimeDir = new RemoteFolder( action.getNodeAccount( node ) , servicePath );
 			if( !runtimeDir.checkFileExists( action , "service" ) )
-				action.exit( "unable to find service file in " + runtimeDir.folderPath );
+				action.exit1( _Error.MissingLiveServiceFile1 , "unable to find service file in " + runtimeDir.folderPath , runtimeDir.folderPath );
 
 			String targetFile = "/etc/init.d/" + server.SERVICENAME;
 			runtimeDir.copyFile( action , "service" , targetFile );

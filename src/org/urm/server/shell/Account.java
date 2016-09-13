@@ -55,7 +55,7 @@ public class Account {
 	
 	public static Account getAccount( ActionBase action , String user , String host , int port , VarOSTYPE osType ) throws Exception {
 		if( host.isEmpty() || user.isEmpty() )
-			action.exit( "account details are not provided" );
+			action.exit0( _Error.MissingAccountDetails0 , "account details are not provided" );
 		
 		Account account = new Account( user , host , port , osType ); 
 		if( action.isLocalRun() ||
@@ -70,7 +70,7 @@ public class Account {
 	
 	public static Account getAccount( ActionBase action , String hostLogin , VarOSTYPE osType ) throws Exception {
 		if( hostLogin.isEmpty() )
-			action.exit( "account details are not provided" );
+			action.exit0( _Error.MissingAccountDetails0 , "account details are not provided" );
 		
 		if( hostLogin.equals( "local" ) )
 			return( action.context.account );

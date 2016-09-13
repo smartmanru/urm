@@ -12,6 +12,7 @@ import org.w3c.dom.Node;
 
 public class MetaDesignElement {
 	
+	protected Meta meta;
 	MetaDesign design;
 	MetaDesignElement group;
 	public Map<String,MetaDesignLink> links;
@@ -24,7 +25,8 @@ public class MetaDesignElement {
 	public String FUNCTION;
 	private VarELEMENTTYPE elementType;
 	
-	public MetaDesignElement( MetaDesign design , MetaDesignElement group ) {
+	public MetaDesignElement( Meta meta , MetaDesign design , MetaDesignElement group ) {
+		this.meta = meta;
 		this.design = design;
 		this.group = group;
 	}
@@ -35,12 +37,12 @@ public class MetaDesignElement {
 		
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		TYPE = ConfReader.getRequiredAttrValue( node , "type" );
-		elementType = design.getElementType( action , TYPE );
+		elementType = meta.getDesignElementType( action , TYPE );
 		FUNCTION = ConfReader.getAttrValue( node , "function" );
 
 		if( isGroup() ) {
 			if( group != null )
-				action.exit( "nested groups are diasallowed, item=" + NAME );
+				action.exit1( _Error.NestedGroupsDisallowed1 , "nested groups are diasallowed, item=" + NAME , NAME );
 			GROUPCOLOR = ConfReader.getAttrValue( node , "color" );
 			GROUPFILLCOLOR = ConfReader.getAttrValue( node , "fillcolor" );
 		}
@@ -49,10 +51,10 @@ public class MetaDesignElement {
 		Node[] items = ConfReader.xmlGetChildren( node , "element" );
 		if( items != null ) {
 			if( !isGroup() )
-				action.exit( "non-group item has childs, item=" + NAME );
+				action.exit1( _Error.NonGroupItemChilds1 , "non-group item has childs, item=" + NAME , NAME );
 			
 			for( Node elementNode : items ) {
-				MetaDesignElement child = new MetaDesignElement( design , this );
+				MetaDesignElement child = new MetaDesignElement( meta , design , this );
 				child.load( action , elementNode );
 				childs.put( child.NAME , child );
 				design.addSubGraphItem( action , this , child );
@@ -63,7 +65,7 @@ public class MetaDesignElement {
 		items = ConfReader.xmlGetChildren( node , "link" );
 		if( items != null ) {
 			for( Node elementNode : items ) {
-				MetaDesignLink link = new MetaDesignLink( design , this );
+				MetaDesignLink link = new MetaDesignLink( meta , design , this );
 				link.load( action , elementNode );
 				links.put( link.TARGET , link );
 			}
@@ -78,7 +80,7 @@ public class MetaDesignElement {
 	public MetaDesignLink getLink( ActionBase action , String ID ) throws Exception {
 		MetaDesignLink link = links.get( ID );
 		if( ID == null )
-			action.exit( "unknown link=" + ID );
+			action.exit1( _Error.UnknownDesignLink1 , "unknown design link=" + ID , ID );
 		return( link );
 	}
 
@@ -93,7 +95,7 @@ public class MetaDesignElement {
 			return( getName( action ) );
 		for( String s : childs.keySet() )
 			return( Common.getQuoted( s ) );
-		action.exit( "unable to get group item" );
+		action.exit0( _Error.UnableGetGroupItem0 , "unable to get group item" );
 		return( null );
 	}
 

@@ -52,7 +52,7 @@ public class ShellCoreUnix extends ShellCore {
 	
 	@Override public void runCommand( ActionBase action , String cmd , int logLevel ) throws Exception {
 		if( !running )
-			exitError( action , "attempt to run command in closed session: " + cmd );
+			exitError( action , _Error.RunCommandClosedSession1 , "attempt to run command in closed session: " + cmd , new String[] { cmd } );
 			
 		cmdCurrent = cmd;
 
@@ -71,7 +71,7 @@ public class ShellCoreUnix extends ShellCore {
 		catch( Throwable e ) {
 			if( action.context.CTX_TRACEINTERNAL )
 				e.printStackTrace();
-			action.exit( "shell input stream error" );
+			action.exit0( _Error.ShellInputStreamError0 , "shell input stream error" );
 		}
 		
 		executor.waitCommandFinished( action , logLevel , cmdout , cmderr , windowsHelper );
@@ -90,7 +90,7 @@ public class ShellCoreUnix extends ShellCore {
 			}
 		}
 				
-		exitError( action , "unable to obtain command status" );
+		exitError( action , _Error.UnableObtainCommandStatus0 , "unable to obtain command status" , null );
 		return( -1 );
 	}
 
@@ -150,7 +150,7 @@ public class ShellCoreUnix extends ShellCore {
 			return( "" );
 		
 		if( value.indexOf( ' ' ) > 0 )
-			action.exit( "too many files found in path=" + path + ", mask=" + Common.getQuoted( mask ) + " (" + value + ")" );
+			action.exit3( _Error.TooManyFilesInPath3 , "too many files found in path=" + path + ", mask=" + Common.getQuoted( mask ) + " (" + value + ")" , path , mask , value );
 		
 		value = Common.getPartAfterFirst( value , "./" );
 		return( value );
@@ -177,7 +177,7 @@ public class ShellCoreUnix extends ShellCore {
 			return( "" );
 		
 		if( value.indexOf( ' ' ) > 0 )
-			action.exit( "too many files found in path=" + path + ", mask=" + Common.getQuoted( mask ) + " (" + value + ")" );
+			action.exit3( _Error.TooManyFilesInPath3 , "too many files found in path=" + path + ", mask=" + Common.getQuoted( mask ) + " (" + value + ")" , path , mask , value );
 		
 		value = Common.getPartAfterFirst( value , "./" );
 		return( value );
@@ -314,7 +314,7 @@ public class ShellCoreUnix extends ShellCore {
 		String value = runCommandGetValueCheckDebug( action , dir , "ls -l " + dirFile );
 		
 		if( value.isEmpty() )
-			action.exit( "cannot find file=" + dirFile + " in directory " + dir );
+			action.exit2( _Error.CannotFindFile2 , "cannot find file=" + dirFile + " in directory " + dir , dir , dirFile );
 		
 		return( value );
 	}
@@ -484,7 +484,7 @@ public class ShellCoreUnix extends ShellCore {
 				"find . -type d | sort; echo " + delimiter + "; find . -type f | sort" );
 		
 		if( res.isEmpty() )
-			action.exit( "directory " + rootPath + " does not exist" );
+			action.exit1( _Error.MissingDirectory1 , "directory " + rootPath + " does not exist" , rootPath );
 		
 		List<String> copyTo = dirs;
 		boolean ok = false;
@@ -506,7 +506,7 @@ public class ShellCoreUnix extends ShellCore {
 		}
 		
 		if( !ok )
-			action.exit( "unable to read directory " + rootPath );
+			action.exit1( _Error.UnableReadDirectory1 , "unable to read directory " + rootPath , rootPath );
 	}
 
 	@Override public void cmdGetTopDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
@@ -515,7 +515,7 @@ public class ShellCoreUnix extends ShellCore {
 				"find . -maxdepth 1 -type d | sort; echo " + delimiter + "; find . -maxdepth 1 -type f | sort" );
 		
 		if( res.isEmpty() )
-			action.exit( "directory " + rootPath + " does not exist" );
+			action.exit1( _Error.MissingDirectory1 , "directory " + rootPath + " does not exist" , rootPath );
 		
 		List<String> copyTo = dirs;
 		boolean ok = false;
@@ -537,7 +537,7 @@ public class ShellCoreUnix extends ShellCore {
 		}
 		
 		if( !ok )
-			action.exit( "unable to read directory " + rootPath );
+			action.exit1( _Error.UnableReadDirectory1 , "unable to read directory " + rootPath , rootPath );
 	}
 
 	@Override public String cmdGetMD5( ActionBase action , String filePath ) throws Exception {
@@ -678,7 +678,7 @@ public class ShellCoreUnix extends ShellCore {
 		}
 		
 		if( pos != 0 )
-			action.exit( "error reading files in dir=" + dir );
+			action.exit1( _Error.UnableReadDirectory1 , "error reading files in dir=" + dir , dir );
 		
 		return( map );
 	}

@@ -137,7 +137,7 @@ public class WaiterCommand implements Runnable {
 		char[] c = new char[1];
 		while( true ) {
 			if( textreader.read( c , 0 , 1 ) != 1 )
-				action.exit( "unable to read" );
+				action.exit0( _Error.UnableReadStream0 , "unable to read stream" );
 			
 			if( action.context.CTX_TRACEINTERNAL ) {
 				String s = "" + c[0];
@@ -154,7 +154,7 @@ public class WaiterCommand implements Runnable {
 
 	protected boolean readStream( ActionBase action , BufferedReader textreader , List<String> text , String prompt ) throws Exception {
 		if( textreader == null )
-			action.exit( "missing reader" );
+			action.exit0( _Error.MissingTextReader , "missing textreader" );
 		
 		String line;
 		boolean first = true;
@@ -235,7 +235,7 @@ public class WaiterCommand implements Runnable {
 			waiter.setWindowsHelper();
 		
 		if( !waiter.wait( action , action.commandTimeout ) )
-			action.exit( "command has been killed" );
+			action.exit0( _Error.CommandKilled , "command has been killed" );
 	}
 	
 	public boolean waitForMarker( ActionBase action , String marker ) throws Exception {

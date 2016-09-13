@@ -32,22 +32,22 @@ public class ServerStorage {
 	public void checkRootDir( ActionBase action , String rootPath ) throws Exception {
 		if( account.isLinux() ) {
 			if( rootPath.isEmpty() || rootPath.equals( "/" ) || rootPath.startsWith( "/" ) == false || rootPath.endsWith( "/" ) )
-				action.exit( "checkRootDir: invalid root dir=" + rootPath );
+				action.exit1( _Error.InvalidRootDir1 , "checkRootDir: invalid root dir=" + rootPath , rootPath );
 		}
 		else
 		if( account.isWindows() ) {
 			if( rootPath.isEmpty() || rootPath.equals( "/" ) )
-				action.exit( "checkRootDir: invalid root dir=" + rootPath );
+				action.exit1( _Error.InvalidRootDir1 , "checkRootDir: invalid root dir=" + rootPath , rootPath );
 			
 			String noletter = rootPath.substring( 1 );
 			if( noletter.startsWith( ":/" ) == false || noletter.equals( ":/" ) )
-				action.exit( "checkRootDir: invalid root dir=" + rootPath );
+				action.exit1( _Error.InvalidRootDir1 , "checkRootDir: invalid root dir=" + rootPath , rootPath );
 		}
 	}
 
 	public void checkRelativeDir( ActionBase action , String folder ) throws Exception {
 		if( folder.isEmpty() || folder.startsWith( "/" ) || folder.endsWith( "/" ) )
-			action.exit( "checkRootDir: invalid relative dir=" + folder );
+			action.exit1( _Error.InvalidRelativeDir1 , "checkRootDir: invalid relative dir=" + folder , folder );
 	}
 	
 	public RemoteFolder getRedistTmpFolder( ActionBase action ) throws Exception {
@@ -106,9 +106,6 @@ public class ServerStorage {
 	}
 	
 	protected String getPathRedistReleaseRoot( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , boolean rollout ) throws Exception {
-		if( CONTENTTYPE == null )
-			action.exit( "getPathRedistReleaseRoot: invalid params" );
-
 		String C_COMMON_DIRPATH = getRedistFolderRootPath( action );
 		C_COMMON_DIRPATH = Common.getPath( C_COMMON_DIRPATH , "releases" , RELEASEDIR );
 		
@@ -117,9 +114,6 @@ public class ServerStorage {
 	}
 	
 	protected String getPathRedistStateRoot( ActionBase action , VarCONTENTTYPE CONTENTTYPE ) throws Exception {
-		if( CONTENTTYPE == null )
-			action.exit( "getPathRedistStateRoot: invalid params" );
-
 		String C_COMMON_DIRPATH = getRedistFolderRootPath( action );
 		C_COMMON_DIRPATH = Common.getPath( C_COMMON_DIRPATH , "state" );
 		

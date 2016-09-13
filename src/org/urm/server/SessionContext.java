@@ -1,7 +1,6 @@
 package org.urm.server;
 
 import org.urm.common.Common;
-import org.urm.common.ExitException;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandOptions;
 import org.urm.server.action.ActionBase;
@@ -50,10 +49,6 @@ public class SessionContext {
 		timestamp = Common.getNameTimeStamp();
 	}
 	
-	public void exit( String msg ) throws Exception {
-		throw new ExitException( msg );
-	}
-
 	public void setLoginAuth( ServerAuthContext login ) {
 		this.login = login;
 	}
@@ -65,7 +60,7 @@ public class SessionContext {
 	public void setServerLayout( CommandOptions options ) throws Exception {
 		installPath = clientrc.installPath;
 		if( installPath.isEmpty() )
-			exit( "masterpath is empty" );
+			Common.exit0( _Error.MasterpathEmpty0 , "masterpath is empty" );
 		
 		productName = "";
 		productDir = "";
@@ -85,7 +80,7 @@ public class SessionContext {
 		product = true;
 		
 		if( path.isEmpty() )
-			exit( "missing product folder" );
+			Common.exit1( _Error.MissingProductFolder1 , "missing product folder" , name );
 		
 		this.productName = name;
 		this.productDir = path;
@@ -139,7 +134,7 @@ public class SessionContext {
 		
 		productPath = clientrc.installPath;
 		if( productPath.isEmpty() )
-			exit( "productpath is empty" );
+			Common.exit0( _Error.ProductpathEmpty0 , "productpath is empty" );
 		
 		productName = "";
 		productDir = "";

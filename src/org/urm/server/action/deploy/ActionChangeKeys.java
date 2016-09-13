@@ -50,7 +50,7 @@ public class ActionChangeKeys extends ActionBase {
 		String F_KEYDATA = null;
 		if( !cmd.equals( "list" ) ) {
 			if( !shell.checkFileExists( this , P_KEYFILENEXTPUB ) )
-				exitAction( "cannot find public key file " + P_KEYFILENEXTPUB );
+				exit1( _Error.CannotFindPublicKeyFile1 , "cannot find public key file " + P_KEYFILENEXTPUB , P_KEYFILENEXTPUB );
 	
 			if( shell.checkFileExists( this , P_KEYFILENEXTPRV ) )
 				S_HASNEXTPRIVATEKEY = true;
@@ -68,7 +68,7 @@ public class ActionChangeKeys extends ActionBase {
 				P_KEYACCESS = Common.getPartBeforeLast( P_KEYACCESS , ".pub" );
 		
 			if( !shell.checkFileExists( this , P_KEYACCESS ) )
-				exitAction( "invalid private key file " + P_KEYACCESS );
+				exit1( _Error.InvalidPrivateKeyFile1 , "invalid private key file " + P_KEYACCESS , P_KEYACCESS );
 
 			F_ACCESSOPTION = "-i " + P_KEYACCESS;
 			F_ACCESSMSG = " using access key " + P_KEYACCESS;
@@ -98,7 +98,7 @@ public class ActionChangeKeys extends ActionBase {
 			F_BEHALFACCOUNT = account.getRootAccount( this );
 
 			if( !checkHostUser( F_BEHALFACCOUNT , F_ACCESSOPTION , F_HOSTUSER ) )
-				exitAction( "unknown hostuser=" + F_HOSTUSER );
+				exit1( _Error.UnknownHostuser1 , "unknown hostuser=" + F_HOSTUSER , F_HOSTUSER );
 
 			// execute key operation under user on behalf of host user
 			F_SETUPAUTH = getCreateSshOnBehalf( F_HOSTUSER ); 
@@ -114,33 +114,33 @@ public class ActionChangeKeys extends ActionBase {
 			info( F_BEHALFACCOUNT.getPrintName() + ": change key to " + P_KEYFILENEXTPUB + " (" + F_KEYOWNER + 
 				") on " + account.getPrintName() + F_ACCESSMSG + " ..." );
 			if( !replaceKey( F_BEHALFACCOUNT , F_ACCESSOPTION , F_SETUPAUTH , F_KEYOWNER , F_KEYDATA ) )
-				exitAction( "error executing key replacement" );
+				exit0( _Error.ErrorExecutingKeyReplacement0 , "error executing key replacement" );
 		}
 		else
 		if( cmd.equals( "set" ) ) {
 			info( F_BEHALFACCOUNT.getPrintName() + ": set the only key to " + P_KEYFILENEXTPUB + " (" + F_KEYOWNER + 
 					") on " + account.getPrintName() + F_ACCESSMSG + " ..." );
 			if( !setOnlyKey( F_BEHALFACCOUNT , F_ACCESSOPTION , F_SETUPAUTH , F_KEYDATA ) )
-				exitAction( "error executing key set. Exiting" );
+				exit0( _Error.ErrorExecutingKeySet0 , "error executing key set" );
 		}
 		else
 		if( cmd.equals( "delete" ) ) {
 			info( F_BEHALFACCOUNT.getPrintName() + ": delete key " + P_KEYFILENEXTPUB + " (" + F_KEYOWNER + ") on " + 
 					account.getPrintName() + F_ACCESSMSG + " ..." );
 			if( !deleteKey( F_BEHALFACCOUNT , F_ACCESSOPTION , F_SETUPAUTH , F_KEYOWNER ) )
-				exitAction( "error executing key delete" );
+				exit0( _Error.ErrorExecutingKeyDelete0 , "error executing key delete" );
 		}
 		else
 		if( cmd.equals( "list" ) ) {
 			if( !listKeys( F_BEHALFACCOUNT , F_ACCESSOPTION , F_SETUPAUTH ) )
-				exitAction( "error executing key list" );
+				exit0( _Error.ErrorExecutingKeyList0 , "error executing key list" );
 		}
 
 		if( cmd.equals( "change" ) || cmd.equals( "set" ) ) {
 			// check - if there is next key
 			if( S_HASNEXTPRIVATEKEY ) {
 				if( !tryConnect( F_TARGETACCOUNT , "-i " + P_KEYFILENEXTPRV ) )
-					exitAction( "error executing new key check. Exiting" );
+					exit0( _Error.ErrorExecutingNewKeyCheck0 , "error executing new key check" );
 				
 				info( account.getPrintName() + ": new key successfully verified." );
 			}
@@ -214,7 +214,7 @@ public class ActionChangeKeys extends ActionBase {
 			exitNotImplemented();
 		
 		if( context.CTX_SUDO )
-			exit( "unsupported with sudo" );
+			exit0( _Error.NotSupportedWithSudo0 , "unsupported with sudo" );
 		
 		int timeout = setTimeoutUnlimited();
 		int status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.getSshAddr() + " " + 
@@ -256,7 +256,7 @@ public class ActionChangeKeys extends ActionBase {
 			exitNotImplemented();
 		
 		if( context.CTX_SUDO )
-			exit( "not supported with sudo" );
+			exit0( _Error.NotSupportedWithSudo0 , "not supported with sudo" );
 		
 		int status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.getSshAddr() + " " +
 		Common.getQuoted( SETUPAUTH + "; cat " + S_AUTHFILE + " | grep -v " + KEYOWNER + "\\$ > " +
@@ -271,14 +271,14 @@ public class ActionChangeKeys extends ActionBase {
 			exitNotImplemented();
 		
 		if( context.CTX_SUDO )
-			exit( "not supported with sudo" );
+			exit0( _Error.NotSupportedWithSudo0 , "not supported with sudo" );
 		
 		int timeout = setTimeoutUnlimited();
 		String[] list = shell.customGetLines( this , "ssh -n " + ACCESSOPTION + " " + account.getSshAddr() + " " +
 				Common.getQuoted( SETUPAUTH ) );
 		setTimeout( timeout );
 		if( list.length > 0 && list[0].equals( "NOAUTHFILE" ) )
-			exit( S_AUTHFILE + " is not found" );
+			exit1( _Error.AuthFileNotFound1 , S_AUTHFILE + " is not found" , S_AUTHFILE );
 		
 		for( String s : list )
 			info( "\tkey: " + s );

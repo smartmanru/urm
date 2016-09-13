@@ -124,7 +124,7 @@ public class Release {
 		for( String OLDRELEASE : Common.splitSpaced( action.context.CTX_OLDRELEASE ) ) {
 			OLDRELEASE = dist.repo.normalizeReleaseVer( action , OLDRELEASE );
 			if( OLDRELEASE.compareTo( RELEASEVER ) >= 0 )
-				action.exit( "compatibility is expected for earlier release (version=" + OLDRELEASE + ")" );
+				action.exit1( _Error.CompatibilityExpectedForEarlierRelease1 , "compatibility is expected for earlier release (version=" + OLDRELEASE + ")" , OLDRELEASE );
 			
 			PROPERTY_COMPATIBILITY = Common.addItemToUniqueSpacedList( PROPERTY_COMPATIBILITY , OLDRELEASE );
 		}
@@ -161,7 +161,7 @@ public class Release {
 	public ReleaseSet getSourceSet( ActionBase action , String name ) throws Exception {
 		ReleaseSet set = findSourceSet( action , name );
 		if( set == null )
-			action.exit( "unknown release set=" + name );
+			action.exit1( _Error.UnknownReleaseSet1 , "unknown release set=" + name , name );
 		return( set );
 	}
 	
@@ -175,8 +175,10 @@ public class Release {
 	
 	public ReleaseSet getCategorySet( ActionBase action , VarCATEGORY CATEGORY ) throws Exception {
 		ReleaseSet set = findCategorySet( action , CATEGORY );
-		if( set == null )
-			action.exit( "unknown release category set=" + CATEGORY );
+		if( set == null ) {
+			String name = Common.getEnumLower( CATEGORY );
+			action.exit1( _Error.UnknownReleaseCategorySet1 , "unknown release category set=" + name , name );
+		}
 		return( set );
 	}
 
@@ -213,7 +215,7 @@ public class Release {
 
 		RELEASEVER = ConfReader.getAttrValue( root , "version" );
 		if( RELEASEVER.isEmpty() )
-			action.exit( "release version property is not set, unable to use distributive" );
+			action.exit0( _Error.ReleaseVersionNotSet0 , "release version property is not set, unable to use distributive" );
 		
 		// properties
 		PROPERTY_BUILDMODE = getReleasePropertyBuildMode( action , root , "buildMode" ); 
@@ -334,7 +336,7 @@ public class Release {
 	public ReleaseTarget getBuildProject( ActionBase action , String name ) throws Exception {
 		ReleaseTarget project = findBuildProject( action , name );
 		if( project == null )
-			action.exit( "unknown release project=" + name );
+			action.exit1( _Error.UnknownReleaseProject1 , "unknown release project=" + name , name );
 		
 		return( project );
 	}
@@ -355,7 +357,7 @@ public class Release {
 	public ReleaseTarget getConfComponent( ActionBase action , String KEY ) throws Exception {
 		ReleaseTarget comp = findConfComponent( action , KEY );
 		if( comp == null )
-			action.exit( "unknown release component=" + KEY );
+			action.exit1( _Error.UnknownReleaseComponent1 , "unknown release component=" + KEY , KEY );
 		
 		return( comp );
 	}
@@ -392,7 +394,7 @@ public class Release {
 	public ReleaseDelivery getDelivery( ActionBase action , String name ) throws Exception {
 		ReleaseDelivery delivery = deliveryMap.get( name );
 		if( delivery == null )
-			action.exit( "unknown delivery folder=" + name );
+			action.exit1( _Error.UnknownReleaseDelivery1 , "unknown delivery name=" + name , name );
 		
 		return( delivery );
 	}
@@ -402,7 +404,7 @@ public class Release {
 			if( delivery.distDelivery.FOLDER.equals( folder ) )
 				return( delivery );
 		
-		action.exit( "unknown delivery folder=" + folder );
+		action.exit1( _Error.UnknownReleaseDeliveryFolder1 , "unknown delivery folder=" + folder , folder );
 		return( null );
 	}
 	
@@ -614,7 +616,7 @@ public class Release {
 
 	public boolean addProjectItem( ActionBase action , MetaSourceProject sourceProject , MetaSourceProjectItem sourceItem ) throws Exception {
 		if( sourceItem.INTERNAL )
-			action.exit( "unexpected call for INTERNAL item=" + sourceItem.ITEMNAME );
+			action.exit1( _Error.UnexpectedInternalItem1 , "unexpected call for INTERNAL item=" + sourceItem.ITEMNAME , sourceItem.ITEMNAME );
 		
 		ReleaseSet set = sourceSetMap.get( sourceProject.CATEGORY );
 		if( set == null )
@@ -701,7 +703,7 @@ public class Release {
 
 	public boolean addManualItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
 		if( item.DISTSOURCE != VarDISTITEMSOURCE.MANUAL )
-			action.exit( "unexpected non-manual item=" + item.KEY );
+			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-manual item=" + item.KEY , item.KEY );
 			
 		ReleaseSet set = getCategorySet( action , VarCATEGORY.MANUAL );
 		if( set.ALL )

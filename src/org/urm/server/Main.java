@@ -34,7 +34,7 @@ public class Main {
 		RunContext execrc = new RunContext();
 		execrc.load();
 		if( !execrc.isMain() )
-			throw new ExitException( "only main executor id expected" );
+			Common.exit0( _Error.MainExecutorExpected0 , "only main executor id expected" );
 
 		ServerEngine engine = new ServerEngine( execrc );
 		engine.init();

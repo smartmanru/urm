@@ -222,7 +222,7 @@ public class ReleaseTarget {
 	
 	public void createFromManualItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
 		if( item.DISTSOURCE != VarDISTITEMSOURCE.MANUAL )
-			action.exit( "unexpected non-manual item=" + item.KEY );
+			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-manual item=" + item.KEY , item.KEY );
 		
 		this.distManualItem = item;
 		this.CATEGORY = VarCATEGORY.MANUAL;

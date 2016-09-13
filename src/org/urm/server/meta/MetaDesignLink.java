@@ -7,6 +7,7 @@ import org.w3c.dom.Node;
 
 public class MetaDesignLink {
 
+	protected Meta meta;
 	MetaDesign design;
 	MetaDesignElement element;
 	
@@ -16,7 +17,8 @@ public class MetaDesignLink {
 	public String TEXT;
 	private VarLINKTYPE linkType;
 	
-	public MetaDesignLink( MetaDesign design , MetaDesignElement element ) {
+	public MetaDesignLink( Meta meta , MetaDesign design , MetaDesignElement element ) {
+		this.meta = meta;
 		this.design = design;
 		this.element = element;
 	}
@@ -24,7 +26,7 @@ public class MetaDesignLink {
 	public void load( ActionBase action , Node node ) throws Exception {
 		TARGET = ConfReader.getRequiredAttrValue( node , "target" );
 		TYPE = ConfReader.getRequiredAttrValue( node , "type" );
-		linkType = design.getLinkType( action , TYPE );
+		linkType = meta.getDesignLinkType( action , TYPE );
 		TEXT = ConfReader.getAttrValue( node , "text" );
 	}
 

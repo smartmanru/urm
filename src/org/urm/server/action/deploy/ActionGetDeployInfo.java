@@ -36,7 +36,7 @@ public class ActionGetDeployInfo extends ActionBase {
 	private void executeTargetDatabase( MetaEnvServer server ) throws Exception {
 		DatabaseClient client = new DatabaseClient();
 		if( !client.checkConnect( this , server ) )
-			exit( "unable to connect to server=" + server.NAME );
+			exit1( _Error.UnableConnectDatbase1 , "unable to connect to server=" + server.NAME , server.NAME );
 
 		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client );
 		DatabaseRegistryRelease release = registry.getLastReleaseInfo( this );

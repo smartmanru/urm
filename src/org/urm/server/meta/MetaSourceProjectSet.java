@@ -45,8 +45,10 @@ public class MetaSourceProjectSet {
 		originalList = new LinkedList<MetaSourceProject>(); 
 		map = new HashMap<String, MetaSourceProject>();
 		
-		if( !meta.isSourceCategory( CATEGORY ) )
-			action.exit( "invalid source.xml: unknown project category=" + Common.getEnumLower( CATEGORY ) );
+		if( !meta.isSourceCategory( CATEGORY ) ) {
+			String name = Common.getEnumLower( CATEGORY );
+			action.exit1( _Error.UnknownProjectCategory1 , "invalid source.xml: unknown project category=" + name , name );
+		}
 		
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		loadProjects( action , CATEGORY , node );
@@ -55,7 +57,7 @@ public class MetaSourceProjectSet {
 	public MetaSourceProject getProject( ActionBase action , String name ) throws Exception {
 		MetaSourceProject project = map.get( name );
 		if( project == null )
-			action.exit( "unknown project=" + name );
+			action.exit1( _Error.UnknownSourceProject1 , "unknown source project=" + name , name );
 		return( project );
 	}
 	

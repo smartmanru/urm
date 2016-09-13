@@ -78,8 +78,11 @@ public class UrmStorage {
 		String folderPath = getDatabaseSpecificFolder( action , server.dbType , server.osType );
 		
 		LocalFolder folder = getInstallFolder( action , Common.getPath( parentPath , folderPath ) );
-		if( !folder.checkExists( action ) )
-			action.exit( "database is not supported: dbtype=" + Common.getEnumLower( server.dbType ) + ", ostype=" + Common.getEnumLower( server.osType ) );
+		if( !folder.checkExists( action ) ) {
+			String dbtype = Common.getEnumLower( server.dbType );
+			String ostype = Common.getEnumLower( server.osType );
+			action.exit2( _Error.DatabaseNotSupported2 , "database is not supported: dbtype=" + dbtype + ", ostype=" + ostype , dbtype , ostype );
+		}
 		
 		return( folder );
 	}

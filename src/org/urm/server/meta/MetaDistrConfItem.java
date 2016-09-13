@@ -40,9 +40,8 @@ public class MetaDistrConfItem {
 		
 		if( TYPE == VarCONFITEMTYPE.DIR ) {
 			if( FILES.isEmpty() == false || TEMPLATES.isEmpty() == false )
-				action.exit( "unexpected set files or templates attribute in confitem=" + KEY );
+				action.exit1( _Error.InvalidConfItemDef1 , "unexpected set files or templates attribute in confitem=" + KEY , KEY );
 		}
-			
 	}
 
 	public String getLiveIncludeFiles( ActionBase action ) throws Exception {

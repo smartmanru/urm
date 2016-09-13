@@ -120,7 +120,7 @@ public class MetaSourceProject {
 	public MetaSourceProjectItem getItem( ActionBase action , String name ) throws Exception {
 		MetaSourceProjectItem item = itemMap.get( name );
 		if( item == null )
-			action.exit( "unknown item=" + name + ", in project=" + PROJECT );
+			action.exit2( _Error.UnknownSourceProjectItem2 , "unknown source project item=" + name + ", in project=" + PROJECT , PROJECT , name );
 		
 		return( item );
 	}
@@ -159,7 +159,7 @@ public class MetaSourceProject {
 		MetaProductBuildSettings build = action.getBuildSettings();
 		String version = build.CONFIG_MAVEN_JAVA_VERSION;
 		if( version.isEmpty() )
-			action.exit( "BUILD_JAVA_VERSION is not defined - java version is unknown" );
+			action.exit0( _Error.UnknownJavaVersion0 , "unknown java version" );
 		
 		return( version );
 	}
@@ -175,12 +175,12 @@ public class MetaSourceProject {
 			if( builder.equals( "maven" ) ) {
 				version = build.CONFIG_MAVEN_VERSION;
 				if( version.isEmpty() )
-					action.exit( "MAVEN_VERSION is not defined - maven version is unknown" );
+					action.exit0( _Error.UnknownMavenVersion0 , "maven version is unknown" );
 			}
 		}
 
 		if( version.isEmpty() )
-			action.exit( "CONFIG_BUILDER_VERSION is not defined - " + builder + " version is unknown" );
+			action.exit1( _Error.UnknownBuilderVersion1 , builder + " version is unknown" , builder );
 		
 		return( version );
 	}

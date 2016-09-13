@@ -31,7 +31,7 @@ public class RedistStateInfo {
 			String verName = Common.getPartBeforeLast( verFile , ".ver" );
 			List<String> data = items.get( verFile );
 			if( data.size() != 1 )
-				action.exit( "invalid state file=" + verName );
+				action.exit1( _Error.InvalidStateFile1 , "invalid state file=" + verName , verName );
 			
 			String verInfo = data.get( 0 );
 			FileInfo info = createFileInfo( action , CONTENTTYPE , verName , verInfo );
@@ -48,7 +48,7 @@ public class RedistStateInfo {
 	public FileInfo getVerData( ActionBase action , String key ) throws Exception {
 		FileInfo value = verData.get( key );
 		if( value == null )
-			action.exit( "unknown key=" + key );
+			action.exit1( _Error.UnknownVersionKey1 , "unknown key=" + key , key );
 		return( value );
 	}
 	

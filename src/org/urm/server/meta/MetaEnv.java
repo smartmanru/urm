@@ -91,9 +91,6 @@ public class MetaEnv {
 	}
 	
 	private void loadProperties( ActionBase action , Node node ) throws Exception {
-		if( node == null || !node.getNodeName().equals( "env" ) )
-			action.exit( "unable to find environment root node=env" );
-		
 		secretProperties = new PropertySet( "secret" , meta.product.getProperties() );
 		properties = new PropertySet( "env" , secretProperties );
 		properties.loadRawFromNodeAttributes( node );
@@ -208,7 +205,7 @@ public class MetaEnv {
 	public MetaEnvDC getDC( ActionBase action , String name ) throws Exception {
 		MetaEnvDC dc = dcMap.get( name );
 		if( dc == null )
-			action.exit( "unknown datacenter=" + name );
+			action.exit1( _Error.UnknownDatacenter1 , "unknown datacenter=" + name , name );
 		return( dc );
 	}
 
@@ -226,7 +223,7 @@ public class MetaEnv {
 	
 	public MetaEnvDC getMainDC( ActionBase action ) throws Exception {
 		if( originalList.size() == 0 )
-			action.exit( "no datacenter defined" );
+			action.exit0( _Error.NoDatacenterDefined0 , "no datacenter defined" );
 		if( originalList.size() > 1 )
 			action.exitUnexpectedState();
 		return( originalList.get( 0 ) );

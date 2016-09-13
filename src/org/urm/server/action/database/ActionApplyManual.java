@@ -33,7 +33,7 @@ public class ActionApplyManual extends ActionBase {
 		
 		DatabaseClient client = new DatabaseClient();
 		if( !client.checkConnect( this , server ) )
-			exit( "unable to connect to server=" + server.NAME );
+			exit1( _Error.ConnectFailed1 , "unable to connect to server=" + server.NAME , server.NAME );
 		
 		if( target.itemFull ) {
 			String[] manualFiles = release.getManualDatabaseFiles( this );
@@ -44,7 +44,7 @@ public class ActionApplyManual extends ActionBase {
 			for( ActionScopeTargetItem item : target.getItems( this ) ) {
 				String file = release.findManualDatabaseItemFile( this , item.NAME );
 				if( file == null )
-					exit( "unable to find manual file index=" + item.NAME );
+					exit1( _Error.UnableFindManualFile1 , "unable to find manual file index=" + item.NAME , item.NAME );
 				
 				prepareManual( client , logReleaseCopy , logReleaseExecute , file );
 			}

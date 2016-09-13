@@ -27,7 +27,7 @@ public class Artefactory {
 	public LocalFolder getAnyFolder( ActionBase action , String dirname ) throws Exception {
 		action.checkRequired( dirname , "dirname" );
 		if( dirname.equals( "/" ) )
-			action.exit( "/ is not permitted for operations" );
+			action.exit0( _Error.RootNotPermitted0 , "/ is not permitted for operations" );
 		
 		return( new LocalFolder( dirname , action.isLocalWindows() ) );
 	}

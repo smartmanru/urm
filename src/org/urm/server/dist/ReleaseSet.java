@@ -127,7 +127,7 @@ public class ReleaseSet {
 				return;
 			}
 
-			action.exit( "unexpected projects defined for all=true in set=" + set.NAME );
+			action.exit1( _Error.UnexpectedFullSetProjects1 , "unexpected projects defined for all=true in set=" + set.NAME , set.NAME );
 		}
 
 		if( projects == null )
@@ -152,7 +152,7 @@ public class ReleaseSet {
 				return;
 			}
 
-			action.exit( "unexpected configuration items defined with all=true" );
+			action.exit0( _Error.UnexpectedFullSetConfigurationItems0 , "unexpected configuration items defined with all=true" );
 		}
 
 		if( confitems == null )
@@ -173,7 +173,7 @@ public class ReleaseSet {
 				return;
 			}
 
-			action.exit( "unexpected database items defined with all=true" );
+			action.exit0( _Error.UnexpectedFullSetDatabaseItems0 , "unexpected database items defined with all=true" );
 		}
 
 		if( dbitems == null )
@@ -194,7 +194,7 @@ public class ReleaseSet {
 				return;
 			}
 
-			action.exit( "unexpected manual items defined with all=true" );
+			action.exit0( _Error.UnexpectedFullSetManuaItems0 , "unexpected manual items defined with all=true" );
 		}
 
 		if( manualitems == null )
@@ -346,7 +346,7 @@ public class ReleaseSet {
 	public ReleaseTarget getTarget( ActionBase action , String key ) throws Exception {
 		ReleaseTarget source = findTarget( action , key );
 		if( source == null || !source.isCategoryItem( action , CATEGORY ) )
-			action.exit( "unknown release target key=" + key );
+			action.exit1( _Error.UnknownReleaseTarget1 , "unknown release target key=" + key , key );
 		return( source );
 	}
 

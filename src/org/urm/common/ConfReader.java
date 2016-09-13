@@ -42,8 +42,8 @@ public class ConfReader {
     	}
     }
 
-    static void exit( String msg ) throws Exception {
-    	throw new ExitException( msg );
+    private static void exit( int errorCode , String msg , String[] params ) throws Exception {
+    	throw new ExitException( errorCode , msg , params );
     }
     
 	public static List<String> readFileLines( RunContext rc , String path , Charset charset ) throws Exception {
@@ -60,7 +60,7 @@ public class ConfReader {
    			lines = Files.readAllLines( Paths.get( fullPath ) , charset );
     	}
     	catch( Throwable e ) {
-    		exit( "unable to read file=" + path );
+    		exit( _Error.UnableToReadFile1 , "unable to read file=" + path , new String[] { path } );
     	}
     	
     	return( lines );
@@ -70,7 +70,7 @@ public class ConfReader {
     	init();
         InputStream inputStream = getResourceStream( rc , path );
         if (inputStream == null)
-            exit( "XML file " + path + " not found" );
+            exit( _Error.UnableToReadFile1 , "unable to read file=" + path , new String[] { path } );
 
         Document xml = xmlParser.parse( inputStream );
         return (xml);
@@ -109,7 +109,7 @@ public class ConfReader {
     	init();
     	List<String> list = readFileLines( rc , path );
     	if( list == null || list.size() != 1 )
-    		exit( path + " is not a single-line file" );
+    		exit( _Error.NotSingleLineFile1 , path + " is not a single-line file" , new String[] { path } );
     	
     	return( list.get( 0 ) );
     }
@@ -216,7 +216,7 @@ public class ConfReader {
     public static Node xmlGetRequiredChild( Node node , String name ) throws Exception {
     	Node child = xmlGetFirstChild( node , name );
     	if( child == null )
-    		exit( "unable to find child=" + name );
+    		exit( _Error.UnableFindChild1 , "unable to find child=" + name , new String[] { name } );
     	return( child );
     }
 
@@ -301,7 +301,7 @@ public class ConfReader {
     public static String getRequiredPropertyValue( Node node , String propertyName ) throws Exception {
     	String value = getPropertyValue( node , propertyName );
     	if( value == null || value.isEmpty() )
-    		exit( "unexpected xml file content - property " + propertyName + " is not set" );
+    		exit( _Error.PropertyNotSet1 , "unexpected xml file content - property " + propertyName + " is not set" , new String[] { propertyName } );
     	
     	return( value );
     }
@@ -312,16 +312,16 @@ public class ConfReader {
     		if( !attrName.equals( "id" ) ) {
     			String id = getAttrValue( node , "id" );
     			if( !id.isEmpty() )
-    				exit( "unexpected xml file content - attribute " + attrName + " is empty, id=" + id );
+    				exit( _Error.AttributeIsEmptyId2 , "unexpected xml file content - attribute " + attrName + " is empty, id=" + id , new String[] { attrName , id } );
     		}
     			
     		if( !attrName.equals( "name" ) ) {
     			String name = getAttrValue( node , "name" );
     			if( !name.isEmpty() )
-    				exit( "unexpected xml file content - attribute " + attrName + " is empty, name=" + name );
+    				exit( _Error.AttributeIsEmptyName2 , "unexpected xml file content - attribute " + attrName + " is empty, name=" + name , new String[] { attrName , name } );
     		}
     			
-    		exit( "unexpected xml file content - attribute " + attrName + " is empty" );
+    		exit( _Error.AttributeIsEmpty1 , "unexpected xml file content - attribute " + attrName + " is empty" , new String[] { attrName } );
     	}
     	
     	return( value );

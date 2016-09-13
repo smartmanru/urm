@@ -1,7 +1,6 @@
 package org.urm.server.action;
 
 import org.urm.common.Common;
-import org.urm.common.ExitException;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.action.CommandOptions;
@@ -385,8 +384,10 @@ public class CommandContext {
 	}
 	
 	public void setBuildMode( VarBUILDMODE value ) throws Exception {
-		if( buildMode != VarBUILDMODE.UNKNOWN && buildMode != value )
-			throw new ExitException( "release is defined for " + getBuildModeName() + " build mode, please use appropriate context" );
+		if( buildMode != VarBUILDMODE.UNKNOWN && buildMode != value ) {
+			String name = getBuildModeName();
+			Common.exit1( _Error.ReleaseWrongBuildMode1 , "release is defined for " + name + " build mode, please use appropriate context" , name );
+		}
 		
 		buildMode = value;
 	}
@@ -397,13 +398,13 @@ public class CommandContext {
 	
 	public boolean getFlagValue( String var , boolean defValue ) throws Exception {
 		if( !options.isFlagVar( var ) )
-			throw new ExitException( "unknown flag var=" + var );
+			Common.exit1( _Error.UnknownFlagVar1 , "unknown flag var=" + var , var );
 		return( options.getFlagValue( var , defValue ) );
 	}
 
 	public String getEnumValue( String var ) throws Exception {
 		if( !options.isEnumVar( var ) )
-			throw new ExitException( "unknown enum var=" + var );
+			Common.exit1( _Error.UnknownEnumVar1 , "unknown enum var=" + var , var );
 		return( options.getEnumValue( var ) );
 	}
 
@@ -422,20 +423,20 @@ public class CommandContext {
 	
 	public String getParamValue( String var ) throws Exception {
 		if( !options.isParamVar( var ) )
-			throw new ExitException( "unknown param var=" + var );
+			Common.exit1( _Error.UnknownParamVar1 , "unknown param var=" + var , var );
 		return( options.getParamValue( var ) );
 	}		
 
 	public int getIntParamValue( String var , int defaultValue ) throws Exception {
 		if( !options.isParamVar( var ) )
-			throw new ExitException( "unknown param var=" + var );
+			Common.exit1( _Error.UnknownParamVar1 , "unknown param var=" + var , var );
 		return( options.getIntParamValue( var , defaultValue ) );
 	}
 
-	public boolean combineValue( String optVar , FLAG confValue , boolean defValue ) throws Exception {
-		if( !options.isValidVar( optVar ) )
-			throw new ExitException( "unknown flag var=" + optVar );
-		return( options.combineValue( optVar , confValue , defValue ) );
+	public boolean combineValue( String var , FLAG confValue , boolean defValue ) throws Exception {
+		if( !options.isValidVar( var ) )
+			Common.exit1( _Error.UnknownParamVar1 , "unknown param var=" + var , var );
+		return( options.combineValue( var , confValue , defValue ) );
 	}
 	
 }

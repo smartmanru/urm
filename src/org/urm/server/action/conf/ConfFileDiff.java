@@ -224,7 +224,7 @@ public class ConfFileDiff {
 
 	private void addDiffItem( ActionBase action , int relFrom , int relTo , int prodFrom , int prodTo ) throws Exception {
 		if( relFrom > relTo && prodFrom > prodTo )
-			action.exit( "invalid diff: relFrom=" + relFrom + ", relTo=" + relTo + ", prodFrom=" + prodFrom + ", prodTo=" + prodTo );
+			action.exit4( _Error.InvalidDiff4 , "invalid diff: relFrom=" + relFrom + ", relTo=" + relTo + ", prodFrom=" + prodFrom + ", prodTo=" + prodTo , "" + relFrom , "" + relTo , "" + prodFrom , "" + prodTo );
 		
 		if( relTo >= relFrom )
 			nextRelLine = relTo + 1; 

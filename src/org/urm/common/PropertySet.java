@@ -132,7 +132,7 @@ public class PropertySet {
 	
 	private void setRunningPropertyInternal( PropertyValue value ) throws Exception {
 		if( !value.resolved )
-			throw new ExitException( "cannot set unresolved running property set=" + set + ", prop=" + value.property );
+			Common.exit2( _Error.UnresolvedRunningProperty2 , "cannot set unresolved running property set=" + set + ", prop=" + value.property , set , value.property );
 		running.put( getKeyByProperty( value.property ) , value );
 	}
 
@@ -330,9 +330,9 @@ public class PropertySet {
 			PropertyValue pv = getRunningByProperty( prop );
 			if( required ) {
 				if( pv == null )
-					throw new ExitException( "set=" + set + ": missing required property=" + prop );
+					Common.exit2( _Error.MissingRequiredProperty2 , "set=" + set + ": missing required property=" + prop , set , prop );
 				if( pv.isEmpty() )
-					throw new ExitException( "set=" + set + ": empty required property=" + prop );
+					Common.exit2( _Error.EmptyRequiredProperty2 , "set=" + set + ": empty required property=" + prop , set , prop );
 			}
 			return( pv );
 		}
@@ -345,9 +345,9 @@ public class PropertySet {
 		pv = getRawByProperty( prop );
 		if( required ) {
 			if( pv == null )
-				throw new ExitException( "set=" + set + ": missing required property=" + prop );
+				Common.exit2( _Error.MissingRequiredProperty2 , "set=" + set + ": missing required property=" + prop , set , prop );
 			if( pv.isEmpty() )
-				throw new ExitException( "set=" + set + ": empty required property=" + prop );
+				Common.exit2( _Error.EmptyRequiredProperty2 , "set=" + set + ": empty required property=" + prop , set , prop );
 		}
 		
 		if( pv == null ) {
@@ -482,7 +482,7 @@ public class PropertySet {
 				// parent var
 				if( !allowParent ) {
 					if( parent == null )
-						throw new ExitException( "set=" + set + ": unresolved variable=" + name );
+						Common.exit2( _Error.UnresolvedVariable2 , "set=" + set + ": unresolved variable=" + name , set , name );
 				}
 				
 				PropertyValue pvp = parent.getPropertyInternal( name , useRaw , allowParent , allowUnresolved );
@@ -491,14 +491,14 @@ public class PropertySet {
 			}
 			
 			if( !allowUnresolved )
-				throw new ExitException( "set=" + set + ": unresolved variable=" + name );
+				Common.exit2( _Error.UnresolvedVariable2 , "set=" + set + ": unresolved variable=" + name , set , name );
 			
 			return( pv );  
 		}
 		else {
 			if( !allowUnresolved ) {
 				if( !pv.resolved )
-					throw new ExitException( "set=" + set + ": unresolved variable=" + name + ", value=" + pv.getValue() );
+					Common.exit3( _Error.UnresolvedVariableValue3 , "set=" + set + ": unresolved variable=" + name , set , name , pv.getValue() );
 			}
 		}
 		
@@ -601,9 +601,9 @@ public class PropertySet {
 	private PropertyValue getRequiredPropertyInternal( String name ) throws Exception {
 		PropertyValue pv = getPropertyInternal( name , false , true , false );
 		if( pv == null )
-			throw new ExitException( "set=" + set + ": missing property=" + name );
+			Common.exit2( _Error.MissingRequiredProperty2 , "set=" + set + ": missing property=" + name , set , name );
 		if( pv.isEmpty() )
-			throw new ExitException( "set=" + set + ": empty property=" + name );
+			Common.exit2( _Error.EmptyRequiredProperty2 , "set=" + set + ": missing property=" + name , set , name );
 		return( pv );
 	}
 
@@ -796,7 +796,7 @@ public class PropertySet {
 	public void finishRawProperties() throws Exception {
 		resolveRawProperties();
 		for( String prop : raw.keySet() )
-			throw new ExitException( "set=" + set + ": unexpected property=" + prop );
+			Common.exit2( _Error.UnresolvedVariable2 , "set=" + set + ": unexpected property=" + prop , set , prop );
 		resolved = true;
 	}
 

@@ -25,7 +25,7 @@ public class RemoteFolder extends Folder {
 
 		ShellExecutor session = getSession( action );
 		if( !session.checkDirExists( action , dstDir ) )
-			action.exit( "target directory " + dstDir + " does not exist" );
+			action.exit1( _Error.MissingTargetDirectory1 , "target directory " + dstDir + " does not exist" , dstDir );
 			
 		if( !BASENAME.isEmpty() )
 			deleteVOld( action , session , FOLDER , BASENAME , EXT );

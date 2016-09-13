@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.common.ExitException;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext;
 import org.urm.server.meta.Meta.VarBUILDMODE;
@@ -33,7 +32,7 @@ public class ServerSettings {
 	public void load( String path , RunContext execrc ) throws Exception {
 		Document doc = ConfReader.readXmlFile( execrc , path );
 		if( doc == null )
-			throw new ExitException( "unable to reader engine property file " + path );
+			Common.exit1( _Error.UnableReadEnginePropertyFile1 , "unable to read engine property file " + path , path );
 
 		Node root = doc.getDocumentElement();
 		serverContext.load( root , execrc );

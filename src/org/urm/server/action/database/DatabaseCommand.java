@@ -52,7 +52,7 @@ public class DatabaseCommand {
 		else if( action.context.CTX_DBMODE == SQLMODE.CORRECT )
 			op = "failed";
 		else 
-			action.exit( "database mode is not set" );
+			action.exit0( _Error.DatabaseModeNotSet0 , "database mode is not set" );
 		
 		action.info( "apply database changes (" + op + ") release=" + dist.RELEASEDIR + ", delivery=" + deliveryInfo + ", items=" + itemsInfo );
 		ActionApplyAutomatic ma = new ActionApplyAutomatic( action , null , dist , delivery , indexScope );

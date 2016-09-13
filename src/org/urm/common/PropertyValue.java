@@ -100,7 +100,7 @@ public class PropertyValue {
 	public void setType( PropertyValueType type ) throws Exception {
 		if( this.type != type ) {
 			if( this.type != PropertyValueType.PROPERTY_STRING )
-				throw new ExitException( "property is of mismatched type name=" + property );
+				Common.exit1( _Error.PropertyMismatchedType1 , "property is of mismatched type name=" + property , property );
 			this.type = type;
 		}
 	}
@@ -158,7 +158,7 @@ public class PropertyValue {
 			Integer.parseInt( value );
 		}
 		catch( Throwable e ) {
-			throw new ExitException( "invalid number value=" + value );
+			Common.exit1( _Error.InvalidNumberValue1 , "invalid number value=" + value , value );
 		}
 		
 		type = PropertyValueType.PROPERTY_NUMBER;
@@ -186,7 +186,7 @@ public class PropertyValue {
 			Common.getBooleanValue( value );
 		}
 		catch( Throwable e ) {
-			throw new ExitException( "invalid number value=" + value );
+			Common.exit1( _Error.InvalidNumberValue1 , "invalid boolean value=" + value , value );
 		}
 		
 		type = PropertyValueType.PROPERTY_BOOL;

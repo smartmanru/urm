@@ -103,12 +103,12 @@ public class MetaProductVersion extends PropertyController {
 		nextProdTag = super.getIntPropertyRequired( action , PROPERTY_PROD_NEXTTAG );
 		
 		if( !isValid() )
-			action.exit( "inconsistent version attributes" );
+			action.exit0( _Error.InconsistentVersionAttributes0 , "inconsistent version attributes" );
 	}
 	
 	public void gatherVariables( ActionBase action ) throws Exception {
 		if( !isValid() )
-			action.exit( "inconsistent version attributes" );
+			action.exit0( _Error.InconsistentVersionAttributes0 , "inconsistent version attributes" );
 	
 		properties.setNumberProperty( PROPERTY_MAJOR_FIRST , majorFirstNumber );
 		properties.setNumberProperty( PROPERTY_MAJOR_LAST , majorSecondNumber );

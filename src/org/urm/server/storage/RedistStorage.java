@@ -51,8 +51,10 @@ public class RedistStorage extends ServerStorage {
 		// upload to destination
 		tmpDir.copyFileToLocal( action , dstFolder , F_CONFIGTARFILE , "" );
 
-		if( !dstFolder.checkFileExists( action , F_CONFIGTARFILE ) )
-			action.exit( "unable to create " + Common.getPath( dstFolder.folderPath , F_CONFIGTARFILE ) );
+		if( !dstFolder.checkFileExists( action , F_CONFIGTARFILE ) ) {
+			String path = Common.getPath( dstFolder.folderPath , F_CONFIGTARFILE );
+			action.exit1( _Error.UnableCreateConfigTar1 , "unable to create " + path , path );
+		}
 
 		dstFolder.extractTar( action , F_CONFIGTARFILE , "" );
 		dstFolder.removeFiles( action , F_CONFIGTARFILE );
@@ -93,8 +95,10 @@ public class RedistStorage extends ServerStorage {
 		// upload to destination
 		tmpDir.copyFileToLocal( action , dstFolder , S_CONFIGTARFILE , "" );
 
-		if( !dstFolder.checkFileExists( action , S_CONFIGTARFILE ) )
-			action.exit( "unable to create " + Common.getPath( dstFolder.folderPath , S_CONFIGTARFILE ) );
+		if( !dstFolder.checkFileExists( action , S_CONFIGTARFILE ) ) {
+			String path = Common.getPath( dstFolder.folderPath , S_CONFIGTARFILE );
+			action.exit1( _Error.UnableCreateConfigTar1 , "unable to create " + path , path );
+		}
 
 		dstFolder.extractTar( action , S_CONFIGTARFILE , "" );
 		dstFolder.removeFiles( action , S_CONFIGTARFILE );
@@ -419,7 +423,7 @@ public class RedistStorage extends ServerStorage {
 		if( binaryItem.DISTTYPE == VarDISTITEMTYPE.BINARY ) {
 			String runtimeFile = deployFolder.findBinaryDistItemFile( action , binaryItem , specificDeployBaseName );
 			if( runtimeFile.isEmpty() )
-				action.exit( "item=" + binaryItem.KEY + ", is not found in " + deployFolder.folderPath );
+				action.exit2( _Error.ItemNotFoundInLive2 , "item=" + binaryItem.KEY + ", is not found in " + deployFolder.folderPath , binaryItem.KEY , deployFolder.folderPath );
 			
 			String md5value = deployFolder.getFileMD5( action , runtimeFile );
 			FileInfo info = binaryItem.getFileInfo( action , runtimeFile , specificDeployBaseName , md5value );
@@ -507,7 +511,8 @@ public class RedistStorage extends ServerStorage {
 		if( item.DEPLOYVERSION == VarITEMVERSION.MIDPOUND )
 			return( deployBaseName + "##" + version + item.EXT );
 
-		action.exit( "getVersionItem: unknown version type=" + Common.getEnumLower( item.DEPLOYVERSION ) );
+		String name = Common.getEnumLower( item.DEPLOYVERSION );
+		action.exit1( _Error.UnknownVersionType1 , "getVersionItem: unknown version type=" + name , name );
 		return( null );
 	}
 	

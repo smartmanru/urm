@@ -94,7 +94,7 @@ public class ServerAuthResource {
 
 	public void updateResource( ServerTransaction transaction , ServerAuthResource src ) throws Exception {
 		if( !NAME.equals( src.NAME ) )
-			transaction.exit( "mismatched resource name on change new name=" + src.NAME );
+			transaction.exit( _Error.TransactionResourceOld1 , "mismatched resource name on change new name=" + src.NAME , new String[] { src.NAME } );
 		
 		TYPE = src.TYPE;
 		BASEURL = src.BASEURL;

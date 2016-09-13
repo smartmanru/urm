@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.common.ExitException;
 import org.urm.server.action.ActionBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -66,7 +65,7 @@ public class ServerResources {
 	public ServerAuthResource getResource( String name ) throws Exception {
 		ServerAuthResource res = resourceMap.get( name );
 		if( res == null )
-			throw new ExitException( "unknown resource=" + name );
+			Common.exit1( _Error.UnknownResource1 , "unknown resource=" + name , name );
 		return( res );
 	}
 
@@ -76,7 +75,7 @@ public class ServerResources {
 	
 	public void createResource( ServerTransaction transaction , ServerAuthResource res ) throws Exception {
 		if( resourceMap.get( res.NAME ) != null )
-			transaction.exit( "resource already exists name=" + res.NAME );
+			transaction.exit( _Error.DuplicateResource1 , "resource already exists name=" + res.NAME , new String[] { res.NAME } );
 			
 		res.createResource();
 		resourceMap.put( res.NAME , res );
@@ -84,7 +83,7 @@ public class ServerResources {
 	
 	public void deleteResource( ServerTransaction transaction , ServerAuthResource res ) throws Exception {
 		if( resourceMap.get( res.NAME ) == null )
-			transaction.exit( "unknown resource name=" + res.NAME );
+			transaction.exit( _Error.UnknownResource1 , "unknown resource name=" + res.NAME , new String[] { res.NAME } );
 			
 		resourceMap.remove( res.NAME );
 	}

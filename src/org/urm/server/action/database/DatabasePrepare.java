@@ -60,7 +60,7 @@ public class DatabasePrepare {
 		action.debug( "prepare from " + src.folderPath + " to " + dst.folderPath + " (permitted schema list={" + ALL_SCHEMA_LIST + "}) ..." );
 		
 		if( !src.checkExists( action ) )
-			action.exit( "sql folder does not exist" );
+			action.exit0( _Error.SqlFolderNotExist0 , "sql folder does not exist" );
 		
 		srcFileSet = src.getFileSet( action );
 		dst.recreateThis( action );
@@ -146,7 +146,7 @@ public class DatabasePrepare {
 		}
 
 		if( S_CHECK_FAILED )
-			action.ifexit( "release database file set check failed" );
+			action.ifexit( _Error.DatabaseFileSetCheckFailed0 , "release database file set check failed" , null );
 	}
 
 	private void copyAll( ActionBase action , FileSet[] P_ALIGNEDDIRLIST ) throws Exception {
@@ -478,7 +478,7 @@ public class DatabasePrepare {
 		else if( F_FOLDERBASE.equals( DATALOAD_FOLDER ) )
 			X_TYPE = "04";
 		else
-			action.exit( "invalid database folder=" + P_FORLDERNAME );
+			action.exit1( _Error.InvalidDatabaseFolder1 , "invalid database folder=" + P_FORLDERNAME , P_FORLDERNAME );
 		
 		S_SQL_DIRID = DatabaseScriptFile.getPrefix( X_ALIGNED , X_TYPE , X_INSTANCE );
 		return( S_SQL_DIRID );

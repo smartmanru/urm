@@ -157,7 +157,7 @@ public class ActionScopeTarget {
 		for( String itemName : ITEMS ) {
 			MetaDistrBinaryItem item = action.meta.distr.getBinaryItem( action , itemName );
 			if( item.sourceItem == null )
-				action.exit( "unknown distributive item=" + itemName );
+				action.exit1( _Error.UnknownDistributiveItem1 , "unknown distributive item=" + itemName , itemName );
 			
 			MetaSourceProjectItem projectItem = sourceProject.getItem( action , itemName );
 			addProjectItem( action , projectItem , true );
@@ -176,7 +176,7 @@ public class ActionScopeTarget {
 		for( String itemName : ITEMS ) {
 			MetaDistrBinaryItem item = action.meta.distr.getBinaryItem( action , itemName );
 			if( item.sourceItem == null )
-				action.exit( "unknown distributive item=" + itemName );
+				action.exit1( _Error.UnknownDistributiveItem1 , "unknown distributive item=" + itemName , itemName );
 			
 			ReleaseTargetItem releaseItem = releaseItems.get( itemName );
 			if( releaseItem != null )
@@ -214,7 +214,7 @@ public class ActionScopeTarget {
 		}
 			
 		if( BUILDVERSION.isEmpty() )
-			action.exit( "buildByTag: BUILDVERSION not set" );
+			action.exit0( _Error.BuildVersionNotSet0 , "buildByTag: BUILDVERSION not set" );
 		
 		return( BUILDVERSION );
 	}
