@@ -1,0 +1,19 @@
+package org.urm.server.action.build;
+
+import org.urm.common.ExitException;
+
+public class _Error {
+
+	public static int ErrorBase = ExitException.BaseServerActionBuild;
+	
+	public static final int UnknownBuilderType1 = ErrorBase + 1;
+	public static final int TargetPathAlreadyExists1 = ErrorBase + 2;
+	public static final int UnableCheckoutFile1 = ErrorBase + 3;
+	public static final int UnableRegisterBuildStatus0 = ErrorBase + 4;
+	public static final int NoProjectDefaultBranch1 = ErrorBase + 5;
+	public static final int UnableCheckout1 = ErrorBase + 6;
+	public static final int MissingUploadFile1 = ErrorBase + 7;
+	public static final int BuildErrors0 = ErrorBase + 8;
+	public static final int NoPropertiesInPom0 = ErrorBase + 9;
+	public static final int UnexpectedBuilderVersion1 = ErrorBase + 10;
+}
