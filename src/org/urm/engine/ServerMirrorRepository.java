@@ -107,7 +107,7 @@ public class ServerMirrorRepository {
 				publishServer( transaction );
 		}
 		catch( Throwable e ) {
-			transaction.log( "publishRepository" , e );
+			transaction.handle( "publishRepository" , e );
 			RESOURCE = "";
 			RESOURCE_REPO = "";
 			RESOURCE_ROOT = "";

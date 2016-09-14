@@ -1,6 +1,7 @@
 package org.urm.engine;
 
 import org.urm.action.ActionBase;
+import org.urm.common.ExitException;
 import org.urm.common.PropertySet;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.meta.Meta;
@@ -12,6 +13,7 @@ public class ServerTransaction {
 	public ServerEngine engine;
 	public ServerLoader loader;
 	public ActionInit action;
+	public ExitException error;
 	
 	private ServerResources resources;
 	private ServerBuilders builders;
@@ -73,7 +75,7 @@ public class ServerTransaction {
 				}
 			}
 			catch( Throwable e ) {
-				log( "unable to restore resources" , e );
+				handle( "unable to restore resources" , e );
 			}
 			
 			try {
@@ -83,7 +85,7 @@ public class ServerTransaction {
 				}
 			}
 			catch( Throwable e ) {
-				log( "unable to restore resources" , e );
+				handle( "unable to restore resources" , e );
 			}
 			
 			try {
@@ -93,7 +95,7 @@ public class ServerTransaction {
 				}
 			}
 			catch( Throwable e ) {
-				log( "unable to restore directory" , e );
+				handle( "unable to restore directory" , e );
 			}
 			
 			try {
@@ -103,7 +105,7 @@ public class ServerTransaction {
 				}
 			}
 			catch( Throwable e ) {
-				log( "unable to restore settings" , e );
+				handle( "unable to restore settings" , e );
 			}
 			
 			try {
@@ -115,7 +117,7 @@ public class ServerTransaction {
 				}
 			}
 			catch( Throwable e ) {
-				log( "unable to restore metadata" , e );
+				handle( "unable to restore metadata" , e );
 			}
 			
 			engine.abortTransaction( this );
@@ -136,7 +138,7 @@ public class ServerTransaction {
 			action = null;
 		}
 		catch( Throwable e ) {
-			log( "unable to restore metadata" , e );
+			handle( "unable to restore metadata" , e );
 		}
 	}
 	
@@ -176,16 +178,16 @@ public class ServerTransaction {
 		return( true );
 	}
 
-	public void log( String s , Throwable e ) {
-		if( action != null )
-			action.log( s , e );
-		else
-		if( engine.serverAction != null )
-			engine.serverAction.log( s , e );
-		else {
-			System.out.println( "transaction: " + s );
-			e.printStackTrace();
-		}
+	public void handle( String s , Throwable e ) {
+		error( s );
+		if( e.getClass() == ExitException.class )
+			error = ( ExitException )e;
+	}
+	
+	public String getError() {
+		if( error != null )
+			return( error.errorMessage );
+		return( "" );
 	}
 	
 	public void info( String s ) {
@@ -294,7 +296,7 @@ public class ServerTransaction {
 				}
 			}
 			catch( Throwable e ) {
-				log( "unable to change resources" , e );
+				handle( "unable to change resources" , e );
 			}
 			
 			abortTransaction();
@@ -315,7 +317,7 @@ public class ServerTransaction {
 			return( true );
 		}
 		catch( Throwable e ) {
-			log( "unable to save resources" , e );
+			handle( "unable to save resources" , e );
 		}
 
 		abortTransaction();
@@ -344,7 +346,7 @@ public class ServerTransaction {
 				}
 			}
 			catch( Throwable e ) {
-				log( "unable to change builders" , e );
+				handle( "unable to change builders" , e );
 			}
 			
 			abortTransaction();
@@ -365,7 +367,7 @@ public class ServerTransaction {
 			return( true );
 		}
 		catch( Throwable e ) {
-			log( "unable to save builders" , e );
+			handle( "unable to save builders" , e );
 		}
 
 		abortTransaction();
@@ -394,7 +396,7 @@ public class ServerTransaction {
 				}
 			}
 			catch( Throwable e ) {
-				log( "unable to change directory" , e );
+				handle( "unable to change directory" , e );
 			}
 			
 			abortTransaction();
@@ -415,7 +417,7 @@ public class ServerTransaction {
 			return( true );
 		}
 		catch( Throwable e ) {
-			log( "unable to save directory" , e );
+			handle( "unable to save directory" , e );
 		}
 
 		abortTransaction();
@@ -440,7 +442,7 @@ public class ServerTransaction {
 					error( "unable to change old settings" );
 			}
 			catch( Throwable e ) {
-				log( "unable to change settings" , e );
+				handle( "unable to change settings" , e );
 			}
 			
 			abortTransaction();
@@ -461,7 +463,7 @@ public class ServerTransaction {
 			return( true );
 		}
 		catch( Throwable e ) {
-			log( "unable to save settings" , e );
+			handle( "unable to save settings" , e );
 		}
 
 		abortTransaction();
@@ -487,7 +489,7 @@ public class ServerTransaction {
 					error( "unable to change old metadata" );
 			}
 			catch( Throwable e ) {
-				log( "unable to save metadata" , e );
+				handle( "unable to save metadata" , e );
 			}
 			
 			abortTransaction();
@@ -511,7 +513,7 @@ public class ServerTransaction {
 				}
 			}
 			catch( Throwable e ) {
-				log( "unable to save metadata" , e );
+				handle( "unable to save metadata" , e );
 			}
 			
 			abortTransaction();
@@ -536,7 +538,7 @@ public class ServerTransaction {
 			return( true );
 		}
 		catch( Throwable e ) {
-			log( "unable to save metadata" , e );
+			handle( "unable to save metadata" , e );
 		}
 
 		abortTransaction();

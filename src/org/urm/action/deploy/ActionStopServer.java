@@ -78,7 +78,7 @@ public class ActionStopServer extends ActionBase {
 		if( actionServer.isStartable( this ) ) {
 			ServerCluster cluster = new ServerCluster( actionServer , nodes );
 			if( !cluster.stop( this ) )
-				setFailed();
+				super.fail1( _Error.ServerClusterStopFailed1 , "server cluster stop failed, server=" + actionServer.NAME , actionServer.NAME );
 		}
 		else
 			debug( "server=" + server.NAME + ", type=" + Common.getEnumLower( actionServer.serverType ) + " is not supported for stop. Skipped." );

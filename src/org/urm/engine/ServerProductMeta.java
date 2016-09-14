@@ -121,7 +121,7 @@ public class ServerProductMeta {
 	
 	private void setLoadFailed( ActionBase action , Throwable e , String msg ) {
 		loadFailed = true;
-		action.log( e );
+		action.handle( e );
 		action.error( msg );
 	}
 	
@@ -159,7 +159,7 @@ public class ServerProductMeta {
 				action.engine.execrc.getProperties( execprops );
 			}
 			catch( Throwable e ) {
-				action.log( e );
+				action.handle( e );
 			}
 		}
 		else {

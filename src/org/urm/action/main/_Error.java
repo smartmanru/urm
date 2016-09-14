@@ -4,7 +4,7 @@ import org.urm.common.ExitException;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseServerActionMain;
+	public static int ErrorBase = ExitException.BaseActionMain;
 	
 	public static final int InstallationNotConfigured0 = ErrorBase + 1;
 	public static final int UnknownEnvironment1 = ErrorBase + 2;

@@ -8,19 +8,13 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.engine.ServerAuthResource;
-import org.urm.engine.ServerBuilders;
-import org.urm.engine.ServerEngine;
 import org.urm.engine.ServerMirror;
 import org.urm.engine.ServerMirrorRepository;
-import org.urm.engine.ServerProjectBuilder;
-import org.urm.engine.ServerResources;
 import org.urm.engine.SessionContext;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.action.CommandOutput;
-import org.urm.engine.action._Error;
 import org.urm.engine.custom.CommandCustom;
 import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaEnvServerNode;
@@ -39,12 +33,11 @@ import org.urm.engine.storage.RemoteFolder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-abstract public class ActionBase {
+abstract public class ActionBase extends ActionCore {
 
 	public ActionInit actionInit;
 	
 	public SessionContext session;
-	public ServerEngine engine;
 	public CommandExecutor executor;
 	public CommandContext context;
 	public Artefactory artefactory;
@@ -53,12 +46,7 @@ abstract public class ActionBase {
 	public ShellExecutor shell;
 	public Meta meta;
 	protected CommandOutput output;
-	boolean actionFailed;
 
-	private static int instanceSequence = 0;
-	
-	public int ID;
-	public String NAME;
 	public int commandTimeout;
 	
 	protected boolean executeSimple() throws Exception { return( false ); };
@@ -79,7 +67,7 @@ abstract public class ActionBase {
 	protected void runAfter( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
 	
 	public ActionBase( SessionContext session , Artefactory artefactory , CommandExecutor executor , CommandContext context , CommandOutput output ) {
-		ID = instanceSequence++;
+		super( executor.engine , null );
 		
 		this.session = session;
 		this.executor = executor;
@@ -89,16 +77,13 @@ abstract public class ActionBase {
 		this.context = context;
 		
 		custom = new CommandCustom( meta );
-		engine = executor.engine;
 		meta = context.meta;
 		
 		commandTimeout = 0;
-		actionFailed = false;
-		NAME = this.getClass().getSimpleName();
 	}
 
 	public ActionBase( ActionBase base , String stream ) {
-		ID = instanceSequence++;
+		super( base.engine , base );
 		
 		this.actionInit = base.actionInit;
 		
@@ -108,33 +93,18 @@ abstract public class ActionBase {
 		this.artefactory = base.artefactory;
 		
 		this.custom = base.custom;
-		this.engine = base.engine;
 		this.meta = base.meta;
 		
 		this.shell = base.shell;
 		this.commandTimeout = base.commandTimeout;
 		
 		context = new CommandContext( base.context , stream );
-		NAME = this.getClass().getSimpleName();
-		actionFailed = false;
 	}
 
-	public boolean isStandalone() {
-		return( engine.execrc.standaloneMode );
-	}
-	
 	public void setShell( ShellExecutor session ) throws Exception {
 		this.shell = session;
 	}
 
-	public String getLocalPath( String path ) throws Exception {
-		return( engine.execrc.getLocalPath( path ) );
-	}
-	
-	public String getInternalPath( String path ) throws Exception {
-		return( Common.getLinuxPath( path ) );
-	}
-	
 	public Account getLocalAccount() {
 		return( shell.account );
 	}
@@ -143,17 +113,8 @@ abstract public class ActionBase {
 		return( new LocalFolder( Common.getLinuxPath( path ) , isLocalWindows() ) );
 	}
 	
-	public boolean isFailed() {
-		return( actionFailed );
-	}
-	
-	protected void setFailed() {
-		actionFailed = true;
-		context.session.setFailed();
-	}
-	
 	public boolean continueRun() {
-		if( !actionFailed )
+		if( !progressFailed )
 			return( true );
 		if( context.CTX_FORCE )
 			return( true );
@@ -161,7 +122,7 @@ abstract public class ActionBase {
 	}
 	
 	public boolean isOK() {
-		return( ( actionFailed )? false : true );
+		return( ( progressFailed )? false : true );
 	}
 	
 	public String getMode() {
@@ -175,11 +136,11 @@ abstract public class ActionBase {
 		return( ( context.CTX_SHOWONLY )? false : true );
 	}
 
-	public void log( Throwable e ) {
-		log( "" , e );
+	public void handle( Throwable e ) {
+		handle( "" , e );
 	}
 
-	public synchronized void log( String prompt , Throwable e ) {
+	public synchronized void handle( String prompt , Throwable e ) {
 		String s = NAME;
 		if( !prompt.isEmpty() )
 			s += " " + prompt;
@@ -226,50 +187,13 @@ abstract public class ActionBase {
 		output.debug( context , s );
 	}
 	
-	public void exit( int errorCode , String s , String[] params ) throws Exception {
-		output.exit( errorCode , context , s , params );
-	}
-
-	public void exit0( int errorCode , String s ) throws Exception {
-		output.exit( errorCode , context , s , null );
-	}
-
-	public void exit1( int errorCode , String s , String param1 ) throws Exception {
-		output.exit( errorCode , context , s , new String[] { param1 } );
-	}
-
-	public void exit2( int errorCode , String s , String param1 , String param2 ) throws Exception {
-		output.exit( errorCode , context , s , new String[] { param1 , param2 } );
-	}
-
-	public void exit3( int errorCode , String s , String param1 , String param2 , String param3 ) throws Exception {
-		output.exit( errorCode , context , s , new String[] { param1 , param2 , param3 } );
-	}
-
-	public void exit4( int errorCode , String s , String param1 , String param2 , String param3 , String param4 ) throws Exception {
-		output.exit( errorCode , context , s , new String[] { param1 , param2 , param3 , param4 } );
-	}
-
 	public void ifexit( int errorCode , String s , String[] params ) throws Exception {
 		if( context.CTX_FORCE )
 			error( s + ", ignored" );
 		else
-			output.exit( errorCode , context , s + ", exiting (use -force to override)" , params );
+			exit( errorCode , s + ", exiting (use -force to override)" , params );
 	}
 
-	public void exitNotImplemented() throws Exception {
-		exit( _Error.NotImplemented0 , "sorry, code is not implemented yet" , null );
-	}
-	
-	public void exitUnexpectedCategory( VarCATEGORY CATEGORY ) throws Exception {
-		String category = Common.getEnumLower( CATEGORY );
-		exit( _Error.UnexpectedCategory1 , "unexpected category=" + category , new String[] { category } );
-	}
-
-	public void exitUnexpectedState() throws Exception {
-		exit( _Error.InternalError0 , "unexpected state" , null );
-	}
-	
 	public boolean runSimple() {
 		ScopeExecutor executor = new ScopeExecutor( this );
 		if( executor.runSimple() )
@@ -585,37 +509,38 @@ abstract public class ActionBase {
 	
 	public String readFile( String path ) throws Exception {
     	trace( "read file path=" + path + " ..." );
-		return( ConfReader.readFile( context.session.execrc , path ) );
+		return( ConfReader.readFile( engine.execrc , path ) );
 	}
 	
 	public Document readXmlFile( String path ) throws Exception {
     	trace( "read xml file path=" + path + " ..." );
-		return( ConfReader.readXmlFile( context.session.execrc , path ) );
+		return( ConfReader.readXmlFile( engine.execrc , path ) );
 	}
 	
     public Properties readPropertyFile( String path ) throws Exception {
     	trace( "read property file path=" + path + " ..." );
-    	return( ConfReader.readPropertyFile( context.session.execrc , path ) );
+    	return( ConfReader.readPropertyFile( engine.execrc , path ) );
     }
 
     public List<String> readFileLines( String path ) throws Exception {
     	trace( "read file lines path=" + path + " ..." );
-    	return( ConfReader.readFileLines( context.session.execrc , path ) );
+    	return( ConfReader.readFileLines( engine.execrc , path ) );
     }
     
 	public List<String> readFileLines( String path , Charset charset ) throws Exception {
-    	trace( "read file lines path=" + path + " ..." );
-		return( ConfReader.readFileLines( context.session.execrc , path , charset ) );
+    	trace( "read file lines path=" + path + ", charset=" + charset.name() + " ..." );
+		return( ConfReader.readFileLines( engine.execrc , path , charset ) );
 	}
 
+    public String readStringFile( String path ) throws Exception {
+    	trace( "read string file path=" + path + " ..." );
+    	return( ConfReader.readStringFile( engine.execrc , path ) );
+    }
+    
     public String getNameAttr( Node node , VarNAMETYPE nameType ) throws Exception {
     	return( meta.getNameAttr( this , node , nameType ) );
     }
 
-    public String readStringFile( String path ) throws Exception {
-    	return( ConfReader.readStringFile( context.session.execrc , path ) );
-    }
-    
 	public void printValues( PropertySet props ) throws Exception {
 		for( String prop : props.getRunningKeys() ) {
 			String value = props.getPropertyAny( prop );
@@ -627,24 +552,6 @@ abstract public class ActionBase {
 		return( meta.product.getBuildSettings( this ) );
 	}
 
-	public ServerAuthResource getResource( String name ) throws Exception {
-		ServerResources resources = engine.getResources();
-		ServerAuthResource res = resources.getResource( name );
-		return( res );
-	}
-	
-	public ServerProjectBuilder getBuilder( String name ) throws Exception {
-		ServerBuilders builders = engine.getBuilders();
-		ServerProjectBuilder builder = builders.getBuilder( name );
-		return( builder );
-	}
-
-	public ServerMirrorRepository getMirror( String name ) throws Exception {
-		ServerMirror mirror = engine.getMirror();
-		ServerMirrorRepository repo = mirror.findRepository( name );
-		return( repo );
-	}
-	
 	public ServerMirrorRepository getMirror( MetaSourceProject project ) throws Exception {
 		ServerMirror mirror = engine.getMirror();
 		
@@ -654,11 +561,7 @@ abstract public class ActionBase {
 	}
 
 	public ServerMirrorRepository getMirror( MetaProductBuildSettings build ) throws Exception {
-		return( null );
+		return( getMirror( build.CONFIG_SOURCE_REPOSITORY ) );
 	}
 
-	public ServerMirrorRepository getServerMirror() throws Exception {
-		return( null );
-	}
-	
 }

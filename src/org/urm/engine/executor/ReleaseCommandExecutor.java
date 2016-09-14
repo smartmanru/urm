@@ -43,7 +43,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 			action.meta.loadSources( action );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			return( false );
 		}
 		

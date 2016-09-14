@@ -66,7 +66,7 @@ public class ActionMonitorTop extends ActionBase {
 				}
 			}
 			catch( Throwable e ) {
-				log( e );
+				handle( e );
 			}
 
 			if( runMajor && lastStartMinor == 0 ) {
@@ -108,7 +108,7 @@ public class ActionMonitorTop extends ActionBase {
 			}
 		}
 		catch( Throwable e ) {
-			log( e );
+			handle( e );
 		}
 		
 		return( false );
@@ -168,7 +168,7 @@ public class ActionMonitorTop extends ActionBase {
 		
 		boolean ok = set.waitDone();  
 		if( !ok )
-			super.setFailed();
+			super.fail1( _Error.MonitorTargetFailed1 , "Monitoring target failed name=" + target.NAME , target.NAME );
 		
 		info.addCheckMinorsData( target , ok );
 	}

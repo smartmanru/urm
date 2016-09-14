@@ -65,7 +65,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 			action.context.loadEnv( action , loadProps );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			return( false );
 		}
 		

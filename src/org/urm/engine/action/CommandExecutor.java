@@ -50,7 +50,6 @@ public abstract class CommandExecutor {
 		if( run( action ) )
 			return( true );
 		
-		action.session.setFailed();
 		return( false );
 	}
 	
@@ -67,7 +66,7 @@ public abstract class CommandExecutor {
 			else {
 				ExitException ex = Common.getExitException( e );
 				if( ex == null || action.context.CTX_SHOWALL )
-					action.log( e );
+					action.handle( e );
 				else
 					action.error( "exception: " + ex.getMessage() );
 			}

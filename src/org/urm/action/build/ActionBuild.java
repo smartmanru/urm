@@ -78,13 +78,13 @@ public class ActionBuild extends ActionBase {
 		// in separate shell
 		Builder builder = createBuilder( project , TAG , BUILD_OPTIONS , version );
 		LocalFolder BUILDDIR = OUTDIR.getSubFolder( this , project.set.NAME );
-		ActionPatch action = new ActionPatch( actionInit , null , builder , BUILDDIR );
+		ActionPatch action = new ActionPatch( this , null , builder , BUILDDIR );
 		builder.createShell( action );
 
 		BUILDSTATUS = "SUCCESSFUL"; 
 		if( !action.runSimple() ) {
 			BUILDSTATUS = "FAILED";
-			super.setFailed();
+			super.fail1( _Error.ProjectBuildError1 , "Errors while build project=" + project.PROJECT , project.PROJECT );
 		}
 
 		// check status

@@ -4,7 +4,7 @@ import org.urm.common.ExitException;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseServerStorage;
+	public static int ErrorBase = ExitException.BaseEngineStorage;
 	
 	public static final int RootNotPermitted0 = ErrorBase + 1;
 	public static final int AttemptDeleteFiles0 = ErrorBase + 2;

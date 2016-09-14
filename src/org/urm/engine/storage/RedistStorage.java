@@ -43,7 +43,7 @@ public class RedistStorage extends ServerStorage {
 			runtimeDir.createTarFromContent( action , tmpDir.getFilePath( action , F_CONFIGTARFILE ) , F_FILES , "" );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			return( false );
 		}
 
@@ -87,7 +87,7 @@ public class RedistStorage extends ServerStorage {
 			tarRuntimeConfigItem( action , confItem , LOCATION , tarPath );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			return( false );
 		}
 		

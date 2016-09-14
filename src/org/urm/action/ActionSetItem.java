@@ -1,6 +1,5 @@
 package org.urm.action;
 
-
 public class ActionSetItem implements Runnable {
 
 	ActionSet set;
@@ -51,7 +50,7 @@ public class ActionSetItem implements Runnable {
 
             // output error message
             exceptionCatched = e;
-            action.log( exceptionCatched );
+            action.handle( exceptionCatched );
         }
     }
 

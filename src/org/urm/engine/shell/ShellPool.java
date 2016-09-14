@@ -66,7 +66,7 @@ public class ShellPool implements Runnable {
 			catch( InterruptedException e ) {
 			}
 			catch( Throwable e ) {
-				engine.serverAction.log( "thread pool house keeping error" , e );
+				engine.serverAction.handle( "thread pool house keeping error" , e );
 			}
 		}
 		

@@ -149,7 +149,7 @@ public class ServerLoader {
 					set.setLoadFailed( action , "metadata folder is missing, product=" + name );
 			}
 			catch( Throwable e ) {
-				action.log( e );
+				action.handle( e );
 				action.error( "unable to load metadata, product=" + name );
 			}
 			

@@ -4,7 +4,7 @@ import org.urm.common.ExitException;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseServerActionBuild;
+	public static int ErrorBase = ExitException.BaseActionBuild;
 	
 	public static final int UnknownBuilderType1 = ErrorBase + 1;
 	public static final int TargetPathAlreadyExists1 = ErrorBase + 2;
@@ -16,4 +16,7 @@ public class _Error {
 	public static final int BuildErrors0 = ErrorBase + 8;
 	public static final int NoPropertiesInPom0 = ErrorBase + 9;
 	public static final int UnexpectedBuilderVersion1 = ErrorBase + 10;
+	public static final int ProjectBuildError1 = ErrorBase + 11;
+	public static final int ProjectPatchError1 = ErrorBase + 12;
+	
 }

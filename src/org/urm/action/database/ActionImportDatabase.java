@@ -367,7 +367,7 @@ public class ActionImportDatabase extends ActionBase {
 		
 		// apply
 		if( !client.applyManualSet( this , folder ) )
-			setFailed();
+			super.fail1( _Error.PostRefreshApplyFailed1 , "Post-refresh apply failed, name=" + name , name );
 	}
 	
 }

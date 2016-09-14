@@ -120,7 +120,7 @@ public class CommandOutput {
 			s += " ";
 		
 		if( ee != null ) {
-			s += "exception: " + ee.getMessage();
+			s += "exception: " + ee.errorCode + ", " + ee.errorMessage;
 			s += ", exiting ";
 		}
 		else {
@@ -185,10 +185,6 @@ public class CommandOutput {
 			
 			outExactStatic( s );
 		}
-	}
-	
-	public synchronized void exit( int errorCode , CommandContext context , String s , String[] params ) throws Exception {
-		throw new ExitException( errorCode , s , params );
 	}
 	
 	public String getTimeStampedName( String basename , String ext ) {

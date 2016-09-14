@@ -63,7 +63,7 @@ public class ActionStopEnv extends ActionBase {
 		}
 		
 		errorAction( "group=" + group.NAME + " failed to stop." );
-		setFailed();
+		super.fail1( _Error.StopGroupFailed1 , "group=" + group.NAME + " failed to stop" , group.NAME );
 		return( false );
 	}
 	

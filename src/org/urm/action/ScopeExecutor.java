@@ -31,17 +31,15 @@ public class ScopeExecutor {
 	}
 
 	private boolean checkFailed() {
-		if( exception || action.actionFailed || runFailed )
+		if( exception || action.progressFailed || runFailed )
 			return( true );
 		return( false );
 	}
 
 	private boolean getFinalStatus() {
 		runFailed = checkFailed();
-		if( runFailed ) {
-			action.setFailed();
+		if( runFailed )
 			return( false );
-		}
 		
 		return( true );
 	}
@@ -81,9 +79,8 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 
 		try {
@@ -91,9 +88,8 @@ public class ScopeExecutor {
 				action.runAfter();
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		return( finishExecutor( true ) );
@@ -113,9 +109,8 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		try {
@@ -123,9 +118,8 @@ public class ScopeExecutor {
 				action.runAfter();
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		return( finishExecutor( true ) );
@@ -148,9 +142,8 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		try {
@@ -158,9 +151,8 @@ public class ScopeExecutor {
 				action.runAfter();
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		return( finishExecutor( true ) );
@@ -180,9 +172,8 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		try {
@@ -190,9 +181,8 @@ public class ScopeExecutor {
 				action.runAfter( scope );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		return( finishExecutor( true ) );
@@ -215,9 +205,8 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		try {
@@ -225,9 +214,8 @@ public class ScopeExecutor {
 				action.runAfter( scope );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		return( finishExecutor( true ) );
@@ -255,9 +243,8 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		try {
@@ -265,9 +252,8 @@ public class ScopeExecutor {
 				action.runAfter( scope );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		return( finishExecutor( true ) );
@@ -288,9 +274,8 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 
 		try {
@@ -298,9 +283,8 @@ public class ScopeExecutor {
 				action.runAfter( target , item );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		runFailed = checkFailed();
@@ -325,9 +309,8 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		runFailed = checkFailed();
@@ -354,9 +337,8 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		try {
@@ -364,9 +346,8 @@ public class ScopeExecutor {
 				action.runAfter( target );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		runFailed = checkFailed();
@@ -385,9 +366,8 @@ public class ScopeExecutor {
 				runDone = false;
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		runFailed = checkFailed();
@@ -404,9 +384,8 @@ public class ScopeExecutor {
 				runDone = false;
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		runFailed = checkFailed();
@@ -425,9 +404,8 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		runFailed = checkFailed();
@@ -446,9 +424,8 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		runFailed = checkFailed();
@@ -490,9 +467,8 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		try {
@@ -502,9 +478,8 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		runFailed = checkFailed();
@@ -534,9 +509,8 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		try {
@@ -544,9 +518,8 @@ public class ScopeExecutor {
 				action.runAfter( set , items );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		runFailed = checkFailed();
@@ -583,9 +556,8 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		runFailed = checkFailed();
@@ -612,9 +584,8 @@ public class ScopeExecutor {
 			}
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		try {
@@ -622,9 +593,8 @@ public class ScopeExecutor {
 				action.runAfter( scope );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			exception = true;
-			action.setFailed();
 		}
 		
 		runFailed = checkFailed();

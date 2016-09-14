@@ -4,7 +4,7 @@ import org.urm.common.ExitException;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseServerDist;
+	public static int ErrorBase = ExitException.BaseEngineDist;
 	
 	public static final int DistributiveNotOpened0 = ErrorBase + 1;
 	public static final int DistributiveNotUse0 = ErrorBase + 2;

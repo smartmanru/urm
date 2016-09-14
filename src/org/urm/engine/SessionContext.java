@@ -16,7 +16,6 @@ public class SessionContext {
 	
 	public String ENV;
 	public String DC;
-	public boolean executorFailed;
 
 	public boolean offline = false;
 	public boolean product = false;
@@ -45,7 +44,6 @@ public class SessionContext {
 		this.ENV = clientrc.envName;
 		this.DC = clientrc.dcName;
 		
-		executorFailed = false;
 		timestamp = Common.getNameTimeStamp();
 	}
 	
@@ -143,14 +141,6 @@ public class SessionContext {
 
 		etcPath = Common.getPath( productPath , "etc" );
 		proxyPath = Common.getPath( productPath , "master" );
-	}
-	
-	public void setFailed() {
-		executorFailed = true;
-	}
-	
-	public boolean isFailed() {
-		return( executorFailed );
 	}
 	
 }

@@ -3,7 +3,6 @@ package org.urm.action;
 import java.util.LinkedList;
 import java.util.List;
 
-
 public class ActionSet {
 
 	ActionBase owner;
@@ -31,7 +30,7 @@ public class ActionSet {
 	        }
 		}
 		catch( Throwable e ) {
-			owner.log( e );
+			owner.handle( e );
 		}
         
         boolean ok = true;

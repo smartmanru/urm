@@ -25,7 +25,7 @@ public class XDocCommandExecutor extends CommandExecutor {
 			impl = new XDocCommand();
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			return( false );
 		}
 		

@@ -27,7 +27,7 @@ public class ActionMonitorCheckEnv extends ActionBase {
 
 		long timerStarted = System.currentTimeMillis();
 		if( !action.runAll( scope ) )
-			super.setFailed();
+			super.fail0( _Error.MonitorEnvFailed0 , "Checkenv monitoring failed" );
 		
 		timePassedMillis = System.currentTimeMillis() - timerStarted;  
 		action.stopRedirect();

@@ -78,7 +78,7 @@ public class CommandCustom {
 			return;
 		}
 		catch( Throwable e ) {
-			action.log( "error loading build class=" + className , e );
+			action.handle( "error loading build class=" + className , e );
 		}
 		
 		action.exit1( _Error.UnableLoadCustomBuild1 , "unable to load custom build class=" + className , className );
@@ -99,7 +99,7 @@ public class CommandCustom {
 			return;
 		}
 		catch( Throwable e ) {
-			action.log( "error loading deploy class=" + className , e );
+			action.handle( "error loading deploy class=" + className , e );
 		}
 		
 		action.exit1( _Error.UnableLoadCustomDeploy1 , "unable to load custom deploy class=" + className , className );
@@ -120,7 +120,7 @@ public class CommandCustom {
 			return;
 		}
 		catch( Throwable e ) {
-			action.log( "error loading database class=" + className , e );
+			action.handle( "error loading database class=" + className , e );
 		}
 		
 		action.exit1( _Error.UnableLoadCustomDatabase1 , "unable to load custom database class=" + className , className );

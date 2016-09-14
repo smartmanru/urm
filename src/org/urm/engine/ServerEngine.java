@@ -195,10 +195,10 @@ public class ServerEngine {
 			serverExecutor.runAction( serverAction );
 		}
 		catch( Throwable e ) {
-			serverAction.log( e );
+			serverAction.handle( e );
 		}
 
-		boolean res = ( serverSession.isFailed() )? false : true;
+		boolean res = ( serverAction.isFailed() )? false : true;
 		
 		if( res )
 			serverAction.commentExecutor( "COMMAND SUCCESSFUL" );
@@ -288,7 +288,7 @@ public class ServerEngine {
 	public void finishAction( ActionBase action ) throws Exception {
 		action.stopAllOutputs();
 		
-		if( action.context.session.isFailed() || action.context.CTX_SHOWALL )
+		if( action.isFailed() || action.context.CTX_SHOWALL )
 			action.info( "saved work directory: " + action.artefactory.workFolder.folderPath );
 		else
 			action.artefactory.workFolder.removeThis( action );
@@ -365,7 +365,7 @@ public class ServerEngine {
 			}
 			catch( Throwable e ) {
 				if( serverAction != null )
-					serverAction.log( e );
+					serverAction.handle( e );
 				else
 					System.out.println( e.getMessage() );
 			}

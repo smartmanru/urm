@@ -4,7 +4,7 @@ import org.urm.common.ExitException;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseServer;
+	public static int ErrorBase = ExitException.BaseEngine;
 	
 	public static final int MainExecutorExpected0 = ErrorBase + 1;
 	public static final int UnknownBuilder1 = ErrorBase + 2;

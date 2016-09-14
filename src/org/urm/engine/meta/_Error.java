@@ -4,7 +4,7 @@ import org.urm.common.ExitException;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseServerMeta;
+	public static int ErrorBase = ExitException.BaseEngineMeta;
 	
 	public static final int InvalidOSType1 = ErrorBase + 1;
 	public static final int MissingOSType0 = ErrorBase + 2;

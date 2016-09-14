@@ -78,7 +78,7 @@ public class WaiterCommand implements Runnable {
         catch (Exception e) {
         	succeeded = false;
         	if( !system )
-        		action.log( e );
+        		action.handle( e );
         }
         
         finished = true;

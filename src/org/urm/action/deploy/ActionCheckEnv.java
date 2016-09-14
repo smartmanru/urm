@@ -42,7 +42,7 @@ public class ActionCheckEnv extends ActionBase {
 	@Override protected void runAfter( ActionScope scope ) throws Exception {
 		String status = "SUCCESSFUL";
 		if( !S_CHECKENV_TOTAL_SERVERS_FAILED.isEmpty() )
-			super.setFailed();
+			super.fail0( _Error.CheckenvFailed0 , "Checkenv failed" );
 	
 		if( super.isFailed() )
 			status = "FAILED";
@@ -92,7 +92,7 @@ public class ActionCheckEnv extends ActionBase {
 		}
 		catch( Throwable e ) {
 			S_CHECKENV_TARGET_FAILED = true;
-			log( e );
+			handle( e );
 		}
 		
 		// check status
@@ -282,7 +282,7 @@ public class ActionCheckEnv extends ActionBase {
 			process.gatherStatus( this );
 		}
 		catch( Throwable e ) {
-			log( e );
+			handle( e );
 			return( false );
 		}
 		

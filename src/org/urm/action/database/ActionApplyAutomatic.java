@@ -51,7 +51,7 @@ public class ActionApplyAutomatic extends ActionBase {
 			info( "apply done." );
 		
 		if( applyFailed )
-			super.setFailed();
+			super.fail0( _Error.ApplyFailed0 , "Database apply changes failed" );
 		
 		return( true );
 	}

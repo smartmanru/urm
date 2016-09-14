@@ -63,7 +63,7 @@ public class ActionStartEnv extends ActionBase {
 		}
 		
 		errorAction( "group=" + group.NAME + " failed to start." );
-		setFailed();
+		super.fail1( _Error.StartGroupFailed1 , "group=" + group.NAME + " failed to start" , group.NAME );
 		return( false );
 	}
 	

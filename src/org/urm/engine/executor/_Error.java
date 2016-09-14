@@ -4,7 +4,7 @@ import org.urm.common.ExitException;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseServerExecutor;
+	public static int ErrorBase = ExitException.BaseEngineExecutor;
 	
 	public static final int ScopeEmpty0 = ErrorBase + 1;
 	public static final int InvalidHostIP = ErrorBase + 2;

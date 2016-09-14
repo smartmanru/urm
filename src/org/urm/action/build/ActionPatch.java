@@ -28,12 +28,12 @@ public class ActionPatch extends ActionBase {
 
 		try {
 			if( !executePatch() )
-				super.setFailed();
+				super.fail1( _Error.ProjectPatchError1 , "Errors while build project=" + builder.project.PROJECT , builder.project.PROJECT );
 			
 			super.stopRedirect();
 		}
 		catch( Exception e ) {
-			log( e );
+			handle( e );
 			super.stopRedirect();
 			throw e;
 		}

@@ -37,7 +37,7 @@ public class ProjectVersionControl {
 			res = vcs.checkout( project , PATCHFOLDER , BRANCH );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 		}
 		action.setTimeout( timeout );
 		return( res );
@@ -50,7 +50,7 @@ public class ProjectVersionControl {
 			return( vcs.commit( project , PATCHFOLDER , MESSAGE ) );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 		}
 		return( false );
 	}
@@ -64,7 +64,7 @@ public class ProjectVersionControl {
 			return( vcs.copyBranchToNewBranch( project , branchFrom , branchTo ) );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 		}
 		return( false );
 	}
@@ -78,7 +78,7 @@ public class ProjectVersionControl {
 			return( vcs.renameBranchToNewBranch( project , branchFrom , branchTo ) );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 		}
 		return( false );
 	}
@@ -90,7 +90,7 @@ public class ProjectVersionControl {
 			return( vcs.copyTagToNewTag( project , tagFrom , tagTo ) );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 		}
 		return( false );
 	}
@@ -102,7 +102,7 @@ public class ProjectVersionControl {
 			return( vcs.copyTagToTag( project , tagFrom , tagTo ) );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 		}
 		return( false );
 	}
@@ -114,7 +114,7 @@ public class ProjectVersionControl {
 			return( vcs.renameTagToTag( project , tagFrom , tagTo ) );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 		}
 		return( false );
 	}
@@ -127,7 +127,7 @@ public class ProjectVersionControl {
 			return( vcs.copyTagToNewBranch( project , tagFrom , branchTo ) );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 		}
 		return( false );
 	}
@@ -139,7 +139,7 @@ public class ProjectVersionControl {
 			return( vcs.dropTag( project , TAG ) );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 		}
 		return( false );
 	}
@@ -152,7 +152,7 @@ public class ProjectVersionControl {
 			return( vcs.dropBranch( project , BRANCH ) );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 		}
 		return( false );
 	}
@@ -167,7 +167,7 @@ public class ProjectVersionControl {
 			res = vcs.export( project , PATCHFOLDER , BRANCH , TAG , SINGLEFILE );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 		}
 		action.setTimeout( timeout );
 		return( res );
@@ -181,7 +181,7 @@ public class ProjectVersionControl {
 			return( vcs.setTag( project , BRANCH , TAG , branchDate ) );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 		}
 		return( false );
 	}

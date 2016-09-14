@@ -128,10 +128,10 @@ public class SessionController {
 			executor.runAction( clientAction );
 		}
 		catch( Throwable e ) {
-			clientAction.log( e );
+			clientAction.handle( e );
 		}
 
-		boolean res = ( session.isFailed() )? false : true;
+		boolean res = ( clientAction.isFailed() )? false : true;
 		
 		if( res )
 			clientAction.commentExecutor( "COMMAND SUCCESSFUL" );
@@ -142,7 +142,7 @@ public class SessionController {
 			engine.finishAction( clientAction );
 		}
 		catch( Throwable e ) {
-			clientAction.log( e );
+			clientAction.handle( e );
 		}
 		
 		synchronized( this ) {
@@ -223,7 +223,7 @@ public class SessionController {
 				return( true );
 			}
 			catch( Throwable e ) {
-				serverAction.log( e );
+				serverAction.handle( e );
 			}
 			return( false );
 		}

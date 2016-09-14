@@ -33,7 +33,7 @@ public class ActionGetCumulative extends ActionBase {
 			dists[ versions.length - k - 1 ] = cumdist;
 			
 			if( !addCumulativeVersion( repo , versions[ k ] , cumdist ) ) {
-				super.setFailed();
+				super.fail1( _Error.AddCumulativeVersionFailed1 , "Cannot add to cumulative release version=" + versions[ k ] , versions[ k ] );
 				dist.closeChange( this );
 				return( true );
 			}	

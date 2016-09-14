@@ -78,7 +78,7 @@ public class ActionStartServer extends ActionBase {
 			ServerCluster cluster = new ServerCluster( actionServer , nodes );
 			if( !cluster.start( this ) ) {
 				trace( "server cluster failed" );
-				setFailed();
+				super.fail1( _Error.ServerClusterStartFailed1 , "server cluster start failed, server=" + actionServer.NAME , actionServer.NAME );
 			}
 		}
 		else

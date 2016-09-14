@@ -39,7 +39,7 @@ public class DatabaseClient {
 			return( specific.checkConnect( action , schema , user , pwd ) );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 		}
 		
 		action.error( "unable to connect to database server=" + server.NAME );

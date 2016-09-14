@@ -4,7 +4,7 @@ import org.urm.common.ExitException;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseServerActionXDoc;
+	public static int ErrorBase = ExitException.BaseActionXDoc;
 	
 	public static final int UnknownDesignCommand1 = ErrorBase + 1;
 	public static final int UnknownProdDesignServer1 = ErrorBase + 2;

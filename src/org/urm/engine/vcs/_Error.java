@@ -4,7 +4,7 @@ import org.urm.common.ExitException;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseServerVCS;
+	public static int ErrorBase = ExitException.BaseEngineVCS;
 	
 	public static final int UnexectedVcsType2 = ErrorBase + 1;
 	public static final int NonSvnResource1 = ErrorBase + 2;

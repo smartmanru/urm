@@ -129,7 +129,7 @@ public class DeployCommand {
 		ActionRedist ma = new ActionRedist( action , null , dist , live );
 		ma.runAll( scope );
 		
-		if( action.context.session.isFailed() )
+		if( ma.isFailed() )
 			action.info( "redist successfully done." );
 		else
 			action.error( "redist failed, see logs." );

@@ -4,7 +4,7 @@ import org.urm.common.ExitException;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseServerActionDatabase;
+	public static int ErrorBase = ExitException.BaseActionDatabase;
 	
 	public static final int ConnectFailed1 = ErrorBase + 1;
 	public static final int NoRegionSet1 = ErrorBase + 2;
@@ -42,5 +42,7 @@ public class _Error {
 	public static final int UnexpectedOutput1 = ErrorBase + 34;
 	public static final int UnexpectedTableRow3 = ErrorBase + 35;
 	public static final int InvalidColumnMeta0 = ErrorBase + 36;
+	public static final int ApplyFailed0 = ErrorBase + 37;
+	public static final int PostRefreshApplyFailed1 = ErrorBase + 38;
 	
 }

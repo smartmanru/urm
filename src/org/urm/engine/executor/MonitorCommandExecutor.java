@@ -26,7 +26,7 @@ public class MonitorCommandExecutor extends CommandExecutor {
 			impl = new MonitorCommand( mon );
 		}
 		catch( Throwable e ) {
-			action.log( e );
+			action.handle( e );
 			return( false );
 		}
 		

@@ -39,7 +39,7 @@ public class ShellWaiter {
 		}
 		catch( Throwable e ) {
 			if( !system )
-				action.log( "timeout command=" + command.getClass().getSimpleName() , e );
+				action.handle( "timeout command=" + command.getClass().getSimpleName() , e );
 		}
 
 		return( false );

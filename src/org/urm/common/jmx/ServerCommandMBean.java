@@ -295,7 +295,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
     			setAttribute( attr );
     		}
     		catch( Throwable e ) {
-    			action.log( e );
+    			action.handle( e );
     		}
     		retlist.add( attr );
     	}
@@ -445,7 +445,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 			server.executeInteractiveCommand( sessionId , input );
 		}
 		catch( Throwable e ) {
-			engine.serverAction.log( e );
+			engine.serverAction.handle( e );
 			return( 1 );
 		}
 		
@@ -469,7 +469,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 			server.stopSession( sessionId );
 		}
 		catch( Throwable e ) {
-			engine.serverAction.log( e );
+			engine.serverAction.handle( e );
 		}
 	}
 	
@@ -491,7 +491,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 				return( RemoteCall.STATUS_ACTION_FAILED );
 		}
 		catch( Throwable e ) {
-			engine.serverAction.log( e );
+			engine.serverAction.handle( e );
 			return( RemoteCall.STATUS_ACTION_FAILED );
 		}
 		
