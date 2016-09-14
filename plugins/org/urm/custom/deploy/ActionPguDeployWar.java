@@ -1,6 +1,6 @@
 package org.urm.custom.deploy;
 
-import org.urm.engine.action.ActionBase;
+import org.urm.action.ActionBase;
 import org.urm.engine.custom.CommandCustom;
 import org.urm.engine.custom.ICustomDeploy;
 import org.urm.engine.meta.MetaDistrBinaryItem;
