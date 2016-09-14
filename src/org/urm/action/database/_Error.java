@@ -41,6 +41,6 @@ public class _Error {
 	public static final int ScriptApplyError1 = ErrorBase + 33;
 	public static final int UnexpectedOutput1 = ErrorBase + 34;
 	public static final int UnexpectedTableRow3 = ErrorBase + 35;
-	public static final int Invalid—olumnMeta0 = ErrorBase + 36;
+	public static final int InvalidColumnMeta0 = ErrorBase + 36;
 	
 }

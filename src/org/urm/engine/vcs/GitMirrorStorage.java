@@ -60,7 +60,7 @@ public class GitMirrorStorage extends MirrorStorage {
 		mirrorFolder.createFileFromString( action , "README.md" , "# URM REPOSITORY" );
 		vcs.addFileToCommit( mirror , mirrorFolder , "" , "README.md" );
 		if( !vcs.commitMasterFolder( mirror , mirrorFolder , "" , "first commit" ) )
-			action.exit0( _Error.Unable—ommit0 , "unable to commit" );
+			action.exit0( _Error.UnableCommit0 , "unable to commit" );
 	}
 	
 	public void refreshMirror() throws Exception {

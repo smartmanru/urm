@@ -9,7 +9,7 @@ public class _Error {
 	public static final int UnexectedVcsType2 = ErrorBase + 1;
 	public static final int NonSvnResource1 = ErrorBase + 2;
 	public static final int NonGitResource1 = ErrorBase + 3;
-	public static final int Unable—ommit0 = ErrorBase + 4;
+	public static final int UnableCommit0 = ErrorBase + 4;
 	public static final int UnableCloneRepository2 = ErrorBase + 5;
 	public static final int MissingLocalDirectory1 = ErrorBase + 6;
 	public static final int LocalDirectoryShouldNotExist1 = ErrorBase + 7;

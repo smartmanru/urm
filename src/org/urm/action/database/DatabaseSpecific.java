@@ -268,7 +268,7 @@ public class DatabaseSpecific {
 		List<String> lines = new LinkedList<String>();
 		String ct = "create table " + getTableName( action , dbschema , table ) + " ( ";
 		if( columns.length != columntypes.length )
-			action.exit0( _Error.Invalid—olumnMeta0 , "invalid column names and types" );
+			action.exit0( _Error.InvalidColumnMeta0 , "invalid column names and types" );
 		
 		for( int k = 0; k < columns.length; k++ ) {
 			if( k > 0 )
@@ -308,7 +308,7 @@ public class DatabaseSpecific {
 	
 	private String getInsertRowString( ActionBase action , String dbschema , String table , String[] columns , String[] values ) throws Exception {
 		if( values.length != columns.length )
-			action.exit0( _Error.Invalid—olumnMeta0 , "number of values should be equal to number of columns" );
+			action.exit0( _Error.InvalidColumnMeta0 , "number of values should be equal to number of columns" );
 			
 		String query = "insert into " + getTableName( action , dbschema , table ) + " (";
 		boolean first = true;
@@ -353,7 +353,7 @@ public class DatabaseSpecific {
 	
 	public boolean updateRow( ActionBase action , String dbschema , String user , String password , String table , String[] columns , String[] values , String condition , boolean commit ) throws Exception {
 		if( values.length != columns.length )
-			action.exit0( _Error.Invalid—olumnMeta0 , "number of values should be equal to number of columns" );
+			action.exit0( _Error.InvalidColumnMeta0 , "number of values should be equal to number of columns" );
 			
 		// ANSI query
 		String query = "update " + getTableName( action , dbschema , table ) + " set ";
