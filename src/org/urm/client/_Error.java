@@ -1,9 +1,9 @@
 package org.urm.client;
 
-import org.urm.common.ExitException;
+import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseClient;
+	public static int ErrorBase = RunError.BaseClient;
 	
 }

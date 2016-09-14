@@ -1,10 +1,10 @@
 package org.urm.action.release;
 
-import org.urm.common.ExitException;
+import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseActionRelease;
+	public static int ErrorBase = RunError.BaseActionRelease;
 	
 	public static final int OperationCancelled0 = ErrorBase + 1;
 	public static final int ReleaseSetChangeErrors0 = ErrorBase + 2;

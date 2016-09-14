@@ -1,6 +1,6 @@
 package org.urm.common;
 
-public class ExitException extends Exception {
+public class RunError extends Exception {
     /**
 	 * 
 	 */
@@ -35,10 +35,18 @@ public class ExitException extends Exception {
 	public String errorMessage;
 	public String[] errorParams;
 	
-	public ExitException( int errorCode , String message , String[] params ) {
+	public RunError( int errorCode , String message , String[] params ) {
         super( message );
         this.errorCode = errorCode;
         this.errorMessage = message;
         this.errorParams = params;
     }
+	
+	public RunError( Throwable cause , int errorCode , String message , String[] params ) {
+        super( message , cause );
+        this.errorCode = errorCode;
+        this.errorMessage = message;
+        this.errorParams = params;
+    }
+	
 }

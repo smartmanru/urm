@@ -1,6 +1,6 @@
 package org.urm.engine;
 
-import org.urm.action.ActionBase;
+import org.urm.action.ActionCore;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
@@ -40,19 +40,19 @@ public class ServerRegistry {
 		builders.load( node );
 	}
 	
-	public void save( ActionBase action , String path , RunContext execrc ) throws Exception {
+	public void save( ActionCore action , String path , RunContext execrc ) throws Exception {
 		Document doc = Common.xmlCreateDoc( "registry" );
 		Element root = doc.getDocumentElement();
 		
 		Element node;
 		node = Common.xmlCreateElement( doc , root , "resources" );
-		resources.save( action , doc , node );
+		resources.save( doc , node );
 		node = Common.xmlCreateElement( doc , root , "directory" );
-		directory.save( action , doc , node );
+		directory.save( doc , node );
 		node = Common.xmlCreateElement( doc , root , "mirror" );
-		mirror.save( action , doc , node );
+		mirror.save( doc , node );
 		node = Common.xmlCreateElement( doc , root , "build" );
-		builders.save( action , doc , node );
+		builders.save( doc , node );
 		
 		Common.xmlSaveDoc( doc , path );
 	}

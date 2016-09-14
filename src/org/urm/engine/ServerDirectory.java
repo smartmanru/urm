@@ -3,7 +3,6 @@ package org.urm.engine;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.w3c.dom.Document;
@@ -85,7 +84,7 @@ public class ServerDirectory {
 		return( mapProducts.get( name ) );
 	}
 	
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+	public void save( Document doc , Element root ) throws Exception {
 		// directory 
 		for( ServerSystem system : mapSystems.values() ) {
 			Element elementSystem = Common.xmlCreateElement( doc , root , "system" );

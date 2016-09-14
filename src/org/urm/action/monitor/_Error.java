@@ -1,10 +1,10 @@
 package org.urm.action.monitor;
 
-import org.urm.common.ExitException;
+import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseActionMonitor;
+	public static int ErrorBase = RunError.BaseActionMonitor;
 
 	public static final int MonitorEnvFailed0 = ErrorBase + 1;
 	public static final int MonitorEnvHttpFailed1 = ErrorBase + 2;

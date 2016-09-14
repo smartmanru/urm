@@ -1,10 +1,10 @@
 package org.urm.action;
 
-import org.urm.common.ExitException;
+import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseAction;
+	public static int ErrorBase = RunError.BaseAction;
 	
 	public static final int InternalError0 = ErrorBase + 1;
 	public static final int NotImplemented0 = ErrorBase + 2;

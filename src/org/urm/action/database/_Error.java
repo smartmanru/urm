@@ -1,10 +1,10 @@
 package org.urm.action.database;
 
-import org.urm.common.ExitException;
+import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseActionDatabase;
+	public static int ErrorBase = RunError.BaseActionDatabase;
 	
 	public static final int ConnectFailed1 = ErrorBase + 1;
 	public static final int NoRegionSet1 = ErrorBase + 2;

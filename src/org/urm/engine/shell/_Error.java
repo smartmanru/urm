@@ -1,10 +1,10 @@
 package org.urm.engine.shell;
 
-import org.urm.common.ExitException;
+import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseEngineShell;
+	public static int ErrorBase = RunError.BaseEngineShell;
 	
 	public static final int MissingAccountDetails0 = ErrorBase + 1;
 	public static final int InvalidDirectory1 = ErrorBase + 2;

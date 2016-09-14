@@ -2,7 +2,7 @@ package org.urm.common;
 
 public class _Error {
 
-	public static final int ErrorBase = ExitException.BaseCommon;
+	public static final int ErrorBase = RunError.BaseCommon;
 	
 	public static final int UnableToReadFile1 = ErrorBase + 1;
 	public static final int NotSingleLineFile1 = ErrorBase + 2;
@@ -24,5 +24,6 @@ public class _Error {
 	public static final int EnvironmentVariableNotSet1 = ErrorBase + 18;
 	public static final int EnvironmentVariableEmpty1 = ErrorBase + 19;
 	public static final int UnexpectedState0 = ErrorBase + 20;
+	public static final int PropertyLoadFailed0 = ErrorBase + 21;
 	
 }

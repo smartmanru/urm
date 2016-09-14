@@ -1,7 +1,7 @@
 package org.urm.engine;
 
 import org.urm.action.ActionBase;
-import org.urm.common.ExitException;
+import org.urm.common.RunError;
 import org.urm.common.PropertySet;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.meta.Meta;
@@ -13,7 +13,7 @@ public class ServerTransaction {
 	public ServerEngine engine;
 	public ServerLoader loader;
 	public ActionInit action;
-	public ExitException error;
+	public RunError error;
 	
 	private ServerResources resources;
 	private ServerBuilders builders;
@@ -179,9 +179,41 @@ public class ServerTransaction {
 	}
 
 	public void handle( String s , Throwable e ) {
-		error( s );
-		if( e.getClass() == ExitException.class )
-			error = ( ExitException )e;
+		action.log( s , e );
+		if( e.getClass() == RunError.class )
+			error = ( RunError )e;
+		else
+			error = new RunError( _Error.InternalTransactionError1 , "Internal transaction error: " + s , new String[] { s } );
+	}
+	
+	public void handle0( Throwable e , int errorCode , String msg ) throws RunError {
+		action.error( msg );
+		error = new RunError( e , errorCode , msg , null );
+		throw error;
+	}
+	
+	public void handle1( Throwable e , int errorCode , String msg , String param1 ) throws RunError {
+		action.error( msg );
+		error = new RunError( e , errorCode , msg , new String[] { param1 } );
+		throw error;
+	}
+	
+	public void handle2( Throwable e , int errorCode , String msg , String param1 , String param2 ) throws RunError {
+		action.error( msg );
+		error = new RunError( e , errorCode , msg , new String[] { param1 , param2 } );
+		throw error;
+	}
+	
+	public void handle3( Throwable e , int errorCode , String msg , String param1 , String param2 , String param3 ) throws RunError {
+		action.error( msg );
+		error = new RunError( errorCode , msg , new String[] { param1 , param2 , param3 } );
+		throw error;
+	}
+	
+	public void handle4( Throwable e , int errorCode , String msg , String param1 , String param2 , String param3 , String param4 ) throws RunError {
+		action.error( msg );
+		error = new RunError( errorCode , msg , new String[] { param1 , param2 , param3 , param4 } );
+		throw error;
 	}
 	
 	public String getError() {
@@ -582,6 +614,26 @@ public class ServerTransaction {
 
 	public void exit( int errorCode , String msg , String params[] ) throws Exception {
 		action.exit( errorCode , msg , params );
+	}
+
+	public void exit0( int errorCode , String msg ) throws Exception {
+		action.exit( errorCode , msg , null );
+	}
+
+	public void exit1( int errorCode , String msg , String param1 ) throws Exception {
+		action.exit( errorCode , msg , new String[] { param1 } );
+	}
+
+	public void exit2( int errorCode , String msg , String param1 , String param2 ) throws Exception {
+		action.exit( errorCode , msg , new String[] { param1 , param2 } );
+	}
+
+	public void exit3( int errorCode , String msg , String param1 , String param2 , String param3 ) throws Exception {
+		action.exit( errorCode , msg , new String[] { param1 , param2 , param3 } );
+	}
+
+	public void exit4( int errorCode , String msg , String param1 , String param2 , String param3 , String param4 ) throws Exception {
+		action.exit( errorCode , msg , new String[] { param1 , param2 , param3 , param4 } );
 	}
 
 	// helpers

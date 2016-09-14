@@ -1,10 +1,10 @@
 package org.urm.engine.dist;
 
-import org.urm.common.ExitException;
+import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseEngineDist;
+	public static int ErrorBase = RunError.BaseEngineDist;
 	
 	public static final int DistributiveNotOpened0 = ErrorBase + 1;
 	public static final int DistributiveNotUse0 = ErrorBase + 2;

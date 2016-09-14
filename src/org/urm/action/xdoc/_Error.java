@@ -1,10 +1,10 @@
 package org.urm.action.xdoc;
 
-import org.urm.common.ExitException;
+import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseActionXDoc;
+	public static int ErrorBase = RunError.BaseActionXDoc;
 	
 	public static final int UnknownDesignCommand1 = ErrorBase + 1;
 	public static final int UnknownProdDesignServer1 = ErrorBase + 2;

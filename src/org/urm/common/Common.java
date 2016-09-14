@@ -255,9 +255,9 @@ public class Common {
 	    return( value );
 	}
 
-	public static ExitException getExitException( Throwable e ) {
-		if( e.getClass() == ExitException.class )
-			return( ( ExitException )e );
+	public static RunError getExitException( Throwable e ) {
+		if( e.getClass() == RunError.class )
+			return( ( RunError )e );
 		
 		Throwable ec = e.getCause();
 		if( ec == null )
@@ -271,8 +271,8 @@ public class Common {
 			ec = ecc;
 		}
 		
-		if( ec.getClass() == ExitException.class )
-			return( ( ExitException )ec );
+		if( ec.getClass() == RunError.class )
+			return( ( RunError )ec );
 		
 		return( null );
 	}
@@ -806,23 +806,23 @@ public class Common {
 	}
 
 	public static void exitUnexpected() throws Exception {
-		throw new ExitException( _Error.UnexpectedState0 , "Unexpected State" , null );
+		throw new RunError( _Error.UnexpectedState0 , "Unexpected State" , null );
 	}
 	
 	public static void exit0( int errorCode , String msg ) throws Exception {
-		throw new ExitException( errorCode , msg , null );
+		throw new RunError( errorCode , msg , null );
 	}
 	
 	public static void exit1( int errorCode , String msg , String param1 ) throws Exception {
-		throw new ExitException( errorCode , msg , new String[] { param1 } );
+		throw new RunError( errorCode , msg , new String[] { param1 } );
 	}
 	
 	public static void exit2( int errorCode , String msg , String param1 , String param2 ) throws Exception {
-		throw new ExitException( errorCode , msg , new String[] { param1 , param2 } );
+		throw new RunError( errorCode , msg , new String[] { param1 , param2 } );
 	}
 	
 	public static void exit3( int errorCode , String msg , String param1 , String param2 , String param3 ) throws Exception {
-		throw new ExitException( errorCode , msg , new String[] { param1 , param2 , param3 } );
+		throw new RunError( errorCode , msg , new String[] { param1 , param2 , param3 } );
 	}
 	
 }

@@ -43,7 +43,7 @@ public class ConfReader {
     }
 
     private static void exit( int errorCode , String msg , String[] params ) throws Exception {
-    	throw new ExitException( errorCode , msg , params );
+    	throw new RunError( errorCode , msg , params );
     }
     
 	public static List<String> readFileLines( RunContext rc , String path , Charset charset ) throws Exception {

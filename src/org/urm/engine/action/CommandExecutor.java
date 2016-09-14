@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.ExitException;
+import org.urm.common.RunError;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.engine.ServerEngine;
@@ -64,7 +64,7 @@ public abstract class CommandExecutor {
 			if( trace != null && trace.equals( "yes" ) )
 				e.printStackTrace();
 			else {
-				ExitException ex = Common.getExitException( e );
+				RunError ex = Common.getExitException( e );
 				if( ex == null || action.context.CTX_SHOWALL )
 					action.handle( e );
 				else

@@ -1,7 +1,7 @@
 package org.urm.engine;
 
 import org.urm.common.Common;
-import org.urm.common.ExitException;
+import org.urm.common.RunError;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandOptions;
@@ -15,7 +15,7 @@ public class Main {
 			System.exit( ( res )? 0 : 1 );
 		}
 		catch( Throwable e ) {
-			ExitException ex = Common.getExitException( e );
+			RunError ex = Common.getExitException( e );
 			output( e , ex );
 			System.exit( 1 );
 		}
@@ -23,7 +23,7 @@ public class Main {
 		System.exit( 3 );
 	}
 	
-	private static void output( Throwable e , ExitException ex ) {
+	private static void output( Throwable e , RunError ex ) {
 		e.printStackTrace();
 		if( ex != null )
 			System.err.println( ex.getMessage() );

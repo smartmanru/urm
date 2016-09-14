@@ -1,10 +1,10 @@
 package org.urm.engine.meta;
 
-import org.urm.common.ExitException;
+import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseEngineMeta;
+	public static int ErrorBase = RunError.BaseEngineMeta;
 	
 	public static final int InvalidOSType1 = ErrorBase + 1;
 	public static final int MissingOSType0 = ErrorBase + 2;

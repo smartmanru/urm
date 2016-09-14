@@ -1,10 +1,10 @@
 package org.urm.action.main;
 
-import org.urm.common.ExitException;
+import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseActionMain;
+	public static int ErrorBase = RunError.BaseActionMain;
 	
 	public static final int InstallationNotConfigured0 = ErrorBase + 1;
 	public static final int UnknownEnvironment1 = ErrorBase + 2;

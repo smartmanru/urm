@@ -1,7 +1,8 @@
 package org.urm.action;
 
 import org.urm.common.Common;
-import org.urm.common.ExitException;
+import org.urm.common.RunError;
+import org.urm.common.RunContext;
 import org.urm.engine.ServerAuthResource;
 import org.urm.engine.ServerBuilders;
 import org.urm.engine.ServerEngine;
@@ -15,6 +16,7 @@ public class ActionCore {
 
 	public ServerEngine engine;
 	public ActionCore parent;
+	public RunContext execrc;
 	
 	private static int instanceSequence = 0;
 	public int ID;
@@ -23,11 +25,12 @@ public class ActionCore {
 	boolean progressFailed;
 	public int progressMax;
 	public int progressCurrent;
-	public ExitException progressError;
+	public RunError progressError;
 	
 	protected ActionCore( ServerEngine engine , ActionCore parent ) {
 		this.engine = engine;
 		this.parent = parent;
+		this.execrc = engine.execrc;
 		
 		ID = instanceSequence++;
 		NAME = this.getClass().getSimpleName();
@@ -41,7 +44,7 @@ public class ActionCore {
 		return( progressFailed );
 	}
 	
-	protected void setFailed( ExitException exception ) {
+	protected void setFailed( RunError exception ) {
 		progressFailed = true;
 		progressError = exception;
 	}
@@ -80,27 +83,27 @@ public class ActionCore {
 		return( res );
 	}
 	
-	public void fail( int errorCode , String s , String[] params ) throws Exception {
-		setFailed( new ExitException( errorCode , s , params ) );
+	public void fail( int errorCode , String s , String[] params ) {
+		setFailed( new RunError( errorCode , s , params ) );
 	}
 
-	public void fail0( int errorCode , String s ) throws Exception {
+	public void fail0( int errorCode , String s ) {
 		fail( errorCode , s , null );
 	}
 
-	public void fail1( int errorCode , String s , String param1 ) throws Exception {
+	public void fail1( int errorCode , String s , String param1 ) {
 		fail( errorCode , s , new String[] { param1 } );
 	}
 
-	public void fail2( int errorCode , String s , String param1 , String param2 ) throws Exception {
+	public void fail2( int errorCode , String s , String param1 , String param2 ) {
 		fail( errorCode , s , new String[] { param1 , param2 } );
 	}
 
-	public void fail3( int errorCode , String s , String param1 , String param2 , String param3 ) throws Exception {
+	public void fail3( int errorCode , String s , String param1 , String param2 , String param3 ) {
 		fail( errorCode , s , new String[] { param1 , param2 , param3 } );
 	}
 
-	public void fail4( int errorCode , String s , String param1 , String param2 , String param3 , String param4 ) throws Exception {
+	public void fail4( int errorCode , String s , String param1 , String param2 , String param3 , String param4 ) {
 		fail( errorCode , s , new String[] { param1 , param2 , param3 , param4 } );
 	}
 

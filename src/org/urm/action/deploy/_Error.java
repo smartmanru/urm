@@ -1,10 +1,10 @@
 package org.urm.action.deploy;
 
-import org.urm.common.ExitException;
+import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseActionDeploy;
+	public static int ErrorBase = RunError.BaseActionDeploy;
 	
 	public static final int BaseServerTypeMismatched2 = ErrorBase + 1;
 	public static final int UnableFindFile1 = ErrorBase + 2;

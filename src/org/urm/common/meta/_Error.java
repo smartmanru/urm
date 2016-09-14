@@ -1,9 +1,9 @@
 package org.urm.common.meta;
 
-import org.urm.common.ExitException;
+import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseCommonMeta;
+	public static int ErrorBase = RunError.BaseCommonMeta;
 	
 }

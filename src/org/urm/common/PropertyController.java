@@ -1,6 +1,6 @@
 package org.urm.common;
 
-import org.urm.action.ActionBase;
+import org.urm.action.ActionCore;
 
 public abstract class PropertyController {
 
@@ -68,27 +68,27 @@ public abstract class PropertyController {
 		return( loaded );
 	}
 	
-	protected void setLoadFailed( ActionBase action , String msg ) {
+	protected void setLoadFailed( ActionCore action , String msg ) {
 		loadFailed = true;
-		action.error( msg );
+		action.fail0( _Error.PropertyLoadFailed0 , msg );
 	}
 	
-	protected String getPathProperty( ActionBase action , String prop ) throws Exception {
-		return( properties.getSystemPathProperty( prop , "" , action.session.execrc ) );
+	protected String getPathProperty( ActionCore action , String prop ) throws Exception {
+		return( properties.getSystemPathProperty( prop , "" , action.execrc ) );
 	}
 	
-	protected String getPathPropertyRequired( ActionBase action , String prop ) throws Exception {
-		String value = properties.getSystemPathProperty( prop , "" , action.session.execrc );
+	protected String getPathPropertyRequired( ActionCore action , String prop ) throws Exception {
+		String value = properties.getSystemPathProperty( prop , "" , action.execrc );
 		if( value.isEmpty() )
 			setLoadFailed( action , "set=" + properties.set + ", property is not set: " + prop );
 		return( value );
 	}
 	
-	protected int getIntProperty( ActionBase action , String prop , int defaultValue ) throws Exception {
+	protected int getIntProperty( ActionCore action , String prop , int defaultValue ) throws Exception {
 		return( properties.getSystemIntProperty( prop , defaultValue ) );
 	}
 	
-	protected int getIntPropertyRequired( ActionBase action , String prop ) throws Exception {
+	protected int getIntPropertyRequired( ActionCore action , String prop ) throws Exception {
 		int value = properties.getSystemIntProperty( prop , 0 );
 		String sv = properties.getPropertyAny( prop );
 		if( sv == null || sv.isEmpty() )
@@ -96,18 +96,18 @@ public abstract class PropertyController {
 		return( value );
 	}
 	
-	protected String getStringProperty( ActionBase action , String prop ) throws Exception {
+	protected String getStringProperty( ActionCore action , String prop ) throws Exception {
 		return( properties.getSystemStringProperty( prop , "" ) );
 	}
 	
-	public String getStringProperty( ActionBase action , String prop , String defaultValue ) throws Exception {
+	public String getStringProperty( ActionCore action , String prop , String defaultValue ) throws Exception {
 		String value = properties.getSystemStringProperty( prop , defaultValue );
 		if( value.isEmpty() )
 			setLoadFailed( action , "set=" + properties.set + ", property is not set: " + prop );
 		return( value );
 	}
 	
-	protected String getStringExprProperty( ActionBase action , String prop , String defaultExpr ) throws Exception {
+	protected String getStringExprProperty( ActionCore action , String prop , String defaultExpr ) throws Exception {
 		String value = properties.getSystemStringExprProperty( prop , defaultExpr );
 		if( value.isEmpty() )
 			setLoadFailed( action , "set=" + properties.set + ", property is not set: " + prop );
@@ -118,7 +118,7 @@ public abstract class PropertyController {
 		return( "@" + var + "@" );
 	}
 	
-	protected void finishProperties( ActionBase action ) throws Exception {
+	protected void finishProperties( ActionCore action ) throws Exception {
 		properties.resolveRawProperties( true );
 		if( properties.isResolved() ) {
 			properties.finishRawProperties();

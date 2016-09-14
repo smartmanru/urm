@@ -1,10 +1,10 @@
 package org.urm.engine.vcs;
 
-import org.urm.common.ExitException;
+import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseEngineVCS;
+	public static int ErrorBase = RunError.BaseEngineVCS;
 	
 	public static final int UnexectedVcsType2 = ErrorBase + 1;
 	public static final int NonSvnResource1 = ErrorBase + 2;

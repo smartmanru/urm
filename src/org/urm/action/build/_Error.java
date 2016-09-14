@@ -1,10 +1,10 @@
 package org.urm.action.build;
 
-import org.urm.common.ExitException;
+import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseActionBuild;
+	public static int ErrorBase = RunError.BaseActionBuild;
 	
 	public static final int UnknownBuilderType1 = ErrorBase + 1;
 	public static final int TargetPathAlreadyExists1 = ErrorBase + 2;

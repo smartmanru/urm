@@ -3,7 +3,6 @@ package org.urm.engine;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.w3c.dom.Document;
@@ -58,7 +57,7 @@ public class ServerMirror {
 		}
 	}
 
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+	public void save( Document doc , Element root ) throws Exception {
 		for( ServerMirrorRepository repo : repoMap.values() ) {
 			Element resElement = Common.xmlCreateElement( doc , root , "repository" );
 			repo.save( doc , resElement );

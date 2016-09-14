@@ -1,10 +1,10 @@
 package org.urm.engine;
 
-import org.urm.common.ExitException;
+import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = ExitException.BaseEngine;
+	public static int ErrorBase = RunError.BaseEngine;
 	
 	public static final int MainExecutorExpected0 = ErrorBase + 1;
 	public static final int UnknownBuilder1 = ErrorBase + 2;
@@ -37,5 +37,6 @@ public class _Error {
 	public static final int MissingProductFolder1 = ErrorBase + 29;
 	public static final int ProductpathEmpty0 = ErrorBase + 30;
 	public static final int UnknownCallSession1 = ErrorBase + 31;
+	public static final int InternalTransactionError1 = ErrorBase + 32;
 	
 }

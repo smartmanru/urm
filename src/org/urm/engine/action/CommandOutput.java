@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.ExitException;
+import org.urm.common.RunError;
 
 public class CommandOutput {
 
@@ -114,7 +114,7 @@ public class CommandOutput {
 			return;
 		}
 		
-		ExitException ee = Common.getExitException( e );
+		RunError ee = Common.getExitException( e );
 		String s = prompt;
 		if( !s.isEmpty() )
 			s += " ";

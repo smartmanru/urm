@@ -147,6 +147,10 @@ abstract public class ActionBase extends ActionCore {
 		output.log( context , s , e );
 	}
 	
+	public synchronized void log( String prompt , Throwable e ) {
+		output.log( context , prompt , e );
+	}
+	
 	public void infoAction( String s ) {
 		info( this.getClass().getSimpleName() + ": " + s );
 	}
