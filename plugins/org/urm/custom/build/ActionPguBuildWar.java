@@ -1,11 +1,11 @@
 package org.urm.custom.build;
 
 import org.urm.common.ConfReader;
-import org.urm.server.action.ActionBase;
-import org.urm.server.action.ActionScopeTarget;
-import org.urm.server.custom.CommandCustom;
-import org.urm.server.custom.ICustomBuild;
-import org.urm.server.meta.MetaSourceProject;
+import org.urm.engine.action.ActionBase;
+import org.urm.engine.action.ActionScopeTarget;
+import org.urm.engine.custom.CommandCustom;
+import org.urm.engine.custom.ICustomBuild;
+import org.urm.engine.meta.MetaSourceProject;
 import org.w3c.dom.Node;
 
 public class ActionPguBuildWar implements ICustomBuild {

@@ -31,10 +31,10 @@ import org.urm.common.action.CommandMethodMeta.ACTION_TYPE;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.action.CommandVar;
 import org.urm.common.action.CommandVar.FLAG;
-import org.urm.server.SessionController;
-import org.urm.server.ServerEngine;
-import org.urm.server.SessionContext;
-import org.urm.server.action.ActionBase;
+import org.urm.engine.ServerEngine;
+import org.urm.engine.SessionContext;
+import org.urm.engine.SessionController;
+import org.urm.engine.action.ActionBase;
 
 public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster {
 

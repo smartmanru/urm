@@ -1,9 +1,9 @@
 package org.urm.common.jmx;
 
 import org.urm.common.action.ActionData;
-import org.urm.server.ServerCall;
-import org.urm.server.ServerEngine;
-import org.urm.server.SessionContext;
+import org.urm.engine.ServerCall;
+import org.urm.engine.ServerEngine;
+import org.urm.engine.SessionContext;
 
 public class RemoteServerCall extends ServerCall {
 

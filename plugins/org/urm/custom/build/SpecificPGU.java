@@ -4,19 +4,19 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.server.action.ActionBase;
-import org.urm.server.action.ActionScope;
-import org.urm.server.action.ActionScopeTarget;
-import org.urm.server.dist.Dist;
-import org.urm.server.meta.MetaDistrBinaryItem;
-import org.urm.server.meta.MetaSourceProject;
-import org.urm.server.meta.MetaSourceProjectItem;
-import org.urm.server.meta.Meta;
-import org.urm.server.meta.Meta.VarCATEGORY;
-import org.urm.server.storage.Artefactory;
-import org.urm.server.storage.LocalFolder;
-import org.urm.server.storage.NexusDownloadInfo;
-import org.urm.server.storage.NexusStorage;
+import org.urm.engine.action.ActionBase;
+import org.urm.engine.action.ActionScope;
+import org.urm.engine.action.ActionScopeTarget;
+import org.urm.engine.dist.Dist;
+import org.urm.engine.meta.Meta;
+import org.urm.engine.meta.MetaDistrBinaryItem;
+import org.urm.engine.meta.MetaSourceProject;
+import org.urm.engine.meta.MetaSourceProjectItem;
+import org.urm.engine.meta.Meta.VarCATEGORY;
+import org.urm.engine.storage.Artefactory;
+import org.urm.engine.storage.LocalFolder;
+import org.urm.engine.storage.NexusDownloadInfo;
+import org.urm.engine.storage.NexusStorage;
 
 public class SpecificPGU {
 

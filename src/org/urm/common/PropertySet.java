@@ -8,7 +8,7 @@ import java.util.Properties;
 
 import org.urm.common.PropertyValue.PropertyValueOrigin;
 import org.urm.common.PropertyValue.PropertyValueType;
-import org.urm.server.shell.ShellExecutor;
+import org.urm.engine.shell.ShellExecutor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

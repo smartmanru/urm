@@ -17,12 +17,12 @@ import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
 import org.urm.common.action.CommandMeta;
-import org.urm.server.ServerDirectory;
-import org.urm.server.ServerEngine;
-import org.urm.server.SessionController;
-import org.urm.server.action.ActionBase;
-import org.urm.server.storage.LocalFolder;
-import org.urm.server.storage.UrmStorage;
+import org.urm.engine.ServerDirectory;
+import org.urm.engine.ServerEngine;
+import org.urm.engine.SessionController;
+import org.urm.engine.action.ActionBase;
+import org.urm.engine.storage.LocalFolder;
+import org.urm.engine.storage.UrmStorage;
 
 import com.sun.jdmk.comm.HtmlAdaptorServer;
 
