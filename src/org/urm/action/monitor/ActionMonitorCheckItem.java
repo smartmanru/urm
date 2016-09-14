@@ -1,7 +1,7 @@
 package org.urm.action.monitor;
 
-import org.urm.engine.action.ActionBase;
-import org.urm.engine.action.SimpleHttp;
+import org.urm.action.ActionBase;
+import org.urm.common.SimpleHttp;
 import org.urm.engine.meta.MetaMonitoring;
 import org.urm.engine.meta.MetaMonitoringItem;
 

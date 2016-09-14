@@ -1,6 +1,6 @@
 package org.urm.engine;
 
-import org.urm.engine.action.ActionBase;
+import org.urm.action.ActionBase;
 import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaProductVersion;
 

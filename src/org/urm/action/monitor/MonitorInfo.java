@@ -3,8 +3,8 @@ package org.urm.action.monitor;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.action.ActionBase;
 import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaMonitoringTarget;
 import org.urm.engine.storage.MonitoringStorage;

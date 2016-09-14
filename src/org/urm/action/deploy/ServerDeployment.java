@@ -3,8 +3,8 @@ package org.urm.action.deploy;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.action.ActionBase;
 import org.urm.engine.meta.Meta.VarCONTENTTYPE;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.RedistStorage;

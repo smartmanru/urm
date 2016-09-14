@@ -1,7 +1,7 @@
 package org.urm.engine.shell;
 
+import org.urm.action.ActionBase;
 import org.urm.engine.ServerCall;
-import org.urm.engine.action.ActionBase;
 
 public class ShellInteractive extends Shell {
 

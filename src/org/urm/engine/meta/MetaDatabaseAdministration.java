@@ -1,6 +1,6 @@
 package org.urm.engine.meta;
 
-import org.urm.engine.action.ActionBase;
+import org.urm.action.ActionBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

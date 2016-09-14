@@ -1,6 +1,6 @@
 package org.urm.action.deploy;
 
-import org.urm.engine.action.ActionBase;
+import org.urm.action.ActionBase;
 import org.urm.engine.meta.MetaEnvServerNode;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellInteractive;

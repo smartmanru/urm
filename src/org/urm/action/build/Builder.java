@@ -1,7 +1,7 @@
 package org.urm.action.build;
 
+import org.urm.action.ActionBase;
 import org.urm.engine.ServerAuthResource;
-import org.urm.engine.action.ActionBase;
 import org.urm.engine.meta.MetaProductBuildSettings;
 import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.shell.ShellExecutor;

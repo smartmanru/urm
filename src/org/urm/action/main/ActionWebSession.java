@@ -1,6 +1,6 @@
 package org.urm.action.main;
 
-import org.urm.engine.action.ActionBase;
+import org.urm.action.ActionBase;
 
 public class ActionWebSession extends ActionBase {
 

@@ -3,7 +3,7 @@ package org.urm.engine.shell;
 import java.io.BufferedReader;
 import java.util.List;
 
-import org.urm.engine.action.ActionBase;
+import org.urm.action.ActionBase;
 import org.urm.engine.action.CommandOutput;
 
 public class WaiterCommand implements Runnable {

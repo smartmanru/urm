@@ -1,6 +1,6 @@
 package org.urm.engine.custom;
 
-import org.urm.engine.action.ActionBase;
+import org.urm.action.ActionBase;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 

@@ -3,8 +3,8 @@ package org.urm.engine.dist;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.action.ActionBase;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.RemoteFolder;
 

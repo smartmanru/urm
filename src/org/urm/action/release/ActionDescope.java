@@ -3,10 +3,10 @@ package org.urm.action.release;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.urm.engine.action.ActionBase;
-import org.urm.engine.action.ActionScopeSet;
-import org.urm.engine.action.ActionScopeTarget;
-import org.urm.engine.action.ActionScopeTargetItem;
+import org.urm.action.ActionBase;
+import org.urm.action.ActionScopeSet;
+import org.urm.action.ActionScopeTarget;
+import org.urm.action.ActionScopeTargetItem;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseTargetItem;
 

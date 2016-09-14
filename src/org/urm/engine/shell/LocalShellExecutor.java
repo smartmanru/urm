@@ -1,6 +1,6 @@
 package org.urm.engine.shell;
 
-import org.urm.engine.action.ActionBase;
+import org.urm.action.ActionBase;
 import org.urm.engine.storage.Folder;
 
 public class LocalShellExecutor extends ShellExecutor {

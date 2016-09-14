@@ -1,11 +1,11 @@
 package org.urm.action.build;
 
+import org.urm.action.ActionBase;
+import org.urm.action.ActionScope;
+import org.urm.action.ActionScopeSet;
+import org.urm.action.ActionScopeTarget;
 import org.urm.common.Common;
 import org.urm.engine.ServerProjectBuilder;
-import org.urm.engine.action.ActionBase;
-import org.urm.engine.action.ActionScope;
-import org.urm.engine.action.ActionScopeSet;
-import org.urm.engine.action.ActionScopeTarget;
 import org.urm.engine.meta.MetaProductBuildSettings;
 import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.meta.Meta.VarCATEGORY;

@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.action.ActionBase;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.meta.MetaDatabaseSchema;
 import org.urm.engine.meta.MetaEnvServer;

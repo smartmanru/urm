@@ -1,7 +1,7 @@
 package org.urm.action.deploy;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.action.ActionBase;
 import org.urm.engine.meta.MetaEnvDC;
 
 public class ActionSendChatMsg extends ActionBase {

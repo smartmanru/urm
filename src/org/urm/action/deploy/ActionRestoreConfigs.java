@@ -1,10 +1,10 @@
 package org.urm.action.deploy;
 
+import org.urm.action.ActionBase;
+import org.urm.action.ActionScopeTarget;
+import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
-import org.urm.engine.action.ActionBase;
-import org.urm.engine.action.ActionScopeTarget;
-import org.urm.engine.action.ActionScopeTargetItem;
 import org.urm.engine.meta.MetaDistrComponentItem;
 import org.urm.engine.meta.MetaDistrConfItem;
 import org.urm.engine.meta.MetaEnvServer;

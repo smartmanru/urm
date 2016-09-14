@@ -3,8 +3,8 @@ package org.urm.engine.dist;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.action.ActionBase;
 import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaDistrBinaryItem;
 import org.urm.engine.meta.MetaDistrConfItem;

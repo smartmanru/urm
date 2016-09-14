@@ -2,7 +2,7 @@ package org.urm.action.conf;
 
 import java.io.BufferedWriter;
 
-import org.urm.engine.action.ActionBase;
+import org.urm.action.ActionBase;
 
 public class ConfDiffItem {
 

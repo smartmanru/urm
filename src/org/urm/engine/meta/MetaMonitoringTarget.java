@@ -3,9 +3,9 @@ package org.urm.engine.meta;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.action.ActionBase;
 import org.w3c.dom.Node;
 
 public class MetaMonitoringTarget {

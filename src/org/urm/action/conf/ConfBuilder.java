@@ -5,10 +5,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.PropertySet;
 import org.urm.common.PropertyValue;
-import org.urm.engine.action.ActionBase;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.dist.ReleaseTarget;

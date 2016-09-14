@@ -1,7 +1,7 @@
 package org.urm.engine;
 
+import org.urm.action.ActionBase;
 import org.urm.common.PropertySet;
-import org.urm.engine.action.ActionBase;
 import org.urm.engine.vcs.GenericVCS;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

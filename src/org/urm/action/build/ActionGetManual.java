@@ -1,6 +1,6 @@
 package org.urm.action.build;
 
-import org.urm.engine.action.ActionBase;
+import org.urm.action.ActionBase;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.SourceStorage;

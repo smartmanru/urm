@@ -4,7 +4,7 @@ import java.io.BufferedWriter;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.urm.engine.action.ActionBase;
+import org.urm.action.ActionBase;
 import org.urm.engine.storage.Folder;
 
 public class ConfFileDiff {

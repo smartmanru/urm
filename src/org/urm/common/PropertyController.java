@@ -1,6 +1,6 @@
 package org.urm.common;
 
-import org.urm.engine.action.ActionBase;
+import org.urm.action.ActionBase;
 
 public abstract class PropertyController {
 

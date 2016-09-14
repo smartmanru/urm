@@ -1,5 +1,7 @@
 package org.urm.engine.action;
 
+import org.urm.action.ActionBase;
+import org.urm.action.ActionScope;
 import org.urm.common.Common;
 import org.urm.engine.ServerContext;
 import org.urm.engine.ServerDirectory;

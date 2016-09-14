@@ -3,9 +3,9 @@ package org.urm.engine.meta;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
-import org.urm.engine.action.ActionBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

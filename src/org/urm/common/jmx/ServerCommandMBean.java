@@ -22,6 +22,7 @@ import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
 import javax.management.ReflectionException;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.action.ActionData;
@@ -34,7 +35,6 @@ import org.urm.common.action.CommandVar.FLAG;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.SessionContext;
 import org.urm.engine.SessionController;
-import org.urm.engine.action.ActionBase;
 
 public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster {
 

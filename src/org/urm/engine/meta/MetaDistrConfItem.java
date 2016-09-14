@@ -1,8 +1,8 @@
 package org.urm.engine.meta;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.action.ActionBase;
 import org.urm.engine.meta.Meta.VarCONFITEMTYPE;
 import org.urm.engine.meta.Meta.VarNAMETYPE;
 import org.w3c.dom.Node;
