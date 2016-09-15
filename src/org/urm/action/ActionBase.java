@@ -112,17 +112,19 @@ abstract public class ActionBase extends ActionCore {
 	public LocalFolder getLocalFolder( String path ) throws Exception {
 		return( new LocalFolder( Common.getLinuxPath( path ) , isLocalWindows() ) );
 	}
+
+	@Override
+	public void handle( Throwable e , String s ) {
+		log( s , e );
+		super.handle( e , s );
+	}
 	
 	public boolean continueRun() {
-		if( !progressFailed )
+		if( !super.isFailed() )
 			return( true );
 		if( context.CTX_FORCE )
 			return( true );
 		return( false );
-	}
-	
-	public boolean isOK() {
-		return( ( progressFailed )? false : true );
 	}
 	
 	public String getMode() {

@@ -4,7 +4,8 @@ import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = RunError.BaseActionBuild;
+	public static final int ErrorBase = RunError.BaseActionBuild;
+	public static final int ErrorInternalBase = ErrorBase + RunError.InternalBase;
 	
 	public static final int UnknownBuilderType1 = ErrorBase + 1;
 	public static final int TargetPathAlreadyExists1 = ErrorBase + 2;

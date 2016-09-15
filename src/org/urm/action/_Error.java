@@ -4,7 +4,8 @@ import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = RunError.BaseAction;
+	public static final int ErrorBase = RunError.BaseAction;
+	public static final int ErrorInternalBase = ErrorBase + RunError.InternalBase;
 	
 	public static final int InternalError0 = ErrorBase + 1;
 	public static final int NotImplemented0 = ErrorBase + 2;
@@ -24,5 +25,6 @@ public class _Error {
 	public static final int UnknownDistributiveItem1 = ErrorBase + 16;
 	public static final int UnexpectedNonManualItem1 = ErrorBase + 17;
 	public static final int BuildVersionNotSet0 = ErrorBase + 18;
+	public static final int InternalActionError1 = ErrorBase + 19;
 
 }

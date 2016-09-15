@@ -448,35 +448,35 @@ public class SubversionVCS extends GenericVCS {
 	}
 
 	@Override
-	public void createRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception {
-		if( !isValidRepositoryMasterPath( mirror , "/" ) )
-			action.exit0( _Error.UnableCheckRepositoryPath0 , "unable to check master repository path" );
-
-		MirrorStorage storage = getStorage( mirror );
-		String ospath = storage.getMirrorOSPath();
-		String repoPath = getRepositoryPath( mirror );
-		int status = shell.customGetStatus( action , "svn co --non-interactive " + SVNAUTH + " " + repoPath + " " + ospath );
-
-		if( status != 0 )
-			action.exit1( _Error.UnableCheckOut1 , "svn: having problem to check out " + repoPath , repoPath );
+	public MirrorStorage createInitialMirror( ServerMirrorRepository mirror ) throws Exception {
+		SubversionMirrorStorage storage = getStorage( mirror , true , null );
+		storage.createLocalMirror();
+		
+		return( storage );
 	}
 
 	@Override
 	public void dropRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception {
+		SubversionMirrorStorage storage = getStorage( mirror , false , null );
+		storage.remove();
 	}
 	
 	@Override
 	public void pushRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception {
+		SubversionMirrorStorage storage = getStorage( mirror , false , null );
+		storage.commit( "push to origin" );
 	}
 	
 	@Override
 	public void refreshRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception {
+		SubversionMirrorStorage storage = getStorage( mirror , false , null );
+		storage.update();
 	}
 	
 	// implementation
-	private MirrorStorage getStorage( ServerMirrorRepository mirror ) throws Exception {
-		MirrorStorage storage = new MirrorStorage( this , mirror );
-		storage.create( false , false );
+	private SubversionMirrorStorage getStorage( ServerMirrorRepository mirror , boolean create , LocalFolder customRepoFolder ) throws Exception {
+		SubversionMirrorStorage storage = new SubversionMirrorStorage( this , mirror , customRepoFolder );
+		storage.create( create , false );
 		return( storage );
 	}
 	

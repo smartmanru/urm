@@ -22,10 +22,10 @@ public class ActionCore {
 	public int ID;
 	public String NAME;
 
-	boolean progressFailed;
-	public int progressMax;
-	public int progressCurrent;
-	public RunError progressError;
+	private boolean progressFailed;
+	private int progressMax;
+	private int progressCurrent;
+	private RunError progressError;
 	
 	protected ActionCore( ServerEngine engine , ActionCore parent ) {
 		this.engine = engine;
@@ -44,7 +44,19 @@ public class ActionCore {
 		return( progressFailed );
 	}
 	
-	protected void setFailed( RunError exception ) {
+	public boolean isOK() {
+		return( ( progressFailed )? false : true );
+	}
+	
+	public int getProgressMax() {
+		return( progressMax );
+	}
+	
+	public int getProgressCurrent() {
+		return( progressCurrent );
+	}
+	
+	private void setFailed( RunError exception ) {
 		progressFailed = true;
 		progressError = exception;
 	}
@@ -130,6 +142,38 @@ public class ActionCore {
 
 	public void exit4( int errorCode , String s , String param1 , String param2 , String param3 , String param4 ) throws Exception {
 		exit( errorCode , s , new String[] { param1 , param2 , param3 , param4 } );
+	}
+
+	public void handle( Throwable e , String s ) {
+		if( e.getClass() == RunError.class )
+			setFailed( ( RunError )e );
+		else
+			setFailed( new RunError( _Error.InternalActionError1 , "Internal transaction error: " + s , new String[] { s } ) );
+	}
+	
+	public void handle( Throwable e , int errorCode , String s , String[] params ) throws Exception {
+		setFailed( new RunError( e , errorCode , s , params ) );
+		throw progressError;
+	}
+
+	public void handle0( Throwable e , int errorCode , String s ) throws Exception {
+		handle( e , errorCode , s , null );
+	}
+
+	public void handle1( Throwable e , int errorCode , String s , String param1 ) throws Exception {
+		handle( e , errorCode , s , new String[] { param1 } );
+	}
+
+	public void handle2( Throwable e , int errorCode , String s , String param1 , String param2 ) throws Exception {
+		handle( e , errorCode , s , new String[] { param1 , param2 } );
+	}
+
+	public void handle3( Throwable e , int errorCode , String s , String param1 , String param2 , String param3 ) throws Exception {
+		handle( e , errorCode , s , new String[] { param1 , param2 , param3 } );
+	}
+
+	public void handle4( Throwable e , int errorCode , String s , String param1 , String param2 , String param3 , String param4 ) throws Exception {
+		handle( e , errorCode , s , new String[] { param1 , param2 , param3 , param4 } );
 	}
 
 	public void exitNotImplemented() throws Exception {

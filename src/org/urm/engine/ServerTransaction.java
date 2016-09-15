@@ -75,7 +75,7 @@ public class ServerTransaction {
 				}
 			}
 			catch( Throwable e ) {
-				handle( "unable to restore resources" , e );
+				handle( e , "unable to restore resources" );
 			}
 			
 			try {
@@ -85,7 +85,7 @@ public class ServerTransaction {
 				}
 			}
 			catch( Throwable e ) {
-				handle( "unable to restore resources" , e );
+				handle( e , "unable to restore resources" );
 			}
 			
 			try {
@@ -95,7 +95,7 @@ public class ServerTransaction {
 				}
 			}
 			catch( Throwable e ) {
-				handle( "unable to restore directory" , e );
+				handle( e , "unable to restore directory" );
 			}
 			
 			try {
@@ -105,7 +105,7 @@ public class ServerTransaction {
 				}
 			}
 			catch( Throwable e ) {
-				handle( "unable to restore settings" , e );
+				handle( e , "unable to restore settings" );
 			}
 			
 			try {
@@ -117,7 +117,7 @@ public class ServerTransaction {
 				}
 			}
 			catch( Throwable e ) {
-				handle( "unable to restore metadata" , e );
+				handle( e , "unable to restore metadata" );
 			}
 			
 			engine.abortTransaction( this );
@@ -138,7 +138,7 @@ public class ServerTransaction {
 			action = null;
 		}
 		catch( Throwable e ) {
-			handle( "unable to restore metadata" , e );
+			handle( e , "unable to restore metadata" );
 		}
 	}
 	
@@ -178,7 +178,7 @@ public class ServerTransaction {
 		return( true );
 	}
 
-	public void handle( String s , Throwable e ) {
+	public void handle( Throwable e , String s ) {
 		action.log( s , e );
 		if( e.getClass() == RunError.class )
 			error = ( RunError )e;
@@ -187,39 +187,32 @@ public class ServerTransaction {
 	}
 	
 	public void handle0( Throwable e , int errorCode , String msg ) throws RunError {
-		action.error( msg );
 		error = new RunError( e , errorCode , msg , null );
 		throw error;
 	}
 	
 	public void handle1( Throwable e , int errorCode , String msg , String param1 ) throws RunError {
-		action.error( msg );
 		error = new RunError( e , errorCode , msg , new String[] { param1 } );
 		throw error;
 	}
 	
 	public void handle2( Throwable e , int errorCode , String msg , String param1 , String param2 ) throws RunError {
-		action.error( msg );
 		error = new RunError( e , errorCode , msg , new String[] { param1 , param2 } );
 		throw error;
 	}
 	
 	public void handle3( Throwable e , int errorCode , String msg , String param1 , String param2 , String param3 ) throws RunError {
-		action.error( msg );
 		error = new RunError( errorCode , msg , new String[] { param1 , param2 , param3 } );
 		throw error;
 	}
 	
 	public void handle4( Throwable e , int errorCode , String msg , String param1 , String param2 , String param3 , String param4 ) throws RunError {
-		action.error( msg );
 		error = new RunError( errorCode , msg , new String[] { param1 , param2 , param3 , param4 } );
 		throw error;
 	}
 	
-	public String getError() {
-		if( error != null )
-			return( error.errorMessage );
-		return( "" );
+	public RunError getError() {
+		return( error );
 	}
 	
 	public void info( String s ) {
@@ -328,7 +321,7 @@ public class ServerTransaction {
 				}
 			}
 			catch( Throwable e ) {
-				handle( "unable to change resources" , e );
+				handle( e , "unable to change resources" );
 			}
 			
 			abortTransaction();
@@ -349,7 +342,7 @@ public class ServerTransaction {
 			return( true );
 		}
 		catch( Throwable e ) {
-			handle( "unable to save resources" , e );
+			handle( e , "unable to save resources" );
 		}
 
 		abortTransaction();
@@ -378,7 +371,7 @@ public class ServerTransaction {
 				}
 			}
 			catch( Throwable e ) {
-				handle( "unable to change builders" , e );
+				handle( e , "unable to change builders" );
 			}
 			
 			abortTransaction();
@@ -399,7 +392,7 @@ public class ServerTransaction {
 			return( true );
 		}
 		catch( Throwable e ) {
-			handle( "unable to save builders" , e );
+			handle( e , "unable to save builders" );
 		}
 
 		abortTransaction();
@@ -428,7 +421,7 @@ public class ServerTransaction {
 				}
 			}
 			catch( Throwable e ) {
-				handle( "unable to change directory" , e );
+				handle( e , "unable to change directory" );
 			}
 			
 			abortTransaction();
@@ -449,7 +442,7 @@ public class ServerTransaction {
 			return( true );
 		}
 		catch( Throwable e ) {
-			handle( "unable to save directory" , e );
+			handle( e , "unable to save directory" );
 		}
 
 		abortTransaction();
@@ -474,7 +467,7 @@ public class ServerTransaction {
 					error( "unable to change old settings" );
 			}
 			catch( Throwable e ) {
-				handle( "unable to change settings" , e );
+				handle( e , "unable to change settings" );
 			}
 			
 			abortTransaction();
@@ -495,7 +488,7 @@ public class ServerTransaction {
 			return( true );
 		}
 		catch( Throwable e ) {
-			handle( "unable to save settings" , e );
+			handle( e , "unable to save settings" );
 		}
 
 		abortTransaction();
@@ -521,7 +514,7 @@ public class ServerTransaction {
 					error( "unable to change old metadata" );
 			}
 			catch( Throwable e ) {
-				handle( "unable to save metadata" , e );
+				handle( e , "unable to save metadata" );
 			}
 			
 			abortTransaction();
@@ -545,7 +538,7 @@ public class ServerTransaction {
 				}
 			}
 			catch( Throwable e ) {
-				handle( "unable to save metadata" , e );
+				handle( e , "unable to save metadata" );
 			}
 			
 			abortTransaction();
@@ -570,7 +563,7 @@ public class ServerTransaction {
 			return( true );
 		}
 		catch( Throwable e ) {
-			handle( "unable to save metadata" , e );
+			handle( e , "unable to save metadata" );
 		}
 
 		abortTransaction();

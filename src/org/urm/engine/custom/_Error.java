@@ -4,7 +4,8 @@ import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = RunError.BaseEngineCustom;
+	public static final int ErrorBase = RunError.BaseEngineCustom;
+	public static final int ErrorInternalBase = ErrorBase + RunError.InternalBase;
 	
 	public static final int CustomBuildNotSet0 = ErrorBase + 1;
 	public static final int UnableLoadCustomBuild1 = ErrorBase + 2;

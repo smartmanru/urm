@@ -4,6 +4,7 @@ import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = RunError.BaseClient;
+	public static final int ErrorBase = RunError.BaseClient;
+	public static final int ErrorInternalBase = ErrorBase + RunError.InternalBase;
 	
 }

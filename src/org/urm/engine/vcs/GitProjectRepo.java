@@ -10,18 +10,12 @@ public class GitProjectRepo extends GitMirrorStorage {
 	public MetaSourceProject project;
 	
 	public GitProjectRepo( GitVCS vcs , ServerMirrorRepository mirror , MetaSourceProject project , LocalFolder PATCHFOLDER ) {
-		super( vcs , mirror , true , PATCHFOLDER );
+		super( vcs , mirror , PATCHFOLDER );
 		this.project = project;
 	}
 
-	public void createLocalFromBranch( String BRANCH ) throws Exception {
-		String OSPATH = super.getMirrorOSPath();
-		String OSPATHPROJECT = super.getCommitOSPath();
-		shell.customCheckStatus( action , "git -C " + OSPATH + " clone " + OSPATH + " --shared -b " + BRANCH + " " + OSPATHPROJECT );
-	}
-
 	public boolean checkBranchExists( String BRANCH ) throws Exception {
-		String OSPATH = super.getMirrorOSPath();
+		String OSPATH = super.getBareOSPath();
 		String STATUS = shell.customGetValue( action , "git -C " + OSPATH + " branch --list " + BRANCH );
 		
 		if( STATUS.isEmpty() )
@@ -30,18 +24,18 @@ public class GitProjectRepo extends GitMirrorStorage {
 	}
 	
 	public void copyMirrorBranchFromBranch( String BRANCH_FROM , String BRANCH_TO , String MESSAGE ) throws Exception {
-		String OSPATH = super.getMirrorOSPath();
+		String OSPATH = super.getBareOSPath();
 		shell.customCheckStatus( action , "git -C " + OSPATH + " branch " + BRANCH_TO + " refs/heads/" + BRANCH_FROM );
 	}
 
 	public void dropMirrorBranch( String BRANCH ) throws Exception {
-		String OSPATH = super.getMirrorOSPath();
+		String OSPATH = super.getBareOSPath();
 		shell.customCheckStatus( action , "git -C " + OSPATH + " branch -D " + BRANCH );
 	}
 
 	public boolean checkTagExists( String TAG ) throws Exception {
 		String STATUS;
-		String OSPATH = super.getMirrorOSPath();
+		String OSPATH = super.getBareOSPath();
 		STATUS = shell.customGetValue( action , "git -C " + OSPATH + " tag -l " + TAG );
 		
 		if( STATUS.isEmpty() )
@@ -50,17 +44,17 @@ public class GitProjectRepo extends GitMirrorStorage {
 	}
 	
 	public void dropMirrorTag( String TAG ) throws Exception {
-		String OSPATH = super.getMirrorOSPath();
+		String OSPATH = super.getBareOSPath();
 		shell.customCheckStatus( action , "git -C " + OSPATH + " tag -d " + TAG );
 	}
 
 	public void copyMirrorTagFromTag( String TAG_FROM , String TAG_TO , String MESSAGE ) throws Exception {
-		String OSPATH = super.getMirrorOSPath();
+		String OSPATH = super.getBareOSPath();
 		shell.customCheckStatus( action , "git -C " + OSPATH + " tag -a -f -m " + Common.getQuoted( MESSAGE ) + " " + TAG_TO + " refs/tags/" + TAG_FROM );
 	}
 
 	public void copyMirrorBranchFromTag( String TAG_FROM , String BRANCH_TO , String MESSAGE ) throws Exception {
-		String OSPATH = super.getMirrorOSPath();
+		String OSPATH = super.getBareOSPath();
 		shell.customCheckStatus( action , "git -C " + OSPATH + " branch " + BRANCH_TO + " refs/tags/" + TAG_FROM );
 	}
 
@@ -77,7 +71,7 @@ public class GitProjectRepo extends GitMirrorStorage {
 	public void setMirrorTag( String BRANCH , String TAG , String MESSAGE , String TAGDATE ) throws Exception {
 		// get revision by date
 		String REVMARK = "";
-		String OSPATH = super.getMirrorOSPath();
+		String OSPATH = super.getBareOSPath();
 		if( !TAGDATE.isEmpty() ) {
 			if( shell.isWindows() ) {
 				REVMARK = shell.customGetValue( action , "git -C " + OSPATH + " log --format=oneline -n 1 --before=" + Common.getQuoted( TAGDATE ) + 
@@ -100,7 +94,7 @@ public class GitProjectRepo extends GitMirrorStorage {
 			return( "" );
 
 		String REPOVERSION;
-		String OSPATH = super.getMirrorOSPath();
+		String OSPATH = super.getBareOSPath();
 		if( shell.isWindows() ) {
 			String[] lines = shell.customGetLines( action , "git -C " + OSPATH + " show --format=raw " + TAG );
 			String[] grep = Common.grep( lines , "commit " );
@@ -120,7 +114,7 @@ public class GitProjectRepo extends GitMirrorStorage {
 			return( "" );
 
 		String REPOVERSION;
-		String OSPATH = super.getMirrorOSPath();
+		String OSPATH = super.getBareOSPath();
 		if( shell.isWindows() ) {
 			String[] lines = shell.customGetLines( action , "git -C " + OSPATH + " show --format=raw " + BRANCH );
 			String[] grep = Common.grep( lines , "commit " );

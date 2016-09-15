@@ -31,7 +31,7 @@ public class ScopeExecutor {
 	}
 
 	private boolean checkFailed() {
-		if( exception || action.progressFailed || runFailed )
+		if( exception || action.isFailed() || runFailed )
 			return( true );
 		return( false );
 	}

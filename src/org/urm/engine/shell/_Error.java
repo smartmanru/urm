@@ -4,7 +4,8 @@ import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = RunError.BaseEngineShell;
+	public static final int ErrorBase = RunError.BaseEngineShell;
+	public static final int ErrorInternalBase = ErrorBase + RunError.InternalBase;
 	
 	public static final int MissingAccountDetails0 = ErrorBase + 1;
 	public static final int InvalidDirectory1 = ErrorBase + 2;
@@ -27,10 +28,8 @@ public class _Error {
 	public static final int UnableGetMd5Sum1 = ErrorBase + 19;
 	public static final int ErrorReadingFiles1 = ErrorBase + 20;
 	public static final int ShellInitFailed1 = ErrorBase + 21;
-	public static final int ErrorExecutingCmd2 = ErrorBase + 22;
 	public static final int NotDirectoryPath1 = ErrorBase + 23;
 	public static final int UnableDownload1 = ErrorBase + 24;
-	public static final int ErrorExecutingCmd3 = ErrorBase + 25;
 	public static final int RunCommandClosedSession1 = ErrorBase + 26;
 	public static final int UnableObtainCommandStatus0 = ErrorBase + 27;
 	public static final int UnableConnectHost1 = ErrorBase + 28;
@@ -41,4 +40,7 @@ public class _Error {
 	public static final int MissingTextReader = ErrorBase + 33;
 	public static final int CommandKilled = ErrorBase + 34;
 
+	public static final int ErrorExecutingCmd2 = ErrorInternalBase + 22;
+	public static final int ErrorExecutingCmd3 = ErrorInternalBase + 25;
+	
 }

@@ -120,15 +120,13 @@ public class CommandOutput {
 			s += " ";
 		
 		if( ee != null ) {
-			s += "exception: " + ee.errorCode + ", " + ee.errorMessage;
-			s += ", exiting ";
+			s += "exception: " + ee.getCode() + ", " + ee.getMessage();
 		}
 		else {
 			s += "exception: " + e.getClass().getName();
 			String msg = e.getMessage();
 			if( msg != null )
 				s += " - " + msg;
-			s += ", exiting ";
 		}
 		
 		synchronized( syncStatic ) {

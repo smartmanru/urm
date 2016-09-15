@@ -4,7 +4,8 @@ import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = RunError.BaseEngineAction;
+	public static final int ErrorBase = RunError.BaseEngineAction;
+	public static final int ErrorInternalBase = ErrorBase + RunError.InternalBase;
 	
 	public static final int ReleaseWrongBuildMode1 = ErrorBase + 19;
 	public static final int UnknownFlagVar1 = ErrorBase + 20;

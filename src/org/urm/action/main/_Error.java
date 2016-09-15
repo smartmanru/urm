@@ -4,7 +4,8 @@ import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = RunError.BaseActionMain;
+	public static final int ErrorBase = RunError.BaseActionMain;
+	public static final int ErrorInternalBase = ErrorBase + RunError.InternalBase;
 	
 	public static final int InstallationNotConfigured0 = ErrorBase + 1;
 	public static final int UnknownEnvironment1 = ErrorBase + 2;

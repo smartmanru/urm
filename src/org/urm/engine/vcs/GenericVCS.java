@@ -61,7 +61,7 @@ public abstract class GenericVCS {
 	public abstract void deleteDirToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception;
 	
 	public abstract boolean checkTargetEmpty( ServerMirrorRepository mirror ) throws Exception;
-	public abstract void createRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception;
+	public abstract MirrorStorage createInitialMirror( ServerMirrorRepository mirror ) throws Exception;
 	public abstract void dropRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception;
 	public abstract void pushRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception;
 	public abstract void refreshRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception;

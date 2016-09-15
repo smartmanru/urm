@@ -4,7 +4,8 @@ import org.urm.common.RunError;
 
 public class _Error {
 
-	public static int ErrorBase = RunError.BaseEngineStorage;
+	public static final int ErrorBase = RunError.BaseEngineStorage;
+	public static final int ErrorInternalBase = ErrorBase + RunError.InternalBase;
 	
 	public static final int RootNotPermitted0 = ErrorBase + 1;
 	public static final int AttemptDeleteFiles0 = ErrorBase + 2;

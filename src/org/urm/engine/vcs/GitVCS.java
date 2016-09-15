@@ -27,7 +27,7 @@ public class GitVCS extends GenericVCS {
 
 		String REPOVERSION = "(branch head)";
 
-		action.info( "git: checkout sources from " + repo.getMirrorOSPath() + " (branch=" + BRANCH + ", revision=" + REPOVERSION + ") to " + PATCHFOLDER.folderPath + " ..." );
+		action.info( "git: checkout sources from " + repo.getBareOSPath() + " (branch=" + BRANCH + ", revision=" + REPOVERSION + ") to " + PATCHFOLDER.folderPath + " ..." );
 		repo.createLocalFromBranch( BRANCH );
 		
 		return( true );
@@ -263,7 +263,7 @@ public class GitVCS extends GenericVCS {
 		storage.refreshMirror();
 		
 		int status;
-		String OSPATH = storage.getMirrorOSPath();
+		String OSPATH = storage.getBareOSPath();
 		String OSPATHDIR = shell.getOSPath( action , path );
 		status = shell.customGetStatus( action , "git -C " + OSPATH + " cat-file -e master:" + OSPATHDIR );
 		
@@ -298,7 +298,7 @@ public class GitVCS extends GenericVCS {
 		GitMirrorStorage storage = getMasterMirrorStorage( mirror , PATCHFOLDER );
 		storage.refreshMirror();
 		
-		String OSPATH = storage.getMirrorOSPath();
+		String OSPATH = storage.getBareOSPath();
 		if( shell.isWindows() ) {
 			String WINPATHDIR = Common.getWinPath( ITEMPATH );
 			String WINPATHPATCH = Common.getWinPath( PATCHFOLDER.folderPath );
@@ -331,10 +331,10 @@ public class GitVCS extends GenericVCS {
 	
 	@Override public String[] listMasterItems( ServerMirrorRepository mirror , String masterFolder ) throws Exception {
 		GitMirrorStorage storage = getMasterMirrorStorage( mirror , null );
-		storage.refreshMirror();
+		storage.refreshBare();
 		
 		String s;
-		String OSPATH = storage.getMirrorOSPath();
+		String OSPATH = storage.getBareOSPath();
 		if( shell.isWindows() ) {
 			s = shell.customGetValue( action , "git -C " + OSPATH + " ls-tree master --name-only" );
 			s = Common.replace( s , "\\n" , " \"" );
@@ -376,7 +376,7 @@ public class GitVCS extends GenericVCS {
 			return( false );
 		
 		GitMirrorStorage storage = getMasterMirrorStorage( mirror , PATCHPATH );
-		LocalFolder storageFolder = storage.getStorageFolder( action );
+		LocalFolder storageFolder = storage.getCommitFolder();
 		if( !PATCHPATH.equals( storageFolder ) )
 			storage.pushOrigin( PATCHPATH.folderPath );
 		
@@ -418,17 +418,17 @@ public class GitVCS extends GenericVCS {
 	}
 
 	@Override
-	public void createRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception {
-		GitMirrorStorage storage = getMasterMirrorStorage( mirror , null );
+	public MirrorStorage createInitialMirror( ServerMirrorRepository mirror ) throws Exception {
+		GitMirrorStorage storage = new GitMirrorStorage( this , mirror , null );
 		storage.createLocalMirror();
-		if( storage.isEmpty() )
-			storage.createReadMe();
+		return( storage );
 	}
 
 	@Override
 	public void dropRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception {
-		GitMirrorStorage storage = getMasterMirrorStorage( mirror , null );
-		storage.remove( action );
+		GitMirrorStorage storage = new GitMirrorStorage( this , mirror , null );
+		storage.useProjectMirror( false );
+		storage.removeLocalMirror();
 	}
 	
 	@Override
@@ -447,14 +447,13 @@ public class GitVCS extends GenericVCS {
 	private GitProjectRepo getRepo( MetaSourceProject project , LocalFolder PATCHFOLDER ) throws Exception {
 		ServerMirrorRepository mirror = action.getMirror( project );
 		GitProjectRepo repo = new GitProjectRepo( this , mirror , project , PATCHFOLDER );
-		repo.create( false , true );
+		repo.useProjectMirror( true );
 		return( repo );
 	}
 
 	private GitMirrorStorage getMasterMirrorStorage( ServerMirrorRepository mirror , LocalFolder PATCHFOLDER ) throws Exception {
-		boolean bare = ( mirror.isServer() )? false : true;
-		GitMirrorStorage storage = new GitMirrorStorage( this , mirror , bare , PATCHFOLDER );
-		storage.create( false , false );
+		GitMirrorStorage storage = new GitMirrorStorage( this , mirror , PATCHFOLDER );
+		storage.useProjectMirror( false );
 		return( storage );
 	}
 	

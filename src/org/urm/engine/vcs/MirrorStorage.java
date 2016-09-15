@@ -7,60 +7,85 @@ import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
 
-public class MirrorStorage {
+public abstract class MirrorStorage {
 
 	GenericVCS vcs;
 	ServerMirrorRepository mirror;
 	
 	public Account account;
-	public LocalFolder mirrorFolder;
+	
+	private LocalFolder repoFolder;
+	private LocalFolder commitFolder;
 	
 	protected ShellExecutor shell;
 	protected ActionBase action;
 	
-	public MirrorStorage( GenericVCS vcs , ServerMirrorRepository mirror ) {
+	public abstract boolean isEmpty() throws Exception;
+	
+	public MirrorStorage( GenericVCS vcs , ServerMirrorRepository mirror , LocalFolder customRepoFolder ) {
 		this.vcs = vcs;
 		this.mirror = mirror;
+		this.repoFolder = customRepoFolder;
+		
 		shell = vcs.shell;
 		action = vcs.action;
 	}
 	
 	public void create( boolean newStorage , boolean check ) throws Exception {
-		LocalFolder mirrorFolder = getBaseFolder( action );
-		LocalFolder storageFolder = mirrorFolder.getSubFolder( action , mirror.getFolderName() );
-
+		LocalFolder repox = repoFolder;
+		if( repox == null ) {
+			LocalFolder basex = getBaseFolder();
+			repox = basex.getSubFolder( action , mirror.getFolderName() );
+		}
+		
+		LocalFolder commitx = repox.getSubFolder( action , mirror.RESOURCE_DATA );
+		String commitOSPath = shell.getOSPath( action , commitx.folderPath );
+		
 		if( newStorage ) {
 			if( check ) {
-				if( !mirrorFolder.checkExists( action ) )
-					action.exit1( _Error.MissingMirrorDirectory1 , "mirror path " + mirrorFolder.folderPath + " does not exist" , mirrorFolder.folderPath );
+				if( commitx != repox && !repox.checkExists( action ) )
+					action.exit1( _Error.MissingRepoMirrorDirectory1 , "Repository path " + commitOSPath + " does not exist" , commitOSPath );
 				
-				if( storageFolder.checkExists( action ) )
-					action.exit1( _Error.MirrorDirectoryAlreadyExists1 , "mirror path " + storageFolder.folderPath + " already exists" , storageFolder.folderPath );
+				if( commitx.checkExists( action ) )
+					action.exit1( _Error.CommitDirectoryAlreadyExists1 , "Commit path " + commitOSPath + " already exists" , commitOSPath );
 			}
 		
-			storageFolder.getParentFolder( action ).ensureExists( action );
+			commitx.getParentFolder( action ).ensureExists( action );
 		}
 		else {
 			if( check ) {
-				if( !storageFolder.checkExists( action ) )
-					action.exit1( _Error.MissingMirrorDirectory1 , "mirror path " + storageFolder.folderPath + " should be already created" , storageFolder.folderPath );
+				if( !commitx.checkExists( action ) )
+					action.exit1( _Error.CommitDirectoryAlreadyExists1 , "Commit path " + commitOSPath + " should be already created" , commitOSPath );
 			}
 		}
 	
-		this.mirrorFolder = storageFolder;
+		this.repoFolder = repox;
+		this.commitFolder = commitx;
 	}
 	
-	public String getMirrorOSPath() throws Exception {
-		return( shell.getOSPath( action , mirrorFolder.folderPath ) );
+	public String getRepoOSPath() throws Exception {
+		return( shell.getOSPath( action , repoFolder.folderPath ) );
 	}
 	
-	public LocalFolder getStorageFolder( ActionBase action ) throws Exception {
-		LocalFolder baseFolder = getBaseFolder( action );
-		LocalFolder storageFolder = baseFolder.getSubFolder( action , mirror.getFolderName() );
-		return( storageFolder );
+	public String getCommitOSPath() throws Exception {
+		return( shell.getOSPath( action , commitFolder.folderPath ) );
 	}
 	
-	protected LocalFolder getBaseFolder( ActionBase action ) throws Exception {
+	public LocalFolder getCommonRepoFolder() throws Exception {
+		LocalFolder baseFolder = getBaseFolder();
+		LocalFolder repoFolder = baseFolder.getSubFolder( action , mirror.getFolderName() );
+		return( repoFolder );
+	}
+
+	protected LocalFolder getRepoFolder() throws Exception {
+		return( repoFolder );
+	}
+	
+	protected LocalFolder getCommitFolder() throws Exception {
+		return( commitFolder );
+	}
+	
+	protected LocalFolder getBaseFolder() throws Exception {
 		String mirrorPath; 
 		if( action.meta.product == null ) {
 			ServerSettings settings = action.engine.getSettings();
@@ -70,15 +95,14 @@ public class MirrorStorage {
 			mirrorPath = action.meta.product.CONFIG_MIRRORPATH;
 		
 		if( mirrorPath.isEmpty() )
-			action.exit0( _Error.MissingMirrorPathParameter0 , "missing configuraion parameter: mirror path" );
+			action.exit0( _Error.MissingMirrorPathParameter0 , "Missing configuraion parameter: mirror path" );
 		
 		return( action.getLocalFolder( mirrorPath ) );
 	}
 
-	public void remove( ActionBase action ) throws Exception {
-		LocalFolder storageFolder = getStorageFolder( action );
-		if( storageFolder.checkExists( action ) )
-			storageFolder.removeThis( action );
+	public void remove() throws Exception {
+		if( repoFolder.checkExists( action ) )
+			repoFolder.removeThis( action );
 	}
 	
 }

@@ -17,7 +17,7 @@ public class LocalFolder extends Folder {
 	}
 	
 	public LocalFolder getSubFolder( ActionBase action , String folder ) throws Exception {
-		if( folder.isEmpty() || folder.equals( "/" ) )
+		if( folder.isEmpty() || folder.equals( "/" ) || folder.equals( "." ) )
 			return( this );
 		return( new LocalFolder( folderPath + "/" + folder , windows ) );
 	}
