@@ -31,5 +31,6 @@ public class _Error {
 	public static final int GitUnableClone2 = ErrorBase + 23;
 	public static final int MirrorDirectoryNotEmpty1 = ErrorBase + 24;
 	public static final int UnableCreateRepoFolder1 = ErrorBase + 25;
+	public static final int RepoDirectoryAlreadyExists1 = ErrorBase + 26;
 	
 }

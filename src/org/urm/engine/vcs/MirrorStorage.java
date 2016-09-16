@@ -43,11 +43,9 @@ public abstract class MirrorStorage {
 		
 		if( newStorage ) {
 			if( check ) {
-				if( commitx != repox && !repox.checkExists( action ) )
-					action.exit1( _Error.MissingRepoMirrorDirectory1 , "Repository path " + commitOSPath + " does not exist" , commitOSPath );
-				
-				if( commitx.checkExists( action ) )
-					action.exit1( _Error.CommitDirectoryAlreadyExists1 , "Commit path " + commitOSPath + " already exists" , commitOSPath );
+				String repoOSPath = shell.getOSPath( action , repox.folderPath );
+				if( repox.checkExists( action ) )
+					action.exit1( _Error.CommitDirectoryAlreadyExists1 , "Commit path " + repoOSPath + " already exists" , repoOSPath );
 			}
 		
 			commitx.getParentFolder( action ).ensureExists( action );
