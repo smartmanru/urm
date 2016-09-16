@@ -68,7 +68,7 @@ public class ActionSave extends ActionBase {
 			executeDir( set , lines , filesNotInSvn );
 		}
 		else
-			vcs.addDirToSvn( mirror , pf , "master" );
+			vcs.addDirToCommit( mirror , pf , "master" );
 			
 		if( !vcs.commitMasterFolder( mirror , pfMaster , "" , "svnsave" ) )
 			exit1( _Error.UnableSaveProduct1 , "unable to save in svn folder=" + pfMaster.folderPath , pfMaster.folderPath );
@@ -93,13 +93,14 @@ public class ActionSave extends ActionBase {
 				executeDir( dir , lines , filesNotInSvn );
 			else {
 				if( dirInLines )
-					vcs.addDirToSvn( mirror , pfMaster , dir.dirPath );
+					vcs.addDirToCommit( mirror , pfMaster , dir.dirPath );
 				else
-					vcs.deleteDirFromSvn( mirror , pfMaster , dir.dirPath );
+					vcs.deleteDirToCommit( mirror , pfMaster , dir.dirPath );
 			}
 		}
 		
-		for( String fileActual : set.files.values() ) {
+		for( String fileBase : set.files.keySet() ) {
+			String fileActual = set.files.get( fileBase );
 			// check file in lines
 			boolean fileInLines = false;
 			for( String line : lines ) {
@@ -116,9 +117,9 @@ public class ActionSave extends ActionBase {
 				continue;
 			
 			if( fileInLines )
-				vcs.addFileToSvn( mirror , pfMaster , fileActual );
+				vcs.addFileToCommit( mirror , pfMaster , set.dirPath , fileBase );
 			else
-				vcs.deleteFileFromSvn( mirror , pfMaster , fileActual );
+				vcs.deleteFileToCommit( mirror , pfMaster , set.dirPath , fileBase );
 		}
 	}
 

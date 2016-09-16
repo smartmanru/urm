@@ -49,7 +49,7 @@ public class SubversionMirrorStorage extends MirrorStorage {
 		dataFolder.getParentFolder( action ).ensureExists( action );
 		
 		if( vcs.isValidRepositoryMasterPath( mirror , mirror.RESOURCE_DATA ) ) {
-			if( !vcs.checkTargetEmpty( mirror ) )
+			if( !vcs.checkMirrorEmpty( mirror ) )
 				action.exit1( _Error.MirrorDirectoryNotEmpty1 , "Target mirror folder is not empty - " + mirror.RESOURCE_DATA , mirror.RESOURCE_DATA );
 		}
 		else {
@@ -57,6 +57,25 @@ public class SubversionMirrorStorage extends MirrorStorage {
 			if( status != 0 )
 				action.exit1( _Error.UnableCreateRepoFolder1 , "Unable to create repository folder " + remotePath , remotePath );
 		}
+		
+		String ospath = super.getCommitOSPath();
+		int status = shell.customGetStatus( action , "svn co --non-interactive " + vcs.SVNAUTH + " " + remotePath + " " + ospath );
+		if( status != 0 )
+			action.exit1( _Error.UnableCheckOut1 , "Having problem to check out " + remotePath , remotePath );
+	}
+
+	public void createServerMirror() throws Exception {
+		if( !vcs.isValidRepositoryMasterPath( mirror , mirror.RESOURCE_DATA ) )
+			action.exit0( _Error.UnableCheckRepositoryPath0 , "Unable to check master repository path" );
+
+		String remotePath = Common.getPath( vcs.getRepositoryPath( mirror ) , mirror.RESOURCE_DATA ); 
+		LocalFolder repoFolder = super.getRepoFolder();
+		LocalFolder dataFolder = repoFolder.getSubFolder( action , mirror.RESOURCE_DATA );
+		
+		if( dataFolder.checkExists( action ) )
+			action.exit1( _Error.CommitDirectoryAlreadyExists1 , "Commit folder already exists - " + dataFolder.folderPath , dataFolder.folderPath );
+			
+		dataFolder.getParentFolder( action ).ensureExists( action );
 		
 		String ospath = super.getCommitOSPath();
 		int status = shell.customGetStatus( action , "svn co --non-interactive " + vcs.SVNAUTH + " " + remotePath + " " + ospath );

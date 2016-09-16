@@ -74,7 +74,7 @@ public class GitMirrorStorage extends MirrorStorage {
 			repoPath = REPOROOT + "/" + repoPath;
 		
 		cloneRemoteToBare( repoPath );
-		if( !vcs.checkTargetEmpty( mirror ) )
+		if( !vcs.checkMirrorEmpty( mirror ) )
 			action.exit1( _Error.MirrorDirectoryNotEmpty1 , "Target mirror folder is not empty - " + mirror.RESOURCE_DATA , mirror.RESOURCE_DATA );
 
 		int status = shell.customGetStatus( action , bareFolder.folderPath , "git log -n 1 --oneline -m " + getBranch() );
@@ -82,6 +82,23 @@ public class GitMirrorStorage extends MirrorStorage {
 			createLocalFromBranch( getBranch() );
 		else
 			initLocalFromBranch( getBranch() );
+	}
+	
+	public void createServerMirror() throws Exception {
+		create( true , true );
+
+		if( bareFolder.checkExists( action ) ) {
+			String bareOSpath = getBareOSPath();
+			action.exit1( _Error.BareDirectoryAlreadyExists1 , "Bare folder already exists - " + bareOSpath , bareOSpath );
+		}
+		
+		// create bare repository if not exists
+		String repoPath = REPONAME;
+		if( REPOROOT != null && !REPOROOT.isEmpty() )
+			repoPath = REPOROOT + "/" + repoPath;
+		
+		cloneRemoteToBare( repoPath );
+		createLocalFromBranch( getBranch() );
 	}
 	
 	public void useProjectMirror( boolean check ) throws Exception {

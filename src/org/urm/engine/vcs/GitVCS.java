@@ -20,6 +20,18 @@ public class GitVCS extends GenericVCS {
 		return( MASTERBRANCH );
 	}
 	
+	@Override
+	public boolean ignoreDir( String name ) {
+		if( name.equals( ".git" ) )
+			return( true );
+		return( false );
+	}
+	
+	@Override
+	public boolean ignoreFile( String name ) {
+		return( false );
+	}
+	
 	@Override public boolean checkout( MetaSourceProject project , LocalFolder PATCHFOLDER , String BRANCH ) throws Exception {
 		BRANCH = getBranchName( BRANCH );
 		GitProjectRepo repo = getRepo( project , PATCHFOLDER );
@@ -410,7 +422,7 @@ public class GitVCS extends GenericVCS {
 	}
 
 	@Override
-	public boolean checkTargetEmpty( ServerMirrorRepository mirror ) throws Exception {
+	public boolean checkMirrorEmpty( ServerMirrorRepository mirror ) throws Exception {
 		String[] items = listMasterItems( mirror , mirror.RESOURCE_DATA );
 		if( items.length == 0 || ( items.length == 1 && items[0].equals( "README.md" ) ) )
 			return( true );
@@ -425,22 +437,35 @@ public class GitVCS extends GenericVCS {
 	}
 
 	@Override
-	public void dropRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception {
+	public MirrorStorage createServerMirror( ServerMirrorRepository mirror ) throws Exception {
+		GitMirrorStorage storage = new GitMirrorStorage( this , mirror , null );
+		storage.createServerMirror();
+		return( storage );
+	}
+
+	@Override
+	public void dropMirror( ServerMirrorRepository mirror ) throws Exception {
 		GitMirrorStorage storage = new GitMirrorStorage( this , mirror , null );
 		storage.useProjectMirror( false );
 		storage.removeLocalMirror();
 	}
 	
 	@Override
-	public void pushRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception {
+	public void pushMirror( ServerMirrorRepository mirror ) throws Exception {
 		GitMirrorStorage storage = getMasterMirrorStorage( mirror , null );
 		storage.pushMirror();
 	}
 	
 	@Override
-	public void refreshRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception {
+	public void refreshMirror( ServerMirrorRepository mirror ) throws Exception {
 		GitMirrorStorage storage = getMasterMirrorStorage( mirror , null );
 		storage.refreshMirror();
+	}
+
+	@Override
+	public MirrorStorage getMirror( ServerMirrorRepository mirror ) throws Exception {
+		GitMirrorStorage storage = getMasterMirrorStorage( mirror , null );
+		return( storage );
 	}
 	
 	// implementation

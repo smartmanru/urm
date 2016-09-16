@@ -5,6 +5,7 @@ import org.urm.common.RunError;
 import org.urm.common.PropertySet;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.meta.Meta;
+import org.urm.engine.meta.MetaEnv;
 import org.urm.engine.meta.MetaProductVersion;
 import org.urm.engine.meta.Meta.VarBUILDMODE;
 
@@ -677,7 +678,7 @@ public class ServerTransaction {
 		builders.deleteBuilder( this , builder );
 	}
 	
-	public void addSystem( ServerSystem system ) throws Exception {
+	public void createSystem( ServerSystem system ) throws Exception {
 		checkTransactionDirectory();
 		directory.addSystem( this , system );
 	}
@@ -745,4 +746,17 @@ public class ServerTransaction {
 		metadata.setVersion( this , version );
 	}
 
+	public Meta getMeta() {
+		return( metadata.meta );
+	}
+	
+	public void createMetaEnv( MetaEnv env ) throws Exception {
+		checkTransactionMetadata();
+		metadata.addEnv( this , env );
+	}
+	
+	public MetaEnv getMetaEnv( MetaEnv env ) throws Exception {
+		return( metadata.findEnvironment( env.ID ) );
+	}
+	
 }

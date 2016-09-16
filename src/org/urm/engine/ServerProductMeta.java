@@ -471,11 +471,15 @@ public class ServerProductMeta {
 		this.version = version;
 	}
 
+	public void addEnv( ServerTransaction transaction , MetaEnv env ) throws Exception {
+		envs.put( env.ID , env );
+	}
+
 	public MetaProductVersion getVersion() {
 		return( version );
 	}
 	
-	public MetaProductSettings getProduct() {
+	public MetaProductSettings getProductSettings() {
 		return( product );
 	}
 	
@@ -503,7 +507,7 @@ public class ServerProductMeta {
 		return( names.toArray( new String[0] ) );
 	}
 
-	public synchronized MetaEnv getEnvironment( String envId ) throws Exception {
+	public synchronized MetaEnv findEnvironment( String envId ) throws Exception {
 		for( MetaEnv env : envs.values() ) {
 			if( env.ID.equals( envId ) )
 				return( env );

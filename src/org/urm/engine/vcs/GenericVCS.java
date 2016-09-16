@@ -25,7 +25,17 @@ public abstract class GenericVCS {
 		this.meta = action.meta;
 	}
 	
+	public abstract MirrorStorage createInitialMirror( ServerMirrorRepository mirror ) throws Exception;
+	public abstract MirrorStorage createServerMirror( ServerMirrorRepository mirror ) throws Exception;
+	public abstract boolean checkMirrorEmpty( ServerMirrorRepository mirror ) throws Exception;
+	public abstract void dropMirror( ServerMirrorRepository mirror ) throws Exception;
+	public abstract void pushMirror( ServerMirrorRepository mirror ) throws Exception;
+	public abstract void refreshMirror( ServerMirrorRepository mirror ) throws Exception;
+	public abstract MirrorStorage getMirror( ServerMirrorRepository mirror ) throws Exception;
+
 	public abstract String getMainBranch();
+	public abstract boolean ignoreDir( String name );
+	public abstract boolean ignoreFile( String name );
 	
 	public abstract boolean checkout( MetaSourceProject project , LocalFolder PATCHPATH , String BRANCH ) throws Exception;
 	public abstract boolean commit( MetaSourceProject project , LocalFolder PATCHPATH , String MESSAGE ) throws Exception;
@@ -60,12 +70,6 @@ public abstract class GenericVCS {
 	public abstract void addDirToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception;
 	public abstract void deleteDirToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception;
 	
-	public abstract boolean checkTargetEmpty( ServerMirrorRepository mirror ) throws Exception;
-	public abstract MirrorStorage createInitialMirror( ServerMirrorRepository mirror ) throws Exception;
-	public abstract void dropRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception;
-	public abstract void pushRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception;
-	public abstract void refreshRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception;
-
 	public static GenericVCS getVCS( ActionBase action , String vcs , boolean build ) throws Exception {
 		ServerAuthResource res = action.getResource( vcs );
 		res.loadAuthData();

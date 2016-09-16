@@ -71,21 +71,15 @@ public abstract class MirrorStorage {
 		return( shell.getOSPath( action , commitFolder.folderPath ) );
 	}
 	
-	public LocalFolder getCommonRepoFolder() throws Exception {
-		LocalFolder baseFolder = getBaseFolder();
-		LocalFolder repoFolder = baseFolder.getSubFolder( action , mirror.getFolderName() );
-		return( repoFolder );
-	}
-
-	protected LocalFolder getRepoFolder() throws Exception {
+	public LocalFolder getRepoFolder() throws Exception {
 		return( repoFolder );
 	}
 	
-	protected LocalFolder getCommitFolder() throws Exception {
+	public LocalFolder getCommitFolder() throws Exception {
 		return( commitFolder );
 	}
 	
-	protected LocalFolder getBaseFolder() throws Exception {
+	public LocalFolder getBaseFolder() throws Exception {
 		String mirrorPath; 
 		if( action.meta.product == null ) {
 			ServerSettings settings = action.engine.getSettings();

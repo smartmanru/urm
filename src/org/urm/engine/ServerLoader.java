@@ -3,6 +3,7 @@ package org.urm.engine;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.PropertySet;
 import org.urm.engine.action.ActionInit;
@@ -39,6 +40,12 @@ public class ServerLoader {
 		loadRegistry();
 	}
 	
+	public LocalFolder getServerSettingsFolder( ActionBase action ) throws Exception {
+		String path = Common.getPath( engine.execrc.installPath , "etc" );
+		LocalFolder folder = action.getLocalFolder( path );
+		return( folder );
+	}
+
 	private String getServerRegistryFile() throws Exception {
 		String path = Common.getPath( engine.execrc.installPath , "etc" );
 		String propertyFile = Common.getPath( path , "registry.xml" );

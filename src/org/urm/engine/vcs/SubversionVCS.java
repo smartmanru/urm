@@ -26,6 +26,18 @@ public class SubversionVCS extends GenericVCS {
 	@Override public String getMainBranch() {
 		return( "trunk" );
 	}
+
+	@Override
+	public boolean ignoreDir( String name ) {
+		if( name.equals( ".svn" ) )
+			return( true );
+		return( false );
+	}
+	
+	@Override
+	public boolean ignoreFile( String name ) {
+		return( false );
+	}
 	
 	@Override public boolean checkout( MetaSourceProject project , LocalFolder PATCHFOLDER , String BRANCH ) throws Exception {
 		String CO_PATH;
@@ -440,7 +452,7 @@ public class SubversionVCS extends GenericVCS {
 	}
 
 	@Override
-	public boolean checkTargetEmpty( ServerMirrorRepository mirror ) throws Exception {
+	public boolean checkMirrorEmpty( ServerMirrorRepository mirror ) throws Exception {
 		String[] items = listMasterItems( mirror , mirror.RESOURCE_DATA );
 		if( items.length == 0 )
 			return( true );
@@ -456,21 +468,35 @@ public class SubversionVCS extends GenericVCS {
 	}
 
 	@Override
-	public void dropRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception {
+	public MirrorStorage createServerMirror( ServerMirrorRepository mirror ) throws Exception {
+		SubversionMirrorStorage storage = getStorage( mirror , true , null );
+		storage.createServerMirror();
+		
+		return( storage );
+	}
+
+	@Override
+	public void dropMirror( ServerMirrorRepository mirror ) throws Exception {
 		SubversionMirrorStorage storage = getStorage( mirror , false , null );
 		storage.remove();
 	}
 	
 	@Override
-	public void pushRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception {
+	public void pushMirror( ServerMirrorRepository mirror ) throws Exception {
 		SubversionMirrorStorage storage = getStorage( mirror , false , null );
 		storage.commit( "push to origin" );
 	}
 	
 	@Override
-	public void refreshRemoteBranchMirror( ServerMirrorRepository mirror ) throws Exception {
+	public void refreshMirror( ServerMirrorRepository mirror ) throws Exception {
 		SubversionMirrorStorage storage = getStorage( mirror , false , null );
 		storage.update();
+	}
+
+	@Override
+	public MirrorStorage getMirror( ServerMirrorRepository mirror ) throws Exception {
+		SubversionMirrorStorage storage = getStorage( mirror , false , null );
+		return( storage );
 	}
 	
 	// implementation
@@ -520,30 +546,6 @@ public class SubversionVCS extends GenericVCS {
 			}
 		}
 		return( values );
-	}
-	
-	public void addDirToSvn( ServerMirrorRepository mirror , LocalFolder pfMaster , String dirPath ) throws Exception {
-		String cmd = "svn add " + action.getOSPath( dirPath );
-		action.trace( "addDirToSvn: " + cmd );
-		action.shell.custom( action , pfMaster.folderPath , cmd );
-	}
-
-	public void addFileToSvn( ServerMirrorRepository mirror , LocalFolder pfMaster , String filePath ) throws Exception {
-		String cmd = "svn add " + action.getOSPath( filePath );
-		action.trace( "addFileToSvn: " + cmd );
-		action.shell.custom( action , pfMaster.folderPath , cmd );
-	}
-	
-	public void deleteDirFromSvn( ServerMirrorRepository mirror , LocalFolder pfMaster , String dirPath ) throws Exception {
-		String cmd = "svn delete " + action.getOSPath( dirPath );
-		action.trace( "deleteDirFromSvn: " + cmd );
-		action.shell.custom( action , pfMaster.folderPath , cmd );
-	}
-
-	public void deleteFileFromSvn( ServerMirrorRepository mirror , LocalFolder pfMaster , String filePath ) throws Exception {
-		String cmd = "svn delete " + action.getOSPath( filePath );
-		action.trace( "deleteFileFromSvn: " + cmd );
-		action.shell.custom( action , pfMaster.folderPath , cmd );
 	}
 	
 }
