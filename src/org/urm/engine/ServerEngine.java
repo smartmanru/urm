@@ -78,11 +78,14 @@ public class ServerEngine {
 			return;
 		
 		serverAction.info( "stopping server ..." );
+		
 		shellPool.stop( serverAction );
 		jmxController.stop();
 		sessionController.stop();
 		jmxController = null;
 		sessionController = null;
+		loader.clearServerProducts();
+		
 		running = false;
 	}
 
@@ -149,9 +152,6 @@ public class ServerEngine {
 		serverSession = createSession( execrc , false );
 		serverSession.setServerLayout( options );
 		
-		if( !options.action.equals( "configure" ) )
-			loader.loadServerSettings();
-
 		// create server action
 		serverAction = createAction( serverExecutor , options , serverSession , "server" , null );
 		if( serverAction == null )
@@ -169,7 +169,7 @@ public class ServerEngine {
 		CommandExecutor commandExecutor = createExecutor( commandInfo );
 		serverSession = createSession( execrc , false );
 		
-		if( execrc.standaloneMode )
+		if( execrc.isStandalone() )
 			serverSession.setStandaloneLayout( options );
 		else
 			serverSession.setServerLayout( options );
@@ -178,7 +178,7 @@ public class ServerEngine {
 		if( serverAction == null )
 			return( false );
 
-		if( !execrc.standaloneMode )
+		if( !execrc.isStandalone() )
 			serverSession.setServerOfflineProductLayout( serverAction , options , execrc.product );
 		
 		createPool();
@@ -413,6 +413,10 @@ public class ServerEngine {
 
 	public ServerSettings getSettings() {
 		return( loader.getSettings() );
+	}
+
+	public ServerRegistry getRegistry() {
+		return( loader.getRegistry() );
 	}
 
 	public ServerDirectory getDirectory() {

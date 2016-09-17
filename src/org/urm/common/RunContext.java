@@ -15,8 +15,8 @@ public class RunContext implements Serializable {
 		WINDOWS
 	};
 	
-	public boolean mainMode;
-	public boolean standaloneMode;
+	private boolean mainMode;
+	private boolean standaloneMode;
 	
 	public VarOSTYPE osType;
 	public String serverHostPort;
@@ -139,6 +139,10 @@ public class RunContext implements Serializable {
 		return( true );
 	}
 
+	public boolean isStandalone() {
+		return( standaloneMode );		
+	}
+	
 	public boolean isMain() {
 		return( mainMode );		
 	}

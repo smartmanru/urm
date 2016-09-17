@@ -38,6 +38,14 @@ public class ServerLoader {
 	
 	public void init() throws Exception {
 		loadRegistry();
+		if( !engine.execrc.isStandalone() )
+			loadServerSettings();
+	}
+	
+	public void reload() throws Exception {
+		registry = new ServerRegistry( this ); 
+		settings = new ServerSettings( this );
+		init();
 	}
 	
 	public LocalFolder getServerSettingsFolder( ActionBase action ) throws Exception {
@@ -164,6 +172,10 @@ public class ServerLoader {
 		}
 	}
 
+	public void clearServerProducts() throws Exception {
+		productMeta.clear();
+	}
+	
 	public void setProductProps( ActionInit action , PropertySet props ) throws Exception {
 		props.copyOriginalPropertiesToRaw( settings.getDefaultProductProperties() );
 		for( PropertySet set : settings.getBuildModeDefaults() )
@@ -222,6 +234,12 @@ public class ServerLoader {
 	public ServerSettings getSettings() {
 		synchronized( engine ) {
 			return( settings );
+		}
+	}
+
+	public ServerRegistry getRegistry() {
+		synchronized( engine ) {
+			return( registry );
 		}
 	}
 

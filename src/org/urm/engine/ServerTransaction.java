@@ -496,7 +496,7 @@ public class ServerTransaction {
 		return( false );
 	}
 
-	public boolean changeMetadata( ServerProduct product , Meta sourceMetadata ) {
+	public boolean changeMetadata( Meta sourceMetadata ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -505,7 +505,7 @@ public class ServerTransaction {
 				if( metadata != null )
 					return( true );
 				
-				if( sourceMetadata.storage == loader.findMetaStorage( product.NAME ) ) {
+				if( sourceMetadata.storage == loader.findMetaStorage( sourceMetadata.storage.name ) ) {
 					ActionBase za = getAction();
 					metadata = sourceMetadata.storage.copy( za );
 					if( metadata != null )

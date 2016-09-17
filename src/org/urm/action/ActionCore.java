@@ -62,7 +62,7 @@ public class ActionCore {
 	}
 	
 	public boolean isStandalone() {
-		return( engine.execrc.standaloneMode );
+		return( engine.execrc.isStandalone() );
 	}
 	
 	public String getLocalPath( String path ) throws Exception {
