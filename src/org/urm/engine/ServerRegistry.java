@@ -12,16 +12,16 @@ public class ServerRegistry {
 
 	public ServerLoader loader;
 	
+	public ServerMirrors mirrors;
 	public ServerResources resources;
 	public ServerDirectory directory;
-	public ServerMirror mirror;
 	public ServerBuilders builders;
 
 	public ServerRegistry( ServerLoader loader ) {
 		this.loader = loader;
+		mirrors = new ServerMirrors( this ); 
 		resources = new ServerResources( this );
 		directory = new ServerDirectory( this );
-		mirror = new ServerMirror( this ); 
 		builders = new ServerBuilders( this ); 
 	}
 	
@@ -35,7 +35,7 @@ public class ServerRegistry {
 		node = ConfReader.xmlGetFirstChild( root , "directory" );
 		directory.load( node );
 		node = ConfReader.xmlGetFirstChild( root , "mirror" );
-		mirror.load( node );
+		mirrors.load( node );
 		node = ConfReader.xmlGetFirstChild( root , "build" );
 		builders.load( node );
 	}
@@ -50,7 +50,7 @@ public class ServerRegistry {
 		node = Common.xmlCreateElement( doc , root , "directory" );
 		directory.save( doc , node );
 		node = Common.xmlCreateElement( doc , root , "mirror" );
-		mirror.save( doc , node );
+		mirrors.save( doc , node );
 		node = Common.xmlCreateElement( doc , root , "build" );
 		builders.save( doc , node );
 		

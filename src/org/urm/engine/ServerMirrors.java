@@ -9,22 +9,22 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerMirror {
+public class ServerMirrors {
 
 	public ServerRegistry registry;
 	public ServerEngine engine;
 
 	Map<String,ServerMirrorRepository> repoMap;
 
-	public ServerMirror( ServerRegistry registry ) {
+	public ServerMirrors( ServerRegistry registry ) {
 		this.registry = registry;
 		this.engine = registry.loader.engine;
 		
 		repoMap = new HashMap<String,ServerMirrorRepository>();
 	}
 
-	public ServerMirror copy() throws Exception {
-		ServerMirror r = new ServerMirror( registry );
+	public ServerMirrors copy() throws Exception {
+		ServerMirrors r = new ServerMirrors( registry );
 		
 		for( ServerMirrorRepository repo : repoMap.values() ) {
 			ServerMirrorRepository rc = repo.copy( r );

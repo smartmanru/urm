@@ -12,7 +12,7 @@ import org.w3c.dom.Node;
 
 public class ServerMirrorRepository {
 
-	ServerMirror mirror;
+	ServerMirrors mirrors;
 	
 	private boolean loaded;
 	public boolean loadFailed;
@@ -31,8 +31,8 @@ public class ServerMirrorRepository {
 	public static String TYPE_PROJECT = "project";
 	public static String TYPE_PRODUCT = "product";
 
-	public ServerMirrorRepository( ServerMirror mirror ) {
-		this.mirror = mirror;
+	public ServerMirrorRepository( ServerMirrors mirrors ) {
+		this.mirrors = mirrors;
 		
 		loaded = false;
 		loadFailed = false;
@@ -54,7 +54,7 @@ public class ServerMirrorRepository {
 		return( TYPE.equals( TYPE_PRODUCT ) );
 	}
 	
-	public ServerMirrorRepository copy( ServerMirror mirror ) throws Exception {
+	public ServerMirrorRepository copy( ServerMirrors mirror ) throws Exception {
 		ServerMirrorRepository r = new ServerMirrorRepository( mirror );
 		r.properties = properties.copy( null );
 		r.scatterSystemProperties();
@@ -119,7 +119,7 @@ public class ServerMirrorRepository {
 		}
 		
 		createProperties();
-		mirror.registry.loader.saveMirrors( transaction );
+		mirrors.registry.loader.saveMirrors( transaction );
 	}
 	
 	public void createMirrorServer( ServerTransaction transaction , boolean push ) throws Exception {
@@ -127,7 +127,7 @@ public class ServerMirrorRepository {
 		// server: test target, remove mirror work/repo, create mirror work/repo, publish target
 		ActionBase action = transaction.getAction();
 		GenericVCS vcs = GenericVCS.getVCS( action , RESOURCE , false );
-		ServerLoader loader = mirror.engine.getLoader();
+		ServerLoader loader = mirrors.engine.getLoader();
 		LocalFolder serverSettings = loader.getServerSettingsFolder( action );
 		
 		if( push ) {
@@ -150,7 +150,7 @@ public class ServerMirrorRepository {
 		RESOURCE_DATA = "";
 		BRANCH = "";
 		createProperties();
-		mirror.registry.loader.saveMirrors( transaction );
+		mirrors.registry.loader.saveMirrors( transaction );
 	}
 	
 	public void dropServerMirror( ServerTransaction transaction ) throws Exception {
@@ -168,7 +168,7 @@ public class ServerMirrorRepository {
 		vcs.refreshMirror( this );
 		MirrorStorage storage = vcs.getMirror( this );
 		
-		ServerLoader loader = mirror.engine.getLoader();
+		ServerLoader loader = mirrors.engine.getLoader();
 		ActionBase action = transaction.getAction();
 		LocalFolder serverSettings = loader.getServerSettingsFolder( action );
 		
@@ -186,7 +186,7 @@ public class ServerMirrorRepository {
 		vcs.refreshMirror( this );
 		MirrorStorage storage = vcs.getMirror( this );
 
-		ServerLoader loader = mirror.engine.getLoader();
+		ServerLoader loader = mirrors.engine.getLoader();
 		ActionBase action = transaction.getAction();
 		LocalFolder serverSettings = loader.getServerSettingsFolder( action );
 		syncToFolder( action , vcs , storage , serverSettings );

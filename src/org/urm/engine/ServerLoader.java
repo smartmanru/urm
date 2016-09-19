@@ -183,9 +183,9 @@ public class ServerLoader {
 		props.resolveRawProperties();
 	}
 
-	public ServerMirror getMirror() {
+	public ServerMirrors getMirrors() {
 		synchronized( engine ) {
-			return( registry.mirror );
+			return( registry.mirrors );
 		}
 	}
 

@@ -8,8 +8,8 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.engine.ServerMirror;
 import org.urm.engine.ServerMirrorRepository;
+import org.urm.engine.ServerMirrors;
 import org.urm.engine.SessionContext;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandContext;
@@ -559,10 +559,10 @@ abstract public class ActionBase extends ActionCore {
 	}
 
 	public ServerMirrorRepository getMirror( MetaSourceProject project ) throws Exception {
-		ServerMirror mirror = engine.getMirror();
+		ServerMirrors mirrors = engine.getMirrors();
 		
 		String name = "project-" + project.meta.storage.name + "-" + project.PROJECT;
-		ServerMirrorRepository repo = mirror.findRepository( name );
+		ServerMirrorRepository repo = mirrors.findRepository( name );
 		return( repo );
 	}
 

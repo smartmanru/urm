@@ -6,7 +6,7 @@ import org.urm.common.RunContext;
 import org.urm.engine.ServerAuthResource;
 import org.urm.engine.ServerBuilders;
 import org.urm.engine.ServerEngine;
-import org.urm.engine.ServerMirror;
+import org.urm.engine.ServerMirrors;
 import org.urm.engine.ServerMirrorRepository;
 import org.urm.engine.ServerProjectBuilder;
 import org.urm.engine.ServerResources;
@@ -80,8 +80,8 @@ public class ActionCore {
 	}
 
 	public ServerMirrorRepository getMirror( String name ) throws Exception {
-		ServerMirror mirror = engine.getMirror();
-		ServerMirrorRepository repo = mirror.findRepository( name );
+		ServerMirrors mirrors = engine.getMirrors();
+		ServerMirrorRepository repo = mirrors.findRepository( name );
 		return( repo );
 	}
 	

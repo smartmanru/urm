@@ -407,8 +407,8 @@ public class ServerEngine {
 		return( loader.getBuilders() );
 	}
 
-	public ServerMirror getMirror() {
-		return( loader.getMirror() );
+	public ServerMirrors getMirrors() {
+		return( loader.getMirrors() );
 	}
 
 	public ServerSettings getSettings() {
