@@ -180,7 +180,8 @@ public class ServerTransaction {
 	}
 
 	public void handle( Throwable e , String s ) {
-		action.log( s , e );
+		if( action != null )
+			action.log( s , e );
 		if( e.getClass() == RunError.class )
 			error = ( RunError )e;
 		else
