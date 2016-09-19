@@ -277,6 +277,10 @@ public class ServerTransaction {
 		return( settings );
 	}
 	
+	public ServerProductMeta getTransactionMetadata() {
+		return( metadata );
+	}
+	
 	public ServerResources getResources() {
 		if( resources != null )
 			return( resources );
@@ -497,7 +501,7 @@ public class ServerTransaction {
 		return( false );
 	}
 
-	public boolean changeMetadata( Meta sourceMetadata ) {
+	public boolean changeMetadata( ServerProductMeta sourceMetadata ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -506,9 +510,9 @@ public class ServerTransaction {
 				if( metadata != null )
 					return( true );
 				
-				if( sourceMetadata.storage == loader.findMetaStorage( sourceMetadata.storage.name ) ) {
+				if( sourceMetadata == loader.findMetaStorage( sourceMetadata.name ) ) {
 					ActionBase za = getAction();
-					metadata = sourceMetadata.storage.copy( za );
+					metadata = sourceMetadata.copy( za );
 					if( metadata != null )
 						return( true );
 				}
@@ -524,7 +528,7 @@ public class ServerTransaction {
 		}
 	}
 	
-	public boolean deleteMetadata( ServerProduct product , Meta sourceMetadata ) {
+	public boolean deleteMetadata( ServerProduct product , ServerProductMeta sourceMetadata ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -533,9 +537,9 @@ public class ServerTransaction {
 				if( metadata != null )
 					return( true );
 				
-				if( sourceMetadata.storage == loader.findMetaStorage( product.NAME ) ) {
+				if( sourceMetadata == loader.findMetaStorage( product.NAME ) ) {
 					deleteMetadata = true;
-					metadata = sourceMetadata.storage;
+					metadata = sourceMetadata;
 					return( true );
 				}
 			}
