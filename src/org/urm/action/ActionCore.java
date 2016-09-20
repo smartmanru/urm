@@ -80,8 +80,8 @@ public class ActionCore {
 	}
 
 	public ServerMirrorRepository getMirror( String name ) throws Exception {
-		ServerMirrors mirror = engine.getMirror();
-		ServerMirrorRepository repo = mirror.findRepository( name );
+		ServerMirrors mirrors = engine.getMirrors();
+		ServerMirrorRepository repo = mirrors.findRepository( name );
 		return( repo );
 	}
 	
