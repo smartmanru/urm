@@ -7,7 +7,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.w3c.dom.Node;
 
-public class ServerSystem {
+public class ServerSystem extends ServerObject {
 
 	public ServerDirectory directory;
 	public Map<String,ServerProduct> mapProducts;

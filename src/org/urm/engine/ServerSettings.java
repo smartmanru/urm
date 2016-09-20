@@ -12,7 +12,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerSettings {
+public class ServerSettings extends ServerObject {
 
 	public ServerLoader loader;
 	

@@ -3,7 +3,7 @@ package org.urm.engine;
 import org.urm.action.ActionBase;
 import org.urm.common.PropertySet;
 
-public class ServerAuthContext {
+public class ServerAuthContext extends ServerObject {
 
 	ServerAuth auth;
 	PropertySet properties;

@@ -23,7 +23,7 @@ import org.urm.engine.storage.MetadataStorage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-public class ServerProductMeta {
+public class ServerProductMeta extends ServerObject {
 
 	public ServerLoader loader;
 	public String name;

@@ -5,7 +5,7 @@ import java.io.File;
 import org.urm.common.Common;
 import org.urm.common.PropertySet;
 
-public class ServerAuth {
+public class ServerAuth extends ServerObject {
 
 	ServerEngine engine;
 

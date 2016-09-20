@@ -9,7 +9,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerBuilders {
+public class ServerBuilders extends ServerObject {
 
 	public ServerRegistry registry;
 	public ServerEngine engine;

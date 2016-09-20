@@ -8,7 +8,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerRegistry {
+public class ServerRegistry extends ServerObject {
 
 	public ServerLoader loader;
 	

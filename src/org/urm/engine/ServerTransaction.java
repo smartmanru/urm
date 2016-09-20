@@ -319,8 +319,10 @@ public class ServerTransaction {
 				else {
 					if( sourceResources == loader.getResources() ) {
 						resources = sourceResources.copy();
-						if( resources != null )
+						if( resources != null ) {
+							trace( "transaction resources: source=" + sourceResources.objectId + ", copy=" + resources.objectId );
 							return( true );
+						}
 					}
 					else
 						error( "unable to change old resources" );
@@ -345,6 +347,7 @@ public class ServerTransaction {
 		try {
 			resourcesOld = loader.getResources();
 			loader.setResources( this , resources );
+			trace( "transaction resources: save=" + resources.objectId );
 			return( true );
 		}
 		catch( Throwable e ) {
@@ -369,8 +372,10 @@ public class ServerTransaction {
 				else {
 					if( sourceBuilders == loader.getBuilders() ) {
 						builders = sourceBuilders.copy();
-						if( builders != null )
+						if( builders != null ) {
+							trace( "transaction builders: source=" + sourceBuilders.objectId + ", copy=" + builders.objectId );
 							return( true );
+						}
 					}
 					else
 						error( "unable to change old builders" );
@@ -395,6 +400,7 @@ public class ServerTransaction {
 		try {
 			buildersOld = loader.getBuilders();
 			loader.setBuilders( this , builders );
+			trace( "transaction builders: save=" + builders.objectId );
 			return( true );
 		}
 		catch( Throwable e ) {
@@ -419,8 +425,10 @@ public class ServerTransaction {
 				else {
 					if( sourceDirectory == loader.getDirectory() ) {
 						directory = sourceDirectory.copy();
-						if( directory != null )
+						if( directory != null ) {
+							trace( "transaction directory: source=" + sourceDirectory.objectId + ", copy=" + directory.objectId );
 							return( true );
+						}
 					}
 					else
 						error( "unable to change old directory" );
@@ -445,6 +453,7 @@ public class ServerTransaction {
 		try {
 			directoryOld = loader.getDirectory();
 			loader.setDirectory( this , directory );
+			trace( "transaction directory: save=" + directory.objectId );
 			return( true );
 		}
 		catch( Throwable e ) {
@@ -466,6 +475,7 @@ public class ServerTransaction {
 				
 				if( sourceSettings == loader.getSettings() ) {
 					settings = sourceSettings.copy();
+					trace( "transaction server settings: source=" + sourceSettings.objectId + ", copy=" + settings.objectId );
 					if( settings != null )
 						return( true );
 				}
@@ -491,6 +501,7 @@ public class ServerTransaction {
 		try {
 			settingsOld = loader.getSettings();
 			loader.setSettings( this , settings );
+			trace( "transaction server settings: save=" + settings.objectId );
 			return( true );
 		}
 		catch( Throwable e ) {
@@ -513,6 +524,7 @@ public class ServerTransaction {
 				if( sourceMetadata == loader.findMetaStorage( sourceMetadata.name ) ) {
 					ActionBase za = getAction();
 					metadata = sourceMetadata.copy( za );
+					trace( "transaction product meta: source=" + sourceMetadata.objectId + ", copy=" + metadata.objectId );
 					if( metadata != null )
 						return( true );
 				}
@@ -540,6 +552,7 @@ public class ServerTransaction {
 				if( sourceMetadata == loader.findMetaStorage( product.NAME ) ) {
 					deleteMetadata = true;
 					metadata = sourceMetadata;
+					trace( "transaction product meta: going delete=" + sourceMetadata.objectId );
 					return( true );
 				}
 			}
@@ -562,10 +575,14 @@ public class ServerTransaction {
 		try {
 			if( !createMetadata )
 				metadataOld = loader.findMetaStorage( metadata.name );
-			if( deleteMetadata )
+			if( deleteMetadata ) {
 				loader.deleteMetadata( this , metadata );
-			else
+				trace( "transaction product meta: delete=" + metadata.objectId );
+			}
+			else {
 				loader.setMetadata( this , metadata );
+				trace( "transaction product meta: save=" + metadata.objectId );
+			}
 			return( true );
 		}
 		catch( Throwable e ) {

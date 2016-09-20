@@ -4,7 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
 import org.w3c.dom.Node;
 
-public class ServerProduct {
+public class ServerProduct extends ServerObject {
 
 	public ServerDirectory directory;
 	public ServerSystem system;
