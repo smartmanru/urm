@@ -79,14 +79,10 @@ public class ActionCore {
 		return( builder );
 	}
 
-	public ServerMirrorRepository getMirror( String name ) throws Exception {
-		ServerMirrors mirrors = engine.getMirrors();
-		ServerMirrorRepository repo = mirrors.findRepository( name );
-		return( repo );
-	}
-	
 	public ServerMirrorRepository getServerMirror() throws Exception {
-		return( getMirror( "core" ) );
+		ServerMirrors mirrors = engine.getMirrors();
+		ServerMirrorRepository repo = mirrors.findServerRepository();
+		return( repo );
 	}
 	
 	public ServerAuthResource getResource( String name ) throws Exception {

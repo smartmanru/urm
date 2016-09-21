@@ -727,6 +727,9 @@ public class ServerTransaction {
 		createMetadata = true;
 		directory.createProduct( this , product );
 		metadata = loader.createMetadata( this , directory , product );
+		
+		ServerMirrors mirrors = engine.getMirrors();
+		mirrors.addProductMirrors( product );
 	}
 	
 	public void modifyProduct( ServerProduct product , ServerProduct productNew ) throws Exception {

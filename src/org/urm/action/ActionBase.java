@@ -10,6 +10,7 @@ import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.ServerMirrors;
 import org.urm.engine.ServerMirrorRepository;
+import org.urm.engine.ServerProductMeta;
 import org.urm.engine.SessionContext;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandContext;
@@ -558,16 +559,22 @@ abstract public class ActionBase extends ActionCore {
 		return( meta.product.getBuildSettings( this ) );
 	}
 
-	public ServerMirrorRepository getMirror( MetaSourceProject project ) throws Exception {
+	public ServerMirrorRepository getProjectMirror( MetaSourceProject project ) throws Exception {
 		ServerMirrors mirrors = engine.getMirrors();
-		
-		String name = "project-" + project.meta.storage.name + "-" + project.PROJECT;
-		ServerMirrorRepository repo = mirrors.findRepository( name );
+		ServerMirrorRepository repo = mirrors.findProjectRepository( project );
 		return( repo );
 	}
 
-	public ServerMirrorRepository getMirror( MetaProductBuildSettings build ) throws Exception {
-		return( getMirror( build.CONFIG_SOURCE_REPOSITORY ) );
+	public ServerMirrorRepository getMetaMirror( ServerProductMeta meta ) throws Exception {
+		ServerMirrors mirrors = engine.getMirrors();
+		ServerMirrorRepository repo = mirrors.findProductMetaRepository( meta );
+		return( repo );
+	}
+
+	public ServerMirrorRepository getConfigurationMirror( ServerProductMeta meta ) throws Exception {
+		ServerMirrors mirrors = engine.getMirrors();
+		ServerMirrorRepository repo = mirrors.findProductConfigurationRepository( meta );
+		return( repo );
 	}
 
 }

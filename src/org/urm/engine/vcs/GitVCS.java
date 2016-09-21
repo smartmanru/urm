@@ -470,7 +470,7 @@ public class GitVCS extends GenericVCS {
 	
 	// implementation
 	private GitProjectRepo getRepo( MetaSourceProject project , LocalFolder PATCHFOLDER ) throws Exception {
-		ServerMirrorRepository mirror = action.getMirror( project );
+		ServerMirrorRepository mirror = action.getProjectMirror( project );
 		GitProjectRepo repo = new GitProjectRepo( this , mirror , project , PATCHFOLDER );
 		repo.useProjectMirror( true );
 		return( repo );

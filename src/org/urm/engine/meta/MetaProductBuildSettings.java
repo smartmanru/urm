@@ -38,9 +38,7 @@ public class MetaProductBuildSettings extends PropertyController {
 
 	public String CONFIG_COMMIT_TRACKERLIST;
 	public String CONFIG_BRANCHNAME;
-	public String CONFIG_SOURCE_RESOURCE;
 	public String CONFIG_SOURCE_CHARSET;
-	public String CONFIG_SOURCE_REPOSITORY;
 	public String CONFIG_SOURCE_RELEASEROOTDIR;
 	public String CONFIG_RELEASE_GROUPFOLDER;
 	public String CONFIG_SOURCE_CFG_ROOTDIR;
@@ -71,7 +69,6 @@ public class MetaProductBuildSettings extends PropertyController {
 
 	// build source code
 	public static String PROPERTY_BRANCHNAME = "source.branch";
-	public static String PROPERTY_SOURCE_RESOURCE = "release.resource";
 	public static String PROPERTY_SOURCE_CHARSET = "release.charset";
 	public static String PROPERTY_SOURCE_REPOSITORY = "release.repo";
 	public static String PROPERTY_SOURCE_RELEASEROOTDIR = "release.root";
@@ -146,9 +143,7 @@ public class MetaProductBuildSettings extends PropertyController {
 		CONFIG_ARTEFACTDIR = super.getStringProperty( action , PROPERTY_ARTEFACTDIR );
 
 		CONFIG_BRANCHNAME = super.getStringProperty( action , PROPERTY_BRANCHNAME );
-		CONFIG_SOURCE_RESOURCE = super.getStringProperty( action , PROPERTY_SOURCE_RESOURCE );
 		CONFIG_SOURCE_CHARSET = super.getStringProperty( action , PROPERTY_SOURCE_CHARSET );
-		CONFIG_SOURCE_REPOSITORY = super.getStringProperty( action , PROPERTY_SOURCE_REPOSITORY );
 		CONFIG_SOURCE_RELEASEROOTDIR = super.getStringProperty( action , PROPERTY_SOURCE_RELEASEROOTDIR );
 		CONFIG_RELEASE_GROUPFOLDER = super.getStringProperty( action , PROPERTY_RELEASE_GROUPFOLDER );
 		CONFIG_SOURCE_CFG_ROOTDIR = super.getStringProperty( action , PROPERTY_SOURCE_CFG_ROOTDIR );

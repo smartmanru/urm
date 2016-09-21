@@ -43,7 +43,8 @@ public class MetaProductSettings extends PropertyController {
 	public String CONFIG_WINBUILD_HOSTLOGIN;
 	public String CONFIG_ADM_TRACKER;
 	public String CONFIG_COMMIT_TRACKERLIST;
-	public String CONFIG_URM_VCS_RESOURCE;
+	public String CONFIG_META_MIRROR;
+	public String CONFIG_SOURCE_MIRROR;
 	
 	public String CONFIG_CUSTOM_BUILD;
 	public String CONFIG_CUSTOM_DEPLOY;
@@ -72,7 +73,8 @@ public class MetaProductSettings extends PropertyController {
 	public static String PROPERTY_WINBUILD_HOSTLOGIN = "winbuild.hostlogin";
 	public static String PROPERTY_ADM_TRACKER = "adm.tracker";
 	public static String PROPERTY_COMMIT_TRACKERLIST = "source.trackers";
-	public static String PROPERTY_URM_VCS_RESOURCE = "urm.vcs.resource";
+	public static String PROPERTY_META_MIRROR = "meta.mirror";
+	public static String PROPERTY_SOURCE_MIRROR = "conf.mirror";
 
 	public static String PROPERTY_CUSTOM_BUILD = "custom.build";
 	public static String PROPERTY_CUSTOM_DEPLOY = "custom.deploy";
@@ -133,7 +135,8 @@ public class MetaProductSettings extends PropertyController {
 		CONFIG_WINBUILD_HOSTLOGIN = super.getPathPropertyRequired( action , PROPERTY_WINBUILD_HOSTLOGIN );
 		CONFIG_ADM_TRACKER = super.getStringProperty( action , PROPERTY_ADM_TRACKER );
 		CONFIG_COMMIT_TRACKERLIST = super.getStringProperty( action , PROPERTY_COMMIT_TRACKERLIST );
-		CONFIG_URM_VCS_RESOURCE = super.getStringProperty( action , PROPERTY_URM_VCS_RESOURCE );
+		CONFIG_META_MIRROR = super.getStringProperty( action , PROPERTY_META_MIRROR );
+		CONFIG_SOURCE_MIRROR = super.getStringProperty( action , PROPERTY_SOURCE_MIRROR );
 		
 		CONFIG_CUSTOM_BUILD = super.getStringProperty( action , PROPERTY_CUSTOM_BUILD );
 		CONFIG_CUSTOM_DEPLOY = super.getStringProperty( action , PROPERTY_CUSTOM_DEPLOY );
