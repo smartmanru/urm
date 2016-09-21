@@ -712,24 +712,24 @@ public class ServerTransaction {
 
 	public void deleteSystem( ServerSystem system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		checkTransactionDirectory();
+		
+		ServerMirrors mirrors = engine.getMirrors();
 		for( String productName : system.getProducts() ) {
 			ServerProduct product = system.getProduct( productName );
-			ActionBase za = getAction();
-			za.artefactory.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
+			mirrors.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		}
 		directory.deleteSystem( this , system );
 	}
 	
-	public void createProduct( ServerProduct product ) throws Exception {
+	public void createProduct( ServerProduct product , boolean forceClear ) throws Exception {
 		checkTransactionDirectory();
-		ActionBase za = getAction();
-		za.artefactory.createProductResources( this , product );
+		
+		ServerMirrors mirrors = engine.getMirrors();
+		mirrors.addProductMirrors( this , product , forceClear );
+		
 		createMetadata = true;
 		directory.createProduct( this , product );
 		metadata = loader.createMetadata( this , directory , product );
-		
-		ServerMirrors mirrors = engine.getMirrors();
-		mirrors.addProductMirrors( product );
 	}
 	
 	public void modifyProduct( ServerProduct product , ServerProduct productNew ) throws Exception {
@@ -740,8 +740,8 @@ public class ServerTransaction {
 	public void deleteProduct( ServerProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		checkTransactionDirectory();
 		checkTransactionMetadata();
-		ActionBase za = getAction();
-		za.artefactory.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
+		ServerMirrors mirrors = engine.getMirrors();
+		mirrors.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		directory.deleteProduct( this , product );
 		metadata = null;
 	}

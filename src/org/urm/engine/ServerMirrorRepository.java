@@ -2,6 +2,7 @@ package org.urm.engine;
 
 import org.urm.action.ActionBase;
 import org.urm.common.PropertySet;
+import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.vcs.GenericVCS;
@@ -21,6 +22,8 @@ public class ServerMirrorRepository extends ServerObject {
 	
 	public String NAME;
 	public String TYPE;
+	public String PRODUCT;
+	public String PROJECT;
 	public String RESOURCE;
 	public String RESOURCE_REPO;
 	public String RESOURCE_ROOT;
@@ -29,7 +32,8 @@ public class ServerMirrorRepository extends ServerObject {
 	
 	public static String TYPE_SERVER = "server";
 	public static String TYPE_PROJECT = "project";
-	public static String TYPE_PRODUCT = "product";
+	public static String TYPE_PRODUCT_META = "product.meta";
+	public static String TYPE_PRODUCT_CONF = "product.conf";
 
 	public ServerMirrorRepository( ServerMirrors mirrors ) {
 		this.mirrors = mirrors;
@@ -51,7 +55,7 @@ public class ServerMirrorRepository extends ServerObject {
 	}
 	
 	public boolean isProduct() {
-		return( TYPE.equals( TYPE_PRODUCT ) );
+		return( TYPE.equals( TYPE_PRODUCT_CONF ) || TYPE.equals( TYPE_PRODUCT_META )  );
 	}
 	
 	public ServerMirrorRepository copy( ServerMirrors mirror ) throws Exception {
@@ -76,10 +80,16 @@ public class ServerMirrorRepository extends ServerObject {
 	public void save( Document doc , Element root ) throws Exception {
 		properties.saveAsElements( doc , root );
 	}
+
+	private void save( ServerTransaction transaction ) throws Exception {
+		mirrors.registry.loader.saveMirrors( transaction );
+	}
 	
 	private void scatterSystemProperties() throws Exception {
 		NAME = properties.getSystemRequiredStringProperty( "name" );
 		TYPE = properties.getSystemRequiredStringProperty( "type" );
+		PRODUCT = properties.getSystemStringProperty( "product" , "" );
+		PROJECT = properties.getSystemStringProperty( "project" , "" );
 		RESOURCE = properties.getSystemStringProperty( "resource" , "" );
 		RESOURCE_REPO = properties.getSystemStringProperty( "repository" , "" );
 		RESOURCE_ROOT = properties.getSystemStringProperty( "rootpath" , "" );
@@ -91,6 +101,8 @@ public class ServerMirrorRepository extends ServerObject {
 		properties = new PropertySet( "mirror" , null );
 		properties.setStringProperty( "name" , NAME );
 		properties.setStringProperty( "type" , TYPE );
+		properties.setStringProperty( "product" , PRODUCT );
+		properties.setStringProperty( "project" , PROJECT );
 		properties.setStringProperty( "resource" , RESOURCE );
 		properties.setStringProperty( "repository" , RESOURCE_REPO );
 		properties.setStringProperty( "rootpath" , RESOURCE_ROOT );
@@ -119,7 +131,7 @@ public class ServerMirrorRepository extends ServerObject {
 		}
 		
 		createProperties();
-		mirrors.registry.loader.saveMirrors( transaction );
+		save( transaction );
 	}
 	
 	public void createMirrorServer( ServerTransaction transaction , boolean push ) throws Exception {
@@ -139,6 +151,47 @@ public class ServerMirrorRepository extends ServerObject {
 			syncToFolder( action , vcs , storage , serverSettings );
 		}
 	}
+
+	public void createProductMeta( ServerTransaction transaction , ServerProduct product , String name ) throws Exception {
+		NAME = name;
+		TYPE = TYPE_PRODUCT_META;
+		PRODUCT = product.NAME;
+		PROJECT = "";
+		RESOURCE = "";
+		RESOURCE_REPO = "";
+		RESOURCE_ROOT = "";
+		RESOURCE_DATA = "";
+		BRANCH = "";
+		createProperties();
+	}
+	
+	public void createProductConf( ServerTransaction transaction , ServerProduct product , String name ) throws Exception {
+		NAME = name;
+		TYPE = TYPE_PRODUCT_CONF;
+		PRODUCT = product.NAME;
+		PROJECT = "";
+		RESOURCE = "";
+		RESOURCE_REPO = "";
+		RESOURCE_ROOT = "";
+		RESOURCE_DATA = "";
+		BRANCH = "";
+		createProperties();
+		save( transaction );
+	}
+	
+	public void createProjectSource( ServerTransaction transaction , MetaSourceProject project , String name ) throws Exception {
+		NAME = name;
+		TYPE = TYPE_PRODUCT_CONF;
+		PRODUCT = project.meta.storage.name;
+		PROJECT = project.PROJECT;
+		RESOURCE = "";
+		RESOURCE_REPO = "";
+		RESOURCE_ROOT = "";
+		RESOURCE_DATA = "";
+		BRANCH = "";
+		createProperties();
+		save( transaction );
+	}
 	
 	public void dropMirror( ServerTransaction transaction ) throws Exception {
 		if( isServer() )
@@ -150,7 +203,7 @@ public class ServerMirrorRepository extends ServerObject {
 		RESOURCE_DATA = "";
 		BRANCH = "";
 		createProperties();
-		mirrors.registry.loader.saveMirrors( transaction );
+		save( transaction );
 	}
 	
 	public void dropServerMirror( ServerTransaction transaction ) throws Exception {

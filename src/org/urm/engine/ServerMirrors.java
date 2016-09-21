@@ -3,9 +3,12 @@ package org.urm.engine;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.meta.MetaSourceProject;
+import org.urm.engine.storage.LocalFolder;
+import org.urm.engine.storage.UrmStorage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -29,9 +32,13 @@ public class ServerMirrors extends ServerObject {
 		
 		for( ServerMirrorRepository repo : repoMap.values() ) {
 			ServerMirrorRepository rc = repo.copy( r );
-			r.repoMap.put( rc.NAME , rc );
+			r.addRepository( rc );
 		}
 		return( r );
+	}
+	
+	public void addRepository( ServerMirrorRepository repo ) {
+		repoMap.put( repo.NAME , repo );
 	}
 	
 	public Map<String,ServerMirrorRepository> getRepositories() {
@@ -56,12 +63,12 @@ public class ServerMirrors extends ServerObject {
 	}
 	
 	public ServerMirrorRepository findProductMetaRepository( ServerProductMeta meta ) {
-		String name = "product-" + meta.name + "-conf";
+		String name = "product-" + meta.name + "-meta";
 		return( findRepository( name ) );
 	}
 	
 	public ServerMirrorRepository findProductConfigurationRepository( ServerProductMeta meta ) {
-		String name = "product-" + meta.name + "-meta";
+		String name = "product-" + meta.name + "-conf";
 		return( findRepository( name ) );
 	}
 	
@@ -77,7 +84,7 @@ public class ServerMirrors extends ServerObject {
 			ServerMirrorRepository repo = new ServerMirrorRepository( this );
 			repo.load( node );
 
-			repoMap.put( repo.NAME , repo );
+			addRepository( repo );
 		}
 	}
 
@@ -88,8 +95,47 @@ public class ServerMirrors extends ServerObject {
 		}
 	}
 
-	public void addProductMirrors( ServerProduct mirror ) throws Exception {
+	public void addProductMirrors( ServerTransaction transaction , ServerProduct product , boolean forceClear ) throws Exception {
+		ActionBase action = transaction.getAction();
+		UrmStorage storage = action.artefactory.getUrmStorage();
+		LocalFolder products = storage.getServerProductsFolder( action );
+		LocalFolder productfolder = products.getSubFolder( action , product.PATH );
+		if( productfolder.checkExists( action ) )  {
+			if( !forceClear ) {
+				String path = action.getLocalPath( productfolder.folderPath );
+				action.exit1( _Error.ProductPathAlreadyExists1 , "Product path already exists - " + path , path );
+			}
+			productfolder.removeThis( action );
+		}
+			
+		productfolder.ensureExists( action );
 		
+		// meta
+		ServerMirrorRepository meta = new ServerMirrorRepository( this );
+		String name = "product-" + product.NAME + "-meta";
+ 		meta.createProductMeta( transaction , product , name );
+ 		addRepository( meta );
+ 		
+ 		// conf
+		ServerMirrorRepository conf = new ServerMirrorRepository( this );
+		name = "product-" + product.NAME + "-conf";
+		conf.createProductConf( transaction , product , name );
+ 		addRepository( conf );
+	}
+
+	public void addProjectMirror( ServerTransaction transaction , MetaSourceProject project ) throws Exception {
+		ServerMirrorRepository repo = new ServerMirrorRepository( this );
+		String name = "project-" + project.meta.storage.name + "-" + project.PROJECT;
+		repo.createProjectSource( transaction , project , name );
+ 		addRepository( repo );
+	}
+	
+	public void deleteProductResources( ServerTransaction transaction , ServerProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
+		ActionBase action = transaction.getAction();
+		UrmStorage storage = action.artefactory.getUrmStorage();
+		LocalFolder products = storage.getServerProductsFolder( action );
+		LocalFolder productfolder = products.getSubFolder( action , product.PATH );
+		productfolder.removeThis( action );
 	}
 	
 }

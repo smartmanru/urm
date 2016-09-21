@@ -2,8 +2,6 @@ package org.urm.engine.storage;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.ServerProduct;
-import org.urm.engine.ServerTransaction;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.meta.Meta;
@@ -217,20 +215,4 @@ public class Artefactory {
 		return( new VersionInfoStorage( redist ) );
 	}
 
-	public void createProductResources( ServerTransaction transaction , ServerProduct product ) throws Exception {
-		UrmStorage storage = getUrmStorage();
-		ActionBase action = transaction.getAction();
-		LocalFolder products = storage.getServerProductsFolder( action );
-		LocalFolder productfolder = products.getSubFolder( action , product.PATH );
-		productfolder.ensureExists( action );
-	}
-	
-	public void deleteProductResources( ServerTransaction transaction , ServerProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
-		UrmStorage storage = getUrmStorage();
-		ActionBase action = transaction.getAction();
-		LocalFolder products = storage.getServerProductsFolder( action );
-		LocalFolder productfolder = products.getSubFolder( action , product.PATH );
-		productfolder.removeThis( action );
-	}
-	
 }
