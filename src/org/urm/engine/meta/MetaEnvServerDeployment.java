@@ -28,10 +28,10 @@ public class MetaEnvServerDeployment {
 	public void load( ActionBase action , Node node ) throws Exception {
 		MetaDistr distr = meta.distr;
 		
-		DEPLOYTYPE = meta.getDeployType( ConfReader.getAttrValue( node , "deploytype" , "cold" ) );
+		DEPLOYTYPE = Meta.getDeployType( ConfReader.getAttrValue( node , "deploytype" , "cold" ) );
 		DEPLOYPATH = ConfReader.getAttrValue( node , "deploypath" );
 		NODETYPE = ConfReader.getAttrValue( node , "nodetype" , "unknown" );
-		nodeType = meta.getNodeType( NODETYPE , VarNODETYPE.SELF );
+		nodeType = Meta.getNodeType( NODETYPE , VarNODETYPE.SELF );
 		
 		String COMP = ConfReader.getAttrValue( node , "component" );
 		if( !COMP.isEmpty() ) {

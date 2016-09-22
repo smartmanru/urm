@@ -138,7 +138,7 @@ public class ServerMirrorRepository extends ServerObject {
 		// reject already published
 		// server: test target, remove mirror work/repo, create mirror work/repo, publish target
 		ActionBase action = transaction.getAction();
-		GenericVCS vcs = GenericVCS.getVCS( action , RESOURCE , false );
+		GenericVCS vcs = GenericVCS.getVCS( action , null , RESOURCE , false );
 		ServerLoader loader = mirrors.engine.getLoader();
 		LocalFolder serverSettings = loader.getServerSettingsFolder( action );
 		
@@ -207,7 +207,7 @@ public class ServerMirrorRepository extends ServerObject {
 	}
 	
 	public void dropServerMirror( ServerTransaction transaction ) throws Exception {
-		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , RESOURCE , false );
+		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , false );
 		vcs.dropMirror( this );
 	}
 
@@ -217,7 +217,7 @@ public class ServerMirrorRepository extends ServerObject {
 	}
 
 	public void pushServerMirror( ServerTransaction transaction ) throws Exception {
-		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , RESOURCE , false );
+		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , false );
 		vcs.refreshMirror( this );
 		MirrorStorage storage = vcs.getMirror( this );
 		
@@ -235,7 +235,7 @@ public class ServerMirrorRepository extends ServerObject {
 	}
 
 	public void refreshServerMirror( ServerTransaction transaction ) throws Exception {
-		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , RESOURCE , false );
+		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , false );
 		vcs.refreshMirror( this );
 		MirrorStorage storage = vcs.getMirror( this );
 

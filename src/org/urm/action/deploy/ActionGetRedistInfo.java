@@ -75,7 +75,7 @@ public class ActionGetRedistInfo extends ActionBase {
 				}
 				
 				info( "\t\tlocation: " + LOCATION + " (" + rf.folderPath + ")" );
-				RedistStateInfo stateInfo = new RedistStateInfo();
+				RedistStateInfo stateInfo = new RedistStateInfo( redist.meta );
 				stateInfo.gather( this , redist.node , CONTENTTYPE , rf.folderPath );
 				
 				for( String key : stateInfo.getKeys( this ) ) {

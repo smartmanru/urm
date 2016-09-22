@@ -11,6 +11,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.CommandOutput;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.RedistStorage;
 
@@ -1209,7 +1210,7 @@ public abstract class ShellExecutor extends Shell {
 	public synchronized void prepareDirForLinux( ActionBase action , String dirPath ) throws Exception {
 		try {
 			opstart();
-			String[] exts = action.meta.getConfigurableExtensions( action );
+			String[] exts = Meta.getConfigurableExtensions( action );
 			
 			// create find mask
 			String mask = "";

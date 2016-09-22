@@ -108,10 +108,9 @@ public class CommandContext {
 	public String CTX_HOST = "";
 	public int CTX_PORT = -1;
 
-	public CommandContext( ServerEngine engine , SessionContext session , Meta meta , CommandOptions options , String stream , ServerCall call ) {
+	public CommandContext( ServerEngine engine , SessionContext session , CommandOptions options , String stream , ServerCall call ) {
 		this.engine = engine;
 		this.session = session;
-		this.meta = meta;
 		
 		this.options = options;
 		this.stream = stream;
@@ -123,6 +122,10 @@ public class CommandContext {
 		setLogLevel();
 	}
 
+	public void setMeta( Meta meta ) {
+		this.meta = meta;
+	}
+	
 	private void setLogStream() {
 		streamLog = ( call != null )? "[" + stream + "," + call.sessionContext.sessionId + "]" : "[" + stream + "]";
 	}
@@ -314,7 +317,7 @@ public class CommandContext {
 		CTX_BUILDINFO = getParamValue( "OPT_BUILDINFO" );
 		CTX_HOSTUSER = getParamValue( "OPT_HOSTUSER" );
 		CTX_NEWKEY = getParamValue( "OPT_NEWKEY" );
-		CTX_BUILDMODE = meta.getBuildMode( getParamValue( "OPT_BUILDMODE" ) );
+		CTX_BUILDMODE = Meta.getBuildMode( getParamValue( "OPT_BUILDMODE" ) );
 		CTX_OLDRELEASE = getParamValue( "OPT_COMPATIBILITY" );
 		CTX_PORT = getIntParamValue( "OPT_PORT" , -1 );
 		CTX_HOST = getParamValue( "OPT_HOST" );
@@ -331,7 +334,7 @@ public class CommandContext {
 	}
 	
 	public void loadEnv( ActionBase action , String ENV , String DC , boolean loadProps ) throws Exception {
-		env = action.meta.loadEnvData( action , ENV , loadProps );
+		env = meta.loadEnvData( action , ENV , loadProps );
 		
 		if( DC == null || DC.isEmpty() ) {
 			dc = null;

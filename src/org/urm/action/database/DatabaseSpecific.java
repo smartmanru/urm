@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.meta.MetaEnvServerNode;
 import org.urm.engine.meta.MetaProductBuildSettings;
@@ -20,6 +21,7 @@ import org.urm.engine.storage.UrmStorage;
 
 public class DatabaseSpecific {
 
+	Meta meta;
 	VarDBMSTYPE dbmsType;
 	MetaEnvServer server;
 	MetaEnvServerNode node;
@@ -29,17 +31,20 @@ public class DatabaseSpecific {
 	boolean applysystemscriptCopied = false;
 	LocalFolder work;
 	
-	protected DatabaseSpecific() {
+	protected DatabaseSpecific( Meta meta ) {
+		this.meta = meta;
 	}
 	
-	public DatabaseSpecific( VarDBMSTYPE dbmsType ) {
+	public DatabaseSpecific( Meta meta , VarDBMSTYPE dbmsType ) {
+		this.meta = meta;
 		this.dbmsType = dbmsType; 
 	}
 
 	public DatabaseSpecific( MetaEnvServer server , MetaEnvServerNode node ) {
 		this.server = server;
 		this.node = node;
-		this.dbmsType = server.dbType; 
+		this.dbmsType = server.dbType;
+		this.meta = server.meta;
 	}
 
 	public String getAdmUser( ActionBase action ) throws Exception {
@@ -122,7 +127,7 @@ public class DatabaseSpecific {
 			return( false );
 		}
 		
-		MetaProductBuildSettings build = action.getBuildSettings();
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		List<String> data = action.readFileLines( fileLog , build.charset );
 		String[] lines = data.toArray( new String[0] );
 		String[] errors = Common.grep( lines , "^ERROR" );
@@ -150,7 +155,7 @@ public class DatabaseSpecific {
 		if( status != 0 )
 			action.exit1( _Error.ScriptApplyError1 , "error: (see logs)" , file );
 
-		MetaProductBuildSettings build = action.getBuildSettings();
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		List<String> data = action.readFileLines( fileLog , build.charset );
 		String[] lines = data.toArray( new String[0] );
 		for( int k = 0; k < lines.length; k++ )
@@ -414,7 +419,7 @@ public class DatabaseSpecific {
 		List<String> lines = new LinkedList<String>();
 		String name = null;
 		String DBHOST = ( action.isLocalAccount() )? "localhost" : server.DBMSADDR;
-		MetaProductBuildSettings build = action.getBuildSettings();
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		if( action.isLocalLinux() ) {
 			lines.add( "export URMDB_USER=" + user );
 			lines.add( "export URMDB_PWD=" + password );

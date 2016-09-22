@@ -21,11 +21,11 @@ public class ActionGetDB extends ActionBase {
 		LocalFolder workFolder = artefactory.getWorkFolder( this , "download" );
 		workFolder.recreateThis( this );
 		
-		SourceStorage sourceStorage = artefactory.getSourceStorage( this , workFolder );
+		SourceStorage sourceStorage = artefactory.getSourceStorage( this , item.meta , workFolder );
 		if( !sourceStorage.downloadReleaseDatabaseFiles( this , dist , item.dbDelivery , workFolder ) )
 			return( false );
 
-		LocalFolder downloadFolder = artefactory.getDownloadFolder( this );
+		LocalFolder downloadFolder = artefactory.getDownloadFolder( this , item.meta );
 		LocalFolder dbPreparedFolder = downloadFolder.getSubFolder( this , dist.getDeliveryDatabaseFolder( this , item.dbDelivery , dist.release.RELEASEVER ) );
 		dbPreparedFolder.recreateThis( this );
 

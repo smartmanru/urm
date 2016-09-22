@@ -23,7 +23,6 @@ import org.urm.engine.executor.MainExecutor;
 import org.urm.engine.executor.MonitorCommandExecutor;
 import org.urm.engine.executor.ReleaseCommandExecutor;
 import org.urm.engine.executor.XDocCommandExecutor;
-import org.urm.engine.meta.Meta;
 import org.urm.engine.shell.ShellCoreJNI;
 import org.urm.engine.shell.ShellPool;
 import org.urm.engine.storage.Artefactory;
@@ -178,13 +177,13 @@ public class ServerEngine {
 		if( serverAction == null )
 			return( false );
 
+		createPool();
 		if( !execrc.isStandalone() )
 			serverSession.setServerOfflineProductLayout( serverAction , options , execrc.product );
 		
-		createPool();
 		startAction( serverAction );
-		serverAction.meta.loadVersion( serverAction );
-		serverAction.meta.loadProduct( serverAction );
+		serverAction.context.meta.loadVersion( serverAction );
+		serverAction.context.meta.loadProduct( serverAction );
 		
 		return( runServerAction() );
 	}
@@ -237,8 +236,7 @@ public class ServerEngine {
 			return( null );
 		
 		// create context
-		Meta meta = loader.createMetadata( session );
-		CommandContext context = new CommandContext( this , session , meta , options , stream , call );
+		CommandContext context = new CommandContext( this , session , options , stream , call );
 		if( !context.setRunContext() )
 			return( null );
 
@@ -339,7 +337,7 @@ public class ServerEngine {
 		}
 		
 		LocalFolder folder = new LocalFolder( dirname , execrc.isWindows() );
-		Artefactory artefactory = new Artefactory( context.meta , folder );
+		Artefactory artefactory = new Artefactory( folder );
 		return( artefactory );
 	}
 

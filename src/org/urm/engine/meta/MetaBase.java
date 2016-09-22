@@ -31,7 +31,6 @@ public class MetaBase {
 		SINGLEFILE
 	};
 	
-	protected Meta meta;
 	public BaseRepository repo;
 	public boolean primary;
 	
@@ -52,8 +51,7 @@ public class MetaBase {
 	public List<String> dependencies;
 	public Map<String,String> compatibilityMap;
 	
-	public MetaBase( Meta meta , BaseRepository repo , boolean primary ) {
-		this.meta = meta;
+	public MetaBase( BaseRepository repo , boolean primary ) {
 		this.repo = repo;
 		this.primary = primary;
 	}
@@ -149,11 +147,11 @@ public class MetaBase {
 		// unified properties
 		ID = props.getSystemRequiredStringProperty( "id" );
 		String TYPE = props.getSystemRequiredStringProperty( "type" );
-		type = meta.getBaseSrcType( action , TYPE );
+		type = Meta.getBaseSrcType( action , TYPE );
 		adm = props.getSystemBooleanProperty( "adminstall" , false );
 		
 		String OSTYPE = props.getSystemStringProperty( "ostype" , null );
-		osType = meta.getOSType( OSTYPE );
+		osType = Meta.getOSType( OSTYPE );
 
 		String CHARSET = props.getSystemStringProperty( "charset" , "" );
 		if( !CHARSET.isEmpty() ) {
@@ -169,7 +167,7 @@ public class MetaBase {
 			SERVERTYPE = props.getSystemStringProperty( "servertype" , null );
 		
 		if( SERVERTYPE != null )
-			serverType = meta.getServerType( SERVERTYPE );
+			serverType = Meta.getServerType( SERVERTYPE );
 		
 		// type properties
 		if( isLinuxArchiveLink() )
@@ -190,7 +188,7 @@ public class MetaBase {
 	}
 
 	private void scatterLinuxArchiveLink( ActionBase action , PropertySet props ) throws Exception {
-		srcFormat = meta.getBaseSrcFormat( action , props.getSystemRequiredStringProperty( "srcformat" ) );
+		srcFormat = Meta.getBaseSrcFormat( action , props.getSystemRequiredStringProperty( "srcformat" ) );
 		SRCFILE = props.getSystemRequiredPathProperty( "srcfile" , action.session.execrc );
 		SRCSTOREDIR = props.getSystemRequiredPathProperty( "srcstoreddir" , action.session.execrc );
 		INSTALLPATH = props.getSystemRequiredPathProperty( "installpath" , action.session.execrc );
@@ -198,7 +196,7 @@ public class MetaBase {
 	}
 	
 	private void scatterLinuxArchiveDirect( ActionBase action , PropertySet props ) throws Exception {
-		srcFormat = meta.getBaseSrcFormat( action , props.getSystemRequiredStringProperty( "srcformat" ) );
+		srcFormat = Meta.getBaseSrcFormat( action , props.getSystemRequiredStringProperty( "srcformat" ) );
 		SRCFILE = props.getSystemRequiredPathProperty( "srcfile" , action.session.execrc );
 		SRCSTOREDIR = props.getSystemRequiredPathProperty( "srcstoreddir" , action.session.execrc );
 		INSTALLPATH = props.getSystemRequiredPathProperty( "installpath" , action.session.execrc );
@@ -208,7 +206,7 @@ public class MetaBase {
 	}
 
 	private void scatterInstaller( ActionBase action , PropertySet props ) throws Exception {
-		srcFormat = meta.getBaseSrcFormat( action , props.getSystemRequiredStringProperty( "srcformat" ) );
+		srcFormat = Meta.getBaseSrcFormat( action , props.getSystemRequiredStringProperty( "srcformat" ) );
 		SRCFILE = props.getSystemRequiredPathProperty( "srcfile" , action.session.execrc );
 	}
 

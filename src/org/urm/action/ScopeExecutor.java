@@ -8,6 +8,7 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.CommandContext;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaEnvDC;
 import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.meta.MetaSourceProject;
@@ -603,8 +604,8 @@ public class ScopeExecutor {
 
 	private List<ActionScopeSet> getOrderedSets( ActionScope scope ) throws Exception {
 		List<ActionScopeSet> list = new LinkedList<ActionScopeSet>();
-		if( action.meta.sources != null ) {
-			for( MetaSourceProjectSet sourceSet : action.meta.sources.getSetList( action ) ) {
+		if( scope.meta.sources != null ) {
+			for( MetaSourceProjectSet sourceSet : scope.meta.sources.getSetList( action ) ) {
 				ActionScopeSet set = scope.findSet( action , sourceSet.CATEGORY , sourceSet.NAME );
 				if( set != null )
 					list.add( set );
@@ -629,7 +630,7 @@ public class ScopeExecutor {
 		List<ActionScopeTarget> list = new LinkedList<ActionScopeTarget>();
 		Map<String,ActionScopeTarget> map = new HashMap<String,ActionScopeTarget>();
 		
-		if( action.meta.isSourceCategory( set.CATEGORY ) ) {
+		if( Meta.isSourceCategory( set.CATEGORY ) ) {
 			for( ActionScopeTarget target : targets )
 				map.put( target.sourceProject.PROJECT , target );
 			

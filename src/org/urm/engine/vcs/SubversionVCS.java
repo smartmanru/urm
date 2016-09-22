@@ -7,6 +7,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.ServerAuthResource;
 import org.urm.engine.ServerMirrorRepository;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.Folder;
@@ -17,8 +18,8 @@ public class SubversionVCS extends GenericVCS {
 	String SVNPATH;
 	String SVNAUTH;
 	
-	public SubversionVCS( ActionBase action , ServerAuthResource res , ShellExecutor shell ) {
-		super( action , res , shell );
+	public SubversionVCS( ActionBase action , Meta meta , ServerAuthResource res , ShellExecutor shell ) {
+		super( action , meta , res , shell );
 		this.SVNPATH = res.BASEURL;
 		this.SVNAUTH = res.ac.getSvnAuth( action );
 	}

@@ -11,6 +11,7 @@ import org.urm.action.database.ActionGetDB;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.Meta.VarCATEGORY;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.LogStorage;
@@ -42,7 +43,7 @@ public class BuildCommand {
 		boolean copyDist = action.context.CTX_DIST;
 		
 		// required for serviceCall and storageService processing, even without -dist option
-		LocalFolder downloadFolder = action.artefactory.getDownloadFolder( action );
+		LocalFolder downloadFolder = action.artefactory.getDownloadFolder( action , scope.meta );
 		downloadFolder.removeContent( action );
 	
 		// precreate delivery folders in release
@@ -75,7 +76,7 @@ public class BuildCommand {
 		}
 		
 		if( scope.releaseBound && scope.hasManual( action ) ) {
-			ActionGetManual cam = new ActionGetManual( action , null , copyDist , dist , downloadFolder );
+			ActionGetManual cam = new ActionGetManual( action , scope.meta , null , copyDist , dist , downloadFolder );
 			if( !cam.runSimple() )
 				res = false;
 		}
@@ -94,7 +95,7 @@ public class BuildCommand {
 	
 	private void createConfigDiffFile( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
 		action.info( "update configuration difference information ..." );
-		ConfBuilder builder = new ConfBuilder( action );
+		ConfBuilder builder = new ConfBuilder( action , scope.meta );
 		
 		for( ReleaseDelivery delivery : dist.release.getDeliveries( action ).values() ) {
 			if( delivery.getConfItems( action ).size() > 0 ) {
@@ -109,8 +110,8 @@ public class BuildCommand {
 		ca.runEachBuildableProject( scope );
 	}
 	
-	public void printActiveProperties( ActionBase action ) throws Exception {
-		Map<String,String> exports = action.meta.product.getExportProperties( action );
+	public void printActiveProperties( ActionBase action , Meta meta ) throws Exception {
+		Map<String,String> exports = meta.product.getExportProperties( action );
 		if( !exports.isEmpty() ) {
 			action.info( "----------------");
 			action.info( "product exports:");
@@ -122,7 +123,7 @@ public class BuildCommand {
 		action.info( "-------------------");
 		action.info( "product properties:");
 		action.info( "-------------------");
-		action.printValues( action.meta.product.getProperties() );
+		action.printValues( meta.product.getProperties() );
 	}
 
 	public void checkout( ActionBase action , ActionScope scope , LocalFolder CODIR ) throws Exception {
@@ -190,11 +191,11 @@ public class BuildCommand {
 		ca.runEachBuildableProject( scope );
 	}
 	
-	public void buildAllTags( ActionBase action , String TAG , String SET , String[] PROJECTS , Dist dist ) throws Exception {
+	public void buildAllTags( ActionBase action , Meta meta , String TAG , String SET , String[] PROJECTS , Dist dist ) throws Exception {
 		action.checkRequired( action.context.buildMode , "BUILDMODE" );
 		
 		// execute
-		LogStorage storage = action.artefactory.getTagBuildLogStorage( action , TAG );
+		LogStorage storage = action.artefactory.getTagBuildLogStorage( action , meta , TAG );
 		LocalFolder OUTDIR = storage.logFolder;
 		String OUTFILE = OUTDIR.folderPath + "/build.final.out"; 
 		action.redirectTS( "buildAllTags:" , OUTDIR.folderPath , "buildall" , "out" );
@@ -202,7 +203,7 @@ public class BuildCommand {
 		
 		ActionScope scope;
 		if( dist == null )
-			scope = ActionScope.getProductSetScope( action , SET , PROJECTS );
+			scope = ActionScope.getProductSetScope( action , meta , SET , PROJECTS );
 		else
 			scope = ActionScope.getReleaseSetScope( action , dist , SET , PROJECTS );
 			
@@ -218,11 +219,11 @@ public class BuildCommand {
 		buildTags( action , TAG , scope , OUTDIR , OUTFILE , dist );
 	}
 
-	public void buildCustom( ActionBase action , String SET , String[] PROJECTS ) throws Exception {
+	public void buildCustom( ActionBase action , Meta meta , String SET , String[] PROJECTS ) throws Exception {
 		action.exitNotImplemented();
 	}
 	
-	public void buildRelease( ActionBase action , String SET , String[] PROJECTS , Dist dist ) throws Exception {
+	public void buildRelease( ActionBase action , Meta meta , String SET , String[] PROJECTS , Dist dist ) throws Exception {
 		action.setBuildMode( dist.release.PROPERTY_BUILDMODE );
 		
 		String TAG;
@@ -232,7 +233,7 @@ public class BuildCommand {
 			TAG = dist.release.getReleaseCandidateTag( action );
 		String RELEASEDIR = dist.RELEASEDIR;
 		
-		LogStorage storage = action.artefactory.getReleaseBuildLogStorage( action , RELEASEDIR );
+		LogStorage storage = action.artefactory.getReleaseBuildLogStorage( action , meta , RELEASEDIR );
 		LocalFolder OUTDIR = storage.logFolder;
 		action.redirectTS( "buildRelease:" , OUTDIR.folderPath , "buildall" , "out" );
 	
@@ -244,10 +245,10 @@ public class BuildCommand {
 			return;
 		}
 		
-		action.info( "buildRelease: set TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , action.meta.getAllBuildableCategories() ) + "}" );
+		action.info( "buildRelease: set TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , Meta.getAllBuildableCategories() ) + "}" );
 		setTag( action , TAG , scope );
 		
-		action.info( "buildRelease: build TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , action.meta.getAllBuildableCategories() ) + "}" );
+		action.info( "buildRelease: build TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , Meta.getAllBuildableCategories() ) + "}" );
 		String OUTFILE = OUTDIR.folderPath + "/build.final.out"; 
 		action.shell.createFileFromString( action , OUTFILE , "FINAL STATUS:" );
 		buildTags( action , TAG , scope , OUTDIR , OUTFILE , dist );
@@ -273,8 +274,8 @@ public class BuildCommand {
 		ca.runSingleTarget( scopeProject );
 	}
 
-	public void thirdpartyUploadLib( ActionBase action , String GROUPID , String FILE , String ARTEFACTID , String VERSION , String CLASSIFIER ) throws Exception {
-		ActionUploadLibItem ca = new ActionUploadLibItem( action , null , GROUPID , FILE , ARTEFACTID , VERSION , CLASSIFIER );
+	public void thirdpartyUploadLib( ActionBase action , Meta meta , String GROUPID , String FILE , String ARTEFACTID , String VERSION , String CLASSIFIER ) throws Exception {
+		ActionUploadLibItem ca = new ActionUploadLibItem( action , meta , null , GROUPID , FILE , ARTEFACTID , VERSION , CLASSIFIER );
 		ca.runSimple();
 	}
 

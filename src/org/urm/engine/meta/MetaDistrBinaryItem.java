@@ -3,6 +3,7 @@ package org.urm.engine.meta;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.engine.custom.CommandCustom;
 import org.urm.engine.meta.Meta.VarARCHIVETYPE;
 import org.urm.engine.meta.Meta.VarDISTITEMSOURCE;
 import org.urm.engine.meta.Meta.VarDISTITEMTYPE;
@@ -13,7 +14,7 @@ import org.w3c.dom.Node;
 
 public class MetaDistrBinaryItem {
 
-	protected Meta meta;
+	public Meta meta;
 	public MetaDistrDelivery delivery;
 	public MetaSourceProjectItem sourceItem;
 
@@ -47,8 +48,8 @@ public class MetaDistrBinaryItem {
 		KEY = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 	
 		// read attrs
-		DISTTYPE = meta.getItemDistType( ConfReader.getRequiredAttrValue( node , "type" ) );
-		DISTSOURCE = meta.getItemDistSource( ConfReader.getRequiredAttrValue( node , "source" ) );
+		DISTTYPE = Meta.getItemDistType( ConfReader.getRequiredAttrValue( node , "type" ) );
+		DISTSOURCE = Meta.getItemDistSource( ConfReader.getRequiredAttrValue( node , "source" ) );
 		if( DISTSOURCE == VarDISTITEMSOURCE.DISTITEM ) {
 			SRCDISTITEM = ConfReader.getAttrValue( node , "srcitem" );
 			SRCITEMPATH = ConfReader.getAttrValue( node , "srcpath" );
@@ -56,7 +57,7 @@ public class MetaDistrBinaryItem {
 		
 		DISTBASENAME = ConfReader.getAttrValue( node , "distname" , KEY );
 		DEPLOYBASENAME = ConfReader.getAttrValue( node , "deployname" , DISTBASENAME );
-		DEPLOYVERSION = meta.readItemVersionAttr( node , "deployversion" );
+		DEPLOYVERSION = Meta.readItemVersionAttr( node , "deployversion" );
 		BUILDINFO = ConfReader.getAttrValue( node , "buildinfo" );
 
 		// binary item
@@ -90,8 +91,10 @@ public class MetaDistrBinaryItem {
 		}
 		
 		CUSTOMDEPLOY = ConfReader.getBooleanAttrValue( node , "customdeploy" , false );
-		if( CUSTOMDEPLOY )
-			action.custom.parseDistItem( action , this , node );
+		if( CUSTOMDEPLOY ) {
+			CommandCustom custom = new CommandCustom( meta );
+			custom.parseDistItem( action , this , node );
+		}
 	}
 
 	public void resolveReferences( ActionBase action ) throws Exception {

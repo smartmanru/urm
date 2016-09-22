@@ -5,6 +5,7 @@ import org.urm.action.ActionScope;
 import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaDistrDelivery;
 import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.meta.MetaEnvServerNode;
@@ -56,13 +57,13 @@ public class DatabaseCommand {
 		
 		action.info( "apply database changes (" + op + ") release=" + dist.RELEASEDIR + ", delivery=" + deliveryInfo + ", items=" + itemsInfo );
 		ActionApplyAutomatic ma = new ActionApplyAutomatic( action , null , dist , delivery , indexScope );
-		ActionScope scope = ActionScope.getEnvDatabaseScope( action , dist );
+		ActionScope scope = ActionScope.getEnvDatabaseScope( action , dist.meta , dist );
 		ma.runAll( scope );
 	}
 
-	public void manageRelease( ActionBase action , String RELEASEVER , MetaDistrDelivery delivery , String CMD , String indexScope ) throws Exception {
+	public void manageRelease( ActionBase action , Meta meta , String RELEASEVER , MetaDistrDelivery delivery , String CMD , String indexScope ) throws Exception {
 		ActionManageRegistry ma = new ActionManageRegistry( action , null , RELEASEVER , CMD , delivery , indexScope );
-		ActionScope scope = ActionScope.getEnvDatabaseScope( action , null );
+		ActionScope scope = ActionScope.getEnvDatabaseScope( action , meta , null );
 		ma.runAll( scope );
 	}
 

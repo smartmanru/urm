@@ -98,6 +98,7 @@ public class ServerMirrors extends ServerObject {
 	public void addProductMirrors( ServerTransaction transaction , ServerProduct product , boolean forceClear ) throws Exception {
 		ActionBase action = transaction.getAction();
 		UrmStorage storage = action.artefactory.getUrmStorage();
+
 		LocalFolder products = storage.getServerProductsFolder( action );
 		LocalFolder productfolder = products.getSubFolder( action , product.PATH );
 		if( productfolder.checkExists( action ) )  {

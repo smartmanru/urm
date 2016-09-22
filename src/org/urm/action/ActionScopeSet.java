@@ -30,7 +30,7 @@ import org.urm.engine.shell.Account;
 public class ActionScopeSet {
 
 	ActionScope scope;
-	Meta meta;
+	public Meta meta;
 	public String NAME;
 	public VarCATEGORY CATEGORY;
 	public boolean setFull;

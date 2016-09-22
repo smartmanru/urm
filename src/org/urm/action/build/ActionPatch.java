@@ -80,12 +80,12 @@ public class ActionPatch extends ActionBase {
 	}
 	
 	private boolean uploadBuildStatus() throws Exception {
-		MetaProductBuildSettings build = getBuildSettings();
+		MetaProductBuildSettings build = getBuildSettings( builder.project.meta );
 		String MODULE_PROJECT_NAME = builder.project.PROJECT;
 		String MODULE_MSETTINGS="--settings=" + build.CONFIG_MAVEN_CFGFILE;
 		String UPLOAD_MAVEN_VERSION = build.CONFIG_MAVEN_VERSION;
 
-		shell.export( this , "M2_HOME" , meta.product.CONFIG_BUILDBASE_PATH + "/" + UPLOAD_MAVEN_VERSION );
+		shell.export( this , "M2_HOME" , builder.project.meta.product.CONFIG_BUILDBASE_PATH + "/" + UPLOAD_MAVEN_VERSION );
 		shell.export( this , "M2" , "$M2_HOME/bin" );
 		shell.export( this , "PATH" , "$M2:$PATH" );
 		shell.export( this , "MAVEN_OPTS" , Common.getQuoted( "-Xmx1g -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );

@@ -1,6 +1,7 @@
 package org.urm.action;
 
 import org.urm.engine.dist.ReleaseTargetItem;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaDistrBinaryItem;
 import org.urm.engine.meta.MetaEnvServerNode;
 import org.urm.engine.meta.MetaProductBuildSettings;
@@ -8,6 +9,9 @@ import org.urm.engine.meta.MetaSourceProjectItem;
 
 public class ActionScopeTargetItem {
 
+	public Meta meta;
+	public ActionScopeTarget target;
+	
 	public String NAME;
 	public MetaDistrBinaryItem distItem;
 	public MetaSourceProjectItem sourceItem;
@@ -16,11 +20,13 @@ public class ActionScopeTargetItem {
 	public boolean scriptIndex = false;
 	public boolean specifiedExplicitly;
 	
-	private ActionScopeTargetItem() {
+	private ActionScopeTargetItem( ActionScopeTarget target ) {
+		this.target = target;
+		this.meta = target.meta;
 	}
 	
-	public static ActionScopeTargetItem createSourceProjectTargetItem( MetaSourceProjectItem sourceItem , boolean specifiedExplicitly ) {
-		ActionScopeTargetItem ti = new ActionScopeTargetItem(); 
+	public static ActionScopeTargetItem createSourceProjectTargetItem( ActionScopeTarget target , MetaSourceProjectItem sourceItem , boolean specifiedExplicitly ) {
+		ActionScopeTargetItem ti = new ActionScopeTargetItem( target ); 
 		ti.distItem = sourceItem.distItem;
 		ti.sourceItem = sourceItem;
 		ti.specifiedExplicitly = specifiedExplicitly;
@@ -28,16 +34,16 @@ public class ActionScopeTargetItem {
 		return( ti );
 	}
 	
-	public static ActionScopeTargetItem createEnvServerNodeTargetItem( MetaEnvServerNode envServerNode , boolean specifiedExplicitly ) {
-		ActionScopeTargetItem ti = new ActionScopeTargetItem(); 
+	public static ActionScopeTargetItem createEnvServerNodeTargetItem( ActionScopeTarget target , MetaEnvServerNode envServerNode , boolean specifiedExplicitly ) {
+		ActionScopeTargetItem ti = new ActionScopeTargetItem( target ); 
 		ti.envServerNode = envServerNode;
 		ti.specifiedExplicitly = specifiedExplicitly;
 		ti.NAME = "" + envServerNode.POS;
 		return( ti );
 	}
 	
-	public static ActionScopeTargetItem createReleaseTargetItem( ReleaseTargetItem releaseItem , boolean specifiedExplicitly ) {
-		ActionScopeTargetItem ti = new ActionScopeTargetItem(); 
+	public static ActionScopeTargetItem createReleaseTargetItem( ActionScopeTarget target , ReleaseTargetItem releaseItem , boolean specifiedExplicitly ) {
+		ActionScopeTargetItem ti = new ActionScopeTargetItem( target ); 
 		ti.distItem = releaseItem.distItem;
 		ti.sourceItem = releaseItem.sourceItem;
 		ti.releaseItem = releaseItem;
@@ -46,8 +52,8 @@ public class ActionScopeTargetItem {
 		return( ti );
 	}
 
-	public static ActionScopeTargetItem createScriptIndexTargetItem( String index ) {
-		ActionScopeTargetItem ti = new ActionScopeTargetItem();
+	public static ActionScopeTargetItem createScriptIndexTargetItem( ActionScopeTarget target , String index ) {
+		ActionScopeTargetItem ti = new ActionScopeTargetItem( target );
 		ti.scriptIndex = true;
 		ti.specifiedExplicitly = true;
 		ti.NAME = index;
@@ -70,7 +76,7 @@ public class ActionScopeTargetItem {
 			BUILDVERSION = sourceItem.ITEMVERSION;
 		
 		if( BUILDVERSION.isEmpty() ) {
-			MetaProductBuildSettings build = action.getBuildSettings();
+			MetaProductBuildSettings build = action.getBuildSettings( meta );
 			BUILDVERSION = build.CONFIG_APPVERSION;
 		}
 			

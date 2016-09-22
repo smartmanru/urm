@@ -34,7 +34,7 @@ public class ActionApplyAutomatic extends ActionBase {
 	}
 
 	@Override protected void runBefore( ActionScope scope ) throws Exception {
-		logs = artefactory.getDatabaseLogStorage( this , dist.release.RELEASEVER );
+		logs = artefactory.getDatabaseLogStorage( this , scope.meta , dist.release.RELEASEVER );
 		info( "log to " + logs.logFolder.folderPath );
 	}
 	
@@ -144,8 +144,8 @@ public class ActionApplyAutomatic extends ActionBase {
 		dist.copyDistToFolder( this , scriptFolder , distFolder , file );
 		scriptFolder.copyFiles( this , file , logReleaseExecute );
 		
-		ConfBuilder builder = new ConfBuilder( this );
-		MetaProductBuildSettings build = getBuildSettings();
+		ConfBuilder builder = new ConfBuilder( this , server.meta );
+		MetaProductBuildSettings build = getBuildSettings( server.meta );
 		builder.configureFile( logReleaseExecute , file , server , null , build.charset );
 		
 		if( !dsf.REGIONALINDEX.equals( "RR" ) )
@@ -180,7 +180,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		DatabaseScriptFile dsf = new DatabaseScriptFile();
 		dsf.setDistFile( this , file );
 		
-		MetaDatabaseSchema schema = meta.database.getSchema( this , dsf.SRCSCHEMA );
+		MetaDatabaseSchema schema = server.meta.database.getSchema( this , dsf.SRCSCHEMA );
 		if( !schemaSet.containsKey( schema.SCHEMA ) ) {
 			trace( "script " + file + " is filtered by schema" );
 			return( false );
@@ -237,7 +237,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		DatabaseScriptFile dsf = new DatabaseScriptFile();
 		dsf.setDistFile( this , file );
 		String schemaName = dsf.SRCSCHEMA;
-		MetaDatabaseSchema schema = meta.database.getSchema( this , schemaName );
+		MetaDatabaseSchema schema = server.meta.database.getSchema( this , schemaName );
 		if( !client.applyScript( this , schema , logReleaseExecute , file , logReleaseExecute , log ) ) {
 			ifexit( _Error.ErrorApplyingScript1 , "error applying script " + file + ", see logs" , new String[] { file } );
 			return( false );

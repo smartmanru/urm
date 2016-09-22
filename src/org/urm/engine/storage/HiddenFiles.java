@@ -13,9 +13,9 @@ public class HiddenFiles {
 	Artefactory artefactory;
 	Meta meta;
 	
-	public HiddenFiles( Artefactory artefactory ) {
+	public HiddenFiles( Artefactory artefactory , Meta meta ) {
 		this.artefactory = artefactory;
-		this.meta = artefactory.meta;
+		this.meta = meta;
 	}
 
 	public String getSecretPropertyFile( ActionBase action , String envPath ) throws Exception {

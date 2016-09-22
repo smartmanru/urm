@@ -35,7 +35,7 @@ public class ActionRestoreConfigs extends ActionBase {
 		info( "============================================ " + getMode() + " server=" + server.NAME + " ..." );
 		info( "rootpath=" + server.ROOTPATH );
 
-		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
+		SourceStorage sourceStorage = artefactory.getSourceStorage( this , target.meta );
 
 		// export templates
 		String PATH = "config.live";
@@ -132,7 +132,7 @@ public class ActionRestoreConfigs extends ActionBase {
 			debug( "prepare restore configuraton item=" + confItem.KEY + " from live ..." );
 			sourceStorage.exportLiveConfigItem( this , server , name , context.CTX_TAG , parent );
 	
-			ConfBuilder builder = new ConfBuilder( this );
+			ConfBuilder builder = new ConfBuilder( this , server.meta );
 			builder.configureLiveComponent( live , confItem , server , node );
 		}
 		else {
@@ -152,7 +152,7 @@ public class ActionRestoreConfigs extends ActionBase {
 			LocalFolder template = parent.getSubFolder( this , confItem.KEY );
 			live.recreateThis( this );
 			
-			ConfBuilder builder = new ConfBuilder( this );
+			ConfBuilder builder = new ConfBuilder( this , server.meta );
 			builder.configureComponent( template , live , confItem , server , node );
 		}
 		else {

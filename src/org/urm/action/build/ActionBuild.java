@@ -62,7 +62,7 @@ public class ActionBuild extends ActionBase {
 	private boolean executeTarget( ActionScopeTarget scopeProject ) throws Exception {
 		String BUILD_OPTIONS = null;
 		if( scopeProject.CATEGORY == VarCATEGORY.BUILD ) {
-			MetaProductBuildSettings build = getBuildSettings();
+			MetaProductBuildSettings build = getBuildSettings( scopeProject.meta );
 			BUILD_OPTIONS = build.CONFIG_BUILDER_OPTIONS;
 		}
 		else

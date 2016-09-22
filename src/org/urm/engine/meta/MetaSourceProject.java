@@ -8,6 +8,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerAuthResource;
+import org.urm.engine.custom.CommandCustom;
 import org.urm.engine.meta.Meta.VarCATEGORY;
 import org.urm.engine.meta.Meta.VarNAMETYPE;
 import org.w3c.dom.Node;
@@ -95,8 +96,10 @@ public class MetaSourceProject {
 		CUSTOMBUILD = ConfReader.getBooleanAttrValue( node , "custombuild" , false );
 		CUSTOMGET = ConfReader.getBooleanAttrValue( node , "customget" , false );
 		
-		if( CUSTOMBUILD || CUSTOMGET )
-			action.custom.parseProject( action , this , node );
+		if( CUSTOMBUILD || CUSTOMGET ) {
+			CommandCustom custom = new CommandCustom( meta );
+			custom.parseProject( action , this , node );
+		}
 	}
 
 	public String getVCS( ActionBase action ) {
@@ -144,7 +147,7 @@ public class MetaSourceProject {
 		if( !BUILDERTYPE.isEmpty() )
 			return( BUILDERTYPE );
 		
-		MetaProductBuildSettings build = action.getBuildSettings();
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		String builder = build.CONFIG_BUILDER_TYPE;
 		if( builder.isEmpty() )
 			builder = "maven";
@@ -156,7 +159,7 @@ public class MetaSourceProject {
 		if( !JAVAVERSION.isEmpty() )
 			return( JAVAVERSION );
 		
-		MetaProductBuildSettings build = action.getBuildSettings();
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		String version = build.CONFIG_MAVEN_JAVA_VERSION;
 		if( version.isEmpty() )
 			action.exit0( _Error.UnknownJavaVersion0 , "unknown java version" );
@@ -169,7 +172,7 @@ public class MetaSourceProject {
 			return( BUILDERVERSION );
 		
 		String builder = getBuilder( action );
-		MetaProductBuildSettings build = action.getBuildSettings();
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		String version = build.CONFIG_BUILDER_VERSION;
 		if( version.isEmpty() ) {
 			if( builder.equals( "maven" ) ) {
@@ -189,7 +192,7 @@ public class MetaSourceProject {
 		if( !BRANCH.isEmpty() )
 			return( BRANCH );
 		
-		MetaProductBuildSettings build = action.getBuildSettings();
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		if( !build.CONFIG_BRANCHNAME.isEmpty() )
 			return( build.CONFIG_BRANCHNAME );
 		

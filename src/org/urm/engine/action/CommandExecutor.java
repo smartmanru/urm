@@ -12,6 +12,7 @@ import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.SessionContext;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.Meta.VarBUILDMODE;
 import org.urm.engine.meta.Meta.VarCATEGORY;
 import org.urm.engine.storage.Artefactory;
@@ -135,7 +136,7 @@ public abstract class CommandExecutor {
 		if( pos >= action.context.options.getArgCount() )
 			return( null );
 		
-		return( action.meta.getCategory( getArg( action , pos ) ) );
+		return( Meta.getCategory( getArg( action , pos ) ) );
 	}
 	
 	public String getRequiredArg( ActionBase action , int pos , String argName ) throws Exception {

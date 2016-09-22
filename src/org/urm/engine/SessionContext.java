@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandOptions;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
 
@@ -90,6 +91,10 @@ public class SessionContext {
 		productPath = product.folderPath;
 		etcPath = product.getFolderPath( action , UrmStorage.ETC_PATH );
 		proxyPath = product.getFolderPath( action , UrmStorage.MASTER_PATH );
+		
+		ServerLoader loader = engine.getLoader();
+		Meta meta = loader.createMetadata( this );
+		action.context.setMeta( meta );
 	}
 	
 	public void clearServerProductLayout() {

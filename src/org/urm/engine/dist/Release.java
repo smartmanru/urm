@@ -187,7 +187,7 @@ public class Release {
 		if( element == null )
 			return;
 		
-		if( meta.isSourceCategory( CATEGORY ) ) {
+		if( Meta.isSourceCategory( CATEGORY ) ) {
 			Node[] sets = ConfReader.xmlGetChildren( element , "set" );
 			if( sets == null )
 				return;
@@ -224,7 +224,7 @@ public class Release {
 		PROPERTY_CUMULATIVE = getReleasePropertyBoolean( action , root , "cumulative" , false );
 
 		// get projectsets
-		for( VarCATEGORY CATEGORY : meta.getAllReleaseCategories() )
+		for( VarCATEGORY CATEGORY : Meta.getAllReleaseCategories() )
 			loadSets( action , root , CATEGORY );
 		
 		return( doc );
@@ -232,7 +232,7 @@ public class Release {
 
 	private void registerSet( ActionBase action , ReleaseSet set ) throws Exception {
 		action.trace( "add set=" + set.NAME + ", category=" + Common.getEnumLower( set.CATEGORY ) );
-		if( meta.isSourceCategory( set.CATEGORY ) )
+		if( Meta.isSourceCategory( set.CATEGORY ) )
 			sourceSetMap.put( set.NAME , set );
 		else
 			categorySetMap.put( set.CATEGORY , set );
@@ -249,7 +249,7 @@ public class Release {
 	
 	private void registerTarget( ActionBase action , ReleaseTarget target ) throws Exception {
 		action.trace( "add target=" + target.NAME );
-		if( meta.isSourceCategory( target.CATEGORY ) ) {
+		if( Meta.isSourceCategory( target.CATEGORY ) ) {
 			for( ReleaseTargetItem item : target.getItems( action ).values() )
 				registerTargetItem( action , item );
 		}
@@ -443,7 +443,7 @@ public class Release {
 		Common.xmlCreatePropertyElement( doc , root , "over" , PROPERTY_COMPATIBILITY );
 		Common.xmlCreateBooleanPropertyElement( doc , root , "cumulative" , PROPERTY_CUMULATIVE );
 		
-		for( VarCATEGORY CATEGORY : action.meta.getAllReleaseCategories() )
+		for( VarCATEGORY CATEGORY : Meta.getAllReleaseCategories() )
 			Common.xmlCreateElement( doc , root , Common.getEnumLower( CATEGORY ) );
 		return( doc );
 	}
@@ -534,7 +534,7 @@ public class Release {
 	}
 
 	private void unregisterTarget( ActionBase action , ReleaseTarget target ) throws Exception {
-		if( meta.isSourceCategory( target.CATEGORY ) ) {
+		if( Meta.isSourceCategory( target.CATEGORY ) ) {
 			for( ReleaseTargetItem item : target.getItems( action ).values() )
 				unregisterTargetItem( action , item );
 		}
@@ -555,7 +555,7 @@ public class Release {
 		for( ReleaseTarget project : set.getTargets( action ).values() )
 			unregisterTarget( action , project );
 		
-		if( meta.isSourceCategory( set.CATEGORY ) )
+		if( Meta.isSourceCategory( set.CATEGORY ) )
 			sourceSetMap.remove( set.NAME );
 		else
 			categorySetMap.remove( set.CATEGORY );

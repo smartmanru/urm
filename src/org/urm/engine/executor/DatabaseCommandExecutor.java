@@ -11,6 +11,7 @@ import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.ReleaseDelivery;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaDistrDelivery;
 import org.urm.engine.meta.MetaEnv;
 import org.urm.engine.meta.MetaEnvDC;
@@ -20,6 +21,7 @@ import org.urm.engine.meta.Meta.VarCATEGORY;
 public class DatabaseCommandExecutor extends CommandExecutor {
 
 	DatabaseCommand impl;
+	Meta meta;
 	MetaEnv env;
 	MetaEnvDC dc;
 	
@@ -43,8 +45,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		try {
 			// create implementation
 			impl = new DatabaseCommand();
-			action.meta.loadDistr( action );
-			action.meta.loadSources( action );
+			meta = action.getContextMeta();
 			
 			boolean loadProps = Common.checkPartOfSpacedList( action.actionName , propertyBasedMethods ); 
 			action.context.loadEnv( action , loadProps );
@@ -61,13 +62,13 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 
 	private ActionScope getIndexScope( ActionInit action , Dist dist , int posFrom ) throws Exception {
 		String[] INDEXES = getArgList( action , posFrom );
-		return( ActionScope.getDatabaseManualItemsScope( action , dist , INDEXES ) );
+		return( ActionScope.getReleaseDatabaseManualItemsScope( action , dist , INDEXES ) );
 	}
 	
 	private class GetReleaseScripts extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
-		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		String[] DELIVERIES = getArgList( action , 1 );
 		ActionScope scope = ActionScope.getReleaseCategoryScope( action , dist , VarCATEGORY.DB , DELIVERIES );
 		impl.getReleaseScripts( action , scope , dist );
@@ -85,7 +86,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	private class ApplyManual extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
-		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		String SERVER = getRequiredArg( action , 1 , "DBSERVER" );
 		MetaEnvServer server = action.context.dc.getServer( action , SERVER );
 		ActionScope scope = getIndexScope( action , dist , 2 );
@@ -96,7 +97,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	private class ApplyAutomatic extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
-		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		String DELIVERY = getRequiredArg( action , 1 , "delivery" );
 		
 		ReleaseDelivery delivery = null;
@@ -116,7 +117,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	private class ManageRelease extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
-		DistRepository repo = action.artefactory.getDistRepository( action );
+		DistRepository repo = action.artefactory.getDistRepository( action , meta );
 		String RELEASEVER = repo.getReleaseVerByLabel( action , RELEASELABEL );
 		
 		String CMD = getRequiredArg( action , 1 , "CMD" );
@@ -127,12 +128,12 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		if( DELIVERY.equals( "all" ) )
 			checkNoArgs( action , 3 );
 		else {
-			delivery = action.meta.distr.getDelivery( action , DELIVERY );
+			delivery = meta.distr.getDelivery( action , DELIVERY );
 			indexScope = getRequiredArg( action , 3 , "mask" );
 			checkNoArgs( action , 4 );
 		}
 		
-		impl.manageRelease( action , RELEASEVER , delivery , CMD , indexScope );
+		impl.manageRelease( action , meta , RELEASEVER , delivery , CMD , indexScope );
 	}
 	}
 	

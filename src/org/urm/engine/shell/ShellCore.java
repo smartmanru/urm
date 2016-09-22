@@ -29,7 +29,6 @@ abstract public class ShellCore {
 	static String EXECUTE_LOG = "execute.log";
 	static String UPLOAD_LOG = "upload.log";
 
-	abstract protected String getExportCmd( ActionBase action ) throws Exception;
 	abstract protected boolean getProcessAttributes( ActionBase action ) throws Exception;
 	abstract public void runCommand( ActionBase action , String cmd , int logLevel ) throws Exception;
 	abstract public int runCommandGetStatus( ActionBase action , String cmd , int logLevel ) throws Exception;
@@ -150,11 +149,6 @@ abstract public class ShellCore {
 		// additional process setup
 		if( !getProcessAttributes( action ) )
 			return( false );
-		
-		// run predefined exports
-		String cmd = getExportCmd( action );
-		if( !cmd.isEmpty() )
-			runCommandCheckDebug( action , cmd );
 		
 		initialized = true;
 		return( true );

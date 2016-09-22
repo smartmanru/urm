@@ -25,7 +25,7 @@ public class Meta {
 	public MetaDistr distr;
 	public MetaSource sources;
 	
-	private String configurableExtensionsFindOptions = "";
+	private static String configurableExtensionsFindOptions = createConfigurableExtensions();
 	
 	static String[] configurableExtensions = {
 		"cmd" , "sh" , "xml" , "txt" , "properties" , "conf" , "config" , "xconf" , "groovy" , "sql" , "yml" 
@@ -185,12 +185,16 @@ public class Meta {
 		this.loader = loader;
 		this.session = session;
 		
-		configurableExtensionsFindOptions = "";
+	}
+	
+	private static String createConfigurableExtensions() {
+		String configurableExtensionsFindOptions = "";
 		for( int k = 0; k < configurableExtensions.length; k++ ) {
 			if( k > 0 )
 				configurableExtensionsFindOptions += " -o ";
 			configurableExtensionsFindOptions += "-name \"*." + configurableExtensions[ k ] + "\"";
 		}
+		return( configurableExtensionsFindOptions );
 	}
 	
 	public void setVersion( MetaProductVersion version ) {
@@ -220,10 +224,6 @@ public class Meta {
 		this.sources = null;
 	}
 	
-	public String getConfigurableExtensionsFindOptions( ActionBase action ) throws Exception {
-		return( configurableExtensionsFindOptions );
-	}
-
 	private synchronized void getStorage( ActionBase action ) throws Exception {
 		if( storage == null )
 			storage = loader.getMetaStorage( action.actionInit );
@@ -265,7 +265,11 @@ public class Meta {
 		return( loader.loadEnvData( action.actionInit , storage , envFile , loadProps ) );
 	}
 	
-	public boolean isConfigurableFile( ActionBase action , String filePath ) throws Exception {
+	public static String getConfigurableExtensionsFindOptions( ActionBase action ) throws Exception {
+		return( configurableExtensionsFindOptions );
+	}
+
+	public static boolean isConfigurableFile( ActionBase action , String filePath ) throws Exception {
 		String ext = Common.getFileExtension( filePath );
 		for( int k = 0; k < configurableExtensions.length; k++ )
 			if( ext.equals( configurableExtensions[ k ] ) )
@@ -273,11 +277,11 @@ public class Meta {
 		return( false );
 	}
 
-	public String[] getConfigurableExtensions( ActionBase action ) throws Exception {
+	public static String[] getConfigurableExtensions( ActionBase action ) throws Exception {
 		return( configurableExtensions );
 	}
 
-	public VarOSTYPE getOSType( String ID ) throws Exception {
+	public static VarOSTYPE getOSType( String ID ) throws Exception {
 		if( ID.isEmpty() )
 			Common.exit0( _Error.MissingOSType0 , "missing operating system type" );
 		
@@ -292,7 +296,7 @@ public class Meta {
 		return( value );
 	}
 	
-	public VarCATEGORY getCategory( String ID ) throws Exception {
+	public static VarCATEGORY getCategory( String ID ) throws Exception {
 		if( ID.isEmpty() )
 			Common.exit0( _Error.MissingCategory0 , "missing category" );
 
@@ -307,7 +311,7 @@ public class Meta {
 		return( value );
 	}
 	
-	public VarSERVERTYPE getServerType( String ID ) throws Exception {
+	public static VarSERVERTYPE getServerType( String ID ) throws Exception {
 		if( ID.isEmpty() )
 			return( VarSERVERTYPE.UNKNOWN );
 		
@@ -322,7 +326,7 @@ public class Meta {
 		return( value );
 	}
 	
-	public VarNODETYPE getNodeType( String ID , VarNODETYPE defValue ) throws Exception {
+	public static VarNODETYPE getNodeType( String ID , VarNODETYPE defValue ) throws Exception {
 		if( ID.isEmpty() )
 			return( defValue );
 		
@@ -337,7 +341,7 @@ public class Meta {
 		return( value );
 	}
 	
-	public VarDEPLOYTYPE getDeployType( String ID ) throws Exception {
+	public static VarDEPLOYTYPE getDeployType( String ID ) throws Exception {
 		if( ID.isEmpty() )
 			Common.exit0( _Error.MissingDeployType0 , "missing deploy type" );
 		
@@ -352,7 +356,7 @@ public class Meta {
 		return( value );
 	}
 	
-	public VarITEMSRCTYPE getItemSrcType( String ID ) throws Exception {
+	public static VarITEMSRCTYPE getItemSrcType( String ID ) throws Exception {
 		if( ID.isEmpty() )
 			Common.exit0( _Error.MissingSourceItemType0 , "missing source item type" );
 		
@@ -367,7 +371,7 @@ public class Meta {
 		return( value );
 	}
 	
-	public VarDISTITEMTYPE getItemDistType( String ID ) throws Exception {
+	public static VarDISTITEMTYPE getItemDistType( String ID ) throws Exception {
 		if( ID.isEmpty() )
 			Common.exit0( _Error.MissingDistributiveItemType0 , "missing distributive item type" );
 		
@@ -382,7 +386,7 @@ public class Meta {
 		return( value );
 	}
 	
-	public VarDISTITEMSOURCE getItemDistSource( String ID ) throws Exception {
+	public static VarDISTITEMSOURCE getItemDistSource( String ID ) throws Exception {
 		VarDISTITEMSOURCE value = null;
 		try {
 			value = VarDISTITEMSOURCE.valueOf( Common.xmlToEnumValue( ID ) );
@@ -397,7 +401,7 @@ public class Meta {
 		return( value );
 	}
 	
-	public VarBUILDMODE getBuildMode( String ID ) throws Exception {
+	public static VarBUILDMODE getBuildMode( String ID ) throws Exception {
 		if( ID.isEmpty() )
 			return( VarBUILDMODE.UNKNOWN );
 		
@@ -412,7 +416,7 @@ public class Meta {
 		return( value );
 	}
 	
-	public VarDBMSTYPE getDbmsType( String ID ) throws Exception {
+	public static VarDBMSTYPE getDbmsType( String ID ) throws Exception {
 		if( ID.isEmpty() )
 			Common.exit0( _Error.MissingDbmsType0 , "missing DBMS type" );
 		
@@ -427,7 +431,7 @@ public class Meta {
 		return( value );
 	}
 	
-	public VarCONFITEMTYPE getConfItemType( String ID ) throws Exception {
+	public static VarCONFITEMTYPE getConfItemType( String ID ) throws Exception {
 		if( ID.isEmpty() )
 			Common.exit0( _Error.MissingConfItemType0 , "missing configuration item type" );
 		
@@ -442,7 +446,7 @@ public class Meta {
 		return( value );
 	}
 	
-	public VarBASESRCTYPE getBaseSrcType( ActionBase action , String TYPE ) throws Exception {
+	public static VarBASESRCTYPE getBaseSrcType( ActionBase action , String TYPE ) throws Exception {
 		if( TYPE.isEmpty() )
 			Common.exit0( _Error.MissingBaseSrcType0 , "missing base srctype" );
 		
@@ -457,7 +461,7 @@ public class Meta {
 		return( value );
 	}
 
-	public VarBASESRCFORMAT getBaseSrcFormat( ActionBase action , String TYPE ) throws Exception {
+	public static VarBASESRCFORMAT getBaseSrcFormat( ActionBase action , String TYPE ) throws Exception {
 		if( TYPE.isEmpty() )
 			Common.exit0( _Error.MissingBaseSrcType0 , "missing base srcformat" );
 		
@@ -472,7 +476,7 @@ public class Meta {
 		return( value );
 	}
 
-	public VarITEMVERSION readItemVersionAttr( Node node , String attrName ) throws Exception {
+	public static VarITEMVERSION readItemVersionAttr( Node node , String attrName ) throws Exception {
 		String ID = ConfReader.getAttrValue( node , attrName , "default" );
 		if( ID.equals( "default" ) )
 			return( VarITEMVERSION.PREFIX );
@@ -488,7 +492,7 @@ public class Meta {
 		return( value );
 	}
 	
-	public VarELEMENTTYPE getDesignElementType( ActionBase action , String ID ) throws Exception {
+	public static VarELEMENTTYPE getDesignElementType( ActionBase action , String ID ) throws Exception {
 		if( ID.isEmpty() )
 			Common.exit0( _Error.MissingDesignElementType0 , "missing design element type" );
 		
@@ -503,7 +507,7 @@ public class Meta {
 		return( value );
 	}
 
-	public VarLINKTYPE getDesignLinkType( ActionBase action , String ID ) throws Exception {
+	public static VarLINKTYPE getDesignLinkType( ActionBase action , String ID ) throws Exception {
 		if( ID.isEmpty() )
 			Common.exit0( _Error.MissingDesignLinkType0 , "missing design link type" );
 		
@@ -518,44 +522,44 @@ public class Meta {
 		return( value );
 	}
 
-	public VarCATEGORY readCategoryAttr( Node node ) throws Exception {
+	public static VarCATEGORY readCategoryAttr( Node node ) throws Exception {
 		String value = ConfReader.getRequiredAttrValue( node , "category" );
 		return( getCategory( value ) );
 	}
 	
-	public boolean isSourceCategory( VarCATEGORY value ) {
+	public static boolean isSourceCategory( VarCATEGORY value ) {
 		if( value == VarCATEGORY.BUILD || value == VarCATEGORY.PREBUILT )
 			return( true );
 		return( false );
 	}
 	
-	public boolean isBuildableCategory( VarCATEGORY value ) {
+	public static boolean isBuildableCategory( VarCATEGORY value ) {
 		if( value == VarCATEGORY.BUILD )
 			return( true );
 		return( false );
 	}
 	
-	public VarCATEGORY[] getAllCategories() {
+	public static VarCATEGORY[] getAllCategories() {
 		VarCATEGORY[] categories = { VarCATEGORY.BUILD , VarCATEGORY.MANUAL , VarCATEGORY.PREBUILT , VarCATEGORY.CONFIG , VarCATEGORY.DB };
 		return( categories );
 	}
 
-	public VarCATEGORY[] getAllReleaseCategories() {
+	public static VarCATEGORY[] getAllReleaseCategories() {
 		VarCATEGORY[] categories = { VarCATEGORY.BUILD , VarCATEGORY.MANUAL , VarCATEGORY.PREBUILT , VarCATEGORY.CONFIG , VarCATEGORY.DB };
 		return( categories );
 	}
 
-	public VarCATEGORY[] getAllSourceCategories() {
+	public static VarCATEGORY[] getAllSourceCategories() {
 		VarCATEGORY[] categories = { VarCATEGORY.BUILD , VarCATEGORY.PREBUILT };
 		return( categories );
 	}
 
-	public VarCATEGORY[] getAllBuildableCategories() {
+	public static VarCATEGORY[] getAllBuildableCategories() {
 		VarCATEGORY[] categories = { VarCATEGORY.BUILD };
 		return( categories );
 	}
 	
-	public String getVersionPattern( ActionBase action , VarITEMVERSION version , String basename , String ext ) throws Exception {
+	public static String getVersionPattern( ActionBase action , VarITEMVERSION version , String basename , String ext ) throws Exception {
 		String value = "";
 		if( version == VarITEMVERSION.NONE || version == VarITEMVERSION.IGNORE )
 			value = basename + ext;
@@ -571,7 +575,7 @@ public class Meta {
 		return( value );
 	}
 	
-	public String[] getVersionPatterns( ActionBase action , MetaDistrBinaryItem distItem ) throws Exception {
+	public static String[] getVersionPatterns( ActionBase action , MetaDistrBinaryItem distItem ) throws Exception {
 		String basename = distItem.DISTBASENAME;
 		String ext = distItem.EXT;
 		if( distItem.DEPLOYVERSION == VarITEMVERSION.IGNORE ) {
@@ -588,23 +592,19 @@ public class Meta {
 		return( values );
 	}
 	
-	public void updateProduct( ActionBase action ) throws Exception {
-		product.updateProperties( action );
-	}
-
-	public boolean isBinaryContent( ActionBase action , VarCONTENTTYPE c ) throws Exception {
+	public static boolean isBinaryContent( ActionBase action , VarCONTENTTYPE c ) throws Exception {
 		if( c == VarCONTENTTYPE.BINARYCOLDDEPLOY || c == VarCONTENTTYPE.BINARYCOPYONLY || c == VarCONTENTTYPE.BINARYHOTDEPLOY )
 			return( true );
 		return( false );
 	}
 	
-	public boolean isConfContent( ActionBase action , VarCONTENTTYPE c ) throws Exception {
+	public static boolean isConfContent( ActionBase action , VarCONTENTTYPE c ) throws Exception {
 		if( c == VarCONTENTTYPE.CONFCOLDDEPLOY || c == VarCONTENTTYPE.CONFCOPYONLY || c == VarCONTENTTYPE.CONFHOTDEPLOY )
 			return( true );
 		return( false );
 	}
 	
-    public String getNameAttr( ActionBase action , Node node , VarNAMETYPE nameType ) throws Exception {
+    public static String getNameAttr( ActionBase action , Node node , VarNAMETYPE nameType ) throws Exception {
     	String name = ConfReader.getRequiredAttrValue( node , "name" );
     	if( nameType == VarNAMETYPE.ANY )
     		return( name );

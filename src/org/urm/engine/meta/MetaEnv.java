@@ -133,7 +133,7 @@ public class MetaEnv extends PropertyController {
 		
 		CONF_SECRETFILESPATH = properties.getSystemPathProperty( "configuration-secretfilespath" , "" , action.session.execrc );
 		
-		HiddenFiles hidden = action.artefactory.getHiddenFiles();
+		HiddenFiles hidden = action.artefactory.getHiddenFiles( meta );
 		String propFile = hidden.getSecretPropertyFile( action , CONF_SECRETFILESPATH );
 		
 		boolean loadProps = false;
@@ -153,7 +153,7 @@ public class MetaEnv extends PropertyController {
 	}
 
 	private void loadSecretProperties( ActionBase action ) throws Exception {
-		HiddenFiles hidden = action.artefactory.getHiddenFiles();
+		HiddenFiles hidden = action.artefactory.getHiddenFiles( meta );
 		String propFile = hidden.getSecretPropertyFile( action , CONF_SECRETFILESPATH );
 		if( propFile.isEmpty() )
 			return;

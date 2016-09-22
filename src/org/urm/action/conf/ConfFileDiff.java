@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.action.ActionBase;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.storage.Folder;
 
 public class ConfFileDiff {
@@ -46,7 +47,7 @@ public class ConfFileDiff {
 		extraSpacingLines = false;
 		extraLineSpaces = false;
 
-		if( action.meta.isConfigurableFile( action , relFile ) )
+		if( Meta.isConfigurableFile( action , relFile ) )
 			return( getConfigurableDiff( action ) );
 
 		return( getBinaryDiff( action ) );

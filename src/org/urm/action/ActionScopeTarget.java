@@ -7,6 +7,7 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaDistrBinaryItem;
 import org.urm.engine.meta.MetaDistrConfItem;
 import org.urm.engine.meta.MetaDistrDelivery;
@@ -20,6 +21,8 @@ import org.urm.engine.meta.Meta.VarCATEGORY;
 public class ActionScopeTarget {
 
 	public ActionScopeSet set;
+	public Meta meta;
+	
 	public VarCATEGORY CATEGORY; 
 	public String NAME;
 	public ReleaseTarget releaseTarget;
@@ -38,6 +41,7 @@ public class ActionScopeTarget {
 	
 	private ActionScopeTarget( ActionScopeSet set ) {
 		this.set = set;
+		this.meta = set.meta;
 		this.CATEGORY = set.CATEGORY;
 	}
 	
@@ -134,7 +138,7 @@ public class ActionScopeTarget {
 
 	public void addIndexItems( ActionBase action , String[] ITEMS ) throws Exception {
 		for( String ITEM : ITEMS ) {
-			ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createScriptIndexTargetItem( ITEM );
+			ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createScriptIndexTargetItem( this , ITEM );
 			items.add( scopeItem );
 		}
 	}
@@ -155,7 +159,7 @@ public class ActionScopeTarget {
 		}
 		
 		for( String itemName : ITEMS ) {
-			MetaDistrBinaryItem item = action.meta.distr.getBinaryItem( action , itemName );
+			MetaDistrBinaryItem item = meta.distr.getBinaryItem( action , itemName );
 			if( item.sourceItem == null )
 				action.exit1( _Error.UnknownDistributiveItem1 , "unknown distributive item=" + itemName , itemName );
 			
@@ -174,7 +178,7 @@ public class ActionScopeTarget {
 		
 		Map<String,ReleaseTargetItem> releaseItems = releaseTarget.getItems( action );
 		for( String itemName : ITEMS ) {
-			MetaDistrBinaryItem item = action.meta.distr.getBinaryItem( action , itemName );
+			MetaDistrBinaryItem item = meta.distr.getBinaryItem( action , itemName );
 			if( item.sourceItem == null )
 				action.exit1( _Error.UnknownDistributiveItem1 , "unknown distributive item=" + itemName , itemName );
 			
@@ -187,12 +191,12 @@ public class ActionScopeTarget {
 	}
 	
 	public void addProjectItem( ActionBase action , MetaSourceProjectItem item , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createSourceProjectTargetItem( item , specifiedExplicitly );
+		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createSourceProjectTargetItem( this , item , specifiedExplicitly );
 		items.add( scopeItem );
 	}
 	
 	public void addItem( ActionBase action , ReleaseTargetItem item , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createReleaseTargetItem( item , specifiedExplicitly );
+		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createReleaseTargetItem( this , item , specifiedExplicitly );
 		items.add( scopeItem );
 	}
 	
@@ -209,7 +213,7 @@ public class ActionScopeTarget {
 			BUILDVERSION = releaseTarget.BUILDVERSION;
 		
 		if( BUILDVERSION.isEmpty() ) {
-			MetaProductBuildSettings build = action.getBuildSettings();
+			MetaProductBuildSettings build = action.getBuildSettings( meta );
 			BUILDVERSION = build.CONFIG_APPVERSION;
 		}
 			
@@ -228,7 +232,7 @@ public class ActionScopeTarget {
 			BUILDBRANCH = releaseTarget.BUILDBRANCH;
 		
 		if( BUILDBRANCH.isEmpty() ) {
-			MetaProductBuildSettings build = action.getBuildSettings();
+			MetaProductBuildSettings build = action.getBuildSettings( meta );
 			BUILDBRANCH = build.CONFIG_BRANCHNAME;
 		}
 			
@@ -282,7 +286,7 @@ public class ActionScopeTarget {
 			}
 		}
 		
-		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createEnvServerNodeTargetItem( node , specifiedExplicitly );
+		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createEnvServerNodeTargetItem( this , node , specifiedExplicitly );
 		items.add( scopeItem );
 		return( scopeItem );
 	}

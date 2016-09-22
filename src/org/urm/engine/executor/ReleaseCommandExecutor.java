@@ -8,11 +8,13 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandAction;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.Meta.VarCATEGORY;
 
 public class ReleaseCommandExecutor extends CommandExecutor {
 
 	ReleaseCommand impl;
+	Meta meta;
 	
 	public ReleaseCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
@@ -39,8 +41,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		try {
 			// create implementation
 			impl = new ReleaseCommand();
-			action.meta.loadDistr( action );
-			action.meta.loadSources( action );
+			meta = action.getContextMeta();
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -56,7 +57,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
-		impl.createRelease( action , RELEASELABEL );
+		impl.createRelease( action , meta , RELEASELABEL );
 	}
 	}
 
@@ -64,7 +65,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
-		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		impl.modifyRelease( action , dist );
 	}
 	}
@@ -73,7 +74,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
-		impl.deleteRelease( action , RELEASELABEL , action.context.CTX_FORCE );
+		impl.deleteRelease( action , meta , RELEASELABEL , action.context.CTX_FORCE );
 	}
 	}
 
@@ -81,7 +82,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
-		impl.closeRelease( action , RELEASELABEL );
+		impl.closeRelease( action , meta , RELEASELABEL );
 	}
 	}
 
@@ -90,7 +91,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String RELEASESRC = getRequiredArg( action , 0 , "RELEASESRC" );
 		String RELEASEDST = getRequiredArg( action , 1 , "RELEASEDST" );
 		checkNoArgs( action , 2 );
-		impl.copyRelease( action , RELEASESRC , RELEASEDST );
+		impl.copyRelease( action , meta , RELEASESRC , RELEASEDST );
 	}
 	}
 
@@ -98,7 +99,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
-		impl.finishRelease( action , RELEASELABEL );
+		impl.finishRelease( action , meta , RELEASELABEL );
 	}
 	}
 
@@ -106,7 +107,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
-		impl.reopenRelease( action , RELEASELABEL );
+		impl.reopenRelease( action , meta , RELEASELABEL );
 	}
 	}
 
@@ -116,7 +117,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		if( CMD.equals( "create" ) ) {
 			String RELEASEVER = getRequiredArg( action , 1 , "RELEASEVER" );
 			checkNoArgs( action , 2 );
-			impl.createProd( action , RELEASEVER );
+			impl.createProd( action , meta , RELEASEVER );
 		}
 		else
 			action.exit0( _Error.WrongArgs0 , "wrong args" );
@@ -127,7 +128,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
-		impl.statusRelease( action , RELEASELABEL );
+		impl.statusRelease( action , meta , RELEASELABEL );
 	}
 	}
 
@@ -137,7 +138,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String SET = getArg( action , 1 );
 		String[] elements = getArgList( action , 2 );
 		
-		impl.addReleaseBuildProjects( action , RELEASELABEL , SET , elements );
+		impl.addReleaseBuildProjects( action , meta , RELEASELABEL , SET , elements );
 	}
 	}
 
@@ -146,7 +147,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		String[] elements = getArgList( action , 1 );
 		
-		impl.addReleaseConfigItems( action , RELEASELABEL , elements );
+		impl.addReleaseConfigItems( action , meta , RELEASELABEL , elements );
 	}
 	}
 
@@ -155,7 +156,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		String[] elements = getArgList( action , 1 );
 		
-		impl.addReleaseDatabaseItems( action , RELEASELABEL , elements );
+		impl.addReleaseDatabaseItems( action , meta , RELEASELABEL , elements );
 	}
 	}
 
@@ -164,7 +165,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		String[] elements = getArgList( action , 1 );
 		
-		impl.addReleaseBuildItems( action , RELEASELABEL , elements );
+		impl.addReleaseBuildItems( action , meta , RELEASELABEL , elements );
 	}
 	}
 
@@ -174,8 +175,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String SET = getArg( action , 1 );
 		String[] PROJECTS = getArgList( action , 2 );
 
-		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
-		
+		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		impl.buildRelease( action , SET , PROJECTS , dist );
 	}
 	}
@@ -186,7 +186,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String SET = getArg( action , 1 );
 		String[] PROJECTS = getArgList( action , 2 );
 
-		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		
 		if( dist.release.isCumulative() ) {
 			if( SET.isEmpty() || SET.equals( "all" ) )
@@ -202,7 +202,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	private class DescopeRelease extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
-		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		
 		String SET = getRequiredArg( action , 1 , "SET" );
 		if( SET.equals( "all" ) ) {

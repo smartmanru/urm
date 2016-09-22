@@ -2,29 +2,30 @@ package org.urm.engine.storage;
 
 import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
-import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.engine.meta.Meta;
+import org.urm.engine.ServerContext;
+import org.urm.engine.ServerEngine;
+import org.urm.engine.ServerSettings;
 import org.urm.engine.meta.MetaBase;
 import org.urm.engine.meta.MetaEnvServerNode;
-import org.urm.engine.shell.Account;
 import org.w3c.dom.Document;
 
 public class BaseRepository {
 
 	Artefactory artefactory;
 	private RemoteFolder repoFolder;
-	Meta meta;
 
 	static String RELEASEHISTORYFILE = "history.txt";
 	
 	private BaseRepository( Artefactory artefactory ) {
 		this.artefactory = artefactory; 
-		this.meta = artefactory.meta;
 	}
 	
 	public static BaseRepository getBaseRepository( ActionBase action , Artefactory artefactory ) throws Exception {
-		BaseRepository repo = new BaseRepository( artefactory ); 
-		repo.repoFolder = new RemoteFolder( Account.getAccount( action , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.LINUX ) , repo.meta.product.CONFIG_BASE_PATH );
+		BaseRepository repo = new BaseRepository( artefactory );
+		ServerEngine engine = action.engine;
+		ServerSettings settings = engine.getSettings();
+		ServerContext context = settings.getServerContext();
+		repo.repoFolder = new RemoteFolder( action.getLocalAccount() , context.DIST_BASEPATH );
 		return( repo );
 	}
 
@@ -46,7 +47,7 @@ public class BaseRepository {
 		Document xml = ConfReader.readXmlString( text );
 		
 		action.debug( "load base info id=" + ID + " ..." );
-		MetaBase base = new MetaBase( meta , this , primary );
+		MetaBase base = new MetaBase( this , primary );
 		base.load( action , xml.getDocumentElement() , node );
 		return( base );
 	}

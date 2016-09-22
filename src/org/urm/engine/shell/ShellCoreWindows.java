@@ -48,10 +48,6 @@ public class ShellCoreWindows extends ShellCore {
 		super.kill( action );
 	}
 	
-	@Override protected String getExportCmd( ActionBase action ) throws Exception {
-		return( "" );
-	}
-
 	@Override protected boolean getProcessAttributes( ActionBase action ) throws Exception {
 		super.homePath = action.context.session.installPath;
 		

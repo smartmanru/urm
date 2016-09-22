@@ -172,7 +172,7 @@ public class GitMirrorStorage extends MirrorStorage {
 		shell.customCheckErrorsDebug( action , commitFolder.folderPath , 
 			"F_LIST=`git diff --name-only`; " +
 			"if [ " + Common.getQuoted( "$F_LIST" ) + " != " + Common.getQuoted( "" ) + " ]; then git add $F_LIST; fi; " +
-			"git commit -m " + Common.getQuoted( action.meta.product.CONFIG_ADM_TRACKER + "-0000: set version" ) + "; " +
+			"git commit -m " + Common.getQuoted( vcs.meta.product.CONFIG_ADM_TRACKER + "-0000: set version" ) + "; " +
 			"git push origin 2>&1; if [ $? != 0 ]; then echo error on push origin >&2; fi" );
 	}
 

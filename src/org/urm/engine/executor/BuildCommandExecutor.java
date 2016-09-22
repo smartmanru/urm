@@ -10,13 +10,15 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandAction;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaProductBuildSettings;
 import org.urm.engine.storage.LocalFolder;
 
 public class BuildCommandExecutor extends CommandExecutor {
 
 	BuildCommand impl;
-
+	Meta meta;
+	
 	public BuildCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		
@@ -47,8 +49,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		try {
 			// create implementation
 			impl = new BuildCommand();
-			action.meta.loadDistr( action );
-			action.meta.loadSources( action );
+			meta = action.getContextMeta();
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -62,15 +63,16 @@ public class BuildCommandExecutor extends CommandExecutor {
 
 	private Dist loadCommandRelease( ActionBase action ) throws Exception {
 		String RELEASELABEL = action.context.CTX_RELEASELABEL;
+		Meta meta = action.getContextMeta();
 		
 		if( RELEASELABEL.isEmpty() ) {
-			MetaProductBuildSettings build = action.getBuildSettings();
+			MetaProductBuildSettings build = action.getBuildSettings( meta );
 			RELEASELABEL = build.CONFIG_RELEASE_VERSION;
 		}
 		if( RELEASELABEL.isEmpty() )
 			RELEASELABEL = "next";
 		
-		Dist release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist release = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		return( release );
 	}
 	
@@ -83,11 +85,11 @@ public class BuildCommandExecutor extends CommandExecutor {
 		Dist dist = null;
 		String RELEASELABEL = action.context.CTX_RELEASELABEL;
 		if( !RELEASELABEL.isEmpty() ) {
-			dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+			dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 			scope = ActionScope.getReleaseSetScope( action , dist , SET , PROJECTS );
 		}
 		else
-			scope = ActionScope.getProductSetScope( action , SET , PROJECTS );
+			scope = ActionScope.getProductSetScope( action , meta , SET , PROJECTS );
 		
 		if( scope.isEmpty( action ) )
 			action.exit0( _Error.ScopeEmpty0 , "nothing to do, scope is empty" );
@@ -108,7 +110,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String SET = getArg( action , 0 );
 		String[] PROJECTS = getArgList( action , 1 );
-		impl.buildCustom( action , SET , PROJECTS );
+		impl.buildCustom( action , meta , SET , PROJECTS );
 	}
 	}
 	
@@ -118,13 +120,13 @@ public class BuildCommandExecutor extends CommandExecutor {
 		String SET = getArg( action , 0 );
 		String[] PROJECTS = getArgList( action , 1 );
 		Dist release = loadCommandRelease( action );
-		impl.buildRelease( action , SET , PROJECTS , release );
+		impl.buildRelease( action , meta , SET , PROJECTS , release );
 	}
 	}
 	
 	private class CheckSet extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		impl.printActiveProperties( action );
+		impl.printActiveProperties( action , meta );
 	}
 	}
 	
@@ -138,11 +140,11 @@ public class BuildCommandExecutor extends CommandExecutor {
 		Dist dist = null;
 		String RELEASELABEL = action.context.CTX_RELEASELABEL;
 		if( !RELEASELABEL.isEmpty() ) {
-			dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+			dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 			scope = ActionScope.getReleaseSetScope( action , dist , SET , TARGETS );
 		}
 		else
-			scope = ActionScope.getProductSetScope( action , SET , TARGETS );
+			scope = ActionScope.getProductSetScope( action , meta , SET , TARGETS );
 		
 		if( scope.isEmpty( action ) ) {
 			action.info( "nothing to get" );
@@ -171,7 +173,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		String TAG = getArg( action , 0 );
 		String SET = getArg( action , 1 );
 		String[] PROJECTS = getArgList( action , 2 );
-		impl.buildAllTags( action , TAG , SET , PROJECTS , null );
+		impl.buildAllTags( action , meta , TAG , SET , PROJECTS , null );
 	}
 	}
 
@@ -294,7 +296,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		
-		Dist release = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist release = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		
 		ActionScopeTarget scopeProject = ActionScope.getReleaseProjectItemsScopeTarget( action , release , "thirdparty" , null );
 		impl.thirdpartyUploadDist( action , scopeProject , release );
@@ -309,7 +311,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		String VERSION = getArg( action , 3 );
 		String CLASSIFIER = getArg( action , 4 );
 		
-		impl.thirdpartyUploadLib( action , GROUPID , FILE , ARTEFACTID , VERSION , CLASSIFIER );
+		impl.thirdpartyUploadLib( action , meta , GROUPID , FILE , ARTEFACTID , VERSION , CLASSIFIER );
 	}
 	}
 	

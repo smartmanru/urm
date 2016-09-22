@@ -6,10 +6,12 @@ import org.urm.engine.ServerEngine;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandAction;
 import org.urm.engine.action.CommandExecutor;
+import org.urm.engine.meta.Meta;
 
 public class XDocCommandExecutor extends CommandExecutor {
 
 	XDocCommand impl;
+	Meta meta;
 	
 	public XDocCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
@@ -19,10 +21,9 @@ public class XDocCommandExecutor extends CommandExecutor {
 
 	public boolean run( ActionInit action ) {
 		try {
-			action.meta.loadDistr( action );
-			
 			// create implementation
 			impl = new XDocCommand();
+			meta = action.getContextMeta();
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -39,7 +40,7 @@ public class XDocCommandExecutor extends CommandExecutor {
 		String CMD = getRequiredArg( action , 0 , "CMD" );
 		String OUTDIR = getRequiredArg( action , 1 , "OUTDIR" );
 		checkNoArgs( action , 2 );
-		impl.createDesignDoc( action , CMD , OUTDIR );
+		impl.createDesignDoc( action , meta , CMD , OUTDIR );
 	}
 	}
 

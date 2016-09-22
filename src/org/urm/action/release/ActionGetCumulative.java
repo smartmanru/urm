@@ -6,15 +6,18 @@ import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaDistrBinaryItem;
 import org.urm.engine.meta.MetaDistrConfItem;
 
 public class ActionGetCumulative extends ActionBase {
 
+	Meta meta;
 	Dist dist;
 	
-	public ActionGetCumulative( ActionBase action , String stream , Dist dist ) {
+	public ActionGetCumulative( ActionBase action , Meta meta , String stream , Dist dist ) {
 		super( action , stream );
+		this.meta = meta;
 		this.dist = dist;
 	}
 
@@ -23,7 +26,7 @@ public class ActionGetCumulative extends ActionBase {
 		dist.descopeAll( this );
 		dist.saveReleaseXml( this );
 		
-		DistRepository repo = artefactory.getDistRepository( this );
+		DistRepository repo = artefactory.getDistRepository( this , meta );
 
 		// dists - source releases sorted from last to most earlier
 		String[] versions = dist.release.getCumulativeVersions( this );

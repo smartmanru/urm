@@ -97,7 +97,7 @@ public class ActionGetBinary extends ActionBase {
 			copyDistr = false;
 
 		if( type.equals( "war" ) ) {
-			NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( this , downloadFolder );
+			NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( this , scopeProject.meta , downloadFolder );
 			NexusDownloadInfo WAR = nexusStorage.downloadNexus( this , GROUPID , ARTEFACTID , BUILDVERSION , "war" , "" , scopeItem.distItem );
 			NexusDownloadInfo STATIC = nexusStorage.downloadNexus( this , GROUPID , ARTEFACTID , BUILDVERSION , "tar.gz" , CLASSIFIER , scopeItem.distItem );
 			
@@ -109,7 +109,7 @@ public class ActionGetBinary extends ActionBase {
 		}
 		else 
 		if( type.equals( "thirdparty" ) ) {
-			NexusStorage nexusStorage = artefactory.getThirdpartyNexusStorage( this , downloadFolder );
+			NexusStorage nexusStorage = artefactory.getThirdpartyNexusStorage( this , scopeProject.meta , downloadFolder );
 			NexusDownloadInfo BINARY = nexusStorage.downloadNexus( this , GROUPID , ARTEFACTID , BUILDVERSION , PACKAGING , CLASSIFIER , scopeItem.distItem );
 			
 			if( copyDistr ) {
@@ -118,7 +118,7 @@ public class ActionGetBinary extends ActionBase {
 			}
 		}
 		else if( type.equals( "nexus" ) ) {
-			NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( this , downloadFolder );
+			NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( this , scopeProject.meta , downloadFolder );
 			NexusDownloadInfo BINARY = nexusStorage.downloadNexus( this , GROUPID , ARTEFACTID , BUILDVERSION , PACKAGING , CLASSIFIER , scopeItem.distItem );
 			
 			if( copyDistr ) {
@@ -135,7 +135,7 @@ public class ActionGetBinary extends ActionBase {
 		if( scopeItem.sourceItem.INTERNAL )
 			copyDistr = false;
 
-		NexusStorage nexusStorage = artefactory.getDefaultNugetStorage( this , downloadFolder );
+		NexusStorage nexusStorage = artefactory.getDefaultNugetStorage( this , scopeProject.meta , downloadFolder );
 		NexusDownloadInfo BINARY = nexusStorage.downloadNuget( this , ARTEFACTID , BUILDVERSION , scopeItem.distItem );
 
 		String FILENAME = "";
@@ -172,7 +172,7 @@ public class ActionGetBinary extends ActionBase {
 	private void downloadPrebuiltItem( ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem , String BUILDVERSION ) throws Exception {
 		// compare with release information
 		boolean copyDistr = context.CTX_DIST;
-		SourceStorage sourceStorage = artefactory.getSourceStorage( this , downloadFolder );
+		SourceStorage sourceStorage = artefactory.getSourceStorage( this , scopeProject.meta , downloadFolder );
 		
 		if( scopeItem.sourceItem.isStoredInSvn( this ) ) {
 			String ITEMPATH = scopeItem.sourceItem.SVN_ITEMPATH;

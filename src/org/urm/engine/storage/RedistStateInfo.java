@@ -7,6 +7,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaDistrBinaryItem;
 import org.urm.engine.meta.MetaDistrConfItem;
 import org.urm.engine.meta.MetaEnvServerNode;
@@ -15,9 +16,14 @@ import org.urm.engine.shell.ShellExecutor;
 
 public class RedistStateInfo {
 
+	public Meta meta;
 	public boolean exists;
 	private Map<String,FileInfo> verData;
 
+	public RedistStateInfo( Meta meta ) {
+		this.meta = meta;
+	}
+	
 	public void gather( ActionBase action , MetaEnvServerNode node , VarCONTENTTYPE CONTENTTYPE , String STATEDIR ) throws Exception {
 		verData = new HashMap<String,FileInfo>(); 
 		ShellExecutor shell = action.getShell( action.getNodeAccount( node ) );
@@ -95,15 +101,15 @@ public class RedistStateInfo {
 	
 	private FileInfo createFileInfo( ActionBase action , VarCONTENTTYPE CONTENTTYPE , String verName , String verInfo ) throws Exception {
 		String baseitem = verName;
-		if( action.meta.isBinaryContent( action , CONTENTTYPE ) ) {
-			MetaDistrBinaryItem item = action.meta.distr.getBinaryItem( action , baseitem );
+		if( Meta.isBinaryContent( action , CONTENTTYPE ) ) {
+			MetaDistrBinaryItem item = meta.distr.getBinaryItem( action , baseitem );
 			FileInfo info = new FileInfo();
 			info.set( action , item , verInfo );
 			return( info );
 		}
 		
-		if( action.meta.isConfContent( action , CONTENTTYPE ) ) {
-			MetaDistrConfItem item = action.meta.distr.getConfItem( action , baseitem );
+		if( Meta.isConfContent( action , CONTENTTYPE ) ) {
+			MetaDistrConfItem item = meta.distr.getConfItem( action , baseitem );
 			FileInfo info = new FileInfo();
 			info.set( action , item , verInfo );
 			return( info );

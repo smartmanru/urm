@@ -8,6 +8,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.engine.ServerLoader;
 import org.urm.engine.ServerMirrors;
 import org.urm.engine.ServerMirrorRepository;
 import org.urm.engine.ServerProductMeta;
@@ -16,7 +17,6 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.action.CommandOutput;
-import org.urm.engine.custom.CommandCustom;
 import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaEnvServerNode;
 import org.urm.engine.meta.MetaProductBuildSettings;
@@ -42,10 +42,8 @@ abstract public class ActionBase extends ActionCore {
 	public CommandExecutor executor;
 	public CommandContext context;
 	public Artefactory artefactory;
-	public CommandCustom custom;
 	
 	public ShellExecutor shell;
-	public Meta meta;
 	protected CommandOutput output;
 
 	public int commandTimeout;
@@ -74,11 +72,7 @@ abstract public class ActionBase extends ActionCore {
 		this.executor = executor;
 		this.output = output;
 		this.artefactory = artefactory;
-		
 		this.context = context;
-		
-		custom = new CommandCustom( meta );
-		meta = context.meta;
 		
 		commandTimeout = 0;
 	}
@@ -92,9 +86,6 @@ abstract public class ActionBase extends ActionCore {
 		this.executor = base.executor;
 		this.output = base.output;
 		this.artefactory = base.artefactory;
-		
-		this.custom = base.custom;
-		this.meta = base.meta;
 		
 		this.shell = base.shell;
 		this.commandTimeout = base.commandTimeout;
@@ -244,12 +235,12 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public boolean runEachBuildableProject( ActionScope scope ) {
-		VarCATEGORY[] categories = meta.getAllBuildableCategories();
+		VarCATEGORY[] categories = Meta.getAllBuildableCategories();
 		return( runCategories( scope , categories ) );
 	}
 	
 	public boolean runEachSourceProject( ActionScope scope ) {
-		VarCATEGORY[] categories = meta.getAllSourceCategories();
+		VarCATEGORY[] categories = Meta.getAllSourceCategories();
 		return( runCategories( scope , categories ) );
 	}
 	
@@ -369,7 +360,6 @@ abstract public class ActionBase extends ActionCore {
 
 	public void setBuildMode( VarBUILDMODE value ) throws Exception {
 		context.setBuildMode( value );
-		meta.updateProduct( this );
 	}
 
 	public void executeLogLive( ShellExecutor shell , String msg ) throws Exception {
@@ -439,11 +429,6 @@ abstract public class ActionBase extends ActionCore {
 	
 	public int setTimeoutDefault() {
 		return( setTimeout( context.CTX_TIMEOUT ) );
-	}
-
-	public Account getWinBuildAccount() throws Exception {
-		Account account = Account.getAccount( this , meta.product.CONFIG_WINBUILD_HOSTLOGIN , VarOSTYPE.WINDOWS );
-		return( account );
 	}
 
 	public String getOSPath( String dirPath ) throws Exception {
@@ -545,7 +530,7 @@ abstract public class ActionBase extends ActionCore {
     }
     
     public String getNameAttr( Node node , VarNAMETYPE nameType ) throws Exception {
-    	return( meta.getNameAttr( this , node , nameType ) );
+    	return( Meta.getNameAttr( this , node , nameType ) );
     }
 
 	public void printValues( PropertySet props ) throws Exception {
@@ -555,7 +540,7 @@ abstract public class ActionBase extends ActionCore {
 		}
 	}
 
-	public MetaProductBuildSettings getBuildSettings() throws Exception {
+	public MetaProductBuildSettings getBuildSettings( Meta meta ) throws Exception {
 		return( meta.product.getBuildSettings( this ) );
 	}
 
@@ -577,4 +562,13 @@ abstract public class ActionBase extends ActionCore {
 		return( repo );
 	}
 
+	public Meta getContextMeta() throws Exception {
+		if( !session.product )
+			exitUnexpectedState();
+		
+		ServerLoader loader = engine.getLoader();
+		ServerProductMeta meta = loader.findMetaStorage( session.productName );
+		return( meta.meta );
+	}
+	
 }

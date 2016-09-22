@@ -23,7 +23,7 @@ public class ActionApplyManual extends ActionBase {
 
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		info( "apply manual database items ..." );
-		LogStorage logs = artefactory.getDatabaseLogStorage( this , release.release.RELEASEVER );
+		LogStorage logs = artefactory.getDatabaseLogStorage( this , target.meta , release.release.RELEASEVER );
 		info( "log to " + logs.logFolder.folderPath );
 		
 		LocalFolder logReleaseCopy = logs.getDatabaseLogReleaseCopyFolder( this );
@@ -38,7 +38,7 @@ public class ActionApplyManual extends ActionBase {
 		if( target.itemFull ) {
 			String[] manualFiles = release.getManualDatabaseFiles( this );
 			for( String file : manualFiles )
-				prepareManual( client , logReleaseCopy , logReleaseExecute , file );
+				prepareManual( target , client , logReleaseCopy , logReleaseExecute , file );
 		}
 		else {
 			for( ActionScopeTargetItem item : target.getItems( this ) ) {
@@ -46,7 +46,7 @@ public class ActionApplyManual extends ActionBase {
 				if( file == null )
 					exit1( _Error.UnableFindManualFile1 , "unable to find manual file index=" + item.NAME , item.NAME );
 				
-				prepareManual( client , logReleaseCopy , logReleaseExecute , file );
+				prepareManual( target , client , logReleaseCopy , logReleaseExecute , file );
 			}
 		}
 
@@ -54,14 +54,14 @@ public class ActionApplyManual extends ActionBase {
 		return( true );
 	}
 
-	private void prepareManual( DatabaseClient client , LocalFolder logReleaseCopy , LocalFolder logReleaseExecute , String file ) throws Exception {
+	private void prepareManual( ActionScopeTarget target , DatabaseClient client , LocalFolder logReleaseCopy , LocalFolder logReleaseExecute , String file ) throws Exception {
 		// copy file from distributive
 		release.copyDistDatabaseManualFileToFolder( this , logReleaseCopy , file );
 		logReleaseCopy.copyFiles( this , file , logReleaseExecute );
 		
 		// configure
-		ConfBuilder builder = new ConfBuilder( this );
-		MetaProductBuildSettings build = getBuildSettings();
+		ConfBuilder builder = new ConfBuilder( this , target.meta );
+		MetaProductBuildSettings build = getBuildSettings( target.meta );
 		builder.configureFile( logReleaseExecute , file , server , null , build.charset );
 	}
 	

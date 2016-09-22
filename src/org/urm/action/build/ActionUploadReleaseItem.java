@@ -23,7 +23,7 @@ public class ActionUploadReleaseItem extends ActionBase {
 		List<ActionScopeTargetItem> items = scopeProject.getItems( this );
 		
 		// set maven
-		MetaProductBuildSettings build = getBuildSettings();
+		MetaProductBuildSettings build = getBuildSettings( scopeProject.meta );
 		shell.export( this , "M2_HOME" , "/usr/local/apache-maven-" + build.CONFIG_MAVEN_VERSION );
 		shell.export( this , "M2" , "$M2_HOME/bin; export PATH=" + Common.getQuoted( "$PATH:$M2" ) );
 		shell.export( this , "JAVA_HOME" , "/usr/java/" + build.CONFIG_MAVEN_JAVA_VERSION );

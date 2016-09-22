@@ -17,15 +17,15 @@ public class NexusStorage {
 	
 	String authFile = "~/.auth/nexus.http.txt"; 
 	
-	public NexusStorage( Artefactory artefactory , LocalFolder artefactoryFolder , String repository ) {
+	public NexusStorage( Artefactory artefactory , Meta meta , LocalFolder artefactoryFolder , String repository ) {
 		this.artefactory = artefactory;
 		this.artefactoryFolder = artefactoryFolder;
 		this.repository = repository;
-		this.meta = artefactory.meta;
+		this.meta = meta;
 	}
 
 	public NexusDownloadInfo downloadNexus( ActionBase action , String GROUPID , String ARTEFACTID , String VERSION , String PACKAGING , String CLASSIFIER , MetaDistrBinaryItem item ) throws Exception {
-		MetaProductBuildSettings build = action.getBuildSettings();
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		ServerAuthResource res = action.getResource( build.CONFIG_NEXUS_RESOURCE );
 		String REPOPATH = res.BASEURL + "/content/repositories/" + repository;
 		String NAME = ARTEFACTID + "-" + VERSION;
@@ -55,7 +55,7 @@ public class NexusStorage {
 	}
 
 	public NexusDownloadInfo downloadNuget( ActionBase action , String ARTEFACTID , String VERSION , MetaDistrBinaryItem item ) throws Exception {
-		MetaProductBuildSettings build = action.getBuildSettings();
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		ServerAuthResource res = action.getResource( build.CONFIG_NEXUS_RESOURCE );
 		String REPOPATH = res.BASEURL + "/content/repositories/" + repository;
 		String NAME = ARTEFACTID + "-" + VERSION + ".nupkg";
@@ -142,7 +142,7 @@ public class NexusStorage {
 		artefactoryFolder.appendFileWithString( action , fname , "BUILDMACHINE=" + action.context.account.getFullName() );
 		artefactoryFolder.appendFileWithString( action , fname , "-------------" );
 		
-		MetaProductBuildSettings build = action.getBuildSettings();
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		artefactoryFolder.appendFileWithString( action , fname , "BUILDINFO v." + build.CONFIG_APPVERSION );
 	}
 	

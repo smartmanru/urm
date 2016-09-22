@@ -8,9 +8,9 @@ public class BuildStorage {
 	Meta meta;
 	public LocalFolder buildFolder;
 	
-	public BuildStorage( Artefactory artefactory , LocalFolder buildFolder ) {
+	public BuildStorage( Artefactory artefactory , Meta meta , LocalFolder buildFolder ) {
 		this.artefactory = artefactory;
-		this.meta = artefactory.meta;
+		this.meta = meta;
 		
 		this.buildFolder = buildFolder;
 	}

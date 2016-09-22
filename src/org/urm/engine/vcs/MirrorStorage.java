@@ -79,12 +79,12 @@ public abstract class MirrorStorage {
 	
 	public LocalFolder getBaseFolder() throws Exception {
 		String mirrorPath; 
-		if( action.meta.product == null ) {
+		if( vcs.meta.product == null ) {
 			ServerSettings settings = action.engine.getSettings();
 			mirrorPath = settings.serverContext.WORK_MIRRORPATH;
 		}
 		else
-			mirrorPath = action.meta.product.CONFIG_MIRRORPATH;
+			mirrorPath = vcs.meta.product.CONFIG_MIRRORPATH;
 		
 		if( mirrorPath.isEmpty() )
 			action.exit0( _Error.MissingMirrorPathParameter0 , "Missing configuraion parameter: mirror path" );

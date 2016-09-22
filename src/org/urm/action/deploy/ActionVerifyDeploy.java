@@ -186,7 +186,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		for( MetaEnvServerLocation location : binaryLocations ) {
 			String[] items = location.getNodeBinaryItems( this , node );
 			for( String item : items ) {
-				MetaDistrBinaryItem binaryItem = meta.distr.getBinaryItem( this , item );
+				MetaDistrBinaryItem binaryItem = dist.meta.distr.getBinaryItem( this , item );
 				if( !executeNodeBinary( server , node , location , binaryItem , tobeBinaryServerFolder , asisBinaryServerFolder ) )
 					verifyNode = false;
 			}
@@ -197,7 +197,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		for( MetaEnvServerLocation location : confLocations ) {
 			String[] items = location.getNodeConfItems( this , node );
 			for( String item : items ) {
-				MetaDistrConfItem confItem = meta.distr.getConfItem( this , item );
+				MetaDistrConfItem confItem = dist.meta.distr.getConfItem( this , item );
 				executeNodeConf( server , node , location , confItem , asisConfigServerFolder );
 			}
 		}
@@ -310,7 +310,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			}
 		}
 		
-		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
+		SourceStorage sourceStorage = artefactory.getSourceStorage( this , dist.meta );
 		String name = sourceStorage.getConfItemLiveName( this , node , confItem );
 		
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );

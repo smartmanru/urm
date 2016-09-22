@@ -16,7 +16,7 @@ public class MonitoringStorage {
 		this.artefactory = artefactory;
 		this.workFolder = workFolder;
 		this.mon = mon;
-		this.meta = artefactory.meta;
+		this.meta = mon.meta;
 	}
 	
 	public String getHistoryImageFile( MetaMonitoringTarget target ) throws Exception {

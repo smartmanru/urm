@@ -74,7 +74,7 @@ public class ActionImportDatabase extends ActionBase {
 	}
 	
 	private void loadImportSettings() throws Exception {
-		MetadataStorage ms = artefactory.getMetadataStorage( this ); 
+		MetadataStorage ms = artefactory.getMetadataStorage( this , server.meta ); 
 		String specPath = ms.getDatapumpFile( this , SPECFILE );
 		
 		info( "reading import specification file " + specPath + " ..." );
@@ -98,7 +98,7 @@ public class ActionImportDatabase extends ActionBase {
 	}
 
 	private void checkSource() throws Exception {
-		DistRepository repository = artefactory.getDistRepository( this );
+		DistRepository repository = artefactory.getDistRepository( this , server.meta );
 		distDataFolder = repository.getDataFolder( this , DATASET );
 		if( !distDataFolder.checkExists( this ) )
 			exit1( _Error.MissingDataFolder1 , "data folder does not exist: " + distDataFolder.folderPath , distDataFolder.folderPath );
@@ -182,7 +182,7 @@ public class ActionImportDatabase extends ActionBase {
 		Common.createFileFromStringList( confFile , conf );
 		importScriptsFolder.copyFileFromLocal( this , confFile );
 		
-		MetadataStorage ms = artefactory.getMetadataStorage( this );
+		MetadataStorage ms = artefactory.getMetadataStorage( this , server.meta );
 		String tablesFilePath = workFolder.getFilePath( this , UrmStorage.TABLES_FILE_NAME );
 		ms.saveDatapumpSet( this , tableSet , server , tablesFilePath );
 		importScriptsFolder.copyFileFromLocal( this , tablesFilePath );
@@ -197,7 +197,7 @@ public class ActionImportDatabase extends ActionBase {
 		}
 		
 		if( CMD.equals( "all" ) || CMD.equals( "data" ) ) {
-			MetadataStorage ms = artefactory.getMetadataStorage( this );
+			MetadataStorage ms = artefactory.getMetadataStorage( this , server.meta );
 			ms.loadDatapumpSet( this , tableSet , server , false , false );
 			
 			if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )
@@ -357,12 +357,12 @@ public class ActionImportDatabase extends ActionBase {
 		// export
 		LocalFolder folder = post.getSubFolder( this , name );
 		
-		SourceStorage storage = artefactory.getSourceStorage( this );
+		SourceStorage storage = artefactory.getSourceStorage( this , server.meta );
 		storage.exportPostRefresh( this , name , post );
 		
 		// configure
-		ConfBuilder builder = new ConfBuilder( this );
-		MetaProductBuildSettings build = getBuildSettings();
+		ConfBuilder builder = new ConfBuilder( this , server.meta );
+		MetaProductBuildSettings build = getBuildSettings( server.meta );
 		builder.configureFolder( this , folder , server , null , build.charset );
 		
 		// apply

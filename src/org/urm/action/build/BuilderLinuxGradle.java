@@ -47,12 +47,12 @@ public class BuilderLinuxGradle extends Builder {
 		String BUILD_GRADLE_VERSION = project.getBuilderVersion( action ); 
 
 		ShellExecutor session = action.shell;
-		session.export( action , "JAVA_HOME" , action.meta.product.CONFIG_BUILDBASE_PATH + "/" + BUILD_JAVA_VERSION );
-		session.export( action , "GR_HOME" , action.meta.product.CONFIG_BUILDBASE_PATH + "/" + BUILD_GRADLE_VERSION );
+		session.export( action , "JAVA_HOME" , project.meta.product.CONFIG_BUILDBASE_PATH + "/" + BUILD_JAVA_VERSION );
+		session.export( action , "GR_HOME" , project.meta.product.CONFIG_BUILDBASE_PATH + "/" + BUILD_GRADLE_VERSION );
 		session.export( action , "GR" , "$GR_HOME/bin" );
 		session.export( action , "PATH" , "$GR:$JAVA_HOME/bin:$PATH" );
 
-		MetaProductBuildSettings build = action.getBuildSettings();
+		MetaProductBuildSettings build = action.getBuildSettings( project.meta );
 		String GRADLE_CMD = "gradle clean war publish -Dmaven.settings=" + build.CONFIG_MAVEN_CFGFILE;
 
 		// execute gradle

@@ -26,7 +26,7 @@ public class ActionConfCheck extends ActionBase {
 		S_CONFCHECK_STATUS = true;
 
 		// read properties
-		executeEnv();
+		executeEnv( scope );
 		return( false );
 	}
 	
@@ -44,7 +44,7 @@ public class ActionConfCheck extends ActionBase {
 		return( true );
 	}
 
-	private void executeEnv() throws Exception {
+	private void executeEnv( ActionScope scope ) throws Exception {
 		// read env properties...
 		String[] S_CONFCHECK_PROPLIST_ENV = context.env.getPropertyList( this );
 
@@ -60,7 +60,7 @@ public class ActionConfCheck extends ActionBase {
 			if( context.env.hasBaseline( this ) ) {
 				String S_CONFCHECK_BASELINE_ENV = context.env.getBaselineFile( this );
 				info( "============================================ check env properties baseline=" + S_CONFCHECK_BASELINE_ENV + " ..." );
-				baselineEnv = meta.loadEnvData( this , S_CONFCHECK_BASELINE_ENV , true );
+				baselineEnv = scope.meta.loadEnvData( this , S_CONFCHECK_BASELINE_ENV , true );
 				checkConfEnv( context.env , baselineEnv , S_CONFCHECK_PROPLIST_ENV );
 			}
 			else

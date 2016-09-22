@@ -106,37 +106,37 @@ public class ServerLoader {
 	}
 
 	public MetaProductVersion loadVersion( ActionInit action , ServerProductMeta storageFinal ) throws Exception {
-		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
+		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
 		return( storageFinal.loadVersion( action , storageMeta ) );
 	}
 
 	public MetaProductSettings loadProduct( ActionInit action , ServerProductMeta storageFinal ) throws Exception {
-		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
+		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
 		return( storageFinal.loadProduct( action , storageMeta ) );
 	}
 
 	public MetaDistr loadDistr( ActionInit action , ServerProductMeta storageFinal ) throws Exception {
-		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
+		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
 		return( storageFinal.loadDistr( action , storageMeta ) );
 	}
 	
 	public MetaDatabase loadDatabase( ActionInit action , ServerProductMeta storageFinal ) throws Exception {
-		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
+		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
 		return( storageFinal.loadDatabase( action , storageMeta ) );
 	}
 	
 	public MetaSource loadSources( ActionInit action , ServerProductMeta storageFinal ) throws Exception {
-		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
+		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
 		return( storageFinal.loadSources( action , storageMeta ) );
 	}
 	
 	public MetaMonitoring loadMonitoring( ActionInit action , ServerProductMeta storageFinal ) throws Exception {
-		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
+		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
 		return( storageFinal.loadMonitoring( action , storageMeta ) );
 	}
 
 	public MetaEnv loadEnvData( ActionInit action , ServerProductMeta storageFinal , String envFile , boolean loadProps ) throws Exception {
-		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
+		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
 		MetaEnv env = storageFinal.loadEnvData( action , storageMeta , envFile );
 		if( loadProps && env.missingSecretProperties )
 			action.exit0( _Error.MissingSecretProperties0 , "operation is unavailable - secret properties are missing" );
@@ -144,7 +144,7 @@ public class ServerLoader {
 	}
 	
 	public MetaDesign loadDesignData( ActionInit action , ServerProductMeta storageFinal , String fileName ) throws Exception {
-		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
+		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
 		return( storageFinal.loadDesignData( action , storageMeta , fileName ) );
 	}
 
@@ -156,7 +156,7 @@ public class ServerLoader {
 			
 			try {
 				action.setServerSystemProductLayout( name );
-				MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action );
+				MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , set.meta );
 				LocalFolder folder = storageMeta.getFolder( action );
 				if( folder.checkExists( action ) )
 					set.loadAll( action , storageMeta );
@@ -265,7 +265,7 @@ public class ServerLoader {
 		ActionInit action = transaction.getAction();
 		action.setServerSystemProductLayout( storageNew.name );
 		
-		MetadataStorage storage = action.artefactory.getMetadataStorage( action );
+		MetadataStorage storage = action.artefactory.getMetadataStorage( action , storageNew.meta );
 		storageNew.saveAll( action , storage );
 		productMeta.put( storageNew.name , storageNew );
 	}

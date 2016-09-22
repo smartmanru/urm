@@ -33,8 +33,8 @@ public class ActionScope {
 
 	public boolean scopeFull;
 	
-	private ActionScope( ActionBase action ) {
-		this.meta = action.meta;
+	private ActionScope( ActionBase action , Meta meta ) {
+		this.meta = meta;
 		this.context = action.context;
 	}
 	
@@ -42,13 +42,13 @@ public class ActionScope {
 		return( !scopeFull );
 	}
 
-	public static ActionScope getProductCategoryScope( ActionBase action , VarCATEGORY CATEGORY , String[] TARGETS ) throws Exception {
-		return( getProductSetScope( action , Common.getEnumLower( CATEGORY ) , TARGETS ) );
+	public static ActionScope getProductCategoryScope( ActionBase action , Meta meta , VarCATEGORY CATEGORY , String[] TARGETS ) throws Exception {
+		return( getProductSetScope( action , meta , Common.getEnumLower( CATEGORY ) , TARGETS ) );
 	}
 
-	public static ActionScope getProductSetScope( ActionBase action , String set , String[] TARGETS ) throws Exception {
+	public static ActionScope getProductSetScope( ActionBase action , Meta meta , String set , String[] TARGETS ) throws Exception {
 		action.trace( "scope: Product Set Scope, set=" + set + ", targets=" + Common.getListSet( TARGETS ) );
-		ActionScope scope = new ActionScope( action );
+		ActionScope scope = new ActionScope( action , meta );
 		
 		if( set == null || set.isEmpty() )
 			action.exit0( _Error.MissingSetName0 , "missing set name (use \"all\" to reference all sets)" );
@@ -72,14 +72,14 @@ public class ActionScope {
 		return( scope );
 	}
 
-	public static ActionScope getDatabaseManualItemsScope( ActionBase action , Dist dist , String[] INDEXES ) throws Exception {
+	public static ActionScope getReleaseDatabaseManualItemsScope( ActionBase action , Dist dist , String[] INDEXES ) throws Exception {
 		action.trace( "scope: Release Manual Database Scope, release=" + dist.RELEASEDIR + ", items=" + Common.getListSet( INDEXES ) );
-		return( getDatabaseItemsScope( action , dist , null , INDEXES ) );
+		return( getDatabaseItemsScope( action , dist.meta , dist , null , INDEXES ) );
 	}
 	
-	public static ActionScope getDatabaseDeliveryItemsScope( ActionBase action , Dist dist , String DELIVERY , String[] INDEXES ) throws Exception {
+	public static ActionScope getReleaseDatabaseDeliveryItemsScope( ActionBase action , Dist dist , String DELIVERY , String[] INDEXES ) throws Exception {
 		action.trace( "scope: Release Delivery Database Scope, release=" + dist.RELEASEDIR + ", delivery=" + DELIVERY + ", items=" + Common.getListSet( INDEXES ) );
-		return( getDatabaseItemsScope( action , dist , DELIVERY , INDEXES ) );
+		return( getDatabaseItemsScope( action , dist.meta , dist , DELIVERY , INDEXES ) );
 	}
 	
 	public static ActionScope getReleaseCategoryScope( ActionBase action , Dist dist , VarCATEGORY CATEGORY , String[] TARGETS ) throws Exception {
@@ -88,7 +88,7 @@ public class ActionScope {
 	
 	public static ActionScope getReleaseSetScope( ActionBase action , Dist dist , String set , String[] TARGETS ) throws Exception {
 		action.trace( "scope: Release Set Scope, release=" + dist.RELEASEDIR + ", set=" + set + ", targets=" + Common.getListSet( TARGETS ) );
-		ActionScope scope = new ActionScope( action );
+		ActionScope scope = new ActionScope( action , dist.meta );
 		
 		if( set == null || set.isEmpty() )
 			action.exit0( _Error.MissingSetName0 , "missing set name (use \"all\" to reference all sets)" );
@@ -112,9 +112,9 @@ public class ActionScope {
 		return( scope );
 	}
 
-	public static ActionScope getProductDistItemsScope( ActionBase action , String[] ITEMS ) throws Exception {
+	public static ActionScope getProductDistItemsScope( ActionBase action , Meta meta , String[] ITEMS ) throws Exception {
 		action.trace( "scope: Product Dist Items Scope, items=" + Common.getListSet( ITEMS ) );
-		ActionScope scope = new ActionScope( action );
+		ActionScope scope = new ActionScope( action , meta );
 
 		if( ITEMS == null || ITEMS.length == 0 )
 			action.exit0( _Error.MissingTargetItems0 , "missing items (use \"all\" to reference all items)" );
@@ -128,7 +128,7 @@ public class ActionScope {
 
 	public static ActionScope getReleaseDistItemsScope( ActionBase action , Dist dist , String[] ITEMS ) throws Exception {
 		action.trace( "scope: Release Dist Items Scope, release=" + dist.RELEASEDIR + ", items=" + Common.getListSet( ITEMS ) );
-		ActionScope scope = new ActionScope( action );
+		ActionScope scope = new ActionScope( action , dist.meta );
 
 		if( ITEMS == null || ITEMS.length == 0 )
 			action.exit0( _Error.MissingTargetItems0 , "missing items (use \"all\" to reference all items)" );
@@ -147,7 +147,7 @@ public class ActionScope {
 	
 	public static ActionScopeTarget getReleaseProjectItemsScopeTarget( ActionBase action , Dist dist , String PROJECT , String[] ITEMS ) throws Exception {
 		action.trace( "scope: Release Project Items Scope Target, release=" + dist.RELEASEDIR + ", project=" + PROJECT + ", items=" + Common.getListSet( ITEMS ) );
-		ActionScope scope = new ActionScope( action );
+		ActionScope scope = new ActionScope( action , dist.meta );
 
 		if( PROJECT == null || PROJECT.isEmpty() )
 			action.exit0( _Error.MissingProject0 , "missing project" );
@@ -167,7 +167,7 @@ public class ActionScope {
 		else
 			action.trace( "scope: Env Server Nodes Scope, server=" + SERVER + ", nodes=" + Common.getListSet( NODES ) );
 		
-		ActionScope scope = new ActionScope( action );
+		ActionScope scope = new ActionScope( action , dc.meta );
 
 		if( SERVER == null || SERVER.isEmpty() )
 			action.exit0( _Error.MissingServer0 , "missing server" );
@@ -183,7 +183,7 @@ public class ActionScope {
 	}
 
 	public static ActionScopeTarget getEnvServerNodesScope( ActionBase action , MetaEnvServer srv , List<MetaEnvServerNode> nodes ) throws Exception {
-		ActionScope scope = new ActionScope( action );
+		ActionScope scope = new ActionScope( action , srv.meta );
 		
 		String nodeList = "";
 		for( MetaEnvServerNode node : nodes )
@@ -194,29 +194,29 @@ public class ActionScope {
 	}
 	
 	public static ActionScope getEnvScope( ActionBase action , Dist dist ) throws Exception {
-		ActionScope scope = new ActionScope( action );
+		ActionScope scope = new ActionScope( action , dist.meta );
 		scope.createEnvScope( action , dist );
 		return( scope );
 	}
 	
-	public static ActionScope getEnvDatabaseScope( ActionBase action , Dist dist ) throws Exception {
+	public static ActionScope getEnvDatabaseScope( ActionBase action , Meta meta , Dist dist ) throws Exception {
 		if( dist != null )
 			action.trace( "scope: Env Database Scope, release=" + dist.RELEASEDIR );
 		else
 			action.trace( "scope: Env Database Scope" );
 		
-		ActionScope scope = new ActionScope( action );
+		ActionScope scope = new ActionScope( action , meta );
 		scope.createEnvDatabaseScope( action , dist );
 		return( scope );
 	}
 	
-	public static ActionScope getEnvServersScope( ActionBase action , MetaEnvDC dc , String[] SERVERS , Dist dist ) throws Exception {
+	public static ActionScope getEnvServersScope( ActionBase action , Meta meta , MetaEnvDC dc , String[] SERVERS , Dist dist ) throws Exception {
 		if( dist != null )
 			action.trace( "scope: Env Servers Scope, release=" + dist.RELEASEDIR + ", servers=" + Common.getListSet( SERVERS ) );
 		else
 			action.trace( "scope: Env Servers Scope, servers=" + Common.getListSet( SERVERS ) );
 		
-		ActionScope scope = new ActionScope( action );
+		ActionScope scope = new ActionScope( action , meta );
 
 		if( SERVERS == null || SERVERS.length == 0 )
 			action.exit0( _Error.MissingServers0 , "missing items (use \"all\" to reference all items)" );
@@ -236,8 +236,8 @@ public class ActionScope {
 		return( scope );
 	}
 
-	public static ActionScope getDatabaseItemsScope( ActionBase action , Dist dist , String DELIVERY , String[] INDEXES ) throws Exception {
-		ActionScope scope = new ActionScope( action );
+	public static ActionScope getDatabaseItemsScope( ActionBase action , Meta meta , Dist dist , String DELIVERY , String[] INDEXES ) throws Exception {
+		ActionScope scope = new ActionScope( action , meta );
 		
 		VarCATEGORY CATEGORY;
 
@@ -494,7 +494,7 @@ public class ActionScope {
 	}
 
 	private ActionScopeSet getScopeSet( ActionBase action , VarCATEGORY CATEGORY , String name ) throws Exception {
-		if( meta.isSourceCategory( CATEGORY ) )
+		if( Meta.isSourceCategory( CATEGORY ) )
 			return( sourceMap.get( name ) );
 		if( CATEGORY == VarCATEGORY.ENV )
 			return( envMap.get( name ) );
@@ -573,11 +573,11 @@ public class ActionScope {
 	}
 	
 	public String getBuildScopeInfo( ActionBase action ) throws Exception {
-		return( getScopeInfo( action , meta.getAllBuildableCategories() ) );
+		return( getScopeInfo( action , Meta.getAllBuildableCategories() ) );
 	}
 	
 	public String getSourceScopeInfo( ActionBase action ) throws Exception {
-		return( getScopeInfo( action , meta.getAllSourceCategories() ) );
+		return( getScopeInfo( action , Meta.getAllSourceCategories() ) );
 	}
 	
 	public boolean isEmpty( ActionBase action , VarCATEGORY[] categories ) throws Exception {
@@ -645,7 +645,7 @@ public class ActionScope {
 	public ActionScopeSet[] getBuildableSets( ActionBase action ) throws Exception {
 		List<ActionScopeSet> x = new LinkedList<ActionScopeSet>();
 		for( ActionScopeSet set : sourceMap.values() ) {
-			if( meta.isBuildableCategory( set.CATEGORY ) && !set.isEmpty( action ) )
+			if( Meta.isBuildableCategory( set.CATEGORY ) && !set.isEmpty( action ) )
 				x.add( set );
 		}
 		return( x.toArray( new ActionScopeSet[0] ) );
@@ -744,7 +744,7 @@ public class ActionScope {
 	private void addScopeSet( ActionBase action , ActionScopeSet sset ) throws Exception {
 		action.trace( "scope add set category=" + Common.getEnumLower( sset.CATEGORY ) + ", name=" + sset.NAME );
 		
-		if( meta.isSourceCategory( sset.CATEGORY ) )
+		if( Meta.isSourceCategory( sset.CATEGORY ) )
 			sourceMap.put( sset.NAME , sset );
 		else
 		if( sset.CATEGORY == VarCATEGORY.ENV )
@@ -754,7 +754,7 @@ public class ActionScope {
 	}
 	
 	public ActionScopeSet findSet( ActionBase action , VarCATEGORY CATEGORY , String NAME ) throws Exception {
-		if( meta.isSourceCategory( CATEGORY ) )
+		if( Meta.isSourceCategory( CATEGORY ) )
 			return( sourceMap.get( NAME ) );
 		if( CATEGORY == VarCATEGORY.ENV )
 			return( envMap.get( NAME ) );

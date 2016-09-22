@@ -51,7 +51,7 @@ public class SpecificPGU {
 		this.action = action;
 		this.downloadFolder = downloadFolder;
 		
-		this.meta = action.meta;
+		this.meta = null;
 		this.artefactory = action.artefactory;
 	}
 	
@@ -74,7 +74,7 @@ public class SpecificPGU {
 	public void downloadWarCopyDistr( boolean copyDistr , Dist release , String VERSION_TAGNAME , ActionScopeTarget scopeProject ) throws Exception {
 		MetaDistrBinaryItem distItem = scopeProject.sourceProject.distItem;
 		
-		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , downloadFolder );
+		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , meta , downloadFolder );
 		NexusDownloadInfo WAR = nexusStorage.downloadNexus( action , C_PGUWARNEXUSGROUPID , distItem.DISTBASENAME , VERSION , "war" , "" , distItem );
 		NexusDownloadInfo STATIC = nexusStorage.downloadNexus( action , C_PGUWARNEXUSGROUPID , distItem.DISTBASENAME , VERSION , "tar.gz" , "webstatic" , distItem );
 		nexusStorage.repackageStatic( action , scopeProject.sourceProject.PROJECT , VERSION , WAR.DOWNLOAD_FILENAME , STATIC.DOWNLOAD_FILENAME , VERSION_TAGNAME , distItem );
@@ -125,7 +125,7 @@ public class SpecificPGU {
 		if( srcRelease == null ) {
 			action.info( "downloading core servicecall and storageservice from Nexus - to " + artefactory.workFolder.folderPath + " ..." );
 			
-			NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , downloadFolder );
+			NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , meta , downloadFolder );
 			nexusStorage.downloadNexus( action , C_SERVICECALLGROUPID , "servicecall" , VERSION , SERVICECALL_EXT , "" , servicecallItem );
 			nexusStorage.downloadNexus( action , C_STORAGESERVICEGROUPID , "storageservice" , VERSION , STORAGESERVICE_EXT , "" , storageserviceItem );
 		}
@@ -151,7 +151,7 @@ public class SpecificPGU {
 	}
 	
 	private void getAllWarAppCopyProd() throws Exception {
-		Dist distStorage = artefactory.getDistProdStorage( action );
+		Dist distStorage = artefactory.getDistProdStorage( action , meta );
 
 		action.debug( "copy libraries from " + distStorage.RELEASEDIR + "/servicecall." + SERVICECALL_EXT + " to servicecall-prod-libs ..." );
 		distStorage.unzipDistFileToFolder( action , downloadFolder , "servicecall-*." + SERVICECALL_EXT , servicecallItem.delivery.FOLDER , Common.getQuoted( SERVICECALL_DIR + "/lib/*" ) , "servicecall-prod-libs" );
@@ -160,7 +160,7 @@ public class SpecificPGU {
 	private void getAllWarAppDownloadLibs( Dist release ) throws Exception {
 		// create directory for libs and "cd" to it
 		LocalFolder libFolder = downloadFolder.getSubFolder( action , "pgu-services-lib" );
-		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , libFolder );
+		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , meta , libFolder );
 
 		// download latest API libs - pfr, fed-common-util
 		if( meta.product.CONFIG_PRODUCT.equals( "fedpgu" ) ) {
@@ -280,7 +280,7 @@ public class SpecificPGU {
 		String GROUPID = sourceItem.NEXUS_ITEMPATH.replace( '/' , '.' );
 		String EXT = sourceItem.ITEMEXTENSION.substring( 1 );
 		
-		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , downloadFolder );
+		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , meta , downloadFolder );
 		nexusStorage.downloadNexus( action , GROUPID , sourceItem.ITEMBASENAME , VERSION , EXT , "" , distItem );
 		if( copyDistr ) {
 			Dist releaseStorage = release;
@@ -321,7 +321,7 @@ public class SpecificPGU {
 
 	public String getWarMRId( ActionBase action , String P_WAR ) throws Exception {
 		// get war from distributive info
-		MetaDistrBinaryItem item = action.meta.distr.getBinaryItem( action , P_WAR );
+		MetaDistrBinaryItem item = meta.distr.getBinaryItem( action , P_WAR );
 
 		String S_WAR_MRID = item.WAR_MRID;
 		if( S_WAR_MRID.isEmpty() )
@@ -332,7 +332,7 @@ public class SpecificPGU {
 
 	public boolean checkWarMRId( ActionBase action , String P_WAR ) throws Exception {
 		// get war from distributive info
-		MetaDistrBinaryItem item = action.meta.distr.findBinaryItem( action , P_WAR );
+		MetaDistrBinaryItem item = meta.distr.findBinaryItem( action , P_WAR );
 		if( item == null )
 			return( false );
 

@@ -13,9 +13,9 @@ public class LogStorage {
 	Meta meta;
 	public LocalFolder logFolder;
 	
-	public LogStorage( Artefactory artefactory ) {
+	public LogStorage( Artefactory artefactory , Meta meta ) {
 		this.artefactory = artefactory;
-		this.meta = artefactory.meta;
+		this.meta = meta;
 	}
 
 	public void prepareReleaseBuildLogFolder( ActionBase action , String release ) throws Exception {
@@ -29,7 +29,7 @@ public class LogStorage {
 	}
 
 	public void prepareDatabaseLogFolder( ActionBase action , String release ) throws Exception {
-		MetaProductBuildSettings build = action.getBuildSettings();
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		String dir = build.CONFIG_LOGPATH + "/db/" + action.context.env.ID + "/" + release + "-" + Common.getNameTimeStamp();  
 		logFolder = artefactory.getAnyFolder( action , dir );
 		logFolder.ensureExists( action );

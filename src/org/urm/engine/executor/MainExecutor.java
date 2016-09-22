@@ -13,6 +13,7 @@ import org.urm.engine.SessionContext;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandAction;
 import org.urm.engine.action.CommandExecutor;
+import org.urm.engine.meta.Meta;
 
 public class MainExecutor extends CommandExecutor {
 
@@ -99,7 +100,8 @@ public class MainExecutor extends CommandExecutor {
 			if( USEDC == null )
 				USEDC = "";
 	
-			ActionConfigure ca = new ActionConfigure( action , null , linux , USEENV , USEDC );
+			Meta meta = action.getContextMeta();
+			ActionConfigure ca = new ActionConfigure( action , meta , null , linux , USEENV , USEDC );
 			ca.runSimple();
 		}
 	}
@@ -107,7 +109,8 @@ public class MainExecutor extends CommandExecutor {
 	// save master to svn
 	private class SvnSave extends CommandAction {
 		public void run( ActionInit action ) throws Exception {
-			ActionSave ca = new ActionSave( action , null );
+			Meta meta = action.getContextMeta();
+			ActionSave ca = new ActionSave( action , meta , null );
 			ca.runSimple();
 		}
 	}

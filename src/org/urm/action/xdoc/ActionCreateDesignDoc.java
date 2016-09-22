@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaDesign;
 import org.urm.engine.meta.MetaDesignElement;
 import org.urm.engine.meta.MetaDesignLink;
@@ -17,11 +18,12 @@ import org.urm.engine.storage.MetadataStorage;
 
 public class ActionCreateDesignDoc extends ActionBase {
 
+	Meta meta;
 	String CMD;
 	String OUTDIR;
 	Map<String,List<MetaEnvServer>> prodServers;
 	
-	public ActionCreateDesignDoc( ActionBase action , String stream , String CMD , String OUTDIR ) {
+	public ActionCreateDesignDoc( ActionBase action , Meta meta , String stream , String CMD , String OUTDIR ) {
 		super( action , stream );
 		this.CMD = CMD;
 		this.OUTDIR = OUTDIR;
@@ -30,7 +32,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 	@Override protected boolean executeSimple() throws Exception {
 		getProdServers();
 		
-		MetadataStorage ms = artefactory.getMetadataStorage( this );
+		MetadataStorage ms = artefactory.getMetadataStorage( this , meta );
 		for( String designFile : ms.getDesignFiles( this ) ) {
 			MetaDesign design = meta.loadDesignData( this , designFile );
 			
@@ -59,7 +61,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 	private void getProdServers() throws Exception {
 		prodServers = new HashMap<String,List<MetaEnvServer>>();
 		
-		MetadataStorage ms = artefactory.getMetadataStorage( this );
+		MetadataStorage ms = artefactory.getMetadataStorage( this , meta );
 		String[] files = ms.getEnvFiles( this );
 		for( String envFile : files ) {
 			MetaEnv env = meta.loadEnvData( this , envFile , false );

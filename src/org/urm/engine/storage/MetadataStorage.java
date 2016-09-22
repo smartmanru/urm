@@ -18,9 +18,9 @@ public class MetadataStorage {
 	public Artefactory artefactory;
 	public Meta meta;
 	
-	public MetadataStorage( Artefactory artefactory ) {
+	public MetadataStorage( Artefactory artefactory , Meta meta ) {
 		this.artefactory = artefactory;
-		this.meta = artefactory.meta;
+		this.meta = meta;
 	}
 
 	public LocalFolder getFolder( ActionBase action ) throws Exception {
@@ -224,6 +224,12 @@ public class MetadataStorage {
 	public void saveEnvConfFile( ActionBase action , Document doc , String envFile ) throws Exception {
 		String filePath = getEnvConfFile( action , envFile );
 		saveFile( action , doc , filePath );
+	}
+	
+	public void deleteEnvConfFile( ActionBase action , String envFile ) throws Exception {
+		UrmStorage urm = artefactory.getUrmStorage();
+		LocalFolder folder = urm.getProductEnvMetadataFolder( action );
+		folder.removeFiles( action , envFile );
 	}
 	
 }

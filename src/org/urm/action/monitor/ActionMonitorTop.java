@@ -121,7 +121,6 @@ public class ActionMonitorTop extends ActionBase {
 		ActionSet set = new ActionSet( this , "major" );
 		for( MetaMonitoringTarget target : mon.getTargets( this ).values() ) {
 			ActionInit init = initProduct( target );
-			init.meta.loadProduct( init );
 			init.context.loadEnv( init , target.ENVFILE , target.DC , false );
 			checkEnv( set , init , target );
 		}

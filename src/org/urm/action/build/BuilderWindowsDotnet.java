@@ -22,7 +22,7 @@ public class BuilderWindowsDotnet extends Builder {
 	}
 
 	@Override public ShellExecutor createShell( ActionBase action ) throws Exception {
-		Account account = action.getWinBuildAccount();
+		Account account = action.getLocalAccount();
 		return( action.getShell( account ) );
 	}
 
@@ -83,7 +83,7 @@ public class BuilderWindowsDotnet extends Builder {
 		}
 
 		// upload package
-		String nugetId = action.meta.product.CONFIG_PRODUCT + ".project." + project.PROJECT; 
+		String nugetId = project.meta.product.CONFIG_PRODUCT + ".project." + project.PROJECT; 
 		String nugetPackCmd = "nuget pack package.nuspec -Version " + APPVERSION + " -Properties id=" + nugetId;
 		RemoteFolder NUGETPATH = CODEPATH.getSubFolder( action , "packages.build" ); 
 		timeout = action.setTimeoutUnlimited();
@@ -119,7 +119,7 @@ public class BuilderWindowsDotnet extends Builder {
 	}
 
 	private String getNugetSourcePath( ActionBase action ) throws Exception {
-		MetaProductBuildSettings build = action.getBuildSettings();
+		MetaProductBuildSettings build = action.getBuildSettings( project.meta );
 		ServerAuthResource res = action.getResource( build.CONFIG_NEXUS_RESOURCE );
 		return( res.BASEURL + "/service/local/nuget/" + build.CONFIG_NEXUS_REPO + "-nuget/" );
 	}

@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.deploy.ServerDeployment;
 import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaDistrBinaryItem;
 import org.urm.engine.meta.MetaDistrConfItem;
 import org.urm.engine.meta.MetaEnvServer;
@@ -140,7 +141,7 @@ public class RuntimeStorage extends ServerStorage {
 	
 	private void deploy( ActionBase action , String RELEASEDIR , ServerDeployment deployment , boolean rollout ) throws Exception {
 		for( VarCONTENTTYPE content : VarCONTENTTYPE.values() ) {
-			if( action.meta.isBinaryContent( action , content ) ) {
+			if( Meta.isBinaryContent( action , content ) ) {
 				if( !action.context.CTX_DEPLOYBINARY ) {
 					action.trace( "ignore conf deploy content" );
 					continue;
@@ -154,7 +155,7 @@ public class RuntimeStorage extends ServerStorage {
 			}
 			
 			for( String location : deployment.getLocations( action , content , rollout ) ) {
-				RedistStateInfo info = new RedistStateInfo();
+				RedistStateInfo info = new RedistStateInfo( meta );
 				info.gather( action , node , content , super.getPathRedistLocation( action , RELEASEDIR , location , content , rollout ) );
 				
 				for( String key : info.getKeys( action ) ) {

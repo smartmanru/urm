@@ -4,18 +4,22 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.common.Common;
 import org.urm.engine.ServerAuthResource;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaProductBuildSettings;
 
 public class ActionUploadLibItem extends ActionBase {
 
+	Meta meta;
 	String GROUPID;
 	String FILE;
 	String ARTEFACTID;
 	String VERSION;
 	String CLASSIFIER;
 	
-	public ActionUploadLibItem( ActionBase action , String stream , String GROUPID , String FILE , String ARTEFACTID , String VERSION , String CLASSIFIER ) {
+	public ActionUploadLibItem( ActionBase action , Meta meta , String stream , String GROUPID , String FILE , String ARTEFACTID , String VERSION , String CLASSIFIER ) {
 		super( action , stream );
+		
+		this.meta = meta;
 		this.GROUPID = GROUPID;
 		this.FILE = FILE;
 		this.ARTEFACTID = ARTEFACTID;
@@ -25,7 +29,7 @@ public class ActionUploadLibItem extends ActionBase {
 	
 	@Override protected boolean executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
 		// set environment
-		MetaProductBuildSettings build = getBuildSettings();
+		MetaProductBuildSettings build = getBuildSettings( meta );
 		String BUILD_JAVA_VERSION = build.CONFIG_MAVEN_JAVA_VERSION;
 		String BUILD_MAVEN_VERSION = build.CONFIG_MAVEN_VERSION;
 

@@ -342,11 +342,11 @@ public class ServerProductMeta extends ServerObject {
 		loadSources( action , storageMeta );
 		loadMonitoring( action , storageMeta );
 		
-		action.meta.setVersion( version );
-		action.meta.setProduct( product );
-		action.meta.setDatabase( database );
-		action.meta.setDistr( distr );
-		action.meta.setSources( sources );
+		meta.setVersion( version );
+		meta.setProduct( product );
+		meta.setDatabase( database );
+		meta.setDistr( distr );
+		meta.setSources( sources );
 		
 		if( loadFailed )
 			return;
@@ -374,7 +374,7 @@ public class ServerProductMeta extends ServerObject {
 	private void createInitialVersion( ActionBase action ) throws Exception {
 		version = new MetaProductVersion( meta );
 		version.create( action );
-		action.meta.setVersion( version );
+		meta.setVersion( version );
 	}
 	
 	private void createInitialProduct( ActionBase action , ServerSettings settings ) throws Exception {
@@ -384,25 +384,25 @@ public class ServerProductMeta extends ServerObject {
 		productContext.create( action , version );
 		
 		product.create( action , settings , productContext );
-		action.meta.setProduct( product );
+		meta.setProduct( product );
 	}
 	
 	private void createInitialDatabase( ActionBase action ) throws Exception {
 		database = new MetaDatabase( meta );
 		database.create( action );
-		action.meta.setDatabase( database );
+		meta.setDatabase( database );
 	}
 	
 	private void createInitialDistr( ActionBase action ) throws Exception {
 		distr = new MetaDistr( meta );
 		distr.create( action );
-		action.meta.setDistr( distr );
+		meta.setDistr( distr );
 	}
 	
 	private void createInitialSources( ActionBase action ) throws Exception {
 		sources = new MetaSource( meta );
 		sources.create( action );
-		action.meta.setSources( sources );
+		meta.setSources( sources );
 	}
 	
 	private void createInitialMonitoring( ActionBase action ) throws Exception {
@@ -519,7 +519,11 @@ public class ServerProductMeta extends ServerObject {
 	}
 
 	public void deleteEnv( ServerTransaction transaction , MetaEnv env ) throws Exception {
-		envs.remove( env.ID );
+		String envFile = env.ID + ".xml";
+		envs.remove( envFile );
+		ActionBase action = transaction.getAction();
+		MetadataStorage storage = action.artefactory.getMetadataStorage( action , env.meta );
+		storage.deleteEnvConfFile( transaction.getAction() , envFile );
 	}
 
 }

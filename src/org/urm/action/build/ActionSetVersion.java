@@ -59,7 +59,7 @@ public class ActionSetVersion extends ActionBase {
 		// set version
 		createDedicatedShell( "build"  );
 		updateVersion( scopeProject , PATCHPATH.buildFolder );
-		vcs.commit( PATCHPATH.buildFolder , scopeProject.sourceProject , meta.product.CONFIG_ADM_TRACKER + "-0000: set version " + BUILDVERSION );
+		vcs.commit( PATCHPATH.buildFolder , scopeProject.sourceProject , scopeProject.meta.product.CONFIG_ADM_TRACKER + "-0000: set version " + BUILDVERSION );
 		return( true );
 	}
 }

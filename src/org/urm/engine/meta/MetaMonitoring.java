@@ -12,7 +12,7 @@ import org.w3c.dom.Node;
 
 public class MetaMonitoring extends PropertyController {
 	
-	protected Meta meta;
+	public Meta meta;
 
 	Map<String,MetaMonitoringTarget> mapEnvs;
 

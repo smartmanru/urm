@@ -2,6 +2,7 @@ package org.urm.action.database;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.custom.CommandCustom;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaDatabase;
@@ -49,7 +50,7 @@ public class DatabasePrepare {
 		this.srcFolder = src;
 		this.dstFolder = dst;
 		
-		meta = action.meta;
+		meta = distStorage.meta;
 		distr = meta.distr;
 		database = meta.database;
 		errorFolder = "db-" + Common.getNameTimeStamp();
@@ -126,12 +127,13 @@ public class DatabasePrepare {
 				continue;
 			else {
 				boolean failed = true;
-				if( action.custom.isCustomDatabase() ) {
+				CommandCustom custom = new CommandCustom( meta );
+				if( custom.isCustomDatabase() ) {
 					failed = false;
 					
-					String folderName = action.custom.getGroupName( action , dir );
+					String folderName = custom.getGroupName( action , dir );
 					if( folderName != null ) {
-						if( !action.custom.checkDatabaseDir( action , P_ALIGNEDSET , P_ALIGNEDID , dir , ALL_SCHEMA_LIST ) )
+						if( !custom.checkDatabaseDir( action , P_ALIGNEDSET , P_ALIGNEDID , dir , ALL_SCHEMA_LIST ) )
 							failed = true;
 					}
 				}
@@ -156,8 +158,9 @@ public class DatabasePrepare {
 		
 		LocalFolder F_TARGETDIR = dstFolder;
 		copyCore( action , srcFileSet , S_COMMON_ALIGNEDID , F_TARGETDIR );
-		if( action.custom.isCustomDatabase() )
-			action.custom.copyCustom( action , srcFileSet , S_COMMON_ALIGNEDID , F_TARGETDIR );
+		CommandCustom custom = new CommandCustom( meta );
+		if( custom.isCustomDatabase() )
+			custom.copyCustom( action , srcFileSet , S_COMMON_ALIGNEDID , F_TARGETDIR );
 
 		// aligned
 		if( P_ALIGNEDDIRLIST == null )
@@ -169,8 +172,8 @@ public class DatabasePrepare {
 			action.info( "prepare: =================================== copy aligned dir=" + aligneddir + " id=" + S_COMMON_ALIGNEDID + " ..." );
 			
 			copyCore( action , aligneddir , S_COMMON_ALIGNEDID , F_TARGETDIR );
-			if( action.custom.isCustomDatabase() )
-				action.custom.copyCustom( action , aligneddir , S_COMMON_ALIGNEDID , F_TARGETDIR );
+			if( custom.isCustomDatabase() )
+				custom.copyCustom( action , aligneddir , S_COMMON_ALIGNEDID , F_TARGETDIR );
 		}
 	}
 	
@@ -429,7 +432,7 @@ public class DatabasePrepare {
 
 		action.info( "moving " + P_PATH + " to errors folder ..." );
 
-		SourceStorage sourceStorage = action.artefactory.getSourceStorage( action );
+		SourceStorage sourceStorage = action.artefactory.getSourceStorage( action , meta );
 		String movePath = Common.getPath( P_ALIGNEDSET.dirPath , P_PATH );
 		sourceStorage.moveReleaseDatabaseFilesToErrors( action , errorFolder , distStorage , dbDelivery , movePath , P_COMMENT );
 	}

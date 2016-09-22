@@ -2,6 +2,7 @@ package org.urm.engine.storage;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.meta.MetaEnvServerNode;
 import org.urm.engine.meta.Meta.VarCONTENTTYPE;
@@ -16,12 +17,15 @@ public class ServerStorage {
 	static String S_CONFIGTARFILE = "config.tar";
 	
 	public Artefactory artefactory;
+	public Meta meta;
+	
 	public MetaEnvServer server;
 	public MetaEnvServerNode node;
 	public Account account;
 	
 	public ServerStorage( Artefactory artefactory , Account account , MetaEnvServer server , MetaEnvServerNode node ) {
 		this.artefactory = artefactory;
+		this.meta = server.meta;
 		this.server = null;
 		this.node = null;
 		this.account = account;
@@ -75,7 +79,7 @@ public class ServerStorage {
 	}
 	
 	public RemoteFolder getRedistHostRootFolder( ActionBase action ) throws Exception {
-		String path = ( action.context.env == null )? action.meta.product.CONFIG_REDISTPATH : action.context.env.REDISTPATH;
+		String path = ( action.context.env == null )? meta.product.CONFIG_REDISTPATH : action.context.env.REDISTPATH;
 		Account rootAccount = account.getRootAccount( action );
 		RemoteFolder rf = new RemoteFolder( rootAccount , path );
 		return( rf );

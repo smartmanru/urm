@@ -8,6 +8,7 @@ import org.urm.engine.dist.Release;
 import org.urm.engine.dist.ReleaseSet;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaDistrBinaryItem;
 import org.urm.engine.meta.MetaDistrDelivery;
 import org.urm.engine.meta.Meta.VarCATEGORY;
@@ -29,7 +30,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		String hashStatus = dist.checkHash( this )? "OK" : "not matched";
 		
 		info( "RELEASE " + dist.RELEASEDIR + " STATUS:" );
-		info( "\tlocation: " + meta.product.CONFIG_DISTR_HOSTLOGIN + ":" + dist.getDistPath( this ) );
+		info( "\tlocation: " + dist.meta.product.CONFIG_DISTR_HOSTLOGIN + ":" + dist.getDistPath( this ) );
 		info( "\tversion: " + release.RELEASEVER );
 		info( "\tstate: " + dist.getState( this ) );
 		info( "\tsignature: " + hashStatus );
@@ -46,7 +47,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		
 		for( String set : Common.getSortedKeys( release.getSourceSets( this ) ) )
 			printReleaseSourceSetStatus( dist , files , release.getSourceSet( this , set ) );
-		for( VarCATEGORY CATEGORY : meta.getAllReleaseCategories() ) {
+		for( VarCATEGORY CATEGORY : Meta.getAllReleaseCategories() ) {
 			ReleaseSet set = release.findCategorySet( this , CATEGORY );
 			if( set != null )
 				printReleaseCategorySetStatus( dist , files , set );
@@ -99,7 +100,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		
 	private void printReleaseBuildSetProjectStatus( Dist dist , FileSet files , ReleaseSet set , ReleaseTarget project ) throws Exception {
 		String specifics = project.getSpecifics( this );
-		if( meta.isBuildableCategory( set.CATEGORY ) ) {
+		if( Meta.isBuildableCategory( set.CATEGORY ) ) {
 			if( project.sourceProject.isEmpty( this ) ) {
 				info( "\tbuild project=" + project.sourceProject.PROJECT + " (internal)" + Common.getCommentIfAny( specifics ) );
 				return;

@@ -105,7 +105,7 @@ public class ActionBaseInstall extends ActionBase {
 	}
 	
 	private void executeNodeLinuxArchiveLink( MetaEnvServer server , MetaEnvServerNode node , MetaBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
-		String localPath = copySourceToLocal( info );
+		String localPath = copySourceToLocal( server , info );
 		String redistPath = copyLocalToRedist( info , localPath , redist );
 		String runtimePath = info.INSTALLPATH;
 		
@@ -115,7 +115,7 @@ public class ActionBaseInstall extends ActionBase {
 	}
 	
 	private void executeNodeLinuxArchiveDirect( MetaEnvServer server , MetaEnvServerNode node , MetaBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
-		String localPath = copySourceToLocal( info );
+		String localPath = copySourceToLocal( server , info );
 		String redistPath = copyLocalToRedist( info , localPath , redist );
 		String runtimePath = info.INSTALLPATH;
 		
@@ -129,7 +129,7 @@ public class ActionBaseInstall extends ActionBase {
 	
 	private void executeNodeInstaller( MetaEnvServer server , MetaEnvServerNode node , MetaBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
 		LocalFolder workBase = getSystemFiles( info , redist.server , redist.node );
-		String installerFile = copySourceToLocal( info );
+		String installerFile = copySourceToLocal( server , info );
 		RemoteFolder redistFolder = redist.getRedistTmpFolder( this );
 		
 		String redistFile = redistFolder.copyFileFromLocal( this , installerFile );
@@ -170,12 +170,12 @@ public class ActionBaseInstall extends ActionBase {
 		vis.setBaseStatus( this , info.ID , "ok" );
 	}
 
-	private String copySourceToLocal( MetaBase info ) throws Exception {
+	private String copySourceToLocal( MetaEnvServer server , MetaBase info ) throws Exception {
 		int timeout = setTimeoutUnlimited();
 		
 		String localPath = null;
 		if( info.SRCFILE.startsWith( "http:" ) || info.SRCFILE.startsWith( "https:" ) ) {
-			LocalFolder folder = artefactory.getArtefactFolder( this , "base" );
+			LocalFolder folder = artefactory.getArtefactFolder( this , server.meta , "base" );
 			String baseName = Common.getBaseName( info.SRCFILE );
 			String filePath = folder.getFilePath( this , baseName );
 			shell.downloadUnix( this , info.SRCFILE , filePath , "" );
@@ -261,7 +261,7 @@ public class ActionBaseInstall extends ActionBase {
 		}
 		
 		// configure
-		ConfBuilder builder = new ConfBuilder( this );
+		ConfBuilder builder = new ConfBuilder( this , server.meta );
 		builder.configureFolder( this , workBase , node , info.properties , info.charset );
 		return( workBase );
 	}

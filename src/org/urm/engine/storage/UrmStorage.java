@@ -3,14 +3,12 @@ package org.urm.engine.storage;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.meta.Meta.VarDBMSTYPE;
 
 public class UrmStorage {
 
 	public Artefactory artefactory;
-	public Meta meta;
 
 	public static String PRODUCTS_FOLDER = "products";
 	public static String SERVER_SETTINGS_FILE = "server.xml";
@@ -29,7 +27,6 @@ public class UrmStorage {
 	
 	public UrmStorage( Artefactory artefactory ) {
 		this.artefactory = artefactory;
-		this.meta = artefactory.meta;
 	}
 
 	public boolean isServerMode( ActionBase action ) throws Exception {

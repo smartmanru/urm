@@ -163,7 +163,7 @@ public class DistState {
 		// create empty release.xml
 		String filePath = action.artefactory.workFolder.getFilePath( action , Dist.META_FILENAME );
 		
-		Release info = new Release( action.meta , dist );
+		Release info = new Release( dist.meta , dist );
 		info.createProd( action , RELEASEVER , filePath );
 		distFolder.copyFileFromLocal( action , filePath );
 		
@@ -336,7 +336,7 @@ public class DistState {
 		String filePath = action.getWorkFilePath( Dist.META_FILENAME );
 		String RELEASEDIR = distFolder.folderName;
 		
-		Release info = new Release( action.meta , dist );
+		Release info = new Release( dist.meta , dist );
 		String RELEASEVER = dist.repo.getReleaseVerByDir( action , RELEASEDIR ); 
 		info.create( action , RELEASEVER , filePath );
 		

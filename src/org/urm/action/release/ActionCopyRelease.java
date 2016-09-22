@@ -15,7 +15,7 @@ public class ActionCopyRelease extends ActionBase {
 	}
 
 	@Override protected boolean executeSimple() throws Exception {
-		Dist dst = artefactory.createDist( this , RELEASEDST );
+		Dist dst = artefactory.createDist( this , src.meta , RELEASEDST );
 		dst.copyRelease( this , src );
 		return( true );
 	}

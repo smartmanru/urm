@@ -73,7 +73,7 @@ public class ActionExportDatabase extends ActionBase {
 	}
 
 	private void loadExportSettings() throws Exception {
-		MetadataStorage ms = artefactory.getMetadataStorage( this ); 
+		MetadataStorage ms = artefactory.getMetadataStorage( this , server.meta ); 
 		String specPath = ms.getDatapumpFile( this , SPECFILE );
 		
 		info( "reading export specification file " + specPath + " ..." );
@@ -97,7 +97,7 @@ public class ActionExportDatabase extends ActionBase {
 	}
 
 	private void prepareDestination() throws Exception {
-		repository = artefactory.getDistRepository( this );
+		repository = artefactory.getDistRepository( this , server.meta );
 		distDataFolder = repository.getDataNewFolder( this , DATASET );
 		distDataFolder.ensureExists( this );
 		distLogFolder = repository.getExportLogFolder( this , DATASET );
@@ -153,7 +153,7 @@ public class ActionExportDatabase extends ActionBase {
 		Common.createFileFromStringList( confFile , conf );
 		exportScriptsFolder.copyFileFromLocal( this , confFile );
 		
-		MetadataStorage ms = artefactory.getMetadataStorage( this );
+		MetadataStorage ms = artefactory.getMetadataStorage( this , server.meta );
 		String tablesFilePath = work.getFilePath( this , UrmStorage.TABLES_FILE_NAME );
 		ms.saveDatapumpSet( this , tableSet , server , tablesFilePath );
 		exportScriptsFolder.copyFileFromLocal( this , tablesFilePath );
@@ -161,7 +161,7 @@ public class ActionExportDatabase extends ActionBase {
 
 	private void runAll() throws Exception {
 		if( !STANDBY ) {
-			MetadataStorage ms = artefactory.getMetadataStorage( this );
+			MetadataStorage ms = artefactory.getMetadataStorage( this , server.meta );
 			ms.loadDatapumpSet( this , tableSet , server , STANDBY , true );
 		}
 		

@@ -19,6 +19,7 @@ import org.urm.common.meta.DeployCommandMeta;
 import org.urm.common.meta.MainCommandMeta;
 import org.urm.engine.ServerDirectory;
 import org.urm.engine.ServerLoader;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaEnv;
 import org.urm.engine.meta.MetaEnvDC;
 import org.urm.engine.meta.Meta.VarBUILDMODE;
@@ -28,6 +29,7 @@ import org.urm.engine.storage.UrmStorage;
 
 public class ActionConfigure extends ActionBase {
 
+	Meta meta;
 	boolean configureLinux;
 	String USEENV;
 	String USEDC;
@@ -43,8 +45,9 @@ public class ActionConfigure extends ActionBase {
 	String dcDbMasterFolderRel;
 	String buildMasterFolderRel;
 
-	public ActionConfigure( ActionBase action , String stream , boolean configureLinux , String USEENV , String USEDC ) {
+	public ActionConfigure( ActionBase action , Meta meta , String stream , boolean configureLinux , String USEENV , String USEDC ) {
 		super( action , stream );
+		this.meta = meta;
 		this.configureLinux = configureLinux;
 		this.USEENV = USEENV;
 		this.USEDC = USEDC;
@@ -267,7 +270,7 @@ public class ActionConfigure extends ActionBase {
 			String proxyPath = DeployCommandMeta.NAME;
 			
 			Map<String,MetaEnv> envs = new HashMap<String,MetaEnv>(); 
-			MetadataStorage ms = artefactory.getMetadataStorage( this );
+			MetadataStorage ms = artefactory.getMetadataStorage( this , meta );
 			
 			MetaEnvDC dc = null;
 			if( USEENV.isEmpty() ) {

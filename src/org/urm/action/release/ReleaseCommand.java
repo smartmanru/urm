@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.build.BuildCommand;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.Meta.VarCATEGORY;
 
 public class ReleaseCommand {
@@ -11,13 +12,13 @@ public class ReleaseCommand {
 	public ReleaseCommand() {
 	}
 
-	public void createProd( ActionBase action , String RELEASEVER ) throws Exception {
-		ActionCreateProd ma = new ActionCreateProd( action , null , RELEASEVER );
+	public void createProd( ActionBase action , Meta meta , String RELEASEVER ) throws Exception {
+		ActionCreateProd ma = new ActionCreateProd( action , meta , null , RELEASEVER );
 		ma.runSimple();
 	}
 	
-	public void createRelease( ActionBase action , String RELEASELABEL ) throws Exception {
-		ActionCreateRelease ma = new ActionCreateRelease( action , null , RELEASELABEL );
+	public void createRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
+		ActionCreateRelease ma = new ActionCreateRelease( action , meta , null , RELEASELABEL );
 		ma.runSimple();
 	}
 
@@ -26,38 +27,38 @@ public class ReleaseCommand {
 		ma.runSimple();
 	}
 
-	public void deleteRelease( ActionBase action , String RELEASELABEL , boolean force ) throws Exception {
-		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+	public void deleteRelease( ActionBase action , Meta meta , String RELEASELABEL , boolean force ) throws Exception {
+		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , dist , force );
 		ma.runSimple();
 	}
 	
-	public void closeRelease( ActionBase action , String RELEASELABEL ) throws Exception {
-		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+	public void closeRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
+		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		ActionForceCloseRelease ma = new ActionForceCloseRelease( action , null , dist );
 		ma.runSimple();
 	}
 	
-	public void copyRelease( ActionBase action , String RELEASESRC , String RELEASEDST ) throws Exception {
-		Dist distSrc = action.artefactory.getDistStorageByLabel( action , RELEASESRC );
+	public void copyRelease( ActionBase action , Meta meta , String RELEASESRC , String RELEASEDST ) throws Exception {
+		Dist distSrc = action.artefactory.getDistStorageByLabel( action , meta , RELEASESRC );
 		ActionCopyRelease ma = new ActionCopyRelease( action , null , distSrc , RELEASEDST );
 		ma.runSimple();
 	}
 	
-	public void finishRelease( ActionBase action , String RELEASELABEL ) throws Exception {
-		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+	public void finishRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
+		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		ActionFinishRelease ma = new ActionFinishRelease( action , null , dist );
 		ma.runSimple();
 	}
 	
-	public void reopenRelease( ActionBase action , String RELEASELABEL ) throws Exception {
-		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+	public void reopenRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
+		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		ActionReopenRelease ma = new ActionReopenRelease( action , null , dist );
 		ma.runSimple();
 	}
 	
-	public void statusRelease( ActionBase action , String RELEASELABEL ) throws Exception {
-		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+	public void statusRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
+		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		ActionPrintReleaseStatus ma = new ActionPrintReleaseStatus( action , null , dist );
 		ma.runSimple();
 	}
@@ -78,39 +79,39 @@ public class ReleaseCommand {
 		action.info( "scope (" + scope.getScopeInfo( action ) + ") - added to release" );
 	}
 	
-	public void addReleaseBuildProjects( ActionBase action , String RELEASELABEL , String SET , String[] elements ) throws Exception {
-		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+	public void addReleaseBuildProjects( ActionBase action , Meta meta , String RELEASELABEL , String SET , String[] elements ) throws Exception {
+		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
-		ActionScope scope = ActionScope.getProductSetScope( action , SET , elements );
+		ActionScope scope = ActionScope.getProductSetScope( action , meta , SET , elements );
 		addReleaseScope( action , dist , scope );
 	}
 
-	public void addReleaseConfigItems( ActionBase action , String RELEASELABEL , String[] elements ) throws Exception {
-		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+	public void addReleaseConfigItems( ActionBase action , Meta meta , String RELEASELABEL , String[] elements ) throws Exception {
+		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
-		ActionScope scope = ActionScope.getProductCategoryScope( action , VarCATEGORY.CONFIG , elements );
+		ActionScope scope = ActionScope.getProductCategoryScope( action , meta , VarCATEGORY.CONFIG , elements );
 		addReleaseScope( action , dist , scope );
 	}
 
-	public void addReleaseDatabaseItems( ActionBase action , String RELEASELABEL , String[] DELIVERIES ) throws Exception {
-		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+	public void addReleaseDatabaseItems( ActionBase action , Meta meta , String RELEASELABEL , String[] DELIVERIES ) throws Exception {
+		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
-		ActionScope scope = ActionScope.getProductCategoryScope( action , VarCATEGORY.DB , DELIVERIES );
+		ActionScope scope = ActionScope.getProductCategoryScope( action , meta , VarCATEGORY.DB , DELIVERIES );
 		addReleaseScope( action , dist , scope );
 	}
 
-	public void addReleaseBuildItems( ActionBase action , String RELEASELABEL , String[] ITEMS ) throws Exception {
-		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+	public void addReleaseBuildItems( ActionBase action , Meta meta , String RELEASELABEL , String[] ITEMS ) throws Exception {
+		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
-		ActionScope scope = ActionScope.getProductDistItemsScope( action , ITEMS );
+		ActionScope scope = ActionScope.getProductDistItemsScope( action , meta , ITEMS );
 		addReleaseScope( action , dist , scope );
 	}
 
@@ -119,7 +120,7 @@ public class ReleaseCommand {
 			action.exit0( _Error.CannotBuildCumulative0 , "cannot build cumulative release" );
 		
 		BuildCommand buildImpl = new BuildCommand();
-		buildImpl.buildRelease( action , SET , PROJECTS , dist );
+		buildImpl.buildRelease( action , dist.meta , SET , PROJECTS , dist );
 	}
 
 	public void getAllRelease( ActionBase action , String SET , String[] PROJECTS , Dist dist ) throws Exception {
@@ -135,7 +136,7 @@ public class ReleaseCommand {
 		if( !dist.release.isCumulative() )
 			action.exit0( _Error.NotCumulativeRelease0 , "should be cumulative release" );
 		
-		ActionGetCumulative ca = new ActionGetCumulative( action , null , dist );
+		ActionGetCumulative ca = new ActionGetCumulative( action , dist.meta , null , dist );
 		ca.runSimple();
 	}
 

@@ -14,11 +14,9 @@ import org.urm.engine.shell.Account;
 
 public class Artefactory {
 
-	public Meta meta;
 	public LocalFolder workFolder;
 	
-	public Artefactory( Meta meta , LocalFolder workFolder ) {
-		this.meta = meta;
+	public Artefactory( LocalFolder workFolder ) {
 		this.workFolder = workFolder;
 	}
 
@@ -47,44 +45,44 @@ public class Artefactory {
 		return( workFolder.getFilePath( action , name ) );
 	}
 	
-	public LocalFolder getDownloadFolder( ActionBase action ) throws Exception {
-		MetaProductBuildSettings build = action.getBuildSettings();
+	public LocalFolder getDownloadFolder( ActionBase action , Meta meta ) throws Exception {
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		LocalFolder folder = getAnyFolder( action , build.CONFIG_ARTEFACTDIR );
 		folder.ensureExists( action );
 		return( folder );
 	}
 	
-	public LocalFolder getArtefactFolder( ActionBase action , String FOLDER ) throws Exception {
+	public LocalFolder getArtefactFolder( ActionBase action , Meta meta , String FOLDER ) throws Exception {
 		action.checkRequired( FOLDER , "FOLDER" );
 		
-		MetaProductBuildSettings build = action.getBuildSettings();
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		String finalDir = build.CONFIG_ARTEFACTDIR + "/" + FOLDER;
 		LocalFolder folder = getAnyFolder( action , finalDir );
 		folder.ensureExists( action );
 		return( folder );
 	}
 	
-	public Dist getDistProdStorage( ActionBase action ) throws Exception {
-		return( getDistStorageByLabel( action , "prod" ) );
+	public Dist getDistProdStorage( ActionBase action , Meta meta ) throws Exception {
+		return( getDistStorageByLabel( action , meta , "prod" ) );
 	}
 	
-	public Dist getDistStorageByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
+	public Dist getDistStorageByLabel( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 
-		DistRepository repo = getDistRepository( action );
+		DistRepository repo = getDistRepository( action , meta );
 		Dist storage = repo.getDistByLabel( action , RELEASELABEL );
 		return( storage );
 	}
 	
-	public Dist createDist( ActionBase action , String RELEASELABEL ) throws Exception {
+	public Dist createDist( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
-		DistRepository repo = getDistRepository( action );
+		DistRepository repo = getDistRepository( action , meta );
 		Dist storage = repo.createDist( action , RELEASELABEL );
 		return( storage );
 	}
 	
-	public DistRepository getDistRepository( ActionBase action ) throws Exception {
-		DistRepository repo = DistRepository.getDistRepository( action , this );
+	public DistRepository getDistRepository( ActionBase action , Meta meta ) throws Exception {
+		DistRepository repo = DistRepository.getDistRepository( action , this , meta );
 		return( repo );
 	}
 	
@@ -97,69 +95,69 @@ public class Artefactory {
 		return( new MonitoringStorage( this , workFolder , mon ) );
 	}
 
-	public NexusStorage getNexusStorage( ActionBase action , String repository ) throws Exception {
+	public NexusStorage getNexusStorage( ActionBase action , Meta meta , String repository ) throws Exception {
 		action.checkRequired( repository , "repository" );
-		return( new NexusStorage( this , workFolder , repository ) );
+		return( new NexusStorage( this , meta , workFolder , repository ) );
 	}
 
-	public NexusStorage getNexusStorage( ActionBase action , String repository , LocalFolder folder ) throws Exception {
+	public NexusStorage getNexusStorage( ActionBase action , Meta meta , String repository , LocalFolder folder ) throws Exception {
 		action.checkRequired( repository , "repository" );
-		return( new NexusStorage( this , folder , repository ) );
+		return( new NexusStorage( this , meta , folder , repository ) );
 	}
 
-	public NexusStorage getDefaultNexusStorage( ActionBase action ) throws Exception {
-		MetaProductBuildSettings build = action.getBuildSettings();
-		return( new NexusStorage( this , workFolder , build.CONFIG_NEXUS_REPO ) );
+	public NexusStorage getDefaultNexusStorage( ActionBase action , Meta meta ) throws Exception {
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
+		return( new NexusStorage( this , meta , workFolder , build.CONFIG_NEXUS_REPO ) );
 	}
 	
-	public NexusStorage getDefaultNexusStorage( ActionBase action , LocalFolder folder ) throws Exception {
-		MetaProductBuildSettings build = action.getBuildSettings();
-		return( new NexusStorage( this , folder , build.CONFIG_NEXUS_REPO ) );
+	public NexusStorage getDefaultNexusStorage( ActionBase action , Meta meta , LocalFolder folder ) throws Exception {
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
+		return( new NexusStorage( this , meta , folder , build.CONFIG_NEXUS_REPO ) );
 	}
 	
-	public NexusStorage getDefaultNugetStorage( ActionBase action , LocalFolder folder ) throws Exception {
-		MetaProductBuildSettings build = action.getBuildSettings();
-		return( new NexusStorage( this , folder , build.CONFIG_NEXUS_REPO + "-nuget" ) );
+	public NexusStorage getDefaultNugetStorage( ActionBase action , Meta meta , LocalFolder folder ) throws Exception {
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
+		return( new NexusStorage( this , meta , folder , build.CONFIG_NEXUS_REPO + "-nuget" ) );
 	}
 	
-	public NexusStorage getThirdpartyNexusStorage( ActionBase action ) throws Exception {
-		MetaProductBuildSettings build = action.getBuildSettings();
-		return( new NexusStorage( this , workFolder , build.CONFIG_NEXUS_REPO_THIRDPARTY ) );
+	public NexusStorage getThirdpartyNexusStorage( ActionBase action , Meta meta ) throws Exception {
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
+		return( new NexusStorage( this , meta , workFolder , build.CONFIG_NEXUS_REPO_THIRDPARTY ) );
 	}
 	
-	public NexusStorage getThirdpartyNexusStorage( ActionBase action , LocalFolder folder ) throws Exception {
-		MetaProductBuildSettings build = action.getBuildSettings();
-		return( new NexusStorage( this , folder , build.CONFIG_NEXUS_REPO_THIRDPARTY ) );
+	public NexusStorage getThirdpartyNexusStorage( ActionBase action , Meta meta , LocalFolder folder ) throws Exception {
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
+		return( new NexusStorage( this , meta , folder , build.CONFIG_NEXUS_REPO_THIRDPARTY ) );
 	}
 	
-	public SourceStorage getSourceStorage( ActionBase action ) throws Exception {
-		return( new SourceStorage( this , workFolder ) );
+	public SourceStorage getSourceStorage( ActionBase action , Meta meta ) throws Exception {
+		return( new SourceStorage( this , meta , workFolder ) );
 	}
 	
-	public SourceStorage getSourceStorage( ActionBase action , LocalFolder downloadFolder ) throws Exception {
-		return( new SourceStorage( this , downloadFolder ) );
+	public SourceStorage getSourceStorage( ActionBase action , Meta meta , LocalFolder downloadFolder ) throws Exception {
+		return( new SourceStorage( this , meta , downloadFolder ) );
 	}
 	
-	public MetadataStorage getMetadataStorage( ActionBase action ) throws Exception {
-		return( new MetadataStorage( this ) );
+	public MetadataStorage getMetadataStorage( ActionBase action , Meta meta ) throws Exception {
+		return( new MetadataStorage( this , meta ) );
 	}
 
-	public LogStorage getReleaseBuildLogStorage( ActionBase action , String release ) throws Exception {
+	public LogStorage getReleaseBuildLogStorage( ActionBase action , Meta meta , String release ) throws Exception {
 		action.checkRequired( release , "release" );
-		LogStorage storage = new LogStorage( this );
+		LogStorage storage = new LogStorage( this , meta );
 		storage.prepareReleaseBuildLogFolder( action , release );
 		return( storage );
 	}
 
-	public LogStorage getTagBuildLogStorage( ActionBase action , String TAG ) throws Exception {
+	public LogStorage getTagBuildLogStorage( ActionBase action , Meta meta , String TAG ) throws Exception {
 		action.checkRequired( TAG , "TAG" );
-		LogStorage storage = new LogStorage( this );
+		LogStorage storage = new LogStorage( this , meta );
 		storage.prepareTagBuildLogFolder( action , TAG );
 		return( storage );
 	}
 
-	public LogStorage getDatabaseLogStorage( ActionBase action , String release ) throws Exception {
-		LogStorage storage = new LogStorage( this );
+	public LogStorage getDatabaseLogStorage( ActionBase action , Meta meta , String release ) throws Exception {
+		LogStorage storage = new LogStorage( this , meta );
 		storage.prepareDatabaseLogFolder( action , release );
 		return( storage );
 	}
@@ -176,7 +174,7 @@ public class Artefactory {
 		LocalFolder folder = getAnyFolder( action , PATCHPATH );
 		folder.removeThis( action );
 		
-		return( new BuildStorage( this , folder ) );
+		return( new BuildStorage( this , sourceProject.meta , folder ) );
 	}
 
 	public RedistStorage getRedistStorage( ActionBase action , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
@@ -202,8 +200,8 @@ public class Artefactory {
 		return( new RuntimeStorage( this , account , server , node ) );
 	}
 
-	public HiddenFiles getHiddenFiles() throws Exception {
-		return( new HiddenFiles( this ) );
+	public HiddenFiles getHiddenFiles( Meta meta ) throws Exception {
+		return( new HiddenFiles( this , meta ) );
 	}
 
 	public UrmStorage getUrmStorage() throws Exception {

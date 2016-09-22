@@ -112,7 +112,7 @@ public class ActionRedist extends ActionBase {
 			}
 			
 			for( String item : items ) {
-				MetaDistrConfItem conf = meta.distr.getConfItem( this , item );
+				MetaDistrConfItem conf = server.meta.distr.getConfItem( this , item );
 				executeNodeConfigComp( server , node , location , conf , liveFolder );
 			}
 		}
@@ -159,7 +159,7 @@ public class ActionRedist extends ActionBase {
 
 		debug( node.HOSTLOGIN + ": redist content=" + Common.getEnumLower( CONTENTTYPE ) + ": items - " + Common.getListSet( items ) + " ..." );
 		for( String key : items ) {
-			MetaDistrBinaryItem binaryItem = meta.distr.getBinaryItem( this , key );
+			MetaDistrBinaryItem binaryItem = server.meta.distr.getBinaryItem( this , key );
 			String deployBaseName = location.getDeployName( this , key );
 			transferFile( server , node , redist , location , binaryItem , stateInfo , deployBaseName );
 		}
@@ -220,7 +220,7 @@ public class ActionRedist extends ActionBase {
 		boolean F_PARTIAL = ( target.ALL )? false : true; 
 
 		debug( "redist configuraton component=" + confItem.KEY + " (partial=" + F_PARTIAL + ") ..." );
-		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
+		SourceStorage sourceStorage = artefactory.getSourceStorage( this , server.meta );
 		String name = sourceStorage.getConfItemLiveName( this , node , confItem );
 		LocalFolder confFolder = liveFolder.getSubFolder( this , name );
 		
@@ -249,8 +249,8 @@ public class ActionRedist extends ActionBase {
 		// backup binary items
 		for( VarCONTENTTYPE content : VarCONTENTTYPE.values() ) {
 			for( String location : deployment.getLocations( this , content , true ) ) {
-				RedistStateInfo rinfo = new RedistStateInfo();
-				RedistStateInfo sinfo = new RedistStateInfo();
+				RedistStateInfo rinfo = new RedistStateInfo( server.meta );
+				RedistStateInfo sinfo = new RedistStateInfo( server.meta );
 				String RELEASEDIR = redist.getPathRedistLocation( this , dist.RELEASEDIR , location , content , true );
 				rinfo.gather( this , node , content , RELEASEDIR );
 				String STATEDIR = redist.getPathStateLocation( this , location , content );

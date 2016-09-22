@@ -14,15 +14,16 @@ import org.urm.engine.storage.LocalFolder;
 public abstract class GenericVCS {
 
 	ActionBase action;
-	public ServerAuthResource res;
-	ShellExecutor shell;
 	Meta meta;
 	
-	protected GenericVCS( ActionBase action , ServerAuthResource res , ShellExecutor shell ) {
+	public ServerAuthResource res;
+	ShellExecutor shell;
+	
+	protected GenericVCS( ActionBase action , Meta meta , ServerAuthResource res , ShellExecutor shell ) {
 		this.action = action;
+		this.meta = meta;
 		this.res = res;
 		this.shell = shell;
-		this.meta = action.meta;
 	}
 	
 	public abstract MirrorStorage createInitialMirror( ServerMirrorRepository mirror ) throws Exception;
@@ -70,13 +71,13 @@ public abstract class GenericVCS {
 	public abstract void addDirToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception;
 	public abstract void deleteDirToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception;
 	
-	public static GenericVCS getVCS( ActionBase action , String vcs , boolean build ) throws Exception {
+	public static GenericVCS getVCS( ActionBase action , Meta meta , String vcs , boolean build ) throws Exception {
 		ServerAuthResource res = action.getResource( vcs );
 		res.loadAuthData();
 		
 		ShellExecutor shell = action.shell;
 		if( build ) {
-			MetaProductBuildSettings settings = action.meta.product.getBuildSettings( action );
+			MetaProductBuildSettings settings = meta.product.getBuildSettings( action );
 			if( !settings.CONFIG_BUILDER_REMOTE.isEmpty() ) {
 				ServerProjectBuilder builder = action.getBuilder( settings.CONFIG_BUILDER_REMOTE );
 				Account account = builder.getAccount( action );
@@ -85,10 +86,10 @@ public abstract class GenericVCS {
 		}
 		
 		if( res.isSvn() )
-			return( new SubversionVCS( action , res , shell ) );
+			return( new SubversionVCS( action , meta , res , shell ) );
 		
 		if( res.isGit() )
-			return( new GitVCS( action , res , shell ) );
+			return( new GitVCS( action , meta , res , shell ) );
 		
 		action.exit2( _Error.UnexectedVcsType2 , "unexected vcs=" + vcs + ", type=" + res.TYPE , vcs , res.TYPE );
 		return( null );
@@ -98,14 +99,14 @@ public abstract class GenericVCS {
 		ServerAuthResource res = action.getResource( resource );
 		if( !res.isSvn() )
 			action.exit1( _Error.NonSvnResource1 , "unexpected non-svn resource=" + resource , resource );
-		return( ( SubversionVCS )getVCS( action , resource , false ) );
+		return( ( SubversionVCS )getVCS( action , null , resource , false ) );
 	}
 
 	public static GitVCS getGitDirect( ActionBase action , String resource ) throws Exception {
 		ServerAuthResource res = action.getResource( resource );
 		if( !res.isGit() )
 			action.exit1( _Error.NonGitResource1 , "unexpected non-git resource=" + resource , resource );
-		return( ( GitVCS )getVCS( action , resource , false ) );
+		return( ( GitVCS )getVCS( action , null , resource , false ) );
 	}
 
 }

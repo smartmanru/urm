@@ -22,7 +22,7 @@ public class ActionSaveConfigs extends ActionBase {
 	}
 
 	@Override protected void runAfter( ActionScope scope ) throws Exception {
-		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
+		SourceStorage sourceStorage = artefactory.getSourceStorage( this , scope.meta );
 		if( scope.scopeFull && context.CTX_FORCE )
 			deleteOldConfServers( scope );
 		
@@ -61,7 +61,7 @@ public class ActionSaveConfigs extends ActionBase {
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		redist.recreateTmpFolder( this );
 		
-		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
+		SourceStorage sourceStorage = artefactory.getSourceStorage( this , server.meta );
 		String vcsCompList = "";
 		
 		for( MetaEnvServerDeployment deployment : server.getDeployments( this ) ) {
@@ -93,7 +93,7 @@ public class ActionSaveConfigs extends ActionBase {
 	}
 	
 	private void deleteOldConfItems( MetaEnvServer server , String saveItems ) throws Exception {
-		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
+		SourceStorage sourceStorage = artefactory.getSourceStorage( this , server.meta );
 		String[] existingItems = sourceStorage.getLiveConfigItems( this , server );
 
 		for( String item : existingItems ) {
@@ -106,7 +106,7 @@ public class ActionSaveConfigs extends ActionBase {
 	}
 
 	private void deleteOldConfServers( ActionScope scope ) throws Exception {
-		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
+		SourceStorage sourceStorage = artefactory.getSourceStorage( this , scope.meta );
 		
 		for( ActionScopeSet set : scope.getEnvSets( this ) ) {
 			String[] existingItems = sourceStorage.getLiveConfigServers( this , set.dc );

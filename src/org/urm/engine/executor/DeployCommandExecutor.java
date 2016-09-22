@@ -9,12 +9,14 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandAction;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaEnv;
 import org.urm.engine.meta.MetaEnvDC;
 
 public class DeployCommandExecutor extends CommandExecutor {
 
 	DeployCommand impl;
+	Meta meta;
 	MetaEnv env;
 	MetaEnvDC dc;
 	
@@ -58,8 +60,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 		try {
 			// create implementation
 			impl = new DeployCommand();
-			action.meta.loadDistr( action );
-			action.meta.loadSources( action );
+			meta = action.getContextMeta();
 			
 			boolean loadProps = Common.checkPartOfSpacedList( action.actionName , propertyBasedMethods ); 
 			action.context.loadEnv( action , loadProps );
@@ -76,7 +77,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 
 	private Dist getDist( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
-		Dist dist = action.artefactory.getDistStorageByLabel( action , RELEASELABEL );
+		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		return( dist );
 	}
 	
@@ -87,7 +88,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 	private ActionScope getServerScope( ActionInit action , int posFrom ) throws Exception {
 		Dist dist = null;
 		if( !action.context.CTX_RELEASELABEL.isEmpty() )
-			dist = action.artefactory.getDistStorageByLabel( action , action.context.CTX_RELEASELABEL );
+			dist = action.artefactory.getDistStorageByLabel( action , meta , action.context.CTX_RELEASELABEL );
 		
 		return( getServerScope( action , posFrom , dist ) );
 	}
@@ -101,7 +102,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 		}
 		
 		String[] SERVERS = getArgList( action , posFrom );
-		return( ActionScope.getEnvServersScope( action , action.context.dc , SERVERS , release ) );
+		return( ActionScope.getEnvServersScope( action , meta , action.context.dc , SERVERS , release ) );
 	}
 	
 	private class BaseOps extends CommandAction {

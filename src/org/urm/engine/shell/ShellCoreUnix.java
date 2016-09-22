@@ -24,20 +24,6 @@ public class ShellCoreUnix extends ShellCore {
 		windowsHelper = true;
 	}
 
-	@Override protected String getExportCmd( ActionBase action ) throws Exception {
-		if( action.meta == null || action.meta.product == null )
-			return( "" );
-		
-		Map<String,String> exports = action.meta.product.getExportProperties( action );
-		String cmd = "";
-		for( String key : exports.keySet() ) {
-			if( !cmd.isEmpty() )
-				cmd += "; ";
-			cmd += "export " + key + "=" + exports.get( key );
-		}
-		return( cmd );
-	}
-
 	@Override protected boolean getProcessAttributes( ActionBase action ) throws Exception {
 		// check connected
 		executor.addInput( action , "echo " + WaiterCommand.FINISH_MARKER , true );

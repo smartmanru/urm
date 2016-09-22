@@ -9,7 +9,7 @@ import org.w3c.dom.Node;
 
 public class MetaDistrConfItem {
 
-	protected Meta meta;
+	public Meta meta;
 	public MetaDistrDelivery delivery;
 
 	public String KEY;
@@ -29,7 +29,7 @@ public class MetaDistrConfItem {
 
 	public void load( ActionBase action , Node node ) throws Exception {
 		KEY = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
-		TYPE = meta.getConfItemType( ConfReader.getRequiredAttrValue( node , "type" ) );
+		TYPE = Meta.getConfItemType( ConfReader.getRequiredAttrValue( node , "type" ) );
 		FILES = ConfReader.getAttrValue( node , "files" );
 		SECURED = ConfReader.getAttrValue( node , "secured" );
 		EXCLUDE = ConfReader.getAttrValue( node , "exclude" );

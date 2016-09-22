@@ -49,7 +49,7 @@ public class ActionConfigure extends ActionBase {
 	
 	public LocalFolder getLiveFolder( MetaEnvServerNode node , MetaDistrConfItem confItem ) throws Exception {
 		LocalFolder serverFolder = baseFolder.getSubFolder( this , Common.getPath( "live" , node.server.NAME ) );
-		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
+		SourceStorage sourceStorage = artefactory.getSourceStorage( this , node.meta );
 		String name = sourceStorage.getConfItemLiveName( this , node , confItem );
 		LocalFolder live = serverFolder.getSubFolder( this , name );
 		return( live );
@@ -75,7 +75,7 @@ public class ActionConfigure extends ActionBase {
 	private void fillTemplateFolder( MetaDistrConfItem conf ) throws Exception {
 		if( dist == null ) {
 			// download configuration templates
-			SourceStorage sourceStorage = artefactory.getSourceStorage( this );
+			SourceStorage sourceStorage = artefactory.getSourceStorage( this , conf.meta );
 			sourceStorage.exportTemplateConfigItem( this , null , conf.KEY , "" , templateFolder );
 			return;
 		}
@@ -88,7 +88,7 @@ public class ActionConfigure extends ActionBase {
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		
-		SourceStorage sourceStorage = artefactory.getSourceStorage( this );
+		SourceStorage sourceStorage = artefactory.getSourceStorage( this , target.meta );
 		LocalFolder serverFolder = baseFolder.getSubFolder( this , Common.getPath( "live" , server.NAME ) );
 		
 		// configure live
@@ -132,7 +132,7 @@ public class ActionConfigure extends ActionBase {
 		LocalFolder live = parent.getSubFolder( this , name );
 		live.recreateThis( this );
 		
-		ConfBuilder builder = new ConfBuilder( this );
+		ConfBuilder builder = new ConfBuilder( this , server.meta );
 		builder.configureComponent( template , live , confItem , server , node );
 	}
 	

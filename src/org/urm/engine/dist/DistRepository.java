@@ -20,13 +20,13 @@ public class DistRepository {
 
 	static String RELEASEHISTORYFILE = "history.txt";
 	
-	private DistRepository( Artefactory artefactory ) {
+	private DistRepository( Artefactory artefactory , Meta meta ) {
 		this.artefactory = artefactory; 
-		this.meta = artefactory.meta;
+		this.meta = meta;
 	}
 	
-	public static DistRepository getDistRepository( ActionBase action , Artefactory artefactory ) throws Exception {
-		DistRepository repo = new DistRepository( artefactory ); 
+	public static DistRepository getDistRepository( ActionBase action , Artefactory artefactory , Meta meta ) throws Exception {
+		DistRepository repo = new DistRepository( artefactory , meta ); 
 		
 		String distPath = action.context.CTX_DISTPATH;
 		
@@ -46,7 +46,7 @@ public class DistRepository {
 			}
 			else {
 				if( !action.isLocalRun() )
-					account = Account.getAccount( action , action.meta.product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
+					account = Account.getAccount( action , meta.product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
 			}
 		}
 		else {
@@ -232,7 +232,7 @@ public class DistRepository {
 	public String getReleaseVerByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 
-		MetaProductBuildSettings build = action.getBuildSettings();
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		
 		String RELEASEVER = "";
 		if( RELEASELABEL.equals( "last" ) ) {

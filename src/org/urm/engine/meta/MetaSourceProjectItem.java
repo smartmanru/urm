@@ -37,7 +37,7 @@ public class MetaSourceProjectItem {
 		ITEMNAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		distItem = null;
 		
-		ITEMSRCTYPE = meta.getItemSrcType( ConfReader.getRequiredAttrValue( node , "type" ) );
+		ITEMSRCTYPE = Meta.getItemSrcType( ConfReader.getRequiredAttrValue( node , "type" ) );
 		ITEMBASENAME = ConfReader.getAttrValue( node , "basename" );
 		if( ITEMBASENAME.isEmpty() )
 			ITEMBASENAME = ITEMNAME;

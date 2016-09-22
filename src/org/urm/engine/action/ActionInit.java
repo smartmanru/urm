@@ -34,7 +34,6 @@ public class ActionInit extends ActionBase {
 
 	public void setServerSystemProductLayout( ServerProduct product ) throws Exception {
 		session.setServerSystemProductLayout( this , product.NAME , product.PATH );
-		meta.clearAll();
 	}
 	
 	public void setServerSystemProductLayout( String name ) throws Exception {
@@ -45,7 +44,6 @@ public class ActionInit extends ActionBase {
 	
 	public void clearServerProductLayout() {
 		session.clearServerProductLayout();
-		meta.clearAll();
 	}
 	
 	public ServerSettings getSettings() {

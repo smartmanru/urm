@@ -10,7 +10,7 @@ import org.urm.engine.meta.MetaDistrDelivery;
 
 public class ReleaseDelivery {
 
-	Meta meta;
+	public Meta meta;
 	public Release release;
 	public MetaDistrDelivery distDelivery;
 	

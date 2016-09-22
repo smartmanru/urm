@@ -196,8 +196,8 @@ public class MetaEnvServer extends PropertyController {
 			BASELINE = NAME;
 		
 		SERVERTYPE = properties.getSystemRequiredStringProperty( "type" );
-		serverType = meta.getServerType( SERVERTYPE );
-		osType = meta.getOSType( properties.getSystemStringProperty( "ostype" , "unix" ) );
+		serverType = Meta.getServerType( SERVERTYPE );
+		osType = Meta.getOSType( properties.getSystemStringProperty( "ostype" , "unix" ) );
 		OFFLINE = properties.getSystemBooleanProperty( "offline" , false );
 		XDOC = properties.getSystemPathProperty( "xdoc" , NAME , action.session.execrc );
 		
@@ -233,7 +233,7 @@ public class MetaEnvServer extends PropertyController {
 		}
 		
 		if( isDatabase( action ) ) {
-			dbType = meta.getDbmsType( properties.getSystemRequiredStringProperty( "dbmstype" ) );
+			dbType = Meta.getDbmsType( properties.getSystemRequiredStringProperty( "dbmstype" ) );
 			DBMSADDR = properties.getSystemRequiredStringProperty( "dbmsaddr" );
 			DATAGROUPS = properties.getSystemRequiredStringProperty( "datagroups" );
 			ALIGNED = properties.getSystemStringProperty( "aligned" , "" );
@@ -241,7 +241,7 @@ public class MetaEnvServer extends PropertyController {
 			ADMSCHEMA = properties.getSystemStringProperty( "admschema" , "" );
 			
 			if( meta.distr != null ) {
-				MetaDatabase database = action.meta.database;
+				MetaDatabase database = meta.database;
 				for( String dg : Common.splitSpaced( DATAGROUPS ) ) {
 					MetaDatabaseDatagroup datagroup = database.getDatagroup( action , dg );
 					datagroupMap.put( datagroup.NAME , datagroup );

@@ -16,17 +16,17 @@ public class ActionGetConf extends ActionBase {
 	}
 
 	protected boolean executeScopeTarget( ActionScopeTarget scopeItem ) throws Exception {
-		LocalFolder downloadFolder = artefactory.getDownloadFolder( this );
+		LocalFolder downloadFolder = artefactory.getDownloadFolder( this , scopeItem.meta );
 		
 		// export from source
 		String KEY = scopeItem.confItem.KEY;
-		SourceStorage sourceStorage = artefactory.getSourceStorage( this , downloadFolder );
+		SourceStorage sourceStorage = artefactory.getSourceStorage( this , scopeItem.meta , downloadFolder );
 		info( "get configuration item " + KEY + " ..." );
 		
 		LocalFolder confFolder = downloadFolder.getSubFolder( this , sourceStorage.getConfFolderRelPath( this , scopeItem.confItem ) );
 		confFolder.ensureExists( this );
 		
-		ConfSourceFolder sourceFolder = new ConfSourceFolder( meta );  
+		ConfSourceFolder sourceFolder = new ConfSourceFolder( scopeItem.meta );  
 		if( release != null ) {
 			sourceFolder.createReleaseConfigurationFolder( this , scopeItem.releaseTarget );
 			sourceStorage.downloadReleaseConfigItem( this , release , sourceFolder , confFolder );

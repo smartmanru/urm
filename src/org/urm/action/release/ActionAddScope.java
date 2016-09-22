@@ -6,6 +6,7 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.Meta.VarCATEGORY;
 
 public class ActionAddScope extends ActionBase {
@@ -46,7 +47,7 @@ public class ActionAddScope extends ActionBase {
 	}
 
 	private boolean addAllProductSetElements( ActionScopeSet set ) throws Exception {
-		if( meta.isSourceCategory( set.CATEGORY ) )
+		if( Meta.isSourceCategory( set.CATEGORY ) )
 			return( dist.addAllSource( this , set.pset ) );
 		return( dist.addAllCategory( this , set.CATEGORY ) );
 	}
@@ -58,7 +59,7 @@ public class ActionAddScope extends ActionBase {
 			return( dist.addDatabaseItem( this , target.dbDelivery ) );
 		if( target.CATEGORY == VarCATEGORY.MANUAL )
 			return( dist.addManualItem( this , target.manualItem ) );
-		if( meta.isSourceCategory( target.CATEGORY ) )
+		if( Meta.isSourceCategory( target.CATEGORY ) )
 			return( dist.addProjectAllItems( this , target.sourceProject ) );
 
 		this.exitUnexpectedCategory( target.CATEGORY );

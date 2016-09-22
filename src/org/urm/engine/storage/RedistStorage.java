@@ -23,6 +23,7 @@ public class RedistStorage extends ServerStorage {
 
 	public RedistStorage( Artefactory artefactory , Account account , MetaEnvServer server , MetaEnvServerNode node ) {
 		super( artefactory , account , server , node );
+		this.meta = server.meta;
 	}
 
 	public void recreateTmpFolder( ActionBase action ) throws Exception {
@@ -181,7 +182,7 @@ public class RedistStorage extends ServerStorage {
 	
 	public RedistStateInfo getStateInfo( ActionBase action , String LOCATION , VarCONTENTTYPE CONTENTTYPE ) throws Exception {
 		String F_DSTDIR_STATE = getPathStateLocation( action , LOCATION , CONTENTTYPE );
-		RedistStateInfo state = new RedistStateInfo();
+		RedistStateInfo state = new RedistStateInfo( meta );
 		state.gather( action , node , CONTENTTYPE , F_DSTDIR_STATE );
 		return( state );
 	}

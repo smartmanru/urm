@@ -30,10 +30,10 @@ public class ConfBuilder {
 
 	static String CONFIGURE_SCRIPT = "configure.sh";
 	
-	public ConfBuilder( ActionBase action ) {
+	public ConfBuilder( ActionBase action , Meta meta ) {
 		this.action = action;
 		this.artefactory = action.artefactory;
-		this.meta = action.meta;
+		this.meta = meta;
 	}
 
 	public String createConfDiffFile( Dist release , ReleaseDelivery delivery ) throws Exception {
@@ -46,7 +46,7 @@ public class ConfBuilder {
 		action.debug( "compare with product configuration ..." );
 		LocalFolder prodFolder = artefactory.getWorkFolder( action , "prod.delivery.conf" );
 		prodFolder.recreateThis( action );
-		SourceStorage storage = artefactory.getSourceStorage( action , prodFolder );
+		SourceStorage storage = artefactory.getSourceStorage( action , delivery.meta , prodFolder );
 		
 		for( ReleaseTarget releaseComp : delivery.getConfItems( action ).values() ) {
 			ConfSourceFolder sourceFolder = new ConfSourceFolder( meta );
@@ -73,7 +73,7 @@ public class ConfBuilder {
 
 	public void configureLiveComponent( LocalFolder live , MetaDistrConfItem confItem , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
 		// copy hidden environment directories
-		HiddenFiles hidden = artefactory.getHiddenFiles();
+		HiddenFiles hidden = artefactory.getHiddenFiles( confItem.meta );
 		hidden.copyHiddenConf( action , server , confItem , live );
 	}
 	
@@ -97,7 +97,7 @@ public class ConfBuilder {
 		live.removeFiles( action , "template-* " + CONFIGURE_SCRIPT );
 		
 		// copy hidden environment directories
-		HiddenFiles hidden = artefactory.getHiddenFiles();
+		HiddenFiles hidden = artefactory.getHiddenFiles( confItem.meta );
 		hidden.copyHiddenConf( action , server , confItem , live );
 		
 		// process parameters
@@ -110,7 +110,7 @@ public class ConfBuilder {
 	}
 
 	private String[] getLinuxFiles( LocalFolder live , MetaDistrConfItem confItem ) throws Exception {
-		String extOptions = meta.getConfigurableExtensionsFindOptions( action );
+		String extOptions = Meta.getConfigurableExtensionsFindOptions( action );
 		String extCompOptions = extOptions;
 		for( String mask : Common.splitSpaced( confItem.EXTCONF ) ) {
 			if( !extCompOptions.isEmpty() )
@@ -124,7 +124,7 @@ public class ConfBuilder {
 	}
 	
 	private String[] getWindowsFiles( LocalFolder live , MetaDistrConfItem confItem ) throws Exception {
-		String[] extOptions = meta.getConfigurableExtensions( action );
+		String[] extOptions = Meta.getConfigurableExtensions( action );
 		String[] extConf = Common.splitSpaced( confItem.EXTCONF );
 		FileSet files = live.getFileSet( action );
 		
