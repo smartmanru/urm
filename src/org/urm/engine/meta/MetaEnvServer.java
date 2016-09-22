@@ -8,6 +8,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.meta.Meta.VarDBMSTYPE;
@@ -16,7 +17,7 @@ import org.urm.engine.meta.Meta.VarSERVERTYPE;
 import org.urm.engine.shell.Account;
 import org.w3c.dom.Node;
 
-public class MetaEnvServer {
+public class MetaEnvServer extends PropertyController {
 
 	public Meta meta;
 	public MetaEnvDC dc;
@@ -67,8 +68,6 @@ public class MetaEnvServer {
 	
 	public VarOSTYPE osType;
 	
-	public PropertySet properties;
-
 	public MetaEnvServerBase base;
 	List<MetaEnvServerDeployment> deployments;
 	List<MetaEnvServerNode> nodes;
@@ -77,11 +76,19 @@ public class MetaEnvServer {
 	public MetaEnvStartGroup startGroup;
 	
 	public MetaEnvServer( Meta meta , MetaEnvDC dc ) {
+		super( "server" );
 		this.meta = meta;
 		this.dc = dc;
 		this.primary = false;
 	}
 
+	@Override
+	public boolean isValid() {
+		if( super.isLoadFailed() )
+			return( false );
+		return( true );
+	}
+	
 	public String getFullId( ActionBase action ) throws Exception {
 		return( dc.getFullId( action ) + "-" + NAME );
 	}
@@ -95,17 +102,25 @@ public class MetaEnvServer {
 	public String getBaselineServer( ActionBase action ) throws Exception {
 		return( BASELINE );
 	}
+
+	public MetaEnvServer copy( ActionBase action , Meta meta , MetaEnvDC dc ) throws Exception {
+		MetaEnvServer r = new MetaEnvServer( meta , dc );
+		r.initCopyStarted( this , dc.getProperties() );
+		r.scatterSystemProperties( action );
+		r.initFinished();
+		return( r );
+	}
 	
 	public void load( ActionBase action , Node node , boolean loadProps ) throws Exception {
 		if( meta.distr != null )
 			loadDeployments( action , node );
 		
-		properties = new PropertySet( "server" , dc.properties );
-		properties.loadRawFromNodeAttributes( node );
+		properties = new PropertySet( "server" , dc.getProperties() );
+		properties.loadFromNodeAttributes( node );
 		scatterSystemProperties( action );
 		
 		if( loadProps ) {
-			properties.loadRawFromNodeElements( node );
+			properties.loadFromNodeElements( node );
 			properties.resolveRawProperties();
 		}
 

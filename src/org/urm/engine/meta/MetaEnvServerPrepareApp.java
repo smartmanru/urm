@@ -21,7 +21,7 @@ public class MetaEnvServerPrepareApp {
 	public void load( ActionBase action , Node node ) throws Exception {
 		APP = ConfReader.getRequiredAttrValue( node , "app" );
 		properties = new PropertySet( "prepare" , base.properties );
-		properties.loadRawFromNodeElements( node );
+		properties.loadFromNodeElements( node );
 		properties.resolveRawProperties();
 	}
 	

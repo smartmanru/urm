@@ -155,8 +155,7 @@ public class MetaProductBuildSettings extends PropertyController {
 		if( !initCreateStarted( parent ) )
 			return;
 
-		properties = new PropertySet( name , parent );
-		properties.loadRawFromNodeElements( root );
+		properties.loadFromNodeElements( root );
 		scatterVariables( action );
 		
 		initFinished();

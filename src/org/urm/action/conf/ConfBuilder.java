@@ -154,7 +154,7 @@ public class ConfBuilder {
 		action.trace( "parse configuration files in folder=" + folder.folderPath + " ..." );
 		FileSet files = folder.getFileSet( action );
 		if( props == null )
-			props = server.properties;
+			props = server.getProperties();
 		
 		for( String file : files.fileList )
 			configureFile( folder , file , server , props , charset );
@@ -181,14 +181,14 @@ public class ConfBuilder {
 		List<String> fileLines = action.readFileLines( filePath , charset );
 		
 		if( props == null )
-			props = server.properties;
+			props = server.getProperties();
 		
 		boolean changed = false;
 		for( int k = 0; k < fileLines.size(); k++ ) {
 			String s = fileLines.get( k );
 			PropertyValue res = props.getFinalValue( s , server.isWindows( action ) , true , false );
 			if( res != null ) {
-				fileLines.set( k , res.getValue() );
+				fileLines.set( k , res.getFinalValue() );
 				changed = true;
 			}
 		}
@@ -210,7 +210,7 @@ public class ConfBuilder {
 			String s = fileLines.get( k );
 			PropertyValue res = props.getFinalValue( s , node.server.isWindows( action ) , true , false );
 			if( res != null ) {
-				fileLines.set( k , res.getValue() );
+				fileLines.set( k , res.getFinalValue() );
 				changed = true;
 			}
 		}

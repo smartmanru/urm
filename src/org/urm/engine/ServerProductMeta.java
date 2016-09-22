@@ -100,7 +100,7 @@ public class ServerProductMeta extends ServerObject {
 			MetaEnv env = envs.get( envKey );
 			MetaEnv re = env.copy( action , r.meta );
 			r.envs.put( envKey , re );
-			if( re.loadFailed )
+			if( re.isLoadFailed() )
 				r.loadFailed = true;
 		}
 		for( String designFile : designFiles.keySet() ) {
@@ -294,7 +294,7 @@ public class ServerProductMeta extends ServerObject {
 		if( !loadFailed ) {
 			try {
 				// read
-				String file = storageMeta.getEnvFile( action , envName );
+				String file = storageMeta.getEnvConfFile( action , envName );
 				action.debug( "read environment definition file " + file + "..." );
 				Document doc = action.readXmlFile( file );
 				Node root = doc.getDocumentElement();
@@ -302,7 +302,6 @@ public class ServerProductMeta extends ServerObject {
 			}
 			catch( Throwable e ) {
 				setLoadFailed( action , e , "unable to load environment metadata, product=" + name + ", env=" + envName );
-				env.setLoadFailed();
 			}
 		}
 		
@@ -419,10 +418,10 @@ public class ServerProductMeta extends ServerObject {
 		saveSources( action , storageMeta );
 		saveMonitoring( action , storageMeta );
 		
-		for( String envName : envs.keySet() )
-			saveEnvData( action , storageMeta , envName );
+		for( String envFile : envs.keySet() )
+			saveEnvData( action , storageMeta , envFile , envs.get( envFile ) );
 		for( String designFile : designFiles.keySet() )
-			saveDesignData( action , storageMeta , designFile );
+			saveDesignData( action , storageMeta , designFile , designFiles.get( designFile ) );
 	}
 	
 	public void saveVersion( ActionBase action , MetadataStorage storageMeta ) throws Exception {
@@ -461,10 +460,13 @@ public class ServerProductMeta extends ServerObject {
 		storageMeta.saveMonitoringConfFile( action , doc );
 	}
 	
-	public void saveEnvData( ActionBase action , MetadataStorage storageMeta , String envName ) throws Exception {
+	public void saveEnvData( ActionBase action , MetadataStorage storageMeta , String envFile , MetaEnv env ) throws Exception {
+		Document doc = Common.xmlCreateDoc( XML_ROOT_ENV );
+		env.save( action , doc , doc.getDocumentElement() );
+		storageMeta.saveEnvConfFile( action , doc , envFile );
 	}
 	
-	public void saveDesignData( ActionBase action , MetadataStorage storageMeta , String designFile ) throws Exception {
+	public void saveDesignData( ActionBase action , MetadataStorage storageMeta , String designFile , MetaDesign design ) throws Exception {
 	}
 	
 	public void setVersion( ServerTransaction transaction , MetaProductVersion version ) throws Exception {
@@ -513,6 +515,10 @@ public class ServerProductMeta extends ServerObject {
 				return( env );
 		}
 		return( null );
+	}
+
+	public void deleteEnv( ServerTransaction transaction , MetaEnv env ) throws Exception {
+		envs.remove( env.ID );
 	}
 
 }

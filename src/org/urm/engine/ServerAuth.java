@@ -49,7 +49,7 @@ public class ServerAuth extends ServerObject {
 	public ServerAuthContext loadAuthData( String authKey ) throws Exception {
 		PropertySet props = new PropertySet( "authile" , null );
 		String filePath = getAuthFile( authKey );
-		props.loadRawFromPropertyFile( filePath , engine.execrc );
+		props.loadFromPropertyFile( filePath , engine.execrc );
 		props.finishRawProperties();
 		
 		ServerAuthContext ac = new ServerAuthContext( this );

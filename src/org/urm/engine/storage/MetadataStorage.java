@@ -63,7 +63,7 @@ public class MetadataStorage {
 		return( folder.getFilePath( action , UrmStorage.MONITORING_SETTINGS_FILE ) );
 	}
 	
-	public String getEnvFile( ActionBase action , String envFile ) throws Exception {
+	public String getEnvConfFile( ActionBase action , String envFile ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
 		LocalFolder folder = urm.getProductEnvMetadataFolder( action );
 		return( folder.getFilePath( action , envFile ) );
@@ -218,6 +218,11 @@ public class MetadataStorage {
 	
 	public void saveMonitoringConfFile( ActionBase action , Document doc ) throws Exception {
 		String filePath = getMonitoringConfFile( action );
+		saveFile( action , doc , filePath );
+	}
+	
+	public void saveEnvConfFile( ActionBase action , Document doc , String envFile ) throws Exception {
+		String filePath = getEnvConfFile( action , envFile );
 		saveFile( action , doc , filePath );
 	}
 	

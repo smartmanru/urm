@@ -22,6 +22,15 @@ public class MetaEnvStartInfo {
 		this.dc = dc;
 	}
 	
+	public MetaEnvStartInfo copy( ActionBase action , Meta meta , MetaEnvDC dc ) throws Exception {
+		MetaEnvStartInfo r = new MetaEnvStartInfo( meta , dc );
+		for( MetaEnvStartGroup group : groups ) {
+			MetaEnvStartGroup rg = group.copy( action , meta , this );
+			r.addGroup( rg );
+		}
+		return( r );
+	}
+	
 	public void load( ActionBase action , Node node ) throws Exception {
 		groupMap = new HashMap<String,MetaEnvStartGroup>();
 		groups = new LinkedList<MetaEnvStartGroup>();
@@ -33,9 +42,13 @@ public class MetaEnvStartInfo {
 		for( Node sgnode : items ) {
 			MetaEnvStartGroup sg = new MetaEnvStartGroup( meta , this );
 			sg.load( action , sgnode );
-			groupMap.put( sg.NAME , sg );
-			groups.add( sg );
+			addGroup( sg );
 		}
+	}
+
+	private void addGroup( MetaEnvStartGroup sg ) {
+		groupMap.put( sg.NAME , sg );
+		groups.add( sg );
 	}
 	
 	public List<MetaEnvStartGroup> getForwardGroupList( ActionBase action ) throws Exception {

@@ -15,4 +15,10 @@ public class MetaEnvDeployment {
 	
 	public void load( ActionBase action , Node node ) throws Exception {
 	}
+
+	public MetaEnvDeployment copy( ActionBase action , Meta meta , MetaEnvDC dc ) throws Exception {
+		MetaEnvDeployment r = new MetaEnvDeployment( meta , dc );
+		return( r );
+	}
+	
 }

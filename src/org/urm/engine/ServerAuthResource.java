@@ -46,7 +46,7 @@ public class ServerAuthResource extends ServerObject {
 
 		loaded = true;
 		properties = new PropertySet( "resource" , null );
-		properties.loadRawFromNodeElements( node );
+		properties.loadFromNodeElements( node );
 		
 		scatterSystemProperties();
 		properties.finishRawProperties();

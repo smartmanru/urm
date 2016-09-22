@@ -783,5 +783,10 @@ public class ServerTransaction {
 	public MetaEnv getMetaEnv( MetaEnv env ) throws Exception {
 		return( metadata.findEnvironment( env.ID ) );
 	}
+
+	public void deleteMetaEnv( MetaEnv env ) throws Exception {
+		checkTransactionMetadata();
+		metadata.deleteEnv( this , env );
+	}
 	
 }

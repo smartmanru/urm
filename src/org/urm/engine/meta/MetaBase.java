@@ -60,10 +60,10 @@ public class MetaBase {
 	
 	public void load( ActionBase action , Node node , MetaEnvServerNode serverNode ) throws Exception {
 		PropertySet meta = new PropertySet( "meta" , serverNode.server.base.properties );
-		meta.loadRawFromNodeAttributes( node );
+		meta.loadFromNodeAttributes( node );
 		scatterVariables( action , meta );
 		
-		meta.loadRawFromNodeElements( node );
+		meta.loadFromNodeElements( node );
 		meta.resolveRawProperties();
 		meta.copyRunningPropertiesToRunning( serverNode.properties );
 

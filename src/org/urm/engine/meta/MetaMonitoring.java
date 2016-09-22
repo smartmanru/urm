@@ -65,7 +65,7 @@ public class MetaMonitoring extends PropertyController {
 		if( !super.initCreateStarted( meta.product.getProperties() ) )
 			return;
 
-		properties.loadRawFromNodeElements( root );
+		properties.loadFromNodeElements( root );
 		
 		scatterVariables( action );
 		super.finishProperties( action );

@@ -26,6 +26,18 @@ public class MetaEnvStartGroup {
 		this.startInfo = startInfo;
 	}
 
+	public MetaEnvStartGroup copy( ActionBase action , Meta meta , MetaEnvStartInfo startInfo ) throws Exception {
+		MetaEnvStartGroup r = new MetaEnvStartGroup( meta , startInfo );
+		r.NAME = NAME;
+		r.SERVERS = SERVERS;
+		for( MetaEnvServer server : servers ) {
+			MetaEnvServer rserver = startInfo.dc.getServer( action , server.NAME );
+			r.addServer( action , rserver );
+		}
+		
+		return( r );
+	}
+	
 	public void load( ActionBase action , Node node ) throws Exception {
 		serverMap = new HashMap<String,MetaEnvServer>();
 		servers = new LinkedList<MetaEnvServer>();
@@ -35,12 +47,16 @@ public class MetaEnvStartGroup {
 		
 		for( String name : Common.splitSpaced( SERVERS ) ) {
 			MetaEnvServer server = startInfo.dc.getServer( action , name );
-			servers.add( server );
-			serverMap.put( server.NAME , server );
-			server.setStartGroup( action , this );
+			addServer( action , server );
 		}
 	}
 
+	public void addServer( ActionBase action , MetaEnvServer server ) throws Exception {
+		servers.add( server );
+		serverMap.put( server.NAME , server );
+		server.setStartGroup( action , this );
+	}
+	
 	public Map<String,MetaEnvServer> getServers( ActionBase action ) throws Exception {
 		return( serverMap );
 	}

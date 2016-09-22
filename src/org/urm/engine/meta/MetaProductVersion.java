@@ -81,7 +81,7 @@ public class MetaProductVersion extends PropertyController {
 		if( !super.initCreateStarted( null ) )
 			return;
 
-		properties.loadRawFromNodeElements( root );
+		properties.loadFromNodeElements( root );
 		scatterVariables( action );
 		
 		super.initFinished();

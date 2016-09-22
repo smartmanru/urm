@@ -71,7 +71,7 @@ public class ServerMirrorRepository extends ServerObject {
 
 		loaded = true;
 		properties = new PropertySet( "mirror" , null );
-		properties.loadRawFromNodeElements( root );
+		properties.loadFromNodeElements( root );
 		
 		scatterSystemProperties();
 		properties.finishRawProperties();

@@ -105,7 +105,7 @@ public class ServerContext {
 		this.execrc = execrc;
 
 		execrc.getProperties( execprops );
-		properties.loadRawFromNodeElements( root );
+		properties.loadFromNodeElements( root );
 		scatterSystemProperties();
 		properties.finishRawProperties();
 	}

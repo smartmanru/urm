@@ -174,7 +174,7 @@ public class MetaProductSettings extends PropertyController {
 
 		setContextProperties( action , productContext );
 		
-		properties.loadRawFromNodeElements( root );
+		properties.loadFromNodeElements( root );
 		scatterVariables( action );
 		super.finishProperties( action );
 

@@ -221,6 +221,10 @@ public class Common {
 
 	public static String[] getSortedKeys( Map<String,?> map ) {
 		List<String> list = new LinkedList<String>( map.keySet() );
+		return( getSortedList( list ) );
+	}
+	
+	public static String[] getSortedList( List<String> list ) {
 		Collections.sort( list );
 		return( list.toArray( new String[0] ) );
 	}

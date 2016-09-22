@@ -7,18 +7,19 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
-import org.urm.common.PropertySet;
+import org.urm.common.PropertyController;
 import org.urm.engine.shell.Account;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class MetaEnvDC {
+public class MetaEnvDC extends PropertyController {
 
 	public Meta meta;
 	public MetaEnv env;
 	
 	public String NAME;
 	private String BASELINE;
-	public PropertySet properties;
 	
 	public MetaEnvDeployment deploy;
 	public MetaEnvStartInfo startInfo;
@@ -26,8 +27,34 @@ public class MetaEnvDC {
 	public Map<String,MetaEnvServer> serverMap;
 	
 	public MetaEnvDC( Meta meta , MetaEnv env ) {
+		super( "dc" );
 		this.meta = meta;
 		this.env = env;
+	}
+
+	@Override
+	public boolean isValid() {
+		if( super.isLoadFailed() )
+			return( false );
+		return( true );
+	}
+	
+	public MetaEnvDC copy( ActionBase action , Meta meta , MetaEnv env ) throws Exception {
+		MetaEnvDC r = new MetaEnvDC( meta , env );
+		r.initCopyStarted( this , env.getProperties() );
+		
+		if( deploy != null )
+			r.deploy = deploy.copy( action , meta , this );
+		if( startInfo != null )
+			r.startInfo = startInfo.copy( action , meta , this );
+		for( MetaEnvServer server : originalList ) {
+			MetaEnvServer rserver = server.copy( action , meta , this );
+			r.addServer( rserver );
+		}
+		
+		r.scatterSystemProperties( action );
+		r.initFinished();
+		return( r );
 	}
 
 	public String getFullId( ActionBase action ) throws Exception {
@@ -45,18 +72,22 @@ public class MetaEnvDC {
 	}
 	
 	public void load( ActionBase action , Node node , boolean loadProps ) throws Exception {
-		properties = new PropertySet( "dc" , env.properties );
-		properties.loadRawFromNodeAttributes( node );
+		if( !super.initCreateStarted( env.getProperties() ) )
+			return;
+
+		properties.loadFromNodeAttributes( node );
 		scatterSystemProperties( action );
 		
 		if( loadProps ) {
-			properties.loadRawFromNodeElements( node );
+			properties.loadFromNodeElements( node );
 			properties.resolveRawProperties();
 		}
 		
 		loadServers( action , node , loadProps );
 		loadStartOrder( action , node );
 		loadDeployment( action , node );
+		
+		super.initFinished();
 	}
 
 	public String[] getPropertyList( ActionBase action ) throws Exception {
@@ -99,9 +130,13 @@ public class MetaEnvDC {
 		for( Node srvnode : items ) {
 			MetaEnvServer server = new MetaEnvServer( meta , this );
 			server.load( action , srvnode , loadProps );
-			serverMap.put( server.NAME , server );
-			originalList.add( server );
+			addServer( server );
 		}
+	}
+	
+	private void addServer( MetaEnvServer server ) {
+		serverMap.put( server.NAME , server );
+		originalList.add( server );
 	}
 	
 	public void resolveLinks( ActionBase action ) throws Exception {
@@ -170,6 +205,11 @@ public class MetaEnvDC {
 				return( true );
 		
 		return( false );
+	}
+	
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		if( !super.isLoaded() )
+			return;
 	}
 	
 }

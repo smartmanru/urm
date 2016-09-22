@@ -46,7 +46,7 @@ public class ServerProjectBuilder extends ServerObject {
 
 		loaded = true;
 		properties = new PropertySet( "builder" , null );
-		properties.loadRawFromNodeElements( node );
+		properties.loadFromNodeElements( node );
 		
 		scatterSystemProperties();
 		properties.finishRawProperties();

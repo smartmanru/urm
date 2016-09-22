@@ -48,16 +48,14 @@ public class ServerSettings extends ServerObject {
 			return;
 
 		// top-level
-		defaultProductProperties.loadOriginalFromNodeElements( node );
-		defaultProductProperties.copyOriginalPropertiesToRaw();
+		defaultProductProperties.loadFromNodeElements( node );
 		defaultProductProperties.resolveRawProperties( true );
 		
 		Node build = ConfReader.xmlGetFirstChild( node , "build" );
 		if( build == null )
 			return;
 			
-		defaultProductBuildProperties.loadOriginalFromNodeElements( build );
-		defaultProductBuildProperties.copyOriginalPropertiesToRaw();
+		defaultProductBuildProperties.loadFromNodeElements( build );
 		defaultProductBuildProperties.resolveRawProperties( true );
 		
 		// for build modes
@@ -70,8 +68,7 @@ public class ServerSettings extends ServerObject {
 			VarBUILDMODE mode = VarBUILDMODE.valueOf( MODE.toUpperCase() );
 			PropertySet set = new PropertySet( "build." + MODE.toLowerCase() , defaultProductBuildProperties );
 
-			set.loadOriginalFromNodeElements( itemNode );
-			set.copyOriginalPropertiesToRaw();
+			set.loadFromNodeElements( itemNode );
 			set.resolveRawProperties( true );
 			mapBuildModeDefaults.put( mode , set );
 		}

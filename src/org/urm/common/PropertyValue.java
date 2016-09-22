@@ -21,36 +21,30 @@ public class PropertyValue {
 	public PropertyValueOrigin origin;
 	public PropertySet originSet;
 	
-	public PropertyValueType type;
-	private String data;
+	private PropertyValueType type;
 	private String defaultValue;
-	public boolean resolved;
-	public boolean system;
-	public boolean missing;
+	private String originalValue;
+	private String finalValue;
+	
+	private boolean resolved;
+	private boolean system;
+	private boolean missing;
+	private boolean running;
+	private boolean original;
 	
 	public PropertyValue( PropertyValue src ) {
 		this.property = src.property;
 		this.origin = src.origin;
 		this.originSet = src.originSet;
 		this.type = src.type;
-		this.data = src.data;
 		this.defaultValue = src.defaultValue;
+		this.originalValue = src.originalValue;
+		this.finalValue = src.finalValue;
 		this.resolved = src.resolved;
 		this.system = src.system;
 		this.missing = src.missing;
 	}
 
-	public PropertyValue( String value ) {
-		this.property = "";
-		this.origin = PropertyValueOrigin.PROPERTY_MANUAL;
-		this.originSet = null;
-		this.type = PropertyValueType.PROPERTY_STRING;
-		this.system = false;
-		this.data = "";
-		this.defaultValue = "";
-		setValueInternal( value );
-	}
-	
 	public PropertyValue( String property , PropertyValueOrigin origin , PropertySet originSet ) {
 		this.property = property;
 		this.origin = origin;
@@ -59,38 +53,89 @@ public class PropertyValue {
 		this.resolved = true;
 		this.system = false;
 		this.missing = true;
-		this.data = "";
 		this.defaultValue = "";
+		this.originalValue = "";
+		this.finalValue = "";
 	}
 
-	public String getData() {
-		return( data );
+	public boolean isOriginal() {
+		return( original );
 	}
 	
-	public String getValue() {
-		if( data.isEmpty() )
-			return( defaultValue );
-		return( data );
+	public boolean isManual() {
+		if( original )
+			return( false );
+		return( true );
 	}
-
+	
+	public boolean isRaw() {
+		if( running )
+			return( false );
+		return( true );
+	}
+	
+	public boolean isRunning() {
+		return( running );
+	}
+	
 	public boolean isDefault() {
-		if( data.isEmpty() || data.equals( defaultValue ) )
+		if( originalValue.isEmpty() || originalValue.equals( defaultValue ) )
 			return( true );
 		return( false );
 	}
 
-	public boolean isDataEmpty() {
-		return( data.isEmpty() );
+	public boolean isFinalEmpty() {
+		if( finalValue.isEmpty() )
+			return( true );
+		return( false );
 	}
 	
-	public boolean isEmpty() {
-		if( data.isEmpty() && defaultValue.isEmpty() )
+	public boolean isOriginalEmpty() {
+		if( originalValue.isEmpty() && defaultValue.isEmpty() )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isMissing() {
 		return( missing );
+	}
+	
+	public boolean isResolved() {
+		return( resolved );
+	}
+	
+	public boolean isSystem() {
+		return( system );
+	}
+	
+	public PropertyValueType getType() {
+		return( type );
+	}
+	
+	public String getOriginalValue() {
+		return( originalValue );
+	}
+	
+	public String getFinalValue() {
+		return( finalValue );
+	}
+	
+	public void setFinalFromOriginalValue() throws Exception {
+		setFinalValueInternal( originalValue );
+	}
+	
+	public void setFinalValue( String value ) throws Exception {
+		setFinalValueInternal( value );
+	}
+	
+	public void setOriginalAndFinalValue( String value ) throws Exception {
+		this.originalValue = value;
+		setFinalValueInternal( value );
+	}
+	
+	public void setOriginalAndFinalValue( String originalValue , String finalValue ) throws Exception {
+		this.originalValue = originalValue;
+		setFinalValueInternal( finalValue );
 	}
 	
 	public void setSystem() {
@@ -117,129 +162,86 @@ public class PropertyValue {
 
 	public void setDefault( String value ) {
 		defaultValue = value;
-		resolved = isFinal( defaultValue );
+		if( originalValue.isEmpty() )
+			finalValue = originalValue;
+		resolved = isFinal( finalValue );
 	}
 	
 	public void setDefault( PropertyValue value ) {
-		defaultValue = value.getValue();
-		resolved = isFinal( defaultValue );
-	}
-	
-	public void setValueInternal( String value ) {
-		if( value == null ) {
-			this.data = "";
-			this.missing = true;
-		}
-		else {
-			this.data = value;
-			this.resolved = isFinal( data );
-			this.missing = false;
-		}
-	}
-	
-	public void setValue( PropertyValue value ) throws Exception {
-		type = value.type;
-		setValueInternal( value.data );
+		setDefault( value.getOriginalValue() );
 	}
 	
 	public void setString( String value ) throws Exception {
 		type = PropertyValueType.PROPERTY_STRING;
-		setValueInternal( value );
+		setOriginalAndFinalValue( value );
 	}
 	
 	public void setNumber( String value ) throws Exception {
-		if( value == null || value.isEmpty() ) {
-			type = PropertyValueType.PROPERTY_NUMBER;
-			setValueInternal( value );
-			return;
-		}
-		
-		try {
-			Integer.parseInt( value );
-		}
-		catch( Throwable e ) {
-			Common.exit1( _Error.InvalidNumberValue1 , "invalid number value=" + value , value );
-		}
-		
 		type = PropertyValueType.PROPERTY_NUMBER;
-		setValueInternal( value );
+		setOriginalAndFinalValue( value );
 	}
 	
-	public void setNumber( int value ) {
-		data = "" + value;
-		type = PropertyValueType.PROPERTY_NUMBER;
+	public void setNumber( int value ) throws Exception {
+		setNumber( "" + value );
 	}
 
-	public void setBool( boolean value ) {
-		data = Common.getBooleanValue( value );
+	public void setBool( boolean value ) throws Exception {
 		type = PropertyValueType.PROPERTY_BOOL;
+		setOriginalAndFinalValue( Common.getBooleanValue( value ) );
 	}
 	
 	public void setBool( String value ) throws Exception {
-		if( value == null || value.isEmpty() ) {
-			type = PropertyValueType.PROPERTY_BOOL;
-			setValueInternal( value );
-			return;
-		}
-		
-		try {
-			Common.getBooleanValue( value );
-		}
-		catch( Throwable e ) {
-			Common.exit1( _Error.InvalidNumberValue1 , "invalid boolean value=" + value , value );
-		}
-		
 		type = PropertyValueType.PROPERTY_BOOL;
-		setValueInternal( value );
+		setOriginalAndFinalValue( value );
 	}
 	
 	public void setPath( String value , ShellExecutor shell ) throws Exception {
 		type = PropertyValueType.PROPERTY_PATH;
-		if( value == null || value.isEmpty() )
-			setValueInternal( value );
-		else
-			setValueInternal( Common.getLinuxPath( value ) );
+		if( ! ( value == null || value.isEmpty() ) )
+			value = Common.getLinuxPath( value );
 		
-		if( data.startsWith( "~/") ) {
+		if( value.startsWith( "~/") ) {
 			if( shell != null )
-				setValueInternal( data = shell.getHomePath() + data.substring( 1 ) );
+				value = shell.getHomePath() + value.substring( 1 );
 			else
-				setValueInternal( data = "@" + RunContext.PROPERTY_USER_HOME + "@" + data.substring( 1 ) );
+				value = "@" + RunContext.PROPERTY_USER_HOME + "@" + value.substring( 1 );
 		}
+		
+		setOriginalAndFinalValue( value );
 	}
 
-	public boolean getBool() {
-		if( data.isEmpty() ) {
+	public boolean getFinalBool() {
+		if( finalValue.isEmpty() ) {
 			if( defaultValue.isEmpty() )
 				return( false );
 			return( Common.getBooleanValue( defaultValue ) );
 		}
-		return( Common.getBooleanValue( data ) );
+		return( Common.getBooleanValue( finalValue ) );
 	}
 
 	public int getNumber() {
-		if( data.isEmpty() ) {
+		if( finalValue.isEmpty() ) {
 			if( defaultValue.isEmpty() )
 				return( 0 );
 			return( Integer.parseInt( defaultValue ) );
 		}
-		return( Integer.parseInt( data ) );
+		return( Integer.parseInt( finalValue ) );
 	}
 	
 	public String getString() {
-		if( data.isEmpty() )
+		if( finalValue.isEmpty() )
 			return( defaultValue );
-		return( data );
+		return( finalValue );
 	}
 
-	public String getPath( boolean finalValue , boolean isWindows ) {
-		return( getPathValue( getValue() , finalValue , isWindows ) );		
+	public String getPath( boolean isFinalValue , boolean isWindows ) {
+		return( getPathValue( getFinalValue() , isFinalValue , isWindows ) );		
 	}
 	
 	public String getPath( boolean isWindows ) {
-		if( data.isEmpty() )
+		if( finalValue.isEmpty() )
 			return( getPathValue( defaultValue , false , isWindows ) );
-		return( getPathValue( data , false , isWindows ) );
+		return( getPathValue( finalValue , false , isWindows ) );
 	}
 
 	public static String getPathValue( String v , boolean finalValue , boolean isWindows ) {
@@ -253,4 +255,37 @@ public class PropertyValue {
 		return( v );
 	}
 	
+	private void setFinalValueInternal( String value ) throws Exception {
+		if( value == null ) {
+			this.finalValue = "";
+			this.resolved = true;
+			this.missing = true;
+		}
+		else {
+			this.finalValue = value;
+			this.resolved = isFinal( value );
+			this.missing = false;
+			
+			if( resolved ) {
+				if( type == PropertyValueType.PROPERTY_NUMBER ) {
+					try {
+						Integer.parseInt( value );
+					}
+					catch( Throwable e ) {
+						Common.exit1( _Error.InvalidNumberValue1 , "invalid number value=" + value , value );
+					}
+				}
+				else
+				if( type == PropertyValueType.PROPERTY_BOOL ) {
+					try {
+						Common.getBooleanValue( value );
+					}
+					catch( Throwable e ) {
+						Common.exit1( _Error.InvalidNumberValue1 , "invalid boolean value=" + value , value );
+					}
+				}
+			}
+		}
+	}
+
 }
