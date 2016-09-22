@@ -29,7 +29,6 @@ public class PropertyValue {
 	private boolean resolved;
 	private boolean system;
 	private boolean missing;
-	private boolean original;
 	
 	public PropertyValue( PropertyValue src ) {
 		this.property = src.property;
@@ -58,11 +57,13 @@ public class PropertyValue {
 	}
 
 	public boolean isOriginal() {
-		return( original );
+		if( origin == PropertyValueOrigin.PROPERTY_ORIGINAL )
+			return( true );
+		return( false );
 	}
 	
 	public boolean isManual() {
-		if( original )
+		if( isOriginal() )
 			return( false );
 		return( true );
 	}
@@ -110,7 +111,10 @@ public class PropertyValue {
 	}
 	
 	public void setFinalFromOriginalValue() throws Exception {
-		setFinalValueInternal( originalValue );
+		if( originalValue.isEmpty() )
+			setFinalValueInternal( defaultValue );
+		else
+			setFinalValueInternal( originalValue );
 	}
 	
 	public void setFinalValue( String value ) throws Exception {
@@ -152,7 +156,7 @@ public class PropertyValue {
 	public void setDefault( String value ) {
 		defaultValue = value;
 		if( originalValue.isEmpty() )
-			finalValue = originalValue;
+			finalValue = defaultValue;
 		resolved = isFinal( finalValue );
 	}
 	
@@ -254,6 +258,9 @@ public class PropertyValue {
 			this.finalValue = value;
 			this.resolved = isFinal( value );
 			this.missing = false;
+			
+			if( finalValue.isEmpty() )
+				return;
 			
 			if( resolved ) {
 				if( type == PropertyValueType.PROPERTY_NUMBER ) {
