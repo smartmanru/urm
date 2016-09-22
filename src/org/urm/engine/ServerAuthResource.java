@@ -67,11 +67,11 @@ public class ServerAuthResource extends ServerObject {
 
 	public void createProperties() throws Exception {
 		properties = new PropertySet( "resource" , null );
-		properties.setStringProperty( "name" , NAME );
-		properties.setStringProperty( "type" , TYPE );
-		properties.setStringProperty( "baseurl" , BASEURL );
-		properties.setStringProperty( "desc" , DESC );
-		properties.setStringProperty( "authkey" , AUTHKEY );
+		properties.setOriginalStringProperty( "name" , NAME );
+		properties.setOriginalStringProperty( "type" , TYPE );
+		properties.setOriginalStringProperty( "baseurl" , BASEURL );
+		properties.setOriginalStringProperty( "desc" , DESC );
+		properties.setOriginalStringProperty( "authkey" , AUTHKEY );
 	}
 
 	public boolean isSvn() {
@@ -109,7 +109,7 @@ public class ServerAuthResource extends ServerObject {
 	public void saveAuthData() throws Exception {
 		ServerAuth auth = resources.engine.getAuth();
 		AUTHKEY = auth.getAuthKey( ServerAuth.AUTH_GROUP_RESOURCE , NAME );
-		properties.setStringProperty( "authkey" , AUTHKEY );
+		properties.setOriginalStringProperty( "authkey" , AUTHKEY );
 		
 		if( ac != null )
 			auth.saveAuthData( AUTHKEY , ac ); 

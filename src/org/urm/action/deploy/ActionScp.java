@@ -22,8 +22,8 @@ public class ActionScp extends ActionBase {
 		if( !shell.checkFileExists( this , srcInfo ) ) 
 			F_CMD += " -r";
 
-		if( !context.env.KEYNAME.isEmpty() )
-			F_CMD += " -i " + context.env.KEYNAME;
+		if( !context.env.KEYFILE.isEmpty() )
+			F_CMD += " -i " + context.env.KEYFILE;
 		if( account.PORT != 22 )
 			F_CMD += " -P " + account.PORT;
 		

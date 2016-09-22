@@ -8,6 +8,7 @@ import java.util.Properties;
 
 import org.urm.common.PropertyValue.PropertyValueOrigin;
 import org.urm.common.PropertyValue.PropertyValueType;
+import org.urm.common.action.CommandVar.FLAG;
 import org.urm.engine.shell.ShellExecutor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -198,7 +199,7 @@ public class PropertySet {
 	}
 
 	public void setOriginalProperty( String prop , PropertyValueType type , String value , boolean system , ShellExecutor target ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
 		if( system )
 			pv.setSystem();
 		if( type == PropertyValueType.PROPERTY_BOOL )
@@ -214,26 +215,72 @@ public class PropertySet {
 		addProperty( pv );
 	}
 
+	public void setOriginalStringProperty( String prop , String value ) throws Exception {
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
+		pv.setString( value );
+		addProperty( pv );
+	}
+
+	public void setOriginalBooleanProperty( String prop , boolean value ) throws Exception {
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
+		pv.setBool( value );
+		addProperty( pv );
+	}
+
+	public void setOriginalBooleanProperty( String prop , FLAG value ) throws Exception {
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
+		if( value != FLAG.DEFAULT )
+			pv.setBool( value == FLAG.YES );
+		addProperty( pv );
+	}
+
+	public void setOriginalNumberProperty( String prop , int value ) throws Exception {
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
+		pv.setNumber( value );
+		addProperty( pv );
+	}
+
+	public void setOriginalPathProperty( String prop , String value ) throws Exception {
+		setOriginalPathProperty( prop , value , null );
+	}
+
+	public void setOriginalPathProperty( String prop , String value , ShellExecutor target ) throws Exception {
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
+		pv.setPath( value , target );
+		addProperty( pv );
+	}
+
 	public void setStringProperty( String prop , String value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
 		pv.setString( value );
 		addProperty( pv );
 	}
 
 	public void setBooleanProperty( String prop , boolean value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
 		pv.setBool( value );
 		addProperty( pv );
 	}
 
+	public void setBooleanProperty( String prop , FLAG value ) throws Exception {
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
+		if( value != FLAG.DEFAULT )
+			pv.setBool( value == FLAG.YES );
+		addProperty( pv );
+	}
+
 	public void setNumberProperty( String prop , int value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
 		pv.setNumber( value );
 		addProperty( pv );
 	}
 
+	public void setPathProperty( String prop , String value ) throws Exception {
+		setPathProperty( prop , value , null );
+	}
+
 	public void setPathProperty( String prop , String value , ShellExecutor target ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
 		pv.setPath( value , target );
 		addProperty( pv );
 	}
@@ -421,6 +468,30 @@ public class PropertySet {
 		return( pv.getFinalBool() );
 	}
 
+	public FLAG getSystemOptionProperty( String prop ) throws Exception {
+		return( getSystemOptionProperty( prop , null ) );
+	}
+	
+	public FLAG getSystemOptionProperty( String prop , Boolean defaultValue ) throws Exception {
+		PropertyValue pv = resolveSystemProperty( prop , false );
+		pv.setType( PropertyValueType.PROPERTY_BOOL );
+		if( defaultValue != null )
+			pv.setDefault( Common.getBooleanValue( defaultValue ) );
+		String value = pv.getFinalValue();
+		
+		FLAG retval;
+		if( value == null || value.isEmpty() )
+			retval = FLAG.DEFAULT;
+		else {
+			if( Common.getBooleanValue( value ) )
+				retval = FLAG.YES;
+			else
+				retval = FLAG.NO;
+		}
+		
+		return( retval );
+	}
+	
 	public boolean getSystemBooleanProperty( String prop , boolean defaultValue ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false );
 		pv.setType( PropertyValueType.PROPERTY_BOOL );

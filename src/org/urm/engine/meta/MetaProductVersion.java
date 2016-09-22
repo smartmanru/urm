@@ -73,7 +73,6 @@ public class MetaProductVersion extends PropertyController {
 		
 		gatherVariables( action );
 		super.finishProperties( action );
-		
 		super.initFinished();
 	}
 	
@@ -110,12 +109,12 @@ public class MetaProductVersion extends PropertyController {
 		if( !isValid() )
 			action.exit0( _Error.InconsistentVersionAttributes0 , "inconsistent version attributes" );
 	
-		properties.setNumberProperty( PROPERTY_MAJOR_FIRST , majorFirstNumber );
-		properties.setNumberProperty( PROPERTY_MAJOR_LAST , majorSecondNumber );
-		properties.setNumberProperty( PROPERTY_NEXT_MAJOR_FIRST , majorNextFirstNumber );
-		properties.setNumberProperty( PROPERTY_NEXT_MAJOR_LAST , majorNextSecondNumber );
-		properties.setNumberProperty( PROPERTY_PROD_LASTTAG , lastProdTag );
-		properties.setNumberProperty( PROPERTY_PROD_NEXTTAG , nextProdTag );
+		properties.setOriginalNumberProperty( PROPERTY_MAJOR_FIRST , majorFirstNumber );
+		properties.setOriginalNumberProperty( PROPERTY_MAJOR_LAST , majorSecondNumber );
+		properties.setOriginalNumberProperty( PROPERTY_NEXT_MAJOR_FIRST , majorNextFirstNumber );
+		properties.setOriginalNumberProperty( PROPERTY_NEXT_MAJOR_LAST , majorNextSecondNumber );
+		properties.setOriginalNumberProperty( PROPERTY_PROD_LASTTAG , lastProdTag );
+		properties.setOriginalNumberProperty( PROPERTY_PROD_NEXTTAG , nextProdTag );
 		properties.finishRawProperties();
 	}
 	

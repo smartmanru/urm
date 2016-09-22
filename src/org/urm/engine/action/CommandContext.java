@@ -254,7 +254,7 @@ public class CommandContext {
 		CTX_OFFLINE = getFlagValue( "OPT_OFFLINE" );
 		CTX_TIMEOUT = getIntParamValue( "OPT_TIMEOUT" , options.optDefaultCommandTimeout ) * 1000;
 		value = getParamValue( "OPT_KEY" ); 
-		CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? env.KEYNAME : "" ) : value;
+		CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? env.KEYFILE : "" ) : value;
 		String productValue = ( isproduct )? meta.product.CONFIG_DISTR_PATH : "";
 		CTX_DISTPATH = getParamPathValue( "OPT_DISTPATH" , productValue );
 		CTX_REDISTPATH = ( isproduct )? meta.product.CONFIG_REDISTPATH : null;

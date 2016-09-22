@@ -99,15 +99,15 @@ public class ServerMirrorRepository extends ServerObject {
 
 	public void createProperties() throws Exception {
 		properties = new PropertySet( "mirror" , null );
-		properties.setStringProperty( "name" , NAME );
-		properties.setStringProperty( "type" , TYPE );
-		properties.setStringProperty( "product" , PRODUCT );
-		properties.setStringProperty( "project" , PROJECT );
-		properties.setStringProperty( "resource" , RESOURCE );
-		properties.setStringProperty( "repository" , RESOURCE_REPO );
-		properties.setStringProperty( "rootpath" , RESOURCE_ROOT );
-		properties.setStringProperty( "datapath" , RESOURCE_DATA );
-		properties.setStringProperty( "branch" , BRANCH );
+		properties.setOriginalStringProperty( "name" , NAME );
+		properties.setOriginalStringProperty( "type" , TYPE );
+		properties.setOriginalStringProperty( "product" , PRODUCT );
+		properties.setOriginalStringProperty( "project" , PROJECT );
+		properties.setOriginalStringProperty( "resource" , RESOURCE );
+		properties.setOriginalStringProperty( "repository" , RESOURCE_REPO );
+		properties.setOriginalStringProperty( "rootpath" , RESOURCE_ROOT );
+		properties.setOriginalStringProperty( "datapath" , RESOURCE_DATA );
+		properties.setOriginalStringProperty( "branch" , BRANCH );
 	}
 
 	public void createMirrorRepository( ServerTransaction transaction , String resource , String reponame , String reporoot , String dataroot , String repobranch , boolean push ) throws Exception {

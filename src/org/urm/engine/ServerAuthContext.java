@@ -55,10 +55,10 @@ public class ServerAuthContext extends ServerObject {
 
 	public void createProperties() throws Exception {
 		properties = new PropertySet( "authctx" , null );
-		properties.setStringProperty( "method" , METHOD );
-		properties.setStringProperty( "user" , USER );
-		properties.setStringProperty( "password" , PASSWORDSAVE );
-		properties.setBooleanProperty( "admin" , adminContext );
+		properties.setOriginalStringProperty( "method" , METHOD );
+		properties.setOriginalStringProperty( "user" , USER );
+		properties.setOriginalStringProperty( "password" , PASSWORDSAVE );
+		properties.setOriginalBooleanProperty( "admin" , adminContext );
 		properties.finishRawProperties();
 	}
 	

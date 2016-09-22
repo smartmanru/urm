@@ -122,13 +122,20 @@ public class PropertyValue {
 	}
 	
 	public void setOriginalAndFinalValue( String value ) throws Exception {
-		this.originalValue = value;
+		setOriginalValue( value );
 		setFinalValueInternal( value );
 	}
 	
 	public void setOriginalAndFinalValue( String originalValue , String finalValue ) throws Exception {
-		this.originalValue = originalValue;
+		setOriginalValue( originalValue );
 		setFinalValueInternal( finalValue );
+	}
+
+	public void setOriginalValue( String value ) throws Exception {
+		if( value == null )
+			originalValue = "";
+		else
+			originalValue = value;
 	}
 	
 	public void setSystem() {
@@ -190,14 +197,15 @@ public class PropertyValue {
 	
 	public void setPath( String value , ShellExecutor shell ) throws Exception {
 		type = PropertyValueType.PROPERTY_PATH;
-		if( ! ( value == null || value.isEmpty() ) )
+		if( value != null ) {
 			value = Common.getLinuxPath( value );
 		
-		if( value.startsWith( "~/") ) {
-			if( shell != null )
-				value = shell.getHomePath() + value.substring( 1 );
-			else
-				value = "@" + RunContext.PROPERTY_USER_HOME + "@" + value.substring( 1 );
+			if( value.startsWith( "~/") ) {
+				if( shell != null )
+					value = shell.getHomePath() + value.substring( 1 );
+				else
+					value = "@" + RunContext.PROPERTY_USER_HOME + "@" + value.substring( 1 );
+			}
 		}
 		
 		setOriginalAndFinalValue( value );

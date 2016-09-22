@@ -474,7 +474,8 @@ public class ServerProductMeta extends ServerObject {
 	}
 
 	public void addEnv( ServerTransaction transaction , MetaEnv env ) throws Exception {
-		envs.put( env.ID , env );
+		String envFile = env.ID + ".xml";
+		envs.put( envFile , env );
 	}
 
 	public MetaProductVersion getVersion() {

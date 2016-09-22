@@ -31,10 +31,9 @@ public class MetaEnv extends PropertyController {
 	public String DISTR_HOSTLOGIN;
 	public String DISTR_PATH;
 	public String UPGRADE_PATH;
-	public String CONF_SECRETPROPERTYFILE;
 	public String CONF_SECRETFILESPATH;
 	public String CHATROOMFILE;
-	public String KEYNAME;
+	public String KEYFILE;
 	public String DB_AUTHFILE;
 	public boolean PROD;
 	
@@ -46,31 +45,30 @@ public class MetaEnv extends PropertyController {
 	public FLAG CONF_DEPLOY;
 	public FLAG CONF_KEEPALIVE;
 
-	// properties
-	public String PROPERTY_ID;
-	public String PROPERTY_BASELINE;
-	public String PROPERTY_REDISTPATH;
-	public String PROPERTY_DISTR_USELOCAL;
-	public String PROPERTY_DISTR_HOSTLOGIN;
-	public String PROPERTY_DISTR_PATH;
-	public String PROPERTY_UPGRADE_PATH;
-	public String PROPERTY_CONF_SECRETPROPERTYFILE;
-	public String PROPERTY_CONF_SECRETFILESPATH;
-	public String PROPERTY_CHATROOMFILE;
-	public String PROPERTY_KEYNAME;
-	public String PROPERTY_DB_AUTHFILE;
-	public String PROPERTY_PROD;
-	
-	// properties, affecting options
-	public String PROPERTY_DB_AUTH;
-	public String PROPERTY_OBSOLETE;
-	public String PROPERTY_SHOWONLY;
-	public String PROPERTY_BACKUP;
-	public String PROPERTY_CONF_DEPLOY;
-	public String PROPERTY_CONF_KEEPALIVE;
-	
 	List<MetaEnvDC> originalList;
 	Map<String,MetaEnvDC> dcMap;
+
+	// properties
+	public static String PROPERTY_ID = "id";
+	public static String PROPERTY_BASELINE = "configuration-baseline";
+	public static String PROPERTY_REDISTPATH = "redist-path";
+	public static String PROPERTY_DISTR_USELOCAL = "distr-use-local";
+	public static String PROPERTY_DISTR_HOSTLOGIN = "distr-hostlogin";
+	public static String PROPERTY_DISTR_PATH = "distr-path";
+	public static String PROPERTY_UPGRADE_PATH = "upgrade-path";
+	public static String PROPERTY_CONF_SECRETFILESPATH = "secretfiles";
+	public static String PROPERTY_CHATROOMFILE = "chatroomfile";
+	public static String PROPERTY_KEYFILE = "keyfile";
+	public static String PROPERTY_DB_AUTHFILE = "db-authfile";
+	public static String PROPERTY_PROD = "prod";
+	
+	// properties, affecting options
+	public static String PROPERTY_DB_AUTH = "db-auth";
+	public static String PROPERTY_OBSOLETE = "obsolete";
+	public static String PROPERTY_SHOWONLY = "showonly";
+	public static String PROPERTY_BACKUP = "backup";
+	public static String PROPERTY_CONF_DEPLOY = "configuration-deploy";
+	public static String PROPERTY_CONF_KEEPALIVE = "configuration-keepalive";
 	
 	public MetaEnv( Meta meta ) {
 		super( "env" );
@@ -86,6 +84,10 @@ public class MetaEnv extends PropertyController {
 		return( true );
 	}
 	
+	public void createEnv( ActionBase action ) throws Exception {
+		createProperties( action );
+	}
+
 	public MetaEnv copy( ActionBase action , Meta meta ) throws Exception {
 		MetaEnv r = new MetaEnv( meta );
 		r.initCopyStarted( this , meta.product.getProperties() );
@@ -95,7 +97,7 @@ public class MetaEnv extends PropertyController {
 			r.addDC( rdc );
 		}
 		
-		r.scatterSystemProperties( action );
+		r.scatterProperties( action );
 		r.initFinished();
 		return( r );
 	}
@@ -115,7 +117,8 @@ public class MetaEnv extends PropertyController {
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
-		if( !super.initCreateStarted( meta.product.getProperties() ) )
+		secretProperties = new PropertySet( "secret" , meta.product.getProperties() );
+		if( !super.initCreateStarted( secretProperties ) )
 			return;
 
 		loadProperties( action , root );
@@ -126,8 +129,6 @@ public class MetaEnv extends PropertyController {
 	}
 	
 	private void loadProperties( ActionBase action , Node node ) throws Exception {
-		secretProperties = new PropertySet( "secret" , meta.product.getProperties() );
-		properties = new PropertySet( "env" , secretProperties );
 		properties.loadFromNodeAttributes( node );
 		
 		CONF_SECRETFILESPATH = properties.getSystemPathProperty( "configuration-secretfilespath" , "" , action.session.execrc );
@@ -142,7 +143,7 @@ public class MetaEnv extends PropertyController {
 				missingSecretProperties = true;
 		}
 			
-		scatterSystemProperties( action );
+		scatterProperties( action );
 		
 		if( loadProps ) {
 			loadSecretProperties( action );
@@ -169,50 +170,75 @@ public class MetaEnv extends PropertyController {
 		return( properties.getPropertyAny( var ) );
 	}
 	
-	private void scatterSystemProperties( ActionBase action ) throws Exception {
-		ID = properties.getSystemRequiredStringProperty( "id" );
+	private void scatterProperties( ActionBase action ) throws Exception {
+		ID = properties.getSystemRequiredStringProperty( PROPERTY_ID );
 		action.trace( "load properties of env=" + ID );
 		
-		BASELINE = properties.getSystemStringProperty( "configuration-baseline" , "" );
-		REDISTPATH = properties.getSystemPathProperty( "redist-path" , meta.product.CONFIG_REDISTPATH , action.session.execrc );
-		DISTR_USELOCAL = properties.getSystemBooleanProperty( "distr-use-local" , true );
+		BASELINE = properties.getSystemStringProperty( PROPERTY_BASELINE , "" );
+		REDISTPATH = properties.getSystemPathProperty( PROPERTY_REDISTPATH , meta.product.CONFIG_REDISTPATH , action.session.execrc );
+		DISTR_USELOCAL = properties.getSystemBooleanProperty( PROPERTY_DISTR_USELOCAL , true );
 		if( DISTR_USELOCAL )
 			DISTR_HOSTLOGIN = action.context.account.getFullName();
 		else
-			DISTR_HOSTLOGIN = properties.getSystemStringProperty( "distr-hostlogin" , meta.product.CONFIG_DISTR_HOSTLOGIN );
+			DISTR_HOSTLOGIN = properties.getSystemStringProperty( PROPERTY_DISTR_HOSTLOGIN , meta.product.CONFIG_DISTR_HOSTLOGIN );
 		
-		DISTR_PATH = properties.getSystemPathProperty( "distr-path" , meta.product.CONFIG_DISTR_PATH , action.session.execrc );
-		UPGRADE_PATH = properties.getSystemPathProperty( "upgrade-path" , meta.product.CONFIG_UPGRADE_PATH , action.session.execrc );
-		CHATROOMFILE = properties.getSystemPathProperty( "chatroomfile" , "" , action.session.execrc );
-		KEYNAME = properties.getSystemPathProperty( "keyname" , "" , action.session.execrc );
-		DB_AUTHFILE = properties.getSystemPathProperty( "db-authfile" , "" , action.session.execrc );
-		PROD = properties.getSystemBooleanProperty( "prod" , false );
+		DISTR_PATH = properties.getSystemPathProperty( PROPERTY_DISTR_PATH , meta.product.CONFIG_DISTR_PATH , action.session.execrc );
+		UPGRADE_PATH = properties.getSystemPathProperty( PROPERTY_UPGRADE_PATH , meta.product.CONFIG_UPGRADE_PATH , action.session.execrc );
+		CHATROOMFILE = properties.getSystemPathProperty( PROPERTY_CHATROOMFILE , "" , action.session.execrc );
+		KEYFILE = properties.getSystemPathProperty( PROPERTY_KEYFILE , "" , action.session.execrc );
+		DB_AUTHFILE = properties.getSystemPathProperty( PROPERTY_DB_AUTHFILE , "" , action.session.execrc );
+		PROD = properties.getSystemBooleanProperty( PROPERTY_PROD , false );
 
 		// affect runtime options
-		DB_AUTH = getOptionFlag( action , "db-auth" );
-		OBSOLETE = getOptionFlag( action , "obsolete" );
-		SHOWONLY = getOptionFlag( action , "showonly" );
-		BACKUP = getOptionFlag( action , "backup" );
-		CONF_DEPLOY = getOptionFlag( action , "configuration-deploy" );
-		CONF_KEEPALIVE = getOptionFlag( action , "configuration-keepalive" );
-
+		DB_AUTH = properties.getSystemOptionProperty( PROPERTY_DB_AUTH );
+		OBSOLETE = properties.getSystemOptionProperty( PROPERTY_OBSOLETE );
+		SHOWONLY = properties.getSystemOptionProperty( PROPERTY_SHOWONLY );
+		BACKUP = properties.getSystemOptionProperty( PROPERTY_BACKUP );
+		CONF_DEPLOY = properties.getSystemOptionProperty( PROPERTY_CONF_DEPLOY );
+		CONF_KEEPALIVE = properties.getSystemOptionProperty( PROPERTY_CONF_KEEPALIVE );
 		properties.finishRawProperties();
+		
+		if( !isValid() )
+			action.exit0( _Error.InconsistentVersionAttributes0 , "inconsistent version attributes" );
 	}
 
-	private FLAG getOptionFlag( ActionBase action , String envParam ) throws Exception {
-		String value = properties.getSystemStringProperty( envParam , null );
+	public void gatherVariables( ActionBase action ) throws Exception {
+		if( !isValid() )
+			action.exit0( _Error.InconsistentVersionAttributes0 , "inconsistent version attributes" );
+	
+		properties.setOriginalStringProperty( PROPERTY_ID , ID );
+		properties.setOriginalStringProperty( PROPERTY_BASELINE , BASELINE );
+		properties.setOriginalPathProperty( PROPERTY_REDISTPATH , REDISTPATH );
+		properties.setOriginalBooleanProperty( PROPERTY_DISTR_USELOCAL , DISTR_USELOCAL );
+		properties.setOriginalStringProperty( PROPERTY_DISTR_HOSTLOGIN , DISTR_HOSTLOGIN );
+		properties.setOriginalPathProperty( PROPERTY_DISTR_PATH , DISTR_PATH );
+		properties.setOriginalPathProperty( PROPERTY_UPGRADE_PATH , UPGRADE_PATH );
+		properties.setOriginalPathProperty( PROPERTY_CONF_SECRETFILESPATH , CONF_SECRETFILESPATH );
+		properties.setOriginalStringProperty( PROPERTY_CHATROOMFILE , CHATROOMFILE );
+		properties.setOriginalPathProperty( PROPERTY_KEYFILE , KEYFILE );
+		properties.setOriginalPathProperty( PROPERTY_DB_AUTHFILE , DB_AUTHFILE );
+		properties.setOriginalBooleanProperty( PROPERTY_PROD , PROD );
 		
-		FLAG retval;
-		if( value == null || value.isEmpty() )
-			retval = FLAG.DEFAULT;
-		else {
-			if( Common.getBooleanValue( value ) )
-				retval = FLAG.YES;
-			else
-				retval = FLAG.NO;
-		}
+		// properties, affecting options
+		properties.setOriginalBooleanProperty( PROPERTY_DB_AUTH , DB_AUTH );
+		properties.setOriginalBooleanProperty( PROPERTY_OBSOLETE , OBSOLETE );
+		properties.setOriginalBooleanProperty( PROPERTY_SHOWONLY , SHOWONLY );
+		properties.setOriginalBooleanProperty( PROPERTY_BACKUP , BACKUP );
+		properties.setOriginalBooleanProperty( PROPERTY_CONF_DEPLOY , CONF_DEPLOY );
+		properties.setOriginalBooleanProperty( PROPERTY_CONF_KEEPALIVE , CONF_KEEPALIVE );
+		properties.finishRawProperties();
+	}
+	
+	private void createProperties( ActionBase action ) throws Exception {
+		secretProperties = new PropertySet( "secret" , meta.product.getProperties() );
+		if( !super.initCreateStarted( secretProperties ) )
+			return;
+
+		gatherVariables( action );
+		super.finishProperties( action );
+		super.initFinished();
 		
-		return( retval );
+		scatterProperties( action );
 	}
 	
 	private void loadDatacenters( ActionBase action , Node node ) throws Exception {

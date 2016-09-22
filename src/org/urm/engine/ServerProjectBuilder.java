@@ -66,11 +66,11 @@ public class ServerProjectBuilder extends ServerObject {
 
 	public void createProperties() throws Exception {
 		properties = new PropertySet( "builder" , null );
-		properties.setStringProperty( "name" , NAME );
-		properties.setStringProperty( "type" , TYPE );
-		properties.setStringProperty( "hostlogin" , HOSTLOGIN );
-		properties.setStringProperty( "desc" , DESC );
-		properties.setStringProperty( "ostype" , OSTYPE );
+		properties.setOriginalStringProperty( "name" , NAME );
+		properties.setOriginalStringProperty( "type" , TYPE );
+		properties.setOriginalStringProperty( "hostlogin" , HOSTLOGIN );
+		properties.setOriginalStringProperty( "desc" , DESC );
+		properties.setOriginalStringProperty( "ostype" , OSTYPE );
 	}
 
 	public boolean isMaven() {
