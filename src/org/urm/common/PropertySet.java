@@ -66,7 +66,7 @@ public class PropertySet {
 	public String[] getRunningKeys() {
 		List<String> props = new LinkedList<String>();
 		for( PropertyValue p : data.values() ) {
-			if( p.isRunning() )
+			if( p.isResolved() )
 				props.add( getKeyByProperty( p.property ) );
 		}
 		return( Common.getSortedList( props ) );		
@@ -75,7 +75,7 @@ public class PropertySet {
 	public String[] getRunningProperties() {
 		List<String> props = new LinkedList<String>();
 		for( PropertyValue p : data.values() ) {
-			if( p.isRunning() )
+			if( p.isResolved() )
 				props.add( p.property );
 		}
 		return( Common.getSortedList( props ) );		
@@ -113,7 +113,7 @@ public class PropertySet {
 	public String[] getRawKeys() {
 		List<String> props = new LinkedList<String>();
 		for( PropertyValue p : data.values() ) {
-			if( p.isRaw() )
+			if( !p.isResolved() )
 				props.add( p.property );
 		}
 		return( Common.getSortedList( props ) );		
@@ -164,7 +164,7 @@ public class PropertySet {
 
 	public void copyRunningPropertiesToRunning( PropertySet src ) throws Exception {
 		for( PropertyValue p : src.data.values() ) {
-			if( !p.isRunning() )
+			if( !p.isResolved() )
 				continue;
 			
 			PropertyValue pv = new PropertyValue( p.property , PropertyValue.PropertyValueOrigin.PROPERTY_EXTRA , src );
@@ -184,7 +184,7 @@ public class PropertySet {
 	public void resolveRawProperties( boolean allowUnresolved ) throws Exception {
 		// resolve properties
 		for( PropertyValue pv : data.values() ) {
-			if( !pv.isRaw() )
+			if( pv.isResolved() )
 				continue;
 			
 			resolveProperty( pv , allowUnresolved );
@@ -313,10 +313,10 @@ public class PropertySet {
 	public void finishRawProperties() throws Exception {
 		resolveRawProperties();
 		for( PropertyValue pv : data.values() ) {
-			if( !pv.isRaw() )
+			if( pv.isResolved() )
 				continue;
 			
-			Common.exit2( _Error.UnresolvedVariable2 , "set=" + set + ": unexpected property=" + pv.property , set , pv.property );
+			Common.exit2( _Error.UnresolvedVariable2 , "set=" + set + ": unresolved property=" + pv.property , set , pv.property );
 		}
 	}
 
@@ -500,7 +500,7 @@ public class PropertySet {
 	}
 
 	private boolean resolveProperty( PropertyValue pv , boolean allowUnresolved ) throws Exception {
-		if( !pv.isRaw() )
+		if( pv.isResolved() )
 			return( true );
 		
 		processValue( pv , false , false , true , true , allowUnresolved );
@@ -518,7 +518,7 @@ public class PropertySet {
 		PropertyValue p = data.get( key );
 		if( p == null )
 			return( null );
-		if( p.isRunning() )
+		if( p.isResolved() )
 			return( p );
 		return( null );
 	}
@@ -527,7 +527,7 @@ public class PropertySet {
 		PropertyValue p = data.get( getKeyByProperty( prop ) );
 		if( p == null )
 			return( null );
-		if( p.isRunning() )
+		if( p.isResolved() )
 			return( p );
 		return( null );
 	}
@@ -536,7 +536,7 @@ public class PropertySet {
 		PropertyValue p = data.get( key );
 		if( p == null )
 			return( null );
-		if( p.isRaw() )
+		if( !p.isResolved() )
 			return( p );
 		return( null );
 	}
@@ -545,7 +545,7 @@ public class PropertySet {
 		PropertyValue p = data.get( getKeyByProperty( prop ) );
 		if( p == null )
 			return( null );
-		if( p.isRaw() )
+		if( !p.isResolved() )
 			return( p );
 		return( null );
 	}

@@ -29,7 +29,6 @@ public class PropertyValue {
 	private boolean resolved;
 	private boolean system;
 	private boolean missing;
-	private boolean running;
 	private boolean original;
 	
 	public PropertyValue( PropertyValue src ) {
@@ -66,16 +65,6 @@ public class PropertyValue {
 		if( original )
 			return( false );
 		return( true );
-	}
-	
-	public boolean isRaw() {
-		if( running )
-			return( false );
-		return( true );
-	}
-	
-	public boolean isRunning() {
-		return( running );
 	}
 	
 	public boolean isDefault() {
