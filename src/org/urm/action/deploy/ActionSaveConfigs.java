@@ -112,7 +112,7 @@ public class ActionSaveConfigs extends ActionBase {
 			String[] existingItems = sourceStorage.getLiveConfigServers( this , set.dc );
 
 			for( String item : existingItems ) {
-				if( set.dc.findServer( this , item ) != null )
+				if( set.dc.findServer( item ) != null )
 					continue;
 				
 				info( "delete obsolete server=" + item + " ..." );

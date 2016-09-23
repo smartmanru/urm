@@ -51,10 +51,37 @@ public class MetaProductVersion extends PropertyController {
 		return( true );
 	}
 	
+	@Override
+	public void scatterProperties( ActionBase action ) throws Exception {
+		majorFirstNumber = super.getIntPropertyRequired( action , PROPERTY_MAJOR_FIRST );
+		majorSecondNumber = super.getIntPropertyRequired( action , PROPERTY_MAJOR_LAST );
+		majorNextFirstNumber = super.getIntPropertyRequired( action , PROPERTY_NEXT_MAJOR_FIRST );
+		majorNextSecondNumber = super.getIntPropertyRequired( action , PROPERTY_NEXT_MAJOR_LAST );
+		lastProdTag = super.getIntPropertyRequired( action , PROPERTY_PROD_LASTTAG );
+		nextProdTag = super.getIntPropertyRequired( action , PROPERTY_PROD_NEXTTAG );
+		
+		if( !isValid() )
+			action.exit0( _Error.InconsistentVersionAttributes0 , "inconsistent version attributes" );
+	}
+	
+	@Override
+	public void gatherProperties( ActionBase action ) throws Exception {
+		if( !isValid() )
+			action.exit0( _Error.InconsistentVersionAttributes0 , "inconsistent version attributes" );
+	
+		properties.setOriginalNumberProperty( PROPERTY_MAJOR_FIRST , majorFirstNumber );
+		properties.setOriginalNumberProperty( PROPERTY_MAJOR_LAST , majorSecondNumber );
+		properties.setOriginalNumberProperty( PROPERTY_NEXT_MAJOR_FIRST , majorNextFirstNumber );
+		properties.setOriginalNumberProperty( PROPERTY_NEXT_MAJOR_LAST , majorNextSecondNumber );
+		properties.setOriginalNumberProperty( PROPERTY_PROD_LASTTAG , lastProdTag );
+		properties.setOriginalNumberProperty( PROPERTY_PROD_NEXTTAG , nextProdTag );
+		properties.finishRawProperties();
+	}
+	
 	public MetaProductVersion copy( ActionBase action , Meta meta ) throws Exception {
 		MetaProductVersion r = new MetaProductVersion( meta );
 		r.initCopyStarted( this , null );
-		r.scatterVariables( action );
+		r.scatterProperties( action );
 		r.initFinished();
 		
 		return( r );
@@ -71,7 +98,7 @@ public class MetaProductVersion extends PropertyController {
 		lastProdTag = 0;
 		nextProdTag = 1;
 		
-		gatherVariables( action );
+		gatherProperties( action );
 		super.finishProperties( action );
 		super.initFinished();
 	}
@@ -81,7 +108,7 @@ public class MetaProductVersion extends PropertyController {
 			return;
 
 		properties.loadFromNodeElements( root );
-		scatterVariables( action );
+		scatterProperties( action );
 		
 		super.initFinished();
 	}
@@ -93,29 +120,4 @@ public class MetaProductVersion extends PropertyController {
 		properties.saveAsElements( doc , root );
 	}
 
-	private void scatterVariables( ActionBase action ) throws Exception {
-		majorFirstNumber = super.getIntPropertyRequired( action , PROPERTY_MAJOR_FIRST );
-		majorSecondNumber = super.getIntPropertyRequired( action , PROPERTY_MAJOR_LAST );
-		majorNextFirstNumber = super.getIntPropertyRequired( action , PROPERTY_NEXT_MAJOR_FIRST );
-		majorNextSecondNumber = super.getIntPropertyRequired( action , PROPERTY_NEXT_MAJOR_LAST );
-		lastProdTag = super.getIntPropertyRequired( action , PROPERTY_PROD_LASTTAG );
-		nextProdTag = super.getIntPropertyRequired( action , PROPERTY_PROD_NEXTTAG );
-		
-		if( !isValid() )
-			action.exit0( _Error.InconsistentVersionAttributes0 , "inconsistent version attributes" );
-	}
-	
-	public void gatherVariables( ActionBase action ) throws Exception {
-		if( !isValid() )
-			action.exit0( _Error.InconsistentVersionAttributes0 , "inconsistent version attributes" );
-	
-		properties.setOriginalNumberProperty( PROPERTY_MAJOR_FIRST , majorFirstNumber );
-		properties.setOriginalNumberProperty( PROPERTY_MAJOR_LAST , majorSecondNumber );
-		properties.setOriginalNumberProperty( PROPERTY_NEXT_MAJOR_FIRST , majorNextFirstNumber );
-		properties.setOriginalNumberProperty( PROPERTY_NEXT_MAJOR_LAST , majorNextSecondNumber );
-		properties.setOriginalNumberProperty( PROPERTY_PROD_LASTTAG , lastProdTag );
-		properties.setOriginalNumberProperty( PROPERTY_PROD_NEXTTAG , nextProdTag );
-		properties.finishRawProperties();
-	}
-	
 }

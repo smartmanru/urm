@@ -11,6 +11,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
 import org.urm.common.action.CommandVar.FLAG;
+import org.urm.engine.ServerTransaction;
 import org.urm.engine.storage.HiddenFiles;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -50,6 +51,7 @@ public class MetaEnv extends PropertyController {
 
 	// properties
 	public static String PROPERTY_ID = "id";
+	public static String PROPERTY_PROD = "prod";
 	public static String PROPERTY_BASELINE = "configuration-baseline";
 	public static String PROPERTY_REDISTPATH = "redist-path";
 	public static String PROPERTY_DISTR_USELOCAL = "distr-use-local";
@@ -60,7 +62,6 @@ public class MetaEnv extends PropertyController {
 	public static String PROPERTY_CHATROOMFILE = "chatroomfile";
 	public static String PROPERTY_KEYFILE = "keyfile";
 	public static String PROPERTY_DB_AUTHFILE = "db-authfile";
-	public static String PROPERTY_PROD = "prod";
 	
 	// properties, affecting options
 	public static String PROPERTY_DB_AUTH = "db-auth";
@@ -83,6 +84,70 @@ public class MetaEnv extends PropertyController {
 			return( false );
 		return( true );
 	}
+	
+	@Override
+	public void scatterProperties( ActionBase action ) throws Exception {
+		ID = properties.getSystemRequiredStringProperty( PROPERTY_ID );
+		action.trace( "load properties of env=" + ID );
+		
+		MetaProductSettings product = meta.getProduct( action );
+		BASELINE = properties.getSystemStringProperty( PROPERTY_BASELINE , "" );
+		REDISTPATH = properties.getSystemPathProperty( PROPERTY_REDISTPATH , product.CONFIG_REDISTPATH , action.session.execrc );
+		DISTR_USELOCAL = properties.getSystemBooleanProperty( PROPERTY_DISTR_USELOCAL , true );
+		if( DISTR_USELOCAL )
+			DISTR_HOSTLOGIN = action.context.account.getFullName();
+		else
+			DISTR_HOSTLOGIN = properties.getSystemStringProperty( PROPERTY_DISTR_HOSTLOGIN , product.CONFIG_DISTR_HOSTLOGIN );
+		
+		DISTR_PATH = properties.getSystemPathProperty( PROPERTY_DISTR_PATH , product.CONFIG_DISTR_PATH , action.session.execrc );
+		UPGRADE_PATH = properties.getSystemPathProperty( PROPERTY_UPGRADE_PATH , product.CONFIG_UPGRADE_PATH , action.session.execrc );
+		CONF_SECRETFILESPATH = properties.getSystemPathProperty( PROPERTY_CONF_SECRETFILESPATH , "" , action.session.execrc );
+		CHATROOMFILE = properties.getSystemPathProperty( PROPERTY_CHATROOMFILE , "" , action.session.execrc );
+		KEYFILE = properties.getSystemPathProperty( PROPERTY_KEYFILE , "" , action.session.execrc );
+		DB_AUTHFILE = properties.getSystemPathProperty( PROPERTY_DB_AUTHFILE , "" , action.session.execrc );
+		PROD = properties.getSystemBooleanProperty( PROPERTY_PROD , false );
+
+		// affect runtime options
+		DB_AUTH = properties.getSystemOptionProperty( PROPERTY_DB_AUTH );
+		OBSOLETE = properties.getSystemOptionProperty( PROPERTY_OBSOLETE );
+		SHOWONLY = properties.getSystemOptionProperty( PROPERTY_SHOWONLY );
+		BACKUP = properties.getSystemOptionProperty( PROPERTY_BACKUP );
+		CONF_DEPLOY = properties.getSystemOptionProperty( PROPERTY_CONF_DEPLOY );
+		CONF_KEEPALIVE = properties.getSystemOptionProperty( PROPERTY_CONF_KEEPALIVE );
+		properties.finishRawProperties();
+		
+		if( !isValid() )
+			action.exit0( _Error.InconsistentVersionAttributes0 , "inconsistent version attributes" );
+	}
+
+	@Override
+	public void gatherProperties( ActionBase action ) throws Exception {
+		if( !isValid() )
+			action.exit0( _Error.InconsistentVersionAttributes0 , "inconsistent version attributes" );
+	
+		properties.setOriginalStringProperty( PROPERTY_ID , ID );
+		properties.setOriginalStringProperty( PROPERTY_BASELINE , BASELINE );
+		properties.setOriginalPathProperty( PROPERTY_REDISTPATH , REDISTPATH );
+		properties.setOriginalBooleanProperty( PROPERTY_DISTR_USELOCAL , DISTR_USELOCAL );
+		properties.setOriginalStringProperty( PROPERTY_DISTR_HOSTLOGIN , DISTR_HOSTLOGIN );
+		properties.setOriginalPathProperty( PROPERTY_DISTR_PATH , DISTR_PATH );
+		properties.setOriginalPathProperty( PROPERTY_UPGRADE_PATH , UPGRADE_PATH );
+		properties.setOriginalPathProperty( PROPERTY_CONF_SECRETFILESPATH , CONF_SECRETFILESPATH );
+		properties.setOriginalStringProperty( PROPERTY_CHATROOMFILE , CHATROOMFILE );
+		properties.setOriginalPathProperty( PROPERTY_KEYFILE , KEYFILE );
+		properties.setOriginalPathProperty( PROPERTY_DB_AUTHFILE , DB_AUTHFILE );
+		properties.setOriginalBooleanProperty( PROPERTY_PROD , PROD );
+		
+		// properties, affecting options
+		properties.setOriginalBooleanProperty( PROPERTY_DB_AUTH , DB_AUTH );
+		properties.setOriginalBooleanProperty( PROPERTY_OBSOLETE , OBSOLETE );
+		properties.setOriginalBooleanProperty( PROPERTY_SHOWONLY , SHOWONLY );
+		properties.setOriginalBooleanProperty( PROPERTY_BACKUP , BACKUP );
+		properties.setOriginalBooleanProperty( PROPERTY_CONF_DEPLOY , CONF_DEPLOY );
+		properties.setOriginalBooleanProperty( PROPERTY_CONF_KEEPALIVE , CONF_KEEPALIVE );
+		properties.finishRawProperties();
+	}
+	
 	
 	public void createEnv( ActionBase action ) throws Exception {
 		createProperties( action );
@@ -172,73 +237,13 @@ public class MetaEnv extends PropertyController {
 		return( properties.getPropertyAny( var ) );
 	}
 	
-	private void scatterProperties( ActionBase action ) throws Exception {
-		ID = properties.getSystemRequiredStringProperty( PROPERTY_ID );
-		action.trace( "load properties of env=" + ID );
-		
-		MetaProductSettings product = meta.getProduct( action );
-		BASELINE = properties.getSystemStringProperty( PROPERTY_BASELINE , "" );
-		REDISTPATH = properties.getSystemPathProperty( PROPERTY_REDISTPATH , product.CONFIG_REDISTPATH , action.session.execrc );
-		DISTR_USELOCAL = properties.getSystemBooleanProperty( PROPERTY_DISTR_USELOCAL , true );
-		if( DISTR_USELOCAL )
-			DISTR_HOSTLOGIN = action.context.account.getFullName();
-		else
-			DISTR_HOSTLOGIN = properties.getSystemStringProperty( PROPERTY_DISTR_HOSTLOGIN , product.CONFIG_DISTR_HOSTLOGIN );
-		
-		DISTR_PATH = properties.getSystemPathProperty( PROPERTY_DISTR_PATH , product.CONFIG_DISTR_PATH , action.session.execrc );
-		UPGRADE_PATH = properties.getSystemPathProperty( PROPERTY_UPGRADE_PATH , product.CONFIG_UPGRADE_PATH , action.session.execrc );
-		CHATROOMFILE = properties.getSystemPathProperty( PROPERTY_CHATROOMFILE , "" , action.session.execrc );
-		KEYFILE = properties.getSystemPathProperty( PROPERTY_KEYFILE , "" , action.session.execrc );
-		DB_AUTHFILE = properties.getSystemPathProperty( PROPERTY_DB_AUTHFILE , "" , action.session.execrc );
-		PROD = properties.getSystemBooleanProperty( PROPERTY_PROD , false );
-
-		// affect runtime options
-		DB_AUTH = properties.getSystemOptionProperty( PROPERTY_DB_AUTH );
-		OBSOLETE = properties.getSystemOptionProperty( PROPERTY_OBSOLETE );
-		SHOWONLY = properties.getSystemOptionProperty( PROPERTY_SHOWONLY );
-		BACKUP = properties.getSystemOptionProperty( PROPERTY_BACKUP );
-		CONF_DEPLOY = properties.getSystemOptionProperty( PROPERTY_CONF_DEPLOY );
-		CONF_KEEPALIVE = properties.getSystemOptionProperty( PROPERTY_CONF_KEEPALIVE );
-		properties.finishRawProperties();
-		
-		if( !isValid() )
-			action.exit0( _Error.InconsistentVersionAttributes0 , "inconsistent version attributes" );
-	}
-
-	public void gatherVariables( ActionBase action ) throws Exception {
-		if( !isValid() )
-			action.exit0( _Error.InconsistentVersionAttributes0 , "inconsistent version attributes" );
-	
-		properties.setOriginalStringProperty( PROPERTY_ID , ID );
-		properties.setOriginalStringProperty( PROPERTY_BASELINE , BASELINE );
-		properties.setOriginalPathProperty( PROPERTY_REDISTPATH , REDISTPATH );
-		properties.setOriginalBooleanProperty( PROPERTY_DISTR_USELOCAL , DISTR_USELOCAL );
-		properties.setOriginalStringProperty( PROPERTY_DISTR_HOSTLOGIN , DISTR_HOSTLOGIN );
-		properties.setOriginalPathProperty( PROPERTY_DISTR_PATH , DISTR_PATH );
-		properties.setOriginalPathProperty( PROPERTY_UPGRADE_PATH , UPGRADE_PATH );
-		properties.setOriginalPathProperty( PROPERTY_CONF_SECRETFILESPATH , CONF_SECRETFILESPATH );
-		properties.setOriginalStringProperty( PROPERTY_CHATROOMFILE , CHATROOMFILE );
-		properties.setOriginalPathProperty( PROPERTY_KEYFILE , KEYFILE );
-		properties.setOriginalPathProperty( PROPERTY_DB_AUTHFILE , DB_AUTHFILE );
-		properties.setOriginalBooleanProperty( PROPERTY_PROD , PROD );
-		
-		// properties, affecting options
-		properties.setOriginalBooleanProperty( PROPERTY_DB_AUTH , DB_AUTH );
-		properties.setOriginalBooleanProperty( PROPERTY_OBSOLETE , OBSOLETE );
-		properties.setOriginalBooleanProperty( PROPERTY_SHOWONLY , SHOWONLY );
-		properties.setOriginalBooleanProperty( PROPERTY_BACKUP , BACKUP );
-		properties.setOriginalBooleanProperty( PROPERTY_CONF_DEPLOY , CONF_DEPLOY );
-		properties.setOriginalBooleanProperty( PROPERTY_CONF_KEEPALIVE , CONF_KEEPALIVE );
-		properties.finishRawProperties();
-	}
-	
 	private void createProperties( ActionBase action ) throws Exception {
 		MetaProductSettings product = meta.getProduct( action );
 		secretProperties = new PropertySet( "secret" , product.getProperties() );
 		if( !super.initCreateStarted( secretProperties ) )
 			return;
 
-		gatherVariables( action );
+		gatherProperties( action );
 		super.finishProperties( action );
 		super.initFinished();
 		
@@ -268,6 +273,10 @@ public class MetaEnv extends PropertyController {
 			dc.resolveLinks( action );
 	}
 	
+	public MetaEnvDC findDC( String name ) {
+		return( dcMap.get( name ) );
+	}
+
 	public MetaEnvDC getDC( ActionBase action , String name ) throws Exception {
 		MetaEnvDC dc = dcMap.get( name );
 		if( dc == null )
@@ -304,6 +313,24 @@ public class MetaEnv extends PropertyController {
 			Element dcElement = Common.xmlCreateElement( doc , root , "datacenter" );
 			dc.save( action , doc , dcElement );
 		}
+	}
+	
+	public void createDC( ServerTransaction transaction , MetaEnvDC dc ) {
+		addDC( dc );
+	}
+	
+	public void deleteDC( ServerTransaction transaction , MetaEnvDC dc ) {
+		int index = originalList.indexOf( dc );
+		if( index < 0 )
+			return;
+		
+		originalList.remove( index );
+		dcMap.remove( dc.NAME );
+	}
+	
+	public void setProperties( ServerTransaction transaction , PropertySet props , boolean system ) throws Exception {
+		super.updateProperties( transaction , props , system );
+		scatterProperties( transaction.getAction() );
 	}
 	
 }

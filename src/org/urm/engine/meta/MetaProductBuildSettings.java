@@ -93,29 +93,9 @@ public class MetaProductBuildSettings extends PropertyController {
 			return( false );
 		return( true );
 	}
-	
-	public void create( ActionBase action , PropertySet src , PropertySet parent ) throws Exception {
-		if( !initCreateStarted( parent ) )
-			return;
 
-		if( src != null )
-			properties.copyOriginalPropertiesToRaw( src );
-		
-		scatterVariables( action );
-		
-		initFinished();
-	}
-	
-	public MetaProductBuildSettings copy( ActionBase action , Meta meta , MetaProductSettings product , PropertySet parent ) throws Exception {
-		MetaProductBuildSettings r = new MetaProductBuildSettings( name , meta , product );
-		r.initCopyStarted( this , parent );
-		r.scatterVariables( action );
-		r.initFinished();
-		
-		return( r );
-	}
-	
-	private void scatterVariables( ActionBase action ) throws Exception {
+	@Override
+	public void scatterProperties( ActionBase action ) throws Exception {
 		CONFIG_RELEASE_LASTMAJOR = super.getStringProperty( action , PROPERTY_RELEASE_LASTMAJOR );
 		CONFIG_RELEASE_NEXTMAJOR = super.getStringProperty( action , PROPERTY_RELEASE_NEXTMAJOR );
 		CONFIG_RELEASE_LASTMINOR = super.getStringProperty( action , PROPERTY_RELEASE_LASTMINOR );
@@ -150,13 +130,38 @@ public class MetaProductBuildSettings extends PropertyController {
 		CONFIG_SOURCE_CFG_LIVEROOTDIR = super.getStringProperty( action , PROPERTY_SOURCE_CFG_LIVEROOTDIR );
 		CONFIG_SOURCE_SQL_POSTREFRESH = super.getStringProperty( action , PROPERTY_SOURCE_SQL_POSTREFRESH );
 	}
+
+	@Override
+	public void gatherProperties( ActionBase action ) throws Exception {
+	}
+	
+	public void create( ActionBase action , PropertySet src , PropertySet parent ) throws Exception {
+		if( !initCreateStarted( parent ) )
+			return;
+
+		if( src != null )
+			properties.copyOriginalPropertiesToRaw( src );
+		
+		scatterProperties( action );
+		
+		initFinished();
+	}
+	
+	public MetaProductBuildSettings copy( ActionBase action , Meta meta , MetaProductSettings product , PropertySet parent ) throws Exception {
+		MetaProductBuildSettings r = new MetaProductBuildSettings( name , meta , product );
+		r.initCopyStarted( this , parent );
+		r.scatterProperties( action );
+		r.initFinished();
+		
+		return( r );
+	}
 	
 	public void load( ActionBase action , Node root , PropertySet parent ) throws Exception {
 		if( !initCreateStarted( parent ) )
 			return;
 
 		properties.loadFromNodeElements( root );
-		scatterVariables( action );
+		scatterProperties( action );
 		
 		initFinished();
 	}

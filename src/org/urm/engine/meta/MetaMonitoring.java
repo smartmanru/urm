@@ -49,6 +49,22 @@ public class MetaMonitoring extends PropertyController {
 		return( true );
 	}
 	
+	@Override
+	public void scatterProperties( ActionBase action ) throws Exception {
+		DIR_DATA = super.getPathProperty( action , PROPERTY_DIR_DATA );
+		DIR_REPORTS = super.getPathProperty( action , PROPERTY_DIR_REPORTS );
+		DIR_RES = super.getPathProperty( action , PROPERTY_DIR_RES );
+		RESOURCE_URL = super.getStringProperty( action , PROPERTY_RESOURCE_URL );
+		
+		MAJORINTERVAL = super.getIntProperty( action , PROPERTY_MAJORINTERVAL , 300 );
+		MINORINTERVAL = super.getIntProperty( action , PROPERTY_MINORINTERVAL , 60 );
+		MINSILENT = super.getIntProperty( action , PROPERTY_MINSILENT , 30 );
+	}
+	
+	@Override
+	public void gatherProperties( ActionBase action ) throws Exception {
+	}
+	
 	public MetaMonitoring copy( ActionBase action , Meta meta ) throws Exception {
 		MetaMonitoring r = new MetaMonitoring( meta );
 		MetaProductSettings product = meta.getProduct( action );
@@ -70,7 +86,7 @@ public class MetaMonitoring extends PropertyController {
 
 		properties.loadFromNodeElements( root );
 		
-		scatterVariables( action );
+		scatterProperties( action );
 		super.finishProperties( action );
 		
 		loadEnvironments( action , ConfReader.xmlGetPathNode( root , "scope" ) );
@@ -80,17 +96,6 @@ public class MetaMonitoring extends PropertyController {
 
 	public Map<String,MetaMonitoringTarget> getTargets( ActionBase action ) throws Exception { 
 		return( mapEnvs );
-	}
-	
-	private void scatterVariables( ActionBase action ) throws Exception {
-		DIR_DATA = super.getPathProperty( action , PROPERTY_DIR_DATA );
-		DIR_REPORTS = super.getPathProperty( action , PROPERTY_DIR_REPORTS );
-		DIR_RES = super.getPathProperty( action , PROPERTY_DIR_RES );
-		RESOURCE_URL = super.getStringProperty( action , PROPERTY_RESOURCE_URL );
-		
-		MAJORINTERVAL = super.getIntProperty( action , PROPERTY_MAJORINTERVAL , 300 );
-		MINORINTERVAL = super.getIntProperty( action , PROPERTY_MINORINTERVAL , 60 );
-		MINSILENT = super.getIntProperty( action , PROPERTY_MINSILENT , 30 );
 	}
 	
 	private void loadEnvironments( ActionBase action , Node node ) throws Exception {

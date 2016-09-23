@@ -32,7 +32,23 @@ public class PropertySet {
 	
 	public PropertySet copy( PropertySet parentNew ) {
 		PropertySet r = new PropertySet( set , parentNew );
-		r.data.putAll( data );
+		for( PropertyValue value : data.values() ) {
+			PropertyValue rv = new PropertyValue( value );
+			r.addProperty( rv );
+		}
+		r.failed = failed;
+		return( r );
+	}
+	
+	public PropertySet copy( PropertySet parentNew , boolean system ) {
+		PropertySet r = new PropertySet( set , parentNew );
+		for( PropertyValue value : data.values() ) {
+			if( value.isSystem() != system )
+				continue;
+			
+			PropertyValue rv = new PropertyValue( value );
+			r.addProperty( rv );
+		}
 		r.failed = failed;
 		return( r );
 	}
@@ -823,6 +839,16 @@ public class PropertySet {
 		pv.setType( PropertyValueType.PROPERTY_BOOL );
 		pv.setDefault( Common.getBooleanValue( defaultValue ) );
 		return( pv.getFinalBool() );
+	}
+
+	public void removeUserProperties() throws Exception {
+		List<PropertyValue> items = new LinkedList<PropertyValue>();
+		for( PropertyValue pv : data.values() ) {
+			if( !pv.isSystem() )
+				items.add( pv );
+		}
+		for( PropertyValue pv : items )
+			data.remove( getKeyByProperty( pv.property ) );
 	}
 
 }

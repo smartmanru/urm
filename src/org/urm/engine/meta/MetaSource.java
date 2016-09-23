@@ -39,6 +39,14 @@ public class MetaSource extends PropertyController {
 		return( true );
 	}
 	
+	@Override
+	public void gatherProperties( ActionBase action ) throws Exception {
+	}
+	
+	@Override
+	public void scatterProperties( ActionBase action ) throws Exception {
+	}
+	
 	public MetaSource copy( ActionBase action , Meta meta ) throws Exception {
 		MetaSource r = new MetaSource( meta );
 		MetaProductSettings product = meta.getProduct( action );

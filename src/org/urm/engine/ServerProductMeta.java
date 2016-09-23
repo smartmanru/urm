@@ -510,7 +510,7 @@ public class ServerProductMeta extends ServerObject {
 		return( names.toArray( new String[0] ) );
 	}
 
-	public synchronized MetaEnv findEnvironment( String envId ) throws Exception {
+	public synchronized MetaEnv findEnvironment( String envId ) {
 		for( MetaEnv env : envs.values() ) {
 			if( env.ID.equals( envId ) )
 				return( env );

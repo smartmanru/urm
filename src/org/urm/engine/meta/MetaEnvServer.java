@@ -89,6 +89,78 @@ public class MetaEnvServer extends PropertyController {
 		return( true );
 	}
 	
+	@Override
+	public void scatterProperties( ActionBase action ) throws Exception {
+		datagroupMap = new HashMap<String,MetaDatabaseDatagroup>(); 
+		
+		NAME = properties.getSystemRequiredStringProperty( "name" );
+		action.trace( "load properties of server=" + NAME );
+		
+		BASELINE = properties.getSystemStringProperty( "configuration-baseline" , "" ); 
+		if( BASELINE.equals( "default" ) )
+			BASELINE = NAME;
+		
+		SERVERTYPE = properties.getSystemRequiredStringProperty( "type" );
+		serverType = Meta.getServerType( SERVERTYPE );
+		osType = Meta.getOSType( properties.getSystemStringProperty( "ostype" , "unix" ) );
+		OFFLINE = properties.getSystemBooleanProperty( "offline" , false );
+		XDOC = properties.getSystemPathProperty( "xdoc" , NAME , action.session.execrc );
+		
+		if( isStartable( action ) || isDeployPossible( action ) ) {
+			ROOTPATH = properties.getSystemPathProperty( "rootpath" , "" , action.session.execrc );
+		}
+		
+		if( isStartable( action ) ) {
+			BINPATH = properties.getSystemPathProperty( "binpath" , "" , action.session.execrc );
+			PORT = properties.getSystemIntProperty( "port" , 0 );
+			NLBSERVER = properties.getSystemStringProperty( "nlbserver" , "" );
+			PROXYSERVER = properties.getSystemStringProperty( "proxy-server" , "" );
+			STATICSERVER = properties.getSystemStringProperty( "static-server" , "" );
+			SUBORDINATESERVERS = properties.getSystemStringProperty( "subordinate-servers" , "" );
+			STARTTIME = properties.getSystemIntProperty( "starttime" , 0 );
+			STOPTIME = properties.getSystemIntProperty( "stoptime" , 0 );
+			HOTDEPLOYPATH = properties.getSystemPathProperty( "hotdeploypath" , "" , action.session.execrc );
+			HOTDEPLOYDATA = properties.getSystemStringProperty( "hotdeploydata" , "" );
+			WEBDOMAIN = properties.getSystemStringProperty( "webdomain" , "" );
+			WEBMAINURL = properties.getSystemStringProperty( "webmainurl" , "" );
+			LOGPATH = properties.getSystemPathProperty( "logpath" , "" , action.session.execrc );
+			LOGFILEPATH = properties.getSystemPathProperty( "logfilepath" , "" , action.session.execrc );
+			NOPIDS = properties.getSystemBooleanProperty( "nopids" , false );
+		}
+
+		if( isService( action ) )
+			SERVICENAME = properties.getSystemRequiredStringProperty( "servicename" );
+
+		if( isDeployPossible( action ) ) {
+			DEPLOYPATH = properties.getSystemPathProperty( "deploypath" , "" , action.session.execrc );
+			LINKFROMPATH = properties.getSystemPathProperty( "linkfrompath" , "" , action.session.execrc );
+			DEPLOYSCRIPT = properties.getSystemPathProperty( "deployscript" , "" , action.session.execrc );
+		}
+		
+		if( isDatabase( action ) ) {
+			dbType = Meta.getDbmsType( properties.getSystemRequiredStringProperty( "dbmstype" ) );
+			DBMSADDR = properties.getSystemRequiredStringProperty( "dbmsaddr" );
+			DATAGROUPS = properties.getSystemRequiredStringProperty( "datagroups" );
+			ALIGNED = properties.getSystemStringProperty( "aligned" , "" );
+			REGIONS = properties.getSystemStringProperty( "regions" , "" );
+			ADMSCHEMA = properties.getSystemStringProperty( "admschema" , "" );
+			
+			MetaDatabase database = meta.getDatabase( action );
+			for( String dg : Common.splitSpaced( DATAGROUPS ) ) {
+				MetaDatabaseDatagroup datagroup = database.getDatagroup( action , dg );
+				datagroupMap.put( datagroup.NAME , datagroup );
+			}
+			
+			admSchema = database.getSchema( action , ADMSCHEMA );
+		}
+
+		properties.finishRawProperties();
+	}
+	
+	@Override
+	public void gatherProperties( ActionBase action ) throws Exception {
+	}
+	
 	public String getFullId( ActionBase action ) throws Exception {
 		return( dc.getFullId( action ) + "-" + NAME );
 	}
@@ -106,7 +178,7 @@ public class MetaEnvServer extends PropertyController {
 	public MetaEnvServer copy( ActionBase action , Meta meta , MetaEnvDC dc ) throws Exception {
 		MetaEnvServer r = new MetaEnvServer( meta , dc );
 		r.initCopyStarted( this , dc.getProperties() );
-		r.scatterSystemProperties( action );
+		r.scatterProperties( action );
 		r.initFinished();
 		return( r );
 	}
@@ -116,7 +188,7 @@ public class MetaEnvServer extends PropertyController {
 		
 		properties = new PropertySet( "server" , dc.getProperties() );
 		properties.loadFromNodeAttributes( node );
-		scatterSystemProperties( action );
+		scatterProperties( action );
 		
 		if( loadProps ) {
 			properties.loadFromNodeElements( node );
@@ -183,73 +255,6 @@ public class MetaEnvServer extends PropertyController {
 	public void setStartGroup( ActionBase action , MetaEnvStartGroup group ) throws Exception {
 		primary = true;
 		this.startGroup = group;
-	}
-	
-	private void scatterSystemProperties( ActionBase action ) throws Exception {
-		datagroupMap = new HashMap<String,MetaDatabaseDatagroup>(); 
-		
-		NAME = properties.getSystemRequiredStringProperty( "name" );
-		action.trace( "load properties of server=" + NAME );
-		
-		BASELINE = properties.getSystemStringProperty( "configuration-baseline" , "" ); 
-		if( BASELINE.equals( "default" ) )
-			BASELINE = NAME;
-		
-		SERVERTYPE = properties.getSystemRequiredStringProperty( "type" );
-		serverType = Meta.getServerType( SERVERTYPE );
-		osType = Meta.getOSType( properties.getSystemStringProperty( "ostype" , "unix" ) );
-		OFFLINE = properties.getSystemBooleanProperty( "offline" , false );
-		XDOC = properties.getSystemPathProperty( "xdoc" , NAME , action.session.execrc );
-		
-		if( isStartable( action ) || isDeployPossible( action ) ) {
-			ROOTPATH = properties.getSystemPathProperty( "rootpath" , "" , action.session.execrc );
-		}
-		
-		if( isStartable( action ) ) {
-			BINPATH = properties.getSystemPathProperty( "binpath" , "" , action.session.execrc );
-			PORT = properties.getSystemIntProperty( "port" , 0 );
-			NLBSERVER = properties.getSystemStringProperty( "nlbserver" , "" );
-			PROXYSERVER = properties.getSystemStringProperty( "proxy-server" , "" );
-			STATICSERVER = properties.getSystemStringProperty( "static-server" , "" );
-			SUBORDINATESERVERS = properties.getSystemStringProperty( "subordinate-servers" , "" );
-			STARTTIME = properties.getSystemIntProperty( "starttime" , 0 );
-			STOPTIME = properties.getSystemIntProperty( "stoptime" , 0 );
-			HOTDEPLOYPATH = properties.getSystemPathProperty( "hotdeploypath" , "" , action.session.execrc );
-			HOTDEPLOYDATA = properties.getSystemStringProperty( "hotdeploydata" , "" );
-			WEBDOMAIN = properties.getSystemStringProperty( "webdomain" , "" );
-			WEBMAINURL = properties.getSystemStringProperty( "webmainurl" , "" );
-			LOGPATH = properties.getSystemPathProperty( "logpath" , "" , action.session.execrc );
-			LOGFILEPATH = properties.getSystemPathProperty( "logfilepath" , "" , action.session.execrc );
-			NOPIDS = properties.getSystemBooleanProperty( "nopids" , false );
-		}
-
-		if( isService( action ) )
-			SERVICENAME = properties.getSystemRequiredStringProperty( "servicename" );
-
-		if( isDeployPossible( action ) ) {
-			DEPLOYPATH = properties.getSystemPathProperty( "deploypath" , "" , action.session.execrc );
-			LINKFROMPATH = properties.getSystemPathProperty( "linkfrompath" , "" , action.session.execrc );
-			DEPLOYSCRIPT = properties.getSystemPathProperty( "deployscript" , "" , action.session.execrc );
-		}
-		
-		if( isDatabase( action ) ) {
-			dbType = Meta.getDbmsType( properties.getSystemRequiredStringProperty( "dbmstype" ) );
-			DBMSADDR = properties.getSystemRequiredStringProperty( "dbmsaddr" );
-			DATAGROUPS = properties.getSystemRequiredStringProperty( "datagroups" );
-			ALIGNED = properties.getSystemStringProperty( "aligned" , "" );
-			REGIONS = properties.getSystemStringProperty( "regions" , "" );
-			ADMSCHEMA = properties.getSystemStringProperty( "admschema" , "" );
-			
-			MetaDatabase database = meta.getDatabase( action );
-			for( String dg : Common.splitSpaced( DATAGROUPS ) ) {
-				MetaDatabaseDatagroup datagroup = database.getDatagroup( action , dg );
-				datagroupMap.put( datagroup.NAME , datagroup );
-			}
-			
-			admSchema = database.getSchema( action , ADMSCHEMA );
-		}
-
-		properties.finishRawProperties();
 	}
 	
 	private void loadNodes( ActionBase action , Node node , boolean loadProps ) throws Exception {

@@ -38,6 +38,14 @@ public class MetaDatabase extends PropertyController {
 		return( true );
 	}
 	
+	@Override
+	public void gatherProperties( ActionBase action ) throws Exception {
+	}
+	
+	@Override
+	public void scatterProperties( ActionBase action ) throws Exception {
+	}
+	
 	public MetaDatabase copy( ActionBase action , Meta meta ) throws Exception {
 		MetaDatabase r = new MetaDatabase( meta );
 		MetaProductSettings product = meta.getProduct( action );

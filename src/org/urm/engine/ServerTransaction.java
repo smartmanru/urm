@@ -3,6 +3,7 @@ package org.urm.engine;
 import org.urm.common.PropertySet;
 import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaEnv;
+import org.urm.engine.meta.MetaEnvDC;
 import org.urm.engine.meta.MetaProductVersion;
 import org.urm.engine.meta.Meta.VarBUILDMODE;
 
@@ -13,6 +14,26 @@ public class ServerTransaction extends TransactionBase {
 	}
 
 	// transactional operations
+	public void createMirrorRepository( ServerMirrorRepository repo , String resource , String reponame , String reporoot , String dataroot , String repobranch , boolean push ) throws Exception {
+		repo.createMirrorRepository( this , resource , reponame  , reporoot , dataroot , repobranch , push );
+		loader.saveMirrors( this );
+	}
+
+	public void pushMirror( ServerMirrorRepository repo ) throws Exception {
+		repo.pushMirror( this );
+		loader.saveMirrors( this );
+	}
+
+	public void refreshMirror( ServerMirrorRepository repo ) throws Exception {
+		repo.refreshMirror( this );
+		loader.saveMirrors( this );
+	}
+
+	public void dropMirror( ServerMirrorRepository repo ) throws Exception {
+		repo.dropMirror( this );
+		loader.saveMirrors( this );
+	}
+
 	public void createResource( ServerAuthResource res ) throws Exception {
 		checkTransactionResources();
 		resources.createResource( this , res );
@@ -133,24 +154,24 @@ public class ServerTransaction extends TransactionBase {
 		metadata.deleteEnv( this , env );
 	}
 
-	public void createMirrorRepository( ServerMirrorRepository repo , String resource , String reponame , String reporoot , String dataroot , String repobranch , boolean push ) throws Exception {
-		repo.createMirrorRepository( this , resource , reponame  , reporoot , dataroot , repobranch , push );
-		loader.saveMirrors( this );
+	public void createMetaEnvDC( MetaEnvDC dc ) throws Exception {
+		checkTransactionMetadata();
+		dc.env.createDC( this , dc );
+	}
+	
+	public MetaEnvDC getMetaEnvDC( MetaEnvDC dc ) throws Exception {
+		MetaEnv env = getMetaEnv( dc.env );
+		return( env.findDC( dc.NAME ) );
 	}
 
-	public void pushMirror( ServerMirrorRepository repo ) throws Exception {
-		repo.pushMirror( this );
-		loader.saveMirrors( this );
+	public void deleteMetaEnvDC( MetaEnvDC dc ) throws Exception {
+		checkTransactionMetadata();
+		dc.env.deleteDC( this , dc );
 	}
 
-	public void refreshMirror( ServerMirrorRepository repo ) throws Exception {
-		repo.refreshMirror( this );
-		loader.saveMirrors( this );
+	public void setMetaEnvProperties( MetaEnv env , PropertySet props , boolean system ) throws Exception {
+		checkTransactionMetadata();
+		env.setProperties( this , props , system );
 	}
-
-	public void dropMirror( ServerMirrorRepository repo ) throws Exception {
-		repo.dropMirror( this );
-		loader.saveMirrors( this );
-	}
-
+	
 }

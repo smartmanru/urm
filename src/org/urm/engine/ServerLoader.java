@@ -85,17 +85,14 @@ public class ServerLoader {
 		return( productMeta.get( productName ) );
 	}
 	
-	public synchronized ServerProductMeta getMetaStorage( ActionInit action ) throws Exception {
-		if( !action.session.product )
-			action.exitUnexpectedState();
-			
+	public synchronized ServerProductMeta getMetaStorage( ActionInit action , String productName ) throws Exception {
 		if( action.session.offline ) {
 			if( offline == null )
 				offline = new ServerProductMeta( this , action.session.productName , action.session );
 			return( offline );
 		}
 		
-		ServerProductMeta storage = productMeta.get( action.session.productName );
+		ServerProductMeta storage = productMeta.get( productName );
 		if( storage == null )
 			action.exit1( _Error.UnknownSessionProduct1 , "unknown product=" + action.session.productName , action.session.productName );
 		

@@ -233,7 +233,7 @@ public class Meta {
 	
 	public synchronized ServerProductMeta getStorage( ActionBase action ) throws Exception {
 		if( storage == null )
-			storage = loader.getMetaStorage( action.actionInit );
+			storage = loader.getMetaStorage( action.actionInit , name );
 		return( storage );
 	}
 

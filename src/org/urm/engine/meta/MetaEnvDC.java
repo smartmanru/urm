@@ -38,6 +38,22 @@ public class MetaEnvDC extends PropertyController {
 			return( false );
 		return( true );
 	}
+
+	@Override
+	public void scatterProperties( ActionBase action ) throws Exception {
+		NAME = properties.getSystemRequiredStringProperty( "name" );
+		action.trace( "load properties of dc=" + NAME );
+		
+		BASELINE = properties.getSystemStringProperty( "configuration-baseline" , "" );
+		if( BASELINE.equals( "default" ) )
+			BASELINE = NAME;
+		
+		properties.finishRawProperties();
+	}
+	
+	@Override
+	public void gatherProperties( ActionBase action ) throws Exception {
+	}
 	
 	public MetaEnvDC copy( ActionBase action , Meta meta , MetaEnv env ) throws Exception {
 		MetaEnvDC r = new MetaEnvDC( meta , env );
@@ -52,7 +68,7 @@ public class MetaEnvDC extends PropertyController {
 			r.addServer( rserver );
 		}
 		
-		r.scatterSystemProperties( action );
+		r.scatterProperties( action );
 		r.initFinished();
 		return( r );
 	}
@@ -76,7 +92,7 @@ public class MetaEnvDC extends PropertyController {
 			return;
 
 		properties.loadFromNodeAttributes( node );
-		scatterSystemProperties( action );
+		scatterProperties( action );
 		
 		if( loadProps ) {
 			properties.loadFromNodeElements( node );
@@ -96,17 +112,6 @@ public class MetaEnvDC extends PropertyController {
 
 	public String getPropertyValue( ActionBase action , String var ) throws Exception {
 		return( properties.getPropertyAny( var ) );
-	}
-	
-	private void scatterSystemProperties( ActionBase action ) throws Exception {
-		NAME = properties.getSystemRequiredStringProperty( "name" );
-		action.trace( "load properties of dc=" + NAME );
-		
-		BASELINE = properties.getSystemStringProperty( "configuration-baseline" , "" );
-		if( BASELINE.equals( "default" ) )
-			BASELINE = NAME;
-		
-		properties.finishRawProperties();
 	}
 	
 	public void loadDeployment( ActionBase action , Node node ) throws Exception {
@@ -154,7 +159,7 @@ public class MetaEnvDC extends PropertyController {
 		startInfo.load( action , startorder );
 	}
 
-	public MetaEnvServer findServer( ActionBase action , String name ) throws Exception {
+	public MetaEnvServer findServer( String name ) {
 		return( serverMap.get( name ) );
 	}
 	

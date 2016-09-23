@@ -96,6 +96,31 @@ public class MetaProductSettings extends PropertyController {
 		return( true );
 	}
 	
+	@Override
+	public void scatterProperties( ActionBase action ) throws Exception {
+		CONFIG_REDISTPATH = super.getPathPropertyRequired( action , PROPERTY_REDIST_PATH );
+		CONFIG_WORKPATH = super.getPathPropertyRequired( action , PROPERTY_WORKPATH );
+		CONFIG_DISTR_PATH = super.getPathPropertyRequired( action , PROPERTY_DISTR_PATH );
+		CONFIG_DISTR_HOSTLOGIN = super.getStringProperty( action , PROPERTY_DISTR_HOSTLOGIN );
+		CONFIG_UPGRADE_PATH = super.getPathPropertyRequired( action , PROPERTY_UPGRADE_PATH );
+		CONFIG_BASE_PATH = super.getPathPropertyRequired( action , PROPERTY_BASE_PATH );
+		CONFIG_MIRRORPATH = super.getPathPropertyRequired( action , PROPERTY_MIRRORPATH );
+		CONFIG_BUILDBASE_PATH = super.getPathPropertyRequired( action , PROPERTY_BUILDBASE_PATH );
+		CONFIG_WINBUILD_HOSTLOGIN = super.getPathPropertyRequired( action , PROPERTY_WINBUILD_HOSTLOGIN );
+		CONFIG_ADM_TRACKER = super.getStringProperty( action , PROPERTY_ADM_TRACKER );
+		CONFIG_COMMIT_TRACKERLIST = super.getStringProperty( action , PROPERTY_COMMIT_TRACKERLIST );
+		CONFIG_META_MIRROR = super.getStringProperty( action , PROPERTY_META_MIRROR );
+		CONFIG_SOURCE_MIRROR = super.getStringProperty( action , PROPERTY_SOURCE_MIRROR );
+		
+		CONFIG_CUSTOM_BUILD = super.getStringProperty( action , PROPERTY_CUSTOM_BUILD );
+		CONFIG_CUSTOM_DEPLOY = super.getStringProperty( action , PROPERTY_CUSTOM_DEPLOY );
+		CONFIG_CUSTOM_DATABASE = super.getStringProperty( action , PROPERTY_CUSTOM_DATABASE );
+	}
+
+	@Override
+	public void gatherProperties( ActionBase action ) throws Exception {
+	}
+	
 	public MetaProductSettings copy( ActionBase action , Meta meta ) throws Exception {
 		MetaProductSettings r = new MetaProductSettings( meta , execprops );
 		r.initCopyStarted( this , execprops );
@@ -117,32 +142,12 @@ public class MetaProductSettings extends PropertyController {
 			r.buildModes.put( modeKey , modeSet.copy( action , meta , r , r.buildCommon.getProperties() ) );
 		}
 
-		r.scatterVariables( action );
+		r.scatterProperties( action );
 		r.initFinished();
 
 		return( r );
 	}
 	
-	private void scatterVariables( ActionBase action ) throws Exception {
-		CONFIG_REDISTPATH = super.getPathPropertyRequired( action , PROPERTY_REDIST_PATH );
-		CONFIG_WORKPATH = super.getPathPropertyRequired( action , PROPERTY_WORKPATH );
-		CONFIG_DISTR_PATH = super.getPathPropertyRequired( action , PROPERTY_DISTR_PATH );
-		CONFIG_DISTR_HOSTLOGIN = super.getStringProperty( action , PROPERTY_DISTR_HOSTLOGIN );
-		CONFIG_UPGRADE_PATH = super.getPathPropertyRequired( action , PROPERTY_UPGRADE_PATH );
-		CONFIG_BASE_PATH = super.getPathPropertyRequired( action , PROPERTY_BASE_PATH );
-		CONFIG_MIRRORPATH = super.getPathPropertyRequired( action , PROPERTY_MIRRORPATH );
-		CONFIG_BUILDBASE_PATH = super.getPathPropertyRequired( action , PROPERTY_BUILDBASE_PATH );
-		CONFIG_WINBUILD_HOSTLOGIN = super.getPathPropertyRequired( action , PROPERTY_WINBUILD_HOSTLOGIN );
-		CONFIG_ADM_TRACKER = super.getStringProperty( action , PROPERTY_ADM_TRACKER );
-		CONFIG_COMMIT_TRACKERLIST = super.getStringProperty( action , PROPERTY_COMMIT_TRACKERLIST );
-		CONFIG_META_MIRROR = super.getStringProperty( action , PROPERTY_META_MIRROR );
-		CONFIG_SOURCE_MIRROR = super.getStringProperty( action , PROPERTY_SOURCE_MIRROR );
-		
-		CONFIG_CUSTOM_BUILD = super.getStringProperty( action , PROPERTY_CUSTOM_BUILD );
-		CONFIG_CUSTOM_DEPLOY = super.getStringProperty( action , PROPERTY_CUSTOM_DEPLOY );
-		CONFIG_CUSTOM_DATABASE = super.getStringProperty( action , PROPERTY_CUSTOM_DATABASE );
-	}
-
 	public void create( ActionBase action , ServerSettings settings , ServerProductContext productContext ) throws Exception {
 		if( !super.initCreateStarted( execprops ) )
 			return;
@@ -175,7 +180,7 @@ public class MetaProductSettings extends PropertyController {
 		setContextProperties( action , productContext );
 		
 		properties.loadFromNodeElements( root );
-		scatterVariables( action );
+		scatterProperties( action );
 		super.finishProperties( action );
 
 		buildCommon = new MetaProductBuildSettings( "build" , meta , this );
@@ -218,7 +223,7 @@ public class MetaProductSettings extends PropertyController {
 
 	public void updateProperties( ActionBase action ) throws Exception {
 		// get variables
-		scatterVariables( action );
+		scatterProperties( action );
 	}
 	
 	public Map<String,String> getExportProperties( ActionBase action ) throws Exception {

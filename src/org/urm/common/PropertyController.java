@@ -1,10 +1,12 @@
 package org.urm.common;
 
+import org.urm.action.ActionBase;
 import org.urm.action.ActionCore;
+import org.urm.engine.ServerTransaction;
 
 public abstract class PropertyController {
 
-	public String name;
+	private String setName;
 	
 	private boolean loaded;
 	private boolean loadFailed;
@@ -12,9 +14,11 @@ public abstract class PropertyController {
 	protected PropertySet properties;
 
 	abstract public boolean isValid();
+	abstract public void gatherProperties( ActionBase action ) throws Exception;
+	abstract public void scatterProperties( ActionBase action ) throws Exception;
 	
 	public PropertyController( String name ) {
-		this.name = name;
+		this.setName = name;
 		
 		loaded = false;
 		loadFailed = false;
@@ -47,7 +51,7 @@ public abstract class PropertyController {
 		loadFailed = false;
 		loadFinished = false;
 		
-		properties = new PropertySet( name , parent );
+		properties = new PropertySet( setName , parent );
 		
 		return( true );
 	}
@@ -128,6 +132,14 @@ public abstract class PropertyController {
 			for( String key : properties.getRawKeys() )
 				setLoadFailed( action , "set=" + properties.set + ", property is not resolved: " + key );
 		}
+	}
+
+	protected void updateProperties( ServerTransaction transaction , PropertySet props , boolean system ) throws Exception {
+		if( !system )
+			properties.removeUserProperties();
+		properties.updateProperties( props );
+		if( system )
+			scatterProperties( transaction.action );
 	}
 	
 }
