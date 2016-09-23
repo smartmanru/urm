@@ -30,62 +30,62 @@ public class MetadataStorage {
 	
 	public String getVersionConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductCoreMetadataFolder( action );
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.name );
 		return( folder.getFilePath( action , UrmStorage.VERSION_SETTINGS_FILE ) );
 	}
 	
 	public String getProductConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductCoreMetadataFolder( action );
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.name );
 		return( folder.getFilePath( action , UrmStorage.PRODUCT_SETTINGS_FILE ) );
 	}
 	
 	public String getDatabaseConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductCoreMetadataFolder( action );
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.name );
 		return( folder.getFilePath( action , UrmStorage.DATABASE_SETTINGS_FILE ) );
 	}
 	
 	public String getDistrConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductCoreMetadataFolder( action );
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.name );
 		return( folder.getFilePath( action , UrmStorage.DISTR_SETTINGS_FILE ) );
 	}
 
 	public String getSourcesConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductCoreMetadataFolder( action );
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.name );
 		return( folder.getFilePath( action , UrmStorage.SOURCE_SETTINGS_FILE ) );
 	}
 
 	public String getMonitoringConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductCoreMetadataFolder( action );
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.name );
 		return( folder.getFilePath( action , UrmStorage.MONITORING_SETTINGS_FILE ) );
 	}
 	
 	public String getEnvConfFile( ActionBase action , String envFile ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductEnvMetadataFolder( action );
+		LocalFolder folder = urm.getProductEnvMetadataFolder( action , meta.name );
 		return( folder.getFilePath( action , envFile ) );
 	}
 	
 	public String getDesignFile( ActionBase action , String fileName ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductXDocMetadataFolder( action );
+		LocalFolder folder = urm.getProductXDocMetadataFolder( action , meta.name );
 		return( folder.getFilePath( action , fileName ) );
 	}
 	
 	public String[] getEnvFiles( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductEnvMetadataFolder( action );
+		LocalFolder folder = urm.getProductEnvMetadataFolder( action , meta.name );
 		String[] files = folder.findFiles( action , "*.xml" );
 		return( files );
 	}
 	
 	public String[] getDesignFiles( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductXDocMetadataFolder( action );
+		LocalFolder folder = urm.getProductXDocMetadataFolder( action , meta.name );
 		if( !folder.checkExists( action ) )
 			return( new String[0] );
 		
@@ -95,7 +95,7 @@ public class MetadataStorage {
 	
 	public String getDatapumpFile( ActionBase action , String specFile ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductDatapumpMetadataFolder( action );
+		LocalFolder folder = urm.getProductDatapumpMetadataFolder( action , meta.name );
 		return( folder.getFilePath( action , specFile ) );
 	}
 
@@ -230,7 +230,7 @@ public class MetadataStorage {
 	
 	public void deleteEnvConfFile( ActionBase action , String envFile ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductEnvMetadataFolder( action );
+		LocalFolder folder = urm.getProductEnvMetadataFolder( action , meta.name );
 		folder.removeFiles( action , envFile );
 	}
 	

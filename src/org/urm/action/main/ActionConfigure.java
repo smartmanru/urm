@@ -96,18 +96,18 @@ public class ActionConfigure extends ActionBase {
 			info( "configure product name=" + name + " ..." );
 			
 			actionInit.setServerSystemProductLayout( name );
-			configureProduct( serverMode , false );
+			configureProduct( serverMode , false , name );
 			actionInit.clearServerProductLayout();
 		}
 	}
 
-	private void configureProduct( boolean serverMode , boolean standalone ) throws Exception {
+	private void configureProduct( boolean serverMode , boolean standalone , String productName ) throws Exception {
 		meta.getVersion( this );
 		meta.getProduct( this );
 		meta.getDistr( this );
 		
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder pf = urm.getProductFolder( this );
+		LocalFolder pf = urm.getProductHome( this , productName );
 		pfMaster = pf.getSubFolder( this , "master" );
 		String masterPath = pfMaster.getFilePath( this , MainCommandMeta.MASTERFILE );
 		
@@ -135,7 +135,7 @@ public class ActionConfigure extends ActionBase {
 		}
 		else {
 			context.session.setStandaloneLayout( context.options );
-			configureProduct( serverMode , true );
+			configureProduct( serverMode , true , null );
 		}
 	}
 	

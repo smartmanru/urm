@@ -523,7 +523,7 @@ public class ServerProductMeta extends ServerObject {
 		envs.remove( envFile );
 		ActionBase action = transaction.getAction();
 		MetadataStorage storage = action.artefactory.getMetadataStorage( action , env.meta );
-		storage.deleteEnvConfFile( transaction.getAction() , envFile );
+		storage.deleteEnvConfFile( action , envFile );
 	}
 
 }
