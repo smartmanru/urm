@@ -3,8 +3,11 @@ package org.urm.engine;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.engine.storage.LocalFolder;
+import org.urm.engine.storage.UrmStorage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -138,12 +141,18 @@ public class ServerDirectory extends ServerObject {
 		product.system.addProduct( transaction , product );
 	}
 	
-	public void deleteProduct( ServerTransaction transaction , ServerProduct product ) throws Exception {
+	public void deleteProduct( ServerTransaction transaction , ServerProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		if( mapProducts.get( product.NAME ) != product )
 			transaction.exit( _Error.UnknownProduct1 , "product=" + product.NAME + " is unknown or mismatched" , new String[] { product.NAME } );
 		
 		mapProducts.remove( product.NAME );
 		product.system.removeProduct( transaction , product );
+		
+		ActionBase action = transaction.getAction();
+		UrmStorage storage = action.artefactory.getUrmStorage();
+		LocalFolder products = storage.getServerProductsFolder( action );
+		LocalFolder productfolder = products.getSubFolder( action , product.PATH );
+		productfolder.removeThis( action );
 	}
 
 }

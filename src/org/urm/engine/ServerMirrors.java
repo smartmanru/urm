@@ -1,6 +1,8 @@
 package org.urm.engine;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
@@ -132,11 +134,22 @@ public class ServerMirrors extends ServerObject {
 	}
 	
 	public void deleteProductResources( ServerTransaction transaction , ServerProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
-		ActionBase action = transaction.getAction();
-		UrmStorage storage = action.artefactory.getUrmStorage();
-		LocalFolder products = storage.getServerProductsFolder( action );
-		LocalFolder productfolder = products.getSubFolder( action , product.PATH );
-		productfolder.removeThis( action );
+		List<ServerMirrorRepository> repos = new LinkedList<ServerMirrorRepository>();
+		for( ServerMirrorRepository repo : repoMap.values() ) {
+			if( repo.PRODUCT.equals( product.NAME ) )
+				repos.add( repo );
+		}
+		
+		for( ServerMirrorRepository repo : repos ) {
+			repo.dropMirror( transaction );
+			repoMap.remove( repo.NAME );
+		}
+		
+		save( transaction );
+	}
+	
+	private void save( ServerTransaction transaction ) throws Exception {
+		registry.loader.saveMirrors( transaction );
 	}
 	
 }

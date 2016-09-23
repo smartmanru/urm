@@ -207,27 +207,27 @@ public class ServerLoader {
 		}
 	}
 
-	public void saveRegistry( ServerTransaction transaction ) throws Exception {
+	public void saveRegistry( TransactionBase transaction ) throws Exception {
 		String propertyFile = getServerRegistryFile();
 		registry.save( transaction.getAction() , propertyFile , engine.execrc );
 	}
 	
-	public void setResources( ServerTransaction transaction , ServerResources resourcesNew ) throws Exception {
+	public void setResources( TransactionBase transaction , ServerResources resourcesNew ) throws Exception {
 		registry.setResources( transaction , resourcesNew );
 		saveRegistry( transaction );
 	}
 
-	public void setBuilders( ServerTransaction transaction , ServerBuilders buildersNew ) throws Exception {
+	public void setBuilders( TransactionBase transaction , ServerBuilders buildersNew ) throws Exception {
 		registry.setBuilders( transaction , buildersNew );
 		saveRegistry( transaction );
 	}
 
-	public void setDirectory( ServerTransaction transaction , ServerDirectory directoryNew ) throws Exception {
+	public void setDirectory( TransactionBase transaction , ServerDirectory directoryNew ) throws Exception {
 		registry.setDirectory( transaction , directoryNew );
 		saveRegistry( transaction );
 	}
 
-	public void saveMirrors( ServerTransaction transaction ) throws Exception {
+	public void saveMirrors( TransactionBase transaction ) throws Exception {
 		saveRegistry( transaction );
 	}
 
@@ -243,13 +243,13 @@ public class ServerLoader {
 		}
 	}
 
-	public void setSettings( ServerTransaction transaction , ServerSettings settingsNew ) throws Exception {
+	public void setSettings( TransactionBase transaction , ServerSettings settingsNew ) throws Exception {
 		String propertyFile = getServerSettingsFile();
 		settingsNew.save( propertyFile , engine.execrc );
 		settings = settingsNew;
 	}
 
-	public ServerProductMeta createMetadata( ServerTransaction transaction , ServerDirectory directoryNew , ServerProduct product ) throws Exception {
+	public ServerProductMeta createMetadata( TransactionBase transaction , ServerDirectory directoryNew , ServerProduct product ) throws Exception {
 		ActionInit action = transaction.getAction();
 		action.setServerSystemProductLayout( product );
 		
@@ -261,7 +261,7 @@ public class ServerLoader {
 		return( set );
 	}
 	
-	public void setMetadata( ServerTransaction transaction , ServerProductMeta storageNew ) throws Exception {
+	public void setMetadata( TransactionBase transaction , ServerProductMeta storageNew ) throws Exception {
 		ActionInit action = transaction.getAction();
 		action.setServerSystemProductLayout( storageNew.name );
 		
@@ -270,7 +270,7 @@ public class ServerLoader {
 		productMeta.put( storageNew.name , storageNew );
 	}
 	
-	public void deleteMetadata( ServerTransaction transaction , ServerProductMeta storage ) throws Exception {
+	public void deleteMetadata( TransactionBase transaction , ServerProductMeta storage ) throws Exception {
 		productMeta.remove( storage.name );
 	}
 	

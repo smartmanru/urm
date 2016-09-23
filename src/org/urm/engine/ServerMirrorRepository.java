@@ -81,10 +81,6 @@ public class ServerMirrorRepository extends ServerObject {
 		properties.saveAsElements( doc , root );
 	}
 
-	private void save( ServerTransaction transaction ) throws Exception {
-		mirrors.registry.loader.saveMirrors( transaction );
-	}
-	
 	private void scatterSystemProperties() throws Exception {
 		NAME = properties.getSystemRequiredStringProperty( "name" );
 		TYPE = properties.getSystemRequiredStringProperty( "type" );
@@ -110,7 +106,7 @@ public class ServerMirrorRepository extends ServerObject {
 		properties.setOriginalStringProperty( "branch" , BRANCH );
 	}
 
-	public void createMirrorRepository( ServerTransaction transaction , String resource , String reponame , String reporoot , String dataroot , String repobranch , boolean push ) throws Exception {
+	void createMirrorRepository( ServerTransaction transaction , String resource , String reponame , String reporoot , String dataroot , String repobranch , boolean push ) throws Exception {
 		RESOURCE = resource;
 		RESOURCE_REPO = reponame;
 		RESOURCE_ROOT = ( reporoot.isEmpty() )? "/" : reporoot;
@@ -131,10 +127,9 @@ public class ServerMirrorRepository extends ServerObject {
 		}
 		
 		createProperties();
-		save( transaction );
 	}
 	
-	public void createMirrorServer( ServerTransaction transaction , boolean push ) throws Exception {
+	private void createMirrorServer( ServerTransaction transaction , boolean push ) throws Exception {
 		// reject already published
 		// server: test target, remove mirror work/repo, create mirror work/repo, publish target
 		ActionBase action = transaction.getAction();
@@ -152,7 +147,7 @@ public class ServerMirrorRepository extends ServerObject {
 		}
 	}
 
-	public void createProductMeta( ServerTransaction transaction , ServerProduct product , String name ) throws Exception {
+	void createProductMeta( ServerTransaction transaction , ServerProduct product , String name ) throws Exception {
 		NAME = name;
 		TYPE = TYPE_PRODUCT_META;
 		PRODUCT = product.NAME;
@@ -165,7 +160,7 @@ public class ServerMirrorRepository extends ServerObject {
 		createProperties();
 	}
 	
-	public void createProductConf( ServerTransaction transaction , ServerProduct product , String name ) throws Exception {
+	void createProductConf( ServerTransaction transaction , ServerProduct product , String name ) throws Exception {
 		NAME = name;
 		TYPE = TYPE_PRODUCT_CONF;
 		PRODUCT = product.NAME;
@@ -176,10 +171,9 @@ public class ServerMirrorRepository extends ServerObject {
 		RESOURCE_DATA = "";
 		BRANCH = "";
 		createProperties();
-		save( transaction );
 	}
 	
-	public void createProjectSource( ServerTransaction transaction , MetaSourceProject project , String name ) throws Exception {
+	void createProjectSource( ServerTransaction transaction , MetaSourceProject project , String name ) throws Exception {
 		NAME = name;
 		TYPE = TYPE_PRODUCT_CONF;
 		PRODUCT = project.meta.name;
@@ -190,10 +184,9 @@ public class ServerMirrorRepository extends ServerObject {
 		RESOURCE_DATA = "";
 		BRANCH = "";
 		createProperties();
-		save( transaction );
 	}
 	
-	public void dropMirror( ServerTransaction transaction ) throws Exception {
+	void dropMirror( ServerTransaction transaction ) throws Exception {
 		if( isServer() )
 			dropServerMirror( transaction );
 		
@@ -203,20 +196,19 @@ public class ServerMirrorRepository extends ServerObject {
 		RESOURCE_DATA = "";
 		BRANCH = "";
 		createProperties();
-		save( transaction );
 	}
 	
-	public void dropServerMirror( ServerTransaction transaction ) throws Exception {
+	private void dropServerMirror( ServerTransaction transaction ) throws Exception {
 		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , false );
 		vcs.dropMirror( this );
 	}
 
-	public void pushMirror( ServerTransaction transaction ) throws Exception {
+	void pushMirror( ServerTransaction transaction ) throws Exception {
 		if( isServer() )
 			pushServerMirror( transaction );
 	}
 
-	public void pushServerMirror( ServerTransaction transaction ) throws Exception {
+	void pushServerMirror( ServerTransaction transaction ) throws Exception {
 		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , false );
 		vcs.refreshMirror( this );
 		MirrorStorage storage = vcs.getMirror( this );
@@ -229,12 +221,12 @@ public class ServerMirrorRepository extends ServerObject {
 		vcs.pushMirror( this );
 	}
 	
-	public void refreshMirror( ServerTransaction transaction ) throws Exception {
+	void refreshMirror( ServerTransaction transaction ) throws Exception {
 		if( isServer() )
 			refreshServerMirror( transaction );
 	}
 
-	public void refreshServerMirror( ServerTransaction transaction ) throws Exception {
+	private void refreshServerMirror( ServerTransaction transaction ) throws Exception {
 		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , false );
 		vcs.refreshMirror( this );
 		MirrorStorage storage = vcs.getMirror( this );
@@ -301,7 +293,7 @@ public class ServerMirrorRepository extends ServerObject {
 		}
 	}
 	
-	public void syncToFolder( ActionBase action , GenericVCS vcs , MirrorStorage storage , LocalFolder folder ) throws Exception {
+	private void syncToFolder( ActionBase action , GenericVCS vcs , MirrorStorage storage , LocalFolder folder ) throws Exception {
 		LocalFolder mf = storage.getCommitFolder();
 		LocalFolder sf = folder;
 		FileSet mset = mf.getFileSet( action );

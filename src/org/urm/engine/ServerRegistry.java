@@ -57,15 +57,15 @@ public class ServerRegistry extends ServerObject {
 		Common.xmlSaveDoc( doc , path );
 	}
 
-	public void setResources( ServerTransaction transaction , ServerResources resourcesNew ) throws Exception {
+	public void setResources( TransactionBase transaction , ServerResources resourcesNew ) throws Exception {
 		resources = resourcesNew;
 	}
 	
-	public void setDirectory( ServerTransaction transaction , ServerDirectory directoryNew ) throws Exception {
+	public void setDirectory( TransactionBase transaction , ServerDirectory directoryNew ) throws Exception {
 		directory = directoryNew;
 	}
 	
-	public void setBuilders( ServerTransaction transaction , ServerBuilders buildersNew ) throws Exception {
+	public void setBuilders( TransactionBase transaction , ServerBuilders buildersNew ) throws Exception {
 		builders = buildersNew;
 	}
 	

@@ -44,7 +44,7 @@ public class ServerEngine {
 	private ServerLoader loader;
 	public boolean running;
 
-	private ServerTransaction currentTransaction = null;
+	private TransactionBase currentTransaction = null;
 
 	public static int META_CHANGE_TIMEOUT = 5000;
 	
@@ -364,7 +364,7 @@ public class ServerEngine {
 		return( session );
 	}
 
-	public boolean startTransaction( ServerTransaction transaction ) {
+	public boolean startTransaction( TransactionBase transaction ) {
 		if( currentTransaction != null ) {
 			try {
 				synchronized( currentTransaction ) {
@@ -383,7 +383,7 @@ public class ServerEngine {
 		return( true );
 	}
 	
-	public void abortTransaction( ServerTransaction transaction ) {
+	public void abortTransaction( TransactionBase transaction ) {
 		if( currentTransaction == transaction ) {
 			synchronized( currentTransaction ) {
 				currentTransaction.notifyAll();
@@ -392,7 +392,7 @@ public class ServerEngine {
 		}
 	}
 	
-	public boolean commitTransaction( ServerTransaction transaction ) {
+	public boolean commitTransaction( TransactionBase transaction ) {
 		if( currentTransaction != transaction )
 			return( false );
 		
@@ -403,7 +403,7 @@ public class ServerEngine {
 		return( true );
 	}
 	
-	public ServerTransaction getTransaction() {
+	public TransactionBase getTransaction() {
 		return( currentTransaction );
 	}
 
