@@ -87,6 +87,7 @@ public class ServerTransaction extends TransactionBase {
 		mirrors.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		directory.deleteProduct( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		metadata = null;
+		loader.saveMirrors( this );
 	}
 
 	public void setServerProperties( PropertySet props ) throws Exception {

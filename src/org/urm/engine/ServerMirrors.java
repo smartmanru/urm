@@ -144,12 +144,6 @@ public class ServerMirrors extends ServerObject {
 			repo.dropMirror( transaction );
 			repoMap.remove( repo.NAME );
 		}
-		
-		save( transaction );
-	}
-	
-	private void save( ServerTransaction transaction ) throws Exception {
-		registry.loader.saveMirrors( transaction );
 	}
 	
 }
