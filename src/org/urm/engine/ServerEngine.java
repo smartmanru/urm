@@ -23,6 +23,7 @@ import org.urm.engine.executor.MainExecutor;
 import org.urm.engine.executor.MonitorCommandExecutor;
 import org.urm.engine.executor.ReleaseCommandExecutor;
 import org.urm.engine.executor.XDocCommandExecutor;
+import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.shell.ShellCoreJNI;
 import org.urm.engine.shell.ShellPool;
 import org.urm.engine.storage.Artefactory;
@@ -182,8 +183,8 @@ public class ServerEngine {
 			serverSession.setServerOfflineProductLayout( serverAction , options , execrc.product );
 		
 		startAction( serverAction );
-		serverAction.context.meta.loadVersion( serverAction );
-		serverAction.context.meta.loadProduct( serverAction );
+		serverAction.context.meta.getVersion( serverAction );
+		serverAction.context.meta.getProduct( serverAction );
 		
 		return( runServerAction() );
 	}
@@ -241,11 +242,11 @@ public class ServerEngine {
 			return( null );
 
 		// create artefactory
-		context.update();
 		Artefactory artefactory = createArtefactory( session , context );
 		
 		// create action
 		ActionInit action = actionExecutor.createAction( session , artefactory , context , options.action );
+		context.update( action );
 		action.debug( "action created: actionId=" + action.ID + ", name=" + action.actionName + ", workfolder=" + artefactory.workFolder.folderPath );
 		
 		return( action );
@@ -295,15 +296,19 @@ public class ServerEngine {
 	}
 
 	private Artefactory createArtefactory( SessionContext session , CommandContext context ) throws Exception {
-		String dirname;
+		String dirname = "";
 		
 		if( session.standalone ) {
 			if( !context.CTX_WORKPATH.isEmpty() )
 				dirname = context.CTX_WORKPATH;
 			else {
-				if( context.meta.product != null && context.meta.product.CONFIG_WORKPATH.isEmpty() == false )
-					dirname = context.meta.product.CONFIG_WORKPATH;
-				else
+				if( context.meta != null && serverAction != null ) {
+					MetaProductSettings product = context.meta.getProduct( serverAction );
+					if( product != null && product.CONFIG_WORKPATH.isEmpty() == false )
+						dirname = product.CONFIG_WORKPATH;
+				}
+				
+				if( dirname.isEmpty() )
 					dirname = Common.getPath( session.execrc.userHome , "urm.work" , "session-" + ShellCoreJNI.getCurrentProcessId() );
 			}
 		}
@@ -320,11 +325,15 @@ public class ServerEngine {
 				if( !context.CTX_WORKPATH.isEmpty() )
 					dirname = context.CTX_WORKPATH;
 				else {
-					if( context.meta.product != null && context.meta.product.CONFIG_WORKPATH.isEmpty() == false ) {
-						dirname = context.meta.product.CONFIG_WORKPATH;
-						dirname = Common.getPath( dirname , "session-" + session.sessionId );
+					if( context.meta != null && serverAction != null ) {
+						MetaProductSettings product = context.meta.getProduct( serverAction );
+						if( product != null && product.CONFIG_WORKPATH.isEmpty() == false ) {
+							dirname = product.CONFIG_WORKPATH;
+							dirname = Common.getPath( dirname , "session-" + session.sessionId );
+						}
 					}
-					else {
+					
+					if( dirname.isEmpty() ) {
 						dirname = Common.getPath( session.execrc.userHome , "urm.work" , "client" );
 						String name = "session-" + session.timestamp;
 						if( !session.productName.isEmpty() )

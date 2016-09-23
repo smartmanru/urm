@@ -13,6 +13,7 @@ import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaDistrBinaryItem;
 import org.urm.engine.meta.MetaDistrConfItem;
 import org.urm.engine.meta.MetaDistrDelivery;
+import org.urm.engine.meta.MetaSource;
 import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.meta.MetaSourceProjectItem;
 import org.urm.engine.meta.MetaSourceProjectSet;
@@ -324,7 +325,8 @@ public class Release {
 	}
 
 	public ReleaseTarget findBuildProject( ActionBase action , String name ) throws Exception {
-		MetaSourceProject sourceProject = meta.sources.getProject( action , name );
+		MetaSource sources = meta.getSources( action ); 
+		MetaSourceProject sourceProject = sources.getProject( action , name );
 		ReleaseSet set = sourceSetMap.get( sourceProject.set.NAME );
 		if( set == null )
 			return( null );
@@ -471,7 +473,8 @@ public class Release {
 	}
 
 	public void addSourceAll( ActionBase action ) throws Exception {
-		for( MetaSourceProjectSet sourceSet : meta.sources.getSets( action ).values() )
+		MetaSource sources = meta.getSources( action ); 
+		for( MetaSourceProjectSet sourceSet : sources.getSets( action ).values() )
 			addSourceSet( action , sourceSet , true );
 	}
 	

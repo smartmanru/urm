@@ -9,6 +9,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.database.DatabaseClient;
 import org.urm.common.Common;
 import org.urm.engine.meta.Meta;
+import org.urm.engine.meta.MetaDatabase;
 import org.urm.engine.meta.MetaDatabaseSchema;
 import org.urm.engine.meta.MetaEnvServer;
 import org.w3c.dom.Document;
@@ -121,7 +122,8 @@ public class MetadataStorage {
 			
 			Map<String,String> tables = tableSet.get( SN );
 			if( tables == null ) {
-				meta.database.getSchema( action , SN );
+				MetaDatabase database = meta.getDatabase( action );
+				database.getSchema( action , SN );
 				tables = new HashMap<String,String>();
 				tableSet.put( SN , tables );
 			}

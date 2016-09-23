@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.conf.ConfSourceFolder;
 import org.urm.common.Common;
 import org.urm.engine.ServerMirrorRepository;
+import org.urm.engine.ServerProductMeta;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.meta.Meta;
@@ -35,7 +36,8 @@ public class SourceStorage {
 	}
 	
 	public void downloadThirdpartyItemFromVCS( ActionBase action , String ITEMPATH , String FOLDER ) throws Exception {
-		ServerMirrorRepository mirror = action.getConfigurationMirror( meta.storage );
+		ServerProductMeta storage = meta.getStorage( action );
+		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE , false );
 		
 		String BASENAME = Common.getBaseName( ITEMPATH );
@@ -52,7 +54,8 @@ public class SourceStorage {
 	}
 	
 	public boolean downloadReleaseManualFolder( ActionBase action , Dist distStorage , LocalFolder dstFolder ) throws Exception {
-		ServerMirrorRepository mirror = action.getConfigurationMirror( meta.storage );
+		ServerProductMeta storage = meta.getStorage( action );
+		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE , false );
 		String PATH = getReleaseManualPath( action , distStorage );
 
@@ -64,7 +67,8 @@ public class SourceStorage {
 	}
 	
 	public boolean downloadReleaseConfigItem( ActionBase action , Dist distStorage , ConfSourceFolder sourceFolder , LocalFolder dstFolder ) throws Exception {
-		ServerMirrorRepository mirror = action.getConfigurationMirror( meta.storage );
+		ServerProductMeta storage = meta.getStorage( action );
+		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE , false );
 		String PATH = getReleaseConfigSourcePath( action , distStorage , sourceFolder.releaseComp );
 		
@@ -76,7 +80,8 @@ public class SourceStorage {
 	}
 
 	public boolean downloadReleaseDatabaseFiles( ActionBase action , Dist distStorage , MetaDistrDelivery dbDelivery , LocalFolder dstFolder ) throws Exception {
-		ServerMirrorRepository mirror = action.getConfigurationMirror( meta.storage );
+		ServerProductMeta storage = meta.getStorage( action );
+		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE , false );
 		String PATH = getReleaseDBSourcePath( action , distStorage , dbDelivery );
 		
@@ -88,7 +93,8 @@ public class SourceStorage {
 	}
 	
 	public boolean downloadProductConfigItem( ActionBase action , ConfSourceFolder sourceFolder , LocalFolder dstFolder ) throws Exception {
-		ServerMirrorRepository mirror = action.getConfigurationMirror( meta.storage );
+		ServerProductMeta storage = meta.getStorage( action );
+		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE , false );
 		String PATH = getProductConfigSourcePath( action , sourceFolder.distrComp );
 
@@ -106,7 +112,8 @@ public class SourceStorage {
 		if( !isValidPath( action , vcs , ITEMPATH ) )
 			return( false );
 	
-		ServerMirrorRepository mirror = action.getConfigurationMirror( meta.storage );
+		ServerProductMeta storage = meta.getStorage( action );
+		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		if( !vcs.exportRepositoryMasterPath( mirror , dstFolder , ITEMPATH , distrComp.KEY ) )
 			action.exit2( _Error.UnableExportMirror2 , "unable to export from mirror=" + mirror.NAME + ", ITEMPATH=" + ITEMPATH , mirror.NAME , ITEMPATH );
 		
@@ -118,7 +125,8 @@ public class SourceStorage {
 		if( !isValidPath( action , vcs , ITEMPATH ) )
 			return( false );
 	
-		ServerMirrorRepository mirror = action.getConfigurationMirror( meta.storage );
+		ServerProductMeta storage = meta.getStorage( action );
+		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		if( !vcs.exportRepositoryMasterPath( mirror , dstFolder , ITEMPATH , DATABASE_FOLDER ) )
 			action.exit2( _Error.UnableExportMirror2 , "unable to export from mirror=" + mirror.NAME + ", ITEMPATH=" + ITEMPATH , mirror.NAME , ITEMPATH );
 		
@@ -131,7 +139,8 @@ public class SourceStorage {
 		if( !isValidPath( action , vcs , PATH ) )
 			return( false );
 	
-		ServerMirrorRepository mirror = action.getConfigurationMirror( meta.storage );
+		ServerProductMeta storage = meta.getStorage( action );
+		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		if( !vcs.exportRepositoryMasterPath( mirror , dstManualFolder.getParentFolder( action ) , PATH , dstManualFolder.folderName ) )
 			action.exit2( _Error.UnableExportMirror2 , "unable to export from mirror=" + mirror.NAME + ", PATH=" + PATH , mirror.NAME , PATH );
 		
@@ -141,7 +150,8 @@ public class SourceStorage {
 	}
 	
 	public void moveReleaseDatabaseFilesToErrors( ActionBase action , String errorFolder , Dist distStorage , MetaDistrDelivery dbDelivery , String movePath , String message ) throws Exception {
-		ServerMirrorRepository mirror = action.getConfigurationMirror( meta.storage );
+		ServerProductMeta storage = meta.getStorage( action );
+		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE , false );
 		String SRCPATH = getReleaseDBSourcePath( action , distStorage , dbDelivery );
 		String ERRORPATH = getReleaseErrorsPath( action , distStorage , dbDelivery , errorFolder );
@@ -151,7 +161,8 @@ public class SourceStorage {
 	}
 	
 	public boolean isValidPath( ActionBase action , GenericVCS vcs , String PATH ) throws Exception {
-		ServerMirrorRepository mirror = action.getConfigurationMirror( meta.storage );
+		ServerProductMeta storage = meta.getStorage( action );
+		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		return( vcs.isValidRepositoryMasterPath( mirror , PATH ) );
 	}
 	
@@ -246,7 +257,8 @@ public class SourceStorage {
 	}
 	
 	public String[] getLiveConfigItems( ActionBase action , MetaEnvServer server ) throws Exception {
-		ServerMirrorRepository mirror = action.getConfigurationMirror( meta.storage );
+		ServerProductMeta storage = meta.getStorage( action );
+		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE , false );
 		String PATH = getLiveConfigServerPath( action , server.dc , server.NAME );
 		
@@ -255,7 +267,8 @@ public class SourceStorage {
 	}
 
 	public String[] getLiveConfigServers( ActionBase action , MetaEnvDC dc ) throws Exception {
-		ServerMirrorRepository mirror = action.getConfigurationMirror( meta.storage );
+		ServerProductMeta storage = meta.getStorage( action );
+		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE , false );
 		String PATH = getLiveConfigDCPath( action , dc );
 		
@@ -264,7 +277,8 @@ public class SourceStorage {
 	}
 
 	public void deleteLiveConfigItem( ActionBase action , MetaEnvServer server , String item , String commitMessage ) throws Exception {
-		ServerMirrorRepository mirror = action.getConfigurationMirror( meta.storage );
+		ServerProductMeta storage = meta.getStorage( action );
+		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE , false );
 		String PATH = getLiveConfigServerPath( action , server.dc , server.NAME );
 		PATH = Common.getPath( PATH , item );
@@ -273,7 +287,8 @@ public class SourceStorage {
 	}
 
 	public void deleteLiveConfigServer( ActionBase action , MetaEnvDC dc , String server , String commitMessage ) throws Exception {
-		ServerMirrorRepository mirror = action.getConfigurationMirror( meta.storage );
+		ServerProductMeta storage = meta.getStorage( action );
+		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE , false );
 		String PATH = getLiveConfigServerPath( action , dc , server );
 		
@@ -281,16 +296,18 @@ public class SourceStorage {
 	}
 
 	public void tagLiveConfigs( ActionBase action , String TAG , String commitMessage ) throws Exception {
-		ServerMirrorRepository mirror = action.getConfigurationMirror( meta.storage );
+		ServerProductMeta storage = meta.getStorage( action );
+		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE , false );
 		String PATH = getLiveConfigPath( action );
-		String setTAG = meta.product.CONFIG_PRODUCT + "-" + action.context.env.ID + "-" + TAG;
+		String setTAG = meta.name + "-" + action.context.env.ID + "-" + TAG;
 		
 		vcs.createMasterTag( mirror , PATH , setTAG , commitMessage );
 	}
 
 	public void exportLiveConfigItem( ActionBase action , MetaEnvServer server , String confName , String TAG , LocalFolder folder ) throws Exception {
-		ServerMirrorRepository mirror = action.getConfigurationMirror( meta.storage );
+		ServerProductMeta storage = meta.getStorage( action );
+		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE , false );
 		
 		String SERVERPATH = getLiveConfigServerPath( action , server.dc , server.NAME );
@@ -300,7 +317,7 @@ public class SourceStorage {
 				action.exit2( _Error.UnableExportConfig2 , "unable to export " + confName + " from " + PATH , confName , PATH );
 		}
 		else {
-			String useTAG = meta.product.CONFIG_PRODUCT + "-" + action.context.env.ID + "-" + TAG;
+			String useTAG = meta.name + "-" + action.context.env.ID + "-" + TAG;
 			if( !vcs.exportRepositoryTagPath( mirror , folder , useTAG , PATH , confName ) )
 				action.exit3( _Error.UnableExportConfigTag3 , "unable to export " + confName + " from " + PATH + ", TAG=" + useTAG , confName , PATH , useTAG );
 		}
@@ -311,7 +328,8 @@ public class SourceStorage {
 	
 	public void exportTemplateConfigItem( ActionBase action , MetaEnvDC dc , String confName , String TAG , LocalFolder folder ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		ServerMirrorRepository mirror = action.getConfigurationMirror( meta.storage );
+		ServerProductMeta storage = meta.getStorage( action );
+		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE , false );
 		
 		String CONFPATH = build.CONFIG_SOURCE_CFG_ROOTDIR;
@@ -321,7 +339,7 @@ public class SourceStorage {
 				action.exit2( _Error.UnableExportConfig2 , "unable to export " + confName + " from " + PATH , confName , PATH );
 		}
 		else {
-			String useTAG = meta.product.CONFIG_PRODUCT + "-" + action.context.env.ID + "-" + dc.NAME + "-" + TAG;
+			String useTAG = meta.name + "-" + action.context.env.ID + "-" + dc.NAME + "-" + TAG;
 			if( !vcs.exportRepositoryTagPath( mirror , folder , useTAG , PATH , confName ) )
 				action.exit3( _Error.UnableExportConfigTag3 , "unable to export " + confName + " from " + PATH + ", TAG=" + useTAG , confName , PATH , useTAG );
 		}
@@ -331,7 +349,8 @@ public class SourceStorage {
 	}
 	
 	public void saveLiveConfigItem( ActionBase action , MetaEnvServer server , MetaEnvServerNode node , String item , LocalFolder folder , String commitMessage ) throws Exception {
-		ServerMirrorRepository mirror = action.getConfigurationMirror( meta.storage );
+		ServerProductMeta storage = meta.getStorage( action );
+		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE , false );
 		String SERVERPATH = getLiveConfigServerPath( action , server.dc , server.NAME );
 		String PATH = Common.getPath( SERVERPATH , item );
@@ -428,7 +447,8 @@ public class SourceStorage {
 		
 	public void exportPostRefresh( ActionBase action , String name , LocalFolder folder ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		ServerMirrorRepository mirror = action.getConfigurationMirror( meta.storage );
+		ServerProductMeta storage = meta.getStorage( action );
+		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE , false );
 		
 		String CONFPATH = build.CONFIG_SOURCE_SQL_POSTREFRESH;

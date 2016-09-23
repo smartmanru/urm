@@ -40,7 +40,8 @@ public class MetaDistr extends PropertyController {
 	
 	public MetaDistr copy( ActionBase action , Meta meta ) throws Exception {
 		MetaDistr r = new MetaDistr( meta );
-		super.initCopyStarted( this , meta.product.getProperties() );
+		MetaProductSettings product = meta.getProduct( action );
+		super.initCopyStarted( this , product.getProperties() );
 		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
 			MetaDistrDelivery rd = delivery.copy( action , meta , r );
 			r.mapDeliveries.put( rd.NAME , rd );
@@ -75,7 +76,8 @@ public class MetaDistr extends PropertyController {
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
-		if( super.initCreateStarted( meta.product.getProperties() ) )
+		MetaProductSettings product = meta.getProduct( action );
+		if( super.initCreateStarted( product.getProperties() ) )
 			return;
 
 		loadDeliveries( action , ConfReader.xmlGetPathNode( root , "distributive" ) );
@@ -178,7 +180,8 @@ public class MetaDistr extends PropertyController {
 
 	public List<MetaDistrDelivery> getDatabaseDeliveries( ActionBase action ) throws Exception {
 		List<MetaDistrDelivery> list = new LinkedList<MetaDistrDelivery>();
-		for( MetaDistrDelivery delivery : meta.distr.getDeliveries( action ).values() )
+		MetaDistr distr = meta.getDistr( action );
+		for( MetaDistrDelivery delivery : distr.getDeliveries( action ).values() )
 			if( delivery.hasDatabaseItems( action ) )
 				list.add( delivery );
 		return( list );

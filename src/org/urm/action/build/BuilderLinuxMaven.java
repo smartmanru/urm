@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.meta.MetaProductBuildSettings;
+import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
@@ -147,9 +148,10 @@ public class BuilderLinuxMaven extends Builder {
 				MODULE_MAVEN_CMD + " " + MODULE_ALT_REPO + " " + MODULE_MSETTINGS + " -Dmaven.test.skip=true";
 
 		ShellExecutor session = action.shell;
-		session.export( action , "JAVA_HOME" , project.meta.product.CONFIG_BUILDBASE_PATH + "/" + BUILD_JAVA_VERSION );
+		MetaProductSettings product = project.meta.getProduct( action );
+		session.export( action , "JAVA_HOME" , product.CONFIG_BUILDBASE_PATH + "/" + BUILD_JAVA_VERSION );
 		session.export( action , "PATH" , "$JAVA_HOME/bin:$PATH" );
-		session.export( action , "M2_HOME" , project.meta.product.CONFIG_BUILDBASE_PATH + "/" + BUILD_MAVEN_VERSION );
+		session.export( action , "M2_HOME" , product.CONFIG_BUILDBASE_PATH + "/" + BUILD_MAVEN_VERSION );
 		session.export( action , "M2" , "$M2_HOME/bin" );
 		session.export( action , "PATH" , "$M2:$PATH" );
 		session.export( action , "MAVEN_OPTS" , Common.getQuoted( "-XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );

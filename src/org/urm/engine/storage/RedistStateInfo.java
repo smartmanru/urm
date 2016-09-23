@@ -8,6 +8,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.meta.Meta;
+import org.urm.engine.meta.MetaDistr;
 import org.urm.engine.meta.MetaDistrBinaryItem;
 import org.urm.engine.meta.MetaDistrConfItem;
 import org.urm.engine.meta.MetaEnvServerNode;
@@ -101,15 +102,16 @@ public class RedistStateInfo {
 	
 	private FileInfo createFileInfo( ActionBase action , VarCONTENTTYPE CONTENTTYPE , String verName , String verInfo ) throws Exception {
 		String baseitem = verName;
+		MetaDistr distr = meta.getDistr( action );
 		if( Meta.isBinaryContent( action , CONTENTTYPE ) ) {
-			MetaDistrBinaryItem item = meta.distr.getBinaryItem( action , baseitem );
+			MetaDistrBinaryItem item = distr.getBinaryItem( action , baseitem );
 			FileInfo info = new FileInfo();
 			info.set( action , item , verInfo );
 			return( info );
 		}
 		
 		if( Meta.isConfContent( action , CONTENTTYPE ) ) {
-			MetaDistrConfItem item = meta.distr.getConfItem( action , baseitem );
+			MetaDistrConfItem item = distr.getConfItem( action , baseitem );
 			FileInfo info = new FileInfo();
 			info.set( action , item , verInfo );
 			return( info );

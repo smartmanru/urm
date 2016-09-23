@@ -25,7 +25,7 @@ public class MonitorCommandExecutor extends CommandExecutor {
 			meta = action.getContextMeta();
 			
 			// create implementation
-			MetaMonitoring mon = meta.loadMonitoring( action );
+			MetaMonitoring mon = meta.getMonitoring( action );
 			impl = new MonitorCommand( mon );
 		}
 		catch( Throwable e ) {

@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.ServerAuthResource;
 import org.urm.engine.meta.MetaProductBuildSettings;
+import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
@@ -83,7 +84,8 @@ public class BuilderWindowsDotnet extends Builder {
 		}
 
 		// upload package
-		String nugetId = project.meta.product.CONFIG_PRODUCT + ".project." + project.PROJECT; 
+		MetaProductSettings product = project.meta.getProduct( action );
+		String nugetId = product.CONFIG_PRODUCT + ".project." + project.PROJECT; 
 		String nugetPackCmd = "nuget pack package.nuspec -Version " + APPVERSION + " -Properties id=" + nugetId;
 		RemoteFolder NUGETPATH = CODEPATH.getSubFolder( action , "packages.build" ); 
 		timeout = action.setTimeoutUnlimited();

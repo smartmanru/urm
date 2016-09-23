@@ -7,6 +7,7 @@ import org.urm.action.ActionScopeTargetItem;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseTarget;
+import org.urm.engine.meta.MetaDistr;
 import org.urm.engine.meta.MetaDistrBinaryItem;
 import org.urm.engine.meta.MetaDistrConfItem;
 import org.urm.engine.meta.MetaEnvServer;
@@ -104,6 +105,7 @@ public class ActionRedist extends ActionBase {
 		info( "redist configuration to server=" + server.NAME + " node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
 		
 		// by deployment location and conf component
+		MetaDistr distr = server.meta.getDistr( this );
 		for( MetaEnvServerLocation location : locations ) { 
 			String[] items = location.getNodeConfItems( this , node );
 			if( items.length == 0 ) {
@@ -112,7 +114,7 @@ public class ActionRedist extends ActionBase {
 			}
 			
 			for( String item : items ) {
-				MetaDistrConfItem conf = server.meta.distr.getConfItem( this , item );
+				MetaDistrConfItem conf = distr.getConfItem( this , item );
 				executeNodeConfigComp( server , node , location , conf , liveFolder );
 			}
 		}
@@ -158,8 +160,9 @@ public class ActionRedist extends ActionBase {
 		RedistStateInfo stateInfo = redist.getStateInfo( this , location.DEPLOYPATH , CONTENTTYPE );
 
 		debug( node.HOSTLOGIN + ": redist content=" + Common.getEnumLower( CONTENTTYPE ) + ": items - " + Common.getListSet( items ) + " ..." );
+		MetaDistr distr = server.meta.getDistr( this );
 		for( String key : items ) {
-			MetaDistrBinaryItem binaryItem = server.meta.distr.getBinaryItem( this , key );
+			MetaDistrBinaryItem binaryItem = distr.getBinaryItem( this , key );
 			String deployBaseName = location.getDeployName( this , key );
 			transferFile( server , node , redist , location , binaryItem , stateInfo , deployBaseName );
 		}

@@ -12,11 +12,13 @@ import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.dist.ReleaseSet;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.meta.Meta;
+import org.urm.engine.meta.MetaDistr;
 import org.urm.engine.meta.MetaDistrBinaryItem;
 import org.urm.engine.meta.MetaEnv;
 import org.urm.engine.meta.MetaEnvDC;
 import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.meta.MetaEnvServerNode;
+import org.urm.engine.meta.MetaSource;
 import org.urm.engine.meta.MetaSourceProjectSet;
 import org.urm.engine.meta.Meta.VarCATEGORY;
 import org.urm.engine.meta.Meta.VarDISTITEMSOURCE;
@@ -359,8 +361,9 @@ public class ActionScope {
 	
 	private void createProductDistItemsScope( ActionBase action , String ITEMS[] , boolean specifiedExplicitly ) throws Exception {
 		scopeFull = false;
+		MetaDistr distr = meta.getDistr( action );
 		for( String itemName : ITEMS ) {
-			MetaDistrBinaryItem item = meta.distr.getBinaryItem( action , itemName );
+			MetaDistrBinaryItem item = distr.getBinaryItem( action , itemName );
 			if( item == null )
 				action.exit1( _Error.UnknownDistributiveItem1 , "unknown distributive item=" + itemName , itemName );
 			
@@ -380,8 +383,9 @@ public class ActionScope {
 	
 	private void createReleaseDistItemsScope( ActionBase action , Dist dist , String ITEMS[] , boolean specifiedExplicitly ) throws Exception {
 		scopeFull = false;
+		MetaDistr distr = meta.getDistr( action );
 		for( String itemName : ITEMS ) {
-			MetaDistrBinaryItem item = meta.distr.getBinaryItem( action , itemName );
+			MetaDistrBinaryItem item = distr.getBinaryItem( action , itemName );
 			if( item.sourceItem == null )
 				action.exit1( _Error.UnknownDistributiveItem1 ,"unknown distributive item=" + itemName , itemName );
 			
@@ -417,7 +421,8 @@ public class ActionScope {
 		if( set.equals( Common.getEnumLower( VarCATEGORY.MANUAL ) ) )
 			addManualItems( action , TARGETS );
 		else {
-			MetaSourceProjectSet pset = meta.sources.getProjectSet( action , set );  
+			MetaSource sources = meta.getSources( action );
+			MetaSourceProjectSet pset = sources.getProjectSet( action , set );  
 			addSourceProjects( action , pset , TARGETS );
 		}
 	}
@@ -441,7 +446,8 @@ public class ActionScope {
 		if( SET.equals( Common.getEnumLower( VarCATEGORY.MANUAL ) ) )
 			addReleaseManualItems( action , release , TARGETS );
 		else {
-			MetaSourceProjectSet set = meta.sources.getProjectSet( action , SET );
+			MetaSource sources = meta.getSources( action );
+			MetaSourceProjectSet set = sources.getProjectSet( action , SET );
 			if( release.release.addSourceSet( action , set , false ) ) {
 				ReleaseSet rset = release.release.getSourceSet( action , SET );  
 				addReleaseProjects( action , release , rset , TARGETS );
@@ -675,7 +681,8 @@ public class ActionScope {
  	}
 	
 	private void addAllSourceProjects( ActionBase action ) throws Exception {
-		for( MetaSourceProjectSet pset : meta.sources.getSets( action ).values() ) {
+		MetaSource sources = meta.getSources( action );
+		for( MetaSourceProjectSet pset : sources.getSets( action ).values() ) {
 			ActionScopeSet sset = createProjectScopeSet( action , pset );
 			sset.addProjects( action , null );
 		}

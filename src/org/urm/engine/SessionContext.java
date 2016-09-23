@@ -93,7 +93,7 @@ public class SessionContext {
 		proxyPath = product.getFolderPath( action , UrmStorage.MASTER_PATH );
 		
 		ServerLoader loader = engine.getLoader();
-		Meta meta = loader.createMetadata( this );
+		Meta meta = loader.createMetadata( this , name );
 		action.context.setMeta( meta );
 	}
 	

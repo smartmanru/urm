@@ -40,20 +40,23 @@ public class MetaDatabase extends PropertyController {
 	
 	public MetaDatabase copy( ActionBase action , Meta meta ) throws Exception {
 		MetaDatabase r = new MetaDatabase( meta );
-		r.initCopyStarted( this , meta.product.getProperties() );
+		MetaProductSettings product = meta.getProduct( action );
+		r.initCopyStarted( this , product.getProperties() );
 		
 		return( r );
 	}
 	
 	public void create( ActionBase action ) throws Exception {
-		if( !initCreateStarted( meta.product.getProperties() ) )
+		MetaProductSettings product = meta.getProduct( action );
+		if( !initCreateStarted( product.getProperties() ) )
 			return;
 
 		initFinished();
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
-		if( !initCreateStarted( meta.product.getProperties() ) )
+		MetaProductSettings product = meta.getProduct( action );
+		if( !initCreateStarted( product.getProperties() ) )
 			return;
 
 		if( !loadAdministration( action , root ) )

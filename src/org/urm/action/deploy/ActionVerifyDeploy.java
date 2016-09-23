@@ -14,6 +14,7 @@ import org.urm.action.database.DatabaseRegistryRelease.RELEASE_STATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistItemInfo;
+import org.urm.engine.meta.MetaDistr;
 import org.urm.engine.meta.MetaDistrBinaryItem;
 import org.urm.engine.meta.MetaDistrConfItem;
 import org.urm.engine.meta.MetaEnvServer;
@@ -182,11 +183,12 @@ public class ActionVerifyDeploy extends ActionBase {
 		boolean verifyNode = true;
 		
 		// binaries
+		MetaDistr distr = dist.meta.getDistr( this );
 		info( "verify binaries ..." );
 		for( MetaEnvServerLocation location : binaryLocations ) {
 			String[] items = location.getNodeBinaryItems( this , node );
 			for( String item : items ) {
-				MetaDistrBinaryItem binaryItem = dist.meta.distr.getBinaryItem( this , item );
+				MetaDistrBinaryItem binaryItem = distr.getBinaryItem( this , item );
 				if( !executeNodeBinary( server , node , location , binaryItem , tobeBinaryServerFolder , asisBinaryServerFolder ) )
 					verifyNode = false;
 			}
@@ -197,7 +199,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		for( MetaEnvServerLocation location : confLocations ) {
 			String[] items = location.getNodeConfItems( this , node );
 			for( String item : items ) {
-				MetaDistrConfItem confItem = dist.meta.distr.getConfItem( this , item );
+				MetaDistrConfItem confItem = distr.getConfItem( this , item );
 				executeNodeConf( server , node , location , confItem , asisConfigServerFolder );
 			}
 		}

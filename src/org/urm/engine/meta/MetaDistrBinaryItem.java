@@ -98,8 +98,10 @@ public class MetaDistrBinaryItem {
 	}
 
 	public void resolveReferences( ActionBase action ) throws Exception {
-		if( DISTSOURCE == VarDISTITEMSOURCE.DISTITEM )
-			srcItem = meta.distr.getBinaryItem( action , SRCDISTITEM ); 
+		if( DISTSOURCE == VarDISTITEMSOURCE.DISTITEM ) {
+			MetaDistr distr = meta.getDistr( action );
+			srcItem = distr.getBinaryItem( action , SRCDISTITEM );
+		}
 	}
 	
 	public boolean isArchive( ActionBase action ) throws Exception {

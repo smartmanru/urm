@@ -4,6 +4,7 @@ package org.urm.action.build;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.meta.MetaProductBuildSettings;
+import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.storage.LocalFolder;
 
 public class ActionPatch extends ActionBase {
@@ -85,7 +86,8 @@ public class ActionPatch extends ActionBase {
 		String MODULE_MSETTINGS="--settings=" + build.CONFIG_MAVEN_CFGFILE;
 		String UPLOAD_MAVEN_VERSION = build.CONFIG_MAVEN_VERSION;
 
-		shell.export( this , "M2_HOME" , builder.project.meta.product.CONFIG_BUILDBASE_PATH + "/" + UPLOAD_MAVEN_VERSION );
+		MetaProductSettings product = builder.project.meta.getProduct( this );
+		shell.export( this , "M2_HOME" , product.CONFIG_BUILDBASE_PATH + "/" + UPLOAD_MAVEN_VERSION );
 		shell.export( this , "M2" , "$M2_HOME/bin" );
 		shell.export( this , "PATH" , "$M2:$PATH" );
 		shell.export( this , "MAVEN_OPTS" , Common.getQuoted( "-Xmx1g -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );

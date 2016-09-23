@@ -43,7 +43,8 @@ public class MetaSourceProjectItem {
 			ITEMBASENAME = ITEMNAME;
 
 		INTERNAL = ConfReader.getBooleanAttrValue( node , "internal" , false );
-		distItem = meta.distr.getBinaryItem( action , ITEMNAME );
+		MetaDistr distr = meta.getDistr( action );
+		distItem = distr.getBinaryItem( action , ITEMNAME );
 		distItem.setSource( action , this );
 
 		ITEMEXTENSION = ConfReader.getAttrValue( node , "extension" );

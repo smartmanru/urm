@@ -14,6 +14,7 @@ import org.urm.engine.SessionContext;
 import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaEnv;
 import org.urm.engine.meta.MetaEnvDC;
+import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.meta.Meta.VarBUILDMODE;
 import org.urm.engine.shell.Account;
 
@@ -237,13 +238,14 @@ public class CommandContext {
 		setLogStream();
 	}
 
-	public void update() throws Exception {
-		boolean isproduct = ( meta == null || meta.product == null )? false : true; 
+	public void update( ActionBase action ) throws Exception {
+		boolean isproduct = ( action == null || meta == null )? false : true; 
 		boolean isenv = ( env == null )? false : true; 
 		boolean def = ( isenv && env.PROD )? true : false;
 		String value;
 		
 		// generic
+		MetaProductSettings product = ( isproduct )? meta.getProduct( action ) : null; 
 		CTX_TRACEINTERNAL = ( getFlagValue( "OPT_TRACE" ) && getFlagValue( "OPT_SHOWALL" ) )? true : false;
 		CTX_TRACE = getFlagValue( "OPT_TRACE" );
 		CTX_SHOWONLY = combineValue( "OPT_SHOWONLY" , ( isenv )? env.SHOWONLY : null , def );
@@ -258,9 +260,9 @@ public class CommandContext {
 		CTX_TIMEOUT = getIntParamValue( "OPT_TIMEOUT" , options.optDefaultCommandTimeout ) * 1000;
 		value = getParamValue( "OPT_KEY" ); 
 		CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? env.KEYFILE : "" ) : value;
-		String productValue = ( isproduct )? meta.product.CONFIG_DISTR_PATH : "";
+		String productValue = ( isproduct )? product.CONFIG_DISTR_PATH : "";
 		CTX_DISTPATH = getParamPathValue( "OPT_DISTPATH" , productValue );
-		CTX_REDISTPATH = ( isproduct )? meta.product.CONFIG_REDISTPATH : null;
+		CTX_REDISTPATH = ( isproduct )? product.CONFIG_REDISTPATH : null;
 		if( isenv && !env.REDISTPATH.isEmpty() )
 			CTX_REDISTPATH = env.REDISTPATH;
 		value = getParamPathValue( "OPT_HIDDENPATH" );
@@ -334,7 +336,7 @@ public class CommandContext {
 	}
 	
 	public void loadEnv( ActionBase action , String ENV , String DC , boolean loadProps ) throws Exception {
-		env = meta.loadEnvData( action , ENV , loadProps );
+		env = meta.getEnvData( action , ENV , loadProps );
 		
 		if( DC == null || DC.isEmpty() ) {
 			dc = null;
@@ -342,7 +344,7 @@ public class CommandContext {
 		}
 		
 		dc = env.getDC( action , DC );
-		update();
+		update( action );
 	}
 	
 	public CommandContext getProductContext( String stream ) {

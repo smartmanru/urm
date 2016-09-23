@@ -90,8 +90,10 @@ public class MetaSourceProject {
 		}
 		
 		// resolve references
-		if( !DISTITEM.isEmpty() )
-			distItem = meta.distr.getBinaryItem( action , DISTITEM );
+		if( !DISTITEM.isEmpty() ) {
+			MetaDistr distr = meta.getDistr( action );
+			distItem = distr.getBinaryItem( action , DISTITEM );
+		}
 		
 		CUSTOMBUILD = ConfReader.getBooleanAttrValue( node , "custombuild" , false );
 		CUSTOMGET = ConfReader.getBooleanAttrValue( node , "customget" , false );

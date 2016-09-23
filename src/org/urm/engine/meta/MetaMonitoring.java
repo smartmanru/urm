@@ -51,18 +51,21 @@ public class MetaMonitoring extends PropertyController {
 	
 	public MetaMonitoring copy( ActionBase action , Meta meta ) throws Exception {
 		MetaMonitoring r = new MetaMonitoring( meta );
-		super.initCopyStarted( this , meta.product.getProperties() );
+		MetaProductSettings product = meta.getProduct( action );
+		super.initCopyStarted( this , product.getProperties() );
 		return( r );
 	}
 	
 	public void create( ActionBase action ) throws Exception {
-		if( !super.initCreateStarted( meta.product.getProperties() ) )
+		MetaProductSettings product = meta.getProduct( action );
+		if( !super.initCreateStarted( product.getProperties() ) )
 			return;
 		super.initFinished();
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
-		if( !super.initCreateStarted( meta.product.getProperties() ) )
+		MetaProductSettings product = meta.getProduct( action );
+		if( !super.initCreateStarted( product.getProperties() ) )
 			return;
 
 		properties.loadFromNodeElements( root );

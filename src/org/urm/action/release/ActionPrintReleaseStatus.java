@@ -12,6 +12,7 @@ import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaDistrBinaryItem;
 import org.urm.engine.meta.MetaDistrDelivery;
 import org.urm.engine.meta.Meta.VarCATEGORY;
+import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.storage.FileSet;
 
 public class ActionPrintReleaseStatus extends ActionBase {
@@ -29,8 +30,9 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		FileSet files = dist.getFiles( this );
 		String hashStatus = dist.checkHash( this )? "OK" : "not matched";
 		
+		MetaProductSettings product = dist.meta.getProduct( this );
 		info( "RELEASE " + dist.RELEASEDIR + " STATUS:" );
-		info( "\tlocation: " + dist.meta.product.CONFIG_DISTR_HOSTLOGIN + ":" + dist.getDistPath( this ) );
+		info( "\tlocation: " + product.CONFIG_DISTR_HOSTLOGIN + ":" + dist.getDistPath( this ) );
 		info( "\tversion: " + release.RELEASEVER );
 		info( "\tstate: " + dist.getState( this ) );
 		info( "\tsignature: " + hashStatus );

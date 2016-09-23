@@ -8,9 +8,11 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.meta.Meta;
+import org.urm.engine.meta.MetaDistr;
 import org.urm.engine.meta.MetaDistrBinaryItem;
 import org.urm.engine.meta.MetaDistrConfItem;
 import org.urm.engine.meta.MetaDistrDelivery;
+import org.urm.engine.meta.MetaSource;
 import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.meta.MetaSourceProjectSet;
 import org.urm.engine.meta.Meta.VarCATEGORY;
@@ -113,7 +115,8 @@ public class ReleaseSet {
 	
 	private void loadBinary( ActionBase action , Node node ) throws Exception {
 		String SET = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
-		set = meta.sources.getProjectSet( action , SET );
+		MetaSource sources = meta.getSources( action ); 
+		set = sources.getProjectSet( action , SET );
 		NAME = set.NAME;
 		
 		BUILDBRANCH = ConfReader.getAttrValue( node , "buildbranch" );
@@ -268,17 +271,20 @@ public class ReleaseSet {
 	}
 
 	public void addAllConfItems( ActionBase action ) throws Exception {
-		for( MetaDistrConfItem comp : meta.distr.getConfItems( action ).values() )
+		MetaDistr distr = meta.getDistr( action ); 
+		for( MetaDistrConfItem comp : distr.getConfItems( action ).values() )
 			addConfItem( action , comp , true );
 	}
 
 	public void addAllDatabaseItems( ActionBase action ) throws Exception {
-		for( MetaDistrDelivery delivery : meta.distr.getDatabaseDeliveries( action ) )
+		MetaDistr distr = meta.getDistr( action ); 
+		for( MetaDistrDelivery delivery : distr.getDatabaseDeliveries( action ) )
 			addDatabaseItem( action , delivery );
 	}
 
 	public void addAllManualItems( ActionBase action ) throws Exception {
-		for( MetaDistrBinaryItem item : meta.distr.getBinaryItems( action ).values() ) {
+		MetaDistr distr = meta.getDistr( action ); 
+		for( MetaDistrBinaryItem item : distr.getBinaryItems( action ).values() ) {
 			if( item.DISTSOURCE == VarDISTITEMSOURCE.MANUAL )
 				addManualItem( action , item );
 		}

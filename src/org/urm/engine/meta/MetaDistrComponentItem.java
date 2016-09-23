@@ -22,14 +22,14 @@ public class MetaDistrComponentItem {
 
 	public void loadBinary( ActionBase action , Node node ) throws Exception {
 		String NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
-		binaryItem = meta.distr.getBinaryItem( action , NAME );
+		binaryItem = comp.dist.getBinaryItem( action , NAME );
 		OBSOLETE = ConfReader.getBooleanAttrValue( node , "obsolete" , false );
 		DEPLOYNAME = ConfReader.getAttrValue( node , "deployname" );
 	}
 
 	public void loadConf( ActionBase action , Node node ) throws Exception {
 		String NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
-		confItem = meta.distr.getConfItem( action , NAME );
+		confItem = comp.dist.getConfItem( action , NAME );
 		OBSOLETE = ConfReader.getBooleanAttrValue( node , "obsolete" , false );
 	}
 

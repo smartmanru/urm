@@ -6,6 +6,7 @@ import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.meta.MetaEnvServerNode;
 import org.urm.engine.meta.Meta.VarCONTENTTYPE;
+import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.shell.Account;
 
 public class ServerStorage {
@@ -79,7 +80,8 @@ public class ServerStorage {
 	}
 	
 	public RemoteFolder getRedistHostRootFolder( ActionBase action ) throws Exception {
-		String path = ( action.context.env == null )? meta.product.CONFIG_REDISTPATH : action.context.env.REDISTPATH;
+		MetaProductSettings product = meta.getProduct( action );
+		String path = ( action.context.env == null )? product.CONFIG_REDISTPATH : action.context.env.REDISTPATH;
 		Account rootAccount = account.getRootAccount( action );
 		RemoteFolder rf = new RemoteFolder( rootAccount , path );
 		return( rf );

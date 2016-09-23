@@ -2,6 +2,7 @@ package org.urm.action.build;
 
 import org.urm.action.ActionBase;
 import org.urm.engine.meta.MetaProductBuildSettings;
+import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
@@ -47,8 +48,9 @@ public class BuilderLinuxGradle extends Builder {
 		String BUILD_GRADLE_VERSION = project.getBuilderVersion( action ); 
 
 		ShellExecutor session = action.shell;
-		session.export( action , "JAVA_HOME" , project.meta.product.CONFIG_BUILDBASE_PATH + "/" + BUILD_JAVA_VERSION );
-		session.export( action , "GR_HOME" , project.meta.product.CONFIG_BUILDBASE_PATH + "/" + BUILD_GRADLE_VERSION );
+		MetaProductSettings product = project.meta.getProduct( action );
+		session.export( action , "JAVA_HOME" , product.CONFIG_BUILDBASE_PATH + "/" + BUILD_JAVA_VERSION );
+		session.export( action , "GR_HOME" , product.CONFIG_BUILDBASE_PATH + "/" + BUILD_GRADLE_VERSION );
 		session.export( action , "GR" , "$GR_HOME/bin" );
 		session.export( action , "PATH" , "$GR:$JAVA_HOME/bin:$PATH" );
 

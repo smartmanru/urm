@@ -9,9 +9,11 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.meta.Meta;
+import org.urm.engine.meta.MetaDistr;
 import org.urm.engine.meta.MetaDistrBinaryItem;
 import org.urm.engine.meta.MetaDistrConfItem;
 import org.urm.engine.meta.MetaDistrDelivery;
+import org.urm.engine.meta.MetaSource;
 import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.meta.MetaSourceProjectItem;
 import org.urm.engine.meta.Meta.VarCATEGORY;
@@ -150,7 +152,8 @@ public class ReleaseTarget {
 		BUILDVERSION = ConfReader.getAttrValue( node , "buildversion" , BUILDVERSION );
 		
 		// find in sources
-		sourceProject = meta.sources.getProject( action , name ); 
+		MetaSource sources = meta.getSources( action ); 
+		sourceProject = sources.getProject( action , name ); 
 		NAME = sourceProject.PROJECT;
 		
 		Node[] items = ConfReader.xmlGetChildren( node , "distitem" );
@@ -169,7 +172,8 @@ public class ReleaseTarget {
 
 	private void loadConfiguration( ActionBase action , Node node ) throws Exception {
 		String name = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
-		distConfItem = meta.distr.getConfItem( action , name );
+		MetaDistr distr = meta.getDistr( action ); 
+		distConfItem = distr.getConfItem( action , name );
 		this.NAME = name;
 		
 		ALL = ( ConfReader.getBooleanAttrValue( node , "partial" , true ) )? false : true;
@@ -177,7 +181,8 @@ public class ReleaseTarget {
 	
 	private void loadDatabase( ActionBase action , Node node ) throws Exception {
 		String name = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
-		distDatabaseItem = meta.distr.getDelivery( action , name );
+		MetaDistr distr = meta.getDistr( action ); 
+		distDatabaseItem = distr.getDelivery( action , name );
 		this.NAME = name;
 		
 		ALL = true;
@@ -185,7 +190,8 @@ public class ReleaseTarget {
 
 	private void loadManual( ActionBase action , Node node ) throws Exception {
 		String name = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
-		distManualItem = meta.distr.getBinaryItem( action , name );
+		MetaDistr distr = meta.getDistr( action ); 
+		distManualItem = distr.getBinaryItem( action , name );
 		this.NAME = name;
 		
 		ALL = true;

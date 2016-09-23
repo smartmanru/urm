@@ -7,6 +7,7 @@ import org.urm.engine.ServerContext;
 import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.meta.MetaProductBuildSettings;
+import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.Artefactory;
@@ -45,8 +46,10 @@ public class DistRepository {
 					account = Account.getAccount( action , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
 			}
 			else {
-				if( !action.isLocalRun() )
-					account = Account.getAccount( action , meta.product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
+				if( !action.isLocalRun() ) {
+					MetaProductSettings product = meta.getProduct( action );
+					account = Account.getAccount( action , product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
+				}
 			}
 		}
 		else {

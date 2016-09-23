@@ -102,9 +102,9 @@ public class ActionConfigure extends ActionBase {
 	}
 
 	private void configureProduct( boolean serverMode , boolean standalone ) throws Exception {
-		meta.loadVersion( this );
-		meta.loadProduct( this );
-		meta.loadDistr( this );
+		meta.getVersion( this );
+		meta.getProduct( this );
+		meta.getDistr( this );
 		
 		UrmStorage urm = artefactory.getUrmStorage();
 		LocalFolder pf = urm.getProductFolder( this );
@@ -277,7 +277,7 @@ public class ActionConfigure extends ActionBase {
 				addAffected( proxyPath , true );
 				String[] envFiles = ms.getEnvFiles( this );
 				for( String envFile : envFiles ) {
-					MetaEnv env = meta.loadEnvData( this , envFile , false );
+					MetaEnv env = meta.getEnvData( this , envFile , false );
 					envs.put( envFile , env );
 				}
 			}
@@ -285,7 +285,7 @@ public class ActionConfigure extends ActionBase {
 				MetaEnv env = null;
 				String[] envFiles = ms.getEnvFiles( this );
 				for( String envFile : envFiles ) {
-					MetaEnv envx = meta.loadEnvData( this , envFile , false );
+					MetaEnv envx = meta.getEnvData( this , envFile , false );
 					if( envx.ID.equals( USEENV ) ) {
 						env = envx;
 						envs.put( envFile , envx );

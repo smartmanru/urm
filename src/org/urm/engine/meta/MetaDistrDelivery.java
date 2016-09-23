@@ -124,7 +124,7 @@ public class MetaDistrDelivery {
 		if( items == null )
 			return;
 		
-		MetaDatabase database = meta.database;
+		MetaDatabase database = meta.getDatabase( action );
 		for( Node item : items ) {
 			String datagroupName = ConfReader.getAttrValue( item , "name" );
 			MetaDatabaseDatagroup datagroup = database.getDatagroup( action , datagroupName );

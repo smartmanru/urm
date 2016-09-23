@@ -12,6 +12,7 @@ import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.meta.Meta;
+import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.meta.Meta.VarCATEGORY;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.LogStorage;
@@ -111,7 +112,8 @@ public class BuildCommand {
 	}
 	
 	public void printActiveProperties( ActionBase action , Meta meta ) throws Exception {
-		Map<String,String> exports = meta.product.getExportProperties( action );
+		MetaProductSettings product = meta.getProduct( action );
+		Map<String,String> exports = product.getExportProperties( action );
 		if( !exports.isEmpty() ) {
 			action.info( "----------------");
 			action.info( "product exports:");
@@ -123,7 +125,7 @@ public class BuildCommand {
 		action.info( "-------------------");
 		action.info( "product properties:");
 		action.info( "-------------------");
-		action.printValues( meta.product.getProperties() );
+		action.printValues( product.getProperties() );
 	}
 
 	public void checkout( ActionBase action , ActionScope scope , LocalFolder CODIR ) throws Exception {

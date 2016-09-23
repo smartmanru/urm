@@ -13,6 +13,7 @@ import org.urm.engine.dist.ReleaseSet;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.meta.Meta;
+import org.urm.engine.meta.MetaDistr;
 import org.urm.engine.meta.MetaDistrBinaryItem;
 import org.urm.engine.meta.MetaDistrConfItem;
 import org.urm.engine.meta.MetaDistrDelivery;
@@ -21,6 +22,7 @@ import org.urm.engine.meta.MetaEnvDC;
 import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.meta.MetaEnvServerNode;
 import org.urm.engine.meta.MetaEnvStartGroup;
+import org.urm.engine.meta.MetaSource;
 import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.meta.MetaSourceProjectSet;
 import org.urm.engine.meta.Meta.VarCATEGORY;
@@ -180,8 +182,9 @@ public class ActionScopeSet {
 			return;
 		}
 		
+		MetaSource sources = meta.getSources( action );
 		for( String name : PROJECTS ) {
-			MetaSourceProject sourceProject = meta.sources.getProject( action , name );
+			MetaSourceProject sourceProject = sources.getProject( action , name );
 			addSourceProject( action , sourceProject , true , true );
 		}
 	}
@@ -208,15 +211,16 @@ public class ActionScopeSet {
 	}
 	
 	private void addProductConfigComps( ActionBase action , String[] COMPS ) throws Exception {
+		MetaDistr distr = meta.getDistr( action );
 		if( COMPS == null || COMPS.length == 0 ) {
 			setFull = true; 
-			for( MetaDistrConfItem item : meta.distr.getConfItems( action ).values() )
+			for( MetaDistrConfItem item : distr.getConfItems( action ).values() )
 				addProductConfig( action , item , false );
 			return;
 		}
 		
 		for( String key : COMPS ) {
-			MetaDistrConfItem comp = meta.distr.getConfItem( action , key );
+			MetaDistrConfItem comp = distr.getConfItem( action , key );
 			addProductConfig( action , comp , true );
 		}
 	}
@@ -248,15 +252,16 @@ public class ActionScopeSet {
 	}
 	
 	private void addProductManualItems( ActionBase action , String[] ITEMS ) throws Exception {
+		MetaDistr distr = meta.getDistr( action );
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			setFull = true; 
-			for( MetaDistrBinaryItem item : meta.distr.getBinaryItems( action ).values() )
+			for( MetaDistrBinaryItem item : distr.getBinaryItems( action ).values() )
 				addProductManualItem( action , item , false );
 			return;
 		}
 		
 		for( String item : ITEMS ) {
-			MetaDistrBinaryItem distitem = meta.distr.getBinaryItem( action , item );
+			MetaDistrBinaryItem distitem = distr.getBinaryItem( action , item );
 			if( distitem.DISTSOURCE != VarDISTITEMSOURCE.MANUAL )
 				action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-manual item=" + item , item );
 			
@@ -296,15 +301,16 @@ public class ActionScopeSet {
 	}
 	
 	private void addProductDatabaseItems( ActionBase action , String[] DELIVERIES ) throws Exception {
+		MetaDistr distr = meta.getDistr( action );
 		if( DELIVERIES == null || DELIVERIES.length == 0 ) {
 			setFull = true; 
-			for( MetaDistrDelivery item : meta.distr.getDeliveries( action ).values() )
+			for( MetaDistrDelivery item : distr.getDeliveries( action ).values() )
 				addProductDatabase( action , item , false );
 			return;
 		}
 		
 		for( String key : DELIVERIES ) {
-			MetaDistrDelivery item = meta.distr.getDelivery( action , key );
+			MetaDistrDelivery item = distr.getDelivery( action , key );
 			addProductDatabase( action , item , true );
 		}
 	}

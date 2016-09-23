@@ -8,6 +8,7 @@ import org.urm.common.Common;
 import org.urm.engine.ServerAuthResource;
 import org.urm.engine.ServerMirrorRepository;
 import org.urm.engine.meta.Meta;
+import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.Folder;
@@ -108,7 +109,8 @@ public class SubversionVCS extends GenericVCS {
 			return( false );
 		}
 
-		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + branch1Path + " " + branch2Path + " -m " + Common.getQuoted( meta.product.CONFIG_ADM_TRACKER + "-0000: copy branch" ) );
+		MetaProductSettings product = meta.getProduct( action );
+		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + branch1Path + " " + branch2Path + " -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: copy branch" ) );
 		return( true );
 	}
 
@@ -136,7 +138,8 @@ public class SubversionVCS extends GenericVCS {
 			return( false );
 		}
 
-		shell.customCheckStatus( action , "svn rename " + SVNAUTH + " " + branch1Path + " " + branch2Path + " -m " + Common.getQuoted( meta.product.CONFIG_ADM_TRACKER + "-0000: rename branch" ) );
+		MetaProductSettings product = meta.getProduct( action );
+		shell.customCheckStatus( action , "svn rename " + SVNAUTH + " " + branch1Path + " " + branch2Path + " -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: rename branch" ) );
 		return( true );
 	}
 
@@ -156,7 +159,8 @@ public class SubversionVCS extends GenericVCS {
 			return( false );
 		}
 
-		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + tag1Path + " " + tag2Path + " -m " + Common.getQuoted( meta.product.CONFIG_ADM_TRACKER + "-0000: copy tag" ) );
+		MetaProductSettings product = meta.getProduct( action );
+		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + tag1Path + " " + tag2Path + " -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: copy tag" ) );
 		return( true );
 	}
 
@@ -170,13 +174,14 @@ public class SubversionVCS extends GenericVCS {
 		}
 
 		// check destination status
+		MetaProductSettings product = meta.getProduct( action );
 		String tag2Path = Common.getPath( projectPath , "tags" , TAG2 );
 		if( checkSvnPathExists( tag2Path ) ) {
 			action.info( "drop already existing new tag ..." );
-			shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tag2Path + " -m " + Common.getQuoted( meta.product.CONFIG_ADM_TRACKER + "-0000: drop tag before svn copy" ) );
+			shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tag2Path + " -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: drop tag before svn copy" ) );
 		}
 
-		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + tag1Path + " " + tag2Path + " -m " + Common.getQuoted( meta.product.CONFIG_ADM_TRACKER + "-0000: copy tag" ) );
+		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + tag1Path + " " + tag2Path + " -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: copy tag" ) );
 		return( true );
 	}
 	
@@ -191,12 +196,13 @@ public class SubversionVCS extends GenericVCS {
 
 		// check destination status
 		String tag2Path = Common.getPath( projectPath , "tags" , TAG2 );
+		MetaProductSettings product = meta.getProduct( action );
 		if( checkSvnPathExists( tag2Path ) ) {
 			action.info( "drop already existing new tag ..." );
-			shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tag2Path + " -m " + Common.getQuoted( meta.product.CONFIG_ADM_TRACKER + "-0000: drop tag before svn rename" ) );
+			shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tag2Path + " -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: drop tag before svn rename" ) );
 		}
 
-		shell.customCheckStatus( action , "svn rename " + SVNAUTH + " " + tag1Path + " " + tag2Path + " -m " + Common.getQuoted( meta.product.CONFIG_ADM_TRACKER + "-0000: rename tag" ) );
+		shell.customCheckStatus( action , "svn rename " + SVNAUTH + " " + tag1Path + " " + tag2Path + " -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: rename tag" ) );
 		return( true );
 	}
 	
@@ -219,7 +225,8 @@ public class SubversionVCS extends GenericVCS {
 			return( false );
 		}
 
-		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + tag1Path + " " + branch2Path + " -m " + Common.getQuoted( meta.product.CONFIG_ADM_TRACKER + "-0000: copy tag to branch" ) );
+		MetaProductSettings product = meta.getProduct( action );
+		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + tag1Path + " " + branch2Path + " -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: copy tag to branch" ) );
 		return( true );
 	}
 	
@@ -232,7 +239,8 @@ public class SubversionVCS extends GenericVCS {
 			return( false );
 		}
 		
-		shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tagPath + " -m " + Common.getQuoted( meta.product.CONFIG_ADM_TRACKER + "-0000: drop tag" ) );
+		MetaProductSettings product = meta.getProduct( action );
+		shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tagPath + " -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: drop tag" ) );
 		return( true );
 	}
 	
@@ -248,7 +256,8 @@ public class SubversionVCS extends GenericVCS {
 			return( false );
 		}
 		
-		shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + branchPath + " -m " + Common.getQuoted( meta.product.CONFIG_ADM_TRACKER + "-0000: drop branch" ) );
+		MetaProductSettings product = meta.getProduct( action );
+		shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + branchPath + " -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: drop branch" ) );
 		return( true );
 	}
 	
@@ -300,17 +309,18 @@ public class SubversionVCS extends GenericVCS {
 		}
 		
 		String tagPath = Common.getPath( projectPath , "tags" , TAG );
+		MetaProductSettings product = meta.getProduct( action );
 		if( checkSvnPathExists( tagPath ) ) {
 			action.info( "drop already existing tag ..." );
-			shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tagPath + " -m " + Common.getQuoted( meta.product.CONFIG_ADM_TRACKER + "-0000: drop tag before svn rename" ) );
+			shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tagPath + " -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: drop tag before svn rename" ) );
 		}
 		
 		if( !BRANCHDATE.isEmpty() )
 			shell.customCheckStatus( action , "svn copy " + SVNAUTH + " --revision {" + Common.getQuoted( BRANCHDATE ) + "} " + branchPath + " " + tagPath + 
-					" -m " + Common.getQuoted( meta.product.CONFIG_ADM_TRACKER + "-0000: set tag on branch head by date " + BRANCHDATE ) );
+					" -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: set tag on branch head by date " + BRANCHDATE ) );
 		else
 			shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + branchPath + " " + tagPath + 
-					" -m " + Common.getQuoted( meta.product.CONFIG_ADM_TRACKER + "-0000: set tag on branch head" ) );
+					" -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: set tag on branch head" ) );
 		
 		return( true );
 	}

@@ -8,6 +8,7 @@ import org.urm.common.Common;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.meta.Meta;
+import org.urm.engine.meta.MetaDistr;
 import org.urm.engine.meta.MetaDistrBinaryItem;
 import org.urm.engine.meta.MetaDistrConfItem;
 import org.urm.engine.meta.MetaDistrDelivery;
@@ -158,8 +159,9 @@ public class ActionScopeTarget {
 			return;
 		}
 		
+		MetaDistr distr = meta.getDistr( action );
 		for( String itemName : ITEMS ) {
-			MetaDistrBinaryItem item = meta.distr.getBinaryItem( action , itemName );
+			MetaDistrBinaryItem item = distr.getBinaryItem( action , itemName );
 			if( item.sourceItem == null )
 				action.exit1( _Error.UnknownDistributiveItem1 , "unknown distributive item=" + itemName , itemName );
 			
@@ -177,8 +179,9 @@ public class ActionScopeTarget {
 		}
 		
 		Map<String,ReleaseTargetItem> releaseItems = releaseTarget.getItems( action );
+		MetaDistr distr = meta.getDistr( action );
 		for( String itemName : ITEMS ) {
-			MetaDistrBinaryItem item = meta.distr.getBinaryItem( action , itemName );
+			MetaDistrBinaryItem item = distr.getBinaryItem( action , itemName );
 			if( item.sourceItem == null )
 				action.exit1( _Error.UnknownDistributiveItem1 , "unknown distributive item=" + itemName , itemName );
 			

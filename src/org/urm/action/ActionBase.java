@@ -20,6 +20,7 @@ import org.urm.engine.action.CommandOutput;
 import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaEnvServerNode;
 import org.urm.engine.meta.MetaProductBuildSettings;
+import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.meta.Meta.VarBUILDMODE;
 import org.urm.engine.meta.Meta.VarCATEGORY;
@@ -541,7 +542,8 @@ abstract public class ActionBase extends ActionCore {
 	}
 
 	public MetaProductBuildSettings getBuildSettings( Meta meta ) throws Exception {
-		return( meta.product.getBuildSettings( this ) );
+		MetaProductSettings product = meta.getProduct( this );
+		return( product.getBuildSettings( this ) );
 	}
 
 	public ServerMirrorRepository getProjectMirror( MetaSourceProject project ) throws Exception {

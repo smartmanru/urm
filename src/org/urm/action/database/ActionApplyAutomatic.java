@@ -10,6 +10,7 @@ import org.urm.common.Common;
 import org.urm.common.action.CommandOptions.SQLTYPE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
+import org.urm.engine.meta.MetaDatabase;
 import org.urm.engine.meta.MetaDatabaseSchema;
 import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.meta.MetaProductBuildSettings;
@@ -180,7 +181,8 @@ public class ActionApplyAutomatic extends ActionBase {
 		DatabaseScriptFile dsf = new DatabaseScriptFile();
 		dsf.setDistFile( this , file );
 		
-		MetaDatabaseSchema schema = server.meta.database.getSchema( this , dsf.SRCSCHEMA );
+		MetaDatabase database = server.meta.getDatabase( this );
+		MetaDatabaseSchema schema = database.getSchema( this , dsf.SRCSCHEMA );
 		if( !schemaSet.containsKey( schema.SCHEMA ) ) {
 			trace( "script " + file + " is filtered by schema" );
 			return( false );
@@ -237,7 +239,8 @@ public class ActionApplyAutomatic extends ActionBase {
 		DatabaseScriptFile dsf = new DatabaseScriptFile();
 		dsf.setDistFile( this , file );
 		String schemaName = dsf.SRCSCHEMA;
-		MetaDatabaseSchema schema = server.meta.database.getSchema( this , schemaName );
+		MetaDatabase database = server.meta.getDatabase( this );
+		MetaDatabaseSchema schema = database.getSchema( this , schemaName );
 		if( !client.applyScript( this , schema , logReleaseExecute , file , logReleaseExecute , log ) ) {
 			ifexit( _Error.ErrorApplyingScript1 , "error applying script " + file + ", see logs" , new String[] { file } );
 			return( false );

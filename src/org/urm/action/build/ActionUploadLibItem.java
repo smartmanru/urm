@@ -6,6 +6,7 @@ import org.urm.common.Common;
 import org.urm.engine.ServerAuthResource;
 import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaProductBuildSettings;
+import org.urm.engine.meta.MetaProductSettings;
 
 public class ActionUploadLibItem extends ActionBase {
 
@@ -33,9 +34,10 @@ public class ActionUploadLibItem extends ActionBase {
 		String BUILD_JAVA_VERSION = build.CONFIG_MAVEN_JAVA_VERSION;
 		String BUILD_MAVEN_VERSION = build.CONFIG_MAVEN_VERSION;
 
-		shell.export( this , "JAVA_HOME" , meta.product.CONFIG_BUILDBASE_PATH + "/" + BUILD_JAVA_VERSION );
+		MetaProductSettings product = meta.getProduct( this );
+		shell.export( this , "JAVA_HOME" , product.CONFIG_BUILDBASE_PATH + "/" + BUILD_JAVA_VERSION );
 		shell.export( this , "PATH" , "$JAVA_HOME/bin:$PATH" );
-		shell.export( this , "M2_HOME" , meta.product.CONFIG_BUILDBASE_PATH + "/" + BUILD_MAVEN_VERSION );
+		shell.export( this , "M2_HOME" , product.CONFIG_BUILDBASE_PATH + "/" + BUILD_MAVEN_VERSION );
 		shell.export( this , "M2" , "$M2_HOME/bin" );
 		shell.export( this , "PATH" , "$M2:$PATH" );
 		shell.export( this , "MAVEN_OPTS" , Common.getQuoted( "-XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );

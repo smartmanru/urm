@@ -2,6 +2,7 @@ package org.urm.action.build;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
+import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.vcs.ProjectVersionControl;
@@ -59,7 +60,8 @@ public class ActionSetVersion extends ActionBase {
 		// set version
 		createDedicatedShell( "build"  );
 		updateVersion( scopeProject , PATCHPATH.buildFolder );
-		vcs.commit( PATCHPATH.buildFolder , scopeProject.sourceProject , scopeProject.meta.product.CONFIG_ADM_TRACKER + "-0000: set version " + BUILDVERSION );
+		MetaProductSettings product = scopeProject.meta.getProduct( this );
+		vcs.commit( PATCHPATH.buildFolder , scopeProject.sourceProject , product.CONFIG_ADM_TRACKER + "-0000: set version " + BUILDVERSION );
 		return( true );
 	}
 }

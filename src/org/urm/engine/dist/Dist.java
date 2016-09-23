@@ -6,6 +6,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.meta.Meta;
+import org.urm.engine.meta.MetaDistr;
 import org.urm.engine.meta.MetaDistrBinaryItem;
 import org.urm.engine.meta.MetaDistrConfItem;
 import org.urm.engine.meta.MetaDistrDelivery;
@@ -681,10 +682,11 @@ public class Dist {
 	
 	public MetaDistrConfItem[] getLocationConfItems( ActionBase action , MetaEnvServerLocation[] locations ) throws Exception {
 		Map<String,MetaDistrConfItem> confs = new HashMap<String,MetaDistrConfItem>(); 
+		MetaDistr distr = meta.getDistr( action ); 
 		for( MetaEnvServerLocation location : locations ) {
 			String[] items = location.getConfItems( action );
 			for( String item : items ) {
-				MetaDistrConfItem conf = meta.distr.getConfItem( action , item );
+				MetaDistrConfItem conf = distr.getConfItem( action , item );
 				if( release.findConfComponent( action , conf.KEY ) == null )
 					continue;
 				

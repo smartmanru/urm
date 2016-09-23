@@ -12,6 +12,7 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.meta.Meta;
+import org.urm.engine.meta.MetaDistr;
 import org.urm.engine.meta.MetaDistrDelivery;
 import org.urm.engine.meta.MetaEnv;
 import org.urm.engine.meta.MetaEnvDC;
@@ -128,7 +129,8 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		if( DELIVERY.equals( "all" ) )
 			checkNoArgs( action , 3 );
 		else {
-			delivery = meta.distr.getDelivery( action , DELIVERY );
+			MetaDistr distr = meta.getDistr( action );
+			delivery = distr.getDelivery( action , DELIVERY );
 			indexScope = getRequiredArg( action , 3 , "mask" );
 			checkNoArgs( action , 4 );
 		}

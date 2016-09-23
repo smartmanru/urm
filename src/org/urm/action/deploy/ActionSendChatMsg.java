@@ -3,6 +3,7 @@ package org.urm.action.deploy;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.meta.MetaEnvDC;
+import org.urm.engine.meta.MetaProductSettings;
 
 public class ActionSendChatMsg extends ActionBase {
 
@@ -31,7 +32,8 @@ public class ActionSendChatMsg extends ActionBase {
 		if( dc != null )
 			msg += " (dc=" + dc.NAME + ")"; 
 		
-		String filePath = Common.getPath( context.env.meta.product.CONFIG_PRODUCTHOME , context.env.CHATROOMFILE ); 
+		MetaProductSettings product = context.env.meta.getProduct( this );
+		String filePath = Common.getPath( product.CONFIG_PRODUCTHOME , context.env.CHATROOMFILE ); 
 		shell.appendFileWithString( this , filePath , msg );
 		trace( "ActionSendChatMsg: msg sent to " + filePath );
 		return( true );

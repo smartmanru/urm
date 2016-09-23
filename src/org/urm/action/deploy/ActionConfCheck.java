@@ -60,7 +60,7 @@ public class ActionConfCheck extends ActionBase {
 			if( context.env.hasBaseline( this ) ) {
 				String S_CONFCHECK_BASELINE_ENV = context.env.getBaselineFile( this );
 				info( "============================================ check env properties baseline=" + S_CONFCHECK_BASELINE_ENV + " ..." );
-				baselineEnv = scope.meta.loadEnvData( this , S_CONFCHECK_BASELINE_ENV , true );
+				baselineEnv = scope.meta.getEnvData( this , S_CONFCHECK_BASELINE_ENV , true );
 				checkConfEnv( context.env , baselineEnv , S_CONFCHECK_PROPLIST_ENV );
 			}
 			else

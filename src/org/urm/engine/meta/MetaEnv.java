@@ -90,7 +90,8 @@ public class MetaEnv extends PropertyController {
 
 	public MetaEnv copy( ActionBase action , Meta meta ) throws Exception {
 		MetaEnv r = new MetaEnv( meta );
-		r.initCopyStarted( this , meta.product.getProperties() );
+		MetaProductSettings product = meta.getProduct( action );
+		r.initCopyStarted( this , product.getProperties() );
 		
 		for( MetaEnvDC dc : originalList ) {
 			MetaEnvDC rdc = dc.copy( action , meta , this );
@@ -117,7 +118,8 @@ public class MetaEnv extends PropertyController {
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
-		secretProperties = new PropertySet( "secret" , meta.product.getProperties() );
+		MetaProductSettings product = meta.getProduct( action );
+		secretProperties = new PropertySet( "secret" , product.getProperties() );
 		if( !super.initCreateStarted( secretProperties ) )
 			return;
 
@@ -174,16 +176,17 @@ public class MetaEnv extends PropertyController {
 		ID = properties.getSystemRequiredStringProperty( PROPERTY_ID );
 		action.trace( "load properties of env=" + ID );
 		
+		MetaProductSettings product = meta.getProduct( action );
 		BASELINE = properties.getSystemStringProperty( PROPERTY_BASELINE , "" );
-		REDISTPATH = properties.getSystemPathProperty( PROPERTY_REDISTPATH , meta.product.CONFIG_REDISTPATH , action.session.execrc );
+		REDISTPATH = properties.getSystemPathProperty( PROPERTY_REDISTPATH , product.CONFIG_REDISTPATH , action.session.execrc );
 		DISTR_USELOCAL = properties.getSystemBooleanProperty( PROPERTY_DISTR_USELOCAL , true );
 		if( DISTR_USELOCAL )
 			DISTR_HOSTLOGIN = action.context.account.getFullName();
 		else
-			DISTR_HOSTLOGIN = properties.getSystemStringProperty( PROPERTY_DISTR_HOSTLOGIN , meta.product.CONFIG_DISTR_HOSTLOGIN );
+			DISTR_HOSTLOGIN = properties.getSystemStringProperty( PROPERTY_DISTR_HOSTLOGIN , product.CONFIG_DISTR_HOSTLOGIN );
 		
-		DISTR_PATH = properties.getSystemPathProperty( PROPERTY_DISTR_PATH , meta.product.CONFIG_DISTR_PATH , action.session.execrc );
-		UPGRADE_PATH = properties.getSystemPathProperty( PROPERTY_UPGRADE_PATH , meta.product.CONFIG_UPGRADE_PATH , action.session.execrc );
+		DISTR_PATH = properties.getSystemPathProperty( PROPERTY_DISTR_PATH , product.CONFIG_DISTR_PATH , action.session.execrc );
+		UPGRADE_PATH = properties.getSystemPathProperty( PROPERTY_UPGRADE_PATH , product.CONFIG_UPGRADE_PATH , action.session.execrc );
 		CHATROOMFILE = properties.getSystemPathProperty( PROPERTY_CHATROOMFILE , "" , action.session.execrc );
 		KEYFILE = properties.getSystemPathProperty( PROPERTY_KEYFILE , "" , action.session.execrc );
 		DB_AUTHFILE = properties.getSystemPathProperty( PROPERTY_DB_AUTHFILE , "" , action.session.execrc );
@@ -230,7 +233,8 @@ public class MetaEnv extends PropertyController {
 	}
 	
 	private void createProperties( ActionBase action ) throws Exception {
-		secretProperties = new PropertySet( "secret" , meta.product.getProperties() );
+		MetaProductSettings product = meta.getProduct( action );
+		secretProperties = new PropertySet( "secret" , product.getProperties() );
 		if( !super.initCreateStarted( secretProperties ) )
 			return;
 

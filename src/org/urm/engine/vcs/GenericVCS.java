@@ -6,6 +6,7 @@ import org.urm.engine.ServerMirrorRepository;
 import org.urm.engine.ServerProjectBuilder;
 import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaProductBuildSettings;
+import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
@@ -77,7 +78,8 @@ public abstract class GenericVCS {
 		
 		ShellExecutor shell = action.shell;
 		if( build ) {
-			MetaProductBuildSettings settings = meta.product.getBuildSettings( action );
+			MetaProductSettings product = meta.getProduct( action );
+			MetaProductBuildSettings settings = product.getBuildSettings( action );
 			if( !settings.CONFIG_BUILDER_REMOTE.isEmpty() ) {
 				ServerProjectBuilder builder = action.getBuilder( settings.CONFIG_BUILDER_REMOTE );
 				Account account = builder.getAccount( action );

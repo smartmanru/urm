@@ -182,7 +182,7 @@ public class ServerMirrorRepository extends ServerObject {
 	public void createProjectSource( ServerTransaction transaction , MetaSourceProject project , String name ) throws Exception {
 		NAME = name;
 		TYPE = TYPE_PRODUCT_CONF;
-		PRODUCT = project.meta.storage.name;
+		PRODUCT = project.meta.name;
 		PROJECT = project.PROJECT;
 		RESOURCE = "";
 		RESOURCE_REPO = "";

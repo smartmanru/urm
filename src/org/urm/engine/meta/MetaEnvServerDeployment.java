@@ -26,7 +26,7 @@ public class MetaEnvServerDeployment {
 	}
 
 	public void load( ActionBase action , Node node ) throws Exception {
-		MetaDistr distr = meta.distr;
+		MetaDistr distr = meta.getDistr( action );
 		
 		DEPLOYTYPE = Meta.getDeployType( ConfReader.getAttrValue( node , "deploytype" , "cold" ) );
 		DEPLOYPATH = ConfReader.getAttrValue( node , "deploypath" );

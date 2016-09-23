@@ -58,7 +58,7 @@ public class ServerMirrors extends ServerObject {
 	}
 
 	public ServerMirrorRepository findProjectRepository( MetaSourceProject project ) {
-		String name = "project-" + project.meta.storage.name + "-" + project.PROJECT;
+		String name = "project-" + project.meta.name + "-" + project.PROJECT;
 		return( findRepository( name ) );
 	}
 	
@@ -126,7 +126,7 @@ public class ServerMirrors extends ServerObject {
 
 	public void addProjectMirror( ServerTransaction transaction , MetaSourceProject project ) throws Exception {
 		ServerMirrorRepository repo = new ServerMirrorRepository( this );
-		String name = "project-" + project.meta.storage.name + "-" + project.PROJECT;
+		String name = "project-" + project.meta.name + "-" + project.PROJECT;
 		repo.createProjectSource( transaction , project , name );
  		addRepository( repo );
 	}

@@ -112,8 +112,7 @@ public class MetaEnvServer extends PropertyController {
 	}
 	
 	public void load( ActionBase action , Node node , boolean loadProps ) throws Exception {
-		if( meta.distr != null )
-			loadDeployments( action , node );
+		loadDeployments( action , node );
 		
 		properties = new PropertySet( "server" , dc.getProperties() );
 		properties.loadFromNodeAttributes( node );
@@ -160,8 +159,9 @@ public class MetaEnvServer extends PropertyController {
 		
 		// verify aligned
 		if( isDatabase( action ) ) {
+			MetaDatabase database = meta.getDatabase( action );
 			for( String id : Common.splitSpaced( ALIGNED ) )
-				meta.database.checkAligned( action , id );
+				database.checkAligned( action , id );
 		}
 	}
 	
@@ -240,15 +240,13 @@ public class MetaEnvServer extends PropertyController {
 			REGIONS = properties.getSystemStringProperty( "regions" , "" );
 			ADMSCHEMA = properties.getSystemStringProperty( "admschema" , "" );
 			
-			if( meta.distr != null ) {
-				MetaDatabase database = meta.database;
-				for( String dg : Common.splitSpaced( DATAGROUPS ) ) {
-					MetaDatabaseDatagroup datagroup = database.getDatagroup( action , dg );
-					datagroupMap.put( datagroup.NAME , datagroup );
-				}
-				
-				admSchema = database.getSchema( action , ADMSCHEMA );
+			MetaDatabase database = meta.getDatabase( action );
+			for( String dg : Common.splitSpaced( DATAGROUPS ) ) {
+				MetaDatabaseDatagroup datagroup = database.getDatagroup( action , dg );
+				datagroupMap.put( datagroup.NAME , datagroup );
 			}
+			
+			admSchema = database.getSchema( action , ADMSCHEMA );
 		}
 
 		properties.finishRawProperties();

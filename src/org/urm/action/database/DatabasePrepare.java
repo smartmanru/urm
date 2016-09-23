@@ -51,8 +51,8 @@ public class DatabasePrepare {
 		this.dstFolder = dst;
 		
 		meta = distStorage.meta;
-		distr = meta.distr;
-		database = meta.database;
+		distr = meta.getDistr( action );
+		database = meta.getDatabase( action );
 		errorFolder = "db-" + Common.getNameTimeStamp();
 		
 		S_CHECK_FAILED = false;
@@ -128,7 +128,7 @@ public class DatabasePrepare {
 			else {
 				boolean failed = true;
 				CommandCustom custom = new CommandCustom( meta );
-				if( custom.isCustomDatabase() ) {
+				if( custom.isCustomDatabase( action ) ) {
 					failed = false;
 					
 					String folderName = custom.getGroupName( action , dir );
@@ -159,7 +159,7 @@ public class DatabasePrepare {
 		LocalFolder F_TARGETDIR = dstFolder;
 		copyCore( action , srcFileSet , S_COMMON_ALIGNEDID , F_TARGETDIR );
 		CommandCustom custom = new CommandCustom( meta );
-		if( custom.isCustomDatabase() )
+		if( custom.isCustomDatabase( action ) )
 			custom.copyCustom( action , srcFileSet , S_COMMON_ALIGNEDID , F_TARGETDIR );
 
 		// aligned
@@ -172,7 +172,7 @@ public class DatabasePrepare {
 			action.info( "prepare: =================================== copy aligned dir=" + aligneddir + " id=" + S_COMMON_ALIGNEDID + " ..." );
 			
 			copyCore( action , aligneddir , S_COMMON_ALIGNEDID , F_TARGETDIR );
-			if( custom.isCustomDatabase() )
+			if( custom.isCustomDatabase( action ) )
 				custom.copyCustom( action , aligneddir , S_COMMON_ALIGNEDID , F_TARGETDIR );
 		}
 	}

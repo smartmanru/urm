@@ -7,6 +7,7 @@ import java.util.List;
 import org.urm.common.Common;
 import org.urm.engine.ServerAuthResource;
 import org.urm.engine.ServerMirrorRepository;
+import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
 
@@ -169,10 +170,11 @@ public class GitMirrorStorage extends MirrorStorage {
 			action.exitNotImplemented();
 			
 		LocalFolder commitFolder = super.getCommitFolder();
+		MetaProductSettings product = vcs.meta.getProduct( action );
 		shell.customCheckErrorsDebug( action , commitFolder.folderPath , 
 			"F_LIST=`git diff --name-only`; " +
 			"if [ " + Common.getQuoted( "$F_LIST" ) + " != " + Common.getQuoted( "" ) + " ]; then git add $F_LIST; fi; " +
-			"git commit -m " + Common.getQuoted( vcs.meta.product.CONFIG_ADM_TRACKER + "-0000: set version" ) + "; " +
+			"git commit -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: set version" ) + "; " +
 			"git push origin 2>&1; if [ $? != 0 ]; then echo error on push origin >&2; fi" );
 	}
 

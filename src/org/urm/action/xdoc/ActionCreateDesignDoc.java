@@ -14,6 +14,7 @@ import org.urm.engine.meta.MetaDesignLink;
 import org.urm.engine.meta.MetaEnv;
 import org.urm.engine.meta.MetaEnvDC;
 import org.urm.engine.meta.MetaEnvServer;
+import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.storage.MetadataStorage;
 
 public class ActionCreateDesignDoc extends ActionBase {
@@ -34,7 +35,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		
 		MetadataStorage ms = artefactory.getMetadataStorage( this , meta );
 		for( String designFile : ms.getDesignFiles( this ) ) {
-			MetaDesign design = meta.loadDesignData( this , designFile );
+			MetaDesign design = meta.getDesignData( this , designFile );
 			
 			String designBase = Common.getPath( OUTDIR , Common.getPartBeforeLast( designFile , ".xml" ) );
 			createDesignDocs( design , designBase );
@@ -64,7 +65,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		MetadataStorage ms = artefactory.getMetadataStorage( this , meta );
 		String[] files = ms.getEnvFiles( this );
 		for( String envFile : files ) {
-			MetaEnv env = meta.loadEnvData( this , envFile , false );
+			MetaEnv env = meta.getEnvData( this , envFile , false );
 			if( !env.PROD )
 				continue;
 			
@@ -138,7 +139,8 @@ public class ActionCreateDesignDoc extends ActionBase {
 	}
 
 	private void createDotHeading( List<String> lines ) throws Exception {
-		lines.add( "digraph " + Common.getQuoted( meta.product.CONFIG_PRODUCT ) + " {" );
+		MetaProductSettings product = meta.getProduct( this );
+		lines.add( "digraph " + Common.getQuoted( product.CONFIG_PRODUCT ) + " {" );
 		lines.add( "\tcharset=" + Common.getQuoted( "utf8" ) + ";" );
 		lines.add( "\tsplines=false;" );
 		lines.add( "\tnode [shape=box, style=" + Common.getQuoted( "filled" ) + ", fontsize=10];" );

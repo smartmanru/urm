@@ -11,6 +11,7 @@ import org.urm.engine.action.CommandContext;
 import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaEnvDC;
 import org.urm.engine.meta.MetaEnvServer;
+import org.urm.engine.meta.MetaSource;
 import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.meta.MetaSourceProjectSet;
 import org.urm.engine.meta.Meta.VarCATEGORY;
@@ -604,14 +605,15 @@ public class ScopeExecutor {
 
 	private List<ActionScopeSet> getOrderedSets( ActionScope scope ) throws Exception {
 		List<ActionScopeSet> list = new LinkedList<ActionScopeSet>();
-		if( scope.meta.sources != null ) {
-			for( MetaSourceProjectSet sourceSet : scope.meta.sources.getSetList( action ) ) {
+		if( scope.meta != null ) {
+			MetaSource sources = scope.meta.getSources( action ); 
+			for( MetaSourceProjectSet sourceSet : sources.getSetList( action ) ) {
 				ActionScopeSet set = scope.findSet( action , sourceSet.CATEGORY , sourceSet.NAME );
 				if( set != null )
 					list.add( set );
 			}
 		}
-		
+			
 		for( ActionScopeSet set : scope.getCategorySets( action ) )
 			list.add( set );
 		
