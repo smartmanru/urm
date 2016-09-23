@@ -33,7 +33,7 @@ public class ServerMirrorRepository extends ServerObject {
 	public static String TYPE_SERVER = "server";
 	public static String TYPE_PROJECT = "project";
 	public static String TYPE_PRODUCT_META = "product.meta";
-	public static String TYPE_PRODUCT_CONF = "product.conf";
+	public static String TYPE_PRODUCT_DATA = "product.data";
 
 	public ServerMirrorRepository( ServerMirrors mirrors ) {
 		this.mirrors = mirrors;
@@ -55,7 +55,7 @@ public class ServerMirrorRepository extends ServerObject {
 	}
 	
 	public boolean isProduct() {
-		return( TYPE.equals( TYPE_PRODUCT_CONF ) || TYPE.equals( TYPE_PRODUCT_META )  );
+		return( TYPE.equals( TYPE_PRODUCT_DATA ) || TYPE.equals( TYPE_PRODUCT_META )  );
 	}
 	
 	public ServerMirrorRepository copy( ServerMirrors mirror ) throws Exception {
@@ -160,9 +160,9 @@ public class ServerMirrorRepository extends ServerObject {
 		createProperties();
 	}
 	
-	void createProductConf( ServerTransaction transaction , ServerProduct product , String name ) throws Exception {
+	void createProductData( ServerTransaction transaction , ServerProduct product , String name ) throws Exception {
 		NAME = name;
-		TYPE = TYPE_PRODUCT_CONF;
+		TYPE = TYPE_PRODUCT_DATA;
 		PRODUCT = product.NAME;
 		PROJECT = "";
 		RESOURCE = "";
@@ -175,7 +175,7 @@ public class ServerMirrorRepository extends ServerObject {
 	
 	void createProjectSource( ServerTransaction transaction , MetaSourceProject project , String name ) throws Exception {
 		NAME = name;
-		TYPE = TYPE_PRODUCT_CONF;
+		TYPE = TYPE_PRODUCT_DATA;
 		PRODUCT = project.meta.name;
 		PROJECT = project.PROJECT;
 		RESOURCE = "";

@@ -121,8 +121,8 @@ public class ServerMirrors extends ServerObject {
  		
  		// conf
 		ServerMirrorRepository conf = new ServerMirrorRepository( this );
-		name = "product-" + product.NAME + "-conf";
-		conf.createProductConf( transaction , product , name );
+		name = "product-" + product.NAME + "-data";
+		conf.createProductData( transaction , product , name );
  		addRepository( conf );
 	}
 
