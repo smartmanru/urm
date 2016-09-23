@@ -15,8 +15,8 @@ public class ActionInit extends ActionBase {
 	public CommandAction commandAction;
 	public String actionName;
 
-	public ActionInit( SessionContext session , Artefactory artefactory , CommandExecutor executor , CommandContext context , CommandOutput output , CommandAction commandAction , String actionName ) {
-		super( session , artefactory , executor , context , output );
+	public ActionInit( SessionContext session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , CommandAction commandAction , String actionName ) {
+		super( session , artefactory , executor , output );
 		this.actionInit = this;
 		this.commandAction = commandAction;
 		this.actionName = actionName;

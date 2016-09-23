@@ -78,20 +78,24 @@ public abstract class CommandExecutor {
 		return( true );
 	}
 	
-	public ActionInit createAction( SessionContext session , Artefactory artefactory , CommandContext context , String actionName ) throws Exception {
+	public ActionInit createAction( SessionContext session , Artefactory artefactory , String actionName ) throws Exception {
 		// start local shell
 		CommandOutput output = new CommandOutput();
 		CommandAction commandAction = actionsMap.get( actionName );
-		ActionInit action = new ActionInit( session , artefactory , this , context , output , commandAction , actionName );
+		ActionInit action = new ActionInit( session , artefactory , this , output , commandAction , actionName );
+		return( action );
+	}
+
+	public void setActionContext( ActionInit action , CommandContext context ) throws Exception {
+		action.setContext( context );
 		
 		// load initial properties
 		action.setLogLevel( context.logLevelLimit );
 		
 		// create shell pool
 		action.setTimeout( context.CTX_TIMEOUT );
-		return( action );
 	}
-		
+	
 	public void checkRequired( ActionBase action , String value , String name ) throws Exception {
 		if( value == null || value.isEmpty() )
 			action.exit1( _Error.NameUndefined1 , name + " is undefined. Exiting" , name );

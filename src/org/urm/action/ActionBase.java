@@ -66,14 +66,13 @@ abstract public class ActionBase extends ActionCore {
 	protected void runBefore( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
 	protected void runAfter( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
 	
-	public ActionBase( SessionContext session , Artefactory artefactory , CommandExecutor executor , CommandContext context , CommandOutput output ) {
+	public ActionBase( SessionContext session , Artefactory artefactory , CommandExecutor executor , CommandOutput output ) {
 		super( executor.engine , null );
 		
 		this.session = session;
 		this.executor = executor;
 		this.output = output;
 		this.artefactory = artefactory;
-		this.context = context;
 		
 		commandTimeout = 0;
 	}
@@ -94,6 +93,10 @@ abstract public class ActionBase extends ActionCore {
 		context = new CommandContext( base.context , stream );
 	}
 
+	public void setContext( CommandContext context ) {
+		this.context = context;
+	}
+	
 	public void setShell( ShellExecutor session ) throws Exception {
 		this.shell = session;
 	}
