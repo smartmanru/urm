@@ -72,11 +72,11 @@ public class MetaEnvDC extends PropertyController {
 		r.initCopyStarted( this , env.getProperties() );
 		
 		if( deploy != null )
-			r.deploy = deploy.copy( action , meta , this );
+			r.deploy = deploy.copy( action , meta , r );
 		if( startInfo != null )
-			r.startInfo = startInfo.copy( action , meta , this );
+			r.startInfo = startInfo.copy( action , meta , r );
 		for( MetaEnvServer server : originalList ) {
-			MetaEnvServer rserver = server.copy( action , meta , this );
+			MetaEnvServer rserver = server.copy( action , meta , r );
 			r.addServer( rserver );
 		}
 		

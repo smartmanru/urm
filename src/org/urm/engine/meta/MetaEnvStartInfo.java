@@ -29,7 +29,7 @@ public class MetaEnvStartInfo {
 	public MetaEnvStartInfo copy( ActionBase action , Meta meta , MetaEnvDC dc ) throws Exception {
 		MetaEnvStartInfo r = new MetaEnvStartInfo( meta , dc );
 		for( MetaEnvStartGroup group : groups ) {
-			MetaEnvStartGroup rg = group.copy( action , meta , this );
+			MetaEnvStartGroup rg = group.copy( action , meta , r );
 			r.addGroup( rg );
 		}
 		return( r );

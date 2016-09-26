@@ -163,7 +163,7 @@ public class MetaEnv extends PropertyController {
 		r.initCopyStarted( this , product.getProperties() );
 		
 		for( MetaEnvDC dc : originalList ) {
-			MetaEnvDC rdc = dc.copy( action , meta , this );
+			MetaEnvDC rdc = dc.copy( action , meta , r );
 			r.addDC( rdc );
 		}
 		
