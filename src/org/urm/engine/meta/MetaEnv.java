@@ -27,7 +27,8 @@ public class MetaEnv extends PropertyController {
 	
 	public String ID;
 	private String BASELINE;
-	public String REDISTPATH;
+	public String REDISTWIN_PATH;
+	public String REDISTLINUX_PATH;
 	public boolean DISTR_USELOCAL;
 	public String DISTR_HOSTLOGIN;
 	public String DISTR_PATH;
@@ -53,7 +54,8 @@ public class MetaEnv extends PropertyController {
 	public static String PROPERTY_ID = "id";
 	public static String PROPERTY_PROD = "prod";
 	public static String PROPERTY_BASELINE = "configuration-baseline";
-	public static String PROPERTY_REDISTPATH = "redist-path";
+	public static String PROPERTY_REDISTWIN_PATH = "redist-win-path";
+	public static String PROPERTY_REDISTLINUX_PATH = "redist-linux-path";
 	public static String PROPERTY_DISTR_USELOCAL = "distr-use-local";
 	public static String PROPERTY_DISTR_HOSTLOGIN = "distr-hostlogin";
 	public static String PROPERTY_DISTR_PATH = "distr-path";
@@ -91,29 +93,30 @@ public class MetaEnv extends PropertyController {
 		action.trace( "load properties of env=" + ID );
 		
 		MetaProductSettings product = meta.getProduct( action );
-		BASELINE = properties.getSystemStringProperty( PROPERTY_BASELINE , "" );
-		REDISTPATH = properties.getSystemPathProperty( PROPERTY_REDISTPATH , product.CONFIG_REDISTPATH , action.session.execrc );
-		DISTR_USELOCAL = properties.getSystemBooleanProperty( PROPERTY_DISTR_USELOCAL , true );
+		BASELINE = super.getStringProperty( action , PROPERTY_BASELINE );
+		REDISTWIN_PATH = super.getPathProperty( action , PROPERTY_REDISTWIN_PATH , product.CONFIG_REDISTWIN_PATH );
+		REDISTLINUX_PATH = super.getPathProperty( action , PROPERTY_REDISTLINUX_PATH , product.CONFIG_REDISTLINUX_PATH );
+		DISTR_USELOCAL = super.getBooleanProperty( action , PROPERTY_DISTR_USELOCAL , true );
 		if( DISTR_USELOCAL )
 			DISTR_HOSTLOGIN = action.context.account.getFullName();
 		else
-			DISTR_HOSTLOGIN = properties.getSystemStringProperty( PROPERTY_DISTR_HOSTLOGIN , product.CONFIG_DISTR_HOSTLOGIN );
+			DISTR_HOSTLOGIN = super.getStringProperty( action , PROPERTY_DISTR_HOSTLOGIN , product.CONFIG_DISTR_HOSTLOGIN );
 		
-		DISTR_PATH = properties.getSystemPathProperty( PROPERTY_DISTR_PATH , product.CONFIG_DISTR_PATH , action.session.execrc );
-		UPGRADE_PATH = properties.getSystemPathProperty( PROPERTY_UPGRADE_PATH , product.CONFIG_UPGRADE_PATH , action.session.execrc );
-		CONF_SECRETFILESPATH = properties.getSystemPathProperty( PROPERTY_CONF_SECRETFILESPATH , "" , action.session.execrc );
-		CHATROOMFILE = properties.getSystemPathProperty( PROPERTY_CHATROOMFILE , "" , action.session.execrc );
-		KEYFILE = properties.getSystemPathProperty( PROPERTY_KEYFILE , "" , action.session.execrc );
-		DB_AUTHFILE = properties.getSystemPathProperty( PROPERTY_DB_AUTHFILE , "" , action.session.execrc );
-		PROD = properties.getSystemBooleanProperty( PROPERTY_PROD , false );
+		DISTR_PATH = super.getPathProperty( action , PROPERTY_DISTR_PATH , product.CONFIG_DISTR_PATH );
+		UPGRADE_PATH = super.getPathProperty( action , PROPERTY_UPGRADE_PATH , product.CONFIG_UPGRADE_PATH );
+		CONF_SECRETFILESPATH = super.getPathProperty( action , PROPERTY_CONF_SECRETFILESPATH );
+		CHATROOMFILE = super.getPathProperty( action , PROPERTY_CHATROOMFILE );
+		KEYFILE = super.getPathProperty( action , PROPERTY_KEYFILE );
+		DB_AUTHFILE = super.getPathProperty( action , PROPERTY_DB_AUTHFILE );
+		PROD = super.getBooleanProperty( action , PROPERTY_PROD , false );
 
 		// affect runtime options
-		DB_AUTH = properties.getSystemOptionProperty( PROPERTY_DB_AUTH );
-		OBSOLETE = properties.getSystemOptionProperty( PROPERTY_OBSOLETE );
-		SHOWONLY = properties.getSystemOptionProperty( PROPERTY_SHOWONLY );
-		BACKUP = properties.getSystemOptionProperty( PROPERTY_BACKUP );
-		CONF_DEPLOY = properties.getSystemOptionProperty( PROPERTY_CONF_DEPLOY );
-		CONF_KEEPALIVE = properties.getSystemOptionProperty( PROPERTY_CONF_KEEPALIVE );
+		DB_AUTH = super.getOptionProperty( action , PROPERTY_DB_AUTH );
+		OBSOLETE = super.getOptionProperty( action , PROPERTY_OBSOLETE );
+		SHOWONLY = super.getOptionProperty( action , PROPERTY_SHOWONLY );
+		BACKUP = super.getOptionProperty( action , PROPERTY_BACKUP );
+		CONF_DEPLOY = super.getOptionProperty( action , PROPERTY_CONF_DEPLOY );
+		CONF_KEEPALIVE = super.getOptionProperty( action , PROPERTY_CONF_KEEPALIVE );
 		properties.finishRawProperties();
 		
 		if( !isValid() )
@@ -127,7 +130,8 @@ public class MetaEnv extends PropertyController {
 	
 		properties.setOriginalStringProperty( PROPERTY_ID , ID );
 		properties.setOriginalStringProperty( PROPERTY_BASELINE , BASELINE );
-		properties.setOriginalPathProperty( PROPERTY_REDISTPATH , REDISTPATH );
+		properties.setOriginalPathProperty( PROPERTY_REDISTWIN_PATH , REDISTWIN_PATH );
+		properties.setOriginalPathProperty( PROPERTY_REDISTLINUX_PATH , REDISTLINUX_PATH );
 		properties.setOriginalBooleanProperty( PROPERTY_DISTR_USELOCAL , DISTR_USELOCAL );
 		properties.setOriginalStringProperty( PROPERTY_DISTR_HOSTLOGIN , DISTR_HOSTLOGIN );
 		properties.setOriginalPathProperty( PROPERTY_DISTR_PATH , DISTR_PATH );
@@ -198,7 +202,7 @@ public class MetaEnv extends PropertyController {
 	private void loadProperties( ActionBase action , Node node ) throws Exception {
 		properties.loadFromNodeAttributes( node );
 		
-		CONF_SECRETFILESPATH = properties.getSystemPathProperty( "configuration-secretfilespath" , "" , action.session.execrc );
+		CONF_SECRETFILESPATH = super.getPathProperty( action , "configuration-secretfilespath" );
 		
 		HiddenFiles hidden = action.artefactory.getHiddenFiles( meta );
 		String propFile = hidden.getSecretPropertyFile( action , CONF_SECRETFILESPATH );

@@ -84,13 +84,13 @@ public class ServerMirrorRepository extends ServerObject {
 	private void scatterSystemProperties() throws Exception {
 		NAME = properties.getSystemRequiredStringProperty( "name" );
 		TYPE = properties.getSystemRequiredStringProperty( "type" );
-		PRODUCT = properties.getSystemStringProperty( "product" , "" );
-		PROJECT = properties.getSystemStringProperty( "project" , "" );
-		RESOURCE = properties.getSystemStringProperty( "resource" , "" );
-		RESOURCE_REPO = properties.getSystemStringProperty( "repository" , "" );
-		RESOURCE_ROOT = properties.getSystemStringProperty( "rootpath" , "" );
-		RESOURCE_DATA = properties.getSystemStringProperty( "datapath" , "" );
-		BRANCH = properties.getSystemStringProperty( "branch" , "" );
+		PRODUCT = properties.getSystemStringProperty( "product" );
+		PROJECT = properties.getSystemStringProperty( "project" );
+		RESOURCE = properties.getSystemStringProperty( "resource" );
+		RESOURCE_REPO = properties.getSystemStringProperty( "repository" );
+		RESOURCE_ROOT = properties.getSystemStringProperty( "rootpath" );
+		RESOURCE_DATA = properties.getSystemStringProperty( "datapath" );
+		BRANCH = properties.getSystemStringProperty( "branch" );
 	}
 
 	public void createProperties() throws Exception {

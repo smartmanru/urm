@@ -10,6 +10,7 @@ import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
 import org.urm.engine.ServerProductContext;
 import org.urm.engine.ServerSettings;
+import org.urm.engine.ServerTransaction;
 import org.urm.engine.meta.Meta.VarBUILDMODE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -21,7 +22,7 @@ public class MetaProductSettings extends PropertyController {
 
 	public PropertySet execprops;
 	public MetaProductBuildSettings buildCommon;
-	public Map<String,MetaProductBuildSettings> buildModes;
+	public Map<VarBUILDMODE,MetaProductBuildSettings> buildModes;
 	
 	public String CONFIG_PRODUCT;
 	public String CONFIG_PRODUCTHOME;
@@ -32,7 +33,8 @@ public class MetaProductSettings extends PropertyController {
 	public int CONFIG_VERSION_BRANCH_NEXTMAJOR;
 	public int CONFIG_VERSION_BRANCH_NEXTMINOR;
 
-	public String CONFIG_REDISTPATH;
+	public String CONFIG_REDISTWIN_PATH;
+	public String CONFIG_REDISTLINUX_PATH;
 	public String CONFIG_WORKPATH;
 	public String CONFIG_DISTR_PATH;
 	public String CONFIG_DISTR_HOSTLOGIN;
@@ -50,8 +52,6 @@ public class MetaProductSettings extends PropertyController {
 	public String CONFIG_CUSTOM_DEPLOY;
 	public String CONFIG_CUSTOM_DATABASE;
 
-	public static String[] modes = { "devtrunk" , "trunk" , "majorbranch" , "devbranch" , "branch" };
-
 	// context
 	public static String PROPERTY_PRODUCT_NAME = "product";
 	public static String PROPERTY_PRODUCT_HOME = "product.home";
@@ -63,7 +63,8 @@ public class MetaProductSettings extends PropertyController {
 	public static String PROPERTY_VERSION_BRANCH_NEXTMINOR = MetaProductVersion.PROPERTY_NEXT_MAJOR_LAST;
 	
 	public static String PROPERTY_WORKPATH = "work.path";
-	public static String PROPERTY_REDIST_PATH = "redist.path";
+	public static String PROPERTY_REDISTWIN_PATH = "redist.win.path";
+	public static String PROPERTY_REDISTLINUX_PATH = "redist.linux.path";
 	public static String PROPERTY_DISTR_PATH  = "distr.path";
 	public static String PROPERTY_DISTR_HOSTLOGIN = "distr.hostlogin";
 	public static String PROPERTY_UPGRADE_PATH = "upgrade.path";
@@ -86,7 +87,7 @@ public class MetaProductSettings extends PropertyController {
 		this.meta = meta;
 		this.execprops = execprops;
 		meta.setProduct( this );
-		buildModes = new HashMap<String,MetaProductBuildSettings>();
+		buildModes = new HashMap<VarBUILDMODE,MetaProductBuildSettings>();
 	}
 
 	@Override
@@ -98,7 +99,8 @@ public class MetaProductSettings extends PropertyController {
 	
 	@Override
 	public void scatterProperties( ActionBase action ) throws Exception {
-		CONFIG_REDISTPATH = super.getPathPropertyRequired( action , PROPERTY_REDIST_PATH );
+		CONFIG_REDISTWIN_PATH = super.getPathPropertyRequired( action , PROPERTY_REDISTWIN_PATH );
+		CONFIG_REDISTLINUX_PATH = super.getPathPropertyRequired( action , PROPERTY_REDISTLINUX_PATH );
 		CONFIG_WORKPATH = super.getPathPropertyRequired( action , PROPERTY_WORKPATH );
 		CONFIG_DISTR_PATH = super.getPathPropertyRequired( action , PROPERTY_DISTR_PATH );
 		CONFIG_DISTR_HOSTLOGIN = super.getStringProperty( action , PROPERTY_DISTR_HOSTLOGIN );
@@ -137,9 +139,9 @@ public class MetaProductSettings extends PropertyController {
 		
 		if( buildCommon != null )
 			r.buildCommon = buildCommon.copy( action , meta , r , r.properties ); 
-		for( String modeKey : buildModes.keySet() ) {
-			MetaProductBuildSettings modeSet = buildModes.get( modeKey );
-			r.buildModes.put( modeKey , modeSet.copy( action , meta , r , r.buildCommon.getProperties() ) );
+		for( VarBUILDMODE mode : buildModes.keySet() ) {
+			MetaProductBuildSettings modeSet = buildModes.get( mode );
+			r.buildModes.put( mode , modeSet.copy( action , meta , r , r.buildCommon.getProperties() ) );
 		}
 
 		r.scatterProperties( action );
@@ -167,7 +169,7 @@ public class MetaProductSettings extends PropertyController {
 			MetaProductBuildSettings buildMode = new MetaProductBuildSettings( "build." + modeName , meta , this );
 			PropertySet set = settings.getDefaultProductBuildProperties( mode );
 			buildMode.create( action , set , buildCommon.getProperties() );
-			buildModes.put( modeName , buildMode );
+			buildModes.put( mode , buildMode );
 		}
 		
 		super.initFinished();
@@ -191,12 +193,11 @@ public class MetaProductSettings extends PropertyController {
 			if( items != null ) {
 				for( Node node : items ) {
 					String modeName = ConfReader.getAttrValue( node , "name" );
-					if( Common.getIndexOf( modes , modeName ) < 0 )
-						continue;
+					VarBUILDMODE mode = Meta.getBuildMode( modeName );
 					
 					MetaProductBuildSettings buildMode = new MetaProductBuildSettings( "mode" , meta , this );
 					buildMode.load( action , node , buildCommon.getProperties() );
-					buildModes.put( modeName , buildMode );
+					buildModes.put( mode , buildMode );
 				}
 			}
 		}
@@ -213,10 +214,10 @@ public class MetaProductSettings extends PropertyController {
 		Element buildElement = Common.xmlCreateElement( doc , root , "build" );
 		buildCommon.save( action , doc , buildElement );
 		
-		for( String mode : buildModes.keySet() ) {
+		for( VarBUILDMODE mode : buildModes.keySet() ) {
 			MetaProductBuildSettings buildMode = buildModes.get( mode );
 			Element buildModeElement = Common.xmlCreateElement( doc , buildElement , "mode" );
-			buildModeElement.setAttribute( "name" , mode );
+			buildModeElement.setAttribute( "name" , Common.getEnumLower( mode ) );
 			buildMode.save( action , doc , buildModeElement );
 		}
 	}
@@ -234,7 +235,7 @@ public class MetaProductSettings extends PropertyController {
 		for( String var : properties.getRunningProperties() ) {
 			String name = ( String )var;
 			if( name.startsWith( prefix ) ) {
-				String value = properties.getFinalProperty( name , action.session.execrc , true , false );
+				String value = properties.getFinalProperty( name , action.shell.account , true , false );
 				if( value != null )
 					map.put( name.substring( prefix.length() ) , value );
 			}
@@ -289,4 +290,22 @@ public class MetaProductSettings extends PropertyController {
 		return( properties.getPropertyAny( name ) );
 	}
 	
+	public void setProperties( ServerTransaction transaction , PropertySet props , boolean system ) throws Exception {
+		super.updateProperties( transaction , props , system );
+	}
+
+	public void setBuildCommonProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
+		buildCommon.setProperties( transaction , props );
+	}
+	
+	public void setBuildModeProperties( ServerTransaction transaction , VarBUILDMODE mode , PropertySet props ) throws Exception {
+		MetaProductBuildSettings set = buildModes.get( mode );
+		if( set == null ) {
+			MetaProductBuildSettings buildMode = new MetaProductBuildSettings( "mode" , meta , this );
+			buildModes.put( mode , buildMode );
+		}
+		
+		set.setProperties( transaction , props );
+	}
+
 }

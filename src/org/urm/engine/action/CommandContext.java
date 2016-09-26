@@ -52,7 +52,8 @@ public class CommandContext {
 	public int CTX_TIMEOUT;
 	public String CTX_KEYNAME = "";
 	public String CTX_DISTPATH = "";
-	public String CTX_REDISTPATH = "";
+	public String CTX_REDISTWIN_PATH = "";
+	public String CTX_REDISTLINUX_PATH = "";
 	public String CTX_HIDDENPATH = "";
 	public String CTX_WORKPATH = "";
 
@@ -178,7 +179,8 @@ public class CommandContext {
 		this.CTX_TIMEOUT = context.CTX_TIMEOUT;
 		this.CTX_KEYNAME = context.CTX_KEYNAME;
 		this.CTX_DISTPATH = context.CTX_DISTPATH;
-		this.CTX_REDISTPATH = context.CTX_REDISTPATH;
+		this.CTX_REDISTWIN_PATH = context.CTX_REDISTWIN_PATH;
+		this.CTX_REDISTLINUX_PATH = context.CTX_REDISTLINUX_PATH;
 		this.CTX_HIDDENPATH = context.CTX_HIDDENPATH;
 		this.CTX_WORKPATH = context.CTX_WORKPATH;
 		
@@ -262,9 +264,12 @@ public class CommandContext {
 		CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? env.KEYFILE : "" ) : value;
 		String productValue = ( isproduct )? product.CONFIG_DISTR_PATH : "";
 		CTX_DISTPATH = getParamPathValue( "OPT_DISTPATH" , productValue );
-		CTX_REDISTPATH = ( isproduct )? product.CONFIG_REDISTPATH : null;
-		if( isenv && !env.REDISTPATH.isEmpty() )
-			CTX_REDISTPATH = env.REDISTPATH;
+		CTX_REDISTWIN_PATH = ( isproduct )? product.CONFIG_REDISTWIN_PATH : null;
+		if( isenv && !env.REDISTWIN_PATH.isEmpty() )
+			CTX_REDISTWIN_PATH = env.REDISTWIN_PATH;
+		CTX_REDISTLINUX_PATH = ( isproduct )? product.CONFIG_REDISTLINUX_PATH : null;
+		if( isenv && !env.REDISTLINUX_PATH.isEmpty() )
+			CTX_REDISTLINUX_PATH = env.REDISTLINUX_PATH;
 		value = getParamPathValue( "OPT_HIDDENPATH" );
 		CTX_HIDDENPATH = ( value.isEmpty() )? ( ( isenv )? env.CONF_SECRETFILESPATH : "" ) : value;
 		CTX_WORKPATH = getParamPathValue( "OPT_WORKPATH" , "" );

@@ -60,8 +60,8 @@ public class ServerProjectBuilder extends ServerObject {
 		NAME = properties.getSystemRequiredStringProperty( "name" );
 		TYPE = properties.getSystemRequiredStringProperty( "type" );
 		HOSTLOGIN = properties.getSystemRequiredStringProperty( "hostlogin" );
-		DESC = properties.getSystemStringProperty( "desc" , "" );
-		OSTYPE = properties.getSystemStringProperty( "ostype" , "" );
+		DESC = properties.getSystemStringProperty( "desc" );
+		OSTYPE = properties.getSystemStringProperty( "ostype" );
 	}
 
 	public void createProperties() throws Exception {

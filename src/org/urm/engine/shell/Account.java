@@ -115,5 +115,11 @@ public class Account {
 	public Account getUserAccount( ActionBase action , String user ) throws Exception {
 		return( getAccount( action , user , HOST , PORT , osType ) );
 	}
+
+	public String getOSPath( String path ) {
+		if( isLinux() )
+			return( Common.getLinuxPath( path ) );
+		return( Common.getWinPath( path ) );
+	}
 	
 }

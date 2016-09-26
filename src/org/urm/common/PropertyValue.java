@@ -20,6 +20,7 @@ public class PropertyValue {
 	public String property;
 	public PropertyValueOrigin origin;
 	public PropertySet originSet;
+	public boolean required;
 	
 	private PropertyValueType type;
 	private String defaultValue;
@@ -34,6 +35,7 @@ public class PropertyValue {
 		this.property = src.property;
 		this.origin = src.origin;
 		this.originSet = src.originSet;
+		this.required = src.required;
 		this.type = src.type;
 		this.defaultValue = src.defaultValue;
 		this.originalValue = src.originalValue;
@@ -47,6 +49,7 @@ public class PropertyValue {
 		this.property = property;
 		this.origin = origin;
 		this.originSet = originSet;
+		this.required = false;
 		this.type = PropertyValueType.PROPERTY_STRING;
 		this.resolved = true;
 		this.system = false;
@@ -66,6 +69,10 @@ public class PropertyValue {
 		if( isOriginal() )
 			return( false );
 		return( true );
+	}
+	
+	public boolean isRequired() {
+		return( required );
 	}
 	
 	public boolean isDefault() {
@@ -96,6 +103,14 @@ public class PropertyValue {
 	
 	public boolean isSystem() {
 		return( system );
+	}
+
+	public boolean isCorrect() {
+		if( !isResolved() )
+			return( false );
+		if( required && finalValue.isEmpty() )
+			return( false );
+		return( true );
 	}
 	
 	public PropertyValueType getType() {
@@ -140,6 +155,10 @@ public class PropertyValue {
 	
 	public void setSystem() {
 		this.system = true;
+	}
+	
+	public void setRequired() {
+		this.required = true;
 	}
 	
 	public void setType( PropertyValueType type ) throws Exception {

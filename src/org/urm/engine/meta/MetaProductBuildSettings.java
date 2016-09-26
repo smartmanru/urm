@@ -5,6 +5,7 @@ import java.nio.charset.Charset;
 import org.urm.action.ActionBase;
 import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
+import org.urm.engine.ServerTransaction;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -172,5 +173,9 @@ public class MetaProductBuildSettings extends PropertyController {
 
 		properties.saveAsElements( doc , root );
 	}
-	
+
+	public void setProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
+		updateProperties( transaction , props , true );
+	}
+
 }

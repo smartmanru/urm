@@ -1,12 +1,13 @@
 package org.urm.engine.meta;
 
 import org.urm.action.ActionBase;
+import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
 import org.urm.engine.meta.Meta.VarNODETYPE;
 import org.urm.engine.shell.Account;
 import org.w3c.dom.Node;
 
-public class MetaEnvServerNode {
+public class MetaEnvServerNode extends PropertyController {
 
 	public Meta meta;
 	public MetaEnvServer server;
@@ -23,15 +24,43 @@ public class MetaEnvServerNode {
 	public PropertySet properties;
 	
 	public MetaEnvServerNode( Meta meta , MetaEnvServer server , int POS ) {
+		super( "node" );
 		this.meta = meta;
 		this.server = server;
 		this.POS = POS;
 	}
 
+	@Override
+	public boolean isValid() {
+		return( true );
+	}
+	
+	@Override
+	public void gatherProperties( ActionBase action ) throws Exception {
+	}
+	
+	@Override
+	public void scatterProperties( ActionBase action ) throws Exception {
+		action.trace( "load properties of node=" + POS );
+		HOSTLOGIN = super.getStringPropertyRequired( action , "hostlogin" );
+		DEPLOYGROUP = super.getStringProperty( action , "deploygroup" );
+		
+		if( server.isDatabase( action ) )
+			INSTANCE = super.getStringPropertyRequired( action , "instance" );
+		
+		NODETYPE = super.getStringProperty( action , "type" , "self" );
+		nodeType = Meta.getNodeType( NODETYPE , VarNODETYPE.SELF );
+		
+		OFFLINE = super.getBooleanProperty( action , "offline" );
+		STANDBY = super.getBooleanProperty( action , "standby" );
+		
+		properties.finishRawProperties();
+	}
+
 	public void load( ActionBase action , Node node , boolean loadProps ) throws Exception {
 		properties = new PropertySet( "node" , server.getProperties() );
 		properties.loadFromNodeAttributes( node );
-		scatterSystemProperties( action );
+		scatterProperties( action );
 		
 		if( loadProps ) {
 			properties.loadFromNodeElements( node );
@@ -39,23 +68,6 @@ public class MetaEnvServerNode {
 		}
 	}
 	
-	public void scatterSystemProperties( ActionBase action ) throws Exception {
-		action.trace( "load properties of node=" + POS );
-		HOSTLOGIN = properties.getSystemRequiredStringProperty( "hostlogin" );
-		DEPLOYGROUP = properties.getSystemStringProperty( "deploygroup" , "" );
-		
-		if( server.isDatabase( action ) )
-			INSTANCE = properties.getSystemRequiredStringProperty( "instance" );
-		
-		NODETYPE = properties.getSystemStringProperty( "type" , "self" );
-		nodeType = Meta.getNodeType( NODETYPE , VarNODETYPE.SELF );
-		
-		OFFLINE = properties.getSystemBooleanProperty( "offline" , false );
-		STANDBY = properties.getSystemBooleanProperty( "standby" , false );
-		
-		properties.finishRawProperties();
-	}
-
 	public MetaEnvServerNode getProxyNode( ActionBase action ) throws Exception {
 		MetaEnvServer proxy = server.proxyServer;
 		if( proxy == null )

@@ -1,6 +1,8 @@
 package org.urm.engine.meta;
 
 import org.urm.action.ActionBase;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MetaEnvDeployment {
@@ -19,6 +21,9 @@ public class MetaEnvDeployment {
 	public MetaEnvDeployment copy( ActionBase action , Meta meta , MetaEnvDC dc ) throws Exception {
 		MetaEnvDeployment r = new MetaEnvDeployment( meta , dc );
 		return( r );
+	}
+
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 	}
 	
 }

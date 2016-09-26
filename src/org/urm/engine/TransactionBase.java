@@ -3,6 +3,9 @@ package org.urm.engine;
 import org.urm.action.ActionBase;
 import org.urm.common.RunError;
 import org.urm.engine.action.ActionInit;
+import org.urm.engine.meta.Meta;
+import org.urm.engine.meta.MetaEnv;
+import org.urm.engine.meta.MetaEnvDC;
 
 public class TransactionBase {
 
@@ -618,10 +621,12 @@ public class TransactionBase {
 			exit( _Error.TransactionMissingSettingsChanges0 , "missing settings changes" , null );
 	}
 
-	protected void checkTransactionMetadata() throws Exception {
+	protected void checkTransactionMetadata( ServerProductMeta sourceMeta ) throws Exception {
 		checkTransaction();
 		if( metadata == null )
 			exit( _Error.TransactionMissingMetadataChanges0 , "missing metadata changes" , null );
+		if( sourceMeta != metadata )
+			exit1( _Error.InternalTransactionError1 , "internal error: invalid transaction metadata" , "invalid transaction metadata" );
 	}
 
 	public void exit( int errorCode , String msg , String params[] ) throws Exception {
@@ -665,4 +670,17 @@ public class TransactionBase {
 		return( directory.getProduct( product.NAME ) );
 	}
 	
+	public Meta getMeta() {
+		return( metadata.meta );
+	}
+	
+	public MetaEnv getMetaEnv( MetaEnv env ) throws Exception {
+		return( metadata.findEnvironment( env.ID ) );
+	}
+
+	public MetaEnvDC getMetaEnvDC( MetaEnvDC dc ) throws Exception {
+		MetaEnv env = getMetaEnv( dc.env );
+		return( env.findDC( dc.NAME ) );
+	}
+
 }

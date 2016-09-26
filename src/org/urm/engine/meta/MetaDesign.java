@@ -45,6 +45,10 @@ public class MetaDesign {
 		return( r );
 	}
 	
+	public boolean isLoadFailed() {
+		return( false );
+	}
+	
 	public void setLoadFailed() {
 		loadFailed = true;
 	}

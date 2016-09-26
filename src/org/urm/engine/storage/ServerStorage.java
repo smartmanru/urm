@@ -6,7 +6,6 @@ import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.meta.MetaEnvServerNode;
 import org.urm.engine.meta.Meta.VarCONTENTTYPE;
-import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.shell.Account;
 
 public class ServerStorage {
@@ -56,7 +55,8 @@ public class ServerStorage {
 	}
 	
 	public RemoteFolder getRedistTmpFolder( ActionBase action ) throws Exception {
-		String path = Common.getPath( action.context.CTX_REDISTPATH , "tmp" );
+		String path = action.getContextRedistPath( server );
+		path = Common.getPath( path , "tmp" );
 		RemoteFolder rf = new RemoteFolder( account , path );
 		return( rf );
 	}
@@ -80,9 +80,8 @@ public class ServerStorage {
 	}
 	
 	public RemoteFolder getRedistHostRootFolder( ActionBase action ) throws Exception {
-		MetaProductSettings product = meta.getProduct( action );
-		String path = ( action.context.env == null )? product.CONFIG_REDISTPATH : action.context.env.REDISTPATH;
 		Account rootAccount = account.getRootAccount( action );
+		String path = action.getEnvRedistPath( server );
 		RemoteFolder rf = new RemoteFolder( rootAccount , path );
 		return( rf );
 	}
@@ -153,9 +152,8 @@ public class ServerStorage {
 	}
 	
 	protected String getRedistFolderRootPath( ActionBase action ) throws Exception {
-		String path = action.context.CTX_REDISTPATH;
-		if( server != null )
-			path = Common.getPath( path , server.NAME + "-node" + node.POS );
+		String path = action.getContextRedistPath( server );
+		path = Common.getPath( path , server.NAME + "-node" + node.POS );
 		return( path );
 	}
 

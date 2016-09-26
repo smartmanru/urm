@@ -148,12 +148,12 @@ public class MetaBase {
 		ID = props.getSystemRequiredStringProperty( "id" );
 		String TYPE = props.getSystemRequiredStringProperty( "type" );
 		type = Meta.getBaseSrcType( action , TYPE );
-		adm = props.getSystemBooleanProperty( "adminstall" , false );
+		adm = props.getSystemBooleanProperty( "adminstall" );
 		
-		String OSTYPE = props.getSystemStringProperty( "ostype" , null );
+		String OSTYPE = props.getSystemStringProperty( "ostype" );
 		osType = Meta.getOSType( OSTYPE );
 
-		String CHARSET = props.getSystemStringProperty( "charset" , "" );
+		String CHARSET = props.getSystemStringProperty( "charset" );
 		if( !CHARSET.isEmpty() ) {
 			charset = Charset.forName( CHARSET );
 			if( charset == null )
@@ -164,7 +164,7 @@ public class MetaBase {
 		if( primary )
 			SERVERTYPE = props.getSystemRequiredStringProperty( "servertype" );
 		else
-			SERVERTYPE = props.getSystemStringProperty( "servertype" , null );
+			SERVERTYPE = props.getSystemStringProperty( "servertype" );
 		
 		if( SERVERTYPE != null )
 			serverType = Meta.getServerType( SERVERTYPE );

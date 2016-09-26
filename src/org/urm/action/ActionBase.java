@@ -18,6 +18,7 @@ import org.urm.engine.action.CommandContext;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.action.CommandOutput;
 import org.urm.engine.meta.Meta;
+import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.meta.MetaEnvServerNode;
 import org.urm.engine.meta.MetaProductBuildSettings;
 import org.urm.engine.meta.MetaProductSettings;
@@ -475,7 +476,8 @@ abstract public class ActionBase extends ActionCore {
 	public String getTmpFilePath( String name ) throws Exception {
 		if( shell.account.local )
 			return( getWorkFilePath( name ) );
-		return( Common.getPath( context.CTX_REDISTPATH , "tmp" , name ) );
+		String path = ( shell.isLinux() )? context.CTX_REDISTLINUX_PATH : context.CTX_REDISTWIN_PATH;
+		return( Common.getPath( path , "tmp" , name ) );
 	}
 
 	public Folder getTmpFolder( String folder ) throws Exception {
@@ -574,6 +576,25 @@ abstract public class ActionBase extends ActionCore {
 		ServerLoader loader = engine.getLoader();
 		ServerProductMeta meta = loader.findMetaStorage( session.productName );
 		return( meta.meta );
+	}
+
+	public String getContextRedistPath( MetaEnvServer server ) throws Exception {
+		if( server.isLinux( this ) )
+			return( context.CTX_REDISTLINUX_PATH );
+		return( context.CTX_REDISTWIN_PATH );
+	}
+	
+	public String getProductRedistPath( MetaEnvServer server ) throws Exception {
+		MetaProductSettings product = server.meta.getProduct( this );
+		if( server.isLinux( this ) )
+			return( product.CONFIG_REDISTLINUX_PATH );
+		return( product.CONFIG_REDISTWIN_PATH );
+	}
+	
+	public String getEnvRedistPath( MetaEnvServer server ) throws Exception {
+		if( server.isLinux( this ) )
+			return( server.dc.env.REDISTLINUX_PATH );
+		return( server.dc.env.REDISTWIN_PATH );
 	}
 	
 }

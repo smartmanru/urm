@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MetaEnvStartInfo {
@@ -20,6 +22,8 @@ public class MetaEnvStartInfo {
 	public MetaEnvStartInfo( Meta meta , MetaEnvDC dc ) {
 		this.meta = meta;
 		this.dc = dc;
+		groups = new LinkedList<MetaEnvStartGroup>();
+		groupMap = new HashMap<String,MetaEnvStartGroup>();
 	}
 	
 	public MetaEnvStartInfo copy( ActionBase action , Meta meta , MetaEnvDC dc ) throws Exception {
@@ -32,9 +36,6 @@ public class MetaEnvStartInfo {
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
-		groupMap = new HashMap<String,MetaEnvStartGroup>();
-		groups = new LinkedList<MetaEnvStartGroup>();
-		
 		Node[] items = ConfReader.xmlGetChildren( node , "startgroup" );
 		if( items == null )
 			return;
@@ -61,4 +62,8 @@ public class MetaEnvStartInfo {
 			revs.add( groups.get( k ) );
 		return( revs );
 	}
+
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+	}
+	
 }

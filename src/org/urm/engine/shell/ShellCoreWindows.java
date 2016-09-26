@@ -31,7 +31,7 @@ public class ShellCoreWindows extends ShellCore {
 			localSession = new ShellCoreUnix( executor , VarSESSIONTYPE.UNIXLOCAL , tmpFolder , true );
 			localSession.setWindowsHelper();
 			running = true;
-			if( !localSession.createProcess( action , builder , action.context.CTX_REDISTPATH ) )
+			if( !localSession.createProcess( action , builder , action.context.CTX_REDISTWIN_PATH ) )
 				return( false );
 			
 			initialized = true;

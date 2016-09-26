@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.engine.shell.Account;
@@ -25,11 +26,17 @@ public class MetaEnvDC extends PropertyController {
 	public MetaEnvStartInfo startInfo;
 	public List<MetaEnvServer> originalList;
 	public Map<String,MetaEnvServer> serverMap;
+
+	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_BASELINE = "baseline";
 	
 	public MetaEnvDC( Meta meta , MetaEnv env ) {
 		super( "dc" );
 		this.meta = meta;
 		this.env = env;
+		
+		originalList = new LinkedList<MetaEnvServer>();
+		serverMap = new HashMap<String,MetaEnvServer>();
 	}
 
 	@Override
@@ -44,7 +51,7 @@ public class MetaEnvDC extends PropertyController {
 		NAME = properties.getSystemRequiredStringProperty( "name" );
 		action.trace( "load properties of dc=" + NAME );
 		
-		BASELINE = properties.getSystemStringProperty( "configuration-baseline" , "" );
+		BASELINE = super.getStringProperty( action , "configuration-baseline" );
 		if( BASELINE.equals( "default" ) )
 			BASELINE = NAME;
 		
@@ -53,6 +60,11 @@ public class MetaEnvDC extends PropertyController {
 	
 	@Override
 	public void gatherProperties( ActionBase action ) throws Exception {
+		if( !isValid() )
+			action.exit0( _Error.InconsistentVersionAttributes0 , "inconsistent version attributes" );
+	
+		properties.setOriginalStringProperty( PROPERTY_NAME , NAME );
+		properties.setOriginalStringProperty( PROPERTY_BASELINE , BASELINE );
 	}
 	
 	public MetaEnvDC copy( ActionBase action , Meta meta , MetaEnv env ) throws Exception {
@@ -125,9 +137,6 @@ public class MetaEnvDC extends PropertyController {
 	}
 	
 	public void loadServers( ActionBase action , Node node , boolean loadProps ) throws Exception {
-		serverMap = new HashMap<String,MetaEnvServer>();
-		originalList = new LinkedList<MetaEnvServer>();
-		
 		Node[] items = ConfReader.xmlGetChildren( node , "server" );
 		if( items == null )
 			return;
@@ -215,6 +224,31 @@ public class MetaEnvDC extends PropertyController {
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		if( !super.isLoaded() )
 			return;
+		
+		Element deployElement = Common.xmlCreateElement( doc , root , "deployment" );
+		deploy.save( action , doc , deployElement );
+		Element startElement = Common.xmlCreateElement( doc , root , "startorder" );
+		startInfo.save( action , doc , startElement );
+		
+		properties.saveSplit( doc , root );
+		for( MetaEnvServer server : originalList ) {
+			Element serverElement = Common.xmlCreateElement( doc , root , "server" );
+			server.save( action , doc , serverElement );
+		}
 	}
 	
+	public void createDC( ActionBase action ) throws Exception {
+		if( !super.initCreateStarted( env.getProperties() ) )
+			return;
+
+		gatherProperties( action );
+		super.finishProperties( action );
+		super.initFinished();
+		
+		scatterProperties( action );
+		
+		deploy = new MetaEnvDeployment( meta , this );
+		startInfo = new MetaEnvStartInfo( meta , this );
+	}
+
 }

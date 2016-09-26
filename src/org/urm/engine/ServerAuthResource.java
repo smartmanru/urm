@@ -61,8 +61,8 @@ public class ServerAuthResource extends ServerObject {
 		NAME = properties.getSystemRequiredStringProperty( "name" );
 		TYPE = properties.getSystemRequiredStringProperty( "type" );
 		BASEURL = properties.getSystemRequiredStringProperty( "baseurl" );
-		DESC = properties.getSystemStringProperty( "desc" , "" );
-		AUTHKEY = properties.getSystemStringProperty( "authkey" , "" );
+		DESC = properties.getSystemStringProperty( "desc" );
+		AUTHKEY = properties.getSystemStringProperty( "authkey" );
 	}
 
 	public void createProperties() throws Exception {

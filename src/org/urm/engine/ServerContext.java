@@ -115,36 +115,36 @@ public class ServerContext {
 	}
 	
 	private void scatterSystemProperties() throws Exception {
-		CONNECTION_JMX_PORT = properties.getSystemIntProperty( PROPERTY_CONNECTION_JMX_PORT , 6000 );
-		CONNECTION_JMXWEB_PORT = properties.getSystemIntProperty( PROPERTY_CONNECTION_JMXWEB_PORT , 6001 );
+		CONNECTION_JMX_PORT = properties.getSystemIntProperty( PROPERTY_CONNECTION_JMX_PORT , 6000 , true );
+		CONNECTION_JMXWEB_PORT = properties.getSystemIntProperty( PROPERTY_CONNECTION_JMXWEB_PORT , 6001 , true );
 
-		DIST_ROOT = properties.getSystemPathProperty( PROPERTY_DIST_ROOT , execrc.installPath + "/dist" , execrc );
-		DIST_APPFOLDER = properties.getSystemPathProperty( PROPERTY_DIST_APPFOLDER , "systems" , execrc );
-		DIST_BASEPATH = properties.getSystemPathProperty( PROPERTY_DIST_BASEPATH , "base" , execrc );
+		DIST_ROOT = properties.getSystemPathProperty( PROPERTY_DIST_ROOT , execrc.installPath + "/dist" , execrc , false );
+		DIST_APPFOLDER = properties.getSystemPathProperty( PROPERTY_DIST_APPFOLDER , "systems" , execrc , false );
+		DIST_BASEPATH = properties.getSystemPathProperty( PROPERTY_DIST_BASEPATH , "base" , execrc , false );
 
-		SECURE_CONFPATH = properties.getSystemPathProperty( PROPERTY_SECURE_CONFPATH , execrc.installPath + "/secured" , execrc );
+		SECURE_CONFPATH = properties.getSystemPathProperty( PROPERTY_SECURE_CONFPATH , execrc.installPath + "/secured" , execrc , false );
 		
-		WORK_ARTEFACTS = properties.getSystemPathProperty( PROPERTY_WORK_ARTEFACTS , execrc.installPath + "/artefacts" , execrc );
-		WORK_MIRRORPATH = properties.getSystemPathProperty( PROPERTY_WORK_MIRRORPATH , execrc.installPath + "/mirror" , execrc );
-		WORK_BUILDLOGS = properties.getSystemPathProperty( PROPERTY_WORK_BUILDLOGS , execrc.installPath + "/logs/build" , execrc );
-		WORK_DEPLOYLOGS = properties.getSystemPathProperty( PROPERTY_WORK_DEPLOYLOGS , execrc.installPath + "/logs/deploy" , execrc );
+		WORK_ARTEFACTS = properties.getSystemPathProperty( PROPERTY_WORK_ARTEFACTS , execrc.installPath + "/artefacts" , execrc , false );
+		WORK_MIRRORPATH = properties.getSystemPathProperty( PROPERTY_WORK_MIRRORPATH , execrc.installPath + "/mirror" , execrc , false );
+		WORK_BUILDLOGS = properties.getSystemPathProperty( PROPERTY_WORK_BUILDLOGS , execrc.installPath + "/logs/build" , execrc , false );
+		WORK_DEPLOYLOGS = properties.getSystemPathProperty( PROPERTY_WORK_DEPLOYLOGS , execrc.installPath + "/logs/deploy" , execrc , false );
 
-		STAGING_LINUXPATH = properties.getSystemPathProperty( PROPERTY_STAGING_LINUXPATH , "/redist" , execrc );
-		STAGING_WINPATH = properties.getSystemPathProperty( PROPERTY_STAGING_WINPATH , "C:/redist" , execrc );
+		STAGING_LINUXPATH = properties.getSystemPathProperty( PROPERTY_STAGING_LINUXPATH , "/redist" , execrc , false );
+		STAGING_WINPATH = properties.getSystemPathProperty( PROPERTY_STAGING_WINPATH , "C:/redist" , execrc , false );
 		
-		MON_RESOURCES = properties.getSystemPathProperty( PROPERTY_MON_RESOURCES , execrc.installPath + "/monitoring/resources" , execrc );
-		MON_DATAPATH = properties.getSystemPathProperty( PROPERTY_MON_DATAPATH , execrc.installPath + "/monitoring/data" , execrc );
-		MON_LOGPATH = properties.getSystemPathProperty( PROPERTY_MON_LOGPATH , execrc.installPath + "/logs/monitoring" , execrc );
+		MON_RESOURCES = properties.getSystemPathProperty( PROPERTY_MON_RESOURCES , execrc.installPath + "/monitoring/resources" , execrc , false ); 
+		MON_DATAPATH = properties.getSystemPathProperty( PROPERTY_MON_DATAPATH , execrc.installPath + "/monitoring/data" , execrc , false );
+		MON_LOGPATH = properties.getSystemPathProperty( PROPERTY_MON_LOGPATH , execrc.installPath + "/logs/monitoring" , execrc , false );
 
-		SHELL_SILENTMAX = properties.getSystemIntProperty( PROPERTY_SHELL_SILENTMAX , 60000 );
-		SHELL_UNAVAILABLE_SKIPTIME = properties.getSystemIntProperty( PROPERTY_SHELL_UNAVAILABLE_SKIPTIME , 30000 );
-		SHELL_HOUSEKEEP_TIME = properties.getSystemIntProperty( PROPERTY_SHELL_HOUSEKEEP_TIME , 30000 );
+		SHELL_SILENTMAX = properties.getSystemIntProperty( PROPERTY_SHELL_SILENTMAX , 60000 , false );
+		SHELL_UNAVAILABLE_SKIPTIME = properties.getSystemIntProperty( PROPERTY_SHELL_UNAVAILABLE_SKIPTIME , 30000 , false );
+		SHELL_HOUSEKEEP_TIME = properties.getSystemIntProperty( PROPERTY_SHELL_HOUSEKEEP_TIME , 30000 , false );
 		
-		CHAT_USING = properties.getSystemBooleanProperty( PROPERTY_CHAT_USING , false );
-		CHAT_TYPE = properties.getSystemStringProperty( PROPERTY_CHAT_TYPE , "" );
-		CHAT_JABBER_RESOURCE = properties.getSystemStringProperty( PROPERTY_CHAT_JABBER_RESOURCE , "" );
-		CHAT_JABBER_CONFERENCESERVER = properties.getSystemStringProperty( PROPERTY_CHAT_JABBER_CONFERENCESERVER , "" );
-		CHAT_ROCKET_RESOURCE = properties.getSystemStringProperty( PROPERTY_CHAT_ROCKET_RESOURCE , "" );
+		CHAT_USING = properties.getSystemBooleanProperty( PROPERTY_CHAT_USING , false , false );
+		CHAT_TYPE = properties.getSystemStringProperty( PROPERTY_CHAT_TYPE , "" , false );
+		CHAT_JABBER_RESOURCE = properties.getSystemStringProperty( PROPERTY_CHAT_JABBER_RESOURCE , "" , false );
+		CHAT_JABBER_CONFERENCESERVER = properties.getSystemStringProperty( PROPERTY_CHAT_JABBER_CONFERENCESERVER , "" , false );
+		CHAT_ROCKET_RESOURCE = properties.getSystemStringProperty( PROPERTY_CHAT_ROCKET_RESOURCE , "" , false );
 	}
 
 	public void setServerProperties( ServerTransaction transaction , PropertySet props ) throws Exception {

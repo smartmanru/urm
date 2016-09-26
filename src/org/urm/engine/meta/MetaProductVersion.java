@@ -8,7 +8,7 @@ import org.w3c.dom.Node;
 
 public class MetaProductVersion extends PropertyController {
 
-	Meta meta;
+	public Meta meta;
 	
 	public int majorFirstNumber;
 	public int majorSecondNumber;

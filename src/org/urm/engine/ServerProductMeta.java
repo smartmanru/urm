@@ -139,6 +139,8 @@ public class ServerProductMeta extends ServerObject {
 				Document doc = ConfReader.readXmlFile( action.session.execrc , file );
 				Node root = doc.getDocumentElement();
 				version.load( action , root );
+				if( version.isLoadFailed() )
+					setLoadFailed( action , "invalid version metadata, product=" + name );
 			}
 			catch( Throwable e ) {
 				setLoadFailed( action , e , "unable to load version metadata, product=" + name );
@@ -180,6 +182,8 @@ public class ServerProductMeta extends ServerObject {
 				Document doc = ConfReader.readXmlFile( action.session.execrc , file );
 				Node root = doc.getDocumentElement();
 				product.load( action , productContext , root );
+				if( product.isLoadFailed() )
+					setLoadFailed( action , "invalid settings metadata, product=" + name );
 			}
 			catch( Throwable e ) {
 				setLoadFailed( action , e , "unable to load settings metadata, product=" + name );
@@ -203,6 +207,8 @@ public class ServerProductMeta extends ServerObject {
 				Document doc = action.readXmlFile( file );
 				Node root = doc.getDocumentElement();
 				database.load( action , root );
+				if( database.isLoadFailed() )
+					setLoadFailed( action , "invalid database metadata, product=" + name );
 			}
 			catch( Throwable e ) {
 				setLoadFailed( action , e , "unable to load database metadata, product=" + name );
@@ -227,6 +233,8 @@ public class ServerProductMeta extends ServerObject {
 				Document doc = action.readXmlFile( file );
 				Node root = doc.getDocumentElement();
 				distr.load( action , root );
+				if( distr.isLoadFailed() )
+					setLoadFailed( action , "invalid distributive metadata, product=" + name );
 			}
 			catch( Throwable e ) {
 				setLoadFailed( action , e , "unable to load distributive metadata, product=" + name );
@@ -251,6 +259,8 @@ public class ServerProductMeta extends ServerObject {
 				Document doc = action.readXmlFile( file );
 				Node root = doc.getDocumentElement();
 				sources.load( action , root );
+				if( sources.isLoadFailed() )
+					setLoadFailed( action , "invalid sources metadata, product=" + name );
 			}
 			catch( Throwable e ) {
 				setLoadFailed( action , e , "unable to load source metadata, product=" + name );
@@ -274,6 +284,8 @@ public class ServerProductMeta extends ServerObject {
 				Document doc = action.readXmlFile( file );
 				Node root = doc.getDocumentElement();
 				mon.load( action , root );
+				if( mon.isLoadFailed() )
+					setLoadFailed( action , "invalid monitoring metadata, product=" + name );
 			}
 			catch( Throwable e ) {
 				setLoadFailed( action , e , "unable to load monitoring metadata, product=" + name );
@@ -299,6 +311,8 @@ public class ServerProductMeta extends ServerObject {
 				Document doc = action.readXmlFile( file );
 				Node root = doc.getDocumentElement();
 				env.load( action , root );
+				if( env.isLoadFailed() )
+					setLoadFailed( action , "invalid environment metadata, product=" + name );
 			}
 			catch( Throwable e ) {
 				setLoadFailed( action , e , "unable to load environment metadata, product=" + name + ", env=" + envName );
@@ -324,6 +338,8 @@ public class ServerProductMeta extends ServerObject {
 				Node root = doc.getDocumentElement();
 				design.load( action , root );
 				designFiles.put( fileName , design );
+				if( design.isLoadFailed() )
+					setLoadFailed( action , "invalid monitoring metadata, product=" + name );
 			}
 			catch( Throwable e ) {
 				setLoadFailed( action , e , "unable to load design metadata, product=" + name + ", file=" + fileName );
