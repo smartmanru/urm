@@ -9,6 +9,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
+import org.urm.engine.ServerTransaction;
 import org.urm.engine.shell.Account;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -20,7 +21,7 @@ public class MetaEnvDC extends PropertyController {
 	public MetaEnv env;
 	
 	public String NAME;
-	private String BASELINE;
+	public String BASELINE;
 	
 	public MetaEnvDeployment deploy;
 	public MetaEnvStartInfo startInfo;
@@ -251,4 +252,18 @@ public class MetaEnvDC extends PropertyController {
 		startInfo = new MetaEnvStartInfo( meta , this );
 	}
 
+	public void createServer( ServerTransaction transaction , MetaEnvServer server ) {
+		addServer( server );
+	}
+	
+	public void deleteServer( ServerTransaction transaction , MetaEnvServer server ) {
+		int index = originalList.indexOf( server );
+		if( index < 0 )
+			return;
+		
+		originalList.remove( index );
+		serverMap.remove( server.NAME );
+		startInfo.removeServer( transaction , server );
+	}
+	
 }

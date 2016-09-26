@@ -3,6 +3,7 @@ package org.urm.engine;
 import org.urm.common.PropertySet;
 import org.urm.engine.meta.MetaEnv;
 import org.urm.engine.meta.MetaEnvDC;
+import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.meta.MetaProductVersion;
 import org.urm.engine.meta.Meta.VarBUILDMODE;
@@ -177,6 +178,21 @@ public class ServerTransaction extends TransactionBase {
 	public void deleteMetaEnvDC( MetaEnvDC dc ) throws Exception {
 		checkTransactionMetadata( dc.meta.getStorage( action ) );
 		dc.env.deleteDC( this , dc );
+	}
+
+	public void createMetaEnvServer( MetaEnvServer server ) throws Exception {
+		checkTransactionMetadata( server.meta.getStorage( action ) );
+		server.dc.createServer( this , server );
+	}
+	
+	public void deleteMetaEnvServer( MetaEnvServer server ) throws Exception {
+		checkTransactionMetadata( server.meta.getStorage( action ) );
+		server.dc.deleteServer( this , server );
+	}
+
+	public void setMetaEnvServerStatus( MetaEnvServer server , boolean OFFLINE ) throws Exception {
+		checkTransactionMetadata( server.meta.getStorage( action ) );
+		server.setOfflineStatus( this , OFFLINE );
 	}
 
 }

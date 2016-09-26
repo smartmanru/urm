@@ -6,6 +6,7 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaEnv;
 import org.urm.engine.meta.MetaEnvDC;
+import org.urm.engine.meta.MetaEnvServer;
 
 public class TransactionBase {
 
@@ -681,6 +682,11 @@ public class TransactionBase {
 	public MetaEnvDC getMetaEnvDC( MetaEnvDC dc ) throws Exception {
 		MetaEnv env = getMetaEnv( dc.env );
 		return( env.findDC( dc.NAME ) );
+	}
+
+	public MetaEnvServer getMetaEnvServer( MetaEnvServer server ) throws Exception {
+		MetaEnvDC dc = getMetaEnvDC( server.dc );
+		return( dc.findServer( server.NAME ) );
 	}
 
 }

@@ -11,6 +11,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.engine.ServerTransaction;
 import org.urm.engine.meta.Meta.VarDBMSTYPE;
 import org.urm.engine.meta.Meta.VarDEPLOYTYPE;
 import org.urm.engine.meta.Meta.VarSERVERTYPE;
@@ -26,7 +27,7 @@ public class MetaEnvServer extends PropertyController {
 	
 	public String NAME;
 	public String XDOC;
-	private String BASELINE;
+	public String BASELINE;
 	public boolean OFFLINE;
 	
 	private String SERVERTYPE;
@@ -82,6 +83,9 @@ public class MetaEnvServer extends PropertyController {
 		this.meta = meta;
 		this.dc = dc;
 		this.primary = false;
+		
+		deployments = new LinkedList<MetaEnvServerDeployment>();
+		nodes = new LinkedList<MetaEnvServerNode>();
 	}
 
 	@Override
@@ -254,14 +258,12 @@ public class MetaEnvServer extends PropertyController {
 		return( servers );
 	}
 	
-	public void setStartGroup( ActionBase action , MetaEnvStartGroup group ) throws Exception {
+	public void setStartGroup( ActionBase action , MetaEnvStartGroup group ) {
 		primary = true;
 		this.startGroup = group;
 	}
 	
 	private void loadNodes( ActionBase action , Node node , boolean loadProps ) throws Exception {
-		nodes = new LinkedList<MetaEnvServerNode>(); 
-		
 		Node[] items = ConfReader.xmlGetChildren( node , "node" );
 		if( items == null )
 			return;
@@ -285,8 +287,6 @@ public class MetaEnvServer extends PropertyController {
 	}
 		
 	private void loadDeployments( ActionBase action , Node node ) throws Exception {
-		deployments = new LinkedList<MetaEnvServerDeployment>(); 
-		
 		Node[] items = ConfReader.xmlGetChildren( node , "deploy" );
 		if( items == null )
 			return;
@@ -639,6 +639,23 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+	}
+	
+	public void createServer( ActionBase action ) throws Exception {
+		if( !super.initCreateStarted( dc.getProperties() ) )
+			return;
+
+		gatherProperties( action );
+		super.finishProperties( action );
+		super.initFinished();
+		
+		scatterProperties( action );
+		
+		base = new MetaEnvServerBase( meta , this );
+	}
+
+	public void setOfflineStatus( ServerTransaction transaction , boolean OFFLINE ) throws Exception {
+		this.OFFLINE = OFFLINE;
 	}
 	
 }

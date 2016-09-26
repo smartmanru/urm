@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
+import org.urm.engine.ServerTransaction;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -64,6 +65,13 @@ public class MetaEnvStartInfo {
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+	}
+
+	public void removeServer( ServerTransaction transaction , MetaEnvServer server ) {
+		if( server.startGroup != null ) {
+			server.startGroup.removeServer( transaction , server );
+		}
+			
 	}
 	
 }

@@ -8,6 +8,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.engine.ServerTransaction;
 import org.urm.engine.meta.Meta.VarNAMETYPE;
 import org.w3c.dom.Node;
 
@@ -59,6 +60,12 @@ public class MetaEnvStartGroup {
 	
 	public Map<String,MetaEnvServer> getServers( ActionBase action ) throws Exception {
 		return( serverMap );
+	}
+
+	public void removeServer( ServerTransaction transaction , MetaEnvServer server ) {
+		servers.remove( server );
+		serverMap.remove( server.NAME );
+		server.setStartGroup( transaction.action , null );
 	}
 	
 }

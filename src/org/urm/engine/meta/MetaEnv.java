@@ -26,7 +26,7 @@ public class MetaEnv extends PropertyController {
 	public boolean missingSecretProperties = false; 
 	
 	public String ID;
-	private String BASELINE;
+	public String BASELINE;
 	public String REDISTWIN_PATH;
 	public String REDISTLINUX_PATH;
 	public boolean DISTR_USELOCAL;
