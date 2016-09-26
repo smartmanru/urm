@@ -528,7 +528,7 @@ public class TransactionBase {
 						return( true );
 				}
 				else
-					error( "unable to change old metadata" );
+					error( "Unable to change old metadata" );
 			}
 			catch( Throwable e ) {
 				handle( e , "unable to save metadata" );
@@ -594,39 +594,39 @@ public class TransactionBase {
 	
 	private void checkTransaction() throws Exception {
 		if( !continueTransaction() )
-			exit( _Error.TransactionAborted0 , "transaction is aborted" , null );
+			exit( _Error.TransactionAborted0 , "Transaction is aborted" , null );
 	}
 
 	protected void checkTransactionResources() throws Exception {
 		checkTransaction();
 		if( resources == null )
-			exit( _Error.TransactionMissingResourceChanges0 , "missing resources changes" , null );
+			exit( _Error.TransactionMissingResourceChanges0 , "Missing resources changes" , null );
 	}
 
 	protected void checkTransactionBuilders() throws Exception {
 		checkTransaction();
 		if( builders == null )
-			exit( _Error.TransactionMissingBuildersChanges0 , "missing builders changes" , null );
+			exit( _Error.TransactionMissingBuildersChanges0 , "Missing builders changes" , null );
 	}
 
 	protected void checkTransactionDirectory() throws Exception {
 		checkTransaction();
 		if( directory == null )
-			exit( _Error.TransactionMissingDirectoryChanges0 , "missing directory changes" , null );
+			exit( _Error.TransactionMissingDirectoryChanges0 , "Missing directory changes" , null );
 	}
 
 	protected void checkTransactionSettings() throws Exception {
 		checkTransaction();
 		if( settings == null )
-			exit( _Error.TransactionMissingSettingsChanges0 , "missing settings changes" , null );
+			exit( _Error.TransactionMissingSettingsChanges0 , "Missing settings changes" , null );
 	}
 
 	protected void checkTransactionMetadata( ServerProductMeta sourceMeta ) throws Exception {
 		checkTransaction();
 		if( metadata == null )
-			exit( _Error.TransactionMissingMetadataChanges0 , "missing metadata changes" , null );
+			exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
 		if( sourceMeta != metadata )
-			exit1( _Error.InternalTransactionError1 , "internal error: invalid transaction metadata" , "invalid transaction metadata" );
+			exit1( _Error.InternalTransactionError1 , "Internal error: invalid transaction metadata" , "invalid transaction metadata" );
 	}
 
 	public void exit( int errorCode , String msg , String params[] ) throws Exception {

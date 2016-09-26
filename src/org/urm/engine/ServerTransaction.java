@@ -136,47 +136,47 @@ public class ServerTransaction extends TransactionBase {
 		metadata.setVersion( this , version );
 	}
 
-	public void setProductProperties( ServerProductMeta sourceMetadata , PropertySet props , boolean system ) throws Exception {
-		checkTransactionMetadata( sourceMetadata );
-		MetaProductSettings settings = sourceMetadata.getProductSettings();
+	public void setProductProperties( PropertySet props , boolean system ) throws Exception {
+		checkTransactionMetadata( metadata );
+		MetaProductSettings settings = metadata.getProductSettings();
 		settings.setProperties( this , props , system );
 	}
 	
-	public void setProductBuildCommonProperties( ServerProductMeta sourceMetadata , PropertySet props ) throws Exception {
-		checkTransactionMetadata( sourceMetadata );
-		MetaProductSettings settings = sourceMetadata.getProductSettings();
+	public void setProductBuildCommonProperties( PropertySet props ) throws Exception {
+		checkTransactionMetadata( metadata );
+		MetaProductSettings settings = metadata.getProductSettings();
 		settings.setBuildCommonProperties( this , props );
 	}
 	
-	public void setProductBuildModeProperties( ServerProductMeta sourceMetadata , VarBUILDMODE mode , PropertySet props ) throws Exception {
-		checkTransactionMetadata( sourceMetadata );
-		MetaProductSettings settings = sourceMetadata.getProductSettings();
+	public void setProductBuildModeProperties( VarBUILDMODE mode , PropertySet props ) throws Exception {
+		checkTransactionMetadata( metadata );
+		MetaProductSettings settings = metadata.getProductSettings();
 		settings.setBuildModeProperties( this , mode , props );
 	}
 
-	public void createMetaEnv( ServerProductMeta sourceMetadata , MetaEnv env ) throws Exception {
-		checkTransactionMetadata( sourceMetadata );
-		sourceMetadata.addEnv( this , env );
+	public void createMetaEnv( MetaEnv env ) throws Exception {
+		checkTransactionMetadata( env.meta.getStorage( action ) );
+		metadata.addEnv( this , env );
 	}
 	
-	public void deleteMetaEnv( ServerProductMeta sourceMetadata , MetaEnv env ) throws Exception {
-		checkTransactionMetadata( sourceMetadata );
+	public void deleteMetaEnv( MetaEnv env ) throws Exception {
+		checkTransactionMetadata( env.meta.getStorage( action ) );
 		metadata.deleteEnv( this , env );
 	}
 
-	public void createMetaEnvDC( ServerProductMeta sourceMetadata , MetaEnvDC dc ) throws Exception {
-		checkTransactionMetadata( sourceMetadata );
-		dc.env.createDC( this , dc );
-	}
-	
-	public void deleteMetaEnvDC( ServerProductMeta sourceMetadata , MetaEnvDC dc ) throws Exception {
-		checkTransactionMetadata( sourceMetadata );
-		dc.env.deleteDC( this , dc );
-	}
-
-	public void setMetaEnvProperties( ServerProductMeta sourceMetadata , MetaEnv env , PropertySet props , boolean system ) throws Exception {
-		checkTransactionMetadata( sourceMetadata );
+	public void setMetaEnvProperties( MetaEnv env , PropertySet props , boolean system ) throws Exception {
+		checkTransactionMetadata( env.meta.getStorage( action ) );
 		env.setProperties( this , props , system );
 	}
 	
+	public void createMetaEnvDC( MetaEnvDC dc ) throws Exception {
+		checkTransactionMetadata( dc.meta.getStorage( action ) );
+		dc.env.createDC( this , dc );
+	}
+	
+	public void deleteMetaEnvDC( MetaEnvDC dc ) throws Exception {
+		checkTransactionMetadata( dc.meta.getStorage( action ) );
+		dc.env.deleteDC( this , dc );
+	}
+
 }
