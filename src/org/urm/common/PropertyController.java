@@ -167,6 +167,11 @@ public abstract class PropertyController {
 		}
 	}
 
+	protected void updateProperties( ActionBase action ) throws Exception {
+		finishProperties( action );
+		scatterProperties( action );
+	}
+	
 	protected void updateProperties( ServerTransaction transaction , PropertySet props , boolean system ) throws Exception {
 		if( !system )
 			properties.removeUserProperties();

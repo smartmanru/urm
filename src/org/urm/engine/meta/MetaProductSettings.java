@@ -144,7 +144,7 @@ public class MetaProductSettings extends PropertyController {
 			r.buildModes.put( mode , modeSet.copy( action , meta , r , r.buildCommon.getProperties() ) );
 		}
 
-		r.scatterProperties( action );
+		r.updateProperties( action );
 		r.initFinished();
 
 		return( r );
@@ -157,6 +157,7 @@ public class MetaProductSettings extends PropertyController {
 		// create initial
 		setContextProperties( action , productContext );
 		properties.copyOriginalPropertiesToRaw( settings.getDefaultProductProperties() );
+		super.updateProperties( action );
 		
 		// build
 		buildCommon = new MetaProductBuildSettings( "build.common" , meta , this );
@@ -182,8 +183,7 @@ public class MetaProductSettings extends PropertyController {
 		setContextProperties( action , productContext );
 		
 		properties.loadFromNodeElements( root );
-		scatterProperties( action );
-		super.finishProperties( action );
+		super.updateProperties( action );
 
 		buildCommon = new MetaProductBuildSettings( "build" , meta , this );
 		Node build = ConfReader.xmlGetFirstChild( root , "build" );
@@ -222,11 +222,6 @@ public class MetaProductSettings extends PropertyController {
 		}
 	}
 
-	public void updateProperties( ActionBase action ) throws Exception {
-		// get variables
-		scatterProperties( action );
-	}
-	
 	public Map<String,String> getExportProperties( ActionBase action ) throws Exception {
 		// export all variables
 		Map<String,String> map = new HashMap<String,String>();
@@ -244,7 +239,7 @@ public class MetaProductSettings extends PropertyController {
 		return( map );
 	}
 
-	public void setContextProperties( ActionBase action , ServerProductContext productContext ) throws Exception {
+	private void setContextProperties( ActionBase action , ServerProductContext productContext ) throws Exception {
 		CONFIG_PRODUCT = productContext.CONFIG_PRODUCT;
 		CONFIG_PRODUCTHOME = productContext.CONFIG_PRODUCTHOME;
 		

@@ -137,21 +137,20 @@ public class MetaProductBuildSettings extends PropertyController {
 	}
 	
 	public void create( ActionBase action , PropertySet src , PropertySet parent ) throws Exception {
-		if( !initCreateStarted( parent ) )
+		if( !super.initCreateStarted( parent ) )
 			return;
 
 		if( src != null )
 			properties.copyOriginalPropertiesToRaw( src );
 		
-		scatterProperties( action );
-		
-		initFinished();
+		super.updateProperties( action );
+		super.initFinished();
 	}
 	
 	public MetaProductBuildSettings copy( ActionBase action , Meta meta , MetaProductSettings product , PropertySet parent ) throws Exception {
 		MetaProductBuildSettings r = new MetaProductBuildSettings( name , meta , product );
 		r.initCopyStarted( this , parent );
-		r.scatterProperties( action );
+		r.updateProperties( action );
 		r.initFinished();
 		
 		return( r );
@@ -162,9 +161,8 @@ public class MetaProductBuildSettings extends PropertyController {
 			return;
 
 		properties.loadFromNodeElements( root );
-		scatterProperties( action );
-		
-		initFinished();
+		super.updateProperties( action );
+		super.initFinished();
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
@@ -175,7 +173,7 @@ public class MetaProductBuildSettings extends PropertyController {
 	}
 
 	public void setProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
-		updateProperties( transaction , props , true );
+		super.updateProperties( transaction , props , true );
 	}
 
 }

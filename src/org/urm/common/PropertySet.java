@@ -111,7 +111,7 @@ public class PropertySet {
 	public String[] getOriginalProperties() {
 		List<String> props = new LinkedList<String>();
 		for( PropertyValue p : data.values() ) {
-			if( p.isOriginal() )
+			if( !p.isManual() )
 				props.add( p.property );
 		}
 		return( Common.getSortedList( props ) );		
@@ -161,18 +161,9 @@ public class PropertySet {
 		return( p.getOriginalValue() );
 	}
 
-	public void saveOriginalToPropertyFile( String path , RunContext execrc ) throws Exception {
-		Properties props = new Properties();
-		for( String prop : getOriginalProperties() ) {
-			String value = getOriginalByProperty( prop );
-			props.setProperty( prop , value );
-		}
-		Common.createPropertyFile( execrc , path , props );
-	}
-	
 	public void copyOriginalPropertiesToRaw( PropertySet set ) throws Exception {
 		for( PropertyValue p : set.data.values() ) {
-			if( !p.isOriginal() )
+			if( p.isManual() )
 				continue;
 			
 			PropertyValue pv = new PropertyValue( p.property , PropertyValue.PropertyValueOrigin.PROPERTY_EXTRA , set );
@@ -183,10 +174,8 @@ public class PropertySet {
 	}
 
 	public void copyOriginalPropertiesToRaw() throws Exception {
-		for( PropertyValue p : data.values() ) {
-			if( p.isOriginal() )
-				p.setFinalFromOriginalValue();
-		}
+		for( PropertyValue p : data.values() )
+			p.setFinalFromOriginalValue();
 	}
 
 	public void copyRunningPropertiesToRunning( PropertySet src ) throws Exception {
@@ -393,24 +382,40 @@ public class PropertySet {
 		}
 	}
 
+	public void saveToPropertyFile( String path , RunContext execrc ) throws Exception {
+		Properties props = new Properties();
+		for( PropertyValue pv : getAllProperties() ) {
+			if( pv.isManual() )
+				continue;
+			
+			String value = pv.getOriginalValue();
+			props.setProperty( pv.property , value );
+		}
+		Common.createPropertyFile( execrc , path , props );
+	}
+	
 	public void saveAsElements( Document doc , Element parent ) throws Exception {
-		for( String prop : getOriginalProperties() ) {
-			PropertyValue pv = getPropertyValue( prop );
+		for( PropertyValue pv : getAllProperties() ) {
+			if( pv.isManual() )
+				continue;
+			
 			String value = pv.getOriginalValue();
 			if( !value.isEmpty() )
-				Common.xmlCreatePropertyElement( doc , parent , prop , value );
+				Common.xmlCreatePropertyElement( doc , parent , pv.property , value );
 		}
 	}
 	
 	public void saveSplit( Document doc , Element parent ) throws Exception {
-		for( String prop : getOriginalProperties() ) {
-			PropertyValue pv = getPropertyValue( prop );
+		for( PropertyValue pv : getAllProperties() ) {
+			if( pv.isManual() )
+				continue;
+			
 			String value = pv.getOriginalValue();
 			if( !value.isEmpty() ) {
 				if( pv.isSystem() )
-					Common.xmlSetElementAttr( doc , parent , prop , value );
+					Common.xmlSetElementAttr( doc , parent , pv.property , value );
 				else
-					Common.xmlCreatePropertyElement( doc , parent , prop , value );
+					Common.xmlCreatePropertyElement( doc , parent , pv.property , value );
 			}
 		}
 	}

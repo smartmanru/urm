@@ -59,16 +59,10 @@ public class PropertyValue {
 		this.finalValue = "";
 	}
 
-	public boolean isOriginal() {
-		if( origin == PropertyValueOrigin.PROPERTY_ORIGINAL )
+	public boolean isManual() {
+		if( origin == PropertyValueOrigin.PROPERTY_MANUAL )
 			return( true );
 		return( false );
-	}
-	
-	public boolean isManual() {
-		if( isOriginal() )
-			return( false );
-		return( true );
 	}
 	
 	public boolean isRequired() {

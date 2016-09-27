@@ -62,7 +62,7 @@ public class ServerAuth extends ServerObject {
 	
 	public void saveAuthData( String authKey , ServerAuthContext ac ) throws Exception {
 		String filePath = getAuthFile( authKey );
-		ac.properties.saveOriginalToPropertyFile( filePath , engine.execrc );
+		ac.properties.saveToPropertyFile( filePath , engine.execrc );
 	}
 
 	public ServerAuthContext connect( String user , String password ) throws Exception {
