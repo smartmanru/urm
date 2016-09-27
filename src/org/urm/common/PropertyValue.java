@@ -119,6 +119,12 @@ public class PropertyValue {
 		return( finalValue );
 	}
 	
+	public void setValue( PropertyValue pv ) {
+		this.originalValue = pv.originalValue;
+		this.finalValue = pv.originalValue;
+		this.resolved = isFinal( finalValue );
+	}
+	
 	public void setFinalFromOriginalValue() throws Exception {
 		if( originalValue.isEmpty() )
 			setFinalValueInternal( defaultValue );

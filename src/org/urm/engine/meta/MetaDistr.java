@@ -39,10 +39,6 @@ public class MetaDistr extends PropertyController {
 	}
 	
 	@Override
-	public void gatherProperties( ActionBase action ) throws Exception {
-	}
-	
-	@Override
 	public void scatterProperties( ActionBase action ) throws Exception {
 	}
 	

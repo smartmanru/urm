@@ -14,7 +14,6 @@ public abstract class PropertyController {
 	protected PropertySet properties;
 
 	abstract public boolean isValid();
-	abstract public void gatherProperties( ActionBase action ) throws Exception;
 	abstract public void scatterProperties( ActionBase action ) throws Exception;
 	
 	public PropertyController( String name ) {
@@ -180,4 +179,17 @@ public abstract class PropertyController {
 			scatterProperties( transaction.action );
 	}
 	
+	public void updateProperties( ServerTransaction transaction ) throws Exception {
+		properties.recalculateProperties();
+		scatterProperties( transaction.action );
+	}
+
+	public void setStringProperty( String prop , String value ) throws Exception {
+		properties.setOriginalStringProperty( prop , value );
+	}
+
+	public void setNumberProperty( String prop , int value ) throws Exception {
+		properties.setOriginalNumberProperty( prop , value );
+	}
+
 }

@@ -36,10 +36,6 @@ public class MetaEnvServerNode extends PropertyController {
 	}
 	
 	@Override
-	public void gatherProperties( ActionBase action ) throws Exception {
-	}
-	
-	@Override
 	public void scatterProperties( ActionBase action ) throws Exception {
 		action.trace( "load properties of node=" + POS );
 		HOSTLOGIN = super.getStringPropertyRequired( action , "hostlogin" );

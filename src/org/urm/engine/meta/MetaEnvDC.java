@@ -59,15 +59,6 @@ public class MetaEnvDC extends PropertyController {
 		properties.finishRawProperties();
 	}
 	
-	@Override
-	public void gatherProperties( ActionBase action ) throws Exception {
-		if( !isValid() )
-			action.exit0( _Error.InconsistentVersionAttributes0 , "inconsistent version attributes" );
-	
-		properties.setOriginalStringProperty( PROPERTY_NAME , NAME );
-		properties.setOriginalStringProperty( PROPERTY_BASELINE , BASELINE );
-	}
-	
 	public MetaEnvDC copy( ActionBase action , Meta meta , MetaEnv env ) throws Exception {
 		MetaEnvDC r = new MetaEnvDC( meta , env );
 		r.initCopyStarted( this , env.getProperties() );
@@ -242,7 +233,8 @@ public class MetaEnvDC extends PropertyController {
 		if( !super.initCreateStarted( env.getProperties() ) )
 			return;
 
-		gatherProperties( action );
+		super.setStringProperty( PROPERTY_NAME , NAME );
+		super.setStringProperty( PROPERTY_BASELINE , BASELINE );
 		super.finishProperties( action );
 		super.initFinished();
 		

@@ -518,7 +518,7 @@ public class ServerProductMeta extends ServerObject {
 		return( mon );
 	}
 	
-	public synchronized String[] getEnvironments() throws Exception {
+	public synchronized String[] getEnvironments() {
 		List<String> names = new LinkedList<String>();
 		for( MetaEnv env : envs.values() )
 			names.add( env.ID );

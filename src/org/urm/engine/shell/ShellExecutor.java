@@ -108,10 +108,15 @@ public abstract class ShellExecutor extends Shell {
 		}
 	}
 	
-	public synchronized void ensureDirExists( ActionBase action , String dirpath ) throws Exception {
+	public synchronized void ensureDirExists( ActionBase action , String path ) throws Exception {
 		try {
 			opstart();
-			core.cmdEnsureDirExists( action , dirpath );
+			if( action.isLocalAccount() ) {
+				if( !Files.isDirectory( Paths.get( path ) , LinkOption.NOFOLLOW_LINKS ) )
+					Files.createDirectory( Paths.get( path ) );
+				return;
+			}
+			core.cmdEnsureDirExists( action , path );
 		}
 		finally {
 			opstop();

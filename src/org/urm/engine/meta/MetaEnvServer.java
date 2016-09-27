@@ -163,10 +163,6 @@ public class MetaEnvServer extends PropertyController {
 		properties.finishRawProperties();
 	}
 	
-	@Override
-	public void gatherProperties( ActionBase action ) throws Exception {
-	}
-	
 	public String getFullId( ActionBase action ) throws Exception {
 		return( dc.getFullId( action ) + "-" + NAME );
 	}
@@ -645,7 +641,7 @@ public class MetaEnvServer extends PropertyController {
 		if( !super.initCreateStarted( dc.getProperties() ) )
 			return;
 
-		gatherProperties( action );
+		super.setStringProperty( "name" , NAME );
 		super.finishProperties( action );
 		super.initFinished();
 		

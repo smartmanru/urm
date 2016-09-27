@@ -61,10 +61,6 @@ public class MetaMonitoring extends PropertyController {
 		MINSILENT = super.getIntProperty( action , PROPERTY_MINSILENT , 30 );
 	}
 	
-	@Override
-	public void gatherProperties( ActionBase action ) throws Exception {
-	}
-	
 	public MetaMonitoring copy( ActionBase action , Meta meta ) throws Exception {
 		MetaMonitoring r = new MetaMonitoring( meta );
 		MetaProductSettings product = meta.getProduct( action );

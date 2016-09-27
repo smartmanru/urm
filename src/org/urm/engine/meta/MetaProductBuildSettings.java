@@ -132,10 +132,6 @@ public class MetaProductBuildSettings extends PropertyController {
 		CONFIG_SOURCE_SQL_POSTREFRESH = super.getStringProperty( action , PROPERTY_SOURCE_SQL_POSTREFRESH );
 	}
 
-	@Override
-	public void gatherProperties( ActionBase action ) throws Exception {
-	}
-	
 	public void create( ActionBase action , PropertySet src , PropertySet parent ) throws Exception {
 		if( !super.initCreateStarted( parent ) )
 			return;

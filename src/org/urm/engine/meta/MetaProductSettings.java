@@ -119,10 +119,6 @@ public class MetaProductSettings extends PropertyController {
 		CONFIG_CUSTOM_DATABASE = super.getStringProperty( action , PROPERTY_CUSTOM_DATABASE );
 	}
 
-	@Override
-	public void gatherProperties( ActionBase action ) throws Exception {
-	}
-	
 	public MetaProductSettings copy( ActionBase action , Meta meta ) throws Exception {
 		MetaProductSettings r = new MetaProductSettings( meta , execprops );
 		r.initCopyStarted( this , execprops );

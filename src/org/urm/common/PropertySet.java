@@ -35,7 +35,7 @@ public class PropertySet {
 		PropertySet r = new PropertySet( set , parentNew );
 		for( PropertyValue value : data.values() ) {
 			PropertyValue rv = new PropertyValue( value );
-			r.addProperty( rv );
+			r.setProperty( rv );
 		}
 		r.failed = failed;
 		return( r );
@@ -48,7 +48,7 @@ public class PropertySet {
 				continue;
 			
 			PropertyValue rv = new PropertyValue( value );
-			r.addProperty( rv );
+			r.setProperty( rv );
 		}
 		r.failed = failed;
 		return( r );
@@ -169,7 +169,7 @@ public class PropertySet {
 			PropertyValue pv = new PropertyValue( p.property , PropertyValue.PropertyValueOrigin.PROPERTY_EXTRA , set );
 			pv.setOriginalAndFinalValue( p.getOriginalValue() );
 			pv.setType( p.getType() );
-			addProperty( pv );
+			setProperty( pv );
 		}
 	}
 
@@ -189,7 +189,7 @@ public class PropertySet {
 			if( !pv.isResolved() )
 				Common.exit2( _Error.UnresolvedRunningProperty2 , "cannot set unresolved running property set=" + set + ", prop=" + p.property , set , p.property );
 			
-			addProperty( pv );
+			setProperty( pv );
 		}
 	}
 
@@ -227,32 +227,32 @@ public class PropertySet {
 			pv.setPath( value , target );
 		else
 			pv.setString( value );
-		addProperty( pv );
+		setProperty( pv );
 	}
 
 	public void setOriginalStringProperty( String prop , String value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
 		pv.setString( value );
-		addProperty( pv );
+		setProperty( pv );
 	}
 
 	public void setOriginalBooleanProperty( String prop , boolean value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
 		pv.setBool( value );
-		addProperty( pv );
+		setProperty( pv );
 	}
 
 	public void setOriginalBooleanProperty( String prop , FLAG value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
 		if( value != FLAG.DEFAULT )
 			pv.setBool( value == FLAG.YES );
-		addProperty( pv );
+		setProperty( pv );
 	}
 
 	public void setOriginalNumberProperty( String prop , int value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
 		pv.setNumber( value );
-		addProperty( pv );
+		setProperty( pv );
 	}
 
 	public void setOriginalPathProperty( String prop , String value ) throws Exception {
@@ -262,32 +262,32 @@ public class PropertySet {
 	public void setOriginalPathProperty( String prop , String value , ShellExecutor target ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
 		pv.setPath( value , target );
-		addProperty( pv );
+		setProperty( pv );
 	}
 
 	public void setStringProperty( String prop , String value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
 		pv.setString( value );
-		addProperty( pv );
+		setProperty( pv );
 	}
 
 	public void setBooleanProperty( String prop , boolean value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
 		pv.setBool( value );
-		addProperty( pv );
+		setProperty( pv );
 	}
 
 	public void setBooleanProperty( String prop , FLAG value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
 		if( value != FLAG.DEFAULT )
 			pv.setBool( value == FLAG.YES );
-		addProperty( pv );
+		setProperty( pv );
 	}
 
 	public void setNumberProperty( String prop , int value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
 		pv.setNumber( value );
-		addProperty( pv );
+		setProperty( pv );
 	}
 
 	public void setPathProperty( String prop , String value ) throws Exception {
@@ -297,7 +297,7 @@ public class PropertySet {
 	public void setPathProperty( String prop , String value , ShellExecutor target ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
 		pv.setPath( value , target );
-		addProperty( pv );
+		setProperty( pv );
 	}
 
 	public String getPropertyAny( String prop ) throws Exception {
@@ -601,7 +601,7 @@ public class PropertySet {
 		
 		if( pv == null ) {
 			pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_ORIGINAL , this );
-			addProperty( pv );
+			setProperty( pv );
 		}
 			
 		pv.setSystem();
@@ -623,7 +623,7 @@ public class PropertySet {
 		PropertyValue pv = getPropertyValue( prop );
 		if( pv == null ) {
 			pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , this );
-			addProperty( pv );
+			setProperty( pv );
 		}
 		
 		pv.setOriginalAndFinalValue( value );
@@ -640,8 +640,12 @@ public class PropertySet {
 		return( true );
 	}
 	
-	private void addProperty( PropertyValue pv ) {
-		data.put( getKeyByProperty( pv.property ) , pv );
+	private void setProperty( PropertyValue pv ) {
+		PropertyValue pvc = getPropertyValue( pv.property );
+		if( pvc != null )
+			pvc.setValue( pv );
+		else
+			data.put( getKeyByProperty( pv.property ) , pv );
 	}
 	
 	private PropertyValue getRunningByKey( String key ) {
@@ -687,7 +691,7 @@ public class PropertySet {
 	private void createOriginalAndRawProperty( String prop , String value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_ORIGINAL , this );
 		pv.setOriginalAndFinalValue( value );
-		addProperty( pv );
+		setProperty( pv );
 	}
 
 	private void processValue( PropertyValue pv , boolean finalValue , boolean isWindows , boolean useRaw , boolean allowParent , boolean allowUnresolved ) throws Exception {

@@ -123,36 +123,6 @@ public class MetaEnv extends PropertyController {
 			action.exit0( _Error.InconsistentVersionAttributes0 , "inconsistent version attributes" );
 	}
 
-	@Override
-	public void gatherProperties( ActionBase action ) throws Exception {
-		if( !isValid() )
-			action.exit0( _Error.InconsistentVersionAttributes0 , "inconsistent version attributes" );
-	
-		properties.setOriginalStringProperty( PROPERTY_ID , ID );
-		properties.setOriginalStringProperty( PROPERTY_BASELINE , BASELINE );
-		properties.setOriginalPathProperty( PROPERTY_REDISTWIN_PATH , REDISTWIN_PATH );
-		properties.setOriginalPathProperty( PROPERTY_REDISTLINUX_PATH , REDISTLINUX_PATH );
-		properties.setOriginalBooleanProperty( PROPERTY_DISTR_USELOCAL , DISTR_USELOCAL );
-		properties.setOriginalStringProperty( PROPERTY_DISTR_HOSTLOGIN , DISTR_HOSTLOGIN );
-		properties.setOriginalPathProperty( PROPERTY_DISTR_PATH , DISTR_PATH );
-		properties.setOriginalPathProperty( PROPERTY_UPGRADE_PATH , UPGRADE_PATH );
-		properties.setOriginalPathProperty( PROPERTY_CONF_SECRETFILESPATH , CONF_SECRETFILESPATH );
-		properties.setOriginalStringProperty( PROPERTY_CHATROOMFILE , CHATROOMFILE );
-		properties.setOriginalPathProperty( PROPERTY_KEYFILE , KEYFILE );
-		properties.setOriginalPathProperty( PROPERTY_DB_AUTHFILE , DB_AUTHFILE );
-		properties.setOriginalBooleanProperty( PROPERTY_PROD , PROD );
-		
-		// properties, affecting options
-		properties.setOriginalBooleanProperty( PROPERTY_DB_AUTH , DB_AUTH );
-		properties.setOriginalBooleanProperty( PROPERTY_OBSOLETE , OBSOLETE );
-		properties.setOriginalBooleanProperty( PROPERTY_SHOWONLY , SHOWONLY );
-		properties.setOriginalBooleanProperty( PROPERTY_BACKUP , BACKUP );
-		properties.setOriginalBooleanProperty( PROPERTY_CONF_DEPLOY , CONF_DEPLOY );
-		properties.setOriginalBooleanProperty( PROPERTY_CONF_KEEPALIVE , CONF_KEEPALIVE );
-		properties.finishRawProperties();
-	}
-	
-	
 	public void createEnv( ActionBase action ) throws Exception {
 		createProperties( action );
 	}
@@ -247,7 +217,8 @@ public class MetaEnv extends PropertyController {
 		if( !super.initCreateStarted( secretProperties ) )
 			return;
 
-		gatherProperties( action );
+		super.setStringProperty( PROPERTY_ID , ID );
+		super.setStringProperty( PROPERTY_BASELINE , BASELINE );
 		super.finishProperties( action );
 		super.initFinished();
 		
@@ -335,6 +306,10 @@ public class MetaEnv extends PropertyController {
 	public void setProperties( ServerTransaction transaction , PropertySet props , boolean system ) throws Exception {
 		super.updateProperties( transaction , props , system );
 		scatterProperties( transaction.getAction() );
+	}
+	
+	public void setBaseline( ServerTransaction transaction , String baselineEnv ) throws Exception {
+		properties.setStringProperty( PROPERTY_BASELINE , baselineEnv );
 	}
 	
 }
