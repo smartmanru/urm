@@ -64,6 +64,11 @@ public class MetadataStorage {
 		return( folder.getFilePath( action , UrmStorage.MONITORING_SETTINGS_FILE ) );
 	}
 	
+	public LocalFolder getEnvConfFolder( ActionBase action ) throws Exception {
+		UrmStorage urm = artefactory.getUrmStorage();
+		return( urm.getProductEnvMetadataFolder( action , meta.name ) );
+	}
+	
 	public String getEnvConfFile( ActionBase action , String envFile ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
 		LocalFolder folder = urm.getProductEnvMetadataFolder( action , meta.name );
@@ -79,6 +84,9 @@ public class MetadataStorage {
 	public String[] getEnvFiles( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
 		LocalFolder folder = urm.getProductEnvMetadataFolder( action , meta.name );
+		if( !folder.checkExists( action ) )
+			return( new String[0] );
+		
 		String[] files = folder.findFiles( action , "*.xml" );
 		return( files );
 	}
@@ -224,6 +232,8 @@ public class MetadataStorage {
 	}
 	
 	public void saveEnvConfFile( ActionBase action , Document doc , String envFile ) throws Exception {
+		LocalFolder folder = getEnvConfFolder( action );
+		folder.ensureExists( action );
 		String filePath = getEnvConfFile( action , envFile );
 		saveFile( action , doc , filePath );
 	}
