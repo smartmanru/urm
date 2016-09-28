@@ -115,7 +115,10 @@ public class ServerMirrorRepository extends ServerObject {
 		
 		try {
 			if( isServer() )
-				createMirrorServer( transaction , push );
+				createServerMirror( transaction , push );
+			else
+			if( isProduct() )
+				createProductMirror( transaction , push );
 		}
 		catch( Throwable e ) {
 			RESOURCE = "";
@@ -129,24 +132,37 @@ public class ServerMirrorRepository extends ServerObject {
 		createProperties();
 	}
 	
-	private void createMirrorServer( ServerTransaction transaction , boolean push ) throws Exception {
+	private void createServerMirror( ServerTransaction transaction , boolean push ) throws Exception {
 		// reject already published
 		// server: test target, remove mirror work/repo, create mirror work/repo, publish target
 		ActionBase action = transaction.getAction();
-		GenericVCS vcs = GenericVCS.getVCS( action , null , RESOURCE , false );
 		ServerLoader loader = mirrors.engine.getLoader();
 		LocalFolder serverSettings = loader.getServerSettingsFolder( action );
-		
+		createMetaMirror( transaction , push , serverSettings );
+	}
+
+	private void createProductMirror( ServerTransaction transaction , boolean push ) throws Exception {
+		// reject already published
+		// server: test target, remove mirror work/repo, create mirror work/repo, publish target
+		ActionBase action = transaction.getAction();
+		ServerLoader loader = mirrors.engine.getLoader();
+		LocalFolder productSettings = loader.getProductSettingsFolder( action , PRODUCT );
+		createMetaMirror( transaction , push , productSettings );
+	}
+
+	private void createMetaMirror( ServerTransaction transaction , boolean push , LocalFolder folder ) throws Exception {
+		ActionBase action = transaction.getAction();
+		GenericVCS vcs = GenericVCS.getVCS( action , null , RESOURCE , false );
 		if( push ) {
 			MirrorStorage storage = vcs.createInitialMirror( this );
-			syncFromFolder( action , vcs , storage , serverSettings );
+			syncFromFolder( action , vcs , storage , folder );
 		}
 		else {
 			MirrorStorage storage = vcs.createServerMirror( this );
-			syncToFolder( action , vcs , storage , serverSettings );
+			syncToFolder( action , vcs , storage , folder );
 		}
 	}
-
+	
 	void createProductMeta( ServerTransaction transaction , ServerProduct product , String name ) throws Exception {
 		NAME = name;
 		TYPE = TYPE_PRODUCT_META;
@@ -189,6 +205,9 @@ public class ServerMirrorRepository extends ServerObject {
 	void dropMirror( ServerTransaction transaction ) throws Exception {
 		if( isServer() )
 			dropServerMirror( transaction );
+		else
+		if( isProduct() )
+			dropProductMirror( transaction );
 		
 		RESOURCE = "";
 		RESOURCE_REPO = "";
@@ -199,6 +218,14 @@ public class ServerMirrorRepository extends ServerObject {
 	}
 	
 	private void dropServerMirror( ServerTransaction transaction ) throws Exception {
+		dropMetaMirror( transaction );
+	}
+
+	private void dropProductMirror( ServerTransaction transaction ) throws Exception {
+		dropMetaMirror( transaction );
+	}
+
+	private void dropMetaMirror( ServerTransaction transaction ) throws Exception {
 		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , false );
 		vcs.dropMirror( this );
 	}
@@ -206,35 +233,62 @@ public class ServerMirrorRepository extends ServerObject {
 	void pushMirror( ServerTransaction transaction ) throws Exception {
 		if( isServer() )
 			pushServerMirror( transaction );
+		else
+		if( isProduct() )
+			pushProductMirror( transaction );
 	}
 
 	void pushServerMirror( ServerTransaction transaction ) throws Exception {
-		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , false );
-		vcs.refreshMirror( this );
-		MirrorStorage storage = vcs.getMirror( this );
-		
 		ServerLoader loader = mirrors.engine.getLoader();
 		ActionBase action = transaction.getAction();
 		LocalFolder serverSettings = loader.getServerSettingsFolder( action );
-		
-		syncFromFolder( action , vcs , storage , serverSettings );
+		pushMetaMirror( transaction , serverSettings );
+	}
+	
+	void pushProductMirror( ServerTransaction transaction ) throws Exception {
+		ServerLoader loader = mirrors.engine.getLoader();
+		ActionBase action = transaction.getAction();
+		LocalFolder productSettings = loader.getProductSettingsFolder( action , PRODUCT );
+		pushMetaMirror( transaction , productSettings );
+	}
+
+	void pushMetaMirror( ServerTransaction transaction , LocalFolder folder ) throws Exception {
+		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , false );
+		vcs.refreshMirror( this );
+		MirrorStorage storage = vcs.getMirror( this );
+		ActionBase action = transaction.getAction();
+		syncFromFolder( action , vcs , storage , folder );
 		vcs.pushMirror( this );
 	}
 	
 	void refreshMirror( ServerTransaction transaction ) throws Exception {
 		if( isServer() )
 			refreshServerMirror( transaction );
+		else
+		if( isProduct() )
+			refreshProductMirror( transaction );
 	}
 
 	private void refreshServerMirror( ServerTransaction transaction ) throws Exception {
-		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , false );
-		vcs.refreshMirror( this );
-		MirrorStorage storage = vcs.getMirror( this );
-
 		ServerLoader loader = mirrors.engine.getLoader();
 		ActionBase action = transaction.getAction();
 		LocalFolder serverSettings = loader.getServerSettingsFolder( action );
-		syncToFolder( action , vcs , storage , serverSettings );
+		refreshMetaMirror( transaction , serverSettings );
+	}
+	
+	private void refreshProductMirror( ServerTransaction transaction ) throws Exception {
+		ServerLoader loader = mirrors.engine.getLoader();
+		ActionBase action = transaction.getAction();
+		LocalFolder productSettings = loader.getProductSettingsFolder( action , PRODUCT );
+		refreshMetaMirror( transaction , productSettings );
+	}
+
+	private void refreshMetaMirror( ServerTransaction transaction , LocalFolder folder ) throws Exception {
+		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , false );
+		vcs.refreshMirror( this );
+		MirrorStorage storage = vcs.getMirror( this );
+		ActionBase action = transaction.getAction();
+		syncToFolder( action , vcs , storage , folder );
 	}
 	
 	private void syncFromFolder( ActionBase action , GenericVCS vcs , MirrorStorage storage , LocalFolder folder ) throws Exception {

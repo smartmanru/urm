@@ -54,6 +54,15 @@ public class ServerLoader {
 		return( folder );
 	}
 
+	public LocalFolder getProductSettingsFolder( ActionBase action , String productName ) throws Exception {
+		ServerProductMeta set = findMetaStorage( productName );
+		if( set == null )
+			return( null );
+		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , set.meta );
+		LocalFolder folder = storageMeta.getFolder( action );
+		return( folder );
+	}
+
 	private String getServerRegistryFile() throws Exception {
 		String path = Common.getPath( engine.execrc.installPath , "etc" );
 		String propertyFile = Common.getPath( path , "registry.xml" );
