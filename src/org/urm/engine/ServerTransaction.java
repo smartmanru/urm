@@ -175,6 +175,11 @@ public class ServerTransaction extends TransactionBase {
 		env.updateProperties( this );
 	}
 	
+	public void updateMetaEnvDC( MetaEnvDC dc ) throws Exception {
+		checkTransactionMetadata( dc.meta.getStorage( action ) );
+		dc.updateProperties( this );
+	}
+	
 	public void createMetaEnvDC( MetaEnvDC dc ) throws Exception {
 		checkTransactionMetadata( dc.meta.getStorage( action ) );
 		dc.env.createDC( this , dc );

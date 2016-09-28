@@ -29,7 +29,7 @@ public class MetaEnvDC extends PropertyController {
 	public Map<String,MetaEnvServer> serverMap;
 
 	public static String PROPERTY_NAME = "name";
-	public static String PROPERTY_BASELINE = "baseline";
+	public static String PROPERTY_BASELINE = "basedc";
 	
 	public MetaEnvDC( Meta meta , MetaEnv env ) {
 		super( "dc" );
@@ -49,10 +49,10 @@ public class MetaEnvDC extends PropertyController {
 
 	@Override
 	public void scatterProperties( ActionBase action ) throws Exception {
-		NAME = properties.getSystemRequiredStringProperty( "name" );
+		NAME = properties.getSystemRequiredStringProperty( PROPERTY_NAME );
 		action.trace( "load properties of dc=" + NAME );
 		
-		BASELINE = super.getStringProperty( action , "configuration-baseline" );
+		BASELINE = super.getStringProperty( action , PROPERTY_BASELINE );
 		if( BASELINE.equals( "default" ) )
 			BASELINE = NAME;
 		
@@ -256,6 +256,10 @@ public class MetaEnvDC extends PropertyController {
 		originalList.remove( index );
 		serverMap.remove( server.NAME );
 		startInfo.removeServer( transaction , server );
+	}
+	
+	public void setBaseline( ServerTransaction transaction , String baselineDC ) throws Exception {
+		properties.setStringProperty( PROPERTY_BASELINE , baselineDC );
 	}
 	
 }

@@ -53,7 +53,7 @@ public class MetaEnv extends PropertyController {
 	// properties
 	public static String PROPERTY_ID = "id";
 	public static String PROPERTY_PROD = "prod";
-	public static String PROPERTY_BASELINE = "configuration-baseline";
+	public static String PROPERTY_BASELINE = "baseenv";
 	public static String PROPERTY_REDISTWIN_PATH = "redist-win-path";
 	public static String PROPERTY_REDISTLINUX_PATH = "redist-linux-path";
 	public static String PROPERTY_DISTR_USELOCAL = "distr-use-local";
