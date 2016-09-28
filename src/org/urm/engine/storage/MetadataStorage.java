@@ -24,8 +24,14 @@ public class MetadataStorage {
 		this.meta = meta;
 	}
 
-	public LocalFolder getFolder( ActionBase action ) throws Exception {
-		return( new LocalFolder( action.context.session.etcPath , action.isLocalWindows() ) );
+	public LocalFolder getHomeFolder( ActionBase action ) throws Exception {
+		UrmStorage urm = artefactory.getUrmStorage();
+		return( urm.getProductHome( action , meta.name ) );
+	}
+	
+	public LocalFolder getMetaFolder( ActionBase action ) throws Exception {
+		UrmStorage urm = artefactory.getUrmStorage();
+		return( urm.getProductCoreMetadataFolder( action , meta.name ) );
 	}
 	
 	public String getVersionConfFile( ActionBase action ) throws Exception {

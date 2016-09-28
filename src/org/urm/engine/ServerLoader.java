@@ -54,12 +54,12 @@ public class ServerLoader {
 		return( folder );
 	}
 
-	public LocalFolder getProductSettingsFolder( ActionBase action , String productName ) throws Exception {
+	public LocalFolder getProductHomeFolder( ActionBase action , String productName ) throws Exception {
 		ServerProductMeta set = findMetaStorage( productName );
 		if( set == null )
 			return( null );
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , set.meta );
-		LocalFolder folder = storageMeta.getFolder( action );
+		LocalFolder folder = storageMeta.getHomeFolder( action );
 		return( folder );
 	}
 
@@ -163,7 +163,7 @@ public class ServerLoader {
 			try {
 				action.setServerSystemProductLayout( name );
 				MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , set.meta );
-				LocalFolder folder = storageMeta.getFolder( action );
+				LocalFolder folder = storageMeta.getMetaFolder( action );
 				if( folder.checkExists( action ) )
 					set.loadAll( action , storageMeta );
 				else

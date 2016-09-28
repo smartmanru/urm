@@ -146,7 +146,7 @@ public class ServerMirrorRepository extends ServerObject {
 		// server: test target, remove mirror work/repo, create mirror work/repo, publish target
 		ActionBase action = transaction.getAction();
 		ServerLoader loader = mirrors.engine.getLoader();
-		LocalFolder productSettings = loader.getProductSettingsFolder( action , PRODUCT );
+		LocalFolder productSettings = loader.getProductHomeFolder( action , PRODUCT );
 		createMetaMirror( transaction , push , productSettings );
 	}
 
@@ -248,7 +248,7 @@ public class ServerMirrorRepository extends ServerObject {
 	void pushProductMirror( ServerTransaction transaction ) throws Exception {
 		ServerLoader loader = mirrors.engine.getLoader();
 		ActionBase action = transaction.getAction();
-		LocalFolder productSettings = loader.getProductSettingsFolder( action , PRODUCT );
+		LocalFolder productSettings = loader.getProductHomeFolder( action , PRODUCT );
 		pushMetaMirror( transaction , productSettings );
 	}
 
@@ -279,7 +279,7 @@ public class ServerMirrorRepository extends ServerObject {
 	private void refreshProductMirror( ServerTransaction transaction ) throws Exception {
 		ServerLoader loader = mirrors.engine.getLoader();
 		ActionBase action = transaction.getAction();
-		LocalFolder productSettings = loader.getProductSettingsFolder( action , PRODUCT );
+		LocalFolder productSettings = loader.getProductHomeFolder( action , PRODUCT );
 		refreshMetaMirror( transaction , productSettings );
 	}
 
