@@ -5,12 +5,12 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
+import org.urm.engine.meta.Meta.VarSERVERACCESSTYPE;
 import org.urm.engine.meta.MetaBase;
 import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.meta.MetaEnvServerBase;
 import org.urm.engine.meta.MetaEnvServerNode;
 import org.urm.engine.meta.Meta.VarARCHIVETYPE;
-import org.urm.engine.meta.Meta.VarSERVERTYPE;
 import org.urm.engine.meta.MetaBase.VarBASESRCFORMAT;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BaseRepository;
@@ -34,7 +34,7 @@ public class ActionBaseInstall extends ActionBase {
 	private void executeServer( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		MetaEnvServerBase base = server.base;
-		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
+		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
 		
 		if( base == null ) {
 			info( "server has no base defined. Skipped" );
@@ -53,9 +53,9 @@ public class ActionBaseInstall extends ActionBase {
 	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerBase base ) throws Exception {
 		BaseRepository repo = artefactory.getBaseRepository( this );
 		MetaBase info = repo.getBaseInfo( this , base.ID , node , true );
-		if( info.serverType != server.serverType ) {
-			String baseType = Common.getEnumLower( info.serverType );
-			String serverType = Common.getEnumLower( server.serverType );
+		if( info.serverAccessType != server.getServerAccessType( this ) ) {
+			String baseType = Common.getEnumLower( info.serverAccessType );
+			String serverType = Common.getEnumLower( server.getServerAccessType( this ) );
 			exit2( _Error.BaseServerTypeMismatched2 , "base server type mismatched: " + baseType + " <> " + serverType , baseType , serverType );
 		}
 		
@@ -96,7 +96,7 @@ public class ActionBaseInstall extends ActionBase {
 			exitUnexpectedState();
 		
 		// prepare
-		if( info.serverType != null ) {
+		if( info.serverAccessType != null ) {
 			ServerProcess process = new ServerProcess( server , node );
 			process.prepare( this );
 		}
@@ -230,13 +230,13 @@ public class ActionBaseInstall extends ActionBase {
 	}
 
 	private void copySystemFiles( MetaBase info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
-		if( info.serverType == null )
+		if( info.serverAccessType == null )
 			return;
 		
 		LocalFolder workBase = getSystemFiles( info , redist.server , redist.node );
 		
 		// deploy
-		if( info.serverType != VarSERVERTYPE.SERVICE )
+		if( info.serverAccessType != VarSERVERACCESSTYPE.SERVICE )
 			runtime.createBinPath( this );
 		runtime.restoreSysConfigs( this , redist , workBase );
 	}
@@ -247,7 +247,7 @@ public class ActionBaseInstall extends ActionBase {
 		
 		// copy system files from base
 		RemoteFolder baseMaster = info.getFolder( this );
-		if( info.serverType == VarSERVERTYPE.SERVICE ) {
+		if( info.serverAccessType == VarSERVERACCESSTYPE.SERVICE ) {
 			if( !server.isLinux( this ) )
 				exitUnexpectedState();
 			

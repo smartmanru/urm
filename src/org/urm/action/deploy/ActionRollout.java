@@ -3,7 +3,6 @@ package org.urm.action.deploy;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
-import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.meta.MetaEnvServerNode;
@@ -57,7 +56,7 @@ public class ActionRollout extends ActionBase {
 			return;
 		}
 		
-		info( "============================================ execute server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
+		info( "============================================ execute server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
 		info( "rootpath=" + server.ROOTPATH );
 
 		k = 0;

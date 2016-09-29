@@ -4,7 +4,6 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
-import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.shell.Account;
@@ -28,7 +27,7 @@ public class ActionDropRedist extends ActionBase {
 
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
-		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
+		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
 		
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			RedistStorage redist = artefactory.getRedistStorage( this , target.envServer , item.envServerNode );

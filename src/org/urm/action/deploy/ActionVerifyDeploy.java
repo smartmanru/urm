@@ -99,7 +99,7 @@ public class ActionVerifyDeploy extends ActionBase {
 	private void executeServer( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		
-		info( "============================================ execute server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
+		info( "============================================ execute server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
 
 		if( server.isDatabase( this ) )
 			executeServerDatabase( server );

@@ -10,7 +10,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.engine.meta.Meta.VarSERVERTYPE;
+import org.urm.engine.meta.Meta.VarSERVERACCESSTYPE;
 import org.urm.engine.storage.BaseRepository;
 import org.urm.engine.storage.RemoteFolder;
 import org.w3c.dom.Node;
@@ -39,7 +39,7 @@ public class MetaBase {
 	public VarBASESRCTYPE type;
 	public boolean adm;
 	public VarOSTYPE osType;
-	public VarSERVERTYPE serverType;
+	public VarSERVERACCESSTYPE serverAccessType;
 	public Charset charset;
 
 	public VarBASESRCFORMAT srcFormat;
@@ -162,12 +162,12 @@ public class MetaBase {
 		
 		String SERVERTYPE = null;
 		if( primary )
-			SERVERTYPE = props.getSystemRequiredStringProperty( "servertype" );
+			SERVERTYPE = props.getSystemRequiredStringProperty( "server-accesstype" );
 		else
-			SERVERTYPE = props.getSystemStringProperty( "servertype" );
+			SERVERTYPE = props.getSystemStringProperty( "server-accesstype" );
 		
 		if( SERVERTYPE != null )
-			serverType = Meta.getServerType( SERVERTYPE );
+			serverAccessType = Meta.getServerAccessType( SERVERTYPE );
 		
 		// type properties
 		if( isLinuxArchiveLink() )

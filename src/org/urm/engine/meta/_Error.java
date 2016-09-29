@@ -11,7 +11,6 @@ public class _Error {
 	public static final int MissingOSType0 = ErrorBase + 2;
 	public static final int InvalidCategory1 = ErrorBase + 3;
 	public static final int MissingCategory0 = ErrorBase + 4;
-	public static final int InvalidServerType1 = ErrorBase + 5;
 	public static final int InvalidNodeType1 = ErrorBase + 6;
 	public static final int MissingNodeType0 = ErrorBase + 7;
 	public static final int InvalidDeployType1 = ErrorBase + 8;
@@ -79,5 +78,7 @@ public class _Error {
 	public static final int UnknownMavenVersion0 = ErrorBase + 70;
 	public static final int UnknownBuilderVersion1 = ErrorBase + 71;
 	public static final int UnknownProjectCategory1 = ErrorBase + 72;
+	public static final int InvalidServerAccessType1 = ErrorBase + 73;
+	public static final int InvalidServerRunType1 = ErrorBase + 74;
 
 }

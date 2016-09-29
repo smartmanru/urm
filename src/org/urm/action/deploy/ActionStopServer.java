@@ -6,7 +6,6 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
-import org.urm.common.Common;
 import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.meta.MetaEnvServerNode;
 
@@ -28,7 +27,7 @@ public class ActionStopServer extends ActionBase {
 			return( true );
 		}
 		
-		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
+		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
 
 		// stop proxy if any
 		if( target.itemFull && server.proxyServer != null ) {
@@ -81,7 +80,7 @@ public class ActionStopServer extends ActionBase {
 				super.fail1( _Error.ServerClusterStopFailed1 , "server cluster stop failed, server=" + actionServer.NAME , actionServer.NAME );
 		}
 		else
-			debug( "server=" + server.NAME + ", type=" + Common.getEnumLower( actionServer.serverType ) + " is not supported for stop. Skipped." );
+			debug( "server=" + server.NAME + ", type=" + actionServer.getServerTypeName( this ) + " is not supported for stop. Skipped." );
 	}
 	
 }

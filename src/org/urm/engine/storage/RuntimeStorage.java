@@ -14,7 +14,6 @@ import org.urm.engine.meta.MetaEnvServerNode;
 import org.urm.engine.meta.Meta.VarARCHIVETYPE;
 import org.urm.engine.meta.Meta.VarCONTENTTYPE;
 import org.urm.engine.meta.Meta.VarDISTITEMTYPE;
-import org.urm.engine.meta.Meta.VarSERVERTYPE;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 
@@ -304,7 +303,7 @@ public class RuntimeStorage extends ServerStorage {
 	}
 
 	public void installService( ActionBase action , String servicePath ) throws Exception {
-		if( server.serverType != VarSERVERTYPE.SERVICE )
+		if( !server.isService( action ) )
 			action.exitUnexpectedState();
 		
 		if( server.osType == VarOSTYPE.LINUX ) {

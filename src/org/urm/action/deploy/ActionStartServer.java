@@ -6,7 +6,6 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
-import org.urm.common.Common;
 import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.meta.MetaEnvServerNode;
 
@@ -28,7 +27,7 @@ public class ActionStartServer extends ActionBase {
 			return( true );
 		}
 		
-		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
+		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
 
 		// first start childs
 		if( target.itemFull && server.subordinateServers != null && server.subordinateServers.length != 0 ) {
@@ -82,7 +81,7 @@ public class ActionStartServer extends ActionBase {
 			}
 		}
 		else
-			debug( "server=" + server.NAME + ", type=" + Common.getEnumLower( actionServer.serverType ) + " is not supported for start. Skipped." );
+			debug( "server=" + actionServer.NAME + ", type=" + actionServer.getServerTypeName( this ) + " is not supported for start. Skipped." );
 	}
 	
 }

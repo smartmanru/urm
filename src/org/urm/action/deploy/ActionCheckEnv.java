@@ -171,7 +171,7 @@ public class ActionCheckEnv extends ActionBase {
 		
 		boolean wholeOk = true;
 		
-		if( server.isGenericWeb( this ) ) {
+		if( server.isWebUser( this ) ) {
 			if( !server.WEBMAINURL.isEmpty() )
 				if( !checkOneServerWholeUrl( server.WEBMAINURL , "main web url" ) )
 					wholeOk = false;

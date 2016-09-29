@@ -4,7 +4,6 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
-import org.urm.common.Common;
 import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.meta.MetaEnvServerNode;
 
@@ -28,7 +27,7 @@ public class ActionList extends ActionBase {
 	}
 
 	private void showServerInfo( MetaEnvServer server ) throws Exception {
-		String s = "\tserver: " + server.NAME + " type=" + Common.getEnumLower( server.serverType );
+		String s = "\tserver: " + server.NAME + " type=" + server.getServerTypeName( this );
 		if( server.OFFLINE )
 			s += " (offline)";
 		info( s );

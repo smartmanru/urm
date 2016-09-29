@@ -75,16 +75,20 @@ public class Meta {
 		DEVTRUNK
 	};
 	
-	public enum VarSERVERTYPE {
+	public enum VarSERVERACCESSTYPE {
 		UNKNOWN ,
 		SERVICE ,
-		SERVICE_DATABASE ,
-		GENERIC_WEB ,
-		GENERIC_SERVER ,
-		GENERIC_COMMAND ,
-		GENERIC_NOSSH ,
-		GENERIC_DATABASE ,
-		OFFLINE
+		GENERIC ,
+		MANUAL
+	};
+
+	public enum VarSERVERRUNTYPE {
+		UNKNOWN ,
+		DATABASE ,
+		APP ,
+		WEBUI ,
+		WEBAPP ,
+		COMMAND
 	};
 
 	public enum VarNODETYPE {
@@ -338,16 +342,31 @@ public class Meta {
 		return( value );
 	}
 	
-	public static VarSERVERTYPE getServerType( String ID ) throws Exception {
+	public static VarSERVERACCESSTYPE getServerAccessType( String ID ) throws Exception {
 		if( ID.isEmpty() )
-			return( VarSERVERTYPE.UNKNOWN );
+			return( VarSERVERACCESSTYPE.UNKNOWN );
 		
-		VarSERVERTYPE value = null;
+		VarSERVERACCESSTYPE value = null;
 		try {
-			value = VarSERVERTYPE.valueOf( Common.xmlToEnumValue( ID ) );
+			value = VarSERVERACCESSTYPE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidServerType1 , "invalid server type=" + ID , ID );
+			Common.exit1( _Error.InvalidServerAccessType1 , "invalid server access type=" + ID , ID );
+		}
+		
+		return( value );
+	}
+	
+	public static VarSERVERRUNTYPE getServerRunType( String ID ) throws Exception {
+		if( ID.isEmpty() )
+			return( VarSERVERRUNTYPE.UNKNOWN );
+		
+		VarSERVERRUNTYPE value = null;
+		try {
+			value = VarSERVERRUNTYPE.valueOf( Common.xmlToEnumValue( ID ) );
+		}
+		catch( IllegalArgumentException e ) {
+			Common.exit1( _Error.InvalidServerRunType1 , "invalid server run type=" + ID , ID );
 		}
 		
 		return( value );

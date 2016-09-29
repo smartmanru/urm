@@ -5,7 +5,6 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeTarget;
-import org.urm.common.Common;
 import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.meta.MetaEnvServerNode;
 
@@ -25,7 +24,7 @@ public class ServerCluster {
 		boolean res = true;
 		long startMillis = System.currentTimeMillis();
 		for( MetaEnvServerNode node : nodes ) {
-			action.info( action.getMode() + " stop " + Common.getEnumLower( srv.serverType ) + " app=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
+			action.info( action.getMode() + " stop " + srv.getServerTypeName( action ) + " app=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
 			
 			ServerProcess process = new ServerProcess( srv , node ); 
 			if( !process.stop( action ) ) {
@@ -51,7 +50,7 @@ public class ServerCluster {
 		
 		boolean res = true;
 		for( MetaEnvServerNode node : nodes ) {
-			action.debug( "wait for stop " + Common.getEnumLower( srv.serverType ) + " server=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
+			action.debug( "wait for stop " + srv.getServerTypeName( action ) + " server=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
 			
 			ServerProcess process = new ServerProcess( srv , node ); 
 			if( !process.waitStopped( action , startMillis ) ) {
@@ -70,7 +69,7 @@ public class ServerCluster {
 		
 		long startMillis = System.currentTimeMillis();
 		for( MetaEnvServerNode node : nodes ) {
-			action.info( action.getMode() + " start " + Common.getEnumLower( srv.serverType ) + " app=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
+			action.info( action.getMode() + " start " + srv.getServerTypeName( action ) + " app=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
 			
 			ServerProcess process = new ServerProcess( srv , node ); 
 			if( !process.start( action ) ) {
@@ -107,7 +106,7 @@ public class ServerCluster {
 		
 		boolean res = true;
 		for( MetaEnvServerNode node : nodes ) {
-			action.debug( "wait for start " + Common.getEnumLower( srv.serverType ) + " server=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
+			action.debug( "wait for start " + srv.getServerTypeName( action ) + " server=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
 			
 			ServerProcess process = new ServerProcess( srv , node ); 
 			if( !process.waitStarted( action , startMillis ) ) {

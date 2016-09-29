@@ -62,7 +62,7 @@ public class ActionRedist extends ActionBase {
 			return;
 		}
 
-		info( "============================================ execute server=" + server.NAME + ", type=" + Common.getEnumLower( server.serverType ) + " ..." );
+		info( "============================================ execute server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
 
 		// iterate by nodes
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {

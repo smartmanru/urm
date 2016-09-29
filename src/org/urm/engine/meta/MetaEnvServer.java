@@ -14,7 +14,8 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.meta.Meta.VarDBMSTYPE;
 import org.urm.engine.meta.Meta.VarDEPLOYTYPE;
-import org.urm.engine.meta.Meta.VarSERVERTYPE;
+import org.urm.engine.meta.Meta.VarSERVERACCESSTYPE;
+import org.urm.engine.meta.Meta.VarSERVERRUNTYPE;
 import org.urm.engine.shell.Account;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -30,8 +31,8 @@ public class MetaEnvServer extends PropertyController {
 	public String BASELINE;
 	public boolean OFFLINE;
 	
-	private String SERVERTYPE;
-	public VarSERVERTYPE serverType;
+	private VarSERVERRUNTYPE serverRunType;
+	private VarSERVERACCESSTYPE serverAccessType;
 	public String ROOTPATH;
 	public String BINPATH;
 	public String SERVICENAME;
@@ -106,8 +107,10 @@ public class MetaEnvServer extends PropertyController {
 		if( BASELINE.equals( "default" ) )
 			BASELINE = NAME;
 		
-		SERVERTYPE = super.getStringPropertyRequired( action , "type" );
-		serverType = Meta.getServerType( SERVERTYPE );
+		String SERVERRUNTYPE = super.getStringPropertyRequired( action , "runtype" );
+		serverRunType = Meta.getServerRunType( SERVERRUNTYPE );
+		String SERVERACCESSTYPE = super.getStringPropertyRequired( action , "accesstype" );
+		serverAccessType = Meta.getServerAccessType( SERVERACCESSTYPE );
 		osType = Meta.getOSType( super.getStringPropertyRequired( action , "ostype" , "unix" ) );
 		OFFLINE = super.getBooleanProperty( action , "offline" );
 		XDOC = super.getPathProperty( action , "xdoc" , NAME + ".xml" );
@@ -161,6 +164,18 @@ public class MetaEnvServer extends PropertyController {
 		}
 
 		properties.finishRawProperties();
+	}
+	
+	public VarSERVERRUNTYPE getServerRunType( ActionBase action ) throws Exception {
+		return( serverRunType );
+	}
+	
+	public VarSERVERACCESSTYPE getServerAccessType( ActionBase action ) throws Exception {
+		return( serverAccessType );
+	}
+	
+	public String getServerTypeName( ActionBase action ) throws Exception {
+		return( Common.getEnumLower( serverRunType ) + "/" + Common.getEnumLower( serverAccessType ) );
 	}
 	
 	public String getFullId( ActionBase action ) throws Exception {
@@ -366,12 +381,11 @@ public class MetaEnvServer extends PropertyController {
 	}
 	
 	public boolean isConfigurable( ActionBase action ) throws Exception {
-		if( serverType == VarSERVERTYPE.GENERIC_COMMAND || 
-			serverType == VarSERVERTYPE.GENERIC_SERVER ||
-			serverType == VarSERVERTYPE.GENERIC_WEB ||
-			serverType == VarSERVERTYPE.SERVICE ) 
-			return( true );
-		return( false );
+		if( serverAccessType == VarSERVERACCESSTYPE.MANUAL || serverAccessType == VarSERVERACCESSTYPE.UNKNOWN )
+			return( false );
+		if( serverRunType == VarSERVERRUNTYPE.DATABASE || serverRunType == VarSERVERRUNTYPE.UNKNOWN ) 
+			return( false );
+		return( true );
 	}
 	
 	public boolean hasConfiguration( ActionBase action ) throws Exception {
@@ -507,9 +521,8 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	public boolean isDeployPossible( ActionBase action ) throws Exception {
-		if( serverType == VarSERVERTYPE.GENERIC_NOSSH ||
-			serverType == VarSERVERTYPE.UNKNOWN ) {
-			action.trace( "ignore due to server type=" + Common.getEnumLower( serverType ) );
+		if( !isConfigurable( action ) ) {
+			action.trace( "ignore due to server type=" + getServerTypeName( action ) );
 			return( false );
 		}
 		
@@ -562,59 +575,45 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	public boolean isDatabase( ActionBase action ) throws Exception {
-		return( serverType == VarSERVERTYPE.SERVICE_DATABASE ||
-				serverType == VarSERVERTYPE.GENERIC_DATABASE );
+		return( serverRunType == VarSERVERRUNTYPE.DATABASE );
 	}
 
 	public boolean isService( ActionBase action ) throws Exception {
-		return( serverType == VarSERVERTYPE.SERVICE ||
-				serverType == VarSERVERTYPE.SERVICE_DATABASE  );
+		return( serverAccessType == VarSERVERACCESSTYPE.SERVICE );
 	}
 
 	public boolean isOffline( ActionBase action ) throws Exception {
-		return( OFFLINE ||
-				serverType == VarSERVERTYPE.OFFLINE );
+		return( OFFLINE );
 	}
 	
 	public boolean isCommand( ActionBase action ) throws Exception {
-		return( serverType == VarSERVERTYPE.GENERIC_COMMAND );
+		return( serverRunType == VarSERVERRUNTYPE.COMMAND );
 	}
 	
 	public boolean isGeneric( ActionBase action ) throws Exception {
-		if( serverType == VarSERVERTYPE.GENERIC_COMMAND || 
-			serverType == VarSERVERTYPE.GENERIC_SERVER ||
-			serverType == VarSERVERTYPE.GENERIC_WEB ||
-			serverType == VarSERVERTYPE.GENERIC_DATABASE )
-			return( true );
-		return( false );
+		return( serverAccessType == VarSERVERACCESSTYPE.GENERIC );
 	}
 
-	public boolean isGenericWeb( ActionBase action ) throws Exception {
-		return( serverType == VarSERVERTYPE.GENERIC_WEB );
+	public boolean isWebUser( ActionBase action ) throws Exception {
+		return( serverRunType == VarSERVERRUNTYPE.WEBUI );
 	}
 
 	public boolean isCallable( ActionBase action ) throws Exception {
 		if( OFFLINE )
 			return( false );
-		if( serverType == VarSERVERTYPE.SERVICE ||
-			serverType == VarSERVERTYPE.GENERIC_SERVER || 
-			serverType == VarSERVERTYPE.GENERIC_COMMAND ||
-			serverType == VarSERVERTYPE.GENERIC_NOSSH ) 
-			return( true );
-		return( false );
+		if( serverRunType == VarSERVERRUNTYPE.DATABASE ||
+			serverRunType == VarSERVERRUNTYPE.APP ) 
+			return( false );
+		return( true );
 			
 	}
 
 	public boolean isStartable( ActionBase action ) throws Exception {
 		if( OFFLINE )
 			return( false );
-		if( serverType == VarSERVERTYPE.GENERIC_SERVER || 
-			serverType == VarSERVERTYPE.GENERIC_WEB || 
-			serverType == VarSERVERTYPE.GENERIC_COMMAND ||
-			serverType == VarSERVERTYPE.GENERIC_DATABASE ||
-			serverType == VarSERVERTYPE.SERVICE )
-			return( true );
-		return( false );
+		if( serverAccessType == VarSERVERACCESSTYPE.MANUAL )
+			return( false );
+		return( true );
 	}
 
 	public String getSystemPath( ActionBase action ) throws Exception {
