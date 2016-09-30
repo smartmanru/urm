@@ -8,6 +8,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
+import org.urm.engine.ServerProductMeta;
 import org.urm.engine.meta.Meta.VarBUILDMODE;
 import org.urm.engine.meta.Meta.VarCATEGORY;
 import org.w3c.dom.Document;
@@ -22,8 +23,8 @@ public class MetaSource extends PropertyController {
 	
 	protected Meta meta;
 	
-	public MetaSource( Meta meta ) {
-		super( "source" );
+	public MetaSource( ServerProductMeta storage , Meta meta ) {
+		super( storage , "source" );
 		this.meta = meta;
 		meta.setSources( this );
 		
@@ -44,7 +45,7 @@ public class MetaSource extends PropertyController {
 	}
 	
 	public MetaSource copy( ActionBase action , Meta meta ) throws Exception {
-		MetaSource r = new MetaSource( meta );
+		MetaSource r = new MetaSource( meta.getStorage( action ) , meta );
 		MetaProductSettings product = meta.getProduct( action );
 		r.initCopyStarted( this , product.getProperties() );
 		for( MetaSourceProjectSet set : originalList ) {

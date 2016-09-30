@@ -36,6 +36,7 @@ public class ServerMirrorRepository extends ServerObject {
 	public static String TYPE_PRODUCT_DATA = "product.data";
 
 	public ServerMirrorRepository( ServerMirrors mirrors ) {
+		super( mirrors );
 		this.mirrors = mirrors;
 		
 		loaded = false;

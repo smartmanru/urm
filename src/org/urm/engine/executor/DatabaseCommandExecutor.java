@@ -22,7 +22,6 @@ import org.urm.engine.meta.Meta.VarCATEGORY;
 public class DatabaseCommandExecutor extends CommandExecutor {
 
 	DatabaseCommand impl;
-	Meta meta;
 	MetaEnv env;
 	MetaEnvDC dc;
 	
@@ -46,7 +45,6 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		try {
 			// create implementation
 			impl = new DatabaseCommand();
-			meta = action.getContextMeta();
 			
 			boolean loadProps = Common.checkPartOfSpacedList( action.actionName , propertyBasedMethods ); 
 			action.context.loadEnv( action , loadProps );
@@ -69,6 +67,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	private class GetReleaseScripts extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
+		Meta meta = action.getContextMeta();
 		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		String[] DELIVERIES = getArgList( action , 1 );
 		ActionScope scope = ActionScope.getReleaseCategoryScope( action , dist , VarCATEGORY.DB , DELIVERIES );
@@ -87,6 +86,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	private class ApplyManual extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
+		Meta meta = action.getContextMeta();
 		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		String SERVER = getRequiredArg( action , 1 , "DBSERVER" );
 		MetaEnvServer server = action.context.dc.getServer( action , SERVER );
@@ -98,6 +98,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	private class ApplyAutomatic extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
+		Meta meta = action.getContextMeta();
 		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		String DELIVERY = getRequiredArg( action , 1 , "delivery" );
 		
@@ -118,6 +119,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	private class ManageRelease extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
+		Meta meta = action.getContextMeta();
 		DistRepository repo = action.artefactory.getDistRepository( action , meta );
 		String RELEASEVER = repo.getReleaseVerByLabel( action , RELEASELABEL );
 		

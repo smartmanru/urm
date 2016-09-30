@@ -17,6 +17,7 @@ public class ServerResources extends ServerObject {
 	Map<String,ServerAuthResource> resourceMap;
 
 	public ServerResources( ServerRegistry registry ) {
+		super( registry );
 		this.registry = registry;
 		this.engine = registry.loader.engine;
 		

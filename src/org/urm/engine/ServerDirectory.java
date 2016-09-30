@@ -21,6 +21,7 @@ public class ServerDirectory extends ServerObject {
 	private Map<String,ServerProduct> mapProducts;
 	
 	public ServerDirectory( ServerRegistry registry ) {
+		super( registry );
 		this.registry = registry;
 		this.engine = registry.loader.engine;
 		mapSystems = new HashMap<String,ServerSystem>();

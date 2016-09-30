@@ -7,6 +7,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
+import org.urm.engine.ServerProductMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -21,8 +22,8 @@ public class MetaDatabase extends PropertyController {
 	
 	public String ALIGNEDMAPPING;
 	
-	public MetaDatabase( Meta meta ) {
-		super( "database" );
+	public MetaDatabase( ServerProductMeta storage , Meta meta ) {
+		super( storage , "database" );
 		
 		this.meta = meta;
 		meta.setDatabase( this );
@@ -43,7 +44,7 @@ public class MetaDatabase extends PropertyController {
 	}
 	
 	public MetaDatabase copy( ActionBase action , Meta meta ) throws Exception {
-		MetaDatabase r = new MetaDatabase( meta );
+		MetaDatabase r = new MetaDatabase( meta.getStorage( action ) , meta );
 		MetaProductSettings product = meta.getProduct( action );
 		r.initCopyStarted( this , product.getProperties() );
 		

@@ -8,6 +8,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
+import org.urm.engine.ServerProductMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -20,8 +21,8 @@ public class MetaDistr extends PropertyController {
 	private Map<String,MetaDistrConfItem> mapConfItems;
 	private Map<String,MetaDistrComponent> mapComps;
 	
-	public MetaDistr( Meta meta ) {
-		super( "distr" );
+	public MetaDistr( ServerProductMeta storage , Meta meta ) {
+		super( storage , "distr" );
 		this.meta = meta;
 		meta.setDistr( this );
 		
@@ -43,7 +44,7 @@ public class MetaDistr extends PropertyController {
 	}
 	
 	public MetaDistr copy( ActionBase action , Meta meta ) throws Exception {
-		MetaDistr r = new MetaDistr( meta );
+		MetaDistr r = new MetaDistr( meta.getStorage( action ) , meta );
 		MetaProductSettings product = meta.getProduct( action );
 		super.initCopyStarted( this , product.getProperties() );
 		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {

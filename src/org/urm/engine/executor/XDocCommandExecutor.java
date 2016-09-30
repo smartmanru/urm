@@ -11,7 +11,6 @@ import org.urm.engine.meta.Meta;
 public class XDocCommandExecutor extends CommandExecutor {
 
 	XDocCommand impl;
-	Meta meta;
 	
 	public XDocCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
@@ -23,7 +22,6 @@ public class XDocCommandExecutor extends CommandExecutor {
 		try {
 			// create implementation
 			impl = new XDocCommand();
-			meta = action.getContextMeta();
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -40,6 +38,7 @@ public class XDocCommandExecutor extends CommandExecutor {
 		String CMD = getRequiredArg( action , 0 , "CMD" );
 		String OUTDIR = getRequiredArg( action , 1 , "OUTDIR" );
 		checkNoArgs( action , 2 );
+		Meta meta = action.getContextMeta();
 		impl.createDesignDoc( action , meta , CMD , OUTDIR );
 	}
 	}

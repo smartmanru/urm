@@ -94,10 +94,7 @@ public class ActionConfigure extends ActionBase {
 		ServerDirectory directory = actionInit.getDirectory();
 		for( String name : directory.getProducts() ) {
 			info( "configure product name=" + name + " ..." );
-			
-			actionInit.setServerSystemProductLayout( name );
 			configureProduct( serverMode , false , name );
-			actionInit.clearServerProductLayout();
 		}
 	}
 

@@ -1,12 +1,16 @@
 package org.urm.engine;
 
 import org.urm.common.PropertySet;
+import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaEnv;
 import org.urm.engine.meta.MetaEnvDC;
 import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.meta.MetaProductVersion;
 import org.urm.engine.meta.Meta.VarBUILDMODE;
+import org.urm.engine.meta.Meta.VarSERVERACCESSTYPE;
+import org.urm.engine.meta.Meta.VarSERVERRUNTYPE;
 
 public class ServerTransaction extends TransactionBase {
 
@@ -32,6 +36,7 @@ public class ServerTransaction extends TransactionBase {
 
 	public void dropMirror( ServerMirrorRepository repo ) throws Exception {
 		repo.dropMirror( this );
+		repo.deleteObject();
 		loader.saveMirrors( this );
 	}
 
@@ -48,6 +53,7 @@ public class ServerTransaction extends TransactionBase {
 	public void deleteResource( ServerAuthResource res ) throws Exception {
 		checkTransactionResources();
 		resources.deleteResource( this , res );
+		res.deleteObject();
 	}
 	
 	public void createBuilder( ServerProjectBuilder builder ) throws Exception {
@@ -63,6 +69,7 @@ public class ServerTransaction extends TransactionBase {
 	public void deleteBuilder( ServerProjectBuilder builder ) throws Exception {
 		checkTransactionBuilders();
 		builders.deleteBuilder( this , builder );
+		builder.deleteObject();
 	}
 	
 	public void createSystem( ServerSystem system ) throws Exception {
@@ -84,6 +91,7 @@ public class ServerTransaction extends TransactionBase {
 			mirrors.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		}
 		directory.deleteSystem( this , system );
+		system.deleteObject();
 	}
 	
 	public void createProduct( ServerProduct product , boolean forceClear ) throws Exception {
@@ -110,6 +118,7 @@ public class ServerTransaction extends TransactionBase {
 		directory.deleteProduct( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		metadata = null;
 		loader.saveMirrors( this );
+		product.deleteObject();
 	}
 
 	public void setServerProperties( PropertySet props ) throws Exception {
@@ -155,14 +164,18 @@ public class ServerTransaction extends TransactionBase {
 		settings.setBuildModeProperties( this , mode , props );
 	}
 
-	public void createMetaEnv( MetaEnv env ) throws Exception {
-		checkTransactionMetadata( env.meta.getStorage( action ) );
+	public MetaEnv createMetaEnv( Meta meta , String name , boolean prod ) throws Exception {
+		checkTransactionMetadata( meta.getStorage( action ) );
+		MetaEnv env = new MetaEnv( metadata , metadata.meta );
+		env.createEnv( getAction() , name , prod );
 		metadata.addEnv( this , env );
+		return( env );
 	}
 	
 	public void deleteMetaEnv( MetaEnv env ) throws Exception {
 		checkTransactionMetadata( env.meta.getStorage( action ) );
 		metadata.deleteEnv( this , env );
+		env.deleteObject();
 	}
 
 	public void setMetaEnvProperties( MetaEnv env , PropertySet props , boolean system ) throws Exception {
@@ -188,16 +201,21 @@ public class ServerTransaction extends TransactionBase {
 	public void deleteMetaEnvDC( MetaEnvDC dc ) throws Exception {
 		checkTransactionMetadata( dc.meta.getStorage( action ) );
 		dc.env.deleteDC( this , dc );
+		dc.deleteObject();
 	}
 
-	public void createMetaEnvServer( MetaEnvServer server ) throws Exception {
-		checkTransactionMetadata( server.meta.getStorage( action ) );
-		server.dc.createServer( this , server );
+	public MetaEnvServer createMetaEnvServer( MetaEnvDC dc , String name , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType ) throws Exception {
+		checkTransactionMetadata( dc.meta.getStorage( action ) );
+		MetaEnvServer server = new MetaEnvServer( getMeta() , dc );
+		server.createServer( getAction() , name , osType , runType , accessType );
+		dc.createServer( this , server );
+		return( server );
 	}
 	
 	public void deleteMetaEnvServer( MetaEnvServer server ) throws Exception {
 		checkTransactionMetadata( server.meta.getStorage( action ) );
 		server.dc.deleteServer( this , server );
+		server.deleteObject();
 	}
 
 	public void setMetaEnvServerStatus( MetaEnvServer server , boolean OFFLINE ) throws Exception {

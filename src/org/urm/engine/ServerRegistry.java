@@ -18,6 +18,7 @@ public class ServerRegistry extends ServerObject {
 	public ServerBuilders builders;
 
 	public ServerRegistry( ServerLoader loader ) {
+		super( null );
 		this.loader = loader;
 		mirrors = new ServerMirrors( this ); 
 		resources = new ServerResources( this );

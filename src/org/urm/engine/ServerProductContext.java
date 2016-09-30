@@ -3,6 +3,8 @@ package org.urm.engine;
 import org.urm.action.ActionBase;
 import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaProductVersion;
+import org.urm.engine.storage.LocalFolder;
+import org.urm.engine.storage.UrmStorage;
 
 public class ServerProductContext {
 
@@ -31,12 +33,12 @@ public class ServerProductContext {
 				action.exit0( _Error.NoProductID , "Execution Context has no Product ID set (-Durm.product=value)" );
 		}
 		else {
-			if( !action.session.product )
-				action.exitUnexpectedState();
-			CONFIG_PRODUCT = action.session.productName;
+			CONFIG_PRODUCT = version.meta.name;
 		}
 		
-		CONFIG_PRODUCTHOME = action.context.session.productPath;
+		UrmStorage urm = action.artefactory.getUrmStorage();
+		LocalFolder folder = urm.getProductHome( action , CONFIG_PRODUCT );
+		CONFIG_PRODUCTHOME = folder.folderPath;
 		CONFIG_LASTPRODTAG = version.lastProdTag;
 		CONFIG_NEXTPRODTAG = version.nextProdTag;
 		CONFIG_VERSION_BRANCH_MAJOR = version.majorFirstNumber;

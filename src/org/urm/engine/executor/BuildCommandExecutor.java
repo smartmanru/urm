@@ -17,7 +17,6 @@ import org.urm.engine.storage.LocalFolder;
 public class BuildCommandExecutor extends CommandExecutor {
 
 	BuildCommand impl;
-	Meta meta;
 	
 	public BuildCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
@@ -49,7 +48,6 @@ public class BuildCommandExecutor extends CommandExecutor {
 		try {
 			// create implementation
 			impl = new BuildCommand();
-			meta = action.getContextMeta();
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -84,6 +82,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		ActionScope scope;
 		Dist dist = null;
 		String RELEASELABEL = action.context.CTX_RELEASELABEL;
+		Meta meta = action.getContextMeta();
 		if( !RELEASELABEL.isEmpty() ) {
 			dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 			scope = ActionScope.getReleaseSetScope( action , dist , SET , PROJECTS );
@@ -110,6 +109,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String SET = getArg( action , 0 );
 		String[] PROJECTS = getArgList( action , 1 );
+		Meta meta = action.getContextMeta();
 		impl.buildCustom( action , meta , SET , PROJECTS );
 	}
 	}
@@ -120,12 +120,14 @@ public class BuildCommandExecutor extends CommandExecutor {
 		String SET = getArg( action , 0 );
 		String[] PROJECTS = getArgList( action , 1 );
 		Dist release = loadCommandRelease( action );
+		Meta meta = action.getContextMeta();
 		impl.buildRelease( action , meta , SET , PROJECTS , release );
 	}
 	}
 	
 	private class CheckSet extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
+		Meta meta = action.getContextMeta();
 		impl.printActiveProperties( action , meta );
 	}
 	}
@@ -139,6 +141,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		ActionScope scope;
 		Dist dist = null;
 		String RELEASELABEL = action.context.CTX_RELEASELABEL;
+		Meta meta = action.getContextMeta();
 		if( !RELEASELABEL.isEmpty() ) {
 			dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 			scope = ActionScope.getReleaseSetScope( action , dist , SET , TARGETS );
@@ -173,6 +176,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		String TAG = getArg( action , 0 );
 		String SET = getArg( action , 1 );
 		String[] PROJECTS = getArgList( action , 2 );
+		Meta meta = action.getContextMeta();
 		impl.buildAllTags( action , meta , TAG , SET , PROJECTS , null );
 	}
 	}
@@ -296,6 +300,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		
+		Meta meta = action.getContextMeta();
 		Dist release = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		
 		ActionScopeTarget scopeProject = ActionScope.getReleaseProjectItemsScopeTarget( action , release , "thirdparty" , null );
@@ -311,6 +316,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		String VERSION = getArg( action , 3 );
 		String CLASSIFIER = getArg( action , 4 );
 		
+		Meta meta = action.getContextMeta();
 		impl.thirdpartyUploadLib( action , meta , GROUPID , FILE , ARTEFACTID , VERSION , CLASSIFIER );
 	}
 	}

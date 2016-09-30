@@ -30,9 +30,13 @@ public class MetaEnvDC extends PropertyController {
 
 	public static String PROPERTY_NAME = "name";
 	public static String PROPERTY_BASELINE = "basedc";
+
+	public static String ELEMENT_DEPLOYMENT = "deployment";
+	public static String ELEMENT_STARTORDER = "startorder";
+	public static String ELEMENT_SERVER = "server";
 	
 	public MetaEnvDC( Meta meta , MetaEnv env ) {
-		super( "dc" );
+		super( env , "dc" );
 		this.meta = meta;
 		this.env = env;
 		
@@ -121,7 +125,7 @@ public class MetaEnvDC extends PropertyController {
 	public void loadDeployment( ActionBase action , Node node ) throws Exception {
 		deploy = new MetaEnvDeployment( meta , this );
 		
-		Node deployment = ConfReader.xmlGetFirstChild( node , "deployment" );
+		Node deployment = ConfReader.xmlGetFirstChild( node , ELEMENT_DEPLOYMENT );
 		if( deployment == null )
 			return;
 		
@@ -129,7 +133,7 @@ public class MetaEnvDC extends PropertyController {
 	}
 	
 	public void loadServers( ActionBase action , Node node , boolean loadProps ) throws Exception {
-		Node[] items = ConfReader.xmlGetChildren( node , "server" );
+		Node[] items = ConfReader.xmlGetChildren( node , ELEMENT_SERVER );
 		if( items == null )
 			return;
 		
@@ -153,7 +157,7 @@ public class MetaEnvDC extends PropertyController {
 	public void loadStartOrder( ActionBase action , Node node ) throws Exception {
 		startInfo = new MetaEnvStartInfo( meta , this );
 		
-		Node startorder = ConfReader.xmlGetFirstChild( node , "startorder" );
+		Node startorder = ConfReader.xmlGetFirstChild( node , ELEMENT_STARTORDER );
 		if( startorder == null )
 			return;
 		
@@ -217,19 +221,20 @@ public class MetaEnvDC extends PropertyController {
 		if( !super.isLoaded() )
 			return;
 		
-		Element deployElement = Common.xmlCreateElement( doc , root , "deployment" );
+		Element deployElement = Common.xmlCreateElement( doc , root , ELEMENT_DEPLOYMENT );
 		deploy.save( action , doc , deployElement );
-		Element startElement = Common.xmlCreateElement( doc , root , "startorder" );
+		Element startElement = Common.xmlCreateElement( doc , root , ELEMENT_STARTORDER );
 		startInfo.save( action , doc , startElement );
 		
 		properties.saveSplit( doc , root );
 		for( MetaEnvServer server : originalList ) {
-			Element serverElement = Common.xmlCreateElement( doc , root , "server" );
+			Element serverElement = Common.xmlCreateElement( doc , root , ELEMENT_SERVER );
 			server.save( action , doc , serverElement );
 		}
 	}
 	
-	public void createDC( ActionBase action ) throws Exception {
+	public void createDC( ActionBase action , String NAME ) throws Exception {
+		this.NAME = NAME;
 		if( !super.initCreateStarted( env.getProperties() ) )
 			return;
 

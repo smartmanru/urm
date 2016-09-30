@@ -4,9 +4,6 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandOptions;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.storage.LocalFolder;
-import org.urm.engine.storage.UrmStorage;
 
 public class SessionContext {
 
@@ -27,11 +24,7 @@ public class SessionContext {
 	public String installPath = "";
 	public String masterPath = "";
 	public String productName = "";
-	public String productDir = "";
-	public String productPath = "";
 	public String binPath = "";
-	public String etcPath = "";
-	public String proxyPath = "";
 	
 	private ServerAuthContext login;
 	
@@ -62,60 +55,16 @@ public class SessionContext {
 			Common.exit0( _Error.MasterpathEmpty0 , "masterpath is empty" );
 		
 		productName = "";
-		productDir = "";
 		masterPath = Common.getPath( installPath , "master" );
 		binPath = Common.getPath( masterPath , "bin" );
-		etcPath = Common.getPath( installPath , "etc" );
-		
-		productPath = "";
-		proxyPath = "";
 	}
 
-	public void setServerSystemProductLayout( ActionBase action , String name , String path ) throws Exception {
-		setServerInternalProductLayout( action , name , path );
-	}
-	
-	private void setServerInternalProductLayout( ActionBase action , String name , String path ) throws Exception {
-		product = true;
-		
-		if( path.isEmpty() )
-			Common.exit1( _Error.MissingProductFolder1 , "missing product folder" , name );
-		
-		this.productName = name;
-		this.productDir = path;
-		
-		UrmStorage storage = action.artefactory.getUrmStorage();
-		LocalFolder products = storage.getServerProductsFolder( action );
-		LocalFolder product = products.getSubFolder( action , path );
-		
-		productPath = product.folderPath;
-		etcPath = product.getFolderPath( action , UrmStorage.ETC_PATH );
-		proxyPath = product.getFolderPath( action , UrmStorage.MASTER_PATH );
-		
-		ServerLoader loader = engine.getLoader();
-		Meta meta = loader.createMetadata( this , name );
-		action.context.setMeta( meta );
-	}
-	
-	public void clearServerProductLayout() {
-		product = false;
-		
-		etcPath = Common.getPath( installPath , "etc" );
-		
-		productName = "";
-		productDir = "";
-		productPath = "";
-		proxyPath = "";
-	}
-	
 	public void setServerOfflineProductLayout( ActionBase serverAction , CommandOptions options , String name ) throws Exception {
 		offline = true;
 		
 		setServerLayout( options );
-		
-		ServerDirectory directory = serverAction.actionInit.getDirectory();
-		ServerProduct product = directory.getProduct( name ); 
-		setServerInternalProductLayout( serverAction , product.NAME , product.PATH );
+		product = true;
+		productName = name;
 	}
 	
 	public void setServerRemoteProductLayout( ActionBase serverAction ) throws Exception {
@@ -125,9 +74,8 @@ public class SessionContext {
 		masterPath = serverSession.masterPath;
 		binPath = serverSession.binPath;
 		
-		ServerDirectory directory = serverAction.actionInit.getDirectory();
-		ServerProduct product = directory.getProduct( clientrc.product ); 
-		setServerInternalProductLayout( serverAction , product.NAME , product.PATH );
+		product = true;
+		productName = clientrc.product;
 	}
 	
 	public void setStandaloneLayout( CommandOptions options ) throws Exception {
@@ -135,17 +83,8 @@ public class SessionContext {
 		standalone = true;
 		product = true;
 		
-		productPath = clientrc.installPath;
-		if( productPath.isEmpty() )
-			Common.exit0( _Error.ProductpathEmpty0 , "productpath is empty" );
-		
-		productName = "";
-		productDir = "";
-		masterPath = Common.getPath( productPath , "master" );
-		binPath = Common.getPath( masterPath , "bin" );
-
-		etcPath = Common.getPath( productPath , "etc" );
-		proxyPath = Common.getPath( productPath , "master" );
+		product = true;
+		productName = clientrc.product;
 	}
 	
 }

@@ -161,7 +161,6 @@ public class ServerLoader {
 			productMeta.put( name , set );
 			
 			try {
-				action.setServerSystemProductLayout( name );
 				MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , set.meta );
 				LocalFolder folder = storageMeta.getMetaFolder( action );
 				if( folder.checkExists( action ) )
@@ -173,8 +172,6 @@ public class ServerLoader {
 				action.handle( e );
 				action.error( "unable to load metadata, product=" + name );
 			}
-			
-			action.clearServerProductLayout();
 		}
 	}
 
@@ -257,19 +254,16 @@ public class ServerLoader {
 
 	public ServerProductMeta createMetadata( TransactionBase transaction , ServerDirectory directoryNew , ServerProduct product ) throws Exception {
 		ActionInit action = transaction.getAction();
-		action.setServerSystemProductLayout( product );
 		
 		ServerProductMeta set = new ServerProductMeta( this , product.NAME , action.session );
 		ServerSettings settings = transaction.getSettings();
 		set.createInitial( action , settings , directoryNew );
 		
-		action.clearServerProductLayout();
 		return( set );
 	}
 	
 	public void setMetadata( TransactionBase transaction , ServerProductMeta storageNew ) throws Exception {
 		ActionInit action = transaction.getAction();
-		action.setServerSystemProductLayout( storageNew.name );
 		
 		MetadataStorage storage = action.artefactory.getMetadataStorage( action , storageNew.meta );
 		storageNew.saveAll( action , storage );

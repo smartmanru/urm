@@ -5,7 +5,6 @@ import org.urm.action.ActionScope;
 import org.urm.common.Common;
 import org.urm.engine.ServerContext;
 import org.urm.engine.ServerDirectory;
-import org.urm.engine.ServerProduct;
 import org.urm.engine.ServerSettings;
 import org.urm.engine.SessionContext;
 import org.urm.engine.storage.Artefactory;
@@ -32,20 +31,6 @@ public class ActionInit extends ActionBase {
 		Common.exitUnexpected();
 	}
 
-	public void setServerSystemProductLayout( ServerProduct product ) throws Exception {
-		session.setServerSystemProductLayout( this , product.NAME , product.PATH );
-	}
-	
-	public void setServerSystemProductLayout( String name ) throws Exception {
-		ServerDirectory directory = getDirectory();
-		ServerProduct product = directory.getProduct( name ); 
-		setServerSystemProductLayout( product );
-	}
-	
-	public void clearServerProductLayout() {
-		session.clearServerProductLayout();
-	}
-	
 	public ServerSettings getSettings() {
 		return( engine.getSettings() );
 	}

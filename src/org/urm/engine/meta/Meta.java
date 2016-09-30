@@ -5,6 +5,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.ServerLoader;
+import org.urm.engine.ServerObject;
 import org.urm.engine.ServerProductMeta;
 import org.urm.engine.SessionContext;
 import org.urm.engine.meta.MetaBase.VarBASESRCFORMAT;
@@ -13,7 +14,7 @@ import org.urm.engine.meta.MetaDesign.VarELEMENTTYPE;
 import org.urm.engine.meta.MetaDesign.VarLINKTYPE;
 import org.w3c.dom.Node;
 
-public class Meta {
+public class Meta extends ServerObject {
 
 	public String name;
 	
@@ -182,6 +183,7 @@ public class Meta {
 	private static String configurableExtensionsFindOptions = createConfigurableExtensions();
 	
 	public Meta( ServerProductMeta storage , SessionContext session ) {
+		super( null );
 		this.storage = storage;
 		this.loader = storage.loader;
 		this.session = session;
@@ -189,6 +191,7 @@ public class Meta {
 	}
 	
 	public Meta( ServerLoader loader , SessionContext session , String productName ) {
+		super( null );
 		this.loader = loader;
 		this.session = session;
 		name = productName;
@@ -294,6 +297,11 @@ public class Meta {
 	public synchronized MetaEnv getEnvData( ActionBase action , String envFile , boolean loadProps ) throws Exception {
 		getStorage( action );
 		return( loader.loadEnvData( action.actionInit , storage , envFile , loadProps ) );
+	}
+	
+	public synchronized MetaEnv getEnv( ActionBase action , String envId ) throws Exception {
+		getStorage( action );
+		return( storage.findEnvironment( envId ) );
 	}
 	
 	public static String getConfigurableExtensionsFindOptions( ActionBase action ) throws Exception {

@@ -11,6 +11,8 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
 import org.urm.common.action.CommandVar.FLAG;
+import org.urm.engine.ServerProductMeta;
+import org.urm.engine.ServerRef;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.storage.HiddenFiles;
 import org.w3c.dom.Document;
@@ -27,6 +29,7 @@ public class MetaEnv extends PropertyController {
 	
 	public String ID;
 	public String BASELINE;
+	public ServerRef<MetaEnv> baselineEnvRef;
 	public String REDISTWIN_PATH;
 	public String REDISTLINUX_PATH;
 	public boolean DISTR_USELOCAL;
@@ -72,12 +75,15 @@ public class MetaEnv extends PropertyController {
 	public static String PROPERTY_BACKUP = "backup";
 	public static String PROPERTY_CONF_DEPLOY = "configuration-deploy";
 	public static String PROPERTY_CONF_KEEPALIVE = "configuration-keepalive";
+
+	public static String ELEMENT_DATACENTER = "datacenter";
 	
-	public MetaEnv( Meta meta ) {
-		super( "env" );
+	public MetaEnv( ServerProductMeta storage , Meta meta ) {
+		super( storage , "env" );
 		this.meta = meta;
 		originalList = new LinkedList<MetaEnvDC>();
 		dcMap = new HashMap<String,MetaEnvDC>();
+		baselineEnvRef = new ServerRef<MetaEnv>();
 	}
 	
 	@Override
@@ -123,12 +129,14 @@ public class MetaEnv extends PropertyController {
 			action.exit0( _Error.InconsistentVersionAttributes0 , "inconsistent version attributes" );
 	}
 
-	public void createEnv( ActionBase action ) throws Exception {
+	public void createEnv( ActionBase action , String ID , boolean PROD ) throws Exception {
+		this.ID = ID;
+		this.PROD = PROD;
 		createProperties( action );
 	}
 
 	public MetaEnv copy( ActionBase action , Meta meta ) throws Exception {
-		MetaEnv r = new MetaEnv( meta );
+		MetaEnv r = new MetaEnv( meta.getStorage( action ) , meta );
 		MetaProductSettings product = meta.getProduct( action );
 		r.initCopyStarted( this , product.getProperties() );
 		
@@ -172,7 +180,7 @@ public class MetaEnv extends PropertyController {
 	private void loadProperties( ActionBase action , Node node ) throws Exception {
 		properties.loadFromNodeAttributes( node );
 		
-		CONF_SECRETFILESPATH = super.getPathProperty( action , "configuration-secretfilespath" );
+		CONF_SECRETFILESPATH = super.getPathProperty( action , PROPERTY_CONF_SECRETFILESPATH );
 		
 		HiddenFiles hidden = action.artefactory.getHiddenFiles( meta );
 		String propFile = hidden.getSecretPropertyFile( action , CONF_SECRETFILESPATH );
@@ -226,7 +234,7 @@ public class MetaEnv extends PropertyController {
 	}
 	
 	private void loadDatacenters( ActionBase action , Node node ) throws Exception {
-		Node[] items = ConfReader.xmlGetChildren( node , "datacenter" );
+		Node[] items = ConfReader.xmlGetChildren( node , ELEMENT_DATACENTER );
 		if( items == null )
 			return;
 
@@ -244,6 +252,7 @@ public class MetaEnv extends PropertyController {
 	}
 	
 	private void resolveLinks( ActionBase action ) throws Exception {
+		baselineEnvRef.set( meta.getEnv( action , BASELINE ) );
 		for( MetaEnvDC dc : originalList )
 			dc.resolveLinks( action );
 	}
@@ -285,7 +294,7 @@ public class MetaEnv extends PropertyController {
 
 		properties.saveSplit( doc , root );
 		for( MetaEnvDC dc : originalList ) {
-			Element dcElement = Common.xmlCreateElement( doc , root , "datacenter" );
+			Element dcElement = Common.xmlCreateElement( doc , root , ELEMENT_DATACENTER );
 			dc.save( action , doc , dcElement );
 		}
 	}

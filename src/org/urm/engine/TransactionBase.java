@@ -8,7 +8,7 @@ import org.urm.engine.meta.MetaEnv;
 import org.urm.engine.meta.MetaEnvDC;
 import org.urm.engine.meta.MetaEnvServer;
 
-public class TransactionBase {
+public class TransactionBase extends ServerObject {
 
 	public ServerEngine engine;
 	public ServerLoader loader;
@@ -31,6 +31,7 @@ public class TransactionBase {
 	public boolean deleteMetadata;
 	
 	public TransactionBase( ServerEngine engine ) {
+		super( null );
 		this.engine = engine;
 		this.loader = engine.getLoader();
 		
@@ -41,6 +42,7 @@ public class TransactionBase {
 		metadata = null;
 		createMetadata = false;
 		deleteMetadata = false;
+		engine.serverAction.trace( "transaction created id=" + objectId );
 	}
 	
 	public boolean startTransaction() {

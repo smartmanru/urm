@@ -17,6 +17,7 @@ public class ServerBuilders extends ServerObject {
 	Map<String,ServerProjectBuilder> builderMap;
 
 	public ServerBuilders( ServerRegistry registry ) {
+		super( registry );
 		this.registry = registry;
 		this.engine = registry.loader.engine;
 		

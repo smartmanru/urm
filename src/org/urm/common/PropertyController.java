@@ -2,9 +2,10 @@ package org.urm.common;
 
 import org.urm.action.ActionBase;
 import org.urm.common.action.CommandVar.FLAG;
+import org.urm.engine.ServerObject;
 import org.urm.engine.ServerTransaction;
 
-public abstract class PropertyController {
+public abstract class PropertyController extends ServerObject {
 
 	private String setName;
 	
@@ -16,7 +17,8 @@ public abstract class PropertyController {
 	abstract public boolean isValid();
 	abstract public void scatterProperties( ActionBase action ) throws Exception;
 	
-	public PropertyController( String name ) {
+	public PropertyController( ServerObject parent , String name ) {
+		super( parent );
 		this.setName = name;
 		
 		loaded = false;

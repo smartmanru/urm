@@ -24,7 +24,7 @@ public class MetaEnvServerNode extends PropertyController {
 	public PropertySet properties;
 	
 	public MetaEnvServerNode( Meta meta , MetaEnvServer server , int POS ) {
-		super( "node" );
+		super( server , "node" );
 		this.meta = meta;
 		this.server = server;
 		this.POS = POS;

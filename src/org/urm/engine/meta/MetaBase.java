@@ -57,7 +57,7 @@ public class MetaBase {
 	}
 	
 	public void load( ActionBase action , Node node , MetaEnvServerNode serverNode ) throws Exception {
-		PropertySet meta = new PropertySet( "meta" , serverNode.server.base.properties );
+		PropertySet meta = new PropertySet( "meta" , serverNode.server.basesw.properties );
 		meta.loadFromNodeAttributes( node );
 		scatterVariables( action , meta );
 		

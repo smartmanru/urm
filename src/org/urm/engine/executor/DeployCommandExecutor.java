@@ -16,7 +16,6 @@ import org.urm.engine.meta.MetaEnvDC;
 public class DeployCommandExecutor extends CommandExecutor {
 
 	DeployCommand impl;
-	Meta meta;
 	MetaEnv env;
 	MetaEnvDC dc;
 	
@@ -60,7 +59,6 @@ public class DeployCommandExecutor extends CommandExecutor {
 		try {
 			// create implementation
 			impl = new DeployCommand();
-			meta = action.getContextMeta();
 			
 			boolean loadProps = Common.checkPartOfSpacedList( action.actionName , propertyBasedMethods ); 
 			action.context.loadEnv( action , loadProps );
@@ -77,6 +75,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 
 	private Dist getDist( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
+		Meta meta = action.getContextMeta();
 		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		return( dist );
 	}
@@ -87,6 +86,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 	
 	private ActionScope getServerScope( ActionInit action , int posFrom ) throws Exception {
 		Dist dist = null;
+		Meta meta = action.getContextMeta();
 		if( !action.context.CTX_RELEASELABEL.isEmpty() )
 			dist = action.artefactory.getDistStorageByLabel( action , meta , action.context.CTX_RELEASELABEL );
 		
@@ -102,6 +102,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 		}
 		
 		String[] SERVERS = getArgList( action , posFrom );
+		Meta meta = action.getContextMeta();
 		return( ActionScope.getEnvServersScope( action , meta , action.context.dc , SERVERS , release ) );
 	}
 	

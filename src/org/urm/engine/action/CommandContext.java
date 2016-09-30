@@ -26,7 +26,6 @@ public class CommandContext {
 	public CommandMethodMeta commandMethod;
 	public CommandAction commandAction;
 
-	public Meta meta;
 	public MetaEnv env; 
 	public MetaEnvDC dc;
 	
@@ -124,10 +123,6 @@ public class CommandContext {
 		setLogLevel();
 	}
 
-	public void setMeta( Meta meta ) {
-		this.meta = meta;
-	}
-	
 	private void setLogStream() {
 		streamLog = ( call != null )? "[" + stream + "," + call.sessionContext.sessionId + "]" : "[" + stream + "]";
 	}
@@ -154,7 +149,6 @@ public class CommandContext {
 		// copy all properties
 		this.engine = context.engine;
 		this.session = context.session;
-		this.meta = context.meta;
 		
 		this.options = context.options;
 		this.env = context.env;
@@ -241,12 +235,13 @@ public class CommandContext {
 	}
 
 	public void update( ActionBase action ) throws Exception {
-		boolean isproduct = ( action == null || meta == null )? false : true; 
+		boolean isproduct = ( session.product )? true : false; 
 		boolean isenv = ( env == null )? false : true; 
 		boolean def = ( isenv && env.PROD )? true : false;
 		String value;
 		
 		// generic
+		Meta meta = ( isproduct )? action.getContextMeta() : null;
 		MetaProductSettings product = ( isproduct )? meta.getProduct( action ) : null; 
 		CTX_TRACEINTERNAL = ( getFlagValue( "OPT_TRACE" ) && getFlagValue( "OPT_SHOWALL" ) )? true : false;
 		CTX_TRACE = getFlagValue( "OPT_TRACE" );
@@ -341,6 +336,7 @@ public class CommandContext {
 	}
 	
 	public void loadEnv( ActionBase action , String ENV , String DC , boolean loadProps ) throws Exception {
+		Meta meta = action.getContextMeta();
 		env = meta.getEnvData( action , ENV , loadProps );
 		
 		if( DC == null || DC.isEmpty() ) {
@@ -383,8 +379,8 @@ public class CommandContext {
 	
 	public String getInfo() {
 		String contextInfo = "";
-		if( !session.productPath.isEmpty() )
-			contextInfo = "productHome=" + session.productPath;
+		if( !session.productName.isEmpty() )
+			contextInfo = "product=" + session.productName;
 		if( buildMode != VarBUILDMODE.UNKNOWN )
 			contextInfo += ", buildMode=" + getBuildModeName();
 		if( !session.ENV.isEmpty() )

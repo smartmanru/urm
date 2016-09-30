@@ -23,6 +23,7 @@ public class ServerMirrors extends ServerObject {
 	Map<String,ServerMirrorRepository> repoMap;
 
 	public ServerMirrors( ServerRegistry registry ) {
+		super( registry );
 		this.registry = registry;
 		this.engine = registry.loader.engine;
 		

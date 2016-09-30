@@ -28,6 +28,7 @@ public class ServerProjectBuilder extends ServerObject {
 	public static String BUILDER_TYPE_DOTNET = ".NET";
 	
 	public ServerProjectBuilder( ServerBuilders builders ) {
+		super( builders );
 		this.builders = builders;
 		loaded = false;
 		loadFailed = false;

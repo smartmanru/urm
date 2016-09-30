@@ -16,8 +16,14 @@ public class ServerSystem extends ServerObject {
 	public String DESC;
 	
 	public ServerSystem( ServerDirectory directory ) {
+		super( directory );
 		this.directory = directory;
 		mapProducts = new HashMap<String,ServerProduct>();
+	}
+
+	public void createSystem( ServerTransaction transaction , String name , String desc ) {
+		this.NAME = name;
+		this.DESC = desc;
 	}
 	
 	public ServerSystem copy( ServerDirectory nd ) {

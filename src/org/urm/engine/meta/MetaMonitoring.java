@@ -6,6 +6,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
+import org.urm.engine.ServerProductMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -35,8 +36,8 @@ public class MetaMonitoring extends PropertyController {
 	public static String PROPERTY_MINORINTERVAL;
 	public static String PROPERTY_MINSILENT;
 	
-	public MetaMonitoring( Meta meta ) {
-		super( "monitoring" );
+	public MetaMonitoring( ServerProductMeta storage , Meta meta ) {
+		super( storage , "monitoring" );
 		
 		this.meta = meta;
 		mapEnvs = new HashMap<String,MetaMonitoringTarget>();
@@ -62,7 +63,7 @@ public class MetaMonitoring extends PropertyController {
 	}
 	
 	public MetaMonitoring copy( ActionBase action , Meta meta ) throws Exception {
-		MetaMonitoring r = new MetaMonitoring( meta );
+		MetaMonitoring r = new MetaMonitoring( meta.getStorage( action ) , meta );
 		MetaProductSettings product = meta.getProduct( action );
 		super.initCopyStarted( this , product.getProperties() );
 		return( r );

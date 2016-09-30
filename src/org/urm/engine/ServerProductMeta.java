@@ -52,6 +52,7 @@ public class ServerProductMeta extends ServerObject {
 	public boolean loadFailed;
 	
 	public ServerProductMeta( ServerLoader loader , String name , SessionContext session ) {
+		super( null );
 		this.loader = loader;
 		this.name = name;
 		this.session = session;
@@ -129,7 +130,7 @@ public class ServerProductMeta extends ServerObject {
 		if( version != null )
 			return( version );
 		
-		version = new MetaProductVersion( meta );
+		version = new MetaProductVersion( this , meta );
 
 		if( !loadFailed ) {
 			try {
@@ -169,7 +170,7 @@ public class ServerProductMeta extends ServerObject {
 			execprops = settings.serverContext.execprops;
 		}
 		
-		product = new MetaProductSettings( meta , execprops );
+		product = new MetaProductSettings( this , meta , execprops );
 
 		if( !loadFailed ) {
 			try {
@@ -197,7 +198,7 @@ public class ServerProductMeta extends ServerObject {
 		if( database != null )
 			return( database );
 		
-		database = new MetaDatabase( meta );
+		database = new MetaDatabase( this , meta );
 		
 		if( !loadFailed ) {
 			try {
@@ -222,7 +223,7 @@ public class ServerProductMeta extends ServerObject {
 		if( distr != null )
 			return( distr );
 		
-		distr = new MetaDistr( meta );
+		distr = new MetaDistr( this , meta );
 		meta.setDistr( distr );
 		
 		if( !loadFailed ) {
@@ -248,7 +249,7 @@ public class ServerProductMeta extends ServerObject {
 		if( sources != null )
 			return( sources );
 		
-		sources = new MetaSource( meta );
+		sources = new MetaSource( this , meta );
 		meta.setSources( sources );
 		
 		if( !loadFailed ) {
@@ -274,7 +275,7 @@ public class ServerProductMeta extends ServerObject {
 		if( mon != null )
 			return( mon );
 		
-		mon = new MetaMonitoring( meta );
+		mon = new MetaMonitoring( this , meta );
 		
 		if( !loadFailed ) {
 			try {
@@ -300,7 +301,7 @@ public class ServerProductMeta extends ServerObject {
 		if( env != null )
 			return( env );
 		
-		env = new MetaEnv( meta );
+		env = new MetaEnv( this , meta );
 		envs.put( envName , env );
 
 		if( !loadFailed ) {
@@ -327,7 +328,7 @@ public class ServerProductMeta extends ServerObject {
 		if( design != null )
 			return( design );
 		
-		design = new MetaDesign( meta );
+		design = new MetaDesign( this , meta );
 		
 		if( !loadFailed ) {
 			try {
@@ -388,13 +389,13 @@ public class ServerProductMeta extends ServerObject {
 	}
 
 	private void createInitialVersion( ActionBase action ) throws Exception {
-		version = new MetaProductVersion( meta );
+		version = new MetaProductVersion( this , meta );
 		version.create( action );
 		meta.setVersion( version );
 	}
 	
 	private void createInitialProduct( ActionBase action , ServerSettings settings ) throws Exception {
-		product = new MetaProductSettings( meta , settings.serverContext.execprops );
+		product = new MetaProductSettings( this , meta , settings.serverContext.execprops );
 		
 		ServerProductContext productContext = new ServerProductContext( meta );
 		productContext.create( action , version );
@@ -404,25 +405,25 @@ public class ServerProductMeta extends ServerObject {
 	}
 	
 	private void createInitialDatabase( ActionBase action ) throws Exception {
-		database = new MetaDatabase( meta );
+		database = new MetaDatabase( this , meta );
 		database.create( action );
 		meta.setDatabase( database );
 	}
 	
 	private void createInitialDistr( ActionBase action ) throws Exception {
-		distr = new MetaDistr( meta );
+		distr = new MetaDistr( this , meta );
 		distr.create( action );
 		meta.setDistr( distr );
 	}
 	
 	private void createInitialSources( ActionBase action ) throws Exception {
-		sources = new MetaSource( meta );
+		sources = new MetaSource( this , meta );
 		sources.create( action );
 		meta.setSources( sources );
 	}
 	
 	private void createInitialMonitoring( ActionBase action ) throws Exception {
-		mon = new MetaMonitoring( meta );
+		mon = new MetaMonitoring( this , meta );
 		mon.create( action );
 	}
 	
@@ -486,6 +487,7 @@ public class ServerProductMeta extends ServerObject {
 	}
 	
 	public void setVersion( ServerTransaction transaction , MetaProductVersion version ) throws Exception {
+		this.version.deleteObject();
 		this.version = version;
 	}
 
@@ -540,6 +542,7 @@ public class ServerProductMeta extends ServerObject {
 		ActionBase action = transaction.getAction();
 		MetadataStorage storage = action.artefactory.getMetadataStorage( action , env.meta );
 		storage.deleteEnvConfFile( action , envFile );
+		env.deleteObject();
 	}
 
 }

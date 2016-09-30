@@ -20,6 +20,7 @@ public class ServerAuthContext extends ServerObject {
 	public static String METHOD_USER = "user"; 
 	
 	public ServerAuthContext( ServerAuth auth ) {
+		super( auth );
 		this.auth = auth;
 	}
 	

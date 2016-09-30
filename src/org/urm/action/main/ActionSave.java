@@ -48,11 +48,9 @@ public class ActionSave extends ActionBase {
 		ServerDirectory directory = actionInit.getDirectory();
 		for( String name : directory.getProducts() ) {
 			info( "save product=" + name + " ..." );
-			actionInit.setServerSystemProductLayout( name );
 			
 			LocalFolder folder = urm.getProductHome( this , meta.name );
 			saveProduct( folder , false );
-			actionInit.clearServerProductLayout();
 		}
 	}
 	

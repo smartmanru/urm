@@ -13,6 +13,7 @@ public class ServerAuth extends ServerObject {
 	public static String AUTH_GROUP_USER = "user"; 
 	
 	public ServerAuth( ServerEngine engine ) {
+		super( null );
 		this.engine = engine;
 	}
 	

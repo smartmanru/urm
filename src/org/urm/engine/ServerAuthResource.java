@@ -26,6 +26,7 @@ public class ServerAuthResource extends ServerObject {
 	public static String TYPE_NEXUS = "nexus";
 	
 	public ServerAuthResource( ServerResources resources ) {
+		super( resources );
 		this.resources = resources;
 		loaded = false;
 		loadFailed = false;

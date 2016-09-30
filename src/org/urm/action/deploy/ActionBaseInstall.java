@@ -33,7 +33,7 @@ public class ActionBaseInstall extends ActionBase {
 
 	private void executeServer( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
-		MetaEnvServerBase base = server.base;
+		MetaEnvServerBase base = server.basesw;
 		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
 		
 		if( base == null ) {

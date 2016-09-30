@@ -14,8 +14,15 @@ public class ServerProduct extends ServerObject {
 	public String PATH;
 
 	public ServerProduct( ServerDirectory directory , ServerSystem system ) {
+		super( directory );
 		this.directory = directory;
 		this.system = system;
+	}
+	
+	public void createProduct( ServerTransaction transaction , String newName , String newDesc , String newPath ) throws Exception {
+		NAME = newName;
+		DESC = newDesc;
+		PATH = newPath;
 	}
 
 	public ServerProduct copy( ServerDirectory nr , ServerSystem rs ) {

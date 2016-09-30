@@ -27,12 +27,14 @@ public class MetaEnvServer extends PropertyController {
 	public MetaEnvDC dc;
 	
 	public String NAME;
-	public String XDOC;
-	public String BASELINE;
-	public boolean OFFLINE;
-	
 	private VarSERVERRUNTYPE serverRunType;
 	private VarSERVERACCESSTYPE serverAccessType;
+	public VarOSTYPE osType;
+	
+	public String BASELINE;
+	public String XDOC;
+	public boolean OFFLINE;
+	
 	public String ROOTPATH;
 	public String BINPATH;
 	public String SERVICENAME;
@@ -63,27 +65,63 @@ public class MetaEnvServer extends PropertyController {
 	public VarDBMSTYPE dbType;
 	public String DBMSADDR;
 	public String DATAGROUPS;
-	public String ADMSCHEMA;
 	public Map<String,MetaDatabaseDatagroup> datagroupMap;
+	public String ADMSCHEMA;
 	public MetaDatabaseSchema admSchema;
-	
 	public String ALIGNED;
 	public String REGIONS;
 	
-	public VarOSTYPE osType;
-	
-	public MetaEnvServerBase base;
-	List<MetaEnvServerDeployment> deployments;
-	List<MetaEnvServerNode> nodes;
-	
-	public boolean primary;
+	public MetaEnvServerBase basesw;
 	public MetaEnvStartGroup startGroup;
 	
+	List<MetaEnvServerDeployment> deployments;
+	List<MetaEnvServerNode> nodes;
+
+	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_BASELINE = "baseserver";
+	public static String PROPERTY_OSTYPE = "ostype";
+	public static String PROPERTY_SERVERRUNTYPE = "runtype";
+	public static String PROPERTY_SERVERACCESSTYPE = "accesstype";
+	
+	public static String PROPERTY_XDOC = "xdoc";
+	public static String PROPERTY_OFFLINE = "offline";
+	
+	public static String PROPERTY_ROOTPATH = "rootpath";
+	public static String PROPERTY_BINPATH = "binpath";
+	public static String PROPERTY_SERVICENAME = "servicename";
+	public static String PROPERTY_PORT = "port";
+	public static String PROPERTY_NLBSERVER = "nlbserver";
+	public static String PROPERTY_PROXYSERVER = "proxy-server";
+	public static String PROPERTY_STATICSERVER = "static-server";
+	public static String PROPERTY_SUBORDINATESERVERS = "subordinate-servers";
+	public static String PROPERTY_STARTTIME = "starttime";
+	public static String PROPERTY_STOPTIME = "stoptime";
+	public static String PROPERTY_DEPLOYPATH = "deploypath";
+	public static String PROPERTY_LINKFROMPATH = "linkfrompath";
+	public static String PROPERTY_DEPLOYSCRIPT = "deployscript";
+	public static String PROPERTY_HOTDEPLOYPATH = "hotdeploypath";
+	public static String PROPERTY_HOTDEPLOYDATA = "hotdeploydata";
+	public static String PROPERTY_WEBDOMAIN = "webdomain";
+	public static String PROPERTY_WEBMAINURL = "webmainurl";
+	public static String PROPERTY_LOGPATH = "logpath";
+	public static String PROPERTY_LOGFILEPATH = "logfilepath";
+	public static String PROPERTY_NOPIDS = "nopids";
+
+	public static String PROPERTY_DBMSTYPE = "dbmstype";
+	public static String PROPERTY_DBMSADDR = "dbmsaddr";
+	public static String PROPERTY_DATAGROUPS = "datagroups";
+	public static String PROPERTY_ADMSCHEMA = "admschema";
+	public static String PROPERTY_ALIGNED = "aligned";
+	public static String PROPERTY_REGIONS = "regions";
+	
+	public static String ELEMENT_NODE = "node";
+	public static String ELEMENT_BASE = "base";
+	public static String ELEMENT_DEPLOY = "deploy";
+	
 	public MetaEnvServer( Meta meta , MetaEnvDC dc ) {
-		super( "server" );
+		super( dc , "server" );
 		this.meta = meta;
 		this.dc = dc;
-		this.primary = false;
 		
 		deployments = new LinkedList<MetaEnvServerDeployment>();
 		nodes = new LinkedList<MetaEnvServerNode>();
@@ -100,59 +138,59 @@ public class MetaEnvServer extends PropertyController {
 	public void scatterProperties( ActionBase action ) throws Exception {
 		datagroupMap = new HashMap<String,MetaDatabaseDatagroup>(); 
 		
-		NAME = properties.getSystemRequiredStringProperty( "name" );
+		NAME = properties.getSystemRequiredStringProperty( PROPERTY_NAME );
 		action.trace( "load properties of server=" + NAME );
 		
-		BASELINE = super.getStringProperty( action , "baseserver" ); 
+		BASELINE = super.getStringProperty( action , PROPERTY_BASELINE ); 
 		if( BASELINE.equals( "default" ) )
 			BASELINE = NAME;
 		
-		String SERVERRUNTYPE = super.getStringPropertyRequired( action , "runtype" );
+		String SERVERRUNTYPE = super.getStringPropertyRequired( action , PROPERTY_SERVERRUNTYPE );
 		serverRunType = Meta.getServerRunType( SERVERRUNTYPE );
-		String SERVERACCESSTYPE = super.getStringPropertyRequired( action , "accesstype" );
+		String SERVERACCESSTYPE = super.getStringPropertyRequired( action , PROPERTY_SERVERACCESSTYPE );
 		serverAccessType = Meta.getServerAccessType( SERVERACCESSTYPE );
-		osType = Meta.getOSType( super.getStringPropertyRequired( action , "ostype" , "unix" ) );
-		OFFLINE = super.getBooleanProperty( action , "offline" );
-		XDOC = super.getPathProperty( action , "xdoc" , NAME + ".xml" );
+		osType = Meta.getOSType( super.getStringPropertyRequired( action , PROPERTY_OSTYPE , "linux" ) );
+		OFFLINE = super.getBooleanProperty( action , PROPERTY_OFFLINE );
+		XDOC = super.getPathProperty( action , PROPERTY_XDOC , NAME + ".xml" );
 		
 		if( isStartable( action ) || isDeployPossible( action ) ) {
-			ROOTPATH = super.getPathProperty( action , "rootpath" );
+			ROOTPATH = super.getPathProperty( action , PROPERTY_ROOTPATH );
 		}
 		
 		if( isStartable( action ) ) {
-			BINPATH = super.getPathProperty( action , "binpath" );
-			PORT = super.getIntProperty( action , "port" , 0 );
-			NLBSERVER = super.getStringProperty( action , "nlbserver" );
-			PROXYSERVER = super.getStringProperty( action , "proxy-server" , "" );
-			STATICSERVER = super.getStringProperty( action , "static-server" , "" );
-			SUBORDINATESERVERS = super.getStringProperty( action , "subordinate-servers" , "" );
-			STARTTIME = super.getIntProperty( action , "starttime" , 0 );
-			STOPTIME = super.getIntProperty( action , "stoptime" , 0 );
-			HOTDEPLOYPATH = super.getPathProperty( action , "hotdeploypath" );
-			HOTDEPLOYDATA = super.getStringProperty( action , "hotdeploydata" );
-			WEBDOMAIN = super.getStringProperty( action , "webdomain" );
-			WEBMAINURL = super.getStringProperty( action , "webmainurl" );
-			LOGPATH = super.getPathProperty( action , "logpath" );
-			LOGFILEPATH = super.getPathProperty( action , "logfilepath" );
-			NOPIDS = super.getBooleanProperty( action , "nopids" );
+			BINPATH = super.getPathProperty( action , PROPERTY_BINPATH );
+			PORT = super.getIntProperty( action , PROPERTY_PORT , 0 );
+			NLBSERVER = super.getStringProperty( action , PROPERTY_NLBSERVER );
+			PROXYSERVER = super.getStringProperty( action , PROPERTY_PROXYSERVER , "" );
+			STATICSERVER = super.getStringProperty( action , PROPERTY_STATICSERVER , "" );
+			SUBORDINATESERVERS = super.getStringProperty( action , PROPERTY_SUBORDINATESERVERS , "" );
+			STARTTIME = super.getIntProperty( action , PROPERTY_STARTTIME , 0 );
+			STOPTIME = super.getIntProperty( action , PROPERTY_STOPTIME , 0 );
+			HOTDEPLOYPATH = super.getPathProperty( action , PROPERTY_HOTDEPLOYPATH );
+			HOTDEPLOYDATA = super.getStringProperty( action , PROPERTY_HOTDEPLOYDATA );
+			WEBDOMAIN = super.getStringProperty( action , PROPERTY_WEBDOMAIN );
+			WEBMAINURL = super.getStringProperty( action , PROPERTY_WEBMAINURL );
+			LOGPATH = super.getPathProperty( action , PROPERTY_LOGPATH );
+			LOGFILEPATH = super.getPathProperty( action , PROPERTY_LOGFILEPATH );
+			NOPIDS = super.getBooleanProperty( action , PROPERTY_NOPIDS );
 		}
 
 		if( isService( action ) )
-			SERVICENAME = super.getStringPropertyRequired( action , "servicename" );
+			SERVICENAME = super.getStringPropertyRequired( action , PROPERTY_SERVICENAME );
 
 		if( isDeployPossible( action ) ) {
-			DEPLOYPATH = super.getPathProperty( action , "deploypath" );
-			LINKFROMPATH = super.getPathProperty( action , "linkfrompath" );
-			DEPLOYSCRIPT = super.getPathProperty( action , "deployscript" );
+			DEPLOYPATH = super.getPathProperty( action , PROPERTY_DEPLOYPATH );
+			LINKFROMPATH = super.getPathProperty( action , PROPERTY_LINKFROMPATH );
+			DEPLOYSCRIPT = super.getPathProperty( action , PROPERTY_DEPLOYSCRIPT );
 		}
 		
 		if( isDatabase( action ) ) {
-			dbType = Meta.getDbmsType( super.getStringPropertyRequired( action , "dbmstype" ) );
-			DBMSADDR = super.getStringPropertyRequired( action , "dbmsaddr" );
-			DATAGROUPS = super.getStringPropertyRequired( action , "datagroups" );
-			ALIGNED = super.getStringProperty( action , "aligned" );
-			REGIONS = super.getStringProperty( action , "regions" );
-			ADMSCHEMA = super.getStringProperty( action , "admschema" );
+			dbType = Meta.getDbmsType( super.getStringPropertyRequired( action , PROPERTY_DBMSTYPE ) );
+			DBMSADDR = super.getStringPropertyRequired( action , PROPERTY_DBMSADDR );
+			DATAGROUPS = super.getStringPropertyRequired( action , PROPERTY_DATAGROUPS );
+			ALIGNED = super.getStringProperty( action , PROPERTY_ALIGNED );
+			REGIONS = super.getStringProperty( action , PROPERTY_REGIONS );
+			ADMSCHEMA = super.getStringProperty( action , PROPERTY_ADMSCHEMA );
 			
 			MetaDatabase database = meta.getDatabase( action );
 			for( String dg : Common.splitSpaced( DATAGROUPS ) ) {
@@ -270,12 +308,11 @@ public class MetaEnvServer extends PropertyController {
 	}
 	
 	public void setStartGroup( ActionBase action , MetaEnvStartGroup group ) {
-		primary = true;
 		this.startGroup = group;
 	}
 	
 	private void loadNodes( ActionBase action , Node node , boolean loadProps ) throws Exception {
-		Node[] items = ConfReader.xmlGetChildren( node , "node" );
+		Node[] items = ConfReader.xmlGetChildren( node , ELEMENT_NODE );
 		if( items == null )
 			return;
 		
@@ -289,16 +326,16 @@ public class MetaEnvServer extends PropertyController {
 	}
 	
 	private void loadBase( ActionBase action , Node node ) throws Exception {
-		Node item = ConfReader.xmlGetFirstChild( node , "base" );
+		Node item = ConfReader.xmlGetFirstChild( node , ELEMENT_BASE );
 		if( item == null )
 			return;
 		
-		base = new MetaEnvServerBase( meta , this );
-		base.load( action , item );
+		basesw = new MetaEnvServerBase( meta , this );
+		basesw.load( action , item );
 	}
 		
 	private void loadDeployments( ActionBase action , Node node ) throws Exception {
-		Node[] items = ConfReader.xmlGetChildren( node , "deploy" );
+		Node[] items = ConfReader.xmlGetChildren( node , ELEMENT_DEPLOY );
 		if( items == null )
 			return;
 		
@@ -333,8 +370,8 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	public String getFullBinPath( ActionBase action ) throws Exception {
-		action.checkRequired( !ROOTPATH.isEmpty() , "rootpath" );
-		action.checkRequired( !BINPATH.isEmpty() , "binpath" );
+		action.checkRequired( !ROOTPATH.isEmpty() , PROPERTY_ROOTPATH );
+		action.checkRequired( !BINPATH.isEmpty() , PROPERTY_BINPATH );
 		return( Common.getPath( ROOTPATH , BINPATH ) );
 	}
 	
@@ -636,17 +673,21 @@ public class MetaEnvServer extends PropertyController {
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 	}
 	
-	public void createServer( ActionBase action ) throws Exception {
+	public void createServer( ActionBase action , String NAME , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType ) throws Exception {
+		this.NAME = NAME;
+		this.serverRunType = runType;
+		this.serverAccessType = accessType;
 		if( !super.initCreateStarted( dc.getProperties() ) )
 			return;
 
-		super.setStringProperty( "name" , NAME );
+		super.setStringProperty( PROPERTY_NAME , NAME );
+		super.setStringProperty( PROPERTY_OSTYPE , Common.getEnumLower( osType ) );
+		super.setStringProperty( PROPERTY_SERVERRUNTYPE , Common.getEnumLower( runType ) );
+		super.setStringProperty( PROPERTY_SERVERACCESSTYPE , Common.getEnumLower( accessType ) );
 		super.finishProperties( action );
 		super.initFinished();
 		
 		scatterProperties( action );
-		
-		base = new MetaEnvServerBase( meta , this );
 	}
 
 	public void setOfflineStatus( ServerTransaction transaction , boolean OFFLINE ) throws Exception {

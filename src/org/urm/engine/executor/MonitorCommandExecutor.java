@@ -13,8 +13,6 @@ public class MonitorCommandExecutor extends CommandExecutor {
 
 	MonitorCommand impl;
 
-	Meta meta;
-	
 	public MonitorCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		super.defineAction( new RunMonitor() , "start" );
@@ -22,9 +20,8 @@ public class MonitorCommandExecutor extends CommandExecutor {
 	
 	public boolean run( ActionInit action ) {
 		try {
-			meta = action.getContextMeta();
-			
 			// create implementation
+			Meta meta = action.getContextMeta();
 			MetaMonitoring mon = meta.getMonitoring( action );
 			impl = new MonitorCommand( mon );
 		}

@@ -5,9 +5,11 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
+import org.urm.engine.ServerObject;
+import org.urm.engine.ServerProductMeta;
 import org.w3c.dom.Node;
 
-public class MetaDesign {
+public class MetaDesign extends ServerObject {
 
 	public enum VarELEMENTTYPE {
 		UNKNOWN ,
@@ -34,14 +36,15 @@ public class MetaDesign {
 	public Map<String,MetaDesignElement> elements;
 	public boolean fullProd;
 	
-	public MetaDesign( Meta meta ) {
+	public MetaDesign( ServerProductMeta storage , Meta meta ) {
+		super( storage );
 		this.meta = meta;
 		loaded = false;
 		loadFailed = false;
 	}
 	
 	public MetaDesign copy( ActionBase action , Meta meta ) throws Exception {
-		MetaDesign r = new MetaDesign( meta );
+		MetaDesign r = new MetaDesign( meta.getStorage( action ) , meta );
 		return( r );
 	}
 	

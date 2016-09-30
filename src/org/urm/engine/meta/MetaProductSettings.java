@@ -9,6 +9,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
 import org.urm.engine.ServerProductContext;
+import org.urm.engine.ServerProductMeta;
 import org.urm.engine.ServerSettings;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.meta.Meta.VarBUILDMODE;
@@ -81,8 +82,8 @@ public class MetaProductSettings extends PropertyController {
 	public static String PROPERTY_CUSTOM_DEPLOY = "custom.deploy";
 	public static String PROPERTY_CUSTOM_DATABASE = "custom.database";
 	
-	public MetaProductSettings( Meta meta , PropertySet execprops ) {
-		super( "product" );
+	public MetaProductSettings( ServerProductMeta storage , Meta meta , PropertySet execprops ) {
+		super( storage , "product" );
 		
 		this.meta = meta;
 		this.execprops = execprops;
@@ -120,7 +121,7 @@ public class MetaProductSettings extends PropertyController {
 	}
 
 	public MetaProductSettings copy( ActionBase action , Meta meta ) throws Exception {
-		MetaProductSettings r = new MetaProductSettings( meta , execprops );
+		MetaProductSettings r = new MetaProductSettings( meta.getStorage( action ) , meta , execprops );
 		r.initCopyStarted( this , execprops );
 		
 		r.CONFIG_PRODUCT = CONFIG_PRODUCT;

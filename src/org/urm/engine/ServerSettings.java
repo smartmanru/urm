@@ -23,6 +23,7 @@ public class ServerSettings extends ServerObject {
 	private Map<VarBUILDMODE,PropertySet> mapBuildModeDefaults;
 	
 	public ServerSettings( ServerLoader loader ) {
+		super( null );
 		this.loader = loader;
 		
 		serverContext = new ServerContext( this );

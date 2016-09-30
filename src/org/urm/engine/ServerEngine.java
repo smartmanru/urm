@@ -183,9 +183,6 @@ public class ServerEngine {
 			serverSession.setServerOfflineProductLayout( serverAction , options , execrc.product );
 		
 		startAction( serverAction );
-		serverAction.context.meta.getVersion( serverAction );
-		serverAction.context.meta.getProduct( serverAction );
-		
 		return( runServerAction() );
 	}
 		
@@ -303,8 +300,9 @@ public class ServerEngine {
 			if( !context.CTX_WORKPATH.isEmpty() )
 				dirname = context.CTX_WORKPATH;
 			else {
-				if( context.meta != null && serverAction != null ) {
-					MetaProductSettings product = context.meta.getProduct( serverAction );
+				if( session.product ) {
+					ServerProductMeta storage = loader.findMetaStorage( session.productName );
+					MetaProductSettings product = storage.getProductSettings();
 					if( product != null && product.CONFIG_WORKPATH.isEmpty() == false )
 						dirname = product.CONFIG_WORKPATH;
 				}
@@ -326,8 +324,9 @@ public class ServerEngine {
 				if( !context.CTX_WORKPATH.isEmpty() )
 					dirname = context.CTX_WORKPATH;
 				else {
-					if( context.meta != null && serverAction != null ) {
-						MetaProductSettings product = context.meta.getProduct( serverAction );
+					if( session.product ) {
+						ServerProductMeta storage = loader.findMetaStorage( session.productName );
+						MetaProductSettings product = storage.getProductSettings();
 						if( product != null && product.CONFIG_WORKPATH.isEmpty() == false ) {
 							dirname = product.CONFIG_WORKPATH;
 							dirname = Common.getPath( dirname , "session-" + session.sessionId );

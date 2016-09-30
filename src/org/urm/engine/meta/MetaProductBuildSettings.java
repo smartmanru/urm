@@ -81,7 +81,7 @@ public class MetaProductBuildSettings extends PropertyController {
 	public Charset charset;
 	
 	public MetaProductBuildSettings( String name , Meta meta , MetaProductSettings product ) {
-		super( name );
+		super( product , name );
 		
 		this.name = name;
 		this.meta = meta;
