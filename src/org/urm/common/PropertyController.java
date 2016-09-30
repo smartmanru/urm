@@ -194,4 +194,8 @@ public abstract class PropertyController extends ServerObject {
 		properties.setOriginalNumberProperty( prop , value );
 	}
 
+	public void setBooleanProperty( String prop , boolean value ) throws Exception {
+		properties.setOriginalBooleanProperty( prop , value );
+	}
+
 }

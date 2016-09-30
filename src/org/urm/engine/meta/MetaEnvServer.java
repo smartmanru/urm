@@ -677,6 +677,8 @@ public class MetaEnvServer extends PropertyController {
 		this.NAME = NAME;
 		this.serverRunType = runType;
 		this.serverAccessType = accessType;
+		this.osType = osType;
+		this.OFFLINE = true;
 		if( !super.initCreateStarted( dc.getProperties() ) )
 			return;
 
@@ -684,6 +686,7 @@ public class MetaEnvServer extends PropertyController {
 		super.setStringProperty( PROPERTY_OSTYPE , Common.getEnumLower( osType ) );
 		super.setStringProperty( PROPERTY_SERVERRUNTYPE , Common.getEnumLower( runType ) );
 		super.setStringProperty( PROPERTY_SERVERACCESSTYPE , Common.getEnumLower( accessType ) );
+		super.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
 		super.finishProperties( action );
 		super.initFinished();
 		
