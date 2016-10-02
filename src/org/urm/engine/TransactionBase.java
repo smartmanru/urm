@@ -587,7 +587,7 @@ public class TransactionBase extends ServerObject {
 					return( true );
 					
 				loader.setMetadata( this , metadata );
-				sessionMeta.setStorage( metadata );
+				sessionMeta.setStorage( action , metadata );
 				trace( "transaction product storage meta: save=" + metadata.objectId );
 			}
 			return( true );

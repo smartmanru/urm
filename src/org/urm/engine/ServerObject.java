@@ -33,15 +33,18 @@ public class ServerObject {
 	}
 	
 	public void deleteObject() {
+		deleteObjectDown();
+		if( parent != null )
+			parent.childs.remove( this );
+	}
+		
+	public void deleteObjectDown() {
 		for( ServerRef<?> ref : refs )
 			ref.reflexObjectDeleted();
 		refs.clear();
 		
 		for( ServerObject child : childs )
-			child.deleteObject();
-		
-		if( parent != null )
-			parent.childs.remove( this );
+			child.deleteObjectDown();
 		
 		deleted = true;
 	}
