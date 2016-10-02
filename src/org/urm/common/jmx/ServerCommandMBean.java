@@ -33,7 +33,7 @@ import org.urm.common.action.CommandOptions;
 import org.urm.common.action.CommandVar;
 import org.urm.common.action.CommandVar.FLAG;
 import org.urm.engine.ServerEngine;
-import org.urm.engine.SessionContext;
+import org.urm.engine.ServerSession;
 import org.urm.engine.SessionController;
 
 public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster {
@@ -391,7 +391,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		
 		RunContext clientrc = RunContext.clone( engine.execrc );
 		clientrc.product = product;
-		SessionContext session = engine.createSession( clientrc , true );
+		ServerSession session = engine.createSession( clientrc , true );
 		if( !server.runWebJmx( session , meta , cmdopts ) )
 			return( -1 );
 		
@@ -415,7 +415,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		ActionData data = ( ActionData )args[1];
 		String clientId = ( String )args[2];
 		
-		SessionContext sessionContext = engine.createSession( data.clientrc , true );
+		ServerSession sessionContext = engine.createSession( data.clientrc , true );
 		action.debug( "operation invoked, sessionId=" + sessionContext.sessionId );
 
 		

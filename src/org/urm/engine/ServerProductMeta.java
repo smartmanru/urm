@@ -27,7 +27,7 @@ public class ServerProductMeta extends ServerObject {
 
 	public ServerLoader loader;
 	public String name;
-	public SessionContext session;
+	public ServerSession session;
 	
 	public Meta meta;
 	
@@ -51,7 +51,7 @@ public class ServerProductMeta extends ServerObject {
 
 	public boolean loadFailed;
 	
-	public ServerProductMeta( ServerLoader loader , String name , SessionContext session ) {
+	public ServerProductMeta( ServerLoader loader , String name , ServerSession session ) {
 		super( null );
 		this.loader = loader;
 		this.name = name;

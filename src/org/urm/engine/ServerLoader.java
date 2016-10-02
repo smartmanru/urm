@@ -85,7 +85,7 @@ public class ServerLoader {
 		settings.load( propertyFile , engine.execrc );
 	}
 
-	public Meta createMetadata( SessionContext session , String productName ) {
+	public Meta createMetadata( ServerSession session , String productName ) {
 		Meta meta = new Meta( this , session , productName );
 		return( meta );
 	}

@@ -10,7 +10,7 @@ import org.urm.common.action.CommandOptions.SQLTYPE;
 import org.urm.common.action.CommandVar.FLAG;
 import org.urm.engine.ServerCall;
 import org.urm.engine.ServerEngine;
-import org.urm.engine.SessionContext;
+import org.urm.engine.ServerSession;
 import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaEnv;
 import org.urm.engine.meta.MetaEnvDC;
@@ -22,7 +22,7 @@ public class CommandContext {
 
 	public ServerEngine engine;
 	public CommandOptions options;
-	public SessionContext session;
+	public ServerSession session;
 	public CommandMethodMeta commandMethod;
 	public CommandAction commandAction;
 
@@ -109,7 +109,7 @@ public class CommandContext {
 	public String CTX_HOST = "";
 	public int CTX_PORT = -1;
 
-	public CommandContext( ServerEngine engine , SessionContext session , CommandOptions options , String stream , ServerCall call ) {
+	public CommandContext( ServerEngine engine , ServerSession session , CommandOptions options , String stream , ServerCall call ) {
 		this.engine = engine;
 		this.session = session;
 		

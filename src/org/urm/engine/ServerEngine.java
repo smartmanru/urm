@@ -32,7 +32,7 @@ import org.urm.engine.storage.LocalFolder;
 public class ServerEngine {
 
 	public RunContext execrc;
-	public SessionContext serverSession;
+	public ServerSession serverSession;
 	public SessionController sessionController;
 	public ServerMBean jmxController;
 	
@@ -117,7 +117,7 @@ public class ServerEngine {
 			return( null );
 		
 		RunContext clientrc = RunContext.clone( execrc );
-		SessionContext sessionContext = createSession( clientrc , true );
+		ServerSession sessionContext = createSession( clientrc , true );
 		ActionInit action = createAction( serverExecutor , options , sessionContext , "web" , null );
 		startAction( action );
 		
@@ -130,7 +130,7 @@ public class ServerEngine {
 			return( null );
 		
 		RunContext clientrc = RunContext.clone( execrc );
-		SessionContext sessionContext = createSession( clientrc , true );
+		ServerSession sessionContext = createSession( clientrc , true );
 		sessionContext.setServerLayout( null );
 		ActionInit action = createAction( serverExecutor , options , sessionContext , name , null );
 		startAction( action );
@@ -228,7 +228,7 @@ public class ServerEngine {
 		return( executor );
 	}
 
-	public ActionInit createAction( CommandExecutor actionExecutor , CommandOptions options , SessionContext session , String stream , ServerCall call ) throws Exception {
+	public ActionInit createAction( CommandExecutor actionExecutor , CommandOptions options , ServerSession session , String stream , ServerCall call ) throws Exception {
 		CommandAction commandAction = actionExecutor.getAction( options.action );
 		if( !options.checkValidOptions( commandAction.method ) )
 			return( null );
@@ -293,7 +293,7 @@ public class ServerEngine {
 		shellPool.releaseActionPool( action );
 	}
 
-	private Artefactory createArtefactory( SessionContext session , CommandContext context ) throws Exception {
+	private Artefactory createArtefactory( ServerSession session , CommandContext context ) throws Exception {
 		String dirname = "";
 		
 		if( session.standalone ) {
@@ -355,11 +355,11 @@ public class ServerEngine {
 		return( transaction );
 	}
 	
-	public SessionContext createSession( RunContext clientrc , boolean client ) {
+	public ServerSession createSession( RunContext clientrc , boolean client ) {
 		int sessionId = 0;
 		if( sessionController != null )
 			sessionId = sessionController.createSessionId();
-		SessionContext session = new SessionContext( this , clientrc , sessionId , client );
+		ServerSession session = new ServerSession( this , clientrc , sessionId , client );
 		return( session );
 	}
 

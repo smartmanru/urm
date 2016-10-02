@@ -10,7 +10,7 @@ import org.urm.engine.shell.ShellInteractive;
 public abstract class ServerCall implements Runnable {
 
 	public ServerEngine engine;
-	public SessionContext sessionContext;
+	public ServerSession sessionContext;
 	public CommandMeta command;
 	public String actionName;
 	public ActionData data;
@@ -29,7 +29,7 @@ public abstract class ServerCall implements Runnable {
 	abstract protected void notifyLog( String msg );
 	abstract protected void notifyLog( Throwable e );
 	
-	public ServerCall( ServerEngine engine , SessionContext sessionContext , CommandMeta command , String actionName , ActionData data ) {
+	public ServerCall( ServerEngine engine , ServerSession sessionContext , CommandMeta command , String actionName , ActionData data ) {
 		this.engine = engine;
 		this.sessionContext = sessionContext;
 		this.command = command;

@@ -7,7 +7,7 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.ServerLoader;
 import org.urm.engine.ServerObject;
 import org.urm.engine.ServerProductMeta;
-import org.urm.engine.SessionContext;
+import org.urm.engine.ServerSession;
 import org.urm.engine.meta.MetaBase.VarBASESRCFORMAT;
 import org.urm.engine.meta.MetaBase.VarBASESRCTYPE;
 import org.urm.engine.meta.MetaDesign.VarELEMENTTYPE;
@@ -19,7 +19,7 @@ public class Meta extends ServerObject {
 	public String name;
 	
 	private ServerLoader loader;
-	private SessionContext session;
+	private ServerSession session;
 	private ServerProductMeta storage;
 
 	private MetaProductVersion version;
@@ -182,7 +182,7 @@ public class Meta extends ServerObject {
 	
 	private static String configurableExtensionsFindOptions = createConfigurableExtensions();
 	
-	public Meta( ServerProductMeta storage , SessionContext session ) {
+	public Meta( ServerProductMeta storage , ServerSession session ) {
 		super( null );
 		this.storage = storage;
 		this.loader = storage.loader;
@@ -190,7 +190,7 @@ public class Meta extends ServerObject {
 		name = storage.name;
 	}
 	
-	public Meta( ServerLoader loader , SessionContext session , String productName ) {
+	public Meta( ServerLoader loader , ServerSession session , String productName ) {
 		super( null );
 		this.loader = loader;
 		this.session = session;
@@ -234,7 +234,7 @@ public class Meta extends ServerObject {
 		this.sources = null;
 	}
 
-	public SessionContext getSession() {
+	public ServerSession getSession() {
 		return( session );
 	}
 	

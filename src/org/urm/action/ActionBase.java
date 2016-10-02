@@ -12,7 +12,7 @@ import org.urm.engine.ServerLoader;
 import org.urm.engine.ServerMirrors;
 import org.urm.engine.ServerMirrorRepository;
 import org.urm.engine.ServerProductMeta;
-import org.urm.engine.SessionContext;
+import org.urm.engine.ServerSession;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.action.CommandExecutor;
@@ -40,7 +40,7 @@ abstract public class ActionBase extends ActionCore {
 
 	public ActionInit actionInit;
 	
-	public SessionContext session;
+	public ServerSession session;
 	public CommandExecutor executor;
 	public CommandContext context;
 	public Artefactory artefactory;
@@ -67,7 +67,7 @@ abstract public class ActionBase extends ActionCore {
 	protected void runBefore( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
 	protected void runAfter( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
 	
-	public ActionBase( SessionContext session , Artefactory artefactory , CommandExecutor executor , CommandOutput output ) {
+	public ActionBase( ServerSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output ) {
 		super( executor.engine , null );
 		
 		this.session = session;

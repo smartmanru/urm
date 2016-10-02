@@ -86,7 +86,7 @@ public class SessionController {
 			return( null );
 		
 		CommandExecutor actionExecutor = engine.createExecutor( commandInfo );
-		SessionContext session = call.sessionContext;
+		ServerSession session = call.sessionContext;
 		session.setServerRemoteProductLayout( engine.serverAction );
 		
 		ActionInit action = engine.createAction( actionExecutor , options , session , "call-" + data.clientrc.product , call );
@@ -96,7 +96,7 @@ public class SessionController {
 		return( action );
 	}
 
-	public boolean runWebJmx( SessionContext session , CommandMeta meta , CommandOptions options ) throws Exception {
+	public boolean runWebJmx( ServerSession session , CommandMeta meta , CommandOptions options ) throws Exception {
 		if( !running ) {
 			serverAction.error( "server is in progress of shutdown" );
 			return( false );
@@ -113,7 +113,7 @@ public class SessionController {
 	}
 	
 	public boolean runClientAction( ActionInit clientAction ) {
-		SessionContext session = clientAction.session;
+		ServerSession session = clientAction.session;
 		CommandExecutor executor = clientAction.executor;
 		
 		serverAction.debug( "run client action sessionId=" + session.sessionId + ", workFolder=" + clientAction.artefactory.workFolder.folderPath + " ..." );

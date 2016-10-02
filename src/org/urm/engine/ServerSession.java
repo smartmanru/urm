@@ -5,7 +5,7 @@ import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandOptions;
 
-public class SessionContext {
+public class ServerSession {
 
 	public ServerEngine engine;
 	public RunContext clientrc;
@@ -28,7 +28,7 @@ public class SessionContext {
 	
 	private ServerAuthContext login;
 	
-	public SessionContext( ServerEngine engine , RunContext clientrc , int sessionId , boolean client ) {
+	public ServerSession( ServerEngine engine , RunContext clientrc , int sessionId , boolean client ) {
 		this.engine = engine;
 		this.clientrc = clientrc;
 		this.sessionId = sessionId;
@@ -68,7 +68,7 @@ public class SessionContext {
 	}
 	
 	public void setServerRemoteProductLayout( ActionBase serverAction ) throws Exception {
-		SessionContext serverSession = serverAction.session;
+		ServerSession serverSession = serverAction.session;
 		
 		installPath = serverSession.installPath;
 		masterPath = serverSession.masterPath;
