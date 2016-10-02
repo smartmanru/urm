@@ -391,8 +391,8 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		
 		RunContext clientrc = RunContext.clone( engine.execrc );
 		clientrc.product = product;
-		ServerSession session = engine.createSession( clientrc , true );
-		if( !server.runWebJmx( session , meta , cmdopts ) )
+		ServerSession session = engine.sessionController.createSession( clientrc , true );
+		if( !server.runWebJmx( engine.serverAction , session , meta , cmdopts ) )
 			return( -1 );
 		
 		return( 0 );
@@ -415,7 +415,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		ActionData data = ( ActionData )args[1];
 		String clientId = ( String )args[2];
 		
-		ServerSession sessionContext = engine.createSession( data.clientrc , true );
+		ServerSession sessionContext = engine.sessionController.createSession( data.clientrc , true );
 		action.debug( "operation invoked, sessionId=" + sessionContext.sessionId );
 
 		
@@ -442,7 +442,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		String input = ( String )args[1];
 		
 		try {
-			server.executeInteractiveCommand( sessionId , input );
+			server.executeInteractiveCommand( engine.serverAction , sessionId , input );
 		}
 		catch( Throwable e ) {
 			engine.serverAction.handle( e );
@@ -466,7 +466,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		String sessionId = ( String )args[0];
 		
 		try {
-			server.stopSession( sessionId );
+			server.stopSession( engine.serverAction , sessionId );
 		}
 		catch( Throwable e ) {
 			engine.serverAction.handle( e );
@@ -487,7 +487,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		String sessionId = ( String )args[0];
 		
 		try {
-			if( !server.waitConnect( sessionId ) )
+			if( !server.waitConnect( engine.serverAction , sessionId ) )
 				return( RemoteCall.STATUS_ACTION_FAILED );
 		}
 		catch( Throwable e ) {

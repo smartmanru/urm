@@ -42,7 +42,7 @@ public abstract class ServerCall implements Runnable {
 	public boolean start() {
     	try {
     		CommandMethodMeta method = command.getAction( actionName );
-    		action = sessionController.createRemoteAction( this , method , data );
+    		action = sessionController.createRemoteAction( engine.serverAction , this , method , data );
     	}
     	catch( Throwable e ) {
     		notifyLog( e );
@@ -53,7 +53,7 @@ public abstract class ServerCall implements Runnable {
     		return( false );
     	
         Thread thread = new Thread( null , this , getClass().getSimpleName() );
-        sessionController.threadStarted( this );
+        sessionController.threadStarted( engine.serverAction , this );
         thread.start();
         
         return( true );
@@ -61,9 +61,9 @@ public abstract class ServerCall implements Runnable {
 
     @Override
     public void run() {
-    	sessionController.runClientAction( action );
+    	sessionController.runClientAction( engine.serverAction , action );
     	notifyStop( "disconnected" );
-    	sessionController.threadStopped( this );
+    	sessionController.threadStopped( engine.serverAction , this );
     }
 
     public void addLog( String message ) {

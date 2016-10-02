@@ -58,6 +58,7 @@ public class ServerEngine {
 		
 		auth = new ServerAuth( this ); 
 		loader = new ServerLoader( this );
+		sessionController = new SessionController( this );
 	}
 	
 	public void init() throws Exception {
@@ -69,13 +70,12 @@ public class ServerEngine {
 		serverAction.debug( "load server configuration ..." );
 		loader.loadServerProducts( action.actionInit );
 		
-		sessionController = new SessionController( action , this );
 		jmxController = new ServerMBean( action , this );
-		sessionController.start();
+		sessionController.start( serverAction );
 		jmxController.start();
 		
 		serverAction.info( "server successfully started, accepting connections." );
-		sessionController.waitFinished();
+		sessionController.waitFinished( serverAction );
 	}
 	
 	public void stopServer() throws Exception {
@@ -86,9 +86,8 @@ public class ServerEngine {
 		
 		shellPool.stop( serverAction );
 		jmxController.stop();
-		sessionController.stop();
+		sessionController.stop( serverAction );
 		jmxController = null;
-		sessionController = null;
 		loader.clearServerProducts();
 		
 		running = false;
@@ -122,7 +121,7 @@ public class ServerEngine {
 			return( null );
 		
 		RunContext clientrc = RunContext.clone( execrc );
-		ServerSession sessionContext = createSession( clientrc , true );
+		ServerSession sessionContext = sessionController.createSession( clientrc , true );
 		ActionInit action = createAction( serverExecutor , options , sessionContext , "web" , null );
 		startAction( action );
 		
@@ -135,7 +134,7 @@ public class ServerEngine {
 			return( null );
 		
 		RunContext clientrc = RunContext.clone( execrc );
-		ServerSession sessionContext = createSession( clientrc , true );
+		ServerSession sessionContext = sessionController.createSession( clientrc , true );
 		sessionContext.setServerLayout( null );
 		ActionInit action = createAction( serverExecutor , options , sessionContext , name , null );
 		startAction( action );
@@ -154,7 +153,7 @@ public class ServerEngine {
 	
 	public boolean prepareServerExecutor( CommandOptions options ) throws Exception {
 		// server action environment
-		serverSession = createSession( execrc , false );
+		serverSession = sessionController.createSession( execrc , false );
 		serverSession.setServerLayout( options );
 		
 		// create server action
@@ -172,7 +171,7 @@ public class ServerEngine {
 
 	public boolean runClientMode( CommandOptions options , CommandMeta commandInfo ) throws Exception {
 		CommandExecutor commandExecutor = createExecutor( commandInfo );
-		serverSession = createSession( execrc , false );
+		serverSession = sessionController.createSession( execrc , false );
 		
 		if( execrc.isStandalone() )
 			serverSession.setStandaloneLayout( options );
@@ -296,6 +295,7 @@ public class ServerEngine {
 			action.artefactory.workFolder.removeThis( action );
 		
 		shellPool.releaseActionPool( action );
+		sessionController.closeSession( action.session );
 	}
 
 	private Artefactory createArtefactory( ServerSession session , CommandContext context ) throws Exception {
@@ -340,14 +340,6 @@ public class ServerEngine {
 		return( transaction );
 	}
 	
-	public ServerSession createSession( RunContext clientrc , boolean client ) {
-		int sessionId = 0;
-		if( sessionController != null )
-			sessionId = sessionController.createSessionId();
-		ServerSession session = new ServerSession( this , clientrc , sessionId , client );
-		return( session );
-	}
-
 	public boolean startTransaction( TransactionBase transaction ) {
 		if( currentTransaction != null ) {
 			try {

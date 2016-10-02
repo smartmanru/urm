@@ -12,7 +12,7 @@ import org.urm.engine.registry.ServerAuthContext;
 
 public class ServerSession extends ServerObject {
 
-	public ServerEngine engine;
+	public SessionController controller;
 	public RunContext clientrc;
 	public RunContext execrc;
 	public int sessionId;
@@ -36,14 +36,14 @@ public class ServerSession extends ServerObject {
 	
 	Map<String,Meta> productMeta;
 	
-	public ServerSession( ServerEngine engine , RunContext clientrc , int sessionId , boolean client ) {
+	public ServerSession( SessionController controller , RunContext clientrc , int sessionId , boolean client ) {
 		super( null );
-		this.engine = engine;
+		this.controller = controller;
 		this.clientrc = clientrc;
 		this.sessionId = sessionId;
 		this.client = client;
 		
-		this.execrc = engine.execrc;
+		this.execrc = controller.engine.execrc;
 		this.ENV = clientrc.envName;
 		this.DC = clientrc.dcName;
 		
@@ -55,10 +55,10 @@ public class ServerSession extends ServerObject {
 	public void close() throws Exception {
 		closed = true;
 		
-		ServerLoader loader = engine.getLoader();
+		ServerLoader loader = controller.engine.getLoader();
 		for( String product : Common.getSortedKeys( productMeta ) ) {
 			Meta meta = productMeta.get( product );
-			loader.releaseMetadata( engine.serverAction , meta );
+			loader.releaseMetadata( controller.engine.serverAction , meta );
 		}
 		
 		super.deleteObject();

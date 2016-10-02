@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.common.RunContext;
 import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
@@ -14,7 +15,6 @@ import org.urm.engine.action.CommandExecutor;
 
 public class SessionController {
 
-	ActionBase serverAction;
 	ServerEngine engine;
 	
 	boolean running = false;
@@ -28,22 +28,22 @@ public class SessionController {
 	
 	int sessionSequence = 0;
 	
-	public SessionController( ActionBase serverAction , ServerEngine engine ) {
-		this.serverAction = serverAction;
+	public SessionController( ServerEngine engine ) {
 		this.engine = engine;
 		
 		calls = new HashMap<String,ServerCall>();
 		actions = new HashMap<Integer,ActionInit>(); 
 	}
-	
-	public void start() throws Exception {
+
+	public void start( ActionBase serverAction ) throws Exception {
+		stop = false;
 		serverAction.debug( "start session controller ..." );
-		CommandBuilder builder = new CommandBuilder( serverAction.context.session.clientrc , serverAction.context.session.execrc );
+		CommandBuilder builder = new CommandBuilder( engine.serverSession.clientrc , engine.serverSession.execrc );
 		executors = builder.getExecutors( true , true );
 		serverAction.debug( "session controller has been started" );
 	}
 	
-	public void stop() throws Exception {
+	public void stop( ActionBase serverAction ) throws Exception {
 		serverAction.debug( "stop session controller ..." );
 		
 		stop = true;
@@ -57,7 +57,7 @@ public class SessionController {
 		return( running );
 	}
 	
-	public void waitFinished() throws Exception {
+	public void waitFinished( ActionBase serverAction ) throws Exception {
 		synchronized( this ) {
 			started = true;
 			notifyAll();
@@ -68,10 +68,10 @@ public class SessionController {
 			running = false;
 		}
 		
-		waitAllActions();
+		waitAllActions( serverAction );
 	}
 
-	public ActionInit createRemoteAction( ServerCall call , CommandMethodMeta method , ActionData data ) throws Exception {
+	public ActionInit createRemoteAction( ActionBase serverAction , ServerCall call , CommandMethodMeta method , ActionData data ) throws Exception {
 		if( !running ) {
 			engine.serverAction.error( "server is in progress of shutdown" );
 			return( null );
@@ -96,7 +96,7 @@ public class SessionController {
 		return( action );
 	}
 
-	public boolean runWebJmx( ServerSession session , CommandMeta meta , CommandOptions options ) throws Exception {
+	public boolean runWebJmx( ActionBase serverAction , ServerSession session , CommandMeta meta , CommandOptions options ) throws Exception {
 		if( !running ) {
 			serverAction.error( "server is in progress of shutdown" );
 			return( false );
@@ -109,10 +109,10 @@ public class SessionController {
 		if( action == null )
 			return( false );
 
-		return( runClientAction( action ) );
+		return( runClientAction( serverAction , action ) );
 	}
 	
-	public boolean runClientAction( ActionInit clientAction ) {
+	public boolean runClientAction( ActionBase serverAction , ActionInit clientAction ) {
 		ServerSession session = clientAction.session;
 		CommandExecutor executor = clientAction.executor;
 		
@@ -153,7 +153,13 @@ public class SessionController {
 		return( res );
 	}
 
-	public synchronized int createSessionId() {
+	public ServerSession createSession( RunContext clientrc , boolean client ) {
+		int sessionId = createSessionId();
+		ServerSession session = new ServerSession( this , clientrc , sessionId , client );
+		return( session );
+	}
+
+	private synchronized int createSessionId() {
 		sessionSequence++;
 		return( sessionSequence );
 	}
@@ -163,17 +169,17 @@ public class SessionController {
 		return( call );
 	}
 	
-	public synchronized void threadStarted( ServerCall thread ) {
+	public synchronized void threadStarted( ActionBase serverAction , ServerCall thread ) {
 		calls.put( "" + thread.sessionContext.sessionId , thread );
 		serverAction.debug( "thread started: sessionId=" + thread.sessionContext.sessionId );
 	}
 
-	public synchronized void threadStopped( ServerCall thread ) {
+	public synchronized void threadStopped( ActionBase serverAction , ServerCall thread ) {
 		calls.remove( "" + thread.sessionContext.sessionId );
 		serverAction.debug( "thread stopped: sessionId=" + thread.sessionContext.sessionId );
 	}
 
-	private void waitAllActions() throws Exception {
+	private void waitAllActions( ActionBase serverAction ) throws Exception {
 		synchronized( this ) {
 			if( actions.size() == 0 )
 				return;
@@ -189,7 +195,7 @@ public class SessionController {
 		}
 	}
 
-	public void executeInteractiveCommand( String sessionId , String input ) throws Exception {
+	public void executeInteractiveCommand( ActionBase serverAction , String sessionId , String input ) throws Exception {
 		ServerCall call = calls.get( "" + sessionId );
 		if( call == null )
 			serverAction.exit1( _Error.UnknownCallSession1 , "unknown call session=" + sessionId , sessionId );
@@ -197,7 +203,7 @@ public class SessionController {
 		call.executeInteractiveCommand( input );
 	}
 
-	public void stopSession( String sessionId ) throws Exception {
+	public void stopSession( ActionBase serverAction , String sessionId ) throws Exception {
 		ServerCall call = calls.get( "" + sessionId );
 		if( call == null )
 			serverAction.exit1( _Error.UnknownCallSession1 , "unknown call session=" + sessionId , sessionId );
@@ -205,7 +211,7 @@ public class SessionController {
 		call.stop();
 	}
 
-	public boolean waitConnect( String sessionId ) throws Exception {
+	public boolean waitConnect( ActionBase serverAction , String sessionId ) throws Exception {
 		ServerCall call = calls.get( "" + sessionId );
 		if( call == null )
 			serverAction.exit1( _Error.UnknownCallSession1 , "unknown call session=" + sessionId , sessionId );
@@ -213,7 +219,7 @@ public class SessionController {
 		return( call.waitConnect() );
 	}
 
-	public boolean waitStart() {
+	public boolean waitStart( ActionBase serverAction ) {
 		synchronized( this ) {
 			if( started )
 				return( true );
@@ -227,6 +233,10 @@ public class SessionController {
 			}
 			return( false );
 		}
+	}
+
+	public void closeSession( ServerSession session ) throws Exception {
+		session.close();
 	}
 	
 }

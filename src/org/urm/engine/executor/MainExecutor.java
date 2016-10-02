@@ -9,7 +9,6 @@ import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.meta.MainCommandMeta;
 import org.urm.engine.ServerEngine;
-import org.urm.engine.ServerSession;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandAction;
 import org.urm.engine.action.CommandExecutor;
@@ -49,10 +48,6 @@ public class MainExecutor extends CommandExecutor {
 		CommandOptions options = new CommandOptions();
 		ActionData data = new ActionData( engine.execrc );
 		options.setAction( commandInfo.getAction( "temporary" ) , data );
-
-		ServerSession sessionContext = engine.createSession( engine.execrc , true );
-		sessionContext.setServerLayout( options );
-		
 		return( options );
 	}
 
@@ -60,10 +55,6 @@ public class MainExecutor extends CommandExecutor {
 		CommandOptions options = new CommandOptions();
 		ActionData data = new ActionData( engine.execrc );
 		options.setAction( commandInfo.getAction( "websession" ) , data );
-		
-		ServerSession sessionContext = engine.createSession( engine.execrc , true );
-		sessionContext.setServerLayout( options );
-		
 		return( options );
 	}
 
