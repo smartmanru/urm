@@ -99,6 +99,7 @@ public class ServerLoader {
 		
 		ServerProductMeta storage = getMetaStorage( action , session , productName );
 		meta = new Meta( storage , session );
+		engine.serverAction.trace( "new session meta object, id=" + meta.objectId + ", session=" + session.objectId );
 		storage.addSessionMeta( meta );
 		session.addProductMeta( meta );
 		return( meta );

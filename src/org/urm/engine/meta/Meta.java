@@ -189,7 +189,6 @@ public class Meta extends ServerObject {
 		this.loader = storage.loader;
 		this.session = session;
 		name = storage.name;
-		loader.engine.serverAction.trace( "new Meta object, id=" + objectId );
 	}
 	
 	public void setStorage( ServerProductMeta storage ) {

@@ -62,6 +62,7 @@ public class ServerProductMeta extends ServerObject {
 		this.session = session;
 		
 		meta = new Meta( this , session );
+		loader.engine.serverAction.trace( "new product storage meta object, id=" + meta.objectId + ", storage=" + objectId );
 		designFiles = new HashMap<String,MetaDesign>();
 		envs = new HashMap<String,MetaEnv>();
 		
@@ -98,7 +99,6 @@ public class ServerProductMeta extends ServerObject {
 	
 	public synchronized ServerProductMeta copy( ActionBase action ) throws Exception {
 		ServerProductMeta r = new ServerProductMeta( loader , name , session );
-		r.meta = new Meta( r , session );
 		if( version != null ) {
 			r.version = version.copy( action , r.meta );
 			if( r.version.isLoadFailed() )

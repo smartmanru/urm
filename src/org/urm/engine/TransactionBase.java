@@ -528,7 +528,7 @@ public class TransactionBase extends ServerObject {
 					metadataOld = sourceMetadata;
 					metadata = sourceMetadata.copy( action );
 					sessionMeta = meta;
-					trace( "transaction product meta: source=" + sourceMetadata.objectId + ", copy=" + metadata.objectId );
+					trace( "transaction product storage meta: source=" + sourceMetadata.objectId + ", copy=" + metadata.objectId );
 					if( metadata != null )
 						return( true );
 				}
@@ -557,7 +557,7 @@ public class TransactionBase extends ServerObject {
 				if( sourceMetadata.isPrimary() ) {
 					deleteMetadata = true;
 					metadataOld = sourceMetadata;
-					trace( "transaction product meta: going delete=" + sourceMetadata.objectId );
+					trace( "transaction product storage meta: going delete=" + sourceMetadata.objectId );
 					return( true );
 				}
 			}
@@ -580,7 +580,7 @@ public class TransactionBase extends ServerObject {
 					return( true );
 					
 				loader.deleteMetadata( this , metadataOld );
-				trace( "transaction product meta: delete=" + metadataOld.objectId );
+				trace( "transaction product storage meta: delete=" + metadataOld.objectId );
 			}
 			else {
 				if( metadata == null )
@@ -588,7 +588,7 @@ public class TransactionBase extends ServerObject {
 					
 				loader.setMetadata( this , metadata );
 				sessionMeta.setStorage( metadata );
-				trace( "transaction product meta: save=" + metadata.objectId );
+				trace( "transaction product storage meta: save=" + metadata.objectId );
 			}
 			return( true );
 		}
