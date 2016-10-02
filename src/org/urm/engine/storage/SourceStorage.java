@@ -3,7 +3,6 @@ package org.urm.engine.storage;
 import org.urm.action.ActionBase;
 import org.urm.action.conf.ConfSourceFolder;
 import org.urm.common.Common;
-import org.urm.engine.ServerMirrorRepository;
 import org.urm.engine.ServerProductMeta;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseTarget;
@@ -16,6 +15,7 @@ import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.meta.MetaEnvServerDeployment;
 import org.urm.engine.meta.MetaEnvServerNode;
 import org.urm.engine.meta.MetaProductBuildSettings;
+import org.urm.engine.registry.ServerMirrorRepository;
 import org.urm.engine.vcs.GenericVCS;
 
 public class SourceStorage {

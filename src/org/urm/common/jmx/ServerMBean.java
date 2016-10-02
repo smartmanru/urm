@@ -18,9 +18,9 @@ import javax.management.remote.JMXServiceURL;
 
 import org.urm.action.ActionBase;
 import org.urm.common.action.CommandMeta;
-import org.urm.engine.ServerDirectory;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.SessionController;
+import org.urm.engine.registry.ServerDirectory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
 

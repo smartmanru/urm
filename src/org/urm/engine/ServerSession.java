@@ -1,11 +1,16 @@
 package org.urm.engine;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandOptions;
+import org.urm.engine.meta.Meta;
+import org.urm.engine.registry.ServerAuthContext;
 
-public class ServerSession {
+public class ServerSession extends ServerObject {
 
 	public ServerEngine engine;
 	public RunContext clientrc;
@@ -27,8 +32,12 @@ public class ServerSession {
 	public String binPath = "";
 	
 	private ServerAuthContext login;
+	private boolean closed;
+	
+	Map<String,Meta> productMeta;
 	
 	public ServerSession( ServerEngine engine , RunContext clientrc , int sessionId , boolean client ) {
+		super( null );
 		this.engine = engine;
 		this.clientrc = clientrc;
 		this.sessionId = sessionId;
@@ -39,6 +48,36 @@ public class ServerSession {
 		this.DC = clientrc.dcName;
 		
 		timestamp = Common.getNameTimeStamp();
+		productMeta = new HashMap<String,Meta>();
+		closed = false;
+	}
+
+	public void close() throws Exception {
+		closed = true;
+		
+		ServerLoader loader = engine.getLoader();
+		for( String product : Common.getSortedKeys( productMeta ) ) {
+			Meta meta = productMeta.get( product );
+			loader.releaseMetadata( engine.serverAction , meta );
+		}
+		
+		super.deleteObject();
+	}
+
+	public boolean isClosed() {
+		return( closed );
+	}
+	
+	public synchronized Meta findMeta( String productName ) {
+		return( productMeta.get( productName ) );
+	}
+
+	public synchronized void addProductMeta( Meta meta ) {
+		productMeta.put( meta.name , meta );
+	}
+	
+	public synchronized void releaseProductMeta( Meta meta ) {
+		productMeta.remove( meta.name );
 	}
 	
 	public void setLoginAuth( ServerAuthContext login ) {

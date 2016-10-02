@@ -11,6 +11,12 @@ import org.urm.engine.meta.MetaProductVersion;
 import org.urm.engine.meta.Meta.VarBUILDMODE;
 import org.urm.engine.meta.Meta.VarSERVERACCESSTYPE;
 import org.urm.engine.meta.Meta.VarSERVERRUNTYPE;
+import org.urm.engine.registry.ServerAuthResource;
+import org.urm.engine.registry.ServerMirrorRepository;
+import org.urm.engine.registry.ServerMirrors;
+import org.urm.engine.registry.ServerProduct;
+import org.urm.engine.registry.ServerProjectBuilder;
+import org.urm.engine.registry.ServerSystem;
 
 public class ServerTransaction extends TransactionBase {
 
@@ -164,6 +170,14 @@ public class ServerTransaction extends TransactionBase {
 		settings.setBuildModeProperties( this , mode , props );
 	}
 
+	public MetaProductVersion createProductVersion( Meta meta , int majorFirstNumber , int majorSecondNumber , int majorNextFirstNumber , int majorNextSecondNumber , int lastProdTag , int nextProdTag ) throws Exception {
+		checkTransactionMetadata( meta.getStorage( action ) );
+		MetaProductVersion version = new MetaProductVersion( metadata , metadata.meta );
+		version.createVersion( getAction() , majorFirstNumber , majorSecondNumber , majorNextFirstNumber , majorNextSecondNumber , lastProdTag , nextProdTag );
+		metadata.setVersion( this , version );
+		return( version );
+	}
+	
 	public MetaEnv createMetaEnv( Meta meta , String name , boolean prod ) throws Exception {
 		checkTransactionMetadata( meta.getStorage( action ) );
 		MetaEnv env = new MetaEnv( metadata , metadata.meta );

@@ -1,13 +1,13 @@
 package org.urm.engine.vcs;
 
 import org.urm.action.ActionBase;
-import org.urm.engine.ServerAuthResource;
-import org.urm.engine.ServerMirrorRepository;
-import org.urm.engine.ServerProjectBuilder;
 import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaProductBuildSettings;
 import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.meta.MetaSourceProject;
+import org.urm.engine.registry.ServerAuthResource;
+import org.urm.engine.registry.ServerMirrorRepository;
+import org.urm.engine.registry.ServerProjectBuilder;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
@@ -78,7 +78,7 @@ public abstract class GenericVCS {
 		
 		ShellExecutor shell = action.shell;
 		if( build ) {
-			MetaProductSettings product = meta.getProduct( action );
+			MetaProductSettings product = meta.getProductSettings( action );
 			MetaProductBuildSettings settings = product.getBuildSettings( action );
 			if( !settings.CONFIG_BUILDER_REMOTE.isEmpty() ) {
 				ServerProjectBuilder builder = action.getBuilder( settings.CONFIG_BUILDER_REMOTE );

@@ -1,12 +1,18 @@
 package org.urm.engine;
 
-import org.urm.action.ActionBase;
 import org.urm.common.RunError;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaEnv;
 import org.urm.engine.meta.MetaEnvDC;
 import org.urm.engine.meta.MetaEnvServer;
+import org.urm.engine.registry.ServerAuthResource;
+import org.urm.engine.registry.ServerBuilders;
+import org.urm.engine.registry.ServerDirectory;
+import org.urm.engine.registry.ServerProduct;
+import org.urm.engine.registry.ServerProjectBuilder;
+import org.urm.engine.registry.ServerResources;
+import org.urm.engine.registry.ServerSystem;
 
 public class TransactionBase extends ServerObject {
 
@@ -29,6 +35,7 @@ public class TransactionBase extends ServerObject {
 	
 	public boolean createMetadata;
 	public boolean deleteMetadata;
+	protected Meta sessionMeta;
 	
 	public TransactionBase( ServerEngine engine ) {
 		super( null );
@@ -42,6 +49,7 @@ public class TransactionBase extends ServerObject {
 		metadata = null;
 		createMetadata = false;
 		deleteMetadata = false;
+		sessionMeta = null;
 		engine.serverAction.trace( "transaction created id=" + objectId );
 	}
 	
@@ -62,6 +70,7 @@ public class TransactionBase extends ServerObject {
 			metadataOld = null;
 			createMetadata = false;
 			deleteMetadata = false;
+			sessionMeta = null;
 			return( true );
 		}
 	}
@@ -117,6 +126,7 @@ public class TransactionBase extends ServerObject {
 					metadataOld = null;
 					createMetadata = false;
 					deleteMetadata = false;
+					sessionMeta = null;
 				}
 			}
 			catch( Throwable e ) {
@@ -281,6 +291,10 @@ public class TransactionBase extends ServerObject {
 	
 	public ServerProductMeta getTransactionMetadata() {
 		return( metadata );
+	}
+	
+	public Meta getTransactionSessionMetadata() {
+		return( sessionMeta );
 	}
 	
 	public ServerResources getResources() {
@@ -514,7 +528,7 @@ public class TransactionBase extends ServerObject {
 		return( false );
 	}
 
-	public boolean changeMetadata( ServerProductMeta sourceMetadata ) {
+	public boolean changeMetadata( ActionInit action , Meta meta ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -523,9 +537,12 @@ public class TransactionBase extends ServerObject {
 				if( metadata != null )
 					return( true );
 				
-				if( sourceMetadata == loader.findMetaStorage( sourceMetadata.name ) ) {
-					ActionBase za = getAction();
-					metadata = sourceMetadata.copy( za );
+				ServerProductMeta sourceMetadata = meta.getStorage( action );
+				if( sourceMetadata.isPrimary() ) {
+					this.action = action;
+					metadataOld = sourceMetadata;
+					metadata = sourceMetadata.copy( action );
+					sessionMeta = meta;
 					trace( "transaction product meta: source=" + sourceMetadata.objectId + ", copy=" + metadata.objectId );
 					if( metadata != null )
 						return( true );
@@ -542,7 +559,7 @@ public class TransactionBase extends ServerObject {
 		}
 	}
 	
-	public boolean deleteMetadata( ServerProduct product , ServerProductMeta sourceMetadata ) {
+	public boolean deleteMetadata( ActionInit action , Meta meta ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -551,9 +568,10 @@ public class TransactionBase extends ServerObject {
 				if( metadata != null )
 					return( true );
 				
-				if( sourceMetadata == loader.findMetaStorage( product.NAME ) ) {
+				ServerProductMeta sourceMetadata = meta.getStorage( action );
+				if( sourceMetadata.isPrimary() ) {
 					deleteMetadata = true;
-					metadata = sourceMetadata;
+					metadataOld = sourceMetadata;
 					trace( "transaction product meta: going delete=" + sourceMetadata.objectId );
 					return( true );
 				}
@@ -571,17 +589,18 @@ public class TransactionBase extends ServerObject {
 		if( !continueTransaction() )
 			return( false );
 
-		if( metadata == null )
-			return( true );
-			
 		try {
-			if( !createMetadata )
-				metadataOld = loader.findMetaStorage( metadata.name );
 			if( deleteMetadata ) {
-				loader.deleteMetadata( this , metadata );
-				trace( "transaction product meta: delete=" + metadata.objectId );
+				if( metadataOld == null )
+					return( true );
+					
+				loader.deleteMetadata( this , metadataOld );
+				trace( "transaction product meta: delete=" + metadataOld.objectId );
 			}
 			else {
+				if( metadata == null )
+					return( true );
+					
 				loader.setMetadata( this , metadata );
 				trace( "transaction product meta: save=" + metadata.objectId );
 			}

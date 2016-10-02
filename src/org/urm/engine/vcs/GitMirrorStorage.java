@@ -5,9 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.common.Common;
-import org.urm.engine.ServerAuthResource;
-import org.urm.engine.ServerMirrorRepository;
 import org.urm.engine.meta.MetaProductSettings;
+import org.urm.engine.registry.ServerAuthResource;
+import org.urm.engine.registry.ServerMirrorRepository;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
 
@@ -170,7 +170,7 @@ public class GitMirrorStorage extends MirrorStorage {
 			action.exitNotImplemented();
 			
 		LocalFolder commitFolder = super.getCommitFolder();
-		MetaProductSettings product = vcs.meta.getProduct( action );
+		MetaProductSettings product = vcs.meta.getProductSettings( action );
 		shell.customCheckErrorsDebug( action , commitFolder.folderPath , 
 			"F_LIST=`git diff --name-only`; " +
 			"if [ " + Common.getQuoted( "$F_LIST" ) + " != " + Common.getQuoted( "" ) + " ]; then git add $F_LIST; fi; " +

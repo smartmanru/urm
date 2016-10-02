@@ -4,9 +4,9 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.common.Common;
 import org.urm.engine.ServerContext;
-import org.urm.engine.ServerDirectory;
 import org.urm.engine.ServerSettings;
 import org.urm.engine.ServerSession;
+import org.urm.engine.registry.ServerDirectory;
 import org.urm.engine.storage.Artefactory;
 
 public class ActionInit extends ActionBase {

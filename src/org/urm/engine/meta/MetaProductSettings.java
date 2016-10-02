@@ -36,7 +36,6 @@ public class MetaProductSettings extends PropertyController {
 
 	public String CONFIG_REDISTWIN_PATH;
 	public String CONFIG_REDISTLINUX_PATH;
-	public String CONFIG_WORKPATH;
 	public String CONFIG_DISTR_PATH;
 	public String CONFIG_DISTR_HOSTLOGIN;
 	public String CONFIG_UPGRADE_PATH;
@@ -63,7 +62,6 @@ public class MetaProductSettings extends PropertyController {
 	public static String PROPERTY_VERSION_BRANCH_NEXTMAJOR = MetaProductVersion.PROPERTY_NEXT_MAJOR_FIRST;
 	public static String PROPERTY_VERSION_BRANCH_NEXTMINOR = MetaProductVersion.PROPERTY_NEXT_MAJOR_LAST;
 	
-	public static String PROPERTY_WORKPATH = "work.path";
 	public static String PROPERTY_REDISTWIN_PATH = "redist.win.path";
 	public static String PROPERTY_REDISTLINUX_PATH = "redist.linux.path";
 	public static String PROPERTY_DISTR_PATH  = "distr.path";
@@ -102,7 +100,6 @@ public class MetaProductSettings extends PropertyController {
 	public void scatterProperties( ActionBase action ) throws Exception {
 		CONFIG_REDISTWIN_PATH = super.getPathPropertyRequired( action , PROPERTY_REDISTWIN_PATH );
 		CONFIG_REDISTLINUX_PATH = super.getPathPropertyRequired( action , PROPERTY_REDISTLINUX_PATH );
-		CONFIG_WORKPATH = super.getPathPropertyRequired( action , PROPERTY_WORKPATH );
 		CONFIG_DISTR_PATH = super.getPathPropertyRequired( action , PROPERTY_DISTR_PATH );
 		CONFIG_DISTR_HOSTLOGIN = super.getStringProperty( action , PROPERTY_DISTR_HOSTLOGIN );
 		CONFIG_UPGRADE_PATH = super.getPathPropertyRequired( action , PROPERTY_UPGRADE_PATH );

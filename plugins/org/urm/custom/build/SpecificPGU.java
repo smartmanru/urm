@@ -59,7 +59,7 @@ public class SpecificPGU {
 	}
 	
 	public String getPguServiceCallExt() throws Exception {
-		MetaProductSettings product = meta.getProduct( action );
+		MetaProductSettings product = meta.getProductSettings( action );
 		String custom = product.getPropertyAny( action , "CUSTOM_SERVICECALL_EXT" );
 		if( custom != null && !custom.isEmpty() )
 			return( custom );
@@ -68,7 +68,7 @@ public class SpecificPGU {
 	}
 	
 	public String getPguStorageServiceExt() throws Exception {
-		MetaProductSettings product = meta.getProduct( action );
+		MetaProductSettings product = meta.getProductSettings( action );
 		String custom = product.getPropertyAny( action , "CUSTOM_STORAGESERVICE_EXT" );
 		if( custom != null && !custom.isEmpty() )
 			return( custom );
@@ -169,7 +169,7 @@ public class SpecificPGU {
 		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , meta , libFolder );
 
 		// download latest API libs - pfr, fed-common-util
-		MetaProductSettings product = meta.getProduct( action );
+		MetaProductSettings product = meta.getProductSettings( action );
 		if( product.CONFIG_PRODUCT.equals( "fedpgu" ) ) {
 			action.debug( "download API libs for pfr and fed-common-util from Nexus - to pgu-services-lib ..." );
 			nexusStorage.downloadNexus( action , C_PGUWARNEXUSGROUPID , "pfr-api" , VERSION , "jar" , "" , servicecallItem );
@@ -191,7 +191,7 @@ public class SpecificPGU {
 		//   current release - if microportal exists in current release distributive
 		//   previous release (prod) - otherwise
 
-		MetaProductSettings product = meta.getProduct( action );
+		MetaProductSettings product = meta.getProductSettings( action );
 		if( product.CONFIG_PRODUCT.equals( "fedpgu" ) ) {
 			// pgu-fed-common-util - always use last built
 			if( srcRelease == null )

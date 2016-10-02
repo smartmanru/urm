@@ -74,17 +74,20 @@ public class MetaProductVersion extends PropertyController {
 		return( r );
 	}
 	
-	public void create( ActionBase action ) throws Exception {
+	public void createVersion( ActionBase action , int majorFirstNumber , int majorSecondNumber , int majorNextFirstNumber , int majorNextSecondNumber , int lastProdTag , int nextProdTag ) throws Exception {
 		if( !super.initCreateStarted( null ) )
 			return;
 
-		majorFirstNumber = 1;
-		majorSecondNumber = 0;
-		majorNextFirstNumber = 1;
-		majorNextSecondNumber = 1;
-		lastProdTag = 0;
-		nextProdTag = 1;
-
+		this.majorFirstNumber = majorFirstNumber;
+		this.majorSecondNumber = majorSecondNumber;
+		this.majorNextFirstNumber = majorNextFirstNumber;
+		this.majorNextSecondNumber = majorNextSecondNumber;
+		this.lastProdTag = lastProdTag;
+		this.nextProdTag = nextProdTag;
+		
+		if( !isValid() )
+			action.exit0( _Error.InconsistentVersionAttributes0 , "Inconsistent version attributes" );
+		
 		setProperties( action );
 		super.initFinished();
 	}

@@ -5,10 +5,10 @@ import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.common.Common;
-import org.urm.engine.ServerProjectBuilder;
 import org.urm.engine.meta.MetaProductBuildSettings;
 import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.meta.Meta.VarCATEGORY;
+import org.urm.engine.registry.ServerProjectBuilder;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
 

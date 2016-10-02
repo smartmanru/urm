@@ -46,7 +46,7 @@ public class MetaSource extends PropertyController {
 	
 	public MetaSource copy( ActionBase action , Meta meta ) throws Exception {
 		MetaSource r = new MetaSource( meta.getStorage( action ) , meta );
-		MetaProductSettings product = meta.getProduct( action );
+		MetaProductSettings product = meta.getProductSettings( action );
 		r.initCopyStarted( this , product.getProperties() );
 		for( MetaSourceProjectSet set : originalList ) {
 			MetaSourceProjectSet rset = set.copy( action , meta , r );
@@ -64,7 +64,7 @@ public class MetaSource extends PropertyController {
 	}
 	
 	public void create( ActionBase action ) throws Exception {
-		MetaProductSettings product = meta.getProduct( action );
+		MetaProductSettings product = meta.getProductSettings( action );
 		if( !initCreateStarted( product.getProperties() ) )
 			return;
 
@@ -72,7 +72,7 @@ public class MetaSource extends PropertyController {
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
-		MetaProductSettings product = meta.getProduct( action );
+		MetaProductSettings product = meta.getProductSettings( action );
 		if( super.initCreateStarted( product.getProperties() ) )
 			return;
 

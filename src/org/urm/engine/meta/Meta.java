@@ -17,9 +17,9 @@ import org.w3c.dom.Node;
 public class Meta extends ServerObject {
 
 	public String name;
+	public ServerSession session;
 	
 	private ServerLoader loader;
-	private ServerSession session;
 	private ServerProductMeta storage;
 
 	private MetaProductVersion version;
@@ -27,6 +27,7 @@ public class Meta extends ServerObject {
 	private MetaDatabase database;
 	private MetaDistr distr;
 	private MetaSource sources;
+	private MetaMonitoring monitoring;
 	
 	static String[] configurableExtensions = {
 		"cmd" , "sh" , "xml" , "txt" , "properties" , "conf" , "config" , "xconf" , "groovy" , "sql" , "yml" 
@@ -190,11 +191,10 @@ public class Meta extends ServerObject {
 		name = storage.name;
 	}
 	
-	public Meta( ServerLoader loader , ServerSession session , String productName ) {
-		super( null );
-		this.loader = loader;
-		this.session = session;
-		name = productName;
+	public boolean isCorrect() {
+		if( storage.loadFailed )
+			return( false );
+		return( true );
 	}
 	
 	private static String createConfigurableExtensions() {
@@ -234,69 +234,60 @@ public class Meta extends ServerObject {
 		this.sources = null;
 	}
 
-	public ServerSession getSession() {
-		return( session );
-	}
-	
 	public synchronized ServerProductMeta getStorage( ActionBase action ) throws Exception {
-		if( storage == null )
-			storage = loader.getMetaStorage( action.actionInit , name );
 		return( storage );
 	}
 
 	public synchronized MetaProductVersion getVersion( ActionBase action ) throws Exception {
-		if( version == null ) {
-			getStorage( action );
+		if( version == null )
 			version = loader.loadVersion( action.actionInit , storage );
-		}
 		return( version );
 	}
 	
-	public synchronized MetaProductSettings getProduct( ActionBase action ) throws Exception {
-		if( product == null ) {
-			getStorage( action );
+	public synchronized MetaProductSettings getProductSettings( ActionBase action ) throws Exception {
+		if( product == null )
 			product = loader.loadProduct( action.actionInit , storage );
-		}
 		return( product );
 	}
 	
 	public synchronized MetaDatabase getDatabase( ActionBase action ) throws Exception {
-		if( database == null ) {
-			getStorage( action );
+		if( database == null )
 			database = loader.loadDatabase( action.actionInit , storage );
-		}
 		return( database );
 	}
 
 	public synchronized MetaDistr getDistr( ActionBase action ) throws Exception {
-		if( distr == null ) {
-			getStorage( action );
+		if( distr == null )
 			distr = loader.loadDistr( action.actionInit , storage );
-		}
 		return( distr );
 	}
 
 	public synchronized MetaSource getSources( ActionBase action ) throws Exception {
-		if( sources == null ) {
-			getStorage( action );
+		if( sources == null )
 			sources = loader.loadSources( action.actionInit , storage );
-		}
 		return( sources );
 	}
 
 	public synchronized MetaMonitoring getMonitoring( ActionBase action ) throws Exception {
-		getStorage( action );
-		return( loader.loadMonitoring( action.actionInit , storage ) );
+		if( monitoring == null )
+			monitoring = loader.loadMonitoring( action.actionInit , storage );
+		return( monitoring );
 	}
 	
 	public synchronized MetaDesign getDesignData( ActionBase action , String fileName ) throws Exception {
-		getStorage( action );
 		return( loader.loadDesignData( action.actionInit , storage , fileName ) );
 	}
 	
+	public String[] getEnvList() {
+		return( storage.getEnvironments() );
+	}
+	
 	public synchronized MetaEnv getEnvData( ActionBase action , String envFile , boolean loadProps ) throws Exception {
-		getStorage( action );
 		return( loader.loadEnvData( action.actionInit , storage , envFile , loadProps ) );
+	}
+	
+	public MetaEnv findEnv( String envId ) {
+		return( storage.findEnvironment( envId ) );
 	}
 	
 	public synchronized MetaEnv getEnv( ActionBase action , String envId ) throws Exception {

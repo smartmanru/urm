@@ -3,14 +3,14 @@ package org.urm.action;
 import org.urm.common.Common;
 import org.urm.common.RunError;
 import org.urm.common.RunContext;
-import org.urm.engine.ServerAuthResource;
-import org.urm.engine.ServerBuilders;
 import org.urm.engine.ServerEngine;
-import org.urm.engine.ServerMirrors;
-import org.urm.engine.ServerMirrorRepository;
-import org.urm.engine.ServerProjectBuilder;
-import org.urm.engine.ServerResources;
 import org.urm.engine.meta.Meta.VarCATEGORY;
+import org.urm.engine.registry.ServerAuthResource;
+import org.urm.engine.registry.ServerBuilders;
+import org.urm.engine.registry.ServerMirrorRepository;
+import org.urm.engine.registry.ServerMirrors;
+import org.urm.engine.registry.ServerProjectBuilder;
+import org.urm.engine.registry.ServerResources;
 
 public class ActionCore {
 

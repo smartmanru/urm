@@ -242,7 +242,7 @@ public class CommandContext {
 		
 		// generic
 		Meta meta = ( isproduct )? action.getContextMeta() : null;
-		MetaProductSettings product = ( isproduct )? meta.getProduct( action ) : null; 
+		MetaProductSettings product = ( isproduct )? meta.getProductSettings( action ) : null; 
 		CTX_TRACEINTERNAL = ( getFlagValue( "OPT_TRACE" ) && getFlagValue( "OPT_SHOWALL" ) )? true : false;
 		CTX_TRACE = getFlagValue( "OPT_TRACE" );
 		CTX_SHOWONLY = combineValue( "OPT_SHOWONLY" , ( isenv )? env.SHOWONLY : null , def );

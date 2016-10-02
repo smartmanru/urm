@@ -98,7 +98,7 @@ public class MetaEnv extends PropertyController {
 		ID = properties.getSystemRequiredStringProperty( PROPERTY_ID );
 		action.trace( "load properties of env=" + ID );
 		
-		MetaProductSettings product = meta.getProduct( action );
+		MetaProductSettings product = meta.getProductSettings( action );
 		BASELINE = super.getStringProperty( action , PROPERTY_BASELINE );
 		REDISTWIN_PATH = super.getPathProperty( action , PROPERTY_REDISTWIN_PATH , product.CONFIG_REDISTWIN_PATH );
 		REDISTLINUX_PATH = super.getPathProperty( action , PROPERTY_REDISTLINUX_PATH , product.CONFIG_REDISTLINUX_PATH );
@@ -137,7 +137,7 @@ public class MetaEnv extends PropertyController {
 
 	public MetaEnv copy( ActionBase action , Meta meta ) throws Exception {
 		MetaEnv r = new MetaEnv( meta.getStorage( action ) , meta );
-		MetaProductSettings product = meta.getProduct( action );
+		MetaProductSettings product = meta.getProductSettings( action );
 		r.initCopyStarted( this , product.getProperties() );
 		
 		for( MetaEnvDC dc : originalList ) {
@@ -165,7 +165,7 @@ public class MetaEnv extends PropertyController {
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
-		MetaProductSettings product = meta.getProduct( action );
+		MetaProductSettings product = meta.getProductSettings( action );
 		secretProperties = new PropertySet( "secret" , product.getProperties() );
 		if( !super.initCreateStarted( secretProperties ) )
 			return;
@@ -220,7 +220,7 @@ public class MetaEnv extends PropertyController {
 	}
 	
 	private void createProperties( ActionBase action ) throws Exception {
-		MetaProductSettings product = meta.getProduct( action );
+		MetaProductSettings product = meta.getProductSettings( action );
 		secretProperties = new PropertySet( "secret" , product.getProperties() );
 		if( !super.initCreateStarted( secretProperties ) )
 			return;

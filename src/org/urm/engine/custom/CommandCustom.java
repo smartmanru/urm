@@ -22,21 +22,21 @@ public class CommandCustom {
 	}
 
 	public boolean isCustomBuild( ActionBase action ) throws Exception {
-		MetaProductSettings product = meta.getProduct( action ); 
+		MetaProductSettings product = meta.getProductSettings( action ); 
 		if( product.CONFIG_CUSTOM_BUILD.isEmpty() )
 			return( false );
 		return( true );
 	}
 	
 	public boolean isCustomDeploy( ActionBase action ) throws Exception {
-		MetaProductSettings product = meta.getProduct( action );
+		MetaProductSettings product = meta.getProductSettings( action );
 		if( product.CONFIG_CUSTOM_DEPLOY.isEmpty() )
 			return( false );
 		return( true );
 	}
 	
 	public boolean isCustomDatabase( ActionBase action ) throws Exception {
-		MetaProductSettings product = meta.getProduct( action );
+		MetaProductSettings product = meta.getProductSettings( action );
 		if( product.CONFIG_CUSTOM_DATABASE.isEmpty() )
 			return( false );
 		return( true );
@@ -71,7 +71,7 @@ public class CommandCustom {
 		if( customBuild != null )
 			return;
 		
-		MetaProductSettings product = meta.getProduct( action ); 
+		MetaProductSettings product = meta.getProductSettings( action ); 
 		String className = product.CONFIG_CUSTOM_BUILD;
 		if( className.isEmpty() )
 			action.exit0( _Error.CustomBuildNotSet0 , "custom build class is not set (CONFIG_CUSTOM_BUILD" );
@@ -93,7 +93,7 @@ public class CommandCustom {
 		if( customDeploy != null )
 			return;
 		
-		MetaProductSettings product = meta.getProduct( action ); 
+		MetaProductSettings product = meta.getProductSettings( action ); 
 		String className = product.CONFIG_CUSTOM_DEPLOY;
 		if( className.isEmpty() )
 			action.exit0( _Error.CustomDeployNotSet0 , "custom deploy class is not set (CONFIG_CUSTOM_DEPLOY" );
@@ -115,7 +115,7 @@ public class CommandCustom {
 		if( customDatabase != null )
 			return;
 		
-		MetaProductSettings product = meta.getProduct( action ); 
+		MetaProductSettings product = meta.getProductSettings( action ); 
 		String className = product.CONFIG_CUSTOM_DATABASE;
 		if( className.isEmpty() )
 			action.exit0( _Error.CustomDatabaseNotSet0 , "custom database class is not set (CONFIG_CUSTOM_DATABASE" );

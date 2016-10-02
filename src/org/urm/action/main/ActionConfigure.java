@@ -17,12 +17,12 @@ import org.urm.common.meta.BuildCommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
 import org.urm.common.meta.DeployCommandMeta;
 import org.urm.common.meta.MainCommandMeta;
-import org.urm.engine.ServerDirectory;
 import org.urm.engine.ServerLoader;
 import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaEnv;
 import org.urm.engine.meta.MetaEnvDC;
 import org.urm.engine.meta.Meta.VarBUILDMODE;
+import org.urm.engine.registry.ServerDirectory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.engine.storage.UrmStorage;
@@ -100,7 +100,7 @@ public class ActionConfigure extends ActionBase {
 
 	private void configureProduct( boolean serverMode , boolean standalone , String productName ) throws Exception {
 		meta.getVersion( this );
-		meta.getProduct( this );
+		meta.getProductSettings( this );
 		meta.getDistr( this );
 		
 		UrmStorage urm = artefactory.getUrmStorage();

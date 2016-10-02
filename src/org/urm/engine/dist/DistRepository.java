@@ -47,7 +47,7 @@ public class DistRepository {
 			}
 			else {
 				if( !action.isLocalRun() ) {
-					MetaProductSettings product = meta.getProduct( action );
+					MetaProductSettings product = meta.getProductSettings( action );
 					account = Account.getAccount( action , product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
 				}
 			}

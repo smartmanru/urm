@@ -112,7 +112,7 @@ public class BuildCommand {
 	}
 	
 	public void printActiveProperties( ActionBase action , Meta meta ) throws Exception {
-		MetaProductSettings product = meta.getProduct( action );
+		MetaProductSettings product = meta.getProductSettings( action );
 		Map<String,String> exports = product.getExportProperties( action );
 		if( !exports.isEmpty() ) {
 			action.info( "----------------");

@@ -7,10 +7,10 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerAuthResource;
 import org.urm.engine.custom.CommandCustom;
 import org.urm.engine.meta.Meta.VarCATEGORY;
 import org.urm.engine.meta.Meta.VarNAMETYPE;
+import org.urm.engine.registry.ServerAuthResource;
 import org.w3c.dom.Node;
 
 public class MetaSourceProject {

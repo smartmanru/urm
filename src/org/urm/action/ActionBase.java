@@ -9,8 +9,6 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.ServerLoader;
-import org.urm.engine.ServerMirrors;
-import org.urm.engine.ServerMirrorRepository;
 import org.urm.engine.ServerProductMeta;
 import org.urm.engine.ServerSession;
 import org.urm.engine.action.ActionInit;
@@ -26,6 +24,8 @@ import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.meta.Meta.VarBUILDMODE;
 import org.urm.engine.meta.Meta.VarCATEGORY;
 import org.urm.engine.meta.Meta.VarNAMETYPE;
+import org.urm.engine.registry.ServerMirrorRepository;
+import org.urm.engine.registry.ServerMirrors;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.Artefactory;
@@ -547,7 +547,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 
 	public MetaProductBuildSettings getBuildSettings( Meta meta ) throws Exception {
-		MetaProductSettings product = meta.getProduct( this );
+		MetaProductSettings product = meta.getProductSettings( this );
 		return( product.getBuildSettings( this ) );
 	}
 
@@ -574,8 +574,7 @@ abstract public class ActionBase extends ActionCore {
 			exitUnexpectedState();
 		
 		ServerLoader loader = engine.getLoader();
-		ServerProductMeta meta = loader.findMetaStorage( session.productName );
-		return( meta.meta );
+		return( loader.getMetadata( this , session.productName ) );
 	}
 
 	public String getContextRedistPath( MetaEnvServer server ) throws Exception {
@@ -585,7 +584,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public String getProductRedistPath( MetaEnvServer server ) throws Exception {
-		MetaProductSettings product = server.meta.getProduct( this );
+		MetaProductSettings product = server.meta.getProductSettings( this );
 		if( server.isLinux( this ) )
 			return( product.CONFIG_REDISTLINUX_PATH );
 		return( product.CONFIG_REDISTWIN_PATH );

@@ -86,7 +86,7 @@ public class ActionPatch extends ActionBase {
 		String MODULE_MSETTINGS="--settings=" + build.CONFIG_MAVEN_CFGFILE;
 		String UPLOAD_MAVEN_VERSION = build.CONFIG_MAVEN_VERSION;
 
-		MetaProductSettings product = builder.project.meta.getProduct( this );
+		MetaProductSettings product = builder.project.meta.getProductSettings( this );
 		shell.export( this , "M2_HOME" , product.CONFIG_BUILDBASE_PATH + "/" + UPLOAD_MAVEN_VERSION );
 		shell.export( this , "M2" , "$M2_HOME/bin" );
 		shell.export( this , "PATH" , "$M2:$PATH" );

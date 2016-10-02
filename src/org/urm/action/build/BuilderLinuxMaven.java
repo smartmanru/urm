@@ -148,7 +148,7 @@ public class BuilderLinuxMaven extends Builder {
 				MODULE_MAVEN_CMD + " " + MODULE_ALT_REPO + " " + MODULE_MSETTINGS + " -Dmaven.test.skip=true";
 
 		ShellExecutor session = action.shell;
-		MetaProductSettings product = project.meta.getProduct( action );
+		MetaProductSettings product = project.meta.getProductSettings( action );
 		session.export( action , "JAVA_HOME" , product.CONFIG_BUILDBASE_PATH + "/" + BUILD_JAVA_VERSION );
 		session.export( action , "PATH" , "$JAVA_HOME/bin:$PATH" );
 		session.export( action , "M2_HOME" , product.CONFIG_BUILDBASE_PATH + "/" + BUILD_MAVEN_VERSION );

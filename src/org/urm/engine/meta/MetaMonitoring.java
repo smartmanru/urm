@@ -64,20 +64,20 @@ public class MetaMonitoring extends PropertyController {
 	
 	public MetaMonitoring copy( ActionBase action , Meta meta ) throws Exception {
 		MetaMonitoring r = new MetaMonitoring( meta.getStorage( action ) , meta );
-		MetaProductSettings product = meta.getProduct( action );
+		MetaProductSettings product = meta.getProductSettings( action );
 		super.initCopyStarted( this , product.getProperties() );
 		return( r );
 	}
 	
 	public void create( ActionBase action ) throws Exception {
-		MetaProductSettings product = meta.getProduct( action );
+		MetaProductSettings product = meta.getProductSettings( action );
 		if( !super.initCreateStarted( product.getProperties() ) )
 			return;
 		super.initFinished();
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
-		MetaProductSettings product = meta.getProduct( action );
+		MetaProductSettings product = meta.getProductSettings( action );
 		if( !super.initCreateStarted( product.getProperties() ) )
 			return;
 

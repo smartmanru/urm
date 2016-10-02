@@ -16,6 +16,12 @@ import org.urm.engine.meta.MetaMonitoring;
 import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.meta.MetaProductVersion;
 import org.urm.engine.meta.MetaSource;
+import org.urm.engine.registry.ServerBuilders;
+import org.urm.engine.registry.ServerDirectory;
+import org.urm.engine.registry.ServerMirrors;
+import org.urm.engine.registry.ServerProduct;
+import org.urm.engine.registry.ServerRegistry;
+import org.urm.engine.registry.ServerResources;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
 
@@ -55,7 +61,7 @@ public class ServerLoader {
 	}
 
 	public LocalFolder getProductHomeFolder( ActionBase action , String productName ) throws Exception {
-		ServerProductMeta set = findMetaStorage( productName );
+		ServerProductMeta set = productMeta.get( productName );
 		if( set == null )
 			return( null );
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , set.meta );
@@ -85,28 +91,44 @@ public class ServerLoader {
 		settings.load( propertyFile , engine.execrc );
 	}
 
-	public Meta createMetadata( ServerSession session , String productName ) {
-		Meta meta = new Meta( this , session , productName );
+	public synchronized Meta getMetadata( ActionBase action , String productName ) throws Exception {
+		ServerSession session = action.session;
+		Meta meta = session.findMeta( productName );
+		if( meta != null )
+			return( meta );
+		
+		ServerProductMeta storage = getMetaStorage( action , session , productName );
+		meta = new Meta( storage , session );
+		storage.addSessionMeta( meta );
+		session.addProductMeta( meta );
 		return( meta );
 	}
 
-	public synchronized ServerProductMeta findMetaStorage( String productName ) {
-		return( productMeta.get( productName ) );
+	public synchronized void releaseMetadata( ActionBase action , Meta meta ) throws Exception {
+		ServerSession session = action.session;
+		session.releaseProductMeta( meta );
+		ServerProductMeta storage = meta.getStorage( action );
+		storage.releaseSessionMeta( meta );
+		
+		if( storage.isReferencedBySessions() && !storage.isPrimary() )
+			storage.deleteObject();
+		
+		meta.deleteObject();
 	}
 	
-	public synchronized ServerProductMeta getMetaStorage( ActionInit action , String productName ) throws Exception {
-		if( action.session.offline ) {
+	private ServerProductMeta getMetaStorage( ActionBase action , ServerSession session , String productName ) throws Exception {
+		if( session.offline ) {
 			if( offline == null )
-				offline = new ServerProductMeta( this , action.session.productName , action.session );
+				offline = new ServerProductMeta( this , session.productName , action.session );
 			return( offline );
 		}
 		
 		ServerProductMeta storage = productMeta.get( productName );
 		if( storage == null )
-			action.exit1( _Error.UnknownSessionProduct1 , "unknown product=" + action.session.productName , action.session.productName );
+			action.exit1( _Error.UnknownSessionProduct1 , "unknown product=" + session.productName , session.productName );
 		
 		if( storage.loadFailed )
-			action.exit1( _Error.UnusableProductMetadata1 , "unusable metadata of product=" + action.session.productName , action.session.productName );
+			action.exit1( _Error.UnusableProductMetadata1 , "unusable metadata of product=" + session.productName , session.productName );
 		
 		return( storage );
 	}
@@ -158,6 +180,7 @@ public class ServerLoader {
 		for( String name : registry.directory.getProducts() ) {
 			
 			ServerProductMeta set = new ServerProductMeta( this , name , action.session );
+			set.setPrimary( true );
 			productMeta.put( name , set );
 			
 			try {
@@ -265,9 +288,14 @@ public class ServerLoader {
 	public void setMetadata( TransactionBase transaction , ServerProductMeta storageNew ) throws Exception {
 		ActionInit action = transaction.getAction();
 		
-		MetadataStorage storage = action.artefactory.getMetadataStorage( action , storageNew.meta );
-		storageNew.saveAll( action , storage );
+		MetadataStorage ms = action.artefactory.getMetadataStorage( action , storageNew.meta );
+		storageNew.saveAll( action , ms );
+		
+		ServerProductMeta storageOld = productMeta.get( storageNew.name );
+		if( storageOld != null )
+			storageOld.setPrimary( false );
 		productMeta.put( storageNew.name , storageNew );
+		storageNew.setPrimary( true );
 	}
 	
 	public void deleteMetadata( TransactionBase transaction , ServerProductMeta storage ) throws Exception {

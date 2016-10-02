@@ -23,7 +23,12 @@ import org.urm.engine.executor.MainExecutor;
 import org.urm.engine.executor.MonitorCommandExecutor;
 import org.urm.engine.executor.ReleaseCommandExecutor;
 import org.urm.engine.executor.XDocCommandExecutor;
-import org.urm.engine.meta.MetaProductSettings;
+import org.urm.engine.registry.ServerAuth;
+import org.urm.engine.registry.ServerBuilders;
+import org.urm.engine.registry.ServerDirectory;
+import org.urm.engine.registry.ServerMirrors;
+import org.urm.engine.registry.ServerRegistry;
+import org.urm.engine.registry.ServerResources;
 import org.urm.engine.shell.ShellCoreJNI;
 import org.urm.engine.shell.ShellPool;
 import org.urm.engine.storage.Artefactory;
@@ -299,17 +304,8 @@ public class ServerEngine {
 		if( session.standalone ) {
 			if( !context.CTX_WORKPATH.isEmpty() )
 				dirname = context.CTX_WORKPATH;
-			else {
-				if( session.product ) {
-					ServerProductMeta storage = loader.findMetaStorage( session.productName );
-					MetaProductSettings product = storage.getProductSettings();
-					if( product != null && product.CONFIG_WORKPATH.isEmpty() == false )
-						dirname = product.CONFIG_WORKPATH;
-				}
-				
-				if( dirname.isEmpty() )
-					dirname = Common.getPath( session.execrc.userHome , "urm.work" , "session-" + ShellCoreJNI.getCurrentProcessId() );
-			}
+			else
+				dirname = Common.getPath( session.execrc.userHome , "urm.work" , "session-" + ShellCoreJNI.getCurrentProcessId() );
 		}
 		else {
 			if( !session.client ) {
@@ -324,23 +320,12 @@ public class ServerEngine {
 				if( !context.CTX_WORKPATH.isEmpty() )
 					dirname = context.CTX_WORKPATH;
 				else {
-					if( session.product ) {
-						ServerProductMeta storage = loader.findMetaStorage( session.productName );
-						MetaProductSettings product = storage.getProductSettings();
-						if( product != null && product.CONFIG_WORKPATH.isEmpty() == false ) {
-							dirname = product.CONFIG_WORKPATH;
-							dirname = Common.getPath( dirname , "session-" + session.sessionId );
-						}
-					}
-					
-					if( dirname.isEmpty() ) {
-						dirname = Common.getPath( session.execrc.userHome , "urm.work" , "client" );
-						String name = "session-" + session.timestamp;
-						if( !session.productName.isEmpty() )
-							name += "-" + session.productName;
-						name += "-" + session.sessionId; 
-						dirname = Common.getPath( dirname , name );
-					}
+					dirname = Common.getPath( session.execrc.userHome , "urm.work" , "client" );
+					String name = "session-" + session.timestamp;
+					if( !session.productName.isEmpty() )
+						name += "-" + session.productName;
+					name += "-" + session.sessionId; 
+					dirname = Common.getPath( dirname , name );
 				}
 			}
 		}

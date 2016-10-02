@@ -1,9 +1,9 @@
 package org.urm.engine.vcs;
 
 import org.urm.action.ActionBase;
-import org.urm.engine.ServerMirrorRepository;
 import org.urm.engine.ServerSettings;
 import org.urm.engine.meta.MetaProductSettings;
+import org.urm.engine.registry.ServerMirrorRepository;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
@@ -85,7 +85,7 @@ public abstract class MirrorStorage {
 			mirrorPath = settings.serverContext.WORK_MIRRORPATH;
 		}
 		else {
-			MetaProductSettings product = vcs.meta.getProduct( action );
+			MetaProductSettings product = vcs.meta.getProductSettings( action );
 			mirrorPath = product.CONFIG_MIRRORPATH;
 		}
 		

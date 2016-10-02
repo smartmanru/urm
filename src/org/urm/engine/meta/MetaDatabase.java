@@ -45,14 +45,14 @@ public class MetaDatabase extends PropertyController {
 	
 	public MetaDatabase copy( ActionBase action , Meta meta ) throws Exception {
 		MetaDatabase r = new MetaDatabase( meta.getStorage( action ) , meta );
-		MetaProductSettings product = meta.getProduct( action );
+		MetaProductSettings product = meta.getProductSettings( action );
 		r.initCopyStarted( this , product.getProperties() );
 		
 		return( r );
 	}
 	
 	public void create( ActionBase action ) throws Exception {
-		MetaProductSettings product = meta.getProduct( action );
+		MetaProductSettings product = meta.getProductSettings( action );
 		if( !initCreateStarted( product.getProperties() ) )
 			return;
 
@@ -60,7 +60,7 @@ public class MetaDatabase extends PropertyController {
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
-		MetaProductSettings product = meta.getProduct( action );
+		MetaProductSettings product = meta.getProductSettings( action );
 		if( !initCreateStarted( product.getProperties() ) )
 			return;
 

@@ -19,6 +19,7 @@ import org.urm.engine.meta.MetaMonitoring;
 import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.meta.MetaProductVersion;
 import org.urm.engine.meta.MetaSource;
+import org.urm.engine.registry.ServerDirectory;
 import org.urm.engine.storage.MetadataStorage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -51,6 +52,9 @@ public class ServerProductMeta extends ServerObject {
 
 	public boolean loadFailed;
 	
+	private Map<ServerSession,Meta> sessionMeta;
+	private boolean primary;
+	
 	public ServerProductMeta( ServerLoader loader , String name , ServerSession session ) {
 		super( null );
 		this.loader = loader;
@@ -62,8 +66,36 @@ public class ServerProductMeta extends ServerObject {
 		envs = new HashMap<String,MetaEnv>();
 		
 		loadFailed = false;
+		sessionMeta = new HashMap<ServerSession,Meta>();
+		primary = false;
 	}
 
+	public void setPrimary( boolean primary ) {
+		this.primary = primary;
+	}
+	
+	public synchronized void addSessionMeta( Meta meta ) {
+		sessionMeta.put( meta.session , meta );
+	}
+	
+	public synchronized void releaseSessionMeta( Meta meta ) {
+		sessionMeta.remove( meta.session );
+	}
+
+	public synchronized Meta findSessionMeta( ServerSession session ) {
+		return( sessionMeta.get( session ) );
+	}
+
+	public synchronized boolean isReferencedBySessions() {
+		if( sessionMeta.isEmpty() )
+			return( false );
+		return( true );
+	}
+	
+	public boolean isPrimary() {
+		return( primary );
+	}
+	
 	public synchronized ServerProductMeta copy( ActionBase action ) throws Exception {
 		ServerProductMeta r = new ServerProductMeta( loader , name , session );
 		r.meta = new Meta( r , session );
@@ -112,6 +144,7 @@ public class ServerProductMeta extends ServerObject {
 				r.loadFailed = true;
 		}
 		
+		r.sessionMeta.putAll( sessionMeta );
 		return( r );
 	}
 
@@ -390,7 +423,7 @@ public class ServerProductMeta extends ServerObject {
 
 	private void createInitialVersion( ActionBase action ) throws Exception {
 		version = new MetaProductVersion( this , meta );
-		version.create( action );
+		version.createVersion( action , 1 , 0 , 1 , 1 , 1 , 2 );
 		meta.setVersion( version );
 	}
 	

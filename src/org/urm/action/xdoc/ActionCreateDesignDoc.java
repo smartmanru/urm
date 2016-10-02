@@ -139,7 +139,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 	}
 
 	private void createDotHeading( List<String> lines ) throws Exception {
-		MetaProductSettings product = meta.getProduct( this );
+		MetaProductSettings product = meta.getProductSettings( this );
 		lines.add( "digraph " + Common.getQuoted( product.CONFIG_PRODUCT ) + " {" );
 		lines.add( "\tcharset=" + Common.getQuoted( "utf8" ) + ";" );
 		lines.add( "\tsplines=false;" );
