@@ -134,25 +134,11 @@ public class TransactionBase extends ServerObject {
 			}
 			
 			engine.abortTransaction( this );
-			stopAction();
 		}
 	}
 
 	public ActionInit getAction() throws Exception {
-		if( action == null )
-			action = engine.createTemporaryAction( "transaction" );
 		return( action );
-	}
-	
-	private void stopAction() {
-		try {
-			if( action != null )
-				engine.finishAction( action );
-			action = null;
-		}
-		catch( Throwable e ) {
-			handle( e , "unable to restore metadata" );
-		}
 	}
 	
 	public boolean commitTransaction() {
@@ -175,7 +161,6 @@ public class TransactionBase extends ServerObject {
 			if( res ) {
 				if( !engine.commitTransaction( this ) )
 					return( false );
-				stopAction();
 				return( true );
 			}
 
@@ -341,7 +326,7 @@ public class TransactionBase extends ServerObject {
 						}
 					}
 					else
-						error( "unable to change old resources" );
+						error( "unable to change old resources, id=" + sourceResources.objectId );
 				}
 			}
 			catch( Throwable e ) {
@@ -394,7 +379,7 @@ public class TransactionBase extends ServerObject {
 						}
 					}
 					else
-						error( "unable to change old builders" );
+						error( "unable to change old builders, id=" + sourceBuilders.objectId ); 
 				}
 			}
 			catch( Throwable e ) {
@@ -447,7 +432,7 @@ public class TransactionBase extends ServerObject {
 						}
 					}
 					else
-						error( "unable to change old directory" );
+						error( "unable to change old directory, id=" + sourceDirectory.objectId );
 				}
 			}
 			catch( Throwable e ) {
@@ -496,7 +481,7 @@ public class TransactionBase extends ServerObject {
 						return( true );
 				}
 				else
-					error( "unable to change old settings" );
+					error( "unable to change old settings, id=" + sourceSettings.objectId );
 			}
 			catch( Throwable e ) {
 				handle( e , "unable to change settings" );
@@ -548,7 +533,7 @@ public class TransactionBase extends ServerObject {
 						return( true );
 				}
 				else
-					error( "Unable to change old metadata" );
+					error( "Unable to change old metadata, id=" + sourceMetadata.objectId );
 			}
 			catch( Throwable e ) {
 				handle( e , "unable to save metadata" );
@@ -602,6 +587,7 @@ public class TransactionBase extends ServerObject {
 					return( true );
 					
 				loader.setMetadata( this , metadata );
+				sessionMeta.setStorage( metadata );
 				trace( "transaction product meta: save=" + metadata.objectId );
 			}
 			return( true );

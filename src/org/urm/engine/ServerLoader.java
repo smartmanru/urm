@@ -110,8 +110,10 @@ public class ServerLoader {
 		ServerProductMeta storage = meta.getStorage( action );
 		storage.releaseSessionMeta( meta );
 		
-		if( storage.isReferencedBySessions() && !storage.isPrimary() )
+		if( storage.isReferencedBySessions() == false && storage.isPrimary() == false ) {
+			storage.meta.deleteObject();
 			storage.deleteObject();
+		}
 		
 		meta.deleteObject();
 	}
