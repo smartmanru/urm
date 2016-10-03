@@ -22,6 +22,7 @@ public class MetaEnvDC extends PropertyController {
 	
 	public String NAME;
 	public String BASELINE;
+	public boolean OFFLINE;
 	
 	public MetaEnvDeployment deploy;
 	public MetaEnvStartInfo startInfo;
@@ -30,6 +31,7 @@ public class MetaEnvDC extends PropertyController {
 
 	public static String PROPERTY_NAME = "name";
 	public static String PROPERTY_BASELINE = "basedc";
+	public static String PROPERTY_OFFLINE = "offline";
 
 	public static String ELEMENT_DEPLOYMENT = "deployment";
 	public static String ELEMENT_STARTORDER = "startorder";
@@ -59,6 +61,7 @@ public class MetaEnvDC extends PropertyController {
 		BASELINE = super.getStringProperty( action , PROPERTY_BASELINE );
 		if( BASELINE.equals( "default" ) )
 			BASELINE = NAME;
+		OFFLINE = super.getBooleanProperty( action , PROPERTY_OFFLINE , true );
 		
 		properties.finishRawProperties();
 	}
@@ -265,6 +268,18 @@ public class MetaEnvDC extends PropertyController {
 	
 	public void setBaseline( ServerTransaction transaction , String baselineDC ) throws Exception {
 		properties.setStringProperty( PROPERTY_BASELINE , baselineDC );
+	}
+	
+	public void setOffline( ServerTransaction transaction , boolean offline ) throws Exception {
+		properties.setBooleanProperty( PROPERTY_OFFLINE , offline );
+	}
+	
+	public boolean isOffline() {
+		return( OFFLINE );
+	}
+
+	public boolean isBroken() {
+		return( super.isLoadFailed() );
 	}
 	
 }
