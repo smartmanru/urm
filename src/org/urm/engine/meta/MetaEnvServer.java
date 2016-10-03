@@ -9,7 +9,6 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
-import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.meta.Meta.VarDBMSTYPE;
@@ -72,7 +71,6 @@ public class MetaEnvServer extends PropertyController {
 	public String REGIONS;
 	
 	public MetaEnvServerBase basesw;
-	public MetaEnvStartGroup startGroup;
 	
 	List<MetaEnvServerDeployment> deployments;
 	List<MetaEnvServerNode> nodes;
@@ -117,6 +115,8 @@ public class MetaEnvServer extends PropertyController {
 	public static String ELEMENT_NODE = "node";
 	public static String ELEMENT_BASE = "base";
 	public static String ELEMENT_DEPLOY = "deploy";
+
+	public MetaEnvStartGroup startGroup;
 	
 	public MetaEnvServer( Meta meta , MetaEnvDC dc ) {
 		super( dc , "server" );
@@ -239,9 +239,11 @@ public class MetaEnvServer extends PropertyController {
 	}
 	
 	public void load( ActionBase action , Node node , boolean loadProps ) throws Exception {
+		if( !super.initCreateStarted( dc.getProperties() ) )
+			return;
+
 		loadDeployments( action , node );
 		
-		properties = new PropertySet( "server" , dc.getProperties() );
 		properties.loadFromNodeAttributes( node );
 		scatterProperties( action );
 		
@@ -252,6 +254,8 @@ public class MetaEnvServer extends PropertyController {
 
 		loadNodes( action , node , loadProps );
 		loadBase( action , node );
+		
+		super.initFinished();
 	}
 
 	public String[] getPropertyList( ActionBase action ) throws Exception {
@@ -290,6 +294,12 @@ public class MetaEnvServer extends PropertyController {
 			for( String id : Common.splitSpaced( ALIGNED ) )
 				database.checkAligned( action , id );
 		}
+		
+		basesw.resolveLinks( action );
+		for( MetaEnvServerDeployment deploy : deployments )
+			deploy.resolveLinks( action );
+		for( MetaEnvServerNode node : nodes )
+			node.resolveLinks( action );
 	}
 	
 	public Map<String,MetaEnvServer> getAssociatedServers( ActionBase action ) throws Exception {
@@ -671,6 +681,25 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		if( !super.isLoaded() )
+			return;
+		
+		properties.saveSplit( doc , root );
+		
+		if( basesw != null ) {
+			Element baseElement = Common.xmlCreateElement( doc , root , ELEMENT_BASE );
+			basesw.save( action , doc , baseElement );
+		}
+
+		for( MetaEnvServerDeployment deploy : deployments ) {
+			Element deployElement = Common.xmlCreateElement( doc , root , ELEMENT_DEPLOY );
+			deploy.save( action , doc , deployElement );
+		}
+		
+		for( MetaEnvServerNode node : nodes ) {
+			Element nodeElement = Common.xmlCreateElement( doc , root , ELEMENT_NODE );
+			node.save( action , doc , nodeElement );
+		}
 	}
 	
 	public void createServer( ActionBase action , String NAME , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType ) throws Exception {

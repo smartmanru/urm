@@ -53,7 +53,7 @@ public class MetaEnvDC extends PropertyController {
 
 	@Override
 	public void scatterProperties( ActionBase action ) throws Exception {
-		NAME = properties.getSystemRequiredStringProperty( PROPERTY_NAME );
+		NAME = super.getStringPropertyRequired( action , PROPERTY_NAME );
 		action.trace( "load properties of dc=" + NAME );
 		
 		BASELINE = super.getStringProperty( action , PROPERTY_BASELINE );

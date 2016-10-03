@@ -1,59 +1,101 @@
 package org.urm.engine.meta;
 
 import org.urm.action.ActionBase;
-import org.urm.common.ConfReader;
+import org.urm.common.PropertyController;
 import org.urm.engine.meta.Meta.VarDEPLOYTYPE;
 import org.urm.engine.meta.Meta.VarNODETYPE;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class MetaEnvServerDeployment {
+public class MetaEnvServerDeployment extends PropertyController {
 	
 	protected Meta meta;
 	MetaEnvServer server;
 	
+	public String COMP;
 	public MetaDistrComponent comp;
+	public String DISTITEM;
 	public MetaDistrBinaryItem binaryItem;
+	public String CONFITEM;
 	public MetaDistrConfItem confItem;
 	
 	private VarDEPLOYTYPE DEPLOYTYPE;
 	private String DEPLOYPATH;
-	public String NODETYPE;
 	private VarNODETYPE nodeType;
 	
+	public static String PROPERTY_DEPLOYTYPE = "deploytype";
+	public static String PROPERTY_DEPLOYPATH = "deploypath";
+	public static String PROPERTY_NODETYPE = "nodetype";
+	public static String PROPERTY_COMPONENT = "component";
+	public static String PROPERTY_DISTITEM = "distitem";
+	public static String PROPERTY_CONFITEM = "confitem";
+	
 	public MetaEnvServerDeployment( Meta meta , MetaEnvServer server ) {
+		super( server , "deploy" );
 		this.meta = meta;
 		this.server = server;
 	}
 
-	public void load( ActionBase action , Node node ) throws Exception {
-		MetaDistr distr = meta.getDistr( action );
+	@Override
+	public boolean isValid() {
+		if( super.isLoadFailed() )
+			return( false );
+		return( true );
+	}
+	
+	@Override
+	public void scatterProperties( ActionBase action ) throws Exception {
+		String value = super.getStringProperty( action , PROPERTY_DEPLOYTYPE );
+		if( value.isEmpty() )
+			value = "cold";
+		DEPLOYTYPE = Meta.getDeployType( value );
+		DEPLOYPATH = super.getStringProperty( action , PROPERTY_DEPLOYPATH );
+		value = super.getStringProperty( action , PROPERTY_NODETYPE );
+		nodeType = Meta.getNodeType( value , VarNODETYPE.SELF );
 		
-		DEPLOYTYPE = Meta.getDeployType( ConfReader.getAttrValue( node , "deploytype" , "cold" ) );
-		DEPLOYPATH = ConfReader.getAttrValue( node , "deploypath" );
-		NODETYPE = ConfReader.getAttrValue( node , "nodetype" , "unknown" );
-		nodeType = Meta.getNodeType( NODETYPE , VarNODETYPE.SELF );
-		
-		String COMP = ConfReader.getAttrValue( node , "component" );
-		if( !COMP.isEmpty() ) {
-			comp = distr.getComponent( action , COMP );
+		COMP = super.getStringProperty( action , PROPERTY_COMPONENT );
+		if( !COMP.isEmpty() )
 			return;
-		}
 		
-		String DISTITEM = ConfReader.getAttrValue( node , "distitem" );
-		if( !DISTITEM.isEmpty() ) {
-			binaryItem = distr.getBinaryItem( action , DISTITEM );
+		DISTITEM = super.getStringProperty( action , PROPERTY_DISTITEM );
+		if( !DISTITEM.isEmpty() )
 			return;
-		}
 		
-		String CONFITEM = ConfReader.getAttrValue( node , "confitem" );
-		if( !CONFITEM.isEmpty() ) {
-			confItem = distr.getConfItem( action , CONFITEM );
+		CONFITEM = super.getStringProperty( action , PROPERTY_CONFITEM );
+		if( !CONFITEM.isEmpty() )
 			return;
-		}
 		
 		action.exit1( _Error.UnexpectedDeploymentType1 , "unexpected deployment type found, server=" + server.NAME , server.NAME );
 	}
+	
+	public void resolveLinks( ActionBase action ) throws Exception {
+		MetaDistr distr = meta.getDistr( action ); 
+		if( !COMP.isEmpty() )
+			comp = distr.getComponent( action , COMP );
+		if( !DISTITEM.isEmpty() )
+			binaryItem = distr.getBinaryItem( action , DISTITEM );
+		if( !CONFITEM.isEmpty() )
+			confItem = distr.getConfItem( action , CONFITEM );
+	}
+	
+	public void load( ActionBase action , Node node ) throws Exception {
+		if( !super.initCreateStarted( server.getProperties() ) )
+			return;
 
+		properties.loadFromNodeAttributes( node );
+		scatterProperties( action );
+		
+		super.initFinished();
+	}
+
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		if( !super.isLoaded() )
+			return;
+		
+		properties.saveSplit( doc , root );
+	}
+	
 	public boolean hasConfItemDeployment( ActionBase action , MetaDistrConfItem p_confItem ) throws Exception {
 		if( this.confItem == p_confItem ) 
 			return( true );

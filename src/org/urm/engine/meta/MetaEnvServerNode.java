@@ -5,6 +5,8 @@ import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
 import org.urm.engine.meta.Meta.VarNODETYPE;
 import org.urm.engine.shell.Account;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MetaEnvServerNode extends PropertyController {
@@ -53,8 +55,13 @@ public class MetaEnvServerNode extends PropertyController {
 		properties.finishRawProperties();
 	}
 
+	public void resolveLinks( ActionBase action ) throws Exception {
+	}
+	
 	public void load( ActionBase action , Node node , boolean loadProps ) throws Exception {
-		properties = new PropertySet( "node" , server.getProperties() );
+		if( !super.initCreateStarted( server.getProperties() ) )
+			return;
+
 		properties.loadFromNodeAttributes( node );
 		scatterProperties( action );
 		
@@ -96,4 +103,12 @@ public class MetaEnvServerNode extends PropertyController {
 	public boolean isSlave( ActionBase action ) throws Exception {
 		return( nodeType == VarNODETYPE.SLAVE );
 	}
+
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		if( !super.isLoaded() )
+			return;
+		
+		properties.saveSplit( doc , root );
+	}
+	
 }
