@@ -29,6 +29,7 @@ public class MetaEnv extends PropertyController {
 	
 	public String ID;
 	public String BASELINE;
+	public boolean OFFLINE;
 	public ServerRef<MetaEnv> baselineEnvRef;
 	public String REDISTWIN_PATH;
 	public String REDISTLINUX_PATH;
@@ -57,6 +58,7 @@ public class MetaEnv extends PropertyController {
 	public static String PROPERTY_ID = "id";
 	public static String PROPERTY_PROD = "prod";
 	public static String PROPERTY_BASELINE = "baseenv";
+	public static String PROPERTY_OFFLINE = "offline";
 	public static String PROPERTY_REDISTWIN_PATH = "redist-win-path";
 	public static String PROPERTY_REDISTLINUX_PATH = "redist-linux-path";
 	public static String PROPERTY_DISTR_USELOCAL = "distr-use-local";
@@ -100,6 +102,7 @@ public class MetaEnv extends PropertyController {
 		
 		MetaProductSettings product = meta.getProductSettings( action );
 		BASELINE = super.getStringProperty( action , PROPERTY_BASELINE );
+		OFFLINE = super.getBooleanProperty( action , PROPERTY_OFFLINE , true );
 		REDISTWIN_PATH = super.getPathProperty( action , PROPERTY_REDISTWIN_PATH , product.CONFIG_REDISTWIN_PATH );
 		REDISTLINUX_PATH = super.getPathProperty( action , PROPERTY_REDISTLINUX_PATH , product.CONFIG_REDISTLINUX_PATH );
 		DISTR_USELOCAL = super.getBooleanProperty( action , PROPERTY_DISTR_USELOCAL , true );
@@ -319,6 +322,18 @@ public class MetaEnv extends PropertyController {
 	
 	public void setBaseline( ServerTransaction transaction , String baselineEnv ) throws Exception {
 		properties.setStringProperty( PROPERTY_BASELINE , baselineEnv );
+	}
+	
+	public void setOffline( ServerTransaction transaction , boolean offline ) throws Exception {
+		properties.setBooleanProperty( PROPERTY_OFFLINE , offline );
+	}
+	
+	public boolean isOffline() {
+		return( OFFLINE );
+	}
+
+	public boolean isBroken() {
+		return( super.isLoadFailed() );
 	}
 	
 }

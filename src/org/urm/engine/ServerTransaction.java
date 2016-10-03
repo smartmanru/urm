@@ -83,9 +83,9 @@ public class ServerTransaction extends TransactionBase {
 		directory.addSystem( this , system );
 	}
 	
-	public void modifySystem( ServerSystem system , ServerSystem systemNew ) throws Exception {
+	public void modifySystem( ServerSystem system ) throws Exception {
 		checkTransactionDirectory();
-		system.modifySystem( this , systemNew );
+		system.modifySystem( this );
 	}
 
 	public void deleteSystem( ServerSystem system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
@@ -111,9 +111,9 @@ public class ServerTransaction extends TransactionBase {
 		metadata = loader.createMetadata( this , directory , product );
 	}
 	
-	public void modifyProduct( ServerProduct product , ServerProduct productNew ) throws Exception {
+	public void modifyProduct( ServerProduct product ) throws Exception {
 		checkTransactionDirectory();
-		product.modifyProduct( this , productNew );
+		product.modifyProduct( this );
 	}
 
 	public void deleteProduct( ServerProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {

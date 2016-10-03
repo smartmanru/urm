@@ -1,11 +1,14 @@
 package org.urm.engine.registry;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerLoader;
 import org.urm.engine.ServerObject;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.meta.Meta;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class ServerProduct extends ServerObject {
@@ -16,6 +19,7 @@ public class ServerProduct extends ServerObject {
 	public String NAME;
 	public String DESC;
 	public String PATH;
+	public boolean OFFLINE;
 
 	public ServerProduct( ServerDirectory directory , ServerSystem system ) {
 		super( directory );
@@ -27,20 +31,23 @@ public class ServerProduct extends ServerObject {
 		NAME = newName;
 		DESC = newDesc;
 		PATH = newPath;
+		OFFLINE = true;
 	}
 
 	public ServerProduct copy( ServerDirectory nr , ServerSystem rs ) {
-		ServerProduct rp = new ServerProduct( nr , rs );
-		rp.NAME = NAME;
-		rp.DESC = DESC;
-		rp.PATH = PATH;
-		return( rp );
+		ServerProduct r = new ServerProduct( nr , rs );
+		r.NAME = NAME;
+		r.DESC = DESC;
+		r.PATH = PATH;
+		r.OFFLINE = OFFLINE;
+		return( r );
 	}
 	
 	public void load( Node node ) throws Exception {
 		NAME = ConfReader.getAttrValue( node , "name" );
 		DESC = ConfReader.getAttrValue( node , "desc" );
 		PATH = ConfReader.getAttrValue( node , "path" );
+		OFFLINE = ConfReader.getBooleanAttrValue( node , "offline" , true );
 	}
 	
 	public Meta getMeta( ActionBase action ) throws Exception {
@@ -48,9 +55,23 @@ public class ServerProduct extends ServerObject {
 		return( loader.getMetadata( action , NAME ) );
 	}
 	
-	public void modifyProduct( ServerTransaction transaction , ServerProduct productNew ) throws Exception {
-		DESC = productNew.DESC;
-		PATH = productNew.PATH;
+	public void modifyProduct( ServerTransaction transaction ) throws Exception {
 	}
 	
+	public boolean isOffline() {
+		return( OFFLINE );
+	}
+
+	public boolean isBroken() {
+		ServerLoader loader = directory.engine.getLoader();
+		return( loader.isProductBroken( NAME ) );
+	}
+	
+	public void save( Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , "name" , NAME );
+		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
+		Common.xmlSetElementAttr( doc , root , "path" , PATH );
+		Common.xmlSetElementAttr( doc , root , "offline" , Common.getBooleanValue( OFFLINE ) );
+	}
+
 }

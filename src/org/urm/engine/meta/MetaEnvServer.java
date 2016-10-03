@@ -295,7 +295,8 @@ public class MetaEnvServer extends PropertyController {
 				database.checkAligned( action , id );
 		}
 		
-		basesw.resolveLinks( action );
+		if( basesw != null )
+			basesw.resolveLinks( action );
 		for( MetaEnvServerDeployment deploy : deployments )
 			deploy.resolveLinks( action );
 		for( MetaEnvServerNode node : nodes )

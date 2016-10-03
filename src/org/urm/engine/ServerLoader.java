@@ -91,6 +91,32 @@ public class ServerLoader {
 		settings.load( propertyFile , engine.execrc );
 	}
 
+	public synchronized boolean isProductBroken( String productName ) {
+		ServerProductMeta storage = productMeta.get( productName );
+		if( storage == null )
+			return( true );
+		if( storage.loadFailed )
+			return( true );
+		return( false );
+	}
+
+	public synchronized Meta findMetadata( ActionBase action , String productName ) throws Exception {
+		ServerSession session = action.session;
+		Meta meta = session.findMeta( productName );
+		if( meta != null )
+			return( meta );
+		
+		ServerProductMeta storage = productMeta.get( productName );
+		if( storage == null )
+			return( null );
+		
+		meta = new Meta( storage , session );
+		engine.serverAction.trace( "new conf session meta object, id=" + meta.objectId + ", session=" + session.objectId );
+		storage.addSessionMeta( meta );
+		session.addProductMeta( meta );
+		return( meta );
+	}
+	
 	public synchronized Meta getMetadata( ActionBase action , String productName ) throws Exception {
 		ServerSession session = action.session;
 		Meta meta = session.findMeta( productName );
@@ -99,7 +125,7 @@ public class ServerLoader {
 		
 		ServerProductMeta storage = getMetaStorage( action , session , productName );
 		meta = new Meta( storage , session );
-		engine.serverAction.trace( "new session meta object, id=" + meta.objectId + ", session=" + session.objectId );
+		engine.serverAction.trace( "new run session meta object, id=" + meta.objectId + ", session=" + session.objectId );
 		storage.addSessionMeta( meta );
 		session.addProductMeta( meta );
 		return( meta );

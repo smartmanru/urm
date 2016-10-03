@@ -96,16 +96,7 @@ public class ServerDirectory extends ServerObject {
 		// directory 
 		for( ServerSystem system : mapSystems.values() ) {
 			Element elementSystem = Common.xmlCreateElement( doc , root , "system" );
-			Common.xmlSetElementAttr( doc , elementSystem , "name" , system.NAME );
-			Common.xmlSetElementAttr( doc , elementSystem , "desc" , system.DESC );
-			
-			for( String productName : system.getProducts() ) {
-				ServerProduct product = system.getProduct( productName );
-				Element elementProduct = Common.xmlCreateElement( doc , elementSystem , "product" );
-				Common.xmlSetElementAttr( doc , elementProduct , "name" , product.NAME );
-				Common.xmlSetElementAttr( doc , elementProduct , "desc" , product.DESC );
-				Common.xmlSetElementAttr( doc , elementProduct , "path" , product.PATH );
-			}
+			system.save( doc , elementSystem );
 		}
 	}
 

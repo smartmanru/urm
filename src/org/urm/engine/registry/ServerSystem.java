@@ -7,6 +7,8 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerObject;
 import org.urm.engine.ServerTransaction;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class ServerSystem extends ServerObject {
@@ -16,6 +18,7 @@ public class ServerSystem extends ServerObject {
 	
 	public String NAME;
 	public String DESC;
+	public boolean OFFLINE;
 	
 	public ServerSystem( ServerDirectory directory ) {
 		super( directory );
@@ -26,12 +29,14 @@ public class ServerSystem extends ServerObject {
 	public void createSystem( ServerTransaction transaction , String name , String desc ) {
 		this.NAME = name;
 		this.DESC = desc;
+		this.OFFLINE = true;
 	}
 	
 	public ServerSystem copy( ServerDirectory nd ) {
 		ServerSystem r = new ServerSystem( nd );
 		r.NAME = NAME;
 		r.DESC = DESC;
+		r.OFFLINE = OFFLINE;
 		
 		for( ServerProduct product : mapProducts.values() ) {
 			ServerProduct rp = product.copy( nd , r );
@@ -43,6 +48,7 @@ public class ServerSystem extends ServerObject {
 	public void load( Node node ) throws Exception {
 		NAME = ConfReader.getAttrValue( node , "name" );
 		DESC = ConfReader.getAttrValue( node , "desc" );
+		OFFLINE = ConfReader.getBooleanAttrValue( node , "offline" , true );
 		
 		Node[] items = ConfReader.xmlGetChildren( node , "product" );
 		if( items == null )
@@ -63,8 +69,7 @@ public class ServerSystem extends ServerObject {
 		return( mapProducts.get( key ) );
 	}
 
-	public void modifySystem( ServerTransaction transaction , ServerSystem systemNew ) throws Exception {
-		DESC = systemNew.DESC;
+	public void modifySystem( ServerTransaction transaction ) throws Exception {
 	}
 
 	public void addProduct( ServerTransaction transaction , ServerProduct product ) throws Exception {
@@ -73,6 +78,30 @@ public class ServerSystem extends ServerObject {
 	
 	public void removeProduct( ServerTransaction transaction , ServerProduct product ) throws Exception {
 		mapProducts.remove( product.NAME );
+	}
+
+	public boolean isOffline() {
+		return( OFFLINE );
+	}
+	
+	public boolean isBroken() {
+		for( ServerProduct product : mapProducts.values() ) {
+			if( product.isBroken() )
+				return( true );
+		}
+		return( false );
+	}
+
+	public void save( Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , "name" , NAME );
+		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
+		Common.xmlSetElementAttr( doc , root , "offline" , Common.getBooleanValue( OFFLINE ) );
+		
+		for( String productName : getProducts() ) {
+			ServerProduct product = getProduct( productName );
+			Element elementProduct = Common.xmlCreateElement( doc , root , "product" );
+			product.save( doc , elementProduct );
+		}
 	}
 	
 }
