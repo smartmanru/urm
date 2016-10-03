@@ -9,6 +9,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.engine.ServerProductMeta;
+import org.urm.engine.TransactionBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -73,7 +74,7 @@ public class MetaDistr extends PropertyController {
 		return( r );
 	}
 	
-	public void create( ActionBase action ) throws Exception {
+	public void createDistr( TransactionBase transaction ) throws Exception {
 		if( !super.initCreateStarted( null ) )
 			return;
 		

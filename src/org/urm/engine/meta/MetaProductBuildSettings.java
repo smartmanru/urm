@@ -6,6 +6,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
 import org.urm.engine.ServerTransaction;
+import org.urm.engine.TransactionBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -132,14 +133,14 @@ public class MetaProductBuildSettings extends PropertyController {
 		CONFIG_SOURCE_SQL_POSTREFRESH = super.getStringProperty( action , PROPERTY_SOURCE_SQL_POSTREFRESH );
 	}
 
-	public void create( ActionBase action , PropertySet src , PropertySet parent ) throws Exception {
+	public void createSettings( TransactionBase transaction , PropertySet src , PropertySet parent ) throws Exception {
 		if( !super.initCreateStarted( parent ) )
 			return;
 
 		if( src != null )
 			properties.copyOriginalPropertiesToRaw( src );
 		
-		super.updateProperties( action );
+		super.updateProperties( transaction.action );
 		super.initFinished();
 	}
 	

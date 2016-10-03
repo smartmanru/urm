@@ -7,6 +7,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.engine.ServerProductMeta;
+import org.urm.engine.TransactionBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -69,8 +70,8 @@ public class MetaMonitoring extends PropertyController {
 		return( r );
 	}
 	
-	public void create( ActionBase action ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings( action );
+	public void createMonitoring( TransactionBase transaction ) throws Exception {
+		MetaProductSettings product = meta.getProductSettings( transaction.action );
 		if( !super.initCreateStarted( product.getProperties() ) )
 			return;
 		super.initFinished();

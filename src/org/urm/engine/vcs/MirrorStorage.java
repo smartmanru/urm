@@ -81,7 +81,7 @@ public abstract class MirrorStorage {
 	public LocalFolder getBaseFolder() throws Exception {
 		String mirrorPath;
 		if( vcs.meta == null ) {
-			ServerSettings settings = action.engine.getSettings();
+			ServerSettings settings = action.getServerSettings();
 			mirrorPath = settings.serverContext.WORK_MIRRORPATH;
 		}
 		else {

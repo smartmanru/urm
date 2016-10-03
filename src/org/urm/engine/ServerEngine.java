@@ -16,6 +16,7 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandAction;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.action.CommandExecutor;
+import org.urm.engine.action.CommandOutput;
 import org.urm.engine.executor.BuildCommandExecutor;
 import org.urm.engine.executor.DatabaseCommandExecutor;
 import org.urm.engine.executor.DeployCommandExecutor;
@@ -24,11 +25,6 @@ import org.urm.engine.executor.MonitorCommandExecutor;
 import org.urm.engine.executor.ReleaseCommandExecutor;
 import org.urm.engine.executor.XDocCommandExecutor;
 import org.urm.engine.registry.ServerAuth;
-import org.urm.engine.registry.ServerBuilders;
-import org.urm.engine.registry.ServerDirectory;
-import org.urm.engine.registry.ServerMirrors;
-import org.urm.engine.registry.ServerRegistry;
-import org.urm.engine.registry.ServerResources;
 import org.urm.engine.shell.ShellCoreJNI;
 import org.urm.engine.shell.ShellPool;
 import org.urm.engine.storage.Artefactory;
@@ -246,11 +242,25 @@ public class ServerEngine {
 		Artefactory artefactory = createArtefactory( session , context );
 		
 		// create action
-		ActionInit action = actionExecutor.createAction( session , artefactory , options.action );
+		ActionInit action = createAction( session , artefactory , actionExecutor , options.action );
 		context.update( action );
 		actionExecutor.setActionContext( action , context );
 		action.debug( "action created: actionId=" + action.ID + ", name=" + action.actionName + ", workfolder=" + artefactory.workFolder.folderPath );
 		
+		return( action );
+	}
+	
+	public ActionInit createAction( CommandContext context , ActionBase action ) throws Exception {
+		ActionInit actionInit = new ActionInit( loader , action.session , action.artefactory , action.executor , action.output , null , null );
+		actionInit.setContext( context );
+		actionInit.setShell( action.shell );
+		return( actionInit );
+	}
+	
+	public ActionInit createAction( ServerSession session , Artefactory artefactory , CommandExecutor executor , String actionName ) throws Exception { 
+		CommandOutput output = new CommandOutput();
+		CommandAction commandAction = executor.getAction( actionName );
+		ActionInit action = new ActionInit( loader , session , artefactory , executor , output , commandAction , commandAction.method.name );
 		return( action );
 	}
 	
@@ -335,8 +345,8 @@ public class ServerEngine {
 		return( artefactory );
 	}
 
-	public ServerTransaction createTransaction() {
-		ServerTransaction transaction = new ServerTransaction( this );
+	public ServerTransaction createTransaction( ActionInit action ) {
+		ServerTransaction transaction = new ServerTransaction( this , action );
 		return( transaction );
 	}
 	
@@ -383,36 +393,12 @@ public class ServerEngine {
 		return( currentTransaction );
 	}
 
-	public ServerResources getResources() {
-		return( loader.getResources() );
-	}
-
-	public ServerBuilders getBuilders() {
-		return( loader.getBuilders() );
-	}
-
-	public ServerMirrors getMirrors() {
-		return( loader.getMirrors() );
-	}
-
-	public ServerSettings getSettings() {
-		return( loader.getSettings() );
-	}
-
-	public ServerRegistry getRegistry() {
-		return( loader.getRegistry() );
-	}
-
-	public ServerDirectory getDirectory() {
-		return( loader.getDirectory() );
-	}
-
-	public ServerLoader getLoader() {
-		return( loader );
-	}
-	
 	public ServerAuth getAuth() {
 		return( auth );
+	}
+
+	public ServerLoader getLoader( ActionInit action ) {
+		return( loader );
 	}
 	
 }

@@ -11,11 +11,9 @@ import org.urm.common.RunError;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.engine.ServerEngine;
-import org.urm.engine.ServerSession;
 import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.Meta.VarBUILDMODE;
 import org.urm.engine.meta.Meta.VarCATEGORY;
-import org.urm.engine.storage.Artefactory;
 
 public abstract class CommandExecutor {
 
@@ -78,14 +76,6 @@ public abstract class CommandExecutor {
 		return( true );
 	}
 	
-	public ActionInit createAction( ServerSession session , Artefactory artefactory , String actionName ) throws Exception {
-		// start local shell
-		CommandOutput output = new CommandOutput();
-		CommandAction commandAction = actionsMap.get( actionName );
-		ActionInit action = new ActionInit( session , artefactory , this , output , commandAction , actionName );
-		return( action );
-	}
-
 	public void setActionContext( ActionInit action , CommandContext context ) throws Exception {
 		action.setContext( context );
 		

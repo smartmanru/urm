@@ -147,9 +147,7 @@ public class ActionMonitorTop extends ActionBase {
 
 	private ActionInit initProduct( MetaMonitoringTarget target ) throws Exception {
 		CommandContext initContext = context.getProductContext( target.NAME );
-		ActionInit action = new ActionInit( session , artefactory , executor , output , null , null );
-		action.setContext( initContext );
-		action.setShell( shell );
+		ActionInit action = engine.createAction( initContext , this );
 		return( action );
 	}
 

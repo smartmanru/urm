@@ -9,6 +9,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.engine.ServerProductMeta;
+import org.urm.engine.TransactionBase;
 import org.urm.engine.meta.Meta.VarBUILDMODE;
 import org.urm.engine.meta.Meta.VarCATEGORY;
 import org.w3c.dom.Document;
@@ -63,8 +64,8 @@ public class MetaSource extends PropertyController {
 		return( r );
 	}
 	
-	public void create( ActionBase action ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings( action );
+	public void createSources( TransactionBase transaction ) throws Exception {
+		MetaProductSettings product = meta.getProductSettings( transaction.action );
 		if( !initCreateStarted( product.getProperties() ) )
 			return;
 

@@ -3,6 +3,7 @@ package org.urm.engine.meta;
 import org.urm.action.ActionBase;
 import org.urm.common.PropertyController;
 import org.urm.engine.ServerProductMeta;
+import org.urm.engine.TransactionBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -74,7 +75,7 @@ public class MetaProductVersion extends PropertyController {
 		return( r );
 	}
 	
-	public void createVersion( ActionBase action , int majorFirstNumber , int majorSecondNumber , int majorNextFirstNumber , int majorNextSecondNumber , int lastProdTag , int nextProdTag ) throws Exception {
+	public void createVersion( TransactionBase transaction , int majorFirstNumber , int majorSecondNumber , int majorNextFirstNumber , int majorNextSecondNumber , int lastProdTag , int nextProdTag ) throws Exception {
 		if( !super.initCreateStarted( null ) )
 			return;
 
@@ -86,9 +87,9 @@ public class MetaProductVersion extends PropertyController {
 		this.nextProdTag = nextProdTag;
 		
 		if( !isValid() )
-			action.exit0( _Error.InconsistentVersionAttributes0 , "Inconsistent version attributes" );
+			transaction.exit0( _Error.InconsistentVersionAttributes0 , "Inconsistent version attributes" );
 		
-		setProperties( action );
+		setProperties( transaction.action );
 		super.initFinished();
 	}
 

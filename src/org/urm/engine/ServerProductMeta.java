@@ -199,7 +199,7 @@ public class ServerProductMeta extends ServerObject {
 			}
 		}
 		else {
-			ServerSettings settings = loader.getSettings();
+			ServerSettings settings = action.getServerSettings();
 			execprops = settings.serverContext.execprops;
 		}
 		
@@ -412,52 +412,52 @@ public class ServerProductMeta extends ServerObject {
 		}
 	}
 	
-	public synchronized void createInitial( ActionBase action , ServerSettings settings , ServerDirectory directory ) throws Exception {
-		createInitialVersion( action );
-		createInitialProduct( action , settings );
-		createInitialDatabase( action );
-		createInitialDistr( action );
-		createInitialSources( action );
-		createInitialMonitoring( action );
+	public synchronized void createInitial( TransactionBase transaction , ServerSettings settings , ServerDirectory directory ) throws Exception {
+		createInitialVersion( transaction );
+		createInitialProduct( transaction , settings );
+		createInitialDatabase( transaction );
+		createInitialDistr( transaction );
+		createInitialSources( transaction );
+		createInitialMonitoring( transaction );
 	}
 
-	private void createInitialVersion( ActionBase action ) throws Exception {
+	private void createInitialVersion( TransactionBase transaction ) throws Exception {
 		version = new MetaProductVersion( this , meta );
-		version.createVersion( action , 1 , 0 , 1 , 1 , 1 , 2 );
+		version.createVersion( transaction , 1 , 0 , 1 , 1 , 1 , 2 );
 		meta.setVersion( version );
 	}
 	
-	private void createInitialProduct( ActionBase action , ServerSettings settings ) throws Exception {
+	private void createInitialProduct( TransactionBase transaction , ServerSettings settings ) throws Exception {
 		product = new MetaProductSettings( this , meta , settings.serverContext.execprops );
 		
 		ServerProductContext productContext = new ServerProductContext( meta );
-		productContext.create( action , version );
+		productContext.create( transaction.action , version );
 		
-		product.create( action , settings , productContext );
+		product.createSettings( transaction , settings , productContext );
 		meta.setProduct( product );
 	}
 	
-	private void createInitialDatabase( ActionBase action ) throws Exception {
+	private void createInitialDatabase( TransactionBase transaction ) throws Exception {
 		database = new MetaDatabase( this , meta );
-		database.create( action );
+		database.createDatabase( transaction );
 		meta.setDatabase( database );
 	}
 	
-	private void createInitialDistr( ActionBase action ) throws Exception {
+	private void createInitialDistr( TransactionBase transaction ) throws Exception {
 		distr = new MetaDistr( this , meta );
-		distr.create( action );
+		distr.createDistr( transaction );
 		meta.setDistr( distr );
 	}
 	
-	private void createInitialSources( ActionBase action ) throws Exception {
+	private void createInitialSources( TransactionBase transaction ) throws Exception {
 		sources = new MetaSource( this , meta );
-		sources.create( action );
+		sources.createSources( transaction );
 		meta.setSources( sources );
 	}
 	
-	private void createInitialMonitoring( ActionBase action ) throws Exception {
+	private void createInitialMonitoring( TransactionBase transaction ) throws Exception {
 		mon = new MetaMonitoring( this , meta );
-		mon.create( action );
+		mon.createMonitoring( transaction );
 	}
 	
 	public void saveAll( ActionBase action , MetadataStorage storageMeta ) throws Exception {

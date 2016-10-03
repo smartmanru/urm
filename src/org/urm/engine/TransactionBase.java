@@ -17,30 +17,29 @@ import org.urm.engine.registry.ServerSystem;
 public class TransactionBase extends ServerObject {
 
 	public ServerEngine engine;
-	public ServerLoader loader;
 	public ActionInit action;
 	public RunError error;
 	
-	protected ServerResources resources;
-	protected ServerBuilders builders;
-	protected ServerDirectory directory;
-	protected ServerSettings settings;
-	protected ServerProductMeta metadata;
+	public ServerSettings settings;
+	public ServerResources resources;
+	public ServerBuilders builders;
+	public ServerDirectory directory;
+	public ServerProductMeta metadata;
 
+	protected ServerSettings settingsOld;
 	protected ServerResources resourcesOld;
 	protected ServerBuilders buildersOld;
 	protected ServerDirectory directoryOld;
-	protected ServerSettings settingsOld;
 	protected ServerProductMeta metadataOld;
 	
 	public boolean createMetadata;
 	public boolean deleteMetadata;
-	protected Meta sessionMeta;
+	public Meta sessionMeta;
 	
-	public TransactionBase( ServerEngine engine ) {
+	public TransactionBase( ServerEngine engine , ActionInit action ) {
 		super( null );
 		this.engine = engine;
-		this.loader = engine.getLoader();
+		this.action = action;
 		
 		resources = null;
 		builders = null;
@@ -58,6 +57,7 @@ public class TransactionBase extends ServerObject {
 			if( !engine.startTransaction( this ) )
 				return( false );
 		
+			action.setTransaction( this );
 			resources = null;
 			builders = null;
 			directory = null;
@@ -75,14 +75,15 @@ public class TransactionBase extends ServerObject {
 		}
 	}
 
-	public void abortTransaction() {
+	public void abortTransaction( boolean save ) {
 		synchronized( engine ) {
 			if( !continueTransaction() )
 				return;
 			
 			try {
 				if( resourcesOld != null ) {
-					loader.setResources( this , resourcesOld );
+					if( save )
+						action.setResources( this , resourcesOld );
 					resourcesOld = null;
 				}
 			}
@@ -92,7 +93,8 @@ public class TransactionBase extends ServerObject {
 			
 			try {
 				if( buildersOld != null ) {
-					loader.setBuilders( this , buildersOld );
+					if( save )
+						action.setBuilders( this , buildersOld );
 					buildersOld = null;
 				}
 			}
@@ -102,7 +104,8 @@ public class TransactionBase extends ServerObject {
 			
 			try {
 				if( directoryOld != null ) {
-					loader.setDirectory( this , directoryOld );
+					if( save )
+						action.setDirectory( this , directoryOld );
 					directoryOld = null;
 				}
 			}
@@ -112,7 +115,8 @@ public class TransactionBase extends ServerObject {
 			
 			try {
 				if( settingsOld != null ) {
-					loader.setSettings( this , settingsOld );
+					if( save )
+						action.setServerSettings( this , settingsOld );
 					settingsOld = null;
 				}
 			}
@@ -122,11 +126,15 @@ public class TransactionBase extends ServerObject {
 			
 			try {
 				if( metadataOld != null ) {
-					loader.setMetadata( this , metadataOld );
+					if( save )
+						action.setProductMetadata( this , metadataOld );
 					metadataOld = null;
-					createMetadata = false;
 					deleteMetadata = false;
+					
+					if( createMetadata )
+						action.releaseProductMetadata( this , sessionMeta );
 					sessionMeta = null;
+					createMetadata = false;
 				}
 			}
 			catch( Throwable e ) {
@@ -135,6 +143,8 @@ public class TransactionBase extends ServerObject {
 			
 			engine.abortTransaction( this );
 		}
+		
+		action.clearTransaction();
 	}
 
 	public ActionInit getAction() throws Exception {
@@ -161,10 +171,12 @@ public class TransactionBase extends ServerObject {
 			if( res ) {
 				if( !engine.commitTransaction( this ) )
 					return( false );
+				
+				action.clearTransaction();
 				return( true );
 			}
 
-			abortTransaction();
+			abortTransaction( true );
 			return( false );
 		}
 	}
@@ -248,14 +260,7 @@ public class TransactionBase extends ServerObject {
 	}
 	
 	public void trace( String s ) {
-		if( action != null )
-			action.trace( s );
-		else
-		if( engine.serverAction != null )
-			engine.serverAction.trace( s );
-		else {
-			System.out.println( "transaction (trace): " + s );
-		}
+		action.trace( s );
 	}
 	
 	public ServerResources getTransactionResources() {
@@ -282,30 +287,6 @@ public class TransactionBase extends ServerObject {
 		return( sessionMeta );
 	}
 	
-	public ServerResources getResources() {
-		if( resources != null )
-			return( resources );
-		return( engine.getResources() );
-	}
-	
-	public ServerBuilders getBuilders() {
-		if( builders != null )
-			return( builders );
-		return( engine.getBuilders() );
-	}
-	
-	public ServerDirectory getDirectory() {
-		if( directory != null )
-			return( directory );
-		return( engine.getDirectory() );
-	}
-	
-	public ServerSettings getSettings() {
-		if( settings != null )
-			return( settings );
-		return( engine.getSettings() );
-	}
-	
 	public boolean changeResources( ServerResources sourceResources ) {
 		synchronized( engine ) {
 			try {
@@ -318,7 +299,8 @@ public class TransactionBase extends ServerObject {
 				if( !engine.isRunning() )
 					error( "unable to change resources, server is stopped" );
 				else {
-					if( sourceResources == loader.getResources() ) {
+					resourcesOld = action.getActiveResources();
+					if( sourceResources == resourcesOld ) {
 						resources = sourceResources.copy();
 						if( resources != null ) {
 							trace( "transaction resources: source=" + sourceResources.objectId + ", copy=" + resources.objectId );
@@ -333,7 +315,7 @@ public class TransactionBase extends ServerObject {
 				handle( e , "unable to change resources" );
 			}
 			
-			abortTransaction();
+			abortTransaction( false );
 			return( false );
 		}
 	}
@@ -346,8 +328,7 @@ public class TransactionBase extends ServerObject {
 			return( true );
 		
 		try {
-			resourcesOld = loader.getResources();
-			loader.setResources( this , resources );
+			action.setResources( this , resources );
 			trace( "transaction resources: save=" + resources.objectId );
 			return( true );
 		}
@@ -355,7 +336,7 @@ public class TransactionBase extends ServerObject {
 			handle( e , "unable to save resources" );
 		}
 
-		abortTransaction();
+		abortTransaction( true );
 		return( false );
 	}
 
@@ -371,7 +352,8 @@ public class TransactionBase extends ServerObject {
 				if( !engine.isRunning() )
 					error( "unable to change builders, server is stopped" );
 				else {
-					if( sourceBuilders == loader.getBuilders() ) {
+					buildersOld = action.getActiveBuilders();
+					if( sourceBuilders == buildersOld ) {
 						builders = sourceBuilders.copy();
 						if( builders != null ) {
 							trace( "transaction builders: source=" + sourceBuilders.objectId + ", copy=" + builders.objectId );
@@ -386,7 +368,7 @@ public class TransactionBase extends ServerObject {
 				handle( e , "unable to change builders" );
 			}
 			
-			abortTransaction();
+			abortTransaction( false );
 			return( false );
 		}
 	}
@@ -399,8 +381,7 @@ public class TransactionBase extends ServerObject {
 			return( true );
 		
 		try {
-			buildersOld = loader.getBuilders();
-			loader.setBuilders( this , builders );
+			action.setBuilders( this , builders );
 			trace( "transaction builders: save=" + builders.objectId );
 			return( true );
 		}
@@ -408,7 +389,7 @@ public class TransactionBase extends ServerObject {
 			handle( e , "unable to save builders" );
 		}
 
-		abortTransaction();
+		abortTransaction( true );
 		return( false );
 	}
 
@@ -424,7 +405,8 @@ public class TransactionBase extends ServerObject {
 				if( !engine.isRunning() )
 					error( "unable to change directory, server is stopped" );
 				else {
-					if( sourceDirectory == loader.getDirectory() ) {
+					directoryOld = action.getActiveDirectory();
+					if( sourceDirectory == directoryOld ) {
 						directory = sourceDirectory.copy();
 						if( directory != null ) {
 							trace( "transaction directory: source=" + sourceDirectory.objectId + ", copy=" + directory.objectId );
@@ -439,7 +421,7 @@ public class TransactionBase extends ServerObject {
 				handle( e , "unable to change directory" );
 			}
 			
-			abortTransaction();
+			abortTransaction( false );
 			return( false );
 		}
 	}
@@ -452,8 +434,7 @@ public class TransactionBase extends ServerObject {
 			return( true );
 		
 		try {
-			directoryOld = loader.getDirectory();
-			loader.setDirectory( this , directory );
+			action.setDirectory( this , directory );
 			trace( "transaction directory: save=" + directory.objectId );
 			return( true );
 		}
@@ -461,7 +442,7 @@ public class TransactionBase extends ServerObject {
 			handle( e , "unable to save directory" );
 		}
 
-		abortTransaction();
+		abortTransaction( true );
 		return( false );
 	}
 
@@ -474,7 +455,8 @@ public class TransactionBase extends ServerObject {
 				if( settings != null )
 					return( true );
 				
-				if( sourceSettings == loader.getSettings() ) {
+				settingsOld = action.getActiveServerSettings();
+				if( sourceSettings == settingsOld ) {
 					settings = sourceSettings.copy();
 					trace( "transaction server settings: source=" + sourceSettings.objectId + ", copy=" + settings.objectId );
 					if( settings != null )
@@ -487,7 +469,7 @@ public class TransactionBase extends ServerObject {
 				handle( e , "unable to change settings" );
 			}
 			
-			abortTransaction();
+			abortTransaction( false );
 			return( false );
 		}
 	}
@@ -500,8 +482,7 @@ public class TransactionBase extends ServerObject {
 			return( true );
 		
 		try {
-			settingsOld = loader.getSettings();
-			loader.setSettings( this , settings );
+			action.setServerSettings( this , settings );
 			trace( "transaction server settings: save=" + settings.objectId );
 			return( true );
 		}
@@ -509,11 +490,11 @@ public class TransactionBase extends ServerObject {
 			handle( e , "unable to save settings" );
 		}
 
-		abortTransaction();
+		abortTransaction( true );
 		return( false );
 	}
 
-	public boolean changeMetadata( ActionInit action , Meta meta ) {
+	public boolean changeMetadata( Meta meta ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -524,7 +505,6 @@ public class TransactionBase extends ServerObject {
 				
 				ServerProductMeta sourceMetadata = meta.getStorage( action );
 				if( sourceMetadata.isPrimary() ) {
-					this.action = action;
 					metadataOld = sourceMetadata;
 					metadata = sourceMetadata.copy( action );
 					sessionMeta = meta;
@@ -539,12 +519,12 @@ public class TransactionBase extends ServerObject {
 				handle( e , "unable to save metadata" );
 			}
 			
-			abortTransaction();
+			abortTransaction( false );
 			return( false );
 		}
 	}
 	
-	public boolean deleteMetadata( ActionInit action , Meta meta ) {
+	public boolean deleteMetadata( Meta meta ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -565,7 +545,7 @@ public class TransactionBase extends ServerObject {
 				handle( e , "unable to save metadata" );
 			}
 			
-			abortTransaction();
+			abortTransaction( false );
 			return( false );
 		}
 	}
@@ -579,14 +559,14 @@ public class TransactionBase extends ServerObject {
 				if( metadataOld == null )
 					return( true );
 					
-				loader.deleteMetadata( this , metadataOld );
+				action.deleteProductMetadata( this , metadataOld );
 				trace( "transaction product storage meta: delete=" + metadataOld.objectId );
 			}
 			else {
 				if( metadata == null )
 					return( true );
 					
-				loader.setMetadata( this , metadata );
+				action.setProductMetadata( this , metadata );
 				sessionMeta.setStorage( action , metadata );
 				trace( "transaction product storage meta: save=" + metadata.objectId );
 			}
@@ -596,7 +576,7 @@ public class TransactionBase extends ServerObject {
 			handle( e , "unable to save metadata" );
 		}
 
-		abortTransaction();
+		abortTransaction( true );
 		return( false );
 	}
 	
@@ -631,9 +611,9 @@ public class TransactionBase extends ServerObject {
 
 	protected void checkTransactionMetadata( ServerProductMeta sourceMeta ) throws Exception {
 		checkTransaction();
-		if( metadata == null )
+		if( ( deleteMetadata == false && metadata == null ) || ( deleteMetadata == true && metadataOld == null ) )
 			exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
-		if( sourceMeta != metadata )
+		if( ( deleteMetadata == false && metadata != sourceMeta ) || ( deleteMetadata == true && metadataOld != sourceMeta ) )
 			exit1( _Error.InternalTransactionError1 , "Internal error: invalid transaction metadata" , "invalid transaction metadata" );
 	}
 

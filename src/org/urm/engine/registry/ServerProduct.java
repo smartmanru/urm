@@ -3,7 +3,6 @@ package org.urm.engine.registry;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerLoader;
 import org.urm.engine.ServerObject;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.meta.Meta;
@@ -51,8 +50,7 @@ public class ServerProduct extends ServerObject {
 	}
 	
 	public Meta getMeta( ActionBase action ) throws Exception {
-		ServerLoader loader = action.engine.getLoader();
-		return( loader.getMetadata( action , NAME ) );
+		return( action.getProductMetadata( NAME ) );
 	}
 	
 	public void modifyProduct( ServerTransaction transaction ) throws Exception {
@@ -62,9 +60,8 @@ public class ServerProduct extends ServerObject {
 		return( OFFLINE );
 	}
 
-	public boolean isBroken() {
-		ServerLoader loader = directory.engine.getLoader();
-		return( loader.isProductBroken( NAME ) );
+	public boolean isBroken( ActionBase action ) {
+		return( action.isProductBroken( NAME ) );
 	}
 	
 	public void save( Document doc , Element root ) throws Exception {

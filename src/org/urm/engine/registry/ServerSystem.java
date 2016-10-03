@@ -3,6 +3,7 @@ package org.urm.engine.registry;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerObject;
@@ -84,9 +85,9 @@ public class ServerSystem extends ServerObject {
 		return( OFFLINE );
 	}
 	
-	public boolean isBroken() {
+	public boolean isBroken( ActionBase action ) {
 		for( ServerProduct product : mapProducts.values() ) {
-			if( product.isBroken() )
+			if( product.isBroken( action ) )
 				return( true );
 		}
 		return( false );

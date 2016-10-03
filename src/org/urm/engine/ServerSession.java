@@ -7,6 +7,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandOptions;
+import org.urm.engine.action.ActionInit;
 import org.urm.engine.meta.Meta;
 import org.urm.engine.registry.ServerAuthContext;
 
@@ -55,10 +56,11 @@ public class ServerSession extends ServerObject {
 	public void close() throws Exception {
 		closed = true;
 		
-		ServerLoader loader = controller.engine.getLoader();
+		ActionInit action = controller.engine.serverAction;
+		ServerLoader loader = controller.engine.getLoader( action );
 		for( String product : Common.getSortedKeys( productMeta ) ) {
 			Meta meta = productMeta.get( product );
-			loader.releaseMetadata( controller.engine.serverAction , meta );
+			loader.releaseProductMetadata( action , meta );
 		}
 		
 		super.deleteObject();

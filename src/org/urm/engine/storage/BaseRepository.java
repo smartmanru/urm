@@ -3,7 +3,6 @@ package org.urm.engine.storage;
 import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerContext;
-import org.urm.engine.ServerEngine;
 import org.urm.engine.ServerSettings;
 import org.urm.engine.meta.MetaBase;
 import org.urm.engine.meta.MetaEnvServerNode;
@@ -22,8 +21,7 @@ public class BaseRepository {
 	
 	public static BaseRepository getBaseRepository( ActionBase action , Artefactory artefactory ) throws Exception {
 		BaseRepository repo = new BaseRepository( artefactory );
-		ServerEngine engine = action.engine;
-		ServerSettings settings = engine.getSettings();
+		ServerSettings settings = action.getServerSettings();
 		ServerContext context = settings.getServerContext();
 		repo.repoFolder = new RemoteFolder( action.getLocalAccount() , context.DIST_BASEPATH );
 		return( repo );

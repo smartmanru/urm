@@ -2,6 +2,7 @@ package org.urm.engine;
 
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.engine.action.ActionInit;
 import org.urm.engine.meta.Meta;
 import org.urm.engine.meta.MetaEnv;
 import org.urm.engine.meta.MetaEnvDC;
@@ -20,30 +21,30 @@ import org.urm.engine.registry.ServerSystem;
 
 public class ServerTransaction extends TransactionBase {
 
-	public ServerTransaction( ServerEngine engine ) {
-		super( engine );
+	public ServerTransaction( ServerEngine engine , ActionInit action ) {
+		super( engine , action );
 	}
 
 	// transactional operations
 	public void createMirrorRepository( ServerMirrorRepository repo , String resource , String reponame , String reporoot , String dataroot , String repobranch , boolean push ) throws Exception {
 		repo.createMirrorRepository( this , resource , reponame  , reporoot , dataroot , repobranch , push );
-		loader.saveMirrors( this );
+		action.saveMirrors( this );
 	}
 
 	public void pushMirror( ServerMirrorRepository repo ) throws Exception {
 		repo.pushMirror( this );
-		loader.saveMirrors( this );
+		action.saveMirrors( this );
 	}
 
 	public void refreshMirror( ServerMirrorRepository repo ) throws Exception {
 		repo.refreshMirror( this );
-		loader.saveMirrors( this );
+		action.saveMirrors( this );
 	}
 
 	public void dropMirror( ServerMirrorRepository repo ) throws Exception {
 		repo.dropMirror( this );
 		repo.deleteObject();
-		loader.saveMirrors( this );
+		action.saveMirrors( this );
 	}
 
 	public void createResource( ServerAuthResource res ) throws Exception {
@@ -91,7 +92,7 @@ public class ServerTransaction extends TransactionBase {
 	public void deleteSystem( ServerSystem system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		checkTransactionDirectory();
 		
-		ServerMirrors mirrors = engine.getMirrors();
+		ServerMirrors mirrors = action.getMirrors();
 		for( String productName : system.getProducts() ) {
 			ServerProduct product = system.getProduct( productName );
 			mirrors.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
@@ -103,12 +104,13 @@ public class ServerTransaction extends TransactionBase {
 	public void createProduct( ServerProduct product , boolean forceClear ) throws Exception {
 		checkTransactionDirectory();
 		
-		ServerMirrors mirrors = engine.getMirrors();
+		ServerMirrors mirrors = action.getMirrors();
 		mirrors.addProductMirrors( this , product , forceClear );
 		
 		createMetadata = true;
 		directory.createProduct( this , product );
-		metadata = loader.createMetadata( this , directory , product );
+		sessionMeta = action.createProductMetadata( this , directory , product );
+		metadata = sessionMeta.getStorage( action );
 	}
 	
 	public void modifyProduct( ServerProduct product ) throws Exception {
@@ -118,12 +120,13 @@ public class ServerTransaction extends TransactionBase {
 
 	public void deleteProduct( ServerProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		checkTransactionDirectory();
-		checkTransactionMetadata( metadata );
-		ServerMirrors mirrors = engine.getMirrors();
+		checkTransactionMetadata( metadataOld );
+		
+		ServerMirrors mirrors = action.getMirrors();
 		mirrors.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		directory.deleteProduct( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		metadata = null;
-		loader.saveMirrors( this );
+		action.saveMirrors( this );
 		product.deleteObject();
 	}
 
@@ -173,7 +176,7 @@ public class ServerTransaction extends TransactionBase {
 	public MetaProductVersion createProductVersion( Meta meta , int majorFirstNumber , int majorSecondNumber , int majorNextFirstNumber , int majorNextSecondNumber , int lastProdTag , int nextProdTag ) throws Exception {
 		checkTransactionMetadata( meta.getStorage( action ) );
 		MetaProductVersion version = new MetaProductVersion( metadata , metadata.meta );
-		version.createVersion( getAction() , majorFirstNumber , majorSecondNumber , majorNextFirstNumber , majorNextSecondNumber , lastProdTag , nextProdTag );
+		version.createVersion( this , majorFirstNumber , majorSecondNumber , majorNextFirstNumber , majorNextSecondNumber , lastProdTag , nextProdTag );
 		metadata.setVersion( this , version );
 		return( version );
 	}

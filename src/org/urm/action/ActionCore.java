@@ -5,12 +5,6 @@ import org.urm.common.RunError;
 import org.urm.common.RunContext;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.meta.Meta.VarCATEGORY;
-import org.urm.engine.registry.ServerAuthResource;
-import org.urm.engine.registry.ServerBuilders;
-import org.urm.engine.registry.ServerMirrorRepository;
-import org.urm.engine.registry.ServerMirrors;
-import org.urm.engine.registry.ServerProjectBuilder;
-import org.urm.engine.registry.ServerResources;
 
 public class ActionCore {
 
@@ -73,23 +67,6 @@ public class ActionCore {
 		return( Common.getLinuxPath( path ) );
 	}
 	
-	public ServerProjectBuilder getBuilder( String name ) throws Exception {
-		ServerBuilders builders = engine.getBuilders();
-		ServerProjectBuilder builder = builders.getBuilder( name );
-		return( builder );
-	}
-
-	public ServerMirrorRepository getServerMirror() throws Exception {
-		ServerMirrors mirrors = engine.getMirrors();
-		ServerMirrorRepository repo = mirrors.findServerRepository();
-		return( repo );
-	}
-	
-	public ServerAuthResource getResource( String name ) throws Exception {
-		ServerResources resources = engine.getResources();
-		ServerAuthResource res = resources.getResource( name );
-		return( res );
-	}
 	
 	public void fail( int errorCode , String s , String[] params ) {
 		setFailed( new RunError( errorCode , s , params ) );

@@ -2,10 +2,10 @@ package org.urm.engine.registry;
 
 import org.urm.action.ActionBase;
 import org.urm.common.PropertySet;
-import org.urm.engine.ServerLoader;
 import org.urm.engine.ServerObject;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine._Error;
+import org.urm.engine.action.ActionInit;
 import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
@@ -140,18 +140,16 @@ public class ServerMirrorRepository extends ServerObject {
 	private void createServerMirror( ServerTransaction transaction , boolean push ) throws Exception {
 		// reject already published
 		// server: test target, remove mirror work/repo, create mirror work/repo, publish target
-		ActionBase action = transaction.getAction();
-		ServerLoader loader = mirrors.engine.getLoader();
-		LocalFolder serverSettings = loader.getServerSettingsFolder( action );
+		ActionInit action = transaction.getAction();
+		LocalFolder serverSettings = action.getServerSettingsFolder();
 		createMetaMirror( transaction , push , serverSettings );
 	}
 
 	private void createProductMirror( ServerTransaction transaction , boolean push ) throws Exception {
 		// reject already published
 		// server: test target, remove mirror work/repo, create mirror work/repo, publish target
-		ActionBase action = transaction.getAction();
-		ServerLoader loader = mirrors.engine.getLoader();
-		LocalFolder productSettings = loader.getProductHomeFolder( action , PRODUCT );
+		ActionInit action = transaction.getAction();
+		LocalFolder productSettings = action.getActiveProductHomeFolder( PRODUCT );
 		createMetaMirror( transaction , push , productSettings );
 	}
 
@@ -208,6 +206,9 @@ public class ServerMirrorRepository extends ServerObject {
 	}
 	
 	public void dropMirror( ServerTransaction transaction ) throws Exception {
+		if( RESOURCE.isEmpty() )
+			return;
+		
 		if( isServer() )
 			dropServerMirror( transaction );
 		else
@@ -244,16 +245,14 @@ public class ServerMirrorRepository extends ServerObject {
 	}
 
 	void pushServerMirror( ServerTransaction transaction ) throws Exception {
-		ServerLoader loader = mirrors.engine.getLoader();
-		ActionBase action = transaction.getAction();
-		LocalFolder serverSettings = loader.getServerSettingsFolder( action );
+		ActionInit action = transaction.getAction();
+		LocalFolder serverSettings = action.getServerSettingsFolder();
 		pushMetaMirror( transaction , serverSettings );
 	}
 	
 	void pushProductMirror( ServerTransaction transaction ) throws Exception {
-		ServerLoader loader = mirrors.engine.getLoader();
-		ActionBase action = transaction.getAction();
-		LocalFolder productSettings = loader.getProductHomeFolder( action , PRODUCT );
+		ActionInit action = transaction.getAction();
+		LocalFolder productSettings = action.getActiveProductHomeFolder( PRODUCT );
 		pushMetaMirror( transaction , productSettings );
 	}
 
@@ -275,16 +274,14 @@ public class ServerMirrorRepository extends ServerObject {
 	}
 
 	private void refreshServerMirror( ServerTransaction transaction ) throws Exception {
-		ServerLoader loader = mirrors.engine.getLoader();
-		ActionBase action = transaction.getAction();
-		LocalFolder serverSettings = loader.getServerSettingsFolder( action );
+		ActionInit action = transaction.getAction();
+		LocalFolder serverSettings = action.getServerSettingsFolder();
 		refreshMetaMirror( transaction , serverSettings );
 	}
 	
 	private void refreshProductMirror( ServerTransaction transaction ) throws Exception {
-		ServerLoader loader = mirrors.engine.getLoader();
-		ActionBase action = transaction.getAction();
-		LocalFolder productSettings = loader.getProductHomeFolder( action , PRODUCT );
+		ActionInit action = transaction.getAction();
+		LocalFolder productSettings = action.getActiveProductHomeFolder( PRODUCT );
 		refreshMetaMirror( transaction , productSettings );
 	}
 

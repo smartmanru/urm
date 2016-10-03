@@ -18,7 +18,6 @@ import org.urm.engine.meta.MetaProductVersion;
 import org.urm.engine.meta.MetaSource;
 import org.urm.engine.registry.ServerBuilders;
 import org.urm.engine.registry.ServerDirectory;
-import org.urm.engine.registry.ServerMirrors;
 import org.urm.engine.registry.ServerProduct;
 import org.urm.engine.registry.ServerRegistry;
 import org.urm.engine.registry.ServerResources;
@@ -54,13 +53,13 @@ public class ServerLoader {
 		init();
 	}
 	
-	public LocalFolder getServerSettingsFolder( ActionBase action ) throws Exception {
+	public LocalFolder getServerSettingsFolder( ActionInit action ) throws Exception {
 		String path = Common.getPath( engine.execrc.installPath , "etc" );
 		LocalFolder folder = action.getLocalFolder( path );
 		return( folder );
 	}
 
-	public LocalFolder getProductHomeFolder( ActionBase action , String productName ) throws Exception {
+	public LocalFolder getProductHomeFolder( ActionInit action , String productName ) throws Exception {
 		ServerProductMeta set = productMeta.get( productName );
 		if( set == null )
 			return( null );
@@ -100,7 +99,7 @@ public class ServerLoader {
 		return( false );
 	}
 
-	public synchronized Meta findMetadata( ActionBase action , String productName ) throws Exception {
+	public synchronized Meta findProductMetadata( ActionBase action , String productName ) throws Exception {
 		ServerSession session = action.session;
 		Meta meta = session.findMeta( productName );
 		if( meta != null )
@@ -117,7 +116,7 @@ public class ServerLoader {
 		return( meta );
 	}
 	
-	public synchronized Meta getMetadata( ActionBase action , String productName ) throws Exception {
+	public synchronized Meta getProductMetadata( ActionBase action , String productName ) throws Exception {
 		ServerSession session = action.session;
 		Meta meta = session.findMeta( productName );
 		if( meta != null )
@@ -131,7 +130,16 @@ public class ServerLoader {
 		return( meta );
 	}
 
-	public synchronized void releaseMetadata( ActionBase action , Meta meta ) throws Exception {
+	public synchronized Meta createProductMetadata( ActionBase action , ServerProductMeta storage ) throws Exception {
+		ServerSession session = action.session;
+		Meta meta = new Meta( storage , session );
+		engine.serverAction.trace( "new run session meta object, id=" + meta.objectId + ", session=" + session.objectId );
+		storage.addSessionMeta( meta );
+		session.addProductMeta( meta );
+		return( meta );
+	}
+	
+	public synchronized void releaseProductMetadata( ActionBase action , Meta meta ) throws Exception {
 		ServerSession session = action.session;
 		session.releaseProductMeta( meta );
 		ServerProductMeta storage = meta.getStorage( action );
@@ -238,30 +246,6 @@ public class ServerLoader {
 		props.resolveRawProperties();
 	}
 
-	public ServerMirrors getMirrors() {
-		synchronized( engine ) {
-			return( registry.mirrors );
-		}
-	}
-
-	public ServerResources getResources() {
-		synchronized( engine ) {
-			return( registry.resources );
-		}
-	}
-
-	public ServerBuilders getBuilders() {
-		synchronized( engine ) {
-			return( registry.builders );
-		}
-	}
-
-	public ServerDirectory getDirectory() {
-		synchronized( engine ) {
-			return( registry.directory );
-		}
-	}
-
 	public void saveRegistry( TransactionBase transaction ) throws Exception {
 		String propertyFile = getServerRegistryFile();
 		registry.save( transaction.getAction() , propertyFile , engine.execrc );
@@ -286,7 +270,7 @@ public class ServerLoader {
 		saveRegistry( transaction );
 	}
 
-	public ServerSettings getSettings() {
+	public ServerSettings getServerSettings( ActionInit action ) {
 		synchronized( engine ) {
 			return( settings );
 		}
@@ -298,24 +282,24 @@ public class ServerLoader {
 		}
 	}
 
-	public void setSettings( TransactionBase transaction , ServerSettings settingsNew ) throws Exception {
+	public void setServerSettings( TransactionBase transaction , ServerSettings settingsNew ) throws Exception {
 		String propertyFile = getServerSettingsFile();
 		settingsNew.save( propertyFile , engine.execrc );
 		settings = settingsNew;
 	}
 
-	public ServerProductMeta createMetadata( TransactionBase transaction , ServerDirectory directoryNew , ServerProduct product ) throws Exception {
+	public ServerProductMeta createProductMetadata( TransactionBase transaction , ServerDirectory directoryNew , ServerProduct product ) throws Exception {
 		ActionInit action = transaction.getAction();
 		
 		ServerProductMeta set = new ServerProductMeta( this , product.NAME , action.session );
-		ServerSettings settings = transaction.getSettings();
-		set.createInitial( action , settings , directoryNew );
+		ServerSettings settings = action.getServerSettings();
+		set.createInitial( transaction , settings , directoryNew );
 		
 		return( set );
 	}
 	
-	public void setMetadata( TransactionBase transaction , ServerProductMeta storageNew ) throws Exception {
-		ActionInit action = transaction.getAction();
+	public void setProductMetadata( TransactionBase transaction , ServerProductMeta storageNew ) throws Exception {
+		ActionBase action = transaction.getAction();
 		
 		MetadataStorage ms = action.artefactory.getMetadataStorage( action , storageNew.meta );
 		storageNew.saveAll( action , ms );
@@ -327,7 +311,7 @@ public class ServerLoader {
 		storageNew.setPrimary( true );
 	}
 	
-	public void deleteMetadata( TransactionBase transaction , ServerProductMeta storage ) throws Exception {
+	public void deleteProductMetadata( TransactionBase transaction , ServerProductMeta storage ) throws Exception {
 		productMeta.remove( storage.name );
 	}
 	

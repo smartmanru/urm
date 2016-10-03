@@ -192,7 +192,7 @@ public class Meta extends ServerObject {
 	}
 	
 	public void setStorage( ActionBase action , ServerProductMeta storage ) throws Exception {
-		loader.releaseMetadata( action , this );
+		loader.releaseProductMetadata( action , this );
 		this.storage = storage;
 		storage.addSessionMeta( this );
 	}

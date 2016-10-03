@@ -12,6 +12,7 @@ import org.urm.engine.ServerProductContext;
 import org.urm.engine.ServerProductMeta;
 import org.urm.engine.ServerSettings;
 import org.urm.engine.ServerTransaction;
+import org.urm.engine.TransactionBase;
 import org.urm.engine.meta.Meta.VarBUILDMODE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -144,18 +145,18 @@ public class MetaProductSettings extends PropertyController {
 		return( r );
 	}
 	
-	public void create( ActionBase action , ServerSettings settings , ServerProductContext productContext ) throws Exception {
+	public void createSettings( TransactionBase transaction , ServerSettings settings , ServerProductContext productContext ) throws Exception {
 		if( !super.initCreateStarted( execprops ) )
 			return;
 
 		// create initial
-		setContextProperties( action , productContext );
+		setContextProperties( transaction.action , productContext );
 		properties.copyOriginalPropertiesToRaw( settings.getDefaultProductProperties() );
-		super.updateProperties( action );
+		super.updateProperties( transaction.action );
 		
 		// build
 		buildCommon = new MetaProductBuildSettings( "build.common" , meta , this );
-		buildCommon.create( action , settings.getDefaultProductBuildProperties() , properties );
+		buildCommon.createSettings( transaction , settings.getDefaultProductBuildProperties() , properties );
 		for( VarBUILDMODE mode : VarBUILDMODE.values() ) {
 			if( mode == VarBUILDMODE.UNKNOWN )
 				continue;
@@ -163,7 +164,7 @@ public class MetaProductSettings extends PropertyController {
 			String modeName = Common.getEnumLower( mode );
 			MetaProductBuildSettings buildMode = new MetaProductBuildSettings( "build." + modeName , meta , this );
 			PropertySet set = settings.getDefaultProductBuildProperties( mode );
-			buildMode.create( action , set , buildCommon.getProperties() );
+			buildMode.createSettings( transaction , set , buildCommon.getProperties() );
 			buildModes.put( mode , buildMode );
 		}
 		

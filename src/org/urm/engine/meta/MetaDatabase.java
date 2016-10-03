@@ -8,6 +8,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.engine.ServerProductMeta;
+import org.urm.engine.TransactionBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -51,8 +52,8 @@ public class MetaDatabase extends PropertyController {
 		return( r );
 	}
 	
-	public void create( ActionBase action ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings( action );
+	public void createDatabase( TransactionBase transaction ) throws Exception {
+		MetaProductSettings product = meta.getProductSettings( transaction.action );
 		if( !initCreateStarted( product.getProperties() ) )
 			return;
 

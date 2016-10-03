@@ -8,9 +8,10 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.engine.ServerLoader;
+import org.urm.engine.ServerContext;
 import org.urm.engine.ServerProductMeta;
 import org.urm.engine.ServerSession;
+import org.urm.engine.ServerSettings;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.action.CommandExecutor;
@@ -24,8 +25,13 @@ import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.meta.Meta.VarBUILDMODE;
 import org.urm.engine.meta.Meta.VarCATEGORY;
 import org.urm.engine.meta.Meta.VarNAMETYPE;
+import org.urm.engine.registry.ServerAuthResource;
+import org.urm.engine.registry.ServerBuilders;
+import org.urm.engine.registry.ServerDirectory;
 import org.urm.engine.registry.ServerMirrorRepository;
 import org.urm.engine.registry.ServerMirrors;
+import org.urm.engine.registry.ServerProjectBuilder;
+import org.urm.engine.registry.ServerResources;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.Artefactory;
@@ -46,7 +52,7 @@ abstract public class ActionBase extends ActionCore {
 	public Artefactory artefactory;
 	
 	public ShellExecutor shell;
-	protected CommandOutput output;
+	public CommandOutput output;
 
 	public int commandTimeout;
 	
@@ -546,37 +552,85 @@ abstract public class ActionBase extends ActionCore {
 		}
 	}
 
+	public ServerResources getResources() {
+		return( actionInit.getActiveResources() );
+	}
+	
+	public ServerBuilders getBuilders() {
+		return( actionInit.getActiveBuilders() );
+	}
+	
+	public ServerDirectory getDirectory() {
+		return( actionInit.getActiveDirectory() );
+	}
+	
+	public ServerSettings getServerSettings() {
+		return( actionInit.getActiveServerSettings() );
+	}
+
+	public ServerContext getServerContext() {
+		return( actionInit.getActiveServerContext() );
+	}
+	
+	public ServerMirrors getMirrors() {
+		return( actionInit.getActiveMirrors() );
+	}
+	
 	public MetaProductBuildSettings getBuildSettings( Meta meta ) throws Exception {
 		MetaProductSettings product = meta.getProductSettings( this );
 		return( product.getBuildSettings( this ) );
 	}
 
 	public ServerMirrorRepository getProjectMirror( MetaSourceProject project ) throws Exception {
-		ServerMirrors mirrors = engine.getMirrors();
+		ServerMirrors mirrors = getMirrors();
 		ServerMirrorRepository repo = mirrors.findProjectRepository( project );
 		return( repo );
 	}
 
 	public ServerMirrorRepository getMetaMirror( ServerProductMeta meta ) throws Exception {
-		ServerMirrors mirrors = engine.getMirrors();
+		ServerMirrors mirrors = getMirrors();
 		ServerMirrorRepository repo = mirrors.findProductMetaRepository( meta );
 		return( repo );
 	}
 
 	public ServerMirrorRepository getConfigurationMirror( ServerProductMeta meta ) throws Exception {
-		ServerMirrors mirrors = engine.getMirrors();
+		ServerMirrors mirrors = getMirrors();
 		ServerMirrorRepository repo = mirrors.findProductConfigurationRepository( meta );
 		return( repo );
 	}
 
+	public ServerProjectBuilder getBuilder( String name ) throws Exception {
+		ServerBuilders builders = getBuilders();
+		ServerProjectBuilder builder = builders.getBuilder( name );
+		return( builder );
+	}
+
+	public ServerMirrorRepository getServerMirror() throws Exception {
+		ServerMirrors mirrors = getMirrors();
+		ServerMirrorRepository repo = mirrors.findServerRepository();
+		return( repo );
+	}
+	
+	public ServerAuthResource getResource( String name ) throws Exception {
+		ServerResources resources = getResources();
+		ServerAuthResource res = resources.getResource( name );
+		return( res );
+	}
+	
 	public Meta getContextMeta() throws Exception {
 		if( !session.product )
 			exitUnexpectedState();
-		
-		ServerLoader loader = engine.getLoader();
-		return( loader.getMetadata( this , session.productName ) );
+		return( getProductMetadata( session.productName ) );
 	}
 
+	public Meta getProductMetadata( String productName ) throws Exception {
+		return( actionInit.getActiveProductMetadata( productName ) );
+	}
+
+	public boolean isProductBroken( String productName ) {
+		return( actionInit.isActiveProductBroken( productName ) );
+	}
+	
 	public String getContextRedistPath( MetaEnvServer server ) throws Exception {
 		if( server.isLinux( this ) )
 			return( context.CTX_REDISTLINUX_PATH );

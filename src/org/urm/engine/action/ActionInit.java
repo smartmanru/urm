@@ -4,21 +4,36 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.common.Common;
 import org.urm.engine.ServerContext;
+import org.urm.engine.ServerLoader;
+import org.urm.engine.ServerProductMeta;
 import org.urm.engine.ServerSettings;
 import org.urm.engine.ServerSession;
+import org.urm.engine.TransactionBase;
+import org.urm.engine.meta.Meta;
+import org.urm.engine.registry.ServerBuilders;
 import org.urm.engine.registry.ServerDirectory;
+import org.urm.engine.registry.ServerMirrors;
+import org.urm.engine.registry.ServerProduct;
+import org.urm.engine.registry.ServerRegistry;
+import org.urm.engine.registry.ServerResources;
 import org.urm.engine.storage.Artefactory;
+import org.urm.engine.storage.LocalFolder;
+import org.urm.engine.storage.MetadataStorage;
 
 public class ActionInit extends ActionBase {
 
 	public CommandAction commandAction;
 	public String actionName;
+	private ServerLoader loader;
+	
+	protected TransactionBase transaction;
 
-	public ActionInit( ServerSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , CommandAction commandAction , String actionName ) {
+	public ActionInit( ServerLoader loader , ServerSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , CommandAction commandAction , String actionName ) {
 		super( session , artefactory , executor , output );
 		this.actionInit = this;
 		this.commandAction = commandAction;
 		this.actionName = actionName;
+		this.loader = loader;
 	}
 
 	@Override
@@ -30,18 +45,139 @@ public class ActionInit extends ActionBase {
 	protected void runBefore( ActionScope scope ) throws Exception {
 		Common.exitUnexpected();
 	}
+	
+	public void setTransaction( TransactionBase transaction ) {
+		this.transaction = transaction;
+	}
+	
+	public void clearTransaction() {
+		this.transaction = null;
+	}
 
-	public ServerSettings getSettings() {
-		return( engine.getSettings() );
+	public ServerSettings getActiveServerSettings() {
+		if( transaction != null ) {
+			if( transaction.settings != null )
+				return( transaction.settings );
+		}
+		return( loader.getServerSettings( this ) );
 	}
-	
-	public ServerDirectory getDirectory() {
-		return( engine.getDirectory() );
-	}
-	
-	public ServerContext getServerContext() {
-		ServerSettings settings = engine.getSettings();
+
+	public ServerContext getActiveServerContext() {
+		ServerSettings settings = getActiveServerSettings();
 		return( settings.getServerContext() );
+	}
+
+	public LocalFolder getServerSettingsFolder() throws Exception {
+		return( loader.getServerSettingsFolder( this ) );
+	}
+	
+	public void setServerSettings( TransactionBase transaction , ServerSettings settings ) throws Exception {
+		loader.setServerSettings( transaction , settings );
+	}
+	
+	public ServerMirrors getActiveMirrors() {
+		ServerRegistry registry = loader.getRegistry();
+		return( registry.mirrors );
+	}
+	
+	public void saveMirrors( TransactionBase transaction ) throws Exception {
+		loader.saveMirrors( transaction );
+	}
+	
+	public ServerResources getActiveResources() {
+		if( transaction != null ) {
+			if( transaction.resources != null )
+				return( transaction.resources );
+		}
+		
+		ServerRegistry registry = loader.getRegistry();
+		return( registry.resources );
+	}
+
+	public void setResources( TransactionBase transaction , ServerResources resources ) throws Exception {
+		loader.setResources( transaction , resources );
+	}
+	
+	public ServerBuilders getActiveBuilders() {
+		if( transaction != null ) {
+			if( transaction.builders != null )
+				return( transaction.builders );
+		}
+		
+		ServerRegistry registry = loader.getRegistry();
+		return( registry.builders );
+	}
+	
+	public void setBuilders( TransactionBase transaction , ServerBuilders builders ) throws Exception {
+		loader.setBuilders( transaction , builders );
+	}
+	
+	public ServerDirectory getActiveDirectory() {
+		if( transaction != null ) {
+			if( transaction.directory != null )
+				return( transaction.directory );
+		}
+		
+		ServerRegistry registry = loader.getRegistry();
+		return( registry.directory );
+	}
+	
+	public void setDirectory( TransactionBase transaction , ServerDirectory directory ) throws Exception {
+		loader.setDirectory( transaction , directory );
+	}
+
+	public Meta getActiveProductMetadata( String productName ) throws Exception {
+		if( transaction != null ) {
+			if( transaction.metadata != null ) {
+				if( productName.equals( transaction.metadata.name ) )
+					return( transaction.sessionMeta );
+			}
+		}
+		return( loader.getProductMetadata( this , productName ) );
+	}
+
+	public LocalFolder getActiveProductHomeFolder( String productName ) throws Exception {
+		if( transaction != null ) {
+			if( transaction.metadata != null ) {
+				if( productName.equals( transaction.metadata.name ) ) {
+					MetadataStorage storageMeta = artefactory.getMetadataStorage( this , transaction.sessionMeta );
+					return( storageMeta.getHomeFolder( this ) );
+				}
+			}
+		}
+		return( loader.getProductHomeFolder( this , productName ) );
+	}
+	
+	public boolean isActiveProductBroken( String productName ) {
+		if( transaction != null ) {
+			if( transaction.metadata != null ) {
+				if( productName.equals( transaction.metadata.name ) )
+					return( transaction.metadata.loadFailed );
+			}
+		}
+		
+		return( loader.isProductBroken( productName ) );
+	}
+	
+	public void setProductMetadata( TransactionBase transaction , ServerProductMeta storage ) throws Exception {
+		loader.setProductMetadata( transaction , storage );
+	}
+
+	public void deleteProductMetadata( TransactionBase transaction , ServerProductMeta storage ) throws Exception {
+		loader.deleteProductMetadata( transaction , storage );
+	}
+
+	public Meta createProductMetadata( TransactionBase transaction , ServerDirectory directory , ServerProduct product ) throws Exception {
+		ServerProductMeta storage = loader.createProductMetadata( transaction , directory , product );
+		return( loader.createProductMetadata( transaction.action , storage ) );
+	}
+
+	public void releaseProductMetadata( TransactionBase transaction , Meta sessionMeta ) throws Exception {
+		loader.releaseProductMetadata( transaction.action , sessionMeta );
+	}
+
+	public void reloadMetadata() throws Exception {
+		loader.reload();
 	}
 	
 }

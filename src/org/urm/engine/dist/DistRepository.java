@@ -54,7 +54,7 @@ public class DistRepository {
 		}
 		else {
 			if( distPath.isEmpty() ) {
-				ServerContext sc = action.actionInit.getServerContext();
+				ServerContext sc = action.getServerContext();
 				distPath = sc.DIST_ROOT;
 			}
 			
