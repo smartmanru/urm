@@ -118,7 +118,7 @@ public class ServerEngine {
 		
 		RunContext clientrc = RunContext.clone( execrc );
 		ServerSession sessionContext = sessionController.createSession( clientrc , true );
-		ActionInit action = createAction( serverExecutor , options , sessionContext , "web" , null );
+		ActionInit action = createAction( serverExecutor , options , sessionContext , "web" , null , false );
 		startAction( action );
 		
 		return( action );
@@ -132,7 +132,7 @@ public class ServerEngine {
 		RunContext clientrc = RunContext.clone( execrc );
 		ServerSession sessionContext = sessionController.createSession( clientrc , true );
 		sessionContext.setServerLayout( null );
-		ActionInit action = createAction( serverExecutor , options , sessionContext , name , null );
+		ActionInit action = createAction( serverExecutor , options , sessionContext , name , null , true );
 		startAction( action );
 		
 		return( action );
@@ -153,7 +153,7 @@ public class ServerEngine {
 		serverSession.setServerLayout( options );
 		
 		// create server action
-		serverAction = createAction( serverExecutor , options , serverSession , "server" , null );
+		serverAction = createAction( serverExecutor , options , serverSession , "server" , null , false );
 		if( serverAction == null )
 			return( false );
 
@@ -174,7 +174,7 @@ public class ServerEngine {
 		else
 			serverSession.setServerLayout( options );
 		
-		serverAction = createAction( commandExecutor , options , serverSession , "client" , null );
+		serverAction = createAction( commandExecutor , options , serverSession , "client" , null , false );
 		if( serverAction == null )
 			return( false );
 
@@ -228,7 +228,7 @@ public class ServerEngine {
 		return( executor );
 	}
 
-	public ActionInit createAction( CommandExecutor actionExecutor , CommandOptions options , ServerSession session , String stream , ServerCall call ) throws Exception {
+	public ActionInit createAction( CommandExecutor actionExecutor , CommandOptions options , ServerSession session , String stream , ServerCall call , boolean memoryOnly ) throws Exception {
 		CommandAction commandAction = actionExecutor.getAction( options.action );
 		if( !options.checkValidOptions( commandAction.method ) )
 			return( null );
@@ -239,28 +239,32 @@ public class ServerEngine {
 			return( null );
 
 		// create artefactory
-		Artefactory artefactory = createArtefactory( session , context );
+		Artefactory artefactory = createArtefactory( session , context , memoryOnly );
 		
 		// create action
-		ActionInit action = createAction( session , artefactory , actionExecutor , options.action );
+		ActionInit action = createAction( session , artefactory , actionExecutor , options.action , memoryOnly );
 		context.update( action );
 		actionExecutor.setActionContext( action , context );
-		action.debug( "action created: actionId=" + action.ID + ", name=" + action.actionName + ", workfolder=" + artefactory.workFolder.folderPath );
+		
+		if( memoryOnly )
+			action.debug( "memory action created: actionId=" + action.ID + ", name=" + action.actionName );
+		else
+			action.debug( "normal action created: actionId=" + action.ID + ", name=" + action.actionName + ", workfolder=" + artefactory.workFolder.folderPath );
 		
 		return( action );
 	}
 	
 	public ActionInit createAction( CommandContext context , ActionBase action ) throws Exception {
-		ActionInit actionInit = new ActionInit( loader , action.session , action.artefactory , action.executor , action.output , null , null );
+		ActionInit actionInit = new ActionInit( loader , action.session , action.artefactory , action.executor , action.output , null , null , false );
 		actionInit.setContext( context );
 		actionInit.setShell( action.shell );
 		return( actionInit );
 	}
 	
-	public ActionInit createAction( ServerSession session , Artefactory artefactory , CommandExecutor executor , String actionName ) throws Exception { 
+	public ActionInit createAction( ServerSession session , Artefactory artefactory , CommandExecutor executor , String actionName , boolean memoryOnly ) throws Exception { 
 		CommandOutput output = new CommandOutput();
 		CommandAction commandAction = executor.getAction( actionName );
-		ActionInit action = new ActionInit( loader , session , artefactory , executor , output , commandAction , commandAction.method.name );
+		ActionInit action = new ActionInit( loader , session , artefactory , executor , output , commandAction , commandAction.method.name , memoryOnly );
 		return( action );
 	}
 	
@@ -277,17 +281,19 @@ public class ServerEngine {
 		shellPool.master.removeDir( action , workFolder.folderPath );
 	}
 	
-	public void startAction( ActionBase action ) throws Exception {
-		// create action shell
-		if( action.shell == null )
-			shellPool.createDedicatedLocalShell( action , action.context.stream + "::" + action.session.sessionId );
-		
-		// create work folder
-		LocalFolder folder = action.artefactory.getWorkFolder( action );
-		folder.recreateThis( action );
-		
-		// start action log
-		action.tee();
+	public void startAction( ActionInit action ) throws Exception {
+		if( !action.isMemoryOnly() ) {
+			// create action shell
+			if( action.shell == null )
+				shellPool.createDedicatedLocalShell( action , action.context.stream + "::" + action.session.sessionId );
+			
+			// create work folder
+			LocalFolder folder = action.artefactory.getWorkFolder( action );
+			folder.recreateThis( action );
+			
+			// start action log
+			action.tee();
+		}
 		
 		// print args
 		if( action.context.CTX_SHOWALL ) {
@@ -296,19 +302,24 @@ public class ServerEngine {
 		}
 	}
 	
-	public void finishAction( ActionBase action ) throws Exception {
+	public void finishAction( ActionInit action ) throws Exception {
 		action.stopAllOutputs();
 		
-		if( action.isFailed() || action.context.CTX_SHOWALL )
-			action.info( "saved work directory: " + action.artefactory.workFolder.folderPath );
-		else
-			action.artefactory.workFolder.removeThis( action );
-		
-		shellPool.releaseActionPool( action );
-		sessionController.closeSession( action.session );
+		if( !action.isMemoryOnly() ) {
+			if( action.isFailed() || action.context.CTX_SHOWALL )
+				action.info( "saved work directory: " + action.artefactory.workFolder.folderPath );
+			else
+				action.artefactory.workFolder.removeThis( action );
+			
+			shellPool.releaseActionPool( action );
+			sessionController.closeSession( action.session );
+		}
 	}
 
-	private Artefactory createArtefactory( ServerSession session , CommandContext context ) throws Exception {
+	private Artefactory createArtefactory( ServerSession session , CommandContext context , boolean memoryOnly ) throws Exception {
+		if( memoryOnly )
+			return( new Artefactory( null ) );
+			
 		String dirname = "";
 		
 		if( session.standalone ) {

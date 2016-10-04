@@ -27,13 +27,15 @@ public class ActionInit extends ActionBase {
 	private ServerLoader loader;
 	
 	protected TransactionBase transaction;
+	private boolean memoryOnly;
 
-	public ActionInit( ServerLoader loader , ServerSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , CommandAction commandAction , String actionName ) {
+	public ActionInit( ServerLoader loader , ServerSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , CommandAction commandAction , String actionName , boolean memoryOnly ) {
 		super( session , artefactory , executor , output );
 		this.actionInit = this;
 		this.commandAction = commandAction;
 		this.actionName = actionName;
 		this.loader = loader;
+		this.memoryOnly = memoryOnly;
 	}
 
 	@Override
@@ -44,6 +46,10 @@ public class ActionInit extends ActionBase {
 	@Override
 	protected void runBefore( ActionScope scope ) throws Exception {
 		Common.exitUnexpected();
+	}
+	
+	public boolean isMemoryOnly() {
+		return( memoryOnly );
 	}
 	
 	public void setTransaction( TransactionBase transaction ) {
