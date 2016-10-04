@@ -4,9 +4,11 @@ import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.meta.Meta;
+import org.urm.engine.meta.Meta.VarNODETYPE;
 import org.urm.engine.meta.MetaEnv;
 import org.urm.engine.meta.MetaEnvDC;
 import org.urm.engine.meta.MetaEnvServer;
+import org.urm.engine.meta.MetaEnvServerNode;
 import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.meta.MetaProductVersion;
 import org.urm.engine.meta.Meta.VarBUILDMODE;
@@ -221,10 +223,10 @@ public class ServerTransaction extends TransactionBase {
 		dc.deleteObject();
 	}
 
-	public MetaEnvServer createMetaEnvServer( MetaEnvDC dc , String name , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType ) throws Exception {
+	public MetaEnvServer createMetaEnvServer( MetaEnvDC dc , String name , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String service ) throws Exception {
 		checkTransactionMetadata( dc.meta.getStorage( action ) );
 		MetaEnvServer server = new MetaEnvServer( getMeta() , dc );
-		server.createServer( getAction() , name , osType , runType , accessType );
+		server.createServer( action , name , osType , runType , accessType , service );
 		dc.createServer( this , server );
 		return( server );
 	}
@@ -235,9 +237,28 @@ public class ServerTransaction extends TransactionBase {
 		server.deleteObject();
 	}
 
-	public void setMetaEnvServerStatus( MetaEnvServer server , boolean OFFLINE ) throws Exception {
+	public void updateMetaEnvServer( MetaEnvServer server ) throws Exception {
 		checkTransactionMetadata( server.meta.getStorage( action ) );
-		server.setOfflineStatus( this , OFFLINE );
+		server.updateProperties( this );
+	}
+
+	public MetaEnvServerNode createMetaEnvServerNode( MetaEnvServer server , int pos , VarNODETYPE nodeType , String account ) throws Exception {
+		checkTransactionMetadata( server.meta.getStorage( action ) );
+		MetaEnvServerNode node = new MetaEnvServerNode( getMeta() , server , pos );
+		node.createNode( action , nodeType , account );
+		server.createNode( this , node );
+		return( node );
+	}
+	
+	public void updateMetaEnvServerNode( MetaEnvServerNode node ) throws Exception {
+		checkTransactionMetadata( node.meta.getStorage( action ) );
+		node.updateProperties( this );
+	}
+
+	public void deleteMetaEnvServerNode( MetaEnvServerNode node ) throws Exception {
+		checkTransactionMetadata( node.meta.getStorage( action ) );
+		node.server.deleteNode( this , node );
+		node.deleteObject();
 	}
 
 }

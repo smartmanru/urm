@@ -63,7 +63,7 @@ public class MetaBase {
 		
 		meta.loadFromNodeElements( node );
 		meta.resolveRawProperties();
-		meta.copyRunningPropertiesToRunning( serverNode.properties );
+		meta.copyRunningPropertiesToRunning( serverNode.getProperties() );
 
 		properties = new PropertySet( "final" , null );
 		properties.copyRunningPropertiesToRunning( meta );

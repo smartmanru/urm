@@ -43,6 +43,21 @@ public class MetaEnvServerBase extends PropertyController {
 		ID = properties.getSystemRequiredStringProperty( PROPERTY_ID );
 		properties.finishRawProperties();
 	}
+
+	public MetaEnvServerBase copy( ActionBase action , Meta meta , MetaEnvServer server ) throws Exception {
+		MetaEnvServerBase r = new MetaEnvServerBase( meta , server );
+		r.initCopyStarted( this , server.getProperties() );
+		r.scatterProperties( action );
+		
+		for( MetaEnvServerPrepareApp prepare : prepareMap.values() ) {
+			MetaEnvServerPrepareApp rprepare = prepare.copy( action , meta , this );
+			r.addPrepare( rprepare );
+		}
+		
+		r.resolveLinks( action );
+		r.initFinished();
+		return( r );
+	}
 	
 	public void resolveLinks( ActionBase action ) throws Exception {
 		for( MetaEnvServerPrepareApp prepare : prepareMap.values() )
@@ -73,8 +88,12 @@ public class MetaEnvServerBase extends PropertyController {
 		for( Node snnode : items ) {
 			MetaEnvServerPrepareApp sn = new MetaEnvServerPrepareApp( meta , this );
 			sn.load( action , snnode );
-			prepareMap.put( sn.APP , sn );
+			addPrepare( sn );
 		}
+	}
+	
+	private void addPrepare( MetaEnvServerPrepareApp sn ) {
+		prepareMap.put( sn.APP , sn );
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {

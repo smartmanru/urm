@@ -169,7 +169,7 @@ public class ConfBuilder {
 		FileSet files = folder.getFileSet( action );
 		
 		if( props == null )
-			props = node.properties;
+			props = node.getProperties();
 		
 		for( String file : files.fileList )
 			configureFile( folder , file , node , props , charset );
@@ -203,7 +203,7 @@ public class ConfBuilder {
 		List<String> fileLines = action.readFileLines( filePath , charset );
 		
 		if( props == null )
-			props = node.properties;
+			props = node.getProperties();
 		
 		boolean changed = false;
 		for( int k = 0; k < fileLines.size(); k++ ) {

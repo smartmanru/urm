@@ -69,6 +69,15 @@ public class MetaEnvServerDeployment extends PropertyController {
 		action.exit1( _Error.UnexpectedDeploymentType1 , "unexpected deployment type found, server=" + server.NAME , server.NAME );
 	}
 	
+	public MetaEnvServerDeployment copy( ActionBase action , Meta meta , MetaEnvServer server ) throws Exception {
+		MetaEnvServerDeployment r = new MetaEnvServerDeployment( meta , server );
+		r.initCopyStarted( this , server.getProperties() );
+		r.scatterProperties( action );
+		r.resolveLinks( action );
+		r.initFinished();
+		return( r );
+	}
+	
 	public void resolveLinks( ActionBase action ) throws Exception {
 		MetaDistr distr = meta.getDistr( action ); 
 		if( !COMP.isEmpty() )

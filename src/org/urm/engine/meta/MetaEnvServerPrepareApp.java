@@ -2,7 +2,6 @@ package org.urm.engine.meta;
 
 import org.urm.action.ActionBase;
 import org.urm.common.PropertyController;
-import org.urm.common.PropertySet;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -13,7 +12,6 @@ public class MetaEnvServerPrepareApp extends PropertyController {
 	public MetaEnvServerBase base;
 
 	public String APP;
-	public PropertySet properties;
 	
 	public static String PROPERTY_APP = "app";
 	
@@ -36,6 +34,15 @@ public class MetaEnvServerPrepareApp extends PropertyController {
 		properties.finishRawProperties();
 	}
 
+	public MetaEnvServerPrepareApp copy( ActionBase action , Meta meta , MetaEnvServerBase base ) throws Exception {
+		MetaEnvServerPrepareApp r = new MetaEnvServerPrepareApp( meta , base );
+		r.initCopyStarted( this , base.getProperties() );
+		r.scatterProperties( action );
+		r.resolveLinks( action );
+		r.initFinished();
+		return( r );
+	}
+	
 	public void resolveLinks( ActionBase action ) throws Exception {
 	}
 	

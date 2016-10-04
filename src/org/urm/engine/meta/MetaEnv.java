@@ -229,7 +229,7 @@ public class MetaEnv extends PropertyController {
 			return;
 
 		super.setStringProperty( PROPERTY_ID , ID );
-		super.setStringProperty( PROPERTY_BASELINE , BASELINE );
+		super.setBooleanProperty( PROPERTY_PROD , PROD );
 		super.finishProperties( action );
 		super.initFinished();
 		

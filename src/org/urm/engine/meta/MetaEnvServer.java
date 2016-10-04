@@ -204,6 +204,10 @@ public class MetaEnvServer extends PropertyController {
 		properties.finishRawProperties();
 	}
 	
+	public boolean isBroken() {
+		return( super.isLoadFailed() );
+	}
+	
 	public VarSERVERRUNTYPE getServerRunType( ActionBase action ) throws Exception {
 		return( serverRunType );
 	}
@@ -234,6 +238,19 @@ public class MetaEnvServer extends PropertyController {
 		MetaEnvServer r = new MetaEnvServer( meta , dc );
 		r.initCopyStarted( this , dc.getProperties() );
 		r.scatterProperties( action );
+		
+		if( basesw != null )
+			r.basesw = basesw.copy( action , meta , r );
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			MetaEnvServerDeployment rdeployment = deployment.copy( action , meta , r );
+			r.addDeployment( rdeployment );
+		}
+		for( MetaEnvServerNode node : nodes ) {
+			MetaEnvServerNode rnode = node.copy( action , meta , r );
+			r.addNode( rnode );
+		}
+		
+		r.resolveLinks( action );
 		r.initFinished();
 		return( r );
 	}
@@ -331,11 +348,15 @@ public class MetaEnvServer extends PropertyController {
 		for( Node snnode : items ) {
 			MetaEnvServerNode sn = new MetaEnvServerNode( meta , this , pos );
 			sn.load( action , snnode , loadProps );
-			nodes.add( sn );
+			addNode( sn );
 			pos++;
 		}
 	}
-	
+
+	private void addNode( MetaEnvServerNode sn ) {
+		nodes.add( sn );
+	}
+
 	private void loadBase( ActionBase action , Node node ) throws Exception {
 		Node item = ConfReader.xmlGetFirstChild( node , ELEMENT_BASE );
 		if( item == null )
@@ -353,10 +374,14 @@ public class MetaEnvServer extends PropertyController {
 		for( Node dpnode : items ) {
 			MetaEnvServerDeployment dp = new MetaEnvServerDeployment( meta , this );
 			dp.load( action , dpnode );
-			deployments.add( dp );
+			addDeployment( dp );
 		}
 	}
 
+	private void addDeployment( MetaEnvServerDeployment dp ) {
+		deployments.add( dp );
+	}
+	
 	public List<MetaEnvServerNode> getNodes( ActionBase action ) throws Exception {
 		return( nodes );
 	}
@@ -596,7 +621,7 @@ public class MetaEnvServer extends PropertyController {
 
 	public MetaEnvServerNode getStandbyNode( ActionBase action ) throws Exception {
 		for( MetaEnvServerNode node : getNodes( action ) ) {
-			if( node.STANDBY )
+			if( node.DBSTANDBY )
 				return( node );
 		}
 		
@@ -703,12 +728,13 @@ public class MetaEnvServer extends PropertyController {
 		}
 	}
 	
-	public void createServer( ActionBase action , String NAME , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType ) throws Exception {
+	public void createServer( ActionBase action , String NAME , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String service ) throws Exception {
 		this.NAME = NAME;
 		this.serverRunType = runType;
 		this.serverAccessType = accessType;
 		this.osType = osType;
 		this.OFFLINE = true;
+		this.SERVICENAME = service;
 		if( !super.initCreateStarted( dc.getProperties() ) )
 			return;
 
@@ -717,14 +743,56 @@ public class MetaEnvServer extends PropertyController {
 		super.setStringProperty( PROPERTY_SERVERRUNTYPE , Common.getEnumLower( runType ) );
 		super.setStringProperty( PROPERTY_SERVERACCESSTYPE , Common.getEnumLower( accessType ) );
 		super.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
+		super.setStringProperty( PROPERTY_SERVICENAME , SERVICENAME );
 		super.finishProperties( action );
 		super.initFinished();
 		
 		scatterProperties( action );
 	}
 
-	public void setOfflineStatus( ServerTransaction transaction , boolean OFFLINE ) throws Exception {
-		this.OFFLINE = OFFLINE;
+	public void setBaseline( ServerTransaction transaction , String baselineServer ) throws Exception {
+		properties.setStringProperty( PROPERTY_BASELINE , baselineServer );
 	}
 	
+	public void setOffline( ServerTransaction transaction , boolean offline ) throws Exception {
+		properties.setBooleanProperty( PROPERTY_OFFLINE , offline );
+	}
+
+	public boolean isOffline() {
+		return( OFFLINE );
+	}
+	
+	public void createNode( ServerTransaction transaction , MetaEnvServerNode node ) {
+		int index = nodes.size();
+		if( node.POS > 0 )
+			index = node.POS - 1;
+		else
+			node.setPos( transaction , index + 1 );
+		
+		if( index >= nodes.size() ) {
+			addNode( node );
+			return;
+		}
+		
+		// add and shift tail nodes
+		nodes.add( index , node );
+		for( int k = index + 1; k < nodes.size(); k++ ) {
+			MetaEnvServerNode item = nodes.get( k );
+			item.setPos( transaction , k + 1 );
+		}
+	}
+	
+	public void deleteNode( ServerTransaction transaction , MetaEnvServerNode node ) {
+		int index = nodes.indexOf( node );
+		if( index < 0 )
+			return;
+		
+		// remove and shift tail nodes
+		nodes.remove( index );
+		for( int k = index; k < nodes.size(); k++ ) {
+			MetaEnvServerNode item = nodes.get( k );
+			item.setPos( transaction , k + 1 );
+		}
+	}
+
 }

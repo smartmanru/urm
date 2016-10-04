@@ -1,8 +1,9 @@
 package org.urm.engine.meta;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.common.PropertyController;
-import org.urm.common.PropertySet;
+import org.urm.engine.ServerTransaction;
 import org.urm.engine.meta.Meta.VarNODETYPE;
 import org.urm.engine.shell.Account;
 import org.w3c.dom.Document;
@@ -15,15 +16,19 @@ public class MetaEnvServerNode extends PropertyController {
 	public MetaEnvServer server;
 	
 	public int POS;
+	public VarNODETYPE nodeType;
 	public String HOSTLOGIN;
 	public String DEPLOYGROUP;
-	public String INSTANCE;
 	public boolean OFFLINE;
-	public boolean STANDBY;
-	public String NODETYPE;
-	private VarNODETYPE nodeType;
+	public String DBINSTANCE;
+	public boolean DBSTANDBY;
 	
-	public PropertySet properties;
+	public static String PROPERTY_NODETYPE = "type";
+	public static String PROPERTY_HOSTLOGIN = "account";
+	public static String PROPERTY_DEPLOYGROUP = "deploygroup";
+	public static String PROPERTY_OFFLINE = "offline";
+	public static String PROPERTY_DBINSTANCE = "instance";
+	public static String PROPERTY_DBSTANDBY = "standby";
 	
 	public MetaEnvServerNode( Meta meta , MetaEnvServer server , int POS ) {
 		super( server , "node" );
@@ -40,21 +45,34 @@ public class MetaEnvServerNode extends PropertyController {
 	@Override
 	public void scatterProperties( ActionBase action ) throws Exception {
 		action.trace( "load properties of node=" + POS );
-		HOSTLOGIN = super.getStringPropertyRequired( action , "hostlogin" );
-		DEPLOYGROUP = super.getStringProperty( action , "deploygroup" );
+		HOSTLOGIN = super.getStringPropertyRequired( action , PROPERTY_HOSTLOGIN );
+		DEPLOYGROUP = super.getStringProperty( action , PROPERTY_DEPLOYGROUP );
 		
 		if( server.isDatabase( action ) )
-			INSTANCE = super.getStringPropertyRequired( action , "instance" );
+			DBINSTANCE = super.getStringPropertyRequired( action , PROPERTY_DBINSTANCE );
 		
-		NODETYPE = super.getStringProperty( action , "type" , "self" );
+		String NODETYPE = super.getStringProperty( action , PROPERTY_NODETYPE , "self" );
 		nodeType = Meta.getNodeType( NODETYPE , VarNODETYPE.SELF );
 		
-		OFFLINE = super.getBooleanProperty( action , "offline" );
-		STANDBY = super.getBooleanProperty( action , "standby" );
+		OFFLINE = super.getBooleanProperty( action , PROPERTY_OFFLINE );
+		DBSTANDBY = super.getBooleanProperty( action , PROPERTY_DBSTANDBY );
 		
 		properties.finishRawProperties();
 	}
 
+	public MetaEnvServerNode copy( ActionBase action , Meta meta , MetaEnvServer server ) throws Exception {
+		MetaEnvServerNode r = new MetaEnvServerNode( meta , server , POS );
+		r.initCopyStarted( this , server.getProperties() );
+		r.scatterProperties( action );
+		r.resolveLinks( action );
+		r.initFinished();
+		return( r );
+	}
+	
+	public boolean isBroken() {
+		return( super.isLoadFailed() );
+	}
+	
 	public void resolveLinks( ActionBase action ) throws Exception {
 	}
 	
@@ -109,6 +127,34 @@ public class MetaEnvServerNode extends PropertyController {
 			return;
 		
 		properties.saveSplit( doc , root );
+	}
+	
+	public void createNode( ActionBase action , VarNODETYPE nodeType , String account ) throws Exception {
+		this.HOSTLOGIN = account;
+		this.nodeType = nodeType;
+		this.OFFLINE = true;
+		if( !super.initCreateStarted( server.getProperties() ) )
+			return;
+
+		super.setStringProperty( PROPERTY_HOSTLOGIN , HOSTLOGIN );
+		super.setStringProperty( PROPERTY_NODETYPE , Common.getEnumLower( nodeType ) );
+		super.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
+		super.finishProperties( action );
+		super.initFinished();
+		
+		scatterProperties( action );
+	}
+
+	public void setPos( ServerTransaction transaction , int POS ) {
+		this.POS = POS;
+	}
+	
+	public void setOffline( ServerTransaction transaction , boolean offline ) throws Exception {
+		properties.setBooleanProperty( PROPERTY_OFFLINE , offline );
+	}
+
+	public boolean isOffline() {
+		return( OFFLINE );
 	}
 	
 }
