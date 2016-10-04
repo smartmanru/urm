@@ -1,4 +1,4 @@
-package org.urm.meta.engine;
+package org.urm.engine;
 
 import org.urm.action.ActionBase;
 import org.urm.common.PropertySet;
@@ -7,7 +7,7 @@ import org.urm.meta.ServerObject;
 public class ServerAuthContext extends ServerObject {
 
 	ServerAuth auth;
-	PropertySet properties;
+	public PropertySet properties;
 	
 	boolean adminContext;
 	
