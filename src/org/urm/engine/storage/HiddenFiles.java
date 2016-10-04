@@ -2,9 +2,9 @@ package org.urm.engine.storage;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaDistrConfItem;
-import org.urm.engine.meta.MetaEnvServer;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaEnvServer;
 
 public class HiddenFiles {
 

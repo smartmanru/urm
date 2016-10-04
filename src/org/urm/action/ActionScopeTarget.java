@@ -7,17 +7,17 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaDistr;
-import org.urm.engine.meta.MetaDistrBinaryItem;
-import org.urm.engine.meta.MetaDistrConfItem;
-import org.urm.engine.meta.MetaDistrDelivery;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaEnvServerNode;
-import org.urm.engine.meta.MetaProductBuildSettings;
-import org.urm.engine.meta.MetaSourceProject;
-import org.urm.engine.meta.MetaSourceProjectItem;
-import org.urm.engine.meta.Meta.VarCATEGORY;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistr;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.MetaSourceProjectItem;
+import org.urm.meta.product.Meta.VarCATEGORY;
 
 public class ActionScopeTarget {
 

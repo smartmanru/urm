@@ -1,16 +1,16 @@
 package org.urm.engine.vcs;
 
 import org.urm.action.ActionBase;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaProductBuildSettings;
-import org.urm.engine.meta.MetaProductSettings;
-import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.registry.ServerAuthResource;
 import org.urm.engine.registry.ServerMirrorRepository;
 import org.urm.engine.registry.ServerProjectBuilder;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.MetaSourceProject;
 
 public abstract class GenericVCS {
 

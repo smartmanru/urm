@@ -14,17 +14,17 @@ import org.urm.action.database.DatabaseRegistryRelease.RELEASE_STATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistItemInfo;
-import org.urm.engine.meta.MetaDistr;
-import org.urm.engine.meta.MetaDistrBinaryItem;
-import org.urm.engine.meta.MetaDistrConfItem;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaEnvServerLocation;
-import org.urm.engine.meta.MetaEnvServerNode;
 import org.urm.engine.storage.FileInfo;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.SourceStorage;
+import org.urm.meta.product.MetaDistr;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerLocation;
+import org.urm.meta.product.MetaEnvServerNode;
 
 public class ActionVerifyDeploy extends ActionBase {
 

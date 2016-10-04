@@ -6,17 +6,17 @@ import org.urm.common.Common;
 import org.urm.engine.ServerProductMeta;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseTarget;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaDistrComponentItem;
-import org.urm.engine.meta.MetaDistrConfItem;
-import org.urm.engine.meta.MetaDistrDelivery;
-import org.urm.engine.meta.MetaEnvDC;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaEnvServerDeployment;
-import org.urm.engine.meta.MetaEnvServerNode;
-import org.urm.engine.meta.MetaProductBuildSettings;
 import org.urm.engine.registry.ServerMirrorRepository;
 import org.urm.engine.vcs.GenericVCS;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistrComponentItem;
+import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerDeployment;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.MetaProductBuildSettings;
 
 public class SourceStorage {
 

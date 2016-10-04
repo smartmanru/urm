@@ -8,12 +8,12 @@ import org.urm.engine.dist.Release;
 import org.urm.engine.dist.ReleaseSet;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaDistrBinaryItem;
-import org.urm.engine.meta.MetaDistrDelivery;
-import org.urm.engine.meta.Meta.VarCATEGORY;
-import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.storage.FileSet;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.Meta.VarCATEGORY;
 
 public class ActionPrintReleaseStatus extends ActionBase {
 

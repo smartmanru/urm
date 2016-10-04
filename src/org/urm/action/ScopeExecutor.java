@@ -8,14 +8,14 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.CommandContext;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaEnvDC;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaSource;
-import org.urm.engine.meta.MetaSourceProject;
-import org.urm.engine.meta.MetaSourceProjectSet;
-import org.urm.engine.meta.Meta.VarCATEGORY;
 import org.urm.engine.shell.Account;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.MetaSourceProjectSet;
+import org.urm.meta.product.Meta.VarCATEGORY;
 
 public class ScopeExecutor {
 

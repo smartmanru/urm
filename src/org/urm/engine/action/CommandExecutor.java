@@ -11,9 +11,9 @@ import org.urm.common.RunError;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.engine.ServerEngine;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.Meta.VarBUILDMODE;
-import org.urm.engine.meta.Meta.VarCATEGORY;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.Meta.VarBUILDMODE;
+import org.urm.meta.product.Meta.VarCATEGORY;
 
 public abstract class CommandExecutor {
 

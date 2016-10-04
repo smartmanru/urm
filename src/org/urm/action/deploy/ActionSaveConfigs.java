@@ -6,14 +6,14 @@ import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.common.Common;
-import org.urm.engine.meta.MetaDistrComponentItem;
-import org.urm.engine.meta.MetaDistrConfItem;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaEnvServerDeployment;
-import org.urm.engine.meta.MetaEnvServerNode;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.SourceStorage;
+import org.urm.meta.product.MetaDistrComponentItem;
+import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerDeployment;
+import org.urm.meta.product.MetaEnvServerNode;
 
 public class ActionSaveConfigs extends ActionBase {
 

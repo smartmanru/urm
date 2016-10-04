@@ -5,9 +5,9 @@ import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.common.Common;
-import org.urm.engine.meta.MetaEnv;
-import org.urm.engine.meta.MetaEnvDC;
-import org.urm.engine.meta.MetaEnvServer;
+import org.urm.meta.product.MetaEnv;
+import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvServer;
 
 public class ActionConfCheck extends ActionBase {
 

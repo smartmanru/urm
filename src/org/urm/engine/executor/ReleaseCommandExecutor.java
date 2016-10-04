@@ -8,8 +8,8 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandAction;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.Meta.VarCATEGORY;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.Meta.VarCATEGORY;
 
 public class ReleaseCommandExecutor extends CommandExecutor {
 

@@ -4,10 +4,10 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.meta.MetaEnvDC;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaEnvServerNode;
 import org.urm.engine.storage.LocalFolder;
+import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
 
 public class DeployCommand {
 

@@ -10,13 +10,13 @@ import org.urm.common.Common;
 import org.urm.common.action.CommandOptions.SQLTYPE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
-import org.urm.engine.meta.MetaDatabase;
-import org.urm.engine.meta.MetaDatabaseSchema;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaProductBuildSettings;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.LogStorage;
+import org.urm.meta.product.MetaDatabase;
+import org.urm.meta.product.MetaDatabaseSchema;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaProductBuildSettings;
 
 public class ActionApplyAutomatic extends ActionBase {
 

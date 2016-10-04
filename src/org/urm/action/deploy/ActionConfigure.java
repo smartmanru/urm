@@ -11,14 +11,14 @@ import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.meta.MetaDistrComponentItem;
-import org.urm.engine.meta.MetaDistrConfItem;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaEnvServerDeployment;
-import org.urm.engine.meta.MetaEnvServerNode;
-import org.urm.engine.meta.Meta.VarCATEGORY;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.SourceStorage;
+import org.urm.meta.product.MetaDistrComponentItem;
+import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerDeployment;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.Meta.VarCATEGORY;
 
 public class ActionConfigure extends ActionBase {
 

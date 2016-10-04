@@ -11,12 +11,12 @@ import org.urm.common.action.CommandVar.FLAG;
 import org.urm.engine.ServerCall;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.ServerSession;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaEnv;
-import org.urm.engine.meta.MetaEnvDC;
-import org.urm.engine.meta.MetaProductSettings;
-import org.urm.engine.meta.Meta.VarBUILDMODE;
 import org.urm.engine.shell.Account;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaEnv;
+import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.Meta.VarBUILDMODE;
 
 public class CommandContext {
 

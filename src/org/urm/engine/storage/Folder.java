@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.meta.MetaDistrBinaryItem;
-import org.urm.engine.meta.Meta.VarARCHIVETYPE;
 import org.urm.engine.shell.ShellExecutor;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.Meta.VarARCHIVETYPE;
 
 public abstract class Folder {
 

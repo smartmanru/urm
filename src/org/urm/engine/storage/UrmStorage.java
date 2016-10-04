@@ -3,10 +3,10 @@ package org.urm.engine.storage;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.Meta.VarDBMSTYPE;
 import org.urm.engine.registry.ServerDirectory;
 import org.urm.engine.registry.ServerProduct;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.Meta.VarDBMSTYPE;
 
 public class UrmStorage {
 

@@ -1,6 +1,6 @@
 package org.urm.engine.storage;
 
-import org.urm.engine.meta.Meta;
+import org.urm.meta.product.Meta;
 
 public class BuildStorage {
 

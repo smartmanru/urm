@@ -9,8 +9,8 @@ import org.urm.action.database.DatabaseRegistryRelease.RELEASE_STATE;
 import org.urm.common.Common;
 import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.engine.dist.Release;
-import org.urm.engine.meta.MetaDistrDelivery;
-import org.urm.engine.meta.MetaEnvServer;
+import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaEnvServer;
 
 public class DatabaseRegistry {
 

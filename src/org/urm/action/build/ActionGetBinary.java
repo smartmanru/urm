@@ -7,13 +7,13 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.meta.MetaDistrBinaryItem;
-import org.urm.engine.meta.Meta.VarCATEGORY;
-import org.urm.engine.meta.Meta.VarITEMSRCTYPE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.NexusDownloadInfo;
 import org.urm.engine.storage.NexusStorage;
 import org.urm.engine.storage.SourceStorage;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.Meta.VarCATEGORY;
+import org.urm.meta.product.Meta.VarITEMSRCTYPE;
 
 public class ActionGetBinary extends ActionBase {
 

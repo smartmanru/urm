@@ -1,13 +1,13 @@
 package org.urm.action.build;
 
 import org.urm.action.ActionBase;
-import org.urm.engine.meta.MetaProductBuildSettings;
-import org.urm.engine.meta.MetaProductSettings;
-import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.vcs.ProjectVersionControl;
+import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.MetaSourceProject;
 
 public class BuilderLinuxGradle extends Builder {
 

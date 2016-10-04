@@ -2,8 +2,8 @@ package org.urm.action.monitor;
 
 import org.urm.action.ActionBase;
 import org.urm.common.SimpleHttp;
-import org.urm.engine.meta.MetaMonitoring;
-import org.urm.engine.meta.MetaMonitoringItem;
+import org.urm.meta.product.MetaMonitoring;
+import org.urm.meta.product.MetaMonitoringItem;
 
 public class ActionMonitorCheckItem extends ActionBase {
 

@@ -9,9 +9,6 @@ import org.urm.action.ActionBase;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
 import org.urm.engine.dist.DistRepository;
-import org.urm.engine.meta.MetaDatabaseSchema;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaProductBuildSettings;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
@@ -20,6 +17,9 @@ import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.SourceStorage;
 import org.urm.engine.storage.UrmStorage;
+import org.urm.meta.product.MetaDatabaseSchema;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaProductBuildSettings;
 
 public class ActionImportDatabase extends ActionBase {
 

@@ -8,15 +8,15 @@ import java.util.Properties;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.dist.DistRepository;
-import org.urm.engine.meta.MetaDatabaseSchema;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaEnvServerNode;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.UrmStorage;
+import org.urm.meta.product.MetaDatabaseSchema;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
 
 public class ActionExportDatabase extends ActionBase {
 

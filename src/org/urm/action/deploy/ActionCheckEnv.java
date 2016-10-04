@@ -8,11 +8,11 @@ import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.database.DatabaseClient;
 import org.urm.common.Common;
 import org.urm.common.SimpleHttp;
-import org.urm.engine.meta.MetaDistrComponentWS;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaEnvServerDeployment;
-import org.urm.engine.meta.MetaEnvServerNode;
-import org.urm.engine.meta.Meta.VarPROCESSMODE;
+import org.urm.meta.product.MetaDistrComponentWS;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerDeployment;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.Meta.VarPROCESSMODE;
 
 public class ActionCheckEnv extends ActionBase {
 

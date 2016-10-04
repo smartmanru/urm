@@ -6,8 +6,8 @@ import org.urm.engine.ServerEngine;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandAction;
 import org.urm.engine.action.CommandExecutor;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaMonitoring;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaMonitoring;
 
 public class MonitorCommandExecutor extends CommandExecutor {
 

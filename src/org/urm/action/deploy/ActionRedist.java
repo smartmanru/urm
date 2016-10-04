@@ -7,19 +7,19 @@ import org.urm.action.ActionScopeTargetItem;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseTarget;
-import org.urm.engine.meta.MetaDistr;
-import org.urm.engine.meta.MetaDistrBinaryItem;
-import org.urm.engine.meta.MetaDistrConfItem;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaEnvServerLocation;
-import org.urm.engine.meta.MetaEnvServerNode;
-import org.urm.engine.meta.Meta.VarCONTENTTYPE;
-import org.urm.engine.meta.Meta.VarDISTITEMSOURCE;
 import org.urm.engine.storage.FileInfo;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStateInfo;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.SourceStorage;
+import org.urm.meta.product.MetaDistr;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerLocation;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.Meta.VarCONTENTTYPE;
+import org.urm.meta.product.Meta.VarDISTITEMSOURCE;
 
 public class ActionRedist extends ActionBase {
 

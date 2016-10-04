@@ -7,13 +7,13 @@ import org.urm.action.database.DatabaseClient;
 import org.urm.action.database.DatabaseRegistry;
 import org.urm.action.database.DatabaseRegistryRelease;
 import org.urm.common.Common;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaEnvServerLocation;
-import org.urm.engine.meta.MetaEnvServerNode;
-import org.urm.engine.meta.Meta.VarCONTENTTYPE;
 import org.urm.engine.storage.FileInfo;
 import org.urm.engine.storage.RedistStateInfo;
 import org.urm.engine.storage.RedistStorage;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerLocation;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.Meta.VarCONTENTTYPE;
 
 public class ActionGetDeployInfo extends ActionBase {
 

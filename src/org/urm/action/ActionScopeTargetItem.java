@@ -1,11 +1,11 @@
 package org.urm.action;
 
 import org.urm.engine.dist.ReleaseTargetItem;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaDistrBinaryItem;
-import org.urm.engine.meta.MetaEnvServerNode;
-import org.urm.engine.meta.MetaProductBuildSettings;
-import org.urm.engine.meta.MetaSourceProjectItem;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaSourceProjectItem;
 
 public class ActionScopeTargetItem {
 

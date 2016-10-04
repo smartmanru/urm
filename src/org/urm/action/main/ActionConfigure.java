@@ -17,14 +17,14 @@ import org.urm.common.meta.BuildCommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
 import org.urm.common.meta.DeployCommandMeta;
 import org.urm.common.meta.MainCommandMeta;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaEnv;
-import org.urm.engine.meta.MetaEnvDC;
-import org.urm.engine.meta.Meta.VarBUILDMODE;
 import org.urm.engine.registry.ServerDirectory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.engine.storage.UrmStorage;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaEnv;
+import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.Meta.VarBUILDMODE;
 
 public class ActionConfigure extends ActionBase {
 

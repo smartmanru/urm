@@ -7,15 +7,15 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaDesign;
-import org.urm.engine.meta.MetaDesignElement;
-import org.urm.engine.meta.MetaDesignLink;
-import org.urm.engine.meta.MetaEnv;
-import org.urm.engine.meta.MetaEnvDC;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.storage.MetadataStorage;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDesign;
+import org.urm.meta.product.MetaDesignElement;
+import org.urm.meta.product.MetaDesignLink;
+import org.urm.meta.product.MetaEnv;
+import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaProductSettings;
 
 public class ActionCreateDesignDoc extends ActionBase {
 

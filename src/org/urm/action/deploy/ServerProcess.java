@@ -2,10 +2,10 @@ package org.urm.action.deploy;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaEnvServerNode;
-import org.urm.engine.meta.Meta.VarPROCESSMODE;
 import org.urm.engine.shell.ShellExecutor;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.Meta.VarPROCESSMODE;
 
 public class ServerProcess {
 

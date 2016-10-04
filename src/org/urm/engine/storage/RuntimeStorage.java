@@ -4,18 +4,18 @@ import org.urm.action.ActionBase;
 import org.urm.action.deploy.ServerDeployment;
 import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaDistrBinaryItem;
-import org.urm.engine.meta.MetaDistrConfItem;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaEnvServerDeployment;
-import org.urm.engine.meta.MetaEnvServerLocation;
-import org.urm.engine.meta.MetaEnvServerNode;
-import org.urm.engine.meta.Meta.VarARCHIVETYPE;
-import org.urm.engine.meta.Meta.VarCONTENTTYPE;
-import org.urm.engine.meta.Meta.VarDISTITEMTYPE;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerDeployment;
+import org.urm.meta.product.MetaEnvServerLocation;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.Meta.VarARCHIVETYPE;
+import org.urm.meta.product.Meta.VarCONTENTTYPE;
+import org.urm.meta.product.Meta.VarDISTITEMTYPE;
 
 public class RuntimeStorage extends ServerStorage {
 

@@ -5,11 +5,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.common.Common;
-import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.registry.ServerAuthResource;
 import org.urm.engine.registry.ServerMirrorRepository;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
+import org.urm.meta.product.MetaProductSettings;
 
 public class GitMirrorStorage extends MirrorStorage {
 

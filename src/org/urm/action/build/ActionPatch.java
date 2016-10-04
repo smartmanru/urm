@@ -3,9 +3,9 @@ package org.urm.action.build;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.meta.MetaProductBuildSettings;
-import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.storage.LocalFolder;
+import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaProductSettings;
 
 public class ActionPatch extends ActionBase {
 

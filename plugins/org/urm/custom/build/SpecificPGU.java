@@ -8,18 +8,18 @@ import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeTarget;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaDistr;
-import org.urm.engine.meta.MetaDistrBinaryItem;
-import org.urm.engine.meta.MetaProductSettings;
-import org.urm.engine.meta.MetaSource;
-import org.urm.engine.meta.MetaSourceProject;
-import org.urm.engine.meta.MetaSourceProjectItem;
-import org.urm.engine.meta.Meta.VarCATEGORY;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.NexusDownloadInfo;
 import org.urm.engine.storage.NexusStorage;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistr;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.MetaSourceProjectItem;
+import org.urm.meta.product.Meta.VarCATEGORY;
 
 public class SpecificPGU {
 

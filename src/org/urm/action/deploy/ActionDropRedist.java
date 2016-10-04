@@ -5,9 +5,9 @@ import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.shell.Account;
 import org.urm.engine.storage.RedistStorage;
+import org.urm.meta.product.MetaEnvServer;
 
 public class ActionDropRedist extends ActionBase {
 

@@ -3,9 +3,9 @@ package org.urm.action.build;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.common.Common;
-import org.urm.engine.meta.MetaSourceProject;
-import org.urm.engine.meta.Meta.VarCATEGORY;
 import org.urm.engine.vcs.ProjectVersionControl;
+import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.Meta.VarCATEGORY;
 
 public class ActionSetTagOnBuildBranch extends ActionBase {
 

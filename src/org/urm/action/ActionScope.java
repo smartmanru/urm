@@ -11,17 +11,17 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.dist.ReleaseSet;
 import org.urm.engine.dist.ReleaseTarget;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaDistr;
-import org.urm.engine.meta.MetaDistrBinaryItem;
-import org.urm.engine.meta.MetaEnv;
-import org.urm.engine.meta.MetaEnvDC;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaEnvServerNode;
-import org.urm.engine.meta.MetaSource;
-import org.urm.engine.meta.MetaSourceProjectSet;
-import org.urm.engine.meta.Meta.VarCATEGORY;
-import org.urm.engine.meta.Meta.VarDISTITEMSOURCE;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistr;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaEnv;
+import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSourceProjectSet;
+import org.urm.meta.product.Meta.VarCATEGORY;
+import org.urm.meta.product.Meta.VarDISTITEMSOURCE;
 
 public class ActionScope {
 

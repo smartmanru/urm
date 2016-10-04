@@ -3,23 +3,23 @@ package org.urm.engine;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.ActionInit;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.Meta.VarNODETYPE;
-import org.urm.engine.meta.MetaEnv;
-import org.urm.engine.meta.MetaEnvDC;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaEnvServerNode;
-import org.urm.engine.meta.MetaProductSettings;
-import org.urm.engine.meta.MetaProductVersion;
-import org.urm.engine.meta.Meta.VarBUILDMODE;
-import org.urm.engine.meta.Meta.VarSERVERACCESSTYPE;
-import org.urm.engine.meta.Meta.VarSERVERRUNTYPE;
 import org.urm.engine.registry.ServerAuthResource;
 import org.urm.engine.registry.ServerMirrorRepository;
 import org.urm.engine.registry.ServerMirrors;
 import org.urm.engine.registry.ServerProduct;
 import org.urm.engine.registry.ServerProjectBuilder;
 import org.urm.engine.registry.ServerSystem;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaEnv;
+import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.MetaProductVersion;
+import org.urm.meta.product.Meta.VarBUILDMODE;
+import org.urm.meta.product.Meta.VarNODETYPE;
+import org.urm.meta.product.Meta.VarSERVERACCESSTYPE;
+import org.urm.meta.product.Meta.VarSERVERRUNTYPE;
 
 public class ServerTransaction extends TransactionBase {
 

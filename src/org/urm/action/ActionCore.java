@@ -4,7 +4,7 @@ import org.urm.common.Common;
 import org.urm.common.RunError;
 import org.urm.common.RunContext;
 import org.urm.engine.ServerEngine;
-import org.urm.engine.meta.Meta.VarCATEGORY;
+import org.urm.meta.product.Meta.VarCATEGORY;
 
 public class ActionCore {
 

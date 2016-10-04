@@ -5,8 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.action.ActionBase;
-import org.urm.engine.meta.Meta;
 import org.urm.engine.storage.Folder;
+import org.urm.meta.product.Meta;
 
 public class ConfFileDiff {
 

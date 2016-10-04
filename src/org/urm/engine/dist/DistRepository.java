@@ -4,14 +4,14 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.ServerContext;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaProductBuildSettings;
-import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.RemoteFolder;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaProductSettings;
 
 public class DistRepository {
 

@@ -1,9 +1,9 @@
 package org.urm.engine.vcs;
 
 import org.urm.action.ActionBase;
-import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
+import org.urm.meta.product.MetaSourceProject;
 
 public class ProjectVersionControl {
 

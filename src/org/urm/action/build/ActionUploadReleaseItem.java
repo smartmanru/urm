@@ -7,7 +7,7 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.meta.MetaProductBuildSettings;
+import org.urm.meta.product.MetaProductBuildSettings;
 
 public class ActionUploadReleaseItem extends ActionBase {
 

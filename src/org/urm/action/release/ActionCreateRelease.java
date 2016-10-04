@@ -2,7 +2,7 @@ package org.urm.action.release;
 
 import org.urm.action.ActionBase;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.meta.Meta;
+import org.urm.meta.product.Meta;
 
 public class ActionCreateRelease extends ActionBase {
 

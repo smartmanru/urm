@@ -2,10 +2,6 @@ package org.urm.engine;
 
 import org.urm.common.RunError;
 import org.urm.engine.action.ActionInit;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaEnv;
-import org.urm.engine.meta.MetaEnvDC;
-import org.urm.engine.meta.MetaEnvServer;
 import org.urm.engine.registry.ServerAuthResource;
 import org.urm.engine.registry.ServerBuilders;
 import org.urm.engine.registry.ServerDirectory;
@@ -13,6 +9,10 @@ import org.urm.engine.registry.ServerProduct;
 import org.urm.engine.registry.ServerProjectBuilder;
 import org.urm.engine.registry.ServerResources;
 import org.urm.engine.registry.ServerSystem;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaEnv;
+import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvServer;
 
 public class TransactionBase extends ServerObject {
 

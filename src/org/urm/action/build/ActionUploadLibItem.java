@@ -3,10 +3,10 @@ package org.urm.action.build;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.common.Common;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaProductBuildSettings;
-import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.registry.ServerAuthResource;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaProductSettings;
 
 public class ActionUploadLibItem extends ActionBase {
 

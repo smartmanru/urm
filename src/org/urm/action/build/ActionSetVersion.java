@@ -2,10 +2,10 @@ package org.urm.action.build;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
-import org.urm.engine.meta.MetaProductSettings;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.vcs.ProjectVersionControl;
+import org.urm.meta.product.MetaProductSettings;
 
 public class ActionSetVersion extends ActionBase {
 

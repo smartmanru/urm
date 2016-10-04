@@ -6,9 +6,9 @@ import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaDistrBinaryItem;
-import org.urm.engine.meta.MetaDistrConfItem;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrConfItem;
 
 public class ActionGetCumulative extends ActionBase {
 

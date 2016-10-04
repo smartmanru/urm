@@ -5,10 +5,10 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.meta.Meta.VarCONTENTTYPE;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
+import org.urm.meta.product.Meta.VarCONTENTTYPE;
 
 public class ServerDeployment {
 

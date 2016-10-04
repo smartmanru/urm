@@ -2,7 +2,7 @@ package org.urm.engine.dist;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.meta.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrBinaryItem;
 
 public class DistMD5 {
 

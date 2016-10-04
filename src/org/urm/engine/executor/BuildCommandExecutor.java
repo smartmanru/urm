@@ -10,9 +10,9 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandAction;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaProductBuildSettings;
 import org.urm.engine.storage.LocalFolder;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaProductBuildSettings;
 
 public class BuildCommandExecutor extends CommandExecutor {
 

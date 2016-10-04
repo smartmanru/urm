@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.urm.action.ActionBase;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaDistrDelivery;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistrDelivery;
 
 public class ReleaseDelivery {
 

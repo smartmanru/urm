@@ -5,12 +5,12 @@ import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.common.Common;
-import org.urm.engine.meta.MetaProductBuildSettings;
-import org.urm.engine.meta.MetaSourceProject;
-import org.urm.engine.meta.Meta.VarCATEGORY;
 import org.urm.engine.registry.ServerProjectBuilder;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
+import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.Meta.VarCATEGORY;
 
 public class ActionBuild extends ActionBase {
 	

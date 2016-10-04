@@ -12,22 +12,22 @@ import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.dist.ReleaseSet;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaDistr;
-import org.urm.engine.meta.MetaDistrBinaryItem;
-import org.urm.engine.meta.MetaDistrConfItem;
-import org.urm.engine.meta.MetaDistrDelivery;
-import org.urm.engine.meta.MetaEnv;
-import org.urm.engine.meta.MetaEnvDC;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaEnvServerNode;
-import org.urm.engine.meta.MetaEnvStartGroup;
-import org.urm.engine.meta.MetaSource;
-import org.urm.engine.meta.MetaSourceProject;
-import org.urm.engine.meta.MetaSourceProjectSet;
-import org.urm.engine.meta.Meta.VarCATEGORY;
-import org.urm.engine.meta.Meta.VarDISTITEMSOURCE;
 import org.urm.engine.shell.Account;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistr;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaEnv;
+import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.MetaEnvStartGroup;
+import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.MetaSourceProjectSet;
+import org.urm.meta.product.Meta.VarCATEGORY;
+import org.urm.meta.product.Meta.VarDISTITEMSOURCE;
 
 public class ActionScopeSet {
 

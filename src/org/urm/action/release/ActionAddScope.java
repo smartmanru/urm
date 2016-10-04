@@ -6,8 +6,8 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.Meta.VarCATEGORY;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.Meta.VarCATEGORY;
 
 public class ActionAddScope extends ActionBase {
 

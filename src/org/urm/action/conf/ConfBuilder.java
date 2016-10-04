@@ -12,15 +12,15 @@ import org.urm.common.PropertyValue;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.dist.ReleaseTarget;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaDistrConfItem;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaEnvServerNode;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.HiddenFiles;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.SourceStorage;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
 
 public class ConfBuilder {
 

@@ -11,13 +11,13 @@ import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.ReleaseDelivery;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaDistr;
-import org.urm.engine.meta.MetaDistrDelivery;
-import org.urm.engine.meta.MetaEnv;
-import org.urm.engine.meta.MetaEnvDC;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.Meta.VarCATEGORY;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistr;
+import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaEnv;
+import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.Meta.VarCATEGORY;
 
 public class DatabaseCommandExecutor extends CommandExecutor {
 

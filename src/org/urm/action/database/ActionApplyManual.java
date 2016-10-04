@@ -5,10 +5,10 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaProductBuildSettings;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.LogStorage;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaProductBuildSettings;
 
 public class ActionApplyManual extends ActionBase {
 

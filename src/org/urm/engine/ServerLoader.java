@@ -7,15 +7,6 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.PropertySet;
 import org.urm.engine.action.ActionInit;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaDatabase;
-import org.urm.engine.meta.MetaDesign;
-import org.urm.engine.meta.MetaDistr;
-import org.urm.engine.meta.MetaEnv;
-import org.urm.engine.meta.MetaMonitoring;
-import org.urm.engine.meta.MetaProductSettings;
-import org.urm.engine.meta.MetaProductVersion;
-import org.urm.engine.meta.MetaSource;
 import org.urm.engine.registry.ServerBuilders;
 import org.urm.engine.registry.ServerDirectory;
 import org.urm.engine.registry.ServerProduct;
@@ -23,6 +14,15 @@ import org.urm.engine.registry.ServerRegistry;
 import org.urm.engine.registry.ServerResources;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDatabase;
+import org.urm.meta.product.MetaDesign;
+import org.urm.meta.product.MetaDistr;
+import org.urm.meta.product.MetaEnv;
+import org.urm.meta.product.MetaMonitoring;
+import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.MetaProductVersion;
+import org.urm.meta.product.MetaSource;
 
 public class ServerLoader {
 

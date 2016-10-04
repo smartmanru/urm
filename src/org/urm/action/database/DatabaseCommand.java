@@ -5,10 +5,10 @@ import org.urm.action.ActionScope;
 import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaDistrDelivery;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaEnvServerNode;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
 
 public class DatabaseCommand {
 

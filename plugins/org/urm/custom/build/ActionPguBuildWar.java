@@ -5,7 +5,7 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.common.ConfReader;
 import org.urm.engine.custom.CommandCustom;
 import org.urm.engine.custom.ICustomBuild;
-import org.urm.engine.meta.MetaSourceProject;
+import org.urm.meta.product.MetaSourceProject;
 import org.w3c.dom.Node;
 
 public class ActionPguBuildWar implements ICustomBuild {

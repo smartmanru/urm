@@ -4,14 +4,14 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.custom.CommandCustom;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaDatabase;
-import org.urm.engine.meta.MetaDatabaseSchema;
-import org.urm.engine.meta.MetaDistr;
-import org.urm.engine.meta.MetaDistrDelivery;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.SourceStorage;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDatabase;
+import org.urm.meta.product.MetaDatabaseSchema;
+import org.urm.meta.product.MetaDistr;
+import org.urm.meta.product.MetaDistrDelivery;
 
 public class DatabasePrepare {
 

@@ -1,12 +1,12 @@
 package org.urm.engine.custom;
 
 import org.urm.action.ActionBase;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaDistrBinaryItem;
-import org.urm.engine.meta.MetaProductSettings;
-import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.MetaSourceProject;
 import org.w3c.dom.Node;
 
 public class CommandCustom {

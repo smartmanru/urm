@@ -6,18 +6,18 @@ import org.urm.action.ActionBase;
 import org.urm.action.deploy.ServerDeployment;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.meta.MetaDistrBinaryItem;
-import org.urm.engine.meta.MetaDistrConfItem;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaEnvServerLocation;
-import org.urm.engine.meta.MetaEnvServerNode;
-import org.urm.engine.meta.Meta.VarARCHIVETYPE;
-import org.urm.engine.meta.Meta.VarCONTENTTYPE;
-import org.urm.engine.meta.Meta.VarDEPLOYTYPE;
-import org.urm.engine.meta.Meta.VarDISTITEMTYPE;
-import org.urm.engine.meta.Meta.VarITEMVERSION;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerLocation;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.Meta.VarARCHIVETYPE;
+import org.urm.meta.product.Meta.VarCONTENTTYPE;
+import org.urm.meta.product.Meta.VarDEPLOYTYPE;
+import org.urm.meta.product.Meta.VarDISTITEMTYPE;
+import org.urm.meta.product.Meta.VarITEMVERSION;
 
 public class RedistStorage extends ServerStorage {
 

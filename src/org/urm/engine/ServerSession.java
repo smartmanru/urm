@@ -8,8 +8,8 @@ import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandOptions;
 import org.urm.engine.action.ActionInit;
-import org.urm.engine.meta.Meta;
 import org.urm.engine.registry.ServerAuthContext;
+import org.urm.meta.product.Meta;
 
 public class ServerSession extends ServerObject {
 

@@ -8,7 +8,7 @@ import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionSet;
 import org.urm.common.Common;
-import org.urm.engine.meta.MetaEnvStartGroup;
+import org.urm.meta.product.MetaEnvStartGroup;
 
 public class ActionStartEnv extends ActionBase {
 

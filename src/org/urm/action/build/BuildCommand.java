@@ -11,11 +11,11 @@ import org.urm.action.database.ActionGetDB;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaProductSettings;
-import org.urm.engine.meta.Meta.VarCATEGORY;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.LogStorage;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.Meta.VarCATEGORY;
 
 public class BuildCommand {
 	

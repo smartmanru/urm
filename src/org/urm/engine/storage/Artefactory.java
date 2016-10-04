@@ -4,13 +4,13 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaEnvServerNode;
-import org.urm.engine.meta.MetaMonitoring;
-import org.urm.engine.meta.MetaProductBuildSettings;
-import org.urm.engine.meta.MetaSourceProject;
 import org.urm.engine.shell.Account;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.MetaMonitoring;
+import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaSourceProject;
 
 public class Artefactory {
 

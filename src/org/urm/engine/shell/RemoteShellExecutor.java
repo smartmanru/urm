@@ -2,8 +2,8 @@ package org.urm.engine.shell;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.meta.Meta.VarSESSIONTYPE;
 import org.urm.engine.storage.Folder;
+import org.urm.meta.product.Meta.VarSESSIONTYPE;
 
 public class RemoteShellExecutor extends ShellExecutor {
 	

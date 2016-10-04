@@ -4,8 +4,8 @@ import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerContext;
 import org.urm.engine.ServerSettings;
-import org.urm.engine.meta.MetaBase;
-import org.urm.engine.meta.MetaEnvServerNode;
+import org.urm.meta.product.MetaBase;
+import org.urm.meta.product.MetaEnvServerNode;
 import org.w3c.dom.Document;
 
 public class BaseRepository {

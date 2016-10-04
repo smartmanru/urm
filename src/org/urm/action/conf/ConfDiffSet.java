@@ -10,9 +10,9 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.dist.Release;
 import org.urm.engine.dist.ReleaseTarget;
-import org.urm.engine.meta.MetaDistr;
-import org.urm.engine.meta.MetaDistrConfItem;
 import org.urm.engine.storage.FileSet;
+import org.urm.meta.product.MetaDistr;
+import org.urm.meta.product.MetaDistrConfItem;
 
 public class ConfDiffSet {
 	

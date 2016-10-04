@@ -2,11 +2,11 @@ package org.urm.engine.storage;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaEnvServerNode;
-import org.urm.engine.meta.Meta.VarCONTENTTYPE;
 import org.urm.engine.shell.Account;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.Meta.VarCONTENTTYPE;
 
 public class ServerStorage {
 

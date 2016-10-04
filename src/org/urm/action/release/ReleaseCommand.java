@@ -4,8 +4,8 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.build.BuildCommand;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.Meta.VarCATEGORY;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.Meta.VarCATEGORY;
 
 public class ReleaseCommand {
 

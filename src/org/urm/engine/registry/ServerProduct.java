@@ -5,7 +5,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerObject;
 import org.urm.engine.ServerTransaction;
-import org.urm.engine.meta.Meta;
+import org.urm.meta.product.Meta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

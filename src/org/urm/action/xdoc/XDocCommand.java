@@ -1,7 +1,7 @@
 package org.urm.action.xdoc;
 
 import org.urm.action.ActionBase;
-import org.urm.engine.meta.Meta;
+import org.urm.meta.product.Meta;
 
 public class XDocCommand {
 

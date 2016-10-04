@@ -2,9 +2,9 @@ package org.urm.action.build;
 
 import org.urm.action.ActionBase;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.meta.Meta;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.SourceStorage;
+import org.urm.meta.product.Meta;
 
 public class ActionGetManual extends ActionBase {
 

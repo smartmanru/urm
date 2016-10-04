@@ -5,13 +5,6 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
-import org.urm.engine.meta.Meta.VarSERVERACCESSTYPE;
-import org.urm.engine.meta.MetaBase;
-import org.urm.engine.meta.MetaEnvServer;
-import org.urm.engine.meta.MetaEnvServerBase;
-import org.urm.engine.meta.MetaEnvServerNode;
-import org.urm.engine.meta.Meta.VarARCHIVETYPE;
-import org.urm.engine.meta.MetaBase.VarBASESRCFORMAT;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BaseRepository;
 import org.urm.engine.storage.LocalFolder;
@@ -19,6 +12,13 @@ import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.RuntimeStorage;
 import org.urm.engine.storage.VersionInfoStorage;
+import org.urm.meta.product.MetaBase;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerBase;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.Meta.VarARCHIVETYPE;
+import org.urm.meta.product.Meta.VarSERVERACCESSTYPE;
+import org.urm.meta.product.MetaBase.VarBASESRCFORMAT;
 
 public class ActionBaseInstall extends ActionBase {
 

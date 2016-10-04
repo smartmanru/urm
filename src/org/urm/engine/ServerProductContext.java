@@ -1,10 +1,10 @@
 package org.urm.engine;
 
 import org.urm.action.ActionBase;
-import org.urm.engine.meta.Meta;
-import org.urm.engine.meta.MetaProductVersion;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaProductVersion;
 
 public class ServerProductContext {
 
