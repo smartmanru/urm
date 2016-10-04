@@ -236,6 +236,10 @@ public class ServerLoader {
 	}
 
 	public void clearServerProducts() throws Exception {
+		for( ServerProductMeta storage : productMeta.values() ) {
+			storage.meta.deleteObject();
+			storage.deleteObject();
+		}
 		productMeta.clear();
 	}
 	

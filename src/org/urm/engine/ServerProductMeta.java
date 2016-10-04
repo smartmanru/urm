@@ -144,7 +144,6 @@ public class ServerProductMeta extends ServerObject {
 				r.loadFailed = true;
 		}
 		
-		r.sessionMeta.putAll( sessionMeta );
 		return( r );
 	}
 
