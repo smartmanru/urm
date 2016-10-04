@@ -8,6 +8,8 @@ import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandOptions;
 import org.urm.engine.action.ActionInit;
+import org.urm.meta.ServerLoader;
+import org.urm.meta.ServerObject;
 import org.urm.meta.engine.ServerAuthContext;
 import org.urm.meta.product.Meta;
 

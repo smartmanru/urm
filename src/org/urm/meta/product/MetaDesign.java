@@ -5,8 +5,8 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerObject;
-import org.urm.engine.ServerProductMeta;
+import org.urm.meta.ServerObject;
+import org.urm.meta.ServerProductMeta;
 import org.w3c.dom.Node;
 
 public class MetaDesign extends ServerObject {

@@ -2,6 +2,8 @@ package org.urm.engine;
 
 import org.urm.common.RunError;
 import org.urm.engine.action.ActionInit;
+import org.urm.meta.ServerObject;
+import org.urm.meta.ServerProductMeta;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.engine.ServerDirectory;

@@ -1,4 +1,4 @@
-package org.urm.engine;
+package org.urm.meta;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,6 +10,9 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
+import org.urm.engine.ServerSession;
+import org.urm.engine.ServerTransaction;
+import org.urm.engine.TransactionBase;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.engine.ServerDirectory;
 import org.urm.meta.engine.ServerSettings;

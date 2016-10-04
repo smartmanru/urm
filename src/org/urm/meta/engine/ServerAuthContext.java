@@ -2,7 +2,7 @@ package org.urm.meta.engine;
 
 import org.urm.action.ActionBase;
 import org.urm.common.PropertySet;
-import org.urm.engine.ServerObject;
+import org.urm.meta.ServerObject;
 
 public class ServerAuthContext extends ServerObject {
 

@@ -2,8 +2,8 @@ package org.urm.common;
 
 import org.urm.action.ActionBase;
 import org.urm.common.action.CommandVar.FLAG;
-import org.urm.engine.ServerObject;
 import org.urm.engine.ServerTransaction;
+import org.urm.meta.ServerObject;
 
 public abstract class PropertyController extends ServerObject {
 

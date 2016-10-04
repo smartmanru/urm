@@ -2,13 +2,13 @@ package org.urm.meta.engine;
 
 import org.urm.action.ActionBase;
 import org.urm.common.PropertySet;
-import org.urm.engine.ServerObject;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.vcs.GenericVCS;
 import org.urm.engine.vcs.MirrorStorage;
+import org.urm.meta.ServerObject;
 import org.urm.meta.product.MetaSourceProject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

@@ -1,4 +1,4 @@
-package org.urm.engine;
+package org.urm.meta;
 
 public class ServerRef<ItemType extends ServerObject> {
 	public ItemType value;

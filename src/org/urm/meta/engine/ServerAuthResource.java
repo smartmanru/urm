@@ -1,8 +1,8 @@
 package org.urm.meta.engine;
 
 import org.urm.common.PropertySet;
-import org.urm.engine.ServerObject;
 import org.urm.engine.ServerTransaction;
+import org.urm.meta.ServerObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

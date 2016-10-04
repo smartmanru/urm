@@ -9,10 +9,6 @@ public class _Error {
 	
 	public static final int MainExecutorExpected0 = ErrorBase + 1;
 	public static final int UnknownCommandExecutor1 = ErrorBase + 12;
-	public static final int UnknownSessionProduct1 = ErrorBase + 13;
-	public static final int UnusableProductMetadata1 = ErrorBase + 14;
-	public static final int MissingSecretProperties0 = ErrorBase + 15;
-	public static final int NoProductID = ErrorBase + 18;
 	public static final int TransactionAborted0 = ErrorBase + 22;
 	public static final int TransactionMissingResourceChanges0 = ErrorBase + 23;
 	public static final int TransactionMissingBuildersChanges0 = ErrorBase + 24;

@@ -27,6 +27,7 @@ public class RunError extends Exception {
 	public static int BaseActionMonitor = 206000;
 	public static int BaseActionRelease = 207000;
 	public static int BaseActionXDoc = 208000;
+	public static int BaseMetaCommon = 250000;
 	public static int BaseMetaEngine = 251000;
 	public static int BaseMetaProduct = 252000;
 	public static int BaseClient = 300000;
