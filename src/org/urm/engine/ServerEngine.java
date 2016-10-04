@@ -24,11 +24,11 @@ import org.urm.engine.executor.MainExecutor;
 import org.urm.engine.executor.MonitorCommandExecutor;
 import org.urm.engine.executor.ReleaseCommandExecutor;
 import org.urm.engine.executor.XDocCommandExecutor;
-import org.urm.engine.registry.ServerAuth;
 import org.urm.engine.shell.ShellCoreJNI;
 import org.urm.engine.shell.ShellPool;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
+import org.urm.meta.engine.ServerAuth;
 
 public class ServerEngine {
 

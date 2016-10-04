@@ -5,13 +5,13 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.meta.MainCommandMeta;
-import org.urm.engine.registry.ServerDirectory;
-import org.urm.engine.registry.ServerMirrorRepository;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.engine.vcs.GenericVCS;
 import org.urm.engine.vcs.SubversionVCS;
+import org.urm.meta.engine.ServerDirectory;
+import org.urm.meta.engine.ServerMirrorRepository;
 import org.urm.meta.product.Meta;
 
 public class ActionSave extends ActionBase {

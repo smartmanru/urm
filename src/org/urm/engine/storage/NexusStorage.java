@@ -2,7 +2,7 @@ package org.urm.engine.storage;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.registry.ServerAuthResource;
+import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaProductBuildSettings;

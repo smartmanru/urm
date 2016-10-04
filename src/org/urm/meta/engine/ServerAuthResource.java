@@ -1,4 +1,4 @@
-package org.urm.engine.registry;
+package org.urm.meta.engine;
 
 import org.urm.common.PropertySet;
 import org.urm.engine.ServerObject;

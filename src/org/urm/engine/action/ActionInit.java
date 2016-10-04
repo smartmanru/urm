@@ -9,15 +9,15 @@ import org.urm.engine.ServerProductMeta;
 import org.urm.engine.ServerSettings;
 import org.urm.engine.ServerSession;
 import org.urm.engine.TransactionBase;
-import org.urm.engine.registry.ServerBuilders;
-import org.urm.engine.registry.ServerDirectory;
-import org.urm.engine.registry.ServerMirrors;
-import org.urm.engine.registry.ServerProduct;
-import org.urm.engine.registry.ServerRegistry;
-import org.urm.engine.registry.ServerResources;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
+import org.urm.meta.engine.ServerBuilders;
+import org.urm.meta.engine.ServerDirectory;
+import org.urm.meta.engine.ServerMirrors;
+import org.urm.meta.engine.ServerProduct;
+import org.urm.meta.engine.ServerRegistry;
+import org.urm.meta.engine.ServerResources;
 import org.urm.meta.product.Meta;
 
 public class ActionInit extends ActionBase {

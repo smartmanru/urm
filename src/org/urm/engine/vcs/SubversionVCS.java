@@ -5,11 +5,11 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.registry.ServerAuthResource;
-import org.urm.engine.registry.ServerMirrorRepository;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
+import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.ServerMirrorRepository;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;

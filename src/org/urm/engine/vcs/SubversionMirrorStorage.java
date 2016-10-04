@@ -4,8 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.common.Common;
-import org.urm.engine.registry.ServerMirrorRepository;
 import org.urm.engine.storage.LocalFolder;
+import org.urm.meta.engine.ServerMirrorRepository;
 
 public class SubversionMirrorStorage extends MirrorStorage {
 

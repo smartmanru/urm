@@ -2,7 +2,6 @@ package org.urm.action.build;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.registry.ServerAuthResource;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
@@ -10,6 +9,7 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.vcs.ProjectVersionControl;
+import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;

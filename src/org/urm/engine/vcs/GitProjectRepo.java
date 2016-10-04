@@ -1,8 +1,8 @@
 package org.urm.engine.vcs;
 
 import org.urm.common.Common;
-import org.urm.engine.registry.ServerMirrorRepository;
 import org.urm.engine.storage.LocalFolder;
+import org.urm.meta.engine.ServerMirrorRepository;
 import org.urm.meta.product.MetaSourceProject;
 
 public class GitProjectRepo extends GitMirrorStorage {

@@ -8,7 +8,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
 import org.urm.engine.custom.CommandCustom;
-import org.urm.engine.registry.ServerAuthResource;
+import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.product.Meta.VarCATEGORY;
 import org.urm.meta.product.Meta.VarNAMETYPE;
 import org.w3c.dom.Node;

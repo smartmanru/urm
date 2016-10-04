@@ -20,9 +20,9 @@ import org.urm.action.ActionBase;
 import org.urm.common.action.CommandMeta;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.SessionController;
-import org.urm.engine.registry.ServerDirectory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
+import org.urm.meta.engine.ServerDirectory;
 
 import com.sun.jdmk.comm.HtmlAdaptorServer;
 

@@ -3,8 +3,8 @@ package org.urm.engine.storage;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.engine.registry.ServerDirectory;
-import org.urm.engine.registry.ServerProduct;
+import org.urm.meta.engine.ServerDirectory;
+import org.urm.meta.engine.ServerProduct;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.Meta.VarDBMSTYPE;
 
