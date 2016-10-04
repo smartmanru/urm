@@ -14,6 +14,7 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.engine.ServerDirectory;
+import org.urm.meta.engine.ServerInfrastructure;
 import org.urm.meta.engine.ServerProduct;
 import org.urm.meta.engine.ServerRegistry;
 import org.urm.meta.engine.ServerResources;
@@ -34,6 +35,7 @@ public class ServerLoader {
 	
 	private ServerRegistry registry;
 	private ServerSettings settings;
+	private ServerInfrastructure infra;
 	private ServerProductMeta offline;
 	private Map<String,ServerProductMeta> productMeta;
 	
@@ -41,12 +43,14 @@ public class ServerLoader {
 		this.engine = engine;
 		
 		registry = new ServerRegistry( this ); 
-		settings = new ServerSettings( this ); 
+		settings = new ServerSettings( this );
+		infra = new ServerInfrastructure( this ); 
 		productMeta = new HashMap<String,ServerProductMeta>();
 	}
 	
 	public void init() throws Exception {
 		loadRegistry();
+		loadInfrastructure();
 		if( !engine.execrc.isStandalone() )
 			loadServerSettings();
 	}
@@ -54,6 +58,7 @@ public class ServerLoader {
 	public void reload() throws Exception {
 		registry = new ServerRegistry( this ); 
 		settings = new ServerSettings( this );
+		infra = new ServerInfrastructure( this ); 
 		init();
 	}
 	
@@ -70,6 +75,17 @@ public class ServerLoader {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , set.meta );
 		LocalFolder folder = storageMeta.getHomeFolder( action );
 		return( folder );
+	}
+
+	private String getServerInfrastructureFile() throws Exception {
+		String path = Common.getPath( engine.execrc.installPath , "etc" );
+		String propertyFile = Common.getPath( path , "networks.xml" );
+		return( propertyFile );
+	}
+
+	private void loadInfrastructure() throws Exception {
+		String infraFile = getServerInfrastructureFile();
+		infra.load( infraFile , engine.execrc );
 	}
 
 	private String getServerRegistryFile() throws Exception {
@@ -219,7 +235,6 @@ public class ServerLoader {
 
 	public void loadServerProducts( ActionInit action ) {
 		for( String name : registry.directory.getProducts() ) {
-			
 			ServerProductMeta set = new ServerProductMeta( this , name , action.session );
 			set.setPrimary( true );
 			productMeta.put( name , set );

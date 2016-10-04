@@ -90,7 +90,6 @@ public class ServerMirrors extends ServerObject {
 		for( Node node : list ) {
 			ServerMirrorRepository repo = new ServerMirrorRepository( this );
 			repo.load( node );
-
 			addRepository( repo );
 		}
 	}
