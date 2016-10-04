@@ -357,6 +357,9 @@ public class ServerEngine {
 	}
 
 	public ServerTransaction createTransaction( ActionInit action ) {
+		if( action == null )
+			return( null );
+		
 		ServerTransaction transaction = new ServerTransaction( this , action );
 		return( transaction );
 	}
