@@ -7,7 +7,6 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext;
-import org.urm.engine.ServerContext;
 import org.urm.engine.ServerLoader;
 import org.urm.engine.ServerObject;
 import org.urm.engine.ServerTransaction;
