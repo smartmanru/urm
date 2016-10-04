@@ -6,7 +6,6 @@ import org.urm.common.Common;
 import org.urm.engine.ServerContext;
 import org.urm.engine.ServerLoader;
 import org.urm.engine.ServerProductMeta;
-import org.urm.engine.ServerSettings;
 import org.urm.engine.ServerSession;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.storage.Artefactory;
@@ -18,6 +17,7 @@ import org.urm.meta.engine.ServerMirrors;
 import org.urm.meta.engine.ServerProduct;
 import org.urm.meta.engine.ServerRegistry;
 import org.urm.meta.engine.ServerResources;
+import org.urm.meta.engine.ServerSettings;
 import org.urm.meta.product.Meta;
 
 public class ActionInit extends ActionBase {

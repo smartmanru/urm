@@ -1,4 +1,4 @@
-package org.urm.engine;
+package org.urm.meta.engine;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,6 +7,10 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext;
+import org.urm.engine.ServerContext;
+import org.urm.engine.ServerLoader;
+import org.urm.engine.ServerObject;
+import org.urm.engine.ServerTransaction;
 import org.urm.meta.product.Meta.VarBUILDMODE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

@@ -15,7 +15,6 @@ public class RunError extends Exception {
 	public static int BaseEngineCustom = 112000;
 	public static int BaseEngineDist = 113000;
 	public static int BaseEngineExecutor = 114000;
-	public static int BaseEngineMeta = 115000;
 	public static int BaseEngineShell = 116000;
 	public static int BaseEngineStorage = 117000;
 	public static int BaseEngineVCS = 118000;
@@ -28,6 +27,8 @@ public class RunError extends Exception {
 	public static int BaseActionMonitor = 206000;
 	public static int BaseActionRelease = 207000;
 	public static int BaseActionXDoc = 208000;
+	public static int BaseMetaEngine = 251000;
+	public static int BaseMetaProduct = 252000;
 	public static int BaseClient = 300000;
 	public static int BasePlugin = 800000;
 	

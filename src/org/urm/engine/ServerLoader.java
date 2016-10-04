@@ -14,6 +14,7 @@ import org.urm.meta.engine.ServerDirectory;
 import org.urm.meta.engine.ServerProduct;
 import org.urm.meta.engine.ServerRegistry;
 import org.urm.meta.engine.ServerResources;
+import org.urm.meta.engine.ServerSettings;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDesign;

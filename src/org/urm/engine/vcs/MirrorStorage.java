@@ -1,11 +1,11 @@
 package org.urm.engine.vcs;
 
 import org.urm.action.ActionBase;
-import org.urm.engine.ServerSettings;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.ServerMirrorRepository;
+import org.urm.meta.engine.ServerSettings;
 import org.urm.meta.product.MetaProductSettings;
 
 public abstract class MirrorStorage {

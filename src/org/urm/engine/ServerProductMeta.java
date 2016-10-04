@@ -12,6 +12,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.engine.ServerDirectory;
+import org.urm.meta.engine.ServerSettings;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDesign;

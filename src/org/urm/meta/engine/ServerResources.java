@@ -8,7 +8,6 @@ import org.urm.common.ConfReader;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.ServerObject;
 import org.urm.engine.ServerTransaction;
-import org.urm.engine._Error;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

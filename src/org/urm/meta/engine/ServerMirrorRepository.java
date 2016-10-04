@@ -4,7 +4,6 @@ import org.urm.action.ActionBase;
 import org.urm.common.PropertySet;
 import org.urm.engine.ServerObject;
 import org.urm.engine.ServerTransaction;
-import org.urm.engine._Error;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
