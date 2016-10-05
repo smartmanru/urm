@@ -95,5 +95,16 @@ public class ServerNetworkHost extends ServerObject {
 		this.ID = ( HOSTNAME.isEmpty() )? IP : HOSTNAME;
 		this.IP = IP;
 	}
-	
+
+	public String[] getAccounts() {
+		return( Common.getSortedKeys( accountMap ) );
+	}
+
+	public ServerHostAccount findAccount( String accountUser ) {
+		for( ServerHostAccount account : accountMap.values() ) {
+			if( account.ID.equals( accountUser ) )
+				return( account );
+		}
+		return( null );
+	}
 }
