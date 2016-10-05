@@ -121,5 +121,12 @@ public class Account {
 			return( Common.getLinuxPath( path ) );
 		return( Common.getWinPath( path ) );
 	}
+
+	public boolean isHostName() {
+		String first = HOST.substring( 0 , 1 );
+		if( first.matches( "[0-9]" ) )
+			return( true );
+		return( false );
+	}
 	
 }

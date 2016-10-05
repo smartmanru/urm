@@ -293,6 +293,11 @@ public class ServerLoader {
 		saveRegistry( transaction );
 	}
 
+	public void saveInfrastructure( TransactionBase transaction ) throws Exception {
+		String propertyFile = getServerInfrastructureFile();
+		infra.save( transaction.getAction() , propertyFile , engine.execrc );
+	}
+
 	public ServerSettings getServerSettings( ActionInit action ) {
 		synchronized( engine ) {
 			return( settings );
@@ -302,6 +307,12 @@ public class ServerLoader {
 	public ServerRegistry getRegistry() {
 		synchronized( engine ) {
 			return( registry );
+		}
+	}
+
+	public ServerInfrastructure getInfrastructure() {
+		synchronized( engine ) {
+			return( infra );
 		}
 	}
 

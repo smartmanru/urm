@@ -13,6 +13,7 @@ import org.urm.meta.ServerProductMeta;
 import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.engine.ServerContext;
 import org.urm.meta.engine.ServerDirectory;
+import org.urm.meta.engine.ServerInfrastructure;
 import org.urm.meta.engine.ServerMirrors;
 import org.urm.meta.engine.ServerProduct;
 import org.urm.meta.engine.ServerRegistry;
@@ -86,6 +87,10 @@ public class ActionInit extends ActionBase {
 		return( registry.mirrors );
 	}
 	
+	public void saveInfrastructure( TransactionBase transaction ) throws Exception {
+		loader.saveInfrastructure( transaction );
+	}
+	
 	public void saveMirrors( TransactionBase transaction ) throws Exception {
 		loader.saveMirrors( transaction );
 	}
@@ -126,6 +131,10 @@ public class ActionInit extends ActionBase {
 		
 		ServerRegistry registry = loader.getRegistry();
 		return( registry.directory );
+	}
+	
+	public ServerInfrastructure getActiveInfrastructure() {
+		return( loader.getInfrastructure() );
 	}
 	
 	public void setDirectory( TransactionBase transaction , ServerDirectory directory ) throws Exception {

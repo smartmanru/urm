@@ -1,10 +1,16 @@
 package org.urm.meta.engine;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.engine.ServerTransaction;
 import org.urm.meta.ServerObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -15,7 +21,8 @@ public class ServerNetwork extends ServerObject {
 	ServerInfrastructure infra;
 	
 	public String ID;
-	public String NAME;
+	public String MASK;
+	public String DESC;
 	
 	private Map<String,ServerNetworkHost> hostMap;
 	
@@ -39,7 +46,8 @@ public class ServerNetwork extends ServerObject {
 			return;
 		
 		ID = ConfReader.getAttrValue( root , "id" );
-		NAME = ConfReader.getAttrValue( root , "name" );
+		MASK = ConfReader.getAttrValue( root , "mask" );
+		DESC = ConfReader.getAttrValue( root , "desc" );
 		
 		Node[] list = ConfReader.xmlGetChildren( root , "host" );
 		if( list == null )
@@ -58,7 +66,8 @@ public class ServerNetwork extends ServerObject {
 	
 	public void save( Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , "id" , ID );
-		Common.xmlSetElementAttr( doc , root , "name" , NAME );
+		Common.xmlSetElementAttr( doc , root , "mask" , MASK );
+		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
 		
 		for( ServerNetworkHost host : hostMap.values() ) {
 			Element element = Common.xmlCreateElement( doc , root , "host" );
@@ -66,4 +75,88 @@ public class ServerNetwork extends ServerObject {
 		}
 	}
 
+	public ServerNetworkHost findHost( String id ) {
+		return( hostMap.get( id ) );
+	}
+	
+	public String[] getHosts() {
+		return( Common.getSortedKeys( hostMap ) );
+	}
+	
+	public void createNetwork( ServerTransaction transaction  , String ID , String MASK , String DESC ) throws Exception {
+		this.ID = ID;
+		this.MASK = MASK;
+		this.DESC = DESC;
+	}
+
+	public String[] getFinalAccounts() {
+		List<String> list = new LinkedList<String>();
+		for( ServerNetworkHost host : hostMap.values() ) {
+			String[] accounts = host.getFinalAccounts();
+			for( String account : accounts )
+				list.add( account );
+		}
+		return( Common.getSortedList( list ) );
+	}
+
+	public boolean checkIpIn( String ip ) {
+		return( netMatch( MASK , ip ) ); 
+	}
+	
+	public static boolean netMatch( String subnet , String ipTest ) {
+		// http://stackoverflow.com/questions/4209760/validate-an-ip-address-with-mask
+        String[] parts = Common.split( subnet , "/" );
+        String ip = parts[0];
+        int prefix;
+
+        if( parts.length < 2 ) {
+            prefix = 0;
+        } else {
+            prefix = Integer.parseInt( parts[1] );
+        }
+
+        Inet4Address a = null;
+        Inet4Address a1 = null;
+        try {
+            a = ( Inet4Address )InetAddress.getByName( ip );
+            a1 = ( Inet4Address )InetAddress.getByName( ipTest );
+        }
+        catch ( UnknownHostException e ) {
+        }
+
+        byte[] b = a.getAddress();
+        int ipInt = ((b[0] & 0xFF) << 24) |
+                         ((b[1] & 0xFF) << 16) |
+                         ((b[2] & 0xFF) << 8)  |
+                         ((b[3] & 0xFF) << 0);
+
+        byte[] b1 = a1.getAddress();
+        int ipInt1 = ((b1[0] & 0xFF) << 24) |
+                         ((b1[1] & 0xFF) << 16) |
+                         ((b1[2] & 0xFF) << 8)  |
+                         ((b1[3] & 0xFF) << 0);
+
+        int mask = ~((1 << (32 - prefix)) - 1);
+
+        if ((ipInt & mask) == (ipInt1 & mask)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+	}
+	
+	public void modify( ServerTransaction transaction , String MASK , String DESC ) {
+		this.MASK = MASK;
+		this.DESC = DESC;
+	}
+
+	public void createHost( ServerTransaction transaction , ServerNetworkHost host ) {
+		addNetworkHost( host );
+	}
+	
+	public void deleteHost( ServerTransaction transaction , ServerNetworkHost host ) {
+		hostMap.remove( host.ID );
+	}
+	
 }

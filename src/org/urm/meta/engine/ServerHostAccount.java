@@ -42,4 +42,7 @@ public class ServerHostAccount extends ServerObject {
 		Common.xmlSetElementAttr( doc , root , "authkey" , AUTHKEY );
 	}
 
+	public String getFinalAccount() {
+		return( ID + "@" + host.ID );
+	}
 }

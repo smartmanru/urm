@@ -7,6 +7,7 @@ import org.urm.meta.ServerProductMeta;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.engine.ServerDirectory;
+import org.urm.meta.engine.ServerInfrastructure;
 import org.urm.meta.engine.ServerProduct;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.engine.ServerResources;
@@ -22,6 +23,8 @@ public class TransactionBase extends ServerObject {
 	public ServerEngine engine;
 	public ActionInit action;
 	public RunError error;
+	
+	public ServerInfrastructure infra;
 	
 	public ServerSettings settings;
 	public ServerResources resources;
@@ -52,6 +55,7 @@ public class TransactionBase extends ServerObject {
 		createMetadata = false;
 		deleteMetadata = false;
 		sessionMeta = null;
+		infra = null;
 		engine.serverAction.trace( "transaction created id=" + objectId );
 	}
 	
@@ -74,6 +78,7 @@ public class TransactionBase extends ServerObject {
 			createMetadata = false;
 			deleteMetadata = false;
 			sessionMeta = null;
+			infra = null;
 			return( true );
 		}
 	}
@@ -170,6 +175,8 @@ public class TransactionBase extends ServerObject {
 				res = saveSettings();
 			if( res )
 				res = saveMetadata();
+			if( res )
+				res = saveInfrastructure();
 			
 			if( res ) {
 				if( !engine.commitTransaction( this ) )
@@ -290,6 +297,51 @@ public class TransactionBase extends ServerObject {
 		return( sessionMeta );
 	}
 	
+	public ServerInfrastructure getTransactionInfrastructure() {
+		return( infra );
+	}
+	
+	public boolean changeInfrastructure( ServerInfrastructure sourceInfrastructure ) {
+		synchronized( engine ) {
+			try {
+				if( !continueTransaction() )
+					return( false );
+					
+				if( infra != null )
+					return( true );
+				
+				infra = sourceInfrastructure;
+				return( true );
+			}
+			catch( Throwable e ) {
+				handle( e , "unable to change infrastructure" );
+			}
+			
+			abortTransaction( false );
+			return( false );
+		}
+	}
+
+	private boolean saveInfrastructure() {
+		if( !continueTransaction() )
+			return( false );
+		
+		if( infra == null )
+			return( true );
+		
+		try {
+			action.saveInfrastructure( this );
+			trace( "transaction server infrastructure: save done" );
+			return( true );
+		}
+		catch( Throwable e ) {
+			handle( e , "unable to save settings" );
+		}
+
+		abortTransaction( true );
+		return( false );
+	}
+
 	public boolean changeResources( ServerResources sourceResources ) {
 		synchronized( engine ) {
 			try {
@@ -586,6 +638,12 @@ public class TransactionBase extends ServerObject {
 	private void checkTransaction() throws Exception {
 		if( !continueTransaction() )
 			exit( _Error.TransactionAborted0 , "Transaction is aborted" , null );
+	}
+
+	protected void checkTransactionInfrastructure() throws Exception {
+		checkTransaction();
+		if( infra == null )
+			exit( _Error.TransactionMissingInfrastructureChanges0 , "Missing infrastructure changes" , null );
 	}
 
 	protected void checkTransactionResources() throws Exception {

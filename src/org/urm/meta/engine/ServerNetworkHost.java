@@ -1,11 +1,14 @@
 package org.urm.meta.engine;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.engine.ServerTransaction;
 import org.urm.meta.ServerObject;
 import org.urm.meta.product.Meta;
 import org.w3c.dom.Document;
@@ -14,15 +17,16 @@ import org.w3c.dom.Node;
 
 public class ServerNetworkHost extends ServerObject {
 
-	ServerNetwork network;
+	public ServerNetwork network;
 	Map<String,ServerHostAccount> accountMap;
 
-	String ID;
-	String IP;
-	VarOSTYPE osType;
+	public String ID;
+	public String IP;
+	public VarOSTYPE osType;
 	
 	public ServerNetworkHost( ServerNetwork network ) {
 		super( network );
+		this.network = network;
 		accountMap = new HashMap<String,ServerHostAccount>();
 	}
 	
@@ -71,4 +75,25 @@ public class ServerNetworkHost extends ServerObject {
 		}
 	}
 
+	public String[] getFinalAccounts() {
+		List<String> list = new LinkedList<String>();
+		for( ServerHostAccount account : accountMap.values() ) {
+			String item = account.getFinalAccount();
+			list.add( item );
+		}
+		return( Common.getSortedList( list ) );
+	}
+
+	public void createHost( ServerTransaction transaction  , VarOSTYPE osType , String HOSTNAME , String IP ) throws Exception {
+		this.osType = osType;
+		this.ID = ( HOSTNAME.isEmpty() )? IP : HOSTNAME;
+		this.IP = IP;
+	}
+	
+	public void modifyHost( ServerTransaction transaction  , VarOSTYPE osType , String HOSTNAME , String IP ) throws Exception {
+		this.osType = osType;
+		this.ID = ( HOSTNAME.isEmpty() )? IP : HOSTNAME;
+		this.IP = IP;
+	}
+	
 }

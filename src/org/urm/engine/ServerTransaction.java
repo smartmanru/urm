@@ -6,6 +6,8 @@ import org.urm.engine.action.ActionInit;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerMirrorRepository;
 import org.urm.meta.engine.ServerMirrors;
+import org.urm.meta.engine.ServerNetwork;
+import org.urm.meta.engine.ServerNetworkHost;
 import org.urm.meta.engine.ServerProduct;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.engine.ServerSystem;
@@ -261,4 +263,33 @@ public class ServerTransaction extends TransactionBase {
 		node.deleteObject();
 	}
 
+	public void createNetwork( ServerNetwork network ) throws Exception {
+		checkTransactionInfrastructure();
+		infra.createNetwork( this , network );
+		action.saveInfrastructure( this );
+	}
+
+	public void deleteNetwork( ServerNetwork network , boolean deleteDerefFlag ) throws Exception {
+		checkTransactionInfrastructure();
+		infra.deleteNetwork( this , network );
+		network.deleteObject();
+	}
+
+	public void modifyNetwork( ServerNetwork network ) throws Exception {
+		checkTransactionInfrastructure();
+		action.saveInfrastructure( this );
+	}
+
+	public void createNetworkHost( ServerNetworkHost host ) throws Exception {
+		checkTransactionInfrastructure();
+		host.network.createHost( this , host );
+		action.saveInfrastructure( this );
+	}
+	
+	public void deleteNetworkHost( ServerNetworkHost host ) throws Exception {
+		checkTransactionInfrastructure();
+		host.network.deleteHost( this , host );
+		action.saveInfrastructure( this );
+	}
+	
 }
