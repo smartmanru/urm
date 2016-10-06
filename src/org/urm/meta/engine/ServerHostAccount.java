@@ -10,7 +10,7 @@ import org.w3c.dom.Node;
 
 public class ServerHostAccount extends ServerObject {
 
-	ServerNetworkHost host;
+	public ServerNetworkHost host;
 
 	public String ID;
 	public boolean isAdmin;
@@ -19,6 +19,9 @@ public class ServerHostAccount extends ServerObject {
 	
 	public ServerHostAccount( ServerNetworkHost host ) {
 		super( host );
+		this.host = host;
+		isAdmin = false;
+		keyAccess = false;
 	}
 	
 	public ServerHostAccount copy( ServerNetworkHost rh ) throws Exception {

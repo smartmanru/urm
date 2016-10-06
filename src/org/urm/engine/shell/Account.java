@@ -1,5 +1,8 @@
 package org.urm.engine.shell;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
@@ -12,6 +15,7 @@ public class Account {
 	
 	public String USER;
 	public String HOST;
+	public String IP;
 	public int PORT;
 	public VarOSTYPE osType;
 
@@ -22,6 +26,7 @@ public class Account {
 		USER = "current";
 		HOST = "localhost";
 		PORT = 0;
+		IP = "";
 		
 		osType = execrc.osType;
 	}
@@ -32,10 +37,7 @@ public class Account {
 		this.PORT = 22;
 		this.local = local;
 		this.osType = osType;
-	}
-	
-	public static Account getLocalAccount( String user , String host , VarOSTYPE osType ) {
-		return( new Account( user , host , true , osType ) );
+		IP = "";
 	}
 	
 	private Account( String user , String host , int port , VarOSTYPE osType ) {
@@ -43,6 +45,11 @@ public class Account {
 		this.HOST = host;
 		this.PORT = port;
 		this.osType = osType;
+		IP = "";
+	}
+	
+	public static Account getLocalAccount( String user , String host , VarOSTYPE osType ) {
+		return( new Account( user , host , true , osType ) );
 	}
 	
 	public boolean isWindows() {
@@ -86,6 +93,80 @@ public class Account {
 		return( getAccount( action , user , host , port , osType ) );
 	}
 
+	public static Account getAnyAccount( String hostLogin ) {
+		String user = Common.getPartBeforeFirst( hostLogin , "@" );
+		String host = Common.getPartAfterLast( hostLogin , "@" );
+		return( new Account( user , host , 0 , VarOSTYPE.UNKNOWN ) );
+	}
+
+	public static Account getAnyAccount( String user , String host ) {
+		return( new Account( user , host , 0 , VarOSTYPE.UNKNOWN ) );
+	}
+
+	public static boolean isCorrectNetworkMask( String mask ) {
+		if( mask == null || mask.isEmpty() )
+			return( false );
+		
+		String[] parts = Common.split( mask , "/" );
+		if( parts.length != 2 )
+			return( false );
+		
+		if( !checkNumber( parts[1] , 0 , 32 ) )
+			return( false );
+		
+		if( !isCorrectIP( parts[0] ) )
+			return( false );
+		
+		return( true );
+	}
+
+	public static boolean isCorrectAccount( String hostLogin ) {
+		if( hostLogin == null || hostLogin.isEmpty() )
+			return( false );
+		
+		String[] parts = Common.split( hostLogin , "@" );
+		if( parts.length != 2 )
+			return( false );
+		
+		String[] parts2 = Common.split( parts[1] , ":" );
+		if( parts2.length != 1 && parts2.length != 2 )
+			return( false );
+		
+		if( !parts[0].matches( "[.0-9_A-Za-z]+" ) )
+			return( false );
+		
+		if( parts2[0].substring( 0 , 1 ).matches( "[0-9]" ) ) {
+			if( !isCorrectIP( parts2[0] ) )
+				return( false );
+		}
+		else {
+			if( !parts2[0].matches( "[.0-9_A-Za-z]+" ) )
+				return( false );
+		}
+		return( true );
+	}
+
+	public static boolean isCorrectIP( String IP ) {
+		String[] parts = Common.splitDotted( IP );
+		if( parts.length != 4 )
+			return( false );
+		if( checkNumber( parts[0] , 0 , 255 ) && checkNumber( parts[1] , 0 , 255 ) && checkNumber( parts[2] , 0 , 255 ) && checkNumber( parts[3] , 0 , 255 ) )
+			return( true );
+		return( false );
+	}
+	
+	public static boolean checkNumber( String value , int minv , int maxv ) {
+		try {
+			int res = Integer.parseInt( value );
+			if( res < minv || res > maxv )
+				return( false );
+		}
+		catch( Throwable e ) {
+			return( false );
+		}
+		return( true );
+	}
+	
 	public String getFullName() {
 		String name = USER + "@" + HOST; 
 		if( PORT != 22 )
@@ -124,9 +205,28 @@ public class Account {
 
 	public boolean isHostName() {
 		String first = HOST.substring( 0 , 1 );
-		if( first.matches( "[0-9]" ) )
-			return( true );
-		return( false );
+		if( first.matches( "[.0-9]+" ) )
+			return( false );
+		return( true );
+	}
+
+	public String getIP() {
+		if( !IP.isEmpty() )
+			return( IP );
+		
+		if( !isHostName() )
+			return( HOST );
+		
+		try {
+			InetAddress address = Inet4Address.getByName( HOST );
+			IP = address.getHostAddress();
+			if( IP == null )
+				IP = "";
+			return( IP );
+		}
+		catch( Throwable e ) {
+		}
+		return( "" );
 	}
 	
 }

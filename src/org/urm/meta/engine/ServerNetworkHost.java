@@ -4,11 +4,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.ServerTransaction;
+import org.urm.engine.shell.Account;
 import org.urm.meta.ServerObject;
 import org.urm.meta.product.Meta;
 import org.w3c.dom.Document;
@@ -107,4 +109,61 @@ public class ServerNetworkHost extends ServerObject {
 		}
 		return( null );
 	}
+	
+	public void createAccount( ServerTransaction transaction , ServerHostAccount account ) throws Exception {
+		addHostAccount( account );
+	}
+	
+	public void deleteAccount( ServerTransaction transaction , ServerHostAccount account ) throws Exception {
+		addHostAccount( account );
+	}
+	
+	public void modifyAccount( ServerTransaction transaction , ServerHostAccount account ) {
+		String oldId = null;
+		for( Entry<String,ServerHostAccount> entry : accountMap.entrySet() ) {
+			if( entry.getValue() == account ) {
+				oldId = entry.getKey();
+			}
+		}
+		accountMap.remove( oldId );
+		addHostAccount( account );
+	}
+
+	public boolean isEqualsHost( String host ) {
+		if( host.equals( ID ) )
+			return( true );
+		if( host.equals( IP ) )
+			return( true );
+		return( false );
+	}
+	
+	public ServerHostAccount findFinalAccount( String finalAccount ) {
+		if( finalAccount.isEmpty() )
+			return( null );
+		
+		Account account = Account.getAnyAccount( finalAccount );
+		if( !isEqualsHost( account.HOST ) )
+			return( null );
+		
+		return( findAccount( account.USER ) );
+	}
+
+	public boolean isEqualsHost( Account account ) {
+		if( isEqualsHost( account.HOST ) || isEqualsHost( account.IP ) )
+			return( true );
+		return( false );
+	}
+
+	public ServerHostAccount createAccount( ServerTransaction transaction , Account hostAccount ) throws Exception {
+		ServerHostAccount account = findAccount( hostAccount.USER );
+		if( account != null )
+			return( account );
+				
+		account = new ServerHostAccount( this );
+		boolean isAdmin = ( hostAccount.isLinux() && hostAccount.USER.equals( "root" ) )? true : false;
+		account.createAccount( transaction , hostAccount.USER , isAdmin );
+		createAccount( transaction , account );
+		return( account );
+	}
+	
 }

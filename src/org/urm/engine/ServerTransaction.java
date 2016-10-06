@@ -3,7 +3,9 @@ package org.urm.engine;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.ActionInit;
+import org.urm.engine.shell.Account;
 import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.ServerHostAccount;
 import org.urm.meta.engine.ServerMirrorRepository;
 import org.urm.meta.engine.ServerMirrors;
 import org.urm.meta.engine.ServerNetwork;
@@ -244,7 +246,7 @@ public class ServerTransaction extends TransactionBase {
 		server.updateProperties( this );
 	}
 
-	public MetaEnvServerNode createMetaEnvServerNode( MetaEnvServer server , int pos , VarNODETYPE nodeType , String account ) throws Exception {
+	public MetaEnvServerNode createMetaEnvServerNode( MetaEnvServer server , int pos , VarNODETYPE nodeType , Account account ) throws Exception {
 		checkTransactionMetadata( server.meta.getStorage( action ) );
 		MetaEnvServerNode node = new MetaEnvServerNode( getMeta() , server , pos );
 		node.createNode( action , nodeType , account );
@@ -252,11 +254,17 @@ public class ServerTransaction extends TransactionBase {
 		return( node );
 	}
 	
-	public void updateMetaEnvServerNode( MetaEnvServerNode node ) throws Exception {
+	public void modifyMetaEnvServerNode( MetaEnvServerNode node , int pos , VarNODETYPE nodeType , Account account ) throws Exception {
 		checkTransactionMetadata( node.meta.getStorage( action ) );
 		node.updateProperties( this );
+		node.modifyNode( action , pos , nodeType , account );
+		node.server.modifyNode( this , node );
 	}
 
+	public void updateMetaEnvServerNodeSetOffline( MetaEnvServerNode node , boolean newStatus ) throws Exception {
+		node.setOffline( this , newStatus );
+	}
+	
 	public void deleteMetaEnvServerNode( MetaEnvServerNode node ) throws Exception {
 		checkTransactionMetadata( node.meta.getStorage( action ) );
 		node.server.deleteNode( this , node );
@@ -286,9 +294,40 @@ public class ServerTransaction extends TransactionBase {
 		action.saveInfrastructure( this );
 	}
 	
+	public void modifyNetworkHost( ServerNetworkHost host , boolean renameReferences ) throws Exception {
+		checkTransactionInfrastructure();
+		host.network.modifyHost( this , host );
+		action.saveInfrastructure( this );
+	}
+	
 	public void deleteNetworkHost( ServerNetworkHost host ) throws Exception {
 		checkTransactionInfrastructure();
 		host.network.deleteHost( this , host );
+		action.saveInfrastructure( this );
+	}
+	
+	public void createHostAccount( ServerHostAccount account ) throws Exception {
+		checkTransactionInfrastructure();
+		account.host.createAccount( this , account );
+		action.saveInfrastructure( this );
+	}
+	
+	public void createHostAccount( ServerNetwork network , Account account ) throws Exception {
+		checkTransactionInfrastructure();
+		ServerNetworkHost host = network.createHost( this , account ); 
+		host.createAccount( this , account );
+		action.saveInfrastructure( this );
+	}
+	
+	public void modifyHostAccount( ServerHostAccount account , boolean renameReferences ) throws Exception {
+		checkTransactionInfrastructure();
+		account.host.modifyAccount( this , account );
+		action.saveInfrastructure( this );
+	}
+	
+	public void deleteHostAccount( ServerHostAccount account ) throws Exception {
+		checkTransactionInfrastructure();
+		account.host.deleteAccount( this , account );
 		action.saveInfrastructure( this );
 	}
 	

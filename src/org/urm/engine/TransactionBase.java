@@ -17,6 +17,7 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvDC;
 import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
 
 public class TransactionBase extends ServerObject {
 
@@ -735,6 +736,11 @@ public class TransactionBase extends ServerObject {
 	public MetaEnvServer getMetaEnvServer( MetaEnvServer server ) throws Exception {
 		MetaEnvDC dc = getMetaEnvDC( server.dc );
 		return( dc.findServer( server.NAME ) );
+	}
+
+	public MetaEnvServerNode getMetaEnvServerNode( MetaEnvServerNode node ) throws Exception {
+		MetaEnvServer server = getMetaEnvServer( node.server );
+		return( server.getNode( action , node.POS ) );
 	}
 
 }

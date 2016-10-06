@@ -7,10 +7,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerTransaction;
+import org.urm.engine.shell.Account;
 import org.urm.meta.ServerObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -99,6 +101,15 @@ public class ServerNetwork extends ServerObject {
 		return( Common.getSortedList( list ) );
 	}
 
+	public ServerHostAccount findFinalAccount( String finalAccount ) {
+		for( ServerNetworkHost host : hostMap.values() ) {
+			ServerHostAccount account = host.findFinalAccount( finalAccount );
+			if( account != null )
+				return( account );
+		}
+		return( null );
+	}
+	
 	public boolean checkIpIn( String ip ) {
 		return( netMatch( MASK , ip ) ); 
 	}
@@ -157,6 +168,29 @@ public class ServerNetwork extends ServerObject {
 	
 	public void deleteHost( ServerTransaction transaction , ServerNetworkHost host ) {
 		hostMap.remove( host.ID );
+	}
+	
+	public void modifyHost( ServerTransaction transaction , ServerNetworkHost host ) {
+		String oldId = null;
+		for( Entry<String,ServerNetworkHost> entry : hostMap.entrySet() ) {
+			if( entry.getValue() == host ) {
+				oldId = entry.getKey();
+			}
+		}
+		hostMap.remove( oldId );
+		addNetworkHost( host );
+	}
+
+	public ServerNetworkHost createHost( ServerTransaction transaction , Account account ) throws Exception {
+		for( ServerNetworkHost host : hostMap.values() ) {
+			if( host.isEqualsHost( account ) )
+				return( host );
+		}
+
+		ServerNetworkHost host = new ServerNetworkHost( this );
+		host.createHost( transaction , account.osType , account.HOST , account.IP );
+		createHost( transaction , host );
+		return( host );
 	}
 	
 }

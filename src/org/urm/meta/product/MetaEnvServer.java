@@ -284,14 +284,6 @@ public class MetaEnvServer extends PropertyController {
 	}
 	
 	public void resolveLinks( ActionBase action ) throws Exception {
-		// check props
-		if( ROOTPATH == null || ROOTPATH.isEmpty() ) {
-			if( deployments != null && !deployments.isEmpty() )
-				action.exit1( _Error.RootpathEmptyRequiredForDeployments1 , "rootpath is empty, required for deployments server=" + NAME , NAME );
-			if( isGeneric( action ) )
-				action.exit1( _Error.RootpathEmptyRequiredForGeneric1 , "rootpath is empty, required for generic server=" + NAME , NAME );
-		}
-		
 		if( NLBSERVER != null && !NLBSERVER.isEmpty() )
 			nlbServer = dc.getServer( action , NLBSERVER );
 		if( PROXYSERVER != null && !PROXYSERVER.isEmpty() )
@@ -755,6 +747,17 @@ public class MetaEnvServer extends PropertyController {
 	}
 	
 	public void setOffline( ServerTransaction transaction , boolean offline ) throws Exception {
+		// check props
+		if( !offline ) {
+			ActionBase action = transaction.getAction();
+			if( ROOTPATH == null || ROOTPATH.isEmpty() ) {
+				if( deployments != null && !deployments.isEmpty() )
+					action.exit1( _Error.RootpathEmptyRequiredForDeployments1 , "rootpath is empty, required for deployments server=" + NAME , NAME );
+				if( isGeneric( action ) )
+					action.exit1( _Error.RootpathEmptyRequiredForGeneric1 , "rootpath is empty, required for generic server=" + NAME , NAME );
+			}
+		}
+		
 		properties.setBooleanProperty( PROPERTY_OFFLINE , offline );
 	}
 
@@ -763,6 +766,10 @@ public class MetaEnvServer extends PropertyController {
 	}
 	
 	public void createNode( ServerTransaction transaction , MetaEnvServerNode node ) {
+		addNode( transaction , node );
+	}
+	
+	private void addNode( ServerTransaction transaction , MetaEnvServerNode node ) {
 		int index = nodes.size();
 		if( node.POS > 0 )
 			index = node.POS - 1;
@@ -795,4 +802,16 @@ public class MetaEnvServer extends PropertyController {
 		}
 	}
 
+	public void modifyNode( ServerTransaction transaction , MetaEnvServerNode node ) {
+		int index = nodes.indexOf( node );
+		if( index < 0 )
+			return;
+		
+		if( index + 1 == node.POS )
+			return;
+		
+		nodes.remove( index );
+		addNode( transaction , node );
+	}
+	
 }

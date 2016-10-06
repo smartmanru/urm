@@ -3,12 +3,10 @@ package org.urm.meta.engine;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.action.ActionBase;
 import org.urm.action.ActionCore;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
-import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.meta.ServerLoader;
@@ -86,28 +84,41 @@ public class ServerInfrastructure extends ServerObject {
 		mapNetworks.remove( network.ID );
 	}
 
-	public ServerNetwork findNetworkByFinalAccount( ActionBase action , String hostLogin ) {
+	public ServerNetwork findNetworkByFinalAccount( String hostLogin ) {
 		if( hostLogin.isEmpty() )
 			return( null );
 		
-		try {
-			Account account = Account.getAccount( action , hostLogin , VarOSTYPE.LINUX );
-			if( account.isHostName() ) {
-				ServerNetworkHost host = findNetworkHost( account.HOST );
-				if( host != null )
-					return( host.network );
-				return( null );
-			}
-			
-			// find network by mask
-			for( ServerNetwork network : mapNetworks.values() ) {
-				if( network.checkIpIn( account.HOST ) )
-					return( network );
-			}
-		}
-		catch( Throwable e ) {
+		Account account = Account.getAnyAccount( hostLogin );
+		return( findNetworkByHost( account.HOST ) );
+	}
+
+	public ServerNetwork findNetworkByHost( String hostName ) {
+		if( hostName.isEmpty() )
+			return( null );
+		
+		Account account = Account.getAnyAccount( "ignore@" + hostName );
+		if( account.isHostName() ) {
+			ServerNetworkHost host = findNetworkHost( account.HOST );
+			if( host != null )
+				return( host.network );
+			return( null );
 		}
 		
+		// find network by mask
+		for( ServerNetwork network : mapNetworks.values() ) {
+			if( network.checkIpIn( account.HOST ) )
+				return( network );
+		}
+		
+		return( null );
+	}
+
+	public ServerHostAccount findFinalAccount( String hostLogin ) {
+		for( ServerNetwork network : mapNetworks.values() ) {
+			ServerHostAccount account = network.findFinalAccount( hostLogin );
+			if( account != null )
+				return( account );
+		}
 		return( null );
 	}
 	

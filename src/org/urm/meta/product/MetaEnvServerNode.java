@@ -129,19 +129,23 @@ public class MetaEnvServerNode extends PropertyController {
 		properties.saveSplit( doc , root );
 	}
 	
-	public void createNode( ActionBase action , VarNODETYPE nodeType , String account ) throws Exception {
-		this.HOSTLOGIN = account;
-		this.nodeType = nodeType;
-		this.OFFLINE = true;
+	public void createNode( ActionBase action , VarNODETYPE nodeType , Account account ) throws Exception {
 		if( !super.initCreateStarted( server.getProperties() ) )
 			return;
 
-		super.setStringProperty( PROPERTY_HOSTLOGIN , HOSTLOGIN );
+		super.setStringProperty( PROPERTY_HOSTLOGIN , account.getHostLogin() );
 		super.setStringProperty( PROPERTY_NODETYPE , Common.getEnumLower( nodeType ) );
-		super.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
+		super.setBooleanProperty( PROPERTY_OFFLINE , true );
 		super.finishProperties( action );
 		super.initFinished();
 		
+		scatterProperties( action );
+	}
+
+	public void modifyNode( ActionBase action , int POS , VarNODETYPE nodeType , Account account ) throws Exception {
+		this.POS = POS;
+		super.setStringProperty( PROPERTY_HOSTLOGIN , account.getHostLogin() );
+		super.setStringProperty( PROPERTY_NODETYPE , Common.getEnumLower( nodeType ) );
 		scatterProperties( action );
 	}
 
@@ -151,6 +155,7 @@ public class MetaEnvServerNode extends PropertyController {
 	
 	public void setOffline( ServerTransaction transaction , boolean offline ) throws Exception {
 		properties.setBooleanProperty( PROPERTY_OFFLINE , offline );
+		scatterProperties( transaction.action );
 	}
 
 	public boolean isOffline() {
