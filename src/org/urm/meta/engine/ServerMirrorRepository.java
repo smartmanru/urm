@@ -149,6 +149,8 @@ public class ServerMirrorRepository extends ServerObject {
 		// server: test target, remove mirror work/repo, create mirror work/repo, publish target
 		ActionInit action = transaction.getAction();
 		LocalFolder productSettings = action.getActiveProductHomeFolder( PRODUCT );
+		if( !push )
+			productSettings.ensureExists( action );
 		createMetaMirror( transaction , push , productSettings );
 	}
 

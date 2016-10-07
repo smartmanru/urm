@@ -39,12 +39,14 @@ public class TransactionMetadata {
 			if( save )
 				transaction.action.setProductMetadata( transaction , metadataOld );
 			metadataOld = null;
-			deleteMetadata = false;
 			
-			if( createMetadata )
+			if( !deleteMetadata )
 				transaction.action.releaseProductMetadata( transaction , sessionMeta );
-			sessionMeta = null;
+			
 			createMetadata = false;
+			deleteMetadata = false;
+			sessionMeta = null;
+			metadata = null;
 		}
 		catch( Throwable e ) {
 			transaction.handle( e , "Unable to restore metadata, product=" + name );

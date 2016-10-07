@@ -2,9 +2,11 @@ package org.urm.meta.engine;
 
 import java.util.List;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerTransaction;
+import org.urm.engine.shell.Account;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerObject;
 import org.urm.meta.ServerProductMeta;
@@ -79,6 +81,10 @@ public class ServerHostAccount extends ServerObject {
 
 	public void deleteAccount( ServerTransaction transaction ) throws Exception {
 		super.deleteObject();
+	}
+
+	public Account getHostAccount( ActionBase action ) throws Exception {
+		return( Account.getAccount( action , ID , host.ID , 22 , host.osType ) );
 	}
 	
 }
