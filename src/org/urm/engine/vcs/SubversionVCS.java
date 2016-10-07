@@ -22,7 +22,8 @@ public class SubversionVCS extends GenericVCS {
 	public SubversionVCS( ActionBase action , Meta meta , ServerAuthResource res , ShellExecutor shell ) {
 		super( action , meta , res , shell );
 		this.SVNPATH = res.BASEURL;
-		this.SVNAUTH = res.ac.getSvnAuth( action );
+		if( res.ac != null )
+			this.SVNAUTH = res.ac.getSvnAuth( action );
 	}
 	
 	@Override public String getMainBranch() {
