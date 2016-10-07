@@ -1,10 +1,14 @@
 package org.urm.meta.product;
 
+import java.util.List;
+
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.PropertyController;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.shell.Account;
+import org.urm.meta.engine.ServerAccountReference;
+import org.urm.meta.engine.ServerHostAccount;
 import org.urm.meta.product.Meta.VarNODETYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -160,6 +164,28 @@ public class MetaEnvServerNode extends PropertyController {
 
 	public boolean isOffline() {
 		return( OFFLINE );
+	}
+
+	public void getApplicationReferences( ServerHostAccount account , List<ServerAccountReference> refs ) {
+		if( !checkReferencedByHostAccount( account ) )
+			return;
+		
+		refs.add( new ServerAccountReference( account , this ) );
+	}
+	
+	public boolean checkReferencedByHostAccount( ServerHostAccount account ) {
+		Account ha = Account.getAnyAccount( HOSTLOGIN );
+		if( account.host.isEqualsHost( ha ) && account.ID.equals( ha.USER ) )
+			return( true );
+
+		return( false );
+	}
+
+	public void deleteHostAccount( ServerTransaction transaction , ServerHostAccount account ) throws Exception {
+		if( !checkReferencedByHostAccount( account ) )
+			return;
+
+		setOffline( transaction , true );
 	}
 	
 }

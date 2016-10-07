@@ -2,6 +2,7 @@ package org.urm.meta.engine;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.urm.action.ActionCore;
 import org.urm.common.Common;
@@ -80,7 +81,19 @@ public class ServerInfrastructure extends ServerObject {
 		addNetwork( network );
 	}
 	
+	public void modifyNetwork( ServerTransaction transaction , ServerNetwork network ) throws Exception {
+		for( Entry<String,ServerNetwork> entry : mapNetworks.entrySet() ) {
+			if( entry.getValue() == network ) {
+				mapNetworks.remove( entry.getKey() );
+				break;
+			}
+		}
+		
+		addNetwork( network );
+	}
+	
 	public void deleteNetwork( ServerTransaction transaction , ServerNetwork network ) throws Exception {
+		network.deleteNetwork( transaction );
 		mapNetworks.remove( network.ID );
 	}
 

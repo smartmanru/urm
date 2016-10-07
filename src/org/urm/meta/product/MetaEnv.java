@@ -15,6 +15,8 @@ import org.urm.engine.ServerTransaction;
 import org.urm.engine.storage.HiddenFiles;
 import org.urm.meta.ServerProductMeta;
 import org.urm.meta.ServerRef;
+import org.urm.meta.engine.ServerAccountReference;
+import org.urm.meta.engine.ServerHostAccount;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -334,6 +336,16 @@ public class MetaEnv extends PropertyController {
 
 	public boolean isBroken() {
 		return( super.isLoadFailed() );
+	}
+
+	public void getApplicationReferences( ServerHostAccount account , List<ServerAccountReference> refs ) {
+		for( MetaEnvDC dc : originalList )
+			dc.getApplicationReferences( account , refs );
+	}
+
+	public void deleteHostAccount( ServerTransaction transaction , ServerHostAccount account ) throws Exception {
+		for( MetaEnvDC dc : originalList )
+			dc.deleteHostAccount( transaction , account );
 	}
 	
 }

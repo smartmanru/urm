@@ -166,4 +166,13 @@ public class ServerNetworkHost extends ServerObject {
 		return( account );
 	}
 	
+	public void deleteHost( ServerTransaction transaction ) throws Exception {
+		super.deleteObject();
+	}
+
+	public void getApplicationReferences( List<ServerAccountReference> refs ) {
+		for( ServerHostAccount account : accountMap.values() )
+			account.getApplicationReferences( refs );
+	}
+	
 }

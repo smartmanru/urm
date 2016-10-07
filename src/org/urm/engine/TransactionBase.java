@@ -1,5 +1,8 @@
 package org.urm.engine;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.urm.common.RunError;
 import org.urm.engine.action.ActionInit;
 import org.urm.meta.ServerObject;
@@ -31,17 +34,13 @@ public class TransactionBase extends ServerObject {
 	public ServerResources resources;
 	public ServerBuilders builders;
 	public ServerDirectory directory;
-	public ServerProductMeta metadata;
 
 	protected ServerSettings settingsOld;
 	protected ServerResources resourcesOld;
 	protected ServerBuilders buildersOld;
 	protected ServerDirectory directoryOld;
-	protected ServerProductMeta metadataOld;
-	
-	public boolean createMetadata;
-	public boolean deleteMetadata;
-	public Meta sessionMeta;
+
+	private Map<String,TransactionMetadata> productMeta;
 	
 	public TransactionBase( ServerEngine engine , ActionInit action ) {
 		super( null );
@@ -52,11 +51,9 @@ public class TransactionBase extends ServerObject {
 		builders = null;
 		directory = null;
 		settings = null;
-		metadata = null;
-		createMetadata = false;
-		deleteMetadata = false;
-		sessionMeta = null;
 		infra = null;
+		
+		productMeta = new HashMap<String,TransactionMetadata>(); 
 		engine.serverAction.trace( "transaction created id=" + objectId );
 	}
 	
@@ -70,15 +67,10 @@ public class TransactionBase extends ServerObject {
 			builders = null;
 			directory = null;
 			settings = null;
-			metadata = null;
 			resourcesOld = null;
 			buildersOld = null;
 			directoryOld = null;
 			settingsOld = null;
-			metadataOld = null;
-			createMetadata = false;
-			deleteMetadata = false;
-			sessionMeta = null;
 			infra = null;
 			return( true );
 		}
@@ -134,17 +126,9 @@ public class TransactionBase extends ServerObject {
 			}
 			
 			try {
-				if( metadataOld != null ) {
-					if( save )
-						action.setProductMetadata( this , metadataOld );
-					metadataOld = null;
-					deleteMetadata = false;
-					
-					if( createMetadata )
-						action.releaseProductMetadata( this , sessionMeta );
-					sessionMeta = null;
-					createMetadata = false;
-				}
+				for( TransactionMetadata meta : productMeta.values() )
+					meta.abortTransaction( save );
+				productMeta.clear();
 			}
 			catch( Throwable e ) {
 				handle( e , "unable to restore metadata" );
@@ -197,6 +181,30 @@ public class TransactionBase extends ServerObject {
 			return( false );
 		
 		return( true );
+	}
+
+	public void exit( int errorCode , String msg , String params[] ) throws Exception {
+		action.exit( errorCode , msg , params );
+	}
+
+	public void exit0( int errorCode , String msg ) throws Exception {
+		action.exit( errorCode , msg , null );
+	}
+
+	public void exit1( int errorCode , String msg , String param1 ) throws Exception {
+		action.exit( errorCode , msg , new String[] { param1 } );
+	}
+
+	public void exit2( int errorCode , String msg , String param1 , String param2 ) throws Exception {
+		action.exit( errorCode , msg , new String[] { param1 , param2 } );
+	}
+
+	public void exit3( int errorCode , String msg , String param1 , String param2 , String param3 ) throws Exception {
+		action.exit( errorCode , msg , new String[] { param1 , param2 , param3 } );
+	}
+
+	public void exit4( int errorCode , String msg , String param1 , String param2 , String param3 , String param4 ) throws Exception {
+		action.exit( errorCode , msg , new String[] { param1 , param2 , param3 , param4 } );
 	}
 
 	public void handle( Throwable e , String s ) {
@@ -272,34 +280,6 @@ public class TransactionBase extends ServerObject {
 	
 	public void trace( String s ) {
 		action.trace( s );
-	}
-	
-	public ServerResources getTransactionResources() {
-		return( resources );
-	}
-	
-	public ServerBuilders getTransactionBuilders() {
-		return( builders );
-	}
-	
-	public ServerDirectory getTransactionDirectory() {
-		return( directory );
-	}
-	
-	public ServerSettings getTransactionSettings() {
-		return( settings );
-	}
-	
-	public ServerProductMeta getTransactionMetadata() {
-		return( metadata );
-	}
-	
-	public Meta getTransactionSessionMetadata() {
-		return( sessionMeta );
-	}
-	
-	public ServerInfrastructure getTransactionInfrastructure() {
-		return( infra );
 	}
 	
 	public boolean changeInfrastructure( ServerInfrastructure sourceInfrastructure ) {
@@ -555,21 +535,14 @@ public class TransactionBase extends ServerObject {
 			try {
 				if( !continueTransaction() )
 					return( false );
-					
-				if( metadata != null )
+
+				TransactionMetadata tm = productMeta.get( meta.name ); 
+				if( tm != null )
 					return( true );
 				
-				ServerProductMeta sourceMetadata = meta.getStorage( action );
-				if( sourceMetadata.isPrimary() ) {
-					metadataOld = sourceMetadata;
-					metadata = sourceMetadata.copy( action );
-					sessionMeta = meta;
-					trace( "transaction product storage meta: source=" + sourceMetadata.objectId + ", copy=" + metadata.objectId );
-					if( metadata != null )
-						return( true );
-				}
-				else
-					error( "Unable to change old metadata, id=" + sourceMetadata.objectId );
+				tm = new TransactionMetadata( this );
+				if( tm.changeProduct( meta ) )
+					return( true );
 			}
 			catch( Throwable e ) {
 				handle( e , "unable to save metadata" );
@@ -586,16 +559,13 @@ public class TransactionBase extends ServerObject {
 				if( !continueTransaction() )
 					return( false );
 					
-				if( metadata != null )
-					return( true );
+				TransactionMetadata tm = productMeta.get( meta.name );
+				if( tm != null )
+					action.exitUnexpectedState();
 				
-				ServerProductMeta sourceMetadata = meta.getStorage( action );
-				if( sourceMetadata.isPrimary() ) {
-					deleteMetadata = true;
-					metadataOld = sourceMetadata;
-					trace( "transaction product storage meta: going delete=" + sourceMetadata.objectId );
+				tm = new TransactionMetadata( this );
+				if( tm.deleteProduct( meta ) )
 					return( true );
-				}
 			}
 			catch( Throwable e ) {
 				handle( e , "unable to save metadata" );
@@ -611,22 +581,16 @@ public class TransactionBase extends ServerObject {
 			return( false );
 
 		try {
-			if( deleteMetadata ) {
-				if( metadataOld == null )
-					return( true );
-					
-				action.deleteProductMetadata( this , metadataOld );
-				trace( "transaction product storage meta: delete=" + metadataOld.objectId );
+			boolean failed = false;
+			for( TransactionMetadata tm : productMeta.values() ) {
+				if( !tm.saveProduct() ) {
+					failed = true;
+					break;
+				}
 			}
-			else {
-				if( metadata == null )
-					return( true );
-					
-				action.setProductMetadata( this , metadata );
-				sessionMeta.setStorage( action , metadata );
-				trace( "transaction product storage meta: save=" + metadata.objectId );
-			}
-			return( true );
+
+			if( !failed )
+				return( true );
 		}
 		catch( Throwable e ) {
 			handle( e , "unable to save metadata" );
@@ -673,36 +637,46 @@ public class TransactionBase extends ServerObject {
 
 	protected void checkTransactionMetadata( ServerProductMeta sourceMeta ) throws Exception {
 		checkTransaction();
-		if( ( deleteMetadata == false && metadata == null ) || ( deleteMetadata == true && metadataOld == null ) )
+		TransactionMetadata meta = productMeta.get( sourceMeta.name );
+		if( meta == null )
 			exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
-		if( ( deleteMetadata == false && metadata != sourceMeta ) || ( deleteMetadata == true && metadataOld != sourceMeta ) )
-			exit1( _Error.InternalTransactionError1 , "Internal error: invalid transaction metadata" , "invalid transaction metadata" );
+		
+		meta.checkTransactionMetadata( sourceMeta );
 	}
 
-	public void exit( int errorCode , String msg , String params[] ) throws Exception {
-		action.exit( errorCode , msg , params );
+	protected void checkTransactionMetadata( String productName ) throws Exception {
+		if( productMeta.get( productName ) == null )
+			exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
 	}
-
-	public void exit0( int errorCode , String msg ) throws Exception {
-		action.exit( errorCode , msg , null );
+	
+	public ServerResources getTransactionResources() {
+		return( resources );
 	}
-
-	public void exit1( int errorCode , String msg , String param1 ) throws Exception {
-		action.exit( errorCode , msg , new String[] { param1 } );
+	
+	public ServerBuilders getTransactionBuilders() {
+		return( builders );
 	}
-
-	public void exit2( int errorCode , String msg , String param1 , String param2 ) throws Exception {
-		action.exit( errorCode , msg , new String[] { param1 , param2 } );
+	
+	public ServerDirectory getTransactionDirectory() {
+		return( directory );
 	}
-
-	public void exit3( int errorCode , String msg , String param1 , String param2 , String param3 ) throws Exception {
-		action.exit( errorCode , msg , new String[] { param1 , param2 , param3 } );
+	
+	public ServerSettings getTransactionSettings() {
+		return( settings );
 	}
-
-	public void exit4( int errorCode , String msg , String param1 , String param2 , String param3 , String param4 ) throws Exception {
-		action.exit( errorCode , msg , new String[] { param1 , param2 , param3 , param4 } );
+	
+	public Meta findTransactionSessionProductMetadata( String productName ) {
+		TransactionMetadata tm = productMeta.get( productName );
+		if( tm == null )
+			return( null );
+		
+		return( tm.sessionMeta );
 	}
-
+	
+	public ServerInfrastructure getTransactionInfrastructure() {
+		return( infra );
+	}
+	
 	// helpers
 	public ServerAuthResource getResource( ServerAuthResource resource ) throws Exception {
 		return( resources.getResource( resource.NAME ) );
@@ -720,11 +694,8 @@ public class TransactionBase extends ServerObject {
 		return( directory.getProduct( product.NAME ) );
 	}
 	
-	public Meta getMeta() {
-		return( metadata.meta );
-	}
-	
 	public MetaEnv getMetaEnv( MetaEnv env ) throws Exception {
+		ServerProductMeta metadata = getTransactionMetadata( env.meta );
 		return( metadata.findEnvironment( env.ID ) );
 	}
 
@@ -743,4 +714,37 @@ public class TransactionBase extends ServerObject {
 		return( server.getNode( action , node.POS ) );
 	}
 
+	public Meta[] getTransactionProductMetadataList() {
+		TransactionMetadata[] tm = productMeta.values().toArray( new TransactionMetadata[0] );
+		Meta[] meta = new Meta[ tm.length ];
+		for( int k = 0; k < tm.length; k++ )
+			meta[ k ] = tm[k].sessionMeta;
+		return( meta );
+	}
+
+	public ServerProductMeta getTransactionMetadata( Meta meta ) throws Exception {
+		TransactionMetadata tm = productMeta.get( meta.name );
+		if( tm == null )
+			exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
+		return( tm.metadata );
+	}
+	
+	protected void createProductMetadata( ServerDirectory directory , ServerProduct product ) throws Exception {
+		TransactionMetadata meta = productMeta.get( product.NAME );
+		if( meta != null )
+			action.exitUnexpectedState();
+		
+		Meta sessionMeta = action.createProductMetadata( this , directory , product );
+		meta = new TransactionMetadata( this );
+		meta.createProduct( sessionMeta );
+		productMeta.put( product.NAME , meta );
+	}
+
+	public Meta getTransactionProductMetadata( String productName ) throws Exception {
+		TransactionMetadata tm = productMeta.get( productName );
+		if( tm == null )
+			action.exitUnexpectedState();
+		return( tm.metadata.meta );
+	}
+	
 }

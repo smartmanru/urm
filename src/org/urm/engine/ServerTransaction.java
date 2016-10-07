@@ -4,6 +4,7 @@ import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.shell.Account;
+import org.urm.meta.ServerProductMeta;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerHostAccount;
 import org.urm.meta.engine.ServerMirrorRepository;
@@ -113,10 +114,8 @@ public class ServerTransaction extends TransactionBase {
 		ServerMirrors mirrors = action.getMirrors();
 		mirrors.addProductMirrors( this , product , forceClear );
 		
-		createMetadata = true;
 		directory.createProduct( this , product );
-		sessionMeta = action.createProductMetadata( this , directory , product );
-		metadata = sessionMeta.getStorage( action );
+		super.createProductMetadata( directory , product );
 	}
 	
 	public void modifyProduct( ServerProduct product ) throws Exception {
@@ -126,12 +125,11 @@ public class ServerTransaction extends TransactionBase {
 
 	public void deleteProduct( ServerProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		checkTransactionDirectory();
-		checkTransactionMetadata( metadataOld );
+		checkTransactionMetadata( product.NAME );
 		
 		ServerMirrors mirrors = action.getMirrors();
 		mirrors.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		directory.deleteProduct( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
-		metadata = null;
 		action.saveMirrors( this );
 		product.deleteObject();
 	}
@@ -158,29 +156,30 @@ public class ServerTransaction extends TransactionBase {
 	
 	public void setProductVersion( MetaProductVersion version ) throws Exception {
 		checkTransactionMetadata( version.meta.getStorage( action ) );
+		ServerProductMeta metadata = getTransactionMetadata( version.meta );
 		metadata.setVersion( this , version );
 	}
 
-	public void setProductProperties( PropertySet props , boolean system ) throws Exception {
-		checkTransactionMetadata( metadata );
+	public void setProductProperties( Meta meta , PropertySet props , boolean system ) throws Exception {
+		ServerProductMeta metadata = getTransactionMetadata( meta );
 		MetaProductSettings settings = metadata.getProductSettings();
 		settings.setProperties( this , props , system );
 	}
 	
-	public void setProductBuildCommonProperties( PropertySet props ) throws Exception {
-		checkTransactionMetadata( metadata );
+	public void setProductBuildCommonProperties( Meta meta , PropertySet props ) throws Exception {
+		ServerProductMeta metadata = getTransactionMetadata( meta );
 		MetaProductSettings settings = metadata.getProductSettings();
 		settings.setBuildCommonProperties( this , props );
 	}
 	
-	public void setProductBuildModeProperties( VarBUILDMODE mode , PropertySet props ) throws Exception {
-		checkTransactionMetadata( metadata );
+	public void setProductBuildModeProperties( Meta meta , VarBUILDMODE mode , PropertySet props ) throws Exception {
+		ServerProductMeta metadata = getTransactionMetadata( meta );
 		MetaProductSettings settings = metadata.getProductSettings();
 		settings.setBuildModeProperties( this , mode , props );
 	}
 
 	public MetaProductVersion createProductVersion( Meta meta , int majorFirstNumber , int majorSecondNumber , int majorNextFirstNumber , int majorNextSecondNumber , int lastProdTag , int nextProdTag ) throws Exception {
-		checkTransactionMetadata( meta.getStorage( action ) );
+		ServerProductMeta metadata = getTransactionMetadata( meta );
 		MetaProductVersion version = new MetaProductVersion( metadata , metadata.meta );
 		version.createVersion( this , majorFirstNumber , majorSecondNumber , majorNextFirstNumber , majorNextSecondNumber , lastProdTag , nextProdTag );
 		metadata.setVersion( this , version );
@@ -188,7 +187,7 @@ public class ServerTransaction extends TransactionBase {
 	}
 	
 	public MetaEnv createMetaEnv( Meta meta , String name , boolean prod ) throws Exception {
-		checkTransactionMetadata( meta.getStorage( action ) );
+		ServerProductMeta metadata = getTransactionMetadata( meta );
 		MetaEnv env = new MetaEnv( metadata , metadata.meta );
 		env.createEnv( getAction() , name , prod );
 		metadata.addEnv( this , env );
@@ -196,7 +195,7 @@ public class ServerTransaction extends TransactionBase {
 	}
 	
 	public void deleteMetaEnv( MetaEnv env ) throws Exception {
-		checkTransactionMetadata( env.meta.getStorage( action ) );
+		ServerProductMeta metadata = getTransactionMetadata( env.meta );
 		metadata.deleteEnv( this , env );
 		env.deleteObject();
 	}
@@ -229,7 +228,7 @@ public class ServerTransaction extends TransactionBase {
 
 	public MetaEnvServer createMetaEnvServer( MetaEnvDC dc , String name , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String service ) throws Exception {
 		checkTransactionMetadata( dc.meta.getStorage( action ) );
-		MetaEnvServer server = new MetaEnvServer( getMeta() , dc );
+		MetaEnvServer server = new MetaEnvServer( dc.meta , dc );
 		server.createServer( action , name , osType , runType , accessType , service );
 		dc.createServer( this , server );
 		return( server );
@@ -248,7 +247,7 @@ public class ServerTransaction extends TransactionBase {
 
 	public MetaEnvServerNode createMetaEnvServerNode( MetaEnvServer server , int pos , VarNODETYPE nodeType , Account account ) throws Exception {
 		checkTransactionMetadata( server.meta.getStorage( action ) );
-		MetaEnvServerNode node = new MetaEnvServerNode( getMeta() , server , pos );
+		MetaEnvServerNode node = new MetaEnvServerNode( server.meta , server , pos );
 		node.createNode( action , nodeType , account );
 		server.createNode( this , node );
 		return( node );
@@ -277,7 +276,7 @@ public class ServerTransaction extends TransactionBase {
 		action.saveInfrastructure( this );
 	}
 
-	public void deleteNetwork( ServerNetwork network , boolean deleteDerefFlag ) throws Exception {
+	public void deleteNetwork( ServerNetwork network ) throws Exception {
 		checkTransactionInfrastructure();
 		infra.deleteNetwork( this , network );
 		network.deleteObject();
@@ -285,6 +284,7 @@ public class ServerTransaction extends TransactionBase {
 
 	public void modifyNetwork( ServerNetwork network ) throws Exception {
 		checkTransactionInfrastructure();
+		infra.modifyNetwork( this , network );
 		action.saveInfrastructure( this );
 	}
 

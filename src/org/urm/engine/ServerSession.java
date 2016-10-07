@@ -61,7 +61,7 @@ public class ServerSession extends ServerObject {
 		ServerLoader loader = controller.engine.getLoader( action );
 		for( String product : Common.getSortedKeys( productMeta ) ) {
 			Meta meta = productMeta.get( product );
-			loader.releaseProductMetadata( action , meta );
+			loader.releaseSessionProductMetadata( action , meta );
 		}
 		
 		super.deleteObject();

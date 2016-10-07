@@ -14,7 +14,9 @@ import org.urm.engine.ServerSession;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.storage.MetadataStorage;
+import org.urm.meta.engine.ServerAccountReference;
 import org.urm.meta.engine.ServerDirectory;
+import org.urm.meta.engine.ServerHostAccount;
 import org.urm.meta.engine.ServerSettings;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
@@ -579,6 +581,16 @@ public class ServerProductMeta extends ServerObject {
 		MetadataStorage storage = action.artefactory.getMetadataStorage( action , env.meta );
 		storage.deleteEnvConfFile( action , envFile );
 		env.deleteObject();
+	}
+
+	public void getApplicationReferences( ServerHostAccount account , List<ServerAccountReference> refs ) {
+		for( MetaEnv env : envs.values() )
+			env.getApplicationReferences( account , refs );
+	}
+
+	public void deleteHostAccount( ServerTransaction transaction , ServerHostAccount account ) throws Exception {
+		for( MetaEnv env : envs.values() )
+			env.deleteHostAccount( transaction , account );
 	}
 
 }

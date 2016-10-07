@@ -11,6 +11,8 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.shell.Account;
+import org.urm.meta.engine.ServerAccountReference;
+import org.urm.meta.engine.ServerHostAccount;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -280,6 +282,15 @@ public class MetaEnvDC extends PropertyController {
 
 	public boolean isBroken() {
 		return( super.isLoadFailed() );
+	}
+
+	public void getApplicationReferences( ServerHostAccount account , List<ServerAccountReference> refs ) {
+		for( MetaEnvServer server : originalList )
+			server.getApplicationReferences( account , refs );
+	}
+
+	public void deleteHostAccount( ServerTransaction transaction , ServerHostAccount account ) throws Exception {
+		super.deleteObject();
 	}
 	
 }

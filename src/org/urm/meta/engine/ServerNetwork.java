@@ -91,6 +91,12 @@ public class ServerNetwork extends ServerObject {
 		this.DESC = DESC;
 	}
 
+	public void modifyNetwork( ServerTransaction transaction  , String ID , String MASK , String DESC ) throws Exception {
+		this.ID = ID;
+		this.MASK = MASK;
+		this.DESC = DESC;
+	}
+
 	public String[] getFinalAccounts() {
 		List<String> list = new LinkedList<String>();
 		for( ServerNetworkHost host : hostMap.values() ) {
@@ -191,6 +197,15 @@ public class ServerNetwork extends ServerObject {
 		host.createHost( transaction , account.osType , account.HOST , account.IP );
 		createHost( transaction , host );
 		return( host );
+	}
+
+	public void deleteNetwork( ServerTransaction transaction ) throws Exception {
+		super.deleteObject();
+	}
+
+	public void getApplicationReferences( List<ServerAccountReference> refs ) {
+		for( ServerNetworkHost host : hostMap.values() )
+			host.getApplicationReferences( refs );
 	}
 	
 }

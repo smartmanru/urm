@@ -119,7 +119,7 @@ public class ServerLoader {
 		return( false );
 	}
 
-	public synchronized Meta findProductMetadata( ActionBase action , String productName ) throws Exception {
+	public synchronized Meta findSessionProductMetadata( ActionBase action , String productName ) throws Exception {
 		ServerSession session = action.session;
 		Meta meta = session.findMeta( productName );
 		if( meta != null )
@@ -136,7 +136,11 @@ public class ServerLoader {
 		return( meta );
 	}
 	
-	public synchronized Meta getProductMetadata( ActionBase action , String productName ) throws Exception {
+	public synchronized ServerProductMeta findProductStorage( String productName ) {
+		return( productMeta.get( productName ) );
+	}
+	
+	public synchronized Meta getSessionProductMetadata( ActionBase action , String productName ) throws Exception {
 		ServerSession session = action.session;
 		Meta meta = session.findMeta( productName );
 		if( meta != null )
@@ -150,7 +154,7 @@ public class ServerLoader {
 		return( meta );
 	}
 
-	public synchronized Meta createProductMetadata( ActionBase action , ServerProductMeta storage ) throws Exception {
+	public synchronized Meta createSessionProductMetadata( ActionBase action , ServerProductMeta storage ) throws Exception {
 		ServerSession session = action.session;
 		Meta meta = new Meta( storage , session );
 		engine.serverAction.trace( "new run session meta object, id=" + meta.objectId + ", session=" + session.objectId );
@@ -159,7 +163,7 @@ public class ServerLoader {
 		return( meta );
 	}
 	
-	public synchronized void releaseProductMetadata( ActionBase action , Meta meta ) throws Exception {
+	public synchronized void releaseSessionProductMetadata( ActionBase action , Meta meta ) throws Exception {
 		ServerSession session = action.session;
 		session.releaseProductMeta( meta );
 		ServerProductMeta storage = meta.getStorage( action );

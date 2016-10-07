@@ -1,9 +1,13 @@
 package org.urm.meta.engine;
 
+import java.util.List;
+
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerTransaction;
+import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerObject;
+import org.urm.meta.ServerProductMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -54,14 +58,27 @@ public class ServerHostAccount extends ServerObject {
 		return( ID + "@" + host.ID );
 	}
 
-	public void createAccount( ServerTransaction transaction  , String user , boolean isAdmin ) throws Exception {
+	public void createAccount( ServerTransaction transaction , String user , boolean isAdmin ) throws Exception {
 		this.ID = user;
 		this.isAdmin = isAdmin;
 	}
 	
-	public void modifyAccount( ServerTransaction transaction  , String user , boolean isAdmin ) throws Exception {
+	public void modifyAccount( ServerTransaction transaction , String user , boolean isAdmin ) throws Exception {
 		this.ID = user;
 		this.isAdmin = isAdmin;
+	}
+
+	public void getApplicationReferences( List<ServerAccountReference> refs ) {
+		ServerLoader loader = host.network.infra.loader;
+		ServerRegistry registry = loader.getRegistry();
+		for( String productName : registry.directory.getProducts() ) {
+			ServerProductMeta storage = loader.findProductStorage( productName );
+			storage.getApplicationReferences( this , refs );
+		}
+	}
+
+	public void deleteAccount( ServerTransaction transaction ) throws Exception {
+		super.deleteObject();
 	}
 	
 }

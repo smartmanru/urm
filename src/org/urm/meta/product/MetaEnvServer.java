@@ -12,6 +12,8 @@ import org.urm.common.PropertyController;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.shell.Account;
+import org.urm.meta.engine.ServerAccountReference;
+import org.urm.meta.engine.ServerHostAccount;
 import org.urm.meta.product.Meta.VarDBMSTYPE;
 import org.urm.meta.product.Meta.VarDEPLOYTYPE;
 import org.urm.meta.product.Meta.VarSERVERACCESSTYPE;
@@ -812,6 +814,15 @@ public class MetaEnvServer extends PropertyController {
 		
 		nodes.remove( index );
 		addNode( transaction , node );
+	}
+
+	public void getApplicationReferences( ServerHostAccount account , List<ServerAccountReference> refs ) {
+		for( MetaEnvServerNode node : nodes )
+			node.getApplicationReferences( account , refs );
+	}
+
+	public void deleteHostAccount( ServerTransaction transaction , ServerHostAccount account ) throws Exception {
+		super.deleteObject();
 	}
 	
 }

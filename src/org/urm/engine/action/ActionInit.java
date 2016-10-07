@@ -143,21 +143,19 @@ public class ActionInit extends ActionBase {
 
 	public Meta getActiveProductMetadata( String productName ) throws Exception {
 		if( transaction != null ) {
-			if( transaction.metadata != null ) {
-				if( productName.equals( transaction.metadata.name ) )
-					return( transaction.sessionMeta );
-			}
+			Meta meta = transaction.findTransactionSessionProductMetadata( productName );
+			if( meta != null )
+				return( meta );
 		}
-		return( loader.getProductMetadata( this , productName ) );
+		return( loader.getSessionProductMetadata( this , productName ) );
 	}
 
 	public LocalFolder getActiveProductHomeFolder( String productName ) throws Exception {
 		if( transaction != null ) {
-			if( transaction.metadata != null ) {
-				if( productName.equals( transaction.metadata.name ) ) {
-					MetadataStorage storageMeta = artefactory.getMetadataStorage( this , transaction.sessionMeta );
-					return( storageMeta.getHomeFolder( this ) );
-				}
+			Meta meta = transaction.findTransactionSessionProductMetadata( productName );
+			if( meta != null ) {
+				MetadataStorage storageMeta = artefactory.getMetadataStorage( this , meta );
+				return( storageMeta.getHomeFolder( this ) );
 			}
 		}
 		return( loader.getProductHomeFolder( this , productName ) );
@@ -165,10 +163,9 @@ public class ActionInit extends ActionBase {
 	
 	public boolean isActiveProductBroken( String productName ) {
 		if( transaction != null ) {
-			if( transaction.metadata != null ) {
-				if( productName.equals( transaction.metadata.name ) )
-					return( transaction.metadata.loadFailed );
-			}
+			Meta meta = transaction.findTransactionSessionProductMetadata( productName );
+			if( meta != null )
+				return( meta.isCorrect() );
 		}
 		
 		return( loader.isProductBroken( productName ) );
@@ -184,11 +181,11 @@ public class ActionInit extends ActionBase {
 
 	public Meta createProductMetadata( TransactionBase transaction , ServerDirectory directory , ServerProduct product ) throws Exception {
 		ServerProductMeta storage = loader.createProductMetadata( transaction , directory , product );
-		return( loader.createProductMetadata( transaction.action , storage ) );
+		return( loader.createSessionProductMetadata( transaction.action , storage ) );
 	}
 
 	public void releaseProductMetadata( TransactionBase transaction , Meta sessionMeta ) throws Exception {
-		loader.releaseProductMetadata( transaction.action , sessionMeta );
+		loader.releaseSessionProductMetadata( transaction.action , sessionMeta );
 	}
 
 	public void reloadMetadata() throws Exception {
