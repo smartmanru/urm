@@ -18,7 +18,7 @@ public class ProjectVersionControl {
 	}
 	
 	private GenericVCS getVCS( MetaSourceProject project ) throws Exception {
-		return( GenericVCS.getVCS( action , project.meta , project.getVCS( action ) , build ) );
+		return( GenericVCS.getVCS( action , project.meta , project.getVCS( action ) , build , false ) );
 	}
 
 	public String checkDefaultBranch( GenericVCS vcs , String BRANCH ) {

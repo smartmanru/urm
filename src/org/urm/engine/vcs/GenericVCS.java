@@ -72,9 +72,14 @@ public abstract class GenericVCS {
 	public abstract void addDirToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception;
 	public abstract void deleteDirToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception;
 	
-	public static GenericVCS getVCS( ActionBase action , Meta meta , String vcs , boolean build ) throws Exception {
+	public static GenericVCS getVCS( ActionBase action , Meta meta , String vcs ) throws Exception {
+		return( getVCS( action , meta , vcs , false , false ) );
+	}
+
+	public static GenericVCS getVCS( ActionBase action , Meta meta , String vcs , boolean build , boolean noAuth ) throws Exception {
 		ServerAuthResource res = action.getResource( vcs );
-		res.loadAuthData();
+		if( !noAuth )
+			res.loadAuthData();
 		
 		ShellExecutor shell = action.shell;
 		if( build ) {
@@ -101,14 +106,14 @@ public abstract class GenericVCS {
 		ServerAuthResource res = action.getResource( resource );
 		if( !res.isSvn() )
 			action.exit1( _Error.NonSvnResource1 , "unexpected non-svn resource=" + resource , resource );
-		return( ( SubversionVCS )getVCS( action , null , resource , false ) );
+		return( ( SubversionVCS )getVCS( action , null , resource ) );
 	}
 
 	public static GitVCS getGitDirect( ActionBase action , String resource ) throws Exception {
 		ServerAuthResource res = action.getResource( resource );
 		if( !res.isGit() )
 			action.exit1( _Error.NonGitResource1 , "unexpected non-git resource=" + resource , resource );
-		return( ( GitVCS )getVCS( action , null , resource , false ) );
+		return( ( GitVCS )getVCS( action , null , resource ) );
 	}
 
 }

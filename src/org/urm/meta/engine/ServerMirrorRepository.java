@@ -154,7 +154,7 @@ public class ServerMirrorRepository extends ServerObject {
 
 	private void createMetaMirror( ServerTransaction transaction , boolean push , LocalFolder folder ) throws Exception {
 		ActionBase action = transaction.getAction();
-		GenericVCS vcs = GenericVCS.getVCS( action , null , RESOURCE , false );
+		GenericVCS vcs = GenericVCS.getVCS( action , null , RESOURCE );
 		if( push ) {
 			MirrorStorage storage = vcs.createInitialMirror( this );
 			syncFromFolder( action , vcs , storage , folder );
@@ -231,7 +231,7 @@ public class ServerMirrorRepository extends ServerObject {
 	}
 
 	private void dropMetaMirror( ServerTransaction transaction ) throws Exception {
-		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , false );
+		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , false , true );
 		vcs.dropMirror( this );
 	}
 
@@ -256,7 +256,7 @@ public class ServerMirrorRepository extends ServerObject {
 	}
 
 	void pushMetaMirror( ServerTransaction transaction , LocalFolder folder ) throws Exception {
-		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , false );
+		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE );
 		vcs.refreshMirror( this );
 		MirrorStorage storage = vcs.getMirror( this );
 		ActionBase action = transaction.getAction();
@@ -285,7 +285,7 @@ public class ServerMirrorRepository extends ServerObject {
 	}
 
 	private void refreshMetaMirror( ServerTransaction transaction , LocalFolder folder ) throws Exception {
-		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , false );
+		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE );
 		vcs.refreshMirror( this );
 		MirrorStorage storage = vcs.getMirror( this );
 		ActionBase action = transaction.getAction();
