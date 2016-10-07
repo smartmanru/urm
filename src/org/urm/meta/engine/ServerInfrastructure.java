@@ -93,8 +93,8 @@ public class ServerInfrastructure extends ServerObject {
 	}
 	
 	public void deleteNetwork( ServerTransaction transaction , ServerNetwork network ) throws Exception {
-		network.deleteNetwork( transaction );
 		mapNetworks.remove( network.ID );
+		network.deleteNetwork( transaction );
 	}
 
 	public ServerNetwork findNetworkByFinalAccount( String hostLogin ) {

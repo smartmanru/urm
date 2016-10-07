@@ -30,6 +30,7 @@ public class ServerNetwork extends ServerObject {
 	
 	public ServerNetwork( ServerInfrastructure infra ) {
 		super( infra );
+		this.infra = infra;
 		hostMap = new HashMap<String,ServerNetworkHost>();
 	}
 	

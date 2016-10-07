@@ -15,6 +15,8 @@ public class TransactionMetadata {
 	protected ServerProductMeta metadataOld;
 	
 	public TransactionMetadata( TransactionBase transaction ) {
+		this.transaction = transaction;
+		
 		metadata = null;
 		metadataOld = null;
 		createMetadata = false;

@@ -541,8 +541,10 @@ public class TransactionBase extends ServerObject {
 					return( true );
 				
 				tm = new TransactionMetadata( this );
-				if( tm.changeProduct( meta ) )
+				if( tm.changeProduct( meta ) ) {
+					addTransactionMeta( meta , tm );
 					return( true );
+				}
 			}
 			catch( Throwable e ) {
 				handle( e , "unable to save metadata" );
@@ -564,8 +566,10 @@ public class TransactionBase extends ServerObject {
 					action.exitUnexpectedState();
 				
 				tm = new TransactionMetadata( this );
-				if( tm.deleteProduct( meta ) )
+				if( tm.deleteProduct( meta ) ) {
+					addTransactionMeta( meta , tm );
 					return( true );
+				}
 			}
 			catch( Throwable e ) {
 				handle( e , "unable to save metadata" );
@@ -676,7 +680,11 @@ public class TransactionBase extends ServerObject {
 	public ServerInfrastructure getTransactionInfrastructure() {
 		return( infra );
 	}
-	
+
+	private void addTransactionMeta( Meta meta , TransactionMetadata tm ) {
+		productMeta.put( meta.name , tm );
+	}
+
 	// helpers
 	public ServerAuthResource getResource( ServerAuthResource resource ) throws Exception {
 		return( resources.getResource( resource.NAME ) );
@@ -730,14 +738,14 @@ public class TransactionBase extends ServerObject {
 	}
 	
 	protected void createProductMetadata( ServerDirectory directory , ServerProduct product ) throws Exception {
-		TransactionMetadata meta = productMeta.get( product.NAME );
-		if( meta != null )
+		TransactionMetadata tm = productMeta.get( product.NAME );
+		if( tm != null )
 			action.exitUnexpectedState();
 		
-		Meta sessionMeta = action.createProductMetadata( this , directory , product );
-		meta = new TransactionMetadata( this );
-		meta.createProduct( sessionMeta );
-		productMeta.put( product.NAME , meta );
+		Meta meta = action.createProductMetadata( this , directory , product );
+		tm = new TransactionMetadata( this );
+		tm.createProduct( meta );
+		addTransactionMeta( meta , tm );
 	}
 
 	public Meta getTransactionProductMetadata( String productName ) throws Exception {
