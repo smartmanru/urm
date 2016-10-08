@@ -38,15 +38,15 @@ public class TransactionMetadata {
 		try {
 			if( save )
 				transaction.action.setProductMetadata( transaction , metadataOld );
-			metadataOld = null;
 			
 			if( !deleteMetadata )
-				transaction.action.releaseProductMetadata( transaction , sessionMeta );
+				sessionMeta.replaceStorage( transaction.action , metadata );
 			
 			createMetadata = false;
 			deleteMetadata = false;
 			sessionMeta = null;
 			metadata = null;
+			metadataOld = null;
 		}
 		catch( Throwable e ) {
 			transaction.handle( e , "Unable to restore metadata, product=" + name );
@@ -94,7 +94,7 @@ public class TransactionMetadata {
 				return( true );
 				
 			transaction.action.setProductMetadata( transaction , metadata );
-			sessionMeta.setStorage( transaction.action , metadata );
+			sessionMeta.replaceStorage( transaction.action , metadata );
 			transaction.trace( "transaction product storage meta: save=" + metadata.objectId );
 		}
 		return( true );

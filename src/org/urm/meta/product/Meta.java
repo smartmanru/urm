@@ -191,12 +191,13 @@ public class Meta extends ServerObject {
 		name = storage.name;
 	}
 	
-	public void setStorage( ActionBase action , ServerProductMeta storage ) throws Exception {
-		loader.releaseSessionProductMetadata( action , this );
+	public void replaceStorage( ActionBase action , ServerProductMeta storage ) throws Exception {
+		loader.releaseSessionProductMetadata( action , this , false );
 		this.storage = storage;
 		storage.addSessionMeta( this );
+		action.session.addProductMeta( this );
 	}
-	
+
 	public boolean isCorrect() {
 		if( storage.loadFailed )
 			return( false );

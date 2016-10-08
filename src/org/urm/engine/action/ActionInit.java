@@ -147,7 +147,7 @@ public class ActionInit extends ActionBase {
 			if( meta != null )
 				return( meta );
 		}
-		return( loader.getSessionProductMetadata( this , productName ) );
+		return( loader.getSessionProductMetadata( this , productName , false ) );
 	}
 
 	public LocalFolder getActiveProductHomeFolder( String productName ) throws Exception {
@@ -188,8 +188,13 @@ public class ActionInit extends ActionBase {
 		loader.releaseSessionProductMetadata( transaction.action , sessionMeta );
 	}
 
-	public void reloadMetadata() throws Exception {
-		loader.reload();
+	public void reloadCoreMetadata() throws Exception {
+		loader.reloadCore();
+	}
+	
+	public Meta reloadProductMetadata( String productName ) throws Exception {
+		loader.reloadProduct( productName );
+		return( loader.getSessionProductMetadata( this , productName , true ) );
 	}
 	
 }

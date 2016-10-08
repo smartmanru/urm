@@ -55,11 +55,26 @@ public class ServerLoader {
 			loadServerSettings();
 	}
 	
-	public void reload() throws Exception {
+	public void reloadCore() throws Exception {
 		registry = new ServerRegistry( this ); 
 		settings = new ServerSettings( this );
 		infra = new ServerInfrastructure( this ); 
 		init();
+		
+		loadServerProducts( engine.serverAction );
+	}
+
+	public void reloadProduct( String productName ) throws Exception {
+		ServerProductMeta storageNew = loadServerProduct( engine.serverAction , productName );
+		if( storageNew == null )
+			return;
+		
+		ServerProductMeta storage = productMeta.get( productName );
+		synchronized( this ) {
+			if( storage != null )
+				clearServerProduct( storage );
+			addServerProduct( storageNew );
+		}
 	}
 	
 	public LocalFolder getServerSettingsFolder( ActionInit action ) throws Exception {
@@ -140,17 +155,22 @@ public class ServerLoader {
 		return( productMeta.get( productName ) );
 	}
 	
-	public synchronized Meta getSessionProductMetadata( ActionBase action , String productName ) throws Exception {
+	public synchronized Meta getSessionProductMetadata( ActionBase action , String productName , boolean primary ) throws Exception {
 		ServerSession session = action.session;
 		Meta meta = session.findMeta( productName );
-		if( meta != null )
+		if( meta != null ) {
+			if( primary ) {
+				ServerProductMeta storage = meta.getStorage( action );
+				if( !storage.isPrimary() ) {
+					ServerProductMeta storageNew = getMetaStorage( action , session , productName );
+					meta.replaceStorage( action , storageNew );
+				}
+			}
 			return( meta );
+		}
 		
 		ServerProductMeta storage = getMetaStorage( action , session , productName );
-		meta = new Meta( storage , session );
-		engine.serverAction.trace( "new run session meta object, id=" + meta.objectId + ", session=" + session.objectId );
-		storage.addSessionMeta( meta );
-		session.addProductMeta( meta );
+		meta = createSessionProductMetadata( action , storage );
 		return( meta );
 	}
 
@@ -162,8 +182,12 @@ public class ServerLoader {
 		session.addProductMeta( meta );
 		return( meta );
 	}
-	
+
 	public synchronized void releaseSessionProductMetadata( ActionBase action , Meta meta ) throws Exception {
+		releaseSessionProductMetadata( action , meta , false );
+	}
+	
+	public synchronized void releaseSessionProductMetadata( ActionBase action , Meta meta , boolean deleteMeta ) throws Exception {
 		ServerSession session = action.session;
 		session.releaseProductMeta( meta );
 		ServerProductMeta storage = meta.getStorage( action );
@@ -174,13 +198,14 @@ public class ServerLoader {
 			storage.deleteObject();
 		}
 		
-		meta.deleteObject();
+		if( deleteMeta )
+			meta.deleteObject();
 	}
 	
 	private ServerProductMeta getMetaStorage( ActionBase action , ServerSession session , String productName ) throws Exception {
 		if( session.offline ) {
 			if( offline == null )
-				offline = new ServerProductMeta( this , session.productName , action.session );
+				offline = new ServerProductMeta( this , session.productName );
 			return( offline );
 		}
 		
@@ -238,32 +263,49 @@ public class ServerLoader {
 	}
 
 	public void loadServerProducts( ActionInit action ) {
+		clearServerProducts();
 		for( String name : registry.directory.getProducts() ) {
-			ServerProductMeta set = new ServerProductMeta( this , name , action.session );
-			set.setPrimary( true );
-			productMeta.put( name , set );
-			
-			try {
-				MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , set.meta );
-				LocalFolder folder = storageMeta.getMetaFolder( action );
-				if( folder.checkExists( action ) )
-					set.loadAll( action , storageMeta );
-				else
-					set.setLoadFailed( action , "metadata folder is missing, product=" + name );
-			}
-			catch( Throwable e ) {
-				action.handle( e );
-				action.error( "unable to load metadata, product=" + name );
-			}
+			ServerProductMeta set = loadServerProduct( action , name );
+			addServerProduct( set );
 		}
 	}
 
-	public void clearServerProducts() throws Exception {
-		for( ServerProductMeta storage : productMeta.values() ) {
+	private void addServerProduct( ServerProductMeta set ) {
+		productMeta.put( set.name , set );
+	}
+	
+	private ServerProductMeta loadServerProduct( ActionInit action , String name ) {
+		ServerProductMeta set = new ServerProductMeta( this , name );
+		set.setPrimary( true );
+		
+		try {
+			MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , set.meta );
+			LocalFolder folder = storageMeta.getMetaFolder( action );
+			if( folder.checkExists( action ) )
+				set.loadAll( action , storageMeta );
+			else
+				set.setLoadFailed( action , "metadata folder is missing, product=" + name );
+		}
+		catch( Throwable e ) {
+			action.handle( e );
+			action.error( "unable to load metadata, product=" + name );
+		}
+		
+		return( set );
+	}
+	
+	public void clearServerProducts() {
+		for( ServerProductMeta storage : productMeta.values() )
+			clearServerProduct( storage );
+		productMeta.clear();
+	}
+	
+	private void clearServerProduct( ServerProductMeta storage ) {
+		storage.setPrimary( false );
+		if( !storage.isReferencedBySessions() ) {
 			storage.meta.deleteObject();
 			storage.deleteObject();
 		}
-		productMeta.clear();
 	}
 	
 	public void setProductProps( ActionInit action , PropertySet props ) throws Exception {
@@ -329,7 +371,7 @@ public class ServerLoader {
 	public ServerProductMeta createProductMetadata( TransactionBase transaction , ServerDirectory directoryNew , ServerProduct product ) throws Exception {
 		ActionInit action = transaction.getAction();
 		
-		ServerProductMeta set = new ServerProductMeta( this , product.NAME , action.session );
+		ServerProductMeta set = new ServerProductMeta( this , product.NAME );
 		ServerSettings settings = action.getServerSettings();
 		set.createInitial( transaction , settings , directoryNew );
 		

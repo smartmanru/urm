@@ -223,9 +223,6 @@ public class MetaEnvDC extends PropertyController {
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		if( !super.isLoaded() )
-			return;
-		
 		Element deployElement = Common.xmlCreateElement( doc , root , ELEMENT_DEPLOYMENT );
 		deploy.save( action , doc , deployElement );
 		Element startElement = Common.xmlCreateElement( doc , root , ELEMENT_STARTORDER );

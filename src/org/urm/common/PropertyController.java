@@ -9,7 +9,6 @@ public abstract class PropertyController extends ServerObject {
 
 	private String setName;
 	
-	private boolean loaded;
 	private boolean loadFailed;
 	private boolean loadFinished;
 	protected PropertySet properties;
@@ -21,7 +20,6 @@ public abstract class PropertyController extends ServerObject {
 		super( parent );
 		this.setName = name;
 		
-		loaded = false;
 		loadFailed = false;
 		loadFinished = false;
 	}
@@ -31,10 +29,6 @@ public abstract class PropertyController extends ServerObject {
 	}
 	
 	protected boolean initCopyStarted( PropertyController src , PropertySet parent ) {
-		if( loaded )
-			return( false );
-		
-		loaded = true;
 		loadFailed = false;
 		loadFinished = false;
 		
@@ -45,10 +39,6 @@ public abstract class PropertyController extends ServerObject {
 	}
 	
 	protected boolean initCreateStarted( PropertySet parent ) {
-		if( loaded )
-			return( false );
-		
-		loaded = true;
 		loadFailed = false;
 		loadFinished = false;
 		
@@ -69,10 +59,6 @@ public abstract class PropertyController extends ServerObject {
 		loadFinished = true;
 	}
 
-	protected boolean isLoaded() {
-		return( loaded );
-	}
-	
 	protected void setLoadFailed( ActionBase action , String msg ) {
 		loadFailed = true;
 		action.fail0( _Error.PropertyLoadFailed0 , msg );

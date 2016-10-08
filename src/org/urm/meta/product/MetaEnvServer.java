@@ -701,9 +701,6 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		if( !super.isLoaded() )
-			return;
-		
 		properties.saveSplit( doc , root );
 		
 		if( basesw != null ) {

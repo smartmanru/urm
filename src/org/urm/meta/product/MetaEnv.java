@@ -294,9 +294,6 @@ public class MetaEnv extends PropertyController {
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		if( !super.isLoaded() )
-			return;
-
 		properties.saveSplit( doc , root );
 		for( MetaEnvDC dc : originalList ) {
 			Element dcElement = Common.xmlCreateElement( doc , root , ELEMENT_DATACENTER );

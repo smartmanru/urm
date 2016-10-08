@@ -129,9 +129,6 @@ public class MetaDistr extends PropertyController {
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		if( !super.isLoaded() )
-			return;
-
 		properties.saveAsElements( doc , root );
 		saveDeliveries( action , doc , root );
 		saveComponents( action , doc , root );

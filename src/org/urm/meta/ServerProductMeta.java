@@ -34,7 +34,6 @@ public class ServerProductMeta extends ServerObject {
 
 	public ServerLoader loader;
 	public String name;
-	public ServerSession session;
 	
 	public Meta meta;
 	
@@ -61,13 +60,12 @@ public class ServerProductMeta extends ServerObject {
 	private Map<ServerSession,Meta> sessionMeta;
 	private boolean primary;
 	
-	public ServerProductMeta( ServerLoader loader , String name , ServerSession session ) {
+	public ServerProductMeta( ServerLoader loader , String name ) {
 		super( null );
 		this.loader = loader;
 		this.name = name;
-		this.session = session;
 		
-		meta = new Meta( this , session );
+		meta = new Meta( this , null );
 		loader.engine.serverAction.trace( "new product storage meta object, id=" + meta.objectId + ", storage=" + objectId );
 		designFiles = new HashMap<String,MetaDesign>();
 		envs = new HashMap<String,MetaEnv>();
@@ -104,7 +102,7 @@ public class ServerProductMeta extends ServerObject {
 	}
 	
 	public synchronized ServerProductMeta copy( ActionBase action ) throws Exception {
-		ServerProductMeta r = new ServerProductMeta( loader , name , session );
+		ServerProductMeta r = new ServerProductMeta( loader , name );
 		if( version != null ) {
 			r.version = version.copy( action , r.meta );
 			if( r.version.isLoadFailed() )
