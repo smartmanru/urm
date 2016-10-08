@@ -47,7 +47,7 @@ public class MetaDistr extends PropertyController {
 	public MetaDistr copy( ActionBase action , Meta meta ) throws Exception {
 		MetaDistr r = new MetaDistr( meta.getStorage( action ) , meta );
 		MetaProductSettings product = meta.getProductSettings( action );
-		super.initCopyStarted( this , product.getProperties() );
+		r.initCopyStarted( this , product.getProperties() );
 		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
 			MetaDistrDelivery rd = delivery.copy( action , meta , r );
 			r.mapDeliveries.put( rd.NAME , rd );
@@ -70,7 +70,7 @@ public class MetaDistr extends PropertyController {
 			r.mapComps.put( ritem.NAME , ritem );
 		}
 		
-		super.initFinished();
+		r.initFinished();
 		return( r );
 	}
 	

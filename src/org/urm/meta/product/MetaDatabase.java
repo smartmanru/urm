@@ -48,7 +48,7 @@ public class MetaDatabase extends PropertyController {
 		MetaDatabase r = new MetaDatabase( meta.getStorage( action ) , meta );
 		MetaProductSettings product = meta.getProductSettings( action );
 		r.initCopyStarted( this , product.getProperties() );
-		
+		r.initFinished();
 		return( r );
 	}
 	
