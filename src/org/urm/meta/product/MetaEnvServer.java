@@ -376,7 +376,7 @@ public class MetaEnvServer extends PropertyController {
 		deployments.add( dp );
 	}
 	
-	public List<MetaEnvServerNode> getNodes( ActionBase action ) throws Exception {
+	public List<MetaEnvServerNode> getNodes( ActionBase action ) {
 		return( nodes );
 	}
 
