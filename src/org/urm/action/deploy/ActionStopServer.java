@@ -67,14 +67,14 @@ public class ActionStopServer extends ActionBase {
 			return;
 		}
 	
-		if( actionServer.isCommand( this ) ) {
+		if( actionServer.isCommand() ) {
 			if( !context.CTX_FORCE ) {
 				debug( "server=" + actionServer.NAME + " is command server. Skipped." );
 				return;
 			}
 		}
 		
-		if( actionServer.isStartable( this ) ) {
+		if( actionServer.isStartable() ) {
 			ServerCluster cluster = new ServerCluster( actionServer , nodes );
 			if( !cluster.stop( this ) )
 				super.fail1( _Error.ServerClusterStopFailed1 , "server cluster stop failed, server=" + actionServer.NAME , actionServer.NAME );

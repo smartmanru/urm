@@ -47,19 +47,19 @@ public class RuntimeStorage extends ServerStorage {
 
 		Account nodeAccount = action.getNodeAccount( node );
 		Account account = nodeAccount;
-		if( server.isService( action ) )
+		if( server.isService() )
 			account = account.getRootAccount( action );
 		
 		RemoteFolder runtimeDir = new RemoteFolder( account , F_RUNTIMEDIR );
 		String confFullPath = remoteDir.getFilePath( action , F_CONFIGTARFILE );
 		shell.appendExecuteLog( action , "restore server system configuration (" + confFullPath + ")" + " to " + runtimeDir.folderPath );
 		
-		if( !server.isService( action ) )
+		if( !server.isService() )
 			runtimeDir.removeFiles( action , F_FILES );
 		
 		runtimeDir.extractTar( action , confFullPath , "" );
-		if( server.isLinux( action ) ) {
-			if( server.isService( action ) ) {
+		if( server.isLinux() ) {
+			if( server.isService() ) {
 				shell = action.getShell( account );
 				shell.customCheckErrorsDebug( action , F_RUNTIMEDIR , "chown " + nodeAccount.USER + ": " + F_FILES + 
 						"; chmod 744 " + F_FILES );
@@ -303,7 +303,7 @@ public class RuntimeStorage extends ServerStorage {
 	}
 
 	public void installService( ActionBase action , String servicePath ) throws Exception {
-		if( !server.isService( action ) )
+		if( !server.isService() )
 			action.exitUnexpectedState();
 		
 		if( server.osType == VarOSTYPE.LINUX ) {

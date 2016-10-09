@@ -140,12 +140,12 @@ public class ActionBaseInstall extends ActionBase {
 		redistFolder.copyDirContentFromLocal( this , workBase , "" );
 		
 		ShellExecutor shell = super.getShell( node );
-		if( server.isLinux( this ) )
+		if( server.isLinux() )
 			shell.customCheckErrorsDebug( this , redistFolder.folderPath , "chmod 777 server.*.sh" );
 		
 		// run installer
 		int timeout = setTimeoutUnlimited();
-		String cmd = ( server.isLinux( this ) )? "./server.prepare.sh" : "call server.prepare.cmd";
+		String cmd = ( server.isLinux() )? "./server.prepare.sh" : "call server.prepare.cmd";
 		shell.customCheckStatus( this , redistFolder.folderPath , cmd );
 		setTimeout( timeout );
 	}
@@ -248,13 +248,13 @@ public class ActionBaseInstall extends ActionBase {
 		// copy system files from base
 		RemoteFolder baseMaster = info.getFolder( this );
 		if( info.serverAccessType == VarSERVERACCESSTYPE.SERVICE ) {
-			if( !server.isLinux( this ) )
+			if( !server.isLinux() )
 				exitUnexpectedState();
 			
 			baseMaster.copyFileToLocalRename( this , workBase , "service" , server.SERVICENAME );
 		}
 		else {
-			if( server.isLinux( this ) )
+			if( server.isLinux() )
 				baseMaster.copyFilesToLocal( this , workBase , "server.*.sh" );
 			else
 				baseMaster.copyFilesToLocal( this , workBase , "server.*.cmd" );

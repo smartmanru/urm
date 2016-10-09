@@ -33,7 +33,7 @@ public class ActionSaveConfigs extends ActionBase {
 	
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer; 
-		if( !server.isConfigurable( this ) ) {
+		if( !server.isConfigurable() ) {
 			debug( "ignore server=" + server.NAME + ", type=" + server.getServerTypeName( this ) );
 			return( true );
 		}

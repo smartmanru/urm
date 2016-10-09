@@ -23,7 +23,7 @@ public class ActionPrepareRedist extends ActionBase {
 		// ignore database and manual deployments
 		MetaEnvServer server = target.envServer;
 	
-		if( !server.isDeployPossible( this ) ) {
+		if( !server.isDeployPossible() ) {
 			trace( "ignore due to server properties" );
 			return( true );
 		}

@@ -245,6 +245,11 @@ public class ServerTransaction extends TransactionBase {
 		server.updateProperties( this );
 	}
 
+	public void setMetaEnvServerProperties( MetaEnvServer server , PropertySet props , boolean system ) throws Exception {
+		checkTransactionMetadata( server.meta.getStorage( action ) );
+		server.setProperties( this , props , system );
+	}
+	
 	public MetaEnvServerNode createMetaEnvServerNode( MetaEnvServer server , int pos , VarNODETYPE nodeType , Account account ) throws Exception {
 		checkTransactionMetadata( server.meta.getStorage( action ) );
 		MetaEnvServerNode node = new MetaEnvServerNode( server.meta , server , pos );

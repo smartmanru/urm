@@ -140,7 +140,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 		return( DEPLOYTYPE );
 	}
 
-	public boolean isManual( ActionBase action ) throws Exception {
+	public boolean isManual() {
 		return( DEPLOYTYPE == VarDEPLOYTYPE.MANUAL );
 	}
 	

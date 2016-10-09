@@ -121,13 +121,13 @@ public class ActionCheckEnv extends ActionBase {
 		S_CHECKENV_SERVER_COMPS_FAILED = "";
 
 		// ignore offline server
-		if( server.isOffline( this ) ) {
+		if( server.isOffline() ) {
 			debug( "ignore offline server=" + server.NAME );
 			return;
 		}
 		
 		// ignore command servers except when specifically called 
-		if( server.isCommand( this ) ) {
+		if( server.isCommand() ) {
 			if( context.CTX_ALL == false || main == false ) {
 				debug( "ignore command server=" + server.NAME );
 				return;
@@ -171,18 +171,18 @@ public class ActionCheckEnv extends ActionBase {
 		
 		boolean wholeOk = true;
 		
-		if( server.isWebUser( this ) ) {
+		if( server.isWebUser() ) {
 			if( !server.WEBMAINURL.isEmpty() )
 				if( !checkOneServerWholeUrl( server.WEBMAINURL , "main web url" ) )
 					wholeOk = false;
 		}
 
-		if( server.isCallable( this ) ) {
+		if( server.isCallable() ) {
 			if( !checkOneServerWholeComps( server ) )
 				wholeOk = false;
 		}
 
-		if( server.isDatabase( this ) ) {
+		if( server.isDatabase() ) {
 			if( !checkOneServerWholeDatabase( server ) )
 				wholeOk = false;
 		}
@@ -205,10 +205,10 @@ public class ActionCheckEnv extends ActionBase {
 	}
 
 	private boolean checkOneServerWholeComps( MetaEnvServer server ) throws Exception {
-		if( server.WEBDOMAIN.isEmpty() )
+		if( server.WEBSERVICEURL.isEmpty() )
 			return( true );
 		
-		return( checkOneServerWebServices( server , server.WEBDOMAIN ) );
+		return( checkOneServerWebServices( server , server.WEBSERVICEURL ) );
 	}
 	
 	private boolean checkOneServerWebServices( MetaEnvServer server , String ACCESSPOINT ) throws Exception {

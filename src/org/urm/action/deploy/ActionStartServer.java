@@ -66,14 +66,14 @@ public class ActionStartServer extends ActionBase {
 			return;
 		}
 	
-		if( actionServer.isCommand( this ) ) {
+		if( actionServer.isCommand() ) {
 			if( !context.CTX_FORCE ) {
 				debug( "server=" + actionServer.NAME + " is command server. Skipped." );
 				return;
 			}
 		}
 		
-		if( actionServer.isStartable( this ) ) {
+		if( actionServer.isStartable() ) {
 			ServerCluster cluster = new ServerCluster( actionServer , nodes );
 			if( !cluster.start( this ) ) {
 				trace( "server cluster failed" );

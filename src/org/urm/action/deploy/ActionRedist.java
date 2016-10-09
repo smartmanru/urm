@@ -38,7 +38,7 @@ public class ActionRedist extends ActionBase {
 	
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
-		if( server.isDeployPossible( this ) )
+		if( server.isDeployPossible() )
 			executeServer( target );
 		
 		return( true );

@@ -28,11 +28,11 @@ public class ServerProcess {
 	}
 
 	public boolean isGeneric( ActionBase action ) throws Exception {
-		return( srv.isGeneric( action ) );
+		return( srv.isGeneric() );
 	}
 
 	public boolean isService( ActionBase action ) throws Exception {
-		return( srv.isService( action ) );
+		return( srv.isService() );
 	}
 
 	public void gatherStatus( ActionBase action ) throws Exception {
@@ -89,7 +89,7 @@ public class ServerProcess {
 		
 		// linux operations
 		try {
-			if( srv.isLinux( action ) ) {
+			if( srv.isLinux() ) {
 				cmdValue = shell.customGetValue( action , "service " + srv.SERVICENAME + " status 2>&1" );
 				
 				String check = cmdValue.toUpperCase();
@@ -113,7 +113,7 @@ public class ServerProcess {
 			}
 			
 			// windows operations
-			if( srv.isWindows( action ) ) {
+			if( srv.isWindows() ) {
 				action.exitNotImplemented();
 				return;
 			}
@@ -140,10 +140,10 @@ public class ServerProcess {
 		// check process status
 		ShellExecutor shell = action.getShell( node );
 		try {
-			if( srv.isLinux( action ) )
+			if( srv.isLinux() )
 				cmdValue = shell.customGetValue( action , srv.getFullBinPath( action ) , "./server.status.sh " + srv.NAME + " " + action.context.CTX_EXTRAARGS );
 			else
-			if( srv.isWindows( action ) )
+			if( srv.isWindows() )
 				cmdValue = shell.customGetValue( action , srv.getFullBinPath( action ) , "call server.status.cmd " + srv.NAME + " " + action.context.CTX_EXTRAARGS );
 			else
 				action.exitUnexpectedState();
@@ -180,7 +180,7 @@ public class ServerProcess {
 		ShellExecutor shell = action.getShell( node );
 		try {
 			// linux operations
-			if( srv.isLinux( action ) ) {
+			if( srv.isLinux() ) {
 				String value = shell.customGetValue( action , "pgrep -f \"Dprogram.name=" + srv.NAME + " \"" );
 				if( !value.isEmpty() )
 					pids = value.replace( '\n' ,  ' ' );
@@ -188,7 +188,7 @@ public class ServerProcess {
 			}
 			
 			// windows operations
-			if( srv.isWindows( action ) ) {
+			if( srv.isWindows() ) {
 				action.exitNotImplemented();
 				return;
 			}
@@ -226,13 +226,13 @@ public class ServerProcess {
 		ShellExecutor shell = action.getShell( node );
 		try {
 			// linux operations
-			if( srv.isLinux( action ) ) {
+			if( srv.isLinux() ) {
 				shell.customCritical( action , "service " + srv.SERVICENAME + " stop > /dev/null 2>&1" );
 				return( true );
 			}
 			
 			// windows operations
-			if( srv.isWindows( action ) ) {
+			if( srv.isWindows() ) {
 				action.exitNotImplemented();
 				return( false );
 			}
@@ -267,7 +267,7 @@ public class ServerProcess {
 		ShellExecutor shell = action.getShell( node );
 		try {
 			// linux operations
-			if( srv.isLinux( action ) ) {
+			if( srv.isLinux() ) {
 				shell.customCritical( action , F_FULLBINPATH , "./server.stop.sh " + srv.NAME + " " +
 						Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS + " > /dev/null" );
 				shell.checkErrors( action );
@@ -275,7 +275,7 @@ public class ServerProcess {
 			}
 			
 			// windows operations
-			if( srv.isWindows( action ) ) {
+			if( srv.isWindows() ) {
 				shell.customCritical( action , F_FULLBINPATH , "call server.stop.cmd " + srv.NAME + " " +
 						Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS );
 				shell.checkErrors( action );
@@ -395,13 +395,13 @@ public class ServerProcess {
 		ShellExecutor shell = action.getShell( node );
 		try {
 			// linux operations
-			if( srv.isLinux( action ) ) {
+			if( srv.isLinux() ) {
 				shell.customCritical( action , "kill -9 " + pids );
 				return;
 			}
 			
 			// windows operations
-			if( srv.isWindows( action ) ) {
+			if( srv.isWindows() ) {
 				action.exitNotImplemented();
 				return;
 			}
@@ -445,13 +445,13 @@ public class ServerProcess {
 		ShellExecutor shell = action.getShell( node );
 		try {
 			// linux operations
-			if( srv.isLinux( action ) ) {
+			if( srv.isLinux() ) {
 				shell.customCritical( action , "service " + srv.SERVICENAME + " start > /dev/null 2>&1" );
 				return( true );
 			}
 			
 			// windows operations
-			if( srv.isWindows( action ) ) {
+			if( srv.isWindows() ) {
 				action.exitNotImplemented();
 				return( false );
 			}
@@ -483,7 +483,7 @@ public class ServerProcess {
 		ShellExecutor shell = action.getShell( node );
 		try {
 			// linux operations
-			if( srv.isLinux( action ) ) {
+			if( srv.isLinux() ) {
 				shell.customCritical( action , F_FULLBINPATH , "./server.start.sh " + srv.NAME + " " +
 					action.context.CTX_EXTRAARGS + " > /dev/null" );
 				shell.checkErrors( action );
@@ -491,7 +491,7 @@ public class ServerProcess {
 			}
 			
 			// windows operations
-			if( srv.isWindows( action ) ) {
+			if( srv.isWindows() ) {
 				shell.customCritical( action , F_FULLBINPATH , "call server.start.cmd " + srv.NAME + " " +
 					action.context.CTX_EXTRAARGS );
 					shell.checkErrors( action );
@@ -616,14 +616,14 @@ public class ServerProcess {
 		ShellExecutor shell = action.getShell( node );
 		try {
 			// linux operations
-			if( srv.isLinux( action ) ) {
+			if( srv.isLinux() ) {
 				shell.customCritical( action , "service " + srv.SERVICENAME + " prepare" );
 				shell.checkErrors( action );
 				return( true );
 			}
 			
 			// windows operations
-			if( srv.isWindows( action ) ) {
+			if( srv.isWindows() ) {
 				action.exitNotImplemented();
 				return( false );
 			}
@@ -642,7 +642,7 @@ public class ServerProcess {
 		ShellExecutor shell = action.getShell( node );
 		try {
 			// linux operations
-			if( srv.isLinux( action ) ) {
+			if( srv.isLinux() ) {
 				shell.customCritical( action , F_FULLBINPATH , "./server.prepare.sh " + srv.NAME + " " +
 						srv.ROOTPATH + " " + action.context.CTX_EXTRAARGS + " > /dev/null" );
 				shell.checkErrors( action );
@@ -650,7 +650,7 @@ public class ServerProcess {
 			}
 			
 			// windows operations
-			if( srv.isWindows( action ) ) {
+			if( srv.isWindows() ) {
 				String wpath = Common.getWinPath( srv.ROOTPATH ); 
 				shell.customCritical( action , F_FULLBINPATH , "call server.prepare.cmd " + srv.NAME + " " +
 						wpath + " " + action.context.CTX_EXTRAARGS );

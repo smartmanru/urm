@@ -434,7 +434,7 @@ public class ActionScopeSet {
 			setFull = false;
 		
 		for( MetaEnvServer server : dc.getServerMap( action ).values() ) {
-			if( !server.isDatabase( action ) )
+			if( !server.isDatabase() )
 				continue;
 			
 			boolean addServer = ( dist == null )? true : releaseServers.containsKey( server.NAME );

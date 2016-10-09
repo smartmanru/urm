@@ -25,7 +25,7 @@ public class ActionGetDeployInfo extends ActionBase {
 		MetaEnvServer server = target.envServer;
 		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
 
-		if( server.isDatabase( this ) )
+		if( server.isDatabase() )
 			executeTargetDatabase( server );
 		else
 			executeTargetApp( target , server );

@@ -82,7 +82,7 @@ public class ActionVerifyDeploy extends ActionBase {
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		// ignore database and unreachable
 		MetaEnvServer server = target.envServer;
-		if( !server.isDeployPossible( this ) ) {
+		if( !server.isDeployPossible() ) {
 			trace( "ignore due to server empty deployment" );
 			return( true );
 		}
@@ -101,7 +101,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		
 		info( "============================================ execute server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
 
-		if( server.isDatabase( this ) )
+		if( server.isDatabase() )
 			executeServerDatabase( server );
 		else
 			executeServerApp( target , server );

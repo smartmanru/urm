@@ -21,7 +21,7 @@ public class ActionRollback extends ActionBase {
 	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		// ignore database and unreachable
 		MetaEnvServer server = target.envServer;
-		if( !server.isDeployPossible( this ) ) {
+		if( !server.isDeployPossible() ) {
 			trace( "ignore due to server empty deployments" );
 			return( true );
 		}

@@ -9,6 +9,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
+import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.shell.Account;
@@ -55,7 +56,7 @@ public class MetaEnvServer extends PropertyController {
 	public String DEPLOYSCRIPT;
 	public String HOTDEPLOYPATH;
 	public String HOTDEPLOYDATA;
-	public String WEBDOMAIN;
+	public String WEBSERVICEURL;
 	public String WEBMAINURL;
 	public String APPSERVER;
 	public String APPSERVERVERSION;
@@ -82,37 +83,40 @@ public class MetaEnvServer extends PropertyController {
 	public static String PROPERTY_OSTYPE = "ostype";
 	public static String PROPERTY_SERVERRUNTYPE = "runtype";
 	public static String PROPERTY_SERVERACCESSTYPE = "accesstype";
-	
-	public static String PROPERTY_XDOC = "xdoc";
+	public static String PROPERTY_SERVICENAME = "servicename";
 	public static String PROPERTY_OFFLINE = "offline";
 	
 	public static String PROPERTY_ROOTPATH = "rootpath";
 	public static String PROPERTY_BINPATH = "binpath";
-	public static String PROPERTY_SERVICENAME = "servicename";
+	public static String PROPERTY_STARTTIME = "starttime";
+	public static String PROPERTY_STOPTIME = "stoptime";
+	public static String PROPERTY_NOPIDS = "nopids";
+	
 	public static String PROPERTY_PORT = "port";
+	public static String PROPERTY_WEBMAINURL = "webmainurl";
+	public static String PROPERTY_WEBSERVICEURL = "webserviceurl";
+
+	public static String PROPERTY_DBMSTYPE = "dbmstype";
+	public static String PROPERTY_DBMSADDR = "dbmsaddr";
+	public static String PROPERTY_ADMSCHEMA = "admschema";
+	public static String PROPERTY_DATAGROUPS = "datagroups";
+	public static String PROPERTY_ALIGNED = "aligned";
+	public static String PROPERTY_REGIONS = "regions";
+	
+	public static String PROPERTY_LOGPATH = "logpath";
+	public static String PROPERTY_LOGFILEPATH = "logfilepath";
+	public static String PROPERTY_DEPLOYPATH = "deploypath";
+	public static String PROPERTY_LINKFROMPATH = "linkfrompath";
+	public static String PROPERTY_HOTDEPLOYPATH = "hotdeploypath";
+	public static String PROPERTY_HOTDEPLOYDATA = "hotdeploydata";
+	public static String PROPERTY_DEPLOYSCRIPT = "deployscript";
+	
 	public static String PROPERTY_NLBSERVER = "nlbserver";
 	public static String PROPERTY_PROXYSERVER = "proxy-server";
 	public static String PROPERTY_STATICSERVER = "static-server";
 	public static String PROPERTY_SUBORDINATESERVERS = "subordinate-servers";
-	public static String PROPERTY_STARTTIME = "starttime";
-	public static String PROPERTY_STOPTIME = "stoptime";
-	public static String PROPERTY_DEPLOYPATH = "deploypath";
-	public static String PROPERTY_LINKFROMPATH = "linkfrompath";
-	public static String PROPERTY_DEPLOYSCRIPT = "deployscript";
-	public static String PROPERTY_HOTDEPLOYPATH = "hotdeploypath";
-	public static String PROPERTY_HOTDEPLOYDATA = "hotdeploydata";
-	public static String PROPERTY_WEBDOMAIN = "webdomain";
-	public static String PROPERTY_WEBMAINURL = "webmainurl";
-	public static String PROPERTY_LOGPATH = "logpath";
-	public static String PROPERTY_LOGFILEPATH = "logfilepath";
-	public static String PROPERTY_NOPIDS = "nopids";
 
-	public static String PROPERTY_DBMSTYPE = "dbmstype";
-	public static String PROPERTY_DBMSADDR = "dbmsaddr";
-	public static String PROPERTY_DATAGROUPS = "datagroups";
-	public static String PROPERTY_ADMSCHEMA = "admschema";
-	public static String PROPERTY_ALIGNED = "aligned";
-	public static String PROPERTY_REGIONS = "regions";
+	public static String PROPERTY_XDOC = "xdoc";
 	
 	public static String ELEMENT_NODE = "node";
 	public static String ELEMENT_BASE = "base";
@@ -155,11 +159,11 @@ public class MetaEnvServer extends PropertyController {
 		OFFLINE = super.getBooleanProperty( action , PROPERTY_OFFLINE );
 		XDOC = super.getPathProperty( action , PROPERTY_XDOC , NAME + ".xml" );
 		
-		if( isStartable( action ) || isDeployPossible( action ) ) {
+		if( isStartable() || isDeployPossible() ) {
 			ROOTPATH = super.getPathProperty( action , PROPERTY_ROOTPATH );
 		}
 		
-		if( isStartable( action ) ) {
+		if( isStartable() ) {
 			BINPATH = super.getPathProperty( action , PROPERTY_BINPATH );
 			PORT = super.getIntProperty( action , PROPERTY_PORT , 0 );
 			NLBSERVER = super.getStringProperty( action , PROPERTY_NLBSERVER );
@@ -170,23 +174,23 @@ public class MetaEnvServer extends PropertyController {
 			STOPTIME = super.getIntProperty( action , PROPERTY_STOPTIME , 0 );
 			HOTDEPLOYPATH = super.getPathProperty( action , PROPERTY_HOTDEPLOYPATH );
 			HOTDEPLOYDATA = super.getStringProperty( action , PROPERTY_HOTDEPLOYDATA );
-			WEBDOMAIN = super.getStringProperty( action , PROPERTY_WEBDOMAIN );
+			WEBSERVICEURL = super.getStringProperty( action , PROPERTY_WEBSERVICEURL );
 			WEBMAINURL = super.getStringProperty( action , PROPERTY_WEBMAINURL );
 			LOGPATH = super.getPathProperty( action , PROPERTY_LOGPATH );
 			LOGFILEPATH = super.getPathProperty( action , PROPERTY_LOGFILEPATH );
 			NOPIDS = super.getBooleanProperty( action , PROPERTY_NOPIDS );
 		}
 
-		if( isService( action ) )
+		if( isService() )
 			SERVICENAME = super.getStringPropertyRequired( action , PROPERTY_SERVICENAME );
 
-		if( isDeployPossible( action ) ) {
+		if( isDeployPossible() ) {
 			DEPLOYPATH = super.getPathProperty( action , PROPERTY_DEPLOYPATH );
 			LINKFROMPATH = super.getPathProperty( action , PROPERTY_LINKFROMPATH );
 			DEPLOYSCRIPT = super.getPathProperty( action , PROPERTY_DEPLOYSCRIPT );
 		}
 		
-		if( isDatabase( action ) ) {
+		if( isDatabase() ) {
 			dbType = Meta.getDbmsType( super.getStringPropertyRequired( action , PROPERTY_DBMSTYPE ) );
 			DBMSADDR = super.getStringPropertyRequired( action , PROPERTY_DBMSADDR );
 			DATAGROUPS = super.getStringPropertyRequired( action , PROPERTY_DATAGROUPS );
@@ -300,7 +304,7 @@ public class MetaEnvServer extends PropertyController {
 		}
 		
 		// verify aligned
-		if( isDatabase( action ) ) {
+		if( isDatabase() ) {
 			MetaDatabase database = meta.getDatabase( action );
 			for( String id : Common.splitSpaced( ALIGNED ) )
 				database.checkAligned( action , id );
@@ -447,7 +451,7 @@ public class MetaEnvServer extends PropertyController {
 		return( list );
 	}
 	
-	public boolean isConfigurable( ActionBase action ) throws Exception {
+	public boolean isConfigurable() {
 		if( serverAccessType == VarSERVERACCESSTYPE.MANUAL || serverAccessType == VarSERVERACCESSTYPE.UNKNOWN )
 			return( false );
 		if( serverRunType == VarSERVERRUNTYPE.DATABASE || serverRunType == VarSERVERRUNTYPE.UNKNOWN ) 
@@ -587,16 +591,14 @@ public class MetaEnvServer extends PropertyController {
 		return( locations.values().toArray( new MetaEnvServerLocation[0] ) );
 	}
 
-	public boolean isDeployPossible( ActionBase action ) throws Exception {
-		if( !isConfigurable( action ) ) {
-			action.trace( "ignore due to server type=" + getServerTypeName( action ) );
+	public boolean isDeployPossible() {
+		if( !isConfigurable() )
 			return( false );
-		}
 		
 		// check deploy items
 		if( deployments != null ) {
 			for( MetaEnvServerDeployment item : deployments ) {
-				if( !item.isManual( action ) )
+				if( !item.isManual() )
 					return( true );
 			}
 		}
@@ -633,41 +635,39 @@ public class MetaEnvServer extends PropertyController {
 		return( null );
 	}
 
-	public boolean isWindows( ActionBase action ) throws Exception {
+	public boolean isWindows() {
 		return( osType == VarOSTYPE.WINDOWS );
 	}
 
-	public boolean isLinux( ActionBase action ) throws Exception {
+	public boolean isLinux() {
 		return( osType == VarOSTYPE.LINUX );
 	}
 
-	public boolean isDatabase( ActionBase action ) throws Exception {
+	public boolean isDatabase() {
 		return( serverRunType == VarSERVERRUNTYPE.DATABASE );
 	}
 
-	public boolean isService( ActionBase action ) throws Exception {
+	public boolean isService() {
 		return( serverAccessType == VarSERVERACCESSTYPE.SERVICE );
 	}
 
-	public boolean isOffline( ActionBase action ) throws Exception {
-		return( OFFLINE );
-	}
-	
-	public boolean isCommand( ActionBase action ) throws Exception {
+	public boolean isCommand() {
 		return( serverRunType == VarSERVERRUNTYPE.COMMAND );
 	}
 	
-	public boolean isGeneric( ActionBase action ) throws Exception {
+	public boolean isGeneric() {
 		return( serverAccessType == VarSERVERACCESSTYPE.GENERIC );
 	}
 
-	public boolean isWebUser( ActionBase action ) throws Exception {
+	public boolean isWebUser() {
 		return( serverRunType == VarSERVERRUNTYPE.WEBUI );
 	}
 
-	public boolean isCallable( ActionBase action ) throws Exception {
-		if( OFFLINE )
-			return( false );
+	public boolean isWebApp() {
+		return( serverRunType == VarSERVERRUNTYPE.WEBAPP );
+	}
+
+	public boolean isCallable() {
 		if( serverRunType == VarSERVERRUNTYPE.DATABASE ||
 			serverRunType == VarSERVERRUNTYPE.APP ) 
 			return( false );
@@ -675,26 +675,28 @@ public class MetaEnvServer extends PropertyController {
 			
 	}
 
-	public boolean isStartable( ActionBase action ) throws Exception {
-		if( OFFLINE )
-			return( false );
+	public boolean isStartable() {
 		if( serverAccessType == VarSERVERACCESSTYPE.MANUAL )
 			return( false );
 		return( true );
 	}
 
+	public boolean isOffline() {
+		return( OFFLINE );
+	}
+	
 	public String getSystemPath( ActionBase action ) throws Exception {
-		if( isLinux( action ) && isService( action ) )
+		if( isLinux() && isService() )
 			return( "/etc/init.d" );
 		
 		return( Common.getPath( ROOTPATH , BINPATH ) );
 	}
 	
 	public String getSystemFiles( ActionBase action ) throws Exception {
-		if( isLinux( action ) && isService( action ) )
+		if( isLinux() && isService() )
 			return( SERVICENAME );
 		
-		if( isLinux( action ) )
+		if( isLinux() )
 			return( "server.*.sh" );
 		
 		return( "server.*.cmd" );
@@ -752,7 +754,7 @@ public class MetaEnvServer extends PropertyController {
 			if( ROOTPATH == null || ROOTPATH.isEmpty() ) {
 				if( deployments != null && !deployments.isEmpty() )
 					action.exit1( _Error.RootpathEmptyRequiredForDeployments1 , "rootpath is empty, required for deployments server=" + NAME , NAME );
-				if( isGeneric( action ) )
+				if( isGeneric() )
 					action.exit1( _Error.RootpathEmptyRequiredForGeneric1 , "rootpath is empty, required for generic server=" + NAME , NAME );
 			}
 		}
@@ -760,10 +762,6 @@ public class MetaEnvServer extends PropertyController {
 		properties.setBooleanProperty( PROPERTY_OFFLINE , offline );
 	}
 
-	public boolean isOffline() {
-		return( OFFLINE );
-	}
-	
 	public void createNode( ServerTransaction transaction , MetaEnvServerNode node ) {
 		addNode( transaction , node );
 	}
@@ -822,4 +820,9 @@ public class MetaEnvServer extends PropertyController {
 		super.deleteObject();
 	}
 	
+	public void setProperties( ServerTransaction transaction , PropertySet props , boolean system ) throws Exception {
+		super.updateProperties( transaction , props , system );
+		scatterProperties( transaction.getAction() );
+	}
+
 }

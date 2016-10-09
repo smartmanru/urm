@@ -632,20 +632,20 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public String getContextRedistPath( MetaEnvServer server ) throws Exception {
-		if( server.isLinux( this ) )
+		if( server.isLinux() )
 			return( context.CTX_REDISTLINUX_PATH );
 		return( context.CTX_REDISTWIN_PATH );
 	}
 	
 	public String getProductRedistPath( MetaEnvServer server ) throws Exception {
 		MetaProductSettings product = server.meta.getProductSettings( this );
-		if( server.isLinux( this ) )
+		if( server.isLinux() )
 			return( product.CONFIG_REDISTLINUX_PATH );
 		return( product.CONFIG_REDISTWIN_PATH );
 	}
 	
 	public String getEnvRedistPath( MetaEnvServer server ) throws Exception {
-		if( server.isLinux( this ) )
+		if( server.isLinux() )
 			return( server.dc.env.REDISTLINUX_PATH );
 		return( server.dc.env.REDISTWIN_PATH );
 	}

@@ -110,6 +110,10 @@ public class MetaDatabase extends PropertyController {
 
 	public void saveSchemaSet( ActionBase action , Document doc , Element root ) throws Exception {
 	}
+
+	public String[] getSchemaSet() {
+		return( Common.getSortedKeys( mapSchema ) );
+	}
 	
 	public MetaDatabaseSchema getSchema( ActionBase action , String name ) throws Exception {
 		MetaDatabaseSchema schema = mapSchema.get( name );

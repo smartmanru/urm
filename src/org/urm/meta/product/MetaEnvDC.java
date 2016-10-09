@@ -216,7 +216,7 @@ public class MetaEnvDC extends PropertyController {
 
 	public boolean hasDatabaseServers( ActionBase action ) throws Exception {
 		for( MetaEnvServer server : originalList )
-			if( server.isDatabase( action ) )
+			if( server.isDatabase() )
 				return( true );
 		
 		return( false );
