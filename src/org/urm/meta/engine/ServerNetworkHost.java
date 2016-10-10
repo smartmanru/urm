@@ -25,6 +25,7 @@ public class ServerNetworkHost extends ServerObject {
 	public String ID;
 	public String IP;
 	public VarOSTYPE osType;
+	public String DESC;
 	
 	public ServerNetworkHost( ServerNetwork network ) {
 		super( network );
@@ -50,6 +51,7 @@ public class ServerNetworkHost extends ServerObject {
 		IP = ConfReader.getAttrValue( root , "ip" );
 		String OSTYPE = ConfReader.getAttrValue( root , "ostype" );
 		osType = Meta.getOSType( OSTYPE );
+		DESC = ConfReader.getAttrValue( root , "desc" );
 		
 		Node[] list = ConfReader.xmlGetChildren( root , "account" );
 		if( list == null )
@@ -70,6 +72,7 @@ public class ServerNetworkHost extends ServerObject {
 		Common.xmlSetElementAttr( doc , root , "id" , ID );
 		Common.xmlSetElementAttr( doc , root , "ip" , IP );
 		Common.xmlSetElementAttr( doc , root , "ostype" , Common.getEnumLower( osType ) );
+		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
 		
 		for( ServerHostAccount account : accountMap.values() ) {
 			Element element = Common.xmlCreateElement( doc , root , "account" );
@@ -86,16 +89,18 @@ public class ServerNetworkHost extends ServerObject {
 		return( Common.getSortedList( list ) );
 	}
 
-	public void createHost( ServerTransaction transaction  , VarOSTYPE osType , String HOSTNAME , String IP ) throws Exception {
+	public void createHost( ServerTransaction transaction  , VarOSTYPE osType , String HOSTNAME , String IP , String DESC ) throws Exception {
 		this.osType = osType;
 		this.ID = ( HOSTNAME.isEmpty() )? IP : HOSTNAME;
 		this.IP = IP;
+		this.DESC = DESC;
 	}
 	
-	public void modifyHost( ServerTransaction transaction  , VarOSTYPE osType , String HOSTNAME , String IP ) throws Exception {
+	public void modifyHost( ServerTransaction transaction  , VarOSTYPE osType , String HOSTNAME , String IP , String DESC ) throws Exception {
 		this.osType = osType;
 		this.ID = ( HOSTNAME.isEmpty() )? IP : HOSTNAME;
 		this.IP = IP;
+		this.DESC = DESC;
 	}
 
 	public String[] getAccounts() {
