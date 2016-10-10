@@ -195,7 +195,7 @@ public class ServerNetwork extends ServerObject {
 		}
 
 		ServerNetworkHost host = new ServerNetworkHost( this );
-		host.createHost( transaction , account.osType , account.HOST , account.IP );
+		host.createHost( transaction , account.osType , account.HOST , account.IP , "" );
 		createHost( transaction , host );
 		return( host );
 	}
