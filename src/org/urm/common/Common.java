@@ -828,5 +828,15 @@ public class Common {
 	public static void exit3( int errorCode , String msg , String param1 , String param2 , String param3 ) throws Exception {
 		throw new RunError( errorCode , msg , new String[] { param1 , param2 , param3 } );
 	}
+
+	public static String[] getEnumOptions( @SuppressWarnings("rawtypes") Class<? extends Enum> cls ) { 
+		List<String> items = new LinkedList<String>();
+		for( Enum<?> item : cls.getEnumConstants() ) {
+			String sv = Common.getEnumLower( item );
+			if( !sv.equals( "unknown" ) )
+				items.add( sv );
+		}
+		return( getSortedList( items ) );
+	}
 	
 }
