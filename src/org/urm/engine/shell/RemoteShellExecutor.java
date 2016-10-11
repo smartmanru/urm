@@ -46,9 +46,9 @@ public class RemoteShellExecutor extends ShellExecutor {
 				if( action.context.CTX_TRACEINTERNAL )
 					action.trace( "create process - ssh -T " + account.getSshAddr() );
 				if( account.PORT == 22 )
-					builder = new ProcessBuilder( "ssh" , "-T" , account.getSshAddr() );
+					builder = new ProcessBuilder( "ssh" , "-T" , "-o" , "PasswordAuthentication=no" , account.getSshAddr() );
 				else
-					builder = new ProcessBuilder( "ssh" , "-T" , "-p" , "" + account.PORT , account.getSshAddr() );
+					builder = new ProcessBuilder( "ssh" , "-T" , "-p" , "" + account.PORT , "-o" , "PasswordAuthentication=no" , account.getSshAddr() );
 			}
 		}
 		else
