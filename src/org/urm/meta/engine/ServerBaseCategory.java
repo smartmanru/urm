@@ -1,6 +1,6 @@
-package org.urm.meta.product;
+package org.urm.meta.engine;
 
-public class MetaBaseCategory {
+public class ServerBaseCategory {
 
 	public enum CATEGORY_TYPE {
 		CategoryHost ,
@@ -11,7 +11,7 @@ public class MetaBaseCategory {
 	public CATEGORY_TYPE type;
 	public String NAME;
 	
-	public MetaBaseCategory( CATEGORY_TYPE type , String NAME ) {
+	public ServerBaseCategory( CATEGORY_TYPE type , String NAME ) {
 		this.type = type;
 		this.NAME = NAME;
 	}

@@ -1,4 +1,4 @@
-package org.urm.meta.product;
+package org.urm.meta.engine;
 
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -12,10 +12,13 @@ import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.storage.BaseRepository;
 import org.urm.engine.storage.RemoteFolder;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product._Error;
 import org.urm.meta.product.Meta.VarSERVERACCESSTYPE;
 import org.w3c.dom.Node;
 
-public class MetaBaseItem {
+public class ServerBaseItem {
 
 	public enum VarBASESRCTYPE {
 		LINUX_ARCHIVE_LINK ,
@@ -51,7 +54,7 @@ public class MetaBaseItem {
 	public List<String> dependencies;
 	public Map<String,String> compatibilityMap;
 	
-	public MetaBaseItem( BaseRepository repo , boolean primary ) {
+	public ServerBaseItem( BaseRepository repo , boolean primary ) {
 		this.repo = repo;
 		this.primary = primary;
 	}
