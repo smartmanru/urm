@@ -62,7 +62,7 @@ public class ServerEngine {
 		loader.init();
 	}
 	
-	public void runServer( ActionBase action ) throws Exception {
+	public void runServer( ActionInit action ) throws Exception {
 		serverAction.debug( "load server configuration ..." );
 		loader.loadServerProducts( action.actionInit );
 		

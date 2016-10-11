@@ -27,7 +27,7 @@ public class ActionServer extends ActionBase {
 
 	private void executeServerStart() throws Exception {
 		info( "start server ..." );
-		executor.engine.runServer( this );
+		executor.engine.runServer( this.actionInit );
 	}
 	
 	private boolean serverConnect( RemoteCall call ) {
