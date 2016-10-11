@@ -1,5 +1,7 @@
 package org.urm.meta.engine;
 
+import java.io.File;
+
 import org.urm.action.ActionBase;
 import org.urm.common.PropertySet;
 import org.urm.engine.ServerTransaction;
@@ -356,6 +358,23 @@ public class ServerMirrorRepository extends ServerObject {
 		FileSet mset = mf.getFileSet( action );
 		FileSet sset = sf.getFileSet( action );
 		syncToFolder( action , vcs , storage , mf , sf , mset , sset );
+		
+		if( action.isLocalLinux() )
+			addLinuxExecution( action , vcs , folder , mset );
+	}
+
+	private void addLinuxExecution( ActionBase action , GenericVCS vcs , LocalFolder folder , FileSet set ) throws Exception {
+		for( String f : set.files.keySet() ) {
+			if( f.endsWith( ".sh" ) ) {
+				File ff = new File( folder.getFilePath( action , f ) );
+				ff.setExecutable( true );
+			}
+		}
+		for( FileSet md : set.dirs.values() ) {
+			if( vcs.ignoreDir( md.dirName ) )
+				continue;
+			addLinuxExecution( action , vcs , folder.getSubFolder( action , md.dirName ) , md );
+		}
 	}
 	
 	private void syncToFolder( ActionBase action , GenericVCS vcs , MirrorStorage storage , LocalFolder mfolder , LocalFolder sfolder , FileSet mset , FileSet sset ) throws Exception {
