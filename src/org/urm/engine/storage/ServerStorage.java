@@ -61,7 +61,7 @@ public class ServerStorage {
 	}
 	
 	public RemoteFolder getRedistTmpFolder( ActionBase action ) throws Exception {
-		String path = action.getContextRedistPath( server );
+		String path = action.getContextRedistPath( account );
 		path = Common.getPath( path , "tmp" );
 		RemoteFolder rf = new RemoteFolder( account , path );
 		return( rf );
@@ -158,7 +158,7 @@ public class ServerStorage {
 	}
 	
 	protected String getRedistFolderRootPath( ActionBase action ) throws Exception {
-		String path = action.getContextRedistPath( server );
+		String path = action.getContextRedistPath( account );
 		path = Common.getPath( path , server.NAME + "-node" + node.POS );
 		return( path );
 	}

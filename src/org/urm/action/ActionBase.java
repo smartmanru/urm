@@ -631,8 +631,8 @@ abstract public class ActionBase extends ActionCore {
 		return( actionInit.isActiveProductBroken( productName ) );
 	}
 	
-	public String getContextRedistPath( MetaEnvServer server ) throws Exception {
-		if( server.isLinux() )
+	public String getContextRedistPath( Account account ) throws Exception {
+		if( account.isLinux() )
 			return( context.CTX_REDISTLINUX_PATH );
 		return( context.CTX_REDISTWIN_PATH );
 	}
