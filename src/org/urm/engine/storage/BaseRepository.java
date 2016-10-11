@@ -4,7 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
 import org.urm.meta.engine.ServerContext;
 import org.urm.meta.engine.ServerSettings;
-import org.urm.meta.product.MetaBase;
+import org.urm.meta.product.MetaBaseItem;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.w3c.dom.Document;
 
@@ -39,13 +39,13 @@ public class BaseRepository {
 		return( repoFolder.getSubFolder( action , BASEID ) );
 	}
 
-	public MetaBase getBaseInfo( ActionBase action , String ID , MetaEnvServerNode node , boolean primary ) throws Exception {
+	public MetaBaseItem getBaseInfo( ActionBase action , String ID , MetaEnvServerNode node , boolean primary ) throws Exception {
 		String basePath = getBasePath( action , ID );
 		String text = repoFolder.readFile( action , basePath );
 		Document xml = ConfReader.readXmlString( text );
 		
 		action.debug( "load base info id=" + ID + " ..." );
-		MetaBase base = new MetaBase( this , primary );
+		MetaBaseItem base = new MetaBaseItem( this , primary );
 		base.load( action , xml.getDocumentElement() , node );
 		return( base );
 	}
