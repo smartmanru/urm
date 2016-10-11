@@ -21,6 +21,11 @@ import org.urm.meta.product.Meta.VarITEMVERSION;
 
 public class RedistStorage extends ServerStorage {
 
+	public RedistStorage( Artefactory artefactory , Account account ) {
+		super( artefactory , account );
+		this.meta = null;
+	}
+
 	public RedistStorage( Artefactory artefactory , Account account , MetaEnvServer server , MetaEnvServerNode node ) {
 		super( artefactory , account , server , node );
 		this.meta = server.meta;

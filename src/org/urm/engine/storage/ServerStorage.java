@@ -22,12 +22,18 @@ public class ServerStorage {
 	public MetaEnvServer server;
 	public MetaEnvServerNode node;
 	public Account account;
+
+	public ServerStorage( Artefactory artefactory , Account account ) {
+		this.artefactory = artefactory;
+		this.meta = null;
+		this.server = null;
+		this.node = null;
+		this.account = account;
+	}
 	
 	public ServerStorage( Artefactory artefactory , Account account , MetaEnvServer server , MetaEnvServerNode node ) {
 		this.artefactory = artefactory;
 		this.meta = server.meta;
-		this.server = null;
-		this.node = null;
 		this.account = account;
 		this.server = server;
 		this.node = node;		

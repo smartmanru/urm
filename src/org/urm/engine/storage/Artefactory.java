@@ -184,7 +184,7 @@ public class Artefactory {
 	}
 
 	public RedistStorage getRedistStorage( ActionBase action , Account account ) throws Exception {
-		RedistStorage redist = new RedistStorage( this , account , null , null );
+		RedistStorage redist = new RedistStorage( this , account );
 		return( redist );
 	}
 
