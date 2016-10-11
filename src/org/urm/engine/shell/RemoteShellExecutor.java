@@ -25,7 +25,7 @@ public class RemoteShellExecutor extends ShellExecutor {
 				action.trace( "create process - plink " + account.getPrintName() );
 			
 			String keyFile = action.context.CTX_KEYNAME;
-			String cmd = "C:\\bin\\putty\\plink -P " + account.PORT;
+			String cmd = "plink -P " + account.PORT;
 			if( !keyFile.isEmpty() )
 				cmd += " -i " + keyFile;
 			
