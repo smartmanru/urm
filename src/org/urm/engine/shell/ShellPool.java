@@ -313,7 +313,7 @@ public class ShellPool implements Runnable {
 				shell.setUnavailable();
 				pool.put( shell.name , shell );
 				String accName = account.getPrintName();
-				action.exit1( _Error.NotConnectUnavailableShell0 , "do not connect to unavailable shell name=" + accName , accName );
+				action.exit1( _Error.UnableConnectHost1 , "Unable to open shell connection account=" + accName , accName );
 			}
 			
 			// add to action sessions (return to pool after release)
