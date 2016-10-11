@@ -391,22 +391,21 @@ public class ActionConfigure extends ActionBase {
 	}
 	
 	private void addExecutorContextBase( Meta meta , LocalFolder ef , boolean linux , List<String> lines ) throws Exception {
-		String productName = context.session.productName;
+		if( super.isStandalone() && context.session.productName.isEmpty() )
+			return;
 		
-		if( !productName.isEmpty() ) {
-			addExecutorContextItem( ef , linux , lines , "C_URM_PRODUCT" , productName );
-			if( !super.isStandalone() ) { 
-				String hostName = "localhost";
-				if( !context.CTX_HOST.isEmpty() )
-					hostName = context.CTX_HOST;
-				String value = hostName + ":";
-				
-				if( context.CTX_PORT > 0 )
-					value += context.CTX_PORT;
-				else
-					value += RemoteCall.DEFAULT_SERVER_PORT; 
-				addExecutorContextItem( ef , linux , lines , "C_URM_SERVER" , value );
-			}
+		addExecutorContextItem( ef , linux , lines , "C_URM_PRODUCT" , meta.name );
+		if( !super.isStandalone() ) { 
+			String hostName = "localhost";
+			if( !context.CTX_HOST.isEmpty() )
+				hostName = context.CTX_HOST;
+			String value = hostName + ":";
+			
+			if( context.CTX_PORT > 0 )
+				value += context.CTX_PORT;
+			else
+				value += RemoteCall.DEFAULT_SERVER_PORT; 
+			addExecutorContextItem( ef , linux , lines , "C_URM_SERVER" , value );
 		}
 	}
 
