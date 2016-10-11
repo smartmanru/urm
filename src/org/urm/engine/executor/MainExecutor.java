@@ -76,23 +76,21 @@ public class MainExecutor extends CommandExecutor {
 	
 	// configure proxy files
 	private class Configure extends CommandAction {
-		boolean linux;
-		
 		public Configure() {
 		}
 		
 		public void run( ActionInit action ) throws Exception {
-			linux = action.isLocalLinux();
-			
-			String USEENV = getArg( action , 0 );
-			String USEDC = getArg( action , 1 );
+			String OSTYPE = getArg( action , 0 );
+			String USEENV = getArg( action , 1 );
+			String USEDC = getArg( action , 2 );
+			if( OSTYPE == null )
+				OSTYPE = "";
 			if( USEENV == null )
 				USEENV = "";
 			if( USEDC == null )
 				USEDC = "";
 	
-			Meta meta = action.getContextMeta();
-			ActionConfigure ca = new ActionConfigure( action , meta , null , linux , USEENV , USEDC );
+			ActionConfigure ca = new ActionConfigure( action , null , OSTYPE , USEENV , USEDC );
 			ca.runSimple();
 		}
 	}
