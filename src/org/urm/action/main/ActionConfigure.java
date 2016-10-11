@@ -33,6 +33,7 @@ public class ActionConfigure extends ActionBase {
 	String USEDC;
 	boolean runLinux;
 	boolean runWindows;
+	boolean deleteOld;
 
 	LocalFolder pfMaster = null;
 	List<String> linesProxy;
@@ -52,6 +53,7 @@ public class ActionConfigure extends ActionBase {
 		this.USEDC = USEDC;
 		this.runLinux = ( OSTYPE.equals( "all" ) || OSTYPE.equals( "linux" ) || ( OSTYPE.isEmpty() && super.execrc.isLinux() ) )? true : false;
 		this.runWindows = ( OSTYPE.equals( "all" ) || OSTYPE.equals( "windows" ) || ( OSTYPE.isEmpty() && super.execrc.isWindows() ) )? true : false;
+		deleteOld = false;
 	}
 
 	public ActionConfigure( ActionBase action , String stream , String USEPRODUCT , String USEENV , boolean confLinux , boolean confWindows ) {
@@ -61,6 +63,7 @@ public class ActionConfigure extends ActionBase {
 		this.USEDC = "";
 		this.runLinux = confLinux;
 		this.runWindows = confWindows;
+		deleteOld = true;
 	}
 
 	@Override protected boolean executeSimple() throws Exception {
@@ -189,25 +192,38 @@ public class ActionConfigure extends ActionBase {
 		
 		boolean buildUnix = false;
 		boolean buildWindows = false;
-		if( pfBuild.checkExists( this ) ) {
-			if( pfBuild.findFiles( this , "*.sh" ).length > 0 )
-				buildUnix = true;
-			if( pfBuild.findFiles( this , "*.cmd" ).length > 0 )
-				buildWindows = true;
-		}
 		boolean deployUnix = false;
 		boolean deployWindows = false;
-		if( pfDeploy.checkExists( this ) ) {
-			if( pfDeploy.findFiles( this , "*.sh" ).length > 0 )
-				deployUnix = true;
-			if( pfDeploy.findFiles( this , "*.cmd" ).length > 0 )
-				deployWindows = true;
-		}
 		
-		if( isLocalLinux() )
+		if( runLinux )
 			buildUnix = deployUnix = true;
-		else
+		else {
+			if( deleteOld == false ) {
+				if( isLocalLinux() ) {
+					if( pfBuild.checkExists( this ) )
+						if( pfBuild.findFiles( this , "*.sh" ).length > 0 )
+							buildUnix = true;
+					if( pfDeploy.checkExists( this ) )
+						if( pfDeploy.findFiles( this , "*.sh" ).length > 0 )
+							deployUnix = true;
+				}
+			}
+		}
+
+		if( runWindows )
 			buildWindows = deployWindows = true;
+		else {
+			if( deleteOld == false ) {
+				if( isLocalWindows() ) {
+					if( pfBuild.checkExists( this ) )
+						if( pfBuild.findFiles( this , "*.cmd" ).length > 0 )
+							buildWindows = true;
+					if( pfDeploy.checkExists( this ) )
+						if( pfDeploy.findFiles( this , "*.cmd" ).length > 0 )
+							deployWindows = true;
+				}
+			}
+		}
 		
 		if( buildUnix || deployUnix )
 			configureProductAll( meta , buildUnix , deployUnix , true );
