@@ -16,26 +16,28 @@ import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
-import org.urm.action.ActionBase;
 import org.urm.common.action.CommandMeta;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.SessionController;
+import org.urm.engine.action.ActionInit;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
+import org.urm.meta.ServerLoader;
 import org.urm.meta.engine.ServerDirectory;
+import org.urm.meta.engine.ServerSettings;
 
 import com.sun.jdmk.comm.HtmlAdaptorServer;
 
 public class ServerMBean implements DynamicMBean {
 
 	ServerEngine engine;
-	ActionBase action;
+	ActionInit action;
 	
 	private MBeanServer mbs = null;
 	private MBeanInfo mbean = null;
 	JMXConnectorServer jmxConnector;
 	
-	public ServerMBean( ActionBase action , ServerEngine engine ) {
+	public ServerMBean( ActionInit action , ServerEngine engine ) {
 		this.action = action;
 		this.engine = engine;
 	}
@@ -43,8 +45,13 @@ public class ServerMBean implements DynamicMBean {
 	public void start() throws Exception {
 		action.debug( "start JMX server ..." );
 		int port = action.context.CTX_PORT;
-		if( port <= 0 )
-			port = RemoteCall.DEFAULT_SERVER_PORT;
+		if( port <= 0 ) {
+			ServerLoader loader = engine.getLoader( action );
+			ServerSettings settings = loader.getServerSettings( action );
+			port = settings.serverContext.CONNECTION_JMX_PORT;
+			if( port <= 0 )
+				port = RemoteCall.DEFAULT_SERVER_PORT;
+		}
 		
 		// add mbeans
 		mbs = MBeanServerFactory.createMBeanServer();
