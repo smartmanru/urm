@@ -323,23 +323,23 @@ public class ServerEngine {
 		String dirname = "";
 		
 		if( session.standalone ) {
-			if( !context.CTX_WORKPATH.isEmpty() )
-				dirname = context.CTX_WORKPATH;
+			if( !execrc.workPath.isEmpty() )
+				dirname = execrc.workPath;
 			else
 				dirname = Common.getPath( session.execrc.userHome , "urm.work" , "session-" + ShellCoreJNI.getCurrentProcessId() );
 		}
 		else {
 			if( !session.client ) {
-				if( !context.CTX_WORKPATH.isEmpty() )
-					dirname = context.CTX_WORKPATH;
+				if( !execrc.workPath.isEmpty() )
+					dirname = execrc.workPath;
 				else {
 					dirname = Common.getPath( session.execrc.userHome , "urm.work" , "server" );
 					dirname = Common.getPath( dirname , "session-" + ShellCoreJNI.getCurrentProcessId() );
 				}
 			}
 			else {
-				if( !context.CTX_WORKPATH.isEmpty() )
-					dirname = context.CTX_WORKPATH;
+				if( !execrc.workPath.isEmpty() )
+					dirname = execrc.workPath;
 				else {
 					dirname = Common.getPath( session.execrc.userHome , "urm.work" , "client" );
 					String name = "session-" + session.timestamp;

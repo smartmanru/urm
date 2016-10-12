@@ -33,7 +33,6 @@ public class OptionsMeta {
 		defineGenericOption( CommandVar.newParam( "key" , "OPT_KEY" , false , "use given key to connect to host" ) );
 		defineGenericOption( CommandVar.newParam( "distpath" , "OPT_DISTPATH" , false , "use given path to find distributive files" ) );
 		defineGenericOption( CommandVar.newParam( "hiddenpath" , "OPT_HIDDENPATH" , false , "use given path to find hidden files and properties" ) );
-		defineGenericOption( CommandVar.newParam( "workpath" , "OPT_WORKPATH" , false , "use given path to store working files and logs" ) );
 		genericOptionsCount = optionsDefined.size();
 		
 		defineOption( CommandVar.newFlagYesOption( "get" , "OPT_GET" , true , "run getall after build" ) );

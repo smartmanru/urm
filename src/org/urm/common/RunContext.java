@@ -23,6 +23,7 @@ public class RunContext implements Serializable {
 
 	public String userHome;
 	public String installPath;
+	public String workPath;
 	
 	public String product;
 	public String buildMode;
@@ -36,6 +37,7 @@ public class RunContext implements Serializable {
 	public static String PROPERTY_USER_HOME = "userhome";
 	public static String PROPERTY_OS_TYPE = "urm.os";
 	public static String PROPERTY_INSTALL_PATH = "urm.installpath";
+	public static String PROPERTY_WORK_PATH = "urm.workpath";
 	public static String PROPERTY_SERVER_CONFPATH = "server.conf";
 	public static String PROPERTY_SERVER_MASTERPATH = "server.master";
 	public static String PROPERTY_SERVER_PRODUCTSPATH = "server.products";
@@ -58,6 +60,7 @@ public class RunContext implements Serializable {
 
 		rc.userHome = userHome;
 		rc.installPath = installPath;
+		rc.workPath = workPath;
 		
 		rc.product = product;
 		rc.buildMode = buildMode;
@@ -98,13 +101,15 @@ public class RunContext implements Serializable {
 			
 		if( osType == VarOSTYPE.LINUX ) {
 			installPath = getProperty( PROPERTY_INSTALL_PATH );
+			workPath = getProperty( PROPERTY_WORK_PATH );
 			
 			hostName = getEnvRequired( "HOSTNAME" );
 			userName = getEnvRequired( "USER" );
 	    	userHome = getEnvRequired( "HOME" );
 		}
 		else {
-			installPath = Common.getLinuxPath( getProperty( "urm.installpath" ) );
+			installPath = Common.getLinuxPath( getProperty( PROPERTY_INSTALL_PATH ) );
+			workPath = Common.getLinuxPath( getProperty( PROPERTY_WORK_PATH ) );
 			
 			hostName = getEnvRequired( "COMPUTERNAME" );
 			userName = getEnvRequired( "USERNAME" );
@@ -167,6 +172,7 @@ public class RunContext implements Serializable {
 	public void getProperties( PropertySet set ) throws Exception {
 		set.setStringProperty( PROPERTY_OS_TYPE , Common.getEnumLower( osType ) );
 		set.setPathProperty( PROPERTY_INSTALL_PATH , installPath , null );
+		set.setPathProperty( PROPERTY_WORK_PATH , workPath , null );
 		set.setPathProperty( PROPERTY_USER_HOME , userHome , null );
 		set.setStringProperty( PROPERTY_HOSTNAME , hostName );
 		set.setPathProperty( PROPERTY_SERVER_CONFPATH , installPath + "/etc" , null );

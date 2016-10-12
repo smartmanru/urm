@@ -54,7 +54,6 @@ public class CommandContext {
 	public String CTX_REDISTWIN_PATH = "";
 	public String CTX_REDISTLINUX_PATH = "";
 	public String CTX_HIDDENPATH = "";
-	public String CTX_WORKPATH = "";
 
 	// specific settings
 	public boolean CTX_GET;
@@ -176,7 +175,6 @@ public class CommandContext {
 		this.CTX_REDISTWIN_PATH = context.CTX_REDISTWIN_PATH;
 		this.CTX_REDISTLINUX_PATH = context.CTX_REDISTLINUX_PATH;
 		this.CTX_HIDDENPATH = context.CTX_HIDDENPATH;
-		this.CTX_WORKPATH = context.CTX_WORKPATH;
 		
 		// specific
 		this.CTX_GET = context.CTX_GET;
@@ -267,7 +265,6 @@ public class CommandContext {
 			CTX_REDISTLINUX_PATH = env.REDISTLINUX_PATH;
 		value = getParamPathValue( "OPT_HIDDENPATH" );
 		CTX_HIDDENPATH = ( value.isEmpty() )? ( ( isenv )? env.CONF_SECRETFILESPATH : "" ) : value;
-		CTX_WORKPATH = getParamPathValue( "OPT_WORKPATH" , "" );
 		
 		// specific
 		CTX_GET = getFlagValue( "OPT_GET" );
