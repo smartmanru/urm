@@ -2,6 +2,7 @@ package org.urm.engine.storage;
 
 import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
+import org.urm.meta.engine.ServerBase;
 import org.urm.meta.engine.ServerBaseItem;
 import org.urm.meta.engine.ServerContext;
 import org.urm.meta.engine.ServerSettings;
@@ -45,9 +46,10 @@ public class BaseRepository {
 		Document xml = ConfReader.readXmlString( text );
 		
 		action.debug( "load base info id=" + ID + " ..." );
-		ServerBaseItem base = new ServerBaseItem( this , primary );
-		base.load( action , xml.getDocumentElement() , node );
-		return( base );
+		ServerBase base = action.getBase();
+		ServerBaseItem item = base.findBase( ID );
+		item.loadMeta( action , xml.getDocumentElement() , node );
+		return( item );
 	}
 	
 }

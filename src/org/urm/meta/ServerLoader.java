@@ -12,6 +12,7 @@ import org.urm.engine.TransactionBase;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
+import org.urm.meta.engine.ServerBase;
 import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.engine.ServerDirectory;
 import org.urm.meta.engine.ServerInfrastructure;
@@ -33,8 +34,9 @@ public class ServerLoader {
 
 	public ServerEngine engine;
 	
-	private ServerRegistry registry;
 	private ServerSettings settings;
+	private ServerRegistry registry;
+	private ServerBase base;
 	private ServerInfrastructure infra;
 	private ServerProductMeta offline;
 	private Map<String,ServerProductMeta> productMeta;
@@ -42,14 +44,16 @@ public class ServerLoader {
 	public ServerLoader( ServerEngine engine ) {
 		this.engine = engine;
 		
-		registry = new ServerRegistry( this ); 
 		settings = new ServerSettings( this );
+		registry = new ServerRegistry( this ); 
+		base = new ServerBase( this ); 
 		infra = new ServerInfrastructure( this ); 
 		productMeta = new HashMap<String,ServerProductMeta>();
 	}
 	
 	public void init() throws Exception {
 		loadRegistry();
+		loadBase();
 		loadInfrastructure();
 		if( !engine.execrc.isStandalone() )
 			loadServerSettings();
@@ -57,6 +61,7 @@ public class ServerLoader {
 	
 	public void reloadCore() throws Exception {
 		registry = new ServerRegistry( this ); 
+		base = new ServerBase( this ); 
 		settings = new ServerSettings( this );
 		infra = new ServerInfrastructure( this ); 
 		init();
@@ -90,6 +95,17 @@ public class ServerLoader {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , set.meta );
 		LocalFolder folder = storageMeta.getHomeFolder( action );
 		return( folder );
+	}
+
+	private String getServerBaseFile() throws Exception {
+		String path = Common.getPath( engine.execrc.installPath , "etc" );
+		String propertyFile = Common.getPath( path , "base.xml" );
+		return( propertyFile );
+	}
+
+	private void loadBase() throws Exception {
+		String baseFile = getServerBaseFile();
+		base.load( baseFile , engine.execrc );
 	}
 
 	private String getServerInfrastructureFile() throws Exception {
@@ -339,6 +355,11 @@ public class ServerLoader {
 		saveRegistry( transaction );
 	}
 
+	public void saveBase( TransactionBase transaction ) throws Exception {
+		String propertyFile = getServerBaseFile();
+		base.save( transaction.getAction() , propertyFile , engine.execrc );
+	}
+
 	public void saveInfrastructure( TransactionBase transaction ) throws Exception {
 		String propertyFile = getServerInfrastructureFile();
 		infra.save( transaction.getAction() , propertyFile , engine.execrc );
@@ -359,6 +380,12 @@ public class ServerLoader {
 	public ServerInfrastructure getInfrastructure() {
 		synchronized( engine ) {
 			return( infra );
+		}
+	}
+
+	public ServerBase getServerBase() {
+		synchronized( engine ) {
+			return( base );
 		}
 	}
 

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
@@ -16,6 +17,8 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product._Error;
 import org.urm.meta.product.Meta.VarSERVERACCESSTYPE;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class ServerBaseItem {
@@ -34,11 +37,14 @@ public class ServerBaseItem {
 		SINGLEFILE
 	};
 	
+	public ServerBaseGroup group;
+	public String ID;
+	public String NAME;
+	public String VERSION;
+	
 	public BaseRepository repo;
-	public boolean primary;
 	
 	public PropertySet properties;
-	public String ID;
 	public VarBASESRCTYPE type;
 	public boolean adm;
 	public VarOSTYPE osType;
@@ -54,12 +60,31 @@ public class ServerBaseItem {
 	public List<String> dependencies;
 	public Map<String,String> compatibilityMap;
 	
-	public ServerBaseItem( BaseRepository repo , boolean primary ) {
+	public ServerBaseItem( ServerBaseGroup group ) {
+		this.group = group;
+	}
+
+	public void readMeta( BaseRepository repo ) {
 		this.repo = repo;
-		this.primary = primary;
+	}
+
+	public ServerBaseItem copy( ServerBaseGroup rgroup ) {
+		return( null );
+	}
+
+	public void load( Node root ) throws Exception {
+		ID = ConfReader.getAttrValue( root , "id" );
+		NAME = ConfReader.getAttrValue( root , "name" );
+		VERSION = ConfReader.getAttrValue( root , "version" );
 	}
 	
-	public void load( ActionBase action , Node node , MetaEnvServerNode serverNode ) throws Exception {
+	public void save( Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , "id" , ID );
+		Common.xmlSetElementAttr( doc , root , "name" , NAME );
+		Common.xmlSetElementAttr( doc , root , "version" , VERSION );
+	}
+	
+	public void loadMeta( ActionBase action , Node node , MetaEnvServerNode serverNode ) throws Exception {
 		PropertySet meta = new PropertySet( "meta" , serverNode.server.basesw.properties );
 		meta.loadFromNodeAttributes( node );
 		scatterVariables( action , meta );
@@ -163,12 +188,7 @@ public class ServerBaseItem {
 				action.exit1( _Error.UnknownSystemFilesCharset1 , "unknown system files charset=" + CHARSET , CHARSET );
 		}
 		
-		String SERVERTYPE = null;
-		if( primary )
-			SERVERTYPE = props.getSystemRequiredStringProperty( "server-accesstype" );
-		else
-			SERVERTYPE = props.getSystemStringProperty( "server-accesstype" );
-		
+		String SERVERTYPE = props.getSystemStringProperty( "server-accesstype" );
 		if( SERVERTYPE != null )
 			serverAccessType = Meta.getServerAccessType( SERVERTYPE );
 		

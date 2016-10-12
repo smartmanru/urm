@@ -120,15 +120,14 @@ public class ServerNetworkHost extends ServerObject {
 	}
 	
 	public void deleteAccount( ServerTransaction transaction , ServerHostAccount account ) throws Exception {
-		addHostAccount( account );
+		accountMap.remove( account.ID );
 	}
 	
 	public void modifyAccount( ServerTransaction transaction , ServerHostAccount account ) {
 		String oldId = null;
 		for( Entry<String,ServerHostAccount> entry : accountMap.entrySet() ) {
-			if( entry.getValue() == account ) {
+			if( entry.getValue() == account )
 				oldId = entry.getKey();
-			}
 		}
 		accountMap.remove( oldId );
 		addHostAccount( account );

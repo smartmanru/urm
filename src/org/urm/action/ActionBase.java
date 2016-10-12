@@ -22,6 +22,7 @@ import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.ServerProductMeta;
 import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.ServerBase;
 import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.engine.ServerContext;
 import org.urm.meta.engine.ServerDirectory;
@@ -574,6 +575,10 @@ abstract public class ActionBase extends ActionCore {
 	
 	public ServerMirrors getMirrors() {
 		return( actionInit.getActiveMirrors() );
+	}
+	
+	public ServerBase getBase() {
+		return( actionInit.getServerBase() );
 	}
 	
 	public MetaProductBuildSettings getBuildSettings( Meta meta ) throws Exception {
