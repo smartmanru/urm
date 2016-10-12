@@ -17,6 +17,7 @@ public class ServerBaseCategory extends ServerObject {
 
 	public CATEGORY_TYPE type;
 	public String ID;
+	public String NAME;
 
 	public ServerBase base;
 	Map<String,ServerBaseGroup> groupMap;
@@ -26,11 +27,12 @@ public class ServerBaseCategory extends ServerObject {
 		this.base = base;
 	}
 	
-	public ServerBaseCategory( ServerBase base , CATEGORY_TYPE type , String ID ) {
+	public ServerBaseCategory( ServerBase base , CATEGORY_TYPE type , String NAME ) {
 		super( null );
 		this.base = base;
 		this.type = type;
-		this.ID = ID;
+		this.NAME = NAME;
+		this.ID = NAME.toLowerCase();
 		groupMap = new HashMap<String,ServerBaseGroup>();
 	}
 	
@@ -50,6 +52,7 @@ public class ServerBaseCategory extends ServerObject {
 		
 		type = CATEGORY_TYPE.valueOf( ConfReader.getAttrValue( root , "type" ).toUpperCase() );
 		ID = ConfReader.getAttrValue( root , "id" );
+		NAME = ConfReader.getAttrValue( root , "NAME" );
 		
 		Node[] list = ConfReader.xmlGetChildren( root , "group" );
 		if( list == null )
@@ -69,9 +72,10 @@ public class ServerBaseCategory extends ServerObject {
 	public void save( Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , "type" , Common.getEnumLower( type ) );
 		Common.xmlSetElementAttr( doc , root , "id" , ID );
+		Common.xmlSetElementAttr( doc , root , "name" , NAME );
 		
 		for( ServerBaseGroup group : groupMap.values() ) {
-			Element element = Common.xmlCreateElement( doc , root , "account" );
+			Element element = Common.xmlCreateElement( doc , root , "group" );
 			group.save( doc , element );
 		}
 	}

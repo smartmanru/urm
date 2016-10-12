@@ -38,17 +38,16 @@ public class ServerBase extends ServerObject {
 		Node root = doc.getDocumentElement();
 		
 		Node[] list = ConfReader.xmlGetChildren( root , "category" );
-		if( list == null )
-			return;
-		
-		for( Node node : list ) {
-			ServerBaseCategory category = new ServerBaseCategory( this );
-			category.load( node );
-			addCategory( category );
-			
-			for( ServerBaseGroup group : category.groupMap.values() ) {
-				for( ServerBaseItem item : group.itemMap.values() )
-					addItem( item );
+		if( list != null ) {
+			for( Node node : list ) {
+				ServerBaseCategory category = new ServerBaseCategory( this );
+				category.load( node );
+				addCategory( category );
+				
+				for( ServerBaseGroup group : category.groupMap.values() ) {
+					for( ServerBaseItem item : group.itemMap.values() )
+						addItem( item );
+				}
 			}
 		}
 		
