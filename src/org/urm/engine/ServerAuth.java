@@ -48,7 +48,7 @@ public class ServerAuth extends ServerObject {
 	
 	private String getAuthFile( String authKey ) {
 		String authPath = getAuthDir();
-		String filePath = Common.getPath( authPath , ".auth" , authKey + ".properties" );
+		String filePath = Common.getPath( authPath , authKey + ".properties" );
 		return( filePath );
 	}
 	
