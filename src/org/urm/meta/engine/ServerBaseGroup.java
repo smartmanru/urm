@@ -76,6 +76,16 @@ public class ServerBaseGroup extends ServerObject {
 		return( itemMap.get( ID ) );
 	}
 	
+	public void createGroup( ServerTransaction transaction , String ID , String DESC ) throws Exception {
+		this.ID = ID;
+		this.DESC = DESC;
+	}
+	
+	public void modifyGroup( ServerTransaction transaction , String ID , String DESC ) throws Exception {
+		this.ID = ID;
+		this.DESC = DESC;
+	}
+	
 	public void createItem( ServerTransaction transaction , ServerBaseItem item ) throws Exception {
 		addItem( item );
 	}

@@ -92,6 +92,10 @@ public class ActionInit extends ActionBase {
 		loader.saveInfrastructure( transaction );
 	}
 	
+	public void saveBase( TransactionBase transaction ) throws Exception {
+		loader.saveBase( transaction );
+	}
+	
 	public void saveMirrors( TransactionBase transaction ) throws Exception {
 		loader.saveMirrors( transaction );
 	}

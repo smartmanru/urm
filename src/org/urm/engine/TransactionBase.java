@@ -8,6 +8,7 @@ import org.urm.engine.action.ActionInit;
 import org.urm.meta.ServerObject;
 import org.urm.meta.ServerProductMeta;
 import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.ServerBase;
 import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.engine.ServerDirectory;
 import org.urm.meta.engine.ServerInfrastructure;
@@ -29,6 +30,7 @@ public class TransactionBase extends ServerObject {
 	public RunError error;
 	
 	public ServerInfrastructure infra;
+	public ServerBase base;
 	
 	public ServerSettings settings;
 	public ServerResources resources;
@@ -52,6 +54,7 @@ public class TransactionBase extends ServerObject {
 		directory = null;
 		settings = null;
 		infra = null;
+		base = null;
 		
 		productMeta = new HashMap<String,TransactionMetadata>(); 
 		engine.serverAction.trace( "transaction created id=" + objectId );
@@ -72,6 +75,8 @@ public class TransactionBase extends ServerObject {
 			directoryOld = null;
 			settingsOld = null;
 			infra = null;
+			base = null;
+			
 			return( true );
 		}
 	}
@@ -162,6 +167,8 @@ public class TransactionBase extends ServerObject {
 				res = saveMetadata();
 			if( res )
 				res = saveInfrastructure();
+			if( res )
+				res = saveBase();
 			
 			if( res ) {
 				if( !engine.commitTransaction( this ) )
@@ -316,7 +323,48 @@ public class TransactionBase extends ServerObject {
 			return( true );
 		}
 		catch( Throwable e ) {
-			handle( e , "unable to save settings" );
+			handle( e , "unable to save infrastructure" );
+		}
+
+		abortTransaction( true );
+		return( false );
+	}
+
+	public boolean changeBase( ServerBase sourceBase ) {
+		synchronized( engine ) {
+			try {
+				if( !continueTransaction() )
+					return( false );
+					
+				if( base != null )
+					return( true );
+				
+				base = sourceBase;
+				return( true );
+			}
+			catch( Throwable e ) {
+				handle( e , "unable to change base" );
+			}
+			
+			abortTransaction( false );
+			return( false );
+		}
+	}
+
+	private boolean saveBase() {
+		if( !continueTransaction() )
+			return( false );
+		
+		if( base == null )
+			return( true );
+		
+		try {
+			action.saveBase( this );
+			trace( "transaction server basse: save done" );
+			return( true );
+		}
+		catch( Throwable e ) {
+			handle( e , "unable to save base data" );
 		}
 
 		abortTransaction( true );
@@ -613,6 +661,12 @@ public class TransactionBase extends ServerObject {
 		checkTransaction();
 		if( infra == null )
 			exit( _Error.TransactionMissingInfrastructureChanges0 , "Missing infrastructure changes" , null );
+	}
+
+	protected void checkTransactionBase() throws Exception {
+		checkTransaction();
+		if( base == null )
+			exit( _Error.TransactionMissingBaseChanges0 , "Missing base changes" , null );
 	}
 
 	protected void checkTransactionResources() throws Exception {
