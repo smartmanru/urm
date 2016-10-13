@@ -52,11 +52,11 @@ public class ServerBase extends ServerObject {
 		}
 		
 		if( findCategory( CATEGORY_TYPE.HOST ) == null )
-			addCategory( new ServerBaseCategory( this , CATEGORY_TYPE.HOST , "Host-Based" ) );
+			addCategory( new ServerBaseCategory( this , CATEGORY_TYPE.HOST , "Host-Bound" ) );
 		if( findCategory( CATEGORY_TYPE.ACCOUNT ) == null )
-			addCategory( new ServerBaseCategory( this , CATEGORY_TYPE.ACCOUNT , "Account-Based" ) );
+			addCategory( new ServerBaseCategory( this , CATEGORY_TYPE.ACCOUNT , "Account-Bound" ) );
 		if( findCategory( CATEGORY_TYPE.APP ) == null )
-			addCategory( new ServerBaseCategory( this , CATEGORY_TYPE.APP , "Application-Based" ) );
+			addCategory( new ServerBaseCategory( this , CATEGORY_TYPE.APP , "Application-Bound" ) );
 	}
 	
 	public void save( ActionCore action , String path , RunContext execrc ) throws Exception {
