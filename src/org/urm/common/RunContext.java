@@ -24,6 +24,7 @@ public class RunContext implements Serializable {
 	public String userHome;
 	public String installPath;
 	public String workPath;
+	public String authPath;
 	
 	public String product;
 	public String buildMode;
@@ -38,6 +39,7 @@ public class RunContext implements Serializable {
 	public static String PROPERTY_OS_TYPE = "urm.os";
 	public static String PROPERTY_INSTALL_PATH = "urm.installpath";
 	public static String PROPERTY_WORK_PATH = "urm.workpath";
+	public static String PROPERTY_AUTH_PATH = "urm.authpath";
 	public static String PROPERTY_SERVER_CONFPATH = "server.conf";
 	public static String PROPERTY_SERVER_MASTERPATH = "server.master";
 	public static String PROPERTY_SERVER_PRODUCTSPATH = "server.products";
@@ -61,6 +63,7 @@ public class RunContext implements Serializable {
 		rc.userHome = userHome;
 		rc.installPath = installPath;
 		rc.workPath = workPath;
+		rc.authPath = authPath;
 		
 		rc.product = product;
 		rc.buildMode = buildMode;
@@ -102,6 +105,7 @@ public class RunContext implements Serializable {
 		if( osType == VarOSTYPE.LINUX ) {
 			installPath = getProperty( PROPERTY_INSTALL_PATH );
 			workPath = getProperty( PROPERTY_WORK_PATH );
+			authPath = getProperty( PROPERTY_AUTH_PATH );
 			
 			hostName = getEnvRequired( "HOSTNAME" );
 			userName = getEnvRequired( "USER" );
@@ -110,6 +114,7 @@ public class RunContext implements Serializable {
 		else {
 			installPath = Common.getLinuxPath( getProperty( PROPERTY_INSTALL_PATH ) );
 			workPath = Common.getLinuxPath( getProperty( PROPERTY_WORK_PATH ) );
+			authPath = Common.getLinuxPath( getProperty( PROPERTY_AUTH_PATH ) );
 			
 			hostName = getEnvRequired( "COMPUTERNAME" );
 			userName = getEnvRequired( "USERNAME" );
@@ -174,6 +179,7 @@ public class RunContext implements Serializable {
 		set.setPathProperty( PROPERTY_INSTALL_PATH , installPath , null );
 		set.setPathProperty( PROPERTY_WORK_PATH , workPath , null );
 		set.setPathProperty( PROPERTY_USER_HOME , userHome , null );
+		set.setPathProperty( PROPERTY_AUTH_PATH , authPath , null );
 		set.setStringProperty( PROPERTY_HOSTNAME , hostName );
 		set.setPathProperty( PROPERTY_SERVER_CONFPATH , installPath + "/etc" , null );
 		set.setPathProperty( PROPERTY_SERVER_MASTERPATH , installPath + "/master" , null );

@@ -23,7 +23,7 @@ public class ServerAuth extends ServerObject {
 		String authKey = getAuthKey( AUTH_GROUP_USER , "admin" );
 		String authPath = getAuthFile( authKey );
 		
-		File authDir = new File( Common.getPath( engine.execrc.userHome , ".auth" ) );
+		File authDir = new File( getAuthDir() );
 		if( !authDir.isDirectory() )
 			authDir.mkdir();
 		
@@ -39,8 +39,16 @@ public class ServerAuth extends ServerObject {
 		}
 	}
 
+	private String getAuthDir() {
+		String authPath = engine.execrc.authPath;
+		if( authPath.isEmpty() )
+			authPath = Common.getPath( engine.execrc.userHome, ".auth" );
+		return( authPath );
+	}
+	
 	private String getAuthFile( String authKey ) {
-		String filePath = Common.getPath( engine.execrc.userHome , ".auth" , authKey + ".properties" );
+		String authPath = getAuthDir();
+		String filePath = Common.getPath( authPath , ".auth" , authKey + ".properties" );
 		return( filePath );
 	}
 	
