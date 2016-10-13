@@ -32,7 +32,7 @@ public class ServerBaseCategory extends ServerObject {
 		this.base = base;
 		this.type = type;
 		this.NAME = NAME;
-		this.ID = NAME.toLowerCase();
+		this.ID = type.name().toLowerCase();
 		groupMap = new HashMap<String,ServerBaseGroup>();
 	}
 	
@@ -52,7 +52,7 @@ public class ServerBaseCategory extends ServerObject {
 		
 		type = CATEGORY_TYPE.valueOf( ConfReader.getAttrValue( root , "type" ).toUpperCase() );
 		ID = ConfReader.getAttrValue( root , "id" );
-		NAME = ConfReader.getAttrValue( root , "NAME" );
+		NAME = ConfReader.getAttrValue( root , "name" );
 		
 		Node[] list = ConfReader.xmlGetChildren( root , "group" );
 		if( list == null )

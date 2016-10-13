@@ -81,7 +81,7 @@ public class ServerBase extends ServerObject {
 	}
 
 	public ServerBaseCategory findCategory( CATEGORY_TYPE type ) {
-		return( mapCategory.get( Common.getEnumLower( type ) ) );
+		return( findCategory( Common.getEnumLower( type ) ) );
 	}
 
 	public ServerBaseCategory findCategory( String id ) {
