@@ -25,6 +25,7 @@ public class ServerBaseCategory extends ServerObject {
 	public ServerBaseCategory( ServerBase base ) {
 		super( null );
 		this.base = base;
+		groupMap = new HashMap<String,ServerBaseGroup>();
 	}
 	
 	public ServerBaseCategory( ServerBase base , CATEGORY_TYPE type , String NAME ) {
@@ -37,7 +38,7 @@ public class ServerBaseCategory extends ServerObject {
 	}
 	
 	public ServerBaseCategory copy( ServerBase rn ) throws Exception {
-		ServerBaseCategory r = new ServerBaseCategory( rn );
+		ServerBaseCategory r = new ServerBaseCategory( rn , type , NAME );
 		
 		for( ServerBaseGroup group : groupMap.values() ) {
 			ServerBaseGroup rgroup = group.copy( r );
