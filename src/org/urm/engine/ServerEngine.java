@@ -246,7 +246,6 @@ public class ServerEngine {
 		context.update( action );
 		actionExecutor.setActionContext( action , context );
 		
-		artefactory.createWorkFolder( action );
 		if( memoryOnly )
 			action.debug( "memory action created: actionId=" + action.ID + ", name=" + action.actionName );
 		else
@@ -354,6 +353,7 @@ public class ServerEngine {
 		
 		LocalFolder folder = new LocalFolder( dirname , execrc.isWindows() );
 		Artefactory artefactory = new Artefactory( folder );
+		artefactory.createWorkFolder();
 		return( artefactory );
 	}
 

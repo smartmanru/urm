@@ -1,5 +1,7 @@
 package org.urm.engine.storage;
 
+import java.io.File;
+
 import org.urm.action.ActionBase;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
@@ -19,9 +21,11 @@ public class Artefactory {
 		this.workFolder = workFolder;
 	}
 
-	public void createWorkFolder( ActionBase action ) throws Exception {
-		if( workFolder != null )
-			workFolder.ensureExists( action );
+	public void createWorkFolder() throws Exception {
+		if( workFolder != null ) {
+			File file = new File( workFolder.folderPath );
+			file.mkdirs();
+		}
 	}
 	
 	public LocalFolder getAnyFolder( ActionBase action , String dirname ) throws Exception {
