@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
 import org.urm.meta.engine.ServerBase;
 import org.urm.meta.engine.ServerBaseItem;
+import org.urm.meta.engine.ServerBaseItemData;
 import org.urm.meta.engine.ServerContext;
 import org.urm.meta.engine.ServerSettings;
 import org.urm.meta.product.MetaEnvServerNode;
@@ -40,7 +41,7 @@ public class BaseRepository {
 		return( repoFolder.getSubFolder( action , BASEID ) );
 	}
 
-	public ServerBaseItem getBaseInfo( ActionBase action , String ID , MetaEnvServerNode node , boolean primary ) throws Exception {
+	public ServerBaseItemData getBaseInfo( ActionBase action , String ID , MetaEnvServerNode node , boolean primary ) throws Exception {
 		String basePath = getBasePath( action , ID );
 		String text = repoFolder.readFile( action , basePath );
 		Document xml = ConfReader.readXmlString( text );
@@ -48,8 +49,12 @@ public class BaseRepository {
 		action.debug( "load base info id=" + ID + " ..." );
 		ServerBase base = action.getBase();
 		ServerBaseItem item = base.findBase( ID );
-		item.loadMeta( action , xml.getDocumentElement() , node );
-		return( item );
+		if( item == null )
+			action.exit1( _Error.UnknownBaseId1 , "Unknown base ID=" + ID , ID );
+		
+		ServerBaseItemData data = new ServerBaseItemData( item , this , node );
+		data.load( action , xml.getDocumentElement() );
+		return( data );
 	}
 	
 }

@@ -8,8 +8,6 @@ import org.urm.engine.ServerSession;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerObject;
 import org.urm.meta.ServerProductMeta;
-import org.urm.meta.engine.ServerBaseItem.VarBASESRCFORMAT;
-import org.urm.meta.engine.ServerBaseItem.VarBASESRCTYPE;
 import org.urm.meta.product.MetaDesign.VarELEMENTTYPE;
 import org.urm.meta.product.MetaDesign.VarLINKTYPE;
 import org.w3c.dom.Node;
@@ -179,6 +177,20 @@ public class Meta extends ServerObject {
 		TARGZ ,
 		TAR ,
 		ZIP
+	};
+	
+	public enum VarBASESRCTYPE {
+		LINUX_ARCHIVE_LINK ,
+		LINUX_ARCHIVE_DIRECT ,
+		ARCHIVE_DIRECT ,
+		NODIST ,
+		INSTALLER
+	};
+	
+	public enum VarBASESRCFORMAT {
+		TARGZ_SINGLEDIR ,
+		ZIP_SINGLEDIR ,
+		SINGLEFILE
 	};
 	
 	private static String configurableExtensionsFindOptions = createConfigurableExtensions();
