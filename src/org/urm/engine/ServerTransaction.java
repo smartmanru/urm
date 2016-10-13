@@ -7,6 +7,7 @@ import org.urm.engine.shell.Account;
 import org.urm.meta.ServerProductMeta;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerBaseGroup;
+import org.urm.meta.engine.ServerBaseItem;
 import org.urm.meta.engine.ServerHostAccount;
 import org.urm.meta.engine.ServerMirrorRepository;
 import org.urm.meta.engine.ServerMirrors;
@@ -337,21 +338,34 @@ public class ServerTransaction extends TransactionBase {
 		action.saveInfrastructure( this );
 	}
 	
-	public void createGroup( ServerBaseGroup group ) throws Exception {
+	public void createBaseGroup( ServerBaseGroup group ) throws Exception {
 		checkTransactionBase();
 		group.category.createGroup( this , group );
 		action.saveBase( this );
 	}
 
-	public void deleteGroup( ServerBaseGroup group ) throws Exception {
+	public void deleteBaseGroup( ServerBaseGroup group ) throws Exception {
 		checkTransactionBase();
 		group.category.deleteGroup( this , group );
 		action.saveBase( this );
 	}
 
-	public void modifyGroup( ServerBaseGroup group ) throws Exception {
+	public void modifyBaseGroup( ServerBaseGroup group ) throws Exception {
 		checkTransactionBase();
 		group.category.modifyGroup( this , group );
+		action.saveBase( this );
+	}
+
+	public void createBaseItem( ServerBaseItem item ) throws Exception {
+		checkTransactionBase();
+		item.group.category.base.createItem( this , item );
+		item.group.createItem( this , item );
+		action.saveBase( this );
+	}
+
+	public void deleteBaseItem( ServerBaseItem item ) throws Exception {
+		checkTransactionBase();
+		item.group.deleteItem( this , item );
 		action.saveBase( this );
 	}
 

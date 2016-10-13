@@ -11,6 +11,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.engine.ServerTransaction;
 import org.urm.engine.storage.BaseRepository;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.product.Meta;
@@ -39,7 +40,7 @@ public class ServerBaseItem {
 	
 	public ServerBaseGroup group;
 	public String ID;
-	public String NAME;
+	public String DESC;
 	public String VERSION;
 	
 	public BaseRepository repo;
@@ -64,6 +65,16 @@ public class ServerBaseItem {
 		this.group = group;
 	}
 
+	public void createBaseItem( ServerTransaction transaction , String ID , String DESC ) {
+		this.ID = ID;
+		this.DESC = DESC;
+	}
+	
+	public void modifyBaseItem( ServerTransaction transaction , String ID , String DESC ) {
+		this.ID = ID;
+		this.DESC = DESC;
+	}
+	
 	public void readMeta( BaseRepository repo ) {
 		this.repo = repo;
 	}
@@ -74,13 +85,13 @@ public class ServerBaseItem {
 
 	public void load( Node root ) throws Exception {
 		ID = ConfReader.getAttrValue( root , "id" );
-		NAME = ConfReader.getAttrValue( root , "name" );
+		DESC = ConfReader.getAttrValue( root , "desc" );
 		VERSION = ConfReader.getAttrValue( root , "version" );
 	}
 	
 	public void save( Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , "id" , ID );
-		Common.xmlSetElementAttr( doc , root , "name" , NAME );
+		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
 		Common.xmlSetElementAttr( doc , root , "version" , VERSION );
 	}
 	

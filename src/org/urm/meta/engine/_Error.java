@@ -21,5 +21,6 @@ public class _Error {
 	public static final int DuplicateResource1 = ErrorBase + 20;
 	public static final int ProductPathAlreadyExists1 = ErrorBase + 33;
 	public static final int UnableReadEnginePropertyFile1 = ErrorBase + 34;
+	public static final int DuplicateBaseItem1 = ErrorBase + 35;
 	
 }
