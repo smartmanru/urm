@@ -19,6 +19,11 @@ public class Artefactory {
 		this.workFolder = workFolder;
 	}
 
+	public void createWorkFolder( ActionBase action ) throws Exception {
+		if( workFolder != null )
+			workFolder.ensureExists( action );
+	}
+	
 	public LocalFolder getAnyFolder( ActionBase action , String dirname ) throws Exception {
 		action.checkRequired( dirname , "dirname" );
 		if( dirname.equals( "/" ) )

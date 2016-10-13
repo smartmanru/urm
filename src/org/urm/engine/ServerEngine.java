@@ -246,6 +246,7 @@ public class ServerEngine {
 		context.update( action );
 		actionExecutor.setActionContext( action , context );
 		
+		artefactory.createWorkFolder( action );
 		if( memoryOnly )
 			action.debug( "memory action created: actionId=" + action.ID + ", name=" + action.actionName );
 		else
