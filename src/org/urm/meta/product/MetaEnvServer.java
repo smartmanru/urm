@@ -152,10 +152,10 @@ public class MetaEnvServer extends PropertyController {
 			BASELINE = NAME;
 		
 		String SERVERRUNTYPE = super.getStringPropertyRequired( action , PROPERTY_SERVERRUNTYPE );
-		serverRunType = Meta.getServerRunType( SERVERRUNTYPE );
+		serverRunType = Meta.getServerRunType( SERVERRUNTYPE , false );
 		String SERVERACCESSTYPE = super.getStringPropertyRequired( action , PROPERTY_SERVERACCESSTYPE );
-		serverAccessType = Meta.getServerAccessType( SERVERACCESSTYPE );
-		osType = Meta.getOSType( super.getStringPropertyRequired( action , PROPERTY_OSTYPE , "linux" ) );
+		serverAccessType = Meta.getServerAccessType( SERVERACCESSTYPE , false );
+		osType = Meta.getOSType( super.getStringProperty( action , PROPERTY_OSTYPE , "linux" ) , false );
 		OFFLINE = super.getBooleanProperty( action , PROPERTY_OFFLINE );
 		XDOC = super.getPathProperty( action , PROPERTY_XDOC , NAME + ".xml" );
 		
@@ -191,7 +191,7 @@ public class MetaEnvServer extends PropertyController {
 		}
 		
 		if( isDatabase() ) {
-			dbType = Meta.getDbmsType( super.getStringPropertyRequired( action , PROPERTY_DBMSTYPE ) );
+			dbType = Meta.getDbmsType( super.getStringProperty( action , PROPERTY_DBMSTYPE ) , false );
 			DBMSADDR = super.getStringPropertyRequired( action , PROPERTY_DBMSADDR );
 			DATAGROUPS = super.getStringPropertyRequired( action , PROPERTY_DATAGROUPS );
 			ALIGNED = super.getStringProperty( action , PROPERTY_ALIGNED );

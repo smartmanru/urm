@@ -26,7 +26,7 @@ public class MetaDatabaseSchema {
 
 	public void load( ActionBase action , Node node ) throws Exception {
 		SCHEMA = action.getNameAttr( node , VarNAMETYPE.ALPHANUM );
-		dbmsType = Meta.getDbmsType( ConfReader.getAttrValue( node , "dbtype" ) );
+		dbmsType = Meta.getDbmsType( ConfReader.getAttrValue( node , "dbtype" ) , false );
 		DBNAME = ConfReader.getAttrValue( node , "dbname" , SCHEMA );
 		DBUSER = ConfReader.getAttrValue( node , "dbuser" , SCHEMA );
 		

@@ -16,6 +16,7 @@ import org.urm.engine.action.CommandOutput;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.Artefactory;
+import org.urm.engine.storage.BaseRepository;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
@@ -653,6 +654,10 @@ abstract public class ActionBase extends ActionCore {
 		if( server.isLinux() )
 			return( server.dc.env.REDISTLINUX_PATH );
 		return( server.dc.env.REDISTWIN_PATH );
+	}
+
+	public BaseRepository getBaseRepository() throws Exception {
+		return( artefactory.getBaseRepository( this ) );
 	}
 	
 }

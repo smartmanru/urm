@@ -52,6 +52,7 @@ public class ServerBaseItemData extends PropertyController {
 		super( null , "base" );
 		this.item = item;
 		this.repo = repo;
+		create();
 	}
 
 	public ServerBaseItemData( ServerBaseItem item , BaseRepository repo , MetaEnvServerNode serverNode ) {
@@ -59,8 +60,14 @@ public class ServerBaseItemData extends PropertyController {
 		this.item = item;
 		this.repo = repo;
 		this.serverNode = serverNode;
+		create();
 	}
 
+	public void create() {
+		compatibilityMap = new HashMap<String,String>();
+		dependencies = new LinkedList<String>();
+	}
+	
 	@Override
 	public boolean isValid() {
 		if( super.isLoadFailed() )
@@ -75,11 +82,11 @@ public class ServerBaseItemData extends PropertyController {
 		VERSION = super.getStringPropertyRequired( action , "version" );
 		
 		String TYPE = super.getStringPropertyRequired( action , "type" );
-		type = Meta.getBaseSrcType( action , TYPE );
+		type = Meta.getBaseSrcType( TYPE , false );
 		adm = super.getBooleanProperty( action , "adminstall" );
 		
 		String OSTYPE = super.getStringPropertyRequired( action , "ostype" );
-		osType = Meta.getOSType( OSTYPE );
+		osType = Meta.getOSType( OSTYPE , false );
 
 		String CHARSET = super.getStringProperty( action , "charset" );
 		if( !CHARSET.isEmpty() ) {
@@ -89,27 +96,38 @@ public class ServerBaseItemData extends PropertyController {
 		}
 		
 		String SERVERTYPE = super.getStringProperty( action , "server-accesstype" );
-		if( SERVERTYPE != null )
-			serverAccessType = Meta.getServerAccessType( SERVERTYPE );
+		serverAccessType = Meta.getServerAccessType( SERVERTYPE , false );
 		
 		// type properties
-		if( isLinuxArchiveLink() )
-			scatterLinuxArchiveLink( action );
+		if( isArchiveLink() )
+			scatterArchiveLink( action );
 		else
 		if( isArchiveDirect() )
-			scatterLinuxArchiveDirect( action );
+			scatterArchiveDirect( action );
 		else
 		if( isNoDist() )
 			scatterNoDist( action );
 		else
 		if( isInstaller() )
 			scatterInstaller( action );
-		else
-			action.exitUnexpectedState();
 		
 		super.finishProperties( action );
 	}
 
+	public void create( ActionBase action ) throws Exception {
+		super.initCreateStarted( null );
+		NAME = "";
+		VERSION = "";
+		
+		SRCFILE = "";
+		SRCSTOREDIR = "";
+		INSTALLPATH = "";
+		INSTALLLINK = "";
+		
+		adm = false;
+		super.initFinished();
+	}
+	
 	public void load( ActionBase action , Node root ) throws Exception {
 		PropertySet parent = ( serverNode == null )? null : serverNode.getProperties();
 		if( !super.initCreateStarted( parent ) )
@@ -125,7 +143,6 @@ public class ServerBaseItemData extends PropertyController {
 	}
 	
 	private void loadCompatibility( ActionBase action , Node node ) throws Exception {
-		compatibilityMap = new HashMap<String,String>();
 		Node comp = ConfReader.xmlGetFirstChild( node , "compatibility" );
 		if( comp == null )
 			return;
@@ -145,7 +162,6 @@ public class ServerBaseItemData extends PropertyController {
 	}
 	
 	private void loadDependencies( ActionBase action , Node node ) throws Exception {
-		dependencies = new LinkedList<String>();
 		Node deps = ConfReader.xmlGetFirstChild( node , "dependencies" );
 		if( deps == null )
 			return;
@@ -160,16 +176,16 @@ public class ServerBaseItemData extends PropertyController {
 		}
 	}
 
-	private void scatterLinuxArchiveLink( ActionBase action ) throws Exception {
-		srcFormat = Meta.getBaseSrcFormat( action , super.getStringPropertyRequired( action , "srcformat" ) );
+	private void scatterArchiveLink( ActionBase action ) throws Exception {
+		srcFormat = Meta.getBaseSrcFormat( super.getStringPropertyRequired( action , "srcformat" ) , false );
 		SRCFILE = super.getPathPropertyRequired( action , "srcfile" );
 		SRCSTOREDIR = super.getPathPropertyRequired( action , "srcstoreddir" );
 		INSTALLPATH = super.getPathPropertyRequired( action , "installpath" );
 		INSTALLLINK = super.getPathPropertyRequired( action , "installlink" );
 	}
 	
-	private void scatterLinuxArchiveDirect( ActionBase action ) throws Exception {
-		srcFormat = Meta.getBaseSrcFormat( action , super.getStringPropertyRequired( action , "srcformat" ) );
+	private void scatterArchiveDirect( ActionBase action ) throws Exception {
+		srcFormat = Meta.getBaseSrcFormat( super.getStringPropertyRequired( action , "srcformat" ) , false );
 		SRCFILE = super.getPathPropertyRequired( action , "srcfile" );
 		SRCSTOREDIR = super.getPathPropertyRequired( action , "srcstoreddir" );
 		INSTALLPATH = super.getPathPropertyRequired( action , "installpath" );
@@ -179,7 +195,7 @@ public class ServerBaseItemData extends PropertyController {
 	}
 
 	private void scatterInstaller( ActionBase action ) throws Exception {
-		srcFormat = Meta.getBaseSrcFormat( action , super.getStringPropertyRequired( action , "srcformat" ) );
+		srcFormat = Meta.getBaseSrcFormat( super.getStringPropertyRequired( action , "srcformat" ) , false );
 		SRCFILE = super.getPathPropertyRequired( action , "srcfile" );
 	}
 
@@ -203,21 +219,20 @@ public class ServerBaseItemData extends PropertyController {
 		return( false );
 	}
 	
-	public boolean isLinuxArchiveLink() {
-		if( type == VarBASESRCTYPE.LINUX_ARCHIVE_LINK )
+	public boolean isArchiveLink() {
+		if( type == VarBASESRCTYPE.ARCHIVE_LINK )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isArchiveDirect() {
-		if( type == VarBASESRCTYPE.LINUX_ARCHIVE_DIRECT || 
-			type == VarBASESRCTYPE.ARCHIVE_DIRECT )
+		if( type == VarBASESRCTYPE.ARCHIVE_DIRECT )
 			return( true );
 		return( false );
 	}
 
 	public boolean isArchive() {
-		if( isLinuxArchiveLink() ||
+		if( isArchiveLink() ||
 			isArchiveDirect() )
 			return( true );
 		return( false );

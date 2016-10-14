@@ -26,7 +26,7 @@ public class MetaDesignLink {
 	public void load( ActionBase action , Node node ) throws Exception {
 		TARGET = ConfReader.getRequiredAttrValue( node , "target" );
 		TYPE = ConfReader.getRequiredAttrValue( node , "type" );
-		linkType = Meta.getDesignLinkType( action , TYPE );
+		linkType = Meta.getDesignLinkType( TYPE , false );
 		TEXT = ConfReader.getAttrValue( node , "text" );
 	}
 

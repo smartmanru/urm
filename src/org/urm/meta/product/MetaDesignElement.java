@@ -37,7 +37,7 @@ public class MetaDesignElement {
 		
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		TYPE = ConfReader.getRequiredAttrValue( node , "type" );
-		elementType = Meta.getDesignElementType( action , TYPE );
+		elementType = Meta.getDesignElementType( TYPE , false );
 		FUNCTION = ConfReader.getAttrValue( node , "function" );
 
 		if( isGroup() ) {

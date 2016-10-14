@@ -130,7 +130,7 @@ public abstract class CommandExecutor {
 		if( pos >= action.context.options.getArgCount() )
 			return( null );
 		
-		return( Meta.getCategory( getArg( action , pos ) ) );
+		return( Meta.getCategory( getArg( action , pos ) , true ) );
 	}
 	
 	public String getRequiredArg( ActionBase action , int pos , String argName ) throws Exception {

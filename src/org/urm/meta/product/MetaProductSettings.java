@@ -188,7 +188,7 @@ public class MetaProductSettings extends PropertyController {
 			if( items != null ) {
 				for( Node node : items ) {
 					String modeName = ConfReader.getAttrValue( node , "name" );
-					VarBUILDMODE mode = Meta.getBuildMode( modeName );
+					VarBUILDMODE mode = Meta.getBuildMode( modeName , false );
 					
 					MetaProductBuildSettings buildMode = new MetaProductBuildSettings( "mode" , meta , this );
 					buildMode.load( action , node , buildCommon.getProperties() );

@@ -158,6 +158,7 @@ public class Meta extends ServerObject {
 	};
 	
 	public enum VarCONTENTTYPE {
+		UNKNOWN ,
 		BINARYCOLDDEPLOY ,
 		BINARYHOTDEPLOY ,
 		BINARYCOPYONLY ,
@@ -167,6 +168,7 @@ public class Meta extends ServerObject {
 	};
 
 	public enum VarNAMETYPE {
+		UNKNOWN ,
 		ANY ,
 		ALPHANUM ,
 		ALPHANUMDOT ,
@@ -174,20 +176,22 @@ public class Meta extends ServerObject {
 	};
 	
 	public enum VarARCHIVETYPE {
+		UNKNOWN ,
 		TARGZ ,
 		TAR ,
 		ZIP
 	};
 	
 	public enum VarBASESRCTYPE {
-		LINUX_ARCHIVE_LINK ,
-		LINUX_ARCHIVE_DIRECT ,
+		UNKNOWN ,
+		ARCHIVE_LINK ,
 		ARCHIVE_DIRECT ,
 		NODIST ,
 		INSTALLER
 	};
 	
 	public enum VarBASESRCFORMAT {
+		UNKNOWN ,
 		TARGZ_SINGLEDIR ,
 		ZIP_SINGLEDIR ,
 		SINGLEFILE
@@ -330,9 +334,12 @@ public class Meta extends ServerObject {
 		return( configurableExtensions );
 	}
 
-	public static VarOSTYPE getOSType( String ID ) throws Exception {
-		if( ID.isEmpty() )
-			Common.exit0( _Error.MissingOSType0 , "missing operating system type" );
+	public static VarOSTYPE getOSType( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingOSType0 , "missing operating system type" );
+			return( VarOSTYPE.UNKNOWN );
+		}
 		
 		VarOSTYPE value = null;
 		try {
@@ -345,9 +352,12 @@ public class Meta extends ServerObject {
 		return( value );
 	}
 	
-	public static VarCATEGORY getCategory( String ID ) throws Exception {
-		if( ID.isEmpty() )
-			Common.exit0( _Error.MissingCategory0 , "missing category" );
+	public static VarCATEGORY getCategory( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingCategory0 , "missing category" );
+			return( VarCATEGORY.UNKNOWN );
+		}
 
 		VarCATEGORY value = null;
 		try {
@@ -360,9 +370,12 @@ public class Meta extends ServerObject {
 		return( value );
 	}
 	
-	public static VarSERVERACCESSTYPE getServerAccessType( String ID ) throws Exception {
-		if( ID.isEmpty() )
+	public static VarSERVERACCESSTYPE getServerAccessType( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingServerAccessType0 , "missing server access type" );
 			return( VarSERVERACCESSTYPE.UNKNOWN );
+		}
 		
 		VarSERVERACCESSTYPE value = null;
 		try {
@@ -375,9 +388,12 @@ public class Meta extends ServerObject {
 		return( value );
 	}
 	
-	public static VarSERVERRUNTYPE getServerRunType( String ID ) throws Exception {
-		if( ID.isEmpty() )
+	public static VarSERVERRUNTYPE getServerRunType( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingServerRunType0 , "missing server run type" );
 			return( VarSERVERRUNTYPE.UNKNOWN );
+		}
 		
 		VarSERVERRUNTYPE value = null;
 		try {
@@ -405,9 +421,12 @@ public class Meta extends ServerObject {
 		return( value );
 	}
 	
-	public static VarDEPLOYTYPE getDeployType( String ID ) throws Exception {
-		if( ID.isEmpty() )
-			Common.exit0( _Error.MissingDeployType0 , "missing deploy type" );
+	public static VarDEPLOYTYPE getDeployType( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingDeployType0 , "missing deploy type" );
+			return( VarDEPLOYTYPE.UNKNOWN );
+		}
 		
 		VarDEPLOYTYPE value = null;
 		try {
@@ -420,9 +439,12 @@ public class Meta extends ServerObject {
 		return( value );
 	}
 	
-	public static VarITEMSRCTYPE getItemSrcType( String ID ) throws Exception {
-		if( ID.isEmpty() )
-			Common.exit0( _Error.MissingSourceItemType0 , "missing source item type" );
+	public static VarITEMSRCTYPE getItemSrcType( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingSourceItemType0 , "missing source item type" );
+			return( VarITEMSRCTYPE.UNKNOWN );
+		}
 		
 		VarITEMSRCTYPE value = null;
 		try {
@@ -435,9 +457,12 @@ public class Meta extends ServerObject {
 		return( value );
 	}
 	
-	public static VarDISTITEMTYPE getItemDistType( String ID ) throws Exception {
-		if( ID.isEmpty() )
-			Common.exit0( _Error.MissingDistributiveItemType0 , "missing distributive item type" );
+	public static VarDISTITEMTYPE getItemDistType( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingDistributiveItemType0 , "missing distributive item type" );
+			return( VarDISTITEMTYPE.UNKNOWN );
+		}
 		
 		VarDISTITEMTYPE value = null;
 		try {
@@ -450,7 +475,13 @@ public class Meta extends ServerObject {
 		return( value );
 	}
 	
-	public static VarDISTITEMSOURCE getItemDistSource( String ID ) throws Exception {
+	public static VarDISTITEMSOURCE getItemDistSource( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingDistItemSource0 , "missing distributive item source" );
+			return( VarDISTITEMSOURCE.UNKNOWN );
+		}
+		
 		VarDISTITEMSOURCE value = null;
 		try {
 			value = VarDISTITEMSOURCE.valueOf( Common.xmlToEnumValue( ID ) );
@@ -465,9 +496,12 @@ public class Meta extends ServerObject {
 		return( value );
 	}
 	
-	public static VarBUILDMODE getBuildMode( String ID ) throws Exception {
-		if( ID.isEmpty() )
+	public static VarBUILDMODE getBuildMode( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingBuildMode0 , "missing build mode" );
 			return( VarBUILDMODE.UNKNOWN );
+		}
 		
 		VarBUILDMODE value = null;
 		try {
@@ -480,9 +514,12 @@ public class Meta extends ServerObject {
 		return( value );
 	}
 	
-	public static VarDBMSTYPE getDbmsType( String ID ) throws Exception {
-		if( ID.isEmpty() )
-			Common.exit0( _Error.MissingDbmsType0 , "missing DBMS type" );
+	public static VarDBMSTYPE getDbmsType( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingDbmsType0 , "missing DBMS type" );
+			return( VarDBMSTYPE.UNKNOWN );
+		}
 		
 		VarDBMSTYPE value = null;		
 		try {
@@ -495,9 +532,12 @@ public class Meta extends ServerObject {
 		return( value );
 	}
 	
-	public static VarCONFITEMTYPE getConfItemType( String ID ) throws Exception {
-		if( ID.isEmpty() )
-			Common.exit0( _Error.MissingConfItemType0 , "missing configuration item type" );
+	public static VarCONFITEMTYPE getConfItemType( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingConfItemType0 , "missing configuration item type" );
+			return( VarCONFITEMTYPE.UNKNOWN );
+		}
 		
 		VarCONFITEMTYPE value = null;		
 		try {
@@ -510,31 +550,37 @@ public class Meta extends ServerObject {
 		return( value );
 	}
 	
-	public static VarBASESRCTYPE getBaseSrcType( ActionBase action , String TYPE ) throws Exception {
-		if( TYPE.isEmpty() )
-			Common.exit0( _Error.MissingBaseSrcType0 , "missing base srctype" );
+	public static VarBASESRCTYPE getBaseSrcType( String TYPE , boolean required ) throws Exception {
+		if( TYPE.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingBaseSrcType0 , "missing base srctype" );
+			return( VarBASESRCTYPE.UNKNOWN );
+		}
 		
 		VarBASESRCTYPE value = null;		
 		try {
 			value = VarBASESRCTYPE.valueOf( Common.xmlToEnumValue( TYPE ) );
 		}
 		catch( IllegalArgumentException e ) {
-			action.exit1( _Error.InvalidBaseSrcType1 , "invalid base srctype=" + TYPE , TYPE );
+			Common.exit1( _Error.InvalidBaseSrcType1 , "invalid base srctype=" + TYPE , TYPE );
 		}
 		
 		return( value );
 	}
 
-	public static VarBASESRCFORMAT getBaseSrcFormat( ActionBase action , String TYPE ) throws Exception {
-		if( TYPE.isEmpty() )
-			Common.exit0( _Error.MissingBaseSrcType0 , "missing base srcformat" );
+	public static VarBASESRCFORMAT getBaseSrcFormat( String TYPE , boolean required ) throws Exception {
+		if( TYPE.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingBaseSrcType0 , "missing base srcformat" );
+			return( VarBASESRCFORMAT.UNKNOWN );
+		}
 		
 		VarBASESRCFORMAT value = null;		
 		try {
 			value = VarBASESRCFORMAT.valueOf( Common.xmlToEnumValue( TYPE ) );
 		}
 		catch( IllegalArgumentException e ) {
-			action.exit1( _Error.InvalidBaseSrcFormat1 , "invalid base srcformat=" + TYPE , TYPE );
+			Common.exit1( _Error.InvalidBaseSrcFormat1 , "invalid base srcformat=" + TYPE , TYPE );
 		}
 		
 		return( value );
@@ -556,39 +602,45 @@ public class Meta extends ServerObject {
 		return( value );
 	}
 	
-	public static VarELEMENTTYPE getDesignElementType( ActionBase action , String ID ) throws Exception {
-		if( ID.isEmpty() )
-			Common.exit0( _Error.MissingDesignElementType0 , "missing design element type" );
+	public static VarELEMENTTYPE getDesignElementType( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingDesignElementType0 , "missing design element type" );
+			return( VarELEMENTTYPE.UNKNOWN );
+		}
 		
 		VarELEMENTTYPE value = null;		
 		try {
 			value = VarELEMENTTYPE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			action.exit1( _Error.InvalidDesignElementType1 , "invalid design element type=" + ID , ID );
+			Common.exit1( _Error.InvalidDesignElementType1 , "invalid design element type=" + ID , ID );
 		}
 		
 		return( value );
 	}
 
-	public static VarLINKTYPE getDesignLinkType( ActionBase action , String ID ) throws Exception {
-		if( ID.isEmpty() )
-			Common.exit0( _Error.MissingDesignLinkType0 , "missing design link type" );
+	public static VarLINKTYPE getDesignLinkType( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingDesignLinkType0 , "missing design link type" );
+			return( VarLINKTYPE.UNKNOWN );
+		}
 		
 		VarLINKTYPE value = null;		
 		try {
 			value = VarLINKTYPE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
-			action.exit1( _Error.InvalidDesignLinkType1 , "invalid design link type=" + ID , ID );
+			Common.exit1( _Error.InvalidDesignLinkType1 , "invalid design link type=" + ID , ID );
 		}
 		
 		return( value );
 	}
 
 	public static VarCATEGORY readCategoryAttr( Node node ) throws Exception {
-		String value = ConfReader.getRequiredAttrValue( node , "category" );
-		return( getCategory( value ) );
+		String value = ConfReader.getAttrValue( node , "category" );
+		return( getCategory( value , true ) );
 	}
 	
 	public static boolean isSourceCategory( VarCATEGORY value ) {

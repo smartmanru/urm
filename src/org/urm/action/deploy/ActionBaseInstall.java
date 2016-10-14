@@ -81,7 +81,7 @@ public class ActionBaseInstall extends ActionBase {
 		if( !startUpdate( info , runtime , vis ) )
 			return;
 			
-		if( info.isLinuxArchiveLink() )
+		if( info.isArchiveLink() )
 			executeNodeLinuxArchiveLink( server , node , info , redist , runtime );
 		else
 		if( info.isArchiveDirect() )

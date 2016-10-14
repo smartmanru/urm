@@ -29,7 +29,7 @@ public class MetaDistrConfItem {
 
 	public void load( ActionBase action , Node node ) throws Exception {
 		KEY = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
-		TYPE = Meta.getConfItemType( ConfReader.getRequiredAttrValue( node , "type" ) );
+		TYPE = Meta.getConfItemType( ConfReader.getRequiredAttrValue( node , "type" ) , false );
 		FILES = ConfReader.getAttrValue( node , "files" );
 		SECURED = ConfReader.getAttrValue( node , "secured" );
 		EXCLUDE = ConfReader.getAttrValue( node , "exclude" );

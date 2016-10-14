@@ -49,7 +49,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 		String value = super.getStringProperty( action , PROPERTY_DEPLOYTYPE );
 		if( value.isEmpty() )
 			value = "cold";
-		DEPLOYTYPE = Meta.getDeployType( value );
+		DEPLOYTYPE = Meta.getDeployType( value , false );
 		DEPLOYPATH = super.getStringProperty( action , PROPERTY_DEPLOYPATH );
 		value = super.getStringProperty( action , PROPERTY_NODETYPE );
 		nodeType = Meta.getNodeType( value , VarNODETYPE.SELF );

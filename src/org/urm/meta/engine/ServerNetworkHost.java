@@ -50,7 +50,7 @@ public class ServerNetworkHost extends ServerObject {
 		ID = ConfReader.getAttrValue( root , "id" );
 		IP = ConfReader.getAttrValue( root , "ip" );
 		String OSTYPE = ConfReader.getAttrValue( root , "ostype" );
-		osType = Meta.getOSType( OSTYPE );
+		osType = Meta.getOSType( OSTYPE , false );
 		DESC = ConfReader.getAttrValue( root , "desc" );
 		
 		Node[] list = ConfReader.xmlGetChildren( root , "account" );

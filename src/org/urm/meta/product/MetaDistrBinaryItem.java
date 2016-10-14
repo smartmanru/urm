@@ -48,8 +48,8 @@ public class MetaDistrBinaryItem {
 		KEY = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 	
 		// read attrs
-		DISTTYPE = Meta.getItemDistType( ConfReader.getRequiredAttrValue( node , "type" ) );
-		DISTSOURCE = Meta.getItemDistSource( ConfReader.getRequiredAttrValue( node , "source" ) );
+		DISTTYPE = Meta.getItemDistType( ConfReader.getRequiredAttrValue( node , "type" ) , false );
+		DISTSOURCE = Meta.getItemDistSource( ConfReader.getRequiredAttrValue( node , "source" ) , false );
 		if( DISTSOURCE == VarDISTITEMSOURCE.DISTITEM ) {
 			SRCDISTITEM = ConfReader.getAttrValue( node , "srcitem" );
 			SRCITEMPATH = ConfReader.getAttrValue( node , "srcpath" );

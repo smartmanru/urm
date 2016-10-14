@@ -316,7 +316,7 @@ public class CommandContext {
 		CTX_BUILDINFO = getParamValue( "OPT_BUILDINFO" );
 		CTX_HOSTUSER = getParamValue( "OPT_HOSTUSER" );
 		CTX_NEWKEY = getParamValue( "OPT_NEWKEY" );
-		CTX_BUILDMODE = Meta.getBuildMode( getParamValue( "OPT_BUILDMODE" ) );
+		CTX_BUILDMODE = Meta.getBuildMode( getParamValue( "OPT_BUILDMODE" ) , false );
 		CTX_OLDRELEASE = getParamValue( "OPT_COMPATIBILITY" );
 		CTX_PORT = getIntParamValue( "OPT_PORT" , -1 );
 		CTX_HOST = getParamValue( "OPT_HOST" );
