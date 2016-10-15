@@ -11,12 +11,10 @@ public class LocalShellExecutor extends ShellExecutor {
 	
 	@Override
 	public boolean start( ActionBase action ) throws Exception {
-		ProcessBuilder builder;
+		ShellProcess process = new ShellProcess( this );
 		if( account.isWindows() )
-			builder = new ProcessBuilder( "cmd" , "/Q" , "/D" , "/A" , "/V:OFF" );
-		else
-			builder = new ProcessBuilder( "sh" );
+			return( process.createLocalWindowsProcess( action ) );
 		
-		return( super.createProcess( action , builder , rootPath ) );
+		return( process.createLocalLinuxProcess( action ) );
 	}
 }

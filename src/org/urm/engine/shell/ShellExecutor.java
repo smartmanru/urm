@@ -74,9 +74,9 @@ public abstract class ShellExecutor extends Shell {
 		start( action );
 	}
 	
-	protected boolean createProcess( ActionBase action , ProcessBuilder builder , String rootPath ) throws Exception {
+	protected boolean createProcess( ActionBase action , ShellProcess process ) throws Exception {
 		action.debug( "start shell=" + name + " at rootPath=" + rootPath );
-		return( core.createProcess( action , builder , rootPath ) );
+		return( core.createProcess( action , process , rootPath ) );
 	}
 
 	@Override

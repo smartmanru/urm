@@ -23,7 +23,7 @@ public class ShellCoreWindows extends ShellCore {
 		cmdAnd = "&&";
 	}
 
-	@Override public boolean createProcess( ActionBase action , ProcessBuilder builder , String rootPath ) throws Exception {
+	@Override public boolean createProcess( ActionBase action , ShellProcess process , String rootPath ) throws Exception {
 		if( rootPath == null )
 			action.exitUnexpectedState();
 		
@@ -31,14 +31,14 @@ public class ShellCoreWindows extends ShellCore {
 			localSession = new ShellCoreUnix( executor , VarSESSIONTYPE.UNIXLOCAL , tmpFolder , true );
 			localSession.setWindowsHelper();
 			running = true;
-			if( !localSession.createProcess( action , builder , action.context.CTX_REDISTWIN_PATH ) )
+			if( !localSession.createProcess( action , process , action.context.CTX_REDISTWIN_PATH ) )
 				return( false );
 			
 			initialized = true;
 			return( true );
 		}
 		
-		return( super.createProcess( action , builder , rootPath ) );
+		return( super.createProcess( action , process , rootPath ) );
 	}
 	
 	@Override public void kill( ActionBase action ) throws Exception {
@@ -55,26 +55,15 @@ public class ShellCoreWindows extends ShellCore {
 		return( true );
 	}
 	
-	private String prepareExecute( ActionBase action , String cmd , int logLevel ) throws Exception {
+	private String prepareExecuteWindowsFromLinux( ActionBase action , String cmd , int logLevel ) throws Exception {
 		if( !running )
 			exitError( action , _Error.RunCommandClosedSession1 , "attempt to run command in closed session: " + cmd , new String[] { cmd } );
 			
 		cmdCurrent = cmd;
 		cmdout.clear();
 		cmderr.clear();
-		
-		String execLine = "ssh";
-		String keyFile = action.context.CTX_KEYNAME;
-		if( !keyFile.isEmpty() )
-			execLine += " -i " + keyFile;
-		if( executor.account.PORT != 22 )
-			execLine += " -P " + executor.account.PORT;
 
-		String cmdWin = Common.replace( cmd , "\\" , "\\\\" );
-		cmdWin = Common.replace( cmdWin , "\\\\$" , "\\$" );
-		execLine += " " + executor.account.getHostLogin() + " " + Common.getQuoted( "cmd /c chcp 65001 & cmd /c \"echo off & " + cmdWin + "\"" );
-		action.trace( executor.name + " execute: " + cmd );
-		return( execLine );
+		return( executor.process.prepareExecuteWindowsFromLinux( action , cmd ) );
 	}
 	
 	private void getOutput( ActionBase action ) throws Exception {
@@ -91,7 +80,7 @@ public class ShellCoreWindows extends ShellCore {
 			exitError( action , _Error.RunCommandClosedSession1 , "attempt to run command in closed session: " + cmd , new String[] { cmd } );
 		
 		if( sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX ) {
-			String execLine = prepareExecute( action , cmd , logLevel );
+			String execLine = prepareExecuteWindowsFromLinux( action , cmd , logLevel );
 			localSession.runCommand( action , execLine , logLevel );
 			getOutput( action );
 		}
@@ -121,7 +110,7 @@ public class ShellCoreWindows extends ShellCore {
 
 	@Override public int runCommandGetStatus( ActionBase action , String cmd , int logLevel ) throws Exception {
 		if( sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX ) {
-			String execLine = prepareExecute( action , cmd , logLevel );
+			String execLine = prepareExecuteWindowsFromLinux( action , cmd , logLevel );
 			int status = localSession.runCommandGetStatus( action , execLine , logLevel );
 			getOutput( action );
 			return( status );

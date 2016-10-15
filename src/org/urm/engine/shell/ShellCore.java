@@ -142,8 +142,8 @@ abstract public class ShellCore {
 		running = false;
 	}
 
-	public boolean createProcess( ActionBase action , ProcessBuilder builder , String rootPath ) throws Exception {
-		executor.startProcess( action , builder , rootPath , true );
+	public boolean createProcess( ActionBase action , ShellProcess process , String rootPath ) throws Exception {
+		executor.startProcess( action , process , rootPath , true );
 		running = true;
 		
 		// additional process setup

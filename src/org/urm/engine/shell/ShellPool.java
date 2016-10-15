@@ -8,7 +8,6 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.ServerEngine;
-import org.urm.engine.action.CommandOutput;
 import org.urm.engine.storage.Folder;
 import org.urm.meta.engine.ServerContext;
 
@@ -488,11 +487,4 @@ public class ShellPool implements Runnable {
 		return( osapi );
 	}
 
-	public void killShellProcess( ActionBase action , int processId ) throws Exception {
-		if( action.isLocalLinux() )
-			master.custom( action , "kill -9 " + processId , CommandOutput.LOGLEVEL_TRACE );
-		else
-			master.custom( action , "taskkill /T /pid " + processId + " /f" , CommandOutput.LOGLEVEL_TRACE );	
-	}
-	
 }

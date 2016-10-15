@@ -1,7 +1,6 @@
 package org.urm.engine.shell;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -22,8 +21,7 @@ abstract public class Shell {
 	public Account account;
 	public String rootPath;
 
-	private Process process = null;
-	public int processId = -1;
+	public ShellProcess process;
 	public boolean available;
 	
 	private OutputStream stdin;
@@ -45,21 +43,11 @@ abstract public class Shell {
 		tsCreated = System.currentTimeMillis();
 	}
 
-	protected void startProcess( ActionBase action , ProcessBuilder builder , String rootPath , boolean redirect ) throws Exception {
+	public void startProcess( ActionBase action , ShellProcess process , String rootPath , boolean redirect ) throws Exception {
 		this.rootPath = rootPath;
-		if( rootPath != null )
-			builder.directory( new File( rootPath ) );
+		this.process = process;
 		
-		// start OS process
-		process = builder.start();
-		
-		// get process ID
-		ShellCoreJNI osapi = pool.getOSAPI();
-		if( action.isLocalLinux() )
-			processId = osapi.getLinuxProcessId( action , process );
-		else
-			processId = osapi.getWindowsProcessId( action , process );
-		action.debug( "process started: name=" + name + ", id=" + processId );
+		process.start( action , rootPath );
 		available = true;
 
 		if( !redirect )
@@ -88,13 +76,13 @@ abstract public class Shell {
 	}
 	
 	public void setUnavailable() {
-		processId = -1;
+		process.setUnavailable();
 		available = false;
 	}
 	
 	public void killShellProcess( ActionBase action ) throws Exception {
-		if( this != pool.master && processId > 0 )
-			pool.killShellProcess( action , processId );
+		if( this != pool.master )
+			process.kill( action );
 	}
 
 	public synchronized void killOSProcess( ActionBase action ) throws Exception {
@@ -169,7 +157,7 @@ abstract public class Shell {
 	}
 
 	public synchronized int waitFor( ActionBase action ) throws Exception {
-		return( process.waitFor() );
+		return( process.waitFor( action ) );
 	}
 
 	public boolean waitForMarker( ActionBase action , String marker , boolean system ) throws Exception {
