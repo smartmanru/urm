@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
@@ -72,7 +73,7 @@ public class DatabaseSpecific {
 		applyName += ( ( shell.isLinux() )? ".sh" : ".cmd" );
 		
 		if( !applysystemscriptCopied ) {
-			if( !action.isLocalAccount() ) {
+			if( !shell.isLocal() ) {
 				RedistStorage redist = action.artefactory.getRedistStorage( action , server , node );
 				RemoteFolder folder = redist.getRedistTmpFolder( action );
 				execFolder = folder;
@@ -418,7 +419,9 @@ public class DatabaseSpecific {
 		work = action.artefactory.getWorkFolder( action );
 		List<String> lines = new LinkedList<String>();
 		String name = null;
-		String DBHOST = ( action.isLocalAccount() )? "localhost" : server.DBMSADDR;
+		
+		Account account = action.getNodeAccount( node );
+		String DBHOST = ( account.isLocal() )? "localhost" : server.DBMSADDR;
 		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		if( action.isLocalLinux() ) {
 			lines.add( "export URMDB_USER=" + user );

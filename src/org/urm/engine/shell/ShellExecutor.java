@@ -41,15 +41,19 @@ public abstract class ShellExecutor extends Shell {
 		return( executor );
 	}
 
-	public static ShellExecutor getRemoteShellExecutor( ActionBase action , String name , ShellPool pool , Account account , String rootPath ) throws Exception {
+	public static ShellExecutor getRemoteShellExecutor( ActionBase action , String name , ShellPool pool , Account account ) throws Exception {
 		RedistStorage storage = action.artefactory.getRedistStorage( action , account );
 		Folder tmpFolder = storage.getRedistTmpFolder( action );
 
-		ShellExecutor executor = new RemoteShellExecutor( name , pool , account , rootPath , tmpFolder );
+		ShellExecutor executor = new RemoteShellExecutor( name , pool , account , tmpFolder );
 		executor.core = ShellCore.createShellCore( action, executor , account.osType , false );
 		return( executor );
 	}
 
+	public boolean isLocal() {
+		return( account.isLocal() );
+	}
+	
 	private void opstart() {
 		tsLastStarted = System.currentTimeMillis();
 		tsLastFinished = 0;
@@ -75,7 +79,10 @@ public abstract class ShellExecutor extends Shell {
 	}
 	
 	protected boolean createProcess( ActionBase action , ShellProcess process ) throws Exception {
-		action.debug( "start shell=" + name + " at rootPath=" + rootPath );
+		if( isLocal() )
+			action.debug( "start shell=" + name + " at rootPath=" + rootPath + " (" + Common.getEnumLower( account.osType ) + ")" );
+		else
+			action.debug( "start shell=" + name + " (" + Common.getEnumLower( account.osType ) + ")" );
 		return( core.createProcess( action , process , rootPath ) );
 	}
 
@@ -111,7 +118,7 @@ public abstract class ShellExecutor extends Shell {
 	public synchronized void ensureDirExists( ActionBase action , String path ) throws Exception {
 		try {
 			opstart();
-			if( action.isLocalAccount() ) {
+			if( isLocal() ) {
 				if( !Files.isDirectory( Paths.get( path ) , LinkOption.NOFOLLOW_LINKS ) )
 					Files.createDirectory( Paths.get( path ) );
 				return;
@@ -159,7 +166,7 @@ public abstract class ShellExecutor extends Shell {
 			if( path.isEmpty() )
 				return( false );
 			
-			if( action.isLocalAccount() )
+			if( isLocal() )
 				return( Files.isDirectory( Paths.get( path ) , LinkOption.NOFOLLOW_LINKS ) );
 			
 			return( core.cmdCheckDirExists( action , path ) );
@@ -205,7 +212,7 @@ public abstract class ShellExecutor extends Shell {
 			if( path.isEmpty() )
 				return( false );
 	
-			if( action.isLocalAccount() ) {
+			if( isLocal() ) {
 				if( isWindows() )
 					path = Common.getWinPath( path );
 				return( Files.isRegularFile( Paths.get( path ) , LinkOption.NOFOLLOW_LINKS ) );
@@ -223,7 +230,7 @@ public abstract class ShellExecutor extends Shell {
 			if( path.isEmpty() )
 				return( false );
 	
-			if( action.isLocalAccount() ) {
+			if( isLocal() ) {
 				if( isWindows() )
 					path = Common.getWinPath( path );
 				return( Files.exists( Paths.get( path ) , LinkOption.NOFOLLOW_LINKS ) );
@@ -1032,7 +1039,7 @@ public abstract class ShellExecutor extends Shell {
 	public synchronized void getTopDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
 		try {
 			opstart();
-			if( !action.isLocalAccount() ) {
+			if( !isLocal() ) {
 				core.cmdGetTopDirsAndFiles( action , rootPath , dirs , files );
 				return;
 			}

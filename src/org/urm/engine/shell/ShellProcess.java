@@ -9,14 +9,25 @@ import org.urm.common.Common;
 import org.urm.engine.ServerCall;
 import org.urm.engine.action.CommandOutput;
 
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelShell;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
+
 public class ShellProcess {
 
 	Shell shell;
 	ShellExecutor executor;
 	ProcessBuilder builder;
+	JSch jsch;
+	Session jsession;
+	Channel jchannel;
+	OutputStream jstdin;
+	InputStream jstdout;
+	InputStream jstderr;
 
 	private Process process = null;
-	public int processId = -1;
+	private int processId = -1;
 	
 	public final static String CONNECT_MARKER = "URM.CONNECTED";  
 	public final static String COMMAND_MARKER = "URM.COMMAND";  
@@ -49,6 +60,11 @@ public class ShellProcess {
 	}
 
 	public boolean createRemoteLinuxProcessFromWindows( ActionBase action ) throws Exception {
+		jsch = new JSch();
+		return( executor.createProcess( action , this ) );
+	}
+	
+	public boolean createRemoteLinuxProcessFromWindowsOld( ActionBase action ) throws Exception {
 		if( action.context.CTX_TRACEINTERNAL )
 			action.trace( "create process - plink " + executor.account.getPrintName() );
 		
@@ -85,6 +101,14 @@ public class ShellProcess {
 	}
 	
 	public void start( ActionBase action , String rootPath ) throws Exception {
+		if( builder != null )
+			startBuilder( action , rootPath );
+		else
+		if( jsch != null )
+			startJssh( action , rootPath );
+	}
+		
+	public void startBuilder( ActionBase action , String rootPath ) throws Exception {
 		if( rootPath != null )
 			builder.directory( new File( rootPath ) );
 		
@@ -100,15 +124,37 @@ public class ShellProcess {
 		action.debug( "process started: name=" + executor.name + ", id=" + processId );
 	}
 
-	public OutputStream getOutputStream() {
+	public void startJssh( ActionBase action , String rootPath ) throws Exception {
+		jsession = jsch.getSession( "root" , "85.143.127.142" , 8122 );
+		jsession.setPassword( "NciPass" );
+		jsession.setConfig( "StrictHostKeyChecking" , "no" );
+		jsession.connect( 30000 );
+		
+		ChannelShell channel = ( ChannelShell )jsession.openChannel( "shell" );
+		channel.setPty( false );
+		jchannel = channel;
+		jstdin = jchannel.getOutputStream();
+		jstdout = jchannel.getInputStream();
+		jstderr = jchannel.getExtInputStream();
+		jchannel.connect();
+		action.debug( "jssh shell=" + shell.name + " - successfully connected" );		
+	}
+	
+	public OutputStream getOutputStream() throws Exception {
+		if( jchannel != null )
+			return( jstdin );
 		return( process.getOutputStream() );
 	}
 	
-	public InputStream getErrorStream() {
+	public InputStream getErrorStream() throws Exception {
+		if( jchannel != null )
+			return( jstderr );
 		return( process.getErrorStream() );
 	}
 	
-	public InputStream getInputStream() {
+	public InputStream getInputStream() throws Exception {
+		if( jchannel != null )
+			return( jstdout );
 		return( process.getInputStream() );
 	}
 

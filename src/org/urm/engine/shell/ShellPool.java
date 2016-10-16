@@ -351,7 +351,7 @@ public class ShellPool implements Runnable {
 		if( stop )
 			action.exit0( _Error.ServerShutdown0 , "server is in progress of shutdown" );
 		
-		ShellExecutor shell = ShellExecutor.getRemoteShellExecutor( action , name , this , account , rootPath );
+		ShellExecutor shell = ShellExecutor.getRemoteShellExecutor( action , name , this , account );
 		return( shell );
 	}
 	

@@ -6,8 +6,8 @@ import org.urm.meta.product.Meta.VarSESSIONTYPE;
 
 public class RemoteShellExecutor extends ShellExecutor {
 	
-	public RemoteShellExecutor( String name , ShellPool pool , Account account , String rootPath , Folder tmpFolder ) {
-		super( name , pool , account , rootPath , tmpFolder );
+	public RemoteShellExecutor( String name , ShellPool pool , Account account , Folder tmpFolder ) {
+		super( name , pool , account , "" , tmpFolder );
 	}
 
 	@Override

@@ -26,9 +26,9 @@ public class ShellCoreUnix extends ShellCore {
 
 	@Override protected boolean getProcessAttributes( ActionBase action ) throws Exception {
 		// check connected
-		executor.addInput( action , "echo " + WaiterCommand.FINISH_MARKER , true );
+		executor.addInput( action , "echo " + ShellOutput.FINISH_MARKER , true );
 		int timeout = action.setTimeoutDefault();
-		if( !executor.waitForMarker( action , WaiterCommand.FINISH_MARKER , true ) )
+		if( !executor.waitForMarker( action , ShellOutput.FINISH_MARKER , true ) )
 			return( false );
 		
 		action.setTimeout( timeout );
@@ -45,7 +45,7 @@ public class ShellCoreUnix extends ShellCore {
 		cmdout.clear();
 		cmderr.clear();
 		
-		String execLine = cmd + "; echo " + WaiterCommand.FINISH_MARKER + " >&2; echo " + WaiterCommand.FINISH_MARKER;
+		String execLine = cmd + "; echo " + ShellOutput.FINISH_MARKER + " >&2; echo " + ShellOutput.FINISH_MARKER;
 		action.trace( executor.name + " execute: " + cmd );
 		if( action.context.CTX_TRACEINTERNAL )
 			action.trace( "write cmd line=" + execLine );

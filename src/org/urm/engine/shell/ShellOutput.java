@@ -6,7 +6,7 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.engine.action.CommandOutput;
 
-public class WaiterCommand implements Runnable {
+public class ShellOutput implements Runnable {
 
 	public Shell shell;
 	public ActionBase action;
@@ -30,9 +30,8 @@ public class WaiterCommand implements Runnable {
 	boolean waitInifinite = false;
 	
 	public String waitMarker;
-	public Process waitProcess;
 	
-	public WaiterCommand( Shell shell , int logLevel , BufferedReader reader , List<String> cmdout , BufferedReader errreader , List<String> cmderr , boolean system ) {
+	public ShellOutput( Shell shell , int logLevel , BufferedReader reader , List<String> cmdout , BufferedReader errreader , List<String> cmderr , boolean system ) {
 		this.shell = shell;
 		this.logLevel = logLevel;
 		this.reader = reader;
@@ -42,7 +41,7 @@ public class WaiterCommand implements Runnable {
 		this.system = system;
 	}
 	
-	public WaiterCommand( Shell shell , int logLevel , BufferedReader reader , BufferedReader errreader , boolean system ) {
+	public ShellOutput( Shell shell , int logLevel , BufferedReader reader , BufferedReader errreader , boolean system ) {
 		this.shell = shell;
 		this.logLevel = logLevel;
 		this.reader = reader;
@@ -87,15 +86,18 @@ public class WaiterCommand implements Runnable {
         }
     }
 	
-	protected String readBuffer( ActionBase action , BufferedReader textreader , String buffer , char lineTerm ) throws Exception {
+	protected String readBuffer( ActionBase action , BufferedReader textreader , String buffer , char lineTerm , String stream ) throws Exception {
 		if( action.context.CTX_TRACEINTERNAL )
-			action.trace( "readBuffer start reading ... " );
+			action.trace( shell.name + "-" + stream + ": readBuffer start reading ... " );
 		
 		String s = "";
 		if( !textreader.ready() ) {
 			char[] c = new char[1];
-			if( textreader.read( c , 0 , 1 ) != 1 )
+			int readN = textreader.read( c , 0 , 1 );
+			if( readN != 1 ) {
+				action.trace( shell.name + "-" + stream + ": readBuffer closed" );
 				return( null );
+			}
 				
 			s += c[0];
 			buffer += c[0];
@@ -125,7 +127,7 @@ public class WaiterCommand implements Runnable {
 		}
 		
 		if( action.context.CTX_TRACEINTERNAL )
-			action.trace( "readBuffer part=" + s.replaceAll("\\p{C}", "?") );
+			action.trace( shell.name + "-" + stream + ": readBuffer part=" + s.replaceAll("\\p{C}", "?") );
 		
 		return( nextBuffer );
 	}
@@ -152,7 +154,7 @@ public class WaiterCommand implements Runnable {
 			System.out.print( "\n" );
 	}		
 
-	protected boolean readStream( ActionBase action , BufferedReader textreader , List<String> text , String prompt ) throws Exception {
+	protected boolean readStream( ActionBase action , BufferedReader textreader , List<String> text , String prompt , String stream ) throws Exception {
 		if( textreader == null )
 			action.exit0( _Error.MissingTextReader , "missing textreader" );
 		
@@ -166,7 +168,7 @@ public class WaiterCommand implements Runnable {
 		while ( true ) {
 			int index = buffer.indexOf( '\n' );
 			if( index < 0 ) {
-				String newBuffer = readBuffer( action , textreader , buffer , '\n' );
+				String newBuffer = readBuffer( action , textreader , buffer , '\n' , stream );
 				if( newBuffer == null )
 					return( false );
 				
@@ -249,35 +251,37 @@ public class WaiterCommand implements Runnable {
 		return( waiter.wait( action , action.commandTimeout ) );
 	}
 
-	public boolean waitInfinite( ActionBase action , Process process ) throws Exception {
-		waitInifinite = true;
-		waitProcess = process;
-		ShellWaiter waiter = new ShellWaiter( this , system );
-		
-		if( windowsHelper )
-			waiter.setWindowsHelper();
-		
-		return( waiter.wait( action , action.commandTimeout ) );
-	}
-	
 	private boolean runWaitForCommandFinished() throws Exception {
-		boolean reso = readStream( action , reader , cmdout , "" );
-		boolean rese = readStream( action , errreader , cmderr , "stderr:" );
-		if( reso == false || rese == false )
-			return( false );
+		if( action.context.CTX_TRACEINTERNAL )
+			action.trace( shell.name + ": runWaitForCommandFinished - read streams ..." );
 		
+		boolean reso = readStream( action , reader , cmdout , "" , "stdout" );
+		boolean rese = readStream( action , errreader , cmderr , "stderr:" , "stderr" );
+		if( reso == false || rese == false ) {
+			if( action.context.CTX_TRACEINTERNAL )
+				action.trace( shell.name + ": runWaitForCommandFinished - failed" );
+			return( false );
+		}
+		
+		if( action.context.CTX_TRACEINTERNAL )
+			action.trace( shell.name + ": runWaitForCommandFinished - successfully completed" );
 		return( true );
 	}
 
 	private boolean runWaitForMarker() throws Exception {
-		if( !readStream( action , reader , null , "" ) )
+		if( !readStream( action , reader , null , "" , "stdout" ) ) {
+			if( action.context.CTX_TRACEINTERNAL )
+				action.trace( shell.name + ": runWaitForMarker - failed" );
 			return( false );
+		}
 		
+		if( action.context.CTX_TRACEINTERNAL )
+			action.trace( shell.name + ": runWaitForMarker - successfully completed" );
 		return( true );
 	}
 	
 	private boolean runWaitInfinite() throws Exception {
-		if( !readStream( action , reader , null , "" ) )
+		if( !readStream( action , reader , null , "" , "stdout" ) )
 			return( false );
 		
 		return( true );

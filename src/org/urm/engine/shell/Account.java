@@ -52,6 +52,10 @@ public class Account {
 		return( new Account( user , host , true , osType ) );
 	}
 	
+	public boolean isLocal() {
+		return( local );
+	}
+	
 	public boolean isWindows() {
 		return( osType == VarOSTYPE.WINDOWS );
 	}

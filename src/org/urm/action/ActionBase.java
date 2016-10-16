@@ -473,10 +473,6 @@ abstract public class ActionBase extends ActionCore {
 		return( context.CTX_LOCAL );
 	}
 
-	public boolean isLocalAccount() {
-		return( shell.account.local );
-	}
-
 	public void stopAllOutputs() throws Exception {
 		output.stopAllOutputs();
 	}
