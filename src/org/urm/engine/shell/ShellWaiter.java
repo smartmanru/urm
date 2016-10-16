@@ -4,11 +4,11 @@ import org.urm.action.ActionBase;
 
 public class ShellWaiter {
 
-	public ShellOutput command;
+	public ShellOutputWaiter command;
 	public boolean system;
 	protected boolean windowsHelper = false;
 	
-	public ShellWaiter( ShellOutput command , boolean system ) {
+	public ShellWaiter( ShellOutputWaiter command , boolean system ) {
 		this.command = command;
 		this.system = system;
 	}

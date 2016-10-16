@@ -152,7 +152,7 @@ abstract public class Shell {
 	}
 
 	public void waitCommandFinished( ActionBase action , int logLevel , List<String> cmdout , List<String> cmderr , boolean windowsHelper ) throws Exception {
-		ShellOutput wc = new ShellOutput( this , logLevel , reader , cmdout , errreader , cmderr , false );
+		ShellOutputWaiter wc = new ShellOutputWaiter( this , logLevel , reader , cmdout , errreader , cmderr , false );
 		wc.waitForCommandFinished( action , false );
 	}
 
@@ -161,7 +161,7 @@ abstract public class Shell {
 	}
 
 	public boolean waitForMarker( ActionBase action , String marker , boolean system ) throws Exception {
-		ShellOutput waiter = new ShellOutput( this , action.context.logLevelLimit , reader , errreader , system );
+		ShellOutputWaiter waiter = new ShellOutputWaiter( this , action.context.logLevelLimit , reader , errreader , system );
 		return( waiter.waitForMarker( action , marker ) );
 	}
 	

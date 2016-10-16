@@ -96,8 +96,8 @@ public class ShellCoreWindows extends ShellCore {
 				if( addErrorLevel )
 					executor.addInput( action , "echo status=%errorlevel%" , true );
 				
-				executor.addInput( action , "echo " + ShellOutput.FINISH_MARKER + " >&2" , true );
-				executor.addInput( action , "echo " + ShellOutput.FINISH_MARKER , true );
+				executor.addInput( action , "echo " + ShellOutputWaiter.FINISH_MARKER + " >&2" , true );
+				executor.addInput( action , "echo " + ShellOutputWaiter.FINISH_MARKER , true );
 			}
 			catch( Throwable e ) {
 				if( action.context.CTX_TRACEINTERNAL )

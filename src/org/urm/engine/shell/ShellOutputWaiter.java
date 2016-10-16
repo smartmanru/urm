@@ -6,7 +6,7 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.engine.action.CommandOutput;
 
-public class ShellOutput implements Runnable {
+public class ShellOutputWaiter implements Runnable {
 
 	public Shell shell;
 	public ActionBase action;
@@ -31,7 +31,7 @@ public class ShellOutput implements Runnable {
 	
 	public String waitMarker;
 	
-	public ShellOutput( Shell shell , int logLevel , BufferedReader reader , List<String> cmdout , BufferedReader errreader , List<String> cmderr , boolean system ) {
+	public ShellOutputWaiter( Shell shell , int logLevel , BufferedReader reader , List<String> cmdout , BufferedReader errreader , List<String> cmderr , boolean system ) {
 		this.shell = shell;
 		this.logLevel = logLevel;
 		this.reader = reader;
@@ -41,7 +41,7 @@ public class ShellOutput implements Runnable {
 		this.system = system;
 	}
 	
-	public ShellOutput( Shell shell , int logLevel , BufferedReader reader , BufferedReader errreader , boolean system ) {
+	public ShellOutputWaiter( Shell shell , int logLevel , BufferedReader reader , BufferedReader errreader , boolean system ) {
 		this.shell = shell;
 		this.logLevel = logLevel;
 		this.reader = reader;
