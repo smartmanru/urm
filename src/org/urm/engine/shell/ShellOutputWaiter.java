@@ -6,86 +6,35 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.engine.action.CommandOutput;
 
-public class ShellOutputWaiter implements Runnable {
+public class ShellOutputWaiter {
 
 	public Shell shell;
-	public ActionBase action;
-	public Thread thread;
-	
-	protected boolean windowsHelper;
-	public boolean finished;
-	public boolean succeeded;
+	private BufferedReader reader;
+	private BufferedReader errreader;
 
 	static final String FINISH_MARKER = "URM.MARKER";
 	
+	private ActionBase action;
 	private int logLevel;
-	private BufferedReader reader;
 	private List<String> cmdout;
-	private BufferedReader errreader;
 	private List<String> cmderr;
-	private boolean system;
 
-	boolean waitForCommandFinished = false;
-	boolean waitForMarker = false;
-	boolean waitInifinite = false;
+	public boolean waitForCommandFinished = false;
+	public boolean waitForMarker = false;
+	public boolean waitInifinite = false;
 	
 	public String waitMarker;
 	
-	public ShellOutputWaiter( Shell shell , int logLevel , BufferedReader reader , List<String> cmdout , BufferedReader errreader , List<String> cmderr , boolean system ) {
-		this.shell = shell;
-		this.logLevel = logLevel;
-		this.reader = reader;
-		this.cmdout = cmdout;
-		this.errreader = errreader;
-		this.cmderr = cmderr;
-		this.system = system;
-	}
+	ShellWaiter waiter;
 	
-	public ShellOutputWaiter( Shell shell , int logLevel , BufferedReader reader , BufferedReader errreader , boolean system ) {
+	public ShellOutputWaiter( Shell shell , BufferedReader reader , BufferedReader errreader ) {
 		this.shell = shell;
-		this.logLevel = logLevel;
 		this.reader = reader;
 		this.errreader = errreader;
-		this.system = system;
+		
+		waiter = new ShellWaiter( this );
 	}
-	
-	public void setWindowsHelper() {
-		windowsHelper = true;
-	}
-	
-	@Override
-    public void run() {
-        try {
-            finished = false;
-            succeeded = false;
 
-            boolean res = true;
-            if( waitForCommandFinished )
-            	res = runWaitForCommandFinished();
-            else
-            if( waitForMarker )
-            	res = runWaitForMarker();
-            else
-            if( waitInifinite )
-            	runWaitInfinite();
-            else
-            	action.exitUnexpectedState();
-            
-            if( res )
-            	succeeded = true;
-        }
-        catch (Exception e) {
-        	succeeded = false;
-        	if( !system )
-        		action.handle( e );
-        }
-        
-        finished = true;
-        synchronized ( this ) {
-            notifyAll();
-        }
-    }
-	
 	protected String readBuffer( ActionBase action , BufferedReader textreader , String buffer , char lineTerm , String stream ) throws Exception {
 		if( action.context.CTX_TRACEINTERNAL )
 			action.trace( shell.name + "-" + stream + ": readBuffer start reading ... " );
@@ -228,30 +177,28 @@ public class ShellOutputWaiter implements Runnable {
 			action.logExact( line , logLevel );
 	}
 
-	public void waitForCommandFinished( ActionBase action , boolean windowsHelper ) throws Exception {
-		waitForCommandFinished = true;
-		waitMarker = FINISH_MARKER;
-		ShellWaiter waiter = new ShellWaiter( this , system );
+	public void waitForCommandFinished( ActionBase action , int logLevel , boolean system , List<String> cmdout , List<String> cmderr ) throws Exception {
+		this.action = action;
+		this.logLevel = logLevel;
+		this.waitForCommandFinished = true;
+		this.waitMarker = FINISH_MARKER;
+		this.cmdout = cmdout;
+		this.cmderr = cmderr;
 		
-		if( windowsHelper )
-			waiter.setWindowsHelper();
-		
-		if( !waiter.wait( action , action.commandTimeout ) )
+		if( !waiter.wait( action , action.commandTimeout , logLevel , system ) )
 			action.exit0( _Error.CommandKilled , "command has been killed" );
 	}
 	
-	public boolean waitForMarker( ActionBase action , String marker ) throws Exception {
-		waitForMarker = true;
-		waitMarker = marker;
-		ShellWaiter waiter = new ShellWaiter( this , system );
+	public boolean waitForMarker( ActionBase action , int logLevel , boolean system , String marker ) throws Exception {
+		this.action = action;
+		this.logLevel = logLevel;
+		this.waitForMarker = true;
+		this.waitMarker = marker;
 		
-		if( windowsHelper )
-			waiter.setWindowsHelper();
-		
-		return( waiter.wait( action , action.commandTimeout ) );
+		return( waiter.wait( action , action.commandTimeout , logLevel , system ) );
 	}
 
-	private boolean runWaitForCommandFinished() throws Exception {
+	public boolean runWaitForCommandFinished() throws Exception {
 		if( action.context.CTX_TRACEINTERNAL )
 			action.trace( shell.name + ": runWaitForCommandFinished - read streams ..." );
 		
@@ -268,7 +215,7 @@ public class ShellOutputWaiter implements Runnable {
 		return( true );
 	}
 
-	private boolean runWaitForMarker() throws Exception {
+	public boolean runWaitForMarker() throws Exception {
 		if( !readStream( action , reader , null , "" , "stdout" ) ) {
 			if( action.context.CTX_TRACEINTERNAL )
 				action.trace( shell.name + ": runWaitForMarker - failed" );
@@ -280,7 +227,7 @@ public class ShellOutputWaiter implements Runnable {
 		return( true );
 	}
 	
-	private boolean runWaitInfinite() throws Exception {
+	public boolean runWaitInfinite() throws Exception {
 		if( !readStream( action , reader , null , "" , "stdout" ) )
 			return( false );
 		

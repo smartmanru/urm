@@ -35,6 +35,8 @@ abstract public class Shell {
 	public long tsLastInput = 0;
 	public long tsLastOutput = 0;
 	
+	ShellOutputWaiter wc;
+	
 	public Shell( String name , ShellPool pool , Account account ) {
 		this.name = name;
 		this.pool = pool;
@@ -66,6 +68,8 @@ abstract public class Shell {
 		
 		reader = getStreamReader( stdout );
 		errreader = getStreamReader( stderr );
+		
+		wc = new ShellOutputWaiter( this , reader , errreader );
 	}
 
 	private BufferedReader getStreamReader( InputStream stream ) throws Exception {
@@ -151,9 +155,8 @@ abstract public class Shell {
 		stdin.write( input );
 	}
 
-	public void waitCommandFinished( ActionBase action , int logLevel , List<String> cmdout , List<String> cmderr , boolean windowsHelper ) throws Exception {
-		ShellOutputWaiter wc = new ShellOutputWaiter( this , logLevel , reader , cmdout , errreader , cmderr , false );
-		wc.waitForCommandFinished( action , false );
+	public void waitCommandFinished( ActionBase action , int logLevel , List<String> cmdout , List<String> cmderr , boolean system ) throws Exception {
+		wc.waitForCommandFinished( action , logLevel , system , cmdout , cmderr );
 	}
 
 	public synchronized int waitFor( ActionBase action ) throws Exception {
@@ -161,8 +164,7 @@ abstract public class Shell {
 	}
 
 	public boolean waitForMarker( ActionBase action , String marker , boolean system ) throws Exception {
-		ShellOutputWaiter waiter = new ShellOutputWaiter( this , action.context.logLevelLimit , reader , errreader , system );
-		return( waiter.waitForMarker( action , marker ) );
+		return( wc.waitForMarker( action , action.context.logLevelLimit , system , marker ) );
 	}
 	
 }

@@ -144,7 +144,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 
 	public void handle( Throwable e ) {
-		handle( "" , e );
+		handle( "handle exception in action" , e );
 	}
 
 	public synchronized void handle( String prompt , Throwable e ) {
