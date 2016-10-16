@@ -17,7 +17,7 @@ else
 fi
 
 if [ "$1" = "-local" ] || [ "$2" = "-local" ] || [ "$3" = "-local" ] || [ "$4" = "-local" ] || [ "$C_URM_SERVER" = "" ]; then
-	JAVACP=master/bin/urms.jar:master/lib/jmxtools-1.2.1.jar:master/lib/jna-4.1.0.jar:master/lib/jmxremote_optional-repackaged-4.0.jar
+	JAVACP=master/bin/urms.jar:master/lib/jmxtools-1.2.1.jar:master/lib/jna-4.1.0.jar:master/lib/jmxremote_optional-repackaged-4.0.jar:jsch-0.1.54.jar
 else
 	JAVACP=master/bin/urmc.jar:master/lib/jmxtools-1.2.1.jar:master/lib/jmxremote_optional-repackaged-4.0.jar
 fi
