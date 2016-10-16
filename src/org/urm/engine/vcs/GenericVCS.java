@@ -1,6 +1,7 @@
 package org.urm.engine.vcs;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
@@ -98,7 +99,7 @@ public abstract class GenericVCS {
 		if( res.isGit() )
 			return( new GitVCS( action , meta , res , shell ) );
 		
-		action.exit2( _Error.UnexectedVcsType2 , "unexected vcs=" + vcs + ", type=" + res.TYPE , vcs , res.TYPE );
+		action.exit2( _Error.UnexectedVcsType2 , "unexected vcs=" + vcs + ", type=" + Common.getEnumLower( res.rcType ) , vcs , Common.getEnumLower( res.rcType ) );
 		return( null );
 	}
 

@@ -1,6 +1,8 @@
 package org.urm.meta.engine;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
@@ -8,6 +10,7 @@ import org.urm.common.ConfReader;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.ServerTransaction;
 import org.urm.meta.ServerObject;
+import org.urm.meta.engine.ServerAuthResource.VarRESOURCECATEGORY;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -74,6 +77,24 @@ public class ServerResources extends ServerObject {
 
 	public String[] getList() {
 		return( Common.getSortedKeys( resourceMap ) );
+	}
+	
+	public String[] getList( VarRESOURCECATEGORY rcCategory ) {
+		List<String> list = new LinkedList<String>();
+		for( ServerAuthResource res : resourceMap.values() ) {
+			if( rcCategory == VarRESOURCECATEGORY.ANY )
+				list.add( res.NAME );
+			else
+			if( rcCategory == VarRESOURCECATEGORY.NEXUS && res.isNexus() )
+				list.add( res.NAME );
+			else
+			if( rcCategory == VarRESOURCECATEGORY.SSH && res.isSshKey() )
+				list.add( res.NAME );
+			else
+			if( rcCategory == VarRESOURCECATEGORY.VCS && res.isVCS() )
+				list.add( res.NAME );
+		}
+		return( Common.getSortedList( list ) );
 	}
 	
 	public void createResource( ServerTransaction transaction , ServerAuthResource res ) throws Exception {

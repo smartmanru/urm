@@ -22,5 +22,9 @@ public class _Error {
 	public static final int ProductPathAlreadyExists1 = ErrorBase + 33;
 	public static final int UnableReadEnginePropertyFile1 = ErrorBase + 34;
 	public static final int DuplicateBaseItem1 = ErrorBase + 35;
+	public static final int UnknownHostAccount1 = ErrorBase + 36;
+	public static final int TransactionMismatchedResource1 = ErrorBase + 37;
+	public static final int MissingResourceType0 = ErrorBase + 38;
+	public static final int InvalidResourceType1 = ErrorBase + 39;
 	
 }

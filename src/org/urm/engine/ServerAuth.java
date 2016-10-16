@@ -57,7 +57,7 @@ public class ServerAuth extends ServerObject {
 	}
 	
 	public ServerAuthContext loadAuthData( String authKey ) throws Exception {
-		PropertySet props = new PropertySet( "authile" , null );
+		PropertySet props = new PropertySet( "authfile" , null );
 		String filePath = getAuthFile( authKey );
 		props.loadFromPropertyFile( filePath , engine.execrc );
 		props.finishRawProperties();

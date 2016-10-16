@@ -158,14 +158,16 @@ public class ServerNetworkHost extends ServerObject {
 		return( false );
 	}
 
-	public ServerHostAccount createAccount( ServerTransaction transaction , Account hostAccount ) throws Exception {
+	public ServerHostAccount createAccount( ServerTransaction transaction , Account hostAccount , ServerAuthResource resource ) throws Exception {
 		ServerHostAccount account = findAccount( hostAccount.USER );
 		if( account != null )
 			return( account );
 				
 		account = new ServerHostAccount( this );
 		boolean isAdmin = ( hostAccount.isLinux() && hostAccount.USER.equals( "root" ) )? true : false;
-		account.createAccount( transaction , hostAccount.USER , isAdmin );
+		
+		String ACCRES = ( resource == null )? "" : resource.NAME;
+		account.createAccount( transaction , hostAccount.USER , isAdmin , ACCRES );
 		createAccount( transaction , account );
 		return( account );
 	}

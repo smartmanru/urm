@@ -1,5 +1,6 @@
 package org.urm.meta.engine;
 
+import org.urm.common.Common;
 import org.urm.common.PropertySet;
 import org.urm.engine.ServerAuth;
 import org.urm.engine.ServerAuthContext;
@@ -11,6 +12,21 @@ import org.w3c.dom.Node;
 
 public class ServerAuthResource extends ServerObject {
 
+	public enum VarRESOURCECATEGORY {
+		ANY ,
+		VCS ,
+		SSH ,
+		NEXUS
+	};
+	
+	public enum VarRESOURCETYPE {
+		UNKNOWN ,
+		SVN ,
+		GIT ,
+		NEXUS ,
+		SSH
+	};
+	
 	public ServerResources resources;
 
 	private boolean loaded;
@@ -19,15 +35,11 @@ public class ServerAuthResource extends ServerObject {
 	PropertySet properties;
 	
 	public String NAME;
-	public String TYPE;
+	public VarRESOURCETYPE rcType;
 	public String BASEURL;
 	public String DESC;
 	public String AUTHKEY;
 	public ServerAuthContext ac;
-	
-	public static String TYPE_SVN = "svn";
-	public static String TYPE_GIT = "git";
-	public static String TYPE_NEXUS = "nexus";
 	
 	public ServerAuthResource( ServerResources resources ) {
 		super( resources );
@@ -64,7 +76,8 @@ public class ServerAuthResource extends ServerObject {
 	
 	private void scatterSystemProperties() throws Exception {
 		NAME = properties.getSystemRequiredStringProperty( "name" );
-		TYPE = properties.getSystemRequiredStringProperty( "type" );
+		String TYPE = properties.getSystemRequiredStringProperty( "type" );  
+		rcType = ServerAuthResource.getResourceType( TYPE , false );
 		BASEURL = properties.getSystemRequiredStringProperty( "baseurl" );
 		DESC = properties.getSystemStringProperty( "desc" );
 		AUTHKEY = properties.getSystemStringProperty( "authkey" );
@@ -73,35 +86,47 @@ public class ServerAuthResource extends ServerObject {
 	public void createProperties() throws Exception {
 		properties = new PropertySet( "resource" , null );
 		properties.setOriginalStringProperty( "name" , NAME );
-		properties.setOriginalStringProperty( "type" , TYPE );
+		properties.setOriginalStringProperty( "type" , Common.getEnumLower( rcType ) );
 		properties.setOriginalStringProperty( "baseurl" , BASEURL );
 		properties.setOriginalStringProperty( "desc" , DESC );
 		properties.setOriginalStringProperty( "authkey" , AUTHKEY );
 	}
 
+	public boolean isVCS() {
+		if( rcType == VarRESOURCETYPE.SVN || rcType == VarRESOURCETYPE.GIT )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isSvn() {
-		if( TYPE.equals( TYPE_SVN ) )
+		if( rcType == VarRESOURCETYPE.SVN )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isGit() {
-		if( TYPE.equals( TYPE_GIT ) )
+		if( rcType == VarRESOURCETYPE.GIT )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isNexus() {
-		if( TYPE.equals( TYPE_NEXUS ) )
+		if( rcType == VarRESOURCETYPE.NEXUS )
 			return( true );
 		return( false );
 	}
 
+	public boolean isSshKey() {
+		if( rcType == VarRESOURCETYPE.SSH )
+			return( true );
+		return( false );
+	}
+	
 	public void updateResource( ServerTransaction transaction , ServerAuthResource src ) throws Exception {
 		if( !NAME.equals( src.NAME ) )
-			transaction.exit( _Error.TransactionResourceOld1 , "mismatched resource name on change new name=" + src.NAME , new String[] { src.NAME } );
+			transaction.exit( _Error.TransactionMismatchedResource1 , "mismatched resource name on change new name=" + src.NAME , new String[] { src.NAME } );
 		
-		TYPE = src.TYPE;
+		rcType = src.rcType;
 		BASEURL = src.BASEURL;
 		DESC = src.DESC;
 		
@@ -131,6 +156,24 @@ public class ServerAuthResource extends ServerObject {
 		ServerAuth auth = resources.engine.getAuth();
 		AUTHKEY = auth.getAuthKey( ServerAuth.AUTH_GROUP_RESOURCE , NAME );
 		createProperties();
+	}
+
+	public static VarRESOURCETYPE getResourceType( String TYPE , boolean required ) throws Exception {
+		if( TYPE.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingResourceType0 , "missing resource type" );
+			return( VarRESOURCETYPE.UNKNOWN );
+		}
+		
+		VarRESOURCETYPE value = null;		
+		try {
+			value = VarRESOURCETYPE.valueOf( Common.xmlToEnumValue( TYPE ) );
+		}
+		catch( IllegalArgumentException e ) {
+			Common.exit1( _Error.InvalidResourceType1 , "invalid resource type=" + TYPE , TYPE );
+		}
+		
+		return( value );
 	}
 
 }

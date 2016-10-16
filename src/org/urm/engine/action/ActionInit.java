@@ -146,6 +146,10 @@ public class ActionInit extends ActionBase {
 		return( loader.getServerBase() );
 	}
 	
+	public ServerInfrastructure getServerInfrastructure() {
+		return( loader.getInfrastructure() );
+	}
+	
 	public void setDirectory( TransactionBase transaction , ServerDirectory directory ) throws Exception {
 		loader.setDirectory( transaction , directory );
 	}

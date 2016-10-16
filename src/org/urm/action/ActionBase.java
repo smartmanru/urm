@@ -27,6 +27,7 @@ import org.urm.meta.engine.ServerBase;
 import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.engine.ServerContext;
 import org.urm.meta.engine.ServerDirectory;
+import org.urm.meta.engine.ServerInfrastructure;
 import org.urm.meta.engine.ServerMirrorRepository;
 import org.urm.meta.engine.ServerMirrors;
 import org.urm.meta.engine.ServerProjectBuilder;
@@ -574,8 +575,12 @@ abstract public class ActionBase extends ActionCore {
 		return( actionInit.getActiveMirrors() );
 	}
 	
-	public ServerBase getBase() {
+	public ServerBase getServerBase() {
 		return( actionInit.getServerBase() );
+	}
+	
+	public ServerInfrastructure getServerInfrastructure() {
+		return( actionInit.getServerInfrastructure() );
 	}
 	
 	public MetaProductBuildSettings getBuildSettings( Meta meta ) throws Exception {

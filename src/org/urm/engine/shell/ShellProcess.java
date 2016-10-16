@@ -8,6 +8,9 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.ServerCall;
 import org.urm.engine.action.CommandOutput;
+import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.ServerHostAccount;
+import org.urm.meta.engine.ServerInfrastructure;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelShell;
@@ -125,8 +128,24 @@ public class ShellProcess {
 	}
 
 	public void startJssh( ActionBase action , String rootPath ) throws Exception {
-		jsession = jsch.getSession( "root" , "85.143.127.142" , 8122 );
-		jsession.setPassword( "NciPass" );
+		String hostLogin = shell.account.getHostLogin();
+		ServerInfrastructure infra = action.getServerInfrastructure();
+		ServerHostAccount account = infra.getFinalAccount( action , hostLogin );
+		if( account.AUTHRES.isEmpty() )
+			action.exit1( _Error.MissingAuthKey1 , "Missing auth resource to login to " + hostLogin , hostLogin );
+		
+		ServerAuthResource res = action.getResource( account.AUTHRES );
+		res.loadAuthData();
+		
+		jsession = jsch.getSession( shell.account.USER , shell.account.HOST , shell.account.PORT );
+		if( res.ac.isCommon() ) {
+			String password = res.ac.getPassword( action );
+			jsession.setPassword( password );
+		}
+		else {
+			jsch.addIdentity( "main" , res.ac.PRIVATEKEY.getBytes() , res.ac.PUBLICKEY.getBytes() , null );
+		}
+		
 		jsession.setConfig( "StrictHostKeyChecking" , "no" );
 		jsession.connect( 30000 );
 		

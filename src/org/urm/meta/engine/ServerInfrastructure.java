@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.urm.action.ActionBase;
 import org.urm.action.ActionCore;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
@@ -126,6 +127,13 @@ public class ServerInfrastructure extends ServerObject {
 		return( null );
 	}
 
+	public ServerHostAccount getFinalAccount( ActionBase action , String hostLogin ) throws Exception {
+		ServerHostAccount account = findFinalAccount( hostLogin );
+		if( account == null )
+			action.exit1( _Error.UnknownHostAccount1 , "Unknown host account: " + hostLogin , hostLogin );
+		return( account );
+	}
+	
 	public ServerHostAccount findFinalAccount( String hostLogin ) {
 		for( ServerNetwork network : mapNetworks.values() ) {
 			ServerHostAccount account = network.findFinalAccount( hostLogin );

@@ -28,8 +28,10 @@ public class _Error {
 	public static final int UnableGetMd5Sum1 = ErrorBase + 19;
 	public static final int ErrorReadingFiles1 = ErrorBase + 20;
 	public static final int ShellInitFailed1 = ErrorBase + 21;
+	public static final int ErrorExecutingCmd2 = ErrorInternalBase + 22;
 	public static final int NotDirectoryPath1 = ErrorBase + 23;
 	public static final int UnableDownload1 = ErrorBase + 24;
+	public static final int ErrorExecutingCmd3 = ErrorInternalBase + 25;
 	public static final int RunCommandClosedSession1 = ErrorBase + 26;
 	public static final int UnableObtainCommandStatus0 = ErrorBase + 27;
 	public static final int UnableConnectHost1 = ErrorBase + 28;
@@ -39,8 +41,6 @@ public class _Error {
 	public static final int UnableReadStream0 = ErrorBase + 32;
 	public static final int MissingTextReader = ErrorBase + 33;
 	public static final int CommandKilled = ErrorBase + 34;
-
-	public static final int ErrorExecutingCmd2 = ErrorInternalBase + 22;
-	public static final int ErrorExecutingCmd3 = ErrorInternalBase + 25;
+	public static final int MissingAuthKey1 = ErrorBase + 35;
 	
 }

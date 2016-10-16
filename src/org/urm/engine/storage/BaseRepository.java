@@ -66,7 +66,7 @@ public class BaseRepository {
 		Document xml = ConfReader.readXmlString( text );
 		
 		action.debug( "load base info id=" + ID + " ..." );
-		ServerBase base = action.getBase();
+		ServerBase base = action.getServerBase();
 		ServerBaseItem item = base.findBase( ID );
 		if( item == null )
 			action.exit1( _Error.UnknownBaseId1 , "Unknown base ID=" + ID , ID );

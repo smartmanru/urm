@@ -15,10 +15,13 @@ public class ServerAuthContext extends ServerObject {
 	public String USER;
 	public String PASSWORDONLINE;
 	public String PASSWORDSAVE;
+	public String PUBLICKEY;
+	public String PRIVATEKEY;
 	
 	public static String METHOD_ANONYMOUS = "anonymous"; 
 	public static String METHOD_COMMON = "common"; 
-	public static String METHOD_USER = "user"; 
+	public static String METHOD_USER = "user";
+	public static String METHOD_SSHKEY = "sshkey";
 	
 	public ServerAuthContext( ServerAuth auth ) {
 		super( auth );
@@ -37,6 +40,12 @@ public class ServerAuthContext extends ServerObject {
 	
 	public boolean isCommon() {
 		if( METHOD.equals( METHOD_COMMON ) )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isSshKey() {
+		if( METHOD.equals( METHOD_SSHKEY ) )
 			return( true );
 		return( false );
 	}
@@ -61,6 +70,8 @@ public class ServerAuthContext extends ServerObject {
 		properties.setOriginalStringProperty( "user" , USER );
 		properties.setOriginalStringProperty( "password" , PASSWORDSAVE );
 		properties.setOriginalBooleanProperty( "admin" , adminContext );
+		properties.setOriginalStringProperty( "publickey" , PUBLICKEY );
+		properties.setOriginalStringProperty( "privatekey" , PRIVATEKEY );
 		properties.finishRawProperties();
 	}
 	
@@ -68,6 +79,8 @@ public class ServerAuthContext extends ServerObject {
 		METHOD = properties.getRequiredPropertyAny( "method" );
 		USER = properties.getPropertyAny( "user" );
 		PASSWORDSAVE = properties.getPropertyAny( "password" );
+		PUBLICKEY = properties.getPropertyAny( "publickey" );
+		PRIVATEKEY = properties.getPropertyAny( "privatekey" );
 		adminContext = properties.getBooleanProperty( "admin" , false );
 	}
 	
@@ -102,6 +115,11 @@ public class ServerAuthContext extends ServerObject {
 
 	public void setResourcePassword( String password ) {
 		PASSWORDSAVE = password;
+	}
+	
+	public void setResourceKeys( String publicKey , String privateKey ) {
+		PUBLICKEY = publicKey;
+		PRIVATEKEY = privateKey;
 	}
 	
 }

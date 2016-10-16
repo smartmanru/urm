@@ -109,11 +109,11 @@ public class MetaSourceProject {
 	}
 	public boolean isGitVCS( ActionBase action ) throws Exception {
 		ServerAuthResource res = action.getResource( VCS );
-		return( res.TYPE.equals( ServerAuthResource.TYPE_GIT ) );
+		return( res.isGit() );
 	}
 	public boolean isSvnVCS( ActionBase action ) throws Exception {
 		ServerAuthResource res = action.getResource( VCS );
-		return( res.TYPE.equals( ServerAuthResource.TYPE_SVN ) );
+		return( res.isSvn() );
 	}
 
 	public boolean isBuildable() {

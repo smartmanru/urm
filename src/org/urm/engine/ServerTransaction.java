@@ -319,10 +319,10 @@ public class ServerTransaction extends TransactionBase {
 		action.saveInfrastructure( this );
 	}
 	
-	public void createHostAccount( ServerNetwork network , Account account ) throws Exception {
+	public void createHostAccount( ServerNetwork network , Account account , ServerAuthResource resource ) throws Exception {
 		checkTransactionInfrastructure();
 		ServerNetworkHost host = network.createHost( this , account ); 
-		host.createAccount( this , account );
+		host.createAccount( this , account , resource );
 		action.saveInfrastructure( this );
 	}
 	

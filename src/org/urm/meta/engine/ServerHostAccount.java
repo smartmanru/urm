@@ -20,22 +20,19 @@ public class ServerHostAccount extends ServerObject {
 
 	public String ID;
 	public boolean isAdmin;
-	public boolean keyAccess;
-	public String AUTHKEY;
+	public String AUTHRES;
 	
 	public ServerHostAccount( ServerNetworkHost host ) {
 		super( host );
 		this.host = host;
 		isAdmin = false;
-		keyAccess = false;
 	}
 	
 	public ServerHostAccount copy( ServerNetworkHost rh ) throws Exception {
 		ServerHostAccount r = new ServerHostAccount( rh );
 		r.ID = ID;
 		r.isAdmin = isAdmin;
-		r.keyAccess = keyAccess;
-		r.AUTHKEY = AUTHKEY;
+		r.AUTHRES = AUTHRES;
 		return( r );
 	}
 	
@@ -45,29 +42,29 @@ public class ServerHostAccount extends ServerObject {
 		
 		ID = ConfReader.getAttrValue( root , "id" );
 		isAdmin = ConfReader.getBooleanAttrValue( root , "admin" , true );
-		keyAccess = ConfReader.getBooleanAttrValue( root , "usekey" , true );
-		AUTHKEY = ConfReader.getAttrValue( root , "authkey" );
+		AUTHRES = ConfReader.getAttrValue( root , "resource" );
 	}
 
 	public void save( Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , "id" , ID );
 		Common.xmlSetElementAttr( doc , root , "admin" , Common.getBooleanValue( isAdmin ) );
-		Common.xmlSetElementAttr( doc , root , "usekey" , Common.getBooleanValue( keyAccess ) );
-		Common.xmlSetElementAttr( doc , root , "authkey" , AUTHKEY );
+		Common.xmlSetElementAttr( doc , root , "resource" , AUTHRES );
 	}
 
 	public String getFinalAccount() {
 		return( ID + "@" + host.ID );
 	}
 
-	public void createAccount( ServerTransaction transaction , String user , boolean isAdmin ) throws Exception {
+	public void createAccount( ServerTransaction transaction , String user , boolean isAdmin , String resource ) throws Exception {
 		this.ID = user;
 		this.isAdmin = isAdmin;
+		this.AUTHRES = resource;
 	}
 	
-	public void modifyAccount( ServerTransaction transaction , String user , boolean isAdmin ) throws Exception {
+	public void modifyAccount( ServerTransaction transaction , String user , boolean isAdmin , String resource ) throws Exception {
 		this.ID = user;
 		this.isAdmin = isAdmin;
+		this.AUTHRES = resource;
 	}
 
 	public void getApplicationReferences( List<ServerAccountReference> refs ) {
