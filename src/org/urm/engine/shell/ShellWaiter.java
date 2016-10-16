@@ -20,7 +20,7 @@ public class ShellWaiter {
 	
 	public boolean wait( ActionBase action , int timeoutMillis ) {
 		try {
-			action.trace( "wait for command=" + command.getClass().getSimpleName() + ", shell=" + command.shell.name + " (timeout " + timeoutMillis + "ms) ..." );
+			action.trace( "wait for " + command.getClass().getSimpleName() + ", shell=" + command.shell.name + " (timeout " + timeoutMillis + "ms) ..." );
 			Thread thread = new Thread( null , command , command.getClass().getSimpleName() );
 			command.action = action;
 			command.thread = thread; 
@@ -34,12 +34,12 @@ public class ShellWaiter {
 			}
             
 			if( !system )
-				action.trace( "wait failed for command=" + command.getClass().getSimpleName() );
+				action.trace( "wait failed for " + command.getClass().getSimpleName() );
 			cleanup( action );
 		}
 		catch( Throwable e ) {
 			if( !system )
-				action.handle( "timeout command=" + command.getClass().getSimpleName() , e );
+				action.handle( "timeout wait for " + command.getClass().getSimpleName() , e );
 		}
 
 		return( false );
