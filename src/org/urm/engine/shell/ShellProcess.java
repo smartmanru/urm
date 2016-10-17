@@ -146,8 +146,14 @@ public class ShellProcess {
 		
 		String keyFile = action.context.CTX_KEYNAME;
 		if( keyFile.isEmpty() ) {
-			if( action.context.env != null )
+			if( action.context.env != null ) {
 				keyFile = action.context.env.KEYFILE;
+				if( !keyFile.isEmpty() )
+					action.trace( "using key file from environment settings: " + keyFile );
+			}
+		}
+		else {
+			action.trace( "using key file from parameter: " + keyFile );
 		}
 		
 		if( !keyFile.isEmpty() )
@@ -155,9 +161,11 @@ public class ShellProcess {
 		else {		
 			if( res.ac.isCommon() ) {
 				String password = res.ac.getPassword( action );
+				action.trace( "using password from resource=" + res.NAME );
 				jsession.setPassword( password );
 			}
 			else {
+				action.trace( "using key pair from resource=" + res.NAME );
 				jsch.addIdentity( "main" , res.ac.PRIVATEKEY.getBytes() , res.ac.PUBLICKEY.getBytes() , null );
 			}
 		}
