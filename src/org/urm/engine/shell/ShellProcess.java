@@ -82,6 +82,11 @@ public class ShellProcess {
 	}
 
 	public boolean createRemoteLinuxProcessFromLinux( ActionBase action ) throws Exception {
+		jsch = new JSch();
+		return( executor.createProcess( action , this ) );
+	}
+	
+	public boolean createRemoteLinuxProcessFromLinuxOld( ActionBase action ) throws Exception {
 		String keyFile = action.context.CTX_KEYNAME;
 		Account account = executor.account;
 		if( !keyFile.isEmpty() ) {
@@ -138,12 +143,23 @@ public class ShellProcess {
 		res.loadAuthData();
 		
 		jsession = jsch.getSession( shell.account.USER , shell.account.HOST , shell.account.PORT );
-		if( res.ac.isCommon() ) {
-			String password = res.ac.getPassword( action );
-			jsession.setPassword( password );
+		
+		String keyFile = action.context.CTX_KEYNAME;
+		if( keyFile.isEmpty() ) {
+			if( action.context.env != null )
+				keyFile = action.context.env.KEYFILE;
 		}
-		else {
-			jsch.addIdentity( "main" , res.ac.PRIVATEKEY.getBytes() , res.ac.PUBLICKEY.getBytes() , null );
+		
+		if( !keyFile.isEmpty() )
+			jsch.addIdentity( action.context.CTX_KEYNAME );
+		else {		
+			if( res.ac.isCommon() ) {
+				String password = res.ac.getPassword( action );
+				jsession.setPassword( password );
+			}
+			else {
+				jsch.addIdentity( "main" , res.ac.PRIVATEKEY.getBytes() , res.ac.PUBLICKEY.getBytes() , null );
+			}
 		}
 		
 		jsession.setConfig( "StrictHostKeyChecking" , "no" );
