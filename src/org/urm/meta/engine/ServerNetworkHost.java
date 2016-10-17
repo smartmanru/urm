@@ -24,6 +24,7 @@ public class ServerNetworkHost extends ServerObject {
 
 	public String ID;
 	public String IP;
+	public int PORT;
 	public VarOSTYPE osType;
 	public String DESC;
 	
@@ -49,6 +50,7 @@ public class ServerNetworkHost extends ServerObject {
 		
 		ID = ConfReader.getAttrValue( root , "id" );
 		IP = ConfReader.getAttrValue( root , "ip" );
+		PORT = ConfReader.getIntegerAttrValue( root , "port" , 22 );
 		String OSTYPE = ConfReader.getAttrValue( root , "ostype" );
 		osType = Meta.getOSType( OSTYPE , false );
 		DESC = ConfReader.getAttrValue( root , "desc" );
@@ -71,6 +73,7 @@ public class ServerNetworkHost extends ServerObject {
 	public void save( Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , "id" , ID );
 		Common.xmlSetElementAttr( doc , root , "ip" , IP );
+		Common.xmlSetElementAttr( doc , root , "port" , "" + PORT );
 		Common.xmlSetElementAttr( doc , root , "ostype" , Common.getEnumLower( osType ) );
 		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
 		
@@ -84,22 +87,26 @@ public class ServerNetworkHost extends ServerObject {
 		List<String> list = new LinkedList<String>();
 		for( ServerHostAccount account : accountMap.values() ) {
 			String item = account.getFinalAccount();
+			if( PORT != 22 )
+				item += ":22";
 			list.add( item );
 		}
 		return( Common.getSortedList( list ) );
 	}
 
-	public void createHost( ServerTransaction transaction  , VarOSTYPE osType , String HOSTNAME , String IP , String DESC ) throws Exception {
+	public void createHost( ServerTransaction transaction  , VarOSTYPE osType , String HOSTNAME , String IP , int PORT , String DESC ) throws Exception {
 		this.osType = osType;
 		this.ID = ( HOSTNAME.isEmpty() )? IP : HOSTNAME;
 		this.IP = IP;
+		this.PORT = PORT;
 		this.DESC = DESC;
 	}
 	
-	public void modifyHost( ServerTransaction transaction  , VarOSTYPE osType , String HOSTNAME , String IP , String DESC ) throws Exception {
+	public void modifyHost( ServerTransaction transaction  , VarOSTYPE osType , String HOSTNAME , String IP , int PORT , String DESC ) throws Exception {
 		this.osType = osType;
 		this.ID = ( HOSTNAME.isEmpty() )? IP : HOSTNAME;
 		this.IP = IP;
+		this.PORT = PORT;
 		this.DESC = DESC;
 	}
 
