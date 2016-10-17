@@ -76,7 +76,7 @@ public class ServerAuthContext extends ServerObject {
 	}
 	
 	private void scatterSystemProperties() throws Exception {
-		METHOD = properties.getRequiredPropertyAny( "method" );
+		METHOD = properties.getPropertyAny( "method" );
 		USER = properties.getPropertyAny( "user" );
 		PASSWORDSAVE = properties.getPropertyAny( "password" );
 		PUBLICKEY = properties.getPropertyAny( "publickey" );

@@ -1,5 +1,6 @@
 package org.urm.meta.engine;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.PropertySet;
 import org.urm.engine.ServerAuth;
@@ -78,7 +79,7 @@ public class ServerAuthResource extends ServerObject {
 		NAME = properties.getSystemRequiredStringProperty( "name" );
 		String TYPE = properties.getSystemRequiredStringProperty( "type" );  
 		rcType = ServerAuthResource.getResourceType( TYPE , false );
-		BASEURL = properties.getSystemRequiredStringProperty( "baseurl" );
+		BASEURL = properties.getSystemStringProperty( "baseurl" );
 		DESC = properties.getSystemStringProperty( "desc" );
 		AUTHKEY = properties.getSystemStringProperty( "authkey" );
 	}
@@ -145,11 +146,11 @@ public class ServerAuthResource extends ServerObject {
 			auth.saveAuthData( AUTHKEY , ac ); 
 	}
 	
-	public void loadAuthData() throws Exception {
+	public void loadAuthData( ActionBase action ) throws Exception {
 		if( ac != null )
 			return;
 		ServerAuth auth = resources.engine.getAuth();
-		ac = auth.loadAuthData( AUTHKEY );
+		ac = auth.loadAuthData( action , AUTHKEY );
 	}
 
 	public void createResource() throws Exception {

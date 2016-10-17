@@ -80,7 +80,7 @@ public abstract class GenericVCS {
 	public static GenericVCS getVCS( ActionBase action , Meta meta , String vcs , boolean build , boolean noAuth ) throws Exception {
 		ServerAuthResource res = action.getResource( vcs );
 		if( !noAuth )
-			res.loadAuthData();
+			res.loadAuthData( action );
 		
 		ShellExecutor shell = action.shell;
 		if( build ) {

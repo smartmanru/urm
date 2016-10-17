@@ -2,6 +2,7 @@ package org.urm.engine;
 
 import java.io.File;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.PropertySet;
 import org.urm.meta.ServerObject;
@@ -56,10 +57,12 @@ public class ServerAuth extends ServerObject {
 		return( group + "-" + name );
 	}
 	
-	public ServerAuthContext loadAuthData( String authKey ) throws Exception {
+	public ServerAuthContext loadAuthData( ActionBase action , String authKey ) throws Exception {
 		PropertySet props = new PropertySet( "authfile" , null );
 		String filePath = getAuthFile( authKey );
-		props.loadFromPropertyFile( filePath , engine.execrc );
+		
+		if( action.shell.checkFileExists( action , filePath ) )
+			props.loadFromPropertyFile( filePath , engine.execrc );
 		props.finishRawProperties();
 		
 		ServerAuthContext ac = new ServerAuthContext( this );
@@ -77,7 +80,7 @@ public class ServerAuth extends ServerObject {
 
 	public ServerAuthContext connect( String user , String password ) throws Exception {
 		String authKey = getAuthKey( AUTH_GROUP_USER , user );
-		ServerAuthContext ac = loadAuthData( authKey );
+		ServerAuthContext ac = loadAuthData( engine.serverAction , authKey );
 		
 		String passwordMD5 = Common.getMD5( password );
 		if( password == null || !passwordMD5.equals( ac.PASSWORDSAVE ) )

@@ -140,7 +140,7 @@ public class ShellProcess {
 			action.exit1( _Error.MissingAuthKey1 , "Missing auth resource to login to " + hostLogin , hostLogin );
 		
 		ServerAuthResource res = action.getResource( account.AUTHRES );
-		res.loadAuthData();
+		res.loadAuthData( action );
 		
 		jsession = jsch.getSession( shell.account.USER , shell.account.HOST , shell.account.PORT );
 		
