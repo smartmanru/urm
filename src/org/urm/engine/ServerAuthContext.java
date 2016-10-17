@@ -11,12 +11,12 @@ public class ServerAuthContext extends ServerObject {
 	
 	boolean adminContext;
 	
-	public String METHOD;
-	public String USER;
-	public String PASSWORDONLINE;
-	public String PASSWORDSAVE;
-	public String PUBLICKEY;
-	public String PRIVATEKEY;
+	public String METHOD = "";
+	public String USER = "";
+	public String PASSWORDONLINE = "";
+	public String PASSWORDSAVE = "";
+	public String PUBLICKEY = "";
+	public String PRIVATEKEY = "";
 	
 	public static String METHOD_ANONYMOUS = "anonymous"; 
 	public static String METHOD_COMMON = "common"; 
@@ -76,11 +76,11 @@ public class ServerAuthContext extends ServerObject {
 	}
 	
 	private void scatterSystemProperties() throws Exception {
-		METHOD = properties.getPropertyAny( "method" );
-		USER = properties.getPropertyAny( "user" );
-		PASSWORDSAVE = properties.getPropertyAny( "password" );
-		PUBLICKEY = properties.getPropertyAny( "publickey" );
-		PRIVATEKEY = properties.getPropertyAny( "privatekey" );
+		METHOD = properties.findPropertyAny( "method" );
+		USER = properties.findPropertyAny( "user" );
+		PASSWORDSAVE = properties.findPropertyAny( "password" );
+		PUBLICKEY = properties.findPropertyAny( "publickey" );
+		PRIVATEKEY = properties.findPropertyAny( "privatekey" );
 		adminContext = properties.getBooleanProperty( "admin" , false );
 	}
 	

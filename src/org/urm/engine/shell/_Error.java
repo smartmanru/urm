@@ -42,5 +42,6 @@ public class _Error {
 	public static final int MissingTextReader = ErrorBase + 33;
 	public static final int CommandKilled = ErrorBase + 34;
 	public static final int MissingAuthKey1 = ErrorBase + 35;
+	public static final int MismatchedOsType2 = ErrorBase + 36;
 	
 }

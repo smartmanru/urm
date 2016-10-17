@@ -51,7 +51,7 @@ public class ShellCoreWindows extends ShellCore {
 	@Override protected boolean getProcessAttributes( ActionBase action ) throws Exception {
 		super.homePath = action.context.session.installPath;
 		
-		runCommand( action , "echo off" , CommandOutput.LOGLEVEL_TRACE );
+		runCommand( action , "echo off && chcp 1251" , CommandOutput.LOGLEVEL_TRACE );
 		return( true );
 	}
 	
@@ -133,13 +133,13 @@ public class ShellCoreWindows extends ShellCore {
 	@Override public String getDirCmd( ActionBase action , String dir , String cmd ) throws Exception {
 		String dirWin = Common.getWinPath( dir );
 		String rootPathWin = Common.getWinPath( executor.rootPath );
-		return( "if exist " + dirWin + " ( cd /D " + dirWin + " " + cmdAnd + " ( " + cmd + " ) " + cmdAnd + " " + "cd /D " + rootPathWin + " ) else echo invalid directory: " + dirWin );
+		return( "if exist " + dirWin + " ( cd /D " + dirWin + " " + cmdAnd + " ( " + cmd + " ) " + cmdAnd + " " + "cd /D " + Common.getQuoted( rootPathWin ) + " ) else echo invalid directory: " + dirWin );
 	}
 	
 	@Override public String getDirCmdIfDir( ActionBase action , String dir , String cmd ) throws Exception {
 		String dirWin = Common.getWinPath( dir );
 		String rootPathWin = Common.getWinPath( executor.rootPath );
-		return( "if exist " + dirWin + " ( cd /D " + dirWin + " " + cmdAnd + " ( " + cmd + " ) " + cmdAnd + " " + "cd /D " + rootPathWin + " )" );
+		return( "if exist " + dirWin + " ( cd /D " + dirWin + " " + cmdAnd + " ( " + cmd + " ) " + cmdAnd + " " + "cd /D " + Common.getQuoted( rootPathWin ) + " )" );
 	}
 
 	@Override public void cmdEnsureDirExists( ActionBase action , String dir ) throws Exception {
@@ -603,11 +603,11 @@ public class ShellCoreWindows extends ShellCore {
 	@Override public void cmdAppendExecuteLog( ActionBase action , String msg ) throws Exception {
 		String executeLog = Common.getWinPath( Common.getPath( executor.rootPath , EXECUTE_LOG ) );
 		String ts = Common.getLogTimeStamp();
-		runCommand( action , "echo " + Common.getQuoted( ts + ": " + msg ) + " >> " + executeLog , CommandOutput.LOGLEVEL_TRACE );
+		runCommand( action , "echo " + Common.getQuoted( ts + ": " + msg ) + " >> " + Common.getQuoted( executeLog ) , CommandOutput.LOGLEVEL_TRACE );
 	}
 
 	@Override public void cmdAppendUploadLog( ActionBase action , String src , String dst ) throws Exception {
-		String executeLog = Common.getWinPath( Common.getPath( executor.rootPath , UPLOAD_LOG ) );
+		String executeLog = Common.getWinPath( Common.getPath( executor.rootPath , Common.getQuoted( UPLOAD_LOG ) ) );
 		String ts = Common.getLogTimeStamp();
 		String msg = "upload " + dst + " from " + src;
 		runCommand( action , "echo " + Common.getQuoted( ts + ": " + msg ) + " >> " + executeLog , CommandOutput.LOGLEVEL_TRACE );

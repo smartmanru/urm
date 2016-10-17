@@ -340,14 +340,14 @@ public class ServerEngine {
 			else {
 				if( !execrc.workPath.isEmpty() )
 					dirname = execrc.workPath;
-				else {
+				else
 					dirname = Common.getPath( session.execrc.userHome , "urm.work" , "client" );
-					String name = "session-" + session.timestamp;
-					if( !session.productName.isEmpty() )
-						name += "-" + session.productName;
-					name += "-" + session.sessionId; 
-					dirname = Common.getPath( dirname , name );
-				}
+				
+				String name = "session-" + session.timestamp;
+				if( !session.productName.isEmpty() )
+					name += "-" + session.productName;
+				name += "-" + session.sessionId; 
+				dirname = Common.getPath( dirname , name );
 			}
 		}
 		

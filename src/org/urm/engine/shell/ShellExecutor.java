@@ -119,8 +119,10 @@ public abstract class ShellExecutor extends Shell {
 		try {
 			opstart();
 			if( isLocal() ) {
-				if( !Files.isDirectory( Paths.get( path ) , LinkOption.NOFOLLOW_LINKS ) )
-					Files.createDirectory( Paths.get( path ) );
+				if( !Files.isDirectory( Paths.get( path ) , LinkOption.NOFOLLOW_LINKS ) ) {
+					File file = new File( path );
+					file.mkdirs();
+				}
 				return;
 			}
 			core.cmdEnsureDirExists( action , path );

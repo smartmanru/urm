@@ -87,8 +87,6 @@ public class ServerNetworkHost extends ServerObject {
 		List<String> list = new LinkedList<String>();
 		for( ServerHostAccount account : accountMap.values() ) {
 			String item = account.getFinalAccount();
-			if( PORT != 22 )
-				item += ":22";
 			list.add( item );
 		}
 		return( Common.getSortedList( list ) );

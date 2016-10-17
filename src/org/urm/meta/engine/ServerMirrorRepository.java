@@ -132,7 +132,7 @@ public class ServerMirrorRepository extends ServerObject {
 			RESOURCE_ROOT = "";
 			RESOURCE_DATA = "";
 			BRANCH = "";
-			transaction.handle0( e , _Error.UnablePublishRepository0 , "Unable to publish repository" );
+			transaction.handle0( e , _Error.UnablePublishRepository0 , "Unable to create mirror repository" );
 		}
 		
 		createProperties();

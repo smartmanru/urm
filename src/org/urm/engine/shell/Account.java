@@ -7,6 +7,8 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.meta.engine.ServerHostAccount;
+import org.urm.meta.engine.ServerInfrastructure;
 
 public class Account {
 
@@ -88,13 +90,17 @@ public class Account {
 			
 		String user = Common.getPartBeforeFirst( hostLogin , "@" );
 		String host = Common.getPartAfterLast( hostLogin , "@" );
-		int port = 22;
-		if( host.indexOf( ':' ) > 0 ) {
-			port = Integer.parseInt( Common.getPartAfterFirst( host , ":" ) );
-			host = Common.getPartBeforeFirst( host , ":" );
+		
+		// find account
+		ServerInfrastructure infra = action.getServerInfrastructure();
+		ServerHostAccount account = infra.getFinalAccount( action , hostLogin );
+		if( account.host.osType != osType ) {
+			String p1 = Common.getEnumLower( account.host.osType );
+			String p2 = Common.getEnumLower( osType );
+			action.exit2( _Error.MismatchedOsType2 , "Mismatched OS type: " + p1 + " != " + p2 , p1 , p2 );
 		}
-			
-		return( getAccount( action , user , host , port , osType ) );
+		
+		return( getAccount( action , user , host , account.host.PORT , osType ) );
 	}
 
 	public static Account getAnyAccount( String hostLogin ) {
