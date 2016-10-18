@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<base>
+    <category id="account" name="Account-Bound" type="account"/>
+    <category id="app" name="Application-Bound" type="app"/>
+    <category id="host" name="Host-Bound" type="host"/>
+</base>
