@@ -202,7 +202,7 @@ public class ShellPool implements Runnable {
 		
 		// start managing thread
 		started = true;
-        thread = new Thread( null , this , "Thread Pool" );
+        thread = new Thread( null , this , "Shell Pool" );
         thread.start();
         
 		action.debug( "shell pool has been started" );

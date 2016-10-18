@@ -16,6 +16,7 @@ import org.urm.meta.engine.ServerBase;
 import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.engine.ServerDirectory;
 import org.urm.meta.engine.ServerInfrastructure;
+import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.engine.ServerProduct;
 import org.urm.meta.engine.ServerRegistry;
 import org.urm.meta.engine.ServerResources;
@@ -38,6 +39,7 @@ public class ServerLoader {
 	private ServerRegistry registry;
 	private ServerBase base;
 	private ServerInfrastructure infra;
+	private ServerMonitoring mon;
 	private ServerProductMeta offline;
 	private Map<String,ServerProductMeta> productMeta;
 	
@@ -48,6 +50,7 @@ public class ServerLoader {
 		registry = new ServerRegistry( this ); 
 		base = new ServerBase( this ); 
 		infra = new ServerInfrastructure( this ); 
+		mon = new ServerMonitoring( this ); 
 		productMeta = new HashMap<String,ServerProductMeta>();
 	}
 	
@@ -55,8 +58,10 @@ public class ServerLoader {
 		loadRegistry();
 		loadBase();
 		loadInfrastructure();
-		if( !engine.execrc.isStandalone() )
+		if( !engine.execrc.isStandalone() ) {
 			loadServerSettings();
+			loadMonitoring();
+		}
 	}
 	
 	public void reloadCore() throws Exception {
@@ -64,6 +69,7 @@ public class ServerLoader {
 		base = new ServerBase( this ); 
 		settings = new ServerSettings( this );
 		infra = new ServerInfrastructure( this ); 
+		mon = new ServerMonitoring( this ); 
 		init();
 		
 		loadServerProducts( engine.serverAction );
@@ -117,6 +123,17 @@ public class ServerLoader {
 	private void loadInfrastructure() throws Exception {
 		String infraFile = getServerInfrastructureFile();
 		infra.load( infraFile , engine.execrc );
+	}
+
+	private String getServerMonitoringFile() throws Exception {
+		String path = Common.getPath( engine.execrc.installPath , "etc" );
+		String propertyFile = Common.getPath( path , "monitoring.xml" );
+		return( propertyFile );
+	}
+
+	private void loadMonitoring() throws Exception {
+		String monFile = getServerMonitoringFile();
+		mon.load( monFile , engine.execrc );
 	}
 
 	private String getServerRegistryFile() throws Exception {

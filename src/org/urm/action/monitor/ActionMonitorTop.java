@@ -26,7 +26,7 @@ public class ActionMonitorTop extends ActionBase {
 		this.mon = mon;
 	}
 
-	public void stopRunning() throws Exception {
+	public void stopRunning() {
 		continueRunning = false;
 	}
 	

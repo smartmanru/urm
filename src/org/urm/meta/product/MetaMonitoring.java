@@ -18,6 +18,7 @@ public class MetaMonitoring extends PropertyController {
 
 	Map<String,MetaMonitoringTarget> mapEnvs;
 
+	public boolean ENABLED;
 	public String DIR_DATA;
 	public String DIR_REPORTS;
 	public String DIR_RES;
@@ -28,6 +29,7 @@ public class MetaMonitoring extends PropertyController {
 	public int MINSILENT;
 
 	// properties
+	public static String PROPERTY_ENABLED = "monitoring.enabled";
 	public static String PROPERTY_DIR_DATA = "data.path";
 	public static String PROPERTY_DIR_REPORTS = "reports.path";
 	public static String PROPERTY_DIR_RES = "resources.path";
@@ -53,6 +55,7 @@ public class MetaMonitoring extends PropertyController {
 	
 	@Override
 	public void scatterProperties( ActionBase action ) throws Exception {
+		ENABLED = super.getBooleanProperty( action , PROPERTY_ENABLED );
 		DIR_DATA = super.getPathProperty( action , PROPERTY_DIR_DATA );
 		DIR_REPORTS = super.getPathProperty( action , PROPERTY_DIR_REPORTS );
 		DIR_RES = super.getPathProperty( action , PROPERTY_DIR_RES );

@@ -286,6 +286,13 @@ public class ConfReader {
     	return( Integer.parseInt( value ) );
     }
 
+    public static String getPropertyValue( Node node , String propertyName , String defValue ) throws Exception {
+    	String value = getPropertyValue( node , propertyName );
+    	if( value == null || value.isEmpty() )
+    		return( defValue );
+    	return( value );
+    }
+    
     public static String getPropertyValue( Node node , String propertyName ) throws Exception {
     	Node child = xmlGetNamedNode( node , "property" , propertyName );
     	if( child == null )
