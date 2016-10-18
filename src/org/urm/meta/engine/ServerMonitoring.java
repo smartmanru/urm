@@ -50,7 +50,7 @@ public class ServerMonitoring extends ServerObject {
 		Node root = doc.getDocumentElement();
 
 		String rootPath = Common.getPath( engine.execrc.installPath , "monitoring" );
-		ENABLED = Common.getBooleanValue( ConfReader.getPropertyValue( root , PROPERTY_ENABLED , "false" ) );
+		ENABLED = Common.getBooleanValue( ConfReader.getPropertyValue( root , PROPERTY_ENABLED , "no" ) );
 		DIR_DATA = ConfReader.getPropertyValue( root , PROPERTY_DIR_DATA , Common.getPath( rootPath , "data" ) );
 		DIR_REPORTS = ConfReader.getPropertyValue( root , PROPERTY_DIR_REPORTS , Common.getPath( rootPath , "reports" ) );
 		DIR_RES = ConfReader.getPropertyValue( root , PROPERTY_DIR_RES , Common.getPath( rootPath , "res" ) );
