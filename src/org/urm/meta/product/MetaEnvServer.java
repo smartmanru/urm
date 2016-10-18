@@ -161,6 +161,7 @@ public class MetaEnvServer extends PropertyController {
 		osType = Meta.getOSType( super.getStringProperty( action , PROPERTY_OSTYPE , "linux" ) , false );
 		OFFLINE = super.getBooleanProperty( action , PROPERTY_OFFLINE );
 		XDOC = super.getPathProperty( action , PROPERTY_XDOC , NAME + ".xml" );
+		SYSNAME = super.getStringProperty( action , PROPERTY_SYSNAME );
 		
 		if( isStartable() || isDeployPossible() ) {
 			ROOTPATH = super.getPathProperty( action , PROPERTY_ROOTPATH );
@@ -183,9 +184,6 @@ public class MetaEnvServer extends PropertyController {
 			LOGFILEPATH = super.getPathProperty( action , PROPERTY_LOGFILEPATH );
 			NOPIDS = super.getBooleanProperty( action , PROPERTY_NOPIDS );
 		}
-
-		if( isService() || isPacemaker() )
-			SYSNAME = super.getStringPropertyRequired( action , PROPERTY_SYSNAME );
 
 		if( isDeployPossible() ) {
 			DEPLOYPATH = super.getPathProperty( action , PROPERTY_DEPLOYPATH );
