@@ -149,7 +149,7 @@ public class MetaEnvServer extends PropertyController {
 		NAME = properties.getSystemRequiredStringProperty( PROPERTY_NAME );
 		action.trace( "load properties of server=" + NAME );
 		
-		DESC = properties.getSystemRequiredStringProperty( PROPERTY_DESC );
+		DESC = properties.getSystemStringProperty( PROPERTY_DESC );
 		BASELINE = super.getStringProperty( action , PROPERTY_BASELINE ); 
 		if( BASELINE.equals( "default" ) )
 			BASELINE = NAME;
