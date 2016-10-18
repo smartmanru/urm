@@ -727,31 +727,31 @@ public class MetaEnvServer extends PropertyController {
 		}
 	}
 	
-	public void createServer( ActionBase action , String NAME , String DESC , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String service ) throws Exception {
+	public void createServer( ActionBase action , String NAME , String DESC , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String sysname ) throws Exception {
 		if( !super.initCreateStarted( dc.getProperties() ) )
 			return;
 
+		OFFLINE = false;
 		super.setStringProperty( PROPERTY_NAME , NAME );
 		super.setStringProperty( PROPERTY_DESC , DESC );
 		super.setStringProperty( PROPERTY_OSTYPE , Common.getEnumLower( osType ) );
 		super.setStringProperty( PROPERTY_SERVERRUNTYPE , Common.getEnumLower( runType ) );
 		super.setStringProperty( PROPERTY_SERVERACCESSTYPE , Common.getEnumLower( accessType ) );
 		super.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
-		super.setStringProperty( PROPERTY_SYSNAME , SYSNAME );
+		super.setStringProperty( PROPERTY_SYSNAME , sysname );
 		super.finishProperties( action );
 		super.initFinished();
 		
 		scatterProperties( action );
 	}
 
-	public void modifyServer( ActionBase action , String NAME , String DESC , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String service ) throws Exception {
+	public void modifyServer( ActionBase action , String NAME , String DESC , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String sysname ) throws Exception {
 		super.setStringProperty( PROPERTY_NAME , NAME );
 		super.setStringProperty( PROPERTY_DESC , DESC );
 		super.setStringProperty( PROPERTY_OSTYPE , Common.getEnumLower( osType ) );
 		super.setStringProperty( PROPERTY_SERVERRUNTYPE , Common.getEnumLower( runType ) );
 		super.setStringProperty( PROPERTY_SERVERACCESSTYPE , Common.getEnumLower( accessType ) );
-		super.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
-		super.setStringProperty( PROPERTY_SYSNAME , SYSNAME );
+		super.setStringProperty( PROPERTY_SYSNAME , sysname );
 		super.finishProperties( action );
 		
 		scatterProperties( action );
