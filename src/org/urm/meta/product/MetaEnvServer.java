@@ -204,7 +204,8 @@ public class MetaEnvServer extends PropertyController {
 				datagroupMap.put( datagroup.NAME , datagroup );
 			}
 			
-			admSchema = database.getSchema( action , ADMSCHEMA );
+			if( !ADMSCHEMA.isEmpty() )
+				admSchema = database.getSchema( action , ADMSCHEMA );
 		}
 
 		properties.finishRawProperties();
