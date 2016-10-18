@@ -39,7 +39,7 @@ public class MetaEnvServer extends PropertyController {
 	
 	public String ROOTPATH;
 	public String BINPATH;
-	public String SERVICENAME;
+	public String SYSNAME;
 	public int PORT;
 	private String NLBSERVER;
 	public MetaEnvServer nlbServer;
@@ -83,7 +83,7 @@ public class MetaEnvServer extends PropertyController {
 	public static String PROPERTY_OSTYPE = "ostype";
 	public static String PROPERTY_SERVERRUNTYPE = "runtype";
 	public static String PROPERTY_SERVERACCESSTYPE = "accesstype";
-	public static String PROPERTY_SERVICENAME = "servicename";
+	public static String PROPERTY_SYSNAME = "sysname";
 	public static String PROPERTY_OFFLINE = "offline";
 	
 	public static String PROPERTY_ROOTPATH = "rootpath";
@@ -181,8 +181,8 @@ public class MetaEnvServer extends PropertyController {
 			NOPIDS = super.getBooleanProperty( action , PROPERTY_NOPIDS );
 		}
 
-		if( isService() )
-			SERVICENAME = super.getStringPropertyRequired( action , PROPERTY_SERVICENAME );
+		if( isService() || isPacemaker() )
+			SYSNAME = super.getStringPropertyRequired( action , PROPERTY_SYSNAME );
 
 		if( isDeployPossible() ) {
 			DEPLOYPATH = super.getPathProperty( action , PROPERTY_DEPLOYPATH );
@@ -215,11 +215,11 @@ public class MetaEnvServer extends PropertyController {
 		return( super.isLoadFailed() );
 	}
 	
-	public VarSERVERRUNTYPE getServerRunType( ActionBase action ) throws Exception {
+	public VarSERVERRUNTYPE getServerRunType() {
 		return( serverRunType );
 	}
 	
-	public VarSERVERACCESSTYPE getServerAccessType( ActionBase action ) throws Exception {
+	public VarSERVERACCESSTYPE getServerAccessType() {
 		return( serverAccessType );
 	}
 	
@@ -652,6 +652,10 @@ public class MetaEnvServer extends PropertyController {
 		return( serverAccessType == VarSERVERACCESSTYPE.SERVICE );
 	}
 
+	public boolean isPacemaker() {
+		return( serverAccessType == VarSERVERACCESSTYPE.PACEMAKER );
+	}
+
 	public boolean isCommand() {
 		return( serverRunType == VarSERVERRUNTYPE.COMMAND );
 	}
@@ -695,7 +699,7 @@ public class MetaEnvServer extends PropertyController {
 	
 	public String getSystemFiles( ActionBase action ) throws Exception {
 		if( isLinux() && isService() )
-			return( SERVICENAME );
+			return( SYSNAME );
 		
 		if( isLinux() )
 			return( "server.*.sh" );
@@ -723,12 +727,6 @@ public class MetaEnvServer extends PropertyController {
 	}
 	
 	public void createServer( ActionBase action , String NAME , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String service ) throws Exception {
-		this.NAME = NAME;
-		this.serverRunType = runType;
-		this.serverAccessType = accessType;
-		this.osType = osType;
-		this.OFFLINE = true;
-		this.SERVICENAME = service;
 		if( !super.initCreateStarted( dc.getProperties() ) )
 			return;
 
@@ -737,9 +735,21 @@ public class MetaEnvServer extends PropertyController {
 		super.setStringProperty( PROPERTY_SERVERRUNTYPE , Common.getEnumLower( runType ) );
 		super.setStringProperty( PROPERTY_SERVERACCESSTYPE , Common.getEnumLower( accessType ) );
 		super.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
-		super.setStringProperty( PROPERTY_SERVICENAME , SERVICENAME );
+		super.setStringProperty( PROPERTY_SYSNAME , SYSNAME );
 		super.finishProperties( action );
 		super.initFinished();
+		
+		scatterProperties( action );
+	}
+
+	public void modifyServer( ActionBase action , String NAME , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String service ) throws Exception {
+		super.setStringProperty( PROPERTY_NAME , NAME );
+		super.setStringProperty( PROPERTY_OSTYPE , Common.getEnumLower( osType ) );
+		super.setStringProperty( PROPERTY_SERVERRUNTYPE , Common.getEnumLower( runType ) );
+		super.setStringProperty( PROPERTY_SERVERACCESSTYPE , Common.getEnumLower( accessType ) );
+		super.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
+		super.setStringProperty( PROPERTY_SYSNAME , SYSNAME );
+		super.finishProperties( action );
 		
 		scatterProperties( action );
 	}

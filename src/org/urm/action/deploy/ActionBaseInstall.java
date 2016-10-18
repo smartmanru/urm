@@ -251,7 +251,7 @@ public class ActionBaseInstall extends ActionBase {
 			if( !server.isLinux() )
 				exitUnexpectedState();
 			
-			baseMaster.copyFileToLocalRename( this , workBase , "service" , server.SERVICENAME );
+			baseMaster.copyFileToLocalRename( this , workBase , "service" , server.SYSNAME );
 		}
 		else {
 			if( server.isLinux() )

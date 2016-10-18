@@ -35,12 +35,19 @@ public class ServerProcess {
 		return( srv.isService() );
 	}
 
+	public boolean isPacemaker( ActionBase action ) throws Exception {
+		return( srv.isPacemaker() );
+	}
+
 	public void gatherStatus( ActionBase action ) throws Exception {
 		action.debug( node.HOSTLOGIN + ": check status srv=" + srv.NAME + " ..." );
 		
 		mode = VarPROCESSMODE.UNKNOWN;
 		if( isService( action ) )
 			gatherServiceStatus( action );
+		else
+		if( isPacemaker( action ) )
+			gatherPacemakerStatus( action );
 		else
 		if( isGeneric( action ) )
 			gatherGenericStatus( action );
@@ -83,6 +90,10 @@ public class ServerProcess {
 			return( true );
 		return( false );
 	}
+
+	private void gatherPacemakerStatus( ActionBase action ) throws Exception {
+		action.exitNotImplemented();
+	}
 	
 	private void gatherServiceStatus( ActionBase action ) throws Exception {
 		ShellExecutor shell = action.getShell( node );
@@ -90,7 +101,7 @@ public class ServerProcess {
 		// linux operations
 		try {
 			if( srv.isLinux() ) {
-				cmdValue = shell.customGetValue( action , "service " + srv.SERVICENAME + " status 2>&1" );
+				cmdValue = shell.customGetValue( action , "service " + srv.SYSNAME + " status 2>&1" );
 				
 				String check = cmdValue.toUpperCase();
 				if( isStoppedStatus( action , check ) ) {
@@ -207,6 +218,9 @@ public class ServerProcess {
 		if( isService( action ) )
 			res = stopService( action );
 		else
+		if( isPacemaker( action ) )
+			res = stopPacemaker( action );
+		else
 		if( isGeneric( action ) )
 			res = stopGeneric( action );
 		else
@@ -214,12 +228,17 @@ public class ServerProcess {
 		return( res );
 	}
 
+	private boolean stopPacemaker( ActionBase action ) throws Exception {
+		action.exitNotImplemented();
+		return( false );
+	}
+	
 	private boolean stopService( ActionBase action ) throws Exception {
 		// check status
 		gatherStatus( action );
 
 		if( mode == VarPROCESSMODE.STOPPED ) {
-			action.debug( node.HOSTLOGIN + ": service=" + srv.SERVICENAME + " already stopped" );
+			action.debug( node.HOSTLOGIN + ": service=" + srv.SYSNAME + " already stopped" );
 			return( true );
 		}
 
@@ -227,7 +246,7 @@ public class ServerProcess {
 		try {
 			// linux operations
 			if( srv.isLinux() ) {
-				shell.customCritical( action , "service " + srv.SERVICENAME + " stop > /dev/null 2>&1" );
+				shell.customCritical( action , "service " + srv.SYSNAME + " stop > /dev/null 2>&1" );
 				return( true );
 			}
 			
@@ -297,6 +316,9 @@ public class ServerProcess {
 		if( isService( action ) )
 			res = waitStoppedService( action , startMillis );
 		else
+		if( isPacemaker( action ) )
+			res = waitStoppedPacemaker( action , startMillis );
+		else
 		if( isGeneric( action ) )
 			res = waitStoppedGeneric( action , startMillis );
 		else
@@ -304,9 +326,14 @@ public class ServerProcess {
 		return( res );
 	}
 
+	public boolean waitStoppedPacemaker( ActionBase action , long startMillis ) throws Exception {
+		action.exitNotImplemented();
+		return( false );
+	}
+	
 	public boolean waitStoppedService( ActionBase action , long startMillis ) throws Exception {
 		// wait for stop for a while
-		action.debug( node.HOSTLOGIN + ": wait for stop service=" + srv.SERVICENAME + " ..." );
+		action.debug( node.HOSTLOGIN + ": wait for stop service=" + srv.SYSNAME + " ..." );
 		
 		int stoptime = srv.STOPTIME;
 		if( stoptime == 0 )
@@ -315,7 +342,7 @@ public class ServerProcess {
 		
 		while( mode != VarPROCESSMODE.STOPPED ) {
 			if( System.currentTimeMillis() > stopMillis ) {
-				action.error( node.HOSTLOGIN + ": failed to stop service=" + srv.SERVICENAME + " within " + stoptime + " seconds" );
+				action.error( node.HOSTLOGIN + ": failed to stop service=" + srv.SYSNAME + " within " + stoptime + " seconds" );
 				return( false );
 			}
 						
@@ -326,7 +353,7 @@ public class ServerProcess {
 		    }
 		}
 
-		action.info( node.HOSTLOGIN + " service=" + srv.SERVICENAME + " successfully stopped" );
+		action.info( node.HOSTLOGIN + " service=" + srv.SYSNAME + " successfully stopped" );
 		return( true );
 	}
 	
@@ -421,6 +448,9 @@ public class ServerProcess {
 		if( isService( action ) )
 			res = startService( action );
 		else
+		if( isPacemaker( action ) )
+			res = startPacemaker( action );
+		else
 		if( isGeneric( action ) )
 			res = startGeneric( action );
 		else
@@ -428,17 +458,22 @@ public class ServerProcess {
 		return( res );
 	}
 
+	private boolean startPacemaker( ActionBase action ) throws Exception {
+		action.exitNotImplemented();
+		return( false );
+	}
+	
 	private boolean startService( ActionBase action ) throws Exception {
 		// check status
 		gatherStatus( action );
 
 		if( mode == VarPROCESSMODE.STARTED ) {
-			action.debug( node.HOSTLOGIN + ": service=" + srv.SERVICENAME + " already started" );
+			action.debug( node.HOSTLOGIN + ": service=" + srv.SYSNAME + " already started" );
 			return( true );
 		}
 
 		if( mode != VarPROCESSMODE.STOPPED ) {
-			action.error( node.HOSTLOGIN + ": " + srv.SERVICENAME + " is in unexpected state" );
+			action.error( node.HOSTLOGIN + ": " + srv.SYSNAME + " is in unexpected state" );
 			return( false );
 		}
 
@@ -446,7 +481,7 @@ public class ServerProcess {
 		try {
 			// linux operations
 			if( srv.isLinux() ) {
-				shell.customCritical( action , "service " + srv.SERVICENAME + " start > /dev/null 2>&1" );
+				shell.customCritical( action , "service " + srv.SYSNAME + " start > /dev/null 2>&1" );
 				return( true );
 			}
 			
@@ -513,6 +548,9 @@ public class ServerProcess {
 		if( isService( action ) )
 			res = waitStartedService( action , startMillis );
 		else
+		if( isPacemaker( action ) )
+			res = waitStartedPacemaker( action , startMillis );
+		else
 		if( isGeneric( action ) )
 			res = waitStartedGeneric( action , startMillis );
 		else
@@ -520,9 +558,14 @@ public class ServerProcess {
 		return( res );
 	}
 
+	public boolean waitStartedPacemaker( ActionBase action , long startMillis ) throws Exception {
+		action.exitNotImplemented();
+		return( false );
+	}
+	
 	public boolean waitStartedService( ActionBase action , long startMillis ) throws Exception {
 		// wait for stop for a while
-		action.debug( node.HOSTLOGIN + ": wait for start service=" + srv.SERVICENAME + " ..." );
+		action.debug( node.HOSTLOGIN + ": wait for start service=" + srv.SYSNAME + " ..." );
 		
 		int starttime = srv.STARTTIME;
 		if( starttime == 0 )
@@ -535,17 +578,17 @@ public class ServerProcess {
 			Common.sleep( 1000 );
 		    
 			if( System.currentTimeMillis() > stopMillis ) {
-				action.error( node.HOSTLOGIN + ": failed to start service=" + srv.SERVICENAME + " within " + starttime + " seconds" );
+				action.error( node.HOSTLOGIN + ": failed to start service=" + srv.SYSNAME + " within " + starttime + " seconds" );
 				return( false );
 			}
 
 			if( mode == VarPROCESSMODE.STOPPED && System.currentTimeMillis() > startTimeoutMillis ) {
-				action.info( node.HOSTLOGIN + ": failed to start service=" + srv.SERVICENAME + " - process launch timeout is " + defaultStartProcessTimeSecs + " seconds" );
+				action.info( node.HOSTLOGIN + ": failed to start service=" + srv.SYSNAME + " - process launch timeout is " + defaultStartProcessTimeSecs + " seconds" );
 				return( false );
 			}
 
 			if( mode != VarPROCESSMODE.STOPPED && mode != VarPROCESSMODE.STARTING ) {
-				action.info( node.HOSTLOGIN + ": failed to start service=" + srv.SERVICENAME + " - process is in unexpected state (" + cmdValue + ")" );
+				action.info( node.HOSTLOGIN + ": failed to start service=" + srv.SYSNAME + " - process is in unexpected state (" + cmdValue + ")" );
 				return( false );
 			}
 			
@@ -553,7 +596,7 @@ public class ServerProcess {
 			gatherStatus( action );
 		}
 
-		action.info( node.HOSTLOGIN + " service=" + srv.SERVICENAME + " successfully started" );
+		action.info( node.HOSTLOGIN + " service=" + srv.SYSNAME + " successfully started" );
 		return( true );
 	}
 	
@@ -603,6 +646,9 @@ public class ServerProcess {
 		if( isService( action ) )
 			res = prepareService( action );
 		else
+		if( isPacemaker( action ) )
+			res = preparePacemaker( action );
+		else
 		if( isGeneric( action ) )
 			res = prepareGeneric( action );
 		else
@@ -612,12 +658,17 @@ public class ServerProcess {
 		return( res );
 	}
 
+	private boolean preparePacemaker( ActionBase action ) throws Exception {
+		action.exitNotImplemented();
+		return( false );
+	}
+	
 	private boolean prepareService( ActionBase action ) throws Exception {
 		ShellExecutor shell = action.getShell( node );
 		try {
 			// linux operations
 			if( srv.isLinux() ) {
-				shell.customCritical( action , "service " + srv.SERVICENAME + " prepare" );
+				shell.customCritical( action , "service " + srv.SYSNAME + " prepare" );
 				shell.checkErrors( action );
 				return( true );
 			}

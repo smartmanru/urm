@@ -1,9 +1,7 @@
 package org.urm.meta.product;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
@@ -20,7 +18,6 @@ public class MetaEnvStartGroup {
 	public String NAME;
 	public String SERVERS;
 	public List<MetaEnvServer> servers;
-	public Map<String,MetaEnvServer> serverMap;
 	
 	public MetaEnvStartGroup( Meta meta , MetaEnvStartInfo startInfo ) {
 		this.meta = meta;
@@ -40,7 +37,6 @@ public class MetaEnvStartGroup {
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
-		serverMap = new HashMap<String,MetaEnvServer>();
 		servers = new LinkedList<MetaEnvServer>();
 		
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
@@ -54,17 +50,15 @@ public class MetaEnvStartGroup {
 
 	public void addServer( ActionBase action , MetaEnvServer server ) throws Exception {
 		servers.add( server );
-		serverMap.put( server.NAME , server );
 		server.setStartGroup( action , this );
 	}
 	
-	public Map<String,MetaEnvServer> getServers( ActionBase action ) throws Exception {
-		return( serverMap );
+	public List<MetaEnvServer> getServers( ActionBase action ) throws Exception {
+		return( servers );
 	}
 
 	public void removeServer( ServerTransaction transaction , MetaEnvServer server ) {
 		servers.remove( server );
-		serverMap.remove( server.NAME );
 		server.setStartGroup( transaction.action , null );
 	}
 	

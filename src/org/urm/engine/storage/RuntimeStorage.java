@@ -311,7 +311,7 @@ public class RuntimeStorage extends ServerStorage {
 			if( !runtimeDir.checkFileExists( action , "service" ) )
 				action.exit1( _Error.MissingLiveServiceFile1 , "unable to find service file in " + runtimeDir.folderPath , runtimeDir.folderPath );
 
-			String targetFile = "/etc/init.d/" + server.SERVICENAME;
+			String targetFile = "/etc/init.d/" + server.SYSNAME;
 			runtimeDir.copyFile( action , "service" , targetFile );
 			ShellExecutor session = action.getShell( account );
 			session.custom( action , "chmod 744 " + targetFile );

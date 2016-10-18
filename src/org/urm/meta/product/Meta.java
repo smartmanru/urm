@@ -78,6 +78,7 @@ public class Meta extends ServerObject {
 	public enum VarSERVERACCESSTYPE {
 		UNKNOWN ,
 		SERVICE ,
+		PACEMAKER ,
 		GENERIC ,
 		MANUAL
 	};

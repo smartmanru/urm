@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
@@ -252,6 +253,18 @@ public class MetaEnvDC extends PropertyController {
 	}
 
 	public void createServer( ServerTransaction transaction , MetaEnvServer server ) {
+		addServer( server );
+	}
+	
+	public void modifyServer( ServerTransaction transaction , MetaEnvServer server ) {
+		for( Entry<String,MetaEnvServer> entry : serverMap.entrySet() ) {
+			if( entry.getValue() == server ) {
+				serverMap.remove( entry.getKey() );
+				break;
+			}
+		}
+		
+		originalList.remove( server );
 		addServer( server );
 	}
 	

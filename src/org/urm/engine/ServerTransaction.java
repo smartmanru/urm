@@ -228,14 +228,19 @@ public class ServerTransaction extends TransactionBase {
 		dc.deleteObject();
 	}
 
-	public MetaEnvServer createMetaEnvServer( MetaEnvDC dc , String name , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String service ) throws Exception {
+	public MetaEnvServer createMetaEnvServer( MetaEnvDC dc , String name , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String sysname ) throws Exception {
 		checkTransactionMetadata( dc.meta.getStorage( action ) );
 		MetaEnvServer server = new MetaEnvServer( dc.meta , dc );
-		server.createServer( action , name , osType , runType , accessType , service );
+		server.createServer( action , name , osType , runType , accessType , sysname );
 		dc.createServer( this , server );
 		return( server );
 	}
 	
+	public void modifyMetaEnvServer( MetaEnvServer server ) throws Exception {
+		checkTransactionMetadata( server.meta.getStorage( action ) );
+		server.dc.modifyServer( this , server );
+	}
+
 	public void deleteMetaEnvServer( MetaEnvServer server ) throws Exception {
 		checkTransactionMetadata( server.meta.getStorage( action ) );
 		server.dc.deleteServer( this , server );

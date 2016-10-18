@@ -532,7 +532,7 @@ public class ActionScopeSet {
 
 	public List<ActionScopeTarget> getGroupServers( ActionBase action , MetaEnvStartGroup group ) throws Exception {
 		List<ActionScopeTarget> groupTargets = new LinkedList<ActionScopeTarget>();
-		for( MetaEnvServer server : group.getServers( action ).values() ) {
+		for( MetaEnvServer server : group.getServers( action ) ) {
 			ActionScopeTarget target = targets.get( server.NAME );
 			if( target != null )
 				groupTargets.add( target );
