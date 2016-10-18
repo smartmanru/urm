@@ -53,9 +53,9 @@ public class ActionBaseInstall extends ActionBase {
 	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerBase base ) throws Exception {
 		BaseRepository repo = artefactory.getBaseRepository( this );
 		ServerBaseItemData info = repo.getBaseInfo( this , base.ID , node , true );
-		if( info.serverAccessType != server.getServerAccessType( this ) ) {
+		if( info.serverAccessType != server.getServerAccessType() ) {
 			String baseType = Common.getEnumLower( info.serverAccessType );
-			String serverType = Common.getEnumLower( server.getServerAccessType( this ) );
+			String serverType = Common.getEnumLower( server.getServerAccessType() );
 			exit2( _Error.BaseServerTypeMismatched2 , "base server type mismatched: " + baseType + " <> " + serverType , baseType , serverType );
 		}
 		
