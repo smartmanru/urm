@@ -29,6 +29,7 @@ public class MetaEnvServer extends PropertyController {
 	public MetaEnvDC dc;
 	
 	public String NAME;
+	public String DESC;
 	private VarSERVERRUNTYPE serverRunType;
 	private VarSERVERACCESSTYPE serverAccessType;
 	public VarOSTYPE osType;
@@ -79,6 +80,7 @@ public class MetaEnvServer extends PropertyController {
 	List<MetaEnvServerNode> nodes;
 
 	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_DESC = "desc";
 	public static String PROPERTY_BASELINE = "baseserver";
 	public static String PROPERTY_OSTYPE = "ostype";
 	public static String PROPERTY_SERVERRUNTYPE = "runtype";
@@ -147,6 +149,7 @@ public class MetaEnvServer extends PropertyController {
 		NAME = properties.getSystemRequiredStringProperty( PROPERTY_NAME );
 		action.trace( "load properties of server=" + NAME );
 		
+		DESC = properties.getSystemRequiredStringProperty( PROPERTY_DESC );
 		BASELINE = super.getStringProperty( action , PROPERTY_BASELINE ); 
 		if( BASELINE.equals( "default" ) )
 			BASELINE = NAME;
@@ -726,11 +729,12 @@ public class MetaEnvServer extends PropertyController {
 		}
 	}
 	
-	public void createServer( ActionBase action , String NAME , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String service ) throws Exception {
+	public void createServer( ActionBase action , String NAME , String DESC , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String service ) throws Exception {
 		if( !super.initCreateStarted( dc.getProperties() ) )
 			return;
 
 		super.setStringProperty( PROPERTY_NAME , NAME );
+		super.setStringProperty( PROPERTY_DESC , DESC );
 		super.setStringProperty( PROPERTY_OSTYPE , Common.getEnumLower( osType ) );
 		super.setStringProperty( PROPERTY_SERVERRUNTYPE , Common.getEnumLower( runType ) );
 		super.setStringProperty( PROPERTY_SERVERACCESSTYPE , Common.getEnumLower( accessType ) );
@@ -742,8 +746,9 @@ public class MetaEnvServer extends PropertyController {
 		scatterProperties( action );
 	}
 
-	public void modifyServer( ActionBase action , String NAME , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String service ) throws Exception {
+	public void modifyServer( ActionBase action , String NAME , String DESC , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String service ) throws Exception {
 		super.setStringProperty( PROPERTY_NAME , NAME );
+		super.setStringProperty( PROPERTY_DESC , DESC );
 		super.setStringProperty( PROPERTY_OSTYPE , Common.getEnumLower( osType ) );
 		super.setStringProperty( PROPERTY_SERVERRUNTYPE , Common.getEnumLower( runType ) );
 		super.setStringProperty( PROPERTY_SERVERACCESSTYPE , Common.getEnumLower( accessType ) );
