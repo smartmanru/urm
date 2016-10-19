@@ -29,10 +29,10 @@ public class ServerEventsSource {
 		}
 	}
 
-	protected void trigger( Object data ) {
+	protected void trigger( int eventType , Object data ) {
 		synchronized( events ) {
 			stateId++;
-			ServerSourceEvent event = new ServerSourceEvent( this , stateId , data );
+			ServerSourceEvent event = new ServerSourceEvent( this , stateId , eventType , data );
 			for( ServerEventsApp app : appMap.values() )
 				app.trigger( event );
 		}

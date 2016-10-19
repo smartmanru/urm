@@ -13,7 +13,7 @@ public class ServerEventsSubscription {
 	}
 
 	public void trigger( ServerSourceEvent event ) {
-		listener.trigger( event );
+		listener.triggerEvent( event );
 	}
 	
 }

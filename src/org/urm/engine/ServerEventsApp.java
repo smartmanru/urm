@@ -27,10 +27,11 @@ public class ServerEventsApp {
 		subs.clear();
 	}
 
-	public void subscribe( ServerEventsSource source , ServerEventsListener listener ) {
+	public ServerEventsSubscription subscribe( ServerEventsSource source , ServerEventsListener listener ) {
 		synchronized( events ) {
 			ServerEventsSubscription sub = new ServerEventsSubscription( this , source , listener );
 			subs.add( sub );
+			return( sub );
 		}
 	}
 

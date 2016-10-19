@@ -14,12 +14,14 @@ public class ServerEvents extends ServerObject {
 	public void init() throws Exception {
 	}
 
-	public ServerEventsApp createApp( String appId , ServerEventsListener app ) {
+	public ServerEventsApp createApp( String appId ) {
+		engine.serverAction.trace( "start events management for application=" + appId );
 		return( new ServerEventsApp( this , appId ) );
 	}
 
 	public void deleteApp( ServerEventsApp app ) {
 		app.deleteSubscriptions();
+		engine.serverAction.trace( "stop events management for application=" + app.appId );
 	}
 
 }
