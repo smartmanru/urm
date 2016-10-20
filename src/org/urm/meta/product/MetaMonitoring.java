@@ -16,7 +16,7 @@ public class MetaMonitoring extends PropertyController {
 	
 	public Meta meta;
 
-	Map<String,MetaMonitoringTarget> mapEnvs;
+	Map<String,MetaMonitoringTarget> mapTargets;
 
 	public boolean ENABLED;
 	public String DIR_DATA;
@@ -43,7 +43,7 @@ public class MetaMonitoring extends PropertyController {
 		super( storage , "monitoring" );
 		
 		this.meta = meta;
-		mapEnvs = new HashMap<String,MetaMonitoringTarget>();
+		mapTargets = new HashMap<String,MetaMonitoringTarget>();
 	}
 	
 	@Override
@@ -97,7 +97,7 @@ public class MetaMonitoring extends PropertyController {
 	}
 
 	public Map<String,MetaMonitoringTarget> getTargets( ActionBase action ) throws Exception { 
-		return( mapEnvs );
+		return( mapTargets );
 	}
 	
 	private void loadEnvironments( ActionBase action , Node node ) throws Exception {
@@ -113,12 +113,20 @@ public class MetaMonitoring extends PropertyController {
 		for( Node deliveryNode : items ) {
 			MetaMonitoringTarget item = new MetaMonitoringTarget( meta , this );
 			item.loadEnv( action , deliveryNode );
-			mapEnvs.put( item.NAME , item );
+			mapTargets.put( item.NAME , item );
 		}
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		properties.saveAsElements( doc , root );
+	}
+
+	public MetaMonitoringTarget findMonitoringTarget( MetaEnvDC dc ) {
+		for( MetaMonitoringTarget target : mapTargets.values() ) {
+			if( target.ENV.equals( dc.env.ID ) && target.DC.equals( dc.NAME ) )
+				return( target );
+		}
+		return( null );
 	}
 	
 }

@@ -20,19 +20,19 @@ public class MonitoringStorage {
 	}
 	
 	public String getHistoryImageFile( MetaMonitoringTarget target ) throws Exception {
-		String path = Common.getPath( mon.DIR_REPORTS , target.PRODUCT );
+		String path = mon.DIR_REPORTS;
 		String file = "history." + target.ENV + "." + target.DC + ".png";
 		return( Common.getPath( path , file ) );
 	}
 	
 	public String getRrdFile( MetaMonitoringTarget target ) throws Exception {
-		String path = Common.getPath( mon.DIR_DATA , target.PRODUCT , target.ENV );
+		String path = Common.getPath( mon.DIR_DATA , target.ENV );
 		String file = "env." + target.DC + ".rrd";
 		return( Common.getPath( path , file ) );
 	}
 	
 	public String getCheckEnvFile( MetaMonitoringTarget target ) throws Exception {
-		String path = Common.getPath( mon.DIR_DATA , target.PRODUCT , target.ENV );
+		String path = Common.getPath( mon.DIR_DATA , target.ENV );
 		String file = "checkenv." + target.DC + ".log";
 		return( Common.getPath( path , file ) );
 	}

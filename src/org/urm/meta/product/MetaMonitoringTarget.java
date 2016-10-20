@@ -4,23 +4,20 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.action.ActionBase;
-import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.w3c.dom.Node;
 
 public class MetaMonitoringTarget {
 
-	protected Meta meta;
+	public Meta meta;
 	MetaMonitoring monitoring;
 	
 	public String NAME;
 	
 	public String HOME;
-	public String PRODUCT;
-	public String ENVFILE;
+	public String ENV;
 	public String DC;
 	public long MAXTIME;
-	public String ENV;
 
 	private List<MetaMonitoringItem> listUrls;
 	private List<MetaMonitoringItem> listWS;
@@ -40,14 +37,11 @@ public class MetaMonitoringTarget {
 	
 	public void loadEnv( ActionBase action , Node node ) throws Exception {
 		HOME = ConfReader.getRequiredAttrValue( node , "home" );
-		PRODUCT = ConfReader.getRequiredAttrValue( node , "product" );
-		ENVFILE = ConfReader.getRequiredAttrValue( node , "env" );
+		ENV = ConfReader.getRequiredAttrValue( node , "env" );
 		DC = ConfReader.getRequiredAttrValue( node , "dc" );
 		MAXTIME = ConfReader.getIntegerAttrValue( node , "maxtime" , 300000 );
 		
-		String basename = Common.getBaseName( ENVFILE );
-		ENV = Common.cutExtension( basename );
-		NAME = PRODUCT + "::" + ENV;
+		NAME = meta.name + "::" + ENV;
 		
 		loadCheckUrls( action , node );
 		loadCheckWS( action , node );
