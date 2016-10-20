@@ -153,7 +153,7 @@ public class ActionCheckEnv extends ActionBase {
 			S_CHECKENV_TARGET_COMPS_FAILED = S_CHECKENV_SERVER_COMPS_FAILED;
 		}
 		else {
-			for( MetaEnvServerNode node : server.getNodes( this ) )
+			for( MetaEnvServerNode node : server.getNodes() )
 				checkOneServerNode( server , node , false );
 		}
 		

@@ -62,7 +62,7 @@ public class ServerSystem extends ServerObject {
 		}
 	}
 	
-	public String[] getProducts() throws Exception {
+	public String[] getProducts() {
 		return( Common.getSortedKeys( mapProducts ) );
 	}
 

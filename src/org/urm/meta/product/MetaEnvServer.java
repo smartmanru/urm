@@ -382,7 +382,7 @@ public class MetaEnvServer extends PropertyController {
 		deployments.add( dp );
 	}
 	
-	public List<MetaEnvServerNode> getNodes( ActionBase action ) {
+	public List<MetaEnvServerNode> getNodes() {
 		return( nodes );
 	}
 
@@ -618,7 +618,7 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	public MetaEnvServerNode getStandbyNode( ActionBase action ) throws Exception {
-		for( MetaEnvServerNode node : getNodes( action ) ) {
+		for( MetaEnvServerNode node : getNodes() ) {
 			if( node.DBSTANDBY )
 				return( node );
 		}
@@ -628,7 +628,7 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	public MetaEnvServerNode getActiveNode( ActionBase action ) throws Exception {
-		for( MetaEnvServerNode node : getNodes( action ) ) {
+		for( MetaEnvServerNode node : getNodes() ) {
 			if( !node.OFFLINE )
 				return( node );
 		}

@@ -185,7 +185,7 @@ public class MetaEnvDC extends PropertyController {
 		return( serverMap );
 	}
 
-	public List<MetaEnvServer> getOriginalServerList( ActionBase action ) {
+	public List<MetaEnvServer> getOriginalServerList() {
 		return( originalList );
 	}
 

@@ -51,7 +51,7 @@ public class ActionStopServer extends ActionBase {
 
 	public List<MetaEnvServerNode> getActionServerNodes( MetaEnvServer actionServer , List<ActionScopeTargetItem> targetNodes ) throws Exception {
 		if( targetNodes == null )
-			return( actionServer.getNodes( this ) );
+			return( actionServer.getNodes() );
 		
 		List<MetaEnvServerNode> nodes = new LinkedList<MetaEnvServerNode>();
 		for( ActionScopeTargetItem item : targetNodes )

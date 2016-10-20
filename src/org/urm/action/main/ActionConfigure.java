@@ -344,7 +344,7 @@ public class ActionConfigure extends ActionBase {
 		if( env.isMultiDC( this ) ) {
 			if( USEDC.isEmpty() ) {
 				if( context.CTX_ALL ) {
-					for( MetaEnvDC envdc : env.getOriginalDCList( this ) ) {
+					for( MetaEnvDC envdc : env.getOriginalDCList() ) {
 						LocalFolder efEnvDC = efEnv.getSubFolder( this , envdc.NAME );
 						configureDeploymentEnvContent( meta , efEnvDC , executor , env , envFile , envdc.NAME , linux , dbe );
 					}

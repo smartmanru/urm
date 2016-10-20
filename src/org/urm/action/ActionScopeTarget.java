@@ -259,7 +259,7 @@ public class ActionScopeTarget {
 	public void addServerNodes( ActionBase action , List<MetaEnvServerNode> nodes ) throws Exception {
 		if( nodes == null || nodes.isEmpty() ) {
 			itemFull = true;
-			for( MetaEnvServerNode node : envServer.getNodes( action ) )
+			for( MetaEnvServerNode node : envServer.getNodes() )
 				addServerNode( action , node , false );
 			return;
 		}

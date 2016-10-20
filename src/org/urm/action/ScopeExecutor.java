@@ -618,7 +618,7 @@ public class ScopeExecutor {
 			list.add( set );
 		
 		if( context.env != null ) {
-			for( MetaEnvDC envSet : context.env.getOriginalDCList( action ) ) {
+			for( MetaEnvDC envSet : context.env.getOriginalDCList() ) {
 				ActionScopeSet set = scope.findSet( action , VarCATEGORY.ENV , envSet.NAME );
 				if( set != null )
 					list.add( set );
@@ -649,7 +649,7 @@ public class ScopeExecutor {
 			for( ActionScopeTarget target : targets )
 				map.put( target.envServer.NAME , target );
 
-			for( MetaEnvServer server : set.dc.getOriginalServerList( action ) ) {
+			for( MetaEnvServer server : set.dc.getOriginalServerList() ) {
 				ActionScopeTarget target = map.get( server.NAME );
 				if( target != null )
 					list.add( target );

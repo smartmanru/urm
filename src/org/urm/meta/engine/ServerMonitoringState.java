@@ -6,6 +6,7 @@ public class ServerMonitoringState extends ServerEventsState {
 	
 	public enum MONITORING_STATE {
 		MONITORING_UNKNOWN ,
+		MONITORING_NEVERQUERIED ,
 		MONITORING_STOPPED ,
 		MONITORING_UNABLE_GETSTATE ,
 		MONITORING_ERRORS_FATAL ,
@@ -13,12 +14,13 @@ public class ServerMonitoringState extends ServerEventsState {
 		MONITORING_HEALTHY
 	};
 	
-	public ServerMonitoring mon;
+	public ServerMonitoringSource source;
 	public int level;
-	public int stateId;
 	private MONITORING_STATE state;
 	
-	public ServerMonitoringState( ServerMonitoring mon , int level , int stateId ) {
+	public ServerMonitoringState( ServerMonitoringSource source ) {
+		super( source , 0 );
+		state = MONITORING_STATE.MONITORING_NEVERQUERIED;
 	}
 
 	public MONITORING_STATE getState() {

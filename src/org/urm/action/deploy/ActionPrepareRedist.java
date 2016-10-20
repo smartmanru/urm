@@ -47,7 +47,7 @@ public class ActionPrepareRedist extends ActionBase {
 	}
 	
 	private void recreateFoldersSingle( MetaEnvServer server ) throws Exception {
-		for( MetaEnvServerNode node : server.getNodes( this ) )
+		for( MetaEnvServerNode node : server.getNodes() )
 			recreateFolders( server , node );
 	}
 

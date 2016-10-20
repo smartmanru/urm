@@ -14,6 +14,10 @@ import org.urm.engine.ServerEventsSubscription;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerObject;
 import org.urm.meta.ServerProductMeta;
+import org.urm.meta.product.MetaEnv;
+import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaMonitoring;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -84,8 +88,10 @@ public class ServerMonitoring extends ServerObject {
 
 	public void start() {
 		ServerRegistry registry = loader.getRegistry();
-		for( String productName : registry.directory.getProducts() )
-			startProduct( productName );
+		for( String systemName : registry.directory.getSystems() ) {
+			ServerSystem system = registry.directory.findSystem( systemName );
+			startSystem( system );
+		}
 	}
 
 	public void stop() {
@@ -95,30 +101,78 @@ public class ServerMonitoring extends ServerObject {
 		mapProduct.clear();
 	}
 
-	public void startProduct( String productName ) {
+	public void startSystem( ServerSystem system ) {
 		ActionBase action = engine.serverAction;
-		ServerProductMeta storage = loader.findProductStorage( productName );
+		createSource( MONITORING_SYSTEM , system );
+		action.trace( "monitoring started for system=" + system.NAME );
+		
+		// start products
+		for( String productName : system.getProducts() ) {
+			ServerProduct product = system.getProduct( productName );
+			startProduct( product );
+		}
+	}
+	
+	public void startProduct( ServerProduct product ) {
+		ActionBase action = engine.serverAction;
+		ServerProductMeta storage = loader.findProductStorage( product.NAME );
 		if( storage == null || storage.loadFailed ) {
-			action.trace( "ignore monitoring for non-healthy product=" + productName );
+			action.trace( "ignore monitoring for non-healthy product=" + product.NAME );
 			return;
 		}
 		
 		MetaMonitoring meta = storage.getMonitoring();
 		if( !meta.ENABLED ) {
-			action.trace( "monitoring is turned off for product=" + productName );
+			action.trace( "monitoring is turned off for product=" + product.NAME );
 			return;
 		}
 
-		ServerMonitoringProduct mon = new ServerMonitoringProduct( this , meta );
-		mapProduct.put( productName , mon );
+		ServerMonitoringSource source = createSource( MONITORING_PRODUCT , product );
+		ServerMonitoringProduct mon = new ServerMonitoringProduct( this , meta , source );
+		mapProduct.put( product.NAME , mon );
 		mon.start();
-		action.trace( "monitoring started for product=" + productName );
+		action.trace( "monitoring started for product=" + product.NAME );
+		
+		// start childs
+		for( String envName : storage.getEnvironments() ) {
+			MetaEnv env = storage.findEnvironment( envName );
+			startEnvironment( env );
+		}
 	}
 
-	private void createSource( int level , ServerObject object ) {
+	public void startEnvironment( MetaEnv env ) {
+		createSource( MONITORING_ENVIRONMENT , env );
+		
+		// start childs
+		for( MetaEnvDC dc : env.getOriginalDCList() )
+			startDatacenter( dc );
+	}
+
+	public void startDatacenter( MetaEnvDC dc ) {
+		createSource( MONITORING_DATACENTER , dc );
+		
+		// start childs
+		for( MetaEnvServer server : dc.getOriginalServerList() )
+			startServer( server );
+	}
+	
+	public void startServer( MetaEnvServer server ) {
+		createSource( MONITORING_SERVER , server );
+		
+		// start childs
+		for( MetaEnvServerNode node : server.getNodes() )
+			startNode( node );
+	}
+	
+	public void startNode( MetaEnvServerNode node ) {
+		createSource( MONITORING_NODE , node );
+	}
+	
+	private ServerMonitoringSource createSource( int level , ServerObject object ) {
 		String name = "o" + level + "." + object.objectId;
-		ServerMonitoringSource source = new ServerMonitoringSource( this , level , name );
+		ServerMonitoringSource source = new ServerMonitoringSource( this , object , level , name );
 		sourceMap.put( object , source );
+		return( source );
 	}
 	
 	public void stopProduct( String productName ) {

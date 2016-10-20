@@ -8,6 +8,7 @@ public class ServerMonitoringProduct implements Runnable {
 
 	ServerMonitoring monitoring;
 	MetaMonitoring meta;
+	ServerMonitoringSource source;
 	ServerEngine engine;
 	
 	private Thread thread;
@@ -16,9 +17,10 @@ public class ServerMonitoringProduct implements Runnable {
 	
 	ActionMonitorTop ca;
 	
-	public ServerMonitoringProduct( ServerMonitoring monitoring , MetaMonitoring meta ) {
+	public ServerMonitoringProduct( ServerMonitoring monitoring , MetaMonitoring meta , ServerMonitoringSource source ) {
 		this.monitoring = monitoring;
 		this.meta = meta;
+		this.source = source;
 		this.engine = monitoring.engine;
 	}
 	
