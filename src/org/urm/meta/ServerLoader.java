@@ -400,6 +400,12 @@ public class ServerLoader {
 		}
 	}
 
+	public ServerMonitoring getMonitoring() {
+		synchronized( engine ) {
+			return( mon );
+		}
+	}
+
 	public ServerBase getServerBase() {
 		synchronized( engine ) {
 			return( base );

@@ -16,6 +16,7 @@ import org.urm.meta.engine.ServerContext;
 import org.urm.meta.engine.ServerDirectory;
 import org.urm.meta.engine.ServerInfrastructure;
 import org.urm.meta.engine.ServerMirrors;
+import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.engine.ServerProduct;
 import org.urm.meta.engine.ServerRegistry;
 import org.urm.meta.engine.ServerResources;
@@ -140,6 +141,10 @@ public class ActionInit extends ActionBase {
 	
 	public ServerInfrastructure getActiveInfrastructure() {
 		return( loader.getInfrastructure() );
+	}
+	
+	public ServerMonitoring getActiveMonitoring() {
+		return( loader.getMonitoring() );
 	}
 	
 	public ServerBase getServerBase() {

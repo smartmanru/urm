@@ -9,6 +9,8 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
 import org.urm.engine.ServerEngine;
+import org.urm.engine.ServerEvents;
+import org.urm.engine.ServerEventsSubscription;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerObject;
 import org.urm.meta.ServerProductMeta;
@@ -21,8 +23,17 @@ public class ServerMonitoring extends ServerObject {
 
 	ServerLoader loader;
 	ServerEngine engine;
+	ServerEvents events;
 
 	Map<String,ServerMonitoringProduct> mapProduct;
+	
+	public static int MONITORING_SYSTEM = 1;
+	public static int MONITORING_PRODUCT = 2;
+	public static int MONITORING_ENVIRONMENT = 3;
+	public static int MONITORING_DATACENTER = 4;
+	public static int MONITORING_SERVER = 5;
+	public static int MONITORING_NODE = 6;
+	public Map<ServerObject,ServerMonitoringSource> sourceMap;
 	
 	public boolean ENABLED;
 	public String DIR_DATA;
@@ -41,10 +52,12 @@ public class ServerMonitoring extends ServerObject {
 		super( null );
 		this.loader = loader; 
 		this.engine = loader.engine;
+		this.events = engine.getEvents();
 		
-		mapProduct = new HashMap<String,ServerMonitoringProduct>(); 
+		mapProduct = new HashMap<String,ServerMonitoringProduct>();
+		sourceMap = new HashMap<ServerObject,ServerMonitoringSource>(); 
 	}
-	
+
 	public void load( String monFile , RunContext execrc ) throws Exception {
 		Document doc = ConfReader.readXmlFile( execrc , monFile );
 		Node root = doc.getDocumentElement();
@@ -102,6 +115,12 @@ public class ServerMonitoring extends ServerObject {
 		action.trace( "monitoring started for product=" + productName );
 	}
 
+	private void createSource( int level , ServerObject object ) {
+		String name = "o" + level + "." + object.objectId;
+		ServerMonitoringSource source = new ServerMonitoringSource( this , level , name );
+		sourceMap.put( object , source );
+	}
+	
 	public void stopProduct( String productName ) {
 		ServerMonitoringProduct mon = mapProduct.get( productName );
 		if( mon == null )
@@ -109,6 +128,15 @@ public class ServerMonitoring extends ServerObject {
 		
 		mon.stop();
 		mapProduct.remove( productName );
+	}
+
+	public ServerMonitoringSource getObjectSource( ServerObject object ) {
+		return( sourceMap.get( object ) );
+	}
+
+	public ServerMonitoringState getState( ServerEventsSubscription sub ) {
+		ServerMonitoringState state = ( ServerMonitoringState )sub.getState();
+		return( state );
 	}
 	
 }

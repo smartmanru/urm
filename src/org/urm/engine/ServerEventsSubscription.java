@@ -2,9 +2,9 @@ package org.urm.engine;
 
 public class ServerEventsSubscription {
 
-	ServerEventsApp app;
-	ServerEventsSource source;
-	ServerEventsListener listener;
+	public ServerEventsApp app;
+	public ServerEventsSource source;
+	public ServerEventsListener listener;
 	
 	public ServerEventsSubscription( ServerEventsApp app , ServerEventsSource source , ServerEventsListener listener ) {
 		this.app = app;
@@ -14,6 +14,10 @@ public class ServerEventsSubscription {
 
 	public void trigger( ServerSourceEvent event ) {
 		listener.triggerEvent( event );
+	}
+
+	public ServerEventsState getState() {
+		return( source.getState() );
 	}
 	
 }

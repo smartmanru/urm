@@ -3,11 +3,13 @@ package org.urm.engine;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ServerEventsSource {
+abstract public class ServerEventsSource {
 
 	ServerEvents events;
 	String sourceId;
 
+	abstract protected ServerEventsState getStateData( int stateId );
+	
 	private Map<String,ServerEventsApp> appMap;
 	private int stateId = 0;
 	
@@ -36,6 +38,16 @@ public class ServerEventsSource {
 			for( ServerEventsApp app : appMap.values() )
 				app.trigger( event );
 		}
+	}
+
+	public ServerEventsState getState() {
+		return( getStateData( stateId ) );
+	}
+	
+	public void lock() {
+	}
+	
+	public void unlock() {
 	}
 	
 }
