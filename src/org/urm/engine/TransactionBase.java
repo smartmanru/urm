@@ -652,7 +652,7 @@ public class TransactionBase extends ServerObject {
 		return( false );
 	}
 	
-	private void checkTransaction() throws Exception {
+	protected void checkTransaction() throws Exception {
 		if( !continueTransaction() )
 			exit( _Error.TransactionAborted0 , "Transaction is aborted" , null );
 	}

@@ -101,6 +101,10 @@ public class ActionInit extends ActionBase {
 		loader.saveMirrors( transaction );
 	}
 	
+	public void saveMonitoring( TransactionBase transaction ) throws Exception {
+		loader.saveMonitoring( transaction );
+	}
+	
 	public ServerResources getActiveResources() {
 		if( transaction != null ) {
 			if( transaction.resources != null )

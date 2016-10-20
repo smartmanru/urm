@@ -11,6 +11,7 @@ import org.urm.meta.engine.ServerBaseItem;
 import org.urm.meta.engine.ServerHostAccount;
 import org.urm.meta.engine.ServerMirrorRepository;
 import org.urm.meta.engine.ServerMirrors;
+import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.engine.ServerNetwork;
 import org.urm.meta.engine.ServerNetworkHost;
 import org.urm.meta.engine.ServerProduct;
@@ -21,6 +22,7 @@ import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvDC;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
 import org.urm.meta.product.Meta.VarBUILDMODE;
@@ -374,4 +376,28 @@ public class ServerTransaction extends TransactionBase {
 		action.saveBase( this );
 	}
 
+	public void disableMonitoring() throws Exception {
+		checkTransaction();
+		ServerMonitoring mon = action.getActiveMonitoring();
+		mon.setEnabled( this , false );
+		action.saveMonitoring( this );
+	}
+	
+	public void enableMonitoring() throws Exception {
+		checkTransaction();
+		ServerMonitoring mon = action.getActiveMonitoring();
+		mon.setEnabled( this , true );
+		action.saveMonitoring( this );
+	}
+
+	public void setMonitoringEnabled( MetaMonitoring mon ) throws Exception {
+		checkTransactionMetadata( mon.meta.getStorage( action ) );
+		mon.setMonitoringEnabled( this , true );
+	}
+	
+	public void setMonitoringDisabled( MetaMonitoring mon ) throws Exception {
+		checkTransactionMetadata( mon.meta.getStorage( action ) );
+		mon.setMonitoringEnabled( this , true );
+	}
+	
 }

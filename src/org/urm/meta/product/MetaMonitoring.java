@@ -6,6 +6,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
+import org.urm.engine.ServerTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.meta.ServerProductMeta;
 import org.w3c.dom.Document;
@@ -127,6 +128,11 @@ public class MetaMonitoring extends PropertyController {
 				return( target );
 		}
 		return( null );
+	}
+
+	public void setMonitoringEnabled( ServerTransaction transaction , boolean enabled ) throws Exception {
+		super.setBooleanProperty( PROPERTY_ENABLED , enabled );
+		ENABLED = true;
 	}
 	
 }

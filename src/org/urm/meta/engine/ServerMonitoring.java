@@ -11,6 +11,7 @@ import org.urm.common.RunContext;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.ServerEvents;
 import org.urm.engine.ServerEventsSubscription;
+import org.urm.engine.ServerTransaction;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerObject;
 import org.urm.meta.ServerProductMeta;
@@ -191,6 +192,10 @@ public class ServerMonitoring extends ServerObject {
 	public ServerMonitoringState getState( ServerEventsSubscription sub ) {
 		ServerMonitoringState state = ( ServerMonitoringState )sub.getState();
 		return( state );
+	}
+
+	public void setEnabled( ServerTransaction transaction , boolean enabled ) {
+		ENABLED = enabled;
 	}
 	
 }

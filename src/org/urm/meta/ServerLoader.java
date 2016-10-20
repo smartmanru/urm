@@ -382,6 +382,11 @@ public class ServerLoader {
 		infra.save( transaction.getAction() , propertyFile , engine.execrc );
 	}
 
+	public void saveMonitoring( TransactionBase transaction ) throws Exception {
+		String propertyFile = getServerMonitoringFile();
+		mon.save( transaction.getAction() , propertyFile , engine.execrc );
+	}
+
 	public ServerSettings getServerSettings( ActionInit action ) {
 		synchronized( engine ) {
 			return( settings );
