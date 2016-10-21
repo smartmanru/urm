@@ -1,7 +1,10 @@
 package org.urm.meta.product;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MetaMonitoringItem {
@@ -47,6 +50,15 @@ public class MetaMonitoringItem {
 		WSCHECK = getNodeSubTree( action , node , "wscheck" );
 		NAME = URL;
 		monitorWS = true;
+	}
+
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		if( monitorUrl )
+			Common.xmlSetElementAttr( doc , root , "url" , URL );
+		else {
+			Common.xmlSetElementAttr( doc , root , "wsdata" , WSDATA );
+			Common.xmlSetElementAttr( doc , root , "wscheck" , WSCHECK );
+		}
 	}
 	
 }

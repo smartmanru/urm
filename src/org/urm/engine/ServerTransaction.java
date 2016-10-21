@@ -397,7 +397,7 @@ public class ServerTransaction extends TransactionBase {
 	
 	public void setMonitoringDisabled( MetaMonitoring mon ) throws Exception {
 		checkTransactionMetadata( mon.meta.getStorage( action ) );
-		mon.setMonitoringEnabled( this , true );
+		mon.setMonitoringEnabled( this , false );
 	}
 	
 }

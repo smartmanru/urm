@@ -128,17 +128,17 @@ public class ServerMonitoring extends ServerObject {
 			return;
 		}
 
-		ServerMonitoringSource source = createSource( MONITORING_PRODUCT , product );
-		ServerMonitoringProduct mon = new ServerMonitoringProduct( this , meta , source );
-		mapProduct.put( product.NAME , mon );
-		mon.start();
-		action.trace( "monitoring started for product=" + product.NAME );
-		
 		// start childs
 		for( String envName : storage.getEnvironments() ) {
 			MetaEnv env = storage.findEnvironment( envName );
 			startEnvironment( env );
 		}
+		
+		ServerMonitoringSource source = createSource( MONITORING_PRODUCT , product );
+		ServerMonitoringProduct mon = new ServerMonitoringProduct( this , meta , source );
+		mapProduct.put( product.NAME , mon );
+		mon.start();
+		action.trace( "monitoring started for product=" + product.NAME );
 	}
 
 	public void startEnvironment( MetaEnv env ) {

@@ -509,7 +509,7 @@ public class ServerProductMeta extends ServerObject {
 	
 	public void saveMonitoring( ActionBase action , MetadataStorage storageMeta ) throws Exception {
 		Document doc = Common.xmlCreateDoc( XML_ROOT_MONITORING );
-		sources.save( action , doc , doc.getDocumentElement() );
+		mon.save( action , doc , doc.getDocumentElement() );
 		storageMeta.saveMonitoringConfFile( action , doc );
 	}
 	

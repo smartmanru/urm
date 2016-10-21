@@ -81,7 +81,7 @@ public class ActionMonitorTop extends ActionBase {
 				nextMinor = current + mon.MINSILENT * 1000;
 
 			long nextMajor = 0;
-			nextMajor = lastStartMajor + mon.MINORINTERVAL * 1000;
+			nextMajor = lastStartMajor + mon.MAJORINTERVAL * 1000;
 			if( nextMajor < ( current + mon.MINSILENT * 1000 ) )
 				nextMajor = current + mon.MINSILENT * 1000;
 			
@@ -102,10 +102,8 @@ public class ActionMonitorTop extends ActionBase {
 
 	private boolean runSleep( long millis ) {
 		try {
-			synchronized( this ) {
-				Thread.sleep( millis );
-				return( true );
-			}
+			Thread.sleep( millis );
+			return( true );
 		}
 		catch( Throwable e ) {
 			handle( e );

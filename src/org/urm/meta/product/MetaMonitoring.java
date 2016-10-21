@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.engine.ServerTransaction;
@@ -71,6 +72,13 @@ public class MetaMonitoring extends PropertyController {
 		MetaMonitoring r = new MetaMonitoring( meta.getStorage( action ) , meta );
 		MetaProductSettings product = meta.getProductSettings( action );
 		r.initCopyStarted( this , product.getProperties() );
+		
+		for( MetaMonitoringTarget target : mapTargets.values() ) {
+			MetaMonitoringTarget rtarget = target.copy( action , meta , this );
+			r.mapTargets.put( target.NAME , rtarget );
+		}
+		
+		r.scatterProperties( action );
 		r.initFinished();
 		return( r );
 	}
@@ -107,7 +115,7 @@ public class MetaMonitoring extends PropertyController {
 			return;
 		}
 
-		Node[] items = ConfReader.xmlGetChildren( node , "environment" );
+		Node[] items = ConfReader.xmlGetChildren( node , "target" );
 		if( items == null )
 			return;
 		
@@ -120,6 +128,10 @@ public class MetaMonitoring extends PropertyController {
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		properties.saveAsElements( doc , root );
+		for( MetaMonitoringTarget target : mapTargets.values() ) {
+			Element element = Common.xmlCreateElement( doc , root , "target" );
+			target.save( action , doc , element );
+		}
 	}
 
 	public MetaMonitoringTarget findMonitoringTarget( MetaEnvDC dc ) {
@@ -132,7 +144,7 @@ public class MetaMonitoring extends PropertyController {
 
 	public void setMonitoringEnabled( ServerTransaction transaction , boolean enabled ) throws Exception {
 		super.setBooleanProperty( PROPERTY_ENABLED , enabled );
-		ENABLED = true;
+		ENABLED = enabled;
 	}
 	
 }

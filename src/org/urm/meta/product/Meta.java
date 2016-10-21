@@ -210,6 +210,15 @@ public class Meta extends ServerObject {
 	
 	public void replaceStorage( ActionBase action , ServerProductMeta storage ) throws Exception {
 		loader.releaseSessionProductMetadata( action , this , false );
+		
+		// clear old refs
+		version = null;
+		product = null;
+		database = null;
+		distr = null;
+		sources = null;
+		monitoring = null;
+		
 		this.storage = storage;
 		storage.addSessionMeta( this );
 		action.session.addProductMeta( this );
@@ -249,13 +258,6 @@ public class Meta extends ServerObject {
 	
 	public void setSources( MetaSource sources ) {
 		this.sources = sources;
-	}
-	
-	public void clearAll() {
-		this.product = null;
-		this.distr = null;
-		this.database = null;
-		this.sources = null;
 	}
 
 	public synchronized ServerProductMeta getStorage( ActionBase action ) throws Exception {
