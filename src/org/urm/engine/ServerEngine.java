@@ -29,6 +29,7 @@ import org.urm.engine.shell.ShellPool;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.ServerLoader;
+import org.urm.meta.engine.ServerMonitoring;
 
 public class ServerEngine {
 
@@ -68,9 +69,12 @@ public class ServerEngine {
 	public void runServer( ActionInit action ) throws Exception {
 		serverAction.debug( "load server configuration ..." );
 		loader.loadServerProducts( action.actionInit );
+		sessionController.start( serverAction );
+		
+		ServerMonitoring mon = loader.getMonitoring();
+		mon.start();
 		
 		jmxController = new ServerMBean( action , this );
-		sessionController.start( serverAction );
 		jmxController.start();
 		
 		serverAction.info( "server successfully started, accepting connections." );
@@ -83,7 +87,10 @@ public class ServerEngine {
 		
 		serverAction.info( "stopping server ..." );
 		
+		ServerMonitoring mon = loader.getMonitoring();
+		mon.stop();
 		shellPool.stop( serverAction );
+		
 		jmxController.stop();
 		sessionController.stop( serverAction );
 		jmxController = null;

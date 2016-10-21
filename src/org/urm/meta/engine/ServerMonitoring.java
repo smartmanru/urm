@@ -79,6 +79,7 @@ public class ServerMonitoring extends ServerObject {
 		Document doc = Common.xmlCreateDoc( "infrastructure" );
 		Element root = doc.getDocumentElement();
 		
+		Common.xmlCreateBooleanPropertyElement( doc , root , PROPERTY_ENABLED , ENABLED );
 		Common.xmlCreatePropertyElement( doc , root , PROPERTY_DIR_DATA , DIR_DATA );
 		Common.xmlCreatePropertyElement( doc , root , PROPERTY_DIR_REPORTS , DIR_REPORTS );
 		Common.xmlCreatePropertyElement( doc , root , PROPERTY_DIR_RES , DIR_REPORTS );
@@ -88,6 +89,9 @@ public class ServerMonitoring extends ServerObject {
 	}
 
 	public void start() {
+		if( !ENABLED )
+			return;
+		
 		ServerRegistry registry = loader.getRegistry();
 		for( String systemName : registry.directory.getSystems() ) {
 			ServerSystem system = registry.directory.findSystem( systemName );

@@ -43,26 +43,30 @@ public class ActionMonitorTop extends ActionBase {
 		checkenvActions = new LinkedList<ActionMonitorCheckEnv>();
 		
 		boolean runMajor = true;
+		int majorCount = 0;
+		int minorCount = 0;
 		while( continueRunning ) {
 			long current = System.currentTimeMillis();
 			try {
 				if( runMajor ) {
 					runMajor = false;
 					lastStartMajor = current;
-					info( "start major checks: " );
+					majorCount++;
+					info( "product=" + mon.meta.name + ": start major checks #" + majorCount + ": " );
 					executeOnceMajor();
 					current = System.currentTimeMillis();
 					lastStopMajor = current;
-					info( "major checks done in : " + ( lastStopMajor - lastStartMajor ) + "ms" );
+					info( "product=" + mon.meta.name + ": major checks #" + majorCount + " done in : " + ( lastStopMajor - lastStartMajor ) + "ms" );
 					continue;
 				}
 				else {
 					lastStartMinor = current;
-					info( "start minor checks: " );
+					majorCount++;
+					info( "product=" + mon.meta.name + ": start minor checks #" + minorCount + ": " );
 					executeOnceMinor();
 					current = System.currentTimeMillis();
 					lastStopMinor = current; 
-					info( "minor checks done in : " + ( lastStopMinor - lastStartMinor ) + "ms" );
+					info( "product=" + mon.meta.name + ": minor checks #" + minorCount + " done in : " + ( lastStopMinor - lastStartMinor ) + "ms" );
 				}
 			}
 			catch( Throwable e ) {
