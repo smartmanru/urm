@@ -190,6 +190,10 @@ public class TransactionBase extends ServerObject {
 		return( true );
 	}
 
+	public void exitUnexpectedState() throws Exception {
+		action.exitUnexpectedState();
+	}
+	
 	public void exit( int errorCode , String msg , String params[] ) throws Exception {
 		action.exit( errorCode , msg , params );
 	}

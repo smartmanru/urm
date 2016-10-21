@@ -146,5 +146,19 @@ public class MetaMonitoring extends PropertyController {
 		super.setBooleanProperty( PROPERTY_ENABLED , enabled );
 		ENABLED = enabled;
 	}
+
+	public MetaMonitoringTarget createTarget( ServerTransaction transaction , MetaEnvDC dc , int MAXTIME ) throws Exception {
+		if( findMonitoringTarget( dc ) != null )
+			transaction.exitUnexpectedState();
+		
+		MetaMonitoringTarget target = new MetaMonitoringTarget( meta , this );
+		target.createTarget( transaction , dc , MAXTIME );
+		mapTargets.put( target.NAME , target );
+		return( target );
+	}
+
+	public void deleteTarget( ServerTransaction transaction , MetaMonitoringTarget target ) throws Exception {
+		mapTargets.remove( target.NAME );
+	}
 	
 }

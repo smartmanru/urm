@@ -23,6 +23,7 @@ import org.urm.meta.product.MetaEnvDC;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaMonitoring;
+import org.urm.meta.product.MetaMonitoringTarget;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
 import org.urm.meta.product.Meta.VarBUILDMODE;
@@ -398,6 +399,16 @@ public class ServerTransaction extends TransactionBase {
 	public void setMonitoringDisabled( MetaMonitoring mon ) throws Exception {
 		checkTransactionMetadata( mon.meta.getStorage( action ) );
 		mon.setMonitoringEnabled( this , false );
+	}
+
+	public MetaMonitoringTarget createMonitoringTarget( MetaMonitoring mon , MetaEnvDC dc , int MAXTIME ) throws Exception {
+		checkTransactionMetadata( mon.meta.getStorage( action ) );
+		return( mon.createTarget( this , dc , MAXTIME ) );
+	}
+	
+	public void deleteMonitoringTarget( MetaMonitoringTarget target ) throws Exception {
+		checkTransactionMetadata( target.meta.getStorage( action ) );
+		target.monitoring.deleteTarget( this , target );
 	}
 	
 }
