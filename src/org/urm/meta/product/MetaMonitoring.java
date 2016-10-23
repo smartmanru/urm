@@ -41,9 +41,9 @@ public class MetaMonitoring extends PropertyController {
 	public static String PROPERTY_DIR_REPORTS = "reports.path";
 	public static String PROPERTY_DIR_LOGS = "logs.path";
 	
-	public static String PROPERTY_MAJORINTERVAL;
-	public static String PROPERTY_MINORINTERVAL;
-	public static String PROPERTY_MINSILENT;
+	public static String PROPERTY_MAJORINTERVAL = "major.interval";
+	public static String PROPERTY_MINORINTERVAL = "minor.interval";
+	public static String PROPERTY_MINSILENT = "silent.between";
 	
 	public MetaMonitoring( ServerProductMeta storage , Meta meta ) {
 		super( storage , "monitoring" );
