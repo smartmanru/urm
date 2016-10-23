@@ -10,6 +10,7 @@ import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.TransactionBase;
+import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.ServerProductMeta;
 import org.urm.meta.engine.ServerMonitoring;
 import org.w3c.dom.Document;
@@ -143,15 +144,43 @@ public class MetaMonitoring extends PropertyController {
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		boolean create = createFolders( action );
+		if( !create ) {
+			super.setBooleanProperty( PROPERTY_ENABLED , false );
+			ENABLED = false;
+		}
+		
 		properties.saveAsElements( doc , root );
 		
 		Element scope = Common.xmlCreateElement( doc , root , "scope" );
 		for( MetaMonitoringTarget target : mapTargets.values() ) {
 			Element element = Common.xmlCreateElement( doc , scope , "target" );
+			if( create )
+				target.createFolders( action );
 			target.save( action , doc , element );
 		}
 	}
 
+	private boolean createFolders( ActionBase action ) throws Exception {
+		if( DIR_RES.isEmpty() || 
+			DIR_DATA.isEmpty() || 
+			DIR_REPORTS.isEmpty() || 
+			DIR_LOGS.isEmpty() )
+			return( false );
+		
+		LocalFolder folder = action.getLocalFolder( DIR_RES );
+		if( !folder.checkExists( action ) )
+			return( false );
+		
+		folder = action.getLocalFolder( DIR_DATA );
+		folder.ensureExists( action );
+		folder = action.getLocalFolder( DIR_REPORTS );
+		folder.ensureExists( action );
+		folder = action.getLocalFolder( DIR_LOGS );
+		folder.ensureExists( action );
+		return( true );
+	}
+	
 	public MetaMonitoringTarget findMonitoringTarget( MetaEnvDC dc ) {
 		for( MetaMonitoringTarget target : mapTargets.values() ) {
 			if( target.ENV.equals( dc.env.ID ) && target.DC.equals( dc.NAME ) )

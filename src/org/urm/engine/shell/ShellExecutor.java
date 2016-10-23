@@ -1,9 +1,13 @@
 package org.urm.engine.shell;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.EnumSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -145,7 +149,13 @@ public abstract class ShellExecutor extends Shell {
 	public synchronized void appendFileWithString( ActionBase action , String path , String value ) throws Exception {
 		try {
 			opstart();
-			core.cmdAppendFileWithString( action , path , value );
+			if( isLocal() ) {
+				List<String> list = new LinkedList<String>();
+				list.add( value );
+				Files.write( Paths.get( action.getLocalPath( path ) ) , list , Charset.forName( "UTF-8" ) , StandardOpenOption.CREATE , StandardOpenOption.APPEND ); 
+			}
+			else
+				core.cmdAppendFileWithString( action , path , value );
 		}
 		finally {
 			opstop();

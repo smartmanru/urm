@@ -105,6 +105,13 @@ public class ActionMonitorTop extends ActionBase {
 			}
 		}
 		
+		try {
+			info.stop();
+		}
+		catch( Throwable e ) {
+			handle( e );
+		}
+		
 		return( true );
 	}
 

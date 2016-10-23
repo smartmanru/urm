@@ -106,11 +106,15 @@ public class MetaMonitoringTarget {
 			Element element = Common.xmlCreateElement( doc , root , "checkws" );
 			item.save( action , doc , element );
 		}
-		
+	}
+	
+	public void createFolders( ActionBase action ) throws Exception {
 		MonitoringStorage storage = action.artefactory.getMonitoringStorage( action , monitoring );
 		LocalFolder folder = storage.getDataFolder( action , this );
 		folder.ensureExists( action );
 		folder = storage.getReportsFolder( action , this );
+		folder.ensureExists( action );
+		folder = storage.getLogsFolder( action , this );
 		folder.ensureExists( action );
 	}
 
