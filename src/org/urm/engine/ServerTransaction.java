@@ -420,6 +420,7 @@ public class ServerTransaction extends TransactionBase {
 		checkTransactionMonitoring();
 		ServerMonitoring mon = action.getActiveMonitoring();
 		mon.setDefaultProperties( this , props );
+		action.saveMonitoring( this );
 	}
 	
 }

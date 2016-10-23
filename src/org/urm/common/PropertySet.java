@@ -154,6 +154,13 @@ public class PropertySet {
 		data.remove( getKeyByProperty( prop ) );
 	}
 
+	public String getExpressionByProperty( String prop ) {
+		PropertyValue p = data.get( getKeyByProperty( prop ) );
+		if( p == null )
+			return( "" );
+		return( p.getExpressionValue() );
+	}
+
 	public String getOriginalByProperty( String prop ) {
 		PropertyValue p = data.get( getKeyByProperty( prop ) );
 		if( p == null )
@@ -230,41 +237,71 @@ public class PropertySet {
 		setProperty( pv );
 	}
 
-	public void setOriginalStringProperty( String prop , String value ) throws Exception {
+	public PropertyValue setOriginalSystemStringProperty( String prop , String value ) throws Exception {
+		PropertyValue pv = setOriginalStringProperty( prop , value );
+		pv.setSystem();
+		return( pv );
+	}
+	
+	public PropertyValue setOriginalStringProperty( String prop , String value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
 		pv.setString( value );
-		setProperty( pv );
+		return( setProperty( pv ) );
 	}
 
-	public void setOriginalBooleanProperty( String prop , boolean value ) throws Exception {
+	public PropertyValue setOriginalBooleanProperty( String prop , boolean value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
 		pv.setBool( value );
-		setProperty( pv );
+		return( setProperty( pv ) );
 	}
 
-	public void setOriginalBooleanProperty( String prop , FLAG value ) throws Exception {
+	public PropertyValue setOriginalSystemBooleanProperty( String prop , boolean value ) throws Exception {
+		PropertyValue pv = setOriginalBooleanProperty( prop , value );
+		pv.setSystem();
+		return( pv );
+	}
+	
+	public PropertyValue setOriginalBooleanProperty( String prop , FLAG value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
 		if( value != FLAG.DEFAULT )
 			pv.setBool( value == FLAG.YES );
-		setProperty( pv );
+		return( setProperty( pv ) );
 	}
 
-	public void setOriginalNumberProperty( String prop , int value ) throws Exception {
+	public PropertyValue setOriginalSystemBooleanProperty( String prop , FLAG value ) throws Exception {
+		PropertyValue pv = setOriginalBooleanProperty( prop , value );
+		pv.setSystem();
+		return( pv );
+	}
+	
+	public PropertyValue setOriginalNumberProperty( String prop , int value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
 		pv.setNumber( value );
-		setProperty( pv );
+		return( setProperty( pv ) );
 	}
 
-	public void setOriginalPathProperty( String prop , String value ) throws Exception {
-		setOriginalPathProperty( prop , value , null );
+	public PropertyValue setOriginalSystemNumberProperty( String prop , int value ) throws Exception {
+		PropertyValue pv = setOriginalNumberProperty( prop , value );
+		pv.setSystem();
+		return( pv );
+	}
+	
+	public PropertyValue setOriginalPathProperty( String prop , String value ) throws Exception {
+		return( setOriginalPathProperty( prop , value , null ) );
 	}
 
-	public void setOriginalPathProperty( String prop , String value , ShellExecutor target ) throws Exception {
+	public PropertyValue setOriginalPathProperty( String prop , String value , ShellExecutor target ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
 		pv.setPath( value , target );
-		setProperty( pv );
+		return( setProperty( pv ) );
 	}
 
+	public PropertyValue setOriginalSystemPathProperty( String prop , String value , ShellExecutor target ) throws Exception {
+		PropertyValue pv = setOriginalPathProperty( prop , value , target );
+		pv.setSystem();
+		return( pv );
+	}
+	
 	public void setStringProperty( String prop , String value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
 		pv.setString( value );
@@ -652,12 +689,15 @@ public class PropertySet {
 		return( true );
 	}
 	
-	private void setProperty( PropertyValue pv ) {
+	private PropertyValue setProperty( PropertyValue pv ) {
 		PropertyValue pvc = getPropertyValue( pv.property );
-		if( pvc != null )
+		if( pvc != null ) {
 			pvc.setValue( pv );
-		else
-			data.put( getKeyByProperty( pv.property ) , pv );
+			return( pvc );
+		}
+		
+		data.put( getKeyByProperty( pv.property ) , pv );
+		return( pv );
 	}
 	
 	private PropertyValue getRunningByKey( String key ) {

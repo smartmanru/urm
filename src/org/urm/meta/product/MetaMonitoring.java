@@ -7,9 +7,11 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
+import org.urm.common.PropertySet;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.meta.ServerProductMeta;
+import org.urm.meta.engine.ServerMonitoring;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -21,10 +23,11 @@ public class MetaMonitoring extends PropertyController {
 	Map<String,MetaMonitoringTarget> mapTargets;
 
 	public boolean ENABLED;
+	public String RESOURCE_URL;
+	public String DIR_RES;
 	public String DIR_DATA;
 	public String DIR_REPORTS;
-	public String DIR_RES;
-	public String RESOURCE_URL;
+	public String DIR_LOGS;
 	
 	public int MAJORINTERVAL;
 	public int MINORINTERVAL;
@@ -32,10 +35,11 @@ public class MetaMonitoring extends PropertyController {
 
 	// properties
 	public static String PROPERTY_ENABLED = "monitoring.enabled";
+	public static String PROPERTY_RESOURCE_URL = "resources.url";
+	public static String PROPERTY_DIR_RES = "resources.path";
 	public static String PROPERTY_DIR_DATA = "data.path";
 	public static String PROPERTY_DIR_REPORTS = "reports.path";
-	public static String PROPERTY_DIR_RES = "resources.path";
-	public static String PROPERTY_RESOURCE_URL = "resources.url";
+	public static String PROPERTY_DIR_LOGS = "logs.path";
 	
 	public static String PROPERTY_MAJORINTERVAL;
 	public static String PROPERTY_MINORINTERVAL;
@@ -58,10 +62,11 @@ public class MetaMonitoring extends PropertyController {
 	@Override
 	public void scatterProperties( ActionBase action ) throws Exception {
 		ENABLED = super.getBooleanProperty( action , PROPERTY_ENABLED );
+		RESOURCE_URL = super.getStringProperty( action , PROPERTY_RESOURCE_URL );
+		DIR_RES = super.getPathProperty( action , PROPERTY_DIR_RES );
 		DIR_DATA = super.getPathProperty( action , PROPERTY_DIR_DATA );
 		DIR_REPORTS = super.getPathProperty( action , PROPERTY_DIR_REPORTS );
-		DIR_RES = super.getPathProperty( action , PROPERTY_DIR_RES );
-		RESOURCE_URL = super.getStringProperty( action , PROPERTY_RESOURCE_URL );
+		DIR_LOGS = super.getPathProperty( action , PROPERTY_DIR_LOGS );
 		
 		MAJORINTERVAL = super.getIntProperty( action , PROPERTY_MAJORINTERVAL , 300 );
 		MINORINTERVAL = super.getIntProperty( action , PROPERTY_MINORINTERVAL , 60 );
@@ -87,6 +92,17 @@ public class MetaMonitoring extends PropertyController {
 		MetaProductSettings product = meta.getProductSettings( transaction.action );
 		if( !super.initCreateStarted( product.getProperties() ) )
 			return;
+		
+		ActionBase action = transaction.getAction();
+		ServerMonitoring sm = action.getServerMonitoring();
+		PropertySet src = sm.properties;
+		super.setSystemBooleanProperty( PROPERTY_ENABLED , false );
+		super.setSystemUrlProperty( PROPERTY_RESOURCE_URL , src.getExpressionByProperty( ServerMonitoring.PROPERTY_RESOURCE_URL ) );
+		super.setSystemPathProperty( PROPERTY_DIR_RES , src.getExpressionByProperty( ServerMonitoring.PROPERTY_RESOURCE_PATH ) );
+		super.setSystemPathProperty( PROPERTY_DIR_DATA , src.getExpressionByProperty( ServerMonitoring.PROPERTY_DIR_DATA ) );
+		super.setSystemPathProperty( PROPERTY_DIR_REPORTS , src.getExpressionByProperty( ServerMonitoring.PROPERTY_DIR_REPORTS ) );
+		super.setSystemPathProperty( PROPERTY_DIR_LOGS , src.getExpressionByProperty( ServerMonitoring.PROPERTY_DIR_LOGS ) );
+		scatterProperties( action );
 		super.initFinished();
 	}
 	

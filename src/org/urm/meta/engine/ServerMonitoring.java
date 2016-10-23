@@ -69,16 +69,20 @@ public class ServerMonitoring extends ServerObject {
 	}
 
 	public void scatterProperties() throws Exception {
+		ServerSettings settings = loader.getServerSettings();
+		PropertySet src = settings.serverContext.properties;
+		
 		ENABLED = properties.getSystemBooleanProperty( PROPERTY_ENABLED , false , true );
-		RESOURCE_URL = properties.getSystemUrlExprProperty( PROPERTY_RESOURCE_URL , getProductExpr( ServerContext.PROPERTY_MON_RESURL ) , true );
-		DIR_RES = properties.getSystemPathExprProperty( PROPERTY_RESOURCE_PATH , engine.execrc , getProductExpr( ServerContext.PROPERTY_MON_RESPATH ) , true );
-		DIR_DATA = properties.getSystemPathExprProperty( PROPERTY_DIR_DATA , engine.execrc , getProductExpr( ServerContext.PROPERTY_MON_DATAPATH ) , true );
-		DIR_REPORTS = properties.getSystemPathExprProperty( PROPERTY_DIR_REPORTS , engine.execrc , getProductExpr( ServerContext.PROPERTY_MON_REPORTPATH ) , true );
-		DIR_LOGS = properties.getSystemPathExprProperty( PROPERTY_DIR_LOGS , engine.execrc , getProductExpr( ServerContext.PROPERTY_MON_LOGPATH ) , true );
+		RESOURCE_URL = properties.getSystemUrlExprProperty( PROPERTY_RESOURCE_URL , getProductExpr( src , ServerContext.PROPERTY_MON_RESURL ) , true );
+		DIR_RES = properties.getSystemPathExprProperty( PROPERTY_RESOURCE_PATH , engine.execrc , getProductExpr( src , ServerContext.PROPERTY_MON_RESPATH ) , true );
+		DIR_DATA = properties.getSystemPathExprProperty( PROPERTY_DIR_DATA , engine.execrc , getProductExpr( src , ServerContext.PROPERTY_MON_DATAPATH ) , true );
+		DIR_REPORTS = properties.getSystemPathExprProperty( PROPERTY_DIR_REPORTS , engine.execrc , getProductExpr( src , ServerContext.PROPERTY_MON_REPORTPATH ) , true );
+		DIR_LOGS = properties.getSystemPathExprProperty( PROPERTY_DIR_LOGS , engine.execrc , getProductExpr( src , ServerContext.PROPERTY_MON_LOGPATH ) , true );
 	}
 
-	private String getProductExpr( String prop ) {
-		return( PropertySet.getRef( prop ) + "/" + PropertySet.getRef( MetaProductSettings.PROPERTY_PRODUCT_NAME ) );
+	private String getProductExpr( PropertySet src , String prop ) {
+		String value = src.getExpressionByProperty( prop );
+		return( value + "/" + PropertySet.getRef( MetaProductSettings.PROPERTY_PRODUCT_NAME ) );
 	}
 	
 	public void load( String monFile , RunContext execrc ) throws Exception {
@@ -88,11 +92,10 @@ public class ServerMonitoring extends ServerObject {
 		Node root = doc.getDocumentElement();
 		properties.loadFromNodeAttributes( root );
 		scatterProperties();
-		properties.resolveRawProperties( true );
 	}
 	
 	public void save( ActionCore action , String path , RunContext execrc ) throws Exception {
-		Document doc = Common.xmlCreateDoc( "infrastructure" );
+		Document doc = Common.xmlCreateDoc( "monitoring" );
 		Element root = doc.getDocumentElement();
 		properties.saveAsElements( doc , root );
 		Common.xmlSaveDoc( doc , path );
@@ -214,7 +217,6 @@ public class ServerMonitoring extends ServerObject {
 
 	public void setDefaultProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
 		properties.updateProperties( props );
-		properties.resolveRawProperties( true );
 		scatterProperties();
 	}
 	

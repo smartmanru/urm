@@ -180,12 +180,40 @@ public abstract class PropertyController extends ServerObject {
 		properties.setOriginalStringProperty( prop , value );
 	}
 
+	public void setSystemStringProperty( String prop , String value ) throws Exception {
+		properties.setOriginalSystemStringProperty( prop , value );
+	}
+
 	public void setNumberProperty( String prop , int value ) throws Exception {
 		properties.setOriginalNumberProperty( prop , value );
 	}
 
+	public void setSystemNumberProperty( String prop , int value ) throws Exception {
+		properties.setOriginalSystemNumberProperty( prop , value );
+	}
+
 	public void setBooleanProperty( String prop , boolean value ) throws Exception {
 		properties.setOriginalBooleanProperty( prop , value );
+	}
+
+	public void setSystemBooleanProperty( String prop , boolean value ) throws Exception {
+		properties.setOriginalSystemBooleanProperty( prop , value );
+	}
+
+	public void setUrlProperty( String prop , String value ) throws Exception {
+		properties.setOriginalStringProperty( prop , value );
+	}
+
+	public void setSystemUrlProperty( String prop , String value ) throws Exception {
+		properties.setOriginalSystemStringProperty( prop , value );
+	}
+
+	public void setPathProperty( String prop , String value ) throws Exception {
+		properties.setOriginalPathProperty( prop , value );
+	}
+
+	public void setSystemPathProperty( String prop , String value ) throws Exception {
+		properties.setOriginalSystemPathProperty( prop , value , null );
 	}
 
 }

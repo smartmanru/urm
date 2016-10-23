@@ -30,6 +30,7 @@ import org.urm.meta.engine.ServerDirectory;
 import org.urm.meta.engine.ServerInfrastructure;
 import org.urm.meta.engine.ServerMirrorRepository;
 import org.urm.meta.engine.ServerMirrors;
+import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.engine.ServerResources;
 import org.urm.meta.engine.ServerSettings;
@@ -581,6 +582,10 @@ abstract public class ActionBase extends ActionCore {
 	
 	public ServerInfrastructure getServerInfrastructure() {
 		return( actionInit.getServerInfrastructure() );
+	}
+	
+	public ServerMonitoring getServerMonitoring() {
+		return( actionInit.getServerMonitoring() );
 	}
 	
 	public MetaProductBuildSettings getBuildSettings( Meta meta ) throws Exception {

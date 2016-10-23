@@ -27,8 +27,8 @@ public class ActionMonitorCheckEnv extends ActionBase {
 		MetaEnvDC dc = env.getDC( this , target.DC );
 		ActionScope scope = ActionScope.getEnvScope( this , env , dc , null );
 		
-		LocalFolder dataFolder = storage.getDataFolder( action , target );
-		String logRunning = dataFolder.getFilePath( action , storage.getCheckEnvRunningFile( target ) ); 
+		LocalFolder logsFolder = storage.getLogsFolder( action , target );
+		String logRunning = logsFolder.getFilePath( action , storage.getCheckEnvRunningFile( target ) ); 
 		action.startRedirect( "checkenv log" , logRunning );
 
 		long timerStarted = System.currentTimeMillis();
@@ -38,7 +38,7 @@ public class ActionMonitorCheckEnv extends ActionBase {
 		timePassedMillis = System.currentTimeMillis() - timerStarted;  
 		action.stopRedirect();
 		
-		String logSave = dataFolder.getFilePath( action , storage.getCheckEnvFile( target ) );
+		String logSave = logsFolder.getFilePath( action , storage.getCheckEnvFile( target ) );
 		action.shell.move( this , logRunning , logSave );
 		
 		return( true );

@@ -35,6 +35,11 @@ public class MonitoringStorage {
 		return( artefactory.getAnyFolder( action , path ) );
 	}
 	
+	public LocalFolder getLogsFolder( ActionBase action , MetaMonitoringTarget target ) throws Exception {
+		String path = Common.getPath( mon.DIR_LOGS , target.ENV );
+		return( artefactory.getAnyFolder( action , path ) );
+	}
+	
 	public String getHistoryImageFile( MetaMonitoringTarget target ) throws Exception {
 		String file = "history." + target.ENV + "." + target.DC + ".png";
 		return( file );

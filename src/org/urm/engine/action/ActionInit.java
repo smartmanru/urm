@@ -159,6 +159,10 @@ public class ActionInit extends ActionBase {
 		return( loader.getInfrastructure() );
 	}
 	
+	public ServerMonitoring getServerMonitoring() {
+		return( loader.getMonitoring() );
+	}
+	
 	public void setDirectory( TransactionBase transaction , ServerDirectory directory ) throws Exception {
 		loader.setDirectory( transaction , directory );
 	}

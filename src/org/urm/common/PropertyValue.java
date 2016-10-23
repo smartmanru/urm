@@ -149,8 +149,11 @@ public class PropertyValue {
 	public void setOriginalValue( String value ) throws Exception {
 		if( value == null )
 			originalValue = "";
-		else
+		else {
+			if( type == PropertyValueType.PROPERTY_PATH )
+				value = Common.getLinuxPath( value );
 			originalValue = value;
+		}
 	}
 	
 	public void setSystem() {
@@ -248,6 +251,12 @@ public class PropertyValue {
 		return( Integer.parseInt( finalValue ) );
 	}
 	
+	public String getExpressionValue() {
+		if( originalValue.isEmpty() )
+			return( defaultValue );
+		return( originalValue );
+	}
+
 	public String getString() {
 		if( finalValue.isEmpty() )
 			return( defaultValue );
@@ -276,6 +285,11 @@ public class PropertyValue {
 	}
 	
 	private void setFinalValueInternal( String value ) throws Exception {
+		if( type == PropertyValueType.PROPERTY_PATH ) {
+			if( value != null )
+				value = Common.getLinuxPath( value );
+		}
+			
 		if( value == null ) {
 			this.finalValue = "";
 			this.resolved = true;
