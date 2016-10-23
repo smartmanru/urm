@@ -179,4 +179,10 @@ public class MetaMonitoring extends PropertyController {
 		mapTargets.remove( target.NAME );
 	}
 	
+	public void setProductProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
+		properties.updateProperties( props );
+		setMonitoringEnabled( transaction , false );
+		scatterProperties( transaction.getAction() );
+	}
+	
 }

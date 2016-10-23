@@ -422,5 +422,11 @@ public class ServerTransaction extends TransactionBase {
 		mon.setDefaultProperties( this , props );
 		action.saveMonitoring( this );
 	}
+
+	public void setProductMonitoringProperties( Meta meta , PropertySet props ) throws Exception {
+		checkTransactionMetadata( meta.getStorage( action ) );
+		MetaMonitoring mon = meta.getMonitoring( action );
+		mon.setProductProperties( this , props );
+	}
 	
 }
