@@ -100,7 +100,7 @@ public class MetaMonitoring extends PropertyController {
 		scatterProperties( action );
 		super.finishProperties( action );
 		
-		loadEnvironments( action , ConfReader.xmlGetPathNode( root , "scope" ) );
+		loadTargets( action , ConfReader.xmlGetPathNode( root , "scope" ) );
 		
 		super.initFinished();
 	}
@@ -109,9 +109,9 @@ public class MetaMonitoring extends PropertyController {
 		return( mapTargets );
 	}
 	
-	private void loadEnvironments( ActionBase action , Node node ) throws Exception {
+	private void loadTargets( ActionBase action , Node node ) throws Exception {
 		if( node == null ) {
-			action.info( "no environments defined for monitoring" );
+			action.info( "no targets defined for monitoring" );
 			return;
 		}
 
@@ -121,15 +121,17 @@ public class MetaMonitoring extends PropertyController {
 		
 		for( Node deliveryNode : items ) {
 			MetaMonitoringTarget item = new MetaMonitoringTarget( meta , this );
-			item.loadEnv( action , deliveryNode );
+			item.loadTarget( action , deliveryNode );
 			mapTargets.put( item.NAME , item );
 		}
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		properties.saveAsElements( doc , root );
+		
+		Element scope = Common.xmlCreateElement( doc , root , "scope" );
 		for( MetaMonitoringTarget target : mapTargets.values() ) {
-			Element element = Common.xmlCreateElement( doc , root , "target" );
+			Element element = Common.xmlCreateElement( doc , scope , "target" );
 			target.save( action , doc , element );
 		}
 	}

@@ -47,7 +47,7 @@ public class ServerMBean implements DynamicMBean {
 		int port = action.context.CTX_PORT;
 		if( port <= 0 ) {
 			ServerLoader loader = engine.getLoader( action );
-			ServerSettings settings = loader.getServerSettings( action );
+			ServerSettings settings = loader.getServerSettings();
 			port = settings.serverContext.CONNECTION_JMX_PORT;
 			if( port <= 0 )
 				port = RemoteCall.DEFAULT_SERVER_PORT;

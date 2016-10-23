@@ -349,6 +349,10 @@ public class PropertySet {
 		return( pv.getFinalValue() );
 	}
 
+	public String getUrlProperty( String name , String defaultValue ) throws Exception {
+		return( getStringPropertyInternal( name , defaultValue , false ) );
+	}
+	
 	public String getStringProperty( String name , String defaultValue ) throws Exception {
 		return( getStringPropertyInternal( name , defaultValue , false ) );
 	}
@@ -450,13 +454,21 @@ public class PropertySet {
 		return( pv.getPath( execrc.isWindows() ) );
 	}
 	
-	public String getSystemPathProperty( String prop , String defaultValue , RunContext execrc , boolean setRequired ) throws Exception {
+	public String getSystemPathProperty( String prop , RunContext execrc , String defaultValue , boolean setRequired ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false );
 		pv.setType( PropertyValueType.PROPERTY_PATH );
 		if( setRequired )
 			pv.setRequired();
 		pv.setDefault( defaultValue );
 		return( pv.getPath( execrc.isWindows() ) );
+	}
+	
+	public String getSystemUrlProperty( String prop , String defaultValue , boolean setRequired ) throws Exception {
+		return( getSystemStringProperty( prop , defaultValue , setRequired ) );
+	}
+	
+	public String getSystemUrlExprProperty( String prop , String defaultValue , boolean setRequired ) throws Exception {
+		return( getSystemStringExprProperty( prop , defaultValue , setRequired ) );
 	}
 	
 	public String getSystemStringExprProperty( String prop , String defaultExpr , boolean setRequired ) throws Exception {
@@ -474,7 +486,7 @@ public class PropertySet {
 	public String getSystemStringProperty( String prop ) throws Exception {
 		return( getSystemStringProperty( prop , "" , false ) );
 	}
-	
+
 	public String getSystemStringProperty( String prop , String defaultValue , boolean setRequired ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false );
 		pv.setType( PropertyValueType.PROPERTY_STRING );
@@ -898,4 +910,8 @@ public class PropertySet {
 			data.remove( getKeyByProperty( pv.property ) );
 	}
 
+	public static String getRef( String name ) {
+		return( "@" + name + "@" );
+	}
+	
 }

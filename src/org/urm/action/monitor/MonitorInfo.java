@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
 import org.urm.meta.product.MetaMonitoringTarget;
 
@@ -67,8 +68,11 @@ public class MonitorInfo {
 		String avg_color = "#00FF00";
 		String color = "--color GRID#C0C0C0";
 
-		String rrdfile = storage.getRrdFile( target );
-		String F_CREATEFILE = storage.getHistoryImageFile( target );
+		LocalFolder dataFolder = storage.getDataFolder( action , info.target );  
+		String rrdfile = dataFolder.getFilePath( action , storage.getRrdFile( target ) );
+		
+		LocalFolder reportsFolder = storage.getReportsFolder( action , target );
+		String F_CREATEFILE = reportsFolder.getFilePath( action , storage.getHistoryImageFile( target ) );
 		action.shell.custom( action , "rrdtool graph " + F_CREATEFILE +
 			" " + scale + " -v " + Common.getQuoted( "secs" ) + 
 			" -t " + Common.getQuoted( target.ENV + ", dc=" + target.DC + " checkenv.sh execution time (0 if not running)" ) +
@@ -98,8 +102,11 @@ public class MonitorInfo {
 			F_IMAGETEXT = "Environment " + info.target.ENV + " , dc=" + info.target.DC + " is not working";
 		}
 
-		String F_REPFILE = storage.getStatusReportFile( info.target );
-		String F_RESFILE = storage.getStatusReportTemplateFile();
+		LocalFolder reportsFolder = storage.getReportsFolder( action , info.target );
+		String F_REPFILE = reportsFolder.getFilePath( action , storage.getStatusReportFile( info.target ) );
+		
+		LocalFolder resourceFolder = storage.getResourceFolder( action );
+		String F_RESFILE = resourceFolder.getFilePath( action , storage.getStatusReportTemplateFile() );
 		String F_RESCONTEXT = storage.getMonitoringUrl();
 		
 		String template = action.readFile( F_RESFILE );
@@ -122,7 +129,8 @@ public class MonitorInfo {
 	}
 
 	private void addRrdRecord( MonitorTargetInfo info ) throws Exception {
-		String F_RRDFILE = storage.getRrdFile( info.target );
+		LocalFolder dataFolder = storage.getDataFolder( action , info.target );  
+		String F_RRDFILE = dataFolder.getFilePath( action , storage.getRrdFile( info.target ) );
 		String F_RRDFILE_LOG = F_RRDFILE + ".log"; 
 		
 		String F_STATUSTOTAL = "100";

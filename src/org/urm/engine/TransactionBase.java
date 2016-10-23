@@ -12,6 +12,7 @@ import org.urm.meta.engine.ServerBase;
 import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.engine.ServerDirectory;
 import org.urm.meta.engine.ServerInfrastructure;
+import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.engine.ServerProduct;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.engine.ServerResources;
@@ -534,6 +535,22 @@ public class TransactionBase extends ServerObject {
 		return( false );
 	}
 
+	public boolean changeMonitoring( ServerMonitoring sourceMonitoring ) {
+		synchronized( engine ) {
+			try {
+				if( !continueTransaction() )
+					return( false );
+				return( true );
+			}
+			catch( Throwable e ) {
+				handle( e , "unable to change settings" );
+			}
+			
+			abortTransaction( false );
+			return( false );
+		}
+	}
+	
 	public boolean changeSettings( ServerSettings sourceSettings ) {
 		synchronized( engine ) {
 			try {
@@ -695,6 +712,10 @@ public class TransactionBase extends ServerObject {
 		checkTransaction();
 		if( settings == null )
 			exit( _Error.TransactionMissingSettingsChanges0 , "Missing settings changes" , null );
+	}
+
+	protected void checkTransactionMonitoring() throws Exception {
+		checkTransaction();
 	}
 
 	protected void checkTransactionMetadata( ServerProductMeta sourceMeta ) throws Exception {

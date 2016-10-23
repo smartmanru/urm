@@ -28,6 +28,9 @@ public class ActionMonitorTop extends ActionBase {
 
 	public void stopRunning() {
 		continueRunning = false;
+		synchronized( this ) {
+			notifyAll();
+		}
 	}
 	
 	@Override protected boolean executeSimple() throws Exception {
@@ -52,6 +55,7 @@ public class ActionMonitorTop extends ActionBase {
 					runMajor = false;
 					lastStartMajor = current;
 					majorCount++;
+					minorCount = 0;
 					info( "product=" + mon.meta.name + ": start major checks #" + majorCount + ": " );
 					executeOnceMajor();
 					current = System.currentTimeMillis();
@@ -61,7 +65,7 @@ public class ActionMonitorTop extends ActionBase {
 				}
 				else {
 					lastStartMinor = current;
-					majorCount++;
+					minorCount++;
 					info( "product=" + mon.meta.name + ": start minor checks #" + minorCount + ": " );
 					executeOnceMinor();
 					current = System.currentTimeMillis();
@@ -104,13 +108,25 @@ public class ActionMonitorTop extends ActionBase {
 		return( true );
 	}
 
-	private boolean runSleep( long millis ) {
-		try {
-			Thread.sleep( millis );
-			return( true );
-		}
-		catch( Throwable e ) {
-			handle( e );
+	private synchronized boolean runSleep( long millis ) {
+		long startTime = System.currentTimeMillis();
+		long endTime = startTime + millis;
+		
+		long waitTime = millis;
+		while( continueRunning ) {
+			try {
+				wait( waitTime );
+			}
+			catch( Throwable e ) {
+				handle( e );
+				return( false );
+			}
+			
+			long currentTime = System.currentTimeMillis();
+			if( currentTime >= endTime )
+				return( true );
+			
+			waitTime = endTime - currentTime;
 		}
 		
 		return( false );
@@ -123,7 +139,6 @@ public class ActionMonitorTop extends ActionBase {
 		ActionSet set = new ActionSet( this , "major" );
 		for( MetaMonitoringTarget target : mon.getTargets( this ).values() ) {
 			ActionInit init = initProduct( target );
-			init.context.loadEnv( init , target.ENV , target.DC , false );
 			checkEnv( set , init , target );
 		}
 		

@@ -195,9 +195,9 @@ public class ActionScope {
 		return( scope.createEnvServerNodesScope( action , srv.dc , srv , nodes ) );
 	}
 	
-	public static ActionScope getEnvScope( ActionBase action , Dist dist ) throws Exception {
-		ActionScope scope = new ActionScope( action , dist.meta );
-		scope.createEnvScope( action , dist );
+	public static ActionScope getEnvScope( ActionBase action , MetaEnv env , MetaEnvDC dc , Dist dist ) throws Exception {
+		ActionScope scope = new ActionScope( action , env.meta );
+		scope.createEnvScope( action , env , dc , dist );
 		return( scope );
 	}
 	
@@ -225,7 +225,7 @@ public class ActionScope {
 		
 		if( SERVERS.length == 1 && SERVERS[0].equals( "all" ) ) {
 			if( dc == null )
-				scope.createEnvScope( action , dist );
+				scope.createEnvScope( action , action.context.env , dc , dist );
 			else
 				scope.createEnvServersScope( action , dc , null , dist );
 			return( scope );
@@ -282,18 +282,22 @@ public class ActionScope {
 		return( scope );
 	}
 	
-	private void createEnvScope( ActionBase action , Dist dist ) throws Exception {
-		String dcMask = action.context.CTX_DC;
+	private void createEnvScope( ActionBase action , MetaEnv env , MetaEnvDC dc , Dist dist ) throws Exception {
+		String dcMask = null;
+		if( dc != null )
+			dcMask = dc.NAME;
+		else
+			dcMask = action.context.CTX_DC;
 		
 		if( dcMask.isEmpty() )
 			scopeFull = true;
 		else
 			scopeFull = false;
 		
-		for( MetaEnvDC dc : context.env.getDCMap( action ).values() ) {
-			if( dcMask.isEmpty() || dc.NAME.matches( dcMask ) ) {
+		for( MetaEnvDC dcItem : env.getDCMap( action ).values() ) {
+			if( dcMask.isEmpty() || dcItem.NAME.matches( dcMask ) ) {
 				boolean specifiedExplicitly = ( dcMask.isEmpty() )? false : true;
-				ActionScopeSet sset = createEnvScopeSet( action , dc.env , dc , specifiedExplicitly );
+				ActionScopeSet sset = createEnvScopeSet( action , dcItem.env , dcItem , specifiedExplicitly );
 				sset.addEnvServers( action , null , dist );
 			}
 		}

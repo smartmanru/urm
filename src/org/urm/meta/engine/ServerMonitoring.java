@@ -7,6 +7,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionCore;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.common.PropertySet;
 import org.urm.common.RunContext;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.ServerEvents;
@@ -20,6 +21,7 @@ import org.urm.meta.product.MetaEnvDC;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaMonitoring;
+import org.urm.meta.product.MetaProductSettings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -40,18 +42,21 @@ public class ServerMonitoring extends ServerObject {
 	public static int MONITORING_NODE = 6;
 	public Map<ServerObject,ServerMonitoringSource> sourceMap;
 	
+	public PropertySet properties;
 	public boolean ENABLED;
 	public String DIR_DATA;
 	public String DIR_REPORTS;
 	public String DIR_RES;
+	public String DIR_LOGS;
 	public String RESOURCE_URL;
 	
 	// properties
-	public static String PROPERTY_ENABLED = "server.monitoring.enabled";
-	public static String PROPERTY_DIR_DATA = "server.data.path";
-	public static String PROPERTY_DIR_REPORTS = "server.reports.path";
-	public static String PROPERTY_DIR_RES = "server.resources.path";
-	public static String PROPERTY_RESOURCE_URL = "server.resources.url";
+	public static String PROPERTY_ENABLED = "default.monitoring.enabled";
+	public static String PROPERTY_RESOURCE_PATH = "default.resources.path";
+	public static String PROPERTY_RESOURCE_URL = "default.resources.url";
+	public static String PROPERTY_DIR_DATA = "default.data.path";
+	public static String PROPERTY_DIR_REPORTS = "default.reports.path";
+	public static String PROPERTY_DIR_LOGS = "default.logs.path";
 	
 	public ServerMonitoring( ServerLoader loader ) {
 		super( null );
@@ -60,31 +65,36 @@ public class ServerMonitoring extends ServerObject {
 		this.events = engine.getEvents();
 		
 		mapProduct = new HashMap<String,ServerMonitoringProduct>();
-		sourceMap = new HashMap<ServerObject,ServerMonitoringSource>(); 
+		sourceMap = new HashMap<ServerObject,ServerMonitoringSource>();
 	}
 
+	public void scatterProperties() throws Exception {
+		ENABLED = properties.getSystemBooleanProperty( PROPERTY_ENABLED , false , true );
+		RESOURCE_URL = properties.getSystemUrlExprProperty( PROPERTY_RESOURCE_URL , getProductExpr( ServerContext.PROPERTY_MON_RESURL ) , true );
+		DIR_RES = properties.getSystemPathExprProperty( PROPERTY_RESOURCE_PATH , engine.execrc , getProductExpr( ServerContext.PROPERTY_MON_RESPATH ) , true );
+		DIR_DATA = properties.getSystemPathExprProperty( PROPERTY_DIR_DATA , engine.execrc , getProductExpr( ServerContext.PROPERTY_MON_DATAPATH ) , true );
+		DIR_REPORTS = properties.getSystemPathExprProperty( PROPERTY_DIR_REPORTS , engine.execrc , getProductExpr( ServerContext.PROPERTY_MON_REPORTPATH ) , true );
+		DIR_LOGS = properties.getSystemPathExprProperty( PROPERTY_DIR_LOGS , engine.execrc , getProductExpr( ServerContext.PROPERTY_MON_LOGPATH ) , true );
+	}
+
+	private String getProductExpr( String prop ) {
+		return( PropertySet.getRef( prop ) + "/" + PropertySet.getRef( MetaProductSettings.PROPERTY_PRODUCT_NAME ) );
+	}
+	
 	public void load( String monFile , RunContext execrc ) throws Exception {
+		ServerSettings settings = loader.getServerSettings();
+		properties = new PropertySet( "defmon" , settings.serverContext.properties );
 		Document doc = ConfReader.readXmlFile( execrc , monFile );
 		Node root = doc.getDocumentElement();
-
-		String rootPath = Common.getPath( engine.execrc.installPath , "monitoring" );
-		ENABLED = Common.getBooleanValue( ConfReader.getPropertyValue( root , PROPERTY_ENABLED , "no" ) );
-		DIR_DATA = ConfReader.getPropertyValue( root , PROPERTY_DIR_DATA , Common.getPath( rootPath , "data" ) );
-		DIR_REPORTS = ConfReader.getPropertyValue( root , PROPERTY_DIR_REPORTS , Common.getPath( rootPath , "reports" ) );
-		DIR_RES = ConfReader.getPropertyValue( root , PROPERTY_DIR_RES , Common.getPath( rootPath , "res" ) );
-		RESOURCE_URL = ConfReader.getPropertyValue( root , PROPERTY_RESOURCE_URL , "" );
+		properties.loadFromNodeAttributes( root );
+		scatterProperties();
+		properties.resolveRawProperties( true );
 	}
 	
 	public void save( ActionCore action , String path , RunContext execrc ) throws Exception {
 		Document doc = Common.xmlCreateDoc( "infrastructure" );
 		Element root = doc.getDocumentElement();
-		
-		Common.xmlCreateBooleanPropertyElement( doc , root , PROPERTY_ENABLED , ENABLED );
-		Common.xmlCreatePropertyElement( doc , root , PROPERTY_DIR_DATA , DIR_DATA );
-		Common.xmlCreatePropertyElement( doc , root , PROPERTY_DIR_REPORTS , DIR_REPORTS );
-		Common.xmlCreatePropertyElement( doc , root , PROPERTY_DIR_RES , DIR_REPORTS );
-		Common.xmlCreatePropertyElement( doc , root , PROPERTY_RESOURCE_URL , DIR_RES );
-		
+		properties.saveAsElements( doc , root );
 		Common.xmlSaveDoc( doc , path );
 	}
 
@@ -200,6 +210,12 @@ public class ServerMonitoring extends ServerObject {
 
 	public void setEnabled( ServerTransaction transaction , boolean enabled ) {
 		ENABLED = enabled;
+	}
+
+	public void setDefaultProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
+		properties.updateProperties( props );
+		properties.resolveRawProperties( true );
+		scatterProperties();
 	}
 	
 }

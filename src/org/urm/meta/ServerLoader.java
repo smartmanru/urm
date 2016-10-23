@@ -387,7 +387,7 @@ public class ServerLoader {
 		mon.save( transaction.getAction() , propertyFile , engine.execrc );
 	}
 
-	public ServerSettings getServerSettings( ActionInit action ) {
+	public ServerSettings getServerSettings() {
 		synchronized( engine ) {
 			return( settings );
 		}

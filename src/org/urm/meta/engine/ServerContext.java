@@ -33,8 +33,10 @@ public class ServerContext {
 	public String STAGING_LINUXPATH;
 	public String STAGING_WINPATH;
 	
-	public String MON_RESOURCES;
+	public String MON_RESPATH;
+	public String MON_RESURL;
 	public String MON_DATAPATH;
+	public String MON_REPORTPATH;
 	public String MON_LOGPATH;
 
 	public int SHELL_SILENTMAX;
@@ -67,8 +69,10 @@ public class ServerContext {
 	public static String PROPERTY_STAGING_LINUXPATH = "staging.linuxpath";
 	public static String PROPERTY_STAGING_WINPATH = "staging.winpath";
 	
-	public static String PROPERTY_MON_RESOURCES = "mon.respath";
+	public static String PROPERTY_MON_RESPATH = "mon.respath";
+	public static String PROPERTY_MON_RESURL = "mon.resurl";
 	public static String PROPERTY_MON_DATAPATH = "mon.datapath";
+	public static String PROPERTY_MON_REPORTPATH = "mon.reportpath";
 	public static String PROPERTY_MON_LOGPATH = "mon.logpath";
 
 	public static String PROPERTY_SHELL_SILENTMAX = "shell.silentmax";
@@ -119,23 +123,25 @@ public class ServerContext {
 		CONNECTION_JMX_PORT = properties.getSystemIntProperty( PROPERTY_CONNECTION_JMX_PORT , 6000 , true );
 		CONNECTION_JMXWEB_PORT = properties.getSystemIntProperty( PROPERTY_CONNECTION_JMXWEB_PORT , 6001 , true );
 
-		DIST_ROOT = properties.getSystemPathProperty( PROPERTY_DIST_ROOT , execrc.installPath + "/dist" , execrc , false );
-		DIST_APPFOLDER = properties.getSystemPathProperty( PROPERTY_DIST_APPFOLDER , "systems" , execrc , false );
-		DIST_BASEPATH = properties.getSystemPathProperty( PROPERTY_DIST_BASEPATH , "base" , execrc , false );
+		DIST_ROOT = properties.getSystemPathProperty( PROPERTY_DIST_ROOT , execrc , execrc.installPath + "/dist" , false );
+		DIST_APPFOLDER = properties.getSystemPathProperty( PROPERTY_DIST_APPFOLDER , execrc , "systems" , false );
+		DIST_BASEPATH = properties.getSystemPathProperty( PROPERTY_DIST_BASEPATH , execrc , "base" , false );
 
-		SECURE_CONFPATH = properties.getSystemPathProperty( PROPERTY_SECURE_CONFPATH , execrc.installPath + "/secured" , execrc , false );
+		SECURE_CONFPATH = properties.getSystemPathProperty( PROPERTY_SECURE_CONFPATH , execrc , execrc.installPath + "/secured" , false );
 		
-		WORK_ARTEFACTS = properties.getSystemPathProperty( PROPERTY_WORK_ARTEFACTS , execrc.installPath + "/artefacts" , execrc , false );
-		WORK_MIRRORPATH = properties.getSystemPathProperty( PROPERTY_WORK_MIRRORPATH , execrc.installPath + "/mirror" , execrc , false );
-		WORK_BUILDLOGS = properties.getSystemPathProperty( PROPERTY_WORK_BUILDLOGS , execrc.installPath + "/logs/build" , execrc , false );
-		WORK_DEPLOYLOGS = properties.getSystemPathProperty( PROPERTY_WORK_DEPLOYLOGS , execrc.installPath + "/logs/deploy" , execrc , false );
+		WORK_ARTEFACTS = properties.getSystemPathProperty( PROPERTY_WORK_ARTEFACTS , execrc , execrc.installPath + "/artefacts" , false );
+		WORK_MIRRORPATH = properties.getSystemPathProperty( PROPERTY_WORK_MIRRORPATH , execrc , execrc.installPath + "/mirror" , false );
+		WORK_BUILDLOGS = properties.getSystemPathProperty( PROPERTY_WORK_BUILDLOGS , execrc , execrc.installPath + "/logs/build" , false );
+		WORK_DEPLOYLOGS = properties.getSystemPathProperty( PROPERTY_WORK_DEPLOYLOGS , execrc , execrc.installPath + "/logs/deploy" , false );
 
-		STAGING_LINUXPATH = properties.getSystemPathProperty( PROPERTY_STAGING_LINUXPATH , "/redist" , execrc , false );
-		STAGING_WINPATH = properties.getSystemPathProperty( PROPERTY_STAGING_WINPATH , "C:/redist" , execrc , false );
+		STAGING_LINUXPATH = properties.getSystemPathProperty( PROPERTY_STAGING_LINUXPATH , execrc , "/redist" , false );
+		STAGING_WINPATH = properties.getSystemPathProperty( PROPERTY_STAGING_WINPATH , execrc , "C:/redist" , false );
 		
-		MON_RESOURCES = properties.getSystemPathProperty( PROPERTY_MON_RESOURCES , execrc.installPath + "/monitoring/resources" , execrc , false ); 
-		MON_DATAPATH = properties.getSystemPathProperty( PROPERTY_MON_DATAPATH , execrc.installPath + "/monitoring/data" , execrc , false );
-		MON_LOGPATH = properties.getSystemPathProperty( PROPERTY_MON_LOGPATH , execrc.installPath + "/logs/monitoring" , execrc , false );
+		MON_RESPATH = properties.getSystemPathProperty( PROPERTY_MON_RESPATH , execrc , execrc.installPath + "/monitoring/resources" , false ); 
+		MON_RESURL = properties.getSystemStringProperty( PROPERTY_MON_RESURL , "" , false ); 
+		MON_DATAPATH = properties.getSystemPathProperty( PROPERTY_MON_DATAPATH , execrc , execrc.installPath + "/monitoring/data" , false );
+		MON_REPORTPATH = properties.getSystemPathProperty( PROPERTY_MON_REPORTPATH , execrc , execrc.installPath + "/monitoring/reports" , false );
+		MON_LOGPATH = properties.getSystemPathProperty( PROPERTY_MON_LOGPATH , execrc , execrc.installPath + "/logs/monitoring" , false );
 
 		SHELL_SILENTMAX = properties.getSystemIntProperty( PROPERTY_SHELL_SILENTMAX , 60000 , false );
 		SHELL_UNAVAILABLE_SKIPTIME = properties.getSystemIntProperty( PROPERTY_SHELL_UNAVAILABLE_SKIPTIME , 30000 , false );

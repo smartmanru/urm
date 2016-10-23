@@ -3,7 +3,10 @@ package org.urm.action.monitor;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.deploy.ActionCheckEnv;
+import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
+import org.urm.meta.product.MetaEnv;
+import org.urm.meta.product.MetaEnvDC;
 import org.urm.meta.product.MetaMonitoringTarget;
 
 public class ActionMonitorCheckEnv extends ActionBase {
@@ -20,9 +23,12 @@ public class ActionMonitorCheckEnv extends ActionBase {
 
 	@Override protected boolean executeSimple() throws Exception {
 		ActionCheckEnv action = new ActionCheckEnv( this , null );
-		ActionScope scope = ActionScope.getEnvScope( this , null );
+		MetaEnv env = target.meta.getEnv( this , target.ENV );
+		MetaEnvDC dc = env.getDC( this , target.DC );
+		ActionScope scope = ActionScope.getEnvScope( this , env , dc , null );
 		
-		String logRunning = storage.getCheckEnvRunningFile( target ); 
+		LocalFolder dataFolder = storage.getDataFolder( action , target );
+		String logRunning = dataFolder.getFilePath( action , storage.getCheckEnvRunningFile( target ) ); 
 		action.startRedirect( "checkenv log" , logRunning );
 
 		long timerStarted = System.currentTimeMillis();
@@ -32,7 +38,7 @@ public class ActionMonitorCheckEnv extends ActionBase {
 		timePassedMillis = System.currentTimeMillis() - timerStarted;  
 		action.stopRedirect();
 		
-		String logSave = storage.getCheckEnvFile( target );
+		String logSave = dataFolder.getFilePath( action , storage.getCheckEnvFile( target ) );
 		action.shell.move( this , logRunning , logSave );
 		
 		return( true );

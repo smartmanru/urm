@@ -7,6 +7,8 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerTransaction;
+import org.urm.engine.storage.LocalFolder;
+import org.urm.engine.storage.MonitoringStorage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -52,7 +54,7 @@ public class MetaMonitoringTarget {
 		return( r );
 	}
 	
-	public void loadEnv( ActionBase action , Node node ) throws Exception {
+	public void loadTarget( ActionBase action , Node node ) throws Exception {
 		ENV = ConfReader.getRequiredAttrValue( node , "env" );
 		DC = ConfReader.getRequiredAttrValue( node , "dc" );
 		MAXTIME = ConfReader.getIntegerAttrValue( node , "maxtime" , 300000 );
@@ -104,6 +106,12 @@ public class MetaMonitoringTarget {
 			Element element = Common.xmlCreateElement( doc , root , "checkws" );
 			item.save( action , doc , element );
 		}
+		
+		MonitoringStorage storage = action.artefactory.getMonitoringStorage( action , monitoring );
+		LocalFolder folder = storage.getDataFolder( action , this );
+		folder.ensureExists( action );
+		folder = storage.getReportsFolder( action , this );
+		folder.ensureExists( action );
 	}
 
 	public void createTarget( ServerTransaction transaction , MetaEnvDC dc , int MAXTIME ) throws Exception {
@@ -111,6 +119,10 @@ public class MetaMonitoringTarget {
 		this.DC = dc.NAME;
 		this.MAXTIME = MAXTIME;
 		setName( transaction.getAction() );
+	}
+
+	public void modifyTarget( ServerTransaction transaction , int MAXTIME ) throws Exception {
+		this.MAXTIME = MAXTIME;
 	}
 	
 }

@@ -1,5 +1,6 @@
 package org.urm.engine.storage;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaMonitoring;
@@ -19,22 +20,34 @@ public class MonitoringStorage {
 		this.meta = mon.meta;
 	}
 	
-	public String getHistoryImageFile( MetaMonitoringTarget target ) throws Exception {
+	public LocalFolder getDataFolder( ActionBase action , MetaMonitoringTarget target ) throws Exception {
+		String path = Common.getPath( mon.DIR_DATA , target.ENV );
+		return( artefactory.getAnyFolder( action , path ) );
+	}
+	
+	public LocalFolder getReportsFolder( ActionBase action , MetaMonitoringTarget target ) throws Exception {
 		String path = mon.DIR_REPORTS;
+		return( artefactory.getAnyFolder( action , path ) );
+	}
+
+	public LocalFolder getResourceFolder( ActionBase action ) throws Exception {
+		String path = mon.DIR_RES;
+		return( artefactory.getAnyFolder( action , path ) );
+	}
+	
+	public String getHistoryImageFile( MetaMonitoringTarget target ) throws Exception {
 		String file = "history." + target.ENV + "." + target.DC + ".png";
-		return( Common.getPath( path , file ) );
+		return( file );
 	}
 	
 	public String getRrdFile( MetaMonitoringTarget target ) throws Exception {
-		String path = Common.getPath( mon.DIR_DATA , target.ENV );
 		String file = "env." + target.DC + ".rrd";
-		return( Common.getPath( path , file ) );
+		return( file );
 	}
 	
 	public String getCheckEnvFile( MetaMonitoringTarget target ) throws Exception {
-		String path = Common.getPath( mon.DIR_DATA , target.ENV );
 		String file = "checkenv." + target.DC + ".log";
-		return( Common.getPath( path , file ) );
+		return( file );
 	}
 	
 	public String getCheckEnvRunningFile( MetaMonitoringTarget target ) throws Exception {
@@ -52,11 +65,11 @@ public class MonitoringStorage {
 	
 	public String getStatusReportFile( MetaMonitoringTarget target ) throws Exception {
 		String basename = "overall." + target.ENV + "." + target.DC + ".html";
-		return( Common.getPath( mon.DIR_REPORTS , basename ) );
+		return( basename );
 	}
 	
 	public String getStatusReportTemplateFile() {
-		return( Common.getPath( mon.DIR_RES , "imageonly.html" ) );
+		return( "imageonly.html" );
 	}
 
 	public String getMonitoringUrl() {

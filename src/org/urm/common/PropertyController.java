@@ -66,15 +66,15 @@ public abstract class PropertyController extends ServerObject {
 	}
 	
 	protected String getPathProperty( ActionBase action , String prop ) throws Exception {
-		return( properties.getSystemPathProperty( prop , "" , action.execrc , false ) );
+		return( properties.getSystemPathProperty( prop , action.execrc , "" , false ) );
 	}
 	
 	protected String getPathProperty( ActionBase action , String prop , String defaultValue ) throws Exception {
-		return( properties.getSystemPathProperty( prop , defaultValue , action.execrc , false ) );
+		return( properties.getSystemPathProperty( prop , action.execrc , defaultValue , false ) );
 	}
 	
 	protected String getPathPropertyRequired( ActionBase action , String prop ) throws Exception {
-		String value = properties.getSystemPathProperty( prop , "" , action.execrc , true );
+		String value = properties.getSystemPathProperty( prop , action.execrc , "" , true );
 		if( value.isEmpty() )
 			setLoadFailed( action , "set=" + properties.set + ", property is not set: " + prop );
 		return( value );
@@ -109,6 +109,10 @@ public abstract class PropertyController extends ServerObject {
 	}
 	
 	protected String getStringProperty( ActionBase action , String prop ) throws Exception {
+		return( properties.getSystemStringProperty( prop ) );
+	}
+	
+	protected String getUrlProperty( ActionBase action , String prop ) throws Exception {
 		return( properties.getSystemStringProperty( prop ) );
 	}
 	

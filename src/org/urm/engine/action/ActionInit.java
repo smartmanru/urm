@@ -68,7 +68,7 @@ public class ActionInit extends ActionBase {
 			if( transaction.settings != null )
 				return( transaction.settings );
 		}
-		return( loader.getServerSettings( this ) );
+		return( loader.getServerSettings() );
 	}
 
 	public ServerContext getActiveServerContext() {
