@@ -92,7 +92,32 @@ public class ServerProcess {
 	}
 
 	private void gatherPacemakerStatus( ActionBase action ) throws Exception {
-		action.exitNotImplemented();
+		if( srv.isLinux() )
+			action.exitNotImplemented();
+		
+		ShellExecutor shell = action.getShell( node );
+		
+		try {
+			cmdValue = shell.customGetValue( action , "crm_resource -W -r " + srv.SYSNAME + " 2>&1 | grep `hostname`" );
+			String check = cmdValue.toUpperCase();
+			if( isStoppedStatus( action , check ) ) {
+				mode = VarPROCESSMODE.STOPPED;
+				return;
+			}
+			
+			if( isStartedStatus( action , check ) ) {
+				mode = VarPROCESSMODE.STARTED;
+				return;
+			}
+			
+			if( check.indexOf( "not found" ) >= 0 )
+				action.error( "unknown pacemaker resource: " + srv.SYSNAME );
+			
+			mode = VarPROCESSMODE.ERRORS;
+		}
+		finally {
+			shell.release( action );
+		}
 	}
 	
 	private void gatherServiceStatus( ActionBase action ) throws Exception {
