@@ -7,38 +7,50 @@ import org.urm.engine.shell.Account;
 
 public class ScopeState {
 
+	public enum SCOPETYPE {
+		TypeScope ,
+		TypeSet ,
+		TypeTarget ,
+		TypeItem ,
+		TypeAccount
+	};
+	
 	public enum SCOPESTATE {
 		New ,
 		NotRun ,
 		RunSuccess , 
 		RunBeforeFail ,
 		RunFail
-	}
+	};
 	
 	ActionCore action;
 	ScopeState parent;
-	
-	ActionScope scope;
-	ActionScopeSet set;
-	ActionScopeTarget target;
-	ActionScopeTargetItem item;
-	Account account;
-	SCOPESTATE state;
+
+	public SCOPETYPE type;	
+	public ActionScope scope;
+	public ActionScopeSet set;
+	public ActionScopeTarget target;
+	public ActionScopeTargetItem item;
+	public Account account;
+	public SCOPESTATE state;
 	
 	List<ScopeState> childs;
 	
 	public ScopeState( ActionCore action , ActionScope scope ) {
+		this.type = SCOPETYPE.TypeScope;
 		this.scope = scope;
 		create( action , null );
 	}
 
 	public ScopeState( ScopeState parent , ActionScopeSet set ) {
+		this.type = SCOPETYPE.TypeSet;
 		this.scope = set.scope;
 		this.set = set;
 		create( parent.action , parent );
 	}
 
 	public ScopeState( ScopeState parent , Account account ) {
+		this.type = SCOPETYPE.TypeAccount;
 		this.scope = parent.scope;
 		this.set = parent.set;
 		this.account = account;
@@ -46,6 +58,7 @@ public class ScopeState {
 	}
 
 	public ScopeState( ScopeState parent , ActionScopeTarget target ) {
+		this.type = SCOPETYPE.TypeTarget;
 		this.scope = target.set.scope;
 		this.set = target.set;
 		this.target = target;
@@ -53,6 +66,7 @@ public class ScopeState {
 	}
 
 	public ScopeState( ScopeState parent , ActionScopeTargetItem item ) {
+		this.type = SCOPETYPE.TypeItem;
 		this.scope = item.target.set.scope;
 		this.set = item.target.set;
 		this.target = item.target;
@@ -69,16 +83,17 @@ public class ScopeState {
 			parent.childs.add( this );
 	}
 	
-	public void setActionStatus( SCOPESTATE state ) {
-		this.state = state;
-	}
-	
 	public void setActionStatus( boolean status ) {
-		this.state = ( status )? SCOPESTATE.RunSuccess : SCOPESTATE.RunFail;
+		setActionStatus( ( status )? SCOPESTATE.RunSuccess : SCOPESTATE.RunFail );
 	}
 
 	public void setActionNotRun() {
-		this.state = SCOPESTATE.NotRun;
+		setActionStatus( SCOPESTATE.NotRun );
 	}
 	
+	public void setActionStatus( SCOPESTATE state ) {
+		this.state = state;
+		action.eventSource.finishState( this );
+	}
+
 }

@@ -754,6 +754,7 @@ public class ScopeExecutor {
 
 	private void startExecutor( ActionScope scope ) {
 		stateFinal = new ScopeState( action , scope );
+		action.eventSource.setState( stateFinal );
 	}
 	
 	private boolean finishExecutor( SCOPESTATE ss ) {
@@ -764,7 +765,5 @@ public class ScopeExecutor {
 			return( false );
 		return( true );
 	}
-	
-
 	
 }
