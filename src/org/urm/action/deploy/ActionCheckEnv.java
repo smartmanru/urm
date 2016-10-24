@@ -274,6 +274,11 @@ public class ActionCheckEnv extends ActionBase {
 			if( main )
 				S_CHECKENV_SERVER_NODES_FAILED = Common.addItemToUniqueSpacedList( S_CHECKENV_SERVER_NODES_FAILED , "" + node.POS );
 		}
+
+		if( S_CHECKENV_NODE_FAILED )
+			info( "## node " + node.POS + " check FAILED" );
+		else
+			info( "## node " + node.POS + " check OK" );
 	}
 	
 	private boolean checkOneServerNodeStatus( MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
