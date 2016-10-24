@@ -146,6 +146,7 @@ public class MetaMonitoring extends PropertyController {
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		boolean create = createFolders( action );
 		if( !create ) {
+			action.error( "monitoring is forced off because folders are not ready, check settings" );
 			super.setBooleanProperty( PROPERTY_ENABLED , false );
 			ENABLED = false;
 		}
