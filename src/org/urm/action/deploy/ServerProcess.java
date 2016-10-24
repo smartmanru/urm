@@ -254,8 +254,25 @@ public class ServerProcess {
 	}
 
 	private boolean stopPacemaker( ActionBase action ) throws Exception {
-		action.exitNotImplemented();
-		return( false );
+		if( srv.isWindows() )
+			action.exitNotImplemented();
+			
+		// check status
+		gatherStatus( action );
+
+		if( mode == VarPROCESSMODE.STOPPED ) {
+			action.debug( node.HOSTLOGIN + ": pacemaker resource=" + srv.SYSNAME + " already stopped" );
+			return( true );
+		}
+
+		ShellExecutor shell = action.getShell( node );
+		try {
+			shell.customCritical( action , "crm_resource -r " + srv.SYSNAME + " --host `hostname` --ban --quiet" );
+			return( true );
+		}
+		finally {
+			shell.release( action );
+		}
 	}
 	
 	private boolean stopService( ActionBase action ) throws Exception {
@@ -352,8 +369,29 @@ public class ServerProcess {
 	}
 
 	public boolean waitStoppedPacemaker( ActionBase action , long startMillis ) throws Exception {
-		action.exitNotImplemented();
-		return( false );
+		// wait for stop for a while
+		action.debug( node.HOSTLOGIN + ": wait for stop pacemaker resource=" + srv.SYSNAME + " ..." );
+		
+		int stoptime = srv.STOPTIME;
+		if( stoptime == 0 )
+			stoptime = defaultStopServerTimeSecs;
+		long stopMillis = startMillis + stoptime * 1000;
+		
+		while( mode != VarPROCESSMODE.STOPPED ) {
+			if( System.currentTimeMillis() > stopMillis ) {
+				action.error( node.HOSTLOGIN + ": failed to stop pacemaker resource=" + srv.SYSNAME + " within " + stoptime + " seconds" );
+				return( false );
+			}
+						
+			// check stopped
+			gatherStatus( action );
+		    synchronized( this ) {
+		    	Thread.sleep( 1000 );
+		    }
+		}
+
+		action.info( node.HOSTLOGIN + " pacemaker resource=" + srv.SYSNAME + " successfully stopped" );
+		return( true );
 	}
 	
 	public boolean waitStoppedService( ActionBase action , long startMillis ) throws Exception {
@@ -484,8 +522,30 @@ public class ServerProcess {
 	}
 
 	private boolean startPacemaker( ActionBase action ) throws Exception {
-		action.exitNotImplemented();
-		return( false );
+		if( srv.isWindows() )
+			action.exitNotImplemented();
+			
+		// check status
+		gatherStatus( action );
+
+		if( mode == VarPROCESSMODE.STARTED ) {
+			action.debug( node.HOSTLOGIN + ": pacemaker resource=" + srv.SYSNAME + " already started" );
+			return( true );
+		}
+
+		if( mode != VarPROCESSMODE.STOPPED ) {
+			action.error( node.HOSTLOGIN + ": pacemaker resource=" + srv.SYSNAME + " is in unexpected state" );
+			return( false );
+		}
+
+		ShellExecutor shell = action.getShell( node );
+		try {
+			shell.customCritical( action , "crm_resource -r " + srv.SYSNAME + " --host `hostname` --clear --quiet" );
+			return( true );
+		}
+		finally {
+			shell.release( action );
+		}
 	}
 	
 	private boolean startService( ActionBase action ) throws Exception {
@@ -498,7 +558,7 @@ public class ServerProcess {
 		}
 
 		if( mode != VarPROCESSMODE.STOPPED ) {
-			action.error( node.HOSTLOGIN + ": " + srv.SYSNAME + " is in unexpected state" );
+			action.error( node.HOSTLOGIN + ": service=" + srv.SYSNAME + " is in unexpected state" );
 			return( false );
 		}
 
@@ -584,8 +644,40 @@ public class ServerProcess {
 	}
 
 	public boolean waitStartedPacemaker( ActionBase action , long startMillis ) throws Exception {
-		action.exitNotImplemented();
-		return( false );
+		// wait for stop for a while
+		action.debug( node.HOSTLOGIN + ": wait for start pacemaker resource=" + srv.SYSNAME + " ..." );
+		
+		int starttime = srv.STARTTIME;
+		if( starttime == 0 )
+			starttime = defaultStartServerTimeSecs;
+		long stopMillis = startMillis + starttime * 1000;
+		long startTimeoutMillis = startMillis + defaultStartProcessTimeSecs * 1000;
+				
+		gatherStatus( action );
+		while( mode != VarPROCESSMODE.STARTED ) {
+			Common.sleep( 1000 );
+		    
+			if( System.currentTimeMillis() > stopMillis ) {
+				action.error( node.HOSTLOGIN + ": failed to start pacemaker resource=" + srv.SYSNAME + " within " + starttime + " seconds" );
+				return( false );
+			}
+
+			if( mode == VarPROCESSMODE.STOPPED && System.currentTimeMillis() > startTimeoutMillis ) {
+				action.info( node.HOSTLOGIN + ": failed to start pacemaker resource=" + srv.SYSNAME + " - process launch timeout is " + defaultStartProcessTimeSecs + " seconds" );
+				return( false );
+			}
+
+			if( mode != VarPROCESSMODE.STOPPED && mode != VarPROCESSMODE.STARTING ) {
+				action.info( node.HOSTLOGIN + ": failed to start pacemaker resource=" + srv.SYSNAME + " - process is in unexpected state (" + cmdValue + ")" );
+				return( false );
+			}
+			
+			// check stopped
+			gatherStatus( action );
+		}
+
+		action.info( node.HOSTLOGIN + " pacemaker resource=" + srv.SYSNAME + " successfully started" );
+		return( true );
 	}
 	
 	public boolean waitStartedService( ActionBase action , long startMillis ) throws Exception {
