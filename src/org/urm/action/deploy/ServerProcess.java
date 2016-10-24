@@ -92,7 +92,7 @@ public class ServerProcess {
 	}
 
 	private void gatherPacemakerStatus( ActionBase action ) throws Exception {
-		if( srv.isLinux() )
+		if( !srv.isLinux() )
 			action.exitNotImplemented();
 		
 		ShellExecutor shell = action.getShell( node );
@@ -254,7 +254,7 @@ public class ServerProcess {
 	}
 
 	private boolean stopPacemaker( ActionBase action ) throws Exception {
-		if( srv.isWindows() )
+		if( !srv.isLinux() )
 			action.exitNotImplemented();
 			
 		// check status
@@ -522,7 +522,7 @@ public class ServerProcess {
 	}
 
 	private boolean startPacemaker( ActionBase action ) throws Exception {
-		if( srv.isWindows() )
+		if( !srv.isLinux() )
 			action.exitNotImplemented();
 			
 		// check status
