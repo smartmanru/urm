@@ -1,6 +1,7 @@
 package org.urm.action.release;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistItemInfo;
@@ -24,7 +25,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		this.dist = dist;
 	}
 
-	@Override protected boolean executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple() throws Exception {
 		Release release = dist.release;
 		
 		FileSet files = dist.getFiles( this );
@@ -44,7 +45,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		
 		if( release.isEmpty( this ) ) {
 			info( "(scope is empty)" );
-			return( true );
+			return( SCOPESTATE.NotRun );
 		}
 		
 		for( String set : Common.getSortedKeys( release.getSourceSets( this ) ) )
@@ -59,7 +60,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		for( String s : Common.getSortedKeys( release.getDeliveries( this ) ) )
 			info( "\tdelivery=" + s );
 	
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private void printReleaseSourceSetStatus( Dist dist , FileSet files , ReleaseSet set ) throws Exception {

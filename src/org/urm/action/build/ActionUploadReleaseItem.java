@@ -5,6 +5,7 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.meta.product.MetaProductBuildSettings;
@@ -18,7 +19,7 @@ public class ActionUploadReleaseItem extends ActionBase {
 		this.release = release;
 	}
 	
-	@Override protected boolean executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
 		// load distr data for cross-product exports - thirdparty
 		List<ActionScopeTargetItem> items = scopeProject.getItems( this );
 		
@@ -32,7 +33,7 @@ public class ActionUploadReleaseItem extends ActionBase {
 		// get thirdparty information
 		for( ActionScopeTargetItem scopeItem : items )
 			uploadItem( scopeProject , release , scopeItem );
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private void uploadItem( ActionScopeTarget scopeProject , Dist release , ActionScopeTargetItem scopeItem ) throws Exception {

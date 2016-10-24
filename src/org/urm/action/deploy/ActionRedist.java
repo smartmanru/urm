@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseTarget;
@@ -36,12 +37,12 @@ public class ActionRedist extends ActionBase {
 		infoAction( "execute dc=" + set.dc.NAME + ", releasedir=" + dist.RELEASEDIR + ", servers={" + set.getScopeInfo( this ) + "} ..." );
 	}
 	
-	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		if( server.isDeployPossible() )
 			executeServer( target );
 		
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private void executeServer( ActionScopeTarget target ) throws Exception {

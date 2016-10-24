@@ -7,6 +7,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.storage.RedistStorage;
@@ -26,10 +27,10 @@ public class ActionDeployRedist extends ActionBase {
 		infoAction( "execute dc=" + set.dc.NAME + ", releasedir=" + dist.RELEASEDIR + ", servers={" + set.getScopeInfo( this ) + "} ..." );
 	}
 	
-	@Override protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+	@Override protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		if( !getDeployments( set , targets ) ) {
 			info( "nothing to deploy in release " + dist.RELEASEDIR + " to specified server" );
-			return( true );
+			return( SCOPESTATE.NotRun );
 		}
 		
 		if( !stopServers( set ) ) {
@@ -45,7 +46,7 @@ public class ActionDeployRedist extends ActionBase {
 		}
 
 		info( "RELEASE " + dist.RELEASEDIR + " SUCCESSFULLY DEPLOYED" );
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private boolean getDeployments( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {

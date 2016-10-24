@@ -2,6 +2,7 @@ package org.urm.action.deploy;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.shell.Account;
 
@@ -19,7 +20,7 @@ public class ActionChangeHosts extends ActionBase {
 		this.opAddress = opAddress;
 	}
 
-	@Override protected boolean executeAccount( ActionScopeSet set , Account account ) throws Exception {
+	@Override protected SCOPESTATE executeAccount( ActionScopeSet set , Account account ) throws Exception {
 		if( cmd.equals( "set" ) )
 			executeSet( account );
 		
@@ -29,7 +30,7 @@ public class ActionChangeHosts extends ActionBase {
 		if( cmd.equals( "check" ) )
 			executeCheck( account );
 		
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 	
 	private void executeSet( Account account ) throws Exception {

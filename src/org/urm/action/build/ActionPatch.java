@@ -2,6 +2,7 @@ package org.urm.action.build;
 
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.product.MetaProductBuildSettings;
@@ -18,7 +19,7 @@ public class ActionPatch extends ActionBase {
 		this.LOGDIR = LOGDIR;
 	}
 
-	@Override protected boolean executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple() throws Exception {
 		LOGDIR.ensureExists( this );
 		
 		String logFile = LOGDIR.getFilePath( this , builder.project.PROJECT + "-build.log" );
@@ -39,7 +40,7 @@ public class ActionPatch extends ActionBase {
 			throw e;
 		}
 		
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 	
 	private boolean executePatch() throws Exception {

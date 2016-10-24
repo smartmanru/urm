@@ -2,6 +2,7 @@ package org.urm.action.build;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.vcs.ProjectVersionControl;
 
@@ -20,7 +21,7 @@ public class ActionGetCodebase extends ActionBase {
 		this.SINGLEFILE = SINGLEFILE;
 	}
 
-	@Override protected boolean executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
 		String BRANCH = scopeProject.getProjectBuildBranch( this );
 		String TAG = scopeProject.getProjectBuildTag( this );
 
@@ -42,7 +43,7 @@ public class ActionGetCodebase extends ActionBase {
 		}
 		else
 			vcs.export( COPATH , scopeProject.sourceProject , BRANCH , TAG , SINGLEFILE );
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 }

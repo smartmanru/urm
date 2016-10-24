@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.meta.product.Meta;
@@ -18,12 +19,12 @@ public class ActionAddScope extends ActionBase {
 		this.dist = dist;
 	}
 
-	@Override protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+	@Override protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		// full set scope
 		if( set.setFull ) {
 			if( !addAllProductSetElements( set ) )
 				exit0( _Error.OperationCancelled0 , "operation cancelled" );
-			return( true );
+			return( SCOPESTATE.NotRun );
 		}
 		
 		// by target
@@ -43,7 +44,7 @@ public class ActionAddScope extends ActionBase {
 			}
 		}
 		
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private boolean addAllProductSetElements( ActionScopeSet set ) throws Exception {

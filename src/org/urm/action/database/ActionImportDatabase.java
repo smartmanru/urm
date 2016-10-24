@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
 import org.urm.engine.dist.DistRepository;
@@ -55,7 +56,7 @@ public class ActionImportDatabase extends ActionBase {
 		this.SCHEMA = SCHEMA;
 	}
 
-	@Override protected boolean executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple() throws Exception {
 		workFolder = artefactory.getWorkFolder( this );
 		loadImportSettings();
 		
@@ -70,7 +71,7 @@ public class ActionImportDatabase extends ActionBase {
 		
 		info( "import has been finished, dumps are loaded from " + distDataFolder.folderPath );
 		
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 	
 	private void loadImportSettings() throws Exception {

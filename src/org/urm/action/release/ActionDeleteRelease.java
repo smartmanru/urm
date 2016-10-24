@@ -1,6 +1,7 @@
 package org.urm.action.release;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
 
 public class ActionDeleteRelease extends ActionBase {
@@ -14,12 +15,12 @@ public class ActionDeleteRelease extends ActionBase {
 		this.force = force;
 	}
 
-	@Override protected boolean executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple() throws Exception {
 		if( force )
 			release.forceDrop( this );
 		else
 			release.dropRelease( this );
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 	
 }

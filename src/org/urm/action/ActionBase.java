@@ -4,6 +4,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Properties;
 
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
@@ -60,12 +61,12 @@ abstract public class ActionBase extends ActionCore {
 
 	public int commandTimeout;
 	
-	protected boolean executeSimple() throws Exception { return( false ); };
-	protected boolean executeScope( ActionScope scope ) throws Exception { return( false ); };
-	protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception { return( false ); };
-	protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception { return( false ); };
-	protected boolean executeScopeTargetItem( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception { return( false ); };
-	protected boolean executeAccount( ActionScopeSet set , Account account ) throws Exception { return( false ); };
+	protected SCOPESTATE executeSimple() throws Exception { return( SCOPESTATE.NotRun ); };
+	protected SCOPESTATE executeScope( ActionScope scope ) throws Exception { return( SCOPESTATE.NotRun ); };
+	protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception { return( SCOPESTATE.NotRun ); };
+	protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception { return( SCOPESTATE.NotRun ); };
+	protected SCOPESTATE executeScopeTargetItem( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception { return( SCOPESTATE.NotRun ); };
+	protected SCOPESTATE executeAccount( ActionScopeSet set , Account account ) throws Exception { return( SCOPESTATE.NotRun ); };
 	protected void runBefore() throws Exception {};
 	protected void runAfter() throws Exception {};
 	protected void runBefore( ActionScope scope ) throws Exception {};
@@ -209,10 +210,7 @@ abstract public class ActionBase extends ActionCore {
 
 	public boolean runSimple() {
 		ScopeExecutor executor = new ScopeExecutor( this );
-		if( executor.runSimple() )
-			if( !executor.runFailed )
-				return( true );
-		return( false );
+		return( executor.runSimple() );
 	}
 	
 	public boolean runAll( ActionScope scope ) {
@@ -227,26 +225,17 @@ abstract public class ActionBase extends ActionCore {
 	
 	public boolean runSingleTarget( ActionScopeTarget item ) {
 		ScopeExecutor executor = new ScopeExecutor( this );
-		if( executor.runSingleTarget( item ) )
-			if( !executor.runFailed )
-				return( true );
-		return( false );
+		return( executor.runSingleTarget( item ) );
 	}
 	
 	public boolean runTargetList( ActionScopeSet set , ActionScopeTarget[] items ) {
 		ScopeExecutor executor = new ScopeExecutor( this );
-		if( executor.runTargetList( set , items ) )
-			if( !executor.runFailed )
-				return( true );
-		return( false );
+		return( executor.runTargetList( set , items ) );
 	}
 	
 	public boolean runCategories( ActionScope scope , VarCATEGORY[] categories ) {
 		ScopeExecutor executor = new ScopeExecutor( this );
-		if( executor.runCategories( scope , categories ) )
-			if( !executor.runFailed )
-				return( true );
-		return( false );
+		return( executor.runCategories( scope , categories ) );
 	}
 	
 	public boolean runEachBuildableProject( ActionScope scope ) {
@@ -274,18 +263,12 @@ abstract public class ActionBase extends ActionCore {
 
 	public boolean runEnvUniqueHosts( ActionScope scope ) {
 		ScopeExecutor executor = new ScopeExecutor( this );
-		if( executor.runEnvUniqueHosts( scope ) )
-			if( !executor.runFailed )
-				return( true );
-		return( false );
+		return( executor.runEnvUniqueHosts( scope ) );
 	}
 	
 	public boolean runEnvUniqueAccounts( ActionScope scope ) {
 		ScopeExecutor executor = new ScopeExecutor( this );
-		if( executor.runEnvUniqueAccounts( scope ) )
-			if( !executor.runFailed )
-				return( true );
-		return( false );
+		return( executor.runEnvUniqueAccounts( scope ) );
 	}
 	
 	public ShellExecutor getShell( Account account ) throws Exception {

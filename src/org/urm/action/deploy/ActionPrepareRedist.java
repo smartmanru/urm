@@ -3,6 +3,7 @@ package org.urm.action.deploy;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.meta.product.MetaEnvServer;
@@ -19,13 +20,13 @@ public class ActionPrepareRedist extends ActionBase {
 		this.recreate = recreate;
 	}
 
-	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		// ignore database and manual deployments
 		MetaEnvServer server = target.envServer;
 	
 		if( !server.isDeployPossible() ) {
 			trace( "ignore due to server properties" );
-			return( true );
+			return( SCOPESTATE.RunSuccess );
 		}
 		
 		for( ActionScopeTargetItem item : target.getItems( this ) )
@@ -36,7 +37,7 @@ public class ActionPrepareRedist extends ActionBase {
 				recreateFoldersSingle( server.staticServer );
 		}
 		
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private void recreateFolders( MetaEnvServer server , MetaEnvServerNode node ) throws Exception {

@@ -2,6 +2,7 @@ package org.urm.action.build;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.vcs.ProjectVersionControl;
 
@@ -16,11 +17,11 @@ public class ActionCommitCodebase extends ActionBase {
 		this.MESSAGE = MESSAGE;
 	}
 
-	@Override protected boolean executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
 		ProjectVersionControl vcs = new ProjectVersionControl( this , false );
 		LocalFolder COPATH = CODIR.getSubFolder( this , scopeProject.sourceProject.PROJECT );
 		vcs.commit( COPATH , scopeProject.sourceProject , MESSAGE );
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 	
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.storage.LocalFolder;
@@ -33,7 +34,7 @@ public class ActionGetBinary extends ActionBase {
 		this.downloadFolder = downloadFolder;
 	}
 
-	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		if( target.CATEGORY == VarCATEGORY.BUILD )
 			downloadCoreProject( target );
 		else 
@@ -41,7 +42,7 @@ public class ActionGetBinary extends ActionBase {
 			downloadPrebuiltProject( target );
 		else
 			this.exitUnexpectedCategory( target.CATEGORY );
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 	
 	private void downloadCoreProject( ActionScopeTarget scopeProject ) throws Exception {

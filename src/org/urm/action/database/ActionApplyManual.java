@@ -3,6 +3,7 @@ package org.urm.action.database;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.storage.LocalFolder;
@@ -21,7 +22,7 @@ public class ActionApplyManual extends ActionBase {
 		this.server = server;
 	}
 
-	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		info( "apply manual database items ..." );
 		LogStorage logs = artefactory.getDatabaseLogStorage( this , target.meta , release.release.RELEASEVER );
 		info( "log to " + logs.logFolder.folderPath );
@@ -51,7 +52,7 @@ public class ActionApplyManual extends ActionBase {
 		}
 
 		client.applyManualSet( this , logReleaseExecute );
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private void prepareManual( ActionScopeTarget target , DatabaseClient client , LocalFolder logReleaseCopy , LocalFolder logReleaseExecute , String file ) throws Exception {

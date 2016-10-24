@@ -3,6 +3,7 @@ package org.urm.action.deploy;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
 import org.urm.engine.storage.LocalFolder;
@@ -25,11 +26,11 @@ public class ActionRestoreConfigs extends ActionBase {
 		timestamp = Common.getNameTimeStamp();
 	}
 
-	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer; 
 		if( !server.isConfigurable() ) {
 			debug( "ignore server=" + server.NAME + ", type=" + server.getServerTypeName( this ) );
-			return( true );
+			return( SCOPESTATE.NotRun );
 		}
 
 		info( "============================================ " + getMode() + " server=" + server.NAME + " ..." );
@@ -69,7 +70,7 @@ public class ActionRestoreConfigs extends ActionBase {
 			executeNode( folder , sourceStorage , server , node , false );
 		}
 
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private void executeNode( LocalFolder parent , SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , boolean prepare ) throws Exception {

@@ -5,6 +5,7 @@ import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.database.DatabaseClient;
 import org.urm.common.Common;
 import org.urm.common.SimpleHttp;
@@ -64,7 +65,7 @@ public class ActionCheckEnv extends ActionBase {
 		info( "## dc " + F_STATUSOBJECT + " check OK" );
 	}
 	
-	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		ActionScopeSet set = target.set;
 		
 		try {
@@ -99,7 +100,7 @@ public class ActionCheckEnv extends ActionBase {
 		String F_STATUSOBJECT = set.dc.NAME + "." + target.envServer.NAME;
 		if( !S_CHECKENV_TARGET_FAILED ) {
 			info( "## server " + F_STATUSOBJECT + " check OK" );
-			return( true );
+			return( SCOPESTATE.RunSuccess );
 		}
 
 		String MSG = "## server " + F_STATUSOBJECT + " check FAILED:";
@@ -112,7 +113,7 @@ public class ActionCheckEnv extends ActionBase {
 		info( MSG );
 		
 		S_CHECKENV_TOTAL_SERVERS_FAILED = Common.addItemToUniqueSpacedList( S_CHECKENV_TOTAL_SERVERS_FAILED , target.NAME );
-		return( true );
+		return( SCOPESTATE.RunFail );
 	}
 
 	private void checkOneServer( ActionScopeTarget target , MetaEnvServer server , boolean main , String role ) throws Exception {

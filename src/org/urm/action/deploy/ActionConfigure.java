@@ -8,6 +8,7 @@ import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
@@ -85,7 +86,7 @@ public class ActionConfigure extends ActionBase {
 			dist.copyDistConfToFolder( this , conf , templateFolder.getSubFolder( this , conf.KEY ) );
 	}
 	
-	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , target.meta );
@@ -95,7 +96,7 @@ public class ActionConfigure extends ActionBase {
 		for( ActionScopeTargetItem node : target.getItems( this ) )
 			executeNode( server , node.envServerNode , sourceStorage , serverFolder );
 		
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , SourceStorage sourceStorage , LocalFolder parent ) throws Exception {

@@ -3,6 +3,7 @@ package org.urm.action.deploy;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
 import org.urm.engine.shell.ShellExecutor;
@@ -26,9 +27,9 @@ public class ActionBaseInstall extends ActionBase {
 		super( action , stream );
 	}
 
-	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		executeServer( target );
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private void executeServer( ActionScopeTarget target ) throws Exception {

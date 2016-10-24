@@ -21,6 +21,8 @@ public class ActionCore {
 	private int progressCurrent;
 	private RunError progressError;
 	
+	public ActionEventsSource eventSource;
+	
 	protected ActionCore( ServerEngine engine , ActionCore parent ) {
 		this.engine = engine;
 		this.parent = parent;
@@ -32,6 +34,8 @@ public class ActionCore {
 		progressFailed = false;
 		progressMax = 0;
 		progressCurrent = 0;
+		
+		eventSource = new ActionEventsSource( this );
 	}
 
 	public boolean isFailed() {

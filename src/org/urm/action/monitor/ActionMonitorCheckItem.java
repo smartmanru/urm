@@ -1,6 +1,7 @@
 package org.urm.action.monitor;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.SimpleHttp;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringItem;
@@ -16,7 +17,7 @@ public class ActionMonitorCheckItem extends ActionBase {
 		this.item = item;
 	}
 
-	@Override protected boolean executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple() throws Exception {
 		if( item.monitorUrl )
 			monitorUrl( item.URL );
 		else
@@ -24,7 +25,7 @@ public class ActionMonitorCheckItem extends ActionBase {
 			monitorWS( item.URL , item.WSDATA , item.WSCHECK );
 		else
 			exitUnexpectedState();
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private void monitorUrl( String URL ) throws Exception {

@@ -5,6 +5,7 @@ import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
@@ -31,11 +32,11 @@ public class ActionSaveConfigs extends ActionBase {
 			sourceStorage.tagLiveConfigs( this , context.CTX_TAG , "ActionSaveConfigs" );
 	}
 	
-	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer; 
 		if( !server.isConfigurable() ) {
 			debug( "ignore server=" + server.NAME + ", type=" + server.getServerTypeName( this ) );
-			return( true );
+			return( SCOPESTATE.NotRun );
 		}
 
 		info( "============================================ execute server=" + server.NAME + " ..." );
@@ -54,7 +55,7 @@ public class ActionSaveConfigs extends ActionBase {
 		if( context.CTX_FORCE && target.itemFull )
 			deleteOldConfItems( server , F_REDIST_SAVEITEMS );
 		
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private String executeNode( MetaEnvServer server , MetaEnvServerNode node ) throws Exception {

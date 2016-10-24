@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionSet;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.storage.MonitoringStorage;
@@ -33,7 +34,7 @@ public class ActionMonitorTop extends ActionBase {
 		}
 	}
 	
-	@Override protected boolean executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple() throws Exception {
 		continueRunning = true;
 
 		long lastStartMajor = 0;
@@ -112,7 +113,7 @@ public class ActionMonitorTop extends ActionBase {
 			handle( e );
 		}
 		
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private synchronized boolean runSleep( long millis ) {

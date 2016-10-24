@@ -7,6 +7,7 @@ import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionSet;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.meta.product.MetaEnvStartGroup;
 
@@ -27,14 +28,14 @@ public class ActionStopEnv extends ActionBase {
 		infoAction( "done." );
 	}
 	
-	@Override protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+	@Override protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		List<MetaEnvStartGroup> groups = set.dc.startInfo.getReverseGroupList( this );
 		for( MetaEnvStartGroup group : groups ) {
 			if( !stopServerGroup( set , group , targets ) )
 				ifexit( _Error.FailedGroupOperation0 , "failed group operation" , null );
 		}
 		
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private boolean stopServerGroup( ActionScopeSet set , MetaEnvStartGroup group , ActionScopeTarget[] targets ) throws Exception {

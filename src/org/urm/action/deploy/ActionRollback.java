@@ -3,6 +3,7 @@ package org.urm.action.deploy;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RuntimeStorage;
@@ -18,21 +19,21 @@ public class ActionRollback extends ActionBase {
 		this.dist = dist;
 	}
 
-	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		// ignore database and unreachable
 		MetaEnvServer server = target.envServer;
 		if( !server.isDeployPossible() ) {
 			trace( "ignore due to server empty deployments" );
-			return( true );
+			return( SCOPESTATE.NotRun );
 		}
 
 		if( target.getItems( this ).size() == 0 ) {
 			trace( "no nodes to rollback. Skipped." );
-			return( true );
+			return( SCOPESTATE.NotRun );
 		}
 
 		executeServer( target );
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 	
 	private void executeServer( ActionScopeTarget target ) throws Exception {

@@ -6,6 +6,7 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 
@@ -20,11 +21,11 @@ public class ActionStartServer extends ActionBase {
 		this.server = target.envServer;
 	}
 
-	@Override protected boolean executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple() throws Exception {
 		List<ActionScopeTargetItem> nodes = target.getItems( this );
 		if( nodes.isEmpty() ) {
 			debug( "server=" + server.NAME + " has no nodes specified to start. Skipped." );
-			return( true );
+			return( SCOPESTATE.NotRun );
 		}
 		
 		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
@@ -45,7 +46,7 @@ public class ActionStartServer extends ActionBase {
 			executeServerSingle( server.proxyServer , null );
 		}
 
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	public List<MetaEnvServerNode> getActionServerNodes( MetaEnvServer actionServer , List<ActionScopeTargetItem> targetNodes ) throws Exception {

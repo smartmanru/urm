@@ -2,6 +2,7 @@ package org.urm.action.deploy;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
@@ -21,7 +22,7 @@ public class ActionUpgradeEnv extends ActionBase {
 		this.PATCHID = PATCHID;
 	}
 
-	@Override protected boolean executeAccount( ActionScopeSet set , Account account ) throws Exception {
+	@Override protected SCOPESTATE executeAccount( ActionScopeSet set , Account account ) throws Exception {
 		PATCHFILE = shell.findOneTop( this , context.env.UPGRADE_PATH, PATCHID + "-*" );
 		if( PATCHFILE.isEmpty() )
 			exit2( _Error.UnableFindPatch2 , "unable to find patch file=" + PATCHID + "-* in " + context.env.UPGRADE_PATH , PATCHID , context.env.UPGRADE_PATH );
@@ -29,7 +30,7 @@ public class ActionUpgradeEnv extends ActionBase {
 		// execute
 		VersionInfoStorage vis = artefactory.getVersionInfoStorage( this , account );
 		if( !checkNeed( account , vis ) )
-			return( true );
+			return( SCOPESTATE.NotRun );
 			
 		// execute
 		int timeout = setTimeoutUnlimited();
@@ -42,7 +43,7 @@ public class ActionUpgradeEnv extends ActionBase {
 		// register result
 		registerExecution( account , status , vis );
 		
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private boolean checkNeed( Account account , VersionInfoStorage vis ) throws Exception {

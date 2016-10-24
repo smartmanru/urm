@@ -7,6 +7,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseTargetItem;
 
@@ -19,18 +20,18 @@ public class ActionDescope extends ActionBase {
 		this.dist = dist;
 	}
 
-	@Override protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+	@Override protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		if( !set.setFull )
-			return( false );
+			return( SCOPESTATE.NotRun );
 		
 		dist.descopeSet( this , set.rset );
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 	
-	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		if( target.itemFull ) {
 			dist.descopeTarget( this , target.releaseTarget );
-			return( true );
+			return( SCOPESTATE.RunSuccess );
 		}
 		
 		List<ReleaseTargetItem> items = new LinkedList<ReleaseTargetItem>();
@@ -39,7 +40,7 @@ public class ActionDescope extends ActionBase {
 		
 		dist.descopeTargetItems( this , items.toArray( new ReleaseTargetItem[0] ) );
 		
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 }

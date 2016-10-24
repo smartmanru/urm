@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvDC;
@@ -21,27 +22,27 @@ public class ActionConfCheck extends ActionBase {
 		super( action , stream );
 	}
 	
-	@Override protected boolean executeScope( ActionScope scope ) throws Exception {
+	@Override protected SCOPESTATE executeScope( ActionScope scope ) throws Exception {
 		info( "check configuration parameters in env=" + context.env.ID + " ..." );
 		S_CONFCHECK_STATUS = true;
 
 		// read properties
 		executeEnv( scope );
-		return( false );
+		return( SCOPESTATE.NotRun );
 	}
 	
-	@Override protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+	@Override protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		info( "check configuration parameters in datacenter=" + set.dc.NAME + " ..." );
 
 		// read properties
 		executeDC( set.dc );
-		return( false );
+		return( SCOPESTATE.NotRun );
 	}
 	
-	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		// read properties
 		executeServer( target.envServer );
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private void executeEnv( ActionScope scope ) throws Exception {

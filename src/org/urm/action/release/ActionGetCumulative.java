@@ -1,6 +1,7 @@
 package org.urm.action.release;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.ReleaseDelivery;
@@ -21,7 +22,7 @@ public class ActionGetCumulative extends ActionBase {
 		this.dist = dist;
 	}
 
-	@Override protected boolean executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple() throws Exception {
 		dist.openForChange( this );
 		dist.descopeAll( this );
 		dist.saveReleaseXml( this );
@@ -38,7 +39,7 @@ public class ActionGetCumulative extends ActionBase {
 			if( !addCumulativeVersion( repo , versions[ k ] , cumdist ) ) {
 				super.fail1( _Error.AddCumulativeVersionFailed1 , "Cannot add to cumulative release version=" + versions[ k ] , versions[ k ] );
 				dist.closeChange( this );
-				return( true );
+				return( SCOPESTATE.RunSuccess );
 			}	
 		}
 
@@ -46,7 +47,7 @@ public class ActionGetCumulative extends ActionBase {
 		
 		dist.saveReleaseXml( this );
 		dist.closeChange( this );
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private boolean addCumulativeVersion( DistRepository repo , String cumver , Dist cumdist ) throws Exception {

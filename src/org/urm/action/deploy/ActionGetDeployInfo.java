@@ -3,6 +3,7 @@ package org.urm.action.deploy;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.database.DatabaseClient;
 import org.urm.action.database.DatabaseRegistry;
 import org.urm.action.database.DatabaseRegistryRelease;
@@ -21,7 +22,7 @@ public class ActionGetDeployInfo extends ActionBase {
 		super( action , stream );
 	}
 
-	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
 
@@ -30,7 +31,7 @@ public class ActionGetDeployInfo extends ActionBase {
 		else
 			executeTargetApp( target , server );
 		
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 	
 	private void executeTargetDatabase( MetaEnvServer server ) throws Exception {

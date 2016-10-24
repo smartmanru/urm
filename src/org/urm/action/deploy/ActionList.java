@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 
@@ -13,17 +14,17 @@ public class ActionList extends ActionBase {
 		super( action , stream );
 	}
 
-	@Override protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+	@Override protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		String s = "servers of datacenter=" + set.dc.NAME + ":";
 		info( s );
-		return( false );
+		return( SCOPESTATE.NotRun );
 	}
 	
-	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		showServerInfo( target.envServer );
 		for( ActionScopeTargetItem item : target.getItems( this ) )
 			showNodeInfo( item.envServerNode );
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private void showServerInfo( MetaEnvServer server ) throws Exception {

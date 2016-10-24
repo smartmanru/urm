@@ -5,6 +5,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
 import org.urm.common.action.CommandOptions.SQLTYPE;
@@ -39,7 +40,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		info( "log to " + logs.logFolder.folderPath );
 	}
 	
-	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		DatabaseClient client = new DatabaseClient();
 		if( !client.checkConnect( this , server ) )
@@ -54,7 +55,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		if( applyFailed )
 			super.fail0( _Error.ApplyFailed0 , "Database apply changes failed" );
 		
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private boolean applyDatabase( MetaEnvServer server , DatabaseClient client ) throws Exception {

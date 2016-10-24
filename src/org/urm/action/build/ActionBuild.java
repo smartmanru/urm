@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
@@ -28,7 +29,7 @@ public class ActionBuild extends ActionBase {
 		this.TAG = TAG;
 	}
 
-	@Override protected boolean executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+	@Override protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		boolean run = false;
 		
 		// run in order of build
@@ -48,7 +49,7 @@ public class ActionBuild extends ActionBase {
 			debug( "build project=" + project.PROJECT );
 			if( !executeTarget( target ) ) {
 				error( "cancel build due to errors" );
-				return( false );
+				return( SCOPESTATE.RunFail );
 			}
 			
 			run = true;
@@ -56,7 +57,7 @@ public class ActionBuild extends ActionBase {
 
 		if( run )
 			shell.customCheckErrorsDebug( this , "grep " + Common.getQuoted( "[INFO|ERROR]] BUILD" ) + " " + OUTDIR.folderPath + "/" + set.NAME + "/*.log >> " + OUTFILE );
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 	
 	private boolean executeTarget( ActionScopeTarget scopeProject ) throws Exception {

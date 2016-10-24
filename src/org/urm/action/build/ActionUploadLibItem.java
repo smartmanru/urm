@@ -2,6 +2,7 @@ package org.urm.action.build;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.product.Meta;
@@ -28,7 +29,7 @@ public class ActionUploadLibItem extends ActionBase {
 		this.CLASSIFIER = CLASSIFIER;
 	}
 	
-	@Override protected boolean executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
 		// set environment
 		MetaProductBuildSettings build = getBuildSettings( meta );
 		String BUILD_JAVA_VERSION = build.CONFIG_MAVEN_JAVA_VERSION;
@@ -96,7 +97,7 @@ public class ActionUploadLibItem extends ActionBase {
 		}
 		
 		shell.custom( this , CMD );
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 	
 }

@@ -2,6 +2,7 @@ package org.urm.action.build;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.vcs.ProjectVersionControl;
 import org.urm.meta.product.MetaSourceProject;
@@ -16,7 +17,7 @@ public class ActionSetTagOnBuildBranch extends ActionBase {
 		this.TAG = TAG;
 	}
 
-	@Override protected boolean executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
 		String BUILDBRANCH = "";
 		String BUILDTAG = "";
 		
@@ -32,7 +33,7 @@ public class ActionSetTagOnBuildBranch extends ActionBase {
 
 		if( !BUILDTAG.isEmpty() ) {
 			setTagFromTag( BUILDTAG , TAG , scopeProject.CATEGORY , sourceProject );
-			return( true );
+			return( SCOPESTATE.RunSuccess );
 		}
 		
 		if( BUILDBRANCH.isEmpty() ) {
@@ -42,7 +43,7 @@ public class ActionSetTagOnBuildBranch extends ActionBase {
 		}
 		
 		setTagFromBranch( BUILDBRANCH , TAG , scopeProject.CATEGORY , sourceProject );
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private void setTagFromTag( String SRCTAG , String TAG , VarCATEGORY CATEGORY , MetaSourceProject sourceProject ) throws Exception {

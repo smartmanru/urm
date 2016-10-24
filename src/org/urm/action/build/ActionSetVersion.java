@@ -2,6 +2,7 @@ package org.urm.action.build;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.vcs.ProjectVersionControl;
@@ -38,11 +39,11 @@ public class ActionSetVersion extends ActionBase {
 			shell.gitAddPomFiles( this , CODEPATH.folderPath );
 	}
 	
-	@Override protected boolean executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
 		// ignore if builder is not maven
 		if( !scopeProject.sourceProject.getBuilder( this ).equals( "maven" ) ) {
 			info( "project=" + scopeProject.sourceProject.PROJECT + " is not built by maven. Skipped." );
-			return( true );
+			return( SCOPESTATE.NotRun );
 		}
 		
 		// checkout
@@ -62,6 +63,6 @@ public class ActionSetVersion extends ActionBase {
 		updateVersion( scopeProject , PATCHPATH.buildFolder );
 		MetaProductSettings product = scopeProject.meta.getProductSettings( this );
 		vcs.commit( PATCHPATH.buildFolder , scopeProject.sourceProject , product.CONFIG_ADM_TRACKER + "-0000: set version " + BUILDVERSION );
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 }

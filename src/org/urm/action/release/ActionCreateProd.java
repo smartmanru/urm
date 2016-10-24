@@ -1,6 +1,7 @@
 package org.urm.action.release;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.DistRepository;
 import org.urm.meta.product.Meta;
 
@@ -15,10 +16,10 @@ public class ActionCreateProd extends ActionBase {
 		this.RELEASEVER = RELEASEVER;
 	}
 
-	@Override protected boolean executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple() throws Exception {
 		DistRepository repo = artefactory.getDistRepository( this , meta );
 		repo.createProd( this , RELEASEVER );
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 	
 }

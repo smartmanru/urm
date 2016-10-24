@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.shell.Account;
 import org.urm.engine.storage.VersionInfoStorage;
@@ -14,14 +15,14 @@ public class ActionBaseList extends ActionBase {
 		super( action , stream );
 	}
 
-	@Override protected boolean executeAccount( ActionScopeSet set , Account account ) throws Exception {
+	@Override protected SCOPESTATE executeAccount( ActionScopeSet set , Account account ) throws Exception {
 		VersionInfoStorage vis = artefactory.getVersionInfoStorage( this , account );
 		Map<String,String> items = vis.getBaseList( this );
 		info( "============================================ account=" + account.getPrintName() );
 		
 		if( items.isEmpty() ) {
 			info( "(no base items)" );
-			return( true );
+			return( SCOPESTATE.NotRun );
 		}
 		
 		for( String key : Common.getSortedKeys( items ) ) {
@@ -29,7 +30,7 @@ public class ActionBaseList extends ActionBase {
 			info( "base=" + key + " value=" + value );
 		}
 		
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 	
 }

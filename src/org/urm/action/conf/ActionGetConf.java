@@ -2,6 +2,7 @@ package org.urm.action.conf;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.SourceStorage;
@@ -15,7 +16,7 @@ public class ActionGetConf extends ActionBase {
 		this.release = release;
 	}
 
-	protected boolean executeScopeTarget( ActionScopeTarget scopeItem ) throws Exception {
+	protected SCOPESTATE executeScopeTarget( ActionScopeTarget scopeItem ) throws Exception {
 		LocalFolder downloadFolder = artefactory.getDownloadFolder( this , scopeItem.meta );
 		
 		// export from source
@@ -41,7 +42,7 @@ public class ActionGetConf extends ActionBase {
 		if( copyDistr )
 			release.copyConfToDistr( this , confFolder.getSubFolder( this , KEY ) , sourceFolder.distrComp );
 		
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 }

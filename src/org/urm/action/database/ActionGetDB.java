@@ -2,6 +2,7 @@ package org.urm.action.database;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.SourceStorage;
@@ -15,7 +16,7 @@ public class ActionGetDB extends ActionBase {
 		this.dist = dist;
 	}
 
-	protected boolean executeScopeTarget( ActionScopeTarget item ) throws Exception {
+	protected SCOPESTATE executeScopeTarget( ActionScopeTarget item ) throws Exception {
 		info( "get database items of delivery=" + item.NAME + " ..." );
 
 		LocalFolder workFolder = artefactory.getWorkFolder( this , "download" );
@@ -23,7 +24,7 @@ public class ActionGetDB extends ActionBase {
 		
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , item.meta , workFolder );
 		if( !sourceStorage.downloadReleaseDatabaseFiles( this , dist , item.dbDelivery , workFolder ) )
-			return( false );
+			return( SCOPESTATE.NotRun );
 
 		LocalFolder downloadFolder = artefactory.getDownloadFolder( this , item.meta );
 		LocalFolder dbPreparedFolder = downloadFolder.getSubFolder( this , dist.getDeliveryDatabaseFolder( this , item.dbDelivery , dist.release.RELEASEVER ) );
@@ -32,7 +33,7 @@ public class ActionGetDB extends ActionBase {
 		LocalFolder dbWorkFolder = workFolder.getSubFolder( this , SourceStorage.DATABASE_FOLDER );
 		downloadDBDir( item , dbWorkFolder , dbPreparedFolder );
 		
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 	
 	private void downloadDBDir( ActionScopeTarget item , LocalFolder workFolder , LocalFolder preparedFolder ) throws Exception {

@@ -3,6 +3,7 @@ package org.urm.action.deploy;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.storage.FileInfo;
 import org.urm.engine.storage.RedistStateInfo;
@@ -21,7 +22,7 @@ public class ActionGetRedistInfo extends ActionBase {
 		this.dist = dist;
 	}
 
-	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
 		info( "root path: " + server.ROOTPATH );
@@ -36,7 +37,7 @@ public class ActionGetRedistInfo extends ActionBase {
 			else
 				showReleaseState( redist );
 		}
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private void showReleases( RedistStorage redist ) throws Exception {

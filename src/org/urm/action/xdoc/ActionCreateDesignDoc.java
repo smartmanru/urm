@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.product.Meta;
@@ -30,7 +31,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		this.OUTDIR = OUTDIR;
 	}
 
-	@Override protected boolean executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple() throws Exception {
 		getProdServers();
 		
 		MetadataStorage ms = artefactory.getMetadataStorage( this , meta );
@@ -41,7 +42,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 			createDesignDocs( design , designBase );
 		}
 		
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 		
 	private void createDesignDocs( MetaDesign design , String designBase ) throws Exception {

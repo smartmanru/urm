@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaEnvServer;
@@ -25,7 +26,7 @@ public class ActionManageRegistry extends ActionBase {
 		this.indexScope = ( indexScope == null )? "" : indexScope;
 	}
 
-	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		DatabaseClient client = new DatabaseClient();
 		if( !client.checkConnect( this , server ) )
@@ -52,7 +53,7 @@ public class ActionManageRegistry extends ActionBase {
 		else
 			exit1( _Error.UnexpectedManageCommand1 , "unexpected manage command=" + CMD , CMD );
 		
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private void executePrintRegistry( DatabaseRegistry registry ) throws Exception {

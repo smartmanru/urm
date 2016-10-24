@@ -1,6 +1,7 @@
 package org.urm.action.deploy;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.meta.product.MetaEnvDC;
 import org.urm.meta.product.MetaProductSettings;
@@ -22,12 +23,12 @@ public class ActionSendChatMsg extends ActionBase {
 		this.dc = dc;
 	}
 
-	@Override protected boolean executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple() throws Exception {
 		if( context.CTX_NOCHATMSG )
-			return( false );
+			return( SCOPESTATE.NotRun );
 		
 		if( context.env.CHATROOMFILE.isEmpty() )
-			return( false );
+			return( SCOPESTATE.NotRun );
 
 		if( dc != null )
 			msg += " (dc=" + dc.NAME + ")"; 
@@ -36,7 +37,7 @@ public class ActionSendChatMsg extends ActionBase {
 		String filePath = Common.getPath( product.CONFIG_PRODUCTHOME , context.env.CHATROOMFILE ); 
 		shell.appendFileWithString( this , filePath , msg );
 		trace( "ActionSendChatMsg: msg sent to " + filePath );
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 	
 }

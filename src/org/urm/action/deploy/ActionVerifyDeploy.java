@@ -6,6 +6,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.conf.ConfDiffSet;
 import org.urm.action.database.DatabaseClient;
 import org.urm.action.database.DatabaseRegistry;
@@ -79,21 +80,21 @@ public class ActionVerifyDeploy extends ActionBase {
 		}
 	}
 	
-	@Override protected boolean executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		// ignore database and unreachable
 		MetaEnvServer server = target.envServer;
 		if( !server.isDeployPossible() ) {
 			trace( "ignore due to server empty deployment" );
-			return( true );
+			return( SCOPESTATE.NotRun );
 		}
 
 		if( target.getItems( this ).size() == 0 ) {
 			trace( "no nodes to verify. Skipped." );
-			return( true );
+			return( SCOPESTATE.NotRun );
 		}
 
 		executeServer( target );
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 	
 	private void executeServer( ActionScopeTarget target ) throws Exception {

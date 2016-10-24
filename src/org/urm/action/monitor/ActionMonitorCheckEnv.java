@@ -2,6 +2,7 @@ package org.urm.action.monitor;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.deploy.ActionCheckEnv;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
@@ -21,7 +22,7 @@ public class ActionMonitorCheckEnv extends ActionBase {
 		this.target = target;
 	}
 
-	@Override protected boolean executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple() throws Exception {
 		ActionCheckEnv action = new ActionCheckEnv( this , null );
 		
 		MetaEnv env = target.meta.getEnv( this , target.ENV );
@@ -43,7 +44,7 @@ public class ActionMonitorCheckEnv extends ActionBase {
 		String logSave = logsFolder.getFilePath( action , storage.getCheckEnvFile( target ) );
 		action.shell.move( this , logRunning , logSave );
 		
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 	
 }

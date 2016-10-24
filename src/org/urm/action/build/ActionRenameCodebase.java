@@ -2,6 +2,7 @@ package org.urm.action.build;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.vcs.ProjectVersionControl;
 
 public class ActionRenameCodebase extends ActionBase {
@@ -20,7 +21,7 @@ public class ActionRenameCodebase extends ActionBase {
 		this.VAR2 = VAR2;
 	}
 
-	@Override protected boolean executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
 		ProjectVersionControl vcs = new ProjectVersionControl( this , false );
 		if( branchVAR1 == true && branchVAR2 == true && force == false )
 			vcs.renameBranchToNewBranch( scopeProject.sourceProject , VAR1 , VAR2 );
@@ -29,6 +30,6 @@ public class ActionRenameCodebase extends ActionBase {
 			vcs.renameTagToTag( scopeProject.sourceProject , VAR1 , VAR2 );
 		else
 			exitNotImplemented();
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 }

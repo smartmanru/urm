@@ -2,6 +2,7 @@ package org.urm.action.deploy;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.shell.Account;
 
@@ -16,7 +17,7 @@ public class ActionScp extends ActionBase {
 		this.dstPath = dstPath;
 	}
 
-	@Override protected boolean executeAccount( ActionScopeSet set , Account account ) throws Exception {
+	@Override protected SCOPESTATE executeAccount( ActionScopeSet set , Account account ) throws Exception {
 		String F_CMD = "scp";
 
 		if( !shell.checkFileExists( this , srcInfo ) ) 
@@ -33,12 +34,12 @@ public class ActionScp extends ActionBase {
 		
 		super.executeLogLive( account , "scp from " + Common.getQuoted( srcInfo ) + " to " + Common.getQuoted( dstPath ) );
 		if( !isExecute() )
-			return( true );
+			return( SCOPESTATE.RunFail );
 		
 		int timeout = setTimeoutUnlimited();
 		shell.customCheckStatus( this , F_CMD );
 		setTimeout( timeout );
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 	
 }

@@ -1,6 +1,7 @@
 package org.urm.action.main;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.jmx.RemoteCall;
 
 public class ActionServer extends ActionBase {
@@ -12,7 +13,7 @@ public class ActionServer extends ActionBase {
 		this.OP = OP;
 	}
 
-	@Override protected boolean executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple() throws Exception {
 		if( OP.equals( "start" ) )
 			executeServerStart();
 		else if( OP.equals( "stop" ) )
@@ -22,7 +23,7 @@ public class ActionServer extends ActionBase {
 		else
 			exit1( _Error.UnexpectedServerAction1 , "unexpected action=" + OP , OP );
 		
-		return( true );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private void executeServerStart() throws Exception {
