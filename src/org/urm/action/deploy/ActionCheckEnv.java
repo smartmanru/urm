@@ -282,6 +282,11 @@ public class ActionCheckEnv extends ActionBase {
 	}
 	
 	private boolean checkOneServerNodeStatus( MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
+		if( server.isManual() ) {
+			debug( "skip check process for manual server=" + server.NAME );
+			return( true );
+		}
+		
 		ServerProcess process = new ServerProcess( server , node );
 		try {
 			process.gatherStatus( this );

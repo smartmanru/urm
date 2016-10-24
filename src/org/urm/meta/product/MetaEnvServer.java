@@ -665,6 +665,10 @@ public class MetaEnvServer extends PropertyController {
 		return( serverAccessType == VarSERVERACCESSTYPE.GENERIC );
 	}
 
+	public boolean isManual() {
+		return( serverAccessType == VarSERVERACCESSTYPE.MANUAL );
+	}
+
 	public boolean isWebUser() {
 		return( serverRunType == VarSERVERRUNTYPE.WEBUI );
 	}
