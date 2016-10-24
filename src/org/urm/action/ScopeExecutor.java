@@ -48,8 +48,8 @@ public class ScopeExecutor {
 		}
 
 		try {
-			if( ss != SCOPESTATE.RunBeforeFail && action.continueRun() )
-				ss = action.executeSimple();
+			if( checkNeedRunAction( ss , action ) )
+				ss = getActionStatus( ss , action , action.executeSimple() );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -90,8 +90,8 @@ public class ScopeExecutor {
 		}
 
 		try {
-			if( ss != SCOPESTATE.RunBeforeFail && action.continueRun() )
-				ss = runTargetCategoriesInternal( scope , categories , stateScope );
+			if( checkNeedRunAction( ss , action ) )
+				ss = getActionStatus( ss , action , runTargetCategoriesInternal( scope , categories , stateScope ) );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -134,7 +134,7 @@ public class ScopeExecutor {
 		}
 
 		try {
-			if( ss != SCOPESTATE.RunBeforeFail && action.continueRun() ) {
+			if( checkNeedRunAction( ss , action ) ) {
 				String list = "";
 				for( ActionScopeTarget target : targets )
 					list = Common.addItemToUniqueSpacedList( list , target.NAME );
@@ -175,7 +175,7 @@ public class ScopeExecutor {
 		}
 
 		try {
-			if( ss != SCOPESTATE.RunBeforeFail && action.continueRun() ) {
+			if( checkNeedRunAction( ss , action ) ) {
 				action.debug( action.NAME + ": run scope={" + item.set.NAME + "={" + item.NAME + "}}" );
 				ss = runTargetListInternal( item.CATEGORY , item.set , new ActionScopeTarget[] { item } , true , state );
 			}
@@ -213,7 +213,7 @@ public class ScopeExecutor {
 		}
 
 		try {
-			if( ss != SCOPESTATE.RunBeforeFail && action.continueRun() ) {
+			if( checkNeedRunAction( ss , action ) ) {
 				runUniqueHosts = true;
 				ss = runTargetCategoriesInternal( scope , categories , state );
 			}
@@ -255,7 +255,7 @@ public class ScopeExecutor {
 		}
 
 		try {
-			if( ss != SCOPESTATE.RunBeforeFail && action.continueRun() ) {
+			if( checkNeedRunAction( ss , action ) ) {
 				runUniqueAccounts = true;
 				ss = runTargetCategoriesInternal( scope , categories , state );
 			}
@@ -316,10 +316,10 @@ public class ScopeExecutor {
 		}
 			
 		try {
-			if( ss != SCOPESTATE.RunBeforeFail && runBefore && action.continueRun() )
-				ss = action.executeScopeSet( set , items );
+			if( checkNeedRunAction( ss , action ) && runBefore )
+				ss = getActionStatus( ss , action , action.executeScopeSet( set , items ) );
 
-			if( ss != SCOPESTATE.RunBeforeFail && !isRunDone( ss ) ) {
+			if( checkNeedRunAction( ss , action ) && !isRunDone( ss ) ) {
 				for( ActionScopeTarget target : getOrderedTargets( set , items ) ) {
 					ScopeState stateTarget = new ScopeState( stateSet , target );
 					SCOPESTATE ssTarget = runSingleTargetInternal( CATEGORY , target , stateTarget );
@@ -370,8 +370,8 @@ public class ScopeExecutor {
 		}
 		
 		try {
-			if( ss != SCOPESTATE.RunBeforeFail && action.continueRun() ) {
-				ss = action.executeScopeSet( set , items );
+			if( checkNeedRunAction( ss , action ) ) {
+				ss = getActionStatus( ss , action , action.executeScopeSet( set , items ) );
 				if( !isRunDone( ss ) )
 					ss = runTargetListInternal( set.CATEGORY , set , set.targets.values().toArray( new ActionScopeTarget[0] ) , false , stateSet );
 			}
@@ -449,8 +449,8 @@ public class ScopeExecutor {
 		}
 		
 		try {
-			if( ss != SCOPESTATE.RunBeforeFail && action.continueRun() ) {
-				ss = action.executeScope( scope );
+			if( checkNeedRunAction( ss , action ) ) {
+				ss = getActionStatus( ss , action , action.executeScope( scope ) );
 				if( !isRunDone( ss ) )
 					ss = runTargetCategoriesInternal( scope , null , stateScope );
 			}
@@ -485,8 +485,8 @@ public class ScopeExecutor {
 		}
 		
 		try {
-			if( ss != SCOPESTATE.RunBeforeFail && action.continueRun() ) {
-				ss = action.executeScopeTarget( target );
+			if( checkNeedRunAction( ss , action ) ) {
+				ss = getActionStatus( ss , action , action.executeScopeTarget( target ) );
 				if( !isRunDone( ss ) )
 					ss = runTargetItemsInternal( CATEGORY , target , stateTarget );
 			}
@@ -551,8 +551,8 @@ public class ScopeExecutor {
 		}
 		
 		try {		
-			if( ss != SCOPESTATE.RunBeforeFail && action.continueRun() ) {
-				ss = action.executeScopeTargetItem( target , item );
+			if( checkNeedRunAction( ss , action ) ) {
+				ss = getActionStatus( ss , action , action.executeScopeTargetItem( target , item ) );
 				if( ss == SCOPESTATE.NotRun )
 					action.trace( "target=" + target.NAME + ", item=" + item.NAME + " is not processed" );
 			}
@@ -606,7 +606,7 @@ public class ScopeExecutor {
 			String serverNodes = set.dc.getServerNodesByHost( action , host );
 			action.info( account.getPrintName() + ": serverNodes={" + serverNodes + "}" );
 			
-			ss = action.executeAccount( set , account );
+			ss = getActionStatus( ss , action , action.executeAccount( set , account ) );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -646,7 +646,7 @@ public class ScopeExecutor {
 		try {
 			String serverNodes = set.dc.getServerNodesByAccount( action , account );
 			action.info( account.getPrintName() + ": serverNodes={" + serverNodes + "}" );
-			ss = action.executeAccount( set , account );
+			ss = getActionStatus( ss , action , action.executeAccount( set , account ) );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -742,6 +742,21 @@ public class ScopeExecutor {
 			list.add( map.get( key ) );
 		
 		return( list );
+	}
+
+	private boolean checkNeedRunAction( SCOPESTATE ss , ActionBase action ) {
+		if( ss == SCOPESTATE.RunBeforeFail )
+			return( false );
+		if( action.isFailed() )
+			return( false );
+		action.clearCall();
+		return( true );
+	}
+
+	private SCOPESTATE getActionStatus( SCOPESTATE ss , ActionBase action , SCOPESTATE ssAction ) {
+		if( action.isCallFailed() )
+			return( SCOPESTATE.RunFail );
+		return( ssAction );
 	}
 	
 }

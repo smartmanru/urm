@@ -16,6 +16,7 @@ public class ActionCore {
 	public int ID;
 	public String NAME;
 
+	private boolean callFailed;
 	private boolean progressFailed;
 	private int progressMax;
 	private int progressCurrent;
@@ -31,6 +32,7 @@ public class ActionCore {
 		ID = instanceSequence++;
 		NAME = this.getClass().getSimpleName();
 		
+		callFailed = false;
 		progressFailed = false;
 		progressMax = 0;
 		progressCurrent = 0;
@@ -38,6 +40,10 @@ public class ActionCore {
 		eventSource = new ActionEventsSource( this );
 	}
 
+	public boolean isCallFailed() {
+		return( callFailed );
+	}
+	
 	public boolean isFailed() {
 		return( progressFailed );
 	}
@@ -53,8 +59,13 @@ public class ActionCore {
 	public int getProgressCurrent() {
 		return( progressCurrent );
 	}
+
+	public void clearCall() {
+		callFailed = false;
+	}
 	
 	private void setFailed( RunError exception ) {
+		callFailed = true;
 		progressFailed = true;
 		progressError = exception;
 	}
