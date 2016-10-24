@@ -1,5 +1,8 @@
 package org.urm.action;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.urm.engine.shell.Account;
 
 public class ScopeState {
@@ -22,49 +25,50 @@ public class ScopeState {
 	Account account;
 	SCOPESTATE state;
 	
+	List<ScopeState> childs;
+	
 	public ScopeState( ActionCore action , ActionScope scope ) {
-		this.action = action;
-		this.parent = null;
 		this.scope = scope;
-		this.state = SCOPESTATE.New;
+		create( action , null );
 	}
 
 	public ScopeState( ScopeState parent , ActionScopeSet set ) {
-		this.action = parent.action;
-		this.parent = parent;
 		this.scope = set.scope;
 		this.set = set;
-		this.state = SCOPESTATE.New;
+		create( parent.action , parent );
 	}
 
 	public ScopeState( ScopeState parent , Account account ) {
-		this.action = parent.action;
-		this.parent = parent;
 		this.scope = parent.scope;
 		this.set = parent.set;
 		this.account = account;
-		this.state = SCOPESTATE.New;
+		create( parent.action , parent );
 	}
 
 	public ScopeState( ScopeState parent , ActionScopeTarget target ) {
-		this.action = parent.action;
-		this.parent = parent;
 		this.scope = target.set.scope;
 		this.set = target.set;
 		this.target = target;
-		this.state = SCOPESTATE.New;
+		create( parent.action , parent );
 	}
 
 	public ScopeState( ScopeState parent , ActionScopeTargetItem item ) {
-		this.action = parent.action;
-		this.parent = parent;
 		this.scope = item.target.set.scope;
 		this.set = item.target.set;
 		this.target = item.target;
 		this.item = item;
-		this.state = SCOPESTATE.New;
+		create( parent.action , parent );
 	}
 
+	private void create( ActionCore action , ScopeState parent ) {
+		this.action = action;
+		this.parent = parent;
+		this.state = SCOPESTATE.New;
+		childs = new LinkedList<ScopeState>();
+		if( parent != null )
+			parent.childs.add( this );
+	}
+	
 	public void setActionStatus( SCOPESTATE state ) {
 		this.state = state;
 	}

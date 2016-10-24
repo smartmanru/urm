@@ -27,6 +27,7 @@ public class ScopeExecutor {
 	boolean runUniqueAccounts = false;
 	
 	ActionEventsSource eventsSource;
+	ScopeState stateFinal;
 	
 	public ScopeExecutor( ActionBase action ) {
 		this.action = action;
@@ -35,7 +36,7 @@ public class ScopeExecutor {
 	}
 
 	public boolean runSimple() {
-		ScopeState state = new ScopeState( action , null );
+		startExecutor( null );
 
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
@@ -65,19 +66,19 @@ public class ScopeExecutor {
 			ss = SCOPESTATE.RunFail;
 		}
 		
-		return( finishExecutor( state , ss ) );
+		return( finishExecutor( ss ) );
 	}
 
 	public boolean runAll( ActionScope scope ) {
-		ScopeState stateScope = new ScopeState( action , scope );
+		startExecutor( scope );
 		
-		SCOPESTATE ss = runAllInternal( scope , stateScope );
+		SCOPESTATE ss = runAllInternal( scope , stateFinal );
 		
-		return( finishExecutor( stateScope , ss ) );
+		return( finishExecutor( ss ) );
 	}
 	
 	public boolean runCategories( ActionScope scope , VarCATEGORY[] categories ) {
-		ScopeState stateScope = new ScopeState( action , scope );
+		startExecutor( scope );
 		
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
@@ -91,7 +92,7 @@ public class ScopeExecutor {
 
 		try {
 			if( checkNeedRunAction( ss , action ) )
-				ss = getActionStatus( ss , action , runTargetCategoriesInternal( scope , categories , stateScope ) );
+				ss = getActionStatus( ss , action , runTargetCategoriesInternal( scope , categories , stateFinal ) );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -107,22 +108,22 @@ public class ScopeExecutor {
 			ss = SCOPESTATE.RunFail;
 		}
 		
-		return( finishExecutor( stateScope , ss ) );
+		return( finishExecutor( ss ) );
 	}
 	
 	public boolean runAll( ActionScopeSet set ) {
-		ScopeState stateScope = new ScopeState( action , set.scope );
-		ScopeState stateSet = new ScopeState( stateScope , set );
+		startExecutor( set.scope );
+		ScopeState stateSet = new ScopeState( stateFinal , set );
 		
 		SCOPESTATE res = runTargetSetInternal( set , stateSet );
 		
-		finishExecutor( stateSet , res );
-		return( finishExecutor( stateScope , res ) );
+		stateSet.setActionStatus( res );
+		return( finishExecutor( res ) );
 	}
 	
 	public boolean runTargetList( ActionScopeSet set , ActionScopeTarget[] targets ) {
-		ScopeState stateScope = new ScopeState( action , set.scope );
-		ScopeState stateSet = new ScopeState( stateScope , set );
+		startExecutor( set.scope );
+		ScopeState stateSet = new ScopeState( stateFinal , set );
 		
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
@@ -157,13 +158,13 @@ public class ScopeExecutor {
 			ss = SCOPESTATE.RunFail;
 		}
 		
-		finishExecutor( stateSet , ss );
-		return( finishExecutor( stateScope , ss ) );
+		stateSet.setActionStatus( ss );
+		return( finishExecutor( ss ) );
 	}
 	
 	public boolean runSingleTarget( ActionScopeTarget item ) {
-		ScopeState stateScope = new ScopeState( action , item.set.scope );
-		ScopeState state = new ScopeState( stateScope , item.set );
+		startExecutor( item.set.scope );
+		ScopeState stateSet = new ScopeState( stateFinal , item.set );
 		
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
@@ -177,7 +178,7 @@ public class ScopeExecutor {
 		try {
 			if( checkNeedRunAction( ss , action ) ) {
 				action.debug( action.NAME + ": run scope={" + item.set.NAME + "={" + item.NAME + "}}" );
-				ss = runTargetListInternal( item.CATEGORY , item.set , new ActionScopeTarget[] { item } , true , state );
+				ss = runTargetListInternal( item.CATEGORY , item.set , new ActionScopeTarget[] { item } , true , stateSet );
 			}
 		}
 		catch( Throwable e ) {
@@ -194,12 +195,12 @@ public class ScopeExecutor {
 			ss = SCOPESTATE.RunFail;
 		}
 		
-		finishExecutor( state , ss );
-		return( finishExecutor( stateScope , ss ) );
+		stateSet.setActionStatus( ss );
+		return( finishExecutor( ss ) );
 	}
 	
 	public boolean runEnvUniqueHosts( ActionScope scope ) {
-		ScopeState state = new ScopeState( action , scope );
+		startExecutor( scope );
 		
 		SCOPESTATE ss = SCOPESTATE.New;
 		VarCATEGORY[] categories = new VarCATEGORY[] { VarCATEGORY.ENV };
@@ -215,7 +216,7 @@ public class ScopeExecutor {
 		try {
 			if( checkNeedRunAction( ss , action ) ) {
 				runUniqueHosts = true;
-				ss = runTargetCategoriesInternal( scope , categories , state );
+				ss = runTargetCategoriesInternal( scope , categories , stateFinal );
 			}
 		}
 		catch( Throwable e ) {
@@ -232,7 +233,7 @@ public class ScopeExecutor {
 			ss = SCOPESTATE.RunFail;
 		}
 		
-		return( finishExecutor( state , ss ) );
+		return( finishExecutor( ss ) );
 	}
 	
 	public boolean runEnvUniqueAccounts( ActionScope scope ) {
@@ -241,7 +242,7 @@ public class ScopeExecutor {
 				return( runEnvUniqueHosts( scope ) );
 		}
 
-		ScopeState state = new ScopeState( action , scope );
+		startExecutor( scope );
 		
 		SCOPESTATE ss = SCOPESTATE.New;
 		VarCATEGORY[] categories = new VarCATEGORY[] { VarCATEGORY.ENV };
@@ -257,7 +258,7 @@ public class ScopeExecutor {
 		try {
 			if( checkNeedRunAction( ss , action ) ) {
 				runUniqueAccounts = true;
-				ss = runTargetCategoriesInternal( scope , categories , state );
+				ss = runTargetCategoriesInternal( scope , categories , stateFinal );
 			}
 		}
 		catch( Throwable e ) {
@@ -274,18 +275,10 @@ public class ScopeExecutor {
 			ss = SCOPESTATE.RunFail;
 		}
 		
-		return( finishExecutor( state , ss ) );
+		return( finishExecutor( ss ) );
 	}
 	
 	// implementation
-	private boolean finishExecutor( ScopeState state , SCOPESTATE ss ) {
-		action.engine.shellPool.releaseActionPool( action );
-		state.setActionStatus( ss );
-		if( ss == SCOPESTATE.RunFail || ss == SCOPESTATE.RunBeforeFail )
-			return( false );
-		return( true );
-	}
-	
 	private SCOPESTATE runTargetListInternal( VarCATEGORY CATEGORY , ActionScopeSet set , ActionScopeTarget[] items , boolean runBefore , ScopeState stateSet ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
@@ -758,5 +751,20 @@ public class ScopeExecutor {
 			return( SCOPESTATE.RunFail );
 		return( ssAction );
 	}
+
+	private void startExecutor( ActionScope scope ) {
+		stateFinal = new ScopeState( action , scope );
+	}
+	
+	private boolean finishExecutor( SCOPESTATE ss ) {
+		action.engine.shellPool.releaseActionPool( action );
+		stateFinal.setActionStatus( ss );
+		
+		if( ss == SCOPESTATE.RunFail || ss == SCOPESTATE.RunBeforeFail )
+			return( false );
+		return( true );
+	}
+	
+
 	
 }
