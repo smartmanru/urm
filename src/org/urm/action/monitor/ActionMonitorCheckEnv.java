@@ -23,9 +23,11 @@ public class ActionMonitorCheckEnv extends ActionBase {
 
 	@Override protected boolean executeSimple() throws Exception {
 		ActionCheckEnv action = new ActionCheckEnv( this , null );
+		
 		MetaEnv env = target.meta.getEnv( this , target.ENV );
 		MetaEnvDC dc = env.getDC( this , target.DC );
-		ActionScope scope = ActionScope.getEnvScope( this , env , dc , null );
+		action.context.update( action , env , dc );
+		ActionScope scope = ActionScope.getEnvScope( action , env , dc , null );
 		
 		LocalFolder logsFolder = storage.getLogsFolder( action , target );
 		String logRunning = logsFolder.getFilePath( action , storage.getCheckEnvRunningFile( target ) ); 

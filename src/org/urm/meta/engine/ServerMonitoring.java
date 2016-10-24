@@ -51,7 +51,7 @@ public class ServerMonitoring extends ServerObject {
 	public String RESOURCE_URL;
 	
 	// properties
-	public static String PROPERTY_ENABLED = "default.monitoring.enabled";
+	public static String PROPERTY_ENABLED = "monitoring.enabled";
 	public static String PROPERTY_RESOURCE_PATH = "default.resources.path";
 	public static String PROPERTY_RESOURCE_URL = "default.resources.url";
 	public static String PROPERTY_DIR_DATA = "default.data.path";
@@ -90,7 +90,7 @@ public class ServerMonitoring extends ServerObject {
 		properties = new PropertySet( "defmon" , settings.serverContext.properties );
 		Document doc = ConfReader.readXmlFile( execrc , monFile );
 		Node root = doc.getDocumentElement();
-		properties.loadFromNodeAttributes( root );
+		properties.loadFromNodeElements( root );
 		scatterProperties();
 	}
 	
@@ -211,7 +211,8 @@ public class ServerMonitoring extends ServerObject {
 		return( state );
 	}
 
-	public void setEnabled( ServerTransaction transaction , boolean enabled ) {
+	public void setEnabled( ServerTransaction transaction , boolean enabled ) throws Exception {
+		properties.setOriginalSystemBooleanProperty( PROPERTY_ENABLED , enabled );
 		ENABLED = enabled;
 	}
 

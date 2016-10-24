@@ -232,14 +232,24 @@ public class CommandContext {
 		setLogStream();
 	}
 
+	public void update( ActionBase action , MetaEnv env , MetaEnvDC dc ) throws Exception {
+		this.env = env;  
+		this.dc = dc;
+		update( action , env.meta );
+	}
+
 	public void update( ActionBase action ) throws Exception {
-		boolean isproduct = ( session.product )? true : false; 
+		Meta meta = ( session.product )? action.getContextMeta() : null;
+		update( action , meta );
+	}
+	
+	public void update( ActionBase action , Meta meta ) throws Exception {
+		boolean isproduct = ( meta != null )? true : false; 
 		boolean isenv = ( env == null )? false : true; 
 		boolean def = ( isenv && env.PROD )? true : false;
 		String value;
 		
 		// generic
-		Meta meta = ( isproduct )? action.getContextMeta() : null;
 		MetaProductSettings product = ( isproduct )? meta.getProductSettings( action ) : null; 
 		CTX_TRACEINTERNAL = ( getFlagValue( "OPT_TRACE" ) && getFlagValue( "OPT_SHOWALL" ) )? true : false;
 		CTX_TRACE = getFlagValue( "OPT_TRACE" );
