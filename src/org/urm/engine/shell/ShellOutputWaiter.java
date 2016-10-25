@@ -35,8 +35,8 @@ public class ShellOutputWaiter {
 		waiter = new ShellWaiter( this );
 	}
 
-	public void stop() {
-		waiter.stop();
+	public void stop( ActionBase action ) {
+		waiter.stop( action );
 	}
 	
 	protected String readBuffer( ActionBase action , BufferedReader textreader , String buffer , char lineTerm , String stream ) throws Exception {
