@@ -3,6 +3,8 @@ package org.urm.action;
 public class ActionSetItem implements Runnable {
 
 	ActionSet set;
+	public String threadName;
+	
     boolean threadFailed;
     Exception exceptionCatched;
     private boolean failed;
@@ -13,8 +15,9 @@ public class ActionSetItem implements Runnable {
 	ActionBase action;
 	ActionScope scope;
 	
-	public ActionSetItem( ActionSet set ) {
+	public ActionSetItem( ActionSet set , String threadName ) {
 		this.set = set;
+		this.threadName = threadName;
 	}
 
 	public void createSimple( ActionBase action ) throws Exception {
@@ -31,6 +34,7 @@ public class ActionSetItem implements Runnable {
     public void run() {
     	failed = false;
     	
+    	set.owner.trace( "begin thread=" + threadName );
         try {
             threadFailed = false;
             execute();
@@ -52,6 +56,7 @@ public class ActionSetItem implements Runnable {
             exceptionCatched = e;
             action.handle( exceptionCatched );
         }
+    	set.owner.trace( "end thread=" + threadName );
     }
 
     private void execute() throws Exception {

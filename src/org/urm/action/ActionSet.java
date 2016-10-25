@@ -17,6 +17,7 @@ public class ActionSet {
 		
 		actions = new LinkedList<ActionSetItem>();
         threadGroup = new ThreadGroup( name );
+        owner.trace( "create thread group: " + name );
 	}
 
 	public boolean waitDone() {
@@ -43,20 +44,23 @@ public class ActionSet {
 	}
 	
 	public void runSimple( ActionBase action ) throws Exception {
-		ActionSetItem item = new ActionSetItem( this );
+		String threadName = "AT." + actions.size();
+		ActionSetItem item = new ActionSetItem( this , threadName );
 		item.createSimple( action );
 		startItem( item );
 	}
 	
 	public void runScope( ActionBase action , ActionScope scope ) throws Exception {
-		ActionSetItem item = new ActionSetItem( this );
+		String threadName = "AT." + actions.size();
+		ActionSetItem item = new ActionSetItem( this , threadName );
 		item.createScope( action , scope );
 		startItem( item );
 	}
 
 	private void startItem( ActionSetItem item ) throws Exception {
 		actions.add( item );
-        Thread thread = new Thread( threadGroup , item , "AT." + actions.size() );
+        owner.trace( "start thread group=" + name + ", thread=" + item.threadName );
+        Thread thread = new Thread( threadGroup , item , item.threadName );
         thread.start();
 	}
 	

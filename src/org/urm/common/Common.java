@@ -794,6 +794,8 @@ public class Common {
 	}
 
 	public static boolean isAbsolutePath( String path ) {
+		if( path.isEmpty() )
+			return( false );
 		if( path.startsWith( "/" ) ||
 			path.startsWith( "\\" ) ||
 			path.substring( 1 ).startsWith( ":" ) )
