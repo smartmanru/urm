@@ -39,6 +39,7 @@ public class ShellWaiter implements Runnable {
     }
 
 	public synchronized void stop() {
+		stop = true;
 		action = null;
 		notifyAll();
 	}
