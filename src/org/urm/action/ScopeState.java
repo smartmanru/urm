@@ -93,7 +93,49 @@ public class ScopeState {
 	
 	public void setActionStatus( SCOPESTATE state ) {
 		this.state = state;
-		action.eventSource.finishState( this );
+		action.eventSource.finishScopeItem( this );
 	}
 
+	public void createItemScopeState( ActionScopeTargetItem item , SCOPESTATE state ) {
+		ScopeState stateTarget = findTargetState( item.target );
+		if( stateTarget == null )
+			return;
+		
+		ScopeState stateItem = new ScopeState( stateTarget , item );
+		stateItem.setActionStatus( state );
+	}
+
+	public ScopeState findTargetState( ActionScopeTarget target ) {
+		if( type == SCOPETYPE.TypeItem )
+			return( parent );
+		if( type == SCOPETYPE.TypeAccount )
+			return( null );
+		if( type == SCOPETYPE.TypeTarget )
+			return( this );
+		ScopeState stateSet = findSetState( target.set );
+		if( stateSet == null )
+			return( null );
+		for( ScopeState child : stateSet.childs ) {
+			if( child.target == target )
+				return( child );
+		}
+		return( null );
+	}
+
+	public ScopeState findSetState( ActionScopeSet set ) {
+		if( type == SCOPETYPE.TypeItem )
+			return( parent.parent );
+		if( type == SCOPETYPE.TypeAccount )
+			return( parent );
+		if( type == SCOPETYPE.TypeTarget )
+			return( parent );
+		if( type == SCOPETYPE.TypeSet )
+			return( this );
+		for( ScopeState child : childs ) {
+			if( child.set == set )
+				return( child );
+		}
+		return( null );
+	}
+	
 }

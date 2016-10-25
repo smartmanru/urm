@@ -141,7 +141,7 @@ public class ActionCheckEnv extends ActionBase {
 			debug( "check nodes ..." );
 			boolean someNodeAvailable = false;
 			for( ActionScopeTargetItem node : target.getItems( this ) ) {
-				checkOneServerNode( server , node.envServerNode , main );
+				checkOneServerNode( node , server , node.envServerNode , main );
 				if( !S_CHECKENV_NODE_STOPPED )
 					someNodeAvailable = true;
 			}
@@ -155,7 +155,7 @@ public class ActionCheckEnv extends ActionBase {
 		}
 		else {
 			for( MetaEnvServerNode node : server.getNodes() )
-				checkOneServerNode( server , node , false );
+				checkOneServerNode( null , server , node , false );
 		}
 		
 		// add server status to target
@@ -247,7 +247,7 @@ public class ActionCheckEnv extends ActionBase {
 		return( false );
 	}
 	
-	private void checkOneServerNode( MetaEnvServer server , MetaEnvServerNode node , boolean main ) throws Exception {
+	private void checkOneServerNode( ActionScopeTargetItem item , MetaEnvServer server , MetaEnvServerNode node , boolean main ) throws Exception {
 		S_CHECKENV_NODE_FAILED = false;
 		S_CHECKENV_NODE_STOPPED = false;
 		
@@ -280,6 +280,11 @@ public class ActionCheckEnv extends ActionBase {
 			info( "## node " + node.POS + " check FAILED" );
 		else
 			info( "## node " + node.POS + " check OK" );
+		
+		if( main ) {
+			SCOPESTATE state = ( S_CHECKENV_NODE_FAILED )? SCOPESTATE.RunFail : SCOPESTATE.RunSuccess;
+			super.eventSource.finishScopeItem( item , state );
+		}
 	}
 	
 	private boolean checkOneServerNodeStatus( MetaEnvServer server , MetaEnvServerNode node ) throws Exception {

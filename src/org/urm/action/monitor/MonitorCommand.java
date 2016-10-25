@@ -1,6 +1,5 @@
 package org.urm.action.monitor;
 
-import org.urm.action.ActionBase;
 import org.urm.meta.product.MetaMonitoring;
 
 public class MonitorCommand {
@@ -9,11 +8,6 @@ public class MonitorCommand {
 	
 	public MonitorCommand( MetaMonitoring mon ) {
 		this.mon = mon;
-	}
-
-	public void runMonitor( ActionBase action ) throws Exception {
-		ActionMonitorTop ca = new ActionMonitorTop( action , null , mon );
-		ca.runSimple();
 	}
 
 }

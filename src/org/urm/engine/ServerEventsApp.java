@@ -29,6 +29,7 @@ public class ServerEventsApp {
 
 	public ServerEventsSubscription subscribe( ServerEventsSource source , ServerEventsListener listener ) {
 		synchronized( events ) {
+			source.subscribe( this );
 			ServerEventsSubscription sub = new ServerEventsSubscription( this , source , listener );
 			subs.add( sub );
 			return( sub );
@@ -77,8 +78,10 @@ public class ServerEventsApp {
 
 	public void trigger( ServerSourceEvent event ) {
 		synchronized( events ) {
-			for( ServerEventsSubscription sub : subs )
-				sub.trigger( event );
+			for( ServerEventsSubscription sub : subs ) {
+				if( sub.source == event.source )
+					sub.trigger( event );
+			}
 		}
 	}
 	

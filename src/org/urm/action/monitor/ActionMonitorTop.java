@@ -5,36 +5,37 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionSet;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
+import org.urm.engine.ServerEventsApp;
+import org.urm.engine.ServerEventsListener;
+import org.urm.engine.ServerSourceEvent;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.storage.MonitoringStorage;
+import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringItem;
 import org.urm.meta.product.MetaMonitoringTarget;
 
-public class ActionMonitorTop extends ActionBase {
+public class ActionMonitorTop extends ActionBase implements ServerEventsListener {
 
 	boolean continueRunning;
 	MetaMonitoring mon;
+	ServerEventsApp eventsApp;
 	
 	MonitoringStorage storage;
 	MonitorInfo info;
 	List<ActionMonitorCheckEnv> checkenvActions;
 	
-	public ActionMonitorTop( ActionBase action , String stream , MetaMonitoring mon ) {
+	public ActionMonitorTop( ActionBase action , String stream , MetaMonitoring mon , ServerEventsApp eventsApp ) {
 		super( action , stream );
 		this.mon = mon;
+		this.eventsApp = eventsApp;
 	}
 
-	public void stopRunning() {
-		continueRunning = false;
-		synchronized( this ) {
-			notifyAll();
-		}
-	}
-	
-	@Override protected SCOPESTATE executeSimple() throws Exception {
+	@Override 
+	protected SCOPESTATE executeSimple() throws Exception {
 		continueRunning = true;
 
 		long lastStartMajor = 0;
@@ -116,6 +117,19 @@ public class ActionMonitorTop extends ActionBase {
 		return( SCOPESTATE.RunSuccess );
 	}
 
+	@Override
+	public void triggerEvent( ServerSourceEvent event ) {
+		if( event.eventType == ServerMonitoring.EVENT_FINALSTATE )
+			super.eventSource.forwardScopeItem( ServerMonitoring.EVENT_FINALSTATE , ( ScopeState )event.data );
+	}
+	
+	public void stopRunning() {
+		continueRunning = false;
+		synchronized( this ) {
+			notifyAll();
+		}
+	}
+	
 	private synchronized boolean runSleep( long millis ) {
 		long startTime = System.currentTimeMillis();
 		long endTime = startTime + millis;
@@ -165,7 +179,8 @@ public class ActionMonitorTop extends ActionBase {
 	}
 
 	private void checkEnv( ActionSet set , ActionInit init , MetaMonitoringTarget target ) throws Exception {
-		ActionMonitorCheckEnv action = new ActionMonitorCheckEnv( init , target.NAME , storage , target );
+		ActionMonitorCheckEnv action = new ActionMonitorCheckEnv( init , target.NAME , storage , target , eventsApp );
+		eventsApp.subscribe( action.eventSource , this );
 		set.runSimple( action );
 		checkenvActions.add( action );
 	}

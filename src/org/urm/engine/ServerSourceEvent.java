@@ -2,10 +2,10 @@ package org.urm.engine;
 
 public class ServerSourceEvent {
 	
-	ServerEventsSource source;
-	int stateId;
-	int eventType;
-	Object data;
+	public ServerEventsSource source;
+	public int stateId;
+	public int eventType;
+	public Object data;
 	
 	ServerSourceEvent( ServerEventsSource source , int stateId , int eventType , Object data ) {
 		this.source = source;

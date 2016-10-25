@@ -11,6 +11,7 @@ import org.urm.common.PropertySet;
 import org.urm.common.RunContext;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.ServerEvents;
+import org.urm.engine.ServerEventsApp;
 import org.urm.engine.ServerEventsSubscription;
 import org.urm.engine.ServerTransaction;
 import org.urm.meta.ServerLoader;
@@ -49,6 +50,9 @@ public class ServerMonitoring extends ServerObject {
 	public String DIR_RES;
 	public String DIR_LOGS;
 	public String RESOURCE_URL;
+
+	ServerEventsApp eventsApp;
+	public static int EVENT_FINALSTATE = 101;
 	
 	// properties
 	public static String PROPERTY_ENABLED = "monitoring.enabled";
@@ -105,6 +109,9 @@ public class ServerMonitoring extends ServerObject {
 		if( !ENABLED )
 			return;
 		
+		ServerEvents events = engine.getEvents();
+		eventsApp = events.createApp( "monitoring" );
+		
 		ServerRegistry registry = loader.getRegistry();
 		for( String systemName : registry.directory.getSystems() ) {
 			ServerSystem system = registry.directory.findSystem( systemName );
@@ -115,8 +122,13 @@ public class ServerMonitoring extends ServerObject {
 	public void stop() {
 		for( ServerMonitoringProduct mon : mapProduct.values() )
 			mon.stop();
-		
+
 		mapProduct.clear();
+		
+		if( eventsApp != null ) {
+			ServerEvents events = engine.getEvents();
+			events.deleteApp( eventsApp );
+		}
 	}
 
 	public void startSystem( ServerSystem system ) {
@@ -152,7 +164,7 @@ public class ServerMonitoring extends ServerObject {
 		}
 		
 		ServerMonitoringSource source = createSource( MONITORING_PRODUCT , product );
-		ServerMonitoringProduct mon = new ServerMonitoringProduct( this , meta , source );
+		ServerMonitoringProduct mon = new ServerMonitoringProduct( this , meta , source , eventsApp );
 		mapProduct.put( product.NAME , mon );
 		mon.start();
 		action.trace( "monitoring started for product=" + product.NAME );
@@ -162,7 +174,7 @@ public class ServerMonitoring extends ServerObject {
 		createSource( MONITORING_ENVIRONMENT , env );
 		
 		// start childs
-		for( MetaEnvDC dc : env.getOriginalDCList() )
+		for( MetaEnvDC dc : env.getDatacenters() )
 			startDatacenter( dc );
 	}
 
@@ -221,4 +233,9 @@ public class ServerMonitoring extends ServerObject {
 		scatterProperties();
 	}
 	
+	public ServerProduct findProduct( String name ) {
+		ServerRegistry registry = loader.getRegistry();
+		return( registry.directory.findProduct( name ) );
+	}
+
 }

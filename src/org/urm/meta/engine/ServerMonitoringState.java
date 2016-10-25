@@ -1,5 +1,6 @@
 package org.urm.meta.engine;
 
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.ServerEventsState;
 
 public class ServerMonitoringState extends ServerEventsState {
@@ -16,7 +17,7 @@ public class ServerMonitoringState extends ServerEventsState {
 	
 	public ServerMonitoringSource source;
 	public int level;
-	private MONITORING_STATE state;
+	public MONITORING_STATE state;
 	
 	public ServerMonitoringState( ServerMonitoringSource source ) {
 		super( source , 0 );
@@ -26,7 +27,7 @@ public class ServerMonitoringState extends ServerEventsState {
 	public MONITORING_STATE getState() {
 		return( state );
 	}
-
+	
 	public void setState( MONITORING_STATE state ) {
 		this.state = state;
 	}
@@ -86,6 +87,14 @@ public class ServerMonitoringState extends ServerEventsState {
 		}
 		
 		return( MONITORING_STATE.MONITORING_ERRORS_ALERTS );
+	}
+
+	public static MONITORING_STATE getState( SCOPESTATE state ) {
+		if( state == SCOPESTATE.New || state == SCOPESTATE.NotRun )
+			return( MONITORING_STATE.MONITORING_NEVERQUERIED );
+		if( state == SCOPESTATE.RunBeforeFail || state == SCOPESTATE.RunFail )
+			return( MONITORING_STATE.MONITORING_ERRORS_ALERTS );
+		return( MONITORING_STATE.MONITORING_HEALTHY );
 	}
 	
 }

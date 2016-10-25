@@ -273,7 +273,7 @@ public class MetaEnv extends PropertyController {
 		return( dc );
 	}
 
-	public List<MetaEnvDC> getOriginalDCList() {
+	public List<MetaEnvDC> getDatacenters() {
 		return( originalList );
 	}
 	
