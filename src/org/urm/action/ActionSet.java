@@ -26,7 +26,8 @@ public class ActionSet {
 	        // wait for all the threads to complete
 	        while( threadGroup.activeCount() > 0 ) {
 	            synchronized( threadGroup ) {
-	                threadGroup.wait( 1000 );
+	                threadGroup.wait( 10000 );
+	        		owner.debug( "waiting for action set=" + name + ", count = " + threadGroup.activeCount() + " ..." );
 	            }
 	        }
 		}
