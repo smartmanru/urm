@@ -33,7 +33,6 @@ public class ShellWaiter implements Runnable {
         	runAction();
         
         finished = true;
-		action.trace( "finished shell waiter shell=" + command.shell.name );
 		
         synchronized ( this ) {
             notifyAll();
