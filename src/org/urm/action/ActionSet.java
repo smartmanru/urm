@@ -32,7 +32,7 @@ public class ActionSet {
 	            		break;
 	            	
 	                threadGroup.wait( 10000 );
-	        		owner.debug( "waiting for action set=" + name + ", count = " + threadGroup.activeCount() + " ..." );
+	        		owner.debug( "waiting for action set=" + name + ", count = " + threadCount + " ..." );
 	            }
 	        }
 		}
