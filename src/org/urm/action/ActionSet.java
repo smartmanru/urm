@@ -10,11 +10,13 @@ public class ActionSet {
 	
 	List<ActionSetItem> actions;
 	public ThreadGroup threadGroup;
+	public int threadCount;
 	
 	public ActionSet( ActionBase owner , String name ) {
 		this.owner = owner;
 		this.name = name;
 		
+		threadCount = 0;
 		actions = new LinkedList<ActionSetItem>();
         threadGroup = new ThreadGroup( name );
         owner.trace( "create thread group: " + name );
@@ -24,8 +26,11 @@ public class ActionSet {
 		owner.debug( "wait for completion of action set=" + name + " ..." );
 		try {
 	        // wait for all the threads to complete
-	        while( threadGroup.activeCount() > 0 ) {
+	        while( true ) {
 	            synchronized( threadGroup ) {
+	            	if( threadCount == 0 )
+	            		break;
+	            	
 	                threadGroup.wait( 10000 );
 	        		owner.debug( "waiting for action set=" + name + ", count = " + threadGroup.activeCount() + " ..." );
 	            }
@@ -60,10 +65,21 @@ public class ActionSet {
 	}
 
 	private void startItem( ActionSetItem item ) throws Exception {
+		synchronized( threadGroup ) {
+        	threadCount++;
+        }
+		
 		actions.add( item );
         owner.trace( "start thread group=" + name + ", thread=" + item.threadName );
         Thread thread = new Thread( threadGroup , item , item.threadName );
         thread.start();
+	}
+	
+	public void finishedItem( ActionSetItem item ) {
+        synchronized( threadGroup ) {
+        	threadCount--;
+            threadGroup.notifyAll();
+        }
 	}
 	
 }

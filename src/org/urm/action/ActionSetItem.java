@@ -44,10 +44,6 @@ public class ActionSetItem implements Runnable {
             	failed = true;
             	action.trace( action.NAME + ": failed=true" );
             }
-            
-            synchronized( set.threadGroup ) {
-                set.threadGroup.notifyAll();
-            }
         }
         catch (Exception e) {
         	failed = true;
@@ -58,6 +54,7 @@ public class ActionSetItem implements Runnable {
             action.handle( exceptionCatched );
         }
     	set.owner.trace( "end thread=" + threadName );
+        set.finishedItem( this );
     }
 
     private void execute() throws Exception {
