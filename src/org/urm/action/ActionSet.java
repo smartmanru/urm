@@ -31,8 +31,8 @@ public class ActionSet {
 	            	if( threadCount == 0 )
 	            		break;
 	            	
-	                threadGroup.wait( 10000 );
 	        		owner.debug( "waiting for action set=" + name + ", count = " + threadCount + " ..." );
+	                threadGroup.wait( 10000 );
 	            }
 	        }
 		}
