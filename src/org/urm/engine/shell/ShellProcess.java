@@ -206,6 +206,15 @@ public class ShellProcess {
 	}
 	
 	public void kill( ActionBase action ) throws Exception {
+		if( jsch != null ) {
+			jstdin = null;
+			jstdout = null;
+			jstderr = null;
+			jchannel.disconnect();
+			jsession.disconnect();
+			return;
+		}
+		
 		if( processId < 0 )
 			return;
 		
