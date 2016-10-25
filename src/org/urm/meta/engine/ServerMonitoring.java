@@ -129,6 +129,9 @@ public class ServerMonitoring extends ServerObject {
 			ServerEvents events = engine.getEvents();
 			events.deleteApp( eventsApp );
 		}
+		
+		for( ServerMonitoringSource source : sourceMap.values() )
+			source.clearState();
 	}
 
 	public void startSystem( ServerSystem system ) {

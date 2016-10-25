@@ -30,6 +30,10 @@ public class ServerMonitoringSource extends ServerEventsSource {
 		return( data );
 	}
 
+	public void clearState() {
+		data.setState( MONITORING_STATE.MONITORING_NEVERQUERIED );
+	}
+	
 	public boolean setState( SCOPESTATE state ) {
 		MONITORING_STATE newState = ServerMonitoringState.getState( state );
 		return( setState( newState ) );
