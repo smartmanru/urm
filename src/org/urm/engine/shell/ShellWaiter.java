@@ -24,6 +24,25 @@ public class ShellWaiter implements Runnable {
 		this.finished = false;
 	}
 
+	@Override
+    public void run() {
+        finished = false;
+        succeeded = false;
+
+        while( !stop )
+        	runAction();
+        
+        finished = true;
+        synchronized ( this ) {
+            notifyAll();
+        }
+    }
+
+	public synchronized void stop() {
+		action = null;
+		notifyAll();
+	}
+	
 	public boolean wait( ActionBase action , int timeoutMillis , int logLevel , boolean system ) {
 		try {
 			action.trace( "wait for " + command.getClass().getSimpleName() + ", shell=" + command.shell.name + " (timeout " + timeoutMillis + "ms) ..." );
@@ -96,20 +115,6 @@ public class ShellWaiter implements Runnable {
 		notifyAll();
 		return( true );
 	}
-
-	@Override
-    public void run() {
-        finished = false;
-        succeeded = false;
-
-        while( !stop )
-        	runAction();
-        
-        finished = true;
-        synchronized ( this ) {
-            notifyAll();
-        }
-    }
 
     private synchronized void runAction() {
     	// wait for action

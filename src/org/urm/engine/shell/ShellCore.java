@@ -155,9 +155,7 @@ abstract public class ShellCore {
 	}
 
 	public void kill( ActionBase action ) throws Exception {
-		executor.killShellProcess( action );
-		executor.killOSProcess( action );
-		
+		executor.killProcess( action );
 		running = false;
 		initialized = false;
 	}

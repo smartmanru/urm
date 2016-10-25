@@ -35,6 +35,10 @@ public class ShellOutputWaiter {
 		waiter = new ShellWaiter( this );
 	}
 
+	public void stop() {
+		waiter.stop();
+	}
+	
 	protected String readBuffer( ActionBase action , BufferedReader textreader , String buffer , char lineTerm , String stream ) throws Exception {
 		if( action.context.CTX_TRACEINTERNAL )
 			action.trace( shell.name + "-" + stream + ": readBuffer start reading ... " );

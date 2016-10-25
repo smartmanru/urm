@@ -84,12 +84,18 @@ abstract public class Shell {
 		available = false;
 	}
 	
-	public void killShellProcess( ActionBase action ) throws Exception {
+	public void killProcess( ActionBase action ) throws Exception {
+		killShellProcess( action );
+		killOSProcess( action );
+		wc.stop();
+	}
+	
+	private void killShellProcess( ActionBase action ) throws Exception {
 		if( this != pool.master )
 			process.kill( action );
 	}
 
-	public synchronized void killOSProcess( ActionBase action ) throws Exception {
+	private synchronized void killOSProcess( ActionBase action ) throws Exception {
 		if( process == null )
 			return;
 		

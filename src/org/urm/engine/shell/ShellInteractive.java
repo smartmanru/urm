@@ -40,8 +40,7 @@ public class ShellInteractive extends Shell {
 	
 	@Override
 	public void kill( ActionBase action ) throws Exception {
-		killShellProcess( action );
-		killOSProcess( action );
+		super.killProcess( action );
 	}
 	
 	public void stop( ActionBase action ) throws Exception {
