@@ -85,6 +85,7 @@ abstract public class Shell {
 	}
 	
 	public void killProcess( ActionBase action ) throws Exception {
+		action.trace( "kill process shell=" + name + " ..." );
 		killShellProcess( action );
 		killOSProcess( action );
 		wc.stop();
