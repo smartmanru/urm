@@ -40,7 +40,6 @@ public class ShellWaiter implements Runnable {
     }
 
 	public synchronized void stop( ActionBase action ) {
-		action.trace( "stopping shell waiter shell=" + command.shell.name );
 		stop = true;
 		action = null;
 		notifyAll();
