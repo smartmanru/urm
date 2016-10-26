@@ -1,8 +1,8 @@
 package org.urm.meta.engine;
 
 import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.ScopeState.SCOPETYPE;
+import org.urm.action.deploy.NodeStatus;
 import org.urm.action.monitor.ActionMonitorTop;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.ServerEventsApp;
@@ -65,8 +65,9 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			ScopeState state = ( ScopeState )event.data;
 			if( state.type == SCOPETYPE.TypeItem ) {
 				MetaEnvServerNode node = state.item.envServerNode;
+				NodeStatus status = ( NodeStatus )state;
 				if( node != null )
-					processNodeEvent( node , state.state );
+					processNodeEvent( node , status );
 			}
 		}
 	}
@@ -92,9 +93,9 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		}
 	}
 
-	private void processNodeEvent( MetaEnvServerNode node , SCOPESTATE state ) {
+	private void processNodeEvent( MetaEnvServerNode node , NodeStatus status ) {
 		ServerMonitoringSource nodeSource = monitoring.getObjectSource( node );
-		if( nodeSource != null && nodeSource.setState( state ) ) {
+		if( nodeSource != null && nodeSource.setState( status.itemState ) ) {
 			MetaEnvServer server = node.server;
 			recalculateServer( server );
 		}

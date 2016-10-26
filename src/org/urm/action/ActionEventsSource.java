@@ -1,6 +1,5 @@
 package org.urm.action;
 
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.ServerEventsSource;
 import org.urm.engine.ServerEventsState;
 
@@ -31,8 +30,8 @@ public class ActionEventsSource extends ServerEventsSource {
 		super.trigger( eventType , state );
 	}
 
-	public void finishScopeItem( ActionScopeTargetItem item , SCOPESTATE state ) {
-		rootState.scopeState.createItemScopeState( item , state );
+	public ScopeState findTargetState( ActionScopeTarget target ) {
+		return( rootState.scopeState.findTargetState( target ) );
 	}
 	
 }

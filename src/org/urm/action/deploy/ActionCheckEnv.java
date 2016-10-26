@@ -5,6 +5,7 @@ import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.database.DatabaseClient;
 import org.urm.common.Common;
@@ -113,7 +114,7 @@ public class ActionCheckEnv extends ActionBase {
 		info( MSG );
 		
 		S_CHECKENV_TOTAL_SERVERS_FAILED = Common.addItemToUniqueSpacedList( S_CHECKENV_TOTAL_SERVERS_FAILED , target.NAME );
-		return( SCOPESTATE.RunFail );
+		return( SCOPESTATE.RunSuccess );
 	}
 
 	private void checkOneServer( ActionScopeTarget target , MetaEnvServer server , boolean main , String role ) throws Exception {
@@ -209,10 +210,10 @@ public class ActionCheckEnv extends ActionBase {
 		if( server.WEBSERVICEURL.isEmpty() )
 			return( true );
 		
-		return( checkOneServerWebServices( server , server.WEBSERVICEURL ) );
+		return( checkOneServerWebServices( server , server.WEBSERVICEURL , null ) );
 	}
 	
-	private boolean checkOneServerWebServices( MetaEnvServer server , String ACCESSPOINT ) throws Exception {
+	private boolean checkOneServerWebServices( MetaEnvServer server , String ACCESSPOINT , NodeStatus state ) throws Exception {
 		if( !server.hasWebServices( this ) )
 			return( true );
 		
@@ -253,9 +254,13 @@ public class ActionCheckEnv extends ActionBase {
 		
 		info( "node " + node.POS + "=" + node.HOSTLOGIN );
 
-		if( checkOneServerNodeStatus( server , node ) ) {
-			if( !checkOneServerNodeComps( server , node ) )
+		ScopeState parent = super.eventSource.findTargetState( item.target );
+		NodeStatus mainState = new NodeStatus( parent , item );
+		if( checkOneServerNodeStatus( server , node , mainState ) ) {
+			if( !checkOneServerNodeComps( server , node , mainState ) ) {
+				mainState.setCompsFailed();
 				S_CHECKENV_NODE_FAILED = true;
+			}
 		}
 		else {
 			S_CHECKENV_NODE_FAILED = true;
@@ -265,8 +270,10 @@ public class ActionCheckEnv extends ActionBase {
 		// check proxy node
 		if( main && server.proxyServer != null ) { 
 			info( "check proxy node ..." );
-			if( !checkOneServerNodeStatus( server.proxyServer , node.getProxyNode( this ) ) )
+			if( !checkOneServerNodeStatus( server.proxyServer , node.getProxyNode( this ) , null ) ) {
 				S_CHECKENV_NODE_FAILED = true;
+				mainState.setProxyFailed( server.proxyServer );
+			}
 		}
 
 		// add to server
@@ -281,15 +288,15 @@ public class ActionCheckEnv extends ActionBase {
 		else
 			info( "## node " + node.POS + " check OK" );
 		
-		if( main ) {
-			SCOPESTATE state = ( S_CHECKENV_NODE_FAILED )? SCOPESTATE.RunFail : SCOPESTATE.RunSuccess;
-			super.eventSource.finishScopeItem( item , state );
-		}
+		if( main )
+			super.eventSource.finishScopeItem( mainState );
 	}
 	
-	private boolean checkOneServerNodeStatus( MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
+	private boolean checkOneServerNodeStatus( MetaEnvServer server , MetaEnvServerNode node , NodeStatus mainState ) throws Exception {
 		if( server.isManual() ) {
 			debug( "skip check process for manual server=" + server.NAME );
+			if( mainState != null )
+				mainState.setSkipManual();
 			return( true );
 		}
 		
@@ -298,9 +305,13 @@ public class ActionCheckEnv extends ActionBase {
 			process.gatherStatus( this );
 		}
 		catch( Throwable e ) {
+			mainState.setUnknown( e.getMessage() );
 			handle( e );
 			return( false );
 		}
+		
+		if( mainState != null )
+			mainState.setProcessMode( process.mode );
 		
 		if( process.isStarted( this ) )
 			return( true );
@@ -318,9 +329,9 @@ public class ActionCheckEnv extends ActionBase {
 		return( false );
 	}
 	
-	private boolean checkOneServerNodeComps( MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
+	private boolean checkOneServerNodeComps( MetaEnvServer server , MetaEnvServerNode node , NodeStatus state ) throws Exception {
 		String ACCESSPOINT = node.getAccessPoint( this );
-		return( checkOneServerWebServices( server , ACCESSPOINT ) );
+		return( checkOneServerWebServices( server , ACCESSPOINT , state ) );
 	}
 	
 }

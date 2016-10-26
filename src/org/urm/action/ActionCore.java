@@ -108,8 +108,7 @@ public class ActionCore {
 	}
 
 	public void exit( int errorCode , String s , String[] params ) throws Exception {
-		fail( errorCode , s , params );
-		throw progressError;
+		throw new RunError( errorCode , s , params );
 	}
 
 	public void exit0( int errorCode , String s ) throws Exception {
