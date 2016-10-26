@@ -16,7 +16,6 @@ public class ServerMonitoringState extends ServerEventsState {
 	};
 	
 	public ServerMonitoringSource source;
-	public int level;
 	public MONITORING_STATE state;
 	
 	public ServerMonitoringState( ServerMonitoringSource source ) {
