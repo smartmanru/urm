@@ -6,6 +6,7 @@ import org.urm.engine.ServerEventsState;
 public class ActionEventsSource extends ServerEventsSource {
 
 	ActionEventsState rootState;
+	String[] log;
 
 	public static int EVENT_FINISHSTATE = 1;
 	
@@ -32,6 +33,14 @@ public class ActionEventsSource extends ServerEventsSource {
 
 	public ScopeState findTargetState( ActionScopeTarget target ) {
 		return( rootState.scopeState.findTargetState( target ) );
+	}
+
+	public void setLog( String[] log ) {
+		this.log = log;
+	}
+	
+	public String[] getLog() {
+		return( log );
 	}
 	
 }

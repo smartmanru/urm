@@ -171,6 +171,8 @@ public class CommandOutput {
 			return;
 		}
 		
+		context.outExact( s );
+		
 		if( outchild != null ) {
 			outchild.println( s );
 			outchild.flush();

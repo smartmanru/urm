@@ -1,5 +1,8 @@
 package org.urm.engine.action;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
@@ -33,6 +36,7 @@ public class CommandContext {
 	public String stream;
 	public String streamLog;
 	public int logLevelLimit;
+	public List<String> logCapture;
 	
 	public Account account;
 	public String userHome;
@@ -158,6 +162,7 @@ public class CommandContext {
 		this.userHome = context.userHome;
 		this.buildMode = context.buildMode;
 		this.logLevelLimit = context.logLevelLimit;
+		this.logCapture = context.logCapture;
 
 		// generic
 		this.CTX_TRACEINTERNAL = context.CTX_TRACEINTERNAL;
@@ -451,6 +456,21 @@ public class CommandContext {
 		if( !options.isValidVar( var ) )
 			Common.exit1( _Error.UnknownParamVar1 , "unknown param var=" + var , var );
 		return( options.combineValue( var , confValue , defValue ) );
+	}
+	
+	public void logStartCapture() {
+		logCapture = new LinkedList<String>(); 
+	}
+	
+	public String[] logFinishCapture() {
+		String[] data = logCapture.toArray( new String[0] );
+		logCapture = null;
+		return( data );
+	}
+
+	public void outExact( String s ) {
+		if( logCapture != null )
+			logCapture.add( s );
 	}
 	
 }

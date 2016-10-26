@@ -1,5 +1,6 @@
 package org.urm.meta.engine;
 
+import org.urm.action.ActionEventsSource;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPETYPE;
 import org.urm.action.deploy.NodeStatus;
@@ -62,12 +63,18 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	@Override
 	public void triggerEvent( ServerSourceEvent event ) {
 		if( event.eventType == ServerMonitoring.EVENT_FINALSTATE ) {
+			ActionEventsSource source = ( ActionEventsSource )event.source;
 			ScopeState state = ( ScopeState )event.data;
+			MetaEnvServerNode node = state.item.envServerNode;
+			ServerMonitoringSource nodeSource = monitoring.getObjectSource( node );
+			if( nodeSource == null )
+				return;
+			
+			nodeSource.setLog( source.getLog() );
+			
 			if( state.type == SCOPETYPE.TypeItem ) {
-				MetaEnvServerNode node = state.item.envServerNode;
 				NodeStatus status = ( NodeStatus )state;
-				if( node != null )
-					processNodeEvent( node , status );
+				processNodeEvent( nodeSource , node , status );
 			}
 		}
 	}
@@ -93,8 +100,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		}
 	}
 
-	private void processNodeEvent( MetaEnvServerNode node , NodeStatus status ) {
-		ServerMonitoringSource nodeSource = monitoring.getObjectSource( node );
+	private void processNodeEvent( ServerMonitoringSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
 		if( nodeSource != null && nodeSource.setState( status.itemState ) ) {
 			MetaEnvServer server = node.server;
 			recalculateServer( server );

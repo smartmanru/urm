@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ActionEventsSource;
 import org.urm.action.ActionSet;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
@@ -119,8 +120,11 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 
 	@Override
 	public void triggerEvent( ServerSourceEvent event ) {
-		if( event.eventType == ServerMonitoring.EVENT_FINALSTATE )
+		if( event.eventType == ServerMonitoring.EVENT_FINALSTATE ) {
+			ActionEventsSource source = ( ActionEventsSource )event.source;
+			super.eventSource.setLog( source.getLog() );
 			super.eventSource.forwardScopeItem( ServerMonitoring.EVENT_FINALSTATE , ( ScopeState )event.data );
+		}
 	}
 	
 	public void stopRunning() {

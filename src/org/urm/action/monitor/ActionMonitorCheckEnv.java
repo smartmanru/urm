@@ -60,8 +60,11 @@ public class ActionMonitorCheckEnv extends ActionBase implements ServerEventsLis
 	
 	@Override
 	public void triggerEvent( ServerSourceEvent event ) {
-		if( event.eventType == ActionEventsSource.EVENT_FINISHSTATE )
+		if( event.eventType == ActionEventsSource.EVENT_FINISHSTATE ) {
+			ActionEventsSource source = ( ActionEventsSource )event.source;
+			super.eventSource.setLog( source.getLog() );
 			super.eventSource.forwardScopeItem( ServerMonitoring.EVENT_FINALSTATE , ( ScopeState )event.data );
+		}
 	}
 	
 }

@@ -12,6 +12,7 @@ public class ServerMonitoringSource extends ServerEventsSource {
 	public int level;
 	public ServerObject object;
 	public ServerMonitoringState data;
+	public String[] log;
 
 	public static int EVENT_MONITORSTATECHANGED = 1;
 	public static int EVENT_MONITORCHILDCHANGED = 2;
@@ -59,6 +60,14 @@ public class ServerMonitoringSource extends ServerEventsSource {
 		}
 		
 		return( false );
+	}
+
+	public void setLog( String[] log ) {
+		this.log = log;
+	}
+
+	public String[] getLog() {
+		return( log );
 	}
 	
 }

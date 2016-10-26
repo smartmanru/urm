@@ -185,6 +185,14 @@ abstract public class ActionBase extends ActionCore {
 		output.logExactInteractive( context , s , logLevel );
 	}
 	
+	public void logStartCapture() {
+		context.logStartCapture();
+	}
+	
+	public String[] logFinishCapture() {
+		return( context.logFinishCapture() );
+	}
+	
 	public void error( String s ) {
 		output.error( context , s );
 	}
@@ -648,5 +656,5 @@ abstract public class ActionBase extends ActionCore {
 	public BaseRepository getBaseRepository() throws Exception {
 		return( artefactory.getBaseRepository( this ) );
 	}
-	
+
 }

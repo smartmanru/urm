@@ -251,7 +251,9 @@ public class ActionCheckEnv extends ActionBase {
 	private void checkOneServerNode( ActionScopeTargetItem item , MetaEnvServer server , MetaEnvServerNode node , boolean main ) throws Exception {
 		S_CHECKENV_NODE_FAILED = false;
 		S_CHECKENV_NODE_STOPPED = false;
-		
+
+		if( main )
+			super.logStartCapture();
 		info( "node " + node.POS + "=" + node.HOSTLOGIN );
 
 		ScopeState parent = super.eventSource.findTargetState( item.target );
@@ -288,8 +290,11 @@ public class ActionCheckEnv extends ActionBase {
 		else
 			info( "## node " + node.POS + " check OK" );
 		
-		if( main )
+		if( main ) {
+			String[] log = super.logFinishCapture();
+			super.eventSource.setLog( log );
 			super.eventSource.finishScopeItem( mainState );
+		}
 	}
 	
 	private boolean checkOneServerNodeStatus( MetaEnvServer server , MetaEnvServerNode node , NodeStatus mainState ) throws Exception {
