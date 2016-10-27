@@ -130,11 +130,11 @@ public class MetaEnvServerLocation {
 
 	public boolean checkNodeDeployment( ActionBase action , MetaEnvServerNode node , MetaEnvServerDeployment deployment ) throws Exception {
 		if( node.isAdmin( action ) )
-			return( deployment.isNodeAdminDeployment( action ) );
+			return( deployment.isNodeAdminDeployment() );
 		if( node.isSlave( action ) )
-			return( deployment.isNodeSlaveDeployment( action ) );
+			return( deployment.isNodeSlaveDeployment() );
 		if( node.isSelf( action ) )
-			return( deployment.isNodeSelfDeployment( action ) );
+			return( deployment.isNodeSelfDeployment() );
 		action.exitUnexpectedState();
 		return( false );
 	}

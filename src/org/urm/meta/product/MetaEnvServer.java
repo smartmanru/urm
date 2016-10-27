@@ -67,8 +67,6 @@ public class MetaEnvServer extends PropertyController {
 
 	public VarDBMSTYPE dbType;
 	public String DBMSADDR;
-	public String DATAGROUPS;
-	public Map<String,MetaDatabaseDatagroup> datagroupMap;
 	public String ADMSCHEMA;
 	public MetaDatabaseSchema admSchema;
 	public String ALIGNED;
@@ -76,6 +74,7 @@ public class MetaEnvServer extends PropertyController {
 	
 	public MetaEnvServerBase basesw;
 	
+	Map<String,MetaEnvServerDeployment> deployMap;
 	List<MetaEnvServerDeployment> deployments;
 	List<MetaEnvServerNode> nodes;
 
@@ -131,7 +130,8 @@ public class MetaEnvServer extends PropertyController {
 		this.meta = meta;
 		this.dc = dc;
 		
-		deployments = new LinkedList<MetaEnvServerDeployment>();
+		deployments = new LinkedList<MetaEnvServerDeployment>(); 
+		deployMap = new HashMap<String,MetaEnvServerDeployment>();
 		nodes = new LinkedList<MetaEnvServerNode>();
 	}
 
@@ -144,8 +144,6 @@ public class MetaEnvServer extends PropertyController {
 	
 	@Override
 	public void scatterProperties( ActionBase action ) throws Exception {
-		datagroupMap = new HashMap<String,MetaDatabaseDatagroup>(); 
-		
 		NAME = properties.getSystemRequiredStringProperty( PROPERTY_NAME );
 		action.trace( "load properties of server=" + NAME );
 		
@@ -194,17 +192,11 @@ public class MetaEnvServer extends PropertyController {
 		if( isDatabase() ) {
 			dbType = Meta.getDbmsType( super.getStringProperty( action , PROPERTY_DBMSTYPE ) , false );
 			DBMSADDR = super.getStringPropertyRequired( action , PROPERTY_DBMSADDR );
-			DATAGROUPS = super.getStringPropertyRequired( action , PROPERTY_DATAGROUPS );
 			ALIGNED = super.getStringProperty( action , PROPERTY_ALIGNED );
 			REGIONS = super.getStringProperty( action , PROPERTY_REGIONS );
 			ADMSCHEMA = super.getStringProperty( action , PROPERTY_ADMSCHEMA );
 			
 			MetaDatabase database = meta.getDatabase( action );
-			for( String dg : Common.splitSpaced( DATAGROUPS ) ) {
-				MetaDatabaseDatagroup datagroup = database.getDatagroup( action , dg );
-				datagroupMap.put( datagroup.NAME , datagroup );
-			}
-			
 			if( !ADMSCHEMA.isEmpty() )
 				admSchema = database.getSchema( action , ADMSCHEMA );
 		}
@@ -379,7 +371,17 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	private void addDeployment( MetaEnvServerDeployment dp ) {
+		String name = "";
+		if( dp.isBinaryItem() )
+			name = "binary-" + dp.DISTITEM;
+		else
+		if( dp.isConfItem() )
+			name = "conf-" + dp.CONFITEM;
+		else
+		if( dp.isComponent() )
+			name = "comp-" + dp.COMP;
 		deployments.add( dp );
+		deployMap.put( name , dp );
 	}
 	
 	public List<MetaEnvServerNode> getNodes() {
@@ -488,15 +490,17 @@ public class MetaEnvServer extends PropertyController {
 		return( false );
 	}
 
-	public boolean hasDatabaseItemDeployment( ActionBase action , MetaDatabaseDatagroup datagroup ) throws Exception {
-		if( datagroupMap.containsKey( datagroup.NAME ) )
-			return( true );
+	public boolean hasDatabaseItemDeployment( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
+		for( MetaDatabaseSchema schema : delivery.getDatabaseSchemes( action ).values() ) {
+			if( hasDatabaseItemDeployment( action , schema ) )
+				return( true );
+		}
 		return( false );
 	}
-	
-	public boolean hasDatabaseItemDeployment( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
-		for( MetaDatabaseDatagroup datagroup : delivery.getDatabaseDatagroups( action ).values() ) {
-			if( hasDatabaseItemDeployment( action , datagroup ) ) 
+
+	public boolean hasDatabaseItemDeployment( ActionBase action , MetaDatabaseSchema schema ) throws Exception {
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			if( deployment.hasDatabaseItemDeployment( action , schema ) ) 
 				return( true );
 		}
 		return( false );
@@ -610,9 +614,14 @@ public class MetaEnvServer extends PropertyController {
 
 	public Map<String,MetaDatabaseSchema> getSchemaSet( ActionBase action ) throws Exception {
 		Map<String,MetaDatabaseSchema> schemaMap = new HashMap<String,MetaDatabaseSchema>();
-		for( MetaDatabaseDatagroup dg : datagroupMap.values() ) {
-			for( MetaDatabaseSchema schema : dg.getSchemes( action ).values() )
-				schemaMap.put( schema.SCHEMA , schema );
+		for( MetaEnvServerDeployment item : deployments ) {
+			if( item.isDatabase() )
+				schemaMap.put( item.schema.SCHEMA , item.schema );
+			else
+			if( item.isComponent() ) {
+				for( MetaDistrComponentItem compItem : item.comp.getSchemaItems( action ).values() )
+					schemaMap.put( compItem.schema.SCHEMA , compItem.schema );
+			}
 		}
 		return( schemaMap );
 	}

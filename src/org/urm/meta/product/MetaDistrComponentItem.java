@@ -12,6 +12,7 @@ public class MetaDistrComponentItem {
 	
 	public MetaDistrBinaryItem binaryItem;
 	public MetaDistrConfItem confItem;
+	public MetaDatabaseSchema schema; 
 	public boolean OBSOLETE;
 	public String DEPLOYNAME;
 
@@ -31,6 +32,14 @@ public class MetaDistrComponentItem {
 		String NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		confItem = comp.dist.getConfItem( action , NAME );
 		OBSOLETE = ConfReader.getBooleanAttrValue( node , "obsolete" , false );
+	}
+
+	public void loadSchema( ActionBase action , Node node ) throws Exception {
+		String NAME = ConfReader.getRequiredAttrValue( node , "schema" );
+		
+		MetaDatabase database = meta.getDatabase( action );
+		schema = database.getSchema( action , NAME );
+		DEPLOYNAME = ConfReader.getAttrValue( node , "deployname" );
 	}
 
 }

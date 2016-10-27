@@ -16,6 +16,7 @@ public class MetaDatabaseSchema {
 	public VarDBMSTYPE dbmsType;
 	public String DBNAME;
 	public String DBUSER;
+	public String DESC;
 	
 	public DatabaseSpecific specific;
 	
@@ -29,6 +30,7 @@ public class MetaDatabaseSchema {
 		dbmsType = Meta.getDbmsType( ConfReader.getAttrValue( node , "dbtype" ) , false );
 		DBNAME = ConfReader.getAttrValue( node , "dbname" , SCHEMA );
 		DBUSER = ConfReader.getAttrValue( node , "dbuser" , SCHEMA );
+		DESC = ConfReader.getAttrValue( node , "desc" );
 		
 		specific = new DatabaseSpecific( meta , dbmsType );
 	}

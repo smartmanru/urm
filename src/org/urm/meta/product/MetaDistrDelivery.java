@@ -21,7 +21,6 @@ public class MetaDistrDelivery {
 	Map<String,MetaDistrBinaryItem> mapBinaryItems;
 	Map<String,MetaDistrConfItem> mapConfComps;
 	Map<String,MetaDatabaseSchema> mapDatabaseSchema;
-	Map<String,MetaDatabaseDatagroup> mapDatabaseDatagroup;
 	
 	public MetaDistrDelivery( Meta meta , MetaDistr dist ) {
 		this.meta = meta;
@@ -63,13 +62,6 @@ public class MetaDistrDelivery {
 		return( item );
 	}
 	
-	public MetaDatabaseDatagroup getDatagroup( ActionBase action , String NAME ) throws Exception {
-		MetaDatabaseDatagroup item = mapDatabaseDatagroup.get( NAME );
-		if( item == null )
-			action.exit1( _Error.UnknownDeliveryDatagroup1 , "unknown delivery datagroup=" + NAME , NAME );
-		return( item );
-	}
-	
 	public Map<String,MetaDistrBinaryItem> getBinaryItems( ActionBase action ) throws Exception {
 		return( mapBinaryItems );
 	}
@@ -78,8 +70,8 @@ public class MetaDistrDelivery {
 		return( mapConfComps );
 	}
 
-	public Map<String,MetaDatabaseDatagroup> getDatabaseDatagroups( ActionBase action ) throws Exception {
-		return( mapDatabaseDatagroup );
+	public Map<String,MetaDatabaseSchema> getDatabaseSchemes( ActionBase action ) throws Exception {
+		return( mapDatabaseSchema );
 	}
 
 	public boolean hasDatabaseItems( ActionBase action ) throws Exception {
@@ -118,22 +110,16 @@ public class MetaDistrDelivery {
 	
 	public void loadDatabaseItems( ActionBase action , Node node ) throws Exception {
 		mapDatabaseSchema = new HashMap<String,MetaDatabaseSchema>();
-		mapDatabaseDatagroup = new HashMap<String,MetaDatabaseDatagroup>();
 		
-		Node[] items = ConfReader.xmlGetChildren( node , "datagroup" );
+		Node[] items = ConfReader.xmlGetChildren( node , "database" );
 		if( items == null )
 			return;
 		
 		MetaDatabase database = meta.getDatabase( action );
 		for( Node item : items ) {
-			String datagroupName = ConfReader.getAttrValue( item , "name" );
-			MetaDatabaseDatagroup datagroup = database.getDatagroup( action , datagroupName );
-			mapDatabaseDatagroup.put( datagroupName , datagroup );
-			
-			for( MetaDatabaseSchema schema : datagroup.getSchemes( action ).values() ) {
-				if( !mapDatabaseSchema.containsKey( schema.SCHEMA ) )
-					mapDatabaseSchema.put( schema.SCHEMA , schema );
-			}
+			String schemaName = ConfReader.getAttrValue( item , "schema" );
+			MetaDatabaseSchema schema = database.getSchema( action , schemaName );
+			mapDatabaseSchema.put( schemaName , schema );
 		}
 		
 		SCHEMASET = Common.getList( Common.getSortedKeys( mapDatabaseSchema ) , " " );

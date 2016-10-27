@@ -21,6 +21,7 @@ public class MetaDistrComponent {
 
 	Map<String,MetaDistrComponentItem> mapBinaryItems;
 	Map<String,MetaDistrComponentItem> mapConfItems;
+	Map<String,MetaDistrComponentItem> mapSchemaItems;
 	List<MetaDistrComponentWS> listWS;
 	
 	public MetaDistrComponent( Meta meta , MetaDistr dist ) {
@@ -36,6 +37,7 @@ public class MetaDistrComponent {
 	public void load( ActionBase action , Node node ) throws Exception {
 		mapBinaryItems = new HashMap<String,MetaDistrComponentItem>();
 		mapConfItems = new HashMap<String,MetaDistrComponentItem>();
+		mapSchemaItems = new HashMap<String,MetaDistrComponentItem>();
 		listWS = new LinkedList<MetaDistrComponentWS>();
 		
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
@@ -57,6 +59,15 @@ public class MetaDistrComponent {
 				MetaDistrComponentItem item = new MetaDistrComponentItem( meta , this );
 				item.loadConf( action , itemNode );
 				mapConfItems.put( item.confItem.KEY , item );
+			}
+		}
+		
+		items = ConfReader.xmlGetChildren( node , "database" );
+		if( items != null ) {
+			for( Node itemNode : items ) {
+				MetaDistrComponentItem item = new MetaDistrComponentItem( meta , this );
+				item.loadSchema( action , itemNode );
+				mapSchemaItems.put( item.schema.SCHEMA , item );
 			}
 		}
 		
@@ -99,6 +110,10 @@ public class MetaDistrComponent {
 	
 	public Map<String,MetaDistrComponentItem> getConfItems( ActionBase action ) throws Exception {
 		return( mapConfItems );
+	}
+	
+	public Map<String,MetaDistrComponentItem> getSchemaItems( ActionBase action ) throws Exception {
+		return( mapSchemaItems );
 	}
 	
 }

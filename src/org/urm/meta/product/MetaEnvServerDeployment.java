@@ -19,6 +19,8 @@ public class MetaEnvServerDeployment extends PropertyController {
 	public MetaDistrBinaryItem binaryItem;
 	public String CONFITEM;
 	public MetaDistrConfItem confItem;
+	public String SCHEMA;
+	public MetaDatabaseSchema schema;
 	
 	private VarDEPLOYTYPE DEPLOYTYPE;
 	private String DEPLOYPATH;
@@ -30,6 +32,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 	public static String PROPERTY_COMPONENT = "component";
 	public static String PROPERTY_DISTITEM = "distitem";
 	public static String PROPERTY_CONFITEM = "confitem";
+	public static String PROPERTY_SCHEMA = "schema";
 	
 	public MetaEnvServerDeployment( Meta meta , MetaEnvServer server ) {
 		super( server , "deploy" );
@@ -66,6 +69,10 @@ public class MetaEnvServerDeployment extends PropertyController {
 		if( !CONFITEM.isEmpty() )
 			return;
 		
+		SCHEMA = super.getStringProperty( action , PROPERTY_SCHEMA );
+		if( !SCHEMA.isEmpty() )
+			return;
+		
 		action.exit1( _Error.UnexpectedDeploymentType1 , "unexpected deployment type found, server=" + server.NAME , server.NAME );
 	}
 	
@@ -86,6 +93,10 @@ public class MetaEnvServerDeployment extends PropertyController {
 			binaryItem = distr.getBinaryItem( action , DISTITEM );
 		if( !CONFITEM.isEmpty() )
 			confItem = distr.getConfItem( action , CONFITEM );
+		
+		MetaDatabase database = meta.getDatabase( action ); 
+		if( !SCHEMA.isEmpty() )
+			schema = database.getSchema( action , SCHEMA );
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
@@ -126,6 +137,18 @@ public class MetaEnvServerDeployment extends PropertyController {
 		return( true );
 	}
 
+	public boolean hasDatabaseItemDeployment( ActionBase action , MetaDatabaseSchema p_schema ) throws Exception {
+		if( this.schema == p_schema ) 
+			return( true );
+		
+		if( comp != null ) {
+			for( MetaDistrComponentItem item : comp.getSchemaItems( action ).values() )
+				if( item.schema == p_schema )
+					return( true );
+		}
+		return( true );
+	}
+
 	public String getDeployPath( ActionBase action ) throws Exception {
 		if( DEPLOYPATH.isEmpty() || DEPLOYPATH.equals( "default" ) ) {
 			if( server.DEPLOYPATH.isEmpty() )
@@ -150,7 +173,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 		return( new MetaEnvServerLocation( meta , server , deployType , deployPath ) );
 	}
 
-	public boolean isNodeAdminDeployment( ActionBase action ) throws Exception {
+	public boolean isNodeAdminDeployment() {
 		if( nodeType == VarNODETYPE.ADMIN )
 			return( true );
 		
@@ -163,7 +186,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 		return( false );
 	}
 
-	public boolean isNodeSlaveDeployment( ActionBase action ) throws Exception {
+	public boolean isNodeSlaveDeployment() {
 		if( nodeType == VarNODETYPE.SLAVE )
 			return( true );
 		
@@ -176,7 +199,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 		return( false );
 	}
 
-	public boolean isNodeSelfDeployment( ActionBase action ) throws Exception {
+	public boolean isNodeSelfDeployment() {
 		if( nodeType == VarNODETYPE.SELF )
 			return( true );
 		
@@ -185,4 +208,29 @@ public class MetaEnvServerDeployment extends PropertyController {
 		
 		return( false );
 	}
+	
+	public boolean isBinaryItem() {
+		if( !DISTITEM.isEmpty() )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isConfItem() {
+		if( !CONFITEM.isEmpty() )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isComponent() {
+		if( !COMP.isEmpty() )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isDatabase() {
+		if( !SCHEMA.isEmpty() )
+			return( true );
+		return( false );
+	}
+	
 }

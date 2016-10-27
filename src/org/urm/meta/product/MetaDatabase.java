@@ -19,7 +19,6 @@ public class MetaDatabase extends PropertyController {
 
 	public MetaDatabaseAdministration admin;
 	public Map<String,MetaDatabaseSchema> mapSchema;
-	public Map<String,MetaDatabaseDatagroup> mapDatagroup;
 	
 	public String ALIGNEDMAPPING;
 	
@@ -30,7 +29,6 @@ public class MetaDatabase extends PropertyController {
 		meta.setDatabase( this );
 		admin = new MetaDatabaseAdministration( meta , this );
 		mapSchema = new HashMap<String,MetaDatabaseSchema>();
-		mapDatagroup = new HashMap<String,MetaDatabaseDatagroup>();
 	}
 
 	@Override
@@ -96,16 +94,6 @@ public class MetaDatabase extends PropertyController {
 			item.load( action , schemaNode );
 			mapSchema.put( item.SCHEMA , item );
 		}
-		
-		items = ConfReader.xmlGetChildren( node , "datagroup" );
-		if( items == null )
-			return;
-		
-		for( Node dgNode : items ) {
-			MetaDatabaseDatagroup item = new MetaDatabaseDatagroup( meta , this );
-			item.load( action , dgNode );
-			mapDatagroup.put( item.NAME , item );
-		}
 	}
 
 	public void saveSchemaSet( ActionBase action , Document doc , Element root ) throws Exception {
@@ -122,13 +110,6 @@ public class MetaDatabase extends PropertyController {
 		return( schema );
 	}
 
-	public MetaDatabaseDatagroup getDatagroup( ActionBase action , String name ) throws Exception {
-		MetaDatabaseDatagroup datagroup = mapDatagroup.get( name );
-		if( datagroup == null )
-			action.exit1( _Error.UnknownDatagroup1 , "unknown datagroup=" + name , name );
-		return( datagroup );
-	}
-	
 	public boolean checkAligned( ActionBase action , String id ) throws Exception {
 		return( true );
 	}
