@@ -56,6 +56,10 @@ public class MetaDistrDelivery {
 			action.exit1( _Error.UnknownDeliveryConfigurationItem1 , "unknown delivery configuration item=" + NAME , NAME );
 		return( item );
 	}
+
+	public MetaDatabaseSchema findSchema( String NAME ) {
+		return( mapDatabaseSchema.get( NAME ) );
+	}
 	
 	public MetaDatabaseSchema getSchema( ActionBase action , String NAME ) throws Exception {
 		MetaDatabaseSchema item = mapDatabaseSchema.get( NAME );
