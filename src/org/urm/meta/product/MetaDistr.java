@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.engine.TransactionBase;
@@ -138,6 +139,10 @@ public class MetaDistr extends PropertyController {
 	}
 	
 	private void saveComponents( ActionBase action , Document doc , Element root ) throws Exception {
+	}
+	
+	public String[] getComponents() {
+		return( Common.getSortedKeys( mapComps ) );
 	}
 	
 	public MetaDistrComponent getComponent( ActionBase action , String KEY ) throws Exception {

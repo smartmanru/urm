@@ -17,6 +17,7 @@ public class MetaDistrComponent {
 
 	public String NAME;
 	public String UNIT;
+	public String DESC;
 	public boolean OBSOLETE;
 
 	Map<String,MetaDistrComponentItem> mapBinaryItems;
@@ -40,8 +41,9 @@ public class MetaDistrComponent {
 		mapSchemaItems = new HashMap<String,MetaDistrComponentItem>();
 		listWS = new LinkedList<MetaDistrComponentWS>();
 		
-		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
 		UNIT = ConfReader.getAttrValue( node , "unit" );
+		DESC = ConfReader.getAttrValue( node , "desc" );
 		OBSOLETE = ConfReader.getBooleanAttrValue( node , "obsolete" , false );
 		
 		Node[] items = ConfReader.xmlGetChildren( node , "distitem" );
@@ -114,6 +116,18 @@ public class MetaDistrComponent {
 	
 	public Map<String,MetaDistrComponentItem> getSchemaItems( ActionBase action ) throws Exception {
 		return( mapSchemaItems );
+	}
+
+	public MetaDistrComponentItem getBinaryItem( String name ) {
+		return( mapBinaryItems.get( name ) );
+	}
+	
+	public MetaDistrComponentItem getConfItem( String name ) {
+		return( mapConfItems.get( name ) );
+	}
+	
+	public MetaDistrComponentItem getSchemaItem( String name ) {
+		return( mapSchemaItems.get( name ) );
 	}
 	
 }
