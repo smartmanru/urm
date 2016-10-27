@@ -16,6 +16,7 @@ public class MetaDistrDelivery {
 	
 	public String NAME;
 	public String FOLDER;
+	public String DESC;
 	public String SCHEMASET;
 
 	Map<String,MetaDistrBinaryItem> mapBinaryItems;
@@ -30,6 +31,7 @@ public class MetaDistrDelivery {
 	public void load( ActionBase action , Node node ) throws Exception {
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		FOLDER = ConfReader.getAttrValue( node , "folder" , NAME );
+		DESC = ConfReader.getAttrValue( node , "desc" );
 		
 		loadBinaryItems( action , node );
 		loadConfigurationComponents( action , node );

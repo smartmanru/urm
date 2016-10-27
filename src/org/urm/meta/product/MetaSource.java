@@ -74,7 +74,7 @@ public class MetaSource extends PropertyController {
 	
 	public void load( ActionBase action , Node root ) throws Exception {
 		MetaProductSettings product = meta.getProductSettings( action );
-		if( super.initCreateStarted( product.getProperties() ) )
+		if( !super.initCreateStarted( product.getProperties() ) )
 			return;
 
 		Node[] sets = ConfReader.xmlGetChildren( root , "projectset" );

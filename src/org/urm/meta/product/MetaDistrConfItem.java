@@ -28,7 +28,7 @@ public class MetaDistrConfItem {
 	}
 
 	public void load( ActionBase action , Node node ) throws Exception {
-		KEY = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+		KEY = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
 		TYPE = Meta.getConfItemType( ConfReader.getRequiredAttrValue( node , "type" ) , false );
 		FILES = ConfReader.getAttrValue( node , "files" );
 		SECURED = ConfReader.getAttrValue( node , "secured" );
@@ -37,11 +37,6 @@ public class MetaDistrConfItem {
 		EXTCONF = ConfReader.getAttrValue( node , "extconf" );
 		OBSOLETE = ConfReader.getBooleanAttrValue( node , "obsolete" , false );
 		CREATEDIR = ConfReader.getBooleanAttrValue( node , "createdir" , false );
-		
-		if( TYPE == VarCONFITEMTYPE.DIR ) {
-			if( FILES.isEmpty() == false || TEMPLATES.isEmpty() == false )
-				action.exit1( _Error.InvalidConfItemDef1 , "unexpected set files or templates attribute in confitem=" + KEY , KEY );
-		}
 	}
 
 	public String getLiveIncludeFiles( ActionBase action ) throws Exception {

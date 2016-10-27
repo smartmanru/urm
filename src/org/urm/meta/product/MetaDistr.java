@@ -83,10 +83,10 @@ public class MetaDistr extends PropertyController {
 	
 	public void load( ActionBase action , Node root ) throws Exception {
 		MetaProductSettings product = meta.getProductSettings( action );
-		if( super.initCreateStarted( product.getProperties() ) )
+		if( !super.initCreateStarted( product.getProperties() ) )
 			return;
 
-		loadDeliveries( action , ConfReader.xmlGetPathNode( root , "distributive" ) );
+		loadDeliveries( action , ConfReader.xmlGetPathNode( root , "deliveries" ) );
 		loadComponents( action , ConfReader.xmlGetPathNode( root , "deployment" ) );
 		
 		super.initFinished();

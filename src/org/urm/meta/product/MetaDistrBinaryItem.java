@@ -45,7 +45,7 @@ public class MetaDistrBinaryItem {
 
 	public void load( ActionBase action , Node node ) throws Exception {
 		this.node = node;
-		KEY = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+		KEY = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
 	
 		// read attrs
 		DISTTYPE = Meta.getItemDistType( ConfReader.getRequiredAttrValue( node , "type" ) , false );
