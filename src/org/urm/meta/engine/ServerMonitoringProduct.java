@@ -15,12 +15,11 @@ import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvDC;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
-import org.urm.meta.product.MetaMonitoring;
 
 public class ServerMonitoringProduct implements Runnable , ServerEventsListener {
 
 	ServerMonitoring monitoring;
-	MetaMonitoring meta;
+	String productName;
 	ServerMonitoringSource source;
 	ServerEngine engine;
 	
@@ -31,9 +30,9 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	ActionMonitorTop ca;
 	ServerEventsApp eventsApp;
 	
-	public ServerMonitoringProduct( ServerMonitoring monitoring , MetaMonitoring meta , ServerMonitoringSource source , ServerEventsApp eventsApp ) {
+	public ServerMonitoringProduct( ServerMonitoring monitoring , String productName , ServerMonitoringSource source , ServerEventsApp eventsApp ) {
 		this.monitoring = monitoring;
-		this.meta = meta;
+		this.productName = productName;
 		this.source = source;
 		this.engine = monitoring.engine;
 		this.eventsApp = eventsApp;
@@ -43,7 +42,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	public void run() {
 		started = true;
 		try {
-			ca = new ActionMonitorTop( engine.serverAction , null , meta , eventsApp );
+			ca = new ActionMonitorTop( engine.serverAction , null , productName , eventsApp );
 			eventsApp.subscribe( ca.eventSource , this );
 			ca.runSimple();
 		}
@@ -83,7 +82,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		if( started )
 			return;
 		
-        thread = new Thread( null , this , "monitoring:" + meta.meta.name );
+        thread = new Thread( null , this , "monitoring:" + productName );
         thread.start();
 	}
 	

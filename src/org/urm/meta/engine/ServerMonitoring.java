@@ -167,7 +167,7 @@ public class ServerMonitoring extends ServerObject {
 		}
 		
 		ServerMonitoringSource source = createSource( MONITORING_PRODUCT , product );
-		ServerMonitoringProduct mon = new ServerMonitoringProduct( this , meta , source , eventsApp );
+		ServerMonitoringProduct mon = new ServerMonitoringProduct( this , product.NAME , source , eventsApp );
 		mapProduct.put( product.NAME , mon );
 		mon.start();
 		action.trace( "monitoring started for product=" + product.NAME );
