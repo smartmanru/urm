@@ -360,7 +360,7 @@ public class CommandContext {
 		update( action );
 	}
 	
-	public CommandContext getProductContext( String stream ) {
+	public CommandContext getStreamContext( String stream ) {
 		CommandContext context = new CommandContext( this , stream );
 		return( context );
 	}

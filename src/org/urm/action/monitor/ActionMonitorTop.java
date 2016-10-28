@@ -14,6 +14,8 @@ import org.urm.engine.ServerSourceEvent;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.storage.MonitoringStorage;
+import org.urm.meta.ServerLoader;
+import org.urm.meta.ServerProductMeta;
 import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaMonitoring;
@@ -45,7 +47,14 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 		int majorCount = 0;
 		int minorCount = 0;
 		while( continueRunning ) {
-			Meta meta = super.getProductMetadata( productName );
+			ServerLoader loader = super.engine.getLoader( super.actionInit );
+			ServerProductMeta productStorage = loader.findProductStorage( productName );
+			if( productStorage == null ) {
+				info( "product=" + productName + ": not found, stop monitoring ..." );
+				break;
+			}
+
+			Meta meta = productStorage.meta;
 			MetaMonitoring mon = meta.getMonitoring( this );
 			MonitoringStorage storage = artefactory.getMonitoringStorage( this , mon );
 			MonitorInfo info = new MonitorInfo( this , storage );
@@ -162,7 +171,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 		// run checkenv for all targets
 		ActionSet set = new ActionSet( this , "major" );
 		for( MetaMonitoringTarget target : mon.getTargets( this ).values() ) {
-			ActionInit init = initProduct( target );
+			ActionInit init = getStreamAction( target );
 			ActionMonitorCheckEnv action = getCheckEnvAction( info , set , init , target );
 			checkenvActions.add( action );
 		}
@@ -176,7 +185,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 	private void executeOnceMinor( MetaMonitoring mon , MonitorInfo info ) throws Exception {
 		// run checkenv for all targets
 		for( MetaMonitoringTarget target : mon.getTargets( this ).values() ) {
-			ActionInit init = initProduct( target ); 
+			ActionInit init = getStreamAction( target ); 
 			checkTargetItems( mon , info , init , target );
 		}
 	}
@@ -188,8 +197,8 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 		return( action );
 	}
 
-	private ActionInit initProduct( MetaMonitoringTarget target ) throws Exception {
-		CommandContext initContext = context.getProductContext( target.NAME );
+	private ActionInit getStreamAction( MetaMonitoringTarget target ) throws Exception {
+		CommandContext initContext = context.getStreamContext( target.NAME );
 		ActionInit action = engine.createAction( initContext , this );
 		return( action );
 	}

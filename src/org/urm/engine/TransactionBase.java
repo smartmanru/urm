@@ -165,11 +165,11 @@ public class TransactionBase extends ServerObject {
 			if( res )
 				res = saveSettings();
 			if( res )
-				res = saveMetadata();
-			if( res )
 				res = saveInfrastructure();
 			if( res )
 				res = saveBase();
+			if( res )
+				res = saveMetadata();
 			
 			if( res ) {
 				if( !engine.commitTransaction( this ) )
