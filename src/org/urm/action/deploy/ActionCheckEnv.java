@@ -292,7 +292,7 @@ public class ActionCheckEnv extends ActionBase {
 		
 		if( main ) {
 			String[] log = super.logFinishCapture();
-			super.eventSource.setLog( log );
+			mainState.setLog( log );
 			super.eventSource.finishScopeItem( mainState );
 		}
 	}

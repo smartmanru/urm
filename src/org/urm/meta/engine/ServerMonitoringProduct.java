@@ -70,11 +70,9 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			if( nodeSource == null )
 				return;
 			
-			nodeSource.setLog( source.getLog() );
-			
 			if( state.type == SCOPETYPE.TypeItem ) {
 				NodeStatus status = ( NodeStatus )state;
-				processNodeEvent( nodeSource , node , status );
+				processNodeEvent( source , nodeSource , node , status );
 			}
 		}
 	}
@@ -107,11 +105,12 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		recalculateSystem( product.system );
 	}
 
-	private void processNodeEvent( ServerMonitoringSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
+	private void processNodeEvent( ActionEventsSource source , ServerMonitoringSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
 		if( stopping )
 			return;
-		
-		if( nodeSource != null && nodeSource.setState( status.itemState ) ) {
+
+		nodeSource.setLog( status.getLog() );
+		if( nodeSource.setState( status.itemState ) ) {
 			MetaEnvServer server = node.server;
 			recalculateServer( server );
 		}

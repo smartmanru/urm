@@ -18,6 +18,8 @@ public class NodeStatus extends ScopeState {
 	public boolean compFailed;
 	public boolean processFailed;
 	public boolean proxyFailed;
+
+	String[] log;
 	
 	public NodeStatus( ScopeState parent , ActionScopeTargetItem item ) {
 		super( parent , item );
@@ -85,6 +87,14 @@ public class NodeStatus extends ScopeState {
 		proxy = server;
 		proxyFailed = true;
 		itemState = MONITORING_STATE.MONITORING_ERRORS_ALERTS;
+	}
+
+	public void setLog( String[] log ) {
+		this.log = log;
+	}
+	
+	public String[] getLog() {
+		return( log );
 	}
 	
 }
