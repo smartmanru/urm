@@ -8,6 +8,7 @@ import org.urm.action.monitor.ActionMonitorTop;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.ServerEventsApp;
 import org.urm.engine.ServerEventsListener;
+import org.urm.engine.ServerEventsSubscription;
 import org.urm.engine.ServerSourceEvent;
 import org.urm.meta.engine.ServerMonitoringState.MONITORING_STATE;
 import org.urm.meta.product.Meta;
@@ -75,6 +76,10 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 				processNodeEvent( source , nodeSource , node , status );
 			}
 		}
+	}
+
+	@Override
+	public void triggerSubscriptionRemoved( ServerEventsSubscription sub ) {
 	}
 	
 	public synchronized void start() {

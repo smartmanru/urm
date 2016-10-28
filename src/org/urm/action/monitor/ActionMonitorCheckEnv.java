@@ -9,6 +9,7 @@ import org.urm.action.ScopeState.SCOPETYPE;
 import org.urm.action.deploy.ActionCheckEnv;
 import org.urm.engine.ServerEventsApp;
 import org.urm.engine.ServerEventsListener;
+import org.urm.engine.ServerEventsSubscription;
 import org.urm.engine.ServerSourceEvent;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
@@ -67,6 +68,10 @@ public class ActionMonitorCheckEnv extends ActionBase implements ServerEventsLis
 			if( state.type == SCOPETYPE.TypeItem )
 				super.eventSource.forwardScopeItem( ServerMonitoring.EVENT_FINALSTATE , state );
 		}
+	}
+
+	@Override
+	public void triggerSubscriptionRemoved( ServerEventsSubscription sub ) {
 	}
 	
 }

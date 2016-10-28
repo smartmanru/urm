@@ -9,6 +9,7 @@ import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.ServerEventsApp;
 import org.urm.engine.ServerEventsListener;
+import org.urm.engine.ServerEventsSubscription;
 import org.urm.engine.ServerSourceEvent;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandContext;
@@ -129,6 +130,10 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 	public void triggerEvent( ServerSourceEvent event ) {
 		if( event.eventType == ServerMonitoring.EVENT_FINALSTATE )
 			super.eventSource.forwardScopeItem( ServerMonitoring.EVENT_FINALSTATE , ( ScopeState )event.data );
+	}
+	
+	@Override
+	public void triggerSubscriptionRemoved( ServerEventsSubscription sub ) {
 	}
 	
 	public void stopRunning() {

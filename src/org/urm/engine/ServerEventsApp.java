@@ -76,11 +76,20 @@ public class ServerEventsApp {
 		return( false );
 	}
 
-	public void trigger( ServerSourceEvent event ) {
+	public void triggerEvent( ServerSourceEvent event ) {
 		synchronized( events ) {
 			for( ServerEventsSubscription sub : subs ) {
 				if( sub.source == event.source )
-					sub.trigger( event );
+					sub.triggerEvent( event );
+			}
+		}
+	}
+
+	public void triggerSourceRemoved( ServerEventsSource source ) {
+		synchronized( events ) {
+			for( ServerEventsSubscription sub : subs ) {
+				if( sub.source == source )
+					sub.triggerSubscriptionRemoved();
 			}
 		}
 	}

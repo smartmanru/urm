@@ -31,6 +31,10 @@ public class ServerMonitoringSource extends ServerEventsSource {
 		return( data );
 	}
 
+	public void setObject( ServerObject object ) {
+		this.object = object;
+	}
+	
 	public void clearState() {
 		data.setState( MONITORING_STATE.MONITORING_NEVERQUERIED );
 	}

@@ -12,6 +12,7 @@ import org.urm.common.RunContext;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.ServerEvents;
 import org.urm.engine.ServerEventsApp;
+import org.urm.engine.ServerEventsListener;
 import org.urm.engine.ServerEventsSubscription;
 import org.urm.engine.ServerTransaction;
 import org.urm.meta.ServerLoader;
@@ -208,15 +209,83 @@ public class ServerMonitoring extends ServerObject {
 		return( source );
 	}
 	
+	private void removeSource( int level , ServerObject object ) {
+		ServerMonitoringSource source = sourceMap.get( object );
+		if( source == null )
+			return;
+		
+		source.unsubscribeAll();
+		sourceMap.remove( object );
+	}
+
+	private void replaceSource( int level , ServerObject objectOld , ServerObject objectNew ) {
+		ServerMonitoringSource source = sourceMap.get( objectOld );
+		if( source == null )
+			return;
+		
+		sourceMap.remove( objectOld );
+		source.setObject( objectNew );
+		sourceMap.put( objectNew , source );
+	}
+
 	public void stopProduct( String productName ) {
+		stopProduct( productName , false );
+	}
+	
+	public void stopProduct( String productName , boolean delete ) {
 		ServerMonitoringProduct mon = mapProduct.get( productName );
 		if( mon == null )
 			return;
 		
 		mon.stop();
 		mapProduct.remove( productName );
+
+		ServerRegistry registry = loader.getRegistry();
+		ServerProduct product = registry.directory.findProduct( productName );
+		ServerProductMeta storage = loader.findProductStorage( productName );
+		
+		// stop childs
+		for( String envName : storage.getEnvironments() ) {
+			MetaEnv env = storage.findEnvironment( envName );
+			stopEnvironment( env , delete );
+		}
+		
+		if( delete )
+			removeSource( MONITORING_PRODUCT , product );
 	}
 
+	public void stopEnvironment( MetaEnv env , boolean delete ) {
+		// stop childs
+		for( MetaEnvDC dc : env.getDatacenters() )
+			stopDatacenter( dc , delete );
+		
+		if( delete )
+			removeSource( MONITORING_ENVIRONMENT , env );
+	}
+
+	public void stopDatacenter( MetaEnvDC dc , boolean delete ) {
+		// stop childs
+		for( MetaEnvServer server : dc.getOriginalServerList() )
+			stopServer( server , delete );
+		
+		if( delete )
+			removeSource( MONITORING_DATACENTER , dc );
+	}
+	
+	public void stopServer( MetaEnvServer server , boolean delete ) {
+		// stop childs
+		for( MetaEnvServerNode node : server.getNodes() )
+			stopNode( node , delete );
+		
+		if( delete )
+			removeSource( MONITORING_SERVER , server );
+	}
+	
+	public void stopNode( MetaEnvServerNode node , boolean delete ) {
+		if( delete )
+			removeSource( MONITORING_NODE , node );
+	}
+	
 	public ServerMonitoringSource getObjectSource( ServerObject object ) {
 		return( sourceMap.get( object ) );
 	}
@@ -241,4 +310,90 @@ public class ServerMonitoring extends ServerObject {
 		return( registry.directory.findProduct( name ) );
 	}
 
+	public ServerEventsSubscription subscribe( ServerEventsApp app , ServerEventsListener listener , ServerObject object ) {
+		ServerMonitoringSource source = getObjectSource( object );
+		if( source == null )
+			return( null );
+		
+		return( app.subscribe( source , listener ) );
+	}
+
+	public void createProduct( ServerProductMeta storage ) {
+		ServerRegistry registry = loader.getRegistry();
+		ServerProduct product = registry.directory.findProduct( storage.name );
+		startProduct( product );
+	}
+	
+	public void deleteProduct( ServerProductMeta storage ) {
+		stopProduct( storage.name , true );
+	}
+	
+	public void modifyProduct( ServerProductMeta storageOld , ServerProductMeta storage ) {
+		for( String envName : storage.getEnvironments() ) {
+			MetaEnv envNew = storage.findEnvironment( envName );
+			MetaEnv envOld = storageOld.findEnvironment( envName );
+			if( envOld != null )
+				modifyEnvironment( envOld , envNew );
+			else
+				startEnvironment( envNew );
+		}
+		for( String envName : storageOld.getEnvironments() ) {
+			MetaEnv envOld = storageOld.findEnvironment( envName );
+			MetaEnv envNew = storage.findEnvironment( envName );
+			if( envNew == null )
+				stopEnvironment( envOld , true );
+		}
+	}
+
+	private void modifyEnvironment( MetaEnv envOld , MetaEnv envNew ) {
+		replaceSource( MONITORING_ENVIRONMENT , envOld , envNew );
+		
+		for( MetaEnvDC dcNew : envNew.getDatacenters() ) {
+			MetaEnvDC dcOld = envOld.findDC( dcNew.NAME );
+			if( dcOld != null )
+				modifyDatacenter( dcOld , dcNew );
+			else
+				startDatacenter( dcNew );
+		}
+		for( MetaEnvDC dcOld : envOld.getDatacenters() ) {
+			MetaEnvDC dcNew = envNew.findDC( dcOld.NAME );
+			if( dcNew == null )
+				stopDatacenter( dcOld , true );
+		}
+	}
+	
+	private void modifyDatacenter( MetaEnvDC dcOld , MetaEnvDC dcNew ) {
+		replaceSource( MONITORING_DATACENTER , dcOld , dcNew );
+		
+		for( MetaEnvServer serverNew : dcNew.getServers() ) {
+			MetaEnvServer serverOld = dcOld.findServer( serverNew.NAME );
+			if( serverOld != null )
+				modifyServer( serverOld , serverNew );
+			else
+				startServer( serverNew );
+		}
+		for( MetaEnvServer serverOld : dcOld.getServers() ) {
+			MetaEnvServer serverNew = dcNew.findServer( serverOld.NAME );
+			if( serverNew == null )
+				stopServer( serverOld , true );
+		}
+	}
+	
+	private void modifyServer( MetaEnvServer serverOld , MetaEnvServer serverNew ) {
+		replaceSource( MONITORING_DATACENTER , serverOld , serverNew );
+		
+		for( MetaEnvServerNode nodeNew : serverNew.getNodes() ) {
+			MetaEnvServerNode nodeOld = serverOld.findNode( nodeNew.POS );
+			if( nodeOld != null )
+				replaceSource( MONITORING_NODE , nodeOld , nodeNew );
+			else
+				startNode( nodeNew );
+		}
+		for( MetaEnvServerNode nodeOld : serverOld.getNodes() ) {
+			MetaEnvServerNode nodeNew = serverNew.findNode( nodeOld.POS );
+			if( nodeNew == null )
+				stopNode( nodeOld , true );
+		}
+	}
+	
 }

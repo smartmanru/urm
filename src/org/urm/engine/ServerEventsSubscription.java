@@ -12,10 +12,14 @@ public class ServerEventsSubscription {
 		this.listener = listener;
 	}
 
-	public void trigger( ServerSourceEvent event ) {
+	public void triggerEvent( ServerSourceEvent event ) {
 		listener.triggerEvent( event );
 	}
 
+	public void triggerSubscriptionRemoved() {
+		listener.triggerSubscriptionRemoved( this );
+	}
+	
 	public ServerEventsState getState() {
 		return( source.getState() );
 	}

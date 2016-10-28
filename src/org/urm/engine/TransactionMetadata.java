@@ -1,6 +1,7 @@
 package org.urm.engine;
 
 import org.urm.meta.ServerProductMeta;
+import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.product.Meta;
 
 public class TransactionMetadata {
@@ -82,12 +83,15 @@ public class TransactionMetadata {
 	}
 
 	public boolean saveProduct() throws Exception {
+		ServerMonitoring mon = transaction.action.getServerMonitoring();
+		
 		if( deleteMetadata ) {
 			if( metadataOld == null )
 				return( true );
-				
+
 			transaction.action.deleteProductMetadata( transaction , metadataOld );
 			transaction.trace( "transaction product storage meta: delete=" + metadataOld.objectId );
+			mon.deleteProduct( metadataOld );
 		}
 		else {
 			if( metadata == null )
@@ -96,7 +100,12 @@ public class TransactionMetadata {
 			transaction.action.setProductMetadata( transaction , metadata );
 			sessionMeta.replaceStorage( transaction.action , metadata );
 			transaction.trace( "transaction product storage meta: save=" + metadata.objectId );
+			if( createMetadata )
+				mon.createProduct( metadata );
+			else
+				mon.modifyProduct( metadataOld , metadata );
 		}
+		
 		return( true );
 	}
 

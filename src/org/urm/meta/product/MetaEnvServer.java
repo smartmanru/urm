@@ -388,10 +388,14 @@ public class MetaEnvServer extends PropertyController {
 		return( nodes );
 	}
 
-	public MetaEnvServerNode getNode( ActionBase action , int node ) throws Exception {
-		if( node < 1 || node > nodes.size() )
-			action.exit2( _Error.InvalidServerNode2 , "invalid node=" + node + ", server=" + NAME , NAME , "" + node );
-		return( nodes.get( node - 1 ) );
+	public MetaEnvServerNode findNode( int POS ) {
+		return( nodes.get( POS - 1 ) );
+	}
+	
+	public MetaEnvServerNode getNode( ActionBase action , int POS ) throws Exception {
+		if( POS < 1 || POS > nodes.size() )
+			action.exit2( _Error.InvalidServerNode2 , "invalid node=" + POS + ", server=" + NAME , NAME , "" + POS );
+		return( nodes.get( POS - 1 ) );
 	}
 
 	public boolean hasWebServices( ActionBase action ) throws Exception {

@@ -31,11 +31,19 @@ abstract public class ServerEventsSource {
 		}
 	}
 
+	public void unsubscribeAll() {
+		synchronized( events ) {
+			for( ServerEventsApp app : appMap.values() )
+				app.triggerSourceRemoved( this );
+			appMap.clear();
+		}
+	}
+
 	protected void trigger( int eventType , Object data ) {
 		synchronized( events ) {
 			ServerSourceEvent event = new ServerSourceEvent( this , stateId , eventType , data );
 			for( ServerEventsApp app : appMap.values() )
-				app.trigger( event );
+				app.triggerEvent( event );
 		}
 	}
 
