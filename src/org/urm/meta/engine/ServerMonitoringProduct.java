@@ -26,6 +26,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	private Thread thread;
 	private boolean started = false;
 	private boolean stopped = false;
+	private boolean stopping = false;
 	
 	ActionMonitorTop ca;
 	ServerEventsApp eventsApp;
@@ -82,6 +83,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		if( started )
 			return;
 		
+		stopping = false;
         thread = new Thread( null , this , "monitoring:" + productName );
         thread.start();
 	}
@@ -90,6 +92,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		if( started == false || stopped )
 			return;
 		
+		stopping = true;
 		ca.stopRunning();
 		try {
 			wait();
@@ -97,9 +100,17 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		catch( Throwable e ) {
 			engine.serverAction.log( "ServerMonitoringProduct stop" , e );
 		}
+		
+		// cleanup product data
+		source.setState( MONITORING_STATE.MONITORING_NEVERQUERIED );
+		ServerProduct product = ( ServerProduct )source.object;
+		recalculateSystem( product.system );
 	}
 
 	private void processNodeEvent( ServerMonitoringSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
+		if( stopping )
+			return;
+		
 		if( nodeSource != null && nodeSource.setState( status.itemState ) ) {
 			MetaEnvServer server = node.server;
 			recalculateServer( server );

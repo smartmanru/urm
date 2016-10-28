@@ -39,6 +39,20 @@ public class MetaDistrConfItem {
 		CREATEDIR = ConfReader.getBooleanAttrValue( node , "createdir" , false );
 	}
 
+	public MetaDistrConfItem copy( ActionBase action , Meta meta , MetaDistrDelivery delivery ) throws Exception {
+		MetaDistrConfItem r = new MetaDistrConfItem( meta , delivery );
+		r.KEY = KEY;
+		r.TYPE = TYPE;
+		r.FILES = FILES;
+		r.SECURED = SECURED;
+		r.EXCLUDE = EXCLUDE;
+		r.TEMPLATES = TEMPLATES;
+		r.EXTCONF = EXTCONF;
+		r.OBSOLETE = OBSOLETE;
+		r.CREATEDIR = CREATEDIR;
+		return( r );
+	}
+	
 	public String getLiveIncludeFiles( ActionBase action ) throws Exception {
 		if( TYPE == VarCONFITEMTYPE.DIR )
 			return( "*" );

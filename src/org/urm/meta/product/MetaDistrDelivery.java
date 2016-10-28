@@ -26,6 +26,9 @@ public class MetaDistrDelivery {
 	public MetaDistrDelivery( Meta meta , MetaDistr dist ) {
 		this.meta = meta;
 		this.dist = dist;
+		mapBinaryItems = new HashMap<String,MetaDistrBinaryItem>();
+		mapConfComps = new HashMap<String,MetaDistrConfItem>();
+		mapDatabaseSchema = new HashMap<String,MetaDatabaseSchema>();
 	}
 
 	public void load( ActionBase action , Node node ) throws Exception {
@@ -38,8 +41,68 @@ public class MetaDistrDelivery {
 		loadDatabaseItems( action , node );
 	}
 
+	private void loadBinaryItems( ActionBase action , Node node ) throws Exception {
+		Node[] items = ConfReader.xmlGetChildren( node , "distitem" );
+		if( items == null )
+			return;
+		
+		for( Node itemNode : items ) {
+			MetaDistrBinaryItem item = new MetaDistrBinaryItem( meta , this );
+			item.load( action , itemNode );
+			mapBinaryItems.put( item.KEY , item );
+		}
+	}
+	
+	private void loadConfigurationComponents( ActionBase action , Node node ) throws Exception {
+		Node[] items = ConfReader.xmlGetChildren( node , "confitem" );
+		if( items == null )
+			return;
+		
+		for( Node compNode : items ) {
+			MetaDistrConfItem item = new MetaDistrConfItem( meta , this );
+			item.load( action , compNode );
+			mapConfComps.put( item.KEY , item );
+		}
+	}
+	
+	private void loadDatabaseItems( ActionBase action , Node node ) throws Exception {
+		Node[] items = ConfReader.xmlGetChildren( node , "database" );
+		if( items == null )
+			return;
+		
+		MetaDatabase database = meta.getDatabase( action );
+		for( Node item : items ) {
+			String schemaName = ConfReader.getAttrValue( item , "schema" );
+			MetaDatabaseSchema schema = database.getSchema( action , schemaName );
+			mapDatabaseSchema.put( schemaName , schema );
+		}
+		
+		SCHEMASET = Common.getList( Common.getSortedKeys( mapDatabaseSchema ) , " " );
+	}
+
 	public MetaDistrDelivery copy( ActionBase action , Meta meta , MetaDistr distr ) throws Exception {
 		MetaDistrDelivery r = new MetaDistrDelivery( meta , distr );
+		r.NAME = NAME;
+		r.FOLDER = FOLDER;
+		r.DESC = DESC;
+		r.SCHEMASET = SCHEMASET;
+		
+		for( MetaDistrBinaryItem item : mapBinaryItems.values() ) {
+			MetaDistrBinaryItem ritem = item.copy( action , meta , r );
+			r.mapBinaryItems.put( ritem.KEY , ritem );
+		}
+			
+		for( MetaDistrConfItem item : mapConfComps.values() ) {
+			MetaDistrConfItem ritem = item.copy( action , meta , r );
+			r.mapConfComps.put( ritem.KEY , ritem );
+		}
+			
+		MetaDatabase rdatabase = meta.getDatabase( action ); 
+		for( MetaDatabaseSchema item : mapDatabaseSchema.values() ) {
+			MetaDatabaseSchema ritem = rdatabase.getSchema( action , item.SCHEMA );
+			r.mapDatabaseSchema.put( ritem.SCHEMA , ritem );
+		}
+			
 		return( r );
 	}
 	
@@ -86,49 +149,4 @@ public class MetaDistrDelivery {
 		return( true );
 	}
 	
-	public void loadBinaryItems( ActionBase action , Node node ) throws Exception {
-		mapBinaryItems = new HashMap<String,MetaDistrBinaryItem>();
-		
-		Node[] items = ConfReader.xmlGetChildren( node , "distitem" );
-		if( items == null )
-			return;
-		
-		for( Node itemNode : items ) {
-			MetaDistrBinaryItem item = new MetaDistrBinaryItem( meta , this );
-			item.load( action , itemNode );
-			mapBinaryItems.put( item.KEY , item );
-		}
-	}
-	
-	public void loadConfigurationComponents( ActionBase action , Node node ) throws Exception {
-		mapConfComps = new HashMap<String,MetaDistrConfItem>();
-		
-		Node[] items = ConfReader.xmlGetChildren( node , "confitem" );
-		if( items == null )
-			return;
-		
-		for( Node compNode : items ) {
-			MetaDistrConfItem item = new MetaDistrConfItem( meta , this );
-			item.load( action , compNode );
-			mapConfComps.put( item.KEY , item );
-		}
-	}
-	
-	public void loadDatabaseItems( ActionBase action , Node node ) throws Exception {
-		mapDatabaseSchema = new HashMap<String,MetaDatabaseSchema>();
-		
-		Node[] items = ConfReader.xmlGetChildren( node , "database" );
-		if( items == null )
-			return;
-		
-		MetaDatabase database = meta.getDatabase( action );
-		for( Node item : items ) {
-			String schemaName = ConfReader.getAttrValue( item , "schema" );
-			MetaDatabaseSchema schema = database.getSchema( action , schemaName );
-			mapDatabaseSchema.put( schemaName , schema );
-		}
-		
-		SCHEMASET = Common.getList( Common.getSortedKeys( mapDatabaseSchema ) , " " );
-	}
-
 }

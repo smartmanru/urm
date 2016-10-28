@@ -16,8 +16,8 @@ public class MetaDistrBinaryItem {
 
 	public Meta meta;
 	public MetaDistrDelivery delivery;
+	
 	public MetaSourceProjectItem sourceItem;
-
 	public String KEY;
 	public String EXT;
 	public VarDISTITEMTYPE DISTTYPE;
@@ -36,7 +36,6 @@ public class MetaDistrBinaryItem {
 	public String EXCLUDE;
 	
 	public boolean CUSTOMDEPLOY;
-	Node node;
 	
 	public MetaDistrBinaryItem( Meta meta , MetaDistrDelivery delivery ) {
 		this.meta = meta;
@@ -44,7 +43,6 @@ public class MetaDistrBinaryItem {
 	}
 
 	public void load( ActionBase action , Node node ) throws Exception {
-		this.node = node;
 		KEY = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
 	
 		// read attrs
@@ -97,6 +95,36 @@ public class MetaDistrBinaryItem {
 		}
 	}
 
+	public MetaDistrBinaryItem copy( ActionBase action , Meta meta , MetaDistrDelivery delivery ) throws Exception {
+		MetaDistrBinaryItem r = new MetaDistrBinaryItem( meta , delivery );
+		if( sourceItem != null ) {
+			MetaSource source = meta.getSources( action );
+			MetaSourceProject project = source.getProject( action , sourceItem.project.PROJECT );
+			r.sourceItem = project.getItem( action , sourceItem.ITEMNAME );
+		}
+			
+		r.KEY = KEY;
+		r.EXT = EXT;
+		r.DISTTYPE = DISTTYPE;
+		r.DISTSOURCE = DISTSOURCE;
+		r.SRCDISTITEM = SRCDISTITEM;
+		
+		r.SRCITEMPATH = SRCITEMPATH; 
+		r.DISTBASENAME = DISTBASENAME;
+		r.DEPLOYBASENAME = DEPLOYBASENAME;
+		r.DEPLOYVERSION = DEPLOYVERSION;
+		r.WAR_MRID = WAR_MRID;
+		r.WAR_CONTEXT = WAR_CONTEXT;
+		r.WAR_STATICEXT = WAR_STATICEXT;
+		r.BUILDINFO = BUILDINFO;
+		r.FILES = FILES;
+		r.EXCLUDE = EXCLUDE;
+		
+		r.CUSTOMDEPLOY = CUSTOMDEPLOY;
+		
+		return( r );
+	}
+	
 	public void resolveReferences( ActionBase action ) throws Exception {
 		if( DISTSOURCE == VarDISTITEMSOURCE.DISTITEM ) {
 			MetaDistr distr = meta.getDistr( action );

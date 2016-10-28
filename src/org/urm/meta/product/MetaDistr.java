@@ -71,6 +71,8 @@ public class MetaDistr extends PropertyController {
 			r.mapComps.put( ritem.NAME , ritem );
 		}
 		
+		r.resolveReferences( action );
+		
 		r.initFinished();
 		return( r );
 	}
@@ -109,6 +111,10 @@ public class MetaDistr extends PropertyController {
 			mapConfItems.putAll( item.getConfigurationItems( action ) );
 		}
 		
+		resolveReferences( action );
+	}
+	
+	private void resolveReferences( ActionBase action ) throws Exception {
 		for( MetaDistrBinaryItem item : mapBinaryItems.values() )
 			item.resolveReferences( action );
 	}

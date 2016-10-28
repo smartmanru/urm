@@ -15,11 +15,12 @@ public class ServerMonitoringState extends ServerEventsState {
 		MONITORING_HEALTHY
 	};
 	
-	public ServerMonitoringSource source;
+	public ServerMonitoringSource monitoringSource;
 	public MONITORING_STATE state;
 	
 	public ServerMonitoringState( ServerMonitoringSource source ) {
 		super( source , 0 );
+		monitoringSource = source;
 		state = MONITORING_STATE.MONITORING_NEVERQUERIED;
 	}
 
