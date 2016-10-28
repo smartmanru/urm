@@ -7,7 +7,6 @@ import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.ScopeState.SCOPETYPE;
 import org.urm.action.deploy.ActionCheckEnv;
-import org.urm.action.deploy.NodeStatus;
 import org.urm.engine.ServerEventsApp;
 import org.urm.engine.ServerEventsListener;
 import org.urm.engine.ServerSourceEvent;
