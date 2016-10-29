@@ -5,6 +5,8 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.meta.product.Meta.VarCONFITEMTYPE;
 import org.urm.meta.product.Meta.VarNAMETYPE;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MetaDistrConfItem {
@@ -39,6 +41,18 @@ public class MetaDistrConfItem {
 		CREATEDIR = ConfReader.getBooleanAttrValue( node , "createdir" , false );
 	}
 
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , "name" , KEY );
+		Common.xmlSetElementAttr( doc , root , "type" , Common.getEnumLower( TYPE ) );
+		Common.xmlSetElementAttr( doc , root , "files" , FILES );
+		Common.xmlSetElementAttr( doc , root , "secured" , SECURED );
+		Common.xmlSetElementAttr( doc , root , "exclude" , EXCLUDE );
+		Common.xmlSetElementAttr( doc , root , "templates" , TEMPLATES );
+		Common.xmlSetElementAttr( doc , root , "extconf" , EXTCONF );
+		Common.xmlSetElementAttr( doc , root , "obsolete" , Common.getBooleanValue( OBSOLETE ) );
+		Common.xmlSetElementAttr( doc , root , "createdir" , Common.getBooleanValue( CREATEDIR ) );
+	}
+	
 	public MetaDistrConfItem copy( ActionBase action , Meta meta , MetaDistrDelivery delivery ) throws Exception {
 		MetaDistrConfItem r = new MetaDistrConfItem( meta , delivery );
 		r.KEY = KEY;

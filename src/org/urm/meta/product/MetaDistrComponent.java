@@ -6,8 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.meta.product.Meta.VarNAMETYPE;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MetaDistrComponent {
@@ -28,19 +31,44 @@ public class MetaDistrComponent {
 	public MetaDistrComponent( Meta meta , MetaDistr dist ) {
 		this.meta = meta;
 		this.dist = dist;
-	}
-
-	public MetaDistrComponent copy( ActionBase action , Meta meta , MetaDistr distr ) throws Exception {
-		MetaDistrComponent r = new MetaDistrComponent( meta , distr );
-		return( r );
-	}
-	
-	public void load( ActionBase action , Node node ) throws Exception {
+		
 		mapBinaryItems = new HashMap<String,MetaDistrComponentItem>();
 		mapConfItems = new HashMap<String,MetaDistrComponentItem>();
 		mapSchemaItems = new HashMap<String,MetaDistrComponentItem>();
 		listWS = new LinkedList<MetaDistrComponentWS>();
+	}
+
+	public MetaDistrComponent copy( ActionBase action , Meta meta , MetaDistr distr ) throws Exception {
+		MetaDistrComponent r = new MetaDistrComponent( meta , distr );
+		r.NAME = NAME;
+		r.UNIT = UNIT;
+		r.DESC = DESC;
+		r.OBSOLETE = OBSOLETE;
 		
+		for( MetaDistrComponentItem item : mapBinaryItems.values() ) {
+			MetaDistrComponentItem ritem = item.copy( action , meta , r );
+			r.mapBinaryItems.put( ritem.binaryItem.KEY , ritem );
+		}
+		
+		for( MetaDistrComponentItem item : mapConfItems.values() ) {
+			MetaDistrComponentItem ritem = item.copy( action , meta , r );
+			r.mapConfItems.put( ritem.confItem.KEY , ritem );
+		}
+		
+		for( MetaDistrComponentItem item : mapSchemaItems.values() ) {
+			MetaDistrComponentItem ritem = item.copy( action , meta , r );
+			r.mapSchemaItems.put( ritem.schema.SCHEMA , ritem );
+		}
+
+		for( MetaDistrComponentWS item : listWS ) {
+			MetaDistrComponentWS ritem = item.copy( action , meta , r );
+			r.listWS.add( ritem );
+		}
+		
+		return( r );
+	}
+	
+	public void load( ActionBase action , Node node ) throws Exception {
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
 		UNIT = ConfReader.getAttrValue( node , "unit" );
 		DESC = ConfReader.getAttrValue( node , "desc" );
@@ -83,6 +111,33 @@ public class MetaDistrComponent {
 			listWS.add( item );
 		}
 	}
+	
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , "name" , NAME );
+		Common.xmlSetElementAttr( doc , root , "unit" , UNIT );
+		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
+		Common.xmlSetElementAttr( doc , root , "obsolete" , Common.getBooleanValue( OBSOLETE ) );
+		
+		for( MetaDistrComponentItem item : mapBinaryItems.values() ) {
+			Element itemElement = Common.xmlCreateElement( doc , root , "distitem" );
+			item.save( action , doc , itemElement );
+		}
+		
+		for( MetaDistrComponentItem item : mapConfItems.values() ) {
+			Element itemElement = Common.xmlCreateElement( doc , root , "confitem" );
+			item.save( action , doc , itemElement );
+		}
+		
+		for( MetaDistrComponentItem item : mapSchemaItems.values() ) {
+			Element itemElement = Common.xmlCreateElement( doc , root , "database" );
+			item.save( action , doc , itemElement );
+		}
+
+		for( MetaDistrComponentWS item : listWS ) {
+			Element itemElement = Common.xmlCreateElement( doc , root , "webservice" );
+			item.save( action , doc , itemElement );
+		}
+	}	
 	
 	public boolean hasWebServices( ActionBase action ) throws Exception {
 		if( listWS.isEmpty() )

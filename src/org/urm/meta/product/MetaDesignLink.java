@@ -1,8 +1,11 @@
 package org.urm.meta.product;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.meta.product.MetaDesign.VarLINKTYPE;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MetaDesignLink {
@@ -13,7 +16,6 @@ public class MetaDesignLink {
 	
 	public String TARGET;
 	public MetaDesignElement target;
-	public String TYPE;
 	public String TEXT;
 	private VarLINKTYPE linkType;
 	
@@ -25,11 +27,26 @@ public class MetaDesignLink {
 
 	public void load( ActionBase action , Node node ) throws Exception {
 		TARGET = ConfReader.getRequiredAttrValue( node , "target" );
-		TYPE = ConfReader.getRequiredAttrValue( node , "type" );
+		String TYPE = ConfReader.getRequiredAttrValue( node , "type" );
 		linkType = Meta.getDesignLinkType( TYPE , false );
 		TEXT = ConfReader.getAttrValue( node , "text" );
 	}
 
+	public MetaDesignLink copy( ActionBase action , Meta meta , MetaDesignElement element ) throws Exception {
+		MetaDesignLink r = new MetaDesignLink( meta , element.design , element );
+		r.TARGET = TARGET;
+		r.linkType = linkType;
+		r.TEXT = TEXT;
+		return( r );
+	}
+
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		if( target != null )
+			Common.xmlSetElementAttr( doc , root , "target" , target.NAME );
+		Common.xmlSetElementAttr( doc , root , "type" , Common.getEnumLower( linkType ) );
+		Common.xmlSetElementAttr( doc , root , "text" , TEXT );
+	}
+	
 	public void resolve( ActionBase action ) throws Exception {
 		target = design.getElement( action , TARGET );
 	}

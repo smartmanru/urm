@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerTransaction;
 import org.w3c.dom.Document;
@@ -65,6 +66,10 @@ public class MetaEnvStartInfo {
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		for( MetaEnvStartGroup group : groups ) {
+			Element itemElement = Common.xmlCreateElement( doc , root , "startgroup" );
+			group.save( action , doc , itemElement );
+		}
 	}
 
 	public void removeServer( ServerTransaction transaction , MetaEnvServer server ) {

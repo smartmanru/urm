@@ -1,9 +1,12 @@
 package org.urm.meta.product;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.meta.product.Meta.VarITEMSRCTYPE;
 import org.urm.meta.product.Meta.VarNAMETYPE;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MetaSourceProjectItem {
@@ -73,6 +76,53 @@ public class MetaSourceProjectItem {
 		}
 	}
 
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , "name" , ITEMNAME );
+		
+		Common.xmlSetElementAttr( doc , root , "type" , Common.getEnumLower( ITEMSRCTYPE ) );
+		Common.xmlSetElementAttr( doc , root , "basename" , ITEMBASENAME );
+
+		Common.xmlSetElementAttr( doc , root , "internal" , Common.getBooleanValue( INTERNAL ) );
+		Common.xmlSetElementAttr( doc , root , "extension" , ITEMEXTENSION );
+		Common.xmlSetElementAttr( doc , root , "version" , ITEMVERSION );
+		Common.xmlSetElementAttr( doc , root , "svn.path" , SVN_ITEMPATH );
+
+		Common.xmlSetElementAttr( doc , root , "nexus.path" , NEXUS_ITEMPATH );
+
+		Common.xmlSetElementAttr( doc , root , "nuget.path" , NUGET_ITEMPATH );
+		Common.xmlSetElementAttr( doc , root , "nuget.platform" , NUGET_PLATFORM );
+		Common.xmlSetElementAttr( doc , root , "nuget.libname" , NUGET_LIBNAME );
+
+		Common.xmlSetElementAttr( doc , root , "staticextension" , ITEMSTATICEXTENSION );
+	}
+	
+	public MetaSourceProjectItem copy( ActionBase action , Meta meta , MetaSourceProject project ) throws Exception {
+		MetaSourceProjectItem r = new MetaSourceProjectItem( meta , project );
+		r.ITEMNAME = ITEMNAME;
+		
+		r.ITEMSRCTYPE = ITEMSRCTYPE;
+		r.ITEMBASENAME = ITEMBASENAME;
+
+		r.INTERNAL = INTERNAL;
+		MetaDistr distr = meta.getDistr( action );
+		r.distItem = distr.getBinaryItem( action , ITEMNAME );
+		r.distItem.setSource( action , r );
+
+		r.ITEMEXTENSION = ITEMEXTENSION;
+		r.ITEMVERSION = ITEMVERSION;
+		r.SVN_ITEMPATH = SVN_ITEMPATH;
+
+		r.NEXUS_ITEMPATH = NEXUS_ITEMPATH;
+
+		r.NUGET_ITEMPATH = NUGET_ITEMPATH;
+		r.NUGET_PLATFORM = NUGET_PLATFORM;
+		r.NUGET_LIBNAME = NUGET_LIBNAME;
+
+		r.ITEMSTATICEXTENSION = ITEMSTATICEXTENSION;
+		r.NEXUS_ITEMPATH = NEXUS_ITEMPATH;
+		return( r );
+	}
+	
 	public boolean isStoredInSvn( ActionBase action ) throws Exception {
 		if( ITEMSRCTYPE == VarITEMSRCTYPE.SVN || ITEMSRCTYPE == VarITEMSRCTYPE.SVNOLD || ITEMSRCTYPE == VarITEMSRCTYPE.SVNNEW )
 			return( true );

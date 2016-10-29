@@ -1,7 +1,10 @@
 package org.urm.meta.product;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MetaDistrComponentWS {
@@ -21,4 +24,17 @@ public class MetaDistrComponentWS {
 		URL = ConfReader.getRequiredAttrValue( node , "url" );
 		OBSOLETE = ConfReader.getBooleanAttrValue( node , "obsolete" , false );
 	}
+	
+	public MetaDistrComponentWS copy( ActionBase action , Meta meta , MetaDistrComponent comp ) throws Exception {
+		MetaDistrComponentWS r = new MetaDistrComponentWS( meta , comp );
+		r.URL = URL;
+		r.OBSOLETE = OBSOLETE;
+		return( r );
+	}
+
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , "url" , URL );
+		Common.xmlSetElementAttr( doc , root , "obsolete" , Common.getBooleanValue( OBSOLETE ) );
+	}
+	
 }

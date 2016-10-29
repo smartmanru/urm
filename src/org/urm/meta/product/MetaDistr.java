@@ -142,9 +142,17 @@ public class MetaDistr extends PropertyController {
 	}
 
 	private void saveDeliveries( ActionBase action , Document doc , Element root ) throws Exception {
+		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
+			Element deliveryElement = Common.xmlCreateElement( doc , root , "delivery" );
+			delivery.save( action , doc , deliveryElement );
+		}		
 	}
 	
 	private void saveComponents( ActionBase action , Document doc , Element root ) throws Exception {
+		for( MetaDistrComponent item : mapComps.values() ) {
+			Element compElement = Common.xmlCreateElement( doc , root , "component" );
+			item.save( action , doc , compElement );
+		}
 	}
 	
 	public String[] getComponents() {

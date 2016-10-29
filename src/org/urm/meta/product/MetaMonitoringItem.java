@@ -43,7 +43,7 @@ public class MetaMonitoringItem {
 		
 		return( ConfReader.getNodeSubTree( content ) );
 	}
-	
+
 	public void loadWS( ActionBase action , Node node ) throws Exception {
 		URL = ConfReader.getRequiredAttrValue( node , "url" );
 		WSDATA = getNodeSubTree( action , node , "wsdata" );
@@ -52,6 +52,16 @@ public class MetaMonitoringItem {
 		monitorWS = true;
 	}
 
+	public MetaMonitoringItem copy( ActionBase action , Meta meta , MetaMonitoringTarget target ) {
+		MetaMonitoringItem r = new MetaMonitoringItem( meta , target );
+		r.URL = URL;
+		r.WSDATA = WSDATA;
+		r.WSCHECK = WSCHECK;
+		r.NAME = NAME;
+		r.monitorWS = monitorWS;
+		return( r );
+	}		
+	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		if( monitorUrl )
 			Common.xmlSetElementAttr( doc , root , "url" , URL );

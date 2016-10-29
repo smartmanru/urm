@@ -10,12 +10,12 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.meta.product.Meta.VarCATEGORY;
 import org.urm.meta.product.Meta.VarNAMETYPE;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MetaSourceProjectSet {
 
-	boolean loaded = false;
-	
 	protected Meta meta;
 	MetaSource sources;
 
@@ -28,22 +28,23 @@ public class MetaSourceProjectSet {
 	public MetaSourceProjectSet( Meta meta , MetaSource sources ) {
 		this.meta = meta;
 		this.sources = sources;
+		
+		originalList = new LinkedList<MetaSourceProject>(); 
+		map = new HashMap<String, MetaSourceProject>();
 	}
 	
 	public MetaSourceProjectSet copy( ActionBase action , Meta meta , MetaSource sources ) throws Exception {
 		MetaSourceProjectSet r = new MetaSourceProjectSet( meta , sources );
+		for( MetaSourceProject project : originalList ) {
+			MetaSourceProject rproject = project.copy( action , meta , r );
+			r.originalList.add( rproject );
+			r.map.put( rproject.PROJECT , rproject );
+		}
 		return( r );
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
-		if( loaded )
-			return;
-
-		loaded = true;
-		
 		CATEGORY = Meta.readCategoryAttr( node );
-		originalList = new LinkedList<MetaSourceProject>(); 
-		map = new HashMap<String, MetaSourceProject>();
 		
 		if( !Meta.isSourceCategory( CATEGORY ) ) {
 			String name = Common.getEnumLower( CATEGORY );
@@ -54,6 +55,16 @@ public class MetaSourceProjectSet {
 		loadProjects( action , CATEGORY , node );
 	}
 
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , "name" , NAME );
+		Common.xmlSetElementAttr( doc , root , "category" , Common.getEnumLower( CATEGORY ) );
+		
+		for( MetaSourceProject project : originalList ) {
+			Element projectElement = Common.xmlCreateElement( doc , root , "project" );
+			project.save( action , doc , projectElement );
+		}
+	}
+	
 	public MetaSourceProject getProject( ActionBase action , String name ) throws Exception {
 		MetaSourceProject project = map.get( name );
 		if( project == null )

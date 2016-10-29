@@ -6,11 +6,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.custom.CommandCustom;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.product.Meta.VarCATEGORY;
 import org.urm.meta.product.Meta.VarNAMETYPE;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MetaSourceProject {
@@ -83,9 +86,7 @@ public class MetaSourceProject {
 			for( Node item : items ) {
 				MetaSourceProjectItem distItem = new MetaSourceProjectItem( meta , this );
 				distItem.load( action , item );
-				
-				itemList.add( distItem );
-				itemMap.put( distItem.ITEMNAME , distItem );
+				addItem( distItem );
 			}
 		}
 		
@@ -104,6 +105,75 @@ public class MetaSourceProject {
 		}
 	}
 
+	private void addItem( MetaSourceProjectItem distItem ) {
+		itemList.add( distItem );
+		itemMap.put( distItem.ITEMNAME , distItem );
+	}
+	
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , "name" , PROJECT );
+
+		// read item attrs
+		Common.xmlSetElementAttr( doc , root , "repository" , REPOSITORY );
+		Common.xmlSetElementAttr( doc , root , "version" , VERSION );
+		Common.xmlSetElementAttr( doc , root , "group" , GROUP );
+		Common.xmlSetElementAttr( doc , root , "jira" , JIRA );
+		Common.xmlSetElementAttr( doc , root , "branch" , BRANCH );
+		Common.xmlSetElementAttr( doc , root , "javaversion" , JAVAVERSION );
+		Common.xmlSetElementAttr( doc , root , "buildertype" , BUILDERTYPE );
+		Common.xmlSetElementAttr( doc , root , "builderversion" , BUILDERVERSION );
+		Common.xmlSetElementAttr( doc , root , "buildercmd" , BUILDERCMD );
+		Common.xmlSetElementAttr( doc , root , "distitem" , DISTITEM );
+		Common.xmlSetElementAttr( doc , root , "vcs" , VCS );
+		Common.xmlSetElementAttr( doc , root , "path" , PATH );
+		Common.xmlSetElementAttr( doc , root , "codepath" , CODEPATH );
+		
+		// project items
+		for( MetaSourceProjectItem item : itemList ) {
+			Element itemElement = Common.xmlCreateElement( doc , root , "distitem" );
+			item.save( action , doc , itemElement );
+		}
+		
+		Common.xmlSetElementAttr( doc , root , "custombuild" , Common.getBooleanValue( CUSTOMBUILD ) );
+		Common.xmlSetElementAttr( doc , root , "customget" , Common.getBooleanValue( CUSTOMGET ) );
+	}
+	
+	public MetaSourceProject copy( ActionBase action , Meta meta , MetaSourceProjectSet set ) throws Exception {
+		MetaSourceProject r = new MetaSourceProject( meta , set );
+		r.PROJECT = PROJECT;
+
+		// read item attrs
+		r.REPOSITORY = REPOSITORY;
+		r.VERSION = VERSION;
+		r.GROUP = GROUP;
+		r.JIRA = JIRA;
+		r.BRANCH = BRANCH;
+		r.JAVAVERSION = JAVAVERSION;
+		r.BUILDERTYPE = BUILDERTYPE;
+		r.BUILDERVERSION = BUILDERVERSION;
+		r.BUILDERCMD = BUILDERCMD;
+		r.DISTITEM = DISTITEM;
+		r.VCS = VCS;
+		r.PATH = PATH;
+		r.CODEPATH = CODEPATH;
+		
+		// project items
+		for( MetaSourceProjectItem item : itemList ) {
+			MetaSourceProjectItem ritem = item.copy( action , meta , r );
+			addItem( ritem );
+		}
+		
+		// resolve references
+		if( !DISTITEM.isEmpty() ) {
+			MetaDistr distr = meta.getDistr( action );
+			r.distItem = distr.getBinaryItem( action , DISTITEM );
+		}
+		
+		r.CUSTOMBUILD = CUSTOMBUILD;
+		r.CUSTOMGET = CUSTOMGET;
+		return( r );
+	}
+	
 	public String getVCS( ActionBase action ) {
 		return( VCS );
 	}

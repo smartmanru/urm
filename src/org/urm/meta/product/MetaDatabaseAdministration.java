@@ -20,5 +20,10 @@ public class MetaDatabaseAdministration {
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 	}
+
+	public MetaDatabaseAdministration copy( ActionBase action , Meta meta , MetaDatabase database ) throws Exception {
+		MetaDatabaseAdministration r = new MetaDatabaseAdministration( meta , database );
+		return( r );
+	}
 	
 }

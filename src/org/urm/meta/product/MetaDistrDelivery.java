@@ -7,6 +7,8 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.meta.product.Meta.VarNAMETYPE;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MetaDistrDelivery {
@@ -41,6 +43,27 @@ public class MetaDistrDelivery {
 		loadDatabaseItems( action , node );
 	}
 
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , "name" , NAME );
+		Common.xmlSetElementAttr( doc , root , "folder" , FOLDER );
+		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
+		
+		for( MetaDistrBinaryItem item : mapBinaryItems.values() ) {
+			Element itemElement = Common.xmlCreateElement( doc , root , "distitem" );
+			item.save( action , doc , itemElement );
+		}
+			
+		for( MetaDistrConfItem item : mapConfComps.values() ) {
+			Element itemElement = Common.xmlCreateElement( doc , root , "confitem" );
+			item.save( action , doc , itemElement );
+		}
+			
+		for( MetaDatabaseSchema item : mapDatabaseSchema.values() ) {
+			Element itemElement = Common.xmlCreateElement( doc , root , "database" );
+			Common.xmlSetElementAttr( doc , itemElement , "schema" , item.SCHEMA );
+		}
+	}
+	
 	private void loadBinaryItems( ActionBase action , Node node ) throws Exception {
 		Node[] items = ConfReader.xmlGetChildren( node , "distitem" );
 		if( items == null )
@@ -52,7 +75,7 @@ public class MetaDistrDelivery {
 			mapBinaryItems.put( item.KEY , item );
 		}
 	}
-	
+
 	private void loadConfigurationComponents( ActionBase action , Node node ) throws Exception {
 		Node[] items = ConfReader.xmlGetChildren( node , "confitem" );
 		if( items == null )

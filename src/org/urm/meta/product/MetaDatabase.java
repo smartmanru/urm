@@ -46,6 +46,12 @@ public class MetaDatabase extends PropertyController {
 		MetaDatabase r = new MetaDatabase( meta.getStorage( action ) , meta );
 		MetaProductSettings product = meta.getProductSettings( action );
 		r.initCopyStarted( this , product.getProperties() );
+		
+		r.admin = admin.copy( action , meta , r );
+		for( MetaDatabaseSchema schema : mapSchema.values() ) {
+			MetaDatabaseSchema rschema = schema.copy( action , meta , r );
+			r.mapSchema.put( rschema.SCHEMA , rschema );
+		}
 		r.initFinished();
 		return( r );
 	}
@@ -70,7 +76,7 @@ public class MetaDatabase extends PropertyController {
 		initFinished();
 	}
 
-	public boolean loadAdministration( ActionBase action , Node node ) throws Exception {
+	private boolean loadAdministration( ActionBase action , Node node ) throws Exception {
 		Node administration = ConfReader.xmlGetFirstChild( node , "administration" );
 		if( administration == null ) {
 			action.debug( "database administration is missing, ignore database information." );
@@ -80,11 +86,11 @@ public class MetaDatabase extends PropertyController {
 		return( true );
 	}
 
-	public void saveAdministration( ActionBase action , Document doc , Element root ) throws Exception {
+	private void saveAdministration( ActionBase action , Document doc , Element root ) throws Exception {
 		Common.xmlCreateElement( doc , root , "administration" );
 	}
 	
-	public void loadSchemaSet( ActionBase action , Node node ) throws Exception {
+	private void loadSchemaSet( ActionBase action , Node node ) throws Exception {
 		Node[] items = ConfReader.xmlGetChildren( node , "schema" );
 		if( items == null )
 			return;
@@ -96,7 +102,11 @@ public class MetaDatabase extends PropertyController {
 		}
 	}
 
-	public void saveSchemaSet( ActionBase action , Document doc , Element root ) throws Exception {
+	private void saveSchemaSet( ActionBase action , Document doc , Element root ) throws Exception {
+		for( MetaDatabaseSchema schema : mapSchema.values() ) {
+			Element schemaElement = Common.xmlCreateElement( doc , root , "schema" );
+			schema.save( action , doc , schemaElement );
+		}
 	}
 
 	public String[] getSchemaSet() {

@@ -10,6 +10,8 @@ import org.urm.meta.product.Meta.VarDISTITEMSOURCE;
 import org.urm.meta.product.Meta.VarDISTITEMTYPE;
 import org.urm.meta.product.Meta.VarITEMVERSION;
 import org.urm.meta.product.Meta.VarNAMETYPE;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MetaDistrBinaryItem {
@@ -95,6 +97,51 @@ public class MetaDistrBinaryItem {
 		}
 	}
 
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , "name" , KEY );
+		
+		// read attrs
+		Common.xmlSetElementAttr( doc , root , "type" , Common.getEnumLower( DISTTYPE ) );
+		Common.xmlSetElementAttr( doc , root , "source" , Common.getEnumLower( DISTSOURCE ) );
+		if( DISTSOURCE == VarDISTITEMSOURCE.DISTITEM ) {
+			Common.xmlSetElementAttr( doc , root , "srcitem" , SRCDISTITEM );
+			Common.xmlSetElementAttr( doc , root , "srcpath" , SRCITEMPATH );
+		}
+		
+		Common.xmlSetElementAttr( doc , root , "distname" , DISTBASENAME );
+		Common.xmlSetElementAttr( doc , root , "deployname" , DEPLOYBASENAME );
+		Common.xmlSetElementAttr( doc , root , "deployversion" , Common.getEnumLower( DEPLOYVERSION ) );
+		Common.xmlSetElementAttr( doc , root , "buildinfo" , BUILDINFO );
+
+		// binary item
+		if( DISTTYPE == VarDISTITEMTYPE.BINARY ) {
+			Common.xmlSetElementAttr( doc , root , "extension" , EXT );
+		}
+		else
+		// war item and static
+		if( DISTTYPE == VarDISTITEMTYPE.WAR ) {
+			EXT = ".war";
+	
+			Common.xmlSetElementAttr( doc , root , "mrid" , WAR_MRID );
+			Common.xmlSetElementAttr( doc , root , "context" , WAR_CONTEXT );
+			Common.xmlSetElementAttr( doc , root , "extension" , WAR_STATICEXT );
+		}
+		else
+		// archive item
+		if( isArchive( action ) ) {
+			Common.xmlSetElementAttr( doc , root , "extension" , EXT );
+			Common.xmlSetElementAttr( doc , root , "files" , FILES );
+			Common.xmlSetElementAttr( doc , root , "exclude" , EXCLUDE );
+		}
+		else
+		// nupkg item
+		if( DISTTYPE == VarDISTITEMTYPE.DOTNETPKG ) {
+			Common.xmlSetElementAttr( doc , root , "extension" , EXT );
+		}
+		
+		Common.xmlSetElementAttr( doc , root , "customdeploy" , Common.getBooleanValue( CUSTOMDEPLOY ) );
+	}
+	
 	public MetaDistrBinaryItem copy( ActionBase action , Meta meta , MetaDistrDelivery delivery ) throws Exception {
 		MetaDistrBinaryItem r = new MetaDistrBinaryItem( meta , delivery );
 		if( sourceItem != null ) {

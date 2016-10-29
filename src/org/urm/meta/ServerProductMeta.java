@@ -54,6 +54,7 @@ public class ServerProductMeta extends ServerObject {
 	public static String XML_ROOT_SOURCES = "sources";
 	public static String XML_ROOT_MONITORING = "monitoring";
 	public static String XML_ROOT_ENV = "environment";
+	public static String XML_ROOT_DESIGN = "design";
 
 	public boolean loadFailed;
 	
@@ -520,6 +521,9 @@ public class ServerProductMeta extends ServerObject {
 	}
 	
 	public void saveDesignData( ActionBase action , MetadataStorage storageMeta , String designFile , MetaDesign design ) throws Exception {
+		Document doc = Common.xmlCreateDoc( XML_ROOT_DESIGN );
+		design.save( action , doc , doc.getDocumentElement() );
+		storageMeta.saveEnvConfFile( action , doc , designFile );
 	}
 	
 	public void setVersion( ServerTransaction transaction , MetaProductVersion version ) throws Exception {

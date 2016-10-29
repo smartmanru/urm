@@ -8,6 +8,8 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.meta.product.Meta.VarNAMETYPE;
 import org.urm.meta.product.MetaDesign.VarELEMENTTYPE;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MetaDesignElement {
@@ -19,7 +21,6 @@ public class MetaDesignElement {
 	public Map<String,MetaDesignElement> childs;
 	
 	public String NAME;
-	public String TYPE;
 	public String GROUPCOLOR;
 	public String GROUPFILLCOLOR;
 	public String FUNCTION;
@@ -36,7 +37,7 @@ public class MetaDesignElement {
 		childs = new HashMap<String,MetaDesignElement>();
 		
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
-		TYPE = ConfReader.getRequiredAttrValue( node , "type" );
+		String TYPE = ConfReader.getRequiredAttrValue( node , "type" );
 		elementType = Meta.getDesignElementType( TYPE , false );
 		FUNCTION = ConfReader.getAttrValue( node , "function" );
 
@@ -56,8 +57,7 @@ public class MetaDesignElement {
 			for( Node elementNode : items ) {
 				MetaDesignElement child = new MetaDesignElement( meta , design , this );
 				child.load( action , elementNode );
-				childs.put( child.NAME , child );
-				design.addSubGraphItem( action , this , child );
+				addChild( action , child );
 			}
 		}
 		
@@ -72,6 +72,61 @@ public class MetaDesignElement {
 		}
 	}
 
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , "name" , NAME );
+		Common.xmlSetElementAttr( doc , root , "type" , Common.getEnumLower( elementType ) );
+		Common.xmlSetElementAttr( doc , root , "function" , FUNCTION );
+
+		if( isGroup() ) {
+			Common.xmlSetElementAttr( doc , root , "color" , GROUPCOLOR );
+			Common.xmlSetElementAttr( doc , root , "fillcolor" , GROUPFILLCOLOR );
+			
+			for( MetaDesignElement child : childs.values() ) {
+				Element childElement = Common.xmlCreateElement( doc , root , "element" );
+				child.save( action , doc , childElement );
+			}
+		}
+		
+		for( MetaDesignLink link : links.values() ) {
+			Element linkElement = Common.xmlCreateElement( doc , root , "link" );
+			link.save( action , doc , linkElement );
+		}		
+	}
+	
+	private void addChild( ActionBase action , MetaDesignElement child ) throws Exception {
+		childs.put( child.NAME , child );
+		design.addSubGraphItem( action , this , child );
+	}
+	
+	public MetaDesignElement copy( ActionBase action , Meta meta , MetaDesign design ) throws Exception {
+		return( copy( action , meta , design , null ) );
+	}
+	
+	public MetaDesignElement copy( ActionBase action , Meta meta , MetaDesign design , MetaDesignElement group ) throws Exception {
+		MetaDesignElement r = new MetaDesignElement( meta , design , group );
+		
+		r.NAME = NAME;
+		r.elementType = elementType;
+		r.FUNCTION = FUNCTION;
+
+		if( isGroup() ) {
+			r.GROUPCOLOR = GROUPCOLOR;
+			r.GROUPFILLCOLOR = GROUPFILLCOLOR;
+			
+			for( MetaDesignElement child : childs.values() ) {
+				MetaDesignElement rchild = child.copy( action , meta , design , r );
+				r.addChild( action , rchild );
+			}
+		}
+		
+		for( MetaDesignLink link : links.values() ) {
+			MetaDesignLink rlink = link.copy( action , meta , r );
+			r.links.put( rlink.TARGET , rlink );
+		}
+		
+		return( r );
+	}		
+	
 	public void resolve( ActionBase action ) throws Exception {
 		for( MetaDesignLink link : links.values() )
 			link.resolve( action );
@@ -131,4 +186,5 @@ public class MetaDesignElement {
 			return( true );
 		return( false );
 	}
+	
 }

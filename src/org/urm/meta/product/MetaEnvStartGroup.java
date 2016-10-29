@@ -8,6 +8,8 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerTransaction;
 import org.urm.meta.product.Meta.VarNAMETYPE;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MetaEnvStartGroup {
@@ -48,6 +50,14 @@ public class MetaEnvStartGroup {
 		}
 	}
 
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , "name" , NAME );
+		SERVERS = "";
+		for( MetaEnvServer server : servers )
+			SERVERS = Common.addToList( SERVERS , server.NAME , " " );
+		Common.xmlSetElementAttr( doc , root , "servers" , SERVERS );
+	}
+	
 	public void addServer( ActionBase action , MetaEnvServer server ) throws Exception {
 		servers.add( server );
 		server.setStartGroup( action , this );

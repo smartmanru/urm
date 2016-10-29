@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.engine.TransactionBase;
@@ -145,6 +146,11 @@ public class MetaSource extends PropertyController {
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		properties.saveAsElements( doc , root );
+		for( MetaSourceProjectSet set : originalList ) {
+			Element setElement = Common.xmlCreateElement( doc , root , "projectset" );
+			set.save( action , doc , setElement );
+		}
 	}
+
 	
 }

@@ -49,8 +49,16 @@ public class MetaMonitoringTarget {
 		r.DC = DC;
 		r.MAXTIME = MAXTIME;
 		
-		r.listUrls.addAll( listUrls );
-		r.listWS.addAll( listWS );
+		for( MetaMonitoringItem item : listUrls ) {
+			MetaMonitoringItem ritem = item.copy( action , meta , r );
+			r.listUrls.add( ritem );
+		}
+		
+		for( MetaMonitoringItem item : listWS ) {
+			MetaMonitoringItem ritem = item.copy( action , meta , r );
+			r.listWS.add( ritem );
+		}
+		
 		return( r );
 	}
 	
