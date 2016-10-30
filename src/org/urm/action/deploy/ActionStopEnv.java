@@ -29,7 +29,7 @@ public class ActionStopEnv extends ActionBase {
 	}
 	
 	@Override protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		List<MetaEnvStartGroup> groups = set.dc.startInfo.getReverseGroupList( this );
+		List<MetaEnvStartGroup> groups = set.dc.startInfo.getReverseGroupList();
 		for( MetaEnvStartGroup group : groups ) {
 			if( !stopServerGroup( set , group , targets ) )
 				ifexit( _Error.FailedGroupOperation0 , "failed group operation" , null );

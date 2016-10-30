@@ -53,8 +53,8 @@ public class MetaEnv extends PropertyController {
 	public FLAG CONF_DEPLOY;
 	public FLAG CONF_KEEPALIVE;
 
-	List<MetaEnvDC> originalList;
-	Map<String,MetaEnvDC> dcMap;
+	private List<MetaEnvDC> originalList;
+	private Map<String,MetaEnvDC> dcMap;
 
 	// properties
 	public static String PROPERTY_ID = "id";
@@ -273,14 +273,14 @@ public class MetaEnv extends PropertyController {
 		return( dc );
 	}
 
+	public String[] getDatacenterNames() {
+		return( Common.getSortedKeys( dcMap ) );
+	}
+	
 	public List<MetaEnvDC> getDatacenters() {
 		return( originalList );
 	}
 	
-	public Map<String,MetaEnvDC> getDCMap( ActionBase action ) throws Exception {
-		return( dcMap );
-	}
-
 	public boolean isMultiDC( ActionBase action ) throws Exception {
 		return( originalList.size() > 1 );
 	}

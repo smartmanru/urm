@@ -24,6 +24,7 @@ public class MetaEnvStartGroup {
 	public MetaEnvStartGroup( Meta meta , MetaEnvStartInfo startInfo ) {
 		this.meta = meta;
 		this.startInfo = startInfo;
+		servers = new LinkedList<MetaEnvServer>();
 	}
 
 	public MetaEnvStartGroup copy( ActionBase action , Meta meta , MetaEnvStartInfo startInfo ) throws Exception {
@@ -39,8 +40,6 @@ public class MetaEnvStartGroup {
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
-		servers = new LinkedList<MetaEnvServer>();
-		
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		SERVERS = ConfReader.getAttrValue( node , "servers" );
 		
@@ -63,13 +62,25 @@ public class MetaEnvStartGroup {
 		server.setStartGroup( action , this );
 	}
 	
-	public List<MetaEnvServer> getServers( ActionBase action ) throws Exception {
+	public List<MetaEnvServer> getServers() {
 		return( servers );
 	}
 
 	public void removeServer( ServerTransaction transaction , MetaEnvServer server ) {
 		servers.remove( server );
 		server.setStartGroup( transaction.action , null );
+	}
+
+	public MetaEnvServer findServer( String serverName ) {
+		for( MetaEnvServer server : servers ) {
+			if( server.NAME.equals( serverName ) )
+				return( server );
+		}
+		return( null );
+	}
+
+	public void create( ServerTransaction transaction , String name ) {
+		this.NAME = name;
 	}
 	
 }

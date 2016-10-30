@@ -49,16 +49,16 @@ public class MetaEnvStartInfo {
 		}
 	}
 
-	private void addGroup( MetaEnvStartGroup sg ) {
+	public void addGroup( MetaEnvStartGroup sg ) {
 		groupMap.put( sg.NAME , sg );
 		groups.add( sg );
 	}
 	
-	public List<MetaEnvStartGroup> getForwardGroupList( ActionBase action ) throws Exception {
+	public List<MetaEnvStartGroup> getForwardGroupList() {
 		return( groups );
 	}
 
-	public List<MetaEnvStartGroup> getReverseGroupList( ActionBase action ) throws Exception {
+	public List<MetaEnvStartGroup> getReverseGroupList() {
 		List<MetaEnvStartGroup> revs = new LinkedList<MetaEnvStartGroup>();
 		for( int k = groups.size() - 1; k >= 0; k-- )
 			revs.add( groups.get( k ) );
@@ -77,6 +77,15 @@ public class MetaEnvStartInfo {
 			server.startGroup.removeServer( transaction , server );
 		}
 			
+	}
+
+	public MetaEnvStartGroup findServerGroup( String serverName ) {
+		for( MetaEnvStartGroup group : groups ) {
+			MetaEnvServer server = group.findServer( serverName );
+			if( server != null )
+				return( group );
+		}
+		return( null );
 	}
 	
 }

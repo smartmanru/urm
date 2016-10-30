@@ -371,7 +371,7 @@ public class ActionScopeSet {
 		Release info = release.release;
 
 		for( ReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
-			for( MetaEnvServer server : dc.getServerMap( action ).values() ) {
+			for( MetaEnvServer server : dc.getServers() ) {
 				if( checkServerDelivery( action , server , delivery ) )
 					mapServers.put( server.NAME , server );
 			}
@@ -380,14 +380,17 @@ public class ActionScopeSet {
 	}
 	
 	private Map<String,MetaEnvServer> getEnvDatabaseServers( ActionBase action , Dist dist ) throws Exception {
-		if( dist == null )
-			return( dc.getServerMap( action ) );
-		
 		Map<String,MetaEnvServer> mapServers = new HashMap<String,MetaEnvServer>();
+		if( dist == null ) {
+			for( MetaEnvServer server : dc.getServers() )
+				mapServers.put( server.NAME , server );
+			return( mapServers );
+		}
+		
 		Release info = dist.release;
 
 		for( ReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
-			for( MetaEnvServer server : dc.getServerMap( action ).values() ) {
+			for( MetaEnvServer server : dc.getServers() ) {
 				if( checkServerDatabaseDelivery( action , server , delivery ) )
 					mapServers.put( server.NAME , server );
 			}
@@ -402,7 +405,7 @@ public class ActionScopeSet {
 	
 		if( SERVERS == null || SERVERS.length == 0 ) {
 			setFull = true; 
-			for( MetaEnvServer server : dc.getServerMap( action ).values() ) {
+			for( MetaEnvServer server : dc.getServers() ) {
 				boolean addServer = ( release == null )? true : releaseServers.containsKey( server.NAME ); 
 				if( addServer )
 					addEnvServer( action , server , null , false );
@@ -433,7 +436,7 @@ public class ActionScopeSet {
 		else
 			setFull = false;
 		
-		for( MetaEnvServer server : dc.getServerMap( action ).values() ) {
+		for( MetaEnvServer server : dc.getServers() ) {
 			if( !server.isDatabase() )
 				continue;
 			
@@ -532,7 +535,7 @@ public class ActionScopeSet {
 
 	public List<ActionScopeTarget> getGroupServers( ActionBase action , MetaEnvStartGroup group ) throws Exception {
 		List<ActionScopeTarget> groupTargets = new LinkedList<ActionScopeTarget>();
-		for( MetaEnvServer server : group.getServers( action ) ) {
+		for( MetaEnvServer server : group.getServers() ) {
 			ActionScopeTarget target = targets.get( server.NAME );
 			if( target != null )
 				groupTargets.add( target );

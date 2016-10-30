@@ -186,7 +186,7 @@ public class ServerMonitoring extends ServerObject {
 		createSource( MONITORING_DATACENTER , dc );
 		
 		// start childs
-		for( MetaEnvServer server : dc.getOriginalServerList() )
+		for( MetaEnvServer server : dc.getServers() )
 			startServer( server );
 	}
 	
@@ -265,7 +265,7 @@ public class ServerMonitoring extends ServerObject {
 
 	public void stopDatacenter( MetaEnvDC dc , boolean delete ) {
 		// stop childs
-		for( MetaEnvServer server : dc.getOriginalServerList() )
+		for( MetaEnvServer server : dc.getServers() )
 			stopServer( server , delete );
 		
 		if( delete )

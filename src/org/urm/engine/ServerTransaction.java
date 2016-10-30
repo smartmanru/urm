@@ -22,6 +22,7 @@ import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvDC;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.MetaEnvStartInfo;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringTarget;
 import org.urm.meta.product.MetaProductSettings;
@@ -427,6 +428,11 @@ public class ServerTransaction extends TransactionBase {
 		checkTransactionMetadata( meta.getStorage( action ) );
 		MetaMonitoring mon = meta.getMonitoring( action );
 		mon.setProductProperties( this , props );
+	}
+
+	public void setStartInfo( MetaEnvDC dc , MetaEnvStartInfo startInfo ) throws Exception {
+		checkTransactionMetadata( dc.meta.getStorage( action ) );
+		dc.setStartInfo( this , startInfo );
 	}
 	
 }

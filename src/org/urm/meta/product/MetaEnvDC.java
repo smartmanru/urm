@@ -29,8 +29,9 @@ public class MetaEnvDC extends PropertyController {
 	
 	public MetaEnvDeployment deploy;
 	public MetaEnvStartInfo startInfo;
-	public List<MetaEnvServer> originalList;
-	public Map<String,MetaEnvServer> serverMap;
+	
+	private List<MetaEnvServer> originalList;
+	private Map<String,MetaEnvServer> serverMap;
 
 	public static String PROPERTY_NAME = "name";
 	public static String PROPERTY_BASELINE = "basedc";
@@ -75,12 +76,13 @@ public class MetaEnvDC extends PropertyController {
 		
 		if( deploy != null )
 			r.deploy = deploy.copy( action , meta , r );
-		if( startInfo != null )
-			r.startInfo = startInfo.copy( action , meta , r );
 		for( MetaEnvServer server : originalList ) {
 			MetaEnvServer rserver = server.copy( action , meta , r );
 			r.addServer( rserver );
 		}
+		
+		if( startInfo != null )
+			r.startInfo = startInfo.copy( action , meta , r );
 		
 		r.scatterProperties( action );
 		r.initFinished();
@@ -184,15 +186,11 @@ public class MetaEnvDC extends PropertyController {
 	public List<MetaEnvServer> getServers() {
 		return( originalList );
 	}
+
+	public String[] getServerNames() {
+		return( Common.getSortedKeys( serverMap ) );
+	}
 	
-	public Map<String,MetaEnvServer> getServerMap( ActionBase action ) throws Exception {
-		return( serverMap );
-	}
-
-	public List<MetaEnvServer> getOriginalServerList() {
-		return( originalList );
-	}
-
 	public String getServerNodesByHost( ActionBase action , String host ) throws Exception {
 		String s = "";
 		for( MetaEnvServer server : originalList ) {
@@ -305,6 +303,10 @@ public class MetaEnvDC extends PropertyController {
 
 	public void deleteHostAccount( ServerTransaction transaction , ServerHostAccount account ) throws Exception {
 		super.deleteObject();
+	}
+
+	public void setStartInfo( ServerTransaction transaction , MetaEnvStartInfo startInfo ) throws Exception {
+		this.startInfo = startInfo;
 	}
 	
 }

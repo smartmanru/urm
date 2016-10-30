@@ -294,7 +294,7 @@ public class ActionScope {
 		else
 			scopeFull = false;
 		
-		for( MetaEnvDC dcItem : env.getDCMap( action ).values() ) {
+		for( MetaEnvDC dcItem : env.getDatacenters() ) {
 			if( dcMask.isEmpty() || dcItem.NAME.matches( dcMask ) ) {
 				boolean specifiedExplicitly = ( dcMask.isEmpty() )? false : true;
 				ActionScopeSet sset = createEnvScopeSet( action , dcItem.env , dcItem , specifiedExplicitly );
@@ -306,7 +306,7 @@ public class ActionScope {
 	private void createEnvServersScope( ActionBase action , MetaEnvDC dc , String[] SERVERS , Dist dist ) throws Exception {
 		scopeFull = false;
 		if( ( SERVERS == null || SERVERS.length == 0 ) && 
-			dc.env.getDCMap( action ).size() == 1 )
+			dc.env.getDatacenters().size() == 1 )
 			scopeFull = true;
 			
 		ActionScopeSet sset = createEnvScopeSet( action , context.env , dc , true );
@@ -315,7 +315,7 @@ public class ActionScope {
 
 	private void createEnvDatabaseScope( ActionBase action , Dist dist ) throws Exception {
 		scopeFull = true;
-		for( MetaEnvDC dc : context.env.getDCMap( action ).values() ) {
+		for( MetaEnvDC dc : context.env.getDatacenters() ) {
 			if( !dc.hasDatabaseServers( action ) )
 				continue;
 			

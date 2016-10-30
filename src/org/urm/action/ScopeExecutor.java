@@ -718,7 +718,7 @@ public class ScopeExecutor {
 			for( ActionScopeTarget target : targets )
 				map.put( target.envServer.NAME , target );
 
-			for( MetaEnvServer server : set.dc.getOriginalServerList() ) {
+			for( MetaEnvServer server : set.dc.getServers() ) {
 				ActionScopeTarget target = map.get( server.NAME );
 				if( target != null )
 					list.add( target );
