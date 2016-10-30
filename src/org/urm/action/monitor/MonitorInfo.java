@@ -35,8 +35,10 @@ public class MonitorInfo {
 	}
 
 	public void stop() throws Exception {
-		if( rrdDb != null && rrdDbFail == false )
+		if( rrdDb != null && rrdDbFail == false ) {
 			rrdDb.close();
+			rrdDb = null;
+		}
 	}
 	
 	public MonitorTargetInfo getTargetInfo( MetaMonitoringTarget target ) throws Exception {
