@@ -138,7 +138,7 @@ public class MonitorInfo {
 
 	private void updateReport( MonitorTargetInfo info ) throws Exception {
 		LocalFolder resourceFolder = storage.getResourceFolder( action );
-		if( resourceFolder.checkExists( action ) ) {
+		if( !resourceFolder.checkExists( action ) ) {
 			action.trace( "ignore create report due to missing resource folder: " + resourceFolder.folderPath );
 			return;
 		}
