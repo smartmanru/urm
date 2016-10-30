@@ -46,6 +46,8 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 		boolean runMajor = true;
 		int majorCount = 0;
 		int minorCount = 0;
+		
+		MonitorInfo info = null;
 		while( continueRunning ) {
 			ServerLoader loader = super.engine.getLoader( super.actionInit );
 			ServerProductMeta productStorage = loader.findProductStorage( productName );
@@ -56,9 +58,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 
 			Meta meta = productStorage.meta;
 			MetaMonitoring mon = meta.getMonitoring( this );
-			
 			MonitoringStorage storage = artefactory.getMonitoringStorage( this , mon );
-			MonitorInfo info = new MonitorInfo( this , storage );
 			
 			long current = System.currentTimeMillis();
 			try {
@@ -68,6 +68,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 					majorCount++;
 					minorCount = 0;
 					info( "product=" + mon.meta.name + ": start major checks #" + majorCount + ": " );
+					info = new MonitorInfo( this , storage );
 					executeOnceMajor( mon , info );
 					current = System.currentTimeMillis();
 					lastStopMajor = current;
