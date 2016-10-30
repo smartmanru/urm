@@ -131,7 +131,7 @@ public class MonitorInfo {
 		gDef.datasource( "lineb" , rrdfile , "checkenv-time" , ConsolFun.MAX );
 		gDef.line( "linec" , Color.decode( "0xFF0000" ) , "Min" );
 		gDef.line( "linea" , Color.decode( "0x00FF00" ) , "Avg" );
-		gDef.line( "lineb" , Color.decode( "0xFF0000" ) , "Max" );
+		gDef.line( "lineb" , Color.decode( "0x0000FF" ) , "Max" );
 		gDef.setImageFormat( "png" );
 		gDef.setFilename( F_CREATEFILE );
 		RrdGraph graph = new RrdGraph( gDef );
