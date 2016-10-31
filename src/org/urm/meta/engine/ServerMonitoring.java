@@ -23,6 +23,7 @@ import org.urm.meta.product.MetaEnvDC;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaMonitoring;
+import org.urm.meta.product.MetaMonitoringTarget;
 import org.urm.meta.product.MetaProductSettings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -394,6 +395,13 @@ public class ServerMonitoring extends ServerObject {
 			if( nodeNew == null )
 				stopNode( nodeOld , true );
 		}
+	}
+
+	public void deleteTarget( ServerTransaction transaction , MetaMonitoringTarget target ) throws Exception {
+		target.monitoring.deleteTarget( transaction , target );
+	}
+	
+	public void modifyTarget( ServerTransaction transaction , MetaMonitoringTarget target ) throws Exception {
 	}
 	
 }

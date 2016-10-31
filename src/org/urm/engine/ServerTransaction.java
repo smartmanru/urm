@@ -409,12 +409,15 @@ public class ServerTransaction extends TransactionBase {
 	
 	public void deleteMonitoringTarget( MetaMonitoringTarget target ) throws Exception {
 		checkTransactionMetadata( target.meta.getStorage( action ) );
-		target.monitoring.deleteTarget( this , target );
+		ServerMonitoring mon = action.getActiveMonitoring();
+		mon.deleteTarget( this , target );
 	}
 	
 	public void modifyMonitoringTarget( MetaMonitoringTarget target , int MAXTIME ) throws Exception {
 		checkTransactionMetadata( target.meta.getStorage( action ) );
+		ServerMonitoring mon = action.getActiveMonitoring();
 		target.modifyTarget( this , MAXTIME );
+		mon.modifyTarget( this , target );
 	}
 
 	public void setDefaultMonitoringProperties( PropertySet props ) throws Exception {
