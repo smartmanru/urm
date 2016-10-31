@@ -1,6 +1,7 @@
 package org.urm.action.monitor;
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -135,6 +136,9 @@ public class MonitorInfo {
 		gDef.setImageFormat( "png" );
 		gDef.setFilename( F_CREATEFILE );
 		RrdGraph graph = new RrdGraph( gDef );
+		BufferedImage bi = new BufferedImage( 1024 , 200 , BufferedImage.TYPE_INT_RGB );
+		graph.render( bi.getGraphics() );
+		
 		return( graph );
 	}
 
