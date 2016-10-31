@@ -122,7 +122,8 @@ public class MonitorInfo {
 		gDef.setRigid( true );
 		gDef.setWidth( 1024 );
 		gDef.setHeight( 200 );
-		gDef.setVerticalLabel( "secs" );
+		gDef.setVerticalLabel( "Milliseconds" );
+		gDef.setAltYGrid( true );
 		gDef.setTitle( target.ENV + ", dc=" + target.DC + " check datacenter execution time (0 if not running)" );
 		gDef.setColor( RrdGraphDef.COLOR_GRID , Color.decode( "0xC0C0C0" ) );
 		gDef.setColor( RrdGraphDef.COLOR_BACK , Color.decode( "0xE4E4E4" ) );
