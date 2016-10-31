@@ -219,7 +219,7 @@ public class ActionCheckEnv extends ActionBase {
 		
 		// by comps
 		boolean ok = true;
-		for( MetaEnvServerDeployment deployment : server.getDeployments( this ) ) {
+		for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
 			if( deployment.comp == null )
 				continue;
 			

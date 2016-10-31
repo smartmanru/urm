@@ -100,7 +100,7 @@ public class ActionConfigure extends ActionBase {
 	}
 
 	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , SourceStorage sourceStorage , LocalFolder parent ) throws Exception {
-		for( MetaEnvServerDeployment deployment : server.getDeployments( this ) ) {
+		for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
 			if( deployment.confItem != null ) {
 				String name = sourceStorage.getConfItemLiveName( this , node , deployment.confItem );
 				executeNodeConf( parent , sourceStorage , server , node , deployment , deployment.confItem , name );

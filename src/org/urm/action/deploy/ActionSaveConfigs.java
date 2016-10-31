@@ -65,7 +65,7 @@ public class ActionSaveConfigs extends ActionBase {
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , server.meta );
 		String vcsCompList = "";
 		
-		for( MetaEnvServerDeployment deployment : server.getDeployments( this ) ) {
+		for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
 			if( deployment.confItem != null ) {
 				String name = sourceStorage.getConfItemLiveName( this , node , deployment.confItem );
 				executeNodeConf( sourceStorage , server , node , deployment , deployment.confItem , name );

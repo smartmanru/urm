@@ -22,9 +22,9 @@ public class MetaEnvServerDeployment extends PropertyController {
 	public String SCHEMA;
 	public MetaDatabaseSchema schema;
 	
-	private VarDEPLOYTYPE DEPLOYTYPE;
-	private String DEPLOYPATH;
-	private VarNODETYPE nodeType;
+	public VarDEPLOYTYPE DEPLOYTYPE;
+	public String DEPLOYPATH;
+	public VarNODETYPE nodeType;
 	
 	public static String PROPERTY_DEPLOYTYPE = "deploytype";
 	public static String PROPERTY_DEPLOYPATH = "deploypath";

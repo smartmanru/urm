@@ -77,7 +77,7 @@ public class ActionRestoreConfigs extends ActionBase {
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		redist.recreateTmpFolder( this );
 		
-		for( MetaEnvServerDeployment deployment : server.getDeployments( this ) ) {
+		for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
 			if( deployment.confItem != null ) {
 				String name = sourceStorage.getConfItemLiveName( this , node , deployment.confItem );
 				executeNodeConf( parent , sourceStorage , server , node , deployment , deployment.confItem , name , prepare );

@@ -60,7 +60,6 @@ public class MetaEnvServer extends PropertyController {
 	public String WEBSERVICEURL;
 	public String WEBMAINURL;
 	public String APPSERVER;
-	public String APPSERVERVERSION;
 	public String LOGPATH;
 	public String LOGFILEPATH;
 	public boolean NOPIDS;
@@ -119,6 +118,8 @@ public class MetaEnvServer extends PropertyController {
 
 	public static String PROPERTY_XDOC = "xdoc";
 	
+	public static String PROPERTY_APPSERVER = "appserver";
+	
 	public static String ELEMENT_NODE = "node";
 	public static String ELEMENT_BASE = "base";
 	public static String ELEMENT_DEPLOY = "deploy";
@@ -160,6 +161,7 @@ public class MetaEnvServer extends PropertyController {
 		OFFLINE = super.getBooleanProperty( action , PROPERTY_OFFLINE );
 		XDOC = super.getPathProperty( action , PROPERTY_XDOC , NAME + ".xml" );
 		SYSNAME = super.getStringProperty( action , PROPERTY_SYSNAME );
+		APPSERVER = super.getStringProperty( action , PROPERTY_APPSERVER );
 		
 		if( isStartable() || isDeployPossible() ) {
 			ROOTPATH = super.getPathProperty( action , PROPERTY_ROOTPATH );
@@ -384,6 +386,14 @@ public class MetaEnvServer extends PropertyController {
 		deployMap.put( name , dp );
 	}
 	
+	public String[] getDeploymentNames() {
+		return( Common.getSortedKeys( deployMap ) );
+	}
+	
+	public MetaEnvServerDeployment findDeployment( String name ) {
+		return( deployMap.get( name ) );
+	}
+	
 	public List<MetaEnvServerNode> getNodes() {
 		return( nodes );
 	}
@@ -407,7 +417,7 @@ public class MetaEnvServer extends PropertyController {
 		return( false );
 	}
 
-	public List<MetaEnvServerDeployment> getDeployments( ActionBase action ) throws Exception {
+	public List<MetaEnvServerDeployment> getDeployments() {
 		return( deployments );
 	}
 

@@ -423,7 +423,7 @@ public class SourceStorage {
 	}
 
 	public void exportTemplates( ActionBase action , LocalFolder parent , MetaEnvServer server ) throws Exception {
-		for( MetaEnvServerDeployment deployment : server.getDeployments( action ) ) {
+		for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
 			if( deployment.confItem != null ) {
 				exportTemplateConfigItem( action , server.dc , deployment.confItem.KEY , action.context.CTX_TAG , parent );
 				continue;
