@@ -84,5 +84,7 @@ public class _Error {
 	public static final int MissingServerRunType0 = ErrorBase + 76;
 	public static final int MissingDistItemSource0 = ErrorBase + 77;
 	public static final int MissingBuildMode0 = ErrorBase + 78;
+	public static final int MissingDeployItemType0 = ErrorBase + 79;
+	public static final int InvalidDeployItemType1 = ErrorBase + 80;
 
 }

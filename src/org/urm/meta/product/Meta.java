@@ -45,6 +45,14 @@ public class Meta extends ServerObject {
 		ENV
 	};
 
+	public enum VarDEPLOYITEMTYPE {
+		UNKNOWN ,
+		BINARY ,
+		CONF ,
+		SCHEMA ,
+		COMP
+	};
+	
 	public enum VarITEMVERSION {
 		UNKNOWN ,
 		NONE ,
@@ -101,7 +109,6 @@ public class Meta extends ServerObject {
 	
 	public enum VarDEPLOYTYPE {
 		UNKNOWN ,
-		NONE , 
 		MANUAL , 
 		COLD , 
 		HOT ,
@@ -495,6 +502,24 @@ public class Meta extends ServerObject {
 		
 		if( value == null )
 			Common.exit0( _Error.MissingDistributiveItemSource0 , "missing distributive item source" );
+		
+		return( value );
+	}
+	
+	public static VarDEPLOYITEMTYPE getDeployItemType( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingDeployItemType0 , "missing deploy item type" );
+			return( VarDEPLOYITEMTYPE.UNKNOWN );
+		}
+		
+		VarDEPLOYITEMTYPE value = null;
+		try {
+			value = VarDEPLOYITEMTYPE.valueOf( Common.xmlToEnumValue( ID ) );
+		}
+		catch( IllegalArgumentException e ) {
+			Common.exit1( _Error.InvalidDeployItemType1 , "invalid deploy item type=" + ID , ID );
+		}
 		
 		return( value );
 	}

@@ -177,12 +177,20 @@ public class MetaDistr extends PropertyController {
 		return( item );
 	}
 
-	public Map<String,MetaDistrBinaryItem> getBinaryItems( ActionBase action ) throws Exception {
-		return( mapBinaryItems );
+	public MetaDistrBinaryItem[] getBinaryItems() {
+		return( mapBinaryItems.values().toArray( new MetaDistrBinaryItem[0] ) );
+	}
+
+	public String[] getBinaryItemNames() {
+		return( Common.getSortedKeys( mapBinaryItems ) );
 	}
 	
-	public Map<String,MetaDistrConfItem> getConfItems( ActionBase action ) throws Exception {
-		return( mapConfItems );
+	public MetaDistrConfItem[] getConfItems() {
+		return( mapConfItems.values().toArray( new MetaDistrConfItem[0] ) );
+	}
+
+	public String[] getConfItemNames() {
+		return( Common.getSortedKeys( mapConfItems ) );
 	}
 	
 	public MetaDistrConfItem findConfItem( ActionBase action , String KEY ) throws Exception {

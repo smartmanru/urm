@@ -214,7 +214,7 @@ public class ActionScopeSet {
 		MetaDistr distr = meta.getDistr( action );
 		if( COMPS == null || COMPS.length == 0 ) {
 			setFull = true; 
-			for( MetaDistrConfItem item : distr.getConfItems( action ).values() )
+			for( MetaDistrConfItem item : distr.getConfItems() )
 				addProductConfig( action , item , false );
 			return;
 		}
@@ -255,7 +255,7 @@ public class ActionScopeSet {
 		MetaDistr distr = meta.getDistr( action );
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			setFull = true; 
-			for( MetaDistrBinaryItem item : distr.getBinaryItems( action ).values() )
+			for( MetaDistrBinaryItem item : distr.getBinaryItems() )
 				addProductManualItem( action , item , false );
 			return;
 		}

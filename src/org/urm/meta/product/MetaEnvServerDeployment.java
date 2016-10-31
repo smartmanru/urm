@@ -2,6 +2,7 @@ package org.urm.meta.product;
 
 import org.urm.action.ActionBase;
 import org.urm.common.PropertyController;
+import org.urm.meta.product.Meta.VarDEPLOYITEMTYPE;
 import org.urm.meta.product.Meta.VarDEPLOYTYPE;
 import org.urm.meta.product.Meta.VarNODETYPE;
 import org.w3c.dom.Document;
@@ -13,6 +14,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 	protected Meta meta;
 	MetaEnvServer server;
 	
+	public VarDEPLOYITEMTYPE itemType;
 	public String COMP;
 	public MetaDistrComponent comp;
 	public String DISTITEM;
@@ -58,21 +60,30 @@ public class MetaEnvServerDeployment extends PropertyController {
 		nodeType = Meta.getNodeType( value , VarNODETYPE.SELF );
 		
 		COMP = super.getStringProperty( action , PROPERTY_COMPONENT );
-		if( !COMP.isEmpty() )
+		if( !COMP.isEmpty() ) {
+			itemType = VarDEPLOYITEMTYPE.COMP;
 			return;
+		}
 		
 		DISTITEM = super.getStringProperty( action , PROPERTY_DISTITEM );
-		if( !DISTITEM.isEmpty() )
+		if( !DISTITEM.isEmpty() ) {
+			itemType = VarDEPLOYITEMTYPE.BINARY;
 			return;
+		}
 		
 		CONFITEM = super.getStringProperty( action , PROPERTY_CONFITEM );
-		if( !CONFITEM.isEmpty() )
+		if( !CONFITEM.isEmpty() ) {
+			itemType = VarDEPLOYITEMTYPE.CONF;
 			return;
+		}
 		
 		SCHEMA = super.getStringProperty( action , PROPERTY_SCHEMA );
-		if( !SCHEMA.isEmpty() )
+		if( !SCHEMA.isEmpty() ) {
+			itemType = VarDEPLOYITEMTYPE.SCHEMA;
 			return;
+		}
 		
+		itemType = VarDEPLOYITEMTYPE.UNKNOWN;
 		action.exit1( _Error.UnexpectedDeploymentType1 , "unexpected deployment type found, server=" + server.NAME , server.NAME );
 	}
 	
@@ -232,5 +243,37 @@ public class MetaEnvServerDeployment extends PropertyController {
 			return( true );
 		return( false );
 	}
+
+	public String getName() {
+		String name = "unknown";
+		if( itemType == VarDEPLOYITEMTYPE.BINARY )
+			name = "binary-" + DISTITEM;
+		else
+		if( itemType == VarDEPLOYITEMTYPE.CONF )
+			name = "conf-" + CONFITEM;
+		else
+		if( itemType == VarDEPLOYITEMTYPE.SCHEMA )
+			name = "schema-" + SCHEMA;
+		else
+		if( itemType == VarDEPLOYITEMTYPE.COMP )
+			name = "comp-" + COMP;
+		return( name );
+	}
 	
+	public static String getName( VarDEPLOYITEMTYPE itemType , String itemName ) {
+		String name = itemName;
+		if( itemType == VarDEPLOYITEMTYPE.BINARY )
+			name = "binary-" + name;
+		else
+		if( itemType == VarDEPLOYITEMTYPE.CONF )
+			name = "conf-" + name;
+		else
+		if( itemType == VarDEPLOYITEMTYPE.SCHEMA )
+			name = "schema-" + name;
+		else
+		if( itemType == VarDEPLOYITEMTYPE.COMP )
+			name = "comp-" + name;
+		return( name );
+	}
+
 }

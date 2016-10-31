@@ -373,15 +373,7 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	private void addDeployment( MetaEnvServerDeployment dp ) {
-		String name = "";
-		if( dp.isBinaryItem() )
-			name = "binary-" + dp.DISTITEM;
-		else
-		if( dp.isConfItem() )
-			name = "conf-" + dp.CONFITEM;
-		else
-		if( dp.isComponent() )
-			name = "comp-" + dp.COMP;
+		String name = dp.getName();
 		deployments.add( dp );
 		deployMap.put( name , dp );
 	}

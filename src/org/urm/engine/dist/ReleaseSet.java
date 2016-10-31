@@ -272,7 +272,7 @@ public class ReleaseSet {
 
 	public void addAllConfItems( ActionBase action ) throws Exception {
 		MetaDistr distr = meta.getDistr( action ); 
-		for( MetaDistrConfItem comp : distr.getConfItems( action ).values() )
+		for( MetaDistrConfItem comp : distr.getConfItems() )
 			addConfItem( action , comp , true );
 	}
 
@@ -284,7 +284,7 @@ public class ReleaseSet {
 
 	public void addAllManualItems( ActionBase action ) throws Exception {
 		MetaDistr distr = meta.getDistr( action ); 
-		for( MetaDistrBinaryItem item : distr.getBinaryItems( action ).values() ) {
+		for( MetaDistrBinaryItem item : distr.getBinaryItems() ) {
 			if( item.DISTSOURCE == VarDISTITEMSOURCE.MANUAL )
 				addManualItem( action , item );
 		}
