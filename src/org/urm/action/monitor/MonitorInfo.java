@@ -126,7 +126,7 @@ public class MonitorInfo {
 		gDef.setTitle( target.ENV + ", dc=" + target.DC + " check datacenter execution time (0 if not running)" );
 		gDef.setColor( RrdGraphDef.COLOR_GRID , Color.decode( "0xC0C0C0" ) );
 		gDef.setColor( RrdGraphDef.COLOR_BACK , Color.decode( "0xE4E4E4" ) );
-		gDef.setTimeAxis( RrdGraphDef.MINUTE , 1 , RrdGraphDef.HOUR , 1 , RrdGraphDef.HOUR , 1 , 0 , "%H" );
+		gDef.setTimeAxis( RrdGraphDef.MINUTE , 30 , RrdGraphDef.HOUR , 1 , RrdGraphDef.HOUR , 1 , 0 , "%H" );
 		gDef.datasource( "linec" , rrdfile , "checkenv-time" , ConsolFun.MIN );
 		gDef.datasource( "linea" , rrdfile , "checkenv-time" , ConsolFun.AVERAGE );
 		gDef.datasource( "lineb" , rrdfile , "checkenv-time" , ConsolFun.MAX );
