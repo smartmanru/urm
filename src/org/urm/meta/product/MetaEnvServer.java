@@ -193,7 +193,7 @@ public class MetaEnvServer extends PropertyController {
 		
 		if( isDatabase() ) {
 			dbType = Meta.getDbmsType( super.getStringProperty( action , PROPERTY_DBMSTYPE ) , false );
-			DBMSADDR = super.getStringPropertyRequired( action , PROPERTY_DBMSADDR );
+			DBMSADDR = super.getStringProperty( action , PROPERTY_DBMSADDR );
 			ALIGNED = super.getStringProperty( action , PROPERTY_ALIGNED );
 			REGIONS = super.getStringProperty( action , PROPERTY_REGIONS );
 			ADMSCHEMA = super.getStringProperty( action , PROPERTY_ADMSCHEMA );
