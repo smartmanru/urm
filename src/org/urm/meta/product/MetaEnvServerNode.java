@@ -53,7 +53,7 @@ public class MetaEnvServerNode extends PropertyController {
 		DEPLOYGROUP = super.getStringProperty( action , PROPERTY_DEPLOYGROUP );
 		
 		if( server.isDatabase() )
-			DBINSTANCE = super.getStringPropertyRequired( action , PROPERTY_DBINSTANCE );
+			DBINSTANCE = super.getStringProperty( action , PROPERTY_DBINSTANCE );
 		
 		String NODETYPE = super.getStringProperty( action , PROPERTY_NODETYPE , "self" );
 		nodeType = Meta.getNodeType( NODETYPE , VarNODETYPE.SELF );
