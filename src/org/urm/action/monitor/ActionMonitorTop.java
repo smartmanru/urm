@@ -60,6 +60,19 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 			MetaMonitoring mon = meta.getMonitoring( this );
 			MonitoringStorage storage = artefactory.getMonitoringStorage( this , mon );
 			
+			boolean enabledMajor = ( mon.MAJORINTERVAL > 0 )? true : false;
+			boolean enabledMinor = ( mon.MINORINTERVAL > 0 )? true : false;
+			if( enabledMajor == false && enabledMinor == false ) {
+				runSleep( 60000 );
+				continue;
+			}
+			
+			if( enabledMajor == false )
+				runMajor = false;
+			else
+			if( enabledMinor == false )
+				runMajor = true;
+			
 			long current = System.currentTimeMillis();
 			try {
 				if( runMajor ) {
@@ -73,12 +86,13 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 					current = System.currentTimeMillis();
 					lastStopMajor = current;
 					info( "product=" + mon.meta.name + ": major checks #" + majorCount + " done in : " + ( lastStopMajor - lastStartMajor ) + "ms" );
-					continue;
 				}
 				else {
 					lastStartMinor = current;
 					minorCount++;
 					info( "product=" + mon.meta.name + ": start minor checks #" + minorCount + ": " );
+					if( info == null )
+						info = new MonitorInfo( this , storage );
 					executeOnceMinor( mon , info );
 					current = System.currentTimeMillis();
 					lastStopMinor = current; 
@@ -89,7 +103,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 				handle( e );
 			}
 
-			if( runMajor && lastStartMinor == 0 ) {
+			if( runMajor && enabledMinor && lastStartMinor == 0 ) {
 				runMajor = false;
 				continue;
 			}
@@ -105,7 +119,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 			if( nextMajor < ( current + mon.MINSILENT * 1000 ) )
 				nextMajor = current + mon.MINSILENT * 1000;
 			
-			if( nextMajor < nextMinor ) {
+			if( enabledMajor && ( nextMajor < nextMinor || enabledMinor == false ) ) {
 				runMajor = true;
 				if( !runSleep( nextMajor - current ) )
 					stopRunning();
