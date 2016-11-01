@@ -231,8 +231,7 @@ public class ServerLoader {
 			storage.deleteObject();
 		}
 		
-		if( deleteMeta )
-			meta.deleteObject();
+		meta.deleteObject();
 	}
 	
 	private ServerProductMeta getMetaStorage( ActionBase action , ServerSession session , String productName ) throws Exception {

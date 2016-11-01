@@ -391,6 +391,8 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	public MetaEnvServerNode findNode( int POS ) {
+		if( POS < 1 || POS > nodes.size() )
+			return( null );
 		return( nodes.get( POS - 1 ) );
 	}
 	
