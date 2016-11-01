@@ -228,7 +228,7 @@ public class Meta extends ServerObject {
 		
 		this.storage = storage;
 		storage.addSessionMeta( this );
-		action.session.addProductMeta( this );
+		session.addProductMeta( this );
 	}
 
 	public boolean isCorrect() {
@@ -770,4 +770,37 @@ public class Meta extends ServerObject {
     	return( name );	
     }
 
+    public MetaEnv findMetaEnv( MetaEnv env ) {
+    	if( env == null )
+    		return( null );
+    	return( findEnv( env.ID ) );
+    }
+    
+    public MetaEnvDC findMetaEnvDC( MetaEnvDC dc ) {
+    	if( dc == null )
+    		return( null );
+    	MetaEnv env = findMetaEnv( dc.env );
+    	if( env == null )
+    		return( null );
+    	return( env.findDC( dc.NAME ) );
+    }
+    
+    public MetaEnvServer findMetaEnvServer( MetaEnvServer server ) {
+    	if( server == null )
+    		return( null );
+    	MetaEnvDC dc = findMetaEnvDC( server.dc );
+    	if( dc == null )
+    		return( null );
+    	return( dc.findServer( server.NAME ) );
+    }
+
+    public MetaEnvServerNode getMetaEnvServerNode( MetaEnvServerNode node ) {
+    	if( node == null )
+    		return( null );
+    	MetaEnvServer server = findMetaEnvServer( node.server );
+    	if( server == null )
+    		return( null );
+    	return( server.findNode( node.POS ) );
+    }
+    
 }

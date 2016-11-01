@@ -7,6 +7,7 @@ public class ServerMonitoringState extends ServerEventsState {
 	
 	public enum MONITORING_STATE {
 		MONITORING_UNKNOWN ,
+		MONITORING_NOMONITORING ,
 		MONITORING_NEVERQUERIED ,
 		MONITORING_STOPPED ,
 		MONITORING_UNABLE_GETSTATE ,
@@ -21,7 +22,7 @@ public class ServerMonitoringState extends ServerEventsState {
 	public ServerMonitoringState( ServerMonitoringSource source ) {
 		super( source , 0 );
 		monitoringSource = source;
-		state = MONITORING_STATE.MONITORING_NEVERQUERIED;
+		state = MONITORING_STATE.MONITORING_NOMONITORING;
 	}
 
 	public MONITORING_STATE getState() {
@@ -35,6 +36,11 @@ public class ServerMonitoringState extends ServerEventsState {
 	public static MONITORING_STATE addState( MONITORING_STATE finalState , MONITORING_STATE addState ) {
 		if( finalState == addState )
 			return( finalState );
+
+		if( addState == MONITORING_STATE.MONITORING_NOMONITORING )
+			return( finalState );
+		if( finalState == MONITORING_STATE.MONITORING_NOMONITORING )
+			return( addState );
 		
 		if( addState == MONITORING_STATE.MONITORING_NEVERQUERIED )
 			return( finalState );

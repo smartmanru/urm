@@ -59,7 +59,7 @@ public class TransactionMetadata {
 		if( sourceMetadata.isPrimary() ) {
 			metadataOld = sourceMetadata;
 			metadata = sourceMetadata.copy( transaction.action );
-			sessionMeta = meta;
+			sessionMeta = transaction.action.getProductMetadata( meta.name );
 			transaction.trace( "transaction product storage meta: source=" + sourceMetadata.objectId + ", copy=" + metadata.objectId );
 			if( metadata != null )
 				return( true );

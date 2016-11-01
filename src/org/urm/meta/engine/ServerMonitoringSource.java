@@ -36,7 +36,7 @@ public class ServerMonitoringSource extends ServerEventsSource {
 	}
 	
 	public void clearState() {
-		data.setState( MONITORING_STATE.MONITORING_NEVERQUERIED );
+		data.setState( MONITORING_STATE.MONITORING_NOMONITORING );
 	}
 	
 	public boolean setState( SCOPESTATE state ) {
