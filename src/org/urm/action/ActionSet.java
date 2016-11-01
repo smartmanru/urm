@@ -46,7 +46,7 @@ public class ActionSet {
         		ok = false;
         }
 
-		owner.debug( "finished action set=" + name + ", status" + ok );
+		owner.debug( "finished action set=" + name + ", status=" + ok );
 		return( ok );
 	}
 	
