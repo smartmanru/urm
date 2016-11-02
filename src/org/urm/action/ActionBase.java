@@ -185,12 +185,12 @@ abstract public class ActionBase extends ActionCore {
 		output.logExactInteractive( context , s , logLevel );
 	}
 	
-	public void logStartCapture() {
-		context.logStartCapture();
+	public int logStartCapture() {
+		return( context.logStartCapture() );
 	}
 	
-	public String[] logFinishCapture() {
-		return( context.logFinishCapture() );
+	public String[] logFinishCapture( int startIndex ) {
+		return( context.logFinishCapture( startIndex ) );
 	}
 	
 	public void error( String s ) {
@@ -468,6 +468,7 @@ abstract public class ActionBase extends ActionCore {
 
 	public void stopAllOutputs() throws Exception {
 		output.stopAllOutputs();
+		context.logStopCapture();
 	}
 
 	public String getTmpFilePath( String name ) throws Exception {

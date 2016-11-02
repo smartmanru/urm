@@ -143,8 +143,9 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 
 	@Override
 	public void triggerEvent( ServerSourceEvent event ) {
-		if( event.eventType == ServerMonitoring.EVENT_FINALSTATE )
-			super.eventSource.forwardScopeItem( ServerMonitoring.EVENT_FINALSTATE , ( ScopeState )event.data );
+		if( event.eventType == ServerMonitoring.EVENT_MONITORING_SERVER ||
+			event.eventType == ServerMonitoring.EVENT_MONITORING_NODE )
+			super.eventSource.forwardScopeItem( event.eventType , ( ScopeState )event.data );
 	}
 	
 	@Override

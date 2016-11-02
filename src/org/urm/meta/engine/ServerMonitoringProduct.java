@@ -2,8 +2,8 @@ package org.urm.meta.engine;
 
 import org.urm.action.ActionEventsSource;
 import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPETYPE;
 import org.urm.action.deploy.NodeStatus;
+import org.urm.action.deploy.ServerStatus;
 import org.urm.action.monitor.ActionMonitorTop;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.ServerEventsApp;
@@ -63,7 +63,20 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 
 	@Override
 	public void triggerEvent( ServerSourceEvent event ) {
-		if( event.eventType == ServerMonitoring.EVENT_FINALSTATE ) {
+		if( event.eventType == ServerMonitoring.EVENT_MONITORING_SERVER ) {
+			ActionEventsSource source = ( ActionEventsSource )event.source;
+			ScopeState state = ( ScopeState )event.data;
+			MetaEnvServer server = state.target.envServer;
+			ServerMonitoringSource nodeSource = monitoring.getObjectSource( server );
+			if( nodeSource == null )
+				return;
+			
+			ServerStatus status = ( ServerStatus )state;
+			processServerEvent( source , nodeSource , server , status );
+			return;
+		}
+		
+		if( event.eventType == ServerMonitoring.EVENT_MONITORING_NODE ) {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			ScopeState state = ( ScopeState )event.data;
 			MetaEnvServerNode node = state.item.envServerNode;
@@ -71,10 +84,9 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			if( nodeSource == null )
 				return;
 			
-			if( state.type == SCOPETYPE.TypeItem ) {
-				NodeStatus status = ( NodeStatus )state;
-				processNodeEvent( source , nodeSource , node , status );
-			}
+			NodeStatus status = ( NodeStatus )state;
+			processNodeEvent( source , nodeSource , node , status );
+			return;
 		}
 	}
 
@@ -110,6 +122,17 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		recalculateSystem( product.system );
 	}
 
+	private void processServerEvent( ActionEventsSource source , ServerMonitoringSource serverSource , MetaEnvServer server , ServerStatus status ) {
+		if( stopping )
+			return;
+
+		serverSource.setLog( status.getLog() );
+		if( serverSource.setState( status.itemState ) ) {
+			MetaEnvDC dc = server.dc;
+			recalculateDatacenter( dc );
+		}
+	}
+	
 	private void processNodeEvent( ActionEventsSource source , ServerMonitoringSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
 		if( stopping )
 			return;
@@ -211,7 +234,22 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 				finalState = ServerMonitoringState.addState( finalState , productSource.data.state );
 		}
 		
-		systemSource.setState( finalState );
+		if( systemSource.setState( finalState ) )
+			recalculateApp( system.directory );
+	}
+
+	private void recalculateApp( ServerDirectory directory ) {
+		ServerMonitoringSource appSource = monitoring.getAppSource();
+		if( appSource == null )
+			return;
+
+		MONITORING_STATE finalState = MONITORING_STATE.MONITORING_NOMONITORING;
+		for( String systemName : directory.getSystems() ) {
+			ServerSystem system = directory.findSystem( systemName );
+			ServerMonitoringSource systemSource = monitoring.getObjectSource( system );
+			if( systemSource != null )
+				finalState = ServerMonitoringState.addState( finalState , systemSource.data.state );
+		}
 	}
 	
 }

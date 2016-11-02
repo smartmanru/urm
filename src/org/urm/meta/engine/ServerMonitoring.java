@@ -37,12 +37,13 @@ public class ServerMonitoring extends ServerObject {
 
 	Map<String,ServerMonitoringProduct> mapProduct;
 	
-	public static int MONITORING_SYSTEM = 1;
-	public static int MONITORING_PRODUCT = 2;
-	public static int MONITORING_ENVIRONMENT = 3;
-	public static int MONITORING_DATACENTER = 4;
-	public static int MONITORING_SERVER = 5;
-	public static int MONITORING_NODE = 6;
+	public static int MONITORING_APP = 1;
+	public static int MONITORING_SYSTEM = 2;
+	public static int MONITORING_PRODUCT = 3;
+	public static int MONITORING_ENVIRONMENT = 4;
+	public static int MONITORING_DATACENTER = 5;
+	public static int MONITORING_SERVER = 6;
+	public static int MONITORING_NODE = 7;
 	public Map<ServerObject,ServerMonitoringSource> sourceMap;
 	
 	public PropertySet properties;
@@ -54,7 +55,10 @@ public class ServerMonitoring extends ServerObject {
 	public String RESOURCE_URL;
 
 	ServerEventsApp eventsApp;
-	public static int EVENT_FINALSTATE = 101;
+	public static int EVENT_MONITORSTATECHANGED = 11;
+	public static int EVENT_MONITORCHILDCHANGED = 12;
+	public static int EVENT_MONITORING_SERVER = 51;
+	public static int EVENT_MONITORING_NODE = 52;
 	
 	// properties
 	public static String PROPERTY_ENABLED = "monitoring.enabled";
@@ -111,10 +115,12 @@ public class ServerMonitoring extends ServerObject {
 		if( !ENABLED )
 			return;
 		
+		sourceMap.clear();
 		ServerEvents events = engine.getEvents();
 		eventsApp = events.createApp( "monitoring" );
 		
 		ServerRegistry registry = loader.getRegistry();
+		startApp( registry.directory );
 		for( String systemName : registry.directory.getSystems() ) {
 			ServerSystem system = registry.directory.findSystem( systemName );
 			startSystem( system );
@@ -136,6 +142,12 @@ public class ServerMonitoring extends ServerObject {
 			source.clearState();
 	}
 
+	public void startApp( ServerDirectory directory ) {
+		ActionBase action = engine.serverAction;
+		createSource( MONITORING_APP , directory );
+		action.trace( "monitoring started for applications" );
+	}
+	
 	public void startSystem( ServerSystem system ) {
 		ActionBase action = engine.serverAction;
 		createSource( MONITORING_SYSTEM , system );
@@ -285,6 +297,11 @@ public class ServerMonitoring extends ServerObject {
 	public void stopNode( MetaEnvServerNode node , boolean delete ) {
 		if( delete )
 			removeSource( MONITORING_NODE , node );
+	}
+
+	public ServerMonitoringSource getAppSource() {
+		ServerRegistry registry = loader.getRegistry();
+		return( getObjectSource( registry.directory ) );
 	}
 	
 	public ServerMonitoringSource getObjectSource( ServerObject object ) {

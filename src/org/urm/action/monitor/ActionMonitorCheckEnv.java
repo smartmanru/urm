@@ -1,11 +1,9 @@
 package org.urm.action.monitor;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ActionEventsSource;
 import org.urm.action.ActionScope;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
-import org.urm.action.ScopeState.SCOPETYPE;
 import org.urm.action.deploy.ActionCheckEnv;
 import org.urm.engine.ServerEventsApp;
 import org.urm.engine.ServerEventsListener;
@@ -62,11 +60,10 @@ public class ActionMonitorCheckEnv extends ActionBase implements ServerEventsLis
 	
 	@Override
 	public void triggerEvent( ServerSourceEvent event ) {
-		if( event.eventType == ActionEventsSource.EVENT_FINISHSTATE ) {
+		if( event.eventType == ServerMonitoring.EVENT_MONITORING_SERVER ||
+			event.eventType == ServerMonitoring.EVENT_MONITORING_NODE ) {
 			ScopeState state = ( ScopeState )event.data;
-			
-			if( state.type == SCOPETYPE.TypeItem )
-				super.eventSource.forwardScopeItem( ServerMonitoring.EVENT_FINALSTATE , state );
+			super.eventSource.forwardScopeItem( event.eventType , state );
 		}
 	}
 

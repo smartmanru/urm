@@ -26,8 +26,16 @@ public class ActionEventsSource extends ServerEventsSource {
 		super.trigger( EVENT_FINISHSTATE , state );
 	}
 	
+	public void finishScopeItem( int event , ScopeState state ) {
+		super.trigger( event , state );
+	}
+	
 	public void forwardScopeItem( int eventType , ScopeState state ) {
 		super.trigger( eventType , state );
+	}
+
+	public ScopeState findSetState( ActionScopeSet set ) {
+		return( rootState.scopeState.findSetState( set ) );
 	}
 
 	public ScopeState findTargetState( ActionScopeTarget target ) {

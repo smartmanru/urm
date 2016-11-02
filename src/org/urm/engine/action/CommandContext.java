@@ -37,6 +37,7 @@ public class CommandContext {
 	public String streamLog;
 	public int logLevelLimit;
 	public List<String> logCapture;
+	public int logCaptureCount;
 	
 	public Account account;
 	public String userHome;
@@ -121,6 +122,7 @@ public class CommandContext {
 		this.call = call;
 		
 		this.logLevelLimit = CommandOutput.LOGLEVEL_ERROR;
+		logCaptureCount = 0;
 		
 		setLogStream();
 		setLogLevel();
@@ -458,13 +460,28 @@ public class CommandContext {
 		return( options.combineValue( var , confValue , defValue ) );
 	}
 	
-	public void logStartCapture() {
-		logCapture = new LinkedList<String>(); 
+	public int logStartCapture() {
+		if( logCapture == null )
+			logCapture = new LinkedList<String>();
+		logCaptureCount++;
+		return( logCapture.size() );
+	}
+
+	public void logStopCapture() {
+		logCaptureCount = 0;
+		logCapture = null;
 	}
 	
-	public String[] logFinishCapture() {
-		String[] data = logCapture.toArray( new String[0] );
-		logCapture = null;
+	public String[] logFinishCapture( int startIndex ) {
+		String[] data = null;
+		if( startIndex > 0 )
+			data = logCapture.subList( startIndex , logCapture.size() ).toArray( new String[0] );
+		else
+			data = logCapture.toArray( new String[0] );
+
+		logCaptureCount--;
+		if( logCaptureCount == 0 )
+			logCapture = null;
 		return( data );
 	}
 

@@ -14,9 +14,6 @@ public class ServerMonitoringSource extends ServerEventsSource {
 	public ServerMonitoringState data;
 	public String[] log;
 
-	public static int EVENT_MONITORSTATECHANGED = 1;
-	public static int EVENT_MONITORCHILDCHANGED = 2;
-	
 	public ServerMonitoringSource( ServerMonitoring mon , ServerObject object , int level , String name ) {
 		super( mon.events , name );
 		this.mon = mon;
@@ -47,7 +44,7 @@ public class ServerMonitoringSource extends ServerEventsSource {
 	public boolean setState( MONITORING_STATE newState ) {
 		if( newState != data.state ) {
 			data.setState( newState );
-			super.trigger( EVENT_MONITORSTATECHANGED , data );
+			super.trigger( ServerMonitoring.EVENT_MONITORSTATECHANGED , data );
 			return( true );
 		}
 		
@@ -59,7 +56,7 @@ public class ServerMonitoringSource extends ServerEventsSource {
 		MONITORING_STATE newState = ServerMonitoringState.addState( data.state , addState );
 		if( newState != data.state ) {
 			data.setState( newState );
-			super.trigger( EVENT_MONITORCHILDCHANGED , data );
+			super.trigger( ServerMonitoring.EVENT_MONITORCHILDCHANGED , data );
 			return( true );
 		}
 		
