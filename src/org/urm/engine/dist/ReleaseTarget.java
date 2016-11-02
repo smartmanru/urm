@@ -17,7 +17,7 @@ import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.Meta.VarCATEGORY;
-import org.urm.meta.product.Meta.VarDISTITEMSOURCE;
+import org.urm.meta.product.Meta.VarDISTITEMORIGIN;
 import org.urm.meta.product.Meta.VarNAMETYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -227,7 +227,7 @@ public class ReleaseTarget {
 	}
 	
 	public void createFromManualItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		if( item.DISTSOURCE != VarDISTITEMSOURCE.MANUAL )
+		if( item.distItemOrigin != VarDISTITEMORIGIN.MANUAL )
 			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-manual item=" + item.KEY , item.KEY );
 		
 		this.distManualItem = item;

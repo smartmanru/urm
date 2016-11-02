@@ -16,7 +16,7 @@ import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.product.Meta.VarCATEGORY;
-import org.urm.meta.product.Meta.VarDISTITEMSOURCE;
+import org.urm.meta.product.Meta.VarDISTITEMORIGIN;
 import org.urm.meta.product.Meta.VarNAMETYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -285,7 +285,7 @@ public class ReleaseSet {
 	public void addAllManualItems( ActionBase action ) throws Exception {
 		MetaDistr distr = meta.getDistr( action ); 
 		for( MetaDistrBinaryItem item : distr.getBinaryItems() ) {
-			if( item.DISTSOURCE == VarDISTITEMSOURCE.MANUAL )
+			if( item.distItemOrigin == VarDISTITEMORIGIN.MANUAL )
 				addManualItem( action , item );
 		}
 	}

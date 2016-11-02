@@ -21,7 +21,7 @@ import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.product.Meta.VarCATEGORY;
-import org.urm.meta.product.Meta.VarDISTITEMSOURCE;
+import org.urm.meta.product.Meta.VarDISTITEMORIGIN;
 
 public class ActionScope {
 
@@ -372,7 +372,7 @@ public class ActionScope {
 				action.exit1( _Error.UnknownDistributiveItem1 , "unknown distributive item=" + itemName , itemName );
 			
 			ActionScopeSet sset = null;
-			if( item.DISTSOURCE == VarDISTITEMSOURCE.MANUAL ) {
+			if( item.distItemOrigin == VarDISTITEMORIGIN.MANUAL ) {
 				sset = createProductCategoryScopeSet( action , VarCATEGORY.MANUAL );
 				sset.addManualItems( action , new String[] { itemName } );
 			}
@@ -394,7 +394,7 @@ public class ActionScope {
 				action.exit1( _Error.UnknownDistributiveItem1 ,"unknown distributive item=" + itemName , itemName );
 			
 			ActionScopeSet sset = null;
-			if( item.DISTSOURCE == VarDISTITEMSOURCE.MANUAL )
+			if( item.distItemOrigin == VarDISTITEMORIGIN.MANUAL )
 				sset = createReleaseCategoryScopeSet( action , dist , VarCATEGORY.MANUAL );
 			else {
 				ReleaseSet rset = dist.release.getSourceSet( action , item.sourceItem.project.set.NAME );

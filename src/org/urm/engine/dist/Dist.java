@@ -20,7 +20,7 @@ import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.product.Meta.VarCATEGORY;
-import org.urm.meta.product.Meta.VarDISTITEMSOURCE;
+import org.urm.meta.product.Meta.VarDISTITEMORIGIN;
 import org.w3c.dom.Document;
 
 public class Dist {
@@ -165,7 +165,7 @@ public class Dist {
 		if( !openedForUse )
 			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 
-		MetaDistrBinaryItem srcItem = item.srcItem;
+		MetaDistrBinaryItem srcItem = item.srcDistItem;
 		
 		// extract on remote redist
 		RedistStorage redist = action.artefactory.getRedistStorage( action , distFolder.account );
@@ -487,7 +487,7 @@ public class Dist {
 	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrBinaryItem item , boolean getMD5 ) throws Exception {
 		DistItemInfo info = new DistItemInfo( item );
 		if( item.isDerived( action ) ) {
-			DistItemInfo infosrc = getDistItemInfo( action , item.srcItem , false );
+			DistItemInfo infosrc = getDistItemInfo( action , item.srcDistItem , false );
 			info.subPath = infosrc.subPath;
 			info.fileName = infosrc.fileName;
 			info.found = infosrc.found;
@@ -501,7 +501,7 @@ public class Dist {
 		if( info.found && getMD5 ) {
 			RemoteFolder fileFolder = distFolder.getSubFolder( action , info.subPath );
 			if( item.isDerived( action ) )
-				info.md5value = fileFolder.getArchivePartMD5( action , info.fileName , item.SRCITEMPATH , item.srcItem.EXT );
+				info.md5value = fileFolder.getArchivePartMD5( action , info.fileName , item.SRCITEMPATH , item.srcDistItem.EXT );
 			else
 			if( item.isArchive( action ) )
 				info.md5value = fileFolder.getArchiveContentMD5( action , info.fileName , item.EXT );
@@ -583,15 +583,15 @@ public class Dist {
 		if( !openedForUse )
 			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
-		if( item.DISTSOURCE == VarDISTITEMSOURCE.MANUAL ) {
+		if( item.distItemOrigin == VarDISTITEMORIGIN.MANUAL ) {
 			ReleaseTarget target = release.findCategoryTarget( action , VarCATEGORY.MANUAL , item.KEY );
 			if( target == null )
 				return( false );
 			return( true );
 		}
-		else if( item.DISTSOURCE == VarDISTITEMSOURCE.DISTITEM )
-			return( checkIfReleaseItem( action , item.srcItem ) );
-		else if( item.DISTSOURCE == VarDISTITEMSOURCE.BUILD ) {
+		else if( item.distItemOrigin == VarDISTITEMORIGIN.DISTITEM )
+			return( checkIfReleaseItem( action , item.srcDistItem ) );
+		else if( item.distItemOrigin == VarDISTITEMORIGIN.BUILD ) {
 			ReleaseTarget target = release.findBuildProject( action , item.sourceItem.project.PROJECT );
 			if( target == null )
 				return( false );
@@ -611,7 +611,7 @@ public class Dist {
 		if( !openedForUse )
 			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
-		if( item.DISTSOURCE == VarDISTITEMSOURCE.MANUAL ) {
+		if( item.distItemOrigin == VarDISTITEMORIGIN.MANUAL ) {
 			ReleaseTarget target = release.findCategoryTarget( action , VarCATEGORY.MANUAL , item.KEY );
 			if( target == null )
 				return( "" );
@@ -621,7 +621,7 @@ public class Dist {
 			
 			return( Common.getPath( BINARY_FOLDER , target.DISTFILE ) );
 		}
-		else if( item.DISTSOURCE == VarDISTITEMSOURCE.BUILD ) {
+		else if( item.distItemOrigin == VarDISTITEMORIGIN.BUILD ) {
 			ReleaseTarget target = release.findBuildProject( action , item.sourceItem.project.PROJECT );
 			if( target == null )
 				return( "" );

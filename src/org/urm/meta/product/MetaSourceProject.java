@@ -271,4 +271,9 @@ public class MetaSourceProject {
 		String branch = PROJECT + "-prod";
 		return( branch );
 	}
+	
+	public String[] getItemNames() {
+		return( Common.getSortedKeys( itemMap ) );
+	}
+	
 }

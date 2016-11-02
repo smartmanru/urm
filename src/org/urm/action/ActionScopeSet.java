@@ -27,7 +27,7 @@ import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.product.Meta.VarCATEGORY;
-import org.urm.meta.product.Meta.VarDISTITEMSOURCE;
+import org.urm.meta.product.Meta.VarDISTITEMORIGIN;
 
 public class ActionScopeSet {
 
@@ -262,7 +262,7 @@ public class ActionScopeSet {
 		
 		for( String item : ITEMS ) {
 			MetaDistrBinaryItem distitem = distr.getBinaryItem( action , item );
-			if( distitem.DISTSOURCE != VarDISTITEMSOURCE.MANUAL )
+			if( distitem.distItemOrigin != VarDISTITEMORIGIN.MANUAL )
 				action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-manual item=" + item , item );
 			
 			addProductManualItem( action , distitem , true );

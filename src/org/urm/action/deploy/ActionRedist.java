@@ -20,7 +20,7 @@ import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerLocation;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.Meta.VarCONTENTTYPE;
-import org.urm.meta.product.Meta.VarDISTITEMSOURCE;
+import org.urm.meta.product.Meta.VarDISTITEMORIGIN;
 
 public class ActionRedist extends ActionBase {
 
@@ -175,8 +175,8 @@ public class ActionRedist extends ActionBase {
 			return( false );
 		}
 		
-		if( binaryItem.DISTSOURCE == VarDISTITEMSOURCE.DISTITEM ) {
-			String fileName = dist.getBinaryDistItemFile( this , binaryItem.srcItem );
+		if( binaryItem.distItemOrigin == VarDISTITEMORIGIN.DISTITEM ) {
+			String fileName = dist.getBinaryDistItemFile( this , binaryItem.srcDistItem );
 			if( fileName.isEmpty() ) {
 				trace( "source of binary item=" + binaryItem.KEY + " is not found. Skipped." );
 				return( false );
@@ -186,7 +186,7 @@ public class ActionRedist extends ActionBase {
 			String fileExtracted = extractEmbeddedFile( binaryItem , fileName );
 			return( redist.copyReleaseFile( this , binaryItem , location , fileExtracted , deployBaseName , dist.RELEASEDIR , dist.release.RELEASEVER , stateInfo ) );
 		}
-		else if( binaryItem.DISTSOURCE == VarDISTITEMSOURCE.BUILD || binaryItem.DISTSOURCE == VarDISTITEMSOURCE.MANUAL ) {
+		else if( binaryItem.distItemOrigin == VarDISTITEMORIGIN.BUILD || binaryItem.distItemOrigin == VarDISTITEMORIGIN.MANUAL ) {
 			String fileName = dist.getBinaryDistItemFile( this , binaryItem );
 			if( fileName.isEmpty() ) {
 				trace( "binary item=" + binaryItem.KEY + " is not found. Skipped." );

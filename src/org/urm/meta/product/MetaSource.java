@@ -152,5 +152,8 @@ public class MetaSource extends PropertyController {
 		}
 	}
 
+	public String[] getProjectNames() {
+		return( Common.getSortedKeys( projectMap ) );
+	}
 	
 }

@@ -144,7 +144,7 @@ public class Meta extends ServerObject {
 		ARCHIVE_SUBDIR		// deploydir/archivename = archive/content/fullcontent
 	};
 	
-	public enum VarDISTITEMSOURCE {
+	public enum VarDISTITEMORIGIN {
 		UNKNOWN ,
 		MANUAL ,
 		BUILD ,
@@ -485,16 +485,16 @@ public class Meta extends ServerObject {
 		return( value );
 	}
 	
-	public static VarDISTITEMSOURCE getItemDistSource( String ID , boolean required ) throws Exception {
+	public static VarDISTITEMORIGIN getItemDistSource( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
 				Common.exit0( _Error.MissingDistItemSource0 , "missing distributive item source" );
-			return( VarDISTITEMSOURCE.UNKNOWN );
+			return( VarDISTITEMORIGIN.UNKNOWN );
 		}
 		
-		VarDISTITEMSOURCE value = null;
+		VarDISTITEMORIGIN value = null;
 		try {
-			value = VarDISTITEMSOURCE.valueOf( Common.xmlToEnumValue( ID ) );
+			value = VarDISTITEMORIGIN.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidDistributiveItemSource1 , "invalid distributive item source=" + ID , ID );
@@ -722,9 +722,9 @@ public class Meta extends ServerObject {
 	public static String[] getVersionPatterns( ActionBase action , MetaDistrBinaryItem distItem ) throws Exception {
 		String basename = distItem.DISTBASENAME;
 		String ext = distItem.EXT;
-		if( distItem.DEPLOYVERSION == VarITEMVERSION.IGNORE ) {
+		if( distItem.deployVersion == VarITEMVERSION.IGNORE ) {
 			String[] values = new String[1];
-			values[0] = getVersionPattern( action , distItem.DEPLOYVERSION , basename , ext );
+			values[0] = getVersionPattern( action , distItem.deployVersion , basename , ext );
 			return( values );
 		}
 
@@ -770,6 +770,14 @@ public class Meta extends ServerObject {
     	return( name );	
     }
 
+    public static boolean isArchive( VarDISTITEMTYPE distItemType ) {
+		if( distItemType == VarDISTITEMTYPE.ARCHIVE_CHILD || 
+			distItemType == VarDISTITEMTYPE.ARCHIVE_DIRECT || 
+			distItemType == VarDISTITEMTYPE.ARCHIVE_SUBDIR )
+			return( true );
+		return( false );
+    }
+
     public MetaEnv findMetaEnv( MetaEnv env ) {
     	if( env == null )
     		return( null );
@@ -802,5 +810,5 @@ public class Meta extends ServerObject {
     		return( null );
     	return( server.findNode( node.POS ) );
     }
-    
+
 }

@@ -6,7 +6,7 @@ import org.urm.common.ConfReader;
 import org.urm.engine.custom.CommandCustom;
 import org.urm.engine.storage.FileInfo;
 import org.urm.meta.product.Meta.VarARCHIVETYPE;
-import org.urm.meta.product.Meta.VarDISTITEMSOURCE;
+import org.urm.meta.product.Meta.VarDISTITEMORIGIN;
 import org.urm.meta.product.Meta.VarDISTITEMTYPE;
 import org.urm.meta.product.Meta.VarITEMVERSION;
 import org.urm.meta.product.Meta.VarNAMETYPE;
@@ -22,20 +22,21 @@ public class MetaDistrBinaryItem {
 	public MetaSourceProjectItem sourceItem;
 	public String KEY;
 	public String EXT;
-	public VarDISTITEMTYPE DISTTYPE;
-	public VarDISTITEMSOURCE DISTSOURCE;
+	public VarDISTITEMTYPE distItemType;
+	public VarDISTITEMORIGIN distItemOrigin;
 	public String SRCDISTITEM;
-	public MetaDistrBinaryItem srcItem;
+	public MetaDistrBinaryItem srcDistItem;
 	public String SRCITEMPATH; 
 	public String DISTBASENAME;
 	public String DEPLOYBASENAME;
-	public VarITEMVERSION DEPLOYVERSION;
+	public VarITEMVERSION deployVersion;
+	public String FILES;
+	public String EXCLUDE;
+	
 	public String WAR_MRID;
 	public String WAR_CONTEXT;
 	public String WAR_STATICEXT;
 	public String BUILDINFO;
-	public String FILES;
-	public String EXCLUDE;
 	
 	public boolean CUSTOMDEPLOY;
 	
@@ -48,25 +49,25 @@ public class MetaDistrBinaryItem {
 		KEY = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
 	
 		// read attrs
-		DISTTYPE = Meta.getItemDistType( ConfReader.getRequiredAttrValue( node , "type" ) , false );
-		DISTSOURCE = Meta.getItemDistSource( ConfReader.getRequiredAttrValue( node , "source" ) , false );
-		if( DISTSOURCE == VarDISTITEMSOURCE.DISTITEM ) {
+		distItemType = Meta.getItemDistType( ConfReader.getRequiredAttrValue( node , "type" ) , false );
+		distItemOrigin = Meta.getItemDistSource( ConfReader.getRequiredAttrValue( node , "source" ) , false );
+		if( distItemOrigin == VarDISTITEMORIGIN.DISTITEM ) {
 			SRCDISTITEM = ConfReader.getAttrValue( node , "srcitem" );
 			SRCITEMPATH = ConfReader.getAttrValue( node , "srcpath" );
 		}
 		
 		DISTBASENAME = ConfReader.getAttrValue( node , "distname" , KEY );
 		DEPLOYBASENAME = ConfReader.getAttrValue( node , "deployname" , DISTBASENAME );
-		DEPLOYVERSION = Meta.readItemVersionAttr( node , "deployversion" );
+		deployVersion = Meta.readItemVersionAttr( node , "deployversion" );
 		BUILDINFO = ConfReader.getAttrValue( node , "buildinfo" );
 
 		// binary item
-		if( DISTTYPE == VarDISTITEMTYPE.BINARY ) {
+		if( distItemType == VarDISTITEMTYPE.BINARY ) {
 			EXT = ConfReader.getRequiredAttrValue( node , "extension" );
 		}
 		else
 		// war item and static
-		if( DISTTYPE == VarDISTITEMTYPE.WAR ) {
+		if( distItemType == VarDISTITEMTYPE.WAR ) {
 			EXT = ".war";
 	
 			WAR_MRID = ConfReader.getAttrValue( node , "mrid" );
@@ -82,11 +83,11 @@ public class MetaDistrBinaryItem {
 		}
 		else
 		// nupkg item
-		if( DISTTYPE == VarDISTITEMTYPE.DOTNETPKG ) {
+		if( distItemType == VarDISTITEMTYPE.DOTNETPKG ) {
 			EXT = ConfReader.getRequiredAttrValue( node , "extension" );
 		}
 		else {
-			String distType = Common.getEnumLower( DISTTYPE );
+			String distType = Common.getEnumLower( distItemType );
 			action.exit2( _Error.UnknownDistributiveItemType2 , "distribution item " + KEY + " has unknown type=" + distType , KEY , distType );
 		}
 		
@@ -101,25 +102,25 @@ public class MetaDistrBinaryItem {
 		Common.xmlSetElementAttr( doc , root , "name" , KEY );
 		
 		// read attrs
-		Common.xmlSetElementAttr( doc , root , "type" , Common.getEnumLower( DISTTYPE ) );
-		Common.xmlSetElementAttr( doc , root , "source" , Common.getEnumLower( DISTSOURCE ) );
-		if( DISTSOURCE == VarDISTITEMSOURCE.DISTITEM ) {
+		Common.xmlSetElementAttr( doc , root , "type" , Common.getEnumLower( distItemType ) );
+		Common.xmlSetElementAttr( doc , root , "source" , Common.getEnumLower( distItemOrigin ) );
+		if( distItemOrigin == VarDISTITEMORIGIN.DISTITEM ) {
 			Common.xmlSetElementAttr( doc , root , "srcitem" , SRCDISTITEM );
 			Common.xmlSetElementAttr( doc , root , "srcpath" , SRCITEMPATH );
 		}
 		
 		Common.xmlSetElementAttr( doc , root , "distname" , DISTBASENAME );
 		Common.xmlSetElementAttr( doc , root , "deployname" , DEPLOYBASENAME );
-		Common.xmlSetElementAttr( doc , root , "deployversion" , Common.getEnumLower( DEPLOYVERSION ) );
+		Common.xmlSetElementAttr( doc , root , "deployversion" , Common.getEnumLower( deployVersion ) );
 		Common.xmlSetElementAttr( doc , root , "buildinfo" , BUILDINFO );
 
 		// binary item
-		if( DISTTYPE == VarDISTITEMTYPE.BINARY ) {
+		if( distItemType == VarDISTITEMTYPE.BINARY ) {
 			Common.xmlSetElementAttr( doc , root , "extension" , EXT );
 		}
 		else
 		// war item and static
-		if( DISTTYPE == VarDISTITEMTYPE.WAR ) {
+		if( distItemType == VarDISTITEMTYPE.WAR ) {
 			EXT = ".war";
 	
 			Common.xmlSetElementAttr( doc , root , "mrid" , WAR_MRID );
@@ -135,7 +136,7 @@ public class MetaDistrBinaryItem {
 		}
 		else
 		// nupkg item
-		if( DISTTYPE == VarDISTITEMTYPE.DOTNETPKG ) {
+		if( distItemType == VarDISTITEMTYPE.DOTNETPKG ) {
 			Common.xmlSetElementAttr( doc , root , "extension" , EXT );
 		}
 		
@@ -152,14 +153,14 @@ public class MetaDistrBinaryItem {
 			
 		r.KEY = KEY;
 		r.EXT = EXT;
-		r.DISTTYPE = DISTTYPE;
-		r.DISTSOURCE = DISTSOURCE;
+		r.distItemType = distItemType;
+		r.distItemOrigin = distItemOrigin;
 		r.SRCDISTITEM = SRCDISTITEM;
 		
 		r.SRCITEMPATH = SRCITEMPATH; 
 		r.DISTBASENAME = DISTBASENAME;
 		r.DEPLOYBASENAME = DEPLOYBASENAME;
-		r.DEPLOYVERSION = DEPLOYVERSION;
+		r.deployVersion = deployVersion;
 		r.WAR_MRID = WAR_MRID;
 		r.WAR_CONTEXT = WAR_CONTEXT;
 		r.WAR_STATICEXT = WAR_STATICEXT;
@@ -173,16 +174,16 @@ public class MetaDistrBinaryItem {
 	}
 	
 	public void resolveReferences( ActionBase action ) throws Exception {
-		if( DISTSOURCE == VarDISTITEMSOURCE.DISTITEM ) {
+		if( distItemOrigin == VarDISTITEMORIGIN.DISTITEM ) {
 			MetaDistr distr = meta.getDistr( action );
-			srcItem = distr.getBinaryItem( action , SRCDISTITEM );
+			srcDistItem = distr.getBinaryItem( action , SRCDISTITEM );
 		}
 	}
 	
 	public boolean isArchive( ActionBase action ) throws Exception {
-		if( DISTTYPE == VarDISTITEMTYPE.ARCHIVE_CHILD || 
-			DISTTYPE == VarDISTITEMTYPE.ARCHIVE_DIRECT || 
-			DISTTYPE == VarDISTITEMTYPE.ARCHIVE_SUBDIR )
+		if( distItemType == VarDISTITEMTYPE.ARCHIVE_CHILD || 
+			distItemType == VarDISTITEMTYPE.ARCHIVE_DIRECT || 
+			distItemType == VarDISTITEMTYPE.ARCHIVE_SUBDIR )
 			return( true );
 		return( false );
 	}
@@ -260,7 +261,7 @@ public class MetaDistrBinaryItem {
 	}
 
 	public boolean isDerived( ActionBase action ) throws Exception {
-		if( srcItem != null )
+		if( srcDistItem != null )
 			return( true );
 		return( false );
 	}

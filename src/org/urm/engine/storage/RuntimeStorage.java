@@ -220,7 +220,7 @@ public class RuntimeStorage extends ServerStorage {
 		VarARCHIVETYPE atype = archiveItem.getArchiveType( action );
 
 		deployFolder.ensureExists( action );
-		if( archiveItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_CHILD ) {
+		if( archiveItem.distItemType == VarDISTITEMTYPE.ARCHIVE_CHILD ) {
 			// delete old
 			if( !deployFolder.checkFolderExists( action , archiveItem.DEPLOYBASENAME ) ) {
 				String content = "";
@@ -239,7 +239,7 @@ public class RuntimeStorage extends ServerStorage {
 			deployFolder.extractArchive( action , atype , archiveFilePath , "" );
 		}
 		else
-		if( archiveItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_DIRECT ) {
+		if( archiveItem.distItemType == VarDISTITEMTYPE.ARCHIVE_DIRECT ) {
 			// delete old
 			deployFolder.removeFilesWithExclude( action , archiveItem.FILES , archiveItem.EXCLUDE );
 			
@@ -247,7 +247,7 @@ public class RuntimeStorage extends ServerStorage {
 			deployFolder.extractArchive( action , atype , archiveFilePath , "" );
 		}
 		else
-		if( archiveItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_SUBDIR ) {
+		if( archiveItem.distItemType == VarDISTITEMTYPE.ARCHIVE_SUBDIR ) {
 			RemoteFolder deployTarFolder = deployFolder.getSubFolder( action , archiveItem.DEPLOYBASENAME );
 			if( !deployTarFolder.checkExists( action ) ) {
 				deployTarFolder.ensureExists( action );

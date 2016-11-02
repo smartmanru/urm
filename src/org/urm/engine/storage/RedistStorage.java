@@ -382,7 +382,7 @@ public class RedistStorage extends ServerStorage {
 		VarARCHIVETYPE atype = archiveItem.getArchiveType( action );
 		String archiveFilePath = saveFolder.getFilePath( action , fileName );
 		
-		if( archiveItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_CHILD ) {
+		if( archiveItem.distItemType == VarDISTITEMTYPE.ARCHIVE_CHILD ) {
 			if( !deployFolder.checkFolderExists( action , archiveItem.DEPLOYBASENAME ) ) {
 				action.debug( "unable to find runtime child archive item=" + archiveItem.KEY + ", not found in " + deployFolder.folderPath );
 				return( false );
@@ -400,7 +400,7 @@ public class RedistStorage extends ServerStorage {
 			deployFolder.createArchiveFromContent( action , atype , archiveFilePath , content , exclude );
 		}
 		else
-		if( archiveItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_DIRECT ) {
+		if( archiveItem.distItemType == VarDISTITEMTYPE.ARCHIVE_DIRECT ) {
 			if( !deployFolder.checkExists( action ) ) {
 				action.debug( "unable to find runtime direct archive item=" + archiveItem.KEY + ", not found in " + deployFolder.folderPath );
 				return( false );
@@ -409,7 +409,7 @@ public class RedistStorage extends ServerStorage {
 			deployFolder.createArchiveFromContent( action , atype , archiveFilePath , archiveItem.FILES , archiveItem.EXCLUDE );
 		}
 		else
-		if( archiveItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_SUBDIR ) {
+		if( archiveItem.distItemType == VarDISTITEMTYPE.ARCHIVE_SUBDIR ) {
 			if( !deployFolder.checkFolderExists( action , archiveItem.DEPLOYBASENAME ) ) {
 				action.debug( "unable to find runtime subdir archive item=" + archiveItem.KEY + ", not found in " + deployFolder.folderPath );
 				return( false );
@@ -426,7 +426,7 @@ public class RedistStorage extends ServerStorage {
 	public FileInfo getRuntimeItemInfo( ActionBase action , MetaDistrBinaryItem binaryItem , String LOCATION , String specificDeployBaseName ) throws Exception {
 		RemoteFolder deployFolder = getRuntimeLocationFolder( action , LOCATION );
 		
-		if( binaryItem.DISTTYPE == VarDISTITEMTYPE.BINARY ) {
+		if( binaryItem.distItemType == VarDISTITEMTYPE.BINARY ) {
 			String runtimeFile = deployFolder.findBinaryDistItemFile( action , binaryItem , specificDeployBaseName );
 			if( runtimeFile.isEmpty() )
 				action.exit2( _Error.ItemNotFoundInLive2 , "item=" + binaryItem.KEY + ", is not found in " + deployFolder.folderPath , binaryItem.KEY , deployFolder.folderPath );
@@ -442,7 +442,7 @@ public class RedistStorage extends ServerStorage {
 	}
 
 	public String getArchiveMD5( ActionBase action , MetaDistrBinaryItem binaryItem , RemoteFolder filesFolder , boolean runtimeFolder ) throws Exception {
-		if( binaryItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_CHILD ) {
+		if( binaryItem.distItemType == VarDISTITEMTYPE.ARCHIVE_CHILD ) {
 			String content = "";
 			String exclude = "";
 			String prefix = binaryItem.DEPLOYBASENAME + "/";
@@ -456,12 +456,12 @@ public class RedistStorage extends ServerStorage {
 			return( md5value );
 		}
 		else
-		if( binaryItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_DIRECT ) {
+		if( binaryItem.distItemType == VarDISTITEMTYPE.ARCHIVE_DIRECT ) {
 			String md5value = filesFolder.getFilesMD5( action , binaryItem.FILES , binaryItem.EXCLUDE );
 			return( md5value );
 		}
 		else 
-		if( binaryItem.DISTTYPE == VarDISTITEMTYPE.ARCHIVE_SUBDIR ) {
+		if( binaryItem.distItemType == VarDISTITEMTYPE.ARCHIVE_SUBDIR ) {
 			RemoteFolder archiveFolder = filesFolder;
 			if( runtimeFolder )
 				archiveFolder = filesFolder.getSubFolder( action , binaryItem.DEPLOYBASENAME );
@@ -489,7 +489,7 @@ public class RedistStorage extends ServerStorage {
 	}
 
 	public String getDeployVersionedName( ActionBase action , MetaEnvServerLocation location , MetaDistrBinaryItem item , String deployBaseName , String RELEASEVER ) throws Exception {
-		if( item.DISTTYPE == VarDISTITEMTYPE.BINARY ) {
+		if( item.distItemType == VarDISTITEMTYPE.BINARY ) {
 			if( location.DEPLOYTYPE == VarDEPLOYMODE.LINKS_MULTIDIR ||
 				location.DEPLOYTYPE == VarDEPLOYMODE.LINKS_SINGLEDIR ) {
 				String deployName = deployBaseName + item.EXT;
@@ -505,19 +505,19 @@ public class RedistStorage extends ServerStorage {
 	}
 
 	private String getVersionItem( ActionBase action , MetaDistrBinaryItem item , String deployBaseName , String version ) throws Exception {
-		if( item.DEPLOYVERSION == VarITEMVERSION.NONE || item.DEPLOYVERSION == VarITEMVERSION.IGNORE )
+		if( item.deployVersion == VarITEMVERSION.NONE || item.deployVersion == VarITEMVERSION.IGNORE )
 			return( deployBaseName + item.EXT );
 
-		if( item.DEPLOYVERSION == VarITEMVERSION.PREFIX )
+		if( item.deployVersion == VarITEMVERSION.PREFIX )
 			return( version + "-" + deployBaseName + item.EXT );
 
-		if( item.DEPLOYVERSION == VarITEMVERSION.MIDDASH )
+		if( item.deployVersion == VarITEMVERSION.MIDDASH )
 			return( deployBaseName + "-" + version + item.EXT );
 
-		if( item.DEPLOYVERSION == VarITEMVERSION.MIDPOUND )
+		if( item.deployVersion == VarITEMVERSION.MIDPOUND )
 			return( deployBaseName + "##" + version + item.EXT );
 
-		String name = Common.getEnumLower( item.DEPLOYVERSION );
+		String name = Common.getEnumLower( item.deployVersion );
 		action.exit1( _Error.UnknownVersionType1 , "getVersionItem: unknown version type=" + name , name );
 		return( null );
 	}
