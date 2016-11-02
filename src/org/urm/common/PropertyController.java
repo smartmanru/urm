@@ -159,8 +159,8 @@ public abstract class PropertyController extends ServerObject {
 	}
 
 	protected void updateProperties( ActionBase action ) throws Exception {
-		finishProperties( action );
 		scatterProperties( action );
+		finishProperties( action );
 	}
 	
 	protected void updateProperties( ServerTransaction transaction , PropertySet props , boolean system ) throws Exception {

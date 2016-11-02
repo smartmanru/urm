@@ -41,6 +41,7 @@ public class ActionMonitorCheckEnv extends ActionBase implements ServerEventsLis
 		ActionScope scope = ActionScope.getEnvScope( action , env , dc , null );
 		
 		LocalFolder logsFolder = storage.getLogsFolder( action , target );
+		logsFolder.ensureExists( this );
 		String logRunning = logsFolder.getFilePath( action , storage.getCheckEnvRunningFile( target ) ); 
 		action.startRedirect( "checkenv log" , logRunning );
 

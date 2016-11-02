@@ -250,6 +250,8 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			if( systemSource != null )
 				finalState = ServerMonitoringState.addState( finalState , systemSource.data.state );
 		}
+		
+		appSource.setState( finalState );
 	}
 	
 }
