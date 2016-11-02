@@ -16,6 +16,7 @@ import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvDC;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.MetaMonitoringTarget;
 
 public class ServerMonitoringProduct implements Runnable , ServerEventsListener {
 
@@ -67,12 +68,12 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			ScopeState state = ( ScopeState )event.data;
 			MetaEnvServer server = state.target.envServer;
-			ServerMonitoringSource nodeSource = monitoring.getObjectSource( server );
-			if( nodeSource == null )
+			ServerMonitoringSource serverSource = monitoring.getObjectSource( server );
+			if( serverSource == null )
 				return;
 			
 			ServerStatus status = ( ServerStatus )state;
-			processServerEvent( source , nodeSource , server , status );
+			processServerEvent( source , serverSource , server , status );
 			return;
 		}
 		
@@ -86,6 +87,16 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			
 			NodeStatus status = ( NodeStatus )state;
 			processNodeEvent( source , nodeSource , node , status );
+			return;
+		}
+		
+		if( event.eventType == ServerMonitoring.EVENT_MONITORGRAPHCHANGED ) {
+			MetaMonitoringTarget target = ( MetaMonitoringTarget )event.data;
+			ServerMonitoringSource dcSource = monitoring.findTargetSource( target );
+			if( dcSource == null )
+				return;
+			
+			dcSource.customEvent( ServerMonitoring.EVENT_MONITORGRAPHCHANGED , target );
 			return;
 		}
 	}

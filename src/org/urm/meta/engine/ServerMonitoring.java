@@ -57,6 +57,7 @@ public class ServerMonitoring extends ServerObject {
 	ServerEventsApp eventsApp;
 	public static int EVENT_MONITORSTATECHANGED = 11;
 	public static int EVENT_MONITORCHILDCHANGED = 12;
+	public static int EVENT_MONITORGRAPHCHANGED = 13;
 	public static int EVENT_MONITORING_SERVER = 51;
 	public static int EVENT_MONITORING_NODE = 52;
 	
@@ -419,6 +420,16 @@ public class ServerMonitoring extends ServerObject {
 	}
 	
 	public void modifyTarget( ServerTransaction transaction , MetaMonitoringTarget target ) throws Exception {
+	}
+
+	public ServerMonitoringSource findTargetSource( MetaMonitoringTarget target ) {
+		MetaEnv env = target.meta.findEnv( target.ENV );
+		if( env == null )
+			return( null );
+		MetaEnvDC dc = env.findDC( target.DC );
+		if( dc == null)
+			return( null );
+		return( getObjectSource( dc ) );
 	}
 	
 }

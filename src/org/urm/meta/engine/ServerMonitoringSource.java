@@ -70,5 +70,9 @@ public class ServerMonitoringSource extends ServerEventsSource {
 	public String[] getLog() {
 		return( log );
 	}
+
+	public void customEvent( int eventType , Object data ) {
+		super.trigger( eventType , data );
+	}
 	
 }

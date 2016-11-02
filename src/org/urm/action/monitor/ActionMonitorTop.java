@@ -108,6 +108,12 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 				continue;
 			}
 			
+			// create graphs
+			for( MetaMonitoringTarget target : mon.getTargets( this ).values() ) {
+				info.addHistoryGraph( target );
+				super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORGRAPHCHANGED , target );
+			}
+			
 			// calculate sleep and next action
 			long nextMinor = 0;
 			nextMinor = lastStartMinor + mon.MINORINTERVAL * 1000;

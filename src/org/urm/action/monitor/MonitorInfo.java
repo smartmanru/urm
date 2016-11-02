@@ -27,6 +27,7 @@ public class MonitorInfo {
 
 	RrdDb rrdDb;
 	boolean rrdDbFail;
+	String F_RRDFILE;
 	
 	public MonitorInfo( ActionBase action , MonitoringStorage storage ) {
 		this.action = action;
@@ -66,24 +67,32 @@ public class MonitorInfo {
 				", succeeded:" + Common.getBooleanValue( status ) );
 		MonitorTargetInfo info = getTargetInfo( target );
 		info.setLastMinor( status );
+	}
+
+	public void addHistoryGraph( MetaMonitoringTarget target ) throws Exception {
+		MonitorTargetInfo info = getTargetInfo( target );
 		
 		// add to totals, update reports
 		addRrdRecord( info );
 		createHistoryGraph( info );
 		updateReport( info );
 	}
-
+	
 	private RrdGraph createHistoryGraph( MonitorTargetInfo info ) throws Exception {
 		if( rrdDbFail )
 			return( null );
 		
 		MetaMonitoringTarget target = info.target;
 		
-		LocalFolder dataFolder = storage.getDataFolder( action , info.target );  
-		String rrdfile = dataFolder.getFilePath( action , storage.getRrdFile( target ) );
+		LocalFolder dataFolder = storage.getDataFolder( action , info.target );
+		String relativeDataFile = storage.getRrdFile( target );
+		dataFolder.ensureFolderExists( action , Common.getDirName( relativeDataFile ) );
+		String rrdfile = action.getLocalPath( dataFolder.getFilePath( action , relativeDataFile ) );
 		
 		LocalFolder reportsFolder = storage.getReportsFolder( action , target );
-		String F_CREATEFILE = reportsFolder.getFilePath( action , storage.getHistoryImageFile( target ) );
+		String relativeReportFile = storage.getHistoryImageFile( target );
+		reportsFolder.ensureFolderExists( action , Common.getDirName( relativeReportFile ) );
+		String F_CREATEFILE = action.getLocalPath( reportsFolder.getFilePath( action , relativeReportFile ) );
 		
 		/*
 		 * OLD COMMAND SYNTAX
@@ -211,13 +220,29 @@ public class MonitorInfo {
 		rrdDb = new RrdDb( fname );
 	}
 
-	private void addRrdRecord( MonitorTargetInfo info ) throws Exception {
+	private boolean openRrdFile( MonitorTargetInfo info ) throws Exception {
 		if( rrdDbFail )
-			return;
-			
-		LocalFolder dataFolder = storage.getDataFolder( action , info.target );
+			return( false );
 		
-		String F_RRDFILE = dataFolder.getFilePath( action , storage.getRrdFile( info.target ) );
+		if( rrdDb == null ) {
+			LocalFolder dataFolder = storage.getDataFolder( action , info.target );
+			F_RRDFILE = dataFolder.getFilePath( action , storage.getRrdFile( info.target ) );
+			
+			rrdDbFail = true;
+			if( !action.shell.checkFileExists( action , F_RRDFILE ) )
+				createRrdFile( F_RRDFILE );
+			else
+				rrdDb = new RrdDb( F_RRDFILE );
+			rrdDbFail = false;
+		}
+		
+		return( true );
+	}
+	
+	private void addRrdRecord( MonitorTargetInfo info ) throws Exception {
+		if( !openRrdFile( info ) )
+			return;
+
 		String F_RRDFILE_LOG = F_RRDFILE + ".log"; 
 		
 		int F_STATUSTOTAL = 100;
@@ -237,15 +262,6 @@ public class MonitorInfo {
 			createRrdFile( F_RRDFILE );
 		 */
 
-		if( rrdDb == null ) {
-			rrdDbFail = true;
-			if( !action.shell.checkFileExists( action , F_RRDFILE ) )
-				createRrdFile( F_RRDFILE );
-			else
-				rrdDb = new RrdDb( F_RRDFILE );
-			rrdDbFail = false;
-		}
-		
 		action.shell.appendFileWithString( action , F_RRDFILE_LOG , 
 				"rrdtool update: " + Common.getTimeStamp( F_TS ) + "=" + X_TS + ":" + X_VALUES );
 		

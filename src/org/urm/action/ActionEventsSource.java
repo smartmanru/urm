@@ -42,4 +42,8 @@ public class ActionEventsSource extends ServerEventsSource {
 		return( rootState.scopeState.findTargetState( target ) );
 	}
 
+	public void customEvent( int eventType , Object data ) {
+		super.trigger( eventType , data );
+	}
+
 }
