@@ -15,7 +15,7 @@ import org.urm.meta.product.MetaEnvServerLocation;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.Meta.VarARCHIVETYPE;
 import org.urm.meta.product.Meta.VarCONTENTTYPE;
-import org.urm.meta.product.Meta.VarDEPLOYTYPE;
+import org.urm.meta.product.Meta.VarDEPLOYMODE;
 import org.urm.meta.product.Meta.VarDISTITEMTYPE;
 import org.urm.meta.product.Meta.VarITEMVERSION;
 
@@ -490,8 +490,8 @@ public class RedistStorage extends ServerStorage {
 
 	public String getDeployVersionedName( ActionBase action , MetaEnvServerLocation location , MetaDistrBinaryItem item , String deployBaseName , String RELEASEVER ) throws Exception {
 		if( item.DISTTYPE == VarDISTITEMTYPE.BINARY ) {
-			if( location.DEPLOYTYPE == VarDEPLOYTYPE.LINKS_MULTIDIR ||
-				location.DEPLOYTYPE == VarDEPLOYTYPE.LINKS_SINGLEDIR ) {
+			if( location.DEPLOYTYPE == VarDEPLOYMODE.LINKS_MULTIDIR ||
+				location.DEPLOYTYPE == VarDEPLOYMODE.LINKS_SINGLEDIR ) {
 				String deployName = deployBaseName + item.EXT;
 				return( deployName );
 			}

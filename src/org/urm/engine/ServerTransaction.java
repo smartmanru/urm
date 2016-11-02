@@ -1,5 +1,7 @@
 package org.urm.engine;
 
+import java.util.List;
+
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.ActionInit;
@@ -21,6 +23,7 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvDC;
 import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerDeployment;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaEnvStartInfo;
 import org.urm.meta.product.MetaMonitoring;
@@ -436,6 +439,11 @@ public class ServerTransaction extends TransactionBase {
 	public void setStartInfo( MetaEnvDC dc , MetaEnvStartInfo startInfo ) throws Exception {
 		checkTransactionMetadata( dc.meta.getStorage( action ) );
 		dc.setStartInfo( this , startInfo );
+	}
+
+	public void modifyServerDeployments( MetaEnvServer server , List<MetaEnvServerDeployment> deployments ) throws Exception {
+		checkTransactionMetadata( server.meta.getStorage( action ) );
+		server.setDeployments( this , deployments );
 	}
 	
 }

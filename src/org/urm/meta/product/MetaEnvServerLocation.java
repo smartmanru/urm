@@ -8,7 +8,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.meta.product.Meta.VarCONTENTTYPE;
-import org.urm.meta.product.Meta.VarDEPLOYTYPE;
+import org.urm.meta.product.Meta.VarDEPLOYMODE;
 
 public class MetaEnvServerLocation {
 
@@ -35,7 +35,7 @@ public class MetaEnvServerLocation {
 	Meta meta;
 	MetaEnvServer server;
 	
-	public VarDEPLOYTYPE DEPLOYTYPE;
+	public VarDEPLOYMODE DEPLOYTYPE;
 	public String DEPLOYPATH;
 	
 	public Map<String,String> deployNameMap;
@@ -43,7 +43,7 @@ public class MetaEnvServerLocation {
 	private List<ConfDeploymentPair> confItems;
 	private List<MetaEnvServerDeployment> deployments;
 	
-	public MetaEnvServerLocation( Meta meta , MetaEnvServer server , VarDEPLOYTYPE DEPLOYTYPE , String DEPLOYPATH ) {
+	public MetaEnvServerLocation( Meta meta , MetaEnvServer server , VarDEPLOYMODE DEPLOYTYPE , String DEPLOYPATH ) {
 		this.meta = meta;
 		this.server = server;
 		this.DEPLOYTYPE = DEPLOYTYPE;
@@ -96,10 +96,10 @@ public class MetaEnvServerLocation {
 
 	public VarCONTENTTYPE getContentType( ActionBase action , boolean binary ) throws Exception {
 		VarCONTENTTYPE contentType;
-		if( DEPLOYTYPE == VarDEPLOYTYPE.HOT )
+		if( DEPLOYTYPE == VarDEPLOYMODE.HOT )
 			contentType = ( binary )? VarCONTENTTYPE.BINARYHOTDEPLOY : VarCONTENTTYPE.CONFHOTDEPLOY;
 		else
-		if( DEPLOYTYPE == VarDEPLOYTYPE.COPYONLY )
+		if( DEPLOYTYPE == VarDEPLOYMODE.COPYONLY )
 			contentType = ( binary )? VarCONTENTTYPE.BINARYCOPYONLY : VarCONTENTTYPE.CONFCOPYONLY;
 		else
 			contentType = ( binary )? VarCONTENTTYPE.BINARYCOLDDEPLOY : VarCONTENTTYPE.CONFCOLDDEPLOY;

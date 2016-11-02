@@ -2,8 +2,9 @@ package org.urm.meta.product;
 
 import org.urm.action.ActionBase;
 import org.urm.common.PropertyController;
+import org.urm.engine.ServerTransaction;
 import org.urm.meta.product.Meta.VarDEPLOYITEMTYPE;
-import org.urm.meta.product.Meta.VarDEPLOYTYPE;
+import org.urm.meta.product.Meta.VarDEPLOYMODE;
 import org.urm.meta.product.Meta.VarNODETYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -24,7 +25,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 	public String SCHEMA;
 	public MetaDatabaseSchema schema;
 	
-	public VarDEPLOYTYPE DEPLOYTYPE;
+	public VarDEPLOYMODE deployMode;
 	public String DEPLOYPATH;
 	public VarNODETYPE nodeType;
 	
@@ -54,7 +55,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 		String value = super.getStringProperty( action , PROPERTY_DEPLOYTYPE );
 		if( value.isEmpty() )
 			value = "cold";
-		DEPLOYTYPE = Meta.getDeployType( value , false );
+		deployMode = Meta.getDeployMode( value , false );
 		DEPLOYPATH = super.getStringProperty( action , PROPERTY_DEPLOYPATH );
 		value = super.getStringProperty( action , PROPERTY_NODETYPE );
 		nodeType = Meta.getNodeType( value , VarNODETYPE.SELF );
@@ -108,6 +109,25 @@ public class MetaEnvServerDeployment extends PropertyController {
 		MetaDatabase database = meta.getDatabase( action ); 
 		if( !SCHEMA.isEmpty() )
 			schema = database.getSchema( action , SCHEMA );
+	}
+	
+	public void create( ServerTransaction transaction , VarDEPLOYITEMTYPE itemType , String itemName , VarNODETYPE nodeType , VarDEPLOYMODE deployMode , String deployPath ) throws Exception {
+		this.itemType = itemType;
+		if( itemType == VarDEPLOYITEMTYPE.COMP )
+			COMP = itemName;
+		else
+		if( itemType == VarDEPLOYITEMTYPE.BINARY )
+			DISTITEM = itemName;
+		else
+		if( itemType == VarDEPLOYITEMTYPE.CONF )
+			CONFITEM = itemName;
+		else
+		if( itemType == VarDEPLOYITEMTYPE.SCHEMA )
+			SCHEMA = itemName;
+		
+		this.deployMode = deployMode;
+		this.nodeType = nodeType;
+		this.DEPLOYPATH = deployPath;
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
@@ -170,16 +190,16 @@ public class MetaEnvServerDeployment extends PropertyController {
 		return( DEPLOYPATH );
 	}
 
-	public VarDEPLOYTYPE getDeployType( ActionBase action ) throws Exception {
-		return( DEPLOYTYPE );
+	public VarDEPLOYMODE getDeployType( ActionBase action ) throws Exception {
+		return( deployMode );
 	}
 
 	public boolean isManual() {
-		return( DEPLOYTYPE == VarDEPLOYTYPE.MANUAL );
+		return( deployMode == VarDEPLOYMODE.MANUAL );
 	}
 	
 	public MetaEnvServerLocation getLocation( ActionBase action ) throws Exception {
-		VarDEPLOYTYPE deployType = getDeployType( action );
+		VarDEPLOYMODE deployType = getDeployType( action );
 		String deployPath = getDeployPath( action );
 		return( new MetaEnvServerLocation( meta , server , deployType , deployPath ) );
 	}
@@ -188,7 +208,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 		if( nodeType == VarNODETYPE.ADMIN )
 			return( true );
 		
-		if( DEPLOYTYPE == VarDEPLOYTYPE.HOT ) {
+		if( deployMode == VarDEPLOYMODE.HOT ) {
 			if( nodeType == VarNODETYPE.UNKNOWN )
 				return( true );
 			return( false );
@@ -201,7 +221,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 		if( nodeType == VarNODETYPE.SLAVE )
 			return( true );
 		
-		if( DEPLOYTYPE != VarDEPLOYTYPE.HOT ) {
+		if( deployMode != VarDEPLOYMODE.HOT ) {
 			if( nodeType == VarNODETYPE.UNKNOWN )
 				return( true );
 			return( false );

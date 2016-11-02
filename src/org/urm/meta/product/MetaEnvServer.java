@@ -16,7 +16,7 @@ import org.urm.engine.shell.Account;
 import org.urm.meta.engine.ServerAccountReference;
 import org.urm.meta.engine.ServerHostAccount;
 import org.urm.meta.product.Meta.VarDBMSTYPE;
-import org.urm.meta.product.Meta.VarDEPLOYTYPE;
+import org.urm.meta.product.Meta.VarDEPLOYMODE;
 import org.urm.meta.product.Meta.VarSERVERACCESSTYPE;
 import org.urm.meta.product.Meta.VarSERVERRUNTYPE;
 import org.w3c.dom.Document;
@@ -548,7 +548,7 @@ public class MetaEnvServer extends PropertyController {
 		Map<String,MetaEnvServerLocation> locations = new HashMap<String,MetaEnvServerLocation>();
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			String deployPath = deployment.getDeployPath( action );
-			VarDEPLOYTYPE deployType = deployment.getDeployType( action );
+			VarDEPLOYMODE deployType = deployment.getDeployType( action );
 			String key = Common.getEnumLower( deployType ) + "-" + deployPath;
 			
 			if( deployment.binaryItem != null ) {
@@ -860,4 +860,14 @@ public class MetaEnvServer extends PropertyController {
 		scatterProperties( transaction.getAction() );
 	}
 
+	public void setDeployments( ServerTransaction transaction , List<MetaEnvServerDeployment> deploymentsNew ) throws Exception {
+		for( MetaEnvServerDeployment deployment : deployments )
+			deployment.deleteObject();
+		deployments.clear();
+		deployMap.clear();
+		
+		for( MetaEnvServerDeployment deployment : deploymentsNew )
+			addDeployment( deployment );
+	}
+	
 }

@@ -107,7 +107,7 @@ public class Meta extends ServerObject {
 		SLAVE
 	};
 	
-	public enum VarDEPLOYTYPE {
+	public enum VarDEPLOYMODE {
 		UNKNOWN ,
 		MANUAL , 
 		COLD , 
@@ -431,16 +431,16 @@ public class Meta extends ServerObject {
 		return( value );
 	}
 	
-	public static VarDEPLOYTYPE getDeployType( String ID , boolean required ) throws Exception {
+	public static VarDEPLOYMODE getDeployMode( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
 				Common.exit0( _Error.MissingDeployType0 , "missing deploy type" );
-			return( VarDEPLOYTYPE.UNKNOWN );
+			return( VarDEPLOYMODE.UNKNOWN );
 		}
 		
-		VarDEPLOYTYPE value = null;
+		VarDEPLOYMODE value = null;
 		try {
-			value = VarDEPLOYTYPE.valueOf( Common.xmlToEnumValue( ID ) );
+			value = VarDEPLOYMODE.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidDeployType1 , "invalid deploytype=" + ID , ID );
