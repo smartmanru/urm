@@ -145,7 +145,7 @@ public class MetaSource extends PropertyController {
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		properties.saveAsElements( doc , root );
+		super.saveAsElements( doc , root );
 		for( MetaSourceProjectSet set : originalList ) {
 			Element setElement = Common.xmlCreateElement( doc , root , "projectset" );
 			set.save( action , doc , setElement );

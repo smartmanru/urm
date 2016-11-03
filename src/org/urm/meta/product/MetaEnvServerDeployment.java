@@ -134,14 +134,14 @@ public class MetaEnvServerDeployment extends PropertyController {
 		if( !super.initCreateStarted( server.getProperties() ) )
 			return;
 
-		properties.loadFromNodeAttributes( node );
+		super.loadFromNodeAttributes( action , node );
 		scatterProperties( action );
 		
 		super.initFinished();
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		properties.saveSplit( doc , root );
+		super.saveSplit( doc , root );
 	}
 	
 	public boolean hasConfItemDeployment( ActionBase action , MetaDistrConfItem p_confItem ) throws Exception {

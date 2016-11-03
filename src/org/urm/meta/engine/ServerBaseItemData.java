@@ -133,7 +133,7 @@ public class ServerBaseItemData extends PropertyController {
 		if( !super.initCreateStarted( parent ) )
 			return;
 
-		properties.loadFromNodeAttributes( root );
+		super.loadFromNodeAttributes( action , root );
 		scatterProperties( action );
 		
 		loadCompatibility( action , root );

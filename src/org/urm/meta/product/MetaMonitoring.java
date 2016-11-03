@@ -112,7 +112,7 @@ public class MetaMonitoring extends PropertyController {
 		if( !super.initCreateStarted( product.getProperties() ) )
 			return;
 
-		properties.loadFromNodeElements( root );
+		super.loadFromNodeElements( action , root );
 		
 		scatterProperties( action );
 		super.finishProperties( action );
@@ -151,7 +151,7 @@ public class MetaMonitoring extends PropertyController {
 			ENABLED = false;
 		}
 		
-		properties.saveAsElements( doc , root );
+		super.saveAsElements( doc , root );
 		
 		Element scope = Common.xmlCreateElement( doc , root , "scope" );
 		for( MetaMonitoringTarget target : mapTargets.values() ) {
@@ -210,7 +210,7 @@ public class MetaMonitoring extends PropertyController {
 	}
 	
 	public void setProductProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
-		properties.updateProperties( props );
+		super.updateProperties( props );
 		setMonitoringEnabled( transaction , false );
 		scatterProperties( transaction.getAction() );
 	}

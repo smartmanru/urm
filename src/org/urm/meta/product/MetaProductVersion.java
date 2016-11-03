@@ -107,14 +107,14 @@ public class MetaProductVersion extends PropertyController {
 		if( !super.initCreateStarted( null ) )
 			return;
 
-		properties.loadFromNodeElements( root );
+		super.loadFromNodeElements( action , root );
 		scatterProperties( action );
 		
 		super.initFinished();
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		properties.saveAsElements( doc , root );
+		super.saveAsElements( doc , root );
 	}
 
 }

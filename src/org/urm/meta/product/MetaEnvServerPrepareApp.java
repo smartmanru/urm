@@ -30,8 +30,8 @@ public class MetaEnvServerPrepareApp extends PropertyController {
 	
 	@Override
 	public void scatterProperties( ActionBase action ) throws Exception {
-		APP = properties.getSystemRequiredStringProperty( PROPERTY_APP );
-		properties.finishRawProperties();
+		APP = super.getStringPropertyRequired( action , PROPERTY_APP );
+		super.finishRawProperties();
 	}
 
 	public MetaEnvServerPrepareApp copy( ActionBase action , Meta meta , MetaEnvServerBase base ) throws Exception {
@@ -50,14 +50,14 @@ public class MetaEnvServerPrepareApp extends PropertyController {
 		if( !super.initCreateStarted( base.getProperties() ) )
 			return;
 
-		properties.loadFromNodeAttributes( node );
+		super.loadFromNodeAttributes( action , node );
 		scatterProperties( action );
-		properties.loadFromNodeElements( node );
-		properties.resolveRawProperties();
+		super.loadFromNodeElements( action , node );
+		super.resolveRawProperties();
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		properties.saveSplit( doc , root );
+		super.saveSplit( doc , root );
 	}
 
 }

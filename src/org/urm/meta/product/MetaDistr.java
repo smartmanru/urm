@@ -72,7 +72,6 @@ public class MetaDistr extends PropertyController {
 		}
 		
 		r.resolveReferences( action );
-		
 		r.initFinished();
 		return( r );
 	}
@@ -136,7 +135,7 @@ public class MetaDistr extends PropertyController {
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		properties.saveAsElements( doc , root );
+		super.saveAsElements( doc , root );
 		saveDeliveries( action , doc , root );
 		saveComponents( action , doc , root );
 	}

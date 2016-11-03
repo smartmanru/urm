@@ -3,7 +3,12 @@ package org.urm.common;
 import org.urm.action.ActionBase;
 import org.urm.common.action.CommandVar.FLAG;
 import org.urm.engine.ServerTransaction;
+import org.urm.engine.shell.Account;
+import org.urm.engine.shell.ShellExecutor;
 import org.urm.meta.ServerObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public abstract class PropertyController extends ServerObject {
 
@@ -11,7 +16,7 @@ public abstract class PropertyController extends ServerObject {
 	
 	private boolean loadFailed;
 	private boolean loadFinished;
-	protected PropertySet properties;
+	private PropertySet properties;
 
 	abstract public boolean isValid();
 	abstract public void scatterProperties( ActionBase action ) throws Exception;
@@ -158,6 +163,34 @@ public abstract class PropertyController extends ServerObject {
 		}
 	}
 
+	protected void finishRawProperties() throws Exception {
+		properties.finishRawProperties();
+		if( properties.isCorrect() )
+			loadFailed = false;
+	}
+	
+	protected void resolveRawProperties() throws Exception {
+		properties.resolveRawProperties();
+		if( properties.isCorrect() )
+			loadFailed = false;
+	}
+	
+	protected void updateProperties( PropertySet props ) throws Exception {
+		properties.updateProperties( props );
+		if( properties.isCorrect() )
+			loadFailed = false;
+	}
+	
+	protected void recalculateProperties() throws Exception {
+		properties.recalculateProperties();
+		if( properties.isCorrect() )
+			loadFailed = false;
+	}
+	
+	protected void copyOriginalPropertiesToRaw( PropertySet src ) throws Exception {
+		properties.copyOriginalPropertiesToRaw( src );
+	}
+	
 	protected void updateProperties( ActionBase action ) throws Exception {
 		scatterProperties( action );
 		finishProperties( action );
@@ -184,12 +217,20 @@ public abstract class PropertyController extends ServerObject {
 		properties.setOriginalSystemStringProperty( prop , value );
 	}
 
+	public void setManualStringProperty( String prop , String value ) throws Exception {
+		properties.setManualStringProperty( prop , value );
+	}
+
 	public void setNumberProperty( String prop , int value ) throws Exception {
 		properties.setOriginalNumberProperty( prop , value );
 	}
 
 	public void setSystemNumberProperty( String prop , int value ) throws Exception {
 		properties.setOriginalSystemNumberProperty( prop , value );
+	}
+
+	public void setManualNumberProperty( String prop , int value ) throws Exception {
+		properties.setManualNumberProperty( prop , value );
 	}
 
 	public void setBooleanProperty( String prop , boolean value ) throws Exception {
@@ -200,12 +241,20 @@ public abstract class PropertyController extends ServerObject {
 		properties.setOriginalSystemBooleanProperty( prop , value );
 	}
 
+	public void setManualBooleanProperty( String prop , boolean value ) throws Exception {
+		properties.setManualBooleanProperty( prop , value );
+	}
+
 	public void setUrlProperty( String prop , String value ) throws Exception {
 		properties.setOriginalStringProperty( prop , value );
 	}
 
 	public void setSystemUrlProperty( String prop , String value ) throws Exception {
 		properties.setOriginalSystemStringProperty( prop , value );
+	}
+
+	public void setManualUrlProperty( String prop , String value ) throws Exception {
+		properties.setManualStringProperty( prop , value );
 	}
 
 	public void setPathProperty( String prop , String value ) throws Exception {
@@ -216,4 +265,48 @@ public abstract class PropertyController extends ServerObject {
 		properties.setOriginalSystemPathProperty( prop , value , null );
 	}
 
+	public void setManualPathProperty( String prop , String value , ShellExecutor shell ) throws Exception {
+		properties.setManualPathProperty( prop , value , shell );
+	}
+
+	public String[] getPropertyList() {
+		return( properties.getRunningProperties() );
+	}
+
+	public String getPropertyValue( ActionBase action , String var ) throws Exception {
+		return( properties.getPropertyAny( var ) );
+	}
+
+	protected void loadFromNodeAttributes( ActionBase action , Node root ) {
+		try {
+			properties.loadFromNodeAttributes( root );
+		}
+		catch( Throwable e ) {
+			action.log( "loadFromNodeAttributes" , e );
+			loadFailed = true;
+		}
+	}
+
+	protected void loadFromNodeElements( ActionBase action , Node root ) {
+		try {
+			properties.loadFromNodeElements( root );
+		}
+		catch( Throwable e ) {
+			action.log( "loadFromNodeElements" , e );
+			loadFailed = true;
+		}
+	}
+
+	protected void saveAsElements( Document doc , Element root ) throws Exception {
+		properties.saveAsElements( doc , root );
+	}
+
+	public void saveSplit( Document doc , Element root ) throws Exception {
+		properties.saveSplit( doc , root );
+	}
+
+	public String getFinalProperty( String name , Account account , boolean allowParent , boolean allowUnresolved ) throws Exception {
+		return( properties.getFinalProperty( name , account , allowParent , allowUnresolved ) );		
+	}
+	
 }

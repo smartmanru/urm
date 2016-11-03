@@ -67,7 +67,7 @@ public class MetaEnvDC extends PropertyController {
 			BASELINE = NAME;
 		OFFLINE = super.getBooleanProperty( action , PROPERTY_OFFLINE , true );
 		
-		properties.finishRawProperties();
+		super.finishRawProperties();
 	}
 	
 	public MetaEnvDC copy( ActionBase action , Meta meta , MetaEnv env ) throws Exception {
@@ -107,12 +107,12 @@ public class MetaEnvDC extends PropertyController {
 		if( !super.initCreateStarted( env.getProperties() ) )
 			return;
 
-		properties.loadFromNodeAttributes( node );
+		super.loadFromNodeAttributes( action , node );
 		scatterProperties( action );
 		
 		if( loadProps ) {
-			properties.loadFromNodeElements( node );
-			properties.resolveRawProperties();
+			super.loadFromNodeElements( action , node );
+			super.resolveRawProperties();
 		}
 		
 		loadServers( action , node , loadProps );
@@ -122,14 +122,6 @@ public class MetaEnvDC extends PropertyController {
 		super.initFinished();
 	}
 
-	public String[] getPropertyList( ActionBase action ) throws Exception {
-		return( properties.getRunningProperties() );
-	}
-
-	public String getPropertyValue( ActionBase action , String var ) throws Exception {
-		return( properties.getPropertyAny( var ) );
-	}
-	
 	public void loadDeployment( ActionBase action , Node node ) throws Exception {
 		deploy = new MetaEnvDeployment( meta , this );
 		
@@ -231,7 +223,7 @@ public class MetaEnvDC extends PropertyController {
 		Element startElement = Common.xmlCreateElement( doc , root , ELEMENT_STARTORDER );
 		startInfo.save( action , doc , startElement );
 		
-		properties.saveSplit( doc , root );
+		super.saveSplit( doc , root );
 		for( MetaEnvServer server : originalList ) {
 			Element serverElement = Common.xmlCreateElement( doc , root , ELEMENT_SERVER );
 			server.save( action , doc , serverElement );
@@ -281,11 +273,11 @@ public class MetaEnvDC extends PropertyController {
 	}
 	
 	public void setBaseline( ServerTransaction transaction , String baselineDC ) throws Exception {
-		properties.setStringProperty( PROPERTY_BASELINE , baselineDC );
+		super.setSystemStringProperty( PROPERTY_BASELINE , baselineDC );
 	}
 	
 	public void setOffline( ServerTransaction transaction , boolean offline ) throws Exception {
-		properties.setBooleanProperty( PROPERTY_OFFLINE , offline );
+		super.setSystemBooleanProperty( PROPERTY_OFFLINE , offline );
 	}
 	
 	public boolean isOffline() {

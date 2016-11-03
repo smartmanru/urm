@@ -61,7 +61,7 @@ public class MetaEnvServerNode extends PropertyController {
 		OFFLINE = super.getBooleanProperty( action , PROPERTY_OFFLINE );
 		DBSTANDBY = super.getBooleanProperty( action , PROPERTY_DBSTANDBY );
 		
-		properties.finishRawProperties();
+		super.finishRawProperties();
 	}
 
 	public MetaEnvServerNode copy( ActionBase action , Meta meta , MetaEnvServer server ) throws Exception {
@@ -84,12 +84,12 @@ public class MetaEnvServerNode extends PropertyController {
 		if( !super.initCreateStarted( server.getProperties() ) )
 			return;
 
-		properties.loadFromNodeAttributes( node );
+		super.loadFromNodeAttributes( action , node );
 		scatterProperties( action );
 		
 		if( loadProps ) {
-			properties.loadFromNodeElements( node );
-			properties.resolveRawProperties();
+			super.loadFromNodeElements( action , node );
+			super.resolveRawProperties();
 		}
 	}
 	
@@ -127,7 +127,7 @@ public class MetaEnvServerNode extends PropertyController {
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		properties.saveSplit( doc , root );
+		super.saveSplit( doc , root );
 	}
 	
 	public void createNode( ActionBase action , VarNODETYPE nodeType , Account account ) throws Exception {
@@ -155,7 +155,7 @@ public class MetaEnvServerNode extends PropertyController {
 	}
 	
 	public void setOffline( ServerTransaction transaction , boolean offline ) throws Exception {
-		properties.setBooleanProperty( PROPERTY_OFFLINE , offline );
+		super.setSystemBooleanProperty( PROPERTY_OFFLINE , offline );
 		scatterProperties( transaction.action );
 	}
 

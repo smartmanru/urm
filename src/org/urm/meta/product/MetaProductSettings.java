@@ -133,7 +133,7 @@ public class MetaProductSettings extends PropertyController {
 		r.CONFIG_VERSION_BRANCH_NEXTMINOR = CONFIG_VERSION_BRANCH_NEXTMINOR;
 		
 		if( buildCommon != null )
-			r.buildCommon = buildCommon.copy( action , meta , r , r.properties ); 
+			r.buildCommon = buildCommon.copy( action , meta , r , r.getProperties() ); 
 		for( VarBUILDMODE mode : buildModes.keySet() ) {
 			MetaProductBuildSettings modeSet = buildModes.get( mode );
 			r.buildModes.put( mode , modeSet.copy( action , meta , r , r.buildCommon.getProperties() ) );
@@ -151,12 +151,12 @@ public class MetaProductSettings extends PropertyController {
 
 		// create initial
 		setContextProperties( transaction.action , productContext );
-		properties.copyOriginalPropertiesToRaw( settings.getDefaultProductProperties() );
+		super.copyOriginalPropertiesToRaw( settings.getDefaultProductProperties() );
 		super.updateProperties( transaction.action );
 		
 		// build
 		buildCommon = new MetaProductBuildSettings( "build.common" , meta , this );
-		buildCommon.createSettings( transaction , settings.getDefaultProductBuildProperties() , properties );
+		buildCommon.createSettings( transaction , settings.getDefaultProductBuildProperties() , super.getProperties() );
 		for( VarBUILDMODE mode : VarBUILDMODE.values() ) {
 			if( mode == VarBUILDMODE.UNKNOWN )
 				continue;
@@ -177,13 +177,13 @@ public class MetaProductSettings extends PropertyController {
 
 		setContextProperties( action , productContext );
 		
-		properties.loadFromNodeElements( root );
+		super.loadFromNodeElements( action , root );
 		super.updateProperties( action );
 
 		buildCommon = new MetaProductBuildSettings( "build" , meta , this );
 		Node build = ConfReader.xmlGetFirstChild( root , "build" );
 		if( build != null ) {
-			buildCommon.load( action , build , properties );
+			buildCommon.load( action , build , super.getProperties() );
 			Node[] items = ConfReader.xmlGetChildren( build , "mode" );
 			if( items != null ) {
 				for( Node node : items ) {
@@ -201,7 +201,7 @@ public class MetaProductSettings extends PropertyController {
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		properties.saveAsElements( doc , root );
+		super.saveAsElements( doc , root );
 		
 		Element buildElement = Common.xmlCreateElement( doc , root , "build" );
 		buildCommon.save( action , doc , buildElement );
@@ -219,10 +219,10 @@ public class MetaProductSettings extends PropertyController {
 		Map<String,String> map = new HashMap<String,String>();
 		String prefix = "export.";
 		
-		for( String var : properties.getRunningProperties() ) {
+		for( String var : super.getPropertyList() ) {
 			String name = ( String )var;
 			if( name.startsWith( prefix ) ) {
-				String value = properties.getFinalProperty( name , action.shell.account , true , false );
+				String value = super.getFinalProperty( name , action.shell.account , true , false );
 				if( value != null )
 					map.put( name.substring( prefix.length() ) , value );
 			}
@@ -242,16 +242,16 @@ public class MetaProductSettings extends PropertyController {
 		CONFIG_VERSION_BRANCH_NEXTMAJOR = productContext.CONFIG_VERSION_BRANCH_NEXTMAJOR;
 		CONFIG_VERSION_BRANCH_NEXTMINOR = productContext.CONFIG_VERSION_BRANCH_NEXTMINOR;
 		
-		properties.setStringProperty( PROPERTY_PRODUCT_NAME , CONFIG_PRODUCT );
-		properties.setPathProperty( PROPERTY_PRODUCT_HOME , CONFIG_PRODUCTHOME , action.shell );
+		super.setManualStringProperty( PROPERTY_PRODUCT_NAME , CONFIG_PRODUCT );
+		super.setManualPathProperty( PROPERTY_PRODUCT_HOME , CONFIG_PRODUCTHOME , action.shell );
 		
-		properties.setNumberProperty( MetaProductVersion.PROPERTY_MAJOR_FIRST , CONFIG_VERSION_BRANCH_MAJOR );
-		properties.setNumberProperty( MetaProductVersion.PROPERTY_MAJOR_LAST , CONFIG_VERSION_BRANCH_MINOR );
-		properties.setNumberProperty( MetaProductVersion.PROPERTY_NEXT_MAJOR_FIRST , CONFIG_VERSION_BRANCH_NEXTMAJOR );
-		properties.setNumberProperty( MetaProductVersion.PROPERTY_NEXT_MAJOR_LAST , CONFIG_VERSION_BRANCH_NEXTMINOR );
-		properties.setNumberProperty( MetaProductVersion.PROPERTY_PROD_LASTTAG , CONFIG_LASTPRODTAG );
-		properties.setNumberProperty( MetaProductVersion.PROPERTY_PROD_NEXTTAG , CONFIG_NEXTPRODTAG );
-		properties.recalculateProperties();
+		super.setManualNumberProperty( MetaProductVersion.PROPERTY_MAJOR_FIRST , CONFIG_VERSION_BRANCH_MAJOR );
+		super.setManualNumberProperty( MetaProductVersion.PROPERTY_MAJOR_LAST , CONFIG_VERSION_BRANCH_MINOR );
+		super.setManualNumberProperty( MetaProductVersion.PROPERTY_NEXT_MAJOR_FIRST , CONFIG_VERSION_BRANCH_NEXTMAJOR );
+		super.setManualNumberProperty( MetaProductVersion.PROPERTY_NEXT_MAJOR_LAST , CONFIG_VERSION_BRANCH_NEXTMINOR );
+		super.setManualNumberProperty( MetaProductVersion.PROPERTY_PROD_LASTTAG , CONFIG_LASTPRODTAG );
+		super.setManualNumberProperty( MetaProductVersion.PROPERTY_PROD_NEXTTAG , CONFIG_NEXTPRODTAG );
+		super.recalculateProperties();
 	}
 
 	public MetaProductBuildSettings getBuildCommonSettings( ActionBase action ) throws Exception {
@@ -273,10 +273,6 @@ public class MetaProductSettings extends PropertyController {
 		return( getBuildModeSettings( action , action.context.buildMode ) );
 	}
     
-	public String getPropertyAny( ActionBase action , String name ) throws Exception {
-		return( properties.getPropertyAny( name ) );
-	}
-	
 	public void setProperties( ServerTransaction transaction , PropertySet props , boolean system ) throws Exception {
 		super.updateProperties( transaction , props , system );
 	}

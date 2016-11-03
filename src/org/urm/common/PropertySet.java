@@ -302,6 +302,30 @@ public class PropertySet {
 		return( pv );
 	}
 	
+	public void setManualStringProperty( String prop , String value ) throws Exception {
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null );
+		pv.setString( value );
+		setProperty( pv );
+	}
+	
+	public void setManualNumberProperty( String prop , int value ) throws Exception {
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null );
+		pv.setNumber( value );
+		setProperty( pv );
+	}
+	
+	public void setManualBooleanProperty( String prop , boolean value ) throws Exception {
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null );
+		pv.setBool( value );
+		setProperty( pv );
+	}
+	
+	public void setManualPathProperty( String prop , String value , ShellExecutor shell ) throws Exception {
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null );
+		pv.setPath( value , shell );
+		setProperty( pv );
+	}
+	
 	public void setStringProperty( String prop , String value ) throws Exception {
 		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
 		pv.setString( value );

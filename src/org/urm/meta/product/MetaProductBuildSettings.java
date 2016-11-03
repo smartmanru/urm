@@ -138,7 +138,7 @@ public class MetaProductBuildSettings extends PropertyController {
 			return;
 
 		if( src != null )
-			properties.copyOriginalPropertiesToRaw( src );
+			super.copyOriginalPropertiesToRaw( src );
 		
 		super.updateProperties( transaction.action );
 		super.initFinished();
@@ -157,13 +157,13 @@ public class MetaProductBuildSettings extends PropertyController {
 		if( !initCreateStarted( parent ) )
 			return;
 
-		properties.loadFromNodeElements( root );
+		super.loadFromNodeElements( action , root );
 		super.updateProperties( action );
 		super.initFinished();
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		properties.saveAsElements( doc , root );
+		super.saveAsElements( doc , root );
 	}
 
 	public void setProperties( ServerTransaction transaction , PropertySet props ) throws Exception {

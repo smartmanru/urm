@@ -47,7 +47,7 @@ public class ActionConfCheck extends ActionBase {
 
 	private void executeEnv( ActionScope scope ) throws Exception {
 		// read env properties...
-		String[] S_CONFCHECK_PROPLIST_ENV = context.env.getPropertyList( this );
+		String[] S_CONFCHECK_PROPLIST_ENV = context.env.getPropertyList();
 
 		if( !isExecute() ) {
 			// show values
@@ -71,7 +71,7 @@ public class ActionConfCheck extends ActionBase {
 
 	private void executeDC( MetaEnvDC dc ) throws Exception {
 		// echo read data center=$DC properties...
-		String[] S_CONFCHECK_PROPLIST_DC = dc.getPropertyList( this );
+		String[] S_CONFCHECK_PROPLIST_DC = dc.getPropertyList();
 
 		if( !isExecute() ) {
 			// show values
@@ -95,7 +95,7 @@ public class ActionConfCheck extends ActionBase {
 
 	private void executeServer( MetaEnvServer server ) throws Exception {
 		// echo read server properties...
-		String[] S_CONFCHECK_PROPLIST_SERVER = server.getPropertyList( this );
+		String[] S_CONFCHECK_PROPLIST_SERVER = server.getPropertyList();
 
 		if( !isExecute() ) {
 			// show values
@@ -120,17 +120,17 @@ public class ActionConfCheck extends ActionBase {
 	}
 
 	private void checkConfServer( MetaEnvServer server , MetaEnvServer baseline , String[] propList ) throws Exception {
-		String[] F_CONFCHECK_PROPLIST = baseline.getPropertyList( this ); 
+		String[] F_CONFCHECK_PROPLIST = baseline.getPropertyList(); 
 		checkLists( "dc=" + server.dc.NAME + " server=" + server.NAME , propList , F_CONFCHECK_PROPLIST );
 	}
 
 	private void checkConfDC( MetaEnvDC dc , MetaEnvDC baseline , String[] propList ) throws Exception {
-		String[] F_CONFCHECK_PROPLIST = baseline.getPropertyList( this ); 
+		String[] F_CONFCHECK_PROPLIST = baseline.getPropertyList(); 
 		checkLists( "dc=" + dc.NAME , propList , F_CONFCHECK_PROPLIST );
 	}
 
 	private void checkConfEnv( MetaEnv env , MetaEnv baseline , String[] propList ) throws Exception {
-		String[] F_CONFCHECK_PROPLIST = baseline.getPropertyList( this ); 
+		String[] F_CONFCHECK_PROPLIST = baseline.getPropertyList(); 
 		checkLists( "environment" , propList , F_CONFCHECK_PROPLIST );
 	}
 

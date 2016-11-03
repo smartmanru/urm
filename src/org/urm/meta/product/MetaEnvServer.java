@@ -145,10 +145,10 @@ public class MetaEnvServer extends PropertyController {
 	
 	@Override
 	public void scatterProperties( ActionBase action ) throws Exception {
-		NAME = properties.getSystemRequiredStringProperty( PROPERTY_NAME );
+		NAME = super.getStringPropertyRequired( action , PROPERTY_NAME );
 		action.trace( "load properties of server=" + NAME );
 		
-		DESC = properties.getSystemStringProperty( PROPERTY_DESC );
+		DESC = super.getStringProperty( action , PROPERTY_DESC );
 		BASELINE = super.getStringProperty( action , PROPERTY_BASELINE ); 
 		if( BASELINE.equals( "default" ) )
 			BASELINE = NAME;
@@ -203,7 +203,7 @@ public class MetaEnvServer extends PropertyController {
 				admSchema = database.getSchema( action , ADMSCHEMA );
 		}
 
-		properties.finishRawProperties();
+		super.finishRawProperties();
 	}
 	
 	public boolean isBroken() {
@@ -263,12 +263,12 @@ public class MetaEnvServer extends PropertyController {
 
 		loadDeployments( action , node );
 		
-		properties.loadFromNodeAttributes( node );
+		super.loadFromNodeAttributes( action , node );
 		scatterProperties( action );
 		
 		if( loadProps ) {
-			properties.loadFromNodeElements( node );
-			properties.resolveRawProperties();
+			super.loadFromNodeElements( action , node );
+			super.resolveRawProperties();
 		}
 
 		loadNodes( action , node , loadProps );
@@ -277,14 +277,6 @@ public class MetaEnvServer extends PropertyController {
 		super.initFinished();
 	}
 
-	public String[] getPropertyList( ActionBase action ) throws Exception {
-		return( properties.getRunningProperties() );
-	}
-	
-	public String getPropertyValue( ActionBase action , String var ) throws Exception {
-		return( properties.getPropertyAny( var ) );
-	}
-	
 	public void resolveLinks( ActionBase action ) throws Exception {
 		if( NLBSERVER != null && !NLBSERVER.isEmpty() )
 			nlbServer = dc.getServer( action , NLBSERVER );
@@ -730,7 +722,7 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		properties.saveSplit( doc , root );
+		super.saveSplit( doc , root );
 		
 		if( basesw != null ) {
 			Element baseElement = Common.xmlCreateElement( doc , root , ELEMENT_BASE );
@@ -779,7 +771,7 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	public void setBaseline( ServerTransaction transaction , String baselineServer ) throws Exception {
-		properties.setStringProperty( PROPERTY_BASELINE , baselineServer );
+		super.setSystemStringProperty( PROPERTY_BASELINE , baselineServer );
 	}
 	
 	public void setOffline( ServerTransaction transaction , boolean offline ) throws Exception {
@@ -794,7 +786,7 @@ public class MetaEnvServer extends PropertyController {
 			}
 		}
 		
-		properties.setBooleanProperty( PROPERTY_OFFLINE , offline );
+		super.setSystemBooleanProperty( PROPERTY_OFFLINE , offline );
 	}
 
 	public void createNode( ServerTransaction transaction , MetaEnvServerNode node ) {

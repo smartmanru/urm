@@ -99,8 +99,8 @@ public class MetaEnv extends PropertyController {
 	
 	@Override
 	public void scatterProperties( ActionBase action ) throws Exception {
-		ID = properties.getSystemRequiredStringProperty( PROPERTY_ID );
-		action.trace( "load properties of env=" + ID );
+		ID = super.getStringPropertyRequired( action , PROPERTY_ID );
+		action.trace( "load properties of env=" + ID + " ..." );
 		
 		MetaProductSettings product = meta.getProductSettings( action );
 		BASELINE = super.getStringProperty( action , PROPERTY_BASELINE );
@@ -128,7 +128,7 @@ public class MetaEnv extends PropertyController {
 		BACKUP = super.getOptionProperty( action , PROPERTY_BACKUP );
 		CONF_DEPLOY = super.getOptionProperty( action , PROPERTY_CONF_DEPLOY );
 		CONF_KEEPALIVE = super.getOptionProperty( action , PROPERTY_CONF_KEEPALIVE );
-		properties.finishRawProperties();
+		super.finishRawProperties();
 		
 		if( !isValid() )
 			action.exit0( _Error.InconsistentVersionAttributes0 , "inconsistent version attributes" );
@@ -183,7 +183,7 @@ public class MetaEnv extends PropertyController {
 	}
 	
 	private void loadProperties( ActionBase action , Node node ) throws Exception {
-		properties.loadFromNodeAttributes( node );
+		super.loadFromNodeAttributes( action , node );
 		
 		CONF_SECRETFILESPATH = super.getPathProperty( action , PROPERTY_CONF_SECRETFILESPATH );
 		
@@ -201,8 +201,8 @@ public class MetaEnv extends PropertyController {
 		
 		if( loadProps ) {
 			loadSecretProperties( action );
-			properties.loadFromNodeElements( node );
-			properties.resolveRawProperties();
+			super.loadFromNodeElements( action , node );
+			super.resolveRawProperties();
 		}
 	}
 
@@ -214,14 +214,6 @@ public class MetaEnv extends PropertyController {
 		
 		secretProperties.loadFromPropertyFile( propFile , action.session.execrc );
 		secretProperties.resolveRawProperties();
-	}
-	
-	public String[] getPropertyList( ActionBase action ) throws Exception {
-		return( properties.getRunningProperties() );
-	}
-
-	public String getPropertyValue( ActionBase action , String var ) throws Exception {
-		return( properties.getPropertyAny( var ) );
 	}
 	
 	private void createProperties( ActionBase action ) throws Exception {
@@ -294,7 +286,7 @@ public class MetaEnv extends PropertyController {
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		properties.saveSplit( doc , root );
+		super.saveSplit( doc , root );
 		for( MetaEnvDC dc : originalList ) {
 			Element dcElement = Common.xmlCreateElement( doc , root , ELEMENT_DATACENTER );
 			dc.save( action , doc , dcElement );
@@ -320,11 +312,11 @@ public class MetaEnv extends PropertyController {
 	}
 	
 	public void setBaseline( ServerTransaction transaction , String baselineEnv ) throws Exception {
-		properties.setStringProperty( PROPERTY_BASELINE , baselineEnv );
+		super.setSystemStringProperty( PROPERTY_BASELINE , baselineEnv );
 	}
 	
 	public void setOffline( ServerTransaction transaction , boolean offline ) throws Exception {
-		properties.setBooleanProperty( PROPERTY_OFFLINE , offline );
+		super.setSystemBooleanProperty( PROPERTY_OFFLINE , offline );
 	}
 	
 	public boolean isOffline() {
