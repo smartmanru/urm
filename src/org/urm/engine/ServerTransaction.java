@@ -20,6 +20,7 @@ import org.urm.meta.engine.ServerProduct;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.engine.ServerSystem;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvDC;
 import org.urm.meta.product.MetaEnvServer;
@@ -442,6 +443,21 @@ public class ServerTransaction extends TransactionBase {
 	public void modifyServerDeployments( MetaEnvServer server , List<MetaEnvServerDeployment> deployments ) throws Exception {
 		checkTransactionMetadata( server.meta.getStorage( action ) );
 		server.setDeployments( this , deployments );
+	}
+
+	public void createDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
+		checkTransactionMetadata( delivery.meta.getStorage( action ) );
+		delivery.dist.createDelivery( this , delivery );
+	}
+	
+	public void modifyDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
+		checkTransactionMetadata( delivery.meta.getStorage( action ) );
+		delivery.dist.modifyDelivery( this , delivery );
+	}
+	
+	public void deleteDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
+		checkTransactionMetadata( delivery.meta.getStorage( action ) );
+		delivery.dist.deleteDelivery( this , delivery );
 	}
 	
 }

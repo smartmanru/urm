@@ -77,7 +77,7 @@ public class ActionSaveConfigs extends ActionBase {
 			if( deployment.comp == null )
 				continue;
 			
-			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems( this ).values() ) {
+			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems() ) {
 				if( compItem.confItem != null ) {
 					String name = sourceStorage.getConfItemLiveName( this , node , compItem.confItem );
 					executeNodeConf( sourceStorage , server , node , deployment , compItem.confItem , name );

@@ -8,6 +8,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.engine.ServerTransaction;
 import org.urm.meta.product.Meta.VarNAMETYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -23,10 +24,10 @@ public class MetaDistrComponent {
 	public String DESC;
 	public boolean OBSOLETE;
 
-	Map<String,MetaDistrComponentItem> mapBinaryItems;
-	Map<String,MetaDistrComponentItem> mapConfItems;
-	Map<String,MetaDistrComponentItem> mapSchemaItems;
-	List<MetaDistrComponentWS> listWS;
+	private Map<String,MetaDistrComponentItem> mapBinaryItems;
+	private Map<String,MetaDistrComponentItem> mapConfItems;
+	private Map<String,MetaDistrComponentItem> mapSchemaItems;
+	private List<MetaDistrComponentWS> listWS;
 	
 	public MetaDistrComponent( Meta meta , MetaDistr dist ) {
 		this.meta = meta;
@@ -161,28 +162,72 @@ public class MetaDistrComponent {
 		return( true );
 	}
 
-	public Map<String,MetaDistrComponentItem> getBinaryItems( ActionBase action ) throws Exception {
-		return( mapBinaryItems );
+	public String[] getBinaryItemNames() {
+		return( Common.getSortedKeys( mapBinaryItems ) );
 	}
 	
-	public Map<String,MetaDistrComponentItem> getConfItems( ActionBase action ) throws Exception {
-		return( mapConfItems );
+	public MetaDistrComponentItem[] getBinaryItems() {
+		return( mapBinaryItems.values().toArray( new MetaDistrComponentItem[0] ) );
 	}
 	
-	public Map<String,MetaDistrComponentItem> getSchemaItems( ActionBase action ) throws Exception {
-		return( mapSchemaItems );
+	public String[] getConfItemNames() {
+		return( Common.getSortedKeys( mapConfItems ) );
+	}
+	
+	public MetaDistrComponentItem[] getConfItems() {
+		return( mapConfItems.values().toArray( new MetaDistrComponentItem[0] ) );
+	}
+	
+	public String[] getSchemaItemNames() {
+		return( Common.getSortedKeys( mapSchemaItems ) );
+	}
+	
+	public MetaDistrComponentItem[] getSchemaItems() {
+		return( mapSchemaItems.values().toArray( new MetaDistrComponentItem[0] ) );
 	}
 
-	public MetaDistrComponentItem getBinaryItem( String name ) {
+	public MetaDistrComponentItem findBinaryItem( String name ) {
 		return( mapBinaryItems.get( name ) );
 	}
 	
-	public MetaDistrComponentItem getConfItem( String name ) {
+	public MetaDistrComponentItem getBinaryItem( ActionBase action , String name ) throws Exception {
+		MetaDistrComponentItem item = mapBinaryItems.get( name );
+		if( item == null )
+			action.exit1( _Error.UnknownCompBinaryItem1 , "Unknown component binary item=" + name , name );
+		return( null );
+	}
+	
+	public MetaDistrComponentItem findConfItem( String name ) {
 		return( mapConfItems.get( name ) );
 	}
 	
-	public MetaDistrComponentItem getSchemaItem( String name ) {
+	public MetaDistrComponentItem getConfItem( ActionBase action , String name ) throws Exception {
+		MetaDistrComponentItem item = mapConfItems.get( name );
+		if( item == null )
+			action.exit1( _Error.UnknownCompConfItem1 , "Unknown component configuration item=" + name , name );
+		return( null );
+	}
+	
+	public MetaDistrComponentItem findSchemaItem( String name ) {
 		return( mapSchemaItems.get( name ) );
+	}
+	
+	public MetaDistrComponentItem getSchemaItem( ActionBase action , String name ) throws Exception {
+		MetaDistrComponentItem item = mapSchemaItems.get( name );
+		if( item == null )
+			action.exit1( _Error.UnknownCompSchemaItem1 , "Unknown component databce schema item=" + name , name );
+		return( null );
+	}
+
+	public void removeCompItem( ServerTransaction transaction , MetaDistrComponentItem item ) throws Exception {
+		if( item.binaryItem != null )
+			mapBinaryItems.remove( item.binaryItem.KEY );
+		else
+		if( item.confItem != null )
+			mapConfItems.remove( item.confItem.KEY );
+		else
+		if( item.schema != null )
+			mapSchemaItems.remove( item.schema.SCHEMA );
 	}
 	
 }

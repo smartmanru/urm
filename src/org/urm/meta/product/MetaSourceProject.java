@@ -191,6 +191,10 @@ public class MetaSourceProject {
 			return( true );
 		return( false );
 	}
+
+	public MetaSourceProjectItem findItem( String name ) {
+		return( itemMap.get( name ) );
+	}
 	
 	public MetaSourceProjectItem getItem( ActionBase action , String name ) throws Exception {
 		MetaSourceProjectItem item = itemMap.get( name );

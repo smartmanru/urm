@@ -111,7 +111,7 @@ public class ActionConfigure extends ActionBase {
 			if( deployment.comp == null )
 				continue;
 			
-			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems( this ).values() ) {
+			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems() ) {
 				if( compItem.confItem != null ) {
 					String name = sourceStorage.getConfItemLiveName( this , node , compItem.confItem );
 					executeNodeConf( parent , sourceStorage , server , node , deployment , compItem.confItem , name );

@@ -149,7 +149,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 			return( true );
 		
 		if( comp != null ) {
-			for( MetaDistrComponentItem item : comp.getConfItems( action ).values() )
+			for( MetaDistrComponentItem item : comp.getConfItems() )
 				if( item.confItem == p_confItem )
 					return( true );
 		}
@@ -161,7 +161,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 			return( true );
 		
 		if( comp != null ) {
-			for( MetaDistrComponentItem item : comp.getConfItems( action ).values() )
+			for( MetaDistrComponentItem item : comp.getBinaryItems() )
 				if( item.binaryItem == p_binaryItem )
 					return( true );
 		}
@@ -173,7 +173,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 			return( true );
 		
 		if( comp != null ) {
-			for( MetaDistrComponentItem item : comp.getSchemaItems( action ).values() )
+			for( MetaDistrComponentItem item : comp.getSchemaItems() )
 				if( item.schema == p_schema )
 					return( true );
 		}

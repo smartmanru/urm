@@ -515,7 +515,7 @@ public class MetaEnvServer extends PropertyController {
 			}
 			else
 			if( deployment.comp != null ) {
-				for( MetaDistrComponentItem item : deployment.comp.getConfItems( action ).values() ) {
+				for( MetaDistrComponentItem item : deployment.comp.getConfItems() ) {
 					if( item.confItem != null ) {
 						MetaDistrConfItem conf = item.confItem; 
 						confs.put( conf.KEY , conf );
@@ -573,7 +573,7 @@ public class MetaEnvServer extends PropertyController {
 						locations.put( key , location );
 					}
 					
-					for( MetaDistrComponentItem item : deployment.comp.mapBinaryItems.values() ) {
+					for( MetaDistrComponentItem item : deployment.comp.getBinaryItems() ) {
 						if( item.binaryItem != null )
 							location.addBinaryItem( action , deployment , item.binaryItem , item.DEPLOYNAME );
 					}
@@ -586,7 +586,7 @@ public class MetaEnvServer extends PropertyController {
 						locations.put( key , location );
 					}
 					
-					for( MetaDistrComponentItem item : deployment.comp.mapBinaryItems.values() ) {
+					for( MetaDistrComponentItem item : deployment.comp.getConfItems() ) {
 						if( item.confItem != null )
 							location.addConfItem( action , deployment , item.confItem );
 					}
@@ -619,7 +619,7 @@ public class MetaEnvServer extends PropertyController {
 				schemaMap.put( item.schema.SCHEMA , item.schema );
 			else
 			if( item.isComponent() ) {
-				for( MetaDistrComponentItem compItem : item.comp.getSchemaItems( action ).values() )
+				for( MetaDistrComponentItem compItem : item.comp.getSchemaItems() )
 					schemaMap.put( compItem.schema.SCHEMA , compItem.schema );
 			}
 		}

@@ -178,6 +178,11 @@ public class MetaDistrBinaryItem {
 			MetaDistr distr = meta.getDistr( action );
 			srcDistItem = distr.getBinaryItem( action , SRCDISTITEM );
 		}
+		else
+		if( distItemOrigin == VarDISTITEMORIGIN.BUILD ) {
+			MetaSource sources = meta.getSources( action );
+			sourceItem = sources.getProjectItem( action , SRCDISTITEM );
+		}
 	}
 	
 	public boolean isArchive( ActionBase action ) throws Exception {

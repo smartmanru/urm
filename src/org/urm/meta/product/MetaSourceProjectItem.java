@@ -28,7 +28,6 @@ public class MetaSourceProjectItem {
 	public String NUGET_LIBNAME;
 
 	protected Meta meta;
-	public MetaDistrBinaryItem distItem;
 	public MetaSourceProject project;
 	
 	public MetaSourceProjectItem( Meta meta , MetaSourceProject project ) {
@@ -38,7 +37,6 @@ public class MetaSourceProjectItem {
 	
 	public void load( ActionBase action , Node node ) throws Exception {
 		ITEMNAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
-		distItem = null;
 		
 		ITEMSRCTYPE = Meta.getItemSrcType( ConfReader.getRequiredAttrValue( node , "type" ) , false );
 		ITEMBASENAME = ConfReader.getAttrValue( node , "basename" );
@@ -46,10 +44,6 @@ public class MetaSourceProjectItem {
 			ITEMBASENAME = ITEMNAME;
 
 		INTERNAL = ConfReader.getBooleanAttrValue( node , "internal" , false );
-		MetaDistr distr = meta.getDistr( action );
-		distItem = distr.getBinaryItem( action , ITEMNAME );
-		distItem.setSource( action , this );
-
 		ITEMEXTENSION = ConfReader.getAttrValue( node , "extension" );
 		ITEMVERSION = ConfReader.getAttrValue( node , "version" );
 
@@ -104,10 +98,6 @@ public class MetaSourceProjectItem {
 		r.ITEMBASENAME = ITEMBASENAME;
 
 		r.INTERNAL = INTERNAL;
-		MetaDistr distr = meta.getDistr( action );
-		r.distItem = distr.getBinaryItem( action , ITEMNAME );
-		r.distItem.setSource( action , r );
-
 		r.ITEMEXTENSION = ITEMEXTENSION;
 		r.ITEMVERSION = ITEMVERSION;
 		r.SVN_ITEMPATH = SVN_ITEMPATH;

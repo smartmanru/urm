@@ -155,5 +155,15 @@ public class MetaSource extends PropertyController {
 	public String[] getProjectNames() {
 		return( Common.getSortedKeys( projectMap ) );
 	}
+
+	public MetaSourceProjectItem getProjectItem( ActionBase action , String name ) throws Exception {
+		for( MetaSourceProject project : projectMap.values() ) {
+			MetaSourceProjectItem item = project.findItem( name );
+			if( item != null )
+				return( item );
+		}
+		action.exit1( _Error.UnknownSourceProjectItem1 , "unknown source project item=" + name , name );
+		return( null );
+	}
 	
 }

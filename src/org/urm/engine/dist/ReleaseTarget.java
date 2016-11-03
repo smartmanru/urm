@@ -1,6 +1,7 @@
 package org.urm.engine.dist;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -257,15 +258,20 @@ public class ReleaseTarget {
 		return( true );
 	}
 	
-	public ReleaseTargetItem addSourceItem( ActionBase action , MetaSourceProjectItem projectitem ) throws Exception {
+	public ReleaseTargetItem[] addSourceItem( ActionBase action , MetaSourceProjectItem projectitem ) throws Exception {
 		// ignore internal items
 		if( projectitem.INTERNAL )
-			return( null );
+			return( new ReleaseTargetItem[0] );
 		
-		ReleaseTargetItem item = new ReleaseTargetItem( meta , this );
-		item.createFromSourceItem( action , projectitem );
-		itemMap.put( item.NAME , item );
-		return( item );
+		List<ReleaseTargetItem> list = new LinkedList<ReleaseTargetItem>();
+		MetaDistr distr = meta.getDistr( action );
+		for( MetaDistrBinaryItem distitem : distr.getBinaryItems() ) {
+			ReleaseTargetItem item = new ReleaseTargetItem( meta , this );
+			item.createFromDistrItem( action , distitem );
+			itemMap.put( item.NAME , item );
+			list.add( item );
+		}
+		return( list.toArray( new ReleaseTargetItem[0] ) );
 	}
 	
 	public ReleaseTargetItem getItem( ActionBase action , String ITEMNAME ) throws Exception {

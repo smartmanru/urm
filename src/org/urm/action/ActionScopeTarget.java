@@ -194,8 +194,13 @@ public class ActionScopeTarget {
 	}
 	
 	public void addProjectItem( ActionBase action , MetaSourceProjectItem item , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createSourceProjectTargetItem( this , item , specifiedExplicitly );
-		items.add( scopeItem );
+		MetaDistr dist = meta.getDistr( action );
+		for( MetaDistrBinaryItem distItem : dist.getBinaryItems() ) {
+			if( distItem.sourceItem == item ) {
+				ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createSourceProjectTargetItem( this , item , distItem , specifiedExplicitly );
+				items.add( scopeItem );
+			}
+		}
 	}
 	
 	public void addItem( ActionBase action , ReleaseTargetItem item , boolean specifiedExplicitly ) throws Exception {

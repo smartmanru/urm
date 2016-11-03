@@ -433,7 +433,7 @@ public class SourceStorage {
 			if( deployment.comp == null )
 				continue;
 			
-			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems( action ).values() ) {
+			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems() ) {
 				if( compItem.confItem != null )
 					exportTemplateConfigItem( action , server.dc , compItem.confItem.KEY , action.context.CTX_TAG , parent );
 			}

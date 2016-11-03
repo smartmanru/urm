@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaSourceProjectItem;
@@ -65,19 +66,14 @@ public class ReleaseTargetItem {
 	public void loadSourceItem( ActionBase action , Node node ) throws Exception {
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		BUILDVERSION = ConfReader.getAttrValue( node , "BUILDVERSION" );
-		this.sourceItem = target.sourceProject.getItem( action , NAME );
-		this.distItem = sourceItem.distItem;
+		MetaDistr distr = meta.getDistr( action );
+		this.distItem = distr.getBinaryItem( action , NAME );
+		this.sourceItem = target.sourceProject.getItem( action , distItem.sourceItem.ITEMNAME );
 	}
 	
-	public void createFromSourceItem( ActionBase action , MetaSourceProjectItem projectItem ) {
-		this.sourceItem = projectItem;
-		this.distItem = sourceItem.distItem;
-		NAME = sourceItem.ITEMNAME;
-		BUILDVERSION = "";
-	}
-	
-	public void createFromDistrItem( ActionBase action , MetaDistrBinaryItem distItem ) {
+	public void createFromDistrItem( ActionBase action , MetaDistrBinaryItem distItem ) throws Exception {
 		this.distItem = distItem;
+		this.sourceItem = target.sourceProject.getItem( action , distItem.sourceItem.ITEMNAME );
 		NAME = distItem.KEY;
 		BUILDVERSION = "";
 	}

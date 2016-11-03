@@ -86,5 +86,9 @@ public class _Error {
 	public static final int MissingBuildMode0 = ErrorBase + 78;
 	public static final int MissingDeployItemType0 = ErrorBase + 79;
 	public static final int InvalidDeployItemType1 = ErrorBase + 80;
+	public static final int UnknownCompBinaryItem1 = ErrorBase + 81;
+	public static final int UnknownCompConfItem1 = ErrorBase + 82;
+	public static final int UnknownCompSchemaItem1 = ErrorBase + 83;
+	public static final int UnknownSourceProjectItem1 = ErrorBase + 84;
 
 }

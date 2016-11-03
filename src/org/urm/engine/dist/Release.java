@@ -635,14 +635,8 @@ public class Release {
 		if( project.ALL )
 			return( true );
 		
-		ReleaseTargetItem item = project.getItem( action , sourceItem.ITEMNAME );
-		if( item != null ) {
-			if( !item.checkPropsEqualsToOptions( action ) )
-				return( false );
-		}
-		
-		item = project.addSourceItem( action , sourceItem );
-		registerTargetItem( action , item );
+		for( ReleaseTargetItem item : project.addSourceItem( action , sourceItem ) )
+			registerTargetItem( action , item );
 		return( true );
 	}
 

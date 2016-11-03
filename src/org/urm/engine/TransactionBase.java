@@ -19,6 +19,8 @@ import org.urm.meta.engine.ServerResources;
 import org.urm.meta.engine.ServerSettings;
 import org.urm.meta.engine.ServerSystem;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistr;
+import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvDC;
 import org.urm.meta.product.MetaEnvServer;
@@ -832,6 +834,12 @@ public class TransactionBase extends ServerObject {
 		if( tm == null )
 			action.exitUnexpectedState();
 		return( tm.metadata.meta );
+	}
+
+	public MetaDistrDelivery getDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
+		Meta meta = getTransactionProductMetadata( delivery.meta.name );
+		MetaDistr distr = meta.getDistr( action );
+		return( distr.getDelivery( action , delivery.NAME ) );
 	}
 	
 }

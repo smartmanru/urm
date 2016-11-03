@@ -25,9 +25,9 @@ public class ActionScopeTargetItem {
 		this.meta = target.meta;
 	}
 	
-	public static ActionScopeTargetItem createSourceProjectTargetItem( ActionScopeTarget target , MetaSourceProjectItem sourceItem , boolean specifiedExplicitly ) {
+	public static ActionScopeTargetItem createSourceProjectTargetItem( ActionScopeTarget target , MetaSourceProjectItem sourceItem , MetaDistrBinaryItem distItem , boolean specifiedExplicitly ) {
 		ActionScopeTargetItem ti = new ActionScopeTargetItem( target ); 
-		ti.distItem = sourceItem.distItem;
+		ti.distItem = distItem;
 		ti.sourceItem = sourceItem;
 		ti.specifiedExplicitly = specifiedExplicitly;
 		ti.NAME = sourceItem.ITEMNAME;

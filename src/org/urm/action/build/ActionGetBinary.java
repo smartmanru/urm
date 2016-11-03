@@ -151,7 +151,7 @@ public class ActionGetBinary extends ActionBase {
 		if( scopeItem.sourceItem.ITEMSRCTYPE == VarITEMSRCTYPE.NUGET_PLATFORM ) {
 			// repack given item
 			FILENAME = nexusStorage.repackageNugetPlatform( this , BINARY , scopeItem.sourceItem );
-			BASENAME = scopeItem.sourceItem.distItem.DISTBASENAME;
+			BASENAME = scopeItem.distItem.DISTBASENAME;
 			EXT = scopeItem.sourceItem.ITEMEXTENSION;
 		}
 		

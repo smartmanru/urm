@@ -4,11 +4,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
+import org.urm.engine.ServerTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.meta.ServerProductMeta;
 import org.w3c.dom.Document;
@@ -153,8 +155,12 @@ public class MetaDistr extends PropertyController {
 			item.save( action , doc , compElement );
 		}
 	}
+
+	public MetaDistrComponent[] getComponents() {
+		return( mapComps.values().toArray( new MetaDistrComponent[0] ) );
+	}
 	
-	public String[] getComponents() {
+	public String[] getComponentNames() {
 		return( Common.getSortedKeys( mapComps ) );
 	}
 	
@@ -215,12 +221,36 @@ public class MetaDistr extends PropertyController {
 				list.add( delivery );
 		return( list );
 	}
+
+	public MetaDistrDelivery findDelivery( String DELIVERY ) {
+		return( mapDeliveries.get( DELIVERY ) );
+	}
 	
 	public MetaDistrDelivery getDelivery( ActionBase action , String DELIVERY ) throws Exception {
 		MetaDistrDelivery delivery = mapDeliveries.get( DELIVERY );
 		if( delivery == null )
 			action.exit1( _Error.UnknownDelivery1 , "unknown delivery=" + DELIVERY , DELIVERY );
 		return( delivery );
+	}
+
+	public void createDelivery( ServerTransaction transaction , MetaDistrDelivery delivery ) throws Exception {
+		mapDeliveries.put( delivery.NAME , delivery );
+	}
+
+	public void deleteDelivery( ServerTransaction transaction , MetaDistrDelivery delivery ) throws Exception {
+		delivery.deleteAllItems( transaction );
+		mapDeliveries.remove( delivery.NAME );
+	}
+
+	public void modifyDelivery( ServerTransaction transaction , MetaDistrDelivery delivery ) throws Exception {
+		for( Entry<String,MetaDistrDelivery> entry : mapDeliveries.entrySet() ) {
+			if( entry.getValue() == delivery ) {
+				mapDeliveries.remove( entry.getKey() );
+				break;
+			}
+		}
+		
+		mapDeliveries.put( delivery.NAME , delivery );
 	}
 
 }

@@ -90,7 +90,7 @@ public class NexusStorage {
 		zip.copyDirContent( action , tmp.getSubFolder( action , "content" ) );
 		
 		// create final zip file
-		String FILENAME = item.distItem.DISTBASENAME + item.distItem.EXT;
+		String FILENAME = item.ITEMBASENAME + item.ITEMEXTENSION;
 		String finalFile = artefactoryFolder.getFilePath( action , FILENAME );
 		zip.createZipFromContent( action , finalFile , "*" , "" );
 		action.shell.createMD5( action , finalFile );
