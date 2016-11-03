@@ -91,7 +91,7 @@ public class MetaDistr extends PropertyController {
 			return;
 
 		loadDeliveries( action , ConfReader.xmlGetPathNode( root , "deliveries" ) );
-		loadComponents( action , ConfReader.xmlGetPathNode( root , "deployment" ) );
+		loadComponents( action , ConfReader.xmlGetPathNode( root , "components" ) );
 		
 		super.initFinished();
 	}
@@ -138,8 +138,10 @@ public class MetaDistr extends PropertyController {
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		super.saveAsElements( doc , root );
-		saveDeliveries( action , doc , root );
-		saveComponents( action , doc , root );
+		Element deliveries = Common.xmlCreateElement( doc , root , "deliveries" );
+		saveDeliveries( action , doc , deliveries );
+		Element components = Common.xmlCreateElement( doc , root , "components" );
+		saveComponents( action , doc , components );
 	}
 
 	private void saveDeliveries( ActionBase action , Document doc , Element root ) throws Exception {
@@ -156,6 +158,10 @@ public class MetaDistr extends PropertyController {
 		}
 	}
 
+	public String[] getDeliveryNames() {
+		return( Common.getSortedKeys( mapDeliveries ) );
+	}
+	
 	public MetaDistrComponent[] getComponents() {
 		return( mapComps.values().toArray( new MetaDistrComponent[0] ) );
 	}
