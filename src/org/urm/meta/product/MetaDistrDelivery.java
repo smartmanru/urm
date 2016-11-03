@@ -22,9 +22,9 @@ public class MetaDistrDelivery {
 	public String DESC;
 	public String SCHEMASET;
 
-	Map<String,MetaDistrBinaryItem> mapBinaryItems;
-	Map<String,MetaDistrConfItem> mapConfComps;
-	Map<String,MetaDatabaseSchema> mapDatabaseSchema;
+	private Map<String,MetaDistrBinaryItem> mapBinaryItems;
+	private Map<String,MetaDistrConfItem> mapConfComps;
+	private Map<String,MetaDatabaseSchema> mapDatabaseSchema;
 	
 	public MetaDistrDelivery( Meta meta , MetaDistr dist ) {
 		this.meta = meta;
@@ -141,12 +141,20 @@ public class MetaDistrDelivery {
 			
 		return( r );
 	}
+
+	public MetaDistrBinaryItem findBinaryItem( String NAME ) {
+		return( mapBinaryItems.get( NAME ) );
+	}
 	
 	public MetaDistrBinaryItem getBinaryItem( ActionBase action , String NAME ) throws Exception {
 		MetaDistrBinaryItem item = mapBinaryItems.get( NAME );
 		if( item == null )
 			action.exit1( _Error.UnknownDeliveryBinaryItem1 , "unknown delivery binary item=" + NAME , NAME );
 		return( item );
+	}
+	
+	public MetaDistrConfItem findConfItem( String NAME ) {
+		return( mapConfComps.get( NAME ) );
 	}
 	
 	public MetaDistrConfItem getConfItem( ActionBase action , String NAME ) throws Exception {
@@ -166,17 +174,29 @@ public class MetaDistrDelivery {
 			action.exit1( _Error.UnknownDeliverySchema1 , "unknown delivery schema=" + NAME , NAME );
 		return( item );
 	}
-	
-	public Map<String,MetaDistrBinaryItem> getBinaryItems( ActionBase action ) throws Exception {
-		return( mapBinaryItems );
+
+	public String[] getBinaryItemNames() {
+		return( Common.getSortedKeys( mapBinaryItems ) );
 	}
 	
-	public Map<String,MetaDistrConfItem> getConfigurationItems( ActionBase action ) throws Exception {
-		return( mapConfComps );
+	public MetaDistrBinaryItem[] getBinaryItems() {
+		return( mapBinaryItems.values().toArray( new MetaDistrBinaryItem[0] ) );
+	}
+	
+	public String[] getConfItemNames() {
+		return( Common.getSortedKeys( mapConfComps ) );
+	}
+	
+	public MetaDistrConfItem[] getConfItems() {
+		return( mapConfComps.values().toArray( new MetaDistrConfItem[0] ) );
 	}
 
-	public Map<String,MetaDatabaseSchema> getDatabaseSchemes( ActionBase action ) throws Exception {
-		return( mapDatabaseSchema );
+	public String[] getDatabaseSchemaNames() {
+		return( Common.getSortedKeys( mapDatabaseSchema ) );
+	}
+	
+	public MetaDatabaseSchema[] getDatabaseSchemes() {
+		return( mapDatabaseSchema.values().toArray( new MetaDatabaseSchema[0] ) );
 	}
 
 	public boolean hasDatabaseItems( ActionBase action ) throws Exception {
@@ -207,6 +227,13 @@ public class MetaDistrDelivery {
 					comp.removeCompItem( transaction , compItem );
 			}
 		}
+	}
+
+	public void createBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+		mapBinaryItems.put( item.KEY , item );
+	}
+	
+	public void modifyBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 	}
 	
 }

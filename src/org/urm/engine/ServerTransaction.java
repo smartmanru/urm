@@ -20,6 +20,7 @@ import org.urm.meta.engine.ServerProduct;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.engine.ServerSystem;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvDC;
@@ -460,4 +461,14 @@ public class ServerTransaction extends TransactionBase {
 		delivery.dist.deleteDelivery( this , delivery );
 	}
 	
+	public void createDistrBinaryItem( MetaDistrDelivery delivery , MetaDistrBinaryItem item ) throws Exception {
+		checkTransactionMetadata( item.meta.getStorage( action ) );
+		delivery.dist.createDistrBinaryItem( this , delivery , item );
+	}
+	
+	public void modifyDistrBinaryItem( MetaDistrBinaryItem item ) throws Exception {
+		checkTransactionMetadata( item.meta.getStorage( action ) );
+		item.delivery.modifyBinaryItem( this , item );
+	}
+
 }

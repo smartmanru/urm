@@ -20,6 +20,7 @@ import org.urm.meta.engine.ServerSettings;
 import org.urm.meta.engine.ServerSystem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
+import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvDC;
@@ -840,6 +841,11 @@ public class TransactionBase extends ServerObject {
 		Meta meta = getTransactionProductMetadata( delivery.meta.name );
 		MetaDistr distr = meta.getDistr( action );
 		return( distr.getDelivery( action , delivery.NAME ) );
+	}
+
+	public MetaDistrBinaryItem getDistrBinaryItem( MetaDistrBinaryItem item ) throws Exception {
+		MetaDistrDelivery delivery = getDistrDelivery( item.delivery );
+		return( delivery.getBinaryItem( action , item.KEY ) );
 	}
 	
 }

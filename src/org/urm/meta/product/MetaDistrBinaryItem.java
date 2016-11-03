@@ -3,6 +3,7 @@ package org.urm.meta.product;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.engine.ServerTransaction;
 import org.urm.engine.custom.CommandCustom;
 import org.urm.engine.storage.FileInfo;
 import org.urm.meta.product.Meta.VarARCHIVETYPE;
@@ -45,6 +46,23 @@ public class MetaDistrBinaryItem {
 		this.delivery = delivery; 
 	}
 
+	public void createBinaryItem( ServerTransaction transaction , String key ) throws Exception {
+		this.KEY = key;
+		EXT = "";
+		SRCDISTITEM = "";
+		SRCITEMPATH = "";
+		DISTBASENAME = "";
+		DEPLOYBASENAME = "";
+		FILES = "";
+		EXCLUDE = "";
+		
+		WAR_MRID = "";
+		WAR_CONTEXT = "";
+		WAR_STATICEXT = "";
+		BUILDINFO = "";
+		CUSTOMDEPLOY = false;
+	}
+	
 	public void load( ActionBase action , Node node ) throws Exception {
 		KEY = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
 	
@@ -284,4 +302,42 @@ public class MetaDistrBinaryItem {
 		action.exit1( _Error.ArchiveTypeNotSupported1 , "not supported archive type=" + EXT , EXT );
 		return( null );
 	}
+	
+	public void setDistData( ServerTransaction transaction , VarDISTITEMTYPE itemType , String basename , String ext , String archiveFiles , String archiveExclude ) throws Exception {
+		this.distItemType = itemType;
+		this.DISTBASENAME = basename;
+		this.EXT = ext;
+		this.FILES = archiveFiles;
+		this.EXCLUDE = archiveExclude;
+	}
+
+	public void setDeployData( ServerTransaction transaction , String deployname , VarITEMVERSION versionType ) throws Exception {
+		this.DEPLOYBASENAME = deployname;
+		this.deployVersion = versionType;
+	}
+
+	public void setBuildOrigin( ServerTransaction transaction , MetaSourceProjectItem itemSrc ) throws Exception {
+		this.distItemOrigin = VarDISTITEMORIGIN.BUILD;
+		this.sourceItem = itemSrc;
+		this.SRCDISTITEM = "";
+		this.srcDistItem = null;
+		this.SRCITEMPATH = "";
+	}
+
+	public void setDistOrigin( ServerTransaction transaction , MetaDistrBinaryItem itemSrc , String srcPath ) throws Exception {
+		this.distItemOrigin = VarDISTITEMORIGIN.DISTITEM;
+		this.sourceItem = null;
+		this.SRCDISTITEM = itemSrc.KEY;
+		this.srcDistItem = itemSrc;
+		this.SRCITEMPATH = srcPath;
+	}
+	
+	public void setManualOrigin( ServerTransaction transaction ) throws Exception {
+		this.distItemOrigin = VarDISTITEMORIGIN.MANUAL;
+		this.sourceItem = null;
+		this.SRCDISTITEM = "";
+		this.srcDistItem = null;
+		this.SRCITEMPATH = "";
+	}
+	
 }

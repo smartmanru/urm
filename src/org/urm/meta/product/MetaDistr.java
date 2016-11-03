@@ -108,8 +108,10 @@ public class MetaDistr extends PropertyController {
 			MetaDistrDelivery item = new MetaDistrDelivery( meta , this );
 			item.load( action , deliveryNode );
 			mapDeliveries.put( item.NAME , item );
-			mapBinaryItems.putAll( item.getBinaryItems( action ) );
-			mapConfItems.putAll( item.getConfigurationItems( action ) );
+			for( MetaDistrBinaryItem binaryItem : item.getBinaryItems() )
+				mapBinaryItems.put( binaryItem.KEY , binaryItem );
+			for( MetaDistrConfItem confItem : item.getConfItems() )
+				mapConfItems.put( confItem.KEY , confItem );
 		}
 		
 		resolveReferences( action );
@@ -259,4 +261,9 @@ public class MetaDistr extends PropertyController {
 		mapDeliveries.put( delivery.NAME , delivery );
 	}
 
+	public void createDistrBinaryItem( ServerTransaction transaction , MetaDistrDelivery delivery , MetaDistrBinaryItem item ) throws Exception {
+		delivery.createBinaryItem( transaction , item );
+		mapBinaryItems.put( item.KEY , item );
+	}
+	
 }

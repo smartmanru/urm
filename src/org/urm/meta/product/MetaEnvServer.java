@@ -491,7 +491,7 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	public boolean hasDatabaseItemDeployment( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
-		for( MetaDatabaseSchema schema : delivery.getDatabaseSchemes( action ).values() ) {
+		for( MetaDatabaseSchema schema : delivery.getDatabaseSchemes() ) {
 			if( hasDatabaseItemDeployment( action , schema ) )
 				return( true );
 		}

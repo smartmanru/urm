@@ -616,7 +616,11 @@ public class Meta extends ServerObject {
 
 	public static VarITEMVERSION readItemVersionAttr( Node node , String attrName ) throws Exception {
 		String ID = ConfReader.getAttrValue( node , attrName , "default" );
-		if( ID.equals( "default" ) )
+		return( getItemVersionType( ID ) );
+	}
+
+	public static VarITEMVERSION getItemVersionType( String ID ) throws Exception {
+		if( ID.isEmpty() || ID.equals( "default" ) )
 			return( VarITEMVERSION.PREFIX );
 		
 		VarITEMVERSION value = null;
