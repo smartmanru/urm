@@ -49,12 +49,10 @@ public class ServerTransaction extends TransactionBase {
 
 	public void pushMirror( ServerMirrorRepository repo ) throws Exception {
 		repo.pushMirror( this );
-		action.saveMirrors( this );
 	}
 
 	public void refreshMirror( ServerMirrorRepository repo ) throws Exception {
 		repo.refreshMirror( this );
-		action.saveMirrors( this );
 	}
 
 	public void dropMirror( ServerMirrorRepository repo ) throws Exception {
