@@ -485,7 +485,7 @@ public class Meta extends ServerObject {
 		return( value );
 	}
 	
-	public static VarDISTITEMORIGIN getItemDistSource( String ID , boolean required ) throws Exception {
+	public static VarDISTITEMORIGIN getItemDistOrigin( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
 				Common.exit0( _Error.MissingDistItemSource0 , "missing distributive item source" );

@@ -50,7 +50,7 @@ public class MetaDistrBinaryItem {
 	
 		// read attrs
 		distItemType = Meta.getItemDistType( ConfReader.getRequiredAttrValue( node , "type" ) , false );
-		distItemOrigin = Meta.getItemDistSource( ConfReader.getRequiredAttrValue( node , "source" ) , false );
+		distItemOrigin = Meta.getItemDistOrigin( ConfReader.getRequiredAttrValue( node , "source" ) , false );
 		if( distItemOrigin == VarDISTITEMORIGIN.DISTITEM ) {
 			SRCDISTITEM = ConfReader.getAttrValue( node , "srcitem" );
 			SRCITEMPATH = ConfReader.getAttrValue( node , "srcpath" );
