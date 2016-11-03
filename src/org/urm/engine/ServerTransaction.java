@@ -21,6 +21,7 @@ import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.engine.ServerSystem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvDC;
@@ -471,4 +472,24 @@ public class ServerTransaction extends TransactionBase {
 		item.delivery.modifyBinaryItem( this , item );
 	}
 
+	public void deleteDistrBinaryItem( MetaDistrBinaryItem item ) throws Exception {
+		checkTransactionMetadata( item.meta.getStorage( action ) );
+		item.delivery.deleteBinaryItem( this , item );
+	}
+	
+	public void createDistrConfItem( MetaDistrDelivery delivery , MetaDistrConfItem item ) throws Exception {
+		checkTransactionMetadata( item.meta.getStorage( action ) );
+		delivery.dist.createDistrConfItem( this , delivery , item );
+	}
+	
+	public void modifyDistrConfItem( MetaDistrConfItem item ) throws Exception {
+		checkTransactionMetadata( item.meta.getStorage( action ) );
+		item.delivery.modifyConfItem( this , item );
+	}
+
+	public void deleteDistrConfItem( MetaDistrConfItem item ) throws Exception {
+		checkTransactionMetadata( item.meta.getStorage( action ) );
+		item.delivery.deleteConfItem( this , item );
+	}
+	
 }

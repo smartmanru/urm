@@ -236,4 +236,29 @@ public class MetaDistrDelivery {
 	public void modifyBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 	}
 	
+	public void deleteBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+		for( MetaDistrComponent comp : dist.getComponents() ) {
+			MetaDistrComponentItem compItem = comp.findBinaryItem( item.KEY );
+			if( compItem != null )
+				comp.removeCompItem( transaction , compItem );
+		}
+		mapBinaryItems.remove( item.KEY );
+	}
+	
+	public void createConfItem( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
+		mapConfComps.put( item.KEY , item );
+	}
+	
+	public void modifyConfItem( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
+	}
+	
+	public void deleteConfItem( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
+		for( MetaDistrComponent comp : dist.getComponents() ) {
+			MetaDistrComponentItem compItem = comp.findConfItem( item.KEY );
+			if( compItem != null )
+				comp.removeCompItem( transaction , compItem );
+		}
+		mapConfComps.remove( item.KEY );
+	}
+	
 }

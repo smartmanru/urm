@@ -85,7 +85,7 @@ public class MetaDistrBinaryItem {
 		}
 		else
 		// war item and static
-		if( distItemType == VarDISTITEMTYPE.WAR ) {
+		if( distItemType == VarDISTITEMTYPE.STATICWAR ) {
 			EXT = ".war";
 	
 			WAR_MRID = ConfReader.getAttrValue( node , "mrid" );
@@ -138,7 +138,7 @@ public class MetaDistrBinaryItem {
 		}
 		else
 		// war item and static
-		if( distItemType == VarDISTITEMTYPE.WAR ) {
+		if( distItemType == VarDISTITEMTYPE.STATICWAR ) {
 			EXT = ".war";
 	
 			Common.xmlSetElementAttr( doc , root , "mrid" , WAR_MRID );
@@ -309,11 +309,15 @@ public class MetaDistrBinaryItem {
 		this.EXT = ext;
 		this.FILES = archiveFiles;
 		this.EXCLUDE = archiveExclude;
+		if( this.DISTBASENAME.isEmpty() )
+			this.DISTBASENAME = KEY;
 	}
 
 	public void setDeployData( ServerTransaction transaction , String deployname , VarITEMVERSION versionType ) throws Exception {
 		this.DEPLOYBASENAME = deployname;
 		this.deployVersion = versionType;
+		if( this.DEPLOYBASENAME.isEmpty() )
+			this.DEPLOYBASENAME = DISTBASENAME;
 	}
 
 	public void setBuildOrigin( ServerTransaction transaction , MetaSourceProjectItem itemSrc ) throws Exception {

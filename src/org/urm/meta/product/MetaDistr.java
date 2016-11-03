@@ -266,4 +266,9 @@ public class MetaDistr extends PropertyController {
 		mapBinaryItems.put( item.KEY , item );
 	}
 	
+	public void createDistrConfItem( ServerTransaction transaction , MetaDistrDelivery delivery , MetaDistrConfItem item ) throws Exception {
+		delivery.createConfItem( transaction , item );
+		mapConfItems.put( item.KEY , item );
+	}
+	
 }

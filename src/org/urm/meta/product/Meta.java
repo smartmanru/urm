@@ -138,7 +138,7 @@ public class Meta extends ServerObject {
 		UNKNOWN ,
 		BINARY ,
 		DOTNETPKG ,
-		WAR ,
+		STATICWAR ,
 		ARCHIVE_DIRECT ,	// deploydir = archive/content
 		ARCHIVE_CHILD ,		// deploydir/archivename = archive/archivename/fullcontent
 		ARCHIVE_SUBDIR		// deploydir/archivename = archive/content/fullcontent
