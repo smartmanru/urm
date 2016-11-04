@@ -539,5 +539,10 @@ public class ServerTransaction extends TransactionBase {
 		checkTransactionMetadata( item.meta.getStorage( action ) );
 		item.comp.deleteItem( this , item );
 	}
+
+	public void setDeliveryDatabase( MetaDistrDelivery delivery , List<MetaDatabaseSchema> set ) throws Exception {
+		checkTransactionMetadata( delivery.meta.getStorage( action ) );
+		delivery.setDatabase( this , set );
+	}
 	
 }

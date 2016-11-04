@@ -1,6 +1,7 @@
 package org.urm.meta.product;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
@@ -259,4 +260,11 @@ public class MetaDistrDelivery {
 		SCHEMASET = Common.getList( Common.getSortedKeys( mapDatabaseSchema ) , " " );
 	}
 
+	public void setDatabase( ServerTransaction transaction , List<MetaDatabaseSchema> set ) throws Exception {
+		mapDatabaseSchema.clear();
+		for( MetaDatabaseSchema schema : set )
+			mapDatabaseSchema.put( schema.SCHEMA , schema );
+		SCHEMASET = Common.getList( Common.getSortedKeys( mapDatabaseSchema ) , " " );
+	}
+	
 }
