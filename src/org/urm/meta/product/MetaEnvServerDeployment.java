@@ -30,7 +30,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 	public String DEPLOYPATH;
 	public VarNODETYPE nodeType;
 	
-	public static String PROPERTY_DEPLOYTYPE = "deploytype";
+	public static String PROPERTY_DEPLOYMODE = "deploymode";
 	public static String PROPERTY_DEPLOYPATH = "deploypath";
 	public static String PROPERTY_NODETYPE = "nodetype";
 	public static String PROPERTY_COMPONENT = "component";
@@ -53,7 +53,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 	
 	@Override
 	public void scatterProperties( ActionBase action ) throws Exception {
-		String value = super.getStringProperty( action , PROPERTY_DEPLOYTYPE );
+		String value = super.getStringProperty( action , PROPERTY_DEPLOYMODE );
 		if( value.isEmpty() )
 			value = "cold";
 		deployMode = Meta.getDeployMode( value , false );
@@ -117,7 +117,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 			transaction.exitUnexpectedState();
 
 		ActionBase action = transaction.getAction();
-		super.setSystemStringProperty( PROPERTY_DEPLOYTYPE , Common.getEnumLower( itemType ) );
+		super.setSystemStringProperty( PROPERTY_DEPLOYMODE , Common.getEnumLower( deployMode ) );
 		super.setSystemStringProperty( PROPERTY_DEPLOYPATH , deployPath );
 		super.setSystemStringProperty( PROPERTY_NODETYPE , Common.getEnumLower( nodeType ) );
 		
