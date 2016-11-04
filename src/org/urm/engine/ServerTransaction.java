@@ -23,6 +23,7 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrComponent;
+import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaEnv;
@@ -522,6 +523,21 @@ public class ServerTransaction extends TransactionBase {
 	public void deleteDistrComponent( MetaDistrComponent item ) throws Exception {
 		checkTransactionMetadata( item.meta.getStorage( action ) );
 		item.dist.deleteDistrComponent( this , item );
+	}
+	
+	public void createDistrComponentItem( MetaDistrComponent comp , MetaDistrComponentItem item ) throws Exception {
+		checkTransactionMetadata( item.meta.getStorage( action ) );
+		item.comp.createItem( this , item );
+	}
+	
+	public void modifyDistrComponentItem( MetaDistrComponentItem item ) throws Exception {
+		checkTransactionMetadata( item.meta.getStorage( action ) );
+		item.comp.modifyItem( this , item );
+	}
+
+	public void deleteDistrComponentItem( MetaDistrComponentItem item ) throws Exception {
+		checkTransactionMetadata( item.meta.getStorage( action ) );
+		item.comp.deleteItem( this , item );
 	}
 	
 }

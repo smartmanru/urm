@@ -4,11 +4,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerTransaction;
+import org.urm.meta.product.Meta.VarDEPLOYITEMTYPENOCOMP;
 import org.urm.meta.product.Meta.VarNAMETYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -232,6 +234,47 @@ public class MetaDistrComponent {
 		else
 		if( item.schema != null )
 			mapSchemaItems.remove( item.schema.SCHEMA );
+	}
+
+	public void createItem( ServerTransaction transaction , MetaDistrComponentItem item ) throws Exception {
+		if( item.type == VarDEPLOYITEMTYPENOCOMP.BINARY )
+			mapBinaryItems.put( item.NAME , item );
+		else
+		if( item.type == VarDEPLOYITEMTYPENOCOMP.CONF )
+			mapConfItems.put( item.NAME , item );
+		else
+		if( item.type == VarDEPLOYITEMTYPENOCOMP.SCHEMA )
+			mapSchemaItems.put( item.NAME , item );
+	}
+
+	private void removeCompItemByRef( MetaDistrComponentItem ref ) throws Exception {
+		for( Entry<String,MetaDistrComponentItem> entry : mapBinaryItems.entrySet() ) {
+			if( entry.getValue() == ref ) {
+				mapBinaryItems.remove( entry.getKey() );
+				return;
+			}
+		}
+		for( Entry<String,MetaDistrComponentItem> entry : mapConfItems.entrySet() ) {
+			if( entry.getValue() == ref ) {
+				mapConfItems.remove( entry.getKey() );
+				return;
+			}
+		}
+		for( Entry<String,MetaDistrComponentItem> entry : mapSchemaItems.entrySet() ) {
+			if( entry.getValue() == ref ) {
+				mapSchemaItems.remove( entry.getKey() );
+				return;
+			}
+		}
+	}
+
+	public void modifyItem( ServerTransaction transaction , MetaDistrComponentItem item ) throws Exception {
+		removeCompItemByRef( item );
+		createItem( transaction , item );
+	}
+
+	public void deleteItem( ServerTransaction transaction , MetaDistrComponentItem item ) throws Exception {
+		removeCompItem( transaction , item );
 	}
 	
 }

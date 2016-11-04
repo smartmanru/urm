@@ -24,12 +24,14 @@ import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrComponent;
+import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvDC;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.Meta.VarDEPLOYITEMTYPENOCOMP;
 
 public class TransactionBase extends ServerObject {
 
@@ -867,6 +869,18 @@ public class TransactionBase extends ServerObject {
 		Meta meta = getTransactionProductMetadata( comp.meta.name );
 		MetaDistr distr = meta.getDistr( action );
 		return( distr.getComponent( action , comp.NAME ) );
+	}
+
+	public MetaDistrComponentItem getDistrComponentItem( MetaDistrComponentItem item ) throws Exception {
+		MetaDistrComponent comp = getDistrComponent( item.comp );
+		if( item.type == VarDEPLOYITEMTYPENOCOMP.BINARY )
+			return( comp.getBinaryItem( action , item.NAME ) );
+		if( item.type == VarDEPLOYITEMTYPENOCOMP.CONF )
+			return( comp.getConfItem( action , item.NAME ) );
+		if( item.type == VarDEPLOYITEMTYPENOCOMP.SCHEMA )
+			return( comp.getSchemaItem( action , item.NAME ) );
+		action.exitUnexpectedState();
+		return( null );
 	}
 	
 }

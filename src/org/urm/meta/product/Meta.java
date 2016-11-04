@@ -54,6 +54,13 @@ public class Meta extends ServerObject {
 		COMP
 	};
 	
+	public enum VarDEPLOYITEMTYPENOCOMP {
+		UNKNOWN ,
+		BINARY ,
+		CONF ,
+		SCHEMA
+	};
+	
 	public enum VarITEMVERSION {
 		UNKNOWN ,
 		NONE ,
