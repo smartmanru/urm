@@ -200,7 +200,7 @@ public class MetaDistrComponent {
 		MetaDistrComponentItem item = mapBinaryItems.get( name );
 		if( item == null )
 			action.exit1( _Error.UnknownCompBinaryItem1 , "Unknown component binary item=" + name , name );
-		return( null );
+		return( item );
 	}
 	
 	public MetaDistrComponentItem findConfItem( String name ) {
@@ -211,7 +211,7 @@ public class MetaDistrComponent {
 		MetaDistrComponentItem item = mapConfItems.get( name );
 		if( item == null )
 			action.exit1( _Error.UnknownCompConfItem1 , "Unknown component configuration item=" + name , name );
-		return( null );
+		return( item );
 	}
 	
 	public MetaDistrComponentItem findSchemaItem( String name ) {
@@ -222,7 +222,7 @@ public class MetaDistrComponent {
 		MetaDistrComponentItem item = mapSchemaItems.get( name );
 		if( item == null )
 			action.exit1( _Error.UnknownCompSchemaItem1 , "Unknown component databce schema item=" + name , name );
-		return( null );
+		return( item );
 	}
 
 	public void removeCompItem( ServerTransaction transaction , MetaDistrComponentItem item ) throws Exception {
