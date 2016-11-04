@@ -477,7 +477,7 @@ public class ServerTransaction extends TransactionBase {
 
 	public void deleteDistrBinaryItem( MetaDistrBinaryItem item ) throws Exception {
 		checkTransactionMetadata( item.meta.getStorage( action ) );
-		item.delivery.deleteBinaryItem( this , item );
+		item.delivery.dist.deleteBinaryItem( this , item );
 	}
 	
 	public void createDistrConfItem( MetaDistrDelivery delivery , MetaDistrConfItem item ) throws Exception {
@@ -492,7 +492,7 @@ public class ServerTransaction extends TransactionBase {
 
 	public void deleteDistrConfItem( MetaDistrConfItem item ) throws Exception {
 		checkTransactionMetadata( item.meta.getStorage( action ) );
-		item.delivery.deleteConfItem( this , item );
+		item.delivery.dist.deleteConfItem( this , item );
 	}
 	
 	public void createDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {

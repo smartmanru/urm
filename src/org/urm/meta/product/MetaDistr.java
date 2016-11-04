@@ -270,6 +270,16 @@ public class MetaDistr extends PropertyController {
 		mapConfItems.put( item.KEY , item );
 	}
 
+	public void deleteBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+		item.delivery.deleteBinaryItem( transaction , item );
+		mapBinaryItems.remove( item.KEY );
+	}
+	
+	public void deleteConfItem( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
+		item.delivery.deleteConfItem( transaction , item );
+		mapConfItems.remove( item.KEY );
+	}
+	
 	public void deleteDatabaseSchema( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
 		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
 			if( delivery.findSchema( schema.SCHEMA ) != null )
