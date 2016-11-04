@@ -57,7 +57,7 @@ public class ShellProcess {
 
 	public boolean createRemoteWindowsProcessFromLinux( ActionBase action ) throws Exception {
 		if( action.context.CTX_TRACEINTERNAL )
-			action.trace( "create local sh process on behalf of " + executor.account.getPrintName() );
+			action.trace( "create local sh process on behalf of " + shell.account.getPrintName() );
 		builder = new ProcessBuilder( "sh" );
 		return( executor.createProcess( action , this ) );
 	}
@@ -69,14 +69,14 @@ public class ShellProcess {
 	
 	public boolean createRemoteLinuxProcessFromWindowsOld( ActionBase action ) throws Exception {
 		if( action.context.CTX_TRACEINTERNAL )
-			action.trace( "create process - plink " + executor.account.getPrintName() );
+			action.trace( "create process - plink " + shell.account.getPrintName() );
 		
 		String keyFile = action.context.CTX_KEYNAME;
-		String cmd = "plink -P " + executor.account.PORT;
+		String cmd = "plink -P " + shell.account.PORT;
 		if( !keyFile.isEmpty() )
 			cmd += " -i " + keyFile;
 		
-		cmd += " " + executor.account.getHostLogin();
+		cmd += " " + shell.account.getHostLogin();
 		builder = new ProcessBuilder( Common.createList( Common.splitSpaced( cmd ) ) );
 		return( executor.createProcess( action , this ) );
 	}
@@ -88,7 +88,7 @@ public class ShellProcess {
 	
 	public boolean createRemoteLinuxProcessFromLinuxOld( ActionBase action ) throws Exception {
 		String keyFile = action.context.CTX_KEYNAME;
-		Account account = executor.account;
+		Account account = shell.account;
 		if( !keyFile.isEmpty() ) {
 			if( action.context.CTX_TRACEINTERNAL )
 				action.trace( "create process - ssh -T " + account.getSshAddr() + " -i " + keyFile );
@@ -123,18 +123,13 @@ public class ShellProcess {
 		// start OS process
 		process = builder.start();
 		
-		if( executor == null )
-			action.info( "executor is null" );
-		if( executor.pool == null )
-			action.info( "executor pool is null" );
-		
 		// get process ID
-		ShellCoreJNI osapi = executor.pool.getOSAPI();
+		ShellCoreJNI osapi = shell.pool.getOSAPI();
 		if( action.isLocalLinux() )
 			processId = osapi.getLinuxProcessId( action , process );
 		else
 			processId = osapi.getWindowsProcessId( action , process );
-		action.debug( "process started: name=" + executor.name + ", id=" + processId );
+		action.debug( "process started: name=" + shell.name + ", id=" + processId );
 	}
 
 	public void startJssh( ActionBase action , String rootPath ) throws Exception {
@@ -223,7 +218,7 @@ public class ShellProcess {
 		if( processId < 0 )
 			return;
 		
-		ShellExecutor master = executor.pool.master;
+		ShellExecutor master = shell.pool.master;
 		if( action.isLocalLinux() )
 			master.custom( action , "kill -9 " + processId , CommandOutput.LOGLEVEL_TRACE );
 		else
@@ -243,13 +238,13 @@ public class ShellProcess {
 		String keyFile = action.context.CTX_KEYNAME;
 		if( !keyFile.isEmpty() )
 			execLine += " -i " + keyFile;
-		if( executor.account.PORT != 22 )
-			execLine += " -P " + executor.account.PORT;
+		if( shell.account.PORT != 22 )
+			execLine += " -P " + shell.account.PORT;
 
 		String cmdWin = Common.replace( cmd , "\\" , "\\\\" );
 		cmdWin = Common.replace( cmdWin , "\\\\$" , "\\$" );
-		execLine += " " + executor.account.getHostLogin() + " " + Common.getQuoted( "cmd /c chcp 65001 & cmd /c \"echo off & " + cmdWin + "\"" );
-		action.trace( executor.name + " execute: " + cmd );
+		execLine += " " + shell.account.getHostLogin() + " " + Common.getQuoted( "cmd /c chcp 65001 & cmd /c \"echo off & " + cmdWin + "\"" );
+		action.trace( shell.name + " execute: " + cmd );
 		return( execLine );
 	}
 	
