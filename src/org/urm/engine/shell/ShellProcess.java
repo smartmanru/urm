@@ -123,6 +123,11 @@ public class ShellProcess {
 		// start OS process
 		process = builder.start();
 		
+		if( executor == null )
+			action.info( "executor is null" );
+		if( executor.pool == null )
+			action.info( "executor pool is null" );
+		
 		// get process ID
 		ShellCoreJNI osapi = executor.pool.getOSAPI();
 		if( action.isLocalLinux() )
