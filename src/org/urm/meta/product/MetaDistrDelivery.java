@@ -206,27 +206,10 @@ public class MetaDistrDelivery {
 	}
 
 	public void deleteAllItems( ServerTransaction transaction ) throws Exception {
-		for( MetaDistrBinaryItem item : mapBinaryItems.values() ) {
-			for( MetaDistrComponent comp : dist.getComponents() ) {
-				MetaDistrComponentItem compItem = comp.findBinaryItem( item.KEY );
-				if( compItem != null )
-					comp.removeCompItem( transaction , compItem );
-			}
-		}
-		for( MetaDistrConfItem item : mapConfComps.values() ) {
-			for( MetaDistrComponent comp : dist.getComponents() ) {
-				MetaDistrComponentItem compItem = comp.findConfItem( item.KEY );
-				if( compItem != null )
-					comp.removeCompItem( transaction , compItem );
-			}
-		}
-		for( MetaDatabaseSchema item : mapDatabaseSchema.values() ) {
-			for( MetaDistrComponent comp : dist.getComponents() ) {
-				MetaDistrComponentItem compItem = comp.findSchemaItem( item.SCHEMA );
-				if( compItem != null )
-					comp.removeCompItem( transaction , compItem );
-			}
-		}
+		for( MetaDistrBinaryItem item : mapBinaryItems.values() )
+			deleteBinaryItemInternal( transaction , item );
+		for( MetaDistrConfItem item : mapConfComps.values() )
+			deleteConfItemInternal( transaction , item );
 	}
 
 	public void createBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
@@ -237,12 +220,17 @@ public class MetaDistrDelivery {
 	}
 	
 	public void deleteBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+		deleteBinaryItemInternal( transaction , item );
+		mapBinaryItems.remove( item.KEY );
+	}
+
+	private void deleteBinaryItemInternal( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 		for( MetaDistrComponent comp : dist.getComponents() ) {
 			MetaDistrComponentItem compItem = comp.findBinaryItem( item.KEY );
 			if( compItem != null )
 				comp.removeCompItem( transaction , compItem );
 		}
-		mapBinaryItems.remove( item.KEY );
+		meta.deleteBinaryItemFromEnvironments( transaction , item );
 	}
 	
 	public void createConfItem( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
@@ -251,19 +239,24 @@ public class MetaDistrDelivery {
 	
 	public void modifyConfItem( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
 	}
-	
+
 	public void deleteConfItem( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
+		deleteConfItemInternal( transaction , item );
+		mapConfComps.remove( item.KEY );
+	}
+	
+	private void deleteConfItemInternal( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
 		for( MetaDistrComponent comp : dist.getComponents() ) {
 			MetaDistrComponentItem compItem = comp.findConfItem( item.KEY );
 			if( compItem != null )
 				comp.removeCompItem( transaction , compItem );
 		}
-		mapConfComps.remove( item.KEY );
+		meta.deleteConfItemFromEnvironments( transaction , item );
 	}
 
 	public void deleteSchema( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
 		mapDatabaseSchema.remove( schema.SCHEMA );
 		SCHEMASET = Common.getList( Common.getSortedKeys( mapDatabaseSchema ) , " " );
 	}
-	
+
 }

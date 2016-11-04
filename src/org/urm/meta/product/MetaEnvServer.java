@@ -403,8 +403,8 @@ public class MetaEnvServer extends PropertyController {
 		return( false );
 	}
 
-	public List<MetaEnvServerDeployment> getDeployments() {
-		return( deployments );
+	public MetaEnvServerDeployment[] getDeployments() {
+		return( deployments.toArray( new MetaEnvServerDeployment[0] ) );
 	}
 
 	public String getFullBinPath( ActionBase action ) throws Exception {
@@ -860,6 +860,46 @@ public class MetaEnvServer extends PropertyController {
 		
 		for( MetaEnvServerDeployment deployment : deploymentsNew )
 			addDeployment( deployment );
+	}
+
+	public void reflectDeleteBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			if( deployment.isBinaryItem() && deployment.binaryItem == item ) {
+				deployMap.remove( deployment.getName() );
+				deployments.remove( deployment );
+				deployment.deleteObject();
+			}
+		}
+	}
+	
+	public void reflectDeleteConfItem( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			if( deployment.isConfItem() && deployment.confItem == item ) {
+				deployMap.remove( deployment.getName() );
+				deployments.remove( deployment );
+				deployment.deleteObject();
+			}
+		}
+	}
+	
+	public void reflectDeleteComponent( ServerTransaction transaction , MetaDistrComponent item ) throws Exception {
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			if( deployment.isComponent() && deployment.comp == item ) {
+				deployMap.remove( deployment.getName() );
+				deployments.remove( deployment );
+				deployment.deleteObject();
+			}
+		}
+	}
+	
+	public void reflectDeleteSchema( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			if( deployment.isDatabase() && deployment.schema == schema ) {
+				deployMap.remove( deployment.getName() );
+				deployments.remove( deployment );
+				deployment.deleteObject();
+			}
+		}
 	}
 	
 }

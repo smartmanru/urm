@@ -282,4 +282,15 @@ public class MetaDistr extends PropertyController {
 		}
 	}
 	
+	public void createDistrComponent( ServerTransaction transaction , MetaDistrComponent item ) throws Exception {
+		mapComps.put( item.NAME , item );
+	}
+	
+	public void modifyDistrComponent( ServerTransaction transaction , MetaDistrComponent item ) throws Exception {
+	}
+	
+	public void deleteDistrComponent( ServerTransaction transaction , MetaDistrComponent item ) throws Exception {
+		mapComps.remove( item.NAME );
+	}
+	
 }

@@ -176,7 +176,7 @@ public class ServerMonitoring extends ServerObject {
 		}
 
 		// start childs
-		for( String envName : storage.getEnvironments() ) {
+		for( String envName : storage.getEnvironmentNames() ) {
 			MetaEnv env = storage.findEnvironment( envName );
 			startEnvironment( env );
 		}
@@ -259,7 +259,7 @@ public class ServerMonitoring extends ServerObject {
 		ServerProductMeta storage = loader.findProductStorage( productName );
 		
 		// stop childs
-		for( String envName : storage.getEnvironments() ) {
+		for( String envName : storage.getEnvironmentNames() ) {
 			MetaEnv env = storage.findEnvironment( envName );
 			stopEnvironment( env , delete );
 		}
@@ -348,7 +348,7 @@ public class ServerMonitoring extends ServerObject {
 	}
 	
 	public void modifyProduct( ServerProductMeta storageOld , ServerProductMeta storage ) {
-		for( String envName : storage.getEnvironments() ) {
+		for( String envName : storage.getEnvironmentNames() ) {
 			MetaEnv envNew = storage.findEnvironment( envName );
 			MetaEnv envOld = storageOld.findEnvironment( envName );
 			if( envOld != null )
@@ -356,7 +356,7 @@ public class ServerMonitoring extends ServerObject {
 			else
 				startEnvironment( envNew );
 		}
-		for( String envName : storageOld.getEnvironments() ) {
+		for( String envName : storageOld.getEnvironmentNames() ) {
 			MetaEnv envOld = storageOld.findEnvironment( envName );
 			MetaEnv envNew = storage.findEnvironment( envName );
 			if( envNew == null )

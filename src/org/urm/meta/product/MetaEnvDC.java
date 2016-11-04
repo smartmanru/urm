@@ -175,8 +175,8 @@ public class MetaEnvDC extends PropertyController {
 		return( server );
 	}
 	
-	public List<MetaEnvServer> getServers() {
-		return( originalList );
+	public MetaEnvServer[] getServers() {
+		return( originalList.toArray( new MetaEnvServer[0] ) );
 	}
 
 	public String[] getServerNames() {

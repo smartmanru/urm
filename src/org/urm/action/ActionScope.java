@@ -306,7 +306,7 @@ public class ActionScope {
 	private void createEnvServersScope( ActionBase action , MetaEnvDC dc , String[] SERVERS , Dist dist ) throws Exception {
 		scopeFull = false;
 		if( ( SERVERS == null || SERVERS.length == 0 ) && 
-			dc.env.getDatacenters().size() == 1 )
+			dc.env.getDatacenterNames().length == 1 )
 			scopeFull = true;
 			
 		ActionScopeSet sset = createEnvScopeSet( action , context.env , dc , true );

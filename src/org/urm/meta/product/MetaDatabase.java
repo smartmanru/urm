@@ -139,6 +139,9 @@ public class MetaDatabase extends PropertyController {
 	}
 	
 	public void deleteDatabaseSchema( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
+		meta.deleteDatabaseSchemaFromEnvironments( transaction , schema );
+		MetaDistr distr = schema.meta.getDistr( transaction.getAction() );
+		distr.deleteDatabaseSchema( transaction , schema );
 		mapSchema.remove( schema.SCHEMA );
 	}
 	

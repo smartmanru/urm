@@ -269,8 +269,8 @@ public class MetaEnv extends PropertyController {
 		return( Common.getSortedKeys( dcMap ) );
 	}
 	
-	public List<MetaEnvDC> getDatacenters() {
-		return( originalList );
+	public MetaEnvDC[] getDatacenters() {
+		return( originalList.toArray( new MetaEnvDC[0] ) );
 	}
 	
 	public boolean isMultiDC( ActionBase action ) throws Exception {

@@ -16,11 +16,10 @@ import org.w3c.dom.Node;
 
 public class MetaDistrComponent {
 
-	protected Meta meta;
-	MetaDistr dist;
+	public Meta meta;
+	public MetaDistr dist;
 
 	public String NAME;
-	public String UNIT;
 	public String DESC;
 	public boolean OBSOLETE;
 
@@ -39,10 +38,17 @@ public class MetaDistrComponent {
 		listWS = new LinkedList<MetaDistrComponentWS>();
 	}
 
+	public void createComponent( ServerTransaction transaction , String name ) throws Exception {
+		this.NAME = name;
+	}
+	
+	public void setData( ServerTransaction transaction , String desc ) throws Exception {
+		this.DESC = desc;
+	}
+	
 	public MetaDistrComponent copy( ActionBase action , Meta meta , MetaDistr distr ) throws Exception {
 		MetaDistrComponent r = new MetaDistrComponent( meta , distr );
 		r.NAME = NAME;
-		r.UNIT = UNIT;
 		r.DESC = DESC;
 		r.OBSOLETE = OBSOLETE;
 		
@@ -71,7 +77,6 @@ public class MetaDistrComponent {
 	
 	public void load( ActionBase action , Node node ) throws Exception {
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
-		UNIT = ConfReader.getAttrValue( node , "unit" );
 		DESC = ConfReader.getAttrValue( node , "desc" );
 		OBSOLETE = ConfReader.getBooleanAttrValue( node , "obsolete" , false );
 		
@@ -115,7 +120,6 @@ public class MetaDistrComponent {
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , "name" , NAME );
-		Common.xmlSetElementAttr( doc , root , "unit" , UNIT );
 		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
 		Common.xmlSetElementAttr( doc , root , "obsolete" , Common.getBooleanValue( OBSOLETE ) );
 		

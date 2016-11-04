@@ -23,6 +23,7 @@ import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaEnv;
@@ -860,6 +861,12 @@ public class TransactionBase extends ServerObject {
 		Meta meta = getTransactionProductMetadata( schema.meta.name );
 		MetaDatabase database = meta.getDatabase( action );
 		return( database.getSchema( action , schema.SCHEMA ) );
+	}
+
+	public MetaDistrComponent getDistrComponent( MetaDistrComponent comp ) throws Exception {
+		Meta meta = getTransactionProductMetadata( comp.meta.name );
+		MetaDistr distr = meta.getDistr( action );
+		return( distr.getComponent( action , comp.NAME ) );
 	}
 	
 }

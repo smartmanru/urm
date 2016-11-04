@@ -5,6 +5,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.ServerSession;
+import org.urm.engine.ServerTransaction;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerObject;
 import org.urm.meta.ServerProductMeta;
@@ -312,7 +313,7 @@ public class Meta extends ServerObject {
 	}
 	
 	public String[] getEnvList() {
-		return( storage.getEnvironments() );
+		return( storage.getEnvironmentNames() );
 	}
 	
 	public synchronized MetaEnv getEnvData( ActionBase action , String envFile , boolean loadProps ) throws Exception {
@@ -814,5 +815,33 @@ public class Meta extends ServerObject {
     		return( null );
     	return( server.findNode( node.POS ) );
     }
+
+	public void deleteBinaryItemFromEnvironments( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+		for( MetaEnv env : storage.getEnvironments() )
+			for( MetaEnvDC dc : env.getDatacenters() )
+				for( MetaEnvServer server : dc.getServers() )
+					server.reflectDeleteBinaryItem( transaction , item );
+	}
+
+	public void deleteConfItemFromEnvironments( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
+		for( MetaEnv env : storage.getEnvironments() )
+			for( MetaEnvDC dc : env.getDatacenters() )
+				for( MetaEnvServer server : dc.getServers() )
+					server.reflectDeleteConfItem( transaction , item );
+	}
+
+	public void deleteComponentFromEnvironments( ServerTransaction transaction , MetaDistrComponent item ) throws Exception {
+		for( MetaEnv env : storage.getEnvironments() )
+			for( MetaEnvDC dc : env.getDatacenters() )
+				for( MetaEnvServer server : dc.getServers() )
+					server.reflectDeleteComponent( transaction , item );
+	}
+
+	public void deleteDatabaseSchemaFromEnvironments( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
+		for( MetaEnv env : storage.getEnvironments() )
+			for( MetaEnvDC dc : env.getDatacenters() )
+				for( MetaEnvServer server : dc.getServers() )
+					server.reflectDeleteSchema( transaction , schema );
+	}
 
 }

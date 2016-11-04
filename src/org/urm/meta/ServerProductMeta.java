@@ -560,7 +560,7 @@ public class ServerProductMeta extends ServerObject {
 		return( mon );
 	}
 	
-	public synchronized String[] getEnvironments() {
+	public String[] getEnvironmentNames() {
 		List<String> names = new LinkedList<String>();
 		for( MetaEnv env : envs.values() )
 			names.add( env.ID );
@@ -568,7 +568,7 @@ public class ServerProductMeta extends ServerObject {
 		return( names.toArray( new String[0] ) );
 	}
 
-	public synchronized MetaEnv findEnvironment( String envId ) {
+	public MetaEnv findEnvironment( String envId ) {
 		for( MetaEnv env : envs.values() ) {
 			if( env.ID.equals( envId ) )
 				return( env );
@@ -576,6 +576,10 @@ public class ServerProductMeta extends ServerObject {
 		return( null );
 	}
 
+	public MetaEnv[] getEnvironments() {
+		return( envs.values().toArray( new MetaEnv[0] ) );
+	}
+	
 	public void deleteEnv( ServerTransaction transaction , MetaEnv env ) throws Exception {
 		String envFile = env.ID + ".xml";
 		envs.remove( envFile );
