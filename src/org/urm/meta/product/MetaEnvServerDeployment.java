@@ -1,6 +1,7 @@
 package org.urm.meta.product;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.common.PropertyController;
 import org.urm.engine.ServerTransaction;
 import org.urm.meta.product.Meta.VarDEPLOYITEMTYPE;
@@ -112,22 +113,29 @@ public class MetaEnvServerDeployment extends PropertyController {
 	}
 	
 	public void create( ServerTransaction transaction , VarDEPLOYITEMTYPE itemType , String itemName , VarNODETYPE nodeType , VarDEPLOYMODE deployMode , String deployPath ) throws Exception {
-		this.itemType = itemType;
+		if( !super.initCreateStarted( server.getProperties() ) )
+			transaction.exitUnexpectedState();
+
+		ActionBase action = transaction.getAction();
+		super.setSystemStringProperty( PROPERTY_DEPLOYTYPE , Common.getEnumLower( itemType ) );
+		super.setSystemStringProperty( PROPERTY_DEPLOYPATH , deployPath );
+		super.setSystemStringProperty( PROPERTY_NODETYPE , Common.getEnumLower( nodeType ) );
+		
 		if( itemType == VarDEPLOYITEMTYPE.COMP )
-			COMP = itemName;
+			super.setSystemStringProperty( PROPERTY_COMPONENT , itemName );
 		else
 		if( itemType == VarDEPLOYITEMTYPE.BINARY )
-			DISTITEM = itemName;
+			super.setSystemStringProperty( PROPERTY_DISTITEM , itemName );
 		else
 		if( itemType == VarDEPLOYITEMTYPE.CONF )
-			CONFITEM = itemName;
+			super.setSystemStringProperty( PROPERTY_CONFITEM , itemName );
 		else
 		if( itemType == VarDEPLOYITEMTYPE.SCHEMA )
-			SCHEMA = itemName;
-		
-		this.deployMode = deployMode;
-		this.nodeType = nodeType;
-		this.DEPLOYPATH = deployPath;
+			super.setSystemStringProperty( PROPERTY_SCHEMA , itemName );
+
+		scatterProperties( action );
+		resolveLinks( action );
+		super.initFinished();
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {

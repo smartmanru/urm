@@ -28,48 +28,48 @@ public class MetaEnvServer extends PropertyController {
 	public Meta meta;
 	public MetaEnvDC dc;
 	
-	public String NAME;
-	public String DESC;
+	public String NAME = "";
+	public String DESC = "";
 	private VarSERVERRUNTYPE serverRunType;
 	private VarSERVERACCESSTYPE serverAccessType;
 	public VarOSTYPE osType;
 	
-	public String BASELINE;
-	public String XDOC;
-	public boolean OFFLINE;
+	public String BASELINE = "";
+	public String XDOC = "";
+	public boolean OFFLINE = false;
 	
-	public String ROOTPATH;
-	public String BINPATH;
-	public String SYSNAME;
-	public int PORT;
-	private String NLBSERVER;
+	public String ROOTPATH = "";
+	public String BINPATH = "";
+	public String SYSNAME = "";
+	public int PORT = 0;
+	private String NLBSERVER = "";
 	public MetaEnvServer nlbServer;
-	private String PROXYSERVER;
+	private String PROXYSERVER = "";
 	public MetaEnvServer proxyServer;
-	private String STATICSERVER;
+	private String STATICSERVER = "";
 	public MetaEnvServer staticServer;
-	private String SUBORDINATESERVERS;
+	private String SUBORDINATESERVERS = "";
 	public MetaEnvServer[] subordinateServers;
-	public int STARTTIME;
-	public int STOPTIME;
-	public String DEPLOYPATH;
-	public String LINKFROMPATH;
-	public String DEPLOYSCRIPT;
-	public String HOTDEPLOYPATH;
-	public String HOTDEPLOYDATA;
-	public String WEBSERVICEURL;
-	public String WEBMAINURL;
-	public String APPSERVER;
-	public String LOGPATH;
-	public String LOGFILEPATH;
-	public boolean NOPIDS;
+	public int STARTTIME = 0;
+	public int STOPTIME = 0;
+	public String DEPLOYPATH = "";
+	public String LINKFROMPATH = "";
+	public String DEPLOYSCRIPT = "";
+	public String HOTDEPLOYPATH = "";
+	public String HOTDEPLOYDATA = "";
+	public String WEBSERVICEURL = "";
+	public String WEBMAINURL = "";
+	public String APPSERVER = "";
+	public String LOGPATH = "";
+	public String LOGFILEPATH = "";
+	public boolean NOPIDS = false;
 
 	public VarDBMSTYPE dbType;
-	public String DBMSADDR;
-	public String ADMSCHEMA;
+	public String DBMSADDR = "";
+	public String ADMSCHEMA = "";
 	public MetaDatabaseSchema admSchema;
-	public String ALIGNED;
-	public String REGIONS;
+	public String ALIGNED = "";
+	public String REGIONS = "";
 	
 	public MetaEnvServerBase basesw;
 	
@@ -598,9 +598,6 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	public boolean isDeployPossible() {
-		if( !isConfigurable() )
-			return( false );
-		
 		// check deploy items
 		if( deployments != null ) {
 			for( MetaEnvServerDeployment item : deployments ) {
