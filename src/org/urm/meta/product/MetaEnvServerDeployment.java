@@ -16,19 +16,19 @@ public class MetaEnvServerDeployment extends PropertyController {
 	protected Meta meta;
 	MetaEnvServer server;
 	
-	public VarDEPLOYITEMTYPE itemType;
-	public String COMP;
+	public VarDEPLOYITEMTYPE itemType = VarDEPLOYITEMTYPE.UNKNOWN;
+	public String COMP = "";
 	public MetaDistrComponent comp;
-	public String DISTITEM;
+	public String DISTITEM = "";
 	public MetaDistrBinaryItem binaryItem;
-	public String CONFITEM;
+	public String CONFITEM = "";
 	public MetaDistrConfItem confItem;
-	public String SCHEMA;
+	public String SCHEMA = "";
 	public MetaDatabaseSchema schema;
 	
-	public VarDEPLOYMODE deployMode;
-	public String DEPLOYPATH;
-	public VarNODETYPE nodeType;
+	public VarDEPLOYMODE deployMode = VarDEPLOYMODE.UNKNOWN;
+	public String DEPLOYPATH = "";
+	public VarNODETYPE nodeType = VarNODETYPE.UNKNOWN;
 	
 	public static String PROPERTY_DEPLOYMODE = "deploymode";
 	public static String PROPERTY_DEPLOYPATH = "deploypath";
