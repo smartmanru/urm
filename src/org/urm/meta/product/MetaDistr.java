@@ -217,17 +217,16 @@ public class MetaDistr extends PropertyController {
 		return( item );
 	}
 	
-	public Map<String,MetaDistrDelivery> getDeliveries( ActionBase action ) throws Exception {
-		return( mapDeliveries );
+	public MetaDistrDelivery[] getDeliveries() {
+		return( mapDeliveries.values().toArray( new MetaDistrDelivery[0] ) );
 	}
 
-	public List<MetaDistrDelivery> getDatabaseDeliveries( ActionBase action ) throws Exception {
+	public MetaDistrDelivery[] getDatabaseDeliveries() {
 		List<MetaDistrDelivery> list = new LinkedList<MetaDistrDelivery>();
-		MetaDistr distr = meta.getDistr( action );
-		for( MetaDistrDelivery delivery : distr.getDeliveries( action ).values() )
-			if( delivery.hasDatabaseItems( action ) )
+		for( MetaDistrDelivery delivery : mapDeliveries.values() )
+			if( delivery.hasDatabaseItems() )
 				list.add( delivery );
-		return( list );
+		return( list.toArray( new MetaDistrDelivery[0] ) );
 	}
 
 	public MetaDistrDelivery findDelivery( String DELIVERY ) {
@@ -269,6 +268,18 @@ public class MetaDistr extends PropertyController {
 	public void createDistrConfItem( ServerTransaction transaction , MetaDistrDelivery delivery , MetaDistrConfItem item ) throws Exception {
 		delivery.createConfItem( transaction , item );
 		mapConfItems.put( item.KEY , item );
+	}
+
+	public void deleteDatabaseSchema( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
+		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
+			if( delivery.findSchema( schema.SCHEMA ) != null )
+				delivery.deleteSchema( transaction , schema );
+		}
+		for( MetaDistrComponent comp : getComponents() ) {
+			MetaDistrComponentItem compItem = comp.findSchemaItem( schema.SCHEMA );
+			if( compItem != null )
+				comp.removeCompItem( transaction , compItem );
+		}
 	}
 	
 }

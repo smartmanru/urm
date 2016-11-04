@@ -278,7 +278,7 @@ public class ReleaseSet {
 
 	public void addAllDatabaseItems( ActionBase action ) throws Exception {
 		MetaDistr distr = meta.getDistr( action ); 
-		for( MetaDistrDelivery delivery : distr.getDatabaseDeliveries( action ) )
+		for( MetaDistrDelivery delivery : distr.getDatabaseDeliveries() )
 			addDatabaseItem( action , delivery );
 	}
 

@@ -680,7 +680,7 @@ public class Release {
 	}
 
 	public boolean addDatabaseItem( ActionBase action , MetaDistrDelivery item ) throws Exception {
-		if( !item.hasDatabaseItems( action ) ) {
+		if( !item.hasDatabaseItems() ) {
 			action.error( "no database items in delivery=" + item.NAME );
 			return( false );
 		}

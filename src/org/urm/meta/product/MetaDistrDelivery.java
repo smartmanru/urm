@@ -199,7 +199,7 @@ public class MetaDistrDelivery {
 		return( mapDatabaseSchema.values().toArray( new MetaDatabaseSchema[0] ) );
 	}
 
-	public boolean hasDatabaseItems( ActionBase action ) throws Exception {
+	public boolean hasDatabaseItems() {
 		if( mapDatabaseSchema.isEmpty() )
 			return( false );
 		return( true );
@@ -259,6 +259,11 @@ public class MetaDistrDelivery {
 				comp.removeCompItem( transaction , compItem );
 		}
 		mapConfComps.remove( item.KEY );
+	}
+
+	public void deleteSchema( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
+		mapDatabaseSchema.remove( schema.SCHEMA );
+		SCHEMASET = Common.getList( Common.getSortedKeys( mapDatabaseSchema ) , " " );
 	}
 	
 }

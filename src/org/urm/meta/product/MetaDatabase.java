@@ -7,6 +7,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
+import org.urm.engine.ServerTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.meta.ServerProductMeta;
 import org.w3c.dom.Document;
@@ -128,6 +129,17 @@ public class MetaDatabase extends PropertyController {
 		super.saveAsElements( doc , root );
 		saveAdministration( action , doc , root );
 		saveSchemaSet( action , doc , root );
+	}
+
+	public void createDatabaseSchema( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
+		mapSchema.put( schema.SCHEMA , schema );
+	}
+	
+	public void modifyDatabaseSchema( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
+	}
+	
+	public void deleteDatabaseSchema( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
+		mapSchema.remove( schema.SCHEMA );
 	}
 	
 }

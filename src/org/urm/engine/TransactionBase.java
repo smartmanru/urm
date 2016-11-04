@@ -19,6 +19,8 @@ import org.urm.meta.engine.ServerResources;
 import org.urm.meta.engine.ServerSettings;
 import org.urm.meta.engine.ServerSystem;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDatabase;
+import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
@@ -852,6 +854,12 @@ public class TransactionBase extends ServerObject {
 	public MetaDistrConfItem getDistrConfItem( MetaDistrConfItem item ) throws Exception {
 		MetaDistrDelivery delivery = getDistrDelivery( item.delivery );
 		return( delivery.getConfItem( action , item.KEY ) );
+	}
+
+	public MetaDatabaseSchema getDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {
+		Meta meta = getTransactionProductMetadata( schema.meta.name );
+		MetaDatabase database = meta.getDatabase( action );
+		return( database.getSchema( action , schema.SCHEMA ) );
 	}
 	
 }

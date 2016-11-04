@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.database.DatabaseSpecific;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.engine.ServerTransaction;
 import org.urm.meta.product.Meta.VarDBMSTYPE;
 import org.urm.meta.product.Meta.VarNAMETYPE;
 import org.w3c.dom.Document;
@@ -12,7 +13,7 @@ import org.w3c.dom.Node;
 
 public class MetaDatabaseSchema {
 
-	protected Meta meta;
+	public Meta meta;
 	public MetaDatabase database;
 
 	public String SCHEMA;
@@ -27,7 +28,22 @@ public class MetaDatabaseSchema {
 		this.meta = meta;
 		this.database = database;
 	}
+	
+	public void createSchema( ServerTransaction transaction , String SCHEMA ) throws Exception {
+		this.SCHEMA = SCHEMA;
+		dbmsType = VarDBMSTYPE.UNKNOWN;
+		DBNAME = "";
+		DBUSER = "";
+		DESC = "";
+	}
 
+	public void setData( ServerTransaction transaction , String desc , VarDBMSTYPE dbType , String dbName , String dbUser ) throws Exception {
+		this.DESC = desc;
+		this.dbmsType = dbType;
+		this.DBNAME = dbName;
+		this.DBUSER = dbUser;
+	}
+	
 	public void load( ActionBase action , Node node ) throws Exception {
 		SCHEMA = action.getNameAttr( node , VarNAMETYPE.ALPHANUM );
 		dbmsType = Meta.getDbmsType( ConfReader.getAttrValue( node , "dbtype" ) , false );

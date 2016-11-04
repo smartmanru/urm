@@ -304,14 +304,15 @@ public class ActionScopeSet {
 		MetaDistr distr = meta.getDistr( action );
 		if( DELIVERIES == null || DELIVERIES.length == 0 ) {
 			setFull = true; 
-			for( MetaDistrDelivery item : distr.getDeliveries( action ).values() )
+			for( MetaDistrDelivery item : distr.getDatabaseDeliveries() )
 				addProductDatabase( action , item , false );
 			return;
 		}
 		
 		for( String key : DELIVERIES ) {
 			MetaDistrDelivery item = distr.getDelivery( action , key );
-			addProductDatabase( action , item , true );
+			if( item.hasDatabaseItems() )
+				addProductDatabase( action , item , true );
 		}
 	}
 
