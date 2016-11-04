@@ -101,27 +101,27 @@ public class ActionCheckEnv extends ActionBase {
 			handle( e );
 		}
 		
-		String[] log = super.logFinishCapture( captureIndex );
-		serverStatus.setLog( log );
-		super.eventSource.finishScopeItem( ServerMonitoring.EVENT_MONITORING_SERVER , serverStatus );
-		
 		// check status
 		String F_STATUSOBJECT = set.dc.NAME + "." + target.envServer.NAME;
 		if( !S_CHECKENV_TARGET_FAILED ) {
 			info( "## server " + F_STATUSOBJECT + " check OK" );
-			return( SCOPESTATE.RunSuccess );
 		}
-
-		String MSG = "## server " + F_STATUSOBJECT + " check FAILED:";
-		if( !S_CHECKENV_TARGET_SERVERS_FAILED.isEmpty() )
-			MSG = Common.addToList( MSG , "associated.failed={" + S_CHECKENV_TARGET_SERVERS_FAILED + "}" , " " );
-		if( !S_CHECKENV_TARGET_NODES_FAILED.isEmpty() )
-			MSG = Common.addToList( MSG , "nodes.failed={" + S_CHECKENV_TARGET_NODES_FAILED + "}" , " " );
-		if( !S_CHECKENV_TARGET_COMPS_FAILED.isEmpty() )
-			MSG = Common.addToList( MSG , "components.failed={" + S_CHECKENV_TARGET_COMPS_FAILED + "}" , " " );
-		info( MSG );
+		else {
+			String MSG = "## server " + F_STATUSOBJECT + " check FAILED:";
+			if( !S_CHECKENV_TARGET_SERVERS_FAILED.isEmpty() )
+				MSG = Common.addToList( MSG , "associated.failed={" + S_CHECKENV_TARGET_SERVERS_FAILED + "}" , " " );
+			if( !S_CHECKENV_TARGET_NODES_FAILED.isEmpty() )
+				MSG = Common.addToList( MSG , "nodes.failed={" + S_CHECKENV_TARGET_NODES_FAILED + "}" , " " );
+			if( !S_CHECKENV_TARGET_COMPS_FAILED.isEmpty() )
+				MSG = Common.addToList( MSG , "components.failed={" + S_CHECKENV_TARGET_COMPS_FAILED + "}" , " " );
+			info( MSG );
+			
+			S_CHECKENV_TOTAL_SERVERS_FAILED = Common.addItemToUniqueSpacedList( S_CHECKENV_TOTAL_SERVERS_FAILED , target.NAME );
+		}
 		
-		S_CHECKENV_TOTAL_SERVERS_FAILED = Common.addItemToUniqueSpacedList( S_CHECKENV_TOTAL_SERVERS_FAILED , target.NAME );
+		String[] log = super.logFinishCapture( captureIndex );
+		serverStatus.setLog( log );
+		super.eventSource.finishScopeItem( ServerMonitoring.EVENT_MONITORING_SERVER , serverStatus );
 		
 		return( SCOPESTATE.RunSuccess );
 	}
