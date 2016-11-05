@@ -105,6 +105,12 @@ abstract public class ActionBase extends ActionCore {
 		context = new CommandContext( base.context , stream );
 	}
 
+	@Override
+	public void handle( Throwable e , String s ) {
+		log( s , e );
+		super.handle( e , s );
+	}
+	
 	public void setContext( CommandContext context ) {
 		this.context = context;
 	}
@@ -121,10 +127,8 @@ abstract public class ActionBase extends ActionCore {
 		return( new LocalFolder( Common.getLinuxPath( path ) , isLocalWindows() ) );
 	}
 
-	@Override
-	public void handle( Throwable e , String s ) {
-		log( s , e );
-		super.handle( e , s );
+	public RemoteFolder getRemoteFolder( Account account , String folderPath ) {
+		return( new RemoteFolder( account , Common.getLinuxPath( folderPath ) ) );
 	}
 	
 	public boolean continueRun() {

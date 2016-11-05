@@ -840,5 +840,15 @@ public class Common {
 		}
 		return( getSortedList( items ) );
 	}
+
+	public static boolean isBasenameMask( String name ) {
+		if( name.indexOf( '[') >= 0 || 
+			name.indexOf( '\\') >= 0 || 
+			name.indexOf( '*') >= 0 ||
+			name.indexOf( '+') >= 0 ||
+			name.indexOf( '!') >= 0 )
+			return( true );
+		return( false );
+	}
 	
 }

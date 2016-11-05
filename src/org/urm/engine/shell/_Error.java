@@ -46,5 +46,7 @@ public class _Error {
 	public static final int MissingAuthKeyData1 = ErrorBase + 37;
 	public static final int MissingAuthPasswordData1 = ErrorBase + 38;
 	public static final int InvalidAuthData1 = ErrorBase + 39;
+	public static final int ScpMissingDestinationDirectory1 = ErrorBase + 40;
+	public static final int ScpDestinationCannotBeFile1 = ErrorBase + 41;
 	
 }
