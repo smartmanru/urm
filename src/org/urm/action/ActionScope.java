@@ -354,7 +354,7 @@ public class ActionScope {
 		
 		ReleaseTarget releaseProject = dist.release.findBuildProject( action , PROJECT );
 		if( releaseProject == null ) {
-			action.info( "ignore non-release project=" + PROJECT );
+			action.debug( "scope: ignore non-release project=" + PROJECT );
 			return( null );
 		}
 

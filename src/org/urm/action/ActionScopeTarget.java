@@ -189,7 +189,7 @@ public class ActionScopeTarget {
 			if( releaseItem != null )
 				addItem( action , releaseItem , true );
 			else
-				action.info( "ignore non-release item=" + itemName );
+				action.info( "scope: ignore non-release item=" + itemName );
 		}
 	}
 	
@@ -277,8 +277,10 @@ public class ActionScopeTarget {
 		if( !specifiedExplicitly ) {
 			// ignore if offline
 			if( node.OFFLINE ) {
-				if( !action.context.CTX_ALL )
+				if( !action.context.CTX_ALL ) {
+					action.trace( "scope: ignore offline node=" + node.POS );
 					return( null );
+				}
 			}
 				
 			// check matches deploygroup or startgroup

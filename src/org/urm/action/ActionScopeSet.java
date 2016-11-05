@@ -97,7 +97,7 @@ public class ActionScopeSet {
 	}
 
 	private void addTarget( ActionBase action , ActionScopeTarget target ) throws Exception {
-		action.trace( "scope add target=" + target.NAME );
+		action.trace( "scope: add target=" + target.NAME );
 		targets.put( target.NAME , target );
 	}
 	
@@ -411,7 +411,7 @@ public class ActionScopeSet {
 				if( addServer )
 					addEnvServer( action , server , null , false );
 				else
-					action.trace( "scope skip non-release server=" + server.NAME );
+					action.trace( "scope: skip non-release server=" + server.NAME );
 			}
 			return;
 		}
@@ -425,7 +425,7 @@ public class ActionScopeSet {
 				addEnvServer( action , server , null , true );
 			}
 			else
-				action.trace( "scope skip non-release server=" + SERVER );
+				action.trace( "scope: skip non-release server=" + SERVER );
 		}
 	}
 
@@ -444,12 +444,12 @@ public class ActionScopeSet {
 			boolean addServer = ( dist == null )? true : releaseServers.containsKey( server.NAME );
 			if( addServer ) {
 				if( action.context.CTX_DB.isEmpty() == false && action.context.CTX_DB.equals( server.NAME ) == false )
-					action.trace( "ignore not-action scope server=" + server.NAME );
+					action.trace( "scope: ignore not-action scope server=" + server.NAME );
 				else
 					addEnvServer( action , server , null , false );
 			}
 			else
-				action.trace( "scope skip non-release server=" + server.NAME );
+				action.trace( "scope: skip non-release server=" + server.NAME );
 		}
 	}
 	
@@ -458,19 +458,19 @@ public class ActionScopeSet {
 			// check offline or not in given start group
 			if( server.OFFLINE ) {
 				if( !action.context.CTX_ALL ) {
-					action.trace( "ignore offline server=" + server.NAME );
+					action.trace( "scope: ignore offline server=" + server.NAME );
 					return( null );
 				}
 			}
 			
 			if( !action.context.CTX_STARTGROUP.isEmpty() ) {
 				if( server.startGroup == null ) {
-					action.trace( "ignore non-specified startgroup server=" + server.NAME );
+					action.trace( "scope: ignore non-specified startgroup server=" + server.NAME );
 					return( null );
 				}
 				
 				if( !server.startGroup.NAME.equals( action.context.CTX_STARTGROUP ) ) {
-					action.trace( "ignore different startgroup server=" + server.NAME );
+					action.trace( "scope: ignore different startgroup server=" + server.NAME );
 					return( null );
 				}
 			}
@@ -487,7 +487,7 @@ public class ActionScopeSet {
 		if( release != null ) {
 			releaseServers = getReleaseServers( action , release );
 			if( !releaseServers.containsKey( server.NAME ) ) {
-				action.trace( "ignore non-release server=" + server.NAME );
+				action.trace( "scope: ignore non-release server=" + server.NAME );
 				return( null );
 			}
 		}
