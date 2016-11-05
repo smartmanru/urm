@@ -753,7 +753,7 @@ public class ActionScope {
 	}
 	
 	private void addScopeSet( ActionBase action , ActionScopeSet sset ) throws Exception {
-		action.trace( "scope add set category=" + Common.getEnumLower( sset.CATEGORY ) + ", name=" + sset.NAME );
+		action.trace( "scope: scope add set category=" + Common.getEnumLower( sset.CATEGORY ) + ", name=" + sset.NAME );
 		
 		if( Meta.isSourceCategory( sset.CATEGORY ) )
 			sourceMap.put( sset.NAME , sset );
