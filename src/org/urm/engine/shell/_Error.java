@@ -43,5 +43,8 @@ public class _Error {
 	public static final int CommandKilled = ErrorBase + 34;
 	public static final int MissingAuthKey1 = ErrorBase + 35;
 	public static final int MismatchedOsType2 = ErrorBase + 36;
+	public static final int MissingAuthKeyData1 = ErrorBase + 37;
+	public static final int MissingAuthPasswordData1 = ErrorBase + 38;
+	public static final int InvalidAuthData1 = ErrorBase + 39;
 	
 }
