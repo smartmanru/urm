@@ -804,7 +804,10 @@ public abstract class ShellExecutor extends Shell {
 		try {
 			opstart();
 			int timeout = action.setTimeoutUnlimited();
-			core.cmdScpFilesRemoteToLocal( action , srcPath , account , dstPath );
+			if( process.isNativeScp( account ) )
+				process.scpFilesRemoteToLocal( action , srcPath , account , dstPath );
+			else
+				core.cmdScpFilesRemoteToLocal( action , srcPath , account , dstPath );
 			action.setTimeout( timeout );
 		}
 		finally {
@@ -815,7 +818,10 @@ public abstract class ShellExecutor extends Shell {
 	public synchronized void scpDirContentRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		try {
 			opstart();
-			core.cmdScpDirContentRemoteToLocal( action , srcPath , account , dstPath );
+			if( process.isNativeScp( account ) )
+				process.scpDirContentRemoteToLocal( action , srcPath , account , dstPath );
+			else
+				core.cmdScpDirContentRemoteToLocal( action , srcPath , account , dstPath );
 		}
 		finally {
 			opstop();
@@ -825,7 +831,10 @@ public abstract class ShellExecutor extends Shell {
 	public synchronized void scpFilesLocalToRemote( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		try {
 			opstart();
-			core.cmdScpFilesLocalToRemote( action , srcPath , account , dstPath );
+			if( process.isNativeScp( account ) )
+				process.scpFilesLocalToRemote( action , srcPath , account , dstPath );
+			else
+				core.cmdScpFilesLocalToRemote( action , srcPath , account , dstPath );
 		}
 		finally {
 			opstop();
@@ -835,7 +844,10 @@ public abstract class ShellExecutor extends Shell {
 	public synchronized void scpDirLocalToRemote( ActionBase action , String srcDirPath , Account account , String baseDstDir ) throws Exception {
 		try {
 			opstart();
-			core.cmdScpDirLocalToRemote( action , srcDirPath , account , baseDstDir );
+			if( process.isNativeScp( account ) )
+				process.scpDirLocalToRemote( action , srcDirPath , account , baseDstDir );
+			else
+				core.cmdScpDirLocalToRemote( action , srcDirPath , account , baseDstDir );
 		}
 		finally {
 			opstop();
@@ -845,7 +857,10 @@ public abstract class ShellExecutor extends Shell {
 	public synchronized void scpDirContentLocalToRemote( ActionBase action , String srcDirPath , Account account , String dstDir ) throws Exception {
 		try {
 			opstart();
-			core.cmdScpDirContentLocalToRemote( action , srcDirPath , account , dstDir );
+			if( process.isNativeScp( account ) )
+				process.scpDirContentLocalToRemote( action , srcDirPath , account , dstDir );
+			else
+				core.cmdScpDirContentLocalToRemote( action , srcDirPath , account , dstDir );
 		}
 		finally {
 			opstop();
@@ -855,7 +870,10 @@ public abstract class ShellExecutor extends Shell {
 	public synchronized void scpDirRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		try {
 			opstart();
-			core.cmdScpDirRemoteToLocal( action , srcPath , account , dstPath );
+			if( process.isNativeScp( account ) )
+				process.scpDirRemoteToLocal( action , srcPath , account , dstPath );
+			else
+				core.cmdScpDirRemoteToLocal( action , srcPath , account , dstPath );
 		}
 		finally {
 			opstop();

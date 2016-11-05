@@ -89,9 +89,9 @@ public class TransactionMetadata {
 			if( metadataOld == null )
 				return( true );
 
+			mon.deleteProduct( metadataOld );
 			transaction.action.deleteProductMetadata( transaction , metadataOld );
 			transaction.trace( "transaction product storage meta: delete=" + metadataOld.objectId );
-			mon.deleteProduct( metadataOld );
 		}
 		else {
 			if( metadata == null )

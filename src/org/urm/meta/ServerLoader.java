@@ -245,9 +245,6 @@ public class ServerLoader {
 		if( storage == null )
 			action.exit1( _Error.UnknownSessionProduct1 , "unknown product=" + session.productName , session.productName );
 		
-		if( storage.loadFailed )
-			action.exit1( _Error.UnusableProductMetadata1 , "unusable metadata of product=" + session.productName , session.productName );
-		
 		return( storage );
 	}
 
