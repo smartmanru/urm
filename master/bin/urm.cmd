@@ -3,7 +3,9 @@
 cd %~dp0
 cd ..\..
 
+set PATH=%C_URM_INSTALLPATH%\bin;%PATH%
 chcp 65001 > NUL
+
 set C_URM_INSTALLPATH=%CD%
 
 if "%C_URM_MODE%" == "main" (

@@ -5,6 +5,8 @@ cd ../..
 
 C_URM_INSTALLPATH=`pwd`
 
+export PATH=$C_URM_INSTALLPATH/bin:PATH
+
 if [ "$C_URM_MODE" = "main" ]; then
 	C_URM_SERVER=
 	C_UMR_CLASS=org.urm.server.Main
