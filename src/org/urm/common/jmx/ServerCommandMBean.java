@@ -346,6 +346,8 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 	private String notifyExecute( String name , Object[] args ) throws Exception {
 		if( name.equals( RemoteCall.GENERIC_ACTION_NAME ) ) {
 			int sessionId = notifyExecuteGeneric( args );
+			if( sessionId < 0 )
+				return( null );
 			return( "" + sessionId );
 		}
 		

@@ -60,7 +60,7 @@ public class DeployCommandMeta extends CommandMeta {
 		cmdOpts = "OPT_ALL, OPT_DEPLOYGROUP, OPT_STARTGROUP, OPT_DC, OPT_EXTRAARGS, OPT_UNIT, OPT_KEY, OPT_SKIPERRORS";
 		super.defineAction( CommandMethodMeta.newNormal( this , "waitenv" , false , "wait until specified servers have been successfully started" , cmdOpts , "./waitenv.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		super.defineAction( CommandMethodMeta.newNormal( this , "waitweb" , false , "track specified server startup progress" , cmdOpts , "./waitweb.sh [OPTIONS] <server> [<node>]" ) );
-		cmdOpts = "OPT_ROOTUSER, OPT_HOSTUSER, OPT_KEY";
+		cmdOpts = "OPT_ROOTUSER, OPT_HOSTUSER, OPT_DC, OPT_KEY";
 		super.defineAction( CommandMethodMeta.newInteractive( this , "login" , false , "open ssh session to specified server node" , cmdOpts , "./login.sh [OPTIONS] <server> [node]" ) );
 	}
 	
