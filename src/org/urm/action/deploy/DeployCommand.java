@@ -86,6 +86,8 @@ public class DeployCommand {
 	}
 
 	public void login( ActionBase action , MetaEnvDC dc , String SERVER , String NODE ) throws Exception {
+		if( dc == null )
+			action.exit0( _Error.UnknownDatacenter0 , "Unknown datacenter, missing specifier" );
 		MetaEnvServer server = dc.getServer( action , SERVER );
 		
 		int nodePos = ( NODE.isEmpty() )? 1 : Integer.parseInt( NODE );
