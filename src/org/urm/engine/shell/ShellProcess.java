@@ -223,6 +223,12 @@ public class ShellProcess {
 	}
 
 	public void runRemoteInteractiveSshWindows( ActionBase action , String KEY ) throws Exception {
+		jssh = new ShellJssh( this );
+		ServerCall call = action.context.call;
+		executeRemoteInteractive( action , call );
+	}
+	
+	public void runRemoteInteractiveSshWindowsOld( ActionBase action , String KEY ) throws Exception {
 		Account account = shell.account;
 		String cmd = "plink ";
 		if( !KEY.isEmpty() )
@@ -240,7 +246,8 @@ public class ShellProcess {
 	}
 	
 	private void executeRemoteInteractive( ActionBase action , ServerCall call ) throws Exception {
-		builder.redirectErrorStream( true );
+		if( builder != null )
+			builder.redirectErrorStream( true );
 		shell.startProcess( action , this , null , true );
 		
 		int timeout = action.setTimeoutDefault();

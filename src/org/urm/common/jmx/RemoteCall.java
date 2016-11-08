@@ -194,6 +194,9 @@ public class RemoteCall implements NotificationListener {
 				break;
 			}
 			
+			if( finished )
+				break;
+			
 			if( input.length() == EXIT_COMMAND.length() && input.toLowerCase().equals( EXIT_COMMAND ) )
 				break;
 			
