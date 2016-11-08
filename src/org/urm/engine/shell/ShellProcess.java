@@ -157,11 +157,18 @@ public class ShellProcess {
 			master.custom( action , "taskkill /T /pid " + processId + " /f" , CommandOutput.LOGLEVEL_TRACE );	
 	}
 
-	public void destroy() throws Exception {
+	public void destroy( ActionBase action ) throws Exception {
+		if( jssh != null ) {
+			jssh.kill( action );
+			return;
+		}
+		
 		process.destroy();
 	}
 
 	public int waitFor( ActionBase action ) throws Exception {
+		if( jssh != null )
+			return( jssh.waitFor() );
 		return( process.waitFor() );
 	}
 	

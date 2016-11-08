@@ -99,7 +99,7 @@ abstract public class Shell {
 		if( process == null )
 			return;
 		
-		process.destroy();
+		process.destroy( action );
 			
 		process = null;
 		stdin = null;

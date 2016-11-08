@@ -155,6 +155,14 @@ public class ShellJssh {
 		}
 	}
 
+	public int waitFor() throws Exception {
+		Channel channel = jchannel;
+		if( !process.shell.wc.runWaitInfinite() )
+			return( -100 );
+		
+		return( channel.getExitStatus() );
+	}
+	
 	public boolean scpFilesRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		scpConnect( action , account );
 		

@@ -232,9 +232,7 @@ public class ShellOutputWaiter {
 	}
 	
 	public boolean runWaitInfinite() throws Exception {
-		if( !readStream( action , reader , null , "" , "stdout" ) )
-			return( false );
-		
+		readStream( action , reader , null , "" , "stdout" );
 		return( true );
 	}
 	
