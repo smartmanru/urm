@@ -68,6 +68,10 @@ public class ShellWaiter implements Runnable {
 		return( false );
 	}
 
+	public boolean isFinished() {
+		return( finished );
+	}
+	
 	public boolean isBroken() {
 		return( broken );
 	}
@@ -139,9 +143,6 @@ public class ShellWaiter implements Runnable {
 	        else
 	        if( command.waitForMarker )
 	        	res = command.runWaitForMarker();
-	        else
-	        if( command.waitInifinite )
-	        	command.runWaitInfinite();
 	        else
 	        	action.exitUnexpectedState();
 		}

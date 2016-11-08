@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.util.List;
 
 import org.urm.action.ActionBase;
-import org.urm.engine.action.CommandOutput;
 
 public class ShellOutputWaiter {
 
@@ -21,7 +20,6 @@ public class ShellOutputWaiter {
 
 	public boolean waitForCommandFinished = false;
 	public boolean waitForMarker = false;
-	public boolean waitInifinite = false;
 	
 	public String waitMarker;
 	
@@ -135,16 +133,6 @@ public class ShellOutputWaiter {
 			if( action.context.CTX_TRACEINTERNAL )
 				action.trace( "readStream - line=" + line.replaceAll("\\p{C}", "?") );
 			
-			if( waitInifinite ) {
-				if( first && !prompt.isEmpty() ) {
-					outStreamLine( action , prompt , text );
-					first = false;
-				}
-				
-				outStreamLine( action , line , text );
-				continue;
-			}
-			
 			index = line.indexOf( waitMarker );
 			if( index >= 0 ) {
 				line = line.substring( 0 , index );
@@ -175,10 +163,7 @@ public class ShellOutputWaiter {
 		if( text != null )
 			text.add( line );
 		
-		if( waitInifinite )
-			action.logExactInteractive( line , CommandOutput.LOGLEVEL_TRACE );
-		else
-			action.logExact( line , logLevel );
+		action.logExact( line , logLevel );
 	}
 
 	public void waitForCommandFinished( ActionBase action , int logLevel , boolean system , List<String> cmdout , List<String> cmderr ) throws Exception {
@@ -222,7 +207,12 @@ public class ShellOutputWaiter {
 	public boolean runWaitForMarker() throws Exception {
 		if( !readStream( action , reader , null , "" , "stdout" ) ) {
 			if( action.context.CTX_TRACEINTERNAL )
-				action.trace( shell.name + ": runWaitForMarker - failed" );
+				action.trace( shell.name + ": runWaitForMarker - stdout failed" );
+			return( false );
+		}
+		if( !readStream( action , errreader , null , "" , "stderr" ) ) {
+			if( action.context.CTX_TRACEINTERNAL )
+				action.trace( shell.name + ": runWaitForMarker - stderr failed" );
 			return( false );
 		}
 		
@@ -231,8 +221,20 @@ public class ShellOutputWaiter {
 		return( true );
 	}
 	
-	public boolean runWaitInfinite() throws Exception {
-		readStream( action , reader , null , "" , "stdout" );
+	public boolean runWaitInteractive( ActionBase action ) throws Exception {
+		while( true ) {
+			try {
+				synchronized( waiter ) {
+					waiter.wait();
+					if( waiter.isFinished() )
+						break;
+				}
+			}
+			catch( Throwable e ) {
+				action.log( "runWaitInteractive" , e );
+				return( false );
+			}
+		}
 		return( true );
 	}
 	

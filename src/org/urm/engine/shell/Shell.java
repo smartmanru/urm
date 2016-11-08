@@ -165,8 +165,10 @@ abstract public class Shell {
 		wc.waitForCommandFinished( action , logLevel , system , cmdout , cmderr );
 	}
 
-	public synchronized int waitFor( ActionBase action ) throws Exception {
-		return( process.waitFor( action ) );
+	public synchronized int waitForInteractive( ActionBase action ) throws Exception {
+		if( process == null )
+			return( -1 );
+		return( process.waitForInteractive( action ) );
 	}
 
 	public boolean waitForMarker( ActionBase action , String marker , boolean system ) throws Exception {

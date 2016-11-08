@@ -205,10 +205,8 @@ public class SessionController {
 
 	public void stopSession( ActionBase serverAction , String sessionId ) throws Exception {
 		ServerCall call = calls.get( "" + sessionId );
-		if( call == null )
-			serverAction.exit1( _Error.UnknownCallSession1 , "unknown call session=" + sessionId , sessionId );
-		
-		call.stop();
+		if( call != null )
+			call.stop();
 	}
 
 	public boolean waitConnect( ActionBase serverAction , String sessionId ) throws Exception {

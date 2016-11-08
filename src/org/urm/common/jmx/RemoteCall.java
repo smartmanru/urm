@@ -194,8 +194,10 @@ public class RemoteCall implements NotificationListener {
 				break;
 			}
 			
-			if( finished )
+			if( finished ) {
+				println( "session is closed" );
 				break;
+			}
 			
 			if( input.length() == EXIT_COMMAND.length() && input.toLowerCase().equals( EXIT_COMMAND ) )
 				break;

@@ -26,7 +26,8 @@ public class ShellCoreUnix extends ShellCore {
 
 	@Override protected boolean getProcessAttributes( ActionBase action ) throws Exception {
 		// check connected
-		executor.addInput( action , "echo " + ShellOutputWaiter.FINISH_MARKER , true );
+		executor.addInput( action , "echo " + ShellOutputWaiter.FINISH_MARKER + "; echo " + ShellOutputWaiter.FINISH_MARKER + " >&2" , true );
+		
 		int timeout = action.setTimeoutDefault();
 		if( !executor.waitForMarker( action , ShellOutputWaiter.FINISH_MARKER , true ) )
 			return( false );

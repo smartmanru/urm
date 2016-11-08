@@ -50,7 +50,7 @@ public class ShellProcess {
 	}
 
 	public boolean createRemoteLinuxProcessFromWindows( ActionBase action ) throws Exception {
-		jssh = new ShellJssh( this );
+		jssh = new ShellJssh( this , false );
 		return( executor.createProcess( action , this ) );
 	}
 	
@@ -69,7 +69,7 @@ public class ShellProcess {
 	}
 
 	public boolean createRemoteLinuxProcessFromLinux( ActionBase action ) throws Exception {
-		jssh = new ShellJssh( this );
+		jssh = new ShellJssh( this , false );
 		return( executor.createProcess( action , this ) );
 	}
 	
@@ -166,9 +166,9 @@ public class ShellProcess {
 		process.destroy();
 	}
 
-	public int waitFor( ActionBase action ) throws Exception {
+	public int waitForInteractive( ActionBase action ) throws Exception {
 		if( jssh != null )
-			return( jssh.waitFor() );
+			return( jssh.waitForInteractive( action ) );
 		return( process.waitFor() );
 	}
 	
@@ -216,6 +216,12 @@ public class ShellProcess {
 	}
 	
 	public void runRemoteInteractiveSshLinux( ActionBase action , String KEY ) throws Exception {
+		jssh = new ShellJssh( this , true );
+		ServerCall call = action.context.call;
+		executeRemoteInteractive( action , call );
+	}
+	
+	public void runRemoteInteractiveSshLinuxOld( ActionBase action , String KEY ) throws Exception {
 		Account account = shell.account;
 		String cmd = "ssh -T " + account.getSshAddr();
 		if( !KEY.isEmpty() )
@@ -230,7 +236,7 @@ public class ShellProcess {
 	}
 
 	public void runRemoteInteractiveSshWindows( ActionBase action , String KEY ) throws Exception {
-		jssh = new ShellJssh( this );
+		jssh = new ShellJssh( this , true );
 		ServerCall call = action.context.call;
 		executeRemoteInteractive( action , call );
 	}
@@ -258,7 +264,8 @@ public class ShellProcess {
 		shell.startProcess( action , this , null , true );
 		
 		int timeout = action.setTimeoutDefault();
-		shell.addInput( action , "echo " + CONNECT_MARKER , true );
+		shell.addInput( action , "echo " + CONNECT_MARKER + "; echo " + CONNECT_MARKER + " >&2" , true );
+		
 		if( !shell.waitForMarker( action , CONNECT_MARKER , true ) ) {
 			call.connectFinished( false );
 			action.exit1( _Error.UnableConnectHost1 , "unable to connect to " + shell.name , shell.name );
@@ -268,9 +275,9 @@ public class ShellProcess {
 		call.connectFinished( true );
 	}
 
-	public boolean executeCommand( ActionBase action , String input ) throws Exception {
+	public boolean executeInteractiveCommand( ActionBase action , String input ) throws Exception {
 		shell.addInput( action , input , false );
-		shell.addInput( action , "echo " + COMMAND_MARKER , true );
+		shell.addInput( action , "echo " + COMMAND_MARKER + "; echo " + COMMAND_MARKER + " >&2" , true );
 		
 		// wait for finish
 		return( shell.waitForMarker( action , COMMAND_MARKER , false ) );
@@ -283,32 +290,32 @@ public class ShellProcess {
 	}
 
 	public void scpFilesRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
-		ShellJssh jsshScp = new ShellJssh( this );
+		ShellJssh jsshScp = new ShellJssh( this , false );
 		jsshScp.scpFilesRemoteToLocal( action , srcPath , account , dstPath );
 	}
 
 	public void scpDirContentLocalToRemote( ActionBase action , String srcDirPath , Account account , String dstDir ) throws Exception {
-		ShellJssh jsshScp = new ShellJssh( this );
+		ShellJssh jsshScp = new ShellJssh( this , false );
 		jsshScp.scpDirContentLocalToRemote( action , srcDirPath , account , dstDir );
 	}
 
 	public void scpDirContentRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
-		ShellJssh jsshScp = new ShellJssh( this );
+		ShellJssh jsshScp = new ShellJssh( this , false );
 		jsshScp.scpDirContentRemoteToLocal( action , srcPath , account , dstPath );
 	}
 
 	public void scpDirLocalToRemote( ActionBase action , String srcDirPath , Account account , String baseDstDir ) throws Exception {
-		ShellJssh jsshScp = new ShellJssh( this );
+		ShellJssh jsshScp = new ShellJssh( this , false );
 		jsshScp.scpDirLocalToRemote( action , srcDirPath , account , baseDstDir );
 	}
 
 	public void scpDirRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
-		ShellJssh jsshScp = new ShellJssh( this );
+		ShellJssh jsshScp = new ShellJssh( this , false );
 		jsshScp.scpDirRemoteToLocal( action , srcPath , account , dstPath );
 	}
 
 	public void scpFilesLocalToRemote( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
-		ShellJssh jsshScp = new ShellJssh( this );
+		ShellJssh jsshScp = new ShellJssh( this , false );
 		jsshScp.scpFilesLocalToRemote( action , srcPath , account , dstPath );
 	}
 	

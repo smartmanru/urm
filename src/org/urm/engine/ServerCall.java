@@ -85,7 +85,7 @@ public abstract class ServerCall implements Runnable {
 			return;
 		
 		action.trace( shellInteractive.name + " execute: " + input );
-		if( shellInteractive.executeCommand( action , input ) )
+		if( shellInteractive.executeInteractiveCommand( action , input ) )
 			notifyCommandFinished( "OK" );
 		else
 			notifyCommandFinished( "FAILED" );

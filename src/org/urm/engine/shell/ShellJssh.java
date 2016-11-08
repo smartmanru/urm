@@ -26,6 +26,7 @@ import com.jcraft.jsch.Session;
 public class ShellJssh {
 
 	ShellProcess process;
+	boolean interactive;
 	Account account;
 	
 	public JSch jsch;
@@ -35,8 +36,9 @@ public class ShellJssh {
 	public InputStream jstdout;
 	public InputStream jstderr;
 
-	public ShellJssh( ShellProcess process ) {
+	public ShellJssh( ShellProcess process , boolean interactive ) {
 		this.process = process;
+		this.interactive = interactive;
 		jsch = new JSch();
 	}
 
@@ -108,9 +110,11 @@ public class ShellJssh {
 		ChannelShell channel = ( ChannelShell )jsession.openChannel( "shell" );
 		channel.setPty( false );
 		jchannel = channel;
+		
 		jstdin = jchannel.getOutputStream();
 		jstdout = jchannel.getInputStream();
 		jstderr = jchannel.getExtInputStream();
+		
 		jchannel.connect();
 	}
 
@@ -155,9 +159,9 @@ public class ShellJssh {
 		}
 	}
 
-	public int waitFor() throws Exception {
+	public int waitForInteractive( ActionBase action ) throws Exception {
 		Channel channel = jchannel;
-		if( !process.shell.wc.runWaitInfinite() )
+		if( !process.shell.wc.runWaitInteractive( action ) )
 			return( -100 );
 		
 		return( channel.getExitStatus() );
@@ -309,5 +313,5 @@ public class ShellJssh {
 			executeScpFileRemoteToLocal( action , srcFile , dstFile );
 		}
 	}
-	
+
 }
