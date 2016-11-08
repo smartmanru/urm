@@ -30,8 +30,11 @@ public class DatabaseClient {
 	public boolean checkConnect( ActionBase action , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
 		specific = new DatabaseSpecific( server , node );
 		
-		// check connect to admin schema
+		// check connect to admin schema if any
 		String schema = specific.getAdmSchema( action );
+		if( schema.isEmpty() )
+			return( true );
+		
 		String user = specific.getAdmUser( action );
 		String pwd = getUserPassword( action , user );
 		try { 

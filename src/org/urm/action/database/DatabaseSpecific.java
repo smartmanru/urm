@@ -53,6 +53,8 @@ public class DatabaseSpecific {
 	}
 	
 	public String getAdmSchema( ActionBase action ) throws Exception {
+		if( server.admSchema == null )
+			return( "" );
 		return( server.admSchema.DBNAME );
 	}
 	
