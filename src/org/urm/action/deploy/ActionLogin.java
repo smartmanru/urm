@@ -29,8 +29,16 @@ public class ActionLogin extends ActionBase {
 				", node=" + node.POS + ", hostlogin=" + account.getPrintName() + " ..." );
 		
 		ShellInteractive shell = engine.shellPool.createInteractiveShell( this , account );
-		if( context.call != null )
-			context.call.runInteractive( this , shell );
+		if( context.call != null ) {
+			try {
+				context.call.runInteractive( this , shell );
+			}
+			catch( Throwable e ) {
+				super.log( "Exception in shell session" , e );
+				String full = account.getFullName();
+				super.fail1( _Error.LoginFailed1 , "Error in login to account=" + full , full );
+			}
+		}
 		else {
 			int timeout = setTimeoutUnlimited();
 			shell.runInteractive( this );
