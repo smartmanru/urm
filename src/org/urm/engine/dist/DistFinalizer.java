@@ -227,9 +227,9 @@ public class DistFinalizer {
 	private boolean finishDistDeliveryDatabase( ActionBase action , ReleaseDelivery delivery , FileSet fsd , FileSet fsr ) throws Exception {
 		if( fsr == null ) {
 			String folder = fsd.dirPath;
-			if( !fsd.isEmpty() ) {
+			if( fsd.hasFiles() ) {
 				if( !action.context.CTX_FORCE ) {
-					action.error( "distributive delivery " + delivery.distDelivery.NAME + 
+					action.error( "distributive delivery=" + delivery.distDelivery.NAME + 
 							" has non-release database folder=" + folder );
 					return( false );
 				}
