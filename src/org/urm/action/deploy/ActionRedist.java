@@ -59,7 +59,7 @@ public class ActionRedist extends ActionBase {
 		}
 		
 		if( F_ENV_LOCATIONS_BINARY.length == 0 && F_ENV_LOCATIONS_CONFIG.length == 0 ) {
-			debug( "server=$P_SERVER - no locations. Skipped." );
+			debug( "server=" + server.NAME + " - no locations. Skipped." );
 			return;
 		}
 
