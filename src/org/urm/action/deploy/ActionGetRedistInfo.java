@@ -5,6 +5,7 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.storage.FileInfo;
 import org.urm.engine.storage.RedistStateInfo;
 import org.urm.engine.storage.RedistStorage;
@@ -53,7 +54,8 @@ public class ActionGetRedistInfo extends ActionBase {
 	}
 	
 	private void showReleaseState( RedistStorage redist ) throws Exception {
-		ServerDeployment deployment = redist.getDeployment( this , dist.RELEASEDIR );
+		VersionInfo version = VersionInfo.getDistVersion( this , dist ); 
+		ServerDeployment deployment = redist.getDeployment( this , version );
 		for( String category : deployment.getCategories( this ) ) {
 			boolean first = true;
 			
@@ -61,7 +63,7 @@ public class ActionGetRedistInfo extends ActionBase {
 			boolean rollout = deployment.getCategoryRollout( this , category );
 			
 			for( String LOCATION : deployment.getCategoryLocations( this , category ) ) {
-				RemoteFolder rf = redist.getRedistLocationFolder( this , dist.RELEASEDIR , LOCATION , CONTENTTYPE , rollout );
+				RemoteFolder rf = redist.getRedistLocationFolder( this , version , LOCATION , CONTENTTYPE , rollout );
 				
 				String[] items = deployment.getLocationItems( this , category , LOCATION );
 				if( items.length == 0 ) {

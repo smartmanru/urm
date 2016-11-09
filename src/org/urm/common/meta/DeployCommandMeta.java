@@ -27,7 +27,7 @@ public class DeployCommandMeta extends CommandMeta {
 		cmdOpts = "OPT_ALL, OPT_DEPLOYGROUP, OPT_STARTGROUP, OPT_DBPASSWORD, OPT_DC, OPT_UNIT, OPT_KEY, OPT_DEPLOYCONF, OPT_DEPLOYBINARY, OPT_DEPLOYHOT, OPT_DEPLOYCOLD";
 		super.defineAction( CommandMethodMeta.newStatus( this , "getdeployinfo" , false , "get information about items deployed to environment by state information" , cmdOpts , "./getdeployinfo.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "OPT_ALL, OPT_DEPLOYGROUP, OPT_STARTGROUP, OPT_DC, OPT_UNIT, OPT_KEY, OPT_RELEASE, OPT_OBSOLETE, OPT_DEPLOYCONF, OPT_DEPLOYBINARY, OPT_DEPLOYHOT, OPT_DEPLOYCOLD";
-		super.defineAction( CommandMethodMeta.newStatus( this , "getredistinfo" , false , "get information about staging content" , cmdOpts , "./getredistinfo.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
+		super.defineAction( CommandMethodMeta.newStatus( this , "getredistinfo" , false , "get information about staging content" , cmdOpts , "./getredistinfo.sh [OPTIONS] <RELEASELABEL> {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "OPT_ALL, OPT_DEPLOYGROUP, OPT_STARTGROUP, OPT_DC, OPT_UNIT, OPT_KEY";
 		super.defineAction( CommandMethodMeta.newNormal( this , "hosts" , false , "get or change /etc/hosts information" , cmdOpts , "./hosts.sh [OPTIONS] {set|delete|check} host[=address] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "OPT_ALL, OPT_DEPLOYGROUP, OPT_STARTGROUP, OPT_DC, OPT_UNIT, OPT_HOSTUSER, OPT_KEY, OPT_NEWKEY, OPT_ROOTUSER, OPT_SUDO";

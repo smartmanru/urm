@@ -2,6 +2,7 @@ package org.urm.engine.storage;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.shell.Account;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnvServer;
@@ -72,8 +73,8 @@ public class ServerStorage {
 		return( rf.getSubFolder( action , folder ) );
 	}
 	
-	public RemoteFolder getRedistLocationFolder( ActionBase action , String RELEASEDIR , String LOCATION , VarCONTENTTYPE CONTENTTYPE , boolean rollout ) throws Exception {
-		String path = getPathRedistReleaseRoot( action , RELEASEDIR , CONTENTTYPE , rollout );
+	public RemoteFolder getRedistLocationFolder( ActionBase action , VersionInfo version , String LOCATION , VarCONTENTTYPE CONTENTTYPE , boolean rollout ) throws Exception {
+		String path = getPathRedistReleaseRoot( action , version , CONTENTTYPE , rollout );
 		path = Common.getPath( path , LOCATION );
 		RemoteFolder rf = new RemoteFolder( account , path );
 		return( rf );
@@ -97,9 +98,9 @@ public class ServerStorage {
 		return( folder.getSubFolder( action , "releases" ) );
 	}
 	
-	protected RemoteFolder getReleaseFolder( ActionBase action , String RELEASEDIR ) throws Exception {
+	protected RemoteFolder getReleaseFolder( ActionBase action , VersionInfo version ) throws Exception {
 		RemoteFolder folder = getReleasesFolder( action );
-		return( folder.getSubFolder( action , RELEASEDIR ) );
+		return( folder.getSubFolder( action , version.getReleaseName() ) );
 	}
 	
 	protected RemoteFolder getStateFolder( ActionBase action ) throws Exception {
@@ -116,9 +117,9 @@ public class ServerStorage {
 		return( rollbackDir );
 	}
 	
-	protected String getPathRedistReleaseRoot( ActionBase action , String RELEASEDIR , VarCONTENTTYPE CONTENTTYPE , boolean rollout ) throws Exception {
+	protected String getPathRedistReleaseRoot( ActionBase action , VersionInfo version , VarCONTENTTYPE CONTENTTYPE , boolean rollout ) throws Exception {
 		String C_COMMON_DIRPATH = getRedistFolderRootPath( action );
-		C_COMMON_DIRPATH = Common.getPath( C_COMMON_DIRPATH , "releases" , RELEASEDIR );
+		C_COMMON_DIRPATH = Common.getPath( C_COMMON_DIRPATH , "releases" , version.getReleaseName() );
 		
 		String folder = getRedistFolderByContent( action , CONTENTTYPE , rollout );
 		return( Common.getPath( C_COMMON_DIRPATH , folder ) );
@@ -132,9 +133,9 @@ public class ServerStorage {
 		return( Common.getPath( C_COMMON_DIRPATH , folder ) );
 	}
 	
-	public String getPathRedistLocation( ActionBase action , String RELEASEDIR , String LOCATION , VarCONTENTTYPE CONTENTTYPE , boolean rollout ) throws Exception {
+	public String getPathRedistLocation( ActionBase action , VersionInfo version , String LOCATION , VarCONTENTTYPE CONTENTTYPE , boolean rollout ) throws Exception {
 		checkRelativeDir( action , LOCATION );
-		String C_COMMON_DIRPATH = getPathRedistReleaseRoot( action , RELEASEDIR , CONTENTTYPE , rollout );
+		String C_COMMON_DIRPATH = getPathRedistReleaseRoot( action , version , CONTENTTYPE , rollout );
 		return( Common.getPath( C_COMMON_DIRPATH , LOCATION ) );
 	}
 

@@ -5,6 +5,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.custom.CommandCustom;
+import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.storage.FileInfo;
 import org.urm.meta.product.Meta.VarARCHIVETYPE;
 import org.urm.meta.product.Meta.VarDISTITEMORIGIN;
@@ -256,25 +257,27 @@ public class MetaDistrBinaryItem {
 		String name = Common.getPartBeforeLast( runtimeFile , EXT );
 				
 		if( vtype == VarITEMVERSION.NONE ) {
-			String version = "";
 			String deployNameNoVersion = name;
-			return( new FileInfo( this , version , md5value , deployNameNoVersion , runtimeFile ) );
+			return( new FileInfo( this , null , md5value , deployNameNoVersion , runtimeFile ) );
 		}
 		
 		if( vtype == VarITEMVERSION.PREFIX ) {
-			String version = Common.getPartBeforeFirst( name , "-" );
+			String fileVersion = Common.getPartBeforeFirst( name , "-" );
+			VersionInfo version = VersionInfo.getFileVersion( action , fileVersion );
 			String deployNameNoVersion = Common.getPartAfterFirst( name , "-" );
 			return( new FileInfo( this , version , md5value , deployNameNoVersion , runtimeFile ) );
 		}
 		
 		if( vtype == VarITEMVERSION.MIDDASH ) {
-			String version = Common.getPartAfterLast( name , "-" );
+			String fileVersion = Common.getPartAfterLast( name , "-" );
+			VersionInfo version = VersionInfo.getFileVersion( action , fileVersion );
 			String deployNameNoVersion = Common.getPartBeforeLast( name , "-" );
 			return( new FileInfo( this , version , md5value , deployNameNoVersion , runtimeFile ) );
 		}
 		
 		if( vtype == VarITEMVERSION.MIDPOUND ) {
-			String version = Common.getPartAfterLast( name , "##" );
+			String fileVersion = Common.getPartAfterLast( name , "##" );
+			VersionInfo version = VersionInfo.getFileVersion( action , fileVersion );
 			String deployNameNoVersion = Common.getPartBeforeLast( name , "##" );
 			return( new FileInfo( this , version , md5value , deployNameNoVersion , runtimeFile ) );
 		}

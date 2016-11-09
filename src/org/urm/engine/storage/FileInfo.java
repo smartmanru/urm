@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.dist.VersionInfo;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 
@@ -13,28 +14,29 @@ public class FileInfo {
 	public MetaDistrBinaryItem binaryItem;
 	public MetaDistrConfItem confItem;
 	public String itemName;
-	public String version;
+	public VersionInfo version;
 	public String md5value;
 	public String deployBaseName;
 	public String deployFinalName;
 	boolean partial;
 	
 	public FileInfo() {
+		version = new VersionInfo();
 	}
 
-	public FileInfo( MetaDistrBinaryItem item , String version , String md5value , String deployNameNoVersion , String finalName ) {
+	public FileInfo( MetaDistrBinaryItem item , VersionInfo version , String md5value , String deployNameNoVersion , String finalName ) {
 		this.binaryItem = item;
 		this.itemName = item.KEY;
-		this.version = Common.nonull( version );
+		this.version = version;
 		this.md5value = Common.nonull( md5value );
 		this.deployBaseName = Common.nonull( deployNameNoVersion );
 		this.deployFinalName = Common.nonull( finalName );
 	}
 	
-	public FileInfo( MetaDistrConfItem item , String version , String md5value , boolean partial ) {
+	public FileInfo( MetaDistrConfItem item , VersionInfo version , String md5value , boolean partial ) {
 		this.confItem = item;
 		this.itemName = item.KEY;
-		this.version = Common.nonull( version );
+		this.version = version;
 		this.md5value = Common.nonull( md5value );
 	}
 	
@@ -51,7 +53,8 @@ public class FileInfo {
 	
 	private void scatterParams( ActionBase action , String value ) throws Exception {
 		Map<String,String> params = getParams( action , value );
-		version = Common.nonull( params.get( "version" ) );
+		version = new VersionInfo();
+		version.setVersion( action , params.get( "version" ) );
 		md5value = Common.nonull( params.get( "md5" ) );
 		deployBaseName = Common.nonull( params.get( "base" ) );
 		deployFinalName = Common.nonull( params.get( "final" ) );
@@ -61,7 +64,7 @@ public class FileInfo {
 	
 	private String gatherParams( ActionBase action ) throws Exception {
 		Map<String,String> params = new HashMap<String,String>();
-		params.put( "version" , version );
+		params.put( "version" , version.getFullVersion() );
 		params.put( "md5" , md5value );
 		params.put( "base" , deployBaseName );
 		params.put( "final" , deployFinalName );

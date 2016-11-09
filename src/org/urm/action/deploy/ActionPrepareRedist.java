@@ -5,6 +5,7 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
@@ -60,10 +61,11 @@ public class ActionPrepareRedist extends ActionBase {
 			return;
 		}
 		
+		VersionInfo version = VersionInfo.getDistVersion( this , dist ); 
 		if( recreate )
-			storage.recreateReleaseFolder( this , dist.RELEASEDIR );
+			storage.recreateReleaseFolder( this , version );
 		else
-			storage.dropReleaseData( this , dist.RELEASEDIR );
+			storage.dropReleaseData( this , version );
 	}
 	
 }

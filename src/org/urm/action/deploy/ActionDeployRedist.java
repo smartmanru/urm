@@ -10,6 +10,7 @@ import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.storage.RedistStorage;
 
 public class ActionDeployRedist extends ActionBase {
@@ -54,13 +55,14 @@ public class ActionDeployRedist extends ActionBase {
 		deployments = new HashMap<ActionScopeTargetItem,ServerDeployment>();
 		boolean isEmpty = true;
 		
+		VersionInfo version = VersionInfo.getDistVersion( this , dist ); 
 		for( ActionScopeTarget target : set.getTargets( this ).values() ) {
 			if( !Common.checkListItem( targets , target ) )
 				continue;
 			
 			for( ActionScopeTargetItem item : target.getItems( this ) ) {
 				RedistStorage redist = artefactory.getRedistStorage( this , target.envServer , item.envServerNode );
-				ServerDeployment deployment = redist.getDeployment( this , dist.RELEASEDIR );
+				ServerDeployment deployment = redist.getDeployment( this , version );
 				if( !deployment.isEmpty( this ) )
 					isEmpty = false;
 				

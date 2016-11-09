@@ -6,6 +6,7 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.shell.Account;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.meta.product.MetaEnvServer;
@@ -30,12 +31,13 @@ public class ActionDropRedist extends ActionBase {
 		MetaEnvServer server = target.envServer;
 		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
 		
+		VersionInfo version = VersionInfo.getDistVersion( this , dist ); 
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			RedistStorage redist = artefactory.getRedistStorage( this , target.envServer , item.envServerNode );
 			if( dist == null )
 				redist.dropReleaseAll( this );
 			else
-				redist.dropReleaseData( this , dist.RELEASEDIR );
+				redist.dropReleaseData( this , version );
 		}
 		return( SCOPESTATE.RunSuccess );
 	}

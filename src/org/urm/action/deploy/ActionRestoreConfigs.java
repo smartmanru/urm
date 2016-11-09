@@ -19,7 +19,7 @@ import org.urm.meta.product.MetaEnvServerNode;
 public class ActionRestoreConfigs extends ActionBase {
 
 	String timestamp;
-	String version;
+	String confVersion;
 	
 	public ActionRestoreConfigs( ActionBase action , String stream ) {
 		super( action , stream );
@@ -45,14 +45,14 @@ public class ActionRestoreConfigs extends ActionBase {
 		folder.recreateThis( this );
 		if( context.CTX_LIVE ) {
 			if( context.CTX_TAG.isEmpty() )
-				version = "live-" + timestamp;
+				confVersion = "live-" + timestamp;
 			else
-				version = "live-tag-" + context.CTX_TAG;
+				confVersion = "live-tag-" + context.CTX_TAG;
 		} else {
 			if( context.CTX_TAG.isEmpty() )
-				version = "prod-" + timestamp;
+				confVersion = "prod-" + timestamp;
 			else
-				version = "prod-tag-" + context.CTX_TAG;
+				confVersion = "prod-tag-" + context.CTX_TAG;
 			sourceStorage.exportTemplates( this , folder , server );
 		}
 		
@@ -141,7 +141,7 @@ public class ActionRestoreConfigs extends ActionBase {
 			
 			RuntimeStorage runtime = artefactory.getRuntimeStorage( this , server , node );
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
-			runtime.restoreConfigItem( this , redist , live , deployment , confItem , version );
+			runtime.restoreConfigItem( this , redist , live , deployment , confItem , null );
 		}
 	}
 	
@@ -161,7 +161,7 @@ public class ActionRestoreConfigs extends ActionBase {
 			
 			RuntimeStorage runtime = artefactory.getRuntimeStorage( this , server , node );
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
-			runtime.restoreConfigItem( this , redist , live , deployment , confItem , version );
+			runtime.restoreConfigItem( this , redist , live , deployment , confItem , null );
 		}
 	}
 	

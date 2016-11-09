@@ -15,6 +15,7 @@ import org.urm.action.database.DatabaseRegistryRelease.RELEASE_STATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistItemInfo;
+import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.storage.FileInfo;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
@@ -356,7 +357,8 @@ public class ActionVerifyDeploy extends ActionBase {
 			return( false );
 		}
 		
-		String runtimeName = redist.getDeployVersionedName( this , location , binaryItem , deployBaseName , dist.release.RELEASEVER );
+		VersionInfo version = VersionInfo.getDistVersion( this , dist );
+		String runtimeName = redist.getDeployVersionedName( this , location , binaryItem , deployBaseName , version );
 		if( !runInfo.deployFinalName.equals( runtimeName ) ) {
 			info( "dist item=" + binaryItem.KEY + " is the same in location=" + location.DEPLOYPATH + 
 					", but name differs from expected (" + 

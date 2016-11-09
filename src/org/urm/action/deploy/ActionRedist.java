@@ -8,6 +8,7 @@ import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseTarget;
+import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.storage.FileInfo;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStateInfo;
@@ -149,7 +150,8 @@ public class ActionRedist extends ActionBase {
 		info( "redist location=" + location.DEPLOYPATH + " deploytype=" + Common.getEnumLower( location.DEPLOYTYPE ) +
 				" items=" + Common.getListSet( items ) + " contenttype=" + Common.getEnumLower( C_REDIST_DIRTYPE ) + " ..." );
 
-		redist.createLocation( this , dist.RELEASEDIR , location , C_REDIST_DIRTYPE );
+		VersionInfo version = VersionInfo.getDistVersion( this , dist ); 
+		redist.createLocation( this , version , location , C_REDIST_DIRTYPE );
 
 		debug( "transfer items - " + Common.getListSet( items ) + " ..." );
 		transferFileSet( server , node , redist , location , items );
@@ -184,7 +186,8 @@ public class ActionRedist extends ActionBase {
 			
 			debug( "source of distributive item=" + binaryItem.KEY + " found in distributive, file=" + fileName );
 			String fileExtracted = extractEmbeddedFile( binaryItem , fileName );
-			return( redist.copyReleaseFile( this , binaryItem , location , fileExtracted , deployBaseName , dist.RELEASEDIR , dist.release.RELEASEVER , stateInfo ) );
+			VersionInfo version = VersionInfo.getDistVersion( this , dist ); 
+			return( redist.copyReleaseFile( this , binaryItem , location , fileExtracted , deployBaseName , version , stateInfo ) );
 		}
 		else if( binaryItem.distItemOrigin == VarDISTITEMORIGIN.BUILD || binaryItem.distItemOrigin == VarDISTITEMORIGIN.MANUAL ) {
 			String fileName = dist.getBinaryDistItemFile( this , binaryItem );
@@ -248,20 +251,21 @@ public class ActionRedist extends ActionBase {
 	private void executeNodeBackup( MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
 		debug( node.HOSTLOGIN + ": save backup ..." );
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
-		ServerDeployment deployment = redist.getDeployment( this , dist.RELEASEDIR );
+		VersionInfo version = VersionInfo.getDistVersion( this , dist ); 
+		ServerDeployment deployment = redist.getDeployment( this , version );
 		
 		// backup binary items
 		for( VarCONTENTTYPE content : VarCONTENTTYPE.values() ) {
 			for( String location : deployment.getLocations( this , content , true ) ) {
 				RedistStateInfo rinfo = new RedistStateInfo( server.meta );
 				RedistStateInfo sinfo = new RedistStateInfo( server.meta );
-				String RELEASEDIR = redist.getPathRedistLocation( this , dist.RELEASEDIR , location , content , true );
+				String RELEASEDIR = redist.getPathRedistLocation( this , version , location , content , true );
 				rinfo.gather( this , node , content , RELEASEDIR );
 				String STATEDIR = redist.getPathStateLocation( this , location , content );
 				sinfo.gather( this , node , content , STATEDIR );
 				
 				for( String key : rinfo.getKeys( this ) )
-					redist.backupRedistItem( this , dist.RELEASEDIR  , content , location , rinfo.getVerData( this , key ) , sinfo.findVerData( this , key ) );
+					redist.backupRedistItem( this , version  , content , location , rinfo.getVerData( this , key ) , sinfo.findVerData( this , key ) );
 			}
 		}
 	}

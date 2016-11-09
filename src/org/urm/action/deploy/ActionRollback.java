@@ -5,6 +5,7 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RuntimeStorage;
 import org.urm.meta.product.MetaEnvServer;
@@ -42,11 +43,12 @@ public class ActionRollback extends ActionBase {
 		debug( "get deployment data ..." );
 		int k = 0;
 		boolean hasDeployments = false;
+		VersionInfo version = VersionInfo.getDistVersion( this , dist ); 
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 			
-			ServerDeployment deployment = redist.getDeployment( this , dist.RELEASEDIR );
+			ServerDeployment deployment = redist.getDeployment( this , version );
 			deps[ k++ ] = deployment;
 			if( !deployment.isEmpty( this ) )
 				hasDeployments = true;
@@ -75,7 +77,8 @@ public class ActionRollback extends ActionBase {
 		redist.recreateTmpFolder( this );
 		
 		RuntimeStorage runtime = artefactory.getRuntimeStorage( this , server , node );
-		runtime.rollback( this , dist.RELEASEDIR , deployment );
+		VersionInfo version = VersionInfo.getDistVersion( this , dist ); 
+		runtime.rollback( this , version , deployment );
 	}
 	
 }

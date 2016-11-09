@@ -7,6 +7,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
@@ -63,11 +64,6 @@ public class RedistStateInfo {
 		return( verData.get( key ) );
 	}
 	
-	public String getKeyVersion( ActionBase action , String key ) throws Exception {
-		FileInfo value = getVerData( action , key );
-		return( value.version );
-	}
-	
 	public String getKeyMD5( ActionBase action , String key ) throws Exception {
 		FileInfo value = getVerData( action , key );
 		return( value.md5value );
@@ -83,13 +79,13 @@ public class RedistStateInfo {
 		return( value.deployFinalName );
 	}
 	
-	public static FileInfo getFileInfo( ActionBase action , MetaDistrBinaryItem item , RemoteFolder stateFolder , String stateFileName , String deployNameNoVersion , String version , String finalName ) throws Exception {
+	public static FileInfo getFileInfo( ActionBase action , MetaDistrBinaryItem item , RemoteFolder stateFolder , String stateFileName , String deployNameNoVersion , VersionInfo version , String finalName ) throws Exception {
 		String md5value = stateFolder.getFileMD5( action , stateFileName );
 		FileInfo info = new FileInfo( item , version , md5value , deployNameNoVersion , finalName ); 
 		return( info );
 	}
 
-	public static FileInfo getFileInfo( ActionBase action , MetaDistrConfItem item , RemoteFolder stateFolder , String stateFileName , String version , boolean partial ) throws Exception {
+	public static FileInfo getFileInfo( ActionBase action , MetaDistrConfItem item , RemoteFolder stateFolder , String stateFileName , VersionInfo version , boolean partial ) throws Exception {
 		String md5value = stateFolder.getFileMD5( action , stateFileName );
 		FileInfo info = new FileInfo( item , version , md5value , partial ); 
 		return( info );
@@ -161,7 +157,7 @@ public class RedistStateInfo {
 		return( false );
 	}
 
-	public boolean needUpdate( ActionBase action , MetaDistrBinaryItem item , String filePath , String deployBaseName , String RELEASEVER , String deployFinalName ) throws Exception {
+	public boolean needUpdate( ActionBase action , MetaDistrBinaryItem item , String filePath , String deployBaseName , VersionInfo version , String deployFinalName ) throws Exception {
 		if( action.context.CTX_FORCE )
 			return( true );
 
