@@ -539,7 +539,7 @@ public class MetaEnvServer extends PropertyController {
 	public MetaEnvServerLocation[] getLocations( ActionBase action , boolean binary , boolean conf ) throws Exception {
 		Map<String,MetaEnvServerLocation> locations = new HashMap<String,MetaEnvServerLocation>();
 		for( MetaEnvServerDeployment deployment : deployments ) {
-			if( deployment.hasFileDeployments() )
+			if( !deployment.hasFileDeployments() )
 				continue;
 			
 			String deployPath = deployment.getDeployPath( action );
