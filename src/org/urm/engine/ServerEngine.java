@@ -295,7 +295,7 @@ public class ServerEngine {
 		if( !action.isMemoryOnly() ) {
 			// create action shell
 			if( action.shell == null )
-				shellPool.createDedicatedLocalShell( action , action.context.stream + "::" + action.session.sessionId );
+				shellPool.createDedicatedLocalShell( action , action.context.stream );
 			
 			// create work folder
 			LocalFolder folder = action.artefactory.getWorkFolder( action );

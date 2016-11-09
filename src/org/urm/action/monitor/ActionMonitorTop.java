@@ -11,8 +11,6 @@ import org.urm.engine.ServerEventsApp;
 import org.urm.engine.ServerEventsListener;
 import org.urm.engine.ServerEventsSubscription;
 import org.urm.engine.ServerSourceEvent;
-import org.urm.engine.action.ActionInit;
-import org.urm.engine.action.CommandContext;
 import org.urm.engine.storage.MonitoringStorage;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerProductMeta;
@@ -195,8 +193,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 		// run checkenv for all targets
 		ActionSet set = new ActionSet( this , "major" );
 		for( MetaMonitoringTarget target : mon.getTargets( this ).values() ) {
-			ActionInit init = getStreamAction( target );
-			ActionMonitorCheckEnv action = getCheckEnvAction( info , set , init , target );
+			ActionMonitorCheckEnv action = getCheckEnvAction( info , set , target );
 			checkenvActions.add( action );
 		}
 		
@@ -209,34 +206,27 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 	private void executeOnceMinor( MetaMonitoring mon , MonitorInfo info ) throws Exception {
 		// run checkenv for all targets
 		for( MetaMonitoringTarget target : mon.getTargets( this ).values() ) {
-			ActionInit init = getStreamAction( target ); 
-			checkTargetItems( mon , info , init , target );
+			checkTargetItems( mon , info , target );
 		}
 	}
 
-	private ActionMonitorCheckEnv getCheckEnvAction( MonitorInfo info , ActionSet set , ActionInit init , MetaMonitoringTarget target ) throws Exception {
-		ActionMonitorCheckEnv action = new ActionMonitorCheckEnv( init , target.NAME , info.storage , target , eventsApp );
+	private ActionMonitorCheckEnv getCheckEnvAction( MonitorInfo info , ActionSet set , MetaMonitoringTarget target ) throws Exception {
+		ActionMonitorCheckEnv action = new ActionMonitorCheckEnv( this , target.NAME , info.storage , target , eventsApp );
 		eventsApp.subscribe( action.eventSource , this );
 		set.runSimple( action );
 		return( action );
 	}
 
-	private ActionInit getStreamAction( MetaMonitoringTarget target ) throws Exception {
-		CommandContext initContext = context.getStreamContext( target.NAME );
-		ActionInit action = engine.createAction( initContext , this );
-		return( action );
-	}
-
-	private void checkTargetItems( MetaMonitoring mon , MonitorInfo info , ActionInit init , MetaMonitoringTarget target ) throws Exception {
+	private void checkTargetItems( MetaMonitoring mon , MonitorInfo info , MetaMonitoringTarget target ) throws Exception {
 		ActionSet set = new ActionSet( this , "minor" );
 		
 		for( MetaMonitoringItem item : target.getUrlsList( this ) ) {
-			ActionMonitorCheckItem action = new ActionMonitorCheckItem( init , target.NAME , mon , item );
+			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , mon , item );
 			set.runSimple( action );
 		}
 		
 		for( MetaMonitoringItem item : target.getWSList( this ) ) {
-			ActionMonitorCheckItem action = new ActionMonitorCheckItem( init , target.NAME , mon , item );
+			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , mon , item );
 			set.runSimple( action );
 		}
 		

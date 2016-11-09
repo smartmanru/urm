@@ -31,8 +31,8 @@ public class ActionShells {
 		return( interactive.values().toArray( new ShellInteractive[0] ) );
 	}
 	
-	public void addExecutor( ShellExecutor executor ) {
-		executors.put( executor.name , executor );
+	public void addExecutor( String name , ShellExecutor executor ) {
+		executors.put( name , executor );
 	}
 
 	public void removeExecutor( String name ) {

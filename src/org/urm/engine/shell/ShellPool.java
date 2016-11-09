@@ -294,7 +294,7 @@ public class ShellPool implements Runnable {
 						action.exit1( _Error.NotConnectUnavailableShell0 , "do not connect to unavailable shell name=" + name , name );
 						
 					pool.remove( name );
-					map.addExecutor( shell );
+					map.addExecutor( name , shell );
 					engine.serverAction.trace( "assign actionId=" + action.ID + " to existing session name=" + name );
 					return( shell );
 				}
@@ -317,7 +317,7 @@ public class ShellPool implements Runnable {
 			
 			// add to action sessions (return to pool after release)
 			synchronized( engine ) {
-				map.addExecutor( shell );
+				map.addExecutor( name , shell );
 				engine.serverAction.trace( "assign actionId=" + action.ID + " to new session name=" + name );
 			}
 
@@ -343,7 +343,7 @@ public class ShellPool implements Runnable {
 		if( stop )
 			action.exit0( _Error.ServerShutdown0 , "server is in progress of shutdown" );
 		
-		ShellExecutor shell = ShellExecutor.getLocalShellExecutor( action , "local::" + name , this , rootPath , tmpFolder );
+		ShellExecutor shell = ShellExecutor.getLocalShellExecutor( action , name , this , rootPath , tmpFolder );
 		return( shell );
 	}
 	
@@ -365,11 +365,12 @@ public class ShellPool implements Runnable {
 		return( map );
 	}
 	
-	public ShellExecutor createDedicatedLocalShell( ActionBase action , String name ) throws Exception {
+	public ShellExecutor createDedicatedLocalShell( ActionBase action , String stream ) throws Exception {
 		if( stop )
 			action.exit0( _Error.ServerShutdown0 , "server is in progress of shutdown" );
 		
-		if( name.equals( "master" ) )
+		String name = "local::" + stream; 
+		if( stream.equals( "master" ) )
 			return( startDedicatedLocalShell( action , name ) );
 		
 		ShellExecutor shell = null;
@@ -382,7 +383,7 @@ public class ShellPool implements Runnable {
 			}
 			
 			shell = startDedicatedLocalShell( action , name );
-			map.addExecutor( shell );
+			map.addExecutor( shell.name , shell );
 		}
 		
 		return( shell );
