@@ -190,8 +190,10 @@ public class MetaEnvServerDeployment extends PropertyController {
 
 	public String getDeployPath( ActionBase action ) throws Exception {
 		if( DEPLOYPATH.isEmpty() || DEPLOYPATH.equals( "default" ) ) {
-			if( server.DEPLOYPATH.isEmpty() )
-				action.exit0( _Error.UnknownDeploymentPath0 , "deployment has unknown deployment path" );
+			if( server.DEPLOYPATH.isEmpty() ) {
+				String name = getName();
+				action.exit1( _Error.UnknownDeploymentPath1 , "deployment=" + name + " has unknown deployment path" , name );
+			}
 			return( server.DEPLOYPATH );
 		}
 		

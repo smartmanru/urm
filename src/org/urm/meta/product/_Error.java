@@ -66,7 +66,7 @@ public class _Error {
 	public static final int MissingStandbyNode0 = ErrorBase + 58;
 	public static final int MissingActiveNode0 = ErrorBase + 59;
 	public static final int UnexpectedDeploymentType1 = ErrorBase + 60;
-	public static final int UnknownDeploymentPath0 = ErrorBase + 61;
+	public static final int UnknownDeploymentPath1 = ErrorBase + 61;
 	public static final int MissingProxyNode0 = ErrorBase + 62;
 	public static final int UnknownDatabaseFilesCharset1 = ErrorBase + 63;
 	public static final int UnableGetBuildModeSettings1 = ErrorBase + 64;
