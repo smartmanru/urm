@@ -274,6 +274,16 @@ public class MetaEnvServerDeployment extends PropertyController {
 		return( false );
 	}
 
+	public boolean hasFileDeployments() {
+		if( isBinaryItem() || isConfItem() )
+			return( true );
+		if( isComponent() ) {
+			if( comp.hasBinaryItems() || comp.hasConfItems() )
+				return( true );
+		}
+		return( false );
+	}
+	
 	public String getName() {
 		String name = "unknown";
 		if( itemType == VarDEPLOYITEMTYPE.BINARY )

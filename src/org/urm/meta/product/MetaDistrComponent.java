@@ -156,13 +156,13 @@ public class MetaDistrComponent {
 		return( listWS );
 	}
 
-	public boolean hasBinaryItems( ActionBase action ) throws Exception {
+	public boolean hasBinaryItems() {
 		if( mapBinaryItems.isEmpty() )
 			return( false );
 		return( true );
 	}
 
-	public boolean hasConfItems( ActionBase action ) throws Exception {
+	public boolean hasConfItems() {
 		if( mapConfItems.isEmpty() )
 			return( false );
 		return( true );

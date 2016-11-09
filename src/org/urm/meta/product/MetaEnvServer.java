@@ -468,7 +468,7 @@ public class MetaEnvServer extends PropertyController {
 			if( deployment.confItem != null )
 				return( true );
 			if( deployment.comp != null )
-				if( deployment.comp.hasConfItems( action ) )
+				if( deployment.comp.hasConfItems() )
 					return( true );
 		}
 		return( false );
@@ -539,6 +539,9 @@ public class MetaEnvServer extends PropertyController {
 	public MetaEnvServerLocation[] getLocations( ActionBase action , boolean binary , boolean conf ) throws Exception {
 		Map<String,MetaEnvServerLocation> locations = new HashMap<String,MetaEnvServerLocation>();
 		for( MetaEnvServerDeployment deployment : deployments ) {
+			if( deployment.hasFileDeployments() )
+				continue;
+			
 			String deployPath = deployment.getDeployPath( action );
 			VarDEPLOYMODE deployType = deployment.getDeployType( action );
 			String key = Common.getEnumLower( deployType ) + "-" + deployPath;
@@ -566,7 +569,7 @@ public class MetaEnvServer extends PropertyController {
 			}
 			else
 			if( deployment.comp != null ) {
-				if( binary && deployment.comp.hasBinaryItems( action ) ) {
+				if( binary && deployment.comp.hasBinaryItems() ) {
 					MetaEnvServerLocation location = locations.get( key ); 
 					if( location == null ) {
 						location = new MetaEnvServerLocation( meta , this , deployType , deployPath );
@@ -579,7 +582,7 @@ public class MetaEnvServer extends PropertyController {
 					}
 				}
 				
-				if( conf && deployment.comp.hasConfItems( action ) ) {
+				if( conf && deployment.comp.hasConfItems() ) {
 					MetaEnvServerLocation location = locations.get( key ); 
 					if( location == null ) {
 						location = new MetaEnvServerLocation( meta , this , deployType , deployPath );
