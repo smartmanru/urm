@@ -132,9 +132,9 @@ public class DeployCommand {
 		ma.runAll( scope );
 		
 		if( ma.isFailed() )
-			action.info( "redist successfully done." );
-		else
 			action.error( "redist failed, see logs." );
+		else
+			action.info( "redist successfully done." );
 	}
 
 	public void restartEnv( ActionBase action , ActionScope scope ) throws Exception {
