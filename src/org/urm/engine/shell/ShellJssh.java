@@ -1,9 +1,6 @@
 package org.urm.engine.shell;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.LinkedList;
@@ -203,24 +200,106 @@ public class ShellJssh {
 		return( res );
 	}
 
-	public void scpDirContentLocalToRemote( ActionBase action , String srcDirPath , Account account , String dstDir ) throws Exception {
+	public boolean scpDirContentLocalToRemote( ActionBase action , String srcDirPath , Account account , String dstDir ) throws Exception {
 		scpConnect( action , account );
+		
+		boolean res = false;
+		try {
+	    }
+		finally {
+			kill( action );
+		}
+		
+		return( res );
 	}
 
-	public void scpDirContentRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
+	public boolean scpDirContentRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		scpConnect( action , account );
+		
+		boolean res = false;
+		try {
+			RemoteFolder srcDirFolder = action.getRemoteFolder( account , srcPath );
+			LocalFolder dstFolder = action.getLocalFolder( dstPath );
+			executeScpDirContentRemoteToLocal( action , srcDirFolder , dstFolder );
+	    }
+		finally {
+			kill( action );
+		}
+		
+		return( res );
 	}
 
-	public void scpDirLocalToRemote( ActionBase action , String srcDirPath , Account account , String baseDstDir ) throws Exception {
+	public boolean scpDirLocalToRemote( ActionBase action , String srcDirPath , Account account , String baseDstDir ) throws Exception {
 		scpConnect( action , account );
+		
+		boolean res = false;
+		try {
+			LocalFolder srcDirFolder = action.getLocalFolder( srcDirPath );
+			RemoteFolder dstFolder = action.getRemoteFolder( account , baseDstDir );
+			executeScpDirContentLocalToRemote( action , srcDirFolder , dstFolder );
+	    }
+		finally {
+			kill( action );
+		}
+		
+		return( res );
 	}
 
-	public void scpDirRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
+	public boolean scpDirRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		scpConnect( action , account );
+		
+		boolean res = false;
+		try {
+			RemoteFolder srcDirFolder = action.getRemoteFolder( account , srcPath );
+			LocalFolder dstFolder = action.getLocalFolder( dstPath );
+			LocalFolder dstFolderDir = dstFolder.getParentFolder( action );
+			if( dstFolderDir.checkPathExists( action , dstFolder.folderName ) )
+				action.exit1( _Error.ScpDestinationAlreadyExists1 , "Destination already exists: " + dstPath , dstPath );
+			
+			dstFolder.ensureExists( action );
+			executeScpDirContentRemoteToLocal( action , srcDirFolder , dstFolder );
+	    }
+		finally {
+			kill( action );
+		}
+		
+		return( res );
 	}
 
-	public void scpFilesLocalToRemote( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
+	public boolean scpFilesLocalToRemote( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		scpConnect( action , account );
+		
+		boolean res = false;
+		try {
+			String srcDir = Common.getDirName( srcPath );
+			LocalFolder srcDirFolder = action.getLocalFolder( srcDir );
+			String srcNames = Common.getBaseName( srcPath );
+			boolean isMask = Common.isBasenameMask( srcNames );
+
+			String[] maskFiles = null;
+			if( isMask ) {
+				maskFiles = srcDirFolder.findFiles( action , srcNames );
+				if( maskFiles.length == 0 ) {
+					action.trace( "scp: missing source files, path=" + srcPath );
+					res = true;
+				}
+				else {
+					res = true;
+					for( String file : maskFiles ) {
+						if( !executeScpNameLocalToRemote( action , srcDirFolder , file , account , dstPath ) )
+							res = false;
+					}
+				}
+			}
+			else {
+				res = executeScpNameLocalToRemote( action , srcDirFolder , srcNames , account , dstPath );
+			}
+	    }
+		finally {
+			kill( action );
+		}
+		
+		return( res );
 	}
 
 	private void scpConnect( ActionBase action , Account account ) throws Exception {
@@ -230,12 +309,12 @@ public class ShellJssh {
 
 	private boolean executeScpNameRemoteToLocal( ActionBase action , RemoteFolder srcDirFolder , String srcName , String dstPath ) throws Exception {
 		String dstDir = Common.getDirName( dstPath );
-		File fileDst = new File( action.getLocalPath( dstPath ) );
+		File dstName = new File( action.getLocalPath( dstPath ) );
 		File fileDstDir = new File( action.getLocalPath( dstDir ) );
 		
 		boolean res = false;
 		if( srcDirFolder.checkFileExists( action , srcName ) ) {
-			if( fileDst.isDirectory() ) {
+			if( dstName.isDirectory() ) {
 				executeScpFileRemoteToLocal( action , srcDirFolder.getFilePath( action , srcName ) , Common.getPath( dstPath , srcName ) );
 				res = true;
 			}
@@ -255,11 +334,11 @@ public class ShellJssh {
 				action.exit1( _Error.ScpMissingDestinationDirectory1 , "scp: missing destination directory=" + dstDir , dstDir );
 			}
 			else {
-				if( fileDst.isFile() ) {
+				if( dstName.isFile() ) {
 					action.exit1( _Error.ScpDestinationCannotBeFile1 , "scp: cannot copy directory to a file: " + dstPath , dstPath );
 				}
 				else {
-					if( fileDst.isDirectory() ) {
+					if( dstName.isDirectory() ) {
 						LocalFolder folder = action.getLocalFolder( dstPath );
 						LocalFolder folderDst = folder.getSubFolder( action , srcName ); 
 						folderDst.ensureExists( action );
@@ -281,20 +360,67 @@ public class ShellJssh {
 		return( res );
 	}
 	
+	private boolean executeScpNameLocalToRemote( ActionBase action , LocalFolder srcDirFolder , String srcName , Account account , String dstPath ) throws Exception {
+		String dstDir = Common.getDirName( dstPath );
+		String dstName = Common.getBaseName( dstPath );
+		RemoteFolder fileDstDir = action.getRemoteFolder( account , dstDir );
+		
+		boolean res = false;
+		if( srcDirFolder.checkFileExists( action , srcName ) ) {
+			if( fileDstDir.checkFolderExists( action , dstName ) ) {
+				executeScpFileLocalToRemote( action , srcDirFolder.getFilePath( action , srcName ) , Common.getPath( dstPath , srcName ) );
+				res = true;
+			}
+			else {
+				if( fileDstDir.checkExists( action ) ) {
+					executeScpFileLocalToRemote( action , srcDirFolder.getFilePath( action , srcName ) , dstPath );
+					res = true;
+				}
+				else {
+					action.exit1( _Error.ScpMissingDestinationDirectory1 , "scp: missing destination directory=" + dstDir , dstDir );
+				}
+			}
+		}
+		
+		if( srcDirFolder.checkFolderExists( action , srcName ) ) {
+			if( !fileDstDir.checkExists( action ) ) {
+				action.exit1( _Error.ScpMissingDestinationDirectory1 , "scp: missing destination directory=" + dstDir , dstDir );
+			}
+			else {
+				if( fileDstDir.checkFileExists( action , dstName ) ) {
+					action.exit1( _Error.ScpDestinationCannotBeFile1 , "scp: cannot copy directory to a file: " + dstPath , dstPath );
+				}
+				else {
+					if( fileDstDir.checkFolderExists( action , dstName ) ) {
+						RemoteFolder folder = action.getRemoteFolder( account , dstPath );
+						RemoteFolder folderDst = folder.getSubFolder( action , srcName ); 
+						folderDst.ensureExists( action );
+						executeScpDirContentLocalToRemote( action , srcDirFolder.getSubFolder( action , srcName ) , folderDst );
+						res = true;
+					}
+					else {
+						RemoteFolder folder = action.getRemoteFolder( account , dstPath );
+						folder.ensureExists( action );
+						executeScpDirContentLocalToRemote( action , srcDirFolder.getSubFolder( action , srcName ) , folder );
+						res = true;
+					}
+				}
+			}
+		}
+		else
+			action.trace( "scp: missing source files, path=" + srcDirFolder.getFilePath( action , srcName ) );
+		
+		return( res );
+	}
+	
 	private void executeScpFileRemoteToLocal( ActionBase action , String remotePath , String dstPath ) throws Exception {
-		ChannelSftp channel = ( ChannelSftp )jchannel; 		
-		InputStream out = channel.get( remotePath );
+		ChannelSftp channel = ( ChannelSftp )jchannel;
+		channel.get( remotePath , dstPath );
+	}
 
-		File localFile = new File( action.getLocalPath( dstPath ) );
-		byte[] buffer = new byte[1024];
-		BufferedInputStream bis = new BufferedInputStream( out );
-		OutputStream os = new FileOutputStream( localFile );
-		BufferedOutputStream bos = new BufferedOutputStream( os );
-		int readCount;
-		while( ( readCount = bis.read( buffer ) ) > 0 )
-			bos.write( buffer , 0 , readCount );
-		bis.close();
-		bos.close();
+	private void executeScpFileLocalToRemote( ActionBase action , String srcPath , String remotePath ) throws Exception {
+		ChannelSftp channel = ( ChannelSftp )jchannel;
+		channel.put( srcPath , remotePath );
 	}
 
 	private void executeScpDirContentRemoteToLocal( ActionBase action , RemoteFolder srcDirFolder , LocalFolder dstFolder ) throws Exception {
@@ -311,6 +437,23 @@ public class ShellJssh {
 			String srcFile = srcDirFolder.getFilePath( action , file );
 			String dstFile = dstFolder.getFilePath( action , file );
 			executeScpFileRemoteToLocal( action , srcFile , dstFile );
+		}
+	}
+
+	private void executeScpDirContentLocalToRemote( ActionBase action , LocalFolder srcDirFolder , RemoteFolder dstFolder ) throws Exception {
+		List<String> topDirs = new LinkedList<String>();
+		List<String> topFiles = new LinkedList<String>();
+		srcDirFolder.getTopDirsAndFiles( action , topDirs , topFiles );
+		for( String dir : topDirs ) {
+			RemoteFolder child = dstFolder.getSubFolder( action , dir );
+			child.ensureExists( action );
+			executeScpDirContentLocalToRemote( action , srcDirFolder.getSubFolder( action , dir ) , child );
+		}
+		
+		for( String file : topFiles ) {
+			String srcFile = srcDirFolder.getFilePath( action , file );
+			String dstFile = dstFolder.getFilePath( action , file );
+			executeScpFileLocalToRemote( action , srcFile , dstFile );
 		}
 	}
 
