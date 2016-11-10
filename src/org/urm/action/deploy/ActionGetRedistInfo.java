@@ -84,7 +84,7 @@ public class ActionGetRedistInfo extends ActionBase {
 					FileInfo info = stateInfo.getVerData( this , key );
 
 					String text = info.itemName;
-					text += ", version: " + info.version;
+					text += ", version: " + info.version.getFullVersion();
 					if( info.binaryItem != null ) {
 						if( info.binaryItem.isArchive( this ) )
 							text += ", archive";

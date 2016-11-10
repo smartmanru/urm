@@ -512,13 +512,13 @@ public class RedistStorage extends ServerStorage {
 			return( deployBaseName + item.EXT );
 
 		if( item.deployVersion == VarITEMVERSION.PREFIX )
-			return( version + "-" + deployBaseName + item.EXT );
+			return( version.getFileVersion() + "-" + deployBaseName + item.EXT );
 
 		if( item.deployVersion == VarITEMVERSION.MIDDASH )
-			return( deployBaseName + "-" + version + item.EXT );
+			return( deployBaseName + "-" + version.getFileVersion() + item.EXT );
 
 		if( item.deployVersion == VarITEMVERSION.MIDPOUND )
-			return( deployBaseName + "##" + version + item.EXT );
+			return( deployBaseName + "##" + version.getFileVersion() + item.EXT );
 
 		String name = Common.getEnumLower( item.deployVersion );
 		action.exit1( _Error.UnknownVersionType1 , "getVersionItem: unknown version type=" + name , name );
