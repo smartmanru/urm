@@ -1,7 +1,5 @@
 package org.urm.meta.product;
 
-import java.nio.charset.Charset;
-
 import org.urm.action.ActionBase;
 import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
@@ -40,12 +38,7 @@ public class MetaProductBuildSettings extends PropertyController {
 
 	public String CONFIG_COMMIT_TRACKERLIST;
 	public String CONFIG_BRANCHNAME;
-	public String CONFIG_SOURCE_CHARSET;
-	public String CONFIG_SOURCE_RELEASEROOTDIR;
 	public String CONFIG_RELEASE_GROUPFOLDER;
-	public String CONFIG_SOURCE_CFG_ROOTDIR;
-	public String CONFIG_SOURCE_CFG_LIVEROOTDIR;
-	public String CONFIG_SOURCE_SQL_POSTREFRESH;
 
 	// version
 	public static String PROPERTY_RELEASE_LASTMAJOR = "release.lastmajor";
@@ -71,15 +64,8 @@ public class MetaProductBuildSettings extends PropertyController {
 
 	// build source code
 	public static String PROPERTY_BRANCHNAME = "source.branch";
-	public static String PROPERTY_SOURCE_CHARSET = "release.charset";
-	public static String PROPERTY_SOURCE_REPOSITORY = "release.repo";
-	public static String PROPERTY_SOURCE_RELEASEROOTDIR = "release.root";
 	public static String PROPERTY_RELEASE_GROUPFOLDER = "release.group";
-	public static String PROPERTY_SOURCE_CFG_ROOTDIR = "config.root";
-	public static String PROPERTY_SOURCE_CFG_LIVEROOTDIR = "config.live";
-	public static String PROPERTY_SOURCE_SQL_POSTREFRESH = "conig.postrefresh";
-	
-	public Charset charset;
+	public static String PROPERTY_SOURCE_REPOSITORY = "release.repo";
 	
 	public MetaProductBuildSettings( String name , Meta meta , MetaProductSettings product ) {
 		super( product , name );
@@ -106,12 +92,6 @@ public class MetaProductBuildSettings extends PropertyController {
 		CONFIG_APPVERSION = super.getStringProperty( action , PROPERTY_APPVERSION );
 		CONFIG_LOGPATH = super.getPathProperty( action , PROPERTY_LOGPATH );
 		
-		if( CONFIG_SOURCE_CHARSET != null ) {
-			charset = Charset.availableCharsets().get( CONFIG_SOURCE_CHARSET );
-			if( charset == null )
-				action.exit1( _Error.UnknownDatabaseFilesCharset1 , "unknown database files charset=" + CONFIG_SOURCE_CHARSET , CONFIG_SOURCE_CHARSET );
-		}
-		
 		CONFIG_NEXUS_RESOURCE = super.getStringProperty( action , PROPERTY_NEXUS_RESOURCE );
 		CONFIG_NEXUS_REPO = super.getStringProperty( action , PROPERTY_NEXUS_REPO );
 		CONFIG_NEXUS_REPO_THIRDPARTY = super.getStringProperty( action , PROPERTY_NEXUS_REPO_THIRDPARTY );
@@ -125,12 +105,7 @@ public class MetaProductBuildSettings extends PropertyController {
 		CONFIG_ARTEFACTDIR = super.getStringProperty( action , PROPERTY_ARTEFACTDIR );
 
 		CONFIG_BRANCHNAME = super.getStringProperty( action , PROPERTY_BRANCHNAME );
-		CONFIG_SOURCE_CHARSET = super.getStringProperty( action , PROPERTY_SOURCE_CHARSET );
-		CONFIG_SOURCE_RELEASEROOTDIR = super.getStringProperty( action , PROPERTY_SOURCE_RELEASEROOTDIR );
 		CONFIG_RELEASE_GROUPFOLDER = super.getStringProperty( action , PROPERTY_RELEASE_GROUPFOLDER );
-		CONFIG_SOURCE_CFG_ROOTDIR = super.getStringProperty( action , PROPERTY_SOURCE_CFG_ROOTDIR );
-		CONFIG_SOURCE_CFG_LIVEROOTDIR = super.getStringProperty( action , PROPERTY_SOURCE_CFG_LIVEROOTDIR );
-		CONFIG_SOURCE_SQL_POSTREFRESH = super.getStringProperty( action , PROPERTY_SOURCE_SQL_POSTREFRESH );
 	}
 
 	public void createSettings( TransactionBase transaction , PropertySet src , PropertySet parent ) throws Exception {

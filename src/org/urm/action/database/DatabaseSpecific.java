@@ -17,7 +17,7 @@ import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
-import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.Meta.VarDBMSTYPE;
 
 public class DatabaseSpecific {
@@ -130,8 +130,8 @@ public class DatabaseSpecific {
 			return( false );
 		}
 		
-		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		List<String> data = action.readFileLines( fileLog , build.charset );
+		MetaProductSettings settings = server.meta.getProductSettings( action );
+		List<String> data = action.readFileLines( fileLog , settings.charset );
 		String[] lines = data.toArray( new String[0] );
 		String[] errors = Common.grep( lines , "^ERROR" );
 		if( errors.length > 0 ) {
@@ -158,8 +158,8 @@ public class DatabaseSpecific {
 		if( status != 0 )
 			action.exit1( _Error.ScriptApplyError1 , "error: (see logs)" , file );
 
-		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		List<String> data = action.readFileLines( fileLog , build.charset );
+		MetaProductSettings settings = server.meta.getProductSettings( action );
+		List<String> data = action.readFileLines( fileLog , settings.charset );
 		String[] lines = data.toArray( new String[0] );
 		for( int k = 0; k < lines.length; k++ )
 			lines[ k ] = lines[ k ].trim();
@@ -424,13 +424,13 @@ public class DatabaseSpecific {
 		
 		Account account = action.getNodeAccount( node );
 		String DBHOST = ( account.isLocal() )? "localhost" : server.DBMSADDR;
-		MetaProductBuildSettings build = action.getBuildSettings( meta );
+		MetaProductSettings settings = server.meta.getProductSettings( action );
 		if( action.isLocalLinux() ) {
 			lines.add( "export URMDB_USER=" + user );
 			lines.add( "export URMDB_PWD=" + password );
 			lines.add( "export URMDB_DBHOST=" + DBHOST );
 			lines.add( "export URMDB_DBNAME=" + dbschema );
-			lines.add( "export URMDB_CHARSET=" + build.charset.name() );
+			lines.add( "export URMDB_CHARSET=" + settings.charset.name() );
 			name = "urmdb." + key + ".sh"; 
 		}
 		else
@@ -439,7 +439,7 @@ public class DatabaseSpecific {
 			lines.add( "set URMDB_PWD=" + password );
 			lines.add( "set URMDB_DBHOST=" + DBHOST );
 			lines.add( "set URMDB_DBNAME=" + dbschema );
-			lines.add( "set URMDB_CHARSET=" + build.charset.name() );
+			lines.add( "set URMDB_CHARSET=" + settings.charset.name() );
 			name = "urmdb." + key + ".cmd"; 
 		}
 		else

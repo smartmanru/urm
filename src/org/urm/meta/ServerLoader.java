@@ -88,6 +88,11 @@ public class ServerLoader {
 		}
 	}
 	
+	public LocalFolder getServerHomeFolder( ActionInit action ) throws Exception {
+		LocalFolder folder = action.getLocalFolder( engine.execrc.installPath );
+		return( folder );
+	}
+
 	public LocalFolder getServerSettingsFolder( ActionInit action ) throws Exception {
 		String path = Common.getPath( engine.execrc.installPath , "etc" );
 		LocalFolder folder = action.getLocalFolder( path );

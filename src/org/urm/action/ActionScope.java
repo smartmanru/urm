@@ -27,7 +27,6 @@ public class ActionScope {
 
 	public Meta meta;
 	public CommandContext context;
-	public boolean releaseBound;
 
 	private Map<VarCATEGORY,ActionScopeSet> categoryMap = new HashMap<VarCATEGORY,ActionScopeSet>();
 	private Map<String,ActionScopeSet> sourceMap = new HashMap<String,ActionScopeSet>();

@@ -74,8 +74,8 @@ public class ServerMirrors extends ServerObject {
 		return( findRepository( name ) );
 	}
 	
-	public ServerMirrorRepository findProductConfigurationRepository( ServerProductMeta meta ) {
-		String name = "product-" + meta.name + "-conf";
+	public ServerMirrorRepository findProductDataRepository( ServerProductMeta meta ) {
+		String name = "product-" + meta.name + "-data";
 		return( findRepository( name ) );
 	}
 	

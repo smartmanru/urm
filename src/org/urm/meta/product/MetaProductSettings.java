@@ -1,5 +1,6 @@
 package org.urm.meta.product;
 
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,6 +50,13 @@ public class MetaProductSettings extends PropertyController {
 	public String CONFIG_META_MIRROR;
 	public String CONFIG_SOURCE_MIRROR;
 	
+	public String CONFIG_SOURCE_CHARSET;
+	public Charset charset;
+	public String CONFIG_SOURCE_RELEASEROOTDIR;
+	public String CONFIG_SOURCE_CFG_ROOTDIR;
+	public String CONFIG_SOURCE_CFG_LIVEROOTDIR;
+	public String CONFIG_SOURCE_SQL_POSTREFRESH;
+	
 	public String CONFIG_CUSTOM_BUILD;
 	public String CONFIG_CUSTOM_DEPLOY;
 	public String CONFIG_CUSTOM_DATABASE;
@@ -77,6 +85,12 @@ public class MetaProductSettings extends PropertyController {
 	public static String PROPERTY_META_MIRROR = "meta.mirror";
 	public static String PROPERTY_SOURCE_MIRROR = "conf.mirror";
 
+	public static String PROPERTY_SOURCE_CHARSET = "release.charset";
+	public static String PROPERTY_SOURCE_RELEASEROOTDIR = "release.root";
+	public static String PROPERTY_SOURCE_CFG_ROOTDIR = "config.root";
+	public static String PROPERTY_SOURCE_CFG_LIVEROOTDIR = "config.live";
+	public static String PROPERTY_SOURCE_SQL_POSTREFRESH = "config.postrefresh";
+	
 	public static String PROPERTY_CUSTOM_BUILD = "custom.build";
 	public static String PROPERTY_CUSTOM_DEPLOY = "custom.deploy";
 	public static String PROPERTY_CUSTOM_DATABASE = "custom.database";
@@ -113,6 +127,17 @@ public class MetaProductSettings extends PropertyController {
 		CONFIG_META_MIRROR = super.getStringProperty( action , PROPERTY_META_MIRROR );
 		CONFIG_SOURCE_MIRROR = super.getStringProperty( action , PROPERTY_SOURCE_MIRROR );
 		
+		CONFIG_SOURCE_CHARSET = super.getStringProperty( action , PROPERTY_SOURCE_CHARSET );
+		CONFIG_SOURCE_RELEASEROOTDIR = super.getStringProperty( action , PROPERTY_SOURCE_RELEASEROOTDIR );
+		CONFIG_SOURCE_CFG_ROOTDIR = super.getStringProperty( action , PROPERTY_SOURCE_CFG_ROOTDIR );
+		CONFIG_SOURCE_CFG_LIVEROOTDIR = super.getStringProperty( action , PROPERTY_SOURCE_CFG_LIVEROOTDIR );
+		CONFIG_SOURCE_SQL_POSTREFRESH = super.getStringProperty( action , PROPERTY_SOURCE_SQL_POSTREFRESH );
+		if( CONFIG_SOURCE_CHARSET != null ) {
+			charset = Charset.availableCharsets().get( CONFIG_SOURCE_CHARSET );
+			if( charset == null )
+				action.exit1( _Error.UnknownDatabaseFilesCharset1 , "unknown database files charset=" + CONFIG_SOURCE_CHARSET , CONFIG_SOURCE_CHARSET );
+		}
+		
 		CONFIG_CUSTOM_BUILD = super.getStringProperty( action , PROPERTY_CUSTOM_BUILD );
 		CONFIG_CUSTOM_DEPLOY = super.getStringProperty( action , PROPERTY_CUSTOM_DEPLOY );
 		CONFIG_CUSTOM_DATABASE = super.getStringProperty( action , PROPERTY_CUSTOM_DATABASE );
@@ -131,6 +156,13 @@ public class MetaProductSettings extends PropertyController {
 		r.CONFIG_VERSION_BRANCH_MINOR = CONFIG_VERSION_BRANCH_MINOR;
 		r.CONFIG_VERSION_BRANCH_NEXTMAJOR = CONFIG_VERSION_BRANCH_NEXTMAJOR;
 		r.CONFIG_VERSION_BRANCH_NEXTMINOR = CONFIG_VERSION_BRANCH_NEXTMINOR;
+
+		r.CONFIG_SOURCE_CHARSET = CONFIG_SOURCE_CHARSET;
+		r.CONFIG_SOURCE_RELEASEROOTDIR = CONFIG_SOURCE_RELEASEROOTDIR;
+		r.CONFIG_SOURCE_CFG_ROOTDIR = CONFIG_SOURCE_CFG_ROOTDIR;
+		r.CONFIG_SOURCE_CFG_LIVEROOTDIR = CONFIG_SOURCE_CFG_LIVEROOTDIR;
+		r.CONFIG_SOURCE_SQL_POSTREFRESH = CONFIG_SOURCE_SQL_POSTREFRESH;
+		r.charset = charset;
 		
 		if( buildCommon != null )
 			r.buildCommon = buildCommon.copy( action , meta , r , r.getProperties() ); 

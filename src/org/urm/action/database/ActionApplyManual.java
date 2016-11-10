@@ -9,7 +9,7 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.LogStorage;
 import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaProductSettings;
 
 public class ActionApplyManual extends ActionBase {
 
@@ -62,8 +62,8 @@ public class ActionApplyManual extends ActionBase {
 		
 		// configure
 		ConfBuilder builder = new ConfBuilder( this , target.meta );
-		MetaProductBuildSettings build = getBuildSettings( target.meta );
-		builder.configureFile( logReleaseExecute , file , server , null , build.charset );
+		MetaProductSettings settings = target.meta.getProductSettings( this );
+		builder.configureFile( logReleaseExecute , file , server , null , settings.charset );
 	}
 	
 }

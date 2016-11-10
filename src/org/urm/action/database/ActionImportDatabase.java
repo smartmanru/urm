@@ -20,7 +20,7 @@ import org.urm.engine.storage.SourceStorage;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaProductSettings;
 
 public class ActionImportDatabase extends ActionBase {
 
@@ -363,8 +363,8 @@ public class ActionImportDatabase extends ActionBase {
 		
 		// configure
 		ConfBuilder builder = new ConfBuilder( this , server.meta );
-		MetaProductBuildSettings build = getBuildSettings( server.meta );
-		builder.configureFolder( this , folder , server , null , build.charset );
+		MetaProductSettings settings = server.meta.getProductSettings( this );
+		builder.configureFolder( this , folder , server , null , settings.charset );
 		
 		// apply
 		if( !client.applyManualSet( this , folder ) )

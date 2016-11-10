@@ -76,6 +76,10 @@ public class ActionInit extends ActionBase {
 		return( settings.getServerContext() );
 	}
 
+	public LocalFolder getServerHomeFolder() throws Exception {
+		return( loader.getServerHomeFolder( this ) );
+	}
+	
 	public LocalFolder getServerSettingsFolder() throws Exception {
 		return( loader.getServerSettingsFolder( this ) );
 	}

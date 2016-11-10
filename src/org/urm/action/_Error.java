@@ -26,5 +26,6 @@ public class _Error {
 	public static final int UnexpectedNonManualItem1 = ErrorBase + 17;
 	public static final int BuildVersionNotSet0 = ErrorBase + 18;
 	public static final int InternalActionError1 = ErrorBase + 19;
+	public static final int MissingMirrorConfig0 = ErrorBase + 20;
 
 }

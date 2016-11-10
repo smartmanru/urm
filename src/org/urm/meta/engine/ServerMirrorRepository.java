@@ -1,6 +1,8 @@
 package org.urm.meta.engine;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.PropertySet;
@@ -11,6 +13,8 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.vcs.GenericVCS;
 import org.urm.engine.vcs.MirrorStorage;
 import org.urm.meta.ServerObject;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -60,8 +64,12 @@ public class ServerMirrorRepository extends ServerObject {
 		return( TYPE.equals( TYPE_PROJECT ) );
 	}
 	
-	public boolean isProduct() {
-		return( TYPE.equals( TYPE_PRODUCT_DATA ) || TYPE.equals( TYPE_PRODUCT_META )  );
+	public boolean isProductMeta() {
+		return( TYPE.equals( TYPE_PRODUCT_META ) );
+	}
+	
+	public boolean isProductData() {
+		return( TYPE.equals( TYPE_PRODUCT_DATA ) );
 	}
 	
 	public ServerMirrorRepository copy( ServerMirrors mirror ) throws Exception {
@@ -123,8 +131,11 @@ public class ServerMirrorRepository extends ServerObject {
 			if( isServer() )
 				createServerMirror( transaction , push );
 			else
-			if( isProduct() )
-				createProductMirror( transaction , push );
+			if( isProductMeta() )
+				createProductMetaMirror( transaction , push );
+			else
+			if( isProductData() )
+				createProductDataMirror( transaction , push );
 		}
 		catch( Throwable e ) {
 			RESOURCE = "";
@@ -141,31 +152,68 @@ public class ServerMirrorRepository extends ServerObject {
 	private void createServerMirror( ServerTransaction transaction , boolean push ) throws Exception {
 		// reject already published
 		// server: test target, remove mirror work/repo, create mirror work/repo, publish target
-		ActionInit action = transaction.getAction();
-		LocalFolder serverSettings = action.getServerSettingsFolder();
-		createMetaMirror( transaction , push , serverSettings );
+		createMirrorInternal( transaction , push );
 	}
 
-	private void createProductMirror( ServerTransaction transaction , boolean push ) throws Exception {
+	private void createProductMetaMirror( ServerTransaction transaction , boolean push ) throws Exception {
 		// reject already published
 		// server: test target, remove mirror work/repo, create mirror work/repo, publish target
-		ActionInit action = transaction.getAction();
-		LocalFolder productSettings = action.getActiveProductHomeFolder( PRODUCT );
-		if( !push )
-			productSettings.ensureExists( action );
-		createMetaMirror( transaction , push , productSettings );
+		createMirrorInternal( transaction , push );
 	}
 
-	private void createMetaMirror( ServerTransaction transaction , boolean push , LocalFolder folder ) throws Exception {
-		ActionBase action = transaction.getAction();
-		GenericVCS vcs = GenericVCS.getVCS( action , null , RESOURCE );
-		if( push ) {
-			MirrorStorage storage = vcs.createInitialMirror( this );
-			syncFromFolder( action , vcs , storage , folder );
+	private void createProductDataMirror( ServerTransaction transaction , boolean push ) throws Exception {
+		// reject already published
+		// server: test target, remove mirror work/repo, create mirror work/repo, publish target
+		createMirrorInternal( transaction , push );
+	}
+
+	private Map<String,LocalFolder> getFolderMap( ActionInit action ) throws Exception {
+		Map<String,LocalFolder> map = new HashMap<String,LocalFolder>();
+		if( TYPE.equals( TYPE_SERVER ) ) {
+			LocalFolder serverSettings = action.getServerSettingsFolder();
+			map.put( "." , serverSettings );
 		}
-		else {
-			MirrorStorage storage = vcs.createServerMirror( this );
-			syncToFolder( action , vcs , storage , folder );
+		else
+		if( TYPE.equals( TYPE_PRODUCT_META ) ) {
+			LocalFolder productSettings = action.getActiveProductHomeFolder( PRODUCT );
+			map.put( "etc" , productSettings.getSubFolder( action , "etc" ) );
+			map.put( "master" , productSettings.getSubFolder( action , "master" ) );
+		}
+		else
+		if( TYPE.equals( TYPE_PRODUCT_DATA ) ) {
+			Meta meta = action.getActiveProductMetadata( PRODUCT );
+			MetaProductSettings settings = meta.getProductSettings( action );
+			LocalFolder home = action.getServerHomeFolder();
+			map.put( "live" , home.getSubFolder( action , settings.CONFIG_SOURCE_CFG_LIVEROOTDIR ) );
+			map.put( "templates" , home.getSubFolder( action , settings.CONFIG_SOURCE_CFG_ROOTDIR ) );
+			map.put( "postrefresh" , home.getSubFolder( action , settings.CONFIG_SOURCE_SQL_POSTREFRESH ) );
+			map.put( "changes" , home.getSubFolder( action , settings.CONFIG_SOURCE_RELEASEROOTDIR ) );
+		}
+		
+		return( map );
+	}
+	
+	private void createMirrorInternal( ServerTransaction transaction , boolean push ) throws Exception {
+		ActionInit action = transaction.getAction();
+		GenericVCS vcs = GenericVCS.getVCS( action , null , RESOURCE );
+		
+		Map<String,LocalFolder> map = getFolderMap( action );
+		
+		MirrorStorage storage;
+		if( push )
+			storage = vcs.createInitialMirror( this );
+		else
+			storage = vcs.createServerMirror( this );
+		
+		for( String mirrorFolder : map.keySet() ) {
+			LocalFolder folder = map.get( mirrorFolder );
+			if( !push ) {
+				folder.ensureExists( action );
+				syncFromFolder( action , vcs , storage , mirrorFolder , folder );
+			}
+			else {
+				syncToFolder( action , vcs , storage , mirrorFolder , folder );
+			}
 		}
 	}
 	
@@ -213,10 +261,13 @@ public class ServerMirrorRepository extends ServerObject {
 			return;
 		
 		if( isServer() )
-			dropServerMirror( transaction );
+			dropMirrorInternal( transaction );
 		else
-		if( isProduct() )
-			dropProductMirror( transaction );
+		if( isProductMeta() )
+			dropMirrorInternal( transaction );
+		else
+		if( isProductData() )
+			dropMirrorInternal( transaction );
 		
 		RESOURCE = "";
 		RESOURCE_REPO = "";
@@ -226,45 +277,34 @@ public class ServerMirrorRepository extends ServerObject {
 		createProperties();
 	}
 	
-	private void dropServerMirror( ServerTransaction transaction ) throws Exception {
-		dropMetaMirror( transaction );
-	}
-
-	private void dropProductMirror( ServerTransaction transaction ) throws Exception {
-		dropMetaMirror( transaction );
-	}
-
-	private void dropMetaMirror( ServerTransaction transaction ) throws Exception {
+	private void dropMirrorInternal( ServerTransaction transaction ) throws Exception {
 		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , false , true );
 		vcs.dropMirror( this );
 	}
 
 	public void pushMirror( ServerTransaction transaction ) throws Exception {
 		if( isServer() )
-			pushServerMirror( transaction );
+			pushMirrorInternal( transaction );
 		else
-		if( isProduct() )
-			pushProductMirror( transaction );
+		if( isProductMeta() )
+			pushMirrorInternal( transaction );
+		else
+		if( isProductData() )
+			pushMirrorInternal( transaction );
 	}
 
-	void pushServerMirror( ServerTransaction transaction ) throws Exception {
-		ActionInit action = transaction.getAction();
-		LocalFolder serverSettings = action.getServerSettingsFolder();
-		pushMetaMirror( transaction , serverSettings );
-	}
-	
-	void pushProductMirror( ServerTransaction transaction ) throws Exception {
-		ActionInit action = transaction.getAction();
-		LocalFolder productSettings = action.getActiveProductHomeFolder( PRODUCT );
-		pushMetaMirror( transaction , productSettings );
-	}
-
-	void pushMetaMirror( ServerTransaction transaction , LocalFolder folder ) throws Exception {
+	private void pushMirrorInternal( ServerTransaction transaction ) throws Exception {
 		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE );
 		vcs.refreshMirror( this );
 		MirrorStorage storage = vcs.getMirror( this );
-		ActionBase action = transaction.getAction();
-		syncFromFolder( action , vcs , storage , folder );
+		ActionInit action = transaction.getAction();
+		
+		Map<String,LocalFolder> map = getFolderMap( action );
+		for( String mirrorFolder : map.keySet() ) {
+			LocalFolder folder = map.get( mirrorFolder );
+			syncFromFolder( action , vcs , storage , mirrorFolder , folder );
+		}
+		
 		vcs.pushMirror( this );
 	}
 	
@@ -272,32 +312,41 @@ public class ServerMirrorRepository extends ServerObject {
 		if( isServer() )
 			refreshServerMirror( transaction );
 		else
-		if( isProduct() )
-			refreshProductMirror( transaction );
+		if( isProductMeta() )
+			refreshProductMetaMirror( transaction );
+		else
+		if( isProductData() )
+			refreshProductDataMirror( transaction );
 	}
 
 	private void refreshServerMirror( ServerTransaction transaction ) throws Exception {
-		ActionInit action = transaction.getAction();
-		LocalFolder serverSettings = action.getServerSettingsFolder();
-		refreshMetaMirror( transaction , serverSettings );
+		refreshMirrorInternal( transaction );
 	}
 	
-	private void refreshProductMirror( ServerTransaction transaction ) throws Exception {
-		ActionInit action = transaction.getAction();
-		LocalFolder productSettings = action.getActiveProductHomeFolder( PRODUCT );
-		refreshMetaMirror( transaction , productSettings );
+	private void refreshProductMetaMirror( ServerTransaction transaction ) throws Exception {
+		refreshMirrorInternal( transaction );
 	}
 
-	private void refreshMetaMirror( ServerTransaction transaction , LocalFolder folder ) throws Exception {
+	private void refreshProductDataMirror( ServerTransaction transaction ) throws Exception {
+		refreshMirrorInternal( transaction );
+	}
+
+	private void refreshMirrorInternal( ServerTransaction transaction ) throws Exception {
+		ActionInit action = transaction.getAction();
 		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE );
 		vcs.refreshMirror( this );
+		
 		MirrorStorage storage = vcs.getMirror( this );
-		ActionBase action = transaction.getAction();
-		syncToFolder( action , vcs , storage , folder );
+		Map<String,LocalFolder> map = getFolderMap( action );
+		for( String mirrorFolder : map.keySet() ) {
+			LocalFolder folder = map.get( mirrorFolder );
+			syncToFolder( action , vcs , storage , mirrorFolder , folder );
+		}
 	}
 	
-	private void syncFromFolder( ActionBase action , GenericVCS vcs , MirrorStorage storage , LocalFolder folder ) throws Exception {
-		LocalFolder mf = storage.getCommitFolder();
+	private void syncFromFolder( ActionBase action , GenericVCS vcs , MirrorStorage storage , String mirrorFolder , LocalFolder folder ) throws Exception {
+		LocalFolder cf = storage.getCommitFolder();
+		LocalFolder mf = cf.getSubFolder( action , mirrorFolder );
 		LocalFolder sf = folder;
 		FileSet mset = mf.getFileSet( action );
 		FileSet sset = sf.getFileSet( action );
@@ -352,8 +401,9 @@ public class ServerMirrorRepository extends ServerObject {
 		}
 	}
 	
-	private void syncToFolder( ActionBase action , GenericVCS vcs , MirrorStorage storage , LocalFolder folder ) throws Exception {
-		LocalFolder mf = storage.getCommitFolder();
+	private void syncToFolder( ActionBase action , GenericVCS vcs , MirrorStorage storage , String mirrorFolder , LocalFolder folder ) throws Exception {
+		LocalFolder cf = storage.getCommitFolder();
+		LocalFolder mf = cf.getSubFolder( action , mirrorFolder );
 		LocalFolder sf = folder;
 		FileSet mset = mf.getFileSet( action );
 		FileSet sset = sf.getFileSet( action );

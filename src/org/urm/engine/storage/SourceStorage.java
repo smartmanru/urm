@@ -17,6 +17,7 @@ import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerDeployment;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaProductSettings;
 
 public class SourceStorage {
 
@@ -183,8 +184,8 @@ public class SourceStorage {
 	}
 
 	public String getReleasePath( ActionBase action , Dist distStorage ) throws Exception {
-		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		String PATH = Common.getPath( build.CONFIG_SOURCE_RELEASEROOTDIR , 
+		MetaProductSettings settings = meta.getProductSettings( action );
+		String PATH = Common.getPath( settings.CONFIG_SOURCE_RELEASEROOTDIR , 
 			getReleaseGroupFolder( action ) ,
 			getReleaseFolder( action , distStorage ) );
 		return( PATH );
@@ -214,8 +215,8 @@ public class SourceStorage {
 	}
 
 	public String getProductConfigSourcePath( ActionBase action , MetaDistrConfItem distrComp ) throws Exception {
-		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		String PATH = Common.getPath( build.CONFIG_SOURCE_CFG_ROOTDIR , distrComp.KEY );
+		MetaProductSettings settings = meta.getProductSettings( action );
+		String PATH = Common.getPath( settings.CONFIG_SOURCE_CFG_ROOTDIR , distrComp.KEY );
 		return( PATH );
 	}
 
@@ -240,14 +241,14 @@ public class SourceStorage {
 	}
 
 	public String getLiveConfigDCPath( ActionBase action , MetaEnvDC dc ) throws Exception {
-		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		String PATH = Common.getPath( build.CONFIG_SOURCE_CFG_LIVEROOTDIR , dc.env.ID , dc.NAME );
+		MetaProductSettings settings = meta.getProductSettings( action );
+		String PATH = Common.getPath( settings.CONFIG_SOURCE_CFG_LIVEROOTDIR , dc.env.ID , dc.NAME );
 		return( PATH );
 	}
 	
 	public String getLiveConfigPath( ActionBase action ) throws Exception {
-		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		String PATH = Common.getPath( build.CONFIG_SOURCE_CFG_LIVEROOTDIR , action.context.env.ID );
+		MetaProductSettings settings = meta.getProductSettings( action );
+		String PATH = Common.getPath( settings.CONFIG_SOURCE_CFG_LIVEROOTDIR , action.context.env.ID );
 		return( PATH );
 	}
 	
@@ -327,12 +328,12 @@ public class SourceStorage {
 	}
 	
 	public void exportTemplateConfigItem( ActionBase action , MetaEnvDC dc , String confName , String TAG , LocalFolder folder ) throws Exception {
-		MetaProductBuildSettings build = action.getBuildSettings( meta );
+		MetaProductSettings settings = meta.getProductSettings( action );
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE );
 		
-		String CONFPATH = build.CONFIG_SOURCE_CFG_ROOTDIR;
+		String CONFPATH = settings.CONFIG_SOURCE_CFG_ROOTDIR;
 		String PATH = Common.getPath( CONFPATH , confName );
 		if( TAG.isEmpty() ) {
 			if( !vcs.exportRepositoryMasterPath( mirror , folder , PATH , confName ) )
@@ -446,12 +447,12 @@ public class SourceStorage {
 	}
 		
 	public void exportPostRefresh( ActionBase action , String name , LocalFolder folder ) throws Exception {
-		MetaProductBuildSettings build = action.getBuildSettings( meta );
+		MetaProductSettings settings = meta.getProductSettings( action );
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE );
 		
-		String CONFPATH = build.CONFIG_SOURCE_SQL_POSTREFRESH;
+		String CONFPATH = settings.CONFIG_SOURCE_SQL_POSTREFRESH;
 		String PATH = Common.getPath( CONFPATH , name );
 		if( !vcs.exportRepositoryMasterPath( mirror , folder , PATH , name ) )
 			action.exit2( _Error.UnableExportConfig2 , "unable to export " + name + " from " + PATH , name , PATH );

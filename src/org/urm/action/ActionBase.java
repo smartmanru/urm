@@ -603,7 +603,10 @@ abstract public class ActionBase extends ActionCore {
 
 	public ServerMirrorRepository getConfigurationMirror( ServerProductMeta meta ) throws Exception {
 		ServerMirrors mirrors = getMirrors();
-		ServerMirrorRepository repo = mirrors.findProductConfigurationRepository( meta );
+		ServerMirrorRepository repo = mirrors.findProductDataRepository( meta );
+		if( repo == null )
+			exit0( _Error.MissingMirrorConfig0 , "Missing product configuration files mirror" );
+		
 		return( repo );
 	}
 

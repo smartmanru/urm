@@ -17,7 +17,7 @@ import org.urm.engine.storage.LogStorage;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaProductSettings;
 
 public class ActionApplyAutomatic extends ActionBase {
 
@@ -147,8 +147,8 @@ public class ActionApplyAutomatic extends ActionBase {
 		scriptFolder.copyFiles( this , file , logReleaseExecute );
 		
 		ConfBuilder builder = new ConfBuilder( this , server.meta );
-		MetaProductBuildSettings build = getBuildSettings( server.meta );
-		builder.configureFile( logReleaseExecute , file , server , null , build.charset );
+		MetaProductSettings settings = server.meta.getProductSettings( this );
+		builder.configureFile( logReleaseExecute , file , server , null , settings.charset );
 		
 		if( !dsf.REGIONALINDEX.equals( "RR" ) )
 			return;
