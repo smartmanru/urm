@@ -10,6 +10,7 @@ import org.urm.engine.ServerTransaction;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
+import org.urm.engine.storage.SourceStorage;
 import org.urm.engine.vcs.GenericVCS;
 import org.urm.engine.vcs.MirrorStorage;
 import org.urm.meta.ServerObject;
@@ -190,10 +191,10 @@ public class ServerMirrorRepository extends ServerObject {
 			Meta meta = action.getActiveProductMetadata( PRODUCT );
 			MetaProductSettings settings = meta.getProductSettings( action );
 			LocalFolder home = action.getServerHomeFolder();
-			addFolderMapItem( action , map , "live" , home , settings.CONFIG_SOURCE_CFG_LIVEROOTDIR );
-			addFolderMapItem( action , map , "templates" , home , settings.CONFIG_SOURCE_CFG_ROOTDIR );
-			addFolderMapItem( action , map , "postrefresh" , home , settings.CONFIG_SOURCE_SQL_POSTREFRESH );
-			addFolderMapItem( action , map , "changes" , home , settings.CONFIG_SOURCE_RELEASEROOTDIR );
+			addFolderMapItem( action , map , SourceStorage.DATA_LIVE , home , settings.CONFIG_SOURCE_CFG_LIVEROOTDIR );
+			addFolderMapItem( action , map , SourceStorage.DATA_TEMPLATES , home , settings.CONFIG_SOURCE_CFG_ROOTDIR );
+			addFolderMapItem( action , map , SourceStorage.DATA_POSTREFRESH , home , settings.CONFIG_SOURCE_SQL_POSTREFRESH );
+			addFolderMapItem( action , map , SourceStorage.DATA_CHANGES , home , settings.CONFIG_SOURCE_RELEASEROOTDIR );
 		}
 		
 		return( map );

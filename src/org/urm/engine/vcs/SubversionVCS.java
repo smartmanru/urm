@@ -526,7 +526,10 @@ public class SubversionVCS extends GenericVCS {
 	}
 
 	public String getRepositoryPath( ServerMirrorRepository mirror ) {
-		return( Common.getPath( SVNPATH , mirror.RESOURCE_ROOT , mirror.RESOURCE_REPO ) );
+		String path = Common.getPath( mirror.RESOURCE_REPO , mirror.RESOURCE_DATA );
+		if( !mirror.RESOURCE_ROOT.equals( "/" ) )
+			path = Common.getPath( mirror.RESOURCE_ROOT , path );
+		return( Common.getPath( SVNPATH , path ) );
 	}
 
 	public String getProjectPath( MetaSourceProject project ) throws Exception {

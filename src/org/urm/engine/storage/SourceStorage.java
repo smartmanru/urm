@@ -17,7 +17,6 @@ import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerDeployment;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaProductBuildSettings;
-import org.urm.meta.product.MetaProductSettings;
 
 public class SourceStorage {
 
@@ -29,6 +28,11 @@ public class SourceStorage {
 	public static String DATABASE_FOLDER = "db";
 	public static String ERRORS_FOLDER = "errors";
 	public static String MANUAL_FOLDER = "manual";
+
+	public static String DATA_TEMPLATES = "templates";
+	public static String DATA_CHANGES = "changes";
+	public static String DATA_LIVE = "live";
+	public static String DATA_POSTREFRESH = "postrefresh";
 	
 	public SourceStorage( Artefactory artefactory , Meta meta , LocalFolder downloadFolder ) {
 		this.artefactory = artefactory;
@@ -62,7 +66,7 @@ public class SourceStorage {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
-		String PATH = getReleaseManualPath( action , distStorage );
+		String PATH = getDATAReleaseManualPath( action , distStorage );
 
 		if( downloadManualFolder( action , vcs , PATH , dstFolder ) )
 			return( true );
@@ -76,7 +80,7 @@ public class SourceStorage {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
-		String PATH = getReleaseConfigSourcePath( action , distStorage , sourceFolder.releaseComp );
+		String PATH = getDATAReleaseConfigSourcePath( action , distStorage , sourceFolder.releaseComp );
 		
 		if( downloadConfigItem( action , vcs , PATH , sourceFolder.distrComp , dstFolder ) )
 			return( true );
@@ -90,7 +94,7 @@ public class SourceStorage {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
-		String PATH = getReleaseDBSourcePath( action , distStorage , dbDelivery );
+		String PATH = getDATAReleaseDBSourcePath( action , distStorage , dbDelivery );
 		
 		if( downloadDBFiles( action , vcs , PATH , dbDelivery , dstFolder ) )
 			return( true );
@@ -104,7 +108,7 @@ public class SourceStorage {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
-		String PATH = getProductConfigSourcePath( action , sourceFolder.distrComp );
+		String PATH = getDATAProductConfigSourcePath( action , sourceFolder.distrComp );
 
 		if( downloadConfigItem( action , vcs , PATH , sourceFolder.distrComp , dstFolder ) )
 			return( true );
@@ -161,8 +165,8 @@ public class SourceStorage {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.getResource( action ) );
-		String SRCPATH = getReleaseDBSourcePath( action , distStorage , dbDelivery );
-		String ERRORPATH = getReleaseErrorsPath( action , distStorage , dbDelivery , errorFolder );
+		String SRCPATH = getDATAReleaseDBSourcePath( action , distStorage , dbDelivery );
+		String ERRORPATH = getDATAReleaseErrorsPath( action , distStorage , dbDelivery , errorFolder );
 		
 		vcs.createMasterFolder( mirror , ERRORPATH , "create error folder" );
 		vcs.moveMasterFiles( mirror , SRCPATH , ERRORPATH , movePath , message );
@@ -190,43 +194,6 @@ public class SourceStorage {
 		return( "prod-patch-" + RELEASEVER );
 	}
 
-	public String getReleasePath( ActionBase action , Dist distStorage ) throws Exception {
-		MetaProductSettings settings = meta.getProductSettings( action );
-		String PATH = Common.getPath( settings.CONFIG_SOURCE_RELEASEROOTDIR , 
-			getReleaseGroupFolder( action ) ,
-			getReleaseFolder( action , distStorage ) );
-		return( PATH );
-	}
-	
-	public String getReleaseManualPath( ActionBase action , Dist distStorage ) throws Exception {
-		String PATH = Common.getPath( getReleasePath( action , distStorage ) , MANUAL_FOLDER );
-		return( PATH );
-	}
-
-	public String getReleaseConfigSourcePath( ActionBase action , Dist distStorage , ReleaseTarget releaseComp ) throws Exception {
-		String PATH = Common.getPath( getReleasePath( action , distStorage ) , 
-			getConfFolderRelPath( action , releaseComp.distConfItem ) );
-		return( PATH );
-	}
-
-	public String getReleaseDBSourcePath( ActionBase action , Dist distStorage , MetaDistrDelivery dbDelivery ) throws Exception {
-		String PATH = Common.getPath( getReleasePath( action , distStorage ) , 
-			getDBFolderRelPath( action , dbDelivery ) );
-		return( PATH );
-	}
-
-	public String getReleaseErrorsPath( ActionBase action , Dist distStorage , MetaDistrDelivery dbDelivery , String errorFolder ) throws Exception {
-		String PATH = Common.getPath( getReleasePath( action , distStorage ) , 
-			getErrorFolderRelPath( action , dbDelivery , errorFolder ) );
-		return( PATH );
-	}
-
-	public String getProductConfigSourcePath( ActionBase action , MetaDistrConfItem distrComp ) throws Exception {
-		MetaProductSettings settings = meta.getProductSettings( action );
-		String PATH = Common.getPath( settings.CONFIG_SOURCE_CFG_ROOTDIR , distrComp.KEY );
-		return( PATH );
-	}
-
 	public String getConfFolderRelPath( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
 		String PATH = Common.getPath( delivery.FOLDER , SourceStorage.CONFIG_FOLDER );
 		return( PATH );
@@ -247,28 +214,11 @@ public class SourceStorage {
 		return( PATH );
 	}
 
-	public String getLiveConfigDCPath( ActionBase action , MetaEnvDC dc ) throws Exception {
-		MetaProductSettings settings = meta.getProductSettings( action );
-		String PATH = Common.getPath( settings.CONFIG_SOURCE_CFG_LIVEROOTDIR , dc.env.ID , dc.NAME );
-		return( PATH );
-	}
-	
-	public String getLiveConfigPath( ActionBase action ) throws Exception {
-		MetaProductSettings settings = meta.getProductSettings( action );
-		String PATH = Common.getPath( settings.CONFIG_SOURCE_CFG_LIVEROOTDIR , action.context.env.ID );
-		return( PATH );
-	}
-	
-	public String getLiveConfigServerPath( ActionBase action , MetaEnvDC dc , String server ) throws Exception {
-		String PATH = Common.getPath( getLiveConfigDCPath( action , dc ) , server );
-		return( PATH );
-	}
-	
 	public String[] getLiveConfigItems( ActionBase action , MetaEnvServer server ) throws Exception {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
-		String PATH = getLiveConfigServerPath( action , server.dc , server.NAME );
+		String PATH = getDATALiveConfigServerPath( action , server.dc , server.NAME );
 		
 		String[] list = vcs.listMasterItems( mirror , PATH );
 		return( list );
@@ -278,7 +228,7 @@ public class SourceStorage {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
-		String PATH = getLiveConfigDCPath( action , dc );
+		String PATH = getDATALiveConfigDCPath( action , dc );
 		
 		String[] list = vcs.listMasterItems( mirror , PATH );
 		return( list );
@@ -288,7 +238,7 @@ public class SourceStorage {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
-		String PATH = getLiveConfigServerPath( action , server.dc , server.NAME );
+		String PATH = getDATALiveConfigServerPath( action , server.dc , server.NAME );
 		PATH = Common.getPath( PATH , item );
 		
 		vcs.deleteMasterFolder( mirror , PATH , commitMessage );
@@ -298,7 +248,7 @@ public class SourceStorage {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
-		String PATH = getLiveConfigServerPath( action , dc , server );
+		String PATH = getDATALiveConfigServerPath( action , dc , server );
 		
 		vcs.deleteMasterFolder( mirror , PATH , commitMessage );
 	}
@@ -307,7 +257,7 @@ public class SourceStorage {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
-		String PATH = getLiveConfigPath( action );
+		String PATH = getDATALiveConfigPath( action );
 		String setTAG = meta.name + "-" + action.context.env.ID + "-" + TAG;
 		
 		vcs.createMasterTag( mirror , PATH , setTAG , commitMessage );
@@ -318,16 +268,17 @@ public class SourceStorage {
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
 		
-		String SERVERPATH = getLiveConfigServerPath( action , server.dc , server.NAME );
+		String SERVERPATH = getDATALiveConfigServerPath( action , server.dc , server.NAME );
 		String PATH = Common.getPath( SERVERPATH , confName );
+		String path = vcs.getInfoMasterPath( mirror , PATH );
 		if( TAG.isEmpty() ) {
 			if( !vcs.exportRepositoryMasterPath( mirror , folder , PATH , confName ) )
-				action.exit2( _Error.UnableExportConfig2 , "unable to export " + confName + " from " + PATH , confName , PATH );
+				action.exit2( _Error.UnableExportConfig2 , "unable to export " + confName + " from " + path , confName , path );
 		}
 		else {
 			String useTAG = meta.name + "-" + action.context.env.ID + "-" + TAG;
 			if( !vcs.exportRepositoryTagPath( mirror , folder , useTAG , PATH , confName ) )
-				action.exit3( _Error.UnableExportConfigTag3 , "unable to export " + confName + " from " + PATH + ", TAG=" + useTAG , confName , PATH , useTAG );
+				action.exit3( _Error.UnableExportConfigTag3 , "unable to export " + confName + " from " + path + ", TAG=" + useTAG , confName , path , useTAG );
 		}
 		
 		// remove windows newlines and add permissions to shell files
@@ -335,21 +286,21 @@ public class SourceStorage {
 	}
 	
 	public void exportTemplateConfigItem( ActionBase action , MetaEnvDC dc , String confName , String TAG , LocalFolder folder ) throws Exception {
-		MetaProductSettings settings = meta.getProductSettings( action );
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
 		
-		String CONFPATH = settings.CONFIG_SOURCE_CFG_ROOTDIR;
+		String CONFPATH = DATA_TEMPLATES;
 		String PATH = Common.getPath( CONFPATH , confName );
+		String path = vcs.getInfoMasterPath( mirror , PATH );
 		if( TAG.isEmpty() ) {
 			if( !vcs.exportRepositoryMasterPath( mirror , folder , PATH , confName ) )
-				action.exit2( _Error.UnableExportConfig2 , "unable to export " + confName + " from " + PATH , confName , PATH );
+				action.exit2( _Error.UnableExportConfig2 , "unable to export " + confName + " from " + path , confName , path );
 		}
 		else {
 			String useTAG = meta.name + "-" + action.context.env.ID + "-" + dc.NAME + "-" + TAG;
 			if( !vcs.exportRepositoryTagPath( mirror , folder , useTAG , PATH , confName ) )
-				action.exit3( _Error.UnableExportConfigTag3 , "unable to export " + confName + " from " + PATH + ", TAG=" + useTAG , confName , PATH , useTAG );
+				action.exit3( _Error.UnableExportConfigTag3 , "unable to export " + confName + " from " + path + ", TAG=" + useTAG , confName , path , useTAG );
 		}
 		
 		// remove windows newlines and add permissions to shell files
@@ -360,14 +311,15 @@ public class SourceStorage {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
-		String SERVERPATH = getLiveConfigServerPath( action , server.dc , server.NAME );
+		String SERVERPATH = getDATALiveConfigServerPath( action , server.dc , server.NAME );
 		String PATH = Common.getPath( SERVERPATH , item );
-		
+
+		String path = vcs.getInfoMasterPath( mirror , PATH );
 		if( !vcs.isValidRepositoryMasterPath( mirror , PATH ) ) {
 			if( !vcs.isValidRepositoryMasterPath( mirror , SERVERPATH ) )
 				vcs.ensureMasterFolderExists( mirror , SERVERPATH , commitMessage );
 			vcs.importMasterFolder( mirror , folder , PATH , commitMessage );
-			action.info( node.HOSTLOGIN + ": live created at " + PATH );
+			action.info( node.HOSTLOGIN + ": live created at " + path );
 			return;
 		}
 		
@@ -386,9 +338,9 @@ public class SourceStorage {
 		saveLiveConfigItemCopyFolder( action , vcs , mirror , tobeFiles , coFiles , folder , coFolder );
 
 		if( vcs.commitMasterFolder( mirror , coFolder , PATH , commitMessage ) )
-			action.info( node.HOSTLOGIN + ": live updated at " + PATH );
+			action.info( node.HOSTLOGIN + ": live updated at " + path );
 		else
-			action.debug( node.HOSTLOGIN + ": live not changed at " + PATH );
+			action.debug( node.HOSTLOGIN + ": live not changed at " + path );
 	}
 
 	private void saveLiveConfigItemCopyFolder( ActionBase action , GenericVCS vcs , ServerMirrorRepository mirror , FileSet tobeFiles , FileSet coFiles , LocalFolder folder , LocalFolder coFolder ) throws Exception {
@@ -454,12 +406,11 @@ public class SourceStorage {
 	}
 		
 	public void exportPostRefresh( ActionBase action , String name , LocalFolder folder ) throws Exception {
-		MetaProductSettings settings = meta.getProductSettings( action );
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
 		
-		String CONFPATH = settings.CONFIG_SOURCE_SQL_POSTREFRESH;
+		String CONFPATH = DATA_POSTREFRESH;
 		String PATH = Common.getPath( CONFPATH , name );
 		String path = vcs.getInfoMasterPath( mirror , PATH );
 		if( !vcs.exportRepositoryMasterPath( mirror , folder , PATH , name ) )
@@ -468,6 +419,56 @@ public class SourceStorage {
 		// remove windows newlines and add permissions to shell files
 		if( action.isLocalLinux() )
 			folder.prepareFolderForLinux( action , name );
+	}
+	
+	private String getDATAReleasePath( ActionBase action , Dist distStorage ) throws Exception {
+		String PATH = Common.getPath( DATA_CHANGES , 
+			getReleaseGroupFolder( action ) ,
+			getReleaseFolder( action , distStorage ) );
+		return( PATH );
+	}
+	
+	private String getDATAReleaseManualPath( ActionBase action , Dist distStorage ) throws Exception {
+		String PATH = Common.getPath( getDATAReleasePath( action , distStorage ) , MANUAL_FOLDER );
+		return( PATH );
+	}
+
+	private String getDATAReleaseConfigSourcePath( ActionBase action , Dist distStorage , ReleaseTarget releaseComp ) throws Exception {
+		String PATH = Common.getPath( getDATAReleasePath( action , distStorage ) , 
+			getConfFolderRelPath( action , releaseComp.distConfItem ) );
+		return( PATH );
+	}
+
+	private String getDATAReleaseDBSourcePath( ActionBase action , Dist distStorage , MetaDistrDelivery dbDelivery ) throws Exception {
+		String PATH = Common.getPath( getDATAReleasePath( action , distStorage ) , 
+			getDBFolderRelPath( action , dbDelivery ) );
+		return( PATH );
+	}
+
+	private String getDATAReleaseErrorsPath( ActionBase action , Dist distStorage , MetaDistrDelivery dbDelivery , String errorFolder ) throws Exception {
+		String PATH = Common.getPath( getDATAReleasePath( action , distStorage ) , 
+			getErrorFolderRelPath( action , dbDelivery , errorFolder ) );
+		return( PATH );
+	}
+
+	private String getDATAProductConfigSourcePath( ActionBase action , MetaDistrConfItem distrComp ) throws Exception {
+		String PATH = Common.getPath( DATA_TEMPLATES , distrComp.KEY );
+		return( PATH );
+	}
+
+	private String getDATALiveConfigDCPath( ActionBase action , MetaEnvDC dc ) throws Exception {
+		String PATH = Common.getPath( DATA_LIVE , dc.env.ID , dc.NAME );
+		return( PATH );
+	}
+	
+	private String getDATALiveConfigPath( ActionBase action ) throws Exception {
+		String PATH = Common.getPath( DATA_LIVE , action.context.env.ID );
+		return( PATH );
+	}
+	
+	private String getDATALiveConfigServerPath( ActionBase action , MetaEnvDC dc , String server ) throws Exception {
+		String PATH = Common.getPath( getDATALiveConfigDCPath( action , dc ) , server );
+		return( PATH );
 	}
 	
 }
