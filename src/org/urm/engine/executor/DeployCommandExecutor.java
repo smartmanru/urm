@@ -159,9 +159,9 @@ public class DeployCommandExecutor extends CommandExecutor {
 
 	private class DropRedist extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
-		Dist dist = getDist( action );
+		String releaseDir = getRequiredArg( action , 0 , "release" );
 		ActionScope scope = getServerScope( action , 1 );
-		impl.dropRedist( action , scope , dist );
+		impl.dropRedist( action , scope , releaseDir );
 	}
 	}
 

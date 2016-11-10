@@ -29,16 +29,6 @@ public class VersionInfo {
 		return( r );
 	}
 
-	public void setVersion( ActionBase action , String version ) throws Exception {
-		int[] vn = new int[4];
-		parseVersion( action , version , vn );
-		v1 = vn[0]; 
-		v2 = vn[1]; 
-		v3 = vn[2]; 
-		v4 = vn[3]; 
-		variant = "";
-	}
-
 	public static VersionInfo getDistVersion( ActionBase action , Dist dist ) throws Exception {
 		VersionInfo vi = new VersionInfo();
 		vi.setDistData( action , dist );
@@ -49,6 +39,28 @@ public class VersionInfo {
 		VersionInfo vi = new VersionInfo();
 		vi.setVersion( action , version );
 		return( vi );
+	}
+	
+	public static VersionInfo getReleaseVersion( ActionBase action , String releaseDir ) throws Exception {
+		VersionInfo vi = new VersionInfo();
+		vi.setReleaseDir( action , releaseDir );
+		return( vi );
+	}
+
+	public void setVersion( ActionBase action , String version ) throws Exception {
+		int[] vn = new int[4];
+		parseVersion( action , version , vn );
+		v1 = vn[0]; 
+		v2 = vn[1]; 
+		v3 = vn[2]; 
+		v4 = vn[3]; 
+		variant = "";
+	}
+
+	public void setReleaseDir( ActionBase action , String releaseDir ) throws Exception {
+		String version = Common.getPartBeforeLast( releaseDir , "-" );
+		setVersion( action , version );
+		variant = Common.getPartAfterLast( releaseDir , "-" );
 	}
 	
 	public void setDistData( ActionBase action , Dist dist ) throws Exception {

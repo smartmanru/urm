@@ -50,8 +50,8 @@ public class DeployCommand {
 		ca.runAll( scope );
 	}
 
-	public void dropRedist( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
-		ActionDropRedist ca = new ActionDropRedist( action , null , dist );
+	public void dropRedist( ActionBase action , ActionScope scope , String releaseDir ) throws Exception {
+		ActionDropRedist ca = new ActionDropRedist( action , null , releaseDir );
 		
 		if( action.context.CTX_FORCE )
 			ca.runEnvUniqueHosts( scope );
