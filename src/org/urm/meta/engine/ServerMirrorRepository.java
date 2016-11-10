@@ -209,9 +209,9 @@ public class ServerMirrorRepository extends ServerObject {
 			LocalFolder folder = map.get( mirrorFolder );
 			folder.ensureExists( action );
 			if( push )
-				syncToFolder( action , vcs , storage , mirrorFolder , folder );
+				syncFolderToVcs( action , vcs , storage , mirrorFolder , folder );
 			else
-				syncFromFolder( action , vcs , storage , mirrorFolder , folder );
+				syncVcsToFolder( action , vcs , storage , mirrorFolder , folder );
 		}
 	}
 	
@@ -301,7 +301,7 @@ public class ServerMirrorRepository extends ServerObject {
 		for( String mirrorFolder : map.keySet() ) {
 			LocalFolder folder = map.get( mirrorFolder );
 			folder.ensureExists( action );
-			syncFromFolder( action , vcs , storage , mirrorFolder , folder );
+			syncFolderToVcs( action , vcs , storage , mirrorFolder , folder );
 		}
 		
 		vcs.pushMirror( this );
@@ -340,22 +340,30 @@ public class ServerMirrorRepository extends ServerObject {
 		for( String mirrorFolder : map.keySet() ) {
 			LocalFolder folder = map.get( mirrorFolder );
 			folder.ensureExists( action );
-			syncToFolder( action , vcs , storage , mirrorFolder , folder );
+			syncVcsToFolder( action , vcs , storage , mirrorFolder , folder );
 		}
 	}
 	
-	private void syncFromFolder( ActionBase action , GenericVCS vcs , MirrorStorage storage , String mirrorFolder , LocalFolder folder ) throws Exception {
+	private void syncFolderToVcs( ActionBase action , GenericVCS vcs , MirrorStorage storage , String mirrorFolder , LocalFolder folder ) throws Exception {
 		LocalFolder cf = storage.getCommitFolder();
 		LocalFolder mf = cf.getSubFolder( action , mirrorFolder );
 		LocalFolder sf = folder;
-		FileSet mset = mf.getFileSet( action );
-		FileSet sset = sf.getFileSet( action );
-		syncFromFolder( action , vcs , storage , mf , sf , mset , sset );
+		if( !mf.checkExists( action ) ) {
+			mf.ensureExists( action );
+			mf.copyDirContent( action , sf );
+			vcs.addDirToCommit( this , mf , "." );
+		}
+		else {
+			FileSet mset = mf.getFileSet( action );
+			FileSet sset = sf.getFileSet( action );
+			syncFolderToVcs( action , vcs , storage , mf , sf , mset , sset );
+		}
+		
 		vcs.commitMasterFolder( this , mf , "" , "sync from source" );
 		vcs.pushMirror( this );
 	}
 
-	private void syncFromFolder( ActionBase action , GenericVCS vcs , MirrorStorage storage , LocalFolder mfolder , LocalFolder sfolder , FileSet mset , FileSet sset ) throws Exception {
+	private void syncFolderToVcs( ActionBase action , GenericVCS vcs , MirrorStorage storage , LocalFolder mfolder , LocalFolder sfolder , FileSet mset , FileSet sset ) throws Exception {
 		// add to mirror and change
 		for( FileSet sd : sset.dirs.values() ) {
 			if( vcs.ignoreDir( sd.dirName ) )
@@ -367,7 +375,7 @@ public class ServerMirrorRepository extends ServerObject {
 				vcs.addDirToCommit( this , mfolder , sd.dirPath );
 			}
 			else
-				syncFromFolder( action , vcs , storage , mfolder , sfolder , md , sd );
+				syncFolderToVcs( action , vcs , storage , mfolder , sfolder , md , sd );
 		}
 
 		// delete from mirror
@@ -401,13 +409,21 @@ public class ServerMirrorRepository extends ServerObject {
 		}
 	}
 	
-	private void syncToFolder( ActionBase action , GenericVCS vcs , MirrorStorage storage , String mirrorFolder , LocalFolder folder ) throws Exception {
+	private void syncVcsToFolder( ActionBase action , GenericVCS vcs , MirrorStorage storage , String mirrorFolder , LocalFolder folder ) throws Exception {
 		LocalFolder cf = storage.getCommitFolder();
 		LocalFolder mf = cf.getSubFolder( action , mirrorFolder );
+		if( !mf.checkExists( action ) ) {
+			folder.removeThis( action );
+			folder.ensureExists( action );
+			return;
+		}
+
+		folder.ensureExists( action );
+		
 		LocalFolder sf = folder;
 		FileSet mset = mf.getFileSet( action );
 		FileSet sset = sf.getFileSet( action );
-		syncToFolder( action , vcs , storage , mf , sf , mset , sset );
+		syncVcsToFolder( action , vcs , storage , mf , sf , mset , sset );
 		
 		if( action.isLocalLinux() )
 			addLinuxExecution( action , vcs , folder , mset );
@@ -427,7 +443,7 @@ public class ServerMirrorRepository extends ServerObject {
 		}
 	}
 	
-	private void syncToFolder( ActionBase action , GenericVCS vcs , MirrorStorage storage , LocalFolder mfolder , LocalFolder sfolder , FileSet mset , FileSet sset ) throws Exception {
+	private void syncVcsToFolder( ActionBase action , GenericVCS vcs , MirrorStorage storage , LocalFolder mfolder , LocalFolder sfolder , FileSet mset , FileSet sset ) throws Exception {
 		// add to source and change
 		for( FileSet md : mset.dirs.values() ) {
 			if( vcs.ignoreDir( md.dirName ) )
@@ -437,7 +453,7 @@ public class ServerMirrorRepository extends ServerObject {
 			if( sd == null )
 				mfolder.copyFolder( action , md.dirPath , sfolder.getSubFolder( action , md.dirPath ) );
 			else
-				syncToFolder( action , vcs , storage , mfolder , sfolder , md , sd );
+				syncVcsToFolder( action , vcs , storage , mfolder , sfolder , md , sd );
 		}
 
 		// delete from source
