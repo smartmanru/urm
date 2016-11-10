@@ -66,7 +66,7 @@ public class BuildCommand {
 				res = false;
 			
 			// automatically create configuration difference after distributive update
-			if( action.context.CTX_DIST )
+			if( res && action.context.CTX_DIST )
 				createConfigDiffFile( action , scope , dist );
 		}
 		
@@ -86,7 +86,7 @@ public class BuildCommand {
 			dist.closeChange( action );
 		
 		if( !res )
-			action.exit0( _Error.BuildErrors0 , "there are build errors, please check" );
+			action.exit0( _Error.BuildErrors0 , "there are errors, please check" );
 			
 		if( copyDist )
 			action.info( "getAll: download has been finished, copied to distribution directory " + dist.RELEASEDIR );

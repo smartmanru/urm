@@ -120,6 +120,12 @@ public class ServerMirrorRepository extends ServerObject {
 		properties.setOriginalStringProperty( "branch" , BRANCH );
 	}
 
+	public String getResource( ActionBase action ) throws Exception {
+		if( RESOURCE.isEmpty() )
+			action.exit1( _Error.MissingResourceName1 , "Missing resource source in mirror=" + NAME , NAME );
+		return( RESOURCE );
+	}
+	
 	public void createMirrorRepository( ServerTransaction transaction , String resource , String reponame , String reporoot , String dataroot , String repobranch , boolean push ) throws Exception {
 		RESOURCE = resource;
 		RESOURCE_REPO = reponame;

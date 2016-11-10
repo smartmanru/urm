@@ -27,19 +27,20 @@ public class ActionGetConf extends ActionBase {
 		LocalFolder confFolder = downloadFolder.getSubFolder( this , sourceStorage.getConfFolderRelPath( this , scopeItem.confItem ) );
 		confFolder.ensureExists( this );
 		
-		ConfSourceFolder sourceFolder = new ConfSourceFolder( scopeItem.meta );  
+		ConfSourceFolder sourceFolder = new ConfSourceFolder( scopeItem.meta );
+		boolean res = false;
 		if( release != null ) {
 			sourceFolder.createReleaseConfigurationFolder( this , scopeItem.releaseTarget );
-			sourceStorage.downloadReleaseConfigItem( this , release , sourceFolder , confFolder );
+			res = sourceStorage.downloadReleaseConfigItem( this , release , sourceFolder , confFolder );
 		}
 		else {
 			sourceFolder.createProductConfigurationFolder( this , scopeItem.confItem );
-			sourceStorage.downloadProductConfigItem( this , sourceFolder , confFolder );
+			res = sourceStorage.downloadProductConfigItem( this , sourceFolder , confFolder );
 		}
 
 		// copy to distributive 
 		boolean copyDistr = context.CTX_DIST;
-		if( copyDistr )
+		if( copyDistr && res )
 			release.copyConfToDistr( this , confFolder.getSubFolder( this , KEY ) , sourceFolder.distrComp );
 		
 		return( SCOPESTATE.RunSuccess );

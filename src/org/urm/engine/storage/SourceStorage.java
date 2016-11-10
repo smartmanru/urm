@@ -36,10 +36,14 @@ public class SourceStorage {
 		this.downloadFolder = downloadFolder;
 	}
 	
+	private GenericVCS getMirrorVCS( ActionBase action , ServerMirrorRepository mirror ) throws Exception {
+		return( GenericVCS.getVCS( action , meta , mirror.getResource( action ) ) );
+	}
+	
 	public void downloadThirdpartyItemFromVCS( ActionBase action , String ITEMPATH , String FOLDER ) throws Exception {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
-		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE );
+		GenericVCS vcs = getMirrorVCS( action , mirror );
 		
 		String BASENAME = Common.getBaseName( ITEMPATH );
 		
@@ -57,46 +61,49 @@ public class SourceStorage {
 	public boolean downloadReleaseManualFolder( ActionBase action , Dist distStorage , LocalFolder dstFolder ) throws Exception {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
-		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE );
+		GenericVCS vcs = getMirrorVCS( action , mirror );
 		String PATH = getReleaseManualPath( action , distStorage );
 
 		if( downloadManualFolder( action , vcs , PATH , dstFolder ) )
 			return( true );
 		
-		action.info( "no manual files in " + PATH + ". Skipped." );
+		String path = vcs.getInfoMasterPath( mirror , PATH );
+		action.info( "no manual files at " + path + ". Skipped." );
 		return( false );
 	}
 	
 	public boolean downloadReleaseConfigItem( ActionBase action , Dist distStorage , ConfSourceFolder sourceFolder , LocalFolder dstFolder ) throws Exception {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
-		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE );
+		GenericVCS vcs = getMirrorVCS( action , mirror );
 		String PATH = getReleaseConfigSourcePath( action , distStorage , sourceFolder.releaseComp );
 		
 		if( downloadConfigItem( action , vcs , PATH , sourceFolder.distrComp , dstFolder ) )
 			return( true );
 		
-		action.info( "no configuration in " + PATH + ". Skipped." );
+		String path = vcs.getInfoMasterPath( mirror , PATH );
+		action.info( "no configuration at " + path + ". Skipped." );
 		return( false );
 	}
 
 	public boolean downloadReleaseDatabaseFiles( ActionBase action , Dist distStorage , MetaDistrDelivery dbDelivery , LocalFolder dstFolder ) throws Exception {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
-		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE );
+		GenericVCS vcs = getMirrorVCS( action , mirror );
 		String PATH = getReleaseDBSourcePath( action , distStorage , dbDelivery );
 		
 		if( downloadDBFiles( action , vcs , PATH , dbDelivery , dstFolder ) )
 			return( true );
 		
-		action.info( "no database changes in " + PATH + ". Skipped." );
+		String path = vcs.getInfoMasterPath( mirror , PATH );
+		action.info( "no database changes at " + path + ". Skipped." );
 		return( false );
 	}
 	
 	public boolean downloadProductConfigItem( ActionBase action , ConfSourceFolder sourceFolder , LocalFolder dstFolder ) throws Exception {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
-		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE );
+		GenericVCS vcs = getMirrorVCS( action , mirror );
 		String PATH = getProductConfigSourcePath( action , sourceFolder.distrComp );
 
 		if( downloadConfigItem( action , vcs , PATH , sourceFolder.distrComp , dstFolder ) )
@@ -105,7 +112,7 @@ public class SourceStorage {
 		String path = vcs.getInfoMasterPath( mirror , PATH );
 		action.ifexit( _Error.MissingConfItem1 , "unable to find configuration at " + path , new String[] { path } );
 		
-		action.info( "no configuration in " + PATH + ". Skipped." );
+		action.info( "no configuration at " + path + ". Skipped." );
 		return( false );
 	}
 
@@ -153,7 +160,7 @@ public class SourceStorage {
 	public void moveReleaseDatabaseFilesToErrors( ActionBase action , String errorFolder , Dist distStorage , MetaDistrDelivery dbDelivery , String movePath , String message ) throws Exception {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
-		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE );
+		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.getResource( action ) );
 		String SRCPATH = getReleaseDBSourcePath( action , distStorage , dbDelivery );
 		String ERRORPATH = getReleaseErrorsPath( action , distStorage , dbDelivery , errorFolder );
 		
@@ -260,7 +267,7 @@ public class SourceStorage {
 	public String[] getLiveConfigItems( ActionBase action , MetaEnvServer server ) throws Exception {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
-		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE );
+		GenericVCS vcs = getMirrorVCS( action , mirror );
 		String PATH = getLiveConfigServerPath( action , server.dc , server.NAME );
 		
 		String[] list = vcs.listMasterItems( mirror , PATH );
@@ -270,7 +277,7 @@ public class SourceStorage {
 	public String[] getLiveConfigServers( ActionBase action , MetaEnvDC dc ) throws Exception {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
-		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE );
+		GenericVCS vcs = getMirrorVCS( action , mirror );
 		String PATH = getLiveConfigDCPath( action , dc );
 		
 		String[] list = vcs.listMasterItems( mirror , PATH );
@@ -280,7 +287,7 @@ public class SourceStorage {
 	public void deleteLiveConfigItem( ActionBase action , MetaEnvServer server , String item , String commitMessage ) throws Exception {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
-		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE );
+		GenericVCS vcs = getMirrorVCS( action , mirror );
 		String PATH = getLiveConfigServerPath( action , server.dc , server.NAME );
 		PATH = Common.getPath( PATH , item );
 		
@@ -290,7 +297,7 @@ public class SourceStorage {
 	public void deleteLiveConfigServer( ActionBase action , MetaEnvDC dc , String server , String commitMessage ) throws Exception {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
-		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE );
+		GenericVCS vcs = getMirrorVCS( action , mirror );
 		String PATH = getLiveConfigServerPath( action , dc , server );
 		
 		vcs.deleteMasterFolder( mirror , PATH , commitMessage );
@@ -299,7 +306,7 @@ public class SourceStorage {
 	public void tagLiveConfigs( ActionBase action , String TAG , String commitMessage ) throws Exception {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
-		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE );
+		GenericVCS vcs = getMirrorVCS( action , mirror );
 		String PATH = getLiveConfigPath( action );
 		String setTAG = meta.name + "-" + action.context.env.ID + "-" + TAG;
 		
@@ -309,7 +316,7 @@ public class SourceStorage {
 	public void exportLiveConfigItem( ActionBase action , MetaEnvServer server , String confName , String TAG , LocalFolder folder ) throws Exception {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
-		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE );
+		GenericVCS vcs = getMirrorVCS( action , mirror );
 		
 		String SERVERPATH = getLiveConfigServerPath( action , server.dc , server.NAME );
 		String PATH = Common.getPath( SERVERPATH , confName );
@@ -331,7 +338,7 @@ public class SourceStorage {
 		MetaProductSettings settings = meta.getProductSettings( action );
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
-		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE );
+		GenericVCS vcs = getMirrorVCS( action , mirror );
 		
 		String CONFPATH = settings.CONFIG_SOURCE_CFG_ROOTDIR;
 		String PATH = Common.getPath( CONFPATH , confName );
@@ -352,7 +359,7 @@ public class SourceStorage {
 	public void saveLiveConfigItem( ActionBase action , MetaEnvServer server , MetaEnvServerNode node , String item , LocalFolder folder , String commitMessage ) throws Exception {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
-		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE );
+		GenericVCS vcs = getMirrorVCS( action , mirror );
 		String SERVERPATH = getLiveConfigServerPath( action , server.dc , server.NAME );
 		String PATH = Common.getPath( SERVERPATH , item );
 		
@@ -450,12 +457,13 @@ public class SourceStorage {
 		MetaProductSettings settings = meta.getProductSettings( action );
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
-		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE );
+		GenericVCS vcs = getMirrorVCS( action , mirror );
 		
 		String CONFPATH = settings.CONFIG_SOURCE_SQL_POSTREFRESH;
 		String PATH = Common.getPath( CONFPATH , name );
+		String path = vcs.getInfoMasterPath( mirror , PATH );
 		if( !vcs.exportRepositoryMasterPath( mirror , folder , PATH , name ) )
-			action.exit2( _Error.UnableExportConfig2 , "unable to export " + name + " from " + PATH , name , PATH );
+			action.exit2( _Error.UnableExportConfig2 , "unable to export " + name + " from " + path , name , path );
 		
 		// remove windows newlines and add permissions to shell files
 		if( action.isLocalLinux() )
