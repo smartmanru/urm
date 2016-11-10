@@ -184,13 +184,19 @@ public class ServerMirrorRepository extends ServerObject {
 			Meta meta = action.getActiveProductMetadata( PRODUCT );
 			MetaProductSettings settings = meta.getProductSettings( action );
 			LocalFolder home = action.getServerHomeFolder();
-			map.put( "live" , home.getSubFolder( action , settings.CONFIG_SOURCE_CFG_LIVEROOTDIR ) );
+			addFolderMapItem( action , map , "live" , home , settings.CONFIG_SOURCE_CFG_LIVEROOTDIR );
 			map.put( "templates" , home.getSubFolder( action , settings.CONFIG_SOURCE_CFG_ROOTDIR ) );
 			map.put( "postrefresh" , home.getSubFolder( action , settings.CONFIG_SOURCE_SQL_POSTREFRESH ) );
 			map.put( "changes" , home.getSubFolder( action , settings.CONFIG_SOURCE_RELEASEROOTDIR ) );
 		}
 		
 		return( map );
+	}
+
+	private void addFolderMapItem( ActionInit action , Map<String,LocalFolder> map , String key , LocalFolder home , String subPath ) throws Exception {
+		if( subPath.isEmpty() )
+			action.exit1( _Error.MissingDataPath1 , "Missing product data path parameter: " + key , key );
+		map.put( key , home.getSubFolder( action , subPath ) );
 	}
 	
 	private void createMirrorInternal( ServerTransaction transaction , boolean push ) throws Exception {

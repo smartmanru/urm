@@ -26,5 +26,6 @@ public class _Error {
 	public static final int TransactionMismatchedResource1 = ErrorBase + 37;
 	public static final int MissingResourceType0 = ErrorBase + 38;
 	public static final int InvalidResourceType1 = ErrorBase + 39;
+	public static final int MissingDataPath1 = ErrorBase + 40;
 	
 }
