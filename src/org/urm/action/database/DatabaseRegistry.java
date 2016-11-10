@@ -44,6 +44,8 @@ public class DatabaseRegistry {
 	}
 
 	public static DatabaseRegistry getRegistry( ActionBase action , DatabaseClient client ) throws Exception {
+		if( client.specific.server.admSchema == null )
+			action.exit1( _Error.MissingAdmSchema1 , "Missing administrative schema in database server=" + client.specific.server.NAME , client.specific.server.NAME );
 		DatabaseRegistry registry = new DatabaseRegistry( client );
 		return( registry );
 	}
