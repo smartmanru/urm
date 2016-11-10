@@ -133,7 +133,7 @@ public class MetaProductSettings extends PropertyController {
 		CONFIG_SOURCE_CFG_LIVEROOTDIR = super.getStringProperty( action , PROPERTY_SOURCE_CFG_LIVEROOTDIR );
 		CONFIG_SOURCE_SQL_POSTREFRESH = super.getStringProperty( action , PROPERTY_SOURCE_SQL_POSTREFRESH );
 		if( CONFIG_SOURCE_CHARSET != null ) {
-			charset = Charset.availableCharsets().get( CONFIG_SOURCE_CHARSET );
+			charset = Charset.availableCharsets().get( CONFIG_SOURCE_CHARSET.toUpperCase() );
 			if( charset == null )
 				action.exit1( _Error.UnknownDatabaseFilesCharset1 , "unknown database files charset=" + CONFIG_SOURCE_CHARSET , CONFIG_SOURCE_CHARSET );
 		}
