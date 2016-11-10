@@ -63,12 +63,13 @@ public class ActionDeployRedist extends ActionBase {
 			for( ActionScopeTargetItem item : target.getItems( this ) ) {
 				RedistStorage redist = artefactory.getRedistStorage( this , target.envServer , item.envServerNode );
 				ServerDeployment deployment = redist.getDeployment( this , version );
-				if( !deployment.isEmpty( this ) )
+				if( !deployment.isEmpty( this ) ) {
 					isEmpty = false;
 				
-				deployments.put( item , deployment );
-				if( !affectedServers.containsKey( target.envServer.NAME ) )
-					affectedServers.put( target.envServer.NAME , target );
+					deployments.put( item , deployment );
+					if( !affectedServers.containsKey( target.envServer.NAME ) )
+						affectedServers.put( target.envServer.NAME , target );
+				}
 			}
 		}
 		
