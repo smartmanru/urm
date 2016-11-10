@@ -207,13 +207,11 @@ public class ServerMirrorRepository extends ServerObject {
 		
 		for( String mirrorFolder : map.keySet() ) {
 			LocalFolder folder = map.get( mirrorFolder );
-			if( !push ) {
-				folder.ensureExists( action );
-				syncFromFolder( action , vcs , storage , mirrorFolder , folder );
-			}
-			else {
+			folder.ensureExists( action );
+			if( push )
 				syncToFolder( action , vcs , storage , mirrorFolder , folder );
-			}
+			else
+				syncFromFolder( action , vcs , storage , mirrorFolder , folder );
 		}
 	}
 	
@@ -302,6 +300,7 @@ public class ServerMirrorRepository extends ServerObject {
 		Map<String,LocalFolder> map = getFolderMap( action );
 		for( String mirrorFolder : map.keySet() ) {
 			LocalFolder folder = map.get( mirrorFolder );
+			folder.ensureExists( action );
 			syncFromFolder( action , vcs , storage , mirrorFolder , folder );
 		}
 		
@@ -340,6 +339,7 @@ public class ServerMirrorRepository extends ServerObject {
 		Map<String,LocalFolder> map = getFolderMap( action );
 		for( String mirrorFolder : map.keySet() ) {
 			LocalFolder folder = map.get( mirrorFolder );
+			folder.ensureExists( action );
 			syncToFolder( action , vcs , storage , mirrorFolder , folder );
 		}
 	}
