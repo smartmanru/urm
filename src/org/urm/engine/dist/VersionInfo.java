@@ -98,7 +98,7 @@ public class VersionInfo {
 	}
 	
 	public String getFileVersion() {
-		return( getMajorVersion() );
+		return( getReleaseVersion() );
 	}
 	
 	public String getMajorVersion() {
