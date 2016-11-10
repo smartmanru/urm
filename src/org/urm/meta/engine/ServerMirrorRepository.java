@@ -185,9 +185,9 @@ public class ServerMirrorRepository extends ServerObject {
 			MetaProductSettings settings = meta.getProductSettings( action );
 			LocalFolder home = action.getServerHomeFolder();
 			addFolderMapItem( action , map , "live" , home , settings.CONFIG_SOURCE_CFG_LIVEROOTDIR );
-			map.put( "templates" , home.getSubFolder( action , settings.CONFIG_SOURCE_CFG_ROOTDIR ) );
-			map.put( "postrefresh" , home.getSubFolder( action , settings.CONFIG_SOURCE_SQL_POSTREFRESH ) );
-			map.put( "changes" , home.getSubFolder( action , settings.CONFIG_SOURCE_RELEASEROOTDIR ) );
+			addFolderMapItem( action , map , "templates" , home , settings.CONFIG_SOURCE_CFG_ROOTDIR );
+			addFolderMapItem( action , map , "postrefresh" , home , settings.CONFIG_SOURCE_SQL_POSTREFRESH );
+			addFolderMapItem( action , map , "changes" , home , settings.CONFIG_SOURCE_RELEASEROOTDIR );
 		}
 		
 		return( map );
