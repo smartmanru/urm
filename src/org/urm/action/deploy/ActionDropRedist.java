@@ -35,8 +35,12 @@ public class ActionDropRedist extends ActionBase {
 			version = VersionInfo.getReleaseVersion( this , releaseDir ); 
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			RedistStorage redist = artefactory.getRedistStorage( this , target.envServer , item.envServerNode );
-			if( version == null )
-				redist.dropReleaseAll( this );
+			if( version == null ) {
+				if( context.CTX_ALL )
+					redist.dropAll( this );
+				else
+					redist.dropReleaseAll( this );
+			}
 			else
 				redist.dropReleaseData( this , version );
 		}
