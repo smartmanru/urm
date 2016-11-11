@@ -117,7 +117,7 @@ public class CommandOutput {
 		RunError ee = Common.getExitException( e );
 		String s = prompt;
 		if( !s.isEmpty() )
-			s += " ";
+			s += " - ";
 		
 		if( ee != null ) {
 			s += "exception: " + ee.getCode() + ", " + ee.getMessage();

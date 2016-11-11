@@ -82,7 +82,6 @@ public class ActionCore {
 		return( Common.getLinuxPath( path ) );
 	}
 	
-	
 	public void fail( int errorCode , String s , String[] params ) {
 		setFailed( new RunError( errorCode , s , params ) );
 	}

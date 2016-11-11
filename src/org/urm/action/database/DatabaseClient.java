@@ -23,7 +23,7 @@ public class DatabaseClient {
 	}
 
 	public boolean checkConnect( ActionBase action , MetaEnvServer server ) throws Exception {
-		MetaEnvServerNode node = server.getActiveNode( action );
+		MetaEnvServerNode node = server.getMasterNode( action );
 		return( checkConnect( action , server , node ) );
 	}
 	

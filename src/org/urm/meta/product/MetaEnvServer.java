@@ -17,6 +17,7 @@ import org.urm.meta.engine.ServerAccountReference;
 import org.urm.meta.engine.ServerHostAccount;
 import org.urm.meta.product.Meta.VarDBMSTYPE;
 import org.urm.meta.product.Meta.VarDEPLOYMODE;
+import org.urm.meta.product.Meta.VarNODETYPE;
 import org.urm.meta.product.Meta.VarSERVERACCESSTYPE;
 import org.urm.meta.product.Meta.VarSERVERRUNTYPE;
 import org.w3c.dom.Document;
@@ -636,9 +637,12 @@ public class MetaEnvServer extends PropertyController {
 		return( null );
 	}
 
-	public MetaEnvServerNode getActiveNode( ActionBase action ) throws Exception {
+	public MetaEnvServerNode getMasterNode( ActionBase action ) throws Exception {
 		for( MetaEnvServerNode node : getNodes() ) {
-			if( !node.OFFLINE )
+			if( node.OFFLINE )
+				continue;
+			
+			if( node.nodeType == VarNODETYPE.ADMIN )
 				return( node );
 		}
 		

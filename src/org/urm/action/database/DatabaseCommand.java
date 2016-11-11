@@ -19,7 +19,7 @@ public class DatabaseCommand {
 		MetaEnvServer server = action.context.dc.getServer( action , SERVER );
 		MetaEnvServerNode node;
 		if( nodePos < 0 )
-			node = server.getActiveNode( action );
+			node = server.getMasterNode( action );
 		else
 			node = server.getNode( action , nodePos );
 			

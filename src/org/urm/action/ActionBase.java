@@ -110,6 +110,13 @@ abstract public class ActionBase extends ActionCore {
 		log( s , e );
 		super.handle( e , s );
 	}
+
+	@Override
+	public void fail( int errorCode , String s , String[] params ) {
+		super.fail( errorCode , s , params );
+		if( parent != null )
+			parent.fail( errorCode , s , params );
+	}
 	
 	public void setContext( CommandContext context ) {
 		this.context = context;
@@ -159,6 +166,7 @@ abstract public class ActionBase extends ActionCore {
 		if( !prompt.isEmpty() )
 			s += " " + prompt;
 		output.log( context , s , e );
+		fail1( _Error.InternalActionError1 , "Internal action error: " + s , s );
 	}
 	
 	public synchronized void log( String prompt , Throwable e ) {

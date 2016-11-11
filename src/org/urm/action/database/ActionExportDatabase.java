@@ -61,7 +61,7 @@ public class ActionExportDatabase extends ActionBase {
 		if( STANDBY )
 			node = server.getStandbyNode( this );
 		else
-			node = server.getActiveNode( this );
+			node = server.getMasterNode( this );
 		if( !client.checkConnect( this , server , node ) )
 			exit0( _Error.UnableConnectAdmin0 , "unable to connect to administrative db" );
 		

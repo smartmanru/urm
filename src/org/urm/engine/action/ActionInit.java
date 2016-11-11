@@ -50,7 +50,7 @@ public class ActionInit extends ActionBase {
 	protected void runBefore( ActionScope scope ) throws Exception {
 		Common.exitUnexpected();
 	}
-	
+
 	public boolean isMemoryOnly() {
 		return( memoryOnly );
 	}

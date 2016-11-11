@@ -47,7 +47,7 @@ public class UrmStorage {
 		return( false );
 	}
 	
-	private String getDatabaseSpecificFolder( ActionBase action , VarDBMSTYPE dbtype , VarOSTYPE ostype ) throws Exception {
+	private String getDatabaseSpecificFolder( ActionBase action , VarDBMSTYPE dbtype , VarOSTYPE ostype , boolean remoteRun ) throws Exception {
 		String dbFolder = "";
 		if( dbtype == VarDBMSTYPE.ORACLE )
 			dbFolder = "oracle";
@@ -59,6 +59,9 @@ public class UrmStorage {
 			dbFolder = "firebird";
 		else
 			action.exitUnexpectedState();
+		
+		if( !remoteRun )
+			ostype = action.execrc.osType;
 		
 		String osFolder = "";
 		if( ostype == VarOSTYPE.LINUX )
@@ -74,12 +77,12 @@ public class UrmStorage {
 	}
 
 	private LocalFolder getDatabaseFolder( ActionBase action , MetaEnvServer server , String parentPath ) throws Exception {
-		String folderPath = getDatabaseSpecificFolder( action , server.dbType , server.osType );
+		String folderPath = getDatabaseSpecificFolder( action , server.dbType , server.osType , false );
 		
 		LocalFolder folder = getInstallFolder( action , Common.getPath( parentPath , folderPath ) );
 		if( !folder.checkExists( action ) ) {
 			String dbtype = Common.getEnumLower( server.dbType );
-			String ostype = Common.getEnumLower( server.osType );
+			String ostype = Common.getEnumLower( action.execrc.osType );
 			action.exit2( _Error.DatabaseNotSupported2 , "database is not supported: dbtype=" + dbtype + ", ostype=" + ostype , dbtype , ostype );
 		}
 		
@@ -87,15 +90,15 @@ public class UrmStorage {
 	}
 	
 	public LocalFolder getDatabaseInitScripts( ActionBase action , MetaEnvServer server ) throws Exception {
-		return( getDatabaseFolder( action , server , "init" ) ); 
+		return( getDatabaseFolder( action , server , "database/init" ) ); 
 	}
 	
 	public LocalFolder getDatabaseSqlScripts( ActionBase action , MetaEnvServer server ) throws Exception {
-		return( getDatabaseFolder( action , server , "sql" ) ); 
+		return( getDatabaseFolder( action , server , "database/sql" ) ); 
 	}
 	
 	public LocalFolder getDatabaseDatapumpScripts( ActionBase action , MetaEnvServer server ) throws Exception {
-		return( getDatabaseFolder( action , server , "datapump" ) ); 
+		return( getDatabaseFolder( action , server , "database/datapump" ) ); 
 	}
 	
 	public LocalFolder getProductHome( ActionBase action , String productName ) throws Exception {
