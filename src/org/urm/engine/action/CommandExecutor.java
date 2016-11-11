@@ -59,6 +59,7 @@ public abstract class CommandExecutor {
 			method.run( action );
 		}
 		catch( Throwable e ) {
+			action.fail1( _Error.ActionException1 , "Exception in method=" + method.method.name + ": " + e.getMessage() , method.method.name );
 			String trace = System.getenv( "TRACE" );
 			if( trace != null && trace.equals( "yes" ) )
 				e.printStackTrace();
