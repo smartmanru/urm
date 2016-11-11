@@ -202,7 +202,8 @@ public class Release {
 		else {
 			ReleaseSet set = new ReleaseSet( meta , this , CATEGORY );
 			set.load( action , element );
-			registerSet( action , set );
+			if( !set.isEmpty( action ) )
+				registerSet( action , set );
 		}
 	}
 	
