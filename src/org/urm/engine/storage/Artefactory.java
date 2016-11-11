@@ -138,7 +138,7 @@ public class Artefactory {
 	}
 	
 	public SourceStorage getSourceStorage( ActionBase action , Meta meta ) throws Exception {
-		return( new SourceStorage( this , meta , workFolder ) );
+		return( getSourceStorage( action , meta , workFolder ) );
 	}
 	
 	public SourceStorage getSourceStorage( ActionBase action , Meta meta , LocalFolder downloadFolder ) throws Exception {

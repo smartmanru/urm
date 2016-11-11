@@ -77,7 +77,7 @@ public class BuildCommand {
 		}
 		
 		if( dist != null && scope.hasManual( action ) ) {
-			ActionGetManual cam = new ActionGetManual( action , scope.meta , null , copyDist , dist , downloadFolder );
+			ActionGetManual cam = new ActionGetManual( action , null , scope.meta , copyDist , dist , downloadFolder );
 			if( !cam.runSimple() )
 				res = false;
 		}

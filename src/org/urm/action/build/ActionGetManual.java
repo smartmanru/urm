@@ -14,8 +14,9 @@ public class ActionGetManual extends ActionBase {
 	boolean copyDist;
 	Dist targetRelease;
 	
-	public ActionGetManual( ActionBase action , Meta meta , String stream , boolean copyDist , Dist targetRelease , LocalFolder downloadFolder ) {
+	public ActionGetManual( ActionBase action , String stream , Meta meta , boolean copyDist , Dist targetRelease , LocalFolder downloadFolder ) {
 		super( action , stream );
+		this.meta = meta;
 		this.copyDist = copyDist;
 		this.targetRelease = targetRelease;
 		this.downloadFolder = downloadFolder;
