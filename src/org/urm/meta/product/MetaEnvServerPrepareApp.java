@@ -50,9 +50,9 @@ public class MetaEnvServerPrepareApp extends PropertyController {
 		if( !super.initCreateStarted( base.getProperties() ) )
 			return;
 
-		super.loadFromNodeAttributes( action , node );
+		super.loadFromNodeAttributes( action , node , false );
 		scatterProperties( action );
-		super.loadFromNodeElements( action , node );
+		super.loadFromNodeElements( action , node , true );
 		super.resolveRawProperties();
 	}
 	

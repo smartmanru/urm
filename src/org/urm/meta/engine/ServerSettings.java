@@ -52,14 +52,14 @@ public class ServerSettings extends ServerObject {
 			return;
 
 		// top-level
-		defaultProductProperties.loadFromNodeElements( node );
+		defaultProductProperties.loadFromNodeElements( node , false );
 		defaultProductProperties.resolveRawProperties( true );
 		
 		Node build = ConfReader.xmlGetFirstChild( node , "build" );
 		if( build == null )
 			return;
 			
-		defaultProductBuildProperties.loadFromNodeElements( build );
+		defaultProductBuildProperties.loadFromNodeElements( build , false );
 		defaultProductBuildProperties.resolveRawProperties( true );
 		
 		// for build modes
@@ -72,7 +72,7 @@ public class ServerSettings extends ServerObject {
 			VarBUILDMODE mode = VarBUILDMODE.valueOf( MODE.toUpperCase() );
 			PropertySet set = new PropertySet( "build." + MODE.toLowerCase() , defaultProductBuildProperties );
 
-			set.loadFromNodeElements( itemNode );
+			set.loadFromNodeElements( itemNode , false );
 			set.resolveRawProperties( true );
 			mapBuildModeDefaults.put( mode , set );
 		}
@@ -123,16 +123,16 @@ public class ServerSettings extends ServerObject {
 
 		// defaults
 		Element modeDefaults = Common.xmlCreateElement( doc , root , "defaults" );
-		defaultProductProperties.saveAsElements( doc , modeDefaults );
+		defaultProductProperties.saveAsElements( doc , modeDefaults , false );
 		Element modeBuild = Common.xmlCreateElement( doc , modeDefaults , "build" );
-		defaultProductBuildProperties.saveAsElements( doc , modeBuild );
+		defaultProductBuildProperties.saveAsElements( doc , modeBuild , false );
 		
 		// product defaults
 		for( VarBUILDMODE mode : mapBuildModeDefaults.keySet() ) {
 			PropertySet set = mapBuildModeDefaults.get( mode );
 			Element modeElement = Common.xmlCreateElement( doc , modeBuild , "mode" );
 			Common.xmlSetElementAttr( doc , modeElement , "name" , mode.toString().toLowerCase() );
-			set.saveAsElements( doc , modeElement );
+			set.saveAsElements( doc , modeElement , false );
 		}
 		
 		Common.xmlSaveDoc( doc , path );

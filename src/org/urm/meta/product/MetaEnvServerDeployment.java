@@ -142,7 +142,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 		if( !super.initCreateStarted( server.getProperties() ) )
 			return;
 
-		super.loadFromNodeAttributes( action , node );
+		super.loadFromNodeAttributes( action , node , false );
 		scatterProperties( action );
 		
 		super.initFinished();

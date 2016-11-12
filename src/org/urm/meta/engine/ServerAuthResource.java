@@ -64,14 +64,14 @@ public class ServerAuthResource extends ServerObject {
 
 		loaded = true;
 		properties = new PropertySet( "resource" , null );
-		properties.loadFromNodeElements( node );
+		properties.loadFromNodeElements( node , false );
 		
 		scatterSystemProperties();
 		properties.finishRawProperties();
 	}
 	
 	public void save( Document doc , Element root ) throws Exception {
-		properties.saveAsElements( doc , root );
+		properties.saveAsElements( doc , root , false );
 		saveAuthData();
 	}
 	

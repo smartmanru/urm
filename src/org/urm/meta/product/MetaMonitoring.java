@@ -112,7 +112,7 @@ public class MetaMonitoring extends PropertyController {
 		if( !super.initCreateStarted( product.getProperties() ) )
 			return;
 
-		super.loadFromNodeElements( action , root );
+		super.loadFromNodeElements( action , root , false );
 		
 		scatterProperties( action );
 		super.finishProperties( action );
@@ -151,7 +151,7 @@ public class MetaMonitoring extends PropertyController {
 			ENABLED = false;
 		}
 		
-		super.saveAsElements( doc , root );
+		super.saveAsElements( doc , root , false );
 		
 		Element scope = Common.xmlCreateElement( doc , root , "scope" );
 		for( MetaMonitoringTarget target : mapTargets.values() ) {

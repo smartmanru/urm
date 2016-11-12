@@ -80,17 +80,14 @@ public class MetaEnvServerNode extends PropertyController {
 	public void resolveLinks( ActionBase action ) throws Exception {
 	}
 	
-	public void load( ActionBase action , Node node , boolean loadProps ) throws Exception {
+	public void load( ActionBase action , Node node ) throws Exception {
 		if( !super.initCreateStarted( server.getProperties() ) )
 			return;
 
-		super.loadFromNodeAttributes( action , node );
+		super.loadFromNodeAttributes( action , node , false );
 		scatterProperties( action );
-		
-		if( loadProps ) {
-			super.loadFromNodeElements( action , node );
-			super.resolveRawProperties();
-		}
+		super.loadFromNodeElements( action , node , true );
+		super.resolveRawProperties();
 	}
 	
 	public MetaEnvServerNode getProxyNode( ActionBase action ) throws Exception {

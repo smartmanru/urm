@@ -62,7 +62,7 @@ public class ServerAuth extends ServerObject {
 		String filePath = getAuthFile( authKey );
 		
 		if( action.shell.checkFileExists( action , filePath ) )
-			props.loadFromPropertyFile( filePath , engine.execrc );
+			props.loadFromPropertyFile( filePath , engine.execrc , false );
 		props.finishRawProperties();
 		
 		ServerAuthContext ac = new ServerAuthContext( this );
@@ -75,7 +75,7 @@ public class ServerAuth extends ServerObject {
 	
 	public void saveAuthData( String authKey , ServerAuthContext ac ) throws Exception {
 		String filePath = getAuthFile( authKey );
-		ac.properties.saveToPropertyFile( filePath , engine.execrc );
+		ac.properties.saveToPropertyFile( filePath , engine.execrc , false );
 	}
 
 	public ServerAuthContext connect( String user , String password ) throws Exception {

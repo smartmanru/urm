@@ -101,14 +101,14 @@ public class ServerMonitoring extends ServerObject {
 		properties = new PropertySet( "defmon" , settings.serverContext.properties );
 		Document doc = ConfReader.readXmlFile( execrc , monFile );
 		Node root = doc.getDocumentElement();
-		properties.loadFromNodeElements( root );
+		properties.loadFromNodeElements( root , false );
 		scatterProperties();
 	}
 	
 	public void save( ActionCore action , String path , RunContext execrc ) throws Exception {
 		Document doc = Common.xmlCreateDoc( "monitoring" );
 		Element root = doc.getDocumentElement();
-		properties.saveAsElements( doc , root );
+		properties.saveAsElements( doc , root , false );
 		Common.xmlSaveDoc( doc , path );
 	}
 

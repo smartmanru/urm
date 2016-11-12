@@ -68,10 +68,10 @@ public class MetaEnvServerBase extends PropertyController {
 		if( !super.initCreateStarted( server.getProperties() ) )
 			return;
 
-		properties.loadFromNodeAttributes( node );
+		properties.loadFromNodeAttributes( node , false );
 		scatterProperties( action );
 		
-		properties.loadFromNodeElements( node );
+		properties.loadFromNodeElements( node , true );
 		properties.resolveRawProperties();
 		
 		loadPrepare( action , node );

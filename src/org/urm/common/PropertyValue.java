@@ -4,6 +4,7 @@ import org.urm.engine.shell.ShellExecutor;
 
 public class PropertyValue {
 	public enum PropertyValueType {
+		UNKNOWN ,
 		PROPERTY_STRING ,
 		PROPERTY_NUMBER ,
 		PROPERTY_BOOL ,
@@ -15,9 +16,11 @@ public class PropertyValue {
 		PROPERTY_MANUAL ,
 		PROPERTY_PARENT ,
 		PROPERTY_EXTRA ,
+		PROPERTY_CUSTOM
 	};
 	
 	public String property;
+	public String desc;
 	public PropertyValueOrigin origin;
 	public PropertySet originSet;
 	public boolean required;
@@ -33,6 +36,7 @@ public class PropertyValue {
 	
 	public PropertyValue( PropertyValue src ) {
 		this.property = src.property;
+		this.desc = src.desc;
 		this.origin = src.origin;
 		this.originSet = src.originSet;
 		this.required = src.required;
@@ -45,8 +49,9 @@ public class PropertyValue {
 		this.missing = src.missing;
 	}
 
-	public PropertyValue( String property , PropertyValueOrigin origin , PropertySet originSet ) {
+	public PropertyValue( String property , PropertyValueOrigin origin , PropertySet originSet , String desc ) {
 		this.property = property;
+		this.desc = desc;
 		this.origin = origin;
 		this.originSet = originSet;
 		this.required = false;
@@ -61,6 +66,12 @@ public class PropertyValue {
 
 	public boolean isManual() {
 		if( origin == PropertyValueOrigin.PROPERTY_MANUAL )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isCustom() {
+		if( origin == PropertyValueOrigin.PROPERTY_CUSTOM )
 			return( true );
 		return( false );
 	}
@@ -323,6 +334,24 @@ public class PropertyValue {
 				}
 			}
 		}
+	}
+
+	public static PropertyValueType getItemValueType( String TYPE , boolean required ) throws Exception {
+		if( TYPE.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingItemValueType0 , "missing item value type" );
+			return( PropertyValueType.UNKNOWN );
+		}
+		
+		PropertyValueType value = null;		
+		try {
+			value = PropertyValueType.valueOf( Common.xmlToEnumValue( TYPE ) );
+		}
+		catch( IllegalArgumentException e ) {
+			Common.exit1( _Error.InvalidItemValueType1 , "invalid item value type=" + TYPE , TYPE );
+		}
+		
+		return( value );
 	}
 
 }

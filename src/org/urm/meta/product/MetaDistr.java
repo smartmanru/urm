@@ -139,7 +139,7 @@ public class MetaDistr extends PropertyController {
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		super.saveAsElements( doc , root );
+		super.saveAsElements( doc , root , false );
 		Element deliveries = Common.xmlCreateElement( doc , root , "deliveries" );
 		saveDeliveries( action , doc , deliveries );
 		Element components = Common.xmlCreateElement( doc , root , "components" );

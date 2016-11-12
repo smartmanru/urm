@@ -26,5 +26,7 @@ public class _Error {
 	public static final int EnvironmentVariableEmpty1 = ErrorBase + 19;
 	public static final int UnexpectedState0 = ErrorBase + 20;
 	public static final int PropertyLoadFailed0 = ErrorBase + 21;
+	public static final int MissingItemValueType0 = ErrorBase + 22;
+	public static final int InvalidItemValueType1 = ErrorBase + 23;
 	
 }

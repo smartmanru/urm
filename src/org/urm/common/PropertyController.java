@@ -277,9 +277,9 @@ public abstract class PropertyController extends ServerObject {
 		return( properties.getPropertyAny( var ) );
 	}
 
-	protected void loadFromNodeAttributes( ActionBase action , Node root ) {
+	protected void loadFromNodeAttributes( ActionBase action , Node root , boolean custom ) {
 		try {
-			properties.loadFromNodeAttributes( root );
+			properties.loadFromNodeAttributes( root , custom );
 		}
 		catch( Throwable e ) {
 			action.log( "loadFromNodeAttributes" , e );
@@ -287,9 +287,9 @@ public abstract class PropertyController extends ServerObject {
 		}
 	}
 
-	protected void loadFromNodeElements( ActionBase action , Node root ) {
+	protected void loadFromNodeElements( ActionBase action , Node root , boolean custom ) {
 		try {
-			properties.loadFromNodeElements( root );
+			properties.loadFromNodeElements( root , custom );
 		}
 		catch( Throwable e ) {
 			action.log( "loadFromNodeElements" , e );
@@ -297,8 +297,8 @@ public abstract class PropertyController extends ServerObject {
 		}
 	}
 
-	protected void saveAsElements( Document doc , Element root ) throws Exception {
-		properties.saveAsElements( doc , root );
+	protected void saveAsElements( Document doc , Element root , boolean custom ) throws Exception {
+		properties.saveAsElements( doc , root , custom );
 	}
 
 	public void saveSplit( Document doc , Element root ) throws Exception {

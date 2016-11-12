@@ -49,14 +49,14 @@ public class ServerProjectBuilder extends ServerObject {
 
 		loaded = true;
 		properties = new PropertySet( "builder" , null );
-		properties.loadFromNodeElements( node );
+		properties.loadFromNodeElements( node , false );
 		
 		scatterSystemProperties();
 		properties.finishRawProperties();
 	}
 	
 	public void save( Document doc , Element root ) throws Exception {
-		properties.saveAsElements( doc , root );
+		properties.saveAsElements( doc , root , false );
 	}
 	
 	private void scatterSystemProperties() throws Exception {

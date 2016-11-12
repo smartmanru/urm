@@ -110,13 +110,13 @@ public class ServerContext {
 		this.execrc = execrc;
 
 		execrc.getProperties( execprops );
-		properties.loadFromNodeElements( root );
+		properties.loadFromNodeElements( root , false );
 		scatterSystemProperties();
 		properties.finishRawProperties();
 	}
 
 	public void save( Document doc , Element root ) throws Exception {
-		properties.saveAsElements( doc , root );
+		properties.saveAsElements( doc , root , false );
 	}
 	
 	private void scatterSystemProperties() throws Exception {

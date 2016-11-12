@@ -183,27 +183,25 @@ public class MetaEnv extends PropertyController {
 	}
 	
 	private void loadProperties( ActionBase action , Node node ) throws Exception {
-		super.loadFromNodeAttributes( action , node );
+		super.loadFromNodeAttributes( action , node , false );
 		
 		CONF_SECRETFILESPATH = super.getPathProperty( action , PROPERTY_CONF_SECRETFILESPATH );
 		
 		HiddenFiles hidden = action.artefactory.getHiddenFiles( meta );
 		String propFile = hidden.getSecretPropertyFile( action , CONF_SECRETFILESPATH );
 		
-		boolean loadProps = false;
+		missingSecretProperties = false;
 		if( !propFile.isEmpty() ) {
-			loadProps = ( action.shell.checkFileExists( action , propFile ) )? true : false;
-			if( !loadProps )
+			if( !action.shell.checkFileExists( action , propFile ) )
 				missingSecretProperties = true;
 		}
 			
 		scatterProperties( action );
-		
-		if( loadProps ) {
+		if( !missingSecretProperties )
 			loadSecretProperties( action );
-			super.loadFromNodeElements( action , node );
-			super.resolveRawProperties();
-		}
+		
+		super.loadFromNodeElements( action , node , true );
+		super.resolveRawProperties();
 	}
 
 	private void loadSecretProperties( ActionBase action ) throws Exception {
@@ -212,7 +210,7 @@ public class MetaEnv extends PropertyController {
 		if( propFile.isEmpty() )
 			return;
 		
-		secretProperties.loadFromPropertyFile( propFile , action.session.execrc );
+		secretProperties.loadFromPropertyFile( propFile , action.session.execrc , true );
 		secretProperties.resolveRawProperties();
 	}
 	
@@ -235,10 +233,9 @@ public class MetaEnv extends PropertyController {
 		if( items == null )
 			return;
 
-		boolean loadProps = ( secretProperties == null )? false : true;
 		for( Node dcnode : items ) {
 			MetaEnvDC dc = new MetaEnvDC( meta , this );
-			dc.load( action , dcnode , loadProps );
+			dc.load( action , dcnode );
 			addDC( dc );
 		}
 	}

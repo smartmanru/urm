@@ -258,21 +258,19 @@ public class MetaEnvServer extends PropertyController {
 		return( r );
 	}
 	
-	public void load( ActionBase action , Node node , boolean loadProps ) throws Exception {
+	public void load( ActionBase action , Node node ) throws Exception {
 		if( !super.initCreateStarted( dc.getProperties() ) )
 			return;
 
 		loadDeployments( action , node );
 		
-		super.loadFromNodeAttributes( action , node );
+		super.loadFromNodeAttributes( action , node , false );
 		scatterProperties( action );
 		
-		if( loadProps ) {
-			super.loadFromNodeElements( action , node );
-			super.resolveRawProperties();
-		}
+		super.loadFromNodeElements( action , node , true );
+		super.resolveRawProperties();
 
-		loadNodes( action , node , loadProps );
+		loadNodes( action , node );
 		loadBase( action , node );
 		
 		super.initFinished();
@@ -326,7 +324,7 @@ public class MetaEnvServer extends PropertyController {
 		this.startGroup = group;
 	}
 	
-	private void loadNodes( ActionBase action , Node node , boolean loadProps ) throws Exception {
+	private void loadNodes( ActionBase action , Node node ) throws Exception {
 		Node[] items = ConfReader.xmlGetChildren( node , ELEMENT_NODE );
 		if( items == null )
 			return;
@@ -334,7 +332,7 @@ public class MetaEnvServer extends PropertyController {
 		int pos = 1;
 		for( Node snnode : items ) {
 			MetaEnvServerNode sn = new MetaEnvServerNode( meta , this , pos );
-			sn.load( action , snnode , loadProps );
+			sn.load( action , snnode );
 			addNode( sn );
 			pos++;
 		}

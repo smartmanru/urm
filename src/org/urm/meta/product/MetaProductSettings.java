@@ -209,7 +209,10 @@ public class MetaProductSettings extends PropertyController {
 
 		setContextProperties( action , productContext );
 		
-		super.loadFromNodeElements( action , root );
+		super.loadFromNodeElements( action , root , false );
+		Node custom = ConfReader.xmlGetFirstChild( root , "custom" );
+		if( custom != null )
+			super.loadFromNodeElements( action , custom , true );
 		super.updateProperties( action );
 
 		buildCommon = new MetaProductBuildSettings( "build" , meta , this );
@@ -233,7 +236,9 @@ public class MetaProductSettings extends PropertyController {
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		super.saveAsElements( doc , root );
+		super.saveAsElements( doc , root , false );
+		Element customElement = Common.xmlCreateElement( doc , root , "custom" );
+		super.saveAsElements( doc , customElement , true );
 		
 		Element buildElement = Common.xmlCreateElement( doc , root , "build" );
 		buildCommon.save( action , doc , buildElement );

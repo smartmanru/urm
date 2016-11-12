@@ -126,6 +126,15 @@ public class PropertySet {
 		return( Common.getSortedList( props ) );		
 	}
 
+	public String[] getCustomProperties() {
+		List<String> props = new LinkedList<String>();
+		for( PropertyValue p : data.values() ) {
+			if( p.isCustom() )
+				props.add( p.property );
+		}
+		return( Common.getSortedList( props ) );		
+	}
+
 	public PropertyValue[] getAllProperties() {
 		List<PropertyValue> props = new LinkedList<PropertyValue>();
 		for( String p : Common.getSortedKeys( data ) )
@@ -173,7 +182,7 @@ public class PropertySet {
 			if( p.isManual() )
 				continue;
 			
-			PropertyValue pv = new PropertyValue( p.property , PropertyValue.PropertyValueOrigin.PROPERTY_EXTRA , set );
+			PropertyValue pv = new PropertyValue( p.property , PropertyValue.PropertyValueOrigin.PROPERTY_EXTRA , set , p.desc );
 			pv.setOriginalAndFinalValue( p.getOriginalValue() );
 			pv.setType( p.getType() );
 			setProperty( pv );
@@ -190,7 +199,7 @@ public class PropertySet {
 			if( !p.isResolved() )
 				continue;
 			
-			PropertyValue pv = new PropertyValue( p.property , PropertyValue.PropertyValueOrigin.PROPERTY_EXTRA , src );
+			PropertyValue pv = new PropertyValue( p.property , PropertyValue.PropertyValueOrigin.PROPERTY_EXTRA , src , p.desc );
 			pv.setType( p.getType() );
 			pv.setOriginalAndFinalValue( p.getOriginalValue() , p.getFinalValue() );
 			if( !pv.isResolved() )
@@ -221,7 +230,8 @@ public class PropertySet {
 	}
 
 	public void setOriginalProperty( String prop , PropertyValueType type , String value , boolean system , ShellExecutor target ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
+		PropertyValueOrigin origin = ( system )? PropertyValueOrigin.PROPERTY_ORIGINAL : PropertyValueOrigin.PROPERTY_CUSTOM;
+		PropertyValue pv = new PropertyValue( prop , origin , null , null );
 		if( system )
 			pv.setSystem();
 		if( type == PropertyValueType.PROPERTY_BOOL )
@@ -244,13 +254,13 @@ public class PropertySet {
 	}
 	
 	public PropertyValue setOriginalStringProperty( String prop , String value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null , null );
 		pv.setString( value );
 		return( setProperty( pv ) );
 	}
 
 	public PropertyValue setOriginalBooleanProperty( String prop , boolean value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null , null );
 		pv.setBool( value );
 		return( setProperty( pv ) );
 	}
@@ -262,7 +272,7 @@ public class PropertySet {
 	}
 	
 	public PropertyValue setOriginalBooleanProperty( String prop , FLAG value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null , null );
 		if( value != FLAG.DEFAULT )
 			pv.setBool( value == FLAG.YES );
 		return( setProperty( pv ) );
@@ -275,7 +285,7 @@ public class PropertySet {
 	}
 	
 	public PropertyValue setOriginalNumberProperty( String prop , int value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null , null );
 		pv.setNumber( value );
 		return( setProperty( pv ) );
 	}
@@ -291,7 +301,7 @@ public class PropertySet {
 	}
 
 	public PropertyValue setOriginalPathProperty( String prop , String value , ShellExecutor target ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null , null );
 		pv.setPath( value , target );
 		return( setProperty( pv ) );
 	}
@@ -303,50 +313,50 @@ public class PropertySet {
 	}
 	
 	public void setManualStringProperty( String prop , String value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null , null );
 		pv.setString( value );
 		setProperty( pv );
 	}
 	
 	public void setManualNumberProperty( String prop , int value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null , null );
 		pv.setNumber( value );
 		setProperty( pv );
 	}
 	
 	public void setManualBooleanProperty( String prop , boolean value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null , null );
 		pv.setBool( value );
 		setProperty( pv );
 	}
 	
 	public void setManualPathProperty( String prop , String value , ShellExecutor shell ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_MANUAL , null , null );
 		pv.setPath( value , shell );
 		setProperty( pv );
 	}
 	
 	public void setStringProperty( String prop , String value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null , null );
 		pv.setString( value );
 		setProperty( pv );
 	}
 
 	public void setBooleanProperty( String prop , boolean value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null , null );
 		pv.setBool( value );
 		setProperty( pv );
 	}
 
 	public void setBooleanProperty( String prop , FLAG value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null , null );
 		if( value != FLAG.DEFAULT )
 			pv.setBool( value == FLAG.YES );
 		setProperty( pv );
 	}
 
 	public void setNumberProperty( String prop , int value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null , null );
 		pv.setNumber( value );
 		setProperty( pv );
 	}
@@ -356,7 +366,7 @@ public class PropertySet {
 	}
 
 	public void setPathProperty( String prop , String value , ShellExecutor target ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null , null );
 		pv.setPath( value , target );
 		setProperty( pv );
 	}
@@ -386,7 +396,7 @@ public class PropertySet {
 	}
 	
 	public PropertyValue getFinalValue( String value , boolean isWindows , boolean allowParent , boolean allowUnresolved ) throws Exception {
-		PropertyValue pv = new PropertyValue( "" , PropertyValueOrigin.PROPERTY_MANUAL , null );
+		PropertyValue pv = new PropertyValue( "" , PropertyValueOrigin.PROPERTY_MANUAL , null , null );
 		pv.setOriginalAndFinalValue( value );
 		processValue( pv , true , isWindows , true , allowParent , allowUnresolved );
 		return( pv );
@@ -447,7 +457,7 @@ public class PropertySet {
 		}
 	}
 
-	public void saveToPropertyFile( String path , RunContext execrc ) throws Exception {
+	public void saveToPropertyFile( String path , RunContext execrc , boolean custom ) throws Exception {
 		Properties props = new Properties();
 		for( PropertyValue pv : getAllProperties() ) {
 			if( pv.isManual() )
@@ -459,9 +469,12 @@ public class PropertySet {
 		Common.createPropertyFile( execrc , path , props );
 	}
 	
-	public void saveAsElements( Document doc , Element parent ) throws Exception {
+	public void saveAsElements( Document doc , Element parent , boolean custom ) throws Exception {
 		for( PropertyValue pv : getAllProperties() ) {
 			if( pv.isManual() )
+				continue;
+			
+			if( custom != pv.isCustom() )
 				continue;
 			
 			String value = pv.getOriginalValue();
@@ -629,16 +642,16 @@ public class PropertySet {
 		return( pv.getFinalBool() );
 	}
 
-	public void loadFromNodeAttributes( Node node ) throws Exception {
+	public void loadFromNodeAttributes( Node node , boolean custom ) throws Exception {
 		Map<String,String> attrs = new HashMap<String,String>();
 		ConfReader.addAttributes( node , attrs );
 		for( String prop : attrs.keySet() ) {
 			String value = attrs.get( prop );
-			createOriginalAndRawProperty( prop , value );
+			createOriginalAndRawProperty( prop , value , custom , PropertyValueType.PROPERTY_STRING , null );
 		}
 	}
 	
-	public void loadFromNodeElements( Node node ) throws Exception {
+	public void loadFromNodeElements( Node node , boolean custom ) throws Exception {
 		Node[] items = ConfReader.xmlGetChildren( node , "property" );
 		if( items == null )
 			return;
@@ -646,11 +659,18 @@ public class PropertySet {
 		for( Node property : items ) {
 			String prop = ConfReader.getAttrValue( property , "name" );
 			String value = ConfReader.getAttrValue( property , "value" );
-			createOriginalAndRawProperty( prop , value );
+			
+			String desc = null;
+			PropertyValueType type = PropertyValueType.PROPERTY_STRING;
+			if( custom ) {
+				desc = ConfReader.getAttrValue( property , "desc" );
+				type = PropertyValue.getItemValueType( ConfReader.getAttrValue( property , "type" ) , false );
+			}
+			createOriginalAndRawProperty( prop , value , custom , type , desc );
 		}
 	}
 
-	public void loadFromPropertyFile( String path , RunContext execrc ) throws Exception {
+	public void loadFromPropertyFile( String path , RunContext execrc , boolean custom ) throws Exception {
 		Properties props = ConfReader.readPropertyFile( execrc , path );
 		for( Object key : props.keySet() ) {
 			String prop = ( String )key;
@@ -658,7 +678,7 @@ public class PropertySet {
 			
 			if( value.startsWith( "\"" ) && value.endsWith( "\"" ) )
 				value = value.substring( 1 , value.length() - 2 );
-			createOriginalAndRawProperty( prop , value );
+			createOriginalAndRawProperty( prop , value , custom , PropertyValueType.PROPERTY_STRING , null );
 		}
 	}
 	
@@ -673,7 +693,7 @@ public class PropertySet {
 		}
 		
 		if( pv == null ) {
-			pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_ORIGINAL , this );
+			pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_ORIGINAL , this , null );
 			setProperty( pv );
 		}
 			
@@ -695,7 +715,7 @@ public class PropertySet {
 	private void updateOriginalProperty( String prop , String value ) throws Exception {
 		PropertyValue pv = getPropertyValue( prop );
 		if( pv == null ) {
-			pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , this );
+			pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , this , null );
 			setProperty( pv );
 		}
 		
@@ -764,8 +784,10 @@ public class PropertySet {
 		processValue( pv , false , false , true , true , true );
 	}
 	
-	private void createOriginalAndRawProperty( String prop , String value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_ORIGINAL , this );
+	private void createOriginalAndRawProperty( String prop , String value , boolean custom , PropertyValueType type , String desc ) throws Exception {
+		PropertyValueOrigin origin = ( custom )? PropertyValueOrigin.PROPERTY_CUSTOM : PropertyValueOrigin.PROPERTY_ORIGINAL;
+		PropertyValue pv = new PropertyValue( prop , origin , this , null );
+		pv.setType( type );
 		pv.setOriginalAndFinalValue( value );
 		setProperty( pv );
 	}

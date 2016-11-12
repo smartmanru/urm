@@ -132,13 +132,13 @@ public class MetaProductBuildSettings extends PropertyController {
 		if( !initCreateStarted( parent ) )
 			return;
 
-		super.loadFromNodeElements( action , root );
+		super.loadFromNodeElements( action , root , false );
 		super.updateProperties( action );
 		super.initFinished();
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		super.saveAsElements( doc , root );
+		super.saveAsElements( doc , root , false );
 	}
 
 	public void setProperties( ServerTransaction transaction , PropertySet props ) throws Exception {

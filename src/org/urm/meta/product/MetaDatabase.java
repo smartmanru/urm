@@ -126,7 +126,7 @@ public class MetaDatabase extends PropertyController {
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		super.saveAsElements( doc , root );
+		super.saveAsElements( doc , root , false );
 		saveAdministration( action , doc , root );
 		saveSchemaSet( action , doc , root );
 	}
