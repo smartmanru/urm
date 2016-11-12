@@ -786,7 +786,7 @@ public class PropertySet {
 	
 	private void createOriginalAndRawProperty( String prop , String value , boolean custom , PropertyValueType type , String desc ) throws Exception {
 		PropertyValueOrigin origin = ( custom )? PropertyValueOrigin.PROPERTY_CUSTOM : PropertyValueOrigin.PROPERTY_ORIGINAL;
-		PropertyValue pv = new PropertyValue( prop , origin , this , null );
+		PropertyValue pv = new PropertyValue( prop , origin , this , desc );
 		pv.setType( type );
 		pv.setOriginalAndFinalValue( value );
 		setProperty( pv );
