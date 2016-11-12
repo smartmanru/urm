@@ -297,10 +297,6 @@ public class ServerEngine {
 			if( action.shell == null )
 				shellPool.createDedicatedLocalShell( action , action.context.stream );
 			
-			// create work folder
-			LocalFolder folder = action.artefactory.getWorkFolder( action );
-			folder.recreateThis( action );
-			
 			// start action log
 			action.tee();
 		}

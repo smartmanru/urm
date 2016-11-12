@@ -187,7 +187,7 @@ public class ShellPool implements Runnable {
 		action.debug( "start shell pool (tmp folder=" + tmpFolder.folderPath + ") ..." );
 		
 		master = createDedicatedLocalShell( action , "master" );
-		tmpFolder.ensureExists( action );
+		tmpFolder.recreateThis( action );
 
 		// set parameters
 		SHELL_SILENT_MAX = DEFAULT_SHELL_SILENT_MAX;
