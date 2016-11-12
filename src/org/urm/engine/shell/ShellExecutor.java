@@ -127,6 +127,7 @@ public abstract class ShellExecutor extends Shell {
 					File file = new File( path );
 					if( !file.mkdirs() )
 						action.exit1( _Error.UnableCreateDirectory1 , "Unable to create local directory: " + path , path );
+					action.trace( "local directory created: " + path );
 				}
 				return;
 			}
