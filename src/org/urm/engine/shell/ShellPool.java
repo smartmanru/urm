@@ -183,9 +183,9 @@ public class ShellPool implements Runnable {
 	}
 	
 	public void start( ActionBase action ) throws Exception {
-		action.debug( "start shell pool ..." );
-		
 		tmpFolder = action.artefactory.getTmpFolder( action );
+		action.debug( "start shell pool (tmp folder=" + tmpFolder.folderPath + ") ..." );
+		
 		master = createDedicatedLocalShell( action , "master" );
 		tmpFolder.ensureExists( action );
 
