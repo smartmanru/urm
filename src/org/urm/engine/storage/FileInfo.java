@@ -64,7 +64,10 @@ public class FileInfo {
 	
 	private String gatherParams( ActionBase action ) throws Exception {
 		Map<String,String> params = new HashMap<String,String>();
-		params.put( "version" , version.getFullVersion() );
+		if( version != null )
+			params.put( "version" , version.getFullVersion() );
+		else
+			params.put( "version" , "none" );
 		params.put( "md5" , md5value );
 		params.put( "base" , deployBaseName );
 		params.put( "final" , deployFinalName );

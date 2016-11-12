@@ -257,7 +257,7 @@ public class RedistStorage extends ServerStorage {
 		locationDir.createFileFromString( action , verName , data.value( action ) );
 	}
 
-	public void restoreConfigFile( ActionBase action , MetaDistrConfItem confItem , MetaEnvServerLocation location , String redistPath , VersionInfo version ) throws Exception {
+	public void restoreConfigFile( ActionBase action , MetaDistrConfItem confItem , MetaEnvServerLocation location , String redistPath ) throws Exception {
 		String fileBaseName = FileInfo.getFileName( action , confItem );
 		VarCONTENTTYPE CONTENTTYPE = location.getContentType( action , false );
 		RemoteFolder locationDir = getStateLocationFolder( action , location.DEPLOYPATH , CONTENTTYPE );
@@ -265,7 +265,7 @@ public class RedistStorage extends ServerStorage {
 		locationDir.copyFileRename( action , redistPath , fileBaseName );
 		
 		// create state file
-		FileInfo data = RedistStateInfo.getFileInfo( action , confItem , locationDir , fileBaseName , version , false );
+		FileInfo data = RedistStateInfo.getFileInfo( action , confItem , locationDir , fileBaseName , null , false );
 		String verName = data.getInfoName( action );
 		locationDir.createFileFromString( action , verName , data.value( action ) );
 	}

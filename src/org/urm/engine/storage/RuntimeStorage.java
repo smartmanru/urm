@@ -73,7 +73,7 @@ public class RuntimeStorage extends ServerStorage {
 		localDir.removeFiles( action , F_CONFIGTARFILE );
 	}
 
-	public void restoreConfigItem( ActionBase action , RedistStorage redist , LocalFolder srcFolder , MetaEnvServerDeployment deployment , MetaDistrConfItem confItem , VersionInfo version ) throws Exception {
+	public void restoreConfigItem( ActionBase action , RedistStorage redist , LocalFolder srcFolder , MetaEnvServerDeployment deployment , MetaDistrConfItem confItem ) throws Exception {
 		String LOCATION = deployment.getDeployPath( action );
 		String msg = "restore server configuratuion files item=" + confItem.KEY + ", location=" + LOCATION;
 		action.executeLogLive( action.getNodeAccount( node ) , msg );
@@ -102,7 +102,7 @@ public class RuntimeStorage extends ServerStorage {
 		
 		// add to state
 		MetaEnvServerLocation location = deployment.getLocation( action );
-		redist.restoreConfigFile( action , confItem , location , stagingPath , version );
+		redist.restoreConfigFile( action , confItem , location , stagingPath );
 	}
 	
 	private void deployConfigItem( ActionBase action , String stagingPath , MetaDistrConfItem confItem , RemoteFolder deployDir , boolean full ) throws Exception {

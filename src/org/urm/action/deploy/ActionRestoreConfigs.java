@@ -141,7 +141,7 @@ public class ActionRestoreConfigs extends ActionBase {
 			
 			RuntimeStorage runtime = artefactory.getRuntimeStorage( this , server , node );
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
-			runtime.restoreConfigItem( this , redist , live , deployment , confItem , null );
+			runtime.restoreConfigItem( this , redist , live , deployment , confItem );
 		}
 	}
 	
@@ -161,7 +161,7 @@ public class ActionRestoreConfigs extends ActionBase {
 			
 			RuntimeStorage runtime = artefactory.getRuntimeStorage( this , server , node );
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
-			runtime.restoreConfigItem( this , redist , live , deployment , confItem , null );
+			runtime.restoreConfigItem( this , redist , live , deployment , confItem );
 		}
 	}
 	
