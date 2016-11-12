@@ -122,9 +122,11 @@ public abstract class ShellExecutor extends Shell {
 		try {
 			opstart();
 			if( isLocal() ) {
+				path = action.getLocalPath( path );
 				if( !Files.isDirectory( Paths.get( path ) , LinkOption.NOFOLLOW_LINKS ) ) {
 					File file = new File( path );
-					file.mkdirs();
+					if( !file.mkdirs() )
+						action.exit1( _Error.UnableCreateDirectory1 , "Unable to create local directory: " + path , path );
 				}
 				return;
 			}
@@ -149,9 +151,10 @@ public abstract class ShellExecutor extends Shell {
 		try {
 			opstart();
 			if( isLocal() ) {
+				path = action.getLocalPath( path );
 				List<String> list = new LinkedList<String>();
 				list.add( value );
-				Files.write( Paths.get( action.getLocalPath( path ) ) , list , Charset.forName( "UTF-8" ) , StandardOpenOption.CREATE , StandardOpenOption.APPEND ); 
+				Files.write( Paths.get( path ) , list , Charset.forName( "UTF-8" ) , StandardOpenOption.CREATE , StandardOpenOption.APPEND ); 
 			}
 			else
 				core.cmdAppendFileWithString( action , path , value );
@@ -177,8 +180,10 @@ public abstract class ShellExecutor extends Shell {
 			if( path.isEmpty() )
 				return( false );
 			
-			if( isLocal() )
+			if( isLocal() ) {
+				path = action.getLocalPath( path );
 				return( Files.isDirectory( Paths.get( path ) , LinkOption.NOFOLLOW_LINKS ) );
+			}
 			
 			return( core.cmdCheckDirExists( action , path ) );
 		}
@@ -224,8 +229,7 @@ public abstract class ShellExecutor extends Shell {
 				return( false );
 	
 			if( isLocal() ) {
-				if( isWindows() )
-					path = Common.getWinPath( path );
+				path = action.getLocalPath( path );
 				return( Files.isRegularFile( Paths.get( path ) , LinkOption.NOFOLLOW_LINKS ) );
 			}
 			return( core.cmdCheckFileExists( action , path ) );
@@ -242,8 +246,7 @@ public abstract class ShellExecutor extends Shell {
 				return( false );
 	
 			if( isLocal() ) {
-				if( isWindows() )
-					path = Common.getWinPath( path );
+				path = action.getLocalPath( path );
 				return( Files.exists( Paths.get( path ) , LinkOption.NOFOLLOW_LINKS ) );
 			}
 			return( core.cmdCheckPathExists( action , path ) );
@@ -885,9 +888,8 @@ public abstract class ShellExecutor extends Shell {
 			opstart();
 			if( account.local )
 				copyFile( action , srcFilePath , dstDir );
-			else {
+			else
 				scpFilesRemoteToLocal( action , srcFilePath , account , Common.ensureDir( dstDir ) );
-			}
 		}
 		finally {
 			opstop();
@@ -899,9 +901,8 @@ public abstract class ShellExecutor extends Shell {
 			opstart();
 			if( account.local )
 				copyFile( action , srcFilePath , dstFilePath );
-			else {
+			else
 				scpFilesRemoteToLocal( action , srcFilePath , account , dstFilePath );
-			}
 		}
 		finally {
 			opstop();
@@ -913,9 +914,8 @@ public abstract class ShellExecutor extends Shell {
 			opstart();
 			if( account.local )
 				copyFiles( action , Common.getDirName( srcFiles ) , Common.getBaseName( srcFiles ) , dstDir );
-			else {
+			else
 				scpFilesRemoteToLocal( action , srcFiles , account , Common.ensureDir( dstDir ) );
-			}
 		}
 		finally {
 			opstop();
@@ -942,9 +942,8 @@ public abstract class ShellExecutor extends Shell {
 			opstart();
 			if( account.local )
 				this.copyFiles( action , srcDir , srcFiles , dstDir );
-			else {
+			else
 				scpFilesLocalToRemote( action , Common.getPath( srcDir , srcFiles ) , account , Common.ensureDir( dstDir ) );
-			}
 		}
 		finally {
 			opstop();
@@ -956,9 +955,8 @@ public abstract class ShellExecutor extends Shell {
 			opstart();
 			if( account.local )
 				copyDirContent( action , srcDir , dstDir );
-			else {
+			else
 				scpDirContentRemoteToLocal( action , srcDir , account , Common.ensureDir( dstDir ) );
-			}
 		}
 		finally {
 			opstop();
@@ -970,9 +968,8 @@ public abstract class ShellExecutor extends Shell {
 			opstart();
 			if( account.local )
 				copyDirToBase( action , srcDir , dstBaseDir );
-			else {
+			else
 				scpDirRemoteToLocal( action , srcDir , account , Common.ensureDir( dstBaseDir ) );
-			}
 		}
 		finally {
 			opstop();
@@ -984,9 +981,8 @@ public abstract class ShellExecutor extends Shell {
 			opstart();
 			if( account.local )
 				copyFile( action , srcFilePath , dstDir , "" , "" );
-			else {
+			else
 				scpFilesLocalToRemote( action , srcFilePath , account , Common.ensureDir( dstDir ) );
-			}
 		}
 		finally {
 			opstop();
@@ -998,9 +994,8 @@ public abstract class ShellExecutor extends Shell {
 			opstart();
 			if( account.local )
 				copyFile( action , srcFilePath , dstDir , newName , "" );
-			else {
+			else
 				scpFilesLocalToRemote( action , srcFilePath , account , Common.getPath( dstDir , newName ) );
-			}
 		}
 		finally {
 			opstop();
@@ -1022,9 +1017,8 @@ public abstract class ShellExecutor extends Shell {
 			opstart();
 			if( account.local )
 				copyDirToBase( action , srcDirPath , baseDstDir );
-			else {
+			else
 				scpDirLocalToRemote( action , srcDirPath , account , Common.ensureDir( baseDstDir ) );
-			}
 		}
 		finally {
 			opstop();
@@ -1036,9 +1030,8 @@ public abstract class ShellExecutor extends Shell {
 			opstart();
 			if( account.local )
 				this.copyDirContent( action , srcDirPath , dstDir );
-			else {
+			else
 				this.scpDirContentLocalToRemote( action , srcDirPath , account , Common.ensureDir( dstDir ) );
-			}
 		}
 		finally {
 			opstop();
@@ -1072,7 +1065,8 @@ public abstract class ShellExecutor extends Shell {
 				core.cmdGetTopDirsAndFiles( action , rootPath , dirs , files );
 				return;
 			}
-		
+
+			rootPath = action.getLocalPath( rootPath );
 			File folder = new File( rootPath );
 			if( folder.exists() == false )
 				return;
