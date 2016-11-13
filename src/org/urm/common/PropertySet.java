@@ -30,6 +30,10 @@ public class PropertySet {
 		data = new HashMap<String,PropertyValue>();
 		failed = false;
 	}
+
+	public int count() {
+		return( data.size() );
+	}
 	
 	public PropertySet copy( PropertySet parentNew ) {
 		PropertySet r = new PropertySet( set , parentNew );
@@ -784,7 +788,7 @@ public class PropertySet {
 		processValue( pv , false , false , true , true , true );
 	}
 	
-	private void createOriginalAndRawProperty( String prop , String value , boolean custom , PropertyValueType type , String desc ) throws Exception {
+	public void createOriginalAndRawProperty( String prop , String value , boolean custom , PropertyValueType type , String desc ) throws Exception {
 		PropertyValueOrigin origin = ( custom )? PropertyValueOrigin.PROPERTY_CUSTOM : PropertyValueOrigin.PROPERTY_ORIGINAL;
 		PropertyValue pv = new PropertyValue( prop , origin , this , desc );
 		pv.setType( type );
@@ -989,13 +993,38 @@ public class PropertySet {
 	public void removeUserProperties() throws Exception {
 		List<PropertyValue> items = new LinkedList<PropertyValue>();
 		for( PropertyValue pv : data.values() ) {
-			if( !pv.isSystem() )
+			if( pv.isCustom() )
 				items.add( pv );
 		}
 		for( PropertyValue pv : items )
 			data.remove( getKeyByProperty( pv.property ) );
 	}
 
+	public void removeUserProperty( String prop ) throws Exception {
+		PropertyValue pv = getPropertyValue( prop );
+		if( pv == null )
+			Common.exit2( _Error.UnknownProperty2 , "set=" + set + ": missing property=" + prop , set , prop );
+		
+		if( !pv.isCustom() )
+			Common.exit2( _Error.NotCustomProperty2 , "set=" + set + ": not a custom property=" + prop , set , prop );
+		data.remove( getKeyByProperty( pv.property ) );
+	}
+
+	public void renameUserProperty( String prop , String newName ) throws Exception {
+		PropertyValue pv = getPropertyValue( prop );
+		if( pv == null )
+			Common.exit2( _Error.UnknownProperty2 , "set=" + set + ": missing property=" + prop , set , prop );
+
+		PropertyValue pvNew = getPropertyValue( newName );
+		if( pvNew != null && pvNew != pv )
+			Common.exit2( _Error.DuplicateProperty2 , "set=" + set + ": duplicate property=" + newName , set , newName );
+		
+		data.remove( getKeyByProperty( prop ) );
+		pv.setName( newName );
+		data.put( getKeyByProperty( newName ) , pv );
+		recalculateProperties();
+	}
+	
 	public static String getRef( String name ) {
 		return( "@" + name + "@" );
 	}

@@ -130,6 +130,10 @@ public class PropertyValue {
 		return( finalValue );
 	}
 	
+	public void setName( String propNew ) {
+		this.property = propNew;
+	}
+	
 	public void setValue( PropertyValue pv ) {
 		this.originalValue = pv.originalValue;
 		this.finalValue = pv.originalValue;
