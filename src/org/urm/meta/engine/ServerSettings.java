@@ -144,12 +144,12 @@ public class ServerSettings extends ServerObject {
 	}
 
 	public void setProductDefaultsProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
-		defaultProductProperties.updateProperties( props );
+		defaultProductProperties.updateProperties( props , true );
 		defaultProductProperties.resolveRawProperties( true );
 	}
 
 	public void setProductBuildCommonDefaultsProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
-		defaultProductBuildProperties.updateProperties( props );
+		defaultProductBuildProperties.updateProperties( props , true );
 		defaultProductBuildProperties.resolveRawProperties( true );
 	}
 	
@@ -160,7 +160,7 @@ public class ServerSettings extends ServerObject {
 			mapBuildModeDefaults.put( mode , set );
 		}
 		
-		set.updateProperties( props );
+		set.updateProperties( props , true );
 		set.resolveRawProperties( true );
 	}
 

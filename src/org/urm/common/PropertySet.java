@@ -193,6 +193,13 @@ public class PropertySet {
 		}
 	}
 
+	public void copyCustomPropertiesToRaw( PropertySet set ) throws Exception {
+		for( PropertyValue p : set.data.values() ) {
+			if( p.isCustom() )
+				createOriginalAndRawProperty( p.property , p.getOriginalValue() , true , p.getType() , p.desc );
+		}
+	}
+
 	public void copyOriginalPropertiesToRaw() throws Exception {
 		for( PropertyValue p : data.values() )
 			p.setFinalFromOriginalValue();
@@ -444,10 +451,18 @@ public class PropertySet {
 		return( getBooleanPropertyInternal( name , defaultValue , false ) );
 	}
 	
-	public void updateProperties( PropertySet src ) throws Exception {
+	public void updateProperties( PropertySet src , boolean system ) throws Exception {
+		if( !system ) {
+			copyCustomPropertiesToRaw( src );
+			return;
+		}
+		
 		for( String prop : src.getOriginalProperties() ) {
-			String value = src.getOriginalByProperty( prop );
-			updateOriginalProperty( prop , value );
+			PropertyValue pv = src.getPropertyValue( prop );
+			if( pv.isSystem() ) {
+				String value = src.getOriginalByProperty( prop );
+				updateOriginalProperty( prop , value );
+			}
 		}
 	}
 
@@ -482,8 +497,13 @@ public class PropertySet {
 				continue;
 			
 			String value = pv.getOriginalValue();
-			if( !value.isEmpty() )
-				Common.xmlCreatePropertyElement( doc , parent , pv.property , value );
+			if( !value.isEmpty() ) {
+				Element element = Common.xmlCreatePropertyElement( doc , parent , pv.property , value );
+				if( custom ) {
+					Common.xmlSetElementAttr( doc , element , "desc" , pv.desc );
+					Common.xmlSetElementAttr( doc , element , "type" , Common.getEnumLower( PropertyValueType.PROPERTY_STRING ) );
+				}
+			}
 		}
 	}
 	
@@ -497,7 +517,11 @@ public class PropertySet {
 				if( pv.isSystem() )
 					Common.xmlSetElementAttr( doc , parent , pv.property , value );
 				else
-					Common.xmlCreatePropertyElement( doc , parent , pv.property , value );
+				if( pv.isCustom() ) {
+					Element element = Common.xmlCreatePropertyElement( doc , parent , pv.property , value );
+					Common.xmlSetElementAttr( doc , element , "desc" , pv.desc );
+					Common.xmlSetElementAttr( doc , element , "type" , Common.getEnumLower( PropertyValueType.PROPERTY_STRING ) );
+				}
 			}
 		}
 	}

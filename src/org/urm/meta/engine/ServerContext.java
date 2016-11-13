@@ -155,7 +155,7 @@ public class ServerContext {
 	}
 
 	public void setServerProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
-		properties.updateProperties( props );
+		properties.updateProperties( props , true );
 	}
 
 	public void resolveServerProperties( ServerTransaction transaction ) throws Exception {

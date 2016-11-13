@@ -10,6 +10,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
+import org.urm.common.PropertySet;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.meta.engine.ServerAccountReference;
@@ -89,6 +90,11 @@ public class MetaEnvDC extends PropertyController {
 		return( r );
 	}
 
+	public void setProperties( ServerTransaction transaction , PropertySet props , boolean system ) throws Exception {
+		super.updateProperties( transaction , props , system );
+		scatterProperties( transaction.getAction() );
+	}
+	
 	public String getFullId( ActionBase action ) throws Exception {
 		return( env.ID + "-" + NAME );
 	}

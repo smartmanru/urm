@@ -239,6 +239,11 @@ public class ServerTransaction extends TransactionBase {
 		dc.deleteObject();
 	}
 
+	public void setMetaEnvDCProperties( MetaEnvDC dc , PropertySet props , boolean system ) throws Exception {
+		checkTransactionMetadata( dc.meta.getStorage( action ) );
+		dc.setProperties( this , props , system );
+	}
+	
 	public MetaEnvServer createMetaEnvServer( MetaEnvDC dc , String name , String desc , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String sysname ) throws Exception {
 		checkTransactionMetadata( dc.meta.getStorage( action ) );
 		MetaEnvServer server = new MetaEnvServer( dc.meta , dc );
@@ -293,6 +298,11 @@ public class ServerTransaction extends TransactionBase {
 		node.deleteObject();
 	}
 
+	public void setMetaEnvServerNodeProperties( MetaEnvServerNode node , PropertySet props , boolean system ) throws Exception {
+		checkTransactionMetadata( node.meta.getStorage( action ) );
+		node.setProperties( this , props , system );
+	}
+	
 	public void createNetwork( ServerNetwork network ) throws Exception {
 		checkTransactionInfrastructure();
 		infra.createNetwork( this , network );

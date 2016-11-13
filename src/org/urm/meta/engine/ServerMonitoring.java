@@ -320,7 +320,7 @@ public class ServerMonitoring extends ServerObject {
 	}
 
 	public void setDefaultProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
-		properties.updateProperties( props );
+		properties.updateProperties( props , true );
 		scatterProperties();
 	}
 	

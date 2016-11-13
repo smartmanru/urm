@@ -176,7 +176,7 @@ public abstract class PropertyController extends ServerObject {
 	}
 	
 	protected void updateProperties( PropertySet props ) throws Exception {
-		properties.updateProperties( props );
+		properties.updateProperties( props , true );
 		if( properties.isCorrect() )
 			loadFailed = false;
 	}
@@ -199,7 +199,7 @@ public abstract class PropertyController extends ServerObject {
 	protected void updateProperties( ServerTransaction transaction , PropertySet props , boolean system ) throws Exception {
 		if( !system )
 			properties.removeUserProperties();
-		properties.updateProperties( props );
+		properties.updateProperties( props , system );
 		if( system )
 			scatterProperties( transaction.action );
 	}

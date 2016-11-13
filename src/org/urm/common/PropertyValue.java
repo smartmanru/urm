@@ -134,6 +134,10 @@ public class PropertyValue {
 		this.property = propNew;
 	}
 	
+	public void setDesc( String descNew ) {
+		this.desc = descNew;
+	}
+	
 	public void setValue( PropertyValue pv ) {
 		this.originalValue = pv.originalValue;
 		this.finalValue = pv.originalValue;
