@@ -194,6 +194,11 @@ public class DeployCommand {
 		ca.runAll( scope );
 	}
 
+	public void verifyConfigs( ActionBase action , ActionScope scope ) throws Exception {
+		ActionVerifyConfigs ca = new ActionVerifyConfigs( action , null );
+		ca.runAll( scope );
+	}
+
 	public void restoreConfigs( ActionBase action , ActionScope scope ) throws Exception {
 		ActionRestoreConfigs ca = new ActionRestoreConfigs( action , null );
 		ca.runAll( scope );

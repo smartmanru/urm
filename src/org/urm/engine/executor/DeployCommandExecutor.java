@@ -44,6 +44,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 		super.defineAction( new SendChatMsg() , "sendchatmsg" );
 		super.defineAction( new StartEnv() , "startenv" );
 		super.defineAction( new StopEnv() , "stopenv" );
+		super.defineAction( new VerifyConfigs() , "verifyconfigs" );
 		super.defineAction( new RestoreConfigs() , "restoreconfigs" );
 		super.defineAction( new SaveConfigs() , "saveconfigs" );
 		super.defineAction( new UpgradeEnv() , "upgradeenv" );
@@ -300,6 +301,13 @@ public class DeployCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		ActionScope scope = getServerScope( action );
 		impl.stopEnv( action , scope );
+	}
+	}
+
+	private class VerifyConfigs extends CommandAction {
+	public void run( ActionInit action ) throws Exception {
+		ActionScope scope = getServerScope( action );
+		impl.verifyConfigs( action , scope );
 	}
 	}
 

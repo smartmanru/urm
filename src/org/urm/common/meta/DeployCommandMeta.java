@@ -49,8 +49,10 @@ public class DeployCommandMeta extends CommandMeta {
 		cmdOpts = "OPT_ALL, OPT_DEPLOYGROUP, OPT_STARTGROUP, OPT_DC, OPT_EXTRAARGS, OPT_UNIT, OPT_KEY, OPT_SKIPERRORS, OPT_NOCHATMSG";
 		super.defineAction( CommandMethodMeta.newNormal( this , "startenv" , false , "start servers" , cmdOpts , "./startenv.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		super.defineAction( CommandMethodMeta.newCritical( this , "stopenv" , false , "stop servers" , cmdOpts , "./stopenv.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
+		cmdOpts = "OPT_ALL, OPT_DEPLOYGROUP, OPT_STARTGROUP, OPT_DC, OPT_UNIT, OPT_TAG, OPT_LIVE, OPT_HIDDEN, OPT_KEY, OPT_SKIPERRORS";
+		super.defineAction( CommandMethodMeta.newCritical( this , "verifyconfigs" , false , "compare environment configuration files with configuration repository" , cmdOpts , "./verifyconfigs.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "OPT_ALL, OPT_DEPLOYGROUP, OPT_STARTGROUP, OPT_DC, OPT_UNIT, OPT_TAG, OPT_LIVE, OPT_HIDDEN, OPT_KEY, OPT_SKIPERRORS, OPT_NOCHATMSG";
-		super.defineAction( CommandMethodMeta.newCritical( this , "restoreconfigs" , false , "restore environment configuration files from configuration repository" , cmdOpts , "./restoreconfigs.sh {live|prod} [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
+		super.defineAction( CommandMethodMeta.newCritical( this , "restoreconfigs" , false , "restore environment configuration files from configuration repository" , cmdOpts , "./restoreconfigs.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "OPT_ALL, OPT_DEPLOYGROUP, OPT_STARTGROUP, OPT_DC, OPT_UNIT, OPT_TAG, OPT_KEY";
 		super.defineAction( CommandMethodMeta.newNormal( this , "saveconfigs" , false , "save environment configuration files in live configuration repository" , cmdOpts , "./saveconfigs.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "OPT_ALL, OPT_DEPLOYGROUP, OPT_STARTGROUP, OPT_DC, OPT_UNIT, OPT_HOSTUSER, OPT_KEY, OPT_SKIPERRORS, OPT_ROOTUSER";
