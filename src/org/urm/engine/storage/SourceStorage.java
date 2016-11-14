@@ -259,7 +259,7 @@ public class SourceStorage {
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
 		String PATH = getDATALiveConfigEnvPath( action , action.context.env );
-		String setTAG = meta.name + "-" + action.context.env.ID + "-" + TAG;
+		String setTAG = TAG;
 		
 		vcs.createMasterTag( mirror , PATH , setTAG , commitMessage );
 	}
@@ -277,7 +277,7 @@ public class SourceStorage {
 				action.exit2( _Error.UnableExportConfig2 , "unable to export " + confName + " from " + path , confName , path );
 		}
 		else {
-			String useTAG = meta.name + "-" + action.context.env.ID + "-" + TAG;
+			String useTAG = TAG;
 			if( !vcs.exportRepositoryTagPath( mirror , folder , useTAG , PATH , confName ) )
 				action.exit3( _Error.UnableExportConfigTag3 , "unable to export " + confName + " from " + path + ", TAG=" + useTAG , confName , path , useTAG );
 		}
@@ -299,7 +299,7 @@ public class SourceStorage {
 				action.exit2( _Error.UnableExportConfig2 , "unable to export " + confName + " from " + path , confName , path );
 		}
 		else {
-			String useTAG = meta.name + "-" + action.context.env.ID + "-" + dc.NAME + "-" + TAG;
+			String useTAG = TAG;
 			if( !vcs.exportRepositoryTagPath( mirror , folder , useTAG , PATH , confName ) )
 				action.exit3( _Error.UnableExportConfigTag3 , "unable to export " + confName + " from " + path + ", TAG=" + useTAG , confName , path , useTAG );
 		}

@@ -28,8 +28,10 @@ public class ActionSaveConfigs extends ActionBase {
 			deleteOldConfServers( scope );
 		
 		// check need to tag configuration
-		if( !context.CTX_TAG.isEmpty() )
+		if( !context.CTX_TAG.isEmpty() ) {
 			sourceStorage.tagLiveConfigs( this , context.CTX_TAG , "ActionSaveConfigs" );
+			info( "saveconfigs: tag " + context.CTX_TAG + " has been successfully created" );
+		}
 	}
 	
 	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
