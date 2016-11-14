@@ -7,6 +7,7 @@ import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.action.conf.ConfDiffSet;
 import org.urm.common.Common;
+import org.urm.common.ConfReader;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
@@ -67,10 +68,19 @@ public class ActionVerifyConfigs extends ActionBase {
 		// iterate by nodes - compare
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
-			info( "execute server=" + server.NAME + " node=" + node.POS + " ..." );
+			info( "execute components of server=" + server.NAME + " node=" + node.POS + " ..." );
 			executeNode( folderAsis , folderTobe , sourceStorage , server , node , false );
 		}
 
+
+		// compare system component
+		for( ActionScopeTargetItem item : target.getItems( this ) ) {
+			MetaEnvServerNode node = item.envServerNode;
+			String name = sourceStorage.getSysConfItemLiveName( this , node );
+			info( "execute system files of server=" + server.NAME + " node=" + node.POS + " ..." );
+			executeNodeSysConf( folderAsis , folderTobe , sourceStorage , server , node , name , true );
+			executeNodeSysConf( folderAsis , folderTobe , sourceStorage , server , node , name , false );
+		}
 		return( SCOPESTATE.RunSuccess );
 	}
 
@@ -96,10 +106,6 @@ public class ActionVerifyConfigs extends ActionBase {
 				}
 			}
 		}
-		
-		// compare system component
-		String name = sourceStorage.getSysConfItemLiveName( this , node );
-		executeNodeSysConf( parentAsis , parentTobe , sourceStorage , server , node , name , prepare );
 	}
 
 	private void executeNodeSysConf( LocalFolder parentAsis , LocalFolder parentTobe , SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , String name , boolean prepare ) throws Exception {
@@ -200,8 +206,8 @@ public class ActionVerifyConfigs extends ActionBase {
 			if( context.CTX_SHOWALL )
 				error( "found configuration differences in node=" + node.POS + ", see " + diffFile );
 			else {
-				error( "found configuration differences in node=" + node.POS + ":" );
-				info( "see " + diffFile );
+				error( "configuration differences in node=" + node.POS + ":" );
+				info( ConfReader.readFile( super.execrc , diffFile ) );
 			}
 		}
 		
