@@ -187,5 +187,5 @@ public class MetaEnvServerNode extends PropertyController {
 
 		setOffline( transaction , true );
 	}
-	
+
 }

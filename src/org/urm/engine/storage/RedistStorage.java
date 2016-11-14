@@ -38,8 +38,9 @@ public class RedistStorage extends ServerStorage {
 	}
 	
 	public boolean getSysConfigs( ActionBase action , LocalFolder dstFolder ) throws Exception {
-		String F_RUNTIMEDIR = server.getSystemPath( action );
-		String F_FILES = server.getSystemFiles( action );
+		ShellExecutor shell = action.getShell( node );
+		String F_RUNTIMEDIR = shell.getSystemPath( action , server );
+		String F_FILES = shell.getSystemFiles( action , server );
 
 		RemoteFolder tmpDir = getRedistTmpFolder( action );
 		

@@ -17,6 +17,7 @@ import org.urm.engine.action.CommandOutput;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaEnvServer;
 
 public abstract class ShellExecutor extends Shell {
 
@@ -1269,4 +1270,47 @@ public abstract class ShellExecutor extends Shell {
 		}
 	}
 
+	public boolean isSystemctlService( ActionBase action , MetaEnvServer server ) throws Exception {
+		if( !server.isLinux() )
+			return( false );
+
+		if( !server.isService() )
+			return( false );
+
+		ShellCoreUnix coreUnix = ( ShellCoreUnix )core;
+		if( coreUnix.osType.equals( "CentOS" ) && coreUnix.osTypeVersion.startsWith( "6." ) )
+			return( false );
+		
+		if( coreUnix.osType.equals( "RedHat" ) && coreUnix.osTypeVersion.startsWith( "6." ) )
+			return( false );
+
+		return( true );
+	}
+	
+	public String getSystemPath( ActionBase action , MetaEnvServer server ) throws Exception {
+		if( !server.isLinux() )
+			return( "" );
+				
+		if( server.isService() ) {
+			if( isSystemctlService( action , server ) )
+				return( "/usr/lib/systemd/system/" );
+			return( "/etc/init.d" );
+		}
+		
+		return( Common.getPath( server.ROOTPATH , server.BINPATH ) );
+	}
+	
+	public String getSystemFiles( ActionBase action , MetaEnvServer server ) throws Exception {
+		if( isLinux() && server.isService() ) {
+			if( isSystemctlService( action , server ) )
+				return( server.SYSNAME + ".*" );
+			return( server.SYSNAME );
+		}
+		
+		if( isLinux() )
+			return( "server.*.sh" );
+		
+		return( "server.*.cmd" );
+	}
+	
 }

@@ -15,6 +15,9 @@ import org.urm.meta.product.Meta.VarSESSIONTYPE;
 public class ShellCoreUnix extends ShellCore {
 
 	boolean windowsHelper = false;
+	String osVersion = "";
+	String osType;
+	String osTypeVersion;
 	
 	public ShellCoreUnix( ShellExecutor executor , VarSESSIONTYPE sessionType , Folder tmpFolder , boolean local ) {
 		super( executor , VarOSTYPE.LINUX , sessionType , tmpFolder , local );
@@ -34,6 +37,22 @@ public class ShellCoreUnix extends ShellCore {
 		
 		action.setTimeout( timeout );
 		homePath = runCommandGetValueCheckDebug( action , "echo $HOME" );
+		
+		osVersion = cmdGetFileContentAsString( action , "/etc/redhat-release" );
+		if( osVersion.startsWith( "Red Hat Linux release" ) ) {
+			osType = "RedHat";
+			osTypeVersion = Common.getListItem( osVersion , " " , 4 );
+		}
+		else
+		if( osVersion.startsWith( "CentOS release" ) ) {
+			osType = "CentOS";
+			osTypeVersion = Common.getListItem( osVersion , " " , 2 );
+		}
+		else
+		if( osVersion.startsWith( "CentOS Linux release" ) ) {
+			osType = "CentOS";
+			osTypeVersion = Common.getListItem( osVersion , " " , 3 );
+		}
 		return( true );
 	}
 	

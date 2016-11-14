@@ -706,23 +706,6 @@ public class MetaEnvServer extends PropertyController {
 		return( OFFLINE );
 	}
 	
-	public String getSystemPath( ActionBase action ) throws Exception {
-		if( isLinux() && isService() )
-			return( "/etc/init.d" );
-		
-		return( Common.getPath( ROOTPATH , BINPATH ) );
-	}
-	
-	public String getSystemFiles( ActionBase action ) throws Exception {
-		if( isLinux() && isService() )
-			return( SYSNAME );
-		
-		if( isLinux() )
-			return( "server.*.sh" );
-		
-		return( "server.*.cmd" );
-	}
-
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		super.saveSplit( doc , root );
 		

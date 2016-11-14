@@ -30,8 +30,9 @@ public class RuntimeStorage extends ServerStorage {
 		if( !action.isExecute() )
 			return;
 		
-		String F_RUNTIMEDIR = server.getSystemPath( action );
-		String F_FILES = server.getSystemFiles( action );
+		ShellExecutor shell = action.getShell( node );
+		String F_RUNTIMEDIR = shell.getSystemPath( action , server );
+		String F_FILES = shell.getSystemFiles( action , server );
 
 		// prepare on local
 		LocalFolder localDir = artefactory.getWorkFolder( action , "tmp" );
@@ -41,7 +42,6 @@ public class RuntimeStorage extends ServerStorage {
 		srcFolder.createTarFromContent( action , tarFilePath , "*" , "" );
 		
 		// rollout to destination
-		ShellExecutor shell = action.getShell( node );
 		RemoteFolder remoteDir = redist.getRedistTmpFolder( action );
 		shell.appendUploadLog( action , tarFilePath , remoteDir.folderPath );
 		remoteDir.copyFileFromLocal( action , tarFilePath );
