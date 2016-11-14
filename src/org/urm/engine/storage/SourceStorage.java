@@ -337,7 +337,7 @@ public class SourceStorage {
 		coFolder.copyDirContent( action , folder );
 		saveLiveConfigItemCopyFolder( action , vcs , mirror , tobeFiles , coFiles , folder , coFolder );
 
-		if( vcs.commitMasterFolder( mirror , coFolder , PATH , commitMessage ) )
+		if( vcs.commitMasterFolder( mirror , coFolder , "/" , commitMessage ) )
 			action.info( node.HOSTLOGIN + ": live updated at " + path );
 		else
 			action.debug( node.HOSTLOGIN + ": live not changed at " + path );
