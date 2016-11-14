@@ -72,7 +72,6 @@ public class ActionVerifyConfigs extends ActionBase {
 			executeNode( folderAsis , folderTobe , sourceStorage , server , node , false );
 		}
 
-
 		// compare system component
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
@@ -117,7 +116,7 @@ public class ActionVerifyConfigs extends ActionBase {
 
 		if( prepare ) {
 			debug( "prepare system configuraton component from live ..." );
-			sourceStorage.exportLiveConfigItem( this , server , name , context.CTX_TAG , parentAsis );
+			sourceStorage.exportLiveConfigItem( this , server , name , context.CTX_TAG , parentTobe );
 		}
 		else {
 			info( "compare system configuraton component with live ..." );
