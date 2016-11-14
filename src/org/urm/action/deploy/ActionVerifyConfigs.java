@@ -66,31 +66,41 @@ public class ActionVerifyConfigs extends ActionBase {
 		}
 
 		// iterate by nodes - compare
+		boolean ok = true;
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
 			info( "execute components of server=" + server.NAME + " node=" + node.POS + " ..." );
-			executeNode( folderAsis , folderTobe , sourceStorage , server , node , false );
+			if( !executeNode( folderAsis , folderTobe , sourceStorage , server , node , false ) )
+				ok = false;
 		}
 
 		// compare system component
-		for( ActionScopeTargetItem item : target.getItems( this ) ) {
-			MetaEnvServerNode node = item.envServerNode;
-			String name = sourceStorage.getSysConfItemLiveName( this , node );
-			info( "execute system files of server=" + server.NAME + " node=" + node.POS + " ..." );
-			executeNodeSysConf( folderAsis , folderTobe , sourceStorage , server , node , name , true );
-			executeNodeSysConf( folderAsis , folderTobe , sourceStorage , server , node , name , false );
+		if( context.CTX_LIVE ) {
+			for( ActionScopeTargetItem item : target.getItems( this ) ) {
+				MetaEnvServerNode node = item.envServerNode;
+				String name = sourceStorage.getSysConfItemLiveName( this , node );
+				info( "execute system files of server=" + server.NAME + " node=" + node.POS + " ..." );
+				executeNodeSysConf( folderAsis , folderTobe , sourceStorage , server , node , name , true );
+				if( !executeNodeSysConf( folderAsis , folderTobe , sourceStorage , server , node , name , false ) )
+					ok = false;
+			}
 		}
+		
+		if( ok )
+			info( "server is exactly matched" );
 		return( SCOPESTATE.RunSuccess );
 	}
 
-	private void executeNode( LocalFolder parentAsis , LocalFolder parentTobe , SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , boolean prepare ) throws Exception {
+	private boolean executeNode( LocalFolder parentAsis , LocalFolder parentTobe , SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , boolean prepare ) throws Exception {
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		redist.recreateTmpFolder( this );
 		
+		boolean ok = true;
 		for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
 			if( deployment.confItem != null ) {
 				String name = sourceStorage.getConfItemLiveName( this , node , deployment.confItem );
-				executeNodeConf( parentAsis , parentTobe , sourceStorage , server , node , deployment , deployment.confItem , name , prepare );
+				if( !executeNodeConf( parentAsis , parentTobe , sourceStorage , server , node , deployment , deployment.confItem , name , prepare ) )
+					ok = false;
 				continue;
 			}
 			
@@ -101,19 +111,23 @@ public class ActionVerifyConfigs extends ActionBase {
 			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems() ) {
 				if( compItem.confItem != null ) {
 					String name = sourceStorage.getConfItemLiveName( this , node , compItem.confItem );
-					executeNodeConf( parentAsis , parentTobe , sourceStorage , server , node , deployment , compItem.confItem , name , prepare );
+					if( !executeNodeConf( parentAsis , parentTobe , sourceStorage , server , node , deployment , compItem.confItem , name , prepare ) )
+						ok = false;
 				}
 			}
 		}
+		
+		return( ok );
 	}
 
-	private void executeNodeSysConf( LocalFolder parentAsis , LocalFolder parentTobe , SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , String name , boolean prepare ) throws Exception {
+	private boolean executeNodeSysConf( LocalFolder parentAsis , LocalFolder parentTobe , SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , String name , boolean prepare ) throws Exception {
 		if( !context.CTX_LIVE ) {
 			if( prepare )
 				debug( "skip compare live system configs" );
-			return;
+			return( true );
 		}
 
+		boolean ok = true;
 		if( prepare ) {
 			debug( "prepare system configuraton component from live ..." );
 			sourceStorage.exportLiveConfigItem( this , server , name , context.CTX_TAG , parentTobe );
@@ -128,19 +142,23 @@ public class ActionVerifyConfigs extends ActionBase {
 				ifexit( _Error.UnableGetSystemFiles0 , "unable to get system configuration files" , new String[] {} );
 			
 			String nodePrefix = name;
-			showConfDiffs( server , node , parentTobe , parentAsis , nodePrefix , false );
+			if( !showConfDiffs( server , node , parentTobe , parentAsis , nodePrefix , false ) )
+				ok = false;
 		}
+		
+		return( ok );
 	}
 
-	private void executeNodeConf( LocalFolder parentAsis , LocalFolder parentTobe , SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerDeployment deployment , MetaDistrConfItem confItem , String name , boolean prepare ) throws Exception {
+	private boolean executeNodeConf( LocalFolder parentAsis , LocalFolder parentTobe , SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerDeployment deployment , MetaDistrConfItem confItem , String name , boolean prepare ) throws Exception {
 		if( context.CTX_LIVE )
-			executeNodeConfLive( parentAsis , parentTobe , sourceStorage , server , node , deployment , confItem , name , prepare );
-		else
-			executeNodeConfTemplates( parentAsis , parentTobe , sourceStorage , server , node , deployment , confItem , name , prepare );
+			return( executeNodeConfLive( parentAsis , parentTobe , sourceStorage , server , node , deployment , confItem , name , prepare ) );
+		return( executeNodeConfTemplates( parentAsis , parentTobe , sourceStorage , server , node , deployment , confItem , name , prepare ) );
 	}
 
-	private void executeNodeConfLive( LocalFolder parentAsis , LocalFolder parentTobe , SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerDeployment deployment , MetaDistrConfItem confItem , String name , boolean prepare ) throws Exception {
+	private boolean executeNodeConfLive( LocalFolder parentAsis , LocalFolder parentTobe , SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerDeployment deployment , MetaDistrConfItem confItem , String name , boolean prepare ) throws Exception {
 		LocalFolder tobe = parentTobe.getSubFolder( this , name );
+		
+		boolean ok = true;
 		if( prepare ) {
 			debug( "prepare configuraton item=" + confItem.KEY + " from live ..." );
 			sourceStorage.exportLiveConfigItem( this , server , name , context.CTX_TAG , parentTobe );
@@ -158,12 +176,16 @@ public class ActionVerifyConfigs extends ActionBase {
 				ifexit( _Error.UnableGetConfigurationItem1 , "unable to get configuration item=" + confItem.KEY , new String[] { confItem.KEY } );
 			
 			String nodePrefix = "node" + node.POS + "-";
-			showConfDiffs( server , node , parentTobe , parentAsis , nodePrefix , true );
+			if( !showConfDiffs( server , node , parentTobe , parentAsis , nodePrefix , true ) )
+				ok = false;
 		}
+		return( ok );
 	}
 	
-	private void executeNodeConfTemplates( LocalFolder parentAsis , LocalFolder parentTobe , SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerDeployment deployment , MetaDistrConfItem confItem , String name , boolean prepare ) throws Exception {
+	private boolean executeNodeConfTemplates( LocalFolder parentAsis , LocalFolder parentTobe , SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerDeployment deployment , MetaDistrConfItem confItem , String name , boolean prepare ) throws Exception {
 		LocalFolder tobe = parentTobe.getSubFolder( this , name );
+		
+		boolean ok = true;
 		if( prepare ) {
 			debug( "prepare configuraton item=" + confItem.KEY + " from templates ..." );
 			
@@ -184,8 +206,10 @@ public class ActionVerifyConfigs extends ActionBase {
 				ifexit( _Error.UnableGetConfigurationItem1 , "unable to get configuration item=" + confItem.KEY , new String[] { confItem.KEY } );
 			
 			String nodePrefix = "node" + node.POS + "-";
-			showConfDiffs( server , node , parentTobe , parentAsis , nodePrefix , true );
+			if( !showConfDiffs( server , node , parentTobe , parentAsis , nodePrefix , true ) )
+				ok = false;
 		}
+		return( ok );
 	}
 
 	private boolean showConfDiffs( MetaEnvServer server , MetaEnvServerNode node , LocalFolder tobeServerFolder , LocalFolder asisServerFolder , String nodePrefix , boolean comps ) throws Exception {
@@ -215,6 +239,5 @@ public class ActionVerifyConfigs extends ActionBase {
 		
 		return( verifyNode );
 	}
-
 	
 }
