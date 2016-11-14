@@ -56,6 +56,10 @@ public class SubversionMirrorStorage extends MirrorStorage {
 			int status = shell.customGetStatus( action , "svn mkdir -m initial --non-interactive " + vcs.SVNAUTH + " " + remotePath );
 			if( status != 0 )
 				action.exit1( _Error.UnableCreateRepoFolder1 , "Unable to create repository folder " + remotePath , remotePath );
+			String pathTags = Common.getPath( remotePath , "tags" );
+			status = shell.customGetStatus( action , "svn mkdir -m initial --non-interactive " + vcs.SVNAUTH + " " + pathTags );
+			if( status != 0 )
+				action.exit1( _Error.UnableCreateRepoFolder1 , "Unable to create repository folder " + pathTags , pathTags );
 		}
 		
 		String ospath = super.getCommitOSPath();
