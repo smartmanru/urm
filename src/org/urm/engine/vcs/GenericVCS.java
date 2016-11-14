@@ -55,6 +55,7 @@ public abstract class GenericVCS {
 	
 	public abstract boolean exportRepositoryMasterPath( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String ITEMPATH , String name ) throws Exception;
 	public abstract boolean exportRepositoryTagPath( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String TAG , String ITEMPATH , String name ) throws Exception;
+	public abstract boolean isValidRepositoryMasterRootPath( ServerMirrorRepository mirror , String path ) throws Exception;
 	public abstract boolean isValidRepositoryMasterPath( ServerMirrorRepository mirror , String path ) throws Exception;
 	public abstract boolean isValidRepositoryTagPath( ServerMirrorRepository mirror , String TAG , String path ) throws Exception;
 	public abstract String getInfoMasterPath( ServerMirrorRepository mirror , String ITEMPATH ) throws Exception;

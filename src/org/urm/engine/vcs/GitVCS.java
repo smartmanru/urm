@@ -279,13 +279,28 @@ public class GitVCS extends GenericVCS {
 		return( false );
 	}
 	
-	@Override public boolean isValidRepositoryMasterPath( ServerMirrorRepository mirror , String path ) throws Exception {
+	@Override public boolean isValidRepositoryMasterRootPath( ServerMirrorRepository mirror , String path ) throws Exception {
 		GitMirrorStorage storage = getMasterMirrorStorage( mirror , null );
 		storage.refreshMirror();
 		
 		int status;
 		String OSPATH = storage.getBareOSPath();
 		String OSPATHDIR = shell.getOSPath( action , path );
+		status = shell.customGetStatus( action , "git -C " + OSPATH + " cat-file -e master:" + OSPATHDIR );
+		
+		if( status == 0 )
+			return( true );
+		
+		return( false );
+	}
+
+	@Override public boolean isValidRepositoryMasterPath( ServerMirrorRepository mirror , String path ) throws Exception {
+		GitMirrorStorage storage = getMasterMirrorStorage( mirror , null );
+		storage.refreshMirror();
+		
+		int status;
+		String OSPATH = storage.getBareOSPath();
+		String OSPATHDIR = shell.getOSPath( action , Common.getPath( mirror.RESOURCE_DATA , path ) );
 		status = shell.customGetStatus( action , "git -C " + OSPATH + " cat-file -e master:" + OSPATHDIR );
 		
 		if( status == 0 )

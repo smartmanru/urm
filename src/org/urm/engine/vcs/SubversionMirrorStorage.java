@@ -36,10 +36,10 @@ public class SubversionMirrorStorage extends MirrorStorage {
 	}
 
 	public void createLocalMirror() throws Exception {
-		if( !vcs.isValidRepositoryMasterPath( mirror , "/" ) )
+		if( !vcs.isValidRepositoryMasterRootPath( mirror , "/" ) )
 			action.exit0( _Error.UnableCheckRepositoryPath0 , "Unable to check master repository path" );
 
-		String remotePath = Common.getPath( vcs.getRepositoryPath( mirror ) , mirror.RESOURCE_DATA ); 
+		String remotePath = vcs.getRepositoryPath( mirror ); 
 		LocalFolder repoFolder = super.getRepoFolder();
 		LocalFolder dataFolder = repoFolder.getSubFolder( action , mirror.RESOURCE_DATA );
 		
@@ -48,7 +48,7 @@ public class SubversionMirrorStorage extends MirrorStorage {
 			
 		dataFolder.getParentFolder( action ).ensureExists( action );
 		
-		if( vcs.isValidRepositoryMasterPath( mirror , mirror.RESOURCE_DATA ) ) {
+		if( vcs.isValidRepositoryMasterPath( mirror , "/" ) ) {
 			if( !vcs.checkMirrorEmpty( mirror ) )
 				action.exit1( _Error.MirrorDirectoryNotEmpty1 , "Target mirror folder is not empty - " + mirror.RESOURCE_DATA , mirror.RESOURCE_DATA );
 		}
