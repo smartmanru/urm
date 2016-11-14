@@ -419,11 +419,15 @@ public class SubversionVCS extends GenericVCS {
 		shell.customCheckStatus( action , "svn mkdir --parents -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH + " " + fullPath );
 	}
 	
-	@Override public boolean commitMasterFolder( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder , String commitMessage ) throws Exception {
-		int status = shell.customGetStatus( action , Common.getPath( PATCHPATH.folderPath , masterFolder ) , "svn commit -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH );
-		if( status != 0 )
-			return( false );
-		return( true );
+	@Override public boolean commitMasterFolder( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder , String commitMessage ) {
+		try {
+			shell.customCheckErrorsDebug( action , Common.getPath( PATCHPATH.folderPath , masterFolder ) , "svn commit -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH );
+			return( true );
+		}
+		catch( Throwable e ) {
+			action.log( "commitMasterFolder" , e );
+		}
+		return( false );
 	}
 	
 	@Override public void addFileToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder , String file ) throws Exception {
