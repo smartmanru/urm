@@ -111,18 +111,18 @@ public class ActionVerifyConfigs extends ActionBase {
 
 		if( prepare ) {
 			debug( "prepare system configuraton component from live ..." );
-			sourceStorage.exportLiveConfigItem( this , server , "system-" + name , context.CTX_TAG , parentAsis );
+			sourceStorage.exportLiveConfigItem( this , server , name , context.CTX_TAG , parentAsis );
 		}
 		else {
 			info( "compare system configuraton component with live ..." );
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
-			LocalFolder asis = parentAsis.getSubFolder( this , "system-" + name );
+			LocalFolder asis = parentAsis.getSubFolder( this , name );
 			
 			if( !redist.getSysConfigs( this , asis ) )
 				ifexit( _Error.UnableGetSystemFiles0 , "unable to get system configuration files" , new String[] {} );
 			
-			String nodePrefix = "node" + node.POS + "-";
-			showConfDiffs( server , node , parentTobe , parentAsis , "system-" + nodePrefix , false );
+			String nodePrefix = name;
+			showConfDiffs( server , node , parentTobe , parentAsis , nodePrefix , false );
 		}
 	}
 
