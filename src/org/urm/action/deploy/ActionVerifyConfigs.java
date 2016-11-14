@@ -117,6 +117,7 @@ public class ActionVerifyConfigs extends ActionBase {
 			info( "compare system configuraton component with live ..." );
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 			LocalFolder asis = parentAsis.getSubFolder( this , name );
+			asis.ensureExists( this );
 			
 			if( !redist.getSysConfigs( this , asis ) )
 				ifexit( _Error.UnableGetSystemFiles0 , "unable to get system configuration files" , new String[] {} );
@@ -146,6 +147,7 @@ public class ActionVerifyConfigs extends ActionBase {
 			info( "compare configuraton item=" + confItem.KEY + " with live ..." );
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 			LocalFolder asis = parentAsis.getSubFolder( this , name );
+			asis.ensureExists( this );
 			
 			if( !redist.getConfigItem( this , asis , confItem , deployment.DEPLOYPATH ) )
 				ifexit( _Error.UnableGetConfigurationItem1 , "unable to get configuration item=" + confItem.KEY , new String[] { confItem.KEY } );
@@ -171,6 +173,7 @@ public class ActionVerifyConfigs extends ActionBase {
 			
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 			LocalFolder asis = parentAsis.getSubFolder( this , name );
+			asis.ensureExists( this );
 			
 			if( !redist.getConfigItem( this , asis , confItem , deployment.DEPLOYPATH ) )
 				ifexit( _Error.UnableGetConfigurationItem1 , "unable to get configuration item=" + confItem.KEY , new String[] { confItem.KEY } );
