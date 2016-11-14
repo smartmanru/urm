@@ -25,7 +25,7 @@ public class RuntimeStorage extends ServerStorage {
 	}
 
 	public void restoreSysConfigs( ActionBase action , RedistStorage redist , LocalFolder srcFolder ) throws Exception {
-		String msg = "restore server control configuratuion files";
+		String msg = "restore server control configuration files";
 		action.executeLogLive( action.getNodeAccount( node ) , msg );
 		if( !action.isExecute() )
 			return;
@@ -75,7 +75,7 @@ public class RuntimeStorage extends ServerStorage {
 
 	public void restoreConfigItem( ActionBase action , RedistStorage redist , LocalFolder srcFolder , MetaEnvServerDeployment deployment , MetaDistrConfItem confItem ) throws Exception {
 		String LOCATION = deployment.getDeployPath( action );
-		String msg = "restore server configuratuion files item=" + confItem.KEY + ", location=" + LOCATION;
+		String msg = "restore server configuration files item=" + confItem.KEY + ", location=" + LOCATION;
 		action.executeLogLive( action.getNodeAccount( node ) , msg );
 		if( !action.isExecute() )
 			return;
