@@ -190,7 +190,7 @@ public class ActionVerifyConfigs extends ActionBase {
 		FileSet prodSet = asisServerFolder.getFileSet( this );
 		
 		debug( "calculate diff between: " + tobeServerFolder.folderPath + " and " + asisServerFolder.folderPath + " ..." );
-		ConfDiffSet diff = new ConfDiffSet( releaseSet , prodSet , nodePrefix , comps );
+		ConfDiffSet diff = new ConfDiffSet( server.meta , releaseSet , prodSet , nodePrefix , comps );
 		diff.calculate( this , null );
 		
 		if( diff.isDifferent( this ) ) {

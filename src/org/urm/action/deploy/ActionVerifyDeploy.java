@@ -234,7 +234,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		FileSet prodSet = asisServerFolder.getFileSet( this );
 		
 		debug( "calculate diff between: " + tobeServerFolder.folderPath + " and " + asisServerFolder.folderPath + " (prefix=" + nodePrefix + ") ..." );
-		ConfDiffSet diff = new ConfDiffSet( releaseSet , prodSet , nodePrefix , true );
+		ConfDiffSet diff = new ConfDiffSet( server.meta , releaseSet , prodSet , nodePrefix , true );
 		if( !dist.prod )
 			diff.calculate( this , dist.release );
 		else
@@ -419,7 +419,7 @@ public class ActionVerifyDeploy extends ActionBase {
 				FileSet prodSet = liveFolder.getFileSet( this );
 				
 				debug( "calculate diff between: " + distFolder.folderPath + " and " + liveFolder.folderPath + " ..." );
-				ConfDiffSet diff = new ConfDiffSet( releaseSet , prodSet , "" , false );
+				ConfDiffSet diff = new ConfDiffSet( server.meta , releaseSet , prodSet , "" , false );
 				diff.calculate( this , null );
 				
 				if( diff.isDifferent( this ) ) {

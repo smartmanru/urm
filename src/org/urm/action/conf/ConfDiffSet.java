@@ -11,11 +11,13 @@ import org.urm.common.Common;
 import org.urm.engine.dist.Release;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.storage.FileSet;
+import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrConfItem;
 
 public class ConfDiffSet {
 	
+	Meta meta;
 	FileSet releaseSet;
 	FileSet prodSet;
 	String dirPrefix;
@@ -32,7 +34,8 @@ public class ConfDiffSet {
 	Map<String,MetaDistrConfItem> fileMatched;
 	Map<String,MetaDistrConfItem> topMatched;
 	
-	public ConfDiffSet( FileSet releaseSet , FileSet prodSet , String dirPrefix , boolean confComps ) {
+	public ConfDiffSet( Meta meta , FileSet releaseSet , FileSet prodSet , String dirPrefix , boolean confComps ) {
+		this.meta = meta;
 		this.releaseSet = releaseSet;
 		this.prodSet = prodSet;
 		this.dirPrefix = dirPrefix;
@@ -80,7 +83,7 @@ public class ConfDiffSet {
 		Map<String,String> dirRel = getMap( action , releaseSet.dirList );
 		Map<String,String> dirProd = getMap( action , prodSet.dirList );
 		
-		MetaDistr distr = release.meta.getDistr( action );
+		MetaDistr distr = meta.getDistr( action );
 		for( String key : releaseSet.dirList ) {
 			if( dirPrefix != null ) {
 				if( !key.startsWith( dirPrefix ) )
@@ -155,7 +158,7 @@ public class ConfDiffSet {
 		Map<String,String> fileRel = getMap( action , releaseSet.fileList );
 		Map<String,String> fileProd = getMap( action , prodSet.fileList );
 		
-		MetaDistr distr = release.meta.getDistr( action );
+		MetaDistr distr = meta.getDistr( action );
 		for( String key : fileRel.keySet() ) {
 			if( !fileProd.containsKey( key ) ) {
 				String dir = Common.getDirName( key );
