@@ -12,6 +12,7 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvDC;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerDeployment;
@@ -257,7 +258,7 @@ public class SourceStorage {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
-		String PATH = getDATALiveConfigPath( action );
+		String PATH = getDATALiveConfigEnvPath( action , action.context.env );
 		String setTAG = meta.name + "-" + action.context.env.ID + "-" + TAG;
 		
 		vcs.createMasterTag( mirror , PATH , setTAG , commitMessage );
@@ -461,8 +462,8 @@ public class SourceStorage {
 		return( PATH );
 	}
 	
-	private String getDATALiveConfigPath( ActionBase action ) throws Exception {
-		String PATH = Common.getPath( DATA_LIVE , action.context.env.ID );
+	private String getDATALiveConfigEnvPath( ActionBase action , MetaEnv env ) throws Exception {
+		String PATH = Common.getPath( DATA_LIVE , env.ID );
 		return( PATH );
 	}
 	

@@ -465,11 +465,16 @@ public class SubversionVCS extends GenericVCS {
 
 		// check destination status
 		if( checkSvnPathExists( fullPathTag ) ) {
-			action.info( "drop already existing new tag ..." );
+			action.debug( "drop already existing new tag ..." );
 			shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + fullPathTag + " -m " + Common.getQuoted( commitMessage ) );
 		}
 
-		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + fullPathSrc + " " + fullPathTag + " -m " + Common.getQuoted( commitMessage ) );
+		action.debug( "create new tag ..." );
+		String fullPathTagTarget = Common.getPath( fullPathTag , masterFolder );
+		String fullPathTagTargetDir = Common.getDirName( fullPathTagTarget );
+		
+		shell.customCheckStatus( action , "svn mkdir --parents " + SVNAUTH + " " + fullPathTagTargetDir + " " + " -m " + Common.getQuoted( commitMessage ) );
+		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + fullPathSrc + " " + fullPathTagTarget + " -m " + Common.getQuoted( commitMessage ) );
 	}
 
 	@Override

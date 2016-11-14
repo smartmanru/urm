@@ -82,6 +82,13 @@ public class Common {
 		return( path + "/" );
 	}
 	
+	public static boolean isBasenameOnly( String path ) {
+		int pos = path.lastIndexOf( "/" );
+		if( pos < 0 )
+			return( true );
+		return( false );
+	}
+	
 	public static String getDirName( String path ) {
 		int pos = path.lastIndexOf( "/" );
 		if( pos < 0 )
