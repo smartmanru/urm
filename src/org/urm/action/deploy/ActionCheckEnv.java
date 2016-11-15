@@ -237,7 +237,7 @@ public class ActionCheckEnv extends ActionBase {
 				continue;
 			
 			for( MetaDistrComponentWS ws : deployment.comp.getWebServices() ) {
-				String URL = "http://" + ACCESSPOINT + "/" + ws.URL + "?wsdl";
+				String URL = ACCESSPOINT + "/" + ws.URL + "?wsdl";
 				if( !checkOneServerWholeUrl( URL , "web service" , nodeStatus , serverStatus ) ) {
 					ok = false;
 					S_CHECKENV_SERVER_COMPS_FAILED = Common.addItemToUniqueSpacedList( S_CHECKENV_SERVER_COMPS_FAILED , deployment.comp.NAME );
