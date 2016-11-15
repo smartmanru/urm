@@ -205,6 +205,8 @@ public class ActionCheckEnv extends ActionBase {
 	}
 	
 	private boolean checkOneServerWholeUrl( String URL , String role , NodeStatus nodeStatus , ServerStatus serverStatus ) throws Exception {
+		super.trace( role + ": check url=" + URL + " ..." );
+		
 		boolean res = SimpleHttp.check( this , URL );
 		String ok = ( res )? "OK" : "FAILED";
 		String msg = "check " + role + " " + URL + ": " + ok; 
