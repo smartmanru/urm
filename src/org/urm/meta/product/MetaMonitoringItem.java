@@ -32,6 +32,12 @@ public class MetaMonitoringItem {
 		monitorUrl = true;
 	}
 
+	public void setUrlItem( ActionBase action , String URL ) throws Exception {
+		monitorUrl = true;
+		this.URL = URL;
+		this.NAME = URL;
+	}
+	
 	private String getNodeSubTree( ActionBase action , Node node , String name ) throws Exception {
 		Node parent = ConfReader.xmlGetFirstChild( node , name );
 		if( parent == null )

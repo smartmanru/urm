@@ -16,6 +16,11 @@ import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerProductMeta;
 import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistrComponentWS;
+import org.urm.meta.product.MetaEnv;
+import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerDeployment;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringItem;
 import org.urm.meta.product.MetaMonitoringTarget;
@@ -220,6 +225,10 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 	private void checkTargetItems( MetaMonitoring mon , MonitorInfo info , MetaMonitoringTarget target ) throws Exception {
 		ActionSet set = new ActionSet( this , "minor" );
 		
+		// system
+		addSystemTargetItems( mon , info , target , set );
+		
+		// direct
 		for( MetaMonitoringItem item : target.getUrlsList( this ) ) {
 			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , mon , item );
 			set.runSimple( action );
@@ -235,6 +244,39 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 			super.fail1( _Error.MonitorTargetFailed1 , "Monitoring target failed name=" + target.NAME , target.NAME );
 		
 		info.addCheckMinorsData( target , ok );
+	}
+
+	private void addSystemTargetItems( MetaMonitoring mon , MonitorInfo info , MetaMonitoringTarget target , ActionSet set ) throws Exception {
+		Meta meta = target.meta;
+		MetaEnv env = meta.getEnv( this , target.ENV );
+		MetaEnvDC dc = env.getDC( this , target.DC );
+		for( MetaEnvServer server : dc.getServers() ) {
+			if( !server.isOffline() )
+				addSystemServerItems( mon , info , target , set , server );
+		}
+	}
+
+	private void addSystemServerItems( MetaMonitoring mon , MonitorInfo info , MetaMonitoringTarget target , ActionSet set , MetaEnvServer server ) throws Exception {
+		if( server.isWebUser() ) {
+			MetaMonitoringItem item = new MetaMonitoringItem( target.meta , target );
+			item.setUrlItem( this , server.WEBMAINURL );
+			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , mon , item );
+			set.runSimple( action );
+		}
+		else
+		if( server.isWebApp() ) {
+			for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
+				if( deployment.comp != null ) {
+					for( MetaDistrComponentWS ws : deployment.comp.getWebServices() ) {
+						String URL = server.WEBSERVICEURL + "/" + ws.URL + "?wsdl";
+						MetaMonitoringItem item = new MetaMonitoringItem( target.meta , target );
+						item.setUrlItem( this , URL );
+						ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , mon , item );
+						set.runSimple( action );
+					}
+				}
+			}
+		}
 	}
 	
 }
