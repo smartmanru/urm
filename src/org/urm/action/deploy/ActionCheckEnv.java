@@ -365,7 +365,7 @@ public class ActionCheckEnv extends ActionBase {
 	}
 	
 	private boolean checkOneServerNodeComps( MetaEnvServer server , MetaEnvServerNode node , NodeStatus state ) throws Exception {
-		String ACCESSPOINT = node.getAccessPoint( this );
+		String ACCESSPOINT = "http://" + node.getAccessPoint( this );
 		return( checkOneServerWebServices( server , ACCESSPOINT , state , null ) );
 	}
 	
