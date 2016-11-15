@@ -396,7 +396,7 @@ public class MetaEnvServer extends PropertyController {
 	public boolean hasWebServices( ActionBase action ) throws Exception {
 		for( MetaEnvServerDeployment deploy : deployments ) {
 			if( deploy.comp != null )
-				if( deploy.comp.hasWebServices( action ) )
+				if( deploy.comp.hasWebServices() )
 					return( true );
 		}
 		return( false );

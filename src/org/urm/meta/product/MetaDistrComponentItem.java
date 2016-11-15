@@ -4,7 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerTransaction;
-import org.urm.meta.product.Meta.VarDEPLOYITEMTYPENOCOMP;
+import org.urm.meta.product.Meta.VarCOMPITEMTYPE;
 import org.urm.meta.product.Meta.VarNAMETYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -15,7 +15,7 @@ public class MetaDistrComponentItem {
 	public Meta meta;
 	public MetaDistrComponent comp;
 	
-	public VarDEPLOYITEMTYPENOCOMP type;
+	public VarCOMPITEMTYPE type;
 	public String NAME;
 	public MetaDistrBinaryItem binaryItem;
 	public MetaDistrConfItem confItem;
@@ -29,28 +29,28 @@ public class MetaDistrComponentItem {
 	}
 
 	public void createComponentItem( ServerTransaction transaction ) throws Exception {
-		this.type = VarDEPLOYITEMTYPENOCOMP.UNKNOWN;
+		this.type = VarCOMPITEMTYPE.UNKNOWN;
 		this.NAME = "";
 		this.OBSOLETE = false;
 		this.DEPLOYNAME = "";
 	}
 
 	public void setBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem binaryItem , String DEPLOYNAME ) throws Exception {
-		this.type = VarDEPLOYITEMTYPENOCOMP.BINARY;
+		this.type = VarCOMPITEMTYPE.BINARY;
 		this.binaryItem = binaryItem;
 		this.NAME = binaryItem.KEY;
 		this.DEPLOYNAME = DEPLOYNAME;
 	}
 	
 	public void setConfItem( ServerTransaction transaction , MetaDistrConfItem confItem ) throws Exception {
-		this.type = VarDEPLOYITEMTYPENOCOMP.CONF;
+		this.type = VarCOMPITEMTYPE.CONF;
 		this.confItem = confItem;
 		this.NAME = confItem.KEY;
 		this.DEPLOYNAME = "";
 	}
 	
 	public void setSchema( ServerTransaction transaction , MetaDatabaseSchema schema , String DEPLOYNAME ) throws Exception {
-		this.type = VarDEPLOYITEMTYPENOCOMP.SCHEMA;
+		this.type = VarCOMPITEMTYPE.SCHEMA;
 		this.schema = schema;
 		this.NAME = schema.SCHEMA;
 		this.DEPLOYNAME = DEPLOYNAME;
@@ -83,7 +83,7 @@ public class MetaDistrComponentItem {
 	
 	public void loadBinary( ActionBase action , Node node ) throws Exception {
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
-		type = VarDEPLOYITEMTYPENOCOMP.BINARY;
+		type = VarCOMPITEMTYPE.BINARY;
 		binaryItem = comp.dist.getBinaryItem( action , NAME );
 		OBSOLETE = ConfReader.getBooleanAttrValue( node , "obsolete" , false );
 		DEPLOYNAME = ConfReader.getAttrValue( node , "deployname" );
@@ -91,7 +91,7 @@ public class MetaDistrComponentItem {
 
 	public void loadConf( ActionBase action , Node node ) throws Exception {
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
-		type = VarDEPLOYITEMTYPENOCOMP.CONF;
+		type = VarCOMPITEMTYPE.CONF;
 		confItem = comp.dist.getConfItem( action , NAME );
 		OBSOLETE = ConfReader.getBooleanAttrValue( node , "obsolete" , false );
 	}
@@ -100,7 +100,7 @@ public class MetaDistrComponentItem {
 		NAME = ConfReader.getRequiredAttrValue( node , "schema" );
 		
 		MetaDatabase database = meta.getDatabase( action );
-		type = VarDEPLOYITEMTYPENOCOMP.SCHEMA;
+		type = VarCOMPITEMTYPE.SCHEMA;
 		schema = database.getSchema( action , NAME );
 		DEPLOYNAME = ConfReader.getAttrValue( node , "deployname" );
 	}

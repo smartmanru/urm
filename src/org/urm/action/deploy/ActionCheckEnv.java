@@ -236,7 +236,7 @@ public class ActionCheckEnv extends ActionBase {
 			if( deployment.comp == null )
 				continue;
 			
-			for( MetaDistrComponentWS ws : deployment.comp.getWebServices( this ) ) {
+			for( MetaDistrComponentWS ws : deployment.comp.getWebServices() ) {
 				String URL = "http://" + ACCESSPOINT + "/" + ws.URL + "?wsdl";
 				if( !checkOneServerWholeUrl( URL , "web service" , nodeStatus , serverStatus ) ) {
 					ok = false;

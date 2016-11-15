@@ -1,8 +1,6 @@
 package org.urm.meta.product;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -10,7 +8,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerTransaction;
-import org.urm.meta.product.Meta.VarDEPLOYITEMTYPENOCOMP;
+import org.urm.meta.product.Meta.VarCOMPITEMTYPE;
 import org.urm.meta.product.Meta.VarNAMETYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -28,7 +26,7 @@ public class MetaDistrComponent {
 	private Map<String,MetaDistrComponentItem> mapBinaryItems;
 	private Map<String,MetaDistrComponentItem> mapConfItems;
 	private Map<String,MetaDistrComponentItem> mapSchemaItems;
-	private List<MetaDistrComponentWS> listWS;
+	private Map<String,MetaDistrComponentWS> mapWS;
 	
 	public MetaDistrComponent( Meta meta , MetaDistr dist ) {
 		this.meta = meta;
@@ -37,7 +35,7 @@ public class MetaDistrComponent {
 		mapBinaryItems = new HashMap<String,MetaDistrComponentItem>();
 		mapConfItems = new HashMap<String,MetaDistrComponentItem>();
 		mapSchemaItems = new HashMap<String,MetaDistrComponentItem>();
-		listWS = new LinkedList<MetaDistrComponentWS>();
+		mapWS = new HashMap<String,MetaDistrComponentWS>();
 	}
 
 	public void createComponent( ServerTransaction transaction , String name ) throws Exception {
@@ -69,9 +67,9 @@ public class MetaDistrComponent {
 			r.mapSchemaItems.put( ritem.schema.SCHEMA , ritem );
 		}
 
-		for( MetaDistrComponentWS item : listWS ) {
+		for( MetaDistrComponentWS item : mapWS.values() ) {
 			MetaDistrComponentWS ritem = item.copy( action , meta , r );
-			r.listWS.add( ritem );
+			r.mapWS.put( ritem.NAME , ritem );
 		}
 		
 		return( r );
@@ -116,7 +114,7 @@ public class MetaDistrComponent {
 		for( Node itemNode : items ) {
 			MetaDistrComponentWS item = new MetaDistrComponentWS( meta , this );
 			item.load( action , itemNode );
-			listWS.add( item );
+			mapWS.put( item.NAME , item );
 		}
 	}
 	
@@ -140,20 +138,20 @@ public class MetaDistrComponent {
 			item.save( action , doc , itemElement );
 		}
 
-		for( MetaDistrComponentWS item : listWS ) {
+		for( MetaDistrComponentWS item : mapWS.values() ) {
 			Element itemElement = Common.xmlCreateElement( doc , root , "webservice" );
 			item.save( action , doc , itemElement );
 		}
 	}	
 	
-	public boolean hasWebServices( ActionBase action ) throws Exception {
-		if( listWS.isEmpty() )
+	public boolean hasWebServices() throws Exception {
+		if( mapWS.isEmpty() )
 			return( false );
 		return( true );
 	}
 
-	public List<MetaDistrComponentWS> getWebServices( ActionBase action ) throws Exception {
-		return( listWS );
+	public MetaDistrComponentWS[] getWebServices() {
+		return( mapWS.values().toArray( new MetaDistrComponentWS[0] ) );
 	}
 
 	public boolean hasBinaryItems() {
@@ -225,6 +223,17 @@ public class MetaDistrComponent {
 		return( item );
 	}
 
+	public MetaDistrComponentWS findWebService( String name ) {
+		return( mapWS.get( name ) );
+	}
+	
+	public MetaDistrComponentWS getWebService( ActionBase action , String name ) throws Exception {
+		MetaDistrComponentWS service = mapWS.get( name );
+		if( service == null )
+			action.exit1( _Error.UnknownCompWebService1 , "Unknown component web service=" + name , name );
+		return( service );
+	}
+	
 	public void removeCompItem( ServerTransaction transaction , MetaDistrComponentItem item ) throws Exception {
 		if( item.binaryItem != null )
 			mapBinaryItems.remove( item.binaryItem.KEY );
@@ -237,13 +246,13 @@ public class MetaDistrComponent {
 	}
 
 	public void createItem( ServerTransaction transaction , MetaDistrComponentItem item ) throws Exception {
-		if( item.type == VarDEPLOYITEMTYPENOCOMP.BINARY )
+		if( item.type == VarCOMPITEMTYPE.BINARY )
 			mapBinaryItems.put( item.NAME , item );
 		else
-		if( item.type == VarDEPLOYITEMTYPENOCOMP.CONF )
+		if( item.type == VarCOMPITEMTYPE.CONF )
 			mapConfItems.put( item.NAME , item );
 		else
-		if( item.type == VarDEPLOYITEMTYPENOCOMP.SCHEMA )
+		if( item.type == VarCOMPITEMTYPE.SCHEMA )
 			mapSchemaItems.put( item.NAME , item );
 	}
 
@@ -275,6 +284,24 @@ public class MetaDistrComponent {
 
 	public void deleteItem( ServerTransaction transaction , MetaDistrComponentItem item ) throws Exception {
 		removeCompItem( transaction , item );
+	}
+
+	public void createWebService( ServerTransaction transaction , MetaDistrComponentWS service ) throws Exception {
+		mapWS.put( service.NAME , service );
+	}
+	
+	public void modifyWebService( ServerTransaction transaction , MetaDistrComponentWS service ) throws Exception {
+		for( Entry<String,MetaDistrComponentWS> entry : mapWS.entrySet() ) {
+			if( entry.getValue() == service ) {
+				mapWS.remove( entry.getKey() );
+				break;
+			}
+		}
+		mapWS.put( service.NAME , service );
+	}
+
+	public void deleteWebService( ServerTransaction transaction , MetaDistrComponentWS service ) throws Exception {
+		mapWS.remove( service.NAME );
 	}
 	
 }

@@ -24,6 +24,7 @@ import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
+import org.urm.meta.product.MetaDistrComponentWS;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaEnv;
@@ -548,6 +549,21 @@ public class ServerTransaction extends TransactionBase {
 	public void deleteDistrComponentItem( MetaDistrComponentItem item ) throws Exception {
 		checkTransactionMetadata( item.meta.getStorage( action ) );
 		item.comp.deleteItem( this , item );
+	}
+
+	public void createDistrComponentService( MetaDistrComponent comp , MetaDistrComponentWS service ) throws Exception {
+		checkTransactionMetadata( service.meta.getStorage( action ) );
+		service.comp.createWebService( this , service );
+	}
+	
+	public void modifyDistrComponentService( MetaDistrComponentWS service ) throws Exception {
+		checkTransactionMetadata( service.meta.getStorage( action ) );
+		service.comp.modifyWebService( this , service );
+	}
+
+	public void deleteDistrComponentService( MetaDistrComponentWS service ) throws Exception {
+		checkTransactionMetadata( service.meta.getStorage( action ) );
+		service.comp.deleteWebService( this , service );
 	}
 
 	public void setDeliveryDatabase( MetaDistrDelivery delivery , List<MetaDatabaseSchema> set ) throws Exception {
