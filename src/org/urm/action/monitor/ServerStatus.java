@@ -1,4 +1,4 @@
-package org.urm.action.deploy;
+package org.urm.action.monitor;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -13,22 +13,19 @@ import org.urm.meta.engine.WholeUrlFailed;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 
-public class ServerStatus extends ScopeState {
+public class ServerStatus extends MonitorStatus {
 
-	public MONITORING_STATE itemState;
 	public boolean nodeFailed;
 	public boolean roleFailed;
 	public boolean wholeUrlFailed;
 	public boolean databaseFailed;
 
-	String[] log;
 	List<NodeStatus> nodes;
 	List<RoleItemFailed> roles;
 	List<WholeUrlFailed> wholeUrls;
 	
 	public ServerStatus( ActionCore action , MetaEnvServer server ) {
 		super( action , server );
-		itemState = MONITORING_STATE.MONITORING_NEVERQUERIED;
 		nodeFailed = false;
 		roleFailed = false;
 		wholeUrlFailed = false;
@@ -40,7 +37,6 @@ public class ServerStatus extends ScopeState {
 
 	public ServerStatus( ScopeState parent , ActionScopeTarget item ) {
 		super( parent , item );
-		itemState = MONITORING_STATE.MONITORING_NEVERQUERIED;
 		nodeFailed = false;
 		roleFailed = false;
 		wholeUrlFailed = false;
@@ -48,22 +44,6 @@ public class ServerStatus extends ScopeState {
 		nodes = new LinkedList<NodeStatus>(); 
 		roles = new LinkedList<RoleItemFailed>();
 		wholeUrls = new LinkedList<WholeUrlFailed>();
-	}
-
-	public boolean isHealthy() {
-		if( itemState == MONITORING_STATE.MONITORING_HEALTHY )
-			return( true );
-		return( false );
-	}
-
-	public boolean isFailed() {
-		if( itemState == MONITORING_STATE.MONITORING_ERRORS_ALERTS ||
-			itemState == MONITORING_STATE.MONITORING_ERRORS_FATAL ||
-			itemState == MONITORING_STATE.MONITORING_STOPPED ||
-			itemState == MONITORING_STATE.MONITORING_UNABLE_GETSTATE ||
-			itemState == MONITORING_STATE.MONITORING_UNKNOWN )
-			return( true );
-		return( false );
 	}
 
 	public void addNodeStatus( NodeStatus status ) {
@@ -100,14 +80,6 @@ public class ServerStatus extends ScopeState {
 			databaseFailed = true;
 			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.MONITORING_ERRORS_ALERTS );
 		}
-	}
-	
-	public void setLog( String[] log ) {
-		this.log = log;
-	}
-	
-	public String[] getLog() {
-		return( log );
 	}
 	
 }

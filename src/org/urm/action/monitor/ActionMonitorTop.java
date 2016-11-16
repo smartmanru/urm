@@ -11,7 +11,6 @@ import org.urm.action.ActionSet;
 import org.urm.action.ActionSetItem;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
-import org.urm.action.deploy.ServerStatus;
 import org.urm.engine.ServerEventsApp;
 import org.urm.engine.ServerEventsListener;
 import org.urm.engine.ServerEventsSubscription;
@@ -316,9 +315,9 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 		for( Entry<MetaEnvServer,ServerStatus> entry : data.entrySet() )
 			super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORING_SERVERITEMS , entry.getValue() );
 
-		ScopeState dcState = new ScopeState( this , dc );
-		dcState.setActionStatus( totalStatus );
-		super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORING_DCITEMS , dcState );
+		DatacenterStatus dcStatus = new DatacenterStatus( this , dc );
+		dcStatus.setActionStatus( totalStatus );
+		super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORING_DCITEMS , dcStatus );
 	}
 	
 }

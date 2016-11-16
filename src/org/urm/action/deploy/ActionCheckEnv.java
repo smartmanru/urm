@@ -8,6 +8,8 @@ import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.database.DatabaseClient;
+import org.urm.action.monitor.NodeStatus;
+import org.urm.action.monitor.ServerStatus;
 import org.urm.common.Common;
 import org.urm.common.SimpleHttp;
 import org.urm.meta.engine.ServerMonitoring;

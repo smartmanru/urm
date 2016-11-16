@@ -1,4 +1,4 @@
-package org.urm.action.deploy;
+package org.urm.action.monitor;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -11,9 +11,8 @@ import org.urm.meta.engine.ServerMonitoringState.MONITORING_STATE;
 import org.urm.meta.product.Meta.VarPROCESSMODE;
 import org.urm.meta.product.MetaEnvServer;
 
-public class NodeStatus extends ScopeState {
+public class NodeStatus extends MonitorStatus {
 
-	public MONITORING_STATE itemState;
 	public MONITORING_STATE mainState;
 	public VarPROCESSMODE mode;
 	public MetaEnvServer proxy;
@@ -26,33 +25,15 @@ public class NodeStatus extends ScopeState {
 	public boolean proxyFailed;
 	public boolean wholeUrlFailed;
 
-	String[] log;
-	
 	public NodeStatus( ScopeState parent , ActionScopeTargetItem item ) {
 		super( parent , item );
-		itemState = mainState = MONITORING_STATE.MONITORING_NEVERQUERIED;
+		mainState = MONITORING_STATE.MONITORING_NEVERQUERIED;
 		manual = false;
 		compFailed = false;
 		processFailed = false;
 		proxyFailed = false;
 		wholeUrlFailed = false;
 		wholeUrls = new LinkedList<WholeUrlFailed>();
-	}
-
-	public boolean isHealthy() {
-		if( itemState == MONITORING_STATE.MONITORING_HEALTHY )
-			return( true );
-		return( false );
-	}
-
-	public boolean isFailed() {
-		if( itemState == MONITORING_STATE.MONITORING_ERRORS_ALERTS ||
-			itemState == MONITORING_STATE.MONITORING_ERRORS_FATAL ||
-			itemState == MONITORING_STATE.MONITORING_STOPPED ||
-			itemState == MONITORING_STATE.MONITORING_UNABLE_GETSTATE ||
-			itemState == MONITORING_STATE.MONITORING_UNKNOWN )
-			return( true );
-		return( false );
 	}
 
 	public void setSkipManual() {
@@ -106,14 +87,6 @@ public class NodeStatus extends ScopeState {
 		}
 		else
 			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.MONITORING_HEALTHY );
-	}
-	
-	public void setLog( String[] log ) {
-		this.log = log;
-	}
-	
-	public String[] getLog() {
-		return( log );
 	}
 	
 }

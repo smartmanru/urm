@@ -1,5 +1,8 @@
 package org.urm.meta.engine;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.ServerEventsSource;
 import org.urm.engine.ServerEventsState;
@@ -11,8 +14,9 @@ public class ServerMonitoringSource extends ServerEventsSource {
 	public ServerMonitoring mon;
 	public int level;
 	public ServerObject object;
-	public ServerMonitoringState data;
-	public String[] log;
+	public ServerMonitoringState state;
+	private ServerMonitoringState primary;
+	private Map<String,ServerMonitoringState> extra;
 
 	public ServerMonitoringSource( ServerMonitoring mon , ServerObject object , int level , String name ) {
 		super( mon.events , name );
@@ -20,12 +24,14 @@ public class ServerMonitoringSource extends ServerEventsSource {
 		this.object = object;
 		this.level = level;
 		
-		data = new ServerMonitoringState( this );
+		state = new ServerMonitoringState( this );
+		primary = new ServerMonitoringState( this );
+		extra= new HashMap<String,ServerMonitoringState>(); 
 	}
 	
 	@Override
 	public ServerEventsState getState() {
-		return( data );
+		return( state );
 	}
 
 	public void setObject( ServerObject object ) {
@@ -33,7 +39,9 @@ public class ServerMonitoringSource extends ServerEventsSource {
 	}
 	
 	public void clearState() {
-		data.setState( MONITORING_STATE.MONITORING_NOMONITORING );
+		state.setState( MONITORING_STATE.MONITORING_NOMONITORING );
+		primary.setState( MONITORING_STATE.MONITORING_NOMONITORING );
+		extra.clear();
 	}
 	
 	public boolean setState( SCOPESTATE state ) {
@@ -42,33 +50,66 @@ public class ServerMonitoringSource extends ServerEventsSource {
 	}
 	
 	public boolean setState( MONITORING_STATE newState ) {
-		if( newState != data.state ) {
-			data.setState( newState );
-			super.trigger( ServerMonitoring.EVENT_MONITORSTATECHANGED , data );
-			return( true );
-		}
-		
-		return( false );
+		if( primary.state == newState )
+			return( false );
+
+		primary.setState( newState );
+		return( updateFinalState() );
 	}
 	
-	public boolean addState( SCOPESTATE state ) {
-		MONITORING_STATE addState = ServerMonitoringState.getState( state );
-		MONITORING_STATE newState = ServerMonitoringState.addState( data.state , addState );
-		if( newState != data.state ) {
-			data.setState( newState );
-			super.trigger( ServerMonitoring.EVENT_MONITORCHILDCHANGED , data );
+	private boolean updateFinalState() {
+		MONITORING_STATE finalState = getFinalState();
+		
+		if( finalState != state.state ) {
+			state.setState( finalState );
+			super.trigger( ServerMonitoring.EVENT_MONITORSTATECHANGED , state );
 			return( true );
 		}
 		
 		return( false );
 	}
 
-	public void setLog( String[] log ) {
-		this.log = log;
+	public synchronized ServerMonitoringState getExtraState( String key ) {
+		ServerMonitoringState extraState = extra.get( key );
+		if( extraState == null ) {
+			extraState = new ServerMonitoringState( this );
+			extra.put( key , extraState );
+		}
+		return( extraState );
+	}
+	
+	public boolean setExtraState( String key , MONITORING_STATE newState ) {
+		ServerMonitoringState extraState = getExtraState( key );
+		if( extraState.state == newState )
+			return( false );
+
+		extraState.setState( newState );
+		return( updateFinalState() );
+	}
+	
+	private MONITORING_STATE getFinalState() {
+		MONITORING_STATE state = primary.state;
+		for( ServerMonitoringState extraState : extra.values() )
+			state = ServerMonitoringState.addState( extraState.state , state );
+		return( state );
+	}
+	
+	public void setPrimaryLog( String[] log ) {
+		primary.setLog( log );
 	}
 
-	public String[] getLog() {
-		return( log );
+	public void setExtraLog( String key , String[] log ) {
+		ServerMonitoringState extraState = getExtraState( key );
+		extraState.setLog( log );
+	}
+
+	public String[] getPrimaryLog() {
+		return( primary.log );
+	}
+
+	public String[] getExtraLog( String key ) {
+		ServerMonitoringState extraState = getExtraState( key );
+		return( extraState.log );
 	}
 
 	public void customEvent( int eventType , Object data ) {

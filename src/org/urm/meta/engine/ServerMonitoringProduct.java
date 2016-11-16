@@ -2,9 +2,10 @@ package org.urm.meta.engine;
 
 import org.urm.action.ActionEventsSource;
 import org.urm.action.ScopeState;
-import org.urm.action.deploy.NodeStatus;
-import org.urm.action.deploy.ServerStatus;
 import org.urm.action.monitor.ActionMonitorTop;
+import org.urm.action.monitor.DatacenterStatus;
+import org.urm.action.monitor.NodeStatus;
+import org.urm.action.monitor.ServerStatus;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.ServerEventsApp;
 import org.urm.engine.ServerEventsListener;
@@ -32,6 +33,9 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	
 	ActionMonitorTop ca;
 	ServerEventsApp eventsApp;
+
+	public static String EXTRA_DATACENTER_ITEMS = "dcitems";
+	public static String EXTRA_SERVER_ITEMS = "serveritems";
 	
 	public ServerMonitoringProduct( ServerMonitoring monitoring , String productName , ServerMonitoringSource source , ServerEventsApp eventsApp ) {
 		this.monitoring = monitoring;
@@ -66,13 +70,13 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	public void triggerEvent( ServerSourceEvent event ) {
 		if( event.eventType == ServerMonitoring.EVENT_MONITORING_DCITEMS ) {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
-			ScopeState state = ( ScopeState )event.data;
-			MetaEnvDC dc = state.dc;
+			DatacenterStatus status = ( DatacenterStatus )event.data;
+			MetaEnvDC dc = status.dc;
 			ServerMonitoringSource dcSource = monitoring.getObjectSource( dc );
 			if( dcSource == null )
 				return;
 			
-			processDatacenterItemsEvent( source , dcSource , dc , state );
+			processDatacenterItemsEvent( source , dcSource , dc , status );
 			return;
 		}
 		
@@ -157,11 +161,12 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		recalculateSystem( product.system );
 	}
 
-	private void processDatacenterItemsEvent( ActionEventsSource source , ServerMonitoringSource dcSource , MetaEnvDC dc , ScopeState state ) {
+	private void processDatacenterItemsEvent( ActionEventsSource source , ServerMonitoringSource dcSource , MetaEnvDC dc , DatacenterStatus status ) {
 		if( stopping )
 			return;
 
-		if( dcSource.setState( state.state ) ) {
+		dcSource.setExtraLog( EXTRA_DATACENTER_ITEMS , status.getLog() );
+		if( dcSource.setExtraState( EXTRA_DATACENTER_ITEMS , status.itemState ) ) {
 			MetaEnv env = dc.env;
 			recalculateEnv( env );
 		}
@@ -171,7 +176,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		if( stopping )
 			return;
 
-		serverSource.setLog( status.getLog() );
+		serverSource.setPrimaryLog( status.getLog() );
 		if( serverSource.setState( status.itemState ) ) {
 			MetaEnvDC dc = server.dc;
 			recalculateDatacenter( dc );
@@ -182,7 +187,8 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		if( stopping )
 			return;
 
-		if( serverSource.setState( status.itemState ) ) {
+		serverSource.setExtraLog( EXTRA_SERVER_ITEMS , status.getLog() );
+		if( serverSource.setExtraState( EXTRA_SERVER_ITEMS , status.itemState ) ) {
 			MetaEnvDC dc = server.dc;
 			recalculateDatacenter( dc );
 		}
@@ -192,7 +198,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		if( stopping )
 			return;
 
-		nodeSource.setLog( status.getLog() );
+		nodeSource.setPrimaryLog( status.getLog() );
 		if( nodeSource.setState( status.itemState ) ) {
 			MetaEnvServer server = node.server;
 			recalculateServer( server );
@@ -208,7 +214,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		for( MetaEnvServerNode node : server.getNodes() ) {
 			ServerMonitoringSource nodeSource = monitoring.getObjectSource( node );
 			if( nodeSource != null )
-				finalState = ServerMonitoringState.addState( finalState , nodeSource.data.state );
+				finalState = ServerMonitoringState.addState( finalState , nodeSource.state.state );
 		}
 		
 		if( serverSource.setState( finalState ) ) {
@@ -226,7 +232,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		for( MetaEnvServer server : dc.getServers() ) {
 			ServerMonitoringSource serverSource = monitoring.getObjectSource( server );
 			if( serverSource != null )
-				finalState = ServerMonitoringState.addState( finalState , serverSource.data.state );
+				finalState = ServerMonitoringState.addState( finalState , serverSource.state.state );
 		}
 		
 		if( dcSource.setState( finalState ) ) {
@@ -244,7 +250,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		for( MetaEnvDC dc : env.getDatacenters() ) {
 			ServerMonitoringSource dcSource = monitoring.getObjectSource( dc );
 			if( dcSource != null )
-				finalState = ServerMonitoringState.addState( finalState , dcSource.data.state );
+				finalState = ServerMonitoringState.addState( finalState , dcSource.state.state );
 		}
 		
 		if( envSource.setState( finalState ) ) {
@@ -267,7 +273,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			MetaEnv env = meta.findEnv( envName );
 			ServerMonitoringSource envSource = monitoring.getObjectSource( env );
 			if( envSource != null )
-				finalState = ServerMonitoringState.addState( finalState , envSource.data.state );
+				finalState = ServerMonitoringState.addState( finalState , envSource.state.state );
 		}
 		
 		if( productSource.setState( finalState ) ) {
@@ -286,7 +292,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			ServerProduct product = system.getProduct( productName );
 			ServerMonitoringSource productSource = monitoring.getObjectSource( product );
 			if( productSource != null )
-				finalState = ServerMonitoringState.addState( finalState , productSource.data.state );
+				finalState = ServerMonitoringState.addState( finalState , productSource.state.state );
 		}
 		
 		if( systemSource.setState( finalState ) )
@@ -303,7 +309,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			ServerSystem system = directory.findSystem( systemName );
 			ServerMonitoringSource systemSource = monitoring.getObjectSource( system );
 			if( systemSource != null )
-				finalState = ServerMonitoringState.addState( finalState , systemSource.data.state );
+				finalState = ServerMonitoringState.addState( finalState , systemSource.state.state );
 		}
 		
 		appSource.setState( finalState );

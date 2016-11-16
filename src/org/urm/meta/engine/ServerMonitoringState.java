@@ -18,6 +18,7 @@ public class ServerMonitoringState extends ServerEventsState {
 	
 	public ServerMonitoringSource monitoringSource;
 	public MONITORING_STATE state;
+	public String[] log;
 	
 	public ServerMonitoringState( ServerMonitoringSource source ) {
 		super( source , 0 );
@@ -102,5 +103,9 @@ public class ServerMonitoringState extends ServerEventsState {
 			return( MONITORING_STATE.MONITORING_ERRORS_ALERTS );
 		return( MONITORING_STATE.MONITORING_HEALTHY );
 	}
-	
+
+	public void setLog( String[] log ) {
+		this.log = log;
+	}
+		
 }
