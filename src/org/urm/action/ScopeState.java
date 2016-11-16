@@ -6,6 +6,7 @@ import java.util.List;
 import org.urm.engine.shell.Account;
 import org.urm.meta.product.MetaEnvDC;
 import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
 
 public class ScopeState {
 
@@ -16,7 +17,8 @@ public class ScopeState {
 		TypeItem ,
 		TypeAccount ,
 		TypeMonTarget ,
-		TypeServer
+		TypeServer ,
+		TypeServerNode
 	};
 	
 	public enum SCOPESTATE {
@@ -38,6 +40,7 @@ public class ScopeState {
 	public Account account;
 	public MetaEnvDC dc;
 	public MetaEnvServer server;
+	public MetaEnvServerNode node;
 	public SCOPESTATE state;
 	
 	List<ScopeState> childs;
@@ -93,6 +96,14 @@ public class ScopeState {
 		this.scope = null;
 		this.set = null;
 		this.server = server;
+		create( action , null );
+	}
+
+	public ScopeState( ActionCore action , MetaEnvServerNode node ) {
+		this.type = SCOPETYPE.TypeServerNode;
+		this.scope = null;
+		this.set = null;
+		this.node = node;
 		create( action , null );
 	}
 

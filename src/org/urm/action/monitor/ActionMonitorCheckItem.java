@@ -140,4 +140,11 @@ public class ActionMonitorCheckItem extends ActionBase {
 		return( serverItems.toArray( new MetaMonitoringItem[0] ) );
 	}
 	
+	public MetaMonitoringItem[] getNodeItems( MetaEnvServerNode node ) {
+		List<MetaMonitoringItem> items = nodeItems.get( node );
+		if( items == null )
+			return( new MetaMonitoringItem[0] );
+		return( items.toArray( new MetaMonitoringItem[0] ) );
+	}
+	
 }

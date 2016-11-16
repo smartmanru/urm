@@ -3,6 +3,7 @@ package org.urm.action.monitor;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.urm.action.ActionCore;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.ScopeState;
 import org.urm.meta.engine.ServerMonitoringState;
@@ -10,6 +11,7 @@ import org.urm.meta.engine.WholeUrlFailed;
 import org.urm.meta.engine.ServerMonitoringState.MONITORING_STATE;
 import org.urm.meta.product.Meta.VarPROCESSMODE;
 import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
 
 public class NodeStatus extends MonitorStatus {
 
@@ -25,8 +27,17 @@ public class NodeStatus extends MonitorStatus {
 	public boolean proxyFailed;
 	public boolean wholeUrlFailed;
 
+	public NodeStatus( ActionCore action , MetaEnvServerNode node ) {
+		super( action , node );
+		create();
+	}
+	
 	public NodeStatus( ScopeState parent , ActionScopeTargetItem item ) {
 		super( parent , item );
+		create();
+	}
+	
+	private void create() {
 		mainState = MONITORING_STATE.STATE_NEVERQUERIED;
 		manual = false;
 		compFailed = false;

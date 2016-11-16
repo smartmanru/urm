@@ -60,8 +60,9 @@ public class ServerMonitoring extends ServerObject {
 	public static int EVENT_MONITORGRAPHCHANGED = 13;
 	public static int EVENT_MONITORING_SERVER = 51;
 	public static int EVENT_MONITORING_NODE = 52;
+	public static int EVENT_MONITORING_DCITEMS = 150;
 	public static int EVENT_MONITORING_SERVERITEMS = 151;
-	public static int EVENT_MONITORING_DCITEMS = 152;
+	public static int EVENT_MONITORING_NODEITEMS = 152;
 	
 	// properties
 	public static String PROPERTY_ENABLED = "monitoring.enabled";

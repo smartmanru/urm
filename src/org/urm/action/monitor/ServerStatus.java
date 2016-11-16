@@ -26,17 +26,15 @@ public class ServerStatus extends MonitorStatus {
 	
 	public ServerStatus( ActionCore action , MetaEnvServer server ) {
 		super( action , server );
-		nodeFailed = false;
-		roleFailed = false;
-		wholeUrlFailed = false;
-		databaseFailed = false;
-		nodes = new LinkedList<NodeStatus>(); 
-		roles = new LinkedList<RoleItemFailed>();
-		wholeUrls = new LinkedList<WholeUrlFailed>();
+		create();
 	}
 
 	public ServerStatus( ScopeState parent , ActionScopeTarget item ) {
 		super( parent , item );
+		create();
+	}
+	
+	private void create() {
 		nodeFailed = false;
 		roleFailed = false;
 		wholeUrlFailed = false;

@@ -36,6 +36,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 
 	public static String EXTRA_DATACENTER_ITEMS = "dcitems";
 	public static String EXTRA_SERVER_ITEMS = "serveritems";
+	public static String EXTRA_NODE_ITEMS = "nodeitems";
 	
 	public ServerMonitoringProduct( ServerMonitoring monitoring , String productName , ServerMonitoringSource source , ServerEventsApp eventsApp ) {
 		this.monitoring = monitoring;
@@ -115,6 +116,18 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			
 			NodeStatus status = ( NodeStatus )state;
 			processNodeEvent( source , nodeSource , node , status );
+			return;
+		}
+		
+		if( event.eventType == ServerMonitoring.EVENT_MONITORING_NODEITEMS ) {
+			ActionEventsSource source = ( ActionEventsSource )event.source;
+			NodeStatus status = ( NodeStatus )event.data;
+			MetaEnvServerNode node = status.node;
+			ServerMonitoringSource nodeSource = monitoring.getObjectSource( node );
+			if( nodeSource == null )
+				return;
+			
+			processNodeItemsEvent( source , nodeSource , node , status );
 			return;
 		}
 		
@@ -200,6 +213,17 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 
 		nodeSource.setPrimaryLog( status.getLog() );
 		if( nodeSource.setState( status.itemState ) ) {
+			MetaEnvServer server = node.server;
+			recalculateServer( server );
+		}
+	}
+	
+	private void processNodeItemsEvent( ActionEventsSource source , ServerMonitoringSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
+		if( stopping )
+			return;
+
+		nodeSource.setExtraLog( EXTRA_NODE_ITEMS , status.getLog() );
+		if( nodeSource.setExtraState( EXTRA_NODE_ITEMS , status.itemState ) ) {
 			MetaEnvServer server = node.server;
 			recalculateServer( server );
 		}

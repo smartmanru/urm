@@ -7,6 +7,7 @@ import org.urm.action.ScopeState;
 import org.urm.meta.engine.ServerMonitoringState.MONITORING_STATE;
 import org.urm.meta.product.MetaEnvDC;
 import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
 
 public class MonitorStatus extends ScopeState {
 
@@ -20,6 +21,11 @@ public class MonitorStatus extends ScopeState {
 
 	public MonitorStatus( ActionCore action , MetaEnvServer server ) {
 		super( action , server );
+		itemState = MONITORING_STATE.STATE_NEVERQUERIED;
+	}
+
+	public MonitorStatus( ActionCore action , MetaEnvServerNode node ) {
+		super( action , node );
 		itemState = MONITORING_STATE.STATE_NEVERQUERIED;
 	}
 
