@@ -63,22 +63,6 @@ public class ScopeState {
 		create( parent.action , parent );
 	}
 
-	public ScopeState( ActionCore action , MetaEnvDC dc ) {
-		this.type = SCOPETYPE.TypeMonTarget;
-		this.scope = parent.scope;
-		this.set = parent.set;
-		this.dc = dc;
-		create( action , null );
-	}
-
-	public ScopeState( ActionCore action , MetaEnvServer server ) {
-		this.type = SCOPETYPE.TypeServer;
-		this.scope = parent.scope;
-		this.set = parent.set;
-		this.server = server;
-		create( action , null );
-	}
-
 	public ScopeState( ScopeState parent , ActionScopeTarget target ) {
 		this.type = SCOPETYPE.TypeTarget;
 		this.scope = target.set.scope;
@@ -94,6 +78,22 @@ public class ScopeState {
 		this.target = item.target;
 		this.item = item;
 		create( parent.action , parent );
+	}
+
+	public ScopeState( ActionCore action , MetaEnvDC dc ) {
+		this.type = SCOPETYPE.TypeMonTarget;
+		this.scope = null;
+		this.set = null;
+		this.dc = dc;
+		create( action , null );
+	}
+
+	public ScopeState( ActionCore action , MetaEnvServer server ) {
+		this.type = SCOPETYPE.TypeServer;
+		this.scope = null;
+		this.set = null;
+		this.server = server;
+		create( action , null );
 	}
 
 	private void create( ActionCore action , ScopeState parent ) {
