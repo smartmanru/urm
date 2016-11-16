@@ -107,9 +107,10 @@ public class MetaEnvServerNode extends PropertyController {
 
 	public String getAccessPoint( ActionBase action ) throws Exception {
 		Account account = action.getNodeAccount( this ); 
+		String value = "http://" + account.HOST; 
 		if( server.PORT > 0 )
-			return( account.HOST + ":" + server.PORT );
-		return( account.HOST );
+			value += ":" + server.PORT;
+		return( value );
 	}
 
 	public String getHost( ActionBase action ) throws Exception {

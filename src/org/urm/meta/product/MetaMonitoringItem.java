@@ -20,6 +20,8 @@ public class MetaMonitoringItem {
 	public String URL;
 	public String WSDATA;
 	public String WSCHECK;
+
+	public boolean monitorStatus = false;
 	
 	public MetaMonitoringItem( Meta meta , MetaMonitoringTarget target ) {
 		this.meta = meta; 
@@ -36,6 +38,10 @@ public class MetaMonitoringItem {
 		monitorUrl = true;
 		this.URL = URL;
 		this.NAME = URL;
+	}
+	
+	public void setMonitorStatus( boolean status ) {
+		this.monitorStatus = status;
 	}
 	
 	private String getNodeSubTree( ActionBase action , Node node , String name ) throws Exception {

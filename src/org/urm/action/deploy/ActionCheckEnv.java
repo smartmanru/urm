@@ -241,7 +241,7 @@ public class ActionCheckEnv extends ActionBase {
 				continue;
 			
 			for( MetaDistrComponentWS ws : deployment.comp.getWebServices() ) {
-				String URL = ACCESSPOINT + "/" + ws.URL + "?wsdl";
+				String URL = ws.getURL( ACCESSPOINT ); 
 				if( !checkOneServerWholeUrl( URL , "web service" , nodeStatus , serverStatus ) ) {
 					ok = false;
 					S_CHECKENV_SERVER_COMPS_FAILED = Common.addItemToUniqueSpacedList( S_CHECKENV_SERVER_COMPS_FAILED , deployment.comp.NAME );
@@ -367,7 +367,7 @@ public class ActionCheckEnv extends ActionBase {
 	}
 	
 	private boolean checkOneServerNodeComps( MetaEnvServer server , MetaEnvServerNode node , NodeStatus state ) throws Exception {
-		String ACCESSPOINT = "http://" + node.getAccessPoint( this );
+		String ACCESSPOINT = node.getAccessPoint( this );
 		return( checkOneServerWebServices( server , ACCESSPOINT , state , null ) );
 	}
 	

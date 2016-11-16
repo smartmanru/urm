@@ -52,5 +52,9 @@ public class MetaDistrComponentWS {
 		Common.xmlSetElementAttr( doc , root , "url" , URL );
 		Common.xmlSetElementAttr( doc , root , "obsolete" , Common.getBooleanValue( OBSOLETE ) );
 	}
+
+	public String getURL( String ACCESSPOINT ) {
+		return( ACCESSPOINT + "/" + URL + "?wsdl" );
+	}
 	
 }

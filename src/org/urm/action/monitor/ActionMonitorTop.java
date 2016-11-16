@@ -20,11 +20,9 @@ import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerProductMeta;
 import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaDistrComponentWS;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvDC;
 import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerDeployment;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringItem;
 import org.urm.meta.product.MetaMonitoringTarget;
@@ -237,12 +235,12 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 		
 		// direct
 		for( MetaMonitoringItem item : target.getUrlsList( this ) ) {
-			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , mon , item , null );
+			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , mon , target , item , null );
 			set.runSimple( action );
 		}
 		
 		for( MetaMonitoringItem item : target.getWSList( this ) ) {
-			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , mon , item , null );
+			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , mon , target , item , null );
 			set.runSimple( action );
 		}
 		
@@ -268,26 +266,8 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 	}
 
 	private void addSystemServerItems( MetaMonitoring mon , MonitorInfo info , MetaMonitoringTarget target , ActionSet set , MetaEnvServer server ) throws Exception {
-		if( server.isWebUser() ) {
-			MetaMonitoringItem item = new MetaMonitoringItem( target.meta , target );
-			item.setUrlItem( this , server.WEBMAINURL );
-			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , mon , item , server );
-			set.runSimple( action );
-		}
-		else
-		if( server.isWebApp() ) {
-			for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
-				if( deployment.comp != null ) {
-					for( MetaDistrComponentWS ws : deployment.comp.getWebServices() ) {
-						String URL = server.WEBSERVICEURL + "/" + ws.URL + "?wsdl";
-						MetaMonitoringItem item = new MetaMonitoringItem( target.meta , target );
-						item.setUrlItem( this , URL );
-						ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , mon , item , server );
-						set.runSimple( action );
-					}
-				}
-			}
-		}
+		ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , mon , target , null , server );
+		set.runSimple( action );
 	}
 
 	private void checkSystemTargetItems( MetaMonitoring mon , MonitorInfo info , MetaMonitoringTarget target , ActionSet set , MetaEnvDC dc ) throws Exception {
@@ -300,15 +280,16 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 					totalStatus = false;
 			}
 			else {
-				ServerStatus value = data.get( action.server );
-				if( value == null ) {
-					value = new ServerStatus( this , action.server );
-					data.put( action.server , value );
+				ServerStatus serverStatus = data.get( action.server );
+				if( serverStatus == null ) {
+					serverStatus = new ServerStatus( this , action.server );
+					data.put( action.server , serverStatus );
 				}
 				
-				MetaMonitoringItem monItem = action.item;
-				boolean ok = ( action.isFailed() )? false : true;
-				value.addWholeUrlStatus( monItem.URL , monItem.NAME , ok );
+				for( MetaMonitoringItem monItem : action.getServerItems() ) {
+					boolean ok = monItem.monitorStatus;
+					serverStatus.addWholeUrlStatus( monItem.URL , monItem.NAME , ok );
+				}
 			}
 		}
 		
