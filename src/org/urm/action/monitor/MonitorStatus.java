@@ -15,36 +15,36 @@ public class MonitorStatus extends ScopeState {
 
 	public MonitorStatus( ActionCore action , MetaEnvDC dc ) {
 		super( action , dc );
-		itemState = MONITORING_STATE.MONITORING_NEVERQUERIED;
+		itemState = MONITORING_STATE.STATE_NEVERQUERIED;
 	}
 
 	public MonitorStatus( ActionCore action , MetaEnvServer server ) {
 		super( action , server );
-		itemState = MONITORING_STATE.MONITORING_NEVERQUERIED;
+		itemState = MONITORING_STATE.STATE_NEVERQUERIED;
 	}
 
 	public MonitorStatus( ScopeState parent , ActionScopeTarget item ) {
 		super( parent , item );
-		itemState = MONITORING_STATE.MONITORING_NEVERQUERIED;
+		itemState = MONITORING_STATE.STATE_NEVERQUERIED;
 	}
 	
 	public MonitorStatus( ScopeState parent , ActionScopeTargetItem item ) {
 		super( parent , item );
-		itemState = MONITORING_STATE.MONITORING_NEVERQUERIED;
+		itemState = MONITORING_STATE.STATE_NEVERQUERIED;
 	}
 	
 	public boolean isHealthy() {
-		if( itemState == MONITORING_STATE.MONITORING_HEALTHY )
+		if( itemState == MONITORING_STATE.STATE_HEALTHY )
 			return( true );
 		return( false );
 	}
 
 	public boolean isFailed() {
-		if( itemState == MONITORING_STATE.MONITORING_ERRORS_ALERTS ||
-			itemState == MONITORING_STATE.MONITORING_ERRORS_FATAL ||
-			itemState == MONITORING_STATE.MONITORING_STOPPED ||
-			itemState == MONITORING_STATE.MONITORING_UNABLE_GETSTATE ||
-			itemState == MONITORING_STATE.MONITORING_UNKNOWN )
+		if( itemState == MONITORING_STATE.STATE_ERRORS_ALERTS ||
+			itemState == MONITORING_STATE.STATE_ERRORS_FATAL ||
+			itemState == MONITORING_STATE.STATE_STOPPED ||
+			itemState == MONITORING_STATE.STATE_UNABLE_GETSTATE ||
+			itemState == MONITORING_STATE.STATE_UNKNOWN )
 			return( true );
 		return( false );
 	}

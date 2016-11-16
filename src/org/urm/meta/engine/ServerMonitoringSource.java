@@ -39,8 +39,8 @@ public class ServerMonitoringSource extends ServerEventsSource {
 	}
 	
 	public void clearState() {
-		state.setState( MONITORING_STATE.MONITORING_NOMONITORING );
-		primary.setState( MONITORING_STATE.MONITORING_NOMONITORING );
+		state.setState( MONITORING_STATE.STATE_NOMONITORING );
+		primary.setState( MONITORING_STATE.STATE_NOMONITORING );
 		extra.clear();
 	}
 	

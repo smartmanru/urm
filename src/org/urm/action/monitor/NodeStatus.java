@@ -27,7 +27,7 @@ public class NodeStatus extends MonitorStatus {
 
 	public NodeStatus( ScopeState parent , ActionScopeTargetItem item ) {
 		super( parent , item );
-		mainState = MONITORING_STATE.MONITORING_NEVERQUERIED;
+		mainState = MONITORING_STATE.STATE_NEVERQUERIED;
 		manual = false;
 		compFailed = false;
 		processFailed = false;
@@ -41,52 +41,52 @@ public class NodeStatus extends MonitorStatus {
 	}
 
 	public void setUnknown( String reason ) {
-		itemState = MONITORING_STATE.MONITORING_UNKNOWN;
+		itemState = MONITORING_STATE.STATE_UNKNOWN;
 		unknownReason = reason;
 	}
 	
 	public void setProcessMode( VarPROCESSMODE mode ) {
 		this.mode = mode;
 		if( mode == VarPROCESSMODE.STARTED ) {
-			itemState = mainState = MONITORING_STATE.MONITORING_HEALTHY;
+			itemState = mainState = MONITORING_STATE.STATE_HEALTHY;
 			return;
 		}
 		
 		processFailed = true;
 		if( mode == VarPROCESSMODE.UNKNOWN )
-			mainState = MONITORING_STATE.MONITORING_UNABLE_GETSTATE;
+			mainState = MONITORING_STATE.STATE_UNABLE_GETSTATE;
 		else
 		if( mode == VarPROCESSMODE.ERRORS )
-			mainState = MONITORING_STATE.MONITORING_ERRORS_FATAL;
+			mainState = MONITORING_STATE.STATE_ERRORS_FATAL;
 		else
 		if( mode == VarPROCESSMODE.STARTING )
-			mainState = MONITORING_STATE.MONITORING_ERRORS_ALERTS;
+			mainState = MONITORING_STATE.STATE_ERRORS_ALERTS;
 		else
 		if( mode == VarPROCESSMODE.STOPPED )
-			mainState = MONITORING_STATE.MONITORING_STOPPED;
+			mainState = MONITORING_STATE.STATE_STOPPED;
 		
 		itemState = mainState; 
 	}
 
 	public void setCompsFailed() {
 		compFailed = true;
-		itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.MONITORING_ERRORS_ALERTS );
+		itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.STATE_ERRORS_ALERTS );
 	}
 	
 	public void setProxyFailed( MetaEnvServer server ) {
 		proxy = server;
 		proxyFailed = true;
-		itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.MONITORING_ERRORS_ALERTS );
+		itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.STATE_ERRORS_ALERTS );
 	}
 
 	public void addWholeUrlStatus( String URL , String role , boolean ok ) throws Exception {
 		if( !ok ) {
 			wholeUrlFailed = true;
 			wholeUrls.add( new WholeUrlFailed( URL , role ) );
-			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.MONITORING_ERRORS_ALERTS );
+			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.STATE_ERRORS_ALERTS );
 		}
 		else
-			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.MONITORING_HEALTHY );
+			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.STATE_HEALTHY );
 	}
 	
 }

@@ -57,28 +57,28 @@ public class ServerStatus extends MonitorStatus {
 		if( failed ) {
 			roleFailed = true;
 			roles.add( new RoleItemFailed( role , node ) );
-			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.MONITORING_ERRORS_ALERTS );
+			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.STATE_ERRORS_ALERTS );
 		}
 		else
-			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.MONITORING_HEALTHY );
+			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.STATE_HEALTHY );
 	}
 
 	public void addWholeUrlStatus( String URL , String role , boolean ok ) throws Exception {
 		if( !ok ) {
 			wholeUrlFailed = true;
 			wholeUrls.add( new WholeUrlFailed( URL , role ) );
-			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.MONITORING_ERRORS_ALERTS );
+			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.STATE_ERRORS_ALERTS );
 		}
 		else
-			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.MONITORING_HEALTHY );
+			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.STATE_HEALTHY );
 	}
 
 	public void addDatabaseStatus( boolean ok ) {
 		if( ok )
-			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.MONITORING_HEALTHY );
+			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.STATE_HEALTHY );
 		else {
 			databaseFailed = true;
-			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.MONITORING_ERRORS_ALERTS );
+			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.STATE_ERRORS_ALERTS );
 		}
 	}
 	

@@ -156,7 +156,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		}
 		
 		// cleanup product data
-		source.setState( MONITORING_STATE.MONITORING_NOMONITORING );
+		source.setState( MONITORING_STATE.STATE_NOMONITORING );
 		ServerProduct product = ( ServerProduct )source.object;
 		recalculateSystem( product.system );
 	}
@@ -210,7 +210,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		if( serverSource == null )
 			return;
 
-		MONITORING_STATE finalState = MONITORING_STATE.MONITORING_NOMONITORING;
+		MONITORING_STATE finalState = MONITORING_STATE.STATE_NOMONITORING;
 		for( MetaEnvServerNode node : server.getNodes() ) {
 			ServerMonitoringSource nodeSource = monitoring.getObjectSource( node );
 			if( nodeSource != null )
@@ -228,7 +228,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		if( dcSource == null )
 			return;
 
-		MONITORING_STATE finalState = MONITORING_STATE.MONITORING_NOMONITORING;
+		MONITORING_STATE finalState = MONITORING_STATE.STATE_NOMONITORING;
 		for( MetaEnvServer server : dc.getServers() ) {
 			ServerMonitoringSource serverSource = monitoring.getObjectSource( server );
 			if( serverSource != null )
@@ -246,7 +246,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		if( envSource == null )
 			return;
 
-		MONITORING_STATE finalState = MONITORING_STATE.MONITORING_NOMONITORING;
+		MONITORING_STATE finalState = MONITORING_STATE.STATE_NOMONITORING;
 		for( MetaEnvDC dc : env.getDatacenters() ) {
 			ServerMonitoringSource dcSource = monitoring.getObjectSource( dc );
 			if( dcSource != null )
@@ -268,7 +268,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		if( productSource == null )
 			return;
 
-		MONITORING_STATE finalState = MONITORING_STATE.MONITORING_NOMONITORING;
+		MONITORING_STATE finalState = MONITORING_STATE.STATE_NOMONITORING;
 		for( String envName : meta.getEnvList() ) {
 			MetaEnv env = meta.findEnv( envName );
 			ServerMonitoringSource envSource = monitoring.getObjectSource( env );
@@ -287,7 +287,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		if( systemSource == null )
 			return;
 
-		MONITORING_STATE finalState = MONITORING_STATE.MONITORING_NOMONITORING;
+		MONITORING_STATE finalState = MONITORING_STATE.STATE_NOMONITORING;
 		for( String productName : system.getProducts() ) {
 			ServerProduct product = system.getProduct( productName );
 			ServerMonitoringSource productSource = monitoring.getObjectSource( product );
@@ -304,7 +304,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		if( appSource == null )
 			return;
 
-		MONITORING_STATE finalState = MONITORING_STATE.MONITORING_NOMONITORING;
+		MONITORING_STATE finalState = MONITORING_STATE.STATE_NOMONITORING;
 		for( String systemName : directory.getSystems() ) {
 			ServerSystem system = directory.findSystem( systemName );
 			ServerMonitoringSource systemSource = monitoring.getObjectSource( system );
