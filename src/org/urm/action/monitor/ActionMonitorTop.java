@@ -1,12 +1,17 @@
 package org.urm.action.monitor;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionSet;
+import org.urm.action.ActionSetItem;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
+import org.urm.action.deploy.ServerStatus;
 import org.urm.engine.ServerEventsApp;
 import org.urm.engine.ServerEventsListener;
 import org.urm.engine.ServerEventsSubscription;
@@ -160,6 +165,9 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 	@Override
 	public void triggerSubscriptionRemoved( ServerEventsSubscription sub ) {
 	}
+
+	public void updateCheckItemState( ActionMonitorCheckItem checkAction , boolean res ) {
+	}
 	
 	public void stopRunning() {
 		continueRunning = false;
@@ -226,27 +234,29 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 		ActionSet set = new ActionSet( this , "minor" );
 		
 		// system
-		addSystemTargetItems( mon , info , target , set );
+		MetaEnvDC dc = addSystemTargetItems( mon , info , target , set );
 		
 		// direct
 		for( MetaMonitoringItem item : target.getUrlsList( this ) ) {
-			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , mon , item );
+			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , mon , item , null );
 			set.runSimple( action );
 		}
 		
 		for( MetaMonitoringItem item : target.getWSList( this ) ) {
-			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , mon , item );
+			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , mon , item , null );
 			set.runSimple( action );
 		}
 		
-		boolean ok = set.waitDone();  
+		boolean ok = set.waitDone();
 		if( !ok )
 			super.fail1( _Error.MonitorTargetFailed1 , "Monitoring target failed name=" + target.NAME , target.NAME );
+		
+		checkSystemTargetItems( mon , info , target , set , dc );
 		
 		info.addCheckMinorsData( target , ok );
 	}
 
-	private void addSystemTargetItems( MetaMonitoring mon , MonitorInfo info , MetaMonitoringTarget target , ActionSet set ) throws Exception {
+	private MetaEnvDC addSystemTargetItems( MetaMonitoring mon , MonitorInfo info , MetaMonitoringTarget target , ActionSet set ) throws Exception {
 		Meta meta = target.meta;
 		MetaEnv env = meta.getEnv( this , target.ENV );
 		MetaEnvDC dc = env.getDC( this , target.DC );
@@ -254,13 +264,15 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 			if( !server.isOffline() )
 				addSystemServerItems( mon , info , target , set , server );
 		}
+		
+		return( dc );
 	}
 
 	private void addSystemServerItems( MetaMonitoring mon , MonitorInfo info , MetaMonitoringTarget target , ActionSet set , MetaEnvServer server ) throws Exception {
 		if( server.isWebUser() ) {
 			MetaMonitoringItem item = new MetaMonitoringItem( target.meta , target );
 			item.setUrlItem( this , server.WEBMAINURL );
-			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , mon , item );
+			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , mon , item , server );
 			set.runSimple( action );
 		}
 		else
@@ -271,12 +283,42 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 						String URL = server.WEBSERVICEURL + "/" + ws.URL + "?wsdl";
 						MetaMonitoringItem item = new MetaMonitoringItem( target.meta , target );
 						item.setUrlItem( this , URL );
-						ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , mon , item );
+						ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , mon , item , server );
 						set.runSimple( action );
 					}
 				}
 			}
 		}
+	}
+
+	private void checkSystemTargetItems( MetaMonitoring mon , MonitorInfo info , MetaMonitoringTarget target , ActionSet set , MetaEnvDC dc ) throws Exception {
+		boolean totalStatus = true;
+		Map<MetaEnvServer,ServerStatus> data = new HashMap<MetaEnvServer,ServerStatus>(); 
+		for( ActionSetItem item : set.getActions() ) {
+			ActionMonitorCheckItem action = ( ActionMonitorCheckItem )item.action;
+			if( action.server == null ) {
+				if( action.isFailed() )
+					totalStatus = false;
+			}
+			else {
+				ServerStatus value = data.get( action.server );
+				if( value == null ) {
+					value = new ServerStatus( this , action.server );
+					data.put( action.server , value );
+				}
+				
+				MetaMonitoringItem monItem = action.item;
+				boolean ok = ( action.isFailed() )? false : true;
+				value.addWholeUrlStatus( monItem.URL , monItem.NAME , ok );
+			}
+		}
+		
+		for( Entry<MetaEnvServer,ServerStatus> entry : data.entrySet() )
+			super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORING_SERVERITEMS , entry.getValue() );
+
+		ScopeState dcState = new ScopeState( this , dc );
+		dcState.setActionStatus( totalStatus );
+		super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORING_DCITEMS , dcState );
 	}
 	
 }

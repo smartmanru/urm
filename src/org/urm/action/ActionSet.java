@@ -22,6 +22,10 @@ public class ActionSet {
         owner.trace( "create thread group: " + name );
 	}
 
+	public ActionSetItem[] getActions() {
+		return( actions.toArray( new ActionSetItem[0] ) );
+	}
+	
 	public boolean waitDone() {
 		owner.debug( "wait for completion of action set=" + name + " ..." );
 		try {

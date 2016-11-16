@@ -64,6 +64,18 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 
 	@Override
 	public void triggerEvent( ServerSourceEvent event ) {
+		if( event.eventType == ServerMonitoring.EVENT_MONITORING_DCITEMS ) {
+			ActionEventsSource source = ( ActionEventsSource )event.source;
+			ScopeState state = ( ScopeState )event.data;
+			MetaEnvDC dc = state.dc;
+			ServerMonitoringSource dcSource = monitoring.getObjectSource( dc );
+			if( dcSource == null )
+				return;
+			
+			processDatacenterItemsEvent( source , dcSource , dc , state );
+			return;
+		}
+		
 		if( event.eventType == ServerMonitoring.EVENT_MONITORING_SERVER ) {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			ScopeState state = ( ScopeState )event.data;
@@ -74,6 +86,18 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			
 			ServerStatus status = ( ServerStatus )state;
 			processServerEvent( source , serverSource , server , status );
+			return;
+		}
+		
+		if( event.eventType == ServerMonitoring.EVENT_MONITORING_SERVERITEMS ) {
+			ActionEventsSource source = ( ActionEventsSource )event.source;
+			ServerStatus status = ( ServerStatus )event.data;
+			MetaEnvServer server = status.server;
+			ServerMonitoringSource serverSource = monitoring.getObjectSource( server );
+			if( serverSource == null )
+				return;
+			
+			processServerItemsEvent( source , serverSource , server , status );
 			return;
 		}
 		
@@ -133,11 +157,31 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		recalculateSystem( product.system );
 	}
 
+	private void processDatacenterItemsEvent( ActionEventsSource source , ServerMonitoringSource dcSource , MetaEnvDC dc , ScopeState state ) {
+		if( stopping )
+			return;
+
+		if( dcSource.setState( state.state ) ) {
+			MetaEnv env = dc.env;
+			recalculateEnv( env );
+		}
+	}
+	
 	private void processServerEvent( ActionEventsSource source , ServerMonitoringSource serverSource , MetaEnvServer server , ServerStatus status ) {
 		if( stopping )
 			return;
 
 		serverSource.setLog( status.getLog() );
+		if( serverSource.setState( status.itemState ) ) {
+			MetaEnvDC dc = server.dc;
+			recalculateDatacenter( dc );
+		}
+	}
+	
+	private void processServerItemsEvent( ActionEventsSource source , ServerMonitoringSource serverSource , MetaEnvServer server , ServerStatus status ) {
+		if( stopping )
+			return;
+
 		if( serverSource.setState( status.itemState ) ) {
 			MetaEnvDC dc = server.dc;
 			recalculateDatacenter( dc );

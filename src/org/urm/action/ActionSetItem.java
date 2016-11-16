@@ -12,7 +12,7 @@ public class ActionSetItem implements Runnable {
 	boolean runSimple = false;
 	boolean runScope = false;
 	
-	ActionBase action;
+	public ActionBase action;
 	ActionScope scope;
 	
 	public ActionSetItem( ActionSet set , String threadName ) {

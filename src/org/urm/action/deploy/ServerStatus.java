@@ -3,12 +3,14 @@ package org.urm.action.deploy;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.urm.action.ActionCore;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ScopeState;
 import org.urm.meta.engine.ServerMonitoringState;
 import org.urm.meta.engine.ServerMonitoringState.MONITORING_STATE;
 import org.urm.meta.engine.RoleItemFailed;
 import org.urm.meta.engine.WholeUrlFailed;
+import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 
 public class ServerStatus extends ScopeState {
@@ -24,6 +26,18 @@ public class ServerStatus extends ScopeState {
 	List<RoleItemFailed> roles;
 	List<WholeUrlFailed> wholeUrls;
 	
+	public ServerStatus( ActionCore action , MetaEnvServer server ) {
+		super( action , server );
+		itemState = MONITORING_STATE.MONITORING_NEVERQUERIED;
+		nodeFailed = false;
+		roleFailed = false;
+		wholeUrlFailed = false;
+		databaseFailed = false;
+		nodes = new LinkedList<NodeStatus>(); 
+		roles = new LinkedList<RoleItemFailed>();
+		wholeUrls = new LinkedList<WholeUrlFailed>();
+	}
+
 	public ServerStatus( ScopeState parent , ActionScopeTarget item ) {
 		super( parent , item );
 		itemState = MONITORING_STATE.MONITORING_NEVERQUERIED;

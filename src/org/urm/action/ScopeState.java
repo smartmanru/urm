@@ -4,6 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.engine.shell.Account;
+import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvServer;
 
 public class ScopeState {
 
@@ -12,7 +14,9 @@ public class ScopeState {
 		TypeSet ,
 		TypeTarget ,
 		TypeItem ,
-		TypeAccount
+		TypeAccount ,
+		TypeMonTarget ,
+		TypeServer
 	};
 	
 	public enum SCOPESTATE {
@@ -32,6 +36,8 @@ public class ScopeState {
 	public ActionScopeTarget target;
 	public ActionScopeTargetItem item;
 	public Account account;
+	public MetaEnvDC dc;
+	public MetaEnvServer server;
 	public SCOPESTATE state;
 	
 	List<ScopeState> childs;
@@ -55,6 +61,22 @@ public class ScopeState {
 		this.set = parent.set;
 		this.account = account;
 		create( parent.action , parent );
+	}
+
+	public ScopeState( ActionCore action , MetaEnvDC dc ) {
+		this.type = SCOPETYPE.TypeMonTarget;
+		this.scope = parent.scope;
+		this.set = parent.set;
+		this.dc = dc;
+		create( action , null );
+	}
+
+	public ScopeState( ActionCore action , MetaEnvServer server ) {
+		this.type = SCOPETYPE.TypeServer;
+		this.scope = parent.scope;
+		this.set = parent.set;
+		this.server = server;
+		create( action , null );
 	}
 
 	public ScopeState( ScopeState parent , ActionScopeTarget target ) {
