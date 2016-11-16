@@ -122,30 +122,31 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 			// calculate sleep and next action
 			long nextMinor = 0;
 			nextMinor = lastStartMinor + mon.MINORINTERVAL * 1000;
-			if( nextMinor < ( current + mon.MINSILENT * 1000 ) )
-				nextMinor = current + mon.MINSILENT * 1000;
-
 			long nextMajor = 0;
 			nextMajor = lastStartMajor + mon.MAJORINTERVAL * 1000;
-			if( nextMajor < ( current + mon.MINSILENT * 1000 ) )
-				nextMajor = current + mon.MINSILENT * 1000;
-			
-			if( enabledMajor && ( nextMajor < nextMinor || enabledMinor == false ) ) {
-				runMajor = true;
-				if( !runSleep( nextMajor - current ) )
-					stopRunning();
-			}
-			else {
-				runMajor = false;
-				if( !runSleep( nextMinor - current ) )
-					stopRunning();
-			}
-			
+
+			// finish with data
 			try {
 				info.stop();
 			}
 			catch( Throwable e ) {
 				handle( e );
+			}
+
+			// wait for next
+			if( enabledMajor && ( nextMajor < nextMinor || enabledMinor == false ) ) {
+				runMajor = true;
+				if( nextMajor < ( current + mon.MINSILENT * 1000 ) )
+					nextMajor = current + mon.MINSILENT * 1000;
+				if( !runSleep( nextMajor - current ) )
+					stopRunning();
+			}
+			else {
+				runMajor = false;
+				if( nextMinor < ( current + mon.MINSILENT * 1000 ) )
+					nextMinor = current + mon.MINSILENT * 1000;
+				if( !runSleep( nextMinor - current ) )
+					stopRunning();
 			}
 		}
 		
