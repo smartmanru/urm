@@ -285,9 +285,9 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 					totalStatus = false;
 			}
 			else {
-				super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORING_NODEITEMS , action.serverStatus );
+				super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORING_SERVERITEMS , action.serverStatus );
 				for( NodeStatus nodeStatus : action.getNodes() )
-					super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORING_SERVERITEMS , nodeStatus );
+					super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORING_NODEITEMS , nodeStatus );
 			}
 		}
 		
