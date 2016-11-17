@@ -64,6 +64,10 @@ public class ServerMonitoring extends ServerObject {
 	public static int EVENT_MONITORING_SERVERITEMS = 151;
 	public static int EVENT_MONITORING_NODEITEMS = 152;
 	
+	public static String EXTRA_DATACENTER_ITEMS = "dcitems";
+	public static String EXTRA_SERVER_ITEMS = "serveritems";
+	public static String EXTRA_NODE_ITEMS = "nodeitems";
+	
 	// properties
 	public static String PROPERTY_ENABLED = "monitoring.enabled";
 	public static String PROPERTY_RESOURCE_PATH = "default.resources.path";

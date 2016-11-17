@@ -34,10 +34,6 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	ActionMonitorTop ca;
 	ServerEventsApp eventsApp;
 
-	public static String EXTRA_DATACENTER_ITEMS = "dcitems";
-	public static String EXTRA_SERVER_ITEMS = "serveritems";
-	public static String EXTRA_NODE_ITEMS = "nodeitems";
-	
 	public ServerMonitoringProduct( ServerMonitoring monitoring , String productName , ServerMonitoringSource source , ServerEventsApp eventsApp ) {
 		this.monitoring = monitoring;
 		this.productName = productName;
@@ -178,8 +174,8 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		if( stopping )
 			return;
 
-		dcSource.setExtraLog( EXTRA_DATACENTER_ITEMS , status.getLog() );
-		if( dcSource.setExtraState( EXTRA_DATACENTER_ITEMS , status.itemState ) ) {
+		dcSource.setExtraLog( ServerMonitoring.EXTRA_DATACENTER_ITEMS , status.getLog() );
+		if( dcSource.setExtraState( ServerMonitoring.EXTRA_DATACENTER_ITEMS , status.itemState ) ) {
 			MetaEnv env = dc.env;
 			recalculateEnv( env );
 		}
@@ -200,8 +196,8 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		if( stopping )
 			return;
 
-		serverSource.setExtraLog( EXTRA_SERVER_ITEMS , status.getLog() );
-		if( serverSource.setExtraState( EXTRA_SERVER_ITEMS , status.itemState ) ) {
+		serverSource.setExtraLog( ServerMonitoring.EXTRA_SERVER_ITEMS , status.getLog() );
+		if( serverSource.setExtraState( ServerMonitoring.EXTRA_SERVER_ITEMS , status.itemState ) ) {
 			MetaEnvDC dc = server.dc;
 			recalculateDatacenter( dc );
 		}
@@ -222,8 +218,8 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		if( stopping )
 			return;
 
-		nodeSource.setExtraLog( EXTRA_NODE_ITEMS , status.getLog() );
-		if( nodeSource.setExtraState( EXTRA_NODE_ITEMS , status.itemState ) ) {
+		nodeSource.setExtraLog( ServerMonitoring.EXTRA_NODE_ITEMS , status.getLog() );
+		if( nodeSource.setExtraState( ServerMonitoring.EXTRA_NODE_ITEMS , status.itemState ) ) {
 			MetaEnvServer server = node.server;
 			recalculateServer( server );
 		}
