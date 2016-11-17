@@ -1,10 +1,7 @@
 package org.urm.action.monitor;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionSet;
@@ -23,7 +20,6 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvDC;
 import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringItem;
 import org.urm.meta.product.MetaMonitoringTarget;
@@ -275,8 +271,6 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 
 	private void checkSystemTargetItems( MetaMonitoring mon , MonitorInfo info , MetaMonitoringTarget target , ActionSet set , MetaEnvDC dc ) throws Exception {
 		boolean totalStatus = true;
-		Map<MetaEnvServer,ServerStatus> serverData = new HashMap<MetaEnvServer,ServerStatus>();
-		Map<MetaEnvServerNode,NodeStatus> nodeData = new HashMap<MetaEnvServerNode,NodeStatus>();
 		
 		for( ActionSetItem item : set.getActions() ) {
 			ActionMonitorCheckItem action = ( ActionMonitorCheckItem )item.action;
@@ -285,38 +279,12 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 					totalStatus = false;
 			}
 			else {
-				ServerStatus serverStatus = serverData.get( action.server );
-				if( serverStatus == null ) {
-					serverStatus = new ServerStatus( this , action.server );
-					serverData.put( action.server , serverStatus );
-				}
-				
-				for( MetaMonitoringItem monItem : action.getServerItems() ) {
-					boolean ok = monItem.monitorStatus;
-					serverStatus.addWholeUrlStatus( monItem.URL , monItem.NAME , ok );
-				}
-				
-				for( MetaEnvServerNode node : action.server.getNodes() ) {
-					NodeStatus nodeStatus = nodeData.get( node );
-					if( nodeStatus == null ) {
-						nodeStatus = new NodeStatus( this , node );
-						nodeData.put( node , nodeStatus );
-					}
-					
-					for( MetaMonitoringItem monItem : action.getNodeItems( node ) ) {
-						boolean ok = monItem.monitorStatus;
-						nodeStatus.addWholeUrlStatus( monItem.URL , monItem.NAME , ok );
-					}
-					
-				}
+				super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORING_NODEITEMS , action.serverStatus );
+				for( NodeStatus nodeStatus : action.getNodes() )
+					super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORING_SERVERITEMS , nodeStatus );
 			}
 		}
 		
-		for( Entry<MetaEnvServerNode,NodeStatus> entry : nodeData.entrySet() )
-			super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORING_NODEITEMS , entry.getValue() );
-		for( Entry<MetaEnvServer,ServerStatus> entry : serverData.entrySet() )
-			super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORING_SERVERITEMS , entry.getValue() );
-
 		DatacenterStatus dcStatus = new DatacenterStatus( this , dc );
 		dcStatus.setActionStatus( totalStatus );
 		super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORING_DCITEMS , dcStatus );

@@ -1,9 +1,7 @@
 package org.urm.action.monitor;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ScopeState.SCOPESTATE;
@@ -23,8 +21,8 @@ public class ActionMonitorCheckItem extends ActionBase {
 	public MetaMonitoringItem item;
 	public MetaEnvServer server;
 	
-	List<MetaMonitoringItem> serverItems;
-	Map<MetaEnvServerNode,List<MetaMonitoringItem>> nodeItems;
+	public ServerStatus serverStatus;
+	List<NodeStatus> nodeData;
 	
 	public ActionMonitorCheckItem( ActionBase action , String stream , MetaMonitoring mon , MetaMonitoringTarget target , MetaMonitoringItem item , MetaEnvServer server ) {
 		super( action , stream );
@@ -32,8 +30,7 @@ public class ActionMonitorCheckItem extends ActionBase {
 		this.target = target;
 		this.item = item;
 		this.server = server;
-		serverItems = new LinkedList<MetaMonitoringItem>();
-		nodeItems = new HashMap<MetaEnvServerNode,List<MetaMonitoringItem>>(); 
+		nodeData = new LinkedList<NodeStatus>(); 
 	}
 
 	@Override protected SCOPESTATE executeSimple() throws Exception {
@@ -78,73 +75,104 @@ public class ActionMonitorCheckItem extends ActionBase {
 	}
 
 	private void monitorServerItems() throws Exception {
-		if( server.isWebUser() && !server.WEBMAINURL.isEmpty() )
-			monitorServerItemsWebUser();
+		int serverIndex = super.logStartCapture();
+		serverStatus = new ServerStatus( this , server );
+		info( "Run fast server checks, server=" + server.NAME + " ..." );
+		boolean res = monitorServerItems( null );
+		serverStatus.setActionStatus( res );
+		
+		info( "Fast server checks finished" );
+		String[] log = super.logFinishCapture( serverIndex );
+		serverStatus.setLog( log );
+		
+		for( MetaEnvServerNode node : server.getNodes() ) {
+			NodeStatus nodeStatus = new NodeStatus( this , node );
+			nodeData.add( nodeStatus );
+			
+			int nodeIndex = super.logStartCapture();
+			info( "Run fast server checks, node=" + node.POS + " ..." );
+			monitorServerItems( nodeStatus );
+			info( "Fast server checks finished" );
+			log = super.logFinishCapture( nodeIndex );
+			nodeStatus.setLog( log );
+		}
+	}
+	
+	private boolean monitorServerItems( NodeStatus nodeStatus ) throws Exception {
+		boolean res = true;
+		if( server.isWebUser() && !server.WEBMAINURL.isEmpty() ) {
+			if( !monitorServerItemsWebUser( nodeStatus ) )
+				res = false;
+		}
 		else
 		if( server.isWebApp() && !server.WEBSERVICEURL.isEmpty() ) {
 			for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
 				if( deployment.comp != null ) {
-					for( MetaDistrComponentWS ws : deployment.comp.getWebServices() )
-						monitorServerItemsWebApp( ws );
+					for( MetaDistrComponentWS ws : deployment.comp.getWebServices() ) {
+						if( !monitorServerItemsWebApp( nodeStatus , ws ) )
+							res = false;
+					}
 				}
 			}
 		}
+		return( res );
 	}
 
-	private void monitorServerItemsWebUser() throws Exception {
-		if( !server.WEBMAINURL.isEmpty() )
-			monitorServerItemsUrl( server.WEBMAINURL );
-		
-		for( MetaEnvServerNode node : server.getNodes() ) {
-			String ACCESSPOINT = node.getAccessPoint( this );
-			monitorNodeItemsUrl( node , ACCESSPOINT );
+	private boolean monitorServerItemsWebUser( NodeStatus nodeStatus ) throws Exception {
+		boolean res = true; 
+		if( nodeStatus == null ) {
+			if( !server.WEBMAINURL.isEmpty() ) {
+				if( !monitorServerItemsUrl( server.WEBMAINURL ) )
+					res = false;
+			}
+			return( res );
 		}
+		
+		String ACCESSPOINT = nodeStatus.node.getAccessPoint( this );
+		if( !monitorNodeItemsUrl( nodeStatus , ACCESSPOINT ) )
+			res = false;
+		return( res );
 	}		
 
-	private void monitorServerItemsWebApp( MetaDistrComponentWS ws ) throws Exception {
-		if( !server.WEBSERVICEURL.isEmpty() ) {
-			String URL = ws.getURL( server.WEBSERVICEURL );
-			monitorServerItemsUrl( URL );
+	private boolean monitorServerItemsWebApp( NodeStatus nodeStatus , MetaDistrComponentWS ws ) throws Exception {
+		boolean res = true; 
+		if( nodeStatus == null ) { 
+			if( !server.WEBSERVICEURL.isEmpty() ) {
+				String URL = ws.getURL( server.WEBSERVICEURL );
+				if( !monitorServerItemsUrl( URL ) )
+					res = false;
+			}
+			return( res );
 		}
 		
-		for( MetaEnvServerNode node : server.getNodes() ) {
-			String ACCESSPOINT = node.getAccessPoint( this );
-			String URL = ws.getURL( ACCESSPOINT );
-			monitorNodeItemsUrl( node , URL );
-		}
+		String ACCESSPOINT = nodeStatus.node.getAccessPoint( this );
+		String URL = ws.getURL( ACCESSPOINT );
+		if( !monitorNodeItemsUrl( nodeStatus , URL ) )
+			res = false;
+		return( res );
 	}
 
-	private void monitorServerItemsUrl( String URL ) throws Exception {
+	private boolean monitorServerItemsUrl( String URL ) throws Exception {
 		MetaMonitoringItem item = new MetaMonitoringItem( server.meta , target );
 		item.setUrlItem( this , URL );
 		boolean res = monitorUrl( item.URL );
 		item.setMonitorStatus( res );
-		serverItems.add( item );
+		serverStatus.addWholeUrlStatus( item.URL , item.NAME , res );
+		return( res );
 	}		
 
-	private void monitorNodeItemsUrl( MetaEnvServerNode node , String URL ) throws Exception {
+	private boolean monitorNodeItemsUrl( NodeStatus nodeStatus , String URL ) throws Exception {
 		MetaMonitoringItem item = new MetaMonitoringItem( server.meta , target );
 		item.setUrlItem( this , URL );
 		boolean res = monitorUrl( item.URL );
 		item.setMonitorStatus( res );
 		
-		List<MetaMonitoringItem> items = nodeItems.get( node );
-		if( items == null ) {
-			items = new LinkedList<MetaMonitoringItem>();
-			nodeItems.put( node , items );
-		}
-		items.add( item );
+		nodeStatus.addWholeUrlStatus( item.URL , item.NAME , res );
+		return( res );
 	}		
 
-	public MetaMonitoringItem[] getServerItems() {
-		return( serverItems.toArray( new MetaMonitoringItem[0] ) );
-	}
-	
-	public MetaMonitoringItem[] getNodeItems( MetaEnvServerNode node ) {
-		List<MetaMonitoringItem> items = nodeItems.get( node );
-		if( items == null )
-			return( new MetaMonitoringItem[0] );
-		return( items.toArray( new MetaMonitoringItem[0] ) );
+	public NodeStatus[] getNodes() {
+		return( nodeData.toArray( new NodeStatus[0] ) );
 	}
 	
 }
