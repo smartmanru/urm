@@ -78,8 +78,8 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 			long current = System.currentTimeMillis();
 			try {
 				if( runMajor ) {
-					runMajor = false;
 					lastStartMajor = current;
+					lastStartMinor = 0;
 					majorCount++;
 					minorCount = 0;
 					info( "product=" + mon.meta.name + ": start major checks #" + majorCount + ": " );
@@ -105,7 +105,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 				handle( e );
 			}
 
-			if( runMajor && enabledMinor && lastStartMinor == 0 ) {
+			if( runMajor && enabledMinor ) {
 				runMajor = false;
 				continue;
 			}
