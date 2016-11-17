@@ -169,11 +169,7 @@ public class MetaMonitoring extends PropertyController {
 			DIR_LOGS.isEmpty() )
 			return( false );
 		
-		LocalFolder folder = action.getLocalFolder( DIR_RES );
-		if( !folder.checkExists( action ) )
-			return( false );
-		
-		folder = action.getLocalFolder( DIR_DATA );
+		LocalFolder folder = action.getLocalFolder( DIR_DATA );
 		folder.ensureExists( action );
 		folder = action.getLocalFolder( DIR_REPORTS );
 		folder.ensureExists( action );
