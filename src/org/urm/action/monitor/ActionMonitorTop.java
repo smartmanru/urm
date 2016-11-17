@@ -230,7 +230,10 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 		ActionSet set = new ActionSet( this , "minor" );
 		
 		// system
+		int dcIndex = super.logStartCapture();
+		info( "Run fast datacenter checks, dc=" + target.DC + " ..." );
 		MetaEnvDC dc = addSystemTargetItems( mon , info , target , set );
+		DatacenterStatus dcStatus = new DatacenterStatus( this , dc );
 		
 		// direct
 		for( MetaMonitoringItem item : target.getUrlsList( this ) ) {
@@ -247,7 +250,10 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 		if( !ok )
 			super.fail1( _Error.MonitorTargetFailed1 , "Monitoring target failed name=" + target.NAME , target.NAME );
 		
-		checkSystemTargetItems( mon , info , target , set , dc );
+		info( "Fast server checks finished" );
+		String[] log = super.logFinishCapture( dcIndex );
+		dcStatus.setLog( log );
+		checkSystemTargetItems( mon , info , target , set , dcStatus );
 		
 		info.addCheckMinorsData( target , ok );
 	}
@@ -269,7 +275,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 		set.runSimple( action );
 	}
 
-	private void checkSystemTargetItems( MetaMonitoring mon , MonitorInfo info , MetaMonitoringTarget target , ActionSet set , MetaEnvDC dc ) throws Exception {
+	private void checkSystemTargetItems( MetaMonitoring mon , MonitorInfo info , MetaMonitoringTarget target , ActionSet set , DatacenterStatus dcStatus ) throws Exception {
 		boolean totalStatus = true;
 		
 		for( ActionSetItem item : set.getActions() ) {
@@ -285,7 +291,6 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 			}
 		}
 		
-		DatacenterStatus dcStatus = new DatacenterStatus( this , dc );
 		dcStatus.setActionStatus( totalStatus );
 		super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORING_DCITEMS , dcStatus );
 	}
