@@ -202,7 +202,9 @@ public class MonitorInfo {
 		*/
 		
 		// new - from https://oldwww.jrobin.org/api/jrobinandrrdtoolcompared.html
-		String rrdFile = fname;
+		LocalFolder folder = action.getLocalFolder( Common.getDirName( fname ) );
+		folder.ensureExists( action );
+		String rrdFile = action.getLocalPath( fname );
 		long start = Util.getTime();
 		int step = 60;
 		
@@ -217,7 +219,7 @@ public class MonitorInfo {
 		rrdDb = new RrdDb( rrdDef );
 		rrdDb.close();
 		
-		rrdDb = new RrdDb( fname );
+		rrdDb = new RrdDb( rrdFile );
 	}
 
 	private boolean openRrdFile( MonitorTargetInfo info ) throws Exception {

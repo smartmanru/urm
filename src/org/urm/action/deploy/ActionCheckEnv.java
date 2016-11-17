@@ -8,6 +8,7 @@ import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.database.DatabaseClient;
+import org.urm.action.monitor.DatacenterStatus;
 import org.urm.action.monitor.NodeStatus;
 import org.urm.action.monitor.ServerStatus;
 import org.urm.common.Common;
@@ -35,6 +36,9 @@ public class ActionCheckEnv extends ActionBase {
 	boolean S_CHECKENV_NODE_FAILED;
 	boolean S_CHECKENV_NODE_STOPPED;
 	
+	DatacenterStatus dcStatus;
+	int dcCaptureIndex;
+	
 	public ActionCheckEnv( ActionBase action , String stream ) {
 		super( action , stream );
 	}
@@ -56,17 +60,20 @@ public class ActionCheckEnv extends ActionBase {
 	}
 	
 	@Override protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+		dcStatus = new DatacenterStatus( this , set.dc );
+		dcCaptureIndex = super.logStartCapture();
 		info( "execute datacenter=" + set.dc.NAME + " ..." );
 	}
 
 	@Override protected void runAfter( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		String F_STATUSOBJECT = set.dc.NAME;
-		if( !S_CHECKENV_TOTAL_SERVERS_FAILED.isEmpty() ) {
+		if( !S_CHECKENV_TOTAL_SERVERS_FAILED.isEmpty() )
 			info( "## dc " + F_STATUSOBJECT + " check FAILED: issues on servers - {" + S_CHECKENV_TOTAL_SERVERS_FAILED + "}" );
-			return;
-		}
+		else
+			info( "## dc " + F_STATUSOBJECT + " check OK" );
 		
-		info( "## dc " + F_STATUSOBJECT + " check OK" );
+		dcStatus.setLog( super.logFinishCapture( dcCaptureIndex ) );
+		super.eventSource.finishScopeItem( ServerMonitoring.EVENT_MONITORING_DATACENTER , dcStatus );
 	}
 	
 	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {

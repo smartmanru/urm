@@ -65,6 +65,18 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 
 	@Override
 	public void triggerEvent( ServerSourceEvent event ) {
+		if( event.eventType == ServerMonitoring.EVENT_MONITORING_DATACENTER ) {
+			ActionEventsSource source = ( ActionEventsSource )event.source;
+			DatacenterStatus status = ( DatacenterStatus )event.data;
+			MetaEnvDC dc = status.dc;
+			ServerMonitoringSource serverSource = monitoring.getObjectSource( dc );
+			if( serverSource == null )
+				return;
+			
+			processDatacenterEvent( source , serverSource , dc , status );
+			return;
+		}
+		
 		if( event.eventType == ServerMonitoring.EVENT_MONITORING_DCITEMS ) {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			DatacenterStatus status = ( DatacenterStatus )event.data;
@@ -170,6 +182,13 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		recalculateSystem( product.system );
 	}
 
+	private void processDatacenterEvent( ActionEventsSource source , ServerMonitoringSource dcSource , MetaEnvDC dc , DatacenterStatus status ) {
+		if( stopping )
+			return;
+
+		dcSource.setPrimaryLog( status.getLog() );
+	}
+	
 	private void processDatacenterItemsEvent( ActionEventsSource source , ServerMonitoringSource dcSource , MetaEnvDC dc , DatacenterStatus status ) {
 		if( stopping )
 			return;

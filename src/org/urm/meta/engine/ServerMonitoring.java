@@ -58,6 +58,7 @@ public class ServerMonitoring extends ServerObject {
 	public static int EVENT_MONITORSTATECHANGED = 11;
 	public static int EVENT_MONITORCHILDCHANGED = 12;
 	public static int EVENT_MONITORGRAPHCHANGED = 13;
+	public static int EVENT_MONITORING_DATACENTER = 50;
 	public static int EVENT_MONITORING_SERVER = 51;
 	public static int EVENT_MONITORING_NODE = 52;
 	public static int EVENT_MONITORING_DCITEMS = 150;
