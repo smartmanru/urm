@@ -31,11 +31,7 @@ public class ServerAuth extends ServerObject {
 		File authFile = new File( authPath );
 		if( !authFile.isFile() ) {
 			ServerAuthContext ac = new ServerAuthContext( this );
-			ac.adminContext = true;
-			ac.USER = "admin";
-			ac.PASSWORDSAVE = Common.getMD5( "123" );
-			ac.METHOD = ServerAuthContext.METHOD_USER;
-			ac.createProperties();
+			ac.createInitialAdministrator();
 			saveAuthData( authKey , ac );
 		}
 	}

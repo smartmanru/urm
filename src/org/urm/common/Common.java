@@ -236,6 +236,14 @@ public class Common {
 		return( list.toArray( new String[0] ) );
 	}
 	
+	public static String[] getSortedList( String[] set ) {
+		List<String> list = new LinkedList<String>();
+		for( String s : set )
+			list.add( s );
+		Collections.sort( list );
+		return( list.toArray( new String[0] ) );
+	}
+	
 	public static String getLogTimeStamp() {
 		return( getTimeStamp( new Date() ) );
 	}

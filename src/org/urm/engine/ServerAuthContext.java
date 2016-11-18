@@ -1,6 +1,7 @@
 package org.urm.engine;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.common.PropertySet;
 import org.urm.meta.ServerObject;
 
@@ -9,7 +10,7 @@ public class ServerAuthContext extends ServerObject {
 	ServerAuth auth;
 	public PropertySet properties;
 	
-	boolean adminContext;
+	private boolean adminContext;
 	
 	public String METHOD = "";
 	public String USER = "";
@@ -26,6 +27,14 @@ public class ServerAuthContext extends ServerObject {
 	public ServerAuthContext( ServerAuth auth ) {
 		super( auth );
 		this.auth = auth;
+	}
+	
+	public void createInitialAdministrator() throws Exception {
+		adminContext = true;
+		USER = "admin";
+		PASSWORDSAVE = Common.getMD5( "123" );
+		METHOD = ServerAuthContext.METHOD_USER;
+		createProperties();
 	}
 	
 	public boolean isAdminContext() {
