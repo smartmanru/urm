@@ -235,7 +235,7 @@ public class TransactionBase extends ServerObject {
 		if( e.getClass() == RunError.class )
 			error = ( RunError )e;
 		else
-			error = new RunError( _Error.InternalTransactionError1 , "Internal transaction error: " + s , new String[] { s } );
+			error = new RunError( 0 , s , new String[0] );
 	}
 	
 	public void handle0( Throwable e , int errorCode , String msg ) throws RunError {
