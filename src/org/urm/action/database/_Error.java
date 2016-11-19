@@ -1,11 +1,11 @@
 package org.urm.action.database;
 
-import org.urm.common.RunError;
+import org.urm.common.RunErrorClass;
 
 public class _Error {
 
-	public static final int ErrorBase = RunError.BaseActionDatabase;
-	public static final int ErrorInternalBase = ErrorBase + RunError.InternalBase;
+	public static final int ErrorBase = RunErrorClass.BaseActionDatabase;
+	public static final int ErrorInternalBase = ErrorBase + RunErrorClass.InternalBase;
 	
 	public static final int ConnectFailed1 = ErrorBase + 1;
 	public static final int NoRegionSet1 = ErrorBase + 2;

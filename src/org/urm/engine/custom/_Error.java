@@ -1,11 +1,11 @@
 package org.urm.engine.custom;
 
-import org.urm.common.RunError;
+import org.urm.common.RunErrorClass;
 
 public class _Error {
 
-	public static final int ErrorBase = RunError.BaseEngineCustom;
-	public static final int ErrorInternalBase = ErrorBase + RunError.InternalBase;
+	public static final int ErrorBase = RunErrorClass.BaseEngineCustom;
+	public static final int ErrorInternalBase = ErrorBase + RunErrorClass.InternalBase;
 	
 	public static final int CustomBuildNotSet0 = ErrorBase + 1;
 	public static final int UnableLoadCustomBuild1 = ErrorBase + 2;

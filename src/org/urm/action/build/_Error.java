@@ -1,11 +1,11 @@
 package org.urm.action.build;
 
-import org.urm.common.RunError;
+import org.urm.common.RunErrorClass;
 
 public class _Error {
 
-	public static final int ErrorBase = RunError.BaseActionBuild;
-	public static final int ErrorInternalBase = ErrorBase + RunError.InternalBase;
+	public static final int ErrorBase = RunErrorClass.BaseActionBuild;
+	public static final int ErrorInternalBase = ErrorBase + RunErrorClass.InternalBase;
 	
 	public static final int UnknownBuilderType1 = ErrorBase + 1;
 	public static final int TargetPathAlreadyExists1 = ErrorBase + 2;

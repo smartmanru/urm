@@ -6,35 +6,6 @@ public class RunError extends Exception {
 	 */
 	private static final long serialVersionUID = -6785595595488058740L;
 
-	public static int BaseCommon = 100000;
-	public static int BaseCommonAction = 101000;
-	public static int BaseCommonJmx = 102000;
-	public static int BaseCommonMeta = 103000;
-	public static int BaseEngine = 110000;
-	public static int BaseEngineAction = 111000;
-	public static int BaseEngineCustom = 112000;
-	public static int BaseEngineDist = 113000;
-	public static int BaseEngineExecutor = 114000;
-	public static int BaseEngineShell = 116000;
-	public static int BaseEngineStorage = 117000;
-	public static int BaseEngineVCS = 118000;
-	public static int BaseAction = 200000;
-	public static int BaseActionBuild = 201000;
-	public static int BaseActionConf = 202000;
-	public static int BaseActionDatabase = 203000;
-	public static int BaseActionDeploy = 204000;
-	public static int BaseActionMain = 205000;
-	public static int BaseActionMonitor = 206000;
-	public static int BaseActionRelease = 207000;
-	public static int BaseActionXDoc = 208000;
-	public static int BaseMetaCommon = 250000;
-	public static int BaseMetaEngine = 251000;
-	public static int BaseMetaProduct = 252000;
-	public static int BaseClient = 300000;
-	public static int BasePlugin = 800000;
-	
-	public static int InternalBase = 500;
-
 	private int errorCode;
 	private String errorMessage;
 	private String[] errorParams;
@@ -70,7 +41,7 @@ public class RunError extends Exception {
 	}
 
 	public RunError getUserRootCause() {
-		if( ( errorCode % 1000 ) >= RunError.InternalBase )
+		if( ( errorCode % 1000 ) >= RunErrorClass.InternalBase )
 			return( null );
 		
 		Throwable cause = super.getCause();

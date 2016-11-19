@@ -2,8 +2,8 @@ package org.urm.common;
 
 public class _Error {
 
-	public static final int ErrorBase = RunError.BaseCommon;
-	public static final int ErrorInternalBase = ErrorBase + RunError.InternalBase;
+	public static final int ErrorBase = RunErrorClass.BaseCommon;
+	public static final int ErrorInternalBase = ErrorBase + RunErrorClass.InternalBase;
 	
 	public static final int UnableToReadFile1 = ErrorBase + 1;
 	public static final int NotSingleLineFile1 = ErrorBase + 2;

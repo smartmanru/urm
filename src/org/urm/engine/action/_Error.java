@@ -1,11 +1,11 @@
 package org.urm.engine.action;
 
-import org.urm.common.RunError;
+import org.urm.common.RunErrorClass;
 
 public class _Error {
 
-	public static final int ErrorBase = RunError.BaseEngineAction;
-	public static final int ErrorInternalBase = ErrorBase + RunError.InternalBase;
+	public static final int ErrorBase = RunErrorClass.BaseEngineAction;
+	public static final int ErrorInternalBase = ErrorBase + RunErrorClass.InternalBase;
 	
 	public static final int ReleaseWrongBuildMode1 = ErrorBase + 19;
 	public static final int UnknownFlagVar1 = ErrorBase + 20;

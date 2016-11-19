@@ -2,7 +2,7 @@ package org.urm.custom.database;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.RunError;
+import org.urm.common.RunErrorClass;
 import org.urm.engine.custom.CommandCustom;
 import org.urm.engine.custom.ICustomDatabase;
 import org.urm.engine.storage.FileSet;
@@ -16,7 +16,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 	boolean S_CHECK_FAILED = false;
 	public String PUBLISHERS;
 
-	public static int ErrorBase = RunError.BasePlugin;
+	public static int ErrorBase = RunErrorClass.BasePlugin;
 	public static final int ScriptSetErrors0 = ErrorBase + 1;
 	public static final int ReleaseDatabaseFileSetCheckFailed0 = ErrorBase + 2;
 	public static final int MissingOrganizationalMappingFile1 = ErrorBase + 3;

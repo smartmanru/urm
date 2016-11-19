@@ -1,11 +1,11 @@
 package org.urm.meta.product;
 
-import org.urm.common.RunError;
+import org.urm.common.RunErrorClass;
 
 public class _Error {
 
-	public static final int ErrorBase = RunError.BaseMetaProduct;
-	public static final int ErrorInternalBase = ErrorBase + RunError.InternalBase;
+	public static final int ErrorBase = RunErrorClass.BaseMetaProduct;
+	public static final int ErrorInternalBase = ErrorBase + RunErrorClass.InternalBase;
 	
 	public static final int InvalidOSType1 = ErrorBase + 1;
 	public static final int MissingOSType0 = ErrorBase + 2;

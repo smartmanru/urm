@@ -1,11 +1,11 @@
 package org.urm.engine.shell;
 
-import org.urm.common.RunError;
+import org.urm.common.RunErrorClass;
 
 public class _Error {
 
-	public static final int ErrorBase = RunError.BaseEngineShell;
-	public static final int ErrorInternalBase = ErrorBase + RunError.InternalBase;
+	public static final int ErrorBase = RunErrorClass.BaseEngineShell;
+	public static final int ErrorInternalBase = ErrorBase + RunErrorClass.InternalBase;
 	
 	public static final int MissingAccountDetails0 = ErrorBase + 1;
 	public static final int InvalidDirectory1 = ErrorBase + 2;

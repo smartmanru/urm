@@ -1,11 +1,11 @@
 package org.urm.engine;
 
-import org.urm.common.RunError;
+import org.urm.common.RunErrorClass;
 
 public class _Error {
 
-	public static final int ErrorBase = RunError.BaseEngine;
-	public static final int ErrorInternalBase = ErrorBase + RunError.InternalBase;
+	public static final int ErrorBase = RunErrorClass.BaseEngine;
+	public static final int ErrorInternalBase = ErrorBase + RunErrorClass.InternalBase;
 	
 	public static final int MainExecutorExpected0 = ErrorBase + 1;
 	public static final int UnknownCommandExecutor1 = ErrorBase + 12;
