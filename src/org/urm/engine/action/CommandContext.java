@@ -460,7 +460,7 @@ public class CommandContext {
 		return( options.combineValue( var , confValue , defValue ) );
 	}
 	
-	public int logStartCapture() {
+	public synchronized int logStartCapture() {
 		if( logCapture == null )
 			logCapture = new LinkedList<String>();
 		logCaptureCount++;
@@ -472,7 +472,7 @@ public class CommandContext {
 		logCapture = null;
 	}
 	
-	public String[] logFinishCapture( int startIndex ) {
+	public synchronized String[] logFinishCapture( int startIndex ) {
 		String[] data = null;
 		if( startIndex > 0 )
 			data = logCapture.subList( startIndex , logCapture.size() ).toArray( new String[0] );
