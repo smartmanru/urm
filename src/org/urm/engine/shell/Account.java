@@ -9,6 +9,7 @@ import org.urm.common.RunContext;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.meta.engine.ServerHostAccount;
 import org.urm.meta.engine.ServerInfrastructure;
+import org.urm.meta.engine.ServerNetworkHost;
 
 public class Account {
 
@@ -237,6 +238,19 @@ public class Account {
 		catch( Throwable e ) {
 		}
 		return( "" );
+	}
+
+	public void setHost( ActionBase action , ServerNetworkHost host ) throws Exception {
+		if( isHostName() ) {
+			HOST = host.ID;
+			IP = host.IP;
+		}
+		else {
+			if( !host.IP.isEmpty() )
+				HOST = IP = host.IP;
+			else
+				HOST = IP = host.ID;
+		}
 	}
 	
 }

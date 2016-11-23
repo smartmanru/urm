@@ -10,6 +10,7 @@ import org.urm.engine.ServerTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.meta.engine.ServerAccountReference;
 import org.urm.meta.engine.ServerHostAccount;
+import org.urm.meta.engine.ServerNetworkHost;
 import org.urm.meta.product.Meta.VarNODETYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -189,4 +190,13 @@ public class MetaEnvServerNode extends PropertyController {
 		setOffline( transaction , true );
 	}
 
+	public void updateHost( ServerTransaction transaction , ServerNetworkHost host ) throws Exception {
+		Account ha = Account.getAnyAccount( HOSTLOGIN );
+		
+		ActionBase action = transaction.getAction();
+		ha.setHost( action , host );
+		super.setStringProperty( PROPERTY_HOSTLOGIN , ha.getHostLogin() );
+		scatterProperties( action );
+	}
+	
 }
