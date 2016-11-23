@@ -139,6 +139,8 @@ public class ServerNetworkHost extends ServerObject {
 	}
 
 	public boolean isEqualsHost( String host ) {
+		if( host.isEmpty() )
+			return( false );
 		if( host.equals( ID ) )
 			return( true );
 		if( host.equals( IP ) )
