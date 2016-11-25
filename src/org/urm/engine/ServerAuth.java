@@ -1,11 +1,19 @@
 package org.urm.engine;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ActionCore;
 import org.urm.common.Common;
+import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
+import org.urm.common.RunContext;
 import org.urm.meta.ServerObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class ServerAuth extends ServerObject {
 
@@ -14,9 +22,14 @@ public class ServerAuth extends ServerObject {
 	public static String AUTH_GROUP_RESOURCE = "resource"; 
 	public static String AUTH_GROUP_USER = "user"; 
 	
+	Map<String,ServerAuthUser> localUsers;
+	Map<String,ServerAuthGroup> groups;
+	
 	public ServerAuth( ServerEngine engine ) {
 		super( null );
 		this.engine = engine;
+		localUsers = new HashMap<String,ServerAuthUser>();
+		groups = new HashMap<String,ServerAuthGroup>(); 
 	}
 	
 	public void init() throws Exception {
@@ -28,12 +41,95 @@ public class ServerAuth extends ServerObject {
 		if( !authDir.isDirectory() )
 			authDir.mkdir();
 		
-		File authFile = new File( authPath );
-		if( !authFile.isFile() ) {
+		File authUserFile = new File( authPath );
+		if( !authUserFile.isFile() ) {
 			ServerAuthContext ac = new ServerAuthContext( this );
 			ac.createInitialAdministrator();
 			saveAuthData( authKey , ac );
 		}
+		
+		// read users
+		String authFile = getAuthFile();
+		load( authFile , engine.execrc );
+	}
+
+	private String getAuthFile() {
+		String path = Common.getPath( engine.execrc.installPath , "etc" );
+		String authFile = Common.getPath( path , "auth.xml" );
+		return( authFile );
+	}
+	
+	public void load( String userFile , RunContext execrc ) throws Exception {
+		Document doc = ConfReader.readXmlFile( execrc , userFile );
+		Node root = doc.getDocumentElement();
+		readLocalUsers( root );
+		readGroups( root );
+	}
+	
+	private void readLocalUsers( Node root ) throws Exception {
+		localUsers.clear();
+		Node userList = ConfReader.xmlGetFirstChild( root , "localusers" );
+		if( userList == null )
+			return;
+		
+		Node[] list = ConfReader.xmlGetChildren( userList , "user" );
+		if( list == null )
+			return;
+		
+		for( Node node : list ) {
+			ServerAuthUser user = new ServerAuthUser( this );
+			user.loadLocalUser( node );
+			addLocalUser( user );
+		}
+	}
+
+	private void addLocalUser( ServerAuthUser user ) {
+	}
+	
+	private void readGroups( Node root ) throws Exception {
+		groups.clear();
+		Node groupList = ConfReader.xmlGetFirstChild( root , "groups" );
+		if( groupList == null )
+			return;
+		
+		Node[] list = ConfReader.xmlGetChildren( groupList , "group" );
+		if( list == null )
+			return;
+		
+		for( Node node : list ) {
+			ServerAuthGroup group = new ServerAuthGroup( this );
+			group.loadGroup( node );
+			addGroup( group );
+		}
+	}
+
+	private void addGroup( ServerAuthGroup group ) {
+	}
+	
+	public void save( TransactionBase transaction ) throws Exception {
+		String authFile = getAuthFile();
+		save( transaction.getAction() , authFile , engine.execrc );
+	}
+	
+	private void save( ActionCore action , String path , RunContext execrc ) throws Exception {
+		Document doc = Common.xmlCreateDoc( "auth" );
+		Element root = doc.getDocumentElement();
+		
+		Element usersElement = Common.xmlCreateElement( doc , root , "localusers" );
+		for( String id : Common.getSortedKeys( localUsers ) ) {
+			ServerAuthUser user = localUsers.get( id );
+			Element node = Common.xmlCreateElement( doc , usersElement , "user" );
+			user.save( doc , node );
+		}
+		
+		Element groupsElement = Common.xmlCreateElement( doc , root , "groups" );
+		for( String id : Common.getSortedKeys( groups ) ) {
+			ServerAuthGroup user = groups.get( id );
+			Element node = Common.xmlCreateElement( doc , groupsElement , "group" );
+			user.save( doc , node );
+		}
+		
+		Common.xmlSaveDoc( doc , path );
 	}
 
 	private String getAuthDir() {
@@ -84,6 +180,14 @@ public class ServerAuth extends ServerObject {
 
 		ac.PASSWORDONLINE = password;
 		return( ac );
+	}
+
+	public String[] getLocalUserList() {
+		return( Common.getSortedKeys( localUsers ) );
+	}
+	
+	public String[] getLdapUserList() {
+		return( new String[0] );
 	}
 	
 }
