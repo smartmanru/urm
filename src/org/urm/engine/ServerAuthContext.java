@@ -10,8 +10,6 @@ public class ServerAuthContext extends ServerObject {
 	ServerAuth auth;
 	public PropertySet properties;
 	
-	private boolean adminContext;
-	
 	public String METHOD = "";
 	public String USER = "";
 	public String PASSWORDONLINE = "";
@@ -30,15 +28,10 @@ public class ServerAuthContext extends ServerObject {
 	}
 	
 	public void createInitialAdministrator() throws Exception {
-		adminContext = true;
 		USER = "admin";
 		PASSWORDSAVE = Common.getMD5( "123" );
 		METHOD = ServerAuthContext.METHOD_USER;
 		createProperties();
-	}
-	
-	public boolean isAdminContext() {
-		return( adminContext );
 	}
 	
 	public boolean isAnonymous() {
@@ -78,7 +71,6 @@ public class ServerAuthContext extends ServerObject {
 		properties.setOriginalStringProperty( "method" , METHOD );
 		properties.setOriginalStringProperty( "user" , USER );
 		properties.setOriginalStringProperty( "password" , PASSWORDSAVE );
-		properties.setOriginalBooleanProperty( "admin" , adminContext );
 		properties.setOriginalStringProperty( "publickey" , PUBLICKEY );
 		properties.setOriginalStringProperty( "privatekey" , PRIVATEKEY );
 		properties.finishRawProperties();
@@ -90,7 +82,6 @@ public class ServerAuthContext extends ServerObject {
 		PASSWORDSAVE = properties.findPropertyAny( "password" );
 		PUBLICKEY = properties.findPropertyAny( "publickey" );
 		PRIVATEKEY = properties.findPropertyAny( "privatekey" );
-		adminContext = properties.getBooleanProperty( "admin" , false );
 	}
 	
 	public String getSvnAuth( ActionBase action ) {

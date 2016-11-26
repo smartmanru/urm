@@ -20,5 +20,6 @@ public class _Error {
 	public static final int InternalTransactionError1 = ErrorBase + 32;
 	public static final int TransactionMissingInfrastructureChanges0 = ErrorBase + 33;
 	public static final int TransactionMissingBaseChanges0 = ErrorBase + 34;
+	public static final int MissingAdminUser0 = ErrorBase + 35;
 	
 }

@@ -33,6 +33,13 @@ public class ServerAuth extends ServerObject {
 	}
 	
 	public void init() throws Exception {
+		// read users
+		String authFile = getAuthFile();
+		load( authFile , engine.execrc );
+
+		if( !localUsers.containsKey( "admin" ) )
+			Common.exit0( _Error.MissingAdminUser0 , "Missing master administrator user (admin)" );
+			
 		// create initial admin user
 		String authKey = getAuthKey( AUTH_GROUP_USER , "admin" );
 		String authPath = getAuthFile( authKey );
@@ -47,10 +54,6 @@ public class ServerAuth extends ServerObject {
 			ac.createInitialAdministrator();
 			saveAuthData( authKey , ac );
 		}
-		
-		// read users
-		String authFile = getAuthFile();
-		load( authFile , engine.execrc );
 	}
 
 	private String getAuthFile() {
@@ -84,6 +87,7 @@ public class ServerAuth extends ServerObject {
 	}
 
 	private void addLocalUser( ServerAuthUser user ) {
+		localUsers.put( user.NAME , user );
 	}
 	
 	private void readGroups( Node root ) throws Exception {
@@ -170,16 +174,24 @@ public class ServerAuth extends ServerObject {
 		ac.properties.saveToPropertyFile( filePath , engine.execrc , false );
 	}
 
-	public ServerAuthContext connect( String user , String password ) throws Exception {
-		String authKey = getAuthKey( AUTH_GROUP_USER , user );
-		ServerAuthContext ac = loadAuthData( engine.serverAction , authKey );
+	public ServerAuthUser connect( String username , String password ) throws Exception {
+		ServerAuthUser user = getUser( username );
+		if( user == null )
+			return( null );
 		
+		ServerAuthContext ac = user.getContext();
+		if( ac == null ) {
+			String authKey = getAuthKey( AUTH_GROUP_USER , username );
+			ac = loadAuthData( engine.serverAction , authKey );
+			user.setContext( ac );
+		}
+			
 		String passwordMD5 = Common.getMD5( password );
 		if( password == null || !passwordMD5.equals( ac.PASSWORDSAVE ) )
 			return( null );
-
+	
 		ac.PASSWORDONLINE = password;
-		return( ac );
+		return( user );
 	}
 
 	public String[] getLocalUserList() {
@@ -188,6 +200,21 @@ public class ServerAuth extends ServerObject {
 	
 	public String[] getLdapUserList() {
 		return( new String[0] );
+	}
+
+	public ServerAuthUser getLocalUserData( String username ) {
+		return( localUsers.get( username ) );
+	}
+	
+	public ServerAuthUser getLdapUserData( String username ) {
+		return( null );
+	}
+
+	public ServerAuthUser getUser( String username ) throws Exception {
+		ServerAuthUser user = getLocalUserData( username );
+		if( user == null )
+			user = getLdapUserData( username );
+		return( user );
 	}
 	
 }
