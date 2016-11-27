@@ -1,5 +1,6 @@
 package org.urm.engine;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.w3c.dom.Document;
@@ -21,6 +22,19 @@ public class ServerAuthUser {
 		this.auth = auth;
 	}
 
+	public void create( ActionBase action , String name , String email , String full , boolean admin ) {
+		this.NAME = name;
+		this.EMAIL = email;
+		this.FULLNAME = full;
+		this.ADMIN = admin;
+	}
+	
+	public void setData( ActionBase action , String email , String full , boolean admin ) {
+		this.EMAIL = email;
+		this.FULLNAME = full;
+		this.ADMIN = admin;
+	}
+	
 	public void loadLocalUser( Node root ) throws Exception {
 		NAME = ConfReader.getAttrValue( root , "name" );
 		FULLNAME = ConfReader.getAttrValue( root , "fullname" );

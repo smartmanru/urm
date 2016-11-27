@@ -32,5 +32,8 @@ public class ServerAuthGroup {
 	public void save( Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , "name" , NAME );
 	}
+
+	public void deleteUser( ActionBase action , ServerAuthUser user ) throws Exception {
+	}
 	
 }

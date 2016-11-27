@@ -29,8 +29,7 @@ public class ServerAuthContext extends ServerObject {
 	
 	public void createInitialAdministrator() throws Exception {
 		USER = "admin";
-		PASSWORDSAVE = Common.getMD5( "123" );
-		METHOD = ServerAuthContext.METHOD_USER;
+		setUserPassword( "123" );
 		createProperties();
 	}
 	
@@ -120,6 +119,11 @@ public class ServerAuthContext extends ServerObject {
 	public void setResourceKeys( String publicKey , String privateKey ) {
 		PUBLICKEY = publicKey;
 		PRIVATEKEY = privateKey;
+	}
+	
+	public void setUserPassword( String password ) throws Exception {
+		PASSWORDSAVE = Common.getMD5( password );
+		METHOD = ServerAuthContext.METHOD_USER;
 	}
 	
 }

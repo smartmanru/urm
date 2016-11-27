@@ -244,5 +244,31 @@ public class ServerAuth extends ServerObject {
 	public ServerAuthGroup getGroup( String groupName ) {
 		return( groups.get( groupName ) );
 	}
+
+	public ServerAuthUser createUser( ActionBase action , String name , String email , String full , boolean admin ) throws Exception {
+		ServerAuthUser user = new ServerAuthUser( this );
+		user.create( action , name , email , full , admin );
+		addLocalUser( user );
+		return( user );
+	}
+	
+	public void setUserData( ActionBase action , ServerAuthUser user , String email , String full , boolean admin ) throws Exception {
+		user.setData( action , email , full , admin );
+	}
+
+	public void deleteUser( ActionBase action , ServerAuthUser user ) throws Exception {
+		localUsers.remove( user.NAME );
+		for( ServerAuthGroup group : groups.values() )
+			group.deleteUser( action , user );
+	}
+
+	public void setUserPassword( ActionBase action , ServerAuthUser user , String password ) throws Exception {
+		// create initial admin user
+		String authKey = getAuthKey( AUTH_GROUP_USER , user.NAME );
+		ServerAuthContext ac = loadAuthData( action , authKey );
+		ac.setUserPassword( password );
+		ac.createProperties();
+		saveAuthData( authKey , ac );
+	}
 	
 }
