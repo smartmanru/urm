@@ -110,11 +110,12 @@ public class ServerAuth extends ServerObject {
 	}
 
 	private void addGroup( ServerAuthGroup group ) {
+		groups.put( group.NAME , group );
 	}
 	
-	public void save( TransactionBase transaction ) throws Exception {
+	public void save( ActionBase action ) throws Exception {
 		String authFile = getAuthFile();
-		save( transaction.getAction() , authFile , engine.execrc );
+		save( action , authFile , engine.execrc );
 	}
 	
 	private void save( ActionCore action , String path , RunContext execrc ) throws Exception {
@@ -217,6 +218,31 @@ public class ServerAuth extends ServerObject {
 		if( user == null )
 			user = getLdapUserData( username );
 		return( user );
+	}
+
+	public ServerAuthGroup createGroup( ActionBase action , String name ) throws Exception {
+		ServerAuthGroup group = new ServerAuthGroup( this );
+		group.create( action , name );
+		addGroup( group );
+		return( group );
+	}
+
+	public void renameGroup( ActionBase action , ServerAuthGroup group , String name ) throws Exception {
+		groups.remove( group.NAME );
+		group.rename( action , name );
+		addGroup( group );
+	}
+
+	public void deleteGroup( ActionBase action , ServerAuthGroup group ) throws Exception {
+		groups.remove( group.NAME );
+	}
+
+	public String[] getGroupNames() {
+		return( Common.getSortedKeys( groups ) );
+	}
+
+	public ServerAuthGroup getGroup( String groupName ) {
+		return( groups.get( groupName ) );
 	}
 	
 }

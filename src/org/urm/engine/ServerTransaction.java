@@ -570,5 +570,5 @@ public class ServerTransaction extends TransactionBase {
 		checkTransactionMetadata( delivery.meta.getStorage( action ) );
 		delivery.setDatabase( this , set );
 	}
-	
+
 }
