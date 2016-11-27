@@ -22,6 +22,8 @@ public class ServerAuth extends ServerObject {
 	public static String AUTH_GROUP_RESOURCE = "resource"; 
 	public static String AUTH_GROUP_USER = "user"; 
 	
+	public static String MASTER_ADMIN = "admin";
+	
 	Map<String,ServerAuthUser> localUsers;
 	Map<String,ServerAuthGroup> groups;
 	
@@ -37,11 +39,11 @@ public class ServerAuth extends ServerObject {
 		String authFile = getAuthFile();
 		load( authFile , engine.execrc );
 
-		if( !localUsers.containsKey( "admin" ) )
-			Common.exit0( _Error.MissingAdminUser0 , "Missing master administrator user (admin)" );
+		if( !localUsers.containsKey( MASTER_ADMIN ) )
+			Common.exit0( _Error.MissingAdminUser0 , "Missing master administrator user (" + MASTER_ADMIN + ")" );
 			
 		// create initial admin user
-		String authKey = getAuthKey( AUTH_GROUP_USER , "admin" );
+		String authKey = getAuthKey( AUTH_GROUP_USER , MASTER_ADMIN );
 		String authPath = getAuthFile( authKey );
 		
 		File authDir = new File( getAuthDir() );
