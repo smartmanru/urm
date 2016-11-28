@@ -72,7 +72,7 @@ public class SubversionMirrorStorage extends MirrorStorage {
 		if( !vcs.isValidRepositoryMasterPath( mirror , "/" ) )
 			action.exit0( _Error.UnableCheckRepositoryPath0 , "Unable to check master repository path" );
 
-		String remotePath = Common.getPath( vcs.getRepositoryPath( mirror ) , mirror.RESOURCE_DATA ); 
+		String remotePath = vcs.getRepositoryPath( mirror ); 
 		LocalFolder repoFolder = super.getRepoFolder();
 		LocalFolder dataFolder = repoFolder.getSubFolder( action , mirror.RESOURCE_DATA );
 		
