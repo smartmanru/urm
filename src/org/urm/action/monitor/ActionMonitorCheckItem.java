@@ -81,7 +81,10 @@ public class ActionMonitorCheckItem extends ActionBase {
 		boolean res = monitorServerItems( null );
 		serverStatus.setActionStatus( res );
 		
-		info( "Fast server checks finished" );
+		if( res )
+			info( "Fast server checks successfully finished" );
+		else
+			error( "Fast server checks failed" );
 		String[] log = super.logFinishCapture( serverIndex );
 		serverStatus.setLog( log );
 		
@@ -91,8 +94,10 @@ public class ActionMonitorCheckItem extends ActionBase {
 			
 			int nodeIndex = super.logStartCapture();
 			info( "Run fast server checks, node=" + node.POS + " ..." );
-			monitorServerItems( nodeStatus );
-			info( "Fast server checks finished" );
+			if( monitorServerItems( nodeStatus ) )
+				info( "Fast server checks successfully finished" );
+			else
+				error( "Fast server checks failed" );
 			log = super.logFinishCapture( nodeIndex );
 			nodeStatus.setLog( log );
 		}
