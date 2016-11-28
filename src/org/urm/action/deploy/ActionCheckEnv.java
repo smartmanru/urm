@@ -53,10 +53,13 @@ public class ActionCheckEnv extends ActionBase {
 		if( !S_CHECKENV_TOTAL_SERVERS_FAILED.isEmpty() )
 			super.fail0( _Error.CheckenvFailed0 , "Checkenv failed" );
 	
-		if( super.isFailed() )
+		if( super.isFailed() ) {
 			status = "FAILED";
-		
-		infoAction( "total status is " + status );
+			errorAction( "total status is " + status );
+		}
+		else {
+			infoAction( "total status is " + status );
+		}
 	}
 	
 	@Override protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
@@ -68,7 +71,7 @@ public class ActionCheckEnv extends ActionBase {
 	@Override protected void runAfter( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		String F_STATUSOBJECT = set.dc.NAME;
 		if( !S_CHECKENV_TOTAL_SERVERS_FAILED.isEmpty() )
-			info( "## dc " + F_STATUSOBJECT + " check FAILED: issues on servers - {" + S_CHECKENV_TOTAL_SERVERS_FAILED + "}" );
+			error( "## dc " + F_STATUSOBJECT + " check FAILED: issues on servers - {" + S_CHECKENV_TOTAL_SERVERS_FAILED + "}" );
 		else
 			info( "## dc " + F_STATUSOBJECT + " check OK" );
 		
@@ -123,7 +126,7 @@ public class ActionCheckEnv extends ActionBase {
 				MSG = Common.addToList( MSG , "nodes.failed={" + S_CHECKENV_TARGET_NODES_FAILED + "}" , " " );
 			if( !S_CHECKENV_TARGET_COMPS_FAILED.isEmpty() )
 				MSG = Common.addToList( MSG , "components.failed={" + S_CHECKENV_TARGET_COMPS_FAILED + "}" , " " );
-			info( MSG );
+			error( MSG );
 			
 			S_CHECKENV_TOTAL_SERVERS_FAILED = Common.addItemToUniqueSpacedList( S_CHECKENV_TOTAL_SERVERS_FAILED , target.NAME );
 		}
@@ -222,7 +225,7 @@ public class ActionCheckEnv extends ActionBase {
 		if( res )
 			debug( msg );
 		else
-			info( msg );
+			error( msg );
 		if( nodeStatus == null )
 			serverStatus.addWholeUrlStatus( URL , role , res );
 		else
@@ -322,7 +325,7 @@ public class ActionCheckEnv extends ActionBase {
 		}
 
 		if( S_CHECKENV_NODE_FAILED )
-			info( "## node " + node.POS + " check FAILED" );
+			error( "## node " + node.POS + " check FAILED" );
 		else
 			info( "## node " + node.POS + " check OK" );
 		
@@ -361,13 +364,13 @@ public class ActionCheckEnv extends ActionBase {
 			return( true );
 		
 		if( process.mode == VarPROCESSMODE.ERRORS )
-			info( node.HOSTLOGIN + ": status=errors (" + process.cmdValue + ")" ); 
+			error( node.HOSTLOGIN + ": status=errors (" + process.cmdValue + ")" ); 
 		else
 		if( process.mode == VarPROCESSMODE.STARTING )
-			info( node.HOSTLOGIN + ": status=starting" );
+			error( node.HOSTLOGIN + ": status=starting" );
 		else
 		if( process.mode == VarPROCESSMODE.STOPPED )
-			info( node.HOSTLOGIN + ": status=stopped" );
+			error( node.HOSTLOGIN + ": status=stopped" );
 		else
 			this.exitUnexpectedState();
 		return( false );
