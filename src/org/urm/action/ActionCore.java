@@ -64,7 +64,7 @@ public class ActionCore {
 		callFailed = false;
 	}
 	
-	private void setFailed( RunError exception ) {
+	protected void setFailed( RunError exception ) {
 		callFailed = true;
 		progressFailed = true;
 		progressError = exception;

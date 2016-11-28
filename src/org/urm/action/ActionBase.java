@@ -113,6 +113,7 @@ abstract public class ActionBase extends ActionCore {
 
 	@Override
 	public void fail( int errorCode , String s , String[] params ) {
+		error( s );
 		super.fail( errorCode , s , params );
 		if( parent != null )
 			parent.fail( errorCode , s , params );
