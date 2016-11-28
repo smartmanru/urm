@@ -8,6 +8,7 @@ import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
+import org.urm.common.RunError;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.ServerSession;
 import org.urm.engine.action.ActionInit;
@@ -114,9 +115,10 @@ abstract public class ActionBase extends ActionCore {
 	@Override
 	public void fail( int errorCode , String s , String[] params ) {
 		error( s );
-		super.fail( errorCode , s , params );
+		RunError error = new RunError( errorCode , s , params );
+		super.setFailed( error );
 		if( parent != null )
-			parent.fail( errorCode , s , params );
+			parent.setFailed( error );
 	}
 	
 	public void setContext( CommandContext context ) {
