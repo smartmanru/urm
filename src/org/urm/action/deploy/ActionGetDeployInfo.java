@@ -84,12 +84,12 @@ public class ActionGetDeployInfo extends ActionBase {
 			FileInfo data = info.getVerData( this , key );
 			if( binary ) {
 				if( data.binaryItem.isArchive( this ) )
-					info( "\t\tdistitem=" + data.itemName + ": archive (" + Common.getEnumLower( data.binaryItem.distItemType ) + "), version=" + data.version );
+					info( "\t\tdistitem=" + data.itemName + ": archive (" + Common.getEnumLower( data.binaryItem.distItemType ) + "), version=" + data.version.getFullVersion() );
 				else
-					info( "\t\tdistitem=" + data.itemName + ": file=" + data.deployFinalName + ", version=" + data.version );
+					info( "\t\tdistitem=" + data.itemName + ": file=" + data.deployFinalName + ", version=" + data.version.getFullVersion() );
 			}
 			else
-				info( "\t\tconfitem=" + data.itemName + ": version=" + data.version );
+				info( "\t\tconfitem=" + data.itemName + ": version=" + data.version.getFullVersion() );
 		}
 	}
 	
