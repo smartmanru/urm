@@ -23,7 +23,7 @@ public class DeployCommandMeta extends CommandMeta {
 		cmdOpts = "OPT_ALL, OPT_DEPLOYGROUP, OPT_STARTGROUP, OPT_DC, OPT_EXTRAARGS, OPT_UNIT, OPT_KEY, OPT_BACKUP, OPT_OBSOLETE, OPT_DEPLOYCONF, OPT_DEPLOYBINARY, OPT_DEPLOYHOT, OPT_DEPLOYCOLD, OPT_KEEPALIVE, OPT_SKIPERRORS, OPT_ZERODOWNTIME, OPT_NOCHATMSG";
 		super.defineAction( CommandMethodMeta.newCritical( this , "deployredist" , false , "copy items from staging area to runtime area and restart servers when required" , cmdOpts , "./deployredist.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "OPT_ALL, OPT_DEPLOYGROUP, OPT_STARTGROUP, OPT_DC, OPT_UNIT, OPT_RELEASE, OPT_KEY, OPT_BACKUP";
-		super.defineAction( CommandMethodMeta.newCritical( this , "dropredist" , false , "clean staging area" , cmdOpts , "./dropredist.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
+		super.defineAction( CommandMethodMeta.newCritical( this , "dropredist" , false , "clean staging area" , cmdOpts , "./dropredist.sh [OPTIONS] {RELEASE|all} {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "OPT_ALL, OPT_DEPLOYGROUP, OPT_STARTGROUP, OPT_DBPASSWORD, OPT_DC, OPT_UNIT, OPT_KEY, OPT_DEPLOYCONF, OPT_DEPLOYBINARY, OPT_DEPLOYHOT, OPT_DEPLOYCOLD";
 		super.defineAction( CommandMethodMeta.newStatus( this , "getdeployinfo" , false , "get information about items deployed to environment by state information" , cmdOpts , "./getdeployinfo.sh [OPTIONS] {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "OPT_ALL, OPT_DEPLOYGROUP, OPT_STARTGROUP, OPT_DC, OPT_UNIT, OPT_KEY, OPT_RELEASE, OPT_OBSOLETE, OPT_DEPLOYCONF, OPT_DEPLOYBINARY, OPT_DEPLOYHOT, OPT_DEPLOYCOLD";
