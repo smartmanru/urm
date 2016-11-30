@@ -18,6 +18,8 @@ import org.urm.engine.SessionSecurity;
 import org.urm.engine._Error;
 import org.urm.meta.ServerObject;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.Meta.VarBUILDMODE;
+import org.urm.meta.product.Meta.VarENVTYPE;
 import org.urm.meta.product.MetaEnv;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -328,7 +330,7 @@ public class ServerAuth extends ServerObject {
 			return( false );
 		}
 
-		if( sa == SecurityAction.ACTION_CONFIGURE ) {
+		if( sa == SecurityAction.ACTION_CONFIGURE || sa == SecurityAction.ACTION_XDOC ) {
 			if( readOnly ) {
 				if( roles.isAny() )
 					return( true );
@@ -355,10 +357,88 @@ public class ServerAuth extends ServerObject {
 		return( false );
 	}
 	
-	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , MetaEnv env ) {
+	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , MetaEnv env , VarBUILDMODE mode , boolean readOnly ) {
 		SessionSecurity security = action.actionInit.session.getSecurity();
 		ServerAuthRoleSet roles = security.getProductRoles( meta.name );
-		return( true );
+		VarENVTYPE envtype = ( env == null )? VarENVTYPE.UNKNOWN : env.envType;
+		
+		if( roles.admin )
+			return( true );
+		
+		if( sa == SecurityAction.ACTION_SECURED ) {
+			if( env == null ) {
+				if( roles.secRel )
+					return( true );
+			}
+			else {
+				if( ( roles.secDev && envtype == VarENVTYPE.DEVELOPMENT ) || ( roles.secRel && envtype == VarENVTYPE.UAT ) || ( roles.secOpr && envtype == VarENVTYPE.PRODUCTION ) )
+					return( true );
+			}
+			return( false );
+		}
+		
+		if( sa == SecurityAction.ACTION_CONFIGURE ) {
+			if( env == null ) {
+				if( readOnly ) {
+					if( roles.secDev || roles.secRel || roles.secOpr )
+						return( true );
+				}
+				else {
+					if( roles.secRel )
+						return( true );
+				}
+			}
+			else {
+				if( readOnly ) {
+					if( roles.secDev || roles.secRel || roles.secOpr )
+						return( true );
+				}
+				else {
+					if( ( roles.secDev && envtype == VarENVTYPE.DEVELOPMENT ) || ( roles.secRel && envtype == VarENVTYPE.UAT ) || ( roles.secOpr && envtype == VarENVTYPE.PRODUCTION ) )
+						return( true );
+				}
+			}
+			return( false );
+		}
+		
+		if( sa == SecurityAction.ACTION_BUILD ) {
+			if( readOnly ) {
+				if( roles.secDev || roles.secRel || roles.secOpr )
+					return( true );
+			}
+			else {
+				if( roles.secDev && ( mode == VarBUILDMODE.DEVTRUNK || mode == VarBUILDMODE.DEVBRANCH ) )
+					return( true );
+				if( roles.secRel && ( mode == VarBUILDMODE.TRUNK || mode == VarBUILDMODE.BRANCH || mode == VarBUILDMODE.MAJORBRANCH ) )
+					return( true );
+			}
+			return( false );
+		}
+		
+		if( sa == SecurityAction.ACTION_RELEASE ) {
+			if( roles.secRel || ( readOnly && ( roles.secDev || roles.secOpr ) ) )
+				return( true );
+			return( false );
+		}
+		
+		if( sa == SecurityAction.ACTION_DEPLOY || sa == SecurityAction.ACTION_MONITOR || sa == SecurityAction.ACTION_XDOC ) {
+			if( readOnly ) {
+				if( roles.secDev || roles.secRel || roles.secOpr )
+					return( true );
+			}
+			else {
+				if( ( roles.secDev && envtype == VarENVTYPE.DEVELOPMENT ) || ( roles.secRel && envtype == VarENVTYPE.UAT ) || ( roles.secOpr && envtype == VarENVTYPE.PRODUCTION ) )
+					return( true );
+			}
+		}
+		
+		if( sa == SecurityAction.ACTION_ADMIN ) {
+			if( roles.admin )
+				return( true );
+			return( false );
+		}
+				
+		return( false );
 	}
 	
 }

@@ -48,6 +48,9 @@ public class SessionSecurity {
 	}
 
 	public synchronized void setPermissions() throws Exception {
+		if( user == null )
+			return;
+		
 		secBase.clear();
 		secProductAny.clear();
 		secNetworkAny.clear();
