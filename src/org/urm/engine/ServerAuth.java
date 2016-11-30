@@ -2,6 +2,8 @@ package org.urm.engine;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
@@ -17,6 +19,11 @@ import org.w3c.dom.Node;
 
 public class ServerAuth extends ServerObject {
 
+	public enum SourceType {
+		SOURCE_LOCAL ,
+		SOURCE_LDAP
+	};
+	
 	ServerEngine engine;
 
 	public static String AUTH_GROUP_RESOURCE = "resource"; 
@@ -278,6 +285,15 @@ public class ServerAuth extends ServerObject {
 		ac.setUserPassword( password );
 		ac.createProperties();
 		saveAuthData( authKey , ac );
+	}
+
+	public ServerAuthGroup[] getUserGroups( ServerAuthUser user ) {
+		List<ServerAuthGroup> list = new LinkedList<ServerAuthGroup>();
+		for( ServerAuthGroup group : groups.values() ) {
+			if( group.hasUser( user ) )
+				list.add( group );
+		}
+		return( list.toArray( new ServerAuthGroup[0] ) );
 	}
 	
 }
