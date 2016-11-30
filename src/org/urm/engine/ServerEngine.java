@@ -29,6 +29,7 @@ import org.urm.engine.shell.ShellPool;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.ServerLoader;
+import org.urm.meta.engine.ServerAuth;
 import org.urm.meta.engine.ServerMonitoring;
 
 public class ServerEngine {

@@ -3,8 +3,6 @@ package org.urm.meta.engine;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.PropertySet;
-import org.urm.engine.ServerAuth;
-import org.urm.engine.ServerAuthContext;
 import org.urm.engine.ServerTransaction;
 import org.urm.meta.ServerObject;
 import org.w3c.dom.Document;

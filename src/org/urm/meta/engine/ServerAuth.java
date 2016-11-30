@@ -1,4 +1,4 @@
-package org.urm.engine;
+package org.urm.meta.engine;
 
 import java.io.File;
 import java.util.HashMap;
@@ -12,6 +12,10 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext;
+import org.urm.engine.ServerEngine;
+import org.urm.engine.ServerSession;
+import org.urm.engine.SessionSecurity;
+import org.urm.engine._Error;
 import org.urm.meta.ServerObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

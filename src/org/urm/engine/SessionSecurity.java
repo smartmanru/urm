@@ -3,6 +3,12 @@ package org.urm.engine;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.meta.engine.ServerAuth;
+import org.urm.meta.engine.ServerAuthContext;
+import org.urm.meta.engine.ServerAuthGroup;
+import org.urm.meta.engine.ServerAuthRoleSet;
+import org.urm.meta.engine.ServerAuthUser;
+
 public class SessionSecurity {
 
 	ServerAuth auth;
