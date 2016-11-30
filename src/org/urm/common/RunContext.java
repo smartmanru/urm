@@ -48,7 +48,7 @@ public class RunContext implements Serializable {
 	public RunContext() {
 	}
 
-	public static RunContext clone( RunContext parent ) throws Exception {
+	public static RunContext copy( RunContext parent ) throws Exception {
 		return( parent.copy() );
 	}
 

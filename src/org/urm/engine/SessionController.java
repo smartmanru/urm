@@ -153,9 +153,9 @@ public class SessionController {
 		return( res );
 	}
 
-	public ServerSession createSession( RunContext clientrc , boolean client ) {
+	public ServerSession createSession( SessionSecurity security , RunContext clientrc , boolean client ) {
 		int sessionId = createSessionId();
-		ServerSession session = new ServerSession( this , clientrc , sessionId , client );
+		ServerSession session = new ServerSession( this , security , clientrc , sessionId , client );
 		return( session );
 	}
 

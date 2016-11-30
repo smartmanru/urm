@@ -177,26 +177,35 @@ public class ServerAuth extends ServerObject {
 		ac.properties.saveToPropertyFile( filePath , engine.execrc , false );
 	}
 
-	public ServerAuthUser connect( String username , String password ) throws Exception {
+	public ServerSession connect( String username , String password , RunContext clientrc ) throws Exception {
 		ServerAuthUser user = getUser( username );
 		if( user == null )
 			return( null );
 		
-		ServerAuthContext ac = user.getContext();
-		if( ac == null ) {
-			String authKey = getAuthKey( AUTH_GROUP_USER , username );
-			ac = loadAuthData( engine.serverAction , authKey );
-			user.setContext( ac );
-		}
+		String authKey = getAuthKey( AUTH_GROUP_USER , username );
+		ServerAuthContext ac = loadAuthData( engine.serverAction , authKey );
 			
 		String passwordMD5 = Common.getMD5( password );
 		if( password == null || !passwordMD5.equals( ac.PASSWORDSAVE ) )
 			return( null );
 	
 		ac.PASSWORDONLINE = password;
-		return( user );
+		
+		SessionSecurity security = new SessionSecurity( this );
+		security.setUser( user );
+		security.setContext( ac );
+		security.setPermissions();
+		
+		ServerSession session = engine.createClientSession( security , clientrc );
+		return( session );
 	}
 
+	public SessionSecurity createServerSecurity() throws Exception {
+		SessionSecurity security = new SessionSecurity( this );
+		security.setPermissions();
+		return( security );
+	}
+	
 	public String[] getLocalUserList() {
 		return( Common.getSortedKeys( localUsers ) );
 	}

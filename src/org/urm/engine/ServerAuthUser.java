@@ -16,8 +16,6 @@ public class ServerAuthUser {
 	public String EMAIL;
 	public boolean ADMIN;
 	
-    private ServerAuthContext ac;
-	
 	public ServerAuthUser( ServerAuth auth ) {
 		this.auth = auth;
 	}
@@ -49,12 +47,4 @@ public class ServerAuthUser {
 		Common.xmlSetElementAttr( doc , root , "admin" , Common.getBooleanValue( ADMIN ) );
 	}
 
-	public ServerAuthContext getContext() {
-		return( ac );
-	}
-
-	public void setContext( ServerAuthContext ac ) {
-		this.ac = ac;
-	}
-	
 }
