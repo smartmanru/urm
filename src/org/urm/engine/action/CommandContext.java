@@ -253,7 +253,7 @@ public class CommandContext {
 	public void update( ActionBase action , Meta meta ) throws Exception {
 		boolean isproduct = ( meta != null )? true : false; 
 		boolean isenv = ( env == null )? false : true; 
-		boolean def = ( isenv && env.PROD )? true : false;
+		boolean def = ( isenv && env.isProd() )? true : false;
 		String value;
 		
 		// generic

@@ -17,12 +17,25 @@ import org.urm.engine.ServerSession;
 import org.urm.engine.SessionSecurity;
 import org.urm.engine._Error;
 import org.urm.meta.ServerObject;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaEnv;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class ServerAuth extends ServerObject {
 
+	public enum SecurityAction {
+		ACTION_SECURED ,
+		ACTION_CONFIGURE ,
+		ACTION_BUILD ,
+		ACTION_RELEASE ,
+		ACTION_DEPLOY ,
+		ACTION_MONITOR ,
+		ACTION_XDOC ,
+		ACTION_ADMIN
+	};
+	
 	public enum SourceType {
 		SOURCE_LOCAL ,
 		SOURCE_LDAP
@@ -298,6 +311,54 @@ public class ServerAuth extends ServerObject {
 				list.add( group );
 		}
 		return( list.toArray( new ServerAuthGroup[0] ) );
+	}
+
+	public boolean checkAccessServerAction( ActionBase action , SecurityAction sa , boolean readOnly ) {
+		SessionSecurity security = action.actionInit.session.getSecurity();
+		ServerAuthRoleSet roles = security.getBaseRoles();
+		if( sa == SecurityAction.ACTION_MONITOR || sa == SecurityAction.ACTION_DEPLOY ) {
+			if( roles.isAny() )
+				return( true );
+			return( false );
+		}
+		
+		if( sa == SecurityAction.ACTION_SECURED || sa == SecurityAction.ACTION_ADMIN ) {
+			if( roles.admin )
+				return( true );
+			return( false );
+		}
+
+		if( sa == SecurityAction.ACTION_CONFIGURE ) {
+			if( readOnly ) {
+				if( roles.isAny() )
+					return( true );
+			}
+			else {
+				if( roles.admin )
+					return( true );
+			}
+			return( false );
+		}
+				
+		if( sa == SecurityAction.ACTION_BUILD ) {
+			if( roles.secDev || roles.secRel )
+				return( true );
+			return( false );
+		}
+		
+		if( sa == SecurityAction.ACTION_RELEASE ) {
+			if( roles.secRel || roles.secOpr )
+				return( true );
+			return( false );
+		}
+		
+		return( false );
+	}
+	
+	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , MetaEnv env ) {
+		SessionSecurity security = action.actionInit.session.getSecurity();
+		ServerAuthRoleSet roles = security.getProductRoles( meta.name );
+		return( true );
 	}
 	
 }

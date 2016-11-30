@@ -17,6 +17,7 @@ import org.urm.meta.ServerProductMeta;
 import org.urm.meta.ServerRef;
 import org.urm.meta.engine.ServerAccountReference;
 import org.urm.meta.engine.ServerHostAccount;
+import org.urm.meta.product.Meta.VarENVTYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -43,7 +44,7 @@ public class MetaEnv extends PropertyController {
 	public String CHATROOMFILE;
 	public String KEYFILE;
 	public String DB_AUTHFILE;
-	public boolean PROD;
+	public VarENVTYPE envType;
 	
 	// properties, affecting options
 	public FLAG DB_AUTH;
@@ -58,7 +59,7 @@ public class MetaEnv extends PropertyController {
 
 	// properties
 	public static String PROPERTY_ID = "id";
-	public static String PROPERTY_PROD = "prod";
+	public static String PROPERTY_ENVTYPE = "envtype";
 	public static String PROPERTY_BASELINE = "baseenv";
 	public static String PROPERTY_OFFLINE = "offline";
 	public static String PROPERTY_REDISTWIN_PATH = "redist-win-path";
@@ -119,7 +120,8 @@ public class MetaEnv extends PropertyController {
 		CHATROOMFILE = super.getPathProperty( action , PROPERTY_CHATROOMFILE );
 		KEYFILE = super.getPathProperty( action , PROPERTY_KEYFILE );
 		DB_AUTHFILE = super.getPathProperty( action , PROPERTY_DB_AUTHFILE );
-		PROD = super.getBooleanProperty( action , PROPERTY_PROD , false );
+		String ENVTYPE = super.getStringProperty( action , PROPERTY_ENVTYPE , Common.getEnumLower( VarENVTYPE.DEV ) );
+		envType = Meta.getEnvType( ENVTYPE , true );
 
 		// affect runtime options
 		DB_AUTH = super.getOptionProperty( action , PROPERTY_DB_AUTH );
@@ -134,9 +136,9 @@ public class MetaEnv extends PropertyController {
 			action.exit0( _Error.InconsistentVersionAttributes0 , "inconsistent version attributes" );
 	}
 
-	public void createEnv( ActionBase action , String ID , boolean PROD ) throws Exception {
+	public void createEnv( ActionBase action , String ID , VarENVTYPE envType ) throws Exception {
 		this.ID = ID;
-		this.PROD = PROD;
+		this.envType = envType;
 		createProperties( action );
 	}
 
@@ -155,6 +157,10 @@ public class MetaEnv extends PropertyController {
 		return( r );
 	}
 
+	public boolean isProd() {
+		return( envType == VarENVTYPE.PROD );
+	}
+	
 	public boolean hasBaseline( ActionBase action ) throws Exception {
 		if( BASELINE.isEmpty() )
 			return( false );
@@ -221,7 +227,7 @@ public class MetaEnv extends PropertyController {
 			return;
 
 		super.setStringProperty( PROPERTY_ID , ID );
-		super.setBooleanProperty( PROPERTY_PROD , PROD );
+		super.setStringProperty( PROPERTY_ENVTYPE , Common.getEnumLower( envType ) );
 		super.finishProperties( action );
 		super.initFinished();
 		

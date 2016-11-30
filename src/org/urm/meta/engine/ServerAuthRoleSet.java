@@ -24,6 +24,12 @@ public class ServerAuthRoleSet {
 		this.secInfra = src.secInfra;
 	}
 
+	public boolean isAny() {
+		if( admin || secDev || secRel || secOpr || secInfra )
+			return( true );
+		return( false );
+	}
+	
 	public void clear() {
 		admin = false;
 		secDev = false;

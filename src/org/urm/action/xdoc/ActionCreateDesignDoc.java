@@ -67,7 +67,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		String[] files = ms.getEnvFiles( this );
 		for( String envFile : files ) {
 			MetaEnv env = meta.getEnvData( this , envFile , false );
-			if( !env.PROD )
+			if( !env.isProd() )
 				continue;
 			
 			for( MetaEnvDC dc : env.getDatacenters() ) {

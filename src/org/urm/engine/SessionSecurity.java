@@ -90,7 +90,7 @@ public class SessionSecurity {
 	}
 
 	public synchronized ServerAuthRoleSet getBaseRoles() {
-		return( secBase );
+		return( new ServerAuthRoleSet( secBase ) );
 	}
 
 	public synchronized ServerAuthRoleSet getProductRoles( String productName ) {
@@ -108,5 +108,5 @@ public class SessionSecurity {
 			set.add( roles );
 		return( set );
 	}
-	
+
 }
