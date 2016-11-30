@@ -19,11 +19,11 @@ public class ServerAuthGroup {
 	Map<String,SourceType> users;
 	
 	// permissions
-	ServerAuthRoleSet roles;
-	boolean anyProducts;
-	boolean anyNetworks;
-	Map<String,Integer> products;
-	Map<String,Integer> networks;
+	public ServerAuthRoleSet roles;
+	public boolean anyProducts;
+	public boolean anyNetworks;
+	public Map<String,Integer> products;
+	public Map<String,Integer> networks;
 	
 	public ServerAuthGroup( ServerAuth auth ) {
 		this.auth = auth;
