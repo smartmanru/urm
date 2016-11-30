@@ -86,9 +86,9 @@ public class ServerAuthGroup {
 		if( pm == null )
 			return;
 		
-		roles.loadPermissions( root );
-		loadProductPermissions( root );
-		loadNetworkPermissions( root );
+		roles.loadPermissions( pm );
+		loadProductPermissions( pm );
+		loadNetworkPermissions( pm );
 	}
 
 	private void loadProductPermissions( Node root ) throws Exception {
