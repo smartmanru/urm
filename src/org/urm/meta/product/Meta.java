@@ -48,9 +48,9 @@ public class Meta extends ServerObject {
 
 	public enum VarENVTYPE {
 		UNKNOWN ,
-		PROD ,
+		PRODUCTION ,
 		UAT ,
-		DEV
+		DEVELOPMENT
 	};
 	
 	public enum VarDEPLOYITEMTYPE {

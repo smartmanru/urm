@@ -120,7 +120,7 @@ public class MetaEnv extends PropertyController {
 		CHATROOMFILE = super.getPathProperty( action , PROPERTY_CHATROOMFILE );
 		KEYFILE = super.getPathProperty( action , PROPERTY_KEYFILE );
 		DB_AUTHFILE = super.getPathProperty( action , PROPERTY_DB_AUTHFILE );
-		String ENVTYPE = super.getStringProperty( action , PROPERTY_ENVTYPE , Common.getEnumLower( VarENVTYPE.DEV ) );
+		String ENVTYPE = super.getStringProperty( action , PROPERTY_ENVTYPE , Common.getEnumLower( VarENVTYPE.DEVELOPMENT ) );
 		envType = Meta.getEnvType( ENVTYPE , true );
 
 		// affect runtime options
@@ -158,7 +158,7 @@ public class MetaEnv extends PropertyController {
 	}
 
 	public boolean isProd() {
-		return( envType == VarENVTYPE.PROD );
+		return( envType == VarENVTYPE.PRODUCTION );
 	}
 	
 	public boolean hasBaseline( ActionBase action ) throws Exception {
