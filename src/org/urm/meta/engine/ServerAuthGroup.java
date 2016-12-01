@@ -94,6 +94,7 @@ public class ServerAuthGroup {
 	}
 
 	private void loadProductPermissions( Node root ) throws Exception {
+		anyProducts = ConfReader.getBooleanAttrValue( root , "anyproduct" , false );
 		Node[] list = ConfReader.xmlGetChildren( root , "product" );
 		if( list == null )
 			return;
@@ -105,6 +106,7 @@ public class ServerAuthGroup {
 	}
 	
 	private void loadNetworkPermissions( Node root ) throws Exception {
+		anyNetworks = ConfReader.getBooleanAttrValue( root , "anynetwork" , false );
 		Node[] list = ConfReader.xmlGetChildren( root , "network" );
 		if( list == null )
 			return;
@@ -143,11 +145,13 @@ public class ServerAuthGroup {
 	public void savePermissions( Document doc , Element root ) throws Exception {
 		roles.savePermissions( doc , root );
 		
+		Common.xmlSetElementAttr( doc , root , "anyproduct" , Common.getBooleanValue( anyProducts ) );
 		for( String product : Common.getSortedKeys( products ) ) {
 			Element item = Common.xmlCreateElement( doc , root , "product" );
 			Common.xmlSetElementAttr( doc , item , "name" , product );
 		}
 		
+		Common.xmlSetElementAttr( doc , root , "anynetwork" , Common.getBooleanValue( anyNetworks ) );
 		for( String network : Common.getSortedKeys( networks ) ) {
 			Element item = Common.xmlCreateElement( doc , root , "network" );
 			Common.xmlSetElementAttr( doc , item , "name" , network );
