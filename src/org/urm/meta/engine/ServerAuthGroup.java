@@ -194,5 +194,15 @@ public class ServerAuthGroup {
 	public SourceType getUserSource( String user ) {
 		return( users.get( user ) );
 	}
+
+	public void setGroupPermissions( ActionBase action , ServerAuthRoleSet roles , boolean allProd , String[] products , boolean allNet , String[] networks ) throws Exception {
+		this.roles.set( roles );
+		this.anyProducts = allProd;
+		for( String product : products )
+			addProduct( product );
+		this.anyNetworks = allNet;
+		for( String network : networks )
+			addNetwork( network );
+	}
 	
 }

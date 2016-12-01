@@ -451,5 +451,11 @@ public class ServerAuth extends ServerObject {
 		}
 		save( action );
 	}
-	
+
+	public void setGroupPermissions( ActionBase action , ServerAuthGroup group , ServerAuthRoleSet roles , boolean allProd , String[] products , boolean allNet , String[] networks ) throws Exception {
+		group.setGroupPermissions( action , roles , allProd , products , allNet , networks );
+		for( String user : group.getUsers( null ) )
+			engine.updatePermissions( action , user );
+		save( action );
+	}
 }
