@@ -1,6 +1,8 @@
 package org.urm.meta.engine;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
@@ -156,6 +158,16 @@ public class ServerAuthGroup {
 		users.remove( user.NAME );
 	}
 
+	public String[] getUsers( SourceType type ) {
+		List<String> list = new LinkedList<String>();
+		for( String user : Common.getSortedKeys( users ) ) {
+			SourceType userType = users.get( user );
+			if( type == null || type == userType )
+				list.add( user );
+		}
+		return( list.toArray( new String[0] ) );
+	}
+	
 	public boolean hasUser( ServerAuthUser user ) {
 		if( users.containsKey( user.NAME ) )
 			return( true );
@@ -168,6 +180,19 @@ public class ServerAuthGroup {
 	
 	public String[] getPermissionNetworks() {
 		return( Common.getSortedKeys( networks ) );
+	}
+
+	public void addUser( ActionBase action , SourceType source , ServerAuthUser user ) throws Exception {
+		if( !users.containsKey( user.NAME ) )
+			users.put( user.NAME , source );
+	}
+
+	public void removeUser( ActionBase action , SourceType source , String user ) throws Exception {
+		SourceType userSource = users.get( user );
+		if( userSource != source )
+			action.exitUnexpectedState();
+		
+		users.remove( user );
 	}
 	
 }

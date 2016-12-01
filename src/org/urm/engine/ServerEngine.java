@@ -429,4 +429,8 @@ public class ServerEngine {
 		return( loader );
 	}
 
+	public void updatePermissions( ActionBase action , String user ) throws Exception {
+		sessionController.updatePermissions( action , user );
+	}
+	
 }
