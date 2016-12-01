@@ -30,6 +30,12 @@ public class SessionSecurity {
 		secProduct = new HashMap<String,ServerAuthRoleSet>();
 		secNetwork = new HashMap<String,ServerAuthRoleSet>();
 	}
+
+	public boolean isAdmin() {
+		if( user != null && user.ADMIN )
+			return( true );
+		return( false );
+	}
 	
 	public ServerAuthUser getUser() {
 		return( user );

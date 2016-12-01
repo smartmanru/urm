@@ -317,6 +317,9 @@ public class ServerAuth extends ServerObject {
 
 	public boolean checkAccessServerAction( ActionBase action , SecurityAction sa , boolean readOnly ) {
 		SessionSecurity security = action.actionInit.session.getSecurity();
+		if( security.isAdmin() )
+			return( true );
+		
 		ServerAuthRoleSet roles = security.getBaseRoles();
 		if( sa == SecurityAction.ACTION_MONITOR || sa == SecurityAction.ACTION_DEPLOY ) {
 			if( roles.isAny() )
@@ -325,18 +328,12 @@ public class ServerAuth extends ServerObject {
 		}
 		
 		if( sa == SecurityAction.ACTION_SECURED || sa == SecurityAction.ACTION_ADMIN ) {
-			if( roles.admin )
-				return( true );
 			return( false );
 		}
 
 		if( sa == SecurityAction.ACTION_CONFIGURE || sa == SecurityAction.ACTION_XDOC ) {
 			if( readOnly ) {
 				if( roles.isAny() )
-					return( true );
-			}
-			else {
-				if( roles.admin )
 					return( true );
 			}
 			return( false );
@@ -359,11 +356,11 @@ public class ServerAuth extends ServerObject {
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , MetaEnv env , VarBUILDMODE mode , boolean readOnly ) {
 		SessionSecurity security = action.actionInit.session.getSecurity();
+		if( security.isAdmin() )
+			return( true );
+		
 		ServerAuthRoleSet roles = security.getProductRoles( meta.name );
 		VarENVTYPE envtype = ( env == null )? VarENVTYPE.UNKNOWN : env.envType;
-		
-		if( roles.admin )
-			return( true );
 		
 		if( sa == SecurityAction.ACTION_SECURED ) {
 			if( env == null ) {
@@ -433,8 +430,6 @@ public class ServerAuth extends ServerObject {
 		}
 		
 		if( sa == SecurityAction.ACTION_ADMIN ) {
-			if( roles.admin )
-				return( true );
 			return( false );
 		}
 				
