@@ -68,7 +68,7 @@ public class ReleaseTarget {
 		nx.distManualItem = distManualItem;
 
 		for( Entry<String,ReleaseTargetItem> entry : itemMap.entrySet() ) {
-			ReleaseTargetItem item = entry.getValue().copy( action , nr , ns , this );
+			ReleaseTargetItem item = entry.getValue().copy( action , nr , ns , nx );
 			nx.itemMap.put( entry.getKey() , item );
 		}
 		

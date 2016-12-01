@@ -54,7 +54,7 @@ public class ReleaseSet {
 		nx.set = set;
 		
 		for( Entry<String,ReleaseTarget> entry : map.entrySet() ) {
-			ReleaseTarget item = entry.getValue().copy( action , nr , this );
+			ReleaseTarget item = entry.getValue().copy( action , nr , nx );
 			nx.map.put( entry.getKey() , item );
 		}
 		

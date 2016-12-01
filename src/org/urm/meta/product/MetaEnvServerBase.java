@@ -50,7 +50,7 @@ public class MetaEnvServerBase extends PropertyController {
 		r.scatterProperties( action );
 		
 		for( MetaEnvServerPrepareApp prepare : prepareMap.values() ) {
-			MetaEnvServerPrepareApp rprepare = prepare.copy( action , meta , this );
+			MetaEnvServerPrepareApp rprepare = prepare.copy( action , meta , r );
 			r.addPrepare( rprepare );
 		}
 		
