@@ -1,4 +1,4 @@
-package org.urm.engine;
+package org.urm.meta.engine;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
@@ -15,8 +15,6 @@ public class ServerAuthUser {
 	public String FULLNAME;
 	public String EMAIL;
 	public boolean ADMIN;
-	
-    private ServerAuthContext ac;
 	
 	public ServerAuthUser( ServerAuth auth ) {
 		this.auth = auth;
@@ -49,12 +47,4 @@ public class ServerAuthUser {
 		Common.xmlSetElementAttr( doc , root , "admin" , Common.getBooleanValue( ADMIN ) );
 	}
 
-	public ServerAuthContext getContext() {
-		return( ac );
-	}
-
-	public void setContext( ServerAuthContext ac ) {
-		this.ac = ac;
-	}
-	
 }

@@ -29,6 +29,7 @@ import org.urm.engine.shell.ShellPool;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.ServerLoader;
+import org.urm.meta.engine.ServerAuth;
 import org.urm.meta.engine.ServerMonitoring;
 
 public class ServerEngine {
@@ -120,29 +121,29 @@ public class ServerEngine {
 	public void stopWeb() throws Exception {
 		stopServer();
 	}
+
+	public ServerSession createClientSession( SessionSecurity security , RunContext clientrc ) throws Exception {
+		ServerSession sessionContext = sessionController.createSession( security , clientrc , true );
+		return( sessionContext );
+	}
 	
-	public ActionInit createWebSessionAction() throws Exception {
+	public ActionInit createWebSessionAction( ServerSession session ) throws Exception {
 		CommandOptions options = serverExecutor.createOptionsWebSession( this );
 		if( options == null )
 			return( null );
 		
-		RunContext clientrc = RunContext.clone( execrc );
-		ServerSession sessionContext = sessionController.createSession( clientrc , true );
-		ActionInit action = createAction( serverExecutor , options , sessionContext , "web" , null , false );
+		ActionInit action = createAction( serverExecutor , options , session , "web" , null , false );
 		startAction( action );
 		
 		return( action );
 	}
 	
-	public ActionInit createTemporaryAction( String name ) throws Exception {
+	public ActionInit createTemporaryAction( String name , ServerSession session ) throws Exception {
 		CommandOptions options = serverExecutor.createOptionsTemporary( this );
 		if( options == null )
 			return( null );
 		
-		RunContext clientrc = RunContext.clone( execrc );
-		ServerSession sessionContext = sessionController.createSession( clientrc , true );
-		sessionContext.setServerLayout( null );
-		ActionInit action = createAction( serverExecutor , options , sessionContext , name , null , true );
+		ActionInit action = createAction( serverExecutor , options , session , name , null , true );
 		startAction( action );
 		
 		return( action );
@@ -159,7 +160,8 @@ public class ServerEngine {
 	
 	public boolean prepareServerExecutor( CommandOptions options ) throws Exception {
 		// server action environment
-		serverSession = sessionController.createSession( execrc , false );
+		SessionSecurity security = auth.createServerSecurity();
+		serverSession = sessionController.createSession( security , execrc , false );
 		serverSession.setServerLayout( options );
 		
 		// create server action
@@ -177,7 +179,8 @@ public class ServerEngine {
 
 	public boolean runClientMode( CommandOptions options , CommandMeta commandInfo ) throws Exception {
 		CommandExecutor commandExecutor = createExecutor( commandInfo );
-		serverSession = sessionController.createSession( execrc , false );
+		SessionSecurity security = auth.createServerSecurity();
+		serverSession = sessionController.createSession( security , execrc , false );
 		
 		if( execrc.isStandalone() )
 			serverSession.setStandaloneLayout( options );

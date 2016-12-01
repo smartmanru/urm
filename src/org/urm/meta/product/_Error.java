@@ -91,5 +91,7 @@ public class _Error {
 	public static final int UnknownCompSchemaItem1 = ErrorBase + 83;
 	public static final int UnknownSourceProjectItem1 = ErrorBase + 84;
 	public static final int UnknownCompWebService1 = ErrorBase + 84;
+	public static final int MissingEnvType0 = ErrorBase + 85;
+	public static final int InvalidEnvType1 = ErrorBase + 86;
 
 }

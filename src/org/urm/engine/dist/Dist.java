@@ -73,7 +73,7 @@ public class Dist {
 	}
 
 	public void open( ActionBase action ) throws Exception {
-		boolean prod = ( action.context.env != null )? action.context.env.PROD : false;
+		boolean prod = ( action.context.env != null )? action.context.env.isProd() : false;
 		state.ctlOpenForUse( action , prod );
 		openedForUse = true;
 		gatherFiles( action );

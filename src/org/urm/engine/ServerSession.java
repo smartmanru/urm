@@ -10,6 +10,7 @@ import org.urm.common.action.CommandOptions;
 import org.urm.engine.action.ActionInit;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerObject;
+import org.urm.meta.engine.ServerAuthContext;
 import org.urm.meta.product.Meta;
 
 public class ServerSession extends ServerObject {
@@ -33,14 +34,15 @@ public class ServerSession extends ServerObject {
 	public String productName = "";
 	public String binPath = "";
 	
-	private ServerAuthContext login;
 	private boolean closed;
 	
-	Map<String,Meta> productMeta;
+	private Map<String,Meta> productMeta;
+	private SessionSecurity security;
 	
-	public ServerSession( SessionController controller , RunContext clientrc , int sessionId , boolean client ) {
+	public ServerSession( SessionController controller , SessionSecurity security , RunContext clientrc , int sessionId , boolean client ) {
 		super( null );
 		this.controller = controller;
+		this.security = security;
 		this.clientrc = clientrc;
 		this.sessionId = sessionId;
 		this.client = client;
@@ -83,12 +85,12 @@ public class ServerSession extends ServerObject {
 		productMeta.remove( meta.name );
 	}
 	
-	public void setLoginAuth( ServerAuthContext login ) {
-		this.login = login;
+	public void setLoginAuth( ServerAuthContext ac ) {
+		security.setContext( ac );
 	}
 	
 	public ServerAuthContext getLoginAuth() {
-		return( login );
+		return( security.getContext() );
 	}
 	
 	public void setServerLayout( CommandOptions options ) throws Exception {
@@ -127,6 +129,10 @@ public class ServerSession extends ServerObject {
 		
 		product = true;
 		productName = clientrc.product;
+	}
+
+	public SessionSecurity getSecurity() {
+		return( security );
 	}
 	
 }

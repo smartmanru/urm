@@ -38,6 +38,7 @@ import org.urm.meta.product.MetaMonitoringTarget;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
 import org.urm.meta.product.Meta.VarBUILDMODE;
+import org.urm.meta.product.Meta.VarENVTYPE;
 import org.urm.meta.product.Meta.VarNODETYPE;
 import org.urm.meta.product.Meta.VarSERVERACCESSTYPE;
 import org.urm.meta.product.Meta.VarSERVERRUNTYPE;
@@ -200,10 +201,10 @@ public class ServerTransaction extends TransactionBase {
 		return( version );
 	}
 	
-	public MetaEnv createMetaEnv( Meta meta , String name , boolean prod ) throws Exception {
+	public MetaEnv createMetaEnv( Meta meta , String name , VarENVTYPE envType ) throws Exception {
 		ServerProductMeta metadata = getTransactionMetadata( meta );
 		MetaEnv env = new MetaEnv( metadata , metadata.meta );
-		env.createEnv( getAction() , name , prod );
+		env.createEnv( getAction() , name , envType );
 		metadata.addEnv( this , env );
 		return( env );
 	}

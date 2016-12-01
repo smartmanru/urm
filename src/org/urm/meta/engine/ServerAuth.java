@@ -1,7 +1,9 @@
-package org.urm.engine;
+package org.urm.meta.engine;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
@@ -10,13 +12,37 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext;
+import org.urm.engine.ServerEngine;
+import org.urm.engine.ServerSession;
+import org.urm.engine.SessionSecurity;
+import org.urm.engine._Error;
 import org.urm.meta.ServerObject;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.Meta.VarBUILDMODE;
+import org.urm.meta.product.Meta.VarENVTYPE;
+import org.urm.meta.product.MetaEnv;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class ServerAuth extends ServerObject {
 
+	public enum SecurityAction {
+		ACTION_SECURED ,
+		ACTION_CONFIGURE ,
+		ACTION_BUILD ,
+		ACTION_RELEASE ,
+		ACTION_DEPLOY ,
+		ACTION_MONITOR ,
+		ACTION_XDOC ,
+		ACTION_ADMIN
+	};
+	
+	public enum SourceType {
+		SOURCE_LOCAL ,
+		SOURCE_LDAP
+	};
+	
 	ServerEngine engine;
 
 	public static String AUTH_GROUP_RESOURCE = "resource"; 
@@ -177,26 +203,35 @@ public class ServerAuth extends ServerObject {
 		ac.properties.saveToPropertyFile( filePath , engine.execrc , false );
 	}
 
-	public ServerAuthUser connect( String username , String password ) throws Exception {
+	public ServerSession connect( String username , String password , RunContext clientrc ) throws Exception {
 		ServerAuthUser user = getUser( username );
 		if( user == null )
 			return( null );
 		
-		ServerAuthContext ac = user.getContext();
-		if( ac == null ) {
-			String authKey = getAuthKey( AUTH_GROUP_USER , username );
-			ac = loadAuthData( engine.serverAction , authKey );
-			user.setContext( ac );
-		}
+		String authKey = getAuthKey( AUTH_GROUP_USER , username );
+		ServerAuthContext ac = loadAuthData( engine.serverAction , authKey );
 			
 		String passwordMD5 = Common.getMD5( password );
 		if( password == null || !passwordMD5.equals( ac.PASSWORDSAVE ) )
 			return( null );
 	
 		ac.PASSWORDONLINE = password;
-		return( user );
+		
+		SessionSecurity security = new SessionSecurity( this );
+		security.setUser( user );
+		security.setContext( ac );
+		security.setPermissions();
+		
+		ServerSession session = engine.createClientSession( security , clientrc );
+		return( session );
 	}
 
+	public SessionSecurity createServerSecurity() throws Exception {
+		SessionSecurity security = new SessionSecurity( this );
+		security.setPermissions();
+		return( security );
+	}
+	
 	public String[] getLocalUserList() {
 		return( Common.getSortedKeys( localUsers ) );
 	}
@@ -269,6 +304,136 @@ public class ServerAuth extends ServerObject {
 		ac.setUserPassword( password );
 		ac.createProperties();
 		saveAuthData( authKey , ac );
+	}
+
+	public ServerAuthGroup[] getUserGroups( ServerAuthUser user ) {
+		List<ServerAuthGroup> list = new LinkedList<ServerAuthGroup>();
+		for( ServerAuthGroup group : groups.values() ) {
+			if( group.hasUser( user ) )
+				list.add( group );
+		}
+		return( list.toArray( new ServerAuthGroup[0] ) );
+	}
+
+	public boolean checkAccessServerAction( ActionBase action , SecurityAction sa , boolean readOnly ) {
+		SessionSecurity security = action.actionInit.session.getSecurity();
+		if( security.isAdmin() )
+			return( true );
+		
+		ServerAuthRoleSet roles = security.getBaseRoles();
+		if( sa == SecurityAction.ACTION_MONITOR || sa == SecurityAction.ACTION_DEPLOY ) {
+			if( roles.isAny() )
+				return( true );
+			return( false );
+		}
+		
+		if( sa == SecurityAction.ACTION_SECURED || sa == SecurityAction.ACTION_ADMIN ) {
+			return( false );
+		}
+
+		if( sa == SecurityAction.ACTION_CONFIGURE || sa == SecurityAction.ACTION_XDOC ) {
+			if( readOnly ) {
+				if( roles.isAny() )
+					return( true );
+			}
+			return( false );
+		}
+				
+		if( sa == SecurityAction.ACTION_BUILD ) {
+			if( roles.secDev || roles.secRel )
+				return( true );
+			return( false );
+		}
+		
+		if( sa == SecurityAction.ACTION_RELEASE ) {
+			if( roles.secRel || roles.secOpr )
+				return( true );
+			return( false );
+		}
+		
+		return( false );
+	}
+	
+	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , MetaEnv env , VarBUILDMODE mode , boolean readOnly ) {
+		SessionSecurity security = action.actionInit.session.getSecurity();
+		if( security.isAdmin() )
+			return( true );
+		
+		ServerAuthRoleSet roles = security.getProductRoles( meta.name );
+		VarENVTYPE envtype = ( env == null )? VarENVTYPE.UNKNOWN : env.envType;
+		
+		if( sa == SecurityAction.ACTION_SECURED ) {
+			if( env == null ) {
+				if( roles.secRel )
+					return( true );
+			}
+			else {
+				if( ( roles.secDev && envtype == VarENVTYPE.DEVELOPMENT ) || ( roles.secRel && envtype == VarENVTYPE.UAT ) || ( roles.secOpr && envtype == VarENVTYPE.PRODUCTION ) )
+					return( true );
+			}
+			return( false );
+		}
+		
+		if( sa == SecurityAction.ACTION_CONFIGURE ) {
+			if( env == null ) {
+				if( readOnly ) {
+					if( roles.secDev || roles.secRel || roles.secOpr )
+						return( true );
+				}
+				else {
+					if( roles.secRel )
+						return( true );
+				}
+			}
+			else {
+				if( readOnly ) {
+					if( roles.secDev || roles.secRel || roles.secOpr )
+						return( true );
+				}
+				else {
+					if( ( roles.secDev && envtype == VarENVTYPE.DEVELOPMENT ) || ( roles.secRel && envtype == VarENVTYPE.UAT ) || ( roles.secOpr && envtype == VarENVTYPE.PRODUCTION ) )
+						return( true );
+				}
+			}
+			return( false );
+		}
+		
+		if( sa == SecurityAction.ACTION_BUILD ) {
+			if( readOnly ) {
+				if( roles.secDev || roles.secRel || roles.secOpr )
+					return( true );
+			}
+			else {
+				if( roles.secDev && ( mode == VarBUILDMODE.DEVTRUNK || mode == VarBUILDMODE.DEVBRANCH ) )
+					return( true );
+				if( roles.secRel && ( mode == VarBUILDMODE.TRUNK || mode == VarBUILDMODE.BRANCH || mode == VarBUILDMODE.MAJORBRANCH ) )
+					return( true );
+			}
+			return( false );
+		}
+		
+		if( sa == SecurityAction.ACTION_RELEASE ) {
+			if( roles.secRel || ( readOnly && ( roles.secDev || roles.secOpr ) ) )
+				return( true );
+			return( false );
+		}
+		
+		if( sa == SecurityAction.ACTION_DEPLOY || sa == SecurityAction.ACTION_MONITOR || sa == SecurityAction.ACTION_XDOC ) {
+			if( readOnly ) {
+				if( roles.secDev || roles.secRel || roles.secOpr )
+					return( true );
+			}
+			else {
+				if( ( roles.secDev && envtype == VarENVTYPE.DEVELOPMENT ) || ( roles.secRel && envtype == VarENVTYPE.UAT ) || ( roles.secOpr && envtype == VarENVTYPE.PRODUCTION ) )
+					return( true );
+			}
+		}
+		
+		if( sa == SecurityAction.ACTION_ADMIN ) {
+			return( false );
+		}
+				
+		return( false );
 	}
 	
 }
