@@ -187,12 +187,12 @@ public class ServerAuthGroup {
 			users.put( user.NAME , source );
 	}
 
-	public void removeUser( ActionBase action , SourceType source , String user ) throws Exception {
-		SourceType userSource = users.get( user );
-		if( userSource != source )
-			action.exitUnexpectedState();
-		
+	public void removeUser( ActionBase action , String user ) throws Exception {
 		users.remove( user );
+	}
+
+	public SourceType getUserSource( String user ) {
+		return( users.get( user ) );
 	}
 	
 }

@@ -243,8 +243,10 @@ public class SessionController {
 		for( ServerSession session : sessions.values() ) {
 			SessionSecurity security = session.getSecurity();
 			ServerAuthUser su = security.getUser();
-			if( user.equals( su.NAME ) )
-				security.setPermissions();
+			if( su != null ) {
+				if( user.equals( su.NAME ) )
+					security.setPermissions();
+			}
 		}
 		
 	}

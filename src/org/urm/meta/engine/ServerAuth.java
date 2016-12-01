@@ -444,9 +444,9 @@ public class ServerAuth extends ServerObject {
 		save( action );
 	}
 	
-	public void removeGroupUsers( ActionBase action , ServerAuthGroup group , SourceType source , String[] users ) throws Exception {
+	public void removeGroupUsers( ActionBase action , ServerAuthGroup group , String[] users ) throws Exception {
 		for( String user : users ) {
-			group.removeUser( action , source , user );
+			group.removeUser( action , user );
 			engine.updatePermissions( action , user );
 		}
 		save( action );
