@@ -16,6 +16,10 @@ public class ServerAuthRoleSet {
 	}
 	
 	public ServerAuthRoleSet( ServerAuthRoleSet src ) {
+		set( src );
+	}
+	
+	public void set( ServerAuthRoleSet src ) {
 		this.secDev = src.secDev;
 		this.secRel = src.secRel;
 		this.secOpr = src.secOpr;

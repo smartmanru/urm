@@ -80,7 +80,7 @@ public class MetaMonitoring extends PropertyController {
 		r.initCopyStarted( this , product.getProperties() );
 		
 		for( MetaMonitoringTarget target : mapTargets.values() ) {
-			MetaMonitoringTarget rtarget = target.copy( action , meta , this );
+			MetaMonitoringTarget rtarget = target.copy( action , meta , r );
 			r.mapTargets.put( target.NAME , rtarget );
 		}
 		

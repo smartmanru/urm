@@ -195,9 +195,6 @@ public class ServerAuth extends ServerObject {
 		return( ac );
 	}
 
-	public void deleteGroupData( String group ) throws Exception {
-	}
-	
 	public void saveAuthData( String authKey , ServerAuthContext ac ) throws Exception {
 		String filePath = getAuthFile( authKey );
 		ac.properties.saveToPropertyFile( filePath , engine.execrc , false );
@@ -270,6 +267,8 @@ public class ServerAuth extends ServerObject {
 
 	public void deleteGroup( ActionBase action , ServerAuthGroup group ) throws Exception {
 		groups.remove( group.NAME );
+		for( String user : group.getUsers( null ) )
+			engine.updatePermissions( action , user );
 	}
 
 	public String[] getGroupNames() {
@@ -295,6 +294,7 @@ public class ServerAuth extends ServerObject {
 		localUsers.remove( user.NAME );
 		for( ServerAuthGroup group : groups.values() )
 			group.deleteUser( action , user );
+		engine.updatePermissions( action , user.NAME );
 	}
 
 	public void setUserPassword( ActionBase action , ServerAuthUser user , String password ) throws Exception {
@@ -435,5 +435,27 @@ public class ServerAuth extends ServerObject {
 				
 		return( false );
 	}
+
+	public void addGroupUsers( ActionBase action , ServerAuthGroup group , SourceType source , ServerAuthUser[] users ) throws Exception {
+		for( ServerAuthUser user : users ) {
+			group.addUser( action , source , user );
+			engine.updatePermissions( action , user.NAME );
+		}
+		save( action );
+	}
 	
+	public void removeGroupUsers( ActionBase action , ServerAuthGroup group , String[] users ) throws Exception {
+		for( String user : users ) {
+			group.removeUser( action , user );
+			engine.updatePermissions( action , user );
+		}
+		save( action );
+	}
+
+	public void setGroupPermissions( ActionBase action , ServerAuthGroup group , ServerAuthRoleSet roles , boolean allProd , String[] products , boolean allNet , String[] networks ) throws Exception {
+		group.setGroupPermissions( action , roles , allProd , products , allNet , networks );
+		for( String user : group.getUsers( null ) )
+			engine.updatePermissions( action , user );
+		save( action );
+	}
 }

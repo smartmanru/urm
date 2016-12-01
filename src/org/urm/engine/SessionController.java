@@ -12,6 +12,7 @@ import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.action.CommandOptions;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandExecutor;
+import org.urm.meta.engine.ServerAuthUser;
 
 public class SessionController {
 
@@ -23,6 +24,7 @@ public class SessionController {
 
 	public CommandMeta[] executors = null;
 	
+	Map<Integer,ServerSession> sessions;
 	Map<String,ServerCall> calls;
 	Map<Integer,ActionInit> actions;
 	
@@ -30,7 +32,8 @@ public class SessionController {
 	
 	public SessionController( ServerEngine engine ) {
 		this.engine = engine;
-		
+	
+		sessions = new HashMap<Integer,ServerSession>(); 
 		calls = new HashMap<String,ServerCall>();
 		actions = new HashMap<Integer,ActionInit>(); 
 	}
@@ -153,17 +156,13 @@ public class SessionController {
 		return( res );
 	}
 
-	public ServerSession createSession( SessionSecurity security , RunContext clientrc , boolean client ) {
-		int sessionId = createSessionId();
+	public synchronized ServerSession createSession( SessionSecurity security , RunContext clientrc , boolean client ) {
+		int sessionId = ++sessionSequence;
 		ServerSession session = new ServerSession( this , security , clientrc , sessionId , client );
+		sessions.put( session.sessionId , session );
 		return( session );
 	}
 
-	private synchronized int createSessionId() {
-		sessionSequence++;
-		return( sessionSequence );
-	}
-	
 	public ServerCall getCall( int sessionId ) {
 		ServerCall call = calls.get( "" + sessionId );
 		return( call );
@@ -235,6 +234,21 @@ public class SessionController {
 
 	public void closeSession( ServerSession session ) throws Exception {
 		session.close();
+		synchronized( this ) {
+			sessions.remove( session.sessionId );
+		}
+	}
+
+	public synchronized void updatePermissions( ActionBase action , String user ) throws Exception {
+		for( ServerSession session : sessions.values() ) {
+			SessionSecurity security = session.getSecurity();
+			ServerAuthUser su = security.getUser();
+			if( su != null ) {
+				if( user.equals( su.NAME ) )
+					security.setPermissions();
+			}
+		}
+		
 	}
 	
 }
