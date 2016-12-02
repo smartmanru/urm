@@ -321,8 +321,14 @@ public class ServerAuth extends ServerObject {
 			return( true );
 		
 		ServerAuthRoleSet roles = security.getBaseRoles();
-		if( sa == SecurityAction.ACTION_MONITOR || sa == SecurityAction.ACTION_DEPLOY ) {
+		if( sa == SecurityAction.ACTION_MONITOR ) {
 			if( roles.isAny() )
+				return( true );
+			return( false );
+		}
+		
+		if( sa == SecurityAction.ACTION_DEPLOY ) {
+			if( roles.secDev || roles.secRel || roles.secOpr )
 				return( true );
 			return( false );
 		}
@@ -346,20 +352,58 @@ public class ServerAuth extends ServerObject {
 		}
 		
 		if( sa == SecurityAction.ACTION_RELEASE ) {
-			if( roles.secRel || roles.secOpr )
+			if( roles.secDev || roles.secRel || roles.secOpr )
 				return( true );
 			return( false );
 		}
 		
 		return( false );
 	}
+
+	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , ServerProduct product , boolean readOnly ) {
+		return( checkAccessProductAction( action , sa , product.NAME , readOnly ) );
+	}
 	
-	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , MetaEnv env , VarBUILDMODE mode , boolean readOnly ) {
+	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , boolean readOnly ) {
+		return( checkAccessProductAction( action , sa , meta.name , readOnly ) );
+	}
+	
+	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , VarBUILDMODE mode , boolean readOnly ) {
+		return( checkAccessProductAction( action , sa , meta.name , null , mode , readOnly ) );
+	}
+	
+	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , String productName , boolean readOnly ) {
+		return( checkAccessProductAction( action , sa , productName , null , null , readOnly ) );
+	}
+	
+	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , String productName , String envName , boolean readOnly ) {
+		try {
+			Meta meta = action.getProductMetadata( productName );
+			if( meta == null )
+				return( false );
+			MetaEnv env = meta.findEnv( envName );
+			return( checkAccessProductAction( action , sa , productName , env , null , readOnly ) );
+		}
+		catch( Throwable e ) {
+			action.log( "checkAccessProductAction" , e );
+		}
+		return( false );
+	}
+	
+	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , String productName , VarBUILDMODE mode , boolean readOnly ) {
+		return( checkAccessProductAction( action , sa , productName , null , mode , readOnly ) );
+	}
+	
+	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , MetaEnv env , boolean readOnly ) {
+		return( checkAccessProductAction( action , sa , env.meta.name , env , null , readOnly ) );
+	}
+	
+	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , String productName , MetaEnv env , VarBUILDMODE mode , boolean readOnly ) {
 		SessionSecurity security = action.actionInit.session.getSecurity();
 		if( security.isAdmin() )
 			return( true );
 		
-		ServerAuthRoleSet roles = security.getProductRoles( meta.name );
+		ServerAuthRoleSet roles = security.getProductRoles( productName );
 		VarENVTYPE envtype = ( env == null )? VarENVTYPE.UNKNOWN : env.envType;
 		
 		if( sa == SecurityAction.ACTION_SECURED ) {
