@@ -480,6 +480,33 @@ public class ServerAuth extends ServerObject {
 		return( false );
 	}
 
+	public boolean checkAccessNetworkAction( ActionBase action , SecurityAction sa , ServerNetwork network , boolean configure , boolean allocate ) {
+		return( checkAccessNetworkAction( action , sa , network.ID , configure , allocate ) );
+	}
+	
+	public boolean checkAccessNetworkAction( ActionBase action , SecurityAction sa , String networkName , boolean configure , boolean allocate ) {
+		SessionSecurity security = action.actionInit.session.getSecurity();
+		if( security.isAdmin() )
+			return( true );
+		
+		ServerAuthRoleSet roles = security.getNetworkRoles( networkName );
+		if( configure ) {
+			if( roles.secInfra )
+				return( true );
+			return( false );
+		}
+		
+		if( allocate ) {
+			if( roles.secDev || roles.secRel || roles.secOpr )
+				return( true );
+			return( false );
+		}
+
+		if( roles.isAny() )
+			return( true );
+		return( false );
+	}
+	
 	public void addGroupUsers( ActionBase action , ServerAuthGroup group , SourceType source , ServerAuthUser[] users ) throws Exception {
 		for( ServerAuthUser user : users ) {
 			group.addUser( action , source , user );
