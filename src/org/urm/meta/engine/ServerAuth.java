@@ -480,6 +480,10 @@ public class ServerAuth extends ServerObject {
 		return( false );
 	}
 
+	public boolean checkAccessNetworkAction( ActionBase action , SecurityAction sa , ServerNetwork network ) {
+		return( checkAccessNetworkAction( action , sa , network.ID , false , false ) );
+	}
+	
 	public boolean checkAccessNetworkAction( ActionBase action , SecurityAction sa , ServerNetwork network , boolean configure , boolean allocate ) {
 		return( checkAccessNetworkAction( action , sa , network.ID , configure , allocate ) );
 	}
