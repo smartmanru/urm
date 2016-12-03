@@ -14,6 +14,7 @@ import org.urm.common.PropertySet;
 import org.urm.common.RunContext;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.ServerSession;
+import org.urm.engine.ServerTransaction;
 import org.urm.engine.SessionSecurity;
 import org.urm.engine._Error;
 import org.urm.meta.ServerObject;
@@ -533,4 +534,37 @@ public class ServerAuth extends ServerObject {
 			engine.updatePermissions( action , user );
 		save( action );
 	}
+	
+	public synchronized void deleteProduct( ServerTransaction transaction , ServerProduct product ) throws Exception {
+		ActionBase action = transaction.getAction();
+		boolean authChanged = false;
+		for( ServerAuthGroup group : groups.values() ) {
+			if( group.hasProduct( product.NAME ) ) {
+				authChanged = true;
+				group.removeProduct( action , product.NAME );
+				for( String user : group.getUsers( null ) )
+					engine.updatePermissions( action , user );
+			}
+		}
+		
+		if( authChanged )
+			save( action );
+	}
+	
+	public synchronized void deleteNetwork( ServerTransaction transaction , ServerNetwork network ) throws Exception {
+		ActionBase action = transaction.getAction();
+		boolean authChanged = false;
+		for( ServerAuthGroup group : groups.values() ) {
+			if( group.hasNetwork( network.ID ) ) {
+				authChanged = true;
+				group.removeNetwork( action , network.ID );
+				for( String user : group.getUsers( null ) )
+					engine.updatePermissions( action , user );
+			}
+		}
+		
+		if( authChanged )
+			save( action );
+	}
+	
 }

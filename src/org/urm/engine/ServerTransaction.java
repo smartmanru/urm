@@ -7,6 +7,7 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.shell.Account;
 import org.urm.meta.ServerProductMeta;
+import org.urm.meta.engine.ServerAuth;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerBaseGroup;
 import org.urm.meta.engine.ServerBaseItem;
@@ -144,6 +145,8 @@ public class ServerTransaction extends TransactionBase {
 		
 		ServerMirrors mirrors = action.getMirrors();
 		mirrors.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
+		ServerAuth auth = action.getServerAuth();
+		auth.deleteProduct( this , product );
 		directory.deleteProduct( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		action.saveMirrors( this );
 		product.deleteObject();
@@ -313,6 +316,8 @@ public class ServerTransaction extends TransactionBase {
 
 	public void deleteNetwork( ServerNetwork network ) throws Exception {
 		checkTransactionInfrastructure();
+		ServerAuth auth = action.getServerAuth();
+		auth.deleteNetwork( this , network );
 		infra.deleteNetwork( this , network );
 		network.deleteObject();
 	}

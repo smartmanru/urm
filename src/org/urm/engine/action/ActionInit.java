@@ -10,6 +10,7 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerProductMeta;
+import org.urm.meta.engine.ServerAuth;
 import org.urm.meta.engine.ServerBase;
 import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.engine.ServerContext;
@@ -165,6 +166,10 @@ public class ActionInit extends ActionBase {
 	
 	public ServerMonitoring getServerMonitoring() {
 		return( loader.getMonitoring() );
+	}
+	
+	public ServerAuth getServerAuth() {
+		return( engine.getAuth() );
 	}
 	
 	public void setDirectory( TransactionBase transaction , ServerDirectory directory ) throws Exception {

@@ -44,6 +44,26 @@ public class ServerAuthGroup {
 		this.NAME = name;
 	}
 	
+	public boolean hasProduct( String product ) {
+		if( products.containsKey( product ) )
+			return( true );
+		return( false );
+	}
+	
+	public void removeProduct( ActionBase action , String product ) {
+		products.remove( product );
+	}
+	
+	public void removeNetwork( ActionBase action , String network ) {
+		networks.remove( network );
+	}
+	
+	public boolean hasNetwork( String network ) {
+		if( networks.containsKey( network ) )
+			return( true );
+		return( false );
+	}
+	
 	public void loadGroup( Node root ) throws Exception {
 		NAME = ConfReader.getAttrValue( root , "name" );
 		loadLocalUsers( root );
