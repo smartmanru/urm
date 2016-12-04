@@ -343,11 +343,11 @@ public class TransactionBase extends ServerObject {
 					return( true );
 
 				if( network == null ) {
-					if( !checkSecurityServerChange() )
+					if( !checkSecurityServerChange( SecurityAction.ACTION_ADMIN ) )
 						return( false );
 				}
 				else {
-					if( !checkSecurityChangeInfrastructure( network ) )
+					if( !checkSecurityInfrastructureChange( network ) )
 						return( false );
 				}
 				
@@ -416,7 +416,7 @@ public class TransactionBase extends ServerObject {
 		
 		try {
 			action.saveBase( this );
-			trace( "transaction server basse: save done" );
+			trace( "transaction server base: save done" );
 			return( true );
 		}
 		catch( Throwable e ) {
@@ -435,6 +435,9 @@ public class TransactionBase extends ServerObject {
 					
 				if( resources != null )
 					return( true );
+				
+				if( !checkSecurityServerChange( SecurityAction.ACTION_ADMIN ) )
+					return( false );
 				
 				if( !engine.isRunning() )
 					error( "unable to change resources, server is stopped" );
@@ -489,6 +492,9 @@ public class TransactionBase extends ServerObject {
 				if( builders != null )
 					return( true );
 				
+				if( !checkSecurityServerChange( SecurityAction.ACTION_ADMIN ) )
+					return( false );
+				
 				if( !engine.isRunning() )
 					error( "unable to change builders, server is stopped" );
 				else {
@@ -542,6 +548,9 @@ public class TransactionBase extends ServerObject {
 				if( directory != null )
 					return( true );
 				
+				if( !checkSecurityServerChange( SecurityAction.ACTION_CONFIGURE ) )
+					return( false );
+				
 				if( !engine.isRunning() )
 					error( "unable to change directory, server is stopped" );
 				else {
@@ -591,6 +600,10 @@ public class TransactionBase extends ServerObject {
 			try {
 				if( !continueTransaction() )
 					return( false );
+				
+				if( !checkSecurityServerChange( SecurityAction.ACTION_MONITOR ) )
+					return( false );
+				
 				return( true );
 			}
 			catch( Throwable e ) {
@@ -611,7 +624,7 @@ public class TransactionBase extends ServerObject {
 				if( settings != null )
 					return( true );
 				
-				if( !checkSecurityServerChange() )
+				if( !checkSecurityServerChange( SecurityAction.ACTION_ADMIN ) )
 					return( false );
 				
 				settingsOld = action.getActiveServerSettings();
@@ -937,9 +950,9 @@ public class TransactionBase extends ServerObject {
 		fail0( _Error.SecurityCheckFailed0 , "Operation is not permitted" );
 	}
 	
-	public boolean checkSecurityServerChange() {
+	public boolean checkSecurityServerChange( SecurityAction sa ) {
 		ServerAuth auth = engine.getAuth();
-		if( auth.checkAccessServerAction( action , SecurityAction.ACTION_ADMIN , false ) )
+		if( auth.checkAccessServerAction( action , sa , false ) )
 			return( true );
 		
 		checkSecurityFailed();
@@ -955,7 +968,7 @@ public class TransactionBase extends ServerObject {
 		return( false );
 	}
 
-	public boolean checkSecurityChangeInfrastructure( ServerNetwork network ) {
+	public boolean checkSecurityInfrastructureChange( ServerNetwork network ) {
 		ServerAuth auth = engine.getAuth();
 		if( auth.checkAccessNetworkAction( action , SecurityAction.ACTION_CONFIGURE , network , true , false ) )
 			return( true );
