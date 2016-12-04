@@ -9,6 +9,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.meta.engine.ServerAuth.SourceType;
+import org.urm.meta.engine.ServerAuth.SpecialRights;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -26,6 +27,7 @@ public class ServerAuthGroup {
 	public boolean anyNetworks;
 	public Map<String,Integer> products;
 	public Map<String,Integer> networks;
+	public SpecialRights[] special;
 	
 	public ServerAuthGroup( ServerAuth auth ) {
 		this.auth = auth;
@@ -33,7 +35,8 @@ public class ServerAuthGroup {
 		
 		roles = new ServerAuthRoleSet();
 		products = new HashMap<String,Integer>(); 
-		networks = new HashMap<String,Integer>(); 
+		networks = new HashMap<String,Integer>();
+		special = new SpecialRights[0];
 	}
 
 	public void create( ActionBase action , String name ) throws Exception {
@@ -111,6 +114,7 @@ public class ServerAuthGroup {
 		roles.loadPermissions( pm );
 		loadProductPermissions( pm );
 		loadNetworkPermissions( pm );
+		loadSpecialPermissions( pm );
 	}
 
 	private void loadProductPermissions( Node root ) throws Exception {
@@ -135,6 +139,24 @@ public class ServerAuthGroup {
 			String network = ConfReader.getAttrValue( node , "name" );
 			addNetwork( network );
 		}
+	}
+	
+	private void loadSpecialPermissions( Node root ) throws Exception {
+		Node[] list = ConfReader.xmlGetChildren( root , "special" );
+		if( list == null )
+			return;
+		
+		List<SpecialRights> rights = new LinkedList<SpecialRights>();
+		for( Node node : list ) {
+			String specialName = ConfReader.getAttrValue( node , "name" );
+			for( SpecialRights sr : SpecialRights.values() ) {
+				if( specialName.equals( Common.getEnumLower( sr ) ) ) {
+					rights.add( sr );
+					break;
+				}
+			}
+		}
+		special = rights.toArray( new SpecialRights[0] );
 	}
 	
 	private void addProduct( String product ) {
@@ -176,6 +198,11 @@ public class ServerAuthGroup {
 			Element item = Common.xmlCreateElement( doc , root , "network" );
 			Common.xmlSetElementAttr( doc , item , "name" , network );
 		}
+		
+		for( SpecialRights checkRight : special ) {
+			Element item = Common.xmlCreateElement( doc , root , "special" );
+			Common.xmlSetElementAttr( doc , item , "name" , Common.getEnumLower( checkRight ) );
+		}
 	}
 	
 	public void deleteUser( ActionBase action , ServerAuthUser user ) throws Exception {
@@ -206,6 +233,10 @@ public class ServerAuthGroup {
 		return( Common.getSortedKeys( networks ) );
 	}
 
+	public SpecialRights[] getPermissionSpecial() {
+		return( special );
+	}
+	
 	public void addUser( ActionBase action , SourceType source , ServerAuthUser user ) throws Exception {
 		if( !users.containsKey( user.NAME ) )
 			users.put( user.NAME , source );
@@ -219,7 +250,7 @@ public class ServerAuthGroup {
 		return( users.get( user ) );
 	}
 
-	public void setGroupPermissions( ActionBase action , ServerAuthRoleSet roles , boolean allProd , String[] products , boolean allNet , String[] networks ) throws Exception {
+	public void setGroupPermissions( ActionBase action , ServerAuthRoleSet roles , boolean allProd , String[] products , boolean allNet , String[] networks , SpecialRights[] special ) throws Exception {
 		this.roles.set( roles );
 		this.anyProducts = allProd;
 		for( String product : products )
@@ -227,6 +258,7 @@ public class ServerAuthGroup {
 		this.anyNetworks = allNet;
 		for( String network : networks )
 			addNetwork( network );
+		this.special = special;
 	}
 	
 }

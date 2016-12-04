@@ -44,6 +44,11 @@ public class ServerAuth extends ServerObject {
 		SOURCE_LDAP
 	};
 	
+	public enum SpecialRights {
+		SPECIAL_BASEADM ,
+		SPECIAL_BASEITEMS
+	};
+	
 	ServerEngine engine;
 
 	public static String AUTH_GROUP_RESOURCE = "resource"; 
@@ -512,6 +517,14 @@ public class ServerAuth extends ServerObject {
 		return( false );
 	}
 	
+	public boolean checkAccessSpecial( ActionBase action , SpecialRights sr ) {
+		SessionSecurity security = action.actionInit.session.getSecurity();
+		if( security.isAdmin() )
+			return( true );
+		
+		return( security.checkSpecial( sr ) );
+	}
+	
 	public void addGroupUsers( ActionBase action , ServerAuthGroup group , SourceType source , ServerAuthUser[] users ) throws Exception {
 		for( ServerAuthUser user : users ) {
 			group.addUser( action , source , user );
@@ -528,8 +541,8 @@ public class ServerAuth extends ServerObject {
 		save( action );
 	}
 
-	public void setGroupPermissions( ActionBase action , ServerAuthGroup group , ServerAuthRoleSet roles , boolean allProd , String[] products , boolean allNet , String[] networks ) throws Exception {
-		group.setGroupPermissions( action , roles , allProd , products , allNet , networks );
+	public void setGroupPermissions( ActionBase action , ServerAuthGroup group , ServerAuthRoleSet roles , boolean allProd , String[] products , boolean allNet , String[] networks , SpecialRights[] special) throws Exception {
+		group.setGroupPermissions( action , roles , allProd , products , allNet , networks , special );
 		for( String user : group.getUsers( null ) )
 			engine.updatePermissions( action , user );
 		save( action );

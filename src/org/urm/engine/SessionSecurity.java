@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.meta.engine.ServerAuth;
+import org.urm.meta.engine.ServerAuth.SpecialRights;
 import org.urm.meta.engine.ServerAuthContext;
 import org.urm.meta.engine.ServerAuthGroup;
 import org.urm.meta.engine.ServerAuthRoleSet;
@@ -21,6 +22,7 @@ public class SessionSecurity {
 	ServerAuthRoleSet secNetworkAny;
 	Map<String,ServerAuthRoleSet> secProduct;
 	Map<String,ServerAuthRoleSet> secNetwork;
+	Map<SpecialRights,Integer> secSpecial;
 	
 	public SessionSecurity( ServerAuth auth ) {
 		this.auth = auth;
@@ -29,6 +31,7 @@ public class SessionSecurity {
 		secNetworkAny = new ServerAuthRoleSet();
 		secProduct = new HashMap<String,ServerAuthRoleSet>();
 		secNetwork = new HashMap<String,ServerAuthRoleSet>();
+		secSpecial = new HashMap<SpecialRights,Integer>(); 
 	}
 
 	public boolean isAdmin() {
@@ -62,6 +65,7 @@ public class SessionSecurity {
 		secNetworkAny.clear();
 		secProduct.clear();
 		secNetwork.clear();
+		secSpecial.clear();
 		
 		for( ServerAuthGroup group : auth.getUserGroups( user ) ) {
 			if( group.hasUser( user ) ) {
@@ -94,6 +98,9 @@ public class SessionSecurity {
 							roles.add( group.roles );
 					}
 				}
+				
+				for( SpecialRights sr : group.getPermissionSpecial() )
+					secSpecial.put( sr , 0 );
 			}
 		}
 	}
@@ -118,4 +125,10 @@ public class SessionSecurity {
 		return( set );
 	}
 
+	public synchronized boolean checkSpecial( SpecialRights sr ) {
+		if( secSpecial.containsKey( sr ) )
+			return( true );
+		return( false );
+	}
+	
 }
