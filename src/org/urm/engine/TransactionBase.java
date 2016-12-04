@@ -666,7 +666,7 @@ public class TransactionBase extends ServerObject {
 		return( false );
 	}
 
-	public boolean changeMetadata( Meta meta ) {
+	public boolean changeMetadata( Meta meta , MetaEnv env ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -675,6 +675,9 @@ public class TransactionBase extends ServerObject {
 				TransactionMetadata tm = productMeta.get( meta.name ); 
 				if( tm != null )
 					return( true );
+				
+				if( !checkSecurityProductChange( meta , env ) )
+					return( false );
 				
 				tm = new TransactionMetadata( this );
 				if( tm.changeProduct( meta ) ) {
@@ -700,6 +703,9 @@ public class TransactionBase extends ServerObject {
 				TransactionMetadata tm = productMeta.get( meta.name );
 				if( tm != null )
 					action.exitUnexpectedState();
+				
+				if( !checkSecurityServerChange( SecurityAction.ACTION_CONFIGURE ) )
+					return( false );
 				
 				tm = new TransactionMetadata( this );
 				if( tm.deleteProduct( meta ) ) {
@@ -888,6 +894,9 @@ public class TransactionBase extends ServerObject {
 		if( tm != null )
 			action.exitUnexpectedState();
 		
+		if( !checkSecurityServerChange( SecurityAction.ACTION_CONFIGURE ) )
+			action.exitUnexpectedState();
+		
 		Meta meta = action.createProductMetadata( this , directory , product );
 		tm = new TransactionMetadata( this );
 		tm.createProduct( meta );
@@ -971,6 +980,15 @@ public class TransactionBase extends ServerObject {
 	public boolean checkSecurityInfrastructureChange( ServerNetwork network ) {
 		ServerAuth auth = engine.getAuth();
 		if( auth.checkAccessNetworkAction( action , SecurityAction.ACTION_CONFIGURE , network , true , false ) )
+			return( true );
+		
+		checkSecurityFailed();
+		return( false );
+	}
+
+	public boolean checkSecurityProductChange( Meta meta , MetaEnv env ) {
+		ServerAuth auth = engine.getAuth();
+		if( auth.checkAccessProductAction( action , SecurityAction.ACTION_CONFIGURE , meta , env , false ) )
 			return( true );
 		
 		checkSecurityFailed();
