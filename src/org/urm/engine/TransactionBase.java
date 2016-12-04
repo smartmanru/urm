@@ -7,12 +7,16 @@ import org.urm.common.RunError;
 import org.urm.engine.action.ActionInit;
 import org.urm.meta.ServerObject;
 import org.urm.meta.ServerProductMeta;
+import org.urm.meta.engine.ServerAuth;
+import org.urm.meta.engine.ServerAuth.SecurityAction;
+import org.urm.meta.engine.ServerAuth.SpecialRights;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerBase;
 import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.engine.ServerDirectory;
 import org.urm.meta.engine.ServerInfrastructure;
 import org.urm.meta.engine.ServerMonitoring;
+import org.urm.meta.engine.ServerNetwork;
 import org.urm.meta.engine.ServerProduct;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.engine.ServerResources;
@@ -229,6 +233,31 @@ public class TransactionBase extends ServerObject {
 		action.exit( errorCode , msg , new String[] { param1 , param2 , param3 , param4 } );
 	}
 
+	public void fail( int errorCode , String msg , String params[] ) {
+		error( msg );
+		error = new RunError( errorCode , msg , params );
+	}
+
+	public void fail0( int errorCode , String msg ) {
+		fail( errorCode , msg , null );
+	}
+
+	public void fail1( int errorCode , String msg , String param1 ) {
+		fail( errorCode , msg , new String[] { param1 } );
+	}
+
+	public void fail2( int errorCode , String msg , String param1 , String param2 ) {
+		fail( errorCode , msg , new String[] { param1 , param2 } );
+	}
+
+	public void fail3( int errorCode , String msg , String param1 , String param2 , String param3 ) {
+		fail( errorCode , msg , new String[] { param1 , param2 , param3 } );
+	}
+
+	public void fail4( int errorCode , String msg , String param1 , String param2 , String param3 , String param4 ) {
+		fail( errorCode , msg , new String[] { param1 , param2 , param3 , param4 } );
+	}
+
 	public void handle( Throwable e , String s ) {
 		if( action != null )
 			action.log( s , e );
@@ -304,7 +333,7 @@ public class TransactionBase extends ServerObject {
 		action.trace( s );
 	}
 	
-	public boolean changeInfrastructure( ServerInfrastructure sourceInfrastructure ) {
+	public boolean changeInfrastructure( ServerInfrastructure sourceInfrastructure , ServerNetwork network ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -312,6 +341,15 @@ public class TransactionBase extends ServerObject {
 					
 				if( infra != null )
 					return( true );
+
+				if( network == null ) {
+					if( !checkSecurityServerChange() )
+						return( false );
+				}
+				else {
+					if( !checkSecurityChangeInfrastructure( network ) )
+						return( false );
+				}
 				
 				infra = sourceInfrastructure;
 				return( true );
@@ -345,7 +383,7 @@ public class TransactionBase extends ServerObject {
 		return( false );
 	}
 
-	public boolean changeBase( ServerBase sourceBase ) {
+	public boolean changeBase( ServerBase sourceBase , SpecialRights sr ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -353,6 +391,9 @@ public class TransactionBase extends ServerObject {
 					
 				if( base != null )
 					return( true );
+				
+				if( !checkSecuritySpecial( sr ) )
+					return( false );
 				
 				base = sourceBase;
 				return( true );
@@ -569,6 +610,9 @@ public class TransactionBase extends ServerObject {
 					
 				if( settings != null )
 					return( true );
+				
+				if( !checkSecurityServerChange() )
+					return( false );
 				
 				settingsOld = action.getActiveServerSettings();
 				if( sourceSettings == settingsOld ) {
@@ -888,5 +932,36 @@ public class TransactionBase extends ServerObject {
 		MetaDistrComponent comp = getDistrComponent( service.comp );
 		return( comp.getWebService( action , service.NAME ) );
 	}
+
+	public void checkSecurityFailed() {
+		fail0( _Error.SecurityCheckFailed0 , "Operation is not permitted" );
+	}
 	
+	public boolean checkSecurityServerChange() {
+		ServerAuth auth = engine.getAuth();
+		if( auth.checkAccessServerAction( action , SecurityAction.ACTION_ADMIN , false ) )
+			return( true );
+		
+		checkSecurityFailed();
+		return( false );
+	}
+
+	public boolean checkSecuritySpecial( SpecialRights sr ) {
+		ServerAuth auth = engine.getAuth();
+		if( auth.checkAccessSpecial( action , sr ) )
+			return( true );
+		
+		checkSecurityFailed();
+		return( false );
+	}
+
+	public boolean checkSecurityChangeInfrastructure( ServerNetwork network ) {
+		ServerAuth auth = engine.getAuth();
+		if( auth.checkAccessNetworkAction( action , SecurityAction.ACTION_CONFIGURE , network , true , false ) )
+			return( true );
+		
+		checkSecurityFailed();
+		return( false );
+	}
+
 }
