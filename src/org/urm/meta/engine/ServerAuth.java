@@ -400,6 +400,10 @@ public class ServerAuth extends ServerObject {
 		return( checkAccessProductAction( action , sa , productName , null , mode , readOnly ) );
 	}
 	
+	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , MetaEnv env , boolean readOnly ) {
+		return( checkAccessProductAction( action , sa , meta.name , env , null , readOnly ) );
+	}
+	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , MetaEnv env , boolean readOnly ) {
 		return( checkAccessProductAction( action , sa , env.meta.name , env , null , readOnly ) );
 	}
