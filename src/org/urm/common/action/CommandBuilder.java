@@ -33,9 +33,8 @@ public class CommandBuilder {
 			return( null );
 		}
 		
-		String cmd = args[0]; 
-
 		// discriminate
+		String cmd = args[0]; 
 		CommandMeta commandInfo = createMeta( cmd );
 		if( commandInfo == null )
 			return( null );
@@ -49,7 +48,9 @@ public class CommandBuilder {
 	public CommandMeta createMeta( String cmd ) {
 		// discriminate
 		CommandMeta commandInfo = null;
-		if( cmd.equals( BuildCommandMeta.NAME ) )
+		if( cmd.equals( MainCommandMeta.NAME ) )
+			commandInfo = new MainCommandMeta();
+		else if( cmd.equals( BuildCommandMeta.NAME ) )
 			commandInfo = new BuildCommandMeta();
 		else if( cmd.equals( DeployCommandMeta.NAME ) )
 			commandInfo = new DeployCommandMeta();
