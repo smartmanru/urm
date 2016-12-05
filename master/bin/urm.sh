@@ -9,7 +9,7 @@ export PATH=$C_URM_INSTALLPATH/bin:PATH
 
 if [ "$C_URM_MODE" = "main" ]; then
 	C_URM_SERVER=
-	C_UMR_CLASS=org.urm.server.Main
+	C_UMR_CLASS=org.urm.engine.Main
 else
 	C_UMR_CLASS=org.urm.client.Main
 	if [ "$1" = "-offline" ] || [ "$2" = "-offline" ] || [ "$3" = "-offline" ] || [ "$4" = "-offline" ]; then
