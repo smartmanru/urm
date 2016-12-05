@@ -63,7 +63,14 @@ public class CommandBuilder {
 		else if( cmd.equals( XDocCommandMeta.NAME ) )
 			commandInfo = new XDocCommandMeta();
 		else
-			out( "Unexpected URM args - unknown command executor=" + cmd + " (expected one of build/deploy/database/monitor)" );
+			out( "Unexpected URM args - unknown command executor=" + cmd + " (expected one of " + 
+					MainCommandMeta.NAME + "/" + 
+					BuildCommandMeta.NAME + "/" + 
+					DeployCommandMeta.NAME + "/" + 
+					DatabaseCommandMeta.NAME + "/" + 
+					MonitorCommandMeta.NAME + "/" + 
+					ReleaseCommandMeta.NAME + "/" + 
+					XDocCommandMeta.NAME + ")" );
 			
 		return( commandInfo );
 	}
