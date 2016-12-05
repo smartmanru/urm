@@ -18,7 +18,7 @@ public class CommandBuilder {
 	public RunContext execrc;
 	public CommandMeta commandInfo;
 	
-	void out( String s ) {
+	public void out( String s ) {
 		System.out.println( "# " + s );
 	}
 

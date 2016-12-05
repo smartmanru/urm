@@ -30,9 +30,11 @@ public class OptionsMeta {
 		defineGenericOption( CommandVar.newFlagYesOption( "local" , "OPT_LOCAL" , false , "any session is opened as local under current user" ) );
 		defineGenericOption( CommandVar.newFlagYesOption( "offline" , "OPT_OFFLINE" , false , "do not use server even if configured" ) );
 		defineGenericOption( CommandVar.newIntParam( "timeout" , "OPT_TIMEOUT" , true , "use specific default timeout" ) );
-		defineGenericOption( CommandVar.newParam( "key" , "OPT_KEY" , false , "use given key to connect to host" ) );
 		defineGenericOption( CommandVar.newParam( "distpath" , "OPT_DISTPATH" , false , "use given path to find distributive files" ) );
 		defineGenericOption( CommandVar.newParam( "hiddenpath" , "OPT_HIDDENPATH" , false , "use given path to find hidden files and properties" ) );
+		defineGenericOption( CommandVar.newParam( "user" , "OPT_USER" , false , "use given user to connect to server" ) );
+		defineGenericOption( CommandVar.newParam( "key" , "OPT_KEY" , false , "use given key to connect to server" ) );
+		defineGenericOption( CommandVar.newParam( "password" , "OPT_PASSWORD" , false , "use given password to connect to server" ) );
 		genericOptionsCount = optionsDefined.size();
 		
 		defineOption( CommandVar.newFlagYesOption( "get" , "OPT_GET" , true , "run getall after build" ) );
