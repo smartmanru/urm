@@ -99,7 +99,7 @@ public class RunContext implements Serializable {
 			standaloneMode = false;
 		}
 		else
-		if( mode.equals( "help" ) ) {
+		if( mode.equals( "client" ) ) {
 			mainMode = false;
 			standaloneMode = true;
 		}
