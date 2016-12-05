@@ -1,6 +1,7 @@
 package org.urm.client;
 
 import java.io.Console;
+import java.io.File;
 
 import org.urm.common.Common;
 import org.urm.common.RunContext;
@@ -71,7 +72,32 @@ public class ClientEngine {
 		if( value == null )
 			return( false );
 
-		Common.createFileFromString( urmAuthFile , value );
+		String authDir = builder.execrc.authPath;
+		if( authDir.isEmpty() )
+			authDir = Common.getPath( builder.execrc.installPath , ".auth" );
+		String authFile = Common.getPath( authDir , urmAuthFile );
+				
+		authDir = builder.execrc.getLocalPath( authDir );
+		authFile = builder.execrc.getLocalPath( authFile );
+		
+		File folder = new File( authDir );
+		if( !folder.exists() ) {
+			if( !folder.mkdirs() ) {
+				builder.out( "Unable to create auth folder" );
+				return( false );
+			}
+			
+			folder.setReadable( true , true );
+			folder.setWritable( true , true );
+			folder.setExecutable( true , true );
+		}
+		
+		Common.createFileFromString( authFile , "" );
+		File file = new File( authFile );
+		file.setReadable( true , true );
+		file.setWritable( true , true );
+		
+		Common.createFileFromString( authFile , value );
 		return( true );
 	}
 	
