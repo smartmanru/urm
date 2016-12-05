@@ -9,6 +9,7 @@ chcp 65001 > NUL
 set C_URM_INSTALLPATH=%CD%
 
 if "%C_URM_MODE%" == "main" (
+echo C_URM_MODE=%C_URM_MODE%
 	set C_URM_SERVER=
 	set C_UMR_CLASS=org.urm.engine.Main
 ) else (
@@ -31,6 +32,7 @@ if "%~2" == "-local" set x=1
 if "%~3" == "-local" set x=1
 if "%~4" == "-local" set x=1
 if "%C_URM_SERVER%" == "" set x=1
+if "%C_URM_MODE%" == "help" set x=2
 if "%x%" == "1" (
 	set JAVACP=master/bin/urms.jar;master/lib/jmxtools-1.2.1.jar;master/lib/jna-4.1.0.jar;master/lib/jmxremote_optional-repackaged-4.0.jar;jsch-0.1.54.jar
 ) else (
