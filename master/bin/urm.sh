@@ -22,7 +22,7 @@ XSERVER=no
 if [ "$1" = "-local" ] || [ "$2" = "-local" ] || [ "$3" = "-local" ] || [ "$4" = "-local" ] || [ "$C_URM_SERVER" = "" ]; then
 	XSERVER=yes
 fi
-if [ "$C_URM_MODE" = "help" ]; then
+if [ "$C_URM_MODE" = "client" ]; then
 	XSERVER=no
 fi
 
