@@ -44,7 +44,6 @@ public class RunContext implements Serializable {
 	public static String PROPERTY_SERVER_MASTERPATH = "server.master";
 	public static String PROPERTY_SERVER_PRODUCTSPATH = "server.products";
 	
-	
 	public RunContext() {
 	}
 
@@ -98,6 +97,11 @@ public class RunContext implements Serializable {
 		if( mode.equals( "main" ) ) {
 			mainMode = true;
 			standaloneMode = false;
+		}
+		else
+		if( mode.equals( "help" ) ) {
+			mainMode = false;
+			standaloneMode = true;
 		}
 		else
 			Common.exit1( _Error.UnexpectedMode1 , "unexpected mode=" + mode , mode );
