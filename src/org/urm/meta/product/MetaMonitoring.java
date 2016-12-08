@@ -127,6 +127,7 @@ public class MetaMonitoring extends PropertyController {
 	}
 	
 	private void loadTargets( ActionBase action , Node node ) throws Exception {
+		mapTargets.clear();
 		if( node == null ) {
 			action.info( "no targets defined for monitoring" );
 			return;
