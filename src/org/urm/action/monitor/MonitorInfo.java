@@ -266,6 +266,7 @@ public class MonitorInfo {
 			createRrdFile( F_RRDFILE );
 		 */
 
+		action.trace( "add record to RRD database file: " + F_RRDFILE + " (" + X_TS + ":" + X_VALUES + ")" );
 		action.shell.appendFileWithString( action , F_RRDFILE_LOG , 
 				"rrdtool update: " + Common.getTimeStamp( F_TS ) + "=" + X_TS + ":" + X_VALUES );
 		
