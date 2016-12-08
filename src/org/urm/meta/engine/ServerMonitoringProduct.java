@@ -46,7 +46,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	public void run() {
 		started = true;
 		try {
-			ca = new ActionMonitorTop( engine.serverAction , null , productName , eventsApp );
+			ca = new ActionMonitorTop( engine.serverAction , productName , productName , eventsApp );
 			eventsApp.subscribe( ca.eventSource , this );
 			ca.runSimple();
 		}
