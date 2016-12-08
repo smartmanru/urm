@@ -125,7 +125,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 
 			// finish with data
 			try {
-				info.stop();
+				info.stop( this );
 			}
 			catch( Throwable e ) {
 				handle( e );

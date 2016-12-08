@@ -6,9 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.rrd4j.ConsolFun;
-import org.rrd4j.DsType;
-import org.rrd4j.core.RrdDb;
-import org.rrd4j.core.RrdDef;
 import org.rrd4j.core.Sample;
 import org.rrd4j.core.Util;
 import org.rrd4j.graph.RrdGraph;
@@ -25,22 +22,15 @@ public class MonitorInfo {
 	MonitoringStorage storage;
 	Map<String,MonitorTargetInfo> targets;
 
-	RrdDb rrdDb;
-	boolean rrdDbFail;
-	String F_RRDFILE;
-	
 	public MonitorInfo( ActionBase action , MonitoringStorage storage ) {
 		this.action = action;
 		this.storage = storage;
 		targets = new HashMap<String,MonitorTargetInfo>();
-		rrdDbFail = false;
 	}
 
-	public void stop() throws Exception {
-		if( rrdDb != null && rrdDbFail == false ) {
-			rrdDb.close();
-			rrdDb = null;
-		}
+	public void stop( ActionBase action ) {
+		for( MonitorTargetInfo mti : targets.values() )
+			mti.stop( action );
 	}
 	
 	public MonitorTargetInfo getTargetInfo( MetaMonitoringTarget target ) throws Exception {
@@ -79,7 +69,7 @@ public class MonitorInfo {
 	}
 	
 	private RrdGraph createHistoryGraph( MonitorTargetInfo info ) throws Exception {
-		if( rrdDbFail )
+		if( info.rrdDbFail )
 			return( null );
 		
 		MetaMonitoringTarget target = info.target;
@@ -187,67 +177,13 @@ public class MonitorInfo {
 		Common.createFileFromString( F_REPFILE , template );
 	}
 
-	private void createRrdFile( String fname ) throws Exception {
-		/*
-		 * OLD COMMAND SYNTAX
-		action.shell.customCheckStatus( action , "rrdtool create " + fname + 
-			" --start 20150101" +
-			" --step 60" +
-			" DS:total:GAUGE:1000:0:U" +
-			" DS:checkenv:GAUGE:1000:0:U" +
-			" DS:checkenv-time:GAUGE:1000000:0:U" +
-			" RRA:AVERAGE:0.5:5:1000" +
-			" RRA:MAX:0.5:5:1000" +
-			" RRA:MIN:0.5:5:1000" );
-		*/
-		
-		// new - from https://oldwww.jrobin.org/api/jrobinandrrdtoolcompared.html
-		LocalFolder folder = action.getLocalFolder( Common.getDirName( fname ) );
-		folder.ensureExists( action );
-		String rrdFile = action.getLocalPath( fname );
-		long start = Util.getTime();
-		int step = 60;
-		
-		RrdDef rrdDef = new RrdDef( rrdFile , start - 1 , step );
-		rrdDef.addDatasource( "total" , DsType.GAUGE , 1000 , 0 , Double.NaN );
-		rrdDef.addDatasource( "checkenv" , DsType.GAUGE , 1000 , 0 , Double.NaN );
-		rrdDef.addDatasource( "checkenv-time" , DsType.GAUGE , 1000000 , 0 , Double.NaN );
-		rrdDef.addArchive( ConsolFun.AVERAGE , 0.5 , 5 , 1000 );
-		rrdDef.addArchive( ConsolFun.MAX , 0.5 , 5 , 1000 );
-		rrdDef.addArchive( ConsolFun.MIN , 0.5 , 5 , 1000 );
-		
-		rrdDb = new RrdDb( rrdDef );
-		rrdDb.close();
-		
-		rrdDb = new RrdDb( rrdFile );
-	}
-
-	private boolean openRrdFile( MonitorTargetInfo info ) throws Exception {
-		if( rrdDbFail )
-			return( false );
-		
-		if( rrdDb == null ) {
-			LocalFolder dataFolder = storage.getDataFolder( action , info.target );
-			F_RRDFILE = dataFolder.getFilePath( action , storage.getRrdFile( info.target ) );
-			
-			rrdDbFail = true;
-			if( !action.shell.checkFileExists( action , F_RRDFILE ) )
-				createRrdFile( F_RRDFILE );
-			else
-				rrdDb = new RrdDb( F_RRDFILE );
-			rrdDbFail = false;
-		}
-		
-		return( true );
-	}
-	
 	private void addRrdRecord( MonitorTargetInfo info ) throws Exception {
-		if( !openRrdFile( info ) ) {
-			action.trace( "unable to open RRD database file: " + F_RRDFILE );
+		if( !info.openRrdFile( action , storage ) ) {
+			action.trace( "unable to open RRD database file: " + info.F_RRDFILE );
 			return;
 		}
 
-		String F_RRDFILE_LOG = F_RRDFILE + ".log"; 
+		String F_RRDFILE_LOG = info.F_RRDFILE + ".log"; 
 		
 		int F_STATUSTOTAL = 100;
 		int F_ENVTOTAL = 100;
@@ -266,7 +202,7 @@ public class MonitorInfo {
 			createRrdFile( F_RRDFILE );
 		 */
 
-		action.trace( "add record to RRD database file: " + F_RRDFILE + " (" + X_TS + ":" + X_VALUES + ")" );
+		action.trace( "add record to RRD database file: " + info.F_RRDFILE + " (" + X_TS + ":" + X_VALUES + ")" );
 		action.shell.appendFileWithString( action , F_RRDFILE_LOG , 
 				"rrdtool update: " + Common.getTimeStamp( F_TS ) + "=" + X_TS + ":" + X_VALUES );
 		
@@ -276,32 +212,11 @@ public class MonitorInfo {
 		 */
 		
 		long t = Util.getTime();
-		Sample sample = rrdDb.createSample( t );
+		Sample sample = info.rrdDb.createSample( t );
 		sample.setValue( "total" , F_STATUSTOTAL );
 		sample.setValue( "checkenv" , F_ENVTOTAL );
 		sample.setValue( "checkenv-time" , info.timeMajor );
 		sample.update();
 	}
 	
-	class MonitorTargetInfo {
-		MetaMonitoringTarget target;
-		
-		public long timeMajor;
-		public boolean statusMajor;
-		public boolean statusMinor;
-		
-		public MonitorTargetInfo( MetaMonitoringTarget target ) {
-			this.target = target;
-		}
-		
-		public void setLastMajor( boolean statusMajor , long timeMajor ) throws Exception {
-			this.statusMajor = statusMajor;
-			this.timeMajor = timeMajor; 
-		}
-		
-		public void setLastMinor( boolean statusMinor ) throws Exception {
-			this.statusMinor = statusMinor;
-		}
-	}
-
 }
