@@ -112,6 +112,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 			
 			// create graphs
 			for( MetaMonitoringTarget target : mon.getTargets( this ).values() ) {
+				trace( "refresh target graph env=" + target.ENV + ", dc=" + target.DC );
 				info.addHistoryGraph( target );
 				super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORGRAPHCHANGED , target );
 			}
