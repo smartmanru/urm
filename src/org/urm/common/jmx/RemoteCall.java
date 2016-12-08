@@ -11,6 +11,7 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
+import org.urm.client.ClientAuth;
 import org.urm.common.RunContext;
 import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandBuilder;
@@ -70,7 +71,7 @@ public class RemoteCall implements NotificationListener {
 		System.out.println( s );
 	}
 	
-	public boolean runClient( CommandBuilder builder , CommandMeta commandInfo ) throws Exception {
+	public boolean runClient( CommandBuilder builder , CommandMeta commandInfo , ClientAuth auth ) throws Exception {
 		if( !serverConnect( builder.execrc ) ) {
 			serverDisconnect();
 			println( "unable to connect to: " + URL );
