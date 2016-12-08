@@ -242,8 +242,10 @@ public class MonitorInfo {
 	}
 	
 	private void addRrdRecord( MonitorTargetInfo info ) throws Exception {
-		if( !openRrdFile( info ) )
+		if( !openRrdFile( info ) ) {
+			action.trace( "unable to open RRD database file: " + F_RRDFILE );
 			return;
+		}
 
 		String F_RRDFILE_LOG = F_RRDFILE + ".log"; 
 		
