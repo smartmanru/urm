@@ -237,7 +237,13 @@ public class ServerEngine {
 		else if( cmd.equals( XDocCommandMeta.NAME ) )
 			executor = new XDocCommandExecutor( this , commandInfo );
 		else
-			Common.exit1( _Error.UnknownCommandExecutor1 , "Unexpected URM args - unknown command executor=" + cmd + " (expected one of build/deploy/database/monitor)" , cmd );
+			Common.exit1( _Error.UnknownCommandExecutor1 , "Unexpected URM args - unknown command executor=" + cmd + " (expected one of " +
+					BuildCommandMeta.NAME + "/" +
+					DeployCommandMeta.NAME + "/" + 
+					DatabaseCommandMeta.NAME + "/" +
+					MonitorCommandMeta.NAME + "/" +
+					ReleaseCommandMeta.NAME + "/" +
+					XDocCommandMeta.NAME + ")" , cmd );
 		return( executor );
 	}
 

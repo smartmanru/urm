@@ -18,7 +18,7 @@ public class CommandBuilder {
 	public RunContext execrc;
 	public CommandMeta commandInfo;
 	
-	void out( String s ) {
+	public void out( String s ) {
 		System.out.println( "# " + s );
 	}
 
@@ -33,9 +33,8 @@ public class CommandBuilder {
 			return( null );
 		}
 		
-		String cmd = args[0]; 
-
 		// discriminate
+		String cmd = args[0]; 
 		CommandMeta commandInfo = createMeta( cmd );
 		if( commandInfo == null )
 			return( null );
@@ -49,7 +48,9 @@ public class CommandBuilder {
 	public CommandMeta createMeta( String cmd ) {
 		// discriminate
 		CommandMeta commandInfo = null;
-		if( cmd.equals( BuildCommandMeta.NAME ) )
+		if( cmd.equals( MainCommandMeta.NAME ) )
+			commandInfo = new MainCommandMeta();
+		else if( cmd.equals( BuildCommandMeta.NAME ) )
 			commandInfo = new BuildCommandMeta();
 		else if( cmd.equals( DeployCommandMeta.NAME ) )
 			commandInfo = new DeployCommandMeta();
@@ -62,7 +63,14 @@ public class CommandBuilder {
 		else if( cmd.equals( XDocCommandMeta.NAME ) )
 			commandInfo = new XDocCommandMeta();
 		else
-			out( "Unexpected URM args - unknown command executor=" + cmd + " (expected one of build/deploy/database/monitor)" );
+			out( "Unexpected URM args - unknown command executor=" + cmd + " (expected one of " + 
+					MainCommandMeta.NAME + "/" + 
+					BuildCommandMeta.NAME + "/" + 
+					DeployCommandMeta.NAME + "/" + 
+					DatabaseCommandMeta.NAME + "/" + 
+					MonitorCommandMeta.NAME + "/" + 
+					ReleaseCommandMeta.NAME + "/" + 
+					XDocCommandMeta.NAME + ")" );
 			
 		return( commandInfo );
 	}

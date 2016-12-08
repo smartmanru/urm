@@ -9,7 +9,7 @@ export PATH=$C_URM_INSTALLPATH/bin:PATH
 
 if [ "$C_URM_MODE" = "main" ]; then
 	C_URM_SERVER=
-	C_UMR_CLASS=org.urm.server.Main
+	C_UMR_CLASS=org.urm.engine.Main
 else
 	C_UMR_CLASS=org.urm.client.Main
 	if [ "$1" = "-offline" ] || [ "$2" = "-offline" ] || [ "$3" = "-offline" ] || [ "$4" = "-offline" ]; then
@@ -18,7 +18,15 @@ else
 	fi
 fi
 
+XSERVER=no
 if [ "$1" = "-local" ] || [ "$2" = "-local" ] || [ "$3" = "-local" ] || [ "$4" = "-local" ] || [ "$C_URM_SERVER" = "" ]; then
+	XSERVER=yes
+fi
+if [ "$C_URM_MODE" = "client" ]; then
+	XSERVER=no
+fi
+
+if [ "$XSERVER" = "yes" ]; then
 	JAVACP=master/bin/urms.jar:master/lib/jmxtools-1.2.1.jar:master/lib/jna-4.1.0.jar:master/lib/jmxremote_optional-repackaged-4.0.jar:jsch-0.1.54.jar
 else
 	JAVACP=master/bin/urmc.jar:master/lib/jmxtools-1.2.1.jar:master/lib/jmxremote_optional-repackaged-4.0.jar
