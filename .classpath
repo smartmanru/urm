@@ -3,7 +3,6 @@
 	<classpathentry excluding="**/.svn/**/*" kind="src" path="src"/>
 	<classpathentry excluding="**/.svn/**/*" kind="src" path="messenger"/>
 	<classpathentry excluding="**/.svn/**/*" kind="src" path="plugins"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="lib" path="master/lib/skypekit.jar"/>
 	<classpathentry kind="lib" path="master/lib/smack-3.4.1-0cec571.jar"/>
 	<classpathentry kind="lib" path="master/lib/smackx-3.4.1-0cec571.jar"/>
@@ -13,5 +12,6 @@
 	<classpathentry kind="lib" path="master/lib/jmxremote_optional-repackaged-4.0.jar"/>
 	<classpathentry kind="lib" path="master/lib/jsch-0.1.54.jar" sourcepath="master/lib/jsch-0.1.54.zip"/>
 	<classpathentry kind="lib" path="master/lib/rrd4j-3.0.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

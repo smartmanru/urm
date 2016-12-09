@@ -2,8 +2,6 @@ package org.urm.common.jmx;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.management.MBeanServerConnection;
 import javax.management.Notification;
@@ -35,6 +33,7 @@ public class RemoteCall implements NotificationListener {
 	CommandOptions options;
 	
 	public String URL;
+	ClientAuth auth;
 	ObjectName mbeanName;
 	JMXConnector jmxc = null;
 	MBeanServerConnection mbsc = null;
@@ -106,19 +105,12 @@ public class RemoteCall implements NotificationListener {
 	}
 	
 	public boolean serverConnect( String serverHostPort , ClientAuth auth ) {
-		URL = "service:jmx:jmxmp://" + serverHostPort;
+		this.auth = auth;
 		
 		try {
+			URL = "service:jmx:jmxmp://" + serverHostPort;
 			JMXServiceURL url = new JMXServiceURL( URL );
-			
-			Map<String, Object> env = null;
-			if( auth != null ) {
-				env = new HashMap<String, Object>();
-				String[] creds = { auth.authUser , auth.authPassword };
-				env.put( JMXConnector.CREDENTIALS , creds );
-			}
-			
-			jmxc = JMXConnectorFactory.connect( url , env );
+			jmxc = JMXConnectorFactory.connect( url , null );
 			mbsc = jmxc.getMBeanServerConnection();
 			if( mbsc == null )
 				return( false );
@@ -153,8 +145,8 @@ public class RemoteCall implements NotificationListener {
 			stopwait = false;
 			mbsc.addNotificationListener( mbeanName , this , filter , clientId );
 			sessionId = ( String )mbsc.invoke( mbeanName , GENERIC_ACTION_NAME , 
-					new Object[] { options.action , options.data , clientId } , 
-					new String[] { String.class.getName() , ActionData.class.getName() , String.class.getName() } );
+					new Object[] { options.action , options.data , clientId , auth.authUser , auth.authPassword } , 
+					new String[] { String.class.getName() , ActionData.class.getName() , String.class.getName() , String.class.getName() , String.class.getName() } );
 		}
 		catch( Throwable e ) {
 			System.out.println( "unable to call operation: " + name );

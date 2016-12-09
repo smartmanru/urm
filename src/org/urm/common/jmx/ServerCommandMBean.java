@@ -1,11 +1,8 @@
 package org.urm.common.jmx;
 
-import java.security.AccessControlContext;
-import java.security.AccessController;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import javax.management.Attribute;
 import javax.management.AttributeList;
@@ -24,8 +21,6 @@ import javax.management.NotificationBroadcasterSupport;
 import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
 import javax.management.ReflectionException;
-import javax.management.remote.JMXPrincipal;
-import javax.security.auth.Subject;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
@@ -331,21 +326,9 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 	
 	@Override
 	public Object invoke( String name , Object[] args , String[] sig ) throws MBeanException, ReflectionException {
-		AccessControlContext acc = AccessController.getContext();
-		Subject subject = Subject.getSubject( acc );
-		if( subject == null )
-			return( null );
-		
-		Set<JMXPrincipal> principals = subject.getPrincipals( JMXPrincipal.class );
-		if( principals == null || principals.isEmpty() )
-			return( null );
-			
-		JMXPrincipal principal = ( JMXPrincipal )principals.iterator().next();
-		String user = principal.getName();
-		
 		String value = null;
 		try {
-			value = notifyExecute( name , args , user );
+			value = notifyExecute( name , args );
 		}
 		catch( Throwable e ) {
 			action.error( e.getMessage() );
@@ -362,9 +345,9 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		broadcaster.sendNotification( n );
 	}
 	
-	private String notifyExecute( String name , Object[] args , String user ) throws Exception {
+	private String notifyExecute( String name , Object[] args ) throws Exception {
 		if( name.equals( RemoteCall.GENERIC_ACTION_NAME ) ) {
-			int sessionId = notifyExecuteGeneric( args , user );
+			int sessionId = notifyExecuteGeneric( args );
 			if( sessionId < 0 )
 				return( null );
 			return( "" + sessionId );
@@ -421,15 +404,17 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		return( 0 );
 	}
 
-	private int notifyExecuteGeneric( Object[] args , String user ) throws Exception {
-		if( args.length != 3 ) {
+	private int notifyExecuteGeneric( Object[] args ) throws Exception {
+		if( args.length != 5 ) {
 			action.error( "missing args calling command=" + meta.name );
 			return( -1 );
 		}
 		
 		if( args[1].getClass() != ActionData.class || 
 			args[0].getClass() != String.class ||
-			args[2].getClass() != String.class ) {
+			args[2].getClass() != String.class ||
+			args[3].getClass() != String.class ||
+			args[4].getClass() != String.class ) {
 			action.error( "invalid args calling command=" + meta.name );
 			return( -1 );
 		}
@@ -437,8 +422,13 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		String actionName = ( String )args[0];
 		ActionData data = ( ActionData )args[1];
 		String clientId = ( String )args[2];
+		String user = ( String )args[2];
+		String password = ( String )args[2];
 		
 		ServerAuth auth = engine.getAuth();
+		if( !auth.checkLogin( user , password ) )
+			return( -1 );
+		
 		SessionSecurity security = auth.createUserSecurity( user );
 		ServerSession sessionContext = engine.sessionController.createSession( security , data.clientrc , true );
 		action.debug( "operation invoked, sessionId=" + sessionContext.sessionId );

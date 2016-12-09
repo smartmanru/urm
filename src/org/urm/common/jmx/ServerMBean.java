@@ -1,8 +1,5 @@
 package org.urm.common.jmx;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.management.Attribute;
 import javax.management.AttributeList;
 import javax.management.AttributeNotFoundException;
@@ -71,9 +68,8 @@ public class ServerMBean implements DynamicMBean {
 		action.debug( "register JMX on " + URL + " ..." );
 		
         JMXServiceURL url = new JMXServiceURL( URL );
-        Map<String,Object> env = new HashMap<String,Object>();
-        env.put( JMXConnectorServer.AUTHENTICATOR , new ServerMBeanAuth( this ) );
-        jmxConnector = JMXConnectorServerFactory.newJMXConnectorServer( url , env , mbs );
+		
+        jmxConnector = JMXConnectorServerFactory.newJMXConnectorServer( url , null , mbs );
         jmxConnector.start();
 		action.debug( "JMX server has been started" );
 	}
