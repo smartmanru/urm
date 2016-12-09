@@ -450,10 +450,10 @@ public class Common {
 		outputStream.close();
 	}
 	
-    public static void createPropertyFile( RunContext rc , String path , Properties props ) throws Exception {
+    public static void createPropertyFile( RunContext rc , String path , Properties props , String comment ) throws Exception {
         OutputStream outputStream = new FileOutputStream( path );
         OutputStreamWriter writer = new OutputStreamWriter( outputStream , "UTF8" );
-        props.store( writer , "auth file" );
+        props.store( writer , comment );
         writer.close();
         outputStream.close();
     }

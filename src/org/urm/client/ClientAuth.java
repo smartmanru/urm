@@ -2,11 +2,14 @@ package org.urm.client;
 
 import java.io.Console;
 import java.io.File;
+import java.util.Properties;
 
 import org.urm.common.Common;
+import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandOptions;
+import org.urm.common.action.OptionsMeta;
 
 public class ClientAuth {
 
@@ -16,22 +19,31 @@ public class ClientAuth {
 	public static String urmPasswordVar = "urm.password";
 	public static String urmKeyVar = "urm.key";
 
-	public static String urmAuthFile = "auth.txt";
+	public static String urmAuthFile = "client-auth.txt";
+
+	public String authUser;
+	public String authKeyFile;
+	public String authPassword;
 	
 	public ClientAuth( ClientEngine client ) {
 		this.client = client;
 	}
 	
+	private String getAuthDir( RunContext execrc ) {
+		String authDir = execrc.authPath;
+		if( authDir.isEmpty() )
+			authDir = Common.getPath( execrc.userHome, ".auth" );
+		return( authDir );
+	}
+	
 	public boolean setAuth( CommandBuilder builder , CommandOptions options ) throws Exception {
-		String value = runClientAuthGetFile( builder , options );
-		if( value == null )
+		Properties props = runClientAuthGetFile( builder , options );
+		if( props == null )
 			return( false );
 
 		RunContext execrc = builder.execrc;
 		
-		String authDir = execrc.authPath;
-		if( authDir.isEmpty() )
-			authDir = Common.getPath( execrc.userHome, ".auth" );
+		String authDir = getAuthDir( execrc );
 		String authFile = Common.getPath( authDir , urmAuthFile );
 				
 		authDir = execrc.getLocalPath( authDir );
@@ -54,33 +66,27 @@ public class ClientAuth {
 		file.setReadable( true , true );
 		file.setWritable( true , true );
 		
-		Common.createFileFromString( authFile , value );
-		builder.out( "Auth properties have been persisted in " + authFile );
+		Common.createPropertyFile( execrc , authFile , props , "client auth" );
+		builder.out( "Auth properties have been persisted to " + authFile );
 		return( true );
 	}
 	
-	private String runClientAuthGetFile( CommandBuilder builder , CommandOptions options ) throws Exception {
-		String s = "";
-		
-		String user = options.getParamValue( "OPT_USER" );
-		String key = options.getParamValue( "OPT_KEY" );
-		String password = options.getParamValue( "OPT_PASSWORD" );
+	private Properties runClientAuthGetFile( CommandBuilder builder , CommandOptions options ) throws Exception {
+		String user = options.getParamValue( OptionsMeta.OPT_USER );
+		String key = options.getParamValue( OptionsMeta.OPT_KEY );
+		String password = options.getParamValue( OptionsMeta.OPT_PASSWORD );
 		if( user.isEmpty() ) {
 			builder.out( "User parameter is required" );
 			return( null );
 		}
 		
+		Properties props = new Properties();
 		if( key.isEmpty() && password.isEmpty() ) {
-			Console console = System.console();
-			while( true ) {
-				console.printf( "Please enter your password: ");
-				char[] passwordChars = console.readPassword();
-				String passwordString = new String( passwordChars );
-				if( !password.isEmpty() ) {
-					s = setEnvVariable( s , urmUserVar , user );
-					s = setEnvVariable( s , urmPasswordVar , passwordString );
-					return( s );
-				}
+			password = readConsole( "Please enter your password: " , true );
+			if( !password.isEmpty() ) {
+				props.setProperty( urmUserVar , user );
+				props.setProperty( urmPasswordVar , password );
+				return( props );
 			}
 		}
 		
@@ -90,23 +96,91 @@ public class ClientAuth {
 		}
 		
 		if( key.isEmpty() && password.isEmpty() == false ) {
-			s = setEnvVariable( s , urmUserVar , user );
-			s = setEnvVariable( s , urmPasswordVar , password );
-			return( s );
+			props.setProperty( urmUserVar , user );
+			props.setProperty( urmPasswordVar , password );
+			return( props );
 		}
 		
-		s = setEnvVariable( s , urmUserVar , user );
-		s = setEnvVariable( s , urmKeyVar , key );
-		return( s );
-	}
-
-	public String setEnvVariable( String s , String var , String value ) {
-		s += var + "=" + value + "\n";
-		return( s );
+		props.setProperty( urmUserVar , user );
+		props.setProperty( urmKeyVar , key );
+		return( props );
 	}
 
 	public boolean getAuth( CommandBuilder builder , CommandOptions options ) throws Exception {
+		String user = options.getParamValue( OptionsMeta.OPT_USER );
+		String key = "";
+		String password = "";
+		
+		RunContext execrc = builder.execrc;
+		
+		if( !user.isEmpty() ) {
+			password = options.getParamValue( OptionsMeta.OPT_PASSWORD );
+			if( password.isEmpty() )
+				key = options.getParamValue( OptionsMeta.OPT_KEY );
+		}
+		else {
+			String authDir = getAuthDir( execrc );
+			String authFile = Common.getPath( authDir , urmAuthFile );
+					
+			authDir = execrc.getLocalPath( authDir );
+			authFile = execrc.getLocalPath( authFile );
+			
+			File f = new File( authFile );
+			if( f.isFile() ) {
+				Properties props = ConfReader.readPropertyFile( execrc , authFile );
+				user = props.getProperty( urmUserVar );
+				password = props.getProperty( urmPasswordVar );
+				key = props.getProperty( urmKeyVar );
+			}
+		}
+
+		if( !key.isEmpty() ) {
+			key = execrc.getLocalPath( key );
+			File f = new File( key );
+			if( !f.isFile() ) {
+				builder.out( "Key file does not exist" );
+				return( false );
+			}
+		}
+		
+		if( user.isEmpty() )
+			user = readConsole( "User name: " , false );
+		
+		if( password.isEmpty() && key.isEmpty() )
+			password = readConsole( "Password: " , true );
+
+		authUser = user;
+		authPassword = password;
+		authKeyFile = key;
+		
 		return( true );
+	}
+
+	private String readConsole( String prompt , boolean password ) {
+		Console console = System.console();
+		
+		String value = "";
+		while( true ) {
+			console.printf( prompt );
+			
+			if( password ) {
+				char[] passwordChars = console.readPassword();
+				if( passwordChars == null )
+					System.exit( 1 );
+				
+				value = new String( passwordChars );
+			}
+			else {
+				value = console.readLine();
+				if( value == null )
+					System.exit( 1 );
+			}
+			
+			if( !value.isEmpty() )
+				break;
+		}
+		
+		return( value );
 	}
 	
 }
