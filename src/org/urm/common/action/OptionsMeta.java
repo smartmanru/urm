@@ -14,6 +14,21 @@ public class OptionsMeta {
 	public Map<String,CommandVar> varByName = new HashMap<String,CommandVar>();
 	private int genericOptionsCount;
 
+	public final static String OPT_TRACE = "OPT_TRACE";
+	public final static String OPT_SHOWALL = "OPT_SHOWALL";
+	public final static String OPT_SHOWONLY = "OPT_SHOWONLY";
+	public final static String OPT_FORCE = "OPT_FORCE";
+	public final static String OPT_SKIPERRORS = "OPT_SKIPERRORS";
+	public final static String OPT_ALL = "OPT_ALL";
+	public final static String OPT_LOCAL = "OPT_LOCAL";
+	public final static String OPT_OFFLINE = "OPT_OFFLINE";
+	public final static String OPT_TIMEOUT = "OPT_TIMEOUT";
+	public final static String OPT_DISTPATH = "OPT_DISTPATH";
+	public final static String OPT_HIDDENPATH = "OPT_HIDDENPATH";
+	public final static String OPT_USER = "OPT_USER";
+	public final static String OPT_KEY = "OPT_KEY";
+	public final static String OPT_PASSWORD = "OPT_PASSWORD";
+	
 	public OptionsMeta() {
 		optionsDefined = new LinkedList<CommandVar>();
 		optionsByName = new HashMap<String,CommandVar>();
@@ -33,7 +48,7 @@ public class OptionsMeta {
 		defineGenericOption( CommandVar.newParam( "distpath" , "OPT_DISTPATH" , false , "use given path to find distributive files" ) );
 		defineGenericOption( CommandVar.newParam( "hiddenpath" , "OPT_HIDDENPATH" , false , "use given path to find hidden files and properties" ) );
 		defineGenericOption( CommandVar.newParam( "user" , "OPT_USER" , false , "use given user to connect to server" ) );
-		defineGenericOption( CommandVar.newParam( "key" , "OPT_KEY" , false , "use given key to connect to server" ) );
+		defineGenericOption( CommandVar.newParam( "key" , "OPT_KEY" , false , "use given private key file to connect to server" ) );
 		defineGenericOption( CommandVar.newParam( "password" , "OPT_PASSWORD" , false , "use given password to connect to server" ) );
 		genericOptionsCount = optionsDefined.size();
 		

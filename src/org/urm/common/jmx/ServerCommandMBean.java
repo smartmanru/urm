@@ -405,14 +405,16 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 	}
 
 	private int notifyExecuteGeneric( Object[] args ) throws Exception {
-		if( args.length != 3 ) {
+		if( args.length != 5 ) {
 			action.error( "missing args calling command=" + meta.name );
 			return( -1 );
 		}
 		
 		if( args[1].getClass() != ActionData.class || 
 			args[0].getClass() != String.class ||
-			args[2].getClass() != String.class ) {
+			args[2].getClass() != String.class ||
+			args[3].getClass() != String.class ||
+			args[4].getClass() != String.class ) {
 			action.error( "invalid args calling command=" + meta.name );
 			return( -1 );
 		}
@@ -420,12 +422,16 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		String actionName = ( String )args[0];
 		ActionData data = ( ActionData )args[1];
 		String clientId = ( String )args[2];
+		String user = ( String )args[3];
+		String password = ( String )args[4];
 		
 		ServerAuth auth = engine.getAuth();
-		SessionSecurity security = auth.createServerSecurity();
+		if( !auth.checkLogin( user , password ) )
+			return( -1 );
+		
+		SessionSecurity security = auth.createUserSecurity( user );
 		ServerSession sessionContext = engine.sessionController.createSession( security , data.clientrc , true );
 		action.debug( "operation invoked, sessionId=" + sessionContext.sessionId );
-
 		
 		RemoteServerCall thread = new RemoteServerCall( engine , sessionContext , clientId , this , actionName , data );
 		if( !thread.start() )

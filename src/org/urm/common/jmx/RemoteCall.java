@@ -33,6 +33,7 @@ public class RemoteCall implements NotificationListener {
 	CommandOptions options;
 	
 	public String URL;
+	ClientAuth auth;
 	ObjectName mbeanName;
 	JMXConnector jmxc = null;
 	MBeanServerConnection mbsc = null;
@@ -72,7 +73,7 @@ public class RemoteCall implements NotificationListener {
 	}
 	
 	public boolean runClient( CommandBuilder builder , CommandMeta commandInfo , ClientAuth auth ) throws Exception {
-		if( !serverConnect( builder.execrc ) ) {
+		if( !serverConnect( builder.execrc , auth ) ) {
 			serverDisconnect();
 			println( "unable to connect to: " + URL );
 			return( false );
@@ -99,14 +100,15 @@ public class RemoteCall implements NotificationListener {
 		}
 	}
 	
-	private boolean serverConnect( RunContext execrc ) {
-		return( serverConnect( execrc.serverHostPort ) );
+	private boolean serverConnect( RunContext execrc , ClientAuth auth ) {
+		return( serverConnect( execrc.serverHostPort , auth ) );
 	}
 	
-	public boolean serverConnect( String serverHostPort ) {
-		URL = "service:jmx:jmxmp://" + serverHostPort;
+	public boolean serverConnect( String serverHostPort , ClientAuth auth ) {
+		this.auth = auth;
 		
 		try {
+			URL = "service:jmx:jmxmp://" + serverHostPort;
 			JMXServiceURL url = new JMXServiceURL( URL );
 			jmxc = JMXConnectorFactory.connect( url , null );
 			mbsc = jmxc.getMBeanServerConnection();
@@ -143,8 +145,8 @@ public class RemoteCall implements NotificationListener {
 			stopwait = false;
 			mbsc.addNotificationListener( mbeanName , this , filter , clientId );
 			sessionId = ( String )mbsc.invoke( mbeanName , GENERIC_ACTION_NAME , 
-					new Object[] { options.action , options.data , clientId } , 
-					new String[] { String.class.getName() , ActionData.class.getName() , String.class.getName() } );
+					new Object[] { options.action , options.data , clientId , auth.authUser , auth.authPassword } , 
+					new String[] { String.class.getName() , ActionData.class.getName() , String.class.getName() , String.class.getName() , String.class.getName() } );
 		}
 		catch( Throwable e ) {
 			System.out.println( "unable to call operation: " + name );

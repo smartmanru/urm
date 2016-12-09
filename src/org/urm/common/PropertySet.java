@@ -476,7 +476,7 @@ public class PropertySet {
 		}
 	}
 
-	public void saveToPropertyFile( String path , RunContext execrc , boolean custom ) throws Exception {
+	public void saveToPropertyFile( String path , RunContext execrc , boolean custom , String comment ) throws Exception {
 		Properties props = new Properties();
 		for( PropertyValue pv : getAllProperties() ) {
 			if( pv.isManual() )
@@ -485,7 +485,7 @@ public class PropertySet {
 			String value = pv.getOriginalValue();
 			props.setProperty( pv.property , value );
 		}
-		Common.createPropertyFile( execrc , path , props );
+		Common.createPropertyFile( execrc , path , props , comment );
 	}
 	
 	public void saveAsElements( Document doc , Element parent , boolean custom ) throws Exception {
