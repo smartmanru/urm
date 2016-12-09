@@ -23,6 +23,8 @@ public class MainCommandMeta extends CommandMeta {
 		cmdOpts = "OPT_PORT";
 		super.defineAction( CommandMethodMeta.newNormal( this , "server" , true , "server control" , cmdOpts , "server [OPTIONS] {start|stop|status}" ) );
 		cmdOpts = "";
+		super.defineAction( CommandMethodMeta.newNormal( this , "auth" , true , "console client authorization" , cmdOpts , "auth [OPTIONS]  (-user U -key K OR -user U -password P)" ) );
+		cmdOpts = "";
 		super.defineAction( CommandMethodMeta.newNormal( this , "websession" , true , "web session" , cmdOpts , "(internal action)" ) );
 		super.defineAction( CommandMethodMeta.newNormal( this , "temporary" , true , "temporary" , cmdOpts , "(internal action)" ) );
 	}
