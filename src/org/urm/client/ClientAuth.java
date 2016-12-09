@@ -55,6 +55,7 @@ public class ClientAuth {
 		file.setWritable( true , true );
 		
 		Common.createFileFromString( authFile , value );
+		builder.out( "Auth properties have been persisted in " + authFile );
 		return( true );
 	}
 	
