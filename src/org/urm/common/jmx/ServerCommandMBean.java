@@ -332,7 +332,10 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 	@Override
 	public Object invoke( String name , Object[] args , String[] sig ) throws MBeanException, ReflectionException {
 		AccessControlContext acc = AccessController.getContext();
-		Subject subject = Subject.getSubject(acc);
+		Subject subject = Subject.getSubject( acc );
+		if( subject == null )
+			return( null );
+		
 		Set<JMXPrincipal> principals = subject.getPrincipals( JMXPrincipal.class );
 		if( principals == null || principals.isEmpty() )
 			return( null );
