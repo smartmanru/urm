@@ -35,7 +35,7 @@ public class ActionServer extends ActionBase {
 		String host = ( context.CTX_HOST.isEmpty() )? "localhost" : context.CTX_HOST;
 		int port = ( context.CTX_PORT > 0 )? context.CTX_PORT : RemoteCall.DEFAULT_SERVER_PORT;
 		String serverHostPort = host + ":" + port;
-		return( call.serverConnect( serverHostPort ) );	
+		return( call.serverConnect( serverHostPort , null ) );	
 	}
 	
 	private void executeServerStop() throws Exception {

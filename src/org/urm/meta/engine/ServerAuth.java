@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionCore;
+import org.urm.client.ClientAuth;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
@@ -229,6 +230,18 @@ public class ServerAuth extends ServerObject {
 		return( session );
 	}
 
+	public SessionSecurity createUserSecurity( String username ) throws Exception {
+		ServerAuthUser user = getUser( username );
+		if( user == null )
+			return( null );
+
+		SessionSecurity security = new SessionSecurity( this );
+		security.setPermissions();
+		security.setUser( user );
+		security.setPermissions();
+		return( security );
+	}
+	
 	public SessionSecurity createServerSecurity() throws Exception {
 		SessionSecurity security = new SessionSecurity( this );
 		security.setPermissions();
@@ -582,6 +595,48 @@ public class ServerAuth extends ServerObject {
 		
 		if( authChanged )
 			save( action );
+	}
+
+	public boolean checkLogin( String username , String password ) {
+		try {
+			ServerAuthUser user = getUser( username );
+			if( user == null ) {
+				engine.serverAction.trace( "unsuccessful login: unknown user=" + username );
+				return( false );
+			}
+			
+			String authKey = getAuthKey( AUTH_GROUP_USER , username );
+			ServerAuthContext ac = loadAuthData( engine.serverAction , authKey );
+			if( !ac.PUBLICKEY.isEmpty() ) {
+		        String checkMessage = ClientAuth.getCheckMessage( username );
+				if( ClientAuth.verifySigned( checkMessage , password , ac.PUBLICKEY ) ) {
+					engine.serverAction.trace( "successful login using key: user=" + username );
+					return( true );
+				}
+				
+				engine.serverAction.trace( "unsuccessful login using key: user=" + username );
+				return( false );
+			}
+			
+			if( !ac.PASSWORDSAVE.isEmpty() ) {
+				String md5 = Common.getMD5( password );
+				if( ac.PASSWORDSAVE.equals( md5 ) ) {
+					ac.setOnlinePassword( password );
+					engine.serverAction.trace( "successful login using password: user=" + username );
+					return( true );
+				}
+				
+				engine.serverAction.trace( "unsuccessful login using password: user=" + username );
+				return( false );
+			}
+		}
+		catch( Throwable e ) {
+			engine.serverAction.log( "unsuccessful login: user=" + username , e );
+			return( false );
+		}
+		
+		engine.serverAction.trace( "unknown authentification type: user=" + username );
+		return( false );
 	}
 	
 }

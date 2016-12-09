@@ -2,6 +2,8 @@ package org.urm.common.jmx;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.management.MBeanServerConnection;
 import javax.management.Notification;
@@ -72,7 +74,7 @@ public class RemoteCall implements NotificationListener {
 	}
 	
 	public boolean runClient( CommandBuilder builder , CommandMeta commandInfo , ClientAuth auth ) throws Exception {
-		if( !serverConnect( builder.execrc ) ) {
+		if( !serverConnect( builder.execrc , auth ) ) {
 			serverDisconnect();
 			println( "unable to connect to: " + URL );
 			return( false );
@@ -99,16 +101,24 @@ public class RemoteCall implements NotificationListener {
 		}
 	}
 	
-	private boolean serverConnect( RunContext execrc ) {
-		return( serverConnect( execrc.serverHostPort ) );
+	private boolean serverConnect( RunContext execrc , ClientAuth auth ) {
+		return( serverConnect( execrc.serverHostPort , auth ) );
 	}
 	
-	public boolean serverConnect( String serverHostPort ) {
+	public boolean serverConnect( String serverHostPort , ClientAuth auth ) {
 		URL = "service:jmx:jmxmp://" + serverHostPort;
 		
 		try {
 			JMXServiceURL url = new JMXServiceURL( URL );
-			jmxc = JMXConnectorFactory.connect( url , null );
+			
+			Map<String, Object> env = null;
+			if( auth != null ) {
+				env = new HashMap<String, Object>();
+				String[] creds = { auth.authUser , auth.authPassword };
+				env.put( JMXConnector.CREDENTIALS , creds );
+			}
+			
+			jmxc = JMXConnectorFactory.connect( url , env );
 			mbsc = jmxc.getMBeanServerConnection();
 			if( mbsc == null )
 				return( false );

@@ -112,6 +112,10 @@ public class ServerAuthContext extends ServerObject {
 		return( login.PASSWORDONLINE );
 	}
 
+	public void setOnlinePassword( String password ) {
+		PASSWORDONLINE = password;
+	}
+	
 	public void setResourcePassword( String password ) {
 		PASSWORDSAVE = password;
 	}
