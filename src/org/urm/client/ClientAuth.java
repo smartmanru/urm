@@ -4,6 +4,7 @@ import java.io.Console;
 import java.io.File;
 
 import org.urm.common.Common;
+import org.urm.common.RunContext;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandOptions;
 
@@ -26,13 +27,15 @@ public class ClientAuth {
 		if( value == null )
 			return( false );
 
-		String authDir = builder.execrc.authPath;
+		RunContext execrc = builder.execrc;
+		
+		String authDir = execrc.authPath;
 		if( authDir.isEmpty() )
-			authDir = Common.getPath( builder.execrc.installPath , ".auth" );
+			authDir = Common.getPath( execrc.userHome, ".auth" );
 		String authFile = Common.getPath( authDir , urmAuthFile );
 				
-		authDir = builder.execrc.getLocalPath( authDir );
-		authFile = builder.execrc.getLocalPath( authFile );
+		authDir = execrc.getLocalPath( authDir );
+		authFile = execrc.getLocalPath( authFile );
 		
 		File folder = new File( authDir );
 		if( !folder.exists() ) {
