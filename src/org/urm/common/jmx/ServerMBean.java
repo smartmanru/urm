@@ -68,7 +68,6 @@ public class ServerMBean implements DynamicMBean {
 		action.debug( "register JMX on " + URL + " ..." );
 		
         JMXServiceURL url = new JMXServiceURL( URL );
-		
         jmxConnector = JMXConnectorServerFactory.newJMXConnectorServer( url , null , mbs );
         jmxConnector.start();
 		action.debug( "JMX server has been started" );

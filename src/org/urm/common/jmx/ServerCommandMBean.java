@@ -422,8 +422,8 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		String actionName = ( String )args[0];
 		ActionData data = ( ActionData )args[1];
 		String clientId = ( String )args[2];
-		String user = ( String )args[2];
-		String password = ( String )args[2];
+		String user = ( String )args[3];
+		String password = ( String )args[4];
 		
 		ServerAuth auth = engine.getAuth();
 		if( !auth.checkLogin( user , password ) )
