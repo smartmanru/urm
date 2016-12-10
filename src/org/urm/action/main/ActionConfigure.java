@@ -24,7 +24,7 @@ import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.engine.ServerDirectory;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.Meta.VarBUILDMODE;
 
 public class ActionConfigure extends ActionBase {
@@ -270,7 +270,7 @@ public class ActionConfigure extends ActionBase {
 			Map<String,MetaEnv> envs = new HashMap<String,MetaEnv>(); 
 			MetadataStorage ms = artefactory.getMetadataStorage( this , meta );
 			
-			MetaEnvDC dc = null;
+			MetaEnvSegment dc = null;
 			if( USEENV.isEmpty() ) {
 				addAffected( linux , proxyPath , true );
 				String[] envFiles = ms.getEnvFiles( this );
@@ -334,7 +334,7 @@ public class ActionConfigure extends ActionBase {
 		linesAffected.add( item );
 	}
 	
-	private void configureDeploymentEnv( Meta meta , LocalFolder ef , CommandMeta executor , String envFile , MetaEnv env , MetaEnvDC dc , boolean linux , CommandMeta dbe ) throws Exception {
+	private void configureDeploymentEnv( Meta meta , LocalFolder ef , CommandMeta executor , String envFile , MetaEnv env , MetaEnvSegment dc , boolean linux , CommandMeta dbe ) throws Exception {
 		LocalFolder efEnv = ef.getSubFolder( this , env.ID );
 		efEnv.ensureExists( this );
 		
@@ -345,7 +345,7 @@ public class ActionConfigure extends ActionBase {
 		if( env.isMultiDC( this ) ) {
 			if( USEDC.isEmpty() ) {
 				if( context.CTX_ALL ) {
-					for( MetaEnvDC envdc : env.getDatacenters() ) {
+					for( MetaEnvSegment envdc : env.getSegments() ) {
 						LocalFolder efEnvDC = efEnv.getSubFolder( this , envdc.NAME );
 						configureDeploymentEnvContent( meta , efEnvDC , executor , env , envFile , envdc.NAME , linux , dbe );
 					}

@@ -15,7 +15,7 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaSource;
@@ -162,7 +162,7 @@ public class ActionScope {
 		return( scope.createReleaseProjectItemsScope( action , dist , PROJECT , ITEMS ) );
 	}
 
-	public static ActionScope getEnvServerNodesScope( ActionBase action , MetaEnvDC dc , String SERVER , String[] NODES , Dist dist ) throws Exception {
+	public static ActionScope getEnvServerNodesScope( ActionBase action , MetaEnvSegment dc , String SERVER , String[] NODES , Dist dist ) throws Exception {
 		if( dist != null )
 			action.trace( "scope: Env Server Nodes Scope, release=" + dist.RELEASEDIR + ", server=" + SERVER + ", nodes=" + Common.getListSet( NODES ) );
 		else
@@ -194,7 +194,7 @@ public class ActionScope {
 		return( scope.createEnvServerNodesScope( action , srv.dc , srv , nodes ) );
 	}
 	
-	public static ActionScope getEnvScope( ActionBase action , MetaEnv env , MetaEnvDC dc , Dist dist ) throws Exception {
+	public static ActionScope getEnvScope( ActionBase action , MetaEnv env , MetaEnvSegment dc , Dist dist ) throws Exception {
 		ActionScope scope = new ActionScope( action , env.meta );
 		scope.createEnvScope( action , env , dc , dist );
 		return( scope );
@@ -211,7 +211,7 @@ public class ActionScope {
 		return( scope );
 	}
 	
-	public static ActionScope getEnvServersScope( ActionBase action , Meta meta , MetaEnvDC dc , String[] SERVERS , Dist dist ) throws Exception {
+	public static ActionScope getEnvServersScope( ActionBase action , Meta meta , MetaEnvSegment dc , String[] SERVERS , Dist dist ) throws Exception {
 		if( dist != null )
 			action.trace( "scope: Env Servers Scope, release=" + dist.RELEASEDIR + ", servers=" + Common.getListSet( SERVERS ) );
 		else
@@ -231,7 +231,7 @@ public class ActionScope {
 		}
 			
 		if( dc == null )
-			action.exit0( _Error.DatacenterUndefined0 , "datacenter is undefined" );
+			action.exit0( _Error.SegmentUndefined0 , "segment is undefined" );
 		
 		scope.createEnvServersScope( action , dc , SERVERS , dist );
 		return( scope );
@@ -281,7 +281,7 @@ public class ActionScope {
 		return( scope );
 	}
 	
-	private void createEnvScope( ActionBase action , MetaEnv env , MetaEnvDC dc , Dist dist ) throws Exception {
+	private void createEnvScope( ActionBase action , MetaEnv env , MetaEnvSegment dc , Dist dist ) throws Exception {
 		String dcMask = null;
 		if( dc != null )
 			dcMask = dc.NAME;
@@ -293,7 +293,7 @@ public class ActionScope {
 		else
 			scopeFull = false;
 		
-		for( MetaEnvDC dcItem : env.getDatacenters() ) {
+		for( MetaEnvSegment dcItem : env.getSegments() ) {
 			if( dcMask.isEmpty() || dcItem.NAME.matches( dcMask ) ) {
 				boolean specifiedExplicitly = ( dcMask.isEmpty() )? false : true;
 				ActionScopeSet sset = createEnvScopeSet( action , dcItem.env , dcItem , specifiedExplicitly );
@@ -302,10 +302,10 @@ public class ActionScope {
 		}
 	}
 
-	private void createEnvServersScope( ActionBase action , MetaEnvDC dc , String[] SERVERS , Dist dist ) throws Exception {
+	private void createEnvServersScope( ActionBase action , MetaEnvSegment dc , String[] SERVERS , Dist dist ) throws Exception {
 		scopeFull = false;
 		if( ( SERVERS == null || SERVERS.length == 0 ) && 
-			dc.env.getDatacenterNames().length == 1 )
+			dc.env.getSegmentNames().length == 1 )
 			scopeFull = true;
 			
 		ActionScopeSet sset = createEnvScopeSet( action , context.env , dc , true );
@@ -314,7 +314,7 @@ public class ActionScope {
 
 	private void createEnvDatabaseScope( ActionBase action , Dist dist ) throws Exception {
 		scopeFull = true;
-		for( MetaEnvDC dc : context.env.getDatacenters() ) {
+		for( MetaEnvSegment dc : context.env.getSegments() ) {
 			if( !dc.hasDatabaseServers( action ) )
 				continue;
 			
@@ -323,13 +323,13 @@ public class ActionScope {
 		}
 	}
 	
-	private ActionScopeTarget createEnvServerNodesScope( ActionBase action , MetaEnvDC dc , MetaEnvServer srv , List<MetaEnvServerNode> nodes ) throws Exception {
+	private ActionScopeTarget createEnvServerNodesScope( ActionBase action , MetaEnvSegment dc , MetaEnvServer srv , List<MetaEnvServerNode> nodes ) throws Exception {
 		scopeFull = false;
 		ActionScopeSet sset = createEnvScopeSet( action , context.env , dc , true );
 		return( sset.addEnvServer( action , srv , nodes , true ) );
 	}
 	
-	private void createEnvServerNodesScope( ActionBase action , MetaEnvDC dc , String SERVER , String[] NODES , Dist dist ) throws Exception {
+	private void createEnvServerNodesScope( ActionBase action , MetaEnvSegment dc , String SERVER , String[] NODES , Dist dist ) throws Exception {
 		scopeFull = false;
 		ActionScopeSet sset = createEnvScopeSet( action , context.env , dc , true );
 		MetaEnvServer server = dc.getServer( action , SERVER );
@@ -337,7 +337,7 @@ public class ActionScope {
 		sset.addEnvServerNodes( action , server , NODES , true , dist );
 	}
 
-	private ActionScopeSet createEnvScopeSet( ActionBase action , MetaEnv env , MetaEnvDC dc , boolean specifiedExplicitly ) throws Exception {
+	private ActionScopeSet createEnvScopeSet( ActionBase action , MetaEnv env , MetaEnvSegment dc , boolean specifiedExplicitly ) throws Exception {
 		ActionScopeSet sset = getCategorySet( action , VarCATEGORY.ENV );
 		if( sset != null )
 			return( sset );

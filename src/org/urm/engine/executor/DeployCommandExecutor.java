@@ -11,13 +11,13 @@ import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvSegment;
 
 public class DeployCommandExecutor extends CommandExecutor {
 
 	DeployCommand impl;
 	MetaEnv env;
-	MetaEnvDC dc;
+	MetaEnvSegment dc;
 	
 	String propertyBasedMethods;
 	
@@ -101,7 +101,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 			String[] NODES = getArgList( action , posFrom + 1 );
 			if( action.context.dc == null ) {
 				if( !SERVER.isEmpty() )
-					action.exit0( _Error.MissingDatacenterName0, "Datacenter name is required to use specific server" );
+					action.exit0( _Error.MissingSegmentName0, "Segment name is required to use specific server" );
 				return( ActionScope.getEnvScope( action , action.context.env , null , release ) );
 			}
 			return( ActionScope.getEnvServerNodesScope( action , action.context.dc , SERVER , NODES , release ) );

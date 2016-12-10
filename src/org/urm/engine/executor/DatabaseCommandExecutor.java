@@ -15,7 +15,7 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.Meta.VarCATEGORY;
 
@@ -23,7 +23,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 
 	DatabaseCommand impl;
 	MetaEnv env;
-	MetaEnvDC dc;
+	MetaEnvSegment dc;
 	
 	String propertyBasedMethods;
 	

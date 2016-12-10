@@ -13,7 +13,7 @@ import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerDeployment;
 import org.urm.meta.product.MetaEnvServerNode;
@@ -225,7 +225,7 @@ public class SourceStorage {
 		return( list );
 	}
 
-	public String[] getLiveConfigServers( ActionBase action , MetaEnvDC dc ) throws Exception {
+	public String[] getLiveConfigServers( ActionBase action , MetaEnvSegment dc ) throws Exception {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
@@ -245,7 +245,7 @@ public class SourceStorage {
 		vcs.deleteMasterFolder( mirror , PATH , commitMessage );
 	}
 
-	public void deleteLiveConfigServer( ActionBase action , MetaEnvDC dc , String server , String commitMessage ) throws Exception {
+	public void deleteLiveConfigServer( ActionBase action , MetaEnvSegment dc , String server , String commitMessage ) throws Exception {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
@@ -286,7 +286,7 @@ public class SourceStorage {
 		folder.prepareFolderForLinux( action , confName );
 	}
 	
-	public void exportTemplateConfigItem( ActionBase action , MetaEnvDC dc , String confName , String TAG , LocalFolder folder ) throws Exception {
+	public void exportTemplateConfigItem( ActionBase action , MetaEnvSegment dc , String confName , String TAG , LocalFolder folder ) throws Exception {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
@@ -401,7 +401,7 @@ public class SourceStorage {
 		}
 	}
 
-	public void exportTemplates( ActionBase action , MetaEnvDC dc , LocalFolder parent , MetaDistrConfItem[] items ) throws Exception {
+	public void exportTemplates( ActionBase action , MetaEnvSegment dc , LocalFolder parent , MetaDistrConfItem[] items ) throws Exception {
 		for( MetaDistrConfItem item : items )
 			exportTemplateConfigItem( action , dc , item.KEY , "" , parent );
 	}
@@ -457,7 +457,7 @@ public class SourceStorage {
 		return( PATH );
 	}
 
-	private String getDATALiveConfigDCPath( ActionBase action , MetaEnvDC dc ) throws Exception {
+	private String getDATALiveConfigDCPath( ActionBase action , MetaEnvSegment dc ) throws Exception {
 		String PATH = Common.getPath( DATA_LIVE , dc.env.ID , dc.NAME );
 		return( PATH );
 	}
@@ -467,7 +467,7 @@ public class SourceStorage {
 		return( PATH );
 	}
 	
-	private String getDATALiveConfigServerPath( ActionBase action , MetaEnvDC dc , String server ) throws Exception {
+	private String getDATALiveConfigServerPath( ActionBase action , MetaEnvSegment dc , String server ) throws Exception {
 		String PATH = Common.getPath( getDATALiveConfigDCPath( action , dc ) , server );
 		return( PATH );
 	}

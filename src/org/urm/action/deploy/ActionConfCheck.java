@@ -7,7 +7,7 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 
 public class ActionConfCheck extends ActionBase {
@@ -15,7 +15,7 @@ public class ActionConfCheck extends ActionBase {
 	boolean S_CONFCHECK_STATUS;
 	
 	MetaEnv baselineEnv;
-	MetaEnvDC baselineDC;
+	MetaEnvSegment baselineDC;
 	MetaEnvServer baselineServer;
 	
 	public ActionConfCheck( ActionBase action , String stream ) {
@@ -32,7 +32,7 @@ public class ActionConfCheck extends ActionBase {
 	}
 	
 	@Override protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		info( "check configuration parameters in datacenter=" + set.dc.NAME + " ..." );
+		info( "check configuration parameters in segment=" + set.dc.NAME + " ..." );
 
 		// read properties
 		executeDC( set.dc );
@@ -69,7 +69,7 @@ public class ActionConfCheck extends ActionBase {
 		}
 	}
 
-	private void executeDC( MetaEnvDC dc ) throws Exception {
+	private void executeDC( MetaEnvSegment dc ) throws Exception {
 		// echo read data center=$DC properties...
 		String[] S_CONFCHECK_PROPLIST_DC = dc.getPropertyList();
 
@@ -124,7 +124,7 @@ public class ActionConfCheck extends ActionBase {
 		checkLists( "dc=" + server.dc.NAME + " server=" + server.NAME , propList , F_CONFCHECK_PROPLIST );
 	}
 
-	private void checkConfDC( MetaEnvDC dc , MetaEnvDC baseline , String[] propList ) throws Exception {
+	private void checkConfDC( MetaEnvSegment dc , MetaEnvSegment baseline , String[] propList ) throws Exception {
 		String[] F_CONFCHECK_PROPLIST = baseline.getPropertyList(); 
 		checkLists( "dc=" + dc.NAME , propList , F_CONFCHECK_PROPLIST );
 	}

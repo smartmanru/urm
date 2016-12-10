@@ -17,7 +17,7 @@ import org.urm.engine.ServerSession;
 import org.urm.engine.shell.Account;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.Meta.VarBUILDMODE;
 
@@ -30,7 +30,7 @@ public class CommandContext {
 	public CommandAction commandAction;
 
 	public MetaEnv env; 
-	public MetaEnvDC dc;
+	public MetaEnvSegment dc;
 	
 	public ServerCall call;
 	public String stream;
@@ -239,7 +239,7 @@ public class CommandContext {
 		setLogStream();
 	}
 
-	public void update( ActionBase action , MetaEnv env , MetaEnvDC dc ) throws Exception {
+	public void update( ActionBase action , MetaEnv env , MetaEnvSegment dc ) throws Exception {
 		this.env = env;  
 		this.dc = dc;
 		update( action , env.meta );

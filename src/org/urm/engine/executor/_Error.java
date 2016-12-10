@@ -13,6 +13,6 @@ public class _Error {
 	public static final int InvalidHostsCommand1 = ErrorBase + 4;
 	public static final int WrongArgs0 = ErrorBase + 5;
 	public static final int UnexpectedCumulativeParameters0 = ErrorBase + 6;
-	public static final int MissingDatacenterName0 = ErrorBase + 7;
+	public static final int MissingSegmentName0 = ErrorBase + 7;
 	
 }

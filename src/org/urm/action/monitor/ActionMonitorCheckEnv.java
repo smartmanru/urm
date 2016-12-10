@@ -13,7 +13,7 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
 import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaMonitoringTarget;
 
 public class ActionMonitorCheckEnv extends ActionBase implements ServerEventsListener {
@@ -36,7 +36,7 @@ public class ActionMonitorCheckEnv extends ActionBase implements ServerEventsLis
 		eventsApp.subscribe( action.eventSource , this );
 		
 		MetaEnv env = target.meta.getEnv( this , target.ENV );
-		MetaEnvDC dc = env.getDC( this , target.DC );
+		MetaEnvSegment dc = env.getDC( this , target.DC );
 		action.context.update( action , env , dc );
 		ActionScope scope = ActionScope.getEnvScope( action , env , dc , null );
 		
@@ -61,7 +61,7 @@ public class ActionMonitorCheckEnv extends ActionBase implements ServerEventsLis
 	
 	@Override
 	public void triggerEvent( ServerSourceEvent event ) {
-		if( event.eventType == ServerMonitoring.EVENT_MONITORING_DATACENTER ||
+		if( event.eventType == ServerMonitoring.EVENT_MONITORING_SEGMENT ||
 			event.eventType == ServerMonitoring.EVENT_MONITORING_SERVER ||
 			event.eventType == ServerMonitoring.EVENT_MONITORING_NODE ) {
 			ScopeState state = ( ScopeState )event.data;

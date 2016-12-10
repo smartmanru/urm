@@ -8,9 +8,9 @@ import org.w3c.dom.Node;
 public class MetaEnvDeployment {
 
 	protected Meta meta;
-	public MetaEnvDC dc;
+	public MetaEnvSegment dc;
 	
-	public MetaEnvDeployment( Meta meta , MetaEnvDC dc ) {
+	public MetaEnvDeployment( Meta meta , MetaEnvSegment dc ) {
 		this.meta = meta;
 		this.dc = dc;
 	}
@@ -18,7 +18,7 @@ public class MetaEnvDeployment {
 	public void load( ActionBase action , Node node ) throws Exception {
 	}
 
-	public MetaEnvDeployment copy( ActionBase action , Meta meta , MetaEnvDC dc ) throws Exception {
+	public MetaEnvDeployment copy( ActionBase action , Meta meta , MetaEnvSegment dc ) throws Exception {
 		MetaEnvDeployment r = new MetaEnvDeployment( meta , dc );
 		return( r );
 	}

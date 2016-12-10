@@ -8,7 +8,7 @@ import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.database.DatabaseClient;
-import org.urm.action.monitor.DatacenterStatus;
+import org.urm.action.monitor.SegmentStatus;
 import org.urm.action.monitor.NodeStatus;
 import org.urm.action.monitor.ServerStatus;
 import org.urm.common.Common;
@@ -36,7 +36,7 @@ public class ActionCheckEnv extends ActionBase {
 	boolean S_CHECKENV_NODE_FAILED;
 	boolean S_CHECKENV_NODE_STOPPED;
 	
-	DatacenterStatus dcStatus;
+	SegmentStatus dcStatus;
 	int dcCaptureIndex;
 	
 	public ActionCheckEnv( ActionBase action , String stream ) {
@@ -63,9 +63,9 @@ public class ActionCheckEnv extends ActionBase {
 	}
 	
 	@Override protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		dcStatus = new DatacenterStatus( this , set.dc );
+		dcStatus = new SegmentStatus( this , set.dc );
 		dcCaptureIndex = super.logStartCapture();
-		info( "execute datacenter=" + set.dc.NAME + " ..." );
+		info( "execute segment=" + set.dc.NAME + " ..." );
 	}
 
 	@Override protected void runAfter( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
@@ -76,7 +76,7 @@ public class ActionCheckEnv extends ActionBase {
 			info( "## dc " + F_STATUSOBJECT + " check OK" );
 		
 		dcStatus.setLog( super.logFinishCapture( dcCaptureIndex ) );
-		super.eventSource.finishScopeItem( ServerMonitoring.EVENT_MONITORING_DATACENTER , dcStatus );
+		super.eventSource.finishScopeItem( ServerMonitoring.EVENT_MONITORING_SEGMENT , dcStatus );
 	}
 	
 	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {

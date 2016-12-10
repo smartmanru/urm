@@ -14,7 +14,7 @@ import org.urm.meta.product.MetaDesign;
 import org.urm.meta.product.MetaDesignElement;
 import org.urm.meta.product.MetaDesignLink;
 import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaProductSettings;
 
@@ -70,7 +70,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 			if( !env.isProd() )
 				continue;
 			
-			for( MetaEnvDC dc : env.getDatacenters() ) {
+			for( MetaEnvSegment dc : env.getSegments() ) {
 				for( MetaEnvServer server : dc.getServers() ) {
 					List<MetaEnvServer> mapped = prodServers.get( server.XDOC );
 					if( mapped == null ) {

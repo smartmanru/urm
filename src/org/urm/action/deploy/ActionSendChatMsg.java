@@ -3,20 +3,20 @@ package org.urm.action.deploy;
 import org.urm.action.ActionBase;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
-import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaProductSettings;
 
 public class ActionSendChatMsg extends ActionBase {
 
 	String msg;
-	MetaEnvDC dc;
+	MetaEnvSegment dc;
 	
-	public static void sendMsg( ActionBase action , String msg , MetaEnvDC dc ) throws Exception {
+	public static void sendMsg( ActionBase action , String msg , MetaEnvSegment dc ) throws Exception {
 		ActionSendChatMsg ca = new ActionSendChatMsg( action , null , msg , dc );
 		ca.runSimple();
 	}
 	
-	public ActionSendChatMsg( ActionBase action , String stream , String msg , MetaEnvDC dc ) {
+	public ActionSendChatMsg( ActionBase action , String stream , String msg , MetaEnvSegment dc ) {
 		super( action , stream );
 		
 		this.msg = msg;

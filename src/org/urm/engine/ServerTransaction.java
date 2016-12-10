@@ -29,7 +29,7 @@ import org.urm.meta.product.MetaDistrComponentWS;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerDeployment;
 import org.urm.meta.product.MetaEnvServerNode;
@@ -228,28 +228,28 @@ public class ServerTransaction extends TransactionBase {
 		env.updateProperties( this );
 	}
 	
-	public void updateMetaEnvDC( MetaEnvDC dc ) throws Exception {
+	public void updateMetaEnvDC( MetaEnvSegment dc ) throws Exception {
 		checkTransactionMetadata( dc.meta.getStorage( action ) );
 		dc.updateProperties( this );
 	}
 	
-	public void createMetaEnvDC( MetaEnvDC dc ) throws Exception {
+	public void createMetaEnvDC( MetaEnvSegment dc ) throws Exception {
 		checkTransactionMetadata( dc.meta.getStorage( action ) );
 		dc.env.createDC( this , dc );
 	}
 	
-	public void deleteMetaEnvDC( MetaEnvDC dc ) throws Exception {
+	public void deleteMetaEnvDC( MetaEnvSegment dc ) throws Exception {
 		checkTransactionMetadata( dc.meta.getStorage( action ) );
 		dc.env.deleteDC( this , dc );
 		dc.deleteObject();
 	}
 
-	public void setMetaEnvDCProperties( MetaEnvDC dc , PropertySet props , boolean system ) throws Exception {
+	public void setMetaEnvDCProperties( MetaEnvSegment dc , PropertySet props , boolean system ) throws Exception {
 		checkTransactionMetadata( dc.meta.getStorage( action ) );
 		dc.setProperties( this , props , system );
 	}
 	
-	public MetaEnvServer createMetaEnvServer( MetaEnvDC dc , String name , String desc , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String sysname ) throws Exception {
+	public MetaEnvServer createMetaEnvServer( MetaEnvSegment dc , String name , String desc , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String sysname ) throws Exception {
 		checkTransactionMetadata( dc.meta.getStorage( action ) );
 		MetaEnvServer server = new MetaEnvServer( dc.meta , dc );
 		server.createServer( action , name , desc , osType , runType , accessType , sysname );
@@ -426,7 +426,7 @@ public class ServerTransaction extends TransactionBase {
 		mon.setMonitoringEnabled( this , false );
 	}
 
-	public MetaMonitoringTarget createMonitoringTarget( MetaMonitoring mon , MetaEnvDC dc , int MAXTIME ) throws Exception {
+	public MetaMonitoringTarget createMonitoringTarget( MetaMonitoring mon , MetaEnvSegment dc , int MAXTIME ) throws Exception {
 		checkTransactionMetadata( mon.meta.getStorage( action ) );
 		return( mon.createTarget( this , dc , MAXTIME ) );
 	}
@@ -457,7 +457,7 @@ public class ServerTransaction extends TransactionBase {
 		mon.setProductProperties( this , props );
 	}
 
-	public void setStartInfo( MetaEnvDC dc , MetaEnvStartInfo startInfo ) throws Exception {
+	public void setStartInfo( MetaEnvSegment dc , MetaEnvStartInfo startInfo ) throws Exception {
 		checkTransactionMetadata( dc.meta.getStorage( action ) );
 		dc.setStartInfo( this , startInfo );
 	}
