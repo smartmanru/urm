@@ -54,8 +54,8 @@ public class MetaEnv extends PropertyController {
 	public FLAG CONF_DEPLOY;
 	public FLAG CONF_KEEPALIVE;
 
-	private List<MetaEnvDC> originalList;
-	private Map<String,MetaEnvDC> dcMap;
+	private List<MetaEnvSegment> originalList;
+	private Map<String,MetaEnvSegment> dcMap;
 
 	// properties
 	public static String PROPERTY_ID = "id";
@@ -86,8 +86,8 @@ public class MetaEnv extends PropertyController {
 	public MetaEnv( ServerProductMeta storage , Meta meta ) {
 		super( storage , "env" );
 		this.meta = meta;
-		originalList = new LinkedList<MetaEnvDC>();
-		dcMap = new HashMap<String,MetaEnvDC>();
+		originalList = new LinkedList<MetaEnvSegment>();
+		dcMap = new HashMap<String,MetaEnvSegment>();
 		baselineEnvRef = new ServerRef<MetaEnv>();
 	}
 	
@@ -147,8 +147,8 @@ public class MetaEnv extends PropertyController {
 		MetaProductSettings product = meta.getProductSettings( action );
 		r.initCopyStarted( this , product.getProperties() );
 		
-		for( MetaEnvDC dc : originalList ) {
-			MetaEnvDC rdc = dc.copy( action , meta , r );
+		for( MetaEnvSegment dc : originalList ) {
+			MetaEnvSegment rdc = dc.copy( action , meta , r );
 			r.addDC( rdc );
 		}
 		
@@ -240,29 +240,29 @@ public class MetaEnv extends PropertyController {
 			return;
 
 		for( Node dcnode : items ) {
-			MetaEnvDC dc = new MetaEnvDC( meta , this );
+			MetaEnvSegment dc = new MetaEnvSegment( meta , this );
 			dc.load( action , dcnode );
 			addDC( dc );
 		}
 	}
 
-	private void addDC( MetaEnvDC dc ) {
+	private void addDC( MetaEnvSegment dc ) {
 		originalList.add( dc );
 		dcMap.put( dc.NAME , dc );
 	}
 	
 	private void resolveLinks( ActionBase action ) throws Exception {
 		baselineEnvRef.set( meta.getEnv( action , BASELINE ) );
-		for( MetaEnvDC dc : originalList )
+		for( MetaEnvSegment dc : originalList )
 			dc.resolveLinks( action );
 	}
 	
-	public MetaEnvDC findDC( String name ) {
+	public MetaEnvSegment findDC( String name ) {
 		return( dcMap.get( name ) );
 	}
 
-	public MetaEnvDC getDC( ActionBase action , String name ) throws Exception {
-		MetaEnvDC dc = dcMap.get( name );
+	public MetaEnvSegment getDC( ActionBase action , String name ) throws Exception {
+		MetaEnvSegment dc = dcMap.get( name );
 		if( dc == null )
 			action.exit1( _Error.UnknownSegment1 , "unknown segment=" + name , name );
 		return( dc );
@@ -272,15 +272,15 @@ public class MetaEnv extends PropertyController {
 		return( Common.getSortedKeys( dcMap ) );
 	}
 	
-	public MetaEnvDC[] getSegments() {
-		return( originalList.toArray( new MetaEnvDC[0] ) );
+	public MetaEnvSegment[] getSegments() {
+		return( originalList.toArray( new MetaEnvSegment[0] ) );
 	}
 	
 	public boolean isMultiDC( ActionBase action ) throws Exception {
 		return( originalList.size() > 1 );
 	}
 	
-	public MetaEnvDC getMainDC( ActionBase action ) throws Exception {
+	public MetaEnvSegment getMainDC( ActionBase action ) throws Exception {
 		if( originalList.size() == 0 )
 			action.exit0( _Error.NoSegmentDefined0 , "no segment defined" );
 		if( originalList.size() > 1 )
@@ -290,17 +290,17 @@ public class MetaEnv extends PropertyController {
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		super.saveSplit( doc , root );
-		for( MetaEnvDC dc : originalList ) {
+		for( MetaEnvSegment dc : originalList ) {
 			Element dcElement = Common.xmlCreateElement( doc , root , ELEMENT_SEGMENT );
 			dc.save( action , doc , dcElement );
 		}
 	}
 	
-	public void createDC( ServerTransaction transaction , MetaEnvDC dc ) {
+	public void createDC( ServerTransaction transaction , MetaEnvSegment dc ) {
 		addDC( dc );
 	}
 	
-	public void deleteDC( ServerTransaction transaction , MetaEnvDC dc ) {
+	public void deleteDC( ServerTransaction transaction , MetaEnvSegment dc ) {
 		int index = originalList.indexOf( dc );
 		if( index < 0 )
 			return;
@@ -331,12 +331,12 @@ public class MetaEnv extends PropertyController {
 	}
 
 	public void getApplicationReferences( ServerHostAccount account , List<ServerAccountReference> refs ) {
-		for( MetaEnvDC dc : originalList )
+		for( MetaEnvSegment dc : originalList )
 			dc.getApplicationReferences( account , refs );
 	}
 
 	public void deleteHostAccount( ServerTransaction transaction , ServerHostAccount account ) throws Exception {
-		for( MetaEnvDC dc : originalList )
+		for( MetaEnvSegment dc : originalList )
 			dc.deleteHostAccount( transaction , account );
 	}
 	

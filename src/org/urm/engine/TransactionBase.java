@@ -33,7 +33,7 @@ import org.urm.meta.product.MetaDistrComponentWS;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.Meta.VarCOMPITEMTYPE;
@@ -859,13 +859,13 @@ public class TransactionBase extends ServerObject {
 		return( metadata.findEnvironment( env.ID ) );
 	}
 
-	public MetaEnvDC getMetaEnvDC( MetaEnvDC dc ) throws Exception {
+	public MetaEnvSegment getMetaEnvDC( MetaEnvSegment dc ) throws Exception {
 		MetaEnv env = getMetaEnv( dc.env );
 		return( env.findDC( dc.NAME ) );
 	}
 
 	public MetaEnvServer getMetaEnvServer( MetaEnvServer server ) throws Exception {
-		MetaEnvDC dc = getMetaEnvDC( server.dc );
+		MetaEnvSegment dc = getMetaEnvDC( server.dc );
 		return( dc.findServer( server.NAME ) );
 	}
 

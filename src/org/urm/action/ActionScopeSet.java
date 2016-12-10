@@ -19,7 +19,7 @@ import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaEnvStartGroup;
@@ -44,7 +44,7 @@ public class ActionScopeSet {
 	ActionScopeTarget manualTarget;
 
 	public MetaEnv env;
-	public MetaEnvDC dc;
+	public MetaEnvSegment dc;
 	boolean specifiedExplicitly;
 	
 	public ActionScopeSet( ActionScope scope , boolean specifiedExplicitly ) {
@@ -87,7 +87,7 @@ public class ActionScopeSet {
 		this.setFull = false;
 	}
 
-	public void create( ActionBase action , MetaEnv env , MetaEnvDC dc ) throws Exception {
+	public void create( ActionBase action , MetaEnv env , MetaEnvSegment dc ) throws Exception {
 		this.pset = null;
 		this.NAME = dc.NAME;
 		this.CATEGORY = VarCATEGORY.ENV;

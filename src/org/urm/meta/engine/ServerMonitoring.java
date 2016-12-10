@@ -19,7 +19,7 @@ import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerObject;
 import org.urm.meta.ServerProductMeta;
 import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaMonitoring;
@@ -200,11 +200,11 @@ public class ServerMonitoring extends ServerObject {
 		createSource( MONITORING_ENVIRONMENT , env );
 		
 		// start childs
-		for( MetaEnvDC dc : env.getSegments() )
+		for( MetaEnvSegment dc : env.getSegments() )
 			startSegment( dc );
 	}
 
-	public void startSegment( MetaEnvDC dc ) {
+	public void startSegment( MetaEnvSegment dc ) {
 		createSource( MONITORING_SEGMENT , dc );
 		
 		// start childs
@@ -278,14 +278,14 @@ public class ServerMonitoring extends ServerObject {
 
 	public void stopEnvironment( MetaEnv env , boolean delete ) {
 		// stop childs
-		for( MetaEnvDC dc : env.getSegments() )
+		for( MetaEnvSegment dc : env.getSegments() )
 			stopSegment( dc , delete );
 		
 		if( delete )
 			removeSource( MONITORING_ENVIRONMENT , env );
 	}
 
-	public void stopSegment( MetaEnvDC dc , boolean delete ) {
+	public void stopSegment( MetaEnvSegment dc , boolean delete ) {
 		// stop childs
 		for( MetaEnvServer server : dc.getServers() )
 			stopServer( server , delete );
@@ -375,21 +375,21 @@ public class ServerMonitoring extends ServerObject {
 	private void modifyEnvironment( MetaEnv envOld , MetaEnv envNew ) {
 		replaceSource( MONITORING_ENVIRONMENT , envOld , envNew );
 		
-		for( MetaEnvDC dcNew : envNew.getSegments() ) {
-			MetaEnvDC dcOld = envOld.findDC( dcNew.NAME );
+		for( MetaEnvSegment dcNew : envNew.getSegments() ) {
+			MetaEnvSegment dcOld = envOld.findDC( dcNew.NAME );
 			if( dcOld != null )
 				modifySegment( dcOld , dcNew );
 			else
 				startSegment( dcNew );
 		}
-		for( MetaEnvDC dcOld : envOld.getSegments() ) {
-			MetaEnvDC dcNew = envNew.findDC( dcOld.NAME );
+		for( MetaEnvSegment dcOld : envOld.getSegments() ) {
+			MetaEnvSegment dcNew = envNew.findDC( dcOld.NAME );
 			if( dcNew == null )
 				stopSegment( dcOld , true );
 		}
 	}
 	
-	private void modifySegment( MetaEnvDC dcOld , MetaEnvDC dcNew ) {
+	private void modifySegment( MetaEnvSegment dcOld , MetaEnvSegment dcNew ) {
 		replaceSource( MONITORING_SEGMENT , dcOld , dcNew );
 		
 		for( MetaEnvServer serverNew : dcNew.getServers() ) {
@@ -434,7 +434,7 @@ public class ServerMonitoring extends ServerObject {
 		MetaEnv env = target.meta.findEnv( target.ENV );
 		if( env == null )
 			return( null );
-		MetaEnvDC dc = env.findDC( target.DC );
+		MetaEnvSegment dc = env.findDC( target.DC );
 		if( dc == null)
 			return( null );
 		return( getObjectSource( dc ) );

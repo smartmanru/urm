@@ -179,7 +179,7 @@ public class MetaMonitoring extends PropertyController {
 		return( true );
 	}
 	
-	public MetaMonitoringTarget findMonitoringTarget( MetaEnvDC dc ) {
+	public MetaMonitoringTarget findMonitoringTarget( MetaEnvSegment dc ) {
 		for( MetaMonitoringTarget target : mapTargets.values() ) {
 			if( target.ENV.equals( dc.env.ID ) && target.DC.equals( dc.NAME ) )
 				return( target );
@@ -192,7 +192,7 @@ public class MetaMonitoring extends PropertyController {
 		ENABLED = enabled;
 	}
 
-	public MetaMonitoringTarget createTarget( ServerTransaction transaction , MetaEnvDC dc , int MAXTIME ) throws Exception {
+	public MetaMonitoringTarget createTarget( ServerTransaction transaction , MetaEnvSegment dc , int MAXTIME ) throws Exception {
 		if( findMonitoringTarget( dc ) != null )
 			transaction.exitUnexpectedState();
 		

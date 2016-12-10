@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.engine.shell.Account;
-import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 
@@ -38,7 +38,7 @@ public class ScopeState {
 	public ActionScopeTarget target;
 	public ActionScopeTargetItem item;
 	public Account account;
-	public MetaEnvDC dc;
+	public MetaEnvSegment dc;
 	public MetaEnvServer server;
 	public MetaEnvServerNode node;
 	public SCOPESTATE state;
@@ -83,7 +83,7 @@ public class ScopeState {
 		create( parent.action , parent );
 	}
 
-	public ScopeState( ActionCore action , MetaEnvDC dc ) {
+	public ScopeState( ActionCore action , MetaEnvSegment dc ) {
 		this.type = SCOPETYPE.TypeMonTarget;
 		this.scope = null;
 		this.set = null;

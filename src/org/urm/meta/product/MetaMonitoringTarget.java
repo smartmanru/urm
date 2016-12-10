@@ -126,7 +126,7 @@ public class MetaMonitoringTarget {
 		folder.ensureExists( action );
 	}
 
-	public void createTarget( ServerTransaction transaction , MetaEnvDC dc , int MAXTIME ) throws Exception {
+	public void createTarget( ServerTransaction transaction , MetaEnvSegment dc , int MAXTIME ) throws Exception {
 		this.ENV = dc.env.ID;
 		this.DC = dc.NAME;
 		this.MAXTIME = MAXTIME;

@@ -11,13 +11,13 @@ import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvSegment;
 
 public class DeployCommandExecutor extends CommandExecutor {
 
 	DeployCommand impl;
 	MetaEnv env;
-	MetaEnvDC dc;
+	MetaEnvSegment dc;
 	
 	String propertyBasedMethods;
 	

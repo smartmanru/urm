@@ -14,7 +14,7 @@ import org.urm.engine.ServerSourceEvent;
 import org.urm.meta.engine.ServerMonitoringState.MONITORING_STATE;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaMonitoringTarget;
@@ -68,7 +68,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		if( event.eventType == ServerMonitoring.EVENT_MONITORING_SEGMENT ) {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			SegmentStatus status = ( SegmentStatus )event.data;
-			MetaEnvDC dc = status.dc;
+			MetaEnvSegment dc = status.dc;
 			ServerMonitoringSource serverSource = monitoring.getObjectSource( dc );
 			if( serverSource == null )
 				return;
@@ -80,7 +80,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		if( event.eventType == ServerMonitoring.EVENT_MONITORING_DCITEMS ) {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			SegmentStatus status = ( SegmentStatus )event.data;
-			MetaEnvDC dc = status.dc;
+			MetaEnvSegment dc = status.dc;
 			ServerMonitoringSource dcSource = monitoring.getObjectSource( dc );
 			if( dcSource == null )
 				return;
@@ -182,14 +182,14 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		recalculateSystem( product.system );
 	}
 
-	private void processSegmentEvent( ActionEventsSource source , ServerMonitoringSource dcSource , MetaEnvDC dc , SegmentStatus status ) {
+	private void processSegmentEvent( ActionEventsSource source , ServerMonitoringSource dcSource , MetaEnvSegment dc , SegmentStatus status ) {
 		if( stopping )
 			return;
 
 		dcSource.setPrimaryLog( status.getLog() );
 	}
 	
-	private void processSegmentItemsEvent( ActionEventsSource source , ServerMonitoringSource dcSource , MetaEnvDC dc , SegmentStatus status ) {
+	private void processSegmentItemsEvent( ActionEventsSource source , ServerMonitoringSource dcSource , MetaEnvSegment dc , SegmentStatus status ) {
 		if( stopping )
 			return;
 
@@ -206,7 +206,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 
 		serverSource.setPrimaryLog( status.getLog() );
 		if( serverSource.setState( status.itemState ) ) {
-			MetaEnvDC dc = server.dc;
+			MetaEnvSegment dc = server.dc;
 			recalculateSegment( dc );
 		}
 	}
@@ -217,7 +217,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 
 		serverSource.setExtraLog( ServerMonitoring.EXTRA_SERVER_ITEMS , status.getLog() );
 		if( serverSource.setExtraState( ServerMonitoring.EXTRA_SERVER_ITEMS , status.itemState ) ) {
-			MetaEnvDC dc = server.dc;
+			MetaEnvSegment dc = server.dc;
 			recalculateSegment( dc );
 		}
 	}
@@ -257,12 +257,12 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		}
 		
 		if( serverSource.setState( finalState ) ) {
-			MetaEnvDC dc = server.dc;
+			MetaEnvSegment dc = server.dc;
 			recalculateSegment( dc );
 		}
 	}
 	
-	private void recalculateSegment( MetaEnvDC dc ) {
+	private void recalculateSegment( MetaEnvSegment dc ) {
 		ServerMonitoringSource dcSource = monitoring.getObjectSource( dc );
 		if( dcSource == null )
 			return;
@@ -286,7 +286,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			return;
 
 		MONITORING_STATE finalState = MONITORING_STATE.STATE_NOMONITORING;
-		for( MetaEnvDC dc : env.getSegments() ) {
+		for( MetaEnvSegment dc : env.getSegments() ) {
 			ServerMonitoringSource dcSource = monitoring.getObjectSource( dc );
 			if( dcSource != null )
 				finalState = ServerMonitoringState.addState( finalState , dcSource.state.state );

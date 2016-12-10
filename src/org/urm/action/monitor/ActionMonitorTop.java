@@ -18,7 +18,7 @@ import org.urm.meta.ServerProductMeta;
 import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringItem;
@@ -233,7 +233,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 		// system
 		int dcIndex = super.logStartCapture();
 		info( "Run fast segment checks, dc=" + target.DC + " ..." );
-		MetaEnvDC dc = addSystemTargetItems( mon , info , target , set );
+		MetaEnvSegment dc = addSystemTargetItems( mon , info , target , set );
 		SegmentStatus dcStatus = new SegmentStatus( this , dc );
 		
 		// direct
@@ -259,10 +259,10 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 		info.addCheckMinorsData( target , ok );
 	}
 
-	private MetaEnvDC addSystemTargetItems( MetaMonitoring mon , MonitorInfo info , MetaMonitoringTarget target , ActionSet set ) throws Exception {
+	private MetaEnvSegment addSystemTargetItems( MetaMonitoring mon , MonitorInfo info , MetaMonitoringTarget target , ActionSet set ) throws Exception {
 		Meta meta = target.meta;
 		MetaEnv env = meta.getEnv( this , target.ENV );
-		MetaEnvDC dc = env.getDC( this , target.DC );
+		MetaEnvSegment dc = env.getDC( this , target.DC );
 		for( MetaEnvServer server : dc.getServers() ) {
 			if( !server.isOffline() )
 				addSystemServerItems( mon , info , target , set , server );

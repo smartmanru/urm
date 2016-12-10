@@ -19,7 +19,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class MetaEnvDC extends PropertyController {
+public class MetaEnvSegment extends PropertyController {
 
 	public Meta meta;
 	public MetaEnv env;
@@ -42,7 +42,7 @@ public class MetaEnvDC extends PropertyController {
 	public static String ELEMENT_STARTORDER = "startorder";
 	public static String ELEMENT_SERVER = "server";
 	
-	public MetaEnvDC( Meta meta , MetaEnv env ) {
+	public MetaEnvSegment( Meta meta , MetaEnv env ) {
 		super( env , "dc" );
 		this.meta = meta;
 		this.env = env;
@@ -71,8 +71,8 @@ public class MetaEnvDC extends PropertyController {
 		super.finishRawProperties();
 	}
 	
-	public MetaEnvDC copy( ActionBase action , Meta meta , MetaEnv env ) throws Exception {
-		MetaEnvDC r = new MetaEnvDC( meta , env );
+	public MetaEnvSegment copy( ActionBase action , Meta meta , MetaEnv env ) throws Exception {
+		MetaEnvSegment r = new MetaEnvSegment( meta , env );
 		r.initCopyStarted( this , env.getProperties() );
 		
 		if( deploy != null )

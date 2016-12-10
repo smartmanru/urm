@@ -16,19 +16,19 @@ import org.w3c.dom.Node;
 public class MetaEnvStartInfo {
 
 	protected Meta meta;
-	public MetaEnvDC dc;
+	public MetaEnvSegment dc;
 	
 	Map<String,MetaEnvStartGroup> groupMap;
 	List<MetaEnvStartGroup> groups;
 	
-	public MetaEnvStartInfo( Meta meta , MetaEnvDC dc ) {
+	public MetaEnvStartInfo( Meta meta , MetaEnvSegment dc ) {
 		this.meta = meta;
 		this.dc = dc;
 		groups = new LinkedList<MetaEnvStartGroup>();
 		groupMap = new HashMap<String,MetaEnvStartGroup>();
 	}
 	
-	public MetaEnvStartInfo copy( ActionBase action , Meta meta , MetaEnvDC dc ) throws Exception {
+	public MetaEnvStartInfo copy( ActionBase action , Meta meta , MetaEnvSegment dc ) throws Exception {
 		MetaEnvStartInfo r = new MetaEnvStartInfo( meta , dc );
 		for( MetaEnvStartGroup group : groups ) {
 			MetaEnvStartGroup rg = group.copy( action , meta , r );

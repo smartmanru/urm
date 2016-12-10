@@ -822,7 +822,7 @@ public class Meta extends ServerObject {
     	return( findEnv( env.ID ) );
     }
     
-    public MetaEnvDC findMetaEnvDC( MetaEnvDC dc ) {
+    public MetaEnvSegment findMetaEnvDC( MetaEnvSegment dc ) {
     	if( dc == null )
     		return( null );
     	MetaEnv env = findMetaEnv( dc.env );
@@ -834,7 +834,7 @@ public class Meta extends ServerObject {
     public MetaEnvServer findMetaEnvServer( MetaEnvServer server ) {
     	if( server == null )
     		return( null );
-    	MetaEnvDC dc = findMetaEnvDC( server.dc );
+    	MetaEnvSegment dc = findMetaEnvDC( server.dc );
     	if( dc == null )
     		return( null );
     	return( dc.findServer( server.NAME ) );
@@ -851,28 +851,28 @@ public class Meta extends ServerObject {
 
 	public void deleteBinaryItemFromEnvironments( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 		for( MetaEnv env : storage.getEnvironments() )
-			for( MetaEnvDC dc : env.getSegments() )
+			for( MetaEnvSegment dc : env.getSegments() )
 				for( MetaEnvServer server : dc.getServers() )
 					server.reflectDeleteBinaryItem( transaction , item );
 	}
 
 	public void deleteConfItemFromEnvironments( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
 		for( MetaEnv env : storage.getEnvironments() )
-			for( MetaEnvDC dc : env.getSegments() )
+			for( MetaEnvSegment dc : env.getSegments() )
 				for( MetaEnvServer server : dc.getServers() )
 					server.reflectDeleteConfItem( transaction , item );
 	}
 
 	public void deleteComponentFromEnvironments( ServerTransaction transaction , MetaDistrComponent item ) throws Exception {
 		for( MetaEnv env : storage.getEnvironments() )
-			for( MetaEnvDC dc : env.getSegments() )
+			for( MetaEnvSegment dc : env.getSegments() )
 				for( MetaEnvServer server : dc.getServers() )
 					server.reflectDeleteComponent( transaction , item );
 	}
 
 	public void deleteDatabaseSchemaFromEnvironments( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
 		for( MetaEnv env : storage.getEnvironments() )
-			for( MetaEnvDC dc : env.getSegments() )
+			for( MetaEnvSegment dc : env.getSegments() )
 				for( MetaEnvServer server : dc.getServers() )
 					server.reflectDeleteSchema( transaction , schema );
 	}

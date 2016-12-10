@@ -5,7 +5,7 @@ import org.urm.action.ActionScope;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.product.MetaEnvDC;
+import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 
@@ -85,7 +85,7 @@ public class DeployCommand {
 		ca.runEnvUniqueAccounts( scope );
 	}
 
-	public void login( ActionBase action , MetaEnvDC dc , String SERVER , String NODE ) throws Exception {
+	public void login( ActionBase action , MetaEnvSegment dc , String SERVER , String NODE ) throws Exception {
 		if( dc == null )
 			action.exit0( _Error.UnknownSegment0 , "Unknown segment, missing specifier" );
 		MetaEnvServer server = dc.getServer( action , SERVER );

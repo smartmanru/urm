@@ -27,7 +27,7 @@ import org.w3c.dom.Node;
 public class MetaEnvServer extends PropertyController {
 
 	public Meta meta;
-	public MetaEnvDC dc;
+	public MetaEnvSegment dc;
 	
 	public String NAME = "";
 	public String DESC = "";
@@ -127,7 +127,7 @@ public class MetaEnvServer extends PropertyController {
 
 	public MetaEnvStartGroup startGroup;
 	
-	public MetaEnvServer( Meta meta , MetaEnvDC dc ) {
+	public MetaEnvServer( Meta meta , MetaEnvSegment dc ) {
 		super( dc , "server" );
 		this.meta = meta;
 		this.dc = dc;
@@ -237,7 +237,7 @@ public class MetaEnvServer extends PropertyController {
 		return( BASELINE );
 	}
 
-	public MetaEnvServer copy( ActionBase action , Meta meta , MetaEnvDC dc ) throws Exception {
+	public MetaEnvServer copy( ActionBase action , Meta meta , MetaEnvSegment dc ) throws Exception {
 		MetaEnvServer r = new MetaEnvServer( meta , dc );
 		r.initCopyStarted( this , dc.getProperties() );
 		r.scatterProperties( action );
