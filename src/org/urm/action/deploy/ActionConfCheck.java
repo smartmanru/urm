@@ -32,7 +32,7 @@ public class ActionConfCheck extends ActionBase {
 	}
 	
 	@Override protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		info( "check configuration parameters in datacenter=" + set.dc.NAME + " ..." );
+		info( "check configuration parameters in segment=" + set.dc.NAME + " ..." );
 
 		// read properties
 		executeDC( set.dc );

@@ -15,7 +15,7 @@ public class ActionList extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		String s = "servers of datacenter=" + set.dc.NAME + ":";
+		String s = "servers of segment=" + set.dc.NAME + ":";
 		info( s );
 		return( SCOPESTATE.NotRun );
 	}

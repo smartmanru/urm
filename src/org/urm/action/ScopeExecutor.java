@@ -687,7 +687,7 @@ public class ScopeExecutor {
 			list.add( set );
 		
 		if( context.env != null ) {
-			for( MetaEnvDC envSet : context.env.getDatacenters() ) {
+			for( MetaEnvDC envSet : context.env.getSegments() ) {
 				ActionScopeSet set = scope.findSet( action , VarCATEGORY.ENV , envSet.NAME );
 				if( set != null )
 					list.add( set );

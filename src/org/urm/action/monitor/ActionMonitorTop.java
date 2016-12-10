@@ -153,7 +153,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 
 	@Override
 	public void triggerEvent( ServerSourceEvent event ) {
-		if( event.eventType == ServerMonitoring.EVENT_MONITORING_DATACENTER ||
+		if( event.eventType == ServerMonitoring.EVENT_MONITORING_SEGMENT ||
 			event.eventType == ServerMonitoring.EVENT_MONITORING_SERVER ||
 			event.eventType == ServerMonitoring.EVENT_MONITORING_NODE )
 			super.eventSource.forwardScopeItem( event.eventType , ( ScopeState )event.data );
@@ -232,9 +232,9 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 		
 		// system
 		int dcIndex = super.logStartCapture();
-		info( "Run fast datacenter checks, dc=" + target.DC + " ..." );
+		info( "Run fast segment checks, dc=" + target.DC + " ..." );
 		MetaEnvDC dc = addSystemTargetItems( mon , info , target , set );
-		DatacenterStatus dcStatus = new DatacenterStatus( this , dc );
+		SegmentStatus dcStatus = new SegmentStatus( this , dc );
 		
 		// direct
 		for( MetaMonitoringItem item : target.getUrlsList( this ) ) {
@@ -276,7 +276,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 		set.runSimple( action );
 	}
 
-	private void checkSystemTargetItems( MetaMonitoring mon , MonitorInfo info , MetaMonitoringTarget target , ActionSet set , DatacenterStatus dcStatus ) throws Exception {
+	private void checkSystemTargetItems( MetaMonitoring mon , MonitorInfo info , MetaMonitoringTarget target , ActionSet set , SegmentStatus dcStatus ) throws Exception {
 		boolean totalStatus = true;
 		
 		for( ActionSetItem item : set.getActions() ) {

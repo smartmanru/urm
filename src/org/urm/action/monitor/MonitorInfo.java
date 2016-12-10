@@ -123,7 +123,7 @@ public class MonitorInfo {
 		gDef.setHeight( 200 );
 		gDef.setVerticalLabel( "Milliseconds" );
 		gDef.setAltYGrid( true );
-		gDef.setTitle( target.ENV + ", dc=" + target.DC + " check datacenter execution time (0 if not running)" );
+		gDef.setTitle( target.ENV + ", dc=" + target.DC + " check segment execution time (0 if not running)" );
 		gDef.setColor( RrdGraphDef.COLOR_GRID , Color.decode( "0xC0C0C0" ) );
 		gDef.setColor( RrdGraphDef.COLOR_BACK , Color.decode( "0xE4E4E4" ) );
 		gDef.setTimeAxis( RrdGraphDef.MINUTE , 30 , RrdGraphDef.HOUR , 1 , RrdGraphDef.HOUR , 1 , 0 , "%H" );

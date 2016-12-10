@@ -21,7 +21,7 @@ public class _Error {
 	public static final int MissingDatabaseItems0 = ErrorBase + 12;
 	public static final int MissingProject0 = ErrorBase + 13;
 	public static final int MissingServer0 = ErrorBase + 14;
-	public static final int DatacenterUndefined0 = ErrorBase + 15;
+	public static final int SegmentUndefined0 = ErrorBase + 15;
 	public static final int UnknownDistributiveItem1 = ErrorBase + 16;
 	public static final int UnexpectedNonManualItem1 = ErrorBase + 17;
 	public static final int BuildVersionNotSet0 = ErrorBase + 18;

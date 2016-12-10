@@ -41,7 +41,7 @@ public class ServerMonitoring extends ServerObject {
 	public static int MONITORING_SYSTEM = 2;
 	public static int MONITORING_PRODUCT = 3;
 	public static int MONITORING_ENVIRONMENT = 4;
-	public static int MONITORING_DATACENTER = 5;
+	public static int MONITORING_SEGMENT = 5;
 	public static int MONITORING_SERVER = 6;
 	public static int MONITORING_NODE = 7;
 	public Map<ServerObject,ServerMonitoringSource> sourceMap;
@@ -58,14 +58,14 @@ public class ServerMonitoring extends ServerObject {
 	public static int EVENT_MONITORSTATECHANGED = 11;
 	public static int EVENT_MONITORCHILDCHANGED = 12;
 	public static int EVENT_MONITORGRAPHCHANGED = 13;
-	public static int EVENT_MONITORING_DATACENTER = 50;
+	public static int EVENT_MONITORING_SEGMENT = 50;
 	public static int EVENT_MONITORING_SERVER = 51;
 	public static int EVENT_MONITORING_NODE = 52;
 	public static int EVENT_MONITORING_DCITEMS = 150;
 	public static int EVENT_MONITORING_SERVERITEMS = 151;
 	public static int EVENT_MONITORING_NODEITEMS = 152;
 	
-	public static String EXTRA_DATACENTER_ITEMS = "dcitems";
+	public static String EXTRA_SEGMENT_ITEMS = "dcitems";
 	public static String EXTRA_SERVER_ITEMS = "serveritems";
 	public static String EXTRA_NODE_ITEMS = "nodeitems";
 	
@@ -200,12 +200,12 @@ public class ServerMonitoring extends ServerObject {
 		createSource( MONITORING_ENVIRONMENT , env );
 		
 		// start childs
-		for( MetaEnvDC dc : env.getDatacenters() )
-			startDatacenter( dc );
+		for( MetaEnvDC dc : env.getSegments() )
+			startSegment( dc );
 	}
 
-	public void startDatacenter( MetaEnvDC dc ) {
-		createSource( MONITORING_DATACENTER , dc );
+	public void startSegment( MetaEnvDC dc ) {
+		createSource( MONITORING_SEGMENT , dc );
 		
 		// start childs
 		for( MetaEnvServer server : dc.getServers() )
@@ -278,20 +278,20 @@ public class ServerMonitoring extends ServerObject {
 
 	public void stopEnvironment( MetaEnv env , boolean delete ) {
 		// stop childs
-		for( MetaEnvDC dc : env.getDatacenters() )
-			stopDatacenter( dc , delete );
+		for( MetaEnvDC dc : env.getSegments() )
+			stopSegment( dc , delete );
 		
 		if( delete )
 			removeSource( MONITORING_ENVIRONMENT , env );
 	}
 
-	public void stopDatacenter( MetaEnvDC dc , boolean delete ) {
+	public void stopSegment( MetaEnvDC dc , boolean delete ) {
 		// stop childs
 		for( MetaEnvServer server : dc.getServers() )
 			stopServer( server , delete );
 		
 		if( delete )
-			removeSource( MONITORING_DATACENTER , dc );
+			removeSource( MONITORING_SEGMENT , dc );
 	}
 	
 	public void stopServer( MetaEnvServer server , boolean delete ) {
@@ -375,22 +375,22 @@ public class ServerMonitoring extends ServerObject {
 	private void modifyEnvironment( MetaEnv envOld , MetaEnv envNew ) {
 		replaceSource( MONITORING_ENVIRONMENT , envOld , envNew );
 		
-		for( MetaEnvDC dcNew : envNew.getDatacenters() ) {
+		for( MetaEnvDC dcNew : envNew.getSegments() ) {
 			MetaEnvDC dcOld = envOld.findDC( dcNew.NAME );
 			if( dcOld != null )
-				modifyDatacenter( dcOld , dcNew );
+				modifySegment( dcOld , dcNew );
 			else
-				startDatacenter( dcNew );
+				startSegment( dcNew );
 		}
-		for( MetaEnvDC dcOld : envOld.getDatacenters() ) {
+		for( MetaEnvDC dcOld : envOld.getSegments() ) {
 			MetaEnvDC dcNew = envNew.findDC( dcOld.NAME );
 			if( dcNew == null )
-				stopDatacenter( dcOld , true );
+				stopSegment( dcOld , true );
 		}
 	}
 	
-	private void modifyDatacenter( MetaEnvDC dcOld , MetaEnvDC dcNew ) {
-		replaceSource( MONITORING_DATACENTER , dcOld , dcNew );
+	private void modifySegment( MetaEnvDC dcOld , MetaEnvDC dcNew ) {
+		replaceSource( MONITORING_SEGMENT , dcOld , dcNew );
 		
 		for( MetaEnvServer serverNew : dcNew.getServers() ) {
 			MetaEnvServer serverOld = dcOld.findServer( serverNew.NAME );
@@ -407,7 +407,7 @@ public class ServerMonitoring extends ServerObject {
 	}
 	
 	private void modifyServer( MetaEnvServer serverOld , MetaEnvServer serverNew ) {
-		replaceSource( MONITORING_DATACENTER , serverOld , serverNew );
+		replaceSource( MONITORING_SEGMENT , serverOld , serverNew );
 		
 		for( MetaEnvServerNode nodeNew : serverNew.getNodes() ) {
 			MetaEnvServerNode nodeOld = serverOld.findNode( nodeNew.POS );

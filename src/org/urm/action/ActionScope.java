@@ -231,7 +231,7 @@ public class ActionScope {
 		}
 			
 		if( dc == null )
-			action.exit0( _Error.DatacenterUndefined0 , "datacenter is undefined" );
+			action.exit0( _Error.SegmentUndefined0 , "segment is undefined" );
 		
 		scope.createEnvServersScope( action , dc , SERVERS , dist );
 		return( scope );
@@ -293,7 +293,7 @@ public class ActionScope {
 		else
 			scopeFull = false;
 		
-		for( MetaEnvDC dcItem : env.getDatacenters() ) {
+		for( MetaEnvDC dcItem : env.getSegments() ) {
 			if( dcMask.isEmpty() || dcItem.NAME.matches( dcMask ) ) {
 				boolean specifiedExplicitly = ( dcMask.isEmpty() )? false : true;
 				ActionScopeSet sset = createEnvScopeSet( action , dcItem.env , dcItem , specifiedExplicitly );
@@ -305,7 +305,7 @@ public class ActionScope {
 	private void createEnvServersScope( ActionBase action , MetaEnvDC dc , String[] SERVERS , Dist dist ) throws Exception {
 		scopeFull = false;
 		if( ( SERVERS == null || SERVERS.length == 0 ) && 
-			dc.env.getDatacenterNames().length == 1 )
+			dc.env.getSegmentNames().length == 1 )
 			scopeFull = true;
 			
 		ActionScopeSet sset = createEnvScopeSet( action , context.env , dc , true );
@@ -314,7 +314,7 @@ public class ActionScope {
 
 	private void createEnvDatabaseScope( ActionBase action , Dist dist ) throws Exception {
 		scopeFull = true;
-		for( MetaEnvDC dc : context.env.getDatacenters() ) {
+		for( MetaEnvDC dc : context.env.getSegments() ) {
 			if( !dc.hasDatabaseServers( action ) )
 				continue;
 			

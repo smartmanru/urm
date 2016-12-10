@@ -101,7 +101,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 			String[] NODES = getArgList( action , posFrom + 1 );
 			if( action.context.dc == null ) {
 				if( !SERVER.isEmpty() )
-					action.exit0( _Error.MissingDatacenterName0, "Datacenter name is required to use specific server" );
+					action.exit0( _Error.MissingSegmentName0, "Segment name is required to use specific server" );
 				return( ActionScope.getEnvScope( action , action.context.env , null , release ) );
 			}
 			return( ActionScope.getEnvServerNodesScope( action , action.context.dc , SERVER , NODES , release ) );

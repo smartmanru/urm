@@ -45,7 +45,7 @@ public class _Error {
 	public static final int StopGroupFailed1 = ErrorBase + 36;
 	public static final int ServerClusterStartFailed1 = ErrorBase + 37;
 	public static final int ServerClusterStopFailed1 = ErrorBase + 38;
-	public static final int UnknownDatacenter0 = ErrorBase + 39;
+	public static final int UnknownSegment0 = ErrorBase + 39;
 	public static final int LoginFailed1 = ErrorBase + 40;
 	
 }

@@ -851,28 +851,28 @@ public class Meta extends ServerObject {
 
 	public void deleteBinaryItemFromEnvironments( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 		for( MetaEnv env : storage.getEnvironments() )
-			for( MetaEnvDC dc : env.getDatacenters() )
+			for( MetaEnvDC dc : env.getSegments() )
 				for( MetaEnvServer server : dc.getServers() )
 					server.reflectDeleteBinaryItem( transaction , item );
 	}
 
 	public void deleteConfItemFromEnvironments( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
 		for( MetaEnv env : storage.getEnvironments() )
-			for( MetaEnvDC dc : env.getDatacenters() )
+			for( MetaEnvDC dc : env.getSegments() )
 				for( MetaEnvServer server : dc.getServers() )
 					server.reflectDeleteConfItem( transaction , item );
 	}
 
 	public void deleteComponentFromEnvironments( ServerTransaction transaction , MetaDistrComponent item ) throws Exception {
 		for( MetaEnv env : storage.getEnvironments() )
-			for( MetaEnvDC dc : env.getDatacenters() )
+			for( MetaEnvDC dc : env.getSegments() )
 				for( MetaEnvServer server : dc.getServers() )
 					server.reflectDeleteComponent( transaction , item );
 	}
 
 	public void deleteDatabaseSchemaFromEnvironments( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
 		for( MetaEnv env : storage.getEnvironments() )
-			for( MetaEnvDC dc : env.getDatacenters() )
+			for( MetaEnvDC dc : env.getSegments() )
 				for( MetaEnvServer server : dc.getServers() )
 					server.reflectDeleteSchema( transaction , schema );
 	}
