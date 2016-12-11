@@ -27,6 +27,7 @@ public class MetaEnvSegment extends PropertyController {
 	public String NAME;
 	public String BASELINE;
 	public boolean OFFLINE;
+	public String DESC;
 	public String DC;
 	
 	public MetaEnvDeployment deploy;
@@ -36,8 +37,9 @@ public class MetaEnvSegment extends PropertyController {
 	private Map<String,MetaEnvServer> serverMap;
 
 	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_DESC = "desc";
 	public static String PROPERTY_BASELINE = "basesg";
-	public static String PROPERTY_SG = "datacenter";
+	public static String PROPERTY_DC = "datacenter";
 	public static String PROPERTY_OFFLINE = "offline";
 
 	public static String ELEMENT_DEPLOYMENT = "deployment";
@@ -63,7 +65,8 @@ public class MetaEnvSegment extends PropertyController {
 	@Override
 	public void scatterProperties( ActionBase action ) throws Exception {
 		NAME = super.getStringPropertyRequired( action , PROPERTY_NAME );
-		DC = super.getStringProperty( action , PROPERTY_SG );
+		DESC = super.getStringProperty( action , PROPERTY_DESC );
+		DC = super.getStringProperty( action , PROPERTY_DC );
 		action.trace( "load properties of sg=" + NAME );
 		
 		BASELINE = super.getStringProperty( action , PROPERTY_BASELINE );
@@ -237,13 +240,14 @@ public class MetaEnvSegment extends PropertyController {
 		}
 	}
 	
-	public void createSegment( ActionBase action , String NAME ) throws Exception {
+	public void createSegment( ActionBase action , String NAME , String DESC , String DC ) throws Exception {
 		this.NAME = NAME;
 		if( !super.initCreateStarted( env.getProperties() ) )
 			return;
 
 		super.setStringProperty( PROPERTY_NAME , NAME );
-		super.setStringProperty( PROPERTY_BASELINE , BASELINE );
+		super.setStringProperty( PROPERTY_DESC , DESC );
+		super.setStringProperty( PROPERTY_DC , DC );
 		super.finishProperties( action );
 		super.initFinished();
 		
@@ -251,6 +255,17 @@ public class MetaEnvSegment extends PropertyController {
 		
 		deploy = new MetaEnvDeployment( meta , this );
 		startInfo = new MetaEnvStartInfo( meta , this );
+	}
+
+	public void modifySegment( ActionBase action , String NAME , String DESC , String DC ) throws Exception {
+		this.NAME = NAME;
+
+		super.setStringProperty( PROPERTY_NAME , NAME );
+		super.setStringProperty( PROPERTY_DESC , DESC );
+		super.setStringProperty( PROPERTY_DC , DC );
+		super.finishProperties( action );
+		
+		scatterProperties( action );
 	}
 
 	public void createServer( ServerTransaction transaction , MetaEnvServer server ) {
