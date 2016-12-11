@@ -70,8 +70,8 @@ public class ActionCreateDesignDoc extends ActionBase {
 			if( !env.isProd() )
 				continue;
 			
-			for( MetaEnvSegment dc : env.getSegments() ) {
-				for( MetaEnvServer server : dc.getServers() ) {
+			for( MetaEnvSegment sg : env.getSegments() ) {
+				for( MetaEnvServer server : sg.getServers() ) {
 					List<MetaEnvServer> mapped = prodServers.get( server.XDOC );
 					if( mapped == null ) {
 						mapped = new LinkedList<MetaEnvServer>(); 

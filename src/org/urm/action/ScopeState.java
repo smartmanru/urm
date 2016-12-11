@@ -38,7 +38,7 @@ public class ScopeState {
 	public ActionScopeTarget target;
 	public ActionScopeTargetItem item;
 	public Account account;
-	public MetaEnvSegment dc;
+	public MetaEnvSegment sg;
 	public MetaEnvServer server;
 	public MetaEnvServerNode node;
 	public SCOPESTATE state;
@@ -83,11 +83,11 @@ public class ScopeState {
 		create( parent.action , parent );
 	}
 
-	public ScopeState( ActionCore action , MetaEnvSegment dc ) {
+	public ScopeState( ActionCore action , MetaEnvSegment sg ) {
 		this.type = SCOPETYPE.TypeMonTarget;
 		this.scope = null;
 		this.set = null;
-		this.dc = dc;
+		this.sg = sg;
 		create( action , null );
 	}
 

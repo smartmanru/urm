@@ -179,9 +179,9 @@ public class MetaMonitoring extends PropertyController {
 		return( true );
 	}
 	
-	public MetaMonitoringTarget findMonitoringTarget( MetaEnvSegment dc ) {
+	public MetaMonitoringTarget findMonitoringTarget( MetaEnvSegment sg ) {
 		for( MetaMonitoringTarget target : mapTargets.values() ) {
-			if( target.ENV.equals( dc.env.ID ) && target.DC.equals( dc.NAME ) )
+			if( target.ENV.equals( sg.env.ID ) && target.SG.equals( sg.NAME ) )
 				return( target );
 		}
 		return( null );
@@ -192,12 +192,12 @@ public class MetaMonitoring extends PropertyController {
 		ENABLED = enabled;
 	}
 
-	public MetaMonitoringTarget createTarget( ServerTransaction transaction , MetaEnvSegment dc , int MAXTIME ) throws Exception {
-		if( findMonitoringTarget( dc ) != null )
+	public MetaMonitoringTarget createTarget( ServerTransaction transaction , MetaEnvSegment sg , int MAXTIME ) throws Exception {
+		if( findMonitoringTarget( sg ) != null )
 			transaction.exitUnexpectedState();
 		
 		MetaMonitoringTarget target = new MetaMonitoringTarget( meta , this );
-		target.createTarget( transaction , dc , MAXTIME );
+		target.createTarget( transaction , sg , MAXTIME );
 		mapTargets.put( target.NAME , target );
 		return( target );
 	}

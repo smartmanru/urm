@@ -46,14 +46,14 @@ public class MonitorInfo {
 	}
 	
 	public void addCheckEnvData( MetaMonitoringTarget target , long timeMillis , boolean status ) throws Exception {
-		action.info( "addCheckEnvData: product=" + target.meta.name + ", env=" + target.ENV + ", dc=" + target.DC + 
+		action.info( "addCheckEnvData: product=" + target.meta.name + ", env=" + target.ENV + ", sg=" + target.SG + 
 				", timeMillis=" + timeMillis + ", succeeded:" + Common.getBooleanValue( status ) );
 		MonitorTargetInfo info = getTargetInfo( target );
 		info.setLastMajor( status , timeMillis );
 	}
 
 	public void addCheckMinorsData( MetaMonitoringTarget target , boolean status ) throws Exception {
-		action.info( "addCheckMinorsData: product=" + target.meta.name + ", env=" + target.ENV + ", dc=" + target.DC + 
+		action.info( "addCheckMinorsData: product=" + target.meta.name + ", env=" + target.ENV + ", sg=" + target.SG + 
 				", succeeded:" + Common.getBooleanValue( status ) );
 		MonitorTargetInfo info = getTargetInfo( target );
 		info.setLastMinor( status );
@@ -101,7 +101,7 @@ public class MonitorInfo {
 
 		action.shell.custom( action , "rrdtool graph " + F_CREATEFILE +
 			" " + scale + " -v " + Common.getQuoted( "secs" ) + 
-			" -t " + Common.getQuoted( target.ENV + ", dc=" + target.DC + " checkenv.sh execution time (0 if not running)" ) +
+			" -t " + Common.getQuoted( target.ENV + ", sg=" + target.SG + " checkenv.sh execution time (0 if not running)" ) +
 			" " + geometry + " " + color + 
 			" --color BACK#E4E4E4" +
 			" --end " + now +
@@ -123,7 +123,7 @@ public class MonitorInfo {
 		gDef.setHeight( 200 );
 		gDef.setVerticalLabel( "Milliseconds" );
 		gDef.setAltYGrid( true );
-		gDef.setTitle( target.ENV + ", dc=" + target.DC + " check segment execution time (0 if not running)" );
+		gDef.setTitle( target.ENV + ", sg=" + target.SG + " check segment execution time (0 if not running)" );
 		gDef.setColor( RrdGraphDef.COLOR_GRID , Color.decode( "0xC0C0C0" ) );
 		gDef.setColor( RrdGraphDef.COLOR_BACK , Color.decode( "0xE4E4E4" ) );
 		gDef.setTimeAxis( RrdGraphDef.MINUTE , 30 , RrdGraphDef.HOUR , 1 , RrdGraphDef.HOUR , 1 , 0 , "%H" );
@@ -157,11 +157,11 @@ public class MonitorInfo {
 		String F_IMAGETEXT;
 		if( F_STATUS ) {
 			F_IMAGEFILE = storage.getRunningImageBasename();
-			F_IMAGETEXT = "Environment " + info.target.ENV + " , dc=" + info.target.DC + " is up and running";
+			F_IMAGETEXT = "Environment " + info.target.ENV + " , sg=" + info.target.SG + " is up and running";
 		}
 		else {
 			F_IMAGEFILE = storage.getFailedImageBasename();
-			F_IMAGETEXT = "Environment " + info.target.ENV + " , dc=" + info.target.DC + " is not working";
+			F_IMAGETEXT = "Environment " + info.target.ENV + " , sg=" + info.target.SG + " is not working";
 		}
 
 		LocalFolder reportsFolder = storage.getReportsFolder( action , info.target );

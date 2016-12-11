@@ -44,7 +44,7 @@ public class ActionScopeSet {
 	ActionScopeTarget manualTarget;
 
 	public MetaEnv env;
-	public MetaEnvSegment dc;
+	public MetaEnvSegment sg;
 	boolean specifiedExplicitly;
 	
 	public ActionScopeSet( ActionScope scope , boolean specifiedExplicitly ) {
@@ -87,13 +87,13 @@ public class ActionScopeSet {
 		this.setFull = false;
 	}
 
-	public void create( ActionBase action , MetaEnv env , MetaEnvSegment dc ) throws Exception {
+	public void create( ActionBase action , MetaEnv env , MetaEnvSegment sg ) throws Exception {
 		this.pset = null;
-		this.NAME = dc.NAME;
+		this.NAME = sg.NAME;
 		this.CATEGORY = VarCATEGORY.ENV;
 		this.setFull = false;
 		this.env = env;
-		this.dc = dc;
+		this.sg = sg;
 	}
 
 	private void addTarget( ActionBase action , ActionScopeTarget target ) throws Exception {
@@ -372,7 +372,7 @@ public class ActionScopeSet {
 		Release info = release.release;
 
 		for( ReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
-			for( MetaEnvServer server : dc.getServers() ) {
+			for( MetaEnvServer server : sg.getServers() ) {
 				if( checkServerDelivery( action , server , delivery ) )
 					mapServers.put( server.NAME , server );
 			}
@@ -383,7 +383,7 @@ public class ActionScopeSet {
 	private Map<String,MetaEnvServer> getEnvDatabaseServers( ActionBase action , Dist dist ) throws Exception {
 		Map<String,MetaEnvServer> mapServers = new HashMap<String,MetaEnvServer>();
 		if( dist == null ) {
-			for( MetaEnvServer server : dc.getServers() )
+			for( MetaEnvServer server : sg.getServers() )
 				mapServers.put( server.NAME , server );
 			return( mapServers );
 		}
@@ -391,7 +391,7 @@ public class ActionScopeSet {
 		Release info = dist.release;
 
 		for( ReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
-			for( MetaEnvServer server : dc.getServers() ) {
+			for( MetaEnvServer server : sg.getServers() ) {
 				if( checkServerDatabaseDelivery( action , server , delivery ) )
 					mapServers.put( server.NAME , server );
 			}
@@ -406,7 +406,7 @@ public class ActionScopeSet {
 	
 		if( SERVERS == null || SERVERS.length == 0 ) {
 			setFull = true; 
-			for( MetaEnvServer server : dc.getServers() ) {
+			for( MetaEnvServer server : sg.getServers() ) {
 				boolean addServer = ( release == null )? true : releaseServers.containsKey( server.NAME ); 
 				if( addServer )
 					addEnvServer( action , server , null , false );
@@ -418,7 +418,7 @@ public class ActionScopeSet {
 		
 		Map<String,MetaEnvServer> added = new HashMap<String,MetaEnvServer>();
 		for( String SERVER : SERVERS ) {
-			MetaEnvServer server = dc.getServer( action , SERVER );
+			MetaEnvServer server = sg.getServer( action , SERVER );
 			boolean addServer = ( release == null )? true : releaseServers.containsKey( SERVER ); 
 			if( addServer ) {
 				added.put( server.NAME , server );
@@ -437,7 +437,7 @@ public class ActionScopeSet {
 		else
 			setFull = false;
 		
-		for( MetaEnvServer server : dc.getServers() ) {
+		for( MetaEnvServer server : sg.getServers() ) {
 			if( !server.isDatabase() )
 				continue;
 			

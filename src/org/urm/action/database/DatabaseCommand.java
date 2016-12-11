@@ -16,7 +16,7 @@ public class DatabaseCommand {
 	}
 
 	public void initDatabase( ActionBase action , String SERVER , int nodePos ) throws Exception {
-		MetaEnvServer server = action.context.dc.getServer( action , SERVER );
+		MetaEnvServer server = action.context.sg.getServer( action , SERVER );
 		MetaEnvServerNode node;
 		if( nodePos < 0 )
 			node = server.getMasterNode( action );
@@ -68,13 +68,13 @@ public class DatabaseCommand {
 	}
 
 	public void importDatabase( ActionBase action , String SERVER , String CMD , String SCHEMA ) throws Exception {
-		MetaEnvServer server = action.context.dc.getServer( action , SERVER );
+		MetaEnvServer server = action.context.sg.getServer( action , SERVER );
 		ActionImportDatabase ma = new ActionImportDatabase( action , null , server , CMD , SCHEMA );
 		ma.runSimple();
 	}
 
 	public void exportDatabase( ActionBase action , String SERVER , String CMD , String SCHEMA ) throws Exception {
-		MetaEnvServer server = action.context.dc.getServer( action , SERVER );
+		MetaEnvServer server = action.context.sg.getServer( action , SERVER );
 		ActionExportDatabase ma = new ActionExportDatabase( action , null , server , CMD , SCHEMA );
 		ma.runSimple();
 	}

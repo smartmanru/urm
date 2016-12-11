@@ -31,7 +31,7 @@ public class ActionConfigure extends ActionBase {
 
 	String USEPRODUCT;
 	String USEENV;
-	String USEDC;
+	String USESG;
 	boolean runLinux;
 	boolean runWindows;
 	boolean deleteOld;
@@ -42,16 +42,16 @@ public class ActionConfigure extends ActionBase {
 
 	String executorMasterFolderRel;
 	String envMasterFolderRel;
-	String dcMasterFolderRel;
+	String sgMasterFolderRel;
 	String envDbMasterFolderRel;
-	String dcDbMasterFolderRel;
+	String sgDbMasterFolderRel;
 	String buildMasterFolderRel;
 
-	public ActionConfigure( ActionBase action , String stream , String OSTYPE , String USEENV , String USEDC ) {
+	public ActionConfigure( ActionBase action , String stream , String OSTYPE , String USEENV , String USESG ) {
 		super( action , stream );
 		this.USEPRODUCT = "";
 		this.USEENV = USEENV;
-		this.USEDC = USEDC;
+		this.USESG = USESG;
 		this.runLinux = ( OSTYPE.equals( "all" ) || OSTYPE.equals( "linux" ) || ( OSTYPE.isEmpty() && super.execrc.isLinux() ) )? true : false;
 		this.runWindows = ( OSTYPE.equals( "all" ) || OSTYPE.equals( "windows" ) || ( OSTYPE.isEmpty() && super.execrc.isWindows() ) )? true : false;
 		deleteOld = false;
@@ -61,7 +61,7 @@ public class ActionConfigure extends ActionBase {
 		super( action , stream );
 		this.USEPRODUCT = USEPRODUCT;
 		this.USEENV = USEENV;
-		this.USEDC = "";
+		this.USESG = "";
 		this.runLinux = confLinux;
 		this.runWindows = confWindows;
 		deleteOld = true;
@@ -72,9 +72,9 @@ public class ActionConfigure extends ActionBase {
 		
 		executorMasterFolderRel = "..";
 		envMasterFolderRel = "../..";
-		dcMasterFolderRel = "../../..";
+		sgMasterFolderRel = "../../..";
 		envDbMasterFolderRel = "../../..";
-		dcDbMasterFolderRel = "../../../..";
+		sgDbMasterFolderRel = "../../../..";
 		buildMasterFolderRel = "../..";
 
 		// set execution context
@@ -128,7 +128,7 @@ public class ActionConfigure extends ActionBase {
 		linesAffected = new LinkedList<String>();
 		
 		USEENV = "";
-		USEDC = "";
+		USESG = "";
 		
 		configureProductDefault( meta );
 		createMasterFile( masterPath , lines );
@@ -270,7 +270,7 @@ public class ActionConfigure extends ActionBase {
 			Map<String,MetaEnv> envs = new HashMap<String,MetaEnv>(); 
 			MetadataStorage ms = artefactory.getMetadataStorage( this , meta );
 			
-			MetaEnvSegment dc = null;
+			MetaEnvSegment sg = null;
 			if( USEENV.isEmpty() ) {
 				addAffected( linux , proxyPath , true );
 				String[] envFiles = ms.getEnvFiles( this );
@@ -296,20 +296,20 @@ public class ActionConfigure extends ActionBase {
 				
 				addAffected( linux , proxyPath , false );
 				
-				if( USEDC.isEmpty() ) {
+				if( USESG.isEmpty() ) {
 					proxyPath = Common.getPath( proxyPath , env.ID );
 					addAffected( linux , proxyPath , true );
 				}
 				else {
-					dc = env.getDC( this , USEDC );
-					proxyPath = Common.getPath( proxyPath , env.ID , USEDC );
+					sg = env.getSG( this , USESG );
+					proxyPath = Common.getPath( proxyPath , env.ID , USESG );
 					addAffected( linux , proxyPath , true );
 				}
 			}
 			
 			for( String envFile : envs.keySet() ) {
 				MetaEnv env = envs.get( envFile );
-				configureDeploymentEnv( meta , exeFolder , executor , envFile , env , dc , linux , dbe );
+				configureDeploymentEnv( meta , exeFolder , executor , envFile , env , sg , linux , dbe );
 			}
 		}
 		else {
@@ -334,44 +334,44 @@ public class ActionConfigure extends ActionBase {
 		linesAffected.add( item );
 	}
 	
-	private void configureDeploymentEnv( Meta meta , LocalFolder ef , CommandMeta executor , String envFile , MetaEnv env , MetaEnvSegment dc , boolean linux , CommandMeta dbe ) throws Exception {
+	private void configureDeploymentEnv( Meta meta , LocalFolder ef , CommandMeta executor , String envFile , MetaEnv env , MetaEnvSegment sg , boolean linux , CommandMeta dbe ) throws Exception {
 		LocalFolder efEnv = ef.getSubFolder( this , env.ID );
 		efEnv.ensureExists( this );
 		
 		// env-level
-		if( USEDC.isEmpty() || !env.isMultiDC( this ) )
+		if( USESG.isEmpty() || !env.isMultiSG( this ) )
 			configureDeploymentEnvContent( meta , efEnv , executor , env , envFile , null , linux , dbe );
 		
-		if( env.isMultiDC( this ) ) {
-			if( USEDC.isEmpty() ) {
+		if( env.isMultiSG( this ) ) {
+			if( USESG.isEmpty() ) {
 				if( context.CTX_ALL ) {
-					for( MetaEnvSegment envdc : env.getSegments() ) {
-						LocalFolder efEnvDC = efEnv.getSubFolder( this , envdc.NAME );
-						configureDeploymentEnvContent( meta , efEnvDC , executor , env , envFile , envdc.NAME , linux , dbe );
+					for( MetaEnvSegment envsg : env.getSegments() ) {
+						LocalFolder efEnvSG = efEnv.getSubFolder( this , envsg.NAME );
+						configureDeploymentEnvContent( meta , efEnvSG , executor , env , envFile , envsg.NAME , linux , dbe );
 					}
 				}
 			}
 			else {
-				LocalFolder efEnvDC = efEnv.getSubFolder( this , dc.NAME );
-				configureDeploymentEnvContent( meta , efEnvDC , executor , env , envFile , dc.NAME , linux , dbe );
+				LocalFolder efEnvSG = efEnv.getSubFolder( this , sg.NAME );
+				configureDeploymentEnvContent( meta , efEnvSG , executor , env , envFile , sg.NAME , linux , dbe );
 			}
 		}
 	}
 
-	private void configureDeploymentEnvContent( Meta meta , LocalFolder ef , CommandMeta executor , MetaEnv env , String ENVFILE , String DC , boolean linux , CommandMeta dbe ) throws Exception {
+	private void configureDeploymentEnvContent( Meta meta , LocalFolder ef , CommandMeta executor , MetaEnv env , String ENVFILE , String SG , boolean linux , CommandMeta dbe ) throws Exception {
 		// env-level context
 		ef.ensureExists( this );
-		String CTXDC = DC;
-		if( DC == null ) {
-			if( env.isMultiDC( this ) )
-				CTXDC = "";
+		String CTXSG = SG;
+		if( SG == null ) {
+			if( env.isMultiSG( this ) )
+				CTXSG = "";
 			else
-				CTXDC = env.getMainDC( this ).NAME;
+				CTXSG = env.getMainSG( this ).NAME;
 		}
-		configureExecutorContextDeployment( meta , ef , ENVFILE , CTXDC , linux );
+		configureExecutorContextDeployment( meta , ef , ENVFILE , CTXSG , linux );
 
-		String xp = ( DC == null )? envMasterFolderRel : dcMasterFolderRel;
-		String xpdb = ( DC == null )? envDbMasterFolderRel : dcDbMasterFolderRel;
+		String xp = ( SG == null )? envMasterFolderRel : sgMasterFolderRel;
+		String xpdb = ( SG == null )? envDbMasterFolderRel : sgDbMasterFolderRel;
 		
 		// env-level wrappers
 		for( CommandMethodMeta cmdAction : executor.actionsList ) {
@@ -444,11 +444,11 @@ public class ActionConfigure extends ActionBase {
 		saveExecutorContext( ef , linux , lines );
 	}
 	
-	private void configureExecutorContextDeployment( Meta meta , LocalFolder ef , String ENVFILE , String DC , boolean linux ) throws Exception {
+	private void configureExecutorContextDeployment( Meta meta , LocalFolder ef , String ENVFILE , String SG , boolean linux ) throws Exception {
 		List<String> lines = new LinkedList<String>();
 		addExecutorContextBase( meta , ef , linux , lines );
 		addExecutorContextItem( ef , linux , lines , "C_URM_ENV" , ENVFILE );
-		addExecutorContextItem( ef , linux , lines , "C_URM_DC" , DC );
+		addExecutorContextItem( ef , linux , lines , "C_URM_SG" , SG );
 		saveExecutorContext( ef , linux , lines );
 	}
 	

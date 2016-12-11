@@ -21,7 +21,7 @@ public class MetaMonitoringTarget {
 	public String NAME;
 	
 	public String ENV;
-	public String DC;
+	public String SG;
 	public int MAXTIME;
 
 	private List<MetaMonitoringItem> listUrls;
@@ -46,7 +46,7 @@ public class MetaMonitoringTarget {
 		MetaMonitoringTarget r = new MetaMonitoringTarget( meta , monitoring );
 		r.NAME = NAME;
 		r.ENV = ENV;
-		r.DC = DC;
+		r.SG = SG;
 		r.MAXTIME = MAXTIME;
 		
 		for( MetaMonitoringItem item : listUrls ) {
@@ -64,7 +64,7 @@ public class MetaMonitoringTarget {
 	
 	public void loadTarget( ActionBase action , Node node ) throws Exception {
 		ENV = ConfReader.getRequiredAttrValue( node , "env" );
-		DC = ConfReader.getRequiredAttrValue( node , "dc" );
+		SG = ConfReader.getRequiredAttrValue( node , "segment" );
 		MAXTIME = ConfReader.getIntegerAttrValue( node , "maxtime" , 300000 );
 		setName( action );
 		
@@ -73,7 +73,7 @@ public class MetaMonitoringTarget {
 	}
 
 	private void setName( ActionBase action ) throws Exception {
-		NAME = meta.name + "::" + ENV + "::" + DC;
+		NAME = meta.name + "::" + ENV + "::" + SG;
 	}
 	
 	private void loadCheckUrls( ActionBase action , Node node ) throws Exception {
@@ -102,7 +102,7 @@ public class MetaMonitoringTarget {
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , "env" , ENV );
-		Common.xmlSetElementAttr( doc , root , "dc" , DC );
+		Common.xmlSetElementAttr( doc , root , "segment" , SG );
 		Common.xmlSetElementAttr( doc , root , "maxtime" , "" + MAXTIME );
 		
 		for( MetaMonitoringItem item : listUrls ) {
@@ -126,9 +126,9 @@ public class MetaMonitoringTarget {
 		folder.ensureExists( action );
 	}
 
-	public void createTarget( ServerTransaction transaction , MetaEnvSegment dc , int MAXTIME ) throws Exception {
-		this.ENV = dc.env.ID;
-		this.DC = dc.NAME;
+	public void createTarget( ServerTransaction transaction , MetaEnvSegment sg , int MAXTIME ) throws Exception {
+		this.ENV = sg.env.ID;
+		this.SG = sg.NAME;
 		this.MAXTIME = MAXTIME;
 		setName( transaction.getAction() );
 	}

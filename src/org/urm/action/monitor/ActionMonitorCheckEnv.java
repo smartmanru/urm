@@ -36,9 +36,9 @@ public class ActionMonitorCheckEnv extends ActionBase implements ServerEventsLis
 		eventsApp.subscribe( action.eventSource , this );
 		
 		MetaEnv env = target.meta.getEnv( this , target.ENV );
-		MetaEnvSegment dc = env.getDC( this , target.DC );
-		action.context.update( action , env , dc );
-		ActionScope scope = ActionScope.getEnvScope( action , env , dc , null );
+		MetaEnvSegment sg = env.getSG( this , target.SG );
+		action.context.update( action , env , sg );
+		ActionScope scope = ActionScope.getEnvScope( action , env , sg , null );
 		
 		LocalFolder logsFolder = storage.getLogsFolder( action , target );
 		logsFolder.ensureExists( this );

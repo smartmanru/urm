@@ -41,17 +41,17 @@ public class MonitoringStorage {
 	}
 	
 	public String getHistoryImageFile( MetaMonitoringTarget target ) throws Exception {
-		String file = "history." + target.ENV + "." + target.DC + ".png";
+		String file = "history." + target.ENV + "." + target.SG + ".png";
 		return( file );
 	}
 	
 	public String getRrdFile( MetaMonitoringTarget target ) throws Exception {
-		String file = "env." + target.DC + ".rrd";
+		String file = "env." + target.SG + ".rrd";
 		return( file );
 	}
 	
 	public String getCheckEnvFile( MetaMonitoringTarget target ) throws Exception {
-		String file = "checkenv." + target.DC + ".log";
+		String file = "checkenv." + target.SG + ".log";
 		return( file );
 	}
 	
@@ -69,7 +69,7 @@ public class MonitoringStorage {
 	}
 	
 	public String getStatusReportFile( MetaMonitoringTarget target ) throws Exception {
-		String basename = "overall." + target.ENV + "." + target.DC + ".html";
+		String basename = "overall." + target.ENV + "." + target.SG + ".html";
 		return( basename );
 	}
 	

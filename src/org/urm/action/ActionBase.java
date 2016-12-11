@@ -307,20 +307,20 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public ShellExecutor getShell( MetaEnvServerNode node ) throws Exception {
-		Account account = Account.getAccount( this , node.HOSTLOGIN , node.server.osType );
+		Account account = getNodeAccount( node );
 		return( getShell( account ) );
 	}
 	
 	public Account getNodeAccount( MetaEnvServerNode node ) throws Exception {
-		return( Account.getAccount( this , node.HOSTLOGIN , node.server.osType ) );
+		return( Account.getAccount( this , node.server.sg.DC , node.HOSTLOGIN , node.server.osType ) );
 	}
 	
-	public Account getSingleHostAccount( String host , int port , VarOSTYPE OSTYPE ) throws Exception {
+	public Account getSingleHostAccount( String datacenter , String host , int port , VarOSTYPE OSTYPE ) throws Exception {
 		String user = context.CTX_HOSTUSER;
 		if( user.isEmpty() )
 			user = "root";
 		
-		Account account = Account.getAccount( this , user , host , port , OSTYPE );
+		Account account = Account.getAccount( this , datacenter , user , host , port , OSTYPE );
 		return( account );
 	}
 
@@ -668,8 +668,8 @@ abstract public class ActionBase extends ActionCore {
 	
 	public String getEnvRedistPath( MetaEnvServer server ) throws Exception {
 		if( server.isLinux() )
-			return( server.dc.env.REDISTLINUX_PATH );
-		return( server.dc.env.REDISTWIN_PATH );
+			return( server.sg.env.REDISTLINUX_PATH );
+		return( server.sg.env.REDISTWIN_PATH );
 	}
 
 	public BaseRepository getBaseRepository() throws Exception {

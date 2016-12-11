@@ -112,7 +112,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 			
 			// create graphs
 			for( MetaMonitoringTarget target : mon.getTargets( this ).values() ) {
-				trace( "refresh target graph env=" + target.ENV + ", dc=" + target.DC );
+				trace( "refresh target graph env=" + target.ENV + ", sg=" + target.SG );
 				info.addHistoryGraph( target );
 				super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORGRAPHCHANGED , target );
 			}
@@ -231,10 +231,10 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 		ActionSet set = new ActionSet( this , "minor" );
 		
 		// system
-		int dcIndex = super.logStartCapture();
-		info( "Run fast segment checks, dc=" + target.DC + " ..." );
-		MetaEnvSegment dc = addSystemTargetItems( mon , info , target , set );
-		SegmentStatus dcStatus = new SegmentStatus( this , dc );
+		int sgIndex = super.logStartCapture();
+		info( "Run fast segment checks, sg=" + target.SG + " ..." );
+		MetaEnvSegment sg = addSystemTargetItems( mon , info , target , set );
+		SegmentStatus sgStatus = new SegmentStatus( this , sg );
 		
 		// direct
 		for( MetaMonitoringItem item : target.getUrlsList( this ) ) {
@@ -252,9 +252,9 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 			super.fail1( _Error.MonitorTargetFailed1 , "Monitoring target failed name=" + target.NAME , target.NAME );
 		
 		info( "Fast server checks finished" );
-		String[] log = super.logFinishCapture( dcIndex );
-		dcStatus.setLog( log );
-		checkSystemTargetItems( mon , info , target , set , dcStatus );
+		String[] log = super.logFinishCapture( sgIndex );
+		sgStatus.setLog( log );
+		checkSystemTargetItems( mon , info , target , set , sgStatus );
 		
 		info.addCheckMinorsData( target , ok );
 	}
@@ -262,13 +262,13 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 	private MetaEnvSegment addSystemTargetItems( MetaMonitoring mon , MonitorInfo info , MetaMonitoringTarget target , ActionSet set ) throws Exception {
 		Meta meta = target.meta;
 		MetaEnv env = meta.getEnv( this , target.ENV );
-		MetaEnvSegment dc = env.getDC( this , target.DC );
-		for( MetaEnvServer server : dc.getServers() ) {
+		MetaEnvSegment sg = env.getSG( this , target.SG );
+		for( MetaEnvServer server : sg.getServers() ) {
 			if( !server.isOffline() )
 				addSystemServerItems( mon , info , target , set , server );
 		}
 		
-		return( dc );
+		return( sg );
 	}
 
 	private void addSystemServerItems( MetaMonitoring mon , MonitorInfo info , MetaMonitoringTarget target , ActionSet set , MetaEnvServer server ) throws Exception {
@@ -276,7 +276,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 		set.runSimple( action );
 	}
 
-	private void checkSystemTargetItems( MetaMonitoring mon , MonitorInfo info , MetaMonitoringTarget target , ActionSet set , SegmentStatus dcStatus ) throws Exception {
+	private void checkSystemTargetItems( MetaMonitoring mon , MonitorInfo info , MetaMonitoringTarget target , ActionSet set , SegmentStatus sgStatus ) throws Exception {
 		boolean totalStatus = true;
 		
 		for( ActionSetItem item : set.getActions() ) {
@@ -292,8 +292,8 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 			}
 		}
 		
-		dcStatus.setActionStatus( totalStatus );
-		super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORING_DCITEMS , dcStatus );
+		sgStatus.setActionStatus( totalStatus );
+		super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORING_SGITEMS , sgStatus );
 	}
 	
 }

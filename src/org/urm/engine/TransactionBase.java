@@ -859,14 +859,14 @@ public class TransactionBase extends ServerObject {
 		return( metadata.findEnvironment( env.ID ) );
 	}
 
-	public MetaEnvSegment getMetaEnvDC( MetaEnvSegment dc ) throws Exception {
-		MetaEnv env = getMetaEnv( dc.env );
-		return( env.findDC( dc.NAME ) );
+	public MetaEnvSegment getMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
+		MetaEnv env = getMetaEnv( sg.env );
+		return( env.findSG( sg.NAME ) );
 	}
 
 	public MetaEnvServer getMetaEnvServer( MetaEnvServer server ) throws Exception {
-		MetaEnvSegment dc = getMetaEnvDC( server.dc );
-		return( dc.findServer( server.NAME ) );
+		MetaEnvSegment sg = getMetaEnvSegment( server.sg );
+		return( sg.findServer( server.NAME ) );
 	}
 
 	public MetaEnvServerNode getMetaEnvServerNode( MetaEnvServerNode node ) throws Exception {

@@ -14,8 +14,8 @@ public class MonitorStatus extends ScopeState {
 	public MONITORING_STATE itemState;
 	String[] log;
 
-	public MonitorStatus( ActionCore action , MetaEnvSegment dc ) {
-		super( action , dc );
+	public MonitorStatus( ActionCore action , MetaEnvSegment sg ) {
+		super( action , sg );
 		itemState = MONITORING_STATE.STATE_NEVERQUERIED;
 	}
 

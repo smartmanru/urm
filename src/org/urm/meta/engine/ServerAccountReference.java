@@ -55,10 +55,10 @@ public class ServerAccountReference {
 		ServerDirectory directory = action.getDirectory();
 		Map<String,ServerAccountReference> initial = new HashMap<String,ServerAccountReference>();
 		for( ServerAccountReference ref : refs ) {
-			String productName = ref.node.server.dc.env.meta.name;
+			String productName = ref.node.server.sg.env.meta.name;
 			ServerProduct product = directory.findProduct( productName );
-			String appKey = product.system.NAME + "-" + productName + "-" + ref.node.server.dc.env.ID + "-" + 
-				ref.node.server.dc.NAME + "-" + ref.node.server.NAME + "-" + ref.node.POS;
+			String appKey = product.system.NAME + "-" + productName + "-" + ref.node.server.sg.env.ID + "-" + 
+				ref.node.server.sg.NAME + "-" + ref.node.server.NAME + "-" + ref.node.POS;
 			String infraKey = ref.account.host.network.ID + "-" + ref.account.host.ID + "-" + ref.account.ID;
 			String key = ( infraFirst )? infraKey + "-" + appKey : appKey + "-" + infraKey;
 			initial.put( key , ref );

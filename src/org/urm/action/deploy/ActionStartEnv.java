@@ -29,7 +29,7 @@ public class ActionStartEnv extends ActionBase {
 	}
 	
 	@Override protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		List<MetaEnvStartGroup> groups = set.dc.startInfo.getForwardGroupList();
+		List<MetaEnvStartGroup> groups = set.sg.startInfo.getForwardGroupList();
 		for( MetaEnvStartGroup group : groups ) {
 			if( !startServerGroup( set , group , targets ) )
 				ifexit( _Error.FailedGroupOperation0 , "failed group operation" , null );
@@ -48,7 +48,7 @@ public class ActionStartEnv extends ActionBase {
 		// execute servers in parallel within subprocess
 		infoAction( getMode() + " start group=" + group.NAME + " servers=(" + ActionScope.getList( servers ) + ") ..." );
 
-		ActionSet actions = new ActionSet( this , "start.dc" );
+		ActionSet actions = new ActionSet( this , "start.sg" );
 		for( ActionScopeTarget target : servers ) {
 			if( !Common.checkListItem( targets , target ) )
 				continue;

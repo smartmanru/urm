@@ -104,7 +104,7 @@ public class OptionsMeta {
 		defineOption( CommandVar.newParam( "date" , "OPT_DATE" , true , "use codebase state on given date (ISO-8601)" ) );
 		defineOption( CommandVar.newParam( "group" , "OPT_GROUP" , true , "use specific codebase project group" ) );
 		defineOption( CommandVar.newParam( "version" , "OPT_VERSION" , true , "use specific codebase version" ) );
-		defineOption( CommandVar.newParam( "dc" , "OPT_DC" , true , "use segments which names meet given regular mask" ) );
+		defineOption( CommandVar.newParam( "sg" , "OPT_SG" , true , "use segments which names meet given regular mask" ) );
 		defineOption( CommandVar.newParam( "deploygroup" , "OPT_DEPLOYGROUP" , true , "use only nodes belonging to specified deploygroup" ) );
 		defineOption( CommandVar.newParam( "startgroup" , "OPT_STARTGROUP" , true , "use only servers belonging to specified startgroup" ) );
 		defineOption( CommandVar.newParam( "args" , "OPT_EXTRAARGS" , true , "extra arguments for server interface scripts" ) );

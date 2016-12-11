@@ -162,13 +162,13 @@ public class ActionScope {
 		return( scope.createReleaseProjectItemsScope( action , dist , PROJECT , ITEMS ) );
 	}
 
-	public static ActionScope getEnvServerNodesScope( ActionBase action , MetaEnvSegment dc , String SERVER , String[] NODES , Dist dist ) throws Exception {
+	public static ActionScope getEnvServerNodesScope( ActionBase action , MetaEnvSegment sg , String SERVER , String[] NODES , Dist dist ) throws Exception {
 		if( dist != null )
 			action.trace( "scope: Env Server Nodes Scope, release=" + dist.RELEASEDIR + ", server=" + SERVER + ", nodes=" + Common.getListSet( NODES ) );
 		else
 			action.trace( "scope: Env Server Nodes Scope, server=" + SERVER + ", nodes=" + Common.getListSet( NODES ) );
 		
-		ActionScope scope = new ActionScope( action , dc.meta );
+		ActionScope scope = new ActionScope( action , sg.meta );
 
 		if( SERVER == null || SERVER.isEmpty() )
 			action.exit0( _Error.MissingServer0 , "missing server" );
@@ -177,9 +177,9 @@ public class ActionScope {
 			action.exit0( _Error.MissingServerNodes0 , "missing items (use \"all\" to reference all items)" );
 		
 		if( NODES.length == 1 && NODES[0].equals( "all" ) )
-			scope.createEnvServerNodesScope( action , dc , SERVER , null , dist );
+			scope.createEnvServerNodesScope( action , sg , SERVER , null , dist );
 		else
-			scope.createEnvServerNodesScope( action , dc , SERVER , NODES , dist );
+			scope.createEnvServerNodesScope( action , sg , SERVER , NODES , dist );
 		return( scope );
 	}
 
@@ -191,12 +191,12 @@ public class ActionScope {
 			nodeList = Common.addToList( nodeList , "" + node.POS , " " );
 			
 		action.trace( "scope: Env Server Nodes Scope, server=" + srv.NAME + ", nodes=" + nodeList );
-		return( scope.createEnvServerNodesScope( action , srv.dc , srv , nodes ) );
+		return( scope.createEnvServerNodesScope( action , srv.sg , srv , nodes ) );
 	}
 	
-	public static ActionScope getEnvScope( ActionBase action , MetaEnv env , MetaEnvSegment dc , Dist dist ) throws Exception {
+	public static ActionScope getEnvScope( ActionBase action , MetaEnv env , MetaEnvSegment sg , Dist dist ) throws Exception {
 		ActionScope scope = new ActionScope( action , env.meta );
-		scope.createEnvScope( action , env , dc , dist );
+		scope.createEnvScope( action , env , sg , dist );
 		return( scope );
 	}
 	
@@ -211,7 +211,7 @@ public class ActionScope {
 		return( scope );
 	}
 	
-	public static ActionScope getEnvServersScope( ActionBase action , Meta meta , MetaEnvSegment dc , String[] SERVERS , Dist dist ) throws Exception {
+	public static ActionScope getEnvServersScope( ActionBase action , Meta meta , MetaEnvSegment sg , String[] SERVERS , Dist dist ) throws Exception {
 		if( dist != null )
 			action.trace( "scope: Env Servers Scope, release=" + dist.RELEASEDIR + ", servers=" + Common.getListSet( SERVERS ) );
 		else
@@ -223,17 +223,17 @@ public class ActionScope {
 			action.exit0( _Error.MissingServers0 , "missing items (use \"all\" to reference all items)" );
 		
 		if( SERVERS.length == 1 && SERVERS[0].equals( "all" ) ) {
-			if( dc == null )
-				scope.createEnvScope( action , action.context.env , dc , dist );
+			if( sg == null )
+				scope.createEnvScope( action , action.context.env , sg , dist );
 			else
-				scope.createEnvServersScope( action , dc , null , dist );
+				scope.createEnvServersScope( action , sg , null , dist );
 			return( scope );
 		}
 			
-		if( dc == null )
+		if( sg == null )
 			action.exit0( _Error.SegmentUndefined0 , "segment is undefined" );
 		
-		scope.createEnvServersScope( action , dc , SERVERS , dist );
+		scope.createEnvServersScope( action , sg , SERVERS , dist );
 		return( scope );
 	}
 
@@ -281,69 +281,69 @@ public class ActionScope {
 		return( scope );
 	}
 	
-	private void createEnvScope( ActionBase action , MetaEnv env , MetaEnvSegment dc , Dist dist ) throws Exception {
-		String dcMask = null;
-		if( dc != null )
-			dcMask = dc.NAME;
+	private void createEnvScope( ActionBase action , MetaEnv env , MetaEnvSegment sg , Dist dist ) throws Exception {
+		String sgMask = null;
+		if( sg != null )
+			sgMask = sg.NAME;
 		else
-			dcMask = action.context.CTX_DC;
+			sgMask = action.context.CTX_SEGMENT;
 		
-		if( dcMask.isEmpty() )
+		if( sgMask.isEmpty() )
 			scopeFull = true;
 		else
 			scopeFull = false;
 		
-		for( MetaEnvSegment dcItem : env.getSegments() ) {
-			if( dcMask.isEmpty() || dcItem.NAME.matches( dcMask ) ) {
-				boolean specifiedExplicitly = ( dcMask.isEmpty() )? false : true;
-				ActionScopeSet sset = createEnvScopeSet( action , dcItem.env , dcItem , specifiedExplicitly );
+		for( MetaEnvSegment sgItem : env.getSegments() ) {
+			if( sgMask.isEmpty() || sgItem.NAME.matches( sgMask ) ) {
+				boolean specifiedExplicitly = ( sgMask.isEmpty() )? false : true;
+				ActionScopeSet sset = createEnvScopeSet( action , sgItem.env , sgItem , specifiedExplicitly );
 				sset.addEnvServers( action , null , dist );
 			}
 		}
 	}
 
-	private void createEnvServersScope( ActionBase action , MetaEnvSegment dc , String[] SERVERS , Dist dist ) throws Exception {
+	private void createEnvServersScope( ActionBase action , MetaEnvSegment sg , String[] SERVERS , Dist dist ) throws Exception {
 		scopeFull = false;
 		if( ( SERVERS == null || SERVERS.length == 0 ) && 
-			dc.env.getSegmentNames().length == 1 )
+			sg.env.getSegmentNames().length == 1 )
 			scopeFull = true;
 			
-		ActionScopeSet sset = createEnvScopeSet( action , context.env , dc , true );
+		ActionScopeSet sset = createEnvScopeSet( action , context.env , sg , true );
 		sset.addEnvServers( action , SERVERS , dist ); 
 	}
 
 	private void createEnvDatabaseScope( ActionBase action , Dist dist ) throws Exception {
 		scopeFull = true;
-		for( MetaEnvSegment dc : context.env.getSegments() ) {
-			if( !dc.hasDatabaseServers( action ) )
+		for( MetaEnvSegment sg : context.env.getSegments() ) {
+			if( !sg.hasDatabaseServers( action ) )
 				continue;
 			
-			ActionScopeSet sset = createEnvScopeSet( action , context.env , dc , false );
+			ActionScopeSet sset = createEnvScopeSet( action , context.env , sg , false );
 			sset.addEnvDatabases( action , dist );
 		}
 	}
 	
-	private ActionScopeTarget createEnvServerNodesScope( ActionBase action , MetaEnvSegment dc , MetaEnvServer srv , List<MetaEnvServerNode> nodes ) throws Exception {
+	private ActionScopeTarget createEnvServerNodesScope( ActionBase action , MetaEnvSegment sg , MetaEnvServer srv , List<MetaEnvServerNode> nodes ) throws Exception {
 		scopeFull = false;
-		ActionScopeSet sset = createEnvScopeSet( action , context.env , dc , true );
+		ActionScopeSet sset = createEnvScopeSet( action , context.env , sg , true );
 		return( sset.addEnvServer( action , srv , nodes , true ) );
 	}
 	
-	private void createEnvServerNodesScope( ActionBase action , MetaEnvSegment dc , String SERVER , String[] NODES , Dist dist ) throws Exception {
+	private void createEnvServerNodesScope( ActionBase action , MetaEnvSegment sg , String SERVER , String[] NODES , Dist dist ) throws Exception {
 		scopeFull = false;
-		ActionScopeSet sset = createEnvScopeSet( action , context.env , dc , true );
-		MetaEnvServer server = dc.getServer( action , SERVER );
+		ActionScopeSet sset = createEnvScopeSet( action , context.env , sg , true );
+		MetaEnvServer server = sg.getServer( action , SERVER );
 		
 		sset.addEnvServerNodes( action , server , NODES , true , dist );
 	}
 
-	private ActionScopeSet createEnvScopeSet( ActionBase action , MetaEnv env , MetaEnvSegment dc , boolean specifiedExplicitly ) throws Exception {
+	private ActionScopeSet createEnvScopeSet( ActionBase action , MetaEnv env , MetaEnvSegment sg , boolean specifiedExplicitly ) throws Exception {
 		ActionScopeSet sset = getCategorySet( action , VarCATEGORY.ENV );
 		if( sset != null )
 			return( sset );
 		
 		sset = new ActionScopeSet( this , specifiedExplicitly );
-		sset.create( action , env , dc );
+		sset.create( action , env , sg );
 		addScopeSet( action , sset );
 		return( sset );
 	}

@@ -595,8 +595,8 @@ public class ScopeExecutor {
 	private SCOPESTATE runSingleHostInternal( ActionScopeSet set , String host , int port , VarOSTYPE OSTYPE , ScopeState stateAccount ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
-			Account account = action.getSingleHostAccount( host , port , OSTYPE );
-			String serverNodes = set.dc.getServerNodesByHost( action , host );
+			Account account = action.getSingleHostAccount( set.sg.DC , host , port , OSTYPE );
+			String serverNodes = set.sg.getServerNodesByHost( action , host );
 			action.info( account.getPrintName() + ": serverNodes={" + serverNodes + "}" );
 			
 			ss = getActionStatus( ss , action , action.executeAccount( set , account ) );
@@ -637,7 +637,7 @@ public class ScopeExecutor {
 	private SCOPESTATE runSingleAccountInternal( ActionScopeSet set , Account account , ScopeState stateSet ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
-			String serverNodes = set.dc.getServerNodesByAccount( action , account );
+			String serverNodes = set.sg.getServerNodesByAccount( action , account );
 			action.info( account.getPrintName() + ": serverNodes={" + serverNodes + "}" );
 			ss = getActionStatus( ss , action , action.executeAccount( set , account ) );
 		}
@@ -718,7 +718,7 @@ public class ScopeExecutor {
 			for( ActionScopeTarget target : targets )
 				map.put( target.envServer.NAME , target );
 
-			for( MetaEnvServer server : set.dc.getServers() ) {
+			for( MetaEnvServer server : set.sg.getServers() ) {
 				ActionScopeTarget target = map.get( server.NAME );
 				if( target != null )
 					list.add( target );

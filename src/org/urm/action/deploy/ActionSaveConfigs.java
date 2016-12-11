@@ -112,14 +112,14 @@ public class ActionSaveConfigs extends ActionBase {
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , scope.meta );
 		
 		for( ActionScopeSet set : scope.getEnvSets( this ) ) {
-			String[] existingItems = sourceStorage.getLiveConfigServers( this , set.dc );
+			String[] existingItems = sourceStorage.getLiveConfigServers( this , set.sg );
 
 			for( String item : existingItems ) {
-				if( set.dc.findServer( item ) != null )
+				if( set.sg.findServer( item ) != null )
 					continue;
 				
 				info( "delete obsolete server=" + item + " ..." );
-				sourceStorage.deleteLiveConfigServer( this , set.dc , item , "ActionSaveConfigs" );
+				sourceStorage.deleteLiveConfigServer( this , set.sg , item , "ActionSaveConfigs" );
 			}
 		}
 	}

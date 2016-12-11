@@ -86,11 +86,11 @@ public class ConfBuilder {
 		if( live.checkFileExists( action , runScript ) ) {
 			action.info( "run " + runScript );
 			action.shell.custom( action , live.folderPath , "chmod 744 " + runScript + "; ./" + runScript + " " + 
-				server.dc.env.ID + " " + server.dc.NAME + " " + server.NAME + " " + node.POS );
+				server.sg.env.ID + " " + server.sg.NAME + " " + server.NAME + " " + node.POS );
 		}
 		
 		// copy explicit environment directories
-		String envFolder = "template-" + server.dc.env;
+		String envFolder = "template-" + server.sg.env;
 		if( live.checkFolderExists( action , envFolder ) )
 			live.copyDirContent( action , live.getSubFolder( action , envFolder ) );
 

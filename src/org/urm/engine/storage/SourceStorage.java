@@ -219,17 +219,17 @@ public class SourceStorage {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
-		String PATH = getDATALiveConfigServerPath( action , server.dc , server.NAME );
+		String PATH = getDATALiveConfigServerPath( action , server.sg , server.NAME );
 		
 		String[] list = vcs.listMasterItems( mirror , PATH );
 		return( list );
 	}
 
-	public String[] getLiveConfigServers( ActionBase action , MetaEnvSegment dc ) throws Exception {
+	public String[] getLiveConfigServers( ActionBase action , MetaEnvSegment sg ) throws Exception {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
-		String PATH = getDATALiveConfigDCPath( action , dc );
+		String PATH = getDATALiveConfigSegmentPath( action , sg );
 		
 		String[] list = vcs.listMasterItems( mirror , PATH );
 		return( list );
@@ -239,17 +239,17 @@ public class SourceStorage {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
-		String PATH = getDATALiveConfigServerPath( action , server.dc , server.NAME );
+		String PATH = getDATALiveConfigServerPath( action , server.sg , server.NAME );
 		PATH = Common.getPath( PATH , item );
 		
 		vcs.deleteMasterFolder( mirror , PATH , commitMessage );
 	}
 
-	public void deleteLiveConfigServer( ActionBase action , MetaEnvSegment dc , String server , String commitMessage ) throws Exception {
+	public void deleteLiveConfigServer( ActionBase action , MetaEnvSegment sg , String server , String commitMessage ) throws Exception {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
-		String PATH = getDATALiveConfigServerPath( action , dc , server );
+		String PATH = getDATALiveConfigServerPath( action , sg , server );
 		
 		vcs.deleteMasterFolder( mirror , PATH , commitMessage );
 	}
@@ -269,7 +269,7 @@ public class SourceStorage {
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
 		
-		String SERVERPATH = getDATALiveConfigServerPath( action , server.dc , server.NAME );
+		String SERVERPATH = getDATALiveConfigServerPath( action , server.sg , server.NAME );
 		String PATH = Common.getPath( SERVERPATH , confName );
 		String path = vcs.getInfoMasterPath( mirror , PATH );
 		if( TAG.isEmpty() ) {
@@ -286,7 +286,7 @@ public class SourceStorage {
 		folder.prepareFolderForLinux( action , confName );
 	}
 	
-	public void exportTemplateConfigItem( ActionBase action , MetaEnvSegment dc , String confName , String TAG , LocalFolder folder ) throws Exception {
+	public void exportTemplateConfigItem( ActionBase action , MetaEnvSegment sg , String confName , String TAG , LocalFolder folder ) throws Exception {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
@@ -312,7 +312,7 @@ public class SourceStorage {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
-		String SERVERPATH = getDATALiveConfigServerPath( action , server.dc , server.NAME );
+		String SERVERPATH = getDATALiveConfigServerPath( action , server.sg , server.NAME );
 		String PATH = Common.getPath( SERVERPATH , item );
 
 		String path = vcs.getInfoMasterPath( mirror , PATH );
@@ -386,7 +386,7 @@ public class SourceStorage {
 	public void exportTemplates( ActionBase action , LocalFolder parent , MetaEnvServer server ) throws Exception {
 		for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
 			if( deployment.confItem != null ) {
-				exportTemplateConfigItem( action , server.dc , deployment.confItem.KEY , action.context.CTX_TAG , parent );
+				exportTemplateConfigItem( action , server.sg , deployment.confItem.KEY , action.context.CTX_TAG , parent );
 				continue;
 			}
 				
@@ -396,14 +396,14 @@ public class SourceStorage {
 			
 			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems() ) {
 				if( compItem.confItem != null )
-					exportTemplateConfigItem( action , server.dc , compItem.confItem.KEY , action.context.CTX_TAG , parent );
+					exportTemplateConfigItem( action , server.sg , compItem.confItem.KEY , action.context.CTX_TAG , parent );
 			}
 		}
 	}
 
-	public void exportTemplates( ActionBase action , MetaEnvSegment dc , LocalFolder parent , MetaDistrConfItem[] items ) throws Exception {
+	public void exportTemplates( ActionBase action , MetaEnvSegment sg , LocalFolder parent , MetaDistrConfItem[] items ) throws Exception {
 		for( MetaDistrConfItem item : items )
-			exportTemplateConfigItem( action , dc , item.KEY , "" , parent );
+			exportTemplateConfigItem( action , sg , item.KEY , "" , parent );
 	}
 		
 	public void exportPostRefresh( ActionBase action , String name , LocalFolder folder ) throws Exception {
@@ -457,8 +457,8 @@ public class SourceStorage {
 		return( PATH );
 	}
 
-	private String getDATALiveConfigDCPath( ActionBase action , MetaEnvSegment dc ) throws Exception {
-		String PATH = Common.getPath( DATA_LIVE , dc.env.ID , dc.NAME );
+	private String getDATALiveConfigSegmentPath( ActionBase action , MetaEnvSegment sg ) throws Exception {
+		String PATH = Common.getPath( DATA_LIVE , sg.env.ID , sg.NAME );
 		return( PATH );
 	}
 	
@@ -467,8 +467,8 @@ public class SourceStorage {
 		return( PATH );
 	}
 	
-	private String getDATALiveConfigServerPath( ActionBase action , MetaEnvSegment dc , String server ) throws Exception {
-		String PATH = Common.getPath( getDATALiveConfigDCPath( action , dc ) , server );
+	private String getDATALiveConfigServerPath( ActionBase action , MetaEnvSegment sg , String server ) throws Exception {
+		String PATH = Common.getPath( getDATALiveConfigSegmentPath( action , sg ) , server );
 		return( PATH );
 	}
 	

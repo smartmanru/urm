@@ -15,7 +15,7 @@ public class ActionConfCheck extends ActionBase {
 	boolean S_CONFCHECK_STATUS;
 	
 	MetaEnv baselineEnv;
-	MetaEnvSegment baselineDC;
+	MetaEnvSegment baselineSG;
 	MetaEnvServer baselineServer;
 	
 	public ActionConfCheck( ActionBase action , String stream ) {
@@ -32,10 +32,10 @@ public class ActionConfCheck extends ActionBase {
 	}
 	
 	@Override protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		info( "check configuration parameters in segment=" + set.dc.NAME + " ..." );
+		info( "check configuration parameters in segment=" + set.sg.NAME + " ..." );
 
 		// read properties
-		executeDC( set.dc );
+		executeSG( set.sg );
 		return( SCOPESTATE.NotRun );
 	}
 	
@@ -69,27 +69,27 @@ public class ActionConfCheck extends ActionBase {
 		}
 	}
 
-	private void executeDC( MetaEnvSegment dc ) throws Exception {
-		// echo read data center=$DC properties...
-		String[] S_CONFCHECK_PROPLIST_DC = dc.getPropertyList();
+	private void executeSG( MetaEnvSegment sg ) throws Exception {
+		// echo read data center=$SG properties...
+		String[] S_CONFCHECK_PROPLIST_SG = sg.getPropertyList();
 
 		if( !isExecute() ) {
 			// show values
-			info( "============================================ data center=" + dc.NAME + " properties ..." );
-			for( String var : S_CONFCHECK_PROPLIST_DC ) {
-				String value = dc.getPropertyValue( this , var );
+			info( "============================================ data center=" + sg.NAME + " properties ..." );
+			for( String var : S_CONFCHECK_PROPLIST_SG ) {
+				String value = sg.getPropertyValue( this , var );
 				info( var + "=" + value );
 			}
 		}
 		else {
-			if( context.env.hasBaseline( this ) && dc.hasBaseline( this ) ) {
-				String S_CONFCHECK_BASELINE_DC = dc.getBaselineDC( this );
-				info( "============================================ check dc=" + dc.NAME + " properties baseline=" + S_CONFCHECK_BASELINE_DC + " ..." );
-				baselineDC = baselineEnv.getDC( this , S_CONFCHECK_BASELINE_DC );
-				checkConfDC( dc , baselineDC , S_CONFCHECK_PROPLIST_DC );
+			if( context.env.hasBaseline( this ) && sg.hasBaseline( this ) ) {
+				String S_CONFCHECK_BASELINE_SG = sg.getBaselineSG( this );
+				info( "============================================ check sg=" + sg.NAME + " properties baseline=" + S_CONFCHECK_BASELINE_SG + " ..." );
+				baselineSG = baselineEnv.getSG( this , S_CONFCHECK_BASELINE_SG );
+				checkConfSG( sg , baselineSG , S_CONFCHECK_PROPLIST_SG );
 			}
 			else
-				trace( "ignore check dc=" + dc.NAME + " - no baseline defined" );
+				trace( "ignore check sg=" + sg.NAME + " - no baseline defined" );
 		}
 	}
 
@@ -99,7 +99,7 @@ public class ActionConfCheck extends ActionBase {
 
 		if( !isExecute() ) {
 			// show values
-			info( "============================================ data center=" + server.dc.NAME + " server=" + server.NAME + " properties ..." );
+			info( "============================================ data center=" + server.sg.NAME + " server=" + server.NAME + " properties ..." );
 			for( String var : S_CONFCHECK_PROPLIST_SERVER ) {
 				String value = server.getPropertyValue( this , var );
 				info( var + "=" + value );
@@ -107,26 +107,26 @@ public class ActionConfCheck extends ActionBase {
 		}
 		else {
 			if( context.env.hasBaseline( this ) &&
-			   server.dc.hasBaseline( this ) &&
+			   server.sg.hasBaseline( this ) &&
 			   server.hasBaseline( this ) ) {
 				String S_CONFCHECK_BASELINE_SERVER = server.getBaselineServer( this );
-				info( "============================================ check dc=" + server.dc.NAME + " server=" + server.NAME + " properties baseline=" + S_CONFCHECK_BASELINE_SERVER + " ..." );
-				baselineServer = baselineDC.getServer( this , S_CONFCHECK_BASELINE_SERVER );
+				info( "============================================ check sg=" + server.sg.NAME + " server=" + server.NAME + " properties baseline=" + S_CONFCHECK_BASELINE_SERVER + " ..." );
+				baselineServer = baselineSG.getServer( this , S_CONFCHECK_BASELINE_SERVER );
 				checkConfServer( server , baselineServer , S_CONFCHECK_PROPLIST_SERVER );
 			}
 			else
-				trace( "ignore check dc=" + server.dc.NAME + " server=" + server.NAME + " - no baseline defined" );
+				trace( "ignore check sg=" + server.sg.NAME + " server=" + server.NAME + " - no baseline defined" );
 		}
 	}
 
 	private void checkConfServer( MetaEnvServer server , MetaEnvServer baseline , String[] propList ) throws Exception {
 		String[] F_CONFCHECK_PROPLIST = baseline.getPropertyList(); 
-		checkLists( "dc=" + server.dc.NAME + " server=" + server.NAME , propList , F_CONFCHECK_PROPLIST );
+		checkLists( "sg=" + server.sg.NAME + " server=" + server.NAME , propList , F_CONFCHECK_PROPLIST );
 	}
 
-	private void checkConfDC( MetaEnvSegment dc , MetaEnvSegment baseline , String[] propList ) throws Exception {
+	private void checkConfSG( MetaEnvSegment sg , MetaEnvSegment baseline , String[] propList ) throws Exception {
 		String[] F_CONFCHECK_PROPLIST = baseline.getPropertyList(); 
-		checkLists( "dc=" + dc.NAME , propList , F_CONFCHECK_PROPLIST );
+		checkLists( "sg=" + sg.NAME , propList , F_CONFCHECK_PROPLIST );
 	}
 
 	private void checkConfEnv( MetaEnv env , MetaEnv baseline , String[] propList ) throws Exception {

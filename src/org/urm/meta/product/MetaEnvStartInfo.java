@@ -16,20 +16,20 @@ import org.w3c.dom.Node;
 public class MetaEnvStartInfo {
 
 	protected Meta meta;
-	public MetaEnvSegment dc;
+	public MetaEnvSegment sg;
 	
 	Map<String,MetaEnvStartGroup> groupMap;
 	List<MetaEnvStartGroup> groups;
 	
-	public MetaEnvStartInfo( Meta meta , MetaEnvSegment dc ) {
+	public MetaEnvStartInfo( Meta meta , MetaEnvSegment sg ) {
 		this.meta = meta;
-		this.dc = dc;
+		this.sg = sg;
 		groups = new LinkedList<MetaEnvStartGroup>();
 		groupMap = new HashMap<String,MetaEnvStartGroup>();
 	}
 	
-	public MetaEnvStartInfo copy( ActionBase action , Meta meta , MetaEnvSegment dc ) throws Exception {
-		MetaEnvStartInfo r = new MetaEnvStartInfo( meta , dc );
+	public MetaEnvStartInfo copy( ActionBase action , Meta meta , MetaEnvSegment sg ) throws Exception {
+		MetaEnvStartInfo r = new MetaEnvStartInfo( meta , sg );
 		for( MetaEnvStartGroup group : groups ) {
 			MetaEnvStartGroup rg = group.copy( action , meta , r );
 			r.addGroup( rg );

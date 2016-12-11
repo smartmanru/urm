@@ -85,10 +85,10 @@ public class DeployCommand {
 		ca.runEnvUniqueAccounts( scope );
 	}
 
-	public void login( ActionBase action , MetaEnvSegment dc , String SERVER , String NODE ) throws Exception {
-		if( dc == null )
+	public void login( ActionBase action , MetaEnvSegment sg , String SERVER , String NODE ) throws Exception {
+		if( sg == null )
 			action.exit0( _Error.UnknownSegment0 , "Unknown segment, missing specifier" );
-		MetaEnvServer server = dc.getServer( action , SERVER );
+		MetaEnvServer server = sg.getServer( action , SERVER );
 		
 		int nodePos = ( NODE.isEmpty() )? 1 : Integer.parseInt( NODE );
 		MetaEnvServerNode node = server.getNode( action , nodePos );

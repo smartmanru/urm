@@ -21,7 +21,7 @@ public class ServerSession extends ServerObject {
 	public int sessionId;
 	
 	public String ENV;
-	public String DC;
+	public String SG;
 
 	public boolean offline = false;
 	public boolean product = false;
@@ -49,7 +49,7 @@ public class ServerSession extends ServerObject {
 		
 		this.execrc = controller.engine.execrc;
 		this.ENV = clientrc.envName;
-		this.DC = clientrc.dcName;
+		this.SG = clientrc.sgName;
 		
 		timestamp = Common.getNameTimeStamp();
 		productMeta = new HashMap<String,Meta>();

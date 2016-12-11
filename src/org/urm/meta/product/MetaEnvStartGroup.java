@@ -32,7 +32,7 @@ public class MetaEnvStartGroup {
 		r.NAME = NAME;
 		r.SERVERS = SERVERS;
 		for( MetaEnvServer server : servers ) {
-			MetaEnvServer rserver = startInfo.dc.getServer( action , server.NAME );
+			MetaEnvServer rserver = startInfo.sg.getServer( action , server.NAME );
 			r.addServer( action , rserver );
 		}
 		
@@ -44,7 +44,7 @@ public class MetaEnvStartGroup {
 		SERVERS = ConfReader.getAttrValue( node , "servers" );
 		
 		for( String name : Common.splitSpaced( SERVERS ) ) {
-			MetaEnvServer server = startInfo.dc.getServer( action , name );
+			MetaEnvServer server = startInfo.sg.getServer( action , name );
 			addServer( action , server );
 		}
 	}

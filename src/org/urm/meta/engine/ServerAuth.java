@@ -580,6 +580,13 @@ public class ServerAuth extends ServerObject {
 		if( authChanged )
 			save( action );
 	}
+
+	public synchronized void deleteDatacenter( ServerTransaction transaction , ServerDatacenter datacenter ) throws Exception {
+		for( String networkName : datacenter.getNetworks() ) {
+			ServerNetwork network = datacenter.findNetwork( networkName );
+			deleteNetwork( transaction , network );
+		}
+	}
 	
 	public synchronized void deleteNetwork( ServerTransaction transaction , ServerNetwork network ) throws Exception {
 		ActionBase action = transaction.getAction();

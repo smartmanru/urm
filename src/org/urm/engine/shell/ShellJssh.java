@@ -11,6 +11,7 @@ import org.urm.common.Common;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.ServerDatacenter;
 import org.urm.meta.engine.ServerHostAccount;
 import org.urm.meta.engine.ServerInfrastructure;
 
@@ -55,7 +56,11 @@ public class ShellJssh {
 		
 		String hostLogin = account.getHostLogin();
 		ServerInfrastructure infra = action.getServerInfrastructure();
-		ServerHostAccount hostAccount = infra.getFinalAccount( action , hostLogin );
+		ServerDatacenter dc = infra.findDatacenter( account.DC );
+		if( dc == null )
+			action.exit1( _Error.UnknownDatacenter1 , "Unknown datacenter=" + account.DC , account.DC );
+		
+		ServerHostAccount hostAccount = dc.getFinalAccount( action , hostLogin );
 		if( hostAccount.AUTHRES.isEmpty() )
 			action.exit1( _Error.MissingAuthKey1 , "Missing auth resource to login to " + hostLogin , hostLogin );
 		

@@ -29,7 +29,7 @@ public class ActionStopEnv extends ActionBase {
 	}
 	
 	@Override protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		List<MetaEnvStartGroup> groups = set.dc.startInfo.getReverseGroupList();
+		List<MetaEnvStartGroup> groups = set.sg.startInfo.getReverseGroupList();
 		for( MetaEnvStartGroup group : groups ) {
 			if( !stopServerGroup( set , group , targets ) )
 				ifexit( _Error.FailedGroupOperation0 , "failed group operation" , null );
@@ -48,7 +48,7 @@ public class ActionStopEnv extends ActionBase {
 		// execute servers in parallel within subprocess
 		infoAction( getMode() + " stop group=" + group.NAME + " servers=(" + ActionScope.getList( servers ) + ") ..." );
 
-		ActionSet actions = new ActionSet( this , "stop.dc" );
+		ActionSet actions = new ActionSet( this , "stop.sg" );
 		for( ActionScopeTarget target : servers ) {
 			if( !Common.checkListItem( targets , target ) )
 				continue;

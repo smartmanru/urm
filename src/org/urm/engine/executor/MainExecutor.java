@@ -82,15 +82,15 @@ public class MainExecutor extends CommandExecutor {
 		public void run( ActionInit action ) throws Exception {
 			String OSTYPE = getArg( action , 0 );
 			String USEENV = getArg( action , 1 );
-			String USEDC = getArg( action , 2 );
+			String USESG = getArg( action , 2 );
 			if( OSTYPE == null )
 				OSTYPE = "";
 			if( USEENV == null )
 				USEENV = "";
-			if( USEDC == null )
-				USEDC = "";
+			if( USESG == null )
+				USESG = "";
 	
-			ActionConfigure ca = new ActionConfigure( action , null , OSTYPE , USEENV , USEDC );
+			ActionConfigure ca = new ActionConfigure( action , null , OSTYPE , USEENV , USESG );
 			ca.runSimple();
 		}
 	}

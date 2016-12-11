@@ -23,7 +23,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 
 	DatabaseCommand impl;
 	MetaEnv env;
-	MetaEnvSegment dc;
+	MetaEnvSegment sg;
 	
 	String propertyBasedMethods;
 	
@@ -89,7 +89,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		Meta meta = action.getContextMeta();
 		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		String SERVER = getRequiredArg( action , 1 , "DBSERVER" );
-		MetaEnvServer server = action.context.dc.getServer( action , SERVER );
+		MetaEnvServer server = action.context.sg.getServer( action , SERVER );
 		ActionScope scope = getIndexScope( action , dist , 2 );
 		impl.applyManual( action , scope , dist , server );
 	}

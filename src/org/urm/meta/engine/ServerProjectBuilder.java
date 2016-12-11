@@ -112,7 +112,7 @@ public class ServerProjectBuilder extends ServerObject {
 
 	public Account getAccount( ActionBase action ) throws Exception {
 		VarOSTYPE osType = VarOSTYPE.valueOf( OSTYPE );
-		return( Account.getAccount( action , HOSTLOGIN , osType ) );
+		return( Account.getAccount( action , "" , HOSTLOGIN , osType ) );
 	}
 	
 }

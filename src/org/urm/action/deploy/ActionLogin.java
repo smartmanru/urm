@@ -25,7 +25,7 @@ public class ActionLogin extends ActionBase {
 		if( context.CTX_ROOTUSER )
 			account = account.getRootAccount( this );
 
-		info( "login dc=" + node.server.dc.NAME + ", server=" + node.server.NAME + 
+		info( "login sg=" + node.server.sg.NAME + ", server=" + node.server.NAME + 
 				", node=" + node.POS + ", hostlogin=" + account.getPrintName() + " ..." );
 		
 		ShellInteractive shell = engine.shellPool.createInteractiveShell( this , account );

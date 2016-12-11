@@ -17,7 +17,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 
 	DeployCommand impl;
 	MetaEnv env;
-	MetaEnvSegment dc;
+	MetaEnvSegment sg;
 	
 	String propertyBasedMethods;
 	
@@ -99,17 +99,17 @@ public class DeployCommandExecutor extends CommandExecutor {
 		if( s.matches( "[0-9]+" ) ) {
 			String SERVER = getArg( action , posFrom );
 			String[] NODES = getArgList( action , posFrom + 1 );
-			if( action.context.dc == null ) {
+			if( action.context.sg == null ) {
 				if( !SERVER.isEmpty() )
 					action.exit0( _Error.MissingSegmentName0, "Segment name is required to use specific server" );
 				return( ActionScope.getEnvScope( action , action.context.env , null , release ) );
 			}
-			return( ActionScope.getEnvServerNodesScope( action , action.context.dc , SERVER , NODES , release ) );
+			return( ActionScope.getEnvServerNodesScope( action , action.context.sg , SERVER , NODES , release ) );
 		}
 		
 		String[] SERVERS = getArgList( action , posFrom );
 		Meta meta = action.getContextMeta();
-		return( ActionScope.getEnvServersScope( action , meta , action.context.dc , SERVERS , release ) );
+		return( ActionScope.getEnvServersScope( action , meta , action.context.sg , SERVERS , release ) );
 	}
 	
 	private class BaseOps extends CommandAction {
@@ -223,7 +223,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String SERVER = getRequiredArg( action , 0 , "SERVER" );
 		String NODE = getArg( action , 1 );
-		impl.login( action , action.context.dc , SERVER , NODE );
+		impl.login( action , action.context.sg , SERVER , NODE );
 	}
 	}
 
