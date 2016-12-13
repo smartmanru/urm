@@ -246,7 +246,7 @@ public class CommandContext {
 	}
 
 	public void update( ActionBase action ) throws Exception {
-		Meta meta = ( session.product )? action.getContextMeta() : null;
+		Meta meta = ( session != null && session.product )? action.getContextMeta() : null;
 		update( action , meta );
 	}
 	
@@ -372,6 +372,9 @@ public class CommandContext {
 	}
 	
 	public boolean setRunContext() {
+		if( session == null )
+			return( true );
+		
 		// read env
 		if( session.execrc.hostName.isEmpty() ) {
 			System.out.println( "HOSTNAME is not set. Exiting" );
