@@ -485,7 +485,7 @@ public class CommandContext {
 		return( data );
 	}
 
-	public void outExact( String s ) {
+	public synchronized void outExact( String s ) {
 		if( logCapture != null )
 			logCapture.add( s );
 	}
