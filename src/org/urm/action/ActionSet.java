@@ -3,6 +3,9 @@ package org.urm.action;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.urm.meta.engine.ServerAuth.SecurityAction;
+import org.urm.meta.product.MetaEnv;
+
 public class ActionSet {
 
 	ActionBase owner;
@@ -54,17 +57,24 @@ public class ActionSet {
 		return( ok );
 	}
 	
-	public void runSimple( ActionBase action ) throws Exception {
+	public void runSimpleProduct( ActionBase action , String productName , SecurityAction sa , boolean readOnly ) throws Exception {
 		String threadName = "AT." + actions.size();
 		ActionSetItem item = new ActionSetItem( this , threadName );
-		item.createSimple( action );
+		item.createSimpleProduct( action , productName , sa , readOnly );
+		startItem( item );
+	}
+
+	public void runSimpleEnv( ActionBase action , MetaEnv env , SecurityAction sa , boolean readOnly ) throws Exception {
+		String threadName = "AT." + actions.size();
+		ActionSetItem item = new ActionSetItem( this , threadName );
+		item.createSimpleEnv( action , env , sa , readOnly );
 		startItem( item );
 	}
 	
-	public void runScope( ActionBase action , ActionScope scope ) throws Exception {
+	public void runScope( ActionBase action , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) throws Exception {
 		String threadName = "AT." + actions.size();
 		ActionSetItem item = new ActionSetItem( this , threadName );
-		item.createScope( action , scope );
+		item.createScope( action , scope , env , sa , readOnly );
 		startItem( item );
 	}
 

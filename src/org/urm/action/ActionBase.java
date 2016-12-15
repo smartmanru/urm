@@ -36,7 +36,9 @@ import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.engine.ServerResources;
 import org.urm.meta.engine.ServerSettings;
+import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaProductBuildSettings;
@@ -231,67 +233,82 @@ abstract public class ActionBase extends ActionCore {
 			exit( errorCode , s + ", exiting (use -force to override)" , params );
 	}
 
-	public boolean runSimple() {
+	public boolean runSimpleServer( SecurityAction sa , boolean readOnly ) {
 		ScopeExecutor executor = new ScopeExecutor( this );
-		return( executor.runSimple() );
+		return( executor.runSimpleServer( sa , readOnly ) );
+	}
+
+	public boolean runSimpleProduct( String productName , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( this );
+		return( executor.runSimpleProduct( productName , sa , readOnly ) );
+	}
+
+	public boolean runProductBuild( String productName , SecurityAction sa , VarBUILDMODE mode , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( this );
+		return( executor.runProductBuild( productName , sa , mode , readOnly ) );
 	}
 	
-	public boolean runAll( ActionScope scope ) {
+	public boolean runSimpleEnv( MetaEnv env , SecurityAction sa , boolean readOnly ) {
 		ScopeExecutor executor = new ScopeExecutor( this );
-		return( executor.runAll( scope ) );
+		return( executor.runSimpleEnv( env , sa , readOnly ) );
+	}
+
+	public boolean runAll( ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( this );
+		return( executor.runAll( scope , env , sa , readOnly ) );
 	}
 	
-	public boolean runAll( ActionScopeSet set ) {
+	public boolean runAll( ActionScopeSet set , MetaEnv env , SecurityAction sa , boolean readOnly ) {
 		ScopeExecutor executor = new ScopeExecutor( this );
-		return( executor.runAll( set ) );
+		return( executor.runAll( set , env , sa , readOnly ) );
 	}
 	
-	public boolean runSingleTarget( ActionScopeTarget item ) {
+	public boolean runSingleTarget( ActionScopeTarget item , MetaEnv env , SecurityAction sa , boolean readOnly ) {
 		ScopeExecutor executor = new ScopeExecutor( this );
-		return( executor.runSingleTarget( item ) );
+		return( executor.runSingleTarget( item , env , sa , readOnly ) );
 	}
 	
-	public boolean runTargetList( ActionScopeSet set , ActionScopeTarget[] items ) {
+	public boolean runTargetList( ActionScopeSet set , ActionScopeTarget[] items , MetaEnv env , SecurityAction sa , boolean readOnly ) {
 		ScopeExecutor executor = new ScopeExecutor( this );
-		return( executor.runTargetList( set , items ) );
+		return( executor.runTargetList( set , items , env , sa , readOnly ) );
 	}
 	
-	public boolean runCategories( ActionScope scope , VarCATEGORY[] categories ) {
+	public boolean runCategories( ActionScope scope , VarCATEGORY[] categories , SecurityAction sa , boolean readOnly ) {
 		ScopeExecutor executor = new ScopeExecutor( this );
-		return( executor.runCategories( scope , categories ) );
+		return( executor.runCategories( scope , categories , sa , readOnly ) );
 	}
 	
-	public boolean runEachBuildableProject( ActionScope scope ) {
+	public boolean runEachBuildableProject( ActionScope scope , SecurityAction sa , boolean readOnly ) {
 		VarCATEGORY[] categories = Meta.getAllBuildableCategories();
-		return( runCategories( scope , categories ) );
+		return( runCategories( scope , categories , sa , readOnly ) );
 	}
 	
-	public boolean runEachSourceProject( ActionScope scope ) {
+	public boolean runEachSourceProject( ActionScope scope , SecurityAction sa , boolean readOnly ) {
 		VarCATEGORY[] categories = Meta.getAllSourceCategories();
-		return( runCategories( scope , categories ) );
+		return( runCategories( scope , categories , sa , readOnly ) );
 	}
 	
-	public boolean runEachCategoryTarget( ActionScope scope , VarCATEGORY category ) {
+	public boolean runEachCategoryTarget( ActionScope scope , VarCATEGORY category , SecurityAction sa , boolean readOnly ) {
 		VarCATEGORY[] categories = new VarCATEGORY[] { category };
-		return( runCategories( scope , categories ) );
+		return( runCategories( scope , categories , sa , readOnly ) );
 	}
 	
-	public boolean runEachCoreProject( ActionScope scope ) {
-		return( runEachCategoryTarget( scope , VarCATEGORY.BUILD ) );
+	public boolean runEachCoreProject( ActionScope scope , SecurityAction sa , boolean readOnly ) {
+		return( runEachCategoryTarget( scope , VarCATEGORY.BUILD , sa , readOnly ) );
 	}
 
-	public boolean runEachPrebuiltProject( String methodName , ActionScope scope ) {
-		return( runEachCategoryTarget( scope , VarCATEGORY.PREBUILT ) );
+	public boolean runEachPrebuiltProject( String methodName , ActionScope scope , SecurityAction sa , boolean readOnly ) {
+		return( runEachCategoryTarget( scope , VarCATEGORY.PREBUILT , sa , readOnly ) );
 	}
 
-	public boolean runEnvUniqueHosts( ActionScope scope ) {
+	public boolean runEnvUniqueHosts( ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
 		ScopeExecutor executor = new ScopeExecutor( this );
-		return( executor.runEnvUniqueHosts( scope ) );
+		return( executor.runEnvUniqueHosts( scope , env , sa , readOnly ) );
 	}
 	
-	public boolean runEnvUniqueAccounts( ActionScope scope ) {
+	public boolean runEnvUniqueAccounts( ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
 		ScopeExecutor executor = new ScopeExecutor( this );
-		return( executor.runEnvUniqueAccounts( scope ) );
+		return( executor.runEnvUniqueAccounts( scope , env , sa , readOnly ) );
 	}
 	
 	public ShellExecutor getShell( Account account ) throws Exception {

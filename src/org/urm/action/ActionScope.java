@@ -237,7 +237,7 @@ public class ActionScope {
 		return( scope );
 	}
 
-	public static ActionScope getDatabaseItemsScope( ActionBase action , Meta meta , Dist dist , String DELIVERY , String[] INDEXES ) throws Exception {
+	private static ActionScope getDatabaseItemsScope( ActionBase action , Meta meta , Dist dist , String DELIVERY , String[] INDEXES ) throws Exception {
 		ActionScope scope = new ActionScope( action , meta );
 		
 		VarCATEGORY CATEGORY;

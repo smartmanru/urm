@@ -9,6 +9,7 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionSet;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
+import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.MetaEnvStartGroup;
 
 public class ActionStopEnv extends ActionBase {
@@ -54,7 +55,7 @@ public class ActionStopEnv extends ActionBase {
 				continue;
 			
 			ActionStopServer stopOne = new ActionStopServer( this , target.NAME , target );
-			actions.runSimple( stopOne );
+			actions.runSimpleEnv( stopOne , set.sg.env , SecurityAction.ACTION_DEPLOY , false );
 		}
 
 		// wait all

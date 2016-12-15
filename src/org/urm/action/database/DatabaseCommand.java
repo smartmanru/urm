@@ -5,6 +5,7 @@ import org.urm.action.ActionScope;
 import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
+import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaEnvServer;
@@ -24,19 +25,19 @@ public class DatabaseCommand {
 			node = server.getNode( action , nodePos );
 			
 		ActionInitDatabase ma = new ActionInitDatabase( action , null , server , node );
-		ma.runSimple();
+		ma.runSimpleEnv( server.sg.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
 	public void getReleaseScripts( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
 		ActionGetDB ma = new ActionGetDB( action , null , dist );
-		ma.runAll( scope );
+		ma.runAll( scope , null , SecurityAction.ACTION_BUILD , false );
 	}
 
 	public void applyManual( ActionBase action , ActionScope scope , Dist dist , MetaEnvServer server ) throws Exception {
 		dist.open( action );
 		
 		ActionApplyManual ma = new ActionApplyManual( action , null , dist , server );
-		ma.runAll( scope );
+		ma.runAll( scope , server.sg.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
 	public void applyAutomatic( ActionBase action , Dist dist , ReleaseDelivery delivery , String indexScope ) throws Exception {
@@ -58,25 +59,25 @@ public class DatabaseCommand {
 		action.info( "apply database changes (" + op + ") release=" + dist.RELEASEDIR + ", delivery=" + deliveryInfo + ", items=" + itemsInfo );
 		ActionApplyAutomatic ma = new ActionApplyAutomatic( action , null , dist , delivery , indexScope );
 		ActionScope scope = ActionScope.getEnvDatabaseScope( action , dist.meta , dist );
-		ma.runAll( scope );
+		ma.runAll( scope , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
 	public void manageRelease( ActionBase action , Meta meta , String RELEASEVER , MetaDistrDelivery delivery , String CMD , String indexScope ) throws Exception {
 		ActionManageRegistry ma = new ActionManageRegistry( action , null , RELEASEVER , CMD , delivery , indexScope );
 		ActionScope scope = ActionScope.getEnvDatabaseScope( action , meta , null );
-		ma.runAll( scope );
+		ma.runAll( scope , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
 	public void importDatabase( ActionBase action , String SERVER , String CMD , String SCHEMA ) throws Exception {
 		MetaEnvServer server = action.context.sg.getServer( action , SERVER );
 		ActionImportDatabase ma = new ActionImportDatabase( action , null , server , CMD , SCHEMA );
-		ma.runSimple();
+		ma.runSimpleEnv( action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
 	public void exportDatabase( ActionBase action , String SERVER , String CMD , String SCHEMA ) throws Exception {
 		MetaEnvServer server = action.context.sg.getServer( action , SERVER );
 		ActionExportDatabase ma = new ActionExportDatabase( action , null , server , CMD , SCHEMA );
-		ma.runSimple();
+		ma.runSimpleEnv( action.context.env , SecurityAction.ACTION_SECURED , true );
 	}
 
 }

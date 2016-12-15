@@ -3,6 +3,7 @@ package org.urm.action.deploy;
 import org.urm.action.ActionBase;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
+import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaProductSettings;
 
@@ -13,7 +14,7 @@ public class ActionSendChatMsg extends ActionBase {
 	
 	public static void sendMsg( ActionBase action , String msg , MetaEnvSegment sg ) throws Exception {
 		ActionSendChatMsg ca = new ActionSendChatMsg( action , null , msg , sg );
-		ca.runSimple();
+		ca.runSimpleEnv( sg.env , SecurityAction.ACTION_DEPLOY , true );
 	}
 	
 	public ActionSendChatMsg( ActionBase action , String stream , String msg , MetaEnvSegment sg ) {

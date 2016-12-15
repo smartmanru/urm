@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.build.BuildCommand;
 import org.urm.engine.dist.Dist;
+import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.Meta.VarCATEGORY;
 
@@ -14,60 +15,60 @@ public class ReleaseCommand {
 
 	public void createProd( ActionBase action , Meta meta , String RELEASEVER ) throws Exception {
 		ActionCreateProd ma = new ActionCreateProd( action , meta , null , RELEASEVER );
-		ma.runSimple();
+		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public void createRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
 		ActionCreateRelease ma = new ActionCreateRelease( action , meta , null , RELEASELABEL );
-		ma.runSimple();
+		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 
 	public void modifyRelease( ActionBase action , Dist dist ) throws Exception {
 		ActionModifyRelease ma = new ActionModifyRelease( action , null , dist );
-		ma.runSimple();
+		ma.runSimpleProduct( dist.meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 
 	public void deleteRelease( ActionBase action , Meta meta , String RELEASELABEL , boolean force ) throws Exception {
 		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , dist , force );
-		ma.runSimple();
+		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public void closeRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
 		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		ActionForceCloseRelease ma = new ActionForceCloseRelease( action , null , dist );
-		ma.runSimple();
+		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public void copyRelease( ActionBase action , Meta meta , String RELEASESRC , String RELEASEDST ) throws Exception {
 		Dist distSrc = action.artefactory.getDistStorageByLabel( action , meta , RELEASESRC );
 		ActionCopyRelease ma = new ActionCopyRelease( action , null , distSrc , RELEASEDST );
-		ma.runSimple();
+		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public void finishRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
 		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		ActionFinishRelease ma = new ActionFinishRelease( action , null , dist );
-		ma.runSimple();
+		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public void reopenRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
 		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		ActionReopenRelease ma = new ActionReopenRelease( action , null , dist );
-		ma.runSimple();
+		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public void statusRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
 		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		ActionPrintReleaseStatus ma = new ActionPrintReleaseStatus( action , null , dist );
-		ma.runSimple();
+		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 
 	private void addReleaseScope( ActionBase action , Dist dist , ActionScope scope ) throws Exception {
 		ActionAddScope ma = new ActionAddScope( action , null , dist );
 		
 		dist.openForChange( action );
-		if( !ma.runAll( scope ) ) {
+		if( !ma.runAll( scope , null , SecurityAction.ACTION_DEPLOY , false ) ) {
 			dist.closeChange( action );
 			action.exit0( _Error.ReleaseSetChangeErrors0 , "release set is not changed because of errors" );
 		}
@@ -137,7 +138,7 @@ public class ReleaseCommand {
 			action.exit0( _Error.NotCumulativeRelease0 , "should be cumulative release" );
 		
 		ActionGetCumulative ca = new ActionGetCumulative( action , dist.meta , null , dist );
-		ca.runSimple();
+		ca.runSimpleProduct( dist.meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 
 	private void descope( ActionBase action , Dist dist , ActionScope scope ) throws Exception {
@@ -147,7 +148,7 @@ public class ReleaseCommand {
 		ActionDescope ma = new ActionDescope( action , null , dist );
 		
 		dist.openForChange( action );
-		if( !ma.runAll( scope ) ) {
+		if( !ma.runAll( scope , null , SecurityAction.ACTION_DEPLOY , false ) ) {
 			dist.closeChange( action );
 			action.exit0( _Error.ReleaseSetChangeErrors0 , "release set is not changed because of errors" );
 		}

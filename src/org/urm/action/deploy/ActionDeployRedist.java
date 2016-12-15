@@ -12,6 +12,7 @@ import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.storage.RedistStorage;
+import org.urm.meta.engine.ServerAuth.SecurityAction;
 
 public class ActionDeployRedist extends ActionBase {
 
@@ -82,17 +83,17 @@ public class ActionDeployRedist extends ActionBase {
 
 	private boolean stopServers( ActionScopeSet set ) throws Exception {
 		ActionStopEnv ca = new ActionStopEnv( this , null );
-		return( ca.runTargetList( set , affectedTargets ) );
+		return( ca.runTargetList( set , affectedTargets , set.sg.env , SecurityAction.ACTION_DEPLOY , false ) );
 	}
 	
 	private boolean rolloutServers( ActionScopeSet set ) throws Exception {
 		ActionRollout ca = new ActionRollout( this , null , dist );
-		return( ca.runTargetList( set , affectedTargets ) );
+		return( ca.runTargetList( set , affectedTargets , set.sg.env , SecurityAction.ACTION_DEPLOY , false ) );
 	}
 	
 	private boolean startServers( ActionScopeSet set ) throws Exception {
 		ActionStartEnv ca = new ActionStartEnv( this , null );
-		return( ca.runTargetList( set , affectedTargets ) );
+		return( ca.runTargetList( set , affectedTargets , set.sg.env , SecurityAction.ACTION_DEPLOY , false ) );
 	}
 	
 }

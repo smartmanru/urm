@@ -11,6 +11,7 @@ import org.urm.engine.ServerEventsApp;
 import org.urm.engine.ServerEventsListener;
 import org.urm.engine.ServerEventsSubscription;
 import org.urm.engine.ServerSourceEvent;
+import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.engine.ServerMonitoringState.MONITORING_STATE;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
@@ -48,7 +49,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		try {
 			ca = new ActionMonitorTop( engine.serverAction , productName , productName , eventsApp );
 			eventsApp.subscribe( ca.eventSource , this );
-			ca.runSimple();
+			ca.runSimpleProduct( productName , SecurityAction.ACTION_MONITOR , false );
 		}
 		catch( Throwable e ) {
 			engine.serverAction.handle( "thread pool house keeping error" , e );

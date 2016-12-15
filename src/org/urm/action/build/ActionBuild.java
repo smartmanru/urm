@@ -8,6 +8,7 @@ import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
+import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaSourceProject;
@@ -83,7 +84,7 @@ public class ActionBuild extends ActionBase {
 		builder.createShell( action );
 
 		BUILDSTATUS = "SUCCESSFUL"; 
-		if( !action.runSimple() ) {
+		if( !action.runProductBuild( project.meta.name , SecurityAction.ACTION_BUILD , context.buildMode , false ) ) {
 			BUILDSTATUS = "FAILED";
 			super.fail1( _Error.ProjectBuildError1 , "Errors while build project=" + project.PROJECT , project.PROJECT );
 		}

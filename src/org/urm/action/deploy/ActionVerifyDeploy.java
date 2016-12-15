@@ -21,6 +21,7 @@ import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.SourceStorage;
+import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
@@ -59,7 +60,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		else
 			configure = new ActionConfigure( this , null , dist , tobeConfigFolder );
 		configure.context.CTX_HIDDEN = true;
-		if( !configure.runAll( scope ) )
+		if( !configure.runAll( scope , context.env , SecurityAction.ACTION_DEPLOY , false ) )
 			exit0( _Error.UnablePrepareConfiguration0 , "unable to prepare configuration files for comparison" );
 		
 		asisFolder = artefactory.getWorkFolder( this , "asis" );

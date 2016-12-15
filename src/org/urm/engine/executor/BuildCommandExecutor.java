@@ -214,7 +214,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		String BRANCH = getRequiredArg( action , 0 , "BRANCH" );
 		String TAG = getRequiredArg( action , 1 , "TAG" );
 		ActionScope scope = getCodebaseScope( action , 2 ); 
-		impl.copyBranchToag( action , scope , BRANCH , TAG );
+		impl.copyBranchTag( action , scope , BRANCH , TAG );
 	}
 	}
 	
