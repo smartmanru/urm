@@ -14,6 +14,7 @@ public class SessionSecurity {
 
 	ServerAuth auth;
 	
+	private boolean server;
 	private ServerAuthUser user;
 	private ServerAuthContext ac;
 
@@ -26,6 +27,7 @@ public class SessionSecurity {
 	
 	public SessionSecurity( ServerAuth auth ) {
 		this.auth = auth;
+		server = false;
 		secBase = new ServerAuthRoleSet();
 		secProductAny = new ServerAuthRoleSet();
 		secNetworkAny = new ServerAuthRoleSet();
@@ -35,9 +37,15 @@ public class SessionSecurity {
 	}
 
 	public boolean isAdmin() {
+		if( server )
+			return( true );
 		if( user != null && user.ADMIN )
 			return( true );
 		return( false );
+	}
+	
+	public void setServer() {
+		server = true;
 	}
 	
 	public ServerAuthUser getUser() {
