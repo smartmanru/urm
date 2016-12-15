@@ -3,24 +3,25 @@ package org.urm.action.deploy;
 import org.urm.action.ActionBase;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
+import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaProductSettings;
 
 public class ActionSendChatMsg extends ActionBase {
 
 	String msg;
-	MetaEnvSegment dc;
+	MetaEnvSegment sg;
 	
-	public static void sendMsg( ActionBase action , String msg , MetaEnvSegment dc ) throws Exception {
-		ActionSendChatMsg ca = new ActionSendChatMsg( action , null , msg , dc );
-		ca.runSimple();
+	public static void sendMsg( ActionBase action , String msg , MetaEnvSegment sg ) throws Exception {
+		ActionSendChatMsg ca = new ActionSendChatMsg( action , null , msg , sg );
+		ca.runSimpleEnv( sg.env , SecurityAction.ACTION_DEPLOY , true );
 	}
 	
-	public ActionSendChatMsg( ActionBase action , String stream , String msg , MetaEnvSegment dc ) {
+	public ActionSendChatMsg( ActionBase action , String stream , String msg , MetaEnvSegment sg ) {
 		super( action , stream );
 		
 		this.msg = msg;
-		this.dc = dc;
+		this.sg = sg;
 	}
 
 	@Override protected SCOPESTATE executeSimple() throws Exception {
@@ -30,8 +31,8 @@ public class ActionSendChatMsg extends ActionBase {
 		if( context.env.CHATROOMFILE.isEmpty() )
 			return( SCOPESTATE.NotRun );
 
-		if( dc != null )
-			msg += " (dc=" + dc.NAME + ")"; 
+		if( sg != null )
+			msg += " (sg=" + sg.NAME + ")"; 
 		
 		MetaProductSettings product = context.env.meta.getProductSettings( this );
 		String filePath = Common.getPath( product.CONFIG_PRODUCTHOME , context.env.CHATROOMFILE ); 

@@ -20,7 +20,7 @@ import org.w3c.dom.Node;
 
 public class ServerNetwork extends ServerObject {
 
-	ServerInfrastructure infra;
+	public ServerDatacenter datacenter;
 	
 	public String ID;
 	public String MASK;
@@ -28,14 +28,17 @@ public class ServerNetwork extends ServerObject {
 	
 	private Map<String,ServerNetworkHost> hostMap;
 	
-	public ServerNetwork( ServerInfrastructure infra ) {
-		super( infra );
-		this.infra = infra;
+	public ServerNetwork( ServerDatacenter datacenter ) {
+		super( datacenter );
+		this.datacenter = datacenter;
 		hostMap = new HashMap<String,ServerNetworkHost>();
 	}
 	
-	public ServerNetwork copy() throws Exception {
-		ServerNetwork r = new ServerNetwork( infra );
+	public ServerNetwork copy( ServerDatacenter datacenter ) throws Exception {
+		ServerNetwork r = new ServerNetwork( datacenter );
+		r.ID = ID;
+		r.MASK = MASK;
+		r.DESC = DESC;
 		
 		for( ServerNetworkHost host : hostMap.values() ) {
 			ServerNetworkHost rhost = host.copy( r );

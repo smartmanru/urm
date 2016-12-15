@@ -5,6 +5,7 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeTarget;
+import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 
@@ -92,7 +93,7 @@ public class ServerCluster {
 		else {
 			ActionCheckEnv ca = new ActionCheckEnv( action , null );
 			ActionScopeTarget scope = ActionScope.getEnvServerNodesScope( action , srv , nodes ); 
-			if( !ca.runSingleTarget( scope ) ) {
+			if( !ca.runSingleTarget( scope , action.context.env , SecurityAction.ACTION_DEPLOY , false ) ) {
 				action.trace( "checkenv failed" );
 				res = false;
 			}

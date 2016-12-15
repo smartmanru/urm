@@ -68,7 +68,7 @@ public class ServerHostAccount extends ServerObject {
 	}
 
 	public void getApplicationReferences( List<ServerAccountReference> refs ) {
-		ServerLoader loader = host.network.infra.loader;
+		ServerLoader loader = host.network.datacenter.infra.loader;
 		ServerRegistry registry = loader.getRegistry();
 		for( String productName : registry.directory.getProducts() ) {
 			ServerProductMeta storage = loader.findProductStorage( productName );
@@ -81,7 +81,7 @@ public class ServerHostAccount extends ServerObject {
 	}
 
 	public Account getHostAccount( ActionBase action ) throws Exception {
-		return( Account.getAccount( action , ID , host.ID , host.PORT , host.osType ) );
+		return( Account.getAccount( action , host.network.datacenter.ID , ID , host.ID , host.PORT , host.osType ) );
 	}
 	
 }

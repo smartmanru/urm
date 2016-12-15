@@ -13,6 +13,7 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.LogStorage;
+import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.Meta.VarCATEGORY;
@@ -24,7 +25,7 @@ public class BuildCommand {
 
 	public void buildTags( ActionBase action , String TAG , ActionScope scope , LocalFolder OUTDIR , String OUTFILE , Dist dist ) throws Exception {
 		ActionBuild ca = new ActionBuild( action.actionInit , null , OUTDIR , OUTFILE , TAG );
-		ca.runEachBuildableProject( scope );
+		ca.runEachBuildableProject( scope , SecurityAction.ACTION_BUILD , false );
 		
 		if( ca.isFailed() ) {
 			if( action.context.CTX_GET || action.context.CTX_DIST )
@@ -57,12 +58,12 @@ public class BuildCommand {
 
 		boolean res = true;
 		ActionGetBinary ca = new ActionGetBinary( action , null , copyDist , dist , downloadFolder );
-		if( !ca.runEachSourceProject( scope ) )
+		if( !ca.runEachSourceProject( scope , SecurityAction.ACTION_BUILD , false ) )
 			res = false;
 
 		if( dist != null && scope.hasConfig( action ) ) {
 			ActionGetConf cacf = new ActionGetConf( action , null , dist );
-			if( !cacf.runEachCategoryTarget( scope , VarCATEGORY.CONFIG ) )
+			if( !cacf.runEachCategoryTarget( scope , VarCATEGORY.CONFIG , SecurityAction.ACTION_BUILD , false ) )
 				res = false;
 			
 			// automatically create configuration difference after distributive update
@@ -72,13 +73,13 @@ public class BuildCommand {
 		
 		if( dist != null && scope.hasDatabase( action ) ) {
 			ActionGetDB cadb = new ActionGetDB( action , null , dist );
-			if( !cadb.runEachCategoryTarget( scope , VarCATEGORY.DB ) )
+			if( !cadb.runEachCategoryTarget( scope , VarCATEGORY.DB , SecurityAction.ACTION_BUILD , false ) )
 				res = false;
 		}
 		
 		if( dist != null && scope.hasManual( action ) ) {
 			ActionGetManual cam = new ActionGetManual( action , null , scope.meta , copyDist , dist , downloadFolder );
-			if( !cam.runSimple() )
+			if( !cam.runProductBuild( scope.meta.name , SecurityAction.ACTION_BUILD , action.context.buildMode , false ) )
 				res = false;
 		}
 		
@@ -108,7 +109,7 @@ public class BuildCommand {
 	
 	public void setTag( ActionBase action , String TAG , ActionScope scope ) throws Exception {
 		ActionSetTagOnBuildBranch ca = new ActionSetTagOnBuildBranch( action , null , TAG );
-		ca.runEachBuildableProject( scope );
+		ca.runEachBuildableProject( scope , SecurityAction.ACTION_BUILD , false );
 	}
 	
 	public void printActiveProperties( ActionBase action , Meta meta ) throws Exception {
@@ -130,67 +131,67 @@ public class BuildCommand {
 
 	public void checkout( ActionBase action , ActionScope scope , LocalFolder CODIR ) throws Exception {
 		ActionGetCodebase ca = new ActionGetCodebase( action , null , CODIR , true , true , "" );
-		ca.runEachBuildableProject( scope );
+		ca.runEachBuildableProject( scope , SecurityAction.ACTION_BUILD , false );
 	}
 	
 	public void commit( ActionBase action , ActionScope scope , LocalFolder CODIR , String MESSAGE ) throws Exception {
 		ActionCommitCodebase ca = new ActionCommitCodebase( action , null , CODIR , MESSAGE );
-		ca.runEachBuildableProject( scope );
+		ca.runEachBuildableProject( scope , SecurityAction.ACTION_BUILD , false );
 	}
 	
 	public void copyBranches( ActionBase action , ActionScope scope , String BRANCH1 , String BRANCH2 ) throws Exception {
 		ActionCopyCodebase ca = new ActionCopyCodebase( action , null , true , BRANCH1 , true , BRANCH2 , false );
-		ca.runEachBuildableProject( scope );
+		ca.runEachBuildableProject( scope , SecurityAction.ACTION_BUILD , false );
 	}
 	
-	public void copyBranchToag( ActionBase action , ActionScope scope , String BRANCH , String TAG ) throws Exception {
+	public void copyBranchTag( ActionBase action , ActionScope scope , String BRANCH , String TAG ) throws Exception {
 		ActionCopyCodebase ca = new ActionCopyCodebase( action , null , true , BRANCH , false , TAG , true );
-		ca.runEachBuildableProject( scope );
+		ca.runEachBuildableProject( scope , SecurityAction.ACTION_BUILD , false );
 	}
 	
 	public void copyNewTags( ActionBase action , ActionScope scope , String TAG1 , String TAG2 ) throws Exception {
 		ActionCopyCodebase ca = new ActionCopyCodebase( action , null , false , TAG1 , false , TAG2 , false );
-		ca.runEachBuildableProject( scope );
+		ca.runEachBuildableProject( scope , SecurityAction.ACTION_BUILD , false );
 	}
 	
 	public void copyTags( ActionBase action , ActionScope scope , String TAG1 , String TAG2 ) throws Exception {
 		ActionCopyCodebase ca = new ActionCopyCodebase( action , null , false , TAG1 , false , TAG2 , true );
-		ca.runEachBuildableProject( scope );
+		ca.runEachBuildableProject( scope , SecurityAction.ACTION_BUILD , false );
 	}
 	
 	public void copyTagToBranch( ActionBase action , ActionScope scope , String TAG1 , String BRANCH2 ) throws Exception {
 		ActionCopyCodebase ca = new ActionCopyCodebase( action , null , false , TAG1 , true , BRANCH2 , false );
-		ca.runEachBuildableProject( scope );
+		ca.runEachBuildableProject( scope , SecurityAction.ACTION_BUILD , false );
 	}
 	
 	public void dropTags( ActionBase action , ActionScope scope , String TAG1 ) throws Exception {
 		ActionDropCodebase ca = new ActionDropCodebase( action , null , false , TAG1 );
-		ca.runEachBuildableProject( scope );
+		ca.runEachBuildableProject( scope , SecurityAction.ACTION_BUILD , false );
 	}
 	
 	public void dropBranch( ActionBase action , ActionScope scope , String BRANCH1 ) throws Exception {
 		ActionDropCodebase ca = new ActionDropCodebase( action , null , true , BRANCH1 );
-		ca.runEachBuildableProject( scope );
+		ca.runEachBuildableProject( scope , SecurityAction.ACTION_BUILD , false );
 	}
 	
 	public void export( ActionBase action , ActionScope scope , LocalFolder CODIR , String SINGLEFILE ) throws Exception {
 		ActionGetCodebase ca = new ActionGetCodebase( action , null , CODIR , false , true , SINGLEFILE );
-		ca.runEachBuildableProject( scope );
+		ca.runEachBuildableProject( scope , SecurityAction.ACTION_BUILD , false );
 	}
 	
 	public void renameBranch( ActionBase action , ActionScope scope , String BRANCH1 , String BRANCH2 ) throws Exception {
 		ActionRenameCodebase ca = new ActionRenameCodebase( action , null , true , BRANCH1 , true , BRANCH2 , false );
-		ca.runEachBuildableProject( scope );
+		ca.runEachBuildableProject( scope , SecurityAction.ACTION_BUILD , false );
 	}
 	
 	public void renameTags( ActionBase action , ActionScope scope , String TAG1 , String TAG2 ) throws Exception {
 		ActionRenameCodebase ca = new ActionRenameCodebase( action , null , false , TAG1 , false , TAG2 , true );
-		ca.runEachBuildableProject( scope );
+		ca.runEachBuildableProject( scope , SecurityAction.ACTION_BUILD , false );
 	}
 	
 	public void setVersion( ActionBase action , ActionScope scope , String VERSION ) throws Exception {
 		ActionSetVersion ca = new ActionSetVersion( action , null , VERSION );
-		ca.runEachBuildableProject( scope );
+		ca.runEachBuildableProject( scope , SecurityAction.ACTION_BUILD , false );
 	}
 	
 	public void buildAllTags( ActionBase action , Meta meta , String TAG , String SET , String[] PROJECTS , Dist dist ) throws Exception {
@@ -273,12 +274,12 @@ public class BuildCommand {
 
 	public void thirdpartyUploadDist( ActionBase action , ActionScopeTarget scopeProject , Dist dist ) throws Exception {
 		ActionUploadReleaseItem ca = new ActionUploadReleaseItem( action , null , dist );
-		ca.runSingleTarget( scopeProject );
+		ca.runSingleTarget( scopeProject , null , SecurityAction.ACTION_BUILD , false );
 	}
 
 	public void thirdpartyUploadLib( ActionBase action , Meta meta , String GROUPID , String FILE , String ARTEFACTID , String VERSION , String CLASSIFIER ) throws Exception {
 		ActionUploadLibItem ca = new ActionUploadLibItem( action , meta , null , GROUPID , FILE , ARTEFACTID , VERSION , CLASSIFIER );
-		ca.runSimple();
+		ca.runSimpleServer( SecurityAction.ACTION_BUILD , false );
 	}
 
 }

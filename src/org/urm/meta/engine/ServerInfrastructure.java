@@ -4,13 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.urm.action.ActionBase;
 import org.urm.action.ActionCore;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
 import org.urm.engine.ServerTransaction;
-import org.urm.engine.shell.Account;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerObject;
 import org.w3c.dom.Document;
@@ -21,26 +19,26 @@ public class ServerInfrastructure extends ServerObject {
 
 	public ServerLoader loader;
 	
-	private Map<String,ServerNetwork> mapNetworks;
+	private Map<String,ServerDatacenter> mapDatacenters;
 	
 	public ServerInfrastructure( ServerLoader loader ) {
 		super( null );
 		this.loader = loader;
-		mapNetworks = new HashMap<String,ServerNetwork>(); 
+		mapDatacenters = new HashMap<String,ServerDatacenter>(); 
 	}
 	
 	public void load( String infrastructureFile , RunContext execrc ) throws Exception {
 		Document doc = ConfReader.readXmlFile( execrc , infrastructureFile );
 		Node root = doc.getDocumentElement();
 		
-		Node[] list = ConfReader.xmlGetChildren( root , "network" );
+		Node[] list = ConfReader.xmlGetChildren( root , "datacenter" );
 		if( list == null )
 			return;
 		
 		for( Node node : list ) {
-			ServerNetwork network = new ServerNetwork( this );
-			network.load( node );
-			addNetwork( network );
+			ServerDatacenter datacenter = new ServerDatacenter( this );
+			datacenter.load( node );
+			addDatacenter( datacenter );
 		}
 	}
 	
@@ -48,99 +46,45 @@ public class ServerInfrastructure extends ServerObject {
 		Document doc = Common.xmlCreateDoc( "infrastructure" );
 		Element root = doc.getDocumentElement();
 		
-		for( String id : Common.getSortedKeys( mapNetworks ) ) {
-			ServerNetwork network = mapNetworks.get( id );
-			Element node = Common.xmlCreateElement( doc , root , "network" );
-			network.save( doc , node );
+		for( String id : Common.getSortedKeys( mapDatacenters ) ) {
+			ServerDatacenter datacenter = mapDatacenters.get( id );
+			Element node = Common.xmlCreateElement( doc , root , "datacenter" );
+			datacenter.save( doc , node );
 		}
 		
 		Common.xmlSaveDoc( doc , path );
 	}
 
-	public void addNetwork( ServerNetwork network ) {
-		mapNetworks.put( network.ID , network );
+	public void addDatacenter( ServerDatacenter datacenter ) {
+		mapDatacenters.put( datacenter.ID , datacenter );
 	}
 
-	public ServerNetwork findNetwork( String id ) {
-		return( mapNetworks.get( id ) );
+	public ServerDatacenter findDatacenter( String id ) {
+		return( mapDatacenters.get( id ) );
 	}
 
-	public ServerNetworkHost findNetworkHost( String id ) {
-		for( ServerNetwork network : mapNetworks.values() ) {
-			ServerNetworkHost host = network.findHost( id );
-			if( host != null )
-				return( host );
-		}
-		return( null );
+	public String[] getDatacenters() {
+		return( Common.getSortedKeys( mapDatacenters ) );
 	}
 
-	public String[] getNetworks() {
-		return( Common.getSortedKeys( mapNetworks ) );
-	}
-
-	public void createNetwork( ServerTransaction transaction , ServerNetwork network ) throws Exception {
-		addNetwork( network );
+	public void createDatacenter( ServerTransaction transaction , ServerDatacenter datacenter ) throws Exception {
+		addDatacenter( datacenter );
 	}
 	
-	public void modifyNetwork( ServerTransaction transaction , ServerNetwork network ) throws Exception {
-		for( Entry<String,ServerNetwork> entry : mapNetworks.entrySet() ) {
-			if( entry.getValue() == network ) {
-				mapNetworks.remove( entry.getKey() );
+	public void modifyDatacenter( ServerTransaction transaction , ServerDatacenter datacenter ) throws Exception {
+		for( Entry<String,ServerDatacenter> entry : mapDatacenters.entrySet() ) {
+			if( entry.getValue() == datacenter ) {
+				mapDatacenters.remove( entry.getKey() );
 				break;
 			}
 		}
 		
-		addNetwork( network );
+		addDatacenter( datacenter );
 	}
 	
-	public void deleteNetwork( ServerTransaction transaction , ServerNetwork network ) throws Exception {
-		mapNetworks.remove( network.ID );
-		network.deleteNetwork( transaction );
+	public void deleteDatacenter( ServerTransaction transaction , ServerDatacenter datacenter ) throws Exception {
+		mapDatacenters.remove( datacenter.ID );
+		datacenter.deleteDatacenter( transaction );
 	}
 
-	public ServerNetwork findNetworkByFinalAccount( String hostLogin ) {
-		if( hostLogin.isEmpty() )
-			return( null );
-		
-		Account account = Account.getAnyAccount( hostLogin );
-		return( findNetworkByHost( account.HOST ) );
-	}
-
-	public ServerNetwork findNetworkByHost( String hostName ) {
-		if( hostName.isEmpty() )
-			return( null );
-		
-		Account account = Account.getAnyAccount( "ignore@" + hostName );
-		if( account.isHostName() ) {
-			ServerNetworkHost host = findNetworkHost( account.HOST );
-			if( host != null )
-				return( host.network );
-			return( null );
-		}
-		
-		// find network by mask
-		for( ServerNetwork network : mapNetworks.values() ) {
-			if( network.checkIpIn( account.HOST ) )
-				return( network );
-		}
-		
-		return( null );
-	}
-
-	public ServerHostAccount getFinalAccount( ActionBase action , String hostLogin ) throws Exception {
-		ServerHostAccount account = findFinalAccount( hostLogin );
-		if( account == null )
-			action.exit1( _Error.UnknownHostAccount1 , "Unknown host account: " + hostLogin , hostLogin );
-		return( account );
-	}
-	
-	public ServerHostAccount findFinalAccount( String hostLogin ) {
-		for( ServerNetwork network : mapNetworks.values() ) {
-			ServerHostAccount account = network.findFinalAccount( hostLogin );
-			if( account != null )
-				return( account );
-		}
-		return( null );
-	}
-	
 }

@@ -11,6 +11,7 @@ import org.urm.meta.engine.ServerAuth;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerBaseGroup;
 import org.urm.meta.engine.ServerBaseItem;
+import org.urm.meta.engine.ServerDatacenter;
 import org.urm.meta.engine.ServerHostAccount;
 import org.urm.meta.engine.ServerMirrorRepository;
 import org.urm.meta.engine.ServerMirrors;
@@ -228,43 +229,43 @@ public class ServerTransaction extends TransactionBase {
 		env.updateProperties( this );
 	}
 	
-	public void updateMetaEnvDC( MetaEnvSegment dc ) throws Exception {
-		checkTransactionMetadata( dc.meta.getStorage( action ) );
-		dc.updateProperties( this );
+	public void updateMetaEnvSG( MetaEnvSegment sg ) throws Exception {
+		checkTransactionMetadata( sg.meta.getStorage( action ) );
+		sg.updateProperties( this );
 	}
 	
-	public void createMetaEnvDC( MetaEnvSegment dc ) throws Exception {
-		checkTransactionMetadata( dc.meta.getStorage( action ) );
-		dc.env.createDC( this , dc );
+	public void createMetaEnvSG( MetaEnvSegment sg ) throws Exception {
+		checkTransactionMetadata( sg.meta.getStorage( action ) );
+		sg.env.createSG( this , sg );
 	}
 	
-	public void deleteMetaEnvDC( MetaEnvSegment dc ) throws Exception {
-		checkTransactionMetadata( dc.meta.getStorage( action ) );
-		dc.env.deleteDC( this , dc );
-		dc.deleteObject();
+	public void deleteMetaEnvSG( MetaEnvSegment sg ) throws Exception {
+		checkTransactionMetadata( sg.meta.getStorage( action ) );
+		sg.env.deleteSG( this , sg );
+		sg.deleteObject();
 	}
 
-	public void setMetaEnvDCProperties( MetaEnvSegment dc , PropertySet props , boolean system ) throws Exception {
-		checkTransactionMetadata( dc.meta.getStorage( action ) );
-		dc.setProperties( this , props , system );
+	public void setMetaEnvSGProperties( MetaEnvSegment sg , PropertySet props , boolean system ) throws Exception {
+		checkTransactionMetadata( sg.meta.getStorage( action ) );
+		sg.setProperties( this , props , system );
 	}
 	
-	public MetaEnvServer createMetaEnvServer( MetaEnvSegment dc , String name , String desc , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String sysname ) throws Exception {
-		checkTransactionMetadata( dc.meta.getStorage( action ) );
-		MetaEnvServer server = new MetaEnvServer( dc.meta , dc );
+	public MetaEnvServer createMetaEnvServer( MetaEnvSegment sg , String name , String desc , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String sysname ) throws Exception {
+		checkTransactionMetadata( sg.meta.getStorage( action ) );
+		MetaEnvServer server = new MetaEnvServer( sg.meta , sg );
 		server.createServer( action , name , desc , osType , runType , accessType , sysname );
-		dc.createServer( this , server );
+		sg.createServer( this , server );
 		return( server );
 	}
 	
 	public void modifyMetaEnvServer( MetaEnvServer server ) throws Exception {
 		checkTransactionMetadata( server.meta.getStorage( action ) );
-		server.dc.modifyServer( this , server );
+		server.sg.modifyServer( this , server );
 	}
 
 	public void deleteMetaEnvServer( MetaEnvServer server ) throws Exception {
 		checkTransactionMetadata( server.meta.getStorage( action ) );
-		server.dc.deleteServer( this , server );
+		server.sg.deleteServer( this , server );
 		server.deleteObject();
 	}
 
@@ -308,9 +309,29 @@ public class ServerTransaction extends TransactionBase {
 		node.setProperties( this , props , system );
 	}
 	
-	public void createNetwork( ServerNetwork network ) throws Exception {
+	public void createDatacenter( ServerDatacenter datacenter ) throws Exception {
 		checkTransactionInfrastructure();
-		infra.createNetwork( this , network );
+		infra.createDatacenter( this , datacenter );
+		action.saveInfrastructure( this );
+	}
+
+	public void modifyDatacenter( ServerDatacenter datacenter ) throws Exception {
+		checkTransactionInfrastructure();
+		infra.modifyDatacenter( this , datacenter );
+		action.saveInfrastructure( this );
+	}
+
+	public void deleteDatacenter( ServerDatacenter datacenter ) throws Exception {
+		checkTransactionInfrastructure();
+		ServerAuth auth = action.getServerAuth();
+		auth.deleteDatacenter( this , datacenter );
+		infra.deleteDatacenter( this , datacenter );
+		datacenter.deleteObject();
+	}
+	
+	public void createNetwork( ServerDatacenter datacenter , ServerNetwork network ) throws Exception {
+		checkTransactionInfrastructure();
+		datacenter.createNetwork( this , network );
 		action.saveInfrastructure( this );
 	}
 
@@ -318,13 +339,13 @@ public class ServerTransaction extends TransactionBase {
 		checkTransactionInfrastructure();
 		ServerAuth auth = action.getServerAuth();
 		auth.deleteNetwork( this , network );
-		infra.deleteNetwork( this , network );
+		network.datacenter.deleteNetwork( this , network );
 		network.deleteObject();
 	}
 
 	public void modifyNetwork( ServerNetwork network ) throws Exception {
 		checkTransactionInfrastructure();
-		infra.modifyNetwork( this , network );
+		network.datacenter.modifyNetwork( this , network );
 		action.saveInfrastructure( this );
 	}
 
@@ -426,9 +447,9 @@ public class ServerTransaction extends TransactionBase {
 		mon.setMonitoringEnabled( this , false );
 	}
 
-	public MetaMonitoringTarget createMonitoringTarget( MetaMonitoring mon , MetaEnvSegment dc , int MAXTIME ) throws Exception {
+	public MetaMonitoringTarget createMonitoringTarget( MetaMonitoring mon , MetaEnvSegment sg , int MAXTIME ) throws Exception {
 		checkTransactionMetadata( mon.meta.getStorage( action ) );
-		return( mon.createTarget( this , dc , MAXTIME ) );
+		return( mon.createTarget( this , sg , MAXTIME ) );
 	}
 	
 	public void deleteMonitoringTarget( MetaMonitoringTarget target ) throws Exception {
@@ -457,9 +478,9 @@ public class ServerTransaction extends TransactionBase {
 		mon.setProductProperties( this , props );
 	}
 
-	public void setStartInfo( MetaEnvSegment dc , MetaEnvStartInfo startInfo ) throws Exception {
-		checkTransactionMetadata( dc.meta.getStorage( action ) );
-		dc.setStartInfo( this , startInfo );
+	public void setStartInfo( MetaEnvSegment sg , MetaEnvStartInfo startInfo ) throws Exception {
+		checkTransactionMetadata( sg.meta.getStorage( action ) );
+		sg.setStartInfo( this , startInfo );
 	}
 
 	public void modifyServerDeployments( MetaEnvServer server , List<MetaEnvServerDeployment> deployments ) throws Exception {

@@ -30,7 +30,7 @@ public class RunContext implements Serializable {
 	public String product;
 	public String buildMode;
 	public String envName;
-	public String dcName;
+	public String sgName;
 	public String hostName;
 	public String userName;
 	public String encoding;
@@ -69,7 +69,7 @@ public class RunContext implements Serializable {
 		rc.product = product;
 		rc.buildMode = buildMode;
 		rc.envName = envName;
-		rc.dcName = dcName;
+		rc.sgName = sgName;
 		rc.hostName = hostName;
 		rc.userName = userName;
 		rc.encoding = encoding;
@@ -82,7 +82,7 @@ public class RunContext implements Serializable {
 		osType = VarOSTYPE.valueOf( Common.xmlToEnumValue( OSTYPE ) );
 		buildMode = getProperty( "urm.build" ).toUpperCase();
 		envName = getProperty( "urm.env" );
-		dcName = getProperty( "urm.dc" );
+		sgName = getProperty( "urm.sg" );
 		product = getProperty( "urm.product" );
 		
 		serverHostPort = getProperty( "urm.server" );

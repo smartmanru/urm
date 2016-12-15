@@ -12,6 +12,7 @@ import org.urm.engine.ServerEngine;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandAction;
 import org.urm.engine.action.CommandExecutor;
+import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.Meta;
 
 public class MainExecutor extends CommandExecutor {
@@ -82,16 +83,16 @@ public class MainExecutor extends CommandExecutor {
 		public void run( ActionInit action ) throws Exception {
 			String OSTYPE = getArg( action , 0 );
 			String USEENV = getArg( action , 1 );
-			String USEDC = getArg( action , 2 );
+			String USESG = getArg( action , 2 );
 			if( OSTYPE == null )
 				OSTYPE = "";
 			if( USEENV == null )
 				USEENV = "";
-			if( USEDC == null )
-				USEDC = "";
+			if( USESG == null )
+				USESG = "";
 	
-			ActionConfigure ca = new ActionConfigure( action , null , OSTYPE , USEENV , USEDC );
-			ca.runSimple();
+			ActionConfigure ca = new ActionConfigure( action , null , OSTYPE , USEENV , USESG );
+			ca.runSimpleServer( SecurityAction.ACTION_CONFIGURE , false );
 		}
 	}
 
@@ -100,7 +101,7 @@ public class MainExecutor extends CommandExecutor {
 		public void run( ActionInit action ) throws Exception {
 			Meta meta = action.getContextMeta();
 			ActionSave ca = new ActionSave( action , meta , null );
-			ca.runSimple();
+			ca.runSimpleProduct( meta.name , SecurityAction.ACTION_CONFIGURE , false );
 		}
 	}
 
@@ -109,7 +110,7 @@ public class MainExecutor extends CommandExecutor {
 		public void run( ActionInit action ) throws Exception {
 			String OP = getRequiredArg( action , 0 , "ACTION" );
 			ActionServer ca = new ActionServer( action , null , OP );
-			ca.runSimple();
+			ca.runSimpleServer( SecurityAction.ACTION_CONFIGURE , false );
 		}
 	}
 
@@ -117,7 +118,7 @@ public class MainExecutor extends CommandExecutor {
 	private class WebSession extends CommandAction {
 		public void run( ActionInit action ) throws Exception {
 			ActionWebSession ca = new ActionWebSession( action , null );
-			ca.runSimple();
+			ca.runSimpleServer( SecurityAction.ACTION_CONFIGURE , true );
 		}
 	}
 

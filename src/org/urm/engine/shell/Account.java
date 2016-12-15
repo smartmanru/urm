@@ -7,6 +7,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.meta.engine.ServerDatacenter;
 import org.urm.meta.engine.ServerHostAccount;
 import org.urm.meta.engine.ServerInfrastructure;
 import org.urm.meta.engine.ServerNetworkHost;
@@ -16,6 +17,7 @@ public class Account {
 	public boolean local = false;
 	public boolean current = false;
 	
+	public String DC;
 	public String USER;
 	public String HOST;
 	public String IP;
@@ -34,16 +36,17 @@ public class Account {
 		osType = execrc.osType;
 	}
 	
-	private Account( String user , String host , boolean local , VarOSTYPE osType ) {
+	private Account( String user , String host , VarOSTYPE osType ) {
 		this.USER = user;
 		this.HOST = host;
 		this.PORT = 22;
-		this.local = local;
+		this.local = true;
 		this.osType = osType;
 		IP = "";
 	}
 	
-	private Account( String user , String host , int port , VarOSTYPE osType ) {
+	private Account( String datacenter , String user , String host , int port , VarOSTYPE osType ) {
+		this.DC = datacenter;
 		this.USER = user;
 		this.HOST = host;
 		this.PORT = port;
@@ -52,7 +55,7 @@ public class Account {
 	}
 	
 	public static Account getLocalAccount( String user , String host , VarOSTYPE osType ) {
-		return( new Account( user , host , true , osType ) );
+		return( new Account( user , host , osType ) );
 	}
 	
 	public boolean isLocal() {
@@ -67,11 +70,11 @@ public class Account {
 		return( osType == VarOSTYPE.LINUX );
 	}
 	
-	public static Account getAccount( ActionBase action , String user , String host , int port , VarOSTYPE osType ) throws Exception {
+	public static Account getAccount( ActionBase action , String datacenter , String user , String host , int port , VarOSTYPE osType ) throws Exception {
 		if( host.isEmpty() || user.isEmpty() )
 			action.exit0( _Error.MissingAccountDetails0 , "account details are not provided" );
 		
-		Account account = new Account( user , host , port , osType ); 
+		Account account = new Account( datacenter , user , host , port , osType ); 
 		if( action.isLocalRun() ||
 			host.equals( "local" ) || host.equals( "localhost" ) ||
 			( account.HOST.equals( action.context.account.HOST ) && account.USER.equals( action.context.account.USER ) ) )
@@ -82,7 +85,7 @@ public class Account {
 		return( account );
 	}
 	
-	public static Account getAccount( ActionBase action , String hostLogin , VarOSTYPE osType ) throws Exception {
+	public static Account getAccount( ActionBase action , String datacenter , String hostLogin , VarOSTYPE osType ) throws Exception {
 		if( hostLogin.isEmpty() )
 			action.exit0( _Error.MissingAccountDetails0 , "account details are not provided" );
 		
@@ -94,24 +97,28 @@ public class Account {
 		
 		// find account
 		ServerInfrastructure infra = action.getServerInfrastructure();
-		ServerHostAccount account = infra.getFinalAccount( action , hostLogin );
+		ServerDatacenter dc = infra.findDatacenter( datacenter );
+		if( dc == null )
+			action.exit1( _Error.UnknownDatacenter1 , "Unknown datacenter=" + datacenter , datacenter );
+		
+		ServerHostAccount account = dc.getFinalAccount( action , hostLogin );
 		if( account.host.osType != osType ) {
 			String p1 = Common.getEnumLower( account.host.osType );
 			String p2 = Common.getEnumLower( osType );
 			action.exit2( _Error.MismatchedOsType2 , "Mismatched OS type: " + p1 + " != " + p2 , p1 , p2 );
 		}
 		
-		return( getAccount( action , user , host , account.host.PORT , osType ) );
+		return( getAccount( action , datacenter , user , host , account.host.PORT , osType ) );
 	}
 
-	public static Account getAnyAccount( String hostLogin ) {
+	public static Account getAnyAccount( String datacenter , String hostLogin ) {
 		String user = Common.getPartBeforeFirst( hostLogin , "@" );
 		String host = Common.getPartAfterLast( hostLogin , "@" );
-		return( new Account( user , host , 0 , VarOSTYPE.UNKNOWN ) );
+		return( new Account( datacenter ,  user , host , 0 , VarOSTYPE.UNKNOWN ) );
 	}
 
-	public static Account getAnyAccount( String user , String host ) {
-		return( new Account( user , host , 0 , VarOSTYPE.UNKNOWN ) );
+	public static Account getAnyAccount( String datacenter , String user , String host ) {
+		return( new Account( datacenter , user , host , 0 , VarOSTYPE.UNKNOWN ) );
 	}
 
 	public static boolean isCorrectNetworkMask( String mask ) {
@@ -201,11 +208,11 @@ public class Account {
 	}
 
 	public Account getRootAccount( ActionBase action ) throws Exception {
-		return( getAccount( action , "root" , HOST , PORT , osType ) );
+		return( getAccount( action , DC , "root" , HOST , PORT , osType ) );
 	}
 	
 	public Account getUserAccount( ActionBase action , String user ) throws Exception {
-		return( getAccount( action , user , HOST , PORT , osType ) );
+		return( getAccount( action , DC , user , HOST , PORT , osType ) );
 	}
 
 	public String getOSPath( String path ) {
@@ -251,6 +258,8 @@ public class Account {
 			else
 				HOST = IP = host.ID;
 		}
+		
+		PORT = host.PORT;
 	}
 	
 }

@@ -10,12 +10,16 @@ import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.shell.Account;
+import org.urm.meta.engine.ServerAuth;
+import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
+import org.urm.meta.product.Meta.VarBUILDMODE;
 import org.urm.meta.product.Meta.VarCATEGORY;
 
 public class ScopeExecutor {
@@ -35,7 +39,35 @@ public class ScopeExecutor {
 		this.eventsSource = action.eventSource;
 	}
 
-	public boolean runSimple() {
+	public boolean runSimpleServer( SecurityAction sa , boolean readOnly ) {
+		ServerAuth auth = action.engine.getAuth();
+		if( !auth.checkAccessServerAction( action , sa , readOnly ) )
+			return( false );
+		return( runSimple() );
+	}
+	
+	public boolean runSimpleProduct( String product , SecurityAction sa , boolean readOnly ) {
+		ServerAuth auth = action.engine.getAuth();
+		if( !auth.checkAccessProductAction( action , sa , product , readOnly ) )
+			return( false );
+		return( runSimple() );
+	}
+	
+	public boolean runSimpleEnv( MetaEnv env , SecurityAction sa , boolean readOnly ) {
+		ServerAuth auth = action.engine.getAuth();
+		if( !auth.checkAccessProductAction( action , sa , env , readOnly ) )
+			return( false );
+		return( runSimple() );
+	}
+	
+	public boolean runProductBuild( String productName , SecurityAction sa , VarBUILDMODE mode , boolean readOnly ) {
+		ServerAuth auth = action.engine.getAuth();
+		if( !auth.checkAccessProductAction( action , sa , productName , mode , readOnly ) )
+			return( false );
+		return( runSimple() );
+	}
+	
+	private boolean runSimple() {
 		startExecutor( null );
 
 		SCOPESTATE ss = SCOPESTATE.New;
@@ -69,15 +101,27 @@ public class ScopeExecutor {
 		return( finishExecutor( ss ) );
 	}
 
-	public boolean runAll( ActionScope scope ) {
+	public boolean runAll( ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
+		ServerAuth auth = action.engine.getAuth();
+		if( env != null ) {
+			if( !auth.checkAccessProductAction( action , sa , scope.meta , env , readOnly ) )
+				return( false );
+		}
+		else {
+			if( !auth.checkAccessProductAction( action , sa , scope.meta , readOnly ) )
+				return( false );
+		}
+		
 		startExecutor( scope );
-		
 		SCOPESTATE ss = runAllInternal( scope , stateFinal );
-		
 		return( finishExecutor( ss ) );
 	}
 	
-	public boolean runCategories( ActionScope scope , VarCATEGORY[] categories ) {
+	public boolean runCategories( ActionScope scope , VarCATEGORY[] categories , SecurityAction sa , boolean readOnly ) {
+		ServerAuth auth = action.engine.getAuth();
+		if( !auth.checkAccessProductAction( action , sa , scope.meta , readOnly ) )
+			return( false );
+		
 		startExecutor( scope );
 		
 		SCOPESTATE ss = SCOPESTATE.New;
@@ -111,7 +155,17 @@ public class ScopeExecutor {
 		return( finishExecutor( ss ) );
 	}
 	
-	public boolean runAll( ActionScopeSet set ) {
+	public boolean runAll( ActionScopeSet set , MetaEnv env , SecurityAction sa , boolean readOnly ) {
+		ServerAuth auth = action.engine.getAuth();
+		if( env != null ) {
+			if( !auth.checkAccessProductAction( action , sa , set.scope.meta , env , readOnly ) )
+				return( false );
+		}
+		else {
+			if( !auth.checkAccessProductAction( action , sa , set.scope.meta , readOnly ) )
+				return( false );
+		}
+		
 		startExecutor( set.scope );
 		ScopeState stateSet = new ScopeState( stateFinal , set );
 		
@@ -121,7 +175,17 @@ public class ScopeExecutor {
 		return( finishExecutor( res ) );
 	}
 	
-	public boolean runTargetList( ActionScopeSet set , ActionScopeTarget[] targets ) {
+	public boolean runTargetList( ActionScopeSet set , ActionScopeTarget[] targets , MetaEnv env , SecurityAction sa , boolean readOnly ) {
+		ServerAuth auth = action.engine.getAuth();
+		if( env != null ) {
+			if( !auth.checkAccessProductAction( action , sa , set.scope.meta , env , readOnly ) )
+				return( false );
+		}
+		else {
+			if( !auth.checkAccessProductAction( action , sa , set.scope.meta , readOnly ) )
+				return( false );
+		}
+		
 		startExecutor( set.scope );
 		ScopeState stateSet = new ScopeState( stateFinal , set );
 		
@@ -162,7 +226,17 @@ public class ScopeExecutor {
 		return( finishExecutor( ss ) );
 	}
 	
-	public boolean runSingleTarget( ActionScopeTarget item ) {
+	public boolean runSingleTarget( ActionScopeTarget item , MetaEnv env , SecurityAction sa , boolean readOnly ) {
+		ServerAuth auth = action.engine.getAuth();
+		if( env != null ) {
+			if( !auth.checkAccessProductAction( action , sa , item.set.scope.meta , env , readOnly ) )
+				return( false );
+		}
+		else {
+			if( !auth.checkAccessProductAction( action , sa , item.set.scope.meta , readOnly ) )
+				return( false );
+		}
+		
 		startExecutor( item.set.scope );
 		ScopeState stateSet = new ScopeState( stateFinal , item.set );
 		
@@ -199,7 +273,11 @@ public class ScopeExecutor {
 		return( finishExecutor( ss ) );
 	}
 	
-	public boolean runEnvUniqueHosts( ActionScope scope ) {
+	public boolean runEnvUniqueHosts( ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
+		ServerAuth auth = action.engine.getAuth();
+		if( !auth.checkAccessProductAction( action , sa , scope.meta , env , readOnly ) )
+			return( false );
+			
 		startExecutor( scope );
 		
 		SCOPESTATE ss = SCOPESTATE.New;
@@ -236,12 +314,16 @@ public class ScopeExecutor {
 		return( finishExecutor( ss ) );
 	}
 	
-	public boolean runEnvUniqueAccounts( ActionScope scope ) {
+	public boolean runEnvUniqueAccounts( ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
 		if( !action.context.CTX_HOSTUSER.equals( "default" ) ) {
 			if( action.context.CTX_ROOTUSER || !action.context.CTX_HOSTUSER.isEmpty() )
-				return( runEnvUniqueHosts( scope ) );
+				return( runEnvUniqueHosts( scope , env , sa , readOnly ) );
 		}
 
+		ServerAuth auth = action.engine.getAuth();
+		if( !auth.checkAccessProductAction( action , sa , scope.meta , env , readOnly ) )
+			return( false );
+			
 		startExecutor( scope );
 		
 		SCOPESTATE ss = SCOPESTATE.New;
@@ -595,8 +677,8 @@ public class ScopeExecutor {
 	private SCOPESTATE runSingleHostInternal( ActionScopeSet set , String host , int port , VarOSTYPE OSTYPE , ScopeState stateAccount ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
-			Account account = action.getSingleHostAccount( host , port , OSTYPE );
-			String serverNodes = set.dc.getServerNodesByHost( action , host );
+			Account account = action.getSingleHostAccount( set.sg.DC , host , port , OSTYPE );
+			String serverNodes = set.sg.getServerNodesByHost( action , host );
 			action.info( account.getPrintName() + ": serverNodes={" + serverNodes + "}" );
 			
 			ss = getActionStatus( ss , action , action.executeAccount( set , account ) );
@@ -637,7 +719,7 @@ public class ScopeExecutor {
 	private SCOPESTATE runSingleAccountInternal( ActionScopeSet set , Account account , ScopeState stateSet ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
-			String serverNodes = set.dc.getServerNodesByAccount( action , account );
+			String serverNodes = set.sg.getServerNodesByAccount( action , account );
 			action.info( account.getPrintName() + ": serverNodes={" + serverNodes + "}" );
 			ss = getActionStatus( ss , action , action.executeAccount( set , account ) );
 		}
@@ -718,7 +800,7 @@ public class ScopeExecutor {
 			for( ActionScopeTarget target : targets )
 				map.put( target.envServer.NAME , target );
 
-			for( MetaEnvServer server : set.dc.getServers() ) {
+			for( MetaEnvServer server : set.sg.getServers() ) {
 				ActionScopeTarget target = map.get( server.NAME );
 				if( target != null )
 					list.add( target );

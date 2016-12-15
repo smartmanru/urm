@@ -8,18 +8,18 @@ import org.w3c.dom.Node;
 public class MetaEnvDeployment {
 
 	protected Meta meta;
-	public MetaEnvSegment dc;
+	public MetaEnvSegment sg;
 	
-	public MetaEnvDeployment( Meta meta , MetaEnvSegment dc ) {
+	public MetaEnvDeployment( Meta meta , MetaEnvSegment sg ) {
 		this.meta = meta;
-		this.dc = dc;
+		this.sg = sg;
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
 	}
 
-	public MetaEnvDeployment copy( ActionBase action , Meta meta , MetaEnvSegment dc ) throws Exception {
-		MetaEnvDeployment r = new MetaEnvDeployment( meta , dc );
+	public MetaEnvDeployment copy( ActionBase action , Meta meta , MetaEnvSegment sg ) throws Exception {
+		MetaEnvDeployment r = new MetaEnvDeployment( meta , sg );
 		return( r );
 	}
 

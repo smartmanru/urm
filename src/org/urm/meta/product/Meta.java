@@ -822,22 +822,22 @@ public class Meta extends ServerObject {
     	return( findEnv( env.ID ) );
     }
     
-    public MetaEnvSegment findMetaEnvDC( MetaEnvSegment dc ) {
-    	if( dc == null )
+    public MetaEnvSegment findMetaEnvSegment( MetaEnvSegment sg ) {
+    	if( sg == null )
     		return( null );
-    	MetaEnv env = findMetaEnv( dc.env );
+    	MetaEnv env = findMetaEnv( sg.env );
     	if( env == null )
     		return( null );
-    	return( env.findDC( dc.NAME ) );
+    	return( env.findSG( sg.NAME ) );
     }
     
     public MetaEnvServer findMetaEnvServer( MetaEnvServer server ) {
     	if( server == null )
     		return( null );
-    	MetaEnvSegment dc = findMetaEnvDC( server.dc );
-    	if( dc == null )
+    	MetaEnvSegment sg = findMetaEnvSegment( server.sg );
+    	if( sg == null )
     		return( null );
-    	return( dc.findServer( server.NAME ) );
+    	return( sg.findServer( server.NAME ) );
     }
 
     public MetaEnvServerNode getMetaEnvServerNode( MetaEnvServerNode node ) {
@@ -851,29 +851,29 @@ public class Meta extends ServerObject {
 
 	public void deleteBinaryItemFromEnvironments( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 		for( MetaEnv env : storage.getEnvironments() )
-			for( MetaEnvSegment dc : env.getSegments() )
-				for( MetaEnvServer server : dc.getServers() )
+			for( MetaEnvSegment sg : env.getSegments() )
+				for( MetaEnvServer server : sg.getServers() )
 					server.reflectDeleteBinaryItem( transaction , item );
 	}
 
 	public void deleteConfItemFromEnvironments( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
 		for( MetaEnv env : storage.getEnvironments() )
-			for( MetaEnvSegment dc : env.getSegments() )
-				for( MetaEnvServer server : dc.getServers() )
+			for( MetaEnvSegment sg : env.getSegments() )
+				for( MetaEnvServer server : sg.getServers() )
 					server.reflectDeleteConfItem( transaction , item );
 	}
 
 	public void deleteComponentFromEnvironments( ServerTransaction transaction , MetaDistrComponent item ) throws Exception {
 		for( MetaEnv env : storage.getEnvironments() )
-			for( MetaEnvSegment dc : env.getSegments() )
-				for( MetaEnvServer server : dc.getServers() )
+			for( MetaEnvSegment sg : env.getSegments() )
+				for( MetaEnvServer server : sg.getServers() )
 					server.reflectDeleteComponent( transaction , item );
 	}
 
 	public void deleteDatabaseSchemaFromEnvironments( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
 		for( MetaEnv env : storage.getEnvironments() )
-			for( MetaEnvSegment dc : env.getSegments() )
-				for( MetaEnvServer server : dc.getServers() )
+			for( MetaEnvSegment sg : env.getSegments() )
+				for( MetaEnvServer server : sg.getServers() )
 					server.reflectDeleteSchema( transaction , schema );
 	}
 

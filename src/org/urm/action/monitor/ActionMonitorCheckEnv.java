@@ -12,6 +12,7 @@ import org.urm.engine.ServerSourceEvent;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
 import org.urm.meta.engine.ServerMonitoring;
+import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaMonitoringTarget;
@@ -36,9 +37,9 @@ public class ActionMonitorCheckEnv extends ActionBase implements ServerEventsLis
 		eventsApp.subscribe( action.eventSource , this );
 		
 		MetaEnv env = target.meta.getEnv( this , target.ENV );
-		MetaEnvSegment dc = env.getDC( this , target.DC );
-		action.context.update( action , env , dc );
-		ActionScope scope = ActionScope.getEnvScope( action , env , dc , null );
+		MetaEnvSegment sg = env.getSG( this , target.SG );
+		action.context.update( action , env , sg );
+		ActionScope scope = ActionScope.getEnvScope( action , env , sg , null );
 		
 		LocalFolder logsFolder = storage.getLogsFolder( action , target );
 		logsFolder.ensureExists( this );
@@ -46,7 +47,7 @@ public class ActionMonitorCheckEnv extends ActionBase implements ServerEventsLis
 		action.startRedirect( "checkenv log" , logRunning );
 
 		long timerStarted = System.currentTimeMillis();
-		if( !action.runAll( scope ) )
+		if( !action.runAll( scope , action.context.env , SecurityAction.ACTION_DEPLOY , false ) )
 			super.fail0( _Error.MonitorEnvFailed0 , "Checkenv monitoring failed" );
 		
 		eventsApp.unsubscribe( this );

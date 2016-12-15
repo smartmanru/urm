@@ -61,11 +61,11 @@ public class ServerMonitoring extends ServerObject {
 	public static int EVENT_MONITORING_SEGMENT = 50;
 	public static int EVENT_MONITORING_SERVER = 51;
 	public static int EVENT_MONITORING_NODE = 52;
-	public static int EVENT_MONITORING_DCITEMS = 150;
+	public static int EVENT_MONITORING_SGITEMS = 150;
 	public static int EVENT_MONITORING_SERVERITEMS = 151;
 	public static int EVENT_MONITORING_NODEITEMS = 152;
 	
-	public static String EXTRA_SEGMENT_ITEMS = "dcitems";
+	public static String EXTRA_SEGMENT_ITEMS = "sgitems";
 	public static String EXTRA_SERVER_ITEMS = "serveritems";
 	public static String EXTRA_NODE_ITEMS = "nodeitems";
 	
@@ -200,15 +200,15 @@ public class ServerMonitoring extends ServerObject {
 		createSource( MONITORING_ENVIRONMENT , env );
 		
 		// start childs
-		for( MetaEnvSegment dc : env.getSegments() )
-			startSegment( dc );
+		for( MetaEnvSegment sg : env.getSegments() )
+			startSegment( sg );
 	}
 
-	public void startSegment( MetaEnvSegment dc ) {
-		createSource( MONITORING_SEGMENT , dc );
+	public void startSegment( MetaEnvSegment sg ) {
+		createSource( MONITORING_SEGMENT , sg );
 		
 		// start childs
-		for( MetaEnvServer server : dc.getServers() )
+		for( MetaEnvServer server : sg.getServers() )
 			startServer( server );
 	}
 	
@@ -278,20 +278,20 @@ public class ServerMonitoring extends ServerObject {
 
 	public void stopEnvironment( MetaEnv env , boolean delete ) {
 		// stop childs
-		for( MetaEnvSegment dc : env.getSegments() )
-			stopSegment( dc , delete );
+		for( MetaEnvSegment sg : env.getSegments() )
+			stopSegment( sg , delete );
 		
 		if( delete )
 			removeSource( MONITORING_ENVIRONMENT , env );
 	}
 
-	public void stopSegment( MetaEnvSegment dc , boolean delete ) {
+	public void stopSegment( MetaEnvSegment sg , boolean delete ) {
 		// stop childs
-		for( MetaEnvServer server : dc.getServers() )
+		for( MetaEnvServer server : sg.getServers() )
 			stopServer( server , delete );
 		
 		if( delete )
-			removeSource( MONITORING_SEGMENT , dc );
+			removeSource( MONITORING_SEGMENT , sg );
 	}
 	
 	public void stopServer( MetaEnvServer server , boolean delete ) {
@@ -375,32 +375,32 @@ public class ServerMonitoring extends ServerObject {
 	private void modifyEnvironment( MetaEnv envOld , MetaEnv envNew ) {
 		replaceSource( MONITORING_ENVIRONMENT , envOld , envNew );
 		
-		for( MetaEnvSegment dcNew : envNew.getSegments() ) {
-			MetaEnvSegment dcOld = envOld.findDC( dcNew.NAME );
-			if( dcOld != null )
-				modifySegment( dcOld , dcNew );
+		for( MetaEnvSegment sgNew : envNew.getSegments() ) {
+			MetaEnvSegment sgOld = envOld.findSG( sgNew.NAME );
+			if( sgOld != null )
+				modifySegment( sgOld , sgNew );
 			else
-				startSegment( dcNew );
+				startSegment( sgNew );
 		}
-		for( MetaEnvSegment dcOld : envOld.getSegments() ) {
-			MetaEnvSegment dcNew = envNew.findDC( dcOld.NAME );
-			if( dcNew == null )
-				stopSegment( dcOld , true );
+		for( MetaEnvSegment sgOld : envOld.getSegments() ) {
+			MetaEnvSegment sgNew = envNew.findSG( sgOld.NAME );
+			if( sgNew == null )
+				stopSegment( sgOld , true );
 		}
 	}
 	
-	private void modifySegment( MetaEnvSegment dcOld , MetaEnvSegment dcNew ) {
-		replaceSource( MONITORING_SEGMENT , dcOld , dcNew );
+	private void modifySegment( MetaEnvSegment sgOld , MetaEnvSegment sgNew ) {
+		replaceSource( MONITORING_SEGMENT , sgOld , sgNew );
 		
-		for( MetaEnvServer serverNew : dcNew.getServers() ) {
-			MetaEnvServer serverOld = dcOld.findServer( serverNew.NAME );
+		for( MetaEnvServer serverNew : sgNew.getServers() ) {
+			MetaEnvServer serverOld = sgOld.findServer( serverNew.NAME );
 			if( serverOld != null )
 				modifyServer( serverOld , serverNew );
 			else
 				startServer( serverNew );
 		}
-		for( MetaEnvServer serverOld : dcOld.getServers() ) {
-			MetaEnvServer serverNew = dcNew.findServer( serverOld.NAME );
+		for( MetaEnvServer serverOld : sgOld.getServers() ) {
+			MetaEnvServer serverNew = sgNew.findServer( serverOld.NAME );
 			if( serverNew == null )
 				stopServer( serverOld , true );
 		}
@@ -434,10 +434,10 @@ public class ServerMonitoring extends ServerObject {
 		MetaEnv env = target.meta.findEnv( target.ENV );
 		if( env == null )
 			return( null );
-		MetaEnvSegment dc = env.findDC( target.DC );
-		if( dc == null)
+		MetaEnvSegment sg = env.findSG( target.SG );
+		if( sg == null)
 			return( null );
-		return( getObjectSource( dc ) );
+		return( getObjectSource( sg ) );
 	}
 	
 }

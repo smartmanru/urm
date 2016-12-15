@@ -33,7 +33,7 @@ else
 fi
 
 if [ "$1" = "-trace" ] || [ "$2" = "-trace" ] || [ "$3" = "-trace" ] || [ "$4" = "-trace" ]; then
-	echo run: java -cp $JAVACP -Duser.language=ru -Dfile.encoding=utf-8 -Durm.mode=$C_URM_MODE -Durm.os=linux -Durm.installpath=$C_URM_INSTALLPATH -Durm.server=$C_URM_SERVER -Durm.product=$C_URM_PRODUCT -Durm.build=$C_URM_VERSIONMODE -Durm.env=$C_URM_ENV -Durm.dc=$C_URM_DC $C_UMR_CLASS "$@"
+	echo run: java -cp $JAVACP -Duser.language=ru -Dfile.encoding=utf-8 -Durm.mode=$C_URM_MODE -Durm.os=linux -Durm.installpath=$C_URM_INSTALLPATH -Durm.server=$C_URM_SERVER -Durm.product=$C_URM_PRODUCT -Durm.build=$C_URM_VERSIONMODE -Durm.env=$C_URM_ENV -Durm.sg=$C_URM_SG $C_UMR_CLASS "$@"
 fi
 
-java -cp $JAVACP -Duser.language=ru -Dfile.encoding=utf-8 -Durm.mode=$C_URM_MODE -Durm.os=linux -Durm.installpath=$C_URM_INSTALLPATH -Durm.server=$C_URM_SERVER -Durm.product=$C_URM_PRODUCT -Durm.build=$C_URM_VERSIONMODE -Durm.env=$C_URM_ENV -Durm.dc=$C_URM_DC $C_UMR_CLASS "$@"
+java -cp $JAVACP -Duser.language=ru -Dfile.encoding=utf-8 -Durm.mode=$C_URM_MODE -Durm.os=linux -Durm.installpath=$C_URM_INSTALLPATH -Durm.server=$C_URM_SERVER -Durm.product=$C_URM_PRODUCT -Durm.build=$C_URM_VERSIONMODE -Durm.env=$C_URM_ENV -Durm.sg=$C_URM_SG $C_UMR_CLASS "$@"

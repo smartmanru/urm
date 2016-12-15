@@ -59,8 +59,8 @@ public class DatabaseClient {
 		if( !action.context.CTX_DBAUTH )
 			S_DB_USE_SCHEMA_PASSWORD = user;
 		else
-		if( !specific.server.dc.env.DB_AUTHFILE.isEmpty() ) {
-			String F_FNAME = specific.server.dc.env.DB_AUTHFILE;
+		if( !specific.server.sg.env.DB_AUTHFILE.isEmpty() ) {
+			String F_FNAME = specific.server.sg.env.DB_AUTHFILE;
 			if( !action.shell.checkFileExists( action , F_FNAME ) )
 				action.exit1( _Error.PasswordFileNotExist1 , "getSchemaPassword: password file " + F_FNAME + " does not exist" , F_FNAME );
 

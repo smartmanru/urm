@@ -27,7 +27,7 @@ import org.w3c.dom.Node;
 public class MetaEnvServer extends PropertyController {
 
 	public Meta meta;
-	public MetaEnvSegment dc;
+	public MetaEnvSegment sg;
 	
 	public String NAME = "";
 	public String DESC = "";
@@ -127,10 +127,10 @@ public class MetaEnvServer extends PropertyController {
 
 	public MetaEnvStartGroup startGroup;
 	
-	public MetaEnvServer( Meta meta , MetaEnvSegment dc ) {
-		super( dc , "server" );
+	public MetaEnvServer( Meta meta , MetaEnvSegment sg ) {
+		super( sg , "server" );
 		this.meta = meta;
-		this.dc = dc;
+		this.sg = sg;
 		
 		deployments = new LinkedList<MetaEnvServerDeployment>(); 
 		deployMap = new HashMap<String,MetaEnvServerDeployment>();
@@ -224,7 +224,7 @@ public class MetaEnvServer extends PropertyController {
 	}
 	
 	public String getFullId( ActionBase action ) throws Exception {
-		return( dc.getFullId( action ) + "-" + NAME );
+		return( sg.getFullId( action ) + "-" + NAME );
 	}
 	
 	public boolean hasBaseline( ActionBase action ) throws Exception {
@@ -237,9 +237,9 @@ public class MetaEnvServer extends PropertyController {
 		return( BASELINE );
 	}
 
-	public MetaEnvServer copy( ActionBase action , Meta meta , MetaEnvSegment dc ) throws Exception {
-		MetaEnvServer r = new MetaEnvServer( meta , dc );
-		r.initCopyStarted( this , dc.getProperties() );
+	public MetaEnvServer copy( ActionBase action , Meta meta , MetaEnvSegment sg ) throws Exception {
+		MetaEnvServer r = new MetaEnvServer( meta , sg );
+		r.initCopyStarted( this , sg.getProperties() );
 		r.scatterProperties( action );
 		
 		if( basesw != null )
@@ -259,7 +259,7 @@ public class MetaEnvServer extends PropertyController {
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
-		if( !super.initCreateStarted( dc.getProperties() ) )
+		if( !super.initCreateStarted( sg.getProperties() ) )
 			return;
 
 		loadDeployments( action , node );
@@ -278,16 +278,16 @@ public class MetaEnvServer extends PropertyController {
 
 	public void resolveLinks( ActionBase action ) throws Exception {
 		if( NLBSERVER != null && !NLBSERVER.isEmpty() )
-			nlbServer = dc.getServer( action , NLBSERVER );
+			nlbServer = sg.getServer( action , NLBSERVER );
 		if( PROXYSERVER != null && !PROXYSERVER.isEmpty() )
-			proxyServer = dc.getServer( action , PROXYSERVER );
+			proxyServer = sg.getServer( action , PROXYSERVER );
 		if( STATICSERVER != null && !STATICSERVER.isEmpty() )
-			staticServer = dc.getServer( action , STATICSERVER );
+			staticServer = sg.getServer( action , STATICSERVER );
 		if( SUBORDINATESERVERS != null && !SUBORDINATESERVERS.isEmpty() ) {
 			String[] SERVERS = Common.splitSpaced( SUBORDINATESERVERS );
 			subordinateServers = new MetaEnvServer[ SERVERS.length ];
 			for( int k = 0; k < SERVERS.length; k++ )
-				subordinateServers[ k ] = dc.getServer( action , SERVERS[ k ] );
+				subordinateServers[ k ] = sg.getServer( action , SERVERS[ k ] );
 		}
 		
 		// verify aligned
@@ -726,7 +726,7 @@ public class MetaEnvServer extends PropertyController {
 	}
 	
 	public void createServer( ActionBase action , String NAME , String DESC , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String sysname ) throws Exception {
-		if( !super.initCreateStarted( dc.getProperties() ) )
+		if( !super.initCreateStarted( sg.getProperties() ) )
 			return;
 
 		OFFLINE = false;

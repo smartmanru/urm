@@ -36,8 +36,8 @@ public class ActionCheckEnv extends ActionBase {
 	boolean S_CHECKENV_NODE_FAILED;
 	boolean S_CHECKENV_NODE_STOPPED;
 	
-	SegmentStatus dcStatus;
-	int dcCaptureIndex;
+	SegmentStatus sgStatus;
+	int sgCaptureIndex;
 	
 	public ActionCheckEnv( ActionBase action , String stream ) {
 		super( action , stream );
@@ -63,20 +63,20 @@ public class ActionCheckEnv extends ActionBase {
 	}
 	
 	@Override protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		dcStatus = new SegmentStatus( this , set.dc );
-		dcCaptureIndex = super.logStartCapture();
-		info( "execute segment=" + set.dc.NAME + " ..." );
+		sgStatus = new SegmentStatus( this , set.sg );
+		sgCaptureIndex = super.logStartCapture();
+		info( "execute segment=" + set.sg.NAME + " ..." );
 	}
 
 	@Override protected void runAfter( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		String F_STATUSOBJECT = set.dc.NAME;
+		String F_STATUSOBJECT = set.sg.NAME;
 		if( !S_CHECKENV_TOTAL_SERVERS_FAILED.isEmpty() )
-			error( "## dc " + F_STATUSOBJECT + " check FAILED: issues on servers - {" + S_CHECKENV_TOTAL_SERVERS_FAILED + "}" );
+			error( "## sg " + F_STATUSOBJECT + " check FAILED: issues on servers - {" + S_CHECKENV_TOTAL_SERVERS_FAILED + "}" );
 		else
-			info( "## dc " + F_STATUSOBJECT + " check OK" );
+			info( "## sg " + F_STATUSOBJECT + " check OK" );
 		
-		dcStatus.setLog( super.logFinishCapture( dcCaptureIndex ) );
-		super.eventSource.finishScopeItem( ServerMonitoring.EVENT_MONITORING_SEGMENT , dcStatus );
+		sgStatus.setLog( super.logFinishCapture( sgCaptureIndex ) );
+		super.eventSource.finishScopeItem( ServerMonitoring.EVENT_MONITORING_SEGMENT , sgStatus );
 	}
 	
 	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
@@ -114,7 +114,7 @@ public class ActionCheckEnv extends ActionBase {
 		}
 		
 		// check status
-		String F_STATUSOBJECT = set.dc.NAME + "." + target.envServer.NAME;
+		String F_STATUSOBJECT = set.sg.NAME + "." + target.envServer.NAME;
 		if( !S_CHECKENV_TARGET_FAILED ) {
 			info( "## server " + F_STATUSOBJECT + " check OK" );
 		}

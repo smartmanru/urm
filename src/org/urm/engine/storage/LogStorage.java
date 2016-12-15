@@ -44,15 +44,15 @@ public class LogStorage {
 	}
 	
 	public LocalFolder getDatabaseLogReleaseCopyFolder( ActionBase action , MetaEnvServer server , ReleaseDelivery releaseDelivery , String version ) throws Exception {
-		return( logFolder.getSubFolder( action , "dist-" + server.dc.NAME + "-" + server.NAME + "-" + releaseDelivery.distDelivery.NAME + "-" + version ) );
+		return( logFolder.getSubFolder( action , "dist-" + server.sg.NAME + "-" + server.NAME + "-" + releaseDelivery.distDelivery.NAME + "-" + version ) );
 	}
 	
 	public LocalFolder getDatabaseLogExecuteFolder( ActionBase action , MetaEnvServer server ) throws Exception {
-		return( logFolder.getSubFolder( action , "run-" + server.dc.NAME + "-" + server.NAME ) );
+		return( logFolder.getSubFolder( action , "run-" + server.sg.NAME + "-" + server.NAME ) );
 	}
 	
 	public LocalFolder getDatabaseLogExecuteFolder( ActionBase action , MetaEnvServer server , ReleaseDelivery releaseDelivery , String version ) throws Exception {
-		return( logFolder.getSubFolder( action , "run-" + server.dc.NAME + "-" + server.NAME + "-" + releaseDelivery.distDelivery.NAME  + "-" + version ) );
+		return( logFolder.getSubFolder( action , "run-" + server.sg.NAME + "-" + server.NAME + "-" + releaseDelivery.distDelivery.NAME  + "-" + version ) );
 	}
 	
 }

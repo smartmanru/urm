@@ -55,7 +55,7 @@ public class MetaEnv extends PropertyController {
 	public FLAG CONF_KEEPALIVE;
 
 	private List<MetaEnvSegment> originalList;
-	private Map<String,MetaEnvSegment> dcMap;
+	private Map<String,MetaEnvSegment> sgMap;
 
 	// properties
 	public static String PROPERTY_ID = "id";
@@ -87,7 +87,7 @@ public class MetaEnv extends PropertyController {
 		super( storage , "env" );
 		this.meta = meta;
 		originalList = new LinkedList<MetaEnvSegment>();
-		dcMap = new HashMap<String,MetaEnvSegment>();
+		sgMap = new HashMap<String,MetaEnvSegment>();
 		baselineEnvRef = new ServerRef<MetaEnv>();
 	}
 	
@@ -147,9 +147,9 @@ public class MetaEnv extends PropertyController {
 		MetaProductSettings product = meta.getProductSettings( action );
 		r.initCopyStarted( this , product.getProperties() );
 		
-		for( MetaEnvSegment dc : originalList ) {
-			MetaEnvSegment rdc = dc.copy( action , meta , r );
-			r.addDC( rdc );
+		for( MetaEnvSegment sg : originalList ) {
+			MetaEnvSegment rsg = sg.copy( action , meta , r );
+			r.addSG( rsg );
 		}
 		
 		r.scatterProperties( action );
@@ -239,48 +239,48 @@ public class MetaEnv extends PropertyController {
 		if( items == null )
 			return;
 
-		for( Node dcnode : items ) {
-			MetaEnvSegment dc = new MetaEnvSegment( meta , this );
-			dc.load( action , dcnode );
-			addDC( dc );
+		for( Node sgnode : items ) {
+			MetaEnvSegment sg = new MetaEnvSegment( meta , this );
+			sg.load( action , sgnode );
+			addSG( sg );
 		}
 	}
 
-	private void addDC( MetaEnvSegment dc ) {
-		originalList.add( dc );
-		dcMap.put( dc.NAME , dc );
+	private void addSG( MetaEnvSegment sg ) {
+		originalList.add( sg );
+		sgMap.put( sg.NAME , sg );
 	}
 	
 	private void resolveLinks( ActionBase action ) throws Exception {
 		baselineEnvRef.set( meta.getEnv( action , BASELINE ) );
-		for( MetaEnvSegment dc : originalList )
-			dc.resolveLinks( action );
+		for( MetaEnvSegment sg : originalList )
+			sg.resolveLinks( action );
 	}
 	
-	public MetaEnvSegment findDC( String name ) {
-		return( dcMap.get( name ) );
+	public MetaEnvSegment findSG( String name ) {
+		return( sgMap.get( name ) );
 	}
 
-	public MetaEnvSegment getDC( ActionBase action , String name ) throws Exception {
-		MetaEnvSegment dc = dcMap.get( name );
-		if( dc == null )
+	public MetaEnvSegment getSG( ActionBase action , String name ) throws Exception {
+		MetaEnvSegment sg = sgMap.get( name );
+		if( sg == null )
 			action.exit1( _Error.UnknownSegment1 , "unknown segment=" + name , name );
-		return( dc );
+		return( sg );
 	}
 
 	public String[] getSegmentNames() {
-		return( Common.getSortedKeys( dcMap ) );
+		return( Common.getSortedKeys( sgMap ) );
 	}
 	
 	public MetaEnvSegment[] getSegments() {
 		return( originalList.toArray( new MetaEnvSegment[0] ) );
 	}
 	
-	public boolean isMultiDC( ActionBase action ) throws Exception {
+	public boolean isMultiSG( ActionBase action ) throws Exception {
 		return( originalList.size() > 1 );
 	}
 	
-	public MetaEnvSegment getMainDC( ActionBase action ) throws Exception {
+	public MetaEnvSegment getMainSG( ActionBase action ) throws Exception {
 		if( originalList.size() == 0 )
 			action.exit0( _Error.NoSegmentDefined0 , "no segment defined" );
 		if( originalList.size() > 1 )
@@ -290,23 +290,23 @@ public class MetaEnv extends PropertyController {
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		super.saveSplit( doc , root );
-		for( MetaEnvSegment dc : originalList ) {
-			Element dcElement = Common.xmlCreateElement( doc , root , ELEMENT_SEGMENT );
-			dc.save( action , doc , dcElement );
+		for( MetaEnvSegment sg : originalList ) {
+			Element sgElement = Common.xmlCreateElement( doc , root , ELEMENT_SEGMENT );
+			sg.save( action , doc , sgElement );
 		}
 	}
 	
-	public void createDC( ServerTransaction transaction , MetaEnvSegment dc ) {
-		addDC( dc );
+	public void createSG( ServerTransaction transaction , MetaEnvSegment sg ) {
+		addSG( sg );
 	}
 	
-	public void deleteDC( ServerTransaction transaction , MetaEnvSegment dc ) {
-		int index = originalList.indexOf( dc );
+	public void deleteSG( ServerTransaction transaction , MetaEnvSegment sg ) {
+		int index = originalList.indexOf( sg );
 		if( index < 0 )
 			return;
 		
 		originalList.remove( index );
-		dcMap.remove( dc.NAME );
+		sgMap.remove( sg.NAME );
 	}
 	
 	public void setProperties( ServerTransaction transaction , PropertySet props , boolean system ) throws Exception {
@@ -331,13 +331,13 @@ public class MetaEnv extends PropertyController {
 	}
 
 	public void getApplicationReferences( ServerHostAccount account , List<ServerAccountReference> refs ) {
-		for( MetaEnvSegment dc : originalList )
-			dc.getApplicationReferences( account , refs );
+		for( MetaEnvSegment sg : originalList )
+			sg.getApplicationReferences( account , refs );
 	}
 
 	public void deleteHostAccount( ServerTransaction transaction , ServerHostAccount account ) throws Exception {
-		for( MetaEnvSegment dc : originalList )
-			dc.deleteHostAccount( transaction , account );
+		for( MetaEnvSegment sg : originalList )
+			sg.deleteHostAccount( transaction , account );
 	}
 	
 }

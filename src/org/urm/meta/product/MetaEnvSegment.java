@@ -27,6 +27,8 @@ public class MetaEnvSegment extends PropertyController {
 	public String NAME;
 	public String BASELINE;
 	public boolean OFFLINE;
+	public String DESC;
+	public String DC;
 	
 	public MetaEnvDeployment deploy;
 	public MetaEnvStartInfo startInfo;
@@ -35,7 +37,9 @@ public class MetaEnvSegment extends PropertyController {
 	private Map<String,MetaEnvServer> serverMap;
 
 	public static String PROPERTY_NAME = "name";
-	public static String PROPERTY_BASELINE = "basedc";
+	public static String PROPERTY_DESC = "desc";
+	public static String PROPERTY_BASELINE = "basesg";
+	public static String PROPERTY_DC = "datacenter";
 	public static String PROPERTY_OFFLINE = "offline";
 
 	public static String ELEMENT_DEPLOYMENT = "deployment";
@@ -43,7 +47,7 @@ public class MetaEnvSegment extends PropertyController {
 	public static String ELEMENT_SERVER = "server";
 	
 	public MetaEnvSegment( Meta meta , MetaEnv env ) {
-		super( env , "dc" );
+		super( env , "sg" );
 		this.meta = meta;
 		this.env = env;
 		
@@ -61,7 +65,9 @@ public class MetaEnvSegment extends PropertyController {
 	@Override
 	public void scatterProperties( ActionBase action ) throws Exception {
 		NAME = super.getStringPropertyRequired( action , PROPERTY_NAME );
-		action.trace( "load properties of dc=" + NAME );
+		DESC = super.getStringProperty( action , PROPERTY_DESC );
+		DC = super.getStringProperty( action , PROPERTY_DC );
+		action.trace( "load properties of sg=" + NAME );
 		
 		BASELINE = super.getStringProperty( action , PROPERTY_BASELINE );
 		if( BASELINE.equals( "default" ) )
@@ -105,7 +111,7 @@ public class MetaEnvSegment extends PropertyController {
 		return( true );
 	}
 	
-	public String getBaselineDC( ActionBase action ) throws Exception {
+	public String getBaselineSG( ActionBase action ) throws Exception {
 		return( BASELINE );
 	}
 	
@@ -234,13 +240,14 @@ public class MetaEnvSegment extends PropertyController {
 		}
 	}
 	
-	public void createDC( ActionBase action , String NAME ) throws Exception {
+	public void createSegment( ActionBase action , String NAME , String DESC , String DC ) throws Exception {
 		this.NAME = NAME;
 		if( !super.initCreateStarted( env.getProperties() ) )
 			return;
 
 		super.setStringProperty( PROPERTY_NAME , NAME );
-		super.setStringProperty( PROPERTY_BASELINE , BASELINE );
+		super.setStringProperty( PROPERTY_DESC , DESC );
+		super.setStringProperty( PROPERTY_DC , DC );
 		super.finishProperties( action );
 		super.initFinished();
 		
@@ -248,6 +255,17 @@ public class MetaEnvSegment extends PropertyController {
 		
 		deploy = new MetaEnvDeployment( meta , this );
 		startInfo = new MetaEnvStartInfo( meta , this );
+	}
+
+	public void modifySegment( ActionBase action , String NAME , String DESC , String DC ) throws Exception {
+		this.NAME = NAME;
+
+		super.setStringProperty( PROPERTY_NAME , NAME );
+		super.setStringProperty( PROPERTY_DESC , DESC );
+		super.setStringProperty( PROPERTY_DC , DC );
+		super.finishProperties( action );
+		
+		scatterProperties( action );
 	}
 
 	public void createServer( ServerTransaction transaction , MetaEnvServer server ) {
@@ -276,8 +294,8 @@ public class MetaEnvSegment extends PropertyController {
 		startInfo.removeServer( transaction , server );
 	}
 	
-	public void setBaseline( ServerTransaction transaction , String baselineDC ) throws Exception {
-		super.setSystemStringProperty( PROPERTY_BASELINE , baselineDC );
+	public void setBaseline( ServerTransaction transaction , String baselineSG ) throws Exception {
+		super.setSystemStringProperty( PROPERTY_BASELINE , baselineSG );
 	}
 	
 	public void setOffline( ServerTransaction transaction , boolean offline ) throws Exception {

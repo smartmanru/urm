@@ -9,6 +9,7 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionSet;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
+import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.MetaEnvStartGroup;
 
 public class ActionStopEnv extends ActionBase {
@@ -29,7 +30,7 @@ public class ActionStopEnv extends ActionBase {
 	}
 	
 	@Override protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		List<MetaEnvStartGroup> groups = set.dc.startInfo.getReverseGroupList();
+		List<MetaEnvStartGroup> groups = set.sg.startInfo.getReverseGroupList();
 		for( MetaEnvStartGroup group : groups ) {
 			if( !stopServerGroup( set , group , targets ) )
 				ifexit( _Error.FailedGroupOperation0 , "failed group operation" , null );
@@ -48,13 +49,13 @@ public class ActionStopEnv extends ActionBase {
 		// execute servers in parallel within subprocess
 		infoAction( getMode() + " stop group=" + group.NAME + " servers=(" + ActionScope.getList( servers ) + ") ..." );
 
-		ActionSet actions = new ActionSet( this , "stop.dc" );
+		ActionSet actions = new ActionSet( this , "stop.sg" );
 		for( ActionScopeTarget target : servers ) {
 			if( !Common.checkListItem( targets , target ) )
 				continue;
 			
 			ActionStopServer stopOne = new ActionStopServer( this , target.NAME , target );
-			actions.runSimple( stopOne );
+			actions.runSimpleEnv( stopOne , set.sg.env , SecurityAction.ACTION_DEPLOY , false );
 		}
 
 		// wait all

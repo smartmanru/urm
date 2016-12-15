@@ -30,7 +30,7 @@ public class CommandContext {
 	public CommandAction commandAction;
 
 	public MetaEnv env; 
-	public MetaEnvSegment dc;
+	public MetaEnvSegment sg;
 	
 	public ServerCall call;
 	public String stream;
@@ -100,7 +100,7 @@ public class CommandContext {
 	public String CTX_DATE = "";
 	public String CTX_GROUP = "";
 	public String CTX_VERSION = "";
-	public String CTX_DC = "";
+	public String CTX_SEGMENT = "";
 	public String CTX_DEPLOYGROUP = "";
 	public String CTX_STARTGROUP = "";
 	public String CTX_EXTRAARGS = "";
@@ -157,7 +157,7 @@ public class CommandContext {
 		
 		this.options = context.options;
 		this.env = context.env;
-		this.dc = context.dc;
+		this.sg = context.sg;
 
 		this.call = context.call;
 		this.account = context.account;
@@ -223,7 +223,7 @@ public class CommandContext {
 		this.CTX_DATE = context.CTX_DATE;
 		this.CTX_GROUP = context.CTX_GROUP;
 		this.CTX_VERSION = context.CTX_VERSION;
-		this.CTX_DC = context.CTX_DC;
+		this.CTX_SEGMENT = context.CTX_SEGMENT;
 		this.CTX_DEPLOYGROUP = context.CTX_DEPLOYGROUP;
 		this.CTX_STARTGROUP = context.CTX_STARTGROUP;
 		this.CTX_EXTRAARGS = context.CTX_EXTRAARGS;
@@ -239,14 +239,14 @@ public class CommandContext {
 		setLogStream();
 	}
 
-	public void update( ActionBase action , MetaEnv env , MetaEnvSegment dc ) throws Exception {
+	public void update( ActionBase action , MetaEnv env , MetaEnvSegment sg ) throws Exception {
 		this.env = env;  
-		this.dc = dc;
+		this.sg = sg;
 		update( action , env.meta );
 	}
 
 	public void update( ActionBase action ) throws Exception {
-		Meta meta = ( session.product )? action.getContextMeta() : null;
+		Meta meta = ( session != null && session.product )? action.getContextMeta() : null;
 		update( action , meta );
 	}
 	
@@ -325,7 +325,7 @@ public class CommandContext {
 		CTX_DATE = getParamValue( "OPT_DATE" );
 		CTX_GROUP = getParamValue( "OPT_GROUP" );
 		CTX_VERSION = getParamValue( "OPT_VERSION" );
-		CTX_DC = getParamValue( "OPT_DC" );
+		CTX_SEGMENT = getParamValue( "OPT_SG" );
 		CTX_DEPLOYGROUP = getParamValue( "OPT_DEPLOYGROUP" );
 		CTX_STARTGROUP = getParamValue( "OPT_STARTGROUP" );
 		CTX_EXTRAARGS = getParamValue( "OPT_EXTRAARGS" );
@@ -343,22 +343,22 @@ public class CommandContext {
 	}
 
 	public void loadEnv( ActionBase action , boolean loadProps ) throws Exception {
-		String useDC = session.DC;
-		if( useDC.isEmpty() )
-			useDC = CTX_DC;
-		loadEnv( action , session.ENV , useDC , loadProps );
+		String useSG = session.SG;
+		if( useSG.isEmpty() )
+			useSG = CTX_SEGMENT;
+		loadEnv( action , session.ENV , useSG , loadProps );
 	}
 	
-	public void loadEnv( ActionBase action , String ENV , String DC , boolean loadProps ) throws Exception {
+	public void loadEnv( ActionBase action , String ENV , String SG , boolean loadProps ) throws Exception {
 		Meta meta = action.getContextMeta();
 		env = meta.getEnvData( action , ENV , loadProps );
 		
-		if( DC == null || DC.isEmpty() ) {
-			dc = null;
+		if( SG == null || SG.isEmpty() ) {
+			sg = null;
 			return;
 		}
 		
-		dc = env.getDC( action , DC );
+		sg = env.getSG( action , SG );
 		update( action );
 	}
 	
@@ -372,6 +372,9 @@ public class CommandContext {
 	}
 	
 	public boolean setRunContext() {
+		if( session == null )
+			return( true );
+		
 		// read env
 		if( session.execrc.hostName.isEmpty() ) {
 			System.out.println( "HOSTNAME is not set. Exiting" );
@@ -399,8 +402,8 @@ public class CommandContext {
 			contextInfo += ", buildMode=" + getBuildModeName();
 		if( !session.ENV.isEmpty() )
 			contextInfo += ", env=" + session.ENV;
-		if( !session.DC.isEmpty() )
-			contextInfo += ", dc=" + session.DC;
+		if( !session.SG.isEmpty() )
+			contextInfo += ", sg=" + session.SG;
 		return( contextInfo );
 	}
 	
@@ -485,7 +488,7 @@ public class CommandContext {
 		return( data );
 	}
 
-	public void outExact( String s ) {
+	public synchronized void outExact( String s ) {
 		if( logCapture != null )
 			logCapture.add( s );
 	}

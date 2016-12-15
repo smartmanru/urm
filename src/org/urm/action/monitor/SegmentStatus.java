@@ -5,8 +5,8 @@ import org.urm.meta.product.MetaEnvSegment;
 
 public class SegmentStatus extends MonitorStatus {
 
-	public SegmentStatus( ActionCore action , MetaEnvSegment dc ) {
-		super( action , dc );
+	public SegmentStatus( ActionCore action , MetaEnvSegment sg ) {
+		super( action , sg );
 	}
 
 }

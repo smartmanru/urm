@@ -43,12 +43,12 @@ public class DistRepository {
 				
 			if( action.context.env != null ) {
 				if( !action.isLocalRun() )
-					account = Account.getAccount( action , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
+					account = Account.getAccount( action , "" , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
 			}
 			else {
 				if( !action.isLocalRun() ) {
 					MetaProductSettings product = meta.getProductSettings( action );
-					account = Account.getAccount( action , product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
+					account = Account.getAccount( action , "" , product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
 				}
 			}
 		}
@@ -114,7 +114,7 @@ public class DistRepository {
 	}
 	
 	public RemoteFolder getImportLogFolder( ActionBase action , String dataSet , MetaEnvServer server ) throws Exception {
-		String location = server.dc.env.ID + "-" + server.dc.NAME + "-" + server.NAME;
+		String location = server.sg.env.ID + "-" + server.sg.NAME + "-" + server.NAME;
 		return( repoFolder.getSubFolder( action , "data/" + dataSet + "/log-import-" + location ) );
 	}
 	

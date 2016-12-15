@@ -71,8 +71,6 @@ public class ServerLoader {
 		infra = new ServerInfrastructure( this ); 
 		mon = new ServerMonitoring( this ); 
 		init();
-		
-		loadServerProducts( engine.serverAction );
 	}
 
 	public void reloadProduct( String productName ) throws Exception {
