@@ -103,6 +103,7 @@ public class Meta extends ServerObject {
 		UNKNOWN ,
 		SERVICE ,
 		PACEMAKER ,
+		DOCKER ,
 		GENERIC ,
 		MANUAL
 	};

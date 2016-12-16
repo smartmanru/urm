@@ -182,7 +182,7 @@ public class DeployCommand {
 	}
 
 	public void sendMsg( ActionBase action , String msg ) throws Exception {
-		ActionSendChatMsg.sendMsg( action , msg , null );
+		ActionSendChatMsg.sendMsg( action , msg , action.context.env , action.context.sg );
 	}
 
 	public void startEnv( ActionBase action , ActionScope scope ) throws Exception {

@@ -664,6 +664,10 @@ public class MetaEnvServer extends PropertyController {
 		return( serverAccessType == VarSERVERACCESSTYPE.SERVICE );
 	}
 
+	public boolean isDocker() {
+		return( serverAccessType == VarSERVERACCESSTYPE.DOCKER );
+	}
+
 	public boolean isPacemaker() {
 		return( serverAccessType == VarSERVERACCESSTYPE.PACEMAKER );
 	}

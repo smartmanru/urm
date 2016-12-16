@@ -1297,7 +1297,12 @@ public abstract class ShellExecutor extends Shell {
 			return( "/etc/init.d" );
 		}
 		
-		return( Common.getPath( server.ROOTPATH , server.BINPATH ) );
+		if( server.isGeneric() )
+			return( Common.getPath( server.ROOTPATH , server.BINPATH ) );
+			
+		String value = Common.getEnumLower( server.getServerAccessType() );
+		action.exit1( _Error.AccessTypeNotSupported1 , "Access type (" + value + ") is not supported for opertation" , value );
+		return( null );
 	}
 	
 	public String getSystemFiles( ActionBase action , MetaEnvServer server ) throws Exception {
@@ -1307,10 +1312,15 @@ public abstract class ShellExecutor extends Shell {
 			return( server.SYSNAME );
 		}
 		
-		if( isLinux() )
-			return( "server.*.sh" );
+		if( server.isGeneric() ) {
+			if( isLinux() )
+				return( "server.*.sh" );
+			return( "server.*.cmd" );
+		}
 		
-		return( "server.*.cmd" );
+		String value = Common.getEnumLower( server.getServerAccessType() );
+		action.exit1( _Error.AccessTypeNotSupported1 , "Access type (" + value + ") is not supported for opertation" , value );
+		return( null );
 	}
 	
 }

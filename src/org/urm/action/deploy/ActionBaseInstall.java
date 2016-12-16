@@ -237,8 +237,9 @@ public class ActionBaseInstall extends ActionBase {
 		LocalFolder workBase = getSystemFiles( info , redist.server , redist.node );
 		
 		// deploy
-		if( info.serverAccessType != VarSERVERACCESSTYPE.SERVICE )
+		if( info.serverAccessType == VarSERVERACCESSTYPE.GENERIC )
 			runtime.createBinPath( this );
+		
 		runtime.restoreSysConfigs( this , redist , workBase );
 	}
 
@@ -254,11 +255,16 @@ public class ActionBaseInstall extends ActionBase {
 			
 			baseMaster.copyFileToLocalRename( this , workBase , "service" , server.SYSNAME );
 		}
-		else {
+		else
+		if( info.serverAccessType == VarSERVERACCESSTYPE.GENERIC ) {
 			if( server.isLinux() )
 				baseMaster.copyFilesToLocal( this , workBase , "server.*.sh" );
 			else
 				baseMaster.copyFilesToLocal( this , workBase , "server.*.cmd" );
+		}
+		else {
+			String value = Common.getEnumLower( info.serverAccessType );
+			exit1( _Error.AccTypeNotForOperation1 , "access type (" + value + ") is not supported for operation" , value );
 		}
 		
 		// configure

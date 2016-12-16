@@ -32,5 +32,6 @@ public class _Error {
 	public static final int DatabaseNotSupported2 = ErrorBase + 23;
 	public static final int DuplicateBaseId2 = ErrorBase + 24;
 	public static final int UnknownBaseId1 = ErrorBase + 25;
+	public static final int AccTypeNotForOperation1 = ErrorBase + 26;
 	
 }

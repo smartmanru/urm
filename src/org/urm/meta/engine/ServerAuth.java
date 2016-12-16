@@ -244,6 +244,7 @@ public class ServerAuth extends ServerObject {
 	
 	public SessionSecurity createServerSecurity() throws Exception {
 		SessionSecurity security = new SessionSecurity( this );
+		security.setServer();
 		security.setPermissions();
 		return( security );
 	}

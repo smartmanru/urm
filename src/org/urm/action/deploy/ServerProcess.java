@@ -35,6 +35,10 @@ public class ServerProcess {
 		return( srv.isService() );
 	}
 
+	public boolean isDocker( ActionBase action ) throws Exception {
+		return( srv.isDocker() );
+	}
+
 	public boolean isPacemaker( ActionBase action ) throws Exception {
 		return( srv.isPacemaker() );
 	}
@@ -48,6 +52,9 @@ public class ServerProcess {
 		else
 		if( isPacemaker( action ) )
 			gatherPacemakerStatus( action );
+		else
+		if( isDocker( action ) )
+			gatherDockerStatus( action );
 		else
 		if( isGeneric( action ) )
 			gatherGenericStatus( action );
@@ -112,6 +119,45 @@ public class ServerProcess {
 			
 			if( check.indexOf( "not found" ) >= 0 )
 				action.error( "unknown pacemaker resource: " + srv.SYSNAME );
+			
+			mode = VarPROCESSMODE.ERRORS;
+		}
+		finally {
+			shell.release( action );
+		}
+	}
+	
+	private void gatherDockerStatus( ActionBase action ) throws Exception {
+		if( !srv.isLinux() )
+			action.exitNotImplemented();
+		
+		ShellExecutor shell = action.getShell( node );
+		
+		try {
+			cmdValue = shell.customGetValue( action , "docker inspect " + srv.SYSNAME + " | grep Status" );
+			cmdValue = cmdValue.trim();
+			if( !cmdValue.startsWith( Common.getQuoted( "Status" ) + ":" ) ) {
+				mode = VarPROCESSMODE.ERRORS;
+				action.error( "unknown docker resource: " + srv.SYSNAME );
+				return;
+			}
+			
+			String check = Common.getListItem( cmdValue , ":" , 1 );
+			check = Common.getListItem( check , "\"" , 1 );
+			check = check.toUpperCase();
+			
+			if( isStoppedStatus( action , check ) ) {
+				mode = VarPROCESSMODE.STOPPED;
+				return;
+			}
+			
+			if( isStartedStatus( action , check ) ) {
+				mode = VarPROCESSMODE.STARTED;
+				return;
+			}
+			
+			if( check.indexOf( "not found" ) >= 0 )
+				action.error( "unknown docker resource: " + srv.SYSNAME );
 			
 			mode = VarPROCESSMODE.ERRORS;
 		}
@@ -246,6 +292,9 @@ public class ServerProcess {
 		if( isPacemaker( action ) )
 			res = stopPacemaker( action );
 		else
+		if( isDocker( action ) )
+			res = stopDocker( action );
+		else
 		if( isGeneric( action ) )
 			res = stopGeneric( action );
 		else
@@ -268,6 +317,28 @@ public class ServerProcess {
 		ShellExecutor shell = action.getShell( node );
 		try {
 			shell.customCritical( action , "crm_resource -r " + srv.SYSNAME + " --host `hostname` --ban --quiet" );
+			return( true );
+		}
+		finally {
+			shell.release( action );
+		}
+	}
+	
+	private boolean stopDocker( ActionBase action ) throws Exception {
+		if( !srv.isLinux() )
+			action.exitNotImplemented();
+			
+		// check status
+		gatherStatus( action );
+
+		if( mode == VarPROCESSMODE.STOPPED ) {
+			action.debug( node.HOSTLOGIN + ": docker resource=" + srv.SYSNAME + " already stopped" );
+			return( true );
+		}
+
+		ShellExecutor shell = action.getShell( node );
+		try {
+			shell.customCritical( action , "docker stop " + srv.SYSNAME );
 			return( true );
 		}
 		finally {
@@ -361,6 +432,9 @@ public class ServerProcess {
 		if( isPacemaker( action ) )
 			res = waitStoppedPacemaker( action , startMillis );
 		else
+		if( isDocker( action ) )
+			res = waitStoppedDocker( action , startMillis );
+		else
 		if( isGeneric( action ) )
 			res = waitStoppedGeneric( action , startMillis );
 		else
@@ -369,58 +443,21 @@ public class ServerProcess {
 	}
 
 	public boolean waitStoppedPacemaker( ActionBase action , long startMillis ) throws Exception {
-		// wait for stop for a while
-		action.debug( node.HOSTLOGIN + ": wait for stop pacemaker resource=" + srv.SYSNAME + " ..." );
-		
-		int stoptime = srv.STOPTIME;
-		if( stoptime == 0 )
-			stoptime = defaultStopServerTimeSecs;
-		long stopMillis = startMillis + stoptime * 1000;
-		
-		while( mode != VarPROCESSMODE.STOPPED ) {
-			if( System.currentTimeMillis() > stopMillis ) {
-				action.error( node.HOSTLOGIN + ": failed to stop pacemaker resource=" + srv.SYSNAME + " within " + stoptime + " seconds" );
-				return( false );
-			}
-						
-			// check stopped
-			gatherStatus( action );
-		    synchronized( this ) {
-		    	Thread.sleep( 1000 );
-		    }
-		}
-
-		action.info( node.HOSTLOGIN + " pacemaker resource=" + srv.SYSNAME + " successfully stopped" );
-		return( true );
+		return( waitStoppedAny( action , startMillis , "pacemaker resource=" + srv.SYSNAME ) );
+	}
+	
+	public boolean waitStoppedDocker( ActionBase action , long startMillis ) throws Exception {
+		return( waitStoppedAny( action , startMillis , "docker resource=" + srv.SYSNAME ) );
 	}
 	
 	public boolean waitStoppedService( ActionBase action , long startMillis ) throws Exception {
-		// wait for stop for a while
-		action.debug( node.HOSTLOGIN + ": wait for stop service=" + srv.SYSNAME + " ..." );
-		
-		int stoptime = srv.STOPTIME;
-		if( stoptime == 0 )
-			stoptime = defaultStopServerTimeSecs;
-		long stopMillis = startMillis + stoptime * 1000;
-		
-		while( mode != VarPROCESSMODE.STOPPED ) {
-			if( System.currentTimeMillis() > stopMillis ) {
-				action.error( node.HOSTLOGIN + ": failed to stop service=" + srv.SYSNAME + " within " + stoptime + " seconds" );
-				return( false );
-			}
-						
-			// check stopped
-			gatherStatus( action );
-		    synchronized( this ) {
-		    	Thread.sleep( 1000 );
-		    }
-		}
-
-		action.info( node.HOSTLOGIN + " service=" + srv.SYSNAME + " successfully stopped" );
-		return( true );
+		return( waitStoppedAny( action , startMillis , "service=" + srv.SYSNAME ) );
 	}
 	
 	public boolean waitStoppedGeneric( ActionBase action , long startMillis ) throws Exception {
+		if( srv.NOPIDS )
+			return( waitStoppedAny( action , startMillis , "generic server=" + srv.NAME ) );
+			
 		action.debug( node.HOSTLOGIN + ": wait for stop generic server=" + srv.NAME + " ..." );
 	
 		int stoptime = srv.STOPTIME;
@@ -428,33 +465,18 @@ public class ServerProcess {
 			stoptime = defaultStopServerTimeSecs;
 		long stopMillis = startMillis + stoptime * 1000;
 		
-		if( srv.NOPIDS )
-			gatherStatus( action );
-		else {
-			mode = VarPROCESSMODE.UNKNOWN;
-			getPids( action );
-		}
+		mode = VarPROCESSMODE.UNKNOWN;
+		getPids( action );
 		
 		while( true ) {
-			if( srv.NOPIDS ) {
-				if( mode == VarPROCESSMODE.STOPPED )
-					break;
-			}
-			else {
-				if( pids.isEmpty() )
-					break;
-			}
+			if( pids.isEmpty() )
+				break;
 			
 		    synchronized( this ) {
 		    	Thread.sleep( 1000 );
 		    }
 		    
 			if( System.currentTimeMillis() > stopMillis ) {
-				if( srv.NOPIDS ) {
-					action.error( node.HOSTLOGIN + ": failed to stop generic server=" + srv.NAME + " within " + stoptime + " seconds" );
-					return( false );
-				}
-				
 				action.error( node.HOSTLOGIN + ": failed to stop generic server=" + srv.NAME + " within " + stoptime + " seconds. Killing ..." );
 				
 				// enforced stop
@@ -471,16 +493,39 @@ public class ServerProcess {
 			}
 			
 			// check stopped
-			if( srv.NOPIDS )
-				gatherStatus( action );
-			else
-				getPids( action );
+			getPids( action );
 		}
 	
-		action.info( node.HOSTLOGIN + ": server successfully stopped" );
+		action.info( node.HOSTLOGIN + ": generic server=" + srv.NAME + " successfully stopped" );
 		return( true );
 	}
 
+	public boolean waitStoppedAny( ActionBase action , long startMillis , String title ) throws Exception {
+		// wait for stop for a while
+		action.debug( node.HOSTLOGIN + ": wait for " + title + " ..." );
+		
+		int stoptime = srv.STOPTIME;
+		if( stoptime == 0 )
+			stoptime = defaultStopServerTimeSecs;
+		long stopMillis = startMillis + stoptime * 1000;
+		
+		while( mode != VarPROCESSMODE.STOPPED ) {
+			if( System.currentTimeMillis() > stopMillis ) {
+				action.error( node.HOSTLOGIN + ": failed to stop " + title + " within " + stoptime + " seconds" );
+				return( false );
+			}
+						
+			// check stopped
+			gatherStatus( action );
+		    synchronized( this ) {
+		    	Thread.sleep( 1000 );
+		    }
+		}
+
+		action.info( node.HOSTLOGIN + " " + title + " successfully stopped" );
+		return( true );
+	}
+	
 	private void killServer( ActionBase action ) throws Exception {
 		ShellExecutor shell = action.getShell( node );
 		try {
@@ -514,6 +559,9 @@ public class ServerProcess {
 		if( isPacemaker( action ) )
 			res = startPacemaker( action );
 		else
+		if( isDocker( action ) )
+			res = startDocker( action );
+		else
 		if( isGeneric( action ) )
 			res = startGeneric( action );
 		else
@@ -541,6 +589,33 @@ public class ServerProcess {
 		ShellExecutor shell = action.getShell( node );
 		try {
 			shell.customCritical( action , "crm_resource -r " + srv.SYSNAME + " --host `hostname` --clear --quiet" );
+			return( true );
+		}
+		finally {
+			shell.release( action );
+		}
+	}
+	
+	private boolean startDocker( ActionBase action ) throws Exception {
+		if( !srv.isLinux() )
+			action.exitNotImplemented();
+			
+		// check status
+		gatherStatus( action );
+
+		if( mode == VarPROCESSMODE.STARTED ) {
+			action.debug( node.HOSTLOGIN + ": docker resource=" + srv.SYSNAME + " already started" );
+			return( true );
+		}
+
+		if( mode != VarPROCESSMODE.STOPPED ) {
+			action.error( node.HOSTLOGIN + ": docker resource=" + srv.SYSNAME + " is in unexpected state" );
+			return( false );
+		}
+
+		ShellExecutor shell = action.getShell( node );
+		try {
+			shell.customCritical( action , "docker start " + srv.SYSNAME );
 			return( true );
 		}
 		finally {
@@ -636,6 +711,9 @@ public class ServerProcess {
 		if( isPacemaker( action ) )
 			res = waitStartedPacemaker( action , startMillis );
 		else
+		if( isDocker( action ) )
+			res = waitStartedDocker( action , startMillis );
+		else
 		if( isGeneric( action ) )
 			res = waitStartedGeneric( action , startMillis );
 		else
@@ -644,82 +722,24 @@ public class ServerProcess {
 	}
 
 	public boolean waitStartedPacemaker( ActionBase action , long startMillis ) throws Exception {
-		// wait for stop for a while
-		action.debug( node.HOSTLOGIN + ": wait for start pacemaker resource=" + srv.SYSNAME + " ..." );
-		
-		int starttime = srv.STARTTIME;
-		if( starttime == 0 )
-			starttime = defaultStartServerTimeSecs;
-		long stopMillis = startMillis + starttime * 1000;
-		long startTimeoutMillis = startMillis + defaultStartProcessTimeSecs * 1000;
-				
-		gatherStatus( action );
-		while( mode != VarPROCESSMODE.STARTED ) {
-			Common.sleep( 1000 );
-		    
-			if( System.currentTimeMillis() > stopMillis ) {
-				action.error( node.HOSTLOGIN + ": failed to start pacemaker resource=" + srv.SYSNAME + " within " + starttime + " seconds" );
-				return( false );
-			}
-
-			if( mode == VarPROCESSMODE.STOPPED && System.currentTimeMillis() > startTimeoutMillis ) {
-				action.info( node.HOSTLOGIN + ": failed to start pacemaker resource=" + srv.SYSNAME + " - process launch timeout is " + defaultStartProcessTimeSecs + " seconds" );
-				return( false );
-			}
-
-			if( mode != VarPROCESSMODE.STOPPED && mode != VarPROCESSMODE.STARTING ) {
-				action.info( node.HOSTLOGIN + ": failed to start pacemaker resource=" + srv.SYSNAME + " - process is in unexpected state (" + cmdValue + ")" );
-				return( false );
-			}
-			
-			// check stopped
-			gatherStatus( action );
-		}
-
-		action.info( node.HOSTLOGIN + " pacemaker resource=" + srv.SYSNAME + " successfully started" );
-		return( true );
+		return( waitStartedAny( action , startMillis , "pacemaker resource=" + srv.SYSNAME ) );
+	}
+	
+	public boolean waitStartedDocker( ActionBase action , long startMillis ) throws Exception {
+		return( waitStartedAny( action , startMillis , "docker resource=" + srv.SYSNAME ) );
 	}
 	
 	public boolean waitStartedService( ActionBase action , long startMillis ) throws Exception {
-		// wait for stop for a while
-		action.debug( node.HOSTLOGIN + ": wait for start service=" + srv.SYSNAME + " ..." );
-		
-		int starttime = srv.STARTTIME;
-		if( starttime == 0 )
-			starttime = defaultStartServerTimeSecs;
-		long stopMillis = startMillis + starttime * 1000;
-		long startTimeoutMillis = startMillis + defaultStartProcessTimeSecs * 1000;
-				
-		gatherStatus( action );
-		while( mode != VarPROCESSMODE.STARTED ) {
-			Common.sleep( 1000 );
-		    
-			if( System.currentTimeMillis() > stopMillis ) {
-				action.error( node.HOSTLOGIN + ": failed to start service=" + srv.SYSNAME + " within " + starttime + " seconds" );
-				return( false );
-			}
-
-			if( mode == VarPROCESSMODE.STOPPED && System.currentTimeMillis() > startTimeoutMillis ) {
-				action.info( node.HOSTLOGIN + ": failed to start service=" + srv.SYSNAME + " - process launch timeout is " + defaultStartProcessTimeSecs + " seconds" );
-				return( false );
-			}
-
-			if( mode != VarPROCESSMODE.STOPPED && mode != VarPROCESSMODE.STARTING ) {
-				action.info( node.HOSTLOGIN + ": failed to start service=" + srv.SYSNAME + " - process is in unexpected state (" + cmdValue + ")" );
-				return( false );
-			}
-			
-			// check stopped
-			gatherStatus( action );
-		}
-
-		action.info( node.HOSTLOGIN + " service=" + srv.SYSNAME + " successfully started" );
-		return( true );
+		return( waitStartedAny( action , startMillis , "service=" + srv.SYSNAME ) );
 	}
 	
 	public boolean waitStartedGeneric( ActionBase action , long startMillis ) throws Exception {
+		return( waitStartedAny( action , startMillis , "generic server=" + srv.NAME ) );
+	}
+
+	public boolean waitStartedAny( ActionBase action , long startMillis , String title ) throws Exception {
 		// wait for stop for a while
-		action.debug( node.HOSTLOGIN + ": wait for start generic server=" + srv.NAME + " ..." );
+		action.debug( node.HOSTLOGIN + ": wait for start " + title + " ..." );
 		
 		int starttime = srv.STARTTIME;
 		if( starttime == 0 )
@@ -732,17 +752,17 @@ public class ServerProcess {
 			Common.sleep( 1000 );
 		    
 			if( System.currentTimeMillis() > stopMillis ) {
-				action.error( node.HOSTLOGIN + ": failed to start generic server=" + srv.NAME + " within " + starttime + " seconds" );
+				action.error( node.HOSTLOGIN + ": failed to start " + title + " within " + starttime + " seconds" );
 				return( false );
 			}
 
 			if( mode == VarPROCESSMODE.STOPPED && System.currentTimeMillis() > startTimeoutMillis ) {
-				action.info( node.HOSTLOGIN + ": failed to start generic server=" + srv.NAME + " - process launch timeout is " + defaultStartProcessTimeSecs + " seconds" );
+				action.info( node.HOSTLOGIN + ": failed to start " + title + " - process launch timeout is " + defaultStartProcessTimeSecs + " seconds" );
 				return( false );
 			}
 
 			if( mode != VarPROCESSMODE.STOPPED && mode != VarPROCESSMODE.STARTING ) {
-				action.info( node.HOSTLOGIN + ": failed to start generic server=" + srv.NAME + " - process is in unexpected state (" + cmdValue + ")" );
+				action.info( node.HOSTLOGIN + ": failed to start " + title + " - process is in unexpected state (" + cmdValue + ")" );
 				return( false );
 			}
 			
@@ -750,7 +770,7 @@ public class ServerProcess {
 			gatherStatus( action );
 		}
 
-		action.info( node.HOSTLOGIN + " generic server=" + srv.NAME + " successfully started" );
+		action.info( node.HOSTLOGIN + " " + title + " successfully started" );
 		return( true );
 	}
 	
@@ -766,6 +786,9 @@ public class ServerProcess {
 		if( isPacemaker( action ) )
 			res = preparePacemaker( action );
 		else
+		if( isDocker( action ) )
+			res = prepareDocker( action );
+		else
 		if( isGeneric( action ) )
 			res = prepareGeneric( action );
 		else
@@ -776,6 +799,11 @@ public class ServerProcess {
 	}
 
 	private boolean preparePacemaker( ActionBase action ) throws Exception {
+		action.exitNotImplemented();
+		return( false );
+	}
+	
+	private boolean prepareDocker( ActionBase action ) throws Exception {
 		action.exitNotImplemented();
 		return( false );
 	}

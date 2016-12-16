@@ -21,11 +21,11 @@ public class ActionStartEnv extends ActionBase {
 	@Override protected void runBefore( ActionScope scope ) throws Exception {
 		infoAction( "start environment (" + getMode() + ") ..." );
 		if( isExecute() )
-			ActionSendChatMsg.sendMsg( this , "[startenv] starting " + scope.getScopeInfo( this ) + " ..." , null );
+			ActionSendChatMsg.sendMsg( this , "[startenv] starting " + scope.getScopeInfo( this ) + " ..." , context.env , context.sg );
 	}
 
 	@Override protected void runAfter( ActionScope scope ) throws Exception {
-		ActionSendChatMsg.sendMsg( this , "[startenv] done." , null );
+		ActionSendChatMsg.sendMsg( this , "[startenv] done." , context.env , context.sg );
 		infoAction( "done." );
 	}
 	
