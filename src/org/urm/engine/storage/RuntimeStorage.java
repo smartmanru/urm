@@ -25,6 +25,11 @@ public class RuntimeStorage extends ServerStorage {
 	}
 
 	public void restoreSysConfigs( ActionBase action , RedistStorage redist , LocalFolder srcFolder ) throws Exception {
+		if( server.isGeneric() == false && server.isService() == false ) {
+			String value = Common.getEnumLower( server.getServerAccessType() );
+			action.exit1( _Error.AccTypeNotForOperation1 , "access type (" + value + ") is not supported for operation" , value );
+		}
+			
 		String msg = "restore server control configuration files";
 		action.executeLogLive( action.getNodeAccount( node ) , msg );
 		if( !action.isExecute() )

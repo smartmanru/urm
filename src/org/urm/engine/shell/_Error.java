@@ -51,5 +51,6 @@ public class _Error {
 	public static final int ScpDestinationAlreadyExists1 = ErrorBase + 42;
 	public static final int UnableCreateDirectory1 = ErrorBase + 43;
 	public static final int UnknownDatacenter1 = ErrorBase + 44;
+	public static final int AccessTypeNotSupported1 = ErrorBase + 45;
 	
 }
