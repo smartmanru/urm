@@ -44,9 +44,7 @@ import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
-import org.urm.meta.product.Meta.VarBUILDMODE;
-import org.urm.meta.product.Meta.VarCATEGORY;
-import org.urm.meta.product.Meta.VarNAMETYPE;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 

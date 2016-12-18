@@ -10,7 +10,7 @@ import org.urm.common.RunContext;
 import org.urm.engine.ServerTransaction;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerObject;
-import org.urm.meta.product.Meta.VarBUILDMODE;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

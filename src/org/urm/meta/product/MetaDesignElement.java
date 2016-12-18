@@ -6,8 +6,8 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.meta.product.Meta.VarNAMETYPE;
-import org.urm.meta.product.MetaDesign.VarELEMENTTYPE;
+import org.urm.meta.Types;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -38,7 +38,7 @@ public class MetaDesignElement {
 		
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		String TYPE = ConfReader.getRequiredAttrValue( node , "type" );
-		elementType = Meta.getDesignElementType( TYPE , false );
+		elementType = Types.getDesignElementType( TYPE , false );
 		FUNCTION = ConfReader.getAttrValue( node , "function" );
 
 		if( isGroup() ) {

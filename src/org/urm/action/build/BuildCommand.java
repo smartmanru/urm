@@ -16,7 +16,7 @@ import org.urm.engine.storage.LogStorage;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductSettings;
-import org.urm.meta.product.Meta.VarCATEGORY;
+import org.urm.meta.Types.*;
 
 public class BuildCommand {
 	

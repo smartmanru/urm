@@ -14,7 +14,7 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaProductSettings;
-import org.urm.meta.product.Meta.VarCATEGORY;
+import org.urm.meta.Types.*;
 
 public class ActionPrintReleaseStatus extends ActionBase {
 

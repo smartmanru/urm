@@ -5,7 +5,7 @@ import org.urm.common.Common;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
-import org.urm.meta.product.Meta.VarPROCESSMODE;
+import org.urm.meta.Types.*;
 
 public class ServerProcess {
 

@@ -26,8 +26,7 @@ import org.urm.meta.product.MetaEnvStartGroup;
 import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
-import org.urm.meta.product.Meta.VarCATEGORY;
-import org.urm.meta.product.Meta.VarDISTITEMORIGIN;
+import org.urm.meta.Types.*;
 
 public class ActionScopeSet {
 

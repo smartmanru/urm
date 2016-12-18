@@ -19,8 +19,7 @@ import org.urm.meta.product.MetaEnvServerLocation;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
-import org.urm.meta.product.Meta.VarCATEGORY;
-import org.urm.meta.product.Meta.VarDISTITEMORIGIN;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 
 public class Dist {

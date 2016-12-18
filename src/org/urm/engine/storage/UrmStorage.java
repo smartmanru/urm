@@ -6,7 +6,7 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.meta.engine.ServerDirectory;
 import org.urm.meta.engine.ServerProduct;
 import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.Meta.VarDBMSTYPE;
+import org.urm.meta.Types.*;
 
 public class UrmStorage {
 

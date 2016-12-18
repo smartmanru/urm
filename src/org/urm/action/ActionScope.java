@@ -20,8 +20,7 @@ import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProjectSet;
-import org.urm.meta.product.Meta.VarCATEGORY;
-import org.urm.meta.product.Meta.VarDISTITEMORIGIN;
+import org.urm.meta.Types.*;
 
 public class ActionScope {
 

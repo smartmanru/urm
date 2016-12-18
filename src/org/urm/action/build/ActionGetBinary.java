@@ -13,8 +13,7 @@ import org.urm.engine.storage.NexusDownloadInfo;
 import org.urm.engine.storage.NexusStorage;
 import org.urm.engine.storage.SourceStorage;
 import org.urm.meta.product.MetaDistrBinaryItem;
-import org.urm.meta.product.Meta.VarCATEGORY;
-import org.urm.meta.product.Meta.VarITEMSRCTYPE;
+import org.urm.meta.Types.*;
 
 public class ActionGetBinary extends ActionBase {
 

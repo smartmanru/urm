@@ -7,8 +7,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.meta.product.Meta.VarCONTENTTYPE;
-import org.urm.meta.product.Meta.VarDEPLOYMODE;
+import org.urm.meta.Types.*;
 
 public class MetaEnvServerLocation {
 

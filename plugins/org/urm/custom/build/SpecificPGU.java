@@ -19,7 +19,7 @@ import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
-import org.urm.meta.product.Meta.VarCATEGORY;
+import org.urm.meta.Types.*;
 
 public class SpecificPGU {
 

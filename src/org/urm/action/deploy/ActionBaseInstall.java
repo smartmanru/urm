@@ -14,12 +14,10 @@ import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.RuntimeStorage;
 import org.urm.engine.storage.VersionInfoStorage;
 import org.urm.meta.engine.ServerBaseItemData;
-import org.urm.meta.product.Meta.VarBASESRCFORMAT;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerBase;
 import org.urm.meta.product.MetaEnvServerNode;
-import org.urm.meta.product.Meta.VarARCHIVETYPE;
-import org.urm.meta.product.Meta.VarSERVERACCESSTYPE;
+import org.urm.meta.Types.*;
 
 public class ActionBaseInstall extends ActionBase {
 

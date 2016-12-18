@@ -3,8 +3,8 @@ package org.urm.meta.product;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.meta.product.Meta.VarITEMSRCTYPE;
-import org.urm.meta.product.Meta.VarNAMETYPE;
+import org.urm.meta.Types;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -38,7 +38,7 @@ public class MetaSourceProjectItem {
 	public void load( ActionBase action , Node node ) throws Exception {
 		ITEMNAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		
-		ITEMSRCTYPE = Meta.getItemSrcType( ConfReader.getRequiredAttrValue( node , "type" ) , false );
+		ITEMSRCTYPE = Types.getItemSrcType( ConfReader.getRequiredAttrValue( node , "type" ) , false );
 		ITEMBASENAME = ConfReader.getAttrValue( node , "basename" );
 		if( ITEMBASENAME.isEmpty() )
 			ITEMBASENAME = ITEMNAME;

@@ -6,7 +6,7 @@ import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.vcs.ProjectVersionControl;
 import org.urm.meta.product.MetaSourceProject;
-import org.urm.meta.product.Meta.VarCATEGORY;
+import org.urm.meta.Types.*;
 
 public class ActionSetTagOnBuildBranch extends ActionBase {
 

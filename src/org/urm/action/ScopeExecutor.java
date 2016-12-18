@@ -19,8 +19,7 @@ import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
-import org.urm.meta.product.Meta.VarBUILDMODE;
-import org.urm.meta.product.Meta.VarCATEGORY;
+import org.urm.meta.Types.*;
 
 public class ScopeExecutor {
 

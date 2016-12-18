@@ -19,7 +19,8 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaProductSettings;
-import org.urm.meta.product.Meta.VarBUILDMODE;
+import org.urm.meta.Types;
+import org.urm.meta.Types.*;
 
 public class CommandContext {
 
@@ -333,7 +334,7 @@ public class CommandContext {
 		CTX_BUILDINFO = getParamValue( "OPT_BUILDINFO" );
 		CTX_HOSTUSER = getParamValue( "OPT_HOSTUSER" );
 		CTX_NEWKEY = getParamValue( "OPT_NEWKEY" );
-		CTX_BUILDMODE = Meta.getBuildMode( getParamValue( "OPT_BUILDMODE" ) , false );
+		CTX_BUILDMODE = Types.getBuildMode( getParamValue( "OPT_BUILDMODE" ) , false );
 		CTX_OLDRELEASE = getParamValue( "OPT_COMPATIBILITY" );
 		CTX_PORT = getIntParamValue( "OPT_PORT" , -1 );
 		CTX_HOST = getParamValue( "OPT_HOST" );

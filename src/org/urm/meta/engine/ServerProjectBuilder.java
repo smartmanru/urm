@@ -6,6 +6,8 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.meta.ServerObject;
+import org.urm.meta.Types;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -20,14 +22,38 @@ public class ServerProjectBuilder extends ServerObject {
 	PropertySet properties;
 	
 	public String NAME;
-	public String TYPE;
-	public String HOSTLOGIN;
 	public String DESC;
-	public String OSTYPE;
+	public VarBUILDERLANG languageType;
+	public VarBUILDERTYPE builderType;
+	public VarOSTYPE osType;
+	public String HOSTLOGIN;
+	public String AUTHRESOURCE;
+	public VarBUILDERTARGET targetType;
+	public String TARGETLOCALPATH;
+	
+	public String JAVA_JDKPATH;
+	public String ANT_INSTALLPATH;
+	public String MAVEN_HOMEPATH;
+	public String MAVEN_COMMAND;
+	public String MAVEN_OPTIONS;
+	public String NEXUS_RESOURCE;
 
-	public static String BUILDER_TYPE_MAVEN = "Maven";
-	public static String BUILDER_TYPE_GRADLE = "Gradle";
-	public static String BUILDER_TYPE_DOTNET = ".NET";
+	public static String PROPERTY_NAME;
+	public static String PROPERTY_DESC;
+	public static String PROPERTY_LANGUAGETYPE;
+	public static String PROPERTY_BUILDERTYPE;
+	public static String PROPERTY_OSTYPE;
+	public static String PROPERTY_HOSTLOGIN;
+	public static String PROPERTY_AUTHRESOURCE;
+	public static String PROPERTY_TARGETTYPE;
+	public static String PROPERTY_TARGETLOCALPATH;
+	
+	public static String PROPERTY_JAVA_JDKHOMEPATH;
+	public static String PROPERTY_ANT_HOMEPATH;
+	public static String PROPERTY_MAVEN_INSTALLPATH;
+	public static String PROPERTY_MAVEN_COMMAND;
+	public static String PROPERTY_MAVEN_OPTIONS;
+	public static String PROPERTY_NEXUS_RESOURCE;
 	
 	public ServerProjectBuilder( ServerBuilders builders ) {
 		super( builders );
@@ -61,10 +87,14 @@ public class ServerProjectBuilder extends ServerObject {
 	
 	private void scatterSystemProperties() throws Exception {
 		NAME = properties.getSystemRequiredStringProperty( "name" );
-		TYPE = properties.getSystemRequiredStringProperty( "type" );
-		HOSTLOGIN = properties.getSystemRequiredStringProperty( "hostlogin" );
 		DESC = properties.getSystemStringProperty( "desc" );
-		OSTYPE = properties.getSystemStringProperty( "ostype" );
+		languageType = Types.getBuilderLanguage( properties.getSystemRequiredStringProperty( "langtype" ) , true );
+		builderType = Types.getBuilderType( properties.getSystemRequiredStringProperty( "buildertype" ) , true );
+		osType = Types.getOSType( properties.getSystemStringProperty( "ostype" ) , false );
+		HOSTLOGIN = properties.getSystemStringProperty( "hostlogin" );
+		AUTHRESOURCE = properties.getSystemStringProperty( "authresource" );
+		targetType = Types.getBuilderTarget( properties.getSystemStringProperty( "targettype" ) , false );
+		TARGETLOCALPATH = properties.getSystemStringProperty( "targetlocalpath" );
 	}
 
 	public void createProperties() throws Exception {

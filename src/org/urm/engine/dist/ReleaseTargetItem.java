@@ -8,7 +8,7 @@ import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaSourceProjectItem;
-import org.urm.meta.product.Meta.VarNAMETYPE;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

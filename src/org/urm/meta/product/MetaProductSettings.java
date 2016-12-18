@@ -14,7 +14,8 @@ import org.urm.engine.TransactionBase;
 import org.urm.meta.ServerProductContext;
 import org.urm.meta.ServerProductMeta;
 import org.urm.meta.engine.ServerSettings;
-import org.urm.meta.product.Meta.VarBUILDMODE;
+import org.urm.meta.Types;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -223,7 +224,7 @@ public class MetaProductSettings extends PropertyController {
 			if( items != null ) {
 				for( Node node : items ) {
 					String modeName = ConfReader.getAttrValue( node , "name" );
-					VarBUILDMODE mode = Meta.getBuildMode( modeName , false );
+					VarBUILDMODE mode = Types.getBuildMode( modeName , false );
 					
 					MetaProductBuildSettings buildMode = new MetaProductBuildSettings( "mode" , meta , this );
 					buildMode.load( action , node , buildCommon.getProperties() );

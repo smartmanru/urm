@@ -9,7 +9,7 @@ import org.urm.engine.action.CommandAction;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.Meta.VarCATEGORY;
+import org.urm.meta.Types.*;
 
 public class ReleaseCommandExecutor extends CommandExecutor {
 

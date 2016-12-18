@@ -39,11 +39,7 @@ import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringTarget;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
-import org.urm.meta.product.Meta.VarBUILDMODE;
-import org.urm.meta.product.Meta.VarENVTYPE;
-import org.urm.meta.product.Meta.VarNODETYPE;
-import org.urm.meta.product.Meta.VarSERVERACCESSTYPE;
-import org.urm.meta.product.Meta.VarSERVERRUNTYPE;
+import org.urm.meta.Types.*;
 
 public class ServerTransaction extends TransactionBase {
 

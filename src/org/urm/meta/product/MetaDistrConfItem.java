@@ -4,8 +4,8 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerTransaction;
-import org.urm.meta.product.Meta.VarCONFITEMTYPE;
-import org.urm.meta.product.Meta.VarNAMETYPE;
+import org.urm.meta.Types;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -64,7 +64,7 @@ public class MetaDistrConfItem {
 	
 	public void load( ActionBase action , Node node ) throws Exception {
 		KEY = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
-		itemType = Meta.getConfItemType( ConfReader.getRequiredAttrValue( node , "type" ) , false );
+		itemType = Types.getConfItemType( ConfReader.getRequiredAttrValue( node , "type" ) , false );
 		FILES = ConfReader.getAttrValue( node , "files" );
 		SECURED = ConfReader.getAttrValue( node , "secured" );
 		EXCLUDE = ConfReader.getAttrValue( node , "exclude" );

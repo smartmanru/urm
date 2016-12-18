@@ -12,10 +12,10 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.meta.ServerObject;
-import org.urm.meta.product.Meta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.urm.meta.Types;
 
 public class ServerNetworkHost extends ServerObject {
 
@@ -52,7 +52,7 @@ public class ServerNetworkHost extends ServerObject {
 		IP = ConfReader.getAttrValue( root , "ip" );
 		PORT = ConfReader.getIntegerAttrValue( root , "port" , 22 );
 		String OSTYPE = ConfReader.getAttrValue( root , "ostype" );
-		osType = Meta.getOSType( OSTYPE , false );
+		osType = Types.getOSType( OSTYPE , false );
 		DESC = ConfReader.getAttrValue( root , "desc" );
 		
 		Node[] list = ConfReader.xmlGetChildren( root , "account" );

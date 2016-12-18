@@ -66,6 +66,10 @@ public class MetaProductBuildSettings extends PropertyController {
 	public static String PROPERTY_BRANCHNAME = "source.branch";
 	public static String PROPERTY_RELEASE_GROUPFOLDER = "release.group";
 	public static String PROPERTY_SOURCE_REPOSITORY = "release.repo";
+
+	public static String BUILDER_TYPE_MAVEN = "Maven";
+	public static String BUILDER_TYPE_GRADLE = "Gradle";
+	public static String BUILDER_TYPE_DOTNET = ".NET";
 	
 	public MetaProductBuildSettings( String name , Meta meta , MetaProductSettings product ) {
 		super( product , name );

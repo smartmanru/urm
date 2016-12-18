@@ -18,7 +18,7 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaProductSettings;
-import org.urm.meta.product.Meta.VarDBMSTYPE;
+import org.urm.meta.Types.*;
 
 public class DatabaseSpecific {
 

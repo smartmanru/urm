@@ -36,7 +36,7 @@ import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
-import org.urm.meta.product.Meta.VarCOMPITEMTYPE;
+import org.urm.meta.Types.*;
 
 public class TransactionBase extends ServerObject {
 
