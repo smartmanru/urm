@@ -11,9 +11,7 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.engine.ServerProjectBuilder;
-import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaSourceProject;
-import org.urm.meta.Types.*;
 
 public class ActionBuild extends ActionBase {
 	

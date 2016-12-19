@@ -9,7 +9,6 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.vcs.ProjectVersionControl;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
-import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -125,16 +124,15 @@ public class BuilderLinuxMaven extends Builder {
 				" using maven to nexus path " + NEXUS_PATH + "..." );
 
 		// set environment
-		String BUILD_JAVA_VERSION = project.getJavaVersion( action );
-		String BUILD_MAVEN_VERSION = project.getBuilderVersion( action ); 
+		String BUILD_JAVA_HOME = builder.JAVA_JDKHOMEPATH;
+		String BUILD_MAVEN_HOME = builder.MAVEN_HOMEPATH; 
 		String MAVEN_CMD = "mvn -B -P " + MAVEN_ADDITIONAL_OPTIONS + " clean " + 
 				MODULE_MAVEN_CMD + " " + MODULE_ALT_REPO + " " + MODULE_MSETTINGS + " -Dmaven.test.skip=true";
 
 		ShellExecutor session = action.shell;
-		MetaProductSettings product = project.meta.getProductSettings( action );
-		session.export( action , "JAVA_HOME" , product.CONFIG_BUILDBASE_PATH + "/" + BUILD_JAVA_VERSION );
+		session.export( action , "JAVA_HOME" , BUILD_JAVA_HOME );
 		session.export( action , "PATH" , "$JAVA_HOME/bin:$PATH" );
-		session.export( action , "M2_HOME" , product.CONFIG_BUILDBASE_PATH + "/" + BUILD_MAVEN_VERSION );
+		session.export( action , "M2_HOME" , BUILD_MAVEN_HOME );
 		session.export( action , "M2" , "$M2_HOME/bin" );
 		session.export( action , "PATH" , "$M2:$PATH" );
 		session.export( action , "MAVEN_OPTS" , Common.getQuoted( "-XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );

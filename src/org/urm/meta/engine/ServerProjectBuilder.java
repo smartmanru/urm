@@ -23,6 +23,8 @@ public class ServerProjectBuilder extends ServerObject {
 	PropertySet properties;
 	
 	public String NAME;
+	public String BASENAME;
+	public String VERSION;
 	public String DESC;
 	public VarBUILDERLANG languageType;
 	public VarBUILDERTYPE builderType;
@@ -38,9 +40,12 @@ public class ServerProjectBuilder extends ServerObject {
 	public String MAVEN_HOMEPATH;
 	public String MAVEN_COMMAND;
 	public String MAVEN_OPTIONS;
+	public String GRADLE_HOMEPATH;
 	public String NEXUS_RESOURCE;
 
 	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_BASENAME = "basename";
+	public static String PROPERTY_VERSION = "version";
 	public static String PROPERTY_DESC = "desc";
 	public static String PROPERTY_LANGUAGETYPE = "langtype";
 	public static String PROPERTY_BUILDERTYPE = "buildertype";
@@ -56,6 +61,7 @@ public class ServerProjectBuilder extends ServerObject {
 	public static String PROPERTY_MAVEN_HOMEPATH = "maven.homepath";
 	public static String PROPERTY_MAVEN_COMMAND = "maven.command";
 	public static String PROPERTY_MAVEN_OPTIONS = "maven.options";
+	public static String PROPERTY_GRADLE_HOME = "gradle.home";
 	public static String PROPERTY_NEXUS_RESOURCE = "nexus.resource";
 	
 	public ServerProjectBuilder( ServerBuilders builders ) {
@@ -90,6 +96,8 @@ public class ServerProjectBuilder extends ServerObject {
 	
 	private void scatterSystemProperties() throws Exception {
 		NAME = properties.getSystemRequiredStringProperty( PROPERTY_NAME );
+		BASENAME = properties.getSystemRequiredStringProperty( PROPERTY_BASENAME );
+		VERSION = properties.getSystemRequiredStringProperty( PROPERTY_VERSION );
 		DESC = properties.getSystemStringProperty( PROPERTY_DESC );
 		languageType = Types.getBuilderLanguage( properties.getSystemRequiredStringProperty( PROPERTY_LANGUAGETYPE ) , true );
 		builderType = Types.getBuilderType( properties.getSystemRequiredStringProperty( PROPERTY_BUILDERTYPE ) , true );
@@ -121,6 +129,9 @@ public class ServerProjectBuilder extends ServerObject {
 			MAVEN_COMMAND = properties.getSystemStringProperty( PROPERTY_MAVEN_COMMAND );
 			MAVEN_OPTIONS = properties.getSystemStringProperty( PROPERTY_MAVEN_OPTIONS );
 		}
+		if( builderType == VarBUILDERTYPE.GRADLE )
+			GRADLE_HOMEPATH = properties.getSystemStringProperty( PROPERTY_GRADLE_HOME );
+		
 		if( targetType == VarBUILDERTARGET.NEXUS )
 			NEXUS_RESOURCE = properties.getSystemStringProperty( PROPERTY_NEXUS_RESOURCE );
 	}
@@ -128,6 +139,8 @@ public class ServerProjectBuilder extends ServerObject {
 	public void createProperties() throws Exception {
 		properties = new PropertySet( "builder" , null );
 		properties.setOriginalStringProperty( PROPERTY_NAME , NAME );
+		properties.setOriginalStringProperty( PROPERTY_BASENAME , BASENAME );
+		properties.setOriginalStringProperty( PROPERTY_VERSION , VERSION );
 		properties.setOriginalStringProperty( PROPERTY_DESC , DESC );
 		properties.setOriginalStringProperty( PROPERTY_LANGUAGETYPE , Common.getEnumLower( languageType ) );
 		properties.setOriginalStringProperty( PROPERTY_BUILDERTYPE , Common.getEnumLower( builderType ) );
@@ -151,6 +164,9 @@ public class ServerProjectBuilder extends ServerObject {
 			properties.setOriginalStringProperty( PROPERTY_MAVEN_COMMAND , MAVEN_COMMAND );
 			properties.setOriginalStringProperty( PROPERTY_MAVEN_OPTIONS , MAVEN_OPTIONS );
 		}
+		if( builderType == VarBUILDERTYPE.GRADLE )
+			properties.setOriginalStringProperty( PROPERTY_GRADLE_HOME , GRADLE_HOMEPATH );
+		
 		if( targetType == VarBUILDERTARGET.NEXUS )
 			properties.setOriginalStringProperty( PROPERTY_NEXUS_RESOURCE , NEXUS_RESOURCE );
 	}
@@ -181,6 +197,8 @@ public class ServerProjectBuilder extends ServerObject {
 
 	public void setBuilderData( ServerTransaction transaction , ServerProjectBuilder src ) throws Exception {
 		NAME = src.NAME;
+		BASENAME = src.BASENAME;
+		VERSION = src.VERSION;
 		DESC = src.DESC;
 		languageType = src.languageType;
 		builderType = src.builderType;
@@ -221,6 +239,11 @@ public class ServerProjectBuilder extends ServerObject {
 			MAVEN_COMMAND = "";
 			MAVEN_OPTIONS = "";
 		}
+
+		if( builderType == VarBUILDERTYPE.GRADLE )
+			GRADLE_HOMEPATH = src.GRADLE_HOMEPATH;
+		else
+			GRADLE_HOMEPATH = "";
 		
 		if( targetType == VarBUILDERTARGET.NEXUS )
 			NEXUS_RESOURCE = src.NEXUS_RESOURCE;

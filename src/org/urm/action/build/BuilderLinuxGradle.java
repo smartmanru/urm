@@ -7,7 +7,6 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.vcs.ProjectVersionControl;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
-import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
 
 public class BuilderLinuxGradle extends Builder {
@@ -45,13 +44,12 @@ public class BuilderLinuxGradle extends Builder {
 
 	@Override public boolean runBuild( ActionBase action ) throws Exception {
 		// set java and gradle environment
-		String BUILD_JAVA_VERSION = builder.JAVA_JDKHOMEPATH;
-		String BUILD_GRADLE_VERSION = project.getBuilderVersion( action ); 
+		String BUILD_JAVA_HOME = builder.JAVA_JDKHOMEPATH;
+		String BUILD_GRADLE_HOME = builder.GRADLE_HOMEPATH; 
 
 		ShellExecutor session = action.shell;
-		MetaProductSettings product = project.meta.getProductSettings( action );
-		session.export( action , "JAVA_HOME" , product.CONFIG_BUILDBASE_PATH + "/" + BUILD_JAVA_VERSION );
-		session.export( action , "GR_HOME" , product.CONFIG_BUILDBASE_PATH + "/" + BUILD_GRADLE_VERSION );
+		session.export( action , "JAVA_HOME" , BUILD_JAVA_HOME );
+		session.export( action , "GR_HOME" , BUILD_GRADLE_HOME );
 		session.export( action , "GR" , "$GR_HOME/bin" );
 		session.export( action , "PATH" , "$GR:$JAVA_HOME/bin:$PATH" );
 

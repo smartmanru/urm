@@ -10,6 +10,7 @@ import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.vcs.ProjectVersionControl;
 import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
@@ -18,8 +19,8 @@ public class BuilderWindowsDotnet extends Builder {
 
 	RemoteFolder CODEPATH;
 	
-	public BuilderWindowsDotnet( String BUILDER , MetaSourceProject project , BuildStorage storage , String TAG , String BUILD_OPTIONS , String APPVERSION ) {
-		super( BUILDER , project , storage , TAG , APPVERSION );
+	public BuilderWindowsDotnet( ServerProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
+		super( builder , project , storage , TAG , APPVERSION );
 	}
 
 	@Override public ShellExecutor createShell( ActionBase action ) throws Exception {
@@ -58,7 +59,7 @@ public class BuilderWindowsDotnet extends Builder {
 	@Override public boolean runBuild( ActionBase action ) throws Exception {
 		// msbuilder params
 		String MSBUILD_PATH = "";
-		String BUILDEVERSION = project.getBuilderVersion( action );
+		String BUILDEVERSION = builder.VERSION;
 		if( BUILDEVERSION.equals( "VS-2013-EXPRESS" ) )
 			MSBUILD_PATH = Common.getQuoted( "C:\\Program Files (x86)\\MSBuild\\12.0\\Bin\\msbuild.exe" );
 		else
