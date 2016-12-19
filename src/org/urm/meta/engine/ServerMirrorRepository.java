@@ -289,7 +289,7 @@ public class ServerMirrorRepository extends ServerObject {
 	}
 	
 	private void dropMirrorInternal( ServerTransaction transaction ) throws Exception {
-		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , false , true );
+		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , "" , true );
 		vcs.dropMirror( this );
 	}
 

@@ -1,6 +1,7 @@
 package org.urm.meta.engine;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.ServerTransaction;
@@ -25,35 +26,37 @@ public class ServerProjectBuilder extends ServerObject {
 	public String DESC;
 	public VarBUILDERLANG languageType;
 	public VarBUILDERTYPE builderType;
+	public boolean remote;
 	public VarOSTYPE osType;
 	public String HOSTLOGIN;
 	public String AUTHRESOURCE;
 	public VarBUILDERTARGET targetType;
 	public String TARGETLOCALPATH;
 	
-	public String JAVA_JDKPATH;
-	public String ANT_INSTALLPATH;
+	public String JAVA_JDKHOMEPATH;
+	public String ANT_HOMEPATH;
 	public String MAVEN_HOMEPATH;
 	public String MAVEN_COMMAND;
 	public String MAVEN_OPTIONS;
 	public String NEXUS_RESOURCE;
 
-	public static String PROPERTY_NAME;
-	public static String PROPERTY_DESC;
-	public static String PROPERTY_LANGUAGETYPE;
-	public static String PROPERTY_BUILDERTYPE;
-	public static String PROPERTY_OSTYPE;
-	public static String PROPERTY_HOSTLOGIN;
-	public static String PROPERTY_AUTHRESOURCE;
-	public static String PROPERTY_TARGETTYPE;
-	public static String PROPERTY_TARGETLOCALPATH;
+	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_DESC = "desc";
+	public static String PROPERTY_LANGUAGETYPE = "langtype";
+	public static String PROPERTY_BUILDERTYPE = "buildertype";
+	public static String PROPERTY_REMOTE = "remote";
+	public static String PROPERTY_OSTYPE = "ostype";
+	public static String PROPERTY_HOSTLOGIN = "hostlogin";
+	public static String PROPERTY_AUTHRESOURCE = "authresource";
+	public static String PROPERTY_TARGETTYPE = "targettype";
+	public static String PROPERTY_TARGETLOCALPATH = "targetlocalpath";
 	
-	public static String PROPERTY_JAVA_JDKHOMEPATH;
-	public static String PROPERTY_ANT_HOMEPATH;
-	public static String PROPERTY_MAVEN_INSTALLPATH;
-	public static String PROPERTY_MAVEN_COMMAND;
-	public static String PROPERTY_MAVEN_OPTIONS;
-	public static String PROPERTY_NEXUS_RESOURCE;
+	public static String PROPERTY_JAVA_JDKHOMEPATH = "java.jdkhomepath";
+	public static String PROPERTY_ANT_HOMEPATH = "ant.homepath";
+	public static String PROPERTY_MAVEN_HOMEPATH = "maven.homepath";
+	public static String PROPERTY_MAVEN_COMMAND = "maven.command";
+	public static String PROPERTY_MAVEN_OPTIONS = "maven.options";
+	public static String PROPERTY_NEXUS_RESOURCE = "nexus.resource";
 	
 	public ServerProjectBuilder( ServerBuilders builders ) {
 		super( builders );
@@ -86,62 +89,148 @@ public class ServerProjectBuilder extends ServerObject {
 	}
 	
 	private void scatterSystemProperties() throws Exception {
-		NAME = properties.getSystemRequiredStringProperty( "name" );
-		DESC = properties.getSystemStringProperty( "desc" );
-		languageType = Types.getBuilderLanguage( properties.getSystemRequiredStringProperty( "langtype" ) , true );
-		builderType = Types.getBuilderType( properties.getSystemRequiredStringProperty( "buildertype" ) , true );
-		osType = Types.getOSType( properties.getSystemStringProperty( "ostype" ) , false );
-		HOSTLOGIN = properties.getSystemStringProperty( "hostlogin" );
-		AUTHRESOURCE = properties.getSystemStringProperty( "authresource" );
-		targetType = Types.getBuilderTarget( properties.getSystemStringProperty( "targettype" ) , false );
-		TARGETLOCALPATH = properties.getSystemStringProperty( "targetlocalpath" );
+		NAME = properties.getSystemRequiredStringProperty( PROPERTY_NAME );
+		DESC = properties.getSystemStringProperty( PROPERTY_DESC );
+		languageType = Types.getBuilderLanguage( properties.getSystemRequiredStringProperty( PROPERTY_LANGUAGETYPE ) , true );
+		builderType = Types.getBuilderType( properties.getSystemRequiredStringProperty( PROPERTY_BUILDERTYPE ) , true );
+		remote = properties.getSystemBooleanProperty( PROPERTY_REMOTE );
+		
+		if( remote ) {
+			osType = Types.getOSType( properties.getSystemStringProperty( PROPERTY_OSTYPE ) , false );
+			HOSTLOGIN = properties.getSystemStringProperty( PROPERTY_HOSTLOGIN );
+			AUTHRESOURCE = properties.getSystemStringProperty( PROPERTY_AUTHRESOURCE );
+		}
+		
+		targetType = Types.getBuilderTarget( properties.getSystemStringProperty( PROPERTY_TARGETTYPE ) , false );
+		if( targetType == VarBUILDERTARGET.LOCALPATH )
+			TARGETLOCALPATH = properties.getSystemStringProperty( PROPERTY_TARGETLOCALPATH );
+
+		JAVA_JDKHOMEPATH = "";
+		ANT_HOMEPATH = "";
+		MAVEN_HOMEPATH = "";
+		MAVEN_COMMAND = "";
+		MAVEN_OPTIONS = "";
+		NEXUS_RESOURCE = "";
+		
+		if( languageType == VarBUILDERLANG.JAVA )
+			JAVA_JDKHOMEPATH = properties.getSystemStringProperty( PROPERTY_JAVA_JDKHOMEPATH );
+		if( builderType == VarBUILDERTYPE.ANT )
+			ANT_HOMEPATH = properties.getSystemStringProperty( PROPERTY_ANT_HOMEPATH );
+		if( builderType == VarBUILDERTYPE.MAVEN ) {
+			MAVEN_HOMEPATH = properties.getSystemStringProperty( PROPERTY_MAVEN_HOMEPATH );
+			MAVEN_COMMAND = properties.getSystemStringProperty( PROPERTY_MAVEN_COMMAND );
+			MAVEN_OPTIONS = properties.getSystemStringProperty( PROPERTY_MAVEN_OPTIONS );
+		}
+		if( targetType == VarBUILDERTARGET.NEXUS )
+			NEXUS_RESOURCE = properties.getSystemStringProperty( PROPERTY_NEXUS_RESOURCE );
 	}
 
 	public void createProperties() throws Exception {
 		properties = new PropertySet( "builder" , null );
-		properties.setOriginalStringProperty( "name" , NAME );
-		properties.setOriginalStringProperty( "type" , TYPE );
-		properties.setOriginalStringProperty( "hostlogin" , HOSTLOGIN );
-		properties.setOriginalStringProperty( "desc" , DESC );
-		properties.setOriginalStringProperty( "ostype" , OSTYPE );
+		properties.setOriginalStringProperty( PROPERTY_NAME , NAME );
+		properties.setOriginalStringProperty( PROPERTY_DESC , DESC );
+		properties.setOriginalStringProperty( PROPERTY_LANGUAGETYPE , Common.getEnumLower( languageType ) );
+		properties.setOriginalStringProperty( PROPERTY_BUILDERTYPE , Common.getEnumLower( builderType ) );
+		properties.setOriginalBooleanProperty( PROPERTY_REMOTE , remote );
+		if( remote ) {
+			properties.setOriginalStringProperty( PROPERTY_OSTYPE , Common.getEnumLower( osType ) );
+			properties.setOriginalStringProperty( PROPERTY_HOSTLOGIN , HOSTLOGIN );
+			properties.setOriginalStringProperty( PROPERTY_AUTHRESOURCE , AUTHRESOURCE );
+		}
+		
+		properties.setOriginalStringProperty( PROPERTY_TARGETTYPE , Common.getEnumLower( targetType ) );
+		if( targetType == VarBUILDERTARGET.LOCALPATH )
+			properties.setOriginalStringProperty( PROPERTY_TARGETLOCALPATH , TARGETLOCALPATH ); 			
+		
+		if( languageType == VarBUILDERLANG.JAVA )
+			properties.setOriginalStringProperty( PROPERTY_JAVA_JDKHOMEPATH , JAVA_JDKHOMEPATH );
+		if( builderType == VarBUILDERTYPE.ANT )
+			properties.setOriginalStringProperty( PROPERTY_ANT_HOMEPATH , ANT_HOMEPATH ); 			
+		if( builderType == VarBUILDERTYPE.MAVEN ) {
+			properties.setOriginalStringProperty( PROPERTY_MAVEN_HOMEPATH , MAVEN_HOMEPATH );
+			properties.setOriginalStringProperty( PROPERTY_MAVEN_COMMAND , MAVEN_COMMAND );
+			properties.setOriginalStringProperty( PROPERTY_MAVEN_OPTIONS , MAVEN_OPTIONS );
+		}
+		if( targetType == VarBUILDERTARGET.NEXUS )
+			properties.setOriginalStringProperty( PROPERTY_NEXUS_RESOURCE , NEXUS_RESOURCE );
 	}
 
+	public boolean isAnt() {
+		if( builderType == VarBUILDERTYPE.ANT )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isMaven() {
-		if( TYPE.equals( BUILDER_TYPE_MAVEN ) )
+		if( builderType == VarBUILDERTYPE.MAVEN )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isGradle() {
-		if( TYPE.equals( BUILDER_TYPE_GRADLE ) )
+		if( builderType == VarBUILDERTYPE.GRADLE )
 			return( true );
 		return( false );
 	}
 
-	public boolean isDotNet() {
-		if( TYPE.equals( BUILDER_TYPE_DOTNET ) )
+	public boolean isWinBuild() {
+		if( builderType == VarBUILDERTYPE.WINBUILD )
 			return( true );
 		return( false );
 	}
 
-	public void updateBuilder( ServerTransaction transaction , ServerProjectBuilder src ) throws Exception {
-		if( !NAME.equals( src.NAME ) )
-			transaction.exit( _Error.TransactionBuilderOld1 , "mismatched buider name on change new name=" + src.NAME , new String[] { src.NAME } );
-		
-		TYPE = src.TYPE;
-		HOSTLOGIN = src.HOSTLOGIN;
+	public void setBuilderData( ServerTransaction transaction , ServerProjectBuilder src ) throws Exception {
+		NAME = src.NAME;
 		DESC = src.DESC;
-		OSTYPE = src.OSTYPE;
+		languageType = src.languageType;
+		builderType = src.builderType;
+		remote = src.remote;
+		if( remote ) {
+			osType = src.osType;
+			HOSTLOGIN = src.HOSTLOGIN;
+			AUTHRESOURCE = src.AUTHRESOURCE;
+		}
+		else {
+			osType = VarOSTYPE.LINUX;
+			HOSTLOGIN = "";
+			AUTHRESOURCE = "";
+		}
+
+		if( targetType == VarBUILDERTARGET.LOCALPATH )
+			TARGETLOCALPATH = src.TARGETLOCALPATH;
+		else
+			TARGETLOCALPATH = "";
+		
+		if( languageType == VarBUILDERLANG.JAVA )
+			JAVA_JDKHOMEPATH = src.JAVA_JDKHOMEPATH;
+		else
+			JAVA_JDKHOMEPATH = "";
+
+		if( builderType == VarBUILDERTYPE.ANT )
+			ANT_HOMEPATH = src.ANT_HOMEPATH;
+		else
+			ANT_HOMEPATH = "";
+		
+		if( builderType == VarBUILDERTYPE.MAVEN ) {
+			MAVEN_HOMEPATH = src.MAVEN_HOMEPATH;
+			MAVEN_COMMAND = src.MAVEN_COMMAND;
+			MAVEN_OPTIONS = src.MAVEN_OPTIONS;
+		}
+		else {
+			MAVEN_HOMEPATH = "";
+			MAVEN_COMMAND = "";
+			MAVEN_OPTIONS = "";
+		}
+		
+		if( targetType == VarBUILDERTARGET.NEXUS )
+			NEXUS_RESOURCE = src.NEXUS_RESOURCE;
+		else
+			NEXUS_RESOURCE = "";
 		
 		createProperties();
 	}
 	
-	public void createBuilder() throws Exception {
-		createProperties();
-	}
-
-	public Account getAccount( ActionBase action ) throws Exception {
-		VarOSTYPE osType = VarOSTYPE.valueOf( OSTYPE );
+	public Account getRemoteAccount( ActionBase action ) throws Exception {
 		return( Account.getAccount( action , "" , HOSTLOGIN , osType ) );
 	}
 	

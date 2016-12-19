@@ -5,14 +5,15 @@ import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.vcs.ProjectVersionControl;
+import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
 
 public class BuilderLinuxGradle extends Builder {
 
-	public BuilderLinuxGradle( String BUILDER , MetaSourceProject project , BuildStorage storage , String TAG , String BUILD_OPTIONS , String APPVERSION ) {
-		super( BUILDER , project , storage , TAG , APPVERSION );
+	public BuilderLinuxGradle( ServerProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
+		super( builder , project , storage , TAG , APPVERSION );
 	}
 	
 	@Override public ShellExecutor createShell( ActionBase action ) throws Exception {
@@ -44,7 +45,7 @@ public class BuilderLinuxGradle extends Builder {
 
 	@Override public boolean runBuild( ActionBase action ) throws Exception {
 		// set java and gradle environment
-		String BUILD_JAVA_VERSION = project.getJavaVersion( action );
+		String BUILD_JAVA_VERSION = builder.JAVA_JDKHOMEPATH;
 		String BUILD_GRADLE_VERSION = project.getBuilderVersion( action ); 
 
 		ShellExecutor session = action.shell;

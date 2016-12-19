@@ -6,11 +6,10 @@ import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.engine.ServerMirrorRepository;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaProductBuildSettings;
-import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
 
 public abstract class GenericVCS {
@@ -75,21 +74,20 @@ public abstract class GenericVCS {
 	public abstract void deleteDirToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception;
 	
 	public static GenericVCS getVCS( ActionBase action , Meta meta , String vcs ) throws Exception {
-		return( getVCS( action , meta , vcs , false , false ) );
+		return( getVCS( action , meta , vcs , "" , false ) );
 	}
 
-	public static GenericVCS getVCS( ActionBase action , Meta meta , String vcs , boolean build , boolean noAuth ) throws Exception {
+	public static GenericVCS getVCS( ActionBase action , Meta meta , String vcs , String BUILDER , boolean noAuth ) throws Exception {
 		ServerAuthResource res = action.getResource( vcs );
 		if( !noAuth )
 			res.loadAuthData( action );
 		
 		ShellExecutor shell = action.shell;
-		if( build ) {
-			MetaProductSettings product = meta.getProductSettings( action );
-			MetaProductBuildSettings settings = product.getBuildSettings( action );
-			if( !settings.CONFIG_BUILDER_REMOTE.isEmpty() ) {
-				ServerProjectBuilder builder = action.getBuilder( settings.CONFIG_BUILDER_REMOTE );
-				Account account = builder.getAccount( action );
+		if( !BUILDER.isEmpty() ) {
+			ServerBuilders builders = action.getBuilders();
+			ServerProjectBuilder builder = builders.getBuilder( BUILDER );
+			if( builder.remote ) {
+				Account account = builder.getRemoteAccount( action );
 				shell = action.getShell( account );
 			}
 		}

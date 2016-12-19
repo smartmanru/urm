@@ -76,12 +76,14 @@ public class ServerBuilders extends ServerObject {
 		return( Common.getSortedKeys( builderMap ) );
 	}
 	
-	public void createBuilder( ServerTransaction transaction , ServerProjectBuilder builder ) throws Exception {
-		if( builderMap.get( builder.NAME ) != null )
-			transaction.exit( _Error.BuilderAlreadyExists1 , "builder already exists name=" + builder.NAME , new String[] { builder.NAME } );
+	public ServerProjectBuilder createBuilder( ServerTransaction transaction , ServerProjectBuilder builderNew ) throws Exception {
+		if( builderMap.get( builderNew.NAME ) != null )
+			transaction.exit( _Error.BuilderAlreadyExists1 , "builder already exists name=" + builderNew.NAME , new String[] { builderNew.NAME } );
 			
-		builder.createBuilder();
+		ServerProjectBuilder builder = new ServerProjectBuilder( this );
+		builder.setBuilderData( transaction ,  builderNew );
 		builderMap.put( builder.NAME , builder );
+		return( builder );
 	}
 	
 	public void deleteBuilder( ServerTransaction transaction , ServerProjectBuilder builder ) throws Exception {

@@ -83,14 +83,14 @@ public class ServerTransaction extends TransactionBase {
 		res.deleteObject();
 	}
 	
-	public void createBuilder( ServerProjectBuilder builder ) throws Exception {
+	public ServerProjectBuilder createBuilder( ServerProjectBuilder builder ) throws Exception {
 		checkTransactionBuilders();
-		builders.createBuilder( this , builder );
+		return( builders.createBuilder( this , builder ) );
 	}
 	
 	public void updateBuilder( ServerProjectBuilder builder , ServerProjectBuilder builderNew ) throws Exception {
 		checkTransactionBuilders();
-		builder.updateBuilder( this , builderNew );
+		builder.setBuilderData( this , builderNew );
 	}
 	
 	public void deleteBuilder( ServerProjectBuilder builder ) throws Exception {

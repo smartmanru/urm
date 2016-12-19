@@ -30,10 +30,7 @@ public class MetaSourceProject {
 	public String CODEPATH;
 	public String JIRA;
 	public String BRANCH;
-	public String JAVAVERSION;
-	public String BUILDERTYPE;
-	public String BUILDERVERSION;
-	public String BUILDERCMD;
+	public String BUILDER;
 	public String DISTITEM;
 	public MetaDistrBinaryItem distItem;
 	public String DISTLIBITEM;
@@ -62,10 +59,7 @@ public class MetaSourceProject {
 		GROUP = ConfReader.getAttrValue( node , "group" );
 		JIRA = ConfReader.getAttrValue( node , "jira" );
 		BRANCH = ConfReader.getAttrValue( node , "branch" );
-		JAVAVERSION = ConfReader.getAttrValue( node , "javaversion" );
-		BUILDERTYPE = ConfReader.getAttrValue( node , "buildertype" );
-		BUILDERVERSION = ConfReader.getAttrValue( node , "builderversion" );
-		BUILDERCMD = ConfReader.getAttrValue( node , "buildercmd" );
+		BUILDER = ConfReader.getAttrValue( node , "builder" );
 		DISTITEM = ConfReader.getAttrValue( node , "distitem" );
 
 		if( CATEGORY != VarCATEGORY.PREBUILT ) {
@@ -118,10 +112,7 @@ public class MetaSourceProject {
 		Common.xmlSetElementAttr( doc , root , "group" , GROUP );
 		Common.xmlSetElementAttr( doc , root , "jira" , JIRA );
 		Common.xmlSetElementAttr( doc , root , "branch" , BRANCH );
-		Common.xmlSetElementAttr( doc , root , "javaversion" , JAVAVERSION );
-		Common.xmlSetElementAttr( doc , root , "buildertype" , BUILDERTYPE );
-		Common.xmlSetElementAttr( doc , root , "builderversion" , BUILDERVERSION );
-		Common.xmlSetElementAttr( doc , root , "buildercmd" , BUILDERCMD );
+		Common.xmlSetElementAttr( doc , root , "builder" , BUILDER );
 		Common.xmlSetElementAttr( doc , root , "distitem" , DISTITEM );
 		Common.xmlSetElementAttr( doc , root , "vcs" , VCS );
 		Common.xmlSetElementAttr( doc , root , "path" , PATH );
@@ -147,10 +138,7 @@ public class MetaSourceProject {
 		r.GROUP = GROUP;
 		r.JIRA = JIRA;
 		r.BRANCH = BRANCH;
-		r.JAVAVERSION = JAVAVERSION;
-		r.BUILDERTYPE = BUILDERTYPE;
-		r.BUILDERVERSION = BUILDERVERSION;
-		r.BUILDERCMD = BUILDERCMD;
+		r.BUILDER = BUILDER;
 		r.DISTITEM = DISTITEM;
 		r.VCS = VCS;
 		r.PATH = PATH;
@@ -219,50 +207,17 @@ public class MetaSourceProject {
 	}
 	
 	public String getBuilder( ActionBase action ) throws Exception {
-		if( !BUILDERTYPE.isEmpty() )
-			return( BUILDERTYPE );
+		if( !BUILDER.isEmpty() )
+			return( BUILDER );
 		
 		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		String builder = build.CONFIG_BUILDER_TYPE;
+		String builder = build.CONFIG_BUILDER;
 		if( builder.isEmpty() )
 			builder = "maven";
 
 		return( builder );
 	}
 
-	public String getJavaVersion( ActionBase action ) throws Exception {
-		if( !JAVAVERSION.isEmpty() )
-			return( JAVAVERSION );
-		
-		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		String version = build.CONFIG_MAVEN_JAVA_VERSION;
-		if( version.isEmpty() )
-			action.exit0( _Error.UnknownJavaVersion0 , "unknown java version" );
-		
-		return( version );
-	}
-
-	public String getBuilderVersion( ActionBase action ) throws Exception {
-		if( !BUILDERVERSION.isEmpty() )
-			return( BUILDERVERSION );
-		
-		String builder = getBuilder( action );
-		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		String version = build.CONFIG_BUILDER_VERSION;
-		if( version.isEmpty() ) {
-			if( builder.equals( "maven" ) ) {
-				version = build.CONFIG_MAVEN_VERSION;
-				if( version.isEmpty() )
-					action.exit0( _Error.UnknownMavenVersion0 , "maven version is unknown" );
-			}
-		}
-
-		if( version.isEmpty() )
-			action.exit1( _Error.UnknownBuilderVersion1 , builder + " version is unknown" , builder );
-		
-		return( version );
-	}
-	
 	public String getDefaultBranch( ActionBase action ) throws Exception {
 		if( !BRANCH.isEmpty() )
 			return( BRANCH );
