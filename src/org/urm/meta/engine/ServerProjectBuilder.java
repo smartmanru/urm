@@ -215,7 +215,9 @@ public class ServerProjectBuilder extends ServerObject {
 		DESC = src.DESC;
 		VERSION = src.VERSION;
 		builderMethod = src.builderMethod;
+		targetType = src.targetType;
 		remote = src.remote;
+		
 		if( remote ) {
 			osType = src.osType;
 			HOSTLOGIN = src.HOSTLOGIN;
