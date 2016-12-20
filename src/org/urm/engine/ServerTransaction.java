@@ -615,10 +615,10 @@ public class ServerTransaction extends TransactionBase {
 		return( project );
 	}
 
-	public void createMirrorRepository( MetaSourceProject project , String resource , String repoName , String repoPath , String codePath , String branch ) throws Exception {
+	public void createMirrorRepository( MetaSourceProject project ) throws Exception {
 	}
 
-	public void changeMirrorRepository( MetaSourceProject project , String resource , String repoName , String repoPath , String codePath , String branch ) throws Exception {
+	public void changeMirrorRepository( MetaSourceProject project ) throws Exception {
 	}
 
 	public void deleteSourceProject( MetaSourceProject project ) throws Exception {

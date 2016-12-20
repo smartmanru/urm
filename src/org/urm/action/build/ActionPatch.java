@@ -25,7 +25,7 @@ public class ActionPatch extends ActionBase {
 		String logFile = LOGDIR.getFilePath( this , builder.project.NAME + "-build.log" );
 		super.startRedirect( "PROJECT BUILD LOG:" , logFile );
 		info( "ActionPatch: BUILDER=" + builder.builder.NAME + ", BUILDMODE=" + context.getBuildModeName() + ", PROJECT=" + builder.project.NAME + 
-				", REPOSITORY=" + builder.project.REPOSITORY + ", VCS=" + builder.project.getVCS( this ) + ", VCSPATH=" + builder.project.PATH + 
+				", REPOSITORY=" + builder.project.REPOSITORY + ", VCS=" + builder.project.getVCS( this ) + ", VCSPATH=" + builder.project.REPOPATH + 
 				", VCSREPO=" + builder.project.REPOSITORY + ", TAG=" + builder.TAG + ", VERSION=" + builder.APPVERSION + ", NEXUS_PATH=" + builder.getNexusPath( this , builder.project ) );
 
 		try {

@@ -28,7 +28,7 @@ public class MetaSourceProject {
 	public String REPOSITORY;
 	public boolean codebaseProd;
 	public String GROUP;
-	public String PATH;
+	public String REPOPATH;
 	public String CODEPATH;
 	public String TRACKER;
 	public String BRANCH;
@@ -57,7 +57,7 @@ public class MetaSourceProject {
 		GROUP = ConfReader.getAttrValue( node , "group" );
 		RESOURCE = ConfReader.getRequiredAttrValue( node , "resource" );
 		if( !RESOURCE.isEmpty() ) {
-			PATH = ConfReader.getRequiredAttrValue( node , "path" );
+			REPOPATH = ConfReader.getRequiredAttrValue( node , "path" );
 			CODEPATH = ConfReader.getAttrValue( node , "codepath" );
 		}
 		
@@ -107,7 +107,7 @@ public class MetaSourceProject {
 		Common.xmlSetElementAttr( doc , root , "group" , GROUP );
 		if( !RESOURCE.isEmpty() ) {
 			Common.xmlSetElementAttr( doc , root , "resource" , RESOURCE );
-			Common.xmlSetElementAttr( doc , root , "path" , PATH );
+			Common.xmlSetElementAttr( doc , root , "path" , REPOPATH );
 			Common.xmlSetElementAttr( doc , root , "codepath" , CODEPATH );
 		}
 		
@@ -142,7 +142,7 @@ public class MetaSourceProject {
 		r.BRANCH = BRANCH;
 		r.BUILDER = BUILDER;
 		r.RESOURCE = RESOURCE;
-		r.PATH = PATH;
+		r.REPOPATH = REPOPATH;
 		r.CODEPATH = CODEPATH;
 		
 		// project items
@@ -226,13 +226,19 @@ public class MetaSourceProject {
 		return( Common.getSortedKeys( itemMap ) );
 	}
 
-	public void setProjectData( ServerTransaction transaction , String group , boolean codebase ) throws Exception {
+	public void setProjectData( ServerTransaction transaction , String group , boolean codebase , String resource , String repoName , String repoPath , String codePath , String branch ) throws Exception {
 		this.GROUP = group;
 		this.codebaseProject = codebase;
 		
 		this.codebaseProd = false;
 		this.BRANCH = "";
 		this.BUILDER = "";
+		
+		this.RESOURCE = resource;
+		this.REPOSITORY = repoName;
+		this.REPOPATH = repoPath;
+		this.CODEPATH = codePath;
+		this.BRANCH = branch;
 	}
 
 	public void setCodebase( ServerTransaction transaction , boolean prod , String branch , String builder ) throws Exception {

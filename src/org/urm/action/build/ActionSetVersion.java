@@ -54,7 +54,7 @@ public class ActionSetVersion extends ActionBase {
 		String BRANCH = scopeProject.getProjectBuildBranch( this );
 		
 		info( "setVersionProject: PROJECT=" + scopeProject.sourceProject.NAME + ", REPOSITORY=" + scopeProject.sourceProject.REPOSITORY + 
-				", PATH=" + scopeProject.sourceProject.PATH + ", BRANCH=" + BRANCH + ", VERSION=" + BUILDVERSION + ", PATCHPATH=" + PATCHPATH.buildFolder.folderPath + " ..." );
+				", PATH=" + scopeProject.sourceProject.REPOPATH + ", BRANCH=" + BRANCH + ", VERSION=" + BUILDVERSION + ", PATCHPATH=" + PATCHPATH.buildFolder.folderPath + " ..." );
 
 		ProjectVersionControl vcs = new ProjectVersionControl( this , false );
 		
