@@ -23,18 +23,12 @@ public class Types {
 		MSG
 	};
 	
-	public enum VarBUILDERLANG {
-		UNKNOWN ,
-		JAVA ,
-		DOTNET
-	};
-	
 	public enum VarBUILDERTYPE {
 		UNKNOWN ,
 		ANT ,
 		MAVEN ,
 		GRADLE ,
-		WINBUILD
+		MSBUILD
 	};
 	
 	public enum VarBUILDERTARGET {
@@ -568,24 +562,6 @@ public class Types {
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidDesignLinkType1 , "invalid design link type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-
-	public static VarBUILDERLANG getBuilderLanguage( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingBuilderLanguage0 , "missing builder language" );
-			return( VarBUILDERLANG.UNKNOWN );
-		}
-		
-		VarBUILDERLANG value = null;		
-		try {
-			value = VarBUILDERLANG.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidBuilderLanguage1 , "invalid builder language=" + ID , ID );
 		}
 		
 		return( value );

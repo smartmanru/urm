@@ -1,7 +1,6 @@
 package org.urm.action.build;
 
 import org.urm.action.ActionBase;
-import org.urm.common.Common;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
@@ -58,15 +57,10 @@ public class BuilderWindowsDotnet extends Builder {
 	
 	@Override public boolean runBuild( ActionBase action ) throws Exception {
 		// msbuilder params
-		String MSBUILD_PATH = "";
-		String BUILDEVERSION = builder.VERSION;
-		if( BUILDEVERSION.equals( "VS-2013-EXPRESS" ) )
-			MSBUILD_PATH = Common.getQuoted( "C:\\Program Files (x86)\\MSBuild\\12.0\\Bin\\msbuild.exe" );
-		else
-			action.exit1( _Error.UnexpectedBuilderVersion1 , "unexpected builder version=" + BUILDEVERSION , BUILDEVERSION );
+		String MSBUILD_PATH = builder.MSBUILD_HOMEPATH + "\\Bin\\msbuild.exe";
 		
 		String NUGET_PATH = getNugetSourcePath( action );
-		String MSBUILD_OPTIONS = "/t:Clean,Build /p:Configuration=Release /p:preferreduilang=en-US";
+		String MSBUILD_OPTIONS = builder.MSBUILD_OPTIONS;
 		if( action.context.CTX_SHOWALL )
 			MSBUILD_OPTIONS += " /verbosity:detailed";
 
