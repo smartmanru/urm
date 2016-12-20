@@ -9,6 +9,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
+import org.urm.engine.ServerTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.meta.ServerProductMeta;
 import org.urm.meta.Types.*;
@@ -18,11 +19,11 @@ import org.w3c.dom.Node;
 
 public class MetaSource extends PropertyController {
 
+	public Meta meta;
+	
 	List<MetaSourceProjectSet> originalList;
 	Map<String,MetaSourceProjectSet> setMap;
 	Map<String,MetaSourceProject> projectMap;
-	
-	protected Meta meta;
 	
 	public MetaSource( ServerProductMeta storage , Meta meta ) {
 		super( storage , "source" );
@@ -57,8 +58,8 @@ public class MetaSource extends PropertyController {
 
 		for( MetaSourceProject project : projectMap.values() ) {
 			MetaSourceProjectSet rset = r.setMap.get( project.set.NAME );
-			MetaSourceProject rp = rset.getProject( action , project.PROJECT );
-			r.projectMap.put( rp.PROJECT , rp );
+			MetaSourceProject rp = rset.getProject( action , project.NAME );
+			r.projectMap.put( rp.NAME , rp );
 		}
 		r.initFinished();
 		return( r );
@@ -84,25 +85,28 @@ public class MetaSource extends PropertyController {
 		for( Node node : sets ) {
 			MetaSourceProjectSet projectset = new MetaSourceProjectSet( meta , this );
 			projectset.load( action , node );
-
-			originalList.add( projectset );
-			setMap.put( projectset.NAME , projectset );
+			addProjectSet( projectset );
 			projectMap.putAll( projectset.map );
 		}
 		
 		super.initFinished();
 	}
 
+	private void addProjectSet( MetaSourceProjectSet projectset ) {
+		originalList.add( projectset );
+		setMap.put( projectset.NAME , projectset );
+	}
+	
 	public List<MetaSourceProject> getProjectList( ActionBase action , VarCATEGORY CATEGORY , VarBUILDMODE buildMode ) {
 		List<MetaSourceProject> all = getAllProjectList( action , CATEGORY );
 		List<MetaSourceProject> list = new LinkedList<MetaSourceProject>(); 
 		for( MetaSourceProject project : all ) {
 			if( buildMode == VarBUILDMODE.BRANCH ) {
-				if( project.VERSION.equals( "branch" ) )
+				if( project.codebaseProd )
 					list.add( project );
 			}
 			else if( buildMode == VarBUILDMODE.MAJORBRANCH ) {
-				if( project.VERSION.equals( "branch" ) || project.VERSION.equals( "majorbranch" ) )
+				if( project.codebaseProd )
 					list.add( project );
 			}
 		}
@@ -126,6 +130,11 @@ public class MetaSource extends PropertyController {
 	public Map<String,MetaSourceProjectSet> getSets( ActionBase action ) throws Exception {
 		return( setMap );
 	}
+
+	public MetaSourceProjectSet findProjectSet( String name ) {
+		MetaSourceProjectSet set = setMap.get( name );
+		return( set );
+	}
 	
 	public MetaSourceProjectSet getProjectSet( ActionBase action , String name ) throws Exception {
 		MetaSourceProjectSet set = setMap.get( name );
@@ -133,6 +142,11 @@ public class MetaSource extends PropertyController {
 			action.exit1( _Error.UnknownSourceSet1 , "unknown source set=" + name , name );
 		
 		return( set );
+	}
+
+	public MetaSourceProject findProject( String name ) {
+		MetaSourceProject project = projectMap.get( name );
+		return( project );
 	}
 	
 	public MetaSourceProject getProject( ActionBase action , String name ) throws Exception {
@@ -163,6 +177,12 @@ public class MetaSource extends PropertyController {
 		}
 		action.exit1( _Error.UnknownSourceProjectItem1 , "unknown source project item=" + name , name );
 		return( null );
+	}
+
+	public MetaSourceProjectSet createProjectSet( ServerTransaction transaction , String name ) {
+		MetaSourceProjectSet set = new MetaSourceProjectSet( meta , this );
+		addProjectSet( set );
+		return( set );
 	}
 	
 }

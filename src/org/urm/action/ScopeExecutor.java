@@ -814,10 +814,10 @@ public class ScopeExecutor {
 		
 		if( Meta.isSourceCategory( set.CATEGORY ) ) {
 			for( ActionScopeTarget target : targets )
-				map.put( target.sourceProject.PROJECT , target );
+				map.put( target.sourceProject.NAME , target );
 			
 			for( MetaSourceProject project : set.pset.getOriginalList( action ) ) {
-				ActionScopeTarget target = map.get( project.PROJECT );
+				ActionScopeTarget target = map.get( project.NAME );
 				if( target != null )
 					list.add( target );
 			}

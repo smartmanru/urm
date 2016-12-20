@@ -153,7 +153,7 @@ public class ReleaseTarget {
 		// find in sources
 		MetaSource sources = meta.getSources( action ); 
 		sourceProject = sources.getProject( action , name ); 
-		NAME = sourceProject.PROJECT;
+		NAME = sourceProject.NAME;
 		
 		Node[] items = ConfReader.xmlGetChildren( node , "distitem" );
 		if( items == null ) {
@@ -198,9 +198,9 @@ public class ReleaseTarget {
 
 	public void createFromProject( ActionBase action , MetaSourceProject sourceProject , boolean allItems ) throws Exception {
 		this.sourceProject = sourceProject;
-		this.CATEGORY = sourceProject.CATEGORY;
+		this.CATEGORY = sourceProject.set.CATEGORY;
 		
-		NAME = sourceProject.PROJECT;
+		NAME = sourceProject.NAME;
 		ALL = false;
 		BUILDBRANCH = "";
 		BUILDTAG = "";
@@ -278,12 +278,6 @@ public class ReleaseTarget {
 	
 	public void addAllSourceItems( ActionBase action , MetaSourceProject sourceProject ) throws Exception {
 		ALL = true;
-		if( sourceProject.distItem != null ) {
-			ReleaseTargetItem item = new ReleaseTargetItem( meta , this );
-			item.createFromDistrItem( action , sourceProject.distItem );
-			itemMap.put( item.NAME , item );
-			return;
-		}
 		
 		// read source items
 		List<MetaSourceProjectItem> projectitems = sourceProject.getIitemList( action );
@@ -367,7 +361,7 @@ public class ReleaseTarget {
 	public Element createXmlBinary( ActionBase action , Document doc , Element parent ) throws Exception {
 		Element element = Common.xmlCreateElement( doc , parent , "project" );
 		
-		Common.xmlSetElementAttr( doc , element , "name" , sourceProject.PROJECT );
+		Common.xmlSetElementAttr( doc , element , "name" , sourceProject.NAME );
 		if( !BUILDBRANCH.isEmpty() )
 			Common.xmlSetElementAttr( doc , element , "buildbranch" , BUILDBRANCH );
 		if( !BUILDTAG.isEmpty() )
@@ -375,10 +369,6 @@ public class ReleaseTarget {
 		if( !BUILDVERSION.isEmpty() )
 			Common.xmlSetElementAttr( doc , element , "buildversion" , BUILDVERSION );
 
-		// single-item projects
-		if( sourceProject.distItem != null )
-			return( element );
-		
 		// all project items
 		if( ALL ) {
 			Common.xmlSetElementAttr( doc , element , "all" , Common.getBooleanValue( true ) );

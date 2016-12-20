@@ -407,7 +407,7 @@ public class Dist {
 	}
 	
 	public boolean addProjectAllItems( ActionBase action , MetaSourceProject project ) throws Exception {
-		action.debug( "release - add project=" + project.PROJECT );
+		action.debug( "release - add project=" + project.NAME );
 		
 		if( !release.addSourceSet( action , project.set , false ) )
 			return( false );
@@ -417,7 +417,7 @@ public class Dist {
 	}
 
 	public boolean addProjectItem( ActionBase action , MetaSourceProject project , MetaSourceProjectItem item ) throws Exception {
-		action.debug( "release - add project=" + project.PROJECT + ", item=" + item.ITEMNAME );
+		action.debug( "release - add project=" + project.NAME + ", item=" + item.ITEMNAME );
 		
 		// ignore internal items
 		if( item.INTERNAL ) {
@@ -425,7 +425,7 @@ public class Dist {
 			return( true );
 		}
 		
-		if( !release.addCategorySet( action , project.CATEGORY , false ) )
+		if( !release.addSourceSet( action , project.set , false ) )
 			return( false );
 		if( !release.addProject( action , project , false ) )
 			return( false );
@@ -591,7 +591,7 @@ public class Dist {
 		else if( item.distItemOrigin == VarDISTITEMORIGIN.DISTITEM )
 			return( checkIfReleaseItem( action , item.srcDistItem ) );
 		else if( item.distItemOrigin == VarDISTITEMORIGIN.BUILD ) {
-			ReleaseTarget target = release.findBuildProject( action , item.sourceItem.project.PROJECT );
+			ReleaseTarget target = release.findBuildProject( action , item.sourceItem.project.NAME );
 			if( target == null )
 				return( false );
 			
@@ -621,7 +621,7 @@ public class Dist {
 			return( Common.getPath( BINARY_FOLDER , target.DISTFILE ) );
 		}
 		else if( item.distItemOrigin == VarDISTITEMORIGIN.BUILD ) {
-			ReleaseTarget target = release.findBuildProject( action , item.sourceItem.project.PROJECT );
+			ReleaseTarget target = release.findBuildProject( action , item.sourceItem.project.NAME );
 			if( target == null )
 				return( "" );
 			

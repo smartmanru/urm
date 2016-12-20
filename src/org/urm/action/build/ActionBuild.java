@@ -37,7 +37,7 @@ public class ActionBuild extends ActionBase {
 		for( MetaSourceProject project : set.pset.getOriginalList( this ) ) {
 			ActionScopeTarget target = set.findSourceTarget( this , project );
 			if( target == null ) {
-				trace( "skip non-set target=" + project.PROJECT );
+				trace( "skip non-set target=" + project.NAME );
 				continue;
 			}
 			
@@ -46,7 +46,7 @@ public class ActionBuild extends ActionBase {
 				continue;
 			}
 				
-			debug( "build project=" + project.PROJECT );
+			debug( "build project=" + project.NAME );
 			if( !executeTarget( target ) ) {
 				error( "cancel build due to errors" );
 				return( SCOPESTATE.RunFail );
@@ -65,7 +65,7 @@ public class ActionBuild extends ActionBase {
 		
 		// execute
 		MetaSourceProject project = scopeProject.sourceProject;
-		info( "ActionBuild: CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) + ", PROJECT=" + project.PROJECT + 
+		info( "ActionBuild: CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) + ", PROJECT=" + project.NAME + 
 				", REPOSITORY=" + project.REPOSITORY + ", TAG=" + TAG + ", VERSION=" + version );
 
 		// in separate shell
@@ -77,7 +77,7 @@ public class ActionBuild extends ActionBase {
 		BUILDSTATUS = "SUCCESSFUL"; 
 		if( !action.runProductBuild( project.meta.name , SecurityAction.ACTION_BUILD , context.buildMode , false ) ) {
 			BUILDSTATUS = "FAILED";
-			super.fail1( _Error.ProjectBuildError1 , "Errors while build project=" + project.PROJECT , project.PROJECT );
+			super.fail1( _Error.ProjectBuildError1 , "Errors while build project=" + project.NAME , project.NAME );
 		}
 
 		// check status

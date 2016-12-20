@@ -257,7 +257,7 @@ public class ReleaseSet {
 	}
 
 	public ReleaseTarget addSourceProject( ActionBase action , MetaSourceProject sourceProject , boolean allItems ) throws Exception {
-		action.trace( "add source project=" + sourceProject.PROJECT + " to release ..." );
+		action.trace( "add source project=" + sourceProject.NAME + " to release ..." );
 		ReleaseTarget project = new ReleaseTarget( meta , this , CATEGORY );
 		project.createFromProject( action , sourceProject , allItems );
 		project.BUILDBRANCH = BUILDBRANCH;
@@ -416,7 +416,7 @@ public class ReleaseSet {
 
 	public boolean checkAllBinaryIncluded( ActionBase action ) throws Exception {
 		for( MetaSourceProject project : set.originalList ) {
-			ReleaseTarget target = findTarget( action , project.PROJECT );
+			ReleaseTarget target = findTarget( action , project.NAME );
 			if( target == null )
 				return( false );
 			

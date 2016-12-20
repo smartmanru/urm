@@ -568,7 +568,7 @@ public class Release {
 		if( set == null )
 			return( false );
 		
-		ReleaseTarget project = set.findTarget( action , sourceProject.PROJECT );
+		ReleaseTarget project = set.findTarget( action , sourceProject.NAME );
 		if( project == null ) {
 			project = set.addSourceProject( action , sourceProject , allItems );
 			registerTarget( action , project );
@@ -609,7 +609,7 @@ public class Release {
 		if( set == null )
 			return;
 		
-		ReleaseTarget target = set.findTarget( action , sourceProject.PROJECT );
+		ReleaseTarget target = set.findTarget( action , sourceProject.NAME );
 		if( target == null )
 			return;
 		
@@ -620,14 +620,14 @@ public class Release {
 		if( sourceItem.INTERNAL )
 			action.exit1( _Error.UnexpectedInternalItem1 , "unexpected call for INTERNAL item=" + sourceItem.ITEMNAME , sourceItem.ITEMNAME );
 		
-		ReleaseSet set = sourceSetMap.get( sourceProject.CATEGORY );
+		ReleaseSet set = sourceSetMap.get( sourceProject.set.NAME );
 		if( set == null )
 			return( false );
 		
 		if( set.ALL )
 			return( true );
 		
-		ReleaseTarget project = set.findTarget( action , sourceProject.PROJECT );
+		ReleaseTarget project = set.findTarget( action , sourceProject.NAME );
 		if( project == null )
 			return( false );
 
@@ -650,7 +650,7 @@ public class Release {
 		if( set == null )
 			return;
 
-		ReleaseTarget project = set.findTarget( action , sourceProject.PROJECT );
+		ReleaseTarget project = set.findTarget( action , sourceProject.NAME );
 		if( project == null )
 			return;
 		

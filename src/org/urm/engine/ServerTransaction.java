@@ -39,6 +39,9 @@ import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringTarget;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
+import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.Types.*;
 
 public class ServerTransaction extends TransactionBase {
@@ -594,4 +597,31 @@ public class ServerTransaction extends TransactionBase {
 		delivery.setDatabase( this , set );
 	}
 
+	public MetaSourceProjectSet createSourceProjectSet( MetaSource sources , String name ) throws Exception {
+		checkTransactionMetadata( sources.meta.getStorage( action ) );
+		return( sources.createProjectSet( this , name ) );
+	}
+
+	public void changeProjectSet( MetaSourceProject project , MetaSourceProjectSet setNew ) throws Exception {
+		checkTransactionMetadata( project.meta.getStorage( action ) );
+		project.set.removeProject( this , project );
+		setNew.addProject( this , project );
+	}
+
+	public MetaSourceProject createSourceProject( MetaSourceProjectSet set , String name ) throws Exception {
+		checkTransactionMetadata( set.meta.getStorage( action ) );
+		MetaSourceProject project = new MetaSourceProject( set.meta , set );
+		set.addProject( this , project );
+		return( project );
+	}
+
+	public void createMirrorRepository( MetaSourceProject project , String resource , String repoName , String repoPath , String codePath , String branch ) throws Exception {
+	}
+
+	public void changeMirrorRepository( MetaSourceProject project , String resource , String repoName , String repoPath , String codePath , String branch ) throws Exception {
+	}
+
+	public void deleteSourceProject( MetaSourceProject project ) throws Exception {
+	}
+	
 }

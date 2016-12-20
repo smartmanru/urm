@@ -8,6 +8,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.engine.ServerTransaction;
 import org.urm.engine.custom.CommandCustom;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.Types.*;
@@ -19,21 +20,19 @@ public class MetaSourceProject {
 
 	public Meta meta;
 	public MetaSourceProjectSet set;
-	public VarCATEGORY CATEGORY;
 	
-	public String PROJECT;
-	private String VCS;
+	public String NAME;
+	public String DESC;
+	public boolean codebaseProject;
+	public String RESOURCE;
 	public String REPOSITORY;
-	public String VERSION;
+	public boolean codebaseProd;
 	public String GROUP;
 	public String PATH;
 	public String CODEPATH;
-	public String JIRA;
+	public String TRACKER;
 	public String BRANCH;
 	public String BUILDER;
-	public String DISTITEM;
-	public MetaDistrBinaryItem distItem;
-	public String DISTLIBITEM;
 
 	List<MetaSourceProjectItem> itemList = new LinkedList<MetaSourceProjectItem>();
 	Map<String,MetaSourceProjectItem> itemMap = new HashMap<String,MetaSourceProjectItem>();
@@ -44,34 +43,34 @@ public class MetaSourceProject {
 	public MetaSourceProject( Meta meta , MetaSourceProjectSet set ) {
 		this.meta = meta;
 		this.set = set;
-		this.CATEGORY = set.CATEGORY;
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
-		PROJECT = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
+		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
+		DESC = ConfReader.getAttrValue( node , "desc" );
 
 		// read item attrs
 		REPOSITORY = ConfReader.getAttrValue( node , "repository" );
 		if( REPOSITORY.isEmpty() )
-			REPOSITORY = PROJECT;
+			REPOSITORY = NAME;
 
-		VERSION = ConfReader.getRequiredAttrValue( node , "version" );
 		GROUP = ConfReader.getAttrValue( node , "group" );
-		JIRA = ConfReader.getAttrValue( node , "jira" );
-		BRANCH = ConfReader.getAttrValue( node , "branch" );
-		BUILDER = ConfReader.getAttrValue( node , "builder" );
-		DISTITEM = ConfReader.getAttrValue( node , "distitem" );
-
-		if( CATEGORY != VarCATEGORY.PREBUILT ) {
-			VCS = ConfReader.getRequiredAttrValue( node , "vcs" );
-			if( !VCS.equals( "none" ) ) {
-				PATH = ConfReader.getRequiredAttrValue( node , "path" );
-				CODEPATH = ConfReader.getAttrValue( node , "codepath" );
-			}
+		RESOURCE = ConfReader.getRequiredAttrValue( node , "resource" );
+		if( !RESOURCE.isEmpty() ) {
+			PATH = ConfReader.getRequiredAttrValue( node , "path" );
+			CODEPATH = ConfReader.getAttrValue( node , "codepath" );
 		}
 		
-		if( BRANCH.isEmpty() )
-			BRANCH = PROJECT + "-prod";
+		codebaseProject = ConfReader.getBooleanAttrValue( node , "codebase" , true );
+		if( codebaseProject ) {
+			codebaseProd = ConfReader.getBooleanAttrValue( node , "version" , false );
+			TRACKER = ConfReader.getAttrValue( node , "jira" );
+			BRANCH = ConfReader.getAttrValue( node , "branch" );
+			BUILDER = ConfReader.getAttrValue( node , "builder" );
+			
+			if( BRANCH.isEmpty() )
+				BRANCH = NAME + "-prod";
+		}
 		
 		// read project items
 		Node[] items = ConfReader.xmlGetChildren( node , "distitem" );
@@ -84,11 +83,6 @@ public class MetaSourceProject {
 		}
 		
 		// resolve references
-		if( !DISTITEM.isEmpty() ) {
-			MetaDistr distr = meta.getDistr( action );
-			distItem = distr.getBinaryItem( action , DISTITEM );
-		}
-		
 		CUSTOMBUILD = ConfReader.getBooleanAttrValue( node , "custombuild" , false );
 		CUSTOMGET = ConfReader.getBooleanAttrValue( node , "customget" , false );
 		
@@ -104,19 +98,25 @@ public class MetaSourceProject {
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "name" , PROJECT );
+		Common.xmlSetElementAttr( doc , root , "name" , NAME );
+		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
 
 		// read item attrs
 		Common.xmlSetElementAttr( doc , root , "repository" , REPOSITORY );
-		Common.xmlSetElementAttr( doc , root , "version" , VERSION );
+		Common.xmlSetElementAttr( doc , root , "codebase" , Common.getBooleanValue( codebaseProject ) );
 		Common.xmlSetElementAttr( doc , root , "group" , GROUP );
-		Common.xmlSetElementAttr( doc , root , "jira" , JIRA );
-		Common.xmlSetElementAttr( doc , root , "branch" , BRANCH );
-		Common.xmlSetElementAttr( doc , root , "builder" , BUILDER );
-		Common.xmlSetElementAttr( doc , root , "distitem" , DISTITEM );
-		Common.xmlSetElementAttr( doc , root , "vcs" , VCS );
-		Common.xmlSetElementAttr( doc , root , "path" , PATH );
-		Common.xmlSetElementAttr( doc , root , "codepath" , CODEPATH );
+		if( !RESOURCE.isEmpty() ) {
+			Common.xmlSetElementAttr( doc , root , "resource" , RESOURCE );
+			Common.xmlSetElementAttr( doc , root , "path" , PATH );
+			Common.xmlSetElementAttr( doc , root , "codepath" , CODEPATH );
+		}
+		
+		if( codebaseProject ) {
+			Common.xmlSetElementAttr( doc , root , "prod" , Common.getBooleanValue( codebaseProd ) );
+			Common.xmlSetElementAttr( doc , root , "jira" , TRACKER );
+			Common.xmlSetElementAttr( doc , root , "branch" , BRANCH );
+			Common.xmlSetElementAttr( doc , root , "builder" , BUILDER );
+		}
 		
 		// project items
 		for( MetaSourceProjectItem item : itemList ) {
@@ -130,17 +130,18 @@ public class MetaSourceProject {
 	
 	public MetaSourceProject copy( ActionBase action , Meta meta , MetaSourceProjectSet set ) throws Exception {
 		MetaSourceProject r = new MetaSourceProject( meta , set );
-		r.PROJECT = PROJECT;
+		r.NAME = NAME;
+		r.DESC = DESC;
 
 		// read item attrs
 		r.REPOSITORY = REPOSITORY;
-		r.VERSION = VERSION;
+		r.codebaseProject = codebaseProject;
+		r.codebaseProd = codebaseProd;
 		r.GROUP = GROUP;
-		r.JIRA = JIRA;
+		r.TRACKER = TRACKER;
 		r.BRANCH = BRANCH;
 		r.BUILDER = BUILDER;
-		r.DISTITEM = DISTITEM;
-		r.VCS = VCS;
+		r.RESOURCE = RESOURCE;
 		r.PATH = PATH;
 		r.CODEPATH = CODEPATH;
 		
@@ -150,31 +151,25 @@ public class MetaSourceProject {
 			addItem( ritem );
 		}
 		
-		// resolve references
-		if( !DISTITEM.isEmpty() ) {
-			MetaDistr distr = meta.getDistr( action );
-			r.distItem = distr.getBinaryItem( action , DISTITEM );
-		}
-		
 		r.CUSTOMBUILD = CUSTOMBUILD;
 		r.CUSTOMGET = CUSTOMGET;
 		return( r );
 	}
 	
 	public String getVCS( ActionBase action ) {
-		return( VCS );
+		return( RESOURCE );
 	}
 	public boolean isGitVCS( ActionBase action ) throws Exception {
-		ServerAuthResource res = action.getResource( VCS );
+		ServerAuthResource res = action.getResource( RESOURCE );
 		return( res.isGit() );
 	}
 	public boolean isSvnVCS( ActionBase action ) throws Exception {
-		ServerAuthResource res = action.getResource( VCS );
+		ServerAuthResource res = action.getResource( RESOURCE );
 		return( res.isSvn() );
 	}
 
 	public boolean isBuildable() {
-		if( CATEGORY == VarCATEGORY.BUILD )
+		if( codebaseProject )
 			return( true );
 		return( false );
 	}
@@ -186,15 +181,12 @@ public class MetaSourceProject {
 	public MetaSourceProjectItem getItem( ActionBase action , String name ) throws Exception {
 		MetaSourceProjectItem item = itemMap.get( name );
 		if( item == null )
-			action.exit2( _Error.UnknownSourceProjectItem2 , "unknown source project item=" + name + ", in project=" + PROJECT , PROJECT , name );
+			action.exit2( _Error.UnknownSourceProjectItem2 , "unknown source project item=" + name + ", in project=" + NAME , NAME , name );
 		
 		return( item );
 	}
 	
 	public boolean isEmpty( ActionBase action ) throws Exception {
-		if( distItem != null )
-			return( false );
-		
 		return( itemList.isEmpty() );
 	}
 	
@@ -226,12 +218,27 @@ public class MetaSourceProject {
 		if( !build.CONFIG_BRANCHNAME.isEmpty() )
 			return( build.CONFIG_BRANCHNAME );
 		
-		String branch = PROJECT + "-prod";
+		String branch = NAME + "-prod";
 		return( branch );
 	}
 	
 	public String[] getItemNames() {
 		return( Common.getSortedKeys( itemMap ) );
+	}
+
+	public void setProjectData( ServerTransaction transaction , String group , boolean codebase ) throws Exception {
+		this.GROUP = group;
+		this.codebaseProject = codebase;
+		
+		this.codebaseProd = false;
+		this.BRANCH = "";
+		this.BUILDER = "";
+	}
+
+	public void setCodebase( ServerTransaction transaction , boolean prod , String branch , String builder ) throws Exception {
+		this.codebaseProd = prod;
+		this.BRANCH = branch;
+		this.BUILDER = builder;
 	}
 	
 }

@@ -8,6 +8,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.engine.ServerTransaction;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -15,7 +16,7 @@ import org.w3c.dom.Node;
 
 public class MetaSourceProjectSet {
 
-	protected Meta meta;
+	public Meta meta;
 	MetaSource sources;
 
 	public VarCATEGORY CATEGORY;
@@ -37,7 +38,7 @@ public class MetaSourceProjectSet {
 		for( MetaSourceProject project : originalList ) {
 			MetaSourceProject rproject = project.copy( action , meta , r );
 			r.originalList.add( rproject );
-			r.map.put( rproject.PROJECT , rproject );
+			r.map.put( rproject.NAME , rproject );
 		}
 		return( r );
 	}
@@ -87,10 +88,22 @@ public class MetaSourceProjectSet {
 		for( Node node : projects ) {
 			MetaSourceProject project = new MetaSourceProject( meta , this );
 			project.load( action , node );
-			
-			originalList.add( project );
-			map.put( project.PROJECT , project );
+			addProject( project );
 		}
+	}
+
+	private void addProject( MetaSourceProject project ) {
+		originalList.add( project );
+		map.put( project.NAME , project );
+	}
+	
+	public void removeProject( ServerTransaction transaction , MetaSourceProject project ) {
+		originalList.remove( project );
+		map.remove( project.NAME );
+	}
+	
+	public void addProject( ServerTransaction transaction , MetaSourceProject project ) {
+		addProject( project );
 	}
 	
 }

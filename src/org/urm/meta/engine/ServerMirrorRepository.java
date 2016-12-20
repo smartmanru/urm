@@ -258,7 +258,7 @@ public class ServerMirrorRepository extends ServerObject {
 		NAME = name;
 		TYPE = TYPE_PRODUCT_DATA;
 		PRODUCT = project.meta.name;
-		PROJECT = project.PROJECT;
+		PROJECT = project.NAME;
 		RESOURCE = "";
 		RESOURCE_REPO = "";
 		RESOURCE_ROOT = "";

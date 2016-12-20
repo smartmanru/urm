@@ -140,7 +140,7 @@ public class ActionScopeSet {
 	}
 
 	public ActionScopeTarget findSourceTarget( ActionBase action , MetaSourceProject project ) throws Exception {
-		return( targets.get( project.PROJECT ) );
+		return( targets.get( project.NAME ) );
 	}
 	
 	public String getScopeInfo( ActionBase action ) throws Exception {

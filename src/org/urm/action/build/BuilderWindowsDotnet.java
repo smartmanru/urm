@@ -33,7 +33,7 @@ public class BuilderWindowsDotnet extends Builder {
 		// drop old
 		RedistStorage storage = action.artefactory.getRedistStorage( action , session.account );
 		RemoteFolder buildFolder = storage.getRedistTmpFolder( action , "build" );
-		CODEPATH = buildFolder.getSubFolder( action , project.PROJECT );
+		CODEPATH = buildFolder.getSubFolder( action , project.NAME );
 		CODEPATH.removeThis( action );
 	
 		// checkout
@@ -80,7 +80,7 @@ public class BuilderWindowsDotnet extends Builder {
 
 		// upload package
 		MetaProductSettings product = project.meta.getProductSettings( action );
-		String nugetId = product.CONFIG_PRODUCT + ".project." + project.PROJECT; 
+		String nugetId = product.CONFIG_PRODUCT + ".project." + project.NAME; 
 		String nugetPackCmd = "nuget pack package.nuspec -Version " + APPVERSION + " -Properties id=" + nugetId;
 		RemoteFolder NUGETPATH = CODEPATH.getSubFolder( action , "packages.build" ); 
 		timeout = action.setTimeoutUnlimited();
@@ -111,7 +111,7 @@ public class BuilderWindowsDotnet extends Builder {
 		ShellExecutor session = createShell( action );
 		RedistStorage storage = action.artefactory.getRedistStorage( action , session.account );
 		RemoteFolder buildFolder = storage.getRedistTmpFolder( action , "export" );
-		RemoteFolder CODEPATH = buildFolder.getSubFolder( action , project.PROJECT );
+		RemoteFolder CODEPATH = buildFolder.getSubFolder( action , project.NAME );
 		CODEPATH.removeThis( action );
 	}
 

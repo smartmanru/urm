@@ -105,26 +105,26 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		String specifics = project.getSpecifics( this );
 		if( Meta.isBuildableCategory( set.CATEGORY ) ) {
 			if( project.sourceProject.isEmpty( this ) ) {
-				info( "\tbuild project=" + project.sourceProject.PROJECT + " (internal)" + Common.getCommentIfAny( specifics ) );
+				info( "\tbuild project=" + project.sourceProject.NAME + " (internal)" + Common.getCommentIfAny( specifics ) );
 				return;
 			}
 			
 			if( project.isEmpty( this ) ) {
-				info( "\tbuild project=" + project.sourceProject.PROJECT + " (no items added)" + Common.getCommentIfAny( specifics ) );
+				info( "\tbuild project=" + project.sourceProject.NAME + " (no items added)" + Common.getCommentIfAny( specifics ) );
 				return;
 			}
 			
 			if( !project.isEmpty( this ) )
-				info( "\tbuild project=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
+				info( "\tbuild project=" + project.sourceProject.NAME + Common.getCommentIfAny( specifics ) + ":" );
 			else
-				info( "\tbuild project=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + " (no items)" );
+				info( "\tbuild project=" + project.sourceProject.NAME + Common.getCommentIfAny( specifics ) + " (no items)" );
 		}
 		else
 		if( set.CATEGORY == VarCATEGORY.PREBUILT ) {
 			if( project.isEmpty( this ) )
 				return;
 			
-			info( "\tprebuilt project=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
+			info( "\tprebuilt project=" + project.sourceProject.NAME + Common.getCommentIfAny( specifics ) + ":" );
 		}
 		else
 			exitUnexpectedCategory( set.CATEGORY );

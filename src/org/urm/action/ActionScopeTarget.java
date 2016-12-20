@@ -57,7 +57,7 @@ public class ActionScopeTarget {
 	public static ActionScopeTarget createSourceProjectTarget( ActionScopeSet set , MetaSourceProject sourceProject , boolean specifiedExplicitly ) {
 		ActionScopeTarget target = new ActionScopeTarget( set );
 		target.sourceProject = sourceProject;
-		target.NAME = sourceProject.PROJECT;
+		target.NAME = sourceProject.NAME;
 		target.specifiedExplicitly = specifiedExplicitly;
 		return( target );
 	}
@@ -122,7 +122,7 @@ public class ActionScopeTarget {
 	
 	public String getScopeInfo( ActionBase action ) throws Exception {
 		if( sourceProject != null ) {
-			String scope = sourceProject.PROJECT + ":";
+			String scope = sourceProject.NAME + ":";
 			if( itemFull )
 				scope += "all";
 			else {
@@ -245,7 +245,7 @@ public class ActionScopeTarget {
 		}
 			
 		if( BUILDBRANCH.isEmpty() )
-			BUILDBRANCH = sourceProject.PROJECT + "-prod";
+			BUILDBRANCH = sourceProject.NAME + "-prod";
 		
 		return( BUILDBRANCH );
 	}

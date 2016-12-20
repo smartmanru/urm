@@ -34,7 +34,7 @@ public class ProjectVersionControl {
 		int timeout = action.setTimeoutUnlimited();
 		boolean res = false;
 		try {
-			action.info( "checkout PATCHPATH=" + PATCHFOLDER.folderPath + ", PROJECT=" + project.PROJECT + ", BRANCH=" + BRANCH + " ..." );
+			action.info( "checkout PATCHPATH=" + PATCHFOLDER.folderPath + ", PROJECT=" + project.NAME + ", BRANCH=" + BRANCH + " ..." );
 			GenericVCS vcs = getVCS( project );
 			BRANCH = checkDefaultBranch( vcs , BRANCH );
 			res = vcs.checkout( project , PATCHFOLDER , BRANCH );
@@ -48,7 +48,7 @@ public class ProjectVersionControl {
 	
 	public boolean commit( LocalFolder PATCHFOLDER , MetaSourceProject project , String MESSAGE ) {
 		try {
-			action.info( "commit PATCHPATH=" + PATCHFOLDER.folderPath + ", PROJECT=" + project.PROJECT + ", MESSAGE=" + MESSAGE + " ..." );
+			action.info( "commit PATCHPATH=" + PATCHFOLDER.folderPath + ", PROJECT=" + project.NAME + ", MESSAGE=" + MESSAGE + " ..." );
 			GenericVCS vcs = getVCS( project );
 			return( vcs.commit( project , PATCHFOLDER , MESSAGE ) );
 		}
@@ -60,7 +60,7 @@ public class ProjectVersionControl {
 
 	public boolean copyBranchToNewBranch( MetaSourceProject project , String branchFrom , String branchTo ) {
 		try {
-			action.info( "copyBranchToNewBranch PROJECT=" + project.PROJECT + ", branchFrom=" + branchFrom + ", branchTo=" + branchTo + " ..." );
+			action.info( "copyBranchToNewBranch PROJECT=" + project.NAME + ", branchFrom=" + branchFrom + ", branchTo=" + branchTo + " ..." );
 			GenericVCS vcs = getVCS( project );
 			branchFrom = checkDefaultBranch( vcs , branchFrom );
 			branchTo = checkDefaultBranch( vcs , branchTo );
@@ -74,7 +74,7 @@ public class ProjectVersionControl {
 
 	public boolean renameBranchToNewBranch( MetaSourceProject project , String branchFrom , String branchTo ) {
 		try {
-			action.info( "renameBranchToNewBranch PROJECT=" + project.PROJECT + ", branchFrom=" + branchFrom + ", branchTo=" + branchTo + " ..." );
+			action.info( "renameBranchToNewBranch PROJECT=" + project.NAME + ", branchFrom=" + branchFrom + ", branchTo=" + branchTo + " ..." );
 			GenericVCS vcs = getVCS( project );
 			branchFrom = checkDefaultBranch( vcs , branchFrom );
 			branchTo = checkDefaultBranch( vcs , branchTo );
@@ -88,7 +88,7 @@ public class ProjectVersionControl {
 
 	public boolean copyTagToNewTag( MetaSourceProject project , String tagFrom , String tagTo ) {
 		try {
-			action.info( "copyTagToNewTag PROJECT=" + project.PROJECT + ", tagFrom=" + tagFrom + ", tagTo=" + tagTo + " ..." );
+			action.info( "copyTagToNewTag PROJECT=" + project.NAME + ", tagFrom=" + tagFrom + ", tagTo=" + tagTo + " ..." );
 			GenericVCS vcs = getVCS( project );
 			return( vcs.copyTagToNewTag( project , tagFrom , tagTo ) );
 		}
@@ -100,7 +100,7 @@ public class ProjectVersionControl {
 
 	public boolean copyTagToTag( MetaSourceProject project , String tagFrom , String tagTo ) {
 		try {
-			action.info( "copyTagToTag PROJECT=" + project.PROJECT + ", tagFrom=" + tagFrom + ", tagTo=" + tagTo + " ..." );
+			action.info( "copyTagToTag PROJECT=" + project.NAME + ", tagFrom=" + tagFrom + ", tagTo=" + tagTo + " ..." );
 			GenericVCS vcs = getVCS( project );
 			return( vcs.copyTagToTag( project , tagFrom , tagTo ) );
 		}
@@ -112,7 +112,7 @@ public class ProjectVersionControl {
 
 	public boolean renameTagToTag( MetaSourceProject project , String tagFrom , String tagTo ) {
 		try {
-			action.info( "renameTagToTag PROJECT=" + project.PROJECT + ", tagFrom=" + tagFrom + ", tagTo=" + tagTo + " ..." );
+			action.info( "renameTagToTag PROJECT=" + project.NAME + ", tagFrom=" + tagFrom + ", tagTo=" + tagTo + " ..." );
 			GenericVCS vcs = getVCS( project );
 			return( vcs.renameTagToTag( project , tagFrom , tagTo ) );
 		}
@@ -124,7 +124,7 @@ public class ProjectVersionControl {
 
 	public boolean copyTagToNewBranch( MetaSourceProject project , String tagFrom , String branchTo ) {
 		try {
-			action.info( "copyTagToNewBranch PROJECT=" + project.PROJECT + ", tagFrom=" + tagFrom + ", branchTo=" + branchTo + " ..." );
+			action.info( "copyTagToNewBranch PROJECT=" + project.NAME + ", tagFrom=" + tagFrom + ", branchTo=" + branchTo + " ..." );
 			GenericVCS vcs = getVCS( project );
 			branchTo = checkDefaultBranch( vcs , branchTo );
 			return( vcs.copyTagToNewBranch( project , tagFrom , branchTo ) );
@@ -137,7 +137,7 @@ public class ProjectVersionControl {
 
 	public boolean dropTag( MetaSourceProject project , String TAG ) {
 		try {
-			action.info( "dropTag PROJECT=" + project.PROJECT + ", TAG=" + TAG + " ..." );
+			action.info( "dropTag PROJECT=" + project.NAME + ", TAG=" + TAG + " ..." );
 			GenericVCS vcs = getVCS( project );
 			return( vcs.dropTag( project , TAG ) );
 		}
@@ -149,7 +149,7 @@ public class ProjectVersionControl {
 
 	public boolean dropBranch( MetaSourceProject project , String BRANCH ) {
 		try {
-			action.info( "dropBranch PROJECT=" + project.PROJECT + ", BRANCH=" + BRANCH + " ..." );
+			action.info( "dropBranch PROJECT=" + project.NAME + ", BRANCH=" + BRANCH + " ..." );
 			GenericVCS vcs = getVCS( project );
 			BRANCH = checkDefaultBranch( vcs , BRANCH );
 			return( vcs.dropBranch( project , BRANCH ) );
@@ -164,7 +164,7 @@ public class ProjectVersionControl {
 		int timeout = action.setTimeoutUnlimited();
 		boolean res = false;
 		try {
-			action.info( "export PROJECT=" + project.PROJECT + ", BRANCH=" + BRANCH + ", TAG=" + TAG + ", singlefile=" + SINGLEFILE + " ..." );
+			action.info( "export PROJECT=" + project.NAME + ", BRANCH=" + BRANCH + ", TAG=" + TAG + ", singlefile=" + SINGLEFILE + " ..." );
 			GenericVCS vcs = getVCS( project );
 			BRANCH = checkDefaultBranch( vcs , BRANCH );
 			res = vcs.export( project , PATCHFOLDER , BRANCH , TAG , SINGLEFILE );
@@ -178,7 +178,7 @@ public class ProjectVersionControl {
 
 	public boolean setTag( MetaSourceProject project , String BRANCH , String TAG , String branchDate ) {
 		try {
-			action.info( "setTag PROJECT=" + project.PROJECT + ", BRANCH=" + BRANCH + ", TAG=" + TAG + ", branchDate=" + branchDate + " ..." );
+			action.info( "setTag PROJECT=" + project.NAME + ", BRANCH=" + BRANCH + ", TAG=" + TAG + ", branchDate=" + branchDate + " ..." );
 			GenericVCS vcs = getVCS( project );
 			BRANCH = checkDefaultBranch( vcs , BRANCH );
 			return( vcs.setTag( project , BRANCH , TAG , branchDate ) );

@@ -163,7 +163,7 @@ public class MetaDistrBinaryItem {
 		MetaDistrBinaryItem r = new MetaDistrBinaryItem( meta , delivery );
 		if( sourceItem != null ) {
 			MetaSource source = meta.getSources( action );
-			MetaSourceProject project = source.getProject( action , sourceItem.project.PROJECT );
+			MetaSourceProject project = source.getProject( action , sourceItem.project.NAME );
 			r.sourceItem = project.getItem( action , sourceItem.ITEMNAME );
 		}
 			

@@ -45,7 +45,7 @@ public class ActionSetVersion extends ActionBase {
 	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
 		// ignore if builder is not maven
 		if( !scopeProject.sourceProject.getBuilder( this ).equals( "maven" ) ) {
-			info( "project=" + scopeProject.sourceProject.PROJECT + " is not built by maven. Skipped." );
+			info( "project=" + scopeProject.sourceProject.NAME + " is not built by maven. Skipped." );
 			return( SCOPESTATE.NotRun );
 		}
 		
@@ -53,13 +53,13 @@ public class ActionSetVersion extends ActionBase {
 		BuildStorage PATCHPATH = artefactory.getEmptyBuildStorage( this , scopeProject.sourceProject );
 		String BRANCH = scopeProject.getProjectBuildBranch( this );
 		
-		info( "setVersionProject: PROJECT=" + scopeProject.sourceProject.PROJECT + ", REPOSITORY=" + scopeProject.sourceProject.REPOSITORY + 
+		info( "setVersionProject: PROJECT=" + scopeProject.sourceProject.NAME + ", REPOSITORY=" + scopeProject.sourceProject.REPOSITORY + 
 				", PATH=" + scopeProject.sourceProject.PATH + ", BRANCH=" + BRANCH + ", VERSION=" + BUILDVERSION + ", PATCHPATH=" + PATCHPATH.buildFolder.folderPath + " ..." );
 
 		ProjectVersionControl vcs = new ProjectVersionControl( this , false );
 		
 		if( !vcs.checkout( PATCHPATH.buildFolder , scopeProject.sourceProject , BRANCH ) )
-			exit1( _Error.UnableCheckout1 , "setVersionProject: error calling checkout" , scopeProject.sourceProject.PROJECT );
+			exit1( _Error.UnableCheckout1 , "setVersionProject: error calling checkout" , scopeProject.sourceProject.NAME );
 
 		// set version
 		createDedicatedShell( "build"  );
