@@ -184,6 +184,7 @@ public class MetaSource extends PropertyController {
 
 	public MetaSourceProjectSet createProjectSet( ServerTransaction transaction , String name ) {
 		MetaSourceProjectSet set = new MetaSourceProjectSet( meta , this );
+		set.create( transaction , name );
 		addProjectSet( set );
 		return( set );
 	}

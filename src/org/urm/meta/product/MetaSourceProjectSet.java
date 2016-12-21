@@ -42,6 +42,10 @@ public class MetaSourceProjectSet {
 		return( r );
 	}
 	
+	public void create( ServerTransaction transaction , String name ) throws Exception {
+		NAME = name;
+	}
+	
 	public void load( ActionBase action , Node node ) throws Exception {
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		loadProjects( action , node );
