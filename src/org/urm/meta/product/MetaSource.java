@@ -52,8 +52,7 @@ public class MetaSource extends PropertyController {
 		r.initCopyStarted( this , product.getProperties() );
 		for( MetaSourceProjectSet set : originalList ) {
 			MetaSourceProjectSet rset = set.copy( action , meta , r );
-			r.originalList.add( set );
-			r.setMap.put( rset.NAME , rset );
+			r.addProjectSet( rset );
 		}
 
 		for( MetaSourceProject project : projectMap.values() ) {
