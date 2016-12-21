@@ -61,7 +61,7 @@ public class MetaSourceProject {
 		GROUP = ConfReader.getAttrValue( node , "group" );
 		RESOURCE = ConfReader.getRequiredAttrValue( node , "resource" );
 		if( !RESOURCE.isEmpty() ) {
-			REPOPATH = ConfReader.getRequiredAttrValue( node , "path" );
+			REPOPATH = ConfReader.getAttrValue( node , "repopath" );
 			CODEPATH = ConfReader.getAttrValue( node , "codepath" );
 		}
 		
@@ -111,7 +111,7 @@ public class MetaSourceProject {
 		Common.xmlSetElementAttr( doc , root , "group" , GROUP );
 		if( !RESOURCE.isEmpty() ) {
 			Common.xmlSetElementAttr( doc , root , "resource" , RESOURCE );
-			Common.xmlSetElementAttr( doc , root , "path" , REPOPATH );
+			Common.xmlSetElementAttr( doc , root , "repopath" , REPOPATH );
 			Common.xmlSetElementAttr( doc , root , "codepath" , CODEPATH );
 		}
 		
