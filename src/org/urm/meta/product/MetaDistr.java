@@ -179,7 +179,7 @@ public class MetaDistr extends PropertyController {
 		return( comp );
 	}
 	
-	public MetaDistrBinaryItem findBinaryItem( ActionBase action , String KEY ) throws Exception {
+	public MetaDistrBinaryItem findBinaryItem( String KEY ) {
 		return( mapBinaryItems.get( KEY ) );
 	}
 	
@@ -273,6 +273,10 @@ public class MetaDistr extends PropertyController {
 	public void deleteBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 		item.delivery.deleteBinaryItem( transaction , item );
 		mapBinaryItems.remove( item.KEY );
+	}
+
+	public void changeBinaryItemProjectToManual( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+		item.changeProjectToManual( transaction );
 	}
 	
 	public void deleteConfItem( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {

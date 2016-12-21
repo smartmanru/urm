@@ -60,7 +60,7 @@ public class MetaDistrComponentItem {
 		r.type = type;
 		r.NAME = NAME;
 		if( binaryItem != null )
-			r.binaryItem = comp.dist.findBinaryItem( action , binaryItem.KEY );
+			r.binaryItem = comp.dist.findBinaryItem( binaryItem.KEY );
 		else
 		if( confItem != null )
 			r.confItem = comp.dist.findConfItem( action , confItem.KEY );

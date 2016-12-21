@@ -203,5 +203,10 @@ public class MetaSource extends PropertyController {
 			projectMap.remove( project.NAME );
 		setMap.remove( set.NAME );
 	}
+
+	public void removeProject( ServerTransaction transaction , MetaSourceProject project ) throws Exception {
+		project.set.removeProject( transaction , project );
+		projectMap.remove( project.NAME );
+	}
 	
 }

@@ -23,6 +23,7 @@ import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.engine.ServerSystem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
+import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
@@ -41,6 +42,7 @@ import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
 import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.Types.*;
 
@@ -629,12 +631,31 @@ public class ServerTransaction extends TransactionBase {
 	}
 	
 	public void createMirrorRepository( MetaSourceProject project ) throws Exception {
+		ServerMirrors mirrors = action.getActiveMirrors();
+		mirrors.createProjectMirror( this , project );
 	}
 
 	public void changeMirrorRepository( MetaSourceProject project ) throws Exception {
+		ServerMirrors mirrors = action.getActiveMirrors();
+		mirrors.changeProjectMirror( this , project );
 	}
 
 	public void deleteSourceProject( MetaSourceProject project , boolean leaveManual ) throws Exception {
+		checkTransactionMetadata( project.meta.getStorage( action ) );
+		Meta meta = project.meta;
+		MetaSource sources = project.set.sources;
+		MetaDistr distr = meta.getDistr( action );
+		for( MetaSourceProjectItem item : project.getItems() ) {
+			MetaDistrBinaryItem distItem = distr.findBinaryItem( item.ITEMNAME );
+			if( leaveManual )
+				distr.changeBinaryItemProjectToManual( this , distItem );
+			else
+				distr.deleteBinaryItem( this , distItem );
+		}
+		sources.removeProject( this , project );
+		
+		ServerMirrors mirrors = action.getActiveMirrors();
+		mirrors.deleteProjectMirror( this , project );
 	}
 	
 }

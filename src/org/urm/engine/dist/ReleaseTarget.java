@@ -280,8 +280,7 @@ public class ReleaseTarget {
 		ALL = true;
 		
 		// read source items
-		List<MetaSourceProjectItem> projectitems = sourceProject.getIitemList( action );
-		for( MetaSourceProjectItem projectitem : projectitems )
+		for( MetaSourceProjectItem projectitem : sourceProject.getItems() )
 			addSourceItem( action , projectitem );
 	}
 
@@ -403,7 +402,7 @@ public class ReleaseTarget {
 	}
 
 	public boolean checkSourceAllIncluded( ActionBase action ) throws Exception {
-		for( MetaSourceProjectItem projectitem : sourceProject.getIitemList( action ) ) {
+		for( MetaSourceProjectItem projectitem : sourceProject.getItems() ) {
 			ReleaseTargetItem source = itemMap.get( projectitem.ITEMNAME );
 			if( source == null )
 				return( false );

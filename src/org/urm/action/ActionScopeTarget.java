@@ -154,7 +154,7 @@ public class ActionScopeTarget {
 	private void addSourceProjectItems( ActionBase action , String[] ITEMS ) throws Exception {
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			itemFull = true;
-			for( MetaSourceProjectItem item : sourceProject.getIitemList( action ) )
+			for( MetaSourceProjectItem item : sourceProject.getItems() )
 				addProjectItem( action , item , false );
 			return;
 		}

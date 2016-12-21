@@ -61,6 +61,14 @@ public class MetaDistrBinaryItem {
 		CUSTOMDEPLOY = false;
 	}
 	
+	public void changeProjectToManual( ServerTransaction transaction ) throws Exception {
+		if( distItemOrigin != VarDISTITEMORIGIN.BUILD )
+			transaction.exitUnexpectedState();
+			
+		sourceItem = null;
+		distItemOrigin = VarDISTITEMORIGIN.MANUAL;
+	}
+	
 	public void load( ActionBase action , Node node ) throws Exception {
 		KEY = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
 	

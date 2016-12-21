@@ -199,12 +199,8 @@ public class MetaSourceProject {
 		return( itemList.isEmpty() );
 	}
 	
-	public List<MetaSourceProjectItem> getIitemList( ActionBase action ) {
-		return( itemList );
-	}
-	
-	public Map<String,MetaSourceProjectItem> getIitemMap( ActionBase action ) {
-		return( itemMap );
+	public MetaSourceProjectItem[] getItems() {
+		return( itemList.toArray( new MetaSourceProjectItem[0] ) );
 	}
 	
 	public String getBuilder( ActionBase action ) throws Exception {

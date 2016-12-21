@@ -77,7 +77,7 @@ public class SpecificPGU {
 	}
 
 	private MetaDistrBinaryItem getWarItem( MetaSourceProject project , int pos ) throws Exception {
-		MetaSourceProjectItem item = project.getIitemList( action ).get( pos );
+		MetaSourceProjectItem item = project.getItems()[ pos ];
 		MetaDistr distr = meta.getDistr( action );
 		return( distr.getBinaryItem( action , item.ITEMNAME ) );
 	}
@@ -353,7 +353,7 @@ public class SpecificPGU {
 	public boolean checkWarMRId( ActionBase action , String P_WAR ) throws Exception {
 		// get war from distributive info
 		MetaDistr distr = meta.getDistr( action );
-		MetaDistrBinaryItem item = distr.findBinaryItem( action , P_WAR );
+		MetaDistrBinaryItem item = distr.findBinaryItem( P_WAR );
 		if( item == null )
 			return( false );
 
