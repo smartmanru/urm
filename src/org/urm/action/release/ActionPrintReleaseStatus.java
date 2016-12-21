@@ -103,7 +103,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		
 	private void printReleaseBuildSetProjectStatus( Dist dist , FileSet files , ReleaseSet set , ReleaseTarget project ) throws Exception {
 		String specifics = project.getSpecifics( this );
-		if( Meta.isBuildableCategory( set.CATEGORY ) ) {
+		if( project.isBuildableProject() ) {
 			if( project.sourceProject.isEmpty( this ) ) {
 				info( "\tbuild project=" + project.sourceProject.NAME + " (internal)" + Common.getCommentIfAny( specifics ) );
 				return;
@@ -120,7 +120,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 				info( "\tbuild project=" + project.sourceProject.NAME + Common.getCommentIfAny( specifics ) + " (no items)" );
 		}
 		else
-		if( set.CATEGORY == VarCATEGORY.PREBUILT ) {
+		if( project.isPrebuiltProject() ) {
 			if( project.isEmpty( this ) )
 				return;
 			

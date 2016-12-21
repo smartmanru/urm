@@ -300,5 +300,17 @@ public class ActionScopeTarget {
 		items.add( scopeItem );
 		return( scopeItem );
 	}
+
+	public boolean isBuildableProject() {
+		if( CATEGORY == VarCATEGORY.PROJECT && sourceProject.codebaseProject == true )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isPrebuiltProject() {
+		if( CATEGORY == VarCATEGORY.PROJECT && sourceProject.codebaseProject == false )
+			return( true );
+		return( false );
+	}
 	
 }

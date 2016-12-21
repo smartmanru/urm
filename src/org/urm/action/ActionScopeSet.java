@@ -67,7 +67,7 @@ public class ActionScopeSet {
 	public void create( ActionBase action , MetaSourceProjectSet pset ) throws Exception {
 		this.pset = pset;
 		this.NAME = pset.NAME;
-		this.CATEGORY = pset.CATEGORY;
+		this.CATEGORY = VarCATEGORY.PROJECT;
 		this.setFull = false;
 	}
 

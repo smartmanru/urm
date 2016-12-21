@@ -39,12 +39,13 @@ public class Types {
 	
 	public enum VarCATEGORY {
 		UNKNOWN ,
-		BUILD ,
-		MANUAL , 
-		PREBUILT ,
+		PROJECT ,
 		CONFIG ,
+		MANUAL ,
 		DB ,
-		ENV
+		ENV ,
+		BUILDABLE ,
+		PREBUILT
 	};
 
 	public enum VarENVTYPE {

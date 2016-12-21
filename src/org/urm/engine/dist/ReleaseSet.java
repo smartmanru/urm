@@ -77,7 +77,9 @@ public class ReleaseSet {
 	}
 
 	public boolean isSourceSet( ActionBase action ) throws Exception {
-		return( Meta.isSourceCategory( set.CATEGORY ) );
+		if( CATEGORY == VarCATEGORY.PROJECT )
+			return( true );
+		return( false );
 	}
 	
 	public boolean isCategorySet( ActionBase action ) throws Exception {
@@ -208,7 +210,7 @@ public class ReleaseSet {
 	public void createSourceSet( ActionBase action , MetaSourceProjectSet set , boolean ALL ) throws Exception {
 		this.set = set;
 		this.NAME = set.NAME;
-		this.CATEGORY = set.CATEGORY;
+		this.CATEGORY = VarCATEGORY.PROJECT;
 		this.ALL = ALL;
 		this.BUILDBRANCH = action.context.CTX_BRANCH;
 		this.BUILDTAG = action.context.CTX_TAG;

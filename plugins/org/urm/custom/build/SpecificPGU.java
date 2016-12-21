@@ -184,7 +184,7 @@ public class SpecificPGU {
 
 		// download latest built libs for all microportals
 		action.debug( "download last built libs for all microportals from Nexus - to pgu-services-lib ..." );
-		Map<String,ActionScopeTarget> projects = scope.getCategorySetTargets( action , VarCATEGORY.BUILD );
+		Map<String,ActionScopeTarget> projects = scope.getCategorySetTargets( action , VarCATEGORY.BUILDABLE );
 		
 		for( ActionScopeTarget scopeProject : projects.values() ) {
 			MetaDistrBinaryItem distItem = getWarItem( scopeProject.sourceProject , 1 );
@@ -207,7 +207,7 @@ public class SpecificPGU {
 
 		action.debug( "copy libs to servicecall and storageservice from pgu-services-lib and servicecall-prod-libs ..." );
 		MetaSource sources = meta.getSources( action );
-		List<MetaSourceProject> list = sources.getAllProjectList( action , VarCATEGORY.BUILD );
+		List<MetaSourceProject> list = sources.getAllProjectList( action , true );
 		Dist releaseStorage = release;
 		
 		for( MetaSourceProject sourceProject : list ) {

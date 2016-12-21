@@ -180,35 +180,34 @@ public class Meta extends ServerObject {
 	}
 	
 	public static boolean isSourceCategory( VarCATEGORY value ) {
-		if( value == VarCATEGORY.BUILD || value == VarCATEGORY.PREBUILT )
-			return( true );
-		return( false );
-	}
-	
-	public static boolean isBuildableCategory( VarCATEGORY value ) {
-		if( value == VarCATEGORY.BUILD )
+		if( value == VarCATEGORY.PROJECT )
 			return( true );
 		return( false );
 	}
 	
 	public static VarCATEGORY[] getAllCategories() {
-		VarCATEGORY[] categories = { VarCATEGORY.BUILD , VarCATEGORY.MANUAL , VarCATEGORY.PREBUILT , VarCATEGORY.CONFIG , VarCATEGORY.DB };
+		VarCATEGORY[] categories = { VarCATEGORY.PROJECT , VarCATEGORY.CONFIG , VarCATEGORY.DB };
 		return( categories );
 	}
 
 	public static VarCATEGORY[] getAllReleaseCategories() {
-		VarCATEGORY[] categories = { VarCATEGORY.BUILD , VarCATEGORY.MANUAL , VarCATEGORY.PREBUILT , VarCATEGORY.CONFIG , VarCATEGORY.DB };
+		VarCATEGORY[] categories = { VarCATEGORY.PROJECT , VarCATEGORY.CONFIG , VarCATEGORY.DB };
 		return( categories );
 	}
 
 	public static VarCATEGORY[] getAllSourceCategories() {
-		VarCATEGORY[] categories = { VarCATEGORY.BUILD , VarCATEGORY.PREBUILT };
+		VarCATEGORY[] categories = { VarCATEGORY.PROJECT };
 		return( categories );
 	}
 
-	public static VarCATEGORY[] getAllBuildableCategories() {
-		VarCATEGORY[] categories = { VarCATEGORY.BUILD };
-		return( categories );
+	public static boolean checkCategoryPartOf( VarCATEGORY part , VarCATEGORY whole ) {
+		if( part == whole )
+			return( true );
+		if( whole == VarCATEGORY.PROJECT ) {
+			if( part == VarCATEGORY.BUILDABLE || part == VarCATEGORY.PREBUILT )
+				return( true );
+		}
+		return( false );
 	}
 	
 	public static String getVersionPattern( ActionBase action , VarITEMVERSION version , String basename , String ext ) throws Exception {

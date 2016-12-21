@@ -510,7 +510,7 @@ public class ScopeExecutor {
 				if( categories != null ) {
 					run = false;
 					for( VarCATEGORY CATEGORY : categories ) {
-						if( set.CATEGORY == CATEGORY )
+						if( Meta.checkCategoryPartOf( set.CATEGORY , CATEGORY ) )
 							run = true;
 					}
 				}
@@ -788,7 +788,7 @@ public class ScopeExecutor {
 		if( scope.meta != null ) {
 			MetaSource sources = scope.meta.getSources( action ); 
 			for( MetaSourceProjectSet sourceSet : sources.getSetList( action ) ) {
-				ActionScopeSet set = scope.findSet( action , sourceSet.CATEGORY , sourceSet.NAME );
+				ActionScopeSet set = scope.findSet( action , VarCATEGORY.PROJECT , sourceSet.NAME );
 				if( set != null )
 					list.add( set );
 			}

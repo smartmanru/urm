@@ -97,8 +97,8 @@ public class MetaSource extends PropertyController {
 		setMap.put( projectset.NAME , projectset );
 	}
 	
-	public List<MetaSourceProject> getProjectList( ActionBase action , VarCATEGORY CATEGORY , VarBUILDMODE buildMode ) {
-		List<MetaSourceProject> all = getAllProjectList( action , CATEGORY );
+	public List<MetaSourceProject> getBuildProjectList( ActionBase action , VarBUILDMODE buildMode ) {
+		List<MetaSourceProject> all = getAllProjectList( action , true );
 		List<MetaSourceProject> list = new LinkedList<MetaSourceProject>(); 
 		for( MetaSourceProject project : all ) {
 			if( buildMode == VarBUILDMODE.BRANCH ) {
@@ -118,11 +118,14 @@ public class MetaSource extends PropertyController {
 		return( originalList );
 	}
 	
-	public List<MetaSourceProject> getAllProjectList( ActionBase action , VarCATEGORY CATEGORY ) {
+	public List<MetaSourceProject> getAllProjectList( ActionBase action , boolean buildable ) {
 		List<MetaSourceProject> plist = new LinkedList<MetaSourceProject>();
 		for( MetaSourceProjectSet pset : setMap.values() ) {
-			if( CATEGORY == null || pset.CATEGORY == CATEGORY )
-				plist.addAll( pset.originalList );
+			for( MetaSourceProject project : pset.getProjects() ) {
+				if( buildable && !project.codebaseProject )
+					continue;
+				plist.add( project );
+			}
 		}
 		return( plist );
 	}

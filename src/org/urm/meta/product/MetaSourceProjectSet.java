@@ -19,7 +19,6 @@ public class MetaSourceProjectSet {
 	public Meta meta;
 	MetaSource sources;
 
-	public VarCATEGORY CATEGORY;
 	public String NAME;
 
 	public List<MetaSourceProject> originalList;
@@ -44,20 +43,12 @@ public class MetaSourceProjectSet {
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
-		CATEGORY = Meta.readCategoryAttr( node );
-		
-		if( !Meta.isSourceCategory( CATEGORY ) ) {
-			String name = Common.getEnumLower( CATEGORY );
-			action.exit1( _Error.UnknownProjectCategory1 , "invalid source.xml: unknown project category=" + name , name );
-		}
-		
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
-		loadProjects( action , CATEGORY , node );
+		loadProjects( action , node );
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , "name" , NAME );
-		Common.xmlSetElementAttr( doc , root , "category" , Common.getEnumLower( CATEGORY ) );
 		
 		for( MetaSourceProject project : originalList ) {
 			Element projectElement = Common.xmlCreateElement( doc , root , "project" );
@@ -76,11 +67,15 @@ public class MetaSourceProjectSet {
 		return( originalList );
 	}
 
+	public MetaSourceProject[] getProjects() {
+		return( originalList.toArray( new MetaSourceProject[0] ) );
+	}
+
 	public Map<String,MetaSourceProject> getProjects( ActionBase action ) throws Exception {
 		return( map );
 	}
 
-	void loadProjects( ActionBase action , VarCATEGORY CATEGORY , Node pset ) throws Exception {
+	void loadProjects( ActionBase action , Node pset ) throws Exception {
 		Node[] projects = ConfReader.xmlGetChildren( pset , "project" );
 		if( projects == null )
 			return;

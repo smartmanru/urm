@@ -557,7 +557,7 @@ public class ActionScope {
 			if( categories != null ) {
 				add = false;
 				for( VarCATEGORY CATEGORY : categories ) {
-					if( set.CATEGORY == CATEGORY )
+					if( Meta.checkCategoryPartOf( CATEGORY , set.CATEGORY ) )
 						add = true;
 				}
 			}
@@ -581,7 +581,7 @@ public class ActionScope {
 	}
 	
 	public String getBuildScopeInfo( ActionBase action ) throws Exception {
-		return( getScopeInfo( action , Meta.getAllBuildableCategories() ) );
+		return( getScopeInfo( action , new VarCATEGORY[] { VarCATEGORY.BUILDABLE } ) );
 	}
 	
 	public String getSourceScopeInfo( ActionBase action ) throws Exception {
@@ -597,7 +597,7 @@ public class ActionScope {
 			}
 			
 			for( VarCATEGORY CATEGORY : categories ) {
-				if( set.CATEGORY == CATEGORY && !set.isEmpty( action ) )
+				if( Meta.checkCategoryPartOf( CATEGORY , set.CATEGORY ) && !set.isEmpty( action ) )
 					return( false );
 			}
 		}
@@ -653,7 +653,7 @@ public class ActionScope {
 	public ActionScopeSet[] getBuildableSets( ActionBase action ) throws Exception {
 		List<ActionScopeSet> x = new LinkedList<ActionScopeSet>();
 		for( ActionScopeSet set : sourceMap.values() ) {
-			if( Meta.isBuildableCategory( set.CATEGORY ) && !set.isEmpty( action ) )
+			if( set.CATEGORY == VarCATEGORY.PROJECT && !set.isEmpty( action ) )
 				x.add( set );
 		}
 		return( x.toArray( new ActionScopeSet[0] ) );

@@ -277,7 +277,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public boolean runEachBuildableProject( ActionScope scope , SecurityAction sa , boolean readOnly ) {
-		VarCATEGORY[] categories = Meta.getAllBuildableCategories();
+		VarCATEGORY[] categories = { VarCATEGORY.BUILDABLE };
 		return( runCategories( scope , categories , sa , readOnly ) );
 	}
 	
@@ -292,7 +292,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public boolean runEachCoreProject( ActionScope scope , SecurityAction sa , boolean readOnly ) {
-		return( runEachCategoryTarget( scope , VarCATEGORY.BUILD , sa , readOnly ) );
+		return( runEachCategoryTarget( scope , VarCATEGORY.BUILDABLE , sa , readOnly ) );
 	}
 
 	public boolean runEachPrebuiltProject( String methodName , ActionScope scope , SecurityAction sa , boolean readOnly ) {

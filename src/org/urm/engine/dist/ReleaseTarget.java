@@ -198,7 +198,7 @@ public class ReleaseTarget {
 
 	public void createFromProject( ActionBase action , MetaSourceProject sourceProject , boolean allItems ) throws Exception {
 		this.sourceProject = sourceProject;
-		this.CATEGORY = sourceProject.set.CATEGORY;
+		this.CATEGORY = VarCATEGORY.PROJECT;
 		
 		NAME = sourceProject.NAME;
 		ALL = false;
@@ -415,6 +415,18 @@ public class ReleaseTarget {
 	public void removeSourceItem( ActionBase action , ReleaseTargetItem buildItem ) throws Exception {
 		itemMap.remove( buildItem.NAME );
 		ALL = false;
+	}
+
+	public boolean isBuildableProject() {
+		if( CATEGORY == VarCATEGORY.PROJECT && sourceProject.codebaseProject == true )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isPrebuiltProject() {
+		if( CATEGORY == VarCATEGORY.PROJECT && sourceProject.codebaseProject == false )
+			return( true );
+		return( false );
 	}
 	
 }

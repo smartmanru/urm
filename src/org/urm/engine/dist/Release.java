@@ -480,7 +480,7 @@ public class Release {
 	public boolean addSourceSet( ActionBase action , MetaSourceProjectSet sourceSet , boolean all ) throws Exception {
 		ReleaseSet set = findSourceSet( action , sourceSet.NAME );
 		if( set == null ) {
-			set = new ReleaseSet( meta , this , sourceSet.CATEGORY );
+			set = new ReleaseSet( meta , this , VarCATEGORY.PROJECT );
 			set.createSourceSet( action , sourceSet , all );
 			registerSet( action , set );
 			return( true );

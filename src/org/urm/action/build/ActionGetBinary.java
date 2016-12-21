@@ -34,10 +34,10 @@ public class ActionGetBinary extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
-		if( target.CATEGORY == VarCATEGORY.BUILD )
+		if( target.isBuildableProject() )
 			downloadCoreProject( target );
 		else 
-		if( target.CATEGORY == VarCATEGORY.PREBUILT )
+		if( target.isPrebuiltProject() )
 			downloadPrebuiltProject( target );
 		else
 			this.exitUnexpectedCategory( target.CATEGORY );
