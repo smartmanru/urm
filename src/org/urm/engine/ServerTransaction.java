@@ -611,6 +611,7 @@ public class ServerTransaction extends TransactionBase {
 	public MetaSourceProject createSourceProject( MetaSourceProjectSet set , String name ) throws Exception {
 		checkTransactionMetadata( set.meta.getStorage( action ) );
 		MetaSourceProject project = new MetaSourceProject( set.meta , set );
+		project.create( this , name );
 		set.addProject( this , project );
 		return( project );
 	}

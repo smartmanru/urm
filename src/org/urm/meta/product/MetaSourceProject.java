@@ -21,18 +21,18 @@ public class MetaSourceProject {
 	public Meta meta;
 	public MetaSourceProjectSet set;
 	
-	public String NAME;
-	public String DESC;
-	public boolean codebaseProject;
-	public String RESOURCE;
-	public String REPOSITORY;
-	public boolean codebaseProd;
-	public String GROUP;
-	public String REPOPATH;
-	public String CODEPATH;
-	public String TRACKER;
-	public String BRANCH;
-	public String BUILDER;
+	public String NAME = "";
+	public String DESC = "";
+	public boolean codebaseProject = false;
+	public String RESOURCE = "";
+	public String REPOSITORY = "";
+	public boolean codebaseProd = false;
+	public String GROUP = "";
+	public String REPOPATH = "";
+	public String CODEPATH = "";
+	public String TRACKER = "";
+	public String BRANCH = "";
+	public String BUILDER = "";
 
 	List<MetaSourceProjectItem> itemList = new LinkedList<MetaSourceProjectItem>();
 	Map<String,MetaSourceProjectItem> itemMap = new HashMap<String,MetaSourceProjectItem>();
@@ -43,6 +43,10 @@ public class MetaSourceProject {
 	public MetaSourceProject( Meta meta , MetaSourceProjectSet set ) {
 		this.meta = meta;
 		this.set = set;
+	}
+	
+	public void create( ServerTransaction transaction , String name ) throws Exception {
+		NAME = name;
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
