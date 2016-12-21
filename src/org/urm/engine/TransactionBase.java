@@ -38,6 +38,7 @@ import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.Types.*;
 
 public class TransactionBase extends ServerObject {
@@ -961,6 +962,12 @@ public class TransactionBase extends ServerObject {
 		Meta metaNew = getTransactionProductMetadata( project.meta.name );
 		MetaSource sourceNew = metaNew.getSources( action );
 		return( sourceNew.getProject( action , project.NAME ) );
+	}
+	
+	public MetaSourceProjectSet getSourceProjectSet( MetaSourceProjectSet set ) throws Exception {
+		Meta metaNew = getTransactionProductMetadata( set.meta.name );
+		MetaSource sourceNew = metaNew.getSources( action );
+		return( sourceNew.getProjectSet( action , set.NAME ) );
 	}
 	
 	public void checkSecurityFailed() {

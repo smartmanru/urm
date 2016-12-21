@@ -18,7 +18,6 @@ import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
-import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.Types.*;
 
 public class ScopeExecutor {
@@ -783,12 +782,12 @@ public class ScopeExecutor {
 		return( SCOPESTATE.RunFail );
 	}
 	
-	private List<ActionScopeSet> getOrderedSets( ActionScope scope ) throws Exception {
+	private ActionScopeSet[] getOrderedSets( ActionScope scope ) throws Exception {
 		List<ActionScopeSet> list = new LinkedList<ActionScopeSet>();
 		if( scope.meta != null ) {
 			MetaSource sources = scope.meta.getSources( action ); 
-			for( MetaSourceProjectSet sourceSet : sources.getSetList( action ) ) {
-				ActionScopeSet set = scope.findSet( action , VarCATEGORY.PROJECT , sourceSet.NAME );
+			for( String sourceSetName : sources.getSetNames() ) {
+				ActionScopeSet set = scope.findSet( action , VarCATEGORY.PROJECT , sourceSetName );
 				if( set != null )
 					list.add( set );
 			}
@@ -805,7 +804,7 @@ public class ScopeExecutor {
 			}
 		}
 		
-		return( list );
+		return( list.toArray( new ActionScopeSet[0] ) );
 	}
 	
 	private List<ActionScopeTarget> getOrderedTargets( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
@@ -816,7 +815,7 @@ public class ScopeExecutor {
 			for( ActionScopeTarget target : targets )
 				map.put( target.sourceProject.NAME , target );
 			
-			for( MetaSourceProject project : set.pset.getOriginalList( action ) ) {
+			for( MetaSourceProject project : set.pset.getOrderedList() ) {
 				ActionScopeTarget target = map.get( project.NAME );
 				if( target != null )
 					list.add( target );

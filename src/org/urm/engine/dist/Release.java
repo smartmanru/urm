@@ -473,7 +473,7 @@ public class Release {
 
 	public void addSourceAll( ActionBase action ) throws Exception {
 		MetaSource sources = meta.getSources( action ); 
-		for( MetaSourceProjectSet sourceSet : sources.getSets( action ).values() )
+		for( MetaSourceProjectSet sourceSet : sources.getSets() )
 			addSourceSet( action , sourceSet , true );
 	}
 	

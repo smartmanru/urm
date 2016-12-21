@@ -176,7 +176,7 @@ public class ActionScopeSet {
 	private void addSourceProjects( ActionBase action , String[] PROJECTS ) throws Exception {
 		if( PROJECTS == null || PROJECTS.length == 0 ) {
 			setFull = true; 
-			for( MetaSourceProject project : pset.getProjects( action ).values() )
+			for( MetaSourceProject project : pset.getProjects() )
 				addSourceProject( action , project , true , false );
 			return;
 		}

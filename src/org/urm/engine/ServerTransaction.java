@@ -604,25 +604,37 @@ public class ServerTransaction extends TransactionBase {
 
 	public void changeProjectSet( MetaSourceProject project , MetaSourceProjectSet setNew ) throws Exception {
 		checkTransactionMetadata( project.meta.getStorage( action ) );
-		project.set.removeProject( this , project );
+		MetaSourceProjectSet setOld = project.set;
+		project.changeProjectSet( this , setNew );
+		setOld.removeProject( this , project );
 		setNew.addProject( this , project );
+		
+		if( setOld.isEmpty() )
+			setOld.sources.removeProjectSet( this , setOld );
 	}
 
-	public MetaSourceProject createSourceProject( MetaSourceProjectSet set , String name ) throws Exception {
+	public MetaSourceProject createSourceProject( MetaSourceProjectSet set , String name , int POS ) throws Exception {
 		checkTransactionMetadata( set.meta.getStorage( action ) );
-		MetaSourceProject project = new MetaSourceProject( set.meta , set );
-		project.create( this , name );
-		set.addProject( this , project );
-		return( project );
+		return( set.sources.createProject( this , set , name , POS ) );
 	}
 
+	public void changeProjectOrder( MetaSourceProject project , int POS ) throws Exception {
+		checkTransactionMetadata( project.meta.getStorage( action ) );
+		project.set.changeProjectOrder( this , project , POS );
+	}
+
+	public void changeProjectSetOrder( MetaSourceProjectSet set ) throws Exception {
+		checkTransactionMetadata( set.meta.getStorage( action ) );
+		set.reorderProjects( this );
+	}
+	
 	public void createMirrorRepository( MetaSourceProject project ) throws Exception {
 	}
 
 	public void changeMirrorRepository( MetaSourceProject project ) throws Exception {
 	}
 
-	public void deleteSourceProject( MetaSourceProject project ) throws Exception {
+	public void deleteSourceProject( MetaSourceProject project , boolean leaveManual ) throws Exception {
 	}
 	
 }

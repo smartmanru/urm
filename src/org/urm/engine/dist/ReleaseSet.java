@@ -254,7 +254,7 @@ public class ReleaseSet {
 	
 	public void addAllSourceProjects( ActionBase action ) throws Exception {
 		action.trace( "add all source projects to release ..." );
-		for( MetaSourceProject project : set.originalList )
+		for( MetaSourceProject project : set.getProjects() )
 			addSourceProject( action , project , true );
 	}
 
@@ -417,7 +417,7 @@ public class ReleaseSet {
 	}
 
 	public boolean checkAllBinaryIncluded( ActionBase action ) throws Exception {
-		for( MetaSourceProject project : set.originalList ) {
+		for( MetaSourceProject project : set.getProjects() ) {
 			ReleaseTarget target = findTarget( action , project.NAME );
 			if( target == null )
 				return( false );

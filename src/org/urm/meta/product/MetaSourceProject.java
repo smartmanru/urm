@@ -21,13 +21,14 @@ public class MetaSourceProject {
 	public Meta meta;
 	public MetaSourceProjectSet set;
 	
+	public int POS = 0;
 	public String NAME = "";
 	public String DESC = "";
 	public boolean codebaseProject = false;
 	public String RESOURCE = "";
 	public String REPOSITORY = "";
 	public boolean codebaseProd = false;
-	public String GROUP = "";
+	public String BUILDGROUP = "";
 	public String REPOPATH = "";
 	public String CODEPATH = "";
 	public String TRACKER = "";
@@ -45,11 +46,13 @@ public class MetaSourceProject {
 		this.set = set;
 	}
 	
-	public void create( ServerTransaction transaction , String name ) throws Exception {
-		NAME = name;
+	public void create( ServerTransaction transaction , String name , int POS ) throws Exception {
+		this.NAME = name;
+		this.POS = POS;
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
+		POS = ConfReader.getIntegerAttrValue( node , "order" , 0 );
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
 		DESC = ConfReader.getAttrValue( node , "desc" );
 
@@ -58,7 +61,7 @@ public class MetaSourceProject {
 		if( REPOSITORY.isEmpty() )
 			REPOSITORY = NAME;
 
-		GROUP = ConfReader.getAttrValue( node , "group" );
+		BUILDGROUP = ConfReader.getAttrValue( node , "group" );
 		RESOURCE = ConfReader.getRequiredAttrValue( node , "resource" );
 		if( !RESOURCE.isEmpty() ) {
 			REPOPATH = ConfReader.getAttrValue( node , "repopath" );
@@ -67,7 +70,7 @@ public class MetaSourceProject {
 		
 		codebaseProject = ConfReader.getBooleanAttrValue( node , "codebase" , true );
 		if( codebaseProject ) {
-			codebaseProd = ConfReader.getBooleanAttrValue( node , "version" , false );
+			codebaseProd = ConfReader.getBooleanAttrValue( node , "prod" , false );
 			TRACKER = ConfReader.getAttrValue( node , "jira" );
 			BRANCH = ConfReader.getAttrValue( node , "branch" );
 			BUILDER = ConfReader.getAttrValue( node , "builder" );
@@ -102,13 +105,14 @@ public class MetaSourceProject {
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , "order" , "" + POS );
 		Common.xmlSetElementAttr( doc , root , "name" , NAME );
 		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
 
 		// read item attrs
 		Common.xmlSetElementAttr( doc , root , "repository" , REPOSITORY );
 		Common.xmlSetElementAttr( doc , root , "codebase" , Common.getBooleanValue( codebaseProject ) );
-		Common.xmlSetElementAttr( doc , root , "group" , GROUP );
+		Common.xmlSetElementAttr( doc , root , "group" , BUILDGROUP );
 		if( !RESOURCE.isEmpty() ) {
 			Common.xmlSetElementAttr( doc , root , "resource" , RESOURCE );
 			Common.xmlSetElementAttr( doc , root , "repopath" , REPOPATH );
@@ -134,6 +138,7 @@ public class MetaSourceProject {
 	
 	public MetaSourceProject copy( ActionBase action , Meta meta , MetaSourceProjectSet set ) throws Exception {
 		MetaSourceProject r = new MetaSourceProject( meta , set );
+		r.POS = POS;
 		r.NAME = NAME;
 		r.DESC = DESC;
 
@@ -141,7 +146,7 @@ public class MetaSourceProject {
 		r.REPOSITORY = REPOSITORY;
 		r.codebaseProject = codebaseProject;
 		r.codebaseProd = codebaseProd;
-		r.GROUP = GROUP;
+		r.BUILDGROUP = BUILDGROUP;
 		r.TRACKER = TRACKER;
 		r.BRANCH = BRANCH;
 		r.BUILDER = BUILDER;
@@ -231,7 +236,7 @@ public class MetaSourceProject {
 	}
 
 	public void setProjectData( ServerTransaction transaction , String group , boolean codebase , String resource , String repoName , String repoPath , String codePath , String branch ) throws Exception {
-		this.GROUP = group;
+		this.BUILDGROUP = group;
 		this.codebaseProject = codebase;
 		
 		this.codebaseProd = false;
@@ -250,5 +255,13 @@ public class MetaSourceProject {
 		this.BRANCH = branch;
 		this.BUILDER = builder;
 	}
-	
+
+	public void setOrder( ServerTransaction transaction , int POS ) throws Exception {
+		this.POS = POS;
+	}
+
+	public void changeProjectSet( ServerTransaction transaction , MetaSourceProjectSet setNew ) throws Exception {
+		this.set = setNew;
+	}
+
 }

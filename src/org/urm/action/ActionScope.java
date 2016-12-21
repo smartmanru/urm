@@ -684,7 +684,7 @@ public class ActionScope {
 	
 	private void addAllSourceProjects( ActionBase action ) throws Exception {
 		MetaSource sources = meta.getSources( action );
-		for( MetaSourceProjectSet pset : sources.getSets( action ).values() ) {
+		for( MetaSourceProjectSet pset : sources.getSets() ) {
 			ActionScopeSet sset = createProjectScopeSet( action , pset );
 			sset.addProjects( action , null );
 		}

@@ -34,7 +34,7 @@ public class ActionBuild extends ActionBase {
 		
 		// run in order of build
 		debug( "build set=" + set.NAME + " ..." );
-		for( MetaSourceProject project : set.pset.getOriginalList( this ) ) {
+		for( MetaSourceProject project : set.pset.getOrderedList() ) {
 			ActionScopeTarget target = set.findSourceTarget( this , project );
 			if( target == null ) {
 				trace( "skip non-set target=" + project.NAME );

@@ -21,16 +21,14 @@ public class MetaSource extends PropertyController {
 
 	public Meta meta;
 	
-	List<MetaSourceProjectSet> originalList;
-	Map<String,MetaSourceProjectSet> setMap;
-	Map<String,MetaSourceProject> projectMap;
+	private Map<String,MetaSourceProjectSet> setMap;
+	private Map<String,MetaSourceProject> projectMap;
 	
 	public MetaSource( ServerProductMeta storage , Meta meta ) {
 		super( storage , "source" );
 		this.meta = meta;
 		meta.setSources( this );
 		
-		originalList = new LinkedList<MetaSourceProjectSet>();
 		setMap = new HashMap<String,MetaSourceProjectSet>();
 		projectMap = new HashMap<String,MetaSourceProject>();
 	}
@@ -50,7 +48,7 @@ public class MetaSource extends PropertyController {
 		MetaSource r = new MetaSource( meta.getStorage( action ) , meta );
 		MetaProductSettings product = meta.getProductSettings( action );
 		r.initCopyStarted( this , product.getProperties() );
-		for( MetaSourceProjectSet set : originalList ) {
+		for( MetaSourceProjectSet set : setMap.values() ) {
 			MetaSourceProjectSet rset = set.copy( action , meta , r );
 			r.addProjectSet( rset );
 		}
@@ -85,18 +83,18 @@ public class MetaSource extends PropertyController {
 			MetaSourceProjectSet projectset = new MetaSourceProjectSet( meta , this );
 			projectset.load( action , node );
 			addProjectSet( projectset );
-			projectMap.putAll( projectset.map );
+			for( MetaSourceProject project : projectset.getProjects() )
+				projectMap.put( project.NAME , project );
 		}
 		
 		super.initFinished();
 	}
 
 	private void addProjectSet( MetaSourceProjectSet projectset ) {
-		originalList.add( projectset );
 		setMap.put( projectset.NAME , projectset );
 	}
 	
-	public List<MetaSourceProject> getBuildProjectList( ActionBase action , VarBUILDMODE buildMode ) {
+	public MetaSourceProject[] getBuildProjects( ActionBase action , VarBUILDMODE buildMode ) {
 		List<MetaSourceProject> all = getAllProjectList( action , true );
 		List<MetaSourceProject> list = new LinkedList<MetaSourceProject>(); 
 		for( MetaSourceProject project : all ) {
@@ -110,11 +108,11 @@ public class MetaSource extends PropertyController {
 			}
 		}
 		
-		return( list );
+		return( list.toArray( new MetaSourceProject[0] ) );
 	}
 
-	public List<MetaSourceProjectSet> getSetList( ActionBase action ) throws Exception {
-		return( originalList );
+	public MetaSourceProjectSet[] getSetList() {
+		return( setMap.values().toArray( new MetaSourceProjectSet[0] ) );
 	}
 	
 	public List<MetaSourceProject> getAllProjectList( ActionBase action , boolean buildable ) {
@@ -129,10 +127,14 @@ public class MetaSource extends PropertyController {
 		return( plist );
 	}
 
-	public Map<String,MetaSourceProjectSet> getSets( ActionBase action ) throws Exception {
-		return( setMap );
+	public MetaSourceProjectSet[] getSets() {
+		return( setMap.values().toArray( new MetaSourceProjectSet[0] ) );
 	}
 
+	public String[] getSetNames() {
+		return( Common.getSortedKeys( setMap ) ); 
+	}
+	
 	public MetaSourceProjectSet findProjectSet( String name ) {
 		MetaSourceProjectSet set = setMap.get( name );
 		return( set );
@@ -161,7 +163,7 @@ public class MetaSource extends PropertyController {
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		super.saveAsElements( doc , root , false );
-		for( MetaSourceProjectSet set : originalList ) {
+		for( MetaSourceProjectSet set : setMap.values() ) {
 			Element setElement = Common.xmlCreateElement( doc , root , "projectset" );
 			set.save( action , doc , setElement );
 		}
@@ -186,6 +188,20 @@ public class MetaSource extends PropertyController {
 		set.create( transaction , name );
 		addProjectSet( set );
 		return( set );
+	}
+
+	public MetaSourceProject createProject( ServerTransaction transaction , MetaSourceProjectSet set , String name , int POS ) throws Exception {
+		MetaSourceProject project = new MetaSourceProject( set.meta , set );
+		project.create( transaction , name , POS );
+		set.addProject( transaction , project );
+		projectMap.put( project.NAME , project );
+		return( project );
+	}
+
+	public void removeProjectSet( ServerTransaction transaction , MetaSourceProjectSet set ) throws Exception {
+		for( MetaSourceProject project : set.getProjects() )
+			projectMap.remove( project.NAME );
+		setMap.remove( set.NAME );
 	}
 	
 }
