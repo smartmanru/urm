@@ -474,7 +474,7 @@ public class ServerAuth extends ServerObject {
 			else {
 				if( roles.secDev && ( mode == VarBUILDMODE.DEVTRUNK || mode == VarBUILDMODE.DEVBRANCH ) )
 					return( true );
-				if( roles.secRel && ( mode == VarBUILDMODE.TRUNK || mode == VarBUILDMODE.BRANCH || mode == VarBUILDMODE.MAJORBRANCH ) )
+				if( roles.secRel && ( mode == null || mode == VarBUILDMODE.TRUNK || mode == VarBUILDMODE.BRANCH || mode == VarBUILDMODE.MAJORBRANCH ) )
 					return( true );
 			}
 			return( false );

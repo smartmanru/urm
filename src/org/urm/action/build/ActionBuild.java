@@ -65,11 +65,11 @@ public class ActionBuild extends ActionBase {
 		
 		// execute
 		MetaSourceProject project = scopeProject.sourceProject;
+		Builder builder = createBuilder( project , TAG , version );
 		info( "ActionBuild: CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) + ", PROJECT=" + project.NAME + 
-				", REPOSITORY=" + project.REPOSITORY + ", TAG=" + TAG + ", VERSION=" + version );
+				", REPOSITORY=" + project.REPOSITORY + ", TAG=" + TAG + ", VERSION=" + version + ", BUILDER=" + builder.builder.NAME );
 
 		// in separate shell
-		Builder builder = createBuilder( project , TAG , version );
 		LocalFolder BUILDDIR = OUTDIR.getSubFolder( this , project.set.NAME );
 		ActionPatch action = new ActionPatch( this , null , builder , BUILDDIR );
 		builder.createShell( action );
@@ -102,8 +102,10 @@ public class ActionBuild extends ActionBase {
 		else
 		if( builder.isWinBuild() )
 			projectBuilder = new BuilderWindowsDotnet( builder , project , storage , TAG , VERSION );
-		else
-			exit1( _Error.UnknownBuilderType1 , "unknown builder=" + BUILDER , BUILDER );
+		else {
+			String method = Common.getEnumLower( builder.builderMethod );
+			exit2( _Error.UnknownBuilderMethod2 , "unknown builder method=" + method + " (builder=" + BUILDER + ")" , method , BUILDER );
+		}
 		
 		return( projectBuilder );
 	}

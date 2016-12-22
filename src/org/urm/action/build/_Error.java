@@ -7,7 +7,7 @@ public class _Error {
 	public static final int ErrorBase = RunErrorClass.BaseActionBuild;
 	public static final int ErrorInternalBase = ErrorBase + RunErrorClass.InternalBase;
 	
-	public static final int UnknownBuilderType1 = ErrorBase + 1;
+	public static final int UnknownBuilderMethod2 = ErrorBase + 1;
 	public static final int TargetPathAlreadyExists1 = ErrorBase + 2;
 	public static final int UnableCheckoutFile1 = ErrorBase + 3;
 	public static final int UnableRegisterBuildStatus0 = ErrorBase + 4;

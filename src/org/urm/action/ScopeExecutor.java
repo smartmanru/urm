@@ -96,7 +96,7 @@ public class ScopeExecutor {
 	public boolean runCategories( ActionScope scope , VarCATEGORY[] categories , SecurityAction sa , boolean readOnly ) {
 		ServerAuth auth = action.engine.getAuth();
 		if( !auth.checkAccessProductAction( action , sa , scope.meta , readOnly ) ) {
-			action.error( "access denied (user=" + action.getUserName() + ", environment execute, categories)" );
+			action.error( "access denied (user=" + action.getUserName() + ", categories)" );
 			return( false );
 		}
 		
@@ -509,7 +509,7 @@ public class ScopeExecutor {
 				if( categories != null ) {
 					run = false;
 					for( VarCATEGORY CATEGORY : categories ) {
-						if( Meta.checkCategoryPartOf( set.CATEGORY , CATEGORY ) )
+						if( Meta.checkCategoryProperty( set.CATEGORY , CATEGORY ) )
 							run = true;
 					}
 				}

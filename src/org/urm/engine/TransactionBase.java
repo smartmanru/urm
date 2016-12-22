@@ -118,6 +118,17 @@ public class TransactionBase extends ServerObject {
 				return;
 			
 			try {
+				if( settingsOld != null ) {
+					if( save )
+						action.setServerSettings( this , settingsOld );
+					settingsOld = null;
+				}
+			}
+			catch( Throwable e ) {
+				handle( e , "unable to restore settings" );
+			}
+
+			try {
 				if( resourcesOld != null ) {
 					if( save )
 						action.setResources( this , resourcesOld );
@@ -162,22 +173,11 @@ public class TransactionBase extends ServerObject {
 			}
 			
 			try {
-				if( settingsOld != null ) {
-					if( save )
-						action.setServerSettings( this , settingsOld );
-					settingsOld = null;
-				}
-			}
-			catch( Throwable e ) {
-				handle( e , "unable to restore settings" );
-			}
-
-			try {
 				if( saveRegistry )
 					action.saveRegistry( this );
 			}
 			catch( Throwable e ) {
-				handle( e , "unable to restore settings" );
+				handle( e , "unable to restore registry" );
 			}
 			
 			try {
@@ -207,6 +207,9 @@ public class TransactionBase extends ServerObject {
 
 			boolean res = true;
 			if( res )
+				res = saveSettings();
+			
+			if( res )
 				res = saveResources();
 			if( res )
 				res = saveBuilders();
@@ -214,12 +217,19 @@ public class TransactionBase extends ServerObject {
 				res = saveDirectory();
 			if( res )
 				res = saveMirrors();
-			if( res )
-				res = saveSettings();
+			try {
+				if( saveRegistry )
+					action.saveRegistry( this );
+			}
+			catch( Throwable e ) {
+				handle( e , "unable to save registry" );
+			}
+			
 			if( res )
 				res = saveInfrastructure();
 			if( res )
 				res = saveBase();
+			
 			if( res )
 				res = saveMetadata();
 			

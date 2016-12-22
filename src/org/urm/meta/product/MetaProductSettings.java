@@ -324,6 +324,7 @@ public class MetaProductSettings extends PropertyController {
 		if( set == null ) {
 			MetaProductBuildSettings buildMode = new MetaProductBuildSettings( "mode" , meta , this );
 			buildModes.put( mode , buildMode );
+			set = buildMode;
 		}
 		
 		set.setProperties( transaction , props );

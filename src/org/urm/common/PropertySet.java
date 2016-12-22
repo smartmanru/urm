@@ -189,6 +189,8 @@ public class PropertySet {
 			PropertyValue pv = new PropertyValue( p.property , PropertyValue.PropertyValueOrigin.PROPERTY_EXTRA , set , p.desc );
 			pv.setOriginalAndFinalValue( p.getOriginalValue() );
 			pv.setType( p.getType() );
+			if( p.isSystem() )
+				pv.setSystem();
 			setProperty( pv );
 		}
 	}
