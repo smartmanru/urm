@@ -101,6 +101,8 @@ public class ServerProjectBuilder extends ServerObject {
 		builderMethod = Types.getBuilderType( properties.getSystemRequiredStringProperty( PROPERTY_BUILDERTYPE ) , true );
 		remote = properties.getSystemBooleanProperty( PROPERTY_REMOTE );
 		
+		HOSTLOGIN = "";
+		AUTHRESOURCE = "";
 		if( remote ) {
 			osType = Types.getOSType( properties.getSystemStringProperty( PROPERTY_OSTYPE ) , false );
 			HOSTLOGIN = properties.getSystemStringProperty( PROPERTY_HOSTLOGIN );
@@ -108,6 +110,7 @@ public class ServerProjectBuilder extends ServerObject {
 		}
 		
 		targetType = Types.getBuilderTarget( properties.getSystemStringProperty( PROPERTY_TARGETTYPE ) , false );
+		TARGETLOCALPATH = "";
 		if( targetType == VarBUILDERTARGET.LOCALPATH )
 			TARGETLOCALPATH = properties.getSystemStringProperty( PROPERTY_TARGETLOCALPATH );
 
