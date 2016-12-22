@@ -15,6 +15,7 @@ import org.urm.meta.engine.ServerBase;
 import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.engine.ServerDirectory;
 import org.urm.meta.engine.ServerInfrastructure;
+import org.urm.meta.engine.ServerMirrors;
 import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.engine.ServerNetwork;
 import org.urm.meta.engine.ServerProduct;
@@ -54,11 +55,14 @@ public class TransactionBase extends ServerObject {
 	public ServerResources resources;
 	public ServerBuilders builders;
 	public ServerDirectory directory;
+	public ServerMirrors mirrors;
 
 	protected ServerSettings settingsOld;
 	protected ServerResources resourcesOld;
 	protected ServerBuilders buildersOld;
 	protected ServerDirectory directoryOld;
+	protected ServerMirrors mirrorsOld;
+	private boolean saveRegistry;
 
 	private Map<String,TransactionMetadata> productMeta;
 	
@@ -67,12 +71,15 @@ public class TransactionBase extends ServerObject {
 		this.engine = engine;
 		this.action = action;
 		
-		resources = null;
-		builders = null;
-		directory = null;
 		settings = null;
 		infra = null;
 		base = null;
+		
+		resources = null;
+		builders = null;
+		directory = null;
+		mirrors = null;
+		saveRegistry = false;
 		
 		productMeta = new HashMap<String,TransactionMetadata>(); 
 		engine.serverAction.trace( "transaction created id=" + objectId );
@@ -84,16 +91,22 @@ public class TransactionBase extends ServerObject {
 				return( false );
 		
 			action.setTransaction( this );
+			settings = null;
+			infra = null;
+			base = null;
+
 			resources = null;
 			builders = null;
 			directory = null;
-			settings = null;
+			mirrors = null;
+			
+			settingsOld = null;
+			
 			resourcesOld = null;
 			buildersOld = null;
 			directoryOld = null;
-			settingsOld = null;
-			infra = null;
-			base = null;
+			mirrorsOld = null;
+			saveRegistry = false;
 			
 			return( true );
 		}
@@ -138,11 +151,30 @@ public class TransactionBase extends ServerObject {
 			}
 			
 			try {
+				if( mirrorsOld != null ) {
+					if( save )
+						action.setMirrors( this , mirrorsOld );
+					mirrorsOld = null;
+				}
+			}
+			catch( Throwable e ) {
+				handle( e , "unable to restore mirrors" );
+			}
+			
+			try {
 				if( settingsOld != null ) {
 					if( save )
 						action.setServerSettings( this , settingsOld );
 					settingsOld = null;
 				}
+			}
+			catch( Throwable e ) {
+				handle( e , "unable to restore settings" );
+			}
+
+			try {
+				if( saveRegistry )
+					action.saveRegistry( this );
 			}
 			catch( Throwable e ) {
 				handle( e , "unable to restore settings" );
@@ -160,6 +192,7 @@ public class TransactionBase extends ServerObject {
 			engine.abortTransaction( this );
 		}
 		
+		saveRegistry = false;
 		action.clearTransaction();
 	}
 
@@ -179,6 +212,8 @@ public class TransactionBase extends ServerObject {
 				res = saveBuilders();
 			if( res )
 				res = saveDirectory();
+			if( res )
+				res = saveMirrors();
 			if( res )
 				res = saveSettings();
 			if( res )
@@ -473,6 +508,7 @@ public class TransactionBase extends ServerObject {
 		if( resources == null )
 			return( true );
 		
+		saveRegistry = true;
 		try {
 			action.setResources( this , resources );
 			trace( "transaction resources: save=" + resources.objectId );
@@ -529,6 +565,7 @@ public class TransactionBase extends ServerObject {
 		if( builders == null )
 			return( true );
 		
+		saveRegistry = true;
 		try {
 			action.setBuilders( this , builders );
 			trace( "transaction builders: save=" + builders.objectId );
@@ -585,6 +622,7 @@ public class TransactionBase extends ServerObject {
 		if( directory == null )
 			return( true );
 		
+		saveRegistry = true;
 		try {
 			action.setDirectory( this , directory );
 			trace( "transaction directory: save=" + directory.objectId );
@@ -592,6 +630,59 @@ public class TransactionBase extends ServerObject {
 		}
 		catch( Throwable e ) {
 			handle( e , "unable to save directory" );
+		}
+
+		abortTransaction( true );
+		return( false );
+	}
+
+	public boolean changeMirrors( ServerMirrors sourceMirrors ) {
+		synchronized( engine ) {
+			try {
+				if( !continueTransaction() )
+					return( false );
+					
+				if( mirrors != null )
+					return( true );
+				
+				if( !checkSecurityServerChange( SecurityAction.ACTION_CONFIGURE ) )
+					return( false );
+				
+				mirrorsOld = action.getActiveMirrors();
+				if( sourceMirrors == mirrorsOld ) {
+					mirrors = sourceMirrors.copy();
+					if( directory != null ) {
+						trace( "transaction mirrors: source=" + sourceMirrors.objectId + ", copy=" + mirrors.objectId );
+						return( true );
+					}
+				}
+				else
+					error( "unable to change old mirrors, id=" + sourceMirrors.objectId );
+			}
+			catch( Throwable e ) {
+				handle( e , "unable to change directory" );
+			}
+			
+			abortTransaction( false );
+			return( false );
+		}
+	}
+
+	private boolean saveMirrors() {
+		if( !continueTransaction() )
+			return( false );
+		
+		if( mirrors == null )
+			return( true );
+		
+		saveRegistry = true;
+		try {
+			action.setMirrors( this , mirrors );
+			trace( "transaction mirrors: save=" + mirrors.objectId );
+			return( true );
+		}
+		catch( Throwable e ) {
+			handle( e , "unable to save mirrors" );
 		}
 
 		abortTransaction( true );
@@ -784,6 +875,12 @@ public class TransactionBase extends ServerObject {
 			exit( _Error.TransactionMissingDirectoryChanges0 , "Missing directory changes" , null );
 	}
 
+	protected void checkTransactionMirrors() throws Exception {
+		checkTransaction();
+		if( mirrors == null )
+			exit( _Error.TransactionMissingMirrorsChanges0 , "Missing mirrors changes" , null );
+	}
+
 	protected void checkTransactionSettings() throws Exception {
 		checkTransaction();
 		if( settings == null )
@@ -818,6 +915,10 @@ public class TransactionBase extends ServerObject {
 	
 	public ServerDirectory getTransactionDirectory() {
 		return( directory );
+	}
+	
+	public ServerMirrors getTransactionMirrors() {
+		return( mirrors );
 	}
 	
 	public ServerSettings getTransactionSettings() {

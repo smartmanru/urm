@@ -69,6 +69,10 @@ public class ServerRegistry extends ServerObject {
 		directory = directoryNew;
 	}
 	
+	public void setMirrors( TransactionBase transaction , ServerMirrors mirrorsNew ) throws Exception {
+		mirrors = mirrorsNew;
+	}
+	
 	public void setBuilders( TransactionBase transaction , ServerBuilders buildersNew ) throws Exception {
 		builders = buildersNew;
 	}

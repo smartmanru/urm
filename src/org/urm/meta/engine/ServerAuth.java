@@ -192,7 +192,8 @@ public class ServerAuth extends ServerObject {
 		PropertySet props = new PropertySet( "authfile" , null );
 		String filePath = getAuthFile( authKey );
 		
-		if( action.shell.checkFileExists( action , filePath ) )
+		File file = new File( action.getLocalPath( filePath ) );
+		if( file.isFile() )
 			props.loadFromPropertyFile( filePath , engine.execrc , false );
 		props.finishRawProperties();
 		

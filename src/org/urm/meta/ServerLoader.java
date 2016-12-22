@@ -16,6 +16,7 @@ import org.urm.meta.engine.ServerBase;
 import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.engine.ServerDirectory;
 import org.urm.meta.engine.ServerInfrastructure;
+import org.urm.meta.engine.ServerMirrors;
 import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.engine.ServerProduct;
 import org.urm.meta.engine.ServerRegistry;
@@ -354,21 +355,18 @@ public class ServerLoader {
 	
 	public void setResources( TransactionBase transaction , ServerResources resourcesNew ) throws Exception {
 		registry.setResources( transaction , resourcesNew );
-		saveRegistry( transaction );
 	}
 
 	public void setBuilders( TransactionBase transaction , ServerBuilders buildersNew ) throws Exception {
 		registry.setBuilders( transaction , buildersNew );
-		saveRegistry( transaction );
 	}
 
 	public void setDirectory( TransactionBase transaction , ServerDirectory directoryNew ) throws Exception {
 		registry.setDirectory( transaction , directoryNew );
-		saveRegistry( transaction );
 	}
 
-	public void saveMirrors( TransactionBase transaction ) throws Exception {
-		saveRegistry( transaction );
+	public void setMirrors( TransactionBase transaction , ServerMirrors mirrorsNew ) throws Exception {
+		registry.setMirrors( transaction , mirrorsNew );
 	}
 
 	public void saveBase( TransactionBase transaction ) throws Exception {
