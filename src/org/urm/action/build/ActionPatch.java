@@ -26,7 +26,7 @@ public class ActionPatch extends ActionBase {
 		super.startRedirect( "PROJECT BUILD LOG:" , logFile );
 		info( "ActionPatch: BUILDER=" + builder.builder.NAME + ", BUILDMODE=" + context.getBuildModeName() + ", PROJECT=" + builder.project.NAME + 
 				", REPOSITORY=" + builder.project.REPOSITORY + ", VCS=" + builder.project.getVCS( this ) + ", VCSPATH=" + builder.project.REPOPATH + 
-				", VCSREPO=" + builder.project.REPOSITORY + ", TAG=" + builder.TAG + ", VERSION=" + builder.APPVERSION + ", NEXUS_PATH=" + builder.getNexusPath( this , builder.project ) );
+				", VCSREPO=" + builder.project.REPOSITORY + ", TAG=" + builder.TAG + ", VERSION=" + builder.APPVERSION );
 
 		try {
 			if( !executePatch() )
@@ -71,8 +71,10 @@ public class ActionPatch extends ActionBase {
 		}
 
 		// update build data
-		if( !uploadBuildStatus() )
-			return( false );
+		if( builder.builder.builders.registerBuild ) {
+			if( !uploadBuildStatus() )
+				return( false );
+		}
 		
 		// remove directory if build was successful
 		if( !context.CTX_SHOWALL )
