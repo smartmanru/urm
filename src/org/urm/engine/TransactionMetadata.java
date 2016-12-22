@@ -41,7 +41,7 @@ public class TransactionMetadata {
 				transaction.action.setProductMetadata( transaction , metadataOld );
 			
 			if( !deleteMetadata )
-				sessionMeta.replaceStorage( transaction.action , metadata );
+				sessionMeta.replaceStorage( transaction.action , metadataOld );
 			
 			createMetadata = false;
 			deleteMetadata = false;

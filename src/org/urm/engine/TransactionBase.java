@@ -651,7 +651,7 @@ public class TransactionBase extends ServerObject {
 				mirrorsOld = action.getActiveMirrors();
 				if( sourceMirrors == mirrorsOld ) {
 					mirrors = sourceMirrors.copy();
-					if( directory != null ) {
+					if( mirrors != null ) {
 						trace( "transaction mirrors: source=" + sourceMirrors.objectId + ", copy=" + mirrors.objectId );
 						return( true );
 					}
