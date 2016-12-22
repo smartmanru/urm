@@ -259,11 +259,11 @@ public class ServerMirrorRepository extends ServerObject {
 		TYPE = TYPE_PRODUCT_DATA;
 		PRODUCT = project.meta.name;
 		PROJECT = project.NAME;
-		RESOURCE = "";
-		RESOURCE_REPO = "";
-		RESOURCE_ROOT = "";
-		RESOURCE_DATA = "";
-		BRANCH = "";
+		RESOURCE = project.RESOURCE;
+		RESOURCE_REPO = project.REPOSITORY;
+		RESOURCE_ROOT = project.REPOPATH;
+		RESOURCE_DATA = project.CODEPATH;
+		BRANCH = project.BRANCH;
 		createProperties();
 	}
 	
