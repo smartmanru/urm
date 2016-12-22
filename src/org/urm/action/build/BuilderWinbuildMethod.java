@@ -14,11 +14,11 @@ import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
 
-public class BuilderWindowsDotnet extends Builder {
+public class BuilderWinbuildMethod extends Builder {
 
 	RemoteFolder CODEPATH;
 	
-	public BuilderWindowsDotnet( ServerProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
+	public BuilderWinbuildMethod( ServerProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
 		super( builder , project , storage , TAG , APPVERSION );
 	}
 

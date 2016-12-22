@@ -94,14 +94,17 @@ public class ActionBuild extends ActionBase {
 		Builder projectBuilder = null;
 		
 		BuildStorage storage = artefactory.getEmptyBuildStorage( this , project );
+		if( builder.isAnt() )
+			projectBuilder = new BuilderAntMethod( builder , project , storage , TAG , VERSION );
+		else
 		if( builder.isMaven() )
-			projectBuilder = new BuilderLinuxMaven( builder , project , storage , TAG , VERSION );
+			projectBuilder = new BuilderMavenMethod( builder , project , storage , TAG , VERSION );
 		else
 		if( builder.isGradle() )
-			projectBuilder = new BuilderLinuxGradle( builder , project , storage , TAG , VERSION );
+			projectBuilder = new BuilderGradleMethod( builder , project , storage , TAG , VERSION );
 		else
 		if( builder.isWinBuild() )
-			projectBuilder = new BuilderWindowsDotnet( builder , project , storage , TAG , VERSION );
+			projectBuilder = new BuilderWinbuildMethod( builder , project , storage , TAG , VERSION );
 		else {
 			String method = Common.getEnumLower( builder.builderMethod );
 			exit2( _Error.UnknownBuilderMethod2 , "unknown builder method=" + method + " (builder=" + BUILDER + ")" , method , BUILDER );
