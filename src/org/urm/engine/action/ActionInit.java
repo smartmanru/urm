@@ -94,6 +94,11 @@ public class ActionInit extends ActionBase {
 	}
 	
 	public ServerMirrors getActiveMirrors() {
+		if( transaction != null ) {
+			if( transaction.mirrors != null )
+				return( transaction.mirrors );
+		}
+		
 		ServerRegistry registry = loader.getRegistry();
 		return( registry.mirrors );
 	}
