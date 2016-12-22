@@ -226,13 +226,26 @@ public class PropertySet {
 		resolveRawProperties( false );
 	}
 
-	public void resolveRawProperties( boolean allowUnresolved ) throws Exception {
+	public boolean resolveRawProperties( boolean allowUnresolved ) throws Exception {
 		// resolve properties
-		for( PropertyValue pv : data.values() ) {
-			if( pv.isResolved() )
-				continue;
+		int unresolved = 0;
+		while( true ) {
+			int unresolvedCheck = 0;
+			for( PropertyValue pv : data.values() ) {
+				if( pv.isResolved() )
+					continue;
+				
+				if( !resolveProperty( pv , allowUnresolved ) )
+					unresolvedCheck++;
+			}
 			
-			resolveProperty( pv , allowUnresolved );
+			if( unresolvedCheck == 0 )
+				return( true );
+			
+			if( unresolvedCheck == unresolved )
+				return( false );
+			
+			unresolved = unresolvedCheck;
 		}
 	}
 
@@ -846,8 +859,11 @@ public class PropertySet {
 			PropertyValue pvVar;
 			if( var.equals( "super" ) && allowParent && parent != null && pv.property.isEmpty() == false )
 				pvVar = parent.getPropertyInternal( pv.property , useRaw , allowParent , allowUnresolved );
-			else
+			else {
 				pvVar = getPropertyInternal( var , useRaw , allowParent , allowUnresolved );
+				if( pvVar == pv )
+					return;
+			}
 			
 			if( pvVar == null )
 				return;
@@ -874,12 +890,12 @@ public class PropertySet {
 				if( pvVar == null )
 					res += "@" + var + "@";
 				else {
-					if( pvVar.getType() == PropertyValueType.PROPERTY_PATH ) {
-						String s = pvVar.getPath( finalValue , isWindows );
-						res += s;
-					}
+					String s;
+					if( pvVar.getType() == PropertyValueType.PROPERTY_PATH )
+						s = pvVar.getPath( finalValue , isWindows );
 					else
-						res += pvVar.getFinalValue();
+						s = pvVar.getFinalValue();
+					res += s;
 				}
 			}
 			
