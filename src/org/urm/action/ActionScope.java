@@ -557,7 +557,7 @@ public class ActionScope {
 			if( categories != null ) {
 				add = false;
 				for( VarCATEGORY CATEGORY : categories ) {
-					if( Meta.checkCategoryPartOf( CATEGORY , set.CATEGORY ) )
+					if( Meta.checkCategoryProperty( set.CATEGORY , CATEGORY ) )
 						add = true;
 				}
 			}
@@ -597,7 +597,7 @@ public class ActionScope {
 			}
 			
 			for( VarCATEGORY CATEGORY : categories ) {
-				if( Meta.checkCategoryPartOf( CATEGORY , set.CATEGORY ) && !set.isEmpty( action ) )
+				if( Meta.checkCategoryProperty( set.CATEGORY , CATEGORY ) && !set.isEmpty( action ) )
 					return( false );
 			}
 		}

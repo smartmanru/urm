@@ -200,11 +200,11 @@ public class Meta extends ServerObject {
 		return( categories );
 	}
 
-	public static boolean checkCategoryPartOf( VarCATEGORY part , VarCATEGORY whole ) {
-		if( part == whole )
+	public static boolean checkCategoryProperty( VarCATEGORY part , VarCATEGORY property ) {
+		if( part == property )
 			return( true );
-		if( whole == VarCATEGORY.PROJECT ) {
-			if( part == VarCATEGORY.BUILDABLE || part == VarCATEGORY.PREBUILT )
+		if( property == VarCATEGORY.BUILDABLE ) {
+			if( part == VarCATEGORY.PROJECT )
 				return( true );
 		}
 		return( false );

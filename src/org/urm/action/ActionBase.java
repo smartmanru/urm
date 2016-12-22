@@ -11,6 +11,7 @@ import org.urm.common.PropertySet;
 import org.urm.common.RunError;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.ServerSession;
+import org.urm.engine.SessionSecurity;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.action.CommandExecutor;
@@ -25,6 +26,7 @@ import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.ServerProductMeta;
 import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.ServerAuthUser;
 import org.urm.meta.engine.ServerBase;
 import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.engine.ServerContext;
@@ -119,6 +121,16 @@ abstract public class ActionBase extends ActionCore {
 		super.setFailed( error );
 		if( parent != null )
 			parent.setFailed( error );
+	}
+	
+	public String getUserName() {
+		if( session == null )
+			return( "" );
+		SessionSecurity security = session.getSecurity();
+		if( security == null )
+			return( "" );
+		ServerAuthUser user = security.getUser();
+		return( user.NAME );
 	}
 	
 	public void setContext( CommandContext context ) {

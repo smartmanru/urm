@@ -192,7 +192,8 @@ public class ServerAuth extends ServerObject {
 		PropertySet props = new PropertySet( "authfile" , null );
 		String filePath = getAuthFile( authKey );
 		
-		if( action.shell.checkFileExists( action , filePath ) )
+		File file = new File( action.getLocalPath( filePath ) );
+		if( file.isFile() )
 			props.loadFromPropertyFile( filePath , engine.execrc , false );
 		props.finishRawProperties();
 		
@@ -473,7 +474,7 @@ public class ServerAuth extends ServerObject {
 			else {
 				if( roles.secDev && ( mode == VarBUILDMODE.DEVTRUNK || mode == VarBUILDMODE.DEVBRANCH ) )
 					return( true );
-				if( roles.secRel && ( mode == VarBUILDMODE.TRUNK || mode == VarBUILDMODE.BRANCH || mode == VarBUILDMODE.MAJORBRANCH ) )
+				if( roles.secRel && ( mode == null || mode == VarBUILDMODE.TRUNK || mode == VarBUILDMODE.BRANCH || mode == VarBUILDMODE.MAJORBRANCH ) )
 					return( true );
 			}
 			return( false );

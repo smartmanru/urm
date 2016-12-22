@@ -64,6 +64,10 @@ public class ActionInit extends ActionBase {
 		this.transaction = null;
 	}
 
+	public void clearSession() {
+		this.session = null;
+	}
+	
 	public ServerSettings getActiveServerSettings() {
 		if( transaction != null ) {
 			if( transaction.settings != null )
@@ -90,6 +94,11 @@ public class ActionInit extends ActionBase {
 	}
 	
 	public ServerMirrors getActiveMirrors() {
+		if( transaction != null ) {
+			if( transaction.mirrors != null )
+				return( transaction.mirrors );
+		}
+		
 		ServerRegistry registry = loader.getRegistry();
 		return( registry.mirrors );
 	}
@@ -100,10 +109,6 @@ public class ActionInit extends ActionBase {
 	
 	public void saveBase( TransactionBase transaction ) throws Exception {
 		loader.saveBase( transaction );
-	}
-	
-	public void saveMirrors( TransactionBase transaction ) throws Exception {
-		loader.saveMirrors( transaction );
 	}
 	
 	public void saveMonitoring( TransactionBase transaction ) throws Exception {
@@ -174,6 +179,14 @@ public class ActionInit extends ActionBase {
 	
 	public void setDirectory( TransactionBase transaction , ServerDirectory directory ) throws Exception {
 		loader.setDirectory( transaction , directory );
+	}
+
+	public void setMirrors( TransactionBase transaction , ServerMirrors mirrors ) throws Exception {
+		loader.setMirrors( transaction , mirrors );
+	}
+
+	public void saveRegistry( TransactionBase transaction ) throws Exception {
+		loader.saveRegistry( transaction );
 	}
 
 	public Meta getActiveProductMetadata( String productName ) throws Exception {

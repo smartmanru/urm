@@ -142,7 +142,7 @@ public class SessionController {
 			clientAction.commentExecutor( "COMMAND FAILED" );
 
 		try {
-			engine.finishAction( clientAction );
+			engine.finishAction( clientAction , true );
 		}
 		catch( Throwable e ) {
 			clientAction.handle( e );

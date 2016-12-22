@@ -215,7 +215,7 @@ public class ServerEngine {
 		else
 			serverAction.commentExecutor( "COMMAND FAILED" );
 
-		finishAction( serverAction );
+		finishAction( serverAction , true );
 		killPool();
 
 		return( res );
@@ -317,7 +317,7 @@ public class ServerEngine {
 		}
 	}
 	
-	public void finishAction( ActionInit action ) throws Exception {
+	public void finishAction( ActionInit action , boolean closeSession ) throws Exception {
 		action.stopAllOutputs();
 		
 		if( !action.isMemoryOnly() ) {
@@ -327,7 +327,10 @@ public class ServerEngine {
 				action.artefactory.workFolder.removeThis( action );
 			
 			shellPool.releaseActionPool( action );
-			sessionController.closeSession( action.session );
+			if( closeSession ) {
+				sessionController.closeSession( action.session );
+				action.clearSession();
+			}
 		}
 	}
 
