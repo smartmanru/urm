@@ -192,6 +192,7 @@ public abstract class PropertyController extends ServerObject {
 	}
 	
 	protected void updateProperties( ActionBase action ) throws Exception {
+		recalculateProperties();
 		scatterProperties( action );
 		finishProperties( action );
 	}
