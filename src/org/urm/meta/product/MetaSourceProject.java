@@ -231,7 +231,8 @@ public class MetaSourceProject {
 		return( Common.getSortedKeys( itemMap ) );
 	}
 
-	public void setProjectData( ServerTransaction transaction , String group , boolean codebase , String resource , String repoName , String repoPath , String codePath , String branch ) throws Exception {
+	public void setProjectData( ServerTransaction transaction , String desc , String group , boolean codebase , String resource , String repoName , String repoPath , String codePath , String branch ) throws Exception {
+		this.DESC = desc;
 		this.BUILDGROUP = group;
 		this.codebaseProject = codebase;
 		
