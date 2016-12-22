@@ -6,7 +6,7 @@ import org.urm.action.build.BuildCommand;
 import org.urm.engine.dist.Dist;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.Meta.VarCATEGORY;
+import org.urm.meta.Types.*;
 
 public class ReleaseCommand {
 

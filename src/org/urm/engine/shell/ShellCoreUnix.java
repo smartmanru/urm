@@ -10,7 +10,7 @@ import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.CommandOutput;
 import org.urm.engine.storage.Folder;
-import org.urm.meta.product.Meta.VarSESSIONTYPE;
+import org.urm.meta.Types.*;
 
 public class ShellCoreUnix extends ShellCore {
 

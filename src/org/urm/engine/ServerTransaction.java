@@ -23,6 +23,7 @@ import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.engine.ServerSystem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
+import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
@@ -39,11 +40,11 @@ import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringTarget;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
-import org.urm.meta.product.Meta.VarBUILDMODE;
-import org.urm.meta.product.Meta.VarENVTYPE;
-import org.urm.meta.product.Meta.VarNODETYPE;
-import org.urm.meta.product.Meta.VarSERVERACCESSTYPE;
-import org.urm.meta.product.Meta.VarSERVERRUNTYPE;
+import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.MetaSourceProjectItem;
+import org.urm.meta.product.MetaSourceProjectSet;
+import org.urm.meta.Types.*;
 
 public class ServerTransaction extends TransactionBase {
 
@@ -87,14 +88,14 @@ public class ServerTransaction extends TransactionBase {
 		res.deleteObject();
 	}
 	
-	public void createBuilder( ServerProjectBuilder builder ) throws Exception {
+	public ServerProjectBuilder createBuilder( ServerProjectBuilder builder ) throws Exception {
 		checkTransactionBuilders();
-		builders.createBuilder( this , builder );
+		return( builders.createBuilder( this , builder ) );
 	}
 	
 	public void updateBuilder( ServerProjectBuilder builder , ServerProjectBuilder builderNew ) throws Exception {
 		checkTransactionBuilders();
-		builder.updateBuilder( this , builderNew );
+		builder.setBuilderData( this , builderNew );
 	}
 	
 	public void deleteBuilder( ServerProjectBuilder builder ) throws Exception {
@@ -598,4 +599,63 @@ public class ServerTransaction extends TransactionBase {
 		delivery.setDatabase( this , set );
 	}
 
+	public MetaSourceProjectSet createSourceProjectSet( MetaSource sources , String name ) throws Exception {
+		checkTransactionMetadata( sources.meta.getStorage( action ) );
+		return( sources.createProjectSet( this , name ) );
+	}
+
+	public void changeProjectSet( MetaSourceProject project , MetaSourceProjectSet setNew ) throws Exception {
+		checkTransactionMetadata( project.meta.getStorage( action ) );
+		MetaSourceProjectSet setOld = project.set;
+		project.changeProjectSet( this , setNew );
+		setOld.removeProject( this , project );
+		setNew.addProject( this , project );
+		
+		if( setOld.isEmpty() )
+			setOld.sources.removeProjectSet( this , setOld );
+	}
+
+	public MetaSourceProject createSourceProject( MetaSourceProjectSet set , String name , int POS ) throws Exception {
+		checkTransactionMetadata( set.meta.getStorage( action ) );
+		return( set.sources.createProject( this , set , name , POS ) );
+	}
+
+	public void changeProjectOrder( MetaSourceProject project , int POS ) throws Exception {
+		checkTransactionMetadata( project.meta.getStorage( action ) );
+		project.set.changeProjectOrder( this , project , POS );
+	}
+
+	public void changeProjectSetOrder( MetaSourceProjectSet set ) throws Exception {
+		checkTransactionMetadata( set.meta.getStorage( action ) );
+		set.reorderProjects( this );
+	}
+	
+	public void createMirrorRepository( MetaSourceProject project ) throws Exception {
+		ServerMirrors mirrors = action.getActiveMirrors();
+		mirrors.createProjectMirror( this , project );
+	}
+
+	public void changeMirrorRepository( MetaSourceProject project ) throws Exception {
+		ServerMirrors mirrors = action.getActiveMirrors();
+		mirrors.changeProjectMirror( this , project );
+	}
+
+	public void deleteSourceProject( MetaSourceProject project , boolean leaveManual ) throws Exception {
+		checkTransactionMetadata( project.meta.getStorage( action ) );
+		Meta meta = project.meta;
+		MetaSource sources = project.set.sources;
+		MetaDistr distr = meta.getDistr( action );
+		for( MetaSourceProjectItem item : project.getItems() ) {
+			MetaDistrBinaryItem distItem = distr.findBinaryItem( item.ITEMNAME );
+			if( leaveManual )
+				distr.changeBinaryItemProjectToManual( this , distItem );
+			else
+				distr.deleteBinaryItem( this , distItem );
+		}
+		sources.removeProject( this , project );
+		
+		ServerMirrors mirrors = action.getActiveMirrors();
+		mirrors.deleteProjectMirror( this , project );
+	}
+	
 }

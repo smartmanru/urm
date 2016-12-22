@@ -17,7 +17,8 @@ import org.urm.meta.ServerProductMeta;
 import org.urm.meta.ServerRef;
 import org.urm.meta.engine.ServerAccountReference;
 import org.urm.meta.engine.ServerHostAccount;
-import org.urm.meta.product.Meta.VarENVTYPE;
+import org.urm.meta.Types;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -121,7 +122,7 @@ public class MetaEnv extends PropertyController {
 		KEYFILE = super.getPathProperty( action , PROPERTY_KEYFILE );
 		DB_AUTHFILE = super.getPathProperty( action , PROPERTY_DB_AUTHFILE );
 		String ENVTYPE = super.getStringProperty( action , PROPERTY_ENVTYPE , Common.getEnumLower( VarENVTYPE.DEVELOPMENT ) );
-		envType = Meta.getEnvType( ENVTYPE , true );
+		envType = Types.getEnvType( ENVTYPE , true );
 
 		// affect runtime options
 		DB_AUTH = super.getOptionProperty( action , PROPERTY_DB_AUTH );

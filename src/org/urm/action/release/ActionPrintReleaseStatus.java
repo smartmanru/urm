@@ -14,7 +14,7 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaProductSettings;
-import org.urm.meta.product.Meta.VarCATEGORY;
+import org.urm.meta.Types.*;
 
 public class ActionPrintReleaseStatus extends ActionBase {
 
@@ -103,28 +103,28 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		
 	private void printReleaseBuildSetProjectStatus( Dist dist , FileSet files , ReleaseSet set , ReleaseTarget project ) throws Exception {
 		String specifics = project.getSpecifics( this );
-		if( Meta.isBuildableCategory( set.CATEGORY ) ) {
+		if( project.isBuildableProject() ) {
 			if( project.sourceProject.isEmpty( this ) ) {
-				info( "\tbuild project=" + project.sourceProject.PROJECT + " (internal)" + Common.getCommentIfAny( specifics ) );
+				info( "\tbuild project=" + project.sourceProject.NAME + " (internal)" + Common.getCommentIfAny( specifics ) );
 				return;
 			}
 			
 			if( project.isEmpty( this ) ) {
-				info( "\tbuild project=" + project.sourceProject.PROJECT + " (no items added)" + Common.getCommentIfAny( specifics ) );
+				info( "\tbuild project=" + project.sourceProject.NAME + " (no items added)" + Common.getCommentIfAny( specifics ) );
 				return;
 			}
 			
 			if( !project.isEmpty( this ) )
-				info( "\tbuild project=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
+				info( "\tbuild project=" + project.sourceProject.NAME + Common.getCommentIfAny( specifics ) + ":" );
 			else
-				info( "\tbuild project=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + " (no items)" );
+				info( "\tbuild project=" + project.sourceProject.NAME + Common.getCommentIfAny( specifics ) + " (no items)" );
 		}
 		else
-		if( set.CATEGORY == VarCATEGORY.PREBUILT ) {
+		if( project.isPrebuiltProject() ) {
 			if( project.isEmpty( this ) )
 				return;
 			
-			info( "\tprebuilt project=" + project.sourceProject.PROJECT + Common.getCommentIfAny( specifics ) + ":" );
+			info( "\tprebuilt project=" + project.sourceProject.NAME + Common.getCommentIfAny( specifics ) + ":" );
 		}
 		else
 			exitUnexpectedCategory( set.CATEGORY );

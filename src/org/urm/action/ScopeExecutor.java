@@ -18,9 +18,7 @@ import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
-import org.urm.meta.product.MetaSourceProjectSet;
-import org.urm.meta.product.Meta.VarBUILDMODE;
-import org.urm.meta.product.Meta.VarCATEGORY;
+import org.urm.meta.Types.*;
 
 public class ScopeExecutor {
 
@@ -511,7 +509,7 @@ public class ScopeExecutor {
 				if( categories != null ) {
 					run = false;
 					for( VarCATEGORY CATEGORY : categories ) {
-						if( set.CATEGORY == CATEGORY )
+						if( Meta.checkCategoryPartOf( set.CATEGORY , CATEGORY ) )
 							run = true;
 					}
 				}
@@ -784,12 +782,12 @@ public class ScopeExecutor {
 		return( SCOPESTATE.RunFail );
 	}
 	
-	private List<ActionScopeSet> getOrderedSets( ActionScope scope ) throws Exception {
+	private ActionScopeSet[] getOrderedSets( ActionScope scope ) throws Exception {
 		List<ActionScopeSet> list = new LinkedList<ActionScopeSet>();
 		if( scope.meta != null ) {
 			MetaSource sources = scope.meta.getSources( action ); 
-			for( MetaSourceProjectSet sourceSet : sources.getSetList( action ) ) {
-				ActionScopeSet set = scope.findSet( action , sourceSet.CATEGORY , sourceSet.NAME );
+			for( String sourceSetName : sources.getSetNames() ) {
+				ActionScopeSet set = scope.findSet( action , VarCATEGORY.PROJECT , sourceSetName );
 				if( set != null )
 					list.add( set );
 			}
@@ -806,7 +804,7 @@ public class ScopeExecutor {
 			}
 		}
 		
-		return( list );
+		return( list.toArray( new ActionScopeSet[0] ) );
 	}
 	
 	private List<ActionScopeTarget> getOrderedTargets( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
@@ -815,10 +813,10 @@ public class ScopeExecutor {
 		
 		if( Meta.isSourceCategory( set.CATEGORY ) ) {
 			for( ActionScopeTarget target : targets )
-				map.put( target.sourceProject.PROJECT , target );
+				map.put( target.sourceProject.NAME , target );
 			
-			for( MetaSourceProject project : set.pset.getOriginalList( action ) ) {
-				ActionScopeTarget target = map.get( project.PROJECT );
+			for( MetaSourceProject project : set.pset.getOrderedList() ) {
+				ActionScopeTarget target = map.get( project.NAME );
 				if( target != null )
 					list.add( target );
 			}

@@ -28,5 +28,7 @@ public class _Error {
 	public static final int InvalidResourceType1 = ErrorBase + 39;
 	public static final int MissingDataPath1 = ErrorBase + 40;
 	public static final int MissingResourceName1 = ErrorBase + 41;
+	public static final int DuplicateOSType1 = ErrorBase + 42;
+	public static final int UnknownSystemFilesCharset1 = ErrorBase + 42;
 	
 }

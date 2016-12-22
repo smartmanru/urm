@@ -65,7 +65,7 @@ public class ServerMirrors extends ServerObject {
 	}
 
 	public ServerMirrorRepository findProjectRepository( MetaSourceProject project ) {
-		String name = "project-" + project.meta.name + "-" + project.PROJECT;
+		String name = "project-" + project.meta.name + "-" + project.NAME;
 		return( findRepository( name ) );
 	}
 	
@@ -130,9 +130,9 @@ public class ServerMirrors extends ServerObject {
  		addRepository( conf );
 	}
 
-	public void addProjectMirror( ServerTransaction transaction , MetaSourceProject project ) throws Exception {
+	public void createProjectMirror( ServerTransaction transaction , MetaSourceProject project ) throws Exception {
 		ServerMirrorRepository repo = new ServerMirrorRepository( this );
-		String name = "project-" + project.meta.name + "-" + project.PROJECT;
+		String name = "project-" + project.meta.name + "-" + project.NAME;
 		repo.createProjectSource( transaction , project , name );
  		addRepository( repo );
 	}
@@ -147,6 +147,19 @@ public class ServerMirrors extends ServerObject {
 		for( ServerMirrorRepository repo : repos ) {
 			repo.dropMirror( transaction );
 			repoMap.remove( repo.NAME );
+		}
+	}
+
+	public void changeProjectMirror( ServerTransaction transaction , MetaSourceProject project ) throws Exception {
+		deleteProjectMirror( transaction , project );
+		createProjectMirror( transaction , project );
+	}
+	
+	public void deleteProjectMirror( ServerTransaction transaction , MetaSourceProject project ) throws Exception {
+		ServerMirrorRepository repoOld = findProjectRepository( project );
+		if( repoOld != null ) {
+			repoOld.dropMirror( transaction );
+			repoMap.remove( repoOld.NAME );
 		}
 	}
 	

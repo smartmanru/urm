@@ -1,7 +1,6 @@
 package org.urm.action.build;
 
 import org.urm.action.ActionBase;
-import org.urm.common.Common;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
@@ -10,6 +9,7 @@ import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.vcs.ProjectVersionControl;
 import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
@@ -18,8 +18,8 @@ public class BuilderWindowsDotnet extends Builder {
 
 	RemoteFolder CODEPATH;
 	
-	public BuilderWindowsDotnet( String BUILDER , MetaSourceProject project , BuildStorage storage , String TAG , String BUILD_OPTIONS , String APPVERSION ) {
-		super( BUILDER , project , storage , TAG , APPVERSION );
+	public BuilderWindowsDotnet( ServerProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
+		super( builder , project , storage , TAG , APPVERSION );
 	}
 
 	@Override public ShellExecutor createShell( ActionBase action ) throws Exception {
@@ -33,7 +33,7 @@ public class BuilderWindowsDotnet extends Builder {
 		// drop old
 		RedistStorage storage = action.artefactory.getRedistStorage( action , session.account );
 		RemoteFolder buildFolder = storage.getRedistTmpFolder( action , "build" );
-		CODEPATH = buildFolder.getSubFolder( action , project.PROJECT );
+		CODEPATH = buildFolder.getSubFolder( action , project.NAME );
 		CODEPATH.removeThis( action );
 	
 		// checkout
@@ -57,15 +57,10 @@ public class BuilderWindowsDotnet extends Builder {
 	
 	@Override public boolean runBuild( ActionBase action ) throws Exception {
 		// msbuilder params
-		String MSBUILD_PATH = "";
-		String BUILDEVERSION = project.getBuilderVersion( action );
-		if( BUILDEVERSION.equals( "VS-2013-EXPRESS" ) )
-			MSBUILD_PATH = Common.getQuoted( "C:\\Program Files (x86)\\MSBuild\\12.0\\Bin\\msbuild.exe" );
-		else
-			action.exit1( _Error.UnexpectedBuilderVersion1 , "unexpected builder version=" + BUILDEVERSION , BUILDEVERSION );
+		String MSBUILD_PATH = builder.MSBUILD_HOMEPATH + "\\Bin\\msbuild.exe";
 		
 		String NUGET_PATH = getNugetSourcePath( action );
-		String MSBUILD_OPTIONS = "/t:Clean,Build /p:Configuration=Release /p:preferreduilang=en-US";
+		String MSBUILD_OPTIONS = builder.MSBUILD_OPTIONS;
 		if( action.context.CTX_SHOWALL )
 			MSBUILD_OPTIONS += " /verbosity:detailed";
 
@@ -85,7 +80,7 @@ public class BuilderWindowsDotnet extends Builder {
 
 		// upload package
 		MetaProductSettings product = project.meta.getProductSettings( action );
-		String nugetId = product.CONFIG_PRODUCT + ".project." + project.PROJECT; 
+		String nugetId = product.CONFIG_PRODUCT + ".project." + project.NAME; 
 		String nugetPackCmd = "nuget pack package.nuspec -Version " + APPVERSION + " -Properties id=" + nugetId;
 		RemoteFolder NUGETPATH = CODEPATH.getSubFolder( action , "packages.build" ); 
 		timeout = action.setTimeoutUnlimited();
@@ -116,7 +111,7 @@ public class BuilderWindowsDotnet extends Builder {
 		ShellExecutor session = createShell( action );
 		RedistStorage storage = action.artefactory.getRedistStorage( action , session.account );
 		RemoteFolder buildFolder = storage.getRedistTmpFolder( action , "export" );
-		RemoteFolder CODEPATH = buildFolder.getSubFolder( action , project.PROJECT );
+		RemoteFolder CODEPATH = buildFolder.getSubFolder( action , project.NAME );
 		CODEPATH.removeThis( action );
 	}
 

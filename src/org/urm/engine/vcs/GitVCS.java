@@ -70,12 +70,12 @@ public class GitVCS extends GenericVCS {
 		repo.refreshMirror();
 		
 		if( !repo.checkBranchExists( BRANCH1 ) ) {
-			action.error( project.PROJECT + ": branch " + BRANCH1 + " does not exist" );
+			action.error( project.NAME + ": branch " + BRANCH1 + " does not exist" );
 			return( false );
 		}
 
 		if( repo.checkBranchExists( BRANCH2 ) ) {
-			action.error( project.PROJECT + ": skip copy branch to branch - target branch already exists" );
+			action.error( project.NAME + ": skip copy branch to branch - target branch already exists" );
 			return( false );
 		}
 
@@ -92,12 +92,12 @@ public class GitVCS extends GenericVCS {
 		repo.refreshMirror();
 		
 		if( !repo.checkBranchExists( BRANCH1 ) ) {
-			action.error( project.PROJECT + ": branch " + BRANCH1 + " does not exist" );
+			action.error( project.NAME + ": branch " + BRANCH1 + " does not exist" );
 			return( false );
 		}
 
 		if( repo.checkBranchExists( BRANCH2 ) ) {
-			action.error( project.PROJECT + ": cannot rename branch to branch - target branch already exists" );
+			action.error( project.NAME + ": cannot rename branch to branch - target branch already exists" );
 			return( false );
 		}
 
@@ -115,12 +115,12 @@ public class GitVCS extends GenericVCS {
 		repo.refreshMirror();
 		
 		if( !repo.checkTagExists( TAG1 ) ) {
-			action.error( project.PROJECT + ": tag " + TAG1 + " does not exist" );
+			action.error( project.NAME + ": tag " + TAG1 + " does not exist" );
 			return( false );
 		}
 
 		if( repo.checkTagExists( TAG2 ) ) {
-			action.error( project.PROJECT + ": tag " + TAG2 + " already exists" );
+			action.error( project.NAME + ": tag " + TAG2 + " already exists" );
 			return( false );
 		}
 
@@ -137,7 +137,7 @@ public class GitVCS extends GenericVCS {
 		repo.refreshMirror();
 		
 		if( !repo.checkTagExists( TAG1 ) ) {
-			action.error( project.PROJECT + ": tag " + TAG1 + " does not exist" );
+			action.error( project.NAME + ": tag " + TAG1 + " does not exist" );
 			return( false );
 		}
 
@@ -160,7 +160,7 @@ public class GitVCS extends GenericVCS {
 		repo.refreshMirror();
 		
 		if( !repo.checkTagExists( TAG1 ) ) {
-			action.error( project.PROJECT + ": tag " + TAG1 + " does not exist" );
+			action.error( project.NAME + ": tag " + TAG1 + " does not exist" );
 			return( false );
 		}
 
@@ -189,7 +189,7 @@ public class GitVCS extends GenericVCS {
 		}
 
 		if( repo.checkBranchExists( BRANCH2 ) ) {
-			action.error( project.PROJECT + ": cannot copy branch to branch - target branch already exists" );
+			action.error( project.NAME + ": cannot copy branch to branch - target branch already exists" );
 			return( false );
 		}
 
@@ -205,7 +205,7 @@ public class GitVCS extends GenericVCS {
 		repo.refreshMirror();
 		
 		if( !repo.checkTagExists( TAG ) ) {
-			action.error( project.PROJECT + ": tag " + TAG + " does not exist" );
+			action.error( project.NAME + ": tag " + TAG + " does not exist" );
 			return( false );
 		}
 		
@@ -221,7 +221,7 @@ public class GitVCS extends GenericVCS {
 		repo.refreshMirror();
 		
 		if( !repo.checkBranchExists( BRANCH ) ) {
-			action.error( project.PROJECT + ": branch " + BRANCH + " does not exist" );
+			action.error( project.NAME + ": branch " + BRANCH + " does not exist" );
 			return( false );
 		}
 		
@@ -263,7 +263,7 @@ public class GitVCS extends GenericVCS {
 			CO_BRANCH = CO_BRANCH.substring( "branches/".length() );
 
 		if( !repo.checkBranchExists( BRANCH ) ) {
-			action.error( project.PROJECT + ": branch " + BRANCH + " does not exist" );
+			action.error( project.NAME + ": branch " + BRANCH + " does not exist" );
 			return( false );
 		}
 		

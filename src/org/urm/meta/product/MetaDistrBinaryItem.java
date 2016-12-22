@@ -7,11 +7,8 @@ import org.urm.engine.ServerTransaction;
 import org.urm.engine.custom.CommandCustom;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.storage.FileInfo;
-import org.urm.meta.product.Meta.VarARCHIVETYPE;
-import org.urm.meta.product.Meta.VarDISTITEMORIGIN;
-import org.urm.meta.product.Meta.VarDISTITEMTYPE;
-import org.urm.meta.product.Meta.VarITEMVERSION;
-import org.urm.meta.product.Meta.VarNAMETYPE;
+import org.urm.meta.Types;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -64,12 +61,20 @@ public class MetaDistrBinaryItem {
 		CUSTOMDEPLOY = false;
 	}
 	
+	public void changeProjectToManual( ServerTransaction transaction ) throws Exception {
+		if( distItemOrigin != VarDISTITEMORIGIN.BUILD )
+			transaction.exitUnexpectedState();
+			
+		sourceItem = null;
+		distItemOrigin = VarDISTITEMORIGIN.MANUAL;
+	}
+	
 	public void load( ActionBase action , Node node ) throws Exception {
 		KEY = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
 	
 		// read attrs
-		distItemType = Meta.getItemDistType( ConfReader.getRequiredAttrValue( node , "type" ) , false );
-		distItemOrigin = Meta.getItemDistOrigin( ConfReader.getRequiredAttrValue( node , "source" ) , false );
+		distItemType = Types.getItemDistType( ConfReader.getRequiredAttrValue( node , "type" ) , false );
+		distItemOrigin = Types.getItemDistOrigin( ConfReader.getRequiredAttrValue( node , "source" ) , false );
 		if( distItemOrigin == VarDISTITEMORIGIN.DISTITEM ) {
 			SRCDISTITEM = ConfReader.getAttrValue( node , "srcitem" );
 			SRCITEMPATH = ConfReader.getAttrValue( node , "srcpath" );
@@ -77,7 +82,7 @@ public class MetaDistrBinaryItem {
 		
 		DISTBASENAME = ConfReader.getAttrValue( node , "distname" , KEY );
 		DEPLOYBASENAME = ConfReader.getAttrValue( node , "deployname" , DISTBASENAME );
-		deployVersion = Meta.readItemVersionAttr( node , "deployversion" );
+		deployVersion = Types.readItemVersionAttr( node , "deployversion" );
 		BUILDINFO = ConfReader.getAttrValue( node , "buildinfo" );
 
 		// binary item
@@ -166,7 +171,7 @@ public class MetaDistrBinaryItem {
 		MetaDistrBinaryItem r = new MetaDistrBinaryItem( meta , delivery );
 		if( sourceItem != null ) {
 			MetaSource source = meta.getSources( action );
-			MetaSourceProject project = source.getProject( action , sourceItem.project.PROJECT );
+			MetaSourceProject project = source.getProject( action , sourceItem.project.NAME );
 			r.sourceItem = project.getItem( action , sourceItem.ITEMNAME );
 		}
 			

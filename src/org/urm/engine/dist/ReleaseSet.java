@@ -15,9 +15,7 @@ import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
-import org.urm.meta.product.Meta.VarCATEGORY;
-import org.urm.meta.product.Meta.VarDISTITEMORIGIN;
-import org.urm.meta.product.Meta.VarNAMETYPE;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -79,7 +77,9 @@ public class ReleaseSet {
 	}
 
 	public boolean isSourceSet( ActionBase action ) throws Exception {
-		return( Meta.isSourceCategory( set.CATEGORY ) );
+		if( CATEGORY == VarCATEGORY.PROJECT )
+			return( true );
+		return( false );
 	}
 	
 	public boolean isCategorySet( ActionBase action ) throws Exception {
@@ -210,7 +210,7 @@ public class ReleaseSet {
 	public void createSourceSet( ActionBase action , MetaSourceProjectSet set , boolean ALL ) throws Exception {
 		this.set = set;
 		this.NAME = set.NAME;
-		this.CATEGORY = set.CATEGORY;
+		this.CATEGORY = VarCATEGORY.PROJECT;
 		this.ALL = ALL;
 		this.BUILDBRANCH = action.context.CTX_BRANCH;
 		this.BUILDTAG = action.context.CTX_TAG;
@@ -254,12 +254,12 @@ public class ReleaseSet {
 	
 	public void addAllSourceProjects( ActionBase action ) throws Exception {
 		action.trace( "add all source projects to release ..." );
-		for( MetaSourceProject project : set.originalList )
+		for( MetaSourceProject project : set.getProjects() )
 			addSourceProject( action , project , true );
 	}
 
 	public ReleaseTarget addSourceProject( ActionBase action , MetaSourceProject sourceProject , boolean allItems ) throws Exception {
-		action.trace( "add source project=" + sourceProject.PROJECT + " to release ..." );
+		action.trace( "add source project=" + sourceProject.NAME + " to release ..." );
 		ReleaseTarget project = new ReleaseTarget( meta , this , CATEGORY );
 		project.createFromProject( action , sourceProject , allItems );
 		project.BUILDBRANCH = BUILDBRANCH;
@@ -417,8 +417,8 @@ public class ReleaseSet {
 	}
 
 	public boolean checkAllBinaryIncluded( ActionBase action ) throws Exception {
-		for( MetaSourceProject project : set.originalList ) {
-			ReleaseTarget target = findTarget( action , project.PROJECT );
+		for( MetaSourceProject project : set.getProjects() ) {
+			ReleaseTarget target = findTarget( action , project.NAME );
 			if( target == null )
 				return( false );
 			

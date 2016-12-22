@@ -176,7 +176,7 @@ public class Artefactory {
 
 		String PATCHDIR = getWorkPath( action , MODE );
 		action.shell.ensureDirExists( action , PATCHDIR );
-		String PATCHPATH = PATCHDIR + "/" + sourceProject.PROJECT;
+		String PATCHPATH = PATCHDIR + "/" + sourceProject.NAME;
 		
 		LocalFolder folder = getAnyFolder( action , PATCHPATH );
 		folder.removeThis( action );

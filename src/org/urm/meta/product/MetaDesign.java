@@ -14,22 +14,6 @@ import org.w3c.dom.Node;
 
 public class MetaDesign extends ServerObject {
 
-	public enum VarELEMENTTYPE {
-		UNKNOWN ,
-		EXTERNAL ,
-		GENERIC ,
-		SERVER ,
-		DATABASE ,
-		LIBRARY ,
-		GROUP
-	};
-	
-	public enum VarLINKTYPE {
-		UNKNOWN ,
-		GENERIC ,
-		MSG
-	};
-	
 	private boolean loaded;
 	public boolean loadFailed;
 

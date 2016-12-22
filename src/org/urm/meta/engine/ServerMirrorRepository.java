@@ -256,14 +256,14 @@ public class ServerMirrorRepository extends ServerObject {
 	
 	void createProjectSource( ServerTransaction transaction , MetaSourceProject project , String name ) throws Exception {
 		NAME = name;
-		TYPE = TYPE_PRODUCT_DATA;
+		TYPE = TYPE_PROJECT;
 		PRODUCT = project.meta.name;
-		PROJECT = project.PROJECT;
-		RESOURCE = "";
-		RESOURCE_REPO = "";
-		RESOURCE_ROOT = "";
-		RESOURCE_DATA = "";
-		BRANCH = "";
+		PROJECT = project.NAME;
+		RESOURCE = project.RESOURCE;
+		RESOURCE_REPO = project.REPOSITORY;
+		RESOURCE_ROOT = project.REPOPATH;
+		RESOURCE_DATA = project.CODEPATH;
+		BRANCH = project.BRANCH;
 		createProperties();
 	}
 	
@@ -289,7 +289,7 @@ public class ServerMirrorRepository extends ServerObject {
 	}
 	
 	private void dropMirrorInternal( ServerTransaction transaction ) throws Exception {
-		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , false , true );
+		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , "" , true );
 		vcs.dropMirror( this );
 	}
 

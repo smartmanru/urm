@@ -26,8 +26,7 @@ import org.urm.meta.product.MetaEnvStartGroup;
 import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
-import org.urm.meta.product.Meta.VarCATEGORY;
-import org.urm.meta.product.Meta.VarDISTITEMORIGIN;
+import org.urm.meta.Types.*;
 
 public class ActionScopeSet {
 
@@ -68,7 +67,7 @@ public class ActionScopeSet {
 	public void create( ActionBase action , MetaSourceProjectSet pset ) throws Exception {
 		this.pset = pset;
 		this.NAME = pset.NAME;
-		this.CATEGORY = pset.CATEGORY;
+		this.CATEGORY = VarCATEGORY.PROJECT;
 		this.setFull = false;
 	}
 
@@ -141,7 +140,7 @@ public class ActionScopeSet {
 	}
 
 	public ActionScopeTarget findSourceTarget( ActionBase action , MetaSourceProject project ) throws Exception {
-		return( targets.get( project.PROJECT ) );
+		return( targets.get( project.NAME ) );
 	}
 	
 	public String getScopeInfo( ActionBase action ) throws Exception {
@@ -177,7 +176,7 @@ public class ActionScopeSet {
 	private void addSourceProjects( ActionBase action , String[] PROJECTS ) throws Exception {
 		if( PROJECTS == null || PROJECTS.length == 0 ) {
 			setFull = true; 
-			for( MetaSourceProject project : pset.getProjects( action ).values() )
+			for( MetaSourceProject project : pset.getProjects() )
 				addSourceProject( action , project , true , false );
 			return;
 		}

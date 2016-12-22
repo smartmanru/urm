@@ -5,8 +5,8 @@ import org.urm.action.database.DatabaseSpecific;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerTransaction;
-import org.urm.meta.product.Meta.VarDBMSTYPE;
-import org.urm.meta.product.Meta.VarNAMETYPE;
+import org.urm.meta.Types;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -46,7 +46,7 @@ public class MetaDatabaseSchema {
 	
 	public void load( ActionBase action , Node node ) throws Exception {
 		SCHEMA = action.getNameAttr( node , VarNAMETYPE.ALPHANUM );
-		dbmsType = Meta.getDbmsType( ConfReader.getAttrValue( node , "dbtype" ) , false );
+		dbmsType = Types.getDbmsType( ConfReader.getAttrValue( node , "dbtype" ) , false );
 		DBNAME = ConfReader.getAttrValue( node , "dbname" , SCHEMA );
 		DBUSER = ConfReader.getAttrValue( node , "dbuser" , SCHEMA );
 		DESC = ConfReader.getAttrValue( node , "desc" );

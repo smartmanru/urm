@@ -7,40 +7,22 @@ import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.vcs.ProjectVersionControl;
+import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
-import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 public class BuilderLinuxMaven extends Builder {
 
-	public String BUILD_OPTIONS;
 	boolean MODULEOPTIONS_WAR = false;
 	boolean MODULEOPTIONS_POMNEW = false;
 	boolean MODULEOPTIONS_SETVERSION = false;
 	boolean MODULEOPTIONS_REPLACESNAPSHOTS = false;
 	boolean MODULEOPTIONS_COMPACT_STATIC = false;
 
-	public BuilderLinuxMaven( String BUILDER , MetaSourceProject project , BuildStorage storage , String TAG , String BUILD_OPTIONS , String APPVERSION ) {
-		super( BUILDER , project , storage , TAG , APPVERSION );
-		this.BUILD_OPTIONS = BUILD_OPTIONS;
-
-		// war build
-		if( BUILD_OPTIONS.indexOf( 'w' ) >= 0 )
-			MODULEOPTIONS_WAR = true;
-		// replace original files with .new ones
-		if( BUILD_OPTIONS.indexOf( 'n' ) >= 0 )
-			MODULEOPTIONS_POMNEW = true;
-		// add profile for war build
-		if( BUILD_OPTIONS.indexOf( 's' ) >= 0 )
-			MODULEOPTIONS_COMPACT_STATIC = true;
-		// force set version
-		if( BUILD_OPTIONS.indexOf( 'v' ) >= 0 )
-			MODULEOPTIONS_SETVERSION = true;
-		// clear all snapshots from release
-		if( BUILD_OPTIONS.indexOf( 'r' ) >= 0 )
-			MODULEOPTIONS_REPLACESNAPSHOTS = true;
+	public BuilderLinuxMaven( ServerProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
+		super( builder , project , storage , TAG , APPVERSION );
 	}
 
 	@Override public ShellExecutor createShell( ActionBase action ) throws Exception {
@@ -142,16 +124,15 @@ public class BuilderLinuxMaven extends Builder {
 				" using maven to nexus path " + NEXUS_PATH + "..." );
 
 		// set environment
-		String BUILD_JAVA_VERSION = project.getJavaVersion( action );
-		String BUILD_MAVEN_VERSION = project.getBuilderVersion( action ); 
+		String BUILD_JAVA_HOME = builder.JAVA_JDKHOMEPATH;
+		String BUILD_MAVEN_HOME = builder.MAVEN_HOMEPATH; 
 		String MAVEN_CMD = "mvn -B -P " + MAVEN_ADDITIONAL_OPTIONS + " clean " + 
 				MODULE_MAVEN_CMD + " " + MODULE_ALT_REPO + " " + MODULE_MSETTINGS + " -Dmaven.test.skip=true";
 
 		ShellExecutor session = action.shell;
-		MetaProductSettings product = project.meta.getProductSettings( action );
-		session.export( action , "JAVA_HOME" , product.CONFIG_BUILDBASE_PATH + "/" + BUILD_JAVA_VERSION );
+		session.export( action , "JAVA_HOME" , BUILD_JAVA_HOME );
 		session.export( action , "PATH" , "$JAVA_HOME/bin:$PATH" );
-		session.export( action , "M2_HOME" , product.CONFIG_BUILDBASE_PATH + "/" + BUILD_MAVEN_VERSION );
+		session.export( action , "M2_HOME" , BUILD_MAVEN_HOME );
 		session.export( action , "M2" , "$M2_HOME/bin" );
 		session.export( action , "PATH" , "$M2:$PATH" );
 		session.export( action , "MAVEN_OPTS" , Common.getQuoted( "-XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );

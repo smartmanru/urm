@@ -4,12 +4,13 @@ import org.urm.action.ActionBase;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaSourceProject;
 
 public abstract class Builder {
 
-	public String BUILDER;
+	public ServerProjectBuilder builder;
 	public MetaSourceProject project;
 	public BuildStorage storage;
 	public String TAG;
@@ -22,8 +23,8 @@ public abstract class Builder {
 	abstract public boolean runBuild( ActionBase action ) throws Exception;
 	abstract public void removeExportedCode( ActionBase action ) throws Exception;
 	
-	protected Builder( String BUILDER , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
-		this.BUILDER = BUILDER;
+	protected Builder( ServerProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
+		this.builder = builder;
 		this.project = project;
 		this.storage = storage;
 		this.TAG = TAG;
@@ -31,8 +32,8 @@ public abstract class Builder {
 	}
 
 	public String getNexusPath( ActionBase action , MetaSourceProject project ) throws Exception {
+		ServerAuthResource res = action.getResource( builder.NEXUS_RESOURCE );
 		MetaProductBuildSettings build = action.getBuildSettings( project.meta );
-		ServerAuthResource res = action.getResource( build.CONFIG_NEXUS_RESOURCE );
 		return( res.BASEURL + "/content/repositories/" + build.CONFIG_NEXUS_REPO );
 	}
 

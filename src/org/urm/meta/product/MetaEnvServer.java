@@ -15,11 +15,8 @@ import org.urm.engine.ServerTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.meta.engine.ServerAccountReference;
 import org.urm.meta.engine.ServerHostAccount;
-import org.urm.meta.product.Meta.VarDBMSTYPE;
-import org.urm.meta.product.Meta.VarDEPLOYMODE;
-import org.urm.meta.product.Meta.VarNODETYPE;
-import org.urm.meta.product.Meta.VarSERVERACCESSTYPE;
-import org.urm.meta.product.Meta.VarSERVERRUNTYPE;
+import org.urm.meta.Types;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -155,10 +152,10 @@ public class MetaEnvServer extends PropertyController {
 			BASELINE = NAME;
 		
 		String SERVERRUNTYPE = super.getStringPropertyRequired( action , PROPERTY_SERVERRUNTYPE );
-		serverRunType = Meta.getServerRunType( SERVERRUNTYPE , false );
+		serverRunType = Types.getServerRunType( SERVERRUNTYPE , false );
 		String SERVERACCESSTYPE = super.getStringPropertyRequired( action , PROPERTY_SERVERACCESSTYPE );
-		serverAccessType = Meta.getServerAccessType( SERVERACCESSTYPE , false );
-		osType = Meta.getOSType( super.getStringProperty( action , PROPERTY_OSTYPE , "linux" ) , false );
+		serverAccessType = Types.getServerAccessType( SERVERACCESSTYPE , false );
+		osType = Types.getOSType( super.getStringProperty( action , PROPERTY_OSTYPE , "linux" ) , false );
 		OFFLINE = super.getBooleanProperty( action , PROPERTY_OFFLINE );
 		XDOC = super.getPathProperty( action , PROPERTY_XDOC , NAME + ".xml" );
 		SYSNAME = super.getStringProperty( action , PROPERTY_SYSNAME );
@@ -193,7 +190,7 @@ public class MetaEnvServer extends PropertyController {
 		}
 		
 		if( isDatabase() ) {
-			dbType = Meta.getDbmsType( super.getStringProperty( action , PROPERTY_DBMSTYPE ) , false );
+			dbType = Types.getDbmsType( super.getStringProperty( action , PROPERTY_DBMSTYPE ) , false );
 			DBMSADDR = super.getStringProperty( action , PROPERTY_DBMSADDR );
 			ALIGNED = super.getStringProperty( action , PROPERTY_ALIGNED );
 			REGIONS = super.getStringProperty( action , PROPERTY_REGIONS );

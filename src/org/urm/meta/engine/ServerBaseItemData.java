@@ -14,12 +14,9 @@ import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.storage.BaseRepository;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnvServerNode;
-import org.urm.meta.product.Meta.VarBASESRCFORMAT;
-import org.urm.meta.product.Meta.VarBASESRCTYPE;
-import org.urm.meta.product._Error;
-import org.urm.meta.product.Meta.VarSERVERACCESSTYPE;
+import org.urm.meta.Types;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -82,11 +79,11 @@ public class ServerBaseItemData extends PropertyController {
 		VERSION = super.getStringPropertyRequired( action , "version" );
 		
 		String TYPE = super.getStringPropertyRequired( action , "type" );
-		type = Meta.getBaseSrcType( TYPE , false );
+		type = Types.getBaseSrcType( TYPE , false );
 		adm = super.getBooleanProperty( action , "adminstall" );
 		
 		String OSTYPE = super.getStringPropertyRequired( action , "ostype" );
-		osType = Meta.getOSType( OSTYPE , false );
+		osType = Types.getOSType( OSTYPE , false );
 
 		String CHARSET = super.getStringProperty( action , "charset" );
 		if( !CHARSET.isEmpty() ) {
@@ -96,7 +93,7 @@ public class ServerBaseItemData extends PropertyController {
 		}
 		
 		String SERVERTYPE = super.getStringProperty( action , "server-accesstype" );
-		serverAccessType = Meta.getServerAccessType( SERVERTYPE , false );
+		serverAccessType = Types.getServerAccessType( SERVERTYPE , false );
 		
 		// type properties
 		if( isArchiveLink() )
@@ -177,7 +174,7 @@ public class ServerBaseItemData extends PropertyController {
 	}
 
 	private void scatterArchiveLink( ActionBase action ) throws Exception {
-		srcFormat = Meta.getBaseSrcFormat( super.getStringPropertyRequired( action , "srcformat" ) , false );
+		srcFormat = Types.getBaseSrcFormat( super.getStringPropertyRequired( action , "srcformat" ) , false );
 		SRCFILE = super.getPathPropertyRequired( action , "srcfile" );
 		SRCSTOREDIR = super.getPathPropertyRequired( action , "srcstoreddir" );
 		INSTALLPATH = super.getPathPropertyRequired( action , "installpath" );
@@ -185,7 +182,7 @@ public class ServerBaseItemData extends PropertyController {
 	}
 	
 	private void scatterArchiveDirect( ActionBase action ) throws Exception {
-		srcFormat = Meta.getBaseSrcFormat( super.getStringPropertyRequired( action , "srcformat" ) , false );
+		srcFormat = Types.getBaseSrcFormat( super.getStringPropertyRequired( action , "srcformat" ) , false );
 		SRCFILE = super.getPathPropertyRequired( action , "srcfile" );
 		SRCSTOREDIR = super.getPathPropertyRequired( action , "srcstoreddir" );
 		INSTALLPATH = super.getPathPropertyRequired( action , "installpath" );
@@ -195,7 +192,7 @@ public class ServerBaseItemData extends PropertyController {
 	}
 
 	private void scatterInstaller( ActionBase action ) throws Exception {
-		srcFormat = Meta.getBaseSrcFormat( super.getStringPropertyRequired( action , "srcformat" ) , false );
+		srcFormat = Types.getBaseSrcFormat( super.getStringPropertyRequired( action , "srcformat" ) , false );
 		SRCFILE = super.getPathPropertyRequired( action , "srcfile" );
 	}
 

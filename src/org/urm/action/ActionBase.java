@@ -44,9 +44,7 @@ import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
-import org.urm.meta.product.Meta.VarBUILDMODE;
-import org.urm.meta.product.Meta.VarCATEGORY;
-import org.urm.meta.product.Meta.VarNAMETYPE;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -279,7 +277,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public boolean runEachBuildableProject( ActionScope scope , SecurityAction sa , boolean readOnly ) {
-		VarCATEGORY[] categories = Meta.getAllBuildableCategories();
+		VarCATEGORY[] categories = { VarCATEGORY.BUILDABLE };
 		return( runCategories( scope , categories , sa , readOnly ) );
 	}
 	
@@ -294,7 +292,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public boolean runEachCoreProject( ActionScope scope , SecurityAction sa , boolean readOnly ) {
-		return( runEachCategoryTarget( scope , VarCATEGORY.BUILD , sa , readOnly ) );
+		return( runEachCategoryTarget( scope , VarCATEGORY.BUILDABLE , sa , readOnly ) );
 	}
 
 	public boolean runEachPrebuiltProject( String methodName , ActionScope scope , SecurityAction sa , boolean readOnly ) {

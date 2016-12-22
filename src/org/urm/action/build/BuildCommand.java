@@ -16,7 +16,7 @@ import org.urm.engine.storage.LogStorage;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductSettings;
-import org.urm.meta.product.Meta.VarCATEGORY;
+import org.urm.meta.Types.*;
 
 public class BuildCommand {
 	
@@ -248,10 +248,10 @@ public class BuildCommand {
 			return;
 		}
 		
-		action.info( "buildRelease: set TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , Meta.getAllBuildableCategories() ) + "}" );
+		action.info( "buildRelease: set TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , new VarCATEGORY[] { VarCATEGORY.BUILDABLE } ) + "}" );
 		setTag( action , TAG , scope );
 		
-		action.info( "buildRelease: build TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , Meta.getAllBuildableCategories() ) + "}" );
+		action.info( "buildRelease: build TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , new VarCATEGORY[] { VarCATEGORY.BUILDABLE } ) + "}" );
 		String OUTFILE = OUTDIR.folderPath + "/build.final.out"; 
 		action.shell.createFileFromString( action , OUTFILE , "FINAL STATUS:" );
 		buildTags( action , TAG , scope , OUTDIR , OUTFILE , dist );

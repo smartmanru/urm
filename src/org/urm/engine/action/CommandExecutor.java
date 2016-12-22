@@ -11,9 +11,8 @@ import org.urm.common.RunError;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.engine.ServerEngine;
-import org.urm.meta.product.Meta;
-import org.urm.meta.product.Meta.VarBUILDMODE;
-import org.urm.meta.product.Meta.VarCATEGORY;
+import org.urm.meta.Types;
+import org.urm.meta.Types.*;
 
 public abstract class CommandExecutor {
 
@@ -131,7 +130,7 @@ public abstract class CommandExecutor {
 		if( pos >= action.context.options.getArgCount() )
 			return( null );
 		
-		return( Meta.getCategory( getArg( action , pos ) , true ) );
+		return( Types.getCategory( getArg( action , pos ) , true ) );
 	}
 	
 	public String getRequiredArg( ActionBase action , int pos , String argName ) throws Exception {

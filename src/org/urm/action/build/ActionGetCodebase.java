@@ -25,7 +25,7 @@ public class ActionGetCodebase extends ActionBase {
 		String BRANCH = scopeProject.getProjectBuildBranch( this );
 		String TAG = scopeProject.getProjectBuildTag( this );
 
-		LocalFolder COPATH = CODIR.getSubFolder( this , scopeProject.sourceProject.PROJECT );
+		LocalFolder COPATH = CODIR.getSubFolder( this , scopeProject.sourceProject.NAME );
 		
 		if( force == false ) {
 			if( COPATH.checkExists( this ) )

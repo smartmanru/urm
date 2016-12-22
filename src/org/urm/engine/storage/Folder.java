@@ -7,7 +7,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.meta.product.MetaDistrBinaryItem;
-import org.urm.meta.product.Meta.VarARCHIVETYPE;
+import org.urm.meta.Types.*;
 
 public abstract class Folder {
 

@@ -17,9 +17,7 @@ import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
-import org.urm.meta.product.Meta.VarCATEGORY;
-import org.urm.meta.product.Meta.VarDISTITEMORIGIN;
-import org.urm.meta.product.Meta.VarNAMETYPE;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -155,7 +153,7 @@ public class ReleaseTarget {
 		// find in sources
 		MetaSource sources = meta.getSources( action ); 
 		sourceProject = sources.getProject( action , name ); 
-		NAME = sourceProject.PROJECT;
+		NAME = sourceProject.NAME;
 		
 		Node[] items = ConfReader.xmlGetChildren( node , "distitem" );
 		if( items == null ) {
@@ -200,9 +198,9 @@ public class ReleaseTarget {
 
 	public void createFromProject( ActionBase action , MetaSourceProject sourceProject , boolean allItems ) throws Exception {
 		this.sourceProject = sourceProject;
-		this.CATEGORY = sourceProject.CATEGORY;
+		this.CATEGORY = VarCATEGORY.PROJECT;
 		
-		NAME = sourceProject.PROJECT;
+		NAME = sourceProject.NAME;
 		ALL = false;
 		BUILDBRANCH = "";
 		BUILDTAG = "";
@@ -280,16 +278,9 @@ public class ReleaseTarget {
 	
 	public void addAllSourceItems( ActionBase action , MetaSourceProject sourceProject ) throws Exception {
 		ALL = true;
-		if( sourceProject.distItem != null ) {
-			ReleaseTargetItem item = new ReleaseTargetItem( meta , this );
-			item.createFromDistrItem( action , sourceProject.distItem );
-			itemMap.put( item.NAME , item );
-			return;
-		}
 		
 		// read source items
-		List<MetaSourceProjectItem> projectitems = sourceProject.getIitemList( action );
-		for( MetaSourceProjectItem projectitem : projectitems )
+		for( MetaSourceProjectItem projectitem : sourceProject.getItems() )
 			addSourceItem( action , projectitem );
 	}
 
@@ -369,7 +360,7 @@ public class ReleaseTarget {
 	public Element createXmlBinary( ActionBase action , Document doc , Element parent ) throws Exception {
 		Element element = Common.xmlCreateElement( doc , parent , "project" );
 		
-		Common.xmlSetElementAttr( doc , element , "name" , sourceProject.PROJECT );
+		Common.xmlSetElementAttr( doc , element , "name" , sourceProject.NAME );
 		if( !BUILDBRANCH.isEmpty() )
 			Common.xmlSetElementAttr( doc , element , "buildbranch" , BUILDBRANCH );
 		if( !BUILDTAG.isEmpty() )
@@ -377,10 +368,6 @@ public class ReleaseTarget {
 		if( !BUILDVERSION.isEmpty() )
 			Common.xmlSetElementAttr( doc , element , "buildversion" , BUILDVERSION );
 
-		// single-item projects
-		if( sourceProject.distItem != null )
-			return( element );
-		
 		// all project items
 		if( ALL ) {
 			Common.xmlSetElementAttr( doc , element , "all" , Common.getBooleanValue( true ) );
@@ -415,7 +402,7 @@ public class ReleaseTarget {
 	}
 
 	public boolean checkSourceAllIncluded( ActionBase action ) throws Exception {
-		for( MetaSourceProjectItem projectitem : sourceProject.getIitemList( action ) ) {
+		for( MetaSourceProjectItem projectitem : sourceProject.getItems() ) {
 			ReleaseTargetItem source = itemMap.get( projectitem.ITEMNAME );
 			if( source == null )
 				return( false );
@@ -427,6 +414,18 @@ public class ReleaseTarget {
 	public void removeSourceItem( ActionBase action , ReleaseTargetItem buildItem ) throws Exception {
 		itemMap.remove( buildItem.NAME );
 		ALL = false;
+	}
+
+	public boolean isBuildableProject() {
+		if( CATEGORY == VarCATEGORY.PROJECT && sourceProject.codebaseProject == true )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isPrebuiltProject() {
+		if( CATEGORY == VarCATEGORY.PROJECT && sourceProject.codebaseProject == false )
+			return( true );
+		return( false );
 	}
 	
 }

@@ -8,7 +8,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.CommandOutput;
 import org.urm.engine.storage.Folder;
-import org.urm.meta.product.Meta.VarSESSIONTYPE;
+import org.urm.meta.Types.*;
 
 abstract public class ShellCore {
 

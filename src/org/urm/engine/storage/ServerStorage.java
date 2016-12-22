@@ -7,7 +7,7 @@ import org.urm.engine.shell.Account;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
-import org.urm.meta.product.Meta.VarCONTENTTYPE;
+import org.urm.meta.Types.*;
 
 public class ServerStorage {
 

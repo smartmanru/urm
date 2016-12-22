@@ -14,7 +14,7 @@ import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaEnvServerNode;
-import org.urm.meta.product.Meta.VarCONTENTTYPE;
+import org.urm.meta.Types.*;
 
 public class RedistStateInfo {
 

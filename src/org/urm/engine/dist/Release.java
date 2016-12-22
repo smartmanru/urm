@@ -17,9 +17,7 @@ import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
-import org.urm.meta.product.Meta.VarBUILDMODE;
-import org.urm.meta.product.Meta.VarCATEGORY;
-import org.urm.meta.product.Meta.VarDISTITEMORIGIN;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -475,14 +473,14 @@ public class Release {
 
 	public void addSourceAll( ActionBase action ) throws Exception {
 		MetaSource sources = meta.getSources( action ); 
-		for( MetaSourceProjectSet sourceSet : sources.getSets( action ).values() )
+		for( MetaSourceProjectSet sourceSet : sources.getSets() )
 			addSourceSet( action , sourceSet , true );
 	}
 	
 	public boolean addSourceSet( ActionBase action , MetaSourceProjectSet sourceSet , boolean all ) throws Exception {
 		ReleaseSet set = findSourceSet( action , sourceSet.NAME );
 		if( set == null ) {
-			set = new ReleaseSet( meta , this , sourceSet.CATEGORY );
+			set = new ReleaseSet( meta , this , VarCATEGORY.PROJECT );
 			set.createSourceSet( action , sourceSet , all );
 			registerSet( action , set );
 			return( true );
@@ -570,7 +568,7 @@ public class Release {
 		if( set == null )
 			return( false );
 		
-		ReleaseTarget project = set.findTarget( action , sourceProject.PROJECT );
+		ReleaseTarget project = set.findTarget( action , sourceProject.NAME );
 		if( project == null ) {
 			project = set.addSourceProject( action , sourceProject , allItems );
 			registerTarget( action , project );
@@ -611,7 +609,7 @@ public class Release {
 		if( set == null )
 			return;
 		
-		ReleaseTarget target = set.findTarget( action , sourceProject.PROJECT );
+		ReleaseTarget target = set.findTarget( action , sourceProject.NAME );
 		if( target == null )
 			return;
 		
@@ -622,14 +620,14 @@ public class Release {
 		if( sourceItem.INTERNAL )
 			action.exit1( _Error.UnexpectedInternalItem1 , "unexpected call for INTERNAL item=" + sourceItem.ITEMNAME , sourceItem.ITEMNAME );
 		
-		ReleaseSet set = sourceSetMap.get( sourceProject.CATEGORY );
+		ReleaseSet set = sourceSetMap.get( sourceProject.set.NAME );
 		if( set == null )
 			return( false );
 		
 		if( set.ALL )
 			return( true );
 		
-		ReleaseTarget project = set.findTarget( action , sourceProject.PROJECT );
+		ReleaseTarget project = set.findTarget( action , sourceProject.NAME );
 		if( project == null )
 			return( false );
 
@@ -652,7 +650,7 @@ public class Release {
 		if( set == null )
 			return;
 
-		ReleaseTarget project = set.findTarget( action , sourceProject.PROJECT );
+		ReleaseTarget project = set.findTarget( action , sourceProject.NAME );
 		if( project == null )
 			return;
 		

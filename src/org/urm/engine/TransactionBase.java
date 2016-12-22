@@ -36,7 +36,10 @@ import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
-import org.urm.meta.product.Meta.VarCOMPITEMTYPE;
+import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.MetaSourceProjectSet;
+import org.urm.meta.Types.*;
 
 public class TransactionBase extends ServerObject {
 
@@ -955,6 +958,18 @@ public class TransactionBase extends ServerObject {
 		return( comp.getWebService( action , service.NAME ) );
 	}
 
+	public MetaSourceProject getSourceProject( MetaSourceProject project ) throws Exception {
+		Meta metaNew = getTransactionProductMetadata( project.meta.name );
+		MetaSource sourceNew = metaNew.getSources( action );
+		return( sourceNew.getProject( action , project.NAME ) );
+	}
+	
+	public MetaSourceProjectSet getSourceProjectSet( MetaSourceProjectSet set ) throws Exception {
+		Meta metaNew = getTransactionProductMetadata( set.meta.name );
+		MetaSource sourceNew = metaNew.getSources( action );
+		return( sourceNew.getProjectSet( action , set.NAME ) );
+	}
+	
 	public void checkSecurityFailed() {
 		fail0( _Error.SecurityCheckFailed0 , "Operation is not permitted" );
 	}

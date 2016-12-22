@@ -19,7 +19,7 @@ import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerDeployment;
 import org.urm.meta.product.MetaEnvServerNode;
-import org.urm.meta.product.Meta.VarCATEGORY;
+import org.urm.meta.Types.*;
 
 public class ActionConfigure extends ActionBase {
 

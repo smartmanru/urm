@@ -17,7 +17,7 @@ import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
-import org.urm.meta.product.Meta.VarCATEGORY;
+import org.urm.meta.Types.*;
 
 public class ActionScopeTarget {
 
@@ -57,7 +57,7 @@ public class ActionScopeTarget {
 	public static ActionScopeTarget createSourceProjectTarget( ActionScopeSet set , MetaSourceProject sourceProject , boolean specifiedExplicitly ) {
 		ActionScopeTarget target = new ActionScopeTarget( set );
 		target.sourceProject = sourceProject;
-		target.NAME = sourceProject.PROJECT;
+		target.NAME = sourceProject.NAME;
 		target.specifiedExplicitly = specifiedExplicitly;
 		return( target );
 	}
@@ -122,7 +122,7 @@ public class ActionScopeTarget {
 	
 	public String getScopeInfo( ActionBase action ) throws Exception {
 		if( sourceProject != null ) {
-			String scope = sourceProject.PROJECT + ":";
+			String scope = sourceProject.NAME + ":";
 			if( itemFull )
 				scope += "all";
 			else {
@@ -154,7 +154,7 @@ public class ActionScopeTarget {
 	private void addSourceProjectItems( ActionBase action , String[] ITEMS ) throws Exception {
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			itemFull = true;
-			for( MetaSourceProjectItem item : sourceProject.getIitemList( action ) )
+			for( MetaSourceProjectItem item : sourceProject.getItems() )
 				addProjectItem( action , item , false );
 			return;
 		}
@@ -245,7 +245,7 @@ public class ActionScopeTarget {
 		}
 			
 		if( BUILDBRANCH.isEmpty() )
-			BUILDBRANCH = sourceProject.PROJECT + "-prod";
+			BUILDBRANCH = sourceProject.NAME + "-prod";
 		
 		return( BUILDBRANCH );
 	}
@@ -299,6 +299,18 @@ public class ActionScopeTarget {
 		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createEnvServerNodeTargetItem( this , node , specifiedExplicitly );
 		items.add( scopeItem );
 		return( scopeItem );
+	}
+
+	public boolean isBuildableProject() {
+		if( CATEGORY == VarCATEGORY.PROJECT && sourceProject.codebaseProject == true )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isPrebuiltProject() {
+		if( CATEGORY == VarCATEGORY.PROJECT && sourceProject.codebaseProject == false )
+			return( true );
+		return( false );
 	}
 	
 }

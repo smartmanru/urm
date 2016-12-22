@@ -11,7 +11,8 @@ import org.urm.engine.shell.Account;
 import org.urm.meta.engine.ServerAccountReference;
 import org.urm.meta.engine.ServerHostAccount;
 import org.urm.meta.engine.ServerNetworkHost;
-import org.urm.meta.product.Meta.VarNODETYPE;
+import org.urm.meta.Types;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -58,7 +59,7 @@ public class MetaEnvServerNode extends PropertyController {
 			DBINSTANCE = super.getStringProperty( action , PROPERTY_DBINSTANCE );
 		
 		String NODETYPE = super.getStringProperty( action , PROPERTY_NODETYPE , "self" );
-		nodeType = Meta.getNodeType( NODETYPE , VarNODETYPE.SELF );
+		nodeType = Types.getNodeType( NODETYPE , VarNODETYPE.SELF );
 		
 		OFFLINE = super.getBooleanProperty( action , PROPERTY_OFFLINE );
 		DBSTANDBY = super.getBooleanProperty( action , PROPERTY_DBSTANDBY );

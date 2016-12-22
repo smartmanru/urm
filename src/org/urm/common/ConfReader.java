@@ -279,6 +279,13 @@ public class ConfReader {
     	return( value );
     }
 
+    public static boolean getBooleanPropertyValue( Node node , String propertyName , boolean defValue ) throws Exception {
+    	String value = getPropertyValue( node , propertyName );
+    	if( value == null || value.isEmpty() )
+    		return( defValue );
+    	return( Common.getBooleanValue( value ) );
+    }
+
     public static int getIntegerPropertyValue( Node node , String propertyName , int defValue ) throws Exception {
     	String value = getPropertyValue( node , propertyName );
     	if( value == null || value.isEmpty() )

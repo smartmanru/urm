@@ -3,7 +3,8 @@ package org.urm.meta.product;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.meta.product.MetaDesign.VarLINKTYPE;
+import org.urm.meta.Types;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -28,7 +29,7 @@ public class MetaDesignLink {
 	public void load( ActionBase action , Node node ) throws Exception {
 		TARGET = ConfReader.getRequiredAttrValue( node , "target" );
 		String TYPE = ConfReader.getRequiredAttrValue( node , "type" );
-		linkType = Meta.getDesignLinkType( TYPE , false );
+		linkType = Types.getDesignLinkType( TYPE , false );
 		TEXT = ConfReader.getAttrValue( node , "text" );
 	}
 

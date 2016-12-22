@@ -554,7 +554,7 @@ public class SubversionVCS extends GenericVCS {
 	}
 
 	public String getProjectPath( MetaSourceProject project ) throws Exception {
-		return( Common.getPath( SVNPATH , project.PATH , project.REPOSITORY ) );
+		return( Common.getPath( SVNPATH , project.REPOPATH , project.REPOSITORY ) );
 	}
 	
 	public boolean checkVersioned( ServerMirrorRepository mirror , String path ) throws Exception {

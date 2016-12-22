@@ -9,10 +9,9 @@ import org.urm.common.Common;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
+import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.engine.ServerProjectBuilder;
-import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaSourceProject;
-import org.urm.meta.product.Meta.VarCATEGORY;
 
 public class ActionBuild extends ActionBase {
 	
@@ -35,10 +34,10 @@ public class ActionBuild extends ActionBase {
 		
 		// run in order of build
 		debug( "build set=" + set.NAME + " ..." );
-		for( MetaSourceProject project : set.pset.getOriginalList( this ) ) {
+		for( MetaSourceProject project : set.pset.getOrderedList() ) {
 			ActionScopeTarget target = set.findSourceTarget( this , project );
 			if( target == null ) {
-				trace( "skip non-set target=" + project.PROJECT );
+				trace( "skip non-set target=" + project.NAME );
 				continue;
 			}
 			
@@ -47,7 +46,7 @@ public class ActionBuild extends ActionBase {
 				continue;
 			}
 				
-			debug( "build project=" + project.PROJECT );
+			debug( "build project=" + project.NAME );
 			if( !executeTarget( target ) ) {
 				error( "cancel build due to errors" );
 				return( SCOPESTATE.RunFail );
@@ -62,23 +61,15 @@ public class ActionBuild extends ActionBase {
 	}
 	
 	private boolean executeTarget( ActionScopeTarget scopeProject ) throws Exception {
-		String BUILD_OPTIONS = null;
-		if( scopeProject.CATEGORY == VarCATEGORY.BUILD ) {
-			MetaProductBuildSettings build = getBuildSettings( scopeProject.meta );
-			BUILD_OPTIONS = build.CONFIG_BUILDER_OPTIONS;
-		}
-		else
-			exitUnexpectedCategory( scopeProject.CATEGORY );
-
 		String version = scopeProject.getProjectBuildVersion( this );
 		
 		// execute
 		MetaSourceProject project = scopeProject.sourceProject;
-		info( "ActionBuild: CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) + ", PROJECT=" + project.PROJECT + 
-				", REPOSITORY=" + project.REPOSITORY + ", TAG=" + TAG + ", VERSION=" + version + ", MODULEOPTIONS=" + BUILD_OPTIONS );
+		info( "ActionBuild: CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) + ", PROJECT=" + project.NAME + 
+				", REPOSITORY=" + project.REPOSITORY + ", TAG=" + TAG + ", VERSION=" + version );
 
 		// in separate shell
-		Builder builder = createBuilder( project , TAG , BUILD_OPTIONS , version );
+		Builder builder = createBuilder( project , TAG , version );
 		LocalFolder BUILDDIR = OUTDIR.getSubFolder( this , project.set.NAME );
 		ActionPatch action = new ActionPatch( this , null , builder , BUILDDIR );
 		builder.createShell( action );
@@ -86,7 +77,7 @@ public class ActionBuild extends ActionBase {
 		BUILDSTATUS = "SUCCESSFUL"; 
 		if( !action.runProductBuild( project.meta.name , SecurityAction.ACTION_BUILD , context.buildMode , false ) ) {
 			BUILDSTATUS = "FAILED";
-			super.fail1( _Error.ProjectBuildError1 , "Errors while build project=" + project.PROJECT , project.PROJECT );
+			super.fail1( _Error.ProjectBuildError1 , "Errors while build project=" + project.NAME , project.NAME );
 		}
 
 		// check status
@@ -94,24 +85,27 @@ public class ActionBuild extends ActionBase {
 		return( true );
 	}
 	
-	private Builder createBuilder( MetaSourceProject project , String TAG , String BUILD_OPTIONS , String VERSION ) throws Exception {
-		Builder builder = null;
-		
+	private Builder createBuilder( MetaSourceProject project , String TAG , String VERSION ) throws Exception {
 		String BUILDER = project.getBuilder( this );
+		
+		ServerBuilders builders = super.getBuilders();
+		ServerProjectBuilder builder = builders.getBuilder( BUILDER );
+		
+		Builder projectBuilder = null;
+		
 		BuildStorage storage = artefactory.getEmptyBuildStorage( this , project );
-		if( BUILDER.equals( ServerProjectBuilder.BUILDER_TYPE_MAVEN ) ) {
-			builder = new BuilderLinuxMaven( BUILDER , project , storage , TAG , BUILD_OPTIONS , VERSION );
-		}
-		else if( BUILDER.equals( ServerProjectBuilder.BUILDER_TYPE_GRADLE ) ) {
-			builder = new BuilderLinuxGradle( BUILDER , project , storage , TAG , BUILD_OPTIONS , VERSION );
-		}
-		else if( BUILDER.equals( ServerProjectBuilder.BUILDER_TYPE_DOTNET ) ) {
-			builder = new BuilderWindowsDotnet( BUILDER , project , storage , TAG , BUILD_OPTIONS , VERSION );
-		}
+		if( builder.isMaven() )
+			projectBuilder = new BuilderLinuxMaven( builder , project , storage , TAG , VERSION );
+		else
+		if( builder.isGradle() )
+			projectBuilder = new BuilderLinuxGradle( builder , project , storage , TAG , VERSION );
+		else
+		if( builder.isWinBuild() )
+			projectBuilder = new BuilderWindowsDotnet( builder , project , storage , TAG , VERSION );
 		else
 			exit1( _Error.UnknownBuilderType1 , "unknown builder=" + BUILDER , BUILDER );
 		
-		return( builder );
+		return( projectBuilder );
 	}
 
 }

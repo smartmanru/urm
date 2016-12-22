@@ -13,8 +13,7 @@ import org.urm.engine.storage.NexusDownloadInfo;
 import org.urm.engine.storage.NexusStorage;
 import org.urm.engine.storage.SourceStorage;
 import org.urm.meta.product.MetaDistrBinaryItem;
-import org.urm.meta.product.Meta.VarCATEGORY;
-import org.urm.meta.product.Meta.VarITEMSRCTYPE;
+import org.urm.meta.Types.*;
 
 public class ActionGetBinary extends ActionBase {
 
@@ -35,10 +34,10 @@ public class ActionGetBinary extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
-		if( target.CATEGORY == VarCATEGORY.BUILD )
+		if( target.isBuildableProject() )
 			downloadCoreProject( target );
 		else 
-		if( target.CATEGORY == VarCATEGORY.PREBUILT )
+		if( target.isPrebuiltProject() )
 			downloadPrebuiltProject( target );
 		else
 			this.exitUnexpectedCategory( target.CATEGORY );

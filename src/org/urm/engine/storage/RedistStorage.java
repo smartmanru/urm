@@ -14,11 +14,7 @@ import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerLocation;
 import org.urm.meta.product.MetaEnvServerNode;
-import org.urm.meta.product.Meta.VarARCHIVETYPE;
-import org.urm.meta.product.Meta.VarCONTENTTYPE;
-import org.urm.meta.product.Meta.VarDEPLOYMODE;
-import org.urm.meta.product.Meta.VarDISTITEMTYPE;
-import org.urm.meta.product.Meta.VarITEMVERSION;
+import org.urm.meta.Types.*;
 
 public class RedistStorage extends ServerStorage {
 

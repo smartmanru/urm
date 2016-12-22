@@ -19,7 +19,7 @@ import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
-import org.urm.meta.product.Meta.VarCATEGORY;
+import org.urm.meta.Types.*;
 
 public class SpecificPGU {
 
@@ -76,13 +76,19 @@ public class SpecificPGU {
 		return( "ear" );
 	}
 
+	private MetaDistrBinaryItem getWarItem( MetaSourceProject project , int pos ) throws Exception {
+		MetaSourceProjectItem item = project.getItems()[ pos ];
+		MetaDistr distr = meta.getDistr( action );
+		return( distr.getBinaryItem( action , item.ITEMNAME ) );
+	}
+	
 	public void downloadWarCopyDistr( boolean copyDistr , Dist release , String VERSION_TAGNAME , ActionScopeTarget scopeProject ) throws Exception {
-		MetaDistrBinaryItem distItem = scopeProject.sourceProject.distItem;
+		MetaDistrBinaryItem distItem = getWarItem( scopeProject.sourceProject , 0 );
 		
 		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , meta , downloadFolder );
 		NexusDownloadInfo WAR = nexusStorage.downloadNexus( action , C_PGUWARNEXUSGROUPID , distItem.DISTBASENAME , VERSION , "war" , "" , distItem );
 		NexusDownloadInfo STATIC = nexusStorage.downloadNexus( action , C_PGUWARNEXUSGROUPID , distItem.DISTBASENAME , VERSION , "tar.gz" , "webstatic" , distItem );
-		nexusStorage.repackageStatic( action , scopeProject.sourceProject.PROJECT , VERSION , WAR.DOWNLOAD_FILENAME , STATIC.DOWNLOAD_FILENAME , VERSION_TAGNAME , distItem );
+		nexusStorage.repackageStatic( action , scopeProject.sourceProject.NAME , VERSION , WAR.DOWNLOAD_FILENAME , STATIC.DOWNLOAD_FILENAME , VERSION_TAGNAME , distItem );
 
 		if( copyDistr ) {
 			Dist distStorage = release;
@@ -178,10 +184,11 @@ public class SpecificPGU {
 
 		// download latest built libs for all microportals
 		action.debug( "download last built libs for all microportals from Nexus - to pgu-services-lib ..." );
-		Map<String,ActionScopeTarget> projects = scope.getCategorySetTargets( action , VarCATEGORY.BUILD );
+		Map<String,ActionScopeTarget> projects = scope.getCategorySetTargets( action , VarCATEGORY.BUILDABLE );
 		
 		for( ActionScopeTarget scopeProject : projects.values() ) {
-			String LIB = scopeProject.sourceProject.DISTLIBITEM;
+			MetaDistrBinaryItem distItem = getWarItem( scopeProject.sourceProject , 1 );
+			String LIB = distItem.KEY;
 			nexusStorage.downloadNexus( action , C_PGUWARNEXUSGROUPID , LIB , VERSION , "jar" , "" , servicecallItem );
 		}
 	}
@@ -200,7 +207,7 @@ public class SpecificPGU {
 
 		action.debug( "copy libs to servicecall and storageservice from pgu-services-lib and servicecall-prod-libs ..." );
 		MetaSource sources = meta.getSources( action );
-		List<MetaSourceProject> list = sources.getAllProjectList( action , VarCATEGORY.BUILD );
+		List<MetaSourceProject> list = sources.getAllProjectList( action , true );
 		Dist releaseStorage = release;
 		
 		for( MetaSourceProject sourceProject : list ) {
@@ -209,7 +216,8 @@ public class SpecificPGU {
 	}
 	
 	private void getAllWarAppGetProjectLib( MetaSourceProject sourceProject , Dist release ) throws Exception {
-		String lib = sourceProject.DISTLIBITEM + "-" + VERSION + ".jar";
+		MetaDistrBinaryItem libItem = getWarItem( sourceProject , 1 );
+		String lib = libItem.KEY + "-" + VERSION + ".jar";
 
 		boolean RELEASED_TO_PROD = false;
 		if( USE_PROD_DISTR ) {
@@ -220,7 +228,7 @@ public class SpecificPGU {
 		// check if $lib exists in $P_DISTR_DSTDIR/$P_PROJECT ...
 		boolean copyFromProd = false;
 		if( USE_PROD_DISTR == true && RELEASED_TO_PROD == true )
-			if( !release.checkFileExists( action , sourceProject.DISTITEM + "*war" ) )
+			if( !release.checkFileExists( action , libItem.KEY + "*war" ) )
 				copyFromProd = true;
 		
 		if( copyFromProd ) {
@@ -232,7 +240,7 @@ public class SpecificPGU {
 				downloadFolder.copyFile( action , "storageservice-prod-libs/" + STORAGESERVICE_DIR + "/lib/" + lib ,
 						"storageservice-" + VERSION + "." + STORAGESERVICE_EXT + "/" + STORAGESERVICE_DIR + "/lib" , "" , storageserviceItem.delivery.FOLDER );
 
-				getAllWarAppCopySpecificProd( sourceProject.PROJECT );
+				getAllWarAppCopySpecificProd( sourceProject.NAME );
 			}
 			else
 				action.debug( lib + ": not found in servicecall-prod-libs. Skipped." );
@@ -248,7 +256,7 @@ public class SpecificPGU {
 					downloadFolder.copyFile( action , "pgu-services-lib/" + lib , 
 							"storageservice-" + VERSION + "." + STORAGESERVICE_EXT + "/" + STORAGESERVICE_DIR + "/lib" , "" , storageserviceItem.delivery.FOLDER );
 
-					getAllWarAppCopySpecificBuilt( sourceProject.PROJECT );
+					getAllWarAppCopySpecificBuilt( sourceProject.NAME );
 				}
 				else
 					action.debug( lib + ": not found in pgu-services-lib. Skipped." );
@@ -345,7 +353,7 @@ public class SpecificPGU {
 	public boolean checkWarMRId( ActionBase action , String P_WAR ) throws Exception {
 		// get war from distributive info
 		MetaDistr distr = meta.getDistr( action );
-		MetaDistrBinaryItem item = distr.findBinaryItem( action , P_WAR );
+		MetaDistrBinaryItem item = distr.findBinaryItem( P_WAR );
 		if( item == null )
 			return( false );
 

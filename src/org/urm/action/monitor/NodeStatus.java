@@ -9,7 +9,7 @@ import org.urm.action.ScopeState;
 import org.urm.meta.engine.ServerMonitoringState;
 import org.urm.meta.engine.WholeUrlFailed;
 import org.urm.meta.engine.ServerMonitoringState.MONITORING_STATE;
-import org.urm.meta.product.Meta.VarPROCESSMODE;
+import org.urm.meta.Types.*;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 

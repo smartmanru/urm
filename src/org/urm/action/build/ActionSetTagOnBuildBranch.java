@@ -6,7 +6,7 @@ import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.vcs.ProjectVersionControl;
 import org.urm.meta.product.MetaSourceProject;
-import org.urm.meta.product.Meta.VarCATEGORY;
+import org.urm.meta.Types.*;
 
 public class ActionSetTagOnBuildBranch extends ActionBase {
 
@@ -39,7 +39,7 @@ public class ActionSetTagOnBuildBranch extends ActionBase {
 		if( BUILDBRANCH.isEmpty() ) {
 			BUILDBRANCH = sourceProject.getDefaultBranch( this );
 			if( BUILDBRANCH.isEmpty() )
-				exit1( _Error.NoProjectDefaultBranch1 , "unable to find default branch for CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) + ", project=" + sourceProject.PROJECT , sourceProject.PROJECT );
+				exit1( _Error.NoProjectDefaultBranch1 , "unable to find default branch for CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) + ", project=" + sourceProject.NAME , sourceProject.NAME );
 		}
 		
 		setTagFromBranch( BUILDBRANCH , TAG , scopeProject.CATEGORY , sourceProject );

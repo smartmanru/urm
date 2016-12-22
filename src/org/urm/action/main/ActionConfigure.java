@@ -25,7 +25,7 @@ import org.urm.meta.engine.ServerDirectory;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
-import org.urm.meta.product.Meta.VarBUILDMODE;
+import org.urm.meta.Types.*;
 
 public class ActionConfigure extends ActionBase {
 

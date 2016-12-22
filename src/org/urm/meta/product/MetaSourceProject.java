@@ -8,10 +8,10 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.engine.ServerTransaction;
 import org.urm.engine.custom.CommandCustom;
 import org.urm.meta.engine.ServerAuthResource;
-import org.urm.meta.product.Meta.VarCATEGORY;
-import org.urm.meta.product.Meta.VarNAMETYPE;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -20,24 +20,20 @@ public class MetaSourceProject {
 
 	public Meta meta;
 	public MetaSourceProjectSet set;
-	public VarCATEGORY CATEGORY;
 	
-	public String PROJECT;
-	private String VCS;
-	public String REPOSITORY;
-	public String VERSION;
-	public String GROUP;
-	public String PATH;
-	public String CODEPATH;
-	public String JIRA;
-	public String BRANCH;
-	public String JAVAVERSION;
-	public String BUILDERTYPE;
-	public String BUILDERVERSION;
-	public String BUILDERCMD;
-	public String DISTITEM;
-	public MetaDistrBinaryItem distItem;
-	public String DISTLIBITEM;
+	public int POS = 0;
+	public String NAME = "";
+	public String DESC = "";
+	public boolean codebaseProject = false;
+	public String RESOURCE = "";
+	public String REPOSITORY = "";
+	public boolean codebaseProd = false;
+	public String BUILDGROUP = "";
+	public String REPOPATH = "";
+	public String CODEPATH = "";
+	public String TRACKER = "";
+	public String BRANCH = "";
+	public String BUILDER = "";
 
 	List<MetaSourceProjectItem> itemList = new LinkedList<MetaSourceProjectItem>();
 	Map<String,MetaSourceProjectItem> itemMap = new HashMap<String,MetaSourceProjectItem>();
@@ -48,37 +44,40 @@ public class MetaSourceProject {
 	public MetaSourceProject( Meta meta , MetaSourceProjectSet set ) {
 		this.meta = meta;
 		this.set = set;
-		this.CATEGORY = set.CATEGORY;
+	}
+	
+	public void create( ServerTransaction transaction , String name , int POS ) throws Exception {
+		this.NAME = name;
+		this.POS = POS;
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
-		PROJECT = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
+		POS = ConfReader.getIntegerAttrValue( node , "order" , 0 );
+		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
+		DESC = ConfReader.getAttrValue( node , "desc" );
 
 		// read item attrs
 		REPOSITORY = ConfReader.getAttrValue( node , "repository" );
 		if( REPOSITORY.isEmpty() )
-			REPOSITORY = PROJECT;
+			REPOSITORY = NAME;
 
-		VERSION = ConfReader.getRequiredAttrValue( node , "version" );
-		GROUP = ConfReader.getAttrValue( node , "group" );
-		JIRA = ConfReader.getAttrValue( node , "jira" );
-		BRANCH = ConfReader.getAttrValue( node , "branch" );
-		JAVAVERSION = ConfReader.getAttrValue( node , "javaversion" );
-		BUILDERTYPE = ConfReader.getAttrValue( node , "buildertype" );
-		BUILDERVERSION = ConfReader.getAttrValue( node , "builderversion" );
-		BUILDERCMD = ConfReader.getAttrValue( node , "buildercmd" );
-		DISTITEM = ConfReader.getAttrValue( node , "distitem" );
-
-		if( CATEGORY != VarCATEGORY.PREBUILT ) {
-			VCS = ConfReader.getRequiredAttrValue( node , "vcs" );
-			if( !VCS.equals( "none" ) ) {
-				PATH = ConfReader.getRequiredAttrValue( node , "path" );
-				CODEPATH = ConfReader.getAttrValue( node , "codepath" );
-			}
+		BUILDGROUP = ConfReader.getAttrValue( node , "group" );
+		RESOURCE = ConfReader.getRequiredAttrValue( node , "resource" );
+		if( !RESOURCE.isEmpty() ) {
+			REPOPATH = ConfReader.getAttrValue( node , "repopath" );
+			CODEPATH = ConfReader.getAttrValue( node , "codepath" );
 		}
 		
-		if( BRANCH.isEmpty() )
-			BRANCH = PROJECT + "-prod";
+		codebaseProject = ConfReader.getBooleanAttrValue( node , "codebase" , true );
+		if( codebaseProject ) {
+			codebaseProd = ConfReader.getBooleanAttrValue( node , "prod" , false );
+			TRACKER = ConfReader.getAttrValue( node , "jira" );
+			BRANCH = ConfReader.getAttrValue( node , "branch" );
+			BUILDER = ConfReader.getAttrValue( node , "builder" );
+			
+			if( BRANCH.isEmpty() )
+				BRANCH = NAME + "-prod";
+		}
 		
 		// read project items
 		Node[] items = ConfReader.xmlGetChildren( node , "distitem" );
@@ -91,11 +90,6 @@ public class MetaSourceProject {
 		}
 		
 		// resolve references
-		if( !DISTITEM.isEmpty() ) {
-			MetaDistr distr = meta.getDistr( action );
-			distItem = distr.getBinaryItem( action , DISTITEM );
-		}
-		
 		CUSTOMBUILD = ConfReader.getBooleanAttrValue( node , "custombuild" , false );
 		CUSTOMGET = ConfReader.getBooleanAttrValue( node , "customget" , false );
 		
@@ -111,22 +105,26 @@ public class MetaSourceProject {
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "name" , PROJECT );
+		Common.xmlSetElementAttr( doc , root , "order" , "" + POS );
+		Common.xmlSetElementAttr( doc , root , "name" , NAME );
+		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
 
 		// read item attrs
 		Common.xmlSetElementAttr( doc , root , "repository" , REPOSITORY );
-		Common.xmlSetElementAttr( doc , root , "version" , VERSION );
-		Common.xmlSetElementAttr( doc , root , "group" , GROUP );
-		Common.xmlSetElementAttr( doc , root , "jira" , JIRA );
-		Common.xmlSetElementAttr( doc , root , "branch" , BRANCH );
-		Common.xmlSetElementAttr( doc , root , "javaversion" , JAVAVERSION );
-		Common.xmlSetElementAttr( doc , root , "buildertype" , BUILDERTYPE );
-		Common.xmlSetElementAttr( doc , root , "builderversion" , BUILDERVERSION );
-		Common.xmlSetElementAttr( doc , root , "buildercmd" , BUILDERCMD );
-		Common.xmlSetElementAttr( doc , root , "distitem" , DISTITEM );
-		Common.xmlSetElementAttr( doc , root , "vcs" , VCS );
-		Common.xmlSetElementAttr( doc , root , "path" , PATH );
-		Common.xmlSetElementAttr( doc , root , "codepath" , CODEPATH );
+		Common.xmlSetElementAttr( doc , root , "codebase" , Common.getBooleanValue( codebaseProject ) );
+		Common.xmlSetElementAttr( doc , root , "group" , BUILDGROUP );
+		if( !RESOURCE.isEmpty() ) {
+			Common.xmlSetElementAttr( doc , root , "resource" , RESOURCE );
+			Common.xmlSetElementAttr( doc , root , "repopath" , REPOPATH );
+			Common.xmlSetElementAttr( doc , root , "codepath" , CODEPATH );
+		}
+		
+		if( codebaseProject ) {
+			Common.xmlSetElementAttr( doc , root , "prod" , Common.getBooleanValue( codebaseProd ) );
+			Common.xmlSetElementAttr( doc , root , "jira" , TRACKER );
+			Common.xmlSetElementAttr( doc , root , "branch" , BRANCH );
+			Common.xmlSetElementAttr( doc , root , "builder" , BUILDER );
+		}
 		
 		// project items
 		for( MetaSourceProjectItem item : itemList ) {
@@ -140,21 +138,20 @@ public class MetaSourceProject {
 	
 	public MetaSourceProject copy( ActionBase action , Meta meta , MetaSourceProjectSet set ) throws Exception {
 		MetaSourceProject r = new MetaSourceProject( meta , set );
-		r.PROJECT = PROJECT;
+		r.POS = POS;
+		r.NAME = NAME;
+		r.DESC = DESC;
 
 		// read item attrs
 		r.REPOSITORY = REPOSITORY;
-		r.VERSION = VERSION;
-		r.GROUP = GROUP;
-		r.JIRA = JIRA;
+		r.codebaseProject = codebaseProject;
+		r.codebaseProd = codebaseProd;
+		r.BUILDGROUP = BUILDGROUP;
+		r.TRACKER = TRACKER;
 		r.BRANCH = BRANCH;
-		r.JAVAVERSION = JAVAVERSION;
-		r.BUILDERTYPE = BUILDERTYPE;
-		r.BUILDERVERSION = BUILDERVERSION;
-		r.BUILDERCMD = BUILDERCMD;
-		r.DISTITEM = DISTITEM;
-		r.VCS = VCS;
-		r.PATH = PATH;
+		r.BUILDER = BUILDER;
+		r.RESOURCE = RESOURCE;
+		r.REPOPATH = REPOPATH;
 		r.CODEPATH = CODEPATH;
 		
 		// project items
@@ -163,31 +160,25 @@ public class MetaSourceProject {
 			addItem( ritem );
 		}
 		
-		// resolve references
-		if( !DISTITEM.isEmpty() ) {
-			MetaDistr distr = meta.getDistr( action );
-			r.distItem = distr.getBinaryItem( action , DISTITEM );
-		}
-		
 		r.CUSTOMBUILD = CUSTOMBUILD;
 		r.CUSTOMGET = CUSTOMGET;
 		return( r );
 	}
 	
 	public String getVCS( ActionBase action ) {
-		return( VCS );
+		return( RESOURCE );
 	}
 	public boolean isGitVCS( ActionBase action ) throws Exception {
-		ServerAuthResource res = action.getResource( VCS );
+		ServerAuthResource res = action.getResource( RESOURCE );
 		return( res.isGit() );
 	}
 	public boolean isSvnVCS( ActionBase action ) throws Exception {
-		ServerAuthResource res = action.getResource( VCS );
+		ServerAuthResource res = action.getResource( RESOURCE );
 		return( res.isSvn() );
 	}
 
 	public boolean isBuildable() {
-		if( CATEGORY == VarCATEGORY.BUILD )
+		if( codebaseProject )
 			return( true );
 		return( false );
 	}
@@ -199,71 +190,31 @@ public class MetaSourceProject {
 	public MetaSourceProjectItem getItem( ActionBase action , String name ) throws Exception {
 		MetaSourceProjectItem item = itemMap.get( name );
 		if( item == null )
-			action.exit2( _Error.UnknownSourceProjectItem2 , "unknown source project item=" + name + ", in project=" + PROJECT , PROJECT , name );
+			action.exit2( _Error.UnknownSourceProjectItem2 , "unknown source project item=" + name + ", in project=" + NAME , NAME , name );
 		
 		return( item );
 	}
 	
 	public boolean isEmpty( ActionBase action ) throws Exception {
-		if( distItem != null )
-			return( false );
-		
 		return( itemList.isEmpty() );
 	}
 	
-	public List<MetaSourceProjectItem> getIitemList( ActionBase action ) {
-		return( itemList );
-	}
-	
-	public Map<String,MetaSourceProjectItem> getIitemMap( ActionBase action ) {
-		return( itemMap );
+	public MetaSourceProjectItem[] getItems() {
+		return( itemList.toArray( new MetaSourceProjectItem[0] ) );
 	}
 	
 	public String getBuilder( ActionBase action ) throws Exception {
-		if( !BUILDERTYPE.isEmpty() )
-			return( BUILDERTYPE );
+		if( !BUILDER.isEmpty() )
+			return( BUILDER );
 		
 		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		String builder = build.CONFIG_BUILDER_TYPE;
+		String builder = build.CONFIG_BUILDER;
 		if( builder.isEmpty() )
 			builder = "maven";
 
 		return( builder );
 	}
 
-	public String getJavaVersion( ActionBase action ) throws Exception {
-		if( !JAVAVERSION.isEmpty() )
-			return( JAVAVERSION );
-		
-		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		String version = build.CONFIG_MAVEN_JAVA_VERSION;
-		if( version.isEmpty() )
-			action.exit0( _Error.UnknownJavaVersion0 , "unknown java version" );
-		
-		return( version );
-	}
-
-	public String getBuilderVersion( ActionBase action ) throws Exception {
-		if( !BUILDERVERSION.isEmpty() )
-			return( BUILDERVERSION );
-		
-		String builder = getBuilder( action );
-		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		String version = build.CONFIG_BUILDER_VERSION;
-		if( version.isEmpty() ) {
-			if( builder.equals( "maven" ) ) {
-				version = build.CONFIG_MAVEN_VERSION;
-				if( version.isEmpty() )
-					action.exit0( _Error.UnknownMavenVersion0 , "maven version is unknown" );
-			}
-		}
-
-		if( version.isEmpty() )
-			action.exit1( _Error.UnknownBuilderVersion1 , builder + " version is unknown" , builder );
-		
-		return( version );
-	}
-	
 	public String getDefaultBranch( ActionBase action ) throws Exception {
 		if( !BRANCH.isEmpty() )
 			return( BRANCH );
@@ -272,12 +223,41 @@ public class MetaSourceProject {
 		if( !build.CONFIG_BRANCHNAME.isEmpty() )
 			return( build.CONFIG_BRANCHNAME );
 		
-		String branch = PROJECT + "-prod";
+		String branch = NAME + "-prod";
 		return( branch );
 	}
 	
 	public String[] getItemNames() {
 		return( Common.getSortedKeys( itemMap ) );
 	}
-	
+
+	public void setProjectData( ServerTransaction transaction , String group , boolean codebase , String resource , String repoName , String repoPath , String codePath , String branch ) throws Exception {
+		this.BUILDGROUP = group;
+		this.codebaseProject = codebase;
+		
+		this.codebaseProd = false;
+		this.BRANCH = "";
+		this.BUILDER = "";
+		
+		this.RESOURCE = resource;
+		this.REPOSITORY = repoName;
+		this.REPOPATH = repoPath;
+		this.CODEPATH = codePath;
+		this.BRANCH = branch;
+	}
+
+	public void setCodebase( ServerTransaction transaction , boolean prod , String branch , String builder ) throws Exception {
+		this.codebaseProd = prod;
+		this.BRANCH = branch;
+		this.BUILDER = builder;
+	}
+
+	public void setOrder( ServerTransaction transaction , int POS ) throws Exception {
+		this.POS = POS;
+	}
+
+	public void changeProjectSet( ServerTransaction transaction , MetaSourceProjectSet setNew ) throws Exception {
+		this.set = setNew;
+	}
+
 }

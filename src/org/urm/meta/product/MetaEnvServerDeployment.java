@@ -4,9 +4,8 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.PropertyController;
 import org.urm.engine.ServerTransaction;
-import org.urm.meta.product.Meta.VarDEPLOYITEMTYPE;
-import org.urm.meta.product.Meta.VarDEPLOYMODE;
-import org.urm.meta.product.Meta.VarNODETYPE;
+import org.urm.meta.Types;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -56,10 +55,10 @@ public class MetaEnvServerDeployment extends PropertyController {
 		String value = super.getStringProperty( action , PROPERTY_DEPLOYMODE );
 		if( value.isEmpty() )
 			value = "cold";
-		deployMode = Meta.getDeployMode( value , false );
+		deployMode = Types.getDeployMode( value , false );
 		DEPLOYPATH = super.getStringProperty( action , PROPERTY_DEPLOYPATH );
 		value = super.getStringProperty( action , PROPERTY_NODETYPE );
-		nodeType = Meta.getNodeType( value , VarNODETYPE.SELF );
+		nodeType = Types.getNodeType( value , VarNODETYPE.SELF );
 		
 		COMP = super.getStringProperty( action , PROPERTY_COMPONENT );
 		if( !COMP.isEmpty() ) {

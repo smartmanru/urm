@@ -22,15 +22,15 @@ public class ActionPatch extends ActionBase {
 	@Override protected SCOPESTATE executeSimple() throws Exception {
 		LOGDIR.ensureExists( this );
 		
-		String logFile = LOGDIR.getFilePath( this , builder.project.PROJECT + "-build.log" );
+		String logFile = LOGDIR.getFilePath( this , builder.project.NAME + "-build.log" );
 		super.startRedirect( "PROJECT BUILD LOG:" , logFile );
-		info( "ActionPatch: BUILDER=" + builder.BUILDER + ", BUILDMODE=" + context.getBuildModeName() + ", CATEGORY=" + Common.getEnumLower( builder.project.CATEGORY ) + ", PROJECT=" + builder.project.PROJECT + 
-				", REPOSITORY=" + builder.project.REPOSITORY + ", VCS=" + builder.project.getVCS( this ) + ", VCSPATH=" + builder.project.PATH + 
+		info( "ActionPatch: BUILDER=" + builder.builder.NAME + ", BUILDMODE=" + context.getBuildModeName() + ", PROJECT=" + builder.project.NAME + 
+				", REPOSITORY=" + builder.project.REPOSITORY + ", VCS=" + builder.project.getVCS( this ) + ", VCSPATH=" + builder.project.REPOPATH + 
 				", VCSREPO=" + builder.project.REPOSITORY + ", TAG=" + builder.TAG + ", VERSION=" + builder.APPVERSION + ", NEXUS_PATH=" + builder.getNexusPath( this , builder.project ) );
 
 		try {
 			if( !executePatch() )
-				super.fail1( _Error.ProjectPatchError1 , "Errors while build project=" + builder.project.PROJECT , builder.project.PROJECT );
+				super.fail1( _Error.ProjectPatchError1 , "Errors while build project=" + builder.project.NAME , builder.project.NAME );
 			
 			super.stopRedirect();
 		}
@@ -83,7 +83,7 @@ public class ActionPatch extends ActionBase {
 	
 	private boolean uploadBuildStatus() throws Exception {
 		MetaProductBuildSettings build = getBuildSettings( builder.project.meta );
-		String MODULE_PROJECT_NAME = builder.project.PROJECT;
+		String MODULE_PROJECT_NAME = builder.project.NAME;
 		String MODULE_MSETTINGS="--settings=" + build.CONFIG_MAVEN_CFGFILE;
 		String UPLOAD_MAVEN_VERSION = build.CONFIG_MAVEN_VERSION;
 
@@ -94,7 +94,7 @@ public class ActionPatch extends ActionBase {
 		shell.export( this , "MAVEN_OPTS" , Common.getQuoted( "-Xmx1g -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );
 
 		// upload versioninfo
-		String FILENAME = builder.project.PROJECT + "-versioninfo.txt";
+		String FILENAME = builder.project.NAME + "-versioninfo.txt";
 		LOGDIR.createFileFromString( this , FILENAME , builder.TAG );
 		int timeout = setTimeoutUnlimited();
 		int status = shell.customGetStatusNormal( this , "mvn deploy:deploy-file -B " +

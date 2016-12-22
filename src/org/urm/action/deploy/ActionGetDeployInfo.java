@@ -14,7 +14,7 @@ import org.urm.engine.storage.RedistStorage;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerLocation;
 import org.urm.meta.product.MetaEnvServerNode;
-import org.urm.meta.product.Meta.VarCONTENTTYPE;
+import org.urm.meta.Types.*;
 
 public class ActionGetDeployInfo extends ActionBase {
 
