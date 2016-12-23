@@ -3,6 +3,7 @@ package org.urm.engine.storage;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaProductBuildSettings;
@@ -76,8 +77,9 @@ public class NexusStorage {
 		LocalFolder tmp = artefactoryFolder.getSubFolder( action , "tmp" );
 		tmp.ensureExists( action );
 		
+		ServerProjectBuilder builder = action.getBuilder( item.project.getBuilder( action ) );
 		action.shell.unzipPart( action , artefactoryFolder.folderPath , src.DOWNLOAD_FILENAME , tmp.folderPath , 
-				Common.getPath( "lib" , item.NUGET_PLATFORM , "*" ) );
+				Common.getPath( "lib" , builder.TARGETNUGETPLATFORM , "*" ) );
 		action.shell.unzipPart( action , artefactoryFolder.folderPath , src.DOWNLOAD_FILENAME , tmp.folderPath , 
 				Common.getPath( "content" , "*" ) );
 		
@@ -86,7 +88,7 @@ public class NexusStorage {
 		zip.ensureExists( action );
 		String zipLibPath = zip.getFilePath( action , item.NUGET_LIBNAME + ".zip" );
 		
-		tmp.createZipFromFolderContent( action , zipLibPath , Common.getPath( "lib" , item.NUGET_PLATFORM ) , "*" , "" );
+		tmp.createZipFromFolderContent( action , zipLibPath , Common.getPath( "lib" , builder.TARGETNUGETPLATFORM ) , "*" , "" );
 		zip.copyDirContent( action , tmp.getSubFolder( action , "content" ) );
 		
 		// create final zip file

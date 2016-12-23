@@ -82,11 +82,8 @@ public class Types {
 	
 	public enum VarITEMSRCTYPE {
 		UNKNOWN ,
-		NEXUS ,
-		NUGET ,
-		NUGET_PLATFORM ,
+		SIMPLE ,
 		STATICWAR ,
-		SVN ,
 		GENERATED
 	};
 	
