@@ -119,7 +119,7 @@ public class MetaSource extends PropertyController {
 		List<MetaSourceProject> plist = new LinkedList<MetaSourceProject>();
 		for( MetaSourceProjectSet pset : setMap.values() ) {
 			for( MetaSourceProject project : pset.getProjects() ) {
-				if( buildable && !project.codebaseProject )
+				if( buildable && !project.isBuildable() )
 					continue;
 				plist.add( project );
 			}

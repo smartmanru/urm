@@ -12,15 +12,12 @@ import org.w3c.dom.Node;
 public class MetaSourceProjectItem {
 
 	public String ITEMNAME;
-	public String ITEMBASENAME;
 	public VarITEMSRCTYPE itemSrcType;
+	public String ITEMBASENAME;
 	public String ITEMEXTENSION;
 	public String ITEMVERSION;
 	public String ITEMSTATICEXTENSION;
-	public boolean INTERNAL;
-	
 	public String ITEMPATH;
-	public String NUGET_LIBNAME;
 
 	protected Meta meta;
 	public MetaSourceProject project;
@@ -38,18 +35,10 @@ public class MetaSourceProjectItem {
 		if( ITEMBASENAME.isEmpty() )
 			ITEMBASENAME = ITEMNAME;
 
-		INTERNAL = ConfReader.getBooleanAttrValue( node , "internal" , false );
 		ITEMEXTENSION = ConfReader.getAttrValue( node , "extension" );
 		ITEMVERSION = ConfReader.getAttrValue( node , "version" );
 		ITEMPATH = ConfReader.getAttrValue( node , "itempath" );
 		
-		NUGET_LIBNAME = "";
-		if( isStoredInNexus( action ) ) {
-			ITEMPATH = ConfReader.getAttrValue( node , "nexus.path" );
-			if( isStoredInNuget( action ) )
-				NUGET_LIBNAME = ConfReader.getAttrValue( node , "nuget.libname" );
-		}
-
 		ITEMSTATICEXTENSION = "";
 		ITEMSTATICEXTENSION = "";
 		if( itemSrcType == VarITEMSRCTYPE.STATICWAR ) {
@@ -65,12 +54,10 @@ public class MetaSourceProjectItem {
 		Common.xmlSetElementAttr( doc , root , "type" , Common.getEnumLower( itemSrcType ) );
 		Common.xmlSetElementAttr( doc , root , "basename" , ITEMBASENAME );
 
-		Common.xmlSetElementAttr( doc , root , "internal" , Common.getBooleanValue( INTERNAL ) );
 		Common.xmlSetElementAttr( doc , root , "extension" , ITEMEXTENSION );
 		Common.xmlSetElementAttr( doc , root , "version" , ITEMVERSION );
 		Common.xmlSetElementAttr( doc , root , "itempath" , ITEMPATH );
 
-		Common.xmlSetElementAttr( doc , root , "nuget.libname" , NUGET_LIBNAME );
 		Common.xmlSetElementAttr( doc , root , "staticextension" , ITEMSTATICEXTENSION );
 	}
 	
@@ -81,26 +68,17 @@ public class MetaSourceProjectItem {
 		r.itemSrcType = itemSrcType;
 		r.ITEMBASENAME = ITEMBASENAME;
 
-		r.INTERNAL = INTERNAL;
 		r.ITEMEXTENSION = ITEMEXTENSION;
 		r.ITEMVERSION = ITEMVERSION;
 		r.ITEMPATH = ITEMPATH;
-
-		r.NUGET_LIBNAME = NUGET_LIBNAME;
 		r.ITEMSTATICEXTENSION = ITEMSTATICEXTENSION;
 		return( r );
 	}
 	
-	public boolean isStoredInSvn( ActionBase action ) throws Exception {
+	public boolean isInternal() {
+		if( itemSrcType == VarITEMSRCTYPE.INTERNAL )
+			return( true );
 		return( false );
 	}
 	
-	public boolean isStoredInNexus( ActionBase action ) throws Exception {
-		return( false );
-	}
-
-	public boolean isStoredInNuget( ActionBase action ) throws Exception {
-		return( false );
-	}
-
 }

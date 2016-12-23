@@ -23,6 +23,13 @@ public class Types {
 		MSG
 	};
 	
+	public enum VarPROJECTTYPE {
+		UNKNOWN ,
+		BUILDABLE ,
+		PREBUILT_NEXUS ,
+		PREBUILT_VCS
+	};
+	
 	public enum VarBUILDERTYPE {
 		UNKNOWN ,
 		ANT ,
@@ -82,6 +89,7 @@ public class Types {
 	
 	public enum VarITEMSRCTYPE {
 		UNKNOWN ,
+		INTERNAL ,
 		SIMPLE ,
 		STATICWAR ,
 		GENERATED
@@ -250,6 +258,24 @@ public class Types {
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidCategory1 , "invalid category=" + ID , ID );
+		}
+		
+		return( value );
+	}
+	
+	public static VarPROJECTTYPE getProjectType( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingProjectType0 , "missing project type" );
+			return( VarPROJECTTYPE.UNKNOWN );
+		}
+		
+		VarPROJECTTYPE value = null;
+		try {
+			value = VarPROJECTTYPE.valueOf( Common.xmlToEnumValue( ID ) );
+		}
+		catch( IllegalArgumentException e ) {
+			Common.exit1( _Error.InvalidProjectType1 , "invalid project type=" + ID , ID );
 		}
 		
 		return( value );

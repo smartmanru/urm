@@ -86,7 +86,7 @@ public class NexusStorage {
 		// copy to final zip dir
 		LocalFolder zip = tmp.getSubFolder( action , "final" );
 		zip.ensureExists( action );
-		String zipLibPath = zip.getFilePath( action , item.NUGET_LIBNAME + ".zip" );
+		String zipLibPath = zip.getFilePath( action , item.ITEMBASENAME + ".zip" );
 		
 		tmp.createZipFromFolderContent( action , zipLibPath , Common.getPath( "lib" , builder.TARGETNUGETPLATFORM ) , "*" , "" );
 		zip.copyDirContent( action , tmp.getSubFolder( action , "content" ) );

@@ -302,13 +302,13 @@ public class ActionScopeTarget {
 	}
 
 	public boolean isBuildableProject() {
-		if( CATEGORY == VarCATEGORY.PROJECT && sourceProject.codebaseProject == true )
+		if( CATEGORY == VarCATEGORY.PROJECT && sourceProject.isBuildable() )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isPrebuiltProject() {
-		if( CATEGORY == VarCATEGORY.PROJECT && sourceProject.codebaseProject == false )
+		if( CATEGORY == VarCATEGORY.PROJECT && !sourceProject.isBuildable() )
 			return( true );
 		return( false );
 	}

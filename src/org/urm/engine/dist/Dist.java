@@ -420,7 +420,7 @@ public class Dist {
 		action.debug( "release - add project=" + project.NAME + ", item=" + item.ITEMNAME );
 		
 		// ignore internal items
-		if( item.INTERNAL ) {
+		if( item.isInternal() ) {
 			action.info( "item=" + item.ITEMNAME + " is internal. Skipped.");
 			return( true );
 		}

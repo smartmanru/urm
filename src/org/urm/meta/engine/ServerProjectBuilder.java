@@ -227,7 +227,13 @@ public class ServerProjectBuilder extends ServerObject {
 		return( false );
 	}
 
-	public boolean isNuget() {
+	public boolean isTargetNexus() {
+		if( targetType == VarBUILDERTARGET.NEXUS )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isTargetNuget() {
 		if( targetNuget )
 			return( true );
 		return( false );
