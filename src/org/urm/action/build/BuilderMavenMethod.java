@@ -13,7 +13,7 @@ import org.urm.meta.product.MetaSourceProject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-public class BuilderLinuxMaven extends Builder {
+public class BuilderMavenMethod extends Builder {
 
 	boolean MODULEOPTIONS_WAR = false;
 	boolean MODULEOPTIONS_POMNEW = false;
@@ -21,7 +21,7 @@ public class BuilderLinuxMaven extends Builder {
 	boolean MODULEOPTIONS_REPLACESNAPSHOTS = false;
 	boolean MODULEOPTIONS_COMPACT_STATIC = false;
 
-	public BuilderLinuxMaven( ServerProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
+	public BuilderMavenMethod( ServerProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
 		super( builder , project , storage , TAG , APPVERSION );
 	}
 

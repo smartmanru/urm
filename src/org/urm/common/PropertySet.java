@@ -182,8 +182,16 @@ public class PropertySet {
 	}
 
 	public void copyOriginalPropertiesToRaw( PropertySet set ) throws Exception {
+		copyPropertiesToRaw( set , true );
+	}
+
+	public void copyPropertiesToRaw( PropertySet set ) throws Exception {
+		copyPropertiesToRaw( set , false );
+	}
+	
+	private void copyPropertiesToRaw( PropertySet set , boolean withoutManual ) throws Exception {
 		for( PropertyValue p : set.data.values() ) {
-			if( p.isManual() )
+			if( withoutManual && p.isManual() )
 				continue;
 			
 			PropertyValue pv = new PropertyValue( p.property , PropertyValue.PropertyValueOrigin.PROPERTY_EXTRA , set , p.desc );

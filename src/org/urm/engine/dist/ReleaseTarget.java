@@ -258,7 +258,7 @@ public class ReleaseTarget {
 	
 	public ReleaseTargetItem[] addSourceItem( ActionBase action , MetaSourceProjectItem projectitem ) throws Exception {
 		// ignore internal items
-		if( projectitem.INTERNAL )
+		if( projectitem.isInternal() )
 			return( new ReleaseTargetItem[0] );
 		
 		List<ReleaseTargetItem> list = new LinkedList<ReleaseTargetItem>();
@@ -417,13 +417,13 @@ public class ReleaseTarget {
 	}
 
 	public boolean isBuildableProject() {
-		if( CATEGORY == VarCATEGORY.PROJECT && sourceProject.codebaseProject == true )
+		if( CATEGORY == VarCATEGORY.PROJECT && sourceProject.isBuildable() )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isPrebuiltProject() {
-		if( CATEGORY == VarCATEGORY.PROJECT && sourceProject.codebaseProject == false )
+		if( CATEGORY == VarCATEGORY.PROJECT && !sourceProject.isBuildable() )
 			return( true );
 		return( false );
 	}

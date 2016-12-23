@@ -617,7 +617,7 @@ public class Release {
 	}
 
 	public boolean addProjectItem( ActionBase action , MetaSourceProject sourceProject , MetaSourceProjectItem sourceItem ) throws Exception {
-		if( sourceItem.INTERNAL )
+		if( sourceItem.isInternal() )
 			action.exit1( _Error.UnexpectedInternalItem1 , "unexpected call for INTERNAL item=" + sourceItem.ITEMNAME , sourceItem.ITEMNAME );
 		
 		ReleaseSet set = sourceSetMap.get( sourceProject.set.NAME );

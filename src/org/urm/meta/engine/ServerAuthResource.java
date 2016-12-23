@@ -15,7 +15,8 @@ public class ServerAuthResource extends ServerObject {
 		ANY ,
 		VCS ,
 		SSH ,
-		NEXUS
+		NEXUS ,
+		SOURCE
 	};
 	
 	public enum VarRESOURCETYPE {

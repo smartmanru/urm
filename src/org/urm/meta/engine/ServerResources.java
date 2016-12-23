@@ -85,13 +85,13 @@ public class ServerResources extends ServerObject {
 			if( rcCategory == VarRESOURCECATEGORY.ANY )
 				list.add( res.NAME );
 			else
-			if( rcCategory == VarRESOURCECATEGORY.NEXUS && res.isNexus() )
-				list.add( res.NAME );
-			else
 			if( rcCategory == VarRESOURCECATEGORY.SSH && res.isSshKey() )
 				list.add( res.NAME );
 			else
-			if( rcCategory == VarRESOURCECATEGORY.VCS && res.isVCS() )
+			if( ( rcCategory == VarRESOURCECATEGORY.SOURCE || rcCategory == VarRESOURCECATEGORY.NEXUS ) && res.isNexus() )
+				list.add( res.NAME );
+			else
+			if( ( rcCategory == VarRESOURCECATEGORY.SOURCE || rcCategory == VarRESOURCECATEGORY.VCS ) && res.isVCS() )
 				list.add( res.NAME );
 		}
 		return( Common.getSortedList( list ) );

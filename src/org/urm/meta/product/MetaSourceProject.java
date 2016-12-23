@@ -10,6 +10,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.custom.CommandCustom;
+import org.urm.meta.Types;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
@@ -24,7 +25,7 @@ public class MetaSourceProject {
 	public int POS = 0;
 	public String NAME = "";
 	public String DESC = "";
-	public boolean codebaseProject = false;
+	public VarPROJECTTYPE type;
 	public String RESOURCE = "";
 	public String REPOSITORY = "";
 	public boolean codebaseProd = false;
@@ -68,8 +69,8 @@ public class MetaSourceProject {
 			CODEPATH = ConfReader.getAttrValue( node , "codepath" );
 		}
 		
-		codebaseProject = ConfReader.getBooleanAttrValue( node , "codebase" , true );
-		if( codebaseProject ) {
+		type = Types.getProjectType( ConfReader.getAttrValue( node , "type" ) , true );
+		if( type == VarPROJECTTYPE.BUILDABLE ) {
 			codebaseProd = ConfReader.getBooleanAttrValue( node , "prod" , false );
 			TRACKER = ConfReader.getAttrValue( node , "jira" );
 			BRANCH = ConfReader.getAttrValue( node , "branch" );
@@ -111,7 +112,7 @@ public class MetaSourceProject {
 
 		// read item attrs
 		Common.xmlSetElementAttr( doc , root , "repository" , REPOSITORY );
-		Common.xmlSetElementAttr( doc , root , "codebase" , Common.getBooleanValue( codebaseProject ) );
+		Common.xmlSetElementAttr( doc , root , "type" , Common.getEnumLower( type ) );
 		Common.xmlSetElementAttr( doc , root , "group" , BUILDGROUP );
 		if( !RESOURCE.isEmpty() ) {
 			Common.xmlSetElementAttr( doc , root , "resource" , RESOURCE );
@@ -119,7 +120,7 @@ public class MetaSourceProject {
 			Common.xmlSetElementAttr( doc , root , "codepath" , CODEPATH );
 		}
 		
-		if( codebaseProject ) {
+		if( type == VarPROJECTTYPE.BUILDABLE ) {
 			Common.xmlSetElementAttr( doc , root , "prod" , Common.getBooleanValue( codebaseProd ) );
 			Common.xmlSetElementAttr( doc , root , "jira" , TRACKER );
 			Common.xmlSetElementAttr( doc , root , "branch" , BRANCH );
@@ -141,10 +142,10 @@ public class MetaSourceProject {
 		r.POS = POS;
 		r.NAME = NAME;
 		r.DESC = DESC;
+		r.type = type;
 
 		// read item attrs
 		r.REPOSITORY = REPOSITORY;
-		r.codebaseProject = codebaseProject;
 		r.codebaseProd = codebaseProd;
 		r.BUILDGROUP = BUILDGROUP;
 		r.TRACKER = TRACKER;
@@ -164,21 +165,35 @@ public class MetaSourceProject {
 		r.CUSTOMGET = CUSTOMGET;
 		return( r );
 	}
+
+	public boolean isPrebuiltNexus() {
+		if( type == VarPROJECTTYPE.PREBUILT_NEXUS )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isPrebuiltVCS() {
+		if( type == VarPROJECTTYPE.PREBUILT_VCS )
+			return( true );
+		return( false );
+	}
 	
 	public String getVCS( ActionBase action ) {
 		return( RESOURCE );
 	}
+	
 	public boolean isGitVCS( ActionBase action ) throws Exception {
 		ServerAuthResource res = action.getResource( RESOURCE );
 		return( res.isGit() );
 	}
+	
 	public boolean isSvnVCS( ActionBase action ) throws Exception {
 		ServerAuthResource res = action.getResource( RESOURCE );
 		return( res.isSvn() );
 	}
 
 	public boolean isBuildable() {
-		if( codebaseProject )
+		if( type == VarPROJECTTYPE.BUILDABLE )
 			return( true );
 		return( false );
 	}
@@ -231,10 +246,10 @@ public class MetaSourceProject {
 		return( Common.getSortedKeys( itemMap ) );
 	}
 
-	public void setProjectData( ServerTransaction transaction , String desc , String group , boolean codebase , String resource , String repoName , String repoPath , String codePath , String branch ) throws Exception {
+	public void setProjectData( ServerTransaction transaction , String desc , String group , VarPROJECTTYPE type , String resource , String repoName , String repoPath , String codePath , String branch ) throws Exception {
 		this.DESC = desc;
 		this.BUILDGROUP = group;
-		this.codebaseProject = codebase;
+		this.type = type;
 		
 		this.codebaseProd = false;
 		this.BRANCH = "";
