@@ -87,8 +87,6 @@ public class Types {
 		NUGET_PLATFORM ,
 		STATICWAR ,
 		SVN ,
-		SVNOLD ,
-		SVNNEW ,
 		GENERATED
 	};
 	

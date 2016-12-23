@@ -114,23 +114,11 @@ public class MetaSourceProjectItem {
 	}
 	
 	public boolean isStoredInSvn( ActionBase action ) throws Exception {
-		if( ITEMSRCTYPE == VarITEMSRCTYPE.SVN || ITEMSRCTYPE == VarITEMSRCTYPE.SVNOLD || ITEMSRCTYPE == VarITEMSRCTYPE.SVNNEW )
+		if( ITEMSRCTYPE == VarITEMSRCTYPE.SVN )
 			return( true );
 		return( false );
 	}
 	
-	public boolean isStoredInSvnOld( ActionBase action ) throws Exception {
-		if( ITEMSRCTYPE == VarITEMSRCTYPE.SVN || ITEMSRCTYPE == VarITEMSRCTYPE.SVNOLD )
-			return( true );
-		return( false );
-	}
-
-	public boolean isStoredInSvnNew( ActionBase action ) throws Exception {
-		if( ITEMSRCTYPE == VarITEMSRCTYPE.SVNNEW )
-			return( true );
-		return( false );
-	}
-
 	public boolean isStoredInNexus( ActionBase action ) throws Exception {
 		if( ITEMSRCTYPE == VarITEMSRCTYPE.NEXUS || ITEMSRCTYPE == VarITEMSRCTYPE.STATICWAR )
 			return( true );

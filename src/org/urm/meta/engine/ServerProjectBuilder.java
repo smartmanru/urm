@@ -32,6 +32,9 @@ public class ServerProjectBuilder extends ServerObject {
 	public String AUTHRESOURCE;
 	public VarBUILDERTARGET targetType;
 	public String TARGETLOCALPATH;
+	public String TARGETNEXUS;
+	public boolean targetNuget;
+	public String TARGETNUGETPLATFORM;
 	
 	public String JAVA_JDKHOMEPATH;
 	public String ANT_HOMEPATH;
@@ -41,7 +44,6 @@ public class ServerProjectBuilder extends ServerObject {
 	public String GRADLE_HOMEPATH;
 	public String MSBUILD_HOMEPATH;
 	public String MSBUILD_OPTIONS;
-	public String NEXUS_RESOURCE;
 
 	public static String PROPERTY_NAME = "name";
 	public static String PROPERTY_DESC = "desc";
@@ -51,8 +53,12 @@ public class ServerProjectBuilder extends ServerObject {
 	public static String PROPERTY_OSTYPE = "ostype";
 	public static String PROPERTY_HOSTLOGIN = "hostlogin";
 	public static String PROPERTY_AUTHRESOURCE = "authresource";
-	public static String PROPERTY_TARGETTYPE = "targettype";
-	public static String PROPERTY_TARGETLOCALPATH = "targetlocalpath";
+	
+	public static String PROPERTY_TARGETTYPE = "target.type";
+	public static String PROPERTY_TARGETLOCALPATH = "target.localpath";
+	public static String PROPERTY_TARGETNEXUS = "target.nexus";
+	public static String PROPERTY_TARGETNUGET = "target.nuget";
+	public static String PROPERTY_TARGETNUGETPLATFORM = "target.nugetplatform";
 	
 	public static String PROPERTY_JAVA_JDKHOMEPATH = "java.jdkhomepath";
 	public static String PROPERTY_ANT_HOMEPATH = "ant.homepath";
@@ -62,7 +68,6 @@ public class ServerProjectBuilder extends ServerObject {
 	public static String PROPERTY_GRADLE_HOMEPATH = "gradle.home";
 	public static String PROPERTY_MSBUILD_HOMEPATH = "msbuild.home";
 	public static String PROPERTY_MSBUILD_OPTIONS = "msbuild.options";
-	public static String PROPERTY_NEXUS_RESOURCE = "nexus.resource";
 	
 	public ServerProjectBuilder( ServerBuilders builders ) {
 		super( builders );
@@ -110,9 +115,19 @@ public class ServerProjectBuilder extends ServerObject {
 		}
 		
 		targetType = Types.getBuilderTarget( properties.getSystemStringProperty( PROPERTY_TARGETTYPE ) , false );
+		
 		TARGETLOCALPATH = "";
+		TARGETNEXUS = "";
+		targetNuget = false;
+		TARGETNUGETPLATFORM = "";
 		if( targetType == VarBUILDERTARGET.LOCALPATH )
 			TARGETLOCALPATH = properties.getSystemStringProperty( PROPERTY_TARGETLOCALPATH );
+		else
+		if( targetType == VarBUILDERTARGET.NEXUS ) {
+			TARGETNEXUS = properties.getSystemStringProperty( PROPERTY_TARGETNEXUS );
+			targetNuget = properties.getSystemBooleanProperty( PROPERTY_TARGETNUGET );
+			TARGETNUGETPLATFORM = properties.getSystemStringProperty( PROPERTY_TARGETNUGETPLATFORM );
+		}
 
 		JAVA_JDKHOMEPATH = "";
 		ANT_HOMEPATH = "";
@@ -122,7 +137,6 @@ public class ServerProjectBuilder extends ServerObject {
 		GRADLE_HOMEPATH = "";
 		MSBUILD_HOMEPATH = "";
 		MSBUILD_OPTIONS = "";
-		NEXUS_RESOURCE = "";
 		
 		if( builderMethod == VarBUILDERTYPE.ANT )
 			ANT_HOMEPATH = properties.getSystemStringProperty( PROPERTY_ANT_HOMEPATH );
@@ -143,9 +157,6 @@ public class ServerProjectBuilder extends ServerObject {
 		
 		if( builderMethod == VarBUILDERTYPE.ANT || builderMethod == VarBUILDERTYPE.MAVEN || builderMethod == VarBUILDERTYPE.GRADLE )
 			JAVA_JDKHOMEPATH = properties.getSystemStringProperty( PROPERTY_JAVA_JDKHOMEPATH );
-		
-		if( targetType == VarBUILDERTARGET.NEXUS )
-			NEXUS_RESOURCE = properties.getSystemStringProperty( PROPERTY_NEXUS_RESOURCE );
 	}
 
 	public void createProperties() throws Exception {
@@ -163,7 +174,13 @@ public class ServerProjectBuilder extends ServerObject {
 		
 		properties.setOriginalStringProperty( PROPERTY_TARGETTYPE , Common.getEnumLower( targetType ) );
 		if( targetType == VarBUILDERTARGET.LOCALPATH )
-			properties.setOriginalStringProperty( PROPERTY_TARGETLOCALPATH , TARGETLOCALPATH ); 			
+			properties.setOriginalStringProperty( PROPERTY_TARGETLOCALPATH , TARGETLOCALPATH );
+		else
+		if( targetType == VarBUILDERTARGET.NEXUS ) {
+			properties.setOriginalStringProperty( PROPERTY_TARGETNEXUS , TARGETNEXUS );
+			properties.setOriginalBooleanProperty( PROPERTY_TARGETNUGET , targetNuget );
+			properties.setOriginalStringProperty( PROPERTY_TARGETNUGETPLATFORM , TARGETNUGETPLATFORM );
+		}
 		
 		if( builderMethod == VarBUILDERTYPE.ANT )
 			properties.setOriginalStringProperty( PROPERTY_ANT_HOMEPATH , ANT_HOMEPATH );
@@ -184,9 +201,6 @@ public class ServerProjectBuilder extends ServerObject {
 
 		if( builderMethod == VarBUILDERTYPE.ANT || builderMethod == VarBUILDERTYPE.MAVEN || builderMethod == VarBUILDERTYPE.GRADLE )
 			properties.setOriginalStringProperty( PROPERTY_JAVA_JDKHOMEPATH , JAVA_JDKHOMEPATH );
-		
-		if( targetType == VarBUILDERTARGET.NEXUS )
-			properties.setOriginalStringProperty( PROPERTY_NEXUS_RESOURCE , NEXUS_RESOURCE );
 	}
 
 	public boolean isAnt() {
@@ -213,6 +227,12 @@ public class ServerProjectBuilder extends ServerObject {
 		return( false );
 	}
 
+	public boolean isNuget() {
+		if( targetNuget )
+			return( true );
+		return( false );
+	}
+	
 	public void setBuilderData( ServerTransaction transaction , ServerProjectBuilder src ) throws Exception {
 		NAME = src.NAME;
 		DESC = src.DESC;
@@ -236,6 +256,17 @@ public class ServerProjectBuilder extends ServerObject {
 			TARGETLOCALPATH = src.TARGETLOCALPATH;
 		else
 			TARGETLOCALPATH = "";
+		
+		if( targetType == VarBUILDERTARGET.NEXUS ) {
+			TARGETNEXUS = src.TARGETNEXUS;
+			targetNuget = src.targetNuget;
+			TARGETNUGETPLATFORM = src.TARGETNUGETPLATFORM;
+		}
+		else {
+			TARGETNEXUS = "";
+			targetNuget = false;
+			TARGETNUGETPLATFORM = "";
+		}
 		
 		if( builderMethod == VarBUILDERTYPE.ANT )
 			ANT_HOMEPATH = src.ANT_HOMEPATH;
@@ -272,11 +303,6 @@ public class ServerProjectBuilder extends ServerObject {
 		else
 			JAVA_JDKHOMEPATH = "";
 
-		if( targetType == VarBUILDERTARGET.NEXUS )
-			NEXUS_RESOURCE = src.NEXUS_RESOURCE;
-		else
-			NEXUS_RESOURCE = "";
-		
 		createProperties();
 	}
 	

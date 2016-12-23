@@ -32,7 +32,7 @@ public abstract class Builder {
 	}
 
 	public String getNexusPath( ActionBase action , MetaSourceProject project ) throws Exception {
-		ServerAuthResource res = action.getResource( builder.NEXUS_RESOURCE );
+		ServerAuthResource res = action.getResource( builder.TARGETNEXUS );
 		MetaProductBuildSettings build = action.getBuildSettings( project.meta );
 		return( res.BASEURL + "/content/repositories/" + build.CONFIG_NEXUS_REPO );
 	}
