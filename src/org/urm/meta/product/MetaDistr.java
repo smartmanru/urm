@@ -171,6 +171,11 @@ public class MetaDistr extends PropertyController {
 	public String[] getComponentNames() {
 		return( Common.getSortedKeys( mapComps ) );
 	}
+
+	public MetaDistrComponent findComponent( String KEY ) {
+		MetaDistrComponent comp = mapComps.get( KEY );
+		return( comp );
+	}
 	
 	public MetaDistrComponent getComponent( ActionBase action , String KEY ) throws Exception {
 		MetaDistrComponent comp = mapComps.get( KEY );

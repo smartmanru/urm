@@ -89,8 +89,8 @@ public class Types {
 	
 	public enum VarITEMSRCTYPE {
 		UNKNOWN ,
+		BASIC ,
 		INTERNAL ,
-		SIMPLE ,
 		STATICWAR ,
 		GENERATED
 	};
