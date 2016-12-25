@@ -68,12 +68,12 @@ public class ReleaseTargetItem {
 		BUILDVERSION = ConfReader.getAttrValue( node , "BUILDVERSION" );
 		MetaDistr distr = meta.getDistr( action );
 		this.distItem = distr.getBinaryItem( action , NAME );
-		this.sourceItem = target.sourceProject.getItem( action , distItem.sourceItem.ITEMNAME );
+		this.sourceItem = target.sourceProject.getItem( action , distItem.sourceProjectItem.ITEMNAME );
 	}
 	
 	public void createFromDistrItem( ActionBase action , MetaDistrBinaryItem distItem ) throws Exception {
 		this.distItem = distItem;
-		this.sourceItem = target.sourceProject.getItem( action , distItem.sourceItem.ITEMNAME );
+		this.sourceItem = target.sourceProject.getItem( action , distItem.sourceProjectItem.ITEMNAME );
 		NAME = distItem.KEY;
 		BUILDVERSION = "";
 	}

@@ -110,19 +110,19 @@ public class ReleaseTarget {
 		return( false );
 	}
 	
-	public boolean isProjectItem( ActionBase action ) throws Exception {
+	public boolean isProjectTarget() {
 		if( sourceProject != null )
 			return( true );
 		return( false );
 	}
 	
-	public boolean isConfItem( ActionBase action ) throws Exception {
+	public boolean isConfTarget() {
 		if( distConfItem != null )
 			return( true );
 		return( false );
 	}
 	
-	public boolean isDatabaseItem( ActionBase action ) throws Exception {
+	public boolean isDatabaseTarget() {
 		if( distDatabaseItem != null )
 			return( true );
 		return( false );
@@ -263,17 +263,37 @@ public class ReleaseTarget {
 		
 		List<ReleaseTargetItem> list = new LinkedList<ReleaseTargetItem>();
 		MetaDistr distr = meta.getDistr( action );
-		for( MetaDistrBinaryItem distitem : distr.getBinaryItems() ) {
-			ReleaseTargetItem item = new ReleaseTargetItem( meta , this );
-			item.createFromDistrItem( action , distitem );
-			itemMap.put( item.NAME , item );
-			list.add( item );
+		for( MetaDistrBinaryItem distItem : distr.getBinaryItems() ) {
+			if( distItem.sourceProjectItem == projectitem ) {
+				ReleaseTargetItem item = new ReleaseTargetItem( meta , this );
+				item.createFromDistrItem( action , distItem );
+				itemMap.put( item.NAME , item );
+				list.add( item );
+			}
 		}
 		return( list.toArray( new ReleaseTargetItem[0] ) );
 	}
 	
-	public ReleaseTargetItem getItem( ActionBase action , String ITEMNAME ) throws Exception {
-		return( itemMap.get( ITEMNAME ) );
+	public String[] getItemNames() {
+		return( Common.getSortedKeys( itemMap ) );
+	}
+	
+	public ReleaseTargetItem findItem( String NAME ) {
+		return( itemMap.get( NAME ) );
+	}
+	
+	public ReleaseTargetItem findProjectItem( MetaSourceProjectItem item ) {
+		return( itemMap.get( item.ITEMNAME ) );
+	}
+	
+	public ReleaseTargetItem findDistItem( MetaDistrBinaryItem item ) {
+		if( isProjectTarget() ) {
+			if( item.isProjectItem() )
+				return( findProjectItem( item.sourceProjectItem ) );
+			return( null );
+		}
+			
+		return( itemMap.get( item.KEY ) );
 	}
 	
 	public void addAllSourceItems( ActionBase action , MetaSourceProject sourceProject ) throws Exception {
@@ -284,8 +304,8 @@ public class ReleaseTarget {
 			addSourceItem( action , projectitem );
 	}
 
-	public Map<String,ReleaseTargetItem> getItems( ActionBase action ) throws Exception {
-		return( itemMap );
+	public ReleaseTargetItem[] getItems() {
+		return( itemMap.values().toArray( new ReleaseTargetItem[0] ) );
 	}
 	
 	public MetaDistrDelivery getDelivery( ActionBase action ) throws Exception {
@@ -403,7 +423,10 @@ public class ReleaseTarget {
 
 	public boolean checkSourceAllIncluded( ActionBase action ) throws Exception {
 		for( MetaSourceProjectItem projectitem : sourceProject.getItems() ) {
-			ReleaseTargetItem source = itemMap.get( projectitem.ITEMNAME );
+			if( projectitem.distItem == null )
+				continue;
+			
+			ReleaseTargetItem source = itemMap.get( projectitem.distItem.KEY );
 			if( source == null )
 				return( false );
 		}

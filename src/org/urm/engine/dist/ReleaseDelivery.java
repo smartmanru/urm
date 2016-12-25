@@ -38,7 +38,7 @@ public class ReleaseDelivery {
 			ReleaseSet srcSet = src.target.set;
 			ReleaseSet dstSet = nr.getSourceSet( action , srcSet.NAME );
 			ReleaseTarget dstTarget = dstSet.getTarget( action , src.NAME );
-			ReleaseTargetItem dst = dstTarget.getItem( action , src.NAME );
+			ReleaseTargetItem dst = dstTarget.findItem( src.NAME );
 			nx.projectItems.put( entry.getKey() , dst );
 		}
 		
@@ -68,7 +68,7 @@ public class ReleaseDelivery {
 
 	public void removeTargetItem( ActionBase action , ReleaseTargetItem item ) throws Exception {
 		action.debug( "remove delivery binary item: " + distDelivery.NAME + "::" + item.distItem.KEY );
-		projectItems.remove( item.sourceItem.ITEMNAME );
+		projectItems.remove( item.distItem.KEY );
 	}
 
 	public void addCategoryTarget( ActionBase action , ReleaseTarget target ) throws Exception {

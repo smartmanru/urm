@@ -64,29 +64,29 @@ public class ActionPrintReleaseStatus extends ActionBase {
 	}
 
 	private void printReleaseSourceSetStatus( Dist dist , FileSet files , ReleaseSet set ) throws Exception {
-		if( set.isEmpty( this ) )
+		if( set.isEmpty() )
 			return;
 		
 		String specifics = set.getSpecifics( this );
 		info( "SCOPE SET=" + set.NAME + " CATEGORY=" + Common.getEnumLower( set.CATEGORY ) + Common.getCommentIfAny( specifics ) + ":" );
-		if( set.getTargets( this ).isEmpty() )
+		if( set.isEmpty() )
 			info( "\t(no items)" );
 			
-		for( String key : Common.getSortedKeys( set.getTargets( this ) ) ) {
-			ReleaseTarget project = set.getTarget( this , key );
+		for( String key : set.getTargetNames() ) {
+			ReleaseTarget project = set.findTarget( key );
 			printReleaseBuildSetProjectStatus( dist , files , set , project );
 		}
 	}
 
 	private void printReleaseCategorySetStatus( Dist dist , FileSet files , ReleaseSet set ) throws Exception {
-		if( set.isEmpty( this ) )
+		if( set.isEmpty() )
 			return;
 		
 		// configuration
 		info( "SCOPE SET=" + Common.getEnumLower( set.CATEGORY ) + ":" );
 		
-		for( String key : Common.getSortedKeys( set.getTargets( this ) ) ) {
-			ReleaseTarget target = set.getTarget( this , key );
+		for( String key : set.getTargetNames() ) {
+			ReleaseTarget target = set.findTarget( key );
 			
 			if( set.CATEGORY == VarCATEGORY.CONFIG )
 				printReleaseConfStatus( dist , files , target );
@@ -129,8 +129,8 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		else
 			exitUnexpectedCategory( set.CATEGORY );
 		
-		for( String key : Common.getSortedKeys( project.getItems( this ) ) ) {
-			ReleaseTargetItem item = project.getItems( this ).get( key );
+		for( String key : project.getItemNames() ) {
+			ReleaseTargetItem item = project.findItem( key );
 			printReleaseBuildSetProjectItemStatus( dist , files , set , project , item );
 		}
 	}

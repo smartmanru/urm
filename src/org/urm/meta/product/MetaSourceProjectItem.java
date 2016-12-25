@@ -18,6 +18,8 @@ public class MetaSourceProjectItem {
 	public String ITEMVERSION;
 	public String ITEMSTATICEXTENSION;
 	public String ITEMPATH;
+	
+	public MetaDistrBinaryItem distItem;
 
 	protected Meta meta;
 	public MetaSourceProject project;
@@ -48,12 +50,15 @@ public class MetaSourceProjectItem {
 		}
 	}
 
+	public void setDistItem( ActionBase action , MetaDistrBinaryItem distItem ) throws Exception {
+		this.distItem = distItem;
+	}
+	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , "name" , ITEMNAME );
 		
 		Common.xmlSetElementAttr( doc , root , "type" , Common.getEnumLower( itemSrcType ) );
 		Common.xmlSetElementAttr( doc , root , "basename" , ITEMBASENAME );
-
 		Common.xmlSetElementAttr( doc , root , "extension" , ITEMEXTENSION );
 		Common.xmlSetElementAttr( doc , root , "version" , ITEMVERSION );
 		Common.xmlSetElementAttr( doc , root , "itempath" , ITEMPATH );
@@ -67,11 +72,11 @@ public class MetaSourceProjectItem {
 		
 		r.itemSrcType = itemSrcType;
 		r.ITEMBASENAME = ITEMBASENAME;
-
 		r.ITEMEXTENSION = ITEMEXTENSION;
 		r.ITEMVERSION = ITEMVERSION;
 		r.ITEMPATH = ITEMPATH;
 		r.ITEMSTATICEXTENSION = ITEMSTATICEXTENSION;
+		
 		return( r );
 	}
 	

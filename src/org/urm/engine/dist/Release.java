@@ -200,7 +200,7 @@ public class Release {
 		else {
 			ReleaseSet set = new ReleaseSet( meta , this , CATEGORY );
 			set.load( action , element );
-			if( !set.isEmpty( action ) )
+			if( !set.isEmpty() )
 				registerSet( action , set );
 		}
 	}
@@ -237,7 +237,7 @@ public class Release {
 		else
 			categorySetMap.put( set.CATEGORY , set );
 		
-		for( ReleaseTarget target : set.getTargets( action ).values() )
+		for( ReleaseTarget target : set.getTargets() )
 			registerTarget( action , target );
 	}
 
@@ -250,7 +250,7 @@ public class Release {
 	private void registerTarget( ActionBase action , ReleaseTarget target ) throws Exception {
 		action.trace( "add target=" + target.NAME );
 		if( Meta.isSourceCategory( target.CATEGORY ) ) {
-			for( ReleaseTargetItem item : target.getItems( action ).values() )
+			for( ReleaseTargetItem item : target.getItems() )
 				registerTargetItem( action , item );
 		}
 		else {
@@ -313,14 +313,14 @@ public class Release {
 		ReleaseSet set = sourceSetMap.get( setName );
 		if( set == null )
 			return( new ReleaseTarget[0] );
-		return( set.getTargets( action ).values().toArray( new ReleaseTarget[0] ) );
+		return( set.getTargets() );
 	}
 
 	public ReleaseTarget[] getCategoryTargets( ActionBase action , VarCATEGORY CATEGORY ) throws Exception {
 		ReleaseSet set = categorySetMap.get( CATEGORY );
 		if( set == null )
 			return( new ReleaseTarget[0] );
-		return( set.getTargets( action ).values().toArray( new ReleaseTarget[0] ) );
+		return( set.getTargets() );
 	}
 
 	public ReleaseTarget findBuildProject( ActionBase action , String name ) throws Exception {
@@ -330,7 +330,7 @@ public class Release {
 		if( set == null )
 			return( null );
 		
-		ReleaseTarget project = set.findTarget( action , name );
+		ReleaseTarget project = set.findTarget( name );
 		return( project );
 	}
 	
@@ -347,7 +347,7 @@ public class Release {
 		if( set == null )
 			return( null );
 		
-		ReleaseTarget target = set.findTarget( action , KEY );
+		ReleaseTarget target = set.findTarget( KEY );
 		return( target );
 	}
 	
@@ -411,17 +411,17 @@ public class Release {
 	
 	public boolean isEmpty( ActionBase action ) throws Exception {
 		for( ReleaseSet set : sourceSetMap.values() )
-			if( !set.isEmpty( action ) )
+			if( !set.isEmpty() )
 				return( false );
 		for( ReleaseSet set : categorySetMap.values() )
-			if( !set.isEmpty( action ) )
+			if( !set.isEmpty() )
 				return( false );
 		return( true );
 	}
 
 	public boolean isEmptyConfiguration( ActionBase action ) throws Exception {
 		ReleaseSet set = findCategorySet( action , VarCATEGORY.CONFIG );
-		if( set == null || set.isEmpty( action ) )
+		if( set == null || set.isEmpty() )
 			return( true );
 		
 		return( false );
@@ -429,7 +429,7 @@ public class Release {
 	
 	public boolean isEmptyDatabase( ActionBase action ) throws Exception {
 		ReleaseSet set = findCategorySet( action , VarCATEGORY.DB );
-		if( set == null || set.isEmpty( action ) )
+		if( set == null || set.isEmpty() )
 			return( true );
 		
 		return( false );
@@ -537,7 +537,7 @@ public class Release {
 
 	private void unregisterTarget( ActionBase action , ReleaseTarget target ) throws Exception {
 		if( Meta.isSourceCategory( target.CATEGORY ) ) {
-			for( ReleaseTargetItem item : target.getItems( action ).values() )
+			for( ReleaseTargetItem item : target.getItems() )
 				unregisterTargetItem( action , item );
 		}
 		else {
@@ -554,7 +554,7 @@ public class Release {
 	}
 
 	private void unregisterSet( ActionBase action , ReleaseSet set ) throws Exception {
-		for( ReleaseTarget project : set.getTargets( action ).values() )
+		for( ReleaseTarget project : set.getTargets() )
 			unregisterTarget( action , project );
 		
 		if( Meta.isSourceCategory( set.CATEGORY ) )
@@ -568,7 +568,7 @@ public class Release {
 		if( set == null )
 			return( false );
 		
-		ReleaseTarget project = set.findTarget( action , sourceProject.NAME );
+		ReleaseTarget project = set.findTarget( sourceProject.NAME );
 		if( project == null ) {
 			project = set.addSourceProject( action , sourceProject , allItems );
 			registerTarget( action , project );
@@ -597,7 +597,7 @@ public class Release {
 		if( set == null )
 			return;
 
-		ReleaseTarget target = set.findTarget( action , NAME );
+		ReleaseTarget target = set.findTarget( NAME );
 		if( target == null )
 			return;
 
@@ -609,7 +609,7 @@ public class Release {
 		if( set == null )
 			return;
 		
-		ReleaseTarget target = set.findTarget( action , sourceProject.NAME );
+		ReleaseTarget target = set.findTarget( sourceProject.NAME );
 		if( target == null )
 			return;
 		
@@ -627,7 +627,7 @@ public class Release {
 		if( set.ALL )
 			return( true );
 		
-		ReleaseTarget project = set.findTarget( action , sourceProject.NAME );
+		ReleaseTarget project = set.findTarget( sourceProject.NAME );
 		if( project == null )
 			return( false );
 
@@ -650,11 +650,11 @@ public class Release {
 		if( set == null )
 			return;
 
-		ReleaseTarget project = set.findTarget( action , sourceProject.NAME );
+		ReleaseTarget project = set.findTarget( sourceProject.NAME );
 		if( project == null )
 			return;
 		
-		ReleaseTargetItem item = project.getItem( action , sourceItem.ITEMNAME );
+		ReleaseTargetItem item = project.findProjectItem( sourceItem );
 		if( item == null )
 			return;
 
@@ -666,7 +666,7 @@ public class Release {
 		if( set.ALL )
 			return( true );
 
-		ReleaseTarget target = set.findTarget( action , item.KEY );
+		ReleaseTarget target = set.findTarget( item.KEY );
 		if( target != null ) {
 			if( !target.ALL )
 				target.setAll( action , action.context.CTX_REPLACE );
@@ -688,7 +688,7 @@ public class Release {
 		if( set.ALL )
 			return( true );
 
-		ReleaseTarget target = set.findTarget( action , item.NAME );
+		ReleaseTarget target = set.findTarget( item.NAME );
 		if( target != null )
 			return( true );
 		
@@ -705,7 +705,7 @@ public class Release {
 		if( set.ALL )
 			return( true );
 
-		ReleaseTarget target = set.findTarget( action , item.KEY );
+		ReleaseTarget target = set.findTarget( item.KEY );
 		if( target != null )
 			return( true );
 		
@@ -757,15 +757,14 @@ public class Release {
 		deliveryMap.clear();
 		
 		for( ReleaseSet set : sourceSetMap.values() ) {
-			for( ReleaseTarget target : set.getTargets( action ).values() ) {
-				for( ReleaseTargetItem item : target.getItems( action ).values() ) {
+			for( ReleaseTarget target : set.getTargets() ) {
+				for( ReleaseTargetItem item : target.getItems() )
 					registerTargetItem( action , item );
-				}
 			}
 		}
 		
 		for( ReleaseSet set : categorySetMap.values() ) {
-			for( ReleaseTarget target : set.getTargets( action ).values() ) {
+			for( ReleaseTarget target : set.getTargets() ) {
 				registerTarget( action , target );
 			}
 		}

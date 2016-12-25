@@ -191,7 +191,7 @@ public class ActionScopeSet {
 	private void addReleaseProjects( ActionBase action , String[] PROJECTS ) throws Exception {
 		if( PROJECTS == null || PROJECTS.length == 0 ) {
 			setFull = true; 
-			for( ReleaseTarget project : rset.getTargets( action ).values() )
+			for( ReleaseTarget project : rset.getTargets() )
 				addReleaseProject( action , project , true , false );
 			return;
 		}
@@ -232,7 +232,7 @@ public class ActionScopeSet {
 	private void addReleaseConfigComps( ActionBase action , String[] COMPS ) throws Exception {
 		if( COMPS == null || COMPS.length == 0 ) {
 			setFull = true; 
-			for( ReleaseTarget item : rset.getTargets( action ).values() )
+			for( ReleaseTarget item : rset.getTargets() )
 				addReleaseTarget( action , item , false );
 			return;
 		}
@@ -276,7 +276,7 @@ public class ActionScopeSet {
 	private void addReleaseManualItems( ActionBase action , String[] ITEMS ) throws Exception {
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			setFull = true; 
-			for( ReleaseTarget item : rset.getTargets( action ).values() )
+			for( ReleaseTarget item : rset.getTargets() )
 				addReleaseTarget( action , item , false );
 			return;
 		}
@@ -323,7 +323,7 @@ public class ActionScopeSet {
 	private void addReleaseDatabaseItems( ActionBase action , String[] DELIVERIES ) throws Exception {
 		if( DELIVERIES == null || DELIVERIES.length == 0 ) {
 			setFull = true; 
-			for( ReleaseTarget item : rset.getTargets( action ).values() )
+			for( ReleaseTarget item : rset.getTargets() )
 				addReleaseTarget( action , item , false );
 			return;
 		}

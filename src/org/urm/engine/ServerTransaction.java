@@ -652,7 +652,7 @@ public class ServerTransaction extends TransactionBase {
 		MetaSource sources = project.set.sources;
 		MetaDistr distr = meta.getDistr( action );
 		for( MetaSourceProjectItem item : project.getItems() ) {
-			MetaDistrBinaryItem distItem = distr.findBinaryItem( item.ITEMNAME );
+			MetaDistrBinaryItem distItem = item.distItem;
 			if( leaveManual )
 				distr.changeBinaryItemProjectToManual( this , distItem );
 			else
