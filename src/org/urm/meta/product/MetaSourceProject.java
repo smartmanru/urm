@@ -167,7 +167,7 @@ public class MetaSourceProject {
 		// project items
 		for( MetaSourceProjectItem item : itemList ) {
 			MetaSourceProjectItem ritem = item.copy( action , meta , r );
-			addItem( ritem );
+			r.addItem( ritem );
 		}
 		
 		r.CUSTOMBUILD = CUSTOMBUILD;
