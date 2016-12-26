@@ -309,6 +309,12 @@ public class MetaDistrBinaryItem {
 		return( false );
 	}
 
+	public boolean isManualItem() {
+		if( distItemOrigin == VarDISTITEMORIGIN.MANUAL )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isProjectItem() {
 		if( distItemOrigin == VarDISTITEMORIGIN.BUILD )
 			return( true );

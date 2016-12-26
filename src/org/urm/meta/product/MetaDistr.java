@@ -199,6 +199,14 @@ public class MetaDistr extends PropertyController {
 		return( mapBinaryItems.values().toArray( new MetaDistrBinaryItem[0] ) );
 	}
 
+	public String[] getManualItemNames() {
+		List<String> list = new LinkedList<String>();
+		for( MetaDistrBinaryItem item : mapBinaryItems.values() )
+			if( item.isManualItem() )
+				list.add( item.KEY );
+		return( list.toArray( new String[0] ) );
+	}
+	
 	public String[] getBinaryItemNames() {
 		return( Common.getSortedKeys( mapBinaryItems ) );
 	}
