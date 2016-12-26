@@ -90,8 +90,7 @@ public class Types {
 	public enum VarITEMSRCTYPE {
 		UNKNOWN ,
 		BASIC ,
-		READYFILE ,
-		READYDIR ,
+		DIRECTORY ,
 		STATICWAR ,
 		CUSTOM
 	};
