@@ -675,4 +675,19 @@ public class ServerTransaction extends TransactionBase {
 		return( item );
 	}
 	
+	public void deleteSourceProjectItem( MetaSourceProjectItem item , boolean leaveManual ) throws Exception {
+		checkTransactionMetadata( item.meta.getStorage( action ) );
+		
+		MetaDistrBinaryItem distItem = item.distItem;
+		if( distItem != null ) {
+			MetaDistr distr = distItem.delivery.dist;
+			if( leaveManual )
+				distr.changeBinaryItemProjectToManual( this , distItem );
+			else
+				distr.deleteBinaryItem( this , distItem );
+		}
+		
+		item.project.removeItem( this , item );
+	}
+
 }

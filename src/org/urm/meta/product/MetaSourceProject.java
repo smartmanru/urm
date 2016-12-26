@@ -104,9 +104,14 @@ public class MetaSourceProject {
 		}
 	}
 
-	private void addItem( MetaSourceProjectItem distItem ) {
-		itemList.add( distItem );
-		itemMap.put( distItem.ITEMNAME , distItem );
+	private void addItem( MetaSourceProjectItem srcItem ) {
+		itemList.add( srcItem );
+		itemMap.put( srcItem.ITEMNAME , srcItem );
+	}
+	
+	private void removeItem( MetaSourceProjectItem srcItem ) {
+		itemList.remove( srcItem );
+		itemMap.remove( srcItem.ITEMNAME );
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
@@ -280,4 +285,8 @@ public class MetaSourceProject {
 		this.set = setNew;
 	}
 
+	public void removeItem( ServerTransaction transaction , MetaSourceProjectItem item ) throws Exception {
+		removeItem( item );
+	}
+	
 }
