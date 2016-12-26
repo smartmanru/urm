@@ -672,6 +672,7 @@ public class ServerTransaction extends TransactionBase {
 		MetaSourceProjectItem item = new MetaSourceProjectItem( project.meta , project );
 		item.createItem( this , name );
 		project.addItem( this , item );
+		return( item );
 	}
 	
 }
