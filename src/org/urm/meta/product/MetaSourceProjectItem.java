@@ -18,6 +18,7 @@ public class MetaSourceProjectItem {
 	public String ITEMVERSION;
 	public String ITEMSTATICEXTENSION;
 	public String ITEMPATH;
+	boolean internal;
 	
 	public MetaDistrBinaryItem distItem;
 
@@ -48,10 +49,13 @@ public class MetaSourceProjectItem {
 			if( ITEMSTATICEXTENSION.isEmpty() )
 				ITEMSTATICEXTENSION="-webstatic.tar.gz";
 		}
+		
+		internal = ConfReader.getBooleanAttrValue( node , "internal" , false );
 	}
 
 	public void setDistItem( ActionBase action , MetaDistrBinaryItem distItem ) throws Exception {
 		this.distItem = distItem;
+		this.internal = ( distItem == null )? true : false;
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
@@ -62,6 +66,7 @@ public class MetaSourceProjectItem {
 		Common.xmlSetElementAttr( doc , root , "extension" , ITEMEXTENSION );
 		Common.xmlSetElementAttr( doc , root , "version" , ITEMVERSION );
 		Common.xmlSetElementAttr( doc , root , "itempath" , ITEMPATH );
+		Common.xmlSetElementAttr( doc , root , "internal" , Common.getBooleanValue( internal ) );
 
 		Common.xmlSetElementAttr( doc , root , "staticextension" , ITEMSTATICEXTENSION );
 	}
@@ -76,12 +81,13 @@ public class MetaSourceProjectItem {
 		r.ITEMVERSION = ITEMVERSION;
 		r.ITEMPATH = ITEMPATH;
 		r.ITEMSTATICEXTENSION = ITEMSTATICEXTENSION;
+		r.internal = internal;
 		
 		return( r );
 	}
 	
 	public boolean isInternal() {
-		if( itemSrcType == VarITEMSRCTYPE.INTERNAL )
+		if( internal )
 			return( true );
 		return( false );
 	}
