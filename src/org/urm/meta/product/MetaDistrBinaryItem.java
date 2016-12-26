@@ -18,11 +18,12 @@ public class MetaDistrBinaryItem {
 	public Meta meta;
 	public MetaDistrDelivery delivery;
 	
-	public MetaSourceProjectItem sourceItem;
 	public String KEY;
 	public String EXT;
 	public VarDISTITEMTYPE distItemType;
 	public VarDISTITEMORIGIN distItemOrigin;
+	public String SRCPROJECTITEM;
+	public MetaSourceProjectItem sourceProjectItem;
 	public String SRCDISTITEM;
 	public MetaDistrBinaryItem srcDistItem;
 	public String SRCITEMPATH; 
@@ -47,6 +48,7 @@ public class MetaDistrBinaryItem {
 	public void createBinaryItem( ServerTransaction transaction , String key ) throws Exception {
 		this.KEY = key;
 		EXT = "";
+		SRCPROJECTITEM = "";
 		SRCDISTITEM = "";
 		SRCITEMPATH = "";
 		DISTBASENAME = "";
@@ -65,7 +67,8 @@ public class MetaDistrBinaryItem {
 		if( distItemOrigin != VarDISTITEMORIGIN.BUILD )
 			transaction.exitUnexpectedState();
 			
-		sourceItem = null;
+		sourceProjectItem = null;
+		SRCPROJECTITEM = "";
 		distItemOrigin = VarDISTITEMORIGIN.MANUAL;
 	}
 	
@@ -75,6 +78,9 @@ public class MetaDistrBinaryItem {
 		// read attrs
 		distItemType = Types.getItemDistType( ConfReader.getRequiredAttrValue( node , "type" ) , false );
 		distItemOrigin = Types.getItemDistOrigin( ConfReader.getRequiredAttrValue( node , "source" ) , false );
+		if( distItemOrigin == VarDISTITEMORIGIN.BUILD )
+			SRCPROJECTITEM = ConfReader.getAttrValue( node , "srcitem" );
+		
 		if( distItemOrigin == VarDISTITEMORIGIN.DISTITEM ) {
 			SRCDISTITEM = ConfReader.getAttrValue( node , "srcitem" );
 			SRCITEMPATH = ConfReader.getAttrValue( node , "srcpath" );
@@ -128,6 +134,10 @@ public class MetaDistrBinaryItem {
 		// read attrs
 		Common.xmlSetElementAttr( doc , root , "type" , Common.getEnumLower( distItemType ) );
 		Common.xmlSetElementAttr( doc , root , "source" , Common.getEnumLower( distItemOrigin ) );
+		
+		if( distItemOrigin == VarDISTITEMORIGIN.BUILD )
+			Common.xmlSetElementAttr( doc , root , "srcitem" , SRCPROJECTITEM );
+		
 		if( distItemOrigin == VarDISTITEMORIGIN.DISTITEM ) {
 			Common.xmlSetElementAttr( doc , root , "srcitem" , SRCDISTITEM );
 			Common.xmlSetElementAttr( doc , root , "srcpath" , SRCITEMPATH );
@@ -169,16 +179,17 @@ public class MetaDistrBinaryItem {
 	
 	public MetaDistrBinaryItem copy( ActionBase action , Meta meta , MetaDistrDelivery delivery ) throws Exception {
 		MetaDistrBinaryItem r = new MetaDistrBinaryItem( meta , delivery );
-		if( sourceItem != null ) {
+		if( sourceProjectItem != null ) {
 			MetaSource source = meta.getSources( action );
-			MetaSourceProject project = source.getProject( action , sourceItem.project.NAME );
-			r.sourceItem = project.getItem( action , sourceItem.ITEMNAME );
+			MetaSourceProject project = source.getProject( action , sourceProjectItem.project.NAME );
+			r.sourceProjectItem = project.getItem( action , sourceProjectItem.ITEMNAME );
 		}
 			
 		r.KEY = KEY;
 		r.EXT = EXT;
 		r.distItemType = distItemType;
 		r.distItemOrigin = distItemOrigin;
+		r.SRCPROJECTITEM = SRCPROJECTITEM;
 		r.SRCDISTITEM = SRCDISTITEM;
 		
 		r.SRCITEMPATH = SRCITEMPATH; 
@@ -205,7 +216,8 @@ public class MetaDistrBinaryItem {
 		else
 		if( distItemOrigin == VarDISTITEMORIGIN.BUILD ) {
 			MetaSource sources = meta.getSources( action );
-			sourceItem = sources.getProjectItem( action , SRCDISTITEM );
+			sourceProjectItem = sources.getProjectItem( action , SRCPROJECTITEM );
+			sourceProjectItem.setDistItem( action , this );
 		}
 	}
 	
@@ -218,7 +230,7 @@ public class MetaDistrBinaryItem {
 	}
 	
 	public void setSource( ActionBase action , MetaSourceProjectItem sourceItem ) throws Exception {
-		this.sourceItem = sourceItem;
+		this.sourceProjectItem = sourceItem;
 	}
 
 	public String getGrepMask( ActionBase action , String baseName , boolean addDotSlash ) throws Exception {
@@ -291,12 +303,24 @@ public class MetaDistrBinaryItem {
 		return( null );
 	}
 
-	public boolean isDerived( ActionBase action ) throws Exception {
+	public boolean isDerived() {
 		if( srcDistItem != null )
 			return( true );
 		return( false );
 	}
 
+	public boolean isManualItem() {
+		if( distItemOrigin == VarDISTITEMORIGIN.MANUAL )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isProjectItem() {
+		if( distItemOrigin == VarDISTITEMORIGIN.BUILD )
+			return( true );
+		return( false );
+	}
+	
 	public VarARCHIVETYPE getArchiveType( ActionBase action ) throws Exception {
 		if( EXT.equals( ".tar.gz" ) || EXT.equals( ".tgz" ) )
 			return( VarARCHIVETYPE.TARGZ );
@@ -330,15 +354,18 @@ public class MetaDistrBinaryItem {
 
 	public void setBuildOrigin( ServerTransaction transaction , MetaSourceProjectItem itemSrc ) throws Exception {
 		this.distItemOrigin = VarDISTITEMORIGIN.BUILD;
-		this.sourceItem = itemSrc;
+		this.SRCPROJECTITEM = itemSrc.ITEMNAME;
+		this.sourceProjectItem = itemSrc;
 		this.SRCDISTITEM = "";
 		this.srcDistItem = null;
 		this.SRCITEMPATH = "";
+		itemSrc.setDistItem( transaction.getAction() , this );
 	}
 
 	public void setDistOrigin( ServerTransaction transaction , MetaDistrBinaryItem itemSrc , String srcPath ) throws Exception {
 		this.distItemOrigin = VarDISTITEMORIGIN.DISTITEM;
-		this.sourceItem = null;
+		this.SRCPROJECTITEM = "";
+		this.sourceProjectItem = null;
 		this.SRCDISTITEM = itemSrc.KEY;
 		this.srcDistItem = itemSrc;
 		this.SRCITEMPATH = srcPath;
@@ -346,7 +373,8 @@ public class MetaDistrBinaryItem {
 	
 	public void setManualOrigin( ServerTransaction transaction ) throws Exception {
 		this.distItemOrigin = VarDISTITEMORIGIN.MANUAL;
-		this.sourceItem = null;
+		this.SRCPROJECTITEM = "";
+		this.sourceProjectItem = null;
 		this.SRCDISTITEM = "";
 		this.srcDistItem = null;
 		this.SRCITEMPATH = "";

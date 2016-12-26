@@ -504,9 +504,11 @@ public class ServerTransaction extends TransactionBase {
 		delivery.dist.deleteDelivery( this , delivery );
 	}
 	
-	public void createDistrBinaryItem( MetaDistrDelivery delivery , MetaDistrBinaryItem item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage( action ) );
+	public MetaDistrBinaryItem createDistrBinaryItem( MetaDistrDelivery delivery , String key ) throws Exception {
+		checkTransactionMetadata( delivery.meta.getStorage( action ) );
+		MetaDistrBinaryItem item = new MetaDistrBinaryItem( delivery.meta , delivery );
 		delivery.dist.createDistrBinaryItem( this , delivery , item );
+		return( item );
 	}
 	
 	public void modifyDistrBinaryItem( MetaDistrBinaryItem item ) throws Exception {
@@ -652,7 +654,7 @@ public class ServerTransaction extends TransactionBase {
 		MetaSource sources = project.set.sources;
 		MetaDistr distr = meta.getDistr( action );
 		for( MetaSourceProjectItem item : project.getItems() ) {
-			MetaDistrBinaryItem distItem = distr.findBinaryItem( item.ITEMNAME );
+			MetaDistrBinaryItem distItem = item.distItem;
 			if( leaveManual )
 				distr.changeBinaryItemProjectToManual( this , distItem );
 			else
@@ -663,5 +665,29 @@ public class ServerTransaction extends TransactionBase {
 		ServerMirrors mirrors = action.getActiveMirrors();
 		mirrors.deleteProjectMirror( this , project );
 	}
+
+	public MetaSourceProjectItem createSourceProjectItem( MetaSourceProject project , String name ) throws Exception {
+		checkTransactionMetadata( project.meta.getStorage( action ) );
+		
+		MetaSourceProjectItem item = new MetaSourceProjectItem( project.meta , project );
+		item.createItem( this , name );
+		project.addItem( this , item );
+		return( item );
+	}
 	
+	public void deleteSourceProjectItem( MetaSourceProjectItem item , boolean leaveManual ) throws Exception {
+		checkTransactionMetadata( item.meta.getStorage( action ) );
+		
+		MetaDistrBinaryItem distItem = item.distItem;
+		if( distItem != null ) {
+			MetaDistr distr = distItem.delivery.dist;
+			if( leaveManual )
+				distr.changeBinaryItemProjectToManual( this , distItem );
+			else
+				distr.deleteBinaryItem( this , distItem );
+		}
+		
+		item.project.removeItem( this , item );
+	}
+
 }

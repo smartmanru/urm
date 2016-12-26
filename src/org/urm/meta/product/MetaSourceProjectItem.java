@@ -3,6 +3,8 @@ package org.urm.meta.product;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.engine.ServerTransaction;
+import org.urm.engine.TransactionBase;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
@@ -18,13 +20,27 @@ public class MetaSourceProjectItem {
 	public String ITEMVERSION;
 	public String ITEMSTATICEXTENSION;
 	public String ITEMPATH;
+	boolean internal;
+	
+	public MetaDistrBinaryItem distItem;
 
-	protected Meta meta;
+	public Meta meta;
 	public MetaSourceProject project;
 	
 	public MetaSourceProjectItem( Meta meta , MetaSourceProject project ) {
 		this.meta = meta;
 		this.project = project;
+	}
+	
+	public void createItem( ServerTransaction transaction , String name ) throws Exception {
+		this.ITEMNAME = name;
+		itemSrcType = VarITEMSRCTYPE.UNKNOWN;
+		ITEMBASENAME = "";
+		ITEMEXTENSION = "";
+		ITEMVERSION = "";
+		ITEMSTATICEXTENSION = "";
+		ITEMPATH = "";
+		internal = true;
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
@@ -46,17 +62,24 @@ public class MetaSourceProjectItem {
 			if( ITEMSTATICEXTENSION.isEmpty() )
 				ITEMSTATICEXTENSION="-webstatic.tar.gz";
 		}
+		
+		internal = ConfReader.getBooleanAttrValue( node , "internal" , false );
 	}
 
+	public void setDistItem( ActionBase action , MetaDistrBinaryItem distItem ) throws Exception {
+		this.distItem = distItem;
+		this.internal = ( distItem == null )? true : false;
+	}
+	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , "name" , ITEMNAME );
 		
 		Common.xmlSetElementAttr( doc , root , "type" , Common.getEnumLower( itemSrcType ) );
 		Common.xmlSetElementAttr( doc , root , "basename" , ITEMBASENAME );
-
 		Common.xmlSetElementAttr( doc , root , "extension" , ITEMEXTENSION );
 		Common.xmlSetElementAttr( doc , root , "version" , ITEMVERSION );
 		Common.xmlSetElementAttr( doc , root , "itempath" , ITEMPATH );
+		Common.xmlSetElementAttr( doc , root , "internal" , Common.getBooleanValue( internal ) );
 
 		Common.xmlSetElementAttr( doc , root , "staticextension" , ITEMSTATICEXTENSION );
 	}
@@ -67,18 +90,29 @@ public class MetaSourceProjectItem {
 		
 		r.itemSrcType = itemSrcType;
 		r.ITEMBASENAME = ITEMBASENAME;
-
 		r.ITEMEXTENSION = ITEMEXTENSION;
 		r.ITEMVERSION = ITEMVERSION;
 		r.ITEMPATH = ITEMPATH;
 		r.ITEMSTATICEXTENSION = ITEMSTATICEXTENSION;
+		r.internal = internal;
+		
 		return( r );
 	}
 	
 	public boolean isInternal() {
-		if( itemSrcType == VarITEMSRCTYPE.INTERNAL )
+		if( internal )
 			return( true );
 		return( false );
+	}
+
+	public void setSourceData( TransactionBase transaction , VarITEMSRCTYPE srcType , String artefactName , String ext , String path , String version , boolean dist ) throws Exception {
+		itemSrcType = srcType;
+		ITEMBASENAME = ( artefactName.isEmpty() )? ITEMNAME : artefactName;
+		ITEMEXTENSION = ( srcType == VarITEMSRCTYPE.STATICWAR )? ".war" : ext;
+		ITEMVERSION = version;
+		ITEMPATH = path;
+		ITEMSTATICEXTENSION = ( srcType == VarITEMSRCTYPE.STATICWAR )? ext : "";
+		internal = ( dist )? false : true;
 	}
 	
 }

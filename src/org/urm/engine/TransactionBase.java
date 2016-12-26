@@ -39,6 +39,7 @@ import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.Types.*;
 
@@ -1069,6 +1070,11 @@ public class TransactionBase extends ServerObject {
 		return( comp.getWebService( action , service.NAME ) );
 	}
 
+	public MetaSourceProjectItem getSourceProjectItem( MetaSourceProjectItem item ) throws Exception {
+		MetaSourceProject project = getSourceProject( item.project );
+		return( project.getItem( action , item.ITEMNAME ) );
+	}
+	
 	public MetaSourceProject getSourceProject( MetaSourceProject project ) throws Exception {
 		Meta metaNew = getTransactionProductMetadata( project.meta.name );
 		MetaSource sourceNew = metaNew.getSources( action );

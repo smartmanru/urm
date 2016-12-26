@@ -89,10 +89,10 @@ public class Types {
 	
 	public enum VarITEMSRCTYPE {
 		UNKNOWN ,
-		INTERNAL ,
-		SIMPLE ,
+		BASIC ,
+		DIRECTORY ,
 		STATICWAR ,
-		GENERATED
+		CUSTOM
 	};
 	
 	public enum VarBUILDMODE {

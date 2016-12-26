@@ -76,14 +76,14 @@ public class ReleaseSet {
 		return( set.NAME );
 	}
 
-	public boolean isSourceSet( ActionBase action ) throws Exception {
+	public boolean isSourceSet() {
 		if( CATEGORY == VarCATEGORY.PROJECT )
 			return( true );
 		return( false );
 	}
 	
-	public boolean isCategorySet( ActionBase action ) throws Exception {
-		return( !isSourceSet( action ) );
+	public boolean isCategorySet() {
+		return( !isSourceSet() );
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
@@ -319,12 +319,16 @@ public class ReleaseSet {
 		ALL = false;
 	}
 	
-	public Map<String,ReleaseTarget> getTargets( ActionBase action ) {
-		return( map );
+	public String[] getTargetNames() {
+		return( Common.getSortedKeys( map ) );
+	}
+	
+	public ReleaseTarget[] getTargets() {
+		return( map.values().toArray( new ReleaseTarget[0] ) );
 	}
 
 	public String getProjectBranch( ActionBase action , String name ) throws Exception {
-		ReleaseTarget project = findTarget( action , name );
+		ReleaseTarget project = findTarget( name );
 		if( project == null )
 			return( "" );
 	
@@ -335,7 +339,7 @@ public class ReleaseSet {
 	}
 	
 	public String getProjectTag( ActionBase action , String name ) throws Exception {
-		ReleaseTarget project = findTarget( action , name );
+		ReleaseTarget project = findTarget( name );
 		if( project == null )
 			return( "" );
 	
@@ -345,12 +349,12 @@ public class ReleaseSet {
 		return( BUILDTAG );
 	}
 
-	public ReleaseTarget findTarget( ActionBase action , String key ) throws Exception {
+	public ReleaseTarget findTarget( String key ) {
  		return( map.get( key ) );
 	}
 	
 	public ReleaseTarget getTarget( ActionBase action , String key ) throws Exception {
-		ReleaseTarget source = findTarget( action , key );
+		ReleaseTarget source = findTarget( key );
 		if( source == null || !source.isCategoryItem( action , CATEGORY ) )
 			action.exit1( _Error.UnknownReleaseTarget1 , "unknown release target key=" + key , key );
 		return( source );
@@ -360,7 +364,7 @@ public class ReleaseSet {
 		ALL = false;
 	}
 	
-	public boolean isEmpty( ActionBase action ) throws Exception {
+	public boolean isEmpty() {
 		return( map.isEmpty() );
 	}
 	
@@ -418,7 +422,7 @@ public class ReleaseSet {
 
 	public boolean checkAllBinaryIncluded( ActionBase action ) throws Exception {
 		for( MetaSourceProject project : set.getProjects() ) {
-			ReleaseTarget target = findTarget( action , project.NAME );
+			ReleaseTarget target = findTarget( project.NAME );
 			if( target == null )
 				return( false );
 			

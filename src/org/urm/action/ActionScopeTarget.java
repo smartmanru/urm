@@ -2,7 +2,6 @@ package org.urm.action;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.engine.dist.ReleaseTarget;
@@ -162,7 +161,7 @@ public class ActionScopeTarget {
 		MetaDistr distr = meta.getDistr( action );
 		for( String itemName : ITEMS ) {
 			MetaDistrBinaryItem item = distr.getBinaryItem( action , itemName );
-			if( item.sourceItem == null )
+			if( item.sourceProjectItem == null )
 				action.exit1( _Error.UnknownDistributiveItem1 , "unknown distributive item=" + itemName , itemName );
 			
 			MetaSourceProjectItem projectItem = sourceProject.getItem( action , itemName );
@@ -173,19 +172,16 @@ public class ActionScopeTarget {
 	private void addReleaseProjectItems( ActionBase action , String[] ITEMS ) throws Exception {
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			itemFull = true;
-			for( ReleaseTargetItem item : releaseTarget.getItems( action ).values() )
+			for( ReleaseTargetItem item : releaseTarget.getItems() )
 				addItem( action , item , false );
 			return;
 		}
 		
-		Map<String,ReleaseTargetItem> releaseItems = releaseTarget.getItems( action );
-		MetaDistr distr = meta.getDistr( action );
+		MetaSourceProject project = releaseTarget.sourceProject;
 		for( String itemName : ITEMS ) {
-			MetaDistrBinaryItem item = distr.getBinaryItem( action , itemName );
-			if( item.sourceItem == null )
-				action.exit1( _Error.UnknownDistributiveItem1 , "unknown distributive item=" + itemName , itemName );
+			MetaSourceProjectItem item = project.getItem( action , itemName );
 			
-			ReleaseTargetItem releaseItem = releaseItems.get( itemName );
+			ReleaseTargetItem releaseItem = releaseTarget.findProjectItem( item );
 			if( releaseItem != null )
 				addItem( action , releaseItem , true );
 			else
@@ -194,13 +190,8 @@ public class ActionScopeTarget {
 	}
 	
 	public void addProjectItem( ActionBase action , MetaSourceProjectItem item , boolean specifiedExplicitly ) throws Exception {
-		MetaDistr dist = meta.getDistr( action );
-		for( MetaDistrBinaryItem distItem : dist.getBinaryItems() ) {
-			if( distItem.sourceItem == item ) {
-				ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createSourceProjectTargetItem( this , item , distItem , specifiedExplicitly );
-				items.add( scopeItem );
-			}
-		}
+		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createSourceProjectTargetItem( this , item , item.distItem , specifiedExplicitly );
+		items.add( scopeItem );
 	}
 	
 	public void addItem( ActionBase action , ReleaseTargetItem item , boolean specifiedExplicitly ) throws Exception {

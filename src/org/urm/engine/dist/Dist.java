@@ -485,7 +485,7 @@ public class Dist {
 	
 	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrBinaryItem item , boolean getMD5 ) throws Exception {
 		DistItemInfo info = new DistItemInfo( item );
-		if( item.isDerived( action ) ) {
+		if( item.isDerived() ) {
 			DistItemInfo infosrc = getDistItemInfo( action , item.srcDistItem , false );
 			info.subPath = infosrc.subPath;
 			info.fileName = infosrc.fileName;
@@ -499,7 +499,7 @@ public class Dist {
 		
 		if( info.found && getMD5 ) {
 			RemoteFolder fileFolder = distFolder.getSubFolder( action , info.subPath );
-			if( item.isDerived( action ) )
+			if( item.isDerived() )
 				info.md5value = fileFolder.getArchivePartMD5( action , info.fileName , item.SRCITEMPATH , item.srcDistItem.EXT );
 			else
 			if( item.isArchive( action ) )
@@ -529,7 +529,7 @@ public class Dist {
 
 	public void descopeSet( ActionBase action , ReleaseSet set ) throws Exception {
 		state.ctlReloadCheckOpened( action );
-		for( ReleaseTarget target : set.getTargets( action ).values() )
+		for( ReleaseTarget target : set.getTargets() )
 			dropTarget( action , target );
 		
 		if( Meta.isSourceCategory( set.CATEGORY ) )
@@ -568,7 +568,7 @@ public class Dist {
 			distFolder.deleteVFile( action , folder , target.distManualItem.DISTBASENAME , target.distManualItem.EXT );
 		}
 		else {
-			for( ReleaseTargetItem item : target.getItems( action ).values() )
+			for( ReleaseTargetItem item : target.getItems() )
 				dropTargetItem( action , item );
 		}
 	}
@@ -591,11 +591,11 @@ public class Dist {
 		else if( item.distItemOrigin == VarDISTITEMORIGIN.DISTITEM )
 			return( checkIfReleaseItem( action , item.srcDistItem ) );
 		else if( item.distItemOrigin == VarDISTITEMORIGIN.BUILD ) {
-			ReleaseTarget target = release.findBuildProject( action , item.sourceItem.project.NAME );
+			ReleaseTarget target = release.findBuildProject( action , item.sourceProjectItem.project.NAME );
 			if( target == null )
 				return( false );
 			
-			if( target.getItem( action , item.KEY ) == null )
+			if( target.findDistItem( item ) == null )
 				return( false );
 			
 			return( true );
@@ -621,11 +621,11 @@ public class Dist {
 			return( Common.getPath( BINARY_FOLDER , target.DISTFILE ) );
 		}
 		else if( item.distItemOrigin == VarDISTITEMORIGIN.BUILD ) {
-			ReleaseTarget target = release.findBuildProject( action , item.sourceItem.project.NAME );
+			ReleaseTarget target = release.findBuildProject( action , item.sourceProjectItem.project.NAME );
 			if( target == null )
 				return( "" );
 			
-			ReleaseTargetItem targetItem = target.getItem( action , item.KEY );
+			ReleaseTargetItem targetItem = target.findDistItem( item );
 			if( targetItem == null )
 				return( "" );
 			

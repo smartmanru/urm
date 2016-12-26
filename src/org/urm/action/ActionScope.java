@@ -375,10 +375,10 @@ public class ActionScope {
 				sset.addManualItems( action , new String[] { itemName } );
 			}
 			else {
-				sset = createProjectScopeSet( action , item.sourceItem.project.set );
+				sset = createProjectScopeSet( action , item.sourceProjectItem.project.set );
 			
-				ActionScopeTarget scopeProject = sset.addSourceProject( action , item.sourceItem.project , false , true ); 
-				scopeProject.addProjectItem( action , item.sourceItem , specifiedExplicitly );
+				ActionScopeTarget scopeProject = sset.addSourceProject( action , item.sourceProjectItem.project , false , true ); 
+				scopeProject.addProjectItem( action , item.sourceProjectItem , specifiedExplicitly );
 			}
 		}
 	}
@@ -388,19 +388,19 @@ public class ActionScope {
 		MetaDistr distr = meta.getDistr( action );
 		for( String itemName : ITEMS ) {
 			MetaDistrBinaryItem item = distr.getBinaryItem( action , itemName );
-			if( item.sourceItem == null )
+			if( item.sourceProjectItem == null )
 				action.exit1( _Error.UnknownDistributiveItem1 ,"unknown distributive item=" + itemName , itemName );
 			
 			ActionScopeSet sset = null;
 			if( item.distItemOrigin == VarDISTITEMORIGIN.MANUAL )
 				sset = createReleaseCategoryScopeSet( action , dist , VarCATEGORY.MANUAL );
 			else {
-				ReleaseSet rset = dist.release.getSourceSet( action , item.sourceItem.project.set.NAME );
+				ReleaseSet rset = dist.release.getSourceSet( action , item.sourceProjectItem.project.set.NAME );
 				sset = createReleaseScopeSet( action , rset );
 			}
 			
-			ActionScopeTarget scopeProject = sset.addSourceProject( action , item.sourceItem.project , false , true ); 
-			scopeProject.addProjectItem( action , item.sourceItem , specifiedExplicitly );
+			ActionScopeTarget scopeProject = sset.addSourceProject( action , item.sourceProjectItem.project , false , true ); 
+			scopeProject.addProjectItem( action , item.sourceProjectItem , specifiedExplicitly );
 		}
 	}
 	

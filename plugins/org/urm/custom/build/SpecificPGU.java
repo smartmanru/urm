@@ -78,8 +78,7 @@ public class SpecificPGU {
 
 	private MetaDistrBinaryItem getWarItem( MetaSourceProject project , int pos ) throws Exception {
 		MetaSourceProjectItem item = project.getItems()[ pos ];
-		MetaDistr distr = meta.getDistr( action );
-		return( distr.getBinaryItem( action , item.ITEMNAME ) );
+		return( item.distItem );
 	}
 	
 	public void downloadWarCopyDistr( boolean copyDistr , Dist release , String VERSION_TAGNAME , ActionScopeTarget scopeProject ) throws Exception {
@@ -291,10 +290,9 @@ public class SpecificPGU {
 	
 	private void getAllWarAppDownloadDeps( boolean copyDistr , Dist release ) throws Exception {
 		MetaSource sources = meta.getSources( action );
-		MetaDistr distr = meta.getDistr( action );
 		MetaSourceProject sourceProject = sources.getProject( action , "pgu-portal" );
 		MetaSourceProjectItem sourceItem = sourceProject.getItem( action , "pgu-dependencies" );
-		MetaDistrBinaryItem distItem = distr.getBinaryItem( action , sourceItem.ITEMNAME );
+		MetaDistrBinaryItem distItem = sourceItem.distItem;
 		
 		String GROUPID = sourceItem.ITEMPATH.replace( '/' , '.' );
 		String EXT = sourceItem.ITEMEXTENSION.substring( 1 );
