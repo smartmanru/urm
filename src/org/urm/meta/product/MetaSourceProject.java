@@ -47,9 +47,13 @@ public class MetaSourceProject {
 		this.set = set;
 	}
 	
-	public void create( ServerTransaction transaction , String name , int POS ) throws Exception {
+	public void createProject( ServerTransaction transaction , String name , int POS ) throws Exception {
 		this.NAME = name;
 		this.POS = POS;
+	}
+	
+	public void addItem( ServerTransaction transaction , MetaSourceProjectItem item ) throws Exception {
+		addItem( item );
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
@@ -84,9 +88,9 @@ public class MetaSourceProject {
 		Node[] items = ConfReader.xmlGetChildren( node , "distitem" );
 		if( items != null ) {
 			for( Node item : items ) {
-				MetaSourceProjectItem distItem = new MetaSourceProjectItem( meta , this );
-				distItem.load( action , item );
-				addItem( distItem );
+				MetaSourceProjectItem srcItem = new MetaSourceProjectItem( meta , this );
+				srcItem.load( action , item );
+				addItem( srcItem );
 			}
 		}
 		

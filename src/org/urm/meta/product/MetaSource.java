@@ -192,7 +192,7 @@ public class MetaSource extends PropertyController {
 
 	public MetaSourceProject createProject( ServerTransaction transaction , MetaSourceProjectSet set , String name , int POS ) throws Exception {
 		MetaSourceProject project = new MetaSourceProject( set.meta , set );
-		project.create( transaction , name , POS );
+		project.createProject( transaction , name , POS );
 		set.addProject( transaction , project );
 		projectMap.put( project.NAME , project );
 		return( project );

@@ -3,6 +3,8 @@ package org.urm.meta.product;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.engine.ServerTransaction;
+import org.urm.engine.TransactionBase;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
@@ -22,12 +24,23 @@ public class MetaSourceProjectItem {
 	
 	public MetaDistrBinaryItem distItem;
 
-	protected Meta meta;
+	public Meta meta;
 	public MetaSourceProject project;
 	
 	public MetaSourceProjectItem( Meta meta , MetaSourceProject project ) {
 		this.meta = meta;
 		this.project = project;
+	}
+	
+	public void createItem( ServerTransaction transaction , String name ) throws Exception {
+		this.ITEMNAME = name;
+		itemSrcType = VarITEMSRCTYPE.UNKNOWN;
+		ITEMBASENAME = "";
+		ITEMEXTENSION = "";
+		ITEMVERSION = "";
+		ITEMSTATICEXTENSION = "";
+		ITEMPATH = "";
+		internal = true;
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
@@ -90,6 +103,16 @@ public class MetaSourceProjectItem {
 		if( internal )
 			return( true );
 		return( false );
+	}
+
+	public void setSourceData( TransactionBase transaction , VarITEMSRCTYPE srcType , String artefactName , String ext , String path , String version , boolean dist ) throws Exception {
+		itemSrcType = srcType;
+		ITEMBASENAME = ( artefactName.isEmpty() )? ITEMNAME : artefactName;
+		ITEMEXTENSION = ( srcType == VarITEMSRCTYPE.STATICWAR )? ".war" : ext;
+		ITEMVERSION = version;
+		ITEMPATH = path;
+		ITEMSTATICEXTENSION = ( srcType == VarITEMSRCTYPE.STATICWAR )? ext : "";
+		internal = ( dist )? false : true;
 	}
 	
 }

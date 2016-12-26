@@ -504,9 +504,11 @@ public class ServerTransaction extends TransactionBase {
 		delivery.dist.deleteDelivery( this , delivery );
 	}
 	
-	public void createDistrBinaryItem( MetaDistrDelivery delivery , MetaDistrBinaryItem item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage( action ) );
+	public MetaDistrBinaryItem createDistrBinaryItem( MetaDistrDelivery delivery , String key ) throws Exception {
+		checkTransactionMetadata( delivery.meta.getStorage( action ) );
+		MetaDistrBinaryItem item = new MetaDistrBinaryItem( delivery.meta , delivery );
 		delivery.dist.createDistrBinaryItem( this , delivery , item );
+		return( item );
 	}
 	
 	public void modifyDistrBinaryItem( MetaDistrBinaryItem item ) throws Exception {
@@ -662,6 +664,14 @@ public class ServerTransaction extends TransactionBase {
 		
 		ServerMirrors mirrors = action.getActiveMirrors();
 		mirrors.deleteProjectMirror( this , project );
+	}
+
+	public MetaSourceProjectItem createSourceProjectItem( MetaSourceProject project , String name ) throws Exception {
+		checkTransactionMetadata( project.meta.getStorage( action ) );
+		
+		MetaSourceProjectItem item = new MetaSourceProjectItem( project.meta , project );
+		item.createItem( this , name );
+		project.addItem( this , item );
 	}
 	
 }
