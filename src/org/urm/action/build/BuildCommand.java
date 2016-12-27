@@ -45,7 +45,7 @@ public class BuildCommand {
 		boolean copyDist = action.context.CTX_DIST;
 		
 		// required for serviceCall and storageService processing, even without -dist option
-		LocalFolder downloadFolder = action.artefactory.getDownloadFolder( action , scope.meta );
+		LocalFolder downloadFolder = action.artefactory.getArtefactFolder( action , scope.meta );
 		downloadFolder.removeContent( action );
 	
 		// precreate delivery folders in release

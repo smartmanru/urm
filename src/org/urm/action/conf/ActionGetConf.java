@@ -17,7 +17,7 @@ public class ActionGetConf extends ActionBase {
 	}
 
 	protected SCOPESTATE executeScopeTarget( ActionScopeTarget scopeItem ) throws Exception {
-		LocalFolder downloadFolder = artefactory.getDownloadFolder( this , scopeItem.meta );
+		LocalFolder downloadFolder = artefactory.getArtefactFolder( this , scopeItem.meta );
 		
 		// export from source
 		String KEY = scopeItem.confItem.KEY;

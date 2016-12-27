@@ -34,5 +34,6 @@ public class _Error {
 	public static final int UnknownBaseId1 = ErrorBase + 25;
 	public static final int AccTypeNotForOperation1 = ErrorBase + 26;
 	public static final int MissingArtefactDir0 = ErrorBase + 27;
+	public static final int MissingAppVersion0 = ErrorBase + 28;
 	
 }

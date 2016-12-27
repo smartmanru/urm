@@ -30,6 +30,7 @@ public class PropertyValue {
 	private String originalValue;
 	private String finalValue;
 	
+	private boolean nullvalue;
 	private boolean resolved;
 	private boolean system;
 	private boolean missing;
@@ -41,6 +42,7 @@ public class PropertyValue {
 		this.originSet = src.originSet;
 		this.required = src.required;
 		this.type = src.type;
+		this.nullvalue = src.nullvalue;
 		this.defaultValue = src.defaultValue;
 		this.originalValue = src.originalValue;
 		this.finalValue = src.finalValue;
@@ -59,11 +61,16 @@ public class PropertyValue {
 		this.resolved = true;
 		this.system = false;
 		this.missing = true;
+		this.nullvalue = true;
 		this.defaultValue = "";
 		this.originalValue = "";
 		this.finalValue = "";
 	}
 
+	public boolean isNull() {
+		return( nullvalue );
+	}
+	
 	public boolean isManual() {
 		if( origin == PropertyValueOrigin.PROPERTY_MANUAL )
 			return( true );
@@ -138,7 +145,20 @@ public class PropertyValue {
 		this.desc = descNew;
 	}
 	
+	public void setNull() {
+		this.nullvalue = true;
+		this.originalValue = "";
+		this.finalValue = "";
+		this.resolved = true;
+	}
+	
 	public void setValue( PropertyValue pv ) {
+		if( pv == null || pv.nullvalue ) {
+			setNull();
+			return;
+		}
+		
+		this.nullvalue = false;
 		this.originalValue = pv.originalValue;
 		this.finalValue = pv.originalValue;
 		this.resolved = isFinal( finalValue );
@@ -166,9 +186,12 @@ public class PropertyValue {
 	}
 
 	public void setOriginalValue( String value ) throws Exception {
-		if( value == null )
+		if( value == null ) {
+			nullvalue = true;
 			originalValue = "";
+		}
 		else {
+			nullvalue = false;
 			if( type == PropertyValueType.PROPERTY_PATH )
 				value = Common.getLinuxPath( value );
 			originalValue = value;
@@ -203,7 +226,7 @@ public class PropertyValue {
 
 	public void setDefault( String value ) {
 		defaultValue = value;
-		if( originalValue.isEmpty() )
+		if( finalValue.isEmpty() )
 			finalValue = defaultValue;
 		resolved = isFinal( finalValue );
 	}

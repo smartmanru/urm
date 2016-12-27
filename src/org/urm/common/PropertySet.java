@@ -844,6 +844,18 @@ public class PropertySet {
 	}
 
 	private void processValue( PropertyValue pv , boolean finalValue , boolean isWindows , boolean useRaw , boolean allowParent , boolean allowUnresolved ) throws Exception {
+		if( pv.isNull() ) {
+			if( allowParent && parent != null ) {
+				PropertyValue pvVar = parent.getPropertyInternal( pv.property , useRaw , allowParent , allowUnresolved );
+				if( pvVar != null && !pvVar.isNull() ) {
+					pv.setFinalValue( pvVar.getFinalValue() );
+					if( finalValue && pv.getType() == PropertyValueType.PROPERTY_PATH )
+						pv.setFinalValue( pv.getPath( finalValue , isWindows ) );
+					return;
+				}
+			}
+		}
+		
 		if( pv.isResolved() )
 			return;
 		

@@ -3,6 +3,7 @@ package org.urm.engine.storage;
 import java.io.File;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.shell.Account;
@@ -11,6 +12,7 @@ import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
 
 public class Artefactory {
@@ -52,22 +54,23 @@ public class Artefactory {
 		return( workFolder.getFilePath( action , name ) );
 	}
 	
-	public LocalFolder getDownloadFolder( ActionBase action , Meta meta ) throws Exception {
-		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		if( build.CONFIG_ARTEFACTDIR.isEmpty() )
-			action.exit0( _Error.MissingArtefactDir0 , "Missing artefact directory in product build configuration" );
-		
-		LocalFolder folder = getAnyFolder( action , build.CONFIG_ARTEFACTDIR );
-		folder.ensureExists( action );
-		return( folder );
+	public LocalFolder getArtefactFolder( ActionBase action , Meta meta ) throws Exception {
+		return( getArtefactFolder( action , meta , "" ) );
 	}
 	
 	public LocalFolder getArtefactFolder( ActionBase action , Meta meta , String FOLDER ) throws Exception {
-		action.checkRequired( FOLDER , "FOLDER" );
-		
 		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		String finalDir = build.CONFIG_ARTEFACTDIR + "/" + FOLDER;
-		LocalFolder folder = getAnyFolder( action , finalDir );
+		if( build.CONFIG_ARTEFACTDIR.isEmpty() )
+			action.exit0( _Error.MissingArtefactDir0 , "Missing artefact directory in product build configuration" );
+		if( build.CONFIG_APPVERSION.isEmpty() )
+			action.exit0( _Error.MissingAppVersion0 , "Missing application version in product build configuration" );
+		
+		MetaProductSettings settings = meta.getProductSettings( action );
+		String artefactDir = Common.getPath( build.CONFIG_ARTEFACTDIR , build.CONFIG_APPVERSION , FOLDER );
+		String redistPath = ( action.isLocalWindows() )? settings.CONFIG_REDISTWIN_PATH : settings.CONFIG_REDISTLINUX_PATH;
+		String finalPath = Common.getPath( redistPath , artefactDir );
+		
+		LocalFolder folder = getAnyFolder( action , finalPath );
 		folder.ensureExists( action );
 		return( folder );
 	}
