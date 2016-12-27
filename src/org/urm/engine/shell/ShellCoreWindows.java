@@ -11,6 +11,7 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.CommandOutput;
 import org.urm.engine.storage.Folder;
 import org.urm.meta.Types.*;
+import org.urm.meta.engine.ServerAuthResource;
 
 public class ShellCoreWindows extends ShellCore {
 
@@ -23,7 +24,7 @@ public class ShellCoreWindows extends ShellCore {
 		cmdAnd = "&&";
 	}
 
-	@Override public boolean createProcess( ActionBase action , ShellProcess process , String rootPath ) throws Exception {
+	@Override public boolean createProcess( ActionBase action , ShellProcess process , String rootPath , ServerAuthResource auth ) throws Exception {
 		if( rootPath == null )
 			action.exitUnexpectedState();
 		
@@ -31,14 +32,14 @@ public class ShellCoreWindows extends ShellCore {
 			localSession = new ShellCoreUnix( executor , VarSESSIONTYPE.UNIXLOCAL , tmpFolder , true );
 			localSession.setWindowsHelper();
 			running = true;
-			if( !localSession.createProcess( action , process , action.context.CTX_REDISTWIN_PATH ) )
+			if( !localSession.createProcess( action , process , action.context.CTX_REDISTWIN_PATH , auth ) )
 				return( false );
 			
 			initialized = true;
 			return( true );
 		}
 		
-		return( super.createProcess( action , process , rootPath ) );
+		return( super.createProcess( action , process , rootPath , auth ) );
 	}
 	
 	@Override public void kill( ActionBase action ) throws Exception {

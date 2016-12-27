@@ -1,16 +1,20 @@
 package org.urm.engine.shell;
 
 import org.urm.action.ActionBase;
+import org.urm.meta.engine.ServerAuthResource;
 
 public class ShellInteractive extends Shell {
 
-	public static ShellInteractive getShell( ActionBase action , String name , ShellPool pool , Account account ) throws Exception {
-		ShellInteractive shell = new ShellInteractive( name , pool , account );
+	ServerAuthResource auth;
+	
+	public static ShellInteractive getShell( ActionBase action , String name , ShellPool pool , Account account , ServerAuthResource auth ) throws Exception {
+		ShellInteractive shell = new ShellInteractive( name , pool , account , auth );
 		return( shell );
 	}
 
-	public ShellInteractive( String name , ShellPool pool , Account account ) {
+	private ShellInteractive( String name , ShellPool pool , Account account , ServerAuthResource auth ) {
 		super( name , pool , account );
+		this.auth = auth;
 	}
 	
 	@Override
@@ -20,14 +24,14 @@ public class ShellInteractive extends Shell {
 		ShellProcess process = new ShellProcess( this ); 
 		if( action.isLocalLinux() ) {
 			if( action.context.call != null )
-				process.runRemoteInteractiveSshLinux( action , KEY );
+				process.runRemoteInteractiveSshLinux( action , KEY , auth );
 			else
 				process.runLocalInteractiveSshLinux( action , KEY );
 		}
 		else
 		if( action.isLocalWindows() ) {
 			if( action.context.call != null )
-				process.runRemoteInteractiveSshWindows( action , KEY );
+				process.runRemoteInteractiveSshWindows( action , KEY , auth );
 			else
 				process.runLocalInteractiveSshWindows( action , KEY );
 		}

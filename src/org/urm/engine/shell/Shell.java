@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.meta.engine.ServerAuthResource;
 
 abstract public class Shell {
 
@@ -45,11 +46,11 @@ abstract public class Shell {
 		tsCreated = System.currentTimeMillis();
 	}
 
-	public void startProcess( ActionBase action , ShellProcess process , String rootPath , boolean redirect ) throws Exception {
+	public void startProcess( ActionBase action , ShellProcess process , String rootPath , boolean redirect , ServerAuthResource auth ) throws Exception {
 		this.rootPath = rootPath;
 		this.process = process;
 		
-		process.start( action , rootPath );
+		process.start( action , rootPath , auth );
 		available = true;
 
 		if( !redirect )

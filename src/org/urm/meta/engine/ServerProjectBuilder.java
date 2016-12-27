@@ -29,6 +29,7 @@ public class ServerProjectBuilder extends ServerObject {
 	public boolean remote;
 	public VarOSTYPE osType;
 	public String HOSTLOGIN;
+	public int port;
 	public String AUTHRESOURCE;
 	public VarBUILDERTARGET targetType;
 	public String TARGETLOCALPATH;
@@ -52,6 +53,7 @@ public class ServerProjectBuilder extends ServerObject {
 	public static String PROPERTY_REMOTE = "remote";
 	public static String PROPERTY_OSTYPE = "ostype";
 	public static String PROPERTY_HOSTLOGIN = "hostlogin";
+	public static String PROPERTY_PORT = "port";
 	public static String PROPERTY_AUTHRESOURCE = "authresource";
 	
 	public static String PROPERTY_TARGETTYPE = "target.type";
@@ -107,10 +109,12 @@ public class ServerProjectBuilder extends ServerObject {
 		remote = properties.getSystemBooleanProperty( PROPERTY_REMOTE );
 		
 		HOSTLOGIN = "";
+		port = 0;
 		AUTHRESOURCE = "";
 		if( remote ) {
 			osType = Types.getOSType( properties.getSystemStringProperty( PROPERTY_OSTYPE ) , false );
 			HOSTLOGIN = properties.getSystemStringProperty( PROPERTY_HOSTLOGIN );
+			port = properties.getSystemIntProperty( PROPERTY_PORT , 22 , false );
 			AUTHRESOURCE = properties.getSystemStringProperty( PROPERTY_AUTHRESOURCE );
 		}
 		
@@ -169,6 +173,7 @@ public class ServerProjectBuilder extends ServerObject {
 		if( remote ) {
 			properties.setOriginalStringProperty( PROPERTY_OSTYPE , Common.getEnumLower( osType ) );
 			properties.setOriginalStringProperty( PROPERTY_HOSTLOGIN , HOSTLOGIN );
+			properties.setOriginalNumberProperty( PROPERTY_PORT , port );
 			properties.setOriginalStringProperty( PROPERTY_AUTHRESOURCE , AUTHRESOURCE );
 		}
 		
@@ -250,6 +255,7 @@ public class ServerProjectBuilder extends ServerObject {
 		if( remote ) {
 			osType = src.osType;
 			HOSTLOGIN = src.HOSTLOGIN;
+			port = src.port;
 			AUTHRESOURCE = src.AUTHRESOURCE;
 		}
 		else {
@@ -313,7 +319,7 @@ public class ServerProjectBuilder extends ServerObject {
 	}
 	
 	public Account getRemoteAccount( ActionBase action ) throws Exception {
-		return( Account.getAccount( action , "" , HOSTLOGIN , osType ) );
+		return( Account.getAccount( action , "" , HOSTLOGIN , port , osType ) );
 	}
 	
 }

@@ -16,6 +16,7 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.CommandOutput;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.RedistStorage;
+import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnvServer;
 
@@ -45,11 +46,11 @@ public abstract class ShellExecutor extends Shell {
 		return( executor );
 	}
 
-	public static ShellExecutor getRemoteShellExecutor( ActionBase action , String name , ShellPool pool , Account account ) throws Exception {
+	public static ShellExecutor getRemoteShellExecutor( ActionBase action , String name , ShellPool pool , Account account , ServerAuthResource auth ) throws Exception {
 		RedistStorage storage = action.artefactory.getRedistStorage( action , account );
 		Folder tmpFolder = storage.getRedistTmpFolder( action );
 
-		ShellExecutor executor = new RemoteShellExecutor( name , pool , account , tmpFolder );
+		ShellExecutor executor = new RemoteShellExecutor( name , pool , account , tmpFolder , auth );
 		executor.core = ShellCore.createShellCore( action, executor , account.osType , false );
 		return( executor );
 	}
@@ -82,12 +83,12 @@ public abstract class ShellExecutor extends Shell {
 		start( action );
 	}
 	
-	protected boolean createProcess( ActionBase action , ShellProcess process ) throws Exception {
+	protected boolean createProcess( ActionBase action , ShellProcess process , ServerAuthResource auth ) throws Exception {
 		if( isLocal() )
 			action.debug( "start shell=" + name + " at rootPath=" + rootPath + " (" + Common.getEnumLower( account.osType ) + ")" );
 		else
 			action.debug( "start shell=" + name + " (" + Common.getEnumLower( account.osType ) + ")" );
-		return( core.createProcess( action , process , rootPath ) );
+		return( core.createProcess( action , process , rootPath , auth ) );
 	}
 
 	@Override

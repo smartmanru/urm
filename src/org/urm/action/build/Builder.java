@@ -1,6 +1,7 @@
 package org.urm.action.build;
 
 import org.urm.action.ActionBase;
+import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.meta.engine.ServerAuthResource;
@@ -16,13 +17,21 @@ public abstract class Builder {
 	public String TAG;
 	public String APPVERSION;
 	
-	abstract public ShellExecutor createShell( ActionBase action ) throws Exception;
 	abstract public boolean exportCode( ActionBase action ) throws Exception;
 	abstract public boolean prepareSource( ActionBase action ) throws Exception;
 	abstract public boolean checkSourceCode( ActionBase action ) throws Exception;
 	abstract public boolean runBuild( ActionBase action ) throws Exception;
 	abstract public void removeExportedCode( ActionBase action ) throws Exception;
 	
+	public ShellExecutor createShell( ActionBase action ) throws Exception {
+		if( builder.remote ) {
+			Account account = builder.getRemoteAccount( action );
+			return( action.createDedicatedRemoteShell( "build" , account , builder.AUTHRESOURCE ) );
+		}
+		
+		return( action.createDedicatedShell( "build" ) );
+	}
+
 	protected Builder( ServerProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
 		this.builder = builder;
 		this.project = project;

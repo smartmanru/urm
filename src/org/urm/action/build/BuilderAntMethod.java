@@ -14,13 +14,6 @@ public class BuilderAntMethod extends Builder {
 		super( builder , project , storage , TAG , APPVERSION );
 	}
 
-	@Override public ShellExecutor createShell( ActionBase action ) throws Exception {
-		if( builder.remote )
-			action.exitNotImplemented();
-		
-		return( action.createDedicatedShell( "build" ) );
-	}
-
 	@Override public boolean exportCode( ActionBase action ) throws Exception {
 		// drop old
 		LocalFolder CODEPATH = storage.buildFolder; 

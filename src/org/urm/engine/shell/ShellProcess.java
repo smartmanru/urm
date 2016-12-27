@@ -8,6 +8,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.ServerCall;
 import org.urm.engine.action.CommandOutput;
+import org.urm.meta.engine.ServerAuthResource;
 
 public class ShellProcess {
 
@@ -34,73 +35,37 @@ public class ShellProcess {
 
 	public boolean createLocalWindowsProcess( ActionBase action ) throws Exception {
 		builder = new ProcessBuilder( "cmd" , "/Q" , "/D" , "/A" , "/V:OFF" );
-		return( executor.createProcess( action , this ) );
+		return( executor.createProcess( action , this , null ) );
 	}
 	
 	public boolean createLocalLinuxProcess( ActionBase action ) throws Exception {
 		builder = new ProcessBuilder( "sh" );
-		return( executor.createProcess( action , this ) );
+		return( executor.createProcess( action , this , null ) );
 	}
 
-	public boolean createRemoteWindowsProcessFromLinux( ActionBase action ) throws Exception {
+	public boolean createRemoteWindowsProcessFromLinux( ActionBase action , ServerAuthResource auth ) throws Exception {
 		if( action.context.CTX_TRACEINTERNAL )
 			action.trace( "create local sh process on behalf of " + shell.account.getPrintName() );
 		builder = new ProcessBuilder( "sh" );
-		return( executor.createProcess( action , this ) );
+		return( executor.createProcess( action , this , auth ) );
 	}
 
-	public boolean createRemoteLinuxProcessFromWindows( ActionBase action ) throws Exception {
+	public boolean createRemoteLinuxProcessFromWindows( ActionBase action , ServerAuthResource auth ) throws Exception {
 		jssh = new ShellJssh( this , false );
-		return( executor.createProcess( action , this ) );
+		return( executor.createProcess( action , this , auth ) );
 	}
 	
-	public boolean createRemoteLinuxProcessFromWindowsOld( ActionBase action ) throws Exception {
-		if( action.context.CTX_TRACEINTERNAL )
-			action.trace( "create process - plink " + shell.account.getPrintName() );
-		
-		String keyFile = action.context.CTX_KEYNAME;
-		String cmd = "plink -P " + shell.account.PORT;
-		if( !keyFile.isEmpty() )
-			cmd += " -i " + keyFile;
-		
-		cmd += " " + shell.account.getHostLogin();
-		builder = new ProcessBuilder( Common.createList( Common.splitSpaced( cmd ) ) );
-		return( executor.createProcess( action , this ) );
-	}
-
-	public boolean createRemoteLinuxProcessFromLinux( ActionBase action ) throws Exception {
+	public boolean createRemoteLinuxProcessFromLinux( ActionBase action , ServerAuthResource auth ) throws Exception {
 		jssh = new ShellJssh( this , false );
-		return( executor.createProcess( action , this ) );
+		return( executor.createProcess( action , this , auth ) );
 	}
 	
-	public boolean createRemoteLinuxProcessFromLinuxOld( ActionBase action ) throws Exception {
-		String keyFile = action.context.CTX_KEYNAME;
-		Account account = shell.account;
-		if( !keyFile.isEmpty() ) {
-			if( action.context.CTX_TRACEINTERNAL )
-				action.trace( "create process - ssh -T " + account.getSshAddr() + " -i " + keyFile );
-			if( account.PORT == 22 )
-				builder = new ProcessBuilder( "ssh" , "-T" , account.getHostLogin() , "-i" , keyFile );
-			else
-				builder = new ProcessBuilder( "ssh" , "-T" , "-p" , "" + account.PORT , account.getHostLogin() , "-i" , keyFile );
-		}
-		else {
-			if( action.context.CTX_TRACEINTERNAL )
-				action.trace( "create process - ssh -T " + account.getSshAddr() );
-			if( account.PORT == 22 )
-				builder = new ProcessBuilder( "ssh" , "-T" , "-o" , "PasswordAuthentication=no" , account.getSshAddr() );
-			else
-				builder = new ProcessBuilder( "ssh" , "-T" , "-p" , "" + account.PORT , "-o" , "PasswordAuthentication=no" , account.getSshAddr() );
-		}
-		return( executor.createProcess( action , this ) );
-	}
-	
-	public void start( ActionBase action , String rootPath ) throws Exception {
+	public void start( ActionBase action , String rootPath , ServerAuthResource auth ) throws Exception {
 		if( builder != null )
 			startBuilder( action , rootPath );
 		else
 		if( jssh != null )
-			jssh.startJssh( action , rootPath );
+			jssh.startJssh( action , rootPath , auth );
 	}
 		
 	public void startBuilder( ActionBase action , String rootPath ) throws Exception {
@@ -197,7 +162,7 @@ public class ShellProcess {
 		action.trace( account.getPrintName() + " execute: " + cmd );
 
 		builder = new ProcessBuilder( "sh" , "-c" , cmd );
-		shell.startProcess( action , this , null , false );
+		shell.startProcess( action , this , null , false , null );
 	}
 	
 	public void runLocalInteractiveSshWindows( ActionBase action , String KEY ) throws Exception {
@@ -212,56 +177,25 @@ public class ShellProcess {
 		action.trace( account.getPrintName() + " execute: " + cmd );
 		
 		builder = new ProcessBuilder( "cmd" , "/C" , cmd );
-		shell.startProcess( action , this , null , false );
+		shell.startProcess( action , this , null , false , null );
 	}
 	
-	public void runRemoteInteractiveSshLinux( ActionBase action , String KEY ) throws Exception {
+	public void runRemoteInteractiveSshLinux( ActionBase action , String KEY , ServerAuthResource auth ) throws Exception {
 		jssh = new ShellJssh( this , true );
 		ServerCall call = action.context.call;
-		executeRemoteInteractive( action , call );
+		executeRemoteInteractive( action , call , auth );
 	}
 	
-	public void runRemoteInteractiveSshLinuxOld( ActionBase action , String KEY ) throws Exception {
-		Account account = shell.account;
-		String cmd = "ssh -T " + account.getSshAddr();
-		if( !KEY.isEmpty() )
-			cmd += " -i " + KEY;
-		
-		action.trace( account.getPrintName() + " execute: " + cmd );
-		
-		ServerCall call = action.context.call;
-		builder = new ProcessBuilder( "sh" , "-c" , cmd );
-		
-		executeRemoteInteractive( action , call );
-	}
-
-	public void runRemoteInteractiveSshWindows( ActionBase action , String KEY ) throws Exception {
+	public void runRemoteInteractiveSshWindows( ActionBase action , String KEY , ServerAuthResource auth ) throws Exception {
 		jssh = new ShellJssh( this , true );
 		ServerCall call = action.context.call;
-		executeRemoteInteractive( action , call );
+		executeRemoteInteractive( action , call , auth );
 	}
 	
-	public void runRemoteInteractiveSshWindowsOld( ActionBase action , String KEY ) throws Exception {
-		Account account = shell.account;
-		String cmd = "plink ";
-		if( !KEY.isEmpty() )
-			cmd += "-i " + KEY + " ";
-		if( account.PORT != 22 )
-			cmd += "-P " + account.PORT + " ";
-		cmd += account.USER + "@" + account.HOST;
-		
-		action.trace( account.getPrintName() + " execute: " + cmd );
-		
-		ServerCall call = action.context.call;
-		builder = new ProcessBuilder( "cmd" , "/C" , cmd );
-		
-		executeRemoteInteractive( action , call );
-	}
-	
-	private void executeRemoteInteractive( ActionBase action , ServerCall call ) throws Exception {
+	private void executeRemoteInteractive( ActionBase action , ServerCall call , ServerAuthResource auth ) throws Exception {
 		if( builder != null )
 			builder.redirectErrorStream( true );
-		shell.startProcess( action , this , null , true );
+		shell.startProcess( action , this , null , true , auth );
 		
 		int timeout = action.setTimeoutDefault();
 		shell.addInput( action , "echo " + CONNECT_MARKER + "; echo " + CONNECT_MARKER + " >&2" , true );

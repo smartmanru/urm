@@ -9,6 +9,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.storage.Folder;
+import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerContext;
 
 public class ShellPool implements Runnable {
@@ -304,7 +305,7 @@ public class ShellPool implements Runnable {
 			if( account.local )
 				shell = createLocalShell( action , name );
 			else
-				shell = createRemoteShell( action , account , name );
+				shell = createRemoteShell( action , name , account , null );
 
 			// start shell
 			if( !shell.start( action ) ) {
@@ -339,6 +340,14 @@ public class ShellPool implements Runnable {
 		return( shell );
 	}
 
+	private ShellExecutor startDedicatedRemoteShell( ActionBase action , String name , Account account , ServerAuthResource auth ) throws Exception {
+		ShellExecutor shell = createRemoteShell( action , name , account , auth );
+		if( !shell.start( action ) )
+			action.exit0( _Error.UnableCreateRemoteShell0 , "unable to create remote shell" );
+		
+		return( shell );
+	}
+
 	private ShellExecutor createLocalShell( ActionBase action , String name ) throws Exception {
 		if( stop )
 			action.exit0( _Error.ServerShutdown0 , "server is in progress of shutdown" );
@@ -347,11 +356,11 @@ public class ShellPool implements Runnable {
 		return( shell );
 	}
 	
-	private ShellExecutor createRemoteShell( ActionBase action , Account account , String name ) throws Exception {
+	private ShellExecutor createRemoteShell( ActionBase action , String name , Account account , ServerAuthResource auth ) throws Exception {
 		if( stop )
 			action.exit0( _Error.ServerShutdown0 , "server is in progress of shutdown" );
 		
-		ShellExecutor shell = ShellExecutor.getRemoteShellExecutor( action , name , this , account );
+		ShellExecutor shell = ShellExecutor.getRemoteShellExecutor( action , name , this , account , auth );
 		return( shell );
 	}
 	
@@ -383,6 +392,21 @@ public class ShellPool implements Runnable {
 			}
 			
 			shell = startDedicatedLocalShell( action , name );
+			map.addExecutor( shell.name , shell );
+		}
+		
+		return( shell );
+	}
+
+	public ShellExecutor createDedicatedRemoteShell( ActionBase action , String stream , Account account , ServerAuthResource authResource ) throws Exception {
+		if( stop )
+			action.exit0( _Error.ServerShutdown0 , "server is in progress of shutdown" );
+		
+		String name = "remote::" + stream; 
+		ShellExecutor shell = null;
+		synchronized( engine ) {
+			ActionShells map = getActionShells( action );
+			shell = startDedicatedRemoteShell( action , name , account , authResource );
 			map.addExecutor( shell.name , shell );
 		}
 		
@@ -469,9 +493,9 @@ public class ShellPool implements Runnable {
 		}
 	}
 
-	public ShellInteractive createInteractiveShell( ActionBase action , Account account ) throws Exception {
+	public ShellInteractive createInteractiveShell( ActionBase action , Account account , ServerAuthResource auth ) throws Exception {
 		String name = "remote::" + account.getPrintName() + "::" + action.ID;
-		ShellInteractive shell = ShellInteractive.getShell( action , name , this , account );
+		ShellInteractive shell = ShellInteractive.getShell( action , name , this , account , auth );
 		
 		// add to action map
 		synchronized( engine ) {

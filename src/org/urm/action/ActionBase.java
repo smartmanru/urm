@@ -329,6 +329,13 @@ abstract public class ActionBase extends ActionCore {
 		return( engine.shellPool.createDedicatedLocalShell( this , name ) );
 	}
 	
+	public ShellExecutor createDedicatedRemoteShell( String name , Account account , String authResource ) throws Exception {
+		ServerResources res = getResources();
+		ServerAuthResource ar = res.getResource( authResource );
+		ar.loadAuthData( this );
+		return( engine.shellPool.createDedicatedRemoteShell( this , name , account , ar ) );
+	}
+	
 	public void killAllDedicated() {
 		engine.shellPool.releaseActionPool( this );
 	}
@@ -355,7 +362,7 @@ abstract public class ActionBase extends ActionCore {
 		String file = logFile;
 		if( file.startsWith( "~/" ) )
 			file = shell.getHomePath() + file.substring( 1 ); 
-		debug( "start logging to " + file );
+		debug( "start logging to " + shell.getOSPath( this , file ) );
 		output.createOutputFile( context , title , file );
 	}
 	

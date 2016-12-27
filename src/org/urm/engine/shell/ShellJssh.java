@@ -40,20 +40,7 @@ public class ShellJssh {
 		jsch = new JSch();
 	}
 
-	public void startJssh( ActionBase action , String rootPath ) throws Exception {
-		Account account = process.shell.account;
-		startJssh( action , account );
-		action.debug( "jssh shell=" + process.shell.name + " - successfully connected" );		
-	}
-
-	public void startJssh( ActionBase action , Account account ) throws Exception {
-		startJsshSession( action , account );
-		startJsshCommandChannel( action );
-	}
-	
-	public void startJsshSession( ActionBase action , Account account ) throws Exception {
-		this.account = account;
-		
+	private ServerAuthResource getAuthResource( ActionBase action ) throws Exception {
 		String hostLogin = account.getHostLogin();
 		ServerInfrastructure infra = action.getServerInfrastructure();
 		ServerDatacenter dc = infra.findDatacenter( account.DC );
@@ -66,6 +53,25 @@ public class ShellJssh {
 		
 		ServerAuthResource res = action.getResource( hostAccount.AUTHRES );
 		res.loadAuthData( action );
+		return( res );
+	}
+	
+	public void startJssh( ActionBase action , String rootPath , ServerAuthResource res ) throws Exception {
+		if( res == null )
+			res = getAuthResource( action );
+		
+		Account account = process.shell.account;
+		startJsshInternal( action , account , res );
+		action.debug( "jssh shell=" + process.shell.name + " - successfully connected" );		
+	}
+
+	private void startJsshInternal( ActionBase action , Account account , ServerAuthResource res ) throws Exception {
+		startJsshSession( action , account , res );
+		startJsshCommandChannel( action );
+	}
+	
+	private void startJsshSession( ActionBase action , Account account , ServerAuthResource res ) throws Exception {
+		this.account = account;
 		
 		jsession = jsch.getSession( account.USER , account.HOST , account.PORT );
 		
@@ -308,7 +314,8 @@ public class ShellJssh {
 	}
 
 	private void scpConnect( ActionBase action , Account account ) throws Exception {
-		startJsshSession( action , account );
+		ServerAuthResource res = getAuthResource( action );
+		startJsshSession( action , account , res );
 		startJsshScpChannel( action );
 	}
 
