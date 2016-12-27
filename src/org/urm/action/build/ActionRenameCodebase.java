@@ -22,7 +22,7 @@ public class ActionRenameCodebase extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
-		ProjectVersionControl vcs = new ProjectVersionControl( this , false );
+		ProjectVersionControl vcs = new ProjectVersionControl( this );
 		if( branchVAR1 == true && branchVAR2 == true && force == false )
 			vcs.renameBranchToNewBranch( scopeProject.sourceProject , VAR1 , VAR2 );
 		else

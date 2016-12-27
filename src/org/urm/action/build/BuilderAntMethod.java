@@ -4,7 +4,6 @@ import org.urm.action.ActionBase;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.engine.vcs.ProjectVersionControl;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.product.MetaSourceProject;
 
@@ -14,21 +13,6 @@ public class BuilderAntMethod extends Builder {
 		super( builder , project , storage , TAG , APPVERSION );
 	}
 
-	@Override public boolean exportCode( ActionBase action ) throws Exception {
-		// drop old
-		LocalFolder CODEPATH = storage.buildFolder; 
-		CODEPATH.removeThis( action );
-	
-		// checkout
-		ProjectVersionControl vcs = new ProjectVersionControl( action , true ); 
-		if( !vcs.export( CODEPATH , project , "" , TAG , "" ) ) {
-			action.error( "patchCheckout: having problem to export code" );
-			return( false );
-		}
-		
-		return( true );
-	}
-	
 	@Override public boolean prepareSource( ActionBase action ) throws Exception {
 		return( true );
 	}
@@ -39,8 +23,6 @@ public class BuilderAntMethod extends Builder {
 
 	@Override public boolean runBuild( ActionBase action ) throws Exception {
 		// maven params
-		LocalFolder CODEPATH = storage.buildFolder; 
-
 		action.info( "build PATCHPATH=" + CODEPATH.folderPath + " using ant " + builder.VERSION + " ..." );
 
 		// set environment
@@ -51,10 +33,11 @@ public class BuilderAntMethod extends Builder {
 			ANT_CMD += " -silent";
 
 		ShellExecutor session = action.shell;
-		session.export( action , "JAVA_HOME" , BUILD_JAVA_HOME );
-		session.export( action , "ANT_HOME" , BUILD_ANT_HOME );
-		String delimiter = ( action.isLocalWindows() )? ";" : ":";
-		session.export( action , "PATH" , "$ANT_HOME" + delimiter + "$JAVA_HOME/bin" + delimiter + "$PATH" );
+		session.export( action , "JAVA_HOME" , session.getLocalPath( BUILD_JAVA_HOME ) );
+		session.export( action , "ANT_HOME" , session.getLocalPath( BUILD_ANT_HOME ) );
+		session.export( action , "PATH" , session.getLocalPath( session.getVariable( "ANT_HOME" ) + "/bin" ) + session.getPathBreak() + 
+				session.getLocalPath( session.getVariable( "JAVA_HOME" ) + "/bin" ) + session.getPathBreak() + 
+				session.getVariable( "PATH" ) );
 
 		// execute maven
 		action.info( "using ant:" );
@@ -62,7 +45,7 @@ public class BuilderAntMethod extends Builder {
 		
 		action.info( "execute: " + ANT_CMD );
 		int timeout = action.setTimeoutUnlimited();
-		int status = session.customGetStatusNormal( action , CODEPATH.folderPath , ANT_CMD );
+		int status = session.customGetStatusCheckErrors( action , CODEPATH.folderPath , ANT_CMD );
 		action.setTimeout( timeout );
 
 		if( status != 0 ) {

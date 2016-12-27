@@ -4,7 +4,6 @@ import org.urm.action.ActionBase;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.engine.vcs.ProjectVersionControl;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaSourceProject;
@@ -19,21 +18,6 @@ public class BuilderGradleMethod extends Builder {
 		return( action.createDedicatedShell( "build" ) );
 	}
 	
-	@Override public boolean exportCode( ActionBase action ) throws Exception {
-		// drop old
-		LocalFolder CODEPATH = storage.buildFolder; 
-		CODEPATH.removeThis( action );
-	
-		// checkout
-		ProjectVersionControl vcs = new ProjectVersionControl( action , true ); 
-		if( !vcs.export( CODEPATH , project , "" , TAG , "" ) ) {
-			action.error( "patchCheckout: having problem to export code" );
-			return( false );
-		}
-		
-		return( true );
-	}
-
 	@Override public boolean prepareSource( ActionBase action ) throws Exception {
 		return( true );
 	}
@@ -48,10 +32,13 @@ public class BuilderGradleMethod extends Builder {
 		String BUILD_GRADLE_HOME = builder.GRADLE_HOMEPATH; 
 
 		ShellExecutor session = action.shell;
-		session.export( action , "JAVA_HOME" , BUILD_JAVA_HOME );
-		session.export( action , "GR_HOME" , BUILD_GRADLE_HOME );
-		session.export( action , "GR" , "$GR_HOME/bin" );
-		session.export( action , "PATH" , "$GR:$JAVA_HOME/bin:$PATH" );
+		session.export( action , "JAVA_HOME" , session.getLocalPath( BUILD_JAVA_HOME ) );
+		session.export( action , "GR_HOME" , session.getLocalPath( BUILD_GRADLE_HOME ) );
+		session.export( action , "GR" , session.getLocalPath( session.getVariable( "GR_HOME" ) + "/bin" ) );
+		
+		session.export( action , "PATH" , session.getVariable( "GR" ) + session.getPathBreak() + 
+				session.getLocalPath( session.getVariable( "JAVA_HOME" + "/bin" ) ) + session.getPathBreak() +
+				session.getVariable( "PATH" ) );
 
 		MetaProductBuildSettings build = action.getBuildSettings( project.meta );
 		String GRADLE_CMD = "gradle clean war publish -Dmaven.settings=" + build.CONFIG_MAVEN_CFGFILE;
@@ -63,7 +50,7 @@ public class BuilderGradleMethod extends Builder {
 		
 		action.info( "execute: " + GRADLE_CMD );
 		int timeout = action.setTimeoutUnlimited();
-		int status = session.customGetStatusNormal( action , storage.buildFolder.folderPath , GRADLE_CMD );
+		int status = session.customGetStatusNormal( action , CODEPATH.folderPath , GRADLE_CMD );
 		action.setTimeout( timeout );
 
 		if( status != 0 ) {

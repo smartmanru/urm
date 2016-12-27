@@ -9,19 +9,14 @@ public class ProjectVersionControl {
 
 	ActionBase action;
 	Artefactory artefactory;
-	public boolean build;
 	
-	public ProjectVersionControl( ActionBase action , boolean build ) {
+	public ProjectVersionControl( ActionBase action ) {
 		this.action = action;
 		this.artefactory = action.artefactory;
-		this.build = build;
 	}
 	
 	private GenericVCS getVCS( MetaSourceProject project ) throws Exception {
-		if( !build )
-			return( GenericVCS.getVCS( action , project.meta , project.getVCS( action ) ) );
-		String BUILDER = project.getBuilder( action );
-		return( GenericVCS.getVCS( action , project.meta , project.getVCS( action ) , BUILDER , false ) );
+		return( GenericVCS.getVCS( action , project.meta , project.getVCS( action ) ) );
 	}
 
 	public String checkDefaultBranch( GenericVCS vcs , String BRANCH ) {

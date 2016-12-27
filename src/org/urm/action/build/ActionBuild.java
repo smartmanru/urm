@@ -30,8 +30,6 @@ public class ActionBuild extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		boolean run = false;
-		
 		// run in order of build
 		debug( "build set=" + set.NAME + " ..." );
 		for( MetaSourceProject project : set.pset.getOrderedList() ) {
@@ -51,12 +49,8 @@ public class ActionBuild extends ActionBase {
 				error( "cancel build due to errors" );
 				return( SCOPESTATE.RunFail );
 			}
-			
-			run = true;
 		}
 
-		if( run )
-			shell.customCheckErrorsDebug( this , "grep " + Common.getQuoted( "[INFO|ERROR]] BUILD" ) + " " + OUTDIR.folderPath + "/" + set.NAME + "/*.log >> " + OUTFILE );
 		return( SCOPESTATE.RunSuccess );
 	}
 	

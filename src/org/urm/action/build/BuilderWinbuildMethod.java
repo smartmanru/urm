@@ -1,13 +1,11 @@
 package org.urm.action.build;
 
 import org.urm.action.ActionBase;
-import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.engine.vcs.ProjectVersionControl;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
@@ -16,37 +14,10 @@ import org.urm.meta.product.MetaSourceProject;
 
 public class BuilderWinbuildMethod extends Builder {
 
-	RemoteFolder CODEPATH;
-	
 	public BuilderWinbuildMethod( ServerProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
 		super( builder , project , storage , TAG , APPVERSION );
 	}
 
-	@Override public ShellExecutor createShell( ActionBase action ) throws Exception {
-		Account account = action.getLocalAccount();
-		return( action.getShell( account ) );
-	}
-
-	@Override public boolean exportCode( ActionBase action ) throws Exception {
-		ShellExecutor session = createShell( action );
-		
-		// drop old
-		RedistStorage storage = action.artefactory.getRedistStorage( action , session.account );
-		RemoteFolder buildFolder = storage.getRedistTmpFolder( action , "build" );
-		CODEPATH = buildFolder.getSubFolder( action , project.NAME );
-		CODEPATH.removeThis( action );
-	
-		// checkout
-		ProjectVersionControl vcs = new ProjectVersionControl( action , true );
-		LocalFolder path = action.getLocalFolder( CODEPATH.folderPath );
-		if( !vcs.export( path , project , "" , TAG , "" ) ) {
-			action.error( "patchCheckout: having problem to export code" );
-			return( false );
-		}
-		
-		return( true );
-	}
-	
 	@Override public boolean prepareSource( ActionBase action ) throws Exception {
 		return( true );
 	}
@@ -82,7 +53,7 @@ public class BuilderWinbuildMethod extends Builder {
 		MetaProductSettings product = project.meta.getProductSettings( action );
 		String nugetId = product.CONFIG_PRODUCT + ".project." + project.NAME; 
 		String nugetPackCmd = "nuget pack package.nuspec -Version " + APPVERSION + " -Properties id=" + nugetId;
-		RemoteFolder NUGETPATH = CODEPATH.getSubFolder( action , "packages.build" ); 
+		LocalFolder NUGETPATH = CODEPATH.getSubFolder( action , "packages.build" ); 
 		timeout = action.setTimeoutUnlimited();
 		status = session.customGetStatusNormal( action , NUGETPATH.folderPath , nugetPackCmd );
 		action.setTimeout( timeout );

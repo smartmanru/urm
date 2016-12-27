@@ -6,7 +6,6 @@ import org.urm.common.ConfReader;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.engine.vcs.ProjectVersionControl;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaSourceProject;
@@ -29,21 +28,6 @@ public class BuilderMavenMethod extends Builder {
 		return( action.createDedicatedShell( "build" ) );
 	}
 
-	@Override public boolean exportCode( ActionBase action ) throws Exception {
-		// drop old
-		LocalFolder CODEPATH = storage.buildFolder; 
-		CODEPATH.removeThis( action );
-	
-		// checkout
-		ProjectVersionControl vcs = new ProjectVersionControl( action , true ); 
-		if( !vcs.export( CODEPATH , project , "" , TAG , "" ) ) {
-			action.error( "patchCheckout: having problem to export code" );
-			return( false );
-		}
-		
-		return( true );
-	}
-	
 	@Override public boolean prepareSource( ActionBase action ) throws Exception {
 		// handle module options
 
@@ -109,7 +93,6 @@ public class BuilderMavenMethod extends Builder {
 
 	@Override public boolean runBuild( ActionBase action ) throws Exception {
 		// maven params
-		LocalFolder CODEPATH = storage.buildFolder; 
 		MetaProductBuildSettings build = action.getBuildSettings( project.meta );
 
 		String NEXUS_PATH = getNexusPath( action , project );
@@ -130,16 +113,16 @@ public class BuilderMavenMethod extends Builder {
 				MODULE_MAVEN_CMD + " " + MODULE_ALT_REPO + " " + MODULE_MSETTINGS + " -Dmaven.test.skip=true";
 
 		ShellExecutor session = action.shell;
-		session.export( action , "JAVA_HOME" , BUILD_JAVA_HOME );
-		session.export( action , "PATH" , "$JAVA_HOME/bin:$PATH" );
-		session.export( action , "M2_HOME" , BUILD_MAVEN_HOME );
-		session.export( action , "M2" , "$M2_HOME/bin" );
-		session.export( action , "PATH" , "$M2:$PATH" );
+		session.export( action , "JAVA_HOME" , session.getLocalPath( BUILD_JAVA_HOME ) );
+		session.export( action , "PATH" , session.getLocalPath( session.getVariable( "JAVA_HOME" ) + "/bin" ) + session.getPathBreak() +
+				session.getVariable( "PATH" ) );
+		session.export( action , "M2_HOME" , session.getLocalPath( BUILD_MAVEN_HOME ) );
+		session.export( action , "M2" , session.getLocalPath( session.getVariable( "M2_HOME" ) + "/bin" ) );
+		session.export( action , "PATH" , session.getVariable( "M2" ) + session.getPathBreak() + session.getVariable( "PATH" ) );
 		session.export( action , "MAVEN_OPTS" , Common.getQuoted( "-XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );
 
 		// execute maven
 		action.info( "using maven:" );
-		session.customCheckErrorsNormal( action , "which mvn" );
 		session.customCheckErrorsNormal( action , "mvn --version" );
 		
 		action.info( "execute: " + MAVEN_CMD );

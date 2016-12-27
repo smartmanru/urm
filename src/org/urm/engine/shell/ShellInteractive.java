@@ -7,13 +7,13 @@ public class ShellInteractive extends Shell {
 
 	ServerAuthResource auth;
 	
-	public static ShellInteractive getShell( ActionBase action , String name , ShellPool pool , Account account , ServerAuthResource auth ) throws Exception {
-		ShellInteractive shell = new ShellInteractive( name , pool , account , auth );
+	public static ShellInteractive getShell( ActionBase action , int id , String name , ShellPool pool , Account account , ServerAuthResource auth ) throws Exception {
+		ShellInteractive shell = new ShellInteractive( id , name , pool , account , auth );
 		return( shell );
 	}
 
-	private ShellInteractive( String name , ShellPool pool , Account account , ServerAuthResource auth ) {
-		super( name , pool , account );
+	private ShellInteractive( int id , String name , ShellPool pool , Account account , ServerAuthResource auth ) {
+		super( id , name , pool , account );
 		this.auth = auth;
 	}
 	
