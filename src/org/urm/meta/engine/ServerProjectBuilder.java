@@ -232,6 +232,12 @@ public class ServerProjectBuilder extends ServerObject {
 		return( false );
 	}
 
+	public boolean isTargetLocal() {
+		if( targetType == VarBUILDERTARGET.LOCALPATH )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isTargetNexus() {
 		if( targetType == VarBUILDERTARGET.NEXUS )
 			return( true );

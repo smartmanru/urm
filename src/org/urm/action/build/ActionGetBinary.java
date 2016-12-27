@@ -12,7 +12,6 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.NexusDownloadInfo;
 import org.urm.engine.storage.NexusStorage;
 import org.urm.engine.storage.SourceStorage;
-import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.Types.*;
 import org.urm.meta.engine.ServerProjectBuilder;
@@ -54,10 +53,12 @@ public class ActionGetBinary extends ActionBase {
 	
 	private void downloadBuiltItem( ServerProjectBuilder builder , ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
 		// get dist item details
-		MetaDistrBinaryItem distItem = scopeItem.distItem;
-		info( "get binary item " + distItem.KEY + " ..." );
+		info( "get project item " + scopeItem.sourceItem.ITEMNAME + " ..." );
 
 		// compare with release information
+		if( builder.isTargetLocal() )
+			downloadLocalItem( scopeProject , scopeItem );
+		else
 		if( builder.isTargetNexus() ) {
 			if( scopeItem.sourceItem.itemSrcType == VarITEMSRCTYPE.STATICWAR )
 				downloadNexusItem( "staticwar" , scopeProject , scopeItem );
@@ -69,6 +70,9 @@ public class ActionGetBinary extends ActionBase {
 			downloadNugetItem( scopeProject , scopeItem );
 		else
 			exitUnexpectedState();
+	}
+
+	private void downloadLocalItem( ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
 	}
 	
 	private void downloadNexusItem( String type , ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
@@ -99,7 +103,7 @@ public class ActionGetBinary extends ActionBase {
 		if( scopeItem.sourceItem.isInternal() )
 			copyDistr = false;
 
-		if( type.equals( "war" ) ) {
+		if( type.equals( "staticwar" ) ) {
 			NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( this , scopeProject.meta , downloadFolder );
 			NexusDownloadInfo WAR = nexusStorage.downloadNexus( this , GROUPID , ARTEFACTID , BUILDVERSION , "war" , "" , scopeItem.distItem );
 			NexusDownloadInfo STATIC = nexusStorage.downloadNexus( this , GROUPID , ARTEFACTID , BUILDVERSION , "tar.gz" , CLASSIFIER , scopeItem.distItem );

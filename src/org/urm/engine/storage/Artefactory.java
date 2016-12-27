@@ -67,7 +67,7 @@ public class Artefactory {
 		
 		MetaProductSettings settings = meta.getProductSettings( action );
 		String artefactDir = Common.getPath( build.CONFIG_ARTEFACTDIR , build.CONFIG_APPVERSION , FOLDER );
-		String redistPath = ( action.isLocalWindows() )? settings.CONFIG_REDISTWIN_PATH : settings.CONFIG_REDISTLINUX_PATH;
+		String redistPath = ( action.shell.isWindows() )? settings.CONFIG_REDISTWIN_PATH : settings.CONFIG_REDISTLINUX_PATH;
 		String finalPath = Common.getPath( redistPath , artefactDir );
 		
 		LocalFolder folder = getAnyFolder( action , finalPath );
