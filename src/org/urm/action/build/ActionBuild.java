@@ -74,12 +74,21 @@ public class ActionBuild extends ActionBase {
 		ActionPatch action = new ActionPatch( this , null , builder , BUILDDIR );
 		builder.createShell( action );
 
+		BUILDDIR.ensureExists( this );
+		
+		String logFile = BUILDDIR.getFilePath( this , builder.project.NAME + "-build.log" );
+		super.startRedirect( "PROJECT BUILD LOG:" , logFile );
+		info( "build: BUILDER=" + builder.builder.NAME + ", BUILDMODE=" + context.getBuildModeName() + ", PROJECT=" + builder.project.NAME + 
+				", REPOSITORY=" + builder.project.REPOSITORY + ", VCS=" + builder.project.getVCS( this ) + ", VCSPATH=" + builder.project.REPOPATH + 
+				", TAG=" + builder.TAG + ", VERSION=" + builder.APPVERSION );
+
 		BUILDSTATUS = "SUCCESSFUL"; 
 		if( !action.runProductBuild( project.meta.name , SecurityAction.ACTION_BUILD , context.buildMode , false ) ) {
 			BUILDSTATUS = "FAILED";
-			super.fail1( _Error.ProjectBuildError1 , "Errors while build project=" + project.NAME , project.NAME );
+			super.fail1( _Error.ProjectBuildError1 , "Errors while building project=" + project.NAME , project.NAME );
 		}
-
+		super.stopRedirect();
+		
 		// check status
 		info( "ActionBuild: build finished for CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) + ", TAG=" + TAG + ", VERSION=" + version + ", BUILDSTATUS=" + BUILDSTATUS );
 		return( true );

@@ -342,6 +342,8 @@ public class ShellPool implements Runnable {
 
 	private ShellExecutor startDedicatedRemoteShell( ActionBase action , String name , Account account , ServerAuthResource auth ) throws Exception {
 		ShellExecutor shell = createRemoteShell( action , name , account , auth );
+		
+		action.setShell( shell );
 		if( !shell.start( action ) )
 			action.exit0( _Error.UnableCreateRemoteShell0 , "unable to create remote shell" );
 		

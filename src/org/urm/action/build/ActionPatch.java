@@ -20,25 +20,8 @@ public class ActionPatch extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeSimple() throws Exception {
-		LOGDIR.ensureExists( this );
-		
-		String logFile = LOGDIR.getFilePath( this , builder.project.NAME + "-build.log" );
-		super.startRedirect( "PROJECT BUILD LOG:" , logFile );
-		info( "ActionPatch: BUILDER=" + builder.builder.NAME + ", BUILDMODE=" + context.getBuildModeName() + ", PROJECT=" + builder.project.NAME + 
-				", REPOSITORY=" + builder.project.REPOSITORY + ", VCS=" + builder.project.getVCS( this ) + ", VCSPATH=" + builder.project.REPOPATH + 
-				", VCSREPO=" + builder.project.REPOSITORY + ", TAG=" + builder.TAG + ", VERSION=" + builder.APPVERSION );
-
-		try {
-			if( !executePatch() )
-				super.fail1( _Error.ProjectPatchError1 , "Errors while build project=" + builder.project.NAME , builder.project.NAME );
-			
-			super.stopRedirect();
-		}
-		catch( Exception e ) {
-			handle( e );
-			super.stopRedirect();
-			throw e;
-		}
+		if( !executePatch() )
+			return( SCOPESTATE.RunFail );
 		
 		return( SCOPESTATE.RunSuccess );
 	}
