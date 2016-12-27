@@ -54,6 +54,9 @@ public class Artefactory {
 	
 	public LocalFolder getDownloadFolder( ActionBase action , Meta meta ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings( meta );
+		if( build.CONFIG_ARTEFACTDIR.isEmpty() )
+			action.exit0( _Error.MissingArtefactDir0 , "Missing artefact directory in product build configuration" );
+		
 		LocalFolder folder = getAnyFolder( action , build.CONFIG_ARTEFACTDIR );
 		folder.ensureExists( action );
 		return( folder );
