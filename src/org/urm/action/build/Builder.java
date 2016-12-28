@@ -1,6 +1,7 @@
 package org.urm.action.build;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.common.PropertySet;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
@@ -10,6 +11,7 @@ import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.vcs.ProjectVersionControl;
 import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductSettings;
@@ -36,6 +38,37 @@ public abstract class Builder {
 		this.storage = storage;
 		this.TAG = TAG;
 		this.APPVERSION = APPVERSION;
+	}
+
+	public static Builder createBuilder( ActionBase action , MetaSourceProject project , String TAG , String VERSION ) throws Exception {
+		String BUILDER = project.getBuilder( action );
+		
+		ServerBuilders builders = action.getBuilders();
+		ServerProjectBuilder builder = builders.getBuilder( BUILDER );
+		
+		Builder projectBuilder = null;
+		
+		BuildStorage storage = action.artefactory.getEmptyBuildStorage( action , project );
+		if( builder.isGeneric() )
+			projectBuilder = new BuilderGenericMethod( builder , project , storage , TAG , VERSION );
+		else
+		if( builder.isAnt() )
+			projectBuilder = new BuilderAntMethod( builder , project , storage , TAG , VERSION );
+		else
+		if( builder.isMaven() )
+			projectBuilder = new BuilderMavenMethod( builder , project , storage , TAG , VERSION );
+		else
+		if( builder.isGradle() )
+			projectBuilder = new BuilderGradleMethod( builder , project , storage , TAG , VERSION );
+		else
+		if( builder.isWinBuild() )
+			projectBuilder = new BuilderWinbuildMethod( builder , project , storage , TAG , VERSION );
+		else {
+			String method = Common.getEnumLower( builder.builderMethod );
+			action.exit2( _Error.UnknownBuilderMethod2 , "unknown builder method=" + method + " (builder=" + BUILDER + ")" , method , BUILDER );
+		}
+		
+		return( projectBuilder );
 	}
 
 	public ShellExecutor createShell( ActionBase action ) throws Exception {

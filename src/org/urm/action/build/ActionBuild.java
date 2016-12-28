@@ -6,11 +6,8 @@ import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
-import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
-import org.urm.meta.engine.ServerBuilders;
-import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.product.MetaSourceProject;
 
 public class ActionBuild extends ActionBase {
@@ -59,7 +56,7 @@ public class ActionBuild extends ActionBase {
 		
 		// execute
 		MetaSourceProject project = scopeProject.sourceProject;
-		Builder builder = createBuilder( project , TAG , version );
+		Builder builder = Builder.createBuilder( this , project , TAG , version );
 		info( "ActionBuild: CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) + ", PROJECT=" + project.NAME + 
 				", REPOSITORY=" + project.REPOSITORY + ", TAG=" + TAG + ", VERSION=" + version + ", BUILDER=" + builder.builder.NAME );
 
@@ -87,32 +84,4 @@ public class ActionBuild extends ActionBase {
 		return( true );
 	}
 	
-	private Builder createBuilder( MetaSourceProject project , String TAG , String VERSION ) throws Exception {
-		String BUILDER = project.getBuilder( this );
-		
-		ServerBuilders builders = super.getBuilders();
-		ServerProjectBuilder builder = builders.getBuilder( BUILDER );
-		
-		Builder projectBuilder = null;
-		
-		BuildStorage storage = artefactory.getEmptyBuildStorage( this , project );
-		if( builder.isAnt() )
-			projectBuilder = new BuilderAntMethod( builder , project , storage , TAG , VERSION );
-		else
-		if( builder.isMaven() )
-			projectBuilder = new BuilderMavenMethod( builder , project , storage , TAG , VERSION );
-		else
-		if( builder.isGradle() )
-			projectBuilder = new BuilderGradleMethod( builder , project , storage , TAG , VERSION );
-		else
-		if( builder.isWinBuild() )
-			projectBuilder = new BuilderWinbuildMethod( builder , project , storage , TAG , VERSION );
-		else {
-			String method = Common.getEnumLower( builder.builderMethod );
-			exit2( _Error.UnknownBuilderMethod2 , "unknown builder method=" + method + " (builder=" + BUILDER + ")" , method , BUILDER );
-		}
-		
-		return( projectBuilder );
-	}
-
 }

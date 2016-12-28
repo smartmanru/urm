@@ -22,7 +22,7 @@ public class BuilderAntMethod extends Builder {
 	}
 
 	@Override public boolean runBuild( ActionBase action ) throws Exception {
-		// maven params
+		// ant params
 		action.info( "build PATCHPATH=" + CODEPATH.folderPath + " using ant " + builder.VERSION + " ..." );
 
 		// set environment
@@ -41,7 +41,7 @@ public class BuilderAntMethod extends Builder {
 				session.getLocalPath( session.getVariable( "JAVA_HOME" ) + "/bin" ) + session.getPathBreak() + 
 				session.getVariable( "PATH" ) );
 
-		// execute maven
+		// execute ant
 		action.info( "using ant:" );
 		session.customCheckErrorsNormal( action , "ant -version" );
 		
