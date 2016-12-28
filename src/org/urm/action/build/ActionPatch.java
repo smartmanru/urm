@@ -122,7 +122,7 @@ public class ActionPatch extends ActionBase {
 
 	private boolean copyFile( LocalFolder codeDirFolder , LocalFolder downloadFolder , String file ) throws Exception {
 		if( !shell.checkFileExists( this , codeDirFolder.folderPath , file ) ) {
-			super.fail1( _Error.MissingProjectItemFile1 , "Missing project item file: " + file , file );
+			super.fail2( _Error.MissingProjectItemFile2 , "Missing project item file=" + file + ", dir=" + codeDirFolder.folderPath , file , codeDirFolder.folderPath );
 			return( false );
 		}
 		
