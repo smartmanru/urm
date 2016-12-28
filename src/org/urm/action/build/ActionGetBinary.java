@@ -14,6 +14,7 @@ import org.urm.engine.storage.NexusStorage;
 import org.urm.engine.storage.SourceStorage;
 import org.urm.meta.Types.*;
 import org.urm.meta.engine.ServerProjectBuilder;
+import org.urm.meta.product.MetaSourceProjectItem;
 
 public class ActionGetBinary extends ActionBase {
 
@@ -51,6 +52,12 @@ public class ActionGetBinary extends ActionBase {
 	}
 	
 	private void downloadBuiltItem( ServerProjectBuilder builder , ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
+		MetaSourceProjectItem item = scopeItem.sourceItem;
+		if( item.isInternal() ) {
+			debug( "skip internal project item " + scopeItem.sourceItem.ITEMNAME + " ..." );
+			return;
+		}
+		
 		// get dist item details
 		info( "get project item " + scopeItem.sourceItem.ITEMNAME + " ..." );
 
