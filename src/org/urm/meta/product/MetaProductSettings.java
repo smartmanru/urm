@@ -44,7 +44,6 @@ public class MetaProductSettings extends PropertyController {
 	public String CONFIG_UPGRADE_PATH;
 	public String CONFIG_BASE_PATH;
 	public String CONFIG_MIRRORPATH;
-	public String CONFIG_BUILDBASE_PATH;
 	public String CONFIG_WINBUILD_HOSTLOGIN;
 	public String CONFIG_ADM_TRACKER;
 	public String CONFIG_COMMIT_TRACKERLIST;
@@ -79,7 +78,6 @@ public class MetaProductSettings extends PropertyController {
 	public static String PROPERTY_UPGRADE_PATH = "upgrade.path";
 	public static String PROPERTY_BASE_PATH = "base.path";
 	public static String PROPERTY_MIRRORPATH = "mirror.path";
-	public static String PROPERTY_BUILDBASE_PATH = "buildbase.path";
 	public static String PROPERTY_WINBUILD_HOSTLOGIN = "winbuild.hostlogin";
 	public static String PROPERTY_ADM_TRACKER = "adm.tracker";
 	public static String PROPERTY_COMMIT_TRACKERLIST = "source.trackers";
@@ -121,7 +119,6 @@ public class MetaProductSettings extends PropertyController {
 		CONFIG_UPGRADE_PATH = super.getPathPropertyRequired( action , PROPERTY_UPGRADE_PATH );
 		CONFIG_BASE_PATH = super.getPathPropertyRequired( action , PROPERTY_BASE_PATH );
 		CONFIG_MIRRORPATH = super.getPathPropertyRequired( action , PROPERTY_MIRRORPATH );
-		CONFIG_BUILDBASE_PATH = super.getPathPropertyRequired( action , PROPERTY_BUILDBASE_PATH );
 		CONFIG_WINBUILD_HOSTLOGIN = super.getPathPropertyRequired( action , PROPERTY_WINBUILD_HOSTLOGIN );
 		CONFIG_ADM_TRACKER = super.getStringProperty( action , PROPERTY_ADM_TRACKER );
 		CONFIG_COMMIT_TRACKERLIST = super.getStringProperty( action , PROPERTY_COMMIT_TRACKERLIST );
@@ -158,13 +155,6 @@ public class MetaProductSettings extends PropertyController {
 		r.CONFIG_VERSION_BRANCH_NEXTMAJOR = CONFIG_VERSION_BRANCH_NEXTMAJOR;
 		r.CONFIG_VERSION_BRANCH_NEXTMINOR = CONFIG_VERSION_BRANCH_NEXTMINOR;
 
-		r.CONFIG_SOURCE_CHARSET = CONFIG_SOURCE_CHARSET;
-		r.CONFIG_SOURCE_RELEASEROOTDIR = CONFIG_SOURCE_RELEASEROOTDIR;
-		r.CONFIG_SOURCE_CFG_ROOTDIR = CONFIG_SOURCE_CFG_ROOTDIR;
-		r.CONFIG_SOURCE_CFG_LIVEROOTDIR = CONFIG_SOURCE_CFG_LIVEROOTDIR;
-		r.CONFIG_SOURCE_SQL_POSTREFRESH = CONFIG_SOURCE_SQL_POSTREFRESH;
-		r.charset = charset;
-		
 		if( buildCommon != null )
 			r.buildCommon = buildCommon.copy( action , meta , r , r.getProperties() ); 
 		for( VarBUILDMODE mode : buildModes.keySet() ) {

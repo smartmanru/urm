@@ -99,17 +99,17 @@ public class BuilderMavenMethod extends Builder {
 		String MODULE_ALT_REPO = "-DaltDeploymentRepository=nexus2::default::" + NEXUS_PATH;
 		String MODULE_MSETTINGS = "--settings=" + build.CONFIG_MAVEN_CFGFILE;
 		String MODULE_MAVEN_CMD = "deploy";
-		String MAVEN_ADDITIONAL_OPTIONS = build.CONFIG_MAVEN_OPTIONS;
+		String MODULE_ADDITIONAL_OPTIONS = project.BUILDER_ADDOPTIONS;
 		if( action.context.CTX_SHOWALL )
-			MAVEN_ADDITIONAL_OPTIONS += " -X";
+			MODULE_ADDITIONAL_OPTIONS += " -X";
 
-		action.info( "build PATCHPATH=" + CODEPATH.folderPath + ", options=" + MAVEN_ADDITIONAL_OPTIONS + ", cmd=" + MODULE_MAVEN_CMD + 
+		action.info( "build PATCHPATH=" + CODEPATH.folderPath + ", options=" + MODULE_ADDITIONAL_OPTIONS + ", cmd=" + MODULE_MAVEN_CMD + 
 				" using maven to nexus path " + NEXUS_PATH + "..." );
 
 		// set environment
 		String BUILD_JAVA_HOME = builder.JAVA_JDKHOMEPATH;
 		String BUILD_MAVEN_HOME = builder.MAVEN_HOMEPATH; 
-		String MAVEN_CMD = "mvn -B -P " + MAVEN_ADDITIONAL_OPTIONS + " clean " + 
+		String MAVEN_CMD = "mvn -B " + MODULE_ADDITIONAL_OPTIONS + " clean " + 
 				MODULE_MAVEN_CMD + " " + MODULE_ALT_REPO + " " + MODULE_MSETTINGS + " -Dmaven.test.skip=true";
 
 		ShellExecutor session = action.shell;

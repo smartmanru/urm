@@ -12,7 +12,6 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.NexusDownloadInfo;
 import org.urm.engine.storage.NexusStorage;
 import org.urm.engine.storage.SourceStorage;
-import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.Types.*;
 import org.urm.meta.engine.ServerProjectBuilder;
 
@@ -57,25 +56,25 @@ public class ActionGetBinary extends ActionBase {
 
 		// compare with release information
 		if( builder.isTargetLocal() )
-			downloadLocalItem( scopeProject , scopeItem );
+			downloadLocalItem( builder , scopeProject , scopeItem );
 		else
 		if( builder.isTargetNexus() ) {
 			if( scopeItem.sourceItem.itemSrcType == VarITEMSRCTYPE.STATICWAR )
-				downloadNexusItem( "staticwar" , scopeProject , scopeItem );
+				downloadNexusItem( builder.TARGETNEXUS , "staticwar" , scopeProject , scopeItem );
 			else
-				downloadNexusItem( "nexus" , scopeProject , scopeItem );
+				downloadNexusItem( builder.TARGETNEXUS , "nexus" , scopeProject , scopeItem );
 		}
 		else
 		if( builder.isTargetNuget() )
-			downloadNugetItem( scopeProject , scopeItem );
+			downloadNugetItem( builder , scopeProject , scopeItem );
 		else
 			exitUnexpectedState();
 	}
 
-	private void downloadLocalItem( ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
+	private void downloadLocalItem( ServerProjectBuilder builder , ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
 	}
 	
-	private void downloadNexusItem( String type , ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
+	private void downloadNexusItem( String nexusResource , String type , ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
 		String ARTEFACTID = scopeItem.sourceItem.ITEMBASENAME;
 		String EXT = scopeItem.sourceItem.ITEMEXTENSION; 
 		
@@ -104,12 +103,11 @@ public class ActionGetBinary extends ActionBase {
 			copyDistr = false;
 
 		if( type.equals( "staticwar" ) ) {
-			NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( this , scopeProject.meta , downloadFolder );
+			NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( this , nexusResource , scopeProject.meta , downloadFolder );
 			NexusDownloadInfo WAR = nexusStorage.downloadNexus( this , GROUPID , ARTEFACTID , BUILDVERSION , "war" , "" , scopeItem.distItem );
 			NexusDownloadInfo STATIC = nexusStorage.downloadNexus( this , GROUPID , ARTEFACTID , BUILDVERSION , "tar.gz" , CLASSIFIER , scopeItem.distItem );
 			
-			ServerProjectBuilder builder = super.getBuilder( scopeItem.sourceItem.project.getBuilder( this ) );
-			if( copyDistr && builder.targetType == VarBUILDERTARGET.NEXUS ) {
+			if( copyDistr ) {
 				Dist releaseStorage = targetRelease;
 				releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , WAR.DOWNLOAD_FILENAME , WAR.BASENAME, WAR.EXT );
 				releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , WAR.DOWNLOAD_FILENAME , STATIC.BASENAME, WAR.EXT );
@@ -117,7 +115,7 @@ public class ActionGetBinary extends ActionBase {
 		}
 		else 
 		if( type.equals( "thirdparty" ) ) {
-			NexusStorage nexusStorage = artefactory.getThirdpartyNexusStorage( this , scopeProject.meta , downloadFolder );
+			NexusStorage nexusStorage = artefactory.getThirdpartyNexusStorage( this , nexusResource , scopeProject.meta , downloadFolder );
 			NexusDownloadInfo BINARY = nexusStorage.downloadNexus( this , GROUPID , ARTEFACTID , BUILDVERSION , PACKAGING , CLASSIFIER , scopeItem.distItem );
 			
 			if( copyDistr ) {
@@ -126,7 +124,7 @@ public class ActionGetBinary extends ActionBase {
 			}
 		}
 		else if( type.equals( "nexus" ) ) {
-			NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( this , scopeProject.meta , downloadFolder );
+			NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( this , nexusResource , scopeProject.meta , downloadFolder );
 			NexusDownloadInfo BINARY = nexusStorage.downloadNexus( this , GROUPID , ARTEFACTID , BUILDVERSION , PACKAGING , CLASSIFIER , scopeItem.distItem );
 			
 			if( copyDistr ) {
@@ -136,21 +134,19 @@ public class ActionGetBinary extends ActionBase {
 		}
 	}
 
-	private void downloadNugetItem( ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
+	private void downloadNugetItem( ServerProjectBuilder builder , ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
 		String ARTEFACTID = scopeItem.sourceItem.ITEMPATH;
 		String BUILDVERSION = scopeItem.getProjectItemBuildVersion( this );
 		boolean copyDistr = context.CTX_DIST;
 		if( scopeItem.sourceItem.isInternal() )
 			copyDistr = false;
 
-		NexusStorage nexusStorage = artefactory.getDefaultNugetStorage( this , scopeProject.meta , downloadFolder );
+		NexusStorage nexusStorage = artefactory.getDefaultNugetStorage( this , builder.TARGETNEXUS , scopeProject.meta , downloadFolder );
 		NexusDownloadInfo BINARY = nexusStorage.downloadNuget( this , ARTEFACTID , BUILDVERSION , scopeItem.distItem );
 
 		String FILENAME = "";
 		String BASENAME = "";
 		String EXT = "";
-		MetaSourceProject project = scopeItem.sourceItem.project;
-		ServerProjectBuilder builder = super.getBuilder( project.getBuilder( this ) );
 		if( builder.isTargetNuget() ) {
 			if( builder.TARGETNUGETPLATFORM.isEmpty() ) {
 				FILENAME = BINARY.DOWNLOAD_FILENAME;
@@ -199,7 +195,7 @@ public class ActionGetBinary extends ActionBase {
 		}
 		else
 		if( scopeProject.sourceProject.isPrebuiltNexus() ) {
-			downloadNexusItem( "thirdparty" , scopeProject , scopeItem );
+			downloadNexusItem( scopeProject.sourceProject.RESOURCE , "thirdparty" , scopeProject , scopeItem );
 		}
 		else
 			exitUnexpectedState();

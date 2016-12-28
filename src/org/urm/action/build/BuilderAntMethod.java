@@ -28,9 +28,11 @@ public class BuilderAntMethod extends Builder {
 		// set environment
 		String BUILD_JAVA_HOME = builder.JAVA_JDKHOMEPATH;
 		String BUILD_ANT_HOME = builder.ANT_HOMEPATH; 
-		String ANT_CMD = "ant";
+		String MODULE_ADDITIONAL_OPTIONS = project.BUILDER_ADDOPTIONS;
+		String ANT_CMD = "ant ";
 		if( !action.isDebug() )
-			ANT_CMD += " -silent";
+			ANT_CMD += "-silent ";
+		ANT_CMD += MODULE_ADDITIONAL_OPTIONS;
 
 		ShellExecutor session = action.shell;
 		session.export( action , "JAVA_HOME" , session.getLocalPath( BUILD_JAVA_HOME ) );

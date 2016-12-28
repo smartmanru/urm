@@ -23,15 +23,10 @@ public class MetaProductBuildSettings extends PropertyController {
 	public String CONFIG_APPVERSION;
 	public String CONFIG_LOGPATH;
 	
-	public String CONFIG_NEXUS_RESOURCE;
+	public String CONFIG_ARTEFACTDIR;
 	public String CONFIG_NEXUS_REPO;
 	public String CONFIG_NEXUS_REPO_THIRDPARTY;
-	public String CONFIG_BUILDER;
-	public String CONFIG_MAVEN_VERSION;
 	public String CONFIG_MAVEN_CFGFILE;
-	public String CONFIG_MAVEN_OPTIONS;
-	public String CONFIG_MAVEN_JAVA_VERSION;
-	public String CONFIG_ARTEFACTDIR;
 
 	public String CONFIG_COMMIT_TRACKERLIST;
 	public String CONFIG_BRANCHNAME;
@@ -48,13 +43,9 @@ public class MetaProductBuildSettings extends PropertyController {
 
 	// build operation
 	public static String PROPERTY_ARTEFACTDIR = "build.artefacts";
-	public static String PROPERTY_BUILDER = "builder";
-	public static String PROPERTY_NEXUS_RESOURCE = "nexus.resource";
 	public static String PROPERTY_NEXUS_REPO = "nexus.repo";
 	public static String PROPERTY_NEXUS_REPO_THIRDPARTY = "nexus.thirdparty";
-	public static String PROPERTY_MAVEN_VERSION = "maven.version";
 	public static String PROPERTY_MAVEN_CFGFILE = "maven.conf";
-	public static String PROPERTY_MAVEN_JAVA_VERSION = "maven.java";
 
 	// build source code
 	public static String PROPERTY_BRANCHNAME = "source.branch";
@@ -90,14 +81,10 @@ public class MetaProductBuildSettings extends PropertyController {
 		CONFIG_APPVERSION = super.getStringProperty( action , PROPERTY_APPVERSION );
 		CONFIG_LOGPATH = super.getPathProperty( action , PROPERTY_LOGPATH );
 		
-		CONFIG_NEXUS_RESOURCE = super.getStringProperty( action , PROPERTY_NEXUS_RESOURCE );
+		CONFIG_ARTEFACTDIR = super.getStringProperty( action , PROPERTY_ARTEFACTDIR );
 		CONFIG_NEXUS_REPO = super.getStringProperty( action , PROPERTY_NEXUS_REPO );
 		CONFIG_NEXUS_REPO_THIRDPARTY = super.getStringProperty( action , PROPERTY_NEXUS_REPO_THIRDPARTY );
-		CONFIG_BUILDER = super.getStringProperty( action , PROPERTY_BUILDER );
-		CONFIG_MAVEN_VERSION = super.getStringProperty( action , PROPERTY_MAVEN_VERSION );
 		CONFIG_MAVEN_CFGFILE = super.getStringProperty( action , PROPERTY_MAVEN_CFGFILE );
-		CONFIG_MAVEN_JAVA_VERSION = super.getStringProperty( action , PROPERTY_MAVEN_JAVA_VERSION );
-		CONFIG_ARTEFACTDIR = super.getStringProperty( action , PROPERTY_ARTEFACTDIR );
 
 		CONFIG_BRANCHNAME = super.getStringProperty( action , PROPERTY_BRANCHNAME );
 		CONFIG_RELEASE_GROUPFOLDER = super.getStringProperty( action , PROPERTY_RELEASE_GROUPFOLDER );

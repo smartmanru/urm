@@ -8,7 +8,7 @@ import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
-import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.engine.ServerBuilders;
 
 public class ActionUploadReleaseItem extends ActionBase {
 
@@ -24,11 +24,17 @@ public class ActionUploadReleaseItem extends ActionBase {
 		List<ActionScopeTargetItem> items = scopeProject.getItems( this );
 		
 		// set maven
-		MetaProductBuildSettings build = getBuildSettings( scopeProject.meta );
-		shell.export( this , "M2_HOME" , "/usr/local/apache-maven-" + build.CONFIG_MAVEN_VERSION );
-		shell.export( this , "M2" , "$M2_HOME/bin; export PATH=" + Common.getQuoted( "$PATH:$M2" ) );
-		shell.export( this , "JAVA_HOME" , "/usr/java/" + build.CONFIG_MAVEN_JAVA_VERSION );
-		shell.export( this , "PATH" , "$PATH:$JAVA_HOME/bin" );
+		ServerBuilders builders = super.getBuilders();
+		String BUILD_JAVA_HOME = shell.getLocalPath( builders.JAVA_HOMEPATH );
+		String BUILD_MAVEN_HOME = shell.getLocalPath( builders.MAVEN_HOMEPATH );
+
+		shell.export( this , "JAVA_HOME" , BUILD_JAVA_HOME );
+		shell.export( this , "M2_HOME" , BUILD_MAVEN_HOME );
+		shell.export( this , "M2" , shell.getLocalPath( shell.getVariable( "M2_HOME" ) + "/bin" ) );
+		shell.export( this , "PATH" , shell.getLocalPath( shell.getVariable( "JAVA_HOME" ) + "/bin" ) + shell.getPathBreak() +
+				shell.getVariable( "M2" ) + shell.getPathBreak() +
+				shell.getVariable( "PATH" ) );
+		shell.export( this , "MAVEN_OPTS" , Common.getQuoted( "-XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );
 	
 		// get thirdparty information
 		for( ActionScopeTargetItem scopeItem : items )

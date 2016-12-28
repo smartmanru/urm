@@ -34,6 +34,8 @@ public class BuilderWinbuildMethod extends Builder {
 		String MSBUILD_OPTIONS = builder.MSBUILD_OPTIONS;
 		if( action.context.CTX_SHOWALL )
 			MSBUILD_OPTIONS += " /verbosity:detailed";
+		String MODULE_ADDITIONAL_OPTIONS = project.BUILDER_ADDOPTIONS;
+		MSBUILD_OPTIONS += " " + MODULE_ADDITIONAL_OPTIONS;
 
 		String BUILD_CMD = MSBUILD_PATH + " " + MSBUILD_OPTIONS;
 		action.info( "build PATCHPATH=" + CODEPATH.folderPath + ", options=" + MSBUILD_OPTIONS + ", cmd=" + BUILD_CMD + 
@@ -88,7 +90,7 @@ public class BuilderWinbuildMethod extends Builder {
 
 	private String getNugetSourcePath( ActionBase action ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings( project.meta );
-		ServerAuthResource res = action.getResource( build.CONFIG_NEXUS_RESOURCE );
+		ServerAuthResource res = action.getResource( builder.TARGETNEXUS );
 		return( res.BASEURL + "/service/local/nuget/" + build.CONFIG_NEXUS_REPO + "-nuget/" );
 	}
 	

@@ -108,39 +108,39 @@ public class Artefactory {
 		return( new MonitoringStorage( this , workFolder , mon ) );
 	}
 
-	public NexusStorage getNexusStorage( ActionBase action , Meta meta , String repository ) throws Exception {
+	public NexusStorage getNexusStorage( ActionBase action , String NEXUS_RESOURCE , Meta meta , String repository ) throws Exception {
 		action.checkRequired( repository , "repository" );
-		return( new NexusStorage( this , meta , workFolder , repository ) );
+		return( new NexusStorage( this , meta , workFolder , NEXUS_RESOURCE , repository ) );
 	}
 
-	public NexusStorage getNexusStorage( ActionBase action , Meta meta , String repository , LocalFolder folder ) throws Exception {
+	public NexusStorage getNexusStorage( ActionBase action , String NEXUS_RESOURCE , Meta meta , String repository , LocalFolder folder ) throws Exception {
 		action.checkRequired( repository , "repository" );
-		return( new NexusStorage( this , meta , folder , repository ) );
+		return( new NexusStorage( this , meta , folder , NEXUS_RESOURCE , repository ) );
 	}
 
-	public NexusStorage getDefaultNexusStorage( ActionBase action , Meta meta ) throws Exception {
+	public NexusStorage getDefaultNexusStorage( ActionBase action , String NEXUS_RESOURCE , Meta meta ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		return( new NexusStorage( this , meta , workFolder , build.CONFIG_NEXUS_REPO ) );
+		return( new NexusStorage( this , meta , workFolder , NEXUS_RESOURCE , build.CONFIG_NEXUS_REPO ) );
 	}
 	
-	public NexusStorage getDefaultNexusStorage( ActionBase action , Meta meta , LocalFolder folder ) throws Exception {
+	public NexusStorage getDefaultNexusStorage( ActionBase action , String NEXUS_RESOURCE , Meta meta , LocalFolder folder ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		return( new NexusStorage( this , meta , folder , build.CONFIG_NEXUS_REPO ) );
+		return( new NexusStorage( this , meta , folder , NEXUS_RESOURCE , build.CONFIG_NEXUS_REPO ) );
 	}
 	
-	public NexusStorage getDefaultNugetStorage( ActionBase action , Meta meta , LocalFolder folder ) throws Exception {
+	public NexusStorage getDefaultNugetStorage( ActionBase action , String NEXUS_RESOURCE , Meta meta , LocalFolder folder ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		return( new NexusStorage( this , meta , folder , build.CONFIG_NEXUS_REPO + "-nuget" ) );
+		return( new NexusStorage( this , meta , folder , NEXUS_RESOURCE , build.CONFIG_NEXUS_REPO + "-nuget" ) );
 	}
 	
-	public NexusStorage getThirdpartyNexusStorage( ActionBase action , Meta meta ) throws Exception {
+	public NexusStorage getThirdpartyNexusStorage( ActionBase action , String NEXUS_RESOURCE , Meta meta ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		return( new NexusStorage( this , meta , workFolder , build.CONFIG_NEXUS_REPO_THIRDPARTY ) );
+		return( new NexusStorage( this , meta , workFolder , NEXUS_RESOURCE , build.CONFIG_NEXUS_REPO_THIRDPARTY ) );
 	}
 	
-	public NexusStorage getThirdpartyNexusStorage( ActionBase action , Meta meta , LocalFolder folder ) throws Exception {
+	public NexusStorage getThirdpartyNexusStorage( ActionBase action , String NEXUS_RESOURCE , Meta meta , LocalFolder folder ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		return( new NexusStorage( this , meta , folder , build.CONFIG_NEXUS_REPO_THIRDPARTY ) );
+		return( new NexusStorage( this , meta , folder , NEXUS_RESOURCE , build.CONFIG_NEXUS_REPO_THIRDPARTY ) );
 	}
 	
 	public SourceStorage getSourceStorage( ActionBase action , Meta meta ) throws Exception {

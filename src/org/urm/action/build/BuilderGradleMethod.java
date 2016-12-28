@@ -30,6 +30,7 @@ public class BuilderGradleMethod extends Builder {
 		// set java and gradle environment
 		String BUILD_JAVA_HOME = builder.JAVA_JDKHOMEPATH;
 		String BUILD_GRADLE_HOME = builder.GRADLE_HOMEPATH; 
+		String MODULE_ADDITIONAL_OPTIONS = project.BUILDER_ADDOPTIONS;
 
 		ShellExecutor session = action.shell;
 		session.export( action , "JAVA_HOME" , session.getLocalPath( BUILD_JAVA_HOME ) );
@@ -41,11 +42,10 @@ public class BuilderGradleMethod extends Builder {
 				session.getVariable( "PATH" ) );
 
 		MetaProductBuildSettings build = action.getBuildSettings( project.meta );
-		String GRADLE_CMD = "gradle clean war publish -Dmaven.settings=" + build.CONFIG_MAVEN_CFGFILE;
+		String GRADLE_CMD = "gradle clean war publish -Dmaven.settings=" + session.getLocalPath( build.CONFIG_MAVEN_CFGFILE ) + " " + MODULE_ADDITIONAL_OPTIONS;
 
 		// execute gradle
 		action.info( "using gradle:" );
-		session.customCheckErrorsNormal( action , "which gradle" );
 		session.customCheckErrorsNormal( action , "gradle --version" );
 		
 		action.info( "execute: " + GRADLE_CMD );

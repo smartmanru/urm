@@ -19,7 +19,9 @@ public class ServerBuilders extends ServerObject {
 
 	public boolean registerBuild;
 	public String MAVEN_HOMEPATH;
+	public String MAVEN_VERSION;
 	public String MAVEN_SETTINGS;
+	public String JAVA_HOMEPATH;
 	public String NEXUS_RESOURCE;
 	public String NEXUS_ROOTPATH;
 	
@@ -38,7 +40,9 @@ public class ServerBuilders extends ServerObject {
 
 		r.registerBuild = registerBuild;
 		r.MAVEN_HOMEPATH = MAVEN_HOMEPATH;
+		r.MAVEN_VERSION = MAVEN_VERSION;
 		r.MAVEN_SETTINGS = MAVEN_SETTINGS;
+		r.JAVA_HOMEPATH = JAVA_HOMEPATH;
 		r.NEXUS_RESOURCE = NEXUS_RESOURCE;
 		r.NEXUS_ROOTPATH = NEXUS_ROOTPATH;
 		
@@ -56,7 +60,9 @@ public class ServerBuilders extends ServerObject {
 		registerBuild = ConfReader.getBooleanPropertyValue( root , "register" , false );
 		if( registerBuild ) {
 			MAVEN_HOMEPATH = ConfReader.getPropertyValue( root , "maven.homepath" );
+			MAVEN_VERSION = ConfReader.getPropertyValue( root , "maven.version" );
 			MAVEN_SETTINGS = ConfReader.getPropertyValue( root , "maven.settings" );
+			JAVA_HOMEPATH = ConfReader.getPropertyValue( root , "java.homepath" );
 			NEXUS_RESOURCE = ConfReader.getPropertyValue( root , "nexus.resource" );
 			NEXUS_ROOTPATH = ConfReader.getPropertyValue( root , "nexus.rootpath" );
 		}
@@ -75,10 +81,14 @@ public class ServerBuilders extends ServerObject {
 
 	public void save( Document doc , Element root ) throws Exception {
 		Common.xmlCreateBooleanPropertyElement( doc , root , "register" , registerBuild );
-		Common.xmlCreatePropertyElement( doc , root , "maven.homepath" , MAVEN_HOMEPATH );
-		Common.xmlCreatePropertyElement( doc , root , "maven.settings" , MAVEN_SETTINGS );
-		Common.xmlCreatePropertyElement( doc , root , "nexus.resource" , NEXUS_RESOURCE );
-		Common.xmlCreatePropertyElement( doc , root , "nexus.rootpath" , NEXUS_ROOTPATH );
+		if( registerBuild ) {
+			Common.xmlCreatePropertyElement( doc , root , "maven.homepath" , MAVEN_HOMEPATH );
+			Common.xmlCreatePropertyElement( doc , root , "maven.version" , MAVEN_VERSION );
+			Common.xmlCreatePropertyElement( doc , root , "maven.settings" , MAVEN_SETTINGS );
+			Common.xmlCreatePropertyElement( doc , root , "java.homepath" , JAVA_HOMEPATH );
+			Common.xmlCreatePropertyElement( doc , root , "nexus.resource" , NEXUS_RESOURCE );
+			Common.xmlCreatePropertyElement( doc , root , "nexus.rootpath" , NEXUS_ROOTPATH );
+		}
 		
 		for( ServerProjectBuilder res : builderMap.values() ) {
 			Element resElement = Common.xmlCreateElement( doc , root , "builder" );
@@ -119,17 +129,21 @@ public class ServerBuilders extends ServerObject {
 		builderMap.remove( builder.NAME );
 	}
 
-	public void setRegisterData( ServerTransaction transaction , boolean regUse , String regMavenHome , String regMavenSettings , String regNexusRes , String regNexusRoot ) throws Exception {
+	public void setRegisterData( ServerTransaction transaction , boolean regUse , String regMavenHome , String regMavenVersion , String regMavenSettings , String regJavaHome , String regNexusRes , String regNexusRoot ) throws Exception {
 		this.registerBuild = regUse;
 		if( regUse ) {
 			this.MAVEN_HOMEPATH = regMavenHome;
+			this.MAVEN_VERSION = regMavenVersion;
 			this.MAVEN_SETTINGS = regMavenSettings;
+			this.JAVA_HOMEPATH = regJavaHome;
 			this.NEXUS_RESOURCE = regNexusRes;
 			this.NEXUS_ROOTPATH = regNexusRoot;
 		}
 		else {
 			this.MAVEN_HOMEPATH = "";
+			this.MAVEN_VERSION = "";
 			this.MAVEN_SETTINGS = "";
+			this.JAVA_HOMEPATH = "";
 			this.NEXUS_RESOURCE = "";
 			this.NEXUS_ROOTPATH = "";
 		}

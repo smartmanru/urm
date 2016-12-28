@@ -5,8 +5,8 @@ import org.urm.action.ActionBase;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.storage.LocalFolder;
+import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.product.MetaProductBuildSettings;
-import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProjectItem;
 
 public class ActionPatch extends ActionBase {
@@ -131,29 +131,34 @@ public class ActionPatch extends ActionBase {
 	}
 	
 	private boolean uploadBuildStatus() throws Exception {
+		ServerBuilders builders = super.getBuilders();
 		MetaProductBuildSettings build = getBuildSettings( builder.project.meta );
-		String MODULE_PROJECT_NAME = builder.project.NAME;
-		String MODULE_MSETTINGS="--settings=" + build.CONFIG_MAVEN_CFGFILE;
-		String UPLOAD_MAVEN_VERSION = build.CONFIG_MAVEN_VERSION;
+		
+		String UPLOAD_PROJECT_NAME = builder.project.NAME;
+		String UPLOAD_MSETTINGS="--settings=" + shell.getLocalPath( build.CONFIG_MAVEN_CFGFILE );
+		String UPLOAD_JAVA_HOME = shell.getLocalPath( builders.JAVA_HOMEPATH );
+		String UPLOAD_MAVEN_HOME = shell.getLocalPath( builders.MAVEN_HOMEPATH );
 
-		MetaProductSettings product = builder.project.meta.getProductSettings( this );
-		shell.export( this , "M2_HOME" , product.CONFIG_BUILDBASE_PATH + "/" + UPLOAD_MAVEN_VERSION );
-		shell.export( this , "M2" , "$M2_HOME/bin" );
-		shell.export( this , "PATH" , "$M2:$PATH" );
-		shell.export( this , "MAVEN_OPTS" , Common.getQuoted( "-Xmx1g -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );
+		shell.export( this , "JAVA_HOME" , UPLOAD_JAVA_HOME );
+		shell.export( this , "M2_HOME" , UPLOAD_MAVEN_HOME );
+		shell.export( this , "M2" , shell.getLocalPath( shell.getVariable( "M2_HOME" ) + "/bin" ) );
+		shell.export( this , "PATH" , shell.getLocalPath( shell.getVariable( "JAVA_HOME" ) + "/bin" ) + shell.getPathBreak() +
+				shell.getVariable( "M2" ) + shell.getPathBreak() +
+				shell.getVariable( "PATH" ) );
+		shell.export( this , "MAVEN_OPTS" , Common.getQuoted( "-XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );
 
 		// upload versioninfo
 		String FILENAME = builder.project.NAME + "-versioninfo.txt";
 		LOGDIR.createFileFromString( this , FILENAME , builder.TAG );
 		int timeout = setTimeoutUnlimited();
 		int status = shell.customGetStatusNormal( this , "mvn deploy:deploy-file -B " +
-			MODULE_MSETTINGS + " " +
+				UPLOAD_MSETTINGS + " " +
 			"-Durl=" + builder.getNexusPath( this , builder.project ) + " " +
 			"-DuniqueVersion=false " +
 			"-Dversion=" + builder.APPVERSION + " " +
 			"-DgroupId=release " +
-			"-DartifactId=" + MODULE_PROJECT_NAME + " " +
-			"-Dfile=" + LOGDIR.getFilePath( this , FILENAME ) + " " +
+			"-DartifactId=" + UPLOAD_PROJECT_NAME + " " +
+			"-Dfile=" + shell.getLocalPath( LOGDIR.getFilePath( this , FILENAME ) ) + " " +
 			"-Dpackaging=txt " +
 			"-Dclassifier=version " +
 			"-DgeneratePom=true " +

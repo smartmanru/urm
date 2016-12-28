@@ -5,9 +5,9 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductBuildSettings;
-import org.urm.meta.product.MetaProductSettings;
 
 public class ActionUploadLibItem extends ActionBase {
 
@@ -30,17 +30,23 @@ public class ActionUploadLibItem extends ActionBase {
 	}
 	
 	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
+		if( !scopeProject.sourceProject.isPrebuiltNexus() )
+			super.exitUnexpectedState();
+		
 		// set environment
+		ServerBuilders builders = super.getBuilders();
 		MetaProductBuildSettings build = getBuildSettings( meta );
-		String BUILD_JAVA_VERSION = build.CONFIG_MAVEN_JAVA_VERSION;
-		String BUILD_MAVEN_VERSION = build.CONFIG_MAVEN_VERSION;
+		String BUILD_MSETTINGS="--settings=" + shell.getLocalPath( build.CONFIG_MAVEN_CFGFILE );
+		String BUILD_JAVA_HOME = shell.getLocalPath( builders.JAVA_HOMEPATH );
+		String BUILD_MAVEN_HOME = shell.getLocalPath( builders.MAVEN_HOMEPATH );
+		String BUILD_FILE = shell.getLocalPath( FILE );
 
-		MetaProductSettings product = meta.getProductSettings( this );
-		shell.export( this , "JAVA_HOME" , product.CONFIG_BUILDBASE_PATH + "/" + BUILD_JAVA_VERSION );
-		shell.export( this , "PATH" , "$JAVA_HOME/bin:$PATH" );
-		shell.export( this , "M2_HOME" , product.CONFIG_BUILDBASE_PATH + "/" + BUILD_MAVEN_VERSION );
-		shell.export( this , "M2" , "$M2_HOME/bin" );
-		shell.export( this , "PATH" , "$M2:$PATH" );
+		shell.export( this , "JAVA_HOME" , BUILD_JAVA_HOME );
+		shell.export( this , "M2_HOME" , BUILD_MAVEN_HOME );
+		shell.export( this , "M2" , shell.getLocalPath( shell.getVariable( "M2_HOME" ) + "/bin" ) );
+		shell.export( this , "PATH" , shell.getLocalPath( shell.getVariable( "JAVA_HOME" ) + "/bin" ) + shell.getPathBreak() +
+				shell.getVariable( "M2" ) + shell.getPathBreak() +
+				shell.getVariable( "PATH" ) );
 		shell.export( this , "MAVEN_OPTS" , Common.getQuoted( "-XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );
 
 		// upload
@@ -48,7 +54,7 @@ public class ActionUploadLibItem extends ActionBase {
 			exitUnexpectedState();
 		
 		if( !shell.checkFileExists( this , FILE ) )
-		     exit1( _Error.MissingUploadFile1 , "unknown file " + FILE , FILE );
+		     exit1( _Error.MissingUploadFile1 , "unknown file " + BUILD_FILE , BUILD_FILE );
 		
 		// extract extension
 		String F_BASENAME = Common.getBaseName( FILE );
@@ -80,20 +86,20 @@ public class ActionUploadLibItem extends ActionBase {
 			F_CLASSIFIER = "-Dclassifier=" + CLASSIFIER;
 
 		String CMD;
-		ServerAuthResource res = getResource( build.CONFIG_NEXUS_RESOURCE );
+		ServerAuthResource res = getResource( scopeProject.sourceProject.RESOURCE );
 		if( F_EXTENSION.equals( "pom" ) ) {
-	        CMD = "mvn -e deploy:deploy-file --settings=$HOME/.m2/settings.branch.xml" + 
+	        CMD = "mvn -e deploy:deploy-file " + BUILD_MSETTINGS + 
 	        	" -DupdateReleaseInfo=true -DuniqueVersion=false -DrepositoryId=nexus" + 
 	        	" -Durl=" + res.BASEURL + "/" + F_TARGETREP + " -Dpackaging=" + F_EXTENSION + 
 	        	" -DgeneratePom=false -DgroupId=" + GROUPID + " -Dversion=" + F_VERSION + 
-	        	" -DartifactId=" + F_ARTEFACTID + " " + F_CLASSIFIER + " -Dfile=" + FILE;
+	        	" -DartifactId=" + F_ARTEFACTID + " " + F_CLASSIFIER + " -Dfile=" + BUILD_FILE;
 		}
 		else {
-			CMD = "mvn -e deploy:deploy-file --settings=$HOME/.m2/settings.branch.xml" +
+			CMD = "mvn -e deploy:deploy-file " + BUILD_MSETTINGS +
 				" -DupdateReleaseInfo=true -DuniqueVersion=false -DrepositoryId=nexus" +
 				" -Durl=" + res.BASEURL + "/" + F_TARGETREP + " -Dpackaging=" + F_EXTENSION +
 				" -DgeneratePom=true -DgroupId=" + GROUPID + " -Dversion=" + F_VERSION + 
-				" -DartifactId=" + F_ARTEFACTID + " " + F_CLASSIFIER + " -Dfile=" + FILE;
+				" -DartifactId=" + F_ARTEFACTID + " " + F_CLASSIFIER + " -Dfile=" + BUILD_FILE;
 		}
 		
 		shell.custom( this , CMD );
