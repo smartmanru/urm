@@ -10,10 +10,12 @@ import org.urm.engine.storage.SourceStorage;
 public class ActionGetDB extends ActionBase {
 
 	Dist dist;
+	LocalFolder downloadFolder;
 	
-	public ActionGetDB( ActionBase action , String stream , Dist dist ) {
+	public ActionGetDB( ActionBase action , String stream , Dist dist , LocalFolder downloadFolder ) {
 		super( action , stream );
 		this.dist = dist;
+		this.downloadFolder = downloadFolder;
 	}
 
 	protected SCOPESTATE executeScopeTarget( ActionScopeTarget item ) throws Exception {
@@ -26,7 +28,6 @@ public class ActionGetDB extends ActionBase {
 		if( !sourceStorage.downloadReleaseDatabaseFiles( this , dist , item.dbDelivery , workFolder ) )
 			return( SCOPESTATE.NotRun );
 
-		LocalFolder downloadFolder = artefactory.getArtefactFolder( this , item.meta );
 		LocalFolder dbPreparedFolder = downloadFolder.getSubFolder( this , dist.getDeliveryDatabaseFolder( this , item.dbDelivery , dist.release.RELEASEVER ) );
 		dbPreparedFolder.recreateThis( this );
 

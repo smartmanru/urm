@@ -45,8 +45,8 @@ public class BuildCommand {
 		boolean copyDist = action.context.CTX_DIST;
 		
 		// required for serviceCall and storageService processing, even without -dist option
-		LocalFolder downloadFolder = action.artefactory.getArtefactFolder( action , scope.meta );
-		downloadFolder.removeContent( action );
+		LocalFolder downloadFolder = action.artefactory.getWorkFolder( action , "download" );
+		downloadFolder.recreateThis( action );
 	
 		// precreate delivery folders in release
 		if( copyDist ) {
@@ -62,7 +62,7 @@ public class BuildCommand {
 			res = false;
 
 		if( dist != null && scope.hasConfig( action ) ) {
-			ActionGetConf cacf = new ActionGetConf( action , null , dist );
+			ActionGetConf cacf = new ActionGetConf( action , null , dist , downloadFolder );
 			if( !cacf.runEachCategoryTarget( scope , VarCATEGORY.CONFIG , SecurityAction.ACTION_BUILD , false ) )
 				res = false;
 			
@@ -72,7 +72,7 @@ public class BuildCommand {
 		}
 		
 		if( dist != null && scope.hasDatabase( action ) ) {
-			ActionGetDB cadb = new ActionGetDB( action , null , dist );
+			ActionGetDB cadb = new ActionGetDB( action , null , dist , downloadFolder );
 			if( !cadb.runEachCategoryTarget( scope , VarCATEGORY.DB , SecurityAction.ACTION_BUILD , false ) )
 				res = false;
 		}

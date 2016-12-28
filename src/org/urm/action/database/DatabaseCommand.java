@@ -5,6 +5,7 @@ import org.urm.action.ActionScope;
 import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
+import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrDelivery;
@@ -29,7 +30,9 @@ public class DatabaseCommand {
 	}
 
 	public void getReleaseScripts( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
-		ActionGetDB ma = new ActionGetDB( action , null , dist );
+		LocalFolder downloadFolder = action.artefactory.getWorkFolder( action , "download" );
+		downloadFolder.recreateThis( action );
+		ActionGetDB ma = new ActionGetDB( action , null , dist , downloadFolder );
 		ma.runAll( scope , null , SecurityAction.ACTION_BUILD , false );
 	}
 
