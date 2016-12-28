@@ -40,7 +40,7 @@ public class ShellJssh {
 		jsch = new JSch();
 	}
 
-	private ServerAuthResource getAuthResource( ActionBase action ) throws Exception {
+	private ServerAuthResource getAuthResource( ActionBase action , Account account ) throws Exception {
 		String hostLogin = account.getHostLogin();
 		ServerInfrastructure infra = action.getServerInfrastructure();
 		ServerDatacenter dc = infra.findDatacenter( account.DC );
@@ -57,10 +57,10 @@ public class ShellJssh {
 	}
 	
 	public void startJssh( ActionBase action , String rootPath , ServerAuthResource res ) throws Exception {
-		if( res == null )
-			res = getAuthResource( action );
-		
 		Account account = process.shell.account;
+		if( res == null )
+			res = getAuthResource( action , account );
+		
 		startJsshInternal( action , account , res );
 		action.debug( "jssh shell=" + process.shell.name + " - successfully connected" );		
 	}
@@ -314,7 +314,7 @@ public class ShellJssh {
 	}
 
 	private void scpConnect( ActionBase action , Account account ) throws Exception {
-		ServerAuthResource res = getAuthResource( action );
+		ServerAuthResource res = getAuthResource( action , account );
 		startJsshSession( action , account , res );
 		startJsshScpChannel( action );
 	}
