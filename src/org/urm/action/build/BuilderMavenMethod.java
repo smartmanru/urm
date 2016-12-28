@@ -99,7 +99,7 @@ public class BuilderMavenMethod extends Builder {
 		String MODULE_ALT_REPO = "-DaltDeploymentRepository=nexus2::default::" + NEXUS_PATH;
 		String MODULE_MSETTINGS = "--settings=" + build.CONFIG_MAVEN_CFGFILE;
 		String MODULE_MAVEN_CMD = "deploy";
-		String MODULE_ADDITIONAL_OPTIONS = project.BUILDER_ADDOPTIONS;
+		String MODULE_ADDITIONAL_OPTIONS = super.getVarString( action , project.BUILDER_ADDOPTIONS );
 		if( action.context.CTX_SHOWALL )
 			MODULE_ADDITIONAL_OPTIONS += " -X";
 

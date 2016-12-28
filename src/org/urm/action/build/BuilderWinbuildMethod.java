@@ -34,7 +34,7 @@ public class BuilderWinbuildMethod extends Builder {
 		String MSBUILD_OPTIONS = builder.MSBUILD_OPTIONS;
 		if( action.context.CTX_SHOWALL )
 			MSBUILD_OPTIONS += " /verbosity:detailed";
-		String MODULE_ADDITIONAL_OPTIONS = project.BUILDER_ADDOPTIONS;
+		String MODULE_ADDITIONAL_OPTIONS = super.getVarString( action , project.BUILDER_ADDOPTIONS );
 		MSBUILD_OPTIONS += " " + MODULE_ADDITIONAL_OPTIONS;
 
 		String BUILD_CMD = MSBUILD_PATH + " " + MSBUILD_OPTIONS;
