@@ -179,12 +179,7 @@ public class MetaDistrBinaryItem {
 	
 	public MetaDistrBinaryItem copy( ActionBase action , Meta meta , MetaDistrDelivery delivery ) throws Exception {
 		MetaDistrBinaryItem r = new MetaDistrBinaryItem( meta , delivery );
-		if( sourceProjectItem != null ) {
-			MetaSource source = meta.getSources( action );
-			MetaSourceProject project = source.getProject( action , sourceProjectItem.project.NAME );
-			r.sourceProjectItem = project.getItem( action , sourceProjectItem.ITEMNAME );
-		}
-			
+		
 		r.KEY = KEY;
 		r.EXT = EXT;
 		r.distItemType = distItemType;

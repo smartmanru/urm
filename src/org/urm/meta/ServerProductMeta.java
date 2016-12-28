@@ -40,8 +40,8 @@ public class ServerProductMeta extends ServerObject {
 	private MetaProductVersion version;
 	private MetaProductSettings product;
 	private MetaDatabase database;
-	private MetaDistr distr;
 	private MetaSource sources;
+	private MetaDistr distr;
 	private MetaMonitoring mon;
 	
 	private Map<String,MetaEnv> envs;
@@ -119,14 +119,14 @@ public class ServerProductMeta extends ServerObject {
 			if( r.database.isLoadFailed() )
 				r.loadFailed = true;
 		}
-		if( distr != null ) {
-			r.distr = distr.copy( action , r.meta );
-			if( r.distr.isLoadFailed() )
-				r.loadFailed = true;
-		}
 		if( sources != null ) {
 			r.sources = sources.copy( action , r.meta );
 			if( r.sources.isLoadFailed() )
+				r.loadFailed = true;
+		}
+		if( distr != null ) {
+			r.distr = distr.copy( action , r.meta );
+			if( r.distr.isLoadFailed() )
 				r.loadFailed = true;
 		}
 		if( mon != null ) {
@@ -392,8 +392,8 @@ public class ServerProductMeta extends ServerObject {
 		loadVersion( action , storageMeta );
 		loadProduct( action , storageMeta );
 		loadDatabase( action , storageMeta );
-		loadDistr( action , storageMeta );
 		loadSources( action , storageMeta );
+		loadDistr( action , storageMeta );
 		loadMonitoring( action , storageMeta );
 		
 		meta.setVersion( version );
@@ -420,8 +420,8 @@ public class ServerProductMeta extends ServerObject {
 		createInitialVersion( transaction );
 		createInitialProduct( transaction , settings );
 		createInitialDatabase( transaction );
-		createInitialDistr( transaction );
 		createInitialSources( transaction );
+		createInitialDistr( transaction );
 		createInitialMonitoring( transaction );
 	}
 
@@ -468,8 +468,8 @@ public class ServerProductMeta extends ServerObject {
 		saveVersion( action , storageMeta );
 		saveProduct( action , storageMeta );
 		saveDatabase( action , storageMeta );
-		saveDistr( action , storageMeta );
 		saveSources( action , storageMeta );
+		saveDistr( action , storageMeta );
 		saveMonitoring( action , storageMeta );
 		
 		for( String envFile : envs.keySet() )
