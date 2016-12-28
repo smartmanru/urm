@@ -92,7 +92,7 @@ public class BuildCommand {
 		if( copyDist )
 			action.info( "getAll: download has been finished, copied to distribution directory " + dist.RELEASEDIR );
 		else
-			action.info( "getAll: download has been finished, saved to artefacts directory " + downloadFolder.folderPath );
+			action.debug( "getAll: download has been finished, saved to artefacts directory " + downloadFolder.folderPath );
 	}
 	
 	private void createConfigDiffFile( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
