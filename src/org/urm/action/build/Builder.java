@@ -1,6 +1,7 @@
 package org.urm.action.build;
 
 import org.urm.action.ActionBase;
+import org.urm.common.PropertySet;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
@@ -11,6 +12,7 @@ import org.urm.engine.vcs.ProjectVersionControl;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
 
 public abstract class Builder {
@@ -72,4 +74,12 @@ public abstract class Builder {
 		return( res.BASEURL + "/content/repositories/" + build.CONFIG_NEXUS_REPO );
 	}
 
+	public String getVarString( ActionBase action , String value ) throws Exception {
+		MetaProductSettings product = project.meta.getProductSettings( action );
+		MetaProductBuildSettings settings = product.getBuildSettings( action );
+		PropertySet props = settings.getProperties();
+		String res = props.getFinalString( value , action.shell.isWindows() , true , false );
+		return( res );
+	}
+	
 }

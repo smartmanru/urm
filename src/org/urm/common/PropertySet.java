@@ -428,8 +428,13 @@ public class PropertySet {
 			return( data );
 		return( account.getOSPath( data ) );
 	}
+
+	public String getFinalString( String value , boolean isWindows , boolean allowParent , boolean allowUnresolved ) throws Exception {
+		PropertyValue pv = getFinalPropertyValue( value , isWindows , allowParent , allowUnresolved );
+		return( pv.getFinalValue() );
+	}
 	
-	public PropertyValue getFinalValue( String value , boolean isWindows , boolean allowParent , boolean allowUnresolved ) throws Exception {
+	public PropertyValue getFinalPropertyValue( String value , boolean isWindows , boolean allowParent , boolean allowUnresolved ) throws Exception {
 		PropertyValue pv = new PropertyValue( "" , PropertyValueOrigin.PROPERTY_MANUAL , null , null );
 		pv.setOriginalAndFinalValue( value );
 		processValue( pv , true , isWindows , true , allowParent , allowUnresolved );
