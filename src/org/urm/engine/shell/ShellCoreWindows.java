@@ -659,7 +659,7 @@ public class ShellCoreWindows extends ShellCore {
 			lines[ k ] = Common.replace( lines[ k ] , " " , "" );
 		
 		String workFile = action.getTmpFilePath( "cmdGetFilesMD5.md5" );
-		Common.createFileFromStringList( workFile , lines );
+		Common.createFileFromStringList( action.execrc , workFile , lines );
 		ShellExecutor local = action.getLocalShell();
 		String value = local.getMD5( action , workFile );
 		

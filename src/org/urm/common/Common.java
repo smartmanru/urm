@@ -135,34 +135,34 @@ public class Common {
 		return( count );
 	}
 
-	public static PrintWriter createOutfileFile( String fname ) throws Exception {
-		FileOutputStream outstream = new FileOutputStream( fname );
+	public static PrintWriter createOutfileFile( RunContext execrc , String fname ) throws Exception {
+		FileOutputStream outstream = new FileOutputStream( execrc.getLocalPath( fname ) );
 		PrintWriter outfile = new PrintWriter( outstream );
 		return( outfile );
 	}
 	
-	public static void createFileFromString( String path , String content ) throws Exception {
-		FileWriter writer = new FileWriter( path );
+	public static void createFileFromString( RunContext execrc , String path , String content ) throws Exception {
+		FileWriter writer = new FileWriter( execrc.getLocalPath( path ) );
 		writer.write( content );
 		writer.close();
 	}
 
-	public static void createFileFromStringList( String path , String[] content ) throws Exception {
-		createFileFromStringList( path , content , StandardCharsets.UTF_8 );
+	public static void createFileFromStringList( RunContext execrc , String path , String[] content ) throws Exception {
+		createFileFromStringList( execrc , path , content , StandardCharsets.UTF_8 );
 	}
 	
-	public static void createFileFromStringList( String path , String[] content , Charset charset ) throws Exception {
-		FileWriter writer = new FileWriter( path );
+	public static void createFileFromStringList( RunContext execrc , String path , String[] content , Charset charset ) throws Exception {
+		FileWriter writer = new FileWriter( execrc.getLocalPath( path ) );
 		for( String s : content )
 			writer.write( s + "\n" );
 		writer.close();
 	}
 	
-	public static void createFileFromStringList( String path , List<String> content ) throws Exception {
-		createFileFromStringList( path , content , StandardCharsets.UTF_8 );
+	public static void createFileFromStringList( RunContext execrc , String path , List<String> content ) throws Exception {
+		createFileFromStringList( execrc , path , content , StandardCharsets.UTF_8 );
 	}
 	
-	public static void createFileFromStringList( String path , List<String> content , Charset charset ) throws Exception {
+	public static void createFileFromStringList( RunContext execrc , String path , List<String> content , Charset charset ) throws Exception {
 		FileWriter writer = new FileWriter( path );
 		for( String s : content )
 			writer.write( s + "\n" );

@@ -194,7 +194,7 @@ public class ConfBuilder {
 		}
 
 		if( changed )
-			Common.createFileFromStringList( filePath , fileLines , charset );
+			Common.createFileFromStringList( action.execrc , filePath , fileLines , charset );
 	}
 	
 	public void configureFile( LocalFolder live , String file , MetaEnvServerNode node , PropertySet props , Charset charset ) throws Exception {
@@ -216,7 +216,7 @@ public class ConfBuilder {
 		}
 
 		if( changed )
-			Common.createFileFromStringList( filePath , fileLines , charset );
+			Common.createFileFromStringList( action.execrc , filePath , fileLines , charset );
 	}
 	
 }

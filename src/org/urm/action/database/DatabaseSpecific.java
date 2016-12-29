@@ -152,7 +152,7 @@ public class DatabaseSpecific {
 			fileLog = Common.getWinPath( fileLog );
 		}
 		
-		Common.createFileFromString( file , query );
+		Common.createFileFromString( action.execrc , file , query );
 		
 		int status = runScriptCmd( action , ctxScript , "queryscript" , file + " " + fileLog );
 		if( status != 0 )
@@ -265,7 +265,7 @@ public class DatabaseSpecific {
 		String query = "drop table " + getTableName( action , dbschema , table ) + ";";
 		String scriptFile = work.getFilePath( action , "control.sql" );
 		String outFile = scriptFile + ".out";
-		Common.createFileFromString( scriptFile , query );
+		Common.createFileFromString( action.execrc , scriptFile , query );
 
 		return( applyScript( action , dbschema , user , password , scriptFile , outFile ) );
 	}
@@ -300,7 +300,7 @@ public class DatabaseSpecific {
 		
 		String scriptFile = work.getFilePath( action , "run.sql" );
 		String outFile = scriptFile + ".out";
-		Common.createFileFromStringList( scriptFile , lines );
+		Common.createFileFromStringList( action.execrc , scriptFile , lines );
 
 		return( applyScript( action , dbschema , user , password , scriptFile , outFile ) );
 	}
@@ -354,7 +354,7 @@ public class DatabaseSpecific {
 		String query = getInsertRowString( action , dbschema , table , columns , values );
 		String scriptFile = work.getFilePath( action , "control.sql" );
 		String outFile = scriptFile + ".out";
-		Common.createFileFromString( scriptFile , query );
+		Common.createFileFromString( action.execrc , scriptFile , query );
 
 		return( applyScript( action , dbschema , user , password , scriptFile , outFile ) );
 	}
@@ -381,7 +381,7 @@ public class DatabaseSpecific {
 
 		String scriptFile = work.getFilePath( action , "control.sql" );
 		String outFile = scriptFile + ".out";
-		Common.createFileFromString( scriptFile , query );
+		Common.createFileFromString( action.execrc , scriptFile , query );
 		
 		return( applyScript( action , dbschema , user , password , scriptFile , outFile ) );
 	}
@@ -393,7 +393,7 @@ public class DatabaseSpecific {
 
 		String scriptFile = work.getFilePath( action , "control.sql" );
 		String outFile = scriptFile + ".out";
-		Common.createFileFromString( scriptFile , query );
+		Common.createFileFromString( action.execrc , scriptFile , query );
 		
 		return( applyScript( action , dbschema , user , password , scriptFile , outFile ) );
 	}
@@ -446,7 +446,7 @@ public class DatabaseSpecific {
 			action.exitUnexpectedState();
 		
 		String file = work.getFilePath( action , name );
-		Common.createFileFromStringList( file , lines );
+		Common.createFileFromStringList( action.execrc , file , lines );
 		return( file );
 	}
 

@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.common.RunContext;
 import org.urm.common.RunError;
 
 public class CommandOutput {
@@ -193,8 +194,8 @@ public class CommandOutput {
 		return( fname );
 	}
 	
-	public synchronized void tee( String title , String file ) throws Exception {
-		outtee = Common.createOutfileFile( file );
+	public synchronized void tee( RunContext execrc , String title , String file ) throws Exception {
+		outtee = Common.createOutfileFile( execrc , file );
 		outtee.println( "############# start logging on " + Common.getNameTimeStamp() );
 		outtee.flush();
 	}
@@ -204,7 +205,7 @@ public class CommandOutput {
 		if( outchild != null )
 			parentOutputs.add( outchild );
 		
-		outchild = Common.createOutfileFile( file );
+		outchild = Common.createOutfileFile( context.engine.execrc , file );
 		log( context , title , LOGLEVEL_INFO );
 	}
 	

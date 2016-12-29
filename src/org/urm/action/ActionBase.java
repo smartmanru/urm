@@ -374,7 +374,7 @@ abstract public class ActionBase extends ActionCore {
 	public void tee() throws Exception {
 		LocalFolder folder = artefactory.getWorkFolder( this );
 		String fname = folder.getFilePath( this , "executor.log" );
-		output.tee( NAME , fname );
+		output.tee( execrc , NAME , fname );
 	}
 	
 	public void redirectTS( String title , String dir , String basename , String ext ) throws Exception {

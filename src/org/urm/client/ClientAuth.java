@@ -103,7 +103,7 @@ public class ClientAuth {
 			folder.setExecutable( true , true );
 		}
 		
-		Common.createFileFromString( authFile , "" );
+		Common.createFileFromString( execrc , authFile , "" );
 		File file = new File( authFile );
 		file.setReadable( true , true );
 		file.setWritable( true , true );

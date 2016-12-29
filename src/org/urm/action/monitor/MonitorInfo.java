@@ -174,7 +174,7 @@ public class MonitorInfo {
 		template = Common.replace( template , "@IMAGE@" , F_RESCONTEXT + "/" + F_IMAGEFILE );  
 		template = Common.replace( template , "@TEXT@" , F_IMAGETEXT );  
 		
-		Common.createFileFromString( F_REPFILE , template );
+		Common.createFileFromString( action.execrc , F_REPFILE , template );
 	}
 
 	private void addRrdRecord( MonitorTargetInfo info ) throws Exception {

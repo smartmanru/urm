@@ -136,7 +136,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		}
 
 		createDotFooter( lines );
-		Common.createFileFromStringList( fileName ,  lines );
+		Common.createFileFromStringList( execrc , fileName ,  lines );
 	}
 
 	private void createDotHeading( List<String> lines ) throws Exception {
