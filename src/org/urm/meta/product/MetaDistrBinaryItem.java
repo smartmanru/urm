@@ -106,7 +106,7 @@ public class MetaDistrBinaryItem {
 		}
 		else
 		// archive item
-		if( isArchive( action ) ) {
+		if( isArchive() ) {
 			EXT = ConfReader.getAttrValue( node , "extension" , ".tar.gz" );
 			FILES = ConfReader.getAttrValue( node , "files" , "*" );
 			EXCLUDE = ConfReader.getAttrValue( node , "exclude" );
@@ -163,7 +163,7 @@ public class MetaDistrBinaryItem {
 		}
 		else
 		// archive item
-		if( isArchive( action ) ) {
+		if( isArchive() ) {
 			Common.xmlSetElementAttr( doc , root , "extension" , EXT );
 			Common.xmlSetElementAttr( doc , root , "files" , FILES );
 			Common.xmlSetElementAttr( doc , root , "exclude" , EXCLUDE );
@@ -216,7 +216,7 @@ public class MetaDistrBinaryItem {
 		}
 	}
 	
-	public boolean isArchive( ActionBase action ) throws Exception {
+	public boolean isArchive() {
 		if( distItemType == VarDISTITEMTYPE.ARCHIVE_CHILD || 
 			distItemType == VarDISTITEMTYPE.ARCHIVE_DIRECT || 
 			distItemType == VarDISTITEMTYPE.ARCHIVE_SUBDIR )
@@ -373,6 +373,32 @@ public class MetaDistrBinaryItem {
 		this.SRCDISTITEM = "";
 		this.srcDistItem = null;
 		this.SRCITEMPATH = "";
+	}
+
+	public String getDeploySampleFile() {
+		String value = DEPLOYBASENAME;
+		
+		if( isArchive() )
+			return( "(archive)" );
+		
+		if( deployVersion == VarITEMVERSION.IGNORE ) {
+			if( sourceProjectItem != null && sourceProjectItem.ITEMVERSION.isEmpty() == false )
+				value += "-" + sourceProjectItem.ITEMVERSION;
+		}
+		else {
+			String version = "1.0";
+			if( deployVersion == VarITEMVERSION.MIDDASH )
+				value += "-" + version;
+			else
+			if( deployVersion == VarITEMVERSION.MIDPOUND )
+				value += "#" + version;
+			else
+			if( deployVersion == VarITEMVERSION.PREFIX )
+				value = version + "-" + value;
+		}
+		
+		value += EXT;
+		return( value );
 	}
 	
 }

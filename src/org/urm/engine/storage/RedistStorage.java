@@ -199,7 +199,7 @@ public class RedistStorage extends ServerStorage {
 		String redistFileName = FileInfo.getFileName( action , item );  
 
 		String runtimeName = "";
-		if( !item.isArchive( action ) )
+		if( !item.isArchive() )
 			runtimeName = getDeployVersionedName( action , location , item , deployBaseName , version );
 		
 		// check need redist - from distributive
@@ -301,7 +301,7 @@ public class RedistStorage extends ServerStorage {
 			backupRedistConfItem( action , version , CONTENTTYPE , LOCATION , redistFile , backupFolder , stateFolder , stateFile );
 		else
 		if( redistFile.binaryItem != null ) {
-			if( redistFile.binaryItem.isArchive( action ) )
+			if( redistFile.binaryItem.isArchive() )
 				backupRedistArchiveItem( action , version , CONTENTTYPE , LOCATION , redistFile , backupFolder , stateFolder , stateFile );
 			else
 				backupRedistBinaryItem( action , version , CONTENTTYPE , LOCATION , redistFile , backupFolder , stateFolder , stateFile );

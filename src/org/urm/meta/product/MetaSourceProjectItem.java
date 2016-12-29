@@ -139,4 +139,20 @@ public class MetaSourceProjectItem {
 		internal = ( dist )? false : true;
 	}
 	
+	public String getArtefactSampleFile() {
+		String value = ITEMBASENAME;
+		if( itemSrcType == VarITEMSRCTYPE.BASIC || itemSrcType == VarITEMSRCTYPE.CUSTOM ) {
+			if( !ITEMVERSION.isEmpty() )
+				value += "-" + ITEMVERSION;
+			value += ITEMEXTENSION;
+		}
+		else
+		if( itemSrcType == VarITEMSRCTYPE.DIRECTORY )
+			value = ITEMBASENAME;
+		else
+		if( itemSrcType == VarITEMSRCTYPE.STATICWAR )
+			value = ITEMBASENAME + ITEMEXTENSION + "/" + ITEMBASENAME + ITEMSTATICEXTENSION;
+		return( value );
+	}
+	
 }

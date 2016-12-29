@@ -83,7 +83,7 @@ public class ActionGetDeployInfo extends ActionBase {
 		for( String key : info.getKeys( this ) ) {
 			FileInfo data = info.getVerData( this , key );
 			if( binary ) {
-				if( data.binaryItem.isArchive( this ) )
+				if( data.binaryItem.isArchive() )
 					info( "\t\tdistitem=" + data.itemName + ": archive (" + Common.getEnumLower( data.binaryItem.distItemType ) + "), version=" + data.version.getFullVersion() );
 				else
 					info( "\t\tdistitem=" + data.itemName + ": file=" + data.deployFinalName + ", version=" + data.version.getFullVersion() );
