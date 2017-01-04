@@ -710,4 +710,9 @@ abstract public class ActionBase extends ActionCore {
 		return( artefactory.getBaseRepository( this ) );
 	}
 
+	public void createDedicatedContext() throws Exception {
+		CommandContext nc = new CommandContext( context , context.stream );
+		setContext( nc );
+	}
+	
 }

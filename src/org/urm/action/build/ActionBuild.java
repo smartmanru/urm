@@ -52,27 +52,28 @@ public class ActionBuild extends ActionBase {
 	}
 	
 	private boolean executeTarget( ActionScopeTarget scopeProject ) throws Exception {
+		MetaSourceProject project = scopeProject.sourceProject;
+		
 		String version = scopeProject.getProjectBuildVersion( this );
 		
 		// execute
-		MetaSourceProject project = scopeProject.sourceProject;
 		Builder builder = Builder.createBuilder( this , project , TAG , version );
 		info( "ActionBuild: CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) + ", PROJECT=" + project.NAME + 
 				", REPOSITORY=" + project.REPOSITORY + ", TAG=" + TAG + ", VERSION=" + version + ", BUILDER=" + builder.builder.NAME );
 
 		// in separate shell
 		LocalFolder BUILDDIR = OUTDIR.getSubFolder( this , project.set.NAME );
-		ActionPatch action = new ActionPatch( this , null , builder , BUILDDIR );
+		String logFile = BUILDDIR.getFilePath( this , builder.project.NAME + "-build.log" );
+		ActionPatch action = new ActionPatch( this , null , builder , logFile );
 
 		BUILDDIR.ensureExists( this );
 		
-		String logFile = BUILDDIR.getFilePath( this , builder.project.NAME + "-build.log" );
 		super.startRedirect( "PROJECT BUILD LOG:" , logFile );
 		info( "build: BUILDER=" + builder.builder.NAME + ", BUILDMODE=" + context.getBuildModeName() + ", PROJECT=" + builder.project.NAME + 
 				", REPOSITORY=" + builder.project.REPOSITORY + ", VCS=" + builder.project.getVCS( this ) + ", VCSPATH=" + builder.project.REPOPATH + 
 				", TAG=" + builder.TAG + ", VERSION=" + builder.APPVERSION );
 
-		BUILDSTATUS = "SUCCESSFUL"; 
+		BUILDSTATUS = "SUCCESSFUL";
 		if( !action.runProductBuild( project.meta.name , SecurityAction.ACTION_BUILD , context.buildMode , false ) ) {
 			BUILDSTATUS = "FAILED";
 			super.fail1( _Error.ProjectBuildError1 , "Errors while building project=" + project.NAME , project.NAME );

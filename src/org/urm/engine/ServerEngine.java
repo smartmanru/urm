@@ -9,6 +9,7 @@ import org.urm.common.jmx.ServerMBean;
 import org.urm.common.meta.BuildCommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
 import org.urm.common.meta.DeployCommandMeta;
+import org.urm.common.meta.MainCommandMeta;
 import org.urm.common.meta.MonitorCommandMeta;
 import org.urm.common.meta.ReleaseCommandMeta;
 import org.urm.common.meta.XDocCommandMeta;
@@ -50,6 +51,15 @@ public class ServerEngine {
 
 	private TransactionBase currentTransaction = null;
 
+	public ServerBlotter blotter;
+	public MainExecutor mainExecutor;
+	public BuildCommandExecutor buildExecutor;
+	public DatabaseCommandExecutor databaseExecutor;
+	public DeployCommandExecutor deployExecutor;
+	public MonitorCommandExecutor monitorExecutor;
+	public ReleaseCommandExecutor releaseExecutor;
+	public XDocCommandExecutor xdocExecutor;
+	
 	public static int META_CHANGE_TIMEOUT = 5000;
 	
 	public ServerEngine( RunContext execrc ) {
@@ -65,6 +75,15 @@ public class ServerEngine {
 		auth.init();
 		events.init();
 		loader.init();
+		
+		blotter = new ServerBlotter( this );
+		mainExecutor = MainExecutor.createExecutor( this );
+		buildExecutor = BuildCommandExecutor.createExecutor( this );
+		databaseExecutor = DatabaseCommandExecutor.createExecutor( this );
+		deployExecutor = DeployCommandExecutor.createExecutor( this );
+		monitorExecutor = MonitorCommandExecutor.createExecutor( this );
+		releaseExecutor = ReleaseCommandExecutor.createExecutor( this );
+		xdocExecutor = XDocCommandExecutor.createExecutor( this );
 	}
 	
 	public void runServer( ActionInit action ) throws Exception {
@@ -132,7 +151,7 @@ public class ServerEngine {
 		if( options == null )
 			return( null );
 		
-		ActionInit action = createAction( serverExecutor , options , session , "web" , null , false );
+		ActionInit action = createAction( options , session , "web" , null , false );
 		startAction( action );
 		
 		return( action );
@@ -143,7 +162,7 @@ public class ServerEngine {
 		if( options == null )
 			return( null );
 		
-		ActionInit action = createAction( serverExecutor , options , session , name , null , true );
+		ActionInit action = createAction( options , session , name , null , true );
 		startAction( action );
 		
 		return( action );
@@ -165,7 +184,7 @@ public class ServerEngine {
 		serverSession.setServerLayout( options );
 		
 		// create server action
-		serverAction = createAction( serverExecutor , options , serverSession , "server" , null , false );
+		serverAction = createAction( options , serverSession , "server" , null , false );
 		if( serverAction == null )
 			return( false );
 
@@ -178,7 +197,6 @@ public class ServerEngine {
 	}
 
 	public boolean runClientMode( CommandOptions options , CommandMeta commandInfo ) throws Exception {
-		CommandExecutor commandExecutor = createExecutor( commandInfo );
 		SessionSecurity security = auth.createServerSecurity();
 		serverSession = sessionController.createSession( security , execrc , false );
 		
@@ -187,7 +205,7 @@ public class ServerEngine {
 		else
 			serverSession.setServerLayout( options );
 		
-		serverAction = createAction( commandExecutor , options , serverSession , "client" , null , false );
+		serverAction = createAction( options , serverSession , "client" , null , false );
 		if( serverAction == null )
 			return( false );
 
@@ -221,33 +239,34 @@ public class ServerEngine {
 		return( res );
 	}
 
-	public CommandExecutor createExecutor( CommandMeta commandInfo ) throws Exception {
-		String cmd = commandInfo.name;
-		CommandExecutor executor = null;
-		if( cmd.equals( BuildCommandMeta.NAME ) )
-			executor = new BuildCommandExecutor( this , commandInfo );
-		else if( cmd.equals( DeployCommandMeta.NAME ) )
-			executor = new DeployCommandExecutor( this , commandInfo );
-		else if( cmd.equals( DatabaseCommandMeta.NAME ) )
-			executor = new DatabaseCommandExecutor( this , commandInfo );
-		else if( cmd.equals( MonitorCommandMeta.NAME ) )
-			executor = new MonitorCommandExecutor( this , commandInfo );
-		else if( cmd.equals( ReleaseCommandMeta.NAME ) )
-			executor = new ReleaseCommandExecutor( this , commandInfo );
-		else if( cmd.equals( XDocCommandMeta.NAME ) )
-			executor = new XDocCommandExecutor( this , commandInfo );
-		else
-			Common.exit1( _Error.UnknownCommandExecutor1 , "Unexpected URM args - unknown command executor=" + cmd + " (expected one of " +
-					BuildCommandMeta.NAME + "/" +
-					DeployCommandMeta.NAME + "/" + 
-					DatabaseCommandMeta.NAME + "/" +
-					MonitorCommandMeta.NAME + "/" +
-					ReleaseCommandMeta.NAME + "/" +
-					XDocCommandMeta.NAME + ")" , cmd );
-		return( executor );
+	public CommandExecutor getExecutor( CommandOptions options ) throws Exception {
+		if( options.command.equals( MainCommandMeta.NAME ) )
+			return( mainExecutor );
+		if( options.command.equals( BuildCommandMeta.NAME ) )
+			return( buildExecutor );
+		if( options.command.equals( DatabaseCommandMeta.NAME ) )
+			return( databaseExecutor );
+		if( options.command.equals( DeployCommandMeta.NAME ) )
+			return( deployExecutor );
+		if( options.command.equals( MonitorCommandMeta.NAME ) )
+			return( monitorExecutor );
+		if( options.command.equals( ReleaseCommandMeta.NAME ) )
+			return( releaseExecutor );
+		if( options.command.equals( XDocCommandMeta.NAME ) )
+			return( xdocExecutor );
+		
+		Common.exit1( _Error.UnknownCommandExecutor1 , "Unexpected URM args - unknown command executor=" + options.command + " (expected one of " +
+				BuildCommandMeta.NAME + "/" +
+				DeployCommandMeta.NAME + "/" + 
+				DatabaseCommandMeta.NAME + "/" +
+				MonitorCommandMeta.NAME + "/" +
+				ReleaseCommandMeta.NAME + "/" +
+				XDocCommandMeta.NAME + ")" , options.command );
+		return( null );
 	}
-
-	public ActionInit createAction( CommandExecutor actionExecutor , CommandOptions options , ServerSession session , String stream , ServerCall call , boolean memoryOnly ) throws Exception {
+	
+	public ActionInit createAction( CommandOptions options , ServerSession session , String stream , ServerCall call , boolean memoryOnly ) throws Exception {
+		CommandExecutor actionExecutor = getExecutor( options );
 		CommandAction commandAction = actionExecutor.getAction( options.action );
 		if( !options.checkValidOptions( commandAction.method ) )
 			return( null );
@@ -261,7 +280,7 @@ public class ServerEngine {
 		Artefactory artefactory = createArtefactory( session , context , memoryOnly );
 		
 		// create action
-		ActionInit action = createAction( session , artefactory , actionExecutor , options.action , memoryOnly );
+		ActionInit action = createAction( actionExecutor , session , artefactory , options.action , memoryOnly );
 		context.update( action );
 		actionExecutor.setActionContext( action , context );
 		
@@ -273,14 +292,7 @@ public class ServerEngine {
 		return( action );
 	}
 	
-	public ActionInit createAction( CommandContext context , ActionBase action ) throws Exception {
-		ActionInit actionInit = new ActionInit( loader , action.session , action.artefactory , action.executor , action.output , null , null , false );
-		actionInit.setContext( context );
-		actionInit.setShell( action.shell );
-		return( actionInit );
-	}
-	
-	public ActionInit createAction( ServerSession session , Artefactory artefactory , CommandExecutor executor , String actionName , boolean memoryOnly ) throws Exception { 
+	public ActionInit createAction( CommandExecutor executor , ServerSession session , Artefactory artefactory , String actionName , boolean memoryOnly ) throws Exception { 
 		CommandOutput output = new CommandOutput();
 		CommandAction commandAction = executor.getAction( actionName );
 		ActionInit action = new ActionInit( loader , session , artefactory , executor , output , commandAction , commandAction.method.name , memoryOnly );

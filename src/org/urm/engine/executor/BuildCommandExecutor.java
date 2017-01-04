@@ -5,6 +5,7 @@ import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.build.BuildCommand;
 import org.urm.common.action.CommandMeta;
+import org.urm.common.meta.BuildCommandMeta;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandAction;
@@ -18,7 +19,12 @@ public class BuildCommandExecutor extends CommandExecutor {
 
 	BuildCommand impl;
 	
-	public BuildCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
+	public static BuildCommandExecutor createExecutor( ServerEngine engine ) throws Exception {
+		BuildCommandMeta commandInfo = new BuildCommandMeta();
+		return( new BuildCommandExecutor( engine , commandInfo ) );
+	}
+		
+	private BuildCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		
 		super.defineAction( new BuildAllTags() , "buildall-tags" );
@@ -43,7 +49,8 @@ public class BuildCommandExecutor extends CommandExecutor {
 		super.defineAction( new ThirdpartyUploadDist() , "uploaddist" );
 		super.defineAction( new ThirdpartyUploadLib() , "uploadlib" );
 	}
-	
+
+	@Override
 	public boolean run( ActionInit action ) {
 		try {
 			// create implementation

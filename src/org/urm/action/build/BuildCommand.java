@@ -278,7 +278,7 @@ public class BuildCommand {
 	}
 
 	public void thirdpartyUploadLib( ActionBase action , Meta meta , String GROUPID , String FILE , String ARTEFACTID , String VERSION , String CLASSIFIER ) throws Exception {
-		ActionUploadLibItem ca = new ActionUploadLibItem( action , meta , null , GROUPID , FILE , ARTEFACTID , VERSION , CLASSIFIER );
+		ActionUploadLibItem ca = new ActionUploadLibItem( action , null , meta , GROUPID , FILE , ARTEFACTID , VERSION , CLASSIFIER );
 		ca.runSimpleServer( SecurityAction.ACTION_BUILD , false );
 	}
 

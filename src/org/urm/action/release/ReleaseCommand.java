@@ -14,12 +14,12 @@ public class ReleaseCommand {
 	}
 
 	public void createProd( ActionBase action , Meta meta , String RELEASEVER ) throws Exception {
-		ActionCreateProd ma = new ActionCreateProd( action , meta , null , RELEASEVER );
+		ActionCreateProd ma = new ActionCreateProd( action , null , meta , RELEASEVER );
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public void createRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
-		ActionCreateRelease ma = new ActionCreateRelease( action , meta , null , RELEASELABEL );
+		ActionCreateRelease ma = new ActionCreateRelease( action , null , meta , RELEASELABEL );
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 
@@ -137,7 +137,7 @@ public class ReleaseCommand {
 		if( !dist.release.isCumulative() )
 			action.exit0( _Error.NotCumulativeRelease0 , "should be cumulative release" );
 		
-		ActionGetCumulative ca = new ActionGetCumulative( action , dist.meta , null , dist );
+		ActionGetCumulative ca = new ActionGetCumulative( action , null , dist.meta , dist );
 		ca.runSimpleProduct( dist.meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 

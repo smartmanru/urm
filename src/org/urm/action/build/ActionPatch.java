@@ -1,6 +1,5 @@
 package org.urm.action.build;
 
-
 import org.urm.action.ActionBase;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
@@ -12,12 +11,12 @@ import org.urm.meta.product.MetaSourceProjectItem;
 public class ActionPatch extends ActionBase {
 
 	public Builder builder;
-	LocalFolder LOGDIR;
+	String logFile;
 	
-	public ActionPatch( ActionBase action , String stream , Builder builder , LocalFolder LOGDIR ) {
+	public ActionPatch( ActionBase action , String stream , Builder builder , String logFile ) {
 		super( action , stream );
 		this.builder = builder;
-		this.LOGDIR = LOGDIR;
+		this.logFile = logFile;
 	}
 
 	@Override protected SCOPESTATE executeSimple() throws Exception {
@@ -148,8 +147,8 @@ public class ActionPatch extends ActionBase {
 		shell.export( this , "MAVEN_OPTS" , Common.getQuoted( "-XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );
 
 		// upload versioninfo
-		String FILENAME = builder.project.NAME + "-versioninfo.txt";
-		LOGDIR.createFileFromString( this , FILENAME , builder.TAG );
+		String FILENAME = shell.getLocalPath( logFile + "-versioninfo.txt" );
+		Common.createFileFromString( super.execrc , FILENAME , builder.TAG );
 		int timeout = setTimeoutUnlimited();
 		int status = shell.customGetStatusNormal( this , "mvn deploy:deploy-file -B " +
 				UPLOAD_MSETTINGS + " " +
@@ -158,7 +157,7 @@ public class ActionPatch extends ActionBase {
 			"-Dversion=" + builder.APPVERSION + " " +
 			"-DgroupId=release " +
 			"-DartifactId=" + UPLOAD_PROJECT_NAME + " " +
-			"-Dfile=" + shell.getLocalPath( LOGDIR.getFilePath( this , FILENAME ) ) + " " +
+			"-Dfile=" + FILENAME + " " +
 			"-Dpackaging=txt " +
 			"-Dclassifier=version " +
 			"-DgeneratePom=true " +

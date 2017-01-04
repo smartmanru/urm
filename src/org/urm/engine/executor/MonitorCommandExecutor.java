@@ -2,6 +2,7 @@ package org.urm.engine.executor;
 
 import org.urm.action.monitor.MonitorCommand;
 import org.urm.common.action.CommandMeta;
+import org.urm.common.meta.MonitorCommandMeta;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandExecutor;
@@ -12,10 +13,16 @@ public class MonitorCommandExecutor extends CommandExecutor {
 
 	MonitorCommand impl;
 
-	public MonitorCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
+	public static MonitorCommandExecutor createExecutor( ServerEngine engine ) throws Exception {
+		MonitorCommandMeta commandInfo = new MonitorCommandMeta();
+		return( new MonitorCommandExecutor( engine , commandInfo ) );
+	}
+		
+	private MonitorCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 	}
 	
+	@Override
 	public boolean run( ActionInit action ) {
 		try {
 			// create implementation

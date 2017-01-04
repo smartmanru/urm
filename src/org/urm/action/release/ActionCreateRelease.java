@@ -11,7 +11,7 @@ public class ActionCreateRelease extends ActionBase {
 	public Dist release;
 	String RELEASELABEL;
 	
-	public ActionCreateRelease( ActionBase action , Meta meta , String stream , String RELEASELABEL ) {
+	public ActionCreateRelease( ActionBase action , String stream , Meta meta , String RELEASELABEL ) {
 		super( action , stream );
 		this.meta = meta;
 		this.RELEASELABEL = RELEASELABEL;

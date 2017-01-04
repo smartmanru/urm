@@ -22,6 +22,23 @@ public class MainExecutor extends CommandExecutor {
 		return( new MainExecutor( engine , commandInfo ) );
 	}
 		
+	private MainExecutor( ServerEngine engine , MainCommandMeta commandInfo ) throws Exception {
+		super( engine , commandInfo );
+		
+		super.defineAction( new Configure() , "configure" );
+		super.defineAction( new SvnSave() , "svnsave" );
+		super.defineAction( new ServerOp() , "server" );
+		super.defineAction( new WebSession() , "websession" );
+		super.defineAction( new Temporary() , "temporary" );
+	}
+
+	@Override
+	public boolean run( ActionInit action ) {
+		// log action and run 
+		boolean res = super.runMethod( action , action.commandAction );
+		return( res );
+	}
+	
 	public CommandOptions createOptionsByArgs( CommandBuilder builder , String[] args ) throws Exception {
 		CommandOptions options = new CommandOptions();
 		if( !builder.setOptions( commandInfo , args , options ) )
@@ -59,22 +76,6 @@ public class MainExecutor extends CommandExecutor {
 		return( options );
 	}
 
-	private MainExecutor( ServerEngine engine , MainCommandMeta commandInfo ) throws Exception {
-		super( engine , commandInfo );
-		
-		super.defineAction( new Configure() , "configure" );
-		super.defineAction( new SvnSave() , "svnsave" );
-		super.defineAction( new ServerOp() , "server" );
-		super.defineAction( new WebSession() , "websession" );
-		super.defineAction( new Temporary() , "temporary" );
-	}
-
-	public boolean run( ActionInit action ) {
-		// log action and run 
-		boolean res = super.runMethod( action , action.commandAction );
-		return( res );
-	}
-	
 	// configure proxy files
 	private class Configure extends CommandAction {
 		public Configure() {
@@ -100,7 +101,7 @@ public class MainExecutor extends CommandExecutor {
 	private class SvnSave extends CommandAction {
 		public void run( ActionInit action ) throws Exception {
 			Meta meta = action.getContextMeta();
-			ActionSave ca = new ActionSave( action , meta , null );
+			ActionSave ca = new ActionSave( action , null , meta );
 			ca.runSimpleProduct( meta.name , SecurityAction.ACTION_CONFIGURE , false );
 		}
 	}

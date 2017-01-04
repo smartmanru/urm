@@ -4,6 +4,7 @@ import org.urm.action.ActionScope;
 import org.urm.action.database.DatabaseCommand;
 import org.urm.common.Common;
 import org.urm.common.action.CommandMeta;
+import org.urm.common.meta.DatabaseCommandMeta;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandAction;
@@ -27,7 +28,12 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	
 	String propertyBasedMethods;
 	
-	public DatabaseCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
+	public static DatabaseCommandExecutor createExecutor( ServerEngine engine ) throws Exception {
+		DatabaseCommandMeta commandInfo = new DatabaseCommandMeta();
+		return( new DatabaseCommandExecutor( engine , commandInfo ) );
+	}
+		
+	private DatabaseCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		
 		super.defineAction( new InitDB() , "initdb" );
@@ -41,6 +47,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		propertyBasedMethods = "initdb dbmanual dbapply import";
 	}
 	
+	@Override
 	public boolean run( ActionInit action ) {
 		try {
 			// create implementation

@@ -18,7 +18,7 @@ public class ActionUploadLibItem extends ActionBase {
 	String VERSION;
 	String CLASSIFIER;
 	
-	public ActionUploadLibItem( ActionBase action , Meta meta , String stream , String GROUPID , String FILE , String ARTEFACTID , String VERSION , String CLASSIFIER ) {
+	public ActionUploadLibItem( ActionBase action , String stream , Meta meta , String GROUPID , String FILE , String ARTEFACTID , String VERSION , String CLASSIFIER ) {
 		super( action , stream );
 		
 		this.meta = meta;

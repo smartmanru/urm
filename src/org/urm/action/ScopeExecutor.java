@@ -865,15 +865,19 @@ public class ScopeExecutor {
 	private void startExecutor( ActionScope scope ) {
 		stateFinal = new ScopeState( action , scope );
 		action.eventSource.setRootState( stateFinal );
+		action.engine.blotter.startAction( action );
 	}
 	
 	private boolean finishExecutor( SCOPESTATE ss ) {
 		action.engine.shellPool.releaseActionPool( action );
 		stateFinal.setActionStatus( ss );
-		
+
+		boolean res = true;
 		if( ss == SCOPESTATE.RunFail || ss == SCOPESTATE.RunBeforeFail )
-			return( false );
-		return( true );
+			res = false;
+		
+		action.engine.blotter.stopAction( action , res );
+		return( res );
 	}
 	
 }

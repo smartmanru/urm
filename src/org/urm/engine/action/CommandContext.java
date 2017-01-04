@@ -129,23 +129,6 @@ public class CommandContext {
 		setLogLevel();
 	}
 
-	private void setLogStream() {
-		streamLog = ( call != null )? "[" + stream + "," + call.sessionContext.sessionId + "]" : "[" + stream + "]";
-	}
-	
-	private void setLogLevel() {
-		logLevelLimit = CommandOutput.LOGLEVEL_INFO;
-		if( CTX_TRACE ) {
-			if( CTX_TRACEINTERNAL )
-				logLevelLimit = CommandOutput.LOGLEVEL_INTERNAL;
-			else
-				logLevelLimit = CommandOutput.LOGLEVEL_TRACE;
-		}
-		else
-		if( CTX_SHOWALL )
-			logLevelLimit = CommandOutput.LOGLEVEL_DEBUG;
-	}
-	
 	public CommandContext( CommandContext context , String stream ) {
 		if( stream == null || stream.isEmpty() )
 			this.stream = context.stream;
@@ -240,6 +223,23 @@ public class CommandContext {
 		setLogStream();
 	}
 
+	private void setLogStream() {
+		streamLog = ( call != null )? "[" + stream + "," + call.sessionContext.sessionId + "]" : "[" + stream + "]";
+	}
+	
+	private void setLogLevel() {
+		logLevelLimit = CommandOutput.LOGLEVEL_INFO;
+		if( CTX_TRACE ) {
+			if( CTX_TRACEINTERNAL )
+				logLevelLimit = CommandOutput.LOGLEVEL_INTERNAL;
+			else
+				logLevelLimit = CommandOutput.LOGLEVEL_TRACE;
+		}
+		else
+		if( CTX_SHOWALL )
+			logLevelLimit = CommandOutput.LOGLEVEL_DEBUG;
+	}
+	
 	public void update( ActionBase action , MetaEnv env , MetaEnvSegment sg ) throws Exception {
 		this.env = env;  
 		this.sg = sg;
