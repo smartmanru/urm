@@ -5,10 +5,10 @@ import org.urm.engine.ServerBlotter.BlotterType;
 
 public class ServerBlotterItem {
 
-	ServerBlotter blotter;
-	BlotterType type;
-	
+	ServerBlotterSet blotterSet;
 	public ActionBase action;
+	
+	public ServerBlotterMemo memo;
 	public ServerBlotterItem parent;
 	public long startTime;
 	public long stopTime;
@@ -21,9 +21,8 @@ public class ServerBlotterItem {
 	public String INFO_PROJECT;
 	public String INFO_TAG;
 	
-	public ServerBlotterItem( ServerBlotter blotter , BlotterType type , ActionBase action ) {
-		this.blotter = blotter;
-		this.type = type;
+	public ServerBlotterItem( ServerBlotterSet blotterSet , ActionBase action ) {
+		this.blotterSet = blotterSet;
 		this.action = action;
 		
 		action.setBlotterItem( this );
@@ -34,20 +33,24 @@ public class ServerBlotterItem {
 		errors = false;
 	}
 
+	public void setMemo( ServerBlotterMemo memo ) {
+		this.memo = memo;
+	}
+	
 	public boolean isRootItem() {
-		return( type == BlotterType.BLOTTER_ROOT );
+		return( blotterSet.type == BlotterType.BLOTTER_ROOT );
 	}
 	
 	public boolean isBuildItem() {
-		return( type == BlotterType.BLOTTER_BUILD );
+		return( blotterSet.type == BlotterType.BLOTTER_BUILD );
 	}
 	
 	public boolean isReleaseItem() {
-		return( type == BlotterType.BLOTTER_RELEASE );
+		return( blotterSet.type == BlotterType.BLOTTER_RELEASE );
 	}
 	
 	public boolean isDeployItem() {
-		return( type == BlotterType.BLOTTER_DEPLOY );
+		return( blotterSet.type == BlotterType.BLOTTER_DEPLOY );
 	}
 	
 	public void startChildAction( ActionBase action ) {
@@ -60,6 +63,7 @@ public class ServerBlotterItem {
 	}
 	
 	public void createRootItem() {
+		this.INFO_NAME = "root " + action.ID;
 	}
 
 	public void createBuildItem( String product , String project , String tag ) {
@@ -72,6 +76,9 @@ public class ServerBlotterItem {
 
 	public void stopAction( boolean success ) {
 		this.success = success;
+		
+		stopTime = System.currentTimeMillis();
+		stopped = true;
 	}
 	
 }

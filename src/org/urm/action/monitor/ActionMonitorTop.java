@@ -8,6 +8,7 @@ import org.urm.action.ActionSet;
 import org.urm.action.ActionSetItem;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
+import org.urm.common.Common;
 import org.urm.engine.ServerEventsApp;
 import org.urm.engine.ServerEventsListener;
 import org.urm.engine.ServerEventsSubscription;
@@ -212,6 +213,8 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 		
 		for( ActionMonitorCheckEnv action : checkenvActions )
 			info.addCheckEnvData( action.target , action.timePassedMillis , action.isOK() );
+		
+		Common.sleep( 1000 );
 	}
 	
 	private void executeOnceMinor( MetaMonitoring mon , MonitorInfo info ) throws Exception {

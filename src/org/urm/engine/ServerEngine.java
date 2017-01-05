@@ -320,6 +320,7 @@ public class ServerEngine {
 			
 			// start action log
 			action.tee();
+			blotter.startAction( action );
 		}
 		
 		// print args

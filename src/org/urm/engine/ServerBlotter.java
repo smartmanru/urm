@@ -1,8 +1,5 @@
 package org.urm.engine;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.urm.action.ActionBase;
 import org.urm.action.build.ActionPatch;
 import org.urm.common.Common;
@@ -25,47 +22,53 @@ public class ServerBlotter {
 		BLOTTER_STOPCHILD
 	};
 	
-public ServerEngine engine;
+	public static int EVENT_ITEMEVENT = 1;
 	
-	private List<ServerBlotterItem> listRoots;
-	private List<ServerBlotterItem> listBuilds;
-	private List<ServerBlotterItem> listReleases;
-	private List<ServerBlotterItem> listDeploy;
+	public ServerEngine engine;
+	
+	private ServerBlotterSet blotterRoots;
+	private ServerBlotterSet blotterBuilds;
+	private ServerBlotterSet blotterReleases;
+	private ServerBlotterSet blotterDeploy;
 	
 	public ServerBlotter( ServerEngine engine ) {
 		this.engine = engine;
-		
-		listRoots = new LinkedList<ServerBlotterItem>();
-		listBuilds = new LinkedList<ServerBlotterItem>();
-		listReleases = new LinkedList<ServerBlotterItem>();
-		listDeploy = new LinkedList<ServerBlotterItem>();
+
+		ServerEvents events = engine.getEvents();
+		blotterRoots = new ServerBlotterSet( this , BlotterType.BLOTTER_ROOT , events , "blotter.roots" );
+		blotterBuilds = new ServerBlotterSet( this , BlotterType.BLOTTER_BUILD , events , "blotter.builds" );
+		blotterReleases = new ServerBlotterSet( this , BlotterType.BLOTTER_RELEASE , events , "blotter.releases" );
+		blotterDeploy = new ServerBlotterSet( this , BlotterType.BLOTTER_DEPLOY , events , "blotter.deploy" );
 	}
 	
-	public synchronized ServerBlotterItem[] getRootItems() {
-		return( listRoots.toArray( new ServerBlotterItem[0] ) ); 
+	public synchronized ServerBlotterItem[] getBlotterItems( BlotterType type ) {
+		ServerBlotterSet set = getBlotterSet( type );
+		if( set == null )
+			return( new ServerBlotterItem[0] );
+		return( set.getItems() ); 
 	}
 	
-	public synchronized ServerBlotterItem[] getBuildItems() {
-		return( listBuilds.toArray( new ServerBlotterItem[0] ) ); 
-	}
-	
-	public synchronized ServerBlotterItem[] getReleaseItems() {
-		return( listReleases.toArray( new ServerBlotterItem[0] ) ); 
-	}
-	
-	public synchronized ServerBlotterItem[] getDeployItems() {
-		return( listDeploy.toArray( new ServerBlotterItem[0] ) ); 
+	private ServerBlotterSet getBlotterSet( BlotterType type ) {
+		if( type == BlotterType.BLOTTER_ROOT )
+			return( blotterRoots );
+		if( type == BlotterType.BLOTTER_BUILD )
+			return( blotterBuilds );
+		if( type == BlotterType.BLOTTER_RELEASE )
+			return( blotterReleases );
+		if( type == BlotterType.BLOTTER_DEPLOY )
+			return( blotterDeploy );
+		return( null );
 	}
 	
 	public void startAction( ActionBase action ) throws Exception {
 		if( action instanceof ActionInit ) {
 			ServerBlotterItem item = createRootItem( ( ActionInit )action );
-			notifyRootItem( item , BlotterEvent.BLOTTER_START );
+			notifyItem( item , action , BlotterEvent.BLOTTER_START );
 		}
 		else
 		if( action instanceof ActionPatch ) {
 			ServerBlotterItem item = createBuildItem( ( ActionPatch )action );
-			notifyBuildItem( item , BlotterEvent.BLOTTER_START );
+			notifyItem( item , action , BlotterEvent.BLOTTER_START );
 		}
 		else {
 			if( action.parent == null )
@@ -76,19 +79,7 @@ public ServerEngine engine;
 				Common.exitUnexpected();
 			
 			item.startChildAction( action );
-			if( item.isRootItem() )
-				notifyRootItem( item , BlotterEvent.BLOTTER_STARTCHILD );
-			else
-			if( item.isBuildItem() )
-				notifyBuildItem( item , BlotterEvent.BLOTTER_STARTCHILD );
-			else
-			if( item.isReleaseItem() )
-				notifyReleaseItem( item , BlotterEvent.BLOTTER_STARTCHILD );
-			else
-			if( item.isDeployItem() )
-				notifyDeployItem( item , BlotterEvent.BLOTTER_STARTCHILD );
-			else
-				Common.exitUnexpected();
+			notifyItem( item , action , BlotterEvent.BLOTTER_STARTCHILD );
 		}
 	}
 	
@@ -99,87 +90,48 @@ public ServerEngine engine;
 		ServerBlotterItem item = action.blotterItem;
 		if( item.action == action ) {
 			item.stopAction( success );
-			if( item.isRootItem() ) {
-				notifyRootItem( item , BlotterEvent.BLOTTER_STOP );
-				removeRootItem( item );
-			}
-			else
-			if( item.isBuildItem() ) {
-				notifyBuildItem( item , BlotterEvent.BLOTTER_STOP );
-				removeBuildItem( item );
-			}
-			else
-			if( item.isReleaseItem() ) {
-				notifyReleaseItem( item , BlotterEvent.BLOTTER_STOP );
-				removeReleaseItem( item );
-			}
-			else
-			if( item.isDeployItem() ) {
-				notifyDeployItem( item , BlotterEvent.BLOTTER_STOP );
-				removeDeployItem( item );
-			}
+			notifyItem( item , action , BlotterEvent.BLOTTER_STOP );
+			finishItem( item );
 		}
 		else {
-			if( item.isRootItem() )
-				notifyRootItem( item , BlotterEvent.BLOTTER_STOPCHILD );
-			else
-			if( item.isBuildItem() )
-				notifyBuildItem( item , BlotterEvent.BLOTTER_STOPCHILD );
-			else
-			if( item.isReleaseItem() )
-				notifyReleaseItem( item , BlotterEvent.BLOTTER_STOPCHILD );
-			else
-			if( item.isDeployItem() )
-				notifyDeployItem( item , BlotterEvent.BLOTTER_STOPCHILD );
-			else
-				Common.exitUnexpected();
+			notifyItem( item , action , BlotterEvent.BLOTTER_STOPCHILD );
 			item.stopChildAction( action , success );
 		}
 	}
 
-	private synchronized ServerBlotterItem createRootItem( ActionInit action ) {
-		ServerBlotterItem item = new ServerBlotterItem( this , BlotterType.BLOTTER_ROOT , action );
+	private ServerBlotterItem createRootItem( ActionInit action ) {
+		ServerBlotterItem item = new ServerBlotterItem( blotterRoots , action );
 		
 		item.createRootItem();
-		listRoots.add( item );
+		blotterRoots.addItem( item );
 		return( item );
 	}
 
-	private synchronized ServerBlotterItem createBuildItem( ActionPatch action ) {
-		ServerBlotterItem item = new ServerBlotterItem( this , BlotterType.BLOTTER_BUILD , action );
+	private ServerBlotterItem createBuildItem( ActionPatch action ) {
+		ServerBlotterItem item = new ServerBlotterItem( blotterBuilds , action );
 		
 		MetaSourceProject project = action.builder.project;
 		item.createBuildItem( project.meta.name , project.NAME , action.builder.TAG );
-		listBuilds.add( item );
+		blotterBuilds.addItem( item );
 		return( item );
 	}
 
-	private void notifyRootItem( ServerBlotterItem item , BlotterEvent event ) {
+	private void notifyItem( ServerBlotterItem item , ActionBase action , BlotterEvent event ) {
+		ServerBlotterSet set = item.blotterSet;
+		set.notifyItem( item , action , event );
 	}
 	
-	private void notifyBuildItem( ServerBlotterItem item , BlotterEvent event ) {
+	private void finishItem( ServerBlotterItem item ) {
+		ServerBlotterSet set = item.blotterSet;
+		set.finishItem( item );
 	}
 	
-	private void notifyReleaseItem( ServerBlotterItem item , BlotterEvent event ) {
+	public ServerEventsSubscription subscribe( ServerEventsApp app , ServerEventsListener listener , BlotterType type ) {
+		ServerBlotterSet set = getBlotterSet( type );
+		if( set == null )
+			return( null );
+		
+		return( app.subscribe( set , listener ) );
 	}
-	
-	private void notifyDeployItem( ServerBlotterItem item , BlotterEvent event ) {
-	}
-	
-	private synchronized void removeRootItem( ServerBlotterItem item ) {
-		listRoots.remove( item );
-	}
-	
-	private synchronized void removeBuildItem( ServerBlotterItem item ) {
-		listBuilds.remove( item );
-	}
-	
-	private synchronized void removeReleaseItem( ServerBlotterItem item ) {
-		listReleases.remove( item );
-	}
-	
-	private synchronized void removeDeployItem( ServerBlotterItem item ) {
-		listDeploy.remove( item );
-	}
-	
+
 }
