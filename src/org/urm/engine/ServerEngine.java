@@ -107,6 +107,7 @@ public class ServerEngine {
 		
 		serverAction.info( "stopping server ..." );
 		
+		events.stop();
 		ServerMonitoring mon = loader.getMonitoring();
 		mon.stop();
 		shellPool.stop( serverAction );

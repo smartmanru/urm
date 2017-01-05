@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ScopeState.SCOPESTATE;
+import org.urm.engine.ServerEvents;
 import org.urm.engine.ServerEventsSource;
 import org.urm.engine.ServerEventsState;
 import org.urm.meta.ServerObject;
@@ -62,7 +63,7 @@ public class ServerMonitoringSource extends ServerEventsSource {
 		
 		if( finalState != state.state ) {
 			state.setState( finalState );
-			super.trigger( ServerMonitoring.EVENT_MONITORSTATECHANGED , state );
+			super.trigger( ServerEvents.EVENT_MONITORSTATECHANGED , state );
 			return( true );
 		}
 		

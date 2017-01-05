@@ -9,6 +9,7 @@ import org.urm.action.ActionSetItem;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
+import org.urm.engine.ServerEvents;
 import org.urm.engine.ServerEventsApp;
 import org.urm.engine.ServerEventsListener;
 import org.urm.engine.ServerEventsSubscription;
@@ -17,7 +18,6 @@ import org.urm.engine.storage.MonitoringStorage;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerProductMeta;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
-import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
@@ -116,7 +116,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 			for( MetaMonitoringTarget target : mon.getTargets( this ).values() ) {
 				trace( "refresh target graph env=" + target.ENV + ", sg=" + target.SG );
 				info.addHistoryGraph( target );
-				super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORGRAPHCHANGED , target );
+				super.eventSource.customEvent( ServerEvents.EVENT_MONITORGRAPHCHANGED , target );
 			}
 			
 			// calculate sleep and next action
@@ -155,9 +155,9 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 
 	@Override
 	public void triggerEvent( ServerSourceEvent event ) {
-		if( event.eventType == ServerMonitoring.EVENT_MONITORING_SEGMENT ||
-			event.eventType == ServerMonitoring.EVENT_MONITORING_SERVER ||
-			event.eventType == ServerMonitoring.EVENT_MONITORING_NODE )
+		if( event.eventType == ServerEvents.EVENT_MONITORING_SEGMENT ||
+			event.eventType == ServerEvents.EVENT_MONITORING_SERVER ||
+			event.eventType == ServerEvents.EVENT_MONITORING_NODE )
 			super.eventSource.forwardScopeItem( event.eventType , ( ScopeState )event.data );
 	}
 	
@@ -296,14 +296,14 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 					totalStatus = false;
 			}
 			else {
-				super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORING_SERVERITEMS , action.serverStatus );
+				super.eventSource.customEvent( ServerEvents.EVENT_MONITORING_SERVERITEMS , action.serverStatus );
 				for( NodeStatus nodeStatus : action.getNodes() )
-					super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORING_NODEITEMS , nodeStatus );
+					super.eventSource.customEvent( ServerEvents.EVENT_MONITORING_NODEITEMS , nodeStatus );
 			}
 		}
 		
 		sgStatus.setActionStatus( totalStatus );
-		super.eventSource.customEvent( ServerMonitoring.EVENT_MONITORING_SGITEMS , sgStatus );
+		super.eventSource.customEvent( ServerEvents.EVENT_MONITORING_SGITEMS , sgStatus );
 	}
 	
 }

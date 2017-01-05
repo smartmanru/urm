@@ -1,5 +1,6 @@
 package org.urm.action;
 
+import org.urm.engine.ServerEvents;
 import org.urm.engine.ServerEventsSource;
 import org.urm.engine.ServerEventsState;
 
@@ -7,8 +8,6 @@ public class ActionEventsSource extends ServerEventsSource {
 
 	ActionEventsState rootState;
 
-	public static int EVENT_FINISHSTATE = 1;
-	
 	public ActionEventsSource( ActionCore action ) {
 		super( action.engine.getEvents() , action.getClass().getSimpleName() + "-" + action.ID );
 	}
@@ -23,11 +22,11 @@ public class ActionEventsSource extends ServerEventsSource {
 	}
 	
 	public void finishScopeItem( ScopeState state ) {
-		super.trigger( EVENT_FINISHSTATE , state );
+		super.trigger( ServerEvents.EVENT_FINISHSTATE , state );
 	}
 	
-	public void finishScopeItem( int event , ScopeState state ) {
-		super.trigger( event , state );
+	public void finishScopeItem( int eventType , ScopeState state ) {
+		super.trigger( eventType , state );
 	}
 	
 	public void forwardScopeItem( int eventType , ScopeState state ) {
