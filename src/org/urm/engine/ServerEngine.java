@@ -93,6 +93,7 @@ public class ServerEngine {
 		
 		ServerMonitoring mon = loader.getMonitoring();
 		mon.start();
+		events.start();
 		
 		jmxController = new ServerMBean( action , this );
 		jmxController.start();

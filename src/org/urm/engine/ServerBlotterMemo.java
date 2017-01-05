@@ -20,6 +20,12 @@ public class ServerBlotterMemo {
 		lastDuration = 0;
 	}
 
+	public boolean isNew() {
+		if( totalCount == 0 )
+			return( true );
+		return( false );
+	}
+	
 	public synchronized void addEvent( long duration ) {
 		lastDuration = duration;
 		totalCount++;

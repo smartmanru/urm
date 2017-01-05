@@ -45,6 +45,7 @@ public class ServerEventsTimer extends ServerEventsSource implements Runnable {
 		if( started )
 			return;
 		
+		events.engine.serverAction.info( "start events timer ..." );
 		stopping = false;
         thread = new Thread( null , this , "timer" );
         thread.start();
@@ -54,6 +55,7 @@ public class ServerEventsTimer extends ServerEventsSource implements Runnable {
 		if( started == false || stopped )
 			return;
 		
+		events.engine.serverAction.info( "stop events timer ..." );
 		stopping = true;
 		try {
 			wait();

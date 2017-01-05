@@ -22,8 +22,6 @@ public class ServerBlotter {
 		BLOTTER_STOPCHILD
 	};
 	
-	public static int EVENT_ITEMEVENT = 1;
-	
 	public ServerEngine engine;
 	
 	private ServerBlotterSet blotterRoots;

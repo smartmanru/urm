@@ -8,6 +8,7 @@ public class ServerEvents extends ServerObject {
 	
 	public static int EVENT_FINISHSTATE = 1;
 	public static int EVENT_SECONDTIMER = 2;
+	public static int EVENT_BLOTTEREVENT = 3;
 	public static int EVENT_MONITORSTATECHANGED = 11;
 	public static int EVENT_MONITORCHILDCHANGED = 12;
 	public static int EVENT_MONITORGRAPHCHANGED = 13;
@@ -28,6 +29,9 @@ public class ServerEvents extends ServerObject {
 	}
 
 	public void init() throws Exception {
+	}
+
+	public void start() throws Exception {
 		timer.start();
 	}
 

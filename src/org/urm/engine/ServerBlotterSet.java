@@ -76,7 +76,7 @@ public class ServerBlotterSet extends ServerEventsSource {
 	
 	public void notifyItem( ServerBlotterItem item , ActionBase action , BlotterEvent event ) {
 		ServerBlotterEvent data = new ServerBlotterEvent( item , action , event );
-		super.trigger( ServerBlotter.EVENT_ITEMEVENT , data );
+		super.trigger( ServerEvents.EVENT_BLOTTEREVENT , data );
 	}
 	
 }
