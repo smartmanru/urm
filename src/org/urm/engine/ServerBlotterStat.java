@@ -65,10 +65,10 @@ public class ServerBlotterStat {
 		if( itemDay != day ) {
 			statClear();
 			day = itemDay;
-			dayItemsPrimaryRunning++;
-			dayItemsTotalRunning++;
 		}
 		
+		dayItemsPrimaryRunning++;
+		dayItemsTotalRunning++;
 		dayLastRunTime = item.startTime;
 	}
 	
