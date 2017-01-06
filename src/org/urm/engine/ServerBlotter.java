@@ -96,8 +96,8 @@ public class ServerBlotter {
 		ServerBlotterItem item = action.blotterItem;
 		if( item.action == action ) {
 			item.stopAction( success );
-			notifyItem( item , action , BlotterEvent.BLOTTER_STOP );
 			finishItem( item );
+			notifyItem( item , action , BlotterEvent.BLOTTER_STOP );
 		}
 		else {
 			ServerBlotterSet set = item.blotterSet;
