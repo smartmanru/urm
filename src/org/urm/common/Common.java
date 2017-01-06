@@ -250,11 +250,17 @@ public class Common {
 
 	public static String getTimeStamp( Date date ) {
         SimpleDateFormat simpleFormat = new SimpleDateFormat( "HH:mm:ss,SSS zzz" );
-        return simpleFormat.format( date );
+        return( simpleFormat.format( date ) );
 	}
 	
 	public static String getTimeStamp( long timeMillis ) {
 		return( getTimeStamp( new Date( timeMillis ) ) );
+	}
+	
+	public static String getTime( long timeMillis ) {
+        SimpleDateFormat simpleFormat = new SimpleDateFormat( "HH:mm:ss" );
+        Date date = new Date( timeMillis );
+        return( simpleFormat.format( date ) );
 	}
 	
 	public static String replace( String s , String from , String to ) {
