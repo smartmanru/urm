@@ -40,6 +40,12 @@ public class ServerBlotterStat {
 		return( r );
 	}
 	
+	public boolean isEmpty() {
+		if( dayLastRunTime == 0 )
+			return( true );
+		return( false );
+	}
+	
 	private void statClear() {
 		day = 0;
 		dayItemsPrimaryDone = 0;
