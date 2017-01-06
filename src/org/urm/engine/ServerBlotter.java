@@ -39,14 +39,21 @@ public class ServerBlotter {
 		blotterDeploy = new ServerBlotterSet( this , BlotterType.BLOTTER_DEPLOY , events , "blotter.deploy" );
 	}
 	
-	public synchronized ServerBlotterItem[] getBlotterItems( BlotterType type ) {
+	public ServerBlotterItem[] getBlotterItems( BlotterType type ) {
 		ServerBlotterSet set = getBlotterSet( type );
 		if( set == null )
 			return( new ServerBlotterItem[0] );
 		return( set.getItems() ); 
 	}
 	
-	private ServerBlotterSet getBlotterSet( BlotterType type ) {
+	public ServerBlotterStat getBlotterStatistics( BlotterType type ) {
+		ServerBlotterSet set = getBlotterSet( type );
+		if( set == null )
+			return( null );
+		return( set.getStatistics() ); 
+	}
+	
+	public ServerBlotterSet getBlotterSet( BlotterType type ) {
 		if( type == BlotterType.BLOTTER_ROOT )
 			return( blotterRoots );
 		if( type == BlotterType.BLOTTER_BUILD )
@@ -76,7 +83,8 @@ public class ServerBlotter {
 			if( item == null )
 				Common.exitUnexpected();
 			
-			item.startChildAction( action );
+			ServerBlotterSet set = item.blotterSet;
+			set.startChildAction( item , action );
 			notifyItem( item , action , BlotterEvent.BLOTTER_STARTCHILD );
 		}
 	}
@@ -92,8 +100,9 @@ public class ServerBlotter {
 			finishItem( item );
 		}
 		else {
+			ServerBlotterSet set = item.blotterSet;
+			set.stopChildAction( item , action , success );
 			notifyItem( item , action , BlotterEvent.BLOTTER_STOPCHILD );
-			item.stopChildAction( action , success );
 		}
 	}
 

@@ -16,6 +16,7 @@ public class ServerBlotterSet extends ServerEventsSource {
 	
 	private List<ServerBlotterItem> items;
 	private Map<String,ServerBlotterMemo> memos;
+	private ServerBlotterStat stat;
 	
 	public ServerBlotterSet( ServerBlotter blotter , BlotterType type , ServerEvents events , String setId ) {
 		super( events , setId );
@@ -23,12 +24,19 @@ public class ServerBlotterSet extends ServerEventsSource {
 		this.type = type;
 		
 		items = new LinkedList<ServerBlotterItem>();
-		memos = new HashMap<String,ServerBlotterMemo>(); 
+		memos = new HashMap<String,ServerBlotterMemo>();
+
+		stat = new ServerBlotterStat( this );
 	}
 	
 	@Override
 	public ServerEventsState getState() {
 		return( new ServerEventsState( this , super.getStateId() ) );
+	}
+	
+	public synchronized ServerBlotterStat getStatistics() {
+		ServerBlotterStat statCopy = stat.copy();
+		return( statCopy );
 	}
 	
 	public boolean isRootSet() {
@@ -62,7 +70,9 @@ public class ServerBlotterSet extends ServerEventsSource {
 			
 			item.setMemo( memo );
 		}
+		
 		items.add( item );
+		stat.statAddItem( item );
 	}
 	
 	public synchronized void finishItem( ServerBlotterItem item ) {
@@ -71,7 +81,9 @@ public class ServerBlotterSet extends ServerEventsSource {
 			long elapsed = item.stopTime - item.startTime;
 			memo.addEvent( elapsed );
 		}
+		
 		items.remove( item );
+		stat.statFinishItem( item );
 	}
 	
 	public void notifyItem( ServerBlotterItem item , ActionBase action , BlotterEvent event ) {
@@ -79,4 +91,14 @@ public class ServerBlotterSet extends ServerEventsSource {
 		super.trigger( ServerEvents.EVENT_BLOTTEREVENT , data );
 	}
 	
+	public void startChildAction( ServerBlotterItem item , ActionBase action ) {
+		item.startChildAction( action );
+		stat.statAddChildItem( item , action );
+	}
+
+	public void stopChildAction( ServerBlotterItem item , ActionBase action , boolean success ) {
+		item.stopChildAction( action , success );
+		stat.statFinishChildItem( item , action , success );
+	}
+
 }
