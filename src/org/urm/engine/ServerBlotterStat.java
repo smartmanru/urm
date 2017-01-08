@@ -46,6 +46,17 @@ public class ServerBlotterStat {
 		return( false );
 	}
 	
+	public boolean isTodays() {
+		long currentDay = getDay( System.currentTimeMillis() );
+		if( day == currentDay )
+			return( true );
+		return( false );
+	}
+	
+	private long getDay( long value ) {
+		return( value - value % ( 24 * 60 * 60 * 1000 ) );
+	}
+	
 	private void statClear() {
 		day = 0;
 		dayItemsPrimaryDone = 0;
@@ -61,7 +72,7 @@ public class ServerBlotterStat {
 	}
 	
 	public void statAddItem( ServerBlotterItem item ) {
-		long itemDay = item.startTime - item.startTime % ( 24 * 60 * 60 * 1000 );
+		long itemDay = getDay( item.startTime );
 		if( itemDay != day ) {
 			statClear();
 			day = itemDay;
@@ -73,7 +84,7 @@ public class ServerBlotterStat {
 	}
 	
 	public void statFinishItem( ServerBlotterItem item ) {
-		long itemDay = item.startTime - item.startTime % ( 24 * 60 * 60 * 1000 );
+		long itemDay = getDay( item.startTime );
 		if( itemDay != day )
 			return;
 		
@@ -91,7 +102,7 @@ public class ServerBlotterStat {
 	}
 	
 	public void statAddChildItem( ServerBlotterItem item , ActionBase action ) {
-		long itemDay = item.startTime - item.startTime % ( 24 * 60 * 60 * 1000 );
+		long itemDay = getDay( item.startTime );
 		if( itemDay != day )
 			return;
 		
@@ -100,7 +111,7 @@ public class ServerBlotterStat {
 	}
 	
 	public void statFinishChildItem( ServerBlotterItem item , ActionBase action , boolean success ) {
-		long itemDay = item.startTime - item.startTime % ( 24 * 60 * 60 * 1000 );
+		long itemDay = getDay( item.startTime );
 		if( itemDay != day )
 			return;
 		

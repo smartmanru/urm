@@ -50,7 +50,7 @@ public class CommandContext {
 	public boolean CTX_SHOWONLY;
 	public boolean CTX_SHOWALL;
 	public boolean CTX_FORCE;
-	public boolean CTX_IGNORE;
+	public boolean CTX_SKIPERRORS;
 	public boolean CTX_ALL;
 	public boolean CTX_LOCAL;
 	public boolean CTX_OFFLINE;
@@ -156,7 +156,7 @@ public class CommandContext {
 		this.CTX_SHOWONLY = context.CTX_SHOWONLY;
 		this.CTX_SHOWALL = context.CTX_SHOWALL;
 		this.CTX_FORCE = context.CTX_FORCE;
-		this.CTX_IGNORE = context.CTX_IGNORE;
+		this.CTX_SKIPERRORS = context.CTX_SKIPERRORS;
 		this.CTX_ALL = context.CTX_ALL;
 		this.CTX_LOCAL = context.CTX_LOCAL;
 		this.CTX_OFFLINE = context.CTX_OFFLINE;
@@ -266,7 +266,7 @@ public class CommandContext {
 		if( CTX_TRACE )
 			CTX_SHOWALL = true;
 		CTX_FORCE = getFlagValue( "OPT_FORCE" );
-		CTX_IGNORE = getFlagValue( "OPT_SKIPERRORS" );
+		CTX_SKIPERRORS = getFlagValue( "OPT_SKIPERRORS" );
 		CTX_ALL = getFlagValue( "OPT_ALL" );
 		CTX_LOCAL = getFlagValue( "OPT_LOCAL" );
 		CTX_OFFLINE = getFlagValue( "OPT_OFFLINE" );

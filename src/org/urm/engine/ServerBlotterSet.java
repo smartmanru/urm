@@ -35,8 +35,9 @@ public class ServerBlotterSet extends ServerEventsSource {
 	}
 	
 	public synchronized ServerBlotterStat getStatistics() {
-		ServerBlotterStat statCopy = stat.copy();
-		return( statCopy );
+		if( stat.isTodays() )
+			return( stat.copy() );
+		return( new ServerBlotterStat( this ) );
 	}
 	
 	public boolean isRootSet() {

@@ -5,7 +5,7 @@ import org.urm.engine.ServerBlotter.BlotterType;
 
 public class ServerBlotterItem {
 
-	ServerBlotterSet blotterSet;
+	public ServerBlotterSet blotterSet;
 	public ActionBase action;
 	
 	public ServerBlotterMemo memo;
