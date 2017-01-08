@@ -10,15 +10,15 @@ import org.urm.engine.storage.SourceStorage;
 public class ActionGetConf extends ActionBase {
 
 	Dist release;
+	LocalFolder downloadFolder;
 	
-	public ActionGetConf( ActionBase action , String stream , Dist release ) {
+	public ActionGetConf( ActionBase action , String stream , Dist release , LocalFolder downloadFolder ) {
 		super( action , stream );
 		this.release = release;
+		this.downloadFolder = downloadFolder;
 	}
 
 	protected SCOPESTATE executeScopeTarget( ActionScopeTarget scopeItem ) throws Exception {
-		LocalFolder downloadFolder = artefactory.getDownloadFolder( this , scopeItem.meta );
-		
 		// export from source
 		String KEY = scopeItem.confItem.KEY;
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , scopeItem.meta , downloadFolder );

@@ -311,7 +311,7 @@ public class DistState {
 		}
 		
 		String hashFile = workFolder.getFilePath( action , "hash.txt" );
-		Common.createFileFromString( hashFile , content );
+		Common.createFileFromString( action.execrc , hashFile , content );
 		return( action.shell.getMD5( action , hashFile ) );
 	}
 

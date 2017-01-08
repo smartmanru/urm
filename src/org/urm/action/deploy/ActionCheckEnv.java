@@ -13,7 +13,7 @@ import org.urm.action.monitor.NodeStatus;
 import org.urm.action.monitor.ServerStatus;
 import org.urm.common.Common;
 import org.urm.common.SimpleHttp;
-import org.urm.meta.engine.ServerMonitoring;
+import org.urm.engine.ServerEvents;
 import org.urm.meta.product.MetaDistrComponentWS;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerDeployment;
@@ -76,7 +76,7 @@ public class ActionCheckEnv extends ActionBase {
 			info( "## sg " + F_STATUSOBJECT + " check OK" );
 		
 		sgStatus.setLog( super.logFinishCapture( sgCaptureIndex ) );
-		super.eventSource.finishScopeItem( ServerMonitoring.EVENT_MONITORING_SEGMENT , sgStatus );
+		super.eventSource.finishScopeItem( ServerEvents.EVENT_MONITORING_SEGMENT , sgStatus );
 	}
 	
 	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
@@ -133,7 +133,7 @@ public class ActionCheckEnv extends ActionBase {
 		
 		String[] log = super.logFinishCapture( captureIndex );
 		serverStatus.setLog( log );
-		super.eventSource.finishScopeItem( ServerMonitoring.EVENT_MONITORING_SERVER , serverStatus );
+		super.eventSource.finishScopeItem( ServerEvents.EVENT_MONITORING_SERVER , serverStatus );
 		
 		return( SCOPESTATE.RunSuccess );
 	}
@@ -332,7 +332,7 @@ public class ActionCheckEnv extends ActionBase {
 		if( main ) {
 			String[] log = super.logFinishCapture( captureIndex );
 			nodeStatus.setLog( log );
-			super.eventSource.finishScopeItem( ServerMonitoring.EVENT_MONITORING_NODE , nodeStatus );
+			super.eventSource.finishScopeItem( ServerEvents.EVENT_MONITORING_NODE , nodeStatus );
 			serverStatus.addNodeStatus( nodeStatus ); 
 		}
 		else

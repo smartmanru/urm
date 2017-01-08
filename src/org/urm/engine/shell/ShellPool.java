@@ -9,6 +9,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.storage.Folder;
+import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerContext;
 
 public class ShellPool implements Runnable {
@@ -41,6 +42,8 @@ public class ShellPool implements Runnable {
 	private long SHELL_UNAVAILABLE_SKIPTIME;
 	private long SHELL_HOUSEKEEP_TIME;
 	
+	public int shellIndex;
+	
 	public class PoolCounts {
 		public int poolSize;
 		public int pendingSize;
@@ -53,6 +56,7 @@ public class ShellPool implements Runnable {
 		this.engine = engine;
 		rootPath = engine.execrc.userHome;
 		masterAccount = new Account( engine.execrc );
+		shellIndex = 0;
 	}
 	
 	@Override
@@ -287,6 +291,7 @@ public class ShellPool implements Runnable {
 			}
 
 			// from free pool
+			int id = 0;
 			synchronized( engine ) {
 				shell = pool.get( name );
 				if( shell != null ) {
@@ -298,13 +303,15 @@ public class ShellPool implements Runnable {
 					engine.serverAction.trace( "assign actionId=" + action.ID + " to existing session name=" + name );
 					return( shell );
 				}
+				
+				id = ++shellIndex;
 			}
 
 			// create new shell
 			if( account.local )
-				shell = createLocalShell( action , name );
+				shell = createLocalShell( action , id , name , false );
 			else
-				shell = createRemoteShell( action , account , name );
+				shell = createRemoteShell( action , id , name , account , null , false );
 
 			// start shell
 			if( !shell.start( action ) ) {
@@ -329,8 +336,8 @@ public class ShellPool implements Runnable {
 		return( shell );
 	}
 
-	private ShellExecutor startDedicatedLocalShell( ActionBase action , String name ) throws Exception {
-		ShellExecutor shell = createLocalShell( action , name );
+	private ShellExecutor startDedicatedLocalShell( ActionBase action , int id , String name ) throws Exception {
+		ShellExecutor shell = createLocalShell( action , id , name , true );
 		
 		action.setShell( shell );
 		if( !shell.start( action ) )
@@ -339,19 +346,29 @@ public class ShellPool implements Runnable {
 		return( shell );
 	}
 
-	private ShellExecutor createLocalShell( ActionBase action , String name ) throws Exception {
+	private ShellExecutor startDedicatedRemoteShell( ActionBase action , int id , String name , Account account , ServerAuthResource auth ) throws Exception {
+		ShellExecutor shell = createRemoteShell( action , id , name , account , auth , true );
+		
+		action.setShell( shell );
+		if( !shell.start( action ) )
+			action.exit0( _Error.UnableCreateRemoteShell0 , "unable to create remote shell" );
+		
+		return( shell );
+	}
+
+	private ShellExecutor createLocalShell( ActionBase action , int id , String name , boolean dedicated ) throws Exception {
 		if( stop )
 			action.exit0( _Error.ServerShutdown0 , "server is in progress of shutdown" );
 		
-		ShellExecutor shell = ShellExecutor.getLocalShellExecutor( action , name , this , rootPath , tmpFolder );
+		ShellExecutor shell = ShellExecutor.getLocalShellExecutor( action , id , name , this , rootPath , tmpFolder , dedicated );
 		return( shell );
 	}
 	
-	private ShellExecutor createRemoteShell( ActionBase action , Account account , String name ) throws Exception {
+	private ShellExecutor createRemoteShell( ActionBase action , int id , String name , Account account , ServerAuthResource auth , boolean dedicated ) throws Exception {
 		if( stop )
 			action.exit0( _Error.ServerShutdown0 , "server is in progress of shutdown" );
 		
-		ShellExecutor shell = ShellExecutor.getRemoteShellExecutor( action , name , this , account );
+		ShellExecutor shell = ShellExecutor.getRemoteShellExecutor( action , id , name , this , account , auth , dedicated );
 		return( shell );
 	}
 	
@@ -371,7 +388,7 @@ public class ShellPool implements Runnable {
 		
 		String name = "local::" + stream; 
 		if( stream.equals( "master" ) )
-			return( startDedicatedLocalShell( action , name ) );
+			return( startDedicatedLocalShell( action , 0 , name ) );
 		
 		ShellExecutor shell = null;
 		synchronized( engine ) {
@@ -382,7 +399,26 @@ public class ShellPool implements Runnable {
 				return( shell );
 			}
 			
-			shell = startDedicatedLocalShell( action , name );
+			int id = ++shellIndex;
+			name += ":" + id;
+			shell = startDedicatedLocalShell( action , id , name );
+			map.addExecutor( shell.name , shell );
+		}
+		
+		return( shell );
+	}
+
+	public ShellExecutor createDedicatedRemoteShell( ActionBase action , String stream , Account account , ServerAuthResource authResource ) throws Exception {
+		if( stop )
+			action.exit0( _Error.ServerShutdown0 , "server is in progress of shutdown" );
+		
+		String name = "remote::" + stream; 
+		ShellExecutor shell = null;
+		synchronized( engine ) {
+			ActionShells map = getActionShells( action );
+			int id = ++shellIndex;
+			name += ":" + id;
+			shell = startDedicatedRemoteShell( action , id , name , account , authResource );
 			map.addExecutor( shell.name , shell );
 		}
 		
@@ -403,7 +439,7 @@ public class ShellPool implements Runnable {
 	private void releaseExecutorShell( ActionBase action , ShellExecutor shell , ActionShells map ) {
 		// put remote sessions to pool or to pending list, kill locals
 		synchronized( engine ) {
-			if( !shell.account.local ) {
+			if( !shell.dedicated ) {
 				if( pool.get( shell.name ) == null ) {
 					pool.put( shell.name , shell );
 					engine.serverAction.trace( "return session to pool name=" + shell.name );
@@ -469,9 +505,14 @@ public class ShellPool implements Runnable {
 		}
 	}
 
-	public ShellInteractive createInteractiveShell( ActionBase action , Account account ) throws Exception {
+	public ShellInteractive createInteractiveShell( ActionBase action , Account account , ServerAuthResource auth ) throws Exception {
+		int id = 0;
 		String name = "remote::" + account.getPrintName() + "::" + action.ID;
-		ShellInteractive shell = ShellInteractive.getShell( action , name , this , account );
+		synchronized( engine ) {
+			id = ++shellIndex;
+		}
+		
+		ShellInteractive shell = ShellInteractive.getShell( action , id , name , this , account , auth );
 		
 		// add to action map
 		synchronized( engine ) {

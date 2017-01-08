@@ -21,7 +21,7 @@ public class ActionSave extends ActionBase {
 	LocalFolder pfMaster = null;
 	SubversionVCS vcs = null;
 	
-	public ActionSave( ActionBase action , Meta meta , String stream ) {
+	public ActionSave( ActionBase action , String stream , Meta meta ) {
 		super( action , stream );
 		this.meta = meta;
 	}

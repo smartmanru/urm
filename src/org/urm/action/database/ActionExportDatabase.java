@@ -151,7 +151,7 @@ public class ActionExportDatabase extends ActionBase {
 			conf.add( "CONF_NFSLOG=" + distLogFolder.folderPath );
 		}
 		
-		Common.createFileFromStringList( confFile , conf );
+		Common.createFileFromStringList( execrc , confFile , conf );
 		exportScriptsFolder.copyFileFromLocal( this , confFile );
 		
 		MetadataStorage ms = artefactory.getMetadataStorage( this , server.meta );

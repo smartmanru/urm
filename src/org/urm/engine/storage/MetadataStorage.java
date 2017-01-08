@@ -197,7 +197,7 @@ public class MetadataStorage {
 			}
 		}
 		
-		Common.createFileFromStringList( filePath , conf );
+		Common.createFileFromStringList( action.execrc , filePath , conf );
 	}
 
 	public void saveFile( ActionBase action , Document doc , String file ) throws Exception {

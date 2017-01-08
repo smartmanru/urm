@@ -35,6 +35,7 @@ public class MetaSourceProject {
 	public String TRACKER = "";
 	public String BRANCH = "";
 	public String BUILDER = "";
+	public String BUILDER_ADDOPTIONS = "";
 
 	List<MetaSourceProjectItem> itemList = new LinkedList<MetaSourceProjectItem>();
 	Map<String,MetaSourceProjectItem> itemMap = new HashMap<String,MetaSourceProjectItem>();
@@ -79,6 +80,7 @@ public class MetaSourceProject {
 			TRACKER = ConfReader.getAttrValue( node , "jira" );
 			BRANCH = ConfReader.getAttrValue( node , "branch" );
 			BUILDER = ConfReader.getAttrValue( node , "builder" );
+			BUILDER_ADDOPTIONS = ConfReader.getAttrValue( node , "builder.addoptions" );
 			
 			if( BRANCH.isEmpty() )
 				BRANCH = NAME + "-prod";
@@ -134,6 +136,7 @@ public class MetaSourceProject {
 			Common.xmlSetElementAttr( doc , root , "jira" , TRACKER );
 			Common.xmlSetElementAttr( doc , root , "branch" , BRANCH );
 			Common.xmlSetElementAttr( doc , root , "builder" , BUILDER );
+			Common.xmlSetElementAttr( doc , root , "builder.addoptions" , BUILDER_ADDOPTIONS );
 		}
 		
 		// project items
@@ -160,6 +163,7 @@ public class MetaSourceProject {
 		r.TRACKER = TRACKER;
 		r.BRANCH = BRANCH;
 		r.BUILDER = BUILDER;
+		r.BUILDER_ADDOPTIONS = BUILDER_ADDOPTIONS;
 		r.RESOURCE = RESOURCE;
 		r.REPOPATH = REPOPATH;
 		r.CODEPATH = CODEPATH;
@@ -228,15 +232,7 @@ public class MetaSourceProject {
 	}
 	
 	public String getBuilder( ActionBase action ) throws Exception {
-		if( !BUILDER.isEmpty() )
-			return( BUILDER );
-		
-		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		String builder = build.CONFIG_BUILDER;
-		if( builder.isEmpty() )
-			builder = "maven";
-
-		return( builder );
+		return( BUILDER );
 	}
 
 	public String getDefaultBranch( ActionBase action ) throws Exception {
@@ -263,6 +259,7 @@ public class MetaSourceProject {
 		this.codebaseProd = false;
 		this.BRANCH = "";
 		this.BUILDER = "";
+		this.BUILDER_ADDOPTIONS = "";
 		
 		this.RESOURCE = resource;
 		this.REPOSITORY = repoName;
@@ -271,10 +268,11 @@ public class MetaSourceProject {
 		this.BRANCH = branch;
 	}
 
-	public void setCodebase( ServerTransaction transaction , boolean prod , String branch , String builder ) throws Exception {
+	public void setCodebase( ServerTransaction transaction , boolean prod , String branch , String builder , String builderAddOptions ) throws Exception {
 		this.codebaseProd = prod;
 		this.BRANCH = branch;
 		this.BUILDER = builder;
+		this.BUILDER_ADDOPTIONS = builderAddOptions;
 	}
 
 	public void setOrder( ServerTransaction transaction , int POS ) throws Exception {

@@ -186,7 +186,7 @@ public class ConfBuilder {
 		boolean changed = false;
 		for( int k = 0; k < fileLines.size(); k++ ) {
 			String s = fileLines.get( k );
-			PropertyValue res = props.getFinalValue( s , server.isWindows() , true , false );
+			PropertyValue res = props.getFinalPropertyValue( s , server.isWindows() , true , false );
 			if( res != null ) {
 				fileLines.set( k , res.getFinalValue() );
 				changed = true;
@@ -194,7 +194,7 @@ public class ConfBuilder {
 		}
 
 		if( changed )
-			Common.createFileFromStringList( filePath , fileLines , charset );
+			Common.createFileFromStringList( action.execrc , filePath , fileLines , charset );
 	}
 	
 	public void configureFile( LocalFolder live , String file , MetaEnvServerNode node , PropertySet props , Charset charset ) throws Exception {
@@ -208,7 +208,7 @@ public class ConfBuilder {
 		boolean changed = false;
 		for( int k = 0; k < fileLines.size(); k++ ) {
 			String s = fileLines.get( k );
-			PropertyValue res = props.getFinalValue( s , node.server.isWindows() , true , false );
+			PropertyValue res = props.getFinalPropertyValue( s , node.server.isWindows() , true , false );
 			if( res != null ) {
 				fileLines.set( k , res.getFinalValue() );
 				changed = true;
@@ -216,7 +216,7 @@ public class ConfBuilder {
 		}
 
 		if( changed )
-			Common.createFileFromStringList( filePath , fileLines , charset );
+			Common.createFileFromStringList( action.execrc , filePath , fileLines , charset );
 	}
 	
 }

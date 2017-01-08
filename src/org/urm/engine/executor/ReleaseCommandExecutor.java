@@ -3,6 +3,7 @@ package org.urm.engine.executor;
 import org.urm.action.release.ReleaseCommand;
 import org.urm.common.Common;
 import org.urm.common.action.CommandMeta;
+import org.urm.common.meta.ReleaseCommandMeta;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandAction;
@@ -15,7 +16,12 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 
 	ReleaseCommand impl;
 	
-	public ReleaseCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
+	public static ReleaseCommandExecutor createExecutor( ServerEngine engine ) throws Exception {
+		ReleaseCommandMeta commandInfo = new ReleaseCommandMeta();
+		return( new ReleaseCommandExecutor( engine , commandInfo ) );
+	}
+		
+	private ReleaseCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		
 		defineAction( new CreateRelease() , "create" );
@@ -36,6 +42,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		defineAction( new DescopeRelease() , "descope" );
 	}	
 
+	@Override
 	public boolean run( ActionInit action ) {
 		try {
 			// create implementation

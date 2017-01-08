@@ -47,12 +47,12 @@ public class ActionSetTagOnBuildBranch extends ActionBase {
 	}
 
 	private void setTagFromTag( String SRCTAG , String TAG , VarCATEGORY CATEGORY , MetaSourceProject sourceProject ) throws Exception {
-		ProjectVersionControl vcs = new ProjectVersionControl( this , false );
+		ProjectVersionControl vcs = new ProjectVersionControl( this );
 		vcs.copyTagToTag( sourceProject , SRCTAG , TAG );
 	}
 	
 	private void setTagFromBranch( String BRANCH , String TAG , VarCATEGORY CATEGORY , MetaSourceProject sourceProject ) throws Exception {
-		ProjectVersionControl vcs = new ProjectVersionControl( this , false );
+		ProjectVersionControl vcs = new ProjectVersionControl( this );
 		vcs.setTag( sourceProject , BRANCH , TAG , context.CTX_DATE );
 	}
 	

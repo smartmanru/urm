@@ -14,20 +14,21 @@ public class NexusStorage {
 	Artefactory artefactory;
 	public LocalFolder artefactoryFolder;
 	Meta meta;
+	String NEXUS_RESOURCE;
 	String repository;
 	
 	String authFile = "~/.auth/nexus.http.txt"; 
 	
-	public NexusStorage( Artefactory artefactory , Meta meta , LocalFolder artefactoryFolder , String repository ) {
+	public NexusStorage( Artefactory artefactory , Meta meta , LocalFolder artefactoryFolder , String NEXUS_RESOURCE , String repository ) {
 		this.artefactory = artefactory;
 		this.artefactoryFolder = artefactoryFolder;
+		this.NEXUS_RESOURCE = NEXUS_RESOURCE;
 		this.repository = repository;
 		this.meta = meta;
 	}
 
 	public NexusDownloadInfo downloadNexus( ActionBase action , String GROUPID , String ARTEFACTID , String VERSION , String PACKAGING , String CLASSIFIER , MetaDistrBinaryItem item ) throws Exception {
-		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		ServerAuthResource res = action.getResource( build.CONFIG_NEXUS_RESOURCE );
+		ServerAuthResource res = action.getResource( NEXUS_RESOURCE );
 		String REPOPATH = res.BASEURL + "/content/repositories/" + repository;
 		String NAME = ARTEFACTID + "-" + VERSION;
 		if( !CLASSIFIER.isEmpty() )
@@ -56,8 +57,7 @@ public class NexusStorage {
 	}
 
 	public NexusDownloadInfo downloadNuget( ActionBase action , String ARTEFACTID , String VERSION , MetaDistrBinaryItem item ) throws Exception {
-		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		ServerAuthResource res = action.getResource( build.CONFIG_NEXUS_RESOURCE );
+		ServerAuthResource res = action.getResource( NEXUS_RESOURCE );
 		String REPOPATH = res.BASEURL + "/content/repositories/" + repository;
 		String NAME = ARTEFACTID + "-" + VERSION + ".nupkg";
 

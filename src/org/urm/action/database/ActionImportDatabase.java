@@ -180,7 +180,7 @@ public class ActionImportDatabase extends ActionBase {
 			conf.add( "CONF_NFSLOG=" + distLogFolder.folderPath );
 		}
 		
-		Common.createFileFromStringList( confFile , conf );
+		Common.createFileFromStringList( execrc , confFile , conf );
 		importScriptsFolder.copyFileFromLocal( this , confFile );
 		
 		MetadataStorage ms = artefactory.getMetadataStorage( this , server.meta );

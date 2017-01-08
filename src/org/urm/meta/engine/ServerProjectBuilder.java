@@ -29,6 +29,7 @@ public class ServerProjectBuilder extends ServerObject {
 	public boolean remote;
 	public VarOSTYPE osType;
 	public String HOSTLOGIN;
+	public int port;
 	public String AUTHRESOURCE;
 	public VarBUILDERTARGET targetType;
 	public String TARGETLOCALPATH;
@@ -36,6 +37,7 @@ public class ServerProjectBuilder extends ServerObject {
 	public boolean targetNuget;
 	public String TARGETNUGETPLATFORM;
 	
+	public String GENERIC_COMMAND;
 	public String JAVA_JDKHOMEPATH;
 	public String ANT_HOMEPATH;
 	public String MAVEN_HOMEPATH;
@@ -52,6 +54,7 @@ public class ServerProjectBuilder extends ServerObject {
 	public static String PROPERTY_REMOTE = "remote";
 	public static String PROPERTY_OSTYPE = "ostype";
 	public static String PROPERTY_HOSTLOGIN = "hostlogin";
+	public static String PROPERTY_PORT = "port";
 	public static String PROPERTY_AUTHRESOURCE = "authresource";
 	
 	public static String PROPERTY_TARGETTYPE = "target.type";
@@ -60,6 +63,7 @@ public class ServerProjectBuilder extends ServerObject {
 	public static String PROPERTY_TARGETNUGET = "target.nuget";
 	public static String PROPERTY_TARGETNUGETPLATFORM = "target.nugetplatform";
 	
+	public static String PROPERTY_GENERIC_COMMAND = "generic.command";
 	public static String PROPERTY_JAVA_JDKHOMEPATH = "java.jdkhomepath";
 	public static String PROPERTY_ANT_HOMEPATH = "ant.homepath";
 	public static String PROPERTY_MAVEN_HOMEPATH = "maven.homepath";
@@ -107,10 +111,12 @@ public class ServerProjectBuilder extends ServerObject {
 		remote = properties.getSystemBooleanProperty( PROPERTY_REMOTE );
 		
 		HOSTLOGIN = "";
+		port = 0;
 		AUTHRESOURCE = "";
 		if( remote ) {
 			osType = Types.getOSType( properties.getSystemStringProperty( PROPERTY_OSTYPE ) , false );
 			HOSTLOGIN = properties.getSystemStringProperty( PROPERTY_HOSTLOGIN );
+			port = properties.getSystemIntProperty( PROPERTY_PORT , 22 , false );
 			AUTHRESOURCE = properties.getSystemStringProperty( PROPERTY_AUTHRESOURCE );
 		}
 		
@@ -129,6 +135,7 @@ public class ServerProjectBuilder extends ServerObject {
 			TARGETNUGETPLATFORM = properties.getSystemStringProperty( PROPERTY_TARGETNUGETPLATFORM );
 		}
 
+		GENERIC_COMMAND = "";
 		JAVA_JDKHOMEPATH = "";
 		ANT_HOMEPATH = "";
 		MAVEN_HOMEPATH = "";
@@ -138,6 +145,9 @@ public class ServerProjectBuilder extends ServerObject {
 		MSBUILD_HOMEPATH = "";
 		MSBUILD_OPTIONS = "";
 		
+		if( builderMethod == VarBUILDERTYPE.GENERIC )
+			GENERIC_COMMAND = properties.getSystemStringProperty( PROPERTY_GENERIC_COMMAND );
+		else
 		if( builderMethod == VarBUILDERTYPE.ANT )
 			ANT_HOMEPATH = properties.getSystemStringProperty( PROPERTY_ANT_HOMEPATH );
 		else
@@ -169,6 +179,7 @@ public class ServerProjectBuilder extends ServerObject {
 		if( remote ) {
 			properties.setOriginalStringProperty( PROPERTY_OSTYPE , Common.getEnumLower( osType ) );
 			properties.setOriginalStringProperty( PROPERTY_HOSTLOGIN , HOSTLOGIN );
+			properties.setOriginalNumberProperty( PROPERTY_PORT , port );
 			properties.setOriginalStringProperty( PROPERTY_AUTHRESOURCE , AUTHRESOURCE );
 		}
 		
@@ -182,6 +193,9 @@ public class ServerProjectBuilder extends ServerObject {
 			properties.setOriginalStringProperty( PROPERTY_TARGETNUGETPLATFORM , TARGETNUGETPLATFORM );
 		}
 		
+		if( builderMethod == VarBUILDERTYPE.GENERIC )
+			properties.setOriginalStringProperty( PROPERTY_GENERIC_COMMAND , GENERIC_COMMAND );
+		else
 		if( builderMethod == VarBUILDERTYPE.ANT )
 			properties.setOriginalStringProperty( PROPERTY_ANT_HOMEPATH , ANT_HOMEPATH );
 		else
@@ -203,6 +217,12 @@ public class ServerProjectBuilder extends ServerObject {
 			properties.setOriginalStringProperty( PROPERTY_JAVA_JDKHOMEPATH , JAVA_JDKHOMEPATH );
 	}
 
+	public boolean isGeneric() {
+		if( builderMethod == VarBUILDERTYPE.GENERIC )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isAnt() {
 		if( builderMethod == VarBUILDERTYPE.ANT )
 			return( true );
@@ -227,6 +247,12 @@ public class ServerProjectBuilder extends ServerObject {
 		return( false );
 	}
 
+	public boolean isTargetLocal() {
+		if( targetType == VarBUILDERTARGET.LOCALPATH )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isTargetNexus() {
 		if( targetType == VarBUILDERTARGET.NEXUS )
 			return( true );
@@ -250,6 +276,7 @@ public class ServerProjectBuilder extends ServerObject {
 		if( remote ) {
 			osType = src.osType;
 			HOSTLOGIN = src.HOSTLOGIN;
+			port = src.port;
 			AUTHRESOURCE = src.AUTHRESOURCE;
 		}
 		else {
@@ -313,7 +340,7 @@ public class ServerProjectBuilder extends ServerObject {
 	}
 	
 	public Account getRemoteAccount( ActionBase action ) throws Exception {
-		return( Account.getAccount( action , "" , HOSTLOGIN , osType ) );
+		return( Account.getAccount( action , "" , HOSTLOGIN , port , osType ) );
 	}
 	
 }

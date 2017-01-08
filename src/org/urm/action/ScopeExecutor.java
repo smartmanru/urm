@@ -863,17 +863,32 @@ public class ScopeExecutor {
 	}
 
 	private void startExecutor( ActionScope scope ) {
-		stateFinal = new ScopeState( action , scope );
-		action.eventSource.setRootState( stateFinal );
+		try {
+			stateFinal = new ScopeState( action , scope );
+			action.eventSource.setRootState( stateFinal );
+			action.engine.blotter.startAction( action );
+		}
+		catch( Throwable e ) {
+			action.engine.serverAction.log( "start action" , e );
+		}
 	}
 	
 	private boolean finishExecutor( SCOPESTATE ss ) {
-		action.engine.shellPool.releaseActionPool( action );
-		stateFinal.setActionStatus( ss );
-		
-		if( ss == SCOPESTATE.RunFail || ss == SCOPESTATE.RunBeforeFail )
+		try {
+			action.engine.shellPool.releaseActionPool( action );
+			stateFinal.setActionStatus( ss );
+	
+			boolean res = true;
+			if( ss == SCOPESTATE.RunFail || ss == SCOPESTATE.RunBeforeFail )
+				res = false;
+			
+			action.engine.blotter.stopAction( action , res );
+			return( res );
+		}
+		catch( Throwable e ) {
+			action.engine.serverAction.log( "stop action" , e );
 			return( false );
-		return( true );
+		}
 	}
 	
 }

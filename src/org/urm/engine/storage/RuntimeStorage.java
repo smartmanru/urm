@@ -186,7 +186,7 @@ public class RuntimeStorage extends ServerStorage {
 			deployRedistConfItem( action , redist , version , CONTENTTYPE , LOCATION , redistFolder , deployFolder , redistFile , rollout );
 		else
 		if( redistFile.binaryItem != null ) {
-			if( redistFile.binaryItem.isArchive( action ) )
+			if( redistFile.binaryItem.isArchive() )
 				deployRedistArchiveItem( action , redist , version , CONTENTTYPE , LOCATION , redistFolder , deployFolder , redistFile , rollout );
 			else
 				deployRedistBinaryItem( action , redist , version , CONTENTTYPE , LOCATION , redistFolder , deployFolder , redistFile , rollout );

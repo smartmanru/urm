@@ -502,7 +502,7 @@ public class Dist {
 			if( item.isDerived() )
 				info.md5value = fileFolder.getArchivePartMD5( action , info.fileName , item.SRCITEMPATH , item.srcDistItem.EXT );
 			else
-			if( item.isArchive( action ) )
+			if( item.isArchive() )
 				info.md5value = fileFolder.getArchiveContentMD5( action , info.fileName , item.EXT );
 			else
 				info.md5value = fileFolder.getFileMD5( action , info.fileName );

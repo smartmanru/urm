@@ -71,6 +71,7 @@ public class Account {
 	}
 	
 	public static Account getAccount( ActionBase action , String datacenter , String user , String host , int port , VarOSTYPE osType ) throws Exception {
+		
 		if( host.isEmpty() || user.isEmpty() )
 			action.exit0( _Error.MissingAccountDetails0 , "account details are not provided" );
 		
@@ -83,6 +84,12 @@ public class Account {
 			account.local = false;
 		
 		return( account );
+	}
+	
+	public static Account getAccount( ActionBase action , String datacenter , String hostLogin , int port , VarOSTYPE osType ) throws Exception {
+		String user = Common.getPartBeforeFirst( hostLogin , "@" );
+		String host = Common.getPartAfterLast( hostLogin , "@" );
+		return( getAccount( action , datacenter , user , host , port , osType ) );
 	}
 	
 	public static Account getAccount( ActionBase action , String datacenter , String hostLogin , VarOSTYPE osType ) throws Exception {

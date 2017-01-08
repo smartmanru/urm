@@ -10,7 +10,7 @@ public class ActionCreateProd extends ActionBase {
 	Meta meta;
 	String RELEASEVER;
 	
-	public ActionCreateProd( ActionBase action , Meta meta , String stream , String RELEASEVER ) {
+	public ActionCreateProd( ActionBase action , String stream , Meta meta , String RELEASEVER ) {
 		super( action , stream );
 		this.meta = meta;
 		this.RELEASEVER = RELEASEVER;

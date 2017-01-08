@@ -335,7 +335,7 @@ public class ActionVerifyDeploy extends ActionBase {
 	}
 
 	private boolean executeNodeBinary( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrBinaryItem binaryItem , LocalFolder tobeServerFolder , LocalFolder asisServerFolder ) throws Exception {
-		if( binaryItem.isArchive( this ) )
+		if( binaryItem.isArchive() )
 			return( executeNodeArchive( server , node , location , binaryItem , tobeServerFolder , asisServerFolder ) );
 		
 		DistItemInfo distInfo = dist.getDistItemInfo( this , binaryItem , true );

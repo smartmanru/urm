@@ -56,7 +56,7 @@ public class ActionSetVersion extends ActionBase {
 		info( "setVersionProject: PROJECT=" + scopeProject.sourceProject.NAME + ", REPOSITORY=" + scopeProject.sourceProject.REPOSITORY + 
 				", PATH=" + scopeProject.sourceProject.REPOPATH + ", BRANCH=" + BRANCH + ", VERSION=" + BUILDVERSION + ", PATCHPATH=" + PATCHPATH.buildFolder.folderPath + " ..." );
 
-		ProjectVersionControl vcs = new ProjectVersionControl( this , false );
+		ProjectVersionControl vcs = new ProjectVersionControl( this );
 		
 		if( !vcs.checkout( PATCHPATH.buildFolder , scopeProject.sourceProject , BRANCH ) )
 			exit1( _Error.UnableCheckout1 , "setVersionProject: error calling checkout" , scopeProject.sourceProject.NAME );

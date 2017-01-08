@@ -16,7 +16,7 @@ public class ActionGetCumulative extends ActionBase {
 	Meta meta;
 	Dist dist;
 	
-	public ActionGetCumulative( ActionBase action , Meta meta , String stream , Dist dist ) {
+	public ActionGetCumulative( ActionBase action , String stream , Meta meta , Dist dist ) {
 		super( action , stream );
 		this.meta = meta;
 		this.dist = dist;

@@ -4,7 +4,6 @@ import org.urm.action.ActionBase;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.engine.vcs.ProjectVersionControl;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaSourceProject;
@@ -19,21 +18,6 @@ public class BuilderGradleMethod extends Builder {
 		return( action.createDedicatedShell( "build" ) );
 	}
 	
-	@Override public boolean exportCode( ActionBase action ) throws Exception {
-		// drop old
-		LocalFolder CODEPATH = storage.buildFolder; 
-		CODEPATH.removeThis( action );
-	
-		// checkout
-		ProjectVersionControl vcs = new ProjectVersionControl( action , true ); 
-		if( !vcs.export( CODEPATH , project , "" , TAG , "" ) ) {
-			action.error( "patchCheckout: having problem to export code" );
-			return( false );
-		}
-		
-		return( true );
-	}
-
 	@Override public boolean prepareSource( ActionBase action ) throws Exception {
 		return( true );
 	}
@@ -46,24 +30,27 @@ public class BuilderGradleMethod extends Builder {
 		// set java and gradle environment
 		String BUILD_JAVA_HOME = builder.JAVA_JDKHOMEPATH;
 		String BUILD_GRADLE_HOME = builder.GRADLE_HOMEPATH; 
+		String MODULE_ADDITIONAL_OPTIONS = super.getVarString( action , project.BUILDER_ADDOPTIONS );
 
 		ShellExecutor session = action.shell;
-		session.export( action , "JAVA_HOME" , BUILD_JAVA_HOME );
-		session.export( action , "GR_HOME" , BUILD_GRADLE_HOME );
-		session.export( action , "GR" , "$GR_HOME/bin" );
-		session.export( action , "PATH" , "$GR:$JAVA_HOME/bin:$PATH" );
+		session.export( action , "JAVA_HOME" , session.getLocalPath( BUILD_JAVA_HOME ) );
+		session.export( action , "GR_HOME" , session.getLocalPath( BUILD_GRADLE_HOME ) );
+		session.export( action , "GR" , session.getLocalPath( session.getVariable( "GR_HOME" ) + "/bin" ) );
+		
+		session.export( action , "PATH" , session.getVariable( "GR" ) + session.getPathBreak() + 
+				session.getLocalPath( session.getVariable( "JAVA_HOME" + "/bin" ) ) + session.getPathBreak() +
+				session.getVariable( "PATH" ) );
 
 		MetaProductBuildSettings build = action.getBuildSettings( project.meta );
-		String GRADLE_CMD = "gradle clean war publish -Dmaven.settings=" + build.CONFIG_MAVEN_CFGFILE;
+		String GRADLE_CMD = "gradle clean war publish -Dmaven.settings=" + session.getLocalPath( build.CONFIG_MAVEN_CFGFILE ) + " " + MODULE_ADDITIONAL_OPTIONS;
 
 		// execute gradle
 		action.info( "using gradle:" );
-		session.customCheckErrorsNormal( action , "which gradle" );
 		session.customCheckErrorsNormal( action , "gradle --version" );
 		
 		action.info( "execute: " + GRADLE_CMD );
 		int timeout = action.setTimeoutUnlimited();
-		int status = session.customGetStatusNormal( action , storage.buildFolder.folderPath , GRADLE_CMD );
+		int status = session.customGetStatusNormal( action , CODEPATH.folderPath , GRADLE_CMD );
 		action.setTimeout( timeout );
 
 		if( status != 0 ) {

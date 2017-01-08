@@ -32,6 +32,7 @@ public class Types {
 	
 	public enum VarBUILDERTYPE {
 		UNKNOWN ,
+		GENERIC ,
 		ANT ,
 		MAVEN ,
 		GRADLE ,

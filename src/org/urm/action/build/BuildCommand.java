@@ -45,8 +45,8 @@ public class BuildCommand {
 		boolean copyDist = action.context.CTX_DIST;
 		
 		// required for serviceCall and storageService processing, even without -dist option
-		LocalFolder downloadFolder = action.artefactory.getDownloadFolder( action , scope.meta );
-		downloadFolder.removeContent( action );
+		LocalFolder downloadFolder = action.artefactory.getWorkFolder( action , "download" );
+		downloadFolder.recreateThis( action );
 	
 		// precreate delivery folders in release
 		if( copyDist ) {
@@ -62,7 +62,7 @@ public class BuildCommand {
 			res = false;
 
 		if( dist != null && scope.hasConfig( action ) ) {
-			ActionGetConf cacf = new ActionGetConf( action , null , dist );
+			ActionGetConf cacf = new ActionGetConf( action , null , dist , downloadFolder );
 			if( !cacf.runEachCategoryTarget( scope , VarCATEGORY.CONFIG , SecurityAction.ACTION_BUILD , false ) )
 				res = false;
 			
@@ -72,7 +72,7 @@ public class BuildCommand {
 		}
 		
 		if( dist != null && scope.hasDatabase( action ) ) {
-			ActionGetDB cadb = new ActionGetDB( action , null , dist );
+			ActionGetDB cadb = new ActionGetDB( action , null , dist , downloadFolder );
 			if( !cadb.runEachCategoryTarget( scope , VarCATEGORY.DB , SecurityAction.ACTION_BUILD , false ) )
 				res = false;
 		}
@@ -92,7 +92,7 @@ public class BuildCommand {
 		if( copyDist )
 			action.info( "getAll: download has been finished, copied to distribution directory " + dist.RELEASEDIR );
 		else
-			action.info( "getAll: download has been finished, saved to artefacts directory " + downloadFolder.folderPath );
+			action.debug( "getAll: download has been finished, saved to artefacts directory " + downloadFolder.folderPath );
 	}
 	
 	private void createConfigDiffFile( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
@@ -278,7 +278,7 @@ public class BuildCommand {
 	}
 
 	public void thirdpartyUploadLib( ActionBase action , Meta meta , String GROUPID , String FILE , String ARTEFACTID , String VERSION , String CLASSIFIER ) throws Exception {
-		ActionUploadLibItem ca = new ActionUploadLibItem( action , meta , null , GROUPID , FILE , ARTEFACTID , VERSION , CLASSIFIER );
+		ActionUploadLibItem ca = new ActionUploadLibItem( action , null , meta , GROUPID , FILE , ARTEFACTID , VERSION , CLASSIFIER );
 		ca.runSimpleServer( SecurityAction.ACTION_BUILD , false );
 	}
 

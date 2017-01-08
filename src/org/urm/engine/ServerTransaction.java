@@ -507,6 +507,7 @@ public class ServerTransaction extends TransactionBase {
 	public MetaDistrBinaryItem createDistrBinaryItem( MetaDistrDelivery delivery , String key ) throws Exception {
 		checkTransactionMetadata( delivery.meta.getStorage( action ) );
 		MetaDistrBinaryItem item = new MetaDistrBinaryItem( delivery.meta , delivery );
+		item.createBinaryItem( this , key );
 		delivery.dist.createDistrBinaryItem( this , delivery , item );
 		return( item );
 	}

@@ -105,6 +105,30 @@ public class MetaSourceProjectItem {
 		return( false );
 	}
 
+	public boolean isTargetLocal() {
+		if( isSourceDirectory() )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isSourceDirectory() {
+		if( itemSrcType == VarITEMSRCTYPE.DIRECTORY )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isSourceBasic() {
+		if( itemSrcType == VarITEMSRCTYPE.BASIC )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isSourceStaticWar() {
+		if( itemSrcType == VarITEMSRCTYPE.STATICWAR )
+			return( true );
+		return( false );
+	}
+	
 	public void setSourceData( TransactionBase transaction , VarITEMSRCTYPE srcType , String artefactName , String ext , String path , String version , boolean dist ) throws Exception {
 		itemSrcType = srcType;
 		ITEMBASENAME = ( artefactName.isEmpty() )? ITEMNAME : artefactName;
@@ -113,6 +137,22 @@ public class MetaSourceProjectItem {
 		ITEMPATH = path;
 		ITEMSTATICEXTENSION = ( srcType == VarITEMSRCTYPE.STATICWAR )? ext : "";
 		internal = ( dist )? false : true;
+	}
+	
+	public String getArtefactSampleFile() {
+		String value = ITEMBASENAME;
+		if( itemSrcType == VarITEMSRCTYPE.BASIC || itemSrcType == VarITEMSRCTYPE.CUSTOM ) {
+			if( !ITEMVERSION.isEmpty() )
+				value += "-" + ITEMVERSION;
+			value += ITEMEXTENSION;
+		}
+		else
+		if( itemSrcType == VarITEMSRCTYPE.DIRECTORY )
+			value = ITEMBASENAME;
+		else
+		if( itemSrcType == VarITEMSRCTYPE.STATICWAR )
+			value = ITEMBASENAME + ITEMEXTENSION + "/" + ITEMBASENAME + ITEMSTATICEXTENSION;
+		return( value );
 	}
 	
 }

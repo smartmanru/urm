@@ -329,6 +329,13 @@ abstract public class ActionBase extends ActionCore {
 		return( engine.shellPool.createDedicatedLocalShell( this , name ) );
 	}
 	
+	public ShellExecutor createDedicatedRemoteShell( String name , Account account , String authResource ) throws Exception {
+		ServerResources res = getResources();
+		ServerAuthResource ar = res.getResource( authResource );
+		ar.loadAuthData( this );
+		return( engine.shellPool.createDedicatedRemoteShell( this , name , account , ar ) );
+	}
+	
 	public void killAllDedicated() {
 		engine.shellPool.releaseActionPool( this );
 	}
@@ -355,7 +362,7 @@ abstract public class ActionBase extends ActionCore {
 		String file = logFile;
 		if( file.startsWith( "~/" ) )
 			file = shell.getHomePath() + file.substring( 1 ); 
-		debug( "start logging to " + file );
+		debug( "start logging to " + shell.getOSPath( this , file ) );
 		output.createOutputFile( context , title , file );
 	}
 	
@@ -367,7 +374,7 @@ abstract public class ActionBase extends ActionCore {
 	public void tee() throws Exception {
 		LocalFolder folder = artefactory.getWorkFolder( this );
 		String fname = folder.getFilePath( this , "executor.log" );
-		output.tee( NAME , fname );
+		output.tee( execrc , NAME , fname );
 	}
 	
 	public void redirectTS( String title , String dir , String basename , String ext ) throws Exception {
@@ -703,4 +710,9 @@ abstract public class ActionBase extends ActionCore {
 		return( artefactory.getBaseRepository( this ) );
 	}
 
+	public void createDedicatedContext() throws Exception {
+		CommandContext nc = new CommandContext( context , context.stream );
+		setContext( nc );
+	}
+	
 }

@@ -289,7 +289,7 @@ public class DistFinalizer {
 				lines.add( DistMD5.getProjectItemRecord( action , dist , projectItem ) );
 		}
 		
-		Common.createFileFromStringList( md5file , lines );
+		Common.createFileFromStringList( action.execrc , md5file , lines );
 		dist.copyMD5StateFromLocal( action , md5file );
 	}
 	

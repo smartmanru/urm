@@ -4,6 +4,7 @@ import org.urm.action.ActionScope;
 import org.urm.action.deploy.DeployCommand;
 import org.urm.common.Common;
 import org.urm.common.action.CommandMeta;
+import org.urm.common.meta.DeployCommandMeta;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandAction;
@@ -21,7 +22,12 @@ public class DeployCommandExecutor extends CommandExecutor {
 	
 	String propertyBasedMethods;
 	
-	public DeployCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
+	public static DeployCommandExecutor createExecutor( ServerEngine engine ) throws Exception {
+		DeployCommandMeta commandInfo = new DeployCommandMeta();
+		return( new DeployCommandExecutor( engine , commandInfo ) );
+	}
+		
+	private DeployCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		
 		super.defineAction( new BaseOps() , "base" );
@@ -56,6 +62,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 		propertyBasedMethods = "confcheck configure deployredist redist restoreconfigs verifydeploy";
 	}
 	
+	@Override
 	public boolean run( ActionInit action ) {
 		try {
 			// create implementation

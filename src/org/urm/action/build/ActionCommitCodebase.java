@@ -18,7 +18,7 @@ public class ActionCommitCodebase extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
-		ProjectVersionControl vcs = new ProjectVersionControl( this , false );
+		ProjectVersionControl vcs = new ProjectVersionControl( this );
 		LocalFolder COPATH = CODIR.getSubFolder( this , scopeProject.sourceProject.NAME );
 		vcs.commit( COPATH , scopeProject.sourceProject , MESSAGE );
 		return( SCOPESTATE.RunSuccess );

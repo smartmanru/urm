@@ -88,11 +88,10 @@ public class SessionController {
 		if( commandInfo == null )
 			return( null );
 		
-		CommandExecutor actionExecutor = engine.createExecutor( commandInfo );
 		ServerSession session = call.sessionContext;
 		session.setServerRemoteProductLayout( engine.serverAction );
 		
-		ActionInit action = engine.createAction( actionExecutor , options , session , "call-" + data.clientrc.product , call , false );
+		ActionInit action = engine.createAction( options , session , "call-" + data.clientrc.product , call , false );
 		if( action == null )
 			return( null );
 
@@ -105,10 +104,9 @@ public class SessionController {
 			return( false );
 		}
 		
-		CommandExecutor actionExecutor = engine.createExecutor( meta );
 		session.setServerRemoteProductLayout( serverAction );
 		
-		ActionInit action = engine.createAction( actionExecutor , options , session , "webjmx-" + engine.execrc.product , null , false );
+		ActionInit action = engine.createAction( options , session , "webjmx-" + engine.execrc.product , null , false );
 		if( action == null )
 			return( false );
 

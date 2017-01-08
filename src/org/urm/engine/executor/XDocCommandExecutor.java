@@ -2,6 +2,7 @@ package org.urm.engine.executor;
 
 import org.urm.action.xdoc.XDocCommand;
 import org.urm.common.action.CommandMeta;
+import org.urm.common.meta.XDocCommandMeta;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandAction;
@@ -12,12 +13,18 @@ public class XDocCommandExecutor extends CommandExecutor {
 
 	XDocCommand impl;
 	
-	public XDocCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
+	public static XDocCommandExecutor createExecutor( ServerEngine engine ) throws Exception {
+		XDocCommandMeta commandInfo = new XDocCommandMeta();
+		return( new XDocCommandExecutor( engine , commandInfo ) );
+	}
+		
+	private XDocCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		
 		defineAction( new DesignDoc() , "design" );
 	}	
 
+	@Override
 	public boolean run( ActionInit action ) {
 		try {
 			// create implementation

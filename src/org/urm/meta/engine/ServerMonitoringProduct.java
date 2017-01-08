@@ -7,6 +7,7 @@ import org.urm.action.monitor.SegmentStatus;
 import org.urm.action.monitor.NodeStatus;
 import org.urm.action.monitor.ServerStatus;
 import org.urm.engine.ServerEngine;
+import org.urm.engine.ServerEvents;
 import org.urm.engine.ServerEventsApp;
 import org.urm.engine.ServerEventsListener;
 import org.urm.engine.ServerEventsSubscription;
@@ -66,7 +67,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 
 	@Override
 	public void triggerEvent( ServerSourceEvent event ) {
-		if( event.eventType == ServerMonitoring.EVENT_MONITORING_SEGMENT ) {
+		if( event.eventType == ServerEvents.EVENT_MONITORING_SEGMENT ) {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			SegmentStatus status = ( SegmentStatus )event.data;
 			MetaEnvSegment sg = status.sg;
@@ -78,7 +79,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			return;
 		}
 		
-		if( event.eventType == ServerMonitoring.EVENT_MONITORING_SGITEMS ) {
+		if( event.eventType == ServerEvents.EVENT_MONITORING_SGITEMS ) {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			SegmentStatus status = ( SegmentStatus )event.data;
 			MetaEnvSegment sg = status.sg;
@@ -90,7 +91,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			return;
 		}
 		
-		if( event.eventType == ServerMonitoring.EVENT_MONITORING_SERVER ) {
+		if( event.eventType == ServerEvents.EVENT_MONITORING_SERVER ) {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			ScopeState state = ( ScopeState )event.data;
 			MetaEnvServer server = state.target.envServer;
@@ -103,7 +104,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			return;
 		}
 		
-		if( event.eventType == ServerMonitoring.EVENT_MONITORING_SERVERITEMS ) {
+		if( event.eventType == ServerEvents.EVENT_MONITORING_SERVERITEMS ) {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			ServerStatus status = ( ServerStatus )event.data;
 			MetaEnvServer server = status.server;
@@ -115,7 +116,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			return;
 		}
 		
-		if( event.eventType == ServerMonitoring.EVENT_MONITORING_NODE ) {
+		if( event.eventType == ServerEvents.EVENT_MONITORING_NODE ) {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			ScopeState state = ( ScopeState )event.data;
 			MetaEnvServerNode node = state.item.envServerNode;
@@ -128,7 +129,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			return;
 		}
 		
-		if( event.eventType == ServerMonitoring.EVENT_MONITORING_NODEITEMS ) {
+		if( event.eventType == ServerEvents.EVENT_MONITORING_NODEITEMS ) {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			NodeStatus status = ( NodeStatus )event.data;
 			MetaEnvServerNode node = status.node;
@@ -140,13 +141,13 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			return;
 		}
 		
-		if( event.eventType == ServerMonitoring.EVENT_MONITORGRAPHCHANGED ) {
+		if( event.eventType == ServerEvents.EVENT_MONITORGRAPHCHANGED ) {
 			MetaMonitoringTarget target = ( MetaMonitoringTarget )event.data;
 			ServerMonitoringSource sgSource = monitoring.findTargetSource( target );
 			if( sgSource == null )
 				return;
 			
-			sgSource.customEvent( ServerMonitoring.EVENT_MONITORGRAPHCHANGED , target );
+			sgSource.customEvent( ServerEvents.EVENT_MONITORGRAPHCHANGED , target );
 			return;
 		}
 	}

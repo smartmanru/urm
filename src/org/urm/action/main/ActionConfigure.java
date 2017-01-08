@@ -184,7 +184,7 @@ public class ActionConfigure extends ActionBase {
 		
 		linesNew.addAll( linesProxy );
 		Collections.sort( linesNew );
-		Common.createFileFromStringList( masterPath , linesNew );
+		Common.createFileFromStringList( execrc , masterPath , linesNew );
 	}
 	
 	private void configureProductDefault( Meta meta ) throws Exception {
@@ -430,7 +430,7 @@ public class ActionConfigure extends ActionBase {
 		String fileName = ( linux )? MainCommandMeta.CONTEXT_FILENAME_LIXUX : MainCommandMeta.CONTEXT_FILENAME_WIN;
 		String filePath = ef.getFilePath( this , fileName );
 		if( context.CTX_FORCE == true || !ef.checkFileExists( this , fileName ) )
-			Common.createFileFromStringList( filePath , lines );
+			Common.createFileFromStringList( execrc , filePath , lines );
 		if( linux ) {
 			File file = new File( filePath );
 			file.setExecutable( true );
@@ -491,7 +491,7 @@ public class ActionConfigure extends ActionBase {
 			lines.add( "@" + relativePath + "\\bin\\urm.cmd " + executor.name + " " + method + " %*" );			
 		}
 		
-		Common.createFileFromStringList( filePath , lines );
+		Common.createFileFromStringList( execrc , filePath , lines );
 		if( linux ) {
 			File file = new File( filePath );
 			file.setExecutable( true );

@@ -50,7 +50,7 @@ public class CommandContext {
 	public boolean CTX_SHOWONLY;
 	public boolean CTX_SHOWALL;
 	public boolean CTX_FORCE;
-	public boolean CTX_IGNORE;
+	public boolean CTX_SKIPERRORS;
 	public boolean CTX_ALL;
 	public boolean CTX_LOCAL;
 	public boolean CTX_OFFLINE;
@@ -129,23 +129,6 @@ public class CommandContext {
 		setLogLevel();
 	}
 
-	private void setLogStream() {
-		streamLog = ( call != null )? "[" + stream + "," + call.sessionContext.sessionId + "]" : "[" + stream + "]";
-	}
-	
-	private void setLogLevel() {
-		logLevelLimit = CommandOutput.LOGLEVEL_INFO;
-		if( CTX_TRACE ) {
-			if( CTX_TRACEINTERNAL )
-				logLevelLimit = CommandOutput.LOGLEVEL_INTERNAL;
-			else
-				logLevelLimit = CommandOutput.LOGLEVEL_TRACE;
-		}
-		else
-		if( CTX_SHOWALL )
-			logLevelLimit = CommandOutput.LOGLEVEL_DEBUG;
-	}
-	
 	public CommandContext( CommandContext context , String stream ) {
 		if( stream == null || stream.isEmpty() )
 			this.stream = context.stream;
@@ -173,7 +156,7 @@ public class CommandContext {
 		this.CTX_SHOWONLY = context.CTX_SHOWONLY;
 		this.CTX_SHOWALL = context.CTX_SHOWALL;
 		this.CTX_FORCE = context.CTX_FORCE;
-		this.CTX_IGNORE = context.CTX_IGNORE;
+		this.CTX_SKIPERRORS = context.CTX_SKIPERRORS;
 		this.CTX_ALL = context.CTX_ALL;
 		this.CTX_LOCAL = context.CTX_LOCAL;
 		this.CTX_OFFLINE = context.CTX_OFFLINE;
@@ -240,6 +223,23 @@ public class CommandContext {
 		setLogStream();
 	}
 
+	private void setLogStream() {
+		streamLog = ( call != null )? "[" + stream + "," + call.sessionContext.sessionId + "]" : "[" + stream + "]";
+	}
+	
+	private void setLogLevel() {
+		logLevelLimit = CommandOutput.LOGLEVEL_INFO;
+		if( CTX_TRACE ) {
+			if( CTX_TRACEINTERNAL )
+				logLevelLimit = CommandOutput.LOGLEVEL_INTERNAL;
+			else
+				logLevelLimit = CommandOutput.LOGLEVEL_TRACE;
+		}
+		else
+		if( CTX_SHOWALL )
+			logLevelLimit = CommandOutput.LOGLEVEL_DEBUG;
+	}
+	
 	public void update( ActionBase action , MetaEnv env , MetaEnvSegment sg ) throws Exception {
 		this.env = env;  
 		this.sg = sg;
@@ -266,7 +266,7 @@ public class CommandContext {
 		if( CTX_TRACE )
 			CTX_SHOWALL = true;
 		CTX_FORCE = getFlagValue( "OPT_FORCE" );
-		CTX_IGNORE = getFlagValue( "OPT_SKIPERRORS" );
+		CTX_SKIPERRORS = getFlagValue( "OPT_SKIPERRORS" );
 		CTX_ALL = getFlagValue( "OPT_ALL" );
 		CTX_LOCAL = getFlagValue( "OPT_LOCAL" );
 		CTX_OFFLINE = getFlagValue( "OPT_OFFLINE" );

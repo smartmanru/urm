@@ -10,12 +10,14 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.meta.engine.ServerAuthResource;
 
 abstract public class Shell {
 
 	abstract public boolean start( ActionBase action ) throws Exception;
 	abstract public void kill( ActionBase action ) throws Exception;
 	
+	public int id;
 	public String name;
 	public ShellPool pool;
 	public Account account;
@@ -37,7 +39,8 @@ abstract public class Shell {
 	
 	ShellOutputWaiter wc;
 	
-	public Shell( String name , ShellPool pool , Account account ) {
+	public Shell( int id , String name , ShellPool pool , Account account ) {
+		this.id = id;
 		this.name = name;
 		this.pool = pool;
 		this.account = account;
@@ -45,11 +48,11 @@ abstract public class Shell {
 		tsCreated = System.currentTimeMillis();
 	}
 
-	public void startProcess( ActionBase action , ShellProcess process , String rootPath , boolean redirect ) throws Exception {
+	public void startProcess( ActionBase action , ShellProcess process , String rootPath , boolean redirect , ServerAuthResource auth ) throws Exception {
 		this.rootPath = rootPath;
 		this.process = process;
 		
-		process.start( action , rootPath );
+		process.start( action , rootPath , auth );
 		available = true;
 
 		if( !redirect )
@@ -173,6 +176,28 @@ abstract public class Shell {
 
 	public boolean waitForMarker( ActionBase action , String marker , boolean system ) throws Exception {
 		return( wc.waitForMarker( action , action.context.logLevelLimit , system , marker ) );
+	}
+
+	public String getPathBreak() {
+		return( ( isWindows() )? ";" : ":" );
+	}
+
+	public String getVariable( String name ) {
+		if( isWindows() )
+			return( "%" + name + "%" );
+		return( "$" + name );
+	}
+	
+	public String getPathDelimiter() {
+		if( isWindows() )
+			return( "\\" );
+		return( "/" );
+	}
+
+	public String getLocalPath( String path ) {
+		if( isWindows() )
+			return( Common.getWinPath( path ) );
+		return( Common.getLinuxPath( path ) );
 	}
 	
 }

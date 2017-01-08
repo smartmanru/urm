@@ -428,8 +428,13 @@ public class PropertySet {
 			return( data );
 		return( account.getOSPath( data ) );
 	}
+
+	public String getFinalString( String value , boolean isWindows , boolean allowParent , boolean allowUnresolved ) throws Exception {
+		PropertyValue pv = getFinalPropertyValue( value , isWindows , allowParent , allowUnresolved );
+		return( pv.getFinalValue() );
+	}
 	
-	public PropertyValue getFinalValue( String value , boolean isWindows , boolean allowParent , boolean allowUnresolved ) throws Exception {
+	public PropertyValue getFinalPropertyValue( String value , boolean isWindows , boolean allowParent , boolean allowUnresolved ) throws Exception {
 		PropertyValue pv = new PropertyValue( "" , PropertyValueOrigin.PROPERTY_MANUAL , null , null );
 		pv.setOriginalAndFinalValue( value );
 		processValue( pv , true , isWindows , true , allowParent , allowUnresolved );
@@ -844,6 +849,18 @@ public class PropertySet {
 	}
 
 	private void processValue( PropertyValue pv , boolean finalValue , boolean isWindows , boolean useRaw , boolean allowParent , boolean allowUnresolved ) throws Exception {
+		if( pv.isNull() ) {
+			if( allowParent && parent != null ) {
+				PropertyValue pvVar = parent.getPropertyInternal( pv.property , useRaw , allowParent , allowUnresolved );
+				if( pvVar != null && !pvVar.isNull() ) {
+					pv.setFinalValue( pvVar.getFinalValue() );
+					if( finalValue && pv.getType() == PropertyValueType.PROPERTY_PATH )
+						pv.setFinalValue( pv.getPath( finalValue , isWindows ) );
+					return;
+				}
+			}
+		}
+		
 		if( pv.isResolved() )
 			return;
 		

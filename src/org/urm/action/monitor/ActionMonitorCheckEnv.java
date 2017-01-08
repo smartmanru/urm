@@ -5,13 +5,13 @@ import org.urm.action.ActionScope;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.deploy.ActionCheckEnv;
+import org.urm.engine.ServerEvents;
 import org.urm.engine.ServerEventsApp;
 import org.urm.engine.ServerEventsListener;
 import org.urm.engine.ServerEventsSubscription;
 import org.urm.engine.ServerSourceEvent;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
-import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
@@ -25,7 +25,7 @@ public class ActionMonitorCheckEnv extends ActionBase implements ServerEventsLis
 	
 	public long timePassedMillis;
 	
-	public ActionMonitorCheckEnv( ActionBase action , String stream  , MonitoringStorage storage , MetaMonitoringTarget target , ServerEventsApp eventsApp ) {
+	public ActionMonitorCheckEnv( ActionBase action , String stream , MonitoringStorage storage , MetaMonitoringTarget target , ServerEventsApp eventsApp ) {
 		super( action , stream );
 		this.storage = storage;
 		this.target = target;
@@ -62,9 +62,9 @@ public class ActionMonitorCheckEnv extends ActionBase implements ServerEventsLis
 	
 	@Override
 	public void triggerEvent( ServerSourceEvent event ) {
-		if( event.eventType == ServerMonitoring.EVENT_MONITORING_SEGMENT ||
-			event.eventType == ServerMonitoring.EVENT_MONITORING_SERVER ||
-			event.eventType == ServerMonitoring.EVENT_MONITORING_NODE ) {
+		if( event.eventType == ServerEvents.EVENT_MONITORING_SEGMENT ||
+			event.eventType == ServerEvents.EVENT_MONITORING_SERVER ||
+			event.eventType == ServerEvents.EVENT_MONITORING_NODE ) {
 			ScopeState state = ( ScopeState )event.data;
 			super.eventSource.forwardScopeItem( event.eventType , state );
 		}

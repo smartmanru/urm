@@ -16,6 +16,7 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.CommandOutput;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.RedistStorage;
+import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnvServer;
 
@@ -23,6 +24,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public String rootPath;
 	public Folder tmpFolder;
+	public boolean dedicated; 
 	
 	public long tsLastStarted;
 	public long tsLastFinished;
@@ -33,23 +35,24 @@ public abstract class ShellExecutor extends Shell {
 	abstract public boolean start( ActionBase action ) throws Exception;
 
 	// construction and administration
-	protected ShellExecutor( String name , ShellPool pool , Account account , String rootPath , Folder tmpFolder ) {
-		super( name , pool , account );
+	protected ShellExecutor( int id , String name , ShellPool pool , Account account , String rootPath , Folder tmpFolder , boolean dedicated ) {
+		super( id , name , pool , account );
 		this.rootPath = rootPath;
 		this.tmpFolder = tmpFolder;
+		this.dedicated = dedicated;
 	}
 	
-	public static ShellExecutor getLocalShellExecutor( ActionBase action , String name , ShellPool pool , String rootPath , Folder tmpFolder ) throws Exception {
-		ShellExecutor executor = new LocalShellExecutor( name , pool , rootPath , tmpFolder );
+	public static ShellExecutor getLocalShellExecutor( ActionBase action , int id , String name , ShellPool pool , String rootPath , Folder tmpFolder , boolean dedicated ) throws Exception {
+		ShellExecutor executor = new LocalShellExecutor( id , name , pool , rootPath , tmpFolder , dedicated );
 		executor.core = ShellCore.createShellCore( action, executor , action.context.account.osType , true );
 		return( executor );
 	}
 
-	public static ShellExecutor getRemoteShellExecutor( ActionBase action , String name , ShellPool pool , Account account ) throws Exception {
+	public static ShellExecutor getRemoteShellExecutor( ActionBase action , int id , String name , ShellPool pool , Account account , ServerAuthResource auth , boolean dedicated ) throws Exception {
 		RedistStorage storage = action.artefactory.getRedistStorage( action , account );
 		Folder tmpFolder = storage.getRedistTmpFolder( action );
 
-		ShellExecutor executor = new RemoteShellExecutor( name , pool , account , tmpFolder );
+		ShellExecutor executor = new RemoteShellExecutor( id , name , pool , account , tmpFolder , auth , dedicated );
 		executor.core = ShellCore.createShellCore( action, executor , account.osType , false );
 		return( executor );
 	}
@@ -82,12 +85,12 @@ public abstract class ShellExecutor extends Shell {
 		start( action );
 	}
 	
-	protected boolean createProcess( ActionBase action , ShellProcess process ) throws Exception {
+	protected boolean createProcess( ActionBase action , ShellProcess process , ServerAuthResource auth ) throws Exception {
 		if( isLocal() )
 			action.debug( "start shell=" + name + " at rootPath=" + rootPath + " (" + Common.getEnumLower( account.osType ) + ")" );
 		else
 			action.debug( "start shell=" + name + " (" + Common.getEnumLower( account.osType ) + ")" );
-		return( core.createProcess( action , process , rootPath ) );
+		return( core.createProcess( action , process , rootPath , auth ) );
 	}
 
 	@Override

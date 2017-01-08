@@ -19,5 +19,7 @@ public class _Error {
 	public static final int UnexpectedBuilderVersion1 = ErrorBase + 10;
 	public static final int ProjectBuildError1 = ErrorBase + 11;
 	public static final int ProjectPatchError1 = ErrorBase + 12;
+	public static final int MissingProjectItemDirectory1 = ErrorBase + 13;
+	public static final int MissingProjectItemFile2 = ErrorBase + 14;
 	
 }
