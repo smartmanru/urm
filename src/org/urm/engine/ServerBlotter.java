@@ -67,6 +67,13 @@ public class ServerBlotter {
 		return( set.getItems( includeFinished ) ); 
 	}
 	
+	public ServerBlotterItem getBlotterItem( BlotterType type , int actionId ) {
+		ServerBlotterSet set = getBlotterSet( type );
+		if( set == null )
+			return( null );
+		return( set.getItem( actionId ) ); 
+	}
+	
 	public ServerBlotterStat getBlotterStatistics( BlotterType type ) {
 		ServerBlotterSet set = getBlotterSet( type );
 		if( set == null )

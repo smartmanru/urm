@@ -1,8 +1,6 @@
 package org.urm.engine;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
@@ -15,7 +13,7 @@ public class ServerBlotterSet extends ServerEventsSource {
 	BlotterType type;
 	
 	public long day;
-	private List<ServerBlotterItem> items;
+	private Map<Integer,ServerBlotterItem> items;
 	private Map<String,ServerBlotterMemo> memos;
 	private ServerBlotterStat stat;
 	
@@ -25,7 +23,7 @@ public class ServerBlotterSet extends ServerEventsSource {
 		this.type = type;
 
 		day = 0;
-		items = new LinkedList<ServerBlotterItem>();
+		items = new HashMap<Integer,ServerBlotterItem>();
 		memos = new HashMap<String,ServerBlotterMemo>();
 		stat = new ServerBlotterStat( this );
 	}
@@ -69,20 +67,24 @@ public class ServerBlotterSet extends ServerEventsSource {
 	}
 
 	public synchronized ServerBlotterItem[] getItems( boolean includeFinished ) {
-		List<ServerBlotterItem> selected = null;
+		Map<Integer,ServerBlotterItem> selected = null;
 		if( includeFinished )
 			selected = items;
 		else {
-			selected = new LinkedList<ServerBlotterItem>();
-			for( ServerBlotterItem item : items ) {
+			selected = new HashMap<Integer,ServerBlotterItem>();
+			for( ServerBlotterItem item : items.values() ) {
 				if( !item.stopped )
-					selected.add( item );
+					selected.put( item.action.ID , item );
 			}
 		}
 			
-		return( selected.toArray( new ServerBlotterItem[0] ) ); 
+		return( selected.values().toArray( new ServerBlotterItem[0] ) ); 
 	}
 
+	public synchronized ServerBlotterItem getItem( int actionId ) {
+		return( items.get( actionId ) );
+	}
+	
 	public synchronized void addItem( ServerBlotterItem item ) {
 		if( item.isBuildItem() ) {
 			String key = "build#" + item.INFO_PRODUCT + "#" + item.INFO_PROJECT;
@@ -102,7 +104,7 @@ public class ServerBlotterSet extends ServerEventsSource {
 			items.clear();
 		}
 		
-		items.add( item );
+		items.put( item.action.ID , item );
 		stat.statAddItem( item );
 	}
 	
