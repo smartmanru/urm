@@ -77,11 +77,9 @@ public class ServerEventsApp {
 	}
 
 	public void triggerEvent( ServerSourceEvent event ) {
-		synchronized( events ) {
-			for( ServerEventsSubscription sub : subs ) {
-				if( sub.source == event.source )
-					sub.triggerEvent( event );
-			}
+		for( ServerEventsSubscription sub : subs ) {
+			if( sub.source == event.source )
+				sub.triggerEvent( event );
 		}
 	}
 

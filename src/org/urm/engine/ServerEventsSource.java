@@ -40,12 +40,17 @@ abstract public class ServerEventsSource {
 	}
 
 	protected void trigger( int eventType , Object data ) {
+		ServerSourceEvent event = null;
+		ServerEventsApp[] apps = null;
+		
 		synchronized( events ) {
 			stateId++;
-			ServerSourceEvent event = new ServerSourceEvent( this , stateId , eventType , data );
-			for( ServerEventsApp app : appMap.values() )
-				app.triggerEvent( event );
+			event = new ServerSourceEvent( this , stateId , eventType , data );
+			apps = appMap.values().toArray( new ServerEventsApp[0] );
 		}
+		
+		for( ServerEventsApp app : apps )
+			app.triggerEvent( event );
 	}
 
 	public int getStateId() {
