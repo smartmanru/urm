@@ -39,11 +39,11 @@ public class ServerBlotter {
 		blotterDeploy = new ServerBlotterSet( this , BlotterType.BLOTTER_DEPLOY , events , "blotter.deploy" );
 	}
 	
-	public ServerBlotterItem[] getBlotterItems( BlotterType type ) {
+	public ServerBlotterItem[] getBlotterItems( BlotterType type , boolean includeFinished ) {
 		ServerBlotterSet set = getBlotterSet( type );
 		if( set == null )
 			return( new ServerBlotterItem[0] );
-		return( set.getItems() ); 
+		return( set.getItems( includeFinished ) ); 
 	}
 	
 	public ServerBlotterStat getBlotterStatistics( BlotterType type ) {

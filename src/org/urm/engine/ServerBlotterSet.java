@@ -14,6 +14,7 @@ public class ServerBlotterSet extends ServerEventsSource {
 	ServerBlotter blotter;
 	BlotterType type;
 	
+	public long day;
 	private List<ServerBlotterItem> items;
 	private Map<String,ServerBlotterMemo> memos;
 	private ServerBlotterStat stat;
@@ -22,7 +23,8 @@ public class ServerBlotterSet extends ServerEventsSource {
 		super( events , setId );
 		this.blotter = blotter;
 		this.type = type;
-		
+
+		day = 0;
 		items = new LinkedList<ServerBlotterItem>();
 		memos = new HashMap<String,ServerBlotterMemo>();
 
@@ -35,7 +37,7 @@ public class ServerBlotterSet extends ServerEventsSource {
 	}
 	
 	public synchronized ServerBlotterStat getStatistics() {
-		if( stat.isTodays() )
+		if( isTodays() )
 			return( stat.copy() );
 		return( new ServerBlotterStat( this ) );
 	}
@@ -56,8 +58,19 @@ public class ServerBlotterSet extends ServerEventsSource {
 		return( type == BlotterType.BLOTTER_DEPLOY );
 	}
 
-	public synchronized ServerBlotterItem[] getItems() {
-		return( items.toArray( new ServerBlotterItem[0] ) ); 
+	public synchronized ServerBlotterItem[] getItems( boolean includeFinished ) {
+		List<ServerBlotterItem> selected = null;
+		if( includeFinished )
+			selected = items;
+		else {
+			selected = new LinkedList<ServerBlotterItem>();
+			for( ServerBlotterItem item : items ) {
+				if( !item.stopped )
+					selected.add( item );
+			}
+		}
+			
+		return( selected.toArray( new ServerBlotterItem[0] ) ); 
 	}
 
 	public synchronized void addItem( ServerBlotterItem item ) {
@@ -72,6 +85,13 @@ public class ServerBlotterSet extends ServerEventsSource {
 			item.setMemo( memo );
 		}
 		
+		long itemDay = getDay( item.startTime );
+		if( itemDay != day ) {
+			stat.statClear();
+			day = itemDay;
+			items.clear();
+		}
+		
 		items.add( item );
 		stat.statAddItem( item );
 	}
@@ -83,7 +103,10 @@ public class ServerBlotterSet extends ServerEventsSource {
 			memo.addEvent( elapsed );
 		}
 		
-		items.remove( item );
+		long itemDay = getDay( item.startTime );
+		if( itemDay != day )
+			return;
+		
 		stat.statFinishItem( item );
 	}
 	
@@ -93,13 +116,32 @@ public class ServerBlotterSet extends ServerEventsSource {
 	}
 	
 	public void startChildAction( ServerBlotterItem item , ActionBase action ) {
+		long itemDay = getDay( item.startTime );
+		if( itemDay != day )
+			return;
+		
 		item.startChildAction( action );
 		stat.statAddChildItem( item , action );
 	}
 
 	public void stopChildAction( ServerBlotterItem item , ActionBase action , boolean success ) {
+		long itemDay = getDay( item.startTime );
+		if( itemDay != day )
+			return;
+		
 		item.stopChildAction( action , success );
 		stat.statFinishChildItem( item , action , success );
 	}
 
+	private long getDay( long value ) {
+		return( value - value % ( 24 * 60 * 60 * 1000 ) );
+	}
+	
+	public boolean isTodays() {
+		long currentDay = getDay( System.currentTimeMillis() );
+		if( day == currentDay )
+			return( true );
+		return( false );
+	}
+	
 }
