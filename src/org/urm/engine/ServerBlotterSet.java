@@ -27,13 +27,23 @@ public class ServerBlotterSet extends ServerEventsSource {
 		day = 0;
 		items = new LinkedList<ServerBlotterItem>();
 		memos = new HashMap<String,ServerBlotterMemo>();
-
 		stat = new ServerBlotterStat( this );
 	}
 	
 	@Override
 	public ServerEventsState getState() {
 		return( new ServerEventsState( this , super.getStateId() ) );
+	}
+	
+	public synchronized void init() {
+		clear();
+		memos.clear();
+	}
+	
+	public synchronized void clear() {
+		stat.statClear();
+		day = getDay( System.currentTimeMillis() );
+		items.clear();
 	}
 	
 	public synchronized ServerBlotterStat getStatistics() {

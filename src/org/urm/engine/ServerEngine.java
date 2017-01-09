@@ -69,14 +69,15 @@ public class ServerEngine {
 		events = new ServerEvents( this );
 		loader = new ServerLoader( this );
 		sessionController = new SessionController( this );
+		blotter = new ServerBlotter( this );
 	}
 	
 	public void init() throws Exception {
 		auth.init();
 		events.init();
 		loader.init();
+		blotter.init();
 		
-		blotter = new ServerBlotter( this );
 		mainExecutor = MainExecutor.createExecutor( this );
 		buildExecutor = BuildCommandExecutor.createExecutor( this );
 		databaseExecutor = DatabaseCommandExecutor.createExecutor( this );
@@ -117,6 +118,7 @@ public class ServerEngine {
 		sessionController.stop( serverAction );
 		jmxController = null;
 		loader.clearServerProducts();
+		blotter.clear();
 		
 		running = false;
 	}
