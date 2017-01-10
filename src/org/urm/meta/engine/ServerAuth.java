@@ -393,7 +393,7 @@ public class ServerAuth extends ServerObject {
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , String productName , boolean readOnly ) {
-		return( checkAccessProductAction( action , sa , productName , null , null , readOnly ) );
+		return( checkAccessProductAction( action , sa , productName , null , action.context.buildMode , readOnly ) );
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , String productName , String envName , boolean readOnly ) {
