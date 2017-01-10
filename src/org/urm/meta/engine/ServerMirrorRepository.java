@@ -23,7 +23,7 @@ import org.w3c.dom.Node;
 
 public class ServerMirrorRepository extends ServerObject {
 
-	ServerMirrors mirrors;
+	public ServerMirrors mirrors;
 	
 	private boolean loaded;
 	public boolean loadFailed;

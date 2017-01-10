@@ -15,6 +15,7 @@ import org.urm.meta.engine.ServerBase;
 import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.engine.ServerDirectory;
 import org.urm.meta.engine.ServerInfrastructure;
+import org.urm.meta.engine.ServerMirrorRepository;
 import org.urm.meta.engine.ServerMirrors;
 import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.engine.ServerNetwork;
@@ -886,9 +887,9 @@ public class TransactionBase extends ServerObject {
 			exit( _Error.TransactionMissingDirectoryChanges0 , "Missing directory changes" , null );
 	}
 
-	protected void checkTransactionMirrors() throws Exception {
+	protected void checkTransactionMirrors( ServerMirrors sourceMirrors ) throws Exception {
 		checkTransaction();
-		if( mirrors == null )
+		if( sourceMirrors == null || mirrors != sourceMirrors )
 			exit( _Error.TransactionMissingMirrorsChanges0 , "Missing mirrors changes" , null );
 	}
 
@@ -1085,6 +1086,10 @@ public class TransactionBase extends ServerObject {
 		Meta metaNew = getTransactionProductMetadata( set.meta.name );
 		MetaSource sourceNew = metaNew.getSources( action );
 		return( sourceNew.getProjectSet( action , set.NAME ) );
+	}
+
+	public ServerMirrorRepository getMirrorRepository( ServerMirrorRepository repo ) throws Exception {
+		return( mirrors.getRepository( repo.NAME ) );
 	}
 	
 	public void checkSecurityFailed() {
