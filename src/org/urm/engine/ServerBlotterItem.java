@@ -17,6 +17,7 @@ public class ServerBlotterItem {
 	public boolean errors;
 	
 	public String INFO_NAME;
+	public String INFO_LOG;
 	public String INFO_PRODUCT;
 	public String INFO_PROJECT;
 	public String INFO_TAG;
@@ -66,12 +67,12 @@ public class ServerBlotterItem {
 		this.INFO_NAME = "root " + action.ID;
 	}
 
-	public void createBuildItem( String product , String project , String tag ) {
+	public void createBuildItem( String product , String project , String tag , String logFile ) {
+		this.INFO_NAME = "build " + tag;
+		this.INFO_LOG = logFile;
 		this.INFO_PRODUCT = product;
 		this.INFO_PROJECT = project;
 		this.INFO_TAG = tag;
-		
-		this.INFO_NAME = "build " + tag;
 	}
 
 	public void stopAction( boolean success ) {

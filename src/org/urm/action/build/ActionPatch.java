@@ -11,7 +11,7 @@ import org.urm.meta.product.MetaSourceProjectItem;
 public class ActionPatch extends ActionBase {
 
 	public Builder builder;
-	String logFile;
+	public String logFile;
 	
 	public ActionPatch( ActionBase action , String stream , Builder builder , String logFile ) {
 		super( action , stream );
