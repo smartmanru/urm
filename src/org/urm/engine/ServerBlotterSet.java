@@ -6,6 +6,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.engine.ServerBlotter.BlotterEvent;
 import org.urm.engine.ServerBlotter.BlotterType;
+import org.urm.engine.action.ActionInit;
 
 public class ServerBlotterSet extends ServerEventsSource {
 
@@ -38,7 +39,16 @@ public class ServerBlotterSet extends ServerEventsSource {
 		memos.clear();
 	}
 	
+	public void houseKeeping( long time ) {
+		long timeDay = getDay( time );
+		if( timeDay != day )
+			clear();
+	}
+	
 	public synchronized void clear() {
+		if( isRootSet() )
+			clearRoots();
+		
 		stat.statClear();
 		day = getDay( System.currentTimeMillis() );
 		items.clear();
@@ -154,6 +164,18 @@ public class ServerBlotterSet extends ServerEventsSource {
 		if( day == currentDay )
 			return( true );
 		return( false );
+	}
+
+	private void clearRoots() {
+		for( ServerBlotterItem item : items.values() ) {
+			ActionInit action = ( ActionInit )item.action;
+			try {
+				action.artefactory.workFolder.removeThis( action );
+			}
+			catch( Throwable e ) {
+				blotter.engine.log( "Clear roots" , e );
+			}
+		}
 	}
 	
 }

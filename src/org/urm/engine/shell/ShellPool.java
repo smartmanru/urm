@@ -6,13 +6,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
-import org.urm.common.Common;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.storage.Folder;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerContext;
 
-public class ShellPool implements Runnable {
+public class ShellPool {
 
 	public ServerEngine engine;
 	public String rootPath;
@@ -28,7 +27,6 @@ public class ShellPool implements Runnable {
 	public Account masterAccount;
 	public Folder tmpFolder;
 	
-	private Thread thread;
 	private boolean started = false;
 	private boolean stop = false;
 	private boolean stopped = false;
@@ -59,26 +57,6 @@ public class ShellPool implements Runnable {
 		shellIndex = 0;
 	}
 	
-	@Override
-	public void run() {
-		while( !stop ) {
-			try {
-				Common.sleep( SHELL_HOUSEKEEP_TIME );
-				runHouseKeeping();
-			}
-			catch( InterruptedException e ) {
-			}
-			catch( Throwable e ) {
-				engine.serverAction.handle( "thread pool house keeping error" , e );
-			}
-		}
-		
-		synchronized( thread ) {
-			stopped = true;
-			thread.notifyAll();
-		}
-	}
-
 	public PoolCounts getPoolInfo() {
 		PoolCounts c = new PoolCounts();
 		synchronized( engine ) {
@@ -106,28 +84,31 @@ public class ShellPool implements Runnable {
 		}
 	}
 	
-	private void runHouseKeeping() throws Exception {
-		engine.serverAction.trace( "run thread pool house keeping ..." );
+	public void runHouseKeeping( long time ) throws Exception {
+		if( tsHouseKeepTime > 0 && ( time - tsHouseKeepTime ) < SHELL_HOUSEKEEP_TIME )
+			return;
+		
+		tsHouseKeepTime = time;
+		engine.trace( "run thread pool house keeping ..." );
 		
 		// move pending to primary
-		tsHouseKeepTime = System.currentTimeMillis();
 		synchronized( engine ) {
 			for( int k = 0; k < pending.size(); ) {
 				ShellExecutor shell = pending.get( k );
 				if( !pool.containsKey( shell.name ) ) {
 					pool.put( shell.name , shell );
 					pending.remove( k );
-					engine.serverAction.trace( "return action session to pool name=" + shell.name );
+					engine.trace( "return action session to pool name=" + shell.name );
 				}
 				else
 				if( checkOldExecutorShell( shell ) ) {
-					engine.serverAction.trace( "kill old pending executor shell name=" + shell.name + " ..." );
+					engine.trace( "kill old pending executor shell name=" + shell.name + " ..." );
 					pending.remove( k );
 					killShell( shell );
 				}
 				else {
 					k++;
-					engine.serverAction.trace( "stay in pending name=" + shell.name );
+					engine.trace( "stay in pending name=" + shell.name );
 				}
 			}
 		}
@@ -136,12 +117,12 @@ public class ShellPool implements Runnable {
 		synchronized( engine ) {
 			for( ShellExecutor shell : pool.values().toArray( new ShellExecutor[0] ) ) {
 				if( checkOldExecutorShell( shell ) ) {
-					engine.serverAction.trace( "kill old pool executor shell name=" + shell.name + " ..." );
+					engine.trace( "kill old pool executor shell name=" + shell.name + " ..." );
 					pool.remove( shell.name );
 					killShell( shell );
 				}
 				else
-					engine.serverAction.trace( "stay in pool name=" + shell.name );
+					engine.trace( "stay in pool name=" + shell.name );
 			}
 		}
 		
@@ -150,12 +131,12 @@ public class ShellPool implements Runnable {
 			for( ActionShells map : actionSessions.values() ) {
 				for( ShellInteractive shell : map.getInteractiveList() ) {
 					if( checkOldInteractiveShell( shell ) ) {
-						engine.serverAction.trace( "kill old interactive shell name=" + shell.name + " ..." );
+						engine.trace( "kill old interactive shell name=" + shell.name + " ..." );
 						map.removeInteractive( shell.name );
 						killShell( shell );
 					}
 					else
-						engine.serverAction.trace( "keep interactive name=" + shell.name );
+						engine.trace( "keep interactive name=" + shell.name );
 				}
 			}
 		}
@@ -206,9 +187,6 @@ public class ShellPool implements Runnable {
 		
 		// start managing thread
 		started = true;
-        thread = new Thread( null , this , "Shell Pool" );
-        thread.start();
-        
 		action.debug( "shell pool has been started" );
 	}
 	
@@ -217,12 +195,11 @@ public class ShellPool implements Runnable {
 		try {
 			if( started ) {
 				stop = true;
-				thread.interrupt();
 
 				while( true ) {
-					synchronized( thread ) {
+					synchronized( this ) {
 						if( !stopped )
-							thread.wait();
+							wait();
 						if( stopped )
 							break;
 					}
@@ -242,7 +219,7 @@ public class ShellPool implements Runnable {
 		}
 		catch( Throwable e ) {
 			if( engine.serverAction.context.CTX_TRACEINTERNAL )
-				engine.serverAction.trace( "exception when killing shell=" + shell.name + " (" + e.getMessage() + ")" );
+				engine.trace( "exception when killing shell=" + shell.name + " (" + e.getMessage() + ")" );
 		}
 	}
 	
@@ -258,8 +235,8 @@ public class ShellPool implements Runnable {
 		
 		killShell( master );
 		
-		synchronized( thread ) {
-			thread.notifyAll();
+		synchronized( this ) {
+			notifyAll();
 		}
 	}
 
@@ -300,7 +277,7 @@ public class ShellPool implements Runnable {
 						
 					pool.remove( name );
 					map.addExecutor( name , shell );
-					engine.serverAction.trace( "assign actionId=" + action.ID + " to existing session name=" + name );
+					engine.trace( "assign actionId=" + action.ID + " to existing session name=" + name );
 					return( shell );
 				}
 				
@@ -325,7 +302,7 @@ public class ShellPool implements Runnable {
 			// add to action sessions (return to pool after release)
 			synchronized( engine ) {
 				map.addExecutor( name , shell );
-				engine.serverAction.trace( "assign actionId=" + action.ID + " to new session name=" + name );
+				engine.trace( "assign actionId=" + action.ID + " to new session name=" + name );
 			}
 
 			// force create temporary folder on remote location
@@ -377,7 +354,7 @@ public class ShellPool implements Runnable {
 		if( map == null ) {
 			map = new ActionShells( action );
 			actionSessions.put( action , map );
-			engine.serverAction.trace( "register in session pool actionId=" + action.ID );
+			engine.trace( "register in session pool actionId=" + action.ID );
 		}
 		return( map );
 	}
@@ -442,11 +419,11 @@ public class ShellPool implements Runnable {
 			if( !shell.dedicated ) {
 				if( pool.get( shell.name ) == null ) {
 					pool.put( shell.name , shell );
-					engine.serverAction.trace( "return session to pool name=" + shell.name );
+					engine.trace( "return session to pool name=" + shell.name );
 				}
 				else {
 					pending.add( shell );
-					engine.serverAction.trace( "put session to pending name=" + shell.name );
+					engine.trace( "put session to pending name=" + shell.name );
 				}
 				map.removeExecutor( shell.name );
 			}
@@ -471,7 +448,7 @@ public class ShellPool implements Runnable {
 			if( map == null )
 				return;
 			
-			engine.serverAction.trace( "unregister in session pool actionId=" + action.ID + ", shell=" + shell.name );
+			engine.trace( "unregister in session pool actionId=" + action.ID + ", shell=" + shell.name );
 			map.removeInteractive( shell.name );
 		}
 	}
@@ -500,7 +477,7 @@ public class ShellPool implements Runnable {
 		}
 		
 		synchronized( engine ) {
-			engine.serverAction.trace( "unregister in session pool actionId=" + action.ID );
+			engine.trace( "unregister in session pool actionId=" + action.ID );
 			actionSessions.remove( action );
 		}
 	}

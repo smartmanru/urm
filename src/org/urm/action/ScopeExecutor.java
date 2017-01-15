@@ -869,7 +869,7 @@ public class ScopeExecutor {
 			action.engine.blotter.startAction( action );
 		}
 		catch( Throwable e ) {
-			action.engine.serverAction.log( "start action" , e );
+			action.engine.log( "start action" , e );
 		}
 	}
 	
@@ -886,7 +886,7 @@ public class ScopeExecutor {
 			return( res );
 		}
 		catch( Throwable e ) {
-			action.engine.serverAction.log( "stop action" , e );
+			action.engine.log( "stop action" , e );
 			return( false );
 		}
 	}

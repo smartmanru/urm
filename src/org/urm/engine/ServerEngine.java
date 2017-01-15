@@ -39,6 +39,7 @@ public class ServerEngine {
 	public ServerSession serverSession;
 	public SessionController sessionController;
 	public ServerMBean jmxController;
+	public ServerHouseKeeping houseKeeping;
 	
 	public MainExecutor serverExecutor;
 	public ActionInit serverAction;
@@ -65,6 +66,7 @@ public class ServerEngine {
 	public ServerEngine( RunContext execrc ) {
 		this.execrc = execrc;
 		
+		houseKeeping = new ServerHouseKeeping( this ); 
 		auth = new ServerAuth( this );
 		events = new ServerEvents( this );
 		loader = new ServerLoader( this );
@@ -99,6 +101,8 @@ public class ServerEngine {
 		jmxController = new ServerMBean( action , this );
 		jmxController.start();
 		
+		houseKeeping.start();
+		
 		serverAction.info( "server successfully started, accepting connections." );
 		sessionController.waitFinished( serverAction );
 	}
@@ -108,6 +112,8 @@ public class ServerEngine {
 			return;
 		
 		serverAction.info( "stopping server ..." );
+		
+		houseKeeping.stop();
 		
 		events.stop();
 		ServerMonitoring mon = loader.getMonitoring();
@@ -340,8 +346,6 @@ public class ServerEngine {
 		if( !action.isMemoryOnly() ) {
 			if( action.isFailed() || action.context.CTX_SHOWALL )
 				action.info( "saved work directory: " + action.artefactory.workFolder.folderPath );
-			else
-				action.artefactory.workFolder.removeThis( action );
 			
 			shellPool.releaseActionPool( action );
 			if( closeSession ) {
@@ -457,6 +461,47 @@ public class ServerEngine {
 
 	public void updatePermissions( ActionBase action , String user ) throws Exception {
 		sessionController.updatePermissions( action , user );
+	}
+
+	public void log( String prompt , Throwable e ) {
+		serverAction.log( prompt , e );
+	}
+	
+	public void handle( Throwable e ) {
+		serverAction.handle( "handle exception in action" , e );
+	}
+
+	public void handle( String prompt , Throwable e ) {
+		serverAction.handle( prompt , e );
+	}
+	
+	public void info( String s ) {
+		if( serverAction != null )
+			serverAction.info( s );
+		else
+			System.out.println( "transaction (info): " + s );
+	}
+	
+	public void debug( String s ) {
+		if( serverAction != null )
+			serverAction.debug( s );
+		else
+			System.out.println( "transaction (debug): " + s );
+	}
+	
+	public void error( String s ) {
+		if( serverAction != null )
+			serverAction.error( s );
+		else
+			System.out.println( "transaction (error): " + s );
+	}
+	
+	public void trace( String s ) {
+		serverAction.trace( s );
+	}
+	
+	public void exit1( int e , String s , String p1 ) throws Exception {
+		serverAction.exit1( e , s , p1 );
 	}
 	
 }

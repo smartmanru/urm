@@ -364,6 +364,7 @@ abstract public class ActionBase extends ActionCore {
 			file = shell.getHomePath() + file.substring( 1 ); 
 		debug( "start logging to " + shell.getOSPath( this , file ) );
 		output.createOutputFile( context , title , file );
+		output.debug( context , "start logging to " + shell.getOSPath( this , file ) );
 	}
 	
 	public void stopRedirect() throws Exception {

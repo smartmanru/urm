@@ -3,7 +3,6 @@ package org.urm.meta.engine;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.action.ActionBase;
 import org.urm.action.ActionCore;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
@@ -143,15 +142,13 @@ public class ServerMonitoring extends ServerObject {
 	}
 
 	public void startApp( ServerDirectory directory ) {
-		ActionBase action = engine.serverAction;
 		createSource( MONITORING_APP , directory );
-		action.trace( "monitoring started for applications" );
+		engine.trace( "monitoring started for applications" );
 	}
 	
 	public void startSystem( ServerSystem system ) {
-		ActionBase action = engine.serverAction;
 		createSource( MONITORING_SYSTEM , system );
-		action.trace( "monitoring started for system=" + system.NAME );
+		engine.trace( "monitoring started for system=" + system.NAME );
 		
 		// start products
 		for( String productName : system.getProducts() ) {
@@ -161,16 +158,15 @@ public class ServerMonitoring extends ServerObject {
 	}
 	
 	public void startProduct( ServerProduct product ) {
-		ActionBase action = engine.serverAction;
 		ServerProductMeta storage = loader.findProductStorage( product.NAME );
 		if( storage == null || storage.loadFailed ) {
-			action.trace( "ignore monitoring for non-healthy product=" + product.NAME );
+			engine.trace( "ignore monitoring for non-healthy product=" + product.NAME );
 			return;
 		}
 		
 		MetaMonitoring meta = storage.getMonitoring();
 		if( !meta.ENABLED ) {
-			action.trace( "monitoring is turned off for product=" + product.NAME );
+			engine.trace( "monitoring is turned off for product=" + product.NAME );
 			return;
 		}
 
@@ -184,7 +180,7 @@ public class ServerMonitoring extends ServerObject {
 		ServerMonitoringProduct mon = new ServerMonitoringProduct( this , product.NAME , source , eventsApp );
 		mapProduct.put( product.NAME , mon );
 		mon.start();
-		action.trace( "monitoring started for product=" + product.NAME );
+		engine.trace( "monitoring started for product=" + product.NAME );
 	}
 
 	public void startEnvironment( MetaEnv env ) {

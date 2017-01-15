@@ -53,7 +53,7 @@ public class ShellInteractive extends Shell {
 
 	public void runInteractive( ActionBase action ) throws Exception {
 		start( action );
-		pool.engine.serverAction.trace( name + " wait interactive process to finish ..." );
+		pool.engine.trace( name + " wait interactive process to finish ..." );
 		int status = waitForInteractive( action );
 		action.trace( name + " interactive process has been finished with status=" + status );
 		pool.removeInteractive( action , this );

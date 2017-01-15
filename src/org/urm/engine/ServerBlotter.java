@@ -60,6 +60,11 @@ public class ServerBlotter {
 			set.clear();
 	}
 	
+	public void runHouseKeeping( long time ) {
+		for( ServerBlotterSet set : blotters )
+			set.houseKeeping( time );
+	}
+	
 	public ServerBlotterItem[] getBlotterItems( BlotterType type , boolean includeFinished ) {
 		ServerBlotterSet set = getBlotterSet( type );
 		if( set == null )

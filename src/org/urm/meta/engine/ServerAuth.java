@@ -609,7 +609,7 @@ public class ServerAuth extends ServerObject {
 		try {
 			ServerAuthUser user = getUser( username );
 			if( user == null ) {
-				engine.serverAction.trace( "unsuccessful login: unknown user=" + username );
+				engine.trace( "unsuccessful login: unknown user=" + username );
 				return( false );
 			}
 			
@@ -618,11 +618,11 @@ public class ServerAuth extends ServerObject {
 			if( !ac.PUBLICKEY.isEmpty() ) {
 		        String checkMessage = ClientAuth.getCheckMessage( username );
 				if( ClientAuth.verifySigned( checkMessage , password , ac.PUBLICKEY ) ) {
-					engine.serverAction.trace( "successful login using key: user=" + username );
+					engine.trace( "successful login using key: user=" + username );
 					return( true );
 				}
 				
-				engine.serverAction.trace( "unsuccessful login using key: user=" + username );
+				engine.trace( "unsuccessful login using key: user=" + username );
 				return( false );
 			}
 			
@@ -630,20 +630,20 @@ public class ServerAuth extends ServerObject {
 				String md5 = Common.getMD5( password );
 				if( ac.PASSWORDSAVE.equals( md5 ) ) {
 					ac.setOnlinePassword( password );
-					engine.serverAction.trace( "successful login using password: user=" + username );
+					engine.trace( "successful login using password: user=" + username );
 					return( true );
 				}
 				
-				engine.serverAction.trace( "unsuccessful login using password: user=" + username );
+				engine.trace( "unsuccessful login using password: user=" + username );
 				return( false );
 			}
 		}
 		catch( Throwable e ) {
-			engine.serverAction.log( "unsuccessful login: user=" + username , e );
+			engine.log( "unsuccessful login: user=" + username , e );
 			return( false );
 		}
 		
-		engine.serverAction.trace( "unknown authentification type: user=" + username );
+		engine.trace( "unknown authentification type: user=" + username );
 		return( false );
 	}
 	

@@ -67,7 +67,7 @@ public class ServerProductMeta extends ServerObject {
 		this.name = name;
 		
 		meta = new Meta( this , null );
-		loader.engine.serverAction.trace( "new product storage meta object, id=" + meta.objectId + ", storage=" + objectId );
+		loader.engine.trace( "new product storage meta object, id=" + meta.objectId + ", storage=" + objectId );
 		designFiles = new HashMap<String,MetaDesign>();
 		envs = new HashMap<String,MetaEnv>();
 		
