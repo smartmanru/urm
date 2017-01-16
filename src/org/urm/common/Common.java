@@ -263,6 +263,11 @@ public class Common {
         return( simpleFormat.format( date ) );
 	}
 	
+	public static String getDate( long timeMillis ) {
+        SimpleDateFormat simpleFormat = new SimpleDateFormat( "d MMM yyyy, EEE" );
+        return( simpleFormat.format( timeMillis ) );
+	}
+	
 	public static String replace( String s , String from , String to ) {
 		if( from.isEmpty() || from.equals( to ) )
 			return( s );
@@ -870,6 +875,10 @@ public class Common {
 			name.indexOf( '!') >= 0 )
 			return( true );
 		return( false );
+	}
+	
+	public static long getDay( long value ) {
+		return( value - value % ( 24 * 60 * 60 * 1000 ) );
 	}
 	
 }

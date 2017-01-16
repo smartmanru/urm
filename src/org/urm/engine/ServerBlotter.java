@@ -27,6 +27,8 @@ public class ServerBlotter {
 	
 	public ServerEngine engine;
 	
+	public long day;
+	
 	protected ServerBlotterSet blotterRoots;
 	protected ServerBlotterSet blotterBuilds;
 	protected ServerBlotterSet blotterReleases;
@@ -36,6 +38,8 @@ public class ServerBlotter {
 	public ServerBlotter( ServerEngine engine ) {
 		this.engine = engine;
 
+		day = Common.getDay( System.currentTimeMillis() );
+		
 		blotters = new LinkedList<ServerBlotterSet>(); 
 		blotterRoots = addBlotter( BlotterType.BLOTTER_ROOT , "blotter.roots" );
 		blotterBuilds = addBlotter( BlotterType.BLOTTER_BUILD , "blotter.builds" );
@@ -61,6 +65,11 @@ public class ServerBlotter {
 	}
 	
 	public void runHouseKeeping( long time ) {
+		long timeDay = Common.getDay( time );
+		if( timeDay == day )
+			return;
+		
+		day = timeDay;
 		for( ServerBlotterSet set : blotters )
 			set.houseKeeping( time );
 	}

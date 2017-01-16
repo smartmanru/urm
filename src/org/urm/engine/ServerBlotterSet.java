@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.engine.ServerBlotter.BlotterEvent;
 import org.urm.engine.ServerBlotter.BlotterType;
 import org.urm.engine.action.ActionInit;
@@ -13,7 +14,6 @@ public class ServerBlotterSet extends ServerEventsSource {
 	ServerBlotter blotter;
 	BlotterType type;
 	
-	public long day;
 	private Map<Integer,ServerBlotterItem> items;
 	private Map<String,ServerBlotterMemo> memos;
 	private ServerBlotterStat stat;
@@ -23,7 +23,6 @@ public class ServerBlotterSet extends ServerEventsSource {
 		this.blotter = blotter;
 		this.type = type;
 
-		day = 0;
 		items = new HashMap<Integer,ServerBlotterItem>();
 		memos = new HashMap<String,ServerBlotterMemo>();
 		stat = new ServerBlotterStat( this );
@@ -40,9 +39,7 @@ public class ServerBlotterSet extends ServerEventsSource {
 	}
 	
 	public void houseKeeping( long time ) {
-		long timeDay = getDay( time );
-		if( timeDay != day )
-			clear();
+		clear();
 	}
 	
 	public synchronized void clear() {
@@ -50,14 +47,11 @@ public class ServerBlotterSet extends ServerEventsSource {
 			clearRoots();
 		
 		stat.statClear();
-		day = getDay( System.currentTimeMillis() );
 		items.clear();
 	}
 	
 	public synchronized ServerBlotterStat getStatistics() {
-		if( isTodays() )
-			return( stat.copy() );
-		return( new ServerBlotterStat( this ) );
+		return( stat.copy() );
 	}
 	
 	public boolean isRootSet() {
@@ -96,6 +90,10 @@ public class ServerBlotterSet extends ServerEventsSource {
 	}
 	
 	public synchronized void addItem( ServerBlotterItem item ) {
+		long itemDay = Common.getDay( item.startTime );
+		if( itemDay != blotter.day )
+			return;
+			
 		if( item.isBuildItem() ) {
 			String key = "build#" + item.INFO_PRODUCT + "#" + item.INFO_PROJECT;
 			ServerBlotterMemo memo = memos.get( key );
@@ -107,27 +105,20 @@ public class ServerBlotterSet extends ServerEventsSource {
 			item.setMemo( memo );
 		}
 		
-		long itemDay = getDay( item.startTime );
-		if( itemDay != day ) {
-			stat.statClear();
-			day = itemDay;
-			items.clear();
-		}
-		
 		items.put( item.action.ID , item );
 		stat.statAddItem( item );
 	}
 	
 	public synchronized void finishItem( ServerBlotterItem item ) {
+		long itemDay = Common.getDay( item.startTime );
+		if( itemDay != blotter.day )
+			return;
+		
 		ServerBlotterMemo memo = item.memo;
 		if( memo != null && item.success ) {
 			long elapsed = item.stopTime - item.startTime;
 			memo.addEvent( elapsed );
 		}
-		
-		long itemDay = getDay( item.startTime );
-		if( itemDay != day )
-			return;
 		
 		stat.statFinishItem( item );
 	}
@@ -138,8 +129,8 @@ public class ServerBlotterSet extends ServerEventsSource {
 	}
 	
 	public void startChildAction( ServerBlotterItem item , ActionBase action ) {
-		long itemDay = getDay( item.startTime );
-		if( itemDay != day )
+		long itemDay = Common.getDay( item.startTime );
+		if( itemDay != blotter.day )
 			return;
 		
 		item.startChildAction( action );
@@ -147,23 +138,12 @@ public class ServerBlotterSet extends ServerEventsSource {
 	}
 
 	public void stopChildAction( ServerBlotterItem item , ActionBase action , boolean success ) {
-		long itemDay = getDay( item.startTime );
-		if( itemDay != day )
+		long itemDay = Common.getDay( item.startTime );
+		if( itemDay != blotter.day )
 			return;
 		
 		item.stopChildAction( action , success );
 		stat.statFinishChildItem( item , action , success );
-	}
-
-	private long getDay( long value ) {
-		return( value - value % ( 24 * 60 * 60 * 1000 ) );
-	}
-	
-	public boolean isTodays() {
-		long currentDay = getDay( System.currentTimeMillis() );
-		if( day == currentDay )
-			return( true );
-		return( false );
 	}
 
 	private void clearRoots() {
