@@ -26,7 +26,7 @@ public class ServerEventsTimer extends ServerEventsSource implements Runnable {
 				cycle();
 		}
 		catch( Throwable e ) {
-			events.engine.serverAction.handle( "events timer error" , e );
+			events.engine.handle( "events timer error" , e );
 		}
 		
 		synchronized( this ) {
@@ -45,7 +45,7 @@ public class ServerEventsTimer extends ServerEventsSource implements Runnable {
 		if( started )
 			return;
 		
-		events.engine.serverAction.info( "start events timer ..." );
+		events.engine.info( "start events timer ..." );
 		stopping = false;
         thread = new Thread( null , this , "timer" );
         thread.start();
@@ -55,13 +55,13 @@ public class ServerEventsTimer extends ServerEventsSource implements Runnable {
 		if( started == false || stopped )
 			return;
 		
-		events.engine.serverAction.info( "stop events timer ..." );
+		events.engine.info( "stop events timer ..." );
 		stopping = true;
 		try {
 			wait();
 		}
 		catch( Throwable e ) {
-			events.engine.serverAction.log( "events timer stop" , e );
+			events.engine.log( "events timer stop" , e );
 		}
 	}
 	

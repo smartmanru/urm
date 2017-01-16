@@ -1,5 +1,8 @@
 package org.urm.engine;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.urm.action.ActionBase;
 import org.urm.action.build.ActionPatch;
 import org.urm.common.Common;
@@ -24,26 +27,65 @@ public class ServerBlotter {
 	
 	public ServerEngine engine;
 	
-	private ServerBlotterSet blotterRoots;
-	private ServerBlotterSet blotterBuilds;
-	private ServerBlotterSet blotterReleases;
-	private ServerBlotterSet blotterDeploy;
+	public long day;
+	
+	protected ServerBlotterSet blotterRoots;
+	protected ServerBlotterSet blotterBuilds;
+	protected ServerBlotterSet blotterReleases;
+	protected ServerBlotterSet blotterDeploy;
+	private List<ServerBlotterSet> blotters;
 	
 	public ServerBlotter( ServerEngine engine ) {
 		this.engine = engine;
 
+		day = Common.getDay( System.currentTimeMillis() );
+		
+		blotters = new LinkedList<ServerBlotterSet>(); 
+		blotterRoots = addBlotter( BlotterType.BLOTTER_ROOT , "blotter.roots" );
+		blotterBuilds = addBlotter( BlotterType.BLOTTER_BUILD , "blotter.builds" );
+		blotterReleases = addBlotter( BlotterType.BLOTTER_RELEASE , "blotter.releases" );
+		blotterDeploy = addBlotter( BlotterType.BLOTTER_DEPLOY , "blotter.deploy" );
+	}
+
+	private ServerBlotterSet addBlotter( BlotterType type , String name ) {
 		ServerEvents events = engine.getEvents();
-		blotterRoots = new ServerBlotterSet( this , BlotterType.BLOTTER_ROOT , events , "blotter.roots" );
-		blotterBuilds = new ServerBlotterSet( this , BlotterType.BLOTTER_BUILD , events , "blotter.builds" );
-		blotterReleases = new ServerBlotterSet( this , BlotterType.BLOTTER_RELEASE , events , "blotter.releases" );
-		blotterDeploy = new ServerBlotterSet( this , BlotterType.BLOTTER_DEPLOY , events , "blotter.deploy" );
+		ServerBlotterSet set = new ServerBlotterSet( this , type , events , name );
+		blotters.add( set );
+		return( set );
 	}
 	
-	public ServerBlotterItem[] getBlotterItems( BlotterType type ) {
+	public void init() {
+		for( ServerBlotterSet set : blotters )
+			set.init();
+	}
+	
+	public void clear() {
+		for( ServerBlotterSet set : blotters )
+			set.clear();
+	}
+	
+	public void runHouseKeeping( long time ) {
+		long timeDay = Common.getDay( time );
+		if( timeDay == day )
+			return;
+		
+		day = timeDay;
+		for( ServerBlotterSet set : blotters )
+			set.houseKeeping( time );
+	}
+	
+	public ServerBlotterItem[] getBlotterItems( BlotterType type , boolean includeFinished ) {
 		ServerBlotterSet set = getBlotterSet( type );
 		if( set == null )
 			return( new ServerBlotterItem[0] );
-		return( set.getItems() ); 
+		return( set.getItems( includeFinished ) ); 
+	}
+	
+	public ServerBlotterItem getBlotterItem( BlotterType type , int actionId ) {
+		ServerBlotterSet set = getBlotterSet( type );
+		if( set == null )
+			return( null );
+		return( set.getItem( actionId ) ); 
 	}
 	
 	public ServerBlotterStat getBlotterStatistics( BlotterType type ) {
@@ -54,14 +96,10 @@ public class ServerBlotter {
 	}
 	
 	public ServerBlotterSet getBlotterSet( BlotterType type ) {
-		if( type == BlotterType.BLOTTER_ROOT )
-			return( blotterRoots );
-		if( type == BlotterType.BLOTTER_BUILD )
-			return( blotterBuilds );
-		if( type == BlotterType.BLOTTER_RELEASE )
-			return( blotterReleases );
-		if( type == BlotterType.BLOTTER_DEPLOY )
-			return( blotterDeploy );
+		for( ServerBlotterSet set : blotters ) {
+			if( set.type == type )
+				return( set );
+		}
 		return( null );
 	}
 	
@@ -118,7 +156,7 @@ public class ServerBlotter {
 		ServerBlotterItem item = new ServerBlotterItem( blotterBuilds , action );
 		
 		MetaSourceProject project = action.builder.project;
-		item.createBuildItem( project.meta.name , project.NAME , action.builder.TAG );
+		item.createBuildItem( project.meta.name , project.NAME , action.builder.TAG , action.logFile );
 		blotterBuilds.addItem( item );
 		return( item );
 	}

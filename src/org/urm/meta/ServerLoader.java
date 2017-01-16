@@ -182,7 +182,7 @@ public class ServerLoader {
 			return( null );
 		
 		meta = new Meta( storage , session );
-		engine.serverAction.trace( "new conf session meta object, id=" + meta.objectId + ", session=" + session.objectId );
+		engine.trace( "new conf session meta object, id=" + meta.objectId + ", session=" + session.objectId );
 		storage.addSessionMeta( meta );
 		session.addProductMeta( meta );
 		return( meta );
@@ -214,7 +214,7 @@ public class ServerLoader {
 	public synchronized Meta createSessionProductMetadata( ActionBase action , ServerProductMeta storage ) throws Exception {
 		ServerSession session = action.session;
 		Meta meta = new Meta( storage , session );
-		engine.serverAction.trace( "new run session meta object, id=" + meta.objectId + ", session=" + session.objectId );
+		engine.trace( "new run session meta object, id=" + meta.objectId + ", session=" + session.objectId );
 		storage.addSessionMeta( meta );
 		session.addProductMeta( meta );
 		return( meta );

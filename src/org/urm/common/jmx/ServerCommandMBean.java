@@ -398,7 +398,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		ServerAuth auth = engine.getAuth();
 		SessionSecurity security = auth.createServerSecurity();
 		ServerSession session = engine.sessionController.createSession( security , clientrc , true );
-		if( !server.runWebJmx( engine.serverAction , session , meta , cmdopts ) )
+		if( !server.runWebJmx( session , meta , cmdopts ) )
 			return( -1 );
 		
 		return( 0 );
@@ -456,10 +456,10 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		String input = ( String )args[1];
 		
 		try {
-			server.executeInteractiveCommand( engine.serverAction , sessionId , input );
+			server.executeInteractiveCommand( sessionId , input );
 		}
 		catch( Throwable e ) {
-			engine.serverAction.handle( e );
+			engine.handle( e );
 			return( 1 );
 		}
 		
@@ -480,10 +480,10 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		String sessionId = ( String )args[0];
 		
 		try {
-			server.stopSession( engine.serverAction , sessionId );
+			server.stopSession( sessionId );
 		}
 		catch( Throwable e ) {
-			engine.serverAction.handle( e );
+			engine.handle( e );
 		}
 	}
 	
@@ -501,11 +501,11 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		String sessionId = ( String )args[0];
 		
 		try {
-			if( !server.waitConnect( engine.serverAction , sessionId ) )
+			if( !server.waitConnect( sessionId ) )
 				return( RemoteCall.STATUS_ACTION_FAILED );
 		}
 		catch( Throwable e ) {
-			engine.serverAction.handle( e );
+			engine.handle( e );
 			return( RemoteCall.STATUS_ACTION_FAILED );
 		}
 		

@@ -11,7 +11,7 @@ import org.urm.meta.product.MetaSourceProjectItem;
 public class ActionPatch extends ActionBase {
 
 	public Builder builder;
-	String logFile;
+	public String logFile;
 	
 	public ActionPatch( ActionBase action , String stream , Builder builder , String logFile ) {
 		super( action , stream );
@@ -34,9 +34,12 @@ public class ActionPatch extends ActionBase {
 		}
 		
 		// remove directory if build was successful
-		if( !context.CTX_SHOWALL )
+		if( !context.CTX_SHOWALL ) {
+			debug( "patch: remove exported code" );
 			builder.removeExportedCode( this );
+		}
 
+		info( "patch: build successfully done" );
 		return( SCOPESTATE.RunSuccess );
 	}
 	

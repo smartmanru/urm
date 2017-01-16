@@ -76,7 +76,7 @@ public class SessionController {
 
 	public ActionInit createRemoteAction( ActionBase serverAction , ServerCall call , CommandMethodMeta method , ActionData data ) throws Exception {
 		if( !running ) {
-			engine.serverAction.error( "server is in progress of shutdown" );
+			engine.error( "server is in progress of shutdown" );
 			return( null );
 		}
 		
@@ -98,12 +98,13 @@ public class SessionController {
 		return( action );
 	}
 
-	public boolean runWebJmx( ActionBase serverAction , ServerSession session , CommandMeta meta , CommandOptions options ) throws Exception {
+	public boolean runWebJmx( ServerSession session , CommandMeta meta , CommandOptions options ) throws Exception {
 		if( !running ) {
-			serverAction.error( "server is in progress of shutdown" );
+			engine.error( "server is in progress of shutdown" );
 			return( false );
 		}
 		
+		ActionBase serverAction = engine.serverAction;
 		session.setServerRemoteProductLayout( serverAction );
 		
 		ActionInit action = engine.createAction( options , session , "webjmx-" + engine.execrc.product , null , false );
@@ -192,24 +193,24 @@ public class SessionController {
 		}
 	}
 
-	public void executeInteractiveCommand( ActionBase serverAction , String sessionId , String input ) throws Exception {
+	public void executeInteractiveCommand( String sessionId , String input ) throws Exception {
 		ServerCall call = calls.get( "" + sessionId );
 		if( call == null )
-			serverAction.exit1( _Error.UnknownCallSession1 , "unknown call session=" + sessionId , sessionId );
+			engine.exit1( _Error.UnknownCallSession1 , "unknown call session=" + sessionId , sessionId );
 		
 		call.executeInteractiveCommand( input );
 	}
 
-	public void stopSession( ActionBase serverAction , String sessionId ) throws Exception {
+	public void stopSession( String sessionId ) throws Exception {
 		ServerCall call = calls.get( "" + sessionId );
 		if( call != null )
 			call.stop();
 	}
 
-	public boolean waitConnect( ActionBase serverAction , String sessionId ) throws Exception {
+	public boolean waitConnect( String sessionId ) throws Exception {
 		ServerCall call = calls.get( "" + sessionId );
 		if( call == null )
-			serverAction.exit1( _Error.UnknownCallSession1 , "unknown call session=" + sessionId , sessionId );
+			engine.exit1( _Error.UnknownCallSession1 , "unknown call session=" + sessionId , sessionId );
 		
 		return( call.waitConnect() );
 	}

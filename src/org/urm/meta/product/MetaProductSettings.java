@@ -44,7 +44,6 @@ public class MetaProductSettings extends PropertyController {
 	public String CONFIG_UPGRADE_PATH;
 	public String CONFIG_BASE_PATH;
 	public String CONFIG_MIRRORPATH;
-	public String CONFIG_WINBUILD_HOSTLOGIN;
 	public String CONFIG_ADM_TRACKER;
 	public String CONFIG_COMMIT_TRACKERLIST;
 	public String CONFIG_META_MIRROR;
@@ -78,7 +77,6 @@ public class MetaProductSettings extends PropertyController {
 	public static String PROPERTY_UPGRADE_PATH = "upgrade.path";
 	public static String PROPERTY_BASE_PATH = "base.path";
 	public static String PROPERTY_MIRRORPATH = "mirror.path";
-	public static String PROPERTY_WINBUILD_HOSTLOGIN = "winbuild.hostlogin";
 	public static String PROPERTY_ADM_TRACKER = "adm.tracker";
 	public static String PROPERTY_COMMIT_TRACKERLIST = "source.trackers";
 	public static String PROPERTY_META_MIRROR = "meta.mirror";
@@ -119,7 +117,6 @@ public class MetaProductSettings extends PropertyController {
 		CONFIG_UPGRADE_PATH = super.getPathPropertyRequired( action , PROPERTY_UPGRADE_PATH );
 		CONFIG_BASE_PATH = super.getPathPropertyRequired( action , PROPERTY_BASE_PATH );
 		CONFIG_MIRRORPATH = super.getPathPropertyRequired( action , PROPERTY_MIRRORPATH );
-		CONFIG_WINBUILD_HOSTLOGIN = super.getPathPropertyRequired( action , PROPERTY_WINBUILD_HOSTLOGIN );
 		CONFIG_ADM_TRACKER = super.getStringProperty( action , PROPERTY_ADM_TRACKER );
 		CONFIG_COMMIT_TRACKERLIST = super.getStringProperty( action , PROPERTY_COMMIT_TRACKERLIST );
 		CONFIG_META_MIRROR = super.getStringProperty( action , PROPERTY_META_MIRROR );

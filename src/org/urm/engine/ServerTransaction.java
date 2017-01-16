@@ -54,7 +54,7 @@ public class ServerTransaction extends TransactionBase {
 
 	// transactional operations
 	public void createMirrorRepository( ServerMirrorRepository repo , String resource , String reponame , String reporoot , String dataroot , String repobranch , boolean push ) throws Exception {
-		checkTransactionMirrors();
+		checkTransactionMirrors( repo.mirrors );
 		repo.createMirrorRepository( this , resource , reponame  , reporoot , dataroot , repobranch , push );
 	}
 
@@ -67,7 +67,7 @@ public class ServerTransaction extends TransactionBase {
 	}
 
 	public void dropMirror( ServerMirrorRepository repo ) throws Exception {
-		checkTransactionMirrors();
+		checkTransactionMirrors( repo.mirrors );
 		repo.dropMirror( this );
 		repo.deleteObject();
 	}
@@ -141,12 +141,11 @@ public class ServerTransaction extends TransactionBase {
 		product.modifyProduct( this );
 	}
 
-	public void deleteProduct( ServerProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
+	public void deleteProduct( ServerMirrors mirrors , ServerProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		checkTransactionDirectory();
-		checkTransactionMirrors();
+		checkTransactionMirrors( mirrors );
 		checkTransactionMetadata( product.NAME );
 		
-		ServerMirrors mirrors = action.getMirrors();
 		mirrors.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		ServerAuth auth = action.getServerAuth();
 		auth.deleteProduct( this , product );
@@ -633,23 +632,19 @@ public class ServerTransaction extends TransactionBase {
 		set.reorderProjects( this );
 	}
 	
-	public void createMirrorRepository( MetaSourceProject project ) throws Exception {
-		checkTransactionMirrors();
-		
-		ServerMirrors mirrors = action.getActiveMirrors();
+	public void createMirrorRepository( ServerMirrors mirrors , MetaSourceProject project ) throws Exception {
+		checkTransactionMirrors( mirrors );
 		mirrors.createProjectMirror( this , project );
 	}
 
-	public void changeMirrorRepository( MetaSourceProject project ) throws Exception {
-		checkTransactionMirrors();
-		
-		ServerMirrors mirrors = action.getActiveMirrors();
+	public void changeMirrorRepository( ServerMirrors mirrors , MetaSourceProject project ) throws Exception {
+		checkTransactionMirrors( mirrors );
 		mirrors.changeProjectMirror( this , project );
 	}
 
-	public void deleteSourceProject( MetaSourceProject project , boolean leaveManual ) throws Exception {
+	public void deleteSourceProject( ServerMirrors mirrors , MetaSourceProject project , boolean leaveManual ) throws Exception {
 		checkTransactionMetadata( project.meta.getStorage( action ) );
-		checkTransactionMirrors();
+		checkTransactionMirrors( mirrors );
 		
 		Meta meta = project.meta;
 		MetaSource sources = project.set.sources;
@@ -662,8 +657,6 @@ public class ServerTransaction extends TransactionBase {
 				distr.deleteBinaryItem( this , distItem );
 		}
 		sources.removeProject( this , project );
-		
-		ServerMirrors mirrors = action.getActiveMirrors();
 		mirrors.deleteProjectMirror( this , project );
 	}
 

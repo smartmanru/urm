@@ -77,12 +77,16 @@ public class ServerEventsApp {
 	}
 
 	public void triggerEvent( ServerSourceEvent event ) {
+		List<ServerEventsSubscription> subsUse = new LinkedList<ServerEventsSubscription>();
 		synchronized( events ) {
 			for( ServerEventsSubscription sub : subs ) {
 				if( sub.source == event.source )
-					sub.triggerEvent( event );
+					subsUse.add( sub );
 			}
 		}
+		
+		for( ServerEventsSubscription sub : subsUse )
+			sub.triggerEvent( event );
 	}
 
 	public void triggerSourceRemoved( ServerEventsSource source ) {

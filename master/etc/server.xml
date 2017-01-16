@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<server>
+    <property name="chat.using" value="no"/>
+    <property name="connection.jmx.port" value="8001"/>
+    <property name="dist.root" value="@urm.installpath@/dist"/>
+    <property name="mon.datapath" value="@urm.installpath@/monitoring/data"/>
+    <property name="mon.logpath" value="@urm.installpath@/logs/monitoring"/>
+    <property name="mon.reportpath" value="@urm.installpath@/monitoring/reports"/>
+    <property name="mon.respath" value="@urm.installpath@/monitoring/resources"/>
+    <property name="mon.resurl" value="http://urmdit-dev.space/monitoring"/>
+    <property name="secure.confpath" value="@urm.installpath@/secured"/>
+    <property name="shell.housekeep" value="30000"/>
+    <property name="work.artefacts" value="@urm.installpath@/artefacts"/>
+    <property name="work.buildlogs" value="@urm.installpath@/logs/build"/>
+    <property name="work.deploylogs" value="@urm.installpath@/logs/deploy"/>
+    <property name="work.mirrorpath" value="@urm.installpath@/mirror"/>
+    <defaults>
+        <property name="adm.tracker" value="CHG"/>
+        <property name="base.path" value="base"/>
+        <property name="config.live" value="products/@product@/live"/>
+        <property name="config.postrefresh" value="products/@product@/postrefresh"/>
+        <property name="config.root" value="products/@product@/templates"/>
+        <property name="distr.hostlogin" value="local"/>
+        <property name="distr.path" value="@urm.installpath@/distr/@product@"/>
+        <property name="mirror.path" value="@urm.installpath@/mirror"/>
+        <property name="redist.linux.path" value="/urm/redist"/>
+        <property name="redist.win.path" value="C:/urm/redist"/>
+        <property name="release.charset" value="UTF-8"/>
+        <property name="release.root" value="products/@product@/changes"/>
+        <property name="source.trackers" value="@adm.tracker@ DEV"/>
+        <property name="upgrade.path" value="upgrade"/>
+        <build>
+            <property name="app.logpath" value="@product.home@/logs"/>
+            <property name="build.artefacts" value="@product.home@/artefacts"/>
+            <property name="maven.conf" value="~/.m2/settings.branch.xml"/>
+            <property name="nexus.thirdparty" value="thirdparty"/>
+            <property name="release.lastmajor" value="@major.first@.@major.last@"/>
+            <property name="release.lastminor" value="@release.lastmajor@.@prod.lasttag@"/>
+            <property name="release.nextmajor" value="@next.major.first@.@next.major.last@"/>
+            <property name="release.nextminor" value="@release.lastmajor@.@prod.nexttag@"/>
+            <mode name="branch">
+                <property name="build.artefacts" value="@super@/releases"/>
+                <property name="release.version" value="@release.nextminor@"/>
+            </mode>
+            <mode name="devbranch">
+                <property name="build.artefacts" value="@super@/devbranch"/>
+                <property name="nexus.repo" value="releases"/>
+                <property name="release.version" value="@release.nextminor@"/>
+            </mode>
+            <mode name="majorbranch">
+                <property name="build.artefacts" value="@super@/releases"/>
+                <property name="release.version" value="@release.nextmajor@"/>
+            </mode>
+            <mode name="trunk">
+                <property name="build.artefacts" value="@super@/releases"/>
+                <property name="release.version" value="@release.nextmajor@"/>
+            </mode>
+            <mode name="devtrunk">
+                <property name="app.version" value="@release.nextmajor@"/>
+                <property name="build.artefacts" value="@super@/devtrunk"/>
+                <property name="nexus.repo" value="snapshots"/>
+                <property name="release.version" value="@release.nextmajor@"/>
+                <property name="source.branch" value="trunk"/>
+            </mode>
+        </build>
+    </defaults>
+</server>

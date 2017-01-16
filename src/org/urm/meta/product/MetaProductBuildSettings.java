@@ -50,7 +50,6 @@ public class MetaProductBuildSettings extends PropertyController {
 	// build source code
 	public static String PROPERTY_BRANCHNAME = "source.branch";
 	public static String PROPERTY_RELEASE_GROUPFOLDER = "release.group";
-	public static String PROPERTY_SOURCE_REPOSITORY = "release.repo";
 
 	public static String BUILDER_TYPE_MAVEN = "Maven";
 	public static String BUILDER_TYPE_GRADLE = "Gradle";

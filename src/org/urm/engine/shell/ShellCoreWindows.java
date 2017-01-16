@@ -430,7 +430,7 @@ public class ShellCoreWindows extends ShellCore {
 	}
 	
 	@Override public void cmdSetShellVariable( ActionBase action , String var , String value ) throws Exception {
-		action.exitNotImplemented();
+		runCommandCheckNormal( action , "set \"" + var + "=" + value + "\"" );
 	}
 
 	@Override public void cmdGitAddPomFiles( ActionBase action , String runDir ) throws Exception {

@@ -393,7 +393,7 @@ public class ServerAuth extends ServerObject {
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , String productName , boolean readOnly ) {
-		return( checkAccessProductAction( action , sa , productName , null , null , readOnly ) );
+		return( checkAccessProductAction( action , sa , productName , null , action.context.buildMode , readOnly ) );
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , String productName , String envName , boolean readOnly ) {
@@ -474,7 +474,7 @@ public class ServerAuth extends ServerObject {
 			else {
 				if( roles.secDev && ( mode == VarBUILDMODE.DEVTRUNK || mode == VarBUILDMODE.DEVBRANCH ) )
 					return( true );
-				if( roles.secRel && ( mode == null || mode == VarBUILDMODE.TRUNK || mode == VarBUILDMODE.BRANCH || mode == VarBUILDMODE.MAJORBRANCH ) )
+				if( roles.secRel && ( mode == null || mode == VarBUILDMODE.UNKNOWN || mode == VarBUILDMODE.TRUNK || mode == VarBUILDMODE.BRANCH || mode == VarBUILDMODE.MAJORBRANCH ) )
 					return( true );
 			}
 			return( false );
@@ -609,7 +609,7 @@ public class ServerAuth extends ServerObject {
 		try {
 			ServerAuthUser user = getUser( username );
 			if( user == null ) {
-				engine.serverAction.trace( "unsuccessful login: unknown user=" + username );
+				engine.trace( "unsuccessful login: unknown user=" + username );
 				return( false );
 			}
 			
@@ -618,11 +618,11 @@ public class ServerAuth extends ServerObject {
 			if( !ac.PUBLICKEY.isEmpty() ) {
 		        String checkMessage = ClientAuth.getCheckMessage( username );
 				if( ClientAuth.verifySigned( checkMessage , password , ac.PUBLICKEY ) ) {
-					engine.serverAction.trace( "successful login using key: user=" + username );
+					engine.trace( "successful login using key: user=" + username );
 					return( true );
 				}
 				
-				engine.serverAction.trace( "unsuccessful login using key: user=" + username );
+				engine.trace( "unsuccessful login using key: user=" + username );
 				return( false );
 			}
 			
@@ -630,20 +630,20 @@ public class ServerAuth extends ServerObject {
 				String md5 = Common.getMD5( password );
 				if( ac.PASSWORDSAVE.equals( md5 ) ) {
 					ac.setOnlinePassword( password );
-					engine.serverAction.trace( "successful login using password: user=" + username );
+					engine.trace( "successful login using password: user=" + username );
 					return( true );
 				}
 				
-				engine.serverAction.trace( "unsuccessful login using password: user=" + username );
+				engine.trace( "unsuccessful login using password: user=" + username );
 				return( false );
 			}
 		}
 		catch( Throwable e ) {
-			engine.serverAction.log( "unsuccessful login: user=" + username , e );
+			engine.log( "unsuccessful login: user=" + username , e );
 			return( false );
 		}
 		
-		engine.serverAction.trace( "unknown authentification type: user=" + username );
+		engine.trace( "unknown authentification type: user=" + username );
 		return( false );
 	}
 	

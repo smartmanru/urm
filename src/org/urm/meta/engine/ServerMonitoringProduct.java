@@ -53,7 +53,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			ca.runSimpleProduct( productName , SecurityAction.ACTION_MONITOR , false );
 		}
 		catch( Throwable e ) {
-			engine.serverAction.handle( "thread pool house keeping error" , e );
+			engine.handle( "thread pool house keeping error" , e );
 		}
 		
 		synchronized( this ) {
@@ -175,7 +175,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			wait();
 		}
 		catch( Throwable e ) {
-			engine.serverAction.log( "ServerMonitoringProduct stop" , e );
+			engine.log( "ServerMonitoringProduct stop" , e );
 		}
 		
 		// cleanup product data
