@@ -34,8 +34,10 @@ public class ActionPatch extends ActionBase {
 		}
 		
 		// remove directory if build was successful
-		if( !context.CTX_SHOWALL )
+		if( !context.CTX_SHOWALL ) {
+			debug( "patch: remove exported code" );
 			builder.removeExportedCode( this );
+		}
 
 		return( SCOPESTATE.RunSuccess );
 	}
@@ -67,6 +69,7 @@ public class ActionPatch extends ActionBase {
 			return( false );
 		}
 
+		info( "patch: build successfully done" );
 		return( true );
 	}
 	
