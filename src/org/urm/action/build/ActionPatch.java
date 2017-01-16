@@ -39,6 +39,7 @@ public class ActionPatch extends ActionBase {
 			builder.removeExportedCode( this );
 		}
 
+		info( "patch: build successfully done" );
 		return( SCOPESTATE.RunSuccess );
 	}
 	
@@ -69,7 +70,6 @@ public class ActionPatch extends ActionBase {
 			return( false );
 		}
 
-		info( "patch: build successfully done" );
 		return( true );
 	}
 	
