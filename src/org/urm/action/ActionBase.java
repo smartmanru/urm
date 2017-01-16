@@ -361,14 +361,16 @@ abstract public class ActionBase extends ActionCore {
 	public void startRedirect( String title , String logFile ) throws Exception {
 		String file = logFile;
 		if( file.startsWith( "~/" ) )
-			file = shell.getHomePath() + file.substring( 1 ); 
-		debug( "start logging to " + shell.getOSPath( this , file ) );
-		output.createOutputFile( context , title , file );
-		output.debug( context , "start logging to " + shell.getOSPath( this , file ) );
+			file = shell.getHomePath() + file.substring( 1 );
+		
+		String msg = "logging started to " + shell.getOSPath( this , file );
+		debug( msg );
+		output.createOutputFile( context , msg , file );
+		output.info( context , title );
 	}
 	
 	public void stopRedirect() throws Exception {
-		debug( "stop logging to this file." );
+		debug( "logging stopped." );
 		output.stopOutputFile();
 	}
 	
