@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<product name="myproduct">
-
-	<property name="CONFIG_VERSION_BRANCH_MAJOR" value="2"/>
-	<property name="CONFIG_VERSION_BRANCH_MINOR" value="0"/>
-	<property name="CONFIG_VERSION_BRANCH_NEXTMINOR" value="1"/>
-
-</product>
