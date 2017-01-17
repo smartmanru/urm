@@ -857,9 +857,9 @@ public class TransactionBase extends ServerObject {
 			exit( _Error.TransactionMissingBaseChanges0 , "Missing base changes" , null );
 	}
 
-	protected void checkTransactionResources() throws Exception {
+	protected void checkTransactionResources( ServerResources sourceResources ) throws Exception {
 		checkTransaction();
-		if( resources == null )
+		if( resources == null || resources != sourceResources )
 			exit( _Error.TransactionMissingResourceChanges0 , "Missing resources changes" , null );
 	}
 
