@@ -63,8 +63,9 @@ public class ActionBuild extends ActionBase {
 
 		// in separate shell
 		LocalFolder BUILDDIR = OUTDIR.getSubFolder( this , project.set.NAME );
-		String logFile = BUILDDIR.getFilePath( this , builder.project.NAME + "-build.log" );
-		ActionPatch action = new ActionPatch( this , null , builder , logFile );
+		String fileName = builder.project.NAME + "-build.log";
+		String logFile = BUILDDIR.getFilePath( this , fileName );
+		ActionPatch action = new ActionPatch( this , null , builder , BUILDDIR , fileName , shell );
 
 		BUILDDIR.ensureExists( this );
 		

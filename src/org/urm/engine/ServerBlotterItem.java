@@ -2,6 +2,7 @@ package org.urm.engine;
 
 import org.urm.action.ActionBase;
 import org.urm.engine.ServerBlotter.BlotterType;
+import org.urm.engine.storage.Folder;
 
 public class ServerBlotterItem {
 
@@ -17,10 +18,12 @@ public class ServerBlotterItem {
 	public boolean errors;
 	
 	public String INFO_NAME;
-	public String INFO_LOG;
 	public String INFO_PRODUCT;
 	public String INFO_PROJECT;
 	public String INFO_TAG;
+
+	public Folder logFolder;
+	public String logFile;
 	
 	public ServerBlotterItem( ServerBlotterSet blotterSet , ActionBase action ) {
 		this.blotterSet = blotterSet;
@@ -67,12 +70,14 @@ public class ServerBlotterItem {
 		this.INFO_NAME = "root " + action.ID;
 	}
 
-	public void createBuildItem( String product , String project , String tag , String logFile ) {
+	public void createBuildItem( String product , String project , String tag , Folder logFolder , String logFile ) {
 		this.INFO_NAME = "build " + tag;
-		this.INFO_LOG = logFile;
 		this.INFO_PRODUCT = product;
 		this.INFO_PROJECT = project;
 		this.INFO_TAG = tag;
+		
+		this.logFolder = logFolder;
+		this.logFile = logFile;
 	}
 
 	public void stopAction( boolean success ) {

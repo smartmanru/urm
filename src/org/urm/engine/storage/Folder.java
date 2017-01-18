@@ -474,5 +474,17 @@ public abstract class Folder {
 	public boolean isRemote( ActionBase action ) throws Exception {
 		return( false );
 	}
+
+	public String getLocalFilePath( ActionBase action , String file ) throws Exception {
+		String filePath = getFilePath( action , file );
+		if( isRemote( action ) ) {
+			RemoteFolder remote = ( RemoteFolder )this;
+			if( remote.account.isWindows() )
+				return( Common.getWinPath( filePath ) );
+			return( Common.getLinuxPath( filePath ) );
+		}
+		
+		return( action.getLocalPath( filePath ) );
+	}
 	
 }

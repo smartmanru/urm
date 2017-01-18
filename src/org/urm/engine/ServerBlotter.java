@@ -156,7 +156,7 @@ public class ServerBlotter {
 		ServerBlotterItem item = new ServerBlotterItem( blotterBuilds , action );
 		
 		MetaSourceProject project = action.builder.project;
-		item.createBuildItem( project.meta.name , project.NAME , action.builder.TAG , action.logFile );
+		item.createBuildItem( project.meta.name , project.NAME , action.builder.TAG , action.logDir , action.logFile );
 		blotterBuilds.addItem( item );
 		return( item );
 	}

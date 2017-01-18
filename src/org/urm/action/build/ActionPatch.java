@@ -3,6 +3,7 @@ package org.urm.action.build;
 import org.urm.action.ActionBase;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
+import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.ServerBuilders;
 import org.urm.meta.product.MetaProductBuildSettings;
@@ -11,12 +12,16 @@ import org.urm.meta.product.MetaSourceProjectItem;
 public class ActionPatch extends ActionBase {
 
 	public Builder builder;
+	public LocalFolder logDir;
 	public String logFile;
+	ShellExecutor localShell;
 	
-	public ActionPatch( ActionBase action , String stream , Builder builder , String logFile ) {
+	public ActionPatch( ActionBase action , String stream , Builder builder , LocalFolder logDir , String logFile , ShellExecutor localShell ) {
 		super( action , stream );
 		this.builder = builder;
+		this.logDir = logDir;
 		this.logFile = logFile;
+		this.localShell = localShell;
 	}
 
 	@Override protected SCOPESTATE executeSimple() throws Exception {
@@ -137,23 +142,24 @@ public class ActionPatch extends ActionBase {
 		MetaProductBuildSettings build = getBuildSettings( builder.project.meta );
 		
 		String UPLOAD_PROJECT_NAME = builder.project.NAME;
-		String UPLOAD_MSETTINGS="--settings=" + shell.getLocalPath( build.CONFIG_MAVEN_CFGFILE );
-		String UPLOAD_JAVA_HOME = shell.getLocalPath( builders.JAVA_HOMEPATH );
-		String UPLOAD_MAVEN_HOME = shell.getLocalPath( builders.MAVEN_HOMEPATH );
+		String UPLOAD_MSETTINGS="--settings=" + localShell.getLocalPath( build.CONFIG_MAVEN_CFGFILE );
+		String UPLOAD_JAVA_HOME = localShell.getLocalPath( builders.JAVA_HOMEPATH );
+		String UPLOAD_MAVEN_HOME = localShell.getLocalPath( builders.MAVEN_HOMEPATH );
 
-		shell.export( this , "JAVA_HOME" , UPLOAD_JAVA_HOME );
-		shell.export( this , "M2_HOME" , UPLOAD_MAVEN_HOME );
-		shell.export( this , "M2" , shell.getLocalPath( shell.getVariable( "M2_HOME" ) + "/bin" ) );
-		shell.export( this , "PATH" , shell.getLocalPath( shell.getVariable( "JAVA_HOME" ) + "/bin" ) + shell.getPathBreak() +
-				shell.getVariable( "M2" ) + shell.getPathBreak() +
-				shell.getVariable( "PATH" ) );
-		shell.export( this , "MAVEN_OPTS" , Common.getQuoted( "-XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );
+		localShell.export( this , "JAVA_HOME" , UPLOAD_JAVA_HOME );
+		localShell.export( this , "M2_HOME" , UPLOAD_MAVEN_HOME );
+		localShell.export( this , "M2" , localShell.getLocalPath( shell.getVariable( "M2_HOME" ) + "/bin" ) );
+		localShell.export( this , "PATH" , localShell.getLocalPath( shell.getVariable( "JAVA_HOME" ) + "/bin" ) + localShell.getPathBreak() +
+				localShell.getVariable( "M2" ) + localShell.getPathBreak() +
+				localShell.getVariable( "PATH" ) );
+		localShell.export( this , "MAVEN_OPTS" , Common.getQuoted( "-XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );
 
 		// upload versioninfo
-		String FILENAME = shell.getLocalPath( logFile + "-versioninfo.txt" );
+		String logPath = localShell.getLocalPath( logDir.getFilePath( this , logFile ) );
+		String FILENAME = localShell.getLocalPath( logPath + "-versioninfo.txt" );
 		Common.createFileFromString( super.execrc , FILENAME , builder.TAG );
 		int timeout = setTimeoutUnlimited();
-		int status = shell.customGetStatusNormal( this , "mvn deploy:deploy-file -B " +
+		int status = localShell.customGetStatusNormal( this , "mvn deploy:deploy-file -B " +
 				UPLOAD_MSETTINGS + " " +
 			"-Durl=" + builder.getNexusPath( this , builder.project ) + " " +
 			"-DuniqueVersion=false " +

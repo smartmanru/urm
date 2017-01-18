@@ -7,6 +7,7 @@ public class ServerEventsApp {
 
 	ServerEvents events;
 	String appId;
+	boolean closed;
 
 	private List<ServerEventsSubscription> subs;
 	
@@ -14,10 +15,12 @@ public class ServerEventsApp {
 		this.events = events;
 		this.appId = appId;
 		
+		closed = false;
 		subs = new LinkedList<ServerEventsSubscription>();
 	}
 
-	public void deleteSubscriptions() {
+	public void close() {
+		closed = true;
 		for( ServerEventsSubscription sub : subs ) {
 			ServerEventsSource source = sub.source;
 			if( isPrimarySubscription( sub ) )
@@ -89,6 +92,11 @@ public class ServerEventsApp {
 			sub.triggerEvent( event );
 	}
 
+	public void triggerEvent( ServerEventsListener listener , ServerSourceEvent event ) {
+		if( !closed )
+			listener.triggerEvent( event );
+	}
+	
 	public void triggerSourceRemoved( ServerEventsSource source ) {
 		synchronized( events ) {
 			for( ServerEventsSubscription sub : subs ) {
@@ -97,5 +105,5 @@ public class ServerEventsApp {
 			}
 		}
 	}
-	
+
 }
