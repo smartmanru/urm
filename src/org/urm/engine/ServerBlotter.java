@@ -115,7 +115,7 @@ public class ServerBlotter {
 		}
 		else {
 			if( action.parent == null )
-				Common.exitUnexpected();
+				return;
 			
 			ServerBlotterItem item = action.parent.blotterItem;
 			if( item == null )
@@ -129,7 +129,7 @@ public class ServerBlotter {
 	
 	public void stopAction( ActionBase action , boolean success ) throws Exception {
 		if( action.blotterItem == null )
-			Common.exitUnexpected();
+			return;
 
 		ServerBlotterItem item = action.blotterItem;
 		if( item.action == action ) {

@@ -73,17 +73,17 @@ public class ServerTransaction extends TransactionBase {
 	}
 
 	public void createResource( ServerAuthResource res ) throws Exception {
-		checkTransactionResources();
+		checkTransactionResources( res.resources );
 		resources.createResource( this , res );
 	}
 	
 	public void updateResource( ServerAuthResource res , ServerAuthResource resNew ) throws Exception {
-		checkTransactionResources();
+		checkTransactionResources( res.resources );
 		res.updateResource( this , resNew );
 	}
 	
 	public void deleteResource( ServerAuthResource res ) throws Exception {
-		checkTransactionResources();
+		checkTransactionResources( res.resources );
 		resources.deleteResource( this , res );
 		res.deleteObject();
 	}

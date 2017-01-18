@@ -1,5 +1,6 @@
 package org.urm.engine.action;
 
+import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,8 +12,36 @@ import org.urm.common.RunError;
 
 public class CommandOutput {
 
-	PrintWriter outchild = null;
-	PrintWriter outtee = null;
+	class OutputFile {
+		FileOutputStream outstream;
+		PrintWriter outfile;
+		
+		public OutputFile( RunContext execrc , String fname ) throws Exception {
+			outstream = new FileOutputStream( execrc.getLocalPath( fname ) );
+			outfile = new PrintWriter( outstream );
+		}
+
+		public void close() throws Exception {
+			outfile.flush();
+			outfile.close();
+			outstream.flush();
+			outstream.close();
+		}
+		
+		public void printStackTrace( Throwable e ) {
+			e.printStackTrace( outfile );
+			outfile.flush();
+		}
+		
+		public void println( String s ) {
+			outfile.println( s );
+			outfile.flush();
+		}
+		
+	};
+	
+	OutputFile outchild = null;
+	OutputFile outtee = null;
 	int logActionLevelLimit;
 	int logServerLevelLimit;
 
@@ -24,7 +53,7 @@ public class CommandOutput {
 	public static int LOGLEVEL_DEBUG = 2;
 	public static int LOGLEVEL_TRACE = 3;
 	
-	List<PrintWriter> parentOutputs = new LinkedList<PrintWriter>();
+	List<OutputFile> parentOutputs = new LinkedList<OutputFile>();
 	
 	public CommandOutput() {
 		logActionLevelLimit = LOGLEVEL_ERROR;
@@ -133,15 +162,11 @@ public class CommandOutput {
 		synchronized( syncStatic ) {
 			log( context , s , LOGLEVEL_ERROR );
 			if( logActionLevelLimit >= LOGLEVEL_DEBUG || logServerLevelLimit >= LOGLEVEL_DEBUG ) {
-				if( outchild != null ) {
-					e.printStackTrace( outchild );
-					outchild.flush();
-				}
+				if( outchild != null )
+					outchild.printStackTrace( e );
 				else {
-					if( outtee != null ) {
-						e.printStackTrace( outtee );
-						outtee.flush();
-					}
+					if( outtee != null )
+						outtee.printStackTrace( e );
 					
 					e.printStackTrace();
 				}
@@ -174,15 +199,11 @@ public class CommandOutput {
 		
 		context.outExact( s );
 		
-		if( outchild != null ) {
+		if( outchild != null )
 			outchild.println( s );
-			outchild.flush();
-		}
 		else {
-			if( outtee != null ) {
+			if( outtee != null )
 				outtee.println( s );
-				outtee.flush();
-			}
 			
 			outExactStatic( s );
 		}
@@ -195,9 +216,8 @@ public class CommandOutput {
 	}
 	
 	public synchronized void tee( RunContext execrc , String title , String file ) throws Exception {
-		outtee = Common.createOutfileFile( execrc , file );
+		outtee = new OutputFile( execrc , file );
 		outtee.println( "############# start logging on " + Common.getNameTimeStamp() );
-		outtee.flush();
 	}
 	
 	public synchronized void createOutputFile( CommandContext context , String title , String file ) throws Exception {
@@ -205,12 +225,11 @@ public class CommandOutput {
 		if( outchild != null )
 			parentOutputs.add( outchild );
 		
-		outchild = Common.createOutfileFile( context.engine.execrc , file );
+		outchild = new OutputFile( context.engine.execrc , file );
 		log( context , title , LOGLEVEL_INFO );
 	}
 	
 	public synchronized void stopOutputFile() throws Exception {
-		outchild.flush();
 		outchild.close();
 		
 		if( parentOutputs.isEmpty() )
@@ -227,7 +246,6 @@ public class CommandOutput {
 		
 		if( outtee != null ) {
 			outtee.println( "############# stop logging on " + Common.getNameTimeStamp() );
-			outtee.flush();
 			outtee.close();
 			outtee = null;
 		}
