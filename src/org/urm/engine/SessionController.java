@@ -11,6 +11,7 @@ import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.action.CommandOptions;
 import org.urm.engine.action.ActionInit;
+import org.urm.engine.action.ActionInit.RootActionType;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.meta.engine.ServerAuthUser;
 
@@ -91,7 +92,7 @@ public class SessionController {
 		ServerSession session = call.sessionContext;
 		session.setServerRemoteProductLayout( engine.serverAction );
 		
-		ActionInit action = engine.createAction( options , session , "call-" + data.clientrc.product , call , false );
+		ActionInit action = engine.createAction( RootActionType.Command , options , session , "call-" + data.clientrc.product , call , false );
 		if( action == null )
 			return( null );
 
@@ -107,7 +108,7 @@ public class SessionController {
 		ActionBase serverAction = engine.serverAction;
 		session.setServerRemoteProductLayout( serverAction );
 		
-		ActionInit action = engine.createAction( options , session , "webjmx-" + engine.execrc.product , null , false );
+		ActionInit action = engine.createAction( RootActionType.Command , options , session , "webjmx-" + engine.execrc.product , null , false );
 		if( action == null )
 			return( false );
 

@@ -2,6 +2,8 @@ package org.urm.engine;
 
 import org.urm.action.ActionBase;
 import org.urm.engine.ServerBlotter.BlotterType;
+import org.urm.engine.action.ActionInit;
+import org.urm.engine.action.ActionInit.RootActionType;
 import org.urm.engine.storage.Folder;
 
 public class ServerBlotterItem {
@@ -17,11 +19,12 @@ public class ServerBlotterItem {
 	public boolean stopped;
 	public boolean errors;
 	
-	public String INFO_NAME;
-	public String INFO_PRODUCT;
-	public String INFO_PROJECT;
-	public String INFO_TAG;
+	public String INFO_NAME = "";
+	public String INFO_PRODUCT = "";
+	public String INFO_PROJECT = "";
+	public String INFO_TAG = "";
 
+	public RootActionType rootType;
 	public Folder logFolder;
 	public String logFile;
 	
@@ -67,7 +70,12 @@ public class ServerBlotterItem {
 	}
 	
 	public void createRootItem() {
-		this.INFO_NAME = "root " + action.ID;
+		ActionInit init = ( ActionInit )action;
+		
+		this.INFO_NAME = init.getFormalName();
+		this.INFO_PRODUCT = init.session.productName;
+		
+		this.rootType = init.type;
 	}
 
 	public void createBuildItem( String product , String project , String tag , Folder logFolder , String logFile ) {
@@ -75,7 +83,8 @@ public class ServerBlotterItem {
 		this.INFO_PRODUCT = product;
 		this.INFO_PROJECT = project;
 		this.INFO_TAG = tag;
-		
+
+		this.rootType = action.actionInit.type;
 		this.logFolder = logFolder;
 		this.logFile = logFile;
 	}

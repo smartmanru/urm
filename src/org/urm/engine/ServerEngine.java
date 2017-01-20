@@ -14,6 +14,7 @@ import org.urm.common.meta.MonitorCommandMeta;
 import org.urm.common.meta.ReleaseCommandMeta;
 import org.urm.common.meta.XDocCommandMeta;
 import org.urm.engine.action.ActionInit;
+import org.urm.engine.action.ActionInit.RootActionType;
 import org.urm.engine.action.CommandAction;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.action.CommandExecutor;
@@ -161,7 +162,7 @@ public class ServerEngine {
 		if( options == null )
 			return( null );
 		
-		ActionInit action = createAction( options , session , "web" , null , false );
+		ActionInit action = createAction( RootActionType.WebSession , options , session , "web" , null , false );
 		startAction( action );
 		
 		return( action );
@@ -172,7 +173,7 @@ public class ServerEngine {
 		if( options == null )
 			return( null );
 		
-		ActionInit action = createAction( options , session , name , null , true );
+		ActionInit action = createAction( RootActionType.Temporary , options , session , name , null , true );
 		startAction( action );
 		
 		return( action );
@@ -194,7 +195,7 @@ public class ServerEngine {
 		serverSession.setServerLayout( options );
 		
 		// create server action
-		serverAction = createAction( options , serverSession , "server" , null , false );
+		serverAction = createAction( RootActionType.Core , options , serverSession , "server" , null , false );
 		if( serverAction == null )
 			return( false );
 
@@ -215,7 +216,7 @@ public class ServerEngine {
 		else
 			serverSession.setServerLayout( options );
 		
-		serverAction = createAction( options , serverSession , "client" , null , false );
+		serverAction = createAction( RootActionType.Command , options , serverSession , "client" , null , false );
 		if( serverAction == null )
 			return( false );
 
@@ -275,7 +276,7 @@ public class ServerEngine {
 		return( null );
 	}
 	
-	public ActionInit createAction( CommandOptions options , ServerSession session , String stream , ServerCall call , boolean memoryOnly ) throws Exception {
+	public ActionInit createAction( RootActionType type , CommandOptions options , ServerSession session , String stream , ServerCall call , boolean memoryOnly ) throws Exception {
 		CommandExecutor actionExecutor = getExecutor( options );
 		CommandAction commandAction = actionExecutor.getAction( options.action );
 		if( !options.checkValidOptions( commandAction.method ) )
@@ -290,7 +291,7 @@ public class ServerEngine {
 		Artefactory artefactory = createArtefactory( session , context , memoryOnly );
 		
 		// create action
-		ActionInit action = createAction( actionExecutor , session , artefactory , options.action , memoryOnly );
+		ActionInit action = createRootAction( type , actionExecutor , session , artefactory , options.action , memoryOnly );
 		context.update( action );
 		actionExecutor.setActionContext( action , context );
 		
@@ -302,10 +303,10 @@ public class ServerEngine {
 		return( action );
 	}
 	
-	public ActionInit createAction( CommandExecutor executor , ServerSession session , Artefactory artefactory , String actionName , boolean memoryOnly ) throws Exception { 
+	public ActionInit createRootAction( RootActionType type , CommandExecutor executor , ServerSession session , Artefactory artefactory , String actionName , boolean memoryOnly ) throws Exception { 
 		CommandOutput output = new CommandOutput();
 		CommandAction commandAction = executor.getAction( actionName );
-		ActionInit action = new ActionInit( loader , session , artefactory , executor , output , commandAction , commandAction.method.name , memoryOnly );
+		ActionInit action = new ActionInit( type , loader , session , artefactory , executor , output , commandAction , commandAction.method.name , memoryOnly );
 		return( action );
 	}
 	
