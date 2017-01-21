@@ -7,7 +7,6 @@ import org.urm.action.ActionBase;
 import org.urm.action.build.ActionPatch;
 import org.urm.common.Common;
 import org.urm.engine.action.ActionInit;
-import org.urm.meta.product.MetaSourceProject;
 
 public class ServerBlotter {
 
@@ -105,12 +104,12 @@ public class ServerBlotter {
 	
 	public void startAction( ActionBase action ) throws Exception {
 		if( action instanceof ActionInit ) {
-			ServerBlotterItem item = createRootItem( ( ActionInit )action );
+			ServerBlotterItem item = blotterRoots.createRootItem( ( ActionInit )action );
 			notifyItem( item , action , BlotterEvent.BLOTTER_START );
 		}
 		else
 		if( action instanceof ActionPatch ) {
-			ServerBlotterItem item = createBuildItem( ( ActionPatch )action );
+			ServerBlotterItem item = blotterBuilds.createBuildItem( ( ActionPatch )action );
 			notifyItem( item , action , BlotterEvent.BLOTTER_START );
 		}
 		else {
@@ -142,23 +141,6 @@ public class ServerBlotter {
 			set.stopChildAction( item , action , success );
 			notifyItem( item , action , BlotterEvent.BLOTTER_STOPCHILD );
 		}
-	}
-
-	private ServerBlotterItem createRootItem( ActionInit action ) {
-		ServerBlotterItem item = new ServerBlotterItem( blotterRoots , action );
-		
-		item.createRootItem();
-		blotterRoots.addItem( item );
-		return( item );
-	}
-
-	private ServerBlotterItem createBuildItem( ActionPatch action ) {
-		ServerBlotterItem item = new ServerBlotterItem( blotterBuilds , action );
-		
-		MetaSourceProject project = action.builder.project;
-		item.createBuildItem( project.meta.name , project.NAME , action.builder.TAG , action.logDir , action.logFile );
-		blotterBuilds.addItem( item );
-		return( item );
 	}
 
 	private void notifyItem( ServerBlotterItem item , ActionBase action , BlotterEvent event ) {

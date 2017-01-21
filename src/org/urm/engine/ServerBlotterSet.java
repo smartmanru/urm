@@ -4,10 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
-import org.urm.common.Common;
+import org.urm.action.build.ActionPatch;
 import org.urm.engine.ServerBlotter.BlotterEvent;
 import org.urm.engine.ServerBlotter.BlotterType;
 import org.urm.engine.action.ActionInit;
+import org.urm.meta.product.MetaSourceProject;
 
 public class ServerBlotterSet extends ServerEventsSource {
 
@@ -43,11 +44,12 @@ public class ServerBlotterSet extends ServerEventsSource {
 	}
 	
 	public synchronized void clear() {
-		if( isRootSet() )
-			clearRoots();
-		
-		stat.statClear();
-		items.clear();
+		stat.statInit( blotter.day );
+		ServerBlotterItem[] set = items.values().toArray( new ServerBlotterItem[0] );
+		for( ServerBlotterItem item : set ) {
+			if( item.stopped )
+				removeItem( item );
+		}
 	}
 	
 	public synchronized ServerBlotterStat getStatistics() {
@@ -89,31 +91,7 @@ public class ServerBlotterSet extends ServerEventsSource {
 		return( items.get( actionId ) );
 	}
 	
-	public synchronized void addItem( ServerBlotterItem item ) {
-		long itemDay = Common.getDay( item.startTime );
-		if( itemDay != blotter.day )
-			return;
-			
-		if( item.isBuildItem() ) {
-			String key = "build#" + item.INFO_PRODUCT + "#" + item.INFO_PROJECT;
-			ServerBlotterMemo memo = memos.get( key );
-			if( memo == null ) {
-				memo = new ServerBlotterMemo( this , key );
-				memos.put( key , memo );
-			}
-			
-			item.setMemo( memo );
-		}
-		
-		items.put( item.action.ID , item );
-		stat.statAddItem( item );
-	}
-	
 	public synchronized void finishItem( ServerBlotterItem item ) {
-		long itemDay = Common.getDay( item.startTime );
-		if( itemDay != blotter.day )
-			return;
-		
 		ServerBlotterMemo memo = item.memo;
 		if( memo != null && item.success ) {
 			long elapsed = item.stopTime - item.startTime;
@@ -128,34 +106,63 @@ public class ServerBlotterSet extends ServerEventsSource {
 		super.trigger( ServerEvents.EVENT_BLOTTEREVENT , data );
 	}
 	
-	public void startChildAction( ServerBlotterItem item , ActionBase action ) {
-		long itemDay = Common.getDay( item.startTime );
-		if( itemDay != blotter.day )
-			return;
-		
+	public synchronized void startChildAction( ServerBlotterItem item , ActionBase action ) {
 		item.startChildAction( action );
 		stat.statAddChildItem( item , action );
 	}
 
-	public void stopChildAction( ServerBlotterItem item , ActionBase action , boolean success ) {
-		long itemDay = Common.getDay( item.startTime );
-		if( itemDay != blotter.day )
-			return;
-		
+	public synchronized void stopChildAction( ServerBlotterItem item , ActionBase action , boolean success ) {
 		item.stopChildAction( action , success );
 		stat.statFinishChildItem( item , action , success );
 	}
 
-	private void clearRoots() {
-		for( ServerBlotterItem item : items.values() ) {
-			ActionInit action = ( ActionInit )item.action;
+	public synchronized ServerBlotterItem createRootItem( ActionInit action ) {
+		ServerBlotterItem item = new ServerBlotterItem( this , action );
+		
+		item.createRootItem();
+		addItem( item );
+		return( item );
+	}
+
+	public synchronized ServerBlotterItem createBuildItem( ActionPatch action ) {
+		ServerBlotterItem item = new ServerBlotterItem( this , action );
+		
+		MetaSourceProject project = action.builder.project;
+		item.createBuildItem( project.meta.name , project.NAME , action.builder.TAG , action.logDir , action.logFile );
+		addItem( item );
+		return( item );
+	}
+
+	private void removeItem( ServerBlotterItem item ) {
+		items.remove( item.action.ID );
+		item.setRemoved();
+		
+		if( item.isRootItem() ) {
 			try {
-				action.artefactory.workFolder.removeThis( action );
+				ActionInit action = ( ActionInit )item.action;
+				if( item.stopped )
+					action.artefactory.workFolder.removeThis( action );
 			}
 			catch( Throwable e ) {
 				blotter.engine.log( "Clear roots" , e );
 			}
 		}
+	}
+	
+	private void addItem( ServerBlotterItem item ) {
+		if( item.isBuildItem() ) {
+			String key = "build#" + item.INFO_PRODUCT + "#" + item.INFO_PROJECT;
+			ServerBlotterMemo memo = memos.get( key );
+			if( memo == null ) {
+				memo = new ServerBlotterMemo( this , key );
+				memos.put( key , memo );
+			}
+			
+			item.setMemo( memo );
+		}
+		
+		items.put( item.action.ID , item );
+		stat.statAddItem( item );
 	}
 	
 }

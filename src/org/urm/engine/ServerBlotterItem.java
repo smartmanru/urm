@@ -18,6 +18,7 @@ public class ServerBlotterItem {
 	public boolean success;
 	public boolean stopped;
 	public boolean errors;
+	public boolean removed;
 	
 	public String INFO_NAME = "";
 	public String INFO_PRODUCT = "";
@@ -38,8 +39,13 @@ public class ServerBlotterItem {
 		success = false;
 		stopped = false;
 		errors = false;
+		removed = false;
 	}
 
+	public void setRemoved() {
+		removed = true;
+	}
+	
 	public void setMemo( ServerBlotterMemo memo ) {
 		this.memo = memo;
 	}
