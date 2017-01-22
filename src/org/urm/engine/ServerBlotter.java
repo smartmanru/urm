@@ -159,7 +159,9 @@ public class ServerBlotter {
 			baseItem.stopAction( success );
 			finishItem( baseItem );
 			notifyItem( baseItem , BlotterEvent.BLOTTER_STOP );
-			stopChildAction( rootItem , baseItem.parent , treeItem , success );
+			
+			if( baseItem != rootItem )
+				stopChildAction( rootItem , baseItem.parent , treeItem , success );
 			return;
 		}
 		
