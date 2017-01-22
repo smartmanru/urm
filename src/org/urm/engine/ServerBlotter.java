@@ -105,47 +105,87 @@ public class ServerBlotter {
 	public void startAction( ActionBase action ) throws Exception {
 		if( action instanceof ActionInit ) {
 			ServerBlotterItem item = blotterRoots.createRootItem( ( ActionInit )action );
-			notifyItem( item , action , BlotterEvent.BLOTTER_START );
+			notifyItem( item , BlotterEvent.BLOTTER_START );
+			return;
 		}
-		else
+		
+		ServerBlotterItem rootItem = action.parent.blotterRootItem;
+		ServerBlotterTreeItem parentTreeItem = action.parent.blotterTreeItem;
+		ServerBlotterItem parentBaseItem = getBaseItem( rootItem , parentTreeItem );
+
 		if( action instanceof ActionPatch ) {
-			ServerBlotterItem item = blotterBuilds.createBuildItem( ( ActionPatch )action );
-			notifyItem( item , action , BlotterEvent.BLOTTER_START );
+			ServerBlotterItem baseItem = blotterBuilds.createBuildItem( rootItem , parentBaseItem , parentTreeItem , ( ActionPatch )action );
+			startChildAction( rootItem , parentBaseItem , baseItem.treeItem );
+			notifyItem( baseItem , BlotterEvent.BLOTTER_START );
+			return;
 		}
-		else {
-			if( action.parent == null )
-				return;
-			
-			ServerBlotterItem item = action.parent.blotterItem;
-			if( item == null )
-				Common.exitUnexpected();
-			
-			ServerBlotterSet set = item.blotterSet;
-			set.startChildAction( item , action );
-			notifyItem( item , action , BlotterEvent.BLOTTER_STARTCHILD );
+		
+		ServerBlotterTreeItem treeItem = blotterRoots.createChildItem( action , parentBaseItem , parentTreeItem );
+		startChildAction( rootItem , parentBaseItem , treeItem );
+	}
+
+	private void startChildAction( ServerBlotterItem rootItem , ServerBlotterItem baseItem , ServerBlotterTreeItem treeItem ) {
+		blotterRoots.startChildAction( rootItem , treeItem );
+		notifyChildItem( rootItem , treeItem , BlotterEvent.BLOTTER_STARTCHILD );
+		
+		if( baseItem != rootItem ) {
+			ServerBlotterSet set = baseItem.blotterSet;
+			set.startChildAction( baseItem , treeItem );
+			notifyChildItem( baseItem , treeItem , BlotterEvent.BLOTTER_STARTCHILD );
 		}
 	}
 	
+	private ServerBlotterItem getBaseItem( ServerBlotterItem rootItem , ServerBlotterTreeItem treeItem ) {
+		ServerBlotterTreeItem parentItem = treeItem;
+		while( parentItem != null ) {
+			if( parentItem.baseItem != null )
+				return( parentItem.baseItem );
+		
+			parentItem = parentItem.parentItem;
+		}
+		return( rootItem );
+	}
+	
 	public void stopAction( ActionBase action , boolean success ) throws Exception {
-		if( action.blotterItem == null )
+		if( action.blotterTreeItem == null )
 			return;
 
-		ServerBlotterItem item = action.blotterItem;
-		if( item.action == action ) {
-			item.stopAction( success );
-			finishItem( item );
-			notifyItem( item , action , BlotterEvent.BLOTTER_STOP );
+		ServerBlotterTreeItem treeItem = action.blotterTreeItem;
+		ServerBlotterItem rootItem = treeItem.rootItem;
+		ServerBlotterItem baseItem = treeItem.baseItem;
+		treeItem.stopAction( success );
+		
+		if( baseItem != null ) {
+			baseItem.stopAction( success );
+			finishItem( baseItem );
+			notifyItem( baseItem , BlotterEvent.BLOTTER_STOP );
+			stopChildAction( rootItem , baseItem.parent , treeItem , success );
+			return;
 		}
-		else {
-			ServerBlotterSet set = item.blotterSet;
-			set.stopChildAction( item , action , success );
-			notifyItem( item , action , BlotterEvent.BLOTTER_STOPCHILD );
-		}
+		
+		baseItem = getBaseItem( rootItem , treeItem );
+		stopChildAction( rootItem , baseItem , treeItem , success );
 	}
 
-	private void notifyItem( ServerBlotterItem item , ActionBase action , BlotterEvent event ) {
+	private void stopChildAction( ServerBlotterItem rootItem , ServerBlotterItem baseItem , ServerBlotterTreeItem treeItem , boolean success ) {
+		blotterRoots.stopChildAction( rootItem , treeItem , success );
+		notifyChildItem( rootItem , treeItem , BlotterEvent.BLOTTER_STOPCHILD );
+		
+		if( baseItem != rootItem ) {
+			ServerBlotterSet set = baseItem.blotterSet;
+			set.stopChildAction( baseItem , treeItem , success );
+			notifyChildItem( baseItem , treeItem , BlotterEvent.BLOTTER_STOPCHILD );
+		}
+	}
+	
+	private void notifyItem( ServerBlotterItem item , BlotterEvent event ) {
 		ServerBlotterSet set = item.blotterSet;
-		set.notifyItem( item , action , event );
+		set.notifyItem( item , event );
+	}
+	
+	private void notifyChildItem( ServerBlotterItem baseItem , ServerBlotterTreeItem treeItem , BlotterEvent event ) {
+		ServerBlotterSet set = baseItem.blotterSet;
+		set.notifyChildItem( baseItem , treeItem , event );
 	}
 	
 	private void finishItem( ServerBlotterItem item ) {

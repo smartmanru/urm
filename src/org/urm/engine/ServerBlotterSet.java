@@ -101,31 +101,36 @@ public class ServerBlotterSet extends ServerEventsSource {
 		stat.statFinishItem( item );
 	}
 	
-	public void notifyItem( ServerBlotterItem item , ActionBase action , BlotterEvent event ) {
-		ServerBlotterEvent data = new ServerBlotterEvent( item , action , event );
+	public void notifyItem( ServerBlotterItem item , BlotterEvent event ) {
+		ServerBlotterEvent data = new ServerBlotterEvent( item , event );
 		super.trigger( ServerEvents.EVENT_BLOTTEREVENT , data );
 	}
 	
-	public synchronized void startChildAction( ServerBlotterItem item , ActionBase action ) {
-		item.startChildAction( action );
-		stat.statAddChildItem( item , action );
+	public void notifyChildItem( ServerBlotterItem baseItem , ServerBlotterTreeItem treeItem , BlotterEvent event ) {
+		ServerBlotterEvent data = new ServerBlotterEvent( baseItem , treeItem , event );
+		super.trigger( ServerEvents.EVENT_BLOTTEREVENT , data );
+	}
+	
+	public synchronized void startChildAction( ServerBlotterItem baseItem , ServerBlotterTreeItem treeItem ) {
+		baseItem.startChildAction( treeItem );
+		stat.statAddChildItem( baseItem , treeItem );
 	}
 
-	public synchronized void stopChildAction( ServerBlotterItem item , ActionBase action , boolean success ) {
-		item.stopChildAction( action , success );
-		stat.statFinishChildItem( item , action , success );
+	public synchronized void stopChildAction( ServerBlotterItem baseItem , ServerBlotterTreeItem treeItem , boolean success ) {
+		baseItem.stopChildAction( treeItem , success );
+		stat.statFinishChildItem( baseItem , treeItem , success );
 	}
 
 	public synchronized ServerBlotterItem createRootItem( ActionInit action ) {
-		ServerBlotterItem item = new ServerBlotterItem( this , action );
+		ServerBlotterItem item = new ServerBlotterItem( this , action , null , null , null );
 		
 		item.createRootItem();
 		addItem( item );
 		return( item );
 	}
 
-	public synchronized ServerBlotterItem createBuildItem( ActionPatch action ) {
-		ServerBlotterItem item = new ServerBlotterItem( this , action );
+	public synchronized ServerBlotterItem createBuildItem( ServerBlotterItem rootItem , ServerBlotterItem baseItem , ServerBlotterTreeItem parentTreeItem , ActionPatch action ) {
+		ServerBlotterItem item = new ServerBlotterItem( this , action , rootItem , baseItem , parentTreeItem );
 		
 		MetaSourceProject project = action.builder.project;
 		item.createBuildItem( project.meta.name , project.NAME , action.builder.TAG , action.logDir , action.logFile );
@@ -133,6 +138,13 @@ public class ServerBlotterSet extends ServerEventsSource {
 		return( item );
 	}
 
+	public synchronized ServerBlotterTreeItem createChildItem( ActionBase action , ServerBlotterItem parentBaseItem , ServerBlotterTreeItem parentTreeItem ) {
+		ServerBlotterTreeItem item = new ServerBlotterTreeItem( action , parentTreeItem.rootItem , parentTreeItem , null );
+		parentTreeItem.addChild( item );
+		action.setBlotterItem( parentBaseItem , item );
+		return( item );
+	}
+	
 	private void removeItem( ServerBlotterItem item ) {
 		items.remove( item.action.ID );
 		item.setRemoved();

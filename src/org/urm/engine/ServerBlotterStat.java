@@ -1,6 +1,5 @@
 package org.urm.engine;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
 
 public class ServerBlotterStat {
@@ -89,8 +88,8 @@ public class ServerBlotterStat {
 		}
 	}
 	
-	public void statAddChildItem( ServerBlotterItem item , ActionBase action ) {
-		long itemDay = Common.getDay( item.startTime );
+	public void statAddChildItem( ServerBlotterItem baseItem , ServerBlotterTreeItem treeItem ) {
+		long itemDay = Common.getDay( baseItem.startTime );
 		if( itemDay != statDay )
 			return;
 		
@@ -98,8 +97,8 @@ public class ServerBlotterStat {
 		dayItemsTotalRunning++;
 	}
 	
-	public void statFinishChildItem( ServerBlotterItem item , ActionBase action , boolean success ) {
-		long itemDay = Common.getDay( item.startTime );
+	public void statFinishChildItem( ServerBlotterItem baseItem , ServerBlotterTreeItem treeItem , boolean success ) {
+		long itemDay = Common.getDay( treeItem.startTime );
 		if( itemDay != statDay )
 			return;
 		

@@ -12,7 +12,10 @@ public class ServerBlotterItem {
 	public ActionBase action;
 	
 	public ServerBlotterMemo memo;
+	public ServerBlotterItem root;
 	public ServerBlotterItem parent;
+	public ServerBlotterTreeItem treeItem;
+	
 	public long startTime;
 	public long stopTime;
 	public boolean success;
@@ -29,17 +32,22 @@ public class ServerBlotterItem {
 	public Folder logFolder;
 	public String logFile;
 	
-	public ServerBlotterItem( ServerBlotterSet blotterSet , ActionBase action ) {
+	public ServerBlotterItem( ServerBlotterSet blotterSet , ActionBase action , ServerBlotterItem rootItem , ServerBlotterItem parentItem , ServerBlotterTreeItem parentTreeItem ) {
 		this.blotterSet = blotterSet;
 		this.action = action;
 		
-		action.setBlotterItem( this );
-		startTime = System.currentTimeMillis();
+		this.root = ( rootItem == null )? this : rootItem;
+		this.parent = parentItem;
+		this.treeItem = new ServerBlotterTreeItem( action , this.root , parentTreeItem , this );
+		
+		startTime = treeItem.startTime;
 		stopTime = 0;
 		success = false;
 		stopped = false;
 		errors = false;
 		removed = false;
+		
+		action.setBlotterItem( this , treeItem );
 	}
 
 	public void setRemoved() {
@@ -66,11 +74,10 @@ public class ServerBlotterItem {
 		return( blotterSet.type == BlotterType.BLOTTER_DEPLOY );
 	}
 	
-	public void startChildAction( ActionBase action ) {
-		action.setBlotterItem( this );
+	public void startChildAction( ServerBlotterTreeItem treeItem ) {
 	}
 	
-	public void stopChildAction( ActionBase action , boolean success ) {
+	public void stopChildAction( ServerBlotterTreeItem treeItem , boolean success ) {
 		if( !success )
 			errors = true;
 	}
