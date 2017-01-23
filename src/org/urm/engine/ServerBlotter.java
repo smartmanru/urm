@@ -122,6 +122,7 @@ public class ServerBlotter {
 
 		if( action instanceof ActionPatch ) {
 			ServerBlotterItem baseItem = blotterBuilds.createBuildItem( rootItem , parentBaseItem , parentTreeItem , ( ActionPatch )action );
+			parentTreeItem.addChild( baseItem.treeItem );
 			startChildAction( rootItem , parentBaseItem , baseItem.treeItem );
 			notifyItem( baseItem , BlotterEvent.BLOTTER_START );
 			return;
