@@ -22,7 +22,7 @@ import org.urm.meta.Types.*;
 public class ActionBaseInstall extends ActionBase {
 
 	public ActionBaseInstall( ActionBase action , String stream ) {
-		super( action , stream );
+		super( action , stream , "Install base software" );
 	}
 
 	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {

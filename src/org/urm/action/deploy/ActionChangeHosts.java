@@ -13,7 +13,7 @@ public class ActionChangeHosts extends ActionBase {
 	String opAddress;
 	
 	public ActionChangeHosts( ActionBase action , String stream , String cmd , String opHost , String opAddress ) {
-		super( action , stream );
+		super( action , stream , "Change hosts, cmd=" + cmd + ", host=" + opHost + ", address=" + opAddress );
 		
 		this.cmd = cmd;
 		this.opHost = opHost;

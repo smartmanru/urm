@@ -41,8 +41,8 @@ public class ActionInit extends ActionBase {
 	protected TransactionBase transaction;
 	private boolean memoryOnly;
 
-	public ActionInit( RootActionType type , ServerLoader loader , ServerSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , CommandAction commandAction , String actionName , boolean memoryOnly ) {
-		super( session , artefactory , executor , output );
+	public ActionInit( RootActionType type , ServerLoader loader , ServerSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , CommandAction commandAction , String actionName , boolean memoryOnly , String actionInfo ) {
+		super( session , artefactory , executor , output , actionInfo );
 		this.type = type;
 		this.actionInit = this;
 		this.commandAction = commandAction;

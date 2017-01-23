@@ -15,7 +15,9 @@ public class ActionGetManual extends ActionBase {
 	Dist targetRelease;
 	
 	public ActionGetManual( ActionBase action , String stream , Meta meta , boolean copyDist , Dist targetRelease , LocalFolder downloadFolder ) {
-		super( action , stream );
+		super( action , stream , "Download prebuilt items, " + 
+				( ( targetRelease == null )? "default" : "release=" + targetRelease.RELEASEDIR ) + 
+				", change distr=" + copyDist );
 		this.meta = meta;
 		this.copyDist = copyDist;
 		this.targetRelease = targetRelease;

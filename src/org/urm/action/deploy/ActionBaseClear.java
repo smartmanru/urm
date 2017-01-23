@@ -9,7 +9,7 @@ import org.urm.engine.storage.VersionInfoStorage;
 public class ActionBaseClear extends ActionBase {
 
 	public ActionBaseClear( ActionBase action , String stream ) {
-		super( action , stream );
+		super( action , stream , "Clear base software registry information" );
 	}
 
 	@Override protected SCOPESTATE executeAccount( ActionScopeSet set , Account account ) throws Exception {

@@ -11,11 +11,15 @@ public class ActionGetConf extends ActionBase {
 
 	Dist release;
 	LocalFolder downloadFolder;
+	boolean copyDist;
 	
-	public ActionGetConf( ActionBase action , String stream , Dist release , LocalFolder downloadFolder ) {
-		super( action , stream );
+	public ActionGetConf( ActionBase action , String stream , Dist release , LocalFolder downloadFolder , boolean copyDist ) {
+		super( action , stream , "Get configuration files, " + 
+				( ( release == null )? "default built" : "release=" + release.RELEASEDIR ) + 
+				", change distr=" + copyDist );
 		this.release = release;
 		this.downloadFolder = downloadFolder;
+		this.copyDist = copyDist;
 	}
 
 	protected SCOPESTATE executeScopeTarget( ActionScopeTarget scopeItem ) throws Exception {
@@ -39,8 +43,7 @@ public class ActionGetConf extends ActionBase {
 		}
 
 		// copy to distributive 
-		boolean copyDistr = context.CTX_DIST;
-		if( copyDistr && res )
+		if( copyDist && res )
 			release.copyConfToDistr( this , confFolder.getSubFolder( this , KEY ) , sourceFolder.distrComp );
 		
 		return( SCOPESTATE.RunSuccess );

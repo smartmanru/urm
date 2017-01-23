@@ -16,7 +16,7 @@ public class ActionRollback extends ActionBase {
 	Dist dist;
 
 	public ActionRollback( ActionBase action , String stream , Dist dist ) {
-		super( action , stream );
+		super( action , stream , "Rollback environment, release=" + dist.RELEASEDIR );
 		this.dist = dist;
 	}
 

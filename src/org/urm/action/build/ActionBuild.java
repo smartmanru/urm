@@ -20,7 +20,7 @@ public class ActionBuild extends ActionBase {
 	String BUILDSTATUS;
 	
 	public ActionBuild( ActionBase action , String stream , LocalFolder OUTDIR , String OUTFILE , String TAG ) {
-		super( action , stream );
+		super( action , stream , "Generic build, tag=" + TAG );
 		this.OUTDIR = OUTDIR;
 		this.OUTFILE = OUTFILE;
 		this.TAG = TAG;

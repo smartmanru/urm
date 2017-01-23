@@ -44,7 +44,7 @@ public class ActionVerifyDeploy extends ActionBase {
 	static String MD5FILE = "md5sum.txt";
 	
 	public ActionVerifyDeploy( ActionBase action , String stream , Dist dist ) {
-		super( action , stream );
+		super( action , stream , "Verify deployment, release=" + dist.RELEASEDIR );
 		this.dist = dist;
 	}
 

@@ -49,7 +49,7 @@ public class ActionImportDatabase extends ActionBase {
 	RemoteFolder importDataFolder;
 	
 	public ActionImportDatabase( ActionBase action , String stream , MetaEnvServer server , String CMD , String SCHEMA ) {
-		super( action , stream );
+		super( action , stream , "Import database, server=" + server.NAME );
 		this.server = server;
 		this.SPECFILE = "import-" + context.env.ID + "-" + server.sg.NAME + "-" + server.NAME + ".conf";
 		this.CMD = CMD;

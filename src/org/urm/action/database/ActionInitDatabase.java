@@ -15,7 +15,7 @@ public class ActionInitDatabase extends ActionBase {
 	MetaEnvServerNode node;
 
 	public ActionInitDatabase( ActionBase action , String stream , MetaEnvServer server , MetaEnvServerNode node ) {
-		super( action , stream );
+		super( action , stream , "Initialize database, server=" + server.NAME + ", node=" + node.POS );
 		this.server = server;
 		this.node = node;
 	}

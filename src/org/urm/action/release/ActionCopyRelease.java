@@ -10,7 +10,7 @@ public class ActionCopyRelease extends ActionBase {
 	String RELEASEDST;
 	
 	public ActionCopyRelease( ActionBase action , String stream , Dist src , String RELEASEDST ) {
-		super( action , stream );
+		super( action , stream , "Copy distributive src=" + src.RELEASEDIR + ", dst=" + RELEASEDST );
 		this.src = src;
 		this.RELEASEDST = RELEASEDST;
 	}

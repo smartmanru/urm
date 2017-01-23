@@ -16,7 +16,7 @@ public class ActionRollout extends ActionBase {
 	Dist dist;
 
 	public ActionRollout( ActionBase action , String stream , Dist dist ) {
-		super( action , stream );
+		super( action , stream , "Rollout redist to environment, release=" + dist.RELEASEDIR );
 		this.dist = dist;
 	}
 

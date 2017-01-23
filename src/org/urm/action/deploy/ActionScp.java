@@ -12,7 +12,7 @@ public class ActionScp extends ActionBase {
 	String dstPath;
 	
 	public ActionScp( ActionBase action , String stream , String srcInfo , String dstPath ) {
-		super( action , stream );
+		super( action , stream , "Copy files to environment" );
 		this.srcInfo = srcInfo;
 		this.dstPath = dstPath;
 	}

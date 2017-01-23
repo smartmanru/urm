@@ -11,7 +11,7 @@ public class ActionDropCodebase extends ActionBase {
 	String VAR1;
 	
 	public ActionDropCodebase( ActionBase action , String stream , boolean branchVAR1 , String VAR1 ) {
-		super( action , stream );
+		super( action , stream , "Codebase drop " + VAR1 );
 		this.branchVAR1 = branchVAR1;
 		this.VAR1 = VAR1;
 	}

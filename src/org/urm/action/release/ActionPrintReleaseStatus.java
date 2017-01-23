@@ -21,7 +21,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 	Dist dist;
 	
 	public ActionPrintReleaseStatus( ActionBase action , String stream , Dist dist ) {
-		super( action , stream );
+		super( action , stream , "Print release status=" + dist.RELEASEDIR );
 		this.dist = dist;
 	}
 

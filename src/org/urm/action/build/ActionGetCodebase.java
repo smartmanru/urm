@@ -14,7 +14,7 @@ public class ActionGetCodebase extends ActionBase {
 	String SINGLEFILE;
 	
 	public ActionGetCodebase( ActionBase action , String stream , LocalFolder CODIR , boolean checkout , boolean force , String SINGLEFILE ) {
-		super( action , stream );
+		super( action , stream , "Download codebase to " + action.getLocalPath( CODIR.folderPath ) );
 		this.CODIR = CODIR;
 		this.checkout = checkout;
 		this.force = force;

@@ -46,7 +46,7 @@ public class ActionExportDatabase extends ActionBase {
 	DatabaseClient client;
 
 	public ActionExportDatabase( ActionBase action , String stream , MetaEnvServer server , String CMD , String SCHEMA ) {
-		super( action , stream );
+		super( action , stream , "Export database, server=" + server.NAME );
 		this.server = server;
 		this.SPECFILE = "export-" + context.env.ID + "-" + server.sg.NAME + "-" + server.NAME + ".conf";
 		this.CMD = CMD;

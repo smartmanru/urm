@@ -17,7 +17,7 @@ public class ActionUpgradeEnv extends ActionBase {
 	String PATCHFILE;
 	
 	public ActionUpgradeEnv( ActionBase action , String stream , String PATCHID ) {
-		super( action , stream );
+		super( action , stream , "Upgrade environment, patch=" + PATCHID );
 		
 		this.PATCHID = PATCHID;
 	}

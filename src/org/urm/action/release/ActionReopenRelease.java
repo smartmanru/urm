@@ -9,7 +9,7 @@ public class ActionReopenRelease extends ActionBase {
 	Dist release;
 	
 	public ActionReopenRelease( ActionBase action , String stream , Dist release ) {
-		super( action , stream );
+		super( action , stream , "Reopen release=" + release.RELEASEDIR );
 		this.release = release;
 	}
 

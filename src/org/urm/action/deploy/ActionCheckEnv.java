@@ -40,7 +40,7 @@ public class ActionCheckEnv extends ActionBase {
 	int sgCaptureIndex;
 	
 	public ActionCheckEnv( ActionBase action , String stream ) {
-		super( action , stream );
+		super( action , stream , "Check environment status" );
 	}
 
 	@Override protected void runBefore( ActionScope scope ) throws Exception {

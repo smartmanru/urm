@@ -16,7 +16,7 @@ public class ActionStartServer extends ActionBase {
 	MetaEnvServer server;
 	
 	public ActionStartServer( ActionBase action , String stream , ActionScopeTarget target ) {
-		super( action , stream );
+		super( action , stream , "Start server=" + target.envServer.NAME );
 		this.target = target;
 		this.server = target.envServer;
 	}

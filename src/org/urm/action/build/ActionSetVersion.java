@@ -14,7 +14,7 @@ public class ActionSetVersion extends ActionBase {
 	String BUILDVERSION;
 	
 	public ActionSetVersion( ActionBase action , String stream , String BUILDVERSION ) {
-		super( action , stream );
+		super( action , stream , "Set codebase versioin=" + BUILDVERSION );
 		this.BUILDVERSION = BUILDVERSION;
 	}
 

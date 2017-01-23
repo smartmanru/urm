@@ -25,7 +25,7 @@ public class ActionMonitorCheckItem extends ActionBase {
 	List<NodeStatus> nodeData;
 	
 	public ActionMonitorCheckItem( ActionBase action , String stream , MetaMonitoring mon , MetaMonitoringTarget target , MetaMonitoringItem item , MetaEnvServer server ) {
-		super( action , stream );
+		super( action , stream , "Monitoring, check item" );
 		this.mon = mon;
 		this.target = target;
 		this.item = item;

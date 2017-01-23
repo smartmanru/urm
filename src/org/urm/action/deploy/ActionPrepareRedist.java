@@ -16,7 +16,8 @@ public class ActionPrepareRedist extends ActionBase {
 	boolean recreate;
 	
 	public ActionPrepareRedist( ActionBase action , String stream , Dist dist , boolean recreate ) {
-		super( action , stream );
+		super( action , stream , "Prepare redist area" + 
+			( ( dist == null )? ", overall" : ", release=" + dist.RELEASEDIR ) );
 		this.dist = dist;
 		this.recreate = recreate;
 	}

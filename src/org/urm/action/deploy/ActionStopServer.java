@@ -16,7 +16,7 @@ public class ActionStopServer extends ActionBase {
 	MetaEnvServer server;
 	
 	public ActionStopServer( ActionBase action , String stream , ActionScopeTarget target ) {
-		super( action , stream );
+		super( action , stream , "Stop server=" + target.envServer.NAME );
 		this.target = target;
 		this.server = target.envServer;
 	}

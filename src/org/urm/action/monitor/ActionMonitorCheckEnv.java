@@ -26,7 +26,7 @@ public class ActionMonitorCheckEnv extends ActionBase implements ServerEventsLis
 	public long timePassedMillis;
 	
 	public ActionMonitorCheckEnv( ActionBase action , String stream , MonitoringStorage storage , MetaMonitoringTarget target , ServerEventsApp eventsApp ) {
-		super( action , stream );
+		super( action , stream , "Monitoring, check environment" );
 		this.storage = storage;
 		this.target = target;
 		this.eventsApp = eventsApp;

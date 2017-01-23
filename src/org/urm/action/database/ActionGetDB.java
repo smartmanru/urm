@@ -11,11 +11,15 @@ public class ActionGetDB extends ActionBase {
 
 	Dist dist;
 	LocalFolder downloadFolder;
+	boolean copyDist;
 	
-	public ActionGetDB( ActionBase action , String stream , Dist dist , LocalFolder downloadFolder ) {
-		super( action , stream );
+	public ActionGetDB( ActionBase action , String stream , Dist dist , LocalFolder downloadFolder , boolean copyDist ) {
+		super( action , stream , "Get configuration files, " + 
+				( ( dist == null )? "default built" : "release=" + dist.RELEASEDIR ) + 
+				", change distr=" + copyDist );
 		this.dist = dist;
 		this.downloadFolder = downloadFolder;
+		this.copyDist = copyDist;
 	}
 
 	protected SCOPESTATE executeScopeTarget( ActionScopeTarget item ) throws Exception {
@@ -47,7 +51,7 @@ public class ActionGetDB extends ActionBase {
 		}
 		
 		// copy
-		if( context.CTX_DIST )
+		if( copyDist )
 			dist.copyDatabaseFilesToDistr( this , item.dbDelivery , preparedFolder );
 	}
 }

@@ -10,7 +10,7 @@ public class ActionDeleteRelease extends ActionBase {
 	boolean force;
 	
 	public ActionDeleteRelease( ActionBase action , String stream , Dist release , boolean force ) {
-		super( action , stream );
+		super( action , stream , "Drop release=" + release.RELEASEDIR );
 		this.release = release;
 		this.force = force;
 	}

@@ -17,7 +17,7 @@ public class ActionGetCumulative extends ActionBase {
 	Dist dist;
 	
 	public ActionGetCumulative( ActionBase action , String stream , Meta meta , Dist dist ) {
-		super( action , stream );
+		super( action , stream , "Rebuild cumulative release=" + dist.RELEASEDIR );
 		this.meta = meta;
 		this.dist = dist;
 	}

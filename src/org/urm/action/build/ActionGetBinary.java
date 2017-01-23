@@ -28,7 +28,9 @@ public class ActionGetBinary extends ActionBase {
 	static String C_RELEASENEXUSGROUPID = "release";
 	
 	public ActionGetBinary( ActionBase action , String stream , boolean copyDist , Dist targetRelease , LocalFolder downloadFolder ) {
-		super( action , stream );
+		super( action , stream , "Get binary files, " + 
+				( ( targetRelease == null )? "default built" : "release=" + targetRelease.RELEASEDIR ) + 
+				", change distr=" + copyDist );
 		this.copyDist = copyDist;
 		this.targetRelease = targetRelease;
 		this.downloadFolder = downloadFolder;

@@ -13,7 +13,7 @@ public class ActionChangeKeys extends ActionBase {
 	String S_AUTHFILE = ".ssh/authorized_keys";
 	
 	public ActionChangeKeys( ActionBase action , String stream , String cmd ) {
-		super( action , stream );
+		super( action , stream , "Change ssh keys, cmd=" + cmd );
 		
 		this.cmd = cmd;
 	}

@@ -14,7 +14,7 @@ public class ActionCopyCodebase extends ActionBase {
 	boolean force;
 	
 	public ActionCopyCodebase( ActionBase action , String stream , boolean branchVAR1 , String VAR1 , boolean branchVAR2 , String VAR2 , boolean force ) {
-		super( action , stream );
+		super( action , stream , "Codebase copy src=" + VAR1 + ", dst=" + VAR2 );
 		this.branchVAR1 = branchVAR1;
 		this.VAR1 = VAR1;
 		this.branchVAR2 = branchVAR2;

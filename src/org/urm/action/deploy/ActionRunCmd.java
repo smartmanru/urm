@@ -10,7 +10,7 @@ public class ActionRunCmd extends ActionBase {
 	String cmd;
 	
 	public ActionRunCmd( ActionBase action , String stream , String cmd ) {
-		super( action , stream );
+		super( action , stream , "Run generic command" );
 		this.cmd = cmd;
 	}
 

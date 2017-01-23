@@ -19,7 +19,7 @@ import org.urm.meta.product.MetaEnvServerNode;
 public class ActionSaveConfigs extends ActionBase {
 
 	public ActionSaveConfigs( ActionBase action , String stream ) {
-		super( action , stream );
+		super( action , stream , "Save environment configuration" );
 	}
 
 	@Override protected void runAfter( ActionScope scope ) throws Exception {
