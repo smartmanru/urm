@@ -117,6 +117,7 @@ public class ServerAuthContext extends ServerObject {
 	}
 	
 	public void setResourcePassword( String password ) {
+		METHOD = ServerAuthContext.METHOD_COMMON;
 		PASSWORDSAVE = password;
 	}
 	
@@ -126,8 +127,8 @@ public class ServerAuthContext extends ServerObject {
 	}
 	
 	public void setUserPassword( String password ) throws Exception {
-		PASSWORDSAVE = Common.getMD5( password );
 		METHOD = ServerAuthContext.METHOD_USER;
+		PASSWORDSAVE = Common.getMD5( password );
 	}
 	
 }

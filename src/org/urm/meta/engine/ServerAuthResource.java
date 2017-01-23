@@ -129,11 +129,13 @@ public class ServerAuthResource extends ServerObject {
 		rcType = src.rcType;
 		BASEURL = src.BASEURL;
 		DESC = src.DESC;
-		
-		ServerAuth auth = resources.engine.getAuth();
-		ac = new ServerAuthContext( auth );
-		ac.load( src.ac.properties );
 		createProperties();
+		
+		if( src.ac != null && !src.ac.METHOD.isEmpty() ) {
+			ServerAuth auth = resources.engine.getAuth();
+			ac = new ServerAuthContext( auth );
+			ac.load( src.ac.properties );
+		}
 	}
 	
 	public void saveAuthData() throws Exception {
@@ -141,7 +143,7 @@ public class ServerAuthResource extends ServerObject {
 		AUTHKEY = auth.getAuthKey( ServerAuth.AUTH_GROUP_RESOURCE , NAME );
 		properties.setOriginalStringProperty( "authkey" , AUTHKEY );
 		
-		if( ac != null )
+		if( ac != null && !ac.METHOD.isEmpty() )
 			auth.saveAuthData( AUTHKEY , ac ); 
 	}
 	

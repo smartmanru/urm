@@ -533,7 +533,7 @@ public class SubversionVCS extends GenericVCS {
 	}
 	
 	private boolean checkSvnPathExists( String path ) throws Exception {
-		int status = shell.customGetStatus( action , "svn info " + SVNAUTH + " " + path + " > " + shell.getOSDevNull() );
+		int status = shell.customGetStatus( action , "svn info " + SVNAUTH + " --non-interactive " + path + " > " + shell.getOSDevNull() );
 		if( status != 0 )
 			return( false );
 		return( true );
