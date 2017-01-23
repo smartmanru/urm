@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.action.build.ActionPatch;
+import org.urm.action.monitor.ActionMonitorTop;
 import org.urm.common.Common;
 import org.urm.engine.action.ActionInit;
 
@@ -108,6 +109,12 @@ public class ServerBlotter {
 			notifyItem( item , BlotterEvent.BLOTTER_START );
 			return;
 		}
+
+		if( action instanceof ActionMonitorTop )
+			return;
+		
+		if( action.parent.blotterTreeItem == null )
+			return;
 		
 		ServerBlotterItem rootItem = action.parent.blotterRootItem;
 		ServerBlotterTreeItem parentTreeItem = action.parent.blotterTreeItem;
