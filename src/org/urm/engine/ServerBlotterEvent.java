@@ -1,17 +1,21 @@
 package org.urm.engine;
 
-import org.urm.action.ActionBase;
 import org.urm.engine.ServerBlotter.BlotterEvent;
 
 public class ServerBlotterEvent {
 
-	public ServerBlotterItem item;
-	public ActionBase action;
+	public ServerBlotterItem baseItem;
+	public ServerBlotterTreeItem childItem;
 	public BlotterEvent event;
 	
-	public ServerBlotterEvent( ServerBlotterItem item , ActionBase action , BlotterEvent event ) {
-		this.item = item;
-		this.action = action;
+	public ServerBlotterEvent( ServerBlotterItem item , BlotterEvent event ) {
+		this.baseItem = item;
+		this.event = event;
+	}
+	
+	public ServerBlotterEvent( ServerBlotterItem baseItem , ServerBlotterTreeItem childItem , BlotterEvent event ) {
+		this.baseItem = baseItem;
+		this.childItem = childItem;
 		this.event = event;
 	}
 	

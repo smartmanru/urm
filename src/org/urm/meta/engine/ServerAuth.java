@@ -336,6 +336,9 @@ public class ServerAuth extends ServerObject {
 	}
 
 	public boolean checkAccessServerAction( ActionBase action , SecurityAction sa , boolean readOnly ) {
+		if( action == null )
+			return( false );
+		
 		SessionSecurity security = action.actionInit.session.getSecurity();
 		if( security.isAdmin() )
 			return( true );

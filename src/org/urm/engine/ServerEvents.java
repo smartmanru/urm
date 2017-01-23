@@ -9,6 +9,7 @@ public class ServerEvents extends ServerObject {
 	public static int EVENT_FINISHSTATE = 1;
 	public static int EVENT_SECONDTIMER = 2;
 	public static int EVENT_BLOTTEREVENT = 3;
+	public static int EVENT_NOTIFY = 4;
 	public static int EVENT_MONITORSTATECHANGED = 11;
 	public static int EVENT_MONITORCHILDCHANGED = 12;
 	public static int EVENT_MONITORGRAPHCHANGED = 13;
@@ -20,12 +21,14 @@ public class ServerEvents extends ServerObject {
 	public static int EVENT_MONITORING_NODEITEMS = 152;
 
 	ServerEventsTimer timer;
+	ServerEventsNotifier notifier;
 	
 	public ServerEvents( ServerEngine engine ) {
 		super( null );
 		this.engine = engine;
 		
 		timer = new ServerEventsTimer( this );
+		notifier = new ServerEventsNotifier( this ); 
 	}
 
 	public void init() throws Exception {
@@ -33,9 +36,11 @@ public class ServerEvents extends ServerObject {
 
 	public void start() throws Exception {
 		timer.start();
+		notifier.start();
 	}
 
 	public void stop() throws Exception {
+		notifier.stop();
 		timer.stop();
 	}
 
@@ -45,12 +50,17 @@ public class ServerEvents extends ServerObject {
 	}
 
 	public void deleteApp( ServerEventsApp app ) {
-		app.deleteSubscriptions();
+		app.close();
 		engine.trace( "stop events management for application=" + app.appId );
 	}
 
 	public ServerEventsSubscription subscribeTimer( ServerEventsApp app , ServerEventsListener listener ) {
 		return( app.subscribe( timer , listener ) );
 	}			
-			
+
+
+	public void notifyListener( ServerEventsApp app , ServerEventsListener listener , Object eventData ) {
+		notifier.addEvent( app , listener , eventData );
+	}
+	
 }

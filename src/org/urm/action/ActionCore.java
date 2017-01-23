@@ -3,6 +3,7 @@ package org.urm.action;
 import org.urm.common.Common;
 import org.urm.common.RunError;
 import org.urm.common.RunContext;
+import org.urm.engine.ServerBlotterTreeItem;
 import org.urm.engine.ServerBlotterItem;
 import org.urm.engine.ServerEngine;
 import org.urm.meta.Types.*;
@@ -11,7 +12,8 @@ public class ActionCore {
 
 	public ServerEngine engine;
 	public ActionCore parent;
-	public ServerBlotterItem blotterItem;
+	public ServerBlotterItem blotterRootItem;
+	public ServerBlotterTreeItem blotterTreeItem;
 	public RunContext execrc;
 	
 	private static int instanceSequence = 0;
@@ -42,8 +44,9 @@ public class ActionCore {
 		eventSource = new ActionEventsSource( this );
 	}
 
-	public void setBlotterItem( ServerBlotterItem blotterItem ) {
-		this.blotterItem = blotterItem;
+	public void setBlotterItem( ServerBlotterItem blotterItem , ServerBlotterTreeItem blotterTreeItem ) {
+		this.blotterRootItem = blotterItem;
+		this.blotterTreeItem = blotterTreeItem;
 	}
 	
 	public boolean isCallFailed() {

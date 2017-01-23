@@ -10,7 +10,7 @@ public class ServerEventsTimer extends ServerEventsSource implements Runnable {
 	private boolean stopping = false;
 	
 	public ServerEventsTimer( ServerEvents events ) {
-		super( events , "timer" );
+		super( events , "urm.timer" );
 	}
 
 	@Override

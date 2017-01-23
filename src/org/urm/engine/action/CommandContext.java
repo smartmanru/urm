@@ -24,6 +24,46 @@ import org.urm.meta.Types.*;
 
 public class CommandContext {
 
+	class CommandLogCapture {
+		public List<String> logData;
+		public int logCaptureCount;
+		
+		public CommandLogCapture() {
+			logCaptureCount = 0;
+		}
+		
+		public synchronized int logStartCapture() {
+			if( logData == null )
+				logData = new LinkedList<String>();
+			logCaptureCount++;
+			return( logData.size() );
+		}
+
+		public synchronized void logStopCapture() {
+			logCaptureCount = 0;
+			logData = null;
+		}
+		
+		public synchronized String[] logFinishCapture( int startIndex ) {
+			String[] data = null;
+			if( startIndex > 0 )
+				data = logData.subList( startIndex , logData.size() ).toArray( new String[0] );
+			else
+				data = logData.toArray( new String[0] );
+
+			logCaptureCount--;
+			if( logCaptureCount == 0 )
+				logData = null;
+			return( data );
+		}
+
+		public synchronized void outExact( String s ) {
+			if( logData != null )
+				logData.add( s );
+		}
+		
+	};
+	
 	public ServerEngine engine;
 	public CommandOptions options;
 	public ServerSession session;
@@ -37,8 +77,7 @@ public class CommandContext {
 	public String stream;
 	public String streamLog;
 	public int logLevelLimit;
-	public List<String> logCapture;
-	public int logCaptureCount;
+	private CommandLogCapture logCapture;
 	
 	public Account account;
 	public String userHome;
@@ -123,8 +162,8 @@ public class CommandContext {
 		this.call = call;
 		
 		this.logLevelLimit = CommandOutput.LOGLEVEL_ERROR;
-		logCaptureCount = 0;
 		
+		logCapture = new CommandLogCapture();
 		setLogStream();
 		setLogLevel();
 	}
@@ -464,34 +503,20 @@ public class CommandContext {
 		return( options.combineValue( var , confValue , defValue ) );
 	}
 	
-	public synchronized int logStartCapture() {
-		if( logCapture == null )
-			logCapture = new LinkedList<String>();
-		logCaptureCount++;
-		return( logCapture.size() );
+	public int logStartCapture() {
+		return( logCapture.logStartCapture() );
 	}
 
 	public void logStopCapture() {
-		logCaptureCount = 0;
-		logCapture = null;
+		logCapture.logStopCapture();
 	}
 	
-	public synchronized String[] logFinishCapture( int startIndex ) {
-		String[] data = null;
-		if( startIndex > 0 )
-			data = logCapture.subList( startIndex , logCapture.size() ).toArray( new String[0] );
-		else
-			data = logCapture.toArray( new String[0] );
-
-		logCaptureCount--;
-		if( logCaptureCount == 0 )
-			logCapture = null;
-		return( data );
+	public String[] logFinishCapture( int startIndex ) {
+		return( logCapture.logFinishCapture( startIndex ) );
 	}
 
-	public synchronized void outExact( String s ) {
-		if( logCapture != null )
-			logCapture.add( s );
+	public void outExact( String s ) {
+		logCapture.outExact( s );
 	}
 	
 }

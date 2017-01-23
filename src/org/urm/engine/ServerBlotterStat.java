@@ -1,11 +1,12 @@
 package org.urm.engine;
 
-import org.urm.action.ActionBase;
+import org.urm.common.Common;
 
 public class ServerBlotterStat {
 
 	ServerBlotterSet blotterSet;
-	
+
+	public long statDay;
 	public int dayItemsPrimaryDone;
 	public int dayItemsPrimaryFailed;
 	public int dayItemsPrimaryRunning;
@@ -20,11 +21,12 @@ public class ServerBlotterStat {
 	public ServerBlotterStat( ServerBlotterSet blotterSet ) {
 		this.blotterSet = blotterSet;
 		
-		statClear();
+		statInit( blotterSet.blotter.day );
 	}
 
 	public ServerBlotterStat copy() {
 		ServerBlotterStat r = new ServerBlotterStat( blotterSet );
+		r.statDay = statDay;
 		r.dayItemsPrimaryDone = dayItemsPrimaryDone;
 		r.dayItemsPrimaryFailed = dayItemsPrimaryFailed;
 		r.dayItemsPrimaryRunning = dayItemsPrimaryRunning;
@@ -44,7 +46,8 @@ public class ServerBlotterStat {
 		return( false );
 	}
 	
-	public void statClear() {
+	public void statInit( long day ) {
+		statDay = day;
 		dayItemsPrimaryDone = 0;
 		dayItemsPrimaryFailed = 0;
 		dayItemsPrimaryRunning = 0;
@@ -58,12 +61,20 @@ public class ServerBlotterStat {
 	}
 	
 	public void statAddItem( ServerBlotterItem item ) {
+		long itemDay = Common.getDay( item.startTime );
+		if( itemDay != statDay )
+			return;
+		
 		dayItemsPrimaryRunning++;
 		dayItemsTotalRunning++;
 		dayLastRunTime = item.startTime;
 	}
 	
 	public void statFinishItem( ServerBlotterItem item ) {
+		long itemDay = Common.getDay( item.startTime );
+		if( itemDay != statDay )
+			return;
+		
 		dayItemsPrimaryRunning--;
 		dayItemsTotalRunning--;
 		
@@ -77,12 +88,20 @@ public class ServerBlotterStat {
 		}
 	}
 	
-	public void statAddChildItem( ServerBlotterItem item , ActionBase action ) {
+	public void statAddChildItem( ServerBlotterItem baseItem , ServerBlotterTreeItem treeItem ) {
+		long itemDay = Common.getDay( baseItem.startTime );
+		if( itemDay != statDay )
+			return;
+		
 		dayItemsChildRunning++;
 		dayItemsTotalRunning++;
 	}
 	
-	public void statFinishChildItem( ServerBlotterItem item , ActionBase action , boolean success ) {
+	public void statFinishChildItem( ServerBlotterItem baseItem , ServerBlotterTreeItem treeItem , boolean success ) {
+		long itemDay = Common.getDay( treeItem.startTime );
+		if( itemDay != statDay )
+			return;
+		
 		dayItemsChildRunning--;
 		dayItemsTotalRunning--;
 		

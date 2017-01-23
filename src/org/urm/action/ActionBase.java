@@ -509,8 +509,12 @@ abstract public class ActionBase extends ActionCore {
 		return( shell.isLinux() );
 	}
 
+	public String getFormalName() {
+		return( executor.commandInfo.name + "::" + context.options.action );
+	}
+	
 	public void commentExecutor( String msg ) {
-		String name = "URM " + executor.commandInfo.name + "::" + context.options.action;
+		String name = "URM " + getFormalName();
 		info( name + ": " + msg );
 	}
 

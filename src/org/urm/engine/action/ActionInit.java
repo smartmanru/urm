@@ -26,6 +26,14 @@ import org.urm.meta.product.Meta;
 
 public class ActionInit extends ActionBase {
 
+	public enum RootActionType {
+		Core ,
+		WebSession ,
+		Temporary ,
+		Command
+	};
+	
+	public RootActionType type;
 	public CommandAction commandAction;
 	public String actionName;
 	private ServerLoader loader;
@@ -33,8 +41,9 @@ public class ActionInit extends ActionBase {
 	protected TransactionBase transaction;
 	private boolean memoryOnly;
 
-	public ActionInit( ServerLoader loader , ServerSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , CommandAction commandAction , String actionName , boolean memoryOnly ) {
+	public ActionInit( RootActionType type , ServerLoader loader , ServerSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , CommandAction commandAction , String actionName , boolean memoryOnly ) {
 		super( session , artefactory , executor , output );
+		this.type = type;
 		this.actionInit = this;
 		this.commandAction = commandAction;
 		this.actionName = actionName;
