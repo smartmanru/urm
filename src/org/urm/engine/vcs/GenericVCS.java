@@ -103,10 +103,10 @@ public abstract class GenericVCS {
 	private static GenericVCS getVCS( ActionBase action , Meta meta , ServerAuthResource res , ShellExecutor shell ) throws Exception {
 		res.loadAuthData( action );
 		if( res.isSvn() )
-			return( new SubversionVCS( action , null , res , shell ) );
+			return( new SubversionVCS( action , meta , res , shell ) );
 		
 		if( res.isGit() )
-			return( new GitVCS( action , null , res , shell ) );
+			return( new GitVCS( action , meta , res , shell ) );
 		
 		action.exit2( _Error.UnexectedVcsType2 , "unexected vcs=" + res.NAME + ", type=" + Common.getEnumLower( res.rcType ) , res.NAME , Common.getEnumLower( res.rcType ) );
 		return( null );
