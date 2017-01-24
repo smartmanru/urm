@@ -3,7 +3,13 @@ package org.urm.meta.engine;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.PropertySet;
+import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.ServerTransaction;
+import org.urm.engine.shell.Account;
+import org.urm.engine.shell.ShellExecutor;
+import org.urm.engine.shell.ShellPool;
+import org.urm.engine.storage.NexusStorage;
+import org.urm.engine.vcs.GenericVCS;
 import org.urm.meta.ServerObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -39,6 +45,7 @@ public class ServerAuthResource extends ServerObject {
 	public String BASEURL;
 	public String DESC;
 	public String AUTHKEY;
+	public boolean verified;
 	public ServerAuthContext ac;
 	
 	public ServerAuthResource( ServerResources resources ) {
@@ -46,6 +53,7 @@ public class ServerAuthResource extends ServerObject {
 		this.resources = resources;
 		loaded = false;
 		loadFailed = false;
+		verified = false;
 	}
 
 	public ServerAuthResource copy( ServerResources resources ) throws Exception {
@@ -81,6 +89,7 @@ public class ServerAuthResource extends ServerObject {
 		BASEURL = properties.getSystemStringProperty( "baseurl" );
 		DESC = properties.getSystemStringProperty( "desc" );
 		AUTHKEY = properties.getSystemStringProperty( "authkey" );
+		verified = properties.getSystemBooleanProperty( "verified" );
 	}
 
 	public void createProperties() throws Exception {
@@ -90,6 +99,7 @@ public class ServerAuthResource extends ServerObject {
 		properties.setOriginalStringProperty( "baseurl" , BASEURL );
 		properties.setOriginalStringProperty( "desc" , DESC );
 		properties.setOriginalStringProperty( "authkey" , AUTHKEY );
+		properties.setOriginalBooleanProperty( "verified" , verified );
 	}
 
 	public boolean isVCS() {
@@ -129,6 +139,7 @@ public class ServerAuthResource extends ServerObject {
 		rcType = src.rcType;
 		BASEURL = src.BASEURL;
 		DESC = src.DESC;
+		verified = false;
 		createProperties();
 		
 		if( src.ac != null && !src.ac.METHOD.isEmpty() ) {
@@ -136,6 +147,11 @@ public class ServerAuthResource extends ServerObject {
 			ac = new ServerAuthContext( auth );
 			ac.load( src.ac.properties );
 		}
+	}
+
+	public void setVerified( ServerTransaction transaction ) throws Exception {
+		verified = true;
+		createProperties();
 	}
 	
 	public void saveAuthData() throws Exception {
@@ -178,4 +194,49 @@ public class ServerAuthResource extends ServerObject {
 		return( value );
 	}
 
+	public boolean vcsVerify( ActionBase action , String repo , String repoPath ) {
+		try {
+			GenericVCS vcs = GenericVCS.getVCS( action , this );
+			if( vcs.verifyRepository( repo , repoPath ) )
+				return( true );
+		}
+		catch( Throwable e ) {
+			action.log( "verify vcs resource" , e );
+		}
+		return( false );
+	}
+	
+	public boolean sshVerify( ActionBase action , VarOSTYPE osType , String host , int port , String user ) {
+		try {
+			loadAuthData( action );
+			Account account = Account.getAccount( action , "" , user , host , port , osType );
+			ShellPool pool = action.engine.shellPool;
+			ShellExecutor shell = pool.createDedicatedRemoteShell( action , action.context.stream , account , this , false );
+			
+			if( shell != null ) {
+				boolean res = false;
+				if( shell.isRunning() )
+					res = true;
+				
+				shell.kill( action );
+				return( res );
+			}
+		}
+		catch( Throwable e ) {
+			action.log( "verify ssh resource" , e );
+		}
+		return( false );
+	}
+	
+	public boolean nexusVerify( ActionBase action , String repo ) {
+		try {
+			if( NexusStorage.verifyRepository( action , repo , this ) )
+				return( true );
+		}
+		catch( Throwable e ) {
+			action.log( "verify nexus resource" , e );
+		}
+		return( false );
+	}
+	
 }

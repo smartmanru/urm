@@ -85,9 +85,9 @@ public class ServerAuthContext extends ServerObject {
 	
 	public String getSvnAuth( ActionBase action ) {
 		if( isAnonymous() )
-			return( "" );
+			return( "--non-interactive" );
 		
-		return( "--username " + getUser( action ) + " --password " + getPassword( action ) );
+		return( "--non-interactive --username " + getUser( action ) + " --password " + getPassword( action ) );
 	}
 	
 	public String getUser( ActionBase action ) {

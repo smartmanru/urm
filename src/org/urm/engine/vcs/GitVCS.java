@@ -1,5 +1,7 @@
 package org.urm.engine.vcs;
 
+import java.net.URLEncoder;
+
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.shell.ShellExecutor;
@@ -491,8 +493,40 @@ public class GitVCS extends GenericVCS {
 		GitMirrorStorage storage = getMasterMirrorStorage( mirror , null );
 		return( storage );
 	}
+
+	@Override
+	public boolean verifyRepository( String repo , String pathToRepo ) {
+		try {
+			String url = getRepositoryAuthUrl();
+			if( !pathToRepo.isEmpty() )
+				url += "/" + pathToRepo;
+			url += "/" + repo;
+			int status = shell.customGetStatus( action , "git ls-remote -h " + url + " master" );
+			if( status == 0 )
+				return( true );
+		}
+		catch( Throwable e ) {
+			action.log( "verify repository" , e );
+		}
+		return( false );
+	}
 	
 	// implementation
+	public String getRepositoryAuthUrl() throws Exception {
+		String url = res.BASEURL;
+		
+		String urlAuth = url;
+		String user = "";
+		if( !res.ac.isAnonymous() ) {
+			user = res.ac.getUser( action );
+			String userEncoded = URLEncoder.encode( user , "UTF-8" );
+			String password = URLEncoder.encode( res.ac.getPassword( action ) , "UTF-8" );
+			urlAuth = Common.getPartBeforeFirst( url , "//" ) + "//" + userEncoded + ":" + password + "@" + Common.getPartAfterFirst( url , "//" );
+		}
+		
+		return( urlAuth );
+	}
+	
 	private GitProjectRepo getRepo( MetaSourceProject project , LocalFolder PATCHFOLDER ) throws Exception {
 		ServerMirrorRepository mirror = action.getProjectMirror( project );
 		GitProjectRepo repo = new GitProjectRepo( this , mirror , project , PATCHFOLDER );
@@ -521,5 +555,6 @@ public class GitVCS extends GenericVCS {
 		
 		return( "tag-" + TAG );
 	}
+
 	
 }

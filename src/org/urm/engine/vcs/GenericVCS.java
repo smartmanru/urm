@@ -34,6 +34,7 @@ public abstract class GenericVCS {
 	public abstract void pushMirror( ServerMirrorRepository mirror ) throws Exception;
 	public abstract void refreshMirror( ServerMirrorRepository mirror ) throws Exception;
 	public abstract MirrorStorage getMirror( ServerMirrorRepository mirror ) throws Exception;
+	public abstract boolean verifyRepository( String repo , String pathToRepo );
 
 	public abstract String getMainBranch();
 	public abstract boolean ignoreDir( String name );
@@ -76,7 +77,11 @@ public abstract class GenericVCS {
 	public static GenericVCS getVCS( ActionBase action , Meta meta , String vcs ) throws Exception {
 		return( getVCS( action , meta , vcs , "" , false ) );
 	}
-
+	
+	public static GenericVCS getVCS( ActionBase action , ServerAuthResource res ) throws Exception {
+		return( getVCS( action , null , res , action.shell ) );
+	}
+	
 	public static GenericVCS getVCS( ActionBase action , Meta meta , String vcs , String BUILDER , boolean noAuth ) throws Exception {
 		ServerAuthResource res = action.getResource( vcs );
 		if( !noAuth )
@@ -91,17 +96,22 @@ public abstract class GenericVCS {
 				shell = action.getShell( account );
 			}
 		}
-		
-		if( res.isSvn() )
-			return( new SubversionVCS( action , meta , res , shell ) );
-		
-		if( res.isGit() )
-			return( new GitVCS( action , meta , res , shell ) );
-		
-		action.exit2( _Error.UnexectedVcsType2 , "unexected vcs=" + vcs + ", type=" + Common.getEnumLower( res.rcType ) , vcs , Common.getEnumLower( res.rcType ) );
-		return( null );
+
+		return( getVCS( action , meta , res , shell ) );
 	}
 
+	private static GenericVCS getVCS( ActionBase action , Meta meta , ServerAuthResource res , ShellExecutor shell ) throws Exception {
+		res.loadAuthData( action );
+		if( res.isSvn() )
+			return( new SubversionVCS( action , null , res , shell ) );
+		
+		if( res.isGit() )
+			return( new GitVCS( action , null , res , shell ) );
+		
+		action.exit2( _Error.UnexectedVcsType2 , "unexected vcs=" + res.NAME + ", type=" + Common.getEnumLower( res.rcType ) , res.NAME , Common.getEnumLower( res.rcType ) );
+		return( null );
+	}
+	
 	public static SubversionVCS getSvnDirect( ActionBase action , String resource ) throws Exception {
 		ServerAuthResource res = action.getResource( resource );
 		if( !res.isSvn() )

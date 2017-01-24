@@ -122,13 +122,18 @@ public class ShellProcess {
 			master.custom( action , "taskkill /T /pid " + processId + " /f" , CommandOutput.LOGLEVEL_TRACE );	
 	}
 
-	public void destroy( ActionBase action ) throws Exception {
-		if( jssh != null ) {
-			jssh.kill( action );
-			return;
+	public void destroy( ActionBase action ) {
+		try {
+			if( jssh != null ) {
+				jssh.kill( action );
+				return;
+			}
+			
+			process.destroy();
 		}
-		
-		process.destroy();
+		catch( Throwable e ) {
+			action.log( "destroy process" , e );
+		}
 	}
 
 	public int waitForInteractive( ActionBase action ) throws Exception {

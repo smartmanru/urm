@@ -57,6 +57,10 @@ public abstract class ShellExecutor extends Shell {
 		return( executor );
 	}
 
+	public boolean isRunning() {
+		return( core.running );
+	}
+	
 	public boolean isLocal() {
 		return( account.isLocal() );
 	}
@@ -75,14 +79,12 @@ public abstract class ShellExecutor extends Shell {
 	}
 	
 	public void restart( ActionBase action ) throws Exception {
-		boolean initialized = core.initialized; 
-		
 		core.kill( action );
-		if( !initialized )
-			action.exit1( _Error.ShellInitFailed1 , "shell=" + name + " failed on init stage" , name );
-		
 		core = ShellCore.createShellCore( action , this , core.osType , core.local );
+		
 		start( action );
+		if( !core.initialized )
+			action.exit1( _Error.ShellInitFailed1 , "shell=" + name + " failed on init stage" , name );
 	}
 	
 	protected boolean createProcess( ActionBase action , ShellProcess process , ServerAuthResource auth ) throws Exception {

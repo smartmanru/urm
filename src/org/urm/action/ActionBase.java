@@ -329,11 +329,11 @@ abstract public class ActionBase extends ActionCore {
 		return( engine.shellPool.createDedicatedLocalShell( this , name ) );
 	}
 	
-	public ShellExecutor createDedicatedRemoteShell( String name , Account account , String authResource ) throws Exception {
+	public ShellExecutor createDedicatedRemoteShell( String name , Account account , String authResource , boolean setAction ) throws Exception {
 		ServerResources res = getResources();
 		ServerAuthResource ar = res.getResource( authResource );
 		ar.loadAuthData( this );
-		return( engine.shellPool.createDedicatedRemoteShell( this , name , account , ar ) );
+		return( engine.shellPool.createDedicatedRemoteShell( this , name , account , ar , setAction ) );
 	}
 	
 	public void killAllDedicated() {

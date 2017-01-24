@@ -166,7 +166,7 @@ public class ShellOutputWaiter {
 		action.logExact( line , logLevel );
 	}
 
-	public void waitForCommandFinished( ActionBase action , int logLevel , boolean system , List<String> cmdout , List<String> cmderr ) throws Exception {
+	public boolean waitForCommandFinished( ActionBase action , int logLevel , boolean system , List<String> cmdout , List<String> cmderr ) throws Exception {
 		this.action = action;
 		this.logLevel = logLevel;
 		this.waitForCommandFinished = true;
@@ -174,8 +174,7 @@ public class ShellOutputWaiter {
 		this.cmdout = cmdout;
 		this.cmderr = cmderr;
 		
-		if( !waiter.wait( action , action.commandTimeout , logLevel , system ) )
-			action.exit0( _Error.CommandKilled , "command has been killed" );
+		return( waiter.wait( action , action.commandTimeout , logLevel , system ) );
 	}
 	
 	public boolean waitForMarker( ActionBase action , int logLevel , boolean system , String marker ) throws Exception {

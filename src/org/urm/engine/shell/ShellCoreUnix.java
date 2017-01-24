@@ -23,11 +23,8 @@ public class ShellCoreUnix extends ShellCore {
 		super( executor , VarOSTYPE.LINUX , sessionType , tmpFolder , local );
 	}
 
-	public void setWindowsHelper() {
-		windowsHelper = true;
-	}
-
-	@Override protected boolean getProcessAttributes( ActionBase action ) throws Exception {
+	@Override 
+	protected boolean getProcessAttributes( ActionBase action ) throws Exception {
 		// check connected
 		executor.addInput( action , "echo " + ShellOutputWaiter.FINISH_MARKER + "; echo " + ShellOutputWaiter.FINISH_MARKER + " >&2" , true );
 		
@@ -56,8 +53,9 @@ public class ShellCoreUnix extends ShellCore {
 		return( true );
 	}
 	
-	@Override public void runCommand( ActionBase action , String cmd , int logLevel ) throws Exception {
-		if( !running )
+	@Override 
+	public void runCommand( ActionBase action , String cmd , int logLevel ) throws Exception {
+		if( !super.checkRunning( action ) )
 			exitError( action , _Error.RunCommandClosedSession1 , "attempt to run command in closed session: " + cmd , new String[] { cmd } );
 			
 		cmdCurrent = cmd;
@@ -83,7 +81,8 @@ public class ShellCoreUnix extends ShellCore {
 		executor.waitCommandFinished( action , logLevel , cmdout , cmderr , windowsHelper );
 	}
 
-	@Override public int runCommandGetStatus( ActionBase action , String cmd , int logLevel ) throws Exception {
+	@Override 
+	public int runCommandGetStatus( ActionBase action , String cmd , int logLevel ) throws Exception {
 		runCommand( action , cmd + "; echo COMMAND_STATUS=$?" , logLevel );
 		
 		if( cmdout.size() > 0 ) {
@@ -100,54 +99,65 @@ public class ShellCoreUnix extends ShellCore {
 		return( -1 );
 	}
 
-	@Override public String getDirCmd( ActionBase action , String dir , String cmd ) throws Exception {
+	@Override 
+	public String getDirCmd( ActionBase action , String dir , String cmd ) throws Exception {
 		return( "( if [ -d " + Common.getQuoted( dir ) + " ]; then cd " + dir + "; " + cmd + "; else echo invalid directory: " + dir + " >&2; fi )" );
 	}
 	
-	@Override public String getDirCmdIfDir( ActionBase action , String dir , String cmd ) throws Exception {
+	@Override 
+	public String getDirCmdIfDir( ActionBase action , String dir , String cmd ) throws Exception {
 		return( "( if [ -d " + Common.getQuoted( dir ) + " ]; then cd " + dir + "; " + cmd + "; fi )" );
 	}
 
-	@Override public void cmdEnsureDirExists( ActionBase action , String dir ) throws Exception {
+	@Override 
+	public void cmdEnsureDirExists( ActionBase action , String dir ) throws Exception {
 		runCommandCheckDebug( action , "mkdir -p " + dir );
 	}
 
-	@Override public void cmdCreateFileFromString( ActionBase action , String path , String value ) throws Exception {
+	@Override 
+	public void cmdCreateFileFromString( ActionBase action , String path , String value ) throws Exception {
 		if( value.isEmpty() )
 			runCommandCheckDebug( action , "touch " + path );
 		else
 			runCommandCheckDebug( action , "echo " + Common.getQuoted( value ) + " > " + path );
 	}
 
-	@Override public void cmdAppendFileWithString( ActionBase action , String path , String value ) throws Exception {
+	@Override 
+	public void cmdAppendFileWithString( ActionBase action , String path , String value ) throws Exception {
 		runCommandCheckDebug( action , "echo " + value + " >> " + path );
 	}
 
-	@Override public void cmdAppendFileWithFile( ActionBase action , String pathDst , String pathSrc ) throws Exception {
+	@Override 
+	public void cmdAppendFileWithFile( ActionBase action , String pathDst , String pathSrc ) throws Exception {
 		runCommandCheckDebug( action , "cat " + pathSrc + " >> " + pathDst );
 	}
 	
-	@Override public boolean cmdCheckDirExists( ActionBase action , String path ) throws Exception {
+	@Override 
+	public boolean cmdCheckDirExists( ActionBase action , String path ) throws Exception {
 		String ok = runCommandGetValueCheckDebug( action , "if [ -d " + path + " ]; then echo ok; fi" );
 		return( ok.equals( "ok" ) );
 	}
 
-	@Override public boolean cmdIsFileEmpty( ActionBase action , String path ) throws Exception {
+	@Override 
+	public boolean cmdIsFileEmpty( ActionBase action , String path ) throws Exception {
 		String ok = runCommandGetValueCheckDebug( action , "if [ -f " + path + " ]; then wc -w " + path + "; fi" );
 		return( ok.startsWith( "0" ) );
 	}
 
-	@Override public boolean cmdCheckFileExists( ActionBase action , String path ) throws Exception {
+	@Override 
+	public boolean cmdCheckFileExists( ActionBase action , String path ) throws Exception {
 		String ok = runCommandGetValueCheckDebug( action , "if [ -f " + path + " ]; then echo ok; fi" );
 		return( ok.equals( "ok" ) );
 	}
 
-	@Override public boolean cmdCheckPathExists( ActionBase action , String path ) throws Exception {
+	@Override 
+	public boolean cmdCheckPathExists( ActionBase action , String path ) throws Exception {
 		String ok = runCommandGetValueCheckDebug( action , "if [ -f " + path + " ] || [ -d " + path + " ]; then echo ok; fi" );
 		return( ok.equals( "ok" ) );
 	}
 
-	@Override public String cmdFindOneTopWithGrep( ActionBase action , String path , String mask , String grepMask ) throws Exception {
+	@Override 
+	public String cmdFindOneTopWithGrep( ActionBase action , String path , String mask , String grepMask ) throws Exception {
 		String value = runCommandGetValueCheckDebug( action , path , "find . -maxdepth 1 -name " + Common.getQuoted( mask ) + 
 				" | egrep " + Common.getQuoted( grepMask ) + " | tr '\\n' ' '" );
 		value = value.trim();
@@ -162,11 +172,13 @@ public class ShellCoreUnix extends ShellCore {
 		return( value );
 	}
 	
-	@Override public String[] cmdGrepFile( ActionBase action , String filePath , String mask ) throws Exception {
+	@Override 
+	public String[] cmdGrepFile( ActionBase action , String filePath , String mask ) throws Exception {
 		return( runCommandGetLines( action , "grep " + mask + " " + filePath , CommandOutput.LOGLEVEL_TRACE ) );
 	}
 	
-	@Override public void cmdReplaceFileLine( ActionBase action , String filePath , String mask , String newLine ) throws Exception {
+	@Override 
+	public void cmdReplaceFileLine( ActionBase action , String filePath , String mask , String newLine ) throws Exception {
 		String filePathTmp = filePath + ".new";
 		String cmd = "grep -v " + mask + " " + filePath + " > " + filePathTmp + 
 				"; mv " + filePathTmp + " " + filePath;
@@ -175,7 +187,8 @@ public class ShellCoreUnix extends ShellCore {
 		runCommandCheckDebug( action , cmd );
 	}
 	
-	@Override public String cmdFindOneTop( ActionBase action , String path , String mask ) throws Exception {
+	@Override 
+	public String cmdFindOneTop( ActionBase action , String path , String mask ) throws Exception {
 		String value = runCommandGetValueCheckDebug( action , path , "find . -maxdepth 1 -name " + Common.getQuoted( mask ) + " | tr '\\n' ' '" );
 		value = value.trim();
 		
@@ -189,62 +202,39 @@ public class ShellCoreUnix extends ShellCore {
 		return( value );
 	}
 
-	@Override public void cmdCreateMD5( ActionBase action , String filepath ) throws Exception {
+	@Override 
+	public void cmdCreateMD5( ActionBase action , String filepath ) throws Exception {
 		runCommandCheckDebug( action , "md5sum " + filepath + " | cut -d " + Common.getQuoted( " " ) + " -f1 > " + filepath + ".md5" );
 	}
 
-	@Override public void cmdRemoveDirContent( ActionBase action , String dirpath ) throws Exception {
+	@Override 
+	public void cmdRemoveDirContent( ActionBase action , String dirpath ) throws Exception {
 		runCommandCheckDebug( action , "rm -rf " + dirpath + "/*" );
 	}
 	
-	@Override public void cmdRemoveDir( ActionBase action , String dirpath ) throws Exception {
+	@Override 
+	public void cmdRemoveDir( ActionBase action , String dirpath ) throws Exception {
 		runCommandCheckDebug( action , "rm -rf " + dirpath );
 	}
 	
-	@Override public void cmdRecreateDir( ActionBase action , String dirpath ) throws Exception {
+	@Override 
+	public void cmdRecreateDir( ActionBase action , String dirpath ) throws Exception {
 		runCommandCheckDebug( action , "rm -rf " + dirpath + "; mkdir -p " + dirpath );
 	}
 
-	@Override public void cmdRemoveFiles( ActionBase action , String dir , String files ) throws Exception {
+	@Override 
+	public void cmdRemoveFiles( ActionBase action , String dir , String files ) throws Exception {
 		runCommandCheckDebugIfDir( action , dir , "rm -rf " + files );
 	}
 
-	private String getFindCommandIncludeExclude( String files , String exclude , boolean filesOnly ) throws Exception {
-		String includeOptions = "";
-		for( String s : Common.splitSpaced( files ) ) {
-			if( !includeOptions.isEmpty() )
-				includeOptions += " -o";
-			if( filesOnly )
-				includeOptions += " -wholename " + Common.getQuoted( "./" + s + "/*" ) + " -o -wholename " + Common.getQuoted( "./" + s );
-			else
-				includeOptions += " -name " + Common.getQuoted( s );
-		}
-		String excludeOptions = "";
-		if( !exclude.isEmpty() ) {
-			for( String s : Common.splitSpaced( exclude ) ) {
-				if( filesOnly )
-					excludeOptions += " ! -wholename " + Common.getQuoted( "./" + s + "/*" ) + " ! -wholename " + Common.getQuoted( "./" + s );
-				else
-					excludeOptions += " ! -name " + Common.getQuoted( s );
-			}
-		}
-		
-		String filesOption = "-follow";
-		if( filesOnly )
-			filesOption += " -type f";
-		else
-			filesOption += " -maxdepth 1";
-			
-		String find = "find . " + filesOption + " \\( " + includeOptions + " \\) ! -name \".\" " + excludeOptions;
-		return( find );
-	}
-	
-	@Override public void cmdRemoveFilesWithExclude( ActionBase action , String dir , String files , String exclude ) throws Exception {
+	@Override 
+	public void cmdRemoveFilesWithExclude( ActionBase action , String dir , String files , String exclude ) throws Exception {
 		String find = getFindCommandIncludeExclude( files , exclude , false );
 		runCommandCheckDebugIfDir( action , dir , find + " -exec rm -rf {} \\;" );
 	}
 
-	@Override public void cmdUnzipPart( ActionBase action , String unzipDir , String zipFile , String zipPart , String targetDir ) throws Exception {
+	@Override 
+	public void cmdUnzipPart( ActionBase action , String unzipDir , String zipFile , String zipPart , String targetDir ) throws Exception {
 		String dirOption = "";
 		String filesDir = unzipDir;
 		if( !targetDir.isEmpty() ) {
@@ -262,11 +252,13 @@ public class ShellCoreUnix extends ShellCore {
 		}
 	}
 
-	@Override public void cmdMove( ActionBase action , String source , String target ) throws Exception {
+	@Override 
+	public void cmdMove( ActionBase action , String source , String target ) throws Exception {
 		runCommandCheckDebug( action , "mv " + source + " " + target );
 	}
 
-	@Override public void cmdExtractTarGz( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
+	@Override 
+	public void cmdExtractTarGz( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
 		String extractPart = ( part == null || part.isEmpty() )? "" : part;
 		String targetParent = ( part == null || part.isEmpty() )? targetFolder : Common.getDirName( targetFolder );
 		String targetDir = Common.getBaseName( targetFolder );
@@ -278,7 +270,8 @@ public class ShellCoreUnix extends ShellCore {
 		runCommandCheckDebug( action , targetParent , cmd ); 
 	}
 	
-	@Override public void cmdExtractTar( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
+	@Override 
+	public void cmdExtractTar( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
 		String extractPart = ( part == null || part.isEmpty() )? "" : part;
 		String targetParent = ( part == null || part.isEmpty() )? targetFolder : Common.getDirName( targetFolder );
 		String targetDir = Common.getBaseName( targetFolder );
@@ -290,12 +283,14 @@ public class ShellCoreUnix extends ShellCore {
 		runCommandCheckDebug( action , targetParent , cmd ); 
 	}
 	
-	@Override public String cmdLs( ActionBase action , String path ) throws Exception {
+	@Override 
+	public String cmdLs( ActionBase action , String path ) throws Exception {
 		String value = runCommandGetValueCheckDebug( action , path , "ls" );
 		return( value );
 	}
 
-	@Override public void cmdCreateZipFromDirContent( ActionBase action , String zipFile , String dir , String content , String exclude ) throws Exception {
+	@Override 
+	public void cmdCreateZipFromDirContent( ActionBase action , String zipFile , String dir , String content , String exclude ) throws Exception {
 		String excludeOptions = "";
 		if( !exclude.isEmpty() ) {
 			for( String s : Common.splitSpaced( exclude ) )
@@ -304,19 +299,22 @@ public class ShellCoreUnix extends ShellCore {
 		runCommandCheckDebug( action , dir , "zip " + zipFile + " " + content + excludeOptions + " > /dev/null 2> /dev/null" );
 	}
 	
-	@Override public void cmdCreateTarGzFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
+	@Override 
+	public void cmdCreateTarGzFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
 		String find = this.getFindCommandIncludeExclude( content , exclude , true );
 		String listFile = tmpFolder.getFilePath( action , "fileList.txt" );
 		runCommandCheckDebug( action , dir , find + " > " + listFile + "; tar -zcf " + tarFile + " --files-from=" + listFile + " > /dev/null 2> /dev/null" );
 	}
 
-	@Override public void cmdCreateTarFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
+	@Override 
+	public void cmdCreateTarFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
 		String find = this.getFindCommandIncludeExclude( content , exclude , true );
 		String listFile = tmpFolder.getFilePath( action , "fileList.txt" );
 		runCommandCheckDebug( action , dir , find + " > " + listFile + "; tar -cf " + tarFile + " --files-from=" + listFile + " > /dev/null 2> /dev/null" );
 	}
 
-	@Override public String cmdGetFileInfo( ActionBase action , String dir , String dirFile ) throws Exception {
+	@Override 
+	public String cmdGetFileInfo( ActionBase action , String dir , String dirFile ) throws Exception {
 		String value = runCommandGetValueCheckDebug( action , dir , "ls -l " + dirFile );
 		
 		if( value.isEmpty() )
@@ -325,32 +323,38 @@ public class ShellCoreUnix extends ShellCore {
 		return( value );
 	}
 
-	@Override public void cmdCreateJarFromFolder( ActionBase action , String runDir , String jarFile , String folder ) throws Exception {
+	@Override 
+	public void cmdCreateJarFromFolder( ActionBase action , String runDir , String jarFile , String folder ) throws Exception {
 		runCommandCheckDebug( action , runDir , "jar cfvM " + jarFile + " -C " + folder + "/ . > /dev/null" );
 	}
 	
-	@Override public void cmdSetShellVariable( ActionBase action , String var , String value ) throws Exception {
+	@Override 
+	public void cmdSetShellVariable( ActionBase action , String var , String value ) throws Exception {
 		runCommandCheckDebug( action , "export " + var + "=" + value );
 	}
 
-	@Override public void cmdGitAddPomFiles( ActionBase action , String runDir ) throws Exception {
+	@Override 
+	public void cmdGitAddPomFiles( ActionBase action , String runDir ) throws Exception {
 		runCommandCheckDebug( action , runDir ,  
 				"for pom in `find . -name " + Common.getQuoted( "pom.xml" ) + "`; do\n" +
 				"	git add $pom\n" +
 				"done" );
 	}
 
-	@Override public void cmdCopyFiles( ActionBase action , String dirFrom , String files , String dirTo ) throws Exception {
+	@Override 
+	public void cmdCopyFiles( ActionBase action , String dirFrom , String files , String dirTo ) throws Exception {
 		action.debug( "copy files (" + files + ") from " + dirFrom + " to " + dirTo + " ..." );
 		runCommandCheckDebug( action , dirFrom , "cp -p -t " + dirTo + " " + files );
 	}
 
-	@Override public void cmdCopyFile( ActionBase action , String fileFrom , String fileTo ) throws Exception {
+	@Override 
+	public void cmdCopyFile( ActionBase action , String fileFrom , String fileTo ) throws Exception {
 		action.debug( "copy " + fileFrom + " to " + fileTo + " ..." );
 		runCommandCheckDebug( action , "cp -p " + fileFrom + " " + fileTo );
 	}
 	
-	@Override public void cmdCopyFile( ActionBase action , String fileFrom , String targetDir , String finalName , String FOLDER ) throws Exception {
+	@Override 
+	public void cmdCopyFile( ActionBase action , String fileFrom , String targetDir , String finalName , String FOLDER ) throws Exception {
 		String finalDir = Common.getPath( targetDir , FOLDER );
 		String baseName = Common.getBaseName( fileFrom );
 		String finalFile;
@@ -363,17 +367,20 @@ public class ShellCoreUnix extends ShellCore {
 		runCommandCheckDebug( action , "cp -p " + fileFrom + " " + finalFile );
 	}
 
-	@Override public void cmdCopyDirContent( ActionBase action , String srcDir , String dstDir ) throws Exception {
+	@Override 
+	public void cmdCopyDirContent( ActionBase action , String srcDir , String dstDir ) throws Exception {
 		action.debug( "copy content from " + srcDir + " to " + dstDir + " ..." );
 		runCommandCheckDebug( action , "if [ \"`ls -A " + srcDir + "`\" != \"\" ]; then cp -R -p " + srcDir + "/* " + dstDir + "/; fi" );
 	}
 	
-	@Override public void cmdCopyDirDirect( ActionBase action , String dirFrom , String dirTo ) throws Exception {
+	@Override 
+	public void cmdCopyDirDirect( ActionBase action , String dirFrom , String dirTo ) throws Exception {
 		action.debug( "copy dir " + dirFrom + " to " + dirTo + " ..." );
 		runCommandCheckDebug( action , "mkdir -p `dirname " + dirTo + "`; rm -rf " + dirTo + "; cp -R -p " + dirFrom + " " + dirTo );
 	}
 	
-	@Override public void cmdCopyDirToBase( ActionBase action , String dirFrom , String baseDstDir ) throws Exception {
+	@Override 
+	public void cmdCopyDirToBase( ActionBase action , String dirFrom , String baseDstDir ) throws Exception {
 		String baseName = Common.getBaseName( dirFrom );
 		cmdRemoveDir( action , baseDstDir + "/" + baseName );
 		cmdEnsureDirExists( action , baseDstDir );
@@ -382,7 +389,8 @@ public class ShellCoreUnix extends ShellCore {
 		runCommandCheckDebug( action , "cp -R -p " + dirFrom + " " + baseDstDir + "/" );
 	}
 	
-	@Override public void cmdScpFilesRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
+	@Override 
+	public void cmdScpFilesRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		String options = "";
 		String keyFile = action.context.CTX_KEYNAME;
 		if( !keyFile.isEmpty() )
@@ -393,7 +401,8 @@ public class ShellCoreUnix extends ShellCore {
 		runCommandCheckDebug( action , "scp -q -B " + options + account.getHostLogin() + ":" + srcPath + " " + dstPath );
 	}
 
-	@Override public void cmdScpDirContentRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
+	@Override 
+	public void cmdScpDirContentRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		String options = "";
 		String keyFile = action.context.CTX_KEYNAME;
 		if( !keyFile.isEmpty() )
@@ -407,7 +416,8 @@ public class ShellCoreUnix extends ShellCore {
 		action.setTimeout( timeout );
 	}
 
-	@Override public void cmdScpFilesLocalToRemote( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
+	@Override 
+	public void cmdScpFilesLocalToRemote( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		String options = "";
 		String keyFile = action.context.CTX_KEYNAME;
 		if( !keyFile.isEmpty() )
@@ -424,7 +434,8 @@ public class ShellCoreUnix extends ShellCore {
 		action.setTimeout( timeout );
 	}
 
-	@Override public void cmdScpDirLocalToRemote( ActionBase action , String srcDirPath , Account account , String baseDstDir ) throws Exception {
+	@Override 
+	public void cmdScpDirLocalToRemote( ActionBase action , String srcDirPath , Account account , String baseDstDir ) throws Exception {
 		String options = "";
 		String keyFile = action.context.CTX_KEYNAME;
 		if( !keyFile.isEmpty() )
@@ -446,7 +457,8 @@ public class ShellCoreUnix extends ShellCore {
 		action.setTimeout( timeout );
 	}
 
-	@Override public void cmdScpDirContentLocalToRemote( ActionBase action , String srcDirPath , Account account , String dstDir ) throws Exception {
+	@Override 
+	public void cmdScpDirContentLocalToRemote( ActionBase action , String srcDirPath , Account account , String dstDir ) throws Exception {
 		String options = "";
 		String keyFile = action.context.CTX_KEYNAME;
 		if( !keyFile.isEmpty() )
@@ -466,7 +478,8 @@ public class ShellCoreUnix extends ShellCore {
 		action.setTimeout( timeout );
 	}
 
-	@Override public void cmdScpDirRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
+	@Override 
+	public void cmdScpDirRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		String options = "";
 		String keyFile = action.context.CTX_KEYNAME;
 		if( !keyFile.isEmpty() )
@@ -479,12 +492,14 @@ public class ShellCoreUnix extends ShellCore {
 		action.setTimeout( timeout );
 	}
 
-	@Override public void cmdCopyDirFileToFile( ActionBase action , Account account , String dirPath , String fileSrc , String fileDst ) throws Exception {
+	@Override 
+	public void cmdCopyDirFileToFile( ActionBase action , Account account , String dirPath , String fileSrc , String fileDst ) throws Exception {
 		ShellExecutor session = action.getShell( account );
 		session.custom( action , dirPath , "cp " + fileSrc + " " + fileDst );
 	}
 
-	@Override public void cmdGetDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
+	@Override 
+	public void cmdGetDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
 		String delimiter = "URM_DELIMITER";
 		List<String> res = runCommandCheckGetOutputDebug( action , rootPath , 
 				"find . -type d | sort; echo " + delimiter + "; find . -type f | sort" );
@@ -515,7 +530,8 @@ public class ShellCoreUnix extends ShellCore {
 			action.exit1( _Error.UnableReadDirectory1 , "unable to read directory " + rootPath , rootPath );
 	}
 
-	@Override public void cmdGetTopDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
+	@Override 
+	public void cmdGetTopDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
 		String delimiter = "URM_DELIMITER";
 		List<String> res = runCommandCheckGetOutputDebug( action , rootPath , 
 				"find . -maxdepth 1 -type d | sort; echo " + delimiter + "; find . -maxdepth 1 -type f | sort" );
@@ -546,7 +562,8 @@ public class ShellCoreUnix extends ShellCore {
 			action.exit1( _Error.UnableReadDirectory1 , "unable to read directory " + rootPath , rootPath );
 	}
 
-	@Override public String cmdGetMD5( ActionBase action , String filePath ) throws Exception {
+	@Override 
+	public String cmdGetMD5( ActionBase action , String filePath ) throws Exception {
 		String fileCheck = filePath;
 		if( fileCheck.contains( " " ) )
 			fileCheck = Common.getQuoted( fileCheck );
@@ -554,7 +571,8 @@ public class ShellCoreUnix extends ShellCore {
 		return( value );
 	}
 
-	@Override public String cmdGetArchivePartMD5( ActionBase action , String filePath , String archivePartPath , String EXT ) throws Exception {
+	@Override 
+	public String cmdGetArchivePartMD5( ActionBase action , String filePath , String archivePartPath , String EXT ) throws Exception {
 		String extractCmd = "";
 		if( EXT.equals( ".zip" ) ) {
 			extractCmd = "unzip -p " + filePath + " " + archivePartPath;
@@ -586,39 +604,47 @@ public class ShellCoreUnix extends ShellCore {
 		return( value );
 	}
 	
-	@Override public String cmdGetFileContentAsString( ActionBase action , String filePath ) throws Exception {
+	@Override
+	public String cmdGetFileContentAsString( ActionBase action , String filePath ) throws Exception {
 		String value = runCommandGetValueCheckDebug( action , "cat " + filePath );
 		return( value );
 	}
 
-	@Override public String[] cmdGetFileLines( ActionBase action , String filePath ) throws Exception {
+	@Override 
+	public String[] cmdGetFileLines( ActionBase action , String filePath ) throws Exception {
 		return( this.runCommandGetLines( action , "cat " + filePath , CommandOutput.LOGLEVEL_TRACE ) );
 	}
 	
-	@Override public void cmdAppendExecuteLog( ActionBase action , String msg ) throws Exception {
+	@Override 
+	public void cmdAppendExecuteLog( ActionBase action , String msg ) throws Exception {
 		cmdAppendFileWithString( action , "~/" + EXECUTE_LOG , Common.getQuoted( "`date` (SSH_CLIENT=$SSH_CLIENT): " + msg ) ); 
 	}
 
-	@Override public void cmdAppendUploadLog( ActionBase action , String src , String dst ) throws Exception {
+	@Override 
+	public void cmdAppendUploadLog( ActionBase action , String src , String dst ) throws Exception {
 		String msg = "upload " + dst + " from " + src;
 		cmdAppendFileWithString( action , "~/" + UPLOAD_LOG , Common.getQuoted( "`date` (SSH_CLIENT=$SSH_CLIENT): " + msg ) ); 
 	}
 
-	@Override public void cmdCreatePublicDir( ActionBase action , String dir ) throws Exception {
+	@Override 
+	public void cmdCreatePublicDir( ActionBase action , String dir ) throws Exception {
 		runCommandCheckDebug( action , "mkdir -p " + dir + "; chmod 777 " + dir );
 	}
 	
-	@Override public String[] cmdGetFolders( ActionBase action , String rootPath ) throws Exception {
+	@Override 
+	public String[] cmdGetFolders( ActionBase action , String rootPath ) throws Exception {
 		String list = runCommandGetValueCheckDebug( action , rootPath , "find . -type d | grep -v \"^.$\"" );
 		return( Common.split( list , "\n" ) );
 	}
 
-	@Override public String cmdGetFirstFile( ActionBase action , String dir ) throws Exception {
+	@Override 
+	public String cmdGetFirstFile( ActionBase action , String dir ) throws Exception {
 		String file = runCommandGetValueCheckDebug( action , dir , "ls | head -1" );
 		return( file );
 	}
 	
-	@Override public String[] cmdFindFiles( ActionBase action , String dir , String mask ) throws Exception {
+	@Override 
+	public String[] cmdFindFiles( ActionBase action , String dir , String mask ) throws Exception {
 		String[] list = runCommandGetLines( action , dir , "find . -type f -name " + Common.getQuoted( mask ) , CommandOutput.LOGLEVEL_TRACE );
 		List<String> items = new LinkedList<String>();
 		for( String item : list ) {
@@ -633,12 +659,14 @@ public class ShellCoreUnix extends ShellCore {
 		return( items.toArray( new String[0] ) );
 	}
 
-	@Override public String cmdGetTarContentMD5( ActionBase action , String filePath ) throws Exception {
+	@Override 
+	public String cmdGetTarContentMD5( ActionBase action , String filePath ) throws Exception {
 		String value = runCommandGetValueCheckDebug( action , "tar -xOzf " + filePath + " | md5sum | cut -d \" \" -f1" );
 		return( value );
 	}
 
-	@Override public String cmdGetFilesMD5( ActionBase action , String dir , String includeList , String excludeList ) throws Exception {
+	@Override 
+	public String cmdGetFilesMD5( ActionBase action , String dir , String includeList , String excludeList ) throws Exception {
 		String find = getFindCommandIncludeExclude( includeList , excludeList , true );
 		String list = runCommandGetValueCheckDebug( action , dir , find + " | sort -s" );
 		if( list.isEmpty() )
@@ -649,7 +677,8 @@ public class ShellCoreUnix extends ShellCore {
 		return( value );
 	}
 
-	@Override public Map<String,List<String>> cmdGetFilesContent( ActionBase action , String dir , String fileMask ) throws Exception {
+	@Override 
+	public Map<String,List<String>> cmdGetFilesContent( ActionBase action , String dir , String fileMask ) throws Exception {
 		String delimiter = "URM_DELIMITER";
 		String cmd = "for x in $(find . -maxdepth 1 -name " + Common.getQuoted( fileMask ) + "); do echo $x; cat $x; echo " + delimiter + "; done";
 		String cmdDir = getDirCmd( action , dir , cmd );
@@ -687,6 +716,40 @@ public class ShellCoreUnix extends ShellCore {
 			action.exit1( _Error.UnableReadDirectory1 , "error reading files in dir=" + dir , dir );
 		
 		return( map );
+	}
+	
+	public void setWindowsHelper() {
+		windowsHelper = true;
+	}
+
+	private String getFindCommandIncludeExclude( String files , String exclude , boolean filesOnly ) throws Exception {
+		String includeOptions = "";
+		for( String s : Common.splitSpaced( files ) ) {
+			if( !includeOptions.isEmpty() )
+				includeOptions += " -o";
+			if( filesOnly )
+				includeOptions += " -wholename " + Common.getQuoted( "./" + s + "/*" ) + " -o -wholename " + Common.getQuoted( "./" + s );
+			else
+				includeOptions += " -name " + Common.getQuoted( s );
+		}
+		String excludeOptions = "";
+		if( !exclude.isEmpty() ) {
+			for( String s : Common.splitSpaced( exclude ) ) {
+				if( filesOnly )
+					excludeOptions += " ! -wholename " + Common.getQuoted( "./" + s + "/*" ) + " ! -wholename " + Common.getQuoted( "./" + s );
+				else
+					excludeOptions += " ! -name " + Common.getQuoted( s );
+			}
+		}
+		
+		String filesOption = "-follow";
+		if( filesOnly )
+			filesOption += " -type f";
+		else
+			filesOption += " -maxdepth 1";
+			
+		String find = "find . " + filesOption + " \\( " + includeOptions + " \\) ! -name \".\" " + excludeOptions;
+		return( find );
 	}
 	
 }
