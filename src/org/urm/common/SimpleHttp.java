@@ -75,7 +75,7 @@ public class SimpleHttp {
 		HttpURLConnection.setFollowRedirects(false);
 		HttpURLConnection con = ( HttpURLConnection )new URL( url ).openConnection();
 		
-		if( user != null ) {
+		if( user != null && !user.isEmpty() ) {
 			String userpass = user + ":" + password;
 			String encoded = DatatypeConverter.printBase64Binary( userpass.getBytes() );
 			String basicAuth = "Basic " + encoded;
@@ -96,7 +96,7 @@ public class SimpleHttp {
 		URL obj = new URL( url );
 		HttpURLConnection con = ( HttpURLConnection )obj.openConnection();
 		
-		if( user != null ) {
+		if( user != null && !user.isEmpty() ) {
 			String userpass = user + ":" + password;
 			String encoded = DatatypeConverter.printBase64Binary( userpass.getBytes() );
 			String basicAuth = "Basic " + encoded;
