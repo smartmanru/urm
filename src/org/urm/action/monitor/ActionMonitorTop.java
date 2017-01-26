@@ -169,8 +169,8 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 	}
 	
 	public void stopRunning() {
-		continueRunning = false;
 		synchronized( this ) {
+			continueRunning = false;
 			notifyAll();
 		}
 	}

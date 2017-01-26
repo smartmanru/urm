@@ -55,10 +55,8 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			engine.handle( "thread pool house keeping error" , e );
 		}
 		
-		synchronized( this ) {
-			eventsApp.unsubscribe( this );
-			ca = null;
-		}
+		eventsApp.unsubscribe( this );
+		ca = null;
 	}
 
 	@Override
@@ -157,6 +155,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	}
 	
 	public synchronized void stop() {
+		ca.stopRunning();
 		thread.stop();
 		
 		// cleanup product data
@@ -166,14 +165,14 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	}
 
 	private void processSegmentEvent( ActionEventsSource source , ServerMonitoringSource sgSource , MetaEnvSegment sg , SegmentStatus status ) {
-		if( thread.stopping )
+		if( !thread.isRunning() )
 			return;
 
 		sgSource.setPrimaryLog( status.getLog() );
 	}
 	
 	private void processSegmentItemsEvent( ActionEventsSource source , ServerMonitoringSource sgSource , MetaEnvSegment sg , SegmentStatus status ) {
-		if( thread.stopping )
+		if( !thread.isRunning() )
 			return;
 
 		sgSource.setExtraLog( ServerMonitoring.EXTRA_SEGMENT_ITEMS , status.getLog() );
@@ -184,7 +183,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	}
 	
 	private void processServerEvent( ActionEventsSource source , ServerMonitoringSource serverSource , MetaEnvServer server , ServerStatus status ) {
-		if( thread.stopping )
+		if( !thread.isRunning() )
 			return;
 
 		serverSource.setPrimaryLog( status.getLog() );
@@ -195,7 +194,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	}
 	
 	private void processServerItemsEvent( ActionEventsSource source , ServerMonitoringSource serverSource , MetaEnvServer server , ServerStatus status ) {
-		if( thread.stopping )
+		if( !thread.isRunning() )
 			return;
 
 		serverSource.setExtraLog( ServerMonitoring.EXTRA_SERVER_ITEMS , status.getLog() );
@@ -206,7 +205,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	}
 	
 	private void processNodeEvent( ActionEventsSource source , ServerMonitoringSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
-		if( thread.stopping )
+		if( !thread.isRunning() )
 			return;
 
 		nodeSource.setPrimaryLog( status.getLog() );
@@ -217,7 +216,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	}
 	
 	private void processNodeItemsEvent( ActionEventsSource source , ServerMonitoringSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
-		if( thread.stopping )
+		if( !thread.isRunning() )
 			return;
 
 		nodeSource.setExtraLog( ServerMonitoring.EXTRA_NODE_ITEMS , status.getLog() );

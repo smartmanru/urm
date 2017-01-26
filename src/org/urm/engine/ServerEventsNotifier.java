@@ -45,13 +45,13 @@ public class ServerEventsNotifier extends ServerEventsSource implements Runnable
 		NotifyEvent event = null;
 		try {
 			synchronized( thread ) {
-				if( thread.stopping )
+				if( !thread.isRunning() )
 					return;
 				
 				if( queue.isEmpty() )
 					thread.wait();
 
-				if( thread.stopping )
+				if( !thread.isRunning() )
 					return;
 				
 				if( queue.isEmpty() )
@@ -79,7 +79,7 @@ public class ServerEventsNotifier extends ServerEventsSource implements Runnable
 
 	public void addEvent( ServerEventsApp app , ServerEventsListener listener , Object eventData ) {
 		synchronized( thread ) {
-			if( thread.stopping )
+			if( !thread.isRunning() )
 				return;
 			
 			NotifyEvent event = new NotifyEvent( app , listener , eventData );

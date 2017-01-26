@@ -8,9 +8,9 @@ public class ServerThread implements Runnable {
 	boolean cycle;
 	
 	private Thread thread;
-	public boolean started;
-	public boolean stopping;
-	public boolean stopped;
+	private boolean started;
+	private boolean stopping;
+	private boolean stopped;
 	
 	public ServerThread( ServerEngine engine , Runnable runnable , String name , boolean cycle ) {
 		this.engine = engine;
@@ -37,6 +37,12 @@ public class ServerThread implements Runnable {
 			thread = null;
 			notifyAll();
 		}
+	}
+	
+	public synchronized boolean isRunning() {
+		if( stopped || stopping )
+			return( false );
+		return( started );
 	}
 	
 	public synchronized void start() {
