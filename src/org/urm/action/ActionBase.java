@@ -364,7 +364,6 @@ abstract public class ActionBase extends ActionCore {
 			file = shell.getHomePath() + file.substring( 1 );
 		
 		String msg = "logging started to " + shell.getOSPath( this , file );
-		debug( msg );
 		output.createOutputFile( context , msg , file );
 		output.info( context , title );
 	}
