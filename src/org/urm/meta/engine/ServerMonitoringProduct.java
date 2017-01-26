@@ -12,6 +12,7 @@ import org.urm.engine.ServerEventsApp;
 import org.urm.engine.ServerEventsListener;
 import org.urm.engine.ServerEventsSubscription;
 import org.urm.engine.ServerSourceEvent;
+import org.urm.engine.ServerThread;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.engine.ServerMonitoringState.MONITORING_STATE;
 import org.urm.meta.product.Meta;
@@ -28,10 +29,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	ServerMonitoringSource source;
 	ServerEngine engine;
 	
-	private Thread thread;
-	private boolean started = false;
-	private boolean stopped = false;
-	private boolean stopping = false;
+	private ServerThread thread;
 	
 	ActionMonitorTop ca;
 	ServerEventsApp eventsApp;
@@ -42,11 +40,12 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		this.source = source;
 		this.engine = monitoring.engine;
 		this.eventsApp = eventsApp;
+		
+		thread = new ServerThread( engine , this , "monitoring::" + productName , false ); 
 	}
 	
 	@Override
 	public void run() {
-		started = true;
 		try {
 			ca = new ActionMonitorTop( engine.serverAction , productName , productName , eventsApp );
 			eventsApp.subscribe( ca.eventSource , this );
@@ -58,10 +57,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		
 		synchronized( this ) {
 			eventsApp.unsubscribe( this );
-			thread = null;
 			ca = null;
-			stopped = true;
-			notifyAll();
 		}
 	}
 
@@ -157,26 +153,11 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	}
 	
 	public synchronized void start() {
-		if( started )
-			return;
-		
-		stopping = false;
-        thread = new Thread( null , this , "monitoring:" + productName );
-        thread.start();
+		thread.start();
 	}
 	
 	public synchronized void stop() {
-		if( started == false || stopped )
-			return;
-		
-		stopping = true;
-		ca.stopRunning();
-		try {
-			wait();
-		}
-		catch( Throwable e ) {
-			engine.log( "ServerMonitoringProduct stop" , e );
-		}
+		thread.stop();
 		
 		// cleanup product data
 		source.setState( MONITORING_STATE.STATE_NOMONITORING );
@@ -185,14 +166,14 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	}
 
 	private void processSegmentEvent( ActionEventsSource source , ServerMonitoringSource sgSource , MetaEnvSegment sg , SegmentStatus status ) {
-		if( stopping )
+		if( thread.stopping )
 			return;
 
 		sgSource.setPrimaryLog( status.getLog() );
 	}
 	
 	private void processSegmentItemsEvent( ActionEventsSource source , ServerMonitoringSource sgSource , MetaEnvSegment sg , SegmentStatus status ) {
-		if( stopping )
+		if( thread.stopping )
 			return;
 
 		sgSource.setExtraLog( ServerMonitoring.EXTRA_SEGMENT_ITEMS , status.getLog() );
@@ -203,7 +184,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	}
 	
 	private void processServerEvent( ActionEventsSource source , ServerMonitoringSource serverSource , MetaEnvServer server , ServerStatus status ) {
-		if( stopping )
+		if( thread.stopping )
 			return;
 
 		serverSource.setPrimaryLog( status.getLog() );
@@ -214,7 +195,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	}
 	
 	private void processServerItemsEvent( ActionEventsSource source , ServerMonitoringSource serverSource , MetaEnvServer server , ServerStatus status ) {
-		if( stopping )
+		if( thread.stopping )
 			return;
 
 		serverSource.setExtraLog( ServerMonitoring.EXTRA_SERVER_ITEMS , status.getLog() );
@@ -225,7 +206,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	}
 	
 	private void processNodeEvent( ActionEventsSource source , ServerMonitoringSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
-		if( stopping )
+		if( thread.stopping )
 			return;
 
 		nodeSource.setPrimaryLog( status.getLog() );
@@ -236,7 +217,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	}
 	
 	private void processNodeItemsEvent( ActionEventsSource source , ServerMonitoringSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
-		if( stopping )
+		if( thread.stopping )
 			return;
 
 		nodeSource.setExtraLog( ServerMonitoring.EXTRA_NODE_ITEMS , status.getLog() );

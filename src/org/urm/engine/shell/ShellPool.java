@@ -29,7 +29,6 @@ public class ShellPool {
 	
 	private boolean started = false;
 	private boolean stop = false;
-	private boolean stopped = false;
 	
 	private long tsHouseKeepTime = 0;
 	private static long DEFAULT_SHELL_SILENT_MAX = 60000;
@@ -195,15 +194,7 @@ public class ShellPool {
 		try {
 			if( started ) {
 				stop = true;
-
-				while( true ) {
-					synchronized( this ) {
-						if( !stopped )
-							wait();
-						if( stopped )
-							break;
-					}
-				}
+				killAll( action );
 			}
 		}
 		catch( Throwable e ) {

@@ -70,7 +70,7 @@ public class ActionSetItem implements Runnable {
         }
         catch (Exception e) {
         	failed = true;
-            threadFailed = true;
+        	threadFailed = true;
 
             // output error message
             exceptionCatched = e;

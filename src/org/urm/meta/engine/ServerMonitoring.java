@@ -127,6 +127,7 @@ public class ServerMonitoring extends ServerObject {
 	}
 
 	public void stop() {
+		engine.info( "stop monitoring ..." );
 		for( ServerMonitoringProduct mon : mapProduct.values() )
 			mon.stop();
 
