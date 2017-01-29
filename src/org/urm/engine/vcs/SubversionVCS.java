@@ -24,6 +24,8 @@ public class SubversionVCS extends GenericVCS {
 		this.SVNPATH = res.BASEURL;
 		if( res.ac != null )
 			this.SVNAUTH = res.ac.getSvnAuth( action );
+		else
+			this.SVNAUTH = "";
 	}
 	
 	@Override public String getMainBranch() {
@@ -53,11 +55,11 @@ public class SubversionVCS extends GenericVCS {
 
 		String REVISION;
 		if( action.isLocalLinux() ) {
-			REVISION = shell.customGetValue( action , "svn info --non-interactive " + SVNAUTH + " " + CO_PATH + " | grep Revision | tr -d " + Common.getQuoted( " " ) + 
+			REVISION = shell.customGetValue( action , "svn info " + SVNAUTH + " " + CO_PATH + " | grep Revision | tr -d " + Common.getQuoted( " " ) + 
 					" | cut -d " + Common.getQuoted( ":" ) + " -f2" );
 		}
 		else {
-			REVISION = shell.customGetValue( action , "svn info --non-interactive " + SVNAUTH + " " + CO_PATH + " | findstr Revision" );
+			REVISION = shell.customGetValue( action , "svn info " + SVNAUTH + " " + CO_PATH + " | findstr Revision" );
 			REVISION = Common.getListItem( REVISION , ":" , 1 );
 		}
 		
@@ -66,7 +68,7 @@ public class SubversionVCS extends GenericVCS {
 		action.info( "svn: checkout sources from " + CO_PATH + " (branch=" + BRANCH + ", revision=" + REVISION + ") to " + PATCHFOLDER.folderPath + "..." );
 		
 		String ospath = action.getOSPath( PATCHFOLDER.folderPath );
-		int status = shell.customGetStatus( action , "svn co --non-interactive " + SVNAUTH + " " + CO_PATH + " " + ospath );
+		int status = shell.customGetStatus( action , "svn co " + SVNAUTH + " " + CO_PATH + " " + ospath );
 
 		if( status == 0 )
 			return( true );
@@ -293,7 +295,7 @@ public class SubversionVCS extends GenericVCS {
 		}
 
 		String ospath = action.getOSPath( PATCHFOLDER.folderPath );
-		shell.customCheckStatus( action , "svn export --non-interactive " + SVNAUTH + " " + CO_PATH + " " + ospath );
+		shell.customCheckStatus( action , "svn export " + SVNAUTH + " " + CO_PATH + " " + ospath );
 		return( true );
 	}
 
@@ -353,7 +355,7 @@ public class SubversionVCS extends GenericVCS {
 		if( name.isEmpty() )
 			name = Common.getBaseName( ITEMPATH );
 		
-		shell.customCheckStatus( action , PATCHFOLDER.folderPath , "svn export --non-interactive " + SVNAUTH + " " + CO_PATH + " " + name + " > " + shell.getOSDevNull()  );
+		shell.customCheckStatus( action , PATCHFOLDER.folderPath , "svn export " + SVNAUTH + " " + CO_PATH + " " + name + " > " + shell.getOSDevNull()  );
 		return( true );
 	}
 
@@ -369,7 +371,7 @@ public class SubversionVCS extends GenericVCS {
 		if( name.isEmpty() )
 			name = Common.getBaseName( ITEMPATH );
 		
-		shell.customCheckStatus( action , PATCHFOLDER.folderPath , "svn export --non-interactive " + SVNAUTH + " " + CO_PATH + " " + name + " > " + shell.getOSDevNull() );
+		shell.customCheckStatus( action , PATCHFOLDER.folderPath , "svn export " + SVNAUTH + " " + CO_PATH + " " + name + " > " + shell.getOSDevNull() );
 		return( true );
 	}
 
@@ -523,6 +525,23 @@ public class SubversionVCS extends GenericVCS {
 	public MirrorStorage getMirror( ServerMirrorRepository mirror ) throws Exception {
 		SubversionMirrorStorage storage = getStorage( mirror , false , null );
 		return( storage );
+	}
+
+	@Override
+	public boolean verifyRepository( String repo , String pathToRepo ) {
+		String url = res.BASEURL;
+		if( !pathToRepo.isEmpty() )
+			url += "/" + pathToRepo;
+		url += "/" + repo;
+		
+		try {
+			if( checkSvnPathExists( url ) )
+				return( true );
+		}
+		catch( Throwable e ) {
+			action.log( "verify repository" , e );
+		}
+		return( false );
 	}
 	
 	// implementation

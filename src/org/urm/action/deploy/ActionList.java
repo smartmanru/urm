@@ -11,7 +11,7 @@ import org.urm.meta.product.MetaEnvServerNode;
 public class ActionList extends ActionBase {
 
 	public ActionList( ActionBase action , String stream ) {
-		super( action , stream );
+		super( action , stream , "List environment structure" );
 	}
 
 	@Override protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {

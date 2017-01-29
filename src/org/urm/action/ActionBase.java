@@ -81,8 +81,8 @@ abstract public class ActionBase extends ActionCore {
 	protected void runBefore( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
 	protected void runAfter( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
 	
-	public ActionBase( ServerSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output ) {
-		super( executor.engine , null );
+	public ActionBase( ServerSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , String actionInfo ) {
+		super( executor.engine , null , actionInfo );
 		
 		this.session = session;
 		this.executor = executor;
@@ -92,8 +92,8 @@ abstract public class ActionBase extends ActionCore {
 		commandTimeout = 0;
 	}
 
-	public ActionBase( ActionBase base , String stream ) {
-		super( base.engine , base );
+	public ActionBase( ActionBase base , String stream , String actionInfo ) {
+		super( base.engine , base , actionInfo );
 		
 		this.actionInit = base.actionInit;
 		
@@ -329,11 +329,11 @@ abstract public class ActionBase extends ActionCore {
 		return( engine.shellPool.createDedicatedLocalShell( this , name ) );
 	}
 	
-	public ShellExecutor createDedicatedRemoteShell( String name , Account account , String authResource ) throws Exception {
+	public ShellExecutor createDedicatedRemoteShell( String name , Account account , String authResource , boolean setAction ) throws Exception {
 		ServerResources res = getResources();
 		ServerAuthResource ar = res.getResource( authResource );
 		ar.loadAuthData( this );
-		return( engine.shellPool.createDedicatedRemoteShell( this , name , account , ar ) );
+		return( engine.shellPool.createDedicatedRemoteShell( this , name , account , ar , setAction ) );
 	}
 	
 	public void killAllDedicated() {
@@ -364,7 +364,6 @@ abstract public class ActionBase extends ActionCore {
 			file = shell.getHomePath() + file.substring( 1 );
 		
 		String msg = "logging started to " + shell.getOSPath( this , file );
-		debug( msg );
 		output.createOutputFile( context , msg , file );
 		output.info( context , title );
 	}

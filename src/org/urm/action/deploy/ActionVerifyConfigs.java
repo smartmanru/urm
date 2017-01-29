@@ -24,7 +24,7 @@ public class ActionVerifyConfigs extends ActionBase {
 	String confVersion;
 	
 	public ActionVerifyConfigs( ActionBase action , String stream ) {
-		super( action , stream );
+		super( action , stream , "Verify environment configuration" );
 		timestamp = Common.getNameTimeStamp();
 	}
 

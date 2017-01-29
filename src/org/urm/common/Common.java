@@ -880,5 +880,13 @@ public class Common {
 	public static long getDay( long value ) {
 		return( value - value % ( 24 * 60 * 60 * 1000 ) );
 	}
-	
+
+	public static String getRefDate( long baseTime , long refTime ) {
+		long baseDay = getDay( baseTime ); 
+		long refDay = getDay( refTime );
+		if( refDay == baseDay )
+			return( getTime( refTime ) );
+		return( getDate( refTime ) );
+	}
+
 }

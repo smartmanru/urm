@@ -48,7 +48,7 @@ public class ActionConfigure extends ActionBase {
 	String buildMasterFolderRel;
 
 	public ActionConfigure( ActionBase action , String stream , String OSTYPE , String USEENV , String USESG ) {
-		super( action , stream );
+		super( action , stream , "Create proxy files" );
 		this.USEPRODUCT = "";
 		this.USEENV = USEENV;
 		this.USESG = USESG;
@@ -58,7 +58,7 @@ public class ActionConfigure extends ActionBase {
 	}
 
 	public ActionConfigure( ActionBase action , String stream , String USEPRODUCT , String USEENV , boolean confLinux , boolean confWindows ) {
-		super( action , stream );
+		super( action , stream , "Create proxy files, product=" + USEPRODUCT );
 		this.USEPRODUCT = USEPRODUCT;
 		this.USEENV = USEENV;
 		this.USESG = "";

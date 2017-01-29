@@ -1,6 +1,5 @@
 package org.urm.engine.vcs;
 
-import java.net.URLEncoder;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -195,15 +194,10 @@ public class GitMirrorStorage extends MirrorStorage {
 	private void cloneRemoteToBare( String remotePath ) throws Exception {
 		ServerAuthResource res = vcs.res;
 		String url = res.BASEURL;
-		
-		String urlAuth = url;
+		String urlAuth = vcs.getRepositoryAuthUrl();
 		String user = "";
-		if( !res.ac.isAnonymous() ) {
+		if( !res.ac.isAnonymous() )
 			user = res.ac.getUser( action );
-			String userEncoded = URLEncoder.encode( user , "UTF-8" );
-			String password = URLEncoder.encode( res.ac.getPassword( action ) , "UTF-8" );
-			urlAuth = Common.getPartBeforeFirst( url , "//" ) + "//" + userEncoded + ":" + password + "@" + Common.getPartAfterFirst( url , "//" );
-		}
 		
 		bareFolder.ensureExists( action );
 		

@@ -28,12 +28,12 @@ public class ActionConfigure extends ActionBase {
 	LocalFolder templateFolder;
 	
 	public ActionConfigure( ActionBase action , String stream , LocalFolder baseFolder ) {
-		super( action , stream );
+		super( action , stream , "Create product configuration files" );
 		this.baseFolder = baseFolder;
 	}
 	
 	public ActionConfigure( ActionBase action , String stream , Dist dist , LocalFolder baseFolder ) {
-		super( action , stream );
+		super( action , stream , "Create configuration files, release=" + dist.RELEASEDIR );
 		this.dist = dist;
 		this.baseFolder = baseFolder;
 	}

@@ -20,7 +20,7 @@ public class ActionSendChatMsg extends ActionBase {
 	}
 	
 	public ActionSendChatMsg( ActionBase action , String stream , String msg , MetaEnv env , MetaEnvSegment sg ) {
-		super( action , stream );
+		super( action , stream , "Send chat message" );
 		
 		this.msg = msg;
 		this.env = env;

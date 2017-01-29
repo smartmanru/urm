@@ -13,7 +13,7 @@ public class ActionSetTagOnBuildBranch extends ActionBase {
 	String TAG;
 	
 	public ActionSetTagOnBuildBranch( ActionBase action , String stream , String TAG ) {
-		super( action , stream );
+		super( action , stream , "Codebase set build tag=" + TAG );
 		this.TAG = TAG;
 	}
 

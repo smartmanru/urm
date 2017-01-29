@@ -12,7 +12,7 @@ public class ActionCreateRelease extends ActionBase {
 	String RELEASELABEL;
 	
 	public ActionCreateRelease( ActionBase action , String stream , Meta meta , String RELEASELABEL ) {
-		super( action , stream );
+		super( action , stream , "Create release, product=" + meta.name + ", label=" + RELEASELABEL );
 		this.meta = meta;
 		this.RELEASELABEL = RELEASELABEL;
 	}

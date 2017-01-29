@@ -19,7 +19,7 @@ public class ActionManageRegistry extends ActionBase {
 	String indexScope;
 	
 	public ActionManageRegistry( ActionBase action , String stream , String RELEASEVER , String CMD , MetaDistrDelivery delivery , String indexScope ) {
-		super( action , stream );
+		super( action , stream , "Change database registry, release=" + RELEASEVER + ", CMD=" + CMD );
 		this.RELEASEVER = RELEASEVER;
 		this.CMD = CMD;
 		this.delivery = delivery;

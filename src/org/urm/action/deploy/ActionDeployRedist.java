@@ -21,7 +21,7 @@ public class ActionDeployRedist extends ActionBase {
 	ActionScopeTarget[] affectedTargets;
 
 	public ActionDeployRedist( ActionBase action , String stream , Dist dist ) {
-		super( action , stream );
+		super( action , stream , "Deploy from redist, release=" + dist.RELEASEDIR );
 		this.dist = dist;
 	}
 

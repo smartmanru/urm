@@ -17,7 +17,7 @@ public class ActionPatch extends ActionBase {
 	ShellExecutor localShell;
 	
 	public ActionPatch( ActionBase action , String stream , Builder builder , LocalFolder logDir , String logFile , ShellExecutor localShell ) {
-		super( action , stream );
+		super( action , stream , "build project=" + builder.project.NAME + ", mode=" + Common.getEnumLower( action.context.buildMode ) );
 		this.builder = builder;
 		this.logDir = logDir;
 		this.logFile = logFile;

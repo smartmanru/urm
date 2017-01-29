@@ -11,7 +11,7 @@ public class ActionLogin extends ActionBase {
 	MetaEnvServerNode node;
 	
 	public ActionLogin( ActionBase action , String stream , MetaEnvServerNode node ) {
-		super( action , stream );
+		super( action , stream , "Open interactive session" );
 		
 		this.node = node;
 	}

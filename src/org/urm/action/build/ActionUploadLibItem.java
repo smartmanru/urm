@@ -19,7 +19,7 @@ public class ActionUploadLibItem extends ActionBase {
 	String CLASSIFIER;
 	
 	public ActionUploadLibItem( ActionBase action , String stream , Meta meta , String GROUPID , String FILE , String ARTEFACTID , String VERSION , String CLASSIFIER ) {
-		super( action , stream );
+		super( action , stream , "Upload library groupid=" + GROUPID + ", artefactid=" + ARTEFACTID + ", version=" + VERSION );
 		
 		this.meta = meta;
 		this.GROUPID = GROUPID;

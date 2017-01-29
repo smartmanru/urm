@@ -162,7 +162,7 @@ public class ServerEngine {
 		if( options == null )
 			return( null );
 		
-		ActionInit action = createAction( RootActionType.WebSession , options , session , "web" , null , false );
+		ActionInit action = createAction( RootActionType.WebSession , options , session , "web" , null , false , "Web session id=" + session.sessionId + ", user=" + session.getLoginAuth().USER );
 		startAction( action );
 		
 		return( action );
@@ -173,7 +173,7 @@ public class ServerEngine {
 		if( options == null )
 			return( null );
 		
-		ActionInit action = createAction( RootActionType.Temporary , options , session , name , null , true );
+		ActionInit action = createAction( RootActionType.Temporary , options , session , name , null , true , "Temporary action, session=" + session.sessionId );
 		startAction( action );
 		
 		return( action );
@@ -195,7 +195,7 @@ public class ServerEngine {
 		serverSession.setServerLayout( options );
 		
 		// create server action
-		serverAction = createAction( RootActionType.Core , options , serverSession , "server" , null , false );
+		serverAction = createAction( RootActionType.Core , options , serverSession , "server" , null , false , "Server instance" );
 		if( serverAction == null )
 			return( false );
 
@@ -216,7 +216,7 @@ public class ServerEngine {
 		else
 			serverSession.setServerLayout( options );
 		
-		serverAction = createAction( RootActionType.Command , options , serverSession , "client" , null , false );
+		serverAction = createAction( RootActionType.Command , options , serverSession , "client" , null , false , "Run local command=" + commandInfo.name + "::" + options.action );
 		if( serverAction == null )
 			return( false );
 
@@ -276,7 +276,7 @@ public class ServerEngine {
 		return( null );
 	}
 	
-	public ActionInit createAction( RootActionType type , CommandOptions options , ServerSession session , String stream , ServerCall call , boolean memoryOnly ) throws Exception {
+	public ActionInit createAction( RootActionType type , CommandOptions options , ServerSession session , String stream , ServerCall call , boolean memoryOnly , String actionInfo ) throws Exception {
 		CommandExecutor actionExecutor = getExecutor( options );
 		CommandAction commandAction = actionExecutor.getAction( options.action );
 		if( !options.checkValidOptions( commandAction.method ) )
@@ -291,7 +291,7 @@ public class ServerEngine {
 		Artefactory artefactory = createArtefactory( session , context , memoryOnly );
 		
 		// create action
-		ActionInit action = createRootAction( type , actionExecutor , session , artefactory , options.action , memoryOnly );
+		ActionInit action = createRootAction( type , actionExecutor , session , artefactory , options.action , memoryOnly , actionInfo );
 		context.update( action );
 		actionExecutor.setActionContext( action , context );
 		
@@ -303,10 +303,10 @@ public class ServerEngine {
 		return( action );
 	}
 	
-	public ActionInit createRootAction( RootActionType type , CommandExecutor executor , ServerSession session , Artefactory artefactory , String actionName , boolean memoryOnly ) throws Exception { 
+	public ActionInit createRootAction( RootActionType type , CommandExecutor executor , ServerSession session , Artefactory artefactory , String actionName , boolean memoryOnly , String actionInfo ) throws Exception { 
 		CommandOutput output = new CommandOutput();
 		CommandAction commandAction = executor.getAction( actionName );
-		ActionInit action = new ActionInit( type , loader , session , artefactory , executor , output , commandAction , commandAction.method.name , memoryOnly );
+		ActionInit action = new ActionInit( type , loader , session , artefactory , executor , output , commandAction , commandAction.method.name , memoryOnly , actionInfo );
 		return( action );
 	}
 	

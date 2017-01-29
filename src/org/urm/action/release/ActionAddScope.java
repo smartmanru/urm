@@ -15,7 +15,7 @@ public class ActionAddScope extends ActionBase {
 	Dist dist;
 	
 	public ActionAddScope( ActionBase action , String stream , Dist dist ) {
-		super( action , stream );
+		super( action , stream , "Add items to scope, release=" + dist.RELEASEDIR );
 		this.dist = dist;
 	}
 

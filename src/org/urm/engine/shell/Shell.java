@@ -88,6 +88,7 @@ abstract public class Shell {
 	}
 	
 	public void killProcess( ActionBase action ) throws Exception {
+		available = false;
 		wc.stop( action );
 		killShellProcess( action );
 		killOSProcess( action );
@@ -98,21 +99,67 @@ abstract public class Shell {
 			process.kill( action );
 	}
 
-	private synchronized void killOSProcess( ActionBase action ) throws Exception {
+	private synchronized void killOSProcess( ActionBase action ) {
 		if( process == null )
 			return;
 		
 		process.destroy( action );
-			
 		process = null;
-		stdin = null;
+		
+		try {
+			if( writer != null )
+				writer.close();
+		}
+		catch( Throwable e ) {
+			action.log( "kill process" , e );
+		}
+
+		try {
+			if( stdin != null )
+				stdin.close();
+		}
+		catch( Throwable e ) {
+			action.log( "kill process" , e );
+		}
+
+		try {
+			if( reader != null )
+				reader.close();
+		}
+		catch( Throwable e ) {
+			action.log( "kill process" , e );
+		}
+
+		try {
+			if( stdout != null )
+				stdout.close();
+		}
+		catch( Throwable e ) {
+			action.log( "kill process" , e );
+		}
+
+		try {
+			if( errreader != null )
+				errreader.close();
+		}
+		catch( Throwable e ) {
+			action.log( "kill process" , e );
+		}
+
+		try {
+			if( stderr != null )
+				stderr.close();
+		}
+		catch( Throwable e ) {
+			action.log( "kill process" , e );
+		}
+		
 		writer = null;
-			
-		stderr = null;
-		stdout = null;
-			
+		stdin = null;
 		reader = null;
+		stdout = null;
 		errreader = null;
+		stderr = null;
 	}
 	
 	public void setRootPath( String rootPath ) {
@@ -165,7 +212,11 @@ abstract public class Shell {
 	}
 
 	public void waitCommandFinished( ActionBase action , int logLevel , List<String> cmdout , List<String> cmderr , boolean system ) throws Exception {
-		wc.waitForCommandFinished( action , logLevel , system , cmdout , cmderr );
+		if( wc.waitForCommandFinished( action , logLevel , system , cmdout , cmderr ) )
+			return;
+		
+		kill( action );
+		action.exit0( _Error.CommandKilled , "Wait failed, command has been killed" );
 	}
 
 	public synchronized int waitForInteractive( ActionBase action ) throws Exception {

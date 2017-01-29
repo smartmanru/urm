@@ -15,7 +15,7 @@ import org.urm.meta.product.MetaEnvStartGroup;
 public class ActionStartEnv extends ActionBase {
 
 	public ActionStartEnv( ActionBase action , String stream ) {
-		super( action , stream );
+		super( action , stream , "Start environment" );
 	}
 
 	@Override protected void runBefore( ActionScope scope ) throws Exception {

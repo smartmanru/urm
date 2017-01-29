@@ -71,7 +71,6 @@ public class Account {
 	}
 	
 	public static Account getAccount( ActionBase action , String datacenter , String user , String host , int port , VarOSTYPE osType ) throws Exception {
-		
 		if( host.isEmpty() || user.isEmpty() )
 			action.exit0( _Error.MissingAccountDetails0 , "account details are not provided" );
 		

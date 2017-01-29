@@ -33,7 +33,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 	ServerEventsApp eventsApp;
 	
 	public ActionMonitorTop( ActionBase action , String stream , String productName , ServerEventsApp eventsApp ) {
-		super( action , stream );
+		super( action , stream , "Monitoring, check product=" + productName );
 		this.productName = productName;
 		this.eventsApp = eventsApp;
 	}
@@ -169,8 +169,8 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 	}
 	
 	public void stopRunning() {
-		continueRunning = false;
 		synchronized( this ) {
+			continueRunning = false;
 			notifyAll();
 		}
 	}

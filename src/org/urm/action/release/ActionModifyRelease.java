@@ -9,7 +9,7 @@ public class ActionModifyRelease extends ActionBase {
 	public Dist release;
 	
 	public ActionModifyRelease( ActionBase action , String stream , Dist release ) {
-		super( action , stream );
+		super( action , stream , "Change properties of release=" + release.RELEASEDIR );
 		this.release = release;
 	}
 

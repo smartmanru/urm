@@ -22,7 +22,7 @@ public class ActionRestoreConfigs extends ActionBase {
 	String confVersion;
 	
 	public ActionRestoreConfigs( ActionBase action , String stream ) {
-		super( action , stream );
+		super( action , stream , "Restore environment configuration files" );
 		timestamp = Common.getNameTimeStamp();
 	}
 

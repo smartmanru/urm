@@ -12,7 +12,7 @@ public class ActionCommitCodebase extends ActionBase {
 	String MESSAGE; 
 	
 	public ActionCommitCodebase( ActionBase action , String stream , LocalFolder CODIR , String MESSAGE ) {
-		super( action , stream );
+		super( action , stream , "Codebase commit, dir=" + action.getLocalPath( CODIR.folderPath ) );
 		this.CODIR = CODIR;
 		this.MESSAGE = MESSAGE;
 	}

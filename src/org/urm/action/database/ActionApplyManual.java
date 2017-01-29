@@ -17,7 +17,7 @@ public class ActionApplyManual extends ActionBase {
 	MetaEnvServer server;
 	
 	public ActionApplyManual( ActionBase action , String stream , Dist release , MetaEnvServer server ) {
-		super( action , stream );
+		super( action , stream , "Apply manual database changes, release=" + release.RELEASEDIR + ", server=" + server.NAME );
 		this.release = release;
 		this.server = server;
 	}

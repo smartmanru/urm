@@ -87,6 +87,11 @@ public class ServerTransaction extends TransactionBase {
 		resources.deleteResource( this , res );
 		res.deleteObject();
 	}
+
+	public void verifyResource( ServerAuthResource res ) throws Exception {
+		checkTransactionResources( res.resources );
+		res.setVerified( this );
+	}
 	
 	public ServerProjectBuilder createBuilder( ServerProjectBuilder builder ) throws Exception {
 		checkTransactionBuilders();

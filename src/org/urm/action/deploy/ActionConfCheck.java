@@ -19,7 +19,7 @@ public class ActionConfCheck extends ActionBase {
 	MetaEnvServer baselineServer;
 	
 	public ActionConfCheck( ActionBase action , String stream ) {
-		super( action , stream );
+		super( action , stream , "Check configuration parameters" );
 	}
 	
 	@Override protected SCOPESTATE executeScope( ActionScope scope ) throws Exception {

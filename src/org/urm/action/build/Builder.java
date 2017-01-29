@@ -74,7 +74,7 @@ public abstract class Builder {
 	public ShellExecutor createShell( ActionBase action ) throws Exception {
 		if( builder.remote ) {
 			Account account = builder.getRemoteAccount( action );
-			return( action.createDedicatedRemoteShell( "build" , account , builder.AUTHRESOURCE ) );
+			return( action.createDedicatedRemoteShell( "build" , account , builder.AUTHRESOURCE , true ) );
 		}
 		
 		return( action.createDedicatedShell( "build" ) );

@@ -26,7 +26,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 	Map<String,List<MetaEnvServer>> prodServers;
 	
 	public ActionCreateDesignDoc( ActionBase action , String stream , Meta meta , String CMD , String OUTDIR ) {
-		super( action , stream );
+		super( action , stream , "Create diagram, cmd=" + CMD );
 		this.meta = meta;
 		this.CMD = CMD;
 		this.OUTDIR = OUTDIR;

@@ -9,7 +9,7 @@ public class ActionServer extends ActionBase {
 	String OP;
 	
 	public ActionServer( ActionBase action , String stream , String OP ) {
-		super( action , stream );
+		super( action , stream , "Server operation, cmd=" + OP );
 		this.OP = OP;
 	}
 

@@ -29,7 +29,7 @@ public class ActionApplyAutomatic extends ActionBase {
 	boolean applyFailed;
 
 	public ActionApplyAutomatic( ActionBase action , String stream , Dist dist , ReleaseDelivery optDelivery , String indexScope ) {
-		super( action , stream );
+		super( action , stream , "Apply database changes, release=" + dist.RELEASEDIR );
 		this.dist = dist;
 		this.optDelivery = optDelivery;
 		this.indexScope = indexScope;

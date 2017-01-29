@@ -15,7 +15,7 @@ public class ActionUploadReleaseItem extends ActionBase {
 	Dist release;
 	
 	public ActionUploadReleaseItem( ActionBase action , String stream , Dist release ) {
-		super( action , stream );
+		super( action , stream , "Upload items from distributive, release=" + release.RELEASEDIR );
 		this.release = release;
 	}
 	

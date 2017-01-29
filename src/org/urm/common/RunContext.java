@@ -180,12 +180,11 @@ public class RunContext implements Serializable {
 		return( osType == VarOSTYPE.LINUX );		
 	}
 
-	public String getLocalPath( String path ) throws Exception {
+	public String getLocalPath( String path ) {
 		if( isLinux() )
 			return( Common.getLinuxPath( path ) );
 		if( isWindows() )
 			return( Common.getWinPath( path ) );
-		Common.exitUnexpected();
 		return( null );
 	}
 

@@ -61,6 +61,7 @@ public class ShellJssh {
 		if( res == null )
 			res = getAuthResource( action , account );
 		
+		action.debug( "jssh shell=" + process.shell.name + " - connecting to " + account.USER + "@" + account.HOST + ":" + account.PORT + " ..." );		
 		startJsshInternal( action , account , res );
 		action.debug( "jssh shell=" + process.shell.name + " - successfully connected" );		
 	}

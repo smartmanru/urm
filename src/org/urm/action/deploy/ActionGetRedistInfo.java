@@ -19,7 +19,7 @@ public class ActionGetRedistInfo extends ActionBase {
 	Dist dist;
 
 	public ActionGetRedistInfo( ActionBase action , String stream , Dist dist ) {
-		super( action , stream );
+		super( action , stream , "Get redist data information" );
 		this.dist = dist;
 	}
 

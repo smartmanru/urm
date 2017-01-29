@@ -29,7 +29,6 @@ public class ShellPool {
 	
 	private boolean started = false;
 	private boolean stop = false;
-	private boolean stopped = false;
 	
 	private long tsHouseKeepTime = 0;
 	private static long DEFAULT_SHELL_SILENT_MAX = 60000;
@@ -195,15 +194,7 @@ public class ShellPool {
 		try {
 			if( started ) {
 				stop = true;
-
-				while( true ) {
-					synchronized( this ) {
-						if( !stopped )
-							wait();
-						if( stopped )
-							break;
-					}
-				}
+				killAll( action );
 			}
 		}
 		catch( Throwable e ) {
@@ -323,10 +314,11 @@ public class ShellPool {
 		return( shell );
 	}
 
-	private ShellExecutor startDedicatedRemoteShell( ActionBase action , int id , String name , Account account , ServerAuthResource auth ) throws Exception {
+	private ShellExecutor startDedicatedRemoteShell( ActionBase action , int id , String name , Account account , ServerAuthResource auth , boolean setAction ) throws Exception {
 		ShellExecutor shell = createRemoteShell( action , id , name , account , auth , true );
 		
-		action.setShell( shell );
+		if( setAction )
+			action.setShell( shell );
 		if( !shell.start( action ) )
 			action.exit0( _Error.UnableCreateRemoteShell0 , "unable to create remote shell" );
 		
@@ -385,7 +377,7 @@ public class ShellPool {
 		return( shell );
 	}
 
-	public ShellExecutor createDedicatedRemoteShell( ActionBase action , String stream , Account account , ServerAuthResource authResource ) throws Exception {
+	public ShellExecutor createDedicatedRemoteShell( ActionBase action , String stream , Account account , ServerAuthResource authResource , boolean setAction ) throws Exception {
 		if( stop )
 			action.exit0( _Error.ServerShutdown0 , "server is in progress of shutdown" );
 		
@@ -395,7 +387,7 @@ public class ShellPool {
 			ActionShells map = getActionShells( action );
 			int id = ++shellIndex;
 			name += ":" + id;
-			shell = startDedicatedRemoteShell( action , id , name , account , authResource );
+			shell = startDedicatedRemoteShell( action , id , name , account , authResource , setAction );
 			map.addExecutor( shell.name , shell );
 		}
 		

@@ -2,6 +2,7 @@ package org.urm.engine.storage;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.common.SimpleHttp;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.product.Meta;
@@ -27,6 +28,14 @@ public class NexusStorage {
 		this.meta = meta;
 	}
 
+	public static boolean verifyRepository( ActionBase action , String repository , ServerAuthResource res ) throws Exception {
+		String REPOPATH = res.BASEURL + "/content/repositories/" + repository + "/";
+		res.loadAuthData( action );
+		String user = res.ac.getUser( action );
+		String password = res.ac.getPassword( action );
+		return( SimpleHttp.check( action , REPOPATH , user , password ) );
+	}
+	
 	public NexusDownloadInfo downloadNexus( ActionBase action , String GROUPID , String ARTEFACTID , String VERSION , String PACKAGING , String CLASSIFIER , MetaDistrBinaryItem item ) throws Exception {
 		ServerAuthResource res = action.getResource( NEXUS_RESOURCE );
 		String REPOPATH = res.BASEURL + "/content/repositories/" + repository;

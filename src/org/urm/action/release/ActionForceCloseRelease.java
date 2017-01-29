@@ -9,7 +9,7 @@ public class ActionForceCloseRelease extends ActionBase {
 	Dist release;
 	
 	public ActionForceCloseRelease( ActionBase action , String stream , Dist release ) {
-		super( action , stream );
+		super( action , stream , "Close release=" + release.RELEASEDIR );
 		this.release = release;
 	}
 

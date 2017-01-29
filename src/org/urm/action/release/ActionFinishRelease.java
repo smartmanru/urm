@@ -9,7 +9,7 @@ public class ActionFinishRelease extends ActionBase {
 	Dist release;
 	
 	public ActionFinishRelease( ActionBase action , String stream , Dist release ) {
-		super( action , stream );
+		super( action , stream , "Finalize release=" + release.RELEASEDIR );
 		this.release = release;
 	}
 

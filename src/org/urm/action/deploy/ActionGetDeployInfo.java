@@ -19,7 +19,7 @@ import org.urm.meta.Types.*;
 public class ActionGetDeployInfo extends ActionBase {
 
 	public ActionGetDeployInfo( ActionBase action , String stream ) {
-		super( action , stream );
+		super( action , stream , "Get information about deployed items" );
 	}
 
 	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {

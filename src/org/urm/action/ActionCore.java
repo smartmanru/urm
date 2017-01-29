@@ -19,6 +19,7 @@ public class ActionCore {
 	private static int instanceSequence = 0;
 	public int ID;
 	public String NAME;
+	public String INFO;
 
 	private boolean callFailed;
 	private boolean progressFailed;
@@ -28,10 +29,11 @@ public class ActionCore {
 	
 	public ActionEventsSource eventSource;
 	
-	protected ActionCore( ServerEngine engine , ActionCore parent ) {
+	protected ActionCore( ServerEngine engine , ActionCore parent , String INFO ) {
 		this.engine = engine;
 		this.parent = parent;
 		this.execrc = engine.execrc;
+		this.INFO = INFO;
 		
 		ID = instanceSequence++;
 		NAME = this.getClass().getSimpleName();
@@ -83,7 +85,7 @@ public class ActionCore {
 		return( engine.execrc.isStandalone() );
 	}
 	
-	public String getLocalPath( String path ) throws Exception {
+	public String getLocalPath( String path ) {
 		return( engine.execrc.getLocalPath( path ) );
 	}
 	

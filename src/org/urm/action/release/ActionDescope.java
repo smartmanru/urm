@@ -16,7 +16,7 @@ public class ActionDescope extends ActionBase {
 	Dist dist;
 	
 	public ActionDescope( ActionBase action , String stream , Dist dist ) {
-		super( action , stream );
+		super( action , stream , "Descope items from release=" + dist.RELEASEDIR );
 		this.dist = dist;
 	}
 

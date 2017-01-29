@@ -15,7 +15,7 @@ public class ActionDropRedist extends ActionBase {
 	String releaseDir;
 	
 	public ActionDropRedist( ActionBase action , String stream , String releaseDir ) {
-		super( action , stream );
+		super( action , stream , "Drop redist data, dir=" + releaseDir );
 		this.releaseDir = releaseDir;
 	}
 

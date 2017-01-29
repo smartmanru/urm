@@ -22,7 +22,7 @@ public class ActionSave extends ActionBase {
 	SubversionVCS vcs = null;
 	
 	public ActionSave( ActionBase action , String stream , Meta meta ) {
-		super( action , stream );
+		super( action , stream , "Save configuration, product=" + meta.name );
 		this.meta = meta;
 	}
 

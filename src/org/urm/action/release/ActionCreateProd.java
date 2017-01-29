@@ -11,7 +11,7 @@ public class ActionCreateProd extends ActionBase {
 	String RELEASEVER;
 	
 	public ActionCreateProd( ActionBase action , String stream , Meta meta , String RELEASEVER ) {
-		super( action , stream );
+		super( action , stream , "Create production coverage distributive" );
 		this.meta = meta;
 		this.RELEASEVER = RELEASEVER;
 	}

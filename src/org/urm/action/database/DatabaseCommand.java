@@ -32,7 +32,7 @@ public class DatabaseCommand {
 	public void getReleaseScripts( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
 		LocalFolder downloadFolder = action.artefactory.getWorkFolder( action , "download" );
 		downloadFolder.recreateThis( action );
-		ActionGetDB ma = new ActionGetDB( action , null , dist , downloadFolder );
+		ActionGetDB ma = new ActionGetDB( action , null , dist , downloadFolder , action.context.CTX_DIST );
 		ma.runAll( scope , null , SecurityAction.ACTION_BUILD , false );
 	}
 

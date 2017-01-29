@@ -6,72 +6,36 @@ public class ServerHouseKeeping implements Runnable {
 
 	ServerEngine engine;
 	
-	private Thread thread;
-	private boolean started = false;
-	private boolean stop = false;
-	private boolean stopped = false;
+	private ServerThread thread;
 	
 	public ServerHouseKeeping( ServerEngine engine ) {
 		this.engine = engine;
+		thread = new ServerThread( engine , this , "house keeping" , true );
 	}
 	
 	@Override
 	public void run() {
-		while( !stop ) {
-			try {
-				Common.sleep( 1000 );
-				runHouseKeeping();
-			}
-			catch( Throwable e ) {
-				engine.handle( "thread pool house keeping error" , e );
-			}
+		try {
+			Common.sleep( 1000 );
+			runHouseKeeping();
 		}
-		
-		synchronized( thread ) {
-			stopped = true;
-			thread.notifyAll();
+		catch( Throwable e ) {
+			engine.handle( "thread pool house keeping error" , e );
 		}
 	}
 
 	public void start() {
-        thread = new Thread( null , this , "House Keeping" );
         thread.start();
 	}
 	
 	public void stop() {
-		engine.debug( "stop house keeping ..." );
-		try {
-			if( started ) {
-				stop = true;
-				thread.notifyAll();
-
-				while( true ) {
-					synchronized( thread ) {
-						if( !stopped )
-							thread.wait();
-						if( stopped )
-							break;
-					}
-				}
-			}
-		}
-		catch( Throwable e ) {
-			engine.handle( "exception when stopping house keeping" , e );
-		}
-		
-		engine.debug( "house keeping has been stopped" );
+		thread.stop();
 	}
 
-	private void runHouseKeeping() {
+	private void runHouseKeeping() throws Exception {
 		long time = System.currentTimeMillis();
-		
-		try {
-			engine.shellPool.runHouseKeeping( time );
-			engine.blotter.runHouseKeeping( time );
-		}
-		catch( Throwable e ) {
-			engine.log( "house keeping" , e );
-		}
+		engine.shellPool.runHouseKeeping( time );
+		engine.blotter.runHouseKeeping( time );
 	}
 	
 }

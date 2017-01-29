@@ -28,7 +28,7 @@ public class ActionRedist extends ActionBase {
 	LocalFolder liveEnvFolder;
 
 	public ActionRedist( ActionBase action , String stream , Dist dist , LocalFolder liveEnvFolder ) {
-		super( action , stream );
+		super( action , stream , "Redist to environment, release=" + dist.RELEASEDIR );
 		this.dist = dist;
 		this.liveEnvFolder = liveEnvFolder;
 	}

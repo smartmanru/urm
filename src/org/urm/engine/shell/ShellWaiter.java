@@ -76,7 +76,7 @@ public class ShellWaiter implements Runnable {
 		return( broken );
 	}
 	
-	private synchronized boolean waitTimeout( ActionBase action , long timeoutMillis ) {
+	private boolean waitTimeout( ActionBase action , long timeoutMillis ) {
 		long finishRun = System.currentTimeMillis() + timeoutMillis;
 
 		if( !startAction( action ) )
@@ -88,13 +88,17 @@ public class ShellWaiter implements Runnable {
 				long now = System.currentTimeMillis();
 		        	
 				if( timeoutMillis == 0 ) {
-					wait( 0 );
+					synchronized( this ) {
+						wait( 0 );
+					}
 				}
 				else {
 					if( finishRun <= now )
 						return( false );
 					
-					wait( finishRun - now );
+					synchronized( this ) {
+						wait( finishRun - now );
+					}
 				}
 			}
 		}
@@ -105,7 +109,7 @@ public class ShellWaiter implements Runnable {
 		return( succeeded );
 	}
 
-	private boolean startAction( ActionBase action ) {
+	private synchronized boolean startAction( ActionBase action ) {
 		if( broken || finished || this.action != null ) {
 			action.trace( "unexpected wait shell command=" + command.getClass().getSimpleName() );
 			return( false );
@@ -122,11 +126,14 @@ public class ShellWaiter implements Runnable {
 		return( true );
 	}
 
-    private synchronized void runAction() {
+    private void runAction() {
     	// wait for action
     	if( action == null ) {
     		try {
-    			wait();
+    			synchronized( this ) {
+    				wait();
+    			}
+    			
     			if( action == null )
     				return;
     		}
@@ -160,7 +167,9 @@ public class ShellWaiter implements Runnable {
         }
         
         // wakeup waiter
-        notifyAll();
+		synchronized( this ) {
+			notifyAll();
+		}
     }
 	
 }

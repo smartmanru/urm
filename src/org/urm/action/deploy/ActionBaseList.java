@@ -12,7 +12,7 @@ import org.urm.engine.storage.VersionInfoStorage;
 public class ActionBaseList extends ActionBase {
 
 	public ActionBaseList( ActionBase action , String stream ) {
-		super( action , stream );
+		super( action , stream , "Enlist installed base software" );
 	}
 
 	@Override protected SCOPESTATE executeAccount( ActionScopeSet set , Account account ) throws Exception {
