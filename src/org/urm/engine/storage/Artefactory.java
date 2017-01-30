@@ -7,6 +7,7 @@ import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.shell.Account;
+import org.urm.meta.ServerProductMeta;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
@@ -95,7 +96,8 @@ public class Artefactory {
 	}
 	
 	public DistRepository getDistRepository( ActionBase action , Meta meta ) throws Exception {
-		DistRepository repo = DistRepository.getDistRepository( action , this , meta );
+		ServerProductMeta storage = meta.getStorage( action );
+		DistRepository repo = storage.getDistRepository( action );
 		return( repo );
 	}
 	

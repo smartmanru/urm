@@ -13,6 +13,7 @@ import org.urm.common.PropertySet;
 import org.urm.engine.ServerSession;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.TransactionBase;
+import org.urm.engine.dist.DistRepository;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.engine.ServerAccountReference;
 import org.urm.meta.engine.ServerDirectory;
@@ -43,6 +44,8 @@ public class ServerProductMeta extends ServerObject {
 	private MetaSource sources;
 	private MetaDistr distr;
 	private MetaMonitoring mon;
+
+	private DistRepository repo;
 	
 	private Map<String,MetaEnv> envs;
 	private Map<String,MetaDesign> designFiles;
@@ -76,6 +79,10 @@ public class ServerProductMeta extends ServerObject {
 		primary = false;
 	}
 
+	public DistRepository getDistRepository( ActionBase action ) {
+		return( repo );
+	}
+	
 	public void setPrimary( boolean primary ) {
 		this.primary = primary;
 	}
@@ -104,6 +111,8 @@ public class ServerProductMeta extends ServerObject {
 	
 	public synchronized ServerProductMeta copy( ActionBase action ) throws Exception {
 		ServerProductMeta r = new ServerProductMeta( loader , name );
+		r.repo = repo;
+		
 		if( version != null ) {
 			r.version = version.copy( action , r.meta );
 			if( r.version.isLoadFailed() )
@@ -410,6 +419,8 @@ public class ServerProductMeta extends ServerObject {
 				loadEnvData( action , storageMeta , envFile );
 			for( String designFile : storageMeta.getDesignFiles( action ) )
 				loadDesignData( action , storageMeta , designFile );
+			
+			repo = DistRepository.loadDistRepository( action , meta );
 		}
 		catch( Throwable e ) {
 			setLoadFailed( action , e , "unable to load metadata, product=" + name );
@@ -423,6 +434,8 @@ public class ServerProductMeta extends ServerObject {
 		createInitialSources( transaction );
 		createInitialDistr( transaction );
 		createInitialMonitoring( transaction );
+		
+		createInitialRepository( transaction );
 	}
 
 	private void createInitialVersion( TransactionBase transaction ) throws Exception {
@@ -462,6 +475,10 @@ public class ServerProductMeta extends ServerObject {
 	private void createInitialMonitoring( TransactionBase transaction ) throws Exception {
 		mon = new MetaMonitoring( this , meta );
 		mon.createMonitoring( transaction );
+	}
+
+	private void createInitialRepository( TransactionBase transaction ) throws Exception {
+		repo = DistRepository.createInitialRepository( transaction.action , meta );
 	}
 	
 	public void saveAll( ActionBase action , MetadataStorage storageMeta ) throws Exception {

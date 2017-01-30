@@ -337,7 +337,7 @@ public class DistState {
 		String RELEASEDIR = distFolder.folderName;
 		
 		Release info = new Release( dist.meta , dist );
-		String RELEASEVER = dist.repo.getReleaseVerByDir( action , RELEASEDIR ); 
+		String RELEASEVER = DistLabelInfo.getReleaseVerByDir( action , RELEASEDIR ); 
 		info.create( action , RELEASEVER , filePath );
 		
 		distFolder.ensureExists( action );

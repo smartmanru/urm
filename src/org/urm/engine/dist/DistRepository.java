@@ -1,74 +1,111 @@
 package org.urm.engine.dist;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.common.ConfReader;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.shell.Account;
-import org.urm.engine.shell.ShellExecutor;
-import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.engine.ServerContext;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductSettings;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class DistRepository {
 
-	Artefactory artefactory;
-	private RemoteFolder repoFolder;
 	Meta meta;
+	RemoteFolder repoFolder;
 
+	public Map<String,DistRepositoryItem> distMap; 
+	
+	static String RELEASEREPOSITORYFILE = "releases.xml";
 	static String RELEASEHISTORYFILE = "history.txt";
 	
-	private DistRepository( Artefactory artefactory , Meta meta ) {
-		this.artefactory = artefactory; 
+	private DistRepository( Meta meta ) {
 		this.meta = meta;
+		distMap = new HashMap<String,DistRepositoryItem>();
 	}
 	
-	public static DistRepository getDistRepository( ActionBase action , Artefactory artefactory , Meta meta ) throws Exception {
-		DistRepository repo = new DistRepository( artefactory , meta ); 
-		
-		String distPath = action.context.CTX_DISTPATH;
-		
-		Account account = action.getLocalAccount();
-		if( action.session.standalone ) {
-			if( distPath.isEmpty() ) {
-				if( action.context.env != null )
-					distPath = action.context.env.DISTR_PATH;
-			}
-			
-			if( distPath.isEmpty() )
-				action.exit0( _Error.DistPathNotDefined0 , "DISTPATH is not defined in product configuration" );
-				
-			if( action.context.env != null ) {
-				if( !action.isLocalRun() )
-					account = Account.getAccount( action , "" , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
-			}
-			else {
-				if( !action.isLocalRun() ) {
-					MetaProductSettings product = meta.getProductSettings( action );
-					account = Account.getAccount( action , "" , product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
-				}
-			}
-		}
-		else {
-			if( distPath.isEmpty() ) {
-				ServerContext sc = action.getServerContext();
-				distPath = sc.DIST_ROOT;
-			}
-			
-			if( distPath.isEmpty() )
-				action.exit0( _Error.DistPathNotDefined0 , "DISTPATH is not defined in server configuration" );
-		}
-		
-		repo.repoFolder = new RemoteFolder( account , distPath );
-		ShellExecutor shell = action.getShell( account );
-		shell.tmpFolder.recreateThis( action );
-				
+	public static DistRepository loadDistRepository( ActionBase action , Meta meta ) throws Exception {
+		DistRepository repo = new DistRepository( meta );
+		repo.open( action );
 		return( repo );
 	}
 
+	public static DistRepository createInitialRepository( ActionBase action , Meta meta ) throws Exception {
+		DistRepository repo = new DistRepository( meta );
+		repo.create( action );
+		return( repo );
+	}
+
+	private void open( ActionBase action ) throws Exception {
+		repoFolder = getDistFolder( action );
+		
+		if( !repoFolder.checkExists( action ) ) {
+			String path = repoFolder.getLocalPath( action );
+			action.exit1( _Error.MissingReleaseRepository1 , "missing release repository at " + path , path );
+		}
+		
+		readRepositoryFile( action );
+	}
+	
+	private void create( ActionBase action ) throws Exception {
+		repoFolder = getDistFolder( action );
+		if( repoFolder.checkExists( action ) ) {
+			String path = repoFolder.getLocalPath( action );
+			action.exit1( _Error.ReleaseRepositoryExists1 , "unable to create release repository, already exists at " + path , path );
+		}
+		
+		RemoteFolder parent = repoFolder.getParentFolder( action );
+		if( !parent.checkExists( action ) ) {
+			String path = parent.getLocalPath( action );
+			action.exit1( _Error.MissingReleaseRepositoryParent1 , "unable to create release repository, missing parent path=" + path , path );
+		}
+			
+		repoFolder.recreateThis( action );
+		readRepositoryFile( action );
+	}
+
+	private void readRepositoryFile( ActionBase action ) throws Exception {
+		distMap.clear();
+		
+		if( !repoFolder.checkFileExists( action , RELEASEREPOSITORYFILE ) ) {
+			createRepositoryFile( action );
+			return;
+		}
+			
+		String repoFile = repoFolder.getFilePath( action , RELEASEREPOSITORYFILE );
+		Document doc = action.readXmlFile( repoFile );
+		Node root = doc.getDocumentElement();
+		
+		Node[] items = ConfReader.xmlGetChildren( root , "release" );
+		if( items == null )
+			return;
+		
+		for( Node releaseNode : items ) {
+			DistRepositoryItem item = new DistRepositoryItem( this );
+			item.load( action , releaseNode );
+			distMap.put( item.VERSION , item );
+		}
+	}
+
+	private void createRepositoryFile( ActionBase action ) throws Exception {
+		String tmpFile = action.getWorkFilePath( RELEASEREPOSITORYFILE );
+		Document doc = Common.xmlCreateDoc( "repository" );
+		Element root = doc.getDocumentElement();
+		Common.xmlSetElementAttr( doc , root , "created" , Common.getNameTimeStamp() );
+		
+		Common.xmlSaveDoc( doc , tmpFile );
+		repoFolder.copyFileFromLocal( action , tmpFile );
+		action.debug( "repository registry created at " + repoFolder.getLocalFilePath( action , RELEASEREPOSITORYFILE ) );
+	}
+	
 	public RemoteFolder getDataSetFolder( ActionBase action , String dataSet ) throws Exception {
 		return( repoFolder.getSubFolder( action , "data/" + dataSet ) );
 	}
@@ -121,8 +158,9 @@ public class DistRepository {
 	public Dist getDistByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 		
-		String RELEASEPATH = getReleasePathByLabel( action , RELEASELABEL );
-		boolean prod = RELEASELABEL.equals( "prod" );
+		DistLabelInfo info = getLabelInfo( action , RELEASELABEL );
+		String RELEASEPATH = info.RELEASEPATH;
+		boolean prod = info.prod;
 		
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , RELEASEPATH );
 		Dist storage = new Dist( meta , this );
@@ -139,8 +177,9 @@ public class DistRepository {
 	public Dist createDist( ActionBase action , String RELEASELABEL ) throws Exception {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 		
-		String RELEASEPATH = getReleasePathByLabel( action , RELEASELABEL );
-		String RELEASEDIR = Common.getBaseName( RELEASEPATH );
+		DistLabelInfo info = getLabelInfo( action , RELEASELABEL );
+		String RELEASEPATH = info.RELEASEPATH;
+		String RELEASEDIR = info.RELEASEDIR;
 		
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , RELEASEPATH );
 		Dist storage = new Dist( meta , this );
@@ -154,117 +193,59 @@ public class DistRepository {
 		return( storage );
 	}
 
-	public String getReleaseProdDir( ActionBase action ) throws Exception {
-		return( getReleasePathByLabel( action , "prod" ) );
-	}
-
-	public String normalizeReleaseVer( ActionBase action , String RELEASEVER ) throws Exception {
-		String[] items = Common.splitDotted( RELEASEVER );
-		if( items.length < 2 && items.length > 4 )
-			action.exit1( _Error.InvalidReleaseVersion1 , "invalid release version=" + RELEASEVER , RELEASEVER );
+	private RemoteFolder getDistFolder( ActionBase action ) throws Exception {
+		String distPath = action.context.CTX_DISTPATH;
 		
-		String value = "";
-		for( int k = 0; k < 4; k++ ) {
-			if( k > 0 )
-				value += ".";
-			if( k >= items.length )
-				value += "0";
+		Account account = action.getLocalAccount();
+		if( action.session.standalone ) {
+			if( distPath.isEmpty() ) {
+				if( action.context.env != null )
+					distPath = action.context.env.DISTR_PATH;
+			}
+			
+			if( distPath.isEmpty() )
+				action.exit0( _Error.DistPathNotDefined0 , "DISTPATH is not defined in product configuration" );
+				
+			if( action.context.env != null ) {
+				if( !action.isLocalRun() )
+					account = Account.getAccount( action , "" , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
+			}
 			else {
-				if( !items[k].matches( "[0-9]+" ) )
-					action.exit1( _Error.InvalidReleaseVersion1 , "invalid release version=" + RELEASEVER , RELEASEVER );
-				if( items[k].length() > 3 )
-					action.exit1( _Error.InvalidReleaseVersion1 , "invalid release version=" + RELEASEVER , RELEASEVER );
-				value += items[k];
+				if( !action.isLocalRun() ) {
+					MetaProductSettings product = meta.getProductSettings( action );
+					account = Account.getAccount( action , "" , product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
+				}
 			}
 		}
-		
-		return( value );
-	}
-	
-	private String getReleaseDirByVer( ActionBase action , String RELEASEVER ) throws Exception {
-		RELEASEVER = normalizeReleaseVer( action , RELEASEVER );
-		String[] items = Common.splitDotted( RELEASEVER );
-		if( items[3].equals( "0" ) ) {
-			if( items[2].equals( "0" ) )
-				return( items[0] + "." + items[1] );
-			return( items[0] + "." + items[1] + "." + items[2] );
-		}
-		return( RELEASEVER );
-	}
-	
-	public String getReleaseVerByDir( ActionBase action , String RELEASEDIR ) throws Exception {
-		String RELEASEVER = Common.getPartBeforeFirst( RELEASEDIR , "-" );
-		RELEASEVER = normalizeReleaseVer( action , RELEASEVER );
-		return( RELEASEVER );
-	}
-	
-	private String getReleasePathByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
-		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
-
-		if( RELEASELABEL.equals( "default" ) && !action.context.CTX_DISTPATH.isEmpty() )
-			return( "." );
-		
-		String RELEASEPATH = "";
-		String RELEASEVER = "";
-		String RELEASEDIR = "";
-		
-		if( RELEASELABEL.equals( "prod" ) ) {
-			RELEASEPATH = "prod";
-			RELEASEVER = "(prod)";
-
-			// check content
-			if( !repoFolder.checkFolderExists( action , RELEASEPATH ) )
-				action.exit0( _Error.UnableFindProdDistributive0 , "getReleaseVerByLabel: unable to find prod distributive" );
-		}
-		else
-		if( RELEASELABEL.indexOf( "-" ) > 0 ) {
-			RELEASEDIR = RELEASELABEL;
-			RELEASEVER = getReleaseVerByDir( action , RELEASEDIR );
-			RELEASEPATH = "releases/" + RELEASEDIR;
-		}
 		else {
-			RELEASEVER = getReleaseVerByLabel( action , RELEASELABEL );
-			RELEASEDIR = getReleaseDirByVer( action , RELEASEVER );
-			RELEASEPATH = "releases/" + RELEASEDIR;
+			if( distPath.isEmpty() ) {
+				ServerContext sc = action.getServerContext();
+				distPath = sc.DIST_ROOT;
+				distPath = Common.getPath( distPath , meta.name );
+			}
+			
+			if( distPath.isEmpty() )
+				action.exit0( _Error.DistPathNotDefined0 , "DISTPATH is not defined in server configuration" );
 		}
 		
-		action.debug( "found release directory=" + RELEASEPATH + " by label=" + RELEASELABEL + "( RELEASEVER=" + RELEASEVER + ")" );
-		return( RELEASEPATH );
+		RemoteFolder folder = new RemoteFolder( account , distPath );
+		return( folder );
+	}
+	
+	private DistLabelInfo getLabelInfo( ActionBase action , String RELEASELABEL ) throws Exception {
+		DistLabelInfo info = new DistLabelInfo( this );
+		info.createLabelInfo( action , RELEASELABEL );
+		return( info );
 	}
 	
 	public String getReleaseVerByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
-		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
-
-		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		
-		String RELEASEVER = "";
-		if( RELEASELABEL.equals( "last" ) ) {
-			RELEASEVER = build.CONFIG_RELEASE_LASTMINOR;
-			if( RELEASEVER.isEmpty() )
-				action.exit0( _Error.LastMinorVersionNotSet0 , "Last minor release version is not set in product settings" );
-
-			return( RELEASEVER );
-		}
-		
-		if( RELEASELABEL.equals( "next" ) ) {
-			RELEASEVER = build.CONFIG_RELEASE_NEXTMINOR;
-			if( RELEASEVER.isEmpty() )
-				action.exit0( _Error.NextMinorVersionNotSet0 , "Next minor release version is not set in product settings" );
-
-			return( RELEASEVER );
-		}
-		
-		if( RELEASELABEL.indexOf( "-" ) < 0 ) {
-			RELEASEVER = normalizeReleaseVer( action , RELEASELABEL );
-			return( RELEASEVER );
-		}
-
-		action.exit1( _Error.UnexpectedReleaseLabel1 , "unexpected release label=" + RELEASELABEL , RELEASELABEL );
-		return( null );
+		DistLabelInfo info = getLabelInfo( action , RELEASELABEL );
+		return( info.RELEASEVER );
 	}
 	
 	public void createProd( ActionBase action , String RELEASEVER ) throws Exception {
-		String PRODPATH = getReleasePathByLabel( action , "prod" );
+		DistLabelInfo info = getLabelInfo( action , "prod" );
+		String PRODPATH = info.RELEASEPATH;
 		
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , PRODPATH );
 		if( !distFolder.checkExists( action ) )

@@ -49,5 +49,8 @@ public class _Error {
 	public static final int UnexpectedFullSetDatabaseItems0 = ErrorBase + 40;
 	public static final int UnexpectedFullSetManuaItems0 = ErrorBase + 41;
 	public static final int UnknownReleaseTarget1 = ErrorBase + 42;	
+	public static final int ReleaseRepositoryExists1 = ErrorBase + 43;
+	public static final int MissingReleaseRepositoryParent1 = ErrorBase + 44;
+	public static final int MissingReleaseRepository1 = ErrorBase + 45;
 	
 }
