@@ -26,6 +26,7 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepository.DistOperation;
+import org.urm.engine.dist.DistRepositoryItem;
 import org.urm.meta.product.Meta;
 
 public class ServerBlotter {
@@ -104,7 +105,7 @@ public class ServerBlotter {
 		ServerBlotterSet set = getBlotterSet( type );
 		if( set == null )
 			return( null );
-		return( set.getItem( actionId ) ); 
+		return( set.getActionItem( actionId ) ); 
 	}
 	
 	public ServerBlotterStat getBlotterStatistics( BlotterType type ) {
@@ -274,7 +275,11 @@ public class ServerBlotter {
 	private void runDistAction( ActionBase action , boolean success , Meta meta , Dist dist , DistOperation op , String msg ) {
 		try {
 			DistRepository repo = action.artefactory.getDistRepository( action , meta );
-			repo.addDistAction( action , success , dist , op , msg );
+			DistRepositoryItem item = repo.addDistAction( action , success , dist , op , msg );
+			if( item == null )
+				return;
+			
+			blotterReleases.affectReleaseItem( action , success , op , item );
 		}
 		catch( Throwable e ) {
 			action.log( "add release action to blotter" , e );

@@ -3,7 +3,10 @@ package org.urm.engine.dist;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.engine.dist.DistRepository.DistOperation;
 import org.urm.engine.storage.RemoteFolder;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class DistRepositoryItem {
@@ -21,6 +24,10 @@ public class DistRepositoryItem {
 		dist = read( action , repo , folder );
 	}
 
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , "releasedir" , dist.RELEASEDIR );
+	}
+	
 	public static Dist read( ActionBase action , DistRepository repo , RemoteFolder distFolder ) throws Exception {
 		if( !distFolder.checkExists( action ) )
 			action.exit1( _Error.MissingRelease1 , "release does not exist at " + distFolder.folderPath , distFolder.folderPath );
@@ -32,7 +39,11 @@ public class DistRepositoryItem {
 		return( dist );
 	}
 
-	public static Dist create( ActionBase action , DistRepository repo , RemoteFolder distFolder ) throws Exception {
+	public void createItem( ActionBase action , Dist dist ) throws Exception {
+		this.dist = dist;
+	}
+	
+	public static Dist createDist( ActionBase action , DistRepository repo , RemoteFolder distFolder ) throws Exception {
 		if( distFolder.checkExists( action ) ) {
 			String path = distFolder.folderPath;
 			action.ifexit( _Error.ReleaseAlreadyExists1 , "distributive already exists at " + path , new String[] { path } );
@@ -44,7 +55,7 @@ public class DistRepositoryItem {
 		return( dist );
 	}
 	
-	public static Dist createProd( ActionBase action , DistRepository repo , RemoteFolder distFolder , String RELEASEVER ) throws Exception {
+	public static Dist createProdDist( ActionBase action , DistRepository repo , RemoteFolder distFolder , String RELEASEVER ) throws Exception {
 		if( distFolder.checkExists( action ) ) {
 			String path = distFolder.folderPath;
 			action.ifexit( _Error.ReleaseAlreadyExists1 , "distributive already exists at " + path , new String[] { path } );
@@ -71,4 +82,10 @@ public class DistRepositoryItem {
 		return( s );
 	}
 
+	public void addAction( ActionBase action , boolean success , DistOperation op , String msg ) throws Exception {
+	}
+	
+	public void archiveItem( ActionBase action ) throws Exception {
+	}
+	
 }

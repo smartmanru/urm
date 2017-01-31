@@ -8,6 +8,8 @@ import org.urm.action.build.ActionPatch;
 import org.urm.engine.ServerBlotter.BlotterEvent;
 import org.urm.engine.ServerBlotter.BlotterType;
 import org.urm.engine.action.ActionInit;
+import org.urm.engine.dist.DistRepository.DistOperation;
+import org.urm.engine.dist.DistRepositoryItem;
 import org.urm.meta.product.MetaSourceProject;
 
 public class ServerBlotterSet extends ServerEventsSource {
@@ -15,7 +17,7 @@ public class ServerBlotterSet extends ServerEventsSource {
 	ServerBlotter blotter;
 	BlotterType type;
 	
-	private Map<Integer,ServerBlotterItem> items;
+	private Map<String,ServerBlotterItem> items;
 	private Map<String,ServerBlotterMemo> memos;
 	private ServerBlotterStat stat;
 	
@@ -24,7 +26,7 @@ public class ServerBlotterSet extends ServerEventsSource {
 		this.blotter = blotter;
 		this.type = type;
 
-		items = new HashMap<Integer,ServerBlotterItem>();
+		items = new HashMap<String,ServerBlotterItem>();
 		memos = new HashMap<String,ServerBlotterMemo>();
 		stat = new ServerBlotterStat( this );
 	}
@@ -73,22 +75,22 @@ public class ServerBlotterSet extends ServerEventsSource {
 	}
 
 	public synchronized ServerBlotterItem[] getItems( boolean includeFinished ) {
-		Map<Integer,ServerBlotterItem> selected = null;
+		Map<String,ServerBlotterItem> selected = null;
 		if( includeFinished )
 			selected = items;
 		else {
-			selected = new HashMap<Integer,ServerBlotterItem>();
+			selected = new HashMap<String,ServerBlotterItem>();
 			for( ServerBlotterItem item : items.values() ) {
 				if( !item.stopped )
-					selected.put( item.action.ID , item );
+					selected.put( item.ID , item );
 			}
 		}
 			
 		return( selected.values().toArray( new ServerBlotterItem[0] ) ); 
 	}
 
-	public synchronized ServerBlotterItem getItem( int actionId ) {
-		return( items.get( actionId ) );
+	public synchronized ServerBlotterItem getActionItem( int actionId ) {
+		return( items.get( "action-" + actionId ) );
 	}
 	
 	public synchronized void finishItem( ServerBlotterItem item ) {
@@ -146,7 +148,7 @@ public class ServerBlotterSet extends ServerEventsSource {
 	}
 	
 	private void removeItem( ServerBlotterItem item ) {
-		items.remove( item.action.ID );
+		items.remove( item.ID );
 		item.setRemoved();
 		
 		if( item.isRootItem() ) {
@@ -173,8 +175,12 @@ public class ServerBlotterSet extends ServerEventsSource {
 			item.setMemo( memo );
 		}
 		
-		items.put( item.action.ID , item );
+		items.put( item.ID , item );
 		stat.statAddItem( item );
+	}
+
+	public ServerBlotterItem affectReleaseItem( ActionBase action , boolean success , DistOperation op , DistRepositoryItem repoItem ) {
+		return( null );
 	}
 	
 }

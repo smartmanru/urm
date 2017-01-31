@@ -16,6 +16,7 @@ public class ServerBlotterItem {
 	public ServerBlotterItem parent;
 	public ServerBlotterTreeItem treeItem;
 	
+	public String ID;
 	public long startTime;
 	public long stopTime;
 	public boolean success;
@@ -85,6 +86,7 @@ public class ServerBlotterItem {
 	public void createRootItem() {
 		ActionInit init = ( ActionInit )action;
 		
+		this.ID = "action-" + action.ID;
 		this.INFO_NAME = init.getFormalName();
 		this.INFO_PRODUCT = init.session.productName;
 		
@@ -92,6 +94,7 @@ public class ServerBlotterItem {
 	}
 
 	public void createBuildItem( String product , String project , String tag , Folder logFolder , String logFile ) {
+		this.ID = "action-" + action.ID;
 		this.INFO_NAME = "build " + tag;
 		this.INFO_PRODUCT = product;
 		this.INFO_PROJECT = project;
