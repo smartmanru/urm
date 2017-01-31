@@ -22,13 +22,16 @@ public class DistLabelInfo {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 
 		if( RELEASELABEL.equals( "default" ) && !action.context.CTX_DISTPATH.isEmpty() ) {
+			RELEASEVER = "default";
+			RELEASEDIR = ".";
 			RELEASEPATH = ".";
 			return;
 		}
 		
 		if( RELEASELABEL.equals( "prod" ) ) {
-			RELEASEPATH = "prod";
 			RELEASEVER = "(prod)";
+			RELEASEDIR = "prod";
+			RELEASEPATH = "prod";
 			prod = true;
 
 			// check content
@@ -37,8 +40,8 @@ public class DistLabelInfo {
 		}
 		else
 		if( RELEASELABEL.indexOf( "-" ) > 0 ) {
+			RELEASEVER = getReleaseVerByDir( action , RELEASELABEL );
 			RELEASEDIR = RELEASELABEL;
-			RELEASEVER = getReleaseVerByDir( action , RELEASEDIR );
 			RELEASEPATH = "releases/" + RELEASEDIR;
 		}
 		else {

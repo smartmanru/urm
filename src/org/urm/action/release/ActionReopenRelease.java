@@ -6,15 +6,15 @@ import org.urm.engine.dist.Dist;
 
 public class ActionReopenRelease extends ActionBase {
 
-	Dist release;
+	public Dist dist;
 	
-	public ActionReopenRelease( ActionBase action , String stream , Dist release ) {
-		super( action , stream , "Reopen release=" + release.RELEASEDIR );
-		this.release = release;
+	public ActionReopenRelease( ActionBase action , String stream , Dist dist ) {
+		super( action , stream , "Reopen release=" + dist.RELEASEDIR );
+		this.dist = dist;
 	}
 
 	@Override protected SCOPESTATE executeSimple() throws Exception {
-		release.reopen( this );
+		dist.reopen( this );
 		return( SCOPESTATE.RunSuccess );
 	}
 	

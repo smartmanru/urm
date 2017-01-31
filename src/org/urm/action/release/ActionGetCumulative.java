@@ -14,7 +14,7 @@ import org.urm.meta.product.MetaDistrConfItem;
 public class ActionGetCumulative extends ActionBase {
 
 	Meta meta;
-	Dist dist;
+	public Dist dist;
 	
 	public ActionGetCumulative( ActionBase action , String stream , Meta meta , Dist dist ) {
 		super( action , stream , "Rebuild cumulative release=" + dist.RELEASEDIR );

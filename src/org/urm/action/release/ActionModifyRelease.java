@@ -6,18 +6,18 @@ import org.urm.engine.dist.Dist;
 
 public class ActionModifyRelease extends ActionBase {
 
-	public Dist release;
+	public Dist dist;
 	
 	public ActionModifyRelease( ActionBase action , String stream , Dist release ) {
 		super( action , stream , "Change properties of release=" + release.RELEASEDIR );
-		this.release = release;
+		this.dist = release;
 	}
 
 	@Override protected SCOPESTATE executeSimple() throws Exception {
-		release.openForChange( this );
-		release.release.setProperties( this );
-		release.saveReleaseXml( this );
-		release.closeChange( this );
+		dist.openForChange( this );
+		dist.release.setProperties( this );
+		dist.saveReleaseXml( this );
+		dist.closeChange( this );
 		return( SCOPESTATE.RunSuccess );
 	}
 	

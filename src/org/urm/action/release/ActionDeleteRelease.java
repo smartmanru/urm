@@ -6,20 +6,20 @@ import org.urm.engine.dist.Dist;
 
 public class ActionDeleteRelease extends ActionBase {
 
-	Dist release;
+	public Dist dist;
 	boolean force;
 	
-	public ActionDeleteRelease( ActionBase action , String stream , Dist release , boolean force ) {
-		super( action , stream , "Drop release=" + release.RELEASEDIR );
-		this.release = release;
+	public ActionDeleteRelease( ActionBase action , String stream , Dist dist , boolean force ) {
+		super( action , stream , "Drop release=" + dist.RELEASEDIR );
+		this.dist = dist;
 		this.force = force;
 	}
 
 	@Override protected SCOPESTATE executeSimple() throws Exception {
 		if( force )
-			release.forceDrop( this );
+			dist.forceDrop( this );
 		else
-			release.dropRelease( this );
+			dist.dropRelease( this );
 		return( SCOPESTATE.RunSuccess );
 	}
 	

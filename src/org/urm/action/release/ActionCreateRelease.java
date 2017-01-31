@@ -7,9 +7,9 @@ import org.urm.meta.product.Meta;
 
 public class ActionCreateRelease extends ActionBase {
 
-	Meta meta;
-	public Dist release;
-	String RELEASELABEL;
+	public Meta meta;
+	public Dist dist;
+	public String RELEASELABEL;
 	
 	public ActionCreateRelease( ActionBase action , String stream , Meta meta , String RELEASELABEL ) {
 		super( action , stream , "Create release, product=" + meta.name + ", label=" + RELEASELABEL );
@@ -18,7 +18,7 @@ public class ActionCreateRelease extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeSimple() throws Exception {
-		release = artefactory.createDist( this , meta , RELEASELABEL );
+		dist = artefactory.createDist( this , meta , RELEASELABEL );
 		return( SCOPESTATE.RunSuccess );
 	}
 	

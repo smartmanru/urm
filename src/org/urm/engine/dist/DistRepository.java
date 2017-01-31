@@ -19,17 +19,28 @@ import org.w3c.dom.Node;
 
 public class DistRepository {
 
+	public enum DistOperation {
+		CREATE ,
+		DROP ,
+		FINISH ,
+		REOPEN ,
+		PLAN ,
+		PUT
+	};
+	
 	Meta meta;
 	RemoteFolder repoFolder;
 
-	public Map<String,DistRepositoryItem> distMap; 
+	public Map<String,Dist> distMap; 
+	public Map<String,DistRepositoryItem> runMap; 
 	
 	static String RELEASEREPOSITORYFILE = "releases.xml";
 	static String RELEASEHISTORYFILE = "history.txt";
 	
 	private DistRepository( Meta meta ) {
 		this.meta = meta;
-		distMap = new HashMap<String,DistRepositoryItem>();
+		distMap = new HashMap<String,Dist>();
+		runMap = new HashMap<String,DistRepositoryItem>();
 	}
 	
 	public static DistRepository loadDistRepository( ActionBase action , Meta meta ) throws Exception {
@@ -74,6 +85,7 @@ public class DistRepository {
 
 	private void readRepositoryFile( ActionBase action ) throws Exception {
 		distMap.clear();
+		runMap.clear();
 		
 		if( !repoFolder.checkFileExists( action , RELEASEREPOSITORYFILE ) ) {
 			createRepositoryFile( action );
@@ -91,7 +103,7 @@ public class DistRepository {
 		for( Node releaseNode : items ) {
 			DistRepositoryItem item = new DistRepositoryItem( this );
 			item.load( action , releaseNode );
-			distMap.put( item.VERSION , item );
+			runMap.put( item.dist.RELEASEDIR , item );
 		}
 	}
 
@@ -155,42 +167,32 @@ public class DistRepository {
 		return( repoFolder.getSubFolder( action , "data/" + dataSet + "/log-import-" + location ) );
 	}
 	
-	public Dist getDistByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
-		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
-		
+	public synchronized Dist getDistByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
 		DistLabelInfo info = getLabelInfo( action , RELEASELABEL );
-		String RELEASEPATH = info.RELEASEPATH;
-		boolean prod = info.prod;
+		Dist dist = findDist( action , info );
+		if( dist != null )
+			return( dist );
+
+		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
+		dist = DistRepositoryItem.read( action , this , distFolder );
+		addDist( dist );
 		
-		RemoteFolder distFolder = repoFolder.getSubFolder( action , RELEASEPATH );
-		Dist storage = new Dist( meta , this );
-		storage.setFolder( distFolder , prod );
-		
-		// check release directory exists
-		if( !distFolder.checkExists( action ) )
-			action.exit1( _Error.MissingRelease1 , "release does not exist at " + distFolder.folderPath , distFolder.folderPath );
-		
-		storage.load( action );
-		return( storage );
+		return( dist );
 	}
 
-	public Dist createDist( ActionBase action , String RELEASELABEL ) throws Exception {
-		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
-		
+	public synchronized Dist createDist( ActionBase action , String RELEASELABEL ) throws Exception {
 		DistLabelInfo info = getLabelInfo( action , RELEASELABEL );
-		String RELEASEPATH = info.RELEASEPATH;
-		String RELEASEDIR = info.RELEASEDIR;
+		Dist dist = findDist( action , info );
+		if( dist != null ) {
+			String path = info.RELEASEPATH;
+			action.exit( _Error.ReleaseAlreadyExists1 , "release already exists at " + path , new String[] { path } );
+		}
 		
-		RemoteFolder distFolder = repoFolder.getSubFolder( action , RELEASEPATH );
-		Dist storage = new Dist( meta , this );
-		storage.setFolder( distFolder , false );
+		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
+		dist = DistRepositoryItem.create( action , this , distFolder );
+		addDist( dist );
 		
-		// check release directory exists
-		if( distFolder.checkExists( action ) )
-			action.ifexit( _Error.ReleaseAlreadyExists1 , "release already exists at " + RELEASEPATH , new String[] { RELEASEPATH } );
-
-		storage.create( action , RELEASEDIR );
-		return( storage );
+		return( dist );
 	}
 
 	private RemoteFolder getDistFolder( ActionBase action ) throws Exception {
@@ -243,33 +245,31 @@ public class DistRepository {
 		return( info.RELEASEVER );
 	}
 	
-	public void createProd( ActionBase action , String RELEASEVER ) throws Exception {
+	public synchronized Dist createProd( ActionBase action , String RELEASEVER ) throws Exception {
 		DistLabelInfo info = getLabelInfo( action , "prod" );
-		String PRODPATH = info.RELEASEPATH;
-		
-		RemoteFolder distFolder = repoFolder.getSubFolder( action , PRODPATH );
-		if( !distFolder.checkExists( action ) )
-			action.exit1( _Error.MissingProdFolder1 , "prod folder does not exists at " + distFolder.folderPath , distFolder.folderPath );
-		
-		if( action.context.CTX_FORCE ) {
-			distFolder.removeFiles( action , "history.txt state.txt" );
-		}
-		else {
-			if( distFolder.checkFileExists( action , RELEASEHISTORYFILE ) )
-				action.exit1( _Error.ProdFolderAlreadyInitialized1 , "prod folder is probably already initialized, delete history.txt manually to recreate" , distFolder.folderPath );
-		}
-		
-		Dist storage = new Dist( meta , this );
-		storage.setFolder( distFolder , true );
-		distFolder.createFileFromString( action , RELEASEHISTORYFILE , getHistoryRecord( action , RELEASEVER , "add" ) );
-		storage.createProd( action , RELEASEVER );
-		
-		storage.finish( action );
+		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
+		Dist dist = DistRepositoryItem.createProd( action , this , distFolder , RELEASEVER );
+		addDist( dist );
+		return( dist );
 	}
 
-	private String getHistoryRecord( ActionBase action , String RELEASEVER , String operation ) throws Exception {
-		String s = Common.getNameTimeStamp() + ":" + operation + ":" + RELEASEVER;
-		return( s );
+	public DistRepositoryItem findRunItem( ActionBase action , String RELEASEDIR ) throws Exception {
+		return( runMap.get( RELEASEDIR ) );
+	}
+	
+	private Dist findDist( ActionBase action , DistLabelInfo info ) throws Exception {
+		return( findDist( action , info.RELEASEDIR ) );
+	}
+	
+	private synchronized Dist findDist( ActionBase action , String releaseDir ) throws Exception {
+		return( distMap.get( releaseDir ) );
 	}
 
+	private synchronized void addDist( Dist dist ) {
+		distMap.put( dist.RELEASEDIR , dist );
+	}
+
+	public void addDistAction( ActionBase action , boolean success , Dist dist , DistOperation op , String msg ) throws Exception {
+	}
+	
 }

@@ -6,15 +6,15 @@ import org.urm.engine.dist.Dist;
 
 public class ActionFinishRelease extends ActionBase {
 
-	Dist release;
+	public Dist dist;
 	
-	public ActionFinishRelease( ActionBase action , String stream , Dist release ) {
-		super( action , stream , "Finalize release=" + release.RELEASEDIR );
-		this.release = release;
+	public ActionFinishRelease( ActionBase action , String stream , Dist dist ) {
+		super( action , stream , "Finalize release=" + dist.RELEASEDIR );
+		this.dist = dist;
 	}
 
 	@Override protected SCOPESTATE executeSimple() throws Exception {
-		release.finish( this );
+		dist.finish( this );
 		return( SCOPESTATE.RunSuccess );
 	}
 	

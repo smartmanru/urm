@@ -4,10 +4,29 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.action.ActionBase;
+import org.urm.action.build.ActionGetBinary;
+import org.urm.action.build.ActionGetManual;
 import org.urm.action.build.ActionPatch;
+import org.urm.action.conf.ActionGetConf;
+import org.urm.action.database.ActionGetDB;
 import org.urm.action.monitor.ActionMonitorTop;
+import org.urm.action.release.ActionAddScope;
+import org.urm.action.release.ActionCopyRelease;
+import org.urm.action.release.ActionCreateProd;
+import org.urm.action.release.ActionCreateRelease;
+import org.urm.action.release.ActionDeleteRelease;
+import org.urm.action.release.ActionDescope;
+import org.urm.action.release.ActionFinishRelease;
+import org.urm.action.release.ActionForceCloseRelease;
+import org.urm.action.release.ActionGetCumulative;
+import org.urm.action.release.ActionModifyRelease;
+import org.urm.action.release.ActionReopenRelease;
 import org.urm.common.Common;
 import org.urm.engine.action.ActionInit;
+import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.DistRepository;
+import org.urm.engine.dist.DistRepository.DistOperation;
+import org.urm.meta.product.Meta;
 
 public class ServerBlotter {
 
@@ -127,7 +146,7 @@ public class ServerBlotter {
 			notifyItem( baseItem , BlotterEvent.BLOTTER_START );
 			return;
 		}
-		
+
 		ServerBlotterTreeItem treeItem = blotterRoots.createChildItem( action , parentBaseItem , parentTreeItem );
 		startChildAction( rootItem , parentBaseItem , treeItem );
 	}
@@ -163,6 +182,81 @@ public class ServerBlotter {
 		ServerBlotterItem baseItem = treeItem.baseItem;
 		treeItem.stopAction( success );
 		
+		if( action instanceof ActionCopyRelease ) {
+			ActionCopyRelease xa = ( ActionCopyRelease )action;
+			runDistAction( xa , success , xa.src.meta , xa.dst , DistOperation.CREATE , "copy distributive from " + xa.src.RELEASEDIR + " to " + xa.dst.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionCreateProd ) {
+			ActionCreateProd xa = ( ActionCreateProd )action;
+			runDistAction( xa , success , xa.meta , xa.dist , DistOperation.CREATE , "create complete production distributive version=" + xa.RELEASEVER ); 
+		}
+		else
+		if( action instanceof ActionCreateRelease ) {
+			ActionCreateRelease xa = ( ActionCreateRelease )action;
+			runDistAction( xa , success , xa.meta , xa.dist , DistOperation.CREATE , "create distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionDeleteRelease ) {
+			ActionDeleteRelease xa = ( ActionDeleteRelease )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.DROP , "drop distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionFinishRelease ) {
+			ActionFinishRelease xa = ( ActionFinishRelease )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.FINISH , "finalize distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionReopenRelease ) {
+			ActionReopenRelease xa = ( ActionReopenRelease )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.REOPEN , "reopen distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionAddScope ) {
+			ActionAddScope xa = ( ActionAddScope )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PLAN , "extend scope of distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionDescope ) {
+			ActionFinishRelease xa = ( ActionFinishRelease )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PLAN , "reduce scope of distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionForceCloseRelease ) {
+			ActionForceCloseRelease xa = ( ActionForceCloseRelease )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PLAN , "close distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionGetCumulative ) {
+			ActionGetCumulative xa = ( ActionGetCumulative )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PUT , "put cumulative items to distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionModifyRelease ) {
+			ActionModifyRelease xa = ( ActionModifyRelease )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PLAN , "modify properties of distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionGetBinary ) {
+			ActionGetCumulative xa = ( ActionGetCumulative )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PUT , "put binary items to distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionGetConf ) {
+			ActionGetCumulative xa = ( ActionGetCumulative )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PUT , "put configuration items to distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionGetManual ) {
+			ActionGetCumulative xa = ( ActionGetCumulative )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PUT , "put manual items to distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionGetDB ) {
+			ActionGetCumulative xa = ( ActionGetCumulative )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PUT , "put database items to distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		
 		if( baseItem != null ) {
 			baseItem.stopAction( success );
 			finishItem( baseItem );
@@ -177,6 +271,16 @@ public class ServerBlotter {
 		stopChildAction( rootItem , baseItem , treeItem , success );
 	}
 
+	private void runDistAction( ActionBase action , boolean success , Meta meta , Dist dist , DistOperation op , String msg ) {
+		try {
+			DistRepository repo = action.artefactory.getDistRepository( action , meta );
+			repo.addDistAction( action , success , dist , op , msg );
+		}
+		catch( Throwable e ) {
+			action.log( "add release action to blotter" , e );
+		}
+	}
+	
 	private void stopChildAction( ServerBlotterItem rootItem , ServerBlotterItem baseItem , ServerBlotterTreeItem treeItem , boolean success ) {
 		blotterRoots.stopChildAction( rootItem , treeItem , success );
 		notifyChildItem( rootItem , treeItem , BlotterEvent.BLOTTER_STOPCHILD );

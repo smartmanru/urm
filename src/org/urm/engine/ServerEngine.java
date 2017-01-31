@@ -353,8 +353,6 @@ public class ServerEngine {
 				sessionController.closeSession( action.session );
 				action.clearSession();
 			}
-			
-			blotter.stopAction( action , !action.isFailed() );
 		}
 	}
 
