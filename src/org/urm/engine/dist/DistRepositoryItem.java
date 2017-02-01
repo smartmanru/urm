@@ -11,26 +11,35 @@ import org.w3c.dom.Node;
 
 public class DistRepositoryItem {
 
-	DistRepository repo;
-	Dist dist;
+	public DistRepository repo;
+	public Dist dist;
+	
+	public String RELEASEDIR; 
+	public long created;
 	
 	public DistRepositoryItem( DistRepository repo ) {
 		this.repo = repo;
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
-		String dir = ConfReader.getAttrValue( root , "releasedir" );
-		RemoteFolder folder = repo.repoFolder.getSubFolder( action , dir );
-		dist = read( action , repo , folder );
+		RELEASEDIR = ConfReader.getAttrValue( root , "releasedir" );
+		created = Long.parseLong( ConfReader.getAttrValue( root , "created" ) );
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , "releasedir" , dist.RELEASEDIR );
+		Common.xmlSetElementAttr( doc , root , "created" , Long.toString( created ) );
+	}
+
+	public void read( ActionBase action , RemoteFolder distFolder ) throws Exception {
+		dist = read( action , repo , distFolder );
 	}
 	
 	public static Dist read( ActionBase action , DistRepository repo , RemoteFolder distFolder ) throws Exception {
-		if( !distFolder.checkExists( action ) )
-			action.exit1( _Error.MissingRelease1 , "release does not exist at " + distFolder.folderPath , distFolder.folderPath );
+		if( !distFolder.checkExists( action ) ) {
+			String path = distFolder.getLocalPath( action );
+			action.exit1( _Error.MissingRelease1 , "release does not exist at " + path , path );
+		}
 		
 		boolean prod = distFolder.folderName.equals( "prod" );
 		Dist dist = new Dist( repo.meta , repo );
@@ -41,6 +50,7 @@ public class DistRepositoryItem {
 
 	public void createItem( ActionBase action , Dist dist ) throws Exception {
 		this.dist = dist;
+		created = System.currentTimeMillis();
 	}
 	
 	public static Dist createDist( ActionBase action , DistRepository repo , RemoteFolder distFolder ) throws Exception {

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.dist.DistState.DISTSTATE;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
@@ -86,8 +87,8 @@ public class Dist {
 		return( distFolder.isRemote( action ) );
 	}
 	
-	public String getState( ActionBase action ) throws Exception {
-		return( state.state.name() );
+	public DISTSTATE getState() {
+		return( state.state );
 	}
 	
 	public void load( ActionBase action ) throws Exception {

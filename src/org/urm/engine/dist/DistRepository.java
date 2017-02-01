@@ -84,7 +84,7 @@ public class DistRepository {
 		readRepositoryFile( action );
 	}
 
-	private void readRepositoryFile( ActionBase action ) throws Exception {
+	private synchronized void readRepositoryFile( ActionBase action ) throws Exception {
 		distMap.clear();
 		runMap.clear();
 		
@@ -104,6 +104,9 @@ public class DistRepository {
 		for( Node releaseNode : items ) {
 			DistRepositoryItem item = new DistRepositoryItem( this );
 			item.load( action , releaseNode );
+			DistLabelInfo info = getLabelInfo( action , item.RELEASEDIR );
+			RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
+			item.read( action , distFolder );
 			addRunItem( item );
 		}
 	}
@@ -340,4 +343,13 @@ public class DistRepository {
 		return( item );
 	}
 
+	public synchronized DistRepositoryItem[] getRunItems() {
+		int count = runMap.size();
+		DistRepositoryItem[] items = new DistRepositoryItem[ count ];
+		int k = 0;
+		for( String key : Common.getSortedKeys( runMap ) )
+			items[ k++ ] = runMap.get( key );
+		return( items );
+	}
+	
 }

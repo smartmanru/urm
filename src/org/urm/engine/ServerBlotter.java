@@ -42,7 +42,8 @@ public class ServerBlotter {
 		BLOTTER_START ,
 		BLOTTER_STOP ,
 		BLOTTER_STARTCHILD ,
-		BLOTTER_STOPCHILD
+		BLOTTER_STOPCHILD ,
+		BLOTTER_RELEASEACTION
 	};
 	
 	public ServerEngine engine;
@@ -84,6 +85,11 @@ public class ServerBlotter {
 			set.clear();
 	}
 	
+	public void start( ActionInit action ) throws Exception {
+		for( ServerBlotterSet set : blotters )
+			set.start( action );
+	}
+	
 	public void runHouseKeeping( long time ) {
 		long timeDay = Common.getDay( time );
 		if( timeDay == day )
@@ -101,11 +107,11 @@ public class ServerBlotter {
 		return( set.getItems( includeFinished ) ); 
 	}
 	
-	public ServerBlotterItem getBlotterItem( BlotterType type , int actionId ) {
+	public ServerBlotterItem getBlotterItem( BlotterType type , String ID ) {
 		ServerBlotterSet set = getBlotterSet( type );
 		if( set == null )
 			return( null );
-		return( set.getActionItem( actionId ) ); 
+		return( set.getItem( ID ) ); 
 	}
 	
 	public ServerBlotterStat getBlotterStatistics( BlotterType type ) {
@@ -136,12 +142,12 @@ public class ServerBlotter {
 		if( action.parent.blotterTreeItem == null )
 			return;
 		
-		ServerBlotterItem rootItem = action.parent.blotterRootItem;
+		ServerBlotterActionItem rootItem = action.parent.blotterRootItem;
 		ServerBlotterTreeItem parentTreeItem = action.parent.blotterTreeItem;
-		ServerBlotterItem parentBaseItem = getBaseItem( rootItem , parentTreeItem );
+		ServerBlotterActionItem parentBaseItem = getBaseItem( rootItem , parentTreeItem );
 
 		if( action instanceof ActionPatch ) {
-			ServerBlotterItem baseItem = blotterBuilds.createBuildItem( rootItem , parentBaseItem , parentTreeItem , ( ActionPatch )action );
+			ServerBlotterActionItem baseItem = blotterBuilds.createBuildItem( rootItem , parentBaseItem , parentTreeItem , ( ActionPatch )action );
 			parentTreeItem.addChild( baseItem.treeItem );
 			startChildAction( rootItem , parentBaseItem , baseItem.treeItem );
 			notifyItem( baseItem , BlotterEvent.BLOTTER_START );
@@ -152,7 +158,7 @@ public class ServerBlotter {
 		startChildAction( rootItem , parentBaseItem , treeItem );
 	}
 
-	private void startChildAction( ServerBlotterItem rootItem , ServerBlotterItem baseItem , ServerBlotterTreeItem treeItem ) {
+	private void startChildAction( ServerBlotterActionItem rootItem , ServerBlotterActionItem baseItem , ServerBlotterTreeItem treeItem ) {
 		blotterRoots.startChildAction( rootItem , treeItem );
 		notifyChildItem( rootItem , treeItem , BlotterEvent.BLOTTER_STARTCHILD );
 		
@@ -163,7 +169,7 @@ public class ServerBlotter {
 		}
 	}
 	
-	private ServerBlotterItem getBaseItem( ServerBlotterItem rootItem , ServerBlotterTreeItem treeItem ) {
+	private ServerBlotterActionItem getBaseItem( ServerBlotterActionItem rootItem , ServerBlotterTreeItem treeItem ) {
 		ServerBlotterTreeItem parentItem = treeItem;
 		while( parentItem != null ) {
 			if( parentItem.baseItem != null )
@@ -178,11 +184,26 @@ public class ServerBlotter {
 		if( action.blotterTreeItem == null )
 			return;
 
+		// action tree
 		ServerBlotterTreeItem treeItem = action.blotterTreeItem;
-		ServerBlotterItem rootItem = treeItem.rootItem;
-		ServerBlotterItem baseItem = treeItem.baseItem;
+		ServerBlotterActionItem rootItem = treeItem.rootItem;
+		ServerBlotterActionItem baseItem = treeItem.baseItem;
 		treeItem.stopAction( success );
+
+		if( baseItem != null ) {
+			baseItem.stopAction( success );
+			finishItem( baseItem );
+			notifyItem( baseItem , BlotterEvent.BLOTTER_STOP );
+			
+			if( baseItem != rootItem )
+				stopChildAction( rootItem , baseItem.parent , treeItem , success );
+		}
+		else {
+			baseItem = getBaseItem( rootItem , treeItem );
+			stopChildAction( rootItem , baseItem , treeItem , success );
+		}
 		
+		// release blotter
 		if( action instanceof ActionCopyRelease ) {
 			ActionCopyRelease xa = ( ActionCopyRelease )action;
 			runDistAction( xa , success , xa.src.meta , xa.dst , DistOperation.CREATE , "copy distributive from " + xa.src.RELEASEDIR + " to " + xa.dst.RELEASEDIR ); 
@@ -257,36 +278,23 @@ public class ServerBlotter {
 			ActionGetCumulative xa = ( ActionGetCumulative )action;
 			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PUT , "put database items to distributive releasedir=" + xa.dist.RELEASEDIR ); 
 		}
-		
-		if( baseItem != null ) {
-			baseItem.stopAction( success );
-			finishItem( baseItem );
-			notifyItem( baseItem , BlotterEvent.BLOTTER_STOP );
-			
-			if( baseItem != rootItem )
-				stopChildAction( rootItem , baseItem.parent , treeItem , success );
-			return;
-		}
-		
-		baseItem = getBaseItem( rootItem , treeItem );
-		stopChildAction( rootItem , baseItem , treeItem , success );
 	}
 
 	private void runDistAction( ActionBase action , boolean success , Meta meta , Dist dist , DistOperation op , String msg ) {
 		try {
 			DistRepository repo = action.artefactory.getDistRepository( action , meta );
-			DistRepositoryItem item = repo.addDistAction( action , success , dist , op , msg );
-			if( item == null )
+			DistRepositoryItem distItem = repo.addDistAction( action , success , dist , op , msg );
+			if( distItem == null )
 				return;
 			
-			blotterReleases.affectReleaseItem( action , success , op , item );
+			blotterReleases.affectReleaseItem( action , success , op , distItem );
 		}
 		catch( Throwable e ) {
 			action.log( "add release action to blotter" , e );
 		}
 	}
 	
-	private void stopChildAction( ServerBlotterItem rootItem , ServerBlotterItem baseItem , ServerBlotterTreeItem treeItem , boolean success ) {
+	private void stopChildAction( ServerBlotterActionItem rootItem , ServerBlotterActionItem baseItem , ServerBlotterTreeItem treeItem , boolean success ) {
 		blotterRoots.stopChildAction( rootItem , treeItem , success );
 		notifyChildItem( rootItem , treeItem , BlotterEvent.BLOTTER_STOPCHILD );
 		
@@ -307,7 +315,7 @@ public class ServerBlotter {
 		set.notifyChildItem( baseItem , treeItem , event );
 	}
 	
-	private void finishItem( ServerBlotterItem item ) {
+	private void finishItem( ServerBlotterActionItem item ) {
 		ServerBlotterSet set = item.blotterSet;
 		set.finishItem( item );
 	}

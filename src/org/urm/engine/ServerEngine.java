@@ -93,6 +93,8 @@ public class ServerEngine {
 	public void runServer( ActionInit action ) throws Exception {
 		serverAction.debug( "load server configuration ..." );
 		loader.loadServerProducts( action.actionInit );
+		blotter.start( serverAction );
+		
 		sessionController.start( serverAction );
 		
 		ServerMonitoring mon = loader.getMonitoring();
