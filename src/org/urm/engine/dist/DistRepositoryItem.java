@@ -1,5 +1,8 @@
 package org.urm.engine.dist;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
@@ -17,18 +20,36 @@ public class DistRepositoryItem {
 	public String RELEASEDIR; 
 	public long created;
 	
+	List<DistRepositoryItemAction> history;
+	
 	public DistRepositoryItem( DistRepository repo ) {
 		this.repo = repo;
+		history = new LinkedList<DistRepositoryItemAction>(); 
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
 		RELEASEDIR = ConfReader.getAttrValue( root , "releasedir" );
-		created = Long.parseLong( ConfReader.getAttrValue( root , "created" ) );
+		created = ConfReader.getLongAttrValue( root , "created" , 0 );
+		
+		Node[] items = ConfReader.xmlGetChildren( root , "action" );
+		if( items == null )
+			return;
+		
+		for( Node historyNode : items ) {
+			DistRepositoryItemAction historyAction = new DistRepositoryItemAction( this );
+			historyAction.load( action , historyNode );
+			addHistory( historyAction );
+		}
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , "releasedir" , dist.RELEASEDIR );
 		Common.xmlSetElementAttr( doc , root , "created" , Long.toString( created ) );
+		
+		for( DistRepositoryItemAction historyAction : history ) {
+			Element distElement = Common.xmlCreateElement( doc , root , "action" );
+			historyAction.save( action , doc , distElement );
+		}
 	}
 
 	public void read( ActionBase action , RemoteFolder distFolder ) throws Exception {
@@ -93,9 +114,20 @@ public class DistRepositoryItem {
 	}
 
 	public void addAction( ActionBase action , boolean success , DistOperation op , String msg ) throws Exception {
+		DistRepositoryItemAction historyAction = new DistRepositoryItemAction( this );
+		historyAction.create( action , success , op , msg );
+		addHistory( historyAction );
 	}
 	
 	public void archiveItem( ActionBase action ) throws Exception {
+	}
+
+	private void addHistory( DistRepositoryItemAction historyAction ) {
+		history.add( historyAction );
+	}
+	
+	public synchronized DistRepositoryItemAction[] getHistory() {
+		return( history.toArray( new DistRepositoryItemAction[0] ) );
 	}
 	
 }
