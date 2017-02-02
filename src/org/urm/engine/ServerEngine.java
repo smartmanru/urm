@@ -355,6 +355,9 @@ public class ServerEngine {
 				sessionController.closeSession( action.session );
 				action.clearSession();
 			}
+			
+			boolean success = ( action.isFailed() )? false : true;
+			blotter.stopAction( action , success );
 		}
 	}
 

@@ -79,8 +79,8 @@ public class Dist {
 		gatherFiles( action );
 	}
 	
-	public boolean isFinalized( ActionBase action ) throws Exception {
-		return( state.isFinalized( action ) );
+	public boolean isFinalized() {
+		return( state.isFinalized() );
 	}
 	
 	public boolean isRemote( ActionBase action ) throws Exception {

@@ -53,7 +53,7 @@ public class ActionGetCumulative extends ActionBase {
 	private boolean addCumulativeVersion( DistRepository repo , String cumver , Dist cumdist ) throws Exception {
 		info( "add cumulative release version=" + cumver + " ..." );
 		
-		if( !cumdist.isFinalized( this ) ) {
+		if( !cumdist.isFinalized() ) {
 			error( "cannot settle cumulative release from non-finalized release version=" + cumver );
 			return( false );
 		}

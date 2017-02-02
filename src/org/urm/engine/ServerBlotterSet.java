@@ -62,7 +62,8 @@ public class ServerBlotterSet extends ServerEventsSource {
 
 	public synchronized void startReleaseSetRepo( ActionInit action , DistRepository repo ) throws Exception {
 		for( DistRepositoryItem repoItem : repo.getRunItems() ) {
-			ServerBlotterReleaseItem item = new ServerBlotterReleaseItem( this , repoItem.dist.RELEASEDIR );
+			String key = getReleaseKey( repoItem );
+			ServerBlotterReleaseItem item = new ServerBlotterReleaseItem( this , key );
 			item.createReleaseItem( repoItem );
 			items.put( item.ID , item );
 		}
@@ -82,8 +83,10 @@ public class ServerBlotterSet extends ServerEventsSource {
 		if( houseKeeping ) {
 			ServerBlotterItem[] set = items.values().toArray( new ServerBlotterItem[0] );
 			for( ServerBlotterItem item : set ) {
-				items.remove( item.ID );
-				removeItem( item );
+				if( item.toberemoved ) {
+					items.remove( item.ID );
+					removeItem( item );
+				}
 			}
 		}
 		else {
@@ -189,7 +192,7 @@ public class ServerBlotterSet extends ServerEventsSource {
 	private void removeItem( ServerBlotterItem item ) {
 		item.setRemoved();
 		
-		if( item.isRootItem() && item.toberemoved ) {
+		if( item.isRootItem() ) {
 			try {
 				ServerBlotterActionItem rootItem = ( ServerBlotterActionItem )item; 
 				ActionInit action = ( ActionInit )rootItem.action;
@@ -219,7 +222,7 @@ public class ServerBlotterSet extends ServerEventsSource {
 
 	
 	public ServerBlotterReleaseItem affectReleaseItem( ActionBase action , boolean success , DistOperation op , DistRepositoryItem repoItem ) {
-		String key = repoItem.dist.meta.name + "##" + repoItem.dist.RELEASEDIR;
+		String key = getReleaseKey( repoItem );
 		
 		ServerBlotterReleaseItem item = null;
 		if( op == DistOperation.CREATE ) {
@@ -242,6 +245,10 @@ public class ServerBlotterSet extends ServerEventsSource {
 		}
 		
 		return( item );
+	}
+
+	private String getReleaseKey( DistRepositoryItem repoItem ) {
+		return( repoItem.dist.meta.name + "##" + repoItem.dist.RELEASEDIR );
 	}
 	
 }

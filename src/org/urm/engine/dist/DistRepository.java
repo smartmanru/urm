@@ -108,6 +108,7 @@ public class DistRepository {
 			RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
 			item.read( action , distFolder );
 			addRunItem( item );
+			addDist( item.dist );
 		}
 	}
 

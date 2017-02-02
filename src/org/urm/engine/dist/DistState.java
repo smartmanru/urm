@@ -94,6 +94,9 @@ public class DistState {
 		activeChangeID = timeStamp;
 		stateMem = newState;
 		stateHash = hash;
+		
+		state = stateMem;
+		stateChangeID = activeChangeID;
 	}
 
 	public void checkDistChangeEnabled( ActionBase action ) throws Exception {
@@ -344,7 +347,7 @@ public class DistState {
 		distFolder.copyFileFromLocal( action , filePath );
 	}
 
-	public boolean isFinalized( ActionBase action ) throws Exception {
+	public boolean isFinalized() {
 		if( state == DISTSTATE.PROD || state == DISTSTATE.RELEASED )
 			return( true );
 		return( false );
