@@ -210,12 +210,12 @@ public class Dist {
 		return( distFolder.checkFileExists( action , path ) );
 	}
 	
-	public String getDistFolder( ActionBase action ) throws Exception {
+	public String getDistFolder() {
 		return( distFolder.folderName );
 	}
 	
 	public String getDistPath( ActionBase action ) throws Exception {
-		return( distFolder.folderPath );
+		return( distFolder.getLocalPath( action ) );
 	}
 	
 	public String getManualFolder( ActionBase action ) throws Exception {

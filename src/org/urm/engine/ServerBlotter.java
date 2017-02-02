@@ -216,7 +216,7 @@ public class ServerBlotter {
 		else
 		if( action instanceof ActionCreateRelease ) {
 			ActionCreateRelease xa = ( ActionCreateRelease )action;
-			runDistAction( xa , success , xa.meta , xa.dist , DistOperation.CREATE , "create distributive releasedir=" + xa.dist.RELEASEDIR ); 
+			runDistAction( xa , success , xa.meta , xa.dist , DistOperation.CREATE , "create distributive releaselabel=" + xa.RELEASELABEL ); 
 		}
 		else
 		if( action instanceof ActionDeleteRelease ) {

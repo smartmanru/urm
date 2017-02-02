@@ -236,7 +236,7 @@ public class ServerBlotterSet extends ServerEventsSource {
 			if( item == null )
 				return( null );
 			
-			if( op == DistOperation.DROP || op == DistOperation.ARCHIVE ) {
+			if( success && ( op == DistOperation.DROP || op == DistOperation.ARCHIVE ) ) {
 				items.remove( item.ID );
 				notifyItem( item , BlotterEvent.BLOTTER_STOP );
 			}
@@ -248,7 +248,7 @@ public class ServerBlotterSet extends ServerEventsSource {
 	}
 
 	private String getReleaseKey( DistRepositoryItem repoItem ) {
-		return( repoItem.dist.meta.name + "##" + repoItem.dist.RELEASEDIR );
+		return( repoItem.dist.meta.name + "-" + repoItem.dist.RELEASEDIR );
 	}
 	
 }

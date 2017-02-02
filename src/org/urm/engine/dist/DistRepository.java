@@ -213,7 +213,7 @@ public class DistRepository {
 		DistLabelInfo info = getLabelInfo( action , RELEASELABEL );
 		Dist dist = findDist( action , info );
 		if( dist != null ) {
-			String path = info.RELEASEPATH;
+			String path = dist.getDistPath( action );
 			action.exit( _Error.ReleaseAlreadyExists1 , "release already exists at " + path , new String[] { path } );
 		}
 		
