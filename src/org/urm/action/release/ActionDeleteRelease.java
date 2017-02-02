@@ -3,6 +3,7 @@ package org.urm.action.release;
 import org.urm.action.ActionBase;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.DistRepository;
 
 public class ActionDeleteRelease extends ActionBase {
 
@@ -16,10 +17,8 @@ public class ActionDeleteRelease extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeSimple() throws Exception {
-		if( force )
-			dist.forceDrop( this );
-		else
-			dist.dropRelease( this );
+		DistRepository repo = artefactory.getDistRepository( this , dist.meta );
+		repo.dropDist( this , dist , force );
 		return( SCOPESTATE.RunSuccess );
 	}
 	

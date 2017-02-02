@@ -88,13 +88,6 @@ public class Artefactory {
 		return( storage );
 	}
 	
-	public Dist createDist( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
-		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
-		DistRepository repo = getDistRepository( action , meta );
-		Dist storage = repo.createDist( action , RELEASELABEL );
-		return( storage );
-	}
-	
 	public DistRepository getDistRepository( ActionBase action , Meta meta ) throws Exception {
 		ServerProductMeta storage = meta.getStorage( action );
 		DistRepository repo = storage.getDistRepository( action );

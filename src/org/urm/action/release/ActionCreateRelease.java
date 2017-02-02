@@ -3,6 +3,7 @@ package org.urm.action.release;
 import org.urm.action.ActionBase;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.DistRepository;
 import org.urm.meta.product.Meta;
 
 public class ActionCreateRelease extends ActionBase {
@@ -18,7 +19,9 @@ public class ActionCreateRelease extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeSimple() throws Exception {
-		dist = artefactory.createDist( this , meta , RELEASELABEL );
+		checkRequired( RELEASELABEL , "RELEASELABEL" );
+		DistRepository repo = artefactory.getDistRepository( this , meta );
+		dist = repo.createDist( this , RELEASELABEL );
 		return( SCOPESTATE.RunSuccess );
 	}
 	

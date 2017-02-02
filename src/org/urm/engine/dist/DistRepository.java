@@ -224,6 +224,14 @@ public class DistRepository {
 		return( dist );
 	}
 
+	public synchronized void dropDist( ActionBase action , Dist dist , boolean force ) throws Exception {
+		if( force )
+			dist.forceDrop( action );
+		else
+			dist.dropRelease( action );
+		removeDist( dist );
+	}
+	
 	private RemoteFolder getDistFolder( ActionBase action ) throws Exception {
 		String distPath = action.context.CTX_DISTPATH;
 		
@@ -296,6 +304,10 @@ public class DistRepository {
 
 	private synchronized void addDist( Dist dist ) {
 		distMap.put( dist.RELEASEDIR , dist );
+	}
+
+	private synchronized void removeDist( Dist dist ) {
+		distMap.remove( dist.RELEASEDIR );
 	}
 
 	private synchronized void addRunItem( DistRepositoryItem item ) {
