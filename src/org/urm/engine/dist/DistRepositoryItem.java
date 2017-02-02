@@ -71,6 +71,7 @@ public class DistRepositoryItem {
 
 	public void createItem( ActionBase action , Dist dist ) throws Exception {
 		this.dist = dist;
+		RELEASEDIR = dist.RELEASEDIR;
 		created = System.currentTimeMillis();
 	}
 	
