@@ -196,7 +196,8 @@ public class ServerBlotterSet extends ServerEventsSource {
 			try {
 				ServerBlotterActionItem rootItem = ( ServerBlotterActionItem )item; 
 				ActionInit action = ( ActionInit )rootItem.action;
-				action.artefactory.workFolder.removeThis( action );
+				if( rootItem.success && action.isDebug() == false )
+					action.artefactory.workFolder.removeThis( action );
 			}
 			catch( Throwable e ) {
 				blotter.engine.log( "Clear roots" , e );

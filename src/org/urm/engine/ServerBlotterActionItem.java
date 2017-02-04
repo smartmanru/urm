@@ -84,8 +84,7 @@ public class ServerBlotterActionItem extends ServerBlotterItem {
 		
 		stopTime = System.currentTimeMillis();
 		stopped = true;
-		if( success && action.isDebug() == false )
-			super.setTobeRemoved();
+		super.setTobeRemoved();
 	}
 	
 }

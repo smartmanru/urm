@@ -39,6 +39,13 @@ public abstract class ServerCall implements Runnable {
 		sessionController = engine.sessionController;
 	}
 	
+    @Override
+    public void run() {
+    	sessionController.runClientAction( engine.serverAction , action );
+    	notifyStop( "disconnected" );
+    	sessionController.threadStopped( engine.serverAction , this );
+    }
+
 	public boolean start() {
     	try {
     		CommandMethodMeta method = command.getAction( actionName );
@@ -57,13 +64,6 @@ public abstract class ServerCall implements Runnable {
         thread.start();
         
         return( true );
-    }
-
-    @Override
-    public void run() {
-    	sessionController.runClientAction( engine.serverAction , action );
-    	notifyStop( "disconnected" );
-    	sessionController.threadStopped( engine.serverAction , this );
     }
 
     public void addLog( String message ) {
