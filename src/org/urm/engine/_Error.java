@@ -23,5 +23,6 @@ public class _Error {
 	public static final int MissingAdminUser0 = ErrorBase + 35;
 	public static final int SecurityCheckFailed0 = ErrorBase + 36;
 	public static final int TransactionMissingMirrorsChanges0 = ErrorBase + 37;
+	public static final int TransactionMissingReleaseLifecyclesChanges0 = ErrorBase + 38;
 	
 }
