@@ -5,13 +5,9 @@ import java.util.Map;
 
 import org.urm.action.ActionCore;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class ServerReleaseLifecycles extends ServerObject {
 
@@ -26,6 +22,7 @@ public class ServerReleaseLifecycles extends ServerObject {
 	}
 	
 	public void load( String lcFile , RunContext execrc ) throws Exception {
+		/*
 		Document doc = ConfReader.readXmlFile( execrc , lcFile );
 		Node root = doc.getDocumentElement();
 		
@@ -38,9 +35,11 @@ public class ServerReleaseLifecycles extends ServerObject {
 			lc.load( node );
 			addLifecycle( lc );
 		}
+		*/
 	}
 	
 	public void save( ActionCore action , String path , RunContext execrc ) throws Exception {
+		/*
 		Document doc = Common.xmlCreateDoc( "lifecycles" );
 		Element root = doc.getDocumentElement();
 		
@@ -51,6 +50,7 @@ public class ServerReleaseLifecycles extends ServerObject {
 		}
 		
 		Common.xmlSaveDoc( doc , path );
+		*/
 	}
 
 	public void addLifecycle( ServerReleaseLifecycle lc ) {
