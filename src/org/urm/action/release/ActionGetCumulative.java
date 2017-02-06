@@ -14,7 +14,7 @@ import org.urm.meta.product.MetaDistrConfItem;
 public class ActionGetCumulative extends ActionBase {
 
 	Meta meta;
-	Dist dist;
+	public Dist dist;
 	
 	public ActionGetCumulative( ActionBase action , String stream , Meta meta , Dist dist ) {
 		super( action , stream , "Rebuild cumulative release=" + dist.RELEASEDIR );
@@ -53,7 +53,7 @@ public class ActionGetCumulative extends ActionBase {
 	private boolean addCumulativeVersion( DistRepository repo , String cumver , Dist cumdist ) throws Exception {
 		info( "add cumulative release version=" + cumver + " ..." );
 		
-		if( !cumdist.isFinalized( this ) ) {
+		if( !cumdist.isFinalized() ) {
 			error( "cannot settle cumulative release from non-finalized release version=" + cumver );
 			return( false );
 		}

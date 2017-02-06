@@ -8,9 +8,9 @@ import org.urm.action.ActionBase;
 public class ServerBlotterTreeItem {
 
 	public ActionBase action;
-	public ServerBlotterItem rootItem;
+	public ServerBlotterActionItem rootItem;
 	public ServerBlotterTreeItem parentItem;
-	public ServerBlotterItem baseItem;
+	public ServerBlotterActionItem baseItem;
 	
 	public long startTime;
 	public long stopTime;
@@ -20,7 +20,7 @@ public class ServerBlotterTreeItem {
 	
 	private List<ServerBlotterTreeItem> childs;
 	
-	public ServerBlotterTreeItem( ActionBase action , ServerBlotterItem rootItem , ServerBlotterTreeItem parentItem , ServerBlotterItem baseItem ) {
+	public ServerBlotterTreeItem( ActionBase action , ServerBlotterActionItem rootItem , ServerBlotterTreeItem parentItem , ServerBlotterActionItem baseItem ) {
 		this.action = action;
 		this.rootItem = rootItem;
 		this.parentItem = parentItem;

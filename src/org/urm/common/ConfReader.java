@@ -369,6 +369,14 @@ public class ConfReader {
     	return( Integer.parseInt( value ) );
     }
     
+    public static long getLongAttrValue( Node node , String attrName , long defValue ) throws Exception {
+    	String value = getAttrValue( node , attrName );
+    	if( value.isEmpty() )
+    		return( defValue );
+
+    	return( Long.parseLong( value ) );
+    }
+    
     public static Node[] xmlGetChildren( Node node , String name ) throws Exception {
         int n = 0;
         for( Node x = xmlGetFirstChild( node , name ); x != null; x = xmlGetNextSibling( x , name ) )

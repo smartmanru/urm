@@ -60,7 +60,7 @@ public class ServerBlotterStat {
 		dayLastRunTime = 0;
 	}
 	
-	public void statAddItem( ServerBlotterItem item ) {
+	public void statAddItem( ServerBlotterActionItem item ) {
 		long itemDay = Common.getDay( item.startTime );
 		if( itemDay != statDay )
 			return;
@@ -70,7 +70,7 @@ public class ServerBlotterStat {
 		dayLastRunTime = item.startTime;
 	}
 	
-	public void statFinishItem( ServerBlotterItem item ) {
+	public void statFinishItem( ServerBlotterActionItem item ) {
 		long itemDay = Common.getDay( item.startTime );
 		if( itemDay != statDay )
 			return;
@@ -88,7 +88,7 @@ public class ServerBlotterStat {
 		}
 	}
 	
-	public void statAddChildItem( ServerBlotterItem baseItem , ServerBlotterTreeItem treeItem ) {
+	public void statAddChildItem( ServerBlotterActionItem baseItem , ServerBlotterTreeItem treeItem ) {
 		long itemDay = Common.getDay( baseItem.startTime );
 		if( itemDay != statDay )
 			return;

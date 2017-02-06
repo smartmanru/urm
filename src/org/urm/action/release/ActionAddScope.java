@@ -12,7 +12,7 @@ import org.urm.meta.Types.*;
 
 public class ActionAddScope extends ActionBase {
 
-	Dist dist;
+	public Dist dist;
 	
 	public ActionAddScope( ActionBase action , String stream , Dist dist ) {
 		super( action , stream , "Add items to scope, release=" + dist.RELEASEDIR );

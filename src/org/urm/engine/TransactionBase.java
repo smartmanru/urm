@@ -21,6 +21,7 @@ import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.engine.ServerNetwork;
 import org.urm.meta.engine.ServerProduct;
 import org.urm.meta.engine.ServerProjectBuilder;
+import org.urm.meta.engine.ServerReleaseLifecycles;
 import org.urm.meta.engine.ServerResources;
 import org.urm.meta.engine.ServerSettings;
 import org.urm.meta.engine.ServerSystem;
@@ -51,6 +52,7 @@ public class TransactionBase extends ServerObject {
 	public RunError error;
 	
 	public ServerInfrastructure infra;
+	public ServerReleaseLifecycles lifecycles;
 	public ServerBase base;
 	
 	public ServerSettings settings;
@@ -75,6 +77,7 @@ public class TransactionBase extends ServerObject {
 		
 		settings = null;
 		infra = null;
+		lifecycles = null;
 		base = null;
 		
 		resources = null;
@@ -95,6 +98,7 @@ public class TransactionBase extends ServerObject {
 			action.setTransaction( this );
 			settings = null;
 			infra = null;
+			lifecycles = null;
 			base = null;
 
 			resources = null;
@@ -229,6 +233,8 @@ public class TransactionBase extends ServerObject {
 			
 			if( res )
 				res = saveInfrastructure();
+			if( res )
+				res = saveReleaseLifecycles();
 			if( res )
 				res = saveBase();
 			
@@ -415,6 +421,50 @@ public class TransactionBase extends ServerObject {
 		}
 		catch( Throwable e ) {
 			handle( e , "unable to save infrastructure" );
+		}
+
+		abortTransaction( true );
+		return( false );
+	}
+
+	public boolean changeReleaseLifecycles( ServerReleaseLifecycles sourceLifecycles ) {
+		synchronized( engine ) {
+			try {
+				if( !continueTransaction() )
+					return( false );
+					
+				if( lifecycles != null )
+					return( true );
+
+				if( !checkSecurityServerChange( SecurityAction.ACTION_ADMIN ) )
+					return( false );
+				
+				lifecycles = sourceLifecycles;
+				return( true );
+			}
+			catch( Throwable e ) {
+				handle( e , "unable to change release lifecycles" );
+			}
+			
+			abortTransaction( false );
+			return( false );
+		}
+	}
+
+	private boolean saveReleaseLifecycles() {
+		if( !continueTransaction() )
+			return( false );
+		
+		if( lifecycles == null )
+			return( true );
+		
+		try {
+			action.saveReleaseLifecycles( this );
+			trace( "transaction server release lifecycles: save done" );
+			return( true );
+		}
+		catch( Throwable e ) {
+			handle( e , "unable to save release lifecycles" );
 		}
 
 		abortTransaction( true );
@@ -849,6 +899,12 @@ public class TransactionBase extends ServerObject {
 		checkTransaction();
 		if( infra == null )
 			exit( _Error.TransactionMissingInfrastructureChanges0 , "Missing infrastructure changes" , null );
+	}
+
+	protected void checkTransactionReleaseLifecycles() throws Exception {
+		checkTransaction();
+		if( lifecycles == null )
+			exit( _Error.TransactionMissingReleaseLifecyclesChanges0 , "Missing release lifecycles changes" , null );
 	}
 
 	protected void checkTransactionBase() throws Exception {

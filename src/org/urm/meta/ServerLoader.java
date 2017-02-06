@@ -20,6 +20,7 @@ import org.urm.meta.engine.ServerMirrors;
 import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.engine.ServerProduct;
 import org.urm.meta.engine.ServerRegistry;
+import org.urm.meta.engine.ServerReleaseLifecycles;
 import org.urm.meta.engine.ServerResources;
 import org.urm.meta.engine.ServerSettings;
 import org.urm.meta.product.Meta;
@@ -40,6 +41,7 @@ public class ServerLoader {
 	private ServerRegistry registry;
 	private ServerBase base;
 	private ServerInfrastructure infra;
+	private ServerReleaseLifecycles lifecycles;
 	private ServerMonitoring mon;
 	private ServerProductMeta offline;
 	private Map<String,ServerProductMeta> productMeta;
@@ -51,6 +53,7 @@ public class ServerLoader {
 		registry = new ServerRegistry( this ); 
 		base = new ServerBase( this ); 
 		infra = new ServerInfrastructure( this ); 
+		lifecycles = new ServerReleaseLifecycles( this ); 
 		mon = new ServerMonitoring( this ); 
 		productMeta = new HashMap<String,ServerProductMeta>();
 	}
@@ -59,6 +62,8 @@ public class ServerLoader {
 		loadRegistry();
 		loadBase();
 		loadInfrastructure();
+		loadReleaseLifecycles();
+		
 		if( !engine.execrc.isStandalone() ) {
 			loadServerSettings();
 			loadMonitoring();
@@ -70,6 +75,7 @@ public class ServerLoader {
 		base = new ServerBase( this ); 
 		settings = new ServerSettings( this );
 		infra = new ServerInfrastructure( this ); 
+		lifecycles = new ServerReleaseLifecycles( this ); 
 		mon = new ServerMonitoring( this ); 
 		init();
 	}
@@ -124,9 +130,20 @@ public class ServerLoader {
 		return( propertyFile );
 	}
 
+	private String getServerReleaseLifecyclesFile() throws Exception {
+		String path = Common.getPath( engine.execrc.installPath , "etc" );
+		String propertyFile = Common.getPath( path , "lifecycles.xml" );
+		return( propertyFile );
+	}
+
 	private void loadInfrastructure() throws Exception {
 		String infraFile = getServerInfrastructureFile();
 		infra.load( infraFile , engine.execrc );
+	}
+
+	private void loadReleaseLifecycles() throws Exception {
+		String lcFile = getServerReleaseLifecyclesFile();
+		lifecycles.load( lcFile , engine.execrc );
 	}
 
 	private String getServerMonitoringFile() throws Exception {
@@ -379,6 +396,11 @@ public class ServerLoader {
 		infra.save( transaction.getAction() , propertyFile , engine.execrc );
 	}
 
+	public void saveReleaseLifecycles( TransactionBase transaction ) throws Exception {
+		String propertyFile = getServerReleaseLifecyclesFile();
+		lifecycles.save( transaction.getAction() , propertyFile , engine.execrc );
+	}
+
 	public void saveMonitoring( TransactionBase transaction ) throws Exception {
 		String propertyFile = getServerMonitoringFile();
 		mon.save( transaction.getAction() , propertyFile , engine.execrc );
@@ -399,6 +421,12 @@ public class ServerLoader {
 	public ServerInfrastructure getInfrastructure() {
 		synchronized( engine ) {
 			return( infra );
+		}
+	}
+
+	public ServerReleaseLifecycles getReleaseLifecycles() {
+		synchronized( engine ) {
+			return( lifecycles );
 		}
 	}
 

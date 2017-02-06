@@ -317,13 +317,11 @@ public class ServerTransaction extends TransactionBase {
 	public void createDatacenter( ServerDatacenter datacenter ) throws Exception {
 		checkTransactionInfrastructure();
 		infra.createDatacenter( this , datacenter );
-		action.saveInfrastructure( this );
 	}
 
 	public void modifyDatacenter( ServerDatacenter datacenter ) throws Exception {
 		checkTransactionInfrastructure();
 		infra.modifyDatacenter( this , datacenter );
-		action.saveInfrastructure( this );
 	}
 
 	public void deleteDatacenter( ServerDatacenter datacenter ) throws Exception {
@@ -337,7 +335,6 @@ public class ServerTransaction extends TransactionBase {
 	public void createNetwork( ServerDatacenter datacenter , ServerNetwork network ) throws Exception {
 		checkTransactionInfrastructure();
 		datacenter.createNetwork( this , network );
-		action.saveInfrastructure( this );
 	}
 
 	public void deleteNetwork( ServerNetwork network ) throws Exception {
@@ -351,50 +348,42 @@ public class ServerTransaction extends TransactionBase {
 	public void modifyNetwork( ServerNetwork network ) throws Exception {
 		checkTransactionInfrastructure();
 		network.datacenter.modifyNetwork( this , network );
-		action.saveInfrastructure( this );
 	}
 
 	public void createNetworkHost( ServerNetworkHost host ) throws Exception {
 		checkTransactionInfrastructure();
 		host.network.createHost( this , host );
-		action.saveInfrastructure( this );
 	}
 	
 	public void modifyNetworkHost( ServerNetworkHost host , boolean renameReferences ) throws Exception {
 		checkTransactionInfrastructure();
 		host.network.modifyHost( this , host );
-		action.saveInfrastructure( this );
 	}
 	
 	public void deleteNetworkHost( ServerNetworkHost host ) throws Exception {
 		checkTransactionInfrastructure();
 		host.network.deleteHost( this , host );
-		action.saveInfrastructure( this );
 	}
 	
 	public void createHostAccount( ServerHostAccount account ) throws Exception {
 		checkTransactionInfrastructure();
 		account.host.createAccount( this , account );
-		action.saveInfrastructure( this );
 	}
 	
 	public void createHostAccount( ServerNetwork network , Account account , ServerAuthResource resource ) throws Exception {
 		checkTransactionInfrastructure();
 		ServerNetworkHost host = network.createHost( this , account ); 
 		host.createAccount( this , account , resource );
-		action.saveInfrastructure( this );
 	}
 	
 	public void modifyHostAccount( ServerHostAccount account , boolean renameReferences ) throws Exception {
 		checkTransactionInfrastructure();
 		account.host.modifyAccount( this , account );
-		action.saveInfrastructure( this );
 	}
 	
 	public void deleteHostAccount( ServerHostAccount account ) throws Exception {
 		checkTransactionInfrastructure();
 		account.host.deleteAccount( this , account );
-		action.saveInfrastructure( this );
 	}
 	
 	public void createBaseGroup( ServerBaseGroup group ) throws Exception {

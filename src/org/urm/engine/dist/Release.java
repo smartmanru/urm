@@ -93,7 +93,7 @@ public class Release {
 	}
 	
 	public void create( ActionBase action , String RELEASEVER , String RELEASEFILEPATH ) throws Exception {
-		this.RELEASEVER = dist.repo.normalizeReleaseVer( action , RELEASEVER );
+		this.RELEASEVER = DistLabelInfo.normalizeReleaseVer( action , RELEASEVER );
 		this.PROPERTY_CUMULATIVE = action.context.CTX_CUMULATIVE;
 		
 		setProperties( action );
@@ -121,7 +121,7 @@ public class Release {
 		if( action.context.CTX_ALL )
 			PROPERTY_COMPATIBILITY = "";
 		for( String OLDRELEASE : Common.splitSpaced( action.context.CTX_OLDRELEASE ) ) {
-			OLDRELEASE = dist.repo.normalizeReleaseVer( action , OLDRELEASE );
+			OLDRELEASE = DistLabelInfo.normalizeReleaseVer( action , OLDRELEASE );
 			if( OLDRELEASE.compareTo( RELEASEVER ) >= 0 )
 				action.exit1( _Error.CompatibilityExpectedForEarlierRelease1 , "compatibility is expected for earlier release (version=" + OLDRELEASE + ")" , OLDRELEASE );
 			

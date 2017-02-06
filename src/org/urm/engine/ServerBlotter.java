@@ -4,10 +4,30 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.action.ActionBase;
+import org.urm.action.build.ActionGetBinary;
+import org.urm.action.build.ActionGetManual;
 import org.urm.action.build.ActionPatch;
+import org.urm.action.conf.ActionGetConf;
+import org.urm.action.database.ActionGetDB;
 import org.urm.action.monitor.ActionMonitorTop;
+import org.urm.action.release.ActionAddScope;
+import org.urm.action.release.ActionCopyRelease;
+import org.urm.action.release.ActionCreateProd;
+import org.urm.action.release.ActionCreateRelease;
+import org.urm.action.release.ActionDeleteRelease;
+import org.urm.action.release.ActionDescope;
+import org.urm.action.release.ActionFinishRelease;
+import org.urm.action.release.ActionForceCloseRelease;
+import org.urm.action.release.ActionGetCumulative;
+import org.urm.action.release.ActionModifyRelease;
+import org.urm.action.release.ActionReopenRelease;
 import org.urm.common.Common;
 import org.urm.engine.action.ActionInit;
+import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.DistRepository;
+import org.urm.engine.dist.DistRepository.DistOperation;
+import org.urm.engine.dist.DistRepositoryItem;
+import org.urm.meta.product.Meta;
 
 public class ServerBlotter {
 
@@ -22,7 +42,8 @@ public class ServerBlotter {
 		BLOTTER_START ,
 		BLOTTER_STOP ,
 		BLOTTER_STARTCHILD ,
-		BLOTTER_STOPCHILD
+		BLOTTER_STOPCHILD ,
+		BLOTTER_RELEASEACTION
 	};
 	
 	public ServerEngine engine;
@@ -64,6 +85,11 @@ public class ServerBlotter {
 			set.clear();
 	}
 	
+	public void start( ActionInit action ) throws Exception {
+		for( ServerBlotterSet set : blotters )
+			set.start( action );
+	}
+	
 	public void runHouseKeeping( long time ) {
 		long timeDay = Common.getDay( time );
 		if( timeDay == day )
@@ -81,11 +107,11 @@ public class ServerBlotter {
 		return( set.getItems( includeFinished ) ); 
 	}
 	
-	public ServerBlotterItem getBlotterItem( BlotterType type , int actionId ) {
+	public ServerBlotterItem getBlotterItem( BlotterType type , String ID ) {
 		ServerBlotterSet set = getBlotterSet( type );
 		if( set == null )
 			return( null );
-		return( set.getItem( actionId ) ); 
+		return( set.getItem( ID ) ); 
 	}
 	
 	public ServerBlotterStat getBlotterStatistics( BlotterType type ) {
@@ -116,23 +142,23 @@ public class ServerBlotter {
 		if( action.parent.blotterTreeItem == null )
 			return;
 		
-		ServerBlotterItem rootItem = action.parent.blotterRootItem;
+		ServerBlotterActionItem rootItem = action.parent.blotterRootItem;
 		ServerBlotterTreeItem parentTreeItem = action.parent.blotterTreeItem;
-		ServerBlotterItem parentBaseItem = getBaseItem( rootItem , parentTreeItem );
+		ServerBlotterActionItem parentBaseItem = getBaseItem( rootItem , parentTreeItem );
 
 		if( action instanceof ActionPatch ) {
-			ServerBlotterItem baseItem = blotterBuilds.createBuildItem( rootItem , parentBaseItem , parentTreeItem , ( ActionPatch )action );
+			ServerBlotterActionItem baseItem = blotterBuilds.createBuildItem( rootItem , parentBaseItem , parentTreeItem , ( ActionPatch )action );
 			parentTreeItem.addChild( baseItem.treeItem );
 			startChildAction( rootItem , parentBaseItem , baseItem.treeItem );
 			notifyItem( baseItem , BlotterEvent.BLOTTER_START );
 			return;
 		}
-		
+
 		ServerBlotterTreeItem treeItem = blotterRoots.createChildItem( action , parentBaseItem , parentTreeItem );
 		startChildAction( rootItem , parentBaseItem , treeItem );
 	}
 
-	private void startChildAction( ServerBlotterItem rootItem , ServerBlotterItem baseItem , ServerBlotterTreeItem treeItem ) {
+	private void startChildAction( ServerBlotterActionItem rootItem , ServerBlotterActionItem baseItem , ServerBlotterTreeItem treeItem ) {
 		blotterRoots.startChildAction( rootItem , treeItem );
 		notifyChildItem( rootItem , treeItem , BlotterEvent.BLOTTER_STARTCHILD );
 		
@@ -143,7 +169,7 @@ public class ServerBlotter {
 		}
 	}
 	
-	private ServerBlotterItem getBaseItem( ServerBlotterItem rootItem , ServerBlotterTreeItem treeItem ) {
+	private ServerBlotterActionItem getBaseItem( ServerBlotterActionItem rootItem , ServerBlotterTreeItem treeItem ) {
 		ServerBlotterTreeItem parentItem = treeItem;
 		while( parentItem != null ) {
 			if( parentItem.baseItem != null )
@@ -158,11 +184,12 @@ public class ServerBlotter {
 		if( action.blotterTreeItem == null )
 			return;
 
+		// action tree
 		ServerBlotterTreeItem treeItem = action.blotterTreeItem;
-		ServerBlotterItem rootItem = treeItem.rootItem;
-		ServerBlotterItem baseItem = treeItem.baseItem;
+		ServerBlotterActionItem rootItem = treeItem.rootItem;
+		ServerBlotterActionItem baseItem = treeItem.baseItem;
 		treeItem.stopAction( success );
-		
+
 		if( baseItem != null ) {
 			baseItem.stopAction( success );
 			finishItem( baseItem );
@@ -170,14 +197,104 @@ public class ServerBlotter {
 			
 			if( baseItem != rootItem )
 				stopChildAction( rootItem , baseItem.parent , treeItem , success );
-			return;
+		}
+		else {
+			baseItem = getBaseItem( rootItem , treeItem );
+			stopChildAction( rootItem , baseItem , treeItem , success );
 		}
 		
-		baseItem = getBaseItem( rootItem , treeItem );
-		stopChildAction( rootItem , baseItem , treeItem , success );
+		// release blotter
+		if( action instanceof ActionCopyRelease ) {
+			ActionCopyRelease xa = ( ActionCopyRelease )action;
+			runDistAction( xa , success , xa.src.meta , xa.dst , DistOperation.CREATE , "copy distributive from " + xa.src.RELEASEDIR + " to " + xa.dst.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionCreateProd ) {
+			ActionCreateProd xa = ( ActionCreateProd )action;
+			runDistAction( xa , success , xa.meta , xa.dist , DistOperation.CREATE , "create complete production distributive version=" + xa.RELEASEVER ); 
+		}
+		else
+		if( action instanceof ActionCreateRelease ) {
+			ActionCreateRelease xa = ( ActionCreateRelease )action;
+			runDistAction( xa , success , xa.meta , xa.dist , DistOperation.CREATE , "create distributive releaselabel=" + xa.RELEASELABEL ); 
+		}
+		else
+		if( action instanceof ActionDeleteRelease ) {
+			ActionDeleteRelease xa = ( ActionDeleteRelease )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.DROP , "drop distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionFinishRelease ) {
+			ActionFinishRelease xa = ( ActionFinishRelease )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.FINISH , "finalize distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionReopenRelease ) {
+			ActionReopenRelease xa = ( ActionReopenRelease )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.REOPEN , "reopen distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionAddScope ) {
+			ActionAddScope xa = ( ActionAddScope )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PLAN , "extend scope of distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionDescope ) {
+			ActionFinishRelease xa = ( ActionFinishRelease )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PLAN , "reduce scope of distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionForceCloseRelease ) {
+			ActionForceCloseRelease xa = ( ActionForceCloseRelease )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PLAN , "close distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionGetCumulative ) {
+			ActionGetCumulative xa = ( ActionGetCumulative )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PUT , "put cumulative items to distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionModifyRelease ) {
+			ActionModifyRelease xa = ( ActionModifyRelease )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PLAN , "modify properties of distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionGetBinary ) {
+			ActionGetCumulative xa = ( ActionGetCumulative )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PUT , "put binary items to distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionGetConf ) {
+			ActionGetCumulative xa = ( ActionGetCumulative )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PUT , "put configuration items to distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionGetManual ) {
+			ActionGetCumulative xa = ( ActionGetCumulative )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PUT , "put manual items to distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionGetDB ) {
+			ActionGetCumulative xa = ( ActionGetCumulative )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PUT , "put database items to distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
 	}
 
-	private void stopChildAction( ServerBlotterItem rootItem , ServerBlotterItem baseItem , ServerBlotterTreeItem treeItem , boolean success ) {
+	private void runDistAction( ActionBase action , boolean success , Meta meta , Dist dist , DistOperation op , String msg ) {
+		try {
+			DistRepository repo = action.artefactory.getDistRepository( action , meta );
+			DistRepositoryItem distItem = repo.addDistAction( action , success , dist , op , msg );
+			if( distItem == null )
+				return;
+			
+			blotterReleases.affectReleaseItem( action , success , op , distItem );
+		}
+		catch( Throwable e ) {
+			action.log( "add release action to blotter" , e );
+		}
+	}
+	
+	private void stopChildAction( ServerBlotterActionItem rootItem , ServerBlotterActionItem baseItem , ServerBlotterTreeItem treeItem , boolean success ) {
 		blotterRoots.stopChildAction( rootItem , treeItem , success );
 		notifyChildItem( rootItem , treeItem , BlotterEvent.BLOTTER_STOPCHILD );
 		
@@ -198,7 +315,7 @@ public class ServerBlotter {
 		set.notifyChildItem( baseItem , treeItem , event );
 	}
 	
-	private void finishItem( ServerBlotterItem item ) {
+	private void finishItem( ServerBlotterActionItem item ) {
 		ServerBlotterSet set = item.blotterSet;
 		set.finishItem( item );
 	}

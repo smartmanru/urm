@@ -20,6 +20,7 @@ import org.urm.meta.engine.ServerMirrors;
 import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.engine.ServerProduct;
 import org.urm.meta.engine.ServerRegistry;
+import org.urm.meta.engine.ServerReleaseLifecycles;
 import org.urm.meta.engine.ServerResources;
 import org.urm.meta.engine.ServerSettings;
 import org.urm.meta.product.Meta;
@@ -116,6 +117,10 @@ public class ActionInit extends ActionBase {
 		loader.saveInfrastructure( transaction );
 	}
 	
+	public void saveReleaseLifecycles( TransactionBase transaction ) throws Exception {
+		loader.saveReleaseLifecycles( transaction );
+	}
+	
 	public void saveBase( TransactionBase transaction ) throws Exception {
 		loader.saveBase( transaction );
 	}
@@ -164,6 +169,10 @@ public class ActionInit extends ActionBase {
 	
 	public ServerInfrastructure getActiveInfrastructure() {
 		return( loader.getInfrastructure() );
+	}
+	
+	public ServerReleaseLifecycles getActiveReleaseLifecycles() {
+		return( loader.getReleaseLifecycles() );
 	}
 	
 	public ServerMonitoring getActiveMonitoring() {

@@ -6,15 +6,15 @@ import org.urm.engine.dist.Dist;
 
 public class ActionForceCloseRelease extends ActionBase {
 
-	Dist release;
+	public Dist dist;
 	
-	public ActionForceCloseRelease( ActionBase action , String stream , Dist release ) {
-		super( action , stream , "Close release=" + release.RELEASEDIR );
-		this.release = release;
+	public ActionForceCloseRelease( ActionBase action , String stream , Dist dist ) {
+		super( action , stream , "Close release=" + dist.RELEASEDIR );
+		this.dist = dist;
 	}
 
 	@Override protected SCOPESTATE executeSimple() throws Exception {
-		release.forceClose( this );
+		dist.forceClose( this );
 		return( SCOPESTATE.RunSuccess );
 	}
 

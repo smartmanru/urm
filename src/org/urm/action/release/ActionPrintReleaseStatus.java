@@ -35,7 +35,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		info( "RELEASE " + dist.RELEASEDIR + " STATUS:" );
 		info( "\tlocation: " + product.CONFIG_DISTR_HOSTLOGIN + ":" + dist.getDistPath( this ) );
 		info( "\tversion: " + release.RELEASEVER );
-		info( "\tstate: " + dist.getState( this ) );
+		info( "\tstate: " + dist.getState().name() );
 		info( "\tsignature: " + hashStatus );
 		info( "PROPERTIES:" );
 		info( "\tproperty=buildmode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );

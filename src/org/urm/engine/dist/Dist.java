@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.dist.DistState.DISTSTATE;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
@@ -78,16 +79,16 @@ public class Dist {
 		gatherFiles( action );
 	}
 	
-	public boolean isFinalized( ActionBase action ) throws Exception {
-		return( state.isFinalized( action ) );
+	public boolean isFinalized() {
+		return( state.isFinalized() );
 	}
 	
 	public boolean isRemote( ActionBase action ) throws Exception {
 		return( distFolder.isRemote( action ) );
 	}
 	
-	public String getState( ActionBase action ) throws Exception {
-		return( state.state.name() );
+	public DISTSTATE getState() {
+		return( state.state );
 	}
 	
 	public void load( ActionBase action ) throws Exception {
@@ -209,12 +210,12 @@ public class Dist {
 		return( distFolder.checkFileExists( action , path ) );
 	}
 	
-	public String getDistFolder( ActionBase action ) throws Exception {
+	public String getDistFolder() {
 		return( distFolder.folderName );
 	}
 	
 	public String getDistPath( ActionBase action ) throws Exception {
-		return( distFolder.folderPath );
+		return( distFolder.getLocalPath( action ) );
 	}
 	
 	public String getManualFolder( ActionBase action ) throws Exception {

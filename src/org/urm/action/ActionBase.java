@@ -36,6 +36,7 @@ import org.urm.meta.engine.ServerMirrorRepository;
 import org.urm.meta.engine.ServerMirrors;
 import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.engine.ServerProjectBuilder;
+import org.urm.meta.engine.ServerReleaseLifecycles;
 import org.urm.meta.engine.ServerResources;
 import org.urm.meta.engine.ServerSettings;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
@@ -629,6 +630,10 @@ abstract public class ActionBase extends ActionCore {
 	
 	public ServerInfrastructure getServerInfrastructure() {
 		return( actionInit.getServerInfrastructure() );
+	}
+	
+	public ServerReleaseLifecycles getServerReleaseLifecycles() {
+		return( actionInit.getServerReleaseLifecycles() );
 	}
 	
 	public ServerMonitoring getServerMonitoring() {

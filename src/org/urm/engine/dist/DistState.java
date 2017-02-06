@@ -94,6 +94,9 @@ public class DistState {
 		activeChangeID = timeStamp;
 		stateMem = newState;
 		stateHash = hash;
+		
+		state = stateMem;
+		stateChangeID = activeChangeID;
 	}
 
 	public void checkDistChangeEnabled( ActionBase action ) throws Exception {
@@ -259,7 +262,7 @@ public class DistState {
 		// check current status
 		ctlLoadReleaseState( action );
 		if( state != DISTSTATE.DIRTY )
-			action.exit1( _Error.DistributiveNotClosed1 , "distributive is not closed, state=" + state.name() , state.name() );
+			action.exit1( _Error.DistributiveNotClosed1 , "distributive is not in preparation state, use force option, state=" + state.name() , state.name() );
 	}
 
 	public void ctlClearRelease( ActionBase action ) throws Exception {
@@ -270,10 +273,8 @@ public class DistState {
 	public void ctlCheckCanForceDropRelease( ActionBase action ) throws Exception {
 		// check current status
 		ctlLoadReleaseState( action );
-		if( state == DISTSTATE.DIRTY || state == DISTSTATE.BROKEN || state == DISTSTATE.CHANGING || state == DISTSTATE.CANCELLED )
-			return;
-		
-		action.exit1( _Error.DistributiveProtected1 , "distributive is protected, can be deleted only manually, state=" + state.name() , state.name() );
+		if( state == DISTSTATE.ARCHIVED || state == DISTSTATE.PROD )
+			action.exit1( _Error.DistributiveProtected1 , "distributive is protected, can be deleted only manually, state=" + state.name() , state.name() );
 	}
 
 	public void createStateFile( ActionBase action , String value ) throws Exception {
@@ -337,14 +338,14 @@ public class DistState {
 		String RELEASEDIR = distFolder.folderName;
 		
 		Release info = new Release( dist.meta , dist );
-		String RELEASEVER = dist.repo.getReleaseVerByDir( action , RELEASEDIR ); 
+		String RELEASEVER = DistLabelInfo.getReleaseVerByDir( action , RELEASEDIR ); 
 		info.create( action , RELEASEVER , filePath );
 		
 		distFolder.ensureExists( action );
 		distFolder.copyFileFromLocal( action , filePath );
 	}
 
-	public boolean isFinalized( ActionBase action ) throws Exception {
+	public boolean isFinalized() {
 		if( state == DISTSTATE.PROD || state == DISTSTATE.RELEASED )
 			return( true );
 		return( false );
