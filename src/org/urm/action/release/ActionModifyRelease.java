@@ -14,6 +14,7 @@ public class ActionModifyRelease extends ActionBase {
 	public ActionModifyRelease( ActionBase action , String stream , Dist release , Date releaseDate ) {
 		super( action , stream , "Change properties of release=" + release.RELEASEDIR );
 		this.dist = release;
+		this.releaseDate = releaseDate;
 	}
 
 	@Override protected SCOPESTATE executeSimple() throws Exception {
