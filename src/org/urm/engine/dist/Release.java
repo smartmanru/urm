@@ -235,7 +235,7 @@ public class Release {
 			action.exit0( _Error.ReleaseVersionNotSet0 , "release version property is not set, unable to use distributive" );
 		
 		// properties
-		PROPERTY_PROD = getReleasePropertyBoolean( action , root , "prod" , true );
+		PROPERTY_PROD = getReleasePropertyBoolean( action , root , "prod" , false );
 		if( !PROPERTY_PROD )
 			PROPERTY_RELEASEDATE = getReleasePropertyDate( action , root , "date" );
 		PROPERTY_BUILDMODE = getReleasePropertyBuildMode( action , root , "buildMode" ); 
