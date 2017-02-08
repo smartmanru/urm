@@ -2,6 +2,7 @@ package org.urm.engine.dist;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -136,7 +137,7 @@ public class DistState {
 		}
 	}
 
-	public void ctlCreate( ActionBase action ) throws Exception {
+	public void ctlCreate( ActionBase action , Date releaseDate ) throws Exception {
 		// create release.xml, create status file, set closed dirty state
 		// check current status
 		ctlLoadReleaseState( action );
@@ -146,7 +147,7 @@ public class DistState {
 		}
 			
 		// create directory
-		createMetaFile( action );
+		createMetaFile( action , releaseDate );
 		
 		// set status
 		ctlSetStatus( action , DISTSTATE.DIRTY );
@@ -332,14 +333,14 @@ public class DistState {
         }		
 	}
 
-	public void createMetaFile( ActionBase action ) throws Exception {
+	public void createMetaFile( ActionBase action , Date releaseDate ) throws Exception {
 		// create empty release.xml
 		String filePath = action.getWorkFilePath( Dist.META_FILENAME );
 		String RELEASEDIR = distFolder.folderName;
 		
 		Release info = new Release( dist.meta , dist );
 		String RELEASEVER = DistLabelInfo.getReleaseVerByDir( action , RELEASEDIR ); 
-		info.create( action , RELEASEVER , filePath );
+		info.create( action , RELEASEVER , releaseDate , filePath );
 		
 		distFolder.ensureExists( action );
 		distFolder.copyFileFromLocal( action , filePath );

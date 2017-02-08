@@ -1,5 +1,6 @@
 package org.urm.engine.dist;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -209,7 +210,7 @@ public class DistRepository {
 		return( dist );
 	}
 
-	public synchronized Dist createDist( ActionBase action , String RELEASELABEL ) throws Exception {
+	public synchronized Dist createDist( ActionBase action , String RELEASELABEL , Date releaseDate ) throws Exception {
 		DistLabelInfo info = getLabelInfo( action , RELEASELABEL );
 		Dist dist = findDist( action , info );
 		if( dist != null ) {
@@ -218,7 +219,7 @@ public class DistRepository {
 		}
 		
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
-		dist = DistRepositoryItem.createDist( action , this , distFolder );
+		dist = DistRepositoryItem.createDist( action , this , distFolder , releaseDate );
 		addDist( dist );
 		
 		return( dist );

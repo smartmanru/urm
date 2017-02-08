@@ -1,5 +1,6 @@
 package org.urm.engine.dist;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,7 +46,6 @@ public class Dist {
 	
 	public String RELEASEDIR;
 	public Release release;
-	public boolean prod;
 	String infoPath;
 
 	private FileSet files;
@@ -61,8 +61,6 @@ public class Dist {
 	
 	public void setFolder( RemoteFolder distFolder , boolean prod ) {
 		this.distFolder = distFolder;
-		this.prod = prod;
-		
 		this.RELEASEDIR = distFolder.folderName;
 				
 		state = new DistState( this , distFolder );
@@ -77,6 +75,10 @@ public class Dist {
 		state.ctlOpenForUse( action , prod );
 		openedForUse = true;
 		gatherFiles( action );
+	}
+	
+	public boolean isFullProd() {
+		return( release.PROPERTY_PROD );
 	}
 	
 	public boolean isFinalized() {
@@ -299,9 +301,9 @@ public class Dist {
 	}
 	
 	// top-level control
-	public void create( ActionBase action , String RELEASEDIR ) throws Exception {
+	public void create( ActionBase action , String RELEASEDIR , Date releaseDate ) throws Exception {
 		this.RELEASEDIR = RELEASEDIR;
-		state.ctlCreate( action );
+		state.ctlCreate( action , releaseDate );
 		load( action );
 	}
 

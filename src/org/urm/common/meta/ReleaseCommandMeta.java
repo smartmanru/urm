@@ -12,14 +12,14 @@ public class ReleaseCommandMeta extends CommandMeta {
 		super( NAME , DESC );
 		
 		String releaseOpts = "OPT_BUILDMODE,OPT_OBSOLETE,OPT_COMPATIBILITY,OPT_CUMULATIVE";
-		defineAction( CommandMethodMeta.newNormal( this , "create" , true , "create release" , releaseOpts , "./create.sh [OPTIONS] <RELEASELABEL>" ) );
+		defineAction( CommandMethodMeta.newNormal( this , "create" , true , "create release" , releaseOpts , "./create.sh [OPTIONS] <RELEASELABEL> <RELEASEDATE>" ) );
 		releaseOpts = "OPT_ALL,OPT_BUILDMODE,OPT_OBSOLETE,OPT_COMPATIBILITY";
 		defineAction( CommandMethodMeta.newNormal( this , "modify" , true , "set release properties" , releaseOpts , "./modify.sh [OPTIONS] <RELEASELABEL>" ) );
 		releaseOpts = "";
 		defineAction( CommandMethodMeta.newCritical( this , "drop" , true , "delete release" , releaseOpts , "./drop.sh [OPTIONS] <RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newStatus( this , "status" , true , "get release status" , releaseOpts , "./status.sh [OPTIONS] <RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newNormal( this , "close" , true , "close release" , releaseOpts , "./close.sh [OPTIONS] <RELEASELABEL>" ) );
-		defineAction( CommandMethodMeta.newNormal( this , "copy" , true , "copy release" , releaseOpts , "./close.sh [OPTIONS] <RELEASESRC> <RELEASEDST>" ) );
+		defineAction( CommandMethodMeta.newNormal( this , "copy" , true , "copy release" , releaseOpts , "./close.sh [OPTIONS] <RELEASESRC> <RELEASEDST> <RELEASEDATE>" ) );
 		defineAction( CommandMethodMeta.newNormal( this , "finish" , true , "finish release" , releaseOpts , "./finish.sh [OPTIONS] <RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newNormal( this , "reopen" , true , "reopen release" , releaseOpts , "./reopen.sh [OPTIONS] <RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newCritical( this , "prod" , true , "create master distributive from predefined set" , releaseOpts , "./prod.sh [OPTIONS] create <initial version>" ) );

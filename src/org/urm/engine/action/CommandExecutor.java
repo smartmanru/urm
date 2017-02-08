@@ -1,5 +1,6 @@
 package org.urm.engine.action;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -141,12 +142,24 @@ public abstract class CommandExecutor {
 		return( value );
 	}
 
+	public Date getRequiredDateArg( ActionBase action , int pos , String argName ) throws Exception {
+		String value = getArg( action , pos );
+		if( value.isEmpty() )
+			action.exit1( _Error.ArgumentRequired1 , argName + " is empty" , argName );
+		
+		return( Common.getDateValue( value ) );
+	}
+
 	public String getArg( ActionBase action , int pos ) throws Exception {
 		return( action.context.options.getArg( pos ) );
 	}
 
 	public int getIntArg( ActionBase action , int pos , int defValue ) {
 		return( action.context.options.getIntArg( pos , defValue ) );
+	}
+	
+	public Date getDateArg( ActionBase action , int pos ) {
+		return( action.context.options.getDateArg( pos ) );
 	}
 	
 }

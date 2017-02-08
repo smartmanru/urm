@@ -1,5 +1,6 @@
 package org.urm.common.action;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -246,6 +247,10 @@ public class CommandOptions {
 	
 	public int getIntArg( int pos , int defValue ) {
 		return( data.getIntArg( pos , defValue ) );
+	}
+	
+	public Date getDateArg( int pos ) {
+		return( data.getDateArg( pos ) );
 	}
 	
 	public String[] getArgList( int startFrom ) {
