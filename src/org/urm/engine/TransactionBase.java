@@ -969,6 +969,10 @@ public class TransactionBase extends ServerObject {
 		return( builders );
 	}
 	
+	public ServerReleaseLifecycles getTransactionLifecycles() {
+		return( lifecycles );
+	}
+	
 	public ServerDirectory getTransactionDirectory() {
 		return( directory );
 	}

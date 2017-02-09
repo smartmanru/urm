@@ -20,6 +20,7 @@ import org.urm.meta.engine.ServerNetwork;
 import org.urm.meta.engine.ServerNetworkHost;
 import org.urm.meta.engine.ServerProduct;
 import org.urm.meta.engine.ServerProjectBuilder;
+import org.urm.meta.engine.ServerReleaseLifecycle;
 import org.urm.meta.engine.ServerSystem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -107,6 +108,27 @@ public class ServerTransaction extends TransactionBase {
 		checkTransactionBuilders();
 		builders.deleteBuilder( this , builder );
 		builder.deleteObject();
+	}
+	
+	public ServerReleaseLifecycle createLifecycleType( ServerReleaseLifecycle lc ) throws Exception {
+		checkTransactionReleaseLifecycles();
+		return( lifecycles.createLifecycle( this , lc ) );
+	}
+	
+	public void updateLifecycleType( ServerReleaseLifecycle lc , ServerReleaseLifecycle lcNew ) throws Exception {
+		checkTransactionReleaseLifecycles();
+		lc.setLifecycleData( this , lcNew );
+	}
+	
+	public void deleteLifecycleType( ServerReleaseLifecycle lc ) throws Exception {
+		checkTransactionReleaseLifecycles();
+		lifecycles.deleteLifecycle( this , lc );
+		lc.deleteObject();
+	}
+	
+	public void enableLifecycleType( ServerReleaseLifecycle lc , boolean enable ) throws Exception {
+		checkTransactionReleaseLifecycles();
+		lc.enableLifecycle( this , enable );
 	}
 	
 	public void createSystem( ServerSystem system ) throws Exception {

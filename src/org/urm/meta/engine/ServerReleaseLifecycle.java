@@ -5,7 +5,10 @@ import java.util.List;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.engine.ServerTransaction;
 import org.urm.meta.ServerObject;
+import org.urm.meta.Types;
+import org.urm.meta.Types.VarLCTYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -14,8 +17,10 @@ public class ServerReleaseLifecycle extends ServerObject {
 
 	ServerReleaseLifecycles lifecycles;
 	
+	public VarLCTYPE lcType;
 	public String ID;
 	public String DESC;
+	public boolean enabled;
 	
 	List<ServerReleaseLifecyclePhase> phases;
 	
@@ -23,12 +28,15 @@ public class ServerReleaseLifecycle extends ServerObject {
 		super( lifecycles );
 		this.lifecycles = lifecycles;
 		phases = new LinkedList<ServerReleaseLifecyclePhase>();
+		enabled = false;
 	}
 	
 	public ServerReleaseLifecycle copy() throws Exception {
 		ServerReleaseLifecycle r = new ServerReleaseLifecycle( lifecycles );
+		r.lcType = lcType;
 		r.ID = ID;
 		r.DESC = DESC;
+		r.enabled = enabled;
 		
 		for( ServerReleaseLifecyclePhase phase : phases ) {
 			ServerReleaseLifecyclePhase rphase = phase.copy( r );
@@ -45,8 +53,10 @@ public class ServerReleaseLifecycle extends ServerObject {
 		if( root == null )
 			return;
 		
+		lcType = Types.getLCType( ConfReader.getAttrValue( root , "type" ) , true );
 		ID = ConfReader.getAttrValue( root , "id" );
 		DESC = ConfReader.getAttrValue( root , "desc" );
+		enabled = ConfReader.getBooleanAttrValue( root , "enabled" , false );
 		
 		Node[] list = ConfReader.xmlGetChildren( root , "phase" );
 		if( list == null )
@@ -60,8 +70,10 @@ public class ServerReleaseLifecycle extends ServerObject {
 	}
 
 	public void save( Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , "type" , Common.getEnumLower( lcType ) );
 		Common.xmlSetElementAttr( doc , root , "id" , ID );
 		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
+		Common.xmlSetElementAttr( doc , root , "enabled" , Common.getBooleanValue( enabled ) );
 		
 		for( ServerReleaseLifecyclePhase phase : phases ) {
 			Element element = Common.xmlCreateElement( doc , root , "phase" );
@@ -69,5 +81,15 @@ public class ServerReleaseLifecycle extends ServerObject {
 		}
 	}
 
+	public void setLifecycleData( ServerTransaction transaction , ServerReleaseLifecycle src ) throws Exception {
+		lcType = src.lcType;
+		ID = src.ID;
+		DESC = src.DESC;
+		enabled = src.enabled;
+	}
+
+	public void enableLifecycle( ServerTransaction transaction , boolean enabled ) throws Exception {
+		this.enabled = enabled;
+	}
 	
 }

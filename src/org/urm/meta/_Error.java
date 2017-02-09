@@ -56,5 +56,7 @@ public class _Error {
 	public static final int MissingBuilderTarget0 = ErrorBase + 92;
 	public static final int InvalidProjectType1 = ErrorBase + 93;
 	public static final int MissingProjectType0 = ErrorBase + 94;
+	public static final int InvalidLCType1 = ErrorBase + 95;
+	public static final int MissingLCType0 = ErrorBase + 96;
 
 }
