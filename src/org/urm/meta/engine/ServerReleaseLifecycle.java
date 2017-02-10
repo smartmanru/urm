@@ -22,6 +22,11 @@ public class ServerReleaseLifecycle extends ServerObject {
 	public String DESC;
 	public boolean enabled;
 	
+	public boolean regular;
+	public int daysToRelease;
+	public int daysToDeploy;
+	public int shiftDays;
+	
 	List<ServerReleaseLifecyclePhase> phases;
 	
 	public ServerReleaseLifecycle( ServerReleaseLifecycles lifecycles ) {
@@ -37,6 +42,10 @@ public class ServerReleaseLifecycle extends ServerObject {
 		r.ID = ID;
 		r.DESC = DESC;
 		r.enabled = enabled;
+		r.regular = regular;
+		r.daysToRelease = daysToRelease;
+		r.daysToDeploy = daysToDeploy;
+		r.shiftDays = shiftDays;
 		
 		for( ServerReleaseLifecyclePhase phase : phases ) {
 			ServerReleaseLifecyclePhase rphase = phase.copy( r );
@@ -57,6 +66,10 @@ public class ServerReleaseLifecycle extends ServerObject {
 		ID = ConfReader.getAttrValue( root , "id" );
 		DESC = ConfReader.getAttrValue( root , "desc" );
 		enabled = ConfReader.getBooleanAttrValue( root , "enabled" , false );
+		regular = ConfReader.getBooleanAttrValue( root , "regular" , false );
+		daysToRelease = ConfReader.getIntegerAttrValue( root , "releasedays" , 0 );
+		daysToDeploy = ConfReader.getIntegerAttrValue( root , "deploydays" , 0 );
+		shiftDays = ConfReader.getIntegerAttrValue( root , "shiftdays" , 0 );
 		
 		Node[] list = ConfReader.xmlGetChildren( root , "phase" );
 		if( list == null )
@@ -74,6 +87,10 @@ public class ServerReleaseLifecycle extends ServerObject {
 		Common.xmlSetElementAttr( doc , root , "id" , ID );
 		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
 		Common.xmlSetElementAttr( doc , root , "enabled" , Common.getBooleanValue( enabled ) );
+		Common.xmlSetElementAttr( doc , root , "regular" , Common.getBooleanValue( regular ) );
+		Common.xmlSetElementAttr( doc , root , "releasedays" , "" + daysToRelease );
+		Common.xmlSetElementAttr( doc , root , "deploydays" , "" + daysToDeploy );
+		Common.xmlSetElementAttr( doc , root , "shiftdays" , "" + shiftDays );
 		
 		for( ServerReleaseLifecyclePhase phase : phases ) {
 			Element element = Common.xmlCreateElement( doc , root , "phase" );
@@ -86,6 +103,10 @@ public class ServerReleaseLifecycle extends ServerObject {
 		ID = src.ID;
 		DESC = src.DESC;
 		enabled = src.enabled;
+		regular = src.regular;
+		daysToRelease = src.daysToRelease;
+		daysToDeploy = src.daysToDeploy;
+		shiftDays = src.shiftDays;
 	}
 
 	public void enableLifecycle( ServerTransaction transaction , boolean enabled ) throws Exception {
