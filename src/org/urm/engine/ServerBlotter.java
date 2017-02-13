@@ -236,17 +236,17 @@ public class ServerBlotter {
 		else
 		if( action instanceof ActionAddScope ) {
 			ActionAddScope xa = ( ActionAddScope )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PLAN , "extend scope of distributive releasedir=" + xa.dist.RELEASEDIR ); 
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.MODIFY , "extend scope of distributive releasedir=" + xa.dist.RELEASEDIR ); 
 		}
 		else
 		if( action instanceof ActionDescope ) {
 			ActionFinishRelease xa = ( ActionFinishRelease )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PLAN , "reduce scope of distributive releasedir=" + xa.dist.RELEASEDIR ); 
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.MODIFY , "reduce scope of distributive releasedir=" + xa.dist.RELEASEDIR ); 
 		}
 		else
 		if( action instanceof ActionForceCloseRelease ) {
 			ActionForceCloseRelease xa = ( ActionForceCloseRelease )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PLAN , "close distributive releasedir=" + xa.dist.RELEASEDIR ); 
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.MODIFY , "close distributive releasedir=" + xa.dist.RELEASEDIR ); 
 		}
 		else
 		if( action instanceof ActionGetCumulative ) {
@@ -256,7 +256,7 @@ public class ServerBlotter {
 		else
 		if( action instanceof ActionModifyRelease ) {
 			ActionModifyRelease xa = ( ActionModifyRelease )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PLAN , "modify properties of distributive releasedir=" + xa.dist.RELEASEDIR ); 
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.MODIFY , "modify properties of distributive releasedir=" + xa.dist.RELEASEDIR ); 
 		}
 		else
 		if( action instanceof ActionGetBinary ) {

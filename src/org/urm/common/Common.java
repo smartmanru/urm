@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
@@ -518,6 +519,27 @@ public class Common {
 			return( "yes" );
 		
 		return( "no" );
+	}
+	
+	public static Date getDateValue( String s ) {
+		if( s == null || s.isEmpty() )
+			return( null );
+		
+		DateFormat format = new SimpleDateFormat( "yyyy-MM-dd" );
+		try {
+			return( format.parse( s ) );
+		}
+		catch( Throwable e ) {
+		}
+		throw new RuntimeException( "invalid date value=" + s ); 
+	}
+	
+	public static String getDateValue( Date v ) {
+		if( v == null )
+			return( "" );
+		
+		DateFormat format = new SimpleDateFormat( "yyyy-MM-dd" );
+		return( format.format( v ) );
 	}
 	
 	public static String concat( String value1 , String value2 , String delimiter ) {

@@ -55,7 +55,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		tobeBinaryFolder = tobeFolder.getSubFolder( this , "binary" );
 		tobeBinaryFolder.ensureExists( this );
 		
-		if( dist.prod )
+		if( dist.isFullProd() )
 			configure = new ActionConfigure( this , null , tobeConfigFolder );
 		else
 			configure = new ActionConfigure( this , null , dist , tobeConfigFolder );
@@ -236,7 +236,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		
 		debug( "calculate diff between: " + tobeServerFolder.folderPath + " and " + asisServerFolder.folderPath + " (prefix=" + nodePrefix + ") ..." );
 		ConfDiffSet diff = new ConfDiffSet( server.meta , releaseSet , prodSet , nodePrefix , true );
-		if( !dist.prod )
+		if( !dist.isFullProd() )
 			diff.calculate( this , dist.release );
 		else
 			diff.calculate( this , null );
@@ -308,7 +308,7 @@ public class ActionVerifyDeploy extends ActionBase {
 	}
 	
 	private void executeNodeConf( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrConfItem confItem , LocalFolder asisConfigServerFolder ) throws Exception {
-		if( !dist.prod ) {
+		if( !dist.isFullProd() ) {
 			if( dist.release.findConfComponent( this , confItem.KEY ) == null ) {
 				trace( "ignore non-release conf item=" + confItem.KEY );
 				return;

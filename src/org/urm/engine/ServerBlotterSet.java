@@ -56,7 +56,8 @@ public class ServerBlotterSet extends ServerEventsSource {
 			Meta meta = action.getProductMetadata( productName );
 			ServerProductMeta storage = meta.getStorage( action );
 			DistRepository repo = storage.getDistRepository( action );
-			startReleaseSetRepo( action , repo );
+			if( repo != null )
+				startReleaseSetRepo( action , repo );
 		}
 	}
 

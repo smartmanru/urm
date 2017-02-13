@@ -38,6 +38,8 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		info( "\tstate: " + dist.getState().name() );
 		info( "\tsignature: " + hashStatus );
 		info( "PROPERTIES:" );
+		info( "\tproperty=prod: " + Common.getBooleanValue( release.PROPERTY_PROD ) );
+		info( "\tproperty=date: " + Common.getDateValue( release.PROPERTY_RELEASEDATE ) );
 		info( "\tproperty=buildmode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );
 		info( "\tproperty=obsolete: " + Common.getBooleanValue( release.PROPERTY_OBSOLETE ) );
 		info( "\tproperty=over: " + release.PROPERTY_COMPATIBILITY );

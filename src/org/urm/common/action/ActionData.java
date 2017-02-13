@@ -1,6 +1,7 @@
 package org.urm.common.action;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -127,6 +128,13 @@ public class ActionData implements Serializable {
 		if( value.isEmpty() )
 			return( defValue );
 		return( Integer.parseInt( value ) );
+	}
+	
+	public Date getDateArg( int pos ) {
+		String value = getArg( pos );
+		if( value.isEmpty() )
+			return( null );
+		return( Common.getDateValue( value ) );
 	}
 	
 	public String[] getArgList( int startFrom ) {

@@ -1,5 +1,7 @@
 package org.urm.action.release;
 
+import java.util.Date;
+
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.build.BuildCommand;
@@ -18,13 +20,13 @@ public class ReleaseCommand {
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
-	public void createRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
-		ActionCreateRelease ma = new ActionCreateRelease( action , null , meta , RELEASELABEL );
+	public void createRelease( ActionBase action , Meta meta , String RELEASELABEL , Date releaseDate ) throws Exception {
+		ActionCreateRelease ma = new ActionCreateRelease( action , null , meta , RELEASELABEL , releaseDate );
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 
-	public void modifyRelease( ActionBase action , Dist dist ) throws Exception {
-		ActionModifyRelease ma = new ActionModifyRelease( action , null , dist );
+	public void modifyRelease( ActionBase action , Dist dist , Date releaseDate ) throws Exception {
+		ActionModifyRelease ma = new ActionModifyRelease( action , null , dist , releaseDate );
 		ma.runSimpleProduct( dist.meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 
@@ -40,9 +42,9 @@ public class ReleaseCommand {
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
-	public void copyRelease( ActionBase action , Meta meta , String RELEASESRC , String RELEASEDST ) throws Exception {
+	public void copyRelease( ActionBase action , Meta meta , String RELEASESRC , String RELEASEDST , Date releaseDate ) throws Exception {
 		Dist distSrc = action.artefactory.getDistStorageByLabel( action , meta , RELEASESRC );
-		ActionCopyRelease ma = new ActionCopyRelease( action , null , distSrc , RELEASEDST );
+		ActionCopyRelease ma = new ActionCopyRelease( action , null , distSrc , RELEASEDST , releaseDate );
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	

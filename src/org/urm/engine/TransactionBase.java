@@ -969,6 +969,10 @@ public class TransactionBase extends ServerObject {
 		return( builders );
 	}
 	
+	public ServerReleaseLifecycles getTransactionLifecycles() {
+		return( lifecycles );
+	}
+	
 	public ServerDirectory getTransactionDirectory() {
 		return( directory );
 	}
@@ -1014,6 +1018,10 @@ public class TransactionBase extends ServerObject {
 		return( directory.getProduct( product.NAME ) );
 	}
 	
+	public Meta getMeta( Meta meta ) throws Exception {
+		return( action.getActiveProductMetadata( meta.name ) );
+	}
+
 	public MetaEnv getMetaEnv( MetaEnv env ) throws Exception {
 		ServerProductMeta metadata = getTransactionMetadata( env.meta );
 		return( metadata.findEnvironment( env.ID ) );

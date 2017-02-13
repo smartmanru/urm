@@ -26,7 +26,8 @@ public class ActionBuild extends ActionBase {
 		this.TAG = TAG;
 	}
 
-	@Override protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+	@Override 
+	protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		// run in order of build
 		debug( "build set=" + set.NAME + " ..." );
 		for( MetaSourceProject project : set.pset.getOrderedList() ) {
@@ -43,8 +44,10 @@ public class ActionBuild extends ActionBase {
 				
 			debug( "build project=" + project.NAME );
 			if( !executeTarget( target ) ) {
-				error( "cancel build due to errors" );
-				return( SCOPESTATE.RunFail );
+				if( !super.continueRun() ) {
+					error( "cancel build due to errors" );
+					return( SCOPESTATE.RunFail );
+				}
 			}
 		}
 
@@ -75,15 +78,17 @@ public class ActionBuild extends ActionBase {
 				", TAG=" + builder.TAG + ", VERSION=" + builder.APPVERSION );
 
 		BUILDSTATUS = "SUCCESSFUL";
+		boolean res = true;
 		if( !action.runProductBuild( project.meta.name , SecurityAction.ACTION_BUILD , context.buildMode , false ) ) {
 			BUILDSTATUS = "FAILED";
+			res = false;
 			super.fail1( _Error.ProjectBuildError1 , "Errors while building project=" + project.NAME , project.NAME );
 		}
 		super.stopRedirect();
 		
 		// check status
 		info( "ActionBuild: build finished for CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) + ", TAG=" + TAG + ", VERSION=" + version + ", BUILDSTATUS=" + BUILDSTATUS );
-		return( true );
+		return( res );
 	}
 	
 }

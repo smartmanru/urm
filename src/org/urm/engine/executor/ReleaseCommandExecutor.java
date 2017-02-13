@@ -1,5 +1,7 @@
 package org.urm.engine.executor;
 
+import java.util.Date;
+
 import org.urm.action.release.ReleaseCommand;
 import org.urm.common.Common;
 import org.urm.common.action.CommandMeta;
@@ -61,19 +63,21 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	private class CreateRelease extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
-		checkNoArgs( action , 1 );
+		Date releaseDate = getRequiredDateArg( action , 1 , "RELEASEDATE" );
+		checkNoArgs( action , 2 );
 		Meta meta = action.getContextMeta();
-		impl.createRelease( action , meta , RELEASELABEL );
+		impl.createRelease( action , meta , RELEASELABEL , releaseDate );
 	}
 	}
 
 	private class ModifyRelease extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
-		checkNoArgs( action , 1 );
+		Date releaseDate = getDateArg( action , 1 );
+		checkNoArgs( action , 2 );
 		Meta meta = action.getContextMeta();
 		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
-		impl.modifyRelease( action , dist );
+		impl.modifyRelease( action , dist , releaseDate );
 	}
 	}
 
@@ -99,9 +103,10 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASESRC = getRequiredArg( action , 0 , "RELEASESRC" );
 		String RELEASEDST = getRequiredArg( action , 1 , "RELEASEDST" );
-		checkNoArgs( action , 2 );
+		Date releaseDate = getRequiredDateArg( action , 2 , "RELEASEDATE" );
+		checkNoArgs( action , 3 );
 		Meta meta = action.getContextMeta();
-		impl.copyRelease( action , meta , RELEASESRC , RELEASEDST );
+		impl.copyRelease( action , meta , RELEASESRC , RELEASEDST , releaseDate );
 	}
 	}
 

@@ -1,5 +1,6 @@
 package org.urm.engine.dist;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -75,7 +76,7 @@ public class DistRepositoryItem {
 		created = System.currentTimeMillis();
 	}
 	
-	public static Dist createDist( ActionBase action , DistRepository repo , RemoteFolder distFolder ) throws Exception {
+	public static Dist createDist( ActionBase action , DistRepository repo , RemoteFolder distFolder , Date releaseDate ) throws Exception {
 		if( distFolder.checkExists( action ) ) {
 			String path = distFolder.folderPath;
 			action.ifexit( _Error.ReleaseAlreadyExists1 , "distributive already exists at " + path , new String[] { path } );
@@ -83,7 +84,7 @@ public class DistRepositoryItem {
 
 		Dist dist = new Dist( repo.meta , repo );
 		dist.setFolder( distFolder , false );
-		dist.create( action , distFolder.folderName );
+		dist.create( action , distFolder.folderName , releaseDate );
 		return( dist );
 	}
 	

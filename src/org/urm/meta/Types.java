@@ -228,6 +228,13 @@ public class Types {
 		SINGLEFILE
 	};
 	
+	public enum VarLCTYPE {
+		UNKNOWN ,
+		MAJOR ,
+		MINOR ,
+		URGENT
+	};
+	
 	public static VarOSTYPE getOSType( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
@@ -626,4 +633,22 @@ public class Types {
 		return( value );
 	}
 
+	public static VarLCTYPE getLCType( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingLCType0 , "missing lifecycle type" );
+			return( VarLCTYPE.UNKNOWN );
+		}
+		
+		VarLCTYPE value = null;
+		try {
+			value = VarLCTYPE.valueOf( Common.xmlToEnumValue( ID ) );
+		}
+		catch( IllegalArgumentException e ) {
+			Common.exit1( _Error.InvalidLCType1 , "invalid lifecycle type=" + ID , ID );
+		}
+		
+		return( value );
+	}
+	
 }
