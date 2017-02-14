@@ -58,5 +58,7 @@ public class _Error {
 	public static final int MissingProjectType0 = ErrorBase + 94;
 	public static final int InvalidLCType1 = ErrorBase + 95;
 	public static final int MissingLCType0 = ErrorBase + 96;
+	public static final int InvalidLCStage1 = ErrorBase + 97;
+	public static final int MissingLCStage0 = ErrorBase + 98;
 
 }

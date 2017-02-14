@@ -21,6 +21,7 @@ import org.urm.meta.engine.ServerNetworkHost;
 import org.urm.meta.engine.ServerProduct;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.engine.ServerReleaseLifecycle;
+import org.urm.meta.engine.ServerReleaseLifecyclePhase;
 import org.urm.meta.engine.ServerSystem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -129,6 +130,11 @@ public class ServerTransaction extends TransactionBase {
 	public void enableLifecycleType( ServerReleaseLifecycle lc , boolean enable ) throws Exception {
 		checkTransactionReleaseLifecycles();
 		lc.enableLifecycle( this , enable );
+	}
+	
+	public void changeLifecyclePhases( ServerReleaseLifecycle lc , ServerReleaseLifecyclePhase[] phases ) throws Exception {
+		checkTransactionReleaseLifecycles();
+		lc.changePhases( this , phases );
 	}
 	
 	public void createSystem( ServerSystem system ) throws Exception {

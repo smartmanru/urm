@@ -886,7 +886,7 @@ public class Common {
 			if( !sv.equals( "unknown" ) )
 				items.add( sv );
 		}
-		return( getSortedList( items ) );
+		return( items.toArray( new String[0] ) );
 	}
 
 	public static boolean isBasenameMask( String name ) {

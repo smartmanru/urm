@@ -112,5 +112,20 @@ public class ServerReleaseLifecycle extends ServerObject {
 	public void enableLifecycle( ServerTransaction transaction , boolean enabled ) throws Exception {
 		this.enabled = enabled;
 	}
+
+	public synchronized ServerReleaseLifecyclePhase[] getPhases() {
+		return( phases.toArray( new ServerReleaseLifecyclePhase[0] ) );
+	}
 	
+	public synchronized void changePhases( ServerTransaction transaction , ServerReleaseLifecyclePhase[] phasesNew ) throws Exception {
+		for( ServerReleaseLifecyclePhase phase : phases )
+			phase.deleteObject();
+		phases.clear();
+		
+		for( ServerReleaseLifecyclePhase phase : phasesNew ) {
+			ServerReleaseLifecyclePhase phaseNew = phase.copy( this );
+			addPhase( phaseNew );
+		}
+	}
+
 }
