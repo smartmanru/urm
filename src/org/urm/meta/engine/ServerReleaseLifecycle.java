@@ -122,10 +122,46 @@ public class ServerReleaseLifecycle extends ServerObject {
 			phase.deleteObject();
 		phases.clear();
 		
+		enabled = false;
 		for( ServerReleaseLifecyclePhase phase : phasesNew ) {
 			ServerReleaseLifecyclePhase phaseNew = phase.copy( this );
 			addPhase( phaseNew );
 		}
+		
+		if( !isValid() )
+			transaction.exit1( _Error.LifecycleWrongSettings1 , "Wrong phase settings of lifecycle=" + ID , ID );
 	}
 
+	public boolean isValid() {
+		int nRelease = 0;
+		int nDeploy = 0;
+		int nReleaseDays = 0;
+		int nDeployDays = 0;
+		for( ServerReleaseLifecyclePhase phase : phases ) {
+			if( phase.isRelease() ) {
+				nRelease++;
+				nReleaseDays += phase.days;
+			}
+			else
+			if( phase.isDeploy() ) {
+				nDeploy++;
+				nDeployDays += phase.days;
+			}
+		}
+		
+		if( nRelease == 0 )
+			return( false );
+		
+		if( nDeploy == 0 )
+			return( false );
+		
+		if( daysToRelease > 0 && nReleaseDays > daysToRelease )
+			return( false );
+		
+		if( daysToDeploy > 0 && nDeployDays > daysToDeploy )
+			return( false );
+		
+		return( true );
+	}
+	
 }
