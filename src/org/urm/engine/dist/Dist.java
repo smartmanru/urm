@@ -12,6 +12,7 @@ import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
+import org.urm.meta.engine.ServerReleaseLifecycle;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -301,9 +302,9 @@ public class Dist {
 	}
 	
 	// top-level control
-	public void create( ActionBase action , String RELEASEDIR , Date releaseDate ) throws Exception {
+	public void create( ActionBase action , String RELEASEDIR , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
 		this.RELEASEDIR = RELEASEDIR;
-		state.ctlCreate( action , releaseDate );
+		state.ctlCreate( action , releaseDate , lc );
 		load( action );
 	}
 

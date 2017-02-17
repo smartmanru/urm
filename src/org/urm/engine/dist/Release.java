@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.meta.engine.ServerReleaseLifecycle;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
@@ -40,15 +41,20 @@ public class Release {
 	Map<String,ReleaseSet> sourceSetMap = new HashMap<String,ReleaseSet>();
 	Map<VarCATEGORY,ReleaseSet> categorySetMap = new HashMap<VarCATEGORY,ReleaseSet>();
 	Map<String,ReleaseDelivery> deliveryMap = new HashMap<String,ReleaseDelivery>();
+
+	ReleaseSchedule schedule;
 	
 	public Release( Meta meta , Dist dist ) {
 		this.meta = meta;
 		this.dist = dist;
+		schedule = new ReleaseSchedule( meta , this );
 	}
 
 	public void copy( ActionBase action , Release src ) throws Exception {
 		this.meta = src.meta;
 		this.RELEASEVER = src.RELEASEVER;
+
+		schedule = src.schedule.copy( action , meta , src ); 
 		
 		this.PROPERTY_PROD = src.PROPERTY_PROD;
 		this.PROPERTY_RELEASEDATE = src.PROPERTY_RELEASEDATE;
@@ -113,8 +119,9 @@ public class Release {
 		this.RELEASEVER = RELEASEVER;
 	}
 	
-	public void setReleaseDate( ActionBase action , Date releaseDate ) throws Exception {
+	public void setReleaseDate( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
 		this.PROPERTY_RELEASEDATE = releaseDate;
+		schedule.changeReleaseSchedule( action , releaseDate , lc );
 	}
 	
 	public void setProperties( ActionBase action ) throws Exception {
@@ -132,21 +139,13 @@ public class Release {
 		}
 	}
 	
-	public void setProperties( ActionBase action , Release src ) throws Exception {
-		PROPERTY_PROD = src.PROPERTY_PROD;
-		PROPERTY_RELEASEDATE = src.PROPERTY_RELEASEDATE;
-		PROPERTY_BUILDMODE = src.PROPERTY_BUILDMODE;
-		PROPERTY_OBSOLETE = src.PROPERTY_OBSOLETE;
-		PROPERTY_COMPATIBILITY = src.PROPERTY_COMPATIBILITY;
-		PROPERTY_CUMULATIVE = src.PROPERTY_CUMULATIVE;
-	}
-	
-	public void create( ActionBase action , String RELEASEVER , Date releaseDate , String RELEASEFILEPATH ) throws Exception {
+	public void create( ActionBase action , String RELEASEVER , Date releaseDate , ServerReleaseLifecycle lc , String RELEASEFILEPATH ) throws Exception {
 		this.RELEASEVER = DistLabelInfo.normalizeReleaseVer( action , RELEASEVER );
 		this.PROPERTY_PROD = false;
 		this.PROPERTY_RELEASEDATE = releaseDate;
 		this.PROPERTY_CUMULATIVE = action.context.CTX_CUMULATIVE;
-		
+
+		schedule.createReleaseSchedule( action , releaseDate , lc );
 		setProperties( action );
 		createEmptyXml( action , RELEASEFILEPATH );
 	}
@@ -243,6 +242,8 @@ public class Release {
 		PROPERTY_COMPATIBILITY = getReleaseProperty( action , root , "over" );
 		PROPERTY_CUMULATIVE = getReleasePropertyBoolean( action , root , "cumulative" , false );
 
+		schedule.load( action , root );
+		
 		// get projectsets
 		for( VarCATEGORY CATEGORY : Meta.getAllReleaseCategories() )
 			loadSets( action , root , CATEGORY );
@@ -474,8 +475,11 @@ public class Release {
 		Common.xmlCreatePropertyElement( doc , root , "over" , PROPERTY_COMPATIBILITY );
 		Common.xmlCreateBooleanPropertyElement( doc , root , "cumulative" , PROPERTY_CUMULATIVE );
 		
+		schedule.save( action , doc , root );
+		
 		for( VarCATEGORY CATEGORY : Meta.getAllReleaseCategories() )
 			Common.xmlCreateElement( doc , root , Common.getEnumLower( CATEGORY ) );
+		
 		return( doc );
 	}
 	

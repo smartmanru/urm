@@ -11,6 +11,7 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.shell.Account;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.engine.ServerContext;
+import org.urm.meta.engine.ServerReleaseLifecycle;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaProductSettings;
@@ -210,7 +211,7 @@ public class DistRepository {
 		return( dist );
 	}
 
-	public synchronized Dist createDist( ActionBase action , String RELEASELABEL , Date releaseDate ) throws Exception {
+	public synchronized Dist createDist( ActionBase action , String RELEASELABEL , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
 		DistLabelInfo info = getLabelInfo( action , RELEASELABEL );
 		Dist dist = findDist( action , info );
 		if( dist != null ) {
@@ -219,7 +220,7 @@ public class DistRepository {
 		}
 		
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
-		dist = DistRepositoryItem.createDist( action , this , distFolder , releaseDate );
+		dist = DistRepositoryItem.createDist( action , this , distFolder , releaseDate , lc );
 		addDist( dist );
 		
 		return( dist );
