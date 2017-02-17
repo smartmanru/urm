@@ -23,7 +23,7 @@ import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringTarget;
-import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -91,7 +91,7 @@ public class ServerMonitoring extends ServerObject {
 
 	private String getProductExpr( PropertySet src , String prop ) {
 		String value = src.getExpressionByProperty( prop );
-		return( value + "/" + PropertySet.getRef( MetaProductSettings.PROPERTY_PRODUCT_NAME ) );
+		return( value + "/" + PropertySet.getRef( MetaProductCoreSettings.PROPERTY_PRODUCT_NAME ) );
 	}
 	
 	public void load( String monFile , RunContext execrc ) throws Exception {

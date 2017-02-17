@@ -178,8 +178,7 @@ public class SpecificPGU {
 		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , builder.TARGETNEXUS , meta , libFolder );
 
 		// download latest API libs - pfr, fed-common-util
-		MetaProductSettings product = meta.getProductSettings( action );
-		if( product.CONFIG_PRODUCT.equals( "fedpgu" ) ) {
+		if( meta.name.equals( "fedpgu" ) ) {
 			action.debug( "download API libs for pfr and fed-common-util from Nexus - to pgu-services-lib ..." );
 			nexusStorage.downloadNexus( action , C_PGUWARNEXUSGROUPID , "pfr-api" , VERSION , "jar" , "" , servicecallItem );
 			nexusStorage.downloadNexus( action , C_PGUFEDGROUPID , "pgu-fed-common-util" , VERSION , "jar" , "" , servicecallItem );
@@ -201,8 +200,7 @@ public class SpecificPGU {
 		//   current release - if microportal exists in current release distributive
 		//   previous release (prod) - otherwise
 
-		MetaProductSettings product = meta.getProductSettings( action );
-		if( product.CONFIG_PRODUCT.equals( "fedpgu" ) ) {
+		if( meta.name.equals( "fedpgu" ) ) {
 			// pgu-fed-common-util - always use last built
 			if( srcRelease == null )
 				getAllWarAppCopySpecificBuilt( "pgu-fed-common" );

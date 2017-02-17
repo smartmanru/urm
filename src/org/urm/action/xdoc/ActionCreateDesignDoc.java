@@ -16,7 +16,6 @@ import org.urm.meta.product.MetaDesignLink;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaProductSettings;
 
 public class ActionCreateDesignDoc extends ActionBase {
 
@@ -141,8 +140,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 	}
 
 	private void createDotHeading( List<String> lines ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings( this );
-		lines.add( "digraph " + Common.getQuoted( product.CONFIG_PRODUCT ) + " {" );
+		lines.add( "digraph " + Common.getQuoted( meta.name ) + " {" );
 		lines.add( "\tcharset=" + Common.getQuoted( "utf8" ) + ";" );
 		lines.add( "\tsplines=false;" );
 		lines.add( "\tnode [shape=box, style=" + Common.getQuoted( "filled" ) + ", fontsize=10];" );

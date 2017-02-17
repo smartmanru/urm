@@ -40,6 +40,7 @@ import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaEnvStartInfo;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringTarget;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
 import org.urm.meta.product.MetaSource;
@@ -706,4 +707,9 @@ public class ServerTransaction extends TransactionBase {
 		item.project.removeItem( this , item );
 	}
 
+	public void setProductLifecycles( MetaProductCoreSettings core , String major , String minor , boolean urgentsAll , String[] urgents ) throws Exception {
+		checkTransactionMetadata( core.meta.getStorage( action ) );
+		core.setLifecycles( this , major , minor , urgentsAll , urgents );
+	}
+	
 }
