@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.urm.action.ActionBase;
 import org.urm.action.ActionCore;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
@@ -63,6 +64,13 @@ public class ServerReleaseLifecycles extends ServerObject {
 
 	public ServerReleaseLifecycle findLifecycle( String id ) {
 		return( lcMap.get( id ) );
+	}
+
+	public ServerReleaseLifecycle getLifecycle( ActionBase action , String id ) throws Exception {
+		ServerReleaseLifecycle lc = findLifecycle( id );
+		if( lc == null )
+			action.exit1( _Error.UnknownLifecycle1 , "unknown lifecycle id=" + id , id );
+		return( lc );
 	}
 
 	public String[] getLifecycles() {

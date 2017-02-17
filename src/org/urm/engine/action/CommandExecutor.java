@@ -12,8 +12,11 @@ import org.urm.common.RunError;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.engine.ServerEngine;
+import org.urm.meta.ServerLoader;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
+import org.urm.meta.engine.ServerReleaseLifecycle;
+import org.urm.meta.engine.ServerReleaseLifecycles;
 
 public abstract class CommandExecutor {
 
@@ -160,6 +163,16 @@ public abstract class CommandExecutor {
 	
 	public Date getDateArg( ActionBase action , int pos ) {
 		return( action.context.options.getDateArg( pos ) );
+	}
+
+	public ServerReleaseLifecycle getLifecycleArg( ActionBase action , int pos ) throws Exception {
+		String value = getArg( action , pos );
+		if( value.isEmpty() )
+			return( null );
+		
+		ServerLoader loader = engine.getLoader( action.actionInit );
+		ServerReleaseLifecycles lifecycles = loader.getReleaseLifecycles();
+		return( lifecycles.getLifecycle( action , value ) );
 	}
 	
 }

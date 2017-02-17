@@ -12,9 +12,9 @@ public class ReleaseCommandMeta extends CommandMeta {
 		super( NAME , DESC );
 		
 		String releaseOpts = "OPT_BUILDMODE,OPT_OBSOLETE,OPT_COMPATIBILITY,OPT_CUMULATIVE";
-		defineAction( CommandMethodMeta.newNormal( this , "create" , true , "create release" , releaseOpts , "./create.sh [OPTIONS] <RELEASELABEL> <RELEASEDATE>" ) );
+		defineAction( CommandMethodMeta.newNormal( this , "create" , true , "create release" , releaseOpts , "./create.sh [OPTIONS] <RELEASELABEL> [<RELEASEDATE> [<LIFECYCLE>]]" ) );
 		releaseOpts = "OPT_ALL,OPT_BUILDMODE,OPT_OBSOLETE,OPT_COMPATIBILITY";
-		defineAction( CommandMethodMeta.newNormal( this , "modify" , true , "set release properties" , releaseOpts , "./modify.sh [OPTIONS] <RELEASELABEL>" ) );
+		defineAction( CommandMethodMeta.newNormal( this , "modify" , true , "set release properties" , releaseOpts , "./modify.sh [OPTIONS] <RELEASELABEL> [<RELEASEDATE> [<LIFECYCLE>]]" ) );
 		releaseOpts = "";
 		defineAction( CommandMethodMeta.newCritical( this , "drop" , true , "delete release" , releaseOpts , "./drop.sh [OPTIONS] <RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newStatus( this , "status" , true , "get release status" , releaseOpts , "./status.sh [OPTIONS] <RELEASELABEL>" ) );
