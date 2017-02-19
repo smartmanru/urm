@@ -877,7 +877,7 @@ public class Dist {
 		
 		if( lc != null ) {
 			if( lc.isRegular() ) {
-				VersionInfo info = VersionInfo.getDistVersion( action , this );
+				VersionInfo info = VersionInfo.getReleaseVersion( action , RELEASEDIR );
 				String prevReleaseVer = info.getPreviousVersion();
 				
 				if( !prevReleaseVer.isEmpty() ) {
@@ -885,7 +885,7 @@ public class Dist {
 					ServerBlotterReleaseItem item = blotter.findReleaseItem( meta.name , prevReleaseVer );
 					
 					if( item != null ) {
-						releaseDate = Common.addDays( release.schedule.releaseDate , lc.shiftDays );
+						releaseDate = Common.addDays( item.repoItem.dist.release.schedule.releaseDate , lc.shiftDays );
 						return( releaseDate );
 					}
 				}
