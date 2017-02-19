@@ -16,6 +16,7 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.engine.ServerReleaseLifecycle;
+import org.urm.meta.engine.ServerReleaseLifecycles;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -819,11 +820,15 @@ public class Dist {
 				if( lc != null )
 					return( lc );
 			}
-			else
-			if( lc != null ) {
-				if( !expected.equals( lc.ID ) )
-					action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.ID );
-				return( lc );
+			else {
+				if( lc != null ) {
+					if( !expected.equals( lc.ID ) )
+						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.ID );
+					return( lc );
+				}
+				
+				ServerReleaseLifecycles lifecycles = action.getServerReleaseLifecycles();
+				return( lifecycles.findLifecycle( expected ) );
 			}
 		}
 		else
@@ -833,11 +838,15 @@ public class Dist {
 				if( lc != null )
 					return( lc );
 			}
-			else
-			if( lc != null ) {
-				if( !expected.equals( lc.ID ) )
-					action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.ID );
-				return( lc );
+			else {
+				if( lc != null ) {
+					if( !expected.equals( lc.ID ) )
+						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.ID );
+					return( lc );
+				}
+				
+				ServerReleaseLifecycles lifecycles = action.getServerReleaseLifecycles();
+				return( lifecycles.findLifecycle( expected ) );
 			}
 		}
 		else
@@ -847,11 +856,14 @@ public class Dist {
 				if( lc != null )
 					return( lc );
 			}
-			else
-			if( lc != null ) {
-				if( Common.getIndexOf( expected , lc.ID ) < 0 )
-					action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.ID );
-				return( lc );
+			else {
+				if( lc != null ) {
+					if( Common.getIndexOf( expected , lc.ID ) < 0 )
+						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.ID );
+					return( lc );
+				}
+				
+				action.exit0( _Error.MissingReleasecycleType0 , "Missing release cycle type" );
 			}
 		}
 		
