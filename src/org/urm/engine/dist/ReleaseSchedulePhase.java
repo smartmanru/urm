@@ -5,6 +5,7 @@ import java.util.Date;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.meta.engine.ServerReleaseLifecyclePhase;
 import org.urm.meta.product.Meta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -61,6 +62,15 @@ public class ReleaseSchedulePhase {
 		Common.xmlSetElementAttr( doc , root , "finished" , Common.getBooleanValue( finished ) );
 		if( finished )
 			Common.xmlSetElementAttr( doc , root , "finishdate" , Common.getDateValue( finishDate ) );
+	}
+	
+	public void create( ActionBase action , ServerReleaseLifecyclePhase lcPhase ) throws Exception {
+		this.name = lcPhase.ID;
+		this.days = lcPhase.days;
+		this.normalDays = lcPhase.days;
+		this.release = lcPhase.isRelease();
+		this.finished = false;
+		this.finishDate = null;
 	}
 	
 }

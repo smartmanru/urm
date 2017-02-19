@@ -8,6 +8,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.meta.engine.ServerReleaseLifecycle;
+import org.urm.meta.engine.ServerReleaseLifecyclePhase;
 import org.urm.meta.engine.ServerReleaseLifecycles;
 import org.urm.meta.product.Meta;
 import org.w3c.dom.Document;
@@ -84,18 +85,25 @@ public class ReleaseSchedule {
 	}
 	
 	public void createReleaseSchedule( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
-		setSchedule( action , releaseDate , lc );
+		this.LIFECYCLE = ( lc == null )? "" : lc.ID;
+		currentPhase = 0;
+		phases.clear();
+		
+		if( lc != null ) {
+			for( ServerReleaseLifecyclePhase lcPhase : lc.getPhases() ) {
+				ReleaseSchedulePhase phase = new ReleaseSchedulePhase( meta , this );
+				phase.create( action , lcPhase );
+				phases.add( phase );
+			}
+		}
+		
+		changeReleaseSchedule( action , releaseDate );
 	}
 	
 	public void changeReleaseSchedule( ActionBase action , Date releaseDate ) throws Exception {
 		this.releaseDate = releaseDate;
 	}
 
-	private void setSchedule( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
-		this.LIFECYCLE = ( lc == null )? "" : lc.ID;
-		this.releaseDate = releaseDate;
-	}
-	
 	public ServerReleaseLifecycle getLifecycle( ActionBase action ) throws Exception {
 		if( LIFECYCLE.isEmpty() )
 			return( null );

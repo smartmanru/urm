@@ -27,6 +27,9 @@ public class ServerReleaseLifecycle extends ServerObject {
 	public int daysToDeploy;
 	public int shiftDays;
 	
+	public int releasePhases;
+	public int deployPhases;
+	
 	List<ServerReleaseLifecyclePhase> phases;
 	
 	public ServerReleaseLifecycle( ServerReleaseLifecycles lifecycles ) {
@@ -34,6 +37,8 @@ public class ServerReleaseLifecycle extends ServerObject {
 		this.lifecycles = lifecycles;
 		phases = new LinkedList<ServerReleaseLifecyclePhase>();
 		enabled = false;
+		releasePhases = 0;
+		deployPhases = 0;
 	}
 	
 	public ServerReleaseLifecycle copy() throws Exception {
@@ -46,6 +51,8 @@ public class ServerReleaseLifecycle extends ServerObject {
 		r.daysToRelease = daysToRelease;
 		r.daysToDeploy = daysToDeploy;
 		r.shiftDays = shiftDays;
+		r.releasePhases = releasePhases;
+		r.deployPhases = deployPhases;
 		
 		for( ServerReleaseLifecyclePhase phase : phases ) {
 			ServerReleaseLifecyclePhase rphase = phase.copy( r );
@@ -56,6 +63,10 @@ public class ServerReleaseLifecycle extends ServerObject {
 	
 	private void addPhase( ServerReleaseLifecyclePhase phase ) {
 		phases.add( phase );
+	}
+	
+	public ServerReleaseLifecyclePhase getPhase( int index ) {
+		return( phases.get( index ) );
 	}
 	
 	public void load( Node root ) throws Exception {
@@ -75,10 +86,18 @@ public class ServerReleaseLifecycle extends ServerObject {
 		if( list == null )
 			return;
 		
+		releasePhases = 0;
+		deployPhases = 0;
 		for( Node node : list ) {
 			ServerReleaseLifecyclePhase phase = new ServerReleaseLifecyclePhase( this );
 			phase.load( node );
 			addPhase( phase );
+			
+			if( phase.isRelease() )
+				releasePhases++;
+			else
+			if( phase.isRelease() )
+				deployPhases++;
 		}
 	}
 
@@ -123,9 +142,17 @@ public class ServerReleaseLifecycle extends ServerObject {
 		phases.clear();
 		
 		enabled = false;
+		releasePhases = 0;
+		deployPhases = 0;
 		for( ServerReleaseLifecyclePhase phase : phasesNew ) {
 			ServerReleaseLifecyclePhase phaseNew = phase.copy( this );
 			addPhase( phaseNew );
+			
+			if( phase.isRelease() )
+				releasePhases++;
+			else
+			if( phase.isRelease() )
+				deployPhases++;
 		}
 		
 		if( !isValid() )
