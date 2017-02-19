@@ -317,8 +317,6 @@ public class Dist {
 	}
 
 	public void changeReleaseDate( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
-		if( lc == null )
-			lc = release.schedule.getLifecycle( action );
 		VarLCTYPE type = release.getLifecycleType();
 		ServerReleaseLifecycle lcset = getLifecycle( action , lc , type );
 		release.setReleaseDate( action , releaseDate , lcset );

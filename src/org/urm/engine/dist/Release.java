@@ -118,7 +118,10 @@ public class Release {
 	}
 	
 	public void setReleaseDate( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
-		schedule.changeReleaseSchedule( action , releaseDate , lc );
+		if( lc == null )
+			schedule.changeReleaseSchedule( action , releaseDate );
+		else
+			schedule.createReleaseSchedule( action , releaseDate , lc );
 	}
 	
 	public void setProperties( ActionBase action ) throws Exception {
