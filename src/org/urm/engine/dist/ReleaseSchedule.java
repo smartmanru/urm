@@ -79,7 +79,7 @@ public class ReleaseSchedule {
 		Common.xmlSetElementAttr( doc , node , "phase" , "" + currentPhase );
 		
 		for( ReleaseSchedulePhase phase : phases ) {
-			Element phaseElement = Common.xmlCreateElement( doc , root , "phase" );
+			Element phaseElement = Common.xmlCreateElement( doc , node , "phase" );
 			phase.save( action , doc , phaseElement );
 		}
 	}
