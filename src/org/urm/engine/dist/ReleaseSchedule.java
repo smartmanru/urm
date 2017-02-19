@@ -39,7 +39,7 @@ public class ReleaseSchedule {
 			return;
 		}
 		
-		LIFECYCLE = ConfReader.getPropertyValue( node , "lifecycle" );
+		LIFECYCLE = ConfReader.getPropertyValue( node , "lifecycle" , "" );
 		releaseDate = Common.getDateValue( ConfReader.getPropertyValue( node , "releasedate" ) );
 	}
 	
