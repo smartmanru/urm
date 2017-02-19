@@ -309,7 +309,8 @@ public class Dist {
 	// top-level control
 	public void create( ActionBase action , String RELEASEDIR , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
 		this.RELEASEDIR = RELEASEDIR;
-		lc = getLifecycle( action , lc );
+		VersionInfo info = VersionInfo.getReleaseVersion( action , RELEASEDIR );
+		lc = getLifecycle( action , lc , info.getLifecycleType() );
 		releaseDate = getReleaseDate( action , releaseDate , lc );
 		state.ctlCreate( action , releaseDate , lc );
 		load( action );
@@ -318,7 +319,8 @@ public class Dist {
 	public void changeReleaseDate( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
 		if( lc == null )
 			lc = release.schedule.getLifecycle( action );
-		ServerReleaseLifecycle lcset = getLifecycle( action , lc );
+		VarLCTYPE type = release.getLifecycleType();
+		ServerReleaseLifecycle lcset = getLifecycle( action , lc , type );
 		release.setReleaseDate( action , releaseDate , lcset );
 	}
 	
@@ -810,9 +812,8 @@ public class Dist {
 		}
 	}
 	
-	private ServerReleaseLifecycle getLifecycle( ActionBase action , ServerReleaseLifecycle lc ) throws Exception {
+	private ServerReleaseLifecycle getLifecycle( ActionBase action , ServerReleaseLifecycle lc , VarLCTYPE type ) throws Exception {
 		MetaProductCoreSettings core = meta.getProductCoreSettings( action );
-		VarLCTYPE type = release.getLifecycleType();
 		
 		if( type == VarLCTYPE.MAJOR ) {
 			String expected = core.RELEASELC_MAJOR;

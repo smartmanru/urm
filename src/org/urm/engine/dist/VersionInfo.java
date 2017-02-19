@@ -2,6 +2,7 @@ package org.urm.engine.dist;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.meta.Types.VarLCTYPE;
 
 public class VersionInfo {
 
@@ -145,6 +146,28 @@ public class VersionInfo {
 		if( v2 != 0 )
 			return( v1 + "."  + (v2-1) + ".0.0" );
 		return( (v1-1) + ".0.0.0" );
+	}
+
+	public VarLCTYPE getLifecycleType() {
+		if( v4 != 0 )
+			return( VarLCTYPE.URGENT );
+		if( v3 != 0 )
+			return( VarLCTYPE.MINOR );
+		return( VarLCTYPE.MAJOR );
+	}
+	
+	public static VarLCTYPE getLifecycleType( String RELEASEVER ) {
+		String[] items = Common.splitDotted( RELEASEVER );
+		if( items.length != 4 )
+			return( VarLCTYPE.UNKNOWN );
+		
+		if( !items[3].equals( "0" ) )
+			return( VarLCTYPE.URGENT );
+		
+		if( !items[2].equals( "0" ) )
+			return( VarLCTYPE.MINOR );
+		
+		return( VarLCTYPE.MAJOR );
 	}
 	
 }

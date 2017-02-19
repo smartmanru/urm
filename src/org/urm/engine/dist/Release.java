@@ -789,17 +789,7 @@ public class Release {
 	}
 
 	public VarLCTYPE getLifecycleType() {
-		String[] items = Common.splitDotted( RELEASEVER );
-		if( items.length != 4 )
-			return( VarLCTYPE.UNKNOWN );
-		
-		if( !items[3].equals( "0" ) )
-			return( VarLCTYPE.URGENT );
-		
-		if( !items[2].equals( "0" ) )
-			return( VarLCTYPE.MINOR );
-		
-		return( VarLCTYPE.MAJOR );
+		return( VersionInfo.getLifecycleType( RELEASEVER ) );
 	}
 	
 }
