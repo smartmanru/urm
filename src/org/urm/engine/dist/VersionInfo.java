@@ -136,5 +136,15 @@ public class VersionInfo {
 	public String getFullVersion() {
 		return( v1 + "."  + v2 + "." + v3 + "." + v4 );
 	}
+
+	public String getPreviousVersion() {
+		if( v4 != 0 )
+			return( v1 + "."  + v2 + "." + v3 + "." + (v4-1) );
+		if( v3 != 0 )
+			return( v1 + "."  + v2 + "." + (v3-1) + ".0" );
+		if( v2 != 0 )
+			return( v1 + "."  + (v2-1) + ".0.0" );
+		return( (v1-1) + ".0.0.0" );
+	}
 	
 }

@@ -10,6 +10,8 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunError;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.engine.ServerBlotter.BlotterType;
+import org.urm.engine.ServerBlotterSet;
 import org.urm.engine.ServerSession;
 import org.urm.engine.SessionSecurity;
 import org.urm.engine.action.ActionInit;
@@ -724,6 +726,10 @@ abstract public class ActionBase extends ActionCore {
 	public void createDedicatedContext() throws Exception {
 		CommandContext nc = new CommandContext( context , context.stream );
 		setContext( nc );
+	}
+
+	public ServerBlotterSet getBlotter( BlotterType type ) {
+		return( engine.blotter.getBlotterSet( type ) );
 	}
 	
 }

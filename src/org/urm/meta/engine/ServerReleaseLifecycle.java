@@ -163,5 +163,21 @@ public class ServerReleaseLifecycle extends ServerObject {
 		
 		return( true );
 	}
-	
+
+	public boolean isMajor() {
+		return( lcType == VarLCTYPE.MAJOR );
+	}
+
+	public boolean isMinor() {
+		return( lcType == VarLCTYPE.MINOR );
+	}
+
+	public boolean isUrgent() {
+		return( lcType == VarLCTYPE.URGENT );
+	}
+
+	public boolean isRegular() {
+		return( regular );
+	}
+
 }

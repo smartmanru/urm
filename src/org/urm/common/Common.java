@@ -579,6 +579,8 @@ public class Common {
 	}
 	
 	public static String[] split( String value , String delimiter ) {
+		if( value == null )
+			return( new String[0] );
 		value = value.trim();
 		if( value.isEmpty() )
 			return( new String[0] );
@@ -903,6 +905,13 @@ public class Common {
 		return( value - value % ( 24 * 60 * 60 * 1000 ) );
 	}
 
+	public static Date addDays( Date point , int shift ) {
+		long value = point.getTime() + shift * ( 24 * 60 * 60 * 1000 );
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis( value );
+		return( cal.getTime() );
+	}
+	
 	public static String getRefDate( long baseTime , long refTime ) {
 		long baseDay = getDay( baseTime ); 
 		long refDay = getDay( refTime );
