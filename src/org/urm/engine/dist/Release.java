@@ -794,5 +794,13 @@ public class Release {
 	public VarLCTYPE getLifecycleType() {
 		return( VersionInfo.getLifecycleType( RELEASEVER ) );
 	}
+
+	public void finish( ActionBase action ) throws Exception {
+		schedule.finish( action );
+	}
+	
+	public void reopen( ActionBase action ) throws Exception {
+		schedule.reopen( action );
+	}
 	
 }

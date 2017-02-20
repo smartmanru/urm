@@ -85,8 +85,6 @@ public class ReleaseSchedulePhase {
 		this.release = lcPhase.isRelease();
 		this.finished = false;
 		this.startDate = null;
-		if( pos == 0 )
-			this.startDate = schedule.started;
 		this.finishDate = null;
 	}
 
@@ -101,6 +99,28 @@ public class ReleaseSchedulePhase {
 	public void setDeadlineDates( Date dateStart , Date dateFinish ) {
 		this.deadlineStart = dateStart;
 		this.deadlineFinish = dateFinish;
+	}
+
+	public void startPhase( ActionBase action , Date date ) throws Exception {
+		startDate = date;
+		finished = false;
+		finishDate = null;
+	}
+	
+	public void finishPhase( ActionBase action , Date date ) throws Exception {
+		finished = true;
+		finishDate = date;
+	}
+	
+	public void reopenPhase( ActionBase action ) throws Exception {
+		finished = false;
+		finishDate = null;
+	}
+	
+	public void clearPhase( ActionBase action ) throws Exception {
+		startDate = null;
+		finished = false;
+		finishDate = null;
 	}
 	
 }

@@ -105,7 +105,7 @@ public class ReleaseSchedule {
 	public void createReleaseSchedule( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
 		this.LIFECYCLE = ( lc == null )? "" : lc.ID;
 		currentPhase = 0;
-		started = Common.getDateDay( System.currentTimeMillis() );
+		started = Common.getDateCurrentDay();
 		phases.clear();
 		
 		if( lc != null ) {
@@ -126,6 +126,11 @@ public class ReleaseSchedule {
 					releasePhases++;
 				else
 					deployPhases++;
+			}
+			
+			if( releasePhases > 0 ) {
+				ReleaseSchedulePhase phase = getPhase( 0 );
+				phase.startPhase( action , started );
 			}
 		}
 		
@@ -186,4 +191,33 @@ public class ReleaseSchedule {
 			phase.setDeadlineDates( dateFrom , dateTo );
 		}
 	}
+	
+	public void finish( ActionBase action ) throws Exception {
+		Date date = Common.getDateCurrentDay();
+		for( int k = 0; k < releasePhases; k++ ) {
+			ReleaseSchedulePhase phase = getPhase( k );
+			if( !phase.finished )
+				phase.finishPhase( action , date );
+		}
+		
+		if( deployPhases > 0 ) {
+			ReleaseSchedulePhase phase = getPhase( releasePhases );
+			phase.startPhase( action , date );
+		}
+	}
+	
+	public void reopen( ActionBase action ) throws Exception {
+		for( int k = 0; k < deployPhases; k++ ) {
+			ReleaseSchedulePhase phase = getPhase( releasePhases + k );
+			if( phase.startDate != null )
+				phase.clearPhase( action );
+		}
+		
+		if( releasePhases > 0 ) {
+			ReleaseSchedulePhase phase = getPhase( releasePhases - 1 );
+			if( phase.finished )
+				phase.reopenPhase( action );
+		}
+	}
+	
 }
