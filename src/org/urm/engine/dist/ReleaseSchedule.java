@@ -158,20 +158,21 @@ public class ReleaseSchedule {
 	}
 
 	private void setDeadlines() {
-		int releaseIndex = Common.getDayIndex( releaseDate.getTime() );
-		int index = releaseIndex;
+		int index = 0;
 		for( int k = releasePhases - 1; k >= 0; k-- ) {
 			ReleaseSchedulePhase phase = getPhase( k );
-			int indexFrom = index;
-			index -= phase.days;
 			int indexTo = index;
+			index -= phase.days;
+			int indexFrom = index;
 			if( phase.days > 0 )
-				indexTo++;
+				indexFrom++;
 			
-			phase.setDeadlineDates( Common.getDateValue( indexFrom ) , Common.getDateValue( indexTo ) );
+			Date dateFrom = Common.addDays( releaseDate , indexFrom );
+			Date dateTo = Common.addDays( releaseDate , indexTo );
+			phase.setDeadlineDates( dateFrom , dateTo );
 		}
 		
-		index = releaseIndex + 1;
+		index = 1;
 		for( int k = releasePhases; k < phases.size(); k++ ) {
 			ReleaseSchedulePhase phase = getPhase( k );
 			int indexFrom = index;
@@ -180,7 +181,9 @@ public class ReleaseSchedule {
 			if( phase.days > 0 )
 				indexTo--;
 			
-			phase.setDeadlineDates( Common.getDateValue( indexFrom ) , Common.getDateValue( indexTo ) );
+			Date dateFrom = Common.addDays( releaseDate , indexFrom );
+			Date dateTo = Common.addDays( releaseDate , indexTo );
+			phase.setDeadlineDates( dateFrom , dateTo );
 		}
 	}
 }

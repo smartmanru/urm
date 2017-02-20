@@ -94,9 +94,8 @@ public class ReleaseSchedulePhase {
 		if( !finished )
 			return( -1 );
 			
-		int startDateIndex = Common.getDayIndex( startDate.getTime() );
-		int finishIndex = Common.getDayIndex( finishDate.getTime() );
-		return( finishIndex - startDateIndex );
+		int diff = Common.getDateDiffDays( startDate.getTime() , finishDate.getTime() );
+		return( diff );
 	}
 
 	public void setDeadlineDates( Date dateStart , Date dateFinish ) {
