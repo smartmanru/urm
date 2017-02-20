@@ -89,7 +89,7 @@ public class ReleaseSchedulePhase {
 	}
 
 	public int getDaysActually() {
-		if( !finished )
+		if( startDate == null || finishDate == null )
 			return( -1 );
 			
 		int diff = Common.getDateDiffDays( startDate.getTime() , finishDate.getTime() );
