@@ -61,7 +61,7 @@ public class ServerBlotterStat {
 	}
 	
 	public void statAddItem( ServerBlotterActionItem item ) {
-		long itemDay = Common.getDay( item.startTime );
+		long itemDay = Common.getDayNoTime( item.startTime );
 		if( itemDay != statDay )
 			return;
 		
@@ -71,7 +71,7 @@ public class ServerBlotterStat {
 	}
 	
 	public void statFinishItem( ServerBlotterActionItem item ) {
-		long itemDay = Common.getDay( item.startTime );
+		long itemDay = Common.getDayNoTime( item.startTime );
 		if( itemDay != statDay )
 			return;
 		
@@ -89,7 +89,7 @@ public class ServerBlotterStat {
 	}
 	
 	public void statAddChildItem( ServerBlotterActionItem baseItem , ServerBlotterTreeItem treeItem ) {
-		long itemDay = Common.getDay( baseItem.startTime );
+		long itemDay = Common.getDayNoTime( baseItem.startTime );
 		if( itemDay != statDay )
 			return;
 		
@@ -98,7 +98,7 @@ public class ServerBlotterStat {
 	}
 	
 	public void statFinishChildItem( ServerBlotterItem baseItem , ServerBlotterTreeItem treeItem , boolean success ) {
-		long itemDay = Common.getDay( treeItem.startTime );
+		long itemDay = Common.getDayNoTime( treeItem.startTime );
 		if( itemDay != statDay )
 			return;
 		

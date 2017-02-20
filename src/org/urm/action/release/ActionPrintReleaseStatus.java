@@ -6,6 +6,7 @@ import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistItemInfo;
 import org.urm.engine.dist.Release;
+import org.urm.engine.dist.ReleaseSchedule;
 import org.urm.engine.dist.ReleaseSet;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
@@ -27,6 +28,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 
 	@Override protected SCOPESTATE executeSimple() throws Exception {
 		Release release = dist.release;
+		ReleaseSchedule schedule = release.schedule;
 		
 		FileSet files = dist.getFiles( this );
 		String hashStatus = dist.checkHash( this )? "OK" : "not matched";
@@ -39,11 +41,13 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		info( "\tsignature: " + hashStatus );
 		info( "PROPERTIES:" );
 		info( "\tproperty=prod: " + Common.getBooleanValue( release.PROPERTY_PROD ) );
-		info( "\tproperty=date: " + Common.getDateValue( release.PROPERTY_RELEASEDATE ) );
 		info( "\tproperty=buildmode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );
 		info( "\tproperty=obsolete: " + Common.getBooleanValue( release.PROPERTY_OBSOLETE ) );
 		info( "\tproperty=over: " + release.PROPERTY_COMPATIBILITY );
 		info( "\tproperty=cumulative: " + Common.getBooleanValue( release.isCumulative() ) );
+		info( "SCHEDULE:" );
+		info( "\trelease lifecycle: " + schedule.LIFECYCLE );
+		info( "\trelease date: " + Common.getDateValue( schedule.releaseDate ) );
 		
 		if( release.isEmpty( this ) ) {
 			info( "(scope is empty)" );

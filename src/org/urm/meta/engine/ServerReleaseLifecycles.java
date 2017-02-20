@@ -1,8 +1,11 @@
 package org.urm.meta.engine;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
+import org.urm.action.ActionBase;
 import org.urm.action.ActionCore;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
@@ -10,6 +13,7 @@ import org.urm.common.RunContext;
 import org.urm.engine.ServerTransaction;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerObject;
+import org.urm.meta.Types.VarLCTYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -62,8 +66,25 @@ public class ServerReleaseLifecycles extends ServerObject {
 		return( lcMap.get( id ) );
 	}
 
+	public ServerReleaseLifecycle getLifecycle( ActionBase action , String id ) throws Exception {
+		ServerReleaseLifecycle lc = findLifecycle( id );
+		if( lc == null )
+			action.exit1( _Error.UnknownLifecycle1 , "unknown lifecycle id=" + id , id );
+		return( lc );
+	}
+
 	public String[] getLifecycles() {
 		return( Common.getSortedKeys( lcMap ) );
+	}
+
+	public String[] getLifecycles( VarLCTYPE type ) {
+		List<String> list = new LinkedList<String>();
+		for( String lcName : Common.getSortedKeys( lcMap ) ) {
+			ServerReleaseLifecycle lc = lcMap.get( lcName );
+			if( lc.lcType == type )
+				list.add( lcName );
+		}
+		return( list.toArray( new String[0] ) );
 	}
 
 	public ServerReleaseLifecycle createLifecycle( ServerTransaction transaction , ServerReleaseLifecycle lcNew ) throws Exception {

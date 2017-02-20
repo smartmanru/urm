@@ -11,6 +11,7 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandAction;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
+import org.urm.meta.engine.ServerReleaseLifecycle;
 import org.urm.meta.product.Meta;
 import org.urm.meta.Types.*;
 
@@ -63,10 +64,11 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	private class CreateRelease extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
-		Date releaseDate = getRequiredDateArg( action , 1 , "RELEASEDATE" );
-		checkNoArgs( action , 2 );
+		Date releaseDate = getDateArg( action , 1 );
+		ServerReleaseLifecycle lc = getLifecycleArg( action , 2 );
+		checkNoArgs( action , 3 );
 		Meta meta = action.getContextMeta();
-		impl.createRelease( action , meta , RELEASELABEL , releaseDate );
+		impl.createRelease( action , meta , RELEASELABEL , releaseDate , lc );
 	}
 	}
 
@@ -74,10 +76,11 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Date releaseDate = getDateArg( action , 1 );
-		checkNoArgs( action , 2 );
+		ServerReleaseLifecycle lc = getLifecycleArg( action , 2 );
+		checkNoArgs( action , 3 );
 		Meta meta = action.getContextMeta();
 		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
-		impl.modifyRelease( action , dist , releaseDate );
+		impl.modifyRelease( action , dist , releaseDate , lc );
 	}
 	}
 
@@ -104,9 +107,10 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String RELEASESRC = getRequiredArg( action , 0 , "RELEASESRC" );
 		String RELEASEDST = getRequiredArg( action , 1 , "RELEASEDST" );
 		Date releaseDate = getRequiredDateArg( action , 2 , "RELEASEDATE" );
-		checkNoArgs( action , 3 );
+		ServerReleaseLifecycle lc = getLifecycleArg( action , 3 );
+		checkNoArgs( action , 4 );
 		Meta meta = action.getContextMeta();
-		impl.copyRelease( action , meta , RELEASESRC , RELEASEDST , releaseDate );
+		impl.copyRelease( action , meta , RELEASESRC , RELEASEDST , releaseDate , lc );
 	}
 	}
 

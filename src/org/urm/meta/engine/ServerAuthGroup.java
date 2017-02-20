@@ -237,6 +237,22 @@ public class ServerAuthGroup {
 		return( special );
 	}
 	
+	public boolean isPermissionSpecialAll() {
+		for( SpecialRights r : SpecialRights.values() ) {
+			boolean check = false;
+			for( SpecialRights p : special ) {
+				if( p == r ) {
+					check = true;
+					break;
+				}
+			}
+			
+			if( !check )
+				return( false );
+		}
+		return( true );
+	}
+	
 	public void addUser( ActionBase action , SourceType source , ServerAuthUser user ) throws Exception {
 		if( !users.containsKey( user.NAME ) )
 			users.put( user.NAME , source );

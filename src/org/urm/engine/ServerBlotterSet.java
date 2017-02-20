@@ -8,6 +8,7 @@ import org.urm.action.build.ActionPatch;
 import org.urm.engine.ServerBlotter.BlotterEvent;
 import org.urm.engine.ServerBlotter.BlotterType;
 import org.urm.engine.action.ActionInit;
+import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepository.DistOperation;
 import org.urm.engine.dist.DistRepositoryItem;
@@ -223,7 +224,7 @@ public class ServerBlotterSet extends ServerEventsSource {
 	}
 
 	
-	public ServerBlotterReleaseItem affectReleaseItem( ActionBase action , boolean success , DistOperation op , DistRepositoryItem repoItem ) {
+	public synchronized ServerBlotterReleaseItem affectReleaseItem( ActionBase action , boolean success , DistOperation op , DistRepositoryItem repoItem ) {
 		String key = getReleaseKey( repoItem );
 		
 		ServerBlotterReleaseItem item = null;
@@ -250,7 +251,26 @@ public class ServerBlotterSet extends ServerEventsSource {
 	}
 
 	private String getReleaseKey( DistRepositoryItem repoItem ) {
-		return( repoItem.dist.meta.name + "-" + repoItem.dist.RELEASEDIR );
+		return( getReleaseKey( repoItem.dist ) );
+	}
+
+	private String getReleaseKey( Dist dist ) {
+		return( dist.meta.name + "-" + dist.RELEASEDIR );
+	}
+	
+	public synchronized ServerBlotterReleaseItem findReleaseItem( Dist dist ) {
+		String key = getReleaseKey( dist );
+		ServerBlotterReleaseItem item = ( ServerBlotterReleaseItem )items.get( key );
+		return( item );
+	}
+
+	public synchronized ServerBlotterReleaseItem findReleaseItem( String productName , String releaseVer ) {
+		for( ServerBlotterItem item : items.values() ) {
+			ServerBlotterReleaseItem releaseItem = ( ServerBlotterReleaseItem )item;
+			if( productName.equals( releaseItem.INFO_PRODUCT ) && releaseVer.equals( releaseItem.repoItem.dist.release.RELEASEVER ) )
+				return( releaseItem );
+		}
+		return( null );
 	}
 	
 }

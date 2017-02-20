@@ -59,7 +59,7 @@ public class ServerBlotter {
 	public ServerBlotter( ServerEngine engine ) {
 		this.engine = engine;
 
-		day = Common.getDay( System.currentTimeMillis() );
+		day = Common.getDayNoTime( System.currentTimeMillis() );
 		
 		blotters = new LinkedList<ServerBlotterSet>(); 
 		blotterRoots = addBlotter( BlotterType.BLOTTER_ROOT , "blotter.roots" );
@@ -91,7 +91,7 @@ public class ServerBlotter {
 	}
 	
 	public void runHouseKeeping( long time ) {
-		long timeDay = Common.getDay( time );
+		long timeDay = Common.getDayNoTime( time );
 		if( timeDay == day )
 			return;
 		

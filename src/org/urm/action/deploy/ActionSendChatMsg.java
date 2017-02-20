@@ -6,7 +6,7 @@ import org.urm.common.Common;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
-import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.MetaProductCoreSettings;
 
 public class ActionSendChatMsg extends ActionBase {
 
@@ -37,7 +37,7 @@ public class ActionSendChatMsg extends ActionBase {
 		if( sg != null )
 			msg += " (sg=" + sg.NAME + ")"; 
 		
-		MetaProductSettings product = context.env.meta.getProductSettings( this );
+		MetaProductCoreSettings product = context.env.meta.getProductCoreSettings( this );
 		String filePath = Common.getPath( product.CONFIG_PRODUCTHOME , env.CHATROOMFILE ); 
 		shell.appendFileWithString( this , filePath , msg );
 		trace( "ActionSendChatMsg: msg sent to " + filePath );

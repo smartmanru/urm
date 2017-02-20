@@ -6,18 +6,24 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.ServerBlotterReleaseItem;
+import org.urm.engine.ServerBlotterSet;
+import org.urm.engine.ServerBlotter.BlotterType;
 import org.urm.engine.dist.DistState.DISTSTATE;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
+import org.urm.meta.engine.ServerReleaseLifecycle;
+import org.urm.meta.engine.ServerReleaseLifecycles;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaEnvServerLocation;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
@@ -301,12 +307,21 @@ public class Dist {
 	}
 	
 	// top-level control
-	public void create( ActionBase action , String RELEASEDIR , Date releaseDate ) throws Exception {
+	public void create( ActionBase action , String RELEASEDIR , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
 		this.RELEASEDIR = RELEASEDIR;
-		state.ctlCreate( action , releaseDate );
+		VersionInfo info = VersionInfo.getReleaseVersion( action , RELEASEDIR );
+		lc = getLifecycle( action , lc , info.getLifecycleType() );
+		releaseDate = getReleaseDate( action , releaseDate , lc );
+		state.ctlCreate( action , releaseDate , lc );
 		load( action );
 	}
 
+	public void changeReleaseDate( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
+		VarLCTYPE type = release.getLifecycleType();
+		ServerReleaseLifecycle lcset = getLifecycle( action , lc , type );
+		release.setReleaseDate( action , releaseDate , lcset );
+	}
+	
 	public void createProd( ActionBase action , String RELEASEDIR ) throws Exception {
 		this.RELEASEDIR = RELEASEDIR;
 		state.ctlCreateProd( action , RELEASEDIR );
@@ -793,6 +808,91 @@ public class Dist {
 			distFolder.ensureFolderExists( action , folderDst );
 			session.copyDirContent( action , folderSrc , folderDst );
 		}
+	}
+	
+	private ServerReleaseLifecycle getLifecycle( ActionBase action , ServerReleaseLifecycle lc , VarLCTYPE type ) throws Exception {
+		MetaProductCoreSettings core = meta.getProductCoreSettings( action );
+		
+		if( type == VarLCTYPE.MAJOR ) {
+			String expected = core.RELEASELC_MAJOR;
+			if( expected.isEmpty() ) {
+				if( lc != null )
+					return( lc );
+			}
+			else {
+				if( lc != null ) {
+					if( !expected.equals( lc.ID ) )
+						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.ID );
+					return( lc );
+				}
+				
+				ServerReleaseLifecycles lifecycles = action.getServerReleaseLifecycles();
+				return( lifecycles.findLifecycle( expected ) );
+			}
+		}
+		else
+		if( type == VarLCTYPE.MINOR ) {
+			String expected = core.RELEASELC_MINOR;
+			if( expected.isEmpty() ) {
+				if( lc != null )
+					return( lc );
+			}
+			else {
+				if( lc != null ) {
+					if( !expected.equals( lc.ID ) )
+						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.ID );
+					return( lc );
+				}
+				
+				ServerReleaseLifecycles lifecycles = action.getServerReleaseLifecycles();
+				return( lifecycles.findLifecycle( expected ) );
+			}
+		}
+		else
+		if( type == VarLCTYPE.URGENT ) {
+			String[] expected = core.RELEASELC_URGENT_LIST;
+			if( expected.length == 0 ) {
+				if( lc != null )
+					return( lc );
+			}
+			else {
+				if( lc != null ) {
+					if( Common.getIndexOf( expected , lc.ID ) < 0 )
+						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.ID );
+					return( lc );
+				}
+				
+				action.exit0( _Error.MissingReleasecycleType0 , "Missing release cycle type" );
+			}
+		}
+		
+		return( null );
+	}
+	
+	private Date getReleaseDate( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
+		if( releaseDate != null )
+			return( releaseDate );
+		
+		if( lc != null ) {
+			if( lc.isRegular() ) {
+				VersionInfo info = VersionInfo.getReleaseVersion( action , RELEASEDIR );
+				String prevReleaseVer = info.getPreviousVersion();
+				
+				if( !prevReleaseVer.isEmpty() ) {
+					ServerBlotterSet blotter = action.getBlotter( BlotterType.BLOTTER_RELEASE );
+					ServerBlotterReleaseItem item = blotter.findReleaseItem( meta.name , prevReleaseVer );
+					
+					if( item != null ) {
+						releaseDate = Common.addDays( item.repoItem.dist.release.schedule.releaseDate , lc.shiftDays );
+						return( releaseDate );
+					}
+				}
+			}
+			
+		}
+		
+		action.exit0( _Error.MissingReleaseDate0 , "Missing release date" );
+		return( null );
 	}
 	
 }

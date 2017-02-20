@@ -234,7 +234,13 @@ public class Types {
 		MINOR ,
 		URGENT
 	};
-	
+
+	public enum VarLCSTAGE {
+		UNKNOWN ,
+		RELEASE ,
+		DEPLOYMENT
+	};
+
 	public static VarOSTYPE getOSType( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
@@ -646,6 +652,24 @@ public class Types {
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidLCType1 , "invalid lifecycle type=" + ID , ID );
+		}
+		
+		return( value );
+	}
+	
+	public static VarLCSTAGE getLCStage( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingLCStage0 , "missing lifecycle stage" );
+			return( VarLCSTAGE.UNKNOWN );
+		}
+		
+		VarLCSTAGE value = null;
+		try {
+			value = VarLCSTAGE.valueOf( Common.xmlToEnumValue( ID ) );
+		}
+		catch( IllegalArgumentException e ) {
+			Common.exit1( _Error.InvalidLCStage1 , "invalid lifecycle stage=" + ID , ID );
 		}
 		
 		return( value );

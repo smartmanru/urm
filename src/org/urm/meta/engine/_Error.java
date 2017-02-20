@@ -32,5 +32,6 @@ public class _Error {
 	public static final int UnknownSystemFilesCharset1 = ErrorBase + 43;
 	public static final int LifecycleAlreadyExists1 = ErrorBase + 44;
 	public static final int UnknownLifecycle1 = ErrorBase + 45;
+	public static final int LifecycleWrongSettings1 = ErrorBase + 46;
 	
 }

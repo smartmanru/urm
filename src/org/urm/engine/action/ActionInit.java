@@ -172,6 +172,10 @@ public class ActionInit extends ActionBase {
 	}
 	
 	public ServerReleaseLifecycles getActiveReleaseLifecycles() {
+		if( transaction != null ) {
+			if( transaction.lifecycles != null )
+				return( transaction.lifecycles );
+		}
 		return( loader.getReleaseLifecycles() );
 	}
 	
@@ -181,6 +185,10 @@ public class ActionInit extends ActionBase {
 	
 	public ServerBase getServerBase() {
 		return( loader.getServerBase() );
+	}
+
+	public ServerReleaseLifecycles getServerReleaseLifecycles() {
+		return( loader.getReleaseLifecycles() );
 	}
 	
 	public ServerInfrastructure getServerInfrastructure() {

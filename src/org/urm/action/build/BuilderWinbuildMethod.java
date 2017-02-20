@@ -9,7 +9,6 @@ import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
-import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
 
 public class BuilderWinbuildMethod extends Builder {
@@ -52,8 +51,7 @@ public class BuilderWinbuildMethod extends Builder {
 		}
 
 		// upload package
-		MetaProductSettings product = project.meta.getProductSettings( action );
-		String nugetId = product.CONFIG_PRODUCT + ".project." + project.NAME; 
+		String nugetId = project.meta.name + ".project." + project.NAME; 
 		String nugetPackCmd = "nuget pack package.nuspec -Version " + APPVERSION + " -Properties id=" + nugetId;
 		LocalFolder NUGETPATH = CODEPATH.getSubFolder( action , "packages.build" ); 
 		timeout = action.setTimeoutUnlimited();

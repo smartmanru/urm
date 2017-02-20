@@ -11,6 +11,7 @@ import org.urm.common.Common;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RemoteFolder;
+import org.urm.meta.engine.ServerReleaseLifecycle;
 
 public class DistState {
 
@@ -137,7 +138,7 @@ public class DistState {
 		}
 	}
 
-	public void ctlCreate( ActionBase action , Date releaseDate ) throws Exception {
+	public void ctlCreate( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
 		// create release.xml, create status file, set closed dirty state
 		// check current status
 		ctlLoadReleaseState( action );
@@ -147,7 +148,7 @@ public class DistState {
 		}
 			
 		// create directory
-		createMetaFile( action , releaseDate );
+		createMetaFile( action , releaseDate , lc );
 		
 		// set status
 		ctlSetStatus( action , DISTSTATE.DIRTY );
@@ -333,14 +334,14 @@ public class DistState {
         }		
 	}
 
-	public void createMetaFile( ActionBase action , Date releaseDate ) throws Exception {
+	public void createMetaFile( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
 		// create empty release.xml
 		String filePath = action.getWorkFilePath( Dist.META_FILENAME );
 		String RELEASEDIR = distFolder.folderName;
 		
 		Release info = new Release( dist.meta , dist );
 		String RELEASEVER = DistLabelInfo.getReleaseVerByDir( action , RELEASEDIR ); 
-		info.create( action , RELEASEVER , releaseDate , filePath );
+		info.create( action , RELEASEVER , releaseDate , lc , filePath );
 		
 		distFolder.ensureExists( action );
 		distFolder.copyFileFromLocal( action , filePath );

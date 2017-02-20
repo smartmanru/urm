@@ -520,6 +520,16 @@ public class Common {
 		
 		return( "no" );
 	}
+
+	public static Date getDateCurrentDay() {
+		return( getDateDay( System.currentTimeMillis() ) );
+	}
+	
+	public static Date getDateDay( long millis ) {
+		long value = getDayNoTime( millis );
+		Date day = new Date( value );
+		return( day );
+	}
 	
 	public static Date getDateValue( String s ) {
 		if( s == null || s.isEmpty() )
@@ -579,6 +589,8 @@ public class Common {
 	}
 	
 	public static String[] split( String value , String delimiter ) {
+		if( value == null )
+			return( new String[0] );
 		value = value.trim();
 		if( value.isEmpty() )
 			return( new String[0] );
@@ -886,7 +898,7 @@ public class Common {
 			if( !sv.equals( "unknown" ) )
 				items.add( sv );
 		}
-		return( getSortedList( items ) );
+		return( items.toArray( new String[0] ) );
 	}
 
 	public static boolean isBasenameMask( String name ) {
@@ -899,13 +911,31 @@ public class Common {
 		return( false );
 	}
 	
-	public static long getDay( long value ) {
+	public static long getDayNoTime( long value ) {
 		return( value - value % ( 24 * 60 * 60 * 1000 ) );
 	}
 
+	public static int getDayIndex( long value ) {
+		int index = ( int )( value / ( 24 * 60 * 60 * 1000 ) );
+		return( index );
+	}
+
+	public static Date getDateValue( int index ) {
+		long value = index;
+		value *= 24 * 60 * 60 * 1000;
+		return( getDateDay( value ) );
+	}
+	
+	public static Date addDays( Date point , int shift ) {
+		long value = point.getTime() + shift * ( 24 * 60 * 60 * 1000 );
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis( value );
+		return( cal.getTime() );
+	}
+	
 	public static String getRefDate( long baseTime , long refTime ) {
-		long baseDay = getDay( baseTime ); 
-		long refDay = getDay( refTime );
+		long baseDay = getDayNoTime( baseTime ); 
+		long refDay = getDayNoTime( refTime );
 		if( refDay == baseDay )
 			return( getTime( refTime ) );
 		return( getDate( refTime ) );

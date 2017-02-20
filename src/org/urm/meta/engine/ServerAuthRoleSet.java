@@ -32,6 +32,12 @@ public class ServerAuthRoleSet {
 		return( false );
 	}
 	
+	public boolean isAll() {
+		if( secDev && secRel && secOpr && secInfra )
+			return( true );
+		return( false );
+	}
+	
 	public void clear() {
 		secDev = false;
 		secRel = false;

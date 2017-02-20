@@ -21,6 +21,7 @@ import org.urm.meta.engine.ServerNetworkHost;
 import org.urm.meta.engine.ServerProduct;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.engine.ServerReleaseLifecycle;
+import org.urm.meta.engine.ServerReleaseLifecyclePhase;
 import org.urm.meta.engine.ServerSystem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -39,6 +40,7 @@ import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaEnvStartInfo;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringTarget;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
 import org.urm.meta.product.MetaSource;
@@ -129,6 +131,11 @@ public class ServerTransaction extends TransactionBase {
 	public void enableLifecycleType( ServerReleaseLifecycle lc , boolean enable ) throws Exception {
 		checkTransactionReleaseLifecycles();
 		lc.enableLifecycle( this , enable );
+	}
+	
+	public void changeLifecyclePhases( ServerReleaseLifecycle lc , ServerReleaseLifecyclePhase[] phases ) throws Exception {
+		checkTransactionReleaseLifecycles();
+		lc.changePhases( this , phases );
 	}
 	
 	public void createSystem( ServerSystem system ) throws Exception {
@@ -700,4 +707,9 @@ public class ServerTransaction extends TransactionBase {
 		item.project.removeItem( this , item );
 	}
 
+	public void setProductLifecycles( MetaProductCoreSettings core , String major , String minor , boolean urgentsAll , String[] urgents ) throws Exception {
+		checkTransactionMetadata( core.meta.getStorage( action ) );
+		core.setLifecycles( this , major , minor , urgentsAll , urgents );
+	}
+	
 }

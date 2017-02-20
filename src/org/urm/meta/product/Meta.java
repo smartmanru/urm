@@ -106,6 +106,11 @@ public class Meta extends ServerObject {
 			version = loader.loadVersion( action.actionInit , storage );
 		return( version );
 	}
+
+	public synchronized MetaProductCoreSettings getProductCoreSettings( ActionBase action ) throws Exception {
+		MetaProductSettings settings = getProductSettings( action );
+		return( settings.core );
+	}
 	
 	public synchronized MetaProductSettings getProductSettings( ActionBase action ) throws Exception {
 		if( product == null )
