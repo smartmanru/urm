@@ -24,6 +24,8 @@ public class ReleaseSchedulePhase {
 	public boolean finished;
 	public Date startDate;
 	public Date finishDate;
+	public Date deadlineStart;
+	public Date deadlineFinish;
 	
 	public ReleaseSchedulePhase( Meta meta , ReleaseSchedule schedule ) {
 		this.meta = meta;
@@ -46,6 +48,8 @@ public class ReleaseSchedulePhase {
 		r.finished = finished;
 		r.startDate = startDate;
 		r.finishDate = finishDate;
+		r.deadlineStart = deadlineStart;
+		r.deadlineFinish = deadlineFinish;
 		return( r );
 	}
 
@@ -95,22 +99,9 @@ public class ReleaseSchedulePhase {
 		return( finishIndex - startDateIndex );
 	}
 
-	public Date getDeadlineDate() {
-		int index = Common.getDayIndex( schedule.releaseDate.getTime() );
-		if( release ) {
-			for( int k = schedule.releasePhases - 1; k > pos; k-- ) {
-				ReleaseSchedulePhase phase = schedule.getPhase( k );
-				index -= phase.days;
-			}
-		}
-		else {
-			for( int k = schedule.releasePhases; k <= pos; k++ ) {
-				ReleaseSchedulePhase phase = schedule.getPhase( k );
-				index += phase.days;
-			}
-		}
-		
-		return( Common.getDateValue( index ) );
+	public void setDeadlineDates( Date dateStart , Date dateFinish ) {
+		this.deadlineStart = dateStart;
+		this.deadlineFinish = dateFinish;
 	}
 	
 }

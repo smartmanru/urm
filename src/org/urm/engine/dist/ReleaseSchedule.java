@@ -85,6 +85,8 @@ public class ReleaseSchedule {
 			else
 				deployPhases++;
 		}
+		
+		setDeadlines();
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
@@ -107,6 +109,9 @@ public class ReleaseSchedule {
 		phases.clear();
 		
 		if( lc != null ) {
+			if( !lc.enabled )
+				action.exit1( _Error.DisabledLifecycle1 , "Release lifecycle " + lc.ID + " is currently disabled" , lc.ID );
+			
 			int pos = 0;
 			releasePhases = 0; 
 			deployPhases = 0;
@@ -129,6 +134,7 @@ public class ReleaseSchedule {
 	
 	public void changeReleaseSchedule( ActionBase action , Date releaseDate ) throws Exception {
 		this.releaseDate = releaseDate;
+		setDeadlines();
 	}
 
 	public ServerReleaseLifecycle getLifecycle( ActionBase action ) throws Exception {
@@ -150,5 +156,31 @@ public class ReleaseSchedule {
 	public ReleaseSchedulePhase getPhase( int index ) {
 		return( phases.get( index ) );
 	}
-	
+
+	private void setDeadlines() {
+		int releaseIndex = Common.getDayIndex( releaseDate.getTime() );
+		int index = releaseIndex;
+		for( int k = releasePhases - 1; k >= 0; k-- ) {
+			ReleaseSchedulePhase phase = getPhase( k );
+			int indexFrom = index;
+			index -= phase.days;
+			int indexTo = index;
+			if( phase.days > 0 )
+				indexTo++;
+			
+			phase.setDeadlineDates( Common.getDateValue( indexFrom ) , Common.getDateValue( indexTo ) );
+		}
+		
+		index = releaseIndex + 1;
+		for( int k = releasePhases; k < phases.size(); k++ ) {
+			ReleaseSchedulePhase phase = getPhase( k );
+			int indexFrom = index;
+			index += phase.days;
+			int indexTo = index;
+			if( phase.days > 0 )
+				indexTo--;
+			
+			phase.setDeadlineDates( Common.getDateValue( indexFrom ) , Common.getDateValue( indexTo ) );
+		}
+	}
 }
