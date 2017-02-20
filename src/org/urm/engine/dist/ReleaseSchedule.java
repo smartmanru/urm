@@ -70,7 +70,7 @@ public class ReleaseSchedule {
 		releaseDate = Common.getDateValue( ConfReader.getAttrValue( node , "releasedate" ) );
 		currentPhase = ConfReader.getIntegerAttrValue( node , "phase" , 0 );
 		
-		Node[] items = ConfReader.xmlGetChildren( root , "phase" );
+		Node[] items = ConfReader.xmlGetChildren( node , "phase" );
 		if( items == null )
 			return;
 		
