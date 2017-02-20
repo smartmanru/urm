@@ -196,8 +196,11 @@ public class ReleaseSchedule {
 		Date date = Common.getDateCurrentDay();
 		for( int k = 0; k < releasePhases; k++ ) {
 			ReleaseSchedulePhase phase = getPhase( k );
-			if( !phase.finished )
+			if( !phase.finished ) {
+				if( phase.startDate == null )
+					phase.startPhase( action , date );
 				phase.finishPhase( action , date );
+			}
 		}
 		
 		if( deployPhases > 0 ) {
