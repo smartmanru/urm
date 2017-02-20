@@ -204,12 +204,16 @@ public class ReleaseSchedule {
 		}
 		
 		if( deployPhases > 0 ) {
+			currentPhase = releasePhases;
 			ReleaseSchedulePhase phase = getPhase( releasePhases );
 			phase.startPhase( action , date );
 		}
+		else
+			currentPhase = -1;
 	}
 	
 	public void reopen( ActionBase action ) throws Exception {
+		Date date = Common.getDateCurrentDay();
 		for( int k = 0; k < deployPhases; k++ ) {
 			ReleaseSchedulePhase phase = getPhase( releasePhases + k );
 			if( phase.startDate != null )
@@ -217,9 +221,15 @@ public class ReleaseSchedule {
 		}
 		
 		if( releasePhases > 0 ) {
+			currentPhase = releasePhases - 1;
 			ReleaseSchedulePhase phase = getPhase( releasePhases - 1 );
 			if( phase.finished )
 				phase.reopenPhase( action );
+		}
+		else {
+			currentPhase = 0;
+			ReleaseSchedulePhase phase = getPhase( 0 );
+			phase.startPhase( action , date );
 		}
 	}
 	
