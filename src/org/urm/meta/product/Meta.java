@@ -190,13 +190,8 @@ public class Meta extends ServerObject {
 		return( false );
 	}
 	
-	public static VarCATEGORY[] getAllCategories() {
-		VarCATEGORY[] categories = { VarCATEGORY.PROJECT , VarCATEGORY.CONFIG , VarCATEGORY.DB };
-		return( categories );
-	}
-
 	public static VarCATEGORY[] getAllReleaseCategories() {
-		VarCATEGORY[] categories = { VarCATEGORY.PROJECT , VarCATEGORY.CONFIG , VarCATEGORY.DB };
+		VarCATEGORY[] categories = { VarCATEGORY.PROJECT , VarCATEGORY.CONFIG , VarCATEGORY.DB , VarCATEGORY.MANUAL };
 		return( categories );
 	}
 

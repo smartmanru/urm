@@ -71,7 +71,7 @@ public class ReleaseCommand {
 		ActionAddScope ma = new ActionAddScope( action , null , dist );
 		
 		dist.openForChange( action );
-		if( !ma.runAll( scope , null , SecurityAction.ACTION_DEPLOY , false ) ) {
+		if( !ma.runAll( scope , null , SecurityAction.ACTION_RELEASE , false ) ) {
 			dist.closeChange( action );
 			action.exit0( _Error.ReleaseSetChangeErrors0 , "release set is not changed because of errors" );
 		}
@@ -151,7 +151,7 @@ public class ReleaseCommand {
 		ActionDescope ma = new ActionDescope( action , null , dist );
 		
 		dist.openForChange( action );
-		if( !ma.runAll( scope , null , SecurityAction.ACTION_DEPLOY , false ) ) {
+		if( !ma.runAll( scope , null , SecurityAction.ACTION_RELEASE , false ) ) {
 			dist.closeChange( action );
 			action.exit0( _Error.ReleaseSetChangeErrors0 , "release set is not changed because of errors" );
 		}
