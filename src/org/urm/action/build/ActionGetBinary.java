@@ -18,12 +18,12 @@ import org.urm.meta.product.MetaSourceProjectItem;
 
 public class ActionGetBinary extends ActionBase {
 
-	LocalFolder downloadFolder;
-	boolean copyDist;
-	Dist targetRelease;
+	public LocalFolder downloadFolder;
+	public boolean copyDist;
+	public Dist targetRelease;
 	
-	Dist useProdRelease;
-	Dist useRefRelease;
+	public Dist useProdRelease;
+	public Dist useRefRelease;
 	
 	static String C_RELEASENEXUSGROUPID = "release";
 	

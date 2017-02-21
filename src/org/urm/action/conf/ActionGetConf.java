@@ -9,15 +9,15 @@ import org.urm.engine.storage.SourceStorage;
 
 public class ActionGetConf extends ActionBase {
 
-	Dist release;
-	LocalFolder downloadFolder;
-	boolean copyDist;
+	public Dist dist;
+	public LocalFolder downloadFolder;
+	public boolean copyDist;
 	
-	public ActionGetConf( ActionBase action , String stream , Dist release , LocalFolder downloadFolder , boolean copyDist ) {
+	public ActionGetConf( ActionBase action , String stream , Dist dist , LocalFolder downloadFolder , boolean copyDist ) {
 		super( action , stream , "Get configuration files, " + 
-				( ( release == null )? "default built" : "release=" + release.RELEASEDIR ) + 
+				( ( dist == null )? "default built" : "release=" + dist.RELEASEDIR ) + 
 				", change distr=" + copyDist );
-		this.release = release;
+		this.dist = dist;
 		this.downloadFolder = downloadFolder;
 		this.copyDist = copyDist;
 	}
@@ -33,9 +33,9 @@ public class ActionGetConf extends ActionBase {
 		
 		ConfSourceFolder sourceFolder = new ConfSourceFolder( scopeItem.meta );
 		boolean res = false;
-		if( release != null ) {
+		if( dist != null ) {
 			sourceFolder.createReleaseConfigurationFolder( this , scopeItem.releaseTarget );
-			res = sourceStorage.downloadReleaseConfigItem( this , release , sourceFolder , confFolder );
+			res = sourceStorage.downloadReleaseConfigItem( this , dist , sourceFolder , confFolder );
 		}
 		else {
 			sourceFolder.createProductConfigurationFolder( this , scopeItem.confItem );
@@ -44,7 +44,7 @@ public class ActionGetConf extends ActionBase {
 
 		// copy to distributive 
 		if( copyDist && res )
-			release.copyConfToDistr( this , confFolder.getSubFolder( this , KEY ) , sourceFolder.distrComp );
+			dist.copyConfToDistr( this , confFolder.getSubFolder( this , KEY ) , sourceFolder.distrComp );
 		
 		return( SCOPESTATE.RunSuccess );
 	}

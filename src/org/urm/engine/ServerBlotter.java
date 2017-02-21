@@ -260,22 +260,22 @@ public class ServerBlotter {
 		}
 		else
 		if( action instanceof ActionGetBinary ) {
-			ActionGetCumulative xa = ( ActionGetCumulative )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PUT , "put binary items to distributive releasedir=" + xa.dist.RELEASEDIR ); 
+			ActionGetBinary xa = ( ActionGetBinary )action;
+			runDistAction( xa , success , xa.targetRelease.meta , xa.targetRelease , DistOperation.PUT , "put binary items to distributive releasedir=" + xa.targetRelease.RELEASEDIR ); 
 		}
 		else
 		if( action instanceof ActionGetConf ) {
-			ActionGetCumulative xa = ( ActionGetCumulative )action;
+			ActionGetConf xa = ( ActionGetConf )action;
 			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PUT , "put configuration items to distributive releasedir=" + xa.dist.RELEASEDIR ); 
 		}
 		else
 		if( action instanceof ActionGetManual ) {
-			ActionGetCumulative xa = ( ActionGetCumulative )action;
+			ActionGetManual xa = ( ActionGetManual )action;
 			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PUT , "put manual items to distributive releasedir=" + xa.dist.RELEASEDIR ); 
 		}
 		else
 		if( action instanceof ActionGetDB ) {
-			ActionGetCumulative xa = ( ActionGetCumulative )action;
+			ActionGetDB xa = ( ActionGetDB )action;
 			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PUT , "put database items to distributive releasedir=" + xa.dist.RELEASEDIR ); 
 		}
 	}

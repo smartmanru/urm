@@ -9,9 +9,9 @@ import org.urm.engine.storage.SourceStorage;
 
 public class ActionGetDB extends ActionBase {
 
-	Dist dist;
-	LocalFolder downloadFolder;
-	boolean copyDist;
+	public Dist dist;
+	public LocalFolder downloadFolder;
+	public boolean copyDist;
 	
 	public ActionGetDB( ActionBase action , String stream , Dist dist , LocalFolder downloadFolder , boolean copyDist ) {
 		super( action , stream , "Get configuration files, " + 
