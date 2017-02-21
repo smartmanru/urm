@@ -354,11 +354,15 @@ public class Dist {
 			return;
 		}
 		
+		release.finish( action );
+		saveReleaseXml( action );
 		state.ctlFinish( action );
 	}
 
 	public void reopen( ActionBase action ) throws Exception {
 		state.ctlReopen( action );
+		release.reopen( action );
+		saveReleaseXml( action );
 		state.ctlCloseChange( action );
 	}
 

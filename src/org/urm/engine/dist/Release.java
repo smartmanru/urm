@@ -462,10 +462,10 @@ public class Release {
 		Common.xmlCreatePropertyElement( doc , root , "over" , PROPERTY_COMPATIBILITY );
 		Common.xmlCreateBooleanPropertyElement( doc , root , "cumulative" , PROPERTY_CUMULATIVE );
 		
-		schedule.save( action , doc , root );
-		
 		for( VarCATEGORY CATEGORY : Meta.getAllReleaseCategories() )
 			Common.xmlCreateElement( doc , root , Common.getEnumLower( CATEGORY ) );
+		
+		schedule.save( action , doc , root );
 		
 		return( doc );
 	}
@@ -793,6 +793,14 @@ public class Release {
 
 	public VarLCTYPE getLifecycleType() {
 		return( VersionInfo.getLifecycleType( RELEASEVER ) );
+	}
+
+	public void finish( ActionBase action ) throws Exception {
+		schedule.finish( action );
+	}
+	
+	public void reopen( ActionBase action ) throws Exception {
+		schedule.reopen( action );
 	}
 	
 }

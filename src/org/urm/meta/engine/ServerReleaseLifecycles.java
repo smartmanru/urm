@@ -77,12 +77,14 @@ public class ServerReleaseLifecycles extends ServerObject {
 		return( Common.getSortedKeys( lcMap ) );
 	}
 
-	public String[] getLifecycles( VarLCTYPE type ) {
+	public String[] getLifecycles( VarLCTYPE type , boolean enabledOnly ) {
 		List<String> list = new LinkedList<String>();
 		for( String lcName : Common.getSortedKeys( lcMap ) ) {
 			ServerReleaseLifecycle lc = lcMap.get( lcName );
-			if( lc.lcType == type )
-				list.add( lcName );
+			if( lc.lcType == type ) {
+				if( enabledOnly == false || lc.enabled )
+					list.add( lcName );
+			}
 		}
 		return( list.toArray( new String[0] ) );
 	}

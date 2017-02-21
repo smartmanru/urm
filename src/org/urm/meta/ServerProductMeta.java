@@ -111,7 +111,6 @@ public class ServerProductMeta extends ServerObject {
 	
 	public synchronized ServerProductMeta copy( ActionBase action ) throws Exception {
 		ServerProductMeta r = new ServerProductMeta( loader , name );
-		r.repo = DistRepository.loadDistRepository( action , r.meta );
 		
 		if( version != null ) {
 			r.version = version.copy( action , r.meta );
@@ -158,6 +157,7 @@ public class ServerProductMeta extends ServerObject {
 				r.loadFailed = true;
 		}
 		
+		r.repo = DistRepository.loadDistRepository( action , r.meta );
 		return( r );
 	}
 

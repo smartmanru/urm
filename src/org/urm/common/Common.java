@@ -537,7 +537,8 @@ public class Common {
 		
 		DateFormat format = new SimpleDateFormat( "yyyy-MM-dd" );
 		try {
-			return( format.parse( s ) );
+			Date value = format.parse( s );
+			return( getDateDay( value.getTime() ) );
 		}
 		catch( Throwable e ) {
 		}
@@ -912,25 +913,25 @@ public class Common {
 	}
 	
 	public static long getDayNoTime( long value ) {
-		return( value - value % ( 24 * 60 * 60 * 1000 ) );
+		Calendar cal = Calendar.getInstance(); // locale-specific
+		cal.setTime( new Date( value ) );
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		long time = cal.getTimeInMillis();
+		return( time );
 	}
 
-	public static int getDayIndex( long value ) {
-		int index = ( int )( value / ( 24 * 60 * 60 * 1000 ) );
-		return( index );
-	}
-
-	public static Date getDateValue( int index ) {
-		long value = index;
-		value *= 24 * 60 * 60 * 1000;
-		return( getDateDay( value ) );
-	}
-	
 	public static Date addDays( Date point , int shift ) {
 		long value = point.getTime() + shift * ( 24 * 60 * 60 * 1000 );
-		Calendar cal = Calendar.getInstance();
-		cal.setTimeInMillis( value );
-		return( cal.getTime() );
+		return( new Date( value ) );
+	}
+
+	public static int getDateDiffDays( long start , long finish ) {
+		long diff = finish - start;
+		diff /= ( 24 * 60 * 60 * 1000 );
+		return( ( int )diff );
 	}
 	
 	public static String getRefDate( long baseTime , long refTime ) {
