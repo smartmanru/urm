@@ -41,7 +41,7 @@ public class ServerReleaseLifecycle extends ServerObject {
 		deployPhases = 0;
 	}
 	
-	public ServerReleaseLifecycle copy() throws Exception {
+	public ServerReleaseLifecycle copy( ServerReleaseLifecycles lifecycles ) throws Exception {
 		ServerReleaseLifecycle r = new ServerReleaseLifecycle( lifecycles );
 		r.lcType = lcType;
 		r.ID = ID;
@@ -117,6 +117,10 @@ public class ServerReleaseLifecycle extends ServerObject {
 		}
 	}
 
+	public void setLifecycleName( ServerTransaction transaction , String name ) throws Exception {
+		this.ID = name;
+	}
+	
 	public void setLifecycleData( ServerTransaction transaction , ServerReleaseLifecycle src ) throws Exception {
 		lcType = src.lcType;
 		ID = src.ID;
@@ -167,12 +171,12 @@ public class ServerReleaseLifecycle extends ServerObject {
 		for( ServerReleaseLifecyclePhase phase : phases ) {
 			if( phase.isRelease() ) {
 				nRelease++;
-				nReleaseDays += phase.days;
+				nReleaseDays += phase.getDuration();
 			}
 			else
 			if( phase.isDeploy() ) {
 				nDeploy++;
-				nDeployDays += phase.days;
+				nDeployDays += phase.getDuration();
 			}
 		}
 		

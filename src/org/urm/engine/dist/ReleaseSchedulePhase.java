@@ -22,6 +22,7 @@ public class ReleaseSchedulePhase {
 	public int normalDays;
 	public boolean release;
 	public boolean finished;
+	public boolean unlimited;
 	public Date startDate;
 	public Date finishDate;
 	public Date deadlineStart;
@@ -61,6 +62,7 @@ public class ReleaseSchedulePhase {
 		normalDays = ConfReader.getIntegerAttrValue( root , "normaldays" , 0 );
 		release = ConfReader.getBooleanAttrValue( root , "release" , false );
 		finished = ConfReader.getBooleanAttrValue( root , "finished" , false );
+		unlimited = ConfReader.getBooleanAttrValue( root , "unlimited" , false );
 		startDate = Common.getDateValue( ConfReader.getAttrValue( root , "startdate" ) );
 		if( finished )
 			finishDate = Common.getDateValue( ConfReader.getAttrValue( root , "finishdate" ) );
@@ -72,6 +74,7 @@ public class ReleaseSchedulePhase {
 		Common.xmlSetElementAttr( doc , root , "normaldays" , "" + normalDays );
 		Common.xmlSetElementAttr( doc , root , "release" , Common.getBooleanValue( release ) );
 		Common.xmlSetElementAttr( doc , root , "finished" , Common.getBooleanValue( finished ) );
+		Common.xmlSetElementAttr( doc , root , "unlimited" , Common.getBooleanValue( unlimited ) );
 		Common.xmlSetElementAttr( doc , root , "startdate" , Common.getDateValue( startDate ) );
 		if( finished )
 			Common.xmlSetElementAttr( doc , root , "finishdate" , Common.getDateValue( finishDate ) );
@@ -80,8 +83,10 @@ public class ReleaseSchedulePhase {
 	public void create( ActionBase action , ServerReleaseLifecyclePhase lcPhase , int pos ) throws Exception {
 		this.pos = pos;
 		this.name = lcPhase.ID;
-		this.days = lcPhase.days;
-		this.normalDays = lcPhase.days;
+		
+		this.unlimited = lcPhase.isUnlimited();
+		this.days = lcPhase.getDuration();
+		this.normalDays = this.days;
 		this.release = lcPhase.isRelease();
 		this.finished = false;
 		this.startDate = null;

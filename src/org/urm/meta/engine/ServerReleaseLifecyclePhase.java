@@ -1,5 +1,6 @@
 package org.urm.meta.engine;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.meta.ServerObject;
@@ -17,7 +18,7 @@ public class ServerReleaseLifecyclePhase extends ServerObject {
 	public String DESC;
 	public VarLCSTAGE stage;
 	public int pos;
-	public int days;
+	private int days;
 	
 	public ServerReleaseLifecyclePhase( ServerReleaseLifecycle lc ) {
 		super( lc );
@@ -50,6 +51,14 @@ public class ServerReleaseLifecyclePhase extends ServerObject {
 		return( r );
 	}
 
+	public void create( ActionBase action , String name , String desc , VarLCSTAGE stage , int pos , int days ) throws Exception {
+		this.ID = name;
+		this.DESC = desc;
+		this.stage = stage;
+		this.pos = pos;
+		this.days = days;
+	}
+	
 	public boolean isRelease() {
 		if( stage == VarLCSTAGE.RELEASE )
 			return( true );
@@ -58,6 +67,18 @@ public class ServerReleaseLifecyclePhase extends ServerObject {
 
 	public boolean isDeploy() {
 		if( stage == VarLCSTAGE.DEPLOYMENT )
+			return( true );
+		return( false );
+	}
+
+	public int getDuration() {
+		if( days < 0 )
+			return( 0 );
+		return( days );
+	}
+
+	public boolean isUnlimited() {
+		if( days < 0 )
 			return( true );
 		return( false );
 	}

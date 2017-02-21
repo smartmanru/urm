@@ -10,6 +10,8 @@ import org.urm.action.ActionCore;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
+import org.urm.engine.ServerBlotter.BlotterType;
+import org.urm.engine.ServerBlotterSet;
 import org.urm.engine.ServerTransaction;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerObject;
@@ -104,6 +106,20 @@ public class ServerReleaseLifecycles extends ServerObject {
 			transaction.exit1( _Error.UnknownLifecycle1 , "unknown lifecycle id=" + lc.ID , lc.ID );
 			
 		lcMap.remove( lc.ID );
+	}
+
+	public ServerReleaseLifecycle copyLifecycle( ServerTransaction transaction , ServerReleaseLifecycle lc , String name ) throws Exception {
+		ServerReleaseLifecycle lcNew = lc.copy( this );
+		lcNew.setLifecycleName( transaction , name );
+		addLifecycle( lcNew );
+		return( lcNew );
+	}
+
+	public boolean isUsed( ServerReleaseLifecycle lc ) {
+		ServerBlotterSet blotter = loader.engine.blotter.getBlotterSet( BlotterType.BLOTTER_RELEASE );
+		if( blotter.checkLifecycleUsed( lc.ID ) )
+			return( true );
+		return( false );
 	}
 	
 }

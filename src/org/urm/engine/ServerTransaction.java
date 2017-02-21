@@ -128,6 +128,11 @@ public class ServerTransaction extends TransactionBase {
 		lc.deleteObject();
 	}
 	
+	public ServerReleaseLifecycle copyLifecycleType( ServerReleaseLifecycle lc , String name ) throws Exception {
+		checkTransactionReleaseLifecycles();
+		return( lifecycles.copyLifecycle( this , lc , name ) );
+	}
+	
 	public void enableLifecycleType( ServerReleaseLifecycle lc , boolean enable ) throws Exception {
 		checkTransactionReleaseLifecycles();
 		lc.enableLifecycle( this , enable );
