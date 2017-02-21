@@ -108,9 +108,9 @@ public class ServerReleaseLifecycles extends ServerObject {
 		lcMap.remove( lc.ID );
 	}
 
-	public ServerReleaseLifecycle copyLifecycle( ServerTransaction transaction , ServerReleaseLifecycle lc , String name ) throws Exception {
+	public ServerReleaseLifecycle copyLifecycle( ServerTransaction transaction , ServerReleaseLifecycle lc , String name , String desc ) throws Exception {
 		ServerReleaseLifecycle lcNew = lc.copy( this );
-		lcNew.setLifecycleName( transaction , name );
+		lcNew.setLifecycleName( transaction , name , desc );
 		addLifecycle( lcNew );
 		return( lcNew );
 	}

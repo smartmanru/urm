@@ -128,9 +128,9 @@ public class ServerTransaction extends TransactionBase {
 		lc.deleteObject();
 	}
 	
-	public ServerReleaseLifecycle copyLifecycleType( ServerReleaseLifecycle lc , String name ) throws Exception {
+	public ServerReleaseLifecycle copyLifecycleType( ServerReleaseLifecycle lc , String name , String desc ) throws Exception {
 		checkTransactionReleaseLifecycles();
-		return( lifecycles.copyLifecycle( this , lc , name ) );
+		return( lifecycles.copyLifecycle( this , lc , name , desc ) );
 	}
 	
 	public void enableLifecycleType( ServerReleaseLifecycle lc , boolean enable ) throws Exception {

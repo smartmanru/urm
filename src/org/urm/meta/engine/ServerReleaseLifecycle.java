@@ -117,8 +117,9 @@ public class ServerReleaseLifecycle extends ServerObject {
 		}
 	}
 
-	public void setLifecycleName( ServerTransaction transaction , String name ) throws Exception {
+	public void setLifecycleName( ServerTransaction transaction , String name , String desc ) throws Exception {
 		this.ID = name;
+		this.DESC = desc;
 	}
 	
 	public void setLifecycleData( ServerTransaction transaction , ServerReleaseLifecycle src ) throws Exception {
