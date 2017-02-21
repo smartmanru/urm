@@ -31,9 +31,9 @@ public class ReleaseCommandMeta extends CommandMeta {
 		String addConfOpts = "OPT_REPLACE";
 		defineAction( CommandMethodMeta.newNormal( this , "scopeconf" , true , "add configuration items to release" , addConfOpts , "./scopeconf.sh [OPTIONS] <RELEASELABEL> [component1 component2 ...]" ) );
 		String buildReleaseOpts = "OPT_DIST,OPT_CHECK";
-		defineAction( CommandMethodMeta.newNormal( this , "build" , true , "build release and (with -get) " , buildReleaseOpts , "./build.sh [OPTIONS] <RELEASELABEL> [set [projects]]" ) );
+		defineAction( CommandMethodMeta.newNormal( this , "build" , true , "build release and (with -get) " , buildReleaseOpts , "./build.sh [OPTIONS] <RELEASELABEL> {all|set [projects]}" ) );
 		String getReleaseOpts = "OPT_DIST,OPT_MOVE_ERRORS";
-		defineAction( CommandMethodMeta.newNormal( this , "getdist" , true , "download ready and/or built release items" , getReleaseOpts , "./getdist.sh [OPTIONS] <RELEASELABEL> [set [projects]]" ) );
+		defineAction( CommandMethodMeta.newNormal( this , "getdist" , true , "download ready and/or built release items" , getReleaseOpts , "./getdist.sh [OPTIONS] <RELEASELABEL> {all|set [projects]}" ) );
 		String getDescopeOpts = "";
 		defineAction( CommandMethodMeta.newNormal( this , "descope" , true , "descope release elements" , getDescopeOpts , "./descope.sh [OPTIONS] <RELEASELABEL> set [project [project items]|configuration components|database deliveries]" ) );
 	}	
