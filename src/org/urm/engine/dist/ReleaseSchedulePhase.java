@@ -133,5 +133,9 @@ public class ReleaseSchedulePhase {
 		finished = false;
 		finishDate = null;
 	}
+
+	public void setPhaseDuration( ActionBase action , int duration ) throws Exception {
+		this.days = duration;
+	}
 	
 }
