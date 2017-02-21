@@ -135,11 +135,40 @@ public class ReleaseSchedule {
 		}
 		
 		changeReleaseSchedule( action , releaseDate );
+		
+		if( releasePhases > 0 ) {
+			ReleaseSchedulePhase phase = getPhase( 0 );
+			if( phase.deadlineStart.before( started ) ) {
+				if( !action.isForced() )
+					action.exit1( _Error.DisabledLifecycle1 , "Release " + release.dist.RELEASEDIR + " does not fit lifecycle" , release.dist.RELEASEDIR );
+			}
+		}
+		else {
+			if( releaseDate.before( started ) ) {
+				if( !action.isForced() )
+					action.exit1( _Error.DisabledLifecycle1 , "Release " + release.dist.RELEASEDIR + " is trying to release in the past" , release.dist.RELEASEDIR );
+			}
+		}
 	}
 	
 	public void changeReleaseSchedule( ActionBase action , Date releaseDate ) throws Exception {
 		this.releaseDate = releaseDate;
 		setDeadlines();
+		
+		if( releasePhases > 0 ) {
+			ReleaseSchedulePhase phase = getPhase( currentPhase );
+			if( phase.deadlineFinish.before( started ) ) {
+				if( !action.isForced() )
+					action.exit1( _Error.DisabledLifecycle1 , "Release " + release.dist.RELEASEDIR + " does not fit lifecycle" , release.dist.RELEASEDIR );
+			}
+		}
+		else {
+			Date currentDate = Common.getDateCurrentDay();
+			if( releaseDate.before( currentDate ) ) {
+				if( !action.isForced() )
+					action.exit1( _Error.DisabledLifecycle1 , "Release " + release.dist.RELEASEDIR + " is trying to release in the past" , release.dist.RELEASEDIR );
+			}
+		}
 	}
 
 	public ServerReleaseLifecycle getLifecycle( ActionBase action ) throws Exception {
@@ -163,32 +192,52 @@ public class ReleaseSchedule {
 	}
 
 	private void setDeadlines() {
-		int index = 0;
+		int indexDeadline = 0;
+		int indexBest = 0;
 		for( int k = releasePhases - 1; k >= 0; k-- ) {
 			ReleaseSchedulePhase phase = getPhase( k );
-			int indexTo = index;
-			index -= phase.days;
-			int indexFrom = index;
-			if( phase.days > 0 )
-				indexFrom++;
 			
-			Date dateFrom = Common.addDays( releaseDate , indexFrom );
-			Date dateTo = Common.addDays( releaseDate , indexTo );
-			phase.setDeadlineDates( dateFrom , dateTo );
+			int indexDeadlineTo = indexDeadline;
+			indexDeadline -= phase.days;
+			int indexDeadlineFrom = indexDeadline;
+			if( phase.days > 0 )
+				indexDeadlineFrom++;
+			
+			int indexBestTo = indexBest;
+			indexBest -= phase.normalDays;
+			int indexBestFrom = indexBest;
+			if( phase.normalDays > 0 )
+				indexBestFrom++;
+			
+			Date dateDeadlineFrom = Common.addDays( releaseDate , indexDeadlineFrom );
+			Date dateDeadlineTo = Common.addDays( releaseDate , indexDeadlineTo );
+			Date dateBestFrom = Common.addDays( releaseDate , indexBestFrom );
+			Date dateBestTo = Common.addDays( releaseDate , indexBestTo );
+			phase.setDeadlineDates( dateDeadlineFrom , dateDeadlineTo , dateBestFrom , dateBestTo );
 		}
 		
-		index = 1;
+		indexDeadline = 1;
+		indexBest = 1;
 		for( int k = releasePhases; k < phases.size(); k++ ) {
 			ReleaseSchedulePhase phase = getPhase( k );
-			int indexFrom = index;
-			index += phase.days;
-			int indexTo = index;
-			if( phase.days > 0 )
-				indexTo--;
 			
-			Date dateFrom = Common.addDays( releaseDate , indexFrom );
-			Date dateTo = Common.addDays( releaseDate , indexTo );
-			phase.setDeadlineDates( dateFrom , dateTo );
+			int indexDeadlineFrom = indexDeadline;
+			indexDeadline += phase.days;
+			int indexDeadlineTo = indexDeadline;
+			if( phase.days > 0 )
+				indexDeadlineTo--;
+			
+			int indexBestFrom = indexBest;
+			indexBest += phase.normalDays;
+			int indexBestTo = indexBest;
+			if( phase.normalDays > 0 )
+				indexBestTo--;
+			
+			Date dateDeadlineFrom = Common.addDays( releaseDate , indexDeadlineFrom );
+			Date dateDeadlineTo = Common.addDays( releaseDate , indexDeadlineTo );
+			Date dateBestFrom = Common.addDays( releaseDate , indexBestFrom );
+			Date dateBestTo = Common.addDays( releaseDate , indexBestTo );
+			phase.setDeadlineDates( dateDeadlineFrom , dateDeadlineTo , dateBestFrom , dateBestTo );
 		}
 	}
 	

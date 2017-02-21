@@ -143,7 +143,7 @@ public class DistState {
 		// check current status
 		ctlLoadReleaseState( action );
 		if( state != DISTSTATE.MISSINGDIST ) {
-			if( !action.context.CTX_FORCE )
+			if( !action.isForced() )
 				action.exit0( _Error.CannotCreateExistingDistributive0 , "cannot create existing distributive" );
 		}
 			

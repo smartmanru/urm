@@ -118,7 +118,7 @@ public class RedistStateInfo {
 	}
 	
 	public boolean needUpdate( ActionBase action , MetaDistrBinaryItem item , Dist dist , String fileName , String deployBaseName , String deployFinalName ) throws Exception {
-		if( action.context.CTX_FORCE )
+		if( action.isForced() )
 			return( true );
 
 		// get current state if any
@@ -158,7 +158,7 @@ public class RedistStateInfo {
 	}
 
 	public boolean needUpdate( ActionBase action , MetaDistrBinaryItem item , String filePath , String deployBaseName , VersionInfo version , String deployFinalName ) throws Exception {
-		if( action.context.CTX_FORCE )
+		if( action.isForced() )
 			return( true );
 
 		// get current state if any

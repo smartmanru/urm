@@ -127,7 +127,7 @@ public class DatabaseRegistry {
 		parseReleaseNumber( action , release.RELEASEVER );
 		
 		// check last release if not forced
-		if( !action.context.CTX_FORCE ) {
+		if( !action.isForced() ) {
 			if( !checkLastRelease( action , release ) )
 				return( false );
 		}
@@ -150,7 +150,7 @@ public class DatabaseRegistry {
 		}
 		else
 		if( isReleaseFinished( action ) ) {
-			if( !action.context.CTX_FORCE ) {
+			if( !action.isForced() ) {
 				action.error( "release is completely done, use -force to reapply" );
 				return( false );
 			}
@@ -324,7 +324,7 @@ public class DatabaseRegistry {
 				true );
 		if( !res ) {
 			String msg = "unable to register script execution: " + key ;
-			if( action.context.CTX_FORCE )
+			if( action.isForced() )
 				action.error( msg + ", ignored." );
 			else
 				action.exit1( _Error.UnableRegisterExecution1 , msg , key );

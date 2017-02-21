@@ -104,7 +104,7 @@ public class DatabaseClient {
 		for( String file : Common.getSortedKeys( set.files ) ) {
 			if( !applyManualScript( action , shell , folder , file , logFolder ) ) {
 				res = false;
-				if( !action.context.CTX_FORCE ) {
+				if( !action.isForced() ) {
 					action.error( "error executing manual script, cancel set execution" );
 					break;
 				}

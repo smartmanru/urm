@@ -89,7 +89,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
 		Meta meta = action.getContextMeta();
-		impl.deleteRelease( action , meta , RELEASELABEL , action.context.CTX_FORCE );
+		impl.deleteRelease( action , meta , RELEASELABEL , action.isForced() );
 	}
 	}
 

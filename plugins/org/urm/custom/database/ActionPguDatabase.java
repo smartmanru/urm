@@ -60,7 +60,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 		}
 			
 		if( S_CHECK_FAILED ) {
-			if( action.context.CTX_FORCE )
+			if( action.isForced() )
 				action.error( "prepare: errors in script set. Ignored." );
 			else
 				action.exit0( ScriptSetErrors0 , "prepare: errors in script set" );

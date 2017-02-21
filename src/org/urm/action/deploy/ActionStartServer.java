@@ -68,7 +68,7 @@ public class ActionStartServer extends ActionBase {
 		}
 	
 		if( actionServer.isCommand() ) {
-			if( !context.CTX_FORCE ) {
+			if( !isForced() ) {
 				debug( "server=" + actionServer.NAME + " is command server. Skipped." );
 				return;
 			}

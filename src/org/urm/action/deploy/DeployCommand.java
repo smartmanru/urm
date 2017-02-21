@@ -54,7 +54,7 @@ public class DeployCommand {
 	public void dropRedist( ActionBase action , ActionScope scope , String releaseDir ) throws Exception {
 		ActionDropRedist ca = new ActionDropRedist( action , null , releaseDir );
 		
-		if( action.context.CTX_FORCE )
+		if( action.isForced() )
 			ca.runEnvUniqueHosts( scope , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 		else
 			ca.runAll( scope , action.context.env , SecurityAction.ACTION_DEPLOY , false );

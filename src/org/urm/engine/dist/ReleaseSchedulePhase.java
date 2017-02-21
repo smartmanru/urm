@@ -27,6 +27,8 @@ public class ReleaseSchedulePhase {
 	public Date finishDate;
 	public Date deadlineStart;
 	public Date deadlineFinish;
+	public Date bestStart;
+	public Date bestFinish;
 	
 	public ReleaseSchedulePhase( Meta meta , ReleaseSchedule schedule ) {
 		this.meta = meta;
@@ -51,6 +53,8 @@ public class ReleaseSchedulePhase {
 		r.finishDate = finishDate;
 		r.deadlineStart = deadlineStart;
 		r.deadlineFinish = deadlineFinish;
+		r.bestStart = bestStart;
+		r.bestFinish = bestFinish;
 		return( r );
 	}
 
@@ -101,9 +105,11 @@ public class ReleaseSchedulePhase {
 		return( diff );
 	}
 
-	public void setDeadlineDates( Date dateStart , Date dateFinish ) {
-		this.deadlineStart = dateStart;
-		this.deadlineFinish = dateFinish;
+	public void setDeadlineDates( Date deadlineStart , Date deadlineFinish , Date bestStart , Date bestFinish ) {
+		this.deadlineStart = deadlineStart;
+		this.deadlineFinish = deadlineFinish;
+		this.bestStart = bestStart;
+		this.bestFinish = bestFinish;
 	}
 
 	public void startPhase( ActionBase action , Date date ) throws Exception {

@@ -155,6 +155,12 @@ abstract public class ActionBase extends ActionCore {
 	public RemoteFolder getRemoteFolder( Account account , String folderPath ) {
 		return( new RemoteFolder( account , Common.getLinuxPath( folderPath ) ) );
 	}
+
+	public boolean isForced() {
+		if( context.CTX_FORCE )
+			return( true );
+		return( false );
+	}
 	
 	public boolean continueRun() {
 		if( !super.isFailed() )
