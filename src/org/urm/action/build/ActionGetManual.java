@@ -9,10 +9,10 @@ import org.urm.meta.product.Meta;
 
 public class ActionGetManual extends ActionBase {
 
-	Meta meta;
-	LocalFolder downloadFolder;
-	boolean copyDist;
-	Dist targetRelease;
+	public Meta meta;
+	public LocalFolder downloadFolder;
+	public boolean copyDist;
+	public Dist dist;
 	
 	public ActionGetManual( ActionBase action , String stream , Meta meta , boolean copyDist , Dist targetRelease , LocalFolder downloadFolder ) {
 		super( action , stream , "Download prebuilt items, " + 
@@ -20,7 +20,7 @@ public class ActionGetManual extends ActionBase {
 				", change distr=" + copyDist );
 		this.meta = meta;
 		this.copyDist = copyDist;
-		this.targetRelease = targetRelease;
+		this.dist = targetRelease;
 		this.downloadFolder = downloadFolder;
 	}
 
@@ -28,13 +28,13 @@ public class ActionGetManual extends ActionBase {
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , meta , downloadFolder );
 		
 		LocalFolder manualFolder = downloadFolder.getSubFolder( this , "manual" );
-		if( !sourceStorage.downloadReleaseManualFolder( this , targetRelease , manualFolder ) ) {
+		if( !sourceStorage.downloadReleaseManualFolder( this , dist , manualFolder ) ) {
 			debug( "no manual items to download" );
 			return( SCOPESTATE.NotRun );
 		}
 
 		if( copyDist )
-			targetRelease.copyManualFilesToDistr( this , manualFolder );
+			dist.copyManualFilesToDistr( this , manualFolder );
 		return( SCOPESTATE.RunSuccess );
 	}
 	
