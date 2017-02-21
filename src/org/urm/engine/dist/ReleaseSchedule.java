@@ -155,18 +155,17 @@ public class ReleaseSchedule {
 		this.releaseDate = releaseDate;
 		setDeadlines();
 		
+		Date currentDate = Common.getDateCurrentDay();
+		if( releaseDate.before( currentDate ) ) {
+			if( !action.isForced() )
+				action.exit1( _Error.DisabledLifecycle1 , "Release " + release.dist.RELEASEDIR + " is trying to release in the past" , release.dist.RELEASEDIR );
+		}
+		
 		if( releasePhases > 0 ) {
 			ReleaseSchedulePhase phase = getPhase( currentPhase );
 			if( phase.deadlineFinish.before( started ) ) {
 				if( !action.isForced() )
 					action.exit1( _Error.DisabledLifecycle1 , "Release " + release.dist.RELEASEDIR + " does not fit lifecycle" , release.dist.RELEASEDIR );
-			}
-		}
-		else {
-			Date currentDate = Common.getDateCurrentDay();
-			if( releaseDate.before( currentDate ) ) {
-				if( !action.isForced() )
-					action.exit1( _Error.DisabledLifecycle1 , "Release " + release.dist.RELEASEDIR + " is trying to release in the past" , release.dist.RELEASEDIR );
 			}
 		}
 	}
