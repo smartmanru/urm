@@ -294,6 +294,25 @@ public class ReleaseSchedule {
 			currentPhase = -1;
 	}
 	
+	public void complete( ActionBase action ) throws Exception {
+		if( currentPhase < releasePhases )
+			action.exitUnexpectedState();
+		
+		completed = true;
+		
+		Date date = Common.getDateCurrentDay();
+		for( int k = currentPhase; k < phases.size(); k++ ) {
+			ReleaseSchedulePhase phase = getPhase( k );
+			if( !phase.finished ) {
+				if( phase.startDate == null )
+					phase.startPhase( action , date );
+				phase.finishPhase( action , date );
+			}
+		}
+		
+		currentPhase = -1;
+	}
+	
 	public void reopen( ActionBase action ) throws Exception {
 		released = false;
 		

@@ -55,6 +55,12 @@ public class ReleaseCommand {
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
+	public void completeRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
+		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		ActionCompleteRelease ma = new ActionCompleteRelease( action , null , dist );
+		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
+	}
+	
 	public void reopenRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
 		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		ActionReopenRelease ma = new ActionReopenRelease( action , null , dist );

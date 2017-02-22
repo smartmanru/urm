@@ -34,6 +34,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		defineAction( new CloseRelease() , "close" );
 		defineAction( new CopyRelease() , "copy" );
 		defineAction( new FinishRelease() , "finish" );
+		defineAction( new CompleteRelease() , "complete" );
 		defineAction( new ReopenRelease() , "reopen" );
 		defineAction( new MaintainProd() , "prod" );
 		defineAction( new AddReleaseBuildProjects() , "scope" );
@@ -120,6 +121,15 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		checkNoArgs( action , 1 );
 		Meta meta = action.getContextMeta();
 		impl.finishRelease( action , meta , RELEASELABEL );
+	}
+	}
+
+	private class CompleteRelease extends CommandAction {
+	public void run( ActionInit action ) throws Exception {
+		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
+		checkNoArgs( action , 1 );
+		Meta meta = action.getContextMeta();
+		impl.completeRelease( action , meta , RELEASELABEL );
 	}
 	}
 

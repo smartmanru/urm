@@ -59,6 +59,7 @@ public class Dist {
 	DistState state;
 	boolean openedForUse;
 	boolean openedForChange;
+	boolean openedForControl;
 	
 	public Dist( Meta meta , DistRepository repo ) {
 		this.meta = meta;
@@ -74,15 +75,9 @@ public class Dist {
 		
 		openedForUse = false;
 		openedForChange = false;
+		openedForControl = false;
 	}
 
-	public void open( ActionBase action ) throws Exception {
-		boolean prod = ( action.context.env != null )? action.context.env.isProd() : false;
-		state.ctlOpenForUse( action , prod );
-		openedForUse = true;
-		gatherFiles( action );
-	}
-	
 	public boolean isFullProd() {
 		return( release.PROPERTY_PROD );
 	}
@@ -328,10 +323,26 @@ public class Dist {
 		load( action );
 	}
 	
+	public void openForUse( ActionBase action ) throws Exception {
+		boolean prod = ( action.context.env != null )? action.context.env.isProd() : false;
+		openForUse( action , prod );
+	}
+
+	public void openForUse( ActionBase action , boolean requireReleased ) throws Exception {
+		state.ctlOpenForUse( action , requireReleased );
+		openedForUse = true;
+		gatherFiles( action );
+	}
+	
 	public void openForChange( ActionBase action ) throws Exception {
 		state.ctlOpenForChange( action );
 		openedForChange = true;
 		openedForUse = true;
+	}
+	
+	public void openForControl( ActionBase action ) throws Exception {
+		state.ctlOpenForControl( action );
+		openedForControl = true;
 	}
 	
 	public void closeChange( ActionBase action ) throws Exception {
@@ -340,8 +351,18 @@ public class Dist {
 		openedForUse = false;
 	}
 
+	public void closeControl( ActionBase action , DISTSTATE value ) throws Exception {
+		if( !openedForControl )
+			action.exitUnexpectedState();
+		state.ctlCloseControl( action , value );
+		openedForControl = false;
+	}
+
 	public void forceClose( ActionBase action ) throws Exception {
-		state.ctlForceClose( action );
+		if( openedForControl )
+			state.ctlCloseControl( action , state.state );
+		else
+			state.ctlForceClose( action );
 	}
 
 	public void finish( ActionBase action ) throws Exception {
@@ -357,6 +378,18 @@ public class Dist {
 		release.finish( action );
 		saveReleaseXml( action );
 		state.ctlFinish( action );
+	}
+
+	public void complete( ActionBase action ) throws Exception {
+		openForUse( action );
+		if( state.isCompleted() ) {
+			action.info( "distributive is not ready to be finished" );
+			return;
+		}
+		
+		release.complete( action );
+		saveReleaseXml( action );
+		state.ctlCloseControl( action , DISTSTATE.COMPLETED );
 	}
 
 	public void reopen( ActionBase action ) throws Exception {
