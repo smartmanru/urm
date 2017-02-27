@@ -374,6 +374,13 @@ public class DistState {
 		distFolder.createFileFromString( action , Dist.STATE_FILENAME , value );
 	}
 
+	public void updateMetaHashValue( ActionBase action ) throws Exception {
+		if( !isFinalized() )
+			return;
+		
+		metaHash = getMetaHashValue( action );
+	}
+	
 	public String getMetaHashValue( ActionBase action ) throws Exception {
 		String data = distFolder.readFile( action , Dist.META_FILENAME );
 		String hash = Common.getMD5( data );

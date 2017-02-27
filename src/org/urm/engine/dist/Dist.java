@@ -387,7 +387,7 @@ public class Dist {
 	}
 
 	public void complete( ActionBase action ) throws Exception {
-		openForUse( action );
+		openForControl( action );
 		if( state.isCompleted() ) {
 			action.info( "distributive is not ready to be finished" );
 			return;
@@ -455,6 +455,7 @@ public class Dist {
 		Document doc = release.createXml( action );
 		Common.xmlSaveDoc( doc , filePath );
 		distFolder.copyFileFromLocal( action , filePath );
+		state.updateMetaHashValue( action );
 	}
 
 	public boolean addAllSource( ActionBase action , MetaSourceProjectSet set ) throws Exception {
