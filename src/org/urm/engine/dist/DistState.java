@@ -69,6 +69,11 @@ public class DistState {
 				ok = true;
 		}
 		else
+		if( state == DISTSTATE.BROKEN ) {
+			if( newState == DISTSTATE.CHANGING1 )
+				ok = true;
+		}
+		else
 		if( state == DISTSTATE.DIRTY ) {
 			if( newState == DISTSTATE.CHANGING1 )
 				ok = true;
