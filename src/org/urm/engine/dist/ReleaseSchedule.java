@@ -295,8 +295,13 @@ public class ReleaseSchedule {
 	}
 	
 	public void complete( ActionBase action ) throws Exception {
-		if( releasePhases > 0 && currentPhase < releasePhases )
-			action.exitUnexpectedState();
+		if( LIFECYCLE.isEmpty() ) {
+			completed = true;
+			return;
+		}
+		
+		if( currentPhase < 0 || currentPhase < releasePhases )
+			action.exit0( _Error.DistributiveNotReleased1 , "Distributive is not in released state" );
 		
 		completed = true;
 		
