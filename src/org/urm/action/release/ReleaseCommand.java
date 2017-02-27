@@ -172,7 +172,12 @@ public class ReleaseCommand {
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
+		dist.openForDataChange( action );
 		dist.descopeAll( action );
+		dist.saveReleaseXml( action );
+		dist.closeDataChange( action );
+		
+		action.info( "entire scope has been removed from release" );
 	}
 	
 	public void descopeConfComps( ActionBase action , Dist dist , String[] COMPS ) throws Exception {
