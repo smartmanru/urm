@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.action.build.ActionPatch;
+import org.urm.common.Common;
 import org.urm.engine.ServerBlotter.BlotterEvent;
 import org.urm.engine.ServerBlotter.BlotterType;
 import org.urm.engine.action.ActionInit;
@@ -12,6 +13,7 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepository.DistOperation;
 import org.urm.engine.dist.DistRepositoryItem;
+import org.urm.engine.dist.VersionInfo;
 import org.urm.meta.ServerProductMeta;
 import org.urm.meta.engine.ServerDirectory;
 import org.urm.meta.product.Meta;
@@ -255,7 +257,13 @@ public class ServerBlotterSet extends ServerEventsSource {
 	}
 
 	private String getReleaseKey( Dist dist ) {
-		return( dist.meta.name + "-" + dist.RELEASEDIR );
+		String[] version = Common.splitDotted( dist.release.RELEASEVER );
+		for( int k = 0; k < version.length; k++ ) {
+			String s = "0000000000" + version[ k ];
+			version[ k ] = s.substring( version[ k ].length() );
+		}
+			 
+		return( dist.meta.name + "-" + Common.getList( version , "." ) + "-" + dist.RELEASEDIR );
 	}
 	
 	public synchronized ServerBlotterReleaseItem findReleaseItem( Dist dist ) {
