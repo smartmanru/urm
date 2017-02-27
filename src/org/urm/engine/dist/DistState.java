@@ -309,8 +309,8 @@ public class DistState {
 		ctlLoadReleaseState( action );
 		
 		// dirty state expected
-		if( state != DISTSTATE.RELEASED )
-			action.exit1( _Error.DistributiveNotReleased1 , "distributive is not released, state=" + state.name() , state.name() );
+		if( isCompleted() )
+			action.exit1( _Error.DistributiveProtected1 , "distributive is protected from changes, state=" + state.name() , state.name() );
 		
 		ctlSetStatus( action , DISTSTATE.CHANGING1 );
 		action.info( "distributive has been reopened" );
