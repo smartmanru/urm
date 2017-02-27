@@ -928,6 +928,10 @@ public class Common {
 		return( new Date( value ) );
 	}
 
+	public static int getDateDiffDays( Date start , Date finish ) {
+		return( getDateDiffDays( start.getTime() , finish.getTime() ) );
+	}
+	
 	public static int getDateDiffDays( long start , long finish ) {
 		long diff = finish - start;
 		diff /= ( 24 * 60 * 60 * 1000 );

@@ -95,7 +95,7 @@ public class DistRepositoryItem {
 			action.ifexit( _Error.ReleaseAlreadyExists1 , "distributive already exists at " + path , new String[] { path } );
 		}
 
-		if( action.context.CTX_FORCE ) {
+		if( action.isForced() ) {
 			distFolder.removeFiles( action , "history.txt state.txt" );
 		}
 		else {

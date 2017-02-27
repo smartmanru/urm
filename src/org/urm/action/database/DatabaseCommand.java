@@ -37,14 +37,14 @@ public class DatabaseCommand {
 	}
 
 	public void applyManual( ActionBase action , ActionScope scope , Dist dist , MetaEnvServer server ) throws Exception {
-		dist.open( action );
+		dist.openForUse( action );
 		
 		ActionApplyManual ma = new ActionApplyManual( action , null , dist , server );
 		ma.runAll( scope , server.sg.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
 	public void applyAutomatic( ActionBase action , Dist dist , ReleaseDelivery delivery , String indexScope ) throws Exception {
-		dist.open( action );
+		dist.openForUse( action );
 		
 		String deliveryInfo = ( delivery != null )? delivery.distDelivery.NAME : "(all)";
 		String itemsInfo = ( indexScope != null )? indexScope : "(all)";

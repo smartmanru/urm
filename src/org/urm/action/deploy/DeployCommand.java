@@ -54,7 +54,7 @@ public class DeployCommand {
 	public void dropRedist( ActionBase action , ActionScope scope , String releaseDir ) throws Exception {
 		ActionDropRedist ca = new ActionDropRedist( action , null , releaseDir );
 		
-		if( action.context.CTX_FORCE )
+		if( action.isForced() )
 			ca.runEnvUniqueHosts( scope , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 		else
 			ca.runAll( scope , action.context.env , SecurityAction.ACTION_DEPLOY , false );
@@ -104,7 +104,7 @@ public class DeployCommand {
 		}
 		
 		// open distributive
-		dist.open( action );
+		dist.openForUse( action );
 		
 		// download configuration templates
 		LocalFolder folder = null;
@@ -216,7 +216,7 @@ public class DeployCommand {
 	}
 
 	public void verifyDeploy( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
-		dist.open( action );
+		dist.openForUse( action );
 		ActionVerifyDeploy ca = new ActionVerifyDeploy( action , null , dist );
 		ca.runAll( scope , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}

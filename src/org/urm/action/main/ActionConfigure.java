@@ -429,7 +429,7 @@ public class ActionConfigure extends ActionBase {
 	private void saveExecutorContext( LocalFolder ef , boolean linux , List<String> lines ) throws Exception {
 		String fileName = ( linux )? MainCommandMeta.CONTEXT_FILENAME_LIXUX : MainCommandMeta.CONTEXT_FILENAME_WIN;
 		String filePath = ef.getFilePath( this , fileName );
-		if( context.CTX_FORCE == true || !ef.checkFileExists( this , fileName ) )
+		if( isForced() || !ef.checkFileExists( this , fileName ) )
 			Common.createFileFromStringList( execrc , filePath , lines );
 		if( linux ) {
 			File file = new File( filePath );

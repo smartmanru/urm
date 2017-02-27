@@ -47,7 +47,7 @@ public class ActionUpgradeEnv extends ActionBase {
 	}
 
 	private boolean checkNeed( Account account , VersionInfoStorage vis ) throws Exception {
-		if( context.CTX_FORCE ) {
+		if( isForced() ) {
 			if( !isExecute() ) {
 				info( account.getPrintName() + ": forced upgrade " + PATCHFILE + " (showonly)" );
 				return( false );

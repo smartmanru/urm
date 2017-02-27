@@ -24,7 +24,7 @@ public class ActionSaveConfigs extends ActionBase {
 
 	@Override protected void runAfter( ActionScope scope ) throws Exception {
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , scope.meta );
-		if( scope.scopeFull && context.CTX_FORCE )
+		if( scope.scopeFull && isForced() )
 			deleteOldConfServers( scope );
 		
 		// check need to tag configuration
@@ -54,7 +54,7 @@ public class ActionSaveConfigs extends ActionBase {
 		}
 
 		// delete old
-		if( context.CTX_FORCE && target.itemFull )
+		if( isForced() && target.itemFull )
 			deleteOldConfItems( server , F_REDIST_SAVEITEMS );
 		
 		return( SCOPESTATE.RunSuccess );

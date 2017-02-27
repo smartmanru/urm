@@ -20,7 +20,8 @@ public class ReleaseCommandMeta extends CommandMeta {
 		defineAction( CommandMethodMeta.newStatus( this , "status" , true , "get release status" , releaseOpts , "./status.sh [OPTIONS] <RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newNormal( this , "close" , true , "close release" , releaseOpts , "./close.sh [OPTIONS] <RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newNormal( this , "copy" , true , "copy release" , releaseOpts , "./close.sh [OPTIONS] <RELEASESRC> <RELEASEDST> <RELEASEDATE>" ) );
-		defineAction( CommandMethodMeta.newNormal( this , "finish" , true , "finish release" , releaseOpts , "./finish.sh [OPTIONS] <RELEASELABEL>" ) );
+		defineAction( CommandMethodMeta.newNormal( this , "finish" , true , "finalize and disable distributive updates" , releaseOpts , "./finish.sh [OPTIONS] <RELEASELABEL>" ) );
+		defineAction( CommandMethodMeta.newNormal( this , "complete" , true , "mark all release operations as completed" , releaseOpts , "./complete.sh [OPTIONS] <RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newNormal( this , "reopen" , true , "reopen release" , releaseOpts , "./reopen.sh [OPTIONS] <RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newCritical( this , "prod" , true , "create master distributive from predefined set" , releaseOpts , "./prod.sh [OPTIONS] create <initial version>" ) );
 		String addOpts = "OPT_BRANCH,OPT_TAG,OPT_VERSION,OPT_REPLACE";

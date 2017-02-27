@@ -272,5 +272,14 @@ public class ServerBlotterSet extends ServerEventsSource {
 		}
 		return( null );
 	}
+
+	public boolean checkLifecycleUsed( String LC ) {
+		for( ServerBlotterItem item : items.values() ) {
+			ServerBlotterReleaseItem releaseItem = ( ServerBlotterReleaseItem )item;
+			if( LC.equals( releaseItem.repoItem.dist.release.schedule.LIFECYCLE ) )
+				return( true );
+		}
+		return( false );
+	}
 	
 }

@@ -799,6 +799,10 @@ public class Release {
 		schedule.finish( action );
 	}
 	
+	public void complete( ActionBase action ) throws Exception {
+		schedule.complete( action );
+	}
+	
 	public void reopen( ActionBase action ) throws Exception {
 		schedule.reopen( action );
 	}

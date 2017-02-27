@@ -22,10 +22,13 @@ public class ReleaseSchedulePhase {
 	public int normalDays;
 	public boolean release;
 	public boolean finished;
+	public boolean unlimited;
 	public Date startDate;
 	public Date finishDate;
 	public Date deadlineStart;
 	public Date deadlineFinish;
+	public Date bestStart;
+	public Date bestFinish;
 	
 	public ReleaseSchedulePhase( Meta meta , ReleaseSchedule schedule ) {
 		this.meta = meta;
@@ -50,6 +53,8 @@ public class ReleaseSchedulePhase {
 		r.finishDate = finishDate;
 		r.deadlineStart = deadlineStart;
 		r.deadlineFinish = deadlineFinish;
+		r.bestStart = bestStart;
+		r.bestFinish = bestFinish;
 		return( r );
 	}
 
@@ -61,6 +66,7 @@ public class ReleaseSchedulePhase {
 		normalDays = ConfReader.getIntegerAttrValue( root , "normaldays" , 0 );
 		release = ConfReader.getBooleanAttrValue( root , "release" , false );
 		finished = ConfReader.getBooleanAttrValue( root , "finished" , false );
+		unlimited = ConfReader.getBooleanAttrValue( root , "unlimited" , false );
 		startDate = Common.getDateValue( ConfReader.getAttrValue( root , "startdate" ) );
 		if( finished )
 			finishDate = Common.getDateValue( ConfReader.getAttrValue( root , "finishdate" ) );
@@ -72,6 +78,7 @@ public class ReleaseSchedulePhase {
 		Common.xmlSetElementAttr( doc , root , "normaldays" , "" + normalDays );
 		Common.xmlSetElementAttr( doc , root , "release" , Common.getBooleanValue( release ) );
 		Common.xmlSetElementAttr( doc , root , "finished" , Common.getBooleanValue( finished ) );
+		Common.xmlSetElementAttr( doc , root , "unlimited" , Common.getBooleanValue( unlimited ) );
 		Common.xmlSetElementAttr( doc , root , "startdate" , Common.getDateValue( startDate ) );
 		if( finished )
 			Common.xmlSetElementAttr( doc , root , "finishdate" , Common.getDateValue( finishDate ) );
@@ -80,8 +87,10 @@ public class ReleaseSchedulePhase {
 	public void create( ActionBase action , ServerReleaseLifecyclePhase lcPhase , int pos ) throws Exception {
 		this.pos = pos;
 		this.name = lcPhase.ID;
-		this.days = lcPhase.days;
-		this.normalDays = lcPhase.days;
+		
+		this.unlimited = lcPhase.isUnlimited();
+		this.days = lcPhase.getDuration();
+		this.normalDays = this.days;
 		this.release = lcPhase.isRelease();
 		this.finished = false;
 		this.startDate = null;
@@ -96,9 +105,11 @@ public class ReleaseSchedulePhase {
 		return( diff );
 	}
 
-	public void setDeadlineDates( Date dateStart , Date dateFinish ) {
-		this.deadlineStart = dateStart;
-		this.deadlineFinish = dateFinish;
+	public void setDeadlineDates( Date deadlineStart , Date deadlineFinish , Date bestStart , Date bestFinish ) {
+		this.deadlineStart = deadlineStart;
+		this.deadlineFinish = deadlineFinish;
+		this.bestStart = bestStart;
+		this.bestFinish = bestFinish;
 	}
 
 	public void startPhase( ActionBase action , Date date ) throws Exception {
@@ -121,6 +132,10 @@ public class ReleaseSchedulePhase {
 		startDate = null;
 		finished = false;
 		finishDate = null;
+	}
+
+	public void setPhaseDuration( ActionBase action , int duration ) throws Exception {
+		this.days = duration;
 	}
 	
 }

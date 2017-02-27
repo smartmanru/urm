@@ -24,7 +24,7 @@ public class DistState {
 		CHANGING ,
 		RELEASED ,
 		CANCELLED ,
-		PROD ,
+		COMPLETED ,
 		ARCHIVED
 	}
 	
@@ -78,11 +78,11 @@ public class DistState {
 		}
 		else
 		if( state == DISTSTATE.RELEASED ) {
-			if( newState == DISTSTATE.PROD || newState == DISTSTATE.CANCELLED || newState == DISTSTATE.CHANGING )
+			if( newState == DISTSTATE.COMPLETED || newState == DISTSTATE.CANCELLED || newState == DISTSTATE.CHANGING )
 				ok = true;
 		}
 		else
-		if( state == DISTSTATE.PROD ) {
+		if( state == DISTSTATE.COMPLETED ) {
 			if( newState == DISTSTATE.ARCHIVED )
 				ok = true;
 		}
@@ -143,7 +143,7 @@ public class DistState {
 		// check current status
 		ctlLoadReleaseState( action );
 		if( state != DISTSTATE.MISSINGDIST ) {
-			if( !action.context.CTX_FORCE )
+			if( !action.isForced() )
 				action.exit0( _Error.CannotCreateExistingDistributive0 , "cannot create existing distributive" );
 		}
 			
@@ -207,6 +207,11 @@ public class DistState {
 		action.debug( "distributive has been closed after change, ID=" + stateChangeID );
 	}
 
+	public void ctlCloseControl( ActionBase action , DISTSTATE state ) throws Exception {
+		ctlSetStatus( action , state );
+		action.debug( "distributive has been closed after control, state=" + Common.getEnumLower( state ) );
+	}
+
 	public void ctlForceClose( ActionBase action ) throws Exception {
 		// check current status
 		ctlLoadReleaseState( action );
@@ -238,23 +243,30 @@ public class DistState {
 		action.info( "distributive has been reopened" );
 	}
 
-	public void ctlOpenForUse( ActionBase action , boolean PROD ) throws Exception {
+	public void ctlOpenForUse( ActionBase action , boolean openForUse ) throws Exception {
 		// check current status
 		ctlLoadReleaseState( action );
 		
-		if( PROD == false ) {
-			if( state != DISTSTATE.PROD && state != DISTSTATE.RELEASED && state != DISTSTATE.DIRTY )
+		if( openForUse == false ) {
+			if( state != DISTSTATE.COMPLETED && state != DISTSTATE.RELEASED && state != DISTSTATE.DIRTY )
 				action.exit1( _Error.DistributiveNotReadyForUse1 , "distributive is not ready for use, state=" + state.name() , state.name() );
 		}
 		
-		if( PROD == true ) {
-			if( state != DISTSTATE.PROD && state != DISTSTATE.RELEASED )
+		if( openForUse == true ) {
+			if( state != DISTSTATE.COMPLETED && state != DISTSTATE.RELEASED )
 				action.exit1( _Error.DistributiveNotReadyForProd1 , "distributive is not ready for use in prod environment, state=" + state.name() , state.name() );
 		}
 
 		String hash = getHashValue( action );
 		if( !hash.equals( stateHash ) )
 			action.exit2( _Error.DistributiveHashDiffers2 , "distributive is not ready for use - actual hash=" + hash + ", declared hash=" + stateHash , hash , stateHash );
+	}
+
+	public void ctlOpenForControl( ActionBase action ) throws Exception {
+		// check current status
+		ctlLoadReleaseState( action );
+		if( state != DISTSTATE.RELEASED )
+			action.exit1( _Error.DistributiveNotReleased1 , "distributive is not released, state=" + state.name() , state.name() );
 	}
 	
 	public void ctlCancel( ActionBase action ) throws Exception {
@@ -275,7 +287,7 @@ public class DistState {
 	public void ctlCheckCanForceDropRelease( ActionBase action ) throws Exception {
 		// check current status
 		ctlLoadReleaseState( action );
-		if( state == DISTSTATE.ARCHIVED || state == DISTSTATE.PROD )
+		if( state == DISTSTATE.ARCHIVED || state == DISTSTATE.COMPLETED )
 			action.exit1( _Error.DistributiveProtected1 , "distributive is protected, can be deleted only manually, state=" + state.name() , state.name() );
 	}
 
@@ -348,7 +360,13 @@ public class DistState {
 	}
 
 	public boolean isFinalized() {
-		if( state == DISTSTATE.PROD || state == DISTSTATE.RELEASED )
+		if( state == DISTSTATE.COMPLETED || state == DISTSTATE.RELEASED )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isCompleted() {
+		if( state == DISTSTATE.COMPLETED )
 			return( true );
 		return( false );
 	}

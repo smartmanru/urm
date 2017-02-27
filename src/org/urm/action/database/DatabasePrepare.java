@@ -75,7 +75,7 @@ public class DatabasePrepare {
 		// check scripts from SVN (exit on errors if no -s option)
 		checkAll( action , F_ALIGNEDDIRLIST );
 		if( S_CHECK_FAILED ) {
-			if( !action.context.CTX_FORCE ) {
+			if( !action.isForced() ) {
 				action.error( "script set check failed, cancelled" );
 				return( false );
 			}

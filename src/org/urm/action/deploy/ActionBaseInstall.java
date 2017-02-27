@@ -152,7 +152,7 @@ public class ActionBaseInstall extends ActionBase {
 	private boolean startUpdate( ServerBaseItemData info , RuntimeStorage runtime , VersionInfoStorage vis ) throws Exception {
 		String STATUS = vis.getBaseStatus( this , info.item.ID );
 		if( STATUS.equals( "ok" ) ) {
-			if( !context.CTX_FORCE ) {
+			if( !isForced() ) {
 				info( "skip updating base=" + info.item.ID + ". Already installed." );
 				return( false );
 			}

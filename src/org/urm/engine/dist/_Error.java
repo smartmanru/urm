@@ -56,5 +56,6 @@ public class _Error {
 	public static final int MissingReleaseDate0 = ErrorBase + 47;
 	public static final int MissingReleasecycleType0 = ErrorBase + 48;
 	public static final int DisabledLifecycle1 = ErrorBase + 49;
+	public static final int AlreadyReleased1 = ErrorBase + 50;
 	
 }

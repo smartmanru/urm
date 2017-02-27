@@ -86,7 +86,7 @@ public class DistFinalizer {
 			ReleaseDelivery delivery = info.findDeliveryByFolder( action , dir );
 			if( delivery == null || delivery.isEmpty() ) {
 				if( dirFilesDist.hasFiles() ) {
-					if( !action.context.CTX_FORCE ) {
+					if( !action.isForced() ) {
 						action.error( "distributive delivery=" + delivery.distDelivery.NAME + ", dir=" + dir + " has files, while nothing is declared in release" );
 						return( false );
 					}
@@ -125,7 +125,7 @@ public class DistFinalizer {
 				}
 				
 				if( dirFilesDist.hasFiles() ) {
-					if( !action.context.CTX_FORCE ) {
+					if( !action.isForced() ) {
 						action.error( "distributive delivery=" + delivery.distDelivery.NAME + ", dir=" + dir +  
 								" has files, while nothing is declared in release" );
 						return( false );
@@ -171,7 +171,7 @@ public class DistFinalizer {
 		for( String fileDist : fsd.files.keySet() ) {
 			String fileRelease = fsr.files.get( fileDist );
 			if( fileRelease == null ) {
-				if( !action.context.CTX_FORCE ) {
+				if( !action.isForced() ) {
 					action.error( "distributive delivery=" + delivery.distDelivery.NAME + 
 						" has non-release file=" + fileDist );
 					return( false );
@@ -201,7 +201,7 @@ public class DistFinalizer {
 		for( String dir : fsd.dirs.keySet() ) {
 			FileSet dirFilesRelease = fsr.dirs.get( dir );
 			if( dirFilesRelease == null ) {
-				if( !action.context.CTX_FORCE ) {
+				if( !action.isForced() ) {
 					action.error( "distributive delivery " + delivery.distDelivery.NAME + 
 							" has non-release config=" + dir );
 					return( false );
@@ -228,7 +228,7 @@ public class DistFinalizer {
 		if( fsr == null ) {
 			String folder = fsd.dirPath;
 			if( fsd.hasFiles() ) {
-				if( !action.context.CTX_FORCE ) {
+				if( !action.isForced() ) {
 					action.error( "distributive delivery=" + delivery.distDelivery.NAME + 
 							" has non-release database folder=" + folder );
 					return( false );
@@ -267,7 +267,7 @@ public class DistFinalizer {
 		if( Common.checkListItem( versions , fsd.dirName ) )
 			return( true );
 		
-		if( !action.context.CTX_FORCE ) {
+		if( !action.isForced() ) {
 			action.error( "distributive has unexpected database delivery folder=" + fsd.dirPath );
 			return( false );
 		}
