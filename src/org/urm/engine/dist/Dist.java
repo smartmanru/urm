@@ -86,6 +86,14 @@ public class Dist {
 		return( state.isFinalized() );
 	}
 	
+	public boolean isCompleted() {
+		return( state.isCompleted() );
+	}
+	
+	public boolean isBroken() {
+		return( state.isBroken() );
+	}
+	
 	public boolean isRemote( ActionBase action ) throws Exception {
 		return( distFolder.isRemote( action ) );
 	}
@@ -449,7 +457,7 @@ public class Dist {
 	}
 	
 	public void saveReleaseXml( ActionBase action ) throws Exception {
-		state.ctlReloadCheckOpenedForChange( action );
+		state.ctlReloadCheckOpenedForMetaChange( action );
 		
 		String filePath = action.getWorkFilePath( META_FILENAME );
 		Document doc = release.createXml( action );

@@ -26,6 +26,7 @@ public class DistRepository {
 		DROP ,
 		FINISH ,
 		REOPEN ,
+		COMPLETE ,
 		MODIFY ,
 		PUT ,
 		ARCHIVE

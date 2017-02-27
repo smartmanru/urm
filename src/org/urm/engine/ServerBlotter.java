@@ -17,6 +17,7 @@ import org.urm.action.release.ActionCreateRelease;
 import org.urm.action.release.ActionDeleteRelease;
 import org.urm.action.release.ActionDescope;
 import org.urm.action.release.ActionFinishRelease;
+import org.urm.action.release.ActionCompleteRelease;
 import org.urm.action.release.ActionForceCloseRelease;
 import org.urm.action.release.ActionGetCumulative;
 import org.urm.action.release.ActionModifyRelease;
@@ -232,6 +233,11 @@ public class ServerBlotter {
 		if( action instanceof ActionReopenRelease ) {
 			ActionReopenRelease xa = ( ActionReopenRelease )action;
 			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.REOPEN , "reopen distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionCompleteRelease ) {
+			ActionCompleteRelease xa = ( ActionCompleteRelease )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.COMPLETE , "finalize distributive releasedir=" + xa.dist.RELEASEDIR ); 
 		}
 		else
 		if( action instanceof ActionAddScope ) {

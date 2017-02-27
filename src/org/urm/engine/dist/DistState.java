@@ -21,8 +21,7 @@ public class DistState {
 		MISSINGSTATE ,
 		BROKEN ,
 		DIRTY ,
-		CHANGING1 ,
-		CHANGING2 ,
+		CHANGING ,
 		RELEASED ,
 		CANCELLED ,
 		COMPLETED ,
@@ -70,27 +69,22 @@ public class DistState {
 		}
 		else
 		if( state == DISTSTATE.BROKEN ) {
-			if( newState == DISTSTATE.CHANGING1 )
+			if( newState == DISTSTATE.CHANGING )
 				ok = true;
 		}
 		else
 		if( state == DISTSTATE.DIRTY ) {
-			if( newState == DISTSTATE.CHANGING1 )
+			if( newState == DISTSTATE.CHANGING )
 				ok = true;
 		}
 		else
-		if( state == DISTSTATE.CHANGING1 ) {
+		if( state == DISTSTATE.CHANGING ) {
 			if( newState == DISTSTATE.CANCELLED || newState == DISTSTATE.DIRTY || newState == DISTSTATE.RELEASED )
 				ok = true;
 		}
 		else
 		if( state == DISTSTATE.RELEASED ) {
-			if( newState == DISTSTATE.CHANGING1 || newState == DISTSTATE.CHANGING2 )
-				ok = true;
-		}
-		else
-		if( state == DISTSTATE.CHANGING2 ) {
-			if( newState == DISTSTATE.CANCELLED || newState == DISTSTATE.RELEASED || newState == DISTSTATE.COMPLETED )
+			if( newState == DISTSTATE.CHANGING || newState == DISTSTATE.CANCELLED || newState == DISTSTATE.RELEASED || newState == DISTSTATE.COMPLETED )
 				ok = true;
 		}
 		else
@@ -131,13 +125,13 @@ public class DistState {
 	}
 
 	public void checkDistDataChangeEnabled( ActionBase action ) throws Exception {
-		if( stateMem != DISTSTATE.CHANGING1 )
+		if( stateMem != DISTSTATE.CHANGING )
 			action.exit0( _Error.DistributiveNotOpened0 , "distributive is not opened for change" );
 	}
 	
 	public void checkDistMetaChangeEnabled( ActionBase action ) throws Exception {
-		if( stateMem != DISTSTATE.CHANGING2 )
-			action.exit0( _Error.DistributiveNotOpened0 , "distributive is not opened for change" );
+		if( stateMem != DISTSTATE.RELEASED && stateMem != DISTSTATE.COMPLETED )
+			action.exit0( _Error.DistributiveNotOpened0 , "distributive is not ready for control" );
 	}
 	
 	public void ctlLoadReleaseState( ActionBase action ) throws Exception {
@@ -231,46 +225,31 @@ public class DistState {
 		if( state != DISTSTATE.DIRTY )
 			action.exit1( _Error.DistributiveNotReadyForChange1 , "distributive is not ready for change, state=" + state.name() , state.name() );
 		
-		ctlSetStatus( action , DISTSTATE.CHANGING1 );
+		ctlSetStatus( action , DISTSTATE.CHANGING );
 		action.debug( "distributive has been opened for change, ID=" + activeChangeID );
 	}
 
-	public void ctlReloadCheckOpenedForChange( ActionBase action ) throws Exception {
+	public void ctlReloadCheckOpenedForMetaChange( ActionBase action ) throws Exception {
 		// check current status
 		ctlLoadReleaseState( action );
+		if( isFinalized() || state == DISTSTATE.CHANGING )
+			return;
 		
-		// dirty state expected
-		if( state != DISTSTATE.CHANGING1 && state != DISTSTATE.CHANGING2 )
-			action.exit1( _Error.DistributiveNotOpenedForChange1 , "distributive is not opened for change, state=" + state.name() , state.name() );
-		
-		if( !activeChangeID.equals( stateChangeID ) )
-			action.exit1( _Error.DistributiveOpenedForConcurrentChange1 , "distributive is opened for concurrent change ID=" + stateChangeID , stateChangeID );
+		action.exit1( _Error.DistributiveNotReadyForChange1 , "release metadata cannot be changed, state=" + state.name() , state.name() );
 	}
-
+	
 	public void ctlReloadCheckOpenedForDataChange( ActionBase action ) throws Exception {
 		// check current status
 		ctlLoadReleaseState( action );
 		
 		// dirty state expected
-		if( state != DISTSTATE.CHANGING1 )
+		if( state != DISTSTATE.CHANGING )
 			action.exit1( _Error.DistributiveNotOpenedForChange1 , "distributive is not opened for change, state=" + state.name() , state.name() );
 		
 		if( !activeChangeID.equals( stateChangeID ) )
 			action.exit1( _Error.DistributiveOpenedForConcurrentChange1 , "distributive is opened for concurrent change ID=" + stateChangeID , stateChangeID );
 	}
 
-	public void ctlReloadCheckOpenedForStatusChange( ActionBase action ) throws Exception {
-		// check current status
-		ctlLoadReleaseState( action );
-		
-		// dirty state expected
-		if( state != DISTSTATE.CHANGING2 )
-			action.exit1( _Error.DistributiveNotOpenedForChange1 , "distributive is not opened for change, state=" + state.name() , state.name() );
-		
-		if( !activeChangeID.equals( stateChangeID ) )
-			action.exit1( _Error.DistributiveOpenedForConcurrentChange1 , "distributive is opened for concurrent change ID=" + stateChangeID , stateChangeID );
-	}
-	
 	public void ctlCloseDataChange( ActionBase action ) throws Exception {
 		ctlReloadCheckOpenedForDataChange( action );
 		ctlSetStatus( action , DISTSTATE.DIRTY );
@@ -287,14 +266,8 @@ public class DistState {
 		ctlLoadReleaseState( action );
 		
 		// dirty state expected
-		if( state == DISTSTATE.CHANGING1 ) {
+		if( state == DISTSTATE.CHANGING ) {
 			ctlSetStatus( action , DISTSTATE.DIRTY );
-			action.info( "distributive has been closed after change, ID=" + stateChangeID );
-			return;
-		}
-		
-		if( state == DISTSTATE.CHANGING2 ) {
-			ctlSetStatus( action , DISTSTATE.RELEASED );
 			action.info( "distributive has been closed after change, ID=" + stateChangeID );
 			return;
 		}
@@ -317,7 +290,7 @@ public class DistState {
 		if( isCompleted() )
 			action.exit1( _Error.DistributiveProtected1 , "distributive is protected from changes, state=" + state.name() , state.name() );
 		
-		ctlSetStatus( action , DISTSTATE.CHANGING1 );
+		ctlSetStatus( action , DISTSTATE.CHANGING );
 		action.info( "distributive has been reopened" );
 	}
 
@@ -344,10 +317,8 @@ public class DistState {
 	public void ctlOpenForControl( ActionBase action ) throws Exception {
 		// check current status
 		ctlLoadReleaseState( action );
-		if( state != DISTSTATE.RELEASED )
+		if( !isFinalized() )
 			action.exit1( _Error.DistributiveNotReleased1 , "distributive is not released, state=" + state.name() , state.name() );
-		
-		ctlSetStatus( action , DISTSTATE.CHANGING2 );
 	}
 	
 	public void ctlCancel( ActionBase action ) throws Exception {
@@ -454,8 +425,14 @@ public class DistState {
 		return( isFinalized( state ) );
 	}
 	
+	public boolean isBroken() {
+		if( state == DISTSTATE.UNKNOWN || state == DISTSTATE.MISSINGDIST || state == DISTSTATE.MISSINGSTATE || state == DISTSTATE.BROKEN )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isFinalized( DISTSTATE state ) {
-		if( state == DISTSTATE.RELEASED || state == DISTSTATE.COMPLETED || state == DISTSTATE.ARCHIVED || state == DISTSTATE.CHANGING2 )
+		if( state == DISTSTATE.RELEASED || state == DISTSTATE.COMPLETED || state == DISTSTATE.ARCHIVED )
 			return( true );
 		return( false );
 	}
@@ -465,7 +442,7 @@ public class DistState {
 	}
 	
 	public boolean isCompleted( DISTSTATE state ) {
-		if( state == DISTSTATE.COMPLETED || state == DISTSTATE.ARCHIVED || state == DISTSTATE.CHANGING2 )
+		if( state == DISTSTATE.COMPLETED || state == DISTSTATE.ARCHIVED )
 			return( true );
 		return( false );
 	}
