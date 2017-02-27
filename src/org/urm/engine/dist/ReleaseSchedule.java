@@ -295,7 +295,7 @@ public class ReleaseSchedule {
 	}
 	
 	public void complete( ActionBase action ) throws Exception {
-		if( currentPhase < releasePhases )
+		if( releasePhases > 0 && currentPhase < releasePhases )
 			action.exitUnexpectedState();
 		
 		completed = true;
