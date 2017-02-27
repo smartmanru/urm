@@ -346,6 +346,8 @@ public class DistState {
 		ctlLoadReleaseState( action );
 		if( state != DISTSTATE.RELEASED )
 			action.exit1( _Error.DistributiveNotReleased1 , "distributive is not released, state=" + state.name() , state.name() );
+		
+		ctlSetStatus( action , DISTSTATE.CHANGING2 );
 	}
 	
 	public void ctlCancel( ActionBase action ) throws Exception {
