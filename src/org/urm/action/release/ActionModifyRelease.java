@@ -21,12 +21,12 @@ public class ActionModifyRelease extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeSimple() throws Exception {
-		dist.openForChange( this );
+		dist.openForDataChange( this );
 		if( releaseDate != null )
 			dist.changeReleaseDate( this , releaseDate , lc );
 		dist.release.setProperties( this );
 		dist.saveReleaseXml( this );
-		dist.closeChange( this );
+		dist.closeDataChange( this );
 		return( SCOPESTATE.RunSuccess );
 	}
 	

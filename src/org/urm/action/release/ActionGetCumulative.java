@@ -23,7 +23,7 @@ public class ActionGetCumulative extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeSimple() throws Exception {
-		dist.openForChange( this );
+		dist.openForDataChange( this );
 		dist.descopeAll( this );
 		dist.saveReleaseXml( this );
 		
@@ -38,7 +38,7 @@ public class ActionGetCumulative extends ActionBase {
 			
 			if( !addCumulativeVersion( repo , versions[ k ] , cumdist ) ) {
 				super.fail1( _Error.AddCumulativeVersionFailed1 , "Cannot add to cumulative release version=" + versions[ k ] , versions[ k ] );
-				dist.closeChange( this );
+				dist.closeDataChange( this );
 				return( SCOPESTATE.RunSuccess );
 			}	
 		}
@@ -46,7 +46,7 @@ public class ActionGetCumulative extends ActionBase {
 		copyFiles( dists );
 		
 		dist.saveReleaseXml( this );
-		dist.closeChange( this );
+		dist.closeDataChange( this );
 		return( SCOPESTATE.RunSuccess );
 	}
 

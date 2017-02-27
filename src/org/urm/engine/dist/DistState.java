@@ -21,7 +21,8 @@ public class DistState {
 		MISSINGSTATE ,
 		BROKEN ,
 		DIRTY ,
-		CHANGING ,
+		CHANGING1 ,
+		CHANGING2 ,
 		RELEASED ,
 		CANCELLED ,
 		COMPLETED ,
@@ -32,7 +33,8 @@ public class DistState {
 	public DISTSTATE state;
 	DISTSTATE stateMem;
 	String stateChangeID;
-	String stateHash;
+	String dataHash;
+	String metaHash;
 
 	String activeChangeID;
 	
@@ -68,17 +70,22 @@ public class DistState {
 		}
 		else
 		if( state == DISTSTATE.DIRTY ) {
-			if( newState == DISTSTATE.CHANGING )
+			if( newState == DISTSTATE.CHANGING1 )
 				ok = true;
 		}
 		else
-		if( state == DISTSTATE.CHANGING ) {
-			if( newState == DISTSTATE.DIRTY || newState == DISTSTATE.RELEASED )
+		if( state == DISTSTATE.CHANGING1 ) {
+			if( newState == DISTSTATE.CANCELLED || newState == DISTSTATE.DIRTY || newState == DISTSTATE.RELEASED )
 				ok = true;
 		}
 		else
 		if( state == DISTSTATE.RELEASED ) {
-			if( newState == DISTSTATE.COMPLETED || newState == DISTSTATE.CANCELLED || newState == DISTSTATE.CHANGING )
+			if( newState == DISTSTATE.CHANGING1 || newState == DISTSTATE.CHANGING2 )
+				ok = true;
+		}
+		else
+		if( state == DISTSTATE.CHANGING2 ) {
+			if( newState == DISTSTATE.CANCELLED || newState == DISTSTATE.RELEASED || newState == DISTSTATE.COMPLETED )
 				ok = true;
 		}
 		else
@@ -90,25 +97,48 @@ public class DistState {
 			action.ifexit( _Error.UnableChangeReleaseState2 , "unable to change release state from " + state.name() + " to " + newState.name() , new String[] { state.name() , newState.name() } );
 		
 		String timeStamp = Common.getNameTimeStamp();
-		String hash = getHashValue( action );
-		String value = newState + ":" + timeStamp + ":" + hash;
+		String value = newState + ":" + timeStamp;
+		String dataHashNew = "";
+		String metaHashNew = "";
+		if( isFinalized() ) {
+			dataHashNew = dataHash;
+			if( isCompleted() )
+				metaHashNew = metaHash;
+			else
+				metaHashNew = getMetaHashValue( action );
+		}
+		else {
+			if( isFinalized( newState ) ) {
+				dataHashNew = getDataHashValue( action );
+				metaHashNew = getMetaHashValue( action );
+			}
+		}
+		
+		value += ":" + dataHashNew + ":" + metaHashNew;
 		createStateFile( action , value );
 		activeChangeID = timeStamp;
 		stateMem = newState;
-		stateHash = hash;
+		dataHash = dataHashNew;
+		metaHash = metaHashNew;
 		
 		state = stateMem;
 		stateChangeID = activeChangeID;
 	}
 
-	public void checkDistChangeEnabled( ActionBase action ) throws Exception {
-		if( stateMem != DISTSTATE.CHANGING )
+	public void checkDistDataChangeEnabled( ActionBase action ) throws Exception {
+		if( stateMem != DISTSTATE.CHANGING1 )
+			action.exit0( _Error.DistributiveNotOpened0 , "distributive is not opened for change" );
+	}
+	
+	public void checkDistMetaChangeEnabled( ActionBase action ) throws Exception {
+		if( stateMem != DISTSTATE.CHANGING2 )
 			action.exit0( _Error.DistributiveNotOpened0 , "distributive is not opened for change" );
 	}
 	
 	public void ctlLoadReleaseState( ActionBase action ) throws Exception {
 		stateChangeID = "";
-		stateHash = "";
+		dataHash = "";
+		metaHash = "";
 		
 		if( !distFolder.checkExists( action ) ) {
 			state = DISTSTATE.MISSINGDIST;
@@ -120,18 +150,29 @@ public class DistState {
 			return;
 		}
 		
-		// file format - state:changeID:md5, changeID is timestamp, md5 is hash of distributive
+		// file format - state:changeID:data-md5:release-md5, changeID is timestamp, md5 is hash of distributive
+		// hash fields are defined only on deploy stage  
 		try {
 			String stateInfo = distFolder.getFileContentAsString( action , Dist.STATE_FILENAME );
 			String[] parts = Common.split( stateInfo , ":" );
-			if( parts.length != 3 ) {
+			
+			if( parts.length < 2 ) {
 				state = DISTSTATE.BROKEN;
 				return;
 			}
 			
 			state = DISTSTATE.valueOf( parts[ 0 ] );
+			if( isFinalized() ) {
+				if( parts.length != 4 ) {
+					state = DISTSTATE.BROKEN;
+					return;
+				}
+				
+				dataHash = parts[ 2 ];
+				metaHash = parts[ 3 ];
+			}
+			
 			stateChangeID = parts[ 1 ];
-			stateHash = parts[ 2 ];
 		}
 		catch( IllegalArgumentException e ) {
 			state = DISTSTATE.BROKEN;
@@ -177,7 +218,7 @@ public class DistState {
 		action.info( "prod has been created at " + distFolder.folderPath );
 	}
 	
-	public void ctlOpenForChange( ActionBase action ) throws Exception {
+	public void ctlOpenForDataChange( ActionBase action ) throws Exception {
 		// check current status
 		ctlLoadReleaseState( action );
 		
@@ -185,24 +226,48 @@ public class DistState {
 		if( state != DISTSTATE.DIRTY )
 			action.exit1( _Error.DistributiveNotReadyForChange1 , "distributive is not ready for change, state=" + state.name() , state.name() );
 		
-		ctlSetStatus( action , DISTSTATE.CHANGING );
+		ctlSetStatus( action , DISTSTATE.CHANGING1 );
 		action.debug( "distributive has been opened for change, ID=" + activeChangeID );
 	}
 
-	public void ctlReloadCheckOpened( ActionBase action ) throws Exception {
+	public void ctlReloadCheckOpenedForChange( ActionBase action ) throws Exception {
 		// check current status
 		ctlLoadReleaseState( action );
 		
 		// dirty state expected
-		if( state != DISTSTATE.CHANGING )
+		if( state != DISTSTATE.CHANGING1 && state != DISTSTATE.CHANGING2 )
+			action.exit1( _Error.DistributiveNotOpenedForChange1 , "distributive is not opened for change, state=" + state.name() , state.name() );
+		
+		if( !activeChangeID.equals( stateChangeID ) )
+			action.exit1( _Error.DistributiveOpenedForConcurrentChange1 , "distributive is opened for concurrent change ID=" + stateChangeID , stateChangeID );
+	}
+
+	public void ctlReloadCheckOpenedForDataChange( ActionBase action ) throws Exception {
+		// check current status
+		ctlLoadReleaseState( action );
+		
+		// dirty state expected
+		if( state != DISTSTATE.CHANGING1 )
+			action.exit1( _Error.DistributiveNotOpenedForChange1 , "distributive is not opened for change, state=" + state.name() , state.name() );
+		
+		if( !activeChangeID.equals( stateChangeID ) )
+			action.exit1( _Error.DistributiveOpenedForConcurrentChange1 , "distributive is opened for concurrent change ID=" + stateChangeID , stateChangeID );
+	}
+
+	public void ctlReloadCheckOpenedForStatusChange( ActionBase action ) throws Exception {
+		// check current status
+		ctlLoadReleaseState( action );
+		
+		// dirty state expected
+		if( state != DISTSTATE.CHANGING2 )
 			action.exit1( _Error.DistributiveNotOpenedForChange1 , "distributive is not opened for change, state=" + state.name() , state.name() );
 		
 		if( !activeChangeID.equals( stateChangeID ) )
 			action.exit1( _Error.DistributiveOpenedForConcurrentChange1 , "distributive is opened for concurrent change ID=" + stateChangeID , stateChangeID );
 	}
 	
-	public void ctlCloseChange( ActionBase action ) throws Exception {
-		ctlReloadCheckOpened( action );
+	public void ctlCloseDataChange( ActionBase action ) throws Exception {
+		ctlReloadCheckOpenedForDataChange( action );
 		ctlSetStatus( action , DISTSTATE.DIRTY );
 		action.debug( "distributive has been closed after change, ID=" + stateChangeID );
 	}
@@ -217,18 +282,26 @@ public class DistState {
 		ctlLoadReleaseState( action );
 		
 		// dirty state expected
-		if( state != DISTSTATE.CHANGING )
-			action.exit1( _Error.DistributiveNotOpenedForChange1 ,"distributive is not opened for change, state=" + state.name() , state.name() );
+		if( state == DISTSTATE.CHANGING1 ) {
+			ctlSetStatus( action , DISTSTATE.DIRTY );
+			action.info( "distributive has been closed after change, ID=" + stateChangeID );
+			return;
+		}
 		
-		ctlSetStatus( action , DISTSTATE.DIRTY );
-		action.info( "distributive has been closed after change, ID=" + stateChangeID );
+		if( state == DISTSTATE.CHANGING2 ) {
+			ctlSetStatus( action , DISTSTATE.RELEASED );
+			action.info( "distributive has been closed after change, ID=" + stateChangeID );
+			return;
+		}
+		
+		action.exit1( _Error.DistributiveNotOpenedForChange1 ,"distributive is not opened for change, state=" + state.name() , state.name() );
 	}
 
 	public void ctlFinish( ActionBase action ) throws Exception {
-		ctlReloadCheckOpened( action );
+		ctlReloadCheckOpenedForDataChange( action );
 
 		ctlSetStatus( action , DISTSTATE.RELEASED );
-		action.info( "distributive has been finalized, hash=" + stateHash );
+		action.info( "distributive has been finalized, state=" + Common.getEnumLower( DISTSTATE.RELEASED ) );
 	}
 
 	public void ctlReopen( ActionBase action ) throws Exception {
@@ -239,7 +312,7 @@ public class DistState {
 		if( state != DISTSTATE.RELEASED )
 			action.exit1( _Error.DistributiveNotReleased1 , "distributive is not released, state=" + state.name() , state.name() );
 		
-		ctlSetStatus( action , DISTSTATE.CHANGING );
+		ctlSetStatus( action , DISTSTATE.CHANGING1 );
 		action.info( "distributive has been reopened" );
 	}
 
@@ -257,9 +330,10 @@ public class DistState {
 				action.exit1( _Error.DistributiveNotReadyForProd1 , "distributive is not ready for use in prod environment, state=" + state.name() , state.name() );
 		}
 
-		String hash = getHashValue( action );
-		if( !hash.equals( stateHash ) )
-			action.exit2( _Error.DistributiveHashDiffers2 , "distributive is not ready for use - actual hash=" + hash + ", declared hash=" + stateHash , hash , stateHash );
+		String dataHashCurrent = getDataHashValue( action );
+		String metaHashCurrent = getMetaHashValue( action );
+		if( dataHashCurrent.equals( dataHash ) == false || metaHashCurrent.equals( metaHash ) == false )
+			action.exit0( _Error.DistributiveHashDiffers0 , "distributive is not ready for use, hash value differs from declared" );
 	}
 
 	public void ctlOpenForControl( ActionBase action ) throws Exception {
@@ -294,40 +368,43 @@ public class DistState {
 	public void createStateFile( ActionBase action , String value ) throws Exception {
 		distFolder.createFileFromString( action , Dist.STATE_FILENAME , value );
 	}
+
+	public String getMetaHashValue( ActionBase action ) throws Exception {
+		String data = distFolder.readFile( action , Dist.META_FILENAME );
+		String hash = Common.getMD5( data );
+		return( hash );
+	}
 	
-	public String getHashValue( ActionBase action ) throws Exception {
+	public String getDataHashValue( ActionBase action ) throws Exception {
 		ShellExecutor shell = distFolder.getSession( action );
 		String hash;
 		if( shell.account.isLinux() ) {
-			String cmd = "find . -type f -printf " + Common.getQuoted( "%p %s %TD %Tr\\n" ) + " | sort | grep -v state.txt | md5sum | cut -d \" \" -f1";
+			String cmd = "find . -type f -printf " + Common.getQuoted( "%p %s %TD %Tr\\n" ) + " | sort | grep -v state.txt | grep -v release.xml | md5sum | cut -d \" \" -f1";
 			hash = shell.customGetValue( action , distFolder.folderPath , cmd );
 		}
 		else {
-			hash = getWindowsHashValue( action , shell );
-		}
-		return( hash );
-	}
-
-	private String getWindowsHashValue( ActionBase action , ShellExecutor shell ) throws Exception {
-		Map<String,File> fileMap = new HashMap<String,File>(); 
-		scanFiles( action , fileMap , distFolder , "." );
-		
-		// generate hash file
-		LocalFolder workFolder = action.artefactory.getWorkFolder( action );
-		String content = "";
-		SimpleDateFormat sdf = new SimpleDateFormat( "MM/dd/yy hh:mm:ss a");
-		for( String name : Common.getSortedKeys( fileMap ) ) {
-			if( name.equals( "./state.txt" ) )
-				continue;
+			Map<String,File> fileMap = new HashMap<String,File>(); 
+			scanFiles( action , fileMap , distFolder , "." );
 			
-			File f = fileMap.get( name );
-			String ftext = name + " " + f.length() + " " + sdf.format( f.lastModified() );
-			content += ftext + "\n";
+			// generate hash file
+			LocalFolder workFolder = action.artefactory.getWorkFolder( action );
+			String content = "";
+			SimpleDateFormat sdf = new SimpleDateFormat( "MM/dd/yy hh:mm:ss a");
+			for( String name : Common.getSortedKeys( fileMap ) ) {
+				if( name.equals( "./state.txt" ) || name.equals( "./release.xml" ) )
+					continue;
+				
+				File f = fileMap.get( name );
+				String ftext = name + " " + f.length() + " " + sdf.format( f.lastModified() );
+				content += ftext + "\n";
+			}
+			
+			String hashFile = workFolder.getFilePath( action , "hash.txt" );
+			Common.createFileFromString( action.execrc , hashFile , content );
+			hash = action.shell.getMD5( action , hashFile );
 		}
 		
-		String hashFile = workFolder.getFilePath( action , "hash.txt" );
-		Common.createFileFromString( action.execrc , hashFile , content );
-		return( action.shell.getMD5( action , hashFile ) );
+		return( hash );
 	}
 
 	private void scanFiles( ActionBase action , Map<String,File> fileMap , RemoteFolder folder , String path ) throws Exception {
@@ -360,13 +437,21 @@ public class DistState {
 	}
 
 	public boolean isFinalized() {
-		if( state == DISTSTATE.COMPLETED || state == DISTSTATE.RELEASED )
+		return( isFinalized( state ) );
+	}
+	
+	public boolean isFinalized( DISTSTATE state ) {
+		if( state == DISTSTATE.RELEASED || state == DISTSTATE.COMPLETED || state == DISTSTATE.ARCHIVED || state == DISTSTATE.CHANGING2 )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isCompleted() {
-		if( state == DISTSTATE.COMPLETED )
+		return( isCompleted( state ) );
+	}
+	
+	public boolean isCompleted( DISTSTATE state ) {
+		if( state == DISTSTATE.COMPLETED || state == DISTSTATE.ARCHIVED || state == DISTSTATE.CHANGING2 )
 			return( true );
 		return( false );
 	}

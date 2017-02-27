@@ -785,9 +785,8 @@ public class Release {
 		}
 		
 		for( ReleaseSet set : categorySetMap.values() ) {
-			for( ReleaseTarget target : set.getTargets() ) {
+			for( ReleaseTarget target : set.getTargets() )
 				registerTarget( action , target );
-			}
 		}
 	}
 

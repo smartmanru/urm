@@ -50,7 +50,7 @@ public class BuildCommand {
 	
 		// precreate delivery folders in release
 		if( copyDist ) {
-			dist.openForChange( action );
+			dist.openForDataChange( action );
 			dist.createDeliveryFolders( action );
 		}
 		
@@ -84,7 +84,7 @@ public class BuildCommand {
 		}
 		
 		if( copyDist )
-			dist.closeChange( action );
+			dist.closeDataChange( action );
 		
 		if( !res )
 			action.exit0( _Error.BuildErrors0 , "there are errors, please check" );

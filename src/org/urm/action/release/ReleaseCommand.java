@@ -76,15 +76,15 @@ public class ReleaseCommand {
 	private void addReleaseScope( ActionBase action , Dist dist , ActionScope scope ) throws Exception {
 		ActionAddScope ma = new ActionAddScope( action , null , dist );
 		
-		dist.openForChange( action );
+		dist.openForDataChange( action );
 		if( !ma.runAll( scope , null , SecurityAction.ACTION_RELEASE , false ) ) {
-			dist.closeChange( action );
+			dist.closeDataChange( action );
 			action.exit0( _Error.ReleaseSetChangeErrors0 , "release set is not changed because of errors" );
 		}
 
 		dist.saveReleaseXml( action );
 		dist.createDeliveryFolders( action );
-		dist.closeChange( action );
+		dist.closeDataChange( action );
 		
 		action.info( "scope (" + scope.getScopeInfo( action ) + ") - added to release" );
 	}
@@ -156,14 +156,14 @@ public class ReleaseCommand {
 		
 		ActionDescope ma = new ActionDescope( action , null , dist );
 		
-		dist.openForChange( action );
+		dist.openForDataChange( action );
 		if( !ma.runAll( scope , null , SecurityAction.ACTION_RELEASE , false ) ) {
-			dist.closeChange( action );
+			dist.closeDataChange( action );
 			action.exit0( _Error.ReleaseSetChangeErrors0 , "release set is not changed because of errors" );
 		}
 
 		dist.saveReleaseXml( action );
-		dist.closeChange( action );
+		dist.closeDataChange( action );
 		
 		action.info( "scope (" + scope.getScopeInfo( action ) + ") - removed from release" );
 	}

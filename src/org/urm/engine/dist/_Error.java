@@ -30,7 +30,7 @@ public class _Error {
 	public static final int DistributiveNotReleased1 = ErrorBase + 21;
 	public static final int DistributiveNotReadyForUse1 = ErrorBase + 22;
 	public static final int DistributiveNotReadyForProd1 = ErrorBase + 23;
-	public static final int DistributiveHashDiffers2 = ErrorBase + 24;
+	public static final int DistributiveHashDiffers0 = ErrorBase + 24;
 	public static final int DistributiveNotClosed1 = ErrorBase + 25;
 	public static final int DistributiveProtected1 = ErrorBase + 26;
 	public static final int CompatibilityExpectedForEarlierRelease1 = ErrorBase + 27;
