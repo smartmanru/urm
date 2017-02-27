@@ -330,9 +330,11 @@ public class ReleaseSchedule {
 				phase.reopenPhase( action );
 		}
 		else {
-			currentPhase = 0;
-			ReleaseSchedulePhase phase = getPhase( 0 );
-			phase.startPhase( action , date );
+			if( deployPhases > 0 ) {
+				currentPhase = 0;
+				ReleaseSchedulePhase phase = getPhase( 0 );
+				phase.startPhase( action , date );
+			}
 		}
 	}
 
