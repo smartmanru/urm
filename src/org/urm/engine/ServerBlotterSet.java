@@ -13,7 +13,6 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepository.DistOperation;
 import org.urm.engine.dist.DistRepositoryItem;
-import org.urm.engine.dist.VersionInfo;
 import org.urm.meta.ServerProductMeta;
 import org.urm.meta.engine.ServerDirectory;
 import org.urm.meta.product.Meta;
