@@ -211,6 +211,8 @@ public class ReleaseSchedule {
 	}
 
 	public ReleaseSchedulePhase getCurrentPhase() {
+		if( LIFECYCLE.isEmpty() )
+			return( null );
 		if( currentPhase >= 0 )
 			return( phases.get( currentPhase ) );
 		return( null );
