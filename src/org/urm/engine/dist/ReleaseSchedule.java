@@ -210,6 +210,12 @@ public class ReleaseSchedule {
 		return( lifecycles.findLifecycle( LIFECYCLE ) );
 	}
 
+	public ReleaseSchedulePhase getCurrentPhase() {
+		if( currentPhase >= 0 )
+			return( phases.get( currentPhase ) );
+		return( null );
+	}
+	
 	public ReleaseSchedulePhase[] getPhases() {
 		return( phases.toArray( new ReleaseSchedulePhase[0] ) );
 	}

@@ -7,6 +7,7 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistItemInfo;
 import org.urm.engine.dist.Release;
 import org.urm.engine.dist.ReleaseSchedule;
+import org.urm.engine.dist.ReleaseSchedulePhase;
 import org.urm.engine.dist.ReleaseSet;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
@@ -48,6 +49,12 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		info( "SCHEDULE:" );
 		info( "\trelease lifecycle: " + schedule.LIFECYCLE );
 		info( "\trelease date: " + Common.getDateValue( schedule.releaseDate ) );
+		
+		ReleaseSchedulePhase phase = schedule.getCurrentPhase();
+		if( phase != null ) {
+			info( "\trelease phase: " + phase.name );
+			info( "\tphase deadline: " + Common.getDateValue( phase.deadlineFinish ) );
+		}
 		
 		if( release.isEmpty( this ) ) {
 			info( "(scope is empty)" );
