@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.action.ActionBase;
+import org.urm.action.build.ActionBuild;
 import org.urm.action.build.ActionGetBinary;
 import org.urm.action.build.ActionGetManual;
 import org.urm.action.build.ActionPatch;
@@ -263,6 +264,12 @@ public class ServerBlotter {
 		if( action instanceof ActionModifyRelease ) {
 			ActionModifyRelease xa = ( ActionModifyRelease )action;
 			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.MODIFY , "modify properties of distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionBuild ) {
+			ActionBuild xa = ( ActionBuild )action;
+			if( xa.dist != null )
+				runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.BUILD , "build release releasedir=" + xa.dist.RELEASEDIR ); 
 		}
 		else
 		if( action instanceof ActionGetBinary ) {

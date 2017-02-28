@@ -65,7 +65,7 @@ public class ShellProcess {
 			startBuilder( action , rootPath );
 		else
 		if( jssh != null )
-			jssh.startJssh( action , rootPath , auth );
+			jssh.startJsshProcess( action , rootPath , auth );
 	}
 		
 	public void startBuilder( ActionBase action , String rootPath ) throws Exception {
@@ -222,40 +222,34 @@ public class ShellProcess {
 		return( shell.waitForMarker( action , COMMAND_MARKER , false ) );
 	}
 
-	public boolean isNativeScp( Account account ) {
-		if( account.isLinux() )
-			return( true );
-		return( false );
+	public static void scpFilesRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
+		ShellJssh jsshScp = new ShellJssh( account );
+		jsshScp.scpFilesRemoteToLocal( action , srcPath , dstPath );
 	}
 
-	public void scpFilesRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
-		ShellJssh jsshScp = new ShellJssh( this , false );
-		jsshScp.scpFilesRemoteToLocal( action , srcPath , account , dstPath );
+	public static void scpDirContentLocalToRemote( ActionBase action , String srcDirPath , Account account , String dstDir ) throws Exception {
+		ShellJssh jsshScp = new ShellJssh( account );
+		jsshScp.scpDirContentLocalToRemote( action , srcDirPath , dstDir );
 	}
 
-	public void scpDirContentLocalToRemote( ActionBase action , String srcDirPath , Account account , String dstDir ) throws Exception {
-		ShellJssh jsshScp = new ShellJssh( this , false );
-		jsshScp.scpDirContentLocalToRemote( action , srcDirPath , account , dstDir );
+	public static void scpDirContentRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
+		ShellJssh jsshScp = new ShellJssh( account );
+		jsshScp.scpDirContentRemoteToLocal( action , srcPath , dstPath );
 	}
 
-	public void scpDirContentRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
-		ShellJssh jsshScp = new ShellJssh( this , false );
-		jsshScp.scpDirContentRemoteToLocal( action , srcPath , account , dstPath );
+	public static void scpDirLocalToRemote( ActionBase action , String srcDirPath , Account account , String baseDstDir ) throws Exception {
+		ShellJssh jsshScp = new ShellJssh( account );
+		jsshScp.scpDirLocalToRemote( action , srcDirPath , baseDstDir );
 	}
 
-	public void scpDirLocalToRemote( ActionBase action , String srcDirPath , Account account , String baseDstDir ) throws Exception {
-		ShellJssh jsshScp = new ShellJssh( this , false );
-		jsshScp.scpDirLocalToRemote( action , srcDirPath , account , baseDstDir );
+	public static void scpDirRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
+		ShellJssh jsshScp = new ShellJssh( account );
+		jsshScp.scpDirRemoteToLocal( action , srcPath , dstPath );
 	}
 
-	public void scpDirRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
-		ShellJssh jsshScp = new ShellJssh( this , false );
-		jsshScp.scpDirRemoteToLocal( action , srcPath , account , dstPath );
-	}
-
-	public void scpFilesLocalToRemote( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
-		ShellJssh jsshScp = new ShellJssh( this , false );
-		jsshScp.scpFilesLocalToRemote( action , srcPath , account , dstPath );
+	public static void scpFilesLocalToRemote( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
+		ShellJssh jsshScp = new ShellJssh( account );
+		jsshScp.scpFilesLocalToRemote( action , srcPath , dstPath );
 	}
 	
 }

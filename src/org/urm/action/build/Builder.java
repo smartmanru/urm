@@ -3,7 +3,6 @@ package org.urm.action.build;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.PropertySet;
-import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
@@ -72,12 +71,7 @@ public abstract class Builder {
 	}
 
 	public ShellExecutor createShell( ActionBase action ) throws Exception {
-		if( builder.remote ) {
-			Account account = builder.getRemoteAccount( action );
-			return( action.createDedicatedRemoteShell( "build" , account , builder.AUTHRESOURCE , true ) );
-		}
-		
-		return( action.createDedicatedShell( "build" ) );
+		return( builder.createShell( action , true ) );
 	}
 
 	public boolean exportCode( ActionBase action ) throws Exception {

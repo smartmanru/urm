@@ -28,6 +28,7 @@ public class DistRepository {
 		REOPEN ,
 		COMPLETE ,
 		MODIFY ,
+		BUILD ,
 		PUT ,
 		ARCHIVE
 	};
@@ -250,12 +251,12 @@ public class DistRepository {
 				
 			if( action.context.env != null ) {
 				if( !action.isLocalRun() )
-					account = Account.getAccount( action , "" , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
+					account = Account.getDatacenterAccount( action , "" , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
 			}
 			else {
 				if( !action.isLocalRun() ) {
 					MetaProductSettings product = meta.getProductSettings( action );
-					account = Account.getAccount( action , "" , product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
+					account = Account.getDatacenterAccount( action , "" , product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
 				}
 			}
 		}

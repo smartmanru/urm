@@ -8,6 +8,8 @@ import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.shell.Account;
+import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.NexusDownloadInfo;
 import org.urm.engine.storage.NexusStorage;
@@ -65,7 +67,7 @@ public class ActionGetBinary extends ActionBase {
 
 		// compare with release information
 		if( builder.isTargetLocal() )
-			downloadLocalItem( builder , scopeProject , scopeItem );
+			downloadBuiltLocalItem( builder , scopeProject , scopeItem );
 		else
 		if( builder.isTargetNexus() ) {
 			if( scopeItem.sourceItem.itemSrcType == VarITEMSRCTYPE.STATICWAR )
@@ -80,9 +82,6 @@ public class ActionGetBinary extends ActionBase {
 			exitUnexpectedState();
 	}
 
-	private void downloadLocalItem( ServerProjectBuilder builder , ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
-	}
-	
 	private void downloadNexusItem( String nexusResource , String type , ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
 		String ARTEFACTID = scopeItem.sourceItem.ITEMBASENAME;
 		String EXT = scopeItem.sourceItem.ITEMEXTENSION; 
@@ -210,4 +209,73 @@ public class ActionGetBinary extends ActionBase {
 			exitUnexpectedState();
 	}
 
+	private void downloadBuiltLocalItem( ServerProjectBuilder builder , ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
+		MetaSourceProjectItem item = scopeItem.sourceItem;
+		
+		Account account = builder.getRemoteAccount( this );
+		String redistPath = "";
+		ShellExecutor remoteShell = null;
+		
+		if( account.isLocal() )
+			remoteShell = shell;
+		else
+			remoteShell = builder.createShell( this , false );
+
+		redistPath = remoteShell.getArtefactPath( this , item.meta , "" );
+		if( item.isSourceDirectory() ) {
+			String remoteDir = Common.getPath( redistPath , item.ITEMBASENAME );
+			if( !remoteShell.checkDirExists( this , remoteDir ) ) {
+				String dir = remoteShell.getLocalPath( remoteDir );
+				super.exit1( _Error.MissingProjectItemDirectory1 , "Missing project item directory: " + dir , dir );
+			}
+			
+			LocalFolder downloadDirFolder = downloadFolder.getSubFolder( this , item.ITEMBASENAME );
+			downloadDirFolder.recreateThis( this );
+			remoteShell.copyDirContentTargetToLocal( this , account , remoteDir , downloadDirFolder.folderPath );
+			
+			if( !item.isInternal() )
+				super.exitUnexpectedState();
+			return;
+		}
+		
+		if( item.isSourceBasic() ) {
+			String file = item.ITEMBASENAME + item.ITEMEXTENSION;
+			copyFile( item , remoteShell , redistPath , downloadFolder , file , item.ITEMEXTENSION );
+			return;
+		}
+			
+		if( item.isSourceStaticWar() ) {
+			String file = item.ITEMBASENAME + item.ITEMEXTENSION;
+			copyFile( item , remoteShell , redistPath , downloadFolder , file , item.ITEMEXTENSION );
+			
+			file = item.ITEMBASENAME + item.ITEMSTATICEXTENSION;
+			copyFile( item , remoteShell , redistPath , downloadFolder , file , item.ITEMSTATICEXTENSION );
+			return;
+		}
+
+		super.exitUnexpectedState();
+	}
+
+	private void copyFile( MetaSourceProjectItem item , ShellExecutor remoteShell , String srcFolder , LocalFolder downloadFolder , String file , String EXT ) throws Exception {
+		if( !remoteShell.checkFileExists( this , srcFolder , file ) ) {
+			String dir = remoteShell.getLocalPath( srcFolder );
+			super.exit2( _Error.MissingProjectItemFile2 , "Missing project item file=" + file + ", dir=" + dir , file , dir );
+		}
+		
+		String DISTFOLDER = item.distItem.delivery.FOLDER;
+		LocalFolder downloadDirFolder = downloadFolder.getSubFolder( this , DISTFOLDER );
+		downloadDirFolder.ensureExists( this );
+		
+		String filePath = downloadDirFolder.getFilePath( this , file );
+		shell.copyFileTargetToLocalFile( this , remoteShell.account , Common.getPath( srcFolder , file ) , filePath );
+		shell.createMD5( this , filePath );
+		
+		boolean copyDistr = context.CTX_DIST;
+		if( copyDistr ) {
+			Dist releaseStorage = targetRelease;
+			releaseStorage.copyVFileToDistr( this , item.distItem , downloadDirFolder , file , 
+				item.distItem.DISTBASENAME , item.distItem.EXT );
+		}
+	}
+	
 }

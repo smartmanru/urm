@@ -15,6 +15,7 @@ import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.CommandOutput;
 import org.urm.engine.storage.Folder;
+import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.product.Meta;
@@ -814,8 +815,8 @@ public abstract class ShellExecutor extends Shell {
 		try {
 			opstart();
 			int timeout = action.setTimeoutUnlimited();
-			if( process.isNativeScp( account ) )
-				process.scpFilesRemoteToLocal( action , srcPath , account , dstPath );
+			if( account.isNativeScp() )
+				ShellProcess.scpFilesRemoteToLocal( action , srcPath , account , dstPath );
 			else
 				core.cmdScpFilesRemoteToLocal( action , srcPath , account , dstPath );
 			action.setTimeout( timeout );
@@ -828,8 +829,8 @@ public abstract class ShellExecutor extends Shell {
 	public synchronized void scpDirContentRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		try {
 			opstart();
-			if( process.isNativeScp( account ) )
-				process.scpDirContentRemoteToLocal( action , srcPath , account , dstPath );
+			if( account.isNativeScp() )
+				ShellProcess.scpDirContentRemoteToLocal( action , srcPath , account , dstPath );
 			else
 				core.cmdScpDirContentRemoteToLocal( action , srcPath , account , dstPath );
 		}
@@ -841,8 +842,8 @@ public abstract class ShellExecutor extends Shell {
 	public synchronized void scpFilesLocalToRemote( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		try {
 			opstart();
-			if( process.isNativeScp( account ) )
-				process.scpFilesLocalToRemote( action , srcPath , account , dstPath );
+			if( account.isNativeScp() )
+				ShellProcess.scpFilesLocalToRemote( action , srcPath , account , dstPath );
 			else
 				core.cmdScpFilesLocalToRemote( action , srcPath , account , dstPath );
 		}
@@ -854,8 +855,8 @@ public abstract class ShellExecutor extends Shell {
 	public synchronized void scpDirLocalToRemote( ActionBase action , String srcDirPath , Account account , String baseDstDir ) throws Exception {
 		try {
 			opstart();
-			if( process.isNativeScp( account ) )
-				process.scpDirLocalToRemote( action , srcDirPath , account , baseDstDir );
+			if( account.isNativeScp() )
+				ShellProcess.scpDirLocalToRemote( action , srcDirPath , account , baseDstDir );
 			else
 				core.cmdScpDirLocalToRemote( action , srcDirPath , account , baseDstDir );
 		}
@@ -867,8 +868,8 @@ public abstract class ShellExecutor extends Shell {
 	public synchronized void scpDirContentLocalToRemote( ActionBase action , String srcDirPath , Account account , String dstDir ) throws Exception {
 		try {
 			opstart();
-			if( process.isNativeScp( account ) )
-				process.scpDirContentLocalToRemote( action , srcDirPath , account , dstDir );
+			if( account.isNativeScp() )
+				ShellProcess.scpDirContentLocalToRemote( action , srcDirPath , account , dstDir );
 			else
 				core.cmdScpDirContentLocalToRemote( action , srcDirPath , account , dstDir );
 		}
@@ -880,8 +881,8 @@ public abstract class ShellExecutor extends Shell {
 	public synchronized void scpDirRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		try {
 			opstart();
-			if( process.isNativeScp( account ) )
-				process.scpDirRemoteToLocal( action , srcPath , account , dstPath );
+			if( account.isNativeScp() )
+				ShellProcess.scpDirRemoteToLocal( action , srcPath , account , dstPath );
 			else
 				core.cmdScpDirRemoteToLocal( action , srcPath , account , dstPath );
 		}
@@ -1326,6 +1327,11 @@ public abstract class ShellExecutor extends Shell {
 		String value = Common.getEnumLower( server.getServerAccessType() );
 		action.exit1( _Error.AccessTypeNotSupported1 , "Access type (" + value + ") is not supported for opertation" , value );
 		return( null );
+	}
+
+	public String getArtefactPath( ActionBase action , Meta meta , String FOLDER ) throws Exception {
+		LocalFolder folder = action.artefactory.getArtefactFolder( action , account.osType , meta , FOLDER );
+		return( folder.folderPath );
 	}
 	
 }

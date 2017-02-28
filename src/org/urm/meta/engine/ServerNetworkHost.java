@@ -152,7 +152,7 @@ public class ServerNetworkHost extends ServerObject {
 		if( finalAccount.isEmpty() )
 			return( null );
 		
-		Account account = Account.getAnyAccount( network.datacenter.ID , finalAccount );
+		Account account = Account.getDatacenterAccount( network.datacenter.ID , finalAccount );
 		if( !isEqualsHost( account.HOST ) )
 			return( null );
 		

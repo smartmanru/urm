@@ -250,7 +250,7 @@ public class Common {
 	}
 
 	public static String getTimeStamp( Date date ) {
-        SimpleDateFormat simpleFormat = new SimpleDateFormat( "HH:mm:ss,SSS zzz" );
+        SimpleDateFormat simpleFormat = new SimpleDateFormat( "HH:mm:ss,SSS" );
         return( simpleFormat.format( date ) );
 	}
 	

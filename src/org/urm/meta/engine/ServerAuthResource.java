@@ -209,7 +209,7 @@ public class ServerAuthResource extends ServerObject {
 	public boolean sshVerify( ActionBase action , VarOSTYPE osType , String host , int port , String user ) {
 		try {
 			loadAuthData( action );
-			Account account = Account.getAccount( action , "" , user , host , port , osType );
+			Account account = Account.getDatacenterAccount( action , "" , user , host , port , osType );
 			ShellPool pool = action.engine.shellPool;
 			ShellExecutor shell = pool.createDedicatedRemoteShell( action , action.context.stream , account , this , false );
 			

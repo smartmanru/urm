@@ -6,6 +6,7 @@ import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.shell.Account;
+import org.urm.engine.shell.ShellExecutor;
 import org.urm.meta.ServerObject;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
@@ -340,7 +341,22 @@ public class ServerProjectBuilder extends ServerObject {
 	}
 	
 	public Account getRemoteAccount( ActionBase action ) throws Exception {
-		return( Account.getAccount( action , "" , HOSTLOGIN , port , osType ) );
+		return( Account.getResourceAccount( action , AUTHRESOURCE , HOSTLOGIN , port , osType ) );
+	}
+
+	public ShellExecutor createShell( ActionBase action , boolean dedicated ) throws Exception {
+		if( remote ) {
+			Account account = getRemoteAccount( action );
+			if( dedicated )
+				return( action.createDedicatedRemoteShell( "builder" , account , true ) );
+			
+			return( action.getShell( account ) );
+		}
+		
+		if( dedicated )
+			return( action.createDedicatedShell( "builder" ) );
+		
+		return( action.shell );
 	}
 	
 }

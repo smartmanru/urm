@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.shell.Account;
@@ -56,10 +57,10 @@ public class Artefactory {
 	}
 	
 	public LocalFolder getArtefactFolder( ActionBase action , Meta meta ) throws Exception {
-		return( getArtefactFolder( action , meta , "" ) );
+		return( getArtefactFolder( action , action.shell.account.osType , meta , "" ) );
 	}
 	
-	public LocalFolder getArtefactFolder( ActionBase action , Meta meta , String FOLDER ) throws Exception {
+	public LocalFolder getArtefactFolder( ActionBase action , VarOSTYPE osType , Meta meta , String FOLDER ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		if( build.CONFIG_ARTEFACTDIR.isEmpty() )
 			action.exit0( _Error.MissingArtefactDir0 , "Missing artefact directory in product build configuration" );
@@ -68,7 +69,7 @@ public class Artefactory {
 		
 		MetaProductSettings settings = meta.getProductSettings( action );
 		String artefactDir = Common.getPath( build.CONFIG_ARTEFACTDIR , build.CONFIG_APPVERSION , FOLDER );
-		String redistPath = ( action.shell.isWindows() )? settings.CONFIG_REDISTWIN_PATH : settings.CONFIG_REDISTLINUX_PATH;
+		String redistPath = ( osType == VarOSTYPE.WINDOWS )? settings.CONFIG_REDISTWIN_PATH : settings.CONFIG_REDISTLINUX_PATH;
 		String finalPath = Common.getPath( redistPath , artefactDir );
 		
 		LocalFolder folder = getAnyFolder( action , finalPath );

@@ -129,7 +129,7 @@ public class ServerDatacenter extends ServerObject {
 		if( hostLogin.isEmpty() )
 			return( null );
 		
-		Account account = Account.getAnyAccount( ID , hostLogin );
+		Account account = Account.getDatacenterAccount( ID , hostLogin );
 		return( findNetworkByHost( account.HOST ) );
 	}
 
@@ -137,7 +137,7 @@ public class ServerDatacenter extends ServerObject {
 		if( hostName.isEmpty() )
 			return( null );
 		
-		Account account = Account.getAnyAccount( ID , "ignore@" + hostName );
+		Account account = Account.getDatacenterAccount( ID , "ignore@" + hostName );
 		if( account.isHostName() ) {
 			ServerNetworkHost host = findNetworkHost( account.HOST );
 			if( host != null )

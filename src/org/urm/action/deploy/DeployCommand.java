@@ -41,7 +41,7 @@ public class DeployCommand {
 	}
 
 	public void configure( ActionBase action , ActionScope scope ) throws Exception {
-		LocalFolder folder = action.artefactory.getArtefactFolder( action , scope.meta , "configuration" );
+		LocalFolder folder = action.artefactory.getArtefactFolder( action , action.shell.account.osType , scope.meta , "configuration" );
 		ActionConfigure ma = new ActionConfigure( action , null , folder );
 		ma.runAll( scope , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}
