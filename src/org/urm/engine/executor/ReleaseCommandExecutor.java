@@ -149,7 +149,13 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		if( CMD.equals( "create" ) ) {
 			String RELEASEVER = getRequiredArg( action , 1 , "RELEASEVER" );
 			checkNoArgs( action , 2 );
-			impl.createProd( action , meta , RELEASEVER );
+			impl.createProdInitial( action , meta , RELEASEVER );
+		}
+		else
+		if( CMD.equals( "copy" ) ) {
+			String RELEASEDIR = getRequiredArg( action , 1 , "RELEASEDIR" );
+			checkNoArgs( action , 2 );
+			impl.createProdCopy( action , meta , RELEASEDIR );
 		}
 		else
 			action.exit0( _Error.WrongArgs0 , "wrong args" );

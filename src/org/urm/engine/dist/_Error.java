@@ -14,12 +14,10 @@ public class _Error {
 	public static final int MissingRelease1 = ErrorBase + 5;
 	public static final int ReleaseAlreadyExists1 = ErrorBase + 6;
 	public static final int InvalidReleaseVersion1 = ErrorBase + 7;
-	public static final int UnableFindProdDistributive0 = ErrorBase + 8;
 	public static final int LastMinorVersionNotSet0 = ErrorBase + 9;
 	public static final int NextMinorVersionNotSet0 = ErrorBase + 10;
 	public static final int UnexpectedReleaseLabel1 = ErrorBase + 11;
 	public static final int MissingProdFolder1 = ErrorBase + 12;
-	public static final int ProdFolderAlreadyInitialized1 = ErrorBase + 13;
 	public static final int UnableChangeReleaseState2 = ErrorBase + 14;
 	public static final int CannotCreateExistingDistributive0 = ErrorBase + 15;
 	public static final int MissingProdDistributiveDirectory0 = ErrorBase + 16;

@@ -93,21 +93,17 @@ public class DistRepositoryItem {
 		if( distFolder.checkExists( action ) ) {
 			String path = distFolder.folderPath;
 			action.ifexit( _Error.ReleaseAlreadyExists1 , "distributive already exists at " + path , new String[] { path } );
+			
+			if( action.isForced() )
+				distFolder.removeFiles( action , "history.txt state.txt" );
 		}
-
-		if( action.isForced() ) {
-			distFolder.removeFiles( action , "history.txt state.txt" );
-		}
-		else {
-			if( distFolder.checkFileExists( action , DistRepository.RELEASEHISTORYFILE ) )
-				action.exit1( _Error.ProdFolderAlreadyInitialized1 , "prod folder is probably already initialized, delete history.txt manually to recreate" , distFolder.folderPath );
-		}
+		else
+			distFolder.ensureExists( action );
 		
 		Dist dist = new Dist( repo.meta , repo );
 		dist.setFolder( distFolder , true );
-		dist.createProd( action , distFolder.folderName );
+		dist.createProd( action , RELEASEVER );
 		distFolder.createFileFromString( action , DistRepository.RELEASEHISTORYFILE , getHistoryRecord( action , RELEASEVER , "add" ) );
-		dist.finish( action );
 		return( dist );
 	}
 	

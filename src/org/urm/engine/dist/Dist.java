@@ -331,9 +331,9 @@ public class Dist {
 		release.setReleaseDate( action , releaseDate , lcset );
 	}
 	
-	public void createProd( ActionBase action , String RELEASEDIR ) throws Exception {
-		this.RELEASEDIR = RELEASEDIR;
-		state.ctlCreateProd( action , RELEASEDIR );
+	public void createProd( ActionBase action , String RELEASEVER ) throws Exception {
+		this.RELEASEDIR = "prod";
+		state.ctlCreateProd( action , RELEASEVER );
 		load( action );
 	}
 	

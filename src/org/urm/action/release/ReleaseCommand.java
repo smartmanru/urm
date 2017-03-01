@@ -16,8 +16,13 @@ public class ReleaseCommand {
 	public ReleaseCommand() {
 	}
 
-	public void createProd( ActionBase action , Meta meta , String RELEASEVER ) throws Exception {
-		ActionCreateProd ma = new ActionCreateProd( action , null , meta , RELEASEVER );
+	public void createProdInitial( ActionBase action , Meta meta , String RELEASEVER ) throws Exception {
+		ActionCreateProd ma = new ActionCreateProd( action , null , meta , RELEASEVER , false );
+		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
+	}
+	
+	public void createProdCopy( ActionBase action , Meta meta , String RELEASEVER ) throws Exception {
+		ActionCreateProd ma = new ActionCreateProd( action , null , meta , RELEASEVER , true );
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	

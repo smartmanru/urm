@@ -286,11 +286,22 @@ public class DistRepository {
 		return( info.RELEASEVER );
 	}
 	
-	public synchronized Dist createProd( ActionBase action , String RELEASEVER ) throws Exception {
+	public synchronized Dist createProdInitial( ActionBase action , String RELEASEVER ) throws Exception {
 		DistLabelInfo info = getLabelInfo( action , "prod" );
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
 		Dist dist = DistRepositoryItem.createProdDist( action , this , distFolder , RELEASEVER );
 		addDist( dist );
+		return( dist );
+	}
+
+	public synchronized Dist createProdCopy( ActionBase action , String RELEASEDIR ) throws Exception {
+		DistLabelInfo info = getLabelInfo( action , "prod" );
+		Dist src = this.getDistByLabel( action , RELEASEDIR );
+		
+		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
+		Dist dist = DistRepositoryItem.createProdDist( action , this , distFolder , src.release.RELEASEVER );
+		addDist( dist );
+		dist.copyRelease( action , src );
 		return( dist );
 	}
 
