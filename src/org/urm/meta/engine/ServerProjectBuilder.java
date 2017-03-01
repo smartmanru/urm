@@ -341,6 +341,8 @@ public class ServerProjectBuilder extends ServerObject {
 	}
 	
 	public Account getRemoteAccount( ActionBase action ) throws Exception {
+		if( !remote )
+			return( action.getLocalAccount() );
 		return( Account.getResourceAccount( action , AUTHRESOURCE , HOSTLOGIN , port , osType ) );
 	}
 
