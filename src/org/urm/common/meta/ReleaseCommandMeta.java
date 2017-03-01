@@ -31,7 +31,7 @@ public class ReleaseCommandMeta extends CommandMeta {
 		defineAction( CommandMethodMeta.newNormal( this , "scopedb" , true , "add database changes to release deliveries" , addDbOpts , "./scopedb.sh [OPTIONS] <RELEASELABEL> delivery1 [delivery2 ...]" ) );
 		String addConfOpts = "OPT_REPLACE";
 		defineAction( CommandMethodMeta.newNormal( this , "scopeconf" , true , "add configuration items to release" , addConfOpts , "./scopeconf.sh [OPTIONS] <RELEASELABEL> [component1 component2 ...]" ) );
-		String buildReleaseOpts = "OPT_DIST,OPT_CHECK";
+		String buildReleaseOpts = "OPT_DIST,OPT_GET,OPT_CHECK";
 		defineAction( CommandMethodMeta.newNormal( this , "build" , true , "build release and (with -get) " , buildReleaseOpts , "./build.sh [OPTIONS] <RELEASELABEL> {all|set [projects]}" ) );
 		String getReleaseOpts = "OPT_DIST,OPT_MOVE_ERRORS";
 		defineAction( CommandMethodMeta.newNormal( this , "getdist" , true , "download ready and/or built release items" , getReleaseOpts , "./getdist.sh [OPTIONS] <RELEASELABEL> {all|set [projects]}" ) );
