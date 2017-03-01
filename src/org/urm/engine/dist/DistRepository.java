@@ -297,6 +297,8 @@ public class DistRepository {
 	public synchronized Dist createProdCopy( ActionBase action , String RELEASEDIR ) throws Exception {
 		DistLabelInfo info = getLabelInfo( action , "prod" );
 		Dist src = this.getDistByLabel( action , RELEASEDIR );
+		if( !src.isCompleted() )
+			action.exit1( _Error.NotCompletedSource1 , "Unable to use incomplete source release " + src.RELEASEDIR , src.RELEASEDIR );
 		
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
 		Dist dist = DistRepositoryItem.createProdDist( action , this , distFolder , src.release.RELEASEVER );

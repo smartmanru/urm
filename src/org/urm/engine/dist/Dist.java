@@ -35,7 +35,6 @@ public class Dist {
 	public static String META_FILENAME = "release.xml";
 	public static String CONFDIFF_FILENAME = "diffconf.txt";
 	public static String STATE_FILENAME = "state.txt";
-	public static String MD5_FILENAME = "state.md5";
 
 	public static String BINARY_FOLDER = "binary";
 	public static String CONFIG_FOLDER = "config";
@@ -168,10 +167,6 @@ public class Dist {
 		distFolder.copyDirFromLocal( action , src , "" );
 	}
 
-	public void copyMD5StateFromLocal( ActionBase action , String srcPath ) throws Exception {
-		distFolder.copyFileFromLocalRename( action , srcPath , MD5_FILENAME );
-	}
-	
 	public String copyDistToFolder( ActionBase action , LocalFolder workFolder , String file ) throws Exception {
 		if( !openedForUse )
 			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );

@@ -1,8 +1,5 @@
 package org.urm.engine.dist;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.storage.FileSet;
@@ -30,7 +27,6 @@ public class DistFinalizer {
 			return( false );
 		
 		// finish release
-		createMD5( action );
 		return( true );
 	}
 	
@@ -60,18 +56,16 @@ public class DistFinalizer {
 	
 	private void createExpectedProjectDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseTargetItem item ) throws Exception {
 		FileSet dir = fs.createDir( dist.getDeliveryBinaryFolder( action , delivery.distDelivery ) );
-		if( !item.DISTFILE.isEmpty() )
-			dir.addFile( item.DISTFILE );
-		else
-			dir.addFile( item.distItem.getBaseFile( action ) );
+		String file = ( item.DISTFILE.isEmpty() )? item.distItem.getBaseFile( action ) : item.DISTFILE; 
+		dir.addFile( file );
+		dir.addFile( file + ".md5" );
 	}
 	
 	private void createExpectedManualDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseTarget item ) throws Exception {
 		FileSet dir = fs.createDir( dist.getDeliveryBinaryFolder( action , delivery.distDelivery ) );
-		if( !item.DISTFILE.isEmpty() )
-			dir.addFile( item.DISTFILE );
-		else
-			dir.addFile( item.distManualItem.getBaseFile( action ) );
+		String file = ( item.DISTFILE.isEmpty() )? item.distManualItem.getBaseFile( action ) : item.DISTFILE;  
+		dir.addFile( file );
+		dir.addFile( file + ".md5" );
 	}
 	
 	private void createExpectedDatabaseDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseTarget item ) throws Exception {
@@ -189,8 +183,17 @@ public class DistFinalizer {
 		for( String fileRelease : fsr.files.keySet() ) {
 			String fileDist = fsd.files.get( fileRelease );
 			if( fileDist == null ) {
-				action.error( "distributive has missing delivery=" + delivery.distDelivery.NAME + " file=" + fileRelease );
-				return( false );
+				if( fileRelease.endsWith( ".md5" ) ) {
+					String fileMD5 = Common.getPath( fsr.dirPath , fileRelease );
+					action.info( "create missing md5 delivery=" + delivery.distDelivery.NAME + " file=" + fileRelease + " ..." );
+					String file = Common.getPartBeforeLast( fileMD5 , ".md5" );
+					String value = distFolder.getFileMD5( action , file );
+					distFolder.createFileFromString( action , fileMD5 , value );
+				}
+				else {
+					action.error( "distributive has missing delivery=" + delivery.distDelivery.NAME + " file=" + fileRelease );
+					return( false );
+				}
 			}
 		}
 		
@@ -276,21 +279,6 @@ public class DistFinalizer {
 		action.info( "delete non-release database delivery folder=" + folder + " ..." );
 		distFolder.removeFolder( action , folder );
 		return( true );
-	}
-	
-	private void createMD5( ActionBase action ) throws Exception {
-		String md5file = action.getTmpFilePath( "state.md5" );
-		
-		List<String> lines = new LinkedList<String>();
-		for( ReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
-			for( ReleaseTarget manualItem : delivery.getManualItems( action ).values() )
-				lines.add( DistMD5.getManualItemRecord( action , dist , manualItem ) );
-			for( ReleaseTargetItem projectItem : delivery.getProjectItems( action ).values() )
-				lines.add( DistMD5.getProjectItemRecord( action , dist , projectItem ) );
-		}
-		
-		Common.createFileFromStringList( action.execrc , md5file , lines );
-		dist.copyMD5StateFromLocal( action , md5file );
 	}
 	
 }
