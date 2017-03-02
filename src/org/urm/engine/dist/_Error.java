@@ -56,5 +56,13 @@ public class _Error {
 	public static final int DisabledLifecycle1 = ErrorBase + 49;
 	public static final int AlreadyReleased1 = ErrorBase + 50;
 	public static final int NotCompletedSource1 = ErrorBase + 51;
+	public static final int NoCurrentPhase0 = ErrorBase + 52;
+	public static final int UnknownReleasePhase2 = ErrorBase + 53;
+	public static final int PhaseFinished2 = ErrorBase + 54;
+	public static final int DateEalierThanReleaseStarted2 = ErrorBase + 55;
+	public static final int DateEalierThanPhaseStart2 = ErrorBase + 56;
+	public static final int DateEalierThanToday2 = ErrorBase + 57;
+	public static final int DateEalierThanNextPhaseDeadline2 = ErrorBase + 58;
+	public static final int DateEqualToNextPhaseDeadline2 = ErrorBase + 59;
 	
 }

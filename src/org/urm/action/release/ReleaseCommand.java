@@ -6,6 +6,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.build.BuildCommand;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.ReleaseSchedule;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.engine.ServerReleaseLifecycle;
 import org.urm.meta.product.Meta;
@@ -219,6 +220,21 @@ public class ReleaseCommand {
 		
 		ActionScope scope = ActionScope.getReleaseCategoryScope( action , dist , VarCATEGORY.DB , DELIVERIES );
 		descope( action , dist , scope );
+	}
+
+	public void nextPhase( ActionBase action , Dist dist ) throws Exception {
+		ReleaseSchedule schedule = dist.release.schedule;
+		schedule.nextPhase( action );
+	}
+	
+	public void setPhaseDeadline( ActionBase action , Dist dist , String PHASE , Date deadlineDate ) throws Exception {
+		ReleaseSchedule schedule = dist.release.schedule;
+		schedule.setPhaseDeadline( action , PHASE , deadlineDate );
+	}
+	
+	public void setPhaseDuration( ActionBase action , Dist dist , String PHASE , int duration ) throws Exception {
+		ReleaseSchedule schedule = dist.release.schedule;
+		schedule.setPhaseDuration( action , PHASE , duration );
 	}
 	
 }

@@ -29,6 +29,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		
 		defineAction( new CreateRelease() , "create" );
 		defineAction( new ModifyRelease() , "modify" );
+		defineAction( new PhaseRelease() , "phase" );
 		defineAction( new DeleteRelease() , "drop" );
 		defineAction( new StatusRelease() , "status" );
 		defineAction( new CloseRelease() , "close" );
@@ -82,6 +83,43 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		Meta meta = action.getContextMeta();
 		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		impl.modifyRelease( action , dist , releaseDate , lc );
+	}
+	}
+
+	private class PhaseRelease extends CommandAction {
+	public void run( ActionInit action ) throws Exception {
+		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
+		String CMD = getRequiredArg( action , 1 , "CMD" );
+		
+		Meta meta = action.getContextMeta();
+		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		
+		if( CMD.equals( "next" ) ) {
+			checkNoArgs( action , 2 );
+			impl.nextPhase( action , dist );
+		}
+		else
+		if( CMD.equals( "deadline" ) ) {
+			String PHASE = getRequiredArg( action , 2 , "PHASE" );
+			Date deadlineDate = getDateArg( action , 3 );
+			checkNoArgs( action , 4 );
+			impl.setPhaseDeadline( action , dist , PHASE , deadlineDate );
+		}
+		else
+		if( CMD.equals( "days" ) ) {
+			String PHASE = getRequiredArg( action , 2 , "PHASE" );
+			String DURATION = getRequiredArg( action , 3 , "DURATION" );
+			int duration = 0;
+			if( DURATION.equals( "any" ) )
+				duration = -1;
+			else
+				duration = getIntArg( action , 3 , 0 );
+				
+			checkNoArgs( action , 4 );
+			impl.setPhaseDuration( action , dist , PHASE , duration );
+		}
+		else
+			super.wrongArgs( action );
 	}
 	}
 
@@ -158,7 +196,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 			impl.createProdCopy( action , meta , RELEASEDIR );
 		}
 		else
-			action.exit0( _Error.WrongArgs0 , "wrong args" );
+			super.wrongArgs( action );
 	}
 	}
 

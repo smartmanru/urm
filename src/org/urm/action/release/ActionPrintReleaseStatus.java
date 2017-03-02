@@ -53,7 +53,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		ReleaseSchedulePhase phase = schedule.getCurrentPhase();
 		if( phase != null ) {
 			info( "\trelease phase: " + phase.name );
-			info( "\tphase deadline: " + Common.getDateValue( phase.deadlineFinish ) );
+			info( "\tphase deadline: " + Common.getDateValue( phase.getDeadlineFinish() ) );
 		}
 		
 		if( release.isEmpty( this ) ) {
