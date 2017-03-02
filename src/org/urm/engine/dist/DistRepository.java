@@ -27,6 +27,7 @@ public class DistRepository {
 		FINISH ,
 		REOPEN ,
 		COMPLETE ,
+		PHASE ,
 		MODIFY ,
 		BUILD ,
 		PUT ,
