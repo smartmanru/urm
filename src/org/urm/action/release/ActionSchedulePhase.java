@@ -5,6 +5,7 @@ import java.util.Date;
 import org.urm.action.ActionBase;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.DistState.DISTSTATE;
 import org.urm.engine.dist.ReleaseSchedule;
 
 public class ActionSchedulePhase extends ActionBase {
@@ -42,25 +43,48 @@ public class ActionSchedulePhase extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeSimple() throws Exception {
-		dist.openForControl( this );
+		ReleaseSchedule schedule = dist.release.schedule;
+		if( cmdNext && schedule.currentPhase >= 0 ) {
+			if( schedule.currentPhase == schedule.releasePhases - 1 ) {
+				dist.finish( this );
+				return( SCOPESTATE.RunSuccess );
+			}
+			
+			if( schedule.currentPhase == schedule.getPhaseCount() - 1 ) {
+				dist.complete( this );
+				return( SCOPESTATE.RunSuccess );
+			}
+		}
 		
-		if( cmdNext ) {
-			ReleaseSchedule schedule = dist.release.schedule;
+		DISTSTATE state = open();
+		if( cmdNext )
 			schedule.nextPhase( this );
-		}
 		else
-		if( cmdPhaseDeadline ) {
-			ReleaseSchedule schedule = dist.release.schedule;
+		if( cmdPhaseDeadline )
 			schedule.setPhaseDeadline( this , PHASE , deadlineDate );
-		}
 		else
-		if( cmdPhaseDuration ) {
-			ReleaseSchedule schedule = dist.release.schedule;
+		if( cmdPhaseDuration )
 			schedule.setPhaseDuration( this , PHASE , duration );
-		}
-		
-		dist.saveReleaseXml( this );
+	
+		close( state );
 		return( SCOPESTATE.RunSuccess );
+	}
+
+	private DISTSTATE open() throws Exception {
+		DISTSTATE state = dist.getState();
+		if( dist.isFinalized() )
+			dist.openForControl( this );
+		else
+			dist.openForDataChange( this );
+		return( state );
+	}
+
+	private void close( DISTSTATE state ) throws Exception {
+		dist.saveReleaseXml( this );
+		if( dist.isFinalized() )
+			dist.closeControl( this , state );
+		else
+			dist.closeDataChange( this );
 	}
 	
 }
