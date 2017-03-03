@@ -24,7 +24,7 @@ public class ReleaseCommandMeta extends CommandMeta {
 		defineAction( CommandMethodMeta.newNormal( this , "finish" , true , "finalize and disable distributive updates" , releaseOpts , "./finish.sh [OPTIONS] <RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newNormal( this , "complete" , true , "mark all release operations as completed" , releaseOpts , "./complete.sh [OPTIONS] <RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newNormal( this , "reopen" , true , "reopen release" , releaseOpts , "./reopen.sh [OPTIONS] <RELEASELABEL>" ) );
-		defineAction( CommandMethodMeta.newCritical( this , "prod" , true , "create master distributive from predefined set" , releaseOpts , "./prod.sh [OPTIONS] {create <initial version>|copy <RELEASELABEL>}" ) );
+		defineAction( CommandMethodMeta.newCritical( this , "prod" , true , "create master distributive from predefined set" , releaseOpts , "./prod.sh [OPTIONS] {create <initial version>|copy <RELEASELABEL>|drop}" ) );
 		String addOpts = "OPT_BRANCH,OPT_TAG,OPT_VERSION,OPT_REPLACE";
 		defineAction( CommandMethodMeta.newNormal( this , "scope" , true , "add projects to build (except for prebuilt) and use all its binary items" , addOpts , "./scope.sh [OPTIONS] <RELEASELABEL> <set> [target1 target2 ...]" ) );
 		defineAction( CommandMethodMeta.newNormal( this , "scopeitems" , true , "add specified binary items to built (if not prebuilt) and get" , addOpts , "./scopeitems.sh [OPTIONS] <RELEASELABEL> item1 [item2 ...]" ) );

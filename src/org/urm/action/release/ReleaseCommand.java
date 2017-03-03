@@ -26,6 +26,15 @@ public class ReleaseCommand {
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
+	public void deleteProd( ActionBase action , Meta meta ) throws Exception {
+		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , "prod" );
+		if( dist.isFullProd() )
+			action.exit0( _Error.CannotDropProd0 , "Cannot drop full production release, use prod command" );
+		
+		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , dist , true );
+		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_ADMIN , false );
+	}
+	
 	public void createRelease( ActionBase action , Meta meta , String RELEASELABEL , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
 		ActionCreateRelease ma = new ActionCreateRelease( action , null , meta , RELEASELABEL , releaseDate , lc );
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
@@ -38,6 +47,9 @@ public class ReleaseCommand {
 
 	public void deleteRelease( ActionBase action , Meta meta , String RELEASELABEL , boolean force ) throws Exception {
 		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		if( dist.isFullProd() )
+			action.exit0( _Error.CannotDropProd0 , "Cannot drop full production release, use prod command" );
+		
 		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , dist , force );
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}

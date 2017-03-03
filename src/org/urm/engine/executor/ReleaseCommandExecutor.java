@@ -196,6 +196,11 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 			impl.createProdCopy( action , meta , RELEASEDIR );
 		}
 		else
+		if( CMD.equals( "drop" ) ) {
+			checkNoArgs( action , 1 );
+			impl.deleteProd( action , meta );
+		}
+		else
 			super.wrongArgs( action );
 	}
 	}

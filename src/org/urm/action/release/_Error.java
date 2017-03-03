@@ -14,5 +14,6 @@ public class _Error {
 	public static final int CannotDownloadCumulative0 = ErrorBase + 5;
 	public static final int NotCumulativeRelease0 = ErrorBase + 6;
 	public static final int AddCumulativeVersionFailed1 = ErrorBase + 7;
+	public static final int CannotDropProd0 = ErrorBase + 8;
 	
 }
