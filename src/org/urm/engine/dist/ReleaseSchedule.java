@@ -243,6 +243,14 @@ public class ReleaseSchedule {
 	}
 	
 	public ReleaseSchedulePhase findPhase( String PHASE ) {
+		if( PHASE.matches( "[0-9]+" ) ) {
+			int pos = Integer.parseInt( PHASE );
+			if( pos >= phases.size() )
+				return( null );
+			
+			return( getPhase( pos ) );
+		}
+		
 		String name = PHASE.toLowerCase();
 		for( ReleaseSchedulePhase phase : phases ) {
 			if( name.equals( phase.name.toLowerCase() ) )

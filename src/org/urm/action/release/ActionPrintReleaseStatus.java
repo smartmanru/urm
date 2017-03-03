@@ -1,5 +1,7 @@
 package org.urm.action.release;
 
+import java.util.Date;
+
 import org.urm.action.ActionBase;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
@@ -54,6 +56,19 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		if( phase != null ) {
 			info( "\trelease phase: " + phase.name );
 			info( "\tphase deadline: " + Common.getDateValue( phase.getDeadlineFinish() ) );
+		}
+		
+		if( context.CTX_ALL ) {
+			info( "\tphase schedule: " );
+			for( int k = 0; k < schedule.getPhaseCount(); k++ ) {
+				phase = schedule.getPhase( k );
+				Date started = ( phase.isStarted() )? phase.getStartDate() : phase.getDeadlineStart();
+				Date finished = ( phase.isFinished() )? phase.getFinishDate() : phase.getDeadlineStart();
+				String status = ( phase.isStarted() )? "started" : ( ( phase.isFinished() )? "finished" : "running" );
+				
+				info( "\t\t" + (k+1) + ": " + phase.name + " - start=" + Common.getDateValue( started ) +
+					", finish=" + Common.getDateValue( finished ) + " (" + status + ")" );
+			}
 		}
 		
 		if( release.isEmpty( this ) ) {
