@@ -20,7 +20,6 @@ public class DistRepositoryItem {
 	public Dist dist;
 	
 	public String RELEASEDIR; 
-	public long created;
 	
 	List<DistRepositoryItemAction> history;
 	
@@ -31,7 +30,6 @@ public class DistRepositoryItem {
 	
 	public void load( ActionBase action , Node root ) throws Exception {
 		RELEASEDIR = ConfReader.getAttrValue( root , "releasedir" );
-		created = ConfReader.getLongAttrValue( root , "created" , 0 );
 		
 		Node[] items = ConfReader.xmlGetChildren( root , "action" );
 		if( items == null )
@@ -46,7 +44,6 @@ public class DistRepositoryItem {
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , "releasedir" , dist.RELEASEDIR );
-		Common.xmlSetElementAttr( doc , root , "created" , Long.toString( created ) );
 		
 		for( DistRepositoryItemAction historyAction : history ) {
 			Element distElement = Common.xmlCreateElement( doc , root , "action" );
@@ -74,7 +71,6 @@ public class DistRepositoryItem {
 	public void createItem( ActionBase action , Dist dist ) throws Exception {
 		this.dist = dist;
 		RELEASEDIR = dist.RELEASEDIR;
-		created = System.currentTimeMillis();
 	}
 	
 	public static Dist createDist( ActionBase action , DistRepository repo , RemoteFolder distFolder , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
