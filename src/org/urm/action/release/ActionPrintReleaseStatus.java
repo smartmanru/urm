@@ -63,7 +63,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			for( int k = 0; k < schedule.getPhaseCount(); k++ ) {
 				phase = schedule.getPhase( k );
 				Date started = ( phase.isStarted() )? phase.getStartDate() : phase.getDeadlineStart();
-				Date finished = ( phase.isFinished() )? phase.getFinishDate() : phase.getDeadlineStart();
+				Date finished = ( phase.isFinished() )? phase.getFinishDate() : phase.getDeadlineFinish();
 				String status = ( phase.isStarted() )? ( ( phase.isFinished() )? "finished" : "started" ) : "expected";
 				
 				info( "\t\t" + (k+1) + ": " + phase.name + " - start=" + Common.getDateValue( started ) +
