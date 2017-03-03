@@ -937,6 +937,12 @@ public class Common {
 		diff /= ( 24 * 60 * 60 * 1000 );
 		return( ( int )diff );
 	}
+
+	public static String getRefDate( Date baseTime , Date refTime ) {
+		if( baseTime == null || refTime == null )
+			return( "" );
+		return( getRefDate( baseTime.getTime() , refTime.getTime() ) );
+	}
 	
 	public static String getRefDate( long baseTime , long refTime ) {
 		long baseDay = getDayNoTime( baseTime ); 
