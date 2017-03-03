@@ -485,6 +485,12 @@ public class ReleaseSchedule {
 	}
 
 	public void setPhaseDuration( ActionBase action , String PHASE , int duration ) throws Exception {
+		ReleaseSchedulePhase phase = getPhase( action , PHASE );
+		if( phase.isFinished() )
+			action.exit2( _Error.PhaseFinished2 , "Phase finished, cannot be modified, release=" + release.dist.RELEASEDIR + " phase=" + PHASE , release.dist.RELEASEDIR , PHASE );
+
+		phase.setDuration( action , duration );
+		setDeadlinesExpected();
 	}
 	
 }

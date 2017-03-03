@@ -108,12 +108,9 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		else
 		if( CMD.equals( "days" ) ) {
 			String PHASE = getRequiredArg( action , 2 , "PHASE" );
-			String DURATION = getRequiredArg( action , 3 , "DURATION" );
-			int duration = 0;
-			if( DURATION.equals( "any" ) )
-				duration = -1;
-			else
-				duration = getIntArg( action , 3 , 0 );
+			int duration = getIntArg( action , 3 , 0 );
+			if( duration < 0 )
+				super.wrongArgs( action );
 				
 			checkNoArgs( action , 4 );
 			impl.setPhaseDuration( action , dist , PHASE , duration );
