@@ -156,6 +156,7 @@ public class Release {
 		this.PROPERTY_OBSOLETE = true;
 		this.PROPERTY_CUMULATIVE = false;
 		
+		schedule.createProd( action );
 		addSourceAll( action );
 		addCategorySet( action , VarCATEGORY.MANUAL , true );
 		

@@ -36,7 +36,7 @@ public class ReleaseSchedule {
 		this.meta = meta;
 		this.release = release;
 		phases = new LinkedList<ReleaseSchedulePhase>();
-		currentPhase = 0;
+		currentPhase = -1;
 		releasePhases = 0;
 		deployPhases = 0;
 		released = false;
@@ -128,6 +128,18 @@ public class ReleaseSchedule {
 			Element phaseElement = Common.xmlCreateElement( doc , node , "phase" );
 			phase.save( action , doc , phaseElement );
 		}
+	}
+
+	public void createProd( ActionBase action ) throws Exception {
+		this.LIFECYCLE = "";
+		started = Common.getDateCurrentDay();
+		currentPhase = -1;
+		releasePhases = 0;
+		deployPhases = 0;
+		released = false;
+		completed = false;
+		archived = false;
+		phases.clear();
 	}
 	
 	public void createReleaseSchedule( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
