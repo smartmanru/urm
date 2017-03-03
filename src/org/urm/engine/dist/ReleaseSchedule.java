@@ -245,10 +245,10 @@ public class ReleaseSchedule {
 	public ReleaseSchedulePhase findPhase( String PHASE ) {
 		if( PHASE.matches( "[0-9]+" ) ) {
 			int pos = Integer.parseInt( PHASE );
-			if( pos >= phases.size() )
+			if( pos < 1 || pos > phases.size() )
 				return( null );
 			
-			return( getPhase( pos ) );
+			return( getPhase( pos - 1 ) );
 		}
 		
 		String name = PHASE.toLowerCase();
