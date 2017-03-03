@@ -28,9 +28,6 @@ public class ReleaseCommand {
 	
 	public void deleteProd( ActionBase action , Meta meta ) throws Exception {
 		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , "prod" );
-		if( dist.isFullProd() )
-			action.exit0( _Error.CannotDropProd0 , "Cannot drop full production release, use prod command" );
-		
 		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , dist , true );
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_ADMIN , false );
 	}
