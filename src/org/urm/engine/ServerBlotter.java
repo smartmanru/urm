@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.action.ActionBase;
+import org.urm.action.build.ActionBuild;
 import org.urm.action.build.ActionGetBinary;
 import org.urm.action.build.ActionGetManual;
 import org.urm.action.build.ActionPatch;
@@ -17,10 +18,12 @@ import org.urm.action.release.ActionCreateRelease;
 import org.urm.action.release.ActionDeleteRelease;
 import org.urm.action.release.ActionDescope;
 import org.urm.action.release.ActionFinishRelease;
+import org.urm.action.release.ActionCompleteRelease;
 import org.urm.action.release.ActionForceCloseRelease;
 import org.urm.action.release.ActionGetCumulative;
 import org.urm.action.release.ActionModifyRelease;
 import org.urm.action.release.ActionReopenRelease;
+import org.urm.action.release.ActionSchedulePhase;
 import org.urm.common.Common;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.dist.Dist;
@@ -234,6 +237,16 @@ public class ServerBlotter {
 			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.REOPEN , "reopen distributive releasedir=" + xa.dist.RELEASEDIR ); 
 		}
 		else
+		if( action instanceof ActionCompleteRelease ) {
+			ActionCompleteRelease xa = ( ActionCompleteRelease )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.COMPLETE , "finalize distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionSchedulePhase ) {
+			ActionSchedulePhase xa = ( ActionSchedulePhase )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PHASE , "phase control distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
 		if( action instanceof ActionAddScope ) {
 			ActionAddScope xa = ( ActionAddScope )action;
 			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.MODIFY , "extend scope of distributive releasedir=" + xa.dist.RELEASEDIR ); 
@@ -257,6 +270,12 @@ public class ServerBlotter {
 		if( action instanceof ActionModifyRelease ) {
 			ActionModifyRelease xa = ( ActionModifyRelease )action;
 			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.MODIFY , "modify properties of distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionBuild ) {
+			ActionBuild xa = ( ActionBuild )action;
+			if( xa.dist != null )
+				runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.BUILD , "build release releasedir=" + xa.dist.RELEASEDIR ); 
 		}
 		else
 		if( action instanceof ActionGetBinary ) {

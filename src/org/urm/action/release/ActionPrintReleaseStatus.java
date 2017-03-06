@@ -1,5 +1,7 @@
 package org.urm.action.release;
 
+import java.util.Date;
+
 import org.urm.action.ActionBase;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
@@ -7,6 +9,7 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistItemInfo;
 import org.urm.engine.dist.Release;
 import org.urm.engine.dist.ReleaseSchedule;
+import org.urm.engine.dist.ReleaseSchedulePhase;
 import org.urm.engine.dist.ReleaseSet;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
@@ -48,6 +51,25 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		info( "SCHEDULE:" );
 		info( "\trelease lifecycle: " + schedule.LIFECYCLE );
 		info( "\trelease date: " + Common.getDateValue( schedule.releaseDate ) );
+		
+		ReleaseSchedulePhase phase = schedule.getCurrentPhase();
+		if( phase != null ) {
+			info( "\trelease phase: " + phase.name );
+			info( "\tphase deadline: " + Common.getDateValue( phase.getDeadlineFinish() ) );
+		}
+		
+		if( context.CTX_ALL ) {
+			info( "\tphase schedule: " );
+			for( int k = 0; k < schedule.getPhaseCount(); k++ ) {
+				phase = schedule.getPhase( k );
+				Date started = ( phase.isStarted() )? phase.getStartDate() : phase.getDeadlineStart();
+				Date finished = ( phase.isFinished() )? phase.getFinishDate() : phase.getDeadlineFinish();
+				String status = ( phase.isStarted() )? ( ( phase.isFinished() )? "finished" : "started" ) : "expected";
+				
+				info( "\t\t" + (k+1) + ": " + phase.name + " - start=" + Common.getDateValue( started ) +
+					", finish=" + Common.getDateValue( finished ) + " (" + status + ")" );
+			}
+		}
 		
 		if( release.isEmpty( this ) ) {
 			info( "(scope is empty)" );

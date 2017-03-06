@@ -17,5 +17,6 @@ public class _Error {
 	public static final int ArgumentRequired1 = ErrorBase + 26;
 	public static final int UnknownBuildMode1 = ErrorBase + 27;
 	public static final int ActionException1 = ErrorBase + 28;
+	public static final int WrongArgs0 = ErrorBase + 29;
 	
 }

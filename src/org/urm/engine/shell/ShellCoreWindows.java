@@ -201,8 +201,10 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override 
-	public void cmdCreateMD5( ActionBase action , String filepath ) throws Exception {
-		action.exitNotImplemented();
+	public void cmdCreateMD5( ActionBase action , String filePath ) throws Exception {
+		String value = cmdGetMD5( action , filePath );
+		String filePathMD5 = filePath + ".md5";
+		cmdCreateFileFromString( action , filePathMD5 , value );
 	}
 
 	@Override 

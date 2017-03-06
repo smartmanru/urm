@@ -16,9 +16,20 @@ public class ReleaseCommand {
 	public ReleaseCommand() {
 	}
 
-	public void createProd( ActionBase action , Meta meta , String RELEASEVER ) throws Exception {
-		ActionCreateProd ma = new ActionCreateProd( action , null , meta , RELEASEVER );
+	public void createProdInitial( ActionBase action , Meta meta , String RELEASEVER ) throws Exception {
+		ActionCreateProd ma = new ActionCreateProd( action , null , meta , RELEASEVER , false );
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
+	}
+	
+	public void createProdCopy( ActionBase action , Meta meta , String RELEASEVER ) throws Exception {
+		ActionCreateProd ma = new ActionCreateProd( action , null , meta , RELEASEVER , true );
+		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
+	}
+	
+	public void deleteProd( ActionBase action , Meta meta ) throws Exception {
+		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , "prod" );
+		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , dist , true );
+		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_ADMIN , false );
 	}
 	
 	public void createRelease( ActionBase action , Meta meta , String RELEASELABEL , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
@@ -33,6 +44,9 @@ public class ReleaseCommand {
 
 	public void deleteRelease( ActionBase action , Meta meta , String RELEASELABEL , boolean force ) throws Exception {
 		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		if( dist.isFullProd() )
+			action.exit0( _Error.CannotDropProd0 , "Cannot drop full production release, use prod command" );
+		
 		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , dist , force );
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
@@ -76,15 +90,15 @@ public class ReleaseCommand {
 	private void addReleaseScope( ActionBase action , Dist dist , ActionScope scope ) throws Exception {
 		ActionAddScope ma = new ActionAddScope( action , null , dist );
 		
-		dist.openForChange( action );
+		dist.openForDataChange( action );
 		if( !ma.runAll( scope , null , SecurityAction.ACTION_RELEASE , false ) ) {
-			dist.closeChange( action );
+			dist.closeDataChange( action );
 			action.exit0( _Error.ReleaseSetChangeErrors0 , "release set is not changed because of errors" );
 		}
 
 		dist.saveReleaseXml( action );
 		dist.createDeliveryFolders( action );
-		dist.closeChange( action );
+		dist.closeDataChange( action );
 		
 		action.info( "scope (" + scope.getScopeInfo( action ) + ") - added to release" );
 	}
@@ -156,14 +170,14 @@ public class ReleaseCommand {
 		
 		ActionDescope ma = new ActionDescope( action , null , dist );
 		
-		dist.openForChange( action );
+		dist.openForDataChange( action );
 		if( !ma.runAll( scope , null , SecurityAction.ACTION_RELEASE , false ) ) {
-			dist.closeChange( action );
+			dist.closeDataChange( action );
 			action.exit0( _Error.ReleaseSetChangeErrors0 , "release set is not changed because of errors" );
 		}
 
 		dist.saveReleaseXml( action );
-		dist.closeChange( action );
+		dist.closeDataChange( action );
 		
 		action.info( "scope (" + scope.getScopeInfo( action ) + ") - removed from release" );
 	}
@@ -172,7 +186,12 @@ public class ReleaseCommand {
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
+		dist.openForDataChange( action );
 		dist.descopeAll( action );
+		dist.saveReleaseXml( action );
+		dist.closeDataChange( action );
+		
+		action.info( "entire scope has been removed from release" );
 	}
 	
 	public void descopeConfComps( ActionBase action , Dist dist , String[] COMPS ) throws Exception {
@@ -209,6 +228,21 @@ public class ReleaseCommand {
 		
 		ActionScope scope = ActionScope.getReleaseCategoryScope( action , dist , VarCATEGORY.DB , DELIVERIES );
 		descope( action , dist , scope );
+	}
+
+	public void nextPhase( ActionBase action , Dist dist ) throws Exception {
+		ActionSchedulePhase ma = new ActionSchedulePhase( action , null , dist );
+		ma.runSimpleProduct( dist.meta.name , SecurityAction.ACTION_RELEASE , false );
+	}
+	
+	public void setPhaseDeadline( ActionBase action , Dist dist , String PHASE , Date deadlineDate ) throws Exception {
+		ActionSchedulePhase ma = new ActionSchedulePhase( action , null , dist , PHASE , deadlineDate );
+		ma.runSimpleProduct( dist.meta.name , SecurityAction.ACTION_RELEASE , false );
+	}
+	
+	public void setPhaseDuration( ActionBase action , Dist dist , String PHASE , int duration ) throws Exception {
+		ActionSchedulePhase ma = new ActionSchedulePhase( action , null , dist , PHASE , duration );
+		ma.runSimpleProduct( dist.meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 }

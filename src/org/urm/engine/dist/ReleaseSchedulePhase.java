@@ -18,17 +18,18 @@ public class ReleaseSchedulePhase {
 
 	public int pos;
 	public String name;
-	public int days;
-	public int normalDays;
-	public boolean release;
-	public boolean finished;
-	public boolean unlimited;
-	public Date startDate;
-	public Date finishDate;
-	public Date deadlineStart;
-	public Date deadlineFinish;
-	public Date bestStart;
-	public Date bestFinish;
+	
+	private int days;
+	private int normalDays;
+	private boolean release;
+	private boolean finished;
+	private boolean unlimited;
+	private Date startDate;
+	private Date finishDate;
+	private Date deadlineStart;
+	private Date deadlineFinish;
+	private Date bestStart;
+	private Date bestFinish;
 	
 	public ReleaseSchedulePhase( Meta meta , ReleaseSchedule schedule ) {
 		this.meta = meta;
@@ -97,19 +98,131 @@ public class ReleaseSchedulePhase {
 		this.finishDate = null;
 	}
 
+	public boolean isRelease() {
+		return( release );
+	}
+	
+	public boolean isDeploy() {
+		if( release )
+			return( false );
+		return( true );
+	}
+	
+	public boolean isStarted() {
+		if( startDate != null )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isFinished() {
+		return( finished );
+	}
+	
+	public int getDaysPassed() {
+		if( startDate == null )
+			return( -1 );
+		Date currentDate = Common.getDateCurrentDay();
+		int ndays = Common.getDateDiffDays( startDate , currentDate );
+		if( requireStartDay() )
+			ndays++;
+		return( ndays );
+	}
+	
+	public int getDaysExpected() {
+		return( days );
+	}
+	
+	public int getDaysBest() {
+		return( normalDays );
+	}
+	
+	public Date getDeadlineStart() {
+		return( deadlineStart );
+	}
+
+	public Date getBestStart() {
+		return( bestStart );
+	}
+
+	public Date getDeadlineFinish() {
+		return( deadlineFinish );
+	}
+
+	public Date getBestFinish() {
+		return( bestFinish );
+	}
+
+	public Date getStartDate() {
+		return( startDate );
+	}
+	
+	public Date getFinishDate() {
+		return( finishDate );
+	}
+	
+	public Date getDateBeforePhaseExpected() {
+		if( !requireStartDay() )
+			return( deadlineStart );
+		
+		return( Common.addDays( deadlineStart , -1 ) );
+	}
+	
+	public Date getDateBeforePhaseBest() {
+		if( !requireStartDay() )
+			return( bestStart );
+		
+		return( Common.addDays( bestStart , -1 ) );
+	}
+	
+	public boolean requireStartDay() {
+		return( ( unlimited || days > 0 )? true : false );
+	}
+	
 	public int getDaysActually() {
 		if( startDate == null || finishDate == null )
 			return( -1 );
 			
 		int diff = Common.getDateDiffDays( startDate.getTime() , finishDate.getTime() );
+		if( requireStartDay() )
+			diff++;
+			
 		return( diff );
 	}
 
-	public void setDeadlineDates( Date deadlineStart , Date deadlineFinish , Date bestStart , Date bestFinish ) {
-		this.deadlineStart = deadlineStart;
+	public void setDeadlineDateExpected( Date deadlineFinish ) {
 		this.deadlineFinish = deadlineFinish;
-		this.bestStart = bestStart;
+		
+		if( days > 0 )
+			this.deadlineStart = Common.addDays( deadlineFinish , -(days-1) );
+		else
+			this.deadlineStart = deadlineFinish;
+	}
+
+	public void setDeadlineDateBest( Date bestFinish ) {
 		this.bestFinish = bestFinish;
+		
+		if( normalDays > 0 )
+			this.bestStart = Common.addDays( bestFinish , -(normalDays-1) );
+		else
+			this.bestStart = bestFinish;
+	}
+
+	public void setStartDateExpected( Date deadlineStart ) {
+		this.deadlineStart = deadlineStart;
+		
+		if( days > 0 )
+			this.deadlineFinish = Common.addDays( deadlineStart , (days-1) );
+		else
+			this.deadlineFinish = deadlineStart;
+	}
+
+	public void setStartDateBest( Date bestStart ) {
+		this.bestStart = bestStart;
+		
+		if( normalDays > 0 )
+			this.bestFinish = Common.addDays( bestStart , (normalDays-1) );
+		else
+			this.bestFinish = bestStart;
 	}
 
 	public void startPhase( ActionBase action , Date date ) throws Exception {
@@ -134,8 +247,39 @@ public class ReleaseSchedulePhase {
 		finishDate = null;
 	}
 
-	public void setPhaseDuration( ActionBase action , int duration ) throws Exception {
+	public void setDuration( ActionBase action , int duration ) throws Exception {
 		this.days = duration;
 	}
+
+	public void setFinishDeadline( ActionBase action , Date deadlineDate , boolean shiftStart ) throws Exception {
+		deadlineFinish = deadlineDate;
+		if( shiftStart ) {
+			if( days > 0 )
+				deadlineStart = Common.addDays( deadlineFinish , -(days-1) );
+			else
+				deadlineStart = deadlineFinish;
+		}
+		else {
+			days = Common.getDateDiffDays( deadlineStart , deadlineFinish );
+			if( requireStartDay() )
+				days++;
+		}
+	}
 	
+	public void setStartDeadline( ActionBase action , Date deadlineDate , boolean shiftFinish ) throws Exception {
+		deadlineStart = deadlineDate;
+		if( shiftFinish ) {
+			if( days > 0 )
+				deadlineFinish = Common.addDays( deadlineStart , days - 1 );
+			else
+				deadlineFinish = deadlineStart;
+		}
+		else {
+			boolean require = requireStartDay();
+			days = Common.getDateDiffDays( deadlineStart , deadlineFinish );
+			if( require )
+				days++;
+		}
+	}
+
 }

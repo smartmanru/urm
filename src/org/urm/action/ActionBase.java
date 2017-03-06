@@ -338,9 +338,9 @@ abstract public class ActionBase extends ActionCore {
 		return( engine.shellPool.createDedicatedLocalShell( this , name ) );
 	}
 	
-	public ShellExecutor createDedicatedRemoteShell( String name , Account account , String authResource , boolean setAction ) throws Exception {
+	public ShellExecutor createDedicatedRemoteShell( String name , Account account , boolean setAction ) throws Exception {
 		ServerResources res = getResources();
-		ServerAuthResource ar = res.getResource( authResource );
+		ServerAuthResource ar = res.getResource( account.AUTHRESOURCE );
 		ar.loadAuthData( this );
 		return( engine.shellPool.createDedicatedRemoteShell( this , name , account , ar , setAction ) );
 	}
@@ -355,7 +355,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public Account getNodeAccount( MetaEnvServerNode node ) throws Exception {
-		return( Account.getAccount( this , node.server.sg.DC , node.HOSTLOGIN , node.server.osType ) );
+		return( Account.getDatacenterAccount( this , node.server.sg.DC , node.HOSTLOGIN , node.server.osType ) );
 	}
 	
 	public Account getSingleHostAccount( String datacenter , String host , int port , VarOSTYPE OSTYPE ) throws Exception {
@@ -363,7 +363,7 @@ abstract public class ActionBase extends ActionCore {
 		if( user.isEmpty() )
 			user = "root";
 		
-		Account account = Account.getAccount( this , datacenter , user , host , port , OSTYPE );
+		Account account = Account.getDatacenterAccount( this , datacenter , user , host , port , OSTYPE );
 		return( account );
 	}
 

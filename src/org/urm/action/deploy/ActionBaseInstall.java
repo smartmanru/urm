@@ -174,7 +174,7 @@ public class ActionBaseInstall extends ActionBase {
 		
 		String localPath = null;
 		if( info.SRCFILE.startsWith( "http:" ) || info.SRCFILE.startsWith( "https:" ) ) {
-			LocalFolder folder = artefactory.getArtefactFolder( this , server.meta , "base" );
+			LocalFolder folder = artefactory.getArtefactFolder( this , server.osType , server.meta , "base" );
 			String baseName = Common.getBaseName( info.SRCFILE );
 			String filePath = folder.getFilePath( this , baseName );
 			shell.downloadUnix( this , info.SRCFILE , filePath , "" );

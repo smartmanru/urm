@@ -81,7 +81,7 @@ public class ServerHostAccount extends ServerObject {
 	}
 
 	public Account getHostAccount( ActionBase action ) throws Exception {
-		return( Account.getAccount( action , host.network.datacenter.ID , ID , host.ID , host.PORT , host.osType ) );
+		return( Account.getDatacenterAccount( action , host.network.datacenter.ID , ID , host.ID , host.PORT , host.osType ) );
 	}
 	
 }

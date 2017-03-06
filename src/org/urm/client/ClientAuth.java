@@ -118,8 +118,11 @@ public class ClientAuth {
 		String key = options.getParamValue( OptionsMeta.OPT_KEY );
 		String password = options.getParamValue( OptionsMeta.OPT_PASSWORD );
 		if( user.isEmpty() ) {
-			builder.out( "User parameter is required" );
-			return( null );
+			user = readConsole( "Please enter user name: " , false );
+			if( user.isEmpty() ) {
+				builder.out( "User parameter is required" );
+				return( null );
+			}
 		}
 		
 		Properties props = new Properties();

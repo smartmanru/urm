@@ -26,7 +26,10 @@ public class DistRepository {
 		DROP ,
 		FINISH ,
 		REOPEN ,
+		COMPLETE ,
+		PHASE ,
 		MODIFY ,
+		BUILD ,
 		PUT ,
 		ARCHIVE
 	};
@@ -249,12 +252,12 @@ public class DistRepository {
 				
 			if( action.context.env != null ) {
 				if( !action.isLocalRun() )
-					account = Account.getAccount( action , "" , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
+					account = Account.getDatacenterAccount( action , "" , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
 			}
 			else {
 				if( !action.isLocalRun() ) {
 					MetaProductSettings product = meta.getProductSettings( action );
-					account = Account.getAccount( action , "" , product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
+					account = Account.getDatacenterAccount( action , "" , product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
 				}
 			}
 		}
@@ -284,11 +287,24 @@ public class DistRepository {
 		return( info.RELEASEVER );
 	}
 	
-	public synchronized Dist createProd( ActionBase action , String RELEASEVER ) throws Exception {
+	public synchronized Dist createProdInitial( ActionBase action , String RELEASEVER ) throws Exception {
 		DistLabelInfo info = getLabelInfo( action , "prod" );
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
 		Dist dist = DistRepositoryItem.createProdDist( action , this , distFolder , RELEASEVER );
 		addDist( dist );
+		return( dist );
+	}
+
+	public synchronized Dist createProdCopy( ActionBase action , String RELEASEDIR ) throws Exception {
+		DistLabelInfo info = getLabelInfo( action , "prod" );
+		Dist src = this.getDistByLabel( action , RELEASEDIR );
+		if( !src.isCompleted() )
+			action.exit1( _Error.NotCompletedSource1 , "Unable to use incomplete source release " + src.RELEASEDIR , src.RELEASEDIR );
+		
+		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
+		Dist dist = DistRepositoryItem.createProdDist( action , this , distFolder , src.release.RELEASEVER );
+		addDist( dist );
+		dist.copyRelease( action , src );
 		return( dist );
 	}
 

@@ -11,9 +11,6 @@ import org.urm.common.Common;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.engine.ServerAuthResource;
-import org.urm.meta.engine.ServerDatacenter;
-import org.urm.meta.engine.ServerHostAccount;
-import org.urm.meta.engine.ServerInfrastructure;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
@@ -40,23 +37,19 @@ public class ShellJssh {
 		jsch = new JSch();
 	}
 
+	public ShellJssh( Account account ) {
+		this.account = account;
+		this.interactive = false;
+		jsch = new JSch();
+	}
+	
 	private ServerAuthResource getAuthResource( ActionBase action , Account account ) throws Exception {
-		String hostLogin = account.getHostLogin();
-		ServerInfrastructure infra = action.getServerInfrastructure();
-		ServerDatacenter dc = infra.findDatacenter( account.DC );
-		if( dc == null )
-			action.exit1( _Error.UnknownDatacenter1 , "Unknown datacenter=" + account.DC , account.DC );
-		
-		ServerHostAccount hostAccount = dc.getFinalAccount( action , hostLogin );
-		if( hostAccount.AUTHRES.isEmpty() )
-			action.exit1( _Error.MissingAuthKey1 , "Missing auth resource to login to " + hostLogin , hostLogin );
-		
-		ServerAuthResource res = action.getResource( hostAccount.AUTHRES );
+		ServerAuthResource res = account.getResource( action );
 		res.loadAuthData( action );
 		return( res );
 	}
 	
-	public void startJssh( ActionBase action , String rootPath , ServerAuthResource res ) throws Exception {
+	public void startJsshProcess( ActionBase action , String rootPath , ServerAuthResource res ) throws Exception {
 		Account account = process.shell.account;
 		if( res == null )
 			res = getAuthResource( action , account );
@@ -176,8 +169,8 @@ public class ShellJssh {
 		return( channel.getExitStatus() );
 	}
 	
-	public boolean scpFilesRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
-		scpConnect( action , account );
+	public boolean scpFilesRemoteToLocal( ActionBase action , String srcPath , String dstPath ) throws Exception {
+		scpConnect( action );
 		
 		boolean res = false;
 		try {
@@ -212,8 +205,8 @@ public class ShellJssh {
 		return( res );
 	}
 
-	public boolean scpDirContentLocalToRemote( ActionBase action , String srcDirPath , Account account , String dstDir ) throws Exception {
-		scpConnect( action , account );
+	public boolean scpDirContentLocalToRemote( ActionBase action , String srcDirPath , String dstDir ) throws Exception {
+		scpConnect( action );
 		
 		boolean res = false;
 		try {
@@ -225,8 +218,8 @@ public class ShellJssh {
 		return( res );
 	}
 
-	public boolean scpDirContentRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
-		scpConnect( action , account );
+	public boolean scpDirContentRemoteToLocal( ActionBase action , String srcPath , String dstPath ) throws Exception {
+		scpConnect( action );
 		
 		boolean res = false;
 		try {
@@ -241,8 +234,8 @@ public class ShellJssh {
 		return( res );
 	}
 
-	public boolean scpDirLocalToRemote( ActionBase action , String srcDirPath , Account account , String baseDstDir ) throws Exception {
-		scpConnect( action , account );
+	public boolean scpDirLocalToRemote( ActionBase action , String srcDirPath , String baseDstDir ) throws Exception {
+		scpConnect( action );
 		
 		boolean res = false;
 		try {
@@ -257,8 +250,8 @@ public class ShellJssh {
 		return( res );
 	}
 
-	public boolean scpDirRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
-		scpConnect( action , account );
+	public boolean scpDirRemoteToLocal( ActionBase action , String srcPath , String dstPath ) throws Exception {
+		scpConnect( action );
 		
 		boolean res = false;
 		try {
@@ -278,8 +271,8 @@ public class ShellJssh {
 		return( res );
 	}
 
-	public boolean scpFilesLocalToRemote( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
-		scpConnect( action , account );
+	public boolean scpFilesLocalToRemote( ActionBase action , String srcPath , String dstPath ) throws Exception {
+		scpConnect( action );
 		
 		boolean res = false;
 		try {
@@ -298,13 +291,13 @@ public class ShellJssh {
 				else {
 					res = true;
 					for( String file : maskFiles ) {
-						if( !executeScpNameLocalToRemote( action , srcDirFolder , file , account , dstPath ) )
+						if( !executeScpNameLocalToRemote( action , srcDirFolder , file , dstPath ) )
 							res = false;
 					}
 				}
 			}
 			else {
-				res = executeScpNameLocalToRemote( action , srcDirFolder , srcNames , account , dstPath );
+				res = executeScpNameLocalToRemote( action , srcDirFolder , srcNames , dstPath );
 			}
 	    }
 		finally {
@@ -314,7 +307,7 @@ public class ShellJssh {
 		return( res );
 	}
 
-	private void scpConnect( ActionBase action , Account account ) throws Exception {
+	private void scpConnect( ActionBase action ) throws Exception {
 		ServerAuthResource res = getAuthResource( action , account );
 		startJsshSession( action , account , res );
 		startJsshScpChannel( action );
@@ -341,7 +334,7 @@ public class ShellJssh {
 				}
 			}
 		}
-		
+		else
 		if( srcDirFolder.checkFolderExists( action , srcName ) ) {
 			if( !fileDstDir.isDirectory() ) {
 				action.exit1( _Error.ScpMissingDestinationDirectory1 , "scp: missing destination directory=" + dstDir , dstDir );
@@ -373,7 +366,7 @@ public class ShellJssh {
 		return( res );
 	}
 	
-	private boolean executeScpNameLocalToRemote( ActionBase action , LocalFolder srcDirFolder , String srcName , Account account , String dstPath ) throws Exception {
+	private boolean executeScpNameLocalToRemote( ActionBase action , LocalFolder srcDirFolder , String srcName , String dstPath ) throws Exception {
 		String dstDir = Common.getDirName( dstPath );
 		String dstName = Common.getBaseName( dstPath );
 		RemoteFolder fileDstDir = action.getRemoteFolder( account , dstDir );
@@ -394,7 +387,7 @@ public class ShellJssh {
 				}
 			}
 		}
-		
+		else
 		if( srcDirFolder.checkFolderExists( action , srcName ) ) {
 			if( !fileDstDir.checkExists( action ) ) {
 				action.exit1( _Error.ScpMissingDestinationDirectory1 , "scp: missing destination directory=" + dstDir , dstDir );

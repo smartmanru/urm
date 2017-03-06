@@ -250,7 +250,7 @@ public class Common {
 	}
 
 	public static String getTimeStamp( Date date ) {
-        SimpleDateFormat simpleFormat = new SimpleDateFormat( "HH:mm:ss,SSS zzz" );
+        SimpleDateFormat simpleFormat = new SimpleDateFormat( "HH:mm:ss,SSS" );
         return( simpleFormat.format( date ) );
 	}
 	
@@ -936,6 +936,12 @@ public class Common {
 		long diff = finish - start;
 		diff /= ( 24 * 60 * 60 * 1000 );
 		return( ( int )diff );
+	}
+
+	public static String getRefDate( Date baseTime , Date refTime ) {
+		if( baseTime == null || refTime == null )
+			return( "" );
+		return( getRefDate( baseTime.getTime() , refTime.getTime() ) );
 	}
 	
 	public static String getRefDate( long baseTime , long refTime ) {

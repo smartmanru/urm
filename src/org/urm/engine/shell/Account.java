@@ -7,6 +7,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerDatacenter;
 import org.urm.meta.engine.ServerHostAccount;
 import org.urm.meta.engine.ServerInfrastructure;
@@ -17,13 +18,15 @@ public class Account {
 	public boolean local = false;
 	public boolean current = false;
 	
-	public String DC;
 	public String USER;
 	public String HOST;
 	public String IP;
 	public int PORT;
 	public VarOSTYPE osType;
+	public String AUTHRESOURCE;
 
+	private String DATACENTER;
+	
 	public Account( RunContext execrc ) {
 		local = true;
 		current = true;
@@ -34,6 +37,8 @@ public class Account {
 		IP = "";
 		
 		osType = execrc.osType;
+		DATACENTER = "";
+		AUTHRESOURCE = "";
 	}
 	
 	private Account( String user , String host , VarOSTYPE osType ) {
@@ -43,15 +48,18 @@ public class Account {
 		this.local = true;
 		this.osType = osType;
 		IP = "";
+		DATACENTER = "";
+		AUTHRESOURCE = "";
 	}
 	
-	private Account( String datacenter , String user , String host , int port , VarOSTYPE osType ) {
-		this.DC = datacenter;
+	private Account( String user , String host , int port , VarOSTYPE osType ) {
 		this.USER = user;
 		this.HOST = host;
 		this.PORT = port;
 		this.osType = osType;
 		IP = "";
+		DATACENTER = "";
+		AUTHRESOURCE = "";
 	}
 	
 	public static Account getLocalAccount( String user , String host , VarOSTYPE osType ) {
@@ -70,11 +78,48 @@ public class Account {
 		return( osType == VarOSTYPE.LINUX );
 	}
 	
-	public static Account getAccount( ActionBase action , String datacenter , String user , String host , int port , VarOSTYPE osType ) throws Exception {
+	public static Account getDatacenterAccount( ActionBase action , String datacenter , String user , String host , int port , VarOSTYPE osType ) throws Exception {
+		if( host.isEmpty() || user.isEmpty() )
+			action.exit0( _Error.MissingAccountDetails0 , "account details are not provided" );
+
+		boolean local = false;
+		if( action.isLocalRun() ||
+			host.equals( "local" ) || host.equals( "localhost" ) ||
+			( host.equals( action.context.account.HOST ) && user.equals( action.context.account.USER ) ) )
+			local = true;
+			
+		Account account = new Account( user , host , port , osType );
+		account.local = local;
+		account.DATACENTER = datacenter;
+		
+		// find account
+		ServerHostAccount hostAccount = null;
+		if( !local ) {
+			ServerInfrastructure infra = action.getServerInfrastructure();
+			ServerDatacenter dc = infra.findDatacenter( datacenter );
+			if( dc == null )
+				action.exit1( _Error.UnknownDatacenter1 , "Unknown datacenter=" + datacenter , datacenter );
+			
+			hostAccount = dc.getFinalAccount( action , user + "@" + host );
+			if( hostAccount.host.osType != osType ) {
+				String p1 = Common.getEnumLower( hostAccount.host.osType );
+				String p2 = Common.getEnumLower( osType );
+				action.exit2( _Error.MismatchedOsType2 , "Mismatched OS type: " + p1 + " != " + p2 , p1 , p2 );
+			}
+			
+			account.AUTHRESOURCE = hostAccount.AUTHRES;
+		}
+		
+		return( account );
+	}
+	
+	public static Account getResourceAccount( ActionBase action , String resource , String user , String host , int port , VarOSTYPE osType ) throws Exception {
 		if( host.isEmpty() || user.isEmpty() )
 			action.exit0( _Error.MissingAccountDetails0 , "account details are not provided" );
 		
-		Account account = new Account( datacenter , user , host , port , osType ); 
+		Account account = new Account( user , host , port , osType );
+		account.AUTHRESOURCE = resource;
+		
 		if( action.isLocalRun() ||
 			host.equals( "local" ) || host.equals( "localhost" ) ||
 			( account.HOST.equals( action.context.account.HOST ) && account.USER.equals( action.context.account.USER ) ) )
@@ -85,13 +130,26 @@ public class Account {
 		return( account );
 	}
 	
-	public static Account getAccount( ActionBase action , String datacenter , String hostLogin , int port , VarOSTYPE osType ) throws Exception {
+	public static Account getDatacenterAccount( ActionBase action , String datacenter , String hostLogin , int port , VarOSTYPE osType ) throws Exception {
 		String user = Common.getPartBeforeFirst( hostLogin , "@" );
 		String host = Common.getPartAfterLast( hostLogin , "@" );
-		return( getAccount( action , datacenter , user , host , port , osType ) );
+		return( getDatacenterAccount( action , datacenter , user , host , port , osType ) );
+	}
+
+	public static Account getResourceAccount( ActionBase action , String resource , String hostLogin , int port , VarOSTYPE osType ) throws Exception {
+		if( hostLogin.isEmpty() )
+			action.exit0( _Error.MissingAccountDetails0 , "account details are not provided" );
+		
+		if( hostLogin.equals( "local" ) )
+			return( action.context.account );
+			
+		String user = Common.getPartBeforeFirst( hostLogin , "@" );
+		String host = Common.getPartAfterLast( hostLogin , "@" );
+		
+		return( getResourceAccount( action , resource , user , host , port , osType ) );
 	}
 	
-	public static Account getAccount( ActionBase action , String datacenter , String hostLogin , VarOSTYPE osType ) throws Exception {
+	public static Account getDatacenterAccount( ActionBase action , String datacenter , String hostLogin , VarOSTYPE osType ) throws Exception {
 		if( hostLogin.isEmpty() )
 			action.exit0( _Error.MissingAccountDetails0 , "account details are not provided" );
 		
@@ -114,17 +172,21 @@ public class Account {
 			action.exit2( _Error.MismatchedOsType2 , "Mismatched OS type: " + p1 + " != " + p2 , p1 , p2 );
 		}
 		
-		return( getAccount( action , datacenter , user , host , account.host.PORT , osType ) );
+		return( getDatacenterAccount( action , datacenter , user , host , account.host.PORT , osType ) );
 	}
 
-	public static Account getAnyAccount( String datacenter , String hostLogin ) {
+	public static Account getDatacenterAccount( String datacenter , String hostLogin ) {
 		String user = Common.getPartBeforeFirst( hostLogin , "@" );
 		String host = Common.getPartAfterLast( hostLogin , "@" );
-		return( new Account( datacenter ,  user , host , 0 , VarOSTYPE.UNKNOWN ) );
+		Account account = new Account( user , host , 0 , VarOSTYPE.UNKNOWN );
+		account.DATACENTER = datacenter;
+		return( account );
 	}
 
-	public static Account getAnyAccount( String datacenter , String user , String host ) {
-		return( new Account( datacenter , user , host , 0 , VarOSTYPE.UNKNOWN ) );
+	public static Account getDatacenterAccount( String datacenter , String user , String host ) {
+		Account account = new Account( user , host , 0 , VarOSTYPE.UNKNOWN );
+		account.DATACENTER = datacenter;
+		return( account );
 	}
 
 	public static boolean isCorrectNetworkMask( String mask ) {
@@ -214,11 +276,11 @@ public class Account {
 	}
 
 	public Account getRootAccount( ActionBase action ) throws Exception {
-		return( getAccount( action , DC , "root" , HOST , PORT , osType ) );
+		return( getDatacenterAccount( action , DATACENTER , "root" , HOST , PORT , osType ) );
 	}
 	
 	public Account getUserAccount( ActionBase action , String user ) throws Exception {
-		return( getAccount( action , DC , user , HOST , PORT , osType ) );
+		return( getDatacenterAccount( action , DATACENTER , user , HOST , PORT , osType ) );
 	}
 
 	public String getOSPath( String path ) {
@@ -267,5 +329,30 @@ public class Account {
 		
 		PORT = host.PORT;
 	}
+
+	public ServerAuthResource getResource( ActionBase action ) throws Exception {
+		if( AUTHRESOURCE.isEmpty() ) {
+			String hostLogin = getHostLogin();
+			ServerInfrastructure infra = action.getServerInfrastructure();
+			ServerDatacenter dc = infra.findDatacenter( DATACENTER );
+			if( dc == null )
+				action.exit1( _Error.UnknownDatacenter1 , "Unknown datacenter=" + DATACENTER , DATACENTER );
+			
+			ServerHostAccount hostAccount = dc.getFinalAccount( action , hostLogin );
+			if( hostAccount.AUTHRES.isEmpty() )
+				action.exit1( _Error.MissingAuthKey1 , "Missing auth resource to login to " + hostLogin , hostLogin );
+			
+			AUTHRESOURCE = hostAccount.AUTHRES;
+		}
+		
+		ServerAuthResource res = action.getResource( AUTHRESOURCE );
+		return( res );
+	}
 	
+	public boolean isNativeScp() {
+		if( isLinux() )
+			return( true );
+		return( false );
+	}
+
 }

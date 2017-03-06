@@ -29,6 +29,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		
 		defineAction( new CreateRelease() , "create" );
 		defineAction( new ModifyRelease() , "modify" );
+		defineAction( new PhaseRelease() , "phase" );
 		defineAction( new DeleteRelease() , "drop" );
 		defineAction( new StatusRelease() , "status" );
 		defineAction( new CloseRelease() , "close" );
@@ -82,6 +83,40 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		Meta meta = action.getContextMeta();
 		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		impl.modifyRelease( action , dist , releaseDate , lc );
+	}
+	}
+
+	private class PhaseRelease extends CommandAction {
+	public void run( ActionInit action ) throws Exception {
+		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
+		String CMD = getRequiredArg( action , 1 , "CMD" );
+		
+		Meta meta = action.getContextMeta();
+		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		
+		if( CMD.equals( "next" ) ) {
+			checkNoArgs( action , 2 );
+			impl.nextPhase( action , dist );
+		}
+		else
+		if( CMD.equals( "deadline" ) ) {
+			String PHASE = getRequiredArg( action , 2 , "PHASE" );
+			Date deadlineDate = getDateArg( action , 3 );
+			checkNoArgs( action , 4 );
+			impl.setPhaseDeadline( action , dist , PHASE , deadlineDate );
+		}
+		else
+		if( CMD.equals( "days" ) ) {
+			String PHASE = getRequiredArg( action , 2 , "PHASE" );
+			int duration = getIntArg( action , 3 , 0 );
+			if( duration < 0 )
+				super.wrongArgs( action );
+				
+			checkNoArgs( action , 4 );
+			impl.setPhaseDuration( action , dist , PHASE , duration );
+		}
+		else
+			super.wrongArgs( action );
 	}
 	}
 
@@ -149,10 +184,21 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		if( CMD.equals( "create" ) ) {
 			String RELEASEVER = getRequiredArg( action , 1 , "RELEASEVER" );
 			checkNoArgs( action , 2 );
-			impl.createProd( action , meta , RELEASEVER );
+			impl.createProdInitial( action , meta , RELEASEVER );
 		}
 		else
-			action.exit0( _Error.WrongArgs0 , "wrong args" );
+		if( CMD.equals( "copy" ) ) {
+			String RELEASEDIR = getRequiredArg( action , 1 , "RELEASEDIR" );
+			checkNoArgs( action , 2 );
+			impl.createProdCopy( action , meta , RELEASEDIR );
+		}
+		else
+		if( CMD.equals( "drop" ) ) {
+			checkNoArgs( action , 1 );
+			impl.deleteProd( action , meta );
+		}
+		else
+			super.wrongArgs( action );
 	}
 	}
 

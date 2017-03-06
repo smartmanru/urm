@@ -35,7 +35,6 @@ public class Dist {
 	public static String META_FILENAME = "release.xml";
 	public static String CONFDIFF_FILENAME = "diffconf.txt";
 	public static String STATE_FILENAME = "state.txt";
-	public static String MD5_FILENAME = "state.md5";
 
 	public static String BINARY_FOLDER = "binary";
 	public static String CONFIG_FOLDER = "config";
@@ -86,6 +85,14 @@ public class Dist {
 		return( state.isFinalized() );
 	}
 	
+	public boolean isCompleted() {
+		return( state.isCompleted() );
+	}
+	
+	public boolean isBroken() {
+		return( state.isBroken() );
+	}
+	
 	public boolean isRemote( ActionBase action ) throws Exception {
 		return( distFolder.isRemote( action ) );
 	}
@@ -105,17 +112,23 @@ public class Dist {
 	}
 
 	public boolean checkHash( ActionBase action ) throws Exception {
-		String actualHash = state.getHashValue( action );
-		if( actualHash.equals( state.stateHash ) )
+		if( !state.isFinalized() )
 			return( true );
-		return( false );
+		
+		String actualDataHash = state.getDataHashValue( action );
+		if( !actualDataHash.equals( state.dataHash ) )
+			return( false );
+		String actualMetaHash = state.getMetaHashValue( action );
+		if( !actualMetaHash.equals( state.metaHash ) )
+			return( false );
+		return( true );
 	}
 	
 	public void copyConfToDistr( ActionBase action , LocalFolder sourceFolder , MetaDistrConfItem conf ) throws Exception {
 		if( !openedForChange )
 			action.exit0( _Error.DistributiveNotOpened0 , "distributive is not opened for change" );
 		
-		state.checkDistChangeEnabled( action );
+		state.checkDistDataChangeEnabled( action );
 		String parentFolder = getReleaseConfCompParentFolder( action , conf );
 		distFolder.copyDirFromLocal( action , sourceFolder , parentFolder );
 	}
@@ -124,7 +137,7 @@ public class Dist {
 		if( !openedForChange )
 			action.exit0( _Error.DistributiveNotOpened0 , "distributive is not opened for change" );
 		
-		state.checkDistChangeEnabled( action );
+		state.checkDistDataChangeEnabled( action );
 		String folder = getReleaseBinaryFolder( action , distItem );
 		distFolder.copyVFileFromLocal( action , sourceFolder , FNAME , folder , BASENAME , EXT );
 	}
@@ -133,7 +146,7 @@ public class Dist {
 		if( !openedForChange )
 			action.exit0( _Error.DistributiveNotOpened0 , "distributive is not opened for change" );
 		
-		state.checkDistChangeEnabled( action );
+		state.checkDistDataChangeEnabled( action );
 		String folder = getDeliveryDatabaseFolder( action , dbDelivery , release.RELEASEVER );
 		distFolder.removeFolder( action , folder );
 		
@@ -146,7 +159,7 @@ public class Dist {
 		if( !openedForChange )
 			action.exit0( _Error.DistributiveNotOpened0 , "distributive is not opened for change" );
 		
-		state.checkDistChangeEnabled( action );
+		state.checkDistDataChangeEnabled( action );
 		String folder = getManualFolder( action  );
 		distFolder.removeFolder( action , folder );
 		
@@ -154,10 +167,6 @@ public class Dist {
 		distFolder.copyDirFromLocal( action , src , "" );
 	}
 
-	public void copyMD5StateFromLocal( ActionBase action , String srcPath ) throws Exception {
-		distFolder.copyFileFromLocalRename( action , srcPath , MD5_FILENAME );
-	}
-	
 	public String copyDistToFolder( ActionBase action , LocalFolder workFolder , String file ) throws Exception {
 		if( !openedForUse )
 			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
@@ -246,7 +255,7 @@ public class Dist {
 	}
 	
 	public void replaceConfDiffFile( ActionBase action , String filePath , ReleaseDelivery delivery ) throws Exception {
-		state.checkDistChangeEnabled( action );
+		state.checkDistDataChangeEnabled( action );
 		String confFolder = getDeliveryConfFolder( action , delivery.distDelivery );
 		distFolder.copyFileFromLocal( action , filePath , confFolder );
 	}
@@ -288,7 +297,7 @@ public class Dist {
 	}
 	
 	public void createDeliveryFolders( ActionBase action ) throws Exception {
-		state.checkDistChangeEnabled( action );
+		state.checkDistDataChangeEnabled( action );
 		for( ReleaseDelivery delivery : release.getDeliveries( action ).values() ) {
 			createInternalDeliveryFolder( action , getDeliveryBinaryFolder( action , delivery.distDelivery ) );
 			createInternalDeliveryFolder( action , getDeliveryConfFolder( action , delivery.distDelivery ) );
@@ -317,9 +326,9 @@ public class Dist {
 		release.setReleaseDate( action , releaseDate , lcset );
 	}
 	
-	public void createProd( ActionBase action , String RELEASEDIR ) throws Exception {
-		this.RELEASEDIR = RELEASEDIR;
-		state.ctlCreateProd( action , RELEASEDIR );
+	public void createProd( ActionBase action , String RELEASEVER ) throws Exception {
+		this.RELEASEDIR = "prod";
+		state.ctlCreateProd( action , RELEASEVER );
 		load( action );
 	}
 	
@@ -334,8 +343,8 @@ public class Dist {
 		gatherFiles( action );
 	}
 	
-	public void openForChange( ActionBase action ) throws Exception {
-		state.ctlOpenForChange( action );
+	public void openForDataChange( ActionBase action ) throws Exception {
+		state.ctlOpenForDataChange( action );
 		openedForChange = true;
 		openedForUse = true;
 	}
@@ -345,8 +354,8 @@ public class Dist {
 		openedForControl = true;
 	}
 	
-	public void closeChange( ActionBase action ) throws Exception {
-		state.ctlCloseChange( action );
+	public void closeDataChange( ActionBase action ) throws Exception {
+		state.ctlCloseDataChange( action );
 		openedForChange = false;
 		openedForUse = false;
 	}
@@ -366,12 +375,12 @@ public class Dist {
 	}
 
 	public void finish( ActionBase action ) throws Exception {
-		openForChange( action );
+		openForDataChange( action );
 
 		DistFinalizer finalizer = new DistFinalizer( action , this , distFolder , release );
 		if( !finalizer.finish() ) {
 			action.error( "distributive is not ready to be finished" );
-			state.ctlCloseChange( action );
+			state.ctlCloseDataChange( action );
 			return;
 		}
 		
@@ -381,7 +390,7 @@ public class Dist {
 	}
 
 	public void complete( ActionBase action ) throws Exception {
-		openForUse( action );
+		openForControl( action );
 		if( state.isCompleted() ) {
 			action.info( "distributive is not ready to be finished" );
 			return;
@@ -396,7 +405,7 @@ public class Dist {
 		state.ctlReopen( action );
 		release.reopen( action );
 		saveReleaseXml( action );
-		state.ctlCloseChange( action );
+		state.ctlCloseDataChange( action );
 	}
 
 	public void copyRelease( ActionBase action , Dist src ) throws Exception {
@@ -408,7 +417,7 @@ public class Dist {
 		Document doc = src.release.createXml( action );
 		Common.xmlSaveDoc( doc , filePath );
 		
-		openForChange( action );
+		openForDataChange( action );
 		
 		distFolder.copyFileFromLocal( action , filePath );
 		ShellExecutor shell = action.getShell( distFolder.account );
@@ -420,7 +429,7 @@ public class Dist {
 			action.setTimeout( timeout );
 		}
 		
-		closeChange( action );
+		closeDataChange( action );
 		action.info( "release " + RELEASEDIR + " has beed copied from " + src.RELEASEDIR );
 	}
 	
@@ -443,12 +452,13 @@ public class Dist {
 	}
 	
 	public void saveReleaseXml( ActionBase action ) throws Exception {
-		state.ctlReloadCheckOpened( action );
+		state.ctlReloadCheckOpenedForMetaChange( action );
 		
 		String filePath = action.getWorkFilePath( META_FILENAME );
 		Document doc = release.createXml( action );
 		Common.xmlSaveDoc( doc , filePath );
 		distFolder.copyFileFromLocal( action , filePath );
+		state.updateMetaHashValue( action );
 	}
 
 	public boolean addAllSource( ActionBase action , MetaSourceProjectSet set ) throws Exception {
@@ -583,7 +593,7 @@ public class Dist {
 	}
 
 	public void descopeSet( ActionBase action , ReleaseSet set ) throws Exception {
-		state.ctlReloadCheckOpened( action );
+		state.ctlReloadCheckOpenedForDataChange( action );
 		for( ReleaseTarget target : set.getTargets() )
 			dropTarget( action , target );
 		
@@ -594,13 +604,13 @@ public class Dist {
 	}
 	
 	public void descopeTarget( ActionBase action , ReleaseTarget target ) throws Exception {
-		state.ctlReloadCheckOpened( action );
+		state.ctlReloadCheckOpenedForDataChange( action );
 		dropTarget( action , target );
 		release.deleteTarget( action , target );
 	}
 	
 	public void descopeTargetItems( ActionBase action , ReleaseTargetItem[] items ) throws Exception {
-		state.ctlReloadCheckOpened( action );
+		state.ctlReloadCheckOpenedForDataChange( action );
 		for( ReleaseTargetItem item : items ) {
 			dropTargetItem( action , item );
 			release.deleteProjectItem( action , item );

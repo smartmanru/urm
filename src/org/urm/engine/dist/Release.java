@@ -156,6 +156,7 @@ public class Release {
 		this.PROPERTY_OBSOLETE = true;
 		this.PROPERTY_CUMULATIVE = false;
 		
+		schedule.createProd( action );
 		addSourceAll( action );
 		addCategorySet( action , VarCATEGORY.MANUAL , true );
 		
@@ -785,9 +786,8 @@ public class Release {
 		}
 		
 		for( ReleaseSet set : categorySetMap.values() ) {
-			for( ReleaseTarget target : set.getTargets() ) {
+			for( ReleaseTarget target : set.getTargets() )
 				registerTarget( action , target );
-			}
 		}
 	}
 

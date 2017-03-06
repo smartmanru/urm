@@ -33,10 +33,6 @@ public class DistLabelInfo {
 			RELEASEDIR = "prod";
 			RELEASEPATH = "prod";
 			prod = true;
-
-			// check content
-			if( !repo.repoFolder.checkFolderExists( action , RELEASEPATH ) )
-				action.exit0( _Error.UnableFindProdDistributive0 , "getReleaseVerByLabel: unable to find prod distributive" );
 		}
 		else
 		if( RELEASELABEL.indexOf( "-" ) > 0 ) {
@@ -50,7 +46,7 @@ public class DistLabelInfo {
 			RELEASEPATH = "releases/" + RELEASEDIR;
 		}
 		
-		action.debug( "found release directory=" + RELEASEPATH + " by label=" + RELEASELABEL + "( RELEASEVER=" + RELEASEVER + ")" );
+		action.debug( "release directory=" + RELEASEPATH + " by label=" + RELEASELABEL + "( RELEASEVER=" + RELEASEVER + ")" );
 	}
 	
 	private String getReleaseVerByLabel( ActionBase action , String RELEASELABEL ) throws Exception {

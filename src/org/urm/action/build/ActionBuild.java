@@ -6,6 +6,7 @@ import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
+import org.urm.engine.dist.Dist;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.MetaSourceProject;
@@ -13,17 +14,19 @@ import org.urm.meta.product.MetaSourceProject;
 public class ActionBuild extends ActionBase {
 	
 	ActionScope scope;
-	LocalFolder OUTDIR;
-	String OUTFILE;
-	String TAG;
+	public LocalFolder OUTDIR;
+	public String OUTFILE;
+	public String TAG;
+	public Dist dist;
 
-	String BUILDSTATUS;
+	public String BUILDSTATUS;
 	
-	public ActionBuild( ActionBase action , String stream , LocalFolder OUTDIR , String OUTFILE , String TAG ) {
+	public ActionBuild( ActionBase action , String stream , LocalFolder OUTDIR , String OUTFILE , String TAG , Dist dist ) {
 		super( action , stream , "Generic build, tag=" + TAG );
 		this.OUTDIR = OUTDIR;
 		this.OUTFILE = OUTFILE;
 		this.TAG = TAG;
+		this.dist = dist;
 	}
 
 	@Override 
