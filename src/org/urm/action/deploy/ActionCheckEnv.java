@@ -69,6 +69,7 @@ public class ActionCheckEnv extends ActionBase {
 		sgStatus = new SegmentStatus( this , set.sg );
 		sgCaptureIndex = super.logStartCapture();
 		info( "execute segment=" + set.sg.NAME + " ..." );
+		co = super.getCacheObject( set.meta );
 	}
 
 	@Override protected void runAfter( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
