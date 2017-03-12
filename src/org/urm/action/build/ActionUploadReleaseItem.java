@@ -24,7 +24,7 @@ public class ActionUploadReleaseItem extends ActionBase {
 		List<ActionScopeTargetItem> items = scopeProject.getItems( this );
 		
 		// set maven
-		ServerBuilders builders = super.getBuilders();
+		ServerBuilders builders = super.getServerBuilders();
 		String BUILD_JAVA_HOME = shell.getLocalPath( builders.JAVA_HOMEPATH );
 		String BUILD_MAVEN_HOME = shell.getLocalPath( builders.MAVEN_HOMEPATH );
 

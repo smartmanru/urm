@@ -52,7 +52,7 @@ public class ServerBlotterSet extends ServerEventsSource {
 	}
 
 	public synchronized void startReleaseSet( ActionInit action ) throws Exception {
-		ServerDirectory directory = action.getDirectory();
+		ServerDirectory directory = action.getServerDirectory();
 		for( String productName : directory.getProducts() ) {
 			Meta meta = action.getProductMetadata( productName );
 			ServerProductMeta storage = meta.getStorage( action );

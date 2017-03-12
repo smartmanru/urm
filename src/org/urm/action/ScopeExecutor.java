@@ -705,7 +705,7 @@ public class ScopeExecutor {
 	private SCOPESTATE runSingleHostInternal( ActionScopeSet set , String host , int port , VarOSTYPE OSTYPE , ScopeState stateAccount ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
-			Account account = action.getSingleHostAccount( set.sg.DC , host , port , OSTYPE );
+			Account account = action.getSingleHostAccount( set.sg.SG , host , port , OSTYPE );
 			String serverNodes = set.sg.getServerNodesByHost( action , host );
 			action.info( account.getPrintName() + ": serverNodes={" + serverNodes + "}" );
 			
@@ -850,7 +850,7 @@ public class ScopeExecutor {
 	private boolean checkNeedRunAction( SCOPESTATE ss , ActionBase action ) {
 		if( ss == SCOPESTATE.RunBeforeFail )
 			return( false );
-		if( action.isFailed() )
+		if( !action.continueRun() )
 			return( false );
 		action.clearCall();
 		return( true );

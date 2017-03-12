@@ -156,7 +156,7 @@ public class ServerTransaction extends TransactionBase {
 	public void deleteSystem( ServerSystem system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		checkTransactionDirectory();
 		
-		ServerMirrors mirrors = action.getMirrors();
+		ServerMirrors mirrors = action.getServerMirrors();
 		for( String productName : system.getProducts() ) {
 			ServerProduct product = system.getProduct( productName );
 			mirrors.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
@@ -168,7 +168,7 @@ public class ServerTransaction extends TransactionBase {
 	public void createProduct( ServerProduct product , boolean forceClear ) throws Exception {
 		checkTransactionDirectory();
 		
-		ServerMirrors mirrors = action.getMirrors();
+		ServerMirrors mirrors = action.getServerMirrors();
 		mirrors.addProductMirrors( this , product , forceClear );
 		
 		directory.createProduct( this , product );

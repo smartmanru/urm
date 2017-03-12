@@ -13,6 +13,7 @@ import org.urm.action.monitor.NodeStatus;
 import org.urm.action.monitor.ServerStatus;
 import org.urm.common.Common;
 import org.urm.common.SimpleHttp;
+import org.urm.engine.ServerCacheObject;
 import org.urm.engine.ServerEvents;
 import org.urm.meta.product.MetaDistrComponentWS;
 import org.urm.meta.product.MetaEnvServer;
@@ -38,6 +39,7 @@ public class ActionCheckEnv extends ActionBase {
 	
 	SegmentStatus sgStatus;
 	int sgCaptureIndex;
+	ServerCacheObject co;
 	
 	public ActionCheckEnv( ActionBase action , String stream ) {
 		super( action , stream , "Check environment status" );
@@ -46,6 +48,7 @@ public class ActionCheckEnv extends ActionBase {
 	@Override protected void runBefore( ActionScope scope ) throws Exception {
 		// check all processes
 		infoAction( "check environment=" + context.env.ID + " ..." );
+		co = super.getCacheObject( scope.meta );
 	}
 
 	@Override protected void runAfter( ActionScope scope ) throws Exception {
@@ -76,7 +79,7 @@ public class ActionCheckEnv extends ActionBase {
 			info( "## sg " + F_STATUSOBJECT + " check OK" );
 		
 		sgStatus.setLog( super.logFinishCapture( sgCaptureIndex ) );
-		super.eventSource.finishScopeItem( ServerEvents.EVENT_MONITORING_SEGMENT , sgStatus );
+		co.finishScopeItem( ServerEvents.EVENT_CACHE_SEGMENT , sgStatus );
 	}
 	
 	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
@@ -133,7 +136,7 @@ public class ActionCheckEnv extends ActionBase {
 		
 		String[] log = super.logFinishCapture( captureIndex );
 		serverStatus.setLog( log );
-		super.eventSource.finishScopeItem( ServerEvents.EVENT_MONITORING_SERVER , serverStatus );
+		co.finishScopeItem( ServerEvents.EVENT_CACHE_SERVER , serverStatus );
 		
 		return( SCOPESTATE.RunSuccess );
 	}
@@ -332,7 +335,7 @@ public class ActionCheckEnv extends ActionBase {
 		if( main ) {
 			String[] log = super.logFinishCapture( captureIndex );
 			nodeStatus.setLog( log );
-			super.eventSource.finishScopeItem( ServerEvents.EVENT_MONITORING_NODE , nodeStatus );
+			co.finishScopeItem( ServerEvents.EVENT_CACHE_NODE , nodeStatus );
 			serverStatus.addNodeStatus( nodeStatus ); 
 		}
 		else

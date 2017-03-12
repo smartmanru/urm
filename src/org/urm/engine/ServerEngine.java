@@ -42,6 +42,7 @@ public class ServerEngine {
 	public ServerMBean jmxController;
 	public ServerHouseKeeping houseKeeping;
 	
+	public ServerCache cache;
 	public MainExecutor serverExecutor;
 	public ActionInit serverAction;
 	public ShellPool shellPool;
@@ -67,7 +68,9 @@ public class ServerEngine {
 	public ServerEngine( RunContext execrc ) {
 		this.execrc = execrc;
 		
-		houseKeeping = new ServerHouseKeeping( this ); 
+		houseKeeping = new ServerHouseKeeping( this );
+		cache = new ServerCache( this ); 
+
 		auth = new ServerAuth( this );
 		events = new ServerEvents( this );
 		loader = new ServerLoader( this );
@@ -76,9 +79,11 @@ public class ServerEngine {
 	}
 	
 	public void init() throws Exception {
+		cache.init();
 		auth.init();
 		events.init();
 		loader.init();
+		sessionController.init();
 		blotter.init();
 		
 		mainExecutor = MainExecutor.createExecutor( this );
@@ -128,6 +133,7 @@ public class ServerEngine {
 		jmxController = null;
 		loader.clearServerProducts();
 		blotter.clear();
+		cache.clear();
 		
 		running = false;
 	}
@@ -459,6 +465,10 @@ public class ServerEngine {
 
 	public ServerEvents getEvents() {
 		return( events );
+	}
+
+	public ServerCache getCache() {
+		return( cache );
 	}
 
 	public ServerLoader getLoader( ActionInit action ) {

@@ -122,21 +122,22 @@ public class MetaMonitoring extends PropertyController {
 		super.initFinished();
 	}
 
-	public Map<String,MetaMonitoringTarget> getTargets( ActionBase action ) throws Exception { 
-		return( mapTargets );
+	public MetaMonitoringTarget[] getTargets( ActionBase action ) throws Exception { 
+		return( mapTargets.values().toArray( new MetaMonitoringTarget[0] ) );
 	}
 	
 	private void loadTargets( ActionBase action , Node node ) throws Exception {
 		mapTargets.clear();
-		if( node == null ) {
+		
+		Node[] items = null;
+		if( node != null )
+			items = ConfReader.xmlGetChildren( node , "target" );
+		
+		if( items == null ) {
 			action.info( "no targets defined for monitoring" );
 			return;
 		}
 
-		Node[] items = ConfReader.xmlGetChildren( node , "target" );
-		if( items == null )
-			return;
-		
 		for( Node deliveryNode : items ) {
 			MetaMonitoringTarget item = new MetaMonitoringTarget( meta , this );
 			item.loadTarget( action , deliveryNode );
@@ -147,7 +148,7 @@ public class MetaMonitoring extends PropertyController {
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		boolean create = createFolders( action );
 		if( !create ) {
-			action.error( "monitoring is forced off because folders are not ready, check settings" );
+			action.error( "monitoring is forced off because folders (res=" + DIR_RES + ", data=" + DIR_DATA + ", reports=" + DIR_REPORTS + ", logs=" + DIR_LOGS + ") are not ready, check settings" );
 			super.setBooleanProperty( PROPERTY_ENABLED , false );
 			ENABLED = false;
 		}

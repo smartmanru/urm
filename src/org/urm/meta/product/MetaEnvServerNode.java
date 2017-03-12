@@ -177,7 +177,7 @@ public class MetaEnvServerNode extends PropertyController {
 	}
 	
 	public boolean checkReferencedByHostAccount( ServerHostAccount account ) {
-		Account ha = Account.getDatacenterAccount( server.sg.DC , HOSTLOGIN );
+		Account ha = Account.getDatacenterAccount( server.sg.SG , HOSTLOGIN );
 		if( account.host.isEqualsHost( ha ) && account.ID.equals( ha.USER ) )
 			return( true );
 
@@ -192,7 +192,7 @@ public class MetaEnvServerNode extends PropertyController {
 	}
 
 	public void updateHost( ServerTransaction transaction , ServerNetworkHost host ) throws Exception {
-		Account ha = Account.getDatacenterAccount( server.sg.DC , HOSTLOGIN );
+		Account ha = Account.getDatacenterAccount( server.sg.SG , HOSTLOGIN );
 		
 		ActionBase action = transaction.getAction();
 		ha.setHost( action , host );

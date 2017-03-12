@@ -96,9 +96,12 @@ public class Account {
 		ServerHostAccount hostAccount = null;
 		if( !local ) {
 			ServerInfrastructure infra = action.getServerInfrastructure();
+			if( datacenter.isEmpty() )
+				action.exit0( _Error.MissingDatacenter0 , "Unable to access account, missing datacenter" );
+			
 			ServerDatacenter dc = infra.findDatacenter( datacenter );
 			if( dc == null )
-				action.exit1( _Error.UnknownDatacenter1 , "Unknown datacenter=" + datacenter , datacenter );
+				action.exit1( _Error.UnknownDatacenter1 , "Unable to access account, unknown datacenter=" + datacenter , datacenter );
 			
 			hostAccount = dc.getFinalAccount( action , user + "@" + host );
 			if( hostAccount.host.osType != osType ) {
@@ -161,9 +164,12 @@ public class Account {
 		
 		// find account
 		ServerInfrastructure infra = action.getServerInfrastructure();
+		if( datacenter.isEmpty() )
+			action.exit0( _Error.MissingDatacenter0 , "Unable to access account, missing datacenter" );
+		
 		ServerDatacenter dc = infra.findDatacenter( datacenter );
 		if( dc == null )
-			action.exit1( _Error.UnknownDatacenter1 , "Unknown datacenter=" + datacenter , datacenter );
+			action.exit1( _Error.UnknownDatacenter1 , "Unable to access account, unknown datacenter=" + datacenter , datacenter );
 		
 		ServerHostAccount account = dc.getFinalAccount( action , hostLogin );
 		if( account.host.osType != osType ) {
@@ -334,9 +340,12 @@ public class Account {
 		if( AUTHRESOURCE.isEmpty() ) {
 			String hostLogin = getHostLogin();
 			ServerInfrastructure infra = action.getServerInfrastructure();
+			if( DATACENTER.isEmpty() )
+				action.exit0( _Error.MissingDatacenter0 , "Unable to access resource, missing datacenter" );
+			
 			ServerDatacenter dc = infra.findDatacenter( DATACENTER );
 			if( dc == null )
-				action.exit1( _Error.UnknownDatacenter1 , "Unknown datacenter=" + DATACENTER , DATACENTER );
+				action.exit1( _Error.UnknownDatacenter1 , "Unable to access resource, unknown datacenter=" + DATACENTER , DATACENTER );
 			
 			ServerHostAccount hostAccount = dc.getFinalAccount( action , hostLogin );
 			if( hostAccount.AUTHRES.isEmpty() )

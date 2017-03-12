@@ -12,6 +12,8 @@ import org.urm.common.RunError;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.ServerBlotter.BlotterType;
 import org.urm.engine.ServerBlotterSet;
+import org.urm.engine.ServerCache;
+import org.urm.engine.ServerCacheObject;
 import org.urm.engine.ServerSession;
 import org.urm.engine.SessionSecurity;
 import org.urm.engine.action.ActionInit;
@@ -26,6 +28,7 @@ import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
+import org.urm.meta.ServerObject;
 import org.urm.meta.ServerProductMeta;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerAuthUser;
@@ -37,6 +40,7 @@ import org.urm.meta.engine.ServerInfrastructure;
 import org.urm.meta.engine.ServerMirrorRepository;
 import org.urm.meta.engine.ServerMirrors;
 import org.urm.meta.engine.ServerMonitoring;
+import org.urm.meta.engine.ServerProduct;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.engine.ServerReleaseLifecycles;
 import org.urm.meta.engine.ServerResources;
@@ -44,6 +48,7 @@ import org.urm.meta.engine.ServerSettings;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
+import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaProductBuildSettings;
@@ -339,7 +344,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public ShellExecutor createDedicatedRemoteShell( String name , Account account , boolean setAction ) throws Exception {
-		ServerResources res = getResources();
+		ServerResources res = getServerResources();
 		ServerAuthResource ar = res.getResource( account.AUTHRESOURCE );
 		ar.loadAuthData( this );
 		return( engine.shellPool.createDedicatedRemoteShell( this , name , account , ar , setAction ) );
@@ -355,7 +360,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public Account getNodeAccount( MetaEnvServerNode node ) throws Exception {
-		return( Account.getDatacenterAccount( this , node.server.sg.DC , node.HOSTLOGIN , node.server.osType ) );
+		return( Account.getDatacenterAccount( this , node.server.sg.SG , node.HOSTLOGIN , node.server.osType ) );
 	}
 	
 	public Account getSingleHostAccount( String datacenter , String host , int port , VarOSTYPE OSTYPE ) throws Exception {
@@ -608,15 +613,52 @@ abstract public class ActionBase extends ActionCore {
 		}
 	}
 
-	public ServerResources getResources() {
+	public ServerCacheObject getCacheObject( String group , String item ) {
+		ServerCache cache = engine.getCache();
+		return( cache.getObject( group , item ) );
+	}
+	
+	public ServerCacheObject getProductCacheObject( String item ) {
+		return( getCacheObject( "product" , item ) );
+	}
+	
+	public ServerCacheObject getCacheObject( ServerObject object ) {
+		if( object instanceof ServerProduct ) {
+			ServerProduct xo = ( ServerProduct )object; 
+			return( getProductCacheObject( xo.NAME ) );
+		}
+		if( object instanceof Meta ) {
+			Meta xo = ( Meta )object; 
+			return( getProductCacheObject( xo.name ) );
+		}
+		if( object instanceof MetaEnv ) {
+			MetaEnv xo = ( MetaEnv )object; 
+			return( getProductCacheObject( xo.meta.name + "-" + xo.ID ) );
+		}
+		if( object instanceof MetaEnvSegment ) {
+			MetaEnvSegment xo = ( MetaEnvSegment )object; 
+			return( getProductCacheObject( xo.meta.name + "-" + xo.SG + "-" + xo.env.ID ) );
+		}
+		if( object instanceof MetaEnvServer ) {
+			MetaEnvServer xo = ( MetaEnvServer )object; 
+			return( getProductCacheObject( xo.meta.name + "-" + xo.sg.SG + "-" + xo.sg.env.ID + "-" + xo.NAME ) );
+		}
+		if( object instanceof MetaEnvServerNode ) {
+			MetaEnvServerNode xo = ( MetaEnvServerNode )object; 
+			return( getProductCacheObject( xo.meta.name + "-" + xo.server.sg.SG + "-" + xo.server.sg.env.ID + "-" + xo.server.NAME + "-" + xo.POS ) );
+		}
+		return( null );
+	}
+	
+	public ServerResources getServerResources() {
 		return( actionInit.getActiveResources() );
 	}
 	
-	public ServerBuilders getBuilders() {
+	public ServerBuilders getServerBuilders() {
 		return( actionInit.getActiveBuilders() );
 	}
 	
-	public ServerDirectory getDirectory() {
+	public ServerDirectory getServerDirectory() {
 		return( actionInit.getActiveDirectory() );
 	}
 	
@@ -628,7 +670,7 @@ abstract public class ActionBase extends ActionCore {
 		return( actionInit.getActiveServerContext() );
 	}
 	
-	public ServerMirrors getMirrors() {
+	public ServerMirrors getServerMirrors() {
 		return( actionInit.getActiveMirrors() );
 	}
 	
@@ -654,19 +696,19 @@ abstract public class ActionBase extends ActionCore {
 	}
 
 	public ServerMirrorRepository getProjectMirror( MetaSourceProject project ) throws Exception {
-		ServerMirrors mirrors = getMirrors();
+		ServerMirrors mirrors = getServerMirrors();
 		ServerMirrorRepository repo = mirrors.findProjectRepository( project );
 		return( repo );
 	}
 
 	public ServerMirrorRepository getMetaMirror( ServerProductMeta meta ) throws Exception {
-		ServerMirrors mirrors = getMirrors();
+		ServerMirrors mirrors = getServerMirrors();
 		ServerMirrorRepository repo = mirrors.findProductMetaRepository( meta );
 		return( repo );
 	}
 
 	public ServerMirrorRepository getConfigurationMirror( ServerProductMeta meta ) throws Exception {
-		ServerMirrors mirrors = getMirrors();
+		ServerMirrors mirrors = getServerMirrors();
 		ServerMirrorRepository repo = mirrors.findProductDataRepository( meta );
 		if( repo == null )
 			exit0( _Error.MissingMirrorConfig0 , "Missing product configuration files mirror" );
@@ -675,19 +717,19 @@ abstract public class ActionBase extends ActionCore {
 	}
 
 	public ServerProjectBuilder getBuilder( String name ) throws Exception {
-		ServerBuilders builders = getBuilders();
+		ServerBuilders builders = getServerBuilders();
 		ServerProjectBuilder builder = builders.getBuilder( name );
 		return( builder );
 	}
 
 	public ServerMirrorRepository getServerMirror() throws Exception {
-		ServerMirrors mirrors = getMirrors();
+		ServerMirrors mirrors = getServerMirrors();
 		ServerMirrorRepository repo = mirrors.findServerRepository();
 		return( repo );
 	}
 	
 	public ServerAuthResource getResource( String name ) throws Exception {
-		ServerResources resources = getResources();
+		ServerResources resources = getServerResources();
 		ServerAuthResource res = resources.getResource( name );
 		return( res );
 	}

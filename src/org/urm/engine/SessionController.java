@@ -39,6 +39,9 @@ public class SessionController {
 		actions = new HashMap<Integer,ActionInit>(); 
 	}
 
+	public void init() throws Exception {
+	}
+	
 	public void start( ActionBase serverAction ) throws Exception {
 		stop = false;
 		serverAction.debug( "start session controller ..." );

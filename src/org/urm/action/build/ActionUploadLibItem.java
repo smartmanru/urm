@@ -34,7 +34,7 @@ public class ActionUploadLibItem extends ActionBase {
 			super.exitUnexpectedState();
 		
 		// set environment
-		ServerBuilders builders = super.getBuilders();
+		ServerBuilders builders = super.getServerBuilders();
 		MetaProductBuildSettings build = getBuildSettings( meta );
 		String BUILD_MSETTINGS="--settings=" + shell.getLocalPath( build.CONFIG_MAVEN_CFGFILE );
 		String BUILD_JAVA_HOME = shell.getLocalPath( builders.JAVA_HOMEPATH );

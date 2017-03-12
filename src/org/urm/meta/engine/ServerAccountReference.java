@@ -52,7 +52,7 @@ public class ServerAccountReference {
 	}
 
 	public static void sort( ActionBase action , List<ServerAccountReference> refs , boolean infraFirst ) {
-		ServerDirectory directory = action.getDirectory();
+		ServerDirectory directory = action.getServerDirectory();
 		Map<String,ServerAccountReference> initial = new HashMap<String,ServerAccountReference>();
 		for( ServerAccountReference ref : refs ) {
 			String productName = ref.node.server.sg.env.meta.name;

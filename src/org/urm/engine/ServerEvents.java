@@ -13,6 +13,11 @@ public class ServerEvents extends ServerObject {
 	public static int EVENT_MONITORSTATECHANGED = 11;
 	public static int EVENT_MONITORCHILDCHANGED = 12;
 	public static int EVENT_MONITORGRAPHCHANGED = 13;
+	public static int EVENT_CACHE_PRODUCT = 20;
+	public static int EVENT_CACHE_ENV = 21;
+	public static int EVENT_CACHE_SEGMENT = 22;
+	public static int EVENT_CACHE_SERVER = 23;
+	public static int EVENT_CACHE_NODE = 24;
 	public static int EVENT_MONITORING_SEGMENT = 50;
 	public static int EVENT_MONITORING_SERVER = 51;
 	public static int EVENT_MONITORING_NODE = 52;

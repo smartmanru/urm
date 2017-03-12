@@ -138,7 +138,7 @@ public class ActionPatch extends ActionBase {
 	}
 	
 	private boolean uploadBuildStatus() throws Exception {
-		ServerBuilders builders = super.getBuilders();
+		ServerBuilders builders = super.getServerBuilders();
 		MetaProductBuildSettings build = getBuildSettings( builder.project.meta );
 		
 		String UPLOAD_PROJECT_NAME = builder.project.NAME;

@@ -270,5 +270,5 @@ public class ActionInit extends ActionBase {
 		loader.reloadProduct( productName );
 		return( loader.getSessionProductMetadata( this , productName , true ) );
 	}
-	
+
 }
