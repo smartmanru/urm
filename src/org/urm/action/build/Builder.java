@@ -42,7 +42,7 @@ public abstract class Builder {
 	public static Builder createBuilder( ActionBase action , MetaSourceProject project , String TAG , String VERSION ) throws Exception {
 		String BUILDER = project.getBuilder( action );
 		
-		ServerBuilders builders = action.getBuilders();
+		ServerBuilders builders = action.getServerBuilders();
 		ServerProjectBuilder builder = builders.getBuilder( BUILDER );
 		
 		Builder projectBuilder = null;

@@ -95,7 +95,7 @@ public class ActionConfigure extends ActionBase {
 	}
 	
 	private void configureServer() throws Exception {
-		ServerDirectory directory = actionInit.getDirectory();
+		ServerDirectory directory = actionInit.getServerDirectory();
 		for( String name : directory.getProducts() ) {
 			if( USEPRODUCT.isEmpty() || USEPRODUCT.equals( name ) ) {
 				info( "configure product name=" + name + " ..." );

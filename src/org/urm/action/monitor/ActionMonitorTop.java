@@ -9,6 +9,7 @@ import org.urm.action.ActionSetItem;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
+import org.urm.engine.ServerCacheObject;
 import org.urm.engine.ServerEvents;
 import org.urm.engine.ServerEventsApp;
 import org.urm.engine.ServerEventsListener;
@@ -31,6 +32,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 	boolean continueRunning;
 	String productName;
 	ServerEventsApp eventsApp;
+	ServerCacheObject co;
 	
 	public ActionMonitorTop( ActionBase action , String stream , String productName , ServerEventsApp eventsApp ) {
 		super( action , stream , "Monitoring, check product=" + productName );
@@ -51,6 +53,9 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 		int majorCount = 0;
 		int minorCount = 0;
 		
+		co = super.getProductCacheObject( productName );
+		eventsApp.subscribe( co , this );
+		
 		MonitorInfo info = null;
 		while( continueRunning ) {
 			ServerLoader loader = super.engine.getLoader( super.actionInit );
@@ -61,6 +66,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 			}
 
 			Meta meta = productStorage.meta;
+			
 			MetaMonitoring mon = meta.getMonitoring( this );
 			MonitoringStorage storage = artefactory.getMonitoringStorage( this , mon );
 			
@@ -113,7 +119,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 			}
 			
 			// create graphs
-			for( MetaMonitoringTarget target : mon.getTargets( this ).values() ) {
+			for( MetaMonitoringTarget target : mon.getTargets( this ) ) {
 				trace( "refresh target graph env=" + target.ENV + ", sg=" + target.SG );
 				info.addHistoryGraph( target );
 				super.eventSource.customEvent( ServerEvents.EVENT_MONITORGRAPHCHANGED , target );
@@ -155,10 +161,14 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 
 	@Override
 	public void triggerEvent( ServerSourceEvent event ) {
-		if( event.eventType == ServerEvents.EVENT_MONITORING_SEGMENT ||
-			event.eventType == ServerEvents.EVENT_MONITORING_SERVER ||
-			event.eventType == ServerEvents.EVENT_MONITORING_NODE )
-			super.eventSource.forwardScopeItem( event.eventType , ( ScopeState )event.data );
+		if( event.eventType == ServerEvents.EVENT_CACHE_SEGMENT )
+			super.eventSource.forwardScopeItem( ServerEvents.EVENT_MONITORING_SEGMENT , ( ScopeState )event.data );
+		else
+		if( event.eventType == ServerEvents.EVENT_CACHE_SERVER )
+			super.eventSource.forwardScopeItem( ServerEvents.EVENT_MONITORING_SERVER , ( ScopeState )event.data );
+		else
+		if( event.eventType == ServerEvents.EVENT_CACHE_NODE )
+			super.eventSource.forwardScopeItem( ServerEvents.EVENT_MONITORING_NODE , ( ScopeState )event.data );
 	}
 	
 	@Override
@@ -200,33 +210,38 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 	}
 
 	private void executeOnceMajor( MetaMonitoring mon , MonitorInfo info ) throws Exception {
-		List<ActionMonitorCheckEnv> checkenvActions = new LinkedList<ActionMonitorCheckEnv>();
-		
 		// run checkenv for all targets
 		ActionSet set = new ActionSet( this , "major" );
-		for( MetaMonitoringTarget target : mon.getTargets( this ).values() ) {
-			ActionMonitorCheckEnv action = getCheckEnvAction( info , set , target );
-			checkenvActions.add( action );
+		MetaMonitoringTarget[] targets = mon.getTargets( this );
+		
+		if( targets.length == 0 ) {
+			super.debug( "no monitoring targets, skipped." );
 		}
-		
-		set.waitDone();
-		
-		for( ActionMonitorCheckEnv action : checkenvActions )
-			info.addCheckEnvData( action.target , action.timePassedMillis , action.isOK() );
+		else {
+			List<ActionMonitorCheckEnv> checkenvActions = new LinkedList<ActionMonitorCheckEnv>();
+			for( MetaMonitoringTarget target : targets ) {
+				ActionMonitorCheckEnv action = getCheckEnvAction( info , set , target );
+				checkenvActions.add( action );
+			}
+			
+			set.waitDone();
+			
+			for( ActionMonitorCheckEnv action : checkenvActions )
+				info.addCheckEnvData( action.target , action.timePassedMillis , action.isOK() );
+		}
 		
 		Common.sleep( 1000 );
 	}
 	
 	private void executeOnceMinor( MetaMonitoring mon , MonitorInfo info ) throws Exception {
 		// run checkenv for all targets
-		for( MetaMonitoringTarget target : mon.getTargets( this ).values() ) {
+		for( MetaMonitoringTarget target : mon.getTargets( this ) ) {
 			checkTargetItems( mon , info , target );
 		}
 	}
 
 	private ActionMonitorCheckEnv getCheckEnvAction( MonitorInfo info , ActionSet set , MetaMonitoringTarget target ) throws Exception {
-		ActionMonitorCheckEnv action = new ActionMonitorCheckEnv( this , target.NAME , info.storage , target , eventsApp );
-		eventsApp.subscribe( action.eventSource , this );
+		ActionMonitorCheckEnv action = new ActionMonitorCheckEnv( this , target.NAME , info.storage , target );
 		MetaEnv env = getEnv( target );
 		set.runSimpleEnv( action , env , SecurityAction.ACTION_DEPLOY , false );
 		return( action );

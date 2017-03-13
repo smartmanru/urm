@@ -107,7 +107,7 @@ public class UrmStorage {
 			return( artefactory.getAnyFolder( action , dir ) );
 		}
 		
-		ServerDirectory directory = action.getDirectory();
+		ServerDirectory directory = action.getServerDirectory();
 		ServerProduct product = directory.findProduct( productName );
 		if( product == null )
 			action.exitUnexpectedState();

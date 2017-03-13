@@ -142,7 +142,7 @@ public class ServerMBean implements DynamicMBean {
 		if( !products.checkExists( action ) )
 			action.exit1( _Error.CannotFindDirectory1 , "cannot find directory: " + products.folderPath , products.folderPath );
 		
-		ServerDirectory directory = action.actionInit.getDirectory();
+		ServerDirectory directory = action.actionInit.getServerDirectory();
 		for( String name : directory.getProducts() )
 			addProduct( name );
 	}		

@@ -53,5 +53,6 @@ public class _Error {
 	public static final int UnknownDatacenter1 = ErrorBase + 44;
 	public static final int AccessTypeNotSupported1 = ErrorBase + 45;
 	public static final int UnableCreateRemoteShell0 = ErrorBase + 46;
+	public static final int MissingDatacenter0 = ErrorBase + 47;
 	
 }
