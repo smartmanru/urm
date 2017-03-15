@@ -78,8 +78,12 @@ public class ServerDatacenter extends ServerObject {
 		return( mapNetworks.get( id ) );
 	}
 	
-	public String[] getNetworks() {
+	public String[] getNetworkNames() {
 		return( Common.getSortedKeys( mapNetworks ) );
+	}
+	
+	public ServerNetwork[] getNetworks() {
+		return( mapNetworks.values().toArray( new ServerNetwork[0] ) );
 	}
 	
 	public void createDatacenter( ServerTransaction transaction  , String ID , String DESC ) throws Exception {

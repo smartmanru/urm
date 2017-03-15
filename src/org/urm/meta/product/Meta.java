@@ -146,8 +146,12 @@ public class Meta extends ServerObject {
 		return( loader.loadDesignData( action.actionInit , storage , fileName ) );
 	}
 	
-	public String[] getEnvList() {
+	public String[] getEnvNames() {
 		return( storage.getEnvironmentNames() );
+	}
+	
+	public MetaEnv[] getEnvironments() {
+		return( storage.getEnvironments() );
 	}
 	
 	public synchronized MetaEnv getEnvData( ActionBase action , String envFile , boolean loadProps ) throws Exception {

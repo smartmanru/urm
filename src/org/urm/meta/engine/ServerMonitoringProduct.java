@@ -290,7 +290,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			return;
 
 		MONITORING_STATE finalState = MONITORING_STATE.STATE_NOMONITORING;
-		for( String envName : meta.getEnvList() ) {
+		for( String envName : meta.getEnvNames() ) {
 			MetaEnv env = meta.findEnv( envName );
 			ServerMonitoringSource envSource = monitoring.getObjectSource( env );
 			if( envSource != null )
@@ -309,7 +309,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 			return;
 
 		MONITORING_STATE finalState = MONITORING_STATE.STATE_NOMONITORING;
-		for( String productName : system.getProducts() ) {
+		for( String productName : system.getProductNames() ) {
 			ServerProduct product = system.getProduct( productName );
 			ServerMonitoringSource productSource = monitoring.getObjectSource( product );
 			if( productSource != null )

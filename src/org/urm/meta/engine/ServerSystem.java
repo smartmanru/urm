@@ -62,8 +62,12 @@ public class ServerSystem extends ServerObject {
 		}
 	}
 	
-	public String[] getProducts() {
+	public String[] getProductNames() {
 		return( Common.getSortedKeys( mapProducts ) );
+	}
+
+	public ServerProduct[] getProducts() {
+		return( mapProducts.values().toArray( new ServerProduct[0] ) );
 	}
 
 	public ServerProduct getProduct( String key ) {
@@ -98,7 +102,7 @@ public class ServerSystem extends ServerObject {
 		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
 		Common.xmlSetElementAttr( doc , root , "offline" , Common.getBooleanValue( OFFLINE ) );
 		
-		for( String productName : getProducts() ) {
+		for( String productName : getProductNames() ) {
 			ServerProduct product = getProduct( productName );
 			Element elementProduct = Common.xmlCreateElement( doc , root , "product" );
 			product.save( doc , elementProduct );

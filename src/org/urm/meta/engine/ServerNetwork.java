@@ -85,8 +85,12 @@ public class ServerNetwork extends ServerObject {
 		return( hostMap.get( id ) );
 	}
 	
-	public String[] getHosts() {
+	public String[] getHostNames() {
 		return( Common.getSortedKeys( hostMap ) );
+	}
+	
+	public ServerNetworkHost[] getHosts() {
+		return( hostMap.values().toArray( new ServerNetworkHost[0] ) );
 	}
 	
 	public void createNetwork( ServerTransaction transaction  , String ID , String MASK , String DESC ) throws Exception {

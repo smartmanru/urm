@@ -586,7 +586,7 @@ public class ServerAuth extends ServerObject {
 	}
 
 	public synchronized void deleteDatacenter( ServerTransaction transaction , ServerDatacenter datacenter ) throws Exception {
-		for( String networkName : datacenter.getNetworks() ) {
+		for( String networkName : datacenter.getNetworkNames() ) {
 			ServerNetwork network = datacenter.findNetwork( networkName );
 			deleteNetwork( transaction , network );
 		}

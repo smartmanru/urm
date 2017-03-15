@@ -68,8 +68,12 @@ public class ServerBaseGroup extends ServerObject {
 		}
 	}
 
-	public String[] getItems() {
+	public String[] getItemNames() {
 		return( Common.getSortedKeys( itemMap ) );
+	}
+
+	public ServerBaseItem[] getItems() {
+		return( itemMap.values().toArray( new ServerBaseItem[0] ) );
 	}
 
 	public ServerBaseItem findItem( String ID ) {

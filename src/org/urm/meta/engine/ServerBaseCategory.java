@@ -81,8 +81,12 @@ public class ServerBaseCategory extends ServerObject {
 		}
 	}
 
-	public String[] getGroups() {
+	public String[] getGroupNames() {
 		return( Common.getSortedKeys( groupMap ) );
+	}
+
+	public ServerBaseGroup[] getGroups() {
+		return( groupMap.values().toArray( new ServerBaseGroup[0] ) );
 	}
 
 	public ServerBaseGroup findGroup( String ID ) {

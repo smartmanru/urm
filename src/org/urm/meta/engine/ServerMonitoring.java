@@ -152,7 +152,7 @@ public class ServerMonitoring extends ServerObject {
 		engine.trace( "monitoring started for system=" + system.NAME );
 		
 		// start products
-		for( String productName : system.getProducts() ) {
+		for( String productName : system.getProductNames() ) {
 			ServerProduct product = system.getProduct( productName );
 			startProduct( product );
 		}

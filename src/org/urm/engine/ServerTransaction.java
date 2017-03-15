@@ -157,7 +157,7 @@ public class ServerTransaction extends TransactionBase {
 		checkTransactionDirectory();
 		
 		ServerMirrors mirrors = action.getServerMirrors();
-		for( String productName : system.getProducts() ) {
+		for( String productName : system.getProductNames() ) {
 			ServerProduct product = system.getProduct( productName );
 			mirrors.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		}
