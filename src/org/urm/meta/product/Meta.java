@@ -45,6 +45,11 @@ public class Meta extends ServerObject {
 		name = storage.name;
 	}
 	
+	@Override
+	public String getName() {
+		return( name );
+	}
+	
 	public void replaceStorage( ActionBase action , ServerProductMeta storage ) throws Exception {
 		loader.releaseSessionProductMetadata( action , this , false );
 		
@@ -301,7 +306,7 @@ public class Meta extends ServerObject {
     	MetaEnv env = findMetaEnv( sg.env );
     	if( env == null )
     		return( null );
-    	return( env.findSG( sg.NAME ) );
+    	return( env.findSegment( sg.NAME ) );
     }
     
     public MetaEnvServer findMetaEnvServer( MetaEnvServer server ) {

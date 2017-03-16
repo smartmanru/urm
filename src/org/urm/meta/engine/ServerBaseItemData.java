@@ -60,6 +60,11 @@ public class ServerBaseItemData extends PropertyController {
 		create();
 	}
 
+	@Override
+	public String getName() {
+		return( "server-base-item-data" );
+	}
+	
 	public void create() {
 		compatibilityMap = new HashMap<String,String>();
 		dependencies = new LinkedList<String>();

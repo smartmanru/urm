@@ -33,6 +33,11 @@ public class MetaDatabase extends PropertyController {
 	}
 
 	@Override
+	public String getName() {
+		return( "meta-database" );
+	}
+	
+	@Override
 	public boolean isValid() {
 		if( super.isLoadFailed() )
 			return( false );

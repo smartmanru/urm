@@ -34,6 +34,11 @@ public class ServerBase extends ServerObject {
 		mapItem = new HashMap<String,ServerBaseItem>(); 
 	}
 	
+	@Override
+	public String getName() {
+		return( "server-base" );
+	}
+	
 	public void load( String baseFile , RunContext execrc ) throws Exception {
 		Document doc = ConfReader.readXmlFile( execrc , baseFile );
 		Node root = doc.getDocumentElement();

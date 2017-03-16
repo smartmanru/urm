@@ -26,6 +26,11 @@ public class ServerBaseGroup extends ServerObject {
 		itemMap = new HashMap<String,ServerBaseItem>();
 	}
 	
+	@Override
+	public String getName() {
+		return( ID );
+	}
+	
 	public ServerBaseGroup copy( ServerBaseCategory rn ) throws Exception {
 		ServerBaseGroup r = new ServerBaseGroup( rn );
 		

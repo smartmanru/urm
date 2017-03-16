@@ -27,6 +27,11 @@ public class ServerSystem extends ServerObject {
 		mapProducts = new HashMap<String,ServerProduct>();
 	}
 
+	@Override
+	public String getName() {
+		return( NAME );
+	}
+	
 	public void createSystem( ServerTransaction transaction , String name , String desc ) {
 		this.NAME = name;
 		this.DESC = desc;
@@ -70,7 +75,7 @@ public class ServerSystem extends ServerObject {
 		return( mapProducts.values().toArray( new ServerProduct[0] ) );
 	}
 
-	public ServerProduct getProduct( String key ) {
+	public ServerProduct findProduct( String key ) {
 		return( mapProducts.get( key ) );
 	}
 
@@ -103,7 +108,7 @@ public class ServerSystem extends ServerObject {
 		Common.xmlSetElementAttr( doc , root , "offline" , Common.getBooleanValue( OFFLINE ) );
 		
 		for( String productName : getProductNames() ) {
-			ServerProduct product = getProduct( productName );
+			ServerProduct product = findProduct( productName );
 			Element elementProduct = Common.xmlCreateElement( doc , root , "product" );
 			product.save( doc , elementProduct );
 		}

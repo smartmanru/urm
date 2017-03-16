@@ -20,6 +20,11 @@ public class ServerBaseItem extends ServerObject {
 		this.group = group;
 	}
 
+	@Override
+	public String getName() {
+		return( ID );
+	}
+	
 	public void createBaseItem( ServerTransaction transaction , String ID , String DESC ) {
 		this.ID = ID;
 		this.DESC = DESC;

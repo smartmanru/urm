@@ -34,6 +34,11 @@ public class MetaSource extends PropertyController {
 	}
 	
 	@Override
+	public String getName() {
+		return( "meta-source" );
+	}
+	
+	@Override
 	public boolean isValid() {
 		if( super.isLoadFailed() )
 			return( false );

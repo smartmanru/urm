@@ -30,6 +30,11 @@ public class ServerDatacenter extends ServerObject {
 		mapNetworks = new HashMap<String,ServerNetwork>();
 	}
 	
+	@Override
+	public String getName() {
+		return( ID );
+	}
+	
 	public ServerDatacenter copy() throws Exception {
 		ServerDatacenter r = new ServerDatacenter( infra );
 		r.ID = ID;

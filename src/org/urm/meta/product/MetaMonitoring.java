@@ -54,6 +54,11 @@ public class MetaMonitoring extends PropertyController {
 	}
 	
 	@Override
+	public String getName() {
+		return( "meta-monitoring" );
+	}
+	
+	@Override
 	public boolean isValid() {
 		if( super.isLoadFailed() )
 			return( false );

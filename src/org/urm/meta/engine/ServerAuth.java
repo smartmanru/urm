@@ -66,6 +66,11 @@ public class ServerAuth extends ServerObject {
 		groups = new HashMap<String,ServerAuthGroup>(); 
 	}
 	
+	@Override
+	public String getName() {
+		return( "server-auth" );
+	}
+	
 	public void init() throws Exception {
 		// read users
 		String authFile = getAuthFile();

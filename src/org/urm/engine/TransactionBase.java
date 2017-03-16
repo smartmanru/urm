@@ -90,6 +90,11 @@ public class TransactionBase extends ServerObject {
 		engine.trace( "transaction created id=" + objectId );
 	}
 	
+	@Override
+	public String getName() {
+		return( "server-transaction" );
+	}
+	
 	public boolean startTransaction() {
 		synchronized( engine ) {
 			if( !engine.startTransaction( this ) )
@@ -1029,7 +1034,7 @@ public class TransactionBase extends ServerObject {
 
 	public MetaEnvSegment getMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
 		MetaEnv env = getMetaEnv( sg.env );
-		return( env.findSG( sg.NAME ) );
+		return( env.findSegment( sg.NAME ) );
 	}
 
 	public MetaEnvServer getMetaEnvServer( MetaEnvServer server ) throws Exception {

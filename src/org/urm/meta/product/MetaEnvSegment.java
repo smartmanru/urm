@@ -56,6 +56,11 @@ public class MetaEnvSegment extends PropertyController {
 	}
 
 	@Override
+	public String getName() {
+		return( NAME );
+	}
+	
+	@Override
 	public boolean isValid() {
 		if( super.isLoadFailed() )
 			return( false );

@@ -34,6 +34,11 @@ public class ServerNetwork extends ServerObject {
 		hostMap = new HashMap<String,ServerNetworkHost>();
 	}
 	
+	@Override
+	public String getName() {
+		return( ID );
+	}
+	
 	public ServerNetwork copy( ServerDatacenter datacenter ) throws Exception {
 		ServerNetwork r = new ServerNetwork( datacenter );
 		r.ID = ID;

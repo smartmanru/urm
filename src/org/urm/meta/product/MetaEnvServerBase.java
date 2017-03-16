@@ -32,6 +32,11 @@ public class MetaEnvServerBase extends PropertyController {
 	}
 
 	@Override
+	public String getName() {
+		return( ID );
+	}
+	
+	@Override
 	public boolean isValid() {
 		if( super.isLoadFailed() )
 			return( false );

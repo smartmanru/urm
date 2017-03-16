@@ -77,6 +77,11 @@ public class ServerMonitoring extends ServerObject {
 		sourceMap = new HashMap<ServerObject,ServerMonitoringSource>();
 	}
 
+	@Override
+	public String getName() {
+		return( "server-monitoring" );
+	}
+	
 	public void scatterProperties() throws Exception {
 		ServerSettings settings = loader.getServerSettings();
 		PropertySet src = settings.serverContext.properties;
@@ -153,7 +158,7 @@ public class ServerMonitoring extends ServerObject {
 		
 		// start products
 		for( String productName : system.getProductNames() ) {
-			ServerProduct product = system.getProduct( productName );
+			ServerProduct product = system.findProduct( productName );
 			startProduct( product );
 		}
 	}
@@ -364,14 +369,14 @@ public class ServerMonitoring extends ServerObject {
 		replaceSource( MONITORING_ENVIRONMENT , envOld , envNew );
 		
 		for( MetaEnvSegment sgNew : envNew.getSegments() ) {
-			MetaEnvSegment sgOld = envOld.findSG( sgNew.NAME );
+			MetaEnvSegment sgOld = envOld.findSegment( sgNew.NAME );
 			if( sgOld != null )
 				modifySegment( sgOld , sgNew );
 			else
 				startSegment( sgNew );
 		}
 		for( MetaEnvSegment sgOld : envOld.getSegments() ) {
-			MetaEnvSegment sgNew = envNew.findSG( sgOld.NAME );
+			MetaEnvSegment sgNew = envNew.findSegment( sgOld.NAME );
 			if( sgNew == null )
 				stopSegment( sgOld , true );
 		}
@@ -422,7 +427,7 @@ public class ServerMonitoring extends ServerObject {
 		MetaEnv env = target.meta.findEnv( target.ENV );
 		if( env == null )
 			return( null );
-		MetaEnvSegment sg = env.findSG( target.SG );
+		MetaEnvSegment sg = env.findSegment( target.SG );
 		if( sg == null)
 			return( null );
 		return( getObjectSource( sg ) );

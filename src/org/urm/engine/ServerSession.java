@@ -56,6 +56,11 @@ public class ServerSession extends ServerObject {
 		closed = false;
 	}
 
+	@Override
+	public String getName() {
+		return( "server-session" );
+	}
+	
 	public void close() throws Exception {
 		closed = true;
 		

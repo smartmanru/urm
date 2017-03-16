@@ -41,6 +41,11 @@ public class ServerReleaseLifecycle extends ServerObject {
 		deployPhases = 0;
 	}
 	
+	@Override
+	public String getName() {
+		return( ID );
+	}
+	
 	public ServerReleaseLifecycle copy( ServerReleaseLifecycles lifecycles ) throws Exception {
 		ServerReleaseLifecycle r = new ServerReleaseLifecycle( lifecycles );
 		r.lcType = lcType;

@@ -310,7 +310,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 
 		MONITORING_STATE finalState = MONITORING_STATE.STATE_NOMONITORING;
 		for( String productName : system.getProductNames() ) {
-			ServerProduct product = system.getProduct( productName );
+			ServerProduct product = system.findProduct( productName );
 			ServerMonitoringSource productSource = monitoring.getObjectSource( product );
 			if( productSource != null )
 				finalState = ServerMonitoringState.addState( finalState , productSource.state.state );

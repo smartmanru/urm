@@ -26,6 +26,11 @@ public class ServerProduct extends ServerObject {
 		this.system = system;
 	}
 	
+	@Override
+	public String getName() {
+		return( NAME );
+	}
+	
 	public void createProduct( ServerTransaction transaction , String newName , String newDesc , String newPath ) throws Exception {
 		NAME = newName;
 		DESC = newDesc;

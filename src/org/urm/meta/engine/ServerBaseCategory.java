@@ -37,6 +37,11 @@ public class ServerBaseCategory extends ServerObject {
 		groupMap = new HashMap<String,ServerBaseGroup>();
 	}
 	
+	@Override
+	public String getName() {
+		return( ID );
+	}
+	
 	public ServerBaseCategory copy( ServerBase rn ) throws Exception {
 		ServerBaseCategory r = new ServerBaseCategory( rn , type , NAME );
 		

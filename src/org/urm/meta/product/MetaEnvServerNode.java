@@ -45,6 +45,11 @@ public class MetaEnvServerNode extends PropertyController {
 	}
 
 	@Override
+	public String getName() {
+		return( "" + POS );
+	}
+	
+	@Override
 	public boolean isValid() {
 		return( true );
 	}

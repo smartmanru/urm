@@ -18,6 +18,11 @@ public class ServerCache extends ServerObject {
 		data = new HashMap<String,Map<String,ServerCacheObject>>(); 
 	}
 
+	@Override
+	public String getName() {
+		return( "server-cache" );
+	}
+	
 	public synchronized void init() {
 		data.clear();
 	}

@@ -28,6 +28,11 @@ public class ServerHostAccount extends ServerObject {
 		isAdmin = false;
 	}
 	
+	@Override
+	public String getName() {
+		return( ID );
+	}
+	
 	public ServerHostAccount copy( ServerNetworkHost rh ) throws Exception {
 		ServerHostAccount r = new ServerHostAccount( rh );
 		r.ID = ID;

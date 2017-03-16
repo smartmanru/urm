@@ -56,6 +56,11 @@ public class ServerAuthResource extends ServerObject {
 		verified = false;
 	}
 
+	@Override
+	public String getName() {
+		return( NAME );
+	}
+	
 	public ServerAuthResource copy( ServerResources resources ) throws Exception {
 		ServerAuthResource r = new ServerAuthResource( resources );
 		r.properties = properties.copy( null );

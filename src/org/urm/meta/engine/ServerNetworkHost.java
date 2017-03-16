@@ -34,6 +34,11 @@ public class ServerNetworkHost extends ServerObject {
 		accountMap = new HashMap<String,ServerHostAccount>();
 	}
 	
+	@Override
+	public String getName() {
+		return( ID );
+	}
+	
 	public ServerNetworkHost copy( ServerNetwork rn ) throws Exception {
 		ServerNetworkHost r = new ServerNetworkHost( rn );
 		

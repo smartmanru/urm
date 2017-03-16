@@ -31,6 +31,11 @@ public class ServerDirectory extends ServerObject {
 		mapProducts = new HashMap<String,ServerProduct>();
 	}
 
+	@Override
+	public String getName() {
+		return( "server-directory" );
+	}
+	
 	public void load( Node root ) throws Exception {
 		if( root == null )
 			return;

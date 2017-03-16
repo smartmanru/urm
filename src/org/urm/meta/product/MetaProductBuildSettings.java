@@ -64,6 +64,11 @@ public class MetaProductBuildSettings extends PropertyController {
 	}
 	
 	@Override
+	public String getName() {
+		return( "meta-build-settings" );
+	}
+	
+	@Override
 	public boolean isValid() {
 		if( super.isLoadFailed() )
 			return( false );

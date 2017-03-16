@@ -3,8 +3,10 @@ package org.urm.meta;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ServerObject {
+abstract public class ServerObject {
 
+	abstract public String getName();
+	
 	static int objectIdSequence = 0;
 	public int objectId;
 	
@@ -22,6 +24,13 @@ public class ServerObject {
 		childs = new LinkedList<ServerObject>();
 		if( parent != null )
 			parent.childs.add( this );
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		if( !deleted )
+			System.out.println( "finalize not deleted object id=" + objectId + ", class=" + getClass().getSimpleName() );
+		super.finalize();
 	}
 
 	public void refObject( ServerRef<?> ref ) {
@@ -49,10 +58,4 @@ public class ServerObject {
 		deleted = true;
 	}
 
-	@Override
-	protected void finalize() throws Throwable {
-		if( !deleted )
-			System.out.println( "finalize not deleted object id=" + objectId + ", class=" + getClass().getSimpleName() );
-		super.finalize();
-	}
 }

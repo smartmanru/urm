@@ -34,6 +34,11 @@ public class ServerMirrors extends ServerObject {
 		repoMap = new HashMap<String,ServerMirrorRepository>();
 	}
 
+	@Override
+	public String getName() {
+		return( "server-mirrors" );
+	}
+	
 	public ServerMirrors copy() throws Exception {
 		ServerMirrors r = new ServerMirrors( registry );
 		
