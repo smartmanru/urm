@@ -1,6 +1,7 @@
 package org.urm.common.action;
 
 import org.urm.common.Common;
+import org.urm.common.RunContext;
 
 public class CommandMethodMeta {
 
@@ -19,7 +20,7 @@ public class CommandMethodMeta {
 	public boolean top;
 	public String help;
 	public String[] vars;
-	public String syntax;
+	private String syntax;
 
 	public static CommandMethodMeta newInfo( CommandMeta command , String name , boolean top , String help , String varList , String syntax ) {
 		return( newAction( command , name , ACTION_TYPE.INFO , top , help , varList , syntax ) );
@@ -69,6 +70,12 @@ public class CommandMethodMeta {
 	
 	public boolean isInteractive() {
 		return( type == ACTION_TYPE.INTERACTIVE );
+	}
+
+	public String getSyntax( RunContext rc ) {
+		if( rc.isLinux() )
+			return( "./" + name + ".sh [OPTIONS] " + syntax );
+		return( name + ".cmd [OPTIONS] " + syntax );
 	}
 	
 }

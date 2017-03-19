@@ -190,6 +190,11 @@ public abstract class Folder {
 		session.move( action , Common.getPath( folderPath , file ) , Common.getPath( folderPath , folder ) );
 	}
 	
+	public void moveFolderToFolder( ActionBase action , String src , String dst ) throws Exception {
+		ShellExecutor session = getSession( action ); 
+		session.move( action , Common.getPath( folderPath , src ) , Common.getPath( folderPath , dst ) );
+	}
+	
 	public void extractArchive( ActionBase action , VarARCHIVETYPE atype , String archiveFile , String targetFolder ) throws Exception {
 		if( atype == VarARCHIVETYPE.TAR )
 			extractTar( action , archiveFile , targetFolder );

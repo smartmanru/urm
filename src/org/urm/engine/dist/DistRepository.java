@@ -342,6 +342,7 @@ public class DistRepository {
 
 	public synchronized DistRepositoryItem addDistAction( ActionBase action , boolean success , Dist dist , DistOperation op , String msg ) throws Exception {
 		DistRepositoryItem item = null;
+		boolean save = false;
 		if( op == DistOperation.CREATE ) {
 			if( success == false )
 				return( null );
@@ -349,6 +350,7 @@ public class DistRepository {
 			item = new DistRepositoryItem( this );
 			item.createItem( action , dist );
 			addRunItem( item );
+			save = true;
 		}
 		else {
 			item = findRunItem( dist.RELEASEDIR );
@@ -359,18 +361,22 @@ public class DistRepository {
 		item.addAction( action , success , op , msg );
 		
 		if( op == DistOperation.DROP ) {
-			if( success )
+			if( success ) {
 				removeRunItem( item );
+				save = true;
+			}
 		}
 		else
 		if( op == DistOperation.ARCHIVE ) {
 			if( success ) {
+				save = true;
 				removeRunItem( item );
 				item.archiveItem( action );
 			}
 		}
 		
-		saveRepositoryFile( action );
+		if( save )
+			saveRepositoryFile( action );
 		return( item );
 	}
 
@@ -381,6 +387,14 @@ public class DistRepository {
 		for( String key : Common.getSortedKeys( runMap ) )
 			items[ k++ ] = runMap.get( key );
 		return( items );
+	}
+	
+	public synchronized void archiveDist( ActionBase action , Dist dist ) throws Exception {
+		String folderOld = DistLabelInfo.getReleaseFolder( action , dist );
+		String folderNew = DistLabelInfo.getArchivedReleaseFolder( action , dist );
+		String folderArchive = DistLabelInfo.getArchiveFolder( action );
+		repoFolder.ensureFolderExists( action , folderArchive );
+		repoFolder.moveFolderToFolder( action , folderOld , folderNew );
 	}
 	
 }

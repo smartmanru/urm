@@ -310,7 +310,7 @@ public class OptionsMeta {
 		
 		printhelp( "Action: " + action.name );
 		printhelp( "Function: " + action.help );
-		printhelp( "Syntax: " + action.syntax );
+		printhelp( "Syntax: " + action.getSyntax( builder.clientrc ) );
 		printhelp( "" );
 		
 		// show action options
