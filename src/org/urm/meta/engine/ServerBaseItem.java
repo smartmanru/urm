@@ -3,21 +3,28 @@ package org.urm.meta.engine;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerTransaction;
+import org.urm.meta.ServerObject;
 import org.urm.meta.engine.ServerBase.CATEGORY_TYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerBaseItem {
+public class ServerBaseItem extends ServerObject {
 
 	public ServerBaseGroup group;
 	public String ID;
 	public String DESC;
 	
 	public ServerBaseItem( ServerBaseGroup group ) {
+		super( group );
 		this.group = group;
 	}
 
+	@Override
+	public String getName() {
+		return( ID );
+	}
+	
 	public void createBaseItem( ServerTransaction transaction , String ID , String DESC ) {
 		this.ID = ID;
 		this.DESC = DESC;

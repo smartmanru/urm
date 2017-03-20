@@ -30,6 +30,11 @@ public class ServerDatacenter extends ServerObject {
 		mapNetworks = new HashMap<String,ServerNetwork>();
 	}
 	
+	@Override
+	public String getName() {
+		return( ID );
+	}
+	
 	public ServerDatacenter copy() throws Exception {
 		ServerDatacenter r = new ServerDatacenter( infra );
 		r.ID = ID;
@@ -78,8 +83,12 @@ public class ServerDatacenter extends ServerObject {
 		return( mapNetworks.get( id ) );
 	}
 	
-	public String[] getNetworks() {
+	public String[] getNetworkNames() {
 		return( Common.getSortedKeys( mapNetworks ) );
+	}
+	
+	public ServerNetwork[] getNetworks() {
+		return( mapNetworks.values().toArray( new ServerNetwork[0] ) );
 	}
 	
 	public void createDatacenter( ServerTransaction transaction  , String ID , String DESC ) throws Exception {

@@ -27,6 +27,11 @@ public class ServerInfrastructure extends ServerObject {
 		mapDatacenters = new HashMap<String,ServerDatacenter>(); 
 	}
 	
+	@Override
+	public String getName() {
+		return( "server-infrastructure" );
+	}
+	
 	public void load( String infrastructureFile , RunContext execrc ) throws Exception {
 		Document doc = ConfReader.readXmlFile( execrc , infrastructureFile );
 		Node root = doc.getDocumentElement();

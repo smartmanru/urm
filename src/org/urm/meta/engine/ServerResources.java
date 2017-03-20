@@ -30,6 +30,11 @@ public class ServerResources extends ServerObject {
 		resourceMap = new HashMap<String,ServerAuthResource>();
 	}
 
+	@Override
+	public String getName() {
+		return( "server-resources" );
+	}
+	
 	public ServerResources copy() throws Exception {
 		ServerResources r = new ServerResources( registry );
 		

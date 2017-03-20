@@ -22,6 +22,11 @@ public class MetaEnvServerPrepareApp extends PropertyController {
 	}
 	
 	@Override
+	public String getName() {
+		return( APP );
+	}
+	
+	@Override
 	public boolean isValid() {
 		if( super.isLoadFailed() )
 			return( false );

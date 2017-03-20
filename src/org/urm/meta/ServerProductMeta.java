@@ -79,6 +79,11 @@ public class ServerProductMeta extends ServerObject {
 		primary = false;
 	}
 
+	@Override
+	public String getName() {
+		return( name );
+	}
+	
 	public DistRepository getDistRepository( ActionBase action ) {
 		return( repo );
 	}

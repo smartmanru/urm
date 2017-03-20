@@ -37,6 +37,11 @@ public class MetaDistr extends PropertyController {
 	}
 	
 	@Override
+	public String getName() {
+		return( "meta-distr" );
+	}
+	
+	@Override
 	public boolean isValid() {
 		if( super.isLoadFailed() )
 			return( false );

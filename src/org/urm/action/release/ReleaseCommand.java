@@ -245,4 +245,9 @@ public class ReleaseCommand {
 		ma.runSimpleProduct( dist.meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
+	public void archiveRelease( ActionBase action , Dist dist ) throws Exception {
+		ActionArchiveRelease ma = new ActionArchiveRelease( action , null , dist );
+		ma.runSimpleProduct( dist.meta.name , SecurityAction.ACTION_RELEASE , false );
+	}
+	
 }

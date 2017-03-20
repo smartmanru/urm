@@ -35,6 +35,11 @@ public class ServerBuilders extends ServerObject {
 		builderMap = new HashMap<String,ServerProjectBuilder>();
 	}
 
+	@Override
+	public String getName() {
+		return( "server-builders" );
+	}
+	
 	public ServerBuilders copy() throws Exception {
 		ServerBuilders r = new ServerBuilders( registry );
 

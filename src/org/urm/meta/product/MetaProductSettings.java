@@ -86,6 +86,11 @@ public class MetaProductSettings extends PropertyController {
 	}
 
 	@Override
+	public String getName() {
+		return( "meta-settings" );
+	}
+	
+	@Override
 	public boolean isValid() {
 		if( super.isLoadFailed() || buildCommon == null )
 			return( false );

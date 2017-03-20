@@ -81,6 +81,11 @@ public class ServerProjectBuilder extends ServerObject {
 		loadFailed = false;
 	}
 
+	@Override
+	public String getName() {
+		return( NAME );
+	}
+	
 	public ServerProjectBuilder copy( ServerBuilders builders ) throws Exception {
 		ServerProjectBuilder r = new ServerProjectBuilder( builders );
 		r.properties = properties.copy( null );

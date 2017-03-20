@@ -45,6 +45,11 @@ public class Meta extends ServerObject {
 		name = storage.name;
 	}
 	
+	@Override
+	public String getName() {
+		return( name );
+	}
+	
 	public void replaceStorage( ActionBase action , ServerProductMeta storage ) throws Exception {
 		loader.releaseSessionProductMetadata( action , this , false );
 		
@@ -146,8 +151,12 @@ public class Meta extends ServerObject {
 		return( loader.loadDesignData( action.actionInit , storage , fileName ) );
 	}
 	
-	public String[] getEnvList() {
+	public String[] getEnvNames() {
 		return( storage.getEnvironmentNames() );
+	}
+	
+	public MetaEnv[] getEnvironments() {
+		return( storage.getEnvironments() );
 	}
 	
 	public synchronized MetaEnv getEnvData( ActionBase action , String envFile , boolean loadProps ) throws Exception {
@@ -297,7 +306,7 @@ public class Meta extends ServerObject {
     	MetaEnv env = findMetaEnv( sg.env );
     	if( env == null )
     		return( null );
-    	return( env.findSG( sg.NAME ) );
+    	return( env.findSegment( sg.NAME ) );
     }
     
     public MetaEnvServer findMetaEnvServer( MetaEnvServer server ) {

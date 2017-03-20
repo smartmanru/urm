@@ -93,6 +93,11 @@ public class MetaEnv extends PropertyController {
 	}
 	
 	@Override
+	public String getName() {
+		return( ID );
+	}
+	
+	@Override
 	public boolean isValid() {
 		if( super.isLoadFailed() )
 			return( false );
@@ -258,7 +263,7 @@ public class MetaEnv extends PropertyController {
 			sg.resolveLinks( action );
 	}
 	
-	public MetaEnvSegment findSG( String name ) {
+	public MetaEnvSegment findSegment( String name ) {
 		return( sgMap.get( name ) );
 	}
 

@@ -41,6 +41,11 @@ public class MetaProductVersion extends PropertyController {
 	}
 	
 	@Override
+	public String getName() {
+		return( "meta-version" );
+	}
+	
+	@Override
 	public boolean isValid() {
 		if( super.isLoadFailed() )
 			return( false );

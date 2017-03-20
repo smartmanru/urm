@@ -32,6 +32,11 @@ public class ServerReleaseLifecycles extends ServerObject {
 		lcMap = new HashMap<String,ServerReleaseLifecycle>(); 
 	}
 	
+	@Override
+	public String getName() {
+		return( "server-lifecycles" );
+	}
+	
 	public void load( String lcFile , RunContext execrc ) throws Exception {
 		Document doc = ConfReader.readXmlFile( execrc , lcFile );
 		Node root = doc.getDocumentElement();

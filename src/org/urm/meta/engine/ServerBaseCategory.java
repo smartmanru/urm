@@ -37,6 +37,11 @@ public class ServerBaseCategory extends ServerObject {
 		groupMap = new HashMap<String,ServerBaseGroup>();
 	}
 	
+	@Override
+	public String getName() {
+		return( ID );
+	}
+	
 	public ServerBaseCategory copy( ServerBase rn ) throws Exception {
 		ServerBaseCategory r = new ServerBaseCategory( rn , type , NAME );
 		
@@ -81,8 +86,12 @@ public class ServerBaseCategory extends ServerObject {
 		}
 	}
 
-	public String[] getGroups() {
+	public String[] getGroupNames() {
 		return( Common.getSortedKeys( groupMap ) );
+	}
+
+	public ServerBaseGroup[] getGroups() {
+		return( groupMap.values().toArray( new ServerBaseGroup[0] ) );
 	}
 
 	public ServerBaseGroup findGroup( String ID ) {

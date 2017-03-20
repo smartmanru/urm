@@ -135,7 +135,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 			action.exitUnexpectedState();
 		
 		MBeanOperationInfo op = new MBeanOperationInfo( method.name ,
-			method.help + "\\n\\n Syntax:\\n" + method.syntax ,
+			method.help + "\\n\\n Syntax:\\n" + method.getSyntax( action.execrc ) ,
 			params.toArray( new MBeanParameterInfo[0] ) , 
 			"void" , 
 			type );

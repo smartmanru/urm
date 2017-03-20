@@ -952,4 +952,12 @@ public class Common {
 		return( getDate( refTime ) );
 	}
 
+	public static int getObjectIndex( Object[] list , Object item ) {
+		for( int k = 0; k < list.length; k++ ) {
+			if( list[k] == item )
+				return( k );
+		}
+		return( -1 );
+	}
+	
 }

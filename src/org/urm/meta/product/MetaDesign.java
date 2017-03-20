@@ -33,6 +33,11 @@ public class MetaDesign extends ServerObject {
 		groups = new HashMap<String,MetaDesignElement>();
 	}
 	
+	@Override
+	public String getName() {
+		return( "meta-design" );
+	}
+	
 	public MetaDesign copy( ActionBase action , Meta meta ) throws Exception {
 		MetaDesign r = new MetaDesign( meta.getStorage( action ) , meta );
 		r.fullProd = fullProd;

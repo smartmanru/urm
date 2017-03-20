@@ -27,6 +27,11 @@ public class ServerAuthContext extends ServerObject {
 		this.auth = auth;
 	}
 	
+	@Override
+	public String getName() {
+		return( "server-auth-context" );
+	}
+	
 	public void createInitialAdministrator() throws Exception {
 		USER = "admin";
 		setUserPassword( "123" );

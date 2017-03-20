@@ -36,6 +36,11 @@ public class ServerEvents extends ServerObject {
 		notifier = new ServerEventsNotifier( this ); 
 	}
 
+	@Override
+	public String getName() {
+		return( "server-events" );
+	}
+	
 	public void init() throws Exception {
 	}
 

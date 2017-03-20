@@ -53,6 +53,11 @@ public class ServerMirrorRepository extends ServerObject {
 		loadFailed = false;
 	}
 
+	@Override
+	public String getName() {
+		return( NAME );
+	}
+	
 	public String getFolderName() {
 		return( NAME );
 	}

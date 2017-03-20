@@ -29,6 +29,11 @@ public class ServerRegistry extends ServerObject {
 		builders = new ServerBuilders( this ); 
 	}
 	
+	@Override
+	public String getName() {
+		return( "server-registry" );
+	}
+	
 	public void load( String propertyFile , RunContext execrc ) throws Exception {
 		Document doc = ConfReader.readXmlFile( execrc , propertyFile );
 		Node root = doc.getDocumentElement();

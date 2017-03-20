@@ -66,6 +66,11 @@ public class ServerAuth extends ServerObject {
 		groups = new HashMap<String,ServerAuthGroup>(); 
 	}
 	
+	@Override
+	public String getName() {
+		return( "server-auth" );
+	}
+	
 	public void init() throws Exception {
 		// read users
 		String authFile = getAuthFile();
@@ -586,7 +591,7 @@ public class ServerAuth extends ServerObject {
 	}
 
 	public synchronized void deleteDatacenter( ServerTransaction transaction , ServerDatacenter datacenter ) throws Exception {
-		for( String networkName : datacenter.getNetworks() ) {
+		for( String networkName : datacenter.getNetworkNames() ) {
 			ServerNetwork network = datacenter.findNetwork( networkName );
 			deleteNetwork( transaction , network );
 		}

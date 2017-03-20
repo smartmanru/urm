@@ -25,6 +25,11 @@ public class ServerReleaseLifecyclePhase extends ServerObject {
 		this.lc = lc;
 	}
 	
+	@Override
+	public String getName() {
+		return( ID );
+	}
+	
 	public void load( Node root ) throws Exception {
 		ID = ConfReader.getAttrValue( root , "id" );
 		DESC = ConfReader.getAttrValue( root , "desc" );

@@ -26,6 +26,11 @@ public class ServerBaseGroup extends ServerObject {
 		itemMap = new HashMap<String,ServerBaseItem>();
 	}
 	
+	@Override
+	public String getName() {
+		return( ID );
+	}
+	
 	public ServerBaseGroup copy( ServerBaseCategory rn ) throws Exception {
 		ServerBaseGroup r = new ServerBaseGroup( rn );
 		
@@ -68,8 +73,12 @@ public class ServerBaseGroup extends ServerObject {
 		}
 	}
 
-	public String[] getItems() {
+	public String[] getItemNames() {
 		return( Common.getSortedKeys( itemMap ) );
+	}
+
+	public ServerBaseItem[] getItems() {
+		return( itemMap.values().toArray( new ServerBaseItem[0] ) );
 	}
 
 	public ServerBaseItem findItem( String ID ) {

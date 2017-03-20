@@ -31,6 +31,11 @@ public class ServerDirectory extends ServerObject {
 		mapProducts = new HashMap<String,ServerProduct>();
 	}
 
+	@Override
+	public String getName() {
+		return( "server-directory" );
+	}
+	
 	public void load( Node root ) throws Exception {
 		if( root == null )
 			return;
@@ -109,7 +114,7 @@ public class ServerDirectory extends ServerObject {
 		if( mapSystems.get( system.NAME ) != system )
 			transaction.exit( _Error.TransactionSystemOld1 , "system=" + system.NAME + " is unknown or mismatched" , new String[] { system.NAME } );
 		
-		for( String productName : system.getProducts() )
+		for( String productName : system.getProductNames() )
 			mapProducts.remove( productName );
 		
 		mapSystems.remove( system.NAME );

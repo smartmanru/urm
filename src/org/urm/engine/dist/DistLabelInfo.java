@@ -46,7 +46,7 @@ public class DistLabelInfo {
 			RELEASEPATH = "releases/" + RELEASEDIR;
 		}
 		
-		action.debug( "release directory=" + RELEASEPATH + " by label=" + RELEASELABEL + "( RELEASEVER=" + RELEASEVER + ")" );
+		action.debug( "release directory=" + RELEASEPATH + " by label=" + RELEASELABEL + " (RELEASEVER=" + RELEASEVER + ")" );
 	}
 	
 	private String getReleaseVerByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
@@ -95,6 +95,18 @@ public class DistLabelInfo {
 		String RELEASEVER = Common.getPartBeforeFirst( RELEASEDIR , "-" );
 		RELEASEVER = normalizeReleaseVer( action , RELEASEVER );
 		return( RELEASEVER );
+	}
+	
+	public static String getReleaseFolder( ActionBase action , Dist dist ) throws Exception {
+		return( "releases/" + dist.RELEASEDIR );
+	}
+	
+	public static String getArchivedReleaseFolder( ActionBase action , Dist dist ) throws Exception {
+		return( "archive/" + dist.RELEASEDIR );
+	}
+	
+	public static String getArchiveFolder( ActionBase action ) throws Exception {
+		return( "archive" );
 	}
 	
 	public static String normalizeReleaseVer( ActionBase action , String RELEASEVER ) throws Exception {

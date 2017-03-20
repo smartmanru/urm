@@ -33,6 +33,11 @@ public class ServerSettings extends ServerObject {
 		mapBuildModeDefaults = new HashMap<VarBUILDMODE,PropertySet>();
 	}
 
+	@Override
+	public String getName() {
+		return( "server-settings" );
+	}
+	
 	public void load( String path , RunContext execrc ) throws Exception {
 		Document doc = ConfReader.readXmlFile( execrc , path );
 		if( doc == null )
