@@ -419,7 +419,7 @@ public class Dist {
 		String saveReleaseVer = release.RELEASEVER;
 		release.copy( action , src.release , createProd );
 		release.setReleaseVer( action , saveReleaseVer );
-		Document doc = src.release.createXml( action );
+		Document doc = release.createXml( action );
 		Common.xmlSaveDoc( doc , filePath );
 		
 		openForDataChange( action );
@@ -542,14 +542,12 @@ public class Dist {
 	}
 
 	public String getReleaseConfCompParentFolder( ActionBase action , MetaDistrConfItem comp ) throws Exception {
-		ReleaseDelivery delivery = release.getDelivery( action , comp.delivery.NAME );
-		String folder = getDeliveryConfFolder( action , delivery.distDelivery );
+		String folder = getDeliveryConfFolder( action , comp.delivery );
 		return( folder );
 	}
 	
 	public String getReleaseBinaryFolder( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		ReleaseDelivery delivery = release.getDelivery( action , item.delivery.NAME );
-		String folder = getDeliveryBinaryFolder( action , delivery.distDelivery );
+		String folder = getDeliveryBinaryFolder( action , item.delivery );
 		return( folder );
 	}
 	

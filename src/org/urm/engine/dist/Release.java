@@ -156,7 +156,7 @@ public class Release {
 		this.PROPERTY_PROD = true;
 		this.PROPERTY_BUILDMODE = VarBUILDMODE.MAJORBRANCH;
 		this.PROPERTY_OBSOLETE = true;
-		this.PROPERTY_CUMULATIVE = false;
+		this.PROPERTY_CUMULATIVE = true;
 		
 		schedule.createProd( action );
 		addSourceAll( action );
@@ -166,16 +166,20 @@ public class Release {
 		Common.xmlSaveDoc( doc , filePath );
 	}
 	
-	public Map<String,ReleaseSet> getSourceSets( ActionBase action ) throws Exception {
-		return( sourceSetMap );
+	public String[] getSourceSetNames() {
+		return( Common.getSortedKeys( sourceSetMap ) );
 	}
 	
-	public ReleaseSet findSourceSet( ActionBase action , String name ) throws Exception {
+	public ReleaseSet[] getSourceSets() {
+		return( sourceSetMap.values().toArray( new ReleaseSet[0] ) );
+	}
+	
+	public ReleaseSet findSourceSet( String name ) {
 		return( sourceSetMap.get( name ) );
 	}
 	
 	public ReleaseSet getSourceSet( ActionBase action , String name ) throws Exception {
-		ReleaseSet set = findSourceSet( action , name );
+		ReleaseSet set = findSourceSet( name );
 		if( set == null )
 			action.exit1( _Error.UnknownReleaseSet1 , "unknown release set=" + name , name );
 		return( set );
@@ -506,7 +510,7 @@ public class Release {
 	}
 	
 	public boolean addSourceSet( ActionBase action , MetaSourceProjectSet sourceSet , boolean all ) throws Exception {
-		ReleaseSet set = findSourceSet( action , sourceSet.NAME );
+		ReleaseSet set = findSourceSet( sourceSet.NAME );
 		if( set == null ) {
 			set = new ReleaseSet( meta , this , VarCATEGORY.PROJECT );
 			set.createSourceSet( action , sourceSet , all );
@@ -556,7 +560,7 @@ public class Release {
 	}
 
 	public void deleteSourceSet( ActionBase action , MetaSourceProjectSet sourceSet ) throws Exception {
-		ReleaseSet set = findSourceSet( action , sourceSet.NAME );
+		ReleaseSet set = findSourceSet( sourceSet.NAME );
 		if( set == null )
 			return;
 		
@@ -633,7 +637,7 @@ public class Release {
 	}
 	
 	public void deleteProjectSource( ActionBase action , MetaSourceProject sourceProject ) throws Exception {
-		ReleaseSet set = findSourceSet( action , sourceProject.set.NAME );
+		ReleaseSet set = findSourceSet( sourceProject.set.NAME );
 		if( set == null )
 			return;
 		
@@ -798,6 +802,8 @@ public class Release {
 	}
 
 	public VarLCTYPE getLifecycleType() {
+		if( PROPERTY_PROD )
+			return( VarLCTYPE.MAJOR );
 		return( VersionInfo.getLifecycleType( RELEASEVER ) );
 	}
 

@@ -696,7 +696,7 @@ public class ActionScope {
 	}
 		
 	private void addAllReleaseProjects( ActionBase action , Dist release ) throws Exception {
-		for( ReleaseSet rset : release.release.getSourceSets( action ).values() ) {
+		for( ReleaseSet rset : release.release.getSourceSets() ) {
 			ActionScopeSet sset = createReleaseScopeSet( action , rset );
 			sset.addProjects( action , null );
 		}

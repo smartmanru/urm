@@ -215,7 +215,7 @@ public class ServerBlotter {
 		else
 		if( action instanceof ActionCreateProd ) {
 			ActionCreateProd xa = ( ActionCreateProd )action;
-			runDistAction( xa , success , xa.meta , xa.dist , DistOperation.CREATE , "create complete production distributive version=" + xa.RELEASEVER ); 
+			runDistAction( xa , success , xa.meta , xa.dist , DistOperation.CREATE , "create/copy production master distributive version=" + xa.RELEASEVER ); 
 		}
 		else
 		if( action instanceof ActionCreateRelease ) {

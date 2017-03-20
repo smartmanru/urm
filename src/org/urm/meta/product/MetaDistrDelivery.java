@@ -143,6 +143,12 @@ public class MetaDistrDelivery {
 		return( r );
 	}
 
+	public boolean isEmpty() {
+		if( mapBinaryItems.isEmpty() && mapConfComps.isEmpty() && mapDatabaseSchema.isEmpty() )
+			return( true );
+		return( false );
+	}
+	
 	public MetaDistrBinaryItem findBinaryItem( String NAME ) {
 		return( mapBinaryItems.get( NAME ) );
 	}

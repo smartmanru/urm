@@ -938,10 +938,20 @@ public class Common {
 		return( ( int )diff );
 	}
 
+	public static String getRefDate( Date refTime ) {
+		if( refTime == null )
+			return( "" );
+		return( getRefDate( refTime.getTime() ) );
+	}
+	
 	public static String getRefDate( Date baseTime , Date refTime ) {
 		if( baseTime == null || refTime == null )
 			return( "" );
 		return( getRefDate( baseTime.getTime() , refTime.getTime() ) );
+	}
+
+	public static String getRefDate( long refTime ) {
+		return( getRefDate( System.currentTimeMillis() , refTime ) );
 	}
 	
 	public static String getRefDate( long baseTime , long refTime ) {

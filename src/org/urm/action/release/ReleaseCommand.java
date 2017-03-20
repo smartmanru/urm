@@ -29,7 +29,7 @@ public class ReleaseCommand {
 	public void deleteProd( ActionBase action , Meta meta ) throws Exception {
 		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , "prod" );
 		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , dist , true );
-		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_ADMIN , false );
+		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public void createRelease( ActionBase action , Meta meta , String RELEASELABEL , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
