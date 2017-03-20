@@ -10,7 +10,6 @@ import org.urm.engine.ServerBlotterReleaseItem;
 import org.urm.engine.ServerBlotterSet;
 import org.urm.engine.ServerBlotter;
 import org.urm.engine.ServerBlotter.BlotterType;
-import org.urm.engine.dist.DistRepository.DistOperation;
 import org.urm.engine.dist.DistState.DISTSTATE;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.FileSet;
@@ -224,6 +223,10 @@ public class Dist {
 		return( distFolder.checkFileExists( action , path ) );
 	}
 	
+	public boolean checkFolderExists( ActionBase action , String path ) throws Exception {
+		return( distFolder.checkFolderExists( action , path ) );
+	}
+	
 	public String getDistFolder() {
 		return( distFolder.folderName );
 	}
@@ -274,7 +277,7 @@ public class Dist {
 		if( !openedForUse )
 			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
-		ReleaseDelivery delivery = release.findDelivery( action , conf.delivery.NAME );
+		ReleaseDelivery delivery = release.findDelivery( conf.delivery.NAME );
 		if( delivery == null )
 			action.exit1( _Error.UnknownReleaseDelivery1 , "unknown release delivery=" + conf.delivery.NAME , conf.delivery.NAME );
 		
@@ -300,7 +303,7 @@ public class Dist {
 	
 	public void createDeliveryFolders( ActionBase action ) throws Exception {
 		state.checkDistDataChangeEnabled( action );
-		for( ReleaseDelivery delivery : release.getDeliveries( action ).values() ) {
+		for( ReleaseDelivery delivery : release.getDeliveries() ) {
 			createInternalDeliveryFolder( action , getDeliveryBinaryFolder( action , delivery.distDelivery ) );
 			createInternalDeliveryFolder( action , getDeliveryConfFolder( action , delivery.distDelivery ) );
 			createInternalDeliveryFolder( action , getDeliveryDatabaseFolder( action , delivery.distDelivery , release.RELEASEVER ) );
@@ -423,7 +426,7 @@ public class Dist {
 		
 		distFolder.copyFileFromLocal( action , filePath );
 		ShellExecutor shell = action.getShell( distFolder.account );
-		for( ReleaseDelivery delivery : src.release.getDeliveries( action ).values() ) {
+		for( ReleaseDelivery delivery : src.release.getDeliveries() ) {
 			String dirFrom = src.distFolder.getFolderPath( action , delivery.distDelivery.FOLDER );
 			String dirTo = distFolder.getFolderPath( action , delivery.distDelivery.FOLDER );
 			int timeout = action.setTimeoutUnlimited();
@@ -711,13 +714,13 @@ public class Dist {
 		action.info( "find distributive files ..." );
 		files = distFolder.getFileSet( action );
 		
-		for( ReleaseDelivery delivery : release.getDeliveries( action ).values() ) {
+		for( ReleaseDelivery delivery : release.getDeliveries() ) {
 			FileSet deliveryFiles = files.getDirByPath( action , delivery.distDelivery.FOLDER );
 			
-			for( ReleaseTargetItem targetItem : delivery.getProjectItems( action ).values() )
+			for( ReleaseTargetItem targetItem : delivery.getProjectItems() )
 				gatherDeliveryBinaryItem( action , delivery , deliveryFiles , targetItem );
 				
-			for( ReleaseTarget targetItem : delivery.getManualItems( action ).values() )
+			for( ReleaseTarget targetItem : delivery.getManualItems() )
 				gatherDeliveryManualItem( action , delivery , deliveryFiles , targetItem );
 		}
 	}
@@ -826,7 +829,7 @@ public class Dist {
 	}
 
 	public void copyDatabaseDistrToDistr( ActionBase action , ReleaseDelivery delivery , Dist src ) throws Exception {
-		ReleaseDelivery reldel = src.release.findDelivery( action , delivery.distDelivery.NAME );
+		ReleaseDelivery reldel = src.release.findDelivery( delivery.distDelivery.NAME );
 		if( reldel != null ) {
 			String folder = src.getDeliveryDatabaseFolder( action , reldel.distDelivery , src.release.RELEASEVER );
 			if( src.distFolder.checkFolderExists( action , folder ) )
@@ -835,7 +838,7 @@ public class Dist {
 	}
 	
 	public void copyBinaryDistrToDistr( ActionBase action , ReleaseDelivery delivery , Dist src , String file ) throws Exception {
-		ReleaseDelivery reldel = src.release.findDelivery( action , delivery.distDelivery.NAME );
+		ReleaseDelivery reldel = src.release.findDelivery( delivery.distDelivery.NAME );
 		if( reldel != null ) {
 			String folder = reldel.distDelivery.FOLDER;
 			String fileSrc = src.distFolder.getFilePath( action , Common.getPath( folder , file ) );
@@ -848,7 +851,7 @@ public class Dist {
 	}
 	
 	public void appendConfDistrToDistr( ActionBase action , ReleaseDelivery delivery , Dist src , MetaDistrConfItem item ) throws Exception {
-		ReleaseDelivery reldel = src.release.findDelivery( action , delivery.distDelivery.NAME );
+		ReleaseDelivery reldel = src.release.findDelivery( delivery.distDelivery.NAME );
 		if( reldel != null ) {
 			String folder = src.getDeliveryConfFolder( action , reldel.distDelivery );
 			ShellExecutor session = distFolder.getSession( action );

@@ -111,7 +111,7 @@ public class Release {
 	
 	public String[] getApplyVersions( ActionBase action ) throws Exception {
 		if( dist.release.isCumulative() )
-			return( dist.release.getCumulativeVersions( action ) );
+			return( dist.release.getCumulativeVersions() );
 		return( new String[] { dist.release.RELEASEVER } );
 	}
 	
@@ -185,12 +185,12 @@ public class Release {
 		return( categorySetMap );
 	}
 	
-	public ReleaseSet findCategorySet( ActionBase action , VarCATEGORY CATEGORY ) throws Exception {
+	public ReleaseSet findCategorySet( VarCATEGORY CATEGORY ) {
 		return( categorySetMap.get( CATEGORY ) );
 	}
 	
 	public ReleaseSet getCategorySet( ActionBase action , VarCATEGORY CATEGORY ) throws Exception {
-		ReleaseSet set = findCategorySet( action , CATEGORY );
+		ReleaseSet set = findCategorySet( CATEGORY );
 		if( set == null ) {
 			String name = Common.getEnumLower( CATEGORY );
 			action.exit1( _Error.UnknownReleaseCategorySet1 , "unknown release category set=" + name , name );
@@ -395,16 +395,20 @@ public class Release {
 		return( getCategoryComponents( action , VarCATEGORY.CONFIG ) );
 	}
 
-	public Map<String,ReleaseDelivery> getDeliveries( ActionBase action ) throws Exception {
-		return( deliveryMap );
+	public ReleaseDelivery[] getDeliveries() {
+		return( deliveryMap.values().toArray( new ReleaseDelivery[0] ) );
 	}
 
-	public ReleaseDelivery findDelivery( ActionBase action , String name ) throws Exception {
+	public String[] getDeliveryNames() {
+		return( Common.getSortedKeys( deliveryMap ) );
+	}
+
+	public ReleaseDelivery findDelivery( String name ) {
 		ReleaseDelivery delivery = deliveryMap.get( name );
 		return( delivery );
 	}
 	
-	public ReleaseDelivery findDeliveryByFolder( ActionBase action , String folder ) throws Exception {
+	public ReleaseDelivery findDeliveryByFolder( String folder ) {
 		for( ReleaseDelivery delivery : deliveryMap.values() ) {
 			if( delivery.distDelivery.FOLDER.equals( folder ) )
 				return( delivery );
@@ -429,7 +433,7 @@ public class Release {
 		return( null );
 	}
 	
-	public boolean isEmpty( ActionBase action ) throws Exception {
+	public boolean isEmpty() {
 		for( ReleaseSet set : sourceSetMap.values() )
 			if( !set.isEmpty() )
 				return( false );
@@ -439,16 +443,16 @@ public class Release {
 		return( true );
 	}
 
-	public boolean isEmptyConfiguration( ActionBase action ) throws Exception {
-		ReleaseSet set = findCategorySet( action , VarCATEGORY.CONFIG );
+	public boolean isEmptyConfiguration() throws Exception {
+		ReleaseSet set = findCategorySet( VarCATEGORY.CONFIG );
 		if( set == null || set.isEmpty() )
 			return( true );
 		
 		return( false );
 	}
 	
-	public boolean isEmptyDatabase( ActionBase action ) throws Exception {
-		ReleaseSet set = findCategorySet( action , VarCATEGORY.DB );
+	public boolean isEmptyDatabase() {
+		ReleaseSet set = findCategorySet( VarCATEGORY.DB );
 		if( set == null || set.isEmpty() )
 			return( true );
 		
@@ -523,7 +527,7 @@ public class Release {
 	}
 	
 	public boolean addCategorySet( ActionBase action , VarCATEGORY CATEGORY , boolean all ) throws Exception {
-		ReleaseSet set = findCategorySet( action , CATEGORY );
+		ReleaseSet set = findCategorySet( CATEGORY );
 		if( set == null ) {
 			set = new ReleaseSet( meta , this , CATEGORY );
 			set.createCategorySet( action , CATEGORY , all );
@@ -544,7 +548,7 @@ public class Release {
 	}
 
 	public void deleteCategorySet( ActionBase action , VarCATEGORY CATEGORY ) throws Exception {
-		ReleaseSet set = findCategorySet( action , CATEGORY );
+		ReleaseSet set = findCategorySet( CATEGORY );
 		if( set == null )
 			return;
 		
@@ -747,7 +751,7 @@ public class Release {
 		return( false );
 	}
 
-	public String[] getCumulativeVersions( ActionBase action ) throws Exception {
+	public String[] getCumulativeVersions() {
 		String versions = Common.getSortedUniqueSpacedList( PROPERTY_COMPATIBILITY + " " + RELEASEVER );
 		String[] list = Common.splitSpaced( versions );
 		

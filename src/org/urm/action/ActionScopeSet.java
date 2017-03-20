@@ -340,7 +340,7 @@ public class ActionScopeSet {
 	
 	private boolean checkServerDelivery( ActionBase action , MetaEnvServer server , ReleaseDelivery delivery ) throws Exception {
 		if( action.context.CTX_CONFDEPLOY ) {
-			for( ReleaseTarget target : delivery.getConfItems( action ).values() ) {
+			for( ReleaseTarget target : delivery.getConfItems() ) {
 				if( server.hasConfItemDeployment( action , target.distConfItem ) )
 					return( true );
 			}
@@ -353,11 +353,11 @@ public class ActionScopeSet {
 		}
 
 		if( action.context.CTX_DEPLOYBINARY ) {
-			for( ReleaseTarget target : delivery.getManualItems( action ).values() ) {
+			for( ReleaseTarget target : delivery.getManualItems() ) {
 				if( server.hasBinaryItemDeployment( action , target.distManualItem ) )
 					return( true );
 			}
-			for( ReleaseTargetItem item : delivery.getProjectItems( action ).values() ) {
+			for( ReleaseTargetItem item : delivery.getProjectItems() ) {
 				if( server.hasBinaryItemDeployment( action , item.distItem ) )
 					return( true );
 			}
@@ -370,7 +370,7 @@ public class ActionScopeSet {
 		Map<String,MetaEnvServer> mapServers = new HashMap<String,MetaEnvServer>();
 		Release info = release.release;
 
-		for( ReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
+		for( ReleaseDelivery delivery : info.getDeliveries() ) {
 			for( MetaEnvServer server : sg.getServers() ) {
 				if( checkServerDelivery( action , server , delivery ) )
 					mapServers.put( server.NAME , server );
@@ -389,7 +389,7 @@ public class ActionScopeSet {
 		
 		Release info = dist.release;
 
-		for( ReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
+		for( ReleaseDelivery delivery : info.getDeliveries() ) {
 			for( MetaEnvServer server : sg.getServers() ) {
 				if( checkServerDatabaseDelivery( action , server , delivery ) )
 					mapServers.put( server.NAME , server );

@@ -101,8 +101,8 @@ public class BuildCommand {
 		action.info( "update configuration difference information ..." );
 		ConfBuilder builder = new ConfBuilder( action , scope.meta );
 		
-		for( ReleaseDelivery delivery : dist.release.getDeliveries( action ).values() ) {
-			if( delivery.getConfItems( action ).size() > 0 ) {
+		for( ReleaseDelivery delivery : dist.release.getDeliveries() ) {
+			if( delivery.getConfItems().length > 0 ) {
 				String file = builder.createConfDiffFile( dist , delivery );
 				dist.replaceConfDiffFile( action , file , delivery );
 			}

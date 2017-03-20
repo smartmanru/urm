@@ -71,7 +71,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			}
 		}
 		
-		if( release.isEmpty( this ) ) {
+		if( release.isEmpty() ) {
 			info( "(scope is empty)" );
 			return( SCOPESTATE.NotRun );
 		}
@@ -79,13 +79,13 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		for( String set : Common.getSortedKeys( release.getSourceSets( this ) ) )
 			printReleaseSourceSetStatus( dist , files , release.getSourceSet( this , set ) );
 		for( VarCATEGORY CATEGORY : Meta.getAllReleaseCategories() ) {
-			ReleaseSet set = release.findCategorySet( this , CATEGORY );
+			ReleaseSet set = release.findCategorySet( CATEGORY );
 			if( set != null )
 				printReleaseCategorySetStatus( dist , files , set );
 		}
 
 		info( "DELIVERIES:" );
-		for( String s : Common.getSortedKeys( release.getDeliveries( this ) ) )
+		for( String s : release.getDeliveryNames() )
 			info( "\tdelivery=" + s );
 	
 		return( SCOPESTATE.RunSuccess );
@@ -194,7 +194,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		MetaDistrDelivery delivery = db.distDatabaseItem;
 
 		if( dist.release.isCumulative() ) {
-			String[] versions = dist.release.getCumulativeVersions( this );
+			String[] versions = dist.release.getCumulativeVersions();
 			
 			for( String version : versions ) {
 				String folder = dist.getDeliveryDatabaseFolder( this , delivery , version );

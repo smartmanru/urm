@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrDelivery;
 
@@ -116,16 +117,40 @@ public class ReleaseDelivery {
 		return( dbItem );
 	}
 	
-	public Map<String,ReleaseTarget> getConfItems( ActionBase action ) throws Exception {
-		return( confItems );
+	public ReleaseTarget[] getConfItems() {
+		return( confItems.values().toArray( new ReleaseTarget[0] ) );
+	}
+
+	public String[] getConfItemNames() {
+		return( Common.getSortedKeys( confItems ) );
+	}
+
+	public ReleaseTarget findConfItem( String name ) {
+		return( confItems.get( name ) );
+	}
+
+	public String[] getManualItemNames() {
+		return( Common.getSortedKeys( manualItems ) );
 	}
 	
-	public Map<String,ReleaseTarget> getManualItems( ActionBase action ) throws Exception {
-		return( manualItems );
+	public ReleaseTarget[] getManualItems() {
+		return( manualItems.values().toArray( new ReleaseTarget[0] ) );
+	}
+
+	public ReleaseTarget findManualItem( String name ) {
+		return( manualItems.get( name ) );
+	}
+
+	public String[] getProjectItemNames() {
+		return( Common.getSortedKeys( projectItems ) );
 	}
 	
-	public Map<String,ReleaseTargetItem> getProjectItems( ActionBase action ) throws Exception {
-		return( projectItems );
+	public ReleaseTargetItem[] getProjectItems() {
+		return( projectItems.values().toArray( new ReleaseTargetItem[0] ) );
+	}
+	
+	public ReleaseTargetItem findProjectItem( String name ) {
+		return( projectItems.get( name ) );
 	}
 	
 	public boolean isEmpty() {
@@ -134,25 +159,25 @@ public class ReleaseDelivery {
 		return( false );
 	}
 	
-	public boolean hasProjectItems( ActionBase action ) throws Exception {
+	public boolean hasProjectItems() {
 		if( !projectItems.isEmpty() )
 			return( true );
 		return( false );
 	}
 	
-	public boolean hasConfItems( ActionBase action ) throws Exception {
+	public boolean hasConfItems() {
 		if( !confItems.isEmpty() )
 			return( true );
 		return( false );
 	}
 	
-	public boolean hasDatabaseItems( ActionBase action ) throws Exception {
+	public boolean hasDatabaseItems() {
 		if( dbItem != null )
 			return( true );
 		return( false );
 	}
 
-	public boolean hasManualItems( ActionBase action ) throws Exception {
+	public boolean hasManualItems() {
 		if( !manualItems.isEmpty() )
 			return( true );
 		return( false );

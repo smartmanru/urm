@@ -263,7 +263,7 @@ public class ActionScope {
 				return( scope );
 			
 			if( DELIVERY.equals( "all" ) ) {
-				for( ReleaseDelivery delivery : dist.release.getDeliveries( action ).values() ) {
+				for( ReleaseDelivery delivery : dist.release.getDeliveries() ) {
 					ActionScopeTarget target = sset.addDatabaseDelivery( action , delivery , false , all );
 					if( !all )
 						target.addIndexItems( action , INDEXES );
@@ -466,7 +466,7 @@ public class ActionScope {
 		if( sset != null )
 			return( sset );
 		
-		ReleaseSet rset = release.release.findCategorySet( action , CATEGORY );
+		ReleaseSet rset = release.release.findCategorySet( CATEGORY );
 		if( rset == null ) {
 			action.debug( "ignore non-release set=" + Common.getEnumLower( CATEGORY ) );
 			return( null );

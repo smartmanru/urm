@@ -34,12 +34,12 @@ public class DistFinalizer {
 		dist.gatherFiles( action );
 		
 		FileSet fs = new FileSet( null );
-		for( ReleaseDelivery delivery : info.getDeliveries( action ).values() ) {
-			for( ReleaseTarget item : delivery.getConfItems( action ).values() )
+		for( ReleaseDelivery delivery : info.getDeliveries() ) {
+			for( ReleaseTarget item : delivery.getConfItems() )
 				createExpectedConfDeliveryItem( action , fs , delivery , item );
-			for( ReleaseTargetItem item : delivery.getProjectItems( action ).values() )
+			for( ReleaseTargetItem item : delivery.getProjectItems() )
 				createExpectedProjectDeliveryItem( action , fs , delivery , item );
-			for( ReleaseTarget item : delivery.getManualItems( action ).values() )
+			for( ReleaseTarget item : delivery.getManualItems() )
 				createExpectedManualDeliveryItem( action , fs , delivery , item );
 			ReleaseTarget dbitem = delivery.getDatabaseItem( action );
 			if( dbitem != null )
@@ -77,7 +77,7 @@ public class DistFinalizer {
 		// folders = deliveries
 		for( String dir : fsd.dirs.keySet() ) {
 			FileSet dirFilesDist = fsd.dirs.get( dir );
-			ReleaseDelivery delivery = info.findDeliveryByFolder( action , dir );
+			ReleaseDelivery delivery = info.findDeliveryByFolder( dir );
 			if( delivery == null || delivery.isEmpty() ) {
 				if( dirFilesDist.hasFiles() ) {
 					if( !action.isForced() ) {

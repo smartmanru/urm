@@ -48,7 +48,7 @@ public class ConfBuilder {
 		prodFolder.recreateThis( action );
 		SourceStorage storage = artefactory.getSourceStorage( action , delivery.meta , prodFolder );
 		
-		for( ReleaseTarget releaseComp : delivery.getConfItems( action ).values() ) {
+		for( ReleaseTarget releaseComp : delivery.getConfItems() ) {
 			ConfSourceFolder sourceFolder = new ConfSourceFolder( meta );
 			sourceFolder.createReleaseConfigurationFolder( action , releaseComp );
 			storage.downloadProductConfigItem( action , sourceFolder , prodFolder );
