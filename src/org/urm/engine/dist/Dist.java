@@ -408,12 +408,12 @@ public class Dist {
 		state.ctlCloseDataChange( action );
 	}
 
-	public void copyRelease( ActionBase action , Dist src ) throws Exception {
+	public void copyRelease( ActionBase action , Dist src , boolean createProd ) throws Exception {
 		String filePath = action.getWorkFilePath( Dist.META_FILENAME );
 		
 		String saveReleaseVer = release.RELEASEVER;
-		release.copy( action , src.release );
-		release.setReleaseVer( action , saveReleaseVer ); 
+		release.copy( action , src.release , createProd );
+		release.setReleaseVer( action , saveReleaseVer );
 		Document doc = src.release.createXml( action );
 		Common.xmlSaveDoc( doc , filePath );
 		

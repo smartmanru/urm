@@ -49,33 +49,35 @@ public class Release {
 		schedule = new ReleaseSchedule( meta , this );
 	}
 
-	public void copy( ActionBase action , Release src ) throws Exception {
+	public void copy( ActionBase action , Release src , boolean createProd ) throws Exception {
 		this.meta = src.meta;
 		this.RELEASEVER = src.RELEASEVER;
 
-		schedule = src.schedule.copy( action , meta , src ); 
+		schedule = src.schedule.copy( action , meta , src , createProd ); 
 		
-		this.PROPERTY_PROD = src.PROPERTY_PROD;
+		this.PROPERTY_PROD = createProd;
 		this.PROPERTY_OBSOLETE = src.PROPERTY_OBSOLETE;
-		this.PROPERTY_BUILDMODE = src.PROPERTY_BUILDMODE;
-		this.PROPERTY_COMPATIBILITY = src.PROPERTY_COMPATIBILITY;
-		this.PROPERTY_CUMULATIVE = src.PROPERTY_CUMULATIVE;
+		this.PROPERTY_BUILDMODE = ( createProd )? VarBUILDMODE.UNKNOWN : src.PROPERTY_BUILDMODE;
+		this.PROPERTY_COMPATIBILITY = ( createProd )? "" : src.PROPERTY_COMPATIBILITY;
+		this.PROPERTY_CUMULATIVE = ( createProd )? true : src.PROPERTY_CUMULATIVE;
 		
 		descopeAll( action );
 		
-		for( Entry<String,ReleaseSet> entry : src.sourceSetMap.entrySet() ) {
-			ReleaseSet set = entry.getValue().copy( action , this );
-			sourceSetMap.put( entry.getKey() , set );
-		}
-		
-		for( Entry<VarCATEGORY,ReleaseSet> entry : src.categorySetMap.entrySet() ) {
-			ReleaseSet set = entry.getValue().copy( action , this );
-			categorySetMap.put( entry.getKey() , set );
-		}
-		
-		for( Entry<String,ReleaseDelivery> entry : src.deliveryMap.entrySet() ) {
-			ReleaseDelivery set = entry.getValue().copy( action , this );
-			deliveryMap.put( entry.getKey() , set );
+		if( !createProd ) {
+			for( Entry<String,ReleaseSet> entry : src.sourceSetMap.entrySet() ) {
+				ReleaseSet set = entry.getValue().copy( action , this );
+				sourceSetMap.put( entry.getKey() , set );
+			}
+			
+			for( Entry<VarCATEGORY,ReleaseSet> entry : src.categorySetMap.entrySet() ) {
+				ReleaseSet set = entry.getValue().copy( action , this );
+				categorySetMap.put( entry.getKey() , set );
+			}
+			
+			for( Entry<String,ReleaseDelivery> entry : src.deliveryMap.entrySet() ) {
+				ReleaseDelivery set = entry.getValue().copy( action , this );
+				deliveryMap.put( entry.getKey() , set );
+			}
 		}
 	}
 	

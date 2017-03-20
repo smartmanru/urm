@@ -8,10 +8,10 @@ public class DistLabelInfo {
 
 	DistRepository repo;
 	
-	String RELEASEPATH = "";
-	String RELEASEVER = "";
-	String RELEASEDIR = "";
-	boolean prod;
+	public String RELEASEPATH = "";
+	public String RELEASEVER = "";
+	public String RELEASEDIR = "";
+	public boolean prod;
 	
 	public DistLabelInfo( DistRepository repo ) {
 		this.repo = repo;

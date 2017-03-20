@@ -44,22 +44,25 @@ public class ReleaseSchedule {
 		archived = false;
 	}
 	
-	public ReleaseSchedule copy( ActionBase action , Meta meta , Release release ) throws Exception {
+	public ReleaseSchedule copy( ActionBase action , Meta meta , Release release , boolean createProd ) throws Exception {
 		ReleaseSchedule r = new ReleaseSchedule( meta , release );
-		r.LIFECYCLE = LIFECYCLE;
 		r.started = started;
-		r.releaseDate = releaseDate;
-		r.currentPhase = currentPhase;
-		r.releasePhases = releasePhases; 
-		r.deployPhases = deployPhases; 
-		r.released = released;
-		r.completed = completed;
-		r.archived = archived;
+		r.LIFECYCLE = ( createProd )? "" : LIFECYCLE;
+		r.releaseDate = ( createProd )? null : releaseDate;
+		r.currentPhase = ( createProd )? -1 : currentPhase;
+		r.releasePhases = ( createProd )? 0 : releasePhases; 
+		r.deployPhases = ( createProd )? 0 : deployPhases; 
+		r.released = ( createProd )? false : released;
+		r.completed = ( createProd )? false : completed;
+		r.archived = ( createProd )? false : archived;
 		
-		for( ReleaseSchedulePhase phase : phases ) {
-			ReleaseSchedulePhase rphase = phase.copy( action , meta , r );
-			r.phases.add( rphase );
+		if( !createProd ) {
+			for( ReleaseSchedulePhase phase : phases ) {
+				ReleaseSchedulePhase rphase = phase.copy( action , meta , r );
+				r.phases.add( rphase );
+			}
 		}
+		
 		return( r );
 	}
 

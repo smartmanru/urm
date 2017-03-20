@@ -276,7 +276,7 @@ public class DistRepository {
 		return( folder );
 	}
 	
-	private DistLabelInfo getLabelInfo( ActionBase action , String RELEASELABEL ) throws Exception {
+	public DistLabelInfo getLabelInfo( ActionBase action , String RELEASELABEL ) throws Exception {
 		DistLabelInfo info = new DistLabelInfo( this );
 		info.createLabelInfo( action , RELEASELABEL );
 		return( info );
@@ -304,7 +304,7 @@ public class DistRepository {
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
 		Dist dist = DistRepositoryItem.createProdDist( action , this , distFolder , src.release.RELEASEVER );
 		addDist( dist );
-		dist.copyRelease( action , src );
+		dist.copyRelease( action , src , true );
 		return( dist );
 	}
 
