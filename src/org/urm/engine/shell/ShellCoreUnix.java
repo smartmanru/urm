@@ -1,5 +1,6 @@
 package org.urm.engine.shell;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -613,6 +614,15 @@ public class ShellCoreUnix extends ShellCore {
 	@Override 
 	public String[] cmdGetFileLines( ActionBase action , String filePath ) throws Exception {
 		return( this.runCommandGetLines( action , "cat " + filePath , CommandOutput.LOGLEVEL_TRACE ) );
+	}
+
+	@Override
+	public Date cmdGetFileChangeTime( ActionBase action , String filePath ) throws Exception {
+		String value = runCommandGetValueCheckDebug( action , "stat -c %Y " + filePath );
+		if( !value.matches( "[0-9]+" ) )
+			return( null );
+		long data = Long.parseLong( value );
+		return( new Date( data ) );
 	}
 	
 	@Override 

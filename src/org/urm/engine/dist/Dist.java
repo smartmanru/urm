@@ -553,18 +553,24 @@ public class Dist {
 		return( folder );
 	}
 	
-	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrBinaryItem item , boolean getMD5 ) throws Exception {
+	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrBinaryItem item , boolean getMD5 , boolean getTimestamp ) throws Exception {
 		DistItemInfo info = new DistItemInfo( item );
 		if( item.isDerived() ) {
-			DistItemInfo infosrc = getDistItemInfo( action , item.srcDistItem , false );
+			DistItemInfo infosrc = getDistItemInfo( action , item.srcDistItem , false , true );
 			info.subPath = infosrc.subPath;
 			info.fileName = infosrc.fileName;
 			info.found = infosrc.found;
+			info.timestamp = infosrc.timestamp;
 		}
 		else {
 			info.subPath = getReleaseBinaryFolder( action , item );
 			info.fileName = getFiles( action ).findDistItem( action , item , info.subPath );
 			info.found = ( info.fileName.isEmpty() )? false : true;
+			
+			if( info.found && getTimestamp ) {
+				RemoteFolder fileFolder = distFolder.getSubFolder( action , info.subPath );
+				info.timestamp = fileFolder.getFileChangeTime( action , info.fileName );
+			}
 		}
 		
 		if( info.found && getMD5 ) {

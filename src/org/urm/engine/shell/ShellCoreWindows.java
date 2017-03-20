@@ -1,5 +1,7 @@
 package org.urm.engine.shell;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -550,6 +552,19 @@ public class ShellCoreWindows extends ShellCore {
 	public String[] cmdGetFileLines( ActionBase action , String filePath ) throws Exception {
 		String fileWin = Common.getWinPath( filePath );
 		return( this.runCommandGetLines( action , "type  " + fileWin , CommandOutput.LOGLEVEL_TRACE ) );
+	}
+	
+	@Override
+	public Date cmdGetFileChangeTime( ActionBase action , String filePath ) throws Exception {
+		String fileWin = Common.getWinPath( filePath );
+		String[] lines = this.runCommandGetLines( action , "wmic datafile where name=\"" + Common.replace( fileWin , "\\" , "\\\\" ) + "\" get lastmodified " , CommandOutput.LOGLEVEL_TRACE );
+		if( lines.length != 2 || !lines[0].equals( "LastModified" ) )
+			return( null );
+		
+		String value = lines[1].substring( 0 , 14 );
+		SimpleDateFormat formatter = new SimpleDateFormat( "yyyyMMddhhmmss" );
+		Date date = formatter.parse( value );
+		return( date );
 	}
 	
 	@Override 

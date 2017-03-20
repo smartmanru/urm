@@ -1,5 +1,7 @@
 package org.urm.engine.storage;
 
+import java.io.File;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -501,6 +503,12 @@ public abstract class Folder {
 		}
 		
 		return( action.getLocalPath( filePath ) );
+	}
+
+	public Date getFileChangeTime( ActionBase action , String file ) throws Exception {
+		String path = getFilePath( action , file );
+		File fo = new File( action.getLocalPath( path ) );
+		return( new Date( fo.lastModified() ) );
 	}
 	
 }

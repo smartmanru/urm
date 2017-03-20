@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -1210,6 +1211,16 @@ public abstract class ShellExecutor extends Shell {
 		}
 	}
 	
+	public synchronized Date getFileChangeTime( ActionBase action , String path ) throws Exception {
+		try {
+			opstart();
+			return( core.cmdGetFileChangeTime( action , path ) );
+		}
+		finally {
+			opstop();
+		}
+	}
+
 	public synchronized void downloadUnix( ActionBase action , String URL , String TARGETNAME , String auth ) throws Exception {
 		try {
 			opstart();

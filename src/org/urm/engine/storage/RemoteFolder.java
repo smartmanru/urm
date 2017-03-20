@@ -1,5 +1,7 @@
 package org.urm.engine.storage;
 
+import java.util.Date;
+
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.shell.Account;
@@ -175,6 +177,15 @@ public class RemoteFolder extends Folder {
 			action.exitNotImplemented();
 		
 		return( action.shell.getFileContentAsString( action , getFilePath( action , file ) ) );
+	}
+
+	public Date getFileChangeTime( ActionBase action , String file ) throws Exception {
+		if( account.local )
+			return( super.getFileChangeTime( action ,  file ) );
+		
+		String path = getFilePath( action , file );
+		ShellExecutor shell = action.getShell( account );
+		return( shell.getFileChangeTime( action , path ) );
 	}
 	
 }
