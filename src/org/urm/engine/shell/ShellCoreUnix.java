@@ -618,7 +618,7 @@ public class ShellCoreUnix extends ShellCore {
 
 	@Override
 	public Date cmdGetFileChangeTime( ActionBase action , String filePath ) throws Exception {
-		String value = runCommandGetValueCheckDebug( action , "stat -c %Y " + filePath );
+		String value = runCommandGetValueCheckDebug( action , "date -r " + filePath + " +%s" );
 		if( !value.matches( "[0-9]+" ) )
 			return( null );
 		long data = Long.parseLong( value );
