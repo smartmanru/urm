@@ -304,7 +304,7 @@ public class OptionsMeta {
 		}
 	}
 	
-	public void showActionHelp( CommandBuilder builder , CommandMethodMeta action ) {
+	public void showActionHelp( CommandBuilder builder , CommandMethodMeta action , CommandOptions options ) {
 		printhelp( "URM HELP (action)" );
 		printhelp( "" );
 		
@@ -314,11 +314,13 @@ public class OptionsMeta {
 		printhelp( "" );
 		
 		// show action options
-		printhelp( "All options defined for " + action.name + ":" );
-		printhelp( "Generic options:" );
-		for( int k = 0; k < genericOptionsCount; k++ ) {
-			CommandVar var = optionsDefined.get( k );
-			showOptionHelp( builder , var );
+		if( options.isFlagSet( OPT_ALL ) ) {
+			printhelp( "All options defined for " + action.name + ":" );
+			printhelp( "Generic options:" );
+			for( int k = 0; k < genericOptionsCount; k++ ) {
+				CommandVar var = optionsDefined.get( k );
+				showOptionHelp( builder , var );
+			}
 		}
 
 		printhelp( "Specific options:" );

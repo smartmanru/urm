@@ -468,7 +468,7 @@ public class ActionScope {
 		
 		ReleaseSet rset = release.release.findCategorySet( action , CATEGORY );
 		if( rset == null ) {
-			action.info( "ignore non-release set=" + Common.getEnumLower( CATEGORY ) );
+			action.debug( "ignore non-release set=" + Common.getEnumLower( CATEGORY ) );
 			return( null );
 		}
 		

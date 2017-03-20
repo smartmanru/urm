@@ -65,6 +65,8 @@ public class ShellJssh {
 	}
 	
 	private void startJsshSession( ActionBase action , Account account , ServerAuthResource res ) throws Exception {
+		String hostLogin = account.getHostLogin();
+		action.debug( "connecting to account=" + hostLogin + " ..." );
 		this.account = account;
 		
 		jsession = jsch.getSession( account.USER , account.HOST , account.PORT );
@@ -105,7 +107,14 @@ public class ShellJssh {
 		}
 		
 		jsession.setConfig( "StrictHostKeyChecking" , "no" );
-		jsession.connect( 30000 );
+		
+		try {
+			jsession.connect( 30000 );
+		}
+		catch( Throwable e ) {
+			action.log( "ssh connect" , e );
+			action.exit1( _Error.UnableConnectAccount1 , "Unable to connect to account=" + hostLogin , hostLogin );
+		}
 	}
 	
 	public void startJsshCommandChannel( ActionBase action ) throws Exception {

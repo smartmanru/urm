@@ -10,6 +10,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunError;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.engine.ServerBlotter;
 import org.urm.engine.ServerBlotter.BlotterType;
 import org.urm.engine.ServerBlotterSet;
 import org.urm.engine.ServerCache;
@@ -722,6 +723,10 @@ abstract public class ActionBase extends ActionCore {
 		return( builder );
 	}
 
+	public ServerBlotter getServerBlotter() throws Exception {
+		return( engine.blotter );
+	}
+	
 	public ServerMirrorRepository getServerMirror() throws Exception {
 		ServerMirrors mirrors = getServerMirrors();
 		ServerMirrorRepository repo = mirrors.findServerRepository();

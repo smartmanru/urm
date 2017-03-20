@@ -93,12 +93,14 @@ public class ReleaseCommand {
 		dist.openForDataChange( action );
 		if( !ma.runAll( scope , null , SecurityAction.ACTION_RELEASE , false ) ) {
 			dist.closeDataChange( action );
+			dist.finishStatus( action );
 			action.exit0( _Error.ReleaseSetChangeErrors0 , "release set is not changed because of errors" );
 		}
 
 		dist.saveReleaseXml( action );
 		dist.createDeliveryFolders( action );
 		dist.closeDataChange( action );
+		dist.finishStatus( action );
 		
 		action.info( "scope (" + scope.getScopeInfo( action ) + ") - added to release" );
 	}
@@ -173,11 +175,13 @@ public class ReleaseCommand {
 		dist.openForDataChange( action );
 		if( !ma.runAll( scope , null , SecurityAction.ACTION_RELEASE , false ) ) {
 			dist.closeDataChange( action );
+			dist.finishStatus( action );
 			action.exit0( _Error.ReleaseSetChangeErrors0 , "release set is not changed because of errors" );
 		}
 
 		dist.saveReleaseXml( action );
 		dist.closeDataChange( action );
+		dist.finishStatus( action );
 		
 		action.info( "scope (" + scope.getScopeInfo( action ) + ") - removed from release" );
 	}
@@ -190,6 +194,7 @@ public class ReleaseCommand {
 		dist.descopeAll( action );
 		dist.saveReleaseXml( action );
 		dist.closeDataChange( action );
+		dist.finishStatus( action );
 		
 		action.info( "entire scope has been removed from release" );
 	}

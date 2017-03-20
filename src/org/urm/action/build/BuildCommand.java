@@ -83,8 +83,10 @@ public class BuildCommand {
 				res = false;
 		}
 		
-		if( copyDist )
+		if( copyDist ) {
 			dist.closeDataChange( action );
+			dist.finishStatus( action );
+		}
 		
 		if( !res )
 			action.exit0( _Error.BuildErrors0 , "there are errors, please check" );

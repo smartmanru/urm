@@ -165,7 +165,7 @@ public class CommandBuilder {
 			String action = ( options.command.equals( MainCommandMeta.NAME ) && options.action.equals( "help" ) )? options.getArg( 1 ) :
 				( ( options.action.equals( "help" ) )? options.getArg( 0 ) : options.action );
 			CommandMethodMeta method = meta.getAction( action );
-			ho.showActionHelp( this , method );
+			ho.showActionHelp( this , method , options );
 			return( true );
 		}
 		

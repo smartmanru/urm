@@ -259,7 +259,7 @@ public class ServerBlotter {
 		}
 		else
 		if( action instanceof ActionDescope ) {
-			ActionFinishRelease xa = ( ActionFinishRelease )action;
+			ActionDescope xa = ( ActionDescope )action;
 			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.MODIFY , "reduce scope of distributive releasedir=" + xa.dist.RELEASEDIR ); 
 		}
 		else
@@ -305,6 +305,20 @@ public class ServerBlotter {
 		}
 	}
 
+	public void runDistStatus( ActionBase action , Meta meta , Dist dist ) {
+		try {
+			DistRepository repo = action.artefactory.getDistRepository( action , meta );
+			DistRepositoryItem distItem = repo.findRunItem( action , dist );
+			if( distItem == null )
+				return;
+			
+			blotterReleases.affectReleaseItem( action , true , DistOperation.STATUS , distItem );
+		}
+		catch( Throwable e ) {
+			action.log( "change release status in blotter" , e );
+		}
+	}
+	
 	private void runDistAction( ActionBase action , boolean success , Meta meta , Dist dist , DistOperation op , String msg ) {
 		try {
 			DistRepository repo = action.artefactory.getDistRepository( action , meta );

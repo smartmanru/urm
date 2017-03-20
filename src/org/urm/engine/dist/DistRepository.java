@@ -31,7 +31,8 @@ public class DistRepository {
 		MODIFY ,
 		BUILD ,
 		PUT ,
-		ARCHIVE
+		ARCHIVE ,
+		STATUS
 	};
 	
 	Meta meta;

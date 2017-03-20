@@ -169,7 +169,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		DistItemInfo info = dist.getDistItemInfo( this , distItem , false );
 		String status = ( info.found )? "OK (" + Common.getPath( info.subPath , info.fileName ) + ")" : "missing (" + info.subPath + ")";
 		
-		info( "\tdistitem=" + distItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
+		info( "\t\tdistitem=" + distItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printReleaseConfStatus( Dist dist , FileSet files , ReleaseTarget conf ) throws Exception {
@@ -178,7 +178,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		String folder = Common.getPath( info.subPath , info.fileName );
 		String status = ( info.found )? "OK" : "missing";
 		
-		info( "\tconfitem=" + conf.distConfItem.KEY + ": " + status + " (" + folder + ")" + Common.getCommentIfAny( specifics ) );
+		info( "\t\tconfitem=" + conf.distConfItem.KEY + ": " + status + " (" + folder + ")" + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printReleaseManualStatus( Dist dist , FileSet files , ReleaseTarget manual ) throws Exception {
@@ -187,7 +187,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		String folder = Common.getPath( info.subPath , info.fileName );
 		String status = ( info.found )? "OK" : "missing";
 		
-		info( "\tdistitem=" + manual.distManualItem.KEY + ": " + status + " (" + folder + ")" + Common.getCommentIfAny( specifics ) );
+		info( "\t\tdistitem=" + manual.distManualItem.KEY + ": " + status + " (" + folder + ")" + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printReleaseDatabaseStatus( Dist dist , FileSet files , ReleaseTarget db ) throws Exception {

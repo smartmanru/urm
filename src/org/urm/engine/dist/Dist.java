@@ -8,7 +8,9 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.ServerBlotterReleaseItem;
 import org.urm.engine.ServerBlotterSet;
+import org.urm.engine.ServerBlotter;
 import org.urm.engine.ServerBlotter.BlotterType;
+import org.urm.engine.dist.DistRepository.DistOperation;
 import org.urm.engine.dist.DistState.DISTSTATE;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.FileSet;
@@ -940,6 +942,11 @@ public class Dist {
 		
 		action.exit0( _Error.MissingReleaseDate0 , "Missing release date" );
 		return( null );
+	}
+
+	public void finishStatus( ActionBase action ) throws Exception {
+		ServerBlotter blotter = action.getServerBlotter();
+		blotter.runDistStatus( action , meta , this );
 	}
 	
 }
