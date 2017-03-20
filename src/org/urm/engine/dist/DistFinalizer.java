@@ -81,7 +81,7 @@ public class DistFinalizer {
 			if( delivery == null || delivery.isEmpty() ) {
 				if( dirFilesDist.hasFiles() ) {
 					if( !action.isForced() ) {
-						action.error( "distributive delivery=" + delivery.distDelivery.NAME + ", dir=" + dir + " has files, while nothing is declared in release" );
+						action.error( "distributive delivery folder=" + dir + " has files, while nothing is declared in release" );
 						return( false );
 					}
 				}
