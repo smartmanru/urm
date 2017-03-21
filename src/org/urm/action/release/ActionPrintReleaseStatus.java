@@ -114,7 +114,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			
 		for( String key : delivery.getBinaryItemNames() ) {
 			MetaDistrBinaryItem item = delivery.findBinaryItem( key );
-			printProdManualStatus( dist , files , item );
+			printProdBinaryStatus( dist , files , item );
 		}
 	}
 	
@@ -209,23 +209,23 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		info( "\t\tconfitem=" + conf.distConfItem.KEY + ": " + status + " (" + folder + ")" + Common.getCommentIfAny( specifics ) );
 	}
 
-	private void printProdManualStatus( Dist dist , FileSet files , MetaDistrBinaryItem manual ) throws Exception {
+	private void printProdBinaryStatus( Dist dist , FileSet files , MetaDistrBinaryItem manual ) throws Exception {
 		DistItemInfo info = dist.getDistItemInfo( this , manual , false , true );
 		String folder = Common.getPath( info.subPath , info.fileName );
-		String status = ( info.found )? "OK" : "missing";
+		String status = ( info.found )? "OK (" + folder + ", " + 
+				Common.getRefDate( info.timestamp ) + ")" : "missing (" + info.subPath + ")";
 		
-		info( "\t\tdistitem=" + manual.KEY + ": " + status + " (" + folder + ", " + 
-				Common.getRefDate( info.timestamp ) + ")" );
+		info( "\t\tdistitem=" + manual.KEY + ": " + status + ")" );
 	}
 
 	private void printReleaseManualStatus( Dist dist , FileSet files , ReleaseTarget manual ) throws Exception {
 		String specifics = manual.getSpecifics( this );
 		DistItemInfo info = dist.getDistItemInfo( this , manual.distManualItem , false , true );
 		String folder = Common.getPath( info.subPath , info.fileName );
-		String status = ( info.found )? "OK" : "missing";
+		String status = ( info.found )? "OK (" + folder + ", " + 
+				Common.getRefDate( info.timestamp ) + ")" : "missing (" + info.subPath + ")";
 		
-		info( "\t\tdistitem=" + manual.distManualItem.KEY + ": " + status + " (" + folder + ", " + 
-				Common.getRefDate( info.timestamp ) + ")" + Common.getCommentIfAny( specifics ) );
+		info( "\t\tdistitem=" + manual.distManualItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printReleaseDatabaseStatus( Dist dist , FileSet files , ReleaseTarget db ) throws Exception {
