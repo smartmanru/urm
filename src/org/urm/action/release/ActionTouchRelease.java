@@ -14,6 +14,7 @@ public class ActionTouchRelease extends ActionBase {
 	
 	public ActionTouchRelease( ActionBase action , String stream , Meta meta , String RELEASELABEL ) {
 		super( action , stream , "Touch release=" + RELEASELABEL );
+		this.meta = meta;
 		this.RELEASELABEL = RELEASELABEL;
 	}
 
