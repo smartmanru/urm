@@ -380,11 +380,15 @@ public class Dist {
 	}
 
 	public void finish( ActionBase action ) throws Exception {
+		if( isFinalized() ) {
+			action.info( "release is already finalized" );
+			return;
+		}
+		
 		openForDataChange( action );
-
 		DistFinalizer finalizer = new DistFinalizer( action , this , distFolder , release );
 		if( !finalizer.finish() ) {
-			action.error( "distributive is not ready to be finished" );
+			action.error( "distributive is not ready to be finalyzed" );
 			state.ctlCloseDataChange( action );
 			return;
 		}
@@ -395,12 +399,12 @@ public class Dist {
 	}
 
 	public void complete( ActionBase action ) throws Exception {
-		openForControl( action );
 		if( state.isCompleted() ) {
 			action.info( "release is already completed" );
 			return;
 		}
 		
+		openForControl( action );
 		release.complete( action );
 		saveReleaseXml( action );
 		state.ctlCloseControl( action , DISTSTATE.COMPLETED );
