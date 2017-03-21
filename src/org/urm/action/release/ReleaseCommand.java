@@ -255,4 +255,9 @@ public class ReleaseCommand {
 		ma.runSimpleProduct( dist.meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
+	public void touchRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
+		ActionTouchRelease ma = new ActionTouchRelease( action , null , meta , RELEASELABEL );
+		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
+	}
+	
 }

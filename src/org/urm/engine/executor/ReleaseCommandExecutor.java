@@ -39,6 +39,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		defineAction( new ReopenRelease() , "reopen" );
 		defineAction( new MaintainProd() , "prod" );
 		defineAction( new ArchiveRelease() , "archive" );
+		defineAction( new TouchRelease() , "touch" );
 		defineAction( new AddReleaseBuildProjects() , "scope" );
 		defineAction( new AddReleaseBuildItems() , "scopeitems" );
 		defineAction( new AddReleaseDatabaseItems() , "scopedb" );
@@ -210,6 +211,15 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		checkNoArgs( action , 1 );
 		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
 		impl.archiveRelease( action , dist );
+	}
+	}
+
+	private class TouchRelease extends CommandAction {
+	public void run( ActionInit action ) throws Exception {
+		Meta meta = action.getContextMeta();
+		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
+		checkNoArgs( action , 1 );
+		impl.touchRelease( action , meta , RELEASELABEL );
 	}
 	}
 

@@ -397,5 +397,19 @@ public class DistRepository {
 		repoFolder.ensureFolderExists( action , folderArchive );
 		repoFolder.moveFolderToFolder( action , folderOld , folderNew );
 	}
+
+	public synchronized Dist reloadDist( ActionBase action , String RELEASELABEL ) throws Exception {
+		DistLabelInfo info = getLabelInfo( action , RELEASELABEL );
+		
+		DistRepositoryItem item = findRunItem( info.RELEASEDIR );
+		Dist dist = findDist( info.RELEASEDIR );
+		if( dist != null )
+			removeDist( dist );
+		
+		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
+		item.read( action , distFolder );
+		addDist( item.dist );
+		return( item.dist );
+	}
 	
 }

@@ -26,6 +26,7 @@ public class ReleaseCommandMeta extends CommandMeta {
 		defineAction( CommandMethodMeta.newNormal( this , "reopen" , true , "reopen release" , releaseOpts , "<RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newCritical( this , "prod" , true , "create master distributive from predefined set" , releaseOpts , "{create <initial version>|copy <RELEASELABEL>|drop}" ) );
 		defineAction( CommandMethodMeta.newNormal( this , "archive" , true , "archive release" , releaseOpts , "<RELEASELABEL>" ) );
+		defineAction( CommandMethodMeta.newNormal( this , "touch" , true , "reload release" , releaseOpts , "<RELEASELABEL>" ) );
 		String addOpts = "OPT_BRANCH,OPT_TAG,OPT_VERSION,OPT_REPLACE";
 		defineAction( CommandMethodMeta.newNormal( this , "scope" , true , "add projects to build (except for prebuilt) and use all its binary items" , addOpts , "<RELEASELABEL> <set> [target1 target2 ...]" ) );
 		defineAction( CommandMethodMeta.newNormal( this , "scopeitems" , true , "add specified binary items to built (if not prebuilt) and get" , addOpts , "<RELEASELABEL> item1 [item2 ...]" ) );
