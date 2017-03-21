@@ -112,7 +112,6 @@ public class ServerProjectBuilder extends ServerObject {
 	private void scatterSystemProperties() throws Exception {
 		NAME = properties.getSystemRequiredStringProperty( PROPERTY_NAME );
 		DESC = properties.getSystemStringProperty( PROPERTY_DESC );
-		VERSION = properties.getSystemRequiredStringProperty( PROPERTY_VERSION );
 		builderMethod = Types.getBuilderType( properties.getSystemRequiredStringProperty( PROPERTY_BUILDERTYPE ) , true );
 		remote = properties.getSystemBooleanProperty( PROPERTY_REMOTE );
 		
@@ -150,6 +149,7 @@ public class ServerProjectBuilder extends ServerObject {
 		GRADLE_HOMEPATH = "";
 		MSBUILD_HOMEPATH = "";
 		MSBUILD_OPTIONS = "";
+		VERSION = "";
 		
 		if( builderMethod == VarBUILDERTYPE.GENERIC )
 			GENERIC_COMMAND = properties.getSystemStringProperty( PROPERTY_GENERIC_COMMAND );
@@ -173,6 +173,9 @@ public class ServerProjectBuilder extends ServerObject {
 		
 		if( builderMethod == VarBUILDERTYPE.ANT || builderMethod == VarBUILDERTYPE.MAVEN || builderMethod == VarBUILDERTYPE.GRADLE )
 			JAVA_JDKHOMEPATH = properties.getSystemStringProperty( PROPERTY_JAVA_JDKHOMEPATH );
+		
+		if( builderMethod == VarBUILDERTYPE.ANT || builderMethod == VarBUILDERTYPE.MAVEN || builderMethod == VarBUILDERTYPE.GRADLE || builderMethod == VarBUILDERTYPE.MSBUILD )
+			VERSION = properties.getSystemRequiredStringProperty( PROPERTY_VERSION );
 	}
 
 	public void createProperties() throws Exception {
