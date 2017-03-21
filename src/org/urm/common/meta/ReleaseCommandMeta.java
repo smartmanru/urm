@@ -24,7 +24,7 @@ public class ReleaseCommandMeta extends CommandMeta {
 		defineAction( CommandMethodMeta.newNormal( this , "finish" , true , "finalize and disable distributive updates" , releaseOpts , "<RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newNormal( this , "complete" , true , "mark all release operations as completed" , releaseOpts , "<RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newNormal( this , "reopen" , true , "reopen release" , releaseOpts , "<RELEASELABEL>" ) );
-		defineAction( CommandMethodMeta.newCritical( this , "prod" , true , "create master distributive from predefined set" , releaseOpts , "{create <initial version>|copy <RELEASELABEL>|drop}" ) );
+		defineAction( CommandMethodMeta.newCritical( this , "prod" , true , "create master distributive from predefined set" , releaseOpts , "{create <initial version>|copy <RELEASELABEL>|add <RELEASELABEL>|status|drop}" ) );
 		defineAction( CommandMethodMeta.newNormal( this , "archive" , true , "archive release" , releaseOpts , "<RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newNormal( this , "touch" , true , "reload release" , releaseOpts , "<RELEASELABEL>" ) );
 		String addOpts = "OPT_BRANCH,OPT_TAG,OPT_VERSION,OPT_REPLACE";

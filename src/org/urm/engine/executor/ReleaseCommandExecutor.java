@@ -83,7 +83,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		ServerReleaseLifecycle lc = getLifecycleArg( action , 2 );
 		checkNoArgs( action , 3 );
 		Meta meta = action.getContextMeta();
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		impl.modifyRelease( action , dist , releaseDate , lc );
 	}
 	}
@@ -94,7 +94,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String CMD = getRequiredArg( action , 1 , "CMD" );
 		
 		Meta meta = action.getContextMeta();
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		
 		if( CMD.equals( "next" ) ) {
 			checkNoArgs( action , 2 );
@@ -195,6 +195,11 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 			impl.createProdCopy( action , meta , RELEASEDIR );
 		}
 		else
+		if( CMD.equals( "status" ) ) {
+			checkNoArgs( action , 1 );
+			impl.prodStatus( action , meta );
+		}
+		else
 		if( CMD.equals( "drop" ) ) {
 			checkNoArgs( action , 1 );
 			impl.deleteProd( action , meta );
@@ -209,7 +214,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		Meta meta = action.getContextMeta();
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		impl.archiveRelease( action , dist );
 	}
 	}
@@ -280,7 +285,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String[] PROJECTS = getArgList( action , 2 );
 
 		Meta meta = action.getContextMeta();
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		impl.buildRelease( action , SET , PROJECTS , dist );
 	}
 	}
@@ -292,7 +297,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String[] PROJECTS = getArgList( action , 2 );
 
 		Meta meta = action.getContextMeta();
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		
 		if( dist.release.isCumulative() ) {
 			if( SET.isEmpty() || SET.equals( "all" ) )
@@ -309,7 +314,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Meta meta = action.getContextMeta();
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		
 		String SET = getRequiredArg( action , 1 , "SET" );
 		if( SET.equals( "all" ) ) {

@@ -33,6 +33,8 @@ import org.w3c.dom.Document;
 
 public class Dist {
 
+	public static String MASTER_LABEL = "prod";
+	
 	public static String META_FILENAME = "release.xml";
 	public static String CONFDIFF_FILENAME = "diffconf.txt";
 	public static String STATE_FILENAME = "state.txt";

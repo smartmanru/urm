@@ -77,10 +77,6 @@ public class Artefactory {
 		return( folder );
 	}
 	
-	public Dist getDistProdStorage( ActionBase action , Meta meta ) throws Exception {
-		return( getDistStorageByLabel( action , meta , "prod" ) );
-	}
-	
 	public Dist getDistStorageByLabel( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 

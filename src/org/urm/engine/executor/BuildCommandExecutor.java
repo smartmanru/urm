@@ -77,7 +77,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		if( RELEASELABEL.isEmpty() )
 			RELEASELABEL = "next";
 		
-		Dist release = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist release = action.getReleaseDist( meta , RELEASELABEL );
 		return( release );
 	}
 	
@@ -91,7 +91,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		String RELEASELABEL = action.context.CTX_RELEASELABEL;
 		Meta meta = action.getContextMeta();
 		if( !RELEASELABEL.isEmpty() ) {
-			dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+			dist = action.getReleaseDist( meta , RELEASELABEL );
 			scope = ActionScope.getReleaseSetScope( action , dist , SET , PROJECTS );
 		}
 		else
@@ -150,7 +150,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		String RELEASELABEL = action.context.CTX_RELEASELABEL;
 		Meta meta = action.getContextMeta();
 		if( !RELEASELABEL.isEmpty() ) {
-			dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+			dist = action.getReleaseDist( meta , RELEASELABEL );
 			scope = ActionScope.getReleaseSetScope( action , dist , SET , TARGETS );
 		}
 		else
@@ -308,7 +308,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		
 		Meta meta = action.getContextMeta();
-		Dist release = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist release = action.getReleaseDist( meta , RELEASELABEL );
 		
 		ActionScopeTarget scopeProject = ActionScope.getReleaseProjectItemsScopeTarget( action , release , "thirdparty" , null );
 		impl.thirdpartyUploadDist( action , scopeProject , release );

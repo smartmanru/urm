@@ -21,6 +21,7 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.action.CommandOutput;
+import org.urm.engine.dist.Dist;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.Artefactory;
@@ -571,6 +572,14 @@ abstract public class ActionBase extends ActionCore {
 	
 	public ShellExecutor getLocalShell() throws Exception {
 		return( getShell( context.account ) );
+	}
+	
+	public Dist getReleaseDist( Meta meta , String RELEASELABEL ) throws Exception {
+		return( artefactory.getDistStorageByLabel( this , meta , RELEASELABEL ) );
+	}
+	
+	public Dist getMasterDist( Meta meta ) throws Exception {
+		return( artefactory.getDistStorageByLabel( this , meta , Dist.MASTER_LABEL ) );
 	}
 	
 	public String readFile( String path ) throws Exception {
