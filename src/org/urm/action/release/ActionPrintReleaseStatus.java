@@ -79,7 +79,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			}
 		}
 		else
-			info( "\t(not applicable for master production distributive)" );
+			info( "\t(not applicable to master production distributive)" );
 		
 		if( release.isEmpty() ) {
 			info( "(scope is empty)" );
