@@ -73,14 +73,12 @@ public class ActionPrintReleaseStatus extends ActionBase {
 						", finish=" + Common.getDateValue( finished ) + " (" + status + ")" );
 				}
 			}
-		}
 		
-		if( release.isEmpty() ) {
-			info( "(scope is empty)" );
-			return( SCOPESTATE.NotRun );
-		}
+			if( release.isEmpty() ) {
+				info( "(scope is empty)" );
+				return( SCOPESTATE.NotRun );
+			}
 		
-		if( !dist.isFullProd() ) {
 			for( String set : release.getSourceSetNames() )
 				printReleaseSourceSetStatus( dist , files , release.getSourceSet( this , set ) );
 			
@@ -215,7 +213,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		String status = ( info.found )? "OK (" + folder + ", " + 
 				Common.getRefDate( info.timestamp ) + ")" : "missing (" + info.subPath + ")";
 		
-		info( "\t\tdistitem=" + manual.KEY + ": " + status + ")" );
+		info( "\t\tdistitem=" + manual.KEY + ": " + status );
 	}
 
 	private void printReleaseManualStatus( Dist dist , FileSet files , ReleaseTarget manual ) throws Exception {
