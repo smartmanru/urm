@@ -101,7 +101,7 @@ public class ReleaseSchedule {
 		int pos = 0;
 		for( Node phaseNode : items ) {
 			ReleaseSchedulePhase phase = new ReleaseSchedulePhase( meta , this );
-			phase.load( action , phaseNode , pos );
+			phase.load( action , phaseNode , pos , currentPhase );
 			phases.add( phase );
 			pos++;
 		}
@@ -344,7 +344,7 @@ public class ReleaseSchedule {
 		}
 		
 		if( currentPhase < 0 || currentPhase < releasePhases )
-			action.exit0( _Error.DistributiveNotReleased1 , "Distributive is not in released state" );
+			action.exit0( _Error.DistributiveNotReleased1 , "Current phase is missing or release is not finished" );
 		
 		completed = true;
 		
