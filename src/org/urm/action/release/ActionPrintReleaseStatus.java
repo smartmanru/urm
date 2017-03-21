@@ -209,7 +209,8 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		
 		for( String key : project.getItemNames() ) {
 			MetaSourceProjectItem item = project.findItem( key );
-			printProdBuildSetProjectItemStatus( dist , files , set , project , item );
+			if( !item.isInternal() )
+				printProdBuildSetProjectItemStatus( dist , files , set , project , item );
 		}
 	}
 	
