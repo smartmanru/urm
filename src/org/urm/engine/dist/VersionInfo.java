@@ -1,5 +1,10 @@
 package org.urm.engine.dist;
 
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.meta.Types.VarLCTYPE;
@@ -138,6 +143,18 @@ public class VersionInfo {
 		return( v1 + "."  + v2 + "." + v3 + "." + v4 );
 	}
 
+	public String getSortVersion() {
+		String x1 = "00000000000000000000" + v1;
+		String x2 = "00000000000000000000" + v2;
+		String x3 = "00000000000000000000" + v3;
+		String x4 = "00000000000000000000" + v4;
+		x1 = x1.substring( x1.length() - 10 );
+		x2 = x2.substring( x2.length() - 10 );
+		x3 = x3.substring( x3.length() - 10 );
+		x4 = x4.substring( x4.length() - 10 );
+		return( x1 + "." + x2 + "." + x3 + "." + x4 );
+	}
+	
 	public String getPreviousVersion() {
 		if( v4 != 0 )
 			return( v1 + "."  + v2 + "." + v3 + "." + (v4-1) );
@@ -168,6 +185,27 @@ public class VersionInfo {
 			return( VarLCTYPE.MINOR );
 		
 		return( VarLCTYPE.MAJOR );
+	}
+
+	public static String[] orderVersions( String[] list ) {
+		Map<String,String> tosort = new HashMap<String,String>();
+		for( String version : list ) {
+			String[] items = Common.splitDotted( version );
+			String padded = "";
+			for( int k = 0; k < items.length; k++ )
+				padded += "0000000000".substring( items[k].length() ) + items[k];
+			tosort.put( padded , version );
+		}
+		
+		boolean first = true;
+		List<String> res = new LinkedList<String>();
+		for( String key : Common.getSortedKeys( tosort ) ) {
+			if( !first )
+				res.add( tosort.get( key ) );
+			first = false;
+		}
+			
+		return( res.toArray( new String[0] ) );
 	}
 	
 }

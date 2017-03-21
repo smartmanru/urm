@@ -411,5 +411,20 @@ public class DistRepository {
 		addDist( item.dist );
 		return( item.dist );
 	}
+
+	public synchronized Dist getNextDist( ActionBase action , VersionInfo info ) throws Exception {
+		String[] versions = distMap.keySet().toArray( new String[0] );
+		String[] ordered = VersionInfo.orderVersions( versions );
+		
+		String name = info.getReleaseName();
+		for( int k = 0; k < ordered.length; k++ ) {
+			if( name.equals( ordered[k] ) ) {
+				if( k >= ordered.length - 1 )
+					break;
+				return( distMap.get( ordered[k+1] ) );
+			}
+		}
+		return( null );
+	}
 	
 }

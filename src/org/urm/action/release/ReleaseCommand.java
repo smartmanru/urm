@@ -93,6 +93,11 @@ public class ReleaseCommand {
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 
+	public void appendProd( ActionBase action , Dist dist ) throws Exception {
+		ActionAppendProd ma = new ActionAppendProd( action , null , dist );
+		ma.runSimpleProduct( dist.meta.name , SecurityAction.ACTION_RELEASE , false );
+	}
+	
 	private void addReleaseScope( ActionBase action , Dist dist , ActionScope scope ) throws Exception {
 		ActionAddScope ma = new ActionAddScope( action , null , dist );
 		

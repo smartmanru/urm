@@ -2,8 +2,6 @@ package org.urm.engine.dist;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -758,25 +756,7 @@ public class Release {
 	public String[] getCumulativeVersions() {
 		String versions = Common.getSortedUniqueSpacedList( PROPERTY_COMPATIBILITY + " " + RELEASEVER );
 		String[] list = Common.splitSpaced( versions );
-		
-		Map<String,String> tosort = new HashMap<String,String>();
-		for( String version : list ) {
-			String[] items = Common.splitDotted( version );
-			String padded = "";
-			for( int k = 0; k < items.length; k++ )
-				padded += "0000000000".substring( items[k].length() ) + items[k];
-			tosort.put( padded , version );
-		}
-		
-		boolean first = true;
-		List<String> res = new LinkedList<String>();
-		for( String key : Common.getSortedKeys( tosort ) ) {
-			if( !first )
-				res.add( tosort.get( key ) );
-			first = false;
-		}
-			
-		return( res.toArray( new String[0] ) );
+		return( VersionInfo.orderVersions( list ) );
 	}
 
 	public void descopeAll( ActionBase action ) throws Exception {

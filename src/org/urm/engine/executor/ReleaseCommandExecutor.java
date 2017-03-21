@@ -200,6 +200,13 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 			impl.prodStatus( action , meta );
 		}
 		else
+		if( CMD.equals( "add" ) ) {
+			String RELEASELABEL = getRequiredArg( action , 1 , "RELEASELABEL" );
+			checkNoArgs( action , 2 );
+			Dist dist = action.getReleaseDist( meta , RELEASELABEL );
+			impl.appendProd( action , dist );
+		}
+		else
 		if( CMD.equals( "drop" ) ) {
 			checkNoArgs( action , 1 );
 			impl.deleteProd( action , meta );
