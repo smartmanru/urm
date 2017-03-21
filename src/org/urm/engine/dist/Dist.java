@@ -397,7 +397,7 @@ public class Dist {
 	public void complete( ActionBase action ) throws Exception {
 		openForControl( action );
 		if( state.isCompleted() ) {
-			action.info( "distributive is not ready to be finished" );
+			action.info( "release is already completed" );
 			return;
 		}
 		

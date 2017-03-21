@@ -373,7 +373,7 @@ public class DistState {
 			
 			// generate hash file
 			LocalFolder workFolder = action.artefactory.getWorkFolder( action );
-			String content = "";
+			String content = "HASH:\n";
 			SimpleDateFormat sdf = new SimpleDateFormat( "MM/dd/yy hh:mm:ss a");
 			for( String name : Common.getSortedKeys( fileMap ) ) {
 				if( name.equals( "./state.txt" ) || name.equals( "./release.xml" ) )
