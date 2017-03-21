@@ -72,6 +72,7 @@ public class ReleaseSchedule {
 		Node node = ConfReader.xmlGetFirstChild( root , "schedule" );
 		if( node == null ) {
 			LIFECYCLE = "";
+			started = new Date();
 			releaseDate = null;
 			currentPhase = -1;
 			releasePhases = 0; 
@@ -84,6 +85,9 @@ public class ReleaseSchedule {
 		
 		LIFECYCLE = ConfReader.getAttrValue( node , "lifecycle" , "" );
 		started = Common.getDateValue( ConfReader.getAttrValue( node , "started" ) );
+		if( started == null )
+			started = new Date();
+			
 		releaseDate = Common.getDateValue( ConfReader.getAttrValue( node , "releasedate" ) );
 		currentPhase = ConfReader.getIntegerAttrValue( node , "phase" , 0 );
 		released = ConfReader.getBooleanAttrValue( node , "released" , false );
