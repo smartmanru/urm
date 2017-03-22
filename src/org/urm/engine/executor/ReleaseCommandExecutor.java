@@ -37,7 +37,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		defineAction( new FinishRelease() , "finish" );
 		defineAction( new CompleteRelease() , "complete" );
 		defineAction( new ReopenRelease() , "reopen" );
-		defineAction( new MaintainProd() , "prod" );
+		defineAction( new MasterOperations() , "master" );
 		defineAction( new ArchiveRelease() , "archive" );
 		defineAction( new TouchRelease() , "touch" );
 		defineAction( new AddReleaseBuildProjects() , "scope" );
@@ -179,7 +179,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class MaintainProd extends CommandAction {
+	private class MasterOperations extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String CMD = getRequiredArg( action , 0 , "CMD" );
 		Meta meta = action.getContextMeta();

@@ -33,7 +33,8 @@ import org.w3c.dom.Document;
 
 public class Dist {
 
-	public static String MASTER_LABEL = "prod";
+	public static String MASTER_LABEL = "master";
+	public static String MASTER_DIR = "master";
 	
 	public static String META_FILENAME = "release.xml";
 	public static String CONFDIFF_FILENAME = "diffconf.txt";
@@ -334,7 +335,7 @@ public class Dist {
 	}
 	
 	public void createProd( ActionBase action , String RELEASEVER ) throws Exception {
-		this.RELEASEDIR = "prod";
+		this.RELEASEDIR = MASTER_DIR;
 		state.ctlCreateProd( action , RELEASEVER );
 		load( action );
 	}

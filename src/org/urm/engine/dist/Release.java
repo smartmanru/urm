@@ -237,8 +237,8 @@ public class Release {
 			action.exit0( _Error.ReleaseVersionNotSet0 , "release version property is not set, unable to use distributive" );
 		
 		// properties
-		PROPERTY_PROD = getReleasePropertyBoolean( action , root , "prod" , false );
-		PROPERTY_BUILDMODE = getReleasePropertyBuildMode( action , root , "buildMode" ); 
+		PROPERTY_PROD = getReleasePropertyBoolean( action , root , "master" , false );
+		PROPERTY_BUILDMODE = getReleasePropertyBuildMode( action , root , "mode" ); 
 		PROPERTY_OBSOLETE = getReleasePropertyBoolean( action , root , "obsolete" , true );
 		PROPERTY_COMPATIBILITY = getReleaseProperty( action , root , "over" );
 		PROPERTY_CUMULATIVE = getReleasePropertyBoolean( action , root , "cumulative" , false );
@@ -465,8 +465,8 @@ public class Release {
 		Document doc = Common.xmlCreateDoc( "release" );
 		Element root = doc.getDocumentElement();
 		Common.xmlSetElementAttr( doc , root , "version" , RELEASEVER );
-		Common.xmlCreatePropertyElement( doc , root , "prod" , Common.getBooleanValue( PROPERTY_PROD ) );
-		Common.xmlCreatePropertyElement( doc , root , "buildMode" , Common.getEnumLower( PROPERTY_BUILDMODE ) );
+		Common.xmlCreatePropertyElement( doc , root , "master" , Common.getBooleanValue( PROPERTY_PROD ) );
+		Common.xmlCreatePropertyElement( doc , root , "mode" , Common.getEnumLower( PROPERTY_BUILDMODE ) );
 		Common.xmlCreateBooleanPropertyElement( doc , root , "obsolete" , PROPERTY_OBSOLETE );
 		Common.xmlCreatePropertyElement( doc , root , "over" , PROPERTY_COMPATIBILITY );
 		Common.xmlCreateBooleanPropertyElement( doc , root , "cumulative" , PROPERTY_CUMULATIVE );

@@ -61,7 +61,7 @@ public class DistRepositoryItem {
 			action.exit1( _Error.MissingRelease1 , "release does not exist at " + path , path );
 		}
 		
-		boolean prod = distFolder.folderName.equals( "prod" );
+		boolean prod = distFolder.folderName.equals( Dist.MASTER_DIR );
 		Dist dist = new Dist( repo.meta , repo );
 		dist.setFolder( distFolder , prod );
 		dist.load( action );
