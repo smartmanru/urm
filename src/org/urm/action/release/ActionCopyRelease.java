@@ -35,7 +35,7 @@ public class ActionCopyRelease extends ActionBase {
 		}
 		
 		dst = repo.createDist( this , RELEASEDST , releaseDate , lc );
-		dst.copyRelease( this , src , false );
+		dst.copyRelease( this , src );
 		return( SCOPESTATE.RunSuccess );
 	}
 

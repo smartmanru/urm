@@ -343,18 +343,20 @@ public class ReleaseSchedule {
 			return;
 		}
 		
-		if( currentPhase < 0 || currentPhase < releasePhases )
-			action.exit0( _Error.DistributiveNotReleased1 , "Current phase is missing or release is not finished" );
+		if( currentPhase >= 0 && currentPhase < releasePhases )
+			action.exit0( _Error.DistributiveNotReleased1 , "Release is not finished" );
 		
 		completed = true;
 		
-		Date date = Common.getDateCurrentDay();
-		for( int k = currentPhase; k < phases.size(); k++ ) {
-			ReleaseSchedulePhase phase = getPhase( k );
-			if( !phase.isFinished() ) {
-				if( !phase.isStarted() )
-					phase.startPhase( action , date );
-				phase.finishPhase( action , date );
+		if( currentPhase >= 0 ) {
+			Date date = Common.getDateCurrentDay();
+			for( int k = currentPhase; k < phases.size(); k++ ) {
+				ReleaseSchedulePhase phase = getPhase( k );
+				if( !phase.isFinished() ) {
+					if( !phase.isStarted() )
+						phase.startPhase( action , date );
+					phase.finishPhase( action , date );
+				}
 			}
 		}
 		

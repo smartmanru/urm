@@ -954,6 +954,14 @@ public class Common {
 		return( getRefDate( System.currentTimeMillis() , refTime ) );
 	}
 	
+	public static String getRefDateOnly( long refTime ) {
+		long baseDay = getDayNoTime( System.currentTimeMillis() ); 
+		long refDay = getDayNoTime( refTime );
+		if( refDay == baseDay )
+			return( "" );
+		return( getDate( refTime ) );
+	}
+	
 	public static String getRefDate( long baseTime , long refTime ) {
 		long baseDay = getDayNoTime( baseTime ); 
 		long refDay = getDayNoTime( refTime );

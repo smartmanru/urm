@@ -40,6 +40,7 @@ public class Release {
 	Map<String,ReleaseDelivery> deliveryMap = new HashMap<String,ReleaseDelivery>();
 
 	public ReleaseSchedule schedule;
+	public ReleaseMaster master;
 	
 	public Release( Meta meta , Dist dist ) {
 		this.meta = meta;
@@ -47,39 +48,53 @@ public class Release {
 		schedule = new ReleaseSchedule( meta , this );
 	}
 
-	public void copy( ActionBase action , Release src , boolean createProd ) throws Exception {
-		this.meta = src.meta;
+	public void copyRelease( ActionBase action , Release src ) throws Exception {
 		this.RELEASEVER = src.RELEASEVER;
 
-		schedule = src.schedule.copy( action , meta , src , createProd ); 
+		schedule = src.schedule.copy( action , meta , src , false ); 
 		
-		this.PROPERTY_MASTER = createProd;
+		this.PROPERTY_MASTER = false;
 		this.PROPERTY_OBSOLETE = src.PROPERTY_OBSOLETE;
-		this.PROPERTY_BUILDMODE = ( createProd )? VarBUILDMODE.UNKNOWN : src.PROPERTY_BUILDMODE;
-		this.PROPERTY_COMPATIBILITY = ( createProd )? "" : src.PROPERTY_COMPATIBILITY;
-		this.PROPERTY_CUMULATIVE = ( createProd )? true : src.PROPERTY_CUMULATIVE;
-		
+		this.PROPERTY_BUILDMODE = src.PROPERTY_BUILDMODE;
+		this.PROPERTY_COMPATIBILITY = src.PROPERTY_COMPATIBILITY;
+		this.PROPERTY_CUMULATIVE = src.PROPERTY_CUMULATIVE;
+
 		descopeAll( action );
-		
-		if( !createProd ) {
-			for( Entry<String,ReleaseSet> entry : src.sourceSetMap.entrySet() ) {
-				ReleaseSet set = entry.getValue().copy( action , this );
-				sourceSetMap.put( entry.getKey() , set );
-			}
-			
-			for( Entry<VarCATEGORY,ReleaseSet> entry : src.categorySetMap.entrySet() ) {
-				ReleaseSet set = entry.getValue().copy( action , this );
-				categorySetMap.put( entry.getKey() , set );
-			}
-			
-			for( Entry<String,ReleaseDelivery> entry : src.deliveryMap.entrySet() ) {
-				ReleaseDelivery set = entry.getValue().copy( action , this );
-				deliveryMap.put( entry.getKey() , set );
-			}
+		for( Entry<String,ReleaseSet> entry : src.sourceSetMap.entrySet() ) {
+			ReleaseSet set = entry.getValue().copy( action , this );
+			sourceSetMap.put( entry.getKey() , set );
 		}
+		
+		for( Entry<VarCATEGORY,ReleaseSet> entry : src.categorySetMap.entrySet() ) {
+			ReleaseSet set = entry.getValue().copy( action , this );
+			categorySetMap.put( entry.getKey() , set );
+		}
+		
+		for( Entry<String,ReleaseDelivery> entry : src.deliveryMap.entrySet() ) {
+			ReleaseDelivery set = entry.getValue().copy( action , this );
+			deliveryMap.put( entry.getKey() , set );
+		}
+	}
+
+	public void createMaster( ActionBase action , String RELEASEVER ) throws Exception {
+		this.RELEASEVER = RELEASEVER;
+
+		schedule.createProd( action ); 
+		
+		this.PROPERTY_MASTER = true;
+		this.PROPERTY_OBSOLETE = true;
+		this.PROPERTY_BUILDMODE = VarBUILDMODE.UNKNOWN;
+		this.PROPERTY_COMPATIBILITY = "";
+		this.PROPERTY_CUMULATIVE = true;
+
+		master = new ReleaseMaster( meta , this );
+		master.create( action );
 	}
 	
 	public void addRelease( ActionBase action , Release src ) throws Exception {
+		if( this.PROPERTY_MASTER )
+			action.exitUnexpectedState();
+		
 		for( Entry<String,ReleaseSet> entry : src.sourceSetMap.entrySet() ) {
 			ReleaseSet set = sourceSetMap.get( entry.getKey() );
 			ReleaseSet srcset = entry.getValue();
@@ -139,7 +154,7 @@ public class Release {
 		}
 	}
 	
-	public void create( ActionBase action , String RELEASEVER , Date releaseDate , ServerReleaseLifecycle lc , String RELEASEFILEPATH ) throws Exception {
+	public void createNormal( ActionBase action , String RELEASEVER , Date releaseDate , ServerReleaseLifecycle lc , String RELEASEFILEPATH ) throws Exception {
 		this.RELEASEVER = DistLabelInfo.normalizeReleaseVer( action , RELEASEVER );
 		this.PROPERTY_MASTER = false;
 		this.PROPERTY_CUMULATIVE = action.context.CTX_CUMULATIVE;
@@ -149,17 +164,8 @@ public class Release {
 		createEmptyXml( action , RELEASEFILEPATH );
 	}
 
-	public void createProd( ActionBase action , String RELEASEVER , String filePath ) throws Exception {
-		this.RELEASEVER = RELEASEVER;
-		this.PROPERTY_MASTER = true;
-		this.PROPERTY_BUILDMODE = VarBUILDMODE.MAJORBRANCH;
-		this.PROPERTY_OBSOLETE = true;
-		this.PROPERTY_CUMULATIVE = true;
-		
-		schedule.createProd( action );
-		addSourceAll( action );
-		addCategorySet( action , VarCATEGORY.MANUAL , true );
-		
+	public void createMaster( ActionBase action , String RELEASEVER , String filePath ) throws Exception {
+		createMaster( action , RELEASEVER );
 		Document doc = createXml( action );
 		Common.xmlSaveDoc( doc , filePath );
 	}
@@ -245,9 +251,16 @@ public class Release {
 
 		schedule.load( action , root );
 		
-		// get projectsets
-		for( VarCATEGORY CATEGORY : Meta.getAllReleaseCategories() )
-			loadSets( action , root , CATEGORY );
+		if( PROPERTY_MASTER ) {
+			Node node = ConfReader.xmlGetFirstChild( root , Dist.MASTER_LABEL );
+			master = new ReleaseMaster( meta , this );
+			master.load( action , node );
+		}
+		else {
+			// get project sets
+			for( VarCATEGORY CATEGORY : Meta.getAllReleaseCategories() )
+				loadSets( action , root , CATEGORY );
+		}
 		
 		return( doc );
 	}
@@ -488,14 +501,20 @@ public class Release {
 		Document doc = createEmptyXmlDoc( action );
 		Element root = doc.getDocumentElement();
 		
-		for( ReleaseSet set : sourceSetMap.values() ) {
-			Element parent = ( Element )ConfReader.xmlGetFirstChild( root , Common.getEnumLower( set.CATEGORY ) );
-			set.createXml( action , doc , parent );
+		if( PROPERTY_MASTER ) {
+			Element parent = Common.xmlCreateElement( doc , root , Dist.MASTER_LABEL );
+			master.save( action , doc , parent );
 		}
-
-		for( ReleaseSet set : categorySetMap.values() ) {
-			Element parent = ( Element )ConfReader.xmlGetFirstChild( root , Common.getEnumLower( set.CATEGORY ) );
-			set.createXml( action , doc , parent );
+		else {
+			for( ReleaseSet set : sourceSetMap.values() ) {
+				Element parent = ( Element )ConfReader.xmlGetFirstChild( root , Common.getEnumLower( set.CATEGORY ) );
+				set.createXml( action , doc , parent );
+			}
+	
+			for( ReleaseSet set : categorySetMap.values() ) {
+				Element parent = ( Element )ConfReader.xmlGetFirstChild( root , Common.getEnumLower( set.CATEGORY ) );
+				set.createXml( action , doc , parent );
+			}
 		}
 			
 		return( doc );
@@ -797,6 +816,14 @@ public class Release {
 	
 	public void reopen( ActionBase action ) throws Exception {
 		schedule.reopen( action );
+	}
+
+	public void addMasterItem( ActionBase action , MetaDistrBinaryItem distItem , DistItemInfo info ) throws Exception {
+		master.addMasterItem( action , distItem , info );
+	}
+
+	public ReleaseMasterItem findMasterItem( MetaDistrBinaryItem distItem ) {
+		return( master.findMasterItem( distItem ) );
 	}
 	
 }

@@ -55,17 +55,21 @@ public class ActionAppendProd extends ActionBase {
 			}
 		}
 		
-		prod.openForDataChange( this );
-		prod.saveReleaseXml( this );
+		copyFiles( prod , repo );
 		
-		copyFiles( prod );
-		
-		dist.saveReleaseXml( this );
-		dist.closeDataChange( this );
 		return( SCOPESTATE.RunSuccess );
 	}
 
-	private void copyFiles( Dist prod ) {
+	private void copyFiles( Dist prod , DistRepository repo ) throws Exception {
+		Dist masterNew = repo.copyDist( this , prod , prod.RELEASEDIR + "-new" );
+		
+		masterNew.openForDataChange( this );
+		masterNew.saveReleaseXml( this );
+		masterNew.appendMasterFiles( this , dist );
+		masterNew.saveReleaseXml( this );
+		masterNew.closeDataChange( this );
+		
+		repo.replaceDist( this , prod , masterNew );
 	}
 	
 }

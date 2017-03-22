@@ -209,7 +209,7 @@ public class DistState {
 		String filePath = action.artefactory.workFolder.getFilePath( action , Dist.META_FILENAME );
 		
 		Release info = new Release( dist.meta , dist );
-		info.createProd( action , RELEASEVER , filePath );
+		info.createMaster( action , RELEASEVER , filePath );
 		distFolder.copyFileFromLocal( action , filePath );
 		
 		// set status
@@ -415,7 +415,7 @@ public class DistState {
 		
 		Release info = new Release( dist.meta , dist );
 		String RELEASEVER = DistLabelInfo.getReleaseVerByDir( action , RELEASEDIR ); 
-		info.create( action , RELEASEVER , releaseDate , lc , filePath );
+		info.createNormal( action , RELEASEVER , releaseDate , lc , filePath );
 		
 		distFolder.ensureExists( action );
 		distFolder.copyFileFromLocal( action , filePath );

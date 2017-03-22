@@ -420,11 +420,11 @@ public class Dist {
 		state.ctlCloseDataChange( action );
 	}
 
-	public void copyRelease( ActionBase action , Dist src , boolean createProd ) throws Exception {
+	public void copyRelease( ActionBase action , Dist src ) throws Exception {
 		String filePath = action.getWorkFilePath( Dist.META_FILENAME );
 		
 		String saveReleaseVer = release.RELEASEVER;
-		release.copy( action , src.release , createProd );
+		release.copyRelease( action , src.release );
 		release.setReleaseVer( action , saveReleaseVer );
 		Document doc = release.createXml( action );
 		Common.xmlSaveDoc( doc , filePath );
@@ -444,7 +444,7 @@ public class Dist {
 		closeDataChange( action );
 		action.info( "release " + RELEASEDIR + " has beed copied from " + src.RELEASEDIR );
 	}
-	
+
 	public void dropRelease( ActionBase action ) throws Exception {
 		state.ctlCheckCanDropRelease( action );
 		distFolder.removeThis( action );
@@ -557,7 +557,7 @@ public class Dist {
 		String folder = getDeliveryBinaryFolder( action , item.delivery );
 		return( folder );
 	}
-	
+
 	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrBinaryItem item , boolean getMD5 , boolean getTimestamp ) throws Exception {
 		DistItemInfo info = new DistItemInfo( item );
 		if( item.isDerived() ) {
@@ -961,6 +961,74 @@ public class Dist {
 	public void finishStatus( ActionBase action ) throws Exception {
 		ServerBlotter blotter = action.getServerBlotter();
 		blotter.runDistStatus( action , meta , this );
+	}
+	
+	public void createMasterFiles( ActionBase action , Dist src ) throws Exception {
+		release.createMaster( action , src.release.RELEASEVER );
+		src.gatherFiles( action );
+		
+		for( ReleaseDelivery delivery : src.release.getDeliveries() ) {
+			for( ReleaseTargetItem item : delivery.getProjectItems() )
+				copyMasterItem( action , src , delivery , item.distItem , true );
+			for( ReleaseTarget item : delivery.getManualItems() )
+				copyMasterItem( action , src , delivery , item.distManualItem , true );
+		}
+	}
+	
+	public void appendMasterFiles( ActionBase action , Dist src ) throws Exception {
+		src.gatherFiles( action );
+		for( ReleaseDelivery delivery : src.release.getDeliveries() ) {
+			for( ReleaseTargetItem item : delivery.getProjectItems() )
+				copyMasterItem( action , src , delivery , item.distItem , false );
+			for( ReleaseTarget item : delivery.getManualItems() )
+				copyMasterItem( action , src , delivery , item.distManualItem , false );
+		}
+	}
+	
+	private void copyMasterItem( ActionBase action , Dist src , ReleaseDelivery delivery , MetaDistrBinaryItem distItem , boolean create ) throws Exception {
+		DistItemInfo info = src.getDistItemInfo( action , distItem , true , false );
+		if( !info.found ) {
+			action.error( "missing item=" + distItem.KEY );
+			action.exitUnexpectedState();
+		}
+
+		RemoteFolder folder;
+		if( !create ) {
+			ReleaseMasterItem item = release.findMasterItem( distItem );
+			if( item != null ) {
+				folder = distFolder.getSubFolder( action , Common.getPath( item.FOLDER , BINARY_FOLDER ) );
+				folder.removeFiles( action , item.FILE + " " + item.FILE + ".md5" );
+			}
+		}
+		
+		release.addMasterItem( action , distItem , info );
+		copyBinaryDistrToDistr( action , delivery , src , Common.getPath( BINARY_FOLDER , info.fileName ) );
+		folder = distFolder.getSubFolder( action , Common.getPath( delivery.distDelivery.FOLDER , BINARY_FOLDER ) );
+		folder.createFileFromString( action , info.fileName + ".md5" , info.md5value );
+	}
+
+	public Dist copyDist( ActionBase action , String newName ) throws Exception {
+		RemoteFolder parent = distFolder.getParentFolder( action );
+		if( parent.checkFolderExists( action , RELEASEDIR ) )
+			action.exitUnexpectedState();
+		if( parent.checkFolderExists( action , newName ) )
+			parent.removeFolder( action , newName );
+		
+		parent.copyDir( action , RELEASEDIR , newName );
+		Dist distNew = DistRepositoryItem.read( action , repo , distFolder );
+		return( distNew );
+	}
+
+	public void moveDist( ActionBase action , String newName ) throws Exception {
+		RemoteFolder parent = distFolder.getParentFolder( action );
+		if( parent.checkFolderExists( action , RELEASEDIR ) )
+			action.exitUnexpectedState();
+		if( parent.checkFolderExists( action , newName ) )
+			parent.removeFolder( action , newName );
+		
+		parent.moveFolderToFolder( action , RELEASEDIR , newName );
+		distFolder = parent.getSubFolder( action , newName );
+		RELEASEDIR = distFolder.folderName;
 	}
 	
 }

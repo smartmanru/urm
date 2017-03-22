@@ -305,7 +305,7 @@ public class DistRepository {
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
 		Dist dist = DistRepositoryItem.createProdDist( action , this , distFolder , src.release.RELEASEVER );
 		addDist( dist );
-		dist.copyRelease( action , src , true );
+		dist.createMasterFiles( action , src );
 		return( dist );
 	}
 
@@ -425,6 +425,22 @@ public class DistRepository {
 			}
 		}
 		return( null );
+	}
+
+	public Dist copyDist( ActionBase action , Dist dist , String newName ) throws Exception {
+		return( dist.copyDist( action , newName ) );
+	}
+	
+	public void replaceDist( ActionBase action , Dist dist , Dist distNew ) throws Exception {
+		removeDist( dist );
+		String releasedir = dist.RELEASEDIR;
+		DistRepositoryItem item = findRunItem( releasedir );
+		
+		dist.moveDist( action , dist.RELEASEDIR + "-old" );
+		distNew.moveDist( action , releasedir );
+		item.createItem( action , distNew );
+		
+		addDist( distNew );
 	}
 	
 }

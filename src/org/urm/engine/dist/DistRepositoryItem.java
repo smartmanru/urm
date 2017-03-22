@@ -53,6 +53,7 @@ public class DistRepositoryItem {
 
 	public void read( ActionBase action , RemoteFolder distFolder ) throws Exception {
 		dist = read( action , repo , distFolder );
+		RELEASEDIR = dist.RELEASEDIR;
 	}
 	
 	public static Dist read( ActionBase action , DistRepository repo , RemoteFolder distFolder ) throws Exception {
