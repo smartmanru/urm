@@ -29,7 +29,7 @@ public class Release {
 	
 	public String RELEASEVER;
 	
-	public boolean PROPERTY_PROD;
+	public boolean PROPERTY_MASTER;
 	public boolean PROPERTY_OBSOLETE;
 	public VarBUILDMODE PROPERTY_BUILDMODE;
 	public String PROPERTY_COMPATIBILITY;
@@ -53,7 +53,7 @@ public class Release {
 
 		schedule = src.schedule.copy( action , meta , src , createProd ); 
 		
-		this.PROPERTY_PROD = createProd;
+		this.PROPERTY_MASTER = createProd;
 		this.PROPERTY_OBSOLETE = src.PROPERTY_OBSOLETE;
 		this.PROPERTY_BUILDMODE = ( createProd )? VarBUILDMODE.UNKNOWN : src.PROPERTY_BUILDMODE;
 		this.PROPERTY_COMPATIBILITY = ( createProd )? "" : src.PROPERTY_COMPATIBILITY;
@@ -141,7 +141,7 @@ public class Release {
 	
 	public void create( ActionBase action , String RELEASEVER , Date releaseDate , ServerReleaseLifecycle lc , String RELEASEFILEPATH ) throws Exception {
 		this.RELEASEVER = DistLabelInfo.normalizeReleaseVer( action , RELEASEVER );
-		this.PROPERTY_PROD = false;
+		this.PROPERTY_MASTER = false;
 		this.PROPERTY_CUMULATIVE = action.context.CTX_CUMULATIVE;
 
 		schedule.createReleaseSchedule( action , releaseDate , lc );
@@ -151,7 +151,7 @@ public class Release {
 
 	public void createProd( ActionBase action , String RELEASEVER , String filePath ) throws Exception {
 		this.RELEASEVER = RELEASEVER;
-		this.PROPERTY_PROD = true;
+		this.PROPERTY_MASTER = true;
 		this.PROPERTY_BUILDMODE = VarBUILDMODE.MAJORBRANCH;
 		this.PROPERTY_OBSOLETE = true;
 		this.PROPERTY_CUMULATIVE = true;
@@ -237,7 +237,7 @@ public class Release {
 			action.exit0( _Error.ReleaseVersionNotSet0 , "release version property is not set, unable to use distributive" );
 		
 		// properties
-		PROPERTY_PROD = getReleasePropertyBoolean( action , root , "master" , false );
+		PROPERTY_MASTER = getReleasePropertyBoolean( action , root , "master" , false );
 		PROPERTY_BUILDMODE = getReleasePropertyBuildMode( action , root , "mode" ); 
 		PROPERTY_OBSOLETE = getReleasePropertyBoolean( action , root , "obsolete" , true );
 		PROPERTY_COMPATIBILITY = getReleaseProperty( action , root , "over" );
@@ -465,7 +465,7 @@ public class Release {
 		Document doc = Common.xmlCreateDoc( "release" );
 		Element root = doc.getDocumentElement();
 		Common.xmlSetElementAttr( doc , root , "version" , RELEASEVER );
-		Common.xmlCreatePropertyElement( doc , root , "master" , Common.getBooleanValue( PROPERTY_PROD ) );
+		Common.xmlCreatePropertyElement( doc , root , "master" , Common.getBooleanValue( PROPERTY_MASTER ) );
 		Common.xmlCreatePropertyElement( doc , root , "mode" , Common.getEnumLower( PROPERTY_BUILDMODE ) );
 		Common.xmlCreateBooleanPropertyElement( doc , root , "obsolete" , PROPERTY_OBSOLETE );
 		Common.xmlCreatePropertyElement( doc , root , "over" , PROPERTY_COMPATIBILITY );
@@ -782,7 +782,7 @@ public class Release {
 	}
 
 	public VarLCTYPE getLifecycleType() {
-		if( PROPERTY_PROD )
+		if( PROPERTY_MASTER )
 			return( VarLCTYPE.MAJOR );
 		return( VersionInfo.getLifecycleType( RELEASEVER ) );
 	}

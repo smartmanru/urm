@@ -82,7 +82,7 @@ public class Dist {
 	}
 
 	public boolean isFullProd() {
-		return( release.PROPERTY_PROD );
+		return( release.PROPERTY_MASTER );
 	}
 	
 	public boolean isFinalized() {

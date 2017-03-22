@@ -44,11 +44,13 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		info( "\tstate: " + dist.getState().name() );
 		info( "\tsignature: " + hashStatus );
 		info( "PROPERTIES:" );
-		info( "\tproperty=prod: " + Common.getBooleanValue( release.PROPERTY_PROD ) );
-		info( "\tproperty=buildmode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );
-		info( "\tproperty=obsolete: " + Common.getBooleanValue( release.PROPERTY_OBSOLETE ) );
-		info( "\tproperty=over: " + release.PROPERTY_COMPATIBILITY );
-		info( "\tproperty=cumulative: " + Common.getBooleanValue( release.isCumulative() ) );
+		info( "\tproperty=master: " + Common.getBooleanValue( release.PROPERTY_MASTER ) );
+		if( !release.PROPERTY_MASTER ) {
+			info( "\tproperty=mode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );
+			info( "\tproperty=obsolete: " + Common.getBooleanValue( release.PROPERTY_OBSOLETE ) );
+			info( "\tproperty=over: " + release.PROPERTY_COMPATIBILITY );
+			info( "\tproperty=cumulative: " + Common.getBooleanValue( release.isCumulative() ) );
+		}
 		
 		if( !dist.isFullProd() ) {
 			info( "SCHEDULE:" );
