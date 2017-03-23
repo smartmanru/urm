@@ -25,7 +25,7 @@ public class DistFinalizer {
 	public boolean finish() throws Exception {
 		// check consistency, drop empty directories
 		FileSet fsd = distFolder.getFileSet( action );
-		FileSet fsr = createExpectedFileSet( action );  
+		FileSet fsr = createExpectedFileSet( action , fsd );  
 		if( !finishDist( action , fsd , fsr ) )
 			return( false );
 		
@@ -33,14 +33,14 @@ public class DistFinalizer {
 		return( true );
 	}
 	
-	private FileSet createExpectedFileSet( ActionBase action ) throws Exception {
+	private FileSet createExpectedFileSet( ActionBase action , FileSet fsd ) throws Exception {
 		FileSet fs = new FileSet( null );
 		
 		if( dist.isMaster() ) {
 			MetaDistr distr = dist.meta.getDistr( action );
 			for( MetaDistrDelivery delivery : distr.getDeliveries() ) {
 				for( MetaDistrBinaryItem item : delivery.getBinaryItems() )
-					createExpectedMasterDeliveryItem( action , fs , delivery , item );
+					createExpectedMasterDeliveryItem( action , fsd , fs , delivery , item );
 			}
 		}
 		else {
@@ -84,9 +84,13 @@ public class DistFinalizer {
 		fs.createDir( dist.getDeliveryDatabaseFolder( action , delivery.distDelivery , dist.release.RELEASEVER ) );
 	}
 	
-	private void createExpectedMasterDeliveryItem( ActionBase action , FileSet fs , MetaDistrDelivery delivery , MetaDistrBinaryItem item ) throws Exception {
-		FileSet dir = fs.createDir( dist.getDeliveryBinaryFolder( action , delivery ) );
-		String file = item.getBaseFile( action );  
+	private void createExpectedMasterDeliveryItem( ActionBase action , FileSet fsd , FileSet fs , MetaDistrDelivery delivery , MetaDistrBinaryItem item ) throws Exception {
+		String folder = dist.getDeliveryBinaryFolder( action , delivery );
+		String file = fsd.findDistItem( action , item , folder );
+		if( file == null )
+			file = item.getBaseFile( action );
+		
+		FileSet dir = fs.createDir( folder );
 		dir.addFile( file );
 		dir.addFile( file + ".md5" );
 	}
@@ -192,7 +196,7 @@ public class DistFinalizer {
 
 	private boolean finishDistDeliveryBinary( ActionBase action , MetaDistrDelivery delivery , FileSet fsd , FileSet fsr ) throws Exception {
 		for( String fileDist : fsd.files.keySet() ) {
-			String fileRelease = fsr.files.get( fileDist );
+			String fileRelease = findBasenameFile( fileDist , fsr );
 			if( fileRelease == null ) {
 				if( !action.isForced() ) {
 					action.error( "distributive delivery=" + delivery.NAME + 
@@ -210,7 +214,7 @@ public class DistFinalizer {
 			return( true );
 		
 		for( String fileRelease : fsr.files.keySet() ) {
-			String fileDist = fsd.files.get( fileRelease );
+			String fileDist = findBasenameFile( fileRelease , fsd );
 			if( fileDist == null ) {
 				if( fileRelease.endsWith( ".md5" ) ) {
 					String fileMD5 = Common.getPath( fsr.dirPath , fileRelease );
@@ -227,6 +231,10 @@ public class DistFinalizer {
 		}
 		
 		return( true );
+	}
+
+	private String findBasenameFile( String file , FileSet fs ) {
+		return( fs.files.get( file ) );
 	}
 	
 	private boolean finishDistDeliveryConfig( ActionBase action , MetaDistrDelivery delivery , FileSet fsd , FileSet fsr ) throws Exception {
