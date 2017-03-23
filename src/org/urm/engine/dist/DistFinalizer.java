@@ -218,10 +218,12 @@ public class DistFinalizer {
 			if( fileDist == null ) {
 				if( fileRelease.endsWith( ".md5" ) ) {
 					String fileMD5 = Common.getPath( fsr.dirPath , fileRelease );
-					action.info( "create missing md5 delivery=" + delivery.NAME + " file=" + fileRelease + " ..." );
 					String file = Common.getPartBeforeLast( fileMD5 , ".md5" );
-					String value = distFolder.getFileMD5( action , file );
-					distFolder.createFileFromString( action , fileMD5 , value );
+					if( findBasenameFile( file , fsd ) != null ) {
+						action.info( "create missing md5 delivery=" + delivery.NAME + " file=" + fileRelease + " ..." );
+						String value = distFolder.getFileMD5( action , file );
+						distFolder.createFileFromString( action , fileMD5 , value );
+					}
 				}
 				else {
 					action.error( "distributive has missing delivery=" + delivery.NAME + " file=" + fileRelease );
