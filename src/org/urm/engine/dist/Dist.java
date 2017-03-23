@@ -973,7 +973,7 @@ public class Dist {
 	}
 	
 	public void createMasterFiles( ActionBase action , Dist src ) throws Exception {
-		release.createMaster( action , src.release.RELEASEVER );
+		release.createMaster( action , src.release.RELEASEVER , true );
 		src.gatherFiles( action );
 		
 		for( ReleaseDelivery delivery : src.release.getDeliveries() ) {

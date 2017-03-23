@@ -107,4 +107,10 @@ public class ReleaseMaster {
 		return( mapItem.get( distItem.KEY ) );
 	}
 	
+	public void addMasterHistory( ActionBase action , String RELEASEVER ) throws Exception {
+		ReleaseMasterHistory mh = new ReleaseMasterHistory( meta , this );
+		mh.create( action , RELEASEVER );
+		mapHistory.put( mh.RELEASE , mh );
+	}
+	
 }

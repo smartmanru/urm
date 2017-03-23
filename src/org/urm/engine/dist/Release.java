@@ -76,7 +76,7 @@ public class Release {
 		}
 	}
 
-	public void createMaster( ActionBase action , String RELEASEVER ) throws Exception {
+	public void createMaster( ActionBase action , String RELEASEVER , boolean copy ) throws Exception {
 		this.RELEASEVER = RELEASEVER;
 
 		schedule.createProd( action ); 
@@ -89,6 +89,9 @@ public class Release {
 
 		master = new ReleaseMaster( meta , this );
 		master.create( action );
+		
+		if( copy )
+			master.addMasterHistory( action , RELEASEVER );
 	}
 	
 	public void addRelease( ActionBase action , Release src ) throws Exception {
@@ -165,7 +168,7 @@ public class Release {
 	}
 
 	public void createMaster( ActionBase action , String RELEASEVER , String filePath ) throws Exception {
-		createMaster( action , RELEASEVER );
+		createMaster( action , RELEASEVER , false );
 		Document doc = createXml( action );
 		Common.xmlSaveDoc( doc , filePath );
 	}

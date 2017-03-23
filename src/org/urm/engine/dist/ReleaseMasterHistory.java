@@ -32,5 +32,10 @@ public class ReleaseMasterHistory {
 		Common.xmlSetElementAttr( doc , root , "release" , RELEASE );
 		Common.xmlSetElementAttr( doc , root , "added" , Common.getDateValue( appendDate ) );
 	}
+
+	public void create( ActionBase action , String RELEASEVER ) throws Exception {
+		this.RELEASE = RELEASEVER;
+		this.appendDate = new Date();
+	}
 	
 }
