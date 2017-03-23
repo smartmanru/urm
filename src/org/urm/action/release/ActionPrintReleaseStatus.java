@@ -35,7 +35,8 @@ public class ActionPrintReleaseStatus extends ActionBase {
 	@Override protected SCOPESTATE executeSimple() throws Exception {
 		Release release = dist.release;
 		ReleaseSchedule schedule = release.schedule;
-		
+	
+		dist.gatherFiles( this );
 		FileSet files = dist.getFiles( this );
 		String hashStatus = dist.checkHash( this )? "OK" : "not matched";
 		
