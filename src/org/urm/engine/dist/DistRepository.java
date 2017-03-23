@@ -306,6 +306,7 @@ public class DistRepository {
 		Dist dist = DistRepositoryItem.createProdDist( action , this , distFolder , src.release.RELEASEVER );
 		addDist( dist );
 		dist.createMasterFiles( action , src );
+		dist.finish( action );
 		return( dist );
 	}
 
