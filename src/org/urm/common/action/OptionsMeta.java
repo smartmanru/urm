@@ -218,7 +218,7 @@ public class OptionsMeta {
 		printhelp( "\t" + identity + spacing + var.help ); 
 	}
 
-	public void showTopHelp( CommandBuilder builder , CommandMeta main , CommandMeta[] commands ) {
+	public void showTopHelp( CommandBuilder builder , CommandMeta main , CommandMeta[] commands , CommandOptions options ) {
 		printhelp( "URM HELP (top)" );
 		printhelp( "" );
 		
@@ -230,7 +230,7 @@ public class OptionsMeta {
 		printhelp( "" );
 		
 		printhelp( "URM instance administration:" );
-		showCommandHelp( builder , main , true );
+		showCommandHelp( builder , main , true , options );
 		printhelp( "" );
 		
 		printhelp( "Operation are split into commands corresponding to master subfolders" );
@@ -253,7 +253,7 @@ public class OptionsMeta {
 			printhelp( "\thelp.cmd <command> <action>" );
 	}
 	
-	public void showCommandHelp( CommandBuilder builder , CommandMeta commandInfo , boolean main ) {
+	public void showCommandHelp( CommandBuilder builder , CommandMeta commandInfo , boolean main , CommandOptions options ) {
 		printhelp( "URM HELP (command)" );
 		printhelp( "" );
 		
@@ -269,11 +269,15 @@ public class OptionsMeta {
 		printhelp( "" );
 		
 		printhelp( "All options defined for command " + commandInfo.name + ":" );
-		printhelp( "Generic options:" );
-		for( int k = 0; k < genericOptionsCount; k++ ) {
-			CommandVar var = optionsDefined.get( k );
-			showOptionHelp( builder , var );
+		if( options.isFlagSet( OPT_ALL ) ) {
+			printhelp( "Generic options:" );
+			for( int k = 0; k < genericOptionsCount; k++ ) {
+				CommandVar var = optionsDefined.get( k );
+				showOptionHelp( builder , var );
+			}
 		}
+		else
+			printhelp( "(use -all to display generic options)" );
 		
 		printhelp( "Specific options:" );
 		boolean specific = false;

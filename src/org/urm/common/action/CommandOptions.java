@@ -291,15 +291,15 @@ public class CommandOptions {
 	}
 
 	public void showTopHelp( CommandBuilder builder , CommandMeta main , CommandMeta[] commands ) {
-		meta.showTopHelp( builder , main , commands );
+		meta.showTopHelp( builder , main , commands , this );
 	}
 
 	public void showCommandHelp( CommandBuilder builder , CommandMeta commandInfo , boolean main ) {
-		meta.showCommandHelp( builder , commandInfo , main );
+		meta.showCommandHelp( builder , commandInfo , main , this );
 	}
 
-	public void showActionHelp( CommandBuilder builder , CommandMethodMeta action , CommandOptions options ) {
-		meta.showActionHelp( builder , action , options );
+	public void showActionHelp( CommandBuilder builder , CommandMethodMeta action ) {
+		meta.showActionHelp( builder , action , this );
 	}
 
 	public Map<String,CommandVar> getDefinedVariables() {

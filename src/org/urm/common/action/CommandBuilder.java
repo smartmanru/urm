@@ -160,12 +160,11 @@ public class CommandBuilder {
 				options.getArg( 0 ).equals( "help" ) ) ) {
 			String command = ( options.command.equals( MainCommandMeta.NAME ) && options.action.equals( "help" ) )? options.getArg( 0 ) : options.command;
 			CommandMeta meta = ( command.equals( "bin" ) )? new MainCommandMeta() : createMeta( command );
-			CommandOptions ho = new CommandOptions();
 			
 			String action = ( options.command.equals( MainCommandMeta.NAME ) && options.action.equals( "help" ) )? options.getArg( 1 ) :
 				( ( options.action.equals( "help" ) )? options.getArg( 0 ) : options.action );
 			CommandMethodMeta method = meta.getAction( action );
-			ho.showActionHelp( this , method , options );
+			options.showActionHelp( this , method );
 			return( true );
 		}
 		
