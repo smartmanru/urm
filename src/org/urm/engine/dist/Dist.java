@@ -366,6 +366,7 @@ public class Dist {
 		state.ctlCloseDataChange( action );
 		openedForChange = false;
 		openedForUse = false;
+		files = null;
 	}
 
 	public void closeControl( ActionBase action , DISTSTATE value ) throws Exception {
