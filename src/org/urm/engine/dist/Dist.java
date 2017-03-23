@@ -81,7 +81,7 @@ public class Dist {
 		openedForControl = false;
 	}
 
-	public boolean isFullProd() {
+	public boolean isMaster() {
 		return( release.PROPERTY_MASTER );
 	}
 	

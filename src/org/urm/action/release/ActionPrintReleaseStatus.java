@@ -52,7 +52,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			info( "\tproperty=cumulative: " + Common.getBooleanValue( release.isCumulative() ) );
 		}
 		
-		if( !dist.isFullProd() ) {
+		if( !dist.isMaster() ) {
 			info( "SCHEDULE:" );
 			info( "\trelease lifecycle: " + schedule.LIFECYCLE );
 			info( "\trelease date: " + Common.getDateValue( schedule.releaseDate ) );

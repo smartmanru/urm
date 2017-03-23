@@ -50,7 +50,7 @@ public class ReleaseCommand {
 
 	public void deleteRelease( ActionBase action , Meta meta , String RELEASELABEL , boolean force ) throws Exception {
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
-		if( dist.isFullProd() )
+		if( dist.isMaster() )
 			action.exit0( _Error.CannotDropProd0 , "Cannot drop full production release, use prod command" );
 		
 		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , dist , force );

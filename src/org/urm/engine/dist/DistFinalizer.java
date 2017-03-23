@@ -4,6 +4,9 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.RemoteFolder;
+import org.urm.meta.product.MetaDistr;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrDelivery;
 
 public class DistFinalizer {
 
@@ -31,19 +34,28 @@ public class DistFinalizer {
 	}
 	
 	private FileSet createExpectedFileSet( ActionBase action ) throws Exception {
-		dist.gatherFiles( action );
-		
 		FileSet fs = new FileSet( null );
-		for( ReleaseDelivery delivery : info.getDeliveries() ) {
-			for( ReleaseTarget item : delivery.getConfItems() )
-				createExpectedConfDeliveryItem( action , fs , delivery , item );
-			for( ReleaseTargetItem item : delivery.getProjectItems() )
-				createExpectedProjectDeliveryItem( action , fs , delivery , item );
-			for( ReleaseTarget item : delivery.getManualItems() )
-				createExpectedManualDeliveryItem( action , fs , delivery , item );
-			ReleaseTarget dbitem = delivery.getDatabaseItem( action );
-			if( dbitem != null )
-				createExpectedDatabaseDeliveryItem( action , fs , delivery , dbitem );
+		
+		if( dist.isMaster() ) {
+			MetaDistr distr = dist.meta.getDistr( action );
+			for( MetaDistrDelivery delivery : distr.getDeliveries() ) {
+				for( MetaDistrBinaryItem item : delivery.getBinaryItems() )
+					createExpectedMasterDeliveryItem( action , fs , delivery , item );
+			}
+		}
+		else {
+			dist.gatherFiles( action );
+			for( ReleaseDelivery delivery : info.getDeliveries() ) {
+				for( ReleaseTarget item : delivery.getConfItems() )
+					createExpectedConfDeliveryItem( action , fs , delivery , item );
+				for( ReleaseTargetItem item : delivery.getProjectItems() )
+					createExpectedProjectDeliveryItem( action , fs , delivery , item );
+				for( ReleaseTarget item : delivery.getManualItems() )
+					createExpectedManualDeliveryItem( action , fs , delivery , item );
+				ReleaseTarget dbitem = delivery.getDatabaseItem( action );
+				if( dbitem != null )
+					createExpectedDatabaseDeliveryItem( action , fs , delivery , dbitem );
+			}
 		}
 		
 		return( fs );
@@ -70,6 +82,13 @@ public class DistFinalizer {
 	
 	private void createExpectedDatabaseDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseTarget item ) throws Exception {
 		fs.createDir( dist.getDeliveryDatabaseFolder( action , delivery.distDelivery , dist.release.RELEASEVER ) );
+	}
+	
+	private void createExpectedMasterDeliveryItem( ActionBase action , FileSet fs , MetaDistrDelivery delivery , MetaDistrBinaryItem item ) throws Exception {
+		FileSet dir = fs.createDir( dist.getDeliveryBinaryFolder( action , delivery ) );
+		String file = item.getBaseFile( action );  
+		dir.addFile( file );
+		dir.addFile( file + ".md5" );
 	}
 	
 	private boolean finishDist( ActionBase action , FileSet fsd , FileSet fsr ) throws Exception {
