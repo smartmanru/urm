@@ -114,7 +114,6 @@ public class CommandBuilder {
 	
 	public void showTopHelp( CommandOptions options ) {
 		CommandMeta main = new MainCommandMeta();
-		options = new CommandOptions();
 		options.showTopHelp( this , main , getExecutors( true , true ) );
 	}
 
@@ -138,8 +137,7 @@ public class CommandBuilder {
 			CommandMeta meta = ( command.equals( MainCommandMeta.NAME ) )? new MainCommandMeta() : createMeta( command );
 			boolean main = options.command.equals( MainCommandMeta.NAME );
 			
-			CommandOptions ho = new CommandOptions();
-			ho.showCommandHelp( this , meta , main );
+			options.showCommandHelp( this , meta , main );
 			return( true );
 		}
 
