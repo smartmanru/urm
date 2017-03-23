@@ -250,6 +250,14 @@ public class MetaDistr extends PropertyController {
 	public MetaDistrDelivery findDelivery( String DELIVERY ) {
 		return( mapDeliveries.get( DELIVERY ) );
 	}
+
+	public MetaDistrDelivery findDeliveryByFolder( String folder ) {
+		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
+			if( delivery.FOLDER.equals( folder ) )
+				return( delivery );
+		}
+		return( null );
+	}
 	
 	public MetaDistrDelivery getDelivery( ActionBase action , String DELIVERY ) throws Exception {
 		MetaDistrDelivery delivery = mapDeliveries.get( DELIVERY );
