@@ -337,6 +337,14 @@ public class Dist {
 	public void createProd( ActionBase action , String RELEASEVER ) throws Exception {
 		this.RELEASEDIR = MASTER_DIR;
 		state.ctlCreateProd( action , RELEASEVER );
+		MetaDistr distr = meta.getDistr( action );
+		for( MetaDistrDelivery delivery : distr.getDeliveries() ) {
+			if( delivery.hasBinaryItems() ) {
+				String folder = getDeliveryBinaryFolder( action , delivery );
+				distFolder.ensureFolderExists( action , folder );
+			}
+		}
+		
 		load( action );
 	}
 	

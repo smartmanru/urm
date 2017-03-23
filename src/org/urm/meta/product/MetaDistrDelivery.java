@@ -206,6 +206,12 @@ public class MetaDistrDelivery {
 		return( mapDatabaseSchema.values().toArray( new MetaDatabaseSchema[0] ) );
 	}
 
+	public boolean hasBinaryItems() {
+		if( mapBinaryItems.isEmpty() )
+			return( false );
+		return( true );
+	}
+	
 	public boolean hasDatabaseItems() {
 		if( mapDatabaseSchema.isEmpty() )
 			return( false );
